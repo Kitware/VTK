@@ -499,7 +499,6 @@ Common/ExecutionModel/vtkPassInputTypeAlgorithm.h
 Common/ExecutionModel/vtkPiecewiseFunctionAlgorithm.h
 Common/ExecutionModel/vtkPiecewiseFunctionShiftScale.h
 Common/ExecutionModel/vtkPointSetAlgorithm.h
-Common/ExecutionModel/vtkPolyDataAlgorithm.h
 Common/ExecutionModel/vtkProgressObserver.h
 Common/ExecutionModel/vtkReaderAlgorithm.h
 Common/ExecutionModel/vtkRectilinearGridAlgorithm.h
@@ -604,12 +603,7 @@ Interaction/Widgets/vtkPolygonalHandleRepresentation3D.h
 Interaction/Widgets/vtkPolygonalSurfaceContourLineInterpolator.h
 Interaction/Widgets/vtkPolygonalSurfacePointPlacer.h
 Interaction/Widgets/vtkProp3DButtonRepresentation.h
-Interaction/Widgets/vtkResliceCursor.h
-Interaction/Widgets/vtkResliceCursorActor.h
-Interaction/Widgets/vtkResliceCursorLineRepresentation.h
 Interaction/Widgets/vtkResliceCursorPicker.h
-Interaction/Widgets/vtkResliceCursorPolyDataAlgorithm.h
-Interaction/Widgets/vtkResliceCursorThickLineRepresentation.h
 Interaction/Widgets/vtkSliderRepresentation2D.h
 Interaction/Widgets/vtkSliderRepresentation3D.h
 Interaction/Widgets/vtkSphereHandleRepresentation.h

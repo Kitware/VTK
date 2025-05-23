@@ -22,12 +22,13 @@
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkPolyData.h"                   // makes things a bit easier
+#include "vtkWrappingHints.h"              // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkPolyData;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPolyDataAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkPolyDataAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkPolyDataAlgorithm* New();
@@ -38,8 +39,10 @@ public:
   /**
    * Get the output data object for a port on this algorithm.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkPolyData* GetOutput();
   vtkPolyData* GetOutput(int);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetOutput(vtkDataObject* d);
   ///@}
 
@@ -51,6 +54,7 @@ public:
 
   // this method is not recommended for use, but lots of old style filters
   // use it
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkDataObject* GetInput();
   vtkDataObject* GetInput(int port);
   vtkPolyData* GetPolyDataInput(int port);
@@ -61,6 +65,7 @@ public:
    * establish a pipeline connection. Use SetInputConnection() to
    * setup a pipeline connection.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetInputData(vtkDataObject*);
   void SetInputData(int, vtkDataObject*);
   ///@}

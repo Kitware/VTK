@@ -80,6 +80,7 @@ Common/ExecutionModel/vtkCompositeDataPipeline.h
 Common/ExecutionModel/vtkDemandDrivenPipeline.h
 Common/ExecutionModel/vtkExecutive.h
 Common/ExecutionModel/vtkImageAlgorithm.h
+Common/ExecutionModel/vtkPolyDataAlgorithm.h
 Common/ExecutionModel/vtkStreamingDemandDrivenPipeline.h
 Common/ExecutionModel/vtkTrivialProducer.h
 Common/Math/vtkMatrix3x3.h
@@ -183,7 +184,12 @@ Interaction/Widgets/vtkProgressBarRepresentation.h
 Interaction/Widgets/vtkProgressBarWidget.h
 Interaction/Widgets/vtkRectilinearWipeRepresentation.h
 Interaction/Widgets/vtkRectilinearWipeWidget.h
+Interaction/Widgets/vtkResliceCursor.h
+Interaction/Widgets/vtkResliceCursorActor.h
+Interaction/Widgets/vtkResliceCursorLineRepresentation.h
+Interaction/Widgets/vtkResliceCursorPolyDataAlgorithm.h
 Interaction/Widgets/vtkResliceCursorRepresentation.h
+Interaction/Widgets/vtkResliceCursorThickLineRepresentation.h
 Interaction/Widgets/vtkResliceCursorWidget.h
 Interaction/Widgets/vtkScalarBarRepresentation.h
 Interaction/Widgets/vtkScalarBarWidget.h

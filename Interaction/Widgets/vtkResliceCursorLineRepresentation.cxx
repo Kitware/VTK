@@ -43,7 +43,6 @@ vtkStandardNewMacro(vtkResliceCursorLineRepresentation);
 //------------------------------------------------------------------------------
 vtkResliceCursorLineRepresentation::vtkResliceCursorLineRepresentation()
 {
-  this->ResliceCursorActor = vtkResliceCursorActor::New();
 
   this->Picker = vtkResliceCursorPicker::New();
   this->ApplyTolerance();
@@ -56,7 +55,6 @@ vtkResliceCursorLineRepresentation::vtkResliceCursorLineRepresentation()
 //------------------------------------------------------------------------------
 vtkResliceCursorLineRepresentation::~vtkResliceCursorLineRepresentation()
 {
-  this->ResliceCursorActor->Delete();
   this->Picker->Delete();
   this->MatrixReslice->Delete();
   this->MatrixView->Delete();

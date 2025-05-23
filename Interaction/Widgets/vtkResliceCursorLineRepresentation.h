@@ -22,6 +22,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkResliceCursorRepresentation.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
@@ -30,7 +31,7 @@ class vtkResliceCursorPolyDataAlgorithm;
 class vtkResliceCursorPicker;
 class vtkResliceCursor;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorLineRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkResliceCursorLineRepresentation
   : public vtkResliceCursorRepresentation
 {
 public:
@@ -86,6 +87,7 @@ public:
   /**
    * Get the reslice cursor.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkResliceCursor* GetResliceCursor() override;
 
   /**
@@ -117,7 +119,7 @@ protected:
 
   void ApplyTolerance();
 
-  vtkResliceCursorActor* ResliceCursorActor;
+  vtkNew<vtkResliceCursorActor> ResliceCursorActor;
   vtkResliceCursorPicker* Picker;
 
   double StartPickPosition[3];

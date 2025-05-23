@@ -21,7 +21,9 @@
 #define vtkResliceCursor_h
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkNew.h"                      // For vtkNew
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
@@ -29,7 +31,7 @@ class vtkPolyData;
 class vtkPlane;
 class vtkPlaneCollection;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursor : public vtkObject
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkResliceCursor : public vtkObject
 {
 public:
   vtkTypeMacro(vtkResliceCursor, vtkObject);
@@ -91,6 +93,8 @@ public:
    * to the X, Y and Z axes.
    */
   virtual vtkPlane* GetPlane(int n);
+
+  vtkGetObjectMacro(ReslicePlanes, vtkPlaneCollection);
 
   /**
    * Build the polydata
@@ -189,7 +193,7 @@ protected:
 
   vtkPolyData* CenterlineAxis[3];
 
-  vtkPlaneCollection* ReslicePlanes;
+  vtkNew<vtkPlaneCollection> ReslicePlanes;
   vtkTimeStamp PolyDataBuildTime;
 
 private:

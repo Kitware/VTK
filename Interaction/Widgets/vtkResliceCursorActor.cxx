@@ -21,8 +21,6 @@ vtkStandardNewMacro(vtkResliceCursorActor);
 //------------------------------------------------------------------------------
 vtkResliceCursorActor::vtkResliceCursorActor()
 {
-  this->CursorAlgorithm = vtkResliceCursorPolyDataAlgorithm::New();
-
   for (int i = 0; i < 3; i++)
   {
     this->CursorCenterlineMapper[i] = vtkPolyDataMapper::New();
@@ -69,13 +67,10 @@ vtkResliceCursorActor::~vtkResliceCursorActor()
   for (int i = 0; i < 3; i++)
   {
     this->CursorCenterlineMapper[i]->Delete();
-    this->CursorCenterlineActor[i]->Delete();
     this->CursorThickSlabMapper[i]->Delete();
-    this->CursorThickSlabActor[i]->Delete();
-    this->CenterlineProperty[i]->Delete();
-    this->ThickSlabProperty[i]->Delete();
+    this->SetCenterlineActor(i, nullptr);
+    this->SetThickSlabActor(i, nullptr);
   }
-  this->CursorAlgorithm->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -297,6 +292,78 @@ void vtkResliceCursorActor::SetUserMatrix(vtkMatrix4x4* m)
 vtkActor* vtkResliceCursorActor::GetCenterlineActor(int axis)
 {
   return this->CursorCenterlineActor[axis];
+}
+
+//------------------------------------------------------------------------------
+void vtkResliceCursorActor::SetCenterlineActor(int axis, vtkActor* actor)
+{
+  if (this->CursorCenterlineActor[axis] != actor)
+  {
+    if (this->CursorCenterlineActor[axis] != nullptr)
+    {
+      this->CursorCenterlineActor[axis]->UnRegister(nullptr);
+    }
+    this->CursorCenterlineActor[axis] = actor;
+    vtkProperty* property = nullptr;
+    if (actor != nullptr)
+    {
+      actor->Register(nullptr);
+      property = actor->GetProperty();
+    }
+
+    if (this->CenterlineProperty[axis] != property)
+    {
+      if (this->CenterlineProperty[axis] != nullptr)
+      {
+        this->CenterlineProperty[axis]->UnRegister(nullptr);
+      }
+      this->CenterlineProperty[axis] = property;
+      if (property != nullptr)
+      {
+        property->Register(nullptr);
+      }
+    }
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkActor* vtkResliceCursorActor::GetThickSlabActor(int axis)
+{
+  return this->CursorThickSlabActor[axis];
+}
+
+//------------------------------------------------------------------------------
+void vtkResliceCursorActor::SetThickSlabActor(int axis, vtkActor* actor)
+{
+  if (this->CursorThickSlabActor[axis] != actor)
+  {
+    if (this->CursorThickSlabActor[axis] != nullptr)
+    {
+      this->CursorThickSlabActor[axis]->UnRegister(nullptr);
+    }
+    this->CursorThickSlabActor[axis] = actor;
+    vtkProperty* property = nullptr;
+    if (actor != nullptr)
+    {
+      actor->Register(nullptr);
+      property = actor->GetProperty();
+    }
+
+    if (this->ThickSlabProperty[axis] != property)
+    {
+      if (this->ThickSlabProperty[axis] != nullptr)
+      {
+        this->ThickSlabProperty[axis]->UnRegister(nullptr);
+      }
+      this->ThickSlabProperty[axis] = property;
+      if (property != nullptr)
+      {
+        property->Register(nullptr);
+      }
+    }
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
