@@ -97,6 +97,9 @@ vtkAxisActor::vtkAxisActor()
   vtkNew<vtkPolyDataMapper> gridpolysMapper;
   gridpolysMapper->SetInputData(this->Gridpolys);
   this->GridpolysActor->SetMapper(gridpolysMapper);
+
+  this->GetProperty()->SetAmbient(1.);
+  this->GetProperty()->SetDiffuse(0.);
 }
 
 //------------------------------------------------------------------------------
@@ -138,7 +141,7 @@ void vtkAxisActor::ReleaseGraphicsResources(vtkWindow* win)
 //------------------------------------------------------------------------------
 int vtkAxisActor::RenderOpaqueGeometry(vtkViewport* viewport)
 {
-  int renderedSomething = 0;
+  int numberOfRenderedProps = 0;
 
   this->BuildAxis(viewport, false);
 
@@ -159,29 +162,29 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport* viewport)
     {
       vtkProp* titleActor = this->GetTitleActorInternal();
       titleActor->SetPropertyKeys(propKeys);
-      renderedSomething += titleActor->RenderOpaqueGeometry(viewport);
+      numberOfRenderedProps += titleActor->RenderOpaqueGeometry(viewport);
     }
     if (this->AxisVisibility)
     {
       this->AxisLinesActor->SetPropertyKeys(propKeys);
-      renderedSomething += this->AxisLinesActor->RenderOpaqueGeometry(viewport);
+      numberOfRenderedProps += this->AxisLinesActor->RenderOpaqueGeometry(viewport);
       if (this->TickVisibility)
       {
         this->AxisMajorTicksActor->SetPropertyKeys(propKeys);
-        renderedSomething += this->AxisMajorTicksActor->RenderOpaqueGeometry(viewport);
+        numberOfRenderedProps += this->AxisMajorTicksActor->RenderOpaqueGeometry(viewport);
         this->AxisMinorTicksActor->SetPropertyKeys(propKeys);
-        renderedSomething += this->AxisMinorTicksActor->RenderOpaqueGeometry(viewport);
+        numberOfRenderedProps += this->AxisMinorTicksActor->RenderOpaqueGeometry(viewport);
       }
     }
     if (this->DrawGridlines)
     {
       this->GridlinesActor->SetPropertyKeys(propKeys);
-      renderedSomething += this->GridlinesActor->RenderOpaqueGeometry(viewport);
+      numberOfRenderedProps += this->GridlinesActor->RenderOpaqueGeometry(viewport);
     }
     if (this->DrawInnerGridlines)
     {
       this->InnerGridlinesActor->SetPropertyKeys(propKeys);
-      renderedSomething += this->InnerGridlinesActor->RenderOpaqueGeometry(viewport);
+      numberOfRenderedProps += this->InnerGridlinesActor->RenderOpaqueGeometry(viewport);
     }
     if (this->LabelVisibility)
     {
@@ -189,7 +192,7 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport* viewport)
       {
         vtkProp* labelActor = this->GetLabelActorInternal(i);
         labelActor->SetPropertyKeys(propKeys);
-        renderedSomething += labelActor->RenderOpaqueGeometry(viewport);
+        numberOfRenderedProps += labelActor->RenderOpaqueGeometry(viewport);
       }
 
       if (this->ExponentVisibility && !this->Exponent.empty())
@@ -201,7 +204,7 @@ int vtkAxisActor::RenderOpaqueGeometry(vtkViewport* viewport)
     }
   }
 
-  return renderedSomething;
+  return numberOfRenderedProps;
 }
 
 //------------------------------------------------------------------------------
@@ -217,8 +220,7 @@ int vtkAxisActor::RenderTranslucentGeometry(vtkViewport* viewport)
 //------------------------------------------------------------------------------
 int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 {
-
-  int renderedSomething = 0;
+  int numberOfRenderedProps = 0;
 
   this->BuildAxis(viewport, false);
 
@@ -227,36 +229,18 @@ int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
   // pass keys to sub props
   vtkInformation* propKeys = this->GetPropertyKeys();
 
-  if (!this->AxisHasZeroLength && !this->DrawGridlinesOnly)
+  vtkNew<vtkPropCollection> translucentProps;
+  this->GetTranslucentProps(translucentProps);
+  translucentProps->InitTraversal();
+
+  for (int idx = 0; idx < translucentProps->GetNumberOfItems(); idx++)
   {
-    if (this->DrawGridpolys)
-    {
-      this->GridpolysActor->SetPropertyKeys(propKeys);
-      renderedSomething += this->GridpolysActor->RenderTranslucentPolygonalGeometry(viewport);
-    }
-    if (!this->Title.empty() && this->TitleVisibility)
-    {
-      vtkProp* titleActor = this->GetTitleActorInternal();
-      titleActor->SetPropertyKeys(propKeys);
-      renderedSomething += titleActor->RenderTranslucentPolygonalGeometry(viewport);
-    }
-    if (this->LabelVisibility)
-    {
-      for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
-      {
-        vtkProp* labelActor = this->GetLabelActorInternal(i);
-        labelActor->SetPropertyKeys(propKeys);
-        renderedSomething += labelActor->RenderTranslucentPolygonalGeometry(viewport);
-      }
-      if (this->ExponentVisibility)
-      {
-        vtkProp* exponentActor = this->GetExponentActorInternal();
-        exponentActor->SetPropertyKeys(propKeys);
-        renderedSomething += exponentActor->RenderTranslucentPolygonalGeometry(viewport);
-      }
-    }
+    vtkProp* prop = translucentProps->GetNextProp();
+    prop->SetPropertyKeys(propKeys);
+    numberOfRenderedProps += prop->RenderTranslucentPolygonalGeometry(viewport);
   }
-  return renderedSomething;
+
+  return numberOfRenderedProps;
 }
 
 //------------------------------------------------------------------------------
@@ -264,7 +248,7 @@ int vtkAxisActor::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
 //------------------------------------------------------------------------------
 int vtkAxisActor::RenderOverlay(vtkViewport* viewport)
 {
-  int renderedSomething = 0;
+  int numberOfRenderedProps = 0;
 
   // Everything is built, just have to render
   if (!this->AxisHasZeroLength && !this->DrawGridlinesOnly)
@@ -272,91 +256,50 @@ int vtkAxisActor::RenderOverlay(vtkViewport* viewport)
     if (this->TitleVisibility)
     {
       vtkProp* titleActor = this->GetTitleActorInternal();
-      renderedSomething += titleActor->RenderOverlay(viewport);
+      titleActor->SetPropertyKeys(this->GetPropertyKeys());
+      numberOfRenderedProps += titleActor->RenderOverlay(viewport);
     }
     if (this->LabelVisibility)
     {
       for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
       {
         vtkProp* labelActor = this->GetLabelActorInternal(i);
-        renderedSomething += labelActor->RenderOverlay(viewport);
+        labelActor->SetPropertyKeys(this->GetPropertyKeys());
+        numberOfRenderedProps += labelActor->RenderOverlay(viewport);
       }
       if (this->ExponentVisibility)
       {
         vtkProp* exponentActor = this->GetExponentActorInternal();
-        renderedSomething += exponentActor->RenderOverlay(viewport);
+        exponentActor->SetPropertyKeys(this->GetPropertyKeys());
+        numberOfRenderedProps += exponentActor->RenderOverlay(viewport);
       }
     }
   }
-  return renderedSomething;
+  return numberOfRenderedProps;
 }
 
 //------------------------------------------------------------------------------
 vtkTypeBool vtkAxisActor::HasTranslucentPolygonalGeometry()
 {
-  if (this->Visibility && !this->AxisHasZeroLength)
+  if (!this->Visibility || this->AxisHasZeroLength)
   {
-    if (this->TitleVisibility)
-    {
-      vtkProp* titleActor = this->GetTitleActorInternal();
-      if (titleActor->HasTranslucentPolygonalGeometry())
-      {
-        return 1;
-      }
-    }
+    return 0;
+  }
 
-    if (this->LabelVisibility)
-    {
-      for (int i = 0; i < this->NumberOfLabelsBuilt; ++i)
-      {
-        vtkProp* labelActor = this->GetLabelActorInternal(i);
-        if (labelActor->HasTranslucentPolygonalGeometry())
-        {
-          return 1;
-        }
-      }
-      if (this->ExponentVisibility)
-      {
-        vtkProp* exponentActor = this->GetExponentActorInternal();
-        if (exponentActor->HasTranslucentPolygonalGeometry())
-        {
-          return 1;
-        }
-      }
-    } // end label vis
+  vtkNew<vtkPropCollection> translucentProps;
+  this->GetTranslucentProps(translucentProps);
+  translucentProps->InitTraversal();
 
-    if (this->AxisLinesActor->HasTranslucentPolygonalGeometry())
+  for (int idx = 0; idx < translucentProps->GetNumberOfItems(); idx++)
+  {
+    vtkProp* prop = translucentProps->GetNextProp();
+    if (prop->HasTranslucentPolygonalGeometry())
     {
       return 1;
     }
+  }
 
-    if (this->TickVisibility && this->AxisMajorTicksActor->HasTranslucentPolygonalGeometry())
-    {
-      return 1;
-    }
-    if (this->TickVisibility && this->AxisMinorTicksActor->HasTranslucentPolygonalGeometry())
-    {
-      return 1;
-    }
-
-    if (this->DrawGridlines && this->GridlinesActor->HasTranslucentPolygonalGeometry())
-    {
-      return 1;
-    }
-
-    if (this->DrawInnerGridlines && this->InnerGridlinesActor->HasTranslucentPolygonalGeometry())
-    {
-      return 1;
-    }
-
-    if (this->DrawGridpolys && this->GridpolysActor->HasTranslucentPolygonalGeometry())
-    {
-      return 1;
-    }
-
-    return this->Superclass::HasTranslucentPolygonalGeometry();
-  } // end this vis
-  return 0;
+  return this->Superclass::HasTranslucentPolygonalGeometry();
 }
 
 //-----------------------------------------------------------------------------*
@@ -2567,22 +2510,68 @@ vtkProp* vtkAxisActor::GetExponentActorInternal()
 void vtkAxisActor::UpdateLabelActorProperty(int idx)
 {
   vtkTextActorInterfaceInternal* labelProp = this->LabelProps[idx].get();
-  labelProp->UpdateProperty(this->LabelTextProperty, this->GetProperty());
-
-  labelProp->SetAmbient(1.);
-  labelProp->SetDiffuse(0.);
+  labelProp->SetTextProperty(this->LabelTextProperty, this->GetProperty());
 }
 
 //------------------------------------------------------------------------------
 void vtkAxisActor::UpdateTitleActorProperty()
 {
-  this->TitleProp->UpdateProperty(this->TitleTextProperty, this->GetProperty());
+  this->TitleProp->SetTextProperty(this->TitleTextProperty, this->GetProperty());
 }
 
 //------------------------------------------------------------------------------
 void vtkAxisActor::UpdateExponentActorProperty()
 {
-  this->ExponentProp->UpdateProperty(this->TitleTextProperty, this->GetProperty());
+  this->ExponentProp->SetTextProperty(this->TitleTextProperty, this->GetProperty());
+}
+
+//------------------------------------------------------------------------------
+void vtkAxisActor::GetTranslucentProps(vtkPropCollection* collection)
+{
+  if (this->AxisHasZeroLength)
+  {
+    return;
+  }
+
+  if (this->DrawGridlines)
+  {
+    collection->AddItem(this->GridlinesActor);
+    if (this->DrawGridlinesOnly)
+    {
+      return;
+    }
+  }
+  if (this->DrawInnerGridlines)
+  {
+    collection->AddItem(this->InnerGridlinesActor);
+  }
+  if (this->DrawGridpolys)
+  {
+    collection->AddItem(this->GridpolysActor);
+  }
+
+  if (!this->Title.empty() && this->TitleVisibility)
+  {
+    collection->AddItem(this->GetTitleActorInternal());
+  }
+  if (this->LabelVisibility)
+  {
+    for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
+    {
+      collection->AddItem(this->GetLabelActorInternal(i));
+    }
+    if (this->ExponentVisibility)
+    {
+      collection->AddItem(this->GetExponentActorInternal());
+    }
+  }
+
+  collection->AddItem(this->AxisLinesActor);
+  if (this->TickVisibility)
+  {
+    collection->AddItem(this->AxisMajorTicksActor);
+    collection->AddItem(this->AxisMinorTicksActor);
+  }
 }
 
 //------------------------------------------------------------------------------

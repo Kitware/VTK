@@ -3,15 +3,13 @@
 
 #include "TestPolarAxesInternal.h"
 #include "vtkPolarAxesActor.h"
-#include "vtkRenderWindowInteractor.h"
 
 //------------------------------------------------------------------------------
-int TestPolarAxes(int argc, char* argv[])
+int TestPolarAxes_Text3D(int argc, char* argv[])
 {
   vtkNew<vtkPolarAxesActor> polarAxes;
   ::InitializeAxes(polarAxes);
-  polarAxes->SetRange(0.1, 10);
-  polarAxes->SetLog(true);
+  polarAxes->SetUseTextActor3D(true);
   vtkNew<vtkRenderWindowInteractor> interactor;
   ::CreatePolarAxesPipeline(argc, argv, polarAxes, interactor);
   interactor->Start();

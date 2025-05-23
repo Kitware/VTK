@@ -6,12 +6,11 @@
 #include "vtkRenderWindowInteractor.h"
 
 //------------------------------------------------------------------------------
-int TestPolarAxes(int argc, char* argv[])
+int TestPolarAxes_Mode2D(int argc, char* argv[])
 {
   vtkNew<vtkPolarAxesActor> polarAxes;
   ::InitializeAxes(polarAxes);
-  polarAxes->SetRange(0.1, 10);
-  polarAxes->SetLog(true);
+  polarAxes->SetUse2DMode(true);
   vtkNew<vtkRenderWindowInteractor> interactor;
   ::CreatePolarAxesPipeline(argc, argv, polarAxes, interactor);
   interactor->Start();

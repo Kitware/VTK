@@ -152,7 +152,12 @@ public:
    * passes.
    * For instance, the user may mark a prop as a shadow caster for a
    * shadow mapping render pass. Keys are documented in render pass classes.
-   * Initial value is NULL.
+   *
+   * Initial value is nullptr.
+   *
+   * @note when delegating the rendering to other vtkProp subclasses,
+   * you probably want to pass the PropertyKeys to those vtkProps.
+   * This may be done as a preamble in the RenderXXX method.
    */
   vtkGetObjectMacro(PropertyKeys, vtkInformation);
   virtual void SetPropertyKeys(vtkInformation* keys);

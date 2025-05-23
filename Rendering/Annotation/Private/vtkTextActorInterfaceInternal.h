@@ -63,17 +63,7 @@ public:
   /**
    * Update the actors from the given text property.
    */
-  void UpdateProperty(vtkTextProperty* textProp, vtkProperty* prop);
-
-  /**
-   * Set ambient coefficient. Should be between 0 and 1.
-   */
-  void SetAmbient(double amb);
-
-  /**
-   * Set diffuse coefficient. Should be between 0 and 1.
-   */
-  void SetDiffuse(double diffuse);
+  void SetTextProperty(vtkTextProperty* textProp, vtkProperty* prop);
 
   /**
    * Fill the collection with all vtkProp members.
@@ -153,6 +143,8 @@ private:
   vtkNew<vtkAxisFollower> Follower;
 
   vtkSmartPointer<vtkCamera> Camera;
+
+  double LastFontScale = 1.;
 };
 
 VTK_ABI_NAMESPACE_END

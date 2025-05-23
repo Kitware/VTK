@@ -35,6 +35,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 class vtkPolyData;
 class vtkPolyDataMapper;
+class vtkPropCollection;
 class vtkProperty;
 class vtkStringArray;
 class vtkTextProperty;
@@ -44,11 +45,6 @@ class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkPolarAxesActor : public v
 public:
   vtkTypeMacro(vtkPolarAxesActor, vtkActor);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  /**
-   * Instantiate object with label format "6.3g" and the number of labels
-   * per axis set to 3.
-   */
   static vtkPolarAxesActor* New();
 
   ///@{
@@ -57,8 +53,17 @@ public:
    */
   int RenderOpaqueGeometry(vtkViewport*) override;
   int RenderOverlay(vtkViewport*) override;
-  int RenderTranslucentPolygonalGeometry(vtkViewport*) override { return 0; }
+  vtkTypeBool HasTranslucentPolygonalGeometry() override;
+  int RenderTranslucentPolygonalGeometry(vtkViewport*) override;
   ///@}
+
+  /**
+   * Fill the collection with the underlying vtkProp3D in use.
+   * This depends on object visibilities.
+   * @sa RenderOpaqueGeometry, HasTranslucentPolygonalGeometry and
+   * RenderTranslucentPolygonalGeometry
+   */
+  void GetRendered3DProps(vtkPropCollection*, bool translucent);
 
   ///@{
   /**
@@ -700,6 +705,13 @@ public:
   bool GetUse2DMode();
   ///@}
 
+  /**
+   * Enable / Disable labels text 3D mode in underlying axes.
+   * When on, text is rasterized and displayed in 3D Scene.
+   * @see SetUse2DMode()
+   */
+  void SetUseTextActor3D(bool enable);
+
   ///@{
   /**
    * Set/Get the polar axis title text property.
@@ -789,7 +801,10 @@ public:
 
   ///@{
   /**
-   * Ratio.
+   * Ellipse Ratio.
+   * The PolarAxes is drawn as an ellipse. This defines the ratio between the major and
+   * the minor axes sizes.
+   * Special case: A ratio of 1. is a circle.
    * Default: 1.
    */
   vtkSetClampMacro(Ratio, double, 0.001, 100.0);
