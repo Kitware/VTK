@@ -700,32 +700,32 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
       fprintf(fp, "  {\n");
       if (!isIndexed)
       {
-        fprintf(fp, "   auto iter = state.find(\"%ss\");\n", keyName);
-        fprintf(fp, "   if ((iter != state.end()) && !iter->is_null())\n");
+        fprintf(fp, "    auto iter = state.find(\"%ss\");\n", keyName);
+        fprintf(fp, "    if ((iter != state.end()) && !iter->is_null())\n");
       }
-      fprintf(fp, "   {\n");
-      fprintf(fp, "     const auto items = iter->get<nlohmann::json::array_t>();\n");
-      fprintf(fp, "     std::vector<vtkSmartPointer<vtkObjectBase>> itemStore;\n");
-      fprintf(fp, "     const auto* context = deserializer->GetContext();\n");
-      fprintf(fp, "     for (const auto& item: items)\n");
-      fprintf(fp, "     {\n");
-      fprintf(fp, "       const auto identifier = item.at(\"Id\").get<vtkTypeUInt32>();\n");
-      fprintf(fp, "       auto subObject = context->GetObjectAtId(identifier);\n");
-      fprintf(fp, "       deserializer->DeserializeJSON(identifier, subObject);\n");
-      fprintf(fp, "       if (subObject != nullptr)\n");
-      fprintf(fp, "       {\n");
-      fprintf(fp, "         itemStore.emplace_back(subObject);\n");
-      fprintf(fp, "       }\n");
-      fprintf(fp, "     }\n");
-      fprintf(fp, "     object->RemoveAll%ss();\n", keyName);
-      fprintf(fp, "     for (const auto& item: itemStore)\n");
-      fprintf(fp, "     {\n");
-      fprintf(fp, "       auto* itemAsObject = vtkObject::SafeDownCast(item);\n");
-      fprintf(fp, "       /* NOLINTNEXTLINE(readability-redundant-casting) */\n");
-      fprintf(fp, "       object->Add%s(reinterpret_cast<%s*>(itemAsObject));\n", keyName,
+      fprintf(fp, "    {\n");
+      fprintf(fp, "      const auto items = iter->get<nlohmann::json::array_t>();\n");
+      fprintf(fp, "      std::vector<vtkSmartPointer<vtkObjectBase>> itemStore;\n");
+      fprintf(fp, "      const auto* context = deserializer->GetContext();\n");
+      fprintf(fp, "      for (const auto& item: items)\n");
+      fprintf(fp, "      {\n");
+      fprintf(fp, "        const auto identifier = item.at(\"Id\").get<vtkTypeUInt32>();\n");
+      fprintf(fp, "        auto subObject = context->GetObjectAtId(identifier);\n");
+      fprintf(fp, "        deserializer->DeserializeJSON(identifier, subObject);\n");
+      fprintf(fp, "        if (subObject != nullptr)\n");
+      fprintf(fp, "        {\n");
+      fprintf(fp, "          itemStore.emplace_back(subObject);\n");
+      fprintf(fp, "        }\n");
+      fprintf(fp, "      }\n");
+      fprintf(fp, "      object->RemoveAll%ss();\n", keyName);
+      fprintf(fp, "      for (const auto& item: itemStore)\n");
+      fprintf(fp, "      {\n");
+      fprintf(fp, "        auto* itemAsObject = vtkObject::SafeDownCast(item);\n");
+      fprintf(fp, "        /* NOLINTNEXTLINE(readability-redundant-casting) */\n");
+      fprintf(fp, "        object->Add%s(reinterpret_cast<%s*>(itemAsObject));\n", keyName,
         propertyInfo->ClassName);
-      fprintf(fp, "     }\n");
-      fprintf(fp, "   }\n");
+      fprintf(fp, "      }\n");
+      fprintf(fp, "    }\n");
       fprintf(fp, "  }\n");
       isWritten = 1;
     }
