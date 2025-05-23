@@ -44,6 +44,9 @@ viskoresstd/
 extract_source () {
     git_archive
     pushd "$extractdir/$name-reduced"
+    # This module which is not used by neither VTK or ParaView has very long
+    # paths that can over the limit of characters for Windows NTFS paths.
+    rm -rf viskores/filter/scalar_topology
     sed -i 's/^.*FindTBB.cmake.*$/# XXX(kitware): removed by VTK: &/' CMake/ViskoresInstallCMakePackage.cmake
     sed -i 's/include(ViskoresCMakeBackports)$/# XXX(kitware): removed by VTK: &/' CMake/ViskoresWrappers.cmake
     sed -i 'H;1h;$!d;x;s/install(\n[^(]*FindMPI.cmake[^)]*)/# XXX(kitware): removed by VTK\n/g' CMakeLists.txt
