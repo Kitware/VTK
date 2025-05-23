@@ -3,7 +3,7 @@
 # installed tree has two different paths. To deal with it, we need to determine
 # at configure time the Viskores dependency type and pass that information down to
 # the build tool so that the source code can parametrize the include.
-if (NOT Viskores_FOUND)
+if(NOT Viskores_FOUND)
   set_source_files_properties(TestVTKMDataSet.cxx PROPERTIES
     COMPILE_DEFINITIONS Viskores_INCLUDED_IN_VTK)
 endif()
