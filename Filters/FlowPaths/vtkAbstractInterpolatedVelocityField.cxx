@@ -336,7 +336,6 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
     // Use cache cell only if point is inside
     int ret = this->CurrentCell->EvaluatePosition(
       x, this->LastClosestPoint, this->LastSubId, this->LastPCoords, dist2, this->Weights.data());
-    // this->LastClosestPoint has been computed
 
     // check if point is inside the cell
     if (ret == 1)
@@ -421,9 +420,10 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
         if (closestPointFound == 1)
         {
           dataset->GetCell(this->LastCellId, this->CurrentCell);
-          // we don't need to calculate the closest point, but we do need to calculate the weights
-          this->CurrentCell->EvaluatePosition(x, nullptr /*closestPoint*/, this->LastSubId,
-            this->LastPCoords, dist2, this->Weights.data());
+          // pcoords, weights and subid are all valid, so we can compute the closest point
+          // using EvaluateLocation
+          this->CurrentCell->EvaluateLocation(
+            this->LastSubId, this->LastPCoords, this->LastClosestPoint, this->Weights.data());
         }
         else
         {

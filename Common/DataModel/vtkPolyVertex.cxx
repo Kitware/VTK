@@ -86,13 +86,9 @@ int vtkPolyVertex::EvaluatePosition(const double x[3], double closestPoint[3], i
 void vtkPolyVertex::EvaluateLocation(
   int& subId, const double vtkNotUsed(pcoords)[3], double x[3], double* weights)
 {
-  int i;
   this->Points->GetPoint(subId, x);
 
-  for (i = 0; i < this->GetNumberOfPoints(); i++)
-  {
-    weights[i] = 0.0;
-  }
+  std::fill_n(weights, this->GetNumberOfPoints(), 0);
   weights[subId] = 1.0;
 }
 
