@@ -63,8 +63,11 @@ public:
    * methods are often subclassed because special constraint operations can
    * be used to control the actual positioning.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetDisplayPosition(double pos[2]);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void GetDisplayPosition(double pos[2]);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual double* GetDisplayPosition() VTK_SIZEHINT(2);
   virtual void SetWorldPosition(double pos[3]);
   virtual void GetWorldPosition(double pos[3]) VTK_FUTURE_CONST;

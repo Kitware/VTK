@@ -15,6 +15,9 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkDistanceRepresentation, HandleRepresentation, vtkHandleRepresentation);
 
+vtkCxxSetObjectMacro(vtkDistanceRepresentation, Point1Representation, vtkHandleRepresentation);
+vtkCxxSetObjectMacro(vtkDistanceRepresentation, Point2Representation, vtkHandleRepresentation);
+
 //------------------------------------------------------------------------------
 vtkDistanceRepresentation::vtkDistanceRepresentation()
 {

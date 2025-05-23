@@ -17,6 +17,7 @@
 
 #include "vtkHandleRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkProperty2D;
@@ -29,7 +30,8 @@ class vtkPoints;
 class vtkPolyDataAlgorithm;
 class vtkPointPlacer;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkPointHandleRepresentation2D : public vtkHandleRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkPointHandleRepresentation2D
+  : public vtkHandleRepresentation
 {
 public:
   /**

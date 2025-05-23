@@ -18,6 +18,7 @@
 #include "vtkCursor3D.h" // Needed for delegation to cursor3D
 #include "vtkHandleRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCursor3D;
@@ -26,7 +27,8 @@ class vtkActor;
 class vtkPolyDataMapper;
 class vtkCellPicker;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkPointHandleRepresentation3D : public vtkHandleRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkPointHandleRepresentation3D
+  : public vtkHandleRepresentation
 {
 public:
   /**

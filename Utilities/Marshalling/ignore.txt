@@ -566,14 +566,11 @@ Interaction/Widgets/vtkConstrainedPointHandleRepresentation.h
 Interaction/Widgets/vtkContourLineInterpolator.h
 Interaction/Widgets/vtkCurveRepresentation.h
 Interaction/Widgets/vtkDijkstraImageContourLineInterpolator.h
-Interaction/Widgets/vtkDistanceRepresentation2D.h
-Interaction/Widgets/vtkDistanceRepresentation3D.h
 Interaction/Widgets/vtkEllipsoidTensorProbeRepresentation.h
 Interaction/Widgets/vtkEqualizerContextItem.h
 Interaction/Widgets/vtkEvent.h
 Interaction/Widgets/vtkFixedSizeHandleRepresentation3D.h
 Interaction/Widgets/vtkFocalPlaneContourRepresentation.h
-Interaction/Widgets/vtkFocalPlanePointPlacer.h
 Interaction/Widgets/vtkImageActorPointPlacer.h
 Interaction/Widgets/vtkImageCroppingRegionsWidget.h
 Interaction/Widgets/vtkImageOrthoPlanes.h
@@ -592,9 +589,6 @@ Interaction/Widgets/vtkOrientedPolygonalHandleRepresentation3D.h
 Interaction/Widgets/vtkPlaneWidget.h
 Interaction/Widgets/vtkPlaybackRepresentation.h
 Interaction/Widgets/vtkPlaybackWidget.h
-Interaction/Widgets/vtkPointHandleRepresentation2D.h
-Interaction/Widgets/vtkPointHandleRepresentation3D.h
-Interaction/Widgets/vtkPointPlacer.h
 Interaction/Widgets/vtkPointWidget.h
 Interaction/Widgets/vtkPolyDataContourLineInterpolator.h
 Interaction/Widgets/vtkPolyDataPointPlacer.h
@@ -657,7 +651,6 @@ Rendering/Core/vtkCompositeDataDisplayAttributesLegacy.h
 Rendering/Core/vtkCompositePolyDataMapperDelegator.h
 Rendering/Core/vtkDistanceToCamera.h
 Rendering/Core/vtkFlagpoleLabel.h
-Rendering/Core/vtkFollower.h
 Rendering/Core/vtkFrameBufferObjectBase.h
 Rendering/Core/vtkGPUInfo.h
 Rendering/Core/vtkGPUInfoList.h

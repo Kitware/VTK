@@ -10,11 +10,12 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPointPlacer.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkFocalPlanePointPlacer : public vtkPointPlacer
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkFocalPlanePointPlacer : public vtkPointPlacer
 {
 public:
   /**

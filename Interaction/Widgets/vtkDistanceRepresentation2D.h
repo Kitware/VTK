@@ -21,12 +21,14 @@
 
 #include "vtkDistanceRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
+#include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor2D;
 class vtkProperty2D;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkDistanceRepresentation2D : public vtkDistanceRepresentation
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkDistanceRepresentation2D
+  : public vtkDistanceRepresentation
 {
 public:
   /**
@@ -53,17 +55,27 @@ public:
    * this representation. Note that methods are available for both
    * display and world coordinates.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   double* GetPoint1WorldPosition() override;
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   double* GetPoint2WorldPosition() override;
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void GetPoint1WorldPosition(double pos[3]) VTK_FUTURE_CONST override;
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void GetPoint2WorldPosition(double pos[3]) VTK_FUTURE_CONST override;
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetPoint1WorldPosition(double pos[3]) override;
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetPoint2WorldPosition(double pos[3]) override;
   ///@}
 
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetPoint1DisplayPosition(double pos[3]) override;
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetPoint2DisplayPosition(double pos[3]) override;
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void GetPoint1DisplayPosition(double pos[3]) VTK_FUTURE_CONST override;
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void GetPoint2DisplayPosition(double pos[3]) VTK_FUTURE_CONST override;
 
   ///@{
@@ -95,7 +107,7 @@ protected:
   ~vtkDistanceRepresentation2D() override;
 
   // Add a line to the mix
-  vtkAxisActor2D* AxisActor;
+  vtkNew<vtkAxisActor2D> AxisActor;
   vtkProperty2D* AxisProperty;
 
   // The distance between the two points

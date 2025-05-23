@@ -149,9 +149,12 @@ Interaction/Widgets/vtkCoordinateFrameWidget.h
 Interaction/Widgets/vtkDisplaySizedImplicitPlaneRepresentation.h
 Interaction/Widgets/vtkDisplaySizedImplicitPlaneWidget.h
 Interaction/Widgets/vtkDistanceRepresentation.h
+Interaction/Widgets/vtkDistanceRepresentation2D.h
+Interaction/Widgets/vtkDistanceRepresentation3D.h
 Interaction/Widgets/vtkDistanceWidget.h
 Interaction/Widgets/vtkFinitePlaneRepresentation.h
 Interaction/Widgets/vtkFinitePlaneWidget.h
+Interaction/Widgets/vtkFocalPlanePointPlacer.h
 Interaction/Widgets/vtkHandleRepresentation.h
 Interaction/Widgets/vtkHandleWidget.h
 Interaction/Widgets/vtkHoverWidget.h
@@ -178,6 +181,9 @@ Interaction/Widgets/vtkParallelopipedRepresentation.h
 Interaction/Widgets/vtkParallelopipedWidget.h
 Interaction/Widgets/vtkPointCloudRepresentation.h
 Interaction/Widgets/vtkPointCloudWidget.h
+Interaction/Widgets/vtkPointHandleRepresentation2D.h
+Interaction/Widgets/vtkPointHandleRepresentation3D.h
+Interaction/Widgets/vtkPointPlacer.h
 Interaction/Widgets/vtkPolyLineRepresentation.h
 Interaction/Widgets/vtkPolyLineWidget.h
 Interaction/Widgets/vtkProgressBarRepresentation.h
@@ -264,6 +270,7 @@ Rendering/Core/vtkCompositePolyDataMapper.h
 Rendering/Core/vtkCoordinate.h
 Rendering/Core/vtkCuller.h
 Rendering/Core/vtkCullerCollection.h
+Rendering/Core/vtkFollower.h
 Rendering/Core/vtkFrustumCoverageCuller.h
 Rendering/Core/vtkFXAAOptions.h
 Rendering/Core/vtkGlyph3DMapper.h
