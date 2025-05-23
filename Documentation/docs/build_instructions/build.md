@@ -63,11 +63,11 @@ Required:
     Precompiled binaries available on [CMake's download page][cmake-download].
 
   * Supported compiler
-    - GCC 4.8 or newer
-    - Clang 3.3 or newer
-    - Apple Clang 7.0 (from Xcode 7.2.1) or newer
-    - Microsoft Visual Studio 2015 or newer
-    - Intel 14.0 or newer
+    - GCC 8.0 or newer
+    - Clang 5.0 or newer
+    - Apple Clang 10.0 or newer
+    - Microsoft Visual Studio 2017 or newer
+    - Intel 19.0 or newer
 
 ### Optional Additions
 
@@ -174,7 +174,8 @@ xcode-select --install
 
 ```{note}
 `ninja` is a more efficient alternative to `Makefiles` or Visual Studio solution files. The
-speed increase is the most noticeable when doing incremental build.
+speed increase is the most noticeable when doing incremental build. `ninja` version 1.10.1
+or higher is required.
 ```
 
 ## Configure
