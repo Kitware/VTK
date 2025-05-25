@@ -1,0 +1,21 @@
+NAME
+  ES::ExoticShapes
+LIBRARY_NAME
+  esExoticShapes
+GROUPS
+  StandAlone
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+TEST_DEPENDS
+  VTK::FiltersCore
+  VTK::InteractionStyle
+  VTK::RenderingOpenGL2
+  VTK::RenderingUI
+  VTK::TestingCore
+  VTK::TestingRendering
