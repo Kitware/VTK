@@ -189,6 +189,7 @@ class vtkWebAssemblyTestRunner:
                     "--incognito",
                     "--no-default-browser-check",
                     "--no-first-run",
+                    "--enable-features=WebAssemblyExperimentalJSPI"
                 ]
                 # on linux, chrome needs more flags to unblock webgpu
                 if sys.platform == "linux":
@@ -251,8 +252,9 @@ class vtkWebAssemblyTestRunner:
                 js_type = "module"
         test_args = "'" + "','".join(self.test_args) + "'"
         template = self.templates.get_template("index.html")
+        use_webgpu = "WebGPU" in self.js.name
         content = template.render(
-            js_filename=self.js.name, js_type=js_type, test_args=test_args)
+            js_filename=self.js.name, js_type=js_type, test_args=test_args, use_webgpu=use_webgpu)
         return content
 
     def _start_http_server(self):

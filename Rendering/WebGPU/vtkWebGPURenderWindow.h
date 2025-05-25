@@ -20,6 +20,7 @@
 #include "vtkWebGPUComputeRenderTexture.h" // for compute render textures
 #include "vtkWebGPURenderPipelineCache.h"  // for vtkWebGPURenderPipelineCache
 #include "vtkWebGPUShaderDatabase.h"       // for shader database
+#include "vtkWrappingHints.h"              // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                      // for webgpu
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -28,7 +29,7 @@ class vtkWebGPUComputeOcclusionCuller;
 class vtkWebGPUConfiguration;
 class vtkImageData;
 class vtkTypeUInt32Array;
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPURenderWindow : public vtkRenderWindow
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPURenderWindow : public vtkRenderWindow
 {
 public:
   vtkTypeMacro(vtkWebGPURenderWindow, vtkRenderWindow);

@@ -1,6 +1,6 @@
 // This file can be run interactively in a browser environment with `python -m http.server` in the current directory
 // To run this in `node` environment, just run `node standalone.js`. It won't start the interactor, but will still create the VTK objects and log their properties.
-// import "./vtkWebAssemblyInterface.mjs";
+// import "./vtkWebAssembly.mjs";
 
 function makeQuadMesh(nx, ny) {
     // Create a grid of points on the XY plane from (0, 0) to (nx, ny)

@@ -18,13 +18,12 @@
 
 #include "vtkObjectManager.h"
 
-#include "vtkDeprecation.h"       // for VTK_DEPRECATED_IN_9_5_0
-#include "vtkWebAssemblyModule.h" // for export macro
+#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_5_0
 
 VTK_ABI_NAMESPACE_BEGIN
 
 class VTK_DEPRECATED_IN_9_5_0(
-  "Please use vtkWASMObjectManager") VTKWEBASSEMBLY_EXPORT vtkWasmSceneManager
+  "Please use vtkRemoteSession or vtkStandaloneSession") vtkWasmSceneManager
   : public vtkObjectManager
 {
 public:

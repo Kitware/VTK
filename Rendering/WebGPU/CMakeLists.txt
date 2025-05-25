@@ -238,7 +238,7 @@ vtk_object_factory_configure(
   SOURCE_FILE vtk_object_factory_source
   HEADER_FILE vtk_object_factory_header
   EXPORT_MACRO "VTKRENDERINGWEBGPU_EXPORT"
-  EXTRA_INCLUDES "<vtkCollection.h>" "<vtkObjectFactoryCollection.h>" "<vtkLogger.h>" "<cstdlib>"
+  EXTRA_INCLUDES "<vtkCollection.h>" "<vtkCallbackCommand.h>" "<vtkNew.h>" "<vtkObjectFactoryCollection.h>" "<iostream>" "<cstdlib>"
   INITIAL_CODE_FILE "${CMAKE_CURRENT_BINARY_DIR}/vtkWebGPUObjectFactoryInit.cxx")
 
 vtk_module_add_module(VTK::RenderingWebGPU

@@ -8,12 +8,13 @@
 #include "vtkMatrix4x4.h"             // for ivar
 #include "vtkNew.h"                   // for ivar
 #include "vtkRenderingWebGPUModule.h" // for export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkMatrix3x3;
 
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUCamera : public vtkCamera
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUCamera : public vtkCamera
 {
 public:
   static vtkWebGPUCamera* New();

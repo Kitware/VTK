@@ -805,13 +805,12 @@ void vtkWebGPURenderer::BeginRecording()
       wgpuRenderWindow->GetPreferredSurfaceTextureFormat(),
       wgpuRenderWindow->GetPreferredSelectorIdsTextureFormat()
     };
-    const int sampleCount =
-      wgpuRenderWindow->GetMultiSamples() ? wgpuRenderWindow->GetMultiSamples() : 1;
     wgpu::RenderBundleEncoderDescriptor bundleEncDesc;
     bundleEncDesc.colorFormatCount = colorFormats.size();
     bundleEncDesc.colorFormats = colorFormats.data();
     bundleEncDesc.depthStencilFormat = wgpuRenderWindow->GetDepthStencilFormat();
-    bundleEncDesc.sampleCount = sampleCount;
+    bundleEncDesc.sampleCount =
+      1; // multi-sampling only works for 1 or 4 samples on some implementations.
     bundleEncDesc.depthReadOnly = false;
     bundleEncDesc.stencilReadOnly = false;
     bundleEncDesc.label = label.c_str();

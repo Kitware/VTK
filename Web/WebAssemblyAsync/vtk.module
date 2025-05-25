@@ -1,7 +1,7 @@
 NAME
-  VTK::WebAssembly
+  VTK::WebAssemblyAsync
 LIBRARY_NAME
-  vtkWebAssembly
+  vtkWebAssemblyAsync
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT
@@ -14,3 +14,4 @@ OPTIONAL_DEPENDS
   VTK::RenderingOpenGL2
   VTK::RenderingUI
   VTK::RenderingVolumeOpenGL2
+  VTK::RenderingWebGPU

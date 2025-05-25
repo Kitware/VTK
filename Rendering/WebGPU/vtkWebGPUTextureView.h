@@ -7,6 +7,7 @@
 #include "vtkObject.h"
 #include "vtkRenderingWebGPUModule.h" // For export macro
 #include "vtkWebGPUTexture.h"         // for TextureFormat, TextureDimension, ...
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -14,7 +15,7 @@ VTK_ABI_NAMESPACE_BEGIN
  * Abstraction class for WebGPU texture views. This class mainly holds a bunch of parameters needed
  * for the creation of a texture view.
  */
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUTextureView : public vtkObject
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUTextureView : public vtkObject
 {
 public:
   vtkTypeMacro(vtkWebGPUTextureView, vtkObject);

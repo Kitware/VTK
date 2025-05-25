@@ -20,6 +20,7 @@
 #include "vtkCommand.h"               // for vtkCommand
 #include "vtkLogger.h"                // for vtkLogger::Verbosity enum
 #include "vtkRenderingWebGPUModule.h" // for export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                 // for wgpu
 
 #include <memory> // for unique_ptr
@@ -30,7 +31,7 @@ class vtkWebGPURenderWindow;
 class vtkWebGPUComputePipeline;
 class vtkWebGPUConfigurationInternals;
 
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUConfiguration : public vtkObject
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUConfiguration : public vtkObject
 {
 public:
   static vtkWebGPUConfiguration* New();

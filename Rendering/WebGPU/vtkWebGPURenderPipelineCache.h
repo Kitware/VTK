@@ -38,6 +38,7 @@
 #include "vtkObject.h"
 
 #include "vtkRenderingWebGPUModule.h" // for export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                 // for webgpu
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -46,7 +47,7 @@ class vtkWebGPURenderer;
 class vtkWebGPURenderWindow;
 class vtkWindow;
 
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPURenderPipelineCache : public vtkObject
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPURenderPipelineCache : public vtkObject
 {
 public:
   static vtkWebGPURenderPipelineCache* New();

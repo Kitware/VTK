@@ -9,6 +9,7 @@
 #include "vtkRenderingWebGPUModule.h"          // for export macro
 #include "vtkWebGPUCellToPrimitiveConverter.h" // for TopologySourceType
 #include "vtkWebGPUComputePipeline.h"          // for ivar
+#include "vtkWrappingHints.h"                  // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                          // for webgpu
 
 #include <array>         // for ivar
@@ -21,7 +22,7 @@ class vtkWebGPURenderer;
 class vtkWebGPUComputeRenderBuffer;
 class vtkWebGPUConfiguration;
 
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUPolyDataMapper : public vtkPolyDataMapper
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUPolyDataMapper : public vtkPolyDataMapper
 {
 public:
   static vtkWebGPUPolyDataMapper* New();

@@ -310,12 +310,20 @@ if (VTK_WRAP_SERIALIZATION)
   "via `VTK_WRAP_SERIALIZATION` AND `VTK_BUILD_TESTING`")
   if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     list(APPEND vtk_requested_modules
-      VTK::WebAssembly)
+      VTK::WebAssemblySession
+      VTK::WebAssembly
+      VTK::WebAssemblyAsync)
   else ()
     list(APPEND vtk_rejected_modules
-      VTK::WebAssembly)
+      VTK::WebAssemblySession
+      VTK::WebAssembly
+      VTK::WebAssemblyAsync)
   endif ()
+  set("_vtk_module_reason_VTK::WebAssemblySession"
+  "via `VTK_WRAP_SERIALIZATION` AND `CMAKE_SYSTEM_NAME` STREQUAL Emscripten")
   set("_vtk_module_reason_VTK::WebAssembly"
+  "via `VTK_WRAP_SERIALIZATION` AND `CMAKE_SYSTEM_NAME` STREQUAL Emscripten")
+  set("_vtk_module_reason_VTK::WebAssemblyAsync"
   "via `VTK_WRAP_SERIALIZATION` AND `CMAKE_SYSTEM_NAME` STREQUAL Emscripten")
 else ()
   list(APPEND vtk_rejected_modules
@@ -768,6 +776,8 @@ if (VTK_BUILD_TESTING)
       "--profiling-funcs"
       # we need emscripten to emit code that handles exit code and atexit(s)
       "-sEXIT_RUNTIME=1"
+      # For setting environment variables
+      "-sEXPORTED_RUNTIME_METHODS=['ENV']"
       # tests dynamically allocate memory, can easily go over the preset limit.
       "-sALLOW_MEMORY_GROWTH=1")
     install(TARGETS vtkWebAssemblyTestLinkOptions EXPORT "${vtk_install_export}")

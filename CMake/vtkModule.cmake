@@ -5195,6 +5195,12 @@ function (vtk_module_add_executable name)
       _vtk_module_optional_dependency_exists("${_vtk_add_executable_optional_depend}"
         SATISFIED_VAR _vtk_add_executable_optional_depend_exists)
       string(REPLACE "::" "_" _vtk_add_executable_optional_depend_safe "${_vtk_add_executable_optional_depend}")
+      if (_vtk_add_executable_optional_depend_exists)
+        set(_vtk_add_executable_optional_depend_link "${_vtk_add_executable_optional_depend}")
+        target_link_libraries("${_vtk_add_executable_target_name}"
+          PRIVATE
+            "${_vtk_add_executable_optional_depend_link}")
+      endif ()
       target_compile_definitions("${_vtk_add_executable_target_name}"
         PRIVATE
           "VTK_MODULE_ENABLE_${_vtk_add_executable_optional_depend_safe}=$<BOOL:{_vtk_add_executable_optional_depend_exists}>")

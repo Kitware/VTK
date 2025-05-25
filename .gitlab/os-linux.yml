@@ -324,7 +324,7 @@
 
 .fedora39_x86_64:
     extends: .linux
-    image: "kitware/vtk:ci-fedora39-x86_64-20250331"
+    image: "kitware/vtk:ci-fedora39-x86_64-20250513"
 
 .fedora41_aarch64:
     extends: .linux

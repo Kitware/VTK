@@ -8,6 +8,7 @@
 #include "vtkRenderingWebGPUModule.h" // for export macro
 #include "vtkSmartPointer.h"          // for ivar
 #include "vtkWebGPUComputePipeline.h" // for the compute pipelines used by this renderer
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                 // for webgpu
 
 #include <unordered_set> // for the set of actors rendered last frame
@@ -20,7 +21,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkWebGPUComputeOcclusionCuller;
 
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPURenderer : public vtkRenderer
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPURenderer : public vtkRenderer
 {
 public:
   static vtkWebGPURenderer* New();

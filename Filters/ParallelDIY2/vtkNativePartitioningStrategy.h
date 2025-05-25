@@ -27,14 +27,14 @@
 #ifndef vtkNativePartitioningStrategy_h
 #define vtkNativePartitioningStrategy_h
 
+#include "vtkFiltersParallelDIY2Module.h" // for export macro
 #include "vtkPartitioningStrategy.h"
-#include "vtkRedistributeDataSetFilter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBoundingBox;
 class vtkDataObjectTree;
-class VTKFILTERSPARALLELDIY2_EXPORT vtkNativePartitioningStrategy final
-  : public vtkPartitioningStrategy
+class vtkDataObject;
+class VTKFILTERSPARALLELDIY2_EXPORT vtkNativePartitioningStrategy : public vtkPartitioningStrategy
 {
 public:
   static vtkNativePartitioningStrategy* New();

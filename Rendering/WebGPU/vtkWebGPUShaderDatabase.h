@@ -25,12 +25,13 @@
 #include "vtkObject.h"
 
 #include "vtkRenderingWebGPUModule.h" // for export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 #include <memory> // for unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUShaderDatabase : public vtkObject
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUShaderDatabase : public vtkObject
 {
 public:
   static vtkWebGPUShaderDatabase* New();

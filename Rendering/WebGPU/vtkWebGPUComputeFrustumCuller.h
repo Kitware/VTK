@@ -9,6 +9,7 @@
 #include "vtkRenderingWebGPUModule.h" // For export macro
 #include "vtkSmartPointer.h"          // for the pipeline smart pointer
 #include "vtkWebGPUComputePipeline.h" // for the member compute pipeline
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -29,7 +30,7 @@ VTK_ABI_NAMESPACE_BEGIN
  * // Adding the WebGPU compute shader frustum culler
  * renderer->GetCullers()->AddItem(webgpuFrustumCuller);
  */
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputeFrustumCuller : public vtkCuller
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUComputeFrustumCuller : public vtkCuller
 {
 public:
   vtkTypeMacro(vtkWebGPUComputeFrustumCuller, vtkCuller);

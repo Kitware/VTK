@@ -12,20 +12,21 @@
  *
  * @note This class is part of the WebAssembly module internals and is not exported for general use.
  *
- * @sa vtkObjectManager, vtkRemoteSession
+ * @sa vtkRemoteSession
  */
 
 #ifndef vtkStandaloneSession_h
 #define vtkStandaloneSession_h
 
-#include "vtkSession.h"           // for vtkSession
-#include "vtkWebAssemblyModule.h" // for no export macro
+#include "vtkType.h"                     // for vtkTypeUInt32
+#include "vtkWebAssemblySessionModule.h" // for no export macro
 
 #include <emscripten/val.h> // for emscripten::val
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKWEBASSEMBLY_NO_EXPORT vtkStandaloneSession
+typedef struct vtkSessionImpl* vtkSession;
+class VTKWEBASSEMBLYSESSION_EXPORT vtkStandaloneSession
 {
 public:
   vtkStandaloneSession();
@@ -34,42 +35,40 @@ public:
   /**
    * Create an object of type `className`.
    */
-  vtkObjectHandle Create(const std::string& className);
+  vtkTypeUInt32 Create(const std::string& className);
 
   /**
    * Destroy a VTKObject
    */
-  void Destroy(vtkObjectHandle object);
+  void Destroy(vtkTypeUInt32 object);
 
   /**
    * Set properties of a VTKObject
    */
-  void Set(vtkObjectHandle object, emscripten::val properties);
+  void Set(vtkTypeUInt32 object, emscripten::val properties);
 
   /**
    * Get all properties of a VTKObject
    */
-  emscripten::val Get(vtkObjectHandle object);
+  emscripten::val Get(vtkTypeUInt32 object);
 
   /**
    * Invoke a function `methodName` on `object` with `args` and return the result in a
    * VTKJson.
    */
-  emscripten::val Invoke(
-    vtkObjectHandle object, const std::string& methodName, emscripten::val args);
+  emscripten::val Invoke(vtkTypeUInt32 object, const std::string& methodName, emscripten::val args);
 
   /**
    * Add an observer to a VTKObject for a specific event.
    */
   unsigned long Observe(
-    vtkObjectHandle object, const std::string& eventName, emscripten::val jsFunction);
+    vtkTypeUInt32 object, const std::string& eventName, emscripten::val jsFunction);
 
   /**
    * Remove an observer from a VTKObject.
    */
-  bool UnObserve(vtkObjectHandle object, unsigned long tag);
+  bool UnObserve(vtkTypeUInt32 object, unsigned long tag);
 
-private:
   vtkSession Session;
 };
 

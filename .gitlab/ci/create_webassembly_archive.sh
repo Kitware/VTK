@@ -16,5 +16,5 @@ version="$major.$minor.$build"
 readonly version
 
 cd build/install/bin
-tar -cvzf "vtk-$version-$architecture.tar.gz" ./vtkWebAssemblyInterface.*
+tar -cvzf "vtk-$version-$architecture.tar.gz" ./vtkWebAssembly*
 cd ../../

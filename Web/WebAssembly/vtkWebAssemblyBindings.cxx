@@ -1,10 +1,25 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+// Init factories.
+#if VTK_MODULE_ENABLE_VTK_RenderingContextOpenGL2
+#include "vtkRenderingContextOpenGL2Module.h"
+#endif
+#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
+#include "vtkRenderingOpenGL2Module.h"
+#endif
+#if VTK_MODULE_ENABLE_VTK_RenderingUI
+#include "vtkRenderingUIModule.h"
+#endif
+#if VTK_MODULE_ENABLE_VTK_RenderingVolumeOpenGL2
+#include "vtkRenderingVolumeOpenGL2Module.h"
+#endif
+
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
 #include "vtkABINamespace.h"
+#include "vtkObjectManager.h"
 #include "vtkRemoteSession.h"
 #include "vtkStandaloneSession.h"
 #include "vtkVersion.h"
@@ -13,8 +28,46 @@ VTK_ABI_NAMESPACE_BEGIN
 
 using namespace emscripten;
 
+namespace
+{
+/**
+ * This function configures the session to use WebAssembly-specific handlers
+ * for serialization and deserialization. It removes the default
+ * vtkOpenGLPolyDataMapper handler, as it is not used in the WebAssembly build.
+ *
+ * @param session The vtkSession for which to set up WebAssembly handlers.
+ */
+void PatchOpenGLDeserializer(vtkSession session)
+{
+  if (auto* manager = static_cast<vtkObjectManager*>(vtkSessionGetManager(session)))
+  {
+#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
+    // Remove the default vtkOpenGLPolyDataMapper[2D] constructors as they are not used in wasm
+    manager->GetDeserializer()->UnRegisterConstructor("vtkOpenGLPolyDataMapper");
+    manager->GetDeserializer()->UnRegisterConstructor("vtkOpenGLPolyDataMapper2D");
+#else
+    (void)manager;
+#endif
+  }
+}
+
+vtkStandaloneSession* makeStandaloneSession()
+{
+  auto* standaloneSession = new vtkStandaloneSession();
+  PatchOpenGLDeserializer(standaloneSession->Session);
+  return standaloneSession;
+}
+
+vtkRemoteSession* makeRemoteSession()
+{
+  auto* remoteSession = new vtkRemoteSession();
+  PatchOpenGLDeserializer(remoteSession->Session);
+  return remoteSession;
+}
+}
+
 /// Javascript bindings to the webassembly sessions.
-EMSCRIPTEN_BINDINGS(vtkWebAssemblyInterfaceJavaScript)
+EMSCRIPTEN_BINDINGS(vtkWebAssembly)
 {
   /**
    * Get the VTK version string.
@@ -27,9 +80,14 @@ EMSCRIPTEN_BINDINGS(vtkWebAssemblyInterfaceJavaScript)
   function("getVTKVersionFull",
     optional_override([] { return std::string(vtkVersion::GetVTKVersionFull()); }));
 
+  /**
+   * Determine if the session provides async wrappers.
+   */
+  function("isAsync", optional_override([] { return false; }));
+
   /// Wrappings for the WebAssembly standalone session.
   class_<vtkStandaloneSession>("vtkStandaloneSession")
-    .constructor()
+    .constructor(&makeStandaloneSession, allow_raw_pointers())
     .function("create", &vtkStandaloneSession::Create)
     .function("destroy", &vtkStandaloneSession::Destroy)
     .function("set", &vtkStandaloneSession::Set)
@@ -40,7 +98,7 @@ EMSCRIPTEN_BINDINGS(vtkWebAssemblyInterfaceJavaScript)
 
   /// Wrappings for the WebAssembly remoting session.
   class_<vtkRemoteSession>("vtkRemoteSession")
-    .constructor()
+    .constructor(&makeRemoteSession, allow_raw_pointers())
     .function("registerState", &vtkRemoteSession::RegisterState)
     .function("unRegisterState", &vtkRemoteSession::UnRegisterState)
     .function("getState", &vtkRemoteSession::GetState)

@@ -1,7 +1,7 @@
 # coding=utf8
 """
 Usage:
-    python3 ./Utilities/Marshalling/write_marshal_macro.py
+    python3 ./Utilities/Marshalling/marshal_macro_annotate_headers.py
 
 This script opts in vtk classes for automatic marshalling.
 

@@ -6,6 +6,7 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingWebGPUModule.h" // For export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -13,7 +14,7 @@ VTK_ABI_NAMESPACE_BEGIN
  * Abstraction class for WebGPU textures. This class mainly holds a bunch of parameters needed for
  * the creation of a texture.
  */
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUTexture : public vtkObject
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUTexture : public vtkObject
 {
 public:
   vtkTypeMacro(vtkWebGPUTexture, vtkObject);
@@ -144,13 +145,13 @@ public:
    * The Z coordinate can be omitted since vtkWebGPUComputeTexture use 1 by default (meaning that
    * there is no depth)
    */
-  void GetSize(unsigned int& x, unsigned int& y, unsigned int& z) const;
-  void GetSize(unsigned int& x, unsigned int& y) const;
-  void GetSize(unsigned int* xyz);
-  unsigned int* GetSize();
+  VTK_WRAPEXCLUDE void GetSize(unsigned int& x, unsigned int& y, unsigned int& z) const;
+  VTK_WRAPEXCLUDE void GetSize(unsigned int& x, unsigned int& y) const;
+  VTK_WRAPEXCLUDE void GetSize(unsigned int* xyz);
+  unsigned int* GetSize() VTK_SIZEHINT(3);
 
-  virtual void SetSize(unsigned int x, unsigned int y, unsigned int z = 1);
-  virtual void SetSize(unsigned int* xyz);
+  VTK_WRAPEXCLUDE virtual void SetSize(unsigned int x, unsigned int y, unsigned int z = 1);
+  virtual void SetSize(unsigned int* xyz) VTK_SIZEHINT(3);
   ///@}
 
   ///@{

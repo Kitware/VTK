@@ -4,16 +4,8 @@
 #include "vtkRemoteSession.h"
 
 #include "vtkLogger.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkWebAssemblySessionHelper.h"
-
-#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
-#include "vtkWebAssemblyOpenGLRenderWindow.h"
-#endif
-#if VTK_MODULE_ENABLE_VTK_RenderingUI
-#include "vtkWebAssemblyRenderWindowInteractor.h"
-#endif
+#include <vtk_nlohmannjson.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -22,7 +14,6 @@ vtkRemoteSession::vtkRemoteSession()
 {
   this->Session = NewVTKInterfaceForJavaScript();
   vtkSessionInitializeObjectManager(this->Session);
-  SetupWASMHandlers(this->Session);
 }
 
 //-------------------------------------------------------------------------------
@@ -39,13 +30,13 @@ bool vtkRemoteSession::RegisterState(emscripten::val state)
 }
 
 //-------------------------------------------------------------------------------
-bool vtkRemoteSession::UnRegisterState(vtkObjectHandle object)
+bool vtkRemoteSession::UnRegisterState(vtkTypeUInt32 object)
 {
   return vtkSessionUnRegisterState(this->Session, object) == vtkSessionResultSuccess;
 }
 
 //-------------------------------------------------------------------------------
-emscripten::val vtkRemoteSession::GetState(vtkObjectHandle object)
+emscripten::val vtkRemoteSession::GetState(vtkTypeUInt32 object)
 {
   auto resultImpl = vtkSessionGetState(this->Session, object);
   auto result = std::move(resultImpl->JsonValue);
@@ -101,8 +92,60 @@ emscripten::val vtkRemoteSession::GetBlob(const std::string& hash)
 
 //-------------------------------------------------------------------------------
 emscripten::val vtkRemoteSession::Invoke(
-  vtkObjectHandle object, const std::string& methodName, emscripten::val args)
+  vtkTypeUInt32 object, const std::string& methodName, emscripten::val args)
 {
+  if (!args.instanceof (Array))
+  {
+    vtkLog(
+      ERROR, << "Invoke must be called with an objectId: u32, methodName: string, args: Array");
+    return emscripten::val::undefined();
+  }
+  if (auto* manager = static_cast<vtkObjectManager*>(vtkSessionGetManager(this->Session)))
+  {
+    if (auto* dataArray = vtkDataArray::SafeDownCast(manager->GetObjectAtId(object)))
+    {
+      if (methodName == "SetArray")
+      {
+        if (args["length"].as<std::size_t>() == 1)
+        {
+          auto jsArray = args[0];
+          for (const auto& it : IsJSArraySameTypeAsVtkDataArray)
+          {
+            const auto& typeName = it.first;
+            if (jsArray.instanceof (val::global(typeName.c_str())) && it.second(dataArray))
+            {
+              const auto length = jsArray["length"].as<std::size_t>();
+              dataArray->SetNumberOfValues(length);
+              // Copy the data from the JS array to the VTK data array
+              using DispatchT = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
+              if (!DispatchT::Execute(dataArray, CopyJSArrayToVTKDataArray{}, jsArray))
+              {
+                // Fallback to the default implementation if the DispatchT fails
+                CopyJSArrayToVTKDataArray{}(dataArray, jsArray);
+              }
+              return emscripten::val::undefined();
+            }
+          }
+          vtkLog(ERROR,
+            "Unsupported argument constructed by "
+              << jsArray["constructor"].call<std::string>("toString") << " for "
+              << dataArray->GetClassName() << "::SetArray"
+              << " method.");
+          return emscripten::val::undefined();
+        }
+        else
+        {
+          vtkLog(ERROR, << "vtkDataArray::SetArray expects a list of a single TypedArray");
+          return emscripten::val::undefined();
+        }
+      }
+    }
+  }
+  else
+  {
+    vtkLog(ERROR, "Invalid session: " << this->Session);
+    return emscripten::val::undefined();
+  }
   vtkSessionJsonImpl argsJsonImpl{ args };
   auto resultImpl = vtkSessionInvoke(this->Session, object, methodName.c_str(), &argsJsonImpl);
   auto result = std::move(resultImpl->JsonValue);
@@ -111,7 +154,7 @@ emscripten::val vtkRemoteSession::Invoke(
 }
 
 //-------------------------------------------------------------------------------
-emscripten::val vtkRemoteSession::GetAllDependencies(vtkObjectHandle object)
+emscripten::val vtkRemoteSession::GetAllDependencies(vtkTypeUInt32 object)
 {
   std::size_t length;
   auto* ids = vtkSessionGetAllDependencies(this->Session, object, &length);
@@ -128,69 +171,69 @@ void vtkRemoteSession::UpdateObjectFromState(emscripten::val state)
 }
 
 //-------------------------------------------------------------------------------
-void vtkRemoteSession::UpdateStateFromObject(vtkObjectHandle object)
+void vtkRemoteSession::UpdateStateFromObject(vtkTypeUInt32 object)
 {
   return vtkSessionUpdateStateFromObject(this->Session, object);
 }
 
 //-------------------------------------------------------------------------------
-bool vtkRemoteSession::SetSize(vtkObjectHandle object, int width, int height)
+bool vtkRemoteSession::SetSize(vtkTypeUInt32 object, int width, int height)
 {
   return vtkSessionSetSize(this->Session, object, width, height) == vtkSessionResultSuccess;
 }
 
 //-------------------------------------------------------------------------------
-bool vtkRemoteSession::Render(vtkObjectHandle object)
+bool vtkRemoteSession::Render(vtkTypeUInt32 object)
 {
   return vtkSessionRender(this->Session, object) == vtkSessionResultSuccess;
 }
 
 //-------------------------------------------------------------------------------
-bool vtkRemoteSession::ResetCamera(vtkObjectHandle object)
+bool vtkRemoteSession::ResetCamera(vtkTypeUInt32 object)
 {
   return vtkSessionResetCamera(this->Session, object) == vtkSessionResultSuccess;
 }
 
 //-------------------------------------------------------------------------------
-bool vtkRemoteSession::StartEventLoop(vtkObjectHandle object)
+bool vtkRemoteSession::StartEventLoop(vtkTypeUInt32 object)
 {
   return vtkSessionStartEventLoop(this->Session, object) == vtkSessionResultSuccess;
 }
 
 //-------------------------------------------------------------------------------
-bool vtkRemoteSession::StopEventLoop(vtkObjectHandle object)
+bool vtkRemoteSession::StopEventLoop(vtkTypeUInt32 object)
 {
   return vtkSessionStopEventLoop(this->Session, object) == vtkSessionResultSuccess;
 }
 
 //-------------------------------------------------------------------------------
-bool vtkRemoteSession::BindRenderWindow(vtkObjectHandle object, const std::string canvasSelector)
+bool vtkRemoteSession::BindRenderWindow(vtkTypeUInt32 object, const std::string canvasSelector)
 {
-  if (auto* manager = GetSessionManager(this->Session))
+  if (auto* manager = static_cast<vtkObjectManager*>(vtkSessionGetManager(this->Session)))
   {
-    if (auto* renderWindow = vtkRenderWindow::SafeDownCast(manager->GetObjectAtId(object)))
+    if (auto renderWindowObject = manager->GetObjectAtId(object))
     {
-      if (auto* wasmGLWindow = vtkWebAssemblyOpenGLRenderWindow::SafeDownCast(renderWindow))
+      (void)renderWindowObject;
+      // Update the canvas selector in the render window.
+      manager->UpdateObjectFromState({ { "Id", object }, { "CanvasSelector", canvasSelector } });
+      // Get the interactor associated with the render window
+      // and set the canvas selector on it.
+      const auto& renderWindowState = manager->GetDeserializer()->GetContext()->GetState(object);
+      if (auto interactorStateIter = renderWindowState.find("Interactor");
+          interactorStateIter != renderWindowState.end())
       {
-        wasmGLWindow->SetCanvasSelector(canvasSelector.c_str());
-        if (auto* interactor =
-              vtkWebAssemblyRenderWindowInteractor::SafeDownCast(renderWindow->GetInteractor()))
+        if (auto interactorIdIter = interactorStateIter->find("Id");
+            interactorIdIter != interactorStateIter->end())
         {
-          interactor->SetCanvasSelector(canvasSelector.c_str());
+          // Update the interactor state with the canvas selector
+          const auto interactorId = interactorIdIter->get<vtkTypeUInt32>();
+          manager->UpdateObjectFromState(
+            { { "Id", interactorId }, { "CanvasSelector", canvasSelector } });
           return true;
         }
-        else
-        {
-          vtkLog(ERROR, "No interactor attached to " << wasmGLWindow);
-          return false;
-        }
       }
-      else
-      {
-        vtkLog(
-          ERROR, "Render window class " << renderWindow->GetClassName() << " is not recognized!");
-        return false;
-      }
+      vtkLog(ERROR, "Failed to get interactor for render window: " << object);
+      return false;
     }
     else
     {
@@ -204,7 +247,7 @@ bool vtkRemoteSession::BindRenderWindow(vtkObjectHandle object, const std::strin
 
 //-------------------------------------------------------------------------------
 unsigned long vtkRemoteSession::Observe(
-  vtkObjectHandle object, const std::string& eventName, emscripten::val jsFunction)
+  vtkTypeUInt32 object, const std::string& eventName, emscripten::val jsFunction)
 {
   int fp = val::module_property("addFunction")(jsFunction, std::string("vii")).as<int>();
   auto callback = reinterpret_cast<vtkSessionObserverCallbackFunc>(fp);
@@ -212,7 +255,7 @@ unsigned long vtkRemoteSession::Observe(
 }
 
 //-------------------------------------------------------------------------------
-bool vtkRemoteSession::UnObserve(vtkObjectHandle object, unsigned long tag)
+bool vtkRemoteSession::UnObserve(vtkTypeUInt32 object, unsigned long tag)
 {
   return vtkSessionRemoveObserver(this->Session, object, tag) == vtkSessionResultSuccess;
 }
