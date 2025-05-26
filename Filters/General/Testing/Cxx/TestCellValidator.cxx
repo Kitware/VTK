@@ -1006,7 +1006,7 @@ vtkSmartPointer<vtkPolyhedron> MakePolyhedralWedge(bool goodOrBad)
   aWedge->GetPoints()->InsertNextPoint(1.0, 0.0, 0.5);
   aWedge->GetPoints()->InsertNextPoint(0.0, 1.0, 0.5);
 
-  vtkIdType face_offsets[6] = { 0, 4, 8, 11, 14, 17 };
+  vtkIdType face_offsets[6] = { 0, 4, 8, 11, 14, 18 };
   vtkIdType face_conns[18] = {
      4, 1, 2, 5,
      3, 0, 1, 4,
