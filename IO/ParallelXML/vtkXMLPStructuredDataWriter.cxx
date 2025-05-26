@@ -89,11 +89,11 @@ void vtkXMLPStructuredDataWriter::PrepareSummaryFile()
     int nPiecesTotal = 0;
     vtkIdType nPieces = static_cast<vtkIdType>(this->Extents.size());
 
-    vtkIdType* offsets = new vtkIdType[nRanks];
-    vtkIdType* nPiecesAll = new vtkIdType[nRanks];
-    vtkIdType* recvLengths = new vtkIdType[nRanks];
+    std::vector<vtkIdType> offsets(nRanks);
+    std::vector<vtkIdType> nPiecesAll(nRanks);
+    std::vector<vtkIdType> recvLengths(nRanks);
 
-    this->Controller->AllGather(&nPieces, nPiecesAll, 1);
+    this->Controller->AllGather(&nPieces, nPiecesAll.data(), 1);
     for (int i = 0; i < nRanks; i++)
     {
       offsets[i] = nPiecesTotal * 7;
@@ -101,11 +101,11 @@ void vtkXMLPStructuredDataWriter::PrepareSummaryFile()
       recvLengths[i] = nPiecesAll[i] * 7;
     }
 
-    int* sendBuffer = nullptr;
+    std::vector<int> sendBuffer;
     int sendSize = nPieces * 7;
     if (nPieces > 0)
     {
-      sendBuffer = new int[sendSize];
+      sendBuffer.resize(sendSize);
       ExtentsType::iterator iter = this->Extents.begin();
       for (int count = 0; iter != this->Extents.end(); ++iter, ++count)
       {
@@ -113,12 +113,13 @@ void vtkXMLPStructuredDataWriter::PrepareSummaryFile()
         memcpy(&sendBuffer[count * 7 + 1], iter->second.data(), 6 * sizeof(int));
       }
     }
-    int* recvBuffer = nullptr;
+    std::vector<int> recvBuffer;
     if (rank == 0)
     {
-      recvBuffer = new int[nPiecesTotal * 7];
+      recvBuffer.resize(nPiecesTotal * 7);
     }
-    this->Controller->GatherV(sendBuffer, recvBuffer, sendSize, recvLengths, offsets, 0);
+    this->Controller->GatherV(
+      sendBuffer.data(), recvBuffer.data(), sendSize, recvLengths.data(), offsets.data(), 0);
 
     if (rank == 0)
     {
@@ -128,17 +129,11 @@ void vtkXMLPStructuredDataWriter::PrepareSummaryFile()
       {
         for (int j = 0; j < nPiecesAll[i]; j++)
         {
-          int* buffer = recvBuffer + offsets[i] + j * 7;
+          int* buffer = recvBuffer.data() + offsets[i] + j * 7;
           this->Extents[*buffer] = std::vector<int>(buffer + 1, buffer + 7);
         }
       }
     }
-
-    delete[] nPiecesAll;
-    delete[] recvBuffer;
-    delete[] offsets;
-    delete[] recvLengths;
-    delete[] sendBuffer;
   }
 }
 
