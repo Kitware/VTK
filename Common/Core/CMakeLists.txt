@@ -200,7 +200,8 @@ foreach (type IN LISTS vtk_numeric_types)
 endforeach ()
 
 foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtk_numeric_types)
-  # only instantiate fundamental types, not typedefs
+  # We never need to instantiate vtkIdType or because they are instantiated
+  # by the corresponding array for its native type.
   if (INSTANTIATION_VALUE_TYPE STREQUAL "vtkIdType")
     continue()
   endif ()
@@ -221,7 +222,8 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtk_numeric_types)
     vtkSOADataArrayTemplateInstantiate
     vtkStdFunctionArrayInstantiate
     vtkStructuredPointArrayInstantiate
-    vtkTypedDataArrayInstantiate)
+    vtkTypedDataArrayInstantiate
+    vtkTypeArrayInstantiate)
   if (VTK_BUILD_SCALED_SOA_ARRAYS)
     list(APPEND _list "vtkScaledSOADataArrayTemplateInstantiate")
   endif ()
