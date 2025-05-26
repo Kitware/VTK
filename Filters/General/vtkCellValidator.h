@@ -51,6 +51,18 @@
  *                                taking into account the cell types with
  *                                nonstandard orientation requirements.
  *
+ *  NonPlanarFaces: The vertices for a face do not all lie in the same plane, so
+ *                  the normal and origin of the plane in which the face lies cannot
+ *                  be accurately determined.
+ *
+ *  DegenerateFaces:  A face is collapsed to a line or a point through repeated
+ *                    collocated vertices. This is distinct from WrongNumberOfPoints,
+ *                    which indicates there are too few points. In this case, there
+ *                    are enough points but they are topologically or geometrically
+ *                    degenerate. Topological degeneracy is when connectivity entries
+ *                    are repeated. Geometric degeneracy is when point coordinates
+ *                    for topologically distinct points are coincident, collinear, or
+ *                    coplanar when they ought not to be.
  *
  * @sa
  * vtkCellQuality
@@ -59,6 +71,7 @@
 #ifndef vtkCellValidator_h
 #define vtkCellValidator_h
 
+#include "vtkCellStatus.h" // For enum class.
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersGeneralModule.h" // For export macro
 
@@ -120,32 +133,10 @@ public:
   vtkTypeMacro(vtkCellValidator, vtkDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  // Description:
-  // Construct to compute the validity of cells.
+  /// Construct to compute the validity of cells.
   static vtkCellValidator* New();
 
-  enum State : short
-  {
-    Valid = 0x0,
-    WrongNumberOfPoints = 0x01,
-    IntersectingEdges = 0x02,
-    IntersectingFaces = 0x04,
-    NoncontiguousEdges = 0x08,
-    Nonconvex = 0x10,
-    FacesAreOrientedIncorrectly = 0x20,
-  };
-
-  friend State operator&(State a, State b)
-  {
-    return static_cast<State>(static_cast<short>(a) & static_cast<short>(b));
-  }
-  friend State operator|(State a, State b)
-  {
-    return static_cast<State>(static_cast<short>(a) | static_cast<short>(b));
-  }
-  friend State& operator&=(State& a, State b) { return a = a & b; }
-
-  friend State& operator|=(State& a, State b) { return a = a | b; }
+  using State = vtkCellStatus;
 
   static void PrintState(State state, ostream& os, vtkIndent indent);
 
@@ -211,6 +202,26 @@ public:
   vtkGetMacro(Tolerance, double);
   ///@}
 
+  ///@{
+  /// Set/get a planarity tolerance.
+  ///
+  /// This tolerance thresholds the ratio of the distance a planar polygonal
+  /// cell (or cell face) protrudes out of its plane compared to the largest
+  /// distance between a cell (or cell face) center and any of its corner points.
+  /// It defaults to 0.1; any cells which protrude more than 10% of their radius
+  /// out of the plane will be marked invalid.
+  ///
+  /// These methods are static so that calls to static Check() methods need not
+  /// pass multiple tolerances and other validation parameters. This also means
+  /// SetPlanarityTolerance is not thread-safe and should not be called when any
+  /// other thread may be calling GetPlanarityTolerance().
+  ///
+  /// If the planarity tolerance is set to 0 or a negative value, planarity will
+  /// not be tested.
+  static void SetPlanarityTolerance(double tolerance);
+  static double GetPlanarityTolerance();
+  ///@}
+
 protected:
   vtkCellValidator();
   ~vtkCellValidator() override = default;
@@ -222,7 +233,7 @@ protected:
   static bool NoIntersectingEdges(vtkCell* cell, double tolerance);
   static bool NoIntersectingFaces(vtkCell* cell, double tolerance);
   static bool ContiguousEdges(vtkCell* twoDimensionalCell, double tolerance);
-  static bool Convex(vtkCell* cell, double tolerance);
+  static State Convex(vtkCell* cell, double tolerance);
   static bool FacesAreOrientedCorrectly(vtkCell* threeDimensionalCell, double tolerance);
 
 private:

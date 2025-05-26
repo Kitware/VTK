@@ -121,6 +121,7 @@
 #define vtkPolyhedron_h
 
 #include "vtkCell3D.h"
+#include "vtkCellStatus.h"            // For enum.
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDeprecation.h"           // For VTK_DEPRECATED
 #include "vtkNew.h"                   // For vtkNew
@@ -144,6 +145,9 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPolyhedron : public vtkCell3D
 {
 public:
   using vtkPointIdMap = std::map<vtkIdType, vtkIdType>;
+
+  /// Adopt vtkCellStatus to describe degenerate polyhedral cells.
+  using Status = vtkCellStatus;
 
   ///@{
   /**
@@ -427,8 +431,19 @@ public:
    * from Devillers et al., "Checking the Convexity of Polytopes and the
    * Planarity of Subdivisions", Computational Geometry, Volume 11, Issues
    * 3 - 4, December 1998, Pages 187 - 208.
+   *
+   * Some variants have a return value which indicates a particular reason
+   * for the cell to be marked non-convex (currently non-planar face(s) or
+   * a concave arrangement of neighboring faces). These variants accept a
+   * \a planarThreshold for the degree of non-planarity allowed.
+   * The \a planarThreshold is the maximum ratio of the distance out of the
+   * plane of the face compared to the size in the plane of the polygon.
+   * If a face exceeds \a planarThreshold, then IsConvex() will return false.
+   * Pass \a planarThreshold < 0 to ignore non-planar faces.
+   * The default \a planarThreshold is 0.1.
    */
   bool IsConvex();
+  Status IsConvex(double planarThreshold);
 
   /**
    * Construct polydata if no one exist, then return this->PolyData

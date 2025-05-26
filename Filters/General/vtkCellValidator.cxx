@@ -77,6 +77,14 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCellValidator);
 
+namespace
+{
+
+/// The value set by SetPlanarityTolerance().
+double g_planarityTolerance = 0.1;
+
+} // anonymous namespace
+
 //------------------------------------------------------------------------------
 vtkCellValidator::vtkCellValidator()
 {
@@ -331,7 +339,7 @@ struct MappingFunctor
 }
 
 //------------------------------------------------------------------------------
-bool vtkCellValidator::Convex(vtkCell* cell, double vtkNotUsed(tolerance))
+vtkCellValidator::State vtkCellValidator::Convex(vtkCell* cell, double tolerance)
 {
   // Determine whether or not a cell is convex. vtkPolygon and vtkPolyhedron can
   // conform to any 2- and 3-dimensional cell, and both have IsConvex(). So, we
@@ -341,59 +349,65 @@ bool vtkCellValidator::Convex(vtkCell* cell, double vtkNotUsed(tolerance))
   {
     case 0:
     case 1:
-      return true;
+      return State::Valid;
     case 2:
-      return vtkPolygon::IsConvex(cell->GetPoints());
+      return vtkPolygon::IsConvex(cell->GetPoints()) ? State::Valid : State::Nonconvex;
     case 3:
     {
+      auto status = State::Valid;
       if (vtkPolyhedron* polyhedron = vtkPolyhedron::SafeDownCast(cell))
       {
-        return polyhedron->IsConvex();
+        status = polyhedron->IsConvex(tolerance);
       }
-      vtkNew<vtkCellArray> polyhedronFaces;
-      vtkIdType faces_n = cell->GetNumberOfFaces();
-      for (vtkIdType i = 0; i < faces_n; i++)
+      else
       {
-        polyhedronFaces->InsertNextCell(cell->GetFace(i));
+        vtkNew<vtkCellArray> polyhedronFaces;
+        vtkIdType faces_n = cell->GetNumberOfFaces();
+        for (vtkIdType i = 0; i < faces_n; i++)
+        {
+          polyhedronFaces->InsertNextCell(cell->GetFace(i));
+        }
+
+        // Explanation of the mapping with an example of a cell containing 3 points:
+        // The input is:
+        // input_grid_ids      10      11     12
+        // input_grid_points   (0.0)   (0.1)  (0.2)
+
+        // cell_ids      11      12     10
+        // cell_points   (0.1)  (0.2)   (0.0)
+
+        // The output has to be:
+        // new_grid_ids       0      1     2       ( grid ids cannot be set)
+        // new_grid_points   (0.1)  (0.2)   (0.0)  ( set with cell>GetPoints())
+
+        // polygon_cell_id    0      1      2
+        // So the mapping for the new nodes is such that 11->0, 12->1 and 10->3
+        // This mapping is used to update the node ids of the faces
+
+        vtkIdType points_n = cell->GetNumberOfPoints();
+        std::vector<vtkIdType> polyhedron_pointIds(points_n);
+        std::unordered_map<int, int> node_mapping;
+        for (vtkIdType i = 0; i < points_n; i++)
+        {
+          node_mapping.emplace(cell->PointIds->GetId(i), i);
+          polyhedron_pointIds[i] = i;
+        }
+
+        // update the face ids
+        polyhedronFaces->Visit(MappingFunctor{}, node_mapping);
+
+        vtkNew<vtkUnstructuredGrid> ugrid;
+        ugrid->SetPoints(cell->GetPoints());
+        ugrid->InsertNextCell(
+          VTK_POLYHEDRON, points_n, polyhedron_pointIds.data(), polyhedronFaces);
+
+        polyhedron = vtkPolyhedron::SafeDownCast(ugrid->GetCell(0));
+        status = polyhedron->IsConvex(tolerance);
       }
-
-      // Explanation of the mapping with an example of a cell containing 3 points:
-      // The input is:
-      // input_grid_ids      10      11     12
-      // input_grid_points   (0.0)   (0.1)  (0.2)
-
-      // cell_ids      11      12     10
-      // cell_points   (0.1)  (0.2)   (0.0)
-
-      // The output has to be:
-      // new_grid_ids       0      1     2       ( grid ids cannot be set)
-      // new_grid_points   (0.1)  (0.2)   (0.0)  ( set with cell>GetPoints())
-
-      // polygon_cell_id    0      1      2
-      // So the mapping for the new nodes is such that 11->0, 12->1 and 10->3
-      // This mapping is used to update the node ids of the faces
-
-      vtkIdType points_n = cell->GetNumberOfPoints();
-      std::vector<vtkIdType> polyhedron_pointIds(points_n);
-      std::unordered_map<int, int> node_mapping;
-      for (vtkIdType i = 0; i < points_n; i++)
-      {
-        node_mapping.emplace(cell->PointIds->GetId(i), i);
-        polyhedron_pointIds[i] = i;
-      }
-
-      // update the face ids
-      polyhedronFaces->Visit(MappingFunctor{}, node_mapping);
-
-      vtkNew<vtkUnstructuredGrid> ugrid;
-      ugrid->SetPoints(cell->GetPoints());
-      ugrid->InsertNextCell(VTK_POLYHEDRON, points_n, polyhedron_pointIds.data(), polyhedronFaces);
-
-      vtkPolyhedron* polyhedron = vtkPolyhedron::SafeDownCast(ugrid->GetCell(0));
-      return polyhedron->IsConvex();
+      return status;
     }
     default:
-      return false;
+      return State::Nonconvex;
   }
 }
 
@@ -640,10 +654,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkPolygon* polygon, double tole
   }
 
   // Ensure that the polygon is convex
-  if (!Convex(polygon, tolerance))
-  {
-    state |= State::Nonconvex;
-  }
+  state |= vtkCellValidator::Convex(polygon, vtkCellValidator::GetPlanarityTolerance());
 
   return state;
 }
@@ -709,10 +720,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkQuad* quad, double tolerance)
   }
 
   // Ensure that the quad is convex
-  if (!Convex(quad, tolerance))
-  {
-    state |= State::Nonconvex;
-  }
+  state |= vtkCellValidator::Convex(quad, vtkCellValidator::GetPlanarityTolerance());
 
   return state;
 }
@@ -818,10 +826,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkHexahedron* hex, double toler
   }
 
   // Ensure that the hex is convex
-  if (!Convex(hex, tolerance))
-  {
-    state |= State::Nonconvex;
-  }
+  state |= vtkCellValidator::Convex(hex, vtkCellValidator::GetPlanarityTolerance());
 
   // Ensure the hexahedron's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(hex, tolerance))
@@ -856,11 +861,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkWedge* wedge, double toleranc
     state |= State::IntersectingFaces;
   }
 
-  // Ensure that the wedge is convex
-  if (!Convex(wedge, tolerance))
-  {
-    state |= State::Nonconvex;
-  }
+  state |= vtkCellValidator::Convex(wedge, vtkCellValidator::GetPlanarityTolerance());
 
   // Ensure the wedge's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(wedge, tolerance))
@@ -896,10 +897,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkPyramid* pyramid, double tole
   }
 
   // Ensure that the pyramid is convex
-  if (!Convex(pyramid, tolerance))
-  {
-    state |= State::Nonconvex;
-  }
+  state |= vtkCellValidator::Convex(pyramid, vtkCellValidator::GetPlanarityTolerance());
 
   // Ensure the wedge's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(pyramid, tolerance))
@@ -936,10 +934,7 @@ vtkCellValidator::State vtkCellValidator::Check(
   }
 
   // Ensure that the pentagonal prism is convex
-  if (!Convex(pentagonalPrism, tolerance))
-  {
-    state |= State::Nonconvex;
-  }
+  state |= vtkCellValidator::Convex(pentagonalPrism, vtkCellValidator::GetPlanarityTolerance());
 
   // Ensure the prism's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(pentagonalPrism, tolerance))
@@ -975,10 +970,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkHexagonalPrism* hexagonalPris
   }
 
   // Ensure that the hexagonal prism is convex
-  if (!Convex(hexagonalPrism, tolerance))
-  {
-    state |= State::Nonconvex;
-  }
+  state |= vtkCellValidator::Convex(hexagonalPrism, vtkCellValidator::GetPlanarityTolerance());
 
   // Ensure the prism's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(hexagonalPrism, tolerance))
@@ -1487,7 +1479,8 @@ vtkCellValidator::State vtkCellValidator::Check(vtkCubicLine* line, double vtkNo
 }
 
 //------------------------------------------------------------------------------
-vtkCellValidator::State vtkCellValidator::Check(vtkConvexPointSet* pointSet, double tolerance)
+vtkCellValidator::State vtkCellValidator::Check(
+  vtkConvexPointSet* pointSet, double vtkNotUsed(tolerance))
 {
   State state = State::Valid;
 
@@ -1499,10 +1492,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkConvexPointSet* pointSet, dou
   }
 
   // Ensure that the point set is convex
-  if (!Convex(pointSet, tolerance))
-  {
-    state |= State::Nonconvex;
-  }
+  state |= vtkCellValidator::Convex(pointSet, vtkCellValidator::GetPlanarityTolerance());
 
   return state;
 }
@@ -1532,10 +1522,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkPolyhedron* polyhedron, doubl
   }
 
   // Ensure that the polyhedron is convex
-  if (!Convex(polyhedron, tolerance))
-  {
-    state |= State::Nonconvex;
-  }
+  state |= vtkCellValidator::Convex(polyhedron, vtkCellValidator::GetPlanarityTolerance());
 
   // Ensure the polyhedron's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(polyhedron, tolerance))
@@ -1897,6 +1884,17 @@ vtkCellValidator::State vtkCellValidator::Check(vtkBezierWedge* wedge, double to
 }
 
 //------------------------------------------------------------------------------
+void vtkCellValidator::SetPlanarityTolerance(double tolerance)
+{
+  g_planarityTolerance = tolerance;
+}
+
+double vtkCellValidator::GetPlanarityTolerance()
+{
+  return g_planarityTolerance;
+}
+
+//------------------------------------------------------------------------------
 int vtkCellValidator::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1964,6 +1962,11 @@ void vtkCellValidator::PrintState(vtkCellValidator::State state, ostream& os, vt
       vtkCellValidator::State::FacesAreOrientedIncorrectly)
     {
       os << indent << "  - Faces are oriented incorrectly\n";
+    }
+    if ((state & vtkCellValidator::State::NonPlanarFaces) ==
+      vtkCellValidator::State::NonPlanarFaces)
+    {
+      os << indent << "  - One or more polygonal faces are non-planar\n";
     }
   }
 }

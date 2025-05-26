@@ -67,7 +67,7 @@ int TestPolyhedronConvexityMultipleCells(int, char*[])
   auto states = validator->GetOutput()->GetCellData()->GetArray("ValidityState");
   for (auto state : vtk::DataArrayValueRange<1>(states))
   {
-    if (state != vtkCellValidator::State::Valid)
+    if (state != vtkCellStatus::Valid)
     {
       return EXIT_FAILURE;
     }

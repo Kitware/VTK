@@ -287,6 +287,7 @@ set(nowrap_classes
 set(headers
   vtkCellGridResponder.h
   vtkCellGridResponderBase.h
+  vtkCellStatus.h
   vtkCellType.h
   vtkColor.h
   vtkDataAssemblyVisitor.h

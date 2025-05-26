@@ -91,6 +91,7 @@ static vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism();
 static vtkSmartPointer<vtkPolyhedron> MakeCube();
 static vtkSmartPointer<vtkPolyhedron> MakeDodecahedron();
 static vtkSmartPointer<vtkPolyhedron> MakePolyhedralWedge(bool goodOrBad);
+static vtkSmartPointer<vtkPolyhedron> MakeConcavePolyhedron();
 
 static vtkSmartPointer<vtkQuadraticEdge> MakeQuadraticEdge();
 static vtkSmartPointer<vtkQuadraticHexahedron> MakeQuadraticHexahedron();
@@ -152,6 +153,7 @@ int TestCellValidator(int, char*[])
   vtkSmartPointer<vtkPolyhedron> poly2 = MakeDodecahedron();
   vtkSmartPointer<vtkPolyhedron> poly3 = MakePolyhedralWedge(true);  // good
   vtkSmartPointer<vtkPolyhedron> poly4 = MakePolyhedralWedge(false); // broken
+  vtkSmartPointer<vtkPolyhedron> poly5 = MakeConcavePolyhedron();    // broken
 
   vtkSmartPointer<vtkQuadraticEdge> quadraticEdge = MakeQuadraticEdge();
   vtkSmartPointer<vtkQuadraticHexahedron> quadraticHexahedron = MakeQuadraticHexahedron();
@@ -189,13 +191,13 @@ int TestCellValidator(int, char*[])
   vtkSmartPointer<vtkBezierHexahedron> bezierHexahedron = MakeBezierHexahedron();
   vtkSmartPointer<vtkBezierWedge> bezierWedge = MakeBezierWedge();
 
-  vtkCellValidator::State state;
+  vtkCellStatus state;
 
 #define CheckCell(cellPtr)                                                                         \
   do                                                                                               \
   {                                                                                                \
     state = vtkCellValidator::Check(cellPtr, FLT_EPSILON);                                         \
-    if (state != vtkCellValidator::State::Valid)                                                   \
+    if (state != vtkCellStatus::Valid)                                                             \
     {                                                                                              \
       cellPtr->Print(std::cout);                                                                   \
       vtkCellValidator::PrintState(state, std::cout, vtkIndent(0));                                \
@@ -257,23 +259,28 @@ int TestCellValidator(int, char*[])
 #undef CheckCell
 
   state = vtkCellValidator::Check(MakeBrokenHexahedron(), FLT_EPSILON);
-  if ((state & vtkCellValidator::State::IntersectingEdges) !=
-    vtkCellValidator::State::IntersectingEdges)
+  if ((state & vtkCellStatus::IntersectingEdges) != vtkCellStatus::IntersectingEdges)
   {
     vtkCellValidator::PrintState(state, std::cout, vtkIndent(0));
     return EXIT_FAILURE;
   }
 
   state = vtkCellValidator::Check(MakeBrokenLagrangeTriangle(), FLT_EPSILON);
-  if ((state & vtkCellValidator::State::IntersectingEdges) !=
-    vtkCellValidator::State::IntersectingEdges)
+  if ((state & vtkCellStatus::IntersectingEdges) != vtkCellStatus::IntersectingEdges)
   {
     vtkCellValidator::PrintState(state, std::cout, vtkIndent(0));
     return EXIT_FAILURE;
   }
 
   state = vtkCellValidator::Check(poly4, FLT_EPSILON);
-  if ((state & vtkCellValidator::State::Nonconvex) != vtkCellValidator::State::Nonconvex)
+  if ((state & vtkCellStatus::NonPlanarFaces) != vtkCellStatus::NonPlanarFaces)
+  {
+    vtkCellValidator::PrintState(state, std::cout, vtkIndent(0));
+    return EXIT_FAILURE;
+  }
+
+  state = vtkCellValidator::Check(poly5, FLT_EPSILON);
+  if ((state & vtkCellStatus::Nonconvex) != vtkCellStatus::Nonconvex)
   {
     vtkCellValidator::PrintState(state, std::cout, vtkIndent(0));
     return EXIT_FAILURE;
@@ -1006,7 +1013,7 @@ vtkSmartPointer<vtkPolyhedron> MakePolyhedralWedge(bool goodOrBad)
   aWedge->GetPoints()->InsertNextPoint(1.0, 0.0, 0.5);
   aWedge->GetPoints()->InsertNextPoint(0.0, 1.0, 0.5);
 
-  vtkIdType face_offsets[6] = { 0, 4, 8, 11, 14, 17 };
+  vtkIdType face_offsets[6] = { 0, 4, 8, 11, 14, 18 };
   vtkIdType face_conns[18] = {
      4, 1, 2, 5,
      3, 0, 1, 4,
@@ -1026,6 +1033,38 @@ vtkSmartPointer<vtkPolyhedron> MakePolyhedralWedge(bool goodOrBad)
   aWedge->Initialize();
 
   return aWedge;
+}
+
+vtkSmartPointer<vtkPolyhedron> MakeConcavePolyhedron()
+{
+  auto concavahedron = vtkSmartPointer<vtkPolyhedron>::New();
+
+  // create polyhedron (an "L")
+  auto points = vtkSmartPointer<vtkPoints>::New();
+
+  double coords[12][3] = { { 0, 0, 0 }, { 3, 0, 0 }, { 3, 1, 0 }, { 1, 1, 0 }, { 1, 5, 0 },
+    { 0, 5, 0 }, { 0, 0, 0.5 }, { 3, 0, 0.5 }, { 3, 1, 0.5 }, { 1, 1, 0.5 }, { 1, 5, 0.5 },
+    { 0, 5, 0.5 } };
+
+  for (int ii = 0; ii < 12; ++ii)
+  {
+    auto id = concavahedron->GetPoints()->InsertNextPoint(coords[ii]);
+    concavahedron->GetPointIds()->InsertNextId(id);
+  }
+
+  vtkIdType face_offsets[9] = { 0, 6, 12, 16, 20, 24, 28, 32, 36 };
+  vtkIdType face_conns[36] = { 5, 4, 3, 2, 1, 0, 6, 7, 8, 9, 10, 11, 0, 1, 7, 6, 1, 2, 8, 7, 2, 3,
+    9, 8, 3, 4, 10, 9, 4, 5, 11, 10, 5, 0, 6, 11 };
+  vtkNew<vtkCellArray> faces;
+  vtkNew<vtkIdTypeArray> offsets_arr;
+  vtkNew<vtkIdTypeArray> conns_arr;
+  offsets_arr->SetArray(face_offsets, 9, 1);
+  conns_arr->SetArray(face_conns, 36, 1);
+  faces->SetData(offsets_arr, conns_arr);
+  concavahedron->SetCellFaces(faces);
+  concavahedron->Initialize();
+
+  return concavahedron;
 }
 
 vtkSmartPointer<vtkPentagonalPrism> MakePentagonalPrism()
