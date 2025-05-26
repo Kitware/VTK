@@ -154,7 +154,7 @@ vtkMTimeType vtkAnnotationLayers::GetMTime()
   vtkAnnotation* s = this->GetCurrentAnnotation();
   if (s)
   {
-    vtkMTimeType stime = this->GetCurrentAnnotation()->GetMTime();
+    vtkMTimeType stime = s->GetMTime();
     if (stime > mtime)
     {
       mtime = stime;

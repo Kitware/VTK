@@ -478,6 +478,11 @@ void vtkParse_FreeFileCache(SystemInfo* info)
  */
 FILE* vtkParse_FileOpenNoDependency(const char* fname, const char* mode)
 {
+  if (!mode)
+  {
+    return NULL;
+  }
+
 #if defined(_WIN32) && defined(USE_WIDE_FILENAMES)
   int i;
   FILE* fp = NULL;
@@ -510,5 +515,5 @@ FILE* vtkParse_FileOpen(const char* fname, const char* mode)
     vtkParse_AddDependency(fname);
   }
 
-  return vtkParse_FileOpenNoDependency(fname, mode ? mode : "r");
+  return vtkParse_FileOpenNoDependency(fname, mode);
 }
