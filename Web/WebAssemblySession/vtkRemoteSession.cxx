@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+// Hide VTK_DEPRECATED_IN_9_5_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkRemoteSession.h"
 
 #include "vtkLogger.h"
@@ -38,9 +41,32 @@ bool vtkRemoteSession::UnRegisterState(vtkTypeUInt32 object)
 //-------------------------------------------------------------------------------
 emscripten::val vtkRemoteSession::GetState(vtkTypeUInt32 object)
 {
+  vtkGenericWarningMacro(<< "Please use vtkRemoteSession::Get(vtkTypeUInt32 object) instead. "
+                            "vtkRemoteSession::GetState(vtkTypeUInt32 object) "
+                            "will be removed in a future release.");
   auto resultImpl = vtkSessionGetState(this->Session, object);
   auto result = std::move(resultImpl->JsonValue);
   delete resultImpl;
+  return result;
+}
+
+//-------------------------------------------------------------------------------
+void vtkRemoteSession::Set(vtkTypeUInt32 object, emscripten::val properties)
+{
+  // Ensure the ID is set in the JSON state before updating the object
+  properties.set("Id", object);
+  vtkSessionJsonImpl propertiesImpl{ properties };
+  return vtkSessionUpdateObjectFromState(this->Session, &propertiesImpl);
+}
+
+//-------------------------------------------------------------------------------
+emscripten::val vtkRemoteSession::Get(vtkTypeUInt32 object)
+{
+
+  vtkSessionUpdateStateFromObject(this->Session, object);
+  auto propertiesImpl = vtkSessionGetState(this->Session, object);
+  auto result = std::move(propertiesImpl->JsonValue);
+  delete propertiesImpl;
   return result;
 }
 
