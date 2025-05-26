@@ -89,25 +89,18 @@ void vtkXMLPStructuredDataWriter::PrepareSummaryFile()
     int nPiecesTotal = 0;
     vtkIdType nPieces = static_cast<vtkIdType>(this->Extents.size());
 
-    vtkIdType* offsets = nullptr;
-    vtkIdType* nPiecesAll = nullptr;
-    vtkIdType* recvLengths = nullptr;
-    if (rank == 0)
+    vtkIdType* offsets = new vtkIdType[nRanks];
+    vtkIdType* nPiecesAll = new vtkIdType[nRanks];
+    vtkIdType* recvLengths = new vtkIdType[nRanks];
+
+    this->Controller->AllGather(&nPieces, nPiecesAll, 1);
+    for (int i = 0; i < nRanks; i++)
     {
-      nPiecesAll = new vtkIdType[nRanks];
-      recvLengths = new vtkIdType[nRanks];
-      offsets = new vtkIdType[nRanks];
+      offsets[i] = nPiecesTotal * 7;
+      nPiecesTotal += nPiecesAll[i];
+      recvLengths[i] = nPiecesAll[i] * 7;
     }
-    this->Controller->Gather(&nPieces, nPiecesAll, 1, 0);
-    if (rank == 0)
-    {
-      for (int i = 0; i < nRanks; i++)
-      {
-        offsets[i] = nPiecesTotal * 7;
-        nPiecesTotal += nPiecesAll[i];
-        recvLengths[i] = nPiecesAll[i] * 7;
-      }
-    }
+
     int* sendBuffer = nullptr;
     int sendSize = nPieces * 7;
     if (nPieces > 0)
