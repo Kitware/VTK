@@ -24,8 +24,12 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
+#include <memory> // for unique_ptr
+
 VTK_ABI_NAMESPACE_BEGIN
+
 class vtkIdList;
+class vtkEGLRenderWindowInternals;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkEGLRenderWindow : public vtkOpenGLRenderWindow
 {
@@ -40,7 +44,8 @@ public:
   void Frame() override;
 
   /**
-   * Overridden because vtkEGLRenderWindow window cannot be shown onscreen, except on android
+   * Overridden because vtkEGLRenderWindow window cannot be shown onscreen, except on android and
+   * wayland.
    */
   void SetShowWindow(bool) override;
 
@@ -211,8 +216,6 @@ protected:
   vtkTypeBool OwnWindow;
   bool IsPointSpriteBugTested;
   bool IsPointSpriteBugPresent_;
-  class vtkInternals;
-  vtkInternals* Internals;
 
   void CreateAWindow() override;
   void DestroyWindow() override;
@@ -228,6 +231,8 @@ protected:
 private:
   vtkEGLRenderWindow(const vtkEGLRenderWindow&) = delete;
   void operator=(const vtkEGLRenderWindow&) = delete;
+
+  std::unique_ptr<vtkEGLRenderWindowInternals> Internals;
 };
 
 VTK_ABI_NAMESPACE_END
