@@ -40,7 +40,10 @@
 #include "vtkThreadedImageAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIMAGINGMATH_EXPORT vtkImageMathematics : public vtkThreadedImageAlgorithm
+// Excluded from JavaScript wrapping because it provides overloads for SetInputConnection which
+// take precedence for all vtkAlgorithm(s)
+class VTKIMAGINGMATH_EXPORT VTK_WRAPEXCLUDE_JAVASCRIPT vtkImageMathematics
+  : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageMathematics* New();

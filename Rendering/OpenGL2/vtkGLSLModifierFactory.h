@@ -35,14 +35,7 @@ public:
   static void RegisterAMod(
     const std::string& modName, NewModFunction createFunction, void* userData = nullptr);
 
-protected:
-  vtkGLSLModifierFactory() = default;
-  ~vtkGLSLModifierFactory() = default;
-
 private:
-  vtkGLSLModifierFactory(const vtkGLSLModifierFactory&) = delete;
-  vtkGLSLModifierFactory& operator=(const vtkGLSLModifierFactory&) = delete;
-
   static vtkGLSLModifierFactory& GetInstance();
 
   struct ModCreator

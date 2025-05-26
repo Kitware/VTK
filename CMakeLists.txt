@@ -299,6 +299,10 @@ else ()
 endif ()
 set("_vtk_module_reason_VTK::Java"
   "via `VTK_WRAP_JAVA`")
+if (VTK_WRAP_JAVASCRIPT)
+  list(APPEND vtk_requested_modules
+    VTK::WrappingJavaScript)
+endif ()
 if (VTK_WRAP_SERIALIZATION)
   list(APPEND vtk_requested_modules
     VTK::SerializationManager)
@@ -745,6 +749,49 @@ if (VTK_WRAP_JAVA)
 
   enable_language(Java)
   add_subdirectory(Wrapping/Java)
+endif ()
+
+if (VTK_WRAP_JAVASCRIPT)
+  include (vtkModuleWrapJavaScript)
+  set(VTK_WASM_DEBUGINFO "NONE" CACHE STRING "Extent of debug information in webassembly binaries")
+  set_property(CACHE VTK_WASM_DEBUGINFO PROPERTY
+    STRINGS
+      NONE              # -g0
+      READABLE_JS       # -g1
+      PROFILE           # -g2
+      DEBUG_NATIVE      # -g3
+    )
+  set(VTK_WASM_OPTIMIZATION "SMALL" CACHE STRING "Optimization knobs for the webassembly binaries")
+  set_property(CACHE VTK_WASM_OPTIMIZATION PROPERTY
+    STRINGS
+      NO_OPTIMIZATION       # -O0
+      LITTLE                # -O1
+      MORE                  # -O2
+      BEST                  # -O3
+      SMALL                 # -Os
+      SMALLEST              # -Oz
+      SMALLEST_WITH_CLOSURE # -Oz --closure 1
+    )
+  vtk_module_wrap_javascript(
+    MODULES            ${vtk_modules}
+    TARGET_NAME        "vtkweb"
+    WRAPPED_MODULES    vtk_javascript_wrapped_modules
+    UTILITY_TARGET     "VTK::vtkbuild"
+    MODULE_EXPORT_NAME "VTKWebAssemblyModule"
+    INSTALL_EXPORT     VTKJavaScript
+    COMPONENT          "development"
+    DEBUG_INFO         "${VTK_WASM_DEBUGINFO}"
+    OPTIMIZATION       "${VTK_WASM_OPTIMIZATION}"
+    MEMORY64           "${VTK_WEBASSEMBLY_64_BIT}")
+
+  export(
+    EXPORT VTKJavaScript
+    FILE   "${CMAKE_BINARY_DIR}/${vtk_cmake_destination}/VTKJavaScript-targets.cmake")
+  install(
+    EXPORT      VTKJavaScript
+    FILE        VTKJavaScript-targets.cmake
+    DESTINATION "${vtk_cmake_destination}"
+    COMPONENT   "development")
 endif ()
 
 if (VTK_BUILD_TESTING)

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+
+<html>
+
+<body>
+  <script src="vtkWasmCanvas.js" type="module"></script>
+  <script src="vtkWasmConfiguration.js" type="module"></script>
+  <script src="vtkweb.js" type="module"></script>
+  <script type="module">
+    import { initializeVTKForRenderingWithWebGL } from './vtkWasmCanvas.js'
+    import VTKWebAssemblyModule from './vtkweb.js'
+    // Acquire a VTK WebGL configuration.
+    let vtkCfg = await initializeVTKForRenderingWithWebGL();
+    // Stream and compile VTK.wasm binary
+    let vtk = await VTKWebAssemblyModule(vtkCfg);
+
+    let canvas = document.getElementById('canvas');
+    console.log("VTK WebAssembly runtime initialized");
+
+    // download cow.vtp
+    let response = await fetch("https://data.kitware.com/api/v1/file/5afd936e8d777f15ebe1b4ea/download");
+    let contents = await response.arrayBuffer();
+
+    // setup a simple VTK IO pipeline.
+    let reader = new vtk.vtkXMLPolyDataReader();
+    let mapper = new vtk.vtkPolyDataMapper();
+    let actor = new vtk.vtkActor();
+    let renderer = new vtk.vtkRenderer();
+    let renderWindow = new vtk.vtkRenderWindow();
+    let renderWindowInteractor = new vtk.vtkRenderWindowInteractor();
+
+    // specify input string for the reader.
+    reader.SetReadFromInputString(true);
+    reader.SetInputString(contents);
+
+    // connect reader to the mapper
+    mapper.SetInputConnection(reader.GetOutputPort());
+    actor.SetMapper(mapper);
+
+    // add the actor to the renderer.
+    renderer.AddActor(actor);
+    renderer.GradientBackgroundOn();
+    renderer.SetBackground(0.96078431, 0.87058824, 0.70196078);
+    renderWindow.AddRenderer(renderer);
+    renderWindowInteractor.SetRenderWindow(renderWindow);
+
+    // setup picker
+    let areaPicker = new vtk.vtkAreaPicker();
+    renderWindowInteractor.SetPicker(areaPicker);
+
+    // For vtkInteractorStyleRubberBandPick - use 'r' and left-mouse to draw a
+    // selection box used to pick
+    // For vtkInteractorStyleTrackballCamera - use 'p' to pick at the current
+    // mouse position
+    let style = new vtk.vtkInteractorStyleRubberBandPick();
+    style.SetCurrentRenderer(renderer);
+    renderWindowInteractor.SetInteractorStyle(style);
+
+    // logs picked props to the console.
+    let pickCallback = new vtk.vtkCallbackCommand();
+    pickCallback.SetCallback((caller, evId, clientData, callData) => {
+      // log callback arguments. caller is a memory address to the vtkObject
+      console.debug(`pickCallback => vtkObject*:${caller}, eventId:${vtk.vtkCommand.GetStringFromEventId(evId)}, clientData:${clientData}, callData:${callData}`);
+      // get picked props
+      let props = areaPicker.GetProp3Ds();
+      props.InitTraversal();
+      for (let i = 0; i < props.GetNumberOfItems(); ++i) {
+        let prop = props.GetNextProp3D();
+        console.info("Picked prop: ", prop);
+      }
+    });
+    // Observe the area picker for 'EndPickEvent'.
+    areaPicker.AddObserver('EndPickEvent', pickCallback, /*priority=*/0.0);
+
+    // for access in dev console.
+    window.vtk = vtk;
+    window.renderer = renderer;
+    window.renderWindow = renderWindow;
+    window.areaPicker = areaPicker;
+    window.renderWindowInteractor = renderWindowInteractor;
+
+    // sends a resize event so that the render window fills up browser tab dimensions.
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 0);
+    // focus on the canvas to grab keyboard inputs.
+    canvas.setAttribute('tabindex', '0');
+    // grab focus when the render window region receives mouse clicks.
+    canvas.addEventListener('click', () => canvas.focus());
+
+    // start the event loop on browser UI thread.
+    renderWindowInteractor.Start()
+  </script>
+</body>
+
+</html>

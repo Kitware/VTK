@@ -1271,3 +1271,19 @@ int vtkWrapText_IsPythonKeyword(const char* name)
   }
   return 0;
 }
+
+int vtkWrapText_IsJavaScriptKeyword(const char* name)
+{
+  const char* text = name;
+  /* The keywords must be lexically sorted in order for bsearch to work */
+  const char* specials[] = { "break", "case", "catch", "class", "const", "continue", "debugger",
+    "default", "delete", "do", "else", "export", "extends", "false", "finally", "for", "function",
+    "if", "import", "in", "instanceof", "new", "null", "return", "super", "switch", "this", "throw",
+    "true", "try", "typeof", "var", "void", "while", "with", "let ", "static", "yield", "await" };
+
+  if (bsearch(&text, specials, sizeof(specials) / sizeof(char*), sizeof(char*), stringcomp))
+  {
+    return 1;
+  }
+  return 0;
+}

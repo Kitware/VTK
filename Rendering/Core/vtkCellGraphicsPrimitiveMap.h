@@ -25,7 +25,8 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
-class VTKRENDERINGCORE_EXPORT vtkCellGraphicsPrimitiveMap : vtkObject
+
+class VTKRENDERINGCORE_EXPORT vtkCellGraphicsPrimitiveMap : public vtkObject
 {
 public:
   static vtkCellGraphicsPrimitiveMap* New();

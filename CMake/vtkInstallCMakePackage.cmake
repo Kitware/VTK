@@ -141,6 +141,7 @@ set(vtk_cmake_module_files
   vtkModuleSerialization.cmake
   vtkModuleTesting.cmake
   vtkModuleWrapJava.cmake
+  vtkModuleWrapJavaScript.cmake
   vtkModuleWrapPython.cmake
   vtkObjectFactory.cmake
   vtkObjectFactory.cxx.in
