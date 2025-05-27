@@ -186,8 +186,9 @@ if (NOT TARGET WrapJavaScript)
     # permit memory growth to generate arbitrary sized embind CXX files.
     target_link_options(WrapJavaScript
       PRIVATE
-        "SHELL:-s ALLOW_MEMORY_GROWTH=1"
-        "SHELL:-s NODERAWFS=1")
+        "-sALLOW_MEMORY_GROWTH=1"
+        "-sSINGLE_FILE=1"
+        "-sNODERAWFS=1")
   endif ()
   target_link_libraries(WrapJavaScript
     PRIVATE
