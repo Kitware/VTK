@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+// Hide VTK_DEPRECATED_IN_9_5_0() warnings.
+#define VTK_DEPRECATION_LEVEL 0
+
 // Init factories.
 #include "vtkLogger.h"
 #if VTK_MODULE_ENABLE_VTK_RenderingContextOpenGL2
@@ -124,6 +127,8 @@ EMSCRIPTEN_BINDINGS(vtkWebAssemblyAsyncBindings)
     .function("registerState", &vtkRemoteSession::RegisterState)
     .function("unRegisterState", &vtkRemoteSession::UnRegisterState)
     .function("getState", &vtkRemoteSession::GetState)
+    .function("set", &vtkRemoteSession::Set)
+    .function("get", &vtkRemoteSession::Get)
     .function("skipProperty", &vtkRemoteSession::SkipProperty)
     .function("unSkipProperty", &vtkRemoteSession::UnSkipProperty)
     .function("registerBlob", &vtkRemoteSession::RegisterBlob)

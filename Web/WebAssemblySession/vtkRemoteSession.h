@@ -33,6 +33,8 @@
 #include "vtkType.h"                     // for vtkTypeUInt32
 #include "vtkWebAssemblySessionModule.h" // for no export macro
 
+#include "vtkDeprecation.h" // for VTK_DEPRECATED_IN_9_5_0
+
 #include <emscripten/val.h> // for emscripten::val
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -70,7 +72,18 @@ public:
    * @param object The handle of the VTK object.
    * @return A JavaScript object representing the state.
    */
+  VTK_DEPRECATED_IN_9_5_0("Use vtkRemoteSession::Get(vtkTypeUInt32 object) instead.")
   emscripten::val GetState(vtkTypeUInt32 object);
+
+  /**
+   * Set properties of a VTKObject
+   */
+  void Set(vtkTypeUInt32 object, emscripten::val properties);
+
+  /**
+   * Get all properties of a VTKObject
+   */
+  emscripten::val Get(vtkTypeUInt32 object);
 
   /**
    * @brief Skips a property during serialization or deserialization.
