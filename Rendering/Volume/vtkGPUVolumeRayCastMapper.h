@@ -22,13 +22,14 @@
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeMapper.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkContourValues;
 class vtkRenderWindow;
 class vtkVolumeProperty;
 
-class VTKRENDERINGVOLUME_EXPORT vtkGPUVolumeRayCastMapper : public vtkVolumeMapper
+class VTKRENDERINGVOLUME_EXPORT VTK_MARSHALAUTO vtkGPUVolumeRayCastMapper : public vtkVolumeMapper
 {
 public:
   static vtkGPUVolumeRayCastMapper* New();
@@ -46,6 +47,9 @@ public:
   vtkGetMacro(AutoAdjustSampleDistances, vtkTypeBool);
   vtkBooleanMacro(AutoAdjustSampleDistances, vtkTypeBool);
   ///@}
+
+  std::vector<int> GetPorts() { return this->Ports; }
+  void SetPorts(std::vector<int> ports) { this->Ports = ports; }
 
   ///@{
   /**
@@ -89,6 +93,7 @@ public:
    * will be used only when UseDepthPass is on.
    */
   vtkContourValues* GetDepthPassContourValues();
+  void SetDepthPassContourValues(vtkContourValues*);
 
   ///@{
   /**

@@ -17,11 +17,12 @@
 
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 
-class VTKCOMMONMISC_EXPORT vtkContourValues : public vtkObject
+class VTKCOMMONMISC_EXPORT VTK_MARSHALAUTO vtkContourValues : public vtkObject
 {
 public:
   /**
@@ -54,6 +55,9 @@ public:
    * allocated memory of size GetNumberOfContours().
    */
   void GetValues(double* contourValues);
+
+  vtkGetObjectMacro(Contours, vtkDoubleArray);
+  void SetContours(vtkDoubleArray*);
 
   /**
    * Set the number of contours to place into the list. You only really

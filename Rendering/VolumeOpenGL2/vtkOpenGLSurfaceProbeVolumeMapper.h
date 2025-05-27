@@ -45,6 +45,7 @@
 #include "vtkNew.h" // For vtkNew
 #include "vtkOpenGLPolyDataMapper.h"
 #include "vtkRenderingVolumeOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"                // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLFramebufferObject;
@@ -52,7 +53,7 @@ class vtkOpenGLRenderWindow;
 class vtkTextureObject;
 class vtkVolumeTexture;
 
-class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLSurfaceProbeVolumeMapper
+class VTKRENDERINGVOLUMEOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLSurfaceProbeVolumeMapper
   : public vtkOpenGLPolyDataMapper
 {
 public:
@@ -133,7 +134,7 @@ protected:
 
 private:
   vtkOpenGLSurfaceProbeVolumeMapper();
-  ~vtkOpenGLSurfaceProbeVolumeMapper() override = default;
+  ~vtkOpenGLSurfaceProbeVolumeMapper() override;
 
   void CreateTexture(vtkTextureObject*, vtkOpenGLRenderWindow*);
   void ReplaceActiveFBO(vtkRenderer*);

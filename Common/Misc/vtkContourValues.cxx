@@ -7,6 +7,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContourValues);
 
+vtkCxxSetObjectMacro(vtkContourValues, Contours, vtkDoubleArray);
+
 // Construct object with a single contour value at 0.0.
 vtkContourValues::vtkContourValues()
 {

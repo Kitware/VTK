@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkArrayDispatch.h"
 #include "vtkBitArray.h"
+#include "vtkCharArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDeserializer.h"
@@ -58,6 +59,7 @@ struct ArrayTypeInfo
   { #className, className::New, typeid(className) }
 std::vector<ArrayTypeInfo> ArrayTypes = {
   TYPE_INFO_MACRO(vtkBitArray),
+  TYPE_INFO_MACRO(vtkCharArray),
   TYPE_INFO_MACRO(vtkDoubleArray),
   TYPE_INFO_MACRO(vtkFloatArray),
   TYPE_INFO_MACRO(vtkIdTypeArray),

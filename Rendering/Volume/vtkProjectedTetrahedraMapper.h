@@ -24,6 +24,7 @@
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeMapper.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
@@ -33,7 +34,7 @@ class vtkVisibilitySort;
 class vtkVolumeProperty;
 class vtkRenderWindow;
 
-class VTKRENDERINGVOLUME_EXPORT vtkProjectedTetrahedraMapper
+class VTKRENDERINGVOLUME_EXPORT VTK_MARSHALAUTO vtkProjectedTetrahedraMapper
   : public vtkUnstructuredGridVolumeMapper
 {
 public:

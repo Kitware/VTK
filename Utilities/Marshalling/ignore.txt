@@ -333,7 +333,6 @@ Common/DataModel/vtkImageIterator.h
 Common/DataModel/vtkImageTransform.h
 Common/DataModel/vtkImplicitBoolean.h
 Common/DataModel/vtkImplicitDataSet.h
-Common/DataModel/vtkImplicitFunction.h
 Common/DataModel/vtkImplicitFunctionCollection.h
 Common/DataModel/vtkImplicitHalo.h
 Common/DataModel/vtkImplicitSelectionLoop.h
@@ -385,8 +384,6 @@ Common/DataModel/vtkPerlinNoise.h
 Common/DataModel/vtkPixel.h
 Common/DataModel/vtkPixelExtent.h
 Common/DataModel/vtkPixelTransfer.h
-Common/DataModel/vtkPlane.h
-Common/DataModel/vtkPlaneCollection.h
 Common/DataModel/vtkPlanes.h
 Common/DataModel/vtkPlanesIntersection.h
 Common/DataModel/vtkPointLocator.h
@@ -415,7 +412,6 @@ Common/DataModel/vtkQuadraticWedge.h
 Common/DataModel/vtkQuadratureSchemeDefinition.h
 Common/DataModel/vtkQuadric.h
 Common/DataModel/vtkRect.h
-Common/DataModel/vtkRectilinearGrid.h
 Common/DataModel/vtkReebGraph.h
 Common/DataModel/vtkReebGraphSimplificationMetric.h
 Common/DataModel/vtkSelection.h
@@ -437,7 +433,6 @@ Common/DataModel/vtkStaticPointLocator2D.h
 Common/DataModel/vtkStructuredCellArray.h
 Common/DataModel/vtkStructuredData.h
 Common/DataModel/vtkStructuredExtent.h
-Common/DataModel/vtkStructuredPoints.h
 Common/DataModel/vtkStructuredPointsCollection.h
 Common/DataModel/vtkSuperquadric.h
 Common/DataModel/vtkTetra.h
@@ -450,7 +445,6 @@ Common/DataModel/vtkTriQuadraticPyramid.h
 Common/DataModel/vtkTriangle.h
 Common/DataModel/vtkTriangleStrip.h
 Common/DataModel/vtkUndirectedGraph.h
-Common/DataModel/vtkUniformGrid.h
 Common/DataModel/vtkUniformGridAMR.h
 Common/DataModel/vtkUniformGridAMRDataIterator.h
 Common/DataModel/vtkUniformHyperTreeGrid.h
@@ -661,7 +655,6 @@ Rendering/Core/vtkBillboardTextActor3D.h
 Rendering/Core/vtkCIEDE2000.h
 Rendering/Core/vtkCameraActor.h
 Rendering/Core/vtkCameraInterpolator.h
-Rendering/Core/vtkCellCenterDepthSort.h
 Rendering/Core/vtkCellGraphicsPrimitiveMap.h
 Rendering/Core/vtkCellGridMapper.h
 Rendering/Core/vtkCellGridRenderRequest.h
@@ -685,7 +678,6 @@ Rendering/Core/vtkInteractorEventRecorder.h
 Rendering/Core/vtkInteractorStyle3D.h
 Rendering/Core/vtkLODProp3D.h
 Rendering/Core/vtkLabeledDatatypeDefinitions.h
-Rendering/Core/vtkLightActor.h
 Rendering/Core/vtkLightKit.h
 Rendering/Core/vtkLookupTableWithEnabling.h
 Rendering/Core/vtkMapArrayValues.h
@@ -723,7 +715,6 @@ Rendering/Core/vtkTransformInterpolator.h
 Rendering/Core/vtkTupleInterpolator.h
 Rendering/Core/vtkUniforms.h
 Rendering/Core/vtkViewDependentErrorMetric.h
-Rendering/Core/vtkVisibilitySort.h
 Rendering/Core/vtkWindowLevelLookupTable.h
 Rendering/Core/vtkWindowToImageFilter.h
 Rendering/LICOpenGL2/vtkBatchedSurfaceLICMapper.h
@@ -823,11 +814,7 @@ Rendering/Volume/vtkFixedPointVolumeRayCastCompositeHelper.h
 Rendering/Volume/vtkFixedPointVolumeRayCastCompositeShadeHelper.h
 Rendering/Volume/vtkFixedPointVolumeRayCastHelper.h
 Rendering/Volume/vtkFixedPointVolumeRayCastMIPHelper.h
-Rendering/Volume/vtkFixedPointVolumeRayCastMapper.h
-Rendering/Volume/vtkGPUVolumeRayCastMapper.h
-Rendering/Volume/vtkMultiVolume.h
 Rendering/Volume/vtkOSPRayVolumeInterface.h
-Rendering/Volume/vtkProjectedTetrahedraMapper.h
 Rendering/Volume/vtkRayCastImageDisplayHelper.h
 Rendering/Volume/vtkRecursiveSphereDirectionEncoder.h
 Rendering/Volume/vtkSphericalDirectionEncoder.h
@@ -836,7 +823,6 @@ Rendering/Volume/vtkUnstructuredGridHomogeneousRayIntegrator.h
 Rendering/Volume/vtkUnstructuredGridLinearRayIntegrator.h
 Rendering/Volume/vtkUnstructuredGridPartialPreIntegration.h
 Rendering/Volume/vtkUnstructuredGridPreIntegration.h
-Rendering/Volume/vtkUnstructuredGridVolumeMapper.h
 Rendering/Volume/vtkUnstructuredGridVolumeRayCastFunction.h
 Rendering/Volume/vtkUnstructuredGridVolumeRayCastIterator.h
 Rendering/Volume/vtkUnstructuredGridVolumeRayCastMapper.h
@@ -845,11 +831,7 @@ Rendering/Volume/vtkUnstructuredGridVolumeZSweepMapper.h
 Rendering/Volume/vtkVolumeOutlineSource.h
 Rendering/Volume/vtkVolumePicker.h
 Rendering/Volume/vtkVolumeRayCastSpaceLeapingImageFilter.h
-Rendering/VolumeOpenGL2/vtkMultiBlockUnstructuredGridVolumeMapper.h
-Rendering/VolumeOpenGL2/vtkMultiBlockVolumeMapper.h
-Rendering/VolumeOpenGL2/vtkOpenGLProjectedTetrahedraMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLRayCastImageDisplayHelper.h
-Rendering/VolumeOpenGL2/vtkOpenGLSurfaceProbeVolumeMapper.h
 Rendering/VolumeOpenGL2/vtkOpenGLVolumeGradientOpacityTable.h
 Rendering/VolumeOpenGL2/vtkOpenGLVolumeLookupTable.h
 Rendering/VolumeOpenGL2/vtkOpenGLVolumeLookupTables.h

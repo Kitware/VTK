@@ -29,6 +29,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkSmartPointer.h"          // For vtkSmartPointer
 #include "vtkVolume.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractVolumeMapper;
@@ -40,7 +41,7 @@ class vtkWindow;
 class vtkVolumeProperty;
 class vtkAbstractVolumeMapper;
 
-class VTKRENDERINGVOLUME_EXPORT vtkMultiVolume : public vtkVolume
+class VTKRENDERINGVOLUME_EXPORT VTK_MARSHALMANUAL vtkMultiVolume : public vtkVolume
 {
 public:
   static vtkMultiVolume* New();
@@ -67,6 +68,9 @@ public:
   void SetProperty(vtkVolumeProperty* property) override;
   vtkVolumeProperty* GetProperty() override;
   ///@}
+
+  std::unordered_map<int, vtkVolume*>& GetAllVolumes() { return this->Volumes; }
+  void SetAllVolumes(std::unordered_map<int, vtkVolume*>& volumes);
 
   /**
    * Computes the bounds of the box containing all of the vtkVolume instances.

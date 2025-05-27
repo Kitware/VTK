@@ -15,11 +15,12 @@
 
 #include "vtkCollection.h"
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
 
 #include "vtkPlane.h" // Needed for inline methods
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONDATAMODEL_EXPORT vtkPlaneCollection : public vtkCollection
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkPlaneCollection : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkPlaneCollection, vtkCollection);

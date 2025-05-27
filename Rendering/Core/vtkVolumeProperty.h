@@ -129,7 +129,6 @@ public:
    * color channels for this component to 1.
    */
   void SetColor(int index, vtkPiecewiseFunction* function);
-  VTK_MARSHALSETTER(GrayTransferFunction)
   void SetColor(vtkPiecewiseFunction* function) { this->SetColor(0, function); }
 
   /**
@@ -139,7 +138,6 @@ public:
    * This will also recompute the color channels
    */
   void SetColor(int index, vtkColorTransferFunction* function);
-  VTK_MARSHALSETTER(RGBTransferFunction)
   void SetColor(vtkColorTransferFunction* function) { this->SetColor(0, function); }
 
   /**
@@ -155,8 +153,13 @@ public:
    * is created and returned.
    */
   vtkPiecewiseFunction* GetGrayTransferFunction(int index);
-  VTK_MARSHALGETTER(GrayTransferFunction)
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkPiecewiseFunction* GetGrayTransferFunction() { return this->GetGrayTransferFunction(0); }
+  void SetGrayTransferFunction(int index, vtkPiecewiseFunction* function)
+  {
+    SetColor(index, function);
+  }
+  int GetNumberOfGrayTransferFunctions() { return VTK_MAX_VRCOMP; }
 
   /**
    * Get the RGB transfer function for the given component.
@@ -164,14 +167,21 @@ public:
    * is created and returned.
    */
   vtkColorTransferFunction* GetRGBTransferFunction(int index);
-  VTK_MARSHALGETTER(RGBTransferFunction)
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkColorTransferFunction* GetRGBTransferFunction() { return this->GetRGBTransferFunction(0); }
+  void SetRGBTransferFunction(int index, vtkColorTransferFunction* function)
+  {
+    SetColor(index, function);
+  }
+  int GetNumberOfRGBTransferFunctions() { return VTK_MAX_VRCOMP; }
 
   /**
    * Set the opacity of a volume to an opacity transfer function based
    * on scalar value for the component indicated by index.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetScalarOpacity(int index, vtkPiecewiseFunction* function);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetScalarOpacity(vtkPiecewiseFunction* function) { this->SetScalarOpacity(0, function); }
 
   /**
@@ -179,8 +189,23 @@ public:
    * If no transfer function has been set for this component, a default one
    * is created and returned.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkPiecewiseFunction* GetScalarOpacity(int index);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkPiecewiseFunction* GetScalarOpacity() { return this->GetScalarOpacity(0); }
+
+  ///@{
+  /**
+   * Get/Set the scalar opacity transfer function for the given component.
+   * If no transfer function has been set for this component, returns `nullptr`.
+   */
+  void SetScalarOpacityFunction(int index, vtkPiecewiseFunction* function)
+  {
+    SetScalarOpacity(index, function);
+  };
+  vtkPiecewiseFunction* GetScalarOpacityFunction(int index) { return this->ScalarOpacity[index]; }
+  int GetNumberOfScalarOpacityFunctions() { return VTK_MAX_VRCOMP; }
+  ///@}
 
   ///@{
   /**
@@ -190,11 +215,13 @@ public:
    * This is adjusted for the actual sampling distance during rendering.
    */
   void SetScalarOpacityUnitDistance(int index, double distance);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetScalarOpacityUnitDistance(double distance)
   {
     this->SetScalarOpacityUnitDistance(0, distance);
   }
   double GetScalarOpacityUnitDistance(int index);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   double GetScalarOpacityUnitDistance() { return this->GetScalarOpacityUnitDistance(0); }
   ///@}
 
@@ -202,8 +229,24 @@ public:
    * Set the opacity of a volume to an opacity transfer function based
    * on gradient magnitude for the given component.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetGradientOpacity(int index, vtkPiecewiseFunction* function);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetGradientOpacity(vtkPiecewiseFunction* function) { this->SetGradientOpacity(0, function); }
+
+  ///@{
+  /**
+   * Set/Get the gradient magnitude opacity transfer function for
+   * the given component.
+   * If no transfer function has been set for this component, returns `nullptr`.
+   */
+  void SetGradientOpacityFunction(int index, vtkPiecewiseFunction* function)
+  {
+    this->SetGradientOpacity(index, function);
+  }
+  vtkPiecewiseFunction* GetGradientOpacityFunction(int index) { return GradientOpacity[index]; }
+  int GetNumberOfGradientOpacityFunctions() { return VTK_MAX_VRCOMP; }
+  ///@}
 
   ///@{
   /**
@@ -213,10 +256,13 @@ public:
    * for a salar value of X and a gradient magnitude of Y.
    */
   void SetTransferFunction2D(int index, vtkImageData* function);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetTransferFunction2D(vtkImageData* function) { this->SetTransferFunction2D(0, function); }
 
   vtkImageData* GetTransferFunction2D(int index);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkImageData* GetTransferFunction2D() { return this->GetTransferFunction2D(0); }
+  int GetNumberOfTransferFunction2Ds() { return VTK_MAX_VRCOMP; }
 
   /**
    * Color-opacity transfer function mode. TF_1D is its default value.
@@ -245,7 +291,9 @@ public:
    * This default function is always returned if DisableGradientOpacity is On
    * for that component.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkPiecewiseFunction* GetGradientOpacity(int index);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkPiecewiseFunction* GetGradientOpacity() { return this->GetGradientOpacity(0); }
 
   ///@{
@@ -257,12 +305,14 @@ public:
    * GetStoredGradientOpacity().
    */
   virtual void SetDisableGradientOpacity(int index, int value);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetDisableGradientOpacity(int value) { this->SetDisableGradientOpacity(0, value); }
   virtual void DisableGradientOpacityOn(int index) { this->SetDisableGradientOpacity(index, 1); }
   virtual void DisableGradientOpacityOn() { this->DisableGradientOpacityOn(0); }
   virtual void DisableGradientOpacityOff(int index) { this->SetDisableGradientOpacity(index, 0); }
   virtual void DisableGradientOpacityOff() { this->DisableGradientOpacityOff(0); }
   virtual int GetDisableGradientOpacity(int index);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual int GetDisableGradientOpacity() { return this->GetDisableGradientOpacity(0); }
   vtkPiecewiseFunction* GetStoredGradientOpacity(int index);
   vtkPiecewiseFunction* GetStoredGradientOpacity() { return this->GetStoredGradientOpacity(0); }

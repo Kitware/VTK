@@ -54,6 +54,14 @@ void vtkMultiVolume::SetVolume(vtkVolume* vol, int port)
   }
 }
 
+void vtkMultiVolume::SetAllVolumes(std::unordered_map<int, vtkVolume*>& volumes)
+{
+  for (auto& item : volumes)
+  {
+    this->SetVolume(item.second, item.first);
+  }
+}
+
 vtkVolume* vtkMultiVolume::GetVolume(int port)
 {
   auto vol = this->FindVolume(port);

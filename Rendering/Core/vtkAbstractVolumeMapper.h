@@ -87,12 +87,16 @@ public:
   virtual void SelectScalarArray(const char* arrayName);
   ///@}
 
+  ///@{
   /**
-   * Get the array name or number and component to use for rendering.
+   * Get/Set the array name or number and component to use for rendering.
    */
   virtual char* GetArrayName() { return this->ArrayName; }
+  vtkSetStringMacro(ArrayName);
   virtual int GetArrayId() { return this->ArrayId; }
+  vtkSetMacro(ArrayId, int);
   virtual int GetArrayAccessMode() { return this->ArrayAccessMode; }
+  ///@}
 
   /**
    * Return the method for obtaining scalar data.

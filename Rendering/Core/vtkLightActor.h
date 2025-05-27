@@ -27,6 +27,7 @@
 
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLight;
@@ -38,7 +39,7 @@ class vtkCameraActor;
 class vtkBoundingBox;
 class vtkProperty;
 
-class VTKRENDERINGCORE_EXPORT vtkLightActor : public vtkProp3D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkLightActor : public vtkProp3D
 {
 public:
   static vtkLightActor* New();

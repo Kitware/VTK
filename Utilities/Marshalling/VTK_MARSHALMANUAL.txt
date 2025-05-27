@@ -22,3 +22,4 @@ Rendering/Core/vtkDataSetMapper.h
 Rendering/Core/vtkDiscretizableColorTransferFunction.h
 Rendering/Core/vtkShaderProperty.h
 Rendering/Core/vtkTexture.h
+Rendering/Volume/vtkMultiVolume.h

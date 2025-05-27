@@ -13,13 +13,14 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkImageData.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkEmptyCell;
 class vtkUnsignedCharArray;
 class vtkAMRBox;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkUniformGrid : public vtkImageData
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkUniformGrid : public vtkImageData
 {
 public:
   ///@{

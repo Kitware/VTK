@@ -30,6 +30,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkAbstractObjectFactoryNewMacro(vtkGPUVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, MaskInput, vtkImageData);
+vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, DepthPassContourValues, vtkContourValues);
 
 vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   : LockSampleDistanceToInputSpacing(0)
