@@ -83,13 +83,6 @@ if (NOT TARGET "${ns}::WrapHierarchy")
   endif ()
   add_executable("${ns}::WrapHierarchy" ALIAS
     WrapHierarchy)
-  # Install wasm file next to the corresponding js file
-  # https://gitlab.kitware.com/cmake/cmake/-/issues/20745
-  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-    install(FILES
-      "$<TARGET_FILE_DIR:WrapHierarchy>/$<TARGET_FILE_BASE_NAME:WrapHierarchy>.wasm"
-      DESTINATION "${_vtk_build_RUNTIME_DESTINATION}")
-  endif()
 endif ()
 
 if (NOT TARGET WrapPython)
@@ -201,11 +194,4 @@ if (NOT TARGET WrapJavaScript)
       "${ns}::WrappingTools")
   add_executable("${ns}::WrapJavaScript" ALIAS
     WrapJavaScript)
-  # Install wasm file next to the corresponding js file
-  # https://gitlab.kitware.com/cmake/cmake/-/issues/20745
-  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-    install(FILES
-      "$<TARGET_FILE_DIR:WrapJavaScript>/$<TARGET_FILE_BASE_NAME:WrapJavaScript>.wasm"
-      DESTINATION "${_vtk_build_RUNTIME_DESTINATION}")
-  endif()
 endif ()
