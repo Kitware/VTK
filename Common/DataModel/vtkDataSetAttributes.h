@@ -28,6 +28,10 @@
  * group of sources have in common, and to copy tuples from a source into
  * the destination, for only those attributes that are held by all.
  *
+ * Note that each data array is assumed to have the same number of tuples,
+ * which typically corresponds to the number of
+ * points or cells in a dataset.
+ *
  * @warning
  * vtkDataSetAttributes is not in general thread safe due to the use of its
  * vtkFieldData::BasicIterator RequiredArrays data member. The class
