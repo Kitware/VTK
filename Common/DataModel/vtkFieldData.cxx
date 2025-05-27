@@ -332,37 +332,37 @@ vtkTypeBool vtkFieldData::Allocate(vtkIdType sz, vtkIdType ext)
 }
 
 //------------------------------------------------------------------------------
-void vtkFieldData::CopyStructure(vtkFieldData* r)
+void vtkFieldData::CopyStructure(vtkFieldData* inputField)
 {
   // Free old fields.
   this->InitializeFields();
 
   // Allocate new fields.
-  this->AllocateArrays(r->GetNumberOfArrays());
-  this->NumberOfActiveArrays = r->GetNumberOfArrays();
+  this->AllocateArrays(inputField->GetNumberOfArrays());
+  this->NumberOfActiveArrays = inputField->GetNumberOfArrays();
 
   // Copy the data array's structure (ie nTups,nComps,name, and info)
   // don't copy their data.
-  for (int i = 0; i < r->GetNumberOfArrays(); ++i)
+  for (int arrayIdx = 0; arrayIdx < inputField->GetNumberOfArrays(); ++arrayIdx)
   {
-    if (!r->Data[i])
+    if (!inputField->Data[arrayIdx])
     {
       continue;
     }
 
-    vtkAbstractArray* data = r->Data[i]->NewInstance();
-    int numComponents = r->Data[i]->GetNumberOfComponents();
+    vtkAbstractArray* data = inputField->Data[arrayIdx]->NewInstance();
+    int numComponents = inputField->Data[arrayIdx]->GetNumberOfComponents();
     data->SetNumberOfComponents(numComponents);
-    data->SetName(r->Data[i]->GetName());
+    data->SetName(inputField->Data[arrayIdx]->GetName());
     for (vtkIdType j = 0; j < numComponents; ++j)
     {
-      data->SetComponentName(j, r->Data[i]->GetComponentName(j));
+      data->SetComponentName(j, inputField->Data[arrayIdx]->GetComponentName(j));
     }
-    if (r->Data[i]->HasInformation())
+    if (inputField->Data[arrayIdx]->HasInformation())
     {
-      data->CopyInformation(r->Data[i]->GetInformation(), /*deep=*/1);
+      data->CopyInformation(inputField->Data[arrayIdx]->GetInformation(), /*deep=*/1);
     }
-    this->SetArray(i, data);
+    this->SetArray(arrayIdx, data);
     data->Delete();
   }
 }
