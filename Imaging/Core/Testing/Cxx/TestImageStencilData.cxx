@@ -12,6 +12,7 @@
 #include "vtkLinearExtrusionFilter.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMatrixToLinearTransform.h"
+#include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataToImageStencil.h"
@@ -154,8 +155,8 @@ int TestImageStencilData(int argc, char* argv[])
   vtkSmartPointer<vtkImageStencilData> stencil1 = CreateBoxStencilData(10.0, 30.0);
   vtkSmartPointer<vtkImageStencilData> stencil2 = CreateBoxStencilData(20.0, 40.0);
 
-  vtkImageData* image = vtkImageData::New();
-  vtkTesting* testing = vtkTesting::New();
+  vtkNew<vtkImageData> image;
+  vtkNew<vtkTesting> testing;
   int cc;
   for (cc = 1; cc < argc; cc++)
   {
@@ -187,14 +188,13 @@ int TestImageStencilData(int argc, char* argv[])
   }
   else
   {
-    return EXIT_FAILURE;
+    std::cout << "Expected argument '1', or '2', or '3'. Skipping...\n";
+    return VTK_SKIP_RETURN_CODE;
   }
 
   vtkSmartPointer<vtkTrivialProducer> producer = vtkSmartPointer<vtkTrivialProducer>::New();
   producer->SetOutput(image);
   int retval = testing->RegressionTest(producer, 0.05);
-  testing->Delete();
-  image->Delete();
 
   return !retval;
 }

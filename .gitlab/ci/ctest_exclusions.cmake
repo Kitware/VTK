@@ -603,7 +603,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestValuePassFloatingPoint$"
     "^VTK::RenderingOpenGL2Cxx-TestValuePassFloatingPoint2$"
     "^VTK::RenderingOpenGL2Cxx-TestVBOPLYMapper$"
-    "^VTK::RenderingOpenGL2Cxx-TestWindowBlits$")
+    "^VTK::RenderingOpenGL2Cxx-TestWindowBlits$"
+    "^VTK::RenderingWebGPUCxx-TestGlyph3DMapperCompositeDisplayAttributeInheritance$" # vtk/vtk#19682
+    )
 endif ()
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_webgpu")

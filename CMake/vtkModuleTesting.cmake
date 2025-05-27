@@ -16,6 +16,34 @@ order to indicate that test data is required.
 include(ExternalData)
 get_filename_component(_vtkModuleTesting_dir "${CMAKE_CURRENT_LIST_FILE}" DIRECTORY)
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  add_test(
+    NAME HTTPServerStart
+    COMMAND  "${CMAKE_CROSSCOMPILING_EMULATOR}"
+      "${_vtkModuleTesting_dir}/wasm/server.js"
+      "--directory"
+      "${CMAKE_BINARY_DIR}/Testing/Temporary"
+      "--port"
+      "0"
+      "--operation"
+      "start")
+  set_tests_properties(HTTPServerStart
+    PROPERTIES
+      FIXTURES_SETUP "HTTP")
+  add_test(
+    NAME HTTPServerStop
+    COMMAND  "${CMAKE_CROSSCOMPILING_EMULATOR}"
+      "${_vtkModuleTesting_dir}/wasm/server.js"
+      "--directory"
+      "${CMAKE_BINARY_DIR}/Testing/Temporary"
+      "--port"
+      "0"
+      "--operation"
+      "stop")
+  set_tests_properties(HTTPServerStop
+    PROPERTIES
+      FIXTURES_CLEANUP "HTTP")
+endif ()
 #[==[.rst:
 Loading data
 ^^^^^^^^^^^^
@@ -409,10 +437,15 @@ function (vtk_add_test_cxx exename _tests)
     if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       if (_vtk_test_cxx_wasm_enabled_in_browser)
         set(_vtk_test_cxx_pre_args
-          "$<TARGET_FILE:Python3::Interpreter>"
-          "${VTK_SOURCE_DIR}/Testing/WebAssembly/runner.py"
-          "--engine=${VTK_TESTING_WASM_ENGINE}"
-          "--exit")
+          "${CMAKE_COMMAND}"
+          "-DEXIT_AFTER_TEST=ON"
+          "-DTESTING_WASM_ENGINE=${VTK_TESTING_WASM_ENGINE}"
+          "-DTESTING_WASM_HTML_TEMPLATE=${_vtkModuleTesting_dir}/wasm/vtkWasmTest.html.in"
+          "-DTEST_NAME=${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
+          "-DTEST_OUTPUT_DIR=${_vtk_build_TEST_OUTPUT_DIRECTORY}"
+          -P
+          "${_vtkModuleTesting_dir}/wasm/vtkWasmTestRunner.cmake"
+          "--")
       else ()
         ExternalData_add_test("${_vtk_build_TEST_DATA_TARGET}"
           NAME    "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
@@ -444,7 +477,12 @@ function (vtk_add_test_cxx exename _tests)
         ENVIRONMENT "${vtk_testing}"
         SKIP_RETURN_CODE 125 # This must match VTK_SKIP_RETURN_CODE in vtkTesting.h
       )
-
+    if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+      set_tests_properties("${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}"
+        PROPERTIES
+          FIXTURES_REQUIRED "HTTP"
+        )
+    endif ()
     if (_vtk_testing_ld_preload)
       set_property(TEST "${_vtk_build_test}Cxx-${vtk_test_prefix}${test_name}" APPEND
         PROPERTY

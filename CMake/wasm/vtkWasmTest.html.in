@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <style>
+    .vtk_test_suite {
+      padding-right: 0;
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
+    }
+    body {
+      background-color: black;
+    }
+    /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+    canvas.vtk_test_suite {
+      border: 0px none;
+      background-color: black;
+    }
+  </style>
+</head>
+<body>
+  <canvas class="vtk_test_suite" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+  <script>
+    window.pendingVTKPostRequests = [];
+
+    function finalize(code) {
+      console.info(`vtk-wasm-test-exit-code=${code}`);
+      Promise.all(window.pendingVTKPostRequests).then(() => {
+        @close_window@;
+      }).catch(e => {
+        console.error(e);
+        @close_window@;
+      });
+    };
+    /**
+     * Lock canvas size for VTK rendering unit tests. These settings make the canvas ignore
+     * resize events from the parent HTML element.
+     */
+    function lockCanvasSize(wasmRuntime) {
+      try {
+        if (typeof wasmRuntime._setDefaultExpandVTKCanvasToContainer !== 'undefined') {
+          wasmRuntime._setDefaultExpandVTKCanvasToContainer(false);
+        }
+        if (typeof wasmRuntime._setDefaultInstallHTMLResizeObserver !== 'undefined') {
+          wasmRuntime._setDefaultInstallHTMLResizeObserver(false);
+        }
+      } catch (_e) { }
+    }
+    window.onunhandledrejection = (event) => {
+      let message = `Uncaught rejection from ${event.promise}: ${event.reason}`;
+      console.error(message);
+      if (event.reason !== undefined) {
+        if (event.reason.stack !== undefined) {
+          console.error(`Uncaught exception : ${event.reason.message}\n ${event.reason.stack}`)
+        }
+      }
+      finalize(1);
+      return true;
+    };
+    window.onerror = (message, source, lineno, colno, error) => {
+      if (error !== null) {
+        console.error(error);
+      }
+      else {
+        console.error(`${message} at ${source}:${lineno}#${colno}`);
+      }
+      finalize(1);
+      return true;
+    };
+
+    var vtkWasmRuntime = null;
+    var Module = {
+      print: (() => {
+        return (...args) => {
+          const text = args.join(" ");
+          if (text.length > 0) {
+            console.info(text);
+          }
+        };
+      })(),
+      printErr: (() => {
+        return (...args) => {
+          const text = args.join(" ");
+          if (text.length > 0) {
+            console.error(text);
+            // Some VTK tests write to stderr when they should in fact write to stdout.
+            // This block only posts exit code when the message has the word "Error" in all it's case avatars.
+            if (text.includes('ERROR') || text.includes("Error") || text.includes("error")) {
+              // catch some more of those "ERROR" messages to give some context before finalizing.
+              setTimeout(finalize, 10, 1);
+            }
+          }
+        };
+      })(),
+      preRun: (runtime) => {
+        // cache the VTK wasm runtime instance.
+        vtkWasmRuntime = runtime;
+        vtkWasmRuntime.ENV.VTK_GRAPHICS_BACKEND = "@graphics_backend@";
+        vtkWasmRuntime.ENV.VTK_TESTING_WASM_HTTP_SERVER_URL = "@url@";
+      },
+      onRuntimeInitialized: () => {
+        if (vtkWasmRuntime !== null) {
+          lockCanvasSize(vtkWasmRuntime);
+        }
+      },
+      onExit: finalize,
+      arguments: "@test_args@".split(";") // Comes in as a stringified cmake list
+    };
+  </script>
+  <script type="text/javascript">
+    @javascript@
+  </script>
+</body>
+</html>

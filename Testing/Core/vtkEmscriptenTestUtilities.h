@@ -34,7 +34,8 @@ public:
 extern "C"
 {
   void* vtkPreloadDataFileIntoMemory(const char* hostFilePath);
-  void vtkDumpFile(const char* hostFilePath, const uint8_t* data, size_t nbytes);
+  void vtkDumpFile(
+    const char* httpServerURL, const char* hostFilePath, const uint8_t* data, size_t nbytes);
   void vtkPostExitCode(int code);
 }
 

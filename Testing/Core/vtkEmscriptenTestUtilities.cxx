@@ -87,7 +87,8 @@ void vtkEmscriptenTestUtilities::DumpFile(
   const std::string& hostFilePath, const void* data, size_t n)
 {
   const auto* bytes = reinterpret_cast<const uint8_t*>(data);
-  vtkDumpFile(hostFilePath.c_str(), bytes, n);
+  const char* httpServerURL = std::getenv("VTK_TESTING_WASM_HTTP_SERVER_URL");
+  vtkDumpFile(httpServerURL, hostFilePath.c_str(), bytes, n);
 }
 
 void vtkEmscriptenTestUtilities::PostExitCode(int code)
