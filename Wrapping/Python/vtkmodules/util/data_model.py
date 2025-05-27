@@ -207,6 +207,9 @@ class FieldDataBase(object):
     def __iter__(self):
         return iter(self.keys())
 
+    def __len__(self):
+        return self.GetNumberOfArrays()
+
 @vtkFieldData.override
 class FieldData(FieldDataBase, vtkFieldData):
     pass
@@ -392,9 +395,11 @@ class CompositeDataSetAttributes(object):
         return array
 
     def __iter__(self):
-        "Creates an iterator for the contained arrays."
-        return CompositeDataSetAttributesIterator(self)
+        """Iterators on keys"""
+        return iter(self.ArrayNames)
 
+    def __len__(self):
+        return len(self.ArrayNames)
 
 # class DataSet(DataObjectBase):
 class DataSet(object):

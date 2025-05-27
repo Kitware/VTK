@@ -11,6 +11,7 @@ vtk_add_test_python(
   TestCellGrid.py,NO_VALID
   TestComputeBounds.py,NO_DATA,NO_VALID
   TestCopyStructuredData.py,NO_DATA,NO_VALID
+  TestDataModel.py,NO_VALID
   TestGetBounds.py,NO_DATA,NO_VALID
   TestGetBounds2.py,NO_DATA,NO_VALID
   TestNumericArrayImageData.py,NO_DATA,NO_VALID
