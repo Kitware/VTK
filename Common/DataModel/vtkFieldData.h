@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkFieldData
- * @brief   represent and manipulate fields of data
+ * @brief   Represents and manipulates a collection of data arrays.
  *
  * vtkFieldData represents and manipulates fields of data. The model of a field
  * is a m x n matrix of data values, where m is the number of tuples, and n
@@ -10,10 +10,9 @@
  * matrix.) The field is assumed to be composed of a set of one or more data
  * arrays, where the data in the arrays are of different types (e.g., int,
  * double, char, etc.), and there may be variable numbers of components in
- * each array. Note that each data array is assumed to be "m" in length
- * (i.e., number of tuples), which typically corresponds to the number of
- * points or cells in a dataset. Also, each data array must have a
- * character-string name. (This is used to manipulate data.)
+ * each array.
+ * Also, each data array must have a unique character-string name.
+ * (This is used to manipulate data.)
  *
  * There are two ways of manipulating and interfacing to fields. You can do
  * it generically by manipulating components/tuples via a double-type data
@@ -414,6 +413,15 @@ public:
    * vtkDataSetAttributes
    */
   vtkGetObjectMacro(GhostArray, vtkUnsignedCharArray);
+
+  /**
+   * Return the name used for Ghost Arrays.
+   * An array with this name is considered to be the GhostArray for this field.
+   * Ghost arrays are used in distributed context to add per-element semantic
+   * useful to handle data splited among many ranks.
+   * See vtkDataSetAttributes::CellGhostTypes and vtkDataSetAttributes::PointGhostTypes
+   */
+  static const char* GhostArrayName() { return "vtkGhostType"; }
 
 protected:
   vtkFieldData();

@@ -3,12 +3,10 @@
 #include "vtkFieldData.h"
 
 #include "vtkDataArray.h"
-#include "vtkDataSetAttributes.h"
-#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
-#include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
+#include "vtkStringToken.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <array>
@@ -334,32 +332,37 @@ vtkTypeBool vtkFieldData::Allocate(vtkIdType sz, vtkIdType ext)
 }
 
 //------------------------------------------------------------------------------
-void vtkFieldData::CopyStructure(vtkFieldData* r)
+void vtkFieldData::CopyStructure(vtkFieldData* inputField)
 {
   // Free old fields.
   this->InitializeFields();
 
   // Allocate new fields.
-  this->AllocateArrays(r->GetNumberOfArrays());
-  this->NumberOfActiveArrays = r->GetNumberOfArrays();
+  this->AllocateArrays(inputField->GetNumberOfArrays());
+  this->NumberOfActiveArrays = inputField->GetNumberOfArrays();
 
   // Copy the data array's structure (ie nTups,nComps,name, and info)
   // don't copy their data.
-  for (int i = 0; i < r->GetNumberOfArrays(); ++i)
+  for (int arrayIdx = 0; arrayIdx < inputField->GetNumberOfArrays(); ++arrayIdx)
   {
-    vtkAbstractArray* data = r->Data[i]->NewInstance();
-    int numComponents = r->Data[i]->GetNumberOfComponents();
+    if (!inputField->Data[arrayIdx])
+    {
+      continue;
+    }
+
+    vtkAbstractArray* data = inputField->Data[arrayIdx]->NewInstance();
+    int numComponents = inputField->Data[arrayIdx]->GetNumberOfComponents();
     data->SetNumberOfComponents(numComponents);
-    data->SetName(r->Data[i]->GetName());
+    data->SetName(inputField->Data[arrayIdx]->GetName());
     for (vtkIdType j = 0; j < numComponents; ++j)
     {
-      data->SetComponentName(j, r->Data[i]->GetComponentName(j));
+      data->SetComponentName(j, inputField->Data[arrayIdx]->GetComponentName(j));
     }
-    if (r->Data[i]->HasInformation())
+    if (inputField->Data[arrayIdx]->HasInformation())
     {
-      data->CopyInformation(r->Data[i]->GetInformation(), /*deep=*/1);
+      data->CopyInformation(inputField->Data[arrayIdx]->GetInformation(), /*deep=*/1);
     }
-    this->SetArray(i, data);
+    this->SetArray(arrayIdx, data);
     data->Delete();
   }
 }
@@ -442,7 +445,7 @@ void vtkFieldData::SetArray(int i, vtkAbstractArray* data)
   }
 
   const char* name = data->GetName();
-  if (name && strcmp(name, vtkDataSetAttributes::GhostArrayName()) == 0)
+  if (name && strcmp(name, vtkFieldData::GhostArrayName()) == 0)
   {
     this->GhostArray = vtkArrayDownCast<vtkUnsignedCharArray>(data);
   }
@@ -505,22 +508,16 @@ vtkAbstractArray* vtkFieldData::GetAbstractArray(int i)
 // Copy a field by creating new data arrays
 void vtkFieldData::DeepCopy(vtkFieldData* f)
 {
-  this->SetGhostsToSkip(this->GetGhostsToSkip());
+  this->CopyStructure(f);
 
-  this->AllocateArrays(f->GetNumberOfArrays());
   for (int i = 0; i < f->GetNumberOfArrays(); ++i)
   {
-    vtkAbstractArray* data = f->GetAbstractArray(i);
-    vtkAbstractArray* newData = data->NewInstance(); // instantiate same type of object
-    newData->DeepCopy(data);
-    newData->SetName(data->GetName());
-    if (data->HasInformation())
-    {
-      newData->CopyInformation(data->GetInformation(), /*deep=*/1);
-    }
-    this->AddArray(newData);
-    newData->Delete();
+    this->GetAbstractArray(i)->DeepCopy(f->GetAbstractArray(i));
   }
+
+  this->SetGhostsToSkip(f->GetGhostsToSkip());
+
+  this->CopyFlags(f);
 }
 
 //------------------------------------------------------------------------------
@@ -530,14 +527,14 @@ void vtkFieldData::ShallowCopy(vtkFieldData* f)
   this->AllocateArrays(f->GetNumberOfArrays());
   this->NumberOfActiveArrays = 0;
 
-  this->GhostsToSkip = f->GetGhostsToSkip();
-  this->GhostArray = f->GetGhostArray();
-
   for (int i = 0; i < f->GetNumberOfArrays(); ++i)
   {
     this->NumberOfActiveArrays++;
     this->SetArray(i, f->GetAbstractArray(i));
   }
+
+  this->SetGhostsToSkip(f->GetGhostsToSkip());
+
   this->CopyFlags(f);
 }
 
@@ -965,15 +962,39 @@ void vtkFieldData::CopyFlags(const vtkFieldData* source)
 //------------------------------------------------------------------------------
 void vtkFieldData::PassData(vtkFieldData* fd)
 {
+  this->AllocateArrays(this->GetNumberOfArrays() + fd->GetNumberOfArrays());
+
+  std::unordered_map<vtkStringToken, int> indexFromToken;
+  for (int i = 0; i < this->GetNumberOfArrays(); i++)
+  {
+    vtkAbstractArray* array = this->GetAbstractArray(i);
+    if (array)
+    {
+      indexFromToken[vtkStringToken(array->GetName())] = i;
+    }
+  }
+
   for (int i = 0; i < fd->GetNumberOfArrays(); ++i)
   {
     const char* arrayName = fd->GetArrayName(i);
     // If there is no blocker for the given array
     // and both CopyAllOff and CopyOn for that array are not true
+    int index = 0;
     if ((this->GetFlag(arrayName) != 0) &&
       !(this->DoCopyAllOff && (this->GetFlag(arrayName) != 1)) && fd->GetAbstractArray(i))
     {
-      this->AddArray(fd->GetAbstractArray(i));
+      vtkStringToken newToken = vtkStringToken(arrayName);
+      auto iterator = indexFromToken.find(newToken);
+      if (iterator != indexFromToken.end())
+      {
+        index = indexFromToken[newToken];
+      }
+      else
+      {
+        index = this->NumberOfActiveArrays;
+        this->NumberOfActiveArrays++;
+      }
+      this->SetArray(index, fd->GetAbstractArray(i));
     }
   }
 }

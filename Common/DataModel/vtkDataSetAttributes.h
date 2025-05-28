@@ -28,6 +28,10 @@
  * group of sources have in common, and to copy tuples from a source into
  * the destination, for only those attributes that are held by all.
  *
+ * Note that each data array is assumed to have the same number of tuples,
+ * which typically corresponds to the number of
+ * points or cells in a dataset.
+ *
  * @warning
  * vtkDataSetAttributes is not in general thread safe due to the use of its
  * vtkFieldData::BasicIterator RequiredArrays data member. The class
@@ -134,11 +138,6 @@ public:
     HIDDENPOINT =
       2 // the point is needed to maintain connectivity, but the data values should be ignored.
   };
-
-  // A vtkDataArray with this name must be of type vtkUnsignedCharArray.
-  // Each value must be assigned according to the bit fields described in
-  // PointGhostTypes or CellGhostType
-  static const char* GhostArrayName() { return "vtkGhostType"; }
 
   //-----------------------------------------------------------------------------------
 
