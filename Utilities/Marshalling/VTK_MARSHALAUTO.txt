@@ -308,6 +308,8 @@ Rendering/Core/vtkVolume.h
 Rendering/Core/vtkVolumeCollection.h
 Rendering/Core/vtkVolumeProperty.h
 Rendering/Core/vtkWorldPointPicker.h
+Rendering/GridAxes/vtkGridAxesActor2D.h
+Rendering/GridAxes/vtkGridAxesActor3D.h
 Rendering/Label/vtkDynamic2DLabelMapper.h
 Rendering/Label/vtkFreeTypeLabelRenderStrategy.h
 Rendering/Label/vtkLabeledDataMapper.h
