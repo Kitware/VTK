@@ -18,9 +18,11 @@
 
 #include "vtkAbstractImageInterpolator.h"
 #include "vtkImagingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIMAGINGCORE_EXPORT vtkImageInterpolator : public vtkAbstractImageInterpolator
+class VTKIMAGINGCORE_EXPORT VTK_MARSHALAUTO vtkImageInterpolator
+  : public vtkAbstractImageInterpolator
 {
 public:
   static vtkImageInterpolator* New();

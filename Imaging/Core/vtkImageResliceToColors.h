@@ -21,11 +21,12 @@
 
 #include "vtkImageReslice.h"
 #include "vtkImagingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkScalarsToColors;
 
-class VTKIMAGINGCORE_EXPORT vtkImageResliceToColors : public vtkImageReslice
+class VTKIMAGINGCORE_EXPORT VTK_MARSHALAUTO vtkImageResliceToColors : public vtkImageReslice
 {
 public:
   static vtkImageResliceToColors* New();

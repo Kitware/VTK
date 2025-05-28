@@ -81,6 +81,7 @@ Common/ExecutionModel/vtkDemandDrivenPipeline.h
 Common/ExecutionModel/vtkExecutive.h
 Common/ExecutionModel/vtkImageAlgorithm.h
 Common/ExecutionModel/vtkStreamingDemandDrivenPipeline.h
+Common/ExecutionModel/vtkThreadedImageAlgorithm.h
 Common/ExecutionModel/vtkTrivialProducer.h
 Common/Math/vtkMatrix3x3.h
 Common/Math/vtkMatrix4x4.h
@@ -89,6 +90,12 @@ Common/Transforms/vtkHomogeneousTransform.h
 Common/Transforms/vtkLinearTransform.h
 Common/Transforms/vtkTransform.h
 Common/Transforms/vtkTransform2D.h
+Imaging/Core/vtkAbstractImageInterpolator.h
+Imaging/Core/vtkImageInterpolator.h
+Imaging/Core/vtkImageMapToColors.h
+Imaging/Core/vtkImageReslice.h
+Imaging/Core/vtkImageResliceToColors.h
+Imaging/Core/vtkImageStencilData.h
 Interaction/Style/vtkInteractorStyleDrawPolygon.h
 Interaction/Style/vtkInteractorStyleFlight.h
 Interaction/Style/vtkInteractorStyleImage.h
