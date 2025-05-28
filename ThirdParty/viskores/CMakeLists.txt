@@ -16,6 +16,10 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE Viskores
-    TARGETS Viskores::viskores
+    TARGETS viskores::cont viskores::cont_testing viskores::filter viskores::worklet
     VERSION       "1.0.0"
     STANDARD_INCLUDE_DIRS)
+
+if(VTK_MODULE_USE_EXTERNAL_vtkviskores)
+  viskores_setup_job_pool()
+endif()

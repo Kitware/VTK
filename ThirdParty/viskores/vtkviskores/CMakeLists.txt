@@ -97,7 +97,7 @@ viskores_setup_job_pool()
 vtk_module_add_module(VTK::vtkviskores
   HEADER_ONLY)
 # viskores_cont_testing does not refer to unit tests but to the viskores testing library.
-vtk_module_link(VTK::vtkviskores INTERFACE viskores_cont viskores_cont_testing viskores_filter)
+vtk_module_link(VTK::vtkviskores INTERFACE viskores_cont viskores_cont_testing viskores_filter viskores_worklet)
 # Use of VTK_KOKKOS_BACKEND is deprecated.
 if(VTK_KOKKOS_BACKEND)
   if (VTK_KOKKOS_BACKEND STREQUAL "HIP" AND NOT TARGET viskores_kokkos_hip)

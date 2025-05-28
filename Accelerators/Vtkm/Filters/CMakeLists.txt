@@ -100,10 +100,6 @@ vtk_module_add_module(VTK::AcceleratorsVTKmFilters
 vtk_module_set_property(VTK::AcceleratorsVTKmFilters
   PROPERTY  JOB_POOL_COMPILE
   VALUE     viskores_pool)
-vtk_module_link(VTK::AcceleratorsVTKmFilters
-  PRIVATE
-    viskores_worklet
-    viskores_filter)
 vtk_module_definitions(VTK::AcceleratorsVTKmFilters
   PUBLIC "VTK_ENABLE_VISKORES_OVERRIDES=$<BOOL:${VTK_ENABLE_VISKORES_OVERRIDES}>")
 
