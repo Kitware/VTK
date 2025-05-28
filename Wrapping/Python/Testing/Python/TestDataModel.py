@@ -31,14 +31,17 @@ class TestDataModel(vtkTesting.vtkTest):
         pds.append(wlt2)
         self.assertTrue('RTData' in pds.point_data)
 
-        # test iterator
+        # test iterator + len
         wlt.point_data["RTData2"] = rtdata * 2
         for name in wlt.point_data:
             self.assertTrue(name in ('RTData','RTData2'))
 
+        self.assertTrue(len(wlt.point_data) == 2)
+
         for name in wlt.cell_data:
             self.assertTrue(name in ('RTData',))
 
+        self.assertTrue(len(wlt.cell_data) == 1)
 
 if __name__ == "__main__":
     vtkTesting.main([(TestDataModel, "test")])
