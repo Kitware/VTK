@@ -15,6 +15,12 @@ parser = argparse.ArgumentParser(
 parser.add_argument(
     "--artifacts-dir", type=str, required=True, help="Path to the artifacts directory"
 )
+parser.add_argument(
+    "--output-file",
+    type=str,
+    required=True,
+    help="Path of the output artifacts inventory file",
+)
 args = parser.parse_args()
 
 
@@ -29,4 +35,5 @@ artifacts = [
     if path.is_file()
 ]
 
-print(json.dumps(artifacts))
+with open(args.output_file, "w") as f:
+    json.dump(artifacts, f)
