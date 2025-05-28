@@ -59,7 +59,9 @@ mark_as_advanced(VTK_OPENGL_USE_GLES)
 # Whether VTK should attempt to use EGL for creating offscreen context.
 option(VTK_OPENGL_HAS_EGL "Enable EGL support for creating GPU accelerated offscreen context" "${default_has_egl}")
 mark_as_advanced(VTK_OPENGL_HAS_EGL)
-
+if (VTK_OPENGL_HAS_EGL AND APPLE)
+  message(FATAL_ERROR "VTK_OPENGL_HAS_EGL is ON, but APPLE platform does not support EGL!")
+endif ()
 set(VTK_DEFAULT_EGL_DEVICE_INDEX "0" CACHE STRING
   "EGL device (graphics card) index to use by default for EGL render windows.")
 mark_as_advanced(VTK_DEFAULT_EGL_DEVICE_INDEX)
