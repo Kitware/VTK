@@ -1,5 +1,6 @@
 vtk_module_test_data(
   Data/HTG/random_attributes.htg
+  Data/HTG/random_partial_ZX.htg
   Data/HTG/shell_3d.htg
   Data/Quadratic/CylinderQuadratic.vtk
   Data/Tango/TangoIcons.png
