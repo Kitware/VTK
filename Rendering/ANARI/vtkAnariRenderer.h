@@ -81,6 +81,18 @@ public:
    */
   anari::Renderer GetHandle() const;
 
+  ///@{
+  /**
+   * Parameter introspection
+   *
+   * Returns a list of parameter names, and their respective ANARI type.
+   * For type inference, refer to anari_enums.h
+   */
+  std::vector<std::pair<std::string, int>> GetRendererParameters() const;
+  std::string GetRendererParameterDescription(std::pair<std::string, int> rparam) const;
+  bool IsRendererParameterRequired(std::pair<std::string, int> rparam) const;
+  ///@}
+
 protected:
   /**
    * Default constructor.

@@ -222,4 +222,60 @@ vtkAnariRenderer::~vtkAnariRenderer()
   }
 }
 
+// ----------------------------------------------------------------------------
+std::vector<std::pair<std::string, int>> vtkAnariRenderer::GetRendererParameters() const
+{
+  std::vector<std::pair<std::string, int>> rendererParams;
+  if (!this->GetHandle() || !this->Internal->AnariDevice)
+  {
+    return rendererParams;
+  }
+
+  const ANARIParameter* rParams =
+    reinterpret_cast<const ANARIParameter*>(anariGetObjectInfo(this->Internal->AnariDevice,
+      ANARI_RENDERER, this->GetSubtype(), "parameter", ANARI_PARAMETER_LIST));
+  if (!rParams)
+  {
+    vtkWarningMacro(<< "Renderer has no parameters."
+                    << "Device: " << this->AnariDevice->GetAnariDeviceName()
+                    << " Library: " << this->AnariDevice->GetAnariLibraryName()
+                    << " Renderer SubType: " << this->GetSubtype());
+  }
+
+  for (const ANARIParameter* rpam = rParams; rpam->name != nullptr; ++rpam)
+  {
+    rendererParams.emplace_back(rpam->name, rpam->type);
+  }
+
+  return rendererParams;
+}
+
+// ----------------------------------------------------------------------------
+std::string vtkAnariRenderer::GetRendererParameterDescription(
+  std::pair<std::string, int> rparam) const
+{
+  if (!this->GetHandle() || !this->Internal->AnariDevice)
+  {
+    return std::string();
+  }
+
+  return std::string(
+    reinterpret_cast<const char*>(anariGetParameterInfo(this->Internal->AnariDevice, ANARI_RENDERER,
+      "default", rparam.first.c_str(), rparam.second, "description", ANARI_STRING)));
+}
+
+// ----------------------------------------------------------------------------
+bool vtkAnariRenderer::IsRendererParameterRequired(std::pair<std::string, int> rparam) const
+{
+  if (!this->GetHandle() || !this->Internal->AnariDevice)
+  {
+    return false;
+  }
+  const int* required =
+    reinterpret_cast<const int*>(anariGetParameterInfo(this->Internal->AnariDevice, ANARI_RENDERER,
+      "default", rparam.first.c_str(), rparam.second, "required", ANARI_BOOL));
+
+  return (required && *required);
+}
+
 VTK_ABI_NAMESPACE_END
