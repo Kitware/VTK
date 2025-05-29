@@ -27,7 +27,7 @@ class vtkAnariDeviceInternals;
 class VTKRENDERINGANARI_EXPORT vtkAnariDevice : public vtkObject
 {
 public:
-  using OnNewDeviceCallback = std::function<void(anari::Device)>;
+  using OnNewDeviceCallback = std::function<void()>;
 
   static vtkAnariDevice* New();
   vtkTypeMacro(vtkAnariDevice, vtkObject);

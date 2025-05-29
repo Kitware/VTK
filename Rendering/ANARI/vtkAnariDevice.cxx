@@ -200,7 +200,7 @@ bool vtkAnariDeviceInternals::InitAnari(
 
   if (this->NewDeviceCB)
   {
-    this->NewDeviceCB(this->AnariDevice);
+    this->NewDeviceCB();
   }
 
   return true;
