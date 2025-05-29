@@ -13,6 +13,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCategoryLegend);
 vtkCxxSetObjectMacro(vtkCategoryLegend, Values, vtkVariantArray);
+vtkCxxSetObjectMacro(vtkCategoryLegend, ScalarsToColors, vtkScalarsToColors);
 
 //------------------------------------------------------------------------------
 vtkCategoryLegend::vtkCategoryLegend()
@@ -40,6 +41,7 @@ vtkCategoryLegend::vtkCategoryLegend()
 vtkCategoryLegend::~vtkCategoryLegend()
 {
   this->SetValues(nullptr);
+  this->SetScalarsToColors(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -127,18 +129,6 @@ bool vtkCategoryLegend::Paint(vtkContext2D* painter)
   }
 
   return true;
-}
-
-//------------------------------------------------------------------------------
-void vtkCategoryLegend::SetScalarsToColors(vtkScalarsToColors* stc)
-{
-  this->ScalarsToColors = stc;
-}
-
-//------------------------------------------------------------------------------
-vtkScalarsToColors* vtkCategoryLegend::GetScalarsToColors()
-{
-  return this->ScalarsToColors;
 }
 
 //------------------------------------------------------------------------------
