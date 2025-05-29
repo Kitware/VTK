@@ -85,7 +85,6 @@ void vtkAnariRenderer::PrintSelf(ostream& os, vtkIndent indent)
 void vtkAnariRenderer::SetAnariDevice(vtkAnariDevice* dev)
 {
   vtkDebugMacro(<< " setting AnariDevice  to " << dev);
-  std::cout << "Setting AnariDevice to " << this->AnariDevice << " " << dev << std::endl;
   if (this->AnariDevice == dev)
   {
     return;
