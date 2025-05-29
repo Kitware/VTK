@@ -106,6 +106,11 @@ public:
    */
   std::string& GetAnariDeviceName() const;
 
+  /**
+   * Get all the available renderer subtypes
+   */
+  std::vector<std::string> GetAnariRendererSubTypes() const;
+
 protected:
   /**
    * Default constructor.

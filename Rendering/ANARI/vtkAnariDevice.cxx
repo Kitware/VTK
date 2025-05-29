@@ -8,9 +8,6 @@
 #include "vtkObject.h"
 #include "vtkObjectFactory.h"
 
-#include <memory>
-#include <sstream>
-
 #include <anari/anari_cpp/ext/std.h>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -399,6 +396,21 @@ std::string& vtkAnariDevice::GetAnariLibraryName() const
 std::string& vtkAnariDevice::GetAnariDeviceName() const
 {
   return this->Internal->AnariDeviceName;
+}
+
+// ----------------------------------------------------------------------------
+std::vector<std::string> vtkAnariDevice::GetAnariRendererSubTypes() const
+{
+  std::vector<std::string> subtypes;
+  if (auto d = this->GetHandle())
+  {
+    const char** rSubTypes = anariGetObjectSubtypes(d, ANARI_RENDERER);
+    for (int i = 0; rSubTypes[i]; ++i)
+    {
+      subtypes.emplace_back(rSubTypes[i]);
+    }
+  }
+  return subtypes;
 }
 
 VTK_ABI_NAMESPACE_END
