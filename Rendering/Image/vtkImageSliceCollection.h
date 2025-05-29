@@ -17,9 +17,10 @@
 #include "vtkImageSlice.h" // to allow inline static-cast
 #include "vtkPropCollection.h"
 #include "vtkRenderingImageModule.h" // For export macro
+#include "vtkWrappingHints.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGIMAGE_EXPORT vtkImageSliceCollection : public vtkPropCollection
+class VTKRENDERINGIMAGE_EXPORT VTK_MARSHALAUTO vtkImageSliceCollection : public vtkPropCollection
 {
 public:
   static vtkImageSliceCollection* New();

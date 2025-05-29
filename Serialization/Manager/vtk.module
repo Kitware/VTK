@@ -26,6 +26,7 @@ OPTIONAL_DEPENDS
   VTK::RenderingContext2D
   VTK::RenderingContextOpenGL2
   VTK::RenderingGridAxes
+  VTK::RenderingImage
   VTK::RenderingLabel
   VTK::RenderingOpenGL2
   VTK::RenderingUI

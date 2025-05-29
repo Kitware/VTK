@@ -19,6 +19,7 @@
 
 #include "vtkImageMapper3D.h"
 #include "vtkRenderingImageModule.h" // For export macro
+#include "vtkWrappingHints.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageSliceMapper;
@@ -33,13 +34,14 @@ class vtkMatrix4x4;
 class vtkAbstractImageInterpolator;
 class vtkImageChangeInformation;
 
-class VTKRENDERINGIMAGE_EXPORT vtkImageResliceMapper : public vtkImageMapper3D
+class VTKRENDERINGIMAGE_EXPORT VTK_MARSHALAUTO vtkImageResliceMapper : public vtkImageMapper3D
 {
 public:
   static vtkImageResliceMapper* New();
   vtkTypeMacro(vtkImageResliceMapper, vtkImageMapper3D);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
   /**
    * Set the slice that will be used to cut through the image.
    * This slice should be in world coordinates, rather than
@@ -47,6 +49,8 @@ public:
    * if you want the slice to automatically follow the camera.
    */
   virtual void SetSlicePlane(vtkPlane* plane);
+  vtkPlane* GetSlicePlane() override { return this->SlicePlane; }
+  ///@}
 
   ///@{
   /**
@@ -147,7 +151,9 @@ public:
    * Set a custom interpolator.  This will only be used if the
    * ResampleToScreenPixels option is on.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetInterpolator(vtkAbstractImageInterpolator* interpolator);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual vtkAbstractImageInterpolator* GetInterpolator();
   ///@}
 
@@ -185,6 +191,9 @@ public:
 
   // return the bounds in index space
   void GetIndexBounds(double extent[6]) override;
+
+  vtkGetObjectMacro(ImageReslice, vtkImageResliceToColors);
+  void SetImageReslice(vtkImageResliceToColors*);
 
 protected:
   vtkImageResliceMapper();

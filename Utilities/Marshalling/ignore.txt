@@ -759,6 +759,7 @@ Rendering/Core/vtkWindowLevelLookupTable.h
 Rendering/Core/vtkWindowToImageFilter.h
 Rendering/GridAxes/vtkGridAxesHelper.h
 Rendering/GridAxes/vtkGridAxesPlaneActor2D.h
+Rendering/Image/vtkDepthImageToPointCloud.h
 Rendering/LICOpenGL2/vtkBatchedSurfaceLICMapper.h
 Rendering/LICOpenGL2/vtkCompositeSurfaceLICMapperDelegator.h
 Rendering/LICOpenGL2/vtkImageDataLIC2D.h
