@@ -17,12 +17,14 @@
 
 #include "vtkObject.h"
 #include "vtkRenderingAnariModule.h" // For export macro
+#include "vtkSmartPointer.h"         // for device ivar
 
 #include <anari/anari_cpp.hpp> // for ANARI handles
 
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAnariRendererInternals;
+class vtkAnariDevice;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariRenderer : public vtkObject
 {
@@ -31,8 +33,13 @@ public:
   vtkTypeMacro(vtkAnariRenderer, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void SetAnariDevice(anari::Device d);
-  anari::Device GetAnariDevice() const;
+  ///@{
+  /**
+   * Set/Get the anari device
+   */
+  void SetAnariDevice(vtkAnariDevice* d);
+  vtkGetSmartPointerMacro(AnariDevice, vtkAnariDevice);
+  ///@}
 
   /**
    * Set the underlying subtype of the anari::Renderer. When a different subtype
@@ -84,6 +91,9 @@ protected:
    * Destructor.
    */
   ~vtkAnariRenderer() override;
+
+  // member variables
+  vtkSmartPointer<vtkAnariDevice> AnariDevice = nullptr;
 
 private:
   void CheckAnariDeviceInitialized();

@@ -3,6 +3,7 @@
 
 #include "vtkAnariRenderer.h"
 
+#include "vtkAnariDevice.h"
 #include "vtkObjectFactory.h"
 
 #include <anari/anari_cpp/ext/std.h>
@@ -82,29 +83,29 @@ void vtkAnariRenderer::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-void vtkAnariRenderer::SetAnariDevice(anari::Device d)
+void vtkAnariRenderer::SetAnariDevice(vtkAnariDevice* dev)
 {
-  if (d == GetAnariDevice())
+  vtkDebugMacro(<< " setting AnariDevice  to " << dev);
+  std::cout << "Setting AnariDevice to " << this->AnariDevice << " " << dev << std::endl;
+  if (this->AnariDevice == dev)
   {
     return;
   }
 
-  this->Internal->CleanupAnariObjects();
-
-  if (this->Internal->AnariDevice)
+  if (this->AnariDevice)
   {
-    anari::release(this->Internal->AnariDevice, this->Internal->AnariDevice);
+    this->Internal->CleanupAnariObjects();
   }
 
-  this->Internal->AnariDevice = d;
-  anari::retain(d, d);
-  this->SetSubtype();
-}
+  this->AnariDevice = dev;
+  if (auto d = this->AnariDevice->GetHandle())
+  {
+    this->Internal->AnariDevice = d;
+    anari::retain(d, d);
+    this->SetSubtype();
+  }
 
-//----------------------------------------------------------------------------
-anari::Device vtkAnariRenderer::GetAnariDevice() const
-{
-  return this->Internal->AnariDevice;
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -127,7 +128,8 @@ void vtkAnariRenderer::SetSubtype(const char* subtype)
     this->Internal->AnariRendererSubtype.clear();
   }
 
-  anari::Renderer renderer = anari::newObject<anari::Renderer>(this->GetAnariDevice(), subtype);
+  anari::Renderer renderer =
+    anari::newObject<anari::Renderer>(this->Internal->AnariDevice, subtype);
   if (!renderer)
   {
     vtkDebugMacro(<< "[ANARI] unable to create '" << subtype << "' renderer.\n");
@@ -214,6 +216,10 @@ vtkAnariRenderer::~vtkAnariRenderer()
 {
   this->Internal->Delete();
   this->Internal = nullptr;
+  if (this->AnariDevice)
+  {
+    this->AnariDevice = nullptr;
+  }
 }
 
 VTK_ABI_NAMESPACE_END
