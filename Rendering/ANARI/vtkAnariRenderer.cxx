@@ -3,7 +3,6 @@
 
 #include "vtkAnariRenderer.h"
 
-#include "vtkAnariDevice.h"
 #include "vtkObjectFactory.h"
 
 #include <anari/anari_cpp/ext/std.h>

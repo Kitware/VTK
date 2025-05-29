@@ -15,9 +15,10 @@
 #ifndef vtkAnariRenderer_h
 #define vtkAnariRenderer_h
 
+#include "vtkAnariDevice.h" // For device ivar
 #include "vtkObject.h"
 #include "vtkRenderingAnariModule.h" // For export macro
-#include "vtkSmartPointer.h"         // for device ivar
+#include "vtkSmartPointer.h"         // For device ivar
 
 #include <anari/anari_cpp.hpp> // for ANARI handles
 
