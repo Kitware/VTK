@@ -32,7 +32,8 @@ vtk_add_test_cxx(vtkRenderingAnariCxxTests tests
   TestAnariCellData.cxx
   TestAnariVolumeLightKit.cxx
   TestAnariPerspectiveParallel.cxx
-  TestAnariPositionalLights.cxx)
+  TestAnariPositionalLights.cxx
+  TestAnariRendererParameters.cxx,NO_DATA,NO_VALID)
 
 vtk_test_cxx_executable(vtkRenderingAnariCxxTests tests RENDERING_FACTORY
   DISABLE_FLOATING_POINT_EXCEPTIONS

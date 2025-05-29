@@ -91,6 +91,10 @@ public:
   std::vector<std::pair<std::string, int>> GetRendererParameters() const;
   std::string GetRendererParameterDescription(std::pair<std::string, int> rparam) const;
   bool IsRendererParameterRequired(std::pair<std::string, int> rparam) const;
+  const void* GetRendererParameterDefault(std::pair<std::string, int> rparam);
+  const void* GetRendererParameterMinimum(std::pair<std::string, int> rparam);
+  const void* GetRendererParameterMaximum(std::pair<std::string, int> rparam);
+  const void* GetRendererParameterValue(std::pair<std::string, int> rparam);
   ///@}
 
 protected:

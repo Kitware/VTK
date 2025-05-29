@@ -261,7 +261,7 @@ std::string vtkAnariRenderer::GetRendererParameterDescription(
 
   return std::string(
     reinterpret_cast<const char*>(anariGetParameterInfo(this->Internal->AnariDevice, ANARI_RENDERER,
-      "default", rparam.first.c_str(), rparam.second, "description", ANARI_STRING)));
+      this->GetSubtype(), rparam.first.c_str(), rparam.second, "description", ANARI_STRING)));
 }
 
 // ----------------------------------------------------------------------------
@@ -273,9 +273,53 @@ bool vtkAnariRenderer::IsRendererParameterRequired(std::pair<std::string, int> r
   }
   const int* required =
     reinterpret_cast<const int*>(anariGetParameterInfo(this->Internal->AnariDevice, ANARI_RENDERER,
-      "default", rparam.first.c_str(), rparam.second, "required", ANARI_BOOL));
+      this->GetSubtype(), rparam.first.c_str(), rparam.second, "required", ANARI_BOOL));
 
   return (required && *required);
+}
+
+// ----------------------------------------------------------------------------
+const void* vtkAnariRenderer::GetRendererParameterDefault(std::pair<std::string, int> rparam)
+{
+  if (!this->GetHandle() || !this->Internal->AnariDevice)
+  {
+    return nullptr;
+  }
+  return anariGetParameterInfo(this->Internal->AnariDevice, ANARI_RENDERER, this->GetSubtype(),
+    rparam.first.c_str(), rparam.second, "default", rparam.second);
+}
+
+// ----------------------------------------------------------------------------
+const void* vtkAnariRenderer::GetRendererParameterMinimum(std::pair<std::string, int> rparam)
+{
+  if (!this->GetHandle() || !this->Internal->AnariDevice)
+  {
+    return nullptr;
+  }
+  return anariGetParameterInfo(this->Internal->AnariDevice, ANARI_RENDERER, this->GetSubtype(),
+    rparam.first.c_str(), rparam.second, "minimum", rparam.second);
+}
+
+// ----------------------------------------------------------------------------
+const void* vtkAnariRenderer::GetRendererParameterMaximum(std::pair<std::string, int> rparam)
+{
+  if (!this->GetHandle() || !this->Internal->AnariDevice)
+  {
+    return nullptr;
+  }
+  return anariGetParameterInfo(this->Internal->AnariDevice, ANARI_RENDERER, this->GetSubtype(),
+    rparam.first.c_str(), rparam.second, "maximum", rparam.second);
+}
+
+// ----------------------------------------------------------------------------
+const void* vtkAnariRenderer::GetRendererParameterValue(std::pair<std::string, int> rparam)
+{
+  if (!this->GetHandle() || !this->Internal->AnariDevice)
+  {
+    return nullptr;
+  }
+  return anariGetParameterInfo(this->Internal->AnariDevice, ANARI_RENDERER, this->GetSubtype(),
+    rparam.first.c_str(), rparam.second, "value", rparam.second);
 }
 
 VTK_ABI_NAMESPACE_END
