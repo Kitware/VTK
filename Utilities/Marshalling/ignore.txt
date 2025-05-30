@@ -545,6 +545,17 @@ Common/Transforms/vtkSphericalTransform.h
 Common/Transforms/vtkThinPlateSplineTransform.h
 Common/Transforms/vtkTransformCollection.h
 Common/Transforms/vtkWarpTransform.h
+Imaging/Color/vtkImageHSIToRGB.h
+Imaging/Color/vtkImageHSVToRGB.h
+Imaging/Color/vtkImageLuminance.h
+Imaging/Color/vtkImageMapToRGBA.h
+Imaging/Color/vtkImageQuantizeRGBToIndex.h
+Imaging/Color/vtkImageRGBToHSI.h
+Imaging/Color/vtkImageRGBToHSV.h
+Imaging/Color/vtkImageRGBToXYZ.h
+Imaging/Color/vtkImageRGBToYIQ.h
+Imaging/Color/vtkImageXYZToLAB.h
+Imaging/Color/vtkImageYIQToRGB.h
 Imaging/Core/vtkExtractVOI.h
 Imaging/Core/vtkGenericImageInterpolator.h
 Imaging/Core/vtkImageAppendComponents.h

@@ -32,9 +32,11 @@
 
 #include "vtkImageMapToColors.h"
 #include "vtkImagingColorModule.h" // For export macro
+#include "vtkWrappingHints.h"      // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIMAGINGCOLOR_EXPORT vtkImageMapToWindowLevelColors : public vtkImageMapToColors
+class VTKIMAGINGCOLOR_EXPORT VTK_MARSHALAUTO vtkImageMapToWindowLevelColors
+  : public vtkImageMapToColors
 {
 public:
   static vtkImageMapToWindowLevelColors* New();

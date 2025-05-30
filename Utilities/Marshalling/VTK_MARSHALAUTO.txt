@@ -92,6 +92,7 @@ Common/Transforms/vtkHomogeneousTransform.h
 Common/Transforms/vtkLinearTransform.h
 Common/Transforms/vtkTransform.h
 Common/Transforms/vtkTransform2D.h
+Imaging/Color/vtkImageMapToWindowLevelColors.h
 Imaging/Core/vtkAbstractImageInterpolator.h
 Imaging/Core/vtkImageInterpolator.h
 Imaging/Core/vtkImageMapToColors.h
