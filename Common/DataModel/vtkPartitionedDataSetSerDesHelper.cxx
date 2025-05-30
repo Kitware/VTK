@@ -74,12 +74,19 @@ static void Deserialize_vtkPartitionedDataSet(
       {
         const std::string name = partitionState.at("Name").get<std::string>();
         const auto& partition = partitionState.at("DataObject");
-        auto* context = deserializer->GetContext();
-        const auto identifier = partition.at("Id").get<vtkTypeUInt32>();
-        auto subObject = context->GetObjectAtId(identifier);
-        deserializer->DeserializeJSON(identifier, subObject);
-        object->SetPartition(i, vtkDataObject::SafeDownCast(subObject));
-        object->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), name);
+        if (!partition.empty())
+        {
+          auto* context = deserializer->GetContext();
+          const auto identifier = partition.at("Id").get<vtkTypeUInt32>();
+          auto subObject = context->GetObjectAtId(identifier);
+          deserializer->DeserializeJSON(identifier, subObject);
+          object->SetPartition(i, vtkDataObject::SafeDownCast(subObject));
+          object->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), name);
+        }
+        else
+        {
+          object->SetPartition(i, nullptr);
+        }
         i++;
       }
     }
