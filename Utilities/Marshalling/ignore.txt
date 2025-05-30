@@ -759,7 +759,6 @@ Rendering/OpenGL2/vtkOpenGLBufferObject.h
 Rendering/OpenGL2/vtkOpenGLCellToVTKCellMap.h
 Rendering/OpenGL2/vtkOpenGLCompositePolyDataMapperDelegator.h
 Rendering/OpenGL2/vtkOpenGLFXAAFilter.h
-Rendering/OpenGL2/vtkOpenGLFluidMapper.h
 Rendering/OpenGL2/vtkOpenGLFramebufferObject.h
 Rendering/OpenGL2/vtkOpenGLGL2PSHelper.h
 Rendering/OpenGL2/vtkOpenGLGlyph3DHelper.h

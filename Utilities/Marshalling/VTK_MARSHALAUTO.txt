@@ -336,6 +336,7 @@ Rendering/OpenGL2/vtkOpaquePass.h
 Rendering/OpenGL2/vtkOpenGLActor.h
 Rendering/OpenGL2/vtkOpenGLCamera.h
 Rendering/OpenGL2/vtkOpenGLES30PolyDataMapper2D.h
+Rendering/OpenGL2/vtkOpenGLFluidMapper.h
 Rendering/OpenGL2/vtkOpenGLFXAAPass.h
 Rendering/OpenGL2/vtkOpenGLGlyph3DMapper.h
 Rendering/OpenGL2/vtkOpenGLImageMapper.h

@@ -475,7 +475,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
     this->FBFilterThickness->SetContext(renderWindow);
     glState->PushFramebufferBindings();
 
-    for (uint32_t iter = 0; iter < this->ThicknessAndVolumeColorFilterIterations; ++iter)
+    for (vtkTypeUInt32 iter = 0; iter < this->ThicknessAndVolumeColorFilterIterations; ++iter)
     {
       this->FBFilterThickness->Bind();
       this->FBFilterThickness->AddColorAttachment(0U, this->TexBuffer[SmoothedFluidThickness]);
@@ -556,7 +556,7 @@ void vtkOpenGLFluidMapper::Render(vtkRenderer* renderer, vtkVolume* vol)
       program->SetUniformf("particleRadius", this->ParticleRadius);
       program->SetUniformf("farZValue", -crange[1]);
 
-      for (uint32_t iter = 0; iter < this->SurfaceFilterIterations; ++iter)
+      for (vtkTypeUInt32 iter = 0; iter < this->SurfaceFilterIterations; ++iter)
       {
         this->FBFilterDepth->Bind();
         this->FBFilterDepth->AddColorAttachment(
