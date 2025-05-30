@@ -192,7 +192,6 @@ Common/DataModel/vtkAMRBox.h
 Common/DataModel/vtkAMRDataInternals.h
 Common/DataModel/vtkAMRInformation.h
 Common/DataModel/vtkAMRUtilities.h
-Common/DataModel/vtkAbstractCellLinks.h
 Common/DataModel/vtkAbstractCellLocator.h
 Common/DataModel/vtkAbstractElectronicData.h
 Common/DataModel/vtkAbstractPointLocator.h
@@ -425,7 +424,6 @@ Common/DataModel/vtkSphere.h
 Common/DataModel/vtkSpheres.h
 Common/DataModel/vtkSphericalPointIterator.h
 Common/DataModel/vtkSpline.h
-Common/DataModel/vtkStaticCellLinks.h
 Common/DataModel/vtkStaticCellLinksTemplate.h
 Common/DataModel/vtkStaticCellLocator.h
 Common/DataModel/vtkStaticEdgeLocatorTemplate.h
