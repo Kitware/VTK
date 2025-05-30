@@ -394,7 +394,7 @@ bool vtkHDFUtilities::GetStringAttribute(
         nullptr, "H5Aread failed while reading " << name << " attribute (variable-length)");
       return false;
     }
-    attribute = std::string(buffer, stringLength);
+    attribute = std::string(buffer);
     H5free_memory(buffer);
   }
   else if (H5Tis_variable_str(hdfType) == 0)
