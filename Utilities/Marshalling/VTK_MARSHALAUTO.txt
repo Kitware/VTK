@@ -276,6 +276,7 @@ Rendering/Core/vtkLogLookupTable.h
 Rendering/Core/vtkMapper.h
 Rendering/Core/vtkMapper2D.h
 Rendering/Core/vtkPicker.h
+Rendering/Core/vtkPointGaussianMapper.h
 Rendering/Core/vtkPointPicker.h
 Rendering/Core/vtkPolyDataMapper.h
 Rendering/Core/vtkPolyDataMapper2D.h
@@ -344,6 +345,7 @@ Rendering/OpenGL2/vtkOpenGLImageSliceMapper.h
 Rendering/OpenGL2/vtkOpenGLLabeledContourMapper.h
 Rendering/OpenGL2/vtkOpenGLLight.h
 Rendering/OpenGL2/vtkOpenGLLowMemoryPolyDataMapper.h
+Rendering/OpenGL2/vtkOpenGLPointGaussianMapper.h
 Rendering/OpenGL2/vtkOpenGLPolyDataMapper.h
 Rendering/OpenGL2/vtkOpenGLPolyDataMapper2D.h
 Rendering/OpenGL2/vtkOpenGLProperty.h
