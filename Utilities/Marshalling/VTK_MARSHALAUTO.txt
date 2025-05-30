@@ -295,6 +295,7 @@ Rendering/Core/vtkRenderWindow.h
 Rendering/Core/vtkRenderWindowInteractor.h
 Rendering/Core/vtkSkybox.h
 Rendering/Core/vtkTextActor.h
+Rendering/Core/vtkTextActor3D.h
 Rendering/Core/vtkTextProperty.h
 Rendering/Core/vtkTextPropertyCollection.h
 Rendering/Core/vtkTexturedActor2D.h
@@ -351,6 +352,7 @@ Rendering/OpenGL2/vtkOpenGLRenderWindow.h
 Rendering/OpenGL2/vtkOpenGLShaderProperty.h
 Rendering/OpenGL2/vtkOpenGLSkybox.h
 Rendering/OpenGL2/vtkOpenGLTextActor.h
+Rendering/OpenGL2/vtkOpenGLTextActor3D.h
 Rendering/OpenGL2/vtkOpenGLTexture.h
 Rendering/OpenGL2/vtkOrderIndependentTranslucentPass.h
 Rendering/OpenGL2/vtkOSOpenGLRenderWindow.h

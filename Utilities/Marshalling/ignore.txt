@@ -711,7 +711,6 @@ Rendering/Core/vtkTDxInteractorStyle.h
 Rendering/Core/vtkTDxInteractorStyleCamera.h
 Rendering/Core/vtkTDxInteractorStyleSettings.h
 Rendering/Core/vtkTDxMotionEventInfo.h
-Rendering/Core/vtkTextActor3D.h
 Rendering/Core/vtkTextMapper.h
 Rendering/Core/vtkTextRenderer.h
 Rendering/Core/vtkTransformCoordinateSystems.h
@@ -788,7 +787,6 @@ Rendering/OpenGL2/vtkOpenGLShaderDeclaration.h
 Rendering/OpenGL2/vtkOpenGLSphereMapper.h
 Rendering/OpenGL2/vtkOpenGLState.h
 Rendering/OpenGL2/vtkOpenGLStickMapper.h
-Rendering/OpenGL2/vtkOpenGLTextActor3D.h
 Rendering/OpenGL2/vtkOpenGLTextMapper.h
 Rendering/OpenGL2/vtkOpenGLUniforms.h
 Rendering/OpenGL2/vtkOpenGLVertexArrayObject.h
