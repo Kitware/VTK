@@ -57,6 +57,7 @@ Common/Core/vtkPoints.h
 Common/Core/vtkPoints2D.h
 Common/Core/vtkWindow.h
 Common/DataModel/vtkAbstractCellArray.h
+Common/DataModel/vtkAbstractCellLinks.h
 Common/DataModel/vtkCellData.h
 Common/DataModel/vtkCompositeDataSet.h
 Common/DataModel/vtkDataObject.h
@@ -71,6 +72,7 @@ Common/DataModel/vtkPointData.h
 Common/DataModel/vtkPointSet.h
 Common/DataModel/vtkPolyData.h
 Common/DataModel/vtkRectilinearGrid.h
+Common/DataModel/vtkStaticCellLinks.h
 Common/DataModel/vtkStructuredGrid.h
 Common/DataModel/vtkStructuredPoints.h
 Common/DataModel/vtkUniformGrid.h
