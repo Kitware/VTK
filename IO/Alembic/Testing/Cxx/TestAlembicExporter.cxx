@@ -4,6 +4,7 @@
 #include "vtkActor.h"
 #include "vtkAlembicExporter.h"
 #include "vtkElevationFilter.h"
+#include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
@@ -80,9 +81,9 @@ int TestAlembicExporter(int argc, char* argv[])
 
   if (noDataSize >= correctSize)
   {
-    std::cerr << "Error: file should contain data for a visible actor"
-                 "and not for a hidden one."
-              << std::endl;
+    vtkLog(ERROR,
+      "File should contain data for a visible actor"
+      "and not for a hidden one.");
     return EXIT_FAILURE;
   }
 
@@ -96,9 +97,9 @@ int TestAlembicExporter(int argc, char* argv[])
   }
   if (size > noDataSize)
   {
-    std::cerr << "Error: file should not contain geometry"
-                 " (actor has no mapper)"
-              << std::endl;
+    vtkLog(ERROR,
+      "File should not contain geometry"
+      " (actor has no mapper)");
     return EXIT_FAILURE;
   }
 
@@ -112,9 +113,9 @@ int TestAlembicExporter(int argc, char* argv[])
   }
   if (size > noDataSize)
   {
-    std::cerr << "Error: file should not contain geometry"
-                 " (mapper has no input)"
-              << std::endl;
+    vtkLog(ERROR,
+      "File should not contain geometry"
+      " (mapper has no input)");
     return EXIT_FAILURE;
   }
 
