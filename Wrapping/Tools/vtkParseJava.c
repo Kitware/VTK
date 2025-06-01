@@ -1148,35 +1148,6 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
   }
   fprintf(fp, "\n}\n");
   fclose(fp);
-  {
-    size_t cc;
-    size_t len;
-    char* dir;
-    const char* fname;
-    const char javaDone[] = "VTKJavaWrapped";
-    FILE* tfp;
-    fname = options->OutputFileName;
-    size_t dirlen = strlen(fname) + strlen(javaDone) + 2;
-    dir = (char*)malloc(dirlen);
-    snprintf(dir, dirlen, "%s", fname);
-    len = strlen(dir);
-    for (cc = len - 1; cc > 0; cc--)
-    {
-      if (dir[cc] == '/' || dir[cc] == '\\')
-      {
-        dir[cc + 1] = 0;
-        break;
-      }
-    }
-    strcat(dir, javaDone);
-    tfp = vtkParse_FileOpen(dir, "w");
-    if (tfp)
-    {
-      fprintf(tfp, "File: %s\n", fname);
-      fclose(tfp);
-    }
-    free(dir);
-  }
 
   if (hierarchyInfo)
   {
