@@ -30,9 +30,11 @@
 
 #include "vtksys/SystemTools.hxx"
 
+#include <algorithm>
 #include <float.h>
 #include <fstream>
 #include <iostream>
+#include <locale>
 #include <map>
 #include <sstream>
 #include <string>
@@ -253,7 +255,6 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
   // Using the dump directories and base name, scan for all dump files
   //
   vtkNew<vtkDirectory> directory;
-  uint64_t numFiles = 0;
   std::map<long, std::string> fileMap;
   std::map<long, std::string>::iterator miter;
 
@@ -269,32 +270,37 @@ int PIOAdaptor::collectMetaData(const char* PIOFileName)
     }
     else
     {
-      numFiles = directory->GetNumberOfFiles();
       uint64_t numDumps = 0;
-      for (unsigned int i = 0; i < numFiles; i++)
+      std::vector<std::string> potentialDumpFilesName;
+      for (vtkIdType i = 0; i < directory->GetNumberOfFiles(); i++)
       {
-        // check if fileName starts with base name
+        // Check if fileName starts with base name
         std::string fileName = directory->GetFile(i);
-        std::size_t matchPos = fileName.find(this->dumpBaseName);
-        if (matchPos == 0)
+        if (fileName.find(this->dumpBaseName) == 0)
         {
-          // try to open it and see if it is a valid pio file
-          std::ostringstream tmpStr;
-          tmpStr << this->dumpDirectory[dir] << Slash << fileName;
-          PIO_DATA* pioDataPtr = openPIODataFile(tmpStr.str().c_str());
-          if (pioDataPtr != nullptr)
-          {
-            if (pioDataPtr->good_read())
-            {
-              // Collect metadata of dump file
-              cycleIndex.emplace_back(pioDataPtr->get_cycle());
-              simulationTime.emplace_back(pioDataPtr->get_simtime());
-              fileNames.emplace_back(tmpStr.str());
-              numDumps++;
-            }
-          }
-          delete pioDataPtr;
+          potentialDumpFilesName.push_back(fileName);
         }
+      }
+      std::sort(
+        potentialDumpFilesName.begin(), potentialDumpFilesName.end(), std::locale::classic());
+      for (auto const& fileName : potentialDumpFilesName)
+      {
+        // try to open it and see if it is a valid pio file
+        std::ostringstream tmpStr;
+        tmpStr << this->dumpDirectory[dir] << Slash << fileName;
+        PIO_DATA* pioDataPtr = openPIODataFile(tmpStr.str().c_str());
+        if (pioDataPtr != nullptr)
+        {
+          if (pioDataPtr->good_read())
+          {
+            // Collect metadata of dump file
+            cycleIndex.emplace_back(pioDataPtr->get_cycle());
+            simulationTime.emplace_back(pioDataPtr->get_simtime());
+            fileNames.emplace_back(tmpStr.str());
+            numDumps++;
+          }
+        }
+        delete pioDataPtr;
       }
       if (numDumps == 0)
       {
