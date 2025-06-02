@@ -514,8 +514,8 @@ void ExerciseType(vtkMultiProcessController* controller)
   }
   else
   {
-    controller->GatherV(
-      sourceArrays[rank]->GetPointer(0), nullptr, lengths[rank], nullptr, nullptr, destProcessId);
+    controller->GatherV(sourceArrays[rank]->GetPointer(0), nullptr, lengths[rank], lengths.data(),
+      offsets.data(), destProcessId);
   }
   CheckSuccess(controller, result);
 
