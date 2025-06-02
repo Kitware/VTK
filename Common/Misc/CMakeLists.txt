@@ -31,7 +31,8 @@ vtk_module_add_module(VTK::CommonMisc
 # The final executable linking to CommonMisc must use -fwasm-exceptions as well.
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   if (NOT VTK_WEBASSEMBLY_EXCEPTIONS)
-    set_property(TARGET VTK::CommonMisc APPEND
+    _vtk_module_real_target(common_misc_target VTK::CommonMisc)
+    set_property(TARGET "${common_misc_target}" APPEND
       PROPERTY
         LINK_FLAGS "-fwasm-exceptions")
   endif ()
