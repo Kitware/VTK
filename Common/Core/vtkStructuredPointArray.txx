@@ -16,70 +16,73 @@ struct StructuredPointsWorker
     vtkSmartPointer<vtkImplicitArray<vtkStructuredPointBackend<ValueType>>>& structuredPointArray,
     int extent[6], int dataDescription, double dirMatrix[9])
   {
-    std::shared_ptr<vtkStructuredPointBackend<ValueType>> backend;
+    // Using a raw pointer to the base class here is important so we don't instantiate
+    // std::shared_ptr (+ control block and deleter) for each possible backend type.
+    vtkStructuredPointBackend<ValueType>* backend{};
+
     switch (dataDescription)
     {
       case 9 /*VTK_EMPTY*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           9, UseDirMatrix>;
-        backend = std::make_shared<TBackend>(arrayX, arrayY, arrayZ, extent, dirMatrix);
+        backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
       case 1 /*VTK_SINGLE_POINT*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           1, UseDirMatrix>;
-        backend = std::make_shared<TBackend>(arrayX, arrayY, arrayZ, extent, dirMatrix);
+        backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
       case 2 /*VTK_X_LINE*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           2, UseDirMatrix>;
-        backend = std::make_shared<TBackend>(arrayX, arrayY, arrayZ, extent, dirMatrix);
+        backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
       case 3 /*VTK_Y_LINE*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           3, UseDirMatrix>;
-        backend = std::make_shared<TBackend>(arrayX, arrayY, arrayZ, extent, dirMatrix);
+        backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
       case 4 /*VTK_Z_LINE*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           4, UseDirMatrix>;
-        backend = std::make_shared<TBackend>(arrayX, arrayY, arrayZ, extent, dirMatrix);
+        backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
       case 5 /*VTK_XY_PLANE*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           5, UseDirMatrix>;
-        backend = std::make_shared<TBackend>(arrayX, arrayY, arrayZ, extent, dirMatrix);
+        backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
       case 6 /*VTK_YZ_PLANE*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           6, UseDirMatrix>;
-        backend = std::make_shared<TBackend>(arrayX, arrayY, arrayZ, extent, dirMatrix);
+        backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
       case 7 /*VTK_XZ_PLANE*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           7, UseDirMatrix>;
-        backend = std::make_shared<TBackend>(arrayX, arrayY, arrayZ, extent, dirMatrix);
+        backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
       case 8 /*VTK_XYZ_GRID*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           8, UseDirMatrix>;
-        backend = std::make_shared<TBackend>(arrayX, arrayY, arrayZ, extent, dirMatrix);
+        backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
       default:
@@ -88,7 +91,9 @@ struct StructuredPointsWorker
         break;
       }
     }
-    structuredPointArray->SetBackend(backend);
+
+    structuredPointArray->SetBackend(
+      std::shared_ptr<vtkStructuredPointBackend<ValueType>>{ backend });
   }
 };
 } // end anon namespace
