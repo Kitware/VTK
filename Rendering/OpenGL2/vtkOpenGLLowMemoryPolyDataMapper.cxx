@@ -1031,6 +1031,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderValues(
   this->ReplaceShaderWideLines(renderer, actor, vsSource, fsSource);
   this->ReplaceShaderEdges(renderer, actor, vsSource, fsSource);
   this->ReplaceShaderSelection(renderer, actor, vsSource, fsSource);
+  this->ReplaceShaderClip(renderer, actor, vsSource, fsSource);
   // encapsulate the whole light stuff inside an if clause.
   vtkShaderProgram::Substitute(fsSource, "//VTK::Light::Dec",
     "//VTK::Light::Dec\n"
@@ -2061,6 +2062,42 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderTCoord(
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderClip(
+  vtkRenderer*, vtkActor*, std::string& vsSource, std::string& fsSource)
+{
+  if (this->GetNumberOfClippingPlanes())
+  {
+    // add all the clipping planes
+    int numClipPlanes = this->GetNumberOfClippingPlanes();
+    if (numClipPlanes > 6)
+    {
+      vtkErrorMacro(<< "This mapper can only use at most 6 clipping planes. "
+                    << "You have specified " << numClipPlanes
+                    << ". Please reduce the number of clipping planes.");
+    }
+
+    // clip planes
+    vtkShaderProgram::Substitute(vsSource, "//VTK::Clip::Dec",
+      "uniform highp int numClipPlanes;\n"
+      "uniform vec4 clipPlanes[6];\n"
+      "out float clipDistancesVSOutput[6];");
+    vtkShaderProgram::Substitute(vsSource, "//VTK::Clip::Impl",
+      "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+      "{\n"
+      "  clipDistancesVSOutput[planeNum] = dot(clipPlanes[planeNum], vertexMC);\n"
+      "}\n");
+    vtkShaderProgram::Substitute(fsSource, "//VTK::Clip::Dec",
+      "uniform highp int numClipPlanes;\n"
+      "in float clipDistancesVSOutput[6];");
+    vtkShaderProgram::Substitute(fsSource, "//VTK::Clip::Impl",
+      "for (int planeNum = 0; planeNum < numClipPlanes; planeNum++)\n"
+      "{\n"
+      "  if (clipDistancesVSOutput[planeNum] < 0.0) discard;\n"
+      "}\n");
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer, vtkActor* actor)
 {
   if (!this->ShaderProgram)
@@ -2098,6 +2135,46 @@ void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer
   {
     this->ShaderProgram->SetUniformf("edgeWidth", edgeWidth);
   }
+
+  if (this->GetNumberOfClippingPlanes() && this->ShaderProgram->IsUniformUsed("numClipPlanes") &&
+    this->ShaderProgram->IsUniformUsed("clipPlanes"))
+  {
+    // add all the clipping planes
+    int numClipPlanes = this->GetNumberOfClippingPlanes();
+    if (numClipPlanes > 6)
+    {
+      vtkErrorMacro(<< "This mapper can only use at most 6 clipping planes. "
+                    << "You have specified " << numClipPlanes
+                    << ". Please reduce the number of clipping planes.");
+      numClipPlanes = 6;
+    }
+
+    double shift[3] = { 0.0, 0.0, 0.0 };
+    double scale[3] = { 1.0, 1.0, 1.0 };
+    if (this->GetCoordShiftAndScaleEnabled())
+    {
+      std::copy(this->ShiftValues.begin(), this->ShiftValues.end(), shift);
+      std::copy(this->ScaleValues.begin(), this->ScaleValues.end(), scale);
+    }
+
+    float planeEquations[6][4];
+    for (int i = 0; i < numClipPlanes; i++)
+    {
+      double planeEquation[4];
+      actor->GetModelToWorldMatrix(this->TempMatrix4);
+      this->GetClippingPlaneInDataCoords(this->TempMatrix4, i, planeEquation);
+
+      // multiply by shift scale if set
+      planeEquations[i][0] = planeEquation[0] / scale[0];
+      planeEquations[i][1] = planeEquation[1] / scale[1];
+      planeEquations[i][2] = planeEquation[2] / scale[2];
+      planeEquations[i][3] = planeEquation[3] + planeEquation[0] * shift[0] +
+        planeEquation[1] * shift[1] + planeEquation[2] * shift[2];
+    }
+    this->ShaderProgram->SetUniformi("numClipPlanes", numClipPlanes);
+    this->ShaderProgram->SetUniform4fv("clipPlanes", 6, planeEquations);
+  }
+  vtkOpenGLCheckErrorMacro("failed after UpdateShader");
 
   vtkHardwareSelector* selector = renderer->GetSelector();
   if (selector && this->ShaderProgram->IsUniformUsed("mapperIndex"))
