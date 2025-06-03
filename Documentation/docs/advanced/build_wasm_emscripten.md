@@ -109,7 +109,7 @@ and test the simple Cone example.
 ## Exceptions
 
 By default, emscripten disables exception catching and enables exception throwing because of the overhead in size and speed. The [wasm-exceptions proposal](https://github.com/WebAssembly/exception-handling/blob/master/proposals/exception-handling/Exceptions.md) aims to resolve this issue.
-In VTK, you can configure exceptions with the CMake setting `VTK_WEBASSEMBLY_EXCEPTIONS` (default `ON`). Please note that the WASM CI build scripts turn on exceptions for developer convenience, so that a stack trace can be obtained when a C++ unit test crashes due to an uncaught exception or `abort`.
+VTK enables exceptions by default because some internal modules need `longjmp` and C++ exceptions. Additionally, it is convenient since a stack trace can be obtained when a C++ unit test crashes due to an uncaught exception or `abort`.
 
 ## Multithreading
 

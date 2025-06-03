@@ -32,7 +32,6 @@ set(cmake_args
   "-DVTK_USE_LARGE_DATA:BOOL=ON"
   "-DVTK_BUILD_TESTING:BOOL=ON"
   "-DVTK_WEBASSEMBLY_64_BIT:BOOL=${VTK_WEBASSEMBLY_64_BIT}"
-  "-DVTK_WEBASSEMBLY_EXCEPTIONS:BOOL=ON"
   "-DVTK_TESTING_WASM_ENGINE=${VTK_TESTING_WASM_ENGINE}"
   "-Demdawnwebgpu_DIR=${_emdawnwebgpu_DIR}/lib/cmake/emdawnwebgpu"
   "--no-warn-unused-cli")
