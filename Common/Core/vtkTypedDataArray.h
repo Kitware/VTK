@@ -199,18 +199,7 @@ VTK_ABI_NAMESPACE_END
 
 #ifdef VTK_TYPED_VALUERANGE_INSTANTIATING
 
-// Needed to export for this module and not CommonCore
-#define VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType)                                 \
-  template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(                                         \
-    ArrayType*, ValueType*, vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);  \
-  template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(ArrayType*, ValueType*,                  \
-    vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);                       \
-  template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],                \
-    vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);                          \
-  template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],                \
-    vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);
-
-#define VTK_INSTANTIATE_VALUERANGE_VALUETYPE(ValueType)                                            \
+#define VTK_INSTANTIATE_TYPEDARRAY_VALUERANGE_VALUETYPE(ValueType)                                 \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkTypedDataArray<ValueType>, double)
 
 #elif defined(VTK_USE_EXTERN_TEMPLATE) // VTK_IMPLICIT_VALUERANGE_INSTANTIATING
@@ -224,55 +213,29 @@ VTK_ABI_NAMESPACE_END
 #pragma warning(disable : 4910) // extern and dllexport incompatible
 #endif
 
-namespace vtkDataArrayPrivate
-{
-VTK_ABI_NAMESPACE_BEGIN
-template <typename A, typename R, typename T>
-VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(
-  A*, R*, T, const unsigned char* ghosts, unsigned char ghostsToSkip);
-template <typename A, typename R>
-VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(
-  A*, R[2], AllValues, const unsigned char* ghosts, unsigned char ghostsToSkip);
-template <typename A, typename R>
-VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(
-  A*, R[2], FiniteValues, const unsigned char* ghosts, unsigned char ghostsToSkip);
-VTK_ABI_NAMESPACE_END
-} // namespace vtkDataArrayPrivate
-
-#define VTK_DECLARE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType)                                     \
-  extern template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(                                  \
-    ArrayType*, ValueType*, vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);  \
-  extern template VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(ArrayType*, ValueType*,           \
-    vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);                       \
-  extern template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],         \
-    vtkDataArrayPrivate::AllValues, const unsigned char*, unsigned char);                          \
-  extern template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],         \
-    vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);
-
-#define VTK_DECLARE_VALUERANGE_VALUETYPE(ValueType)                                                \
+#define VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(ValueType)                                    \
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkTypedDataArray<ValueType>, double)
 
 namespace vtkDataArrayPrivate
 {
 VTK_ABI_NAMESPACE_BEGIN
-VTK_DECLARE_VALUERANGE_VALUETYPE(char)
-VTK_DECLARE_VALUERANGE_VALUETYPE(signed char)
-VTK_DECLARE_VALUERANGE_VALUETYPE(short)
-VTK_DECLARE_VALUERANGE_VALUETYPE(int)
-VTK_DECLARE_VALUERANGE_VALUETYPE(long)
-VTK_DECLARE_VALUERANGE_VALUETYPE(long long)
-VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned char)
-VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned short)
-VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned int)
-VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned long)
-VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned long long)
-VTK_DECLARE_VALUERANGE_VALUETYPE(float)
-VTK_DECLARE_VALUERANGE_VALUETYPE(double)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(char)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(signed char)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(short)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(int)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(long)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(long long)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(unsigned char)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(unsigned short)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(unsigned int)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(unsigned long)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(unsigned long long)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(float)
+VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE(double)
 VTK_ABI_NAMESPACE_END
 }
 
-#undef VTK_DECLARE_VALUERANGE_VALUETYPE
-#undef VTK_DECLARE_VALUERANGE_ARRAYTYPE
+#undef VTK_DECLARE_TYPED_ARRAY_VALUERANGE_VALUETYPE
 
 #ifdef _MSC_VER
 #pragma warning(pop)

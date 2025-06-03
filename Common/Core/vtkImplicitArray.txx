@@ -4,8 +4,6 @@
 #ifndef vtkImplicitArray_txx
 #define vtkImplicitArray_txx
 
-#include "vtkImplicitArray.h"
-
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"

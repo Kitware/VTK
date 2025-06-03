@@ -3,7 +3,7 @@
 
 // VTK_DEPRECATED_IN_9_5_0()
 #define VTK_DEPRECATION_LEVEL 0
-#include "vtkDataArrayPrivate.txx"
+#include "vtkGenericDataArray.h"
 
 // NOLINTBEGIN(bugprone-suspicious-include)
 
