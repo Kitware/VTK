@@ -129,6 +129,9 @@ void vtkOpenGLMoleculeMapper::UpdateBondGlyphPolyData()
   this->FastBondMapper->SetLookupTable(this->BondGlyphMapper->GetLookupTable());
   this->FastBondMapper->SetScalarMode(this->BondGlyphMapper->GetScalarMode());
   this->FastBondMapper->SetColorMode(this->BondGlyphMapper->GetColorMode());
+  this->FastBondMapper->SetUseLookupTableScalarRange(
+    this->BondGlyphMapper->GetUseLookupTableScalarRange());
+  this->FastBondMapper->SetScalarRange(this->BondGlyphMapper->GetScalarRange());
   this->FastBondMapper->SelectColorArray(this->BondGlyphMapper->GetArrayId());
   // Setup glypher
   this->FastBondMapper->SetScaleArray("Scale Factors");
