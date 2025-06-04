@@ -67,6 +67,7 @@ std::vector<ArrayTypeInfo> ArrayTypes = {
   TYPE_INFO_MACRO(vtkLongArray),
   TYPE_INFO_MACRO(vtkLongLongArray),
   TYPE_INFO_MACRO(vtkShortArray),
+  TYPE_INFO_MACRO(vtkSignedCharArray),
   TYPE_INFO_MACRO(vtkUnsignedCharArray),
   TYPE_INFO_MACRO(vtkUnsignedIntArray),
   TYPE_INFO_MACRO(vtkUnsignedLongArray),

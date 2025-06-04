@@ -57,6 +57,7 @@ Common/Core/vtkPoints.h
 Common/Core/vtkPoints2D.h
 Common/Core/vtkWindow.h
 Common/DataModel/vtkAbstractCellArray.h
+Common/DataModel/vtkAbstractCellLinks.h
 Common/DataModel/vtkCellData.h
 Common/DataModel/vtkCompositeDataSet.h
 Common/DataModel/vtkDataObject.h
@@ -71,6 +72,7 @@ Common/DataModel/vtkPointData.h
 Common/DataModel/vtkPointSet.h
 Common/DataModel/vtkPolyData.h
 Common/DataModel/vtkRectilinearGrid.h
+Common/DataModel/vtkStaticCellLinks.h
 Common/DataModel/vtkStructuredGrid.h
 Common/DataModel/vtkStructuredPoints.h
 Common/DataModel/vtkUniformGrid.h
@@ -81,6 +83,7 @@ Common/ExecutionModel/vtkDemandDrivenPipeline.h
 Common/ExecutionModel/vtkExecutive.h
 Common/ExecutionModel/vtkImageAlgorithm.h
 Common/ExecutionModel/vtkStreamingDemandDrivenPipeline.h
+Common/ExecutionModel/vtkThreadedImageAlgorithm.h
 Common/ExecutionModel/vtkTrivialProducer.h
 Common/Math/vtkMatrix3x3.h
 Common/Math/vtkMatrix4x4.h
@@ -89,6 +92,13 @@ Common/Transforms/vtkHomogeneousTransform.h
 Common/Transforms/vtkLinearTransform.h
 Common/Transforms/vtkTransform.h
 Common/Transforms/vtkTransform2D.h
+Imaging/Color/vtkImageMapToWindowLevelColors.h
+Imaging/Core/vtkAbstractImageInterpolator.h
+Imaging/Core/vtkImageInterpolator.h
+Imaging/Core/vtkImageMapToColors.h
+Imaging/Core/vtkImageReslice.h
+Imaging/Core/vtkImageResliceToColors.h
+Imaging/Core/vtkImageStencilData.h
 Interaction/Style/vtkInteractorStyleDrawPolygon.h
 Interaction/Style/vtkInteractorStyleFlight.h
 Interaction/Style/vtkInteractorStyleImage.h
@@ -280,6 +290,7 @@ Rendering/Core/vtkLogLookupTable.h
 Rendering/Core/vtkMapper.h
 Rendering/Core/vtkMapper2D.h
 Rendering/Core/vtkPicker.h
+Rendering/Core/vtkPointGaussianMapper.h
 Rendering/Core/vtkPointPicker.h
 Rendering/Core/vtkPolyDataMapper.h
 Rendering/Core/vtkPolyDataMapper2D.h
@@ -299,6 +310,7 @@ Rendering/Core/vtkRenderWindow.h
 Rendering/Core/vtkRenderWindowInteractor.h
 Rendering/Core/vtkSkybox.h
 Rendering/Core/vtkTextActor.h
+Rendering/Core/vtkTextActor3D.h
 Rendering/Core/vtkTextProperty.h
 Rendering/Core/vtkTextPropertyCollection.h
 Rendering/Core/vtkTexturedActor2D.h
@@ -308,6 +320,11 @@ Rendering/Core/vtkVolume.h
 Rendering/Core/vtkVolumeCollection.h
 Rendering/Core/vtkVolumeProperty.h
 Rendering/Core/vtkWorldPointPicker.h
+Rendering/GridAxes/vtkGridAxesActor2D.h
+Rendering/GridAxes/vtkGridAxesActor3D.h
+Rendering/Image/vtkImageResliceMapper.h
+Rendering/Image/vtkImageSliceCollection.h
+Rendering/Image/vtkImageStack.h
 Rendering/Label/vtkDynamic2DLabelMapper.h
 Rendering/Label/vtkFreeTypeLabelRenderStrategy.h
 Rendering/Label/vtkLabeledDataMapper.h
@@ -340,6 +357,7 @@ Rendering/OpenGL2/vtkOpaquePass.h
 Rendering/OpenGL2/vtkOpenGLActor.h
 Rendering/OpenGL2/vtkOpenGLCamera.h
 Rendering/OpenGL2/vtkOpenGLES30PolyDataMapper2D.h
+Rendering/OpenGL2/vtkOpenGLFluidMapper.h
 Rendering/OpenGL2/vtkOpenGLFXAAPass.h
 Rendering/OpenGL2/vtkOpenGLGlyph3DMapper.h
 Rendering/OpenGL2/vtkOpenGLImageMapper.h
@@ -347,6 +365,7 @@ Rendering/OpenGL2/vtkOpenGLImageSliceMapper.h
 Rendering/OpenGL2/vtkOpenGLLabeledContourMapper.h
 Rendering/OpenGL2/vtkOpenGLLight.h
 Rendering/OpenGL2/vtkOpenGLLowMemoryPolyDataMapper.h
+Rendering/OpenGL2/vtkOpenGLPointGaussianMapper.h
 Rendering/OpenGL2/vtkOpenGLPolyDataMapper.h
 Rendering/OpenGL2/vtkOpenGLPolyDataMapper2D.h
 Rendering/OpenGL2/vtkOpenGLProperty.h
@@ -356,6 +375,7 @@ Rendering/OpenGL2/vtkOpenGLRenderWindow.h
 Rendering/OpenGL2/vtkOpenGLShaderProperty.h
 Rendering/OpenGL2/vtkOpenGLSkybox.h
 Rendering/OpenGL2/vtkOpenGLTextActor.h
+Rendering/OpenGL2/vtkOpenGLTextActor3D.h
 Rendering/OpenGL2/vtkOpenGLTexture.h
 Rendering/OpenGL2/vtkOrderIndependentTranslucentPass.h
 Rendering/OpenGL2/vtkOSOpenGLRenderWindow.h

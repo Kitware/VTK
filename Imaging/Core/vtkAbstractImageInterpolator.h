@@ -20,6 +20,7 @@
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h"
 
 enum vtkImageBorderMode : int
 {
@@ -35,7 +36,7 @@ class vtkDataArray;
 struct vtkInterpolationInfo;
 struct vtkInterpolationWeights;
 
-class VTKIMAGINGCORE_EXPORT vtkAbstractImageInterpolator : public vtkObject
+class VTKIMAGINGCORE_EXPORT VTK_MARSHALAUTO vtkAbstractImageInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractImageInterpolator, vtkObject);

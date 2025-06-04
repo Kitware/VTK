@@ -16,7 +16,6 @@ vtkStandardNewMacro(vtkImageStack);
 //------------------------------------------------------------------------------
 vtkImageStack::vtkImageStack()
 {
-  this->Images = vtkImageSliceCollection::New();
   this->ImageMatrices = nullptr;
   this->ActiveLayer = 0;
 }
@@ -33,8 +32,6 @@ vtkImageStack::~vtkImageStack()
     {
       image->RemoveConsumer(this);
     }
-
-    this->Images->Delete();
   }
 
   if (this->ImageMatrices)

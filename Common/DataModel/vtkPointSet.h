@@ -188,7 +188,9 @@ public:
    * vtkStaticPointLocator is used, unless the class is set as Editable, in
    * which case a vtkPointLocator is used.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetPointLocator(vtkAbstractPointLocator*);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(PointLocator, vtkAbstractPointLocator);
   ///@}
 
@@ -197,7 +199,9 @@ public:
    * Set / get an instance of vtkAbstractCellLocator which may be used
    * when a vtkCellLocatorStrategy is used during a FindCell() operation.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetCellLocator(vtkAbstractCellLocator*);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkGetObjectMacro(CellLocator, vtkAbstractCellLocator);
   ///@}
 

@@ -22,6 +22,7 @@
 
 #include "vtkImageSlice.h"
 #include "vtkRenderingImageModule.h" // For export macro
+#include "vtkWrappingHints.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageSliceCollection;
@@ -29,7 +30,7 @@ class vtkImageProperty;
 class vtkImageMapper3D;
 class vtkCollection;
 
-class VTKRENDERINGIMAGE_EXPORT vtkImageStack : public vtkImageSlice
+class VTKRENDERINGIMAGE_EXPORT VTK_MARSHALAUTO vtkImageStack : public vtkImageSlice
 {
 public:
   vtkTypeMacro(vtkImageStack, vtkImageSlice);
@@ -165,7 +166,7 @@ protected:
 
   vtkTimeStamp PathTime;
   vtkCollection* ImageMatrices;
-  vtkImageSliceCollection* Images;
+  vtkNew<vtkImageSliceCollection> Images;
   int ActiveLayer;
 
 private:

@@ -40,6 +40,7 @@
 
 #include "vtkImagingCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
+#include "vtkWrappingHints.h"
 
 // interpolation mode constants
 #define VTK_RESLICE_NEAREST VTK_NEAREST_INTERPOLATION
@@ -54,7 +55,7 @@ class vtkImageStencilData;
 class vtkScalarsToColors;
 class vtkAbstractImageInterpolator;
 
-class VTKIMAGINGCORE_EXPORT vtkImageReslice : public vtkThreadedImageAlgorithm
+class VTKIMAGINGCORE_EXPORT VTK_MARSHALAUTO vtkImageReslice : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageReslice* New();

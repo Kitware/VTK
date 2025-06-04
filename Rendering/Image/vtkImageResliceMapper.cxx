@@ -30,6 +30,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageResliceMapper);
 
+vtkCxxSetObjectMacro(vtkImageResliceMapper, ImageReslice, vtkImageResliceToColors);
+
 //------------------------------------------------------------------------------
 vtkImageResliceMapper::vtkImageResliceMapper()
 {

@@ -18,6 +18,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkShader.h"                 // for methods
 #include "vtkSmartPointer.h"           // for ivars
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 
 #include <map> //for methods
 
@@ -32,7 +33,8 @@ class vtkOpenGLVertexBufferObjectGroup;
 class vtkPolyData;
 class vtkTextureObject;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLFluidMapper : public vtkAbstractVolumeMapper
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLFluidMapper
+  : public vtkAbstractVolumeMapper
 {
 public:
   static vtkOpenGLFluidMapper* New();
@@ -75,8 +77,8 @@ public:
    * Usually set this to around 3-5
    * Too many filter iterations will over-smooth the surface
    */
-  vtkSetMacro(SurfaceFilterIterations, uint32_t);
-  vtkGetMacro(SurfaceFilterIterations, uint32_t);
+  vtkSetMacro(SurfaceFilterIterations, vtkTypeUInt32);
+  vtkGetMacro(SurfaceFilterIterations, vtkTypeUInt32);
   ///@}
 
   ///@{
@@ -84,8 +86,8 @@ public:
    * Get/Set the number of filter iterations to filter the volume thickness
    * and particle color This is an optional parameter, default value is 3
    */
-  vtkSetMacro(ThicknessAndVolumeColorFilterIterations, uint32_t);
-  vtkGetMacro(ThicknessAndVolumeColorFilterIterations, uint32_t);
+  vtkSetMacro(ThicknessAndVolumeColorFilterIterations, vtkTypeUInt32);
+  vtkGetMacro(ThicknessAndVolumeColorFilterIterations, vtkTypeUInt32);
   ///@}
 
   ///@{
@@ -96,8 +98,8 @@ public:
    * instead it is just a parameter used for computing the actual filter
    * radius in the screen space filtering
    */
-  vtkSetMacro(SurfaceFilterRadius, uint32_t);
-  vtkGetMacro(SurfaceFilterRadius, uint32_t);
+  vtkSetMacro(SurfaceFilterRadius, vtkTypeUInt32);
+  vtkGetMacro(SurfaceFilterRadius, vtkTypeUInt32);
   ///@}
 
   ///@{
@@ -294,14 +296,14 @@ protected:
   float ParticleRadius = 1.0f;
 
   FluidSurfaceFilterMethod SurfaceFilterMethod = FluidSurfaceFilterMethod::NarrowRange;
-  uint32_t SurfaceFilterIterations = 3u;
-  uint32_t SurfaceFilterRadius = 5u;
+  vtkTypeUInt32 SurfaceFilterIterations = 3u;
+  vtkTypeUInt32 SurfaceFilterRadius = 5u;
   float NRFilterLambda = 10.0f;
   float NRFilterMu = 1.0f;
   float BiGaussFilterSigmaDepth = 10.0f;
 
-  uint32_t ThicknessAndVolumeColorFilterIterations = 3u;
-  uint32_t ThicknessAndVolumeColorFilterRadius = 10u;
+  vtkTypeUInt32 ThicknessAndVolumeColorFilterIterations = 3u;
+  vtkTypeUInt32 ThicknessAndVolumeColorFilterRadius = 10u;
 
   FluidDisplayMode DisplayMode = FluidDisplayMode::TransparentFluidVolume;
 

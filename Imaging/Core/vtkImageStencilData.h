@@ -17,9 +17,10 @@
 
 #include "vtkDataObject.h"
 #include "vtkImagingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIMAGINGCORE_EXPORT vtkImageStencilData : public vtkDataObject
+class VTKIMAGINGCORE_EXPORT VTK_MARSHALAUTO vtkImageStencilData : public vtkDataObject
 {
 public:
   static vtkImageStencilData* New();

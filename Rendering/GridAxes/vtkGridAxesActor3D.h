@@ -19,6 +19,7 @@
 
 #include "vtkGridAxesHelper.h" //  needed for vtkGridAxesHelper.
 #include "vtkNew.h"            // needed for vtkNew.
+#include "vtkWrappingHints.h"
 
 #include <functional> // for std::function
 
@@ -28,7 +29,7 @@ class vtkGridAxesActor2D;
 class vtkProperty;
 class vtkTextProperty;
 
-class VTKRENDERINGGRIDAXES_EXPORT vtkGridAxesActor3D : public vtkProp3D
+class VTKRENDERINGGRIDAXES_EXPORT VTK_MARSHALAUTO vtkGridAxesActor3D : public vtkProp3D
 {
 public:
   static vtkGridAxesActor3D* New();

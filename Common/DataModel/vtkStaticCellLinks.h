@@ -34,12 +34,13 @@
 #include "vtkAbstractCellLinks.h"
 #include "vtkCommonDataModelModule.h"   // For export macro
 #include "vtkStaticCellLinksTemplate.h" // For implementations
+#include "vtkWrappingHints.h"           // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkCellArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkStaticCellLinks : public vtkAbstractCellLinks
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkStaticCellLinks : public vtkAbstractCellLinks
 {
 public:
   ///@{

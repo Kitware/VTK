@@ -62,8 +62,8 @@ public:
    * Since this legend represents categorical data, this
    * vtkScalarsToColors must have been populated using SetAnnotation().
    */
-  virtual void SetScalarsToColors(vtkScalarsToColors* stc);
-  virtual vtkScalarsToColors* GetScalarsToColors();
+  vtkGetObjectMacro(ScalarsToColors, vtkScalarsToColors);
+  virtual void SetScalarsToColors(vtkScalarsToColors*);
   ///@}
 
   ///@{

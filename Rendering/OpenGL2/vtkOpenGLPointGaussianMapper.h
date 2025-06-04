@@ -13,12 +13,14 @@
 
 #include "vtkPointGaussianMapper.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
 #include <vector>                      // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkOpenGLPointGaussianMapperHelper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPointGaussianMapper : public vtkPointGaussianMapper
+class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkOpenGLPointGaussianMapper
+  : public vtkPointGaussianMapper
 {
 public:
   static vtkOpenGLPointGaussianMapper* New();

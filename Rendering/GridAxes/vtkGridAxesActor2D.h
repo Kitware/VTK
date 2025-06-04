@@ -27,6 +27,7 @@
 #include "vtkGridAxesPlaneActor2D.h" // needed for inline methods
 #include "vtkNew.h"                  // needed for vtkNew.
 #include "vtkSmartPointer.h"         // needed for vtkSmartPointer.
+#include "vtkWrappingHints.h"
 
 #include <functional> // for std::function
 
@@ -37,7 +38,7 @@ class vtkDoubleArray;
 class vtkProperty;
 class vtkTextProperty;
 
-class VTKRENDERINGGRIDAXES_EXPORT vtkGridAxesActor2D : public vtkProp3D
+class VTKRENDERINGGRIDAXES_EXPORT VTK_MARSHALAUTO vtkGridAxesActor2D : public vtkProp3D
 {
 public:
   static vtkGridAxesActor2D* New();

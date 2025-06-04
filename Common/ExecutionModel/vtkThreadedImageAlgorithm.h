@@ -18,13 +18,15 @@
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
-#include "vtkThreads.h" // for VTK_MAX_THREADS
+#include "vtkThreads.h"       // for VTK_MAX_THREADS
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkMultiThreader;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkThreadedImageAlgorithm : public vtkImageAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkThreadedImageAlgorithm
+  : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkThreadedImageAlgorithm, vtkImageAlgorithm);
