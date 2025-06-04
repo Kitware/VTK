@@ -308,9 +308,10 @@ size_t WriteTexture(vtkActor* aPart, const char* fileName, size_t index,
     textureMap[da] = texIndex;
 
     // figure out a filename - strip extension, add "_tex0.png"
+    std::string filePath = vtksys::SystemTools::GetFilenamePath(fileName);
     std::string baseName = vtksys::SystemTools::GetFilenameWithoutLastExtension(fileName);
     std::ostringstream strm;
-    strm << baseName << "_tex" << index << ".png";
+    strm << filePath << '/' << baseName << "_tex" << index << ".png";
     std::string fname = strm.str();
 
     // we don't want the NaN color in the texture file
