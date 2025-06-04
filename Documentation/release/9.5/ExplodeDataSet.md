@@ -15,6 +15,6 @@ Examples of usage include:
   * splitting mesh from materials (as with OBJ groups)
   * creating blocks from Connectivity array or (FeatureEdges)RegionIds
 
-> ![Blocks from FeatureEdges Region Ids](ExplodeDataSet.png)
+> ![Blocks from FeatureEdges Region Ids](../imgs/9.5/ExplodeDataSet.png)
 >
 > Using vtkExplodeDataSet after a vtkGenerateRegionIds

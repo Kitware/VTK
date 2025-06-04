@@ -5,7 +5,7 @@ directional lights as positional and generated incorrect renderings. This issue 
 
 |Before|After|
 |:--:|:--:|
-|![](./pbr_light_before.png)|![](https://vtk.org/files/ExternalData/SHA512/01b2f3261b9dc1550b1dae1abcc32ab45c170964500115ee66efba9200ff46485d2bee6efe1e13c6972630661c29dfac5abc83de7ac88b21d566a3db215936d4)|
+|![](../imgs/9.5/pbr_light_before.png)|![](https://vtk.org/files/ExternalData/SHA512/01b2f3261b9dc1550b1dae1abcc32ab45c170964500115ee66efba9200ff46485d2bee6efe1e13c6972630661c29dfac5abc83de7ac88b21d566a3db215936d4)|
 
 In the images above, there are two lights - a positional light in front of the lower left sphere and
 a directional light in front of the third sphere in the second-last row.

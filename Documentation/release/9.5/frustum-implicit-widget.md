@@ -8,7 +8,7 @@ The new `vtkFrustum` has a widget representation. The representation can be mani
  - Adjust vertical/horizontal angles through the "far plane" edges handles
  - Adjust near plane distance through the near plane edges handle.
 
-> ![Screenshot of the Frustum widget in a VTK view](!implicit-frustum-widget.png)
+> ![Screenshot of the Frustum widget in a VTK view](../imgs/9.5/implicit-frustum-widget.png)
 >
 > Screenshot of the Frustum widget in a VTK view
 
