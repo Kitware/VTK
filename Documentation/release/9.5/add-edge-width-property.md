@@ -14,4 +14,4 @@ The default value of `UseLineWidthForEdgeThickness` is `true` to prevent breakin
 As an example, here is a single polydata that has both polygonal faces and polylines. Notice how the edges are wider than the lines. You can achieve this by configuring `EdgeWidth` and
 turning off `UseLineWidthForEdgeThickness` on the actors' `vtkProperty` instance.
 
-![add-edge-width-property.png](./add-edge-width-property.png)
+![add-edge-width-property.png](../imgs/9.5/add-edge-width-property.png)
