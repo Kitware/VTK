@@ -87,6 +87,7 @@ public:
   const vtkAMRBox& GetAMRBox(unsigned int level, unsigned int id);
   ///@}
 
+  using Superclass::GetBounds;
   /**
    * Returns the bounding information of a data set.
    */
@@ -170,9 +171,6 @@ public:
    */
   void PrintParentChildInfo(unsigned int level, unsigned int index);
 
-  // Unhide superclass method
-  void GetBounds(double b[6]) { Superclass::GetBounds(b); }
-
   /**
    * Given a point q, find the highest level grid that contains it.
    */
@@ -189,8 +187,9 @@ public:
    * Check whether the data set is internally consistent, e.g.
    * whether the meta data and actual data blocks match.
    * Incorrectness will be reported as error messages
+   * Return true if correct, false otherwise.
    */
-  void Audit();
+  bool Audit();
 
 protected:
   vtkOverlappingAMR();

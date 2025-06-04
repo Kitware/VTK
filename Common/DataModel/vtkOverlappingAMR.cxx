@@ -169,9 +169,9 @@ int vtkOverlappingAMR::GetAMRBlockSourceIndex(unsigned int level, unsigned int i
 }
 
 //------------------------------------------------------------------------------
-void vtkOverlappingAMR::Audit()
+bool vtkOverlappingAMR::Audit()
 {
-  this->AMRInfo->Audit();
+  bool ret = this->AMRInfo->Audit();
 
   int emptyDimension(-1);
   switch (this->GetGridDescription())
@@ -215,20 +215,24 @@ void vtkOverlappingAMR::Audit()
         {
           vtkErrorMacro(
             "The grid spacing does not match AMRInfo at (" << level << ", " << id << ")");
+          ret = false;
         }
         if (!hasGhost && grid->GetOrigin()[d] != origin[d])
         {
           vtkErrorMacro(
             "The grid origin does not match AMRInfo at (" << level << ", " << id << ")");
+          ret = false;
         }
         if (!hasGhost && grid->GetDimensions()[d] != dims[d])
         {
           vtkErrorMacro(
             "The grid dimensions does not match AMRInfo at (" << level << ", " << id << ")");
+          ret = false;
         }
       }
     }
   }
+  return ret;
 }
 
 bool vtkOverlappingAMR::FindGrid(double q[3], unsigned int& level, unsigned int& gridId)
