@@ -229,7 +229,7 @@ bool vtkAMRInformation::Audit()
     {
       if (h[d] < 0)
       {
-        vtkErrorMacro("Invalid spacing at level " << i << endl);
+        vtkErrorMacro("Invalid spacing at level " << i << " : " << h[d] << endl);
       }
     }
 
