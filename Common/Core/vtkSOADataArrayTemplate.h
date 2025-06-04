@@ -313,10 +313,33 @@ VTK_ABI_NAMESPACE_END
 #endif
 VTK_ABI_NAMESPACE_BEGIN
 vtkExternTemplateMacro(extern template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate);
+VTK_ABI_NAMESPACE_END
+
+namespace vtkDataArrayPrivate
+{
+VTK_ABI_NAMESPACE_BEGIN
+
+// These are instantiated in vtkSOADataArrayTemplateInstantiate${i}.cxx
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<float>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<double>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<char>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<signed char>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<unsigned char>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<short>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<unsigned short>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<int>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<unsigned int>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<long>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<unsigned long>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<long long>, double)
+VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<unsigned long long>, double)
+
+VTK_ABI_NAMESPACE_END
+} // namespace vtkDataArrayPrivate
+
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-VTK_ABI_NAMESPACE_END
 #endif // VTK_SOA_DATA_ARRAY_TEMPLATE_EXTERN
 
 // The following clause is only for MSVC 2008 and 2010
@@ -346,10 +369,10 @@ VTK_ABI_NAMESPACE_END
 // interface.  This is a compiler-specific extension.
 VTK_ABI_NAMESPACE_BEGIN
 vtkInstantiateTemplateMacro(extern template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate);
+VTK_ABI_NAMESPACE_END
 
 #pragma warning(pop)
 
-VTK_ABI_NAMESPACE_END
 #endif
 
 // VTK-HeaderTest-Exclude: vtkSOADataArrayTemplate.h

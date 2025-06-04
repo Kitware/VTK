@@ -180,28 +180,50 @@ set(instantiation_sources)
 
 include(vtkTypeLists)
 
+foreach (type IN LISTS vtk_numeric_types)
+  string(REPLACE " " "_" _suffix "${type}")
+  list(APPEND instantiation_sources
+    "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayBulkInstantiate_${_suffix}.cxx")
+
+  if(CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|AppleClang|Clang)$")
+    # This silences the following warning:
+    #     type attributes ignored after type is already defined [-Wattributes]
+    #     template class VTKCOMMONCORE_EXPORT vtkImplicitArray<vtkStructuredPointBackend<ValueType>>;
+    # This warning is caused by the vtkArrayDispatch instantiations,
+    # controlled by the VTK_DISPATCH_*_ARRAYS cmake variables.
+    # When ON, a vtkImplicitArray<vtk*Backend<ValueType>> will be indirectly instantiated
+    # by `vtkIndexedImplicitBackend::Internals` and `vtkCompositeImplicitBackend::Internals`
+    # causing the `__attribute__((visibility("default")))` to be ignored.
+    set_source_files_properties("${CMAKE_CURRENT_BINARY_DIR}/vtkArrayBulkInstantiate_${_suffix}.cxx"
+      PROPERTIES COMPILE_OPTIONS "-Wno-attributes")
+  endif()
+endforeach ()
+
 foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtk_numeric_types)
-  # only instantiate fundamental types, not typedefs
+  # We never need to instantiate vtkIdType or because they are instantiated
+  # by the corresponding array for its native type.
   if (INSTANTIATION_VALUE_TYPE STREQUAL "vtkIdType")
     continue()
   endif ()
   # create a file suffix from the type
   string(REPLACE " " "_" _suffix "${INSTANTIATION_VALUE_TYPE}")
 
+  # Order of this list is important with bulk instantiation
   set(_list
-    vtkAffineArrayInstantiate
     vtkAffineImplicitBackendInstantiate
-    vtkCompositeArrayInstantiate
     vtkCompositeImplicitBackendInstantiate
-    vtkConstantArrayInstantiate
     vtkConstantImplicitBackendInstantiate
-    vtkIndexedArrayInstantiate
     vtkIndexedImplicitBackendInstantiate
+    vtkStructuredPointBackendInstantiate
+    vtkAffineArrayInstantiate
+    vtkCompositeArrayInstantiate
+    vtkConstantArrayInstantiate
+    vtkIndexedArrayInstantiate
     vtkSOADataArrayTemplateInstantiate
     vtkStdFunctionArrayInstantiate
-    vtkStructuredPointBackendInstantiate
     vtkStructuredPointArrayInstantiate
-    vtkTypedDataArrayInstantiate)
+    vtkTypedDataArrayInstantiate
+    vtkTypeArrayInstantiate)
   if (VTK_BUILD_SCALED_SOA_ARRAYS)
     list(APPEND _list "vtkScaledSOADataArrayTemplateInstantiate")
   endif ()
@@ -211,14 +233,17 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtk_numeric_types)
     list(APPEND _list "vtkGenericDataArrayValueRangeInstantiate")
   endif ()
 
+  # required for configure file
+  set("bulk_instantiation_sources_${_suffix}")
   # generate cxx file to instantiate template with this type
   foreach (_prefix IN LISTS _list)
     configure_file(
       "${CMAKE_CURRENT_SOURCE_DIR}/${_prefix}.cxx.in"
       "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx"
       @ONLY)
-    list(APPEND instantiation_sources
-      "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx")
+      
+    list(APPEND "bulk_instantiation_sources_${_suffix}"
+      "#include \"${_prefix}_${_suffix}.cxx\"")
   endforeach ()
 endforeach ()
 
@@ -610,6 +635,17 @@ endforeach ()
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkTypeArrays.cmake")
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkImplicitArrays.cmake")
+
+foreach (type IN LISTS vtk_numeric_types)
+  # Referenced in vtkArrayBulkInstantiate.cxx.in
+  string(REPLACE " " "_" _suffix "${type}")
+  list(JOIN "bulk_instantiation_sources_${_suffix}" "\n" BULK_INSTANTIATION_SOURCES)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/vtkArrayBulkInstantiate.cxx.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayBulkInstantiate_${_suffix}.cxx"
+    @ONLY)
+  unset(BULK_INSTANTIATION_SOURCES)
+endforeach()
 
 include(CheckCXXSourceCompiles)
 

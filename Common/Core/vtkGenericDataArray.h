@@ -418,56 +418,6 @@ private:
 };
 VTK_ABI_NAMESPACE_END
 
-// these predeclarations are needed before the .txx include for MinGW
-namespace vtkDataArrayPrivate
-{
-VTK_ABI_NAMESPACE_BEGIN
-template <typename A, typename R, typename T>
-VTKCOMMONCORE_EXPORT bool DoComputeScalarRange(
-  A*, R*, T, const unsigned char* ghosts, unsigned char ghostsToSkip);
-template <typename A, typename R>
-VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(
-  A*, R[2], AllValues, const unsigned char* ghosts, unsigned char ghostsToSkip);
-template <typename A, typename R>
-VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(
-  A*, R[2], FiniteValues, const unsigned char* ghosts, unsigned char ghostsToSkip);
-VTK_ABI_NAMESPACE_END
-} // namespace vtkDataArrayPrivate
-
-#include "vtkGenericDataArray.txx"
-
-// Adds an implementation of NewInstanceInternal() that returns an AoS
-// (unmapped) VTK array, if possible. This allows the pipeline to copy and
-// propagate the array when the array data is not modifiable. Use this in
-// combination with vtkAbstractTypeMacro or vtkAbstractTemplateTypeMacro
-// (instead of vtkTypeMacro) to avoid adding the default NewInstance
-// implementation.
-#define vtkAOSArrayNewInstanceMacro(thisClass)                                                     \
-protected:                                                                                         \
-  vtkObjectBase* NewInstanceInternal() const override                                              \
-  {                                                                                                \
-    if (vtkDataArray* da = vtkDataArray::CreateDataArray(thisClass::VTK_DATA_TYPE))                \
-    {                                                                                              \
-      return da;                                                                                   \
-    }                                                                                              \
-    return thisClass::New();                                                                       \
-  }                                                                                                \
-                                                                                                   \
-public:
-
-#endif
-
-// This portion must be OUTSIDE the include blockers. This is used to tell
-// libraries other than vtkCommonCore that instantiations of
-// the GetValueRange lookups can be found externally. This prevents each library
-// from instantiating these on their own.
-// Additionally it helps hide implementation details that pull in system
-// headers.
-// We only provide these specializations for the 64-bit integer types, since
-// other types can reuse the double-precision mechanism in
-// vtkDataArray::GetRange without losing precision.
-#ifdef VTK_GDA_VALUERANGE_INSTANTIATING
-
 // Forward declare necessary stuffs:
 VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
@@ -505,31 +455,6 @@ VTK_ABI_NAMESPACE_END
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)
 
 #endif
-
-#elif defined(VTK_USE_EXTERN_TEMPLATE) // VTK_GDA_VALUERANGE_INSTANTIATING
-
-#ifndef VTK_GDA_TEMPLATE_EXTERN
-#define VTK_GDA_TEMPLATE_EXTERN
-#ifdef _MSC_VER
-#pragma warning(push)
-// The following is needed when the following is declared
-// dllexport and is used from another class in vtkCommonCore
-#pragma warning(disable : 4910) // extern and dllexport incompatible
-#endif
-
-VTK_ABI_NAMESPACE_BEGIN
-// Forward declare necessary stuffs:
-template <typename ValueType>
-class vtkAOSDataArrayTemplate;
-template <typename ValueType>
-class vtkSOADataArrayTemplate;
-
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
-template <typename ValueType>
-class vtkScaledSOADataArrayTemplate;
-#endif
-
-VTK_ABI_NAMESPACE_END
 
 namespace vtkDataArrayPrivate
 {
@@ -571,6 +496,62 @@ VTK_ABI_NAMESPACE_END
 
 #endif
 
+#include "vtkGenericDataArray.txx"
+
+// Adds an implementation of NewInstanceInternal() that returns an AoS
+// (unmapped) VTK array, if possible. This allows the pipeline to copy and
+// propagate the array when the array data is not modifiable. Use this in
+// combination with vtkAbstractTypeMacro or vtkAbstractTemplateTypeMacro
+// (instead of vtkTypeMacro) to avoid adding the default NewInstance
+// implementation.
+#define vtkAOSArrayNewInstanceMacro(thisClass)                                                     \
+protected:                                                                                         \
+  vtkObjectBase* NewInstanceInternal() const override                                              \
+  {                                                                                                \
+    if (vtkDataArray* da = vtkDataArray::CreateDataArray(thisClass::VTK_DATA_TYPE))                \
+    {                                                                                              \
+      return da;                                                                                   \
+    }                                                                                              \
+    return thisClass::New();                                                                       \
+  }                                                                                                \
+                                                                                                   \
+public:
+
+#endif
+
+// This is used to tell libraries other than vtkCommonCore that instantiations of
+// the GetValueRange lookups can be found externally. This prevents each library
+// from instantiating these on their own.
+// Additionally it helps hide implementation details that pull in system
+// headers.
+// We only provide these specializations for the 64-bit integer types, since
+// other types can reuse the double-precision mechanism in
+// vtkDataArray::GetRange without losing precision.
+#ifdef VTK_USE_EXTERN_TEMPLATE
+
+#ifndef VTK_GDA_TEMPLATE_EXTERN
+#define VTK_GDA_TEMPLATE_EXTERN
+#ifdef _MSC_VER
+#pragma warning(push)
+// The following is needed when the following is declared
+// dllexport and is used from another class in vtkCommonCore
+#pragma warning(disable : 4910) // extern and dllexport incompatible
+#endif
+
+VTK_ABI_NAMESPACE_BEGIN
+// Forward declare necessary stuffs:
+template <typename ValueType>
+class vtkAOSDataArrayTemplate;
+template <typename ValueType>
+class vtkSOADataArrayTemplate;
+
+#ifdef VTK_USE_SCALED_SOA_ARRAYS
+template <typename ValueType>
+class vtkScaledSOADataArrayTemplate;
+#endif
+
+VTK_ABI_NAMESPACE_END
+
 namespace vtkDataArrayPrivate
 {
 VTK_ABI_NAMESPACE_BEGIN
@@ -583,58 +564,8 @@ VTK_DECLARE_VALUERANGE_VALUETYPE(unsigned long long)
 // This is instantiated in vtkGenericDataArray.cxx
 VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkDataArray, double)
 
-// These are instantiated in vtkFloatArray.cxx, vtkDoubleArray.cxx, etc
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<float>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<double>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<char>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<signed char>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<unsigned char>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<short>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<unsigned short>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<int>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<unsigned int>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<long>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<unsigned long>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<long long>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<unsigned long long>, double)
-
-// These are instantiated in vtkSOADataArrayTemplateInstantiate${i}.cxx
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<float>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<double>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<char>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<signed char>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<unsigned char>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<short>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<unsigned short>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<int>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<unsigned int>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<long>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<unsigned long>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<long long>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<unsigned long long>, double)
-
-// These are instantiated in vtkScaledSOADataArrayTemplateInstantiate${i}.cxx
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<float>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<double>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<char>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<signed char>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<unsigned char>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<short>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<unsigned short>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<int>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<unsigned int>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<long>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<unsigned long>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<long long>, double)
-VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<unsigned long long>, double)
-#endif // VTK_USE_SCALED_SOA_ARRAYS
-
 VTK_ABI_NAMESPACE_END
 } // namespace vtkDataArrayPrivate
-
-#undef VTK_DECLARE_VALUERANGE_ARRAYTYPE
-#undef VTK_DECLARE_VALUERANGE_VALUETYPE
 
 #ifdef _MSC_VER
 #pragma warning(pop)
