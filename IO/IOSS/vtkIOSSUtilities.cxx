@@ -172,21 +172,19 @@ std::string CaptureNonErrorMessages::GetMessages() const
   return this->Stream.str();
 }
 
-//============================================================================
 //----------------------------------------------------------------------------
 std::vector<std::pair<int, double>> GetTime(const Ioss::Region* region)
 {
-  const auto mxtime = region->get_max_time();
-  if (mxtime.first <= 0)
+  const int numTimeSteps = static_cast<int>(region->get_optional_property("state_count", 0));
+  if (numTimeSteps == 0)
   {
-    // timestep index is 1-based, 0 implies time is not present in the dataset.
     return {};
   }
 
-  const auto mntime = region->get_min_time();
-
   std::vector<std::pair<int, double>> result;
-  for (int cc = mntime.first; cc <= mxtime.first; ++cc)
+  result.reserve(static_cast<size_t>(numTimeSteps));
+  // timestep index is 1-based
+  for (int cc = 1; cc <= numTimeSteps; ++cc)
   {
     result.emplace_back(cc, region->get_state_time(cc));
   }
