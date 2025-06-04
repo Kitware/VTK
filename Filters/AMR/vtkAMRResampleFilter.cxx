@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAMRResampleFilter.h"
-#include "vtkAMRInformation.h"
 #include "vtkAMRUtilities.h"
 #include "vtkBoundingBox.h"
 #include "vtkCell.h"
@@ -19,6 +18,7 @@
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"

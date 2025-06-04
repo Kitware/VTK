@@ -7,7 +7,6 @@
 #include "vtkCompositeDataReader.h"
 
 #include "vtkAMRBox.h"
-#include "vtkAMRInformation.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDoubleArray.h"
@@ -22,6 +21,7 @@
 #include "vtkNonOverlappingAMR.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"

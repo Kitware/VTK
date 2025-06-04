@@ -3,13 +3,13 @@
 #include "vtkOSPRayAMRVolumeMapperNode.h"
 
 #include "vtkAMRBox.h"
-#include "vtkAMRInformation.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkOSPRayCache.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkUniformGridAMRDataIterator.h"
@@ -102,7 +102,7 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
       std::vector<ospcommon::box3i> blockBoundsArray;
       std::vector<int> blockLevelArray;
 
-      vtkAMRInformation* amrInfo = amr->GetAMRInfo();
+      vtkOverlappingAMRMetaData* amrInfo = amr->GetAMRInfo();
       vtkSmartPointer<vtkUniformGridAMRDataIterator> iter;
       iter.TakeReference(vtkUniformGridAMRDataIterator::SafeDownCast(amr->NewIterator()));
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())

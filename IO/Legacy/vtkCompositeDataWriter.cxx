@@ -4,7 +4,6 @@
 #include "vtkCompositeDataWriter.h"
 
 #include "vtkAMRBox.h"
-#include "vtkAMRInformation.h"
 #include "vtkDataAssembly.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericDataObjectWriter.h"
@@ -16,6 +15,7 @@
 #include "vtkNonOverlappingAMR.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkStringArray.h"
@@ -284,7 +284,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkHierarchicalBoxD
 //------------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* oamr)
 {
-  vtkAMRInformation* amrInfo = oamr->GetAMRInfo();
+  vtkOverlappingAMRMetaData* amrInfo = oamr->GetAMRInfo();
 
   *fp << "GRID_DESCRIPTION " << amrInfo->GetGridDescription() << "\n";
 

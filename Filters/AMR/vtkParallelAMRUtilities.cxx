@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkParallelAMRUtilities.h"
 #include "vtkAMRBox.h"
-#include "vtkAMRInformation.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkMultiProcessController.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkSmartPointer.h"
 #include "vtkUniformGrid.h"
 #include <cassert>
@@ -111,7 +111,7 @@ void vtkParallelAMRUtilities::StripGhostLayers(vtkOverlappingAMR* ghostedAMRData
 void vtkParallelAMRUtilities::BlankCells(
   vtkOverlappingAMR* amr, vtkMultiProcessController* myController)
 {
-  vtkAMRInformation* info = amr->GetAMRInfo();
+  vtkOverlappingAMRMetaData* info = amr->GetAMRInfo();
   if (!info->HasRefinementRatio())
   {
     info->GenerateRefinementRatio();

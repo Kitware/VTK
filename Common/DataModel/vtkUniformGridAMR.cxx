@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkUniformGridAMR.h"
 #include "vtkAMRDataInternals.h"
-#include "vtkAMRInformation.h"
 #include "vtkInformation.h"
 #include "vtkInformationKey.h"
 #include "vtkInformationVector.h"
 #include "vtkLegacy.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkType.h"
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMRDataIterator.h"
@@ -40,7 +40,7 @@ vtkUniformGridAMR::~vtkUniformGridAMR()
 }
 
 //------------------------------------------------------------------------------
-void vtkUniformGridAMR::SetAMRInfo(vtkAMRInformation* amrInfo)
+void vtkUniformGridAMR::SetAMRInfo(vtkOverlappingAMRMetaData* amrInfo)
 {
   if (amrInfo == this->AMRInfo)
   {
@@ -107,7 +107,8 @@ void vtkUniformGridAMR::Initialize(int numLevels, const int* blocksPerLevel)
   this->Bounds[4] = VTK_DOUBLE_MAX;
   this->Bounds[5] = VTK_DOUBLE_MIN;
 
-  vtkSmartPointer<vtkAMRInformation> amrInfo = vtkSmartPointer<vtkAMRInformation>::New();
+  vtkSmartPointer<vtkOverlappingAMRMetaData> amrInfo =
+    vtkSmartPointer<vtkOverlappingAMRMetaData>::New();
   this->SetAMRInfo(amrInfo);
   this->AMRInfo->Initialize(numLevels, blocksPerLevel);
   this->AMRData->Initialize();
@@ -297,7 +298,7 @@ void vtkUniformGridAMR::DeepCopy(vtkDataObject* src)
   if (vtkUniformGridAMR* hbds = vtkUniformGridAMR::SafeDownCast(src))
   {
     this->SetAMRInfo(nullptr);
-    this->AMRInfo = vtkAMRInformation::New();
+    this->AMRInfo = vtkOverlappingAMRMetaData::New();
     this->AMRInfo->DeepCopy(hbds->GetAMRInfo());
     this->SetAMRData(nullptr);
     this->AMRData = vtkAMRDataInternals::New();

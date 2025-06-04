@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAMRUtilities.h"
 #include "vtkAMRBox.h"
-#include "vtkAMRInformation.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkDataArray.h"
 #include "vtkFieldData.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkPointData.h"
 #include "vtkStructuredData.h"
 #include "vtkUniformGrid.h"
@@ -333,7 +333,7 @@ void vtkAMRUtilities::StripGhostLayers(
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
 {
-  vtkAMRInformation* info = amr->GetAMRInfo();
+  vtkOverlappingAMRMetaData* info = amr->GetAMRInfo();
   if (!info->HasRefinementRatio())
   {
     info->GenerateRefinementRatio();
