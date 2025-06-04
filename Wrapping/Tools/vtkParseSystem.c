@@ -470,42 +470,69 @@ void vtkParse_FreeFileCache(SystemInfo* info)
 }
 
 /**
- * On Win32, this interprets fname as UTF8 and then calls wfopen().
- * The returned handle must be freed with fclose().
- *
  * This variant does not add a dependency on the passed filename to any
  * dependency tracking.
+ *
+ * On Win32, this interprets fname as UTF8 and then calls wfopen().
+ * The returned handle must be freed with fclose().
+ * Also on Win32 if the file is opened in write mode but the file is locked,
+ * then the open will be retried 5 times in case the lock is temporary.
  */
 FILE* vtkParse_FileOpenNoDependency(const char* fname, const char* mode)
 {
-  if (!mode)
-  {
-    return NULL;
-  }
-
-#if defined(_WIN32) && defined(USE_WIDE_FILENAMES)
-  int i;
   FILE* fp = NULL;
-  wchar_t wmode[4] = { 0, 0, 0, 0 };
-  wchar_t* wname = system_utf8_to_wide(fname);
-  if (wname)
+  if (mode)
   {
-    for (i = 0; i < 3 && mode[i] != '\0'; i++)
+#if defined(_WIN32) && defined(USE_WIDE_FILENAMES)
+    wchar_t wmode[4] = { 0, 0, 0, 0 };
+    wchar_t* wname = system_utf8_to_wide(fname);
+    if (wname)
     {
-      wmode[i] = mode[i];
+      int i;
+      for (i = 0; i < 3 && mode[i] != '\0'; i++)
+      {
+        wmode[i] = mode[i];
+      }
+      fp = _wfopen(wname, wmode);
+      if (!fp && *mode == 'w')
+      {
+        /* repeatedly try to open output file in case of access/sharing error,
+         * for example, antivirus software or indexing software might be
+         * scanning the output file right at this moment.
+         * (also see the retry code below for not USE_WIDE_FILENAMES) */
+        int tries;
+        for (tries = 0; !fp && tries < 5 && errno == EACCES; tries++)
+        {
+          Sleep(1000);
+          fp = _wfopen(wname, wmode);
+        }
+      }
+      free(wname);
     }
-    fp = _wfopen(wname, wmode);
-    free(wname);
+#else
+    fp = fopen(fname, mode);
+#ifdef _WIN32 /* but not USE_WIDE_FILENAMES, e.g. MINGW32 */
+    if (!fp && *mode == 'w')
+    {
+      /* see comment above regarding retries */
+      int tries;
+      for (tries = 0; !fp && tries < 5 && errno == EACCES; tries++)
+      {
+        Sleep(1000);
+        fp = fopen(fname, mode);
+      }
+    }
+#endif
+#endif
   }
   return fp;
-#else
-  return fopen(fname, mode);
-#endif
 }
 
 /**
  * On Win32, this interprets fname as UTF8 and then calls wfopen().
  * The returned handle must be freed with fclose().
+ * Also on Win32 if the file is opened in write mode but the file is locked,
+ * then the open will be retried 5 times in case the lock is temporary.
  */
 FILE* vtkParse_FileOpen(const char* fname, const char* mode)
 {
