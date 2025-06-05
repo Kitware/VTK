@@ -107,12 +107,6 @@ public:
   bool Update();
 
   /**
-   * Import the actors, cameras, lights and properties into a vtkRenderWindow
-   */
-  VTK_DEPRECATED_IN_9_4_0("This method is deprecated, please use Update instead")
-  void Read() { this->Update(); };
-
-  /**
    * Recover a printable string that let importer implementation
    * Describe their outputs.
    */
@@ -192,12 +186,6 @@ public:
    */
   virtual bool GetTemporalInformation(vtkIdType animationIndex, double frameRate, int& nbTimeSteps,
     double timeRange[2], vtkDoubleArray* timeSteps);
-
-  /**
-   * Import the actors, camera, lights and properties at a specific time value.
-   */
-  VTK_DEPRECATED_IN_9_4_0("This method is deprecated, please use UpdateAtTimeValue instead")
-  virtual void UpdateTimeStep(double timeValue);
 
   /**
    * Import the actors, camera, lights and properties at a specific time value.
