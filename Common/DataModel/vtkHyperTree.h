@@ -269,16 +269,6 @@ public:
     vtkTypeInt64Array* numberOfVerticesPerDepth, vtkBitArray* descriptor,
     vtkIdList* breadthFirstIdMap) = 0;
 
-  VTK_DEPRECATED_IN_9_4_0(
-    "You must use depthLimiter parameter for transmit the eponymous member of vtkHyperTreeGrid")
-  void ComputeBreadthFirstOrderDescriptor(vtkBitArray* inputMask,
-    vtkTypeInt64Array* numberOfVerticesPerDepth, vtkBitArray* descriptor,
-    vtkIdList* breadthFirstIdMap)
-  {
-    ComputeBreadthFirstOrderDescriptor(std::numeric_limits<unsigned int>::infinity(), inputMask,
-      numberOfVerticesPerDepth, descriptor, breadthFirstIdMap);
-  }
-
   /**
    * Copy the structure by sharing the decomposition description
    * of the tree.
