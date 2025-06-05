@@ -27,28 +27,28 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(VTK_REQUIRED_SHARED_LINKER_FLAGS "${VTK_REQUIRED_SHARED_LINKER_FLAGS} -fwasm-exceptions -sEXCEPTION_STACK_TRACES=1")
   set(VTK_REQUIRED_MODULE_LINKER_FLAGS "${VTK_REQUIRED_MODULE_LINKER_FLAGS} -fwasm-exceptions -sEXCEPTION_STACK_TRACES=1")
   # Consumers linking to VTK also need to add the exception flag.
-  if (TARGET vtkbuild)
-    target_link_options(vtkbuild
+  if (TARGET vtkplatform)
+    target_link_options(vtkplatform
       INTERFACE
         "-fwasm-exceptions"
         "-sEXCEPTION_STACK_TRACES=1")
   endif ()
   if (VTK_WEBASSEMBLY_THREADS)
     # Remove after https://github.com/WebAssembly/design/issues/1271 is closed
-    # Set Wno flag globally because even though the flag is added in vtkCopmilerWarningFlags.cmake,
-    # wrapping tools do not link with `vtkbuild`
+    # Set Wno flag globally because even though the flag is added in vtkCompilerWarningFlags.cmake,
+    # wrapping tools do not link with `vtkplatform`
     set(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -pthread -Wno-pthreads-mem-growth")
     set(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -pthread -Wno-pthreads-mem-growth")
     set(VTK_REQUIRED_EXE_LINKER_FLAGS "${VTK_REQUIRED_EXE_LINKER_FLAGS} -pthread")
     set(VTK_REQUIRED_SHARED_LINKER_FLAGS "${VTK_REQUIRED_SHARED_LINKER_FLAGS} -pthread")
     set(VTK_REQUIRED_MODULE_LINKER_FLAGS "${VTK_REQUIRED_MODULE_LINKER_FLAGS} -pthread")
     # Consumers linking to VTK also need to add the pthread flag.
-    if (TARGET vtkbuild)
-      target_compile_options(vtkbuild
+    if (TARGET vtkplatform)
+      target_compile_options(vtkplatform
         INTERFACE
           "-pthread"
           "-Wno-pthreads-mem-growth")
-      target_link_options(vtkbuild
+      target_link_options(vtkplatform
         INTERFACE
           "-pthread")
     endif ()
@@ -60,11 +60,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     set(VTK_REQUIRED_SHARED_LINKER_FLAGS "${VTK_REQUIRED_SHARED_LINKER_FLAGS} -sMEMORY64=1")
     set(VTK_REQUIRED_MODULE_LINKER_FLAGS "${VTK_REQUIRED_MODULE_LINKER_FLAGS} -sMEMORY64=1")
     # Consumers linking to VTK also need to add the memory64 flag.
-    if (TARGET vtkbuild)
-      target_compile_options(vtkbuild
+    if (TARGET vtkplatform)
+      target_compile_options(vtkplatform
         INTERFACE
           "-sMEMORY64=1")
-      target_link_options(vtkbuild
+      target_link_options(vtkplatform
         INTERFACE
           "-sMEMORY64=1")
     endif ()

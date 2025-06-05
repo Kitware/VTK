@@ -20,6 +20,7 @@ set(_vtk_non_module_components
   WrapHierarchy
 
   vtkbuild
+  vtkplatform
 
   vtkpython
   pvtkpython
