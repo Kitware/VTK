@@ -63,7 +63,7 @@ bool TestTransformUnstructuredGrid(int argc, char* argv[])
 {
   bool test = true;
   vtkSmartPointer<vtkXMLUnstructuredGridReader> reader =
-    ReadFile<vtkXMLUnstructuredGridReader>("Data/can.vtu", argc, argv);
+    vtk::TakeSmartPointer(ReadFile<vtkXMLUnstructuredGridReader>("Data/can.vtu", argc, argv));
 
   double translation[3] = { 1.0, 2.0, 3.0 };
   double scaling[3] = { 1.0, 2.0, 3.0 };
@@ -90,7 +90,7 @@ bool TestTransformUnstructuredGrid(int argc, char* argv[])
 
   test &= Assert(unstructGridOut->GetPointData()->GetArray("ACCL")->GetTuple3(0)[0] == 2269740,
     "vtkUnstructuredGrid, Incorrect cell data");
-  reader->Delete();
+
   return test;
 }
 
@@ -98,7 +98,7 @@ bool TestTransformImageData(int argc, char* argv[])
 {
   bool test = true;
   vtkSmartPointer<vtkXMLImageDataReader> reader =
-    ReadFile<vtkXMLImageDataReader>("Data/scalars.vti", argc, argv);
+    vtk::TakeSmartPointer(ReadFile<vtkXMLImageDataReader>("Data/scalars.vti", argc, argv));
 
   double translation[3] = { 3.0, 2.0, -3.0 };
   double scaling[3] = { 0.5, 2.0, 1.5 };
@@ -116,7 +116,6 @@ bool TestTransformImageData(int argc, char* argv[])
   test &= Assert(imageData->GetScalarComponentAsDouble(0, 0, 8, 0) == 8,
     "vtkImageData, Incorrect scalar component");
 
-  reader->Delete();
   return test;
 }
 
@@ -124,7 +123,7 @@ bool TestTransformRectilinearGrid(int argc, char* argv[])
 {
   bool test = true;
   vtkSmartPointer<vtkXMLRectilinearGridReader> reader =
-    ReadFile<vtkXMLRectilinearGridReader>("Data/rectGrid.vtr", argc, argv);
+    vtk::TakeSmartPointer(ReadFile<vtkXMLRectilinearGridReader>("Data/rectGrid.vtr", argc, argv));
 
   double translation[3] = { -1.0, -2.0, -3.0 };
   double scaling[3] = { 1.0, 1.0, 1.0 };
@@ -147,15 +146,14 @@ bool TestTransformRectilinearGrid(int argc, char* argv[])
       rectGridOut->GetCellData()->GetArray(0)->GetTuple3(5)[0] == 229,
     "vtkRectilinearGrid, Incorrect cell data");
 
-  reader->Delete();
   return test;
 }
 
 bool TestTransformExplicitStructuredGrid(int argc, char* argv[])
 {
   bool test = true;
-  vtkSmartPointer<vtkXMLUnstructuredGridReader> reader =
-    ReadFile<vtkXMLUnstructuredGridReader>("Data/explicitStructuredGrid.vtu", argc, argv);
+  vtkSmartPointer<vtkXMLUnstructuredGridReader> reader = vtk::TakeSmartPointer(
+    ReadFile<vtkXMLUnstructuredGridReader>("Data/explicitStructuredGrid.vtu", argc, argv));
 
   vtkSmartPointer<vtkUnstructuredGridToExplicitStructuredGrid> UgToEsg =
     vtkSmartPointer<vtkUnstructuredGridToExplicitStructuredGrid>::New();
@@ -185,7 +183,6 @@ bool TestTransformExplicitStructuredGrid(int argc, char* argv[])
   test &= Assert(esgOut->GetCellPoints(5)[0] == esgIn->GetCellPoints(5)[0],
     "vtkExplicitStructuredGrid, Incorrect cell points");
 
-  reader->Delete();
   return test;
 }
 
@@ -193,7 +190,7 @@ bool TestTransformStructuredGrid(int argc, char* argv[])
 {
   bool test = true;
   vtkSmartPointer<vtkXMLStructuredGridReader> reader =
-    ReadFile<vtkXMLStructuredGridReader>("Data/structGrid.vts", argc, argv);
+    vtk::TakeSmartPointer(ReadFile<vtkXMLStructuredGridReader>("Data/structGrid.vts", argc, argv));
 
   double translation[3] = { -1.0, 0.8, 1.4 };
   double scaling[3] = { 1.3, 0.8, 0.9 };
@@ -214,7 +211,6 @@ bool TestTransformStructuredGrid(int argc, char* argv[])
   test &= Assert(structGridOut->GetPointData()->GetArray(0)->GetTuple3(5)[2] == 5,
     "vtkStructuredGrid, Incorrect cell data");
 
-  reader->Delete();
   return test;
 }
 
@@ -222,7 +218,7 @@ bool TestTransformPolyData(int argc, char* argv[])
 {
   bool test = true;
   vtkSmartPointer<vtkXMLPolyDataReader> reader =
-    ReadFile<vtkXMLPolyDataReader>("Data/cow.vtp", argc, argv);
+    vtk::TakeSmartPointer(ReadFile<vtkXMLPolyDataReader>("Data/cow.vtp", argc, argv));
 
   double translation[3] = { -1.0, 2, 1.0 };
   double scaling[3] = { 0.2, 0.8, 0.9 };
@@ -248,7 +244,6 @@ bool TestTransformPolyData(int argc, char* argv[])
   test &= Assert(cellPtsIn->GetId(1) == cellPtsOut->GetId(1) && cellPtsOut->GetId(3) == 252,
     "vtkPolyData, Incorrect cells");
 
-  reader->Delete();
   return test;
 }
 
@@ -256,7 +251,7 @@ bool TestTransformHyperTreeGrid3D(int argc, char* argv[])
 {
   bool test = true;
   vtkSmartPointer<vtkXMLHyperTreeGridReader> reader =
-    ReadFile<vtkXMLHyperTreeGridReader>("Data/HTG/shell_3d.htg", argc, argv);
+    vtk::TakeSmartPointer(ReadFile<vtkXMLHyperTreeGridReader>("Data/HTG/shell_3d.htg", argc, argv));
 
   double translation[3] = { -2.1, 0.0, 1.2 };
   double scaling[3] = { 2.0, 0.5, 1.5 };
@@ -290,15 +285,14 @@ bool TestTransformHyperTreeGrid3D(int argc, char* argv[])
       htgOut->GetCellData()->GetArray(0)->GetTuple1(6383),
     "vtkHyperTreeGrid, Incorrect cells");
 
-  reader->Delete();
   return test;
 }
 
 bool TestTransformHyperTreeGrid2D(int argc, char* argv[])
 {
   bool test = true;
-  vtkSmartPointer<vtkXMLHyperTreeGridReader> reader =
-    ReadFile<vtkXMLHyperTreeGridReader>("Data/HTG/donut_XZ_shift_2d.htg", argc, argv);
+  vtkSmartPointer<vtkXMLHyperTreeGridReader> reader = vtk::TakeSmartPointer(
+    ReadFile<vtkXMLHyperTreeGridReader>("Data/HTG/donut_XZ_shift_2d.htg", argc, argv));
 
   double translation[3] = { 1.5, -1.0, 2.0 };
   double scaling[3] = { 1.2, 0.8, 1.0 };
@@ -333,7 +327,40 @@ bool TestTransformHyperTreeGrid2D(int argc, char* argv[])
       htgOut->GetCellData()->GetArray(0)->GetTuple1(93),
     "vtkHyperTreeGrid, Incorrect cells");
 
-  reader->Delete();
+  return test;
+}
+
+// This test uses a data which is in IJK indexing mode and which has some hyper trees pointing to
+// nullptr
+bool TestTransformHyperTreeGrid2DIJK(int argc, char* argv[])
+{
+  bool test = true;
+  vtkSmartPointer<vtkXMLHyperTreeGridReader> reader = vtk::TakeSmartPointer(
+    ReadFile<vtkXMLHyperTreeGridReader>("Data/HTG/random_partial_ZX.htg", argc, argv));
+
+  double translation[3] = { 0.0, 0.0, 2.0 };
+  double scaling[3] = { 0.5, 1.0, 1.0 };
+  vtkSmartPointer<vtkHyperTreeGrid> htgOut =
+    vtkHyperTreeGrid::SafeDownCast(Transform(reader->GetOutputPort(), translation, scaling,
+      vtkAxisAlignedTransformFilter::Angle::ROT180, vtkAxisAlignedTransformFilter::Axis::Z));
+
+  vtkHyperTreeGrid* htgIn = vtkHyperTreeGrid::SafeDownCast(reader->GetOutput());
+
+  test &= Assert(htgOut->GetNumberOfCells() == htgIn->GetNumberOfCells(),
+    "vtkHyperTreeGrid, Incorrect number of cells");
+
+  test &= Assert(htgIn->GetCellData()->GetArray(0)->GetTuple1(14) ==
+      htgOut->GetCellData()->GetArray(0)->GetTuple1(56),
+    "vtkHyperTreeGrid, Incorrect cells");
+
+  test &= Assert(htgIn->GetCellData()->GetArray(0)->GetTuple1(0) ==
+      htgOut->GetCellData()->GetArray(0)->GetTuple1(42),
+    "vtkHyperTreeGrid, Incorrect cells");
+
+  test &= Assert(htgIn->GetCellData()->GetArray(0)->GetTuple1(17) ==
+      htgOut->GetCellData()->GetArray(0)->GetTuple1(25),
+    "vtkHyperTreeGrid, Incorrect cells");
+
   return test;
 }
 
@@ -349,6 +376,7 @@ int TestAxisAlignedTransformFilter(int argc, char* argv[])
   testVal &= TestTransformRectilinearGrid(argc, argv);
   testVal &= TestTransformHyperTreeGrid3D(argc, argv);
   testVal &= TestTransformHyperTreeGrid2D(argc, argv);
+  testVal &= TestTransformHyperTreeGrid2DIJK(argc, argv);
 
   return testVal ? EXIT_SUCCESS : EXIT_FAILURE;
 }
