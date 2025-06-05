@@ -1479,11 +1479,8 @@ void vtkNek5000Reader::addCellsToContinuumMesh()
 
   vtkCellArray* outCells = vtkCellArray::New(); // the connectivity array
 
-  vtkIdTypeArray* locations = vtkIdTypeArray::New(); // the offset array
-  locations->SetNumberOfTuples(numVTKCells);
-
   vtkIdType p, pts[8];
-  int n = 0, c = 0;
+  int n = 0;
 
   if (this->MeshIs3D)
   {
@@ -1513,8 +1510,6 @@ void vtkNek5000Reader::addCellsToContinuumMesh()
             pts[7] = p;
 
             outCells->InsertNextCell(8, pts);
-            locations->SetTuple1(c, c * 9L);
-            c++;
           }
         }
       }
@@ -1538,16 +1533,13 @@ void vtkNek5000Reader::addCellsToContinuumMesh()
           pts[2] = p + 1;
           pts[3] = p;
           outCells->InsertNextCell(4, pts);
-          locations->SetTuple1(c, c * 5L);
-          c++;
         }
       }
       n += this->totalBlockSize;
     }
   }
 
-  this->UGrid->SetCells(cellTypes, locations, outCells);
-  locations->Delete();
+  this->UGrid->SetCells(cellTypes, outCells);
   outCells->Delete();
   cellTypes->Delete();
 } // addPointsToContinuumMesh()
