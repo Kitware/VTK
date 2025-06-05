@@ -1,0 +1,19 @@
+NAME
+  VTK::FiltersONNX
+LIBRARY_NAME
+  vtkFiltersONNX
+DESCRIPTION
+  ONNX based filters
+KIT
+  VTK::Filters
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+TEST_DEPENDS
+  VTK::FiltersSources
+  VTK::TestingCore
