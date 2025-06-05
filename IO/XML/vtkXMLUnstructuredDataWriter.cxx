@@ -146,7 +146,7 @@ vtkTypeBool vtkXMLUnstructuredDataWriter::ProcessRequest(
         return 0;
       }
 
-      if (vtkDataSet* dataSet = this->GetInputAsDataSet())
+      if (vtkDataSet* dataSet = this->GetDataSetInput())
       {
         if (dataSet->GetPointGhostArray() != nullptr && dataSet->GetCellGhostArray() != nullptr)
         {
@@ -481,14 +481,14 @@ int vtkXMLUnstructuredDataWriter::WriteInlineMode(vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkXMLUnstructuredDataWriter::WriteInlinePieceAttributes()
 {
-  vtkPointSet* input = this->GetInputAsPointSet();
+  vtkPointSet* input = this->GetPointSetInput();
   this->WriteScalarAttribute("NumberOfPoints", input->GetNumberOfPoints());
 }
 
 //------------------------------------------------------------------------------
 void vtkXMLUnstructuredDataWriter::WriteInlinePiece(vtkIndent indent)
 {
-  vtkPointSet* input = this->GetInputAsPointSet();
+  vtkPointSet* input = this->GetPointSetInput();
 
   // Split progress among point data, cell data, and point arrays.
   float progressRange[2] = { 0, 0 };
@@ -532,7 +532,7 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPieceAttributes(int index)
 //------------------------------------------------------------------------------
 void vtkXMLUnstructuredDataWriter::WriteAppendedPiece(int index, vtkIndent indent)
 {
-  vtkPointSet* input = this->GetInputAsPointSet();
+  vtkPointSet* input = this->GetPointSetInput();
 
   this->WritePointDataAppended(input->GetPointData(), indent, &this->PointDataOM->GetPiece(index));
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -553,7 +553,7 @@ void vtkXMLUnstructuredDataWriter::WriteAppendedPiece(int index, vtkIndent inden
 void vtkXMLUnstructuredDataWriter::WriteAppendedPieceData(int index)
 {
   ostream& os = *(this->Stream);
-  vtkPointSet* input = this->GetInputAsPointSet();
+  vtkPointSet* input = this->GetPointSetInput();
 
   std::streampos returnPosition = os.tellp();
   os.seekp(std::streampos(this->NumberOfPointsPositions[index]));
@@ -1048,7 +1048,7 @@ void vtkXMLUnstructuredDataWriter::ConvertPolyFaces(vtkCellArray* faces, vtkCell
 //------------------------------------------------------------------------------
 vtkIdType vtkXMLUnstructuredDataWriter::GetNumberOfInputPoints()
 {
-  vtkPointSet* input = this->GetInputAsPointSet();
+  vtkPointSet* input = this->GetPointSetInput();
   vtkPoints* points = input->GetPoints();
   return points ? points->GetNumberOfPoints() : 0;
 }
@@ -1058,7 +1058,7 @@ void vtkXMLUnstructuredDataWriter::CalculateDataFractions(float* fractions)
 {
   // Calculate the fraction of point/cell data and point
   // specifications contributed by each component.
-  vtkPointSet* input = this->GetInputAsPointSet();
+  vtkPointSet* input = this->GetPointSetInput();
   int pdArrays = input->GetPointData()->GetNumberOfArrays();
   int cdArrays = input->GetCellData()->GetNumberOfArrays();
   vtkIdType pdSize = pdArrays * this->GetNumberOfInputPoints();
