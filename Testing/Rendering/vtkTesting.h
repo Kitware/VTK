@@ -50,11 +50,13 @@
 #ifndef vtkTesting_h
 #define vtkTesting_h
 
+#include "vtkDeprecation.h" // VTK_DEPRECATED_IN_9_6_0()
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"           // for vtkSmartPointer
 #include "vtkTestingRenderingModule.h" // For export macro
-#include <string>                      // STL Header used for argv
-#include <vector>                      // STL Header used for argv
+
+#include <string> // STL Header used for argv
+#include <vector> // STL Header used for argv
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
@@ -149,13 +151,16 @@ public:
 
   ///@{
   /**
-   * Use the front buffer first for regression test comparisons. By
-   * default use back buffer first, then try the front buffer if the
-   * test fails when comparing to the back buffer.
+   * Deprecated, no-op, do not use.
    */
-  vtkBooleanMacro(FrontBuffer, vtkTypeBool);
-  vtkGetMacro(FrontBuffer, vtkTypeBool);
-  void SetFrontBuffer(vtkTypeBool frontBuffer);
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetPolyhedralCells")
+  void FrontBufferOn() {}
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetPolyhedralCells")
+  void FrontBufferOff() {}
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetPolyhedralCells")
+  vtkTypeBool GetFrontBuffer() { return false; }
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetPolyhedralCells")
+  void SetFrontBuffer(vtkTypeBool vtkNotUsed(fb)) {}
   ///@}
 
   /**
