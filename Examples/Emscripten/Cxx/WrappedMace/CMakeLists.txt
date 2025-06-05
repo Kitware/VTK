@@ -19,7 +19,6 @@ find_package(VTK
     FiltersSources      # VTK pipeline
     InteractionStyle    # Mouse handling
     RenderingOpenGL2    # For Rendering
-    RenderingUI         # For SDL2 Window
 )
 
 if (NOT VTK_FOUND)

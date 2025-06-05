@@ -113,12 +113,6 @@ endif()
 set_tests_properties(VTK::RenderingOpenGL2Cxx-TestFramebufferHDR
   PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestFramebufferHDR})
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  if (VTK_USE_SDL2)
-    vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests TestSDL2.cxx)
-  endif ()
-endif ()
-
 if (NOT VTK_OPENGL_USE_GLES)
   # vtkFastLabeledDataMapper needs geometry shaders and GLES does not have them.
   vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests

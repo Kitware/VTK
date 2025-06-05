@@ -20,7 +20,6 @@ find_package(VTK
     InteractionStyle    # Mouse handling
     RenderingOpenGL2    # For Rendering with OpenGL
     RenderingWebGPU     # For Rendering with WebGPU
-    RenderingUI         # For SDL2 Window
 )
 
 if (NOT VTK_FOUND)

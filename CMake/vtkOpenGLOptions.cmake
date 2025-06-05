@@ -73,10 +73,10 @@ set(vtk_can_do_onscreen FALSE)
 # neither the hardware accelerated on/offscreen backends, nor the software-only backends are available.
 set(vtk_can_do_headless TRUE)
 
-if (VTK_USE_WIN32_OPENGL OR VTK_OPENGL_HAS_EGL OR VTK_USE_SDL2)
+if (VTK_USE_WIN32_OPENGL OR VTK_OPENGL_HAS_EGL)
   set(vtk_can_do_offscreen TRUE)
 endif ()
-if (VTK_USE_WIN32_OPENGL OR VTK_USE_COCOA OR VTK_USE_X OR VTK_USE_SDL2) # XXX: See error message below.
+if (VTK_USE_WIN32_OPENGL OR VTK_USE_COCOA OR VTK_USE_X) # XXX: See error message below.
   set(vtk_can_do_onscreen TRUE)
 endif ()
 
@@ -89,11 +89,8 @@ endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(vtk_can_do_headless FALSE)
-  # VTK_DEPRECATED_IN_9_4_0() Unconditionally set both variables to TRUE after VTK_USE_SDL2 is removed.
-  if (NOT VTK_USE_SDL2)
-    set(vtk_can_do_onscreen TRUE)
-    set(vtk_can_do_offscreen TRUE)
-  endif ()
+  set(vtk_can_do_onscreen TRUE)
+  set(vtk_can_do_offscreen TRUE)
 endif ()
 
 cmake_dependent_option(
