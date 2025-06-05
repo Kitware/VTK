@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAnariRenderer.h"
-#include "vtkAnariProfiling.h"
 
-#include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 
 #include <anari/anari_cpp/ext/std.h>
@@ -40,8 +38,6 @@ public:
 vtkAnariRendererInternals::~vtkAnariRendererInternals()
 {
   CleanupAnariObjects();
-  anari::release(this->AnariDevice, this->AnariDevice);
-  this->AnariDevice = nullptr;
 }
 
 // ----------------------------------------------------------------------------
@@ -52,6 +48,8 @@ void vtkAnariRendererInternals::CleanupAnariObjects()
     anari::release(this->AnariDevice, this->AnariRenderer);
     this->AnariRenderer = nullptr;
     this->AnariRendererSubtype.clear();
+    anari::release(this->AnariDevice, this->AnariDevice);
+    this->AnariDevice = nullptr;
   }
 }
 
@@ -122,7 +120,12 @@ void vtkAnariRenderer::SetSubtype(const char* subtype)
     return;
   }
 
-  this->Internal->CleanupAnariObjects();
+  if (this->Internal->AnariRenderer)
+  {
+    anari::release(this->Internal->AnariDevice, this->Internal->AnariRenderer);
+    this->Internal->AnariRenderer = nullptr;
+    this->Internal->AnariRendererSubtype.clear();
+  }
 
   anari::Renderer renderer = anari::newObject<anari::Renderer>(this->GetAnariDevice(), subtype);
   if (!renderer)
