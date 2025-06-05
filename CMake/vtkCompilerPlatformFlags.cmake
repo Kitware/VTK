@@ -28,9 +28,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(VTK_REQUIRED_MODULE_LINKER_FLAGS "${VTK_REQUIRED_MODULE_LINKER_FLAGS} -fwasm-exceptions -sEXCEPTION_STACK_TRACES=1")
   # Consumers linking to VTK also need to add the exception flag.
   if (TARGET vtkbuild)
-    target_compile_options(vtkbuild
-      INTERFACE
-        "-fwasm-exceptions")
     target_link_options(vtkbuild
       INTERFACE
         "-fwasm-exceptions"
