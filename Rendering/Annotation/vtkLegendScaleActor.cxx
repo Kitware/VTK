@@ -135,15 +135,6 @@ vtkLegendScaleActor::vtkLegendScaleActor()
 vtkLegendScaleActor::~vtkLegendScaleActor() = default;
 
 //------------------------------------------------------------------------------
-void vtkLegendScaleActor::SetAdjustLabels(bool adjust)
-{
-  this->RightAxis->SetAdjustLabels(adjust);
-  this->TopAxis->SetAdjustLabels(adjust);
-  this->LeftAxis->SetAdjustLabels(adjust);
-  this->BottomAxis->SetAdjustLabels(adjust);
-}
-
-//------------------------------------------------------------------------------
 void vtkLegendScaleActor::SetSnapToGrid(bool adjust)
 {
   this->RightAxis->SetSnapLabelsToGrid(adjust);

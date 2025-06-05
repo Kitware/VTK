@@ -25,7 +25,6 @@
 #ifndef vtkLegendScaleActor_h
 #define vtkLegendScaleActor_h
 
-#include "vtkDeprecation.h" // for deprecation
 #include "vtkProp.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
@@ -77,9 +76,6 @@ public:
   vtkSetClampMacro(LabelMode, int, DISTANCE, COORDINATES);
   vtkGetMacro(LabelMode, int);
   void SetLabelModeToDistance() { this->SetLabelMode(DISTANCE); }
-  VTK_DEPRECATED_IN_9_4_0("This class can now determine current plane. Please use the generic "
-                          "SetLabelModeToCoordinates instead.")
-  void SetLabelModeToXYCoordinates() { this->SetLabelMode(XY_COORDINATES); }
   void SetLabelModeToCoordinates() { this->SetLabelMode(COORDINATES); }
   ///@}
 
@@ -256,16 +252,6 @@ public:
 
   /// Set the axes to get font size from text property.
   void SetUseFontSizeFromProperty(bool sizeFromProp);
-
-  /**
-   * Set the axes to adjust labels to a "nice" one.
-   * As this does not respect the number of labels, prefer SnapToGrid.
-   * It is ignored if SnapToGrid is true.
-   * Default is false.
-   */
-  VTK_DEPRECATED_IN_9_4_0(
-    "This does not respect the number of labels. Please use SetSnapToGrid instead.")
-  void SetAdjustLabels(bool adjust);
 
   /**
    * If on, labels are positioned on rounded values.
