@@ -11,6 +11,7 @@
 #include "vtkParse.h"
 #include "vtkParseHierarchy.h"
 #include "vtkParseMain.h"
+#include "vtkParseProperties.h"
 #include "vtkWrappingToolsModule.h"
 
 /**
@@ -43,6 +44,7 @@ extern "C"
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsArrayRef(const ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsStdVector(const ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsStdMap(const ValueInfo* val);
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsStdUnorderedMap(const ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKObject(const ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKSmartPointer(const ValueInfo* val);
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsSpecialObject(const ValueInfo* val);
@@ -127,6 +129,11 @@ extern "C"
    */
   VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsTypeOf(
     const HierarchyInfo* hinfo, const char* classname, const char* superclass);
+
+  /**
+   * Check if the property corresponds to a vtkNew<> variable.
+   */
+  VTKWRAPPINGTOOLS_EXPORT int vtkWrap_IsVTKNew(const ClassInfo* data, const PropertyInfo* arg);
 
   /**
    * Check if the type of the value is an enum member of the class.

@@ -31,11 +31,12 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderer;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkPointPlacer : public vtkObject
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkPointPlacer : public vtkObject
 {
 public:
   /**

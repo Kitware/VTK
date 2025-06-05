@@ -22,11 +22,12 @@
 
 #include "vtkActor.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCamera;
 
-class VTKRENDERINGCORE_EXPORT vtkFollower : public vtkActor
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkFollower : public vtkActor
 {
 public:
   vtkTypeMacro(vtkFollower, vtkActor);

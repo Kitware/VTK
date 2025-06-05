@@ -206,6 +206,14 @@ public:
    */
   virtual void SetNonLinearFontScale(double exponent, int target);
 
+  ///@{
+  /**
+   * Get/set the font scale exponent.
+   */
+  vtkGetMacro(FontScaleExponent, double);
+  vtkSetMacro(FontScaleExponent, double);
+  ///@}
+
   /**
    * This is just a simple coordinate conversion method used in the render
    * process.

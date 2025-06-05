@@ -17,6 +17,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkProp3D.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkResliceCursor;
@@ -26,7 +27,7 @@ class vtkActor;
 class vtkProperty;
 class vtkBoundingBox;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorActor : public vtkProp3D
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkResliceCursorActor : public vtkProp3D
 {
 
 public:
@@ -81,10 +82,17 @@ public:
   vtkProperty* GetThickSlabProperty(int i);
   ///@}
 
+  ///@{
   /**
-   * Get the centerline actor along a particular axis
+   * Get/Set the centerline actor along a particular axis
    */
   vtkActor* GetCenterlineActor(int axis);
+  vtkActor* GetThickSlabActor(int axis);
+  void SetCenterlineActor(int axis, vtkActor* prop);
+  void SetThickSlabActor(int axis, vtkActor* prop);
+  int GetNumberOfCenterlineActors() { return 3; }
+  int GetNumberOfThickSlabActors() { return 3; }
+  ///@}
 
   /**
    * Set the user matrix on all the internal actors.
@@ -98,7 +106,7 @@ protected:
   void UpdateViewProps(vtkViewport* v = nullptr);
   void UpdateHoleSize(vtkViewport* v);
 
-  vtkResliceCursorPolyDataAlgorithm* CursorAlgorithm;
+  vtkNew<vtkResliceCursorPolyDataAlgorithm> CursorAlgorithm;
   vtkPolyDataMapper* CursorCenterlineMapper[3];
   vtkActor* CursorCenterlineActor[3];
   vtkPolyDataMapper* CursorThickSlabMapper[3];

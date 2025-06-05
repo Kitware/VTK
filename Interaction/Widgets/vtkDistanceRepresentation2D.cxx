@@ -27,7 +27,6 @@ vtkDistanceRepresentation2D::vtkDistanceRepresentation2D()
   this->AxisProperty = vtkProperty2D::New();
   this->AxisProperty->SetColor(0, 1, 0);
 
-  this->AxisActor = vtkAxisActor2D::New();
   this->AxisActor->GetPoint1Coordinate()->SetCoordinateSystemToWorld();
   this->AxisActor->GetPoint2Coordinate()->SetCoordinateSystemToWorld();
   this->AxisActor->SetNumberOfLabels(5);
@@ -47,7 +46,6 @@ vtkDistanceRepresentation2D::vtkDistanceRepresentation2D()
 vtkDistanceRepresentation2D::~vtkDistanceRepresentation2D()
 {
   this->AxisProperty->Delete();
-  this->AxisActor->Delete();
 }
 
 //------------------------------------------------------------------------------

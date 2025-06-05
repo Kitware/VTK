@@ -22,6 +22,7 @@
 
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCutter;
@@ -31,7 +32,8 @@ class vtkBox;
 class vtkClipPolyData;
 class vtkLinearExtrusionFilter;
 
-class VTKINTERACTIONWIDGETS_EXPORT vtkResliceCursorPolyDataAlgorithm : public vtkPolyDataAlgorithm
+class VTKINTERACTIONWIDGETS_EXPORT VTK_MARSHALAUTO vtkResliceCursorPolyDataAlgorithm
+  : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkResliceCursorPolyDataAlgorithm, vtkPolyDataAlgorithm);

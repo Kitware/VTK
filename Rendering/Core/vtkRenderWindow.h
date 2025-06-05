@@ -116,6 +116,7 @@ public:
   /**
    * Get the render timer log for this window.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkGetNewMacro(RenderTimer, vtkRenderTimerLog);
 
   /**
