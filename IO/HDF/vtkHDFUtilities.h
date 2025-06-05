@@ -91,20 +91,6 @@ VTKIOHDF_EXPORT void MakeObjectNameValid(std::string& objectName);
  */
 VTKIOHDF_EXPORT hid_t getH5TypeFromVtkType(int dataType);
 
-struct VTK_DEPRECATED_IN_9_4_0(
-  "Please use TemporalGeometryOffsets struct instead.") VTKIOHDF_EXPORT TransientGeometryOffsets
-{
-public:
-  bool Success = true;
-  vtkIdType PartOffset = 0;
-  vtkIdType PointOffset = 0;
-  std::vector<vtkIdType> CellOffsets;
-  std::vector<vtkIdType> ConnectivityOffsets;
-
-  template <class T>
-  TransientGeometryOffsets(T* impl, vtkIdType step);
-};
-
 /*
  * @struct TemporalGeometryOffsets
  * @brief Use to get the offsets for temporal vtkHDF.

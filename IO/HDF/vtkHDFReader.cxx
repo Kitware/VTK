@@ -414,23 +414,15 @@ vtkDataSet* vtkHDFReader::GetOutputAsDataSet(int index)
 }
 
 //----------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_4_0()
-bool vtkHDFReader::GetHasTransientData()
-{
-  return this->GetHasTemporalData();
-}
-
-//----------------------------------------------------------------------------
 bool vtkHDFReader::GetHasTemporalData()
 {
-  return this->HasTemporalData || this->HasTransientData;
+  return this->HasTemporalData;
 }
 
 //----------------------------------------------------------------------------
 void vtkHDFReader::SetHasTemporalData(bool hasTemporalData)
 {
   this->HasTemporalData = hasTemporalData;
-  this->HasTransientData = hasTemporalData;
 }
 
 //----------------------------------------------------------------------------
