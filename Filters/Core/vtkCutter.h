@@ -37,7 +37,6 @@
 #ifndef vtkCutter_h
 #define vtkCutter_h
 
-#include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_4_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
@@ -196,14 +195,6 @@ public:
    * locator is used to merge coincident points.
    */
   void CreateDefaultLocator();
-
-  /**
-   * Normally I would put this in a different class, but since
-   * This is a temporary fix until we convert this class and contour filter
-   * to generate unstructured grid output instead of poly data, I am leaving it here.
-   */
-  VTK_DEPRECATED_IN_9_4_0("This is no longer used. Use vtkCellTypes::GetDimension(type) instead.")
-  static void GetCellTypeDimensions(unsigned char* cellTypeDimensions);
 
   ///@{
   /**
