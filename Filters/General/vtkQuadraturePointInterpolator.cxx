@@ -143,13 +143,6 @@ int vtkQuadraturePointInterpolator::InterpolateFields(vtkDataSet* datasetOut)
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraturePointInterpolator::InterpolateFields(vtkUnstructuredGrid* usgOut)
-{
-  vtkDataSet* datasetOut = usgOut;
-  return this->InterpolateFields(datasetOut);
-}
-
-//------------------------------------------------------------------------------
 void vtkQuadraturePointInterpolator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

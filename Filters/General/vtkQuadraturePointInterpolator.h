@@ -21,7 +21,6 @@
 #define vtkQuadraturePointInterpolator_h
 
 #include "vtkDataSetAlgorithm.h"
-#include "vtkDeprecation.h"          // For deprecation
 #include "vtkFiltersGeneralModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -47,7 +46,6 @@ private:
   vtkQuadraturePointInterpolator(const vtkQuadraturePointInterpolator&) = delete;
   void operator=(const vtkQuadraturePointInterpolator&) = delete;
 
-  ///@{
   /**
    * Generate field data arrays that have all scalar/vector
    * fields interpolated to the quadrature points. The type
@@ -55,9 +53,6 @@ private:
    * meta data in each data array.
    */
   int InterpolateFields(vtkDataSet* datasetOut);
-  VTK_DEPRECATED_IN_9_4_0("Uses the vtkDataSet version instead.")
-  int InterpolateFields(vtkUnstructuredGrid* usgOut);
-  ///@}
 };
 
 VTK_ABI_NAMESPACE_END
