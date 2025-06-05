@@ -307,13 +307,6 @@ void vtkWin32OpenGLDXRenderWindow::RegisterSharedTexture(unsigned int colorId, u
 }
 
 //------------------------------------------------------------------------------
-void vtkWin32OpenGLDXRenderWindow::RegisterSharedTexture()
-{
-  this->RegisterSharedTexture(
-    this->GetRenderFramebuffer()->GetColorAttachmentAsTextureObject(0)->GetHandle());
-}
-
-//------------------------------------------------------------------------------
 void vtkWin32OpenGLDXRenderWindow::RegisterSharedRenderFramebuffer()
 {
   this->RegisterSharedTexture(
