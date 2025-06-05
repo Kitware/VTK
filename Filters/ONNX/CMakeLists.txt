@@ -4,10 +4,10 @@ vtk_module_find_package(PRIVATE_IF_SHARED
   PACKAGE onnxruntime)
 
 set(classes
-  )
+  vtkONNXInference)
 
 set(private_headers
-  )
+  "Private/vtkONNXInferenceInternals.h")
 
 vtk_module_add_module(VTK::FiltersONNX
   CLASSES ${classes}
