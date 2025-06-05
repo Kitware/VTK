@@ -38,7 +38,6 @@
 #ifndef vtkRandomAttributeGenerator_h
 #define vtkRandomAttributeGenerator_h
 
-#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_4_0
 #include "vtkFiltersGeneralModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
@@ -381,13 +380,6 @@ protected:
   template <class T>
   void GenerateRandomTuples(
     T* data, vtkIdType numTuples, int numComp, int minComp, int maxComp, double min, double max);
-
-  VTK_DEPRECATED_IN_9_4_0("This function has confusing naming and contains implementation details, "
-                          "it as been made private.")
-  int RequestData(vtkDataSet* input, vtkDataSet* output);
-  VTK_DEPRECATED_IN_9_4_0("This function has confusing naming and contains implementation details, "
-                          "it as been made private.")
-  int RequestData(vtkCompositeDataSet* input, vtkCompositeDataSet* output);
 
 private:
   vtkRandomAttributeGenerator(const vtkRandomAttributeGenerator&) = delete;
