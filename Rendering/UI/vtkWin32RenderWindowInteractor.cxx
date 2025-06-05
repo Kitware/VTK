@@ -339,6 +339,7 @@ void vtkWin32RenderWindowInteractor::ProcessEvents()
    * 2. In the second pass, process all messages that were posted via `PostMessage()`. This includes
    * WM_TIMER. When this loop sees a WM_TIMER, it breaks immediately in order to give equal chance
    * to other events that may be connected to callbacks which destroy timers.
+   * Also handle INPUT event to avoid potential hangs when window goes out of focus.
    * 3. In the final pass, process all messages that were sent via `SendMessage()`. This interactor
    * does not use `SendMessage`, however, it is provided in case a custom app uses it.
    */
@@ -350,8 +351,8 @@ void vtkWin32RenderWindowInteractor::ProcessEvents()
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
-  // Process timer and posted messages
-  while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE | PM_QS_POSTMESSAGE))
+  // Process posted messages (which includes timer) and input
+  while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE | PM_QS_POSTMESSAGE | PM_QS_INPUT))
   {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
