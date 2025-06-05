@@ -259,13 +259,6 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkDataSet* usgOut)
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkUnstructuredGrid* usgOut)
-{
-  vtkDataSet* datasetOut = usgOut;
-  return this->Generate(datasetOut);
-}
-
-//------------------------------------------------------------------------------
 void vtkQuadratureSchemeDictionaryGenerator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

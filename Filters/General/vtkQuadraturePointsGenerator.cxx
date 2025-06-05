@@ -204,14 +204,6 @@ int vtkQuadraturePointsGenerator::GenerateField(
 }
 
 //------------------------------------------------------------------------------
-int vtkQuadraturePointsGenerator::GenerateField(
-  vtkUnstructuredGrid* usgIn, vtkDataArray* data, vtkDataArray* offsets, vtkPolyData* pdOut)
-{
-  vtkDataSet* datasetIn = usgIn;
-  return this->GenerateField(datasetIn, data, offsets, pdOut);
-}
-
-//------------------------------------------------------------------------------
 int vtkQuadraturePointsGenerator::Generate(
   vtkDataSet* datasetIn, vtkDataArray* offsets, vtkPolyData* pdOut)
 {
@@ -327,14 +319,6 @@ int vtkQuadraturePointsGenerator::Generate(
   }
 
   return 1;
-}
-
-//------------------------------------------------------------------------------
-int vtkQuadraturePointsGenerator::Generate(
-  vtkUnstructuredGrid* usgIn, vtkDataArray* offsets, vtkPolyData* pdOut)
-{
-  vtkDataSet* datasetIn = usgIn;
-  return this->Generate(datasetIn, offsets, pdOut);
 }
 
 //------------------------------------------------------------------------------
