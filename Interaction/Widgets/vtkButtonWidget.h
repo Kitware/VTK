@@ -44,7 +44,6 @@
 #define vtkButtonWidget_h
 
 #include "vtkAbstractWidget.h"
-#include "vtkDeprecation.h"              // For VTK_DEPRECATED_IN_9_4_0
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
@@ -84,12 +83,6 @@ public:
   {
     return reinterpret_cast<vtkButtonRepresentation*>(this->WidgetRep);
   }
-
-  /**
-   * Incorrect name for GetButtonRepresentation(), for backwards compatibility.
-   */
-  VTK_DEPRECATED_IN_9_4_0("Please use GetButtonRepresentation() instead.")
-  vtkButtonRepresentation* GetSliderRepresentation() { return this->GetButtonRepresentation(); }
 
   /**
    * Create the default widget representation if one is not set.
