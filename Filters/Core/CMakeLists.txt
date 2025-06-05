@@ -66,7 +66,6 @@ set(classes
   vtkHull
   vtkHyperTreeGridProbeFilter
   vtkHyperTreeGridProbeFilterUtilities
-  vtkIdFilter
   vtkImageAppend
   vtkImageDataToExplicitStructuredGrid
   vtkImplicitPolyDataDistance
