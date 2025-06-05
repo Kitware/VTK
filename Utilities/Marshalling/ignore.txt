@@ -878,7 +878,6 @@ Rendering/VolumeOpenGL2/vtkVolumeMask.h
 Rendering/VolumeOpenGL2/vtkVolumeShaderComposer.h
 Rendering/VolumeOpenGL2/vtkVolumeStateRAII.h
 Rendering/VolumeOpenGL2/vtkVolumeTexture.h
-Rendering/WebGPU/vtkSDL2WebGPURenderWindow.h
 Rendering/WebGPU/vtkWebGPUBatchedPolyDataMapper.h
 Rendering/WebGPU/vtkWebGPUCellToPrimitiveConverter.h
 Rendering/WebGPU/vtkWebGPUCommandEncoderDebugGroup.h
