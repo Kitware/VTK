@@ -297,8 +297,7 @@ set(headers
   vtkIntersectionCounter.h
   vtkLabelMapLookup.h
   vtkRect.h
-  vtkVector.h
-  vtkVectorOperators.h)
+  vtkVector.h)
 
 set(nowrap_headers
   vtkCompositeDataSetNodeReference.h
