@@ -77,22 +77,11 @@ public:
   ///@{
   /**
    * Materials are not directly applied to this reader's output.
-   * Use GetGLTFTexture to access a specific texture's image data, and the indices present in the
+   * Use vtkGetGLTFTexture to access a specific texture's image data, and the indices present in the
    * output dataset's field data to create vtkTextures and apply them to the geometry.
    * Note that texture coordinates need to be flipped using a texture transform.
    */
-  struct VTK_DEPRECATED_IN_9_4_0("Use vtkGLTFTexture instead.") GLTFTexture
-  {
-    vtkSmartPointer<vtkImageData> Image;
-    unsigned short MinFilterValue;
-    unsigned short MaxFilterValue;
-    unsigned short WrapSValue;
-    unsigned short WrapTValue;
-  };
-
   vtkIdType GetNumberOfTextures();
-  VTK_DEPRECATED_IN_9_4_0("Use GetTexture() instead.")
-  GLTFTexture GetGLTFTexture(vtkIdType textureIndex);
   vtkSmartPointer<vtkGLTFTexture> GetTexture(vtkIdType textureIndex);
   ///@}
 

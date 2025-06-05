@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// VTK_DEPRECATED_IN_9_4_0()
-#define VTK_DEPRECATION_LEVEL 0
-
 #include "vtkGLTFReader.h"
 
 #include "vtkCommand.h"
@@ -1051,21 +1048,6 @@ vtkSmartPointer<vtkGLTFTexture> vtkGLTFReader::GetTexture(vtkIdType textureIndex
     return t;
   }
   return this->Textures[textureIndex];
-}
-
-//------------------------------------------------------------------------------
-vtkGLTFReader::GLTFTexture vtkGLTFReader::GetGLTFTexture(vtkIdType textureIndex)
-{
-  VTK_LEGACY_REPLACED_BODY(vtkGLTFReader::GetGLTFTexture, "VTK 9.4", vtkGLTFReader::GetTexture);
-  if (textureIndex < 0 || textureIndex >= static_cast<vtkIdType>(this->Textures.size()))
-  {
-    vtkErrorMacro("Out of range texture index");
-    return vtkGLTFReader::GLTFTexture{ nullptr, 0, 0, 0, 0 };
-  }
-  auto t = this->Textures[textureIndex];
-  GLTFTexture gltfTexture{ t->Image, t->Sampler.MinFilter, t->Sampler.MagFilter, t->Sampler.WrapS,
-    t->Sampler.WrapT };
-  return gltfTexture;
 }
 
 //------------------------------------------------------------------------------
