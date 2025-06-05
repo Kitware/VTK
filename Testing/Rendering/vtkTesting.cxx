@@ -386,21 +386,6 @@ void vtkTesting::SetFrontBuffer(vtkTypeBool frontBuffer)
 }
 
 //------------------------------------------------------------------------------
-int vtkTesting::RegressionTestAndCaptureOutput(double thresh, ostream& os)
-{
-  const int result = this->RegressionTest(thresh, os);
-
-  os << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
-  os << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
-  os << "</DartMeasurement>\n";
-  os << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
-  os << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
-  os << "</DartMeasurement>\n";
-
-  return result;
-}
-
-//------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh)
 {
   const int result = this->RegressionTest(thresh, cout);

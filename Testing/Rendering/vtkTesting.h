@@ -50,7 +50,6 @@
 #ifndef vtkTesting_h
 #define vtkTesting_h
 
-#include "vtkDeprecation.h" // For VTK_DEPRECATED_9_4_0
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"           // for vtkSmartPointer
 #include "vtkTestingRenderingModule.h" // For export macro
@@ -168,14 +167,6 @@ public:
   virtual int RegressionTest(double thresh, std::string& output);
   virtual int RegressionTest(double thresh, ostream& os);
   ///@}
-
-  /**
-   * Perform the test and return the result. At the same time, write
-   * the output to the output stream os. Includes timing information
-   * in the output.
-   */
-  VTK_DEPRECATED_IN_9_4_0("Use RegressionTest(double, ostream&) instead.")
-  virtual int RegressionTestAndCaptureOutput(double thresh, ostream& os);
 
   ///@{
   /**
