@@ -56,7 +56,6 @@
 #include "vtkCellArray.h"             // For inline methods
 #include "vtkCellType.h"              // For VTK_EMPTY_CELL
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_4_0
 #include "vtkIdList.h"                // For inline methods
 #include "vtkIdTypeArray.h"           // For inline methods
 #include "vtkNew.h"                   // For vtkNew
@@ -128,13 +127,6 @@ public:
    * This is only valid when CellType is VTK_POLYHEDRON.
    */
   vtkIdList* GetSerializedCellFaces();
-
-  /**
-   * Get the faces for a polyhedral cell. This is only valid when CellType
-   * is VTK_POLYHEDRON.
-   */
-  VTK_DEPRECATED_IN_9_4_0("Please use GetCellFaces instead.")
-  vtkIdList* GetFaces();
 
   /**
    * Write the current full cell information into the argument.

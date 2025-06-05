@@ -123,7 +123,6 @@
 #include "vtkCell3D.h"
 #include "vtkCellStatus.h"            // For enum.
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED
 #include "vtkNew.h"                   // For vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -499,9 +498,6 @@ protected:
   void ComputeBounds();
   void ComputeParametricCoordinate(const double x[3], double pc[3]);
   void ComputePositionFromParametricCoordinate(const double pc[3], double x[3]);
-
-  VTK_DEPRECATED_IN_9_4_0("Use GeneratePointToIncidentFaces instead.")
-  void GeneratePointToIncidentFacesAndValenceAtPoint() { this->GeneratePointToIncidentFaces(); }
 
   // Members for supporting geometric operations
   int PolyDataConstructed = 0;

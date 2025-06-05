@@ -88,13 +88,6 @@ void vtkCellIterator::GetCell(vtkGenericCell* cell)
 }
 
 //------------------------------------------------------------------------------
-// To be removed when deprecating
-vtkIdList* vtkCellIterator::GetFaces()
-{
-  return this->GetSerializedCellFaces();
-}
-
-//------------------------------------------------------------------------------
 vtkCellIterator::vtkCellIterator()
   : CellType(VTK_EMPTY_CELL)
   , CacheFlags(UninitializedFlag)
