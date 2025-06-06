@@ -30,7 +30,15 @@ try:
     api = b.build_platlib.replace('\\', '/')
 
     if not manual == api:
-        sys.stderr.write('mismatch with manual computation: "{}" (computed) vs. "{}" (distutils)\n'.format(manual, api))
+        caveat = ''
+        st_vers = tuple(map(int, setuptools.__version__.split('.')))
+        check_vers = (62, 1, 0)
+        if st_vers < check_vers:
+            st_vers_str = '.'.join(map(str, st_vers))
+            check_vers_str = '.'.join(map(str, check_vers))
+            caveat = '; consider installing setuptools>={} (currently {})'.format(check_vers_str, st_vers_str)
+
+        sys.stderr.write('mismatch with manual computation: "{}" (computed) vs. "{}" (distutils){}\n'.format(manual, api, caveat))
 except ImportError:
     pass
 
