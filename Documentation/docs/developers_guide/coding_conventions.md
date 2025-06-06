@@ -13,8 +13,8 @@ rules that say "All code".
 
 1. All code that is compiled into VTK by default must be compatible with VTK's BSD- style license.
 1. Copyright notices should appear at the top of C++ header and implementation files using SPDX syntax.
-1. All C++ code must be valid C++11 code.
-1. The Java and Python wrappers must work on new code, or it should be excluded from wrapping.
+1. All C++ code must be valid C++17 code.
+
 1. Multiple inheritance is not allowed in VTK classes.
 
     Rationale: One important reason is that Java does not support it.
@@ -26,9 +26,9 @@ rules that say "All code".
 
     Rationale: helpful when searching the code, includes are flattened at install.
 
-1. The indentation style can be characterized as the modified Allman (https://en.wikipedia.org/wiki/Indent_style#Allman_style)style. Indentations are two spaces, and the curly brace (scope delimiter) is placed on the following line and indented to the same level as the control statement.
+1. The indentation style used is a modified version of the [Allman style](https://en.wikipedia.org/wiki/Indent_style#Allman_style). Indentations consist of two spaces, and tabs are not permitted. Additionally, trailing whitespace is not allowed. Curly braces, which serve as scope delimiters, are placed on the line following the control statement and are indented to the same level as that statement.
 
-    Rationale: Readability and historical
+    Rationale: Readability and historical, Removing tabs ensures that blocks are indented consistently in all editors.
 
 1. Conditional clauses (including loop conditionals such as for and while) must be in braces below the conditional.
    Ie, instead of `if (test) clause` or `if (test) { clause }`, use
@@ -40,9 +40,8 @@ rules that say "All code".
    ```
      Rationale: helpful when running code through a debugger
 
-1. Two space indentation. Tabs are not allowed. Trailing whitespace is not allowed.
-
-   Rationale:  Removing tabs ensures that blocks are indented consistently in all editors.
+1. Init-statement in a condition like `if ( int i = 0; ... )` is  allowed except for modifying an existing variable outside the conditional clause.
+     Rationale: Readability
 
 1. Only alphanumeric characters in names. Use capitalization to demarcate words within a name (i.e., camel case). Preprocessor variables are the exception, and should be in all caps with a single underscore to demarcate words.
 
@@ -51,6 +50,10 @@ rules that say "All code".
 1. Every class, macro, etc starts with either vtk or VTK. Classes should all start with lowercase vtk and macros or constants can start with either.
 
    Rationale: avoids name clashes with other libraries
+
+1. Every free function should be in the "vtk" namespace.
+
+   Rationale: Namespace symbol collision avoidance
 
 1. After the `vtk` prefix, capitalize the first letter of class names, methods and static and instance variables. Local variables are allowed to vary, but ideally should start in lower case and then proceed in camel case.
 
@@ -154,7 +157,7 @@ rules that say "All code".
 
 1. Prefer the use of vtkNew when the variable would be classically treated as a stack variable.
 
-1. Eighty character line width is preferred.
+1. Eighty character line width is preferred. More than one hundred is not allowed.
 
    Rationale: Readability
 
@@ -184,6 +187,19 @@ rules that say "All code".
 
    Rationale: Default function arguments in C++ are a tempting way to add an argument to a function while maintaining easy backwards compatibility. However, if you later want to add another argument to the list in a way that preserves backwards compatibility, it, too, must be a default argument. To supply the second of these arguments in a call forces you to also supply the first argument, even if it is the default value. As a result, this is not a clean way to add a argument to a function. Instead, function overloading should be preferred.
 
+2. VTK classes (header and source file) must be defined in the VTK_ABI_NAMESPACE, using VTK_ABI_NAMESPACE_BEGIN and VTK_ABI_NAMESPACE_END at the deepest namespace level, if any.
+   ```cpp
+   VTK_ABI_NAMESPACE_BEGIN
+   class VTKXXX_EXPORT vtkXXX : public vtkObject{/* ... */};
+   VTK_ABI_NAMESPACE_END
+
+   namespace vtk {
+   VTK_ABI_NAMESPACE_BEGIN
+   void VTKXXX_EXPORT yyy();
+   VTK_ABI_NAMESPACE_END
+   }
+   ```
+
 ## Specific C++  Language Guidelines
 ### C++ Standard Library
 
@@ -191,16 +207,9 @@ rules that say "All code".
 
   Rationale: vtkStdString was introduced as a workaround for compilers that couldn’t handle the long symbol name for the expanded std::string type. It is no longer needed on modern platforms.
 
-* STL usage in the Common modules' public API is discouraged when possible, Common modules are free to use STL in  implementation files. The other modules may use STL, but should do so only when necessary if there is not an appropriate VTK class. Care should be taken when using the STL in public API, especially in the context of what can be wrapped.
-
-    Exception: std::string should be used as the container for all 8-bit character data, and is permitted throughout VTK.
+* STL usage in the Common modules' public API is discouraged when possible, Common modules are free to use STL in  implementation files. The other modules may use STL, but should do so only when necessary if there is not an appropriate VTK class.
 
     Rationale: limits header inclusion bloat, wrappers are not capable of handling many non-`vtkObject` derived classes.
-
-* References to STL derived classes in header files should be private. If the class is not intended to be subclassed it is safe to put the references in the protected section.
-
-    Rationale: avoids DLL boundary issues.
-
 
 ### C++ Language Features Required when using VTK
 
@@ -208,12 +217,12 @@ rules that say "All code".
 * [*override*](http://en.cppreference.com/w/cpp/language/override)  `VTK_OVERRIDE` will be replaced with the override keyword
 * [*final*](http://en.cppreference.com/w/cpp/language/final)  `VTK_FINAL` will be replaced with the final keyword
 * [*delete*](http://en.cppreference.com/w/cpp/language/function#Deleted_functions) The use of delete is preferred over making default members private and unimplemented.
+* [*non static data member initializers*](http://en.cppreference.com/w/cpp/language/data_members)
 
-### C++11 Features allowed throughout VTK
+### C++ Features allowed throughout VTK
 
 * [*default*](http://en.cppreference.com/w/cpp/language/default_constructor)  The use of default is encouraged in preference to empty destructor implementations
-* [*static_assert*](http://en.cppreference.com/w/cpp/language/static_assert) Must use the static_assert ( `bool_constexpr` , `message` ) signature. The signature without the message in c++17
-* [*non static data member initializers*](http://en.cppreference.com/w/cpp/language/data_members)
+* [*static_assert*](http://en.cppreference.com/w/cpp/language/static_assert) Must use the static_assert ( `bool_constexpr` ) signature.
 * [*strongly typed enums*](http://en.cppreference.com/w/cpp/language/enum)
   VTK prefers the usage of strongly typed enums over classic weakly
   typed enums.
@@ -233,27 +242,23 @@ rules that say "All code".
   this will break API/ABI, potentially cause issues with VTK bindings,
   and possibly require changes to users VTK code.
 
-### C++11 Features acceptable in VTK implementation files, private headers, and template implementations
+* [*attributes*](http://en.cppreference.com/w/cpp/language/attributes)  The use of attribute is encouraged and should be used wisely depending on the attribute:
+  - [*fallthough*](https://en.cppreference.com/w/cpp/language/attributes/fallthrough.html) should be used instead of `VTK_FALLTHROUGH`.
+  - [*maybe_unused*](https://en.cppreference.com/w/cpp/language/attributes/maybe_unused.html) should be used instead of `vtkMaybeUnused`.
+  - [*nodiscard*](https://en.cppreference.com/w/cpp/language/attributes/nodiscard.html) should be used.
 
-* [*auto*](http://en.cppreference.com/w/cpp/language/auto)
-  Use auto to avoid type names that are noisy, obvious, or unimportant - cases where the type doesn't aid in clarity for the reader.
-  auto is permitted when it increases readability, particularly as described below. **Never initialize an auto-typed variable with a braced initializer list.**
+* [*std::optional*](https://en.cppreference.com/w/cpp/utility/optional.html) should be used for returned value of method to simplify method signature and to factorize code.
 
-  Specific cases where auto is allowed or encouraged:
-  - (Encouraged) For iterators and other long/convoluted type names, particularly when the type is clear from context (calls to find, begin, or end for instance).
-  - (Allowed) When the type is clear from local context (in the same expression or within a few lines). Initialization of a pointer or smart pointer with calls to new commonly falls into this category, as does use of auto in a range-based loop over a container whose type is spelled out nearby.
-  - (Allowed) When the type doesn't matter because it isn't being used for anything other than equality comparison.
-  - (Encouraged) When iterating over a map with a range-based loop (because it is often assumed that the correct type is std::pair<KeyType, ValueType> whereas it is actually std::pair<const KeyType, ValueType>). This is particularly well paired with local key and value aliases for .first and .second (often const-ref).
-  - ```cpp
-    for (const auto& item : some_map) {
-    const KeyType& key = item.first;
-    const ValType& value = item.second;
-    // The rest of the loop can now just refer to key and value,
-    // a reader can see the types in question, and we've avoided
-    // the too-common case of extra copies in this iteration.
-    }
-    ```
-  - (Discouraged) When iterating in integer space. `for (auto i=0; i < grid->GetNumberOfPoints(); ++i)`. Because vtk data structures usually contain more than 2 billion elements, iterating using 32bit integer is discouraged (and often doesn’t match the type used)
+* [*std::string_view*](http://www.en.cppreference.com/w/cpp/header/string_view.html) should be used to avoid string copy especially for IO treatment.
+
+* [*class template argument deduction*](https://en.cppreference.com/w/cpp/language/class_template_argument_deduction.html)
+
+  Usage of class template argument deduction can be used for trivial type deduction like:
+  ```cpp
+  std::pair p(2, 4.5);     // deduces to std::pair<int, double> p(2, 4.5);
+  ```
+
+### C++ Features acceptable in VTK implementation files, private headers, and template implementations
 
 * [*braced initializer list*](http://en.cppreference.com/w/cpp/language/list_initialization)
    Braced initializer list are allowed as they prevent implicit narrowing conversions, and “most vexing parse” errors. They can be used when constructing POD’s  and other containers.
@@ -264,23 +269,8 @@ rules that say "All code".
     auto a = { 10, 20 }; //not allowed as a is std::initializer_list<int>
   ```
 
-* [*lambda expressions*](http://en.cppreference.com/w/cpp/language/lambda)
-
-  Usage of lambda expressions are allowed with the following guidelines.
-
-   -  Use default capture by value ([=]) only as a means of binding a few variables for a short lambda, where the set of captured variables is obvious at a glance. Prefer not to write long or complex lambdas with default capture by value.
-   - Except for the above, all capture arguments must be explicitly captured. Using the default capture by reference ([&]) is not allowed. This is to done so that it is easier to evaluate lifespan and reference ownership.
-   - Keep unnamed lambdas short. If a lambda body is more than maybe five lines long, prefer using a named function instead of a lambda.
-   - Specify the return type of the lambda explicitly if that will make it more obvious to readers.
-
 * [*shared_ptr*](http://en.cppreference.com/w/cpp/memory/shared_ptr)
   - **Do not combine shared_ptr and vtk derived objects.** VTK internal reference counting makes the shared_ptr reference counting ( and destructor tracking ) pointless.
-
-
-* [*unique_ptr*](http://en.cppreference.com/w/cpp/memory/unique_ptr)
-  -   Do not combine unique_ptr and vtk derived objects.  We prefer using vtkNew as VTK objects use internal reference counting and custom deletion logic, the ownership semantics of unique_ptr are invalid.
-  -   `make_unique` is not part of c++11 
-
 
 * [*template alias*](http://en.cppreference.com/w/cpp/language/type_alias)
   - The use of alias templates is preferred over using 'typedefs'. They provide the same language pattern of normal declarations, and reduce the need for helper template structs. For example ( Scott Meyers, Effective Modern C++ )
@@ -293,7 +283,7 @@ rules that say "All code".
 
 * [*extern templates*](http://en.cppreference.com/w/cpp/language/class_template)
 
-  - Note: This should be investigated as an update to the current infrastructure used to export explicit template instantiations used within VTK 
+  - Used in the `vtkDataArray` for example.
 
 * [*unordered maps*](http://en.cppreference.com/w/cpp/concept/UnorderedAssociativeContainer)
 
@@ -303,7 +293,9 @@ rules that say "All code".
 
 * [*range based for loop*](http://en.cppreference.com/w/cpp/language/range-for)
 
-### C++11 Features allowed under certain conditions
+* [*std::variant*](https://en.cppreference.com/w/cpp/utility/variant.html) can be used in internal API.
+
+### C++ Features allowed under certain conditions
 
 * [*concurrency*](https://isocpp.org/wiki/faq/cpp11-library-concurrency)
 
@@ -335,23 +327,46 @@ rules that say "All code".
 
     In these cases the recommendation is to extending or adding support classes so that these design patterns can be utilized in the future.
 
-* [*variadic templates*](http://en.cppreference.com/w/cpp/language/parameter_pack)
+* [*constexpr*](https://en.cppreference.com/w/cpp/language/constexpr.html) should be used for constant (instead of `#define`, `const ...`) and wisely used for function depending on your use case.
 
-  Variadic Templates are not allowed in VTK unless they are the only solution to the given problem. 
+* [*auto*](http://en.cppreference.com/w/cpp/language/auto)
+  Use auto to avoid type names that are noisy, obvious, or unimportant - cases where the type doesn't aid in clarity for the reader.
+  auto is permitted when it increases readability, particularly as described below. **Never initialize an auto-typed variable with a braced initializer list.**
 
-### C++11 Features that are not allowed
+  Specific cases where auto is allowed or encouraged:
+  - (Encouraged) For iterators and other long/convoluted type names, particularly when the type is clear from context (calls to find, begin, or end for instance).
+  - (Allowed) When the type is clear from local context (in the same expression or within a few lines). Initialization of a pointer or smart pointer with calls to new commonly falls into this category, as does use of auto in a range-based loop over a container whose type is spelled out nearby.
+  - (Allowed) When the type doesn't matter because it isn't being used for anything other than equality comparison.
+  - (Encouraged) When iterating over a map with a range-based loop (because it is often assumed that the correct type is std::pair<KeyType, ValueType> whereas it is actually std::pair<const KeyType, ValueType>). This is particularly well paired with local key and value aliases for .first and .second (often const-ref).
+  - ```cpp
+    for (const auto& [key, value] : some_map) {
+    // The rest of the loop can now just refer to key and value,
+    // a reader can see the types in question, and we've avoided
+    // the too-common case of extra copies in this iteration.
+    }
+    ```
+   - (Allowed) [structure binding](https://cppreference.com/w/cpp/language/structured_binding.html) can be used for trivial type deduction.
+  - (Prohibited) When iterating in integer space. `for (auto i=0; i < grid->GetNumberOfPoints(); ++i)`. Because vtk data structures usually contain more than 2 billion elements, iterating using 32bit integer is prohibited in these use case (and often doesn’t match the type used).
 
-* [std::regex](http://en.cppreference.com/w/cpp/regex)
+* [*unique_ptr*](http://en.cppreference.com/w/cpp/memory/unique_ptr)
+  -   Do not use unique_ptr with vtk-derived objects. We recommend using `vtkNew` because VTK objects have their own internal reference counting and custom deletion logic, making unique_ptr's ownership semantics invalid.
+  -  `std::unique_ptr` should be created with `make_unique`.
 
-  - Not supported by GCC 4.8 (can be used once GCC 4.9 is required)
+* [*lambda expressions*](http://en.cppreference.com/w/cpp/language/lambda)
 
-Parts of this coding style are enforced by git commit hooks that are put in
-place when the developer runs the SetupForDevelopment script, other parts
-are enforced by smoke tests that run as part of VTK’s regression test suite.
-Most of these guidelines are not automatically enforced.
-[VTK’s commit hook enforced style checks Section](#vtks-commit-hook-enforced-style-checks) list the style checks that are in place.
+  Usage of lambda expressions are allowed with the following guidelines.
 
-#### VTK’s commit hook enforced style checks
+   -  Use default capture by value ([=]) only as a means of binding a few variables for a short lambda, where the set of captured variables is obvious at a glance. Prefer not to write long or complex lambdas with default capture by value.
+   - All capture arguments must be explicitly defined. Using the default capture by reference ([&]) is not permitted. This ensures easier evaluation of lifespan and reference ownership.
+   - lambda expression should be `constexpr`.
+   - Keep unnamed lambdas short. If a lambda body is more than maybe five lines long, prefer using a named function instead of a lambda.
+   - Specify the return type of the lambda explicitly if that will make it more obvious to readers.
+
+* [*variadic templates*](http://en.cppreference.com/w/cpp/language/parameter_pack) and [*fold expression*](https://en.cppreference.com/w/cpp/language/fold.html).
+
+  Variadic Templates and fold expression are not allowed in VTK unless they are the only solution to the given problem (e.g. `vtkArrayDispatch.txx`).
+
+## VTK’s commit hook enforced style checks
 
 * Well formed commit message
 
