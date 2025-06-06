@@ -4,11 +4,11 @@
 // .SECTION Description
 //
 #include "vtkAMREnzoReader.h"
-#include "vtkAMRInformation.h"
 #include "vtkCompositeDataReader.h"
 #include "vtkCompositeDataWriter.h"
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"

@@ -260,7 +260,6 @@ set(classes
 
   # New classes for AMR
   vtkAMRDataInternals
-  vtkAMRInformation
   vtkAMRMetaData
   vtkOverlappingAMRMetaData
   vtkNonOverlappingAMR

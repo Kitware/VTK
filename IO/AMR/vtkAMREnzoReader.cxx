@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAMREnzoReader.h"
+#include "vtkAMRBox.h"
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkIndent.h"
@@ -39,7 +40,6 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMREnzoReader);
 
 VTK_ABI_NAMESPACE_END
-#include "vtkAMRInformation.h"
 #include <limits>
 
 VTK_ABI_NAMESPACE_BEGIN
