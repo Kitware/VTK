@@ -205,9 +205,15 @@ public:
   void GenerateParentChildInformation();
 
   /**
+   * Deprecated, forward to CheckValidity
+   */
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use CheckValidity")
+  bool Audit() { return this->CheckValidity(); };
+
+  /**
    * Checks whether the meta data is internally consistent.
    */
-  bool Audit();
+  [[nodiscard]] bool CheckValidity();
 
   /**
    * Given a point q, find whether q is bounded by the data set at

@@ -181,9 +181,9 @@ int TestOverlappingAMR(int, char*[])
     return EXIT_FAILURE;
   }
 
-  if (!amr->Audit())
+  if (!amr->CheckValidity())
   {
-    vtkLogF(ERROR, "Error with audit");
+    vtkLogF(ERROR, "Error with CheckValidity");
     return EXIT_FAILURE;
   }
 

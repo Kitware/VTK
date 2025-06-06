@@ -539,7 +539,11 @@ bool ValidateDistributedAMR()
     "Incorrect data type, expected vtkOverlappingAMR, got %s", vtkLogIdentifier(data));
 
   auto amr = vtkOverlappingAMR::SafeDownCast(data);
-  amr->Audit();
+  if (!amr->CheckValidity())
+  {
+    return false;
+  }
+
   int generatedLevels = amr->GetNumberOfLevels();
   auto nbOfProcess = controller->GetNumberOfProcesses();
   VERIFY(generatedLevels == nbOfProcess, "Incorrect number of levels, expexts %d but has %d",

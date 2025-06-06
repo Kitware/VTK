@@ -79,8 +79,10 @@ int TestImageToAMR(int, char*[])
       vtkImageData* image = vtkImageData::SafeDownCast(idFilter->GetOutputDataObject(0));
       vtkOverlappingAMR* amr =
         vtkOverlappingAMR::SafeDownCast(amrConverter->GetOutputDataObject(0));
-      amr->Audit();
-      // cout<<amr->GetTotalNumberOfBlocks()<<" "<<maxBlocks<<endl;
+      if (!amr->CheckValidity())
+      {
+        return VTK_FAILURE;
+      }
       if (amr->GetNumberOfLevels() != numLevels)
       {
         return VTK_FAILURE;

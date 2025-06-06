@@ -23,7 +23,7 @@ namespace
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << "ERROR: Condition FAILED!! : " << #x << endl;                                        \
+      std::cerr << "ERROR: Condition FAILED!! : " << #x << endl;                                   \
       return false;                                                                                \
     }                                                                                              \
   } while (false)
@@ -40,11 +40,11 @@ bool Validate(vtkOverlappingAMR* input, vtkOverlappingAMR* result)
     vtk_assert(input->GetNumberOfDataSets(level) == result->GetNumberOfDataSets(level));
   }
 
-  cout << "Audit Input" << endl;
-  input->Audit();
-  cout << "Audit Output" << endl;
-  result->Audit();
-  return true;
+  std::cout << "Check input validity" << endl;
+  bool ret = input->CheckValidity();
+  std::cout << "Check output validity" << endl;
+  ret &= result->CheckValidity();
+  return ret;
 }
 
 bool TestAMRXMLIO_OverlappingAMR2D(const std::string& output_dir)
@@ -104,7 +104,10 @@ bool TestAMRXMLIO_HierarchicalBox(const std::string& input_dir, const std::strin
   vtk_assert(output->GetNumberOfDataSets(2) == 40);
   vtk_assert(output->GetNumberOfDataSets(3) == 32);
   vtk_assert(output->GetGridDescription() == VTK_XYZ_GRID);
-  output->Audit();
+  if (!output->CheckValidity())
+  {
+    return false;
+  }
 
   filename = output_dir + "/TestAMRXMLIO_HierarchicalBox.vth";
   vtkNew<vtkXMLUniformGridAMRWriter> writer;
@@ -142,7 +145,7 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   if (firstDataSet->GetCellData()->GetArray("Centroid") ||
     firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
   {
-    cerr << "Array status failure. Some disabled array are not available." << endl;
+    std::cerr << "Array status failure. Some disabled array are not available." << endl;
     return false;
   }
 
@@ -152,12 +155,12 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   firstDataSet = output->GetDataSet(0, 0);
   if (!firstDataSet->GetCellData()->GetArray("Centroid"))
   {
-    cerr << "Array status failure. Enabled array, Centroid, is not available." << endl;
+    std::cerr << "Array status failure. Enabled array, Centroid, is not available." << endl;
     return false;
   }
   if (firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
   {
-    cerr << "Array status failure. Disabled array, Gaussian-Pulse, is available." << endl;
+    std::cerr << "Array status failure. Disabled array, Gaussian-Pulse, is available." << endl;
     return false;
   }
 
@@ -168,12 +171,12 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   firstDataSet = output->GetDataSet(0, 0);
   if (!firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
   {
-    cerr << "Array status failure. Enabled array, Gaussian-Pulse, is not available." << endl;
+    std::cerr << "Array status failure. Enabled array, Gaussian-Pulse, is not available." << endl;
     return false;
   }
   if (firstDataSet->GetCellData()->GetArray("Centroid"))
   {
-    cerr << "Array status failure. Disabled array, Centroid, is available." << endl;
+    std::cerr << "Array status failure. Disabled array, Centroid, is available." << endl;
     return false;
   }
 
@@ -185,7 +188,7 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   if (!firstDataSet->GetCellData()->GetArray("Centroid") ||
     !firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
   {
-    cerr << "Array status failure. Some enabled arrays are not available." << endl;
+    std::cerr << "Array status failure. Some enabled arrays are not available." << endl;
     return false;
   }
   return true;
@@ -200,20 +203,20 @@ int TestAMRXMLIO(int argc, char* argv[])
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!temp_dir)
   {
-    cerr << "Could not determine temporary directory." << endl;
+    std::cerr << "Could not determine temporary directory." << endl;
     return VTK_FAILURE;
   }
 
   std::string output_dir = temp_dir;
   delete[] temp_dir;
 
-  cout << "Test Overlapping AMR (2D)" << endl;
+  std::cout << "Test Overlapping AMR (2D)" << endl;
   if (!TestAMRXMLIO_OverlappingAMR2D(output_dir))
   {
     return VTK_FAILURE;
   }
 
-  cout << "Test Overlapping AMR (3D)" << endl;
+  std::cout << "Test Overlapping AMR (3D)" << endl;
   if (!TestAMRXMLIO_OverlappingAMR3D(output_dir))
   {
     return VTK_FAILURE;
@@ -222,7 +225,7 @@ int TestAMRXMLIO(int argc, char* argv[])
   char* data_dir = vtkTestUtilities::GetDataRoot(argc, argv);
   if (!data_dir)
   {
-    cerr << "Could not determine data directory." << endl;
+    std::cerr << "Could not determine data directory." << endl;
     return VTK_FAILURE;
   }
 
@@ -230,13 +233,13 @@ int TestAMRXMLIO(int argc, char* argv[])
   input_dir += "/Data";
   delete[] data_dir;
 
-  cout << "Test HierarchicalBox AMR (v1.1)" << endl;
+  std::cout << "Test HierarchicalBox AMR (v1.1)" << endl;
   if (!TestAMRXMLIO_HierarchicalBox(input_dir, output_dir))
   {
     return VTK_FAILURE;
   }
 
-  cout << "Test DataArraySelection" << endl;
+  std::cout << "Test DataArraySelection" << endl;
   if (!TestAMRXMLIO_DataArraySelection(output_dir))
   {
     return VTK_FAILURE;

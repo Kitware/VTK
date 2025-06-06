@@ -184,7 +184,7 @@ void vtkAMRInformation::PrintSelf(ostream& os, vtkIndent indent)
   os << "\n";
 }
 
-bool vtkAMRInformation::Audit()
+bool vtkAMRInformation::CheckValidity()
 {
   int emptyDimension(-1);
   switch (this->GridDescription)

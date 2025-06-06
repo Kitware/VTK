@@ -51,7 +51,11 @@ int TestOverlappingAMRLevelIdScalars(int, char*[])
     block->GetOrigin(), block->GetDimensions(), spacing, origin, amr->GetGridDescription());
   amr->SetAMRBox(1, 0, box2);
 
-  amr->Audit();
+  if (!amr->CheckValidity())
+  {
+    std::cerr << "AMR dataset is not valid" << std::endl;
+    return EXIT_FAILURE;
+  }
 
   // Apply id filter
   vtkNew<vtkOverlappingAMRLevelIdScalars> levelIdFilter;

@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
 #include "vtkOverlappingAMR.h"
 #include "vtkAMRInformation.h"
 #include "vtkCellData.h"
@@ -9,6 +10,8 @@
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMRDataIterator.h"
 #include "vtkUnsignedCharArray.h"
+
+#include <utility>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -169,9 +172,15 @@ int vtkOverlappingAMR::GetAMRBlockSourceIndex(unsigned int level, unsigned int i
 }
 
 //------------------------------------------------------------------------------
-bool vtkOverlappingAMR::Audit()
+void vtkOverlappingAMR::Audit()
 {
-  bool ret = this->AMRInfo->Audit();
+  std::ignore = this->CheckValidity();
+}
+
+//------------------------------------------------------------------------------
+bool vtkOverlappingAMR::CheckValidity()
+{
+  bool ret = this->AMRInfo->CheckValidity();
 
   int emptyDimension(-1);
   switch (this->GetGridDescription())

@@ -101,9 +101,14 @@ int TestAMRFlashReader(int argc, char* argv[])
     rc += FlashReaderTest::CheckValue("BLOCKS", myFlashReader->GetNumberOfBlocks(), 35);
 
     amr = myFlashReader->GetOutput();
-    amr->Audit();
     if (amr != nullptr)
     {
+      if (!amr->CheckValidity())
+      {
+        std::cerr << "ERROR: output AMR dataset is not valid!";
+        return 1;
+      }
+
       rc += FlashReaderTest::CheckValue("OUTPUT LEVELS", ComputeMaxNonEmptyLevel(amr), 2);
       rc += FlashReaderTest::CheckValue("NUMBER OF BLOCKS AT LEVEL",
         static_cast<int>(amr->GetNumberOfDataSets(level)), NumBlocksPerLevel[level]);

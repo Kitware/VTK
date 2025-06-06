@@ -17,23 +17,24 @@ int TestXMLHierarchicalBoxDataFileConverter(int argc, char* argv[])
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!temp_dir)
   {
-    cerr << "Could not determine temporary directory." << endl;
+    std::cerr << "Could not determine temporary directory." << endl;
     return VTK_FAILURE;
   }
+  std::string tempDirStr = temp_dir;
+  delete[] temp_dir;
 
   char* data_dir = vtkTestUtilities::GetDataRoot(argc, argv);
   if (!data_dir)
   {
-    delete[] temp_dir;
-    cerr << "Could not determine data directory." << endl;
+    std::cerr << "Could not determine data directory." << endl;
     return VTK_FAILURE;
   }
+  std::string dataDirStr = data_dir;
+  delete[] data_dir;
 
-  std::string input = data_dir;
-  input += "/Data/AMR/HierarchicalBoxDataset.v1.0.vthb";
+  std::string input = dataDirStr + "/Data/AMR/HierarchicalBoxDataset.v1.0.vthb";
 
-  std::string output = temp_dir;
-  output += "/HierarchicalBoxDataset.Converted.v1.1.vthb";
+  std::string output = tempDirStr + "/HierarchicalBoxDataset.Converted.v1.1.vthb";
 
   vtkNew<vtkXMLHierarchicalBoxDataFileConverter> converter;
   converter->SetInputFileName(input.c_str());
@@ -41,35 +42,29 @@ int TestXMLHierarchicalBoxDataFileConverter(int argc, char* argv[])
 
   if (!converter->Convert())
   {
-    delete[] temp_dir;
-    delete[] data_dir;
     return VTK_FAILURE;
   }
 
   // Copy the subfiles over to the temporary directory so that we can test
   // loading the written file.
-  std::string input_dir = data_dir;
-  input_dir += "/Data/AMR/HierarchicalBoxDataset.v1.0";
+  std::string inputDir = dataDirStr + "/Data/AMR/HierarchicalBoxDataset.v1.0";
 
-  std::string output_dir = temp_dir;
-  output_dir += "/HierarchicalBoxDataset.Converted.v1.1";
+  std::string outputDir = tempDirStr + "/HierarchicalBoxDataset.Converted.v1.1";
 
-  vtksys::SystemTools::RemoveADirectory(output_dir);
-  if (!vtksys::SystemTools::CopyADirectory(input_dir, output_dir))
+  vtksys::SystemTools::RemoveADirectory(outputDir);
+  if (!vtksys::SystemTools::CopyADirectory(inputDir, outputDir))
   {
-    delete[] temp_dir;
-    delete[] data_dir;
-    cerr << "Failed to copy image data files over for testing." << endl;
+    std::cerr << "Failed to copy image data files over for testing." << endl;
     return VTK_FAILURE;
   }
 
   vtkNew<vtkXMLGenericDataObjectReader> reader;
   reader->SetFileName(output.c_str());
   reader->Update();
-  vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0))->Audit();
-
-  delete[] temp_dir;
-  delete[] data_dir;
-
+  if (!vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0))->CheckValidity())
+  {
+    std::cerr << "Failed to CheckValidity." << endl;
+    return VTK_FAILURE;
+  }
   return VTK_SUCCESS;
 }

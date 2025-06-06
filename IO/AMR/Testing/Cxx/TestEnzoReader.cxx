@@ -89,9 +89,14 @@ int TestEnzoReader(int argc, char* argv[])
     rc += EnzoReaderTest::CheckValue("BLOCKS", myEnzoReader->GetNumberOfBlocks(), 10);
 
     amr = myEnzoReader->GetOutput();
-    amr->Audit();
     if (amr != nullptr)
     {
+      if (!amr->CheckValidity())
+      {
+        std::cerr << "ERROR: output AMR dataset is not valid!";
+        return 1;
+      }
+
       rc += EnzoReaderTest::CheckValue("OUTPUT LEVELS", ComputeMaxNonEmptyLevel(amr), level + 1);
       rc += EnzoReaderTest::CheckValue("NUMBER OF BLOCKS AT LEVEL",
         static_cast<int>(amr->GetNumberOfDataSets(level)), NumBlocksPerLevel[level]);

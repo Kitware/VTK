@@ -182,19 +182,23 @@ public:
   vtkAMRInformation* GetAMRInfo() override { return Superclass::GetAMRInfo(); }
   void SetAMRInfo(vtkAMRInformation* info) override { Superclass::SetAMRInfo(info); }
 
-  ///@{
+  /**
+   * Deprecated, forward to CheckValidity
+   */
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use CheckValidity")
+  void Audit();
+
   /**
    * Check whether the data set is internally consistent, e.g.
    * whether the meta data and actual data blocks match.
    * Incorrectness will be reported as error messages
    * Return true if correct, false otherwise.
    */
-  bool Audit();
+  [[nodiscard]] bool CheckValidity();
 
 protected:
   vtkOverlappingAMR();
   ~vtkOverlappingAMR() override;
-  ///@}
 
 private:
   vtkOverlappingAMR(const vtkOverlappingAMR&) = delete;
