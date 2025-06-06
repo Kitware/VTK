@@ -812,12 +812,19 @@ struct vtkProbeLineFilter::vtkInternals
           continue;
         }
 
-        vtkNew<vtkStaticCellLocator> locator;
-        locator->SetDataSet(ds);
-        locator->SetTolerance(tolerance);
-        locator->BuildLocator();
         vtkCellLocatorStrategy* strategy = vtkCellLocatorStrategy::New();
-        strategy->SetCellLocator(locator);
+        if (auto ps = vtkPointSet::SafeDownCast(ds))
+        {
+          strategy->Initialize(ps);
+        }
+        else
+        {
+          vtkNew<vtkStaticCellLocator> locator;
+          locator->SetDataSet(ds);
+          locator->SetTolerance(tolerance);
+          locator->BuildLocator();
+          strategy->SetCellLocator(locator);
+        }
 
         this->Strategies[ds] =
           vtkSmartPointer<vtkFindCellStrategy>::Take(static_cast<vtkFindCellStrategy*>(strategy));
