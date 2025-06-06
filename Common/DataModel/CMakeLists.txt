@@ -1,5 +1,8 @@
 set(classes
   vtkAMRBox
+  vtkAMRDataInternals
+  vtkAMRInformation
+  vtkAMRMetaData
   vtkAMRUtilities
   vtkAbstractCellArray
   vtkAbstractCellLinks
@@ -41,8 +44,8 @@ set(classes
   vtkCellGridBoundsQuery
   vtkCellGridCopyQuery
   vtkCellGridEvaluator
-  vtkCellGridRangeQuery
   vtkCellGridQuery
+  vtkCellGridRangeQuery
   vtkCellGridResponders
   vtkCellGridSidesCache
   vtkCellGridSidesQuery
@@ -112,16 +115,16 @@ set(classes
   vtkHigherOrderWedge
   vtkHyperTree
   vtkHyperTreeGrid
-  vtkHyperTreeGridLocator
   vtkHyperTreeGridGeometricLocator
+  vtkHyperTreeGridLocator
   vtkHyperTreeGridNonOrientedCursor
   vtkHyperTreeGridNonOrientedGeometryCursor
-  vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor
   vtkHyperTreeGridNonOrientedMooreSuperCursor
   vtkHyperTreeGridNonOrientedMooreSuperCursorLight
-  vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor
   vtkHyperTreeGridNonOrientedSuperCursor
   vtkHyperTreeGridNonOrientedSuperCursorLight
+  vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor
+  vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor
   vtkHyperTreeGridNonOrientedUnlimitedSuperCursor
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursor
   vtkHyperTreeGridNonOrientedVonNeumannSuperCursorLight
@@ -157,8 +160,8 @@ set(classes
   vtkLagrangeWedge
   vtkLine
   vtkLocator
-  vtkMarchingCubesTriangleCases
   vtkMarchingCubesPolygonCases
+  vtkMarchingCubesTriangleCases
   vtkMarchingSquaresLineCases
   vtkMeanValueCoordinatesInterpolator
   vtkMergePoints
@@ -169,10 +172,13 @@ set(classes
   vtkMutableUndirectedGraph
   vtkNonLinearCell
   vtkNonMergingPointLocator
+  vtkNonOverlappingAMR
   vtkOctreePointLocator
   vtkOctreePointLocatorNode
   vtkOrderedTriangulator
   vtkOutEdgeIterator
+  vtkOverlappingAMR
+  vtkOverlappingAMRMetaData
   vtkPartitionedDataSet
   vtkPartitionedDataSetCollection
   vtkPath
@@ -248,6 +254,8 @@ set(classes
   vtkTriangleStrip
   vtkUndirectedGraph
   vtkUniformGrid
+  vtkUniformGridAMR
+  vtkUniformGridAMRDataIterator
   vtkUniformHyperTreeGrid
   vtkUnstructuredGrid
   vtkUnstructuredGridBase
@@ -256,16 +264,7 @@ set(classes
   vtkVertexListIterator
   vtkVoxel
   vtkWedge
-  vtkXMLDataElement
-
-  # New classes for AMR
-  vtkAMRDataInternals
-  vtkAMRMetaData
-  vtkOverlappingAMRMetaData
-  vtkNonOverlappingAMR
-  vtkOverlappingAMR
-  vtkUniformGridAMR
-  vtkUniformGridAMRDataIterator)
+  vtkXMLDataElement)
 
 set(template_classes
   vtkAngularPeriodicDataArray

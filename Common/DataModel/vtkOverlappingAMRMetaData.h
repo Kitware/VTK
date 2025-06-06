@@ -198,9 +198,11 @@ public:
    */
   void DeepCopy(vtkOverlappingAMRMetaData* other);
 
-private:
+protected:
   vtkOverlappingAMRMetaData();
   ~vtkOverlappingAMRMetaData() override;
+
+private:
   vtkOverlappingAMRMetaData(const vtkOverlappingAMRMetaData&) = delete;
   void operator=(const vtkOverlappingAMRMetaData&) = delete;
 
