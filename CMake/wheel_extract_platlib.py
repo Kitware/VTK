@@ -30,7 +30,7 @@ try:
     api = b.build_platlib.replace('\\', '/')
 
     if not manual == api:
-        sys.stderr.write('mismatch with manual computation: "{}" vs. "{}"\n'.format(manual, api))
+        sys.stderr.write('mismatch with manual computation: "{}" (computed) vs. "{}" (distutils)\n'.format(manual, api))
 except ImportError:
     pass
 
