@@ -89,63 +89,126 @@ vtkQuadricDecimation::~vtkQuadricDecimation()
   this->TargetPoints->Delete();
 }
 
-void vtkQuadricDecimation::SetPointAttributeArray(vtkIdType ptId[2], const double* x)
+//------------------------------------------------------------------------------
+void vtkQuadricDecimation::SetPointCoordinates(vtkIdType ptId, const double* x)
 {
-  auto points = this->Mesh->GetPoints();
+  vtkPoints* points = this->Mesh->GetPoints();
   if (!points)
   {
     vtkErrorMacro("Points in internal mesh are not allocated");
     return;
   }
-
-  if (this->MapPointData || this->AttributeErrorMetric)
-  {
-    // calculate weights equivalent to projecting back to the initial edge and interpolating there
-    std::array<double, 3> pt = { 0 };
-    points->GetPoint(ptId[0], pt.data());
-    double weightBegin = sqrt(vtkMath::Distance2BetweenPoints(pt.data(), x));
-    points->GetPoint(ptId[1], pt.data());
-    double weightEnd = sqrt(vtkMath::Distance2BetweenPoints(pt.data(), x));
-    double norm = weightBegin + weightEnd;
-    weightBegin = 1. - weightBegin / norm;
-    weightEnd = 1. - weightEnd / norm;
-    // iterate over all arrays and apply edge interpolation
-    for (int iArr = 0; iArr < this->Mesh->GetPointData()->GetNumberOfArrays(); ++iArr)
-    {
-      auto dArray = this->Mesh->GetPointData()->GetArray(iArr);
-      if (!dArray)
-      {
-        continue;
-      }
-      else if (dArray->GetDataType() == VTK_ID_TYPE)
-      {
-        // do not interpolat Ids, simply keep the current one.
-        // this is usefull for Global Ids, Pedigree Ids and Original Ids arrays
-        continue;
-      }
-      std::vector<double> res(dArray->GetNumberOfComponents(), 0.0);
-      std::vector<double> buffer(dArray->GetNumberOfComponents(), 0.0);
-      dArray->GetTuple(ptId[0], res.data());
-      for (auto& val : res)
-      {
-        val *= weightBegin;
-      }
-      dArray->GetTuple(ptId[1], buffer.data());
-      for (auto& val : buffer)
-      {
-        val *= weightEnd;
-      }
-      for (std::size_t comp = 0; comp < res.size(); ++comp)
-      {
-        res[comp] += buffer[comp];
-      }
-      dArray->SetTuple(ptId[0], res.data());
-    }
-  }
-
-  points->SetPoint(ptId[0], x);
+  points->SetPoint(ptId, x);
 }
 
+//------------------------------------------------------------------------------
+void vtkQuadricDecimation::SetPointActiveAttributes(vtkIdType ptId, const double* x)
+{
+  if (!this->AttributeErrorMetric)
+  {
+    return;
+  }
+  for (int i = 0; i < this->NumberOfComponents; i++)
+  {
+    if (i < this->AttributeComponents[0])
+    {
+      this->Mesh->GetPointData()->GetScalars()->SetComponent(
+        ptId, i, x[3 + i] / this->AttributeScale[0]);
+    }
+    else if (i < this->AttributeComponents[1])
+    {
+      this->Mesh->GetPointData()->GetVectors()->SetComponent(
+        ptId, i - this->AttributeComponents[0], x[3 + i] / this->AttributeScale[1]);
+    }
+    else if (i < this->AttributeComponents[2])
+    {
+      this->Mesh->GetPointData()->GetNormals()->SetComponent(
+        ptId, i - this->AttributeComponents[1], x[3 + i] / this->AttributeScale[2]);
+    }
+    else if (i < this->AttributeComponents[3])
+    {
+      this->Mesh->GetPointData()->GetTCoords()->SetComponent(
+        ptId, i - this->AttributeComponents[2], x[3 + i] / this->AttributeScale[3]);
+    }
+    else if (i < this->AttributeComponents[4])
+    {
+      this->Mesh->GetPointData()->GetTensors()->SetComponent(
+        ptId, i - this->AttributeComponents[3], x[3 + i] / this->AttributeScale[4]);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkQuadricDecimation::SetPointAttributeArray(vtkIdType ptId[2], const double* x)
+{
+  if (!this->MapPointData)
+  {
+    return;
+  }
+  vtkPoints* points = this->Mesh->GetPoints();
+  if (!points)
+  {
+    vtkErrorMacro("Points in internal mesh are not allocated");
+    return;
+  }
+  // calculate weights equivalent to projecting back to the initial edge and interpolating there
+  std::array<double, 3> pt = { 0 };
+  points->GetPoint(ptId[0], pt.data());
+  double weightBegin = std::sqrt(vtkMath::Distance2BetweenPoints(pt.data(), x));
+  points->GetPoint(ptId[1], pt.data());
+  double weightEnd = std::sqrt(vtkMath::Distance2BetweenPoints(pt.data(), x));
+  double norm = weightBegin + weightEnd;
+  weightBegin = 1. - weightBegin / norm;
+  weightEnd = 1. - weightEnd / norm;
+
+  vtkPointData* pd = this->Mesh->GetPointData();
+  // iterate over all arrays and apply edge interpolation
+  for (int iArr = 0; iArr < pd->GetNumberOfArrays(); ++iArr)
+  {
+    vtkDataArray* dArray = pd->GetArray(iArr);
+    if (!dArray)
+    {
+      continue;
+    }
+    else if (this->AttributeErrorMetric &&
+      ((this->GetScalarsAttribute() && pd->GetScalars() == dArray) ||
+        (this->GetVectorsAttribute() && pd->GetVectors() == dArray) ||
+        (this->GetNormalsAttribute() && pd->GetNormals() == dArray) ||
+        (this->GetTCoordsAttribute() && pd->GetTCoords() == dArray) ||
+        (this->GetTensorsAttribute() && pd->GetTensors() == dArray)))
+    {
+      // Skip because array has already been correctly processed by
+      // SetPointActiveAttributes(vtkIdType, const double*)
+      continue;
+    }
+    else if (dArray->GetDataType() == VTK_ID_TYPE)
+    {
+      // do not interpolat Ids, simply keep the current one.
+      // this is usefull for Global Ids, Pedigree Ids and Original Ids arrays
+      continue;
+    }
+
+    std::vector<double> res(dArray->GetNumberOfComponents(), 0.0);
+    std::vector<double> buffer(dArray->GetNumberOfComponents(), 0.0);
+    dArray->GetTuple(ptId[0], res.data());
+    for (auto& val : res)
+    {
+      val *= weightBegin;
+    }
+    dArray->GetTuple(ptId[1], buffer.data());
+    for (auto& val : buffer)
+    {
+      val *= weightEnd;
+    }
+    for (std::size_t comp = 0; comp < res.size(); ++comp)
+    {
+      res[comp] += buffer[comp];
+    }
+    dArray->SetTuple(ptId[0], res.data());
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkQuadricDecimation::GetPointAttributeArray(vtkIdType ptId, double* x)
 {
   int i;
@@ -362,7 +425,10 @@ int vtkQuadricDecimation::RequestData(vtkInformation* vtkNotUsed(request),
     this->NumberOfEdgeCollapses++;
 
     // Set the new coordinates of point0.
+    this->SetPointActiveAttributes(endPtIds[0], x);
     this->SetPointAttributeArray(endPtIds, x);
+    this->SetPointCoordinates(endPtIds[0], x);
+
     vtkDebugMacro(<< "Cost: " << cost << " Edge: " << endPtIds[0] << " " << endPtIds[1]);
 
     // Merge the quadrics of the two points.
@@ -651,6 +717,7 @@ void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
   } // for all triangles
 }
 
+//------------------------------------------------------------------------------
 void vtkQuadricDecimation::AddBoundaryConstraints()
 {
   vtkPolyData* input = this->Mesh;
@@ -1240,6 +1307,7 @@ double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double* x)
   return cost;
 }
 
+//------------------------------------------------------------------------------
 int vtkQuadricDecimation::CollapseEdge(vtkIdType pt0Id, vtkIdType pt1Id)
 {
   int j, numDeleted = 0;
@@ -1333,6 +1401,7 @@ int vtkQuadricDecimation::TrianglePlaneCheck(
   }
 }
 
+//------------------------------------------------------------------------------
 int vtkQuadricDecimation::IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, const double* x)
 {
   vtkIdType ncells, i;
@@ -1390,6 +1459,7 @@ int vtkQuadricDecimation::IsGoodPlacement(vtkIdType pt0Id, vtkIdType pt1Id, cons
   return 1;
 }
 
+//------------------------------------------------------------------------------
 void vtkQuadricDecimation::ComputeNumberOfComponents()
 {
   vtkPointData* pd = this->Mesh->GetPointData();
