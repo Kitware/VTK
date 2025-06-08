@@ -103,12 +103,12 @@ void vtkQuadricDecimation::SetPointAttributeArray(vtkIdType ptId[2], const doubl
     // calculate weights equivalent to projecting back to the initial edge and interpolating there
     std::array<double, 3> pt = { 0 };
     points->GetPoint(ptId[0], pt.data());
-    double weightBegin = vtkMath::Distance2BetweenPoints(pt.data(), x);
+    double weightBegin = sqrt(vtkMath::Distance2BetweenPoints(pt.data(), x));
     points->GetPoint(ptId[1], pt.data());
-    double weightEnd = vtkMath::Distance2BetweenPoints(pt.data(), x);
+    double weightEnd = sqrt(vtkMath::Distance2BetweenPoints(pt.data(), x));
     double norm = weightBegin + weightEnd;
-    weightBegin /= norm;
-    weightEnd /= norm;
+    weightBegin = 1. - weightBegin / norm;
+    weightEnd = 1. - weightEnd / norm;
     // iterate over all arrays and apply edge interpolation
     for (int iArr = 0; iArr < this->Mesh->GetPointData()->GetNumberOfArrays(); ++iArr)
     {
