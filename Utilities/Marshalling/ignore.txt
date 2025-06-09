@@ -268,8 +268,6 @@ Common/DataModel/vtkDataObjectTypes.h
 Common/DataModel/vtkDataSetAttributesFieldList.h
 Common/DataModel/vtkDataSetCellIterator.h
 Common/DataModel/vtkDataSetCollection.h
-Common/DataModel/vtkDirectedAcyclicGraph.h
-Common/DataModel/vtkDirectedGraph.h
 Common/DataModel/vtkDistributedGraphHelper.h
 Common/DataModel/vtkEdgeListIterator.h
 Common/DataModel/vtkEdgeTable.h
@@ -433,7 +431,6 @@ Common/DataModel/vtkStructuredExtent.h
 Common/DataModel/vtkStructuredPointsCollection.h
 Common/DataModel/vtkSuperquadric.h
 Common/DataModel/vtkTetra.h
-Common/DataModel/vtkTree.h
 Common/DataModel/vtkTreeBFSIterator.h
 Common/DataModel/vtkTreeDFSIterator.h
 Common/DataModel/vtkTreeIterator.h
@@ -441,7 +438,6 @@ Common/DataModel/vtkTriQuadraticHexahedron.h
 Common/DataModel/vtkTriQuadraticPyramid.h
 Common/DataModel/vtkTriangle.h
 Common/DataModel/vtkTriangleStrip.h
-Common/DataModel/vtkUndirectedGraph.h
 Common/DataModel/vtkUniformGridAMR.h
 Common/DataModel/vtkUniformGridAMRDataIterator.h
 Common/DataModel/vtkUniformHyperTreeGrid.h
@@ -702,7 +698,6 @@ Rendering/Core/vtkGPUInfo.h
 Rendering/Core/vtkGPUInfoList.h
 Rendering/Core/vtkGPUInfoListArray.h
 Rendering/Core/vtkGenericVertexAttributeMapping.h
-Rendering/Core/vtkGraphMapper.h
 Rendering/Core/vtkGraphToGlyphs.h
 Rendering/Core/vtkGraphicsFactory.h
 Rendering/Core/vtkHardwareSelector.h

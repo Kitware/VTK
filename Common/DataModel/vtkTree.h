@@ -32,11 +32,12 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDirectedAcyclicGraph.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkTree : public vtkDirectedAcyclicGraph
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkTree : public vtkDirectedAcyclicGraph
 {
 public:
   static vtkTree* New();
@@ -53,6 +54,7 @@ public:
    * Get the root vertex of the tree.
    */
   vtkGetMacro(Root, vtkIdType);
+  vtkSetMacro(Root, vtkIdType);
   ///@}
 
   /**

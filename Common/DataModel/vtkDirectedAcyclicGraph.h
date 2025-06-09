@@ -32,11 +32,12 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDirectedGraph.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkDirectedAcyclicGraph : public vtkDirectedGraph
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkDirectedAcyclicGraph : public vtkDirectedGraph
 {
 public:
   static vtkDirectedAcyclicGraph* New();

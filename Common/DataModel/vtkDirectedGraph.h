@@ -24,9 +24,10 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkGraph.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONDATAMODEL_EXPORT vtkDirectedGraph : public vtkGraph
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkDirectedGraph : public vtkGraph
 {
 public:
   static vtkDirectedGraph* New();
