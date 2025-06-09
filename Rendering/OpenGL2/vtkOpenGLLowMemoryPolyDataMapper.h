@@ -186,6 +186,8 @@ protected:
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
   void ReplaceShaderTCoord(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
+  void ReplaceShaderClip(
+    vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
   void SetShaderParameters(vtkRenderer* renderer, vtkActor* actor);
   // compute and set the maximum point and cell ID used in selection
   void UpdateMaximumPointCellIds(vtkRenderer* ren, vtkActor* actor);
@@ -319,6 +321,8 @@ private:
   friend class vtkOpenGLLowMemoryVerticesAgent;
   friend class vtkOpenGLLowMemoryLinesAgent;
   friend class vtkOpenGLLowMemoryPolygonsAgent;
+
+  vtkNew<vtkMatrix4x4> TempMatrix4;
 };
 
 VTK_ABI_NAMESPACE_END
