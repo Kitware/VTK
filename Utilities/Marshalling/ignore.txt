@@ -290,7 +290,6 @@ Common/DataModel/vtkGenericInterpolatedVelocityField.h
 Common/DataModel/vtkGenericPointIterator.h
 Common/DataModel/vtkGenericSubdivisionErrorMetric.h
 Common/DataModel/vtkGeometricErrorMetric.h
-Common/DataModel/vtkGraph.h
 Common/DataModel/vtkGraphEdge.h
 Common/DataModel/vtkGraphInternals.h
 Common/DataModel/vtkHexagonalPrism.h

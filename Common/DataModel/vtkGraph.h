@@ -196,6 +196,8 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
+#include "vtkNew.h"           // For vtkNew
+#include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 // Forward declare some boost stuff even if boost wrappers
 // are turned off.
@@ -271,7 +273,7 @@ struct vtkEdgeType : vtkEdgeBase
   vtkIdType Target;
 };
 
-class VTKCOMMONDATAMODEL_EXPORT vtkGraph : public vtkDataObject
+class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALMANUAL vtkGraph : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkGraph, vtkDataObject);
@@ -782,8 +784,8 @@ protected:
   /**
    * The vertex and edge data.
    */
-  vtkDataSetAttributes* VertexData;
-  vtkDataSetAttributes* EdgeData;
+  vtkNew<vtkDataSetAttributes> VertexData;
+  vtkNew<vtkDataSetAttributes> EdgeData;
   ///@}
 
   /**

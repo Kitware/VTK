@@ -338,6 +338,7 @@ if (VTK_WRAP_SERIALIZATION)
     vtkCellArraySerDesHelper.cxx
     vtkDataSetAttributesSerDesHelper.cxx
     vtkFieldDataSerDesHelper.cxx
+    vtkGraphSerDesHelper.cxx
     vtkMultiBlockDataSetSerDesHelper.cxx
     vtkPartitionedDataSetSerDesHelper.cxx
     vtkPartitionedDataSetCollectionSerDesHelper.cxx
