@@ -23,6 +23,7 @@
 #define vtkBarChartActor_h
 
 #include "vtkActor2D.h"
+#include "vtkNew.h"                       // For vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
@@ -129,6 +130,7 @@ public:
    */
   void SetBarLabel(int i, const char*);
   const char* GetBarLabel(int i);
+  int GetNumberOfBarLabels();
   ///@}
 
   ///@{
@@ -194,7 +196,7 @@ private:
   vtkTextProperty* LabelTextProperty;
   vtkBarLabelArray* Labels;
   vtkTypeBool LegendVisibility;
-  vtkLegendBoxActor* LegendActor;
+  vtkNew<vtkLegendBoxActor> LegendActor;
   vtkGlyphSource2D* GlyphSource;
 
   // Local variables needed to plot

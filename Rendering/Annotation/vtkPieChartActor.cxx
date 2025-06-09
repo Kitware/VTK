@@ -82,7 +82,6 @@ vtkPieChartActor::vtkPieChartActor()
 
   this->LegendVisibility = 1;
 
-  this->LegendActor = vtkLegendBoxActor::New();
   this->LegendActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
@@ -136,7 +135,6 @@ vtkPieChartActor::~vtkPieChartActor()
   this->SetLabelTextProperty(nullptr);
   this->SetTitleTextProperty(nullptr);
 
-  this->LegendActor->Delete();
   this->GlyphSource->Delete();
 
   this->Initialize();
@@ -664,6 +662,12 @@ const char* vtkPieChartActor::GetPieceLabel(int i)
   }
 
   return this->Labels->at(i).c_str();
+}
+
+//------------------------------------------------------------------------------
+int vtkPieChartActor::GetNumberOfPieceLabels()
+{
+  return static_cast<int>(this->Labels->size());
 }
 
 //------------------------------------------------------------------------------

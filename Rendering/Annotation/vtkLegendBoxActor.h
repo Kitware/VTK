@@ -91,6 +91,10 @@ public:
   const char* GetEntryString(int i);
   double* GetEntryColor(int i) VTK_SIZEHINT(3);
 
+  int GetNumberOfEntrySymbols() { return NumberOfEntries; }
+  int GetNumberOfEntryColors() { return NumberOfEntries; }
+  int GetNumberOfEntryStrings() { return NumberOfEntries; }
+  int GetNumberOfEntryIcons() { return NumberOfEntries; }
   ///@{
   /**
    * Set/Get the text property.

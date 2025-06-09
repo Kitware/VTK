@@ -70,7 +70,6 @@ vtkBarChartActor::vtkBarChartActor()
 
   this->LegendVisibility = 1;
 
-  this->LegendActor = vtkLegendBoxActor::New();
   this->LegendActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
@@ -132,7 +131,6 @@ vtkBarChartActor::~vtkBarChartActor()
   this->SetLabelTextProperty(nullptr);
   this->SetTitleTextProperty(nullptr);
 
-  this->LegendActor->Delete();
   this->GlyphSource->Delete();
 
   this->Initialize();
@@ -613,6 +611,12 @@ const char* vtkBarChartActor::GetBarLabel(int i)
   }
 
   return this->Labels->at(i).c_str();
+}
+
+//------------------------------------------------------------------------------
+int vtkBarChartActor::GetNumberOfBarLabels()
+{
+  return static_cast<int>(this->Labels->size());
 }
 
 //------------------------------------------------------------------------------

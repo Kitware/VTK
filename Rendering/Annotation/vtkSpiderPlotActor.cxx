@@ -104,7 +104,6 @@ vtkSpiderPlotActor::vtkSpiderPlotActor()
 
   this->LegendVisibility = 1;
 
-  this->LegendActor = vtkLegendBoxActor::New();
   this->LegendActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
@@ -159,7 +158,6 @@ vtkSpiderPlotActor::~vtkSpiderPlotActor()
   this->SetLabelTextProperty(nullptr);
   this->SetTitleTextProperty(nullptr);
 
-  this->LegendActor->Delete();
   this->GlyphSource->Delete();
 
   this->Initialize();
@@ -848,6 +846,12 @@ const char* vtkSpiderPlotActor::GetAxisLabel(int i)
 }
 
 //------------------------------------------------------------------------------
+int vtkSpiderPlotActor::GetNumberOfAxisLabels()
+{
+  return static_cast<int>(this->Labels->size());
+}
+
+//------------------------------------------------------------------------------
 void vtkSpiderPlotActor::SetAxisRange(int i, double min, double max)
 {
   if (i < 0)
@@ -880,6 +884,12 @@ void vtkSpiderPlotActor::GetAxisRange(int i, double range[2])
   vtkAxisRange arange = this->Ranges->at(i);
   range[0] = arange.Min;
   range[1] = arange.Max;
+}
+
+//------------------------------------------------------------------------------
+int vtkSpiderPlotActor::GetNumberOfAxisRanges()
+{
+  return static_cast<int>(this->Ranges->size());
 }
 
 //------------------------------------------------------------------------------
