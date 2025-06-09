@@ -485,7 +485,10 @@ vtkLabelPlacementMapper::vtkLabelPlacementMapper()
 //------------------------------------------------------------------------------
 vtkLabelPlacementMapper::~vtkLabelPlacementMapper()
 {
-  this->AnchorTransform->Delete();
+  if (this->AnchorTransform)
+  {
+    this->AnchorTransform->Delete();
+  }
   delete this->Buckets;
   this->VisiblePoints->Delete();
   if (this->RenderStrategy)

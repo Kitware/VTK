@@ -181,9 +181,10 @@ public:
 
   ///@{
   /**
-   * Get the transform for the anchor points.
+   * Get/Set the transform for the anchor points.
    */
   vtkGetObjectMacro(AnchorTransform, vtkCoordinate);
+  virtual void SetAnchorTransform(vtkCoordinate*);
   ///@}
 
   /**
@@ -196,8 +197,6 @@ public:
 protected:
   vtkLabelPlacementMapper();
   ~vtkLabelPlacementMapper() override;
-
-  virtual void SetAnchorTransform(vtkCoordinate*);
 
   int FillInputPortInformation(int port, vtkInformation* info) override;
 

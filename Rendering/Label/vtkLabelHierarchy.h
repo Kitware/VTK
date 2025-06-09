@@ -92,7 +92,7 @@ public:
   /**
    * The maximum depth of the octree.
    */
-  vtkSetMacro(MaximumDepth, int);
+  virtual void SetMaximumDepth(int depth);
   vtkGetMacro(MaximumDepth, int);
   ///@}
 
