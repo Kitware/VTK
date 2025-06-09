@@ -523,6 +523,12 @@ public:
   vtkBooleanMacro(UnconstrainedFontSize, bool);
   ///@}
 
+  /**
+   * Set the PositionCoordinate instance of vtkCoordinate.
+   * The position variable controls the lower left corner of the ScalarBarActor.
+   */
+  void SetPositionCoordinate(vtkCoordinate* pos) override;
+
 protected:
   vtkScalarBarActor();
   ~vtkScalarBarActor() override;
