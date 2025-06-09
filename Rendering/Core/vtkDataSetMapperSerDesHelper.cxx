@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDataSetMapper.h"
 #include "vtkDeserializer.h"
+#include "vtkGeometryFilter.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkSerializer.h"
@@ -32,12 +33,26 @@ static nlohmann::json Serialize_vtkDataSetMapper(
     state = f(object, serializer);
   }
   state["SuperClassNames"].push_back("vtkMapper");
-  if (auto polyDataMapper = object->GetPolyDataMapper())
+  if (object->GetInput()->IsA("vtkPolyData"))
+  {
+    state["ExtractedPolyData"] = serializer->SerializeJSON(object->GetInput());
+  }
+  else if (auto polyDataMapper = object->GetPolyDataMapper())
   {
     auto* inputAlgorithm = polyDataMapper->GetInputAlgorithm();
     inputAlgorithm->Update(0);
     auto* polyData = inputAlgorithm->GetOutputDataObject(0);
     if (polyData)
+    {
+      state["ExtractedPolyData"] = serializer->SerializeJSON(polyData);
+    }
+  }
+  else
+  {
+    vtkNew<vtkGeometryFilter> geomFilter;
+    geomFilter->SetInputData(object->GetInput());
+    geomFilter->Update();
+    if (auto* polyData = geomFilter->GetOutputDataObject(0))
     {
       state["ExtractedPolyData"] = serializer->SerializeJSON(polyData);
     }
