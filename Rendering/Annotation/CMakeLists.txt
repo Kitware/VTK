@@ -33,8 +33,16 @@ set(private_classes
 set(nowrap_headers
   vtkScalarBarActorInternal.h)
 
+# Hand written (de)serialization routines
+set(serialization_helper_sources)
+if (VTK_WRAP_SERIALIZATION)
+  list(APPEND serialization_helper_sources
+    vtkXYPlotActorSerDesHelper.cxx)
+endif ()
+
 vtk_module_add_module(VTK::RenderingAnnotation
   CLASSES ${classes}
   PRIVATE_CLASSES ${private_classes}
+  SOURCES ${serialization_helper_sources}
   NOWRAP_HEADERS ${nowrap_headers})
 vtk_add_test_mangling(VTK::RenderingAnnotation)

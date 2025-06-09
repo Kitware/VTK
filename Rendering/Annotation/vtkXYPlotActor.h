@@ -114,7 +114,7 @@ class vtkTextActor;
 class vtkTextMapper;
 class vtkTextProperty;
 
-class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALAUTO vtkXYPlotActor : public vtkActor2D
+class VTKRENDERINGANNOTATION_EXPORT VTK_MARSHALMANUAL vtkXYPlotActor : public vtkActor2D
 {
 public:
   vtkTypeMacro(vtkXYPlotActor, vtkActor2D);
@@ -895,8 +895,8 @@ protected:
   vtkActor2D* TitleActor;
   vtkTextProperty* TitleTextProperty;
 
-  vtkAxisActor2D* XAxis;
-  vtkAxisActor2D* YAxis;
+  vtkNew<vtkAxisActor2D> XAxis;
+  vtkNew<vtkAxisActor2D> YAxis;
 
   vtkTextProperty* AxisTitleTextProperty;
   vtkTextProperty* AxisLabelTextProperty;
@@ -927,7 +927,7 @@ protected:
   vtkTypeBool Legend;
   double LegendPosition[2];
   double LegendPosition2[2];
-  vtkLegendBoxActor* LegendActor;
+  vtkNew<vtkLegendBoxActor> LegendActor;
   vtkGlyphSource2D* GlyphSource;
   vtkPlanes* ClipPlanes;
   double GlyphSize;

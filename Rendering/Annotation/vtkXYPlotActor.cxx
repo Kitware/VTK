@@ -124,12 +124,10 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->TitleActor->SetMapper(this->TitleMapper);
   this->TitleActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
 
-  this->XAxis = vtkAxisActor2D::New();
   this->XAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->XAxis->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->XAxis->SetProperty(this->GetProperty());
 
-  this->YAxis = vtkAxisActor2D::New();
   this->YAxis->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->YAxis->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->YAxis->SetProperty(this->GetProperty());
@@ -169,7 +167,6 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->LegendPosition[1] = .75;
   this->LegendPosition2[0] = .15;
   this->LegendPosition2[1] = .20;
-  this->LegendActor = vtkLegendBoxActor::New();
   this->LegendActor->GetPositionCoordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetCoordinateSystemToViewport();
   this->LegendActor->GetPosition2Coordinate()->SetReferenceCoordinate(nullptr);
@@ -301,12 +298,8 @@ vtkXYPlotActor::~vtkXYPlotActor()
   this->SetXLabelFormat(nullptr);
   this->SetYLabelFormat(nullptr);
 
-  this->XAxis->Delete();
-  this->YAxis->Delete();
-
   this->InitializeEntries();
 
-  this->LegendActor->Delete();
   this->GlyphSource->Delete();
   this->ClipPlanes->Delete();
 
