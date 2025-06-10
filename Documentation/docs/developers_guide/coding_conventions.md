@@ -43,7 +43,7 @@ rules that say "All code".
 1. Init-statement in a condition like `if ( int i = 0; ... )` is  allowed except for modifying an existing variable outside the conditional clause.
      Rationale: Readability
 
-1. Only alphanumeric characters in names. Use capitalization to demarcate words within a name (i.e., camel case). Preprocessor variables are the exception, and should be in all caps with a single underscore to demarcate words.
+1. Only alphanumeric characters in names. Use capitalization to demarcate words within a name (i.e., camel case). Use pascal case for `static` variables. Preprocessor variables are the exception, and should be in all caps with a single underscore to demarcate words.
 
    Rationale: Readability
 
