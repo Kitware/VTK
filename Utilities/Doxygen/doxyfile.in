@@ -201,14 +201,10 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                    virtual vtkObjectBase *NewInstanceInternal() const; \
                    public: \
                    thisClass *NewInstance() const;" \
-               "VTK_LEGACY(x)= x" \
-               "VTK_NEWINSTANCE=" \
-               "VTK_ZEROCOPY=" \
-               "VTK_EXPECTS(x)=" \
-               "VTK_SIZEHINT(...)=" \
-               "VTK_MARSHALEXCLUDE(reason)=" \
-               "VTK_MARSHALGETTER(pname)=" \
-               "VTK_MARSHALSETTER(pname)=" \
+               "vtkNotUsed(x)= x" \
+               "DOXYGEN_SHOULD_SKIP_THIS" \
+               "VTK_ABI_NAMESPACE_BEGIN=" \
+               "VTK_ABI_NAMESPACE_END=" \
                "VTK_DEPRECATED_IN_8_2_0(msg)=" \
                "VTK_DEPRECATED_IN_9_0_0(msg)=" \
                "VTK_DEPRECATED_IN_9_1_0(msg)=" \
@@ -216,6 +212,16 @@ PREDEFINED  = "vtkSetMacro(name,type)= \
                "VTK_DEPRECATED_IN_9_3_0(msg)=" \
                "VTK_DEPRECATED_IN_9_4_0(msg)=" \
                "VTK_DEPRECATED_IN_9_5_0(msg)=" \
-               "DOXYGEN_SHOULD_SKIP_THIS" \
-               "VTK_ABI_NAMESPACE_BEGIN=" \
-               "VTK_ABI_NAMESPACE_END="
+               "VTK_EXPECTS(x)=" \
+               "VTK_FILEPATH=" \
+               "VTK_LEGACY(x)= x" \
+               "VTK_MARSHALAUTO=" \
+               "VTK_MARSHALEXCLUDE(reason)=" \
+               "VTK_MARSHALGETTER(pname)=" \
+               "VTK_MARSHALMANUAL=" \
+               "VTK_MARSHALSETTER(pname)=" \
+               "VTK_NEWINSTANCE=" \
+               "VTK_PROPEXCLUDE=" \
+               "VTK_SIZEHINT(...)=" \
+               "VTK_UNBLOCKTHREADS=" \
+               "VTK_ZEROCOPY="
