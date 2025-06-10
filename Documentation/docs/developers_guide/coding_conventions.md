@@ -244,7 +244,7 @@ rules that say "All code".
 
 * [*attributes*](http://en.cppreference.com/w/cpp/language/attributes)  The use of attribute is encouraged and should be used wisely depending on the attribute:
   - [*fallthough*](https://en.cppreference.com/w/cpp/language/attributes/fallthrough.html) should be used instead of `VTK_FALLTHROUGH`.
-  - [*maybe_unused*](https://en.cppreference.com/w/cpp/language/attributes/maybe_unused.html) should be used instead of `vtkMaybeUnused`.
+  - [*maybe_unused*](https://en.cppreference.com/w/cpp/language/attributes/maybe_unused.html) should be used.
   - [*nodiscard*](https://en.cppreference.com/w/cpp/language/attributes/nodiscard.html) should be used.
 
 * [*std::optional*](https://en.cppreference.com/w/cpp/utility/optional.html) should be used for returned value of method to simplify method signature and to factorize code.
