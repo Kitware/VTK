@@ -54,6 +54,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestMeshMTime.cxx
   TestNonOverlappingAMR.cxx
   TestOverlappingAMR.cxx
+  TestOverlappingAMRDeprecated.cxx
   TestPath.cxx
   TestPentagonalPrism.cxx
   TestPiecewiseFunction.cxx
