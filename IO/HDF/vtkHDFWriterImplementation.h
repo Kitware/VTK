@@ -15,6 +15,7 @@
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFUtilities.h"
 #include "vtkHDFWriter.h"
+#include "vtkType.h"
 
 #include <array>
 #include <string>
@@ -228,7 +229,7 @@ public:
    * Creates a dataset and write a value to it.
    * Returned scoped handle may be invalid
    */
-  vtkHDF::ScopedH5DHandle CreateSingleValueDataset(hid_t group, const char* name, int value);
+  vtkHDF::ScopedH5DHandle CreateSingleValueDataset(hid_t group, const char* name, vtkIdType value);
   ///@}
 
   /**
@@ -245,13 +246,13 @@ public:
    * of appending it to the dataset.
    * Return true if the write operation was successful.
    */
-  bool AddSingleValueToDataset(hid_t dataset, int value, bool offset, bool trim = false);
+  bool AddSingleValueToDataset(hid_t dataset, vtkIdType value, bool offset, bool trim = false);
 
   /**
    * Add a 2D value of integer type to an existing dataspace which represents the FieldDataSize.
    * Return true if the write operation was successful.
    */
-  bool AddFieldDataSizeValueToDataset(hid_t dataset, int* value, int size, bool offset);
+  bool AddFieldDataSizeValueToDataset(hid_t dataset, vtkIdType* value, vtkIdType size, bool offset);
 
   /**
    * Append a full data array at the end of an existing infinite dataspace.
@@ -278,7 +279,7 @@ public:
    * Return true if the operation is successful.
    */
   bool AddOrCreateSingleValueDataset(
-    hid_t group, const char* name, int value, bool offset = false, bool trim = false);
+    hid_t group, const char* name, vtkIdType value, bool offset = false, bool trim = false);
 
   /**
    * Append a 2D integer value to the dataset with name `FieldDataSize`.
@@ -288,7 +289,7 @@ public:
    * Return true if the operation is successful.
    */
   bool AddOrCreateFieldDataSizeValueDataset(
-    hid_t group, const char* name, int* value, int size, bool offset = false);
+    hid_t group, const char* name, vtkIdType* value, vtkIdType size, bool offset = false);
 
   /**
    * Find the first non null part for the given path in all subfiles.
