@@ -18,7 +18,6 @@ vtkStandardNewMacro(vtkContextTransform);
 vtkContextTransform::vtkContextTransform()
   : ZoomAnchor(0.0f, 0.0f)
 {
-  this->Transform = vtkSmartPointer<vtkTransform2D>::New();
   this->PanMouseButton = vtkContextMouseEvent::LEFT_BUTTON;
   this->PanModifier = vtkContextMouseEvent::NO_MODIFIER;
   this->ZoomMouseButton = vtkContextMouseEvent::RIGHT_BUTTON;
