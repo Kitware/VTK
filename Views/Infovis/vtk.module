@@ -16,6 +16,7 @@ SPDX_CUSTOM_LICENSE_NAME
 LICENSE_FILES
   LICENSE
 DEPENDS
+  VTK::ChartsCore
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::CommonExecutionModel
@@ -23,7 +24,6 @@ DEPENDS
   VTK::RenderingContext2D
   VTK::ViewsCore
 PRIVATE_DEPENDS
-  VTK::ChartsCore
   VTK::CommonColor
   VTK::CommonTransforms
   VTK::FiltersCore
@@ -53,3 +53,4 @@ TEST_DEPENDS
   VTK::RenderingContextOpenGL2
   VTK::TestingRendering
   VTK::ViewsContext2D
+INCLUDE_MARSHAL

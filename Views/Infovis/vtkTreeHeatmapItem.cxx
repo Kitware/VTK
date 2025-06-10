@@ -176,6 +176,18 @@ void vtkTreeHeatmapItem::SetDendrogram(vtkDendrogramItem* dendrogram)
 }
 
 //------------------------------------------------------------------------------
+vtkDendrogramItem* vtkTreeHeatmapItem::GetColumnDendrogram()
+{
+  return this->ColumnDendrogram;
+}
+
+//------------------------------------------------------------------------------
+void vtkTreeHeatmapItem::SetColumnDendrogram(vtkDendrogramItem* dendrogram)
+{
+  this->ColumnDendrogram = dendrogram;
+}
+
+//------------------------------------------------------------------------------
 vtkHeatmapItem* vtkTreeHeatmapItem::GetHeatmap()
 {
   return this->Heatmap;

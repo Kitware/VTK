@@ -468,3 +468,7 @@ Views/Core/vtkEmptyRepresentation.h
 Views/Core/vtkRenderViewBase.h
 Views/Core/vtkView.h
 Views/Core/vtkViewTheme.h
+Views/Infovis/vtkDendrogramItem.h
+Views/Infovis/vtkHeatmapItem.h
+Views/Infovis/vtkTanglegramItem.h
+Views/Infovis/vtkTreeHeatmapItem.h

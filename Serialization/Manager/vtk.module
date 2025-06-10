@@ -35,6 +35,7 @@ OPTIONAL_DEPENDS
   VTK::RenderingVolumeOpenGL2
   VTK::ViewsCore
   VTK::ViewsContext2D
+  VTK::ViewsInfovis
 TEST_DEPENDS
   VTK::TestingCore
   VTK::TestingSerialization

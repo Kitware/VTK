@@ -102,6 +102,9 @@ void vtkDendrogramItem::SetTree(vtkTree* tree)
 
   this->Tree = tree;
 
+  vtkSmartPointer<vtkUnsignedIntArray> originalVertexIsPruned =
+    vtkArrayDownCast<vtkUnsignedIntArray>(this->Tree->GetVertexData()->GetArray("VertexIsPruned"));
+
   // initialize some additional arrays for the tree's vertex data
   vtkNew<vtkUnsignedIntArray> vertexIsPruned;
   vertexIsPruned->SetNumberOfComponents(1);
@@ -123,6 +126,19 @@ void vtkDendrogramItem::SetTree(vtkTree* tree)
 
   // make a copy of the full tree for later pruning
   this->PrunedTree->DeepCopy(this->Tree);
+
+  // If the tree already had an array named VertexIsPruned,
+  // use that array to construct the pruned tree.
+  if (originalVertexIsPruned)
+  {
+    for (vtkIdType i = 0; i < originalVertexIsPruned->GetNumberOfValues(); ++i)
+    {
+      if (originalVertexIsPruned->GetValue(i))
+      {
+        this->CollapseSubTree(i);
+      }
+    }
+  }
 
   // setup the lookup table that's used to color the triangles representing
   // collapsed subtrees.  First we find maximum possible value.
