@@ -242,6 +242,7 @@ Common/DataModel/vtkCellLinks.h
 Common/DataModel/vtkCellLocator.h
 Common/DataModel/vtkCellLocatorStrategy.h
 Common/DataModel/vtkCellMetadata.h
+Common/DataModel/vtkCellStatus.h
 Common/DataModel/vtkCellTreeLocator.h
 Common/DataModel/vtkCellType.h
 Common/DataModel/vtkCellTypes.h
@@ -506,7 +507,6 @@ Common/ExecutionModel/vtkStructuredGridAlgorithm.h
 Common/ExecutionModel/vtkTableAlgorithm.h
 Common/ExecutionModel/vtkTemporalAlgorithm.h
 Common/ExecutionModel/vtkThreadedCompositeDataPipeline.h
-Common/ExecutionModel/vtkThreadedImageAlgorithm.h
 Common/ExecutionModel/vtkTimeRange.h
 Common/ExecutionModel/vtkTreeAlgorithm.h
 Common/ExecutionModel/vtkTrivialConsumer.h
@@ -709,7 +709,6 @@ Rendering/Core/vtkLabeledDatatypeDefinitions.h
 Rendering/Core/vtkLightKit.h
 Rendering/Core/vtkLookupTableWithEnabling.h
 Rendering/Core/vtkMapArrayValues.h
-Rendering/Core/vtkMapperCollection.h
 Rendering/Core/vtkNoise200x200.h
 Rendering/Core/vtkObserverMediator.h
 Rendering/Core/vtkPickingManager.h

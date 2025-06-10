@@ -308,6 +308,7 @@ Rendering/Core/vtkLightCollection.h
 Rendering/Core/vtkLogLookupTable.h
 Rendering/Core/vtkMapper.h
 Rendering/Core/vtkMapper2D.h
+Rendering/Core/vtkMapperCollection.h
 Rendering/Core/vtkPicker.h
 Rendering/Core/vtkPointGaussianMapper.h
 Rendering/Core/vtkPointPicker.h
