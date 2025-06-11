@@ -104,7 +104,7 @@ public:
   /**
    * Process all user-interaction, timer events and return.
    * If there are no events, this method returns immediately.
-   * This method is implemented only on desktop (macOS, linux, windows) and WebAssembly (SDL2).
+   * This method is implemented only on desktop (macOS, linux, windows) and WebAssembly.
    * It is not implemented on iOS and Android platforms.
    */
   virtual void ProcessEvents() {}

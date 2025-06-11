@@ -21,7 +21,6 @@
 #define vtkQuadraturePointsGenerator_h
 
 #include "vtkDataSetAlgorithm.h"
-#include "vtkDeprecation.h"          // for deprecation
 #include "vtkFiltersGeneralModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -43,20 +42,13 @@ protected:
   int RequestData(
     vtkInformation* req, vtkInformationVector** input, vtkInformationVector* output) override;
 
-  ///@{
   /**
    * Generate the point set .
    */
   int Generate(vtkDataSet* datasetIn, vtkDataArray* offsets, vtkPolyData* pdOut);
-  VTK_DEPRECATED_IN_9_4_0("Uses the vtkDataSet version instead.")
-  int Generate(vtkUnstructuredGrid* usgIn, vtkDataArray* offsets, vtkPolyData* pdOut);
-  ///@}
 
   int GenerateField(
     vtkDataSet* datasetIn, vtkDataArray* data, vtkDataArray* offsets, vtkPolyData* pdOut);
-  VTK_DEPRECATED_IN_9_4_0("Uses the vtkDataSet version instead.")
-  int GenerateField(
-    vtkUnstructuredGrid* usgIn, vtkDataArray* data, vtkDataArray* offsets, vtkPolyData* pdOut);
 
   vtkQuadraturePointsGenerator();
   ~vtkQuadraturePointsGenerator() override;

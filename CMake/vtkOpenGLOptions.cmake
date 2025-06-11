@@ -23,14 +23,6 @@ cmake_dependent_option(VTK_USE_WIN32_OPENGL "Use Win32 APIs for VTK render windo
   "WIN32" OFF)
 mark_as_advanced(VTK_USE_WIN32_OPENGL)
 
-set(default_use_sdl2 OFF)
-# VTK_DEPRECATED_IN_9_4_0() Remove option when vtkSDL2OpenGLRenderWindow and vtkSDL2WebGPURenderWindow are removed.
-option(VTK_USE_SDL2 "Add SDL2 classes to VTK. This option will soon be removed" "${default_use_sdl2}")
-mark_as_advanced(VTK_USE_SDL2)
-if (VTK_USE_SDL2)
-  message(WARNING "You are using a soon to be deprecated flag. The VTK_USE_SDL2 option is marked for deprecation in VTK 9.4!")
-endif ()
-
 # For optional APIs that could be available for the OpenGL implementation
 # being used, we define VTK_OPENGL_HAS_<feature> options. These are not to be
 # treated as mutually exclusive.
@@ -81,10 +73,10 @@ set(vtk_can_do_onscreen FALSE)
 # neither the hardware accelerated on/offscreen backends, nor the software-only backends are available.
 set(vtk_can_do_headless TRUE)
 
-if (VTK_USE_WIN32_OPENGL OR VTK_OPENGL_HAS_EGL OR VTK_USE_SDL2)
+if (VTK_USE_WIN32_OPENGL OR VTK_OPENGL_HAS_EGL)
   set(vtk_can_do_offscreen TRUE)
 endif ()
-if (VTK_USE_WIN32_OPENGL OR VTK_USE_COCOA OR VTK_USE_X OR VTK_USE_SDL2) # XXX: See error message below.
+if (VTK_USE_WIN32_OPENGL OR VTK_USE_COCOA OR VTK_USE_X) # XXX: See error message below.
   set(vtk_can_do_onscreen TRUE)
 endif ()
 
@@ -97,11 +89,8 @@ endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(vtk_can_do_headless FALSE)
-  # VTK_DEPRECATED_IN_9_4_0() Unconditionally set both variables to TRUE after VTK_USE_SDL2 is removed.
-  if (NOT VTK_USE_SDL2)
-    set(vtk_can_do_onscreen TRUE)
-    set(vtk_can_do_offscreen TRUE)
-  endif ()
+  set(vtk_can_do_onscreen TRUE)
+  set(vtk_can_do_offscreen TRUE)
 endif ()
 
 cmake_dependent_option(

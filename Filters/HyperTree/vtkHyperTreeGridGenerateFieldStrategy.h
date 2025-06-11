@@ -49,7 +49,7 @@ public:
    *  - If the strategy creates a cell data array, use `Initialize` with a void return type
    *  - If the strategy creates a field data array, use `Initialize` with a bool return type
    */
-  virtual void Initialize(vtkHyperTreeGrid* vtkMaybeUnused(inputHTG)) {}
+  virtual void Initialize([[maybe_unused]] vtkHyperTreeGrid* inputHTG) {}
   virtual bool Initialize(std::unordered_map<std::string, Field>) { return true; }
   ///@}
 

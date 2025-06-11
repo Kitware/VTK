@@ -123,7 +123,7 @@
 #include "vtkCell3D.h"
 #include "vtkCellStatus.h"            // For enum.
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkDeprecation.h"           // For VTK_DEPRECATED
+#include "vtkDeprecation.h"           // VTK_DEPRECATED_IN_9_6_0()
 #include "vtkNew.h"                   // For vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -377,7 +377,8 @@ public:
    * addition a leading count indicating the total number of faces in
    * the list.
    */
-  void SetFaces(vtkIdType* faces) override;
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetCellFaces")
+  void SetFaces(vtkIdType* faces);
 
   /**
    * Get the faces of the polyhedron.
@@ -395,7 +396,8 @@ public:
    * count is missing. In order to get the number of faces, please use the
    * vtkPolyhedron::GetNumberOfFaces() method.
    */
-  vtkIdType* GetFaces() override;
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use GetCellFaces")
+  vtkIdType* GetFaces();
 
   /**
    * Set the faces of the polyhedron.
@@ -475,6 +477,7 @@ protected:
   // These faces are numbered in global id space
   vtkNew<vtkCellArray> GlobalFaces;
 
+  // VTK_DEPRECATED_IN_9_6_0()
   // Backward compatibility
   vtkNew<vtkIdTypeArray> LegacyGlobalFaces;
 
@@ -499,9 +502,6 @@ protected:
   void ComputeBounds();
   void ComputeParametricCoordinate(const double x[3], double pc[3]);
   void ComputePositionFromParametricCoordinate(const double pc[3], double x[3]);
-
-  VTK_DEPRECATED_IN_9_4_0("Use GeneratePointToIncidentFaces instead.")
-  void GeneratePointToIncidentFacesAndValenceAtPoint() { this->GeneratePointToIncidentFaces(); }
 
   // Members for supporting geometric operations
   int PolyDataConstructed = 0;

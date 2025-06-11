@@ -19,7 +19,6 @@
 #define vtkQuadratureSchemeDictionaryGenerator_h
 
 #include "vtkDataSetAlgorithm.h"
-#include "vtkDeprecation.h"          // For deprecation
 #include "vtkFiltersGeneralModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -45,16 +44,12 @@ private:
   vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator&) = delete;
   void operator=(const vtkQuadratureSchemeDictionaryGenerator&) = delete;
 
-  ///@{
   /**
    * Generate definitions for each cell type found on the
    * input data set. The same definition will be used
    * for all point data arrays.
    */
   int Generate(vtkDataSet* usgOut);
-  VTK_DEPRECATED_IN_9_4_0("Uses the vtkDataSet version instead.")
-  int Generate(vtkUnstructuredGrid* usgOut);
-  ///@}
 };
 
 VTK_ABI_NAMESPACE_END

@@ -316,15 +316,6 @@ void MyProcess::Execute()
     }
     else
     {
-      testing->FrontBufferOff();
-      for (i = 0; i < this->Argc; i++)
-      {
-        if (strcmp("-FrontBuffer", this->Argv[i]) == 0)
-        {
-          testing->FrontBufferOn();
-        }
-      }
-
       if (testing->IsValidImageSpecified())
       {
         renWin->Render();

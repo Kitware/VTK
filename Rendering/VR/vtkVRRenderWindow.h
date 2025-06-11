@@ -39,9 +39,8 @@
 #ifndef vtkVRRenderWindow_h
 #define vtkVRRenderWindow_h
 
-#include "vtkDeprecation.h" // for deprecation
-#include "vtkEventData.h"   // for enums
-#include "vtkNew.h"         // for vtkNew
+#include "vtkEventData.h" // for enums
+#include "vtkNew.h"       // for vtkNew
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingVRModule.h" // For export macro
 #include "vtkSmartPointer.h"      // for vtkSmartPointer
@@ -264,17 +263,6 @@ public:
 
   ///@{
   /**
-   * When on the camera will track the HMD position.
-   * On is the default.
-   */
-  VTK_DEPRECATED_IN_9_4_0("Please use vtkVRCamera::SetTrackHMD() instead.")
-  virtual void SetTrackHMD(bool);
-  VTK_DEPRECATED_IN_9_4_0("Please use vtkVRCamera::GetTrackHMD() instead.")
-  virtual bool GetTrackHMD() VTK_FUTURE_CONST;
-  ///@}
-
-  ///@{
-  /**
    * Set/Get the visibility of the base stations. Defaults to false
    */
   vtkGetMacro(BaseStationVisibility, bool);
@@ -320,9 +308,6 @@ protected:
   virtual void RenderFramebuffer(FramebufferDesc& framebufferDesc) = 0;
 
   bool VRInitialized = false;
-
-  VTK_DEPRECATED_IN_9_4_0("Please use vtkVRCamera::TrackHMD instead.")
-  bool TrackHMD = true;
 
   // One per view (typically one per eye)
   std::vector<FramebufferDesc> FramebufferDescs;

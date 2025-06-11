@@ -402,7 +402,6 @@ Rendering/OpenGL2/vtkPBRPrefilterTexture.h
 Rendering/OpenGL2/vtkPointFillPass.h
 Rendering/OpenGL2/vtkRenderPassCollection.h
 Rendering/OpenGL2/vtkRenderStepsPass.h
-Rendering/OpenGL2/vtkSDL2OpenGLRenderWindow.h
 Rendering/OpenGL2/vtkSequencePass.h
 Rendering/OpenGL2/vtkShadowMapBakerPass.h
 Rendering/OpenGL2/vtkShadowMapPass.h

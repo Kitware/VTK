@@ -450,6 +450,7 @@ vtkCell* vtkPolyhedron::GetFace(int faceId)
   return this->Polygon;
 }
 
+// VTK_DEPRECATED_IN_9_6_0()
 //------------------------------------------------------------------------------
 // Specify the faces for this cell.
 void vtkPolyhedron::SetFaces(vtkIdType* faces)
@@ -496,6 +497,7 @@ int vtkPolyhedron::SetCellFaces(vtkCellArray* faces)
   return 1;
 }
 
+// VTK_DEPRECATED_IN_9_6_0()
 //------------------------------------------------------------------------------
 // Return the list of faces for this cell.
 vtkIdType* vtkPolyhedron::GetFaces()

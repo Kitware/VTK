@@ -220,12 +220,6 @@ bool vtkImporter::GetTemporalInformation(vtkIdType vtkNotUsed(animationIdx),
 }
 
 //------------------------------------------------------------------------------
-void vtkImporter::UpdateTimeStep(double timeValue)
-{
-  this->UpdateAtTimeValue(timeValue);
-}
-
-//------------------------------------------------------------------------------
 bool vtkImporter::UpdateAtTimeValue(double vtkNotUsed(timeValue))
 {
   return this->Update();

@@ -146,35 +146,10 @@ int TestPolyhedralCellsInUG(int argc, char* argv[])
   vtkCellArray* facesHandle = ugrid0->GetPolyhedronFaces();
   vtkCellArray* faceLocationsHandle = ugrid0->GetPolyhedronFaceLocations();
 
-  vtkIdTypeArray* faceStream = nullptr;
-  vtkIdTypeArray* faceStreamLocations = nullptr;
-  // disable warning while testing backward compatibility layer
-  TESTING_DEPRECATED_SUPRESS_BEGIN
-  faceStreamLocations = ugrid0->GetFaceLocations();
-  faceStream = ugrid0->GetFaces();
-  TESTING_DEPRECATED_SUPRESS_END
-
-  // check Legacy cache is correct
-  if (faceStreamLocations->GetNumberOfTuples() != faceLocationsHandle->GetNumberOfCells())
-  {
-    std::cout << "Error Legacy backward compatibility layer is not coherent for faceLocations."
-              << std::endl;
-    return EXIT_FAILURE;
-  }
-  if (faceStream->GetValue(1) != facesHandle->GetCellSize(0))
-  {
-    std::cout << "Error Legacy backward compatibility layer is not coherent for faces."
-              << std::endl;
-    return EXIT_FAILURE;
-  }
-
   vtkNew<vtkUnstructuredGrid> ugrid1;
   ugrid1->SetPoints(poly->GetPoints());
   ugrid1->GetPointData()->DeepCopy(poly->GetPointData());
-  // disable warning because we are testing backward compatibility layer
-  TESTING_DEPRECATED_SUPRESS_BEGIN
-  ugrid1->SetCells(cellTypes, cells, faceStreamLocations, faceStream);
-  TESTING_DEPRECATED_SUPRESS_END
+  ugrid1->SetPolyhedralCells(cellTypes, cells, faceLocationsHandle, facesHandle);
 
   vtkPolyhedron* polyhedron = vtkPolyhedron::SafeDownCast(ugrid0->GetCell(0));
   if (!polyhedron)

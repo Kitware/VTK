@@ -78,10 +78,6 @@ public:
    * This may reinterpret unsigned array as signed arrays to avoid deep-copying
    * of data to match data type expected by vtkCellArray API.
    */
-  VTK_DEPRECATED_IN_9_4_0("Version with additional `numberOfPoints` parameter needed with "
-                          "zero-copy arrays stored on acceleration devices such as CUDA")
-  static vtkSmartPointer<vtkCellArray> MCArrayToVTKCellArray(
-    int cellType, vtkIdType cellSize, const conduit_node* mcarray);
   static vtkSmartPointer<vtkCellArray> MCArrayToVTKCellArray(
     vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* mcarray);
 
@@ -95,11 +91,6 @@ public:
   /**
    * Read a O2MRelation element
    */
-  VTK_DEPRECATED_IN_9_4_0("Version with additional `numberOfPoints` parameter needed with "
-                          "zero-copy arrays stored on acceleration devices such as CUDA. "
-                          "`leafname` is always connectivity, so it is removed in the new version.")
-  static vtkSmartPointer<vtkCellArray> O2MRelationToVTKCellArray(
-    const conduit_node* o2mrelation, const std::string& leafname);
   static vtkSmartPointer<vtkCellArray> O2MRelationToVTKCellArray(
     vtkIdType numberOfPoints, const conduit_node* o2mrelation);
 

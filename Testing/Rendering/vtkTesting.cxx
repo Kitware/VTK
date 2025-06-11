@@ -131,7 +131,6 @@ vtkIdType AccumulateScaledL2Norm(T* pA, // pointer to first data array
 //=============================================================================
 vtkTesting::vtkTesting()
 {
-  this->FrontBuffer = 0;
   this->RenderWindow = nullptr;
   this->ValidImageFileName = nullptr;
   this->ImageDifference = 0;
@@ -379,28 +378,6 @@ int vtkTesting::LookForFile(const char* newFileName)
 }
 
 //------------------------------------------------------------------------------
-void vtkTesting::SetFrontBuffer(vtkTypeBool frontBuffer)
-{
-  vtkWarningMacro("SetFrontBuffer method is deprecated and has no effect anymore.");
-  this->FrontBuffer = frontBuffer;
-}
-
-//------------------------------------------------------------------------------
-int vtkTesting::RegressionTestAndCaptureOutput(double thresh, ostream& os)
-{
-  const int result = this->RegressionTest(thresh, os);
-
-  os << "<DartMeasurement name=\"WallTime\" type=\"numeric/double\">";
-  os << vtkTimerLog::GetUniversalTime() - this->StartWallTime;
-  os << "</DartMeasurement>\n";
-  os << "<DartMeasurement name=\"CPUTime\" type=\"numeric/double\">";
-  os << vtkTimerLog::GetCPUTime() - this->StartCPUTime;
-  os << "</DartMeasurement>\n";
-
-  return result;
-}
-
-//------------------------------------------------------------------------------
 int vtkTesting::RegressionTest(double thresh)
 {
   const int result = this->RegressionTest(thresh, cout);
@@ -430,12 +407,7 @@ int vtkTesting::RegressionTest(double thresh, ostream& os)
 
   for (unsigned int i = 0; i < this->Args.size(); ++i)
   {
-    if ("-FrontBuffer" == this->Args[i])
-    {
-      vtkWarningMacro("-FrontBuffer option is deprecated and has no effet anymore.");
-      this->FrontBufferOn();
-    }
-    else if ("-NoRerender" == this->Args[i])
+    if ("-NoRerender" == this->Args[i])
     {
       rtW2if->ShouldRerenderOff();
     }
@@ -1342,7 +1314,6 @@ void vtkTesting::PrintSelf(ostream& os, vtkIndent indent)
   os << indent
      << "ValidImageFileName: " << (this->ValidImageFileName ? this->ValidImageFileName : "(none)")
      << endl;
-  os << indent << "FrontBuffer: " << (this->FrontBuffer ? "On" : "Off") << endl;
   os << indent << "ImageDifference: " << this->ImageDifference << endl;
   os << indent << "DataRoot: " << this->GetDataRoot() << endl;
   os << indent << "Temp Directory: " << this->GetTempDirectory() << endl;

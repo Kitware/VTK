@@ -280,21 +280,6 @@ vtkDataArray* vtkRandomAttributeGenerator::GenerateData(
 }
 
 //------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_4_0()
-int vtkRandomAttributeGenerator::RequestData(
-  vtkCompositeDataSet* input, vtkCompositeDataSet* output)
-{
-  return this->ProcessComposite(input, output);
-}
-
-//------------------------------------------------------------------------------
-// VTK_DEPRECATED_IN_9_4_0()
-int vtkRandomAttributeGenerator::RequestData(vtkDataSet* input, vtkDataSet* output)
-{
-  return this->ProcessDataSet(input, output);
-}
-
-//------------------------------------------------------------------------------
 int vtkRandomAttributeGenerator::ProcessComposite(
   vtkCompositeDataSet* input, vtkCompositeDataSet* output)
 {

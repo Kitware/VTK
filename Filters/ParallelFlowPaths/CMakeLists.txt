@@ -1,18 +1,11 @@
 set(classes
   vtkPLagrangianParticleTracker
-  #  vtkPParticlePathFilter
-  #vtkPParticleTracer
-  # vtkPParticleTracerBase
-  #vtkPStreaklineFilter
   vtkPStreamTracer)
 
 # Overrides for object factory.
 set(parallel_overrides
   LagrangianParticleTracker
   StreamTracer
-  #ParticleTracer
-  #ParticlePathFilter
-  #StreaklineFilter
   )
 
 foreach (parallel_override IN LISTS parallel_overrides)

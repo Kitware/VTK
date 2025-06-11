@@ -68,7 +68,7 @@ Less common, but variables which may be of interest to some:
 
 ## OpenGL related build options:
 
-When OpenGL is used, a valid rendering environment (e.g., X, Cocoa, SDL2, OSMesa, EGL) must be available.
+When OpenGL is used, a valid rendering environment (e.g., X, Cocoa, OSMesa, EGL) must be available.
 Sanity checks are in place to prevent a broken build.
 
 For specific platforms:
@@ -100,7 +100,6 @@ that the above condition is always met on all supported platforms.
     render windows.
   * `VTK_USE_X` (default `ON` for Unix-like platforms except macOS,
     iOS, and Emscripten, `OFF` otherwise): Use X for render windows.
-  * `VTK_USE_SDL2` (default `OFF`): Use SDL2 for render windows.
   * `VTK_OPENGL_USE_GLES` (default `OFF`; forced `ON` for Android):
     Whether to use OpenGL ES API for OpenGL or not.
   * `VTK_OPENGL_HAS_EGL` (default `ON` for Android and Linux, `OFF` otherwise):

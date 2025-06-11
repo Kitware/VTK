@@ -131,8 +131,6 @@ public:
    * - TimeValue is the value corresponding to the Step property
    * - TimeRange is an array with the {min, max} values of time for the data
    */
-  VTK_DEPRECATED_IN_9_4_0("Please use GetTemporalData method instead.")
-  virtual bool GetHasTransientData();
   bool GetHasTemporalData();
   vtkGetMacro(NumberOfSteps, vtkIdType);
   vtkGetMacro(Step, vtkIdType);
@@ -308,8 +306,6 @@ protected:
   /**
    * Temporal data properties
    */
-  // VTK_DEPRECATED_IN_9_4_0( )
-  bool HasTransientData = false;
   vtkIdType Step = 0;
   vtkIdType NumberOfSteps = 1;
   double TimeValue = 0.0;
@@ -354,8 +350,6 @@ private:
 
   /**
    * Setter for UseTemporalData.
-   *
-   * Useful to set privatly the deprecated UseTransientData variable to true when it's needed.
    */
   void SetHasTemporalData(bool useTemporalData);
 

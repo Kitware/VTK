@@ -72,8 +72,6 @@ public:
    * Register the RenderFramebuffer of this window as a D3D shared texture
    */
   void RegisterSharedRenderFramebuffer();
-  VTK_DEPRECATED_IN_9_4_0("Use RegisterSharedRenderFramebuffer")
-  void RegisterSharedTexture();
 
   /**
    * Register the DisplayFramebuffer of this window as a D3D shared texture

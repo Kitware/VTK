@@ -443,44 +443,6 @@ int vtkCutter::RequestData(
 }
 
 //------------------------------------------------------------------------------
-void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
-{
-  // Assume most cells will be 3d.
-  memset(cellTypeDimensions, 3, VTK_NUMBER_OF_CELL_TYPES);
-  cellTypeDimensions[VTK_EMPTY_CELL] = 0;
-  cellTypeDimensions[VTK_VERTEX] = 0;
-  cellTypeDimensions[VTK_POLY_VERTEX] = 0;
-  cellTypeDimensions[VTK_LINE] = 1;
-  cellTypeDimensions[VTK_CUBIC_LINE] = 1;
-  cellTypeDimensions[VTK_POLY_LINE] = 1;
-  cellTypeDimensions[VTK_QUADRATIC_EDGE] = 1;
-  cellTypeDimensions[VTK_PARAMETRIC_CURVE] = 1;
-  cellTypeDimensions[VTK_HIGHER_ORDER_EDGE] = 1;
-  cellTypeDimensions[VTK_LAGRANGE_CURVE] = 1;
-  cellTypeDimensions[VTK_BEZIER_CURVE] = 1;
-  cellTypeDimensions[VTK_TRIANGLE] = 2;
-  cellTypeDimensions[VTK_TRIANGLE_STRIP] = 2;
-  cellTypeDimensions[VTK_POLYGON] = 2;
-  cellTypeDimensions[VTK_PIXEL] = 2;
-  cellTypeDimensions[VTK_QUAD] = 2;
-  cellTypeDimensions[VTK_QUADRATIC_TRIANGLE] = 2;
-  cellTypeDimensions[VTK_BIQUADRATIC_TRIANGLE] = 2;
-  cellTypeDimensions[VTK_QUADRATIC_QUAD] = 2;
-  cellTypeDimensions[VTK_QUADRATIC_LINEAR_QUAD] = 2;
-  cellTypeDimensions[VTK_BIQUADRATIC_QUAD] = 2;
-  cellTypeDimensions[VTK_PARAMETRIC_SURFACE] = 2;
-  cellTypeDimensions[VTK_PARAMETRIC_TRI_SURFACE] = 2;
-  cellTypeDimensions[VTK_PARAMETRIC_QUAD_SURFACE] = 2;
-  cellTypeDimensions[VTK_HIGHER_ORDER_TRIANGLE] = 2;
-  cellTypeDimensions[VTK_HIGHER_ORDER_QUAD] = 2;
-  cellTypeDimensions[VTK_HIGHER_ORDER_POLYGON] = 2;
-  cellTypeDimensions[VTK_LAGRANGE_TRIANGLE] = 2;
-  cellTypeDimensions[VTK_LAGRANGE_QUADRILATERAL] = 2;
-  cellTypeDimensions[VTK_BEZIER_TRIANGLE] = 2;
-  cellTypeDimensions[VTK_BEZIER_QUADRILATERAL] = 2;
-}
-
-//------------------------------------------------------------------------------
 void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
 {
   vtkIdType cellId;

@@ -194,14 +194,8 @@ endif ()
 set(has_vtkRenderWindow_override 0)
 set(vtk_webgpu_factory_override_classname "")
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  # VTK_DEPRECATED_IN_9_4_0() Remove when vtkSDL2WebGPURenderWindow is removed.
-  if (VTK_USE_SDL2)
-    set(vtk_webgpu_factory_override_classname "vtkSDL2WebGPURenderWindow")
-    set(has_vtkRenderWindow_override 1)
-  else ()
-    set(vtk_webgpu_factory_override_classname "vtkWebAssemblyWebGPURenderWindow")
-    set(has_vtkRenderWindow_override 1)
-  endif ()
+  set(vtk_webgpu_factory_override_classname "vtkWebAssemblyWebGPURenderWindow")
+  set(has_vtkRenderWindow_override 1)
 elseif (VTK_USE_X)
   # Add some custom overrides
   if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
@@ -255,15 +249,6 @@ vtk_module_compile_features(VTK::RenderingWebGPU
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_find_package(PACKAGE emdawnwebgpu)
   vtk_module_link(VTK::RenderingWebGPU PUBLIC emdawnwebgpu)
-  # VTK_DEPRECATED_IN_9_4_0() Remove when vtkSDL2WebGPURenderWindow is removed.
-  if (VTK_USE_SDL2)
-    vtk_module_compile_options(VTK::RenderingWebGPU
-      PUBLIC
-        "-sUSE_SDL=2")
-    vtk_module_link_options(VTK::RenderingWebGPU
-      PUBLIC
-        "-sUSE_SDL=2")
-  endif ()
 else ()
   if (VTK_USE_X)
     vtk_module_find_package(PACKAGE X11)

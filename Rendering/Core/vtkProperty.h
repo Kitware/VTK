@@ -19,7 +19,6 @@
 #ifndef vtkProperty_h
 #define vtkProperty_h
 
-#include "vtkDeprecation.h" // For deprecation
 #include "vtkObject.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkSetGet.h"
@@ -593,71 +592,6 @@ public:
   vtkSetMacro(Shading, vtkTypeBool);
   vtkGetMacro(Shading, vtkTypeBool);
   vtkBooleanMacro(Shading, vtkTypeBool);
-  ///@}
-
-  ///@{
-  /**
-   * Provide values to initialize shader variables.
-   * Useful to initialize shader variables that change over time
-   * (animation, GUI widgets inputs, etc. )
-   * - \p name - hardware name of the uniform variable
-   * - \p numVars - number of variables being set
-   * - \p x - values
-   */
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  virtual void AddShaderVariable(const char*, int, int*)
-  { /* noop */
-  }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  virtual void AddShaderVariable(const char*, int, float*)
-  { /* noop */
-  }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  virtual void AddShaderVariable(const char*, int, double*)
-  { /* noop */
-  }
-  ///@}
-
-  ///@{
-  /**
-   * Methods to provide to add shader variables from wrappers.
-   */
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char*, int)
-  { /* noop */
-  }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char*, float)
-  { /* noop */
-  }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char*, double)
-  { /* noop */
-  }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char*, int, int)
-  { /* noop */
-  }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char*, float, float)
-  { /* noop */
-  }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char*, double, double)
-  { /* noop */
-  }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char*, int, int, int)
-  { /* noop */
-  }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char*, float, float, float)
-  { /* noop */
-  }
-  VTK_DEPRECATED_IN_9_4_0("AddShaderVariable is a no-op and will be removed")
-  void AddShaderVariable(const char*, double, double, double)
-  { /* noop */
-  }
   ///@}
 
   ///@{

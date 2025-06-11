@@ -103,7 +103,6 @@ callbackCommand->SetCallback(
           factory->SetEnableFlag(useOpenGL, "vtkRenderWindow", "vtkCocoaRenderWindow");
           factory->SetEnableFlag(useOpenGL, "vtkRenderWindow", "vtkWin32OpenGLRenderWindow");
           factory->SetEnableFlag(useOpenGL, "vtkRenderWindow", "vtkXOpenGLRenderWindow");
-          factory->SetEnableFlag(useOpenGL, "vtkRenderWindow", "vtkSDL2OpenGLRenderWindow");
           factory->SetEnableFlag(useOpenGL, "vtkRenderWindow", "vtkWebAssemblyOpenGLRenderWindow");
         }
       }

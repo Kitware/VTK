@@ -553,21 +553,6 @@ struct NoOp
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
-  int cellType, vtkIdType cellSize, const conduit_node* mcarray)
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
-      int cellType, vtkIdType cellSize, const conduit_node* mcarray),
-    "VTK 9.4",
-    vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
-      vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* mcarray));
-  // if arrays for the conduit nodes are stored in host memory, numberOfPoints=0 is not used
-  // if arrays are stored in device memory, we'll get an error - however this case did not work
-  // for the deprecated function.
-  return MCArrayToVTKCellArray(0, cellType, cellSize, mcarray);
-}
-
-vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
   vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* c_mcarray)
 {
   auto connectivity =
@@ -610,23 +595,6 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-  const conduit_node* c_o2mrelation, const std::string& leafname)
-{
-  VTK_LEGACY_REPLACED_BODY(
-    vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-      const conduit_node* c_o2mrelation, const std::string& leafname),
-    "VTK 9.4",
-    vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
-      vtkIdType numberOfPoints, const conduit_node* c_o2mrelation, const std::string& leafname));
-  // if arrays for the conduit nodes are stored in host memory, numberOfPoints=0 is not used
-  // if arrays are stored in device memory, we'll get an error - however this case did not work
-  // for the deprecated function.
-  // leafname is always "connectivity"
-  (void)leafname;
-  return O2MRelationToVTKCellArray(0, c_o2mrelation);
-}
-
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArray(
   vtkIdType numberOfPoints, const conduit_node* c_o2mrelation)
 {
