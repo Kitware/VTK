@@ -145,7 +145,7 @@ public:
   void Initialize()
   {
     this->TLSum.Local() = 0;
-    auto sumCenter = this->TLSumCenter.Local();
+    auto& sumCenter = this->TLSumCenter.Local();
     sumCenter[0] = sumCenter[1] = sumCenter[2] = 0.0;
     auto output = this->TLOutput.Local();
     output->GetPointData()->DeepCopy(this->Output->GetPointData());
