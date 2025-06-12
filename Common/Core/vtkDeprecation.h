@@ -63,33 +63,13 @@
 #endif
 
 // Deprecation macro support for various compilers.
-#if 0 && __cplusplus >= 201402L
-// This is currently hard-disabled because compilers do not mix C++ attributes
-// and `__attribute__` extensions together well.
-#define VTK_DEPRECATION(reason) [[deprecated(reason)]]
-#elif defined(VTK_WRAPPING_CXX)
+#if defined(VTK_WRAPPING_CXX)
 // Ignore deprecation in wrapper code.
 #define VTK_DEPRECATION(reason)
 #elif defined(__VTK_WRAP__)
 #define VTK_DEPRECATION(reason) [[vtk::deprecated(reason)]]
 #else
-#if defined(_WIN32) || defined(_WIN64)
 #define VTK_DEPRECATION(reason) [[deprecated(reason)]]
-#elif defined(__clang__)
-#if __has_extension(attribute_deprecated_with_message)
-#define VTK_DEPRECATION(reason) __attribute__((__deprecated__(reason)))
-#else
-#define VTK_DEPRECATION(reason) __attribute__((__deprecated__))
-#endif
-#elif defined(__GNUC__)
-#if (__GNUC__ >= 5) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 5))
-#define VTK_DEPRECATION(reason) __attribute__((__deprecated__(reason)))
-#else
-#define VTK_DEPRECATION(reason) __attribute__((__deprecated__))
-#endif
-#else
-#define VTK_DEPRECATION(reason)
-#endif
 #endif
 
 // APIs deprecated in the next release.
