@@ -22,48 +22,80 @@ public:
   static ErrorObserver* New() { return new ErrorObserver; }
   bool GetError() const { return this->Error; }
   bool GetWarning() const { return this->Warning; }
+
+  int GetNumberOfWarnings() { return this->WarningCount; }
+  int GetNumberOfErrors() { return this->ErrorCount; }
+
   void Clear()
   {
     this->Error = false;
     this->Warning = false;
     this->ErrorMessage = "";
     this->WarningMessage = "";
+    this->ErrorCount = 0;
+    this->WarningCount = 0;
   }
+
+  /**
+   * Actual callback that catch errors and warnings, and store them internally.
+   */
   void Execute(vtkObject* vtkNotUsed(caller), unsigned long event, void* calldata) override
   {
     switch (event)
     {
       case vtkCommand::ErrorEvent:
-        ErrorMessage += static_cast<char*>(calldata);
+        this->ErrorMessage += static_cast<char*>(calldata);
         this->Error = true;
+        this->ErrorCount++;
         break;
       case vtkCommand::WarningEvent:
-        WarningMessage += static_cast<char*>(calldata);
+        this->WarningMessage += static_cast<char*>(calldata);
         this->Warning = true;
+        this->WarningCount++;
         break;
     }
   }
-  std::string GetErrorMessage() { return ErrorMessage; }
+  std::string GetErrorMessage() { return this->ErrorMessage; }
 
-  std::string GetWarningMessage() { return WarningMessage; }
+  std::string GetWarningMessage() { return this->WarningMessage; }
 
   /**
-   * Check to see if an error or warning message exists.
+   * Check to see if an error message exists.
+   * If it exists, it clears the error list and return 0.
+   * Return 1 otherwise.
+   * see: HasErrorMessage()
+   */
+  int CheckErrorMessage(const std::string& expectedMsg)
+  {
+    if (this->HasErrorMessage(expectedMsg))
+    {
+      this->Clear();
+      return 0;
+    }
+
+    return 1;
+  }
+
+  /**
+   * Check to see if an error message exists.
    * Given an observer, a message and a status with an initial value,
-   * Returns 1 if an error does not exist, or if msg is not contained
+   * Returns false if an error does not exist, or if msg is not contained
    * in the error message.
-   * Returns 0 if the error exists and msg is contained in the error
+   * Returns true if the error exists and msg is contained in the error
    * message.
    * If the test fails, it reports the failing message, prepended with "ERROR:".
    * ctest will detect the ERROR and report a failure.
+   *
+   * Unlike CheckErrorMessage, this does not clear the error and warning list on success.
+   * see: CheckErrorMessage.
    */
-  int CheckErrorMessage(const std::string& expectedMsg)
+  bool HasErrorMessage(const std::string& expectedMsg)
   {
     if (!this->GetError())
     {
       std::cout << "ERROR: Failed to catch any error. Expected the error message to contain \""
                 << expectedMsg << '\"' << std::endl;
-      return 1;
+      return false;
     }
     else
     {
@@ -72,20 +104,34 @@ public:
       {
         std::cout << "ERROR: Error message does not contain \"" << expectedMsg << "\" got \n\""
                   << gotMsg << '\"' << std::endl;
-        return 1;
+        return false;
       }
     }
-    this->Clear();
-    return 0;
+
+    return true;
   }
 
-  int CheckWarningMessage(const std::string& expectedMsg)
+  /**
+   * Check to see if a warning message exists.
+   * Given an observer, a message and a status with an initial value,
+   * Returns false if an warning does not exist, or if msg is not contained
+   * in the warning message.
+   * Returns true if the warning exists and msg is contained in the warning
+   * message.
+   *
+   * If the test fails, it reports the failing message, prepended with "ERROR:".
+   * ctest will detect the ERROR and report a failure.
+   *
+   * Unlike CheckWarningMessage, this does not clear the error and warning list on success.
+   * see CheckWarningMessage
+   */
+  bool HasWarningMessage(const std::string& expectedMsg)
   {
     if (!this->GetWarning())
     {
       std::cout << "ERROR: Failed to catch any warning. Expected the warning message to contain \""
                 << expectedMsg << '\"' << std::endl;
-      return 1;
+      return false;
     }
     else
     {
@@ -94,16 +140,35 @@ public:
       {
         std::cout << "ERROR: Warning message does not contain \"" << expectedMsg << "\" got \n\""
                   << gotMsg << '\"' << std::endl;
-        return 1;
+        return false;
       }
     }
-    this->Clear();
-    return 0;
+
+    return true;
+  }
+
+  /**
+   * Check to see if a warning message exists.
+   * If it exists, it clears the warning list and return 0.
+   * Return 1 otherwise.
+   * see: HasWarningMessage()
+   */
+  int CheckWarningMessage(const std::string& expectedMsg)
+  {
+    if (this->HasWarningMessage(expectedMsg))
+    {
+      this->Clear();
+      return 0;
+    }
+
+    return 1;
   }
 
 private:
-  bool Error;
-  bool Warning;
+  bool Error = false;
+  bool Warning = false;
+  int WarningCount = 0;
+  int ErrorCount = 0;
   std::string ErrorMessage;
   std::string WarningMessage;
 };

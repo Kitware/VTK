@@ -187,6 +187,12 @@ int vtkDelimitedTextReader::RequestInformation(
   }
 
   std::unique_ptr<std::istream> input_stream(this->OpenStream());
+  if (!input_stream)
+  {
+    vtkWarningMacro("Unable to open file, RequestInformation aborted.");
+    return 1;
+  }
+
   std::string line;
   for (int indx = 0; indx < this->PreviewNumberOfLines; indx++)
   {
@@ -225,6 +231,7 @@ std::unique_ptr<std::istream> vtkDelimitedTextReader::OpenStream()
   {
     if (!this->FileName)
     {
+      vtkErrorMacro("No Filename provided, aborting.");
       return nullptr;
     }
     std::unique_ptr<std::istream> file_stream{ new vtksys::ifstream(this->FileName, ios::binary) };
@@ -239,6 +246,11 @@ std::unique_ptr<std::istream> vtkDelimitedTextReader::OpenStream()
   }
   else
   {
+    if (!this->InputString)
+    {
+      vtkErrorMacro("Empty input string, aborting.");
+      return nullptr;
+    }
     return std::unique_ptr<std::istream>{ new std::istringstream(this->InputString) };
   }
 }
@@ -302,6 +314,12 @@ int vtkDelimitedTextReader::ReadData(vtkTable* output_table)
   }
 
   std::unique_ptr<std::istream> input_stream = this->OpenStream();
+  if (!input_stream)
+  {
+    vtkWarningMacro("Unable to open file, ReadData aborted.");
+    return 1;
+  }
+
   this->ReadBOM(input_stream.get());
 
   auto transCodec = vtkSmartPointer<vtkTextCodec>::Take(this->CreateTextCodec(input_stream.get()));

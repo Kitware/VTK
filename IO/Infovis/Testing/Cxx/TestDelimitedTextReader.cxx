@@ -8,6 +8,7 @@
 #include <vtkNew.h>
 #include <vtkStringArray.h>
 #include <vtkTable.h>
+#include <vtkTestErrorObserver.h>
 #include <vtkTestUtilities.h>
 
 namespace
@@ -320,6 +321,7 @@ bool TestCharSets(int argc, char* argv[])
   return ret;
 }
 
+//------------------------------------------------------------------------------
 bool TestPreview(int argc, char* argv[])
 {
   char* filepath = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/authors.csv");
@@ -369,6 +371,7 @@ bool TestPreview(int argc, char* argv[])
   return true;
 }
 
+//------------------------------------------------------------------------------
 bool TestSkipLines(int argc, char* argv[])
 {
   char* filepath = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/authors.csv");
@@ -383,6 +386,7 @@ bool TestSkipLines(int argc, char* argv[])
   return CheckOutput(reader->GetOutput(), 6, 4);
 }
 
+//------------------------------------------------------------------------------
 bool TestComments(int argc, char* argv[])
 {
   char* filepath =
@@ -429,6 +433,81 @@ bool TestComments(int argc, char* argv[])
 
   return true;
 }
+
+//------------------------------------------------------------------------------
+bool TestUnreadableFile()
+{
+  vtkNew<vtkDelimitedTextReader> reader;
+  reader->SetPreviewNumberOfLines(2);
+  reader->SetFileName("/not/a/file.csv");
+
+  vtkNew<vtkTest::ErrorObserver> observer;
+  reader->AddObserver(vtkCommand::WarningEvent, observer);
+  reader->AddObserver(vtkCommand::ErrorEvent, observer);
+  reader->Update();
+
+  bool warningCatched = observer->GetWarning();
+  if (observer->GetNumberOfWarnings() != 2)
+  {
+    warningCatched = false;
+    vtkLog(ERROR, "Wrong number of warning detected.");
+  }
+  warningCatched =
+    observer->HasWarningMessage("Unable to open file, RequestInformation aborted.") &&
+    warningCatched;
+  warningCatched =
+    observer->HasWarningMessage("Unable to open file, ReadData aborted.") && warningCatched;
+
+  bool errorCatched = observer->GetError();
+  if (observer->GetNumberOfErrors() != 2)
+  {
+    errorCatched = false;
+    vtkLog(ERROR, "Wrong number of error detected.");
+  }
+
+  errorCatched =
+    observer->HasErrorMessage("Unable to open input file /not/a/file.csv") && errorCatched;
+
+  observer->Clear();
+
+  return warningCatched && errorCatched;
+}
+
+//------------------------------------------------------------------------------
+bool TestEmptyInput()
+{
+  vtkNew<vtkDelimitedTextReader> reader;
+  reader->SetReadFromInputString(true);
+  reader->SetInputString("");
+
+  vtkNew<vtkTest::ErrorObserver> observer;
+  reader->AddObserver(vtkCommand::WarningEvent, observer);
+  reader->AddObserver(vtkCommand::ErrorEvent, observer);
+  reader->Update();
+
+  bool warningCatched = observer->GetWarning();
+  if (observer->GetNumberOfWarnings() != 1)
+  {
+    warningCatched = false;
+    vtkLog(ERROR, "Wrong number of warning detected.");
+  }
+  warningCatched =
+    observer->HasWarningMessage("Unable to open file, ReadData aborted.") && warningCatched;
+
+  bool errorCatched = observer->GetError();
+  if (observer->GetNumberOfErrors() != 1)
+  {
+    errorCatched = false;
+    vtkLog(ERROR, "Wrong number of error detected.");
+  }
+
+  errorCatched = observer->HasErrorMessage("Empty input string, aborting.") && errorCatched;
+
+  observer->Clear();
+
+  return warningCatched && errorCatched;
+}
+
 };
 
 //------------------------------------------------------------------------------
@@ -444,11 +523,11 @@ int TestDelimitedTextReader(int argc, char* argv[])
   }
   else if (!::TestDelimiters(argc, argv))
   {
-    vtkLog(ERROR, "Test Delimiters failed.\n");
+    vtkLog(ERROR, "Test Delimiters failed.\n");
   }
   else if (!::TestReadFromString())
   {
-    vtkLog(ERROR, "Test Read From String failed.\n");
+    vtkLog(ERROR, "Test Read From String failed.\n");
   }
   else if (!::TestCharSets(argc, argv))
   {
@@ -469,6 +548,14 @@ int TestDelimitedTextReader(int argc, char* argv[])
   else if (!::TestComments(argc, argv))
   {
     vtkLog(ERROR, "Test Comments failed.\n");
+  }
+  else if (!::TestUnreadableFile())
+  {
+    vtkLog(ERROR, "Test with wrong stream failed.");
+  }
+  else if (!::TestEmptyInput())
+  {
+    vtkLog(ERROR, "Test with empty input string failed.");
   }
   else
   {
