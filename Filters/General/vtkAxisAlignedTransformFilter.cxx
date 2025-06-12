@@ -864,6 +864,13 @@ bool vtkAxisAlignedTransformFilter::ProcessHTG(
   vtkHyperTreeGrid* inputHTG, vtkHyperTreeGrid* outputHTG, int rotationMatrix[3][3])
 {
   outputHTG->DeepCopy(inputHTG);
+
+  // If HTG is empty, nothing to do
+  if (inputHTG->GetMaxNumberOfTrees() == 0)
+  {
+    return true;
+  }
+
   ::ApplyScale(outputHTG, Scale);
 
   // Lambda to apply cell level scaling
