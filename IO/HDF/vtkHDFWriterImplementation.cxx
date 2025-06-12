@@ -6,6 +6,7 @@
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFVersion.h"
 #include "vtkLogger.h"
+#include "vtkType.h"
 #include "vtk_hdf5.h"
 
 #include <algorithm>
@@ -92,7 +93,7 @@ bool vtkHDFWriter::Implementation::WriteHeader(hid_t group, const char* hdfType)
 
   // Write version attribute to root
   hsize_t versionDimensions[1] = { 2 };
-  int versionBuffer[2] = { vtkHDFMajorVersion, vtkHDFMinorVersion };
+  vtkIdType versionBuffer[2] = { vtkHDFMajorVersion, vtkHDFMinorVersion };
   vtkHDF::ScopedH5SHandle versionDataspace{ H5Screate(H5S_SIMPLE) };
   if (versionDataspace == H5I_INVALID_HID)
   {
@@ -108,7 +109,7 @@ bool vtkHDFWriter::Implementation::WriteHeader(hid_t group, const char* hdfType)
   {
     return false;
   }
-  if (H5Awrite(versionAttribute, H5T_NATIVE_INT, versionBuffer) < 0)
+  if (H5Awrite(versionAttribute, H5T_STD_I64LE, versionBuffer) < 0)
   {
     return false;
   }
@@ -508,16 +509,16 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateDatasetFromDataArray
 
 //------------------------------------------------------------------------------
 vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateSingleValueDataset(
-  hid_t group, const char* name, int value)
+  hid_t group, const char* name, vtkIdType value)
 {
   std::vector<hsize_t> dimensions{ 1 };
   return this->CreateAndWriteHdfDataset(
-    group, H5T_STD_I64LE, H5T_NATIVE_INT, name, 1, dimensions, &value);
+    group, H5T_STD_I64LE, H5T_STD_I64LE, name, 1, dimensions, &value);
 }
 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
-  hid_t dataset, int value, bool offset, bool trim)
+  hid_t dataset, vtkIdType value, bool offset, bool trim)
 {
   vtkDebugWithObjectMacro(this->Writer, "Adding 1 value to " << this->GetGroupName(dataset));
   // Create a new dataspace containing a single value
@@ -543,9 +544,9 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
   // Add the last value of the dataset if we want an offset (only for arrays of stride 1)
   if (offset && currentdims[0] > 0)
   {
-    std::vector<int> allValues;
+    std::vector<vtkIdType> allValues;
     allValues.resize(currentdims[0]);
-    H5Dread(dataset, H5T_NATIVE_INT, currentDataspace, H5S_ALL, H5P_DEFAULT, allValues.data());
+    H5Dread(dataset, H5T_STD_I64LE, currentDataspace, H5S_ALL, H5P_DEFAULT, allValues.data());
     value += allValues.back();
   }
 
@@ -567,7 +568,7 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
   H5Sselect_hyperslab(currentDataspace, H5S_SELECT_SET, start, nullptr, count, nullptr);
 
   // Write new data to the dataset
-  if (H5Dwrite(dataset, H5T_NATIVE_INT, newDataspace, currentDataspace, H5P_DEFAULT, &value) < 0)
+  if (H5Dwrite(dataset, H5T_STD_I64LE, newDataspace, currentDataspace, H5P_DEFAULT, &value) < 0)
   {
     return false;
   }
@@ -577,7 +578,7 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::AddFieldDataSizeValueToDataset(
-  hid_t dataset, int* value, int size, bool offset)
+  hid_t dataset, vtkIdType* value, vtkIdType size, bool offset)
 {
   if (size <= 1)
   {
@@ -624,7 +625,7 @@ bool vtkHDFWriter::Implementation::AddFieldDataSizeValueToDataset(
   if (offset && currentdims[0] > 0)
   {
     std::vector<int> allValues(size);
-    H5Dread(dataset, H5T_NATIVE_INT, currentDataspace, H5S_ALL, H5P_DEFAULT, allValues.data());
+    H5Dread(dataset, H5T_STD_I64LE, currentDataspace, H5S_ALL, H5P_DEFAULT, allValues.data());
     if (size == 1)
     {
       value[0] += allValues.back();
@@ -651,7 +652,7 @@ bool vtkHDFWriter::Implementation::AddFieldDataSizeValueToDataset(
   newDataspace = H5Screate_simple(1, length, nullptr);
 
   // Write new data to the dataset
-  if (H5Dwrite(dataset, H5T_NATIVE_INT, newDataspace, currentDataspace, H5P_DEFAULT, value) < 0)
+  if (H5Dwrite(dataset, H5T_STD_I64LE, newDataspace, currentDataspace, H5P_DEFAULT, value) < 0)
   {
     return false;
   }
@@ -661,7 +662,7 @@ bool vtkHDFWriter::Implementation::AddFieldDataSizeValueToDataset(
 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
-  hid_t group, const char* name, int value, bool offset, bool trim)
+  hid_t group, const char* name, vtkIdType value, bool offset, bool trim)
 {
   // Assume that when subfiles are set, we don't need to write data unless
   // SubFilesReady is set, which means all subfiles have been written.
@@ -693,7 +694,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateSingleValueDataset(
 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::Implementation::AddOrCreateFieldDataSizeValueDataset(
-  hid_t group, const char* name, int* value, int size, bool offset)
+  hid_t group, const char* name, vtkIdType* value, vtkIdType size, bool offset)
 {
   // Assume that when subfiles are set, we don't need to write data unless
   // SubFilesReady is set, which means all subfiles have been written.
@@ -710,7 +711,7 @@ bool vtkHDFWriter::Implementation::AddOrCreateFieldDataSizeValueDataset(
     // Dataset needs to be created
     std::vector<hsize_t> dimensions{ 2 };
     return this->CreateAndWriteHdfDataset(
-             group, H5T_STD_I64LE, H5T_NATIVE_INT, name, 1, dimensions, &value) != H5I_INVALID_HID;
+             group, H5T_STD_I64LE, H5T_STD_I64LE, name, 1, dimensions, &value) != H5I_INVALID_HID;
   }
   else
   {
@@ -749,7 +750,7 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
   }
 
   hid_t source_type =
-    dataArray ? vtkHDFUtilities::getH5TypeFromVtkType(dataArray->GetDataType()) : H5T_NATIVE_INT;
+    dataArray ? vtkHDFUtilities::getH5TypeFromVtkType(dataArray->GetDataType()) : H5T_STD_I64LE;
   if (source_type == H5I_INVALID_HID)
   {
     return H5I_INVALID_HID;
@@ -771,7 +772,7 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
 
   // Retrieve current dataspace dimensions
   const int nComp = dataArray ? dataArray->GetNumberOfComponents() : 0;
-  int nTuples = dataArray ? dataArray->GetNumberOfTuples() : 0;
+  const vtkIdType nTuples = dataArray ? dataArray->GetNumberOfTuples() : 0;
   const int numDim = nComp == 1 ? 1 : 2;
 
   std::vector<hsize_t> addedDims{ (hsize_t)nTuples };
@@ -1208,7 +1209,7 @@ hsize_t vtkHDFWriter::Implementation::GetNumberOfCellsSubfile(const std::string&
   {
     // Sum up the number of cells for each primitive type
     return std::accumulate(PrimitiveNames.begin(), PrimitiveNames.end(), 0,
-      [this, subfileId, part, basePath](int sum, std::string prim)
+      [this, subfileId, part, basePath](vtkIdType sum, std::string prim)
       {
         return sum +
           this->GetSubfileNumberOf(basePath, prim + "/" + PATH::NUMBER_OF_CELLS, subfileId, part);
@@ -1277,7 +1278,7 @@ bool vtkHDFWriter::Implementation::WriteSumSteps(hid_t group, const char* name)
   // and append it to the meta-file array.
   for (int step = 0; step < this->Writer->NumberOfTimeSteps; step++)
   {
-    int totalForTimeStep = 0;
+    vtkIdType totalForTimeStep = 0;
     for (std::size_t part = 0; part < this->Subfiles.size(); part++)
     {
       totalForTimeStep += this->GetSubfileNumberOf(this->GetBasePath(this->GetGroupName(group)),
@@ -1391,8 +1392,7 @@ hsize_t vtkHDFWriter::Implementation::GetSubfileNumberOf(const std::string& base
     return 0;
   }
 
-  if (H5Dread(sourceDataset, H5T_NATIVE_INT, destSpace, sourceSpace, H5P_DEFAULT, result.data()) <
-    0)
+  if (H5Dread(sourceDataset, H5T_STD_I64LE, destSpace, sourceSpace, H5P_DEFAULT, result.data()) < 0)
   {
     vtkErrorWithObjectMacro(this->Writer, << "Could not read dataset " << debugInfo);
     return 0;

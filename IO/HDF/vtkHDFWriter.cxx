@@ -25,6 +25,7 @@
 
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkType.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <string>
@@ -46,7 +47,7 @@ hsize_t SMALL_CHUNK[] = { 1, 1 }; // Used for chunked arrays where values are re
  * Return the name of a partitioned dataset in a pdc given its index.
  * If not set, generate a name based on the id.
  */
-std::string getBlockName(vtkPartitionedDataSetCollection* pdc, int datasetId)
+std::string getBlockName(vtkPartitionedDataSetCollection* pdc, unsigned int datasetId)
 {
   std::string name;
   if (pdc->GetMetaData(datasetId) && pdc->GetMetaData(datasetId)->Has(vtkCompositeDataSet::NAME()))
@@ -1365,8 +1366,7 @@ bool vtkHDFWriter::AppendFieldDataArrays(hid_t baseGroup, vtkDataObject* input, 
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendBlocks(hid_t group, vtkPartitionedDataSetCollection* pdc)
 {
-  for (int datasetId = 0; datasetId < static_cast<int>(pdc->GetNumberOfPartitionedDataSets());
-       datasetId++)
+  for (unsigned int datasetId = 0; datasetId < pdc->GetNumberOfPartitionedDataSets(); datasetId++)
   {
     vtkHDF::ScopedH5GHandle datasetGroup;
     vtkPartitionedDataSet* currentBlock = pdc->GetPartitionedDataSet(datasetId);
@@ -1702,7 +1702,7 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(hid_t baseGroup, vtkAbstractArray* 
     return true;
   }
 
-  std::vector<int> value;
+  std::vector<vtkIdType> value;
   if (this->CurrentTimeIndex == 0)
   {
     value.resize(2);
@@ -1721,7 +1721,7 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(hid_t baseGroup, vtkAbstractArray* 
 
     // Push a 0 value to the offsets array
     if (!this->Impl->AddOrCreateFieldDataSizeValueDataset(this->Impl->GetStepsGroup(baseGroup),
-          datasetName.c_str(), value.data(), static_cast<int>(value.size())))
+          datasetName.c_str(), value.data(), static_cast<vtkIdType>(value.size())))
     {
       vtkErrorMacro(<< "Could not push a 0 value in the offsets array: " << arrayName
                     << " when creating: " << this->FileName);
@@ -1736,7 +1736,7 @@ bool vtkHDFWriter::AppendDataArraySizeOffset(hid_t baseGroup, vtkAbstractArray* 
 
     // Append offset to offset array
     if (!this->Impl->AddOrCreateFieldDataSizeValueDataset(this->Impl->GetStepsGroup(baseGroup),
-          datasetName.c_str(), value.data(), static_cast<int>(value.size()), false))
+          datasetName.c_str(), value.data(), static_cast<vtkIdType>(value.size()), false))
     {
       vtkErrorMacro(<< "Could not insert a value in the offsets array: " << arrayName
                     << " when creating: " << this->FileName);
