@@ -398,12 +398,7 @@ bool vtkFidesWriter::WriteDataAndReturn()
     auto& writer = it->second;
     writer.SetWriteFields(fieldsToWrite);
 
-    std::string mode = "BPFile";
-    if (this->Engine != EngineTypes::BPFile)
-    {
-      vtkErrorMacro("Unsupported engine type: " << this->Engine);
-      return false;
-    }
+    std::string mode = this->Engine == EngineTypes::BPFile ? "BPFile" : "SST";
     try
     {
       writer.Write(vtkmPDS, mode);

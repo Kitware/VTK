@@ -66,7 +66,8 @@ class VTKIOFIDES_EXPORT vtkFidesWriter : public vtkWriter
 public:
   enum EngineTypes
   {
-    BPFile
+    BPFile,
+    SST
   };
 
   static vtkFidesWriter* New();
@@ -121,7 +122,7 @@ public:
 
   ///@{
   /**
-   * Set/Get the ADIOS engine to use (currently BPFile only!)
+   * Set/Get the ADIOS engine to use (currently BPFile or SST)
    */
   vtkSetMacro(Engine, int);
   vtkGetMacro(Engine, int);
