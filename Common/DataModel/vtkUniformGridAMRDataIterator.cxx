@@ -176,7 +176,7 @@ void vtkUniformGridAMRDataIterator::GoToFirstItem()
   }
   this->AMR = vtkUniformGridAMR::SafeDownCast(this->DataSet);
   this->AMRInfo = this->AMR->GetAMRInfo();
-  this->AMRData = this->AMR->GetAMRData();
+  this->AMRData = this->AMR->AMRData;
 
   if (this->AMRInfo)
   {
@@ -184,7 +184,7 @@ void vtkUniformGridAMRDataIterator::GoToFirstItem()
     {
       vtkSmartPointer<AMRLoadedDataIndexIterator> itr =
         vtkSmartPointer<AMRLoadedDataIndexIterator>::New();
-      itr->Initialize(&this->AMRInfo->GetNumBlocks(), &this->AMR->GetAMRData()->GetAllBlocks());
+      itr->Initialize(&this->AMRInfo->GetNumBlocks(), &this->AMR->AMRData->GetAllBlocks());
       this->Iter = itr;
     }
     else

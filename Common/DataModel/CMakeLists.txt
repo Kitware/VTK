@@ -1,6 +1,6 @@
 set(classes
   vtkAMRBox
-  vtkAMRDataInternals
+  vtkAMRDataInternals # DEPRECATED_IN_9_6_0 Move to private classes
   vtkAMRInformation
   vtkAMRMetaData
   vtkAMRUtilities
