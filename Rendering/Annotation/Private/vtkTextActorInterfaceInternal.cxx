@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTextActorInterfaceInternal.h"
 
+#include "Private/vtkFollowerTextPropertyAdaptor.h"
+#include "vtkAxisActor.h"
 #include "vtkAxisFollower.h"
 #include "vtkCamera.h"
 #include "vtkMatrix4x4.h"
@@ -14,15 +16,11 @@
 #include "vtkTextProperty.h"
 #include "vtkVectorText.h"
 
-namespace utils
-{
-// We use 12 as default size, as in vtkTextProperty
-constexpr int DEFAULT_FONT_SIZE = 12;
-}
-
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkTextActorInterfaceInternal::vtkTextActorInterfaceInternal()
+  : FollowerAdaptor(
+      std::make_unique<vtkFollowerTextPropertyAdaptor>(this->VectorFollower, this->RasterFollower))
 {
   vtkNew<vtkPolyDataMapper> vectorTextMapper;
   vectorTextMapper->SetInputConnection(this->Vector->GetOutputPort());
@@ -88,21 +86,7 @@ vtkProp* vtkTextActorInterfaceInternal::GetActiveProp(bool overlay, bool vector)
 void vtkTextActorInterfaceInternal::SetTextProperty(
   vtkTextProperty* textProperty, vtkProperty* actorProperty)
 {
-  // no text property here. Use standard prop, and override color/opacity
-  this->Follower->GetProperty()->DeepCopy(actorProperty);
-  this->Follower->GetProperty()->SetColor(textProperty->GetColor());
-  this->Follower->GetProperty()->SetOpacity(textProperty->GetOpacity());
-  this->Follower->SetOrientation(0, 0, textProperty->GetOrientation());
-
-  // mimics font size
-  double prevScale[3];
-  this->Follower->GetScale(prevScale);
-  double scale = prevScale[0] / this->LastFontScale;
-  // Use font size change factor to rescale.
-  double size = textProperty->GetFontSize();
-  this->LastFontScale = size / utils::DEFAULT_FONT_SIZE;
-  this->Follower->SetScale(scale * this->LastFontScale);
-
+  this->FollowerAdaptor->UpdateProperty(textProperty, actorProperty);
   this->Actor2D->SetTextProperty(textProperty);
   this->Actor3D->SetTextProperty(textProperty);
 }
@@ -133,8 +117,7 @@ void vtkTextActorInterfaceInternal::AdjustScale()
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::SetScale(double scale)
 {
-  // Follower has no vtkTextProperty. Simulate FontSize
-  this->Follower->SetScale(scale * this->LastFontScale);
+  this->FollowerAdaptor->SetScale(scale);
   this->Follower3D->SetScale(scale);
 }
 

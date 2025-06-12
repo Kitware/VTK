@@ -28,6 +28,7 @@ set(classes
 set(private_classes
 "Private/vtkArcGridActorInternal"
 "Private/vtkAxisGridActorInternal"
+"Private/vtkFollowerTextPropertyAdaptor"
 "Private/vtkTextActorInterfaceInternal")
 
 set(nowrap_headers
