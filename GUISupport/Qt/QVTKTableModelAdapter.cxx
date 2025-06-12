@@ -53,10 +53,12 @@ vtkAbstractArray* QVTKTableModelAdapter::NewArray(const QVariant& type)
 
   switch (vtk_qVariantType(type))
   {
-    case vtk_qMetaType(Double):
-      return vtkDoubleArray::New();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     case vtk_qMetaType(Float):
       return vtkFloatArray::New();
+#endif
+    case vtk_qMetaType(Double):
+      return vtkDoubleArray::New();
     case vtk_qMetaType(Char):
       return vtkCharArray::New();
     case vtk_qMetaType(Int):
