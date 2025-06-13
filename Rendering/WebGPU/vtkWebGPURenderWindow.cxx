@@ -9,6 +9,7 @@
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
 #include "vtkCollectionRange.h"
 #include "vtkFloatArray.h"
+#include "vtkHardwareWindow.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -78,6 +79,7 @@ struct InternalMapTextureAsyncData
 };
 }
 
+vtkStandardNewMacro(vtkWebGPURenderWindow);
 //------------------------------------------------------------------------------
 vtkWebGPURenderWindow::vtkWebGPURenderWindow()
 {
@@ -115,6 +117,7 @@ bool vtkWebGPURenderWindow::WGPUInit()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::Initialize()
 {
+  this->CreateAWindow();
   if (!this->WindowSetup()) // calls WGPUInit after surface is created.
   {
     vtkLog(ERROR, "Unable to setup WebGPU.");
@@ -2148,6 +2151,18 @@ vtkSmartPointer<vtkImageData> vtkWebGPURenderWindow::SaveAttachmentToVTI(
       break;
   }
   return image;
+}
+
+//-------------------------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::CreateAWindow()
+{
+  if (!this->HardwareWindow)
+  {
+    this->HardwareWindow = vtkHardwareWindow::New();
+    this->HardwareWindow->Register(this);
+  }
+  this->HardwareWindow->Create();
+  this->HardwareWindow->PrintSelf(std::cout, vtkIndent());
 }
 
 VTK_ABI_NAMESPACE_END

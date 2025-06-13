@@ -34,6 +34,11 @@ class vtkTypeUInt32Array;
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPURenderWindow : public vtkRenderWindow
 {
 public:
+  /**
+   * Instantiate the class.
+   */
+  static vtkWebGPURenderWindow* New();
+
   vtkTypeMacro(vtkWebGPURenderWindow, vtkRenderWindow);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -41,17 +46,17 @@ public:
    * Concrete render windows must create a platform window and initialize this->WindowId.
    * Upon success, please call WGPUInit().
    */
-  virtual bool WindowSetup() = 0;
+  virtual bool WindowSetup() { return true; }
 
   /**
    * Create a not-off-screen window.
    */
-  virtual void CreateAWindow() = 0;
+  virtual void CreateAWindow();
 
   /**
    * Destroy a not-off-screen window.
    */
-  virtual void DestroyWindow() = 0;
+  virtual void DestroyWindow() {}
 
   /**
    * Creates the WebGPU context, swapchain, depth buffer, color attachment, ...
@@ -308,7 +313,7 @@ protected:
    *     "Visualization Toolkit - Cocoa OpenGL"
    *     "Visualization Toolkit - Win32 D3D12"
    */
-  virtual std::string MakeDefaultWindowNameWithBackend() = 0;
+  virtual std::string MakeDefaultWindowNameWithBackend() { return ""; }
 
   bool WGPUInit();
   void WGPUFinalize();

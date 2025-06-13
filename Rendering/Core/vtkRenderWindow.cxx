@@ -81,6 +81,7 @@ vtkRenderWindow::~vtkRenderWindow()
 {
   this->SetInteractor(nullptr);
   this->SetSharedRenderWindow(nullptr);
+  this->SetHardwareWindow(nullptr);
 
   if (this->Renderers)
   {
