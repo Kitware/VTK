@@ -1,11 +1,8 @@
 set(classes
   vtkObjectManager)
 
-set(sources
-  vtkSession.cxx)
-
-set(headers
-  vtkSession.h)
+set(nowrap_classes
+  vtkSession)
 
 get_property(_vtk_serialization_manager_public_deps GLOBAL
   PROPERTY "_vtk_module_VTK::SerializationManager_depends")
@@ -42,7 +39,7 @@ vtk_module_generate_libraries_serdes_registrar(
 
 vtk_module_add_module(VTK::SerializationManager
   CLASSES ${classes}
-  HEADERS ${headers}
-  SOURCES ${_vtk_serdes_registrar_source} ${sources})
+  NOWRAP_CLASSES ${nowrap_classes}
+  SOURCES ${_vtk_serdes_registrar_source})
 
 vtk_add_test_mangling(VTK::SerializationManager)
