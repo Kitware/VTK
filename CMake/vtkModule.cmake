@@ -2468,6 +2468,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleTesting.cmake")
       [LICENSE_COMPONENT  <component>]
 
       [UTILITY_TARGET     <target>]
+      [PLATFORM_TARGET    <target>]
 
       [TEST_DIRECTORY_NAME        <name>]
       [TEST_DATA_TARGET           <target>]
@@ -2529,6 +2530,10 @@ include("${CMAKE_CURRENT_LIST_DIR}/vtkModuleTesting.cmake")
   * ``UTILITY_TARGET``: If specified, all libraries and executables made by the
     VTK Module API will privately link to this target. This may be used to
     provide things such as project-wide compilation flags or similar.
+  * ``PLATFORM_TARGET``: If specified, all libraries made by the
+    VTK Module API will "public" link to this target. This may be used to
+    provide things such as platform-specific flags that will be propagated to
+    consumers of the module.
   * ``TARGET_NAMESPACE``: ``Defaults to ``\<AUTO\>``) The namespace for installed
     targets. All targets must have the same namespace. If set to ``\<AUTO\>``,
     the namespace will be detected automatically.
@@ -2595,6 +2600,7 @@ function (vtk_module_build)
     SPDX_COMPONENT
     TARGET_NAMESPACE
     UTILITY_TARGET
+    PLATFORM_TARGET
 
     # Destinations
     ARCHIVE_DESTINATION
@@ -2987,6 +2993,12 @@ function (vtk_module_build)
         target_link_libraries("${_vtk_build_target_name}"
           PRIVATE
             "${_vtk_build_UTILITY_TARGET}")
+      endif ()
+
+      if (_vtk_build_PLATFORM_TARGET)
+        target_link_libraries("${_vtk_build_target_name}"
+          PUBLIC
+            "${_vtk_build_PLATFORM_TARGET}")
       endif ()
 
       get_property(_vtk_build_kit_library_name GLOBAL
@@ -4339,6 +4351,12 @@ function (vtk_module_add_module name)
       target_link_libraries("${_vtk_add_module_real_target}"
         PRIVATE
           "${_vtk_build_UTILITY_TARGET}")
+    endif ()
+
+    if (_vtk_build_PLATFORM_TARGET)
+      target_link_libraries("${_vtk_add_module_real_target}"
+        PUBLIC
+          "${_vtk_build_PLATFORM_TARGET}")
     endif ()
 
     set_property(TARGET "${_vtk_add_module_real_target}"

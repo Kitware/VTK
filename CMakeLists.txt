@@ -67,6 +67,9 @@ include(GNUInstallDirs)
 add_library(vtkbuild INTERFACE)
 add_library(VTK::vtkbuild ALIAS vtkbuild)
 
+add_library(vtkplatform INTERFACE)
+add_library(VTK::vtkplatform ALIAS vtkplatform)
+
 # Some flags are really bad for caching. Replace them with better variants.
 if (vtk_replace_uncacheable_flags)
   get_property(is_multiconfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
@@ -569,6 +572,7 @@ if (NOT DEFINED vtk_cmake_destination)
   endif ()
 endif ()
 install(TARGETS vtkbuild EXPORT "${vtk_install_export}")
+install(TARGETS vtkplatform EXPORT "${vtk_install_export}")
 
 if (NOT DEFINED vtk_hierarchy_destination_args)
   set(vtk_hierarchy_destination_args
@@ -625,6 +629,7 @@ vtk_module_build(
   USE_EXTERNAL        "${VTK_USE_EXTERNAL}"
   ENABLE_WRAPPING     "${VTK_ENABLE_WRAPPING}"
   UTILITY_TARGET      "VTK::vtkbuild"
+  PLATFORM_TARGET     "VTK::vtkplatform"
   TARGET_SPECIFIC_COMPONENTS  "${VTK_TARGET_SPECIFIC_COMPONENTS}"
   TEST_INPUT_DATA_DIRECTORY   "${CMAKE_CURRENT_SOURCE_DIR}/Testing"
   TEST_OUTPUT_DATA_DIRECTORY  "${CMAKE_CURRENT_BINARY_DIR}/ExternalData/Testing"
