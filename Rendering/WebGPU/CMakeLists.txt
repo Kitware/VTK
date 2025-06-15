@@ -247,8 +247,12 @@ vtk_module_compile_features(VTK::RenderingWebGPU
     cxx_std_17)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  vtk_module_find_package(PACKAGE emdawnwebgpu)
-  vtk_module_link(VTK::RenderingWebGPU PUBLIC emdawnwebgpu)
+  vtk_module_compile_options(VTK::RenderingWebGPU
+    PUBLIC
+      "--use-port=emdawnwebgpu")
+  vtk_module_link_options(VTK::RenderingWebGPU
+    PUBLIC
+      "--use-port=emdawnwebgpu")
 else ()
   if (VTK_USE_X)
     vtk_module_find_package(PACKAGE X11)
