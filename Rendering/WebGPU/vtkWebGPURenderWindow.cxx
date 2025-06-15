@@ -307,7 +307,6 @@ void vtkWebGPURenderWindow::CreateCommandEncoder()
 {
   vtkWebGPUCheckUnconfigured(this);
   wgpu::CommandEncoderDescriptor encDesc = {};
-  std::stringstream label;
   encDesc.label = "vtkWebGPURenderWindow::CommandEncoder";
   if (auto device = this->WGPUConfiguration->GetDevice())
   {
