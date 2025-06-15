@@ -211,9 +211,10 @@ elseif (VTK_USE_COCOA)
   # set(vtk_webgpu_factory_override_classname "vtkCocoaWebGPURenderWindow")
   # set(has_vtkRenderWindow_override 1)
 elseif (VTK_USE_WIN32_OPENGL) # FIXME: We need a VTK_USE_WIN32_WINDOW flag here
-  # TODO: Implement
-  # set(vtk_webgpu_factory_override_classname "vtkWin32WebGPURenderWindow")
-  # set(has_vtkRenderWindow_override 1)
+  if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+    set(vtk_webgpu_factory_override_classname "vtkWebGPURenderWindow")
+    set(has_vtkRenderWindow_override 1)
+  endif ()
 endif ()
 
 if (NOT has_vtkRenderWindow_override)
