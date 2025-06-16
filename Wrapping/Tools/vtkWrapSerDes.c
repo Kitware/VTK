@@ -15,11 +15,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef _WIN32
-/* for Sleep() */
-#include <windows.h>
-#endif
-
 /* -------------------------------------------------------------------- */
 /* Get the header file for the specified class */
 static const char* vtkWrapSerDes_ClassHeader(const HierarchyInfo* hinfo, const char* classname)
@@ -302,20 +297,6 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
 
   /* get the output file */
   fp = vtkParse_FileOpen(options->OutputFileName, "w");
-
-#ifdef _WIN32
-  if (!fp)
-  {
-    /* repeatedly try to open output file in case of access/sharing error */
-    /* (for example, antivirus software might be scanning the output file) */
-    int tries;
-    for (tries = 0; !fp && tries < 5 && errno == EACCES; tries++)
-    {
-      Sleep(1000);
-      fp = vtkParse_FileOpen(options->OutputFileName, "w");
-    }
-  }
-#endif
   if (!fp)
   {
     int e = errno;
