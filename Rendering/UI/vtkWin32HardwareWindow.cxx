@@ -107,7 +107,7 @@ void vtkWin32HardwareWindow::Create()
 
   // has the class been registered ?
   WNDCLASSA wndClass;
-  if (!GetClassInfoA(this->ApplicationInstance, "vtkOpenGL", &wndClass))
+  if (!GetClassInfoA(this->ApplicationInstance, "vtkWin32", &wndClass))
   {
     wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
     wndClass.lpfnWndProc = DefWindowProc;
@@ -117,7 +117,7 @@ void vtkWin32HardwareWindow::Create()
     wndClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wndClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
     wndClass.lpszMenuName = nullptr;
-    wndClass.lpszClassName = "vtkOpenGL";
+    wndClass.lpszClassName = "vtkWin32";
     // vtk doesn't use the first extra vtkLONG's worth of bytes,
     // but app writers may want them, so we provide them. VTK
     // does use the second vtkLONG's worth of bytes of extra space.
@@ -136,7 +136,7 @@ void vtkWin32HardwareWindow::Create()
     if (this->ParentId)
     {
       this->WindowId =
-        CreateWindowA("vtkVulkan", "VTK - Vulkan", WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
+        CreateWindowA("vtkWin32", "VTK - Win32", WS_CHILD | WS_CLIPCHILDREN /*| WS_CLIPSIBLINGS*/,
           x, y, width, height, this->ParentId, nullptr, this->ApplicationInstance, nullptr);
     }
     else
@@ -152,7 +152,7 @@ void vtkWin32HardwareWindow::Create()
       }
       RECT r;
       AdjustWindowRectForBorders(nullptr, style, x, y, width, height, r);
-      this->WindowId = CreateWindowA("vtkOpenGL", "VTK - Vulkan", style, x, y, r.right - r.left,
+      this->WindowId = CreateWindowA("vtkWin32", "VTK - Win32", style, x, y, r.right - r.left,
         r.bottom - r.top, nullptr, nullptr, this->ApplicationInstance, nullptr);
     }
 

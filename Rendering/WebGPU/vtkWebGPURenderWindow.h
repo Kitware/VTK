@@ -318,6 +318,7 @@ protected:
   bool WGPUInit();
   void WGPUFinalize();
 
+  void CreateSurface();
   void ConfigureSurface();
   void UnconfigureSurface();
 

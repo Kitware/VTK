@@ -20,12 +20,14 @@
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPUHelpers.h"
 #include "vtkWebGPURenderer.h"
+#include "vtkWin32HardwareWindow.h"
 
 #include "vtksys/SystemTools.hxx"
 
 #include "CopyDepthTextureToBuffer.h"
 
 #include <sstream>
+#include <webgpu/webgpu_cpp.h>
 
 #if defined(__EMSCRIPTEN__)
 #include "emscripten/version.h"
@@ -115,6 +117,27 @@ bool vtkWebGPURenderWindow::WGPUInit()
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::CreateSurface()
+{
+  if (!this->HardwareWindow)
+  {
+    // vtkErrorMacro(<< "Cannot create surface without a hardware window.");
+    return;
+  }
+
+  if (auto* win32hw = vtkWin32HardwareWindow::SafeDownCast(this->HardwareWindow))
+  {
+    wgpu::SurfaceDescriptorFromWindowsHWND winSurfDesc;
+    winSurfDesc.hwnd = win32hw->GetWindowId();
+    winSurfDesc.hinstance = win32hw->GetApplicationInstance();
+    wgpu::SurfaceDescriptor surfDesc = {};
+    surfDesc.label = "VTK Win32 surface";
+    surfDesc.nextInChain = &winSurfDesc;
+    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::Initialize()
 {
   this->CreateAWindow();
@@ -124,6 +147,10 @@ void vtkWebGPURenderWindow::Initialize()
     return;
   }
 
+  if (this->WGPUInit())
+  {
+    this->CreateSurface();
+  }
   this->ConfigureSurface();
   this->CreateOffscreenColorAttachment();
   this->CreateIdsAttachment();
