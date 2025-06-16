@@ -4,6 +4,7 @@
 
 #include <vtkCharArray.h>
 #include <vtkDoubleArray.h>
+#include <vtkFloatArray.h>
 #include <vtkIntArray.h>
 #include <vtkLongLongArray.h>
 #include <vtkStringArray.h>
@@ -52,6 +53,10 @@ vtkAbstractArray* QVTKTableModelAdapter::NewArray(const QVariant& type)
 
   switch (vtk_qVariantType(type))
   {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    case vtk_qMetaType(Float):
+      return vtkFloatArray::New();
+#endif
     case vtk_qMetaType(Double):
       return vtkDoubleArray::New();
     case vtk_qMetaType(Char):
