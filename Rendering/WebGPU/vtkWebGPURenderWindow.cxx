@@ -21,6 +21,7 @@
 #include "vtkWebGPUHelpers.h"
 #include "vtkWebGPURenderer.h"
 #include "vtkWin32HardwareWindow.h"
+#include "vtkXlibHardwareWindow.h"
 
 #include "vtksys/SystemTools.hxx"
 
@@ -133,6 +134,16 @@ void vtkWebGPURenderWindow::CreateSurface()
     wgpu::SurfaceDescriptor surfDesc = {};
     surfDesc.label = "VTK Win32 surface";
     surfDesc.nextInChain = &winSurfDesc;
+    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
+  }
+  else if (auto* xlibhw = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
+  {
+    wgpu::SurfaceDescriptorFromXlibWindow xlibSurfDesc;
+    xlibSurfDesc.display = xlibhw->GetDisplayId();
+    xlibSurfDesc.window = xlibhw->GetWindowId();
+    wgpu::SurfaceDescriptor surfDesc = {};
+    surfDesc.label = "VTK Xlib surface";
+    surfDesc.nextInChain = &xlibSurfDesc;
     this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
   }
 }
