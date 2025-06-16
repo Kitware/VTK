@@ -380,6 +380,11 @@ protected:
 private:
   vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&) = delete;
   void operator=(const vtkXOpenGLRenderWindow&) = delete;
+
+  /**
+   * Ensure GLX symbols are loaded. Returns false when GLX is unavailable.
+   */
+  bool EnsureGLX();
 };
 
 VTK_ABI_NAMESPACE_END
