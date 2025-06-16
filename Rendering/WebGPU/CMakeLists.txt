@@ -203,7 +203,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 elseif (VTK_USE_X)
   # Add some custom overrides
   if (NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
-    set(vtk_webgpu_factory_override_classname "vtkXWebGPURenderWindow")
+    set(vtk_webgpu_factory_override_classname "vtkWebGPURenderWindow")
     set(has_vtkRenderWindow_override 1)
   endif ()
 elseif (VTK_USE_COCOA)
