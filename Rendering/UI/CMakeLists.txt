@@ -28,8 +28,9 @@ if(VTK_USE_X)
     APPEND
     classes
     vtkXRenderWindowInteractor
+    vtkXlibHardwareWindow
   )
-elseif(WIN32)
+elseif (WIN32)
   # Add some custom overrides
   if(NOT
      VTK_DEFAULT_RENDER_WINDOW_HEADLESS

@@ -20,8 +20,12 @@
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPUHelpers.h"
 #include "vtkWebGPURenderer.h"
+#ifdef __WIN32__
 #include "vtkWin32HardwareWindow.h"
+#elif __APPLE__
+#else
 #include "vtkXlibHardwareWindow.h"
+#endif
 
 #include "vtksys/SystemTools.hxx"
 
@@ -126,6 +130,7 @@ void vtkWebGPURenderWindow::CreateSurface()
     return;
   }
 
+#ifdef __WIN32__
   if (auto* win32hw = vtkWin32HardwareWindow::SafeDownCast(this->HardwareWindow))
   {
     wgpu::SurfaceDescriptorFromWindowsHWND winSurfDesc;
@@ -136,8 +141,11 @@ void vtkWebGPURenderWindow::CreateSurface()
     surfDesc.nextInChain = &winSurfDesc;
     this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
   }
-  else if (auto* xlibhw = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
+#elifdef __APPLE__
+#else
+  if (auto* xlibhw = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
+    xlibhw->SetWindowName("VTK Xlib window");
     wgpu::SurfaceDescriptorFromXlibWindow xlibSurfDesc;
     xlibSurfDesc.display = xlibhw->GetDisplayId();
     xlibSurfDesc.window = xlibhw->GetWindowId();
@@ -146,6 +154,7 @@ void vtkWebGPURenderWindow::CreateSurface()
     surfDesc.nextInChain = &xlibSurfDesc;
     this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
   }
+#endif
 }
 
 //------------------------------------------------------------------------------
