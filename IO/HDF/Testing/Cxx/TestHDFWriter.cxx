@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCellData.h"
+#include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
 #include "vtkImageData.h"
@@ -16,14 +17,10 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkXMLImageDataWriter.h"
 #include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPartitionedDataSetCollectionReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
-
-#include "vtkHDF5ScopedHandle.h"
-#include "vtk_hdf5.h"
 
 #include <string>
 
@@ -65,7 +62,7 @@ bool WriteMiscData(const std::string& filename)
   // Create and fill dataset
   vtkHDF::ScopedH5DHandle dataset = H5Dcreate(
     data3, "MiscDataset", H5T_STD_I64LE, dataspace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-  std::array<int, 3> values{ 4, 5, 3 };
+  std::array<hsize_t, 3> values{ 4, 5, 3 };
   H5Dwrite(dataset, H5T_STD_I64LE, H5S_ALL, dataspace, H5P_DEFAULT, values.data());
 
   return true;
