@@ -25,7 +25,7 @@ public:
   /**
    * Set/Get the extent of the whole output image.
    */
-  void SetWholeExtent(int xMinx, int xMax, int yMin, int yMax, int zMin, int zMax);
+  void SetWholeExtent(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax);
 
   ///@{
   /**
