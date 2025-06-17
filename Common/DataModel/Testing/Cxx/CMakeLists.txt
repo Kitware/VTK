@@ -52,6 +52,8 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestMappedGridDeepCopy.cxx
   TestMappedGridShallowCopy.cxx
   TestMeshMTime.cxx
+  TestNonOverlappingAMR.cxx
+  TestOverlappingAMR.cxx
   TestPath.cxx
   TestPentagonalPrism.cxx
   TestPiecewiseFunction.cxx

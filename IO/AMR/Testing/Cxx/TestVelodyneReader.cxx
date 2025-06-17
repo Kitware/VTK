@@ -50,7 +50,10 @@ int TestVelodyneReader(int argc, char* argv[])
   {
     return VTK_ERROR;
   }
-  amr->Audit();
+  if (!amr->CheckValidity())
+  {
+    return VTK_ERROR;
+  }
   myVelodyneReader->Delete();
   delete[] fileName;
   return EXIT_SUCCESS;

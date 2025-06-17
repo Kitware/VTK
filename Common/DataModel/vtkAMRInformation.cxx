@@ -184,7 +184,7 @@ void vtkAMRInformation::PrintSelf(ostream& os, vtkIndent indent)
   os << "\n";
 }
 
-bool vtkAMRInformation::Audit()
+bool vtkAMRInformation::CheckValidity()
 {
   int emptyDimension(-1);
   switch (this->GridDescription)
@@ -229,7 +229,7 @@ bool vtkAMRInformation::Audit()
     {
       if (h[d] < 0)
       {
-        vtkErrorMacro("Invalid spacing at level " << i << endl);
+        vtkErrorMacro("Invalid spacing at level " << i << " : " << h[d] << endl);
       }
     }
 

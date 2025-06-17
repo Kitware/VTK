@@ -35,7 +35,11 @@ vtkSmartPointer<vtkOverlappingAMR> CreateTestAMR(int argc, char* argv[])
 int TestAMRReadWrite(int argc, char* argv[])
 {
   vtkSmartPointer<vtkOverlappingAMR> amr = CreateTestAMR(argc, argv);
-  amr->Audit();
+  if (!amr->CheckValidity())
+  {
+    return EXIT_FAILURE;
+  }
+
   vtkNew<vtkCompositeDataWriter> writer;
   writer->SetInputData(amr);
   writer->SetFileName("testamr");
@@ -47,7 +51,10 @@ int TestAMRReadWrite(int argc, char* argv[])
 
   vtkSmartPointer<vtkOverlappingAMR> amr1 =
     vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
-  amr1->Audit();
+  if (!amr1->CheckValidity())
+  {
+    return EXIT_FAILURE;
+  }
 
   return (*amr1->GetAMRInfo() == *amr->GetAMRInfo()) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

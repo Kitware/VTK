@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
 #include "vtkOverlappingAMR.h"
 #include "vtkAMRInformation.h"
 #include "vtkCellData.h"
@@ -9,6 +10,8 @@
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMRDataIterator.h"
 #include "vtkUnsignedCharArray.h"
+
+#include <utility>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -171,7 +174,13 @@ int vtkOverlappingAMR::GetAMRBlockSourceIndex(unsigned int level, unsigned int i
 //------------------------------------------------------------------------------
 void vtkOverlappingAMR::Audit()
 {
-  this->AMRInfo->Audit();
+  std::ignore = this->CheckValidity();
+}
+
+//------------------------------------------------------------------------------
+bool vtkOverlappingAMR::CheckValidity()
+{
+  bool ret = this->AMRInfo->CheckValidity();
 
   int emptyDimension(-1);
   switch (this->GetGridDescription())
@@ -215,20 +224,24 @@ void vtkOverlappingAMR::Audit()
         {
           vtkErrorMacro(
             "The grid spacing does not match AMRInfo at (" << level << ", " << id << ")");
+          ret = false;
         }
         if (!hasGhost && grid->GetOrigin()[d] != origin[d])
         {
           vtkErrorMacro(
             "The grid origin does not match AMRInfo at (" << level << ", " << id << ")");
+          ret = false;
         }
         if (!hasGhost && grid->GetDimensions()[d] != dims[d])
         {
           vtkErrorMacro(
             "The grid dimensions does not match AMRInfo at (" << level << ", " << id << ")");
+          ret = false;
         }
       }
     }
   }
+  return ret;
 }
 
 bool vtkOverlappingAMR::FindGrid(double q[3], unsigned int& level, unsigned int& gridId)

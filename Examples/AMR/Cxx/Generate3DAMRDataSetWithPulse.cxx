@@ -185,7 +185,5 @@ vtkOverlappingAMR* GetAMRDataSet()
 
   vtkAMRUtilities::BlankCells(data);
 
-  data->Audit();
-
   return (data);
 }
