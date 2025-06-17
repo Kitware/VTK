@@ -156,6 +156,12 @@ public:
    */
   bool RetrieveHDFInformation(const std::string& rootName);
 
+  /**
+   * Retrieve ImageData attributes and store them.
+   * Return false on failure.
+   */
+  bool GetImageAttributes(int WholeExtent[6], double Origin[3], double Spacing[3]);
+
   ///@{
   /**
    * Specific public API for AMR support.
