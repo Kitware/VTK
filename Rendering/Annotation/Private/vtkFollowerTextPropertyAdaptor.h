@@ -53,7 +53,7 @@ public:
   void SetScale(double scale);
 
 private:
-  vtkAxisFollower* Follower;
+  vtkAxisFollower* MapperFollower;
   vtkProp3DAxisFollower* PropFollower;
   double FontScale = 1;
 

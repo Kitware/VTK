@@ -139,10 +139,10 @@ private:
 
   vtkNew<vtkVectorText> Vector;
 
-  vtkNew<vtkTextActor> Actor2D;
-  vtkNew<vtkTextActor3D> Actor3D;
-  vtkNew<vtkProp3DAxisFollower> Follower3D;
-  vtkNew<vtkAxisFollower> Follower;
+  vtkNew<vtkTextActor> Raster2D;
+  vtkNew<vtkTextActor3D> Raster3D;
+  vtkNew<vtkProp3DAxisFollower> RasterFollower;
+  vtkNew<vtkAxisFollower> VectorFollower;
 
   vtkSmartPointer<vtkCamera> Camera;
   std::unique_ptr<vtkFollowerTextPropertyAdaptor> FollowerAdaptor;

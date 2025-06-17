@@ -20,7 +20,7 @@ VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkFollowerTextPropertyAdaptor::vtkFollowerTextPropertyAdaptor(
   vtkAxisFollower* follower, vtkProp3DAxisFollower* propFollower)
-  : Follower(follower)
+  : MapperFollower(follower)
   , PropFollower(propFollower)
 {
   this->ModifiedCallback->SetCallback(vtkFollowerTextPropertyAdaptor::OnModified);
@@ -34,7 +34,7 @@ vtkFollowerTextPropertyAdaptor::~vtkFollowerTextPropertyAdaptor() = default;
 void vtkFollowerTextPropertyAdaptor::OnModified(vtkObject*, unsigned long, void* clientData, void*)
 {
   auto adaptor = reinterpret_cast<vtkFollowerTextPropertyAdaptor*>(clientData);
-  adaptor->Follower->GetAxis()->Modified();
+  adaptor->MapperFollower->GetAxis()->Modified();
   adaptor->PropFollower->Modified();
 }
 
@@ -43,19 +43,19 @@ void vtkFollowerTextPropertyAdaptor::UpdateProperty(
   vtkTextProperty* textProperty, vtkProperty* actorProperty)
 {
   // no text property here. Use standard prop, and override color/opacity
-  this->Follower->GetProperty()->DeepCopy(actorProperty);
-  this->Follower->GetProperty()->SetColor(textProperty->GetColor());
-  this->Follower->GetProperty()->SetOpacity(textProperty->GetOpacity());
-  this->Follower->SetOrientation(0, 0, textProperty->GetOrientation());
+  this->MapperFollower->GetProperty()->DeepCopy(actorProperty);
+  this->MapperFollower->GetProperty()->SetColor(textProperty->GetColor());
+  this->MapperFollower->GetProperty()->SetOpacity(textProperty->GetOpacity());
+  this->MapperFollower->SetOrientation(0, 0, textProperty->GetOrientation());
 
   // mimics font size
   double prevScale[3];
-  this->Follower->GetScale(prevScale);
+  this->MapperFollower->GetScale(prevScale);
   double scale = prevScale[0] / this->FontScale;
   // Use font size change factor to rescale.
   double size = textProperty->GetFontSize();
   this->FontScale = size / utils::DefaultFontSize;
-  this->Follower->SetScale(scale * this->FontScale);
+  this->MapperFollower->SetScale(scale * this->FontScale);
 
   textProperty->RemoveObserver(this->TextPropObserverId);
   this->TextPropObserverId =
@@ -65,7 +65,7 @@ void vtkFollowerTextPropertyAdaptor::UpdateProperty(
 //------------------------------------------------------------------------------
 void vtkFollowerTextPropertyAdaptor::SetScale(double scale)
 {
-  this->Follower->SetScale(this->FontScale * scale);
+  this->MapperFollower->SetScale(this->FontScale * scale);
 }
 
 VTK_ABI_NAMESPACE_END
