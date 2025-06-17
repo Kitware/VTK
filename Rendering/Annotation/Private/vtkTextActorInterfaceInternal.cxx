@@ -103,20 +103,29 @@ void vtkTextActorInterfaceInternal::GetActors(vtkPropCollection* collection)
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::AdjustScale()
 {
-  double titleBounds[6];
-  this->GetBounds(titleBounds);
-  int titleActor3DBounds[4];
-  this->Raster3D->GetBoundingBox(titleActor3DBounds);
-  const double titleActor3DWidth =
-    static_cast<double>(titleActor3DBounds[1] - titleActor3DBounds[0]);
-  double scale = (titleBounds[1] - titleBounds[0]) / titleActor3DWidth;
+  double vectorBounds[6];
+  this->VectorFollower->GetMapper()->GetBounds(vectorBounds);
 
-  this->Raster3D->SetScale(scale);
+  int rasterBounds[4];
+  this->Raster3D->GetBoundingBox(rasterBounds);
+
+  double rasterWidth = rasterBounds[1] - rasterBounds[0];
+  if (rasterWidth == 0)
+  {
+    return;
+  }
+
+  double adjustScale = (vectorBounds[1] - vectorBounds[0]) / rasterWidth;
+  double fontScale = this->FollowerAdaptor->GetFontScale();
+  double newScale = adjustScale * fontScale;
+
+  this->Raster3D->SetScale(newScale);
 }
 
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::SetScale(double scale)
 {
+  // vtkTextActor does not support scaling, so Raster2D is not updated here.
   this->FollowerAdaptor->SetScale(scale);
   this->RasterFollower->SetScale(scale);
 }

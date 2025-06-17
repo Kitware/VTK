@@ -68,4 +68,10 @@ void vtkFollowerTextPropertyAdaptor::SetScale(double scale)
   this->MapperFollower->SetScale(this->FontScale * scale);
 }
 
+//------------------------------------------------------------------------------
+double vtkFollowerTextPropertyAdaptor::GetFontScale()
+{
+  return this->FontScale;
+}
+
 VTK_ABI_NAMESPACE_END

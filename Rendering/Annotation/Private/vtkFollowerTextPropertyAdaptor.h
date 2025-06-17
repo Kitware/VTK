@@ -52,6 +52,13 @@ public:
    */
   void SetScale(double scale);
 
+  /**
+   * Return the scale to apply to mimic a font size.
+   * This is equals to FontSize / DefaultFontSize
+   * where DefaultFontSize is 12., as the vtkTextProperty default value.
+   */
+  [[nodiscard]] double GetFontScale();
+
 private:
   vtkAxisFollower* MapperFollower;
   vtkProp3DAxisFollower* PropFollower;
