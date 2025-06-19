@@ -392,7 +392,8 @@ int TestOverlappingAMR(const std::string& dataRoot)
 //------------------------------------------------------------------------------
 int TestCompositeDataSet(const std::string& dataRoot)
 {
-  // This dataset is composed of 4 blocks : 2 polydata, 1 unstructured grid, 1 HyperTreeGrid
+  // This dataset is composed of 4 blocks : 2 polydata, 1 image data, 1 unstructured grid, 1
+  // HyperTreeGrid
   const std::string hdfPath = dataRoot + "/Data/vtkHDF/test_composite.hdf";
   std::cout << "Testing: " << hdfPath << std::endl;
 

@@ -348,9 +348,6 @@ vtkHDFReader::vtkHDFReader()
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 
-  std::fill(this->WholeExtent, this->WholeExtent + 6, 0);
-  std::fill(this->Origin, this->Origin + 3, 0.0);
-  std::fill(this->Spacing, this->Spacing + 3, 0.0);
   this->Impl = new vtkHDFReader::Implementation(this);
   this->TimeRange[0] = this->TimeRange[1] = 0.0;
   this->MeshCache->SetConsumer(this);
@@ -617,24 +614,18 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
   int dataSetType = this->Impl->GetDataSetType();
   if (dataSetType == VTK_IMAGE_DATA)
   {
-    if (!this->Impl->GetAttribute("WholeExtent", 6, this->WholeExtent))
+    int WholeExtent[6];
+    double Origin[3];
+    double Spacing[3];
+
+    if (!this->Impl->GetImageAttributes(WholeExtent, Origin, Spacing))
     {
-      vtkErrorMacro("Could not get WholeExtent attribute");
       return 0;
     }
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->WholeExtent, 6);
-    if (!this->Impl->GetAttribute("Origin", 3, this->Origin))
-    {
-      vtkErrorMacro("Could not get Origin attribute");
-      return 0;
-    }
-    outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
-    if (!this->Impl->GetAttribute("Spacing", 3, this->Spacing))
-    {
-      vtkErrorMacro("Could not get Spacing attribute");
-      return 0;
-    }
-    outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
+
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), WholeExtent, 6);
+    outInfo->Set(vtkDataObject::ORIGIN(), Origin, 3);
+    outInfo->Set(vtkDataObject::SPACING(), Spacing, 3);
     outInfo->Set(CAN_PRODUCE_SUB_EXTENT(), 1);
   }
   else if (dataSetType == VTK_UNSTRUCTURED_GRID || dataSetType == VTK_POLY_DATA)
@@ -643,12 +634,13 @@ int vtkHDFReader::SetupInformation(vtkInformation* outInfo)
   }
   else if (dataSetType == VTK_OVERLAPPING_AMR)
   {
-    if (!this->Impl->GetAttribute("Origin", 3, this->Origin))
+    double Origin[3];
+    if (!this->Impl->GetAttribute("Origin", 3, Origin))
     {
       vtkErrorMacro("Could not get Origin attribute");
       return 0;
     }
-    outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
+    outInfo->Set(vtkDataObject::ORIGIN(), Origin, 3);
     outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 0);
   }
   else if (dataSetType == VTK_HYPER_TREE_GRID)
@@ -732,10 +724,23 @@ void vtkHDFReader::PrintPieceInformation(vtkInformation* outInfo)
 //------------------------------------------------------------------------------
 int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
 {
-  std::array<int, 6> updateExtent;
-  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent.data());
-  data->SetOrigin(this->Origin);
-  data->SetSpacing(this->Spacing);
+  int WholeExtent[6];
+  double Origin[3];
+  double Spacing[3];
+
+  if (!this->Impl->GetImageAttributes(WholeExtent, Origin, Spacing))
+  {
+    return 0;
+  }
+
+  std::vector<int> updateExtent(WholeExtent, WholeExtent + 6);
+  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
+  {
+    outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), updateExtent.data());
+  }
+
+  data->SetOrigin(Origin);
+  data->SetSpacing(Spacing);
   data->SetExtent(updateExtent.data());
   if (!this->Impl->GetAttribute("Direction", 9, data->GetDirectionMatrix()->GetData()))
   {
@@ -752,7 +757,7 @@ int vtkHDFReader::Read(vtkInformation* outInfo, vtkImageData* data)
       if (this->DataArraySelection[attributeType]->ArrayIsEnabled(name.c_str()))
       {
         vtkSmartPointer<vtkDataArray> array;
-        std::vector<hsize_t> fileExtent = ::ReduceDimension(updateExtent.data(), this->WholeExtent);
+        std::vector<hsize_t> fileExtent = ::ReduceDimension(updateExtent.data(), WholeExtent);
         std::vector<int> extentBuffer(fileExtent.size(), 0);
         std::copy(
           updateExtent.begin(), updateExtent.begin() + extentBuffer.size(), extentBuffer.begin());
@@ -1546,7 +1551,13 @@ int vtkHDFReader::ReadRecursively(
 //------------------------------------------------------------------------------
 int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* data)
 {
-  data->SetOrigin(this->Origin);
+  double Origin[3];
+  if (!this->Impl->GetAttribute("Origin", 3, Origin))
+  {
+    vtkErrorMacro("Could not get Origin attribute");
+    return 0;
+  }
+  data->SetOrigin(Origin);
 
   unsigned int maxLevel = this->MaximumLevelsToReadByDefaultForAMR > 0
     ? this->MaximumLevelsToReadByDefaultForAMR
@@ -1569,7 +1580,7 @@ int vtkHDFReader::Read(vtkInformation* vtkNotUsed(outInfo), vtkOverlappingAMR* d
 
   unsigned int level = 0;
 
-  if (!this->Impl->ReadAMRTopology(data, level, maxLevel, this->Origin, this->GetHasTemporalData()))
+  if (!this->Impl->ReadAMRTopology(data, level, maxLevel, Origin, this->GetHasTemporalData()))
   {
     return 1;
   }
