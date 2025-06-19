@@ -1,6 +1,7 @@
 # Disable modules for which there are missing dependencies.
 set(VTK_MODULE_ENABLE_VTK_CommonArchive NO CACHE STRING "") # libarchive
 set(VTK_MODULE_ENABLE_VTK_DomainsMicroscopy NO CACHE STRING "") # openslide
+set(VTK_MODULE_ENABLE_VTK_FiltersONNX NO CACHE BOOL "") # onnxruntime
 set(VTK_MODULE_ENABLE_VTK_FiltersOpenTURNS NO CACHE STRING "") # openturns
 set(VTK_MODULE_ENABLE_VTK_IOADIOS2 NO CACHE STRING "") # adios2
 set(VTK_MODULE_ENABLE_VTK_IOAlembic NO CACHE STRING "") # alembic

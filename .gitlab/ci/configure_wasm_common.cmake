@@ -11,6 +11,7 @@ set(VTK_MODULE_ENABLE_VTK_CommonArchive NO CACHE STRING "") # libarchive
 # ├── Domains
 set(VTK_MODULE_ENABLE_VTK_DomainsMicroscopy NO CACHE STRING "") # no OpenSlide
 # ├── Filters
+set(VTK_MODULE_ENABLE_VTK_FiltersONNX NO CACHE BOOL "") # no onnxruntime
 set(VTK_MODULE_ENABLE_VTK_FiltersOpenTURNS NO CACHE STRING "") # no openturns
 set(VTK_MODULE_ENABLE_VTK_FiltersReebGraph NO CACHE STRING "") # no boost
 # ├── Infovis
