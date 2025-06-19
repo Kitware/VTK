@@ -17,6 +17,7 @@
 #ifndef vtkProp3DAxisFollower_h
 #define vtkProp3DAxisFollower_h
 
+#include "vtkDeprecation.h"
 #include "vtkProp3DFollower.h"
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkWeakPointer.h"               // For vtkWeakPointer
@@ -161,6 +162,7 @@ protected:
     double Ry[3], double Rz[3], vtkAxisActor* axis);
 
   // \NOTE: Not used as of now.
+  VTK_DEPRECATED_IN_9_6_0("Unmaintained method, please do not use.")
   void ComputerAutoCenterTranslation(const double& autoScaleFactor, double translation[3]);
 
   int TestDistanceVisibility();

@@ -381,6 +381,7 @@ void vtkProp3DAxisFollower ::ComputeRotationAndTranlation(vtkViewport* viewport,
 }
 
 //------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_6_0
 void vtkProp3DAxisFollower::ComputerAutoCenterTranslation(
   const double& vtkNotUsed(autoScaleFactor), double translation[3])
 {

@@ -160,6 +160,7 @@ protected:
     double Ry[3], double Rz[3], vtkAxisActor* axis);
 
   // \NOTE: Not used as of now.
+  VTK_DEPRECATED_IN_9_6_0("Unmaintained method, please do not use.")
   void ComputerAutoCenterTranslation(const double& autoScaleFactor, double translation[3]);
 
   int TestDistanceVisibility();
