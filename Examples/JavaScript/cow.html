@@ -67,6 +67,8 @@
       for (let i = 0; i < props.GetNumberOfItems(); ++i) {
         let prop = props.GetNextProp3D();
         console.info("Picked prop: ", prop);
+        // for test purposes, check to the bounding box double[6] array.
+        console.info("       box : ", prop.GetBounds());
       }
     });
     // Observe the area picker for 'EndPickEvent'.
@@ -82,6 +84,14 @@
     // sends a resize event so that the render window fills up browser tab dimensions.
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
+
+      // log some information about the render window (for test purposes)
+      console.log(`Window class     : ${renderWindow.GetClassName()}`);
+      const  renderer = renderWindow.GetRenderers().GetFirstRenderer();
+      console.log(`Renderer class   : ${renderer.GetClassName()}`);
+      // for test purposes, check int[2] size array.
+      console.log(`Renderer size    : ${renderer.GetSize()}`);
+      console.log(`Interactor class : ${renderWindow.GetInteractor().GetClassName()}`);
     }, 0);
     // focus on the canvas to grab keyboard inputs.
     canvas.setAttribute('tabindex', '0');
