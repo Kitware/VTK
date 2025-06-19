@@ -158,7 +158,7 @@ protected:
   double GetCurrentTimeStep() const;
 
   /**
-   * To be set in the constructon. If true, all time steps are requested upstream for any requested
+   * To be set in the constructor. If true, all time steps are requested upstream for any requested
    * time step dowstream. Downstream effectively lose temporality. Otherwise, the algorithm
    * integrates inputs up to the requested time step.
    */
