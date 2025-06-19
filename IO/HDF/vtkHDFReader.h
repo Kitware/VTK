@@ -289,13 +289,6 @@ protected:
    */
   vtkCallbackCommand* SelectionObserver;
   ///@{
-  /**
-   * Image data topology and geometry.
-   */
-  int WholeExtent[6];
-  double Origin[3];
-  double Spacing[3];
-  ///@}
 
   /**
    * Assembly used for PartitionedDataSetCollection

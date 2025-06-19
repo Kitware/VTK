@@ -451,6 +451,30 @@ bool vtkHDFReader::Implementation::ComputeAMRBlocksPerLevels(unsigned int maxLev
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFReader::Implementation::GetImageAttributes(
+  int WholeExtent[6], double Origin[3], double Spacing[3])
+{
+
+  if (!this->GetAttribute("WholeExtent", 6, WholeExtent))
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Could not get WholeExtent attribute");
+    return false;
+  }
+  if (!this->GetAttribute("Origin", 3, Origin))
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Could not get Origin attribute");
+    return false;
+  }
+  if (!this->GetAttribute("Spacing", 3, Spacing))
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Could not get Spacing attribute");
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::ComputeAMROffsetsPerLevels(
   vtkDataArraySelection* dataArraySelection[3], vtkIdType step, unsigned int maxLevel)
 {
