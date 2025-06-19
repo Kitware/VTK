@@ -11,8 +11,6 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <cstdint>
-#include <deque>
 #include <limits>
 #include <memory>
 #include <vector>
@@ -305,13 +303,6 @@ public:
     this->Datas->NumberOfLevels = numberOfLevels;
     this->Datas->NumberOfNodes = nbCoarses;
     this->Datas->NumberOfVertices = nbVertices;
-  }
-
-  //---------------------------------------------------------------------------
-  vtkHyperTree* Freeze(const char* vtkNotUsed(mode)) override
-  {
-    // Option not used
-    return this;
   }
 
   //---------------------------------------------------------------------------
