@@ -110,16 +110,13 @@ public:
    */
   static constexpr vtkIdType InvalidIndex = ~0;
 
-  /**
-   * Set/Get mode squeeze
-   */
-  vtkSetStringMacro(ModeSqueeze); // By copy
-  vtkGetStringMacro(ModeSqueeze);
+  VTK_DEPRECATED_IN_9_6_0("No effect anymore, do not use.")
+  void SetModeSqueeze(const char* vtkNotUsed(vtksqueeze)){};
+  VTK_DEPRECATED_IN_9_6_0("No effect anymore, do not use.")
+  char* GetModeSqueeze() { return nullptr; }
 
-  /**
-   * Squeeze this representation.
-   */
-  virtual void Squeeze();
+  VTK_DEPRECATED_IN_9_6_0("No effect anymore, do not use.")
+  virtual void Squeeze(){};
 
   /**
    * Return what type of dataset this is.
@@ -252,12 +249,8 @@ public:
   unsigned int GetOrientation() const { return this->Orientation; }
   ///@}
 
-  ///@{
-  /**
-   * Get the state of frozen
-   */
-  vtkGetMacro(FreezeState, bool);
-  ///@}
+  VTK_DEPRECATED_IN_9_6_0("No effect, do not use.")
+  bool GetFreezeState() { return false; };
 
   ///@{
   /**
@@ -803,20 +796,11 @@ protected:
    */
   vtkHyperTreeGrid();
 
-  /**
-   * Destructor
-   */
   ~vtkHyperTreeGrid() override;
-
-  /**
-   * ModeSqueeze
-   */
-  char* ModeSqueeze;
 
   double Bounds[6]; // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
   double Center[3]; // geometric center
 
-  bool FreezeState;
   unsigned int BranchFactor; // 2 or 3
   unsigned int Dimension;    // 1, 2, or 3
 
