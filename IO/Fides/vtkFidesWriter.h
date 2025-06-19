@@ -84,6 +84,17 @@ public:
 
   ///@{
   /**
+   * Set/Get the ADIOS2 config file to be used. Note that the IO object in the config file
+   * *must* be named "fides-write-io". In addition, the engine must be set in the config file.
+   * Using a config file enables compression to be used for writing data. See the ADIOS2
+   * documentation for details on valid configuration files.
+   */
+  vtkSetFilePathMacro(AdiosConfigFile);
+  vtkGetFilePathMacro(AdiosConfigFile);
+  ///@}
+
+  ///@{
+  /**
    * Choose which fields to write. If this is true, then only the
    * arrays selected will be written. If this is false, then all arrays will be
    * written.
@@ -122,7 +133,8 @@ public:
 
   ///@{
   /**
-   * Set/Get the ADIOS engine to use (currently BPFile or SST)
+   * Set/Get the ADIOS engine to use (currently BPFile or SST). If an ADIOS config file is
+   * used, this will be ignored and the engine will be determined by the config file.
    */
   vtkSetMacro(Engine, int);
   vtkGetMacro(Engine, int);
@@ -161,6 +173,7 @@ private:
 
   vtkMultiProcessController* Controller;
   char* FileName;
+  char* AdiosConfigFile;
   bool ChooseFieldsToWrite;
   int TimeStepRange[2];
   int TimeStepStride;
