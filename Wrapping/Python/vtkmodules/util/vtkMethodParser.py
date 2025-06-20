@@ -194,81 +194,7 @@ class VtkPrintMethodParser:
     def parse_methods (self, vtk_obj):
         "Parse for the methods."
         debug ("VtkPrintMethodParser:: parse_methods()")
-
-        if self._initialize_methods (vtk_obj):
-            # if David Gobbi's improvements are in this version of VTK
-            # then I need to go no further.
-            return
-
-        for method in self.methods[:]:
-            # removing methods that have nothing to the right of the ':'
-            if (method[1] == '') or \
-               (method[1].find("none") > -1) :
-                self.methods.remove (method)
-
-        for method in self.methods:
-            # toggle methods are first identified
-            if (method[1] == "On") or (method[1] == "Off"):
-                try:
-                    val = eval ("vtk_obj.Get%s ()"%method[0])
-                    if val == 1:
-                        eval ("vtk_obj.%sOn ()"%method[0])
-                    elif val == 0:
-                        eval ("vtk_obj.%sOff ()"%method[0])
-                except AttributeError:
-                    pass
-                else:
-                    self.toggle_meths.append (method[0]+"On")
-            else: # see if it is get_set or get or a state method
-                found = 0
-                # checking if it is a state func.
-                # figure out the long names from the dir_state_meths
-                for sms in self.dir_state_meths[:]:
-                    if sms[0].find(method[0]) >= 0:
-                        self.state_meths.append (sms)
-                        self.dir_state_meths.remove (sms)
-                        found = 1
-                if found:
-                    self.get_meths.append ("Get"+method[0])
-                    try:
-                        t = eval ("vtk_obj.Get%sAsString ()"%method[0])
-                    except AttributeError:
-                        pass
-                    else:
-                        self.get_meths.append ("Get"+method[0]+"AsString")
-                else:
-                    # the long name is inherited or it is not a state method
-                    try:
-                        t = eval ("vtk_obj.Get%s ().GetClassName ()"%
-                                  method[0])
-                    except AttributeError:
-                        pass
-                    else:
-                        continue
-                    val = 0
-                    try:
-                        val = eval ("vtk_obj.Get%s ()"%method[0])
-                    except (TypeError, AttributeError):
-                        pass
-                    else:
-                        try:
-                            f = eval ("vtk_obj.Set%s"%method[0])
-                        except AttributeError:
-                            self.get_meths.append ("Get"+method[0])
-                        else:
-                            try:
-                                f(*val)
-                            except TypeError:
-                                try:
-                                    f(*(val, ))
-                                except TypeError:
-                                    self.get_meths.append ("Get"+method[0])
-                                else:
-                                    self.get_set_meths.append (method[0])
-                            else:
-                                self.get_set_meths.append (method[0])
-
-        self._clean_up_methods (vtk_obj)
+        self._initialize_methods (vtk_obj)
 
     def _get_str_obj (self, vtk_obj):
         debug ("VtkPrintMethodParser:: _get_str_obj()")
@@ -282,73 +208,10 @@ class VtkPrintMethodParser:
         dir_p = VtkDirMethodParser ()
         dir_p.parse_methods (vtk_obj)
 
-        # testing if this version of vtk has David Gobbi's cool
-        # stuff. If it does then no need to do other things.
-        try:
-            junk = vtk_obj.__class__
-        except AttributeError:
-            pass
-        else:
-            self.toggle_meths = dir_p.toggle_methods ()
-            self.state_meths = dir_p.state_methods ()
-            self.get_set_meths = dir_p.get_set_methods ()
-            self.get_meths = dir_p.get_methods ()
-            return 1
-
-        self.dir_toggle_meths = dir_p.toggle_methods ()
-        self.dir_state_meths = dir_p.state_methods ()
-        self.dir_get_set_meths = dir_p.get_set_methods ()
-        self.dir_get_meths = dir_p.get_methods ()
-
-        self._get_str_obj (vtk_obj)
-        patn = re.compile ("  \S")
-
-        for method in self.methods[:]:
-            if not patn.match (method):
-                self.methods.remove (method)
-
-        for method in self.methods[:]:
-            if method.find(":") == -1:
-                self.methods.remove (method)
-
-        for i in range (0, len (self.methods)):
-            string = self.methods[i]
-            string = string.replace (" ", "")
-            self.methods[i] = string.split (":")
-
-
-        self.toggle_meths = []
-        self.state_meths = []
-        self.get_set_meths = []
-        self.get_meths = []
-
-        return 0
-
-    def _clean_up_methods (self, vtk_obj):
-        "Merge dir and str methods.  Finish up."
-        debug ("VtkPrintMethodParser:: _clean_up_methods()")
-        for meth_list in ((self.dir_toggle_meths, self.toggle_meths),\
-                          (self.dir_get_set_meths, self.get_set_meths),\
-                          (self.dir_get_meths, self.get_meths)):
-            for method in meth_list[0]:
-                try:
-                    meth_list[1].index (method)
-                except ValueError:
-                    meth_list[1].append (method)
-
-        # Remove all get_set methods that are already in toggle_meths
-        # This case can happen if the str produces no "On/Off" but
-        # dir does and str produces a get_set instead.
-        for method in self.toggle_meths:
-            try:
-                self.get_set_meths.remove (method[:-2])
-            except ValueError:
-                pass
-
-        self.toggle_meths.sort ()
-        self.state_meths.sort ()
-        self.get_set_meths.sort ()
-        self.get_meths.sort ()
+        self.toggle_meths = dir_p.toggle_methods ()
+        self.state_meths = dir_p.state_methods ()
+        self.get_set_meths = dir_p.get_set_methods ()
+        self.get_meths = dir_p.get_methods ()
 
     def toggle_methods (self):
         return self.toggle_meths
