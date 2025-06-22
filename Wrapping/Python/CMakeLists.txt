@@ -134,7 +134,7 @@ set(python_files
   vtkmodules/test/rtImageTest.py
   vtkmodules/test/__init__.py
   vtkmodules/tk/__init__.py
-  vtkmodules/tk/vtkLoadPythonTkWidgets.py
+  vtkmodules/tk/vtkLoadPythonTkWidgets.py.in
   vtkmodules/tk/vtkTkImageViewerWidget.py
   vtkmodules/tk/vtkTkPhotoImage.py
   vtkmodules/tk/vtkTkRenderWidget.py
