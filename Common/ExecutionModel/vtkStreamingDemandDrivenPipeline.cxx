@@ -1315,7 +1315,7 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
   // If this algorithm does not provide time information and another
   // algorithm upstream did not provide time information, we do not
   // re-execute even if the time request changed.
-  if (!outInfo->Has(TIME_RANGE()))
+  if (!outInfo->Has(TIME_RANGE()) || !outInfo->Has(UPDATE_TIME_STEP()))
   {
     return 0;
   }
@@ -1323,51 +1323,46 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
   vtkInformation* dataInfo = dataObject->GetInformation();
   // if we are requesting a particular update time index, check
   // if we have the desired time index.
-  if (outInfo->Has(UPDATE_TIME_STEP()))
+
+  if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEP()))
   {
-    if (!dataInfo->Has(vtkDataObject::DATA_TIME_STEP()))
+    return 1;
+  }
+
+  int hasusteps = dataInfo->Has(UPDATE_TIME_STEP());
+  double ustep = outInfo->Get(UPDATE_TIME_STEP());
+
+  // First check if time request is the same as previous time request.
+  // If the previous update request did not correspond to an existing
+  // time step and the reader chose a time step with it's own logic, the
+  // data time step will be different than the request. If the same time
+  // step is requested again, there is no need to re-execute the
+  // algorithm.  We know that it does not have this time step.
+  if (outInfo->Has(PREVIOUS_UPDATE_TIME_STEP()) && hasusteps)
+  {
+    bool match = true;
+    double pstep = outInfo->Get(PREVIOUS_UPDATE_TIME_STEP());
+    if (pstep != ustep)
     {
-      return 1;
+      match = false;
     }
-
-    double ustep = outInfo->Get(UPDATE_TIME_STEP());
-
-    // First check if time request is the same as previous time request.
-    // If the previous update request did not correspond to an existing
-    // time step and the reader chose a time step with it's own logic, the
-    // data time step will be different than the request. If the same time
-    // step is requested again, there is no need to re-execute the
-    // algorithm.  We know that it does not have this time step.
-    if (outInfo->Has(PREVIOUS_UPDATE_TIME_STEP()))
+    if (match)
     {
-      if (outInfo->Has(UPDATE_TIME_STEP()))
-      {
-        bool match = true;
-        double pstep = outInfo->Get(PREVIOUS_UPDATE_TIME_STEP());
-        if (pstep != ustep)
-        {
-          match = false;
-        }
-        if (match)
-        {
-          return 0;
-        }
-      }
-    }
-
-    int hasdsteps = dataInfo->Has(vtkDataObject::DATA_TIME_STEP());
-    int hasusteps = dataInfo->Has(UPDATE_TIME_STEP());
-
-    double dstep = dataInfo->Get(vtkDataObject::DATA_TIME_STEP());
-    if ((hasdsteps && !hasusteps) || (!hasdsteps && hasusteps))
-    {
-      return 1;
-    }
-    if (dstep != ustep)
-    {
-      return 1;
+      return 0;
     }
   }
+
+  int hasdsteps = dataInfo->Has(vtkDataObject::DATA_TIME_STEP());
+  double dstep = dataInfo->Get(vtkDataObject::DATA_TIME_STEP());
+  if ((hasdsteps && !hasusteps) || (!hasdsteps && hasusteps))
+  {
+    return 1;
+  }
+  if (dstep != ustep)
+  {
+    return 1;
+  }
+
   return 0;
 }
 
