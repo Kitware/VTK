@@ -15,6 +15,7 @@ Common/DataModel/vtkUnstructuredGrid.h
 Common/ExecutionModel/vtkAlgorithm.h
 Interaction/Style/vtkInteractorStyleSwitch.h
 Interaction/Widgets/vtkAbstractWidget.h
+Rendering/Annotation/vtkXYPlotActor.h
 Rendering/Core/vtkAbstractMapper.h
 Rendering/Core/vtkColorTransferFunction.h
 Common/DataModel/vtkGraph.h

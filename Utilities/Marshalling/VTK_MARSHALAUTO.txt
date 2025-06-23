@@ -249,7 +249,6 @@ Rendering/Annotation/vtkPolarAxesActor.h
 Rendering/Annotation/vtkProp3DAxisFollower.h
 Rendering/Annotation/vtkScalarBarActor.h
 Rendering/Annotation/vtkSpiderPlotActor.h
-Rendering/Annotation/vtkXYPlotActor.h
 Rendering/Context2D/vtkAbstractContextItem.h
 Rendering/Context2D/vtkBlockItem.h
 Rendering/Context2D/vtkBrush.h

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkScalarBarActor.h"
+#include "vtkActor2D.h"
 #include "vtkScalarBarActorInternal.h"
 
 #include "vtkCellArray.h"
@@ -611,6 +612,28 @@ vtkTypeBool vtkScalarBarActor::HasTranslucentPolygonalGeometry()
   // this->P->AnnotationBoxesActor have 1 translucent triangle for each
   // alpha-swatch.
   return 0;
+}
+
+//------------------------------------------------------------------------------
+void vtkScalarBarActor::SetPositionCoordinate(vtkCoordinate* pos)
+{
+  vtkActor2D::SetPositionCoordinate(pos);
+
+  this->TitleActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
+  this->ScalarBarActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
+  this->P->NanSwatchActor->GetPositionCoordinate()->SetReferenceCoordinate(
+    this->PositionCoordinate);
+  this->P->BelowRangeSwatchActor->GetPositionCoordinate()->SetReferenceCoordinate(
+    this->PositionCoordinate);
+  this->P->AboveRangeSwatchActor->GetPositionCoordinate()->SetReferenceCoordinate(
+    this->PositionCoordinate);
+  this->P->AnnotationBoxesActor->GetPositionCoordinate()->SetReferenceCoordinate(
+    this->PositionCoordinate);
+  this->P->AnnotationLeadersActor->GetPositionCoordinate()->SetReferenceCoordinate(
+    this->PositionCoordinate);
+  this->TextureActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
+  this->BackgroundActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
+  this->FrameActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
 }
 
 //------------------------------------------------------------------------------

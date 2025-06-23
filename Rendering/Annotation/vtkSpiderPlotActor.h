@@ -38,6 +38,7 @@
 #define vtkSpiderPlotActor_h
 
 #include "vtkActor2D.h"
+#include "vtkNew.h"                       // For vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
@@ -80,6 +81,7 @@ public:
    * does not connect the pipeline whereas SetInputConnection()
    * does.
    */
+  VTK_MARSHALSETTER(Input)
   virtual void SetInputData(vtkDataObject*);
   virtual void SetInputConnection(vtkAlgorithmOutput*);
   ///@}
@@ -87,6 +89,7 @@ public:
   /**
    * Get the input data object to this actor.
    */
+  VTK_MARSHALGETTER(Input)
   virtual vtkDataObject* GetInput();
 
   ///@{
@@ -160,6 +163,7 @@ public:
    */
   void SetAxisLabel(int i, const char*);
   const char* GetAxisLabel(int i);
+  int GetNumberOfAxisLabels();
   ///@}
 
   ///@{
@@ -170,6 +174,7 @@ public:
   void SetAxisRange(int i, double min, double max);
   void SetAxisRange(int i, double range[2]);
   void GetAxisRange(int i, double range[2]);
+  int GetNumberOfAxisRanges();
   ///@}
 
   ///@{
@@ -239,7 +244,7 @@ private:
   vtkTextProperty* LabelTextProperty;
   vtkAxisLabelArray* Labels;
   vtkTypeBool LegendVisibility;
-  vtkLegendBoxActor* LegendActor;
+  vtkNew<vtkLegendBoxActor> LegendActor;
   vtkGlyphSource2D* GlyphSource;
   int NumberOfRings;
 

@@ -1802,7 +1802,6 @@ void vtkLabelHierarchy3DepthFirstIterator::ReorderChildrenForView(int* order)
 // vtkLabelHierarchy
 
 vtkStandardNewMacro(vtkLabelHierarchy);
-vtkCxxSetObjectMacro(vtkLabelHierarchy, Priorities, vtkDataArray);
 vtkCxxSetObjectMacro(vtkLabelHierarchy, Labels, vtkAbstractArray);
 vtkCxxSetObjectMacro(vtkLabelHierarchy, IconIndices, vtkIntArray);
 vtkCxxSetObjectMacro(vtkLabelHierarchy, Orientations, vtkDataArray);
@@ -1951,6 +1950,12 @@ void vtkLabelHierarchyBuildCoincidenceMap(
 // in the highest possible level of octree which is not already full.
 void vtkLabelHierarchy::ComputeHierarchy()
 {
+  if (!this->Points ||
+    (this->MTime < this->Impl->HierarchyTime &&
+      this->Points->GetMTime() < this->Impl->HierarchyTime))
+  {
+    return;
+  }
   if (this->CoincidentPoints != nullptr)
   {
     this->CoincidentPoints->Clear();
@@ -2539,6 +2544,22 @@ void vtkLabelHierarchy::Implementation::SmudgeAnchor3(
   (void)cursor;
   (void)anchor;
   (void)x;
+}
+
+void vtkLabelHierarchy::SetMaximumDepth(int depth)
+{
+  if (this->MaximumDepth != depth)
+  {
+    this->MaximumDepth = depth;
+    this->Modified();
+  }
+  this->ComputeHierarchy();
+}
+
+void vtkLabelHierarchy::SetPriorities(vtkDataArray* data)
+{
+  vtkSetObjectBodyMacro(Priorities, vtkDataArray, data);
+  this->ComputeHierarchy();
 }
 
 void vtkLabelHierarchy::GetAnchorFrustumPlanes(

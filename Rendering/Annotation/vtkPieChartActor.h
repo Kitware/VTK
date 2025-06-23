@@ -23,6 +23,7 @@
 #define vtkPieChartActor_h
 
 #include "vtkActor2D.h"
+#include "vtkNew.h"                       // For vtkNew
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
@@ -61,6 +62,7 @@ public:
    * does not connect the pipeline whereas SetInputConnection()
    * does.
    */
+  VTK_MARSHALSETTER(Input)
   virtual void SetInputData(vtkDataObject*);
   virtual void SetInputConnection(vtkAlgorithmOutput*);
   ///@}
@@ -68,6 +70,7 @@ public:
   /**
    * Get the input data object to this actor.
    */
+  VTK_MARSHALGETTER(Input)
   virtual vtkDataObject* GetInput();
 
   ///@{
@@ -134,6 +137,7 @@ public:
    */
   void SetPieceLabel(int i, const char*);
   const char* GetPieceLabel(int i);
+  int GetNumberOfPieceLabels();
   ///@}
 
   ///@{
@@ -192,7 +196,7 @@ private:
   vtkTextProperty* LabelTextProperty;
   vtkPieceLabelArray* Labels;
   vtkTypeBool LegendVisibility;
-  vtkLegendBoxActor* LegendActor;
+  vtkNew<vtkLegendBoxActor> LegendActor;
   vtkGlyphSource2D* GlyphSource;
 
   // Local variables needed to plot

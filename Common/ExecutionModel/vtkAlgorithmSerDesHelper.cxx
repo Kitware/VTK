@@ -101,7 +101,7 @@ static void Deserialize_vtkAlgorithm(
       {
         std::vector<vtkSmartPointer<vtkDataObject>> inputDataObjects;
         auto stateOfInputDataObjects = statesOfInputDataObjects[port].get<json::array_t>();
-        const bool hasMultipleConnections = algorithm->GetNumberOfInputConnections(port) > 1;
+        const bool hasMultipleConnections = stateOfInputDataObjects.size() > 1;
         for (std::size_t index = 0; index < stateOfInputDataObjects.size(); ++index)
         {
           const auto identifier = stateOfInputDataObjects[index]["Id"].get<vtkTypeUInt32>();
