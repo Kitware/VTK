@@ -746,6 +746,7 @@ Rendering/LICOpenGL2/vtkStructuredGridLIC2D.h
 Rendering/LICOpenGL2/vtkSurfaceLICComposite.h
 Rendering/LICOpenGL2/vtkSurfaceLICHelper.h
 Rendering/LICOpenGL2/vtkTextureIO.h
+Rendering/LOD/vtkQuadricLODActor.h
 Rendering/Label/vtkLabelHierarchyAlgorithm.h
 Rendering/Label/vtkLabelHierarchyCompositeIterator.h
 Rendering/Label/vtkLabelHierarchyIterator.h
@@ -758,7 +759,6 @@ Rendering/OpenGL2/vtkCocoaGLView.h
 Rendering/OpenGL2/vtkDataTransferHelper.h
 Rendering/OpenGL2/vtkDrawTexturedElements.h
 Rendering/OpenGL2/vtkDummyGPUInfoList.h
-Rendering/OpenGL2/vtkEquirectangularToCubeMapTexture.h
 Rendering/OpenGL2/vtkGLSLModCamera.h
 Rendering/OpenGL2/vtkGLSLModCoincidentTopology.h
 Rendering/OpenGL2/vtkGLSLModLight.h
