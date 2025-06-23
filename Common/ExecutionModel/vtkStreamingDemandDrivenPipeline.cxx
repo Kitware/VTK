@@ -1329,7 +1329,7 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
     return 1;
   }
 
-  int hasusteps = dataInfo->Has(UPDATE_TIME_STEP());
+  int hasusteps = outInfo->Has(UPDATE_TIME_STEP());
   double ustep = outInfo->Get(UPDATE_TIME_STEP());
 
   // First check if time request is the same as previous time request.
