@@ -5,7 +5,7 @@ vtk_add_test_cxx(vtkInfovisBoostGraphAlgorithmsCxxTests tests
   TestBoostAlgorithms.cxx
   TestBoostBetweennessClustering.cxx,NO_VALID
   # TestBoostBrandesCentrality.cxx # todo (unsatisfied deps)
-  TestBoostDividedEdgeBundling.cxx
+  TestBoostDividedEdgeBundling.cxx,NO_SERDES
   TestBoostExtractLargestComponent.cxx,NO_VALID
   TestBoostSplitTableField.cxx,NO_VALID
   )

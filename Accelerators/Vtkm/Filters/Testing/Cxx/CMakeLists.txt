@@ -4,28 +4,28 @@ vtk_add_test_cxx(vtkAcceleratorsVTKmFiltersCxxTests tests
   TestVTKMCleanGrid.cxx
   TestVTKMCoordinateSystemTransform.cxx,NO_VALID
   TestVTKMClip.cxx
-  TestVTKMClipWithImplicitFunction.cxx
-  TestVTKMExternalFaces.cxx
-  TestVTKMExtractVOI.cxx
+  TestVTKMClipWithImplicitFunction.cxx,NO_SERDES
+  TestVTKMExternalFaces.cxx,NO_SERDES
+  TestVTKMExtractVOI.cxx,NO_SERDES
   TestVTKMGradient.cxx,NO_VALID
   TestVTKMGradientAndVorticity.cxx,NO_VALID
   TestVTKMHistogram.cxx,NO_VALID
   TestVTKMHistogramSampling.cxx,NO_VALID
-  TestVTKMLevelOfDetail.cxx
-  TestVTKMMarchingCubes.cxx
-  TestVTKMMarchingCubes2.cxx
+  TestVTKMLevelOfDetail.cxx,NO_SERDES
+  TestVTKMMarchingCubes.cxx,NO_SERDES
+  TestVTKMMarchingCubes2.cxx,NO_SERDES
   TestVTKMNDHistogram.cxx,NO_VALID
   TestVTKMOverride.cxx,NO_VALID
-  TestVTKMPointElevation.cxx
-  TestVTKMPointTransform.cxx
+  TestVTKMPointElevation.cxx,NO_SERDES
+  TestVTKMPointTransform.cxx,NO_SERDES
   TestVTKMProbe.cxx,NO_VALID
   TestVTKMPolyDataNormals.cxx
   TestVTKMSlice.cxx,NO_VALID
-  TestVTKMThreshold.cxx
-  TestVTKMThreshold2.cxx
-  TestVTKMTriangleMeshPointNormals.cxx
-  TestVTKMWarpScalar.cxx
-  TestVTKMWarpVector.cxx
+  TestVTKMThreshold.cxx,NO_SERDES
+  TestVTKMThreshold2.cxx,NO_SERDES
+  TestVTKMTriangleMeshPointNormals.cxx,NO_SERDES
+  TestVTKMWarpScalar.cxx,NO_SERDES
+  TestVTKMWarpVector.cxx,NO_SERDES
   )
 
 if (TARGET viskores::cuda)

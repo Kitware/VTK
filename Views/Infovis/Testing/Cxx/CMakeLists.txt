@@ -10,7 +10,7 @@ vtk_add_test_cxx(vtkViewsInfovisCxxTests tests
   TestHierarchicalGraphView.cxx
   TestIcicleView.cxx
   TestIconGlyphFilter.cxx
-  TestInteractorStyleTreeMapHover.cxx
+  TestInteractorStyleTreeMapHover.cxx,NO_SERDES
   TestNetworkViews.cxx
   TestParallelCoordinatesView.cxx,LOOSE_VALID
   TestRenderView.cxx

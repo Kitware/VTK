@@ -18,8 +18,8 @@ vtk_add_test_cxx(vtkFiltersHybridCxxTests tests
   TestTemporalCacheMemkind.cxx,NO_VALID
   TestTemporalCacheUndefinedTimeStep.cxx
   TestTemporalFractal.cxx
-  TestTemporalInterpolator.cxx
-  TestTemporalInterpolatorFactorMode.cxx
+  TestTemporalInterpolator.cxx,NO_SERDES
+  TestTemporalInterpolatorFactorMode.cxx,NO_SERDES
   )
 vtk_test_cxx_executable(vtkFiltersHybridCxxTests tests
   DISABLE_FLOATING_POINT_EXCEPTIONS

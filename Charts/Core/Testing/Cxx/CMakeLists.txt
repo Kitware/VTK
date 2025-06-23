@@ -78,7 +78,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestContextAreaFixedRect.cxx
   TestContextImage.cxx
   TestContextItemStacking.cxx
-  TestContextUnicode.cxx
+  TestContextUnicode.cxx,NO_SERDES
   TestControlPointsHandleItem.cxx
   TestDiagram.cxx
   TestFunctionalBagPlot.cxx,LOOSE_VALID

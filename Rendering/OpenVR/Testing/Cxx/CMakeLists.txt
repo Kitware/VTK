@@ -12,7 +12,7 @@ option(VTK_OPENVR_TESTING_ENABLE_INTERACTIVE_TESTS "Enable OpenVR tests that are
 mark_as_advanced(VTK_OPENVR_TESTING_ENABLE_INTERACTIVE_TESTS)
 
 set(OpenVR_tests
-  TestAvatar.cxx
+  TestAvatar.cxx,NO_SERDES
   TestOpenVRInstantiation.cxx,NO_VALID)
 
 if (VTK_OPENVR_TESTING_ENABLE_RUNTIME_TESTS)

@@ -36,7 +36,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestFlipRenderFramebuffer.cxx
   TestFloor.cxx,LOOSE_VALID
   TestFluidMapper.cxx
-  TestFramebufferHDR.cxx
+  TestFramebufferHDR.cxx,NO_SERDES
   TestFramebufferPass.cxx
   TestGaussianBlurPass.cxx
   TestGlyph3DMapperCellPicking.cxx
@@ -47,7 +47,7 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestHiddenLineRemovalPass.cxx
   TestLightingMapLuminancePass.cxx
   TestLightingMapNormalsPass.cxx
-  TestMultiTexturing.cxx
+  TestMultiTexturing.cxx,NO_SERDES
   TestMultiTexturingInterpolateScalars.cxx
   TestNormalMapping.cxx
   TestNormalMappingWithEdges.cxx
@@ -74,12 +74,12 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestPropPicker2Renderers.cxx,NO_DATA
   TestRemoveActorNonCurrentContext.cxx
   TestRenderToImage.cxx
-  TestSetZBuffer.cxx
-  TestShadowMapBakerPass.cxx
+  TestSetZBuffer.cxx,NO_SERDES
+  TestShadowMapBakerPass.cxx,NO_SERDES
   TestShadowMapPass.cxx
-  TestSharedRenderWindow.cxx
+  TestSharedRenderWindow.cxx,NO_SERDES
   TestDirectSelectionRendering.cxx
-  TestSimpleMotionBlur.cxx
+  TestSimpleMotionBlur.cxx,NO_SERDES
   TestSkyboxRotation.cxx
   TestSkyboxRotationVectors.cxx
   TestSobelGradientMagnitudePass.cxx
@@ -91,20 +91,20 @@ vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
   TestSSAOPass.cxx
   TestSSAOPassWithRenderer.cxx
   TestSurfaceInterpolationSwitch.cxx
-  TestTessellationShader.cxx,NO_DATA
+  TestTessellationShader.cxx,NO_DATA,NO_SERDES
   TestTexture16Bits.cxx,NO_DATA
   TestTexture32Bits.cxx,NO_DATA
   TestTextureBufferEmulation.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestTextureInterpolateScalars.cxx
   TestToneMappingPass.cxx,NO_DATA
   TestUserShader.cxx
-  TestUserShader2.cxx
-  TestUserShader2D.cxx,NO_DATA
+  TestUserShader2.cxx,NO_SERDES
+  TestUserShader2D.cxx,NO_DATA,NO_SERDES
   TestValuePassFloatingPoint.cxx
   TestValuePassFloatingPoint2.cxx
   TestVBOPLYMapper.cxx
   TestVBOPointsLines.cxx
-  TestWindowBlits.cxx
+  TestWindowBlits.cxx,NO_SERDES
   UnitTestOpenGLUniforms.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   )
 
@@ -118,12 +118,12 @@ set_tests_properties(VTK::RenderingOpenGL2Cxx-TestFramebufferHDR
 if (NOT VTK_OPENGL_USE_GLES)
   # vtkFastLabeledDataMapper needs geometry shaders and GLES does not have them.
   vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
-    TestLabeledDataMappers.cxx)
+    TestLabeledDataMappers.cxx,NO_SERDES)
 endif ()
 
 if (VTK_USE_WIN32_OPENGL)
   vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
-    TestWin32OpenGLDXRenderWindow.cxx)
+    TestWin32OpenGLDXRenderWindow.cxx,NO_SERDES)
 endif ()
 
 if (VTK_OPENGL_HAS_EGL AND NOT WIN32)

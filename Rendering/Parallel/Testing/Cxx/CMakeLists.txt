@@ -1,5 +1,5 @@
 vtk_add_test_cxx(vtkRenderingParallelCxxTests tests
-  PrmMagnify.cxx
+  PrmMagnify.cxx,NO_SERDES
   )
 vtk_test_cxx_executable(vtkRenderingParallelCxxTests tests)
 

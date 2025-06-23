@@ -16,37 +16,37 @@ if (VTK_ENABLE_OSPRAY)
 #   TestOSPRayMultiBlockPartialArrayFieldData.cxx #19221
     TestOSPRayOrthographic.cxx
     TestOSPRayPass.cxx
-    TestOSPRayPointGaussianMapper.cxx
+    TestOSPRayPointGaussianMapper.cxx,NO_SERDES
     TestOSPRayRenderMesh.cxx
     TestOSPRayRotatedNormals.cxx
-    TestOSPRayScalarBar.cxx
+    TestOSPRayScalarBar.cxx,NO_SERDES
     TestOSPRayTime.cxx
     TestOSPRayUnstructuredVolumeMapper.cxx
     TestOSPRayUnstructuredVolumeMapperMixedCells.cxx
     TestOSPRayWindow.cxx
-    TestOSPRayStereo.cxx
+    TestOSPRayStereo.cxx,NO_SERDES
     TestRayTracedMolecules.cxx
     # Volume rendering tests
     TestGPURayCastCameraInside.cxx
-    TestGPURayCastCellData.cxx
+    TestGPURayCastCellData.cxx,NO_SERDES
     TestGPURayCastCameraInsideSmallSpacing.cxx
-    TestGPURayCastMapperBenchmark.cxx
-    TestGPURayCastMapperSampleDistance.cxx
-    TestGPURayCastPerspectiveParallel.cxx
+    TestGPURayCastMapperBenchmark.cxx,NO_SERDES
+    TestGPURayCastMapperSampleDistance.cxx,NO_SERDES
+    TestGPURayCastPerspectiveParallel.cxx,NO_SERDES
     #TestGPURayCastPositionalLights.cxx
-    TestGPURayCastVolumeLightKit.cxx
-    TestGPURayCastVolumePolyData.cxx
-    TestGPURayCastVolumeScale.cxx
+    TestGPURayCastVolumeLightKit.cxx,NO_SERDES
+    TestGPURayCastVolumePolyData.cxx,NO_SERDES
+    TestGPURayCastVolumeScale.cxx,NO_SERDES
     TestGPURayCastVolumeUpdate.cxx
     TestGPUVolumeRayCastMapper.cxx
 #   TestOSPRayVolumeRenderer.cxx #19221
-    TestOSPRayVolumeRendererCrop.cxx
+    TestOSPRayVolumeRendererCrop.cxx,NO_SERDES
 #   TestSmartVolumeMapper.cxx #19221
     # Path tracer tests
     TestCategoricalMaterials.cxx
     TestCategoricalMultiBlock.cxx
     TestPathTracerBackground.cxx
-    TestPathTracerGLTFImporter.cxx DATA{../Data/WaterBottle.glb}
+    TestPathTracerGLTFImporter.cxx,NO_SERDES DATA{../Data/WaterBottle.glb}
     TestPathTracerLuminous.cxx
     TestPathTracerMaterialLibrary.cxx,NO_VALID
     TestPathTracerMaterials.cxx

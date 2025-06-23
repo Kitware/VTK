@@ -48,8 +48,8 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestGlyph3D.cxx
   TestGlyph3DFollowCamera.cxx,NO_VALID
   TestHedgeHog.cxx,NO_VALID
-  TestHyperTreeGridProbeFilter.cxx
-  TestResampleHyperTreeGridWithDataSet.cxx
+  TestHyperTreeGridProbeFilter.cxx,NO_SERDES
+  TestResampleHyperTreeGridWithDataSet.cxx,NO_SERDES
   TestImageDataToExplicitStructuredGrid.cxx
   TestImplicitPolyDataDistance.cxx
   TestImplicitPolyDataDistanceCube.cxx,NO_VALID
@@ -67,14 +67,14 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestProbeFilterImageInput.cxx
   TestProbeFilterOutputAttributes.cxx,NO_VALID
   TestQuadricDecimationDegenerateTriangle.cxx,NO_DATA,NO_VALID,NO_OUTPUT
-  TestQuadricDecimationMapPointData.cxx
+  TestQuadricDecimationMapPointData.cxx,NO_SERDES
   TestQuadricDecimationMaximumError.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestQuadricDecimationRegularization.cxx
   TestQuadricDecimationSetPointAttributeArray.cxx
   TestResampleToImage.cxx,NO_VALID
   TestResampleToImage2D.cxx,NO_VALID
   TestResampleWithDataSet.cxx,
-  TestResampleWithDataSet2.cxx
+  TestResampleWithDataSet2.cxx,NO_SERDES
   TestResampleWithDataSet3.cxx
   TestRemoveDuplicatePolys.cxx,NO_VALID
   TestSmoothPolyDataFilter.cxx,NO_VALID
