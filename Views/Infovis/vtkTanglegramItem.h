@@ -20,8 +20,9 @@
 #include "vtkViewsInfovisModule.h" // For export macro
 
 #include "vtkContextItem.h"
-#include "vtkSmartPointer.h" // For SmartPointer ivars
-#include "vtkTable.h"        // For get/set
+#include "vtkSmartPointer.h"  // For SmartPointer ivars
+#include "vtkTable.h"         // For get/set
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDendrogramItem;
@@ -29,22 +30,28 @@ class vtkLookupTable;
 class vtkStringArray;
 class vtkTree;
 
-class VTKVIEWSINFOVIS_EXPORT vtkTanglegramItem : public vtkContextItem
+class VTKVIEWSINFOVIS_EXPORT VTK_MARSHALAUTO vtkTanglegramItem : public vtkContextItem
 {
 public:
   static vtkTanglegramItem* New();
   vtkTypeMacro(vtkTanglegramItem, vtkContextItem);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
   /**
-   * Set the first tree
+   * Get/set the first tree
    */
   virtual void SetTree1(vtkTree* tree);
+  vtkTree* GetTree1();
+  ///@}
 
+  ///@{
   /**
-   * Set the second tree
+   * Get/set the second tree
    */
   virtual void SetTree2(vtkTree* tree);
+  vtkTree* GetTree2();
+  ///@}
 
   ///@{
   /**

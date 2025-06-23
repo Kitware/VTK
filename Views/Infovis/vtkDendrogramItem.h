@@ -27,10 +27,11 @@
 #include "vtkContextItem.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
-#include "vtkNew.h"          // For vtkNew ivars
-#include "vtkSmartPointer.h" // For vtkSmartPointer ivars
-#include "vtkStdString.h"    // For SetGet ivars
-#include "vtkVector.h"       // For vtkVector2f ivar
+#include "vtkNew.h"           // For vtkNew ivars
+#include "vtkSmartPointer.h"  // For vtkSmartPointer ivars
+#include "vtkStdString.h"     // For SetGet ivars
+#include "vtkVector.h"        // For vtkVector2f ivar
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkColorLegend;
@@ -40,7 +41,7 @@ class vtkLookupTable;
 class vtkPruneTreeFilter;
 class vtkTree;
 
-class VTKVIEWSINFOVIS_EXPORT vtkDendrogramItem : public vtkContextItem
+class VTKVIEWSINFOVIS_EXPORT VTK_MARSHALAUTO vtkDendrogramItem : public vtkContextItem
 {
 public:
   static vtkDendrogramItem* New();

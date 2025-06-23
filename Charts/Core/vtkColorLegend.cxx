@@ -157,6 +157,13 @@ void vtkColorLegend::SetTextureSize(float w, float h)
 }
 
 //------------------------------------------------------------------------------
+void vtkColorLegend::GetTextureSize(float& w, float& h)
+{
+  w = this->Position.GetWidth();
+  h = this->Position.GetHeight();
+}
+
+//------------------------------------------------------------------------------
 void vtkColorLegend::SetPosition(const vtkRectf& pos)
 {
   this->Position = pos;

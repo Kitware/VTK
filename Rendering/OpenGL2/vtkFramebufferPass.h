@@ -47,6 +47,7 @@ public:
    * e.g. vtkTextureObject::Float32
    */
   vtkSetMacro(DepthFormat, int);
+  vtkGetMacro(DepthFormat, int);
 
   /**
    *  Set the format to use for the color texture
@@ -55,6 +56,7 @@ public:
    *  is the default.
    */
   vtkSetMacro(ColorFormat, int);
+  vtkGetMacro(ColorFormat, int);
 
   // Get the depth texture object
   vtkGetObjectMacro(DepthTexture, vtkTextureObject);

@@ -138,6 +138,7 @@ bool vtkHeatmapItem::Paint(vtkContext2D* painter)
   if (this->IsDirty())
   {
     this->RebuildBuffers();
+    this->ColorLegend->Update();
   }
 
   this->PaintBuffers(painter);

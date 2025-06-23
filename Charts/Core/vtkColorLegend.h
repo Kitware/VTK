@@ -79,6 +79,7 @@ public:
    * Set the size of the scalar bar drawn by this legend.
    */
   virtual void SetTextureSize(float w, float h);
+  virtual void GetTextureSize(float& w, float& h);
 
   /**
    * Set the origin, width, and height of the scalar bar drawn by this legend.
@@ -159,7 +160,7 @@ protected:
    */
   void UpdateAxisPosition();
 
-  vtkScalarsToColors* TransferFunction;
+  vtkSmartPointer<vtkScalarsToColors> TransferFunction;
   vtkSmartPointer<vtkImageData> ImageData;
   vtkSmartPointer<vtkAxis> Axis;
   vtkSmartPointer<vtkCallbackCommand> Callback;

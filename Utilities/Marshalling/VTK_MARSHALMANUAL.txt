@@ -17,6 +17,7 @@ Interaction/Style/vtkInteractorStyleSwitch.h
 Interaction/Widgets/vtkAbstractWidget.h
 Rendering/Core/vtkAbstractMapper.h
 Rendering/Core/vtkColorTransferFunction.h
+Common/DataModel/vtkGraph.h
 Rendering/Core/vtkCompositeDataDisplayAttributes.h
 Rendering/Core/vtkDataSetMapper.h
 Rendering/Core/vtkDiscretizableColorTransferFunction.h

@@ -17,13 +17,14 @@
 #include "vtkContextItem.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
-#include "vtkNew.h"          // For vtkNew ivars
-#include "vtkSmartPointer.h" // For vtkSmartPointer ivars
-#include "vtkStdString.h"    // For get/set ivars
-#include "vtkVector.h"       // For vtkVector2f ivar
-#include <map>               // For column ranges
-#include <set>               // For blank row support
-#include <vector>            // For row mapping
+#include "vtkNew.h"           // For vtkNew ivars
+#include "vtkSmartPointer.h"  // For vtkSmartPointer ivars
+#include "vtkStdString.h"     // For get/set ivars
+#include "vtkVector.h"        // For vtkVector2f ivar
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include <map>                // For column ranges
+#include <set>                // For blank row support
+#include <vector>             // For row mapping
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
@@ -35,7 +36,7 @@ class vtkTable;
 class vtkTooltipItem;
 class vtkVariantArray;
 
-class VTKVIEWSINFOVIS_EXPORT vtkHeatmapItem : public vtkContextItem
+class VTKVIEWSINFOVIS_EXPORT VTK_MARSHALAUTO vtkHeatmapItem : public vtkContextItem
 {
 public:
   static vtkHeatmapItem* New();
@@ -171,6 +172,9 @@ public:
    * Display a legend for a column of data.
    */
   bool MouseDoubleClickEvent(const vtkContextMouseEvent& event) override;
+
+  vtkGetObjectMacro(CategoryLegend, vtkCategoryLegend);
+  vtkGetObjectMacro(ColorLegend, vtkColorLegend);
 
 protected:
   vtkHeatmapItem();

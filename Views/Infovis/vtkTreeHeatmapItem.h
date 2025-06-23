@@ -27,10 +27,11 @@
 #include "vtkContextItem.h"
 #include "vtkViewsInfovisModule.h" // For export macro
 
-#include "vtkNew.h"          // For vtkNew ivars
-#include "vtkSmartPointer.h" // For vtkSmartPointer ivars
-#include <map>               // For string lookup tables
-#include <vector>            // For lookup tables
+#include "vtkNew.h"           // For vtkNew ivars
+#include "vtkSmartPointer.h"  // For vtkSmartPointer ivars
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include <map>                // For string lookup tables
+#include <vector>             // For lookup tables
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDendrogramItem;
@@ -38,7 +39,7 @@ class vtkHeatmapItem;
 class vtkTable;
 class vtkTree;
 
-class VTKVIEWSINFOVIS_EXPORT vtkTreeHeatmapItem : public vtkContextItem
+class VTKVIEWSINFOVIS_EXPORT VTK_MARSHALAUTO vtkTreeHeatmapItem : public vtkContextItem
 {
 public:
   static vtkTreeHeatmapItem* New();
@@ -52,11 +53,13 @@ public:
    * table.  See SetTable for more information.  The vtkNewickTreeReader
    * automatically creates this required array for you.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetTree(vtkTree* tree);
 
   /**
    * Get the tree that this item draws.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkTree* GetTree();
 
   /**
@@ -64,12 +67,14 @@ public:
    * vertex data must contain a vtkStringArray called "node name" that
    * corresponds to the names of the columns in the heatmap.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetColumnTree(vtkTree* tree);
 
   /**
    * Get the tree that represents the columns of the heatmap (if one has
    * been set).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkTree* GetColumnTree();
 
   /**
@@ -77,11 +82,13 @@ public:
    * must contain the names of the rows.  These names, in turn, must correspond
    * with the nodes names in the input tree.  See SetTree for more information.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetTable(vtkTable* table);
 
   /**
    * Get the table that this item draws.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkTable* GetTable();
 
   ///@{
@@ -90,6 +97,14 @@ public:
    */
   vtkDendrogramItem* GetDendrogram();
   void SetDendrogram(vtkDendrogramItem* dendrogram);
+  ///@}
+
+  ///@{
+  /**
+   * Get/Set the column dendrogram contained by this item.
+   */
+  vtkDendrogramItem* GetColumnDendrogram();
+  void SetColumnDendrogram(vtkDendrogramItem* dendrogram);
   ///@}
 
   ///@{

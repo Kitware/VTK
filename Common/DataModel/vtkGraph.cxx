@@ -66,8 +66,6 @@ vtkCxxSetObjectMacro(vtkGraph, EdgeList, vtkIdTypeArray);
 //------------------------------------------------------------------------------
 vtkGraph::vtkGraph()
 {
-  this->VertexData = vtkDataSetAttributes::New();
-  this->EdgeData = vtkDataSetAttributes::New();
   this->Points = nullptr;
   vtkMath::UninitializeBounds(this->Bounds);
 
@@ -85,8 +83,6 @@ vtkGraph::vtkGraph()
 //------------------------------------------------------------------------------
 vtkGraph::~vtkGraph()
 {
-  this->VertexData->Delete();
-  this->EdgeData->Delete();
   if (this->Points)
   {
     this->Points->Delete();

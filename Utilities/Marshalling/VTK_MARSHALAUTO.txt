@@ -63,6 +63,8 @@ Common/DataModel/vtkCompositeDataSet.h
 Common/DataModel/vtkDataObject.h
 Common/DataModel/vtkDataObjectTree.h
 Common/DataModel/vtkDataSet.h
+Common/DataModel/vtkDirectedAcyclicGraph.h
+Common/DataModel/vtkDirectedGraph.h
 Common/DataModel/vtkImageData.h
 Common/DataModel/vtkImplicitFunction.h
 Common/DataModel/vtkMultiPieceDataSet.h
@@ -75,6 +77,8 @@ Common/DataModel/vtkRectilinearGrid.h
 Common/DataModel/vtkStaticCellLinks.h
 Common/DataModel/vtkStructuredGrid.h
 Common/DataModel/vtkStructuredPoints.h
+Common/DataModel/vtkTree.h
+Common/DataModel/vtkUndirectedGraph.h
 Common/DataModel/vtkUniformGrid.h
 Common/DataModel/vtkUnstructuredGridBase.h
 Common/ExecutionModel/vtkAlgorithmOutput.h
@@ -285,6 +289,7 @@ Rendering/Core/vtkFollower.h
 Rendering/Core/vtkFrustumCoverageCuller.h
 Rendering/Core/vtkFXAAOptions.h
 Rendering/Core/vtkGlyph3DMapper.h
+Rendering/Core/vtkGraphMapper.h
 Rendering/Core/vtkHardwarePicker.h
 Rendering/Core/vtkHardwareWindow.h
 Rendering/Core/vtkImageActor.h
@@ -303,6 +308,7 @@ Rendering/Core/vtkLightCollection.h
 Rendering/Core/vtkLogLookupTable.h
 Rendering/Core/vtkMapper.h
 Rendering/Core/vtkMapper2D.h
+Rendering/Core/vtkMapperCollection.h
 Rendering/Core/vtkPicker.h
 Rendering/Core/vtkPointGaussianMapper.h
 Rendering/Core/vtkPointPicker.h
@@ -463,3 +469,7 @@ Views/Core/vtkEmptyRepresentation.h
 Views/Core/vtkRenderViewBase.h
 Views/Core/vtkView.h
 Views/Core/vtkViewTheme.h
+Views/Infovis/vtkDendrogramItem.h
+Views/Infovis/vtkHeatmapItem.h
+Views/Infovis/vtkTanglegramItem.h
+Views/Infovis/vtkTreeHeatmapItem.h

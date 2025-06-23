@@ -19,9 +19,10 @@
 #include "vtkMapper.h"              // Needed for direct access to mapper methods in
                                     // inline functions
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkMapperCollection : public vtkCollection
 {
 public:
   static vtkMapperCollection* New();

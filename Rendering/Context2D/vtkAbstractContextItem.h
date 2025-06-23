@@ -62,7 +62,7 @@ public:
    * \return the index of the child item.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
-  vtkIdType AddItem(vtkAbstractContextItem* item);
+  virtual vtkIdType AddItem(vtkAbstractContextItem* item);
 
   /**
    * Remove child item from this item. Decrements reference count of item.
@@ -84,7 +84,7 @@ public:
    * \return the item at the specified index (null if index is invalid).
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
-  vtkAbstractContextItem* GetItem(vtkIdType index);
+  virtual vtkAbstractContextItem* GetItem(vtkIdType index);
 
   /**
    * Get the index of the specified item in itemIndex.
@@ -216,12 +216,14 @@ public:
    * Set the parent item. The parent will be set for all items except top
    * level items in a scene.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetParent(vtkAbstractContextItem* parent);
 
   /**
    * Get the parent item. The parent will be set for all items except top
    * level items in a tree.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkAbstractContextItem* GetParent() { return this->Parent; }
 
   /**

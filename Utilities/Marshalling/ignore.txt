@@ -243,6 +243,7 @@ Common/DataModel/vtkCellLinks.h
 Common/DataModel/vtkCellLocator.h
 Common/DataModel/vtkCellLocatorStrategy.h
 Common/DataModel/vtkCellMetadata.h
+Common/DataModel/vtkCellStatus.h
 Common/DataModel/vtkCellTreeLocator.h
 Common/DataModel/vtkCellType.h
 Common/DataModel/vtkCellTypes.h
@@ -269,8 +270,6 @@ Common/DataModel/vtkDataObjectTypes.h
 Common/DataModel/vtkDataSetAttributesFieldList.h
 Common/DataModel/vtkDataSetCellIterator.h
 Common/DataModel/vtkDataSetCollection.h
-Common/DataModel/vtkDirectedAcyclicGraph.h
-Common/DataModel/vtkDirectedGraph.h
 Common/DataModel/vtkDistributedGraphHelper.h
 Common/DataModel/vtkEdgeListIterator.h
 Common/DataModel/vtkEdgeTable.h
@@ -291,7 +290,6 @@ Common/DataModel/vtkGenericInterpolatedVelocityField.h
 Common/DataModel/vtkGenericPointIterator.h
 Common/DataModel/vtkGenericSubdivisionErrorMetric.h
 Common/DataModel/vtkGeometricErrorMetric.h
-Common/DataModel/vtkGraph.h
 Common/DataModel/vtkGraphEdge.h
 Common/DataModel/vtkGraphInternals.h
 Common/DataModel/vtkHexagonalPrism.h
@@ -436,7 +434,6 @@ Common/DataModel/vtkStructuredExtent.h
 Common/DataModel/vtkStructuredPointsCollection.h
 Common/DataModel/vtkSuperquadric.h
 Common/DataModel/vtkTetra.h
-Common/DataModel/vtkTree.h
 Common/DataModel/vtkTreeBFSIterator.h
 Common/DataModel/vtkTreeDFSIterator.h
 Common/DataModel/vtkTreeIterator.h
@@ -444,7 +441,6 @@ Common/DataModel/vtkTriQuadraticHexahedron.h
 Common/DataModel/vtkTriQuadraticPyramid.h
 Common/DataModel/vtkTriangle.h
 Common/DataModel/vtkTriangleStrip.h
-Common/DataModel/vtkUndirectedGraph.h
 Common/DataModel/vtkUniformGridAMR.h
 Common/DataModel/vtkUniformGridAMRDataIterator.h
 Common/DataModel/vtkUniformHyperTreeGrid.h
@@ -513,7 +509,6 @@ Common/ExecutionModel/vtkStructuredGridAlgorithm.h
 Common/ExecutionModel/vtkTableAlgorithm.h
 Common/ExecutionModel/vtkTemporalAlgorithm.h
 Common/ExecutionModel/vtkThreadedCompositeDataPipeline.h
-Common/ExecutionModel/vtkThreadedImageAlgorithm.h
 Common/ExecutionModel/vtkTimeRange.h
 Common/ExecutionModel/vtkTreeAlgorithm.h
 Common/ExecutionModel/vtkTrivialConsumer.h
@@ -705,7 +700,6 @@ Rendering/Core/vtkGPUInfo.h
 Rendering/Core/vtkGPUInfoList.h
 Rendering/Core/vtkGPUInfoListArray.h
 Rendering/Core/vtkGenericVertexAttributeMapping.h
-Rendering/Core/vtkGraphMapper.h
 Rendering/Core/vtkGraphToGlyphs.h
 Rendering/Core/vtkGraphicsFactory.h
 Rendering/Core/vtkHardwareSelector.h
@@ -717,7 +711,6 @@ Rendering/Core/vtkLabeledDatatypeDefinitions.h
 Rendering/Core/vtkLightKit.h
 Rendering/Core/vtkLookupTableWithEnabling.h
 Rendering/Core/vtkMapArrayValues.h
-Rendering/Core/vtkMapperCollection.h
 Rendering/Core/vtkNoise200x200.h
 Rendering/Core/vtkObserverMediator.h
 Rendering/Core/vtkPickingManager.h
@@ -891,3 +884,26 @@ Rendering/WebGPU/vtkWebGPUComputeRenderTexture.h
 Rendering/WebGPU/vtkWebGPUComputeTexture.h
 Rendering/WebGPU/vtkWebGPUComputeTextureView.h
 Rendering/WebGPU/vtkWebGPUHelpers.h
+Views/Infovis/vtkApplyColors.h
+Views/Infovis/vtkApplyIcons.h
+Views/Infovis/vtkGraphItem.h
+Views/Infovis/vtkGraphLayoutView.h
+Views/Infovis/vtkHierarchicalGraphPipeline.h
+Views/Infovis/vtkHierarchicalGraphView.h
+Views/Infovis/vtkIcicleView.h
+Views/Infovis/vtkInteractorStyleAreaSelectHover.h
+Views/Infovis/vtkInteractorStyleTreeMapHover.h
+Views/Infovis/vtkParallelCoordinatesHistogramRepresentation.h
+Views/Infovis/vtkParallelCoordinatesRepresentation.h
+Views/Infovis/vtkParallelCoordinatesView.h
+Views/Infovis/vtkRenderView.h
+Views/Infovis/vtkRenderedGraphRepresentation.h
+Views/Infovis/vtkRenderedHierarchyRepresentation.h
+Views/Infovis/vtkRenderedRepresentation.h
+Views/Infovis/vtkRenderedSurfaceRepresentation.h
+Views/Infovis/vtkRenderedTreeAreaRepresentation.h
+Views/Infovis/vtkSCurveSpline.h
+Views/Infovis/vtkTreeAreaView.h
+Views/Infovis/vtkTreeMapView.h
+Views/Infovis/vtkTreeRingView.h
+Views/Infovis/vtkViewUpdater.h

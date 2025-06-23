@@ -36,6 +36,29 @@ public:
   static vtkContextTransform* New();
 
   /**
+   * Add child items to this item. Increments reference count of item.
+   * \return the index of the child item.
+   */
+  vtkIdType AddItem(vtkAbstractContextItem* item) override
+  {
+    return this->Superclass::AddItem(item);
+  }
+
+  /**
+   * Get the item at the specified index.
+   * \return the item at the specified index (null if index is invalid).
+   */
+  vtkAbstractContextItem* GetItem(vtkIdType index) override
+  {
+    return this->Superclass::GetItem(index);
+  }
+
+  /**
+   * Remove all child items from this item.
+   */
+  void RemoveAllItems() { this->ClearItems(); }
+
+  /**
    * Perform any updates to the item that may be necessary before rendering.
    * The scene should take care of calling this on all items before their
    * Paint function is invoked.
@@ -198,7 +221,7 @@ protected:
   vtkContextTransform();
   ~vtkContextTransform() override;
 
-  vtkSmartPointer<vtkTransform2D> Transform;
+  vtkNew<vtkTransform2D> Transform;
 
   int PanMouseButton;
   int PanModifier;
