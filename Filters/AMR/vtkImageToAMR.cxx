@@ -17,7 +17,7 @@
 #include "vtkTuple.h"
 #include "vtkUniformGrid.h"
 
-#include "vtkAMRInformation.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include <algorithm>
 #include <vector>
 VTK_ABI_NAMESPACE_BEGIN

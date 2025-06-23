@@ -16,7 +16,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
-class vtkAMRInformation;
+class vtkOverlappingAMRMetaData;
 class vtkAMRDataInternals;
 class vtkUniformGridAMR;
 class AMRIndexIterator;
@@ -90,7 +90,7 @@ private:
 
   vtkSmartPointer<vtkInformation> Information;
   vtkSmartPointer<vtkUniformGridAMR> AMR;
-  vtkAMRInformation* AMRInfo;
+  vtkOverlappingAMRMetaData* AMRInfo;
   vtkAMRDataInternals* AMRData;
 
   void GetCurrentIndexPair(unsigned int& level, unsigned int& id);

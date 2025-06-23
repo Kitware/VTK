@@ -7,10 +7,10 @@
  * vtkUniformGridAMR (AMR stands for Adaptive Mesh Refinement)
  * is a container for vtkUniformGrid. Each grid is added as a block of a given level.
  *
- * The structure of the container is described in a vtkAMRInformation object.
+ * The structure of the container is described in a vtkOverlappingAMRMetaData object.
  *
  * @sa
- * vtkOverlappingAMR, vtkNonOverlappingAMR, vtkAMRInformation, vtkUniformGridAMRDataIterator
+ * vtkOverlappingAMR, vtkNonOverlappingAMR, vtkOverlappingAMRMetaData, vtkUniformGridAMRDataIterator
  */
 
 #ifndef vtkUniformGridAMR_h
@@ -22,7 +22,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataIterator;
 class vtkUniformGrid;
-class vtkAMRInformation;
+class vtkOverlappingAMRMetaData;
 class vtkAMRDataInternals;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
@@ -166,11 +166,11 @@ protected:
   /**
    * Get/Set the meta AMR meta info
    */
-  vtkGetObjectMacro(AMRInfo, vtkAMRInformation);
-  virtual void SetAMRInfo(vtkAMRInformation*);
+  vtkGetObjectMacro(AMRInfo, vtkOverlappingAMRMetaData);
+  virtual void SetAMRInfo(vtkOverlappingAMRMetaData*);
   ///@}
 
-  vtkAMRInformation* AMRInfo;
+  vtkOverlappingAMRMetaData* AMRInfo;
 
 private:
   vtkUniformGridAMR(const vtkUniformGridAMR&) = delete;

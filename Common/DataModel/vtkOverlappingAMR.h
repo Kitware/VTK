@@ -17,10 +17,10 @@
  * you should call SetAMRBox for each block of each level.
  *
  * In a distributed environement, the structure should be shared across all rank:
- * the vtkAMRInformation and vtkAMRBox should be duplicated as needed.
+ * the vtkOverlappingAMRMetaData and vtkAMRBox should be duplicated as needed.
  *
  * @sa
- * vtkAMRInformation, vtkNonOverlappingAMR, vtkUniformGridAMR, vtkAMRBox
+ * vtkOverlappingAMRMetaData, vtkNonOverlappingAMR, vtkUniformGridAMR, vtkAMRBox
  */
 
 #ifndef vtkOverlappingAMR_h
@@ -33,7 +33,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkAMRBox;
 class vtkCompositeDataIterator;
 class vtkUniformGrid;
-class vtkAMRInformation;
+class vtkOverlappingAMRMetaData;
 class vtkInformationIdTypeKey;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkOverlappingAMR : public vtkUniformGridAMR
@@ -177,10 +177,10 @@ public:
   bool FindGrid(double q[3], unsigned int& level, unsigned int& gridId);
 
   /**
-   * Get/Set the internal representation of amr meta meta data
+   * Get/Set the internal representation of amr meta data
    */
-  vtkAMRInformation* GetAMRInfo() override { return Superclass::GetAMRInfo(); }
-  void SetAMRInfo(vtkAMRInformation* info) override { Superclass::SetAMRInfo(info); }
+  vtkOverlappingAMRMetaData* GetAMRInfo() override { return Superclass::GetAMRInfo(); }
+  void SetAMRInfo(vtkOverlappingAMRMetaData* info) override { Superclass::SetAMRInfo(info); }
 
   /**
    * Deprecated, forward to CheckValidity

@@ -191,6 +191,7 @@ Common/Core/vtkXMLFileOutputWindow.h
 Common/DataModel/vtkAMRBox.h
 Common/DataModel/vtkAMRDataInternals.h
 Common/DataModel/vtkAMRInformation.h
+Common/DataModel/vtkAMRMetaData.h
 Common/DataModel/vtkAMRUtilities.h
 Common/DataModel/vtkAbstractCellLocator.h
 Common/DataModel/vtkAbstractElectronicData.h
@@ -376,6 +377,7 @@ Common/DataModel/vtkOctreePointLocatorNode.h
 Common/DataModel/vtkOrderedTriangulator.h
 Common/DataModel/vtkOutEdgeIterator.h
 Common/DataModel/vtkOverlappingAMR.h
+Common/DataModel/vtkOverlappingAMRMetaData.h
 Common/DataModel/vtkPath.h
 Common/DataModel/vtkPentagonalPrism.h
 Common/DataModel/vtkPeriodicDataArray.h

@@ -18,14 +18,15 @@
 #include <vector>
 
 // VTK includes
+#include "vtkAMRBox.h"
 #include "vtkAMRGaussianPulseSource.h"
-#include "vtkAMRInformation.h"
 #include "vtkAMRUtilities.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkMathUtilities.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkPoints.h"
 #include "vtkUniformGrid.h"
 // #define DEBUG_ON
@@ -383,7 +384,7 @@ bool AMRDataSetsAreEqual(vtkOverlappingAMR* computed, vtkOverlappingAMR* expecte
 
   if (!(*computed->GetAMRInfo() == *expected->GetAMRInfo()))
   {
-    std::cerr << "ERROR: AMR data mismatch!\n";
+    std::cerr << "ERROR: AMR meta data mismatch!\n";
     return false;
   }
 

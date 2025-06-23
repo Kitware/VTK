@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPOutlineCornerFilter.h"
 
-#include "vtkAMRInformation.h"
 #include "vtkAppendPolyData.h"
 #include "vtkBoundingBox.h"
 #include "vtkCompositeDataIterator.h"

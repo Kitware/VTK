@@ -4,7 +4,6 @@
 #include "vtkXMLUniformGridAMRReader.h"
 
 #include "vtkAMRBox.h"
-#include "vtkAMRInformation.h"
 #include "vtkAMRUtilities.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDataArraySelection.h"
@@ -14,6 +13,7 @@
 #include "vtkNonOverlappingAMR.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkSmartPointer.h"
 #include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
@@ -227,7 +227,7 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
 
   if (!blocks_per_level.empty())
   {
-    // initialize vtkAMRInformation.
+    // initialize vtkOverlappingAMRMetaData.
     this->Metadata->Initialize(
       static_cast<int>(blocks_per_level.size()), reinterpret_cast<int*>(blocks_per_level.data()));
 

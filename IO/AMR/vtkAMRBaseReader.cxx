@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAMRBaseReader.h"
 #include "vtkAMRDataSetCache.h"
-#include "vtkAMRInformation.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataPipeline.h"
@@ -14,6 +13,7 @@
 #include "vtkInformationVector.h"
 #include "vtkMultiProcessController.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkParallelAMRUtilities.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"

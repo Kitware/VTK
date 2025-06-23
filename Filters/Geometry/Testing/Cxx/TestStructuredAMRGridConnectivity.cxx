@@ -6,7 +6,6 @@
 //  Serial test for structured AMR grid connectivity/nesting
 
 // VTK includes
-#include "vtkAMRInformation.h"
 #include "vtkCell.h"
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"

@@ -8,7 +8,7 @@
  * vtkAMRBox stores information for an AMR block
  *
  * @sa
- * vtkAMRInformation
+ * vtkOverlappingAMRMetaData
  */
 
 #ifndef vtkAMRBox_h

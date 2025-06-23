@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkUniformGridAMRDataIterator.h"
 #include "vtkAMRDataInternals.h"
-#include "vtkAMRInformation.h"
 #include "vtkDataObject.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
 #include <cassert>

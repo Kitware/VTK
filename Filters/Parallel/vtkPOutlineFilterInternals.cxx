@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPOutlineFilterInternals.h"
 
-#include "vtkAMRInformation.h"
 #include "vtkAppendPolyData.h"
 #include "vtkBoundingBox.h"
 #include "vtkCompositeDataIterator.h"
@@ -15,6 +14,7 @@
 #include "vtkOutlineCornerSource.h"
 #include "vtkOutlineSource.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkUniformGrid.h"
