@@ -26,7 +26,6 @@ vtkUniformGridAMR::vtkUniformGridAMR()
   this->Bounds[4] = VTK_DOUBLE_MAX;
   this->Bounds[5] = VTK_DOUBLE_MIN;
   this->AMRInfo = nullptr;
-  this->AMRData = vtkAMRDataInternals::New();
 }
 
 //------------------------------------------------------------------------------
@@ -36,7 +35,6 @@ vtkUniformGridAMR::~vtkUniformGridAMR()
   {
     this->AMRInfo->Delete();
   }
-  this->AMRData->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -54,25 +52,6 @@ void vtkUniformGridAMR::SetAMRInfo(vtkOverlappingAMRMetaData* amrInfo)
   if (this->AMRInfo)
   {
     this->AMRInfo->Register(this);
-  }
-  this->Modified();
-}
-
-//------------------------------------------------------------------------------
-void vtkUniformGridAMR::SetAMRData(vtkAMRDataInternals* amrData)
-{
-  if (amrData == this->AMRData)
-  {
-    return;
-  }
-  if (this->AMRData)
-  {
-    this->AMRData->Delete();
-  }
-  this->AMRData = amrData;
-  if (this->AMRData)
-  {
-    this->AMRData->Register(this);
   }
   this->Modified();
 }
@@ -278,7 +257,7 @@ void vtkUniformGridAMR::CompositeShallowCopy(vtkCompositeDataSet* src)
   if (vtkUniformGridAMR* hbds = vtkUniformGridAMR::SafeDownCast(src))
   {
     this->SetAMRInfo(hbds->GetAMRInfo());
-    this->AMRData->CompositeShallowCopy(hbds->GetAMRData());
+    this->AMRData->CompositeShallowCopy(hbds->AMRData);
     memcpy(this->Bounds, hbds->Bounds, sizeof(double) * 6);
   }
 
@@ -300,9 +279,7 @@ void vtkUniformGridAMR::DeepCopy(vtkDataObject* src)
     this->SetAMRInfo(nullptr);
     this->AMRInfo = vtkOverlappingAMRMetaData::New();
     this->AMRInfo->DeepCopy(hbds->GetAMRInfo());
-    this->SetAMRData(nullptr);
-    this->AMRData = vtkAMRDataInternals::New();
-    this->AMRData->DeepCopy(hbds->GetAMRData());
+    this->AMRData->DeepCopy(hbds->AMRData);
     memcpy(this->Bounds, hbds->Bounds, sizeof(double) * 6);
   }
 
@@ -340,7 +317,7 @@ void vtkUniformGridAMR::ShallowCopy(vtkDataObject* src)
   if (vtkUniformGridAMR* hbds = vtkUniformGridAMR::SafeDownCast(src))
   {
     this->SetAMRInfo(hbds->GetAMRInfo());
-    this->AMRData->ShallowCopy(hbds->GetAMRData());
+    this->AMRData->ShallowCopy(hbds->AMRData);
     memcpy(this->Bounds, hbds->Bounds, sizeof(double) * 6);
   }
 

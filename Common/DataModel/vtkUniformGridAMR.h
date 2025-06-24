@@ -18,6 +18,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCompositeDataSet.h"
+#include "vtkNew.h" // for vtkNew
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCompositeDataIterator;
@@ -155,12 +156,13 @@ protected:
   ///@{
   /**
    * Get/Set the meta AMR meta data
+   * Deprecated, do not use.
    */
-  vtkGetObjectMacro(AMRData, vtkAMRDataInternals);
-  virtual void SetAMRData(vtkAMRDataInternals*);
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated and should not be used")
+  virtual vtkAMRDataInternals* GetAMRData() { return this->AMRData; }
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated and has no effect")
+  virtual void SetAMRData(vtkAMRDataInternals*){};
   ///@}
-
-  vtkAMRDataInternals* AMRData;
 
   ///@{
   /**
@@ -177,6 +179,8 @@ private:
   void operator=(const vtkUniformGridAMR&) = delete;
 
   friend class vtkUniformGridAMRDataIterator;
+
+  vtkNew<vtkAMRDataInternals> AMRData;
 };
 
 VTK_ABI_NAMESPACE_END
