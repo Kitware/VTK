@@ -1270,9 +1270,16 @@ vtkSmartPointer<vtkPolyData> vtkProbeLineFilter::IntersectCells(
     int counter = 0;
     for (const auto& inter : intersectionMap)
     {
-      intersections[counter] = inter.second;
-      counter++;
+      // Append only intersections different from the previous one,
+      // and that are not a single point (in & out of the cell at the same position)
+      if (counter == 0 ||
+        (inter.second != intersections[counter - 1] && inter.second.InT != inter.second.OutT))
+      {
+        intersections[counter] = inter.second;
+        counter++;
+      }
     }
+    intersections.resize(counter);
   }
 
   // Make sure our intersections are sorted
