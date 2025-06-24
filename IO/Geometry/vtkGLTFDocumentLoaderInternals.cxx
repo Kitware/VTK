@@ -1280,6 +1280,19 @@ bool vtkGLTFDocumentLoaderInternals::LoadTextureInfo(
   textureInfo.TexCoord = 0;
   vtkGLTFUtils::GetIntValue(root, "texCoord", textureInfo.TexCoord);
 
+  auto extRootIt = root.find("extensions");
+  if (extRootIt != root.end())
+  {
+    auto texTrRootIt = extRootIt.value().find("KHR_texture_transform");
+    if (texTrRootIt != extRootIt.value().end())
+    {
+      vtkGLTFUtils::GetDoubleArray(texTrRootIt.value(), "scale", textureInfo.Scale);
+      vtkGLTFUtils::GetDoubleArray(texTrRootIt.value(), "offset", textureInfo.Offset);
+      vtkGLTFUtils::GetDoubleValue(texTrRootIt.value(), "rotation", textureInfo.Rotation);
+      vtkGLTFUtils::GetIntValue(texTrRootIt.value(), "texCoord", textureInfo.TexCoord);
+    }
+  }
+
   return true;
 }
 

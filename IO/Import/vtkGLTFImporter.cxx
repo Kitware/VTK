@@ -19,6 +19,7 @@
 #include "vtkInformation.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
+#include "vtkMathUtilities.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -30,6 +31,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
+#include "vtkTransform2D.h"
 #include "vtkUniforms.h"
 #include "vtksys/SystemTools.hxx"
 
@@ -194,6 +196,86 @@ bool PrimitiveNeedsTangents(const std::shared_ptr<vtkGLTFDocumentLoader::Model> 
   return normalMapIndex >= 0 && normalMapIndex < static_cast<int>(model->Textures.size());
 }
 
+vtkSmartPointer<vtkTransform2D> GetTextureTransform(const vtkGLTFDocumentLoader::Material& material)
+{
+  bool hasTransform = false;
+  double offset[2] = { 0.0, 0.0 };
+  double rotation = 0.0;
+  double scale[2] = { 1.0, 1.0 };
+
+  auto CheckAndSetTransform = [&](const vtkGLTFDocumentLoader::TextureInfo& texInfo)
+  {
+    if (texInfo.Index >= 0)
+    {
+      if (!hasTransform)
+      {
+        if (texInfo.Offset.size() == 2)
+        {
+          offset[0] = texInfo.Offset[0];
+          offset[1] = texInfo.Offset[1];
+        }
+
+        if (texInfo.Scale.size() == 2)
+        {
+          scale[0] = texInfo.Scale[0];
+          scale[1] = texInfo.Scale[1];
+        }
+
+        rotation = texInfo.Rotation;
+        hasTransform = true;
+      }
+      else
+      {
+        constexpr double tolerance = 1e-6;
+
+        if (texInfo.Offset.size() == 2 &&
+          (!vtkMathUtilities::FuzzyCompare(texInfo.Offset[0], offset[0], tolerance) ||
+            !vtkMathUtilities::FuzzyCompare(texInfo.Offset[1], offset[1], tolerance)))
+        {
+          vtkWarningWithObjectMacro(
+            nullptr, "Found different texture transform offset value, this is not supported.");
+        }
+
+        if (texInfo.Scale.size() == 2 &&
+          (!vtkMathUtilities::FuzzyCompare(texInfo.Scale[0], scale[0], tolerance) ||
+            !vtkMathUtilities::FuzzyCompare(texInfo.Scale[1], scale[1], tolerance)))
+        {
+          vtkWarningWithObjectMacro(
+            nullptr, "Found different texture transform scale value, this is not supported.");
+        }
+
+        if (!vtkMathUtilities::FuzzyCompare(texInfo.Rotation, rotation, tolerance))
+        {
+          vtkWarningWithObjectMacro(
+            nullptr, "Found different texture transform rotation value, this is not supported.");
+        }
+      }
+    }
+  };
+
+  CheckAndSetTransform(material.PbrMetallicRoughness.BaseColorTexture);
+  CheckAndSetTransform(material.PbrMetallicRoughness.MetallicRoughnessTexture);
+  CheckAndSetTransform(material.NormalTexture);
+  CheckAndSetTransform(material.OcclusionTexture);
+  CheckAndSetTransform(material.EmissiveTexture);
+
+  vtkNew<vtkTransform2D> transform;
+  if (material.PbrMetallicRoughness.BaseColorTexture.Offset.size() == 2)
+  {
+    transform->Translate(material.PbrMetallicRoughness.BaseColorTexture.Offset[0],
+      material.PbrMetallicRoughness.BaseColorTexture.Offset[1]);
+  }
+  transform->Rotate(
+    vtkMath::DegreesFromRadians(material.PbrMetallicRoughness.BaseColorTexture.Rotation));
+  if (material.PbrMetallicRoughness.BaseColorTexture.Scale.size() == 2)
+  {
+    transform->Scale(material.PbrMetallicRoughness.BaseColorTexture.Scale[0],
+      material.PbrMetallicRoughness.BaseColorTexture.Scale[1]);
+  }
+
+  return transform;
+}
+
 //------------------------------------------------------------------------------
 bool ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> model,
   vtkGLTFDocumentLoader::Primitive& primitive, vtkSmartPointer<vtkActor> actor,
@@ -224,14 +306,33 @@ bool ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     actor->ForceTranslucentOn();
   }
 
+  // We assume all texture transforms are identical because the VTK polydata mapper
+  // only support a general texture transform
+  // Therefore, only the base color transform is taken into account
+  vtkSmartPointer<vtkTransform2D> transform = GetTextureTransform(material);
+
   // flip texture coordinates
+  double flipMatrix[3][3];
+  vtkMatrix3x3::Identity(*flipMatrix);
+  flipMatrix[1][1] = -1.0;
+  flipMatrix[1][2] = 1.0;
+
+  // concatenate the matrices
+  double generalTransform[3][3];
+  vtkMatrix3x3::Multiply3x3(*flipMatrix, transform->GetMatrix()->GetData(), *generalTransform);
+
   if (actor->GetPropertyKeys() == nullptr)
   {
     vtkNew<vtkInformation> info;
     actor->SetPropertyKeys(info);
   }
-  double mat[] = { 1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1 };
-  actor->GetPropertyKeys()->Set(vtkProp::GeneralTextureTransform(), mat, 16);
+
+  // The polydata mapper expects a 4x4 matrix so we need to expand
+  double expandedMat[] = { generalTransform[0][0], generalTransform[0][1], 0,
+    generalTransform[0][2], generalTransform[1][0], generalTransform[1][1], 0,
+    generalTransform[1][2], generalTransform[2][0], generalTransform[2][1], 0,
+    generalTransform[2][2], 0, 0, 0, 1 };
+  actor->GetPropertyKeys()->Set(vtkProp::GeneralTextureTransform(), expandedMat, 16);
 
   if (!material.DoubleSided)
   {
