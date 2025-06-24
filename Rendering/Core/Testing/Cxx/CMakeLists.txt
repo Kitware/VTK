@@ -153,4 +153,11 @@ if (VTK_USE_X)
      PROPERTIES RUN_SERIAL ON)
 endif ()
 
+# Extend the timeout because this test can take much longer on slow machines.
+if (NOT VTK_TEST_TIMEOUT_TestManyRenderWindows)
+  set(VTK_TEST_TIMEOUT_TestManyRenderWindows 300)
+endif()
+set_tests_properties(VTK::RenderingCoreCxx-TestManyRenderWindows
+  PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestManyRenderWindows})
+
 vtk_test_cxx_executable(vtkRenderingCoreCxxTests tests)
