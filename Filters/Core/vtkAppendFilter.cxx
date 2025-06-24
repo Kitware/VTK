@@ -540,24 +540,28 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
             pd->GetVerts()->Visit(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
               cellConnectivityOffset, globalIndices, pointOffset);
             cellOffset += numVerts;
+            cellConnectivityOffset += pd->GetVerts()->GetNumberOfConnectivityIds();
           }
           if (auto numLines = pd->GetLines()->GetNumberOfCells())
           {
             pd->GetLines()->Visit(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
               cellConnectivityOffset, globalIndices, pointOffset);
             cellOffset += numLines;
+            cellConnectivityOffset += pd->GetLines()->GetNumberOfConnectivityIds();
           }
           if (auto numPolys = pd->GetPolys()->GetNumberOfCells())
           {
             pd->GetPolys()->Visit(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
               cellConnectivityOffset, globalIndices, pointOffset);
             cellOffset += numPolys;
+            cellConnectivityOffset += pd->GetPolys()->GetNumberOfConnectivityIds();
           }
           if (auto numStrips = pd->GetStrips()->GetNumberOfCells())
           {
             pd->GetStrips()->Visit(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
               cellConnectivityOffset, globalIndices, pointOffset);
             cellOffset += numStrips;
+            cellConnectivityOffset += pd->GetStrips()->GetNumberOfConnectivityIds();
           }
         }
         else // vtkDataSet
