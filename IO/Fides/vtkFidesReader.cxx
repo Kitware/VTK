@@ -111,7 +111,7 @@ vtkFidesReader::vtkFidesReader()
   this->FieldDataArraySelection = vtkDataArraySelection::New();
   this->StreamSteps = false;
   this->NextStepStatus = static_cast<StepStatus>(fides::StepStatus::NotReady);
-  this->CreateSharedPoints = true;
+  this->CreateSharedPoints = false;
   this->DebugOn();
 }
 
