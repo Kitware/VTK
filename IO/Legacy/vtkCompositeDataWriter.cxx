@@ -284,9 +284,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkHierarchicalBoxD
 //------------------------------------------------------------------------------
 bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* oamr)
 {
-  vtkOverlappingAMRMetaData* amrInfo = oamr->GetAMRInfo();
-
-  *fp << "GRID_DESCRIPTION " << amrInfo->GetGridDescription() << "\n";
+  *fp << "GRID_DESCRIPTION " << oamr->GetGridDescription() << "\n";
 
   const double* origin = oamr->GetOrigin();
   *fp << "ORIGIN " << origin[0] << " " << origin[1] << " " << origin[2] << "\n";
@@ -298,7 +296,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* 
   {
     // <num datasets> <spacing x> <spacing y> <spacing z>
     double spacing[3];
-    amrInfo->GetSpacing(level, spacing);
+    oamr->GetSpacing(level, spacing);
 
     *fp << oamr->GetNumberOfDataSets(level) << " " << spacing[0] << " " << spacing[1] << " "
         << spacing[2] << "\n";
@@ -312,7 +310,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* 
   // box.LoCorner[3], box.HiCorner[3]
   idata->SetName("IntMetaData");
   idata->SetNumberOfComponents(6);
-  idata->SetNumberOfTuples(amrInfo->GetTotalNumberOfBlocks());
+  idata->SetNumberOfTuples(oamr->GetTotalNumberOfBlocks());
   unsigned int metadata_index = 0;
   for (unsigned int level = 0; level < num_levels; level++)
   {

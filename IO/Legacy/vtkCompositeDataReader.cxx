@@ -357,7 +357,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
   oamr->SetOrigin(origin);
   for (int cc = 0; cc < num_levels; cc++)
   {
-    oamr->GetAMRInfo()->SetSpacing(cc, &spacing[3 * cc]);
+    oamr->SetSpacing(cc, &spacing[3 * cc]);
   }
 
   // read in the amr boxes0

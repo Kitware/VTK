@@ -474,11 +474,11 @@ void vtkAMRBaseReader::LoadRequestedBlocks(vtkOverlappingAMR* output)
     // FIXME: this piece of code is very similar to the block in
     // AssignAndLoadBlocks. We should consolidate the two.
     int blockIndex = this->BlockMap[block];
-    int blockIdx = this->Metadata->GetAMRInfo()->GetAMRBlockSourceIndex(blockIndex);
+    int blockIdx = this->Metadata->GetOverlappingAMRMetaData()->GetAMRBlockSourceIndex(blockIndex);
 
     unsigned int metaLevel;
     unsigned int metaIdx;
-    this->Metadata->GetAMRInfo()->ComputeIndexPair(blockIndex, metaLevel, metaIdx);
+    this->Metadata->GetOverlappingAMRMetaData()->ComputeIndexPair(blockIndex, metaLevel, metaIdx);
     unsigned int level = this->GetBlockLevel(blockIdx);
     assert(level == metaLevel);
 
@@ -525,11 +525,11 @@ void vtkAMRBaseReader::AssignAndLoadBlocks(vtkOverlappingAMR* output)
   for (int block = 0; block < numBlocks; ++block)
   {
     int blockIndex = this->BlockMap[block];
-    int blockIdx = this->Metadata->GetAMRInfo()->GetAMRBlockSourceIndex(blockIndex);
+    int blockIdx = this->Metadata->GetOverlappingAMRMetaData()->GetAMRBlockSourceIndex(blockIndex);
 
     unsigned int metaLevel;
     unsigned int metaIdx;
-    this->Metadata->GetAMRInfo()->ComputeIndexPair(blockIndex, metaLevel, metaIdx);
+    this->Metadata->GetOverlappingAMRMetaData()->ComputeIndexPair(blockIndex, metaLevel, metaIdx);
     unsigned int level = this->GetBlockLevel(blockIdx);
     assert(level == metaLevel);
 
@@ -575,7 +575,7 @@ int vtkAMRBaseReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkOverlappingAMR::SafeDownCast(outInf->Get(vtkDataObject::DATA_OBJECT()));
   assert("pre: output AMR dataset is nullptr" && (output != nullptr));
 
-  output->SetAMRInfo(this->Metadata->GetAMRInfo());
+  output->SetAMRMetaData(this->Metadata->GetAMRMetaData());
 
   // Setup the block request
   vtkTimerLog::MarkStartEvent("vtkAMRBaseReader::SetupBlockRequest");

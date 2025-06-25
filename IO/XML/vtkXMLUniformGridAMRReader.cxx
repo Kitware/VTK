@@ -257,7 +257,7 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     // pass refinement ratios.
     for (size_t cc = 0; cc < level_spacing.size(); cc++)
     {
-      this->Metadata->GetAMRInfo()->SetSpacing(static_cast<unsigned int>(cc), level_spacing[cc]);
+      this->Metadata->SetSpacing(static_cast<unsigned int>(cc), level_spacing[cc]);
     }
     //  pass amr boxes.
     for (size_t level = 0; level < amr_boxes.size(); level++)
@@ -267,7 +267,7 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
         const vtkAMRBox& box = amr_boxes[level][index];
         if (!box.Empty())
         {
-          this->Metadata->GetAMRInfo()->SetAMRBox(
+          this->Metadata->SetAMRBox(
             static_cast<unsigned int>(level), static_cast<unsigned int>(index), box);
         }
       }
@@ -379,7 +379,7 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
   {
     // we don;t have the parse the structure. Just pass the inform from
     // this->Metadata.
-    oamr->SetAMRInfo(this->Metadata->GetAMRInfo());
+    oamr->SetAMRMetaData(this->Metadata->GetAMRMetaData());
   }
   else if (noamr)
   {

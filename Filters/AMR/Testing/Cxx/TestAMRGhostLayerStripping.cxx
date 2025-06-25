@@ -382,8 +382,9 @@ bool AMRDataSetsAreEqual(vtkOverlappingAMR* computed, vtkOverlappingAMR* expecte
     return false;
   }
 
-  if (!(*computed->GetAMRInfo() == *expected->GetAMRInfo()))
+  if (!(*computed->GetOverlappingAMRMetaData() == *expected->GetOverlappingAMRMetaData()))
   {
+
     std::cerr << "ERROR: AMR meta data mismatch!\n";
     return false;
   }

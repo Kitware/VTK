@@ -370,7 +370,7 @@ bool vtkAMRResampleFilter::SearchForDonorGridAtLevel(double q[3], vtkOverlapping
   {
     donorCellIdx = -1;
     this->NumberOfBlocksTestedForLevel++;
-    if (amrds->GetAMRInfo()->FindCell(q, level, donorGridId, donorCellIdx))
+    if (amrds->GetOverlappingAMRMetaData()->FindCell(q, level, donorGridId, donorCellIdx))
     {
       assert("pre: donorCellIdx is invalid" && (donorCellIdx >= 0)); //  &&
       // (donorCellIdx < donorGrid->GetNumberOfCells()) );
@@ -404,7 +404,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMR(double q[3], unsigned int& donorLe
   {
     this->NumberOfBlocksTested++;
     bool res(true);
-    if (!amrds->GetAMRInfo()->FindCell(q, donorLevel, donorGridId, donorCellIdx))
+    if (!amrds->GetOverlappingAMRMetaData()->FindCell(q, donorLevel, donorGridId, donorCellIdx))
     {
       // Lets see if the point is contained by a grid at the same donar level
       res = this->SearchForDonorGridAtLevel(q, amrds, donorLevel, donorGridId, donorCellIdx);
@@ -557,7 +557,7 @@ bool vtkAMRResampleFilter::SearchGridAncestors(
       vtkDebugMacro("Number of parents: " << numParents << " - Only processing 1 route");
     }
     gridId = parents[0];
-    if (amrds->GetAMRInfo()->FindCell(q, plevel, gridId, cellId))
+    if (amrds->GetOverlappingAMRMetaData()->FindCell(q, plevel, gridId, cellId))
     {
       level = plevel;
       return true;
@@ -587,7 +587,7 @@ void vtkAMRResampleFilter::SearchGridDecendants(double q[3], vtkOverlappingAMR* 
     //    assert(n == children[0]);
     for (i = 0; i < n; ++i)
     {
-      if (amrds->GetAMRInfo()->FindCell(q, clevel, children[i], cellId))
+      if (amrds->GetOverlappingAMRMetaData()->FindCell(q, clevel, children[i], cellId))
       {
         // We found a descendant so stop searching the
         // children and can instead search that grid's
@@ -621,7 +621,7 @@ int vtkAMRResampleFilter::ProbeGridPointInAMRGraph(double q[3], unsigned int& do
   // STEP 0: Check the previously cached donor-grid
   if (useCached)
   {
-    if (!amrds->GetAMRInfo()->FindCell(q, donorLevel, donorGridId, donorCellIdx))
+    if (!amrds->GetOverlappingAMRMetaData()->FindCell(q, donorLevel, donorGridId, donorCellIdx))
     {
       // Lets find the grid's ancestor that contains the point
       bool res = this->SearchGridAncestors(q, amrds, donorLevel, donorGridId, donorCellIdx);
@@ -878,7 +878,7 @@ void vtkAMRResampleFilter::GetDomainParameters(vtkOverlappingAMR* amr, double do
   assert("pre: AMR dataset is nullptr!" && (amr != nullptr));
 
   rf = amr->GetRefinementRatio(1);
-  amr->GetAMRInfo()->GetAMRBox(0, 0).GetNumberOfNodes(dims);
+  amr->GetAMRBox(0, 0).GetNumberOfNodes(dims);
   amr->GetMin(domainMin);
   amr->GetMax(domainMax);
 
