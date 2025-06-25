@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTextActorInterfaceInternal.h"
 
+#include "Private/vtkFollowerTextPropertyAdaptor.h"
+#include "vtkAxisActor.h"
 #include "vtkAxisFollower.h"
 #include "vtkCamera.h"
 #include "vtkMatrix4x4.h"
@@ -14,25 +16,21 @@
 #include "vtkTextProperty.h"
 #include "vtkVectorText.h"
 
-namespace utils
-{
-// We use 12 as default size, as in vtkTextProperty
-constexpr int DEFAULT_FONT_SIZE = 12;
-}
-
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 vtkTextActorInterfaceInternal::vtkTextActorInterfaceInternal()
+  : FollowerAdaptor(
+      std::make_unique<vtkFollowerTextPropertyAdaptor>(this->VectorFollower, this->RasterFollower))
 {
   vtkNew<vtkPolyDataMapper> vectorTextMapper;
   vectorTextMapper->SetInputConnection(this->Vector->GetOutputPort());
-  this->Follower->SetMapper(vectorTextMapper);
-  this->Follower->SetEnableDistanceLOD(0);
-  this->Follower->AutoCenterOn();
+  this->VectorFollower->SetMapper(vectorTextMapper);
+  this->VectorFollower->SetEnableDistanceLOD(0);
+  this->VectorFollower->AutoCenterOn();
 
-  this->Follower3D->SetProp3D(this->Actor3D);
-  this->Follower3D->SetEnableDistanceLOD(0);
-  this->Follower3D->AutoCenterOn();
+  this->RasterFollower->SetProp3D(this->Raster3D);
+  this->RasterFollower->SetEnableDistanceLOD(0);
+  this->RasterFollower->AutoCenterOn();
 }
 
 //------------------------------------------------------------------------------
@@ -42,8 +40,8 @@ vtkTextActorInterfaceInternal::~vtkTextActorInterfaceInternal() = default;
 void vtkTextActorInterfaceInternal::SetInputText(const std::string& text)
 {
   this->Vector->SetText(text.c_str());
-  this->Actor3D->SetInput(text.c_str());
-  this->Actor2D->SetInput(text.c_str());
+  this->Raster3D->SetInput(text.c_str());
+  this->Raster2D->SetInput(text.c_str());
 }
 
 //------------------------------------------------------------------------------
@@ -55,16 +53,16 @@ std::string vtkTextActorInterfaceInternal::GetInputText()
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::SetCamera(vtkCamera* camera)
 {
-  this->Follower->SetCamera(camera);
-  this->Follower3D->SetCamera(camera);
+  this->VectorFollower->SetCamera(camera);
+  this->RasterFollower->SetCamera(camera);
   this->Camera = camera;
 }
 
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::SetAxis(vtkAxisActor* axis)
 {
-  this->Follower->SetAxis(axis);
-  this->Follower3D->SetAxis(axis);
+  this->VectorFollower->SetAxis(axis);
+  this->RasterFollower->SetAxis(axis);
 }
 
 //------------------------------------------------------------------------------
@@ -72,15 +70,15 @@ vtkProp* vtkTextActorInterfaceInternal::GetActiveProp(bool overlay, bool vector)
 {
   if (overlay)
   {
-    return this->Actor2D;
+    return this->Raster2D;
   }
   else if (vector)
   {
-    return this->Follower;
+    return this->VectorFollower;
   }
   else
   {
-    return this->Follower3D;
+    return this->RasterFollower;
   }
 }
 
@@ -88,79 +86,73 @@ vtkProp* vtkTextActorInterfaceInternal::GetActiveProp(bool overlay, bool vector)
 void vtkTextActorInterfaceInternal::SetTextProperty(
   vtkTextProperty* textProperty, vtkProperty* actorProperty)
 {
-  // no text property here. Use standard prop, and override color/opacity
-  this->Follower->GetProperty()->DeepCopy(actorProperty);
-  this->Follower->GetProperty()->SetColor(textProperty->GetColor());
-  this->Follower->GetProperty()->SetOpacity(textProperty->GetOpacity());
-  this->Follower->SetOrientation(0, 0, textProperty->GetOrientation());
-
-  // mimics font size
-  double prevScale[3];
-  this->Follower->GetScale(prevScale);
-  double scale = prevScale[0] / this->LastFontScale;
-  // Use font size change factor to rescale.
-  double size = textProperty->GetFontSize();
-  this->LastFontScale = size / utils::DEFAULT_FONT_SIZE;
-  this->Follower->SetScale(scale * this->LastFontScale);
-
-  this->Actor2D->SetTextProperty(textProperty);
-  this->Actor3D->SetTextProperty(textProperty);
+  this->FollowerAdaptor->UpdateProperty(textProperty, actorProperty);
+  this->Raster2D->SetTextProperty(textProperty);
+  this->Raster3D->SetTextProperty(textProperty);
 }
 
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::GetActors(vtkPropCollection* collection)
 {
-  collection->AddItem(this->Follower);
-  collection->AddItem(this->Follower3D);
-  collection->AddItem(this->Actor3D);
-  collection->AddItem(this->Actor2D);
+  collection->AddItem(this->VectorFollower);
+  collection->AddItem(this->RasterFollower);
+  collection->AddItem(this->Raster3D);
+  collection->AddItem(this->Raster2D);
 }
 
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::AdjustScale()
 {
-  double titleBounds[6];
-  this->GetBounds(titleBounds);
-  int titleActor3DBounds[4];
-  this->Actor3D->GetBoundingBox(titleActor3DBounds);
-  const double titleActor3DWidth =
-    static_cast<double>(titleActor3DBounds[1] - titleActor3DBounds[0]);
-  double scale = (titleBounds[1] - titleBounds[0]) / titleActor3DWidth;
+  double vectorBounds[6];
+  this->VectorFollower->GetMapper()->GetBounds(vectorBounds);
 
-  this->Actor3D->SetScale(scale);
+  int rasterBounds[4];
+  this->Raster3D->GetBoundingBox(rasterBounds);
+
+  double rasterWidth = rasterBounds[1] - rasterBounds[0];
+  if (rasterWidth == 0)
+  {
+    return;
+  }
+
+  double adjustScale = (vectorBounds[1] - vectorBounds[0]) / rasterWidth;
+  double fontScale = this->FollowerAdaptor->GetFontScale();
+  double newScale = adjustScale * fontScale;
+
+  this->Raster3D->SetScale(newScale);
 }
 
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::SetScale(double scale)
 {
-  // Follower has no vtkTextProperty. Simulate FontSize
-  this->Follower->SetScale(scale * this->LastFontScale);
-  this->Follower3D->SetScale(scale);
+  // vtkTextActor does not support scaling, so Raster2D is not updated here.
+  this->FollowerAdaptor->SetScale(scale);
+  this->RasterFollower->SetScale(scale);
 }
 
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::GetBounds(double bounds[6])
 {
-  this->Follower->GetMapper()->GetBounds(bounds);
+  this->VectorFollower->GetMapper()->GetBounds(bounds);
 }
 
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::GetReferencePosition(double pos[3])
 {
-  this->Follower->GetPosition(pos);
+  this->VectorFollower->GetPosition(pos);
 }
 
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::SetPosition(double pos[3])
 {
-  this->Follower->SetPosition(pos);
-  this->Follower3D->SetPosition(pos);
+  this->VectorFollower->SetPosition(pos);
+  this->RasterFollower->SetPosition(pos);
 }
 
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::SetDisplayPosition(double x, double y)
 {
-  this->Actor2D->SetPosition(x, y);
+  this->Raster2D->SetPosition(x, y);
 }
 
 //------------------------------------------------------------------------------
@@ -194,7 +186,7 @@ void vtkTextActorInterfaceInternal::RotateActor2DFromAxisProjection(double p1[3]
   double orient = 0.0;
   if (vtkMath::Norm2D(axisOnScreen) == 0.0)
   {
-    this->Actor2D->SetOrientation(0.0);
+    this->Raster2D->SetOrientation(0.0);
     return;
   }
   else
@@ -214,33 +206,33 @@ void vtkTextActorInterfaceInternal::RotateActor2DFromAxisProjection(double p1[3]
     orient += 180.0;
   }
 
-  this->Actor2D->SetOrientation(orient);
+  this->Raster2D->SetOrientation(orient);
 }
 
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::SetScreenOffset(double offset)
 {
-  this->Follower->SetScreenOffset(offset);
-  this->Follower3D->SetScreenOffset(offset);
+  this->VectorFollower->SetScreenOffset(offset);
+  this->RasterFollower->SetScreenOffset(offset);
 }
 
 //------------------------------------------------------------------------------
 void vtkTextActorInterfaceInternal::SetScreenOffsetVector(double offset[2])
 {
-  this->Follower->SetScreenOffsetVector(offset);
-  this->Follower3D->SetScreenOffsetVector(offset);
+  this->VectorFollower->SetScreenOffsetVector(offset);
+  this->RasterFollower->SetScreenOffsetVector(offset);
 }
 
 //------------------------------------------------------------------------------
 vtkProp3DAxisFollower* vtkTextActorInterfaceInternal::GetFollower3D() const
 {
-  return this->Follower3D;
+  return this->RasterFollower;
 }
 
 //------------------------------------------------------------------------------
 vtkAxisFollower* vtkTextActorInterfaceInternal::GetFollower() const
 {
-  return this->Follower;
+  return this->VectorFollower;
 }
 
 VTK_ABI_NAMESPACE_END

@@ -438,11 +438,7 @@ void vtkAxisActor::BuildLabels(vtkViewport* viewport, bool force)
     vtkTextActorInterfaceInternal* currentLabel = this->LabelProps[i].get();
     this->UpdateLabelActorProperty(i);
     currentLabel->SetCamera(this->Camera);
-
-    if (this->UseTextActor3D)
-    {
-      currentLabel->AdjustScale();
-    }
+    currentLabel->AdjustScale();
   }
 
   if (force || this->BuildTime.GetMTime() < this->BoundsTime.GetMTime() ||
@@ -758,10 +754,7 @@ void vtkAxisActor::BuildTitle(bool force)
   offset[1] *= vertOffsetSign;
   this->TitleProp->SetScreenOffsetVector(offset);
 
-  if (this->UseTextActor3D)
-  {
-    this->TitleProp->AdjustScale();
-  }
+  this->TitleProp->AdjustScale();
   this->TitleProp->SetPosition(pos);
 }
 
@@ -879,12 +872,7 @@ void vtkAxisActor::BuildExponent(bool force)
   // + ScreenSize of all
   offset[1] *= offsetSign;
   this->ExponentProp->SetScreenOffsetVector(offset);
-
-  if (this->UseTextActor3D)
-  {
-    this->ExponentProp->AdjustScale();
-  }
-
+  this->ExponentProp->AdjustScale();
   this->ExponentProp->SetPosition(pos);
 }
 

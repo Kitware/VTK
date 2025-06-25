@@ -348,6 +348,7 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer* ren, double tran
 }
 
 //------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_6_0
 void vtkAxisFollower::ComputerAutoCenterTranslation(
   const double& vtkNotUsed(autoScaleFactor), double translation[3])
 {

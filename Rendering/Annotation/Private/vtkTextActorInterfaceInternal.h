@@ -6,6 +6,7 @@
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
 
+#include <memory>
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -13,6 +14,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkAxisActor;
 class vtkAxisFollower;
 class vtkCamera;
+class vtkFollowerTextPropertyAdaptor;
 class vtkPolyDataMapper;
 class vtkProp;
 class vtkProp3DAxisFollower;
@@ -137,14 +139,13 @@ private:
 
   vtkNew<vtkVectorText> Vector;
 
-  vtkNew<vtkTextActor> Actor2D;
-  vtkNew<vtkTextActor3D> Actor3D;
-  vtkNew<vtkProp3DAxisFollower> Follower3D;
-  vtkNew<vtkAxisFollower> Follower;
+  vtkNew<vtkTextActor> Raster2D;
+  vtkNew<vtkTextActor3D> Raster3D;
+  vtkNew<vtkProp3DAxisFollower> RasterFollower;
+  vtkNew<vtkAxisFollower> VectorFollower;
 
   vtkSmartPointer<vtkCamera> Camera;
-
-  double LastFontScale = 1.;
+  std::unique_ptr<vtkFollowerTextPropertyAdaptor> FollowerAdaptor;
 };
 
 VTK_ABI_NAMESPACE_END
