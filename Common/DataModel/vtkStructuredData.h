@@ -35,22 +35,50 @@ struct vtkConstantImplicitBackend;
 template <typename Type>
 using vtkConstantArray = vtkImplicitArray<vtkConstantImplicitBackend<Type>>;
 
-#define VTK_UNCHANGED 0
-#define VTK_SINGLE_POINT 1
-#define VTK_X_LINE 2
-#define VTK_Y_LINE 3
-#define VTK_Z_LINE 4
-#define VTK_XY_PLANE 5
-#define VTK_YZ_PLANE 6
-#define VTK_XZ_PLANE 7
-#define VTK_XYZ_GRID 8
-#define VTK_EMPTY 9
+enum vtkStructuredDataType
+{
+  VTK_UNCHANGED VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") =
+    0,
+  VTK_SINGLE_POINT VTK_DEPRECATED_IN_9_5_0(
+    "Use vtkStructuredData::VTK_STRUCTURED_* version instead") = 1,
+  VTK_X_LINE VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") = 2,
+  VTK_Y_LINE VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") = 3,
+  VTK_Z_LINE VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") = 4,
+  VTK_XY_PLANE VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") =
+    5,
+  VTK_YZ_PLANE VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") =
+    6,
+  VTK_XZ_PLANE VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") =
+    7,
+  VTK_XYZ_GRID VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") =
+    8,
+  VTK_EMPTY VTK_DEPRECATED_IN_9_5_0("Use vtkStructuredData::VTK_STRUCTURED_* version instead") = 9
+};
 
 class VTKCOMMONDATAMODEL_EXPORT vtkStructuredData : public vtkObject
 {
 public:
   vtkTypeMacro(vtkStructuredData, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * An enum to describe the different types of vtkStructuredData
+   * XXX: This should be an enum class, but is not as it would impact
+   * many existing APIs
+   */
+  enum vtkStructuredDataType
+  {
+    VTK_STRUCTURED_UNCHANGED = 0,
+    VTK_STRUCTURED_SINGLE_POINT = 1,
+    VTK_STRUCTURED_X_LINE = 2,
+    VTK_STRUCTURED_Y_LINE = 3,
+    VTK_STRUCTURED_Z_LINE = 4,
+    VTK_STRUCTURED_XY_PLANE = 5,
+    VTK_STRUCTURED_YZ_PLANE = 6,
+    VTK_STRUCTURED_XZ_PLANE = 7,
+    VTK_STRUCTURED_XYZ_GRID = 8,
+    VTK_STRUCTURED_EMPTY = 9
+  };
 
   ///@{
   /**
@@ -86,29 +114,31 @@ public:
    * within the extent.
    * The dataDescription field is not used.
    */
-  static vtkIdType GetNumberOfPoints(const int ext[6], int dataDescription = VTK_EMPTY);
+  static vtkIdType GetNumberOfPoints(
+    const int ext[6], int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Given the grid extent, this method returns the total number of cells
    * within the extent.
    * The dataDescription field is not used.
    */
-  static vtkIdType GetNumberOfCells(const int ext[6], int dataDescription = VTK_EMPTY);
+  static vtkIdType GetNumberOfCells(
+    const int ext[6], int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Given the point extent of a grid, this method computes the corresponding
    * cell extent for the grid.
    * The dataDescription field is not used.
    */
-  static void GetCellExtentFromPointExtent(
-    const int pntExtent[6], int cellExtent[6], int dataDescription = VTK_EMPTY);
+  static void GetCellExtentFromPointExtent(const int pntExtent[6], int cellExtent[6],
+    int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Computes the structured grid dimensions based on the given extent.
    * The dataDescription field is not used.
    */
   static void GetDimensionsFromExtent(
-    const int ext[6], int dims[3], int dataDescription = VTK_EMPTY);
+    const int ext[6], int dims[3], int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Return non-zero value if specified point is visible.
@@ -128,8 +158,8 @@ public:
    * number of points.
    * The dataDescription field is not used.
    */
-  static void GetCellDimensionsFromExtent(
-    const int ext[6], int celldims[3], int dataDescription = VTK_EMPTY);
+  static void GetCellDimensionsFromExtent(const int ext[6], int celldims[3],
+    int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Given the dimensions of the grid, in pntdims, this method returns
@@ -144,16 +174,16 @@ public:
    * the corresponding local structured coordinates, lijk, starting from 0.
    * The dataDescription argument is not used.
    */
-  static void GetLocalStructuredCoordinates(
-    const int ijk[3], const int ext[6], int lijk[3], int dataDescription = VTK_EMPTY);
+  static void GetLocalStructuredCoordinates(const int ijk[3], const int ext[6], int lijk[3],
+    int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Given local structured coordinates, and the corresponding global sub-grid
    * extent, this method computes the global ijk coordinates.
    * The dataDescription parameter is not used.
    */
-  static void GetGlobalStructuredCoordinates(
-    const int lijk[3], const int ext[6], int ijk[3], int dataDescription = VTK_EMPTY);
+  static void GetGlobalStructuredCoordinates(const int lijk[3], const int ext[6], int ijk[3],
+    int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Get the points defining a cell. (See vtkDataSet for more info.)
@@ -178,16 +208,16 @@ public:
    * of the structured dataset, return the point id.
    * The dataDescription argument is not used.
    */
-  static vtkIdType ComputePointIdForExtent(
-    const int extent[6], const int ijk[3], int dataDescription = VTK_EMPTY);
+  static vtkIdType ComputePointIdForExtent(const int extent[6], const int ijk[3],
+    int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Given a location in structured coordinates (i-j-k), and the extent
    * of the structured dataset, return the point id.
    * The dataDescription argument is not used.
    */
-  static vtkIdType ComputeCellIdForExtent(
-    const int extent[6], const int ijk[3], int dataDescription = VTK_EMPTY);
+  static vtkIdType ComputeCellIdForExtent(const int extent[6], const int ijk[3],
+    int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Given a location in structured coordinates (i-j-k), and the dimensions
@@ -195,8 +225,8 @@ public:
    * adjust for the beginning of the extent.
    * The dataDescription argument is not used.
    */
-  static vtkIdType ComputePointId(
-    const int dim[3], const int ijk[3], int dataDescription = VTK_EMPTY);
+  static vtkIdType ComputePointId(const int dim[3], const int ijk[3],
+    int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Given a location in structured coordinates (i-j-k), and the dimensions
@@ -204,8 +234,8 @@ public:
    * adjust for the beginning of the extent.
    * The dataDescription argument is not used.
    */
-  static vtkIdType ComputeCellId(
-    const int dim[3], const int ijk[3], int dataDescription = VTK_EMPTY);
+  static vtkIdType ComputeCellId(const int dim[3], const int ijk[3],
+    int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Given the global grid extent and the linear index of a cell within the
@@ -213,39 +243,39 @@ public:
    * of the given cell. This method adjusts for the beginning of the extent.
    * The dataDescription argument is not used.
    */
-  static void ComputeCellStructuredCoordsForExtent(
-    vtkIdType cellIdx, const int ext[6], int ijk[3], int dataDescription = VTK_EMPTY);
+  static void ComputeCellStructuredCoordsForExtent(vtkIdType cellIdx, const int ext[6], int ijk[3],
+    int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Given a cellId and grid dimensions 'dim', get the structured coordinates
    * (i-j-k). This method does not adjust for the beginning of the extent.
    * The dataDescription argument is not used.
    */
-  static void ComputeCellStructuredCoords(
-    vtkIdType cellId, const int dim[3], int ijk[3], int dataDescription = VTK_EMPTY);
+  static void ComputeCellStructuredCoords(vtkIdType cellId, const int dim[3], int ijk[3],
+    int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Given a cellId and grid dimensions 'dim', get the min and max structured coordinates
    * (i-j-k). This method does not adjust for the beginning of the extent.
    */
   static void ComputeCellStructuredMinMaxCoords(vtkIdType cellId, const int dim[3], int ijkMin[3],
-    int ijkMax[3], int dataDescription = VTK_EMPTY);
+    int ijkMax[3], int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Given a pointId and the grid extent ext, get the structured coordinates
    * (i-j-k). This method adjusts for the beginning of the extent.
    * The dataDescription argument is not used.
    */
-  static void ComputePointStructuredCoordsForExtent(
-    vtkIdType ptId, const int ext[6], int ijk[3], int dataDescription = VTK_EMPTY);
+  static void ComputePointStructuredCoordsForExtent(vtkIdType ptId, const int ext[6], int ijk[3],
+    int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Given a pointId and grid dimensions 'dim', get the structured coordinates
    * (i-j-k). This method does not adjust for the beginning of the extent.
    * The dataDescription argument is not used.
    */
-  static void ComputePointStructuredCoords(
-    vtkIdType ptId, const int dim[3], int ijk[3], int dataDescription = VTK_EMPTY);
+  static void ComputePointStructuredCoords(vtkIdType ptId, const int dim[3], int ijk[3],
+    int dataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY);
 
   /**
    * Get the implicit cell array for structured data.
