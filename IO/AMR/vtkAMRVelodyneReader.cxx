@@ -216,7 +216,7 @@ int vtkAMRVelodyneReader::FillMetaData()
   this->ReadMetaData();
   vtkOverlappingAMR* cAMR = vtkOverlappingAMR::New();
   cAMR->Initialize(this->Internal->nLevels, this->Internal->blocksPerLevel.data());
-  cAMR->SetGridDescription(VTK_XYZ_GRID);
+  cAMR->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
   cAMR->SetOrigin(this->Internal->globalOrigin.data());
   int dims[3];
   double spacing[3];
@@ -227,8 +227,8 @@ int vtkAMRVelodyneReader::FillMetaData()
     int id = theBlock.Index;
     CalculateBlockDims(this->Internal->blockDims.data(), theBlock.isFull, dims);
     CalculateSpacing(this->Internal->rootDX.data(), level, spacing);
-    vtkAMRBox box(
-      theBlock.Origin, dims, spacing, this->Internal->globalOrigin.data(), VTK_XYZ_GRID);
+    vtkAMRBox box(theBlock.Origin, dims, spacing, this->Internal->globalOrigin.data(),
+      vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
     cAMR->SetSpacing(level, spacing);
     cAMR->SetAMRBox(level, id, box);
     cAMR->SetAMRBlockSourceIndex(level, id, i);

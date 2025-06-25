@@ -341,7 +341,7 @@ int vtkAMREnzoReader::FillMetaData()
   this->ComputeStats(this->Internal, blocksPerLevel, origin);
 
   this->Metadata->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
-  this->Metadata->SetGridDescription(VTK_XYZ_GRID);
+  this->Metadata->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
   this->Metadata->SetOrigin(origin);
 
   std::vector<int> b2level(this->Internal->NumberOfLevels + 1, 0);
@@ -361,7 +361,8 @@ int vtkAMREnzoReader::FillMetaData()
         : 1.0;
     }
     // compute AMRBox
-    vtkAMRBox box(theBlock.MinBounds, theBlock.BlockNodeDimensions, spacing, origin, VTK_XYZ_GRID);
+    vtkAMRBox box(theBlock.MinBounds, theBlock.BlockNodeDimensions, spacing, origin,
+      vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
 
     // set meta data
     this->Metadata->SetSpacing(level, spacing);

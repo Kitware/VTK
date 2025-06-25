@@ -513,6 +513,6 @@ bool vtkAMRCutPlane::IsAMRData2D(vtkOverlappingAMR* input)
 {
   assert("pre: Input AMR dataset is nullptr" && (input != nullptr));
 
-  return input->GetGridDescription() != VTK_XYZ_GRID;
+  return input->GetGridDescription() != vtkStructuredData::VTK_STRUCTURED_XYZ_GRID;
 }
 VTK_ABI_NAMESPACE_END

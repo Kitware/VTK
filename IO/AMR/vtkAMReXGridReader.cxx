@@ -136,9 +136,9 @@ int vtkAMReXGridReader::FillMetaData()
   }
   this->Metadata->SetOrigin(origin);
   if (dimension == 3)
-    this->Metadata->SetGridDescription(VTK_XYZ_GRID);
+    this->Metadata->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
   if (dimension == 2)
-    this->Metadata->SetGridDescription(VTK_XY_PLANE);
+    this->Metadata->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XY_PLANE);
   int boxLo;
   int boxHi;
   long globalID = 0;
@@ -172,12 +172,14 @@ int vtkAMReXGridReader::FillMetaData()
       }
       if (dimension == 3)
       {
-        vtkAMRBox block(blockOrigin, blockDimension, spacing, origin, VTK_XYZ_GRID);
+        vtkAMRBox block(
+          blockOrigin, blockDimension, spacing, origin, vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
         this->Metadata->SetAMRBox(i, j, block);
       }
       if (dimension == 2)
       {
-        vtkAMRBox block(blockOrigin, blockDimension, spacing, origin, VTK_XY_PLANE);
+        vtkAMRBox block(
+          blockOrigin, blockDimension, spacing, origin, vtkStructuredData::VTK_STRUCTURED_XY_PLANE);
         this->Metadata->SetAMRBox(i, j, block);
       }
       this->Metadata->SetAMRBlockSourceIndex(i, j, globalID++);

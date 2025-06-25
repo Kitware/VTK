@@ -48,19 +48,19 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(
     const char* gridDescription = "";
     switch (oamr->GetGridDescription())
     {
-      case VTK_XY_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
         gridDescription = "XY";
         break;
 
-      case VTK_YZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
         gridDescription = "YZ";
         break;
 
-      case VTK_XZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
         gridDescription = "XZ";
         break;
 
-      case VTK_XYZ_GRID:
+      case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       default:
         gridDescription = "XYZ";
         break;

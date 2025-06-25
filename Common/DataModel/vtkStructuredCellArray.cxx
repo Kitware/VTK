@@ -53,109 +53,127 @@ constexpr std::array<std::array<int, 8>, 3> GetShiftLUT();
 
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_EMPTY, true>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_EMPTY, true>()
 {
   return { { ShiftLUT0, ShiftLUT0, ShiftLUT0 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_SINGLE_POINT, true>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT, true>()
 {
   return { { ShiftLUT0, ShiftLUT0, ShiftLUT0 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_X_LINE, true>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_X_LINE, true>()
 {
   return { { ShiftLUT1, ShiftLUT0, ShiftLUT0 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_Y_LINE, true>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_Y_LINE, true>()
 {
   return { { ShiftLUT0, ShiftLUT1, ShiftLUT0 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_Z_LINE, true>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_Z_LINE, true>()
 {
   return { { ShiftLUT0, ShiftLUT0, ShiftLUT1 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_XY_PLANE, true>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_XY_PLANE, true>()
 {
   return { { ShiftLUT1, ShiftLUT2, ShiftLUT0 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_YZ_PLANE, true>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_YZ_PLANE, true>()
 {
   return { { ShiftLUT0, ShiftLUT1, ShiftLUT2 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_XZ_PLANE, true>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_XZ_PLANE, true>()
 {
   return { { ShiftLUT1, ShiftLUT0, ShiftLUT2 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_XYZ_GRID, true>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::vtkStructuredData::VTK_STRUCTURED_XYZ_GRID, true>()
 {
   return { { ShiftLUT1, ShiftLUT2, ShiftLUT3 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_EMPTY, false>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_EMPTY, false>()
 {
   return { { ShiftLUT0, ShiftLUT0, ShiftLUT0 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_SINGLE_POINT, false>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT, false>()
 {
   return { { ShiftLUT0, ShiftLUT0, ShiftLUT0 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_X_LINE, false>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_X_LINE, false>()
 {
   return { { ShiftLUTx, ShiftLUT0, ShiftLUT0 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_Y_LINE, false>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_Y_LINE, false>()
 {
   return { { ShiftLUT0, ShiftLUTx, ShiftLUT0 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_Z_LINE, false>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_Z_LINE, false>()
 {
   return { { ShiftLUT0, ShiftLUT0, ShiftLUTx } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_XY_PLANE, false>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_XY_PLANE, false>()
 {
   return { { ShiftLUTx, ShiftLUTy, ShiftLUT0 } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_YZ_PLANE, false>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_YZ_PLANE, false>()
 {
   return { { ShiftLUT0, ShiftLUTx, ShiftLUTy } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_XZ_PLANE, false>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_XZ_PLANE, false>()
 {
   return { { ShiftLUTx, ShiftLUT0, ShiftLUTy } };
 }
 //------------------------------------------------------------------------------
 template <>
-constexpr std::array<std::array<int, 8>, 3> GetShiftLUT<VTK_XYZ_GRID, false>()
+constexpr std::array<std::array<int, 8>, 3>
+GetShiftLUT<vtkStructuredData::VTK_STRUCTURED_XYZ_GRID, false>()
 {
   return { { ShiftLUTx, ShiftLUTy, ShiftLUT3 } };
 }
@@ -166,15 +184,17 @@ template <int DataDescription, bool UsePixelVoxelOrientation>
 struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredCellBackend
 {
   // static constexpr members
-  static constexpr int CellSize = DataDescription == VTK_XYZ_GRID ? 8
-    : DataDescription == VTK_XY_PLANE || DataDescription == VTK_YZ_PLANE ||
-      DataDescription == VTK_XZ_PLANE
+  static constexpr int CellSize = DataDescription == vtkStructuredData::VTK_STRUCTURED_XYZ_GRID ? 8
+    : DataDescription == vtkStructuredData::VTK_STRUCTURED_XY_PLANE ||
+      DataDescription == vtkStructuredData::VTK_STRUCTURED_YZ_PLANE ||
+      DataDescription == vtkStructuredData::VTK_STRUCTURED_XZ_PLANE
     ? 4
-    : DataDescription == VTK_X_LINE || DataDescription == VTK_Y_LINE ||
-      DataDescription == VTK_Z_LINE
+    : DataDescription == vtkStructuredData::VTK_STRUCTURED_X_LINE ||
+      DataDescription == vtkStructuredData::VTK_STRUCTURED_Y_LINE ||
+      DataDescription == vtkStructuredData::VTK_STRUCTURED_Z_LINE
     ? 2
-    : DataDescription == VTK_SINGLE_POINT ? 1
-                                          : 0;
+    : DataDescription == vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT ? 1
+                                                                        : 0;
 
   static constexpr vtkIdType ValidCellSize =
     vtkStructuredTCellBackend::CellSize > 0 ? vtkStructuredTCellBackend::CellSize : 1;
@@ -206,7 +226,17 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
 
   //------------------------------------------------------------------------------
   template <int Description = DataDescription>
-  typename std::enable_if<(Description == VTK_EMPTY), void>::type VTK_ALWAYS_INLINE
+  typename std::enable_if<(Description == vtkStructuredData::VTK_STRUCTURED_EMPTY), void>::type
+    VTK_ALWAYS_INLINE
+    ComputeCellStructuredCoords(vtkIdType vtkNotUsed(cellId), int* ijk) const
+  {
+    ijk[0] = ijk[1] = ijk[2] = 0;
+  }
+
+  //------------------------------------------------------------------------------
+  template <int Description = DataDescription>
+  typename std::enable_if<(Description == vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT),
+    void>::type VTK_ALWAYS_INLINE
   ComputeCellStructuredCoords(vtkIdType vtkNotUsed(cellId), int* ijk) const
   {
     ijk[0] = ijk[1] = ijk[2] = 0;
@@ -214,16 +244,9 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
 
   //------------------------------------------------------------------------------
   template <int Description = DataDescription>
-  typename std::enable_if<(Description == VTK_SINGLE_POINT), void>::type VTK_ALWAYS_INLINE
-  ComputeCellStructuredCoords(vtkIdType vtkNotUsed(cellId), int* ijk) const
-  {
-    ijk[0] = ijk[1] = ijk[2] = 0;
-  }
-
-  //------------------------------------------------------------------------------
-  template <int Description = DataDescription>
-  typename std::enable_if<(Description == VTK_X_LINE), void>::type VTK_ALWAYS_INLINE
-  ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
+  typename std::enable_if<(Description == vtkStructuredData::VTK_STRUCTURED_X_LINE), void>::type
+    VTK_ALWAYS_INLINE
+    ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
   {
     ijk[0] = cellId;
     ijk[1] = 0;
@@ -232,8 +255,9 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
 
   //------------------------------------------------------------------------------
   template <int Description = DataDescription>
-  typename std::enable_if<(Description == VTK_Y_LINE), void>::type VTK_ALWAYS_INLINE
-  ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
+  typename std::enable_if<(Description == vtkStructuredData::VTK_STRUCTURED_Y_LINE), void>::type
+    VTK_ALWAYS_INLINE
+    ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
   {
     ijk[0] = 0;
     ijk[1] = cellId;
@@ -242,8 +266,9 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
 
   //------------------------------------------------------------------------------
   template <int Description = DataDescription>
-  typename std::enable_if<(Description == VTK_Z_LINE), void>::type VTK_ALWAYS_INLINE
-  ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
+  typename std::enable_if<(Description == vtkStructuredData::VTK_STRUCTURED_Z_LINE), void>::type
+    VTK_ALWAYS_INLINE
+    ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
   {
     ijk[0] = 0;
     ijk[1] = 0;
@@ -252,8 +277,9 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
 
   //------------------------------------------------------------------------------
   template <int Description = DataDescription>
-  typename std::enable_if<(Description == VTK_XY_PLANE), void>::type VTK_ALWAYS_INLINE
-  ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
+  typename std::enable_if<(Description == vtkStructuredData::VTK_STRUCTURED_XY_PLANE), void>::type
+    VTK_ALWAYS_INLINE
+    ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
   {
     const auto div = std::div(cellId, this->CellDimensions[0]);
     ijk[0] = div.rem;
@@ -263,8 +289,9 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
 
   //------------------------------------------------------------------------------
   template <int Description = DataDescription>
-  typename std::enable_if<(Description == VTK_YZ_PLANE), void>::type VTK_ALWAYS_INLINE
-  ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
+  typename std::enable_if<(Description == vtkStructuredData::VTK_STRUCTURED_YZ_PLANE), void>::type
+    VTK_ALWAYS_INLINE
+    ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
   {
     const auto div = std::div(cellId, this->CellDimensions[1]);
     ijk[0] = 0;
@@ -274,8 +301,9 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
 
   //------------------------------------------------------------------------------
   template <int Description = DataDescription>
-  typename std::enable_if<(Description == VTK_XZ_PLANE), void>::type VTK_ALWAYS_INLINE
-  ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
+  typename std::enable_if<(Description == vtkStructuredData::VTK_STRUCTURED_XZ_PLANE), void>::type
+    VTK_ALWAYS_INLINE
+    ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
   {
     const auto div = std::div(cellId, this->CellDimensions[0]);
     ijk[0] = div.rem;
@@ -285,8 +313,9 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
 
   //------------------------------------------------------------------------------
   template <int Description = DataDescription>
-  typename std::enable_if<(Description == VTK_XYZ_GRID), void>::type VTK_ALWAYS_INLINE
-  ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
+  typename std::enable_if<(Description == vtkStructuredData::VTK_STRUCTURED_XYZ_GRID), void>::type
+    VTK_ALWAYS_INLINE
+    ComputeCellStructuredCoords(vtkIdType cellId, int* ijk) const
   {
     const auto div1 = std::div(cellId, this->CellDimensions[0]);
     const auto div2 = std::div(div1.quot, this->CellDimensions[1]);
@@ -345,23 +374,40 @@ struct vtkStructuredCellArray::vtkStructuredTCellBackend : public vtkStructuredC
 
 //------------------------------------------------------------------------------
 // template instantiated for each data description
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_SINGLE_POINT, true>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_X_LINE, true>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_Y_LINE, true>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_Z_LINE, true>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_XY_PLANE, true>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_YZ_PLANE, true>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_XZ_PLANE, true>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_XYZ_GRID, true>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_EMPTY, false>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_SINGLE_POINT, false>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_X_LINE, false>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_Y_LINE, false>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_Z_LINE, false>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_XY_PLANE, false>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_YZ_PLANE, false>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_XZ_PLANE, false>;
-template struct vtkStructuredCellArray::vtkStructuredTCellBackend<VTK_XYZ_GRID, false>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT, true>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_X_LINE, true>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_Y_LINE, true>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_Z_LINE, true>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_XY_PLANE, true>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_YZ_PLANE, true>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_XZ_PLANE, true>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_XYZ_GRID, true>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_EMPTY, false>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT, false>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_X_LINE, false>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_Y_LINE, false>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_Z_LINE, false>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_XY_PLANE, false>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_YZ_PLANE, false>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_XZ_PLANE, false>;
+template struct vtkStructuredCellArray::vtkStructuredTCellBackend<
+  vtkStructuredData::VTK_STRUCTURED_XYZ_GRID, false>;
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkStructuredCellArray);
@@ -428,57 +474,62 @@ void vtkStructuredCellArray::SetData(int extent[6], bool usePixelVoxelOrientatio
   {
     switch (description)
     {
-      case VTK_EMPTY:
+      case vtkStructuredData::VTK_STRUCTURED_EMPTY:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_EMPTY, true>;
+        using TBackend = vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_EMPTY, true>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_SINGLE_POINT:
+      case vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_SINGLE_POINT, true>;
+        using TBackend =
+          vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT, true>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_X_LINE:
+      case vtkStructuredData::VTK_STRUCTURED_X_LINE:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_X_LINE, true>;
+        using TBackend = vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_X_LINE, true>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_Y_LINE:
+      case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_Y_LINE, true>;
+        using TBackend = vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_Y_LINE, true>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_Z_LINE:
+      case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_Z_LINE, true>;
+        using TBackend = vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_Z_LINE, true>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_XY_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_XY_PLANE, true>;
+        using TBackend =
+          vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_XY_PLANE, true>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_YZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_YZ_PLANE, true>;
+        using TBackend =
+          vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_YZ_PLANE, true>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_XZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_XZ_PLANE, true>;
+        using TBackend =
+          vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_XZ_PLANE, true>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_XYZ_GRID:
+      case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_XYZ_GRID, true>;
+        using TBackend =
+          vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_XYZ_GRID, true>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
@@ -493,57 +544,62 @@ void vtkStructuredCellArray::SetData(int extent[6], bool usePixelVoxelOrientatio
   {
     switch (description)
     {
-      case VTK_EMPTY:
+      case vtkStructuredData::VTK_STRUCTURED_EMPTY:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_EMPTY, false>;
+        using TBackend = vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_EMPTY, false>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_SINGLE_POINT:
+      case vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_SINGLE_POINT, false>;
+        using TBackend =
+          vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT, false>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_X_LINE:
+      case vtkStructuredData::VTK_STRUCTURED_X_LINE:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_X_LINE, false>;
+        using TBackend = vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_X_LINE, false>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_Y_LINE:
+      case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_Y_LINE, false>;
+        using TBackend = vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_Y_LINE, false>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_Z_LINE:
+      case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_Z_LINE, false>;
+        using TBackend = vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_Z_LINE, false>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_XY_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_XY_PLANE, false>;
+        using TBackend =
+          vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_XY_PLANE, false>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_YZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_YZ_PLANE, false>;
+        using TBackend =
+          vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_YZ_PLANE, false>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_XZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_XZ_PLANE, false>;
+        using TBackend =
+          vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_XZ_PLANE, false>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }
-      case VTK_XYZ_GRID:
+      case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       {
-        using TBackend = vtkStructuredTCellBackend<VTK_XYZ_GRID, false>;
+        using TBackend =
+          vtkStructuredTCellBackend<vtkStructuredData::VTK_STRUCTURED_XYZ_GRID, false>;
         backEnd = std::make_shared<TBackend>(dims);
         break;
       }

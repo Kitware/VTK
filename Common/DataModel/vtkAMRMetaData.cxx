@@ -48,7 +48,8 @@ void vtkAMRMetaData::Initialize(int numLevels, const int* blocksPerLevel)
 //------------------------------------------------------------------------------
 void vtkAMRMetaData::SetGridDescription(int description)
 {
-  if (description < VTK_SINGLE_POINT || description > VTK_EMPTY)
+  if (description < vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT ||
+    description > vtkStructuredData::VTK_STRUCTURED_EMPTY)
   {
     vtkErrorMacro("Invalid grid description for a vtkUniformGrid.");
     return;

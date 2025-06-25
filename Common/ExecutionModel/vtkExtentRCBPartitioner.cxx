@@ -22,7 +22,7 @@ vtkExtentRCBPartitioner::vtkExtentRCBPartitioner()
   this->NumberOfPartitions = 2;
   this->DuplicateNodes = 1;
   this->ExtentIsPartitioned = false;
-  this->DataDescription = VTK_EMPTY;
+  this->DataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY;
   for (int i = 0; i < 3; ++i)
   {
     this->GlobalExtent[i * 2] = 0;
@@ -63,7 +63,8 @@ void vtkExtentRCBPartitioner::Partition()
 
   // STEP 0: Get the data description according to the given global extent
   this->AcquireDataDescription();
-  if (this->DataDescription == VTK_EMPTY || this->DataDescription == VTK_SINGLE_POINT)
+  if (this->DataDescription == vtkStructuredData::VTK_STRUCTURED_EMPTY ||
+    this->DataDescription == vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT)
   {
     return;
   }
@@ -230,28 +231,28 @@ void vtkExtentRCBPartitioner::ExtendGhostLayers(int ext[6])
 
   switch (this->DataDescription)
   {
-    case VTK_X_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_X_LINE:
       this->GetGhostedExtent(ext, 0, 1);
       break;
-    case VTK_Y_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
       this->GetGhostedExtent(ext, 2, 3);
       break;
-    case VTK_Z_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
       this->GetGhostedExtent(ext, 4, 5);
       break;
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       this->GetGhostedExtent(ext, 0, 1);
       this->GetGhostedExtent(ext, 2, 3);
       break;
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       this->GetGhostedExtent(ext, 2, 3);
       this->GetGhostedExtent(ext, 4, 5);
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       this->GetGhostedExtent(ext, 0, 1);
       this->GetGhostedExtent(ext, 4, 5);
       break;
-    case VTK_XYZ_GRID:
+    case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       this->GetGhostedExtent(ext, 0, 1);
       this->GetGhostedExtent(ext, 2, 3);
       this->GetGhostedExtent(ext, 4, 5);
@@ -268,31 +269,31 @@ int vtkExtentRCBPartitioner::GetNumberOfNodes(int ext[6])
   int numNodes = 0;
   switch (this->DataDescription)
   {
-    case VTK_X_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_X_LINE:
       numNodes = ilength = (ext[1] - ext[0]) + 1;
       break;
-    case VTK_Y_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
       numNodes = jlength = (ext[3] - ext[2]) + 1;
       break;
-    case VTK_Z_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
       numNodes = klength = (ext[5] - ext[4]) + 1;
       break;
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       ilength = (ext[1] - ext[0]) + 1;
       jlength = (ext[3] - ext[2]) + 1;
       numNodes = ilength * jlength;
       break;
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       jlength = (ext[3] - ext[2]) + 1;
       klength = (ext[5] - ext[4]) + 1;
       numNodes = jlength * klength;
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       ilength = (ext[1] - ext[0]) + 1;
       klength = (ext[5] - ext[4]) + 1;
       numNodes = ilength * klength;
       break;
-    case VTK_XYZ_GRID:
+    case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       ilength = (ext[1] - ext[0]) + 1;
       jlength = (ext[3] - ext[2]) + 1;
       klength = (ext[5] - ext[4]) + 1;
@@ -310,31 +311,31 @@ int vtkExtentRCBPartitioner::GetNumberOfCells(int ext[6])
   int numNodes = 0;
   switch (this->DataDescription)
   {
-    case VTK_X_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_X_LINE:
       numNodes = ilength = (ext[1] - ext[0]);
       break;
-    case VTK_Y_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
       numNodes = jlength = (ext[3] - ext[2]);
       break;
-    case VTK_Z_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
       numNodes = klength = (ext[5] - ext[4]);
       break;
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       ilength = (ext[1] - ext[0]);
       jlength = (ext[3] - ext[2]);
       numNodes = ilength * jlength;
       break;
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       jlength = (ext[3] - ext[2]);
       klength = (ext[5] - ext[4]);
       numNodes = jlength * klength;
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       ilength = (ext[1] - ext[0]);
       klength = (ext[5] - ext[4]);
       numNodes = ilength * klength;
       break;
-    case VTK_XYZ_GRID:
+    case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       ilength = (ext[1] - ext[0]);
       jlength = (ext[3] - ext[2]);
       klength = (ext[5] - ext[4]);

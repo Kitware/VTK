@@ -45,7 +45,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
   vtkUniformGrid* gridPtr = nullptr;
   switch (description)
   {
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       // Root block
       ndims[2] = 1;
       origin[0] = origin[1] = origin[2] = 0.0;
@@ -70,7 +70,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
       amrDataSet->SetDataSet(1, 0, gridPtr);
       gridPtr->Delete();
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       // Root block
       ndims[1] = 1;
       origin[0] = origin[1] = origin[2] = 0.0;
@@ -94,7 +94,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
       amrDataSet->SetDataSet(1, 0, gridPtr);
       gridPtr->Delete();
       break;
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       // Root block
       ndims[0] = 1;
       origin[0] = origin[1] = origin[2] = 0.0;
@@ -118,7 +118,7 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
       amrDataSet->SetDataSet(1, 0, gridPtr);
       gridPtr->Delete();
       break;
-    case VTK_XYZ_GRID:
+    case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       // Root block
       origin[0] = origin[1] = origin[2] = 0.0;
       spacing[0] = spacing[1] = spacing[2] = 1.0;
@@ -202,23 +202,27 @@ int TestAMRBlanking(int, char*[])
   int status = 0;
 
   // XYZ test
-  status = AMRVisibilityTests::TestAMRVisibility(VTK_XYZ_GRID);
-  AMRVisibilityTests::CheckTestStatus(status, "TestAMRVisibility-VTK_XYZ_GRID");
+  status = AMRVisibilityTests::TestAMRVisibility(vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
+  AMRVisibilityTests::CheckTestStatus(
+    status, "TestAMRVisibility-vtkStructuredData::VTK_STRUCTURED_XYZ_GRID");
   rc += status;
 
   // XY PLANE
-  status = AMRVisibilityTests::TestAMRVisibility(VTK_XY_PLANE);
-  AMRVisibilityTests::CheckTestStatus(status, "TestAMRVisibility-VTK_XY_PLANE");
+  status = AMRVisibilityTests::TestAMRVisibility(vtkStructuredData::VTK_STRUCTURED_XY_PLANE);
+  AMRVisibilityTests::CheckTestStatus(
+    status, "TestAMRVisibility-vtkStructuredData::VTK_STRUCTURED_XY_PLANE");
   rc += status;
 
   // XZ PLANE
-  status = AMRVisibilityTests::TestAMRVisibility(VTK_XZ_PLANE);
-  AMRVisibilityTests::CheckTestStatus(status, "TestAMRVisibility-VTK_XZ_PLANE");
+  status = AMRVisibilityTests::TestAMRVisibility(vtkStructuredData::VTK_STRUCTURED_XZ_PLANE);
+  AMRVisibilityTests::CheckTestStatus(
+    status, "TestAMRVisibility-vtkStructuredData::VTK_STRUCTURED_XZ_PLANE");
   rc += status;
 
   // YZ PLANE
-  status = AMRVisibilityTests::TestAMRVisibility(VTK_YZ_PLANE);
-  AMRVisibilityTests::CheckTestStatus(status, "TestAMRVisibility-VTK_YZ_PLANE");
+  status = AMRVisibilityTests::TestAMRVisibility(vtkStructuredData::VTK_STRUCTURED_YZ_PLANE);
+  AMRVisibilityTests::CheckTestStatus(
+    status, "TestAMRVisibility-vtkStructuredData::VTK_STRUCTURED_YZ_PLANE");
   rc += status;
   return (rc);
 }

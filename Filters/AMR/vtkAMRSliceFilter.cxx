@@ -78,7 +78,7 @@ bool vtkAMRSliceFilter::IsAMRData2D(vtkOverlappingAMR* input)
 {
   assert("pre: Input AMR dataset is nullptr" && (input != nullptr));
 
-  return input->GetGridDescription() != VTK_XYZ_GRID;
+  return input->GetGridDescription() != vtkStructuredData::VTK_STRUCTURED_XYZ_GRID;
 }
 
 //------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       slice->SetOrigin(sliceOrigin);
       slice->SetDimensions(sliceDims);
       slice->SetSpacing(spacing);
-      assert(slice->GetDataDescription() == VTK_YZ_PLANE);
+      assert(slice->GetDataDescription() == vtkStructuredData::VTK_STRUCTURED_YZ_PLANE);
       break;
     case Y_NORMAL: // -- XZ plane
       sliceDims[0] = dims[0];
@@ -166,7 +166,7 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       slice->SetOrigin(sliceOrigin);
       slice->SetDimensions(sliceDims);
       slice->SetSpacing(spacing);
-      assert(slice->GetDataDescription() == VTK_XZ_PLANE);
+      assert(slice->GetDataDescription() == vtkStructuredData::VTK_STRUCTURED_XZ_PLANE);
       break;
     case Z_NORMAL: // -- XY plane
       sliceDims[0] = dims[0];
@@ -180,7 +180,7 @@ vtkUniformGrid* vtkAMRSliceFilter::GetSlice(
       slice->SetOrigin(sliceOrigin);
       slice->SetDimensions(sliceDims);
       slice->SetSpacing(spacing);
-      assert(slice->GetDataDescription() == VTK_XY_PLANE);
+      assert(slice->GetDataDescription() == vtkStructuredData::VTK_STRUCTURED_XY_PLANE);
       break;
     default:
       vtkErrorMacro("Undefined normal");
@@ -273,13 +273,13 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
   switch (this->Normal)
   {
     case X_NORMAL:
-      description = VTK_YZ_PLANE;
+      description = vtkStructuredData::VTK_STRUCTURED_YZ_PLANE;
       break;
     case Y_NORMAL:
-      description = VTK_XZ_PLANE;
+      description = vtkStructuredData::VTK_STRUCTURED_XZ_PLANE;
       break;
     case Z_NORMAL:
-      description = VTK_XY_PLANE;
+      description = vtkStructuredData::VTK_STRUCTURED_XY_PLANE;
       break;
     default:
       vtkErrorMacro("Undefined normal");

@@ -186,36 +186,36 @@ int ImageDataLIC2D(int argc, char* argv[])
   dataset->GetBounds(bounds);
 
   // If 3D use XY slice, otherwise use non-trivial slice.
-  int dataDesc = VTK_XY_PLANE;
+  int dataDesc = vtkStructuredData::VTK_STRUCTURED_XY_PLANE;
   if (bounds[0] == bounds[1])
   {
-    dataDesc = VTK_YZ_PLANE;
+    dataDesc = vtkStructuredData::VTK_STRUCTURED_YZ_PLANE;
   }
   else if (bounds[2] == bounds[3])
   {
-    dataDesc = VTK_XZ_PLANE;
+    dataDesc = vtkStructuredData::VTK_STRUCTURED_XZ_PLANE;
   }
   else if (bounds[4] == bounds[5])
   {
-    dataDesc = VTK_XY_PLANE;
+    dataDesc = vtkStructuredData::VTK_STRUCTURED_XY_PLANE;
   }
 
   int comp[3] = { 0, 1, 2 };
   switch (dataDesc)
   {
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       comp[0] = 0;
       comp[1] = 1;
       comp[2] = 2;
       break;
 
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       comp[0] = 1;
       comp[1] = 2;
       comp[2] = 0;
       break;
 
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       comp[0] = 0;
       comp[1] = 2;
       comp[2] = 1;

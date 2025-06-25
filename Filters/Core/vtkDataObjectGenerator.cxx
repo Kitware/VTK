@@ -658,7 +658,7 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
       double origin[3] = { 0, 0, 0 };
       hbo->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
       hbo->SetOrigin(origin);
-      hbo->SetGridDescription(VTK_XYZ_GRID);
+      hbo->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
       vtkIdType gcnt = 0;
       bool abort = false;
       vtkIdType progressCounter = 0;

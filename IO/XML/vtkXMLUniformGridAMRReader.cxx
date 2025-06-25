@@ -239,18 +239,18 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     this->Metadata->SetOrigin(origin);
 
     const char* grid_description = ePrimary->GetAttribute("grid_description");
-    int iGridDescription = VTK_XYZ_GRID;
+    int iGridDescription = vtkStructuredData::VTK_STRUCTURED_XYZ_GRID;
     if (grid_description && strcmp(grid_description, "XY") == 0)
     {
-      iGridDescription = VTK_XY_PLANE;
+      iGridDescription = vtkStructuredData::VTK_STRUCTURED_XY_PLANE;
     }
     else if (grid_description && strcmp(grid_description, "YZ") == 0)
     {
-      iGridDescription = VTK_YZ_PLANE;
+      iGridDescription = vtkStructuredData::VTK_STRUCTURED_YZ_PLANE;
     }
     else if (grid_description && strcmp(grid_description, "XZ") == 0)
     {
-      iGridDescription = VTK_XZ_PLANE;
+      iGridDescription = vtkStructuredData::VTK_STRUCTURED_XZ_PLANE;
     }
     this->Metadata->SetGridDescription(iGridDescription);
 

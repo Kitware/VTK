@@ -248,16 +248,16 @@ bool vtkDataTransferHelper::Upload(int components, int* componentList)
       unsigned int length = 0;
       switch (dataDescription)
       {
-        case VTK_SINGLE_POINT:
+        case vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT:
           length = 1;
           break;
-        case VTK_X_LINE:
+        case vtkStructuredData::VTK_STRUCTURED_X_LINE:
           length = static_cast<unsigned int>(texturedims[0]);
           break;
-        case VTK_Y_LINE:
+        case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
           length = static_cast<unsigned int>(texturedims[1]);
           break;
-        case VTK_Z_LINE:
+        case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
           length = static_cast<unsigned int>(texturedims[2]);
           break;
       }
@@ -288,17 +288,17 @@ bool vtkDataTransferHelper::Upload(int components, int* componentList)
 #if 0
         switch (dataDescription)
         {
-          case VTK_XY_PLANE:
+          case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
             width = gpudims[0];
             height = gpudims[1];
             break;
 
-          case VTK_YZ_PLANE:
+          case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
             width = gpudims[1];
             height = gpudims[2];
             break;
 
-          case VTK_XZ_PLANE:
+          case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
             width = gpudims[0];
             height = gpudims[2];
             break;
@@ -307,17 +307,17 @@ bool vtkDataTransferHelper::Upload(int components, int* componentList)
 #if 1
       switch (dataDescription)
       {
-        case VTK_XY_PLANE:
+        case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
           width = static_cast<unsigned int>(texturedims[0]);
           height = static_cast<unsigned int>(texturedims[1]);
           break;
 
-        case VTK_YZ_PLANE:
+        case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
           width = static_cast<unsigned int>(texturedims[1]);
           height = static_cast<unsigned int>(texturedims[2]);
           break;
 
-        case VTK_XZ_PLANE:
+        case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
           width = static_cast<unsigned int>(texturedims[0]);
           height = static_cast<unsigned int>(texturedims[2]);
           break;

@@ -103,7 +103,7 @@ bool TestAMRXMLIO_HierarchicalBox(const std::string& input_dir, const std::strin
   vtk_assert(output->GetNumberOfBlocks(1) == 8);
   vtk_assert(output->GetNumberOfBlocks(2) == 40);
   vtk_assert(output->GetNumberOfBlocks(3) == 32);
-  vtk_assert(output->GetGridDescription() == VTK_XYZ_GRID);
+  vtk_assert(output->GetGridDescription() == vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
   if (!output->CheckValidity())
   {
     return false;

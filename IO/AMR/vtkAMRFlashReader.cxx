@@ -174,7 +174,7 @@ int vtkAMRFlashReader::FillMetaData()
   this->ComputeStats(this->Internal, blocksPerLevel, origin);
 
   this->Metadata->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
-  this->Metadata->SetGridDescription(VTK_XYZ_GRID);
+  this->Metadata->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
   this->Metadata->SetOrigin(origin);
 
   std::vector<int> b2level;
@@ -199,7 +199,8 @@ int vtkAMRFlashReader::FillMetaData()
     }
 
     // compute AMRBox
-    vtkAMRBox box(theBlock.MinBounds, dims, spacing, origin, VTK_XYZ_GRID);
+    vtkAMRBox box(
+      theBlock.MinBounds, dims, spacing, origin, vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
 
     this->Metadata->SetSpacing(level, spacing);
     this->Metadata->SetAMRBox(level, id, box);

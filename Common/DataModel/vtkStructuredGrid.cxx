@@ -21,7 +21,7 @@ vtkStandardExtendedNewMacro(vtkStructuredGrid);
 //------------------------------------------------------------------------------
 vtkStructuredGrid::vtkStructuredGrid()
 {
-  this->DataDescription = VTK_EMPTY;
+  this->DataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY;
 
   for (int idx = 0; idx < 3; ++idx)
   {
@@ -366,7 +366,7 @@ void vtkStructuredGrid::SetExtent(VTK_FUTURE_CONST int extent[6])
     vtkErrorMacro(<< "Bad Extent, retaining previous values");
   }
 
-  if (description == VTK_UNCHANGED)
+  if (description == vtkStructuredData::VTK_STRUCTURED_UNCHANGED)
   {
     return;
   }
