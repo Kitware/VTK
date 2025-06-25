@@ -3,6 +3,7 @@
 
 // Inspired by OverlappingAMR example from VTK examples
 
+#include "vtkAMRMetaData.h"
 #include "vtkFloatArray.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
@@ -153,6 +154,20 @@ int TestNonOverlappingAMR(int, char*[])
   if (amr->GetDataSet(level, index) != ug3.Get())
   {
     vtkLogF(ERROR, "Unexpected GetDataSet result");
+    return EXIT_FAILURE;
+  }
+
+  if (amr->GetAMRMetaData() == nullptr)
+  {
+    vtkLogF(ERROR, "Unexpected GetAMRMetaData result");
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkAMRMetaData> anotherMetaData;
+  amr->SetAMRMetaData(anotherMetaData);
+  if (amr->GetAMRMetaData() != anotherMetaData.Get())
+  {
+    vtkLogF(ERROR, "Unexpected SetAMRMetaData result");
     return EXIT_FAILURE;
   }
 
