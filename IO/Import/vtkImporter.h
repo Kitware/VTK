@@ -190,9 +190,9 @@ public:
   /**
    * Import the actors, camera, lights and properties at a specific time value.
    * Returns if successful or not.
-   * If not reimplemented, only call Update() and return its output.
+   * If not reimplemented, returns true.
    */
-  virtual bool UpdateAtTimeValue(double timeValue);
+  virtual bool UpdateAtTimeValue(double vtkNotUsed(timeValue)) { return true; };
 
   ///@{
   /**
