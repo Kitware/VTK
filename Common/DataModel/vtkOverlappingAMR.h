@@ -26,6 +26,7 @@
 #ifndef vtkOverlappingAMR_h
 #define vtkOverlappingAMR_h
 
+#include "vtkAMRBox.h"                // For vtkAMRBox
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUniformGridAMR.h"
 
@@ -47,12 +48,18 @@ public:
   int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_OVERLAPPING_AMR; }
 
   vtkTypeMacro(vtkOverlappingAMR, vtkUniformGridAMR);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return a new iterator (the iterator has to be deleted by the user).
    */
   VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() override;
+
+  using Superclass::Initialize;
+
+  /**
+   * Create and set an OverlappingAMRMetaData and call Superclass::Initialize
+   */
+  void Initialize(int numLevels, const int* blocksPerLevel) override;
 
   ///@{
   /**
@@ -82,12 +89,20 @@ public:
   ///@{
   /**
    * Set/Get the AMRBox for a given block
+   * May return invalid box in case of errors, check with vtkAMRBox::IsInvalid.
    */
   void SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box);
   const vtkAMRBox& GetAMRBox(unsigned int level, unsigned int id);
   ///@}
 
   using Superclass::GetBounds;
+
+  /**
+   * If AMRMetaData is set and superclass bounds are empty,
+   * return AMRMetaData::GetBounds, return superclass bounds otherwise.
+   */
+  const double* GetBounds() override;
+
   /**
    * Returns the bounding information of a data set.
    */
@@ -123,7 +138,7 @@ public:
   void SetRefinementRatio(unsigned int level, int refRatio);
 
   /**
-   * Returns the refinement of a given level.
+   * Returns the refinement of a given level or -1 if metadata is invalid
    */
   int GetRefinementRatio(unsigned int level);
 
@@ -131,13 +146,15 @@ public:
   /**
    * Set/Get the source id of a block. The source id is produced by an
    * AMR source, e.g. a file reader might set this to be a file block id
+   * Return -1 if meta data is invalid.
    */
   void SetAMRBlockSourceIndex(unsigned int level, unsigned int id, int sourceId);
   int GetAMRBlockSourceIndex(unsigned int level, unsigned int id);
   ///@}
 
   /**
-   * Returns the refinement ratio for the position pointed by the iterator.
+   * Returns the refinement ratio for the position pointed by the iterator or -1 if refinement is
+   * invalid.
    */
   int GetRefinementRatio(vtkCompositeDataIterator* iter);
 
@@ -155,14 +172,14 @@ public:
   /**
    * Return a pointer to Parents of a block.  The first entry is the number
    * of parents the block has followed by its parent ids in level-1.
-   * If none exits it returns nullptr.
+   * If none exits or if meta data is invalid it returns nullptr.
    */
   unsigned int* GetParents(unsigned int level, unsigned int index, unsigned int& numParents);
 
   /**
    * Return a pointer to Children of a block.  The first entry is the number
    * of children the block has followed by its children ids in level+1.
-   * If none exits it returns nullptr.
+   * If none exits or meta data is invalid, it returns nullptr.
    */
   unsigned int* GetChildren(unsigned int level, unsigned int index, unsigned int& numChildren);
 
@@ -177,12 +194,6 @@ public:
   bool FindGrid(double q[3], unsigned int& level, unsigned int& gridId);
 
   /**
-   * Get/Set the internal representation of amr meta data
-   */
-  vtkOverlappingAMRMetaData* GetAMRInfo() override { return Superclass::GetAMRInfo(); }
-  void SetAMRInfo(vtkOverlappingAMRMetaData* info) override { Superclass::SetAMRInfo(info); }
-
-  /**
    * Deprecated, forward to CheckValidity
    */
   VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use CheckValidity")
@@ -195,6 +206,22 @@ public:
    * Return true if correct, false otherwise.
    */
   [[nodiscard]] bool CheckValidity();
+
+  /**
+   * Convenience getter that get superclass MetaData and cast it to
+   * vtkOverlappingAMRMetaDat
+   */
+  [[nodiscard]] vtkOverlappingAMRMetaData* GetOverlappingAMRMetaData();
+
+  /**
+   * Get/Set the AMR meta data
+   * Deprecated, use Get/SetAMRMetaData or GetOverlappingAMRMetaData
+   */
+  VTK_DEPRECATED_IN_9_6_0(
+    "This function is deprecated, use GetAMRMetaData() or GetOverlappingAMRMetaData()")
+  vtkOverlappingAMRMetaData* GetAMRInfo() override { return this->GetOverlappingAMRMetaData(); }
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use SetAMRMetaData()")
+  void SetAMRInfo(vtkOverlappingAMRMetaData* info) override;
 
 protected:
   vtkOverlappingAMR();

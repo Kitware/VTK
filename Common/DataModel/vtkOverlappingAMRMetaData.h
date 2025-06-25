@@ -192,11 +192,11 @@ public:
     return this->AllChildren[i];
   }
 
-  using vtkAMRMetaData::DeepCopy;
   /**
-   * Copy internal fields from other into this
+   * Check it is an vtkOverlappingAMRMetaData and
+   * copy internal fields from other into this
    */
-  void DeepCopy(vtkOverlappingAMRMetaData* other);
+  void DeepCopy(vtkAMRMetaData* other) override;
 
 protected:
   vtkOverlappingAMRMetaData();

@@ -25,6 +25,7 @@ class vtkUnsignedIntArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkAMRMetaData : public vtkObject
 {
 public:
+  static vtkAMRMetaData* New();
   vtkTypeMacro(vtkAMRMetaData, vtkObject);
 
   /**

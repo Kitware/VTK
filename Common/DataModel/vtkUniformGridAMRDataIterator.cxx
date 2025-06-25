@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkUniformGridAMRDataIterator.h"
 #include "vtkAMRDataInternals.h"
+#include "vtkAMRMetaData.h"
 #include "vtkDataObject.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
@@ -116,7 +117,7 @@ vtkUniformGridAMRDataIterator::vtkUniformGridAMRDataIterator()
   this->Information = vtkSmartPointer<vtkInformation>::New();
   this->AMR = nullptr;
   this->AMRData = nullptr;
-  this->AMRInfo = nullptr;
+  this->AMRMetaData = nullptr;
 }
 
 vtkUniformGridAMRDataIterator::~vtkUniformGridAMRDataIterator() = default;
@@ -131,8 +132,13 @@ vtkDataObject* vtkUniformGridAMRDataIterator::GetCurrentDataObject()
 
 vtkInformation* vtkUniformGridAMRDataIterator::GetCurrentMetaData()
 {
-  double bounds[6];
-  this->AMRInfo->GetBounds(this->GetCurrentLevel(), this->GetCurrentIndex(), bounds);
+  // XXX: This works only for OverlappingAMR
+  double bounds[6] = { 0, 0, 0, 0, 0, 0 };
+  vtkOverlappingAMRMetaData* oamrMData = vtkOverlappingAMRMetaData::SafeDownCast(this->AMRMetaData);
+  if (oamrMData)
+  {
+    oamrMData->GetBounds(this->GetCurrentLevel(), this->GetCurrentIndex(), bounds);
+  }
   this->Information->Set(vtkDataObject::BOUNDING_BOX(), bounds, 6);
   return this->Information;
 }
@@ -175,22 +181,22 @@ void vtkUniformGridAMRDataIterator::GoToFirstItem()
     return;
   }
   this->AMR = vtkUniformGridAMR::SafeDownCast(this->DataSet);
-  this->AMRInfo = this->AMR->GetAMRInfo();
+  this->AMRMetaData = this->AMR->GetAMRMetaData();
   this->AMRData = this->AMR->AMRData;
 
-  if (this->AMRInfo)
+  if (this->AMRMetaData)
   {
     if (this->GetSkipEmptyNodes())
     {
       vtkSmartPointer<AMRLoadedDataIndexIterator> itr =
         vtkSmartPointer<AMRLoadedDataIndexIterator>::New();
-      itr->Initialize(&this->AMRInfo->GetNumBlocks(), &this->AMR->AMRData->GetAllBlocks());
+      itr->Initialize(&this->AMRMetaData->GetNumBlocks(), &this->AMR->AMRData->GetAllBlocks());
       this->Iter = itr;
     }
     else
     {
       this->Iter = vtkSmartPointer<AMRIndexIterator>::New();
-      this->Iter->Initialize(&this->AMRInfo->GetNumBlocks());
+      this->Iter->Initialize(&this->AMRMetaData->GetNumBlocks());
     }
   }
 }
