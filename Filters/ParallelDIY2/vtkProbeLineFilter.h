@@ -151,8 +151,9 @@ public:
 
   ///@{
   /**
-   * Setter and getter for `SamplingPattern` (values to be taken from the enumeration
-   * of the same name).
+   * Setter and getter for `SamplingPattern` (values to be taken from `SamplingPatternEnum`)
+   *
+   * Default is `SAMPLE_LINE_AT_CELL_BOUNDARIES` (0)
    */
   vtkGetMacro(SamplingPattern, int);
   vtkSetClampMacro(SamplingPattern, int, 0, 2);
@@ -163,6 +164,8 @@ public:
    * Setter and getter for `LineResolution`. This attribute is only used if sampling
    * using `SamplingPattern::SAMPLE_LINE_UNIFORMLY`. It sets the number of points
    * in the sampling line.
+   *
+   * Default is 1000.
    */
   vtkGetMacro(LineResolution, int);
   vtkSetMacro(LineResolution, int);

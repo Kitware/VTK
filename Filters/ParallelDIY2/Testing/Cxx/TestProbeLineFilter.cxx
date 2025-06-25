@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkCutter.h"
 #include "vtkDataArray.h"
-#include "vtkDummyController.h"
 #include "vtkHyperTreeGridPreConfiguredSource.h"
+#include "vtkHyperTreeGridSource.h"
+#include "vtkHyperTreeGridToUnstructuredGrid.h"
 #include "vtkLineSource.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
@@ -13,12 +13,12 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
-#include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
 #include "vtkPolyData.h"
 #include "vtkProbeLineFilter.h"
 #include "vtkRTAnalyticSource.h"
+#include "vtkTestUtilities.h"
 
 #include <algorithm>
 #include <array>
@@ -543,6 +543,73 @@ int Test3DProbingHTG(vtkMultiProcessController* contr)
 }
 
 // ----------------------------------------------------------------------------
+int TestHTGEdgeProbe(vtkMultiProcessController* contr)
+{
+  vtkLog(INFO, << "Testing vtkProbeLineFilter with HyperTreeGrid input for edge cases");
+  vtkNew<vtkHyperTreeGridSource> htgSource;
+  htgSource->SetDescriptor("....R...R|...R............|...R....|........");
+  htgSource->SetMaxDepth(4);
+  htgSource->SetDimensions(4, 4, 2);
+  htgSource->SetBranchFactor(2);
+
+  vtkNew<vtkHyperTreeGridToUnstructuredGrid> ugSource;
+  ugSource->SetInputConnection(htgSource->GetOutputPort());
+
+  // This line will cross the HTG exactly at tree intersections diagonally
+  vtkNew<vtkLineSource> line;
+  line->SetResolution(1);
+  line->SetPoint1(0.0, 0.0, 0.0);
+  line->SetPoint2(3.0, 3.0, 0.0);
+  line->Update();
+
+  vtkNew<vtkProbeLineFilter> probeLineHTG;
+  probeLineHTG->SetInputConnection(htgSource->GetOutputPort());
+  probeLineHTG->SetSourceConnection(line->GetOutputPort());
+  probeLineHTG->SetController(contr);
+  probeLineHTG->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_AT_CELL_BOUNDARIES);
+  probeLineHTG->Update();
+
+  vtkNew<vtkProbeLineFilter> probeLineUG;
+  probeLineUG->SetInputConnection(ugSource->GetOutputPort());
+  probeLineUG->SetSourceConnection(line->GetOutputPort());
+  probeLineUG->SetController(contr);
+  probeLineUG->SetSamplingPattern(vtkProbeLineFilter::SAMPLE_LINE_AT_CELL_BOUNDARIES);
+  probeLineUG->Update();
+
+  vtkPolyData* outUgProbe = vtkPolyData::SafeDownCast(probeLineUG->GetOutput());
+  vtkPolyData* outHTGProbe = vtkPolyData::SafeDownCast(probeLineHTG->GetOutput());
+
+  if (outUgProbe->GetNumberOfPoints() != outHTGProbe->GetNumberOfPoints())
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Expected " << outUgProbe->GetNumberOfPoints()
+                                     << " points but got " << outHTGProbe->GetNumberOfPoints());
+    return EXIT_FAILURE;
+  }
+
+  auto dataUg = outUgProbe->GetPointData()->GetArray("Depth");
+  auto dataHTG = outHTGProbe->GetPointData()->GetArray("Depth");
+
+  if (!vtkTestUtilities::CompareAbstractArray(dataHTG, dataUg))
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Failed Depth data comparison");
+    return EXIT_FAILURE;
+  }
+
+  // For this test, only process 0 has points
+  if (contr->GetLocalProcessId() == 0)
+  {
+    if (!vtkTestUtilities::CompareAbstractArray(
+          outUgProbe->GetPoints()->GetData(), outHTGProbe->GetPoints()->GetData()))
+    {
+      vtkErrorWithObjectMacro(nullptr, << "Failed Point data comparison");
+      return EXIT_FAILURE;
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+
+// ----------------------------------------------------------------------------
 int TestProbeLineFilter(int argc, char* argv[])
 {
   vtkNew<vtkMPIController> contr;
@@ -556,6 +623,7 @@ int TestProbeLineFilter(int argc, char* argv[])
   retVal |= Test3DProbing2(contr);
   retVal |= Test2DProbingHTG(contr);
   retVal |= Test3DProbingHTG(contr);
+  retVal |= TestHTGEdgeProbe(contr);
 
   vtkMultiProcessController::SetGlobalController(nullptr);
   contr->Finalize();
