@@ -16,6 +16,7 @@
 #define vtkAMRMetaData_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
@@ -55,19 +56,40 @@ public:
   [[nodiscard]] unsigned int GetNumberOfLevels() const;
 
   /**
-   * Returns the number of datasets at the given level
+   * Returns the number of blocks at the given level
    */
-  [[nodiscard]] unsigned int GetNumberOfDataSets(unsigned int level) const;
+  [[nodiscard]] unsigned int GetNumberOfBlocks(unsigned int level) const;
 
   /**
-   * Returns total number of datasets
+   * Deprecated, forward to GetNumberOfBlocks(level)
    */
-  [[nodiscard]] unsigned int GetTotalNumberOfBlocks();
+  VTK_DEPRECATED_IN_9_6_0("Use GetNumberOfBlocks(level) instead")
+  unsigned int GetNumberOfDataSets(unsigned int level) { return this->GetNumberOfBlocks(level); }
 
   /**
-   * Returns the single index from a pair of indices
+   * Returns number of blocks for all levels
    */
-  [[nodiscard]] int GetIndex(unsigned int level, unsigned int id) const;
+  [[nodiscard]] unsigned int GetNumberOfBlocks() const;
+
+  /**
+   * Deprecated, forward to GetNumberOfBlocks
+   */
+  VTK_DEPRECATED_IN_9_6_0("Use GetNumberOfBlocks instead")
+  virtual unsigned int GetTotalNumberOfBlocks() { return this->GetNumberOfBlocks(); }
+
+  /**
+   * Returns the absolute block index from a level and a relative block index
+   */
+  [[nodiscard]] int GetAbsoluteBlockIndex(unsigned int level, unsigned int relativeBlockIdx) const;
+
+  /**
+   * Deprecated, forward to GetAbsoluteBlockIndex
+   */
+  VTK_DEPRECATED_IN_9_6_0("Use GetAbsoluteBlockIndex(level, id) instead")
+  [[nodiscard]] int GetIndex(unsigned int level, unsigned int id) const
+  {
+    return this->GetAbsoluteBlockIndex(level, id);
+  }
 
   /**
    * Returns the an index pair given a single index
@@ -76,6 +98,7 @@ public:
 
   /**
    * Returns internal vector of blocks.
+   * XXX: Do not use, will be deprecated.
    */
   [[nodiscard]] const std::vector<int>& GetNumBlocks() const { return this->NumBlocks; }
 
