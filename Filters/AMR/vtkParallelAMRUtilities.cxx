@@ -111,22 +111,27 @@ void vtkParallelAMRUtilities::StripGhostLayers(vtkOverlappingAMR* ghostedAMRData
 void vtkParallelAMRUtilities::BlankCells(
   vtkOverlappingAMR* amr, vtkMultiProcessController* myController)
 {
-  vtkOverlappingAMRMetaData* info = amr->GetAMRInfo();
-  if (!info->HasRefinementRatio())
+  vtkOverlappingAMRMetaData* amrMData = amr->GetOverlappingAMRMetaData();
+  if (!amrMData)
   {
-    info->GenerateRefinementRatio();
+    return;
   }
-  if (!info->HasChildrenInformation())
+
+  if (!amrMData->HasRefinementRatio())
   {
-    info->GenerateParentChildInformation();
+    amrMData->GenerateRefinementRatio();
+  }
+  if (!amrMData->HasChildrenInformation())
+  {
+    amrMData->GenerateParentChildInformation();
   }
 
   std::vector<int> processorMap;
   vtkParallelAMRUtilities::DistributeProcessInformation(amr, myController, processorMap);
-  unsigned int numLevels = info->GetNumberOfLevels();
+  unsigned int numLevels = amr->GetNumberOfLevels();
   for (unsigned int i = 0; i < numLevels; i++)
   {
-    vtkAMRUtilities::BlankGridsAtLevel(amr, i, info->GetChildrenAtLevel(i), processorMap);
+    vtkAMRUtilities::BlankGridsAtLevel(amr, i, amrMData->GetChildrenAtLevel(i), processorMap);
   }
 }
 VTK_ABI_NAMESPACE_END

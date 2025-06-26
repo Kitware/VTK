@@ -869,23 +869,30 @@ void vtkOverlappingAMRMetaData::UpdateBounds(int level, int id)
 }
 
 //------------------------------------------------------------------------------
-void vtkOverlappingAMRMetaData::DeepCopy(vtkOverlappingAMRMetaData* other)
+void vtkOverlappingAMRMetaData::DeepCopy(vtkAMRMetaData* other)
 {
+  vtkOverlappingAMRMetaData* otherMD = vtkOverlappingAMRMetaData::SafeDownCast(other);
+  if (!otherMD)
+  {
+    vtkErrorMacro("Cannot deep copy different types");
+    return;
+  }
+
   this->Superclass::DeepCopy(other);
 
-  memcpy(this->Origin, other->Origin, sizeof(double) * 3);
-  this->Boxes = other->Boxes;
-  if (other->SourceIndex)
+  memcpy(this->Origin, otherMD->Origin, sizeof(double) * 3);
+  this->Boxes = otherMD->Boxes;
+  if (otherMD->SourceIndex)
   {
     this->SourceIndex = vtkSmartPointer<vtkIntArray>::New();
-    this->SourceIndex->DeepCopy(other->SourceIndex);
+    this->SourceIndex->DeepCopy(otherMD->SourceIndex);
   }
-  if (other->Spacing)
+  if (otherMD->Spacing)
   {
     this->Spacing = vtkSmartPointer<vtkDoubleArray>::New();
-    this->Spacing->DeepCopy(other->Spacing);
+    this->Spacing->DeepCopy(otherMD->Spacing);
   }
-  memcpy(this->Bounds, other->Bounds, sizeof(double) * 6);
+  memcpy(this->Bounds, otherMD->Bounds, sizeof(double) * 6);
 }
 
 //------------------------------------------------------------------------------

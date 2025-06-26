@@ -210,7 +210,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkOverlappingAMR* input, vtkPolyDat
     for (unsigned int dataIdx = 0; dataIdx < num_datasets; ++dataIdx)
     {
       double bounds[6];
-      input->GetAMRInfo()->GetBounds(level, dataIdx, bounds);
+      input->GetBounds(level, dataIdx, bounds);
       appender->AddInputData(this->GenerateOutlineGeometry(bounds));
     }
   }

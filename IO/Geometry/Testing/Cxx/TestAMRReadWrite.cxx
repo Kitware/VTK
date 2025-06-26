@@ -56,5 +56,6 @@ int TestAMRReadWrite(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  return (*amr1->GetAMRInfo() == *amr->GetAMRInfo()) ? EXIT_SUCCESS : EXIT_FAILURE;
+  return (*amr1->GetOverlappingAMRMetaData() == *amr->GetOverlappingAMRMetaData()) ? EXIT_SUCCESS
+                                                                                   : EXIT_FAILURE;
 }

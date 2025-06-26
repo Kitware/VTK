@@ -42,7 +42,7 @@ bool vtkAMRUtilities::HasPartiallyOverlappingGhostCells(vtkOverlappingAMR* amr)
     unsigned int numDataSets = amr->GetNumberOfDataSets(levelIdx);
     for (unsigned int dataIdx = 0; dataIdx < numDataSets; ++dataIdx)
     {
-      const vtkAMRBox& myBox = amr->GetAMRInfo()->GetAMRBox(levelIdx, dataIdx);
+      const vtkAMRBox& myBox = amr->GetAMRBox(levelIdx, dataIdx);
       const int* lo = myBox.GetLoCorner();
       int hi[3];
       myBox.GetValidHiCorner(hi);
@@ -333,14 +333,20 @@ void vtkAMRUtilities::StripGhostLayers(
 //------------------------------------------------------------------------------
 void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
 {
-  vtkOverlappingAMRMetaData* info = amr->GetAMRInfo();
-  if (!info->HasRefinementRatio())
+  vtkOverlappingAMRMetaData* amrMData = amr->GetOverlappingAMRMetaData();
+  if (!amrMData)
   {
-    info->GenerateRefinementRatio();
+    vtkErrorWithObjectMacro(amr, "Could not recover AMR Meta Data, aborting");
+    return;
   }
-  if (!info->HasChildrenInformation())
+
+  if (!amrMData->HasRefinementRatio())
   {
-    info->GenerateParentChildInformation();
+    amrMData->GenerateRefinementRatio();
+  }
+  if (!amrMData->HasChildrenInformation())
+  {
+    amrMData->GenerateParentChildInformation();
   }
 
   std::vector<int> processorMap;
@@ -355,10 +361,10 @@ void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
     processorMap[index] = 0;
   }
 
-  unsigned int numLevels = info->GetNumberOfLevels();
+  unsigned int numLevels = amrMData->GetNumberOfLevels();
   for (unsigned int i = 0; i < numLevels; i++)
   {
-    BlankGridsAtLevel(amr, i, info->GetChildrenAtLevel(i), processorMap);
+    BlankGridsAtLevel(amr, i, amrMData->GetChildrenAtLevel(i), processorMap);
   }
 }
 
@@ -399,7 +405,9 @@ void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
         {
           continue;
         }
-        if (amr->GetAMRInfo()->GetCoarsenedAMRBox(levelIdx + 1, *iter, ibox))
+
+        vtkOverlappingAMRMetaData* amrMData = amr->GetOverlappingAMRMetaData();
+        if (amrMData && amrMData->GetCoarsenedAMRBox(levelIdx + 1, *iter, ibox))
         {
           bool shouldBeTrue = ibox.Intersect(box);
           assert(shouldBeTrue); // if the boxes don't intersect, there is a bug

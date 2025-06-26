@@ -7,6 +7,7 @@
 #include "vtkUnsignedIntArray.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkAMRMetaData);
 
 //------------------------------------------------------------------------------
 vtkAMRMetaData::vtkAMRMetaData() = default;

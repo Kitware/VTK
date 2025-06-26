@@ -8,6 +8,7 @@
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkOverlappingAMRMetaData.h"
 #include "vtkPointData.h"
 #include "vtkSphere.h"
 #include "vtkUniformGrid.h"
@@ -206,6 +207,20 @@ int TestOverlappingAMR(int, char*[])
   if (amr->GetDataSet(level, id) != ug2.Get())
   {
     vtkLogF(ERROR, "Unexpected GetDataSet result");
+    return EXIT_FAILURE;
+  }
+
+  if (amr->GetOverlappingAMRMetaData() == nullptr)
+  {
+    vtkLogF(ERROR, "Unexpected GetOverlappingAMRMetaData result");
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkOverlappingAMRMetaData> anotherMetaData;
+  amr->SetAMRMetaData(anotherMetaData);
+  if (amr->GetOverlappingAMRMetaData() != anotherMetaData.Get())
+  {
+    vtkLogF(ERROR, "Unexpected SetOverlappingAMRMetaData result");
     return EXIT_FAILURE;
   }
 
