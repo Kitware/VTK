@@ -190,7 +190,7 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
     for (unsigned int level = 0; level < amr->GetNumberOfLevels(); level++)
     {
       auto child = vtk::TakeSmartPointer(this->CreateForCopyStructure(tempPds));
-      child->SetNumberOfChildren(amr->GetNumberOfDataSets(level));
+      child->SetNumberOfChildren(amr->GetNumberOfBlocks(level));
       this->SetChild(level, child);
 
       vtkNew<vtkInformation> info;

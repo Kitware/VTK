@@ -418,7 +418,7 @@ void vtkAMRCutPlane::ComputeAMRBlocksToLoad(vtkPlane* p, vtkOverlappingAMR* m)
   for (; level <= static_cast<unsigned int>(maxLevelToLoad); ++level)
   {
     unsigned int dataIdx = 0;
-    for (; dataIdx < m->GetNumberOfDataSets(level); ++dataIdx)
+    for (; dataIdx < m->GetNumberOfBlocks(level); ++dataIdx)
     {
       m->GetBounds(level, dataIdx, bounds);
       if (this->PlaneIntersectsAMRBox(plane, bounds))

@@ -39,7 +39,7 @@ bool vtkAMRUtilities::HasPartiallyOverlappingGhostCells(vtkOverlappingAMR* amr)
   for (; levelIdx > 0; --levelIdx)
   {
     int r = amr->GetRefinementRatio(levelIdx);
-    unsigned int numDataSets = amr->GetNumberOfDataSets(levelIdx);
+    unsigned int numDataSets = amr->GetNumberOfBlocks(levelIdx);
     for (unsigned int dataIdx = 0; dataIdx < numDataSets; ++dataIdx)
     {
       const vtkAMRBox& myBox = amr->GetAMRBox(levelIdx, dataIdx);
@@ -279,7 +279,7 @@ void vtkAMRUtilities::StripGhostLayers(
   std::vector<int> blocksPerLevel(ghostedAMRData->GetNumberOfLevels());
   for (unsigned int i = 0; i < blocksPerLevel.size(); i++)
   {
-    blocksPerLevel[i] = ghostedAMRData->GetNumberOfDataSets(i);
+    blocksPerLevel[i] = ghostedAMRData->GetNumberOfBlocks(i);
   }
   strippedAMRData->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
   strippedAMRData->SetOrigin(ghostedAMRData->GetOrigin());
@@ -288,7 +288,7 @@ void vtkAMRUtilities::StripGhostLayers(
   ghostedAMRData->GetSpacing(0, spacing);
   strippedAMRData->SetSpacing(0, spacing);
   unsigned int dataIdx = 0;
-  for (; dataIdx < ghostedAMRData->GetNumberOfDataSets(0); ++dataIdx)
+  for (; dataIdx < ghostedAMRData->GetNumberOfBlocks(0); ++dataIdx)
   {
     vtkUniformGrid* grid = ghostedAMRData->GetDataSet(0, dataIdx);
     const vtkAMRBox& box = ghostedAMRData->GetAMRBox(0, dataIdx);
@@ -303,7 +303,7 @@ void vtkAMRUtilities::StripGhostLayers(
     dataIdx = 0;
     ghostedAMRData->GetSpacing(levelIdx, spacing);
     strippedAMRData->SetSpacing(levelIdx, spacing);
-    for (; dataIdx < ghostedAMRData->GetNumberOfDataSets(levelIdx); ++dataIdx)
+    for (; dataIdx < ghostedAMRData->GetNumberOfBlocks(levelIdx); ++dataIdx)
     {
       vtkUniformGrid* grid = ghostedAMRData->GetDataSet(levelIdx, dataIdx);
       int r = ghostedAMRData->GetRefinementRatio(levelIdx);
@@ -350,7 +350,7 @@ void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
   }
 
   std::vector<int> processorMap;
-  processorMap.resize(amr->GetTotalNumberOfBlocks(), -1);
+  processorMap.resize(amr->GetNumberOfBlocks(), -1);
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(amr->NewIterator());
   iter->SkipEmptyNodesOn();
@@ -372,7 +372,7 @@ void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
 void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
   std::vector<std::vector<unsigned int>>& children, const std::vector<int>& processMap)
 {
-  unsigned int numDataSets = amr->GetNumberOfDataSets(levelIdx);
+  unsigned int numDataSets = amr->GetNumberOfBlocks(levelIdx);
   int N;
 
   for (unsigned int dataSetIdx = 0; dataSetIdx < numDataSets; dataSetIdx++)

@@ -147,9 +147,9 @@ void vtkOverlappingAMRMetaData::PrintSelf(ostream& os, vtkIndent indent)
   }
   for (unsigned int levelIdx = 0; levelIdx < this->GetNumberOfLevels(); levelIdx++)
   {
-    unsigned int numDataSets = this->GetNumberOfDataSets(levelIdx);
+    unsigned int numBlocks = this->GetNumberOfBlocks(levelIdx);
     os << indent << "level " << levelIdx << "-------------------------" << endl;
-    for (unsigned int dataIdx = 0; dataIdx < numDataSets; ++dataIdx)
+    for (unsigned int dataIdx = 0; dataIdx < numBlocks; ++dataIdx)
     {
       const vtkAMRBox& box = this->GetAMRBox(levelIdx, dataIdx);
       os << indent;
@@ -163,8 +163,8 @@ void vtkOverlappingAMRMetaData::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "Parent Child information: \n";
     for (unsigned int levelIdx = 0; levelIdx < this->GetNumberOfLevels(); levelIdx++)
     {
-      unsigned int numDataSets = this->GetNumberOfDataSets(levelIdx);
-      for (unsigned int dataIdx = 0; dataIdx < numDataSets; ++dataIdx)
+      unsigned int numBlocks = this->GetNumberOfBlocks(levelIdx);
+      for (unsigned int dataIdx = 0; dataIdx < numBlocks; ++dataIdx)
       {
         this->PrintParentChildInfo(levelIdx, dataIdx);
       }
@@ -279,7 +279,7 @@ void vtkOverlappingAMRMetaData::Initialize(int numLevels, const int* blocksPerLe
 {
   this->Superclass::Initialize(numLevels, blocksPerLevel);
 
-  int numBlocks = this->GetTotalNumberOfBlocks();
+  int numBlocks = this->GetNumberOfBlocks();
   this->AllocateBoxes(numBlocks);
   this->Spacing = vtkSmartPointer<vtkDoubleArray>::New();
   this->Spacing->SetNumberOfTuples(3 * numLevels);
@@ -310,7 +310,7 @@ void vtkOverlappingAMRMetaData::AllocateBoxes(unsigned int n)
 //------------------------------------------------------------------------------
 void vtkOverlappingAMRMetaData::SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box)
 {
-  unsigned int index = this->GetIndex(level, id);
+  unsigned int index = this->GetAbsoluteBlockIndex(level, id);
   this->Boxes[index] = box;
   if (this->HasSpacing(level)) // has valid spacing
   {
@@ -330,7 +330,7 @@ void vtkOverlappingAMRMetaData::SetAMRBlockSourceIndex(int index, int sourceId)
   if (!this->SourceIndex)
   {
     this->SourceIndex = vtkSmartPointer<vtkIntArray>::New();
-    this->SourceIndex->SetNumberOfValues(this->GetTotalNumberOfBlocks());
+    this->SourceIndex->SetNumberOfValues(this->GetNumberOfBlocks());
   }
   if (index >= this->SourceIndex->GetNumberOfTuples())
   {
@@ -401,7 +401,7 @@ void vtkOverlappingAMRMetaData::GenerateRefinementRatio()
 
   if (numLevels < 1)
   {
-    // Dataset is empty!
+    // AMR is empty!
     return;
   }
 
@@ -418,13 +418,13 @@ void vtkOverlappingAMRMetaData::GenerateRefinementRatio()
   {
     int childLevel = level + 1;
 
-    if (this->GetNumberOfDataSets(childLevel) < 1 || this->GetNumberOfDataSets(level) < 1)
+    if (this->GetNumberOfBlocks(childLevel) < 1 || this->GetNumberOfBlocks(level) < 1)
     {
       continue;
     }
 
     unsigned int id = 0;
-    for (; id < this->GetNumberOfDataSets(level); id++)
+    for (; id < this->GetNumberOfBlocks(level); id++)
     {
       if (!this->GetAMRBox(level, id).IsInvalid())
       {
@@ -573,14 +573,14 @@ void vtkOverlappingAMRMetaData::SetSpacing(unsigned int level, const double* h)
 //------------------------------------------------------------------------------
 void vtkOverlappingAMRMetaData::GetBounds(unsigned int level, unsigned int id, double* bb)
 {
-  const vtkAMRBox& box = this->Boxes[this->GetIndex(level, id)];
+  const vtkAMRBox& box = this->Boxes[this->GetAbsoluteBlockIndex(level, id)];
   vtkAMRBox::GetBounds(box, this->Origin, this->Spacing->GetTuple(level), bb);
 }
 
 //------------------------------------------------------------------------------
 const vtkAMRBox& vtkOverlappingAMRMetaData::GetAMRBox(unsigned int level, unsigned int id) const
 {
-  return this->Boxes[this->GetIndex(level, id)];
+  return this->Boxes[this->GetAbsoluteBlockIndex(level, id)];
 }
 
 //------------------------------------------------------------------------------
@@ -603,9 +603,9 @@ void vtkOverlappingAMRMetaData::CalculateParentChildRelationShip(unsigned int le
   int extents[6] = { VTK_INT_MAX, -VTK_INT_MAX, VTK_INT_MAX, -VTK_INT_MAX, VTK_INT_MAX,
     -VTK_INT_MAX };
   float totalsize[3] = { 0, 0, 0 };
-  unsigned int numParentDataSets = this->GetNumberOfDataSets(level - 1);
+  unsigned int numParentBlocks = this->GetNumberOfBlocks(level - 1);
   int refinementRatio = this->GetRefinementRatio(level - 1);
-  for (unsigned int id = 0; id < numParentDataSets; id++)
+  for (unsigned int id = 0; id < numParentBlocks; id++)
   {
     vtkAMRBox box = this->GetAMRBox(level - 1, id);
     if (!box.IsInvalid())
@@ -636,7 +636,7 @@ void vtkOverlappingAMRMetaData::CalculateParentChildRelationShip(unsigned int le
   unsigned int binsize[3];
   for (int i = 0; i < 3; i++)
   {
-    binsize[i] = static_cast<int>(std::round(totalsize[i] / numParentDataSets));
+    binsize[i] = static_cast<int>(std::round(totalsize[i] / numParentBlocks));
     nbins[i] = (extents[2 * i + 1] - extents[2 * i]) / binsize[i] + 1;
   }
 
@@ -656,13 +656,9 @@ void vtkOverlappingAMRMetaData::CalculateParentChildRelationShip(unsigned int le
   loExtent[1] = extents[2];
   loExtent[2] = extents[4];
   DataSetBinner binner(nbins, loExtent, binsize);
-  // for(int i=0; i<3; i++)
-  //   {
-  //   cout<<nbins[i]<<" "<<loExtent[i]<<" "<<binsize[i]<<endl;
-  //   }
 
   // Bin the blocks
-  for (unsigned int i = 0; i < numParentDataSets; i++)
+  for (unsigned int i = 0; i < numParentBlocks; i++)
   {
     vtkAMRBox box = this->GetAMRBox(level - 1, i);
     if (!box.IsInvalid())
@@ -701,11 +697,11 @@ void vtkOverlappingAMRMetaData::CalculateParentChildRelationShip(unsigned int le
 
   // Actually find parent-children relationship
   // between blocks in level and level-1
-  children.resize(this->GetNumberOfDataSets(level - 1));
-  parents.resize(this->GetNumberOfDataSets(level));
+  children.resize(this->GetNumberOfBlocks(level - 1));
+  parents.resize(this->GetNumberOfBlocks(level));
 
-  unsigned int numDataSets = this->GetNumberOfDataSets(level);
-  for (unsigned int i = 0; i < numDataSets; i++)
+  unsigned int numBlocks = this->GetNumberOfBlocks(level);
+  for (unsigned int i = 0; i < numBlocks; i++)
   {
     const vtkAMRBox& box = this->GetAMRBox(level, i);
     if (!box.IsInvalid())
@@ -838,7 +834,7 @@ bool vtkOverlappingAMRMetaData::GetOrigin(unsigned int level, unsigned int id, d
     return false;
   }
 
-  const vtkAMRBox& box = this->Boxes[this->GetIndex(level, id)];
+  const vtkAMRBox& box = this->Boxes[this->GetAbsoluteBlockIndex(level, id)];
   if (box.IsInvalid())
   {
     vtkErrorMacro("Invalid AMR box.");
@@ -909,7 +905,7 @@ const double* vtkOverlappingAMRMetaData::GetBounds()
   {
     for (unsigned int i = 0; i < this->GetNumberOfLevels(); i++)
     {
-      for (unsigned int j = 0; j < this->GetNumberOfDataSets(i); j++)
+      for (unsigned int j = 0; j < this->GetNumberOfBlocks(i); j++)
       {
         this->UpdateBounds(i, j);
       }
@@ -962,7 +958,7 @@ bool vtkOverlappingAMRMetaData::FindGrid(double q[3], unsigned int& level, unsig
 //------------------------------------------------------------------------------
 bool vtkOverlappingAMRMetaData::FindGrid(double q[3], int level, unsigned int& gridId)
 {
-  for (unsigned int i = 0; i < this->GetNumberOfDataSets(level); i++)
+  for (unsigned int i = 0; i < this->GetNumberOfBlocks(level); i++)
   {
     double gbounds[6];
     this->GetBounds(level, i, gbounds);

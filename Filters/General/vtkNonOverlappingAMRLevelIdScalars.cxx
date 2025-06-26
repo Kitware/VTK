@@ -37,7 +37,7 @@ void vtkNonOverlappingAMRLevelIdScalars::AddColorLevels(
     {
       break;
     }
-    unsigned int numDS = input->GetNumberOfDataSets(levelIdx);
+    unsigned int numDS = input->GetNumberOfBlocks(levelIdx);
     output->SetNumberOfDataSets(levelIdx, numDS);
 
     // Copy level metadata.

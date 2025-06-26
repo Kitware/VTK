@@ -203,7 +203,7 @@ void vtkOverlappingAMR::SetAMRBlockSourceIndex(unsigned int level, unsigned int 
   vtkOverlappingAMRMetaData* oamrMetaData = this->GetOverlappingAMRMetaData();
   if (oamrMetaData)
   {
-    unsigned int index = oamrMetaData->GetIndex(level, id);
+    unsigned int index = oamrMetaData->GetAbsoluteBlockIndex(level, id);
     oamrMetaData->SetAMRBlockSourceIndex(index, sourceId);
   }
 }
@@ -214,7 +214,7 @@ int vtkOverlappingAMR::GetAMRBlockSourceIndex(unsigned int level, unsigned int i
   vtkOverlappingAMRMetaData* oamrMetaData = this->GetOverlappingAMRMetaData();
   if (oamrMetaData)
   {
-    unsigned int index = oamrMetaData->GetIndex(level, id);
+    unsigned int index = oamrMetaData->GetAbsoluteBlockIndex(level, id);
     return oamrMetaData->GetAMRBlockSourceIndex(index);
   }
   else

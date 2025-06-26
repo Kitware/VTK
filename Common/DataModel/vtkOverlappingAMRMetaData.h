@@ -43,7 +43,7 @@ public:
 
   ///@{
   /**
-   * Get the AMR dataset origin as a 3 sized array
+   * Get the AMR block origin as a 3 sized array
    * The origin is essentially the minimum of all the grids.
    */
   void GetOrigin(double origin[3]);

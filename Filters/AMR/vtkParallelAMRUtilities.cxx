@@ -23,7 +23,7 @@ void vtkParallelAMRUtilities::PrintSelf(std::ostream& os, vtkIndent indent)
 void vtkParallelAMRUtilities::DistributeProcessInformation(
   vtkOverlappingAMR* amr, vtkMultiProcessController* controller, std::vector<int>& processMap)
 {
-  processMap.resize(amr->GetTotalNumberOfBlocks(), -1);
+  processMap.resize(amr->GetNumberOfBlocks(), -1);
   vtkSmartPointer<vtkCompositeDataIterator> iter;
   iter.TakeReference(amr->NewIterator());
   iter->SkipEmptyNodesOn();

@@ -27,7 +27,7 @@ class TestAMRExtractLevel(Testing.vtkTest):
 
     amr  = reader.GetOutputDataObject(0)
     out = filter.GetOutputDataObject(0)
-    self.assertEqual(out.GetNumberOfBlocks(), amr.GetNumberOfDataSets(level))
+    self.assertEqual(out.GetNumberOfBlocks(), amr.GetNumberOfBlocks(level))
 
 if __name__ == "__main__":
     Testing.main([(TestAMRExtractLevel, 'test')])

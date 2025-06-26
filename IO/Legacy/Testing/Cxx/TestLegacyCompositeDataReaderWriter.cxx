@@ -29,7 +29,7 @@ bool Validate(vtkOverlappingAMR* input, vtkOverlappingAMR* result)
 
   for (unsigned int level = 0; level < input->GetNumberOfLevels(); level++)
   {
-    vtk_assert(input->GetNumberOfDataSets(level) == result->GetNumberOfDataSets(level));
+    vtk_assert(input->GetNumberOfBlocks(level) == result->GetNumberOfBlocks(level));
   }
 
   std::cout << "Check input validity" << endl;

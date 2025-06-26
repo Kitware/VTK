@@ -385,7 +385,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
       idata.TakeReference(
         vtkArrayDownCast<vtkIntArray>(this->ReadArray("int", num_tuples, num_components)));
       if (!idata || idata->GetNumberOfComponents() != 6 ||
-        idata->GetNumberOfTuples() != static_cast<vtkIdType>(oamr->GetTotalNumberOfBlocks()))
+        idata->GetNumberOfTuples() != static_cast<vtkIdType>(oamr->GetNumberOfBlocks()))
       {
         vtkErrorMacro("Failed to read meta-data");
         return false;
@@ -394,7 +394,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
       unsigned int metadata_index = 0;
       for (int level = 0; level < num_levels; level++)
       {
-        unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
+        unsigned int num_datasets = oamr->GetNumberOfBlocks(level);
         for (unsigned int index = 0; index < num_datasets; index++, metadata_index++)
         {
           int tuple[6];

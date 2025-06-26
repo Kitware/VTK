@@ -37,7 +37,7 @@ bool Validate(vtkOverlappingAMR* input, vtkOverlappingAMR* result)
 
   for (unsigned int level = 0; level < input->GetNumberOfLevels(); level++)
   {
-    vtk_assert(input->GetNumberOfDataSets(level) == result->GetNumberOfDataSets(level));
+    vtk_assert(input->GetNumberOfBlocks(level) == result->GetNumberOfBlocks(level));
   }
 
   std::cout << "Check input validity" << endl;
@@ -99,10 +99,10 @@ bool TestAMRXMLIO_HierarchicalBox(const std::string& input_dir, const std::strin
 
   vtkOverlappingAMR* output = vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
   vtk_assert(output->GetNumberOfLevels() == 4);
-  vtk_assert(output->GetNumberOfDataSets(0) == 1);
-  vtk_assert(output->GetNumberOfDataSets(1) == 8);
-  vtk_assert(output->GetNumberOfDataSets(2) == 40);
-  vtk_assert(output->GetNumberOfDataSets(3) == 32);
+  vtk_assert(output->GetNumberOfBlocks(0) == 1);
+  vtk_assert(output->GetNumberOfBlocks(1) == 8);
+  vtk_assert(output->GetNumberOfBlocks(2) == 40);
+  vtk_assert(output->GetNumberOfBlocks(3) == 32);
   vtk_assert(output->GetGridDescription() == VTK_XYZ_GRID);
   if (!output->CheckValidity())
   {

@@ -36,7 +36,7 @@ void vtkOverlappingAMRLevelIdScalars::AddColorLevels(
     {
       break;
     }
-    unsigned int numDS = input->GetNumberOfDataSets(levelIdx);
+    unsigned int numDS = input->GetNumberOfBlocks(levelIdx);
     for (unsigned int cc = 0; cc < numDS; cc++)
     {
       vtkUniformGrid* ds = input->GetDataSet(levelIdx, cc);

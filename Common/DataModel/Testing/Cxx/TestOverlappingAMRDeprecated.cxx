@@ -152,6 +152,12 @@ int TestOverlappingAMRDeprecated(int, char*[])
     return EXIT_FAILURE;
   }
 
+  if (amr->GetNumberOfDataSets(1) != 2)
+  {
+    vtkLogF(ERROR, "Invalid number of datasets for a level");
+    return EXIT_FAILURE;
+  }
+
   if (amr->GetTotalNumberOfBlocks() != 3)
   {
     vtkLogF(ERROR, "Invalid total number of blocks");
