@@ -271,6 +271,9 @@ public:
   {
     int Index = -1;
     int TexCoord = -1;
+    std::vector<double> Offset;
+    std::vector<double> Scale;
+    double Rotation = 0.0;
   };
 
   /**
