@@ -2787,8 +2787,6 @@ java8:upload:
         - macos-x86_64-java8:build
         - macos-arm64-java8:build
         - windows-x86_64-java8:build
-    environment:
-        name: maven-upload-java8
 
 java11:upload:
     extends:
@@ -2801,5 +2799,3 @@ java11:upload:
         - macos-x86_64-java11:build
         - macos-arm64-java11:build
         - windows-x86_64-java11:build
-    environment:
-        name: maven-upload-java11
