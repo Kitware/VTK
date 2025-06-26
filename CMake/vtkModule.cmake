@@ -5221,7 +5221,7 @@ function (vtk_module_add_executable name)
       endif ()
       target_compile_definitions("${_vtk_add_executable_target_name}"
         PRIVATE
-          "VTK_MODULE_ENABLE_${_vtk_add_executable_optional_depend_safe}=$<BOOL:{_vtk_add_executable_optional_depend_exists}>")
+          "VTK_MODULE_ENABLE_${_vtk_add_executable_optional_depend_safe}=$<BOOL:${_vtk_add_executable_optional_depend_exists}>")
     endforeach ()
 
     if (_vtk_module_warnings)
