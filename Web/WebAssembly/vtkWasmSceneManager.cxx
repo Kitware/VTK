@@ -14,17 +14,17 @@
 #include "vtkWebAssemblyRenderWindowInteractor.h"
 
 // Init factories.
-#ifdef VTK_MODULE_ENABLE_VTK_RenderingContextOpenGL2
+#if VTK_MODULE_ENABLE_VTK_RenderingContextOpenGL2
 #include "vtkRenderingContextOpenGL2Module.h"
 #endif
-#ifdef VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
+#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
 #include "vtkOpenGLPolyDataMapper.h" // needed to remove unused mapper, also includes vtkRenderingOpenGL2Module.h
 #include "vtkWebAssemblyOpenGLRenderWindow.h"
 #endif
-#ifdef VTK_MODULE_ENABLE_VTK_RenderingUI
+#if VTK_MODULE_ENABLE_VTK_RenderingUI
 #include "vtkRenderingUIModule.h"
 #endif
-#ifdef VTK_MODULE_ENABLE_VTK_RenderingVolumeOpenGL2
+#if VTK_MODULE_ENABLE_VTK_RenderingVolumeOpenGL2
 #include "vtkRenderingVolumeOpenGL2Module.h"
 #endif
 
@@ -43,7 +43,7 @@ bool vtkWasmSceneManager::Initialize()
 {
   vtkRenderWindowInteractor::InteractorManagesTheEventLoop = false;
   bool result = this->Superclass::Initialize();
-#ifdef VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
+#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
   // Remove the default vtkOpenGLPolyDataMapper as it is not used with wasm build.
   /// get rid of serialization handler
   this->Serializer->UnRegisterHandler(typeid(vtkOpenGLPolyDataMapper));
