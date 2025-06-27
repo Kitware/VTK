@@ -95,8 +95,9 @@ void vtkUniformHyperTreeGrid::PrintSelf(ostream& os, vtkIndent indent)
   {
     for (unsigned int ilevel = 0; ilevel < this->Scales->GetCurrentFailLevel(); ++ilevel)
     {
-      os << " #" << ilevel << " (" << this->Scales->GetScaleX(ilevel) << " ,"
-         << this->Scales->GetScaleY(ilevel) << " ," << this->Scales->GetScaleZ(ilevel) << ")";
+      os << " #" << ilevel << " (" << this->Scales->ComputeScaleX(ilevel) << " ,"
+         << this->Scales->ComputeScaleY(ilevel) << " ," << this->Scales->ComputeScaleZ(ilevel)
+         << ")";
     }
   }
 }

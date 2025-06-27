@@ -169,7 +169,7 @@ double* vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetOrigin()
 //------------------------------------------------------------------------------
 double* vtkHyperTreeGridNonOrientedUnlimitedGeometryCursor::GetSize()
 {
-  return this->Scales->GetScale(this->Level);
+  return this->Scales->ComputeScale(this->Level);
 }
 
 //------------------------------------------------------------------------------

@@ -84,7 +84,7 @@ void vtkHyperTree::CopyStructure(vtkHyperTree* ht)
   // Copy ht data
   this->Datas = std::make_shared<vtkHyperTreeData>(*ht->Datas);
   this->SetScales(std::make_shared<vtkHyperTreeGridScales>(
-    ht->Scales->GetBranchFactor(), ht->Scales->GetScale(0)));
+    ht->Scales->GetBranchFactor(), ht->Scales->ComputeScale(0)));
   this->BranchFactor = ht->BranchFactor;
   this->Dimension = ht->Dimension;
   this->NumberOfChildren = ht->NumberOfChildren;
@@ -106,7 +106,7 @@ std::shared_ptr<vtkHyperTreeGridScales> vtkHyperTree::InitializeScales(
 void vtkHyperTree::GetScale(double s[3]) const
 {
   assert("pre: scales_exists" && this->Scales != nullptr);
-  const double* scale = this->Scales->GetScale(0);
+  const double* scale = this->Scales->ComputeScale(0);
   memcpy(s, scale, 3 * sizeof(double));
 }
 
@@ -114,7 +114,7 @@ void vtkHyperTree::GetScale(double s[3]) const
 double vtkHyperTree::GetScale(unsigned int d) const
 {
   assert("pre: scales_exists" && this->Scales != nullptr);
-  const double* scale = this->Scales->GetScale(0);
+  const double* scale = this->Scales->ComputeScale(0);
   return scale[d];
 }
 
