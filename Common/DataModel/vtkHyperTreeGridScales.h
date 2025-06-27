@@ -40,25 +40,25 @@ public:
 
   double GetBranchFactor() const { return this->BranchFactor; }
 
-  double* GetScale(unsigned int level) const
+  double* GetScale(unsigned int level)
   {
     this->Update(level);
     return this->CellScales.data() + 3 * level;
   }
 
-  double GetScaleX(unsigned int level) const
+  double GetScaleX(unsigned int level)
   {
     this->Update(level);
     return this->CellScales[3 * level + 0];
   }
 
-  double GetScaleY(unsigned int level) const
+  double GetScaleY(unsigned int level)
   {
     this->Update(level);
     return this->CellScales[3 * level + 1];
   }
 
-  double GetScaleZ(unsigned int level) const
+  double GetScaleZ(unsigned int level)
   {
     this->Update(level);
     return this->CellScales[3 * level + 2];
@@ -67,7 +67,7 @@ public:
   /**
    * Return the mesh scale at the given level
    */
-  void GetScale(unsigned int level, double scale[3]) const
+  void GetScale(unsigned int level, double scale[3])
   {
     this->Update(level);
     memcpy(scale, this->CellScales.data() + 3 * level, 3 * sizeof(double));
@@ -82,7 +82,7 @@ private:
   /**
    * Update the cell scale table in order for the table to return the mesh at the given level.
    */
-  void Update(unsigned int level) const
+  void Update(unsigned int level)
   {
     if (level < this->CurrentFailLevel)
     {
@@ -107,8 +107,8 @@ private:
   /**
    * The cache cell scales table
    */
-  mutable unsigned int CurrentFailLevel;
-  mutable std::vector<double> CellScales;
+  unsigned int CurrentFailLevel;
+  std::vector<double> CellScales;
 };
 
 VTK_ABI_NAMESPACE_END
