@@ -67,7 +67,7 @@ public:
   }
   void CreateOutput(vtkOverlappingAMR* oamr)
   {
-    std::vector<int> blocksPerLevel;
+    std::vector<unsigned int> blocksPerLevel;
     int gridDescription(-1);
     double origin[3] = { DBL_MAX, DBL_MAX, DBL_MAX };
     for (size_t i = 0; i < this->Levels.size(); i++)
@@ -93,7 +93,7 @@ public:
 
     std::vector<unsigned int> blockIds(
       blocksPerLevel.size(), 0); // keep track of the id at each level
-    oamr->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
+    oamr->Initialize(blocksPerLevel);
     oamr->SetOrigin(origin);
     oamr->SetGridDescription(gridDescription);
     for (size_t i = 0; i < this->Levels.size(); i++)

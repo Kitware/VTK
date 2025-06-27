@@ -328,7 +328,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
     return false;
   }
 
-  std::vector<int> blocksPerLevel;
+  std::vector<unsigned int> blocksPerLevel;
   blocksPerLevel.resize(num_levels);
 
   std::vector<double> spacing;
@@ -352,7 +352,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
   }
 
   // initialize the AMR.
-  oamr->Initialize(num_levels, blocksPerLevel.data());
+  oamr->Initialize(blocksPerLevel);
   oamr->SetGridDescription(description);
   oamr->SetOrigin(origin);
   for (int cc = 0; cc < num_levels; cc++)

@@ -35,10 +35,10 @@ vtkOverlappingAMR* GetAMRDataSet(const int description)
   double spacing[3];
   int ndims[3];
   vtkAMRBox box;
-  std::vector<int> blocksPerLevel(2, 1);
+  std::vector<unsigned int> blocksPerLevel(2, 1);
 
   vtkOverlappingAMR* amrDataSet = vtkOverlappingAMR::New();
-  amrDataSet->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
+  amrDataSet->Initialize(blocksPerLevel);
   amrDataSet->SetGridDescription(description);
   amrDataSet->SetOrigin(origin);
 

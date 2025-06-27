@@ -291,7 +291,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
   }
 
   auto numLevels = vtkMath::Min(this->MaxResolution + 1, inp->GetNumberOfLevels());
-  std::vector<int> blocksPerLevel(numLevels, 0);
+  std::vector<unsigned int> blocksPerLevel(numLevels, 0);
   for (unsigned int i = 0; i < this->BlocksToLoad.size(); i++)
   {
     unsigned int flatIndex = this->BlocksToLoad[i];
@@ -314,7 +314,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
     }
   }
 
-  out->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
+  out->Initialize(blocksPerLevel);
   out->SetGridDescription(description);
   out->SetOrigin(p->GetOrigin());
   vtkTimerLog::MarkStartEvent("AMRSlice::GetAMRSliceInPlane");

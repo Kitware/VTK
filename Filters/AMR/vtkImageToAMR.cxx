@@ -284,7 +284,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
   Split(
     rootBox, this->NumberOfLevels, this->RefinementRatio, this->MaximumNumberOfBlocks, amrBoxes);
 
-  std::vector<int> blocksPerLevel;
+  std::vector<unsigned int> blocksPerLevel;
   blocksPerLevel.reserve(amrBoxes.size());
   for (size_t i = 0; i < amrBoxes.size(); i++)
   {
@@ -294,7 +294,7 @@ int vtkImageToAMR::RequestData(vtkInformation* vtkNotUsed(request),
   unsigned int numLevels = static_cast<unsigned int>(blocksPerLevel.size());
   bool abort = false;
 
-  amr->Initialize(static_cast<int>(numLevels), blocksPerLevel.data());
+  amr->Initialize(blocksPerLevel);
   amr->SetOrigin(inputOrigin);
   amr->SetGridDescription(gridDescription);
 

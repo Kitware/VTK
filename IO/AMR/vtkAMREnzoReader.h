@@ -98,9 +98,6 @@ protected:
    */
   int GetBlockLevel(int blockIdx) override;
 
-  void ComputeStats(
-    vtkEnzoReaderInternal* internal, std::vector<int>& blocksPerLevel, double min[3]);
-
   /**
    * See vtkAMRBaseReader::FillMetaData
    */
@@ -135,6 +132,9 @@ protected:
 private:
   vtkAMREnzoReader(const vtkAMREnzoReader&) = delete;
   void operator=(const vtkAMREnzoReader&) = delete;
+
+  void ComputeStats(
+    vtkEnzoReaderInternal* internal, std::vector<unsigned int>& blocksPerLevel, double min[3]);
 
   vtkEnzoReaderInternal* Internal;
 

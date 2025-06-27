@@ -62,8 +62,8 @@ vtkSmartPointer<vtkOverlappingAMR> CreateOverlappingAMR()
   // Use MakeScalars() above to fill the scalar arrays
 
   vtkSmartPointer<vtkOverlappingAMR> amr = vtkSmartPointer<vtkOverlappingAMR>::New();
-  int blocksPerLevel[] = { 1, 2 };
-  amr->Initialize(2, blocksPerLevel);
+  const std::vector<unsigned int> blocksPerLevel{ 1, 2 };
+  amr->Initialize(blocksPerLevel);
 
   double origin[3] = { 0.0, 0.0, 0.0 };
   double spacing[3] = { 1.0, 1.0, 1.0 };

@@ -46,8 +46,8 @@ int TestNonOverlappingAMR(int, char*[])
 {
   // Create and populate the AMR dataset.
   vtkNew<vtkNonOverlappingAMR> amr;
-  int blocksPerLevel[] = { 1, 2 };
-  amr->Initialize(2, blocksPerLevel);
+  const std::vector<unsigned int> blocksPerLevel{ 1, 2 };
+  amr->Initialize(blocksPerLevel);
 
   double origin[3] = { 0.0, 0.0, 0.0 };
   double spacing[3] = { 1.0, 1.0, 1.0 };

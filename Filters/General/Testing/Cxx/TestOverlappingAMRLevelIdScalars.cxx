@@ -13,8 +13,8 @@ int TestOverlappingAMRLevelIdScalars(int, char*[])
 {
   // Create overlapping AMR with 2 levels
   vtkNew<vtkOverlappingAMR> amr;
-  std::array<int, 2> blocksPerLevel{ 2, 1 };
-  amr->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
+  std::vector<unsigned int> blocksPerLevel{ 2, 1 };
+  amr->Initialize(blocksPerLevel);
 
   // Attach datasets to the AMR
   vtkNew<vtkUniformGrid> root;

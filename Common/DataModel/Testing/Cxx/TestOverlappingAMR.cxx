@@ -55,8 +55,8 @@ int TestOverlappingAMR(int, char*[])
   // Use MakeScalars() above to fill the scalar arrays.
 
   vtkNew<vtkOverlappingAMR> amr;
-  int blocksPerLevel[] = { 1, 2 };
-  amr->Initialize(2, blocksPerLevel);
+  const std::vector<unsigned int> blocksPerLevel{ 1, 2 };
+  amr->Initialize(blocksPerLevel);
 
   double origin[3] = { 0.0, 0.0, 0.0 };
   double spacing[3] = { 1.0, 1.0, 1.0 };

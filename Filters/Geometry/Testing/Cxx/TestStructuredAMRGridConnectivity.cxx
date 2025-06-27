@@ -46,7 +46,7 @@ const int NumPatches = 4;
 
 const int NumLevels = 2;
 
-const int BlocksPerLevel[2] = { 2, 2 };
+const std::vector<unsigned int> BlocksPerLevel{ 2, 2 };
 
 // AMR patches are defined as a 7-tuple consisting of the following:
 // (level,imin,imax,jmin,jmax,kmin,kmax)
@@ -316,7 +316,7 @@ void Get2DAMRData(vtkOverlappingAMR* amrData, int ratio)
   assert("pre: input AMR Data is nullptr" && (amrData != nullptr));
   assert("pre: input AMR Data is nullptr" && (ratio >= 2));
 
-  amrData->Initialize(NumLevels, const_cast<int*>(BlocksPerLevel));
+  amrData->Initialize(::BlocksPerLevel);
 
   // Root virtual block at level 0
   double h[3] = { h0, h0, h0 };
@@ -346,7 +346,7 @@ void Get3DAMRData(vtkOverlappingAMR* amrData, int ratio)
   assert("pre: input AMR Data is nullptr" && (amrData != nullptr));
   assert("pre: input AMR Data is nullptr" && (ratio >= 2));
 
-  amrData->Initialize(NumLevels, const_cast<int*>(BlocksPerLevel));
+  amrData->Initialize(::BlocksPerLevel);
 
   // Root virtual block at level 0
   double h[3] = { h0, h0, h0 };
@@ -410,13 +410,13 @@ void GetGhostedAMRData(vtkOverlappingAMR* amr, vtkStructuredAMRGridConnectivity*
   assert("pre: AMR is nullptr" && (amr != nullptr));
   assert("pre: AMR grid connectivity is nullptr" && (amrConnectivity != nullptr));
   assert("pre: Ghosted AMR is nullptr" && (ghostedAMR != nullptr));
-  std::vector<int> blocksPerLevel;
+  std::vector<unsigned int> blocksPerLevel;
   blocksPerLevel.reserve(amr->GetNumberOfLevels());
   for (unsigned int i = 0; i < amr->GetNumberOfLevels(); i++)
   {
     blocksPerLevel.push_back(amr->GetNumberOfBlocks(i));
   }
-  ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
+  ghostedAMR->Initialize(blocksPerLevel);
 
   unsigned int levelIdx = 0;
   for (; levelIdx < amr->GetNumberOfLevels(); ++levelIdx)
