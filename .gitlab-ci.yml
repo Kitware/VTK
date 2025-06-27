@@ -2784,10 +2784,10 @@ java8:upload:
         - .linux_x86_64_builder_tags
         - .weekly_upload_only
     needs:
-        - fedora39-x86_64-java8:build
         - macos-x86_64-java8:build
         - macos-arm64-java8:build
         - windows-x86_64-java8:build
+        - fedora39-x86_64-java8:build
 
 java11:upload:
     extends:
@@ -2796,7 +2796,7 @@ java11:upload:
         - .linux_x86_64_builder_tags
         - .weekly_upload_only
     needs:
-        - fedora39-x86_64-java11:build
         - macos-x86_64-java11:build
         - macos-arm64-java11:build
         - windows-x86_64-java11:build
+        - fedora39-x86_64-java11:build
