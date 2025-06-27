@@ -128,7 +128,6 @@
 #include "vtkObject.h"
 
 #include <cassert> // Used internally
-#include <limits>  // Used infinity
 #include <memory>  // std::shared_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -355,7 +354,6 @@ public:
    * level (0).
    */
   void GetScale(double s[3]) const;
-
   double GetScale(unsigned int d) const;
   ///@}
 
@@ -365,7 +363,7 @@ public:
    * used by the symmetric filter.
    */
   std::shared_ptr<vtkHyperTreeGridScales> InitializeScales(
-    const double* scales, bool reinitialize = false) const;
+    const double* scales, bool reinitialize = false);
 
   /**
    * Return an instance of an implementation of a hypertree for
@@ -506,7 +504,7 @@ public:
    * by the symmetric filter.
    * Here, you set 'scales' since extern description (sharing).
    */
-  void SetScales(std::shared_ptr<vtkHyperTreeGridScales> scales) const { this->Scales = scales; }
+  void SetScales(std::shared_ptr<vtkHyperTreeGridScales> scales) { this->Scales = scales; }
   ///@}
 
   ///@{
@@ -554,7 +552,7 @@ protected:
   // In hypertree grid, one description by hypertree.
   // In Uniform hypertree grid, one description by hypertree grid
   // (all cells, different hypertree, are identical by level).
-  mutable std::shared_ptr<vtkHyperTreeGridScales> Scales;
+  std::shared_ptr<vtkHyperTreeGridScales> Scales;
 
 private:
   void InitializeBase(
