@@ -7,6 +7,7 @@
 #include "vtkCellIterator.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkConduitSource.h"
+#include "vtkDataArrayRange.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
@@ -115,6 +116,21 @@ bool ValidateMeshTypeUniform()
   return true;
 }
 
+/**
+ * Generate an AOS buffer with nbOfArrays components and npts tuples.
+ */
+void GenerateNArraysValues(int nbOfArrays, unsigned int npts, std::vector<double>& values)
+{
+  values.resize(npts * nbOfArrays);
+  for (unsigned int ptIdx = 0; ptIdx < npts; ptIdx++)
+  {
+    for (int array = 0; array < nbOfArrays; array++)
+    {
+      values[ptIdx * nbOfArrays + array] = ptIdx + 0.1 * array;
+    }
+  }
+}
+
 //----------------------------------------------------------------------------
 void GenerateValues(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
   std::vector<double>& x, std::vector<double>& y, std::vector<double>& z)
@@ -153,6 +169,93 @@ void GenerateValues(unsigned int nptsX, unsigned int nptsY, unsigned int nptsZ,
       z[k] = -10.0 + k * dz;
     }
   }
+}
+
+/**
+ * Find array in point data and compare its value to
+ * the given interlaced 5-components buffer.
+ */
+bool CheckArrayValues(
+  vtkPointData* pd, const char* name, const std::vector<double>& values, int offset)
+{
+  constexpr int stride = 5;
+  int nbOfTuples = values.size() / stride;
+  VERIFY(pd->HasArray(name), "array %s not found.", name);
+  auto array = pd->GetArray(name);
+  VERIFY(array->GetNumberOfTuples() == nbOfTuples, "Wrong size for %s expected %d, got %lld", name,
+    nbOfTuples, array->GetNumberOfTuples());
+
+  int nbOfComponents = array->GetNumberOfComponents();
+  for (int idx = 0; idx < nbOfTuples; idx++)
+  {
+    for (int cmp = 0; cmp < nbOfComponents; cmp++)
+    {
+      double arrayValue = array->GetComponent(idx, cmp);
+      const double expectedValue = values[offset + idx * stride + cmp];
+      VERIFY(arrayValue == expectedValue, "Wrong array value for %s [%d]: %g instead of %g", name,
+        idx, arrayValue, expectedValue);
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Validate conversion of interlaced arrays.
+ * By interlaced arrays we mean a single AOS buffer for distinct arrays:
+ * each offset matches an independent array instead of a component of
+ * a unique global array.
+ */
+bool ValidateInterlacedArrays()
+{
+  conduit_cpp::Node mesh;
+  constexpr int dim = 3;
+  constexpr int nbPts = dim * dim * dim;
+  CreateUniformMesh(dim, dim, dim, mesh);
+
+  std::vector<double> values;
+  constexpr int stride = 5;
+  GenerateNArraysValues(stride, nbPts, values);
+
+  auto fields = mesh["fields"];
+  fields["scalar0/association"].set("vertex");
+  fields["scalar0/topology"].set("mesh");
+  fields["scalar0/volume_dependent"].set("false");
+  fields["scalar0/values"].set_external(
+    values.data(), nbPts, /*offset=*/0, stride * sizeof(double));
+
+  fields["vectorArray/association"].set("vertex");
+  fields["vectorArray/topology"].set("mesh");
+  fields["vectorArray/volume_dependent"].set("false");
+  fields["vectorArray/values/x"].set_external(
+    values.data(), nbPts, /*offset=*/sizeof(double), stride * sizeof(double));
+  fields["vectorArray/values/y"].set_external(
+    values.data(), nbPts, /*offset=*/2 * sizeof(double), stride * sizeof(double));
+  fields["vectorArray/values/z"].set_external(
+    values.data(), nbPts, /*offset=*/3 * sizeof(double), stride * sizeof(double));
+
+  fields["scalar1/association"].set("vertex");
+  fields["scalar1/topology"].set("mesh");
+  fields["scalar1/volume_dependent"].set("false");
+  fields["scalar1/values"].set_external(
+    values.data(), nbPts, /*offset=*/4 * sizeof(double), stride * sizeof(double));
+
+  auto data = Convert(mesh);
+  VERIFY(vtkPartitionedDataSet::SafeDownCast(data) != nullptr,
+    "incorrect data type, expected vtkPartitionedDataSet, got %s", vtkLogIdentifier(data));
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
+    pds->GetNumberOfPartitions());
+  auto img = vtkImageData::SafeDownCast(pds->GetPartition(0));
+  VERIFY(img != nullptr, "missing partition 0");
+
+  auto pd = img->GetPointData();
+
+  CheckArrayValues(pd, "scalar0", values, 0);
+  CheckArrayValues(pd, "vectorArray", values, 1);
+  CheckArrayValues(pd, "scalar1", values, 4);
+
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -1506,8 +1609,7 @@ int TestConduitSource(int argc, char** argv)
       ValidateRectilinearGridWithDifferentDimensions() && Validate1DRectilinearGrid() &&
       ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile) &&
       ValidateAscentGhostCellData() && ValidateAscentGhostPointData() && ValidateMeshTypePoints() &&
-      ValidateDistributedAMR() && ValidatePolyhedra()
-
+      ValidateDistributedAMR() && ValidatePolyhedra() && ValidateInterlacedArrays()
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
 
