@@ -61,16 +61,12 @@ and arrays. The classes implement many useful operators. However,
 to make best use of these classes, take a look at the algorithms
 module.
 """
-try:
-    import numpy
-except ImportError:
-    raise RuntimeError("This module depends on the numpy module. Please make\
-sure that it is installed properly.")
+import numpy
 
 # version 2 has many API changes from version 1
 NUMPY_MAJOR_VERSION = int(numpy.__version__.split('.')[0])
 
-import itertools
+from typing import Generator, Tuple, Union, List
 import operator
 import sys
 from ..vtkCommonCore import buffer_shared
@@ -78,6 +74,15 @@ from ..util import numpy_support
 from ..vtkCommonDataModel import vtkDataObject
 from ..vtkCommonCore import vtkWeakReference, vtkObject
 import weakref
+from math import ceil
+
+COMPOSITE_OVERRIDE = {}
+def _override_numpy(numpy_function):
+    """Register an __array_function__ implementation for VTKCompositeDataArray objects."""
+    def decorator(func):
+        COMPOSITE_OVERRIDE[numpy_function] = func
+        return func
+    return decorator
 
 def reshape_append_ones (a1, a2):
     """Returns a list with the two arguments, any of them may be
@@ -94,7 +99,7 @@ def reshape_append_ones (a1, a2):
         len2 = len(a2.shape)
         if (len1 == len2 or len1 == 0 or len2 == 0 or
             a1.shape[0] != a2.shape[0]):
-            return l;
+            return l
         elif (len1 < len2):
             d = len1
             maxLength = len2
@@ -409,6 +414,11 @@ class VTKNoneArray(object):
         """Implements numpy array's astype method."""
         return NoneArray
 
+    @property
+    def shape(self) -> Tuple[int, ...]:
+        """Return a tuple representing the shape of the none array."""
+        return (0,)
+
 NoneArray = VTKNoneArray()
 
 class VTKCompositeDataArrayMetaClass(type):
@@ -541,28 +551,140 @@ class VTKCompositeDataArray(object):
 
     Arrays = property(GetArrays)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> Union[List, "VTKCompositeDataArray", numpy.ndarray]:
         """Overwritten to refer indexing to underlying VTKArrays.
-        For the most part, this will behave like Numpy. Note
-        that indexing is done per array - arrays are never treated
-        as forming a bigger array. If the index is another composite
-        array, a one-to-one mapping between arrays is assumed.
-        """
+        For the most part, this will behave like Numpy."""
         self.__init_from_composite()
-        res = []
-        if type(index) == VTKCompositeDataArray:
-            for a, idx in zip(self._Arrays, index.Arrays):
-                if a is not NoneArray:
-                    res.append(a.__getitem__(idx))
-                else:
-                    res.append(NoneArray)
+
+        arrays = self._Arrays
+        partition_sizes = [len(a) if a is not NoneArray else 0 for a in arrays]
+        offsets = numpy.cumsum([0] + partition_sizes)
+        total_size = offsets[-1]
+
+        if isinstance(index, VTKCompositeDataArray):
+            # Suboptimal because it converts VTKCompositeDataArray input indices into numpy data
+            return self[numpy.concatenate([array for array in index.Arrays if array is not NoneArray])]
+
+        if isinstance(index, (numpy.ndarray, list)):
+            index = numpy.asarray(index)
+            if index.ndim == 0:
+                return self[int(index)]
+            elif index.ndim == 1:
+                if index.dtype == bool:
+                    if len(index) != total_size:
+                        raise IndexError("Boolean index must be the same length as the array")
+                    # Convert boolean mask to integer indices
+                    index = numpy.nonzero(index)[0]
+                result = []
+                for idx in index:
+                    chunk_idx, local_idx = self._global_to_local_id(idx, total_size, offsets)
+                    result.append(arrays[chunk_idx][local_idx])
+                return numpy.asarray(result)
+            else:
+                raise IndexError("Only 1D Numpy or list indexing is supported for now")
+
+        if not isinstance(index, tuple):
+            index = (index,)
+
+        global_index = index[0]
+        remaining_indices = index[1:]
+
+        if isinstance(global_index, int):
+            chunk_idx, local_idx = self._global_to_local_id(global_index, total_size, offsets)
+            result = arrays[chunk_idx][local_idx]
+            if remaining_indices:
+                result = result[tuple(remaining_indices)]
+            return result
+
+        if isinstance(global_index, slice):
+            step = global_index.step if global_index.step is not None else 1
+            result = [NoneArray] * len(arrays)
+            i = 0
+            for (array, offset, size) in zip(arrays, offsets, partition_sizes):
+                if array is NoneArray:
+                    continue
+                local_slice = self._slice_intersection(global_index, offset, size, total_size)
+                if local_slice is not None:
+                    part = array[local_slice]
+                    if remaining_indices:
+                        # Slice all dimensions of the array except the first one
+                        part = part[(slice(0, None, None),) + remaining_indices]
+                    if step > 0:
+                        result[i] = part
+                    if step < 0:
+                        result[-i-1] = part
+                    i += 1
+            return self.__class__(result, dataset=self.DataSet, association=self.Association)
+
+        if isinstance(global_index, numpy.ndarray):
+            return self[numpy.concatenate([array for array in index])]
+
+        raise TypeError(f"Unsupported index type: {type(index)}")
+
+    def _global_to_local_id(self, global_index, total_size, offsets):
+        """Returns the chunk index and the local index of the chunk from the global index"""
+        if global_index < 0:
+            global_index += total_size
+        if not (0 <= global_index < total_size):
+            raise IndexError("Index out of bounds")
+        i = numpy.searchsorted(offsets, global_index, side='right') - 1
+        return i, global_index - offsets[i]
+
+    def _slice_intersection(self, global_slice, chunk_offset, chunk_size, total_length):
+        """Returns a local slice into the chunk for the global_slice, or None if no overlap.
+        Handles both positive and negative steps."""
+        start, stop, step = global_slice.indices(total_length)
+        chunk_start = chunk_offset
+        chunk_end   = chunk_offset + chunk_size
+
+        if step > 0:
+            # Find the first global index in the slice that is in the chunk.
+            if start < chunk_start:
+                offset_steps = (chunk_start - start + step - 1) // step
+                first = start + offset_steps * step
+            else:
+                first = start
+            if first >= stop or first >= chunk_end:
+                return None
+
+            # Find the last global index in the slice that is in the chunk.
+            max_possible = min(stop, chunk_end)
+            if first > max_possible:
+                last = first
+            else:
+                num_steps = ceil((max_possible - first) / step)
+                last = first + num_steps * step
+
         else:
-            for a in self._Arrays:
-                if a is not NoneArray:
-                    res.append(a.__getitem__(index))
-                else:
-                    res.append(NoneArray)
-        return VTKCompositeDataArray(res, dataset=self.DataSet)
+            # Find the first global index in the slice that is in the chunk.
+            if start >= chunk_end:
+                first = chunk_end - 1
+                remainder = (start - first) % (-step)
+                if remainder != 0:
+                    first = first - ( (-step) - remainder )
+            else:
+                first = start
+            if first < chunk_start or first <= stop:
+                return None
+
+            # Find the last global index in the slice that is in the chunk.
+            if chunk_start > stop:
+                last = chunk_start - 1
+            else:
+                num_steps = ceil((start - chunk_start) / (-step))
+                last = start + num_steps * step
+                if last <= chunk_start:
+                    last = chunk_start
+            if last > first or last < stop:
+                return None
+
+        # Global to local indices
+        local_first = first - chunk_offset
+        local_last = last - chunk_offset
+        local_last = local_last if local_last != -1 else None # For negative steps
+
+        return slice(local_first, local_last, step)
+
 
     def _numeric_op(self, other, op):
         """Used to implement numpy-style numerical operations such as __add__,
@@ -593,7 +715,7 @@ class VTKCompositeDataArray(object):
         res = []
         if type(other) == VTKCompositeDataArray:
             for a1, a2 in zip(self._Arrays, other.Arrays):
-                if a1 is not NoneArray and a2 is notNoneArray:
+                if a1 is not NoneArray and a2 is not NoneArray:
                     l = reshape_append_ones(a2,a1)
                     res.append(op(l[0],l[1]))
                 else:
@@ -623,6 +745,91 @@ class VTKCompositeDataArray(object):
         return VTKCompositeDataArray(
             res, dataset = self.DataSet, association = self.Association)
 
+    @property
+    def shape(self) -> Tuple[int, ...]:
+        """Return a tuple representing the shape of the composite array."""
+        if not self.Arrays:
+            return (0,)
+        return numpy.shape(self)
+
+    def __len__(self) -> int:
+        """Return the total number of elements in the composite array."""
+        return self.shape[0]
+
+    def __contains__(self, item) -> bool:
+        """Check if the item exists in any of the non-null sub-arrays."""
+        return any(item in array for array in self.Arrays if array is not NoneArray)
+
+    def __reversed__(self) -> Generator[numpy.ndarray, None, None]:
+        """Iterate over all subarrays in the composite array in backward order."""
+        for array in reversed(self.Arrays):
+            if array is not NoneArray:
+                for subarray in reversed(array):
+                    yield subarray
+
+    def __iter__(self) -> Generator[numpy.ndarray, None, None]:
+        """Iterate over all subarrays in the composite array in forward order."""
+        for array in self.Arrays:
+            if array is not NoneArray:
+                for subarray in array:
+                    yield subarray
+
+    def __array__(self, dtype=None, copy=None) -> numpy.ndarray:
+        """Convert the composite array into a single NumPy array."""
+        if copy is False:
+            raise RuntimeError("VTKCompositeDataArray must create a copy to be converted into a Numpy array.")
+        return numpy.concatenate([numpy.asarray(a) for a in self.Arrays if a is not NoneArray], axis=0, dtype=dtype)
+
+    def __array_function__(self, func, types, args, kwargs):
+        """Implements Numpy dispatch mechanism. Functions registered in COMPOSITE_OVERRIDE
+        are captured here. See:
+        https://numpy.org/doc/stable/user/basics.interoperability.html#the-array-function-protocol"""
+
+        if func not in COMPOSITE_OVERRIDE:
+            return NotImplemented
+        return COMPOSITE_OVERRIDE[func](*args, **kwargs)
+
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        """Handles Numpy functions calls that takes a fixed number of specific inputs and outputs."""
+        if method != '__call__':
+            raise NotImplementedError(f"Method {method} is not supported by __array_ufunc__")
+
+        num_chunks = len(self.Arrays)
+        partition_sizes = [sub.shape[0] for sub in self.Arrays]
+        total_size = sum(partition_sizes) if partition_sizes else 0
+        global_indices = numpy.cumsum(partition_sizes)[:-1]
+
+        # Split inputs arguments to each chunk
+        # Basically, this returns a 2D array where the first dimension represents each chunck of the
+        # composite array and the second dimension represents the data associated for each chunk
+        def process_input(input_):
+            if isinstance(input_, type(self)):
+                if len(input_.Arrays) != num_chunks:
+                    raise ValueError("Composite operands must have the same number of subarrays")
+                return input_.Arrays
+            elif numpy.isscalar(input_):
+                return [input_] * num_chunks
+            elif isinstance(input_, numpy.ndarray):
+                if input_.ndim >= 1 and input_.shape[0] == total_size:
+                    return list(numpy.split(input_, global_indices, axis=0))
+                else:
+                    return [input_] * num_chunks
+            else:
+                return [input_] * num_chunks
+
+        splitted_inputs = [process_input(input_) for input_ in inputs]
+
+        results = []
+        for i in range(num_chunks):
+            arg0 = splitted_inputs[0][i]
+            args = [lst[i] for lst in splitted_inputs[1:]]
+            if arg0 is NoneArray or (args and args[0] is NoneArray):
+                results.append(NoneArray)
+                continue
+            result = ufunc(arg0, *args, **kwargs)
+            results.append(result)
+
+        return self.__class__(results, dataset=self.DataSet, association=self.Association)
 
 class DataSetAttributes(VTKObjectWrapper):
     """This is a python friendly wrapper of vtkDataSetAttributes. It

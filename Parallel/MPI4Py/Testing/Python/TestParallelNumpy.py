@@ -214,12 +214,12 @@ for axis in [None, 0]:
         if rank == 0:
             array2 = array/2
             min = algs.min_per_block(array2, axis=axis)
-            res &= numpy.all(min.Arrays[NUM_BLOCKS - 1] == numpy.min(array, axis=axis))
+            res &= numpy.all(min.Arrays[NUM_BLOCKS - 1] == algs.min(array, axis=axis, controller=dummy))
             all_min = algs.min(min, controller=dummy)
             all_min_true = numpy.min([algs.min(array, controller=dummy), algs.min(array2, controller=dummy)])
             res &= all_min == all_min_true
             max = algs.max_per_block(array2, axis=axis)
-            res &= numpy.all(max.Arrays[NUM_BLOCKS - 1] == numpy.max(array, axis=axis))
+            res &= numpy.all(max.Arrays[NUM_BLOCKS - 1] == algs.max(array, axis=axis, controller=dummy))
             all_max = algs.max(max, controller=dummy)
             all_max_true = numpy.max([algs.max(array, controller=dummy), algs.max(array2, controller=dummy)])
             res &= all_max == all_max_true
@@ -228,12 +228,12 @@ for axis in [None, 0]:
             sum_true += numpy.sum(array.Arrays[0]) * 3
             res &= numpy.sum(algs.sum(sum, controller=dummy) - algs.sum(sum_true, controller=dummy)) == 0
             mean = algs.mean_per_block(array2, axis=axis)
-            res &= numpy.sum(mean.Arrays[0] - numpy.mean(array2.Arrays[0], axis=axis)) < 1E-6
+            res &= algs.sum(mean.Arrays[0] - algs.mean(array2.Arrays[0], axis=axis, controller=dummy), controller=dummy) < 1E-6
             if len(array.Arrays[0].shape) == 1:
                 stk = numpy.hstack
             else:
                 stk = numpy.vstack
-            res &= numpy.sum(mean.Arrays[NUM_BLOCKS-2] - numpy.mean(stk((array.Arrays[0], array2.Arrays[0])), axis=axis)) < 1E-4
+            res &= numpy.sum(mean.Arrays[NUM_BLOCKS-2] - algs.mean(stk((array.Arrays[0], array2.Arrays[0])), axis=axis, controller=dummy)) < 1E-4
         elif rank == 2:
             min = algs.min_per_block(dsa.NoneArray, axis=axis)
             max = algs.max_per_block(dsa.NoneArray, axis=axis)
