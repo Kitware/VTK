@@ -102,10 +102,6 @@ void vtkHyperTreeGrid::SetMask(vtkBitArray* _arg)
 //------------------------------------------------------------------------------
 vtkHyperTreeGrid::vtkHyperTreeGrid()
 {
-  // Default state
-  this->ModeSqueeze = nullptr;
-  this->FreezeState = false;
-
   // Grid topology
   this->TransposedRootIndexing = false;
 
@@ -184,10 +180,6 @@ void vtkHyperTreeGrid::Initialize()
   this->CellData->Initialize();
   // Delete existing trees
   this->HyperTrees.clear();
-
-  // Default state
-  this->ModeSqueeze = nullptr;
-  this->FreezeState = false;
 
   // Grid topology
   this->TransposedRootIndexing = false;
@@ -274,35 +266,8 @@ void vtkHyperTreeGrid::Initialize()
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGrid::Squeeze()
-{
-  if (!this->FreezeState)
-  {
-    vtkHyperTreeGridIterator itIn;
-    InitializeTreeIterator(itIn);
-    vtkIdType indexIn;
-    while (vtkHyperTree* ht = itIn.GetNextTree(indexIn))
-    {
-      vtkHyperTree* htfreeze = ht->Freeze(this->GetModeSqueeze());
-      if (htfreeze != ht)
-      {
-        this->SetTree(indexIn, htfreeze);
-        htfreeze->UnRegister(this);
-      }
-    }
-    this->FreezeState = true;
-  }
-}
-
-//------------------------------------------------------------------------------
 vtkHyperTreeGrid::~vtkHyperTreeGrid()
 {
-  if (this->ModeSqueeze)
-  {
-    delete[] this->ModeSqueeze;
-    this->ModeSqueeze = nullptr;
-  }
-
   if (this->Mask)
   {
     this->Mask->Delete();
@@ -337,7 +302,6 @@ void vtkHyperTreeGrid::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Frozen: " << this->FreezeState << endl;
   os << indent << "Dimension: " << this->Dimension << endl;
   os << indent << "Orientation: " << this->Orientation << endl;
   os << indent << "BranchFactor: " << this->BranchFactor << endl;
@@ -424,8 +388,6 @@ void vtkHyperTreeGrid::CopyEmptyStructure(vtkDataObject* ds)
   }
 
   // Copy grid parameters
-  this->ModeSqueeze = htg->ModeSqueeze;
-  this->FreezeState = htg->FreezeState;
   this->BranchFactor = htg->BranchFactor;
   this->Dimension = htg->Dimension;
   this->Orientation = htg->Orientation;
@@ -465,8 +427,6 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataObject* ds)
   }
 
   // Copy grid parameters
-  this->ModeSqueeze = htg->ModeSqueeze;
-  this->FreezeState = htg->FreezeState;
   this->BranchFactor = htg->BranchFactor;
   this->Dimension = htg->Dimension;
   this->Orientation = htg->Orientation;
@@ -1147,8 +1107,6 @@ void vtkHyperTreeGrid::DeepCopy(vtkDataObject* src)
   assert("pre: same_type" && htg != nullptr);
 
   // Copy grid parameters
-  this->ModeSqueeze = htg->ModeSqueeze;
-  this->FreezeState = htg->FreezeState;
   this->Dimension = htg->Dimension;
   this->Orientation = htg->Orientation;
   this->BranchFactor = htg->BranchFactor;

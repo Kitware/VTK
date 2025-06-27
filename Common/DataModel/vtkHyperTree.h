@@ -276,14 +276,8 @@ public:
    */
   void CopyStructure(vtkHyperTree* ht);
 
-  /**
-   * Return a freeze instance (a priori compact but potentially
-   * unmodifiable).
-   * This method is calling by the Squeeze method of hypertree grid.
-   * The mode parameter will allow to propose different instances.
-   * Today, there is none, the freeze call does not do anything.
-   */
-  virtual vtkHyperTree* Freeze(const char* mode) = 0;
+  VTK_DEPRECATED_IN_9_6_0("No effect, do not use.")
+  virtual vtkHyperTree* Freeze(const char* vtkNotUsed(mode)) { return this; };
 
   ///@{
   /**

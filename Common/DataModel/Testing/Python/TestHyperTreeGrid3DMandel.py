@@ -162,9 +162,6 @@ for treeId in range(htg.GetMaxNumberOfTrees()):
 
 print('offsetIndex: ', offsetIndex)
 
-# Squeeze
-htg.Squeeze()
-
 # Activation d'une scalaire
 htg.GetCellData().SetActiveScalars('sideArray')
 
