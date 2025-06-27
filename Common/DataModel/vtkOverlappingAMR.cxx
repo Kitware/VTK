@@ -35,11 +35,9 @@ vtkCompositeDataIterator* vtkOverlappingAMR::NewIterator()
 }
 
 //------------------------------------------------------------------------------
-void vtkOverlappingAMR::Initialize(int numLevels, const int* blocksPerLevel)
+void vtkOverlappingAMR::InstantiateMetaData()
 {
-  vtkNew<vtkOverlappingAMRMetaData> metaData;
-  this->SetAMRMetaData(metaData);
-  this->Superclass::Initialize(numLevels, blocksPerLevel);
+  this->SetAMRMetaData(vtkSmartPointer<vtkOverlappingAMRMetaData>::New());
 }
 
 //------------------------------------------------------------------------------

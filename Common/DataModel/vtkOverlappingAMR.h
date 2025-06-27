@@ -54,13 +54,6 @@ public:
    */
   VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() override;
 
-  using Superclass::Initialize;
-
-  /**
-   * Create and set an OverlappingAMRMetaData and call Superclass::Initialize
-   */
-  void Initialize(int numLevels, const int* blocksPerLevel) override;
-
   ///@{
   /**
    * Get/Set the global origin of the amr data set
@@ -226,6 +219,11 @@ public:
 protected:
   vtkOverlappingAMR();
   ~vtkOverlappingAMR() override;
+
+  /**
+   * Create and set a new vtkOverlappingAMRMetaData as AMRMetaData
+   */
+  void InstantiateMetaData() override;
 
 private:
   vtkOverlappingAMR(const vtkOverlappingAMR&) = delete;

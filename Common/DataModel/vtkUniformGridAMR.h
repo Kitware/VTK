@@ -161,6 +161,11 @@ protected:
   vtkUniformGridAMR();
   ~vtkUniformGridAMR() override;
 
+  /**
+   * Create and set a new vtkAMRMetaData as AMRMetaData
+   */
+  virtual void InstantiateMetaData();
+
   ///@{
   /**
    * Get/Set the meta AMR data
