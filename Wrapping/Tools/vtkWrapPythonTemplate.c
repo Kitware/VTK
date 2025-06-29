@@ -346,7 +346,7 @@ int vtkWrapPython_WrapTemplatedClass(
     /* the docstring for the templated class */
     fprintf(fp, "static const char *Py%s_Doc =\n", data->Name);
 
-    vtkWrapPython_ClassDoc(fp, file_info, data, hinfo, is_vtkobject);
+    vtkWrapPython_ClassDoc(fp, file_info, data, hinfo);
 
     fprintf(fp, "\n  \"\\nProvided Types:\\n\\n\"");
 

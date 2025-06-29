@@ -348,7 +348,7 @@ static char* vtkWrapPython_ArgCheckString(const ClassInfo* data, FunctionInfo* c
  * returned in "nmax". The value of "overlap" is set to 1 if there
  * are some arg counts that map to more than one method. */
 
-int* vtkWrapPython_ArgCountToOverloadMap(FunctionInfo** wrappedFunctions,
+int* vtkWrapPython_ArgCountToOverloadMap(WrappedFunction* wrappedFunctions,
   int numberOfWrappedFunctions, int fnum, int is_vtkobject, int* nmax, int* overlap)
 {
   static int overloadMap[512];
@@ -362,15 +362,16 @@ int* vtkWrapPython_ArgCountToOverloadMap(FunctionInfo** wrappedFunctions,
   *nmax = 0;
   *overlap = 0;
 
-  theFunc = wrappedFunctions[fnum];
+  theFunc = wrappedFunctions[fnum].Archetype;
 
   any_static = 0;
   mixed_static = 0;
   for (i = fnum; i < numberOfWrappedFunctions; i++)
   {
-    if (wrappedFunctions[i]->Name && strcmp(wrappedFunctions[i]->Name, theFunc->Name) == 0)
+    theOccurrence = wrappedFunctions[i].Archetype;
+    if (theOccurrence && strcmp(theOccurrence->Name, theFunc->Name) == 0)
     {
-      if (wrappedFunctions[i]->IsStatic)
+      if (theOccurrence->IsStatic)
       {
         any_static = 1;
       }
@@ -389,9 +390,9 @@ int* vtkWrapPython_ArgCountToOverloadMap(FunctionInfo** wrappedFunctions,
   occCounter = 0;
   for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
   {
-    theOccurrence = wrappedFunctions[occ];
+    theOccurrence = wrappedFunctions[occ].Archetype;
 
-    if (theOccurrence->Name == 0 || strcmp(theOccurrence->Name, theFunc->Name) != 0)
+    if (theOccurrence == NULL || strcmp(theOccurrence->Name, theFunc->Name) != 0)
     {
       continue;
     }
@@ -434,7 +435,7 @@ int* vtkWrapPython_ArgCountToOverloadMap(FunctionInfo** wrappedFunctions,
  * this is also used to write out all constructors for the class */
 
 void vtkWrapPython_OverloadMethodDef(FILE* fp, const char* classname, const ClassInfo* data,
-  const int* overloadMap, FunctionInfo** wrappedFunctions, int numberOfWrappedFunctions, int fnum,
+  const int* overloadMap, WrappedFunction* wrappedFunctions, int numberOfWrappedFunctions, int fnum,
   int numberOfOccurrences)
 {
   char occSuffix[16];
@@ -445,16 +446,16 @@ void vtkWrapPython_OverloadMethodDef(FILE* fp, const char* classname, const Clas
   int i;
   int putInTable;
 
-  theFunc = wrappedFunctions[fnum];
+  theFunc = wrappedFunctions[fnum].Archetype;
 
   fprintf(fp, "static PyMethodDef Py%s_%s_Methods[] = {\n", classname, theFunc->Name);
 
   occCounter = 0;
   for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
   {
-    theOccurrence = wrappedFunctions[occ];
+    theOccurrence = wrappedFunctions[occ].Archetype;
 
-    if (theOccurrence->Name == 0 || strcmp(theOccurrence->Name, theFunc->Name) != 0)
+    if (theOccurrence == NULL || strcmp(theOccurrence->Name, theFunc->Name) != 0)
     {
       continue;
     }
@@ -512,7 +513,7 @@ void vtkWrapPython_OverloadMethodDef(FILE* fp, const char* classname, const Clas
 /* make a method that will choose which overload to call */
 
 void vtkWrapPython_OverloadMasterMethod(FILE* fp, const char* classname, const int* overloadMap,
-  int maxArgs, FunctionInfo** wrappedFunctions, int numberOfWrappedFunctions, int fnum,
+  int maxArgs, WrappedFunction* wrappedFunctions, int numberOfWrappedFunctions, int fnum,
   int is_vtkobject)
 {
   const FunctionInfo* currentFunction;
@@ -523,13 +524,14 @@ void vtkWrapPython_OverloadMasterMethod(FILE* fp, const char* classname, const i
   int foundOne;
   int any_static = 0;
 
-  currentFunction = wrappedFunctions[fnum];
+  currentFunction = wrappedFunctions[fnum].Archetype;
 
-  for (i = fnum; i < numberOfWrappedFunctions; i++)
+  for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
   {
-    if (wrappedFunctions[i]->Name && strcmp(wrappedFunctions[i]->Name, currentFunction->Name) == 0)
+    theOccurrence = wrappedFunctions[occ].Archetype;
+    if (theOccurrence && strcmp(theOccurrence->Name, currentFunction->Name) == 0)
     {
-      if (wrappedFunctions[i]->IsStatic)
+      if (theOccurrence->IsStatic)
       {
         any_static = 1;
       }
@@ -568,10 +570,10 @@ void vtkWrapPython_OverloadMasterMethod(FILE* fp, const char* classname, const i
   occCounter = 0;
   for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
   {
-    theOccurrence = wrappedFunctions[occ];
+    theOccurrence = wrappedFunctions[occ].Archetype;
 
     /* is it the same name */
-    if (theOccurrence->Name && strcmp(currentFunction->Name, theOccurrence->Name) == 0)
+    if (theOccurrence && strcmp(currentFunction->Name, theOccurrence->Name) == 0)
     {
       occCounter++;
 

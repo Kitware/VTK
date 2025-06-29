@@ -45,7 +45,7 @@ static void vtkWrapPython_FreeTemporaries(FILE* fp, FunctionInfo* currentFunctio
 
 /* look for all signatures of the specified method */
 static int vtkWrapPython_CountAllOccurrences(
-  FunctionInfo** wrappedFunctions, int n, int fnum, int* all_static);
+  WrappedFunction* wrappedFunctions, int n, int fnum, int* all_static);
 
 /* -------------------------------------------------------------------- */
 /* Declare all local variables used by the wrapper method */
@@ -708,7 +708,7 @@ void vtkWrapPython_ReturnValue(
  * found, as well as whether all signatures were static */
 
 static int vtkWrapPython_CountAllOccurrences(
-  FunctionInfo** wrappedFunctions, int n, int fnum, int* all_static)
+  WrappedFunction* wrappedFunctions, int n, int fnum, int* all_static)
 {
   const char* name;
   int occ;
@@ -716,18 +716,20 @@ static int vtkWrapPython_CountAllOccurrences(
 
   *all_static = 1;
 
-  name = wrappedFunctions[fnum]->Name;
+  name = wrappedFunctions[fnum].Archetype->Name;
 
   for (occ = fnum; occ < n; occ++)
   {
+    FunctionInfo* theOccurrence = wrappedFunctions[occ].Archetype;
+
     /* is it the same name */
-    if (wrappedFunctions[occ]->Name && !strcmp(name, wrappedFunctions[occ]->Name))
+    if (theOccurrence && !strcmp(name, theOccurrence->Name))
     {
       /* increment the signature count */
       numberOfOccurrences++;
 
       /* check for static methods */
-      if (!wrappedFunctions[occ]->IsStatic)
+      if (!theOccurrence->IsStatic)
       {
         *all_static = 0;
       }
@@ -1158,7 +1160,7 @@ static void vtkWrapPython_FreeTemporaries(FILE* fp, FunctionInfo* currentFunctio
 /* Write out the code for one method (including all its overloads) */
 
 void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo* data,
-  FileInfo* finfo, const HierarchyInfo* hinfo, FunctionInfo* wrappedFunctions[],
+  FileInfo* finfo, const HierarchyInfo* hinfo, WrappedFunction wrappedFunctions[],
   int numberOfWrappedFunctions, int fnum, int is_vtkobject, int do_constructors)
 {
   FunctionInfo* theFunc;
@@ -1172,7 +1174,7 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
   int maxArgs = 0;
   int overlap = 0;
 
-  theFunc = wrappedFunctions[fnum];
+  theFunc = wrappedFunctions[fnum].Archetype;
 
   /* count all signatures, see if they are static methods */
   numberOfOccurrences = vtkWrapPython_CountAllOccurrences(
@@ -1182,10 +1184,10 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
   occCounter = 0;
   for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
   {
-    theOccurrence = wrappedFunctions[occ];
+    theOccurrence = wrappedFunctions[occ].Archetype;
 
     /* is it the same name */
-    if (theOccurrence->Name && strcmp(theFunc->Name, theOccurrence->Name) == 0)
+    if (theOccurrence && strcmp(theFunc->Name, theOccurrence->Name) == 0)
     {
       occCounter++;
 
@@ -1356,20 +1358,24 @@ void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo*
   /* clear all occurrences of this method from further consideration */
   for (occ = fnum + 1; occ < numberOfWrappedFunctions; occ++)
   {
-    theOccurrence = wrappedFunctions[occ];
+    theOccurrence = wrappedFunctions[occ].Archetype;
 
     /* is it the same name */
-    if (theOccurrence->Name && !strcmp(theFunc->Name, theOccurrence->Name))
+    if (theOccurrence && !strcmp(theFunc->Name, theOccurrence->Name))
     {
-      size_t siglen = strlen(theFunc->Signature);
+      const char* newsig = wrappedFunctions[occ].Signature;
+      const char* oldsig = wrappedFunctions[fnum].Signature;
+      size_t siglen = strlen(oldsig);
 
-      /* memory leak here but ... */
-      theOccurrence->Name = NULL;
-      cp = vtkParse_NewString(finfo->Strings, siglen + 1 + strlen(theOccurrence->Signature));
-      strcpy(cp, theFunc->Signature);
+      /* remove this occurrence from future consideration */
+      wrappedFunctions[occ].Archetype = NULL;
+
+      /* add its signature to the Python function signature */
+      cp = vtkParse_NewString(finfo->Strings, siglen + 1 + strlen(newsig));
+      strcpy(cp, oldsig);
       strcpy(&cp[siglen], "\n");
-      strcpy(&cp[siglen + 1], theOccurrence->Signature);
-      theFunc->Signature = cp;
+      strcpy(&cp[siglen + 1], newsig);
+      wrappedFunctions[fnum].Signature = cp;
     }
   }
 }

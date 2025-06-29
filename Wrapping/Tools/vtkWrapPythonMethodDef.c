@@ -20,7 +20,7 @@
 
 /* output the MethodDef table for this class */
 static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const ClassInfo* data,
-  FunctionInfo** wrappedFunctions, int numberOfWrappedFunctions, int fnum);
+  WrappedFunction* wrappedFunctions, int numberOfWrappedFunctions, int fnum);
 
 /* print out any custom methods */
 static void vtkWrapPython_CustomMethods(
@@ -47,7 +47,7 @@ static int vtkWrapPython_IsValueWrappable(
 
 /* weed out methods that will never be called */
 static void vtkWrapPython_RemovePrecededMethods(
-  FunctionInfo* const wrappedFunctions[], int numberOfWrappedFunctions, int fnum);
+  WrappedFunction wrappedFunctions[], int numberOfWrappedFunctions, int fnum);
 
 /* -------------------------------------------------------------------- */
 /* Check for type precedence. Some method signatures will just never
@@ -59,10 +59,10 @@ static void vtkWrapPython_RemovePrecededMethods(
  */
 
 static void vtkWrapPython_RemovePrecededMethods(
-  FunctionInfo* const wrappedFunctions[], int numberOfWrappedFunctions, int fnum)
+  WrappedFunction wrappedFunctions[], int numberOfWrappedFunctions, int fnum)
 {
-  const FunctionInfo* theFunc = wrappedFunctions[fnum];
-  const char* name = theFunc->Name;
+  const FunctionInfo* theFunc = wrappedFunctions[fnum].Archetype;
+  const char* name;
   FunctionInfo* sig1;
   FunctionInfo* sig2;
   ValueInfo* val1;
@@ -77,26 +77,32 @@ static void vtkWrapPython_RemovePrecededMethods(
   int i, nargs1, nargs2;
   int argmatch, allmatch;
 
-  if (!name)
+  if (theFunc == NULL)
   {
     return;
   }
 
+  name = theFunc->Name;
   for (occ1 = fnum; occ1 < numberOfWrappedFunctions; occ1++)
   {
-    sig1 = wrappedFunctions[occ1];
-    nargs1 = vtkWrap_CountWrappedParameters(sig1);
-
-    if (sig1->Name && strcmp(sig1->Name, name) == 0)
+    sig1 = wrappedFunctions[occ1].Archetype;
+    if (sig1 && strcmp(sig1->Name, name) == 0)
     {
+      nargs1 = vtkWrap_CountWrappedParameters(sig1);
+
       for (occ2 = occ1 + 1; occ2 < numberOfWrappedFunctions; occ2++)
       {
-        sig2 = wrappedFunctions[occ2];
+        sig2 = wrappedFunctions[occ2].Archetype;
+        if (sig2 == NULL)
+        {
+          continue;
+        }
+
         nargs2 = vtkWrap_CountWrappedParameters(sig2);
         vote1 = 0;
         vote2 = 0;
 
-        if (nargs2 == nargs1 && sig2->Name && strcmp(sig2->Name, name) == 0)
+        if (nargs2 == nargs1 && strcmp(sig2->Name, name) == 0)
         {
           allmatch = 1;
           for (i = 0; i < nargs1; i++)
@@ -256,11 +262,11 @@ static void vtkWrapPython_RemovePrecededMethods(
 
         if (vote1)
         {
-          sig2->Name = 0;
+          wrappedFunctions[occ2].Archetype = NULL;
         }
         else if (vote2)
         {
-          sig1->Name = 0;
+          wrappedFunctions[occ1].Archetype = NULL;
           break;
         }
 
@@ -275,17 +281,19 @@ static void vtkWrapPython_RemovePrecededMethods(
  * pointers and documentation for each method is printed.  In other
  * words, this poorly named function is "the big one". */
 
-void vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* data,
+const char* vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* data,
   FileInfo* finfo, const HierarchyInfo* hinfo, int is_vtkobject, int do_constructors)
 {
   int i;
   int fnum;
   int numberOfWrappedFunctions = 0;
-  FunctionInfo** wrappedFunctions;
+  WrappedFunction* wrappedFunctions;
   FunctionInfo* theFunc;
   const char* ccp;
+  const char* constructorSignature = NULL;
 
-  wrappedFunctions = (FunctionInfo**)malloc(data->NumberOfFunctions * sizeof(FunctionInfo*));
+  /* for tracking functions that will be wrapped */
+  wrappedFunctions = (WrappedFunction*)malloc(data->NumberOfFunctions * sizeof(WrappedFunction));
 
   /* output any custom methods */
   vtkWrapPython_CustomMethods(fp, classname, data, do_constructors);
@@ -309,29 +317,35 @@ void vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* d
       !theFunc->Template && !vtkWrap_IsDestructor(data, theFunc) &&
       (!vtkWrap_IsConstructor(data, theFunc) == !do_constructors))
     {
+      WrappedFunction* wfunc = &wrappedFunctions[numberOfWrappedFunctions++];
+      wfunc->Archetype = theFunc;
       ccp = vtkWrapText_PythonSignature(theFunc);
-      theFunc->Signature = vtkParse_CacheString(finfo->Strings, ccp, strlen(ccp));
-      wrappedFunctions[numberOfWrappedFunctions++] = theFunc;
+      wfunc->Signature = vtkParse_CacheString(finfo->Strings, ccp, strlen(ccp));
     }
   }
 
   /* write out the wrapper for each function in the array */
   for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
   {
-    theFunc = wrappedFunctions[fnum];
-
     /* check for type precedence, don't need a "float" method if a
        "double" method exists */
     vtkWrapPython_RemovePrecededMethods(wrappedFunctions, numberOfWrappedFunctions, fnum);
 
     /* if theFunc wasn't removed, process all its signatures */
-    if (theFunc->Name)
+    theFunc = wrappedFunctions[fnum].Archetype;
+    if (theFunc)
     {
       fprintf(fp, "\n");
 
       vtkWrapPython_GenerateOneMethod(fp, classname, data, finfo, hinfo, wrappedFunctions,
         numberOfWrappedFunctions, fnum, is_vtkobject, do_constructors);
 
+      if (do_constructors)
+      {
+        /* return the signature that GenerateOneMethod produced */
+        constructorSignature = wrappedFunctions[fnum].Signature;
+        break;
+      }
     } /* is this method non NULL */
   }   /* loop over all methods */
 
@@ -343,19 +357,22 @@ void vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, ClassInfo* d
   }
 
   free(wrappedFunctions);
+
+  return constructorSignature;
 }
 
 /* -------------------------------------------------------------------- */
 /* output the MethodDef table for this class */
 static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const ClassInfo* data,
-  FunctionInfo** wrappedFunctions, int numberOfWrappedFunctions, int fnum)
+  WrappedFunction* wrappedFunctions, int numberOfWrappedFunctions, int fnum)
 {
   /* output the method table, with pointers to each function defined above */
   fprintf(fp, "static PyMethodDef Py%s_Methods[] = {\n", classname);
 
   for (fnum = 0; fnum < numberOfWrappedFunctions; fnum++)
   {
-    if (wrappedFunctions[fnum]->Name)
+    const FunctionInfo* theFunc = wrappedFunctions[fnum].Archetype;
+    if (theFunc)
     {
       /* string literals must be under 2048 chars */
       size_t maxlen = 2040;
@@ -363,12 +380,11 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const 
       const char* signatures;
 
       /* format the comment nicely to a 66 char width */
-      signatures = vtkWrapText_FormatSignature(wrappedFunctions[fnum]->Signature, 66, maxlen - 32);
-      comment = vtkWrapText_FormatComment(wrappedFunctions[fnum]->Comment, 66);
+      signatures = vtkWrapText_FormatSignature(wrappedFunctions[fnum].Signature, 66, maxlen - 32);
+      comment = vtkWrapText_FormatComment(theFunc->Comment, 66);
       comment = vtkWrapText_QuoteString(comment, maxlen - strlen(signatures));
 
-      fprintf(fp, "  {\"%s\", Py%s_%s, METH_VARARGS,\n", wrappedFunctions[fnum]->Name, classname,
-        wrappedFunctions[fnum]->Name);
+      fprintf(fp, "  {\"%s\", Py%s_%s, METH_VARARGS,\n", theFunc->Name, classname, theFunc->Name);
 
       fprintf(fp, "   \"%s\\n\\n%s\"},\n", signatures, comment);
     }

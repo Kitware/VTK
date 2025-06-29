@@ -91,7 +91,7 @@ const char* vtkWrapPython_GetSuperClass(
 /* -------------------------------------------------------------------- */
 /* Create the docstring for a class, and print it to fp */
 void vtkWrapPython_ClassDoc(
-  FILE* fp, FileInfo* file_info, ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject)
+  FILE* fp, FileInfo* file_info, ClassInfo* data, const HierarchyInfo* hinfo)
 {
   char pythonname[1024];
   const char* supername;
@@ -99,32 +99,8 @@ void vtkWrapPython_ClassDoc(
   const char* ccp = NULL;
   size_t i, n;
   size_t briefmax = 255;
-  int j, m;
   char temp[500];
   char* comment;
-
-  /* for special objects, add constructor signatures to the doc */
-  /* XXX only include constructors that are wrapped */
-  /* XXX exclude constructors that are type-preceded */
-  /* XXX use python-style signatures with annotations */
-  if (!is_vtkobject && !data->Template && !data->IsAbstract)
-  {
-    m = 0;
-    for (j = 0; j < data->NumberOfFunctions; j++)
-    {
-      if (vtkWrapPython_MethodCheck(data, data->Functions[j], hinfo) &&
-        vtkWrap_IsConstructor(data, data->Functions[j]))
-      {
-        m++;
-        fprintf(fp, "\n  \"%s\\n\"",
-          vtkWrapText_FormatSignature(data->Functions[j]->Signature, 70, 2000));
-      }
-    }
-    if (m > 0)
-    {
-      fprintf(fp, "\"\\n\"\n");
-    }
-  }
 
   if (data == file_info->MainClass && file_info->NameComment)
   {
@@ -785,7 +761,7 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
   {
     /* the docstring for the class, as a static var ending in "Doc" */
     fprintf(fp, "static const char *Py%s_Doc =\n", classname);
-    vtkWrapPython_ClassDoc(fp, file_info, data, hinfo, is_vtkobject);
+    vtkWrapPython_ClassDoc(fp, file_info, data, hinfo);
     fprintf(fp, ";\n\n");
 
     vtkWrapPython_GenerateObjectType(fp, module, classname, hasNumberProtocol);

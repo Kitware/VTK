@@ -617,6 +617,7 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
   const char* name;
   SpecialTypeInfo info;
   const char* constructor = NULL;
+  const char* constructorSignature = NULL;
   size_t n = 0;
   int i;
   int has_constants = 0;
@@ -641,12 +642,17 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
   /* generate all constructor methods */
   if (constructor)
   {
-    vtkWrapPython_GenerateMethods(fp, classname, data, finfo, hinfo, 0, 1);
+    constructorSignature = vtkWrapPython_GenerateMethods(fp, classname, data, finfo, hinfo, 0, 1);
   }
 
   /* the docstring for the class, as a static var ending in "Doc" */
   fprintf(fp, "\nstatic const char *Py%s_Doc =\n", classname);
-  vtkWrapPython_ClassDoc(fp, finfo, data, hinfo, 0);
+  if (constructorSignature)
+  {
+    fprintf(
+      fp, "\n  \"%s\\n\"\"\\n\"\n", vtkWrapText_FormatSignature(constructorSignature, 70, 2000));
+  }
+  vtkWrapPython_ClassDoc(fp, finfo, data, hinfo);
   fprintf(fp, ";\n\n");
 
   /* generate all functions and protocols needed for the type */
