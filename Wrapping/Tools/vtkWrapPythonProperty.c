@@ -80,19 +80,7 @@ static int vtkWrapPython_IsSetter(const unsigned int methodType)
 static int vtkWrapPython_IsWrappable(
   const ClassInfo* classInfo, FunctionInfo* functionInfo, const HierarchyInfo* hinfo)
 {
-  // TODO: Figure out a cleaner way for vtkWrapPython_GenerateOneMethod to ignore an occurrence
-  // instead of it erasing the function name.
-  int restoreFuncName = 0;
-  if (functionInfo->Name == NULL)
-  {
-    functionInfo->Name = "Placeholder";
-    restoreFuncName = 1;
-  }
   const int isWrappable = vtkWrapPython_MethodCheck(classInfo, functionInfo, hinfo);
-  if (restoreFuncName)
-  {
-    functionInfo->Name = NULL;
-  }
   return isWrappable;
 }
 

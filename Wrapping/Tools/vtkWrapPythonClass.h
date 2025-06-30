@@ -20,7 +20,7 @@ const char* vtkWrapPython_GetSuperClass(
 
 /* generate the class docstring and write it to "fp" */
 void vtkWrapPython_ClassDoc(
-  FILE* fp, FileInfo* file_info, ClassInfo* data, const HierarchyInfo* hinfo, int is_vtkobject);
+  FILE* fp, FileInfo* file_info, ClassInfo* data, const HierarchyInfo* hinfo);
 
 #endif /* vtkWrapPythonClass_h */
 /* VTK-HeaderTest-Exclude: vtkWrapPythonClass.h */

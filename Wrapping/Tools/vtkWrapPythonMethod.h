@@ -8,9 +8,16 @@
 #include "vtkParseData.h"
 #include "vtkParseHierarchy.h"
 
+/* struct for tracking wrapped function */
+typedef struct WrappedFunction_
+{
+  FunctionInfo* Archetype; /* can be NULL to indicate "skip me" */
+  const char* Signature;   /* docstring-ready method signature */
+} WrappedFunction;
+
 /* print out the code for one method, including all of its overloads */
 void vtkWrapPython_GenerateOneMethod(FILE* fp, const char* classname, ClassInfo* data,
-  FileInfo* finfo, const HierarchyInfo* hinfo, FunctionInfo* wrappedFunctions[],
+  FileInfo* finfo, const HierarchyInfo* hinfo, WrappedFunction wrappedFunctions[],
   int numberOfWrappedFunctions, int fnum, int is_vtkobject, int do_constructors);
 
 /* declare all variables needed by the wrapper method */
