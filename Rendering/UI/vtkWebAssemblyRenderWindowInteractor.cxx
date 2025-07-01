@@ -52,6 +52,23 @@ void spinOnce(void* arg)
     static_cast<vtkWebAssemblyRenderWindowInteractor*>(arg);
   iren->ProcessEvents();
 }
+
+//------------------------------------------------------------------------------
+bool spinOnceAndGetDone(void* arg)
+{
+  vtkWebAssemblyRenderWindowInteractor* iren =
+    static_cast<vtkWebAssemblyRenderWindowInteractor*>(arg);
+  iren->ProcessEvents();
+  return iren->GetDone();
+}
+
+//------------------------------------------------------------------------------
+void unRegisterInteractor(void* iren)
+{
+  vtkWebAssemblyRenderWindowInteractor* interactor =
+    static_cast<vtkWebAssemblyRenderWindowInteractor*>(iren);
+  interactor->UnRegister(nullptr);
+}
 } // namespace
 
 class vtkWebAssemblyRenderWindowInteractor::vtkInternals
@@ -611,22 +628,43 @@ void vtkWebAssemblyRenderWindowInteractor::StartEventLoop()
     internals.StartedMessageLoop = true;
     if (emscripten_has_asyncify())
     {
+      // when using asyncify, the vtkRenderWindowInteractor::Start() method
+      // is non-blocking(returns immediately).
+      // Increment reference count to ensure that the interactor
+      // is not destroyed before the first iteration of `spinOnceAndGetDone`
+      // is invoked.
+      this->Register(nullptr);
       // clang-format off
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdollar-in-identifier-extension"
       EM_ASM(
         {
           var callback = WebAssembly.promising(getWasmTableEntry($0));
+          var releaseInteractorRef = getWasmTableEntry($1);
+          var interactorRef = $2;
           async function tick()
           {
             // Start the frame callback. 'await' means we won't call
             // requestAnimationFrame again until it completes.
-            await callback($1);
-            requestAnimationFrame(tick);
+            var done = await callback(interactorRef);
+            if (!done)
+            {
+              // If the callback did not return 'true', we continue
+              // to call requestAnimationFrame.
+              requestAnimationFrame(tick);
+            }
+            else
+            {
+              // If the callback returned 'true', we un-register
+              // the interactor as the event loop is done.
+              // This will also decrement the reference count and destroy the interactor
+              // if no other references exist.
+              releaseInteractorRef(interactorRef);
+            }
           }
           requestAnimationFrame(tick);
         },
-        &spinOnce, (void*)this);
+        &spinOnceAndGetDone, &unRegisterInteractor, (void*)this);
 #pragma clang diagnostic pop
       // clang-format on
     }
@@ -650,7 +688,11 @@ void vtkWebAssemblyRenderWindowInteractor::TerminateApp(void)
   // Only post a quit message if Start was called...
   if (internals.StartedMessageLoop)
   {
-    emscripten_cancel_main_loop();
+    if (!emscripten_has_asyncify())
+    {
+      // If we are not using asyncify, we need to stop the main loop.
+      emscripten_cancel_main_loop();
+    }
     internals.StartedMessageLoop = false;
   }
   internals.ExpandedCanvasToContainerElement = false;
