@@ -2146,7 +2146,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
     mouse.GetButton() == this->Actions.SelectPolygon())
   {
     // Modifiers or selection modes can affect how selection is performed.
-    int selectionMode = vtkChartXY::GetMouseSelectionMode(mouse, this->SelectionMode);
+    int selectionMode = this->GetSelectionModeFromMouseModifiers(mouse);
     bool polygonMode(mouse.GetButton() == this->Actions.SelectPolygon());
     this->Scene->SetDirty(true);
 
@@ -2880,23 +2880,4 @@ void vtkChartXY::BuildSelection(
   }
 }
 
-//------------------------------------------------------------------------------
-int vtkChartXY::GetMouseSelectionMode(const vtkContextMouseEvent& mouse, int selectionMode)
-{
-  // Mouse modifiers override the current selection mode.
-  if (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER &&
-    mouse.GetModifiers() & vtkContextMouseEvent::CONTROL_MODIFIER)
-  {
-    return vtkContextScene::SELECTION_TOGGLE;
-  }
-  else if (mouse.GetModifiers() & vtkContextMouseEvent::CONTROL_MODIFIER)
-  {
-    return vtkContextScene::SELECTION_ADDITION;
-  }
-  else if (mouse.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER)
-  {
-    return vtkContextScene::SELECTION_SUBTRACTION;
-  }
-  return selectionMode;
-}
 VTK_ABI_NAMESPACE_END

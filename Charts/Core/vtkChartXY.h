@@ -423,12 +423,6 @@ public:
   static void BuildSelection(
     int selectionMode, MapIndexToIds& selection, const MapIndexToIds& oldSelection);
 
-  /**
-   * Combine the SelectionMode with any mouse modifiers to get an effective
-   * selection mode for this click event.
-   */
-  static int GetMouseSelectionMode(const vtkContextMouseEvent& mouse, int selectionMode);
-
 protected:
   vtkChartXY();
   ~vtkChartXY() override;
