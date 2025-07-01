@@ -148,7 +148,11 @@ void vtkWebGPUComputePipeline::Update()
   bool done = false;
   this->WGPUConfiguration->GetDevice().GetQueue().OnSubmittedWorkDone(
     wgpu::CallbackMode::AllowProcessEvents,
+#if defined(WGPU_BREAKING_CHANGE_QUEUE_WORK_DONE_CALLBACK_MESSAGE)
+    [&workStatus, &done](wgpu::QueueWorkDoneStatus status, wgpu::StringView)
+#else
     [&workStatus, &done](wgpu::QueueWorkDoneStatus status)
+#endif
     {
       workStatus = status;
       done = true;
