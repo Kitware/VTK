@@ -203,7 +203,8 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     "#define pystr(x) x\n"
     "#else\n"
     "#define pystr(x) const_cast<char*>(x)\n"
-    "#endif\n");
+    "#endif\n"
+    "\n");
 
   /* start the PyGetSetDef for this class */
   fprintf(fp, "static PyGetSetDef Py%s_GetSets[] = {\n", classname);
@@ -236,49 +237,49 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
 
     /* Start a new PyGetSetDef item */
     fprintf(fp, "  {\n");
-    fprintf(fp, "    /*name=*/pystr(\"%s\"),\n", snakeCasePropName);
+    fprintf(fp, "    pystr(\"%s\"), // name\n", snakeCasePropName);
 
     /* The getter and setter */
     if (getSetInfo->HasGetter)
     {
-      fprintf(fp, "    /*get=*/PyVTKObject_GetProperty,\n");
+      fprintf(fp, "    PyVTKObject_GetProperty, // get\n");
     }
     else
     {
-      fprintf(fp, "    /*get=*/nullptr,\n");
+      fprintf(fp, "    nullptr, // get\n");
     }
     if (getSetInfo->HasSetter)
     {
-      fprintf(fp, "    /*set=*/PyVTKObject_SetProperty,\n");
+      fprintf(fp, "    PyVTKObject_SetProperty, // set\n");
     }
     else
     {
-      fprintf(fp, "    /*set=*/nullptr,\n");
+      fprintf(fp, "    nullptr, // set\n");
     }
 
     /* Define the doc string */
-    fprintf(fp, "    /*doc=*/");
     if (getSetInfo->HasGetter && !getSetInfo->HasSetter)
     {
-      fprintf(fp, "pystr(\"read-only, Calls Get%s\\n\"),\n", theProp->Name);
+      fprintf(fp, "    pystr(\"read-only, calls Get%s\\n\"), // doc\n", theProp->Name);
     }
     else if (!getSetInfo->HasGetter && getSetInfo->HasSetter)
     {
-      fprintf(fp, "pystr(\"write-only, Calls Set%s\\n\"),\n", theProp->Name);
+      fprintf(fp, "    pystr(\"write-only, calls Set%s\\n\"), // doc\n", theProp->Name);
     }
     else
     {
-      fprintf(fp, "pystr(\"read-write, Calls Get%s/Set%s\\n\"),\n", theProp->Name, theProp->Name);
+      fprintf(fp, "    pystr(\"read-write, calls Get%s/Set%s\\n\"), // doc\n", theProp->Name,
+        theProp->Name);
     }
     /* closure provides the methods that we call */
-    fprintf(fp, "    /*closure=*/&Py%s_GetSetMethods[%d],\n", classname, propCount++);
+    fprintf(fp, "    &Py%s_GetSetMethods[%d], // closure\n", classname, propCount++);
     /* Finish the definition of a PyGetSetDef entry */
     fprintf(fp, "  },\n");
   }
 
   /* add sentinel entry */
   fprintf(fp, "  { nullptr, nullptr, nullptr, nullptr, nullptr }\n");
-  fprintf(fp, "};\n");
+  fprintf(fp, "};\n\n");
 
   /* clean up memory of data structures */
   for (j = 0; j < properties->NumberOfProperties; ++j)
