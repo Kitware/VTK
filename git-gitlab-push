@@ -34,6 +34,9 @@ OPTIONS
 
 --no-upstream
     Do not set an upstream branch (i.e. tracking) for the topic
+
+--no-submodules
+    Do not require that submodules be pushed to a remote.
 '
 OPTIONS_SPEC=
 SUBDIRECTORY_OK=Yes
@@ -49,14 +52,13 @@ gitlab_configured='' &&
 config="${BASH_SOURCE%/*}/config" &&
 protocol=$(git config -f "$config" --get gitlab.protocol ||
 	   echo "https") &&
+userpart=$(test "$protocol" = "ssh" && echo "git@" || echo '') &&
 host=$(git config -f "$config" --get gitlab.host) &&
 site=$(git config -f "$config" --get gitlab.site ||
-       echo "$protocol://$host") &&
+       echo "$protocol://$userpart$host") &&
 group_path=$(git config -f "$config" --get gitlab.group-path) &&
 project_path=$(git config -f "$config" --get gitlab.project-path) &&
 gitlab_upstream="$site/$group_path/$project_path.git" &&
-gitlab_pushurl=$(git config --get remote.gitlab.pushurl ||
-		 git config --get remote.gitlab.url) &&
 gitlab_configured=1
 
 #-----------------------------------------------------------------------------
@@ -70,6 +72,7 @@ no_topic=''
 no_default=''
 dry_run=''
 set_upstream=true
+submodule_config='-c push.recurseSubmodules=on-demand'
 
 # Parse the command line options.
 while test $# != 0; do
@@ -82,10 +85,11 @@ while test $# != 0; do
 			fi
 			force='+'
 			;;
-		--no-topic)    no_topic=1; set_upstream=false ;;
-		--dry-run)     dry_run=--dry-run ;;
-		--no-default)  no_default=1 ;;
-		--no-upstream) set_upstream=false ;;
+		--no-topic)      no_topic=1; set_upstream=false ;;
+		--dry-run)       dry_run=--dry-run ;;
+		--no-default)    no_default=1 ;;
+		--no-upstream)   set_upstream=false ;;
+		--no-submodules) submodule_config= ;;
 		--) shift; break ;;
 		-*) usage ;;
 		*) test -z "$remote" || usage ; remote="$1" ;;
@@ -171,7 +175,7 @@ fi
 # Push.  Save output and exit code.
 echo "Pushing to $remote"
 push_config='-c advice.pushUpdateRejected=false'
-push_stdout=$(git $push_config push $lease_flag --porcelain $dry_run "$remote" $refspecs); push_exit=$?
+push_stdout=$(git $push_config $submodule_config push $lease_flag --porcelain $dry_run "$remote" $refspecs); push_exit=$?
 echo "$push_stdout"
 
 if test "$push_exit" -ne 0 && test -z "$force"; then
