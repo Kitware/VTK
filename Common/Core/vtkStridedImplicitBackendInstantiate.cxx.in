@@ -1,0 +1,7 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#define VTK_STRIDED_BACKEND_INSTANTIATING
+#include "vtkStridedImplicitBackend.h"
+#include "vtkStridedImplicitBackend.txx"
+
+VTK_INSTANTIATE_STRIDED_BACKEND(@INSTANTIATION_VALUE_TYPE@)
