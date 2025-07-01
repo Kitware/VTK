@@ -116,7 +116,8 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkRenderingOpenGLConfigure.h")
 
 set(nowrap_headers
-        vtkOpenGLPointGaussianMapperHelper.h
+  vtkOpenGLPointGaussianMapperHelper.h
+  vtkOpenGLResourceFreeCallback.h	
   vtkOpenGLShaderDeclaration.h
 )
 
