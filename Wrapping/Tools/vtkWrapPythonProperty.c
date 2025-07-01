@@ -11,39 +11,27 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Regex-less algorithm to convert from PascalCase to snake_case */
-// Don't have regex because vtksys is not linked to the wrapping module
-// and regex.h is limited to POSIX systems.
-// Caller must make sure to free the memory of the returned pointer after use.
+/* Regex-less algorithm to convert from PascalCase to snake_case
+ * Caller must make sure to free the memory of the returned pointer after use. */
 static char* vtkWrapPython_ConvertPascalToSnake(const char* pascalCase)
 {
   size_t i;
-  if (pascalCase == NULL || *pascalCase == '\0')
-  {
-    return NULL; // Handle empty input
-  }
-
   size_t pascalLen = strlen(pascalCase);
-  // Max length is 2 times the input length (underscores added between words)
+  /* Max length is 2 times the input length (underscores added between words) */
   char* snakeCase = (char*)malloc((2 * pascalLen) + 1);
-  if (snakeCase == NULL)
-  {
-    return NULL; // Memory allocation failed
-  }
-
   size_t snakeIndex = 0;
 
-  // Convert the first character to lowercase
+  /* Convert the first character to lowercase */
   snakeCase[snakeIndex++] = tolower(pascalCase[0]);
 
   for (i = 1; i < pascalLen; i++)
   {
     char currentChar = pascalCase[i];
 
-    // Begin a new world only if
-    //     1. the current character is uppercase
-    // and 2. the current character follows a lowercase character
-    // or  3. the current character is followed by a lowercase character
+    /* Begin a new word only if
+     *     1. the current character is uppercase
+     * and 2. the current character follows a lowercase character
+     * or  3. the current character is followed by a lowercase character */
     if (isupper(currentChar))
     {
       if (islower(pascalCase[i - 1]) || (i + 1 < pascalLen && islower(pascalCase[i + 1])))
@@ -58,7 +46,7 @@ static char* vtkWrapPython_ConvertPascalToSnake(const char* pascalCase)
     }
   }
 
-  // Null-terminate the snake_case string
+  /* Null-terminate the snake_case string */
   snakeCase[snakeIndex] = '\0';
 
   return snakeCase;
@@ -157,11 +145,6 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
 
     theProp = properties->Properties[j];
     snakeCasePropName = vtkWrapPython_ConvertPascalToSnake(theProp->Name);
-    if (!snakeCasePropName)
-    {
-      continue;
-    }
-
     getSetInfo->PropertyName = snakeCasePropName;
     ++propCount;
   }
