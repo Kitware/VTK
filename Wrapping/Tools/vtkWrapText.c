@@ -29,11 +29,8 @@ const char* vtkWrapText_QuoteString(const char* comment, size_t maxlen)
 
   if (maxlen > oldmaxlen)
   {
-    if (result)
-    {
-      free(result);
-    }
-    result = (char*)malloc((size_t)(maxlen + 1));
+    free(result);
+    result = (char*)malloc(maxlen + 1);
     oldmaxlen = maxlen;
   }
 
@@ -66,14 +63,14 @@ const char* vtkWrapText_QuoteString(const char* comment, size_t maxlen)
         /* write the valid utf-8 sequence */
         for (k = 0; k < n; k++)
         {
-          sprintf(&result[j + 4 * k], "\\%3.3o", (unsigned char)(comment[i + k]));
+          snprintf(&result[j + 4 * k], maxlen + 1 - j, "\\%3.3o", (unsigned char)(comment[i + k]));
         }
         m = 4 * n;
       }
       else
       {
         /* bad sequence, write the replacement character code U+FFFD */
-        sprintf(&result[j], "%s", "\\357\\277\\275");
+        snprintf(&result[j], maxlen + 1 - j, "%s", "\\357\\277\\275");
         m = 12;
       }
     }
@@ -96,14 +93,14 @@ const char* vtkWrapText_QuoteString(const char* comment, size_t maxlen)
     else
     {
       /* use octal escape sequences for other control codes */
-      sprintf(&result[j], "\\%3.3o", comment[i]);
+      snprintf(&result[j], maxlen + 1 - j, "\\%3.3o", comment[i]);
       m = 4;
     }
 
     /* check if output limit is reached */
     if (j + m >= maxlen - 20)
     {
-      sprintf(&result[j], " ...\\n [Truncated]\\n");
+      snprintf(&result[j], maxlen + 1 - j, " ...\\n [Truncated]\\n");
       j += strlen(" ...\\n [Truncated]\\n");
       break;
     }
