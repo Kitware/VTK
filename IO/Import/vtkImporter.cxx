@@ -219,9 +219,4 @@ bool vtkImporter::GetTemporalInformation(vtkIdType vtkNotUsed(animationIdx),
   return false;
 }
 
-//------------------------------------------------------------------------------
-bool vtkImporter::UpdateAtTimeValue(double vtkNotUsed(timeValue))
-{
-  return this->Update();
-}
 VTK_ABI_NAMESPACE_END
