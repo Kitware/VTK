@@ -76,6 +76,12 @@ static int vtkWrapPython_IsSetter(const unsigned int methodType)
   return methodType == VTK_METHOD_SET || methodType == VTK_METHOD_SET_MULTI;
 }
 
+/* Returns true if the setter method takes multiple arguments e.g. SetPoint(x,y,z) */
+static int vtkWrapPython_IsMultiSetter(const unsigned int methodType)
+{
+  return methodType == VTK_METHOD_SET_MULTI;
+}
+
 /* Calls vtkWrapPython_MethodCheck to figure out the wrappability of the method. */
 static int vtkWrapPython_IsWrappable(
   const ClassInfo* classInfo, FunctionInfo* functionInfo, const HierarchyInfo* hinfo)
@@ -90,6 +96,7 @@ typedef struct
   char* PropertyName;
   int HasGetter;
   int HasSetter;
+  int HasMultiSetter;
 } GetSetDefInfo;
 
 /* print out all properties in the getset table. */
@@ -133,6 +140,7 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
         getSetInfo = getSetsInfo[j];
         getSetInfo->HasGetter |= vtkWrapPython_IsGetter(properties->MethodTypes[i]);
         getSetInfo->HasSetter |= vtkWrapPython_IsSetter(properties->MethodTypes[i]);
+        getSetInfo->HasMultiSetter |= vtkWrapPython_IsMultiSetter(properties->MethodTypes[i]);
       }
     }
   }
@@ -248,7 +256,11 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     {
       fprintf(fp, "    nullptr, // get\n");
     }
-    if (getSetInfo->HasSetter)
+    if (getSetInfo->HasMultiSetter)
+    {
+      fprintf(fp, "    PyVTKObject_SetPropertyMulti, // set\n");
+    }
+    else if (getSetInfo->HasSetter)
     {
       fprintf(fp, "    PyVTKObject_SetProperty, // set\n");
     }

@@ -120,6 +120,9 @@ extern "C"
 
   VTKWRAPPINGPYTHONCORE_EXPORT
   int PyVTKObject_SetProperty(PyObject* op, PyObject* value, void* methods);
+
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  int PyVTKObject_SetPropertyMulti(PyObject* op, PyObject* value, void* methods);
 }
 
 #endif

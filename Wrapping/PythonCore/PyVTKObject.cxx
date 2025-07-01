@@ -396,14 +396,31 @@ PyObject* PyVTKObject_GetProperty(PyObject* op, void* methods)
 
 int PyVTKObject_SetProperty(PyObject* op, PyObject* value, void* methods)
 {
+  PyObject* args = PyTuple_Pack(1, value);
+  PyObject* result = static_cast<PyVTKGetSet*>(methods)->set(op, args);
+  Py_DECREF(args);
+  if (result == nullptr)
+  {
+    return -1;
+  }
+  Py_DECREF(result);
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+// Setter that splits the value into multiple arguments for the set method
+
+int PyVTKObject_SetPropertyMulti(PyObject* op, PyObject* value, void* methods)
+{
   PyObject* args;
-  if (PyTuple_Check(value))
+  if (PySequence_Check(value) && !PyUnicode_Check(value))
   {
     // if value is sequence, apply its members as arguments
     args = PySequence_Tuple(value);
   }
   else
   {
+    // try passing the value as a single argument
     args = PyTuple_Pack(1, value);
   }
   PyObject* result = static_cast<PyVTKGetSet*>(methods)->set(op, args);
