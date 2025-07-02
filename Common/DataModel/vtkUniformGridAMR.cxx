@@ -45,6 +45,12 @@ vtkCompositeDataIterator* vtkUniformGridAMR::NewIterator()
 }
 
 //------------------------------------------------------------------------------
+void vtkUniformGridAMR::InstantiateMetaData()
+{
+  this->SetAMRMetaData(vtkSmartPointer<vtkAMRMetaData>::New());
+}
+
+//------------------------------------------------------------------------------
 void vtkUniformGridAMR::Initialize()
 {
   this->Initialize(0, nullptr);
@@ -60,10 +66,7 @@ void vtkUniformGridAMR::Initialize(int numLevels, const int* blocksPerLevel)
   this->Bounds[4] = VTK_DOUBLE_MAX;
   this->Bounds[5] = VTK_DOUBLE_MIN;
 
-  if (!this->AMRMetaData)
-  {
-    this->AMRMetaData = vtkSmartPointer<vtkAMRMetaData>::New();
-  }
+  this->InstantiateMetaData();
   this->AMRMetaData->Initialize(numLevels, blocksPerLevel);
   this->AMRData->Initialize();
 }

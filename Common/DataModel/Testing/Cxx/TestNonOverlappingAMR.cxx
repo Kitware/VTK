@@ -171,5 +171,20 @@ int TestNonOverlappingAMR(int, char*[])
     return EXIT_FAILURE;
   }
 
+  vtkNew<vtkNonOverlappingAMR> amr2;
+  amr2->ShallowCopy(amr);
+  if (amr->GetAMRMetaData() != amr2->GetAMRMetaData())
+  {
+    vtkLogF(ERROR, "Unexpected ShallowCopy result");
+    return EXIT_FAILURE;
+  }
+
+  amr2->Initialize();
+  if (amr->GetAMRMetaData() == amr2->GetAMRMetaData())
+  {
+    vtkLogF(ERROR, "Unexpected Initialize result");
+    return EXIT_FAILURE;
+  }
+
   return EXIT_SUCCESS;
 }
