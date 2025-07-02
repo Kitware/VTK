@@ -798,6 +798,7 @@ PlyFile* vtkPLY::ply_open_for_reading(const char* filename, int* nelems, char***
   auto ifs = vtkSmartPointer<vtkFileResourceStream>::New();
   if (!ifs->Open(filename))
   {
+    plyCleanUp();
     return nullptr;
   }
 
@@ -806,6 +807,7 @@ PlyFile* vtkPLY::ply_open_for_reading(const char* filename, int* nelems, char***
   plyfile = vtkPLY::ply_read(ifs, nelems, elem_names);
   if (plyfile == nullptr)
   {
+    plyCleanUp();
     return nullptr;
   }
 
