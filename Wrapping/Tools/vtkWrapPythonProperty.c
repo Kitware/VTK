@@ -108,13 +108,14 @@ static GetSetDefInfo* vtkWrapPython_FindGetSet(
 /* Returns true if the method can be used inside the get member of PyGetSetDef */
 static int vtkWrapPython_IsGetter(const unsigned int methodType)
 {
-  return methodType == VTK_METHOD_GET;
+  return methodType == VTK_METHOD_GET || methodType == VTK_METHOD_GET_NUMBER_OF;
 }
 
 /* Returns true if the method can be used inside the set member of PyGetSetDef */
 static int vtkWrapPython_IsSetter(const unsigned int methodType)
 {
-  return methodType == VTK_METHOD_SET || methodType == VTK_METHOD_SET_MULTI;
+  return methodType == VTK_METHOD_SET || methodType == VTK_METHOD_SET_MULTI ||
+    methodType == VTK_METHOD_SET_NUMBER_OF;
 }
 
 /* Returns true if the setter method takes multiple arguments e.g. SetPoint(x,y,z) */
