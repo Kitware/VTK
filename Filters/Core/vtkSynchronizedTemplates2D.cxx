@@ -400,12 +400,23 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataArray* inScalars;
   vtkDataArray* newScalars = nullptr;
   int ext[6];
-  int dims[3];
-  int dataSize, estimatedSize;
 
   vtkDebugMacro(<< "Executing 2D structured contour");
 
-  input->GetExtent(ext);
+  int* inExt = input->GetExtent();
+  inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext);
+  for (int i = 0; i < 3; i++)
+  {
+    if (inExt[2 * i] > ext[2 * i])
+    {
+      ext[2 * i] = inExt[2 * i];
+    }
+    if (inExt[2 * i + 1] < ext[2 * i + 1])
+    {
+      ext[2 * i + 1] = inExt[2 * i + 1];
+    }
+  }
+
   inScalars = this->GetInputArrayToProcess(0, inputVector);
   if (inScalars == nullptr)
   {
@@ -423,19 +434,24 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  // We have to compute the dimensions from the update extent because
-  // the extent may be larger.
-  vtkStructuredData::GetDimensionsFromExtent(ext, dims);
   //
-  // Check dimensionality of data and get appropriate form
+  // Compute dimensions, ensure execution extent is not empty
   //
-  dataSize = dims[0] * dims[1] * dims[2];
+  vtkIdType dataSize = 0;
+  if (ext[0] <= ext[1] && ext[2] <= ext[3] && ext[4] <= ext[5])
+  {
+    int dims[3];
+    vtkStructuredData::GetDimensionsFromExtent(ext, dims);
+    dataSize = dims[0];
+    dataSize *= dims[1];
+    dataSize *= dims[2];
+  }
 
   //
   // Allocate necessary objects
   //
-  estimatedSize = (int)(sqrt((double)(dataSize)));
-  if (estimatedSize < 1024)
+  vtkIdType estimatedSize = static_cast<vtkIdType>(sqrt(static_cast<double>(dataSize)));
+  if (estimatedSize > 0 && estimatedSize < 1024)
   {
     estimatedSize = 1024;
   }
@@ -460,11 +476,14 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType incs[3];
   input->GetIncrements(inScalars, incs);
 
-  switch (inScalars->GetDataType())
+  if (dataSize > 0)
   {
-    vtkTemplateMacro(
-      vtkContourImage(this, (VTK_TT*)scalars, newPts, newScalars, newLines, input, ext, incs));
-  } // switch
+    switch (inScalars->GetDataType())
+    {
+      vtkTemplateMacro(
+        vtkContourImage(this, (VTK_TT*)scalars, newPts, newScalars, newLines, input, ext, incs));
+    }
+  }
 
   // Lets set the name of the scalars here.
   if (newScalars)
