@@ -129,7 +129,7 @@ void vtkHyperTreeGridGeometryLevelEntry::ToChild(const vtkHyperTreeGrid* grid, u
     "pre: depth_limiter" && this->Level <= const_cast<vtkHyperTreeGrid*>(grid)->GetDepthLimiter());
   assert("pre: is_masked" && !this->IsMasked(grid));
 
-  const double* sizeChild = this->Tree->GetScales()->GetScale(this->Level + 1);
+  const double* sizeChild = this->Tree->GetScales()->ComputeScale(this->Level + 1);
 
   this->Index = this->Tree->GetElderChildIndex(this->Index) + ichild;
 
@@ -203,7 +203,7 @@ void vtkHyperTreeGridGeometryLevelEntry::ToChild(const vtkHyperTreeGrid* grid, u
 void vtkHyperTreeGridGeometryLevelEntry::GetBounds(double bounds[6]) const
 {
   assert("pre: not_tree" && this->Tree);
-  const double* sizeChild = this->Tree->GetScales()->GetScale(this->Level);
+  const double* sizeChild = this->Tree->GetScales()->ComputeScale(this->Level);
   // Compute bounds
   bounds[0] = this->Origin[0];
   bounds[1] = this->Origin[0] + sizeChild[0];
@@ -217,7 +217,7 @@ void vtkHyperTreeGridGeometryLevelEntry::GetBounds(double bounds[6]) const
 void vtkHyperTreeGridGeometryLevelEntry::GetPoint(double point[3]) const
 {
   assert("pre: not_tree" && this->Tree);
-  const double* sizeChild = this->Tree->GetScales()->GetScale(this->Level);
+  const double* sizeChild = this->Tree->GetScales()->ComputeScale(this->Level);
   // Compute center point coordinates
   point[0] = this->Origin[0] + sizeChild[0] / 2.;
   point[1] = this->Origin[1] + sizeChild[1] / 2.;

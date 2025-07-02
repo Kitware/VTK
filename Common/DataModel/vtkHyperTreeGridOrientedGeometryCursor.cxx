@@ -141,7 +141,7 @@ double* vtkHyperTreeGridOrientedGeometryCursor::GetOrigin()
 //------------------------------------------------------------------------------
 double* vtkHyperTreeGridOrientedGeometryCursor::GetSize()
 {
-  return this->Scales->GetScale(this->GetLevel());
+  return this->Scales->ComputeScale(this->GetLevel());
 }
 
 //------------------------------------------------------------------------------
@@ -196,7 +196,7 @@ unsigned int vtkHyperTreeGridOrientedGeometryCursor::GetLevel()
 void vtkHyperTreeGridOrientedGeometryCursor::ToChild(unsigned char ichild)
 {
   this->Entry.ToChild(
-    this->Grid, this->Tree, this->Level, this->Scales->GetScale(this->Level + 1), ichild);
+    this->Grid, this->Tree, this->Level, this->Scales->ComputeScale(this->Level + 1), ichild);
   this->Level++;
 }
 

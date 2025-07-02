@@ -81,22 +81,23 @@ void vtkHyperTree::CopyStructure(vtkHyperTree* ht)
 {
   assert("pre: ht_exists" && ht != nullptr);
 
-  // Copy or shared
-  this->Datas = ht->Datas;
+  // Copy ht data
+  this->Datas = std::make_shared<vtkHyperTreeData>(*ht->Datas);
+  this->SetScales(std::make_shared<vtkHyperTreeGridScales>(
+    ht->Scales->GetBranchFactor(), ht->Scales->ComputeScale(0)));
   this->BranchFactor = ht->BranchFactor;
   this->Dimension = ht->Dimension;
   this->NumberOfChildren = ht->NumberOfChildren;
-  this->Scales = ht->Scales;
   this->CopyStructurePrivate(ht);
 }
 
 //------------------------------------------------------------------------------
 std::shared_ptr<vtkHyperTreeGridScales> vtkHyperTree::InitializeScales(
-  const double* scales, bool reinitialize) const
+  const double* scales, bool reinitialize)
 {
   if (this->Scales == nullptr || reinitialize)
   {
-    this->Scales = std::make_shared<vtkHyperTreeGridScales>(this->BranchFactor, scales);
+    this->SetScales(std::make_shared<vtkHyperTreeGridScales>(this->BranchFactor, scales));
   }
   return this->Scales;
 }
@@ -105,7 +106,7 @@ std::shared_ptr<vtkHyperTreeGridScales> vtkHyperTree::InitializeScales(
 void vtkHyperTree::GetScale(double s[3]) const
 {
   assert("pre: scales_exists" && this->Scales != nullptr);
-  const double* scale = this->Scales->GetScale(0);
+  const double* scale = this->Scales->ComputeScale(0);
   memcpy(s, scale, 3 * sizeof(double));
 }
 
@@ -113,7 +114,7 @@ void vtkHyperTree::GetScale(double s[3]) const
 double vtkHyperTree::GetScale(unsigned int d) const
 {
   assert("pre: scales_exists" && this->Scales != nullptr);
-  const double* scale = this->Scales->GetScale(0);
+  const double* scale = this->Scales->ComputeScale(0);
   return scale[d];
 }
 
@@ -531,7 +532,7 @@ protected:
     assert("pre: ht_exists" && ht != nullptr);
     vtkCompactHyperTree* htp = vtkCompactHyperTree::SafeDownCast(ht);
     assert("pre: same_type" && htp != nullptr);
-    this->CompactDatas = htp->CompactDatas;
+    this->CompactDatas = std::make_shared<vtkCompactHyperTreeData>(*htp->CompactDatas);
   }
 
   /**

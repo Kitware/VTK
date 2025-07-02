@@ -207,7 +207,7 @@ protected:
   /**
    * Storage of pre-computed per-level cell scales
    */
-  mutable std::shared_ptr<vtkHyperTreeGridScales> Scales;
+  std::shared_ptr<vtkHyperTreeGridScales> Scales;
 
 private:
   vtkUniformHyperTreeGrid(const vtkUniformHyperTreeGrid&) = delete;
