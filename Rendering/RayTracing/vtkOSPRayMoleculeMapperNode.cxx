@@ -138,7 +138,7 @@ void vtkOSPRayMoleculeMapperNode::Render(bool prepass)
         default:
           vtkWarningMacro(<< "Unknown radius type: " << mapper->GetAtomicRadiusType()
                           << ". Falling back to 'VDWRadius'.");
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case vtkMoleculeMapper::VDWRadius:
           for (vtkIdType i = 0; i < numAtoms; i++)
           {

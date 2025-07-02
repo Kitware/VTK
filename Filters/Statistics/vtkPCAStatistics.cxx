@@ -276,7 +276,7 @@ bool vtkPCAAssessFunctor::InitializePCA(vtkTable* inData, vtkTable* reqModel, in
     case vtkPCAStatistics::NUM_BASIS_SCHEMES:
     default:
       vtkGenericWarningMacro("Unknown basis scheme " << basisScheme << ". Using FULL_BASIS.");
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case vtkPCAStatistics::FULL_BASIS:
       this->BasisSize = m;
       break;

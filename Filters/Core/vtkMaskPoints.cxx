@@ -654,7 +654,7 @@ int vtkMaskPoints::RequestData(vtkInformation* vtkNotUsed(request),
         break;
       }
       case UNIFORM_SPATIAL_SURFACE:
-        VTK_FALLTHROUGH;
+        [[fallthrough]];
       case UNIFORM_SPATIAL_VOLUME:
       {
         const int dim = (this->RandomModeType == UNIFORM_SPATIAL_SURFACE) ? 2 : 3;

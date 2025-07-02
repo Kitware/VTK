@@ -208,7 +208,7 @@ vtkOutputWindow::StreamType vtkOutputWindow::GetDisplayStream(MessageTypes msgTy
       {
         return StreamType::Null;
       }
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
 
     case ALWAYS:
       switch (msgType)

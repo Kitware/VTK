@@ -1348,22 +1348,24 @@ public:
 #define VTK_WRAP_EXTERN
 
 //----------------------------------------------------------------------------
-// Switch case fall-through policy.
+// Switch case fall-through policy, currently deprecated and will be removed
+// at the same time as VTK_DEPRECATION_IN_9_6_0 deprecations
 
 // Use "VTK_FALLTHROUGH;" to annotate deliberate fall-through in switches,
 // use it analogously to "break;".  The trailing semi-colon is required.
-#if !defined(VTK_FALLTHROUGH) && defined(__has_cpp_attribute)
-#if __cplusplus >= 201703L && __has_cpp_attribute(fallthrough)
+#if defined(VTK_COMPILER_GCC) || defined(VTK_COMPILER_CLANG) || defined(VTK_COMPILER_ICC)
+// GCC warning compatible compiler
+#define VTK_FALLTHROUGH                                                                            \
+  _Pragma("GCC warning \"VTK_FALLTHROUGH is deprecated, use [[fallthrough]] instead\"")            \
+    [[fallthrough]]
+#elif defined(VTK_COMPILER_MSVC)
+// MSVC pragma
+#define VTK_FALLTHROUGH                                                                            \
+  _Pragma(comment(compiler, "VTK_FALLTHROUGH is deprecated, use [[fallthrough]] instead"))         \
+    [[fallthrough]]
+#else
+// Other compiler do not have a deprecated warning
 #define VTK_FALLTHROUGH [[fallthrough]]
-#elif __cplusplus >= 201103L && __has_cpp_attribute(gnu::fallthrough)
-#define VTK_FALLTHROUGH [[gnu::fallthrough]]
-#elif __cplusplus >= 201103L && __has_cpp_attribute(clang::fallthrough)
-#define VTK_FALLTHROUGH [[clang::fallthrough]]
-#endif
-#endif
-
-#ifndef VTK_FALLTHROUGH
-#define VTK_FALLTHROUGH ((void)0)
 #endif
 
 //----------------------------------------------------------------------------

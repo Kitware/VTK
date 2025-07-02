@@ -120,11 +120,11 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
           }
           case XR_SESSION_STATE_STOPPING:
             vtkDebugMacro(<< "OpenXR event [XR_SESSION_STATE_STOPPING]");
-            VTK_FALLTHROUGH;
+            [[fallthrough]];
           case XR_SESSION_STATE_LOSS_PENDING:
             // Session was lost, so start over and poll for new systemId.
             vtkDebugMacro(<< "OpenXR event [XR_SESSION_STATE_LOSS_PENDING]");
-            VTK_FALLTHROUGH;
+            [[fallthrough]];
           case XR_SESSION_STATE_EXITING:
           {
             // Do not attempt to restart, because user closed this session.

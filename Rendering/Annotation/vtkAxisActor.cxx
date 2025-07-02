@@ -708,7 +708,7 @@ void vtkAxisActor::BuildTitle(bool force)
   {
     case (VTK_ALIGN_TOP):
       vertOffsetSign = -1;
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     // NO BREAK
     case (VTK_ALIGN_BOTTOM):
       // Position to center of axis
@@ -825,7 +825,7 @@ void vtkAxisActor::BuildExponent(bool force)
   {
     case (VTK_ALIGN_TOP):
       offsetSign = -1;
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     // NO BREAK
     case (VTK_ALIGN_BOTTOM):
       // Position to center of axis

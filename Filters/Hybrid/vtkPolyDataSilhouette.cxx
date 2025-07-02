@@ -172,7 +172,7 @@ int vtkPolyDataSilhouette::RequestData(vtkInformation* vtkNotUsed(request),
 
     case VTK_DIRECTION_CAMERA_ORIGIN:
       vectorMode = false;
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
 
     case VTK_DIRECTION_CAMERA_VECTOR:
       if (this->Camera == nullptr)

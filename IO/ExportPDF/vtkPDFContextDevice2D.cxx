@@ -925,7 +925,7 @@ void vtkPDFContextDevice2D::DrawMarkers(
     default:
       // default is here for consistency with old impl -- defaults to plus for
       // unrecognized shapes.
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case VTK_MARKER_PLUS:
       this->DrawPlusMarkers(highlight, points, n, colors, nc_comps);
       break;
@@ -1066,7 +1066,7 @@ void vtkPDFContextDevice2D::DrawColoredPolygon(
     {
       case 4:
         this->Brush->SetOpacity(colors[3]);
-        VTK_FALLTHROUGH;
+        [[fallthrough]];
       case 3:
         this->Brush->SetColor(colors);
         break;
@@ -1627,7 +1627,7 @@ void vtkPDFContextDevice2D::ApplyLineType(int type)
   {
     default:
       vtkErrorMacro("Unknown line type: " << type);
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
 
     case vtkPen::NO_PEN:
       HPDF_Page_SetDash(this->Impl->Page, noPen, noPenLen, 0);

@@ -1013,7 +1013,7 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(
       {
         break;
       }
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
 
     case VTK_TOP_TRIANGLE:
       // Start scanning the upper triangle

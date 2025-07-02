@@ -886,7 +886,7 @@ void vtkSVGContextDevice2D::DrawMarkers(
     default:
       // default is here for consistency with old impl -- defaults to plus for
       // unrecognized shapes.
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case VTK_MARKER_PLUS:
       markerId = this->AddPlusSymbol(highlight);
       stroke = true;
@@ -1101,7 +1101,7 @@ void vtkSVGContextDevice2D::DrawColoredPolygon(
     {
       case 4:
         this->Brush->SetOpacity(colors[3]);
-        VTK_FALLTHROUGH;
+        [[fallthrough]];
       case 3:
         this->Brush->SetColor(colors);
         break;
@@ -1727,7 +1727,7 @@ void vtkSVGContextDevice2D::ApplyPenStippleToNode(vtkXMLDataElement* node)
   {
     default:
       vtkErrorMacro("Unknown line type: " << this->Pen->GetLineType());
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
 
     case vtkPen::NO_PEN:
       node->SetAttribute("stroke-dasharray", "0,10");

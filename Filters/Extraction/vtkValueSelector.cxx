@@ -563,7 +563,7 @@ void vtkValueSelector::Initialize(vtkSelectionNode* node)
             }
           }
         }
-        VTK_FALLTHROUGH;
+        [[fallthrough]];
       case vtkSelectionNode::VALUES:
         if (selectionList->GetName() == nullptr || selectionList->GetName()[0] == '\0')
         {

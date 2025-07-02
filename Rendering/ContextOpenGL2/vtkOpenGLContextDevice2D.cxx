@@ -2323,7 +2323,7 @@ vtkImageData* vtkOpenGLContextDevice2D::GenerateMarker(int shape, int width, boo
     }
     default: // Maintaining old behavior, which produces plus for unknown shape
       vtkWarningMacro(<< "Invalid marker shape: " << shape);
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case VTK_MARKER_PLUS:
     {
       int center = (width + 1) / 2;
@@ -2479,7 +2479,7 @@ void vtkOpenGLContextDevice2D::DrawCrossMarkersGL2PS(
           break;
         case 2:
           color[3] = colors[i * nc_comps + 1];
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case 1:
           memset(color, colors[i * nc_comps], 3);
           break;
@@ -2552,7 +2552,7 @@ void vtkOpenGLContextDevice2D::DrawPlusMarkersGL2PS(
           break;
         case 2:
           color[3] = colors[i * nc_comps + 1];
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case 1:
           memset(color, colors[i * nc_comps], 3);
           break;
@@ -2615,7 +2615,7 @@ void vtkOpenGLContextDevice2D::DrawSquareMarkersGL2PS(
           break;
         case 2:
           color[3] = colors[i * nc_comps + 1];
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case 1:
           memset(color, colors[i * nc_comps], 3);
           break;
@@ -2668,7 +2668,7 @@ void vtkOpenGLContextDevice2D::DrawCircleMarkersGL2PS(
           break;
         case 2:
           color[3] = colors[i * nc_comps + 1];
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case 1:
           memset(color, colors[i * nc_comps], 3);
           break;
@@ -2717,7 +2717,7 @@ void vtkOpenGLContextDevice2D::DrawDiamondMarkersGL2PS(
           break;
         case 2:
           color[3] = colors[i * nc_comps + 1];
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case 1:
           memset(color, colors[i * nc_comps], 3);
           break;
