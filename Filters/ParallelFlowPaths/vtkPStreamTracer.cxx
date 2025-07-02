@@ -753,7 +753,7 @@ public:
     {
       amrPoint->SetLevel(level);
       amrPoint->SetId(id);
-      int blockIndex = this->AMR->GetCompositeIndex(level, id);
+      int blockIndex = this->AMR->GetAbsoluteBlockIndex(level, id);
       amrPoint->SetRank(this->BlockProcess[blockIndex]);
       return true;
     }
@@ -802,7 +802,7 @@ public:
       {
         amrp->SetLevel((int)level);
         amrp->SetGridId((int)gridId);
-        int blockIndex = this->AMR->GetCompositeIndex(level, gridId);
+        int blockIndex = this->AMR->GetAbsoluteBlockIndex(level, gridId);
         int process = this->BlockProcess[blockIndex];
         AssertGe(process, 0);
         amrp->SetRank(process);
