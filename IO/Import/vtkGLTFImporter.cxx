@@ -330,8 +330,8 @@ bool ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
   // The polydata mapper expects a 4x4 matrix so we need to expand
   double expandedMat[] = { generalTransform[0][0], generalTransform[0][1], 0,
     generalTransform[0][2], generalTransform[1][0], generalTransform[1][1], 0,
-    generalTransform[1][2], generalTransform[2][0], generalTransform[2][1], 0,
-    generalTransform[2][2], 0, 0, 0, 1 };
+    generalTransform[1][2], 0, 0, 1, 0, generalTransform[2][0], generalTransform[2][1], 0,
+    generalTransform[2][2] };
   actor->GetPropertyKeys()->Set(vtkProp::GeneralTextureTransform(), expandedMat, 16);
 
   if (!material.DoubleSided)
