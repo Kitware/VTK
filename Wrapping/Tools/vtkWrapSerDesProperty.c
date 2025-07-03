@@ -77,6 +77,12 @@ static int vtkWrapSerDes_IsIndexedWithSize(const unsigned int methodType)
 }
 
 /* -------------------------------------------------------------------- */
+static int vtkWrapSerDes_HasSettableSize(const unsigned int methodType)
+{
+  return vtkWrapSerDes_MethodTypeMatches(methodType, VTK_METHOD_SET_NUMBER_OF);
+}
+
+/* -------------------------------------------------------------------- */
 static int vtkWrapSerDes_IsSerializable(const unsigned int methodType)
 {
   return vtkWrapSerDes_MethodTypeMatches(methodType, VTK_METHOD_GET) ||
@@ -667,6 +673,10 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
     fprintf(fp, "    if ((arrIter != state.end()) && !arrIter->is_null())\n");
     fprintf(fp, "    {\n");
     fprintf(fp, "      const auto items = arrIter->get<nlohmann::json::array_t>();\n");
+    if (vtkWrapSerDes_HasSettableSize(propertyInfo->PublicMethods))
+    {
+      fprintf(fp, "      object->SetNumberOf%ss(static_cast<vtkIdType>(items.size()));\n", keyName);
+    }
     fprintf(fp, "      for (auto iter = items.begin(); iter != items.end(); ++iter)\n");
     fprintf(fp, "      {\n");
     fprintf(fp, "        if (iter->empty())\n");
