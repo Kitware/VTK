@@ -113,6 +113,7 @@ public:
   /**
    * Return number of points in array.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkIdType GetNumberOfPoints() const { return this->Data->GetNumberOfTuples(); }
 
   /**
@@ -121,6 +122,7 @@ public:
    * and its values are only valid as long as another method invocation is not
    * performed. Prefer GetPoint() with the return value in argument.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   double* GetPoint(vtkIdType id) VTK_EXPECTS(0 <= id && id < GetNumberOfPoints()) VTK_SIZEHINT(3)
   {
     return this->Data->GetTuple(id);
@@ -130,6 +132,7 @@ public:
    * Copy point components into user provided array v[3] for specified
    * id.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void GetPoint(vtkIdType id, double x[3]) VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
     VTK_SIZEHINT(3)
   {
@@ -142,14 +145,17 @@ public:
    * to using SetPoint(). You should call Modified() finally after
    * changing points using this method as it will not do it itself.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetPoint(vtkIdType id, const float x[3]) VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
   {
     this->Data->SetTuple(id, x);
   }
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetPoint(vtkIdType id, const double x[3]) VTK_EXPECTS(0 <= id && id < GetNumberOfPoints())
   {
     this->Data->SetTuple(id, x);
   }
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetPoint(vtkIdType id, double x, double y, double z)
     VTK_EXPECTS(0 <= id && id < GetNumberOfPoints());
 
@@ -201,6 +207,7 @@ public:
    * allocation as well as setting the MaxId ivar. Used in conjunction with
    * SetPoint() method for fast insertion.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetNumberOfPoints(vtkIdType numPoints);
 
   /**

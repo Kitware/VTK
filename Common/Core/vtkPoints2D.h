@@ -112,6 +112,7 @@ public:
   /**
    * Return number of points in array.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkIdType GetNumberOfPoints() const { return this->Data->GetNumberOfTuples(); }
 
   /**
@@ -120,11 +121,13 @@ public:
    * and its values are only valid as long as another method invocation is not
    * performed. Prefer GetPoint() with the return value in argument.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   double* GetPoint(vtkIdType id) VTK_SIZEHINT(2) { return this->Data->GetTuple(id); }
 
   /**
    * Copy point components into user provided array v[2] for specified id.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void GetPoint(vtkIdType id, double x[2]) { this->Data->GetTuple(id, x); }
 
   /**
@@ -132,8 +135,11 @@ public:
    * Make sure you use SetNumberOfPoints() to allocate memory prior
    * to using SetPoint().
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetPoint(vtkIdType id, const float x[2]) { this->Data->SetTuple(id, x); }
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetPoint(vtkIdType id, const double x[2]) { this->Data->SetTuple(id, x); }
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetPoint(vtkIdType id, double x, double y);
 
   /**
@@ -161,6 +167,7 @@ public:
    * allocation as well as setting the MaxId ivar. Used in conjunction with
    * SetPoint() method for fast insertion.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void SetNumberOfPoints(vtkIdType numPoints);
 
   /**
