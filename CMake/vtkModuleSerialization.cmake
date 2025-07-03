@@ -6,6 +6,9 @@ vtkModuleSerialization
 **********************
 
 #]==]
+
+get_filename_component(_vtkModuleSerialization_dir "${CMAKE_CURRENT_LIST_FILE}" DIRECTORY)
+
 #[==[.rst:
 .. cmake:command:: vtk_module_generate_library_serdes_registrar
 
@@ -147,45 +150,32 @@ function (vtk_module_generate_libraries_serdes_registrar)
   endif ()
 
   set(_vtk_serdes_registrar_name "${_vtk_serdes_REGISTRAR_NAME}")
+  set(_vtk_serdes_marshal_depends)
+  list(APPEND _vtk_serdes_marshal_depends
+    ${_vtk_serdes_MANDATORY_MODULES})
+  foreach (_vtk_serdes_optional_depend IN LISTS _vtk_serdes_OPTIONAL_MODULES)
+    _vtk_module_optional_dependency_exists("${_vtk_serdes_optional_depend}"
+      SATISFIED_VAR _vtk_serdes_optional_depend_exists)
+    if (NOT _vtk_serdes_optional_depend_exists)
+      continue ()
+    endif ()
+    list(APPEND _vtk_serdes_marshal_depends
+      "${_vtk_serdes_optional_depend}")
+  endforeach ()
 
-  set(_vtk_serdes_include_mandatory_libraries_registrar_headers "")
-  set(_vtk_serdes_register_mandatory_libraries "")
-  foreach (_vtk_serdes_module IN LISTS _vtk_serdes_MANDATORY_MODULES)
+  set(_vtk_serdes_include_libraries_registrar_headers "")
+  set(_vtk_serdes_register_libraries "")
+  foreach (_vtk_serdes_module IN LISTS _vtk_serdes_marshal_depends)
     _vtk_module_get_module_property("${_vtk_serdes_module}"
       PROPERTY "library_name"
       VARIABLE _vtk_serdes_library_name)
-    string(APPEND _vtk_serdes_include_mandatory_libraries_registrar_headers
-      "#include \"${_vtk_serdes_library_name}SerDes.h\"")
-    string(APPEND _vtk_serdes_register_mandatory_libraries "
+    string(APPEND _vtk_serdes_include_libraries_registrar_headers
+      "#include \"${_vtk_serdes_library_name}SerDes.h\"\n")
+    string(APPEND _vtk_serdes_register_libraries "
   if(!RegisterClasses_${_vtk_serdes_library_name}(serializer, deserializer, invoker, error))
   {
     return FAIL;
   }\n")
-  endforeach ()
-
-  set(_vtk_serdes_include_optional_libraries_registrar_headers "")
-  set(_vtk_serdes_register_optional_libraries "")
-  foreach (_vtk_serdes_module IN LISTS _vtk_serdes_OPTIONAL_MODULES)
-    _vtk_module_optional_dependency_exists("${_vtk_serdes_module}"
-      SATISFIED_VAR _vtk_serdes_module_exists)
-    if (NOT _vtk_serdes_module_exists)
-      continue ()
-    endif ()
-    _vtk_module_get_module_property("${_vtk_serdes_module}"
-      PROPERTY "library_name"
-      VARIABLE _vtk_serdes_library_name)
-    string(REPLACE "::" "_" _vtk_serdes_module_enabled_condition "VTK_MODULE_ENABLE_${_vtk_serdes_module}")
-    string(APPEND _vtk_serdes_include_optional_libraries_registrar_headers "
-#if ${_vtk_serdes_module_enabled_condition}
-#include \"${_vtk_serdes_library_name}SerDes.h\"
-#endif\n")
-    string(APPEND _vtk_serdes_register_optional_libraries "
-#if ${_vtk_serdes_module_enabled_condition}
-  if(!RegisterClasses_${_vtk_serdes_library_name}(serializer, deserializer, invoker, error))
-  {
-    return FAIL;
-  }
-#endif\n")
   endforeach ()
 
   configure_file(
@@ -241,7 +231,7 @@ function (_vtk_module_serdes_generate_sources)
   _vtk_module_get_module_property("${_vtk_serdes_MODULE}"
     PROPERTY "library_name"
     VARIABLE _vtk_serdes_library_name)
-  set(_vtk_serdes_args_file "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_serdes_library_name}-SerDes.$<CONFIGURATION>.args")
+  set(_vtk_serdes_args_file "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_serdes_library_name}-SerDes.$<CONFIG>.args")
   set(_vtk_serdes_hierarchy_depends "${_vtk_serdes_MODULE}")
   # Get public dependencies of `module`.
   _vtk_module_get_module_property("${_vtk_serdes_MODULE}"
@@ -498,3 +488,182 @@ function (vtk_module_serdes)
     "${_vtk_serdes_sources}"
     PARENT_SCOPE)
 endfunction()
+
+
+#[==[.rst:
+.. cmake:command:: vtk_module_add_serdes_wasm_package
+
+  Adds a WebAssembly package that facilitates deserialization of VTK classes
+  in a WASM environment for ``MODULE``. |module-wrapping-serdes|
+
+  .. code-block:: cmake
+
+    vtk_module_add_serdes_wasm_package(
+      [ASYNC]
+      MODULE                <module>
+      OUTPUT_NAME           <output_name>
+      [INSTALL_COMPONENT     <install_component>]
+      [INSTALL_DESTINATION   <install_destination>]
+      [EXTRA_SOURCES         <extra_sources>...]
+      [EXTRA_COMPILE_OPTIONS <extra_compile_options>...]
+      [EXTRA_LINK_OPTIONS    <extra_link_options>...])
+
+  * ``ASYNC``: If specified, the generated package will be linked with
+    `-sJSPI=1` flag. The generated package will support asynchronous
+    string-based method calls. This option is required if ``MODULE``
+    depends on ``VTK::RenderingWebGPU`` to support asynchronous webgpu APIs.
+  * ``MODULE``: The name of a module.
+  * ``OUTPUT_NAME``: The name of the output file that will be generated.
+    This file will contain the bindings for the WebAssembly module.
+  * ``INSTALL_COMPONENT``: Installation component of the install rules created by this function.
+    Defaults to ``runtime``.
+  * ``INSTALL_DESTINATION``: The destination directory where the generated
+    WebAssembly package will be installed. Defaults to ``${CMAKE_INSTALL_BINDIR}``.
+  * ``EXTRA_SOURCES``: Additional sources that will be compiled into the
+    WebAssembly package. This is useful for adding custom JavaScript wrappers
+    or other C++ sources that are not part of the VTK module but are needed
+    for the WebAssembly package.
+  * ``EXTRA_COMPILE_OPTIONS``: Additional compile options that will be
+    passed to the WebAssembly package.
+  * ``EXTRA_LINK_OPTIONS``: Additional link options that will be
+    passed to the WebAssembly package.
+
+#]==]
+function (vtk_module_add_serdes_wasm_package)
+  cmake_parse_arguments(PARSE_ARGV 0 _vtk_serdes
+    "ASYNC"
+    "MODULE;OUTPUT_NAME"
+    "EXTRA_SOURCES;EXTRA_COMPILE_OPTIONS;EXTRA_LINK_OPTIONS")
+  if (_vtk_serdes_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for vtk_module_add_serdes_wasm_package: "
+      "${_vtk_serdes_UNPARSED_ARGUMENTS}")
+  endif ()
+  if (NOT _vtk_serdes_MODULE)
+    message(FATAL_ERROR "No module name was specified!")
+  endif ()
+  if (NOT _vtk_serdes_OUTPUT_NAME)
+    message(FATAL_ERROR "No output name was specified!")
+  endif ()
+  if (NOT _vtk_serdes_INSTALL_COMPONENT)
+    set(_vtk_serdes_INSTALL_COMPONENT "runtime")
+  endif ()
+  if (NOT _vtk_serdes_INSTALL_DESTINATION)
+    set(_vtk_serdes_INSTALL_DESTINATION "${CMAKE_INSTALL_BINDIR}")
+  endif ()
+
+  set(_vtk_serdes_marshal_depends)
+  # Get link dependencies
+  get_property(_vtk_serdes_public_depends GLOBAL
+    PROPERTY "_vtk_module_${_vtk_serdes_MODULE}_depends")
+  get_property(_vtk_serdes_private_depends GLOBAL
+    PROPERTY "_vtk_module_${_vtk_serdes_MODULE}_private_depends")
+  foreach (_vtk_serdes_depend IN LISTS _vtk_serdes_private_depends _vtk_serdes_public_depends)
+    # Skip dependencies that do not include marshal support
+    _vtk_module_get_module_property("${_vtk_serdes_depend}"
+      PROPERTY  "include_marshal"
+      VARIABLE  _vtk_serdes_depend_include_marshal)
+    if (NOT _vtk_serdes_depend_include_marshal)
+      continue ()
+    endif ()
+    list(APPEND _vtk_serdes_marshal_depends
+      "${_vtk_serdes_depend}")
+  endforeach ()
+  # Get optional dependencies
+  get_property(_vtk_serdes_optional_depends GLOBAL
+    PROPERTY "_vtk_module_${_vtk_serdes_MODULE}_optional_depends")
+  foreach (_vtk_serdes_optional_depend IN LISTS _vtk_serdes_optional_depends)
+    # Skip optional dependencies that are not available
+    _vtk_module_optional_dependency_exists("${_vtk_serdes_optional_depend}"
+      SATISFIED_VAR _vtk_serdes_optional_depend_exists)
+    if (NOT _vtk_serdes_optional_depend_exists)
+      continue ()
+    endif ()
+    list(APPEND _vtk_serdes_marshal_depends
+      "${_vtk_serdes_optional_depend}")
+  endforeach ()
+  # Generate code that registers (de)serialization functions for all classes
+  # in all the dependencies.
+  set(_vtk_serdes_include_libraries_registrar_headers "")
+  set(_vtk_serdes_register_libraries "")
+  foreach (_vtk_serdes_dependency IN LISTS _vtk_serdes_marshal_depends)
+    # Skip dependencies that do not include marshal support
+    _vtk_module_get_module_property("${_vtk_serdes_dependency}"
+      PROPERTY  "include_marshal"
+      VARIABLE  _vtk_serdes_dependency_include_marshal)
+    if (NOT _vtk_serdes_dependency_include_marshal)
+      continue ()
+    endif ()
+    _vtk_module_get_module_property("${_vtk_serdes_dependency}"
+      PROPERTY "library_name"
+      VARIABLE _vtk_serdes_library_name)
+    string(APPEND _vtk_serdes_include_libraries_registrar_headers
+      "#include \"${_vtk_serdes_library_name}SerDes.h\"\n")
+    string(APPEND _vtk_serdes_register_libraries "
+if(!RegisterClasses_${_vtk_serdes_library_name}(serializer, deserializer, invoker, error))
+{
+  return FAIL;
+}\n")
+  endforeach ()
+
+  configure_file(
+    "${_vtkModuleSerialization_dir}/vtkSerializationWebAssemblyBindings.cxx.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_serdes_OUTPUT_NAME}Bindings.cxx"
+    @ONLY)
+
+  vtk_module_add_executable(${_vtk_serdes_MODULE}
+    "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_serdes_OUTPUT_NAME}Bindings.cxx"
+    "${_vtk_serdes_EXTRA_SOURCES}")
+
+  file(CONFIGURE 
+    OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_serdes_OUTPUT_NAME}.post.js"
+    CONTENT "globalThis.createVTKWASM = ${_vtk_serdes_OUTPUT_NAME};\n")
+  set(emscripten_link_options)
+  list(APPEND emscripten_link_options
+    "-lembind"
+    "--extern-post-js=${CMAKE_CURRENT_BINARY_DIR}/${_vtk_serdes_OUTPUT_NAME}.post.js"
+    "-sALLOW_MEMORY_GROWTH=1"
+    "-sALLOW_TABLE_GROWTH=1"
+    "-sEXPORT_NAME=${_vtk_serdes_OUTPUT_NAME}"
+    "-sENVIRONMENT=node,web"
+    "-sEXPORTED_RUNTIME_METHODS=['addFunction','UTF8ToString','FS', 'ENV']")
+  if (CMAKE_SIZEOF_VOID_P EQUAL "8")
+    list(APPEND emscripten_link_options
+      "-sMAXIMUM_MEMORY=16GB")
+  else ()
+    list(APPEND emscripten_link_options
+      "-sMAXIMUM_MEMORY=4GB")
+  endif ()
+  vtk_module_compile_options(${_vtk_serdes_MODULE}
+    PRIVATE
+      ${_vtk_serdes_EXTRA_COMPILE_OPTIONS})
+  vtk_module_link_options(${_vtk_serdes_MODULE}
+    PRIVATE
+      ${emscripten_link_options}
+      ${_vtk_serdes_EXTRA_LINK_OPTIONS})
+  if (_vtk_serdes_ASYNC)
+    vtk_module_link_options(${_vtk_serdes_MODULE}
+      PRIVATE
+        "-Wno-experimental"
+        "-sJSPI=1"
+        "-sJSPI_EXPORTS=['__wasm_call_ctors']")
+  endif ()
+  # Ensures unique symbol mangling for test executables to avoid symbol conflicts.
+  vtk_add_test_mangling(${_vtk_serdes_MODULE})
+
+  _vtk_module_real_target(_vtk_serdes_real_target_name "${_vtk_serdes_MODULE}")
+  vtk_module_autoinit(
+    TARGETS ${_vtk_serdes_real_target_name}
+    MODULES ${_vtk_serdes_marshal_depends})
+  # The SUFFIX property is set to ".mjs" to ensure the output JavaScript module has the correct extension for ES modules.
+  set_target_properties(${_vtk_serdes_real_target_name}
+    PROPERTIES
+      OUTPUT_NAME "${_vtk_serdes_OUTPUT_NAME}"
+      SUFFIX ".mjs")
+  # [cmake/cmake#20745](https://gitlab.kitware.com/cmake/cmake/-/issues/20745)
+  # CMake doesn't install multiple files associated with an executable target.
+  install(FILES
+    "$<TARGET_FILE_DIR:${_vtk_serdes_real_target_name}>/${_vtk_serdes_OUTPUT_NAME}.wasm"
+    COMPONENT ${_vtk_serdes_INSTALL_COMPONENT}
+    DESTINATION ${_vtk_serdes_INSTALL_DESTINATION})
+endfunction ()
