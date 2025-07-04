@@ -159,6 +159,12 @@ public:
     vtkTypeInt64* data, vtkTypeInt64 length, int remoteProcessId, int tag, Request& req);
   ///@}
 
+  /**
+   * Exchange variable-sized messages between all processes
+   */
+  int AllToAllVVoidArray(const void* sendBuffer, const int* sendCounts, const int* sendOffsets,
+    void* recvBuffer, const int* recvCounts, const int* recvOffsets, int type);
+
   ///@{
   /**
    * More efficient implementations of collective operations that use
