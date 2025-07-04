@@ -36,7 +36,7 @@ int TestAMRInterpolatedVelocityField(int, char*[])
   amrGrad->GenerateParentChildInformation();
   for (unsigned int datasetLevel = 0; datasetLevel < amrGrad->GetNumberOfLevels(); datasetLevel++)
   {
-    for (unsigned int id = 0; id < amrGrad->GetNumberOfDataSets(datasetLevel); id++)
+    for (unsigned int id = 0; id < amrGrad->GetNumberOfBlocks(datasetLevel); id++)
     {
       vtkUniformGrid* grid = amrGrad->GetDataSet(datasetLevel, id);
       int numBlankedCells(0);

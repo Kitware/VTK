@@ -336,10 +336,10 @@ void vtkAMRResampleFilter::TransferToCellCenters(vtkUniformGrid* g, vtkOverlappi
     this->ComputeCellCentroid(g, cellIdx, qPoint);
 
     unsigned int level = 0;
-    for (; level < amrds->GetNumberOfDataSets(level); ++level)
+    for (; level < amrds->GetNumberOfBlocks(level); ++level)
     {
       unsigned int dataIdx = 0;
-      for (; dataIdx < amrds->GetNumberOfDataSets(level); ++dataIdx)
+      for (; dataIdx < amrds->GetNumberOfBlocks(level); ++dataIdx)
       {
         int donorCellIdx = -1;
         vtkUniformGrid* donorGrid = amrds->GetDataSet(level, dataIdx);
@@ -366,7 +366,7 @@ bool vtkAMRResampleFilter::SearchForDonorGridAtLevel(double q[3], vtkOverlapping
 
   vtkTimerLog::MarkStartEvent(oss.str().c_str());
 
-  for (donorGridId = 0; donorGridId < amrds->GetNumberOfDataSets(level); ++donorGridId)
+  for (donorGridId = 0; donorGridId < amrds->GetNumberOfBlocks(level); ++donorGridId)
   {
     donorCellIdx = -1;
     this->NumberOfBlocksTestedForLevel++;
@@ -855,7 +855,7 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad(vtkOverlappingAMR* metadata)
   for (; level < maxLevelToLoad; ++level)
   {
     unsigned int dataIdx = 0;
-    for (; dataIdx < metadata->GetNumberOfDataSets(level); ++dataIdx)
+    for (; dataIdx < metadata->GetNumberOfBlocks(level); ++dataIdx)
     {
       double grd[6];
       metadata->GetBounds(level, dataIdx, grd);
@@ -1205,7 +1205,7 @@ vtkUniformGrid* vtkAMRResampleFilter::GetReferenceGrid(vtkOverlappingAMR* amrds)
   unsigned int numLevels = amrds->GetNumberOfLevels();
   for (unsigned int l = 0; l < numLevels; ++l)
   {
-    unsigned int numDatasets = amrds->GetNumberOfDataSets(l);
+    unsigned int numDatasets = amrds->GetNumberOfBlocks(l);
     for (unsigned int dataIdx = 0; dataIdx < numDatasets; ++dataIdx)
     {
       vtkUniformGrid* refGrid = amrds->GetDataSet(l, dataIdx);

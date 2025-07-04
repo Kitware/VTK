@@ -80,17 +80,6 @@ int vtkExtractLevel::RequestUpdateExtent(
 
     if (metadata)
     {
-      // cout<<"Time dependent?
-      // "<<inInfo->Has(vtkStreamingDemandDrivenPipeline::TIME_DEPENDENT_INFORMATION())<<endl;
-      // std::cout<<"Receive Meta Data: ";
-      // for(int levelIdx=0 ; levelIdx < metadata->GetNumberOfLevels(); ++levelIdx )
-      //   {
-      //   std::cout << " \tL(" << levelIdx << ") = "
-      //             << metadata->GetNumberOfDataSets( levelIdx ) << " ";
-      //   std::cout.flush();
-      //   } // END for levels
-      // std::cout<<endl;
-
       // Tell reader to load all requested blocks.
       inInfo->Set(vtkCompositeDataPipeline::LOAD_REQUESTED_BLOCKS(), 1);
 
@@ -100,7 +89,7 @@ int vtkExtractLevel::RequestUpdateExtent(
            iter != this->Levels->end(); ++iter)
       {
         unsigned int level = (*iter);
-        for (unsigned int dataIdx = 0; dataIdx < metadata->GetNumberOfDataSets(level); ++dataIdx)
+        for (unsigned int dataIdx = 0; dataIdx < metadata->GetNumberOfBlocks(level); ++dataIdx)
         {
           blocksToLoad.push_back(metadata->GetCompositeIndex(level, dataIdx));
         }
@@ -147,7 +136,7 @@ int vtkExtractLevel::RequestData(vtkInformation* vtkNotUsed(request),
       break;
     }
     unsigned int level = (*iter);
-    numBlocksToLoad += input->GetNumberOfDataSets(level);
+    numBlocksToLoad += input->GetNumberOfBlocks(level);
   } // END for all requested levels
   output->SetNumberOfBlocks(numBlocksToLoad);
 
@@ -164,7 +153,7 @@ int vtkExtractLevel::RequestData(vtkInformation* vtkNotUsed(request),
       }
       unsigned int level = (*iter);
       unsigned int dataIdx = 0;
-      for (; dataIdx < input->GetNumberOfDataSets(level); ++dataIdx)
+      for (; dataIdx < input->GetNumberOfBlocks(level); ++dataIdx)
       {
         vtkUniformGrid* data = input->GetDataSet(level, dataIdx);
         if (data != nullptr)

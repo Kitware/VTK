@@ -132,7 +132,7 @@ void WriteAMR(vtkOverlappingAMR* amr, const std::string& prefix)
   for (; levelIdx < amr->GetNumberOfLevels(); ++levelIdx)
   {
     unsigned int dataIdx = 0;
-    for (; dataIdx < amr->GetNumberOfDataSets(levelIdx); ++dataIdx)
+    for (; dataIdx < amr->GetNumberOfBlocks(levelIdx); ++dataIdx)
     {
       oss.str("");
       oss << prefix << "-L" << levelIdx << "-G" << dataIdx;
@@ -381,14 +381,14 @@ void RegisterGrids(
 
   gridConnectivity->SetNodeCentered(false);
   gridConnectivity->SetCellCentered(true);
-  gridConnectivity->Initialize(amr->GetNumberOfLevels(), amr->GetTotalNumberOfBlocks(), ratio);
+  gridConnectivity->Initialize(amr->GetNumberOfLevels(), amr->GetNumberOfBlocks(), ratio);
 
   unsigned int levelIdx = 0;
   int ext[6];
   for (; levelIdx < amr->GetNumberOfLevels(); ++levelIdx)
   {
     unsigned int dataIdx = 0;
-    for (; dataIdx < amr->GetNumberOfDataSets(levelIdx); ++dataIdx)
+    for (; dataIdx < amr->GetNumberOfBlocks(levelIdx); ++dataIdx)
     {
       int idx = amr->GetCompositeIndex(levelIdx, dataIdx);
       vtkUniformGrid* grid = amr->GetDataSet(levelIdx, dataIdx);
@@ -414,7 +414,7 @@ void GetGhostedAMRData(vtkOverlappingAMR* amr, vtkStructuredAMRGridConnectivity*
   blocksPerLevel.reserve(amr->GetNumberOfLevels());
   for (unsigned int i = 0; i < amr->GetNumberOfLevels(); i++)
   {
-    blocksPerLevel.push_back(amr->GetNumberOfDataSets(i));
+    blocksPerLevel.push_back(amr->GetNumberOfBlocks(i));
   }
   ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
 
@@ -422,7 +422,7 @@ void GetGhostedAMRData(vtkOverlappingAMR* amr, vtkStructuredAMRGridConnectivity*
   for (; levelIdx < amr->GetNumberOfLevels(); ++levelIdx)
   {
     unsigned int dataIdx = 0;
-    for (; dataIdx < amr->GetNumberOfDataSets(levelIdx); ++dataIdx)
+    for (; dataIdx < amr->GetNumberOfBlocks(levelIdx); ++dataIdx)
     {
       int linearIdx = amr->GetCompositeIndex(levelIdx, dataIdx);
       vtkUniformGrid* grid = amr->GetDataSet(levelIdx, dataIdx);
@@ -471,7 +471,7 @@ int Test2DAMR(const int ratio)
   vtkOverlappingAMR* amr = vtkOverlappingAMR::New();
   Get2DAMRData(amr, ratio);
   assert("post Total number of blocks mismatch!" &&
-    (static_cast<int>(amr->GetTotalNumberOfBlocks()) == NumPatches));
+    (static_cast<int>(amr->GetNumberOfBlocks()) == NumPatches));
   WriteAMR(amr, "AMR2D-INITIAL");
 
   // STEP 1: Register grids
@@ -515,7 +515,7 @@ int Test3DAMR(const int ratio)
   vtkOverlappingAMR* amr = vtkOverlappingAMR::New();
   Get3DAMRData(amr, ratio);
   assert("post Total number of blocks mismatch!" &&
-    (static_cast<int>(amr->GetTotalNumberOfBlocks()) == NumPatches));
+    (static_cast<int>(amr->GetNumberOfBlocks()) == NumPatches));
   WriteAMR(amr, "AMR3D-INITIAL");
 
   // STEP 1: Register grids

@@ -298,7 +298,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* 
     double spacing[3];
     oamr->GetSpacing(level, spacing);
 
-    *fp << oamr->GetNumberOfDataSets(level) << " " << spacing[0] << " " << spacing[1] << " "
+    *fp << oamr->GetNumberOfBlocks(level) << " " << spacing[0] << " " << spacing[1] << " "
         << spacing[2] << "\n";
   }
 
@@ -310,11 +310,11 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* 
   // box.LoCorner[3], box.HiCorner[3]
   idata->SetName("IntMetaData");
   idata->SetNumberOfComponents(6);
-  idata->SetNumberOfTuples(oamr->GetTotalNumberOfBlocks());
+  idata->SetNumberOfTuples(oamr->GetNumberOfBlocks());
   unsigned int metadata_index = 0;
   for (unsigned int level = 0; level < num_levels; level++)
   {
-    unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
+    unsigned int num_datasets = oamr->GetNumberOfBlocks(level);
     for (unsigned int index = 0; index < num_datasets; index++, metadata_index++)
     {
       const vtkAMRBox& box = oamr->GetAMRBox(level, index);
@@ -331,7 +331,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* 
   metadata_index = 0;
   for (unsigned int level = 0; level < num_levels; level++)
   {
-    unsigned int num_datasets = oamr->GetNumberOfDataSets(level);
+    unsigned int num_datasets = oamr->GetNumberOfBlocks(level);
     for (unsigned int index = 0; index < num_datasets; index++, metadata_index++)
     {
       vtkUniformGrid* dataset = oamr->GetDataSet(level, index);

@@ -770,7 +770,7 @@ bool vtkHDFReader::Implementation::ReadLevelData(unsigned int level,
       // Iterate over all datasets, read data and assign attribute
       hsize_t dataOffset = 0;
       hsize_t dataSize = 0;
-      unsigned int numberOfDatasets = data->GetNumberOfDataSets(level);
+      unsigned int numberOfDatasets = data->GetNumberOfBlocks(level);
       for (unsigned int dataSetIndex = 0; dataSetIndex < numberOfDatasets; ++dataSetIndex)
       {
         const vtkAMRBox& amrBox = data->GetAMRBox(level, dataSetIndex);

@@ -98,7 +98,7 @@ protected:
 
     for (unsigned int level = 0; level < output->GetNumberOfLevels(); ++level)
     {
-      for (unsigned int idx = 0; idx < output->GetNumberOfDataSets(level); ++idx)
+      for (unsigned int idx = 0; idx < output->GetNumberOfBlocks(level); ++idx)
       {
         vtkUniformGrid* grid = output->GetDataSet(level, idx);
         if (!grid)

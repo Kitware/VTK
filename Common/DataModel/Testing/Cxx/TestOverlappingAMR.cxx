@@ -146,7 +146,7 @@ int TestOverlappingAMR(int, char*[])
     return EXIT_FAILURE;
   }
 
-  if (amr->GetTotalNumberOfBlocks() != 3)
+  if (amr->GetNumberOfBlocks() != 3)
   {
     vtkLogF(ERROR, "Invalid total number of blocks");
     return EXIT_FAILURE;

@@ -115,13 +115,13 @@ int TestNonOverlappingAMR(int, char*[])
     return EXIT_FAILURE;
   }
 
-  if (amr->GetNumberOfDataSets(1) != 2)
+  if (amr->GetNumberOfBlocks(1) != 2)
   {
-    vtkLogF(ERROR, "Invalid number of datasets");
+    vtkLogF(ERROR, "Invalid number of blocks for a level");
     return EXIT_FAILURE;
   }
 
-  if (amr->GetTotalNumberOfBlocks() != 3)
+  if (amr->GetNumberOfBlocks() != 3)
   {
     vtkLogF(ERROR, "Invalid total number of blocks");
     return EXIT_FAILURE;

@@ -206,7 +206,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkOverlappingAMR* input, vtkPolyDat
   vtkNew<vtkAppendPolyData> appender;
   for (unsigned int level = 0; level < input->GetNumberOfLevels(); ++level)
   {
-    unsigned int num_datasets = input->GetNumberOfDataSets(level);
+    unsigned int num_datasets = input->GetNumberOfBlocks(level);
     for (unsigned int dataIdx = 0; dataIdx < num_datasets; ++dataIdx)
     {
       double bounds[6];
@@ -229,7 +229,7 @@ int vtkPOutlineFilterInternals::RequestData(vtkUniformGridAMR* input, vtkPolyDat
   unsigned int block_id = 0;
   for (unsigned int level = 0; level < input->GetNumberOfLevels(); ++level)
   {
-    unsigned int num_datasets = input->GetNumberOfDataSets(level);
+    unsigned int num_datasets = input->GetNumberOfBlocks(level);
     for (unsigned int dataIdx = 0; dataIdx < num_datasets; ++dataIdx, block_id++)
     {
       vtkUniformGrid* ug = input->GetDataSet(level, dataIdx);

@@ -29,7 +29,7 @@ int ComputeNumCells(vtkOverlappingAMR* amr)
   int n(0);
   for (unsigned int level = 0; level < amr->GetNumberOfLevels(); level++)
   {
-    int numDataSets = amr->GetNumberOfDataSets(level);
+    int numDataSets = amr->GetNumberOfBlocks(level);
     for (int i = 0; i < numDataSets; i++)
     {
       vtkUniformGrid* grid = amr->GetDataSet(level, i);
@@ -87,7 +87,7 @@ int TestImageToAMR(int, char*[])
       {
         return VTK_FAILURE;
       }
-      if (maxBlocks < static_cast<int>(amr->GetTotalNumberOfBlocks()))
+      if (maxBlocks < static_cast<int>(amr->GetNumberOfBlocks()))
       {
         return VTK_FAILURE;
       }

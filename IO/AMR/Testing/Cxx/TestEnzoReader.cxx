@@ -99,7 +99,7 @@ int TestEnzoReader(int argc, char* argv[])
 
       rc += EnzoReaderTest::CheckValue("OUTPUT LEVELS", ComputeMaxNonEmptyLevel(amr), level + 1);
       rc += EnzoReaderTest::CheckValue("NUMBER OF BLOCKS AT LEVEL",
-        static_cast<int>(amr->GetNumberOfDataSets(level)), NumBlocksPerLevel[level]);
+        static_cast<int>(amr->GetNumberOfBlocks(level)), NumBlocksPerLevel[level]);
       rc += EnzoReaderTest::CheckValue(
         "Number of Visible cells ", ComputeNumberOfVisibleCells(amr), numVisibleCells[level]);
     }

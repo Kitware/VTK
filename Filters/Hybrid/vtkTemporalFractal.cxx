@@ -964,7 +964,7 @@ void vtkTemporalFractal::AddTestArray(vtkOverlappingAMR* output)
   int level = 0;
   while (level < levels)
   {
-    int blocks = output->GetNumberOfDataSets(level);
+    int blocks = output->GetNumberOfBlocks(level);
     int block = 0;
     while (block < blocks)
     {
@@ -1028,7 +1028,7 @@ void vtkTemporalFractal::AddVectorArray(vtkOverlappingAMR* output)
   int level = 0;
   while (level < levels)
   {
-    int blocks = output->GetNumberOfDataSets(level);
+    int blocks = output->GetNumberOfBlocks(level);
     int block = 0;
     while (block < blocks)
     {
@@ -1176,7 +1176,7 @@ void vtkTemporalFractal::AddBlockIdArray(vtkOverlappingAMR* output)
   int blockId = 0;
   while (level < levels)
   {
-    int blocks = output->GetNumberOfDataSets(level);
+    int blocks = output->GetNumberOfBlocks(level);
     int block = 0;
     while (block < blocks)
     {
@@ -1210,7 +1210,7 @@ void vtkTemporalFractal::AddDepthArray(vtkOverlappingAMR* output)
   int level = 0;
   while (level < levels)
   {
-    int blocks = output->GetNumberOfDataSets(level);
+    int blocks = output->GetNumberOfBlocks(level);
     int block = 0;
     while (block < blocks)
     {

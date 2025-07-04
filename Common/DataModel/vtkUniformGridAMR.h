@@ -18,6 +18,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkCompositeDataSet.h"
+#include "vtkDeprecation.h"  // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkNew.h"          // for vtkNew
 #include "vtkSmartPointer.h" // for vtkSmartPointer
 
@@ -68,14 +69,28 @@ public:
   unsigned int GetNumberOfLevels();
 
   /**
-   * Get the total number of blocks, including nullptr blocks
+   * Get the number of blocks for all levels including nullptr blocks, or 0 if AMRMetaData is
+   * invalid.
    */
-  virtual unsigned int GetTotalNumberOfBlocks();
+  [[nodiscard]] unsigned int GetNumberOfBlocks();
 
   /**
-   * Get the number of datasets at the given level, including null blocks
+   * Deprecated, forward to GetNumberOfBlocks
    */
-  unsigned int GetNumberOfDataSets(unsigned int level);
+  VTK_DEPRECATED_IN_9_6_0("Use GetNumberOfBlocks instead")
+  virtual unsigned int GetTotalNumberOfBlocks() { return this->GetNumberOfBlocks(); }
+
+  /**
+   * Get the number of block at the given level, including nullptr blocks, or 0 if AMRMetaData
+   * is invalid.
+   */
+  [[nodiscard]] unsigned int GetNumberOfBlocks(unsigned int level);
+
+  /**
+   * Deprecated, forward to GetNumberOfBlocks(level)
+   */
+  VTK_DEPRECATED_IN_9_6_0("Use GetNumberOfBlocks(level) instead")
+  unsigned int GetNumberOfDataSets(unsigned int level) { return this->GetNumberOfBlocks(level); }
 
   ///@{
   /**

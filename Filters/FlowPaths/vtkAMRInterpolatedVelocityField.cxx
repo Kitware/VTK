@@ -22,7 +22,7 @@ bool Inside(double q[3], double gbounds[6])
 
 bool FindInLevel(double q[3], vtkOverlappingAMR* amrds, int level, unsigned int& gridId)
 {
-  for (unsigned int i = 0; i < amrds->GetNumberOfDataSets(level); i++)
+  for (unsigned int i = 0; i < amrds->GetNumberOfBlocks(level); i++)
   {
     double gbounds[6];
     amrds->GetBounds(level, i, gbounds);

@@ -148,7 +148,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
     hierarchy->SetAttribute(node, "label", label.c_str());
     hierarchy->SetAttribute(node, "amr_level", level);
 
-    const auto numDataSets = amr->GetNumberOfDataSets(level);
+    const auto numDataSets = amr->GetNumberOfBlocks(level);
     // Add the composite index for each dataset in the AMR level.
     std::vector<unsigned int> datasetIndices(numDataSets);
     for (unsigned int cc = 0; cc < numDataSets; ++cc)

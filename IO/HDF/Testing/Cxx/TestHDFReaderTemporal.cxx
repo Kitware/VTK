@@ -1316,16 +1316,16 @@ int TestOverlappingAMRTemporalBase(OpenerWorklet& opener, const std::string& dat
 
     for (unsigned int levelIndex = 0; levelIndex < expectedData->GetNumberOfLevels(); ++levelIndex)
     {
-      if (dSet->GetNumberOfDataSets(levelIndex) != expectedData->GetNumberOfDataSets(levelIndex))
+      if (dSet->GetNumberOfBlocks(levelIndex) != expectedData->GetNumberOfBlocks(levelIndex))
       {
-        std::cerr << "Number of datasets does not match for level " << levelIndex
-                  << ". Expected: " << expectedData->GetNumberOfDataSets(0)
-                  << " got: " << dSet->GetNumberOfDataSets(0) << std::endl;
+        std::cerr << "Number of blocks does not match for level " << levelIndex
+                  << ". Expected: " << expectedData->GetNumberOfBlocks(0)
+                  << " got: " << dSet->GetNumberOfBlocks(0) << std::endl;
         return EXIT_FAILURE;
       }
 
       for (unsigned int datasetIndex = 0;
-           datasetIndex < expectedData->GetNumberOfDataSets(levelIndex); ++datasetIndex)
+           datasetIndex < expectedData->GetNumberOfBlocks(levelIndex); ++datasetIndex)
       {
         auto dataset = dSet->GetDataSet(levelIndex, datasetIndex);
         auto expectedDataset = expectedData->GetDataSet(levelIndex, datasetIndex);

@@ -111,7 +111,7 @@ int TestAMRFlashReader(int argc, char* argv[])
 
       rc += FlashReaderTest::CheckValue("OUTPUT LEVELS", ComputeMaxNonEmptyLevel(amr), 2);
       rc += FlashReaderTest::CheckValue("NUMBER OF BLOCKS AT LEVEL",
-        static_cast<int>(amr->GetNumberOfDataSets(level)), NumBlocksPerLevel[level]);
+        static_cast<int>(amr->GetNumberOfBlocks(level)), NumBlocksPerLevel[level]);
       int nc = 0, nvc = 0;
       ComputeNumberOfCells(amr, level, nc, nvc);
       rc += FlashReaderTest::CheckValue("Number of cells ", nc, numCells[level]);

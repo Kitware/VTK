@@ -87,7 +87,7 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(
       // the spacing very easily.
     }
 
-    unsigned int numDS = amr->GetNumberOfDataSets(level);
+    unsigned int numDS = amr->GetNumberOfBlocks(level);
     for (unsigned int cc = 0; cc < numDS; cc++)
     {
       vtkUniformGrid* ug = amr->GetDataSet(level, cc);
