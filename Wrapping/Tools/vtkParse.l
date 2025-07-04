@@ -1330,7 +1330,7 @@ const char* raw_string(const char* begin, int* has_ud_suffix)
           *dp++ = '\"';
           break;
         default:
-          sprintf(dp, "\\%3.3o", *textbuf);
+          snprintf(dp, m - (dp - result), "\\%3.3o", *textbuf);
           dp += 4;
           break;
       }

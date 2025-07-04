@@ -8780,7 +8780,7 @@ static void add_enum(const char* name, const char* value)
         i--;
       }
       j = (int)strtol(&text[i], NULL, 10);
-      sprintf(&text[i], "%li", j + 1);
+      snprintf(&text[i], sizeof(text) - i, "%li", j + 1);
     }
     else
     {

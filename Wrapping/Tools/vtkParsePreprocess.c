@@ -1961,7 +1961,7 @@ void preproc_escape_string(char** linep, size_t* linelenp, size_t* jp, size_t d,
           line[j++] = '\"';
           break;
         default:
-          sprintf(&line[j], "\\%3.3o", r[i]);
+          snprintf(&line[j], linelen - j, "\\%3.3o", r[i]);
           j += 4;
           break;
       }
