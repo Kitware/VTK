@@ -297,7 +297,7 @@ public:
   /**
    * Determine whether a data array of index idx is considered a data set
    * attribute (i.e., scalar, vector, tensor, etc). Return less-than zero
-   * if it is, otherwise an index 0<=idx<NUM_ATTRIBUTES to indicate
+   * if it is not, otherwise an index 0<=idx<NUM_ATTRIBUTES to indicate
    * which attribute.
    */
   int IsArrayAnAttribute(int idx);
