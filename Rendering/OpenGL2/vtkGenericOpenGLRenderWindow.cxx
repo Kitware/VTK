@@ -177,6 +177,7 @@ void vtkGenericOpenGLRenderWindow::SetIsCurrent(bool newValue)
 
 void vtkGenericOpenGLRenderWindow::OpenGLInit()
 {
+  this->OpenGLInitContext();
   auto state = this->GetState();
   state->Reset();
   state->Push();
