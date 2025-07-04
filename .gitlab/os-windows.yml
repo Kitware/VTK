@@ -432,8 +432,6 @@
     - wasm-ld --version
     - wasm-opt --version
     - emcc --version
-    # Fetch dawn
-    - cmake -P .gitlab/ci/download_dawn.cmake
 
 .cmake_test_wasm_emscripten_windows_ext:
     stage: test-ext
