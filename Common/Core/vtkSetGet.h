@@ -1314,21 +1314,26 @@ public:
   vtkTemplateMacroCase(VTK_BIT, vtkBitArrayIterator, call)
 
 //----------------------------------------------------------------------------
-// Deprecation attribute.
+// Deprecation attribute, currently deprecated and will be removed
+// at the same time as VTK_DEPRECATION_IN_9_6_0 deprecations
+#if !defined(VTK_WRAPPING_CXX)
 
-#if !defined(VTK_DEPRECATED) && !defined(VTK_WRAPPING_CXX)
-#if __cplusplus >= 201402L && defined(__has_cpp_attribute)
-#if __has_cpp_attribute(deprecated)
+#if defined(VTK_COMPILER_GCC) || defined(VTK_COMPILER_CLANG) || defined(VTK_COMPILER_ICC)
+// GCC warning compatible compiler
+#define VTK_DEPRECATED                                                                             \
+  _Pragma("GCC warning \"VTK_DEPRECATED is deprecated, use [[deprecated]] instead\"") [[deprecated]]
+#elif defined(VTK_COMPILER_MSVC)
+// MSVC pragma
+#define VTK_DEPRECATED                                                                             \
+  _Pragma(comment(compiler, "VTK_DEPRECATED is deprecated, use [[deprecated]] instead"))           \
+    [[deprecated]]
+#else
+// Other compiler do not have a deprecated warning
 #define VTK_DEPRECATED [[deprecated]]
 #endif
-#elif defined(_MSC_VER)
-#define VTK_DEPRECATED __declspec(deprecated)
-#elif defined(__GNUC__) && !defined(__INTEL_COMPILER)
-#define VTK_DEPRECATED __attribute__((deprecated))
-#endif
-#endif
 
-#ifndef VTK_DEPRECATED
+#else
+// During wrapping, do not deprecate at all
 #define VTK_DEPRECATED
 #endif
 
