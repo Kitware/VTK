@@ -18,6 +18,7 @@ The following variables are provided by this module:
   * `VTK_HAS_VISKORES`: If VTK provides Viskores.
   * `VTK_OPENGL_HAS_EGL`: If VTK can use EGL for OpenGL context.
   * `VTK_USE_X`: If VTK uses X windows.
+  * `VTK_USE_COCOA`: If VTK uses Cocoa (only present on APPLE systems).
   * `VTK_PYTHON_VERSION`: The major version of Python used by VTK. Empty if
     Python support is not available.
   * `VTK_WRAP_PYTHON`: If VTK itself provides Python wrapping. If so, the
