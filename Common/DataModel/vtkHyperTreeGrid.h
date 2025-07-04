@@ -63,8 +63,8 @@
 #include "vtkSmartPointer.h" // vtkSmartPointer
 
 #include <cassert> // std::assert
+#include <limits>  // limits
 #include <map>     // std::map
-#include <memory>  // std::shared_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkBitArray;
@@ -471,7 +471,7 @@ public:
    * Return tree located at given index of hyper tree grid
    * NB: This will construct a new HyperTree if grid slot is empty.
    */
-  virtual vtkHyperTree* GetTree(vtkIdType, bool create = false);
+  virtual vtkHyperTree* GetTree(vtkIdType index, bool create = false);
 
   /**
    * Assign given tree to given index of hyper tree grid
@@ -693,11 +693,11 @@ public:
     /**
      * Initialize the iterator on the tree set of the given grid.
      */
-    void Initialize(vtkHyperTreeGrid*);
+    void Initialize(vtkHyperTreeGrid* grid);
 
     /**
      * Get the next tree and set its index then increment the iterator.
-     * Returns 0 at the end.
+     * Returns nullptr at the end.
      */
     vtkHyperTree* GetNextTree(vtkIdType& index);
 
@@ -709,14 +709,13 @@ public:
 
   protected:
     std::map<vtkIdType, vtkSmartPointer<vtkHyperTree>>::iterator Iterator;
-    vtkHyperTreeGrid* Grid;
+    vtkHyperTreeGrid* Grid = nullptr;
   };
 
   /**
    * Initialize an iterator to browse level 0 trees.
-   * FIXME: this method is completely unnecessary.
    */
-  void InitializeTreeIterator(vtkHyperTreeGridIterator&);
+  void InitializeTreeIterator(vtkHyperTreeGridIterator& it);
 
   ///@{
   /**
@@ -798,58 +797,60 @@ protected:
 
   ~vtkHyperTreeGrid() override;
 
-  double Bounds[6]; // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
-  double Center[3]; // geometric center
+  double Bounds[6];                  // (xmin,xmax, ymin,ymax, zmin,zmax) geometric bounds
+  double Center[3]{ 0.0, 0.0, 0.0 }; // geometric center
 
-  unsigned int BranchFactor; // 2 or 3
-  unsigned int Dimension;    // 1, 2, or 3
+  unsigned int BranchFactor = 0; // 2 or 3, 0 for invalid
+  unsigned int Dimension = 0;    // 1, 2, or 3, 0 for invalid
 
   ///@{
   /**
    * These arrays pointers are caches used to avoid a string comparison (when
    * getting ghost arrays using GetArray(name))
    */
-  vtkUnsignedCharArray* TreeGhostArray;
-  bool TreeGhostArrayCached;
+  vtkUnsignedCharArray* TreeGhostArray = nullptr;
+  bool TreeGhostArrayCached = false;
   ///@}
 private:
-  unsigned int Orientation; // 0, 1, or 2
-  unsigned int Axis[2];
+  // Invalid default grid parameters to force actual initialization
+  unsigned int Orientation = std::numeric_limits<unsigned int>::max(); // 0, 1, or 2
+  unsigned int Axis[2] = { std::numeric_limits<unsigned int>::max(),
+    std::numeric_limits<unsigned int>::max() };
 
   vtkTimeStamp ComputeTime;
 
 protected:
-  unsigned int NumberOfChildren;
-  bool TransposedRootIndexing;
+  unsigned int NumberOfChildren = 0;
+  bool TransposedRootIndexing = false;
 
   // --------------------------------
   // RectilinearGrid common fields
   // --------------------------------
 private:
-  unsigned int Dimensions[3]; // Just for GetDimensions
-  unsigned int CellDims[3];   // Just for GetCellDims
+  unsigned int Dimensions[3] = { 0, 0, 0 }; // Just for GetDimensions
+  unsigned int CellDims[3] = { 0, 0, 0 };   // Just for GetCellDims
 protected:
   int DataDescription;
-  int Extent[6];
+  int Extent[6] = { 0, -1, 0, -1, 0, -1 };
 
-  bool WithCoordinates;
-  vtkDataArray* XCoordinates;
-  vtkDataArray* YCoordinates;
-  vtkDataArray* ZCoordinates;
+  bool WithCoordinates = false;
+  vtkDataArray* XCoordinates = nullptr;
+  vtkDataArray* YCoordinates = nullptr;
+  vtkDataArray* ZCoordinates = nullptr;
   // --------------------------------
 
-  vtkBitArray* Mask;
-  vtkBitArray* PureMask;
+  vtkBitArray* Mask = nullptr;
+  vtkBitArray* PureMask = nullptr;
 
-  bool HasInterface;
-  char* InterfaceNormalsName;
-  char* InterfaceInterceptsName;
+  bool HasInterface = false;
+  char* InterfaceNormalsName = nullptr;
+  char* InterfaceInterceptsName = nullptr;
 
   std::map<vtkIdType, vtkSmartPointer<vtkHyperTree>> HyperTrees;
 
   vtkNew<vtkCellData> CellData; // Scalars, vectors, etc. associated w/ each point
 
-  unsigned int DepthLimiter;
+  unsigned int DepthLimiter = std::numeric_limits<unsigned int>::max();
 
 private:
   vtkHyperTreeGrid(const vtkHyperTreeGrid&) = delete;
