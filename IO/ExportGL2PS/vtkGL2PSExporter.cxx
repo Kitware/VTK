@@ -93,7 +93,7 @@ int vtkGL2PSExporter::GetGL2PSSort()
   {
     default:
       vtkDebugMacro(<< "Invalid sort settings, using NO_SORT.");
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case NO_SORT:
       return GL2PS_NO_SORT;
     case SIMPLE_SORT:
@@ -109,7 +109,7 @@ int vtkGL2PSExporter::GetGL2PSFormat()
   {
     default:
       vtkDebugMacro(<< "Invalid output format. Using postscript.");
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case PS_FILE:
       return GL2PS_PS;
     case EPS_FILE:
@@ -129,7 +129,7 @@ const char* vtkGL2PSExporter::GetFileExtension()
   {
     default:
       vtkDebugMacro(<< "Invalid output format. Using postscript.");
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case PS_FILE:
       return "ps";
     case EPS_FILE:

@@ -1383,7 +1383,7 @@ int vtkTessellatorFilter::RequestData(
           }
           cp->EvaluateLocation(dummySubId, pts[2] + 3, pts[2], weights.data());
           this->Subdivider->EvaluateFields(pts[2], weights.data(), 6);
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case VTK_QUADRATIC_EDGE:
           dim = 1;
           outconn = &quadEdgeEdges[0][0];
@@ -1406,7 +1406,7 @@ int vtkTessellatorFilter::RequestData(
             cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights.data());
             this->Subdivider->EvaluateFields(pts[p], weights.data(), 6);
           }
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case VTK_QUADRATIC_TRIANGLE:
           if (dim > 1)
           {
@@ -1451,7 +1451,7 @@ int vtkTessellatorFilter::RequestData(
               this->Subdivider->EvaluateFields(pts[4 + nn], weights.data(), 6);
             }
           }
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case VTK_BIQUADRATIC_QUAD:
         case VTK_QUADRATIC_QUAD:
           for (c = 0; c < 3; ++c)
@@ -1484,7 +1484,7 @@ int vtkTessellatorFilter::RequestData(
             cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights.data());
             this->Subdivider->EvaluateFields(pts[p], weights.data(), 6);
           }
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case VTK_QUADRATIC_TETRA:
           if (dim == 3)
           {
@@ -1516,7 +1516,7 @@ int vtkTessellatorFilter::RequestData(
             cp->EvaluateLocation(dummySubId, pts[p] + 3, pts[p], weights.data());
             this->Subdivider->EvaluateFields(pts[p], weights.data(), 6);
           }
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case VTK_QUADRATIC_HEXAHEDRON:
           for (p = 20; p < 27; ++p)
           {

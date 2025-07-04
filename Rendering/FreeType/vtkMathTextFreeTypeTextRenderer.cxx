@@ -88,7 +88,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetBoundingBoxInternal(
         }
       }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case FreeType:
     {
       vtkStdString cleanString(str);
@@ -145,7 +145,7 @@ bool vtkMathTextFreeTypeTextRenderer::GetMetricsInternal(vtkTextProperty* tprop,
         }
       }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case FreeType:
     {
       vtkStdString cleanString(str);
@@ -196,7 +196,7 @@ bool vtkMathTextFreeTypeTextRenderer::RenderStringInternal(vtkTextProperty* tpro
         }
       }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case FreeType:
     {
       vtkStdString cleanString(str);
@@ -248,7 +248,7 @@ int vtkMathTextFreeTypeTextRenderer::GetConstrainedFontSizeInternal(const vtkStd
         }
       }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case FreeType:
     {
       vtkStdString cleanString(str);
@@ -299,7 +299,7 @@ bool vtkMathTextFreeTypeTextRenderer::StringToPathInternal(
         }
       }
       vtkDebugMacro("MathText unavailable. Falling back to FreeType.");
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case FreeType:
     {
       vtkStdString cleanString(str);

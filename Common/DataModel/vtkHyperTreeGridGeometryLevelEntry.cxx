@@ -156,7 +156,7 @@ void vtkHyperTreeGridGeometryLevelEntry::ToChild(const vtkHyperTreeGrid* grid, u
       {
         case 0:
           axis1 = 1;
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case 1:
           axis2 = 2;
       }
@@ -172,7 +172,7 @@ void vtkHyperTreeGridGeometryLevelEntry::ToChild(const vtkHyperTreeGrid* grid, u
       {
         case 0:
           axis1 = 1;
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         case 1:
           axis2 = 2;
       }

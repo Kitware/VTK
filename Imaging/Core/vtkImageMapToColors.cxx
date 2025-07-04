@@ -233,13 +233,13 @@ static void vtkImageMapToColorsExecute(vtkImageMapToColors* self, vtkImageData* 
             {
               case 4:
                 outPtr2[3] = nanColor[3];
-                VTK_FALLTHROUGH;
+                [[fallthrough]];
               case 3:
                 outPtr2[2] = nanColor[2];
-                VTK_FALLTHROUGH;
+                [[fallthrough]];
               case 2:
                 outPtr2[1] = nanColor[1];
-                VTK_FALLTHROUGH;
+                [[fallthrough]];
               case 1:
                 outPtr2[0] = nanColor[0];
             }

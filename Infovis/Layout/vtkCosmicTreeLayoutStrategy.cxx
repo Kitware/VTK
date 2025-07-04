@@ -450,7 +450,7 @@ void vtkCosmicTreeLayoutStrategy::LayoutChildren(vtkTree* tree, vtkPoints* pts,
       // initialized to 1.0
       if (depth < 0 && this->LayoutDepth >= 0)
         return;
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case LEAVES:
       // We must descend all the way down to the leaves, regardless of LayoutDepth.
       for (childIdx = 0; childIdx < numberOfChildren; ++childIdx)

@@ -2200,7 +2200,7 @@ public:
             isExpanded = true;
             break;
           }
-          VTK_FALLTHROUGH;
+          [[fallthrough]];
         default:
           wasPathSeparator = (c == '/' || c == '\\');
           expandedPath += c;
@@ -2303,7 +2303,7 @@ public:
           this->PutBack(c);
           return true;
         }
-        VTK_FALLTHROUGH;
+        [[fallthrough]];
       case '.':
         // scalar token
         if (c == '.' && charI < MAXLEN)

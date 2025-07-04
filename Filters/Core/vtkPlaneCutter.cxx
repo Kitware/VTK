@@ -431,7 +431,7 @@ struct UnstructuredDataFunctor : public CuttingFunctor<TPointsArray>
           switch (cell->GetCellDimension())
           {
             case (0):
-              VTK_FALLTHROUGH;
+              [[fallthrough]];
             case (1):
               tmpOutCD = newVertsData;
               break;

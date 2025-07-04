@@ -77,7 +77,7 @@ vtkFieldData* vtkComputeQuantiles::GetInputFieldData(vtkDataObject* input)
   switch (this->FieldAssociation)
   {
     case vtkDataObject::FIELD_ASSOCIATION_POINTS:
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS:
       return vtkDataSet::SafeDownCast(input)->GetPointData();
 

@@ -469,7 +469,7 @@ void QVTKRenderWindowAdapter::QVTKInternals::renderWindowEventHandler(
       break;
 
     case vtkCommand::StartEvent:
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case vtkCommand::StartPickEvent:
       break;
 

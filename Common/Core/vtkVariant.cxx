@@ -619,7 +619,7 @@ void SetFormattingOnStream(int formatting, std::ostringstream& ostr)
       return;
     case (vtkVariant::DEFAULT_FORMATTING):
       // GCC 4.8.1 does not support std::defaultfloat or std::hexfloat
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     default:
       return;
   }

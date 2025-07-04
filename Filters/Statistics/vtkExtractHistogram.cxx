@@ -118,7 +118,7 @@ vtkFieldData* vtkExtractHistogram::GetInputFieldData(vtkDataObject* input)
   switch (this->Internal->FieldAssociation)
   {
     case vtkDataObject::FIELD_ASSOCIATION_POINTS:
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS:
       return vtkDataSet::SafeDownCast(input)->GetPointData();
     case vtkDataObject::FIELD_ASSOCIATION_CELLS:

@@ -1419,10 +1419,10 @@ void vtkHyperTreeGridSource::SubdivideFromQuadric(vtkHyperTreeGrid* output,
     {
       case 3:
         newSize[2] = size[2] / this->BranchFactor;
-        VTK_FALLTHROUGH;
+        [[fallthrough]];
       case 2:
         newSize[1] = size[1] / this->BranchFactor;
-        VTK_FALLTHROUGH;
+        [[fallthrough]];
       case 1:
         newSize[0] = size[0] / this->BranchFactor;
         break;

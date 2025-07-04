@@ -912,19 +912,19 @@ void vtkTextActor::SpecifiedToDisplay(double* pos, vtkViewport* vport, int speci
   {
     case VTK_WORLD:
       vport->WorldToView(pos[0], pos[1], pos[2]);
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case VTK_VIEW:
       vport->ViewToNormalizedViewport(pos[0], pos[1], pos[2]);
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case VTK_NORMALIZED_VIEWPORT:
       vport->NormalizedViewportToViewport(pos[0], pos[1]);
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case VTK_VIEWPORT:
       vport->ViewportToNormalizedDisplay(pos[0], pos[1]);
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case VTK_NORMALIZED_DISPLAY:
       vport->NormalizedDisplayToDisplay(pos[0], pos[1]);
-      VTK_FALLTHROUGH;
+      [[fallthrough]];
     case VTK_DISPLAY:
       break;
   }
