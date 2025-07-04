@@ -277,8 +277,11 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
             bgInfo.CellIdOffsetUniformBuffer.Destroy();
             bgInfo.CellIdOffsetUniformBuffer = nullptr;
           }
-          bgInfo.BindGroup = nullptr;
-          this->RebuildGraphicsPipelines = true;
+          if (bgInfo.BindGroup != nullptr)
+          {
+            bgInfo.BindGroup = nullptr;
+            this->RebuildGraphicsPipelines = true;
+          }
         }
       }
       // setup graphics pipeline
