@@ -29,17 +29,21 @@ void vtkAMRMetaData::PrintSelf(ostream& os, vtkIndent indent)
   os << "\n";
 }
 
+// VTK_DEPRECATED_IN_9_6_0("Use Initialize(const std::vector<unsigned int>&) instead")
 //------------------------------------------------------------------------------
 void vtkAMRMetaData::Initialize(int numLevels, const int* blocksPerLevel)
 {
-  if (numLevels < 0)
-  {
-    vtkErrorMacro("Number of levels must be at least 0: " << numLevels);
-    return;
-  }
+  std::vector<unsigned int> vec;
+  vec.assign(blocksPerLevel, blocksPerLevel + numLevels);
+  this->Initialize(vec);
+}
+
+//------------------------------------------------------------------------------
+void vtkAMRMetaData::Initialize(const std::vector<unsigned int>& blocksPerLevel)
+{
   // allocate blocks
-  this->NumBlocks.resize(numLevels + 1, 0);
-  for (unsigned int i = 0; i < static_cast<unsigned int>(numLevels); i++)
+  this->NumBlocks.resize(blocksPerLevel.size() + 1, 0);
+  for (std::size_t i = 0; i < blocksPerLevel.size(); i++)
   {
     this->NumBlocks[i + 1] = this->NumBlocks[i] + blocksPerLevel[i];
   }
@@ -107,7 +111,7 @@ void vtkAMRMetaData::GenerateBlockLevel()
   assert(this->NumBlocks.size() == this->GetNumberOfLevels() + 1);
 
   vtkIdType index(0);
-  for (size_t level = 0; level < this->NumBlocks.size() - 1; level++)
+  for (std::size_t level = 0; level < this->NumBlocks.size() - 1; level++)
   {
     unsigned int begin = this->NumBlocks[level];
     unsigned int end = this->NumBlocks[level + 1];
@@ -129,7 +133,7 @@ bool vtkAMRMetaData::operator==(const vtkAMRMetaData& other) const
   {
     return false;
   }
-  for (size_t i = 0; i < this->NumBlocks.size(); i++)
+  for (std::size_t i = 0; i < this->NumBlocks.size(); i++)
   {
     if (this->NumBlocks[i] != other.NumBlocks[i])
     {

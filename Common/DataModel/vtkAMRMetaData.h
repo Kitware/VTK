@@ -39,9 +39,16 @@ public:
 
   /**
    * Initialize the meta information
+   * blocksPerLevel is the number of blocks for each levels
+   */
+  virtual void Initialize(const std::vector<unsigned int>& blocksPerLevel);
+
+  /**
+   * Initialize the meta information
    * numLevels is the number of levels
    * blocksPerLevel[i] is the number of blocks at level i
    */
+  VTK_DEPRECATED_IN_9_6_0("Use Initialize(const std::vector<unsigned int>&) instead")
   virtual void Initialize(int numLevels, const int* blocksPerLevel);
 
   ///@{

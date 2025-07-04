@@ -52,8 +52,14 @@ public:
   void Initialize() override;
 
   /**
+   * Initialize the AMR with the specified blocksPerLevel
+   */
+  virtual void Initialize(const std::vector<unsigned int>& blocksPerLevel);
+
+  /**
    * Initialize the AMR with a specified number of levels and the blocks per level.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use Initialize(const std::vector<unsigned int>&) instead")
   virtual void Initialize(int numLevels, const int* blocksPerLevel);
 
   ///@{
