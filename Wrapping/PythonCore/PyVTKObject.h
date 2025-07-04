@@ -58,6 +58,13 @@ struct PyVTKObject
   unsigned long* vtk_observers; // used to find our observers
   unsigned int vtk_flags;       // flags (see list above)
 };
+
+// This struct holds the getter and setter for a property
+struct PyVTKGetSet
+{
+  PyCFunction get;
+  PyCFunction set;
+};
 VTK_ABI_NAMESPACE_END
 
 extern VTKWRAPPINGPYTHONCORE_EXPORT PyGetSetDef PyVTKObject_GetSet[];
@@ -107,6 +114,15 @@ extern "C"
 
   VTKWRAPPINGPYTHONCORE_EXPORT
   void PyVTKObject_Delete(PyObject* op);
+
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  PyObject* PyVTKObject_GetProperty(PyObject* op, void* methods);
+
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  int PyVTKObject_SetProperty(PyObject* op, PyObject* value, void* methods);
+
+  VTKWRAPPINGPYTHONCORE_EXPORT
+  int PyVTKObject_SetPropertyMulti(PyObject* op, PyObject* value, void* methods);
 }
 
 #endif

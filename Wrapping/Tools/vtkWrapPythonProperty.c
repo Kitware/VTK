@@ -76,6 +76,12 @@ static int vtkWrapPython_IsSetter(const unsigned int methodType)
   return methodType == VTK_METHOD_SET || methodType == VTK_METHOD_SET_MULTI;
 }
 
+/* Returns true if the setter method takes multiple arguments e.g. SetPoint(x,y,z) */
+static int vtkWrapPython_IsMultiSetter(const unsigned int methodType)
+{
+  return methodType == VTK_METHOD_SET_MULTI;
+}
+
 /* Calls vtkWrapPython_MethodCheck to figure out the wrappability of the method. */
 static int vtkWrapPython_IsWrappable(
   const ClassInfo* classInfo, FunctionInfo* functionInfo, const HierarchyInfo* hinfo)
@@ -87,8 +93,10 @@ static int vtkWrapPython_IsWrappable(
 /* Helper used to construct a single PyGetSetDef item corresponding to a VTK property */
 typedef struct
 {
+  char* PropertyName;
   int HasGetter;
   int HasSetter;
+  int HasMultiSetter;
 } GetSetDefInfo;
 
 /* print out all properties in the getset table. */
@@ -96,27 +104,14 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
   const HierarchyInfo* hinfo, ClassProperties* properties, int is_vtkobject)
 {
   int i, j;
+  int propCount;
   GetSetDefInfo* getSetInfo = NULL;
   GetSetDefInfo** getSetsInfo = NULL;
   FunctionInfo* theFunc = NULL;
   const PropertyInfo* theProp = NULL;
   const char* propName = NULL;
+  char* snakeCasePropName;
 
-  fprintf(fp,
-    "#if PY_VERSION_HEX >= 0x03070000\n"
-    "#define pystr(x) x\n"
-    "#else\n"
-    "#define pystr(x) const_cast<char*>(x)\n"
-    "#endif\n");
-  fprintf(fp, "static PyGetSetDef Py%s_GetSets[] = {\n", classname);
-  /* these properties are available to all vtk object types. */
-  if (is_vtkobject)
-  {
-    for (i = 0; i < 2; ++i)
-    {
-      fprintf(fp, "  PyVTKObject_GetSet[%d],\n", i);
-    }
-  }
   getSetsInfo = (GetSetDefInfo**)calloc(properties->NumberOfProperties, sizeof(GetSetDefInfo*));
 
   /* Populate the table of property methods */
@@ -145,99 +140,167 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
         getSetInfo = getSetsInfo[j];
         getSetInfo->HasGetter |= vtkWrapPython_IsGetter(properties->MethodTypes[i]);
         getSetInfo->HasSetter |= vtkWrapPython_IsSetter(properties->MethodTypes[i]);
+        getSetInfo->HasMultiSetter |= vtkWrapPython_IsMultiSetter(properties->MethodTypes[i]);
       }
     }
   }
 
+  /* Count the usable properties */
+  propCount = 0;
   for (j = 0; j < properties->NumberOfProperties; ++j)
   {
     getSetInfo = getSetsInfo[j];
-    theProp = properties->Properties[j];
-    if ((getSetInfo == NULL) || (!getSetInfo->HasGetter && !getSetInfo->HasSetter))
+    if (!getSetInfo || (!getSetInfo->HasGetter && !getSetInfo->HasSetter))
     {
       continue;
     }
 
-    /* Start a new PyGetSetDef item */
-    char* snakeCasePropName = vtkWrapPython_ConvertPascalToSnake(theProp->Name);
+    theProp = properties->Properties[j];
+    snakeCasePropName = vtkWrapPython_ConvertPascalToSnake(theProp->Name);
     if (!snakeCasePropName)
     {
       continue;
     }
 
-    fprintf(fp, "  {\n");
-    fprintf(fp, "    /*name=*/pystr(\"%s\"),\n", snakeCasePropName);
-    free(snakeCasePropName);
+    getSetInfo->PropertyName = snakeCasePropName;
+    ++propCount;
+  }
 
-    /* Write getter code block */
+  if (propCount > 0)
+  {
+    /* generate a table of the class getter/setter methods */
+    fprintf(fp, "static PyVTKGetSet Py%s_GetSetMethods[] = {\n", classname);
+
+    for (j = 0; j < properties->NumberOfProperties; ++j)
+    {
+      getSetInfo = getSetsInfo[j];
+      if (!getSetInfo)
+      {
+        continue;
+      }
+
+      snakeCasePropName = getSetInfo->PropertyName;
+      if (!snakeCasePropName)
+      {
+        continue;
+      }
+
+      theProp = properties->Properties[j];
+
+      if (getSetInfo->HasGetter && !getSetInfo->HasSetter)
+      {
+        fprintf(fp, "  { Py%s_Get%s, nullptr },\n", classname, theProp->Name);
+      }
+      else if (!getSetInfo->HasGetter && getSetInfo->HasSetter)
+      {
+        fprintf(fp, "  { nullptr, Py%s_Set%s },\n", classname, theProp->Name);
+      }
+      else
+      {
+        fprintf(fp, "  { Py%s_Get%s, Py%s_Set%s },\n", classname, theProp->Name, classname,
+          theProp->Name);
+      }
+    }
+
+    fprintf(fp, "};\n\n");
+  }
+
+  /* useful macro for Python 3.6 and earlier */
+  fprintf(fp,
+    "#if PY_VERSION_HEX >= 0x03070000\n"
+    "#define pystr(x) x\n"
+    "#else\n"
+    "#define pystr(x) const_cast<char*>(x)\n"
+    "#endif\n"
+    "\n");
+
+  /* start the PyGetSetDef for this class */
+  fprintf(fp, "static PyGetSetDef Py%s_GetSets[] = {\n", classname);
+
+  /* these properties are available to all vtk object types. */
+  if (is_vtkobject)
+  {
+    for (i = 0; i < 2; ++i)
+    {
+      fprintf(fp, "  PyVTKObject_GetSet[%d],\n", i);
+    }
+  }
+
+  propCount = 0;
+  for (j = 0; j < properties->NumberOfProperties; ++j)
+  {
+    getSetInfo = getSetsInfo[j];
+    if (!getSetInfo)
+    {
+      continue;
+    }
+
+    snakeCasePropName = getSetInfo->PropertyName;
+    if (!snakeCasePropName)
+    {
+      continue;
+    }
+
+    theProp = properties->Properties[j];
+
+    /* Start a new PyGetSetDef item */
+    fprintf(fp, "  {\n");
+    fprintf(fp, "    pystr(\"%s\"), // name\n", snakeCasePropName);
+
+    /* The getter and setter */
     if (getSetInfo->HasGetter)
     {
-      fprintf(fp, "    /*get=*/[](PyObject* self, void*) -> PyObject*\n");
-      fprintf(fp, "    {\n");
-      fprintf(fp, "      auto args = PyTuple_New(0); // placeholder\n");
-      fprintf(fp, "      auto result = Py%s_Get%s(self, args);\n", classname, theProp->Name);
-      fprintf(fp, "      Py_DECREF(args);\n");
-      fprintf(fp, "      return result;\n");
-      fprintf(fp, "    },\n");
+      fprintf(fp, "    PyVTKObject_GetProperty, // get\n");
     }
     else
     {
-      fprintf(fp, "    /*get=*/nullptr,\n");
+      fprintf(fp, "    nullptr, // get\n");
     }
-    /* Write setter code block */
-    if (getSetInfo->HasSetter)
+    if (getSetInfo->HasMultiSetter)
     {
-      fprintf(fp, "    /*set=*/[](PyObject* self, PyObject* value, void*) -> int\n");
-      fprintf(fp, "    {\n");
-      // either value is a tuple
-      fprintf(fp, "      if (PyTuple_Check(value))\n");
-      fprintf(fp, "      {\n");
-      fprintf(fp, "        auto result = Py%s_Set%s(self, value);\n", classname, theProp->Name);
-      fprintf(fp, "        return (result == nullptr) ? -1 : 0;\n");
-      fprintf(fp, "      }\n");
-      // or it's just a single argument.
-      fprintf(fp, "      else\n");
-      fprintf(fp, "      {\n");
-      // wrapped setter method still expects a tuple
-      fprintf(fp, "        auto args = PyTuple_Pack(1, value);\n");
-      fprintf(fp, "        auto result = Py%s_Set%s(self, args);\n", classname, theProp->Name);
-      fprintf(fp, "        Py_DECREF(args);\n");
-      fprintf(fp, "        return (result == nullptr) ? -1 : 0;\n");
-      fprintf(fp, "      }\n");
-      fprintf(fp, "    },\n");
+      fprintf(fp, "    PyVTKObject_SetPropertyMulti, // set\n");
+    }
+    else if (getSetInfo->HasSetter)
+    {
+      fprintf(fp, "    PyVTKObject_SetProperty, // set\n");
     }
     else
     {
-      fprintf(fp, "    /*set=*/nullptr,\n");
+      fprintf(fp, "    nullptr, // set\n");
     }
 
     /* Define the doc string */
-    fprintf(fp, "    /*doc=*/");
     if (getSetInfo->HasGetter && !getSetInfo->HasSetter)
     {
-      fprintf(fp, "pystr(\"read-only, Calls Get%s\\n\"),\n", theProp->Name);
+      fprintf(fp, "    pystr(\"read-only, calls Get%s\\n\"), // doc\n", theProp->Name);
     }
     else if (!getSetInfo->HasGetter && getSetInfo->HasSetter)
     {
-      fprintf(fp, "pystr(\"write-only, Calls Set%s\\n\"),\n", theProp->Name);
+      fprintf(fp, "    pystr(\"write-only, calls Set%s\\n\"), // doc\n", theProp->Name);
     }
     else
     {
-      fprintf(fp, "pystr(\"read-write, Calls Get%s/Set%s\\n\"),\n", theProp->Name, theProp->Name);
+      fprintf(fp, "    pystr(\"read-write, calls Get%s/Set%s\\n\"), // doc\n", theProp->Name,
+        theProp->Name);
     }
-    /* closure is nullptr, we do not rely upon it */
-    fprintf(fp, "    /*closure=*/nullptr,\n");
+    /* closure provides the methods that we call */
+    fprintf(fp, "    &Py%s_GetSetMethods[%d], // closure\n", classname, propCount++);
     /* Finish the definition of a PyGetSetDef entry */
     fprintf(fp, "  },\n");
   }
 
   /* add sentinel entry */
   fprintf(fp, "  { nullptr, nullptr, nullptr, nullptr, nullptr }\n");
-  fprintf(fp, "};\n");
+  fprintf(fp, "};\n\n");
+
   /* clean up memory of data structures */
   for (j = 0; j < properties->NumberOfProperties; ++j)
   {
-    free(getSetsInfo[j]);
+    if (getSetsInfo[j])
+    {
+      free(getSetsInfo[j]->PropertyName);
+      free(getSetsInfo[j]);
+    }
   }
   free(getSetsInfo);
 }

@@ -190,6 +190,11 @@ void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* 
         if (auto superGetSet = vtkPythonUtil::FindGetSetDescriptor(pytype->tp_base, key))
         {
           getset->get = superGetSet->get;
+          if (getset->closure)
+          {
+            static_cast<PyVTKGetSet*>(getset->closure)->get =
+              static_cast<PyVTKGetSet*>(superGetSet->closure)->get;
+          }
         }
         Py_DECREF(key);
       }
@@ -203,6 +208,11 @@ void PyVTKClass_AddCombinedGetSetDefinitions(PyTypeObject* pytype, PyGetSetDef* 
         if (auto superGetSet = vtkPythonUtil::FindGetSetDescriptor(pytype->tp_base, key))
         {
           getset->set = superGetSet->set;
+          if (getset->closure)
+          {
+            static_cast<PyVTKGetSet*>(getset->closure)->set =
+              static_cast<PyVTKGetSet*>(superGetSet->closure)->set;
+          }
         }
         Py_DECREF(key);
       }
@@ -367,6 +377,60 @@ void PyVTKObject_Delete(PyObject* op)
   delete[] self->vtk_buffer;
 
   PyObject_GC_Del(op);
+}
+
+//------------------------------------------------------------------------------
+// Generic property getter
+
+PyObject* PyVTKObject_GetProperty(PyObject* op, void* methods)
+{
+  // getter takes no arguments (empty arg tuple)
+  PyObject* args = PyTuple_New(0);
+  PyObject* result = static_cast<PyVTKGetSet*>(methods)->get(op, args);
+  Py_DECREF(args);
+  return result;
+}
+
+//------------------------------------------------------------------------------
+// Generic property setter
+
+int PyVTKObject_SetProperty(PyObject* op, PyObject* value, void* methods)
+{
+  PyObject* args = PyTuple_Pack(1, value);
+  PyObject* result = static_cast<PyVTKGetSet*>(methods)->set(op, args);
+  Py_DECREF(args);
+  if (result == nullptr)
+  {
+    return -1;
+  }
+  Py_DECREF(result);
+  return 0;
+}
+
+//------------------------------------------------------------------------------
+// Setter that splits the value into multiple arguments for the set method
+
+int PyVTKObject_SetPropertyMulti(PyObject* op, PyObject* value, void* methods)
+{
+  PyObject* args;
+  if (PySequence_Check(value) && !PyUnicode_Check(value))
+  {
+    // if value is sequence, apply its members as arguments
+    args = PySequence_Tuple(value);
+  }
+  else
+  {
+    // try passing the value as a single argument
+    args = PyTuple_Pack(1, value);
+  }
+  PyObject* result = static_cast<PyVTKGetSet*>(methods)->set(op, args);
+  Py_DECREF(args);
+  if (result == nullptr)
+  {
+    return -1;
+  }
+  Py_DECREF(result);
+  return 0;
 }
 
 //------------------------------------------------------------------------------
