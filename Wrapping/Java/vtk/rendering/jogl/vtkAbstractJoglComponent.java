@@ -134,4 +134,7 @@ public class vtkAbstractJoglComponent<T extends java.awt.Component> extends vtkA
     }
     return false;
   }
+
+  /** Returns the underlying {@link vtk.vtkOpenGLRenderWindow} implementation {@link vtkGenericOpenGLRenderWindow}. */
+  public vtkGenericOpenGLRenderWindow getGLRenderWindow() { return glRenderWindow; }
 }
