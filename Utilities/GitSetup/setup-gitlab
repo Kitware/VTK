@@ -46,9 +46,10 @@ cd "${BASH_SOURCE%/*}" &&
 # Load the project configuration.
 protocol=$(git config -f config --get gitlab.protocol ||
 	   echo "https") &&
+userpart=$(test "$protocol" = "ssh" && echo "git@" || echo '') &&
 host=$(git config -f config --get gitlab.host) &&
 site=$(git config -f config --get gitlab.site ||
-       echo "$protocol://$host") &&
+       echo "$protocol://$userpart$host") &&
 group_path=$(git config -f config --get gitlab.group-path) &&
 group_name=$(git config -f config --get gitlab.group-name) &&
 project_name=$(git config -f config --get gitlab.project-name) &&
@@ -62,8 +63,8 @@ fetchurl_=$(git config -f config --get gitlab.url ||
 die 'This project is not configured to use GitLab.'
 
 # Get current gitlab push URL.
-pushurl=$(git config --get remote."$remote".pushurl ||
-	  git config --get remote."$remote".url || echo '') &&
+pushurl=$(git remote get-url --push "$remote" ||
+	  echo '') &&
 
 # Tell user about current configuration.
 if test -n "$pushurl"; then
