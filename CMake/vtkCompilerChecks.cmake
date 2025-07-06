@@ -4,16 +4,16 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
   message(FATAL_ERROR "GCC 8.0 or later is required.")
 endif ()
 
-# Minimum compiler version check: LLVM Clang >= 5.0
+# Minimum compiler version check: LLVM Clang >= 7.0
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
-  message(FATAL_ERROR "LLVM Clang 5.0 or later is required.")
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
+  message(FATAL_ERROR "LLVM Clang 7.0 or later is required.")
 endif ()
 
-# Minimum compiler version check: Apple Clang >= 10.0 (Xcode 10.2.1)
+# Minimum compiler version check: Apple Clang >= 11.0 (Xcode 11.3.1)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
-  message(FATAL_ERROR "Apple Clang 10.0 or later is required.")
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11.0)
+  message(FATAL_ERROR "Apple Clang 11.0 or later is required.")
 endif ()
 
 # Minimum compiler version check: Microsoft C/C++ >= 19.10 (aka VS 2017)
