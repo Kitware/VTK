@@ -64,8 +64,8 @@ Required:
 
   * Supported compiler
     - GCC 8.0 or newer
-    - Clang 5.0 or newer
-    - Apple Clang 10.0 or newer
+    - Clang 7.0 or newer
+    - Apple Clang 11.0 (Xcode 11.3.1) or newer
     - Microsoft Visual Studio 2017 or newer
     - Intel 19.0 or newer
 
