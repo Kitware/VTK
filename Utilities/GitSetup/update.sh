@@ -11,17 +11,18 @@ readonly repo="https://gitlab.kitware.com/utils/gitsetup.git"
 readonly tag="setup"
 readonly shortlog=false
 readonly paths="
-  .gitattributes
-  git-gitlab-push
-  git-gitlab-sync
-  LICENSE
-  NOTICE
-  README
-  setup-gitlab
-  setup-hooks
-  setup-upstream
-  setup-user
-  tips
+.gitattributes
+git-fetch-mr
+git-gitlab-push
+git-gitlab-sync
+LICENSE
+NOTICE
+README
+setup-gitlab
+setup-hooks
+setup-upstream
+setup-user
+tips
 "
 
 extract_source () {
