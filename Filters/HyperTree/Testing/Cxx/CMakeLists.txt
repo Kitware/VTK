@@ -54,10 +54,11 @@ set(test_sources
   TestHyperTreeGridBinaryClipPlanes.cxx
   TestHyperTreeGridBinaryEllipseMaterial.cxx
   TestHyperTreeGridBinaryHyperbolicParaboloidMaterial.cxx
-  TestHyperTreeGridEvaluateCoarse.cxx,NO_VALID,NO_OUPUT
+  TestHyperTreeGridEvaluateCoarse.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridExtractGhostCells.cxx,NO_VALID,NO_OUTPUT
-  TestHyperTreeGridGenerateFields.cxx,NO_VALID,NO_OUPUT
+  TestHyperTreeGridGenerateFields.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridGeometryPassCellIds.cxx
+  TestHyperTreeGridPlaneCutter.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridRemoveGhostCells.cxx,NO_VALID,NO_OUTPUT
   TestHyperTreeGridTernary2D.cxx
   TestHyperTreeGridTernary2DBiMaterial.cxx
