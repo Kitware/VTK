@@ -94,8 +94,8 @@ public:
 
   ///@{
   /**
-   * Returns the data description given the dimensions (eg. VTK_SINGLE_POINT,
-   * VTK_X_LINE, VTK_XY_PLANE etc.)
+   * Returns the data description given the dimensions (eg. VTK_STRUCTURED_SINGLE_POINT,
+   * VTK_STRUCTURED_X_LINE, VTK_STRUCTURED_XY_PLANE etc.)
    */
   static int GetDataDescription(int dims[3]);
   static int GetDataDescriptionFromExtent(int ext[6]);

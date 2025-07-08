@@ -155,7 +155,7 @@ public:
   ///@{
   /**
    * Define the method to project the input 3D points into a 2D plane for
-   * tessellation. When the VTK_XY_PLANE is set, the z-coordinate is simply
+   * tessellation. When the VTK_STRUCTURED_XY_PLANE is set, the z-coordinate is simply
    * ignored. When VTK_SET_TRANSFORM_PLANE is set, then a transform must be
    * supplied and the points are transformed using it. Finally, if
    * VTK_BEST_FITTING_PLANE is set, then the filter computes a best fitting

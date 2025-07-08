@@ -120,7 +120,7 @@ private:
   //-------------------------------------------------------------------------
   // Essential information that determines an AMR structure. Must be copied
   //-------------------------------------------------------------------------
-  int GridDescription = -1; // example: vtkStructuredData::VTK_XYZ_GRID
+  int GridDescription = -1; // example: VTK_STRUCTURED_XYZ_GRID
 
   // NumBlocks[i] stores the total number of blocks from level 0 to level i-1
   std::vector<int> NumBlocks = { 0 };

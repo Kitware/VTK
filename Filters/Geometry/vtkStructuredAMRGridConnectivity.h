@@ -474,7 +474,7 @@ protected:
 
   unsigned int NumberOfLevels; // The total number of levels;
   int DataDimension;           // The dimension of the data, i.e. 2 or 3
-  int DataDescription;         // The data description, i.e., VTK_XY_PLANE, etc.
+  int DataDescription;         // The data description, i.e., VTK_STRUCTURED_XY_PLANE, etc.
   int WholeExtent[6];          // The whole extent w.r.t. to the root level, level 0.
   int MaxLevel;                // The max level of the AMR hierarchy
   int RefinementRatio;         // The refinement ratio, set in the initialization,iff,

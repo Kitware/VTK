@@ -53,7 +53,7 @@ protected:
 
   vtkXMLDataElement* ParseXML(const char* filename);
 
-  // Returns GridDescription. VTK_UNCHANGED for invalid/failure.
+  // Returns GridDescription. VTK_STRUCTURED_UNCHANGED for invalid/failure.
   int GetOriginAndSpacing(vtkXMLDataElement* ePrimary, double origin[3], double*& spacing);
 
   char* InputFileName;
