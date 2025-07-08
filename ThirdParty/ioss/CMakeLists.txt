@@ -14,7 +14,6 @@ vtk_module_third_party(
   EXTERNAL
     PACKAGE SEACASIoss
     TARGETS Ioss Ionit
-    USE_VARIABLES SEACASIoss_INCLUDE_DIRS
     STANDARD_INCLUDE_DIRS)
 
 if (VTK_MODULE_USE_EXTERNAL_vtkioss)
