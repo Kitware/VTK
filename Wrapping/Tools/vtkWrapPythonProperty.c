@@ -11,39 +11,27 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Regex-less algorithm to convert from PascalCase to snake_case */
-// Don't have regex because vtksys is not linked to the wrapping module
-// and regex.h is limited to POSIX systems.
-// Caller must make sure to free the memory of the returned pointer after use.
+/* Regex-less algorithm to convert from PascalCase to snake_case
+ * Caller must make sure to free the memory of the returned pointer after use. */
 static char* vtkWrapPython_ConvertPascalToSnake(const char* pascalCase)
 {
   size_t i;
-  if (pascalCase == NULL || *pascalCase == '\0')
-  {
-    return NULL; // Handle empty input
-  }
-
   size_t pascalLen = strlen(pascalCase);
-  // Max length is 2 times the input length (underscores added between words)
+  /* Max length is 2 times the input length (underscores added between words) */
   char* snakeCase = (char*)malloc((2 * pascalLen) + 1);
-  if (snakeCase == NULL)
-  {
-    return NULL; // Memory allocation failed
-  }
-
   size_t snakeIndex = 0;
 
-  // Convert the first character to lowercase
+  /* Convert the first character to lowercase */
   snakeCase[snakeIndex++] = tolower(pascalCase[0]);
 
   for (i = 1; i < pascalLen; i++)
   {
     char currentChar = pascalCase[i];
 
-    // Begin a new world only if
-    //     1. the current character is uppercase
-    // and 2. the current character follows a lowercase character
-    // or  3. the current character is followed by a lowercase character
+    /* Begin a new word only if
+     *     1. the current character is uppercase
+     * and 2. the current character follows a lowercase character
+     * or  3. the current character is followed by a lowercase character */
     if (isupper(currentChar))
     {
       if (islower(pascalCase[i - 1]) || (i + 1 < pascalLen && islower(pascalCase[i + 1])))
@@ -58,22 +46,76 @@ static char* vtkWrapPython_ConvertPascalToSnake(const char* pascalCase)
     }
   }
 
-  // Null-terminate the snake_case string
+  /* Null-terminate the snake_case string */
   snakeCase[snakeIndex] = '\0';
 
   return snakeCase;
 }
 
+/* Helper used to construct a single PyGetSetDef item corresponding to a VTK property */
+typedef struct
+{
+  const char* Name;
+  char* SnakeName;
+  int HasGetter;
+  int HasSetter;
+  int HasMultiSetter;
+} GetSetDefInfo;
+
+/* Returns a new zero-filled GetSetDefInfo, increments the count.
+ * - arraymem: pointer to the array used for storage (pass-by-reference)
+ * - count: the number of used values in the array (pass-by-reference) */
+static GetSetDefInfo* vtkWrapPython_NewGetSet(GetSetDefInfo*** arraymem, int* count)
+{
+  int n = *count;
+  if (n == 0)
+  {
+    /* if empty, allocate for the first time */
+    *arraymem = (GetSetDefInfo**)malloc(sizeof(GetSetDefInfo*));
+  }
+  else if ((n & (n - 1)) == 0) /* power-of-two check */
+  {
+    /* if count is power of two, reallocate with double size */
+    *arraymem = (GetSetDefInfo**)realloc(*arraymem, (n << 1) * sizeof(GetSetDefInfo*));
+  }
+
+  /* allocate and initialize one element, then return it */
+  (*arraymem)[*count] = (GetSetDefInfo*)calloc(1, sizeof(GetSetDefInfo));
+  return (*arraymem)[(*count)++];
+}
+
+/* Search for existing GetSetDefInfo, or return a new one if not found */
+static GetSetDefInfo* vtkWrapPython_FindGetSet(
+  const char* name, GetSetDefInfo*** arraymem, int* count)
+{
+  GetSetDefInfo* item;
+  int i;
+
+  for (i = 0; i < *count; ++i)
+  {
+    if (strcmp(name, (*arraymem)[i]->Name) == 0)
+    {
+      return (*arraymem)[i];
+    }
+  }
+
+  item = vtkWrapPython_NewGetSet(arraymem, count);
+  item->Name = name;
+  item->SnakeName = vtkWrapPython_ConvertPascalToSnake(name);
+  return item;
+}
+
 /* Returns true if the method can be used inside the get member of PyGetSetDef */
 static int vtkWrapPython_IsGetter(const unsigned int methodType)
 {
-  return methodType == VTK_METHOD_GET;
+  return methodType == VTK_METHOD_GET || methodType == VTK_METHOD_GET_NUMBER_OF;
 }
 
 /* Returns true if the method can be used inside the set member of PyGetSetDef */
 static int vtkWrapPython_IsSetter(const unsigned int methodType)
 {
-  return methodType == VTK_METHOD_SET || methodType == VTK_METHOD_SET_MULTI;
+  return methodType == VTK_METHOD_SET || methodType == VTK_METHOD_SET_MULTI ||
+    methodType == VTK_METHOD_SET_NUMBER_OF;
 }
 
 /* Returns true if the setter method takes multiple arguments e.g. SetPoint(x,y,z) */
@@ -90,29 +132,15 @@ static int vtkWrapPython_IsWrappable(
   return isWrappable;
 }
 
-/* Helper used to construct a single PyGetSetDef item corresponding to a VTK property */
-typedef struct
-{
-  char* PropertyName;
-  int HasGetter;
-  int HasSetter;
-  int HasMultiSetter;
-} GetSetDefInfo;
-
 /* print out all properties in the getset table. */
 void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo* classInfo,
   const HierarchyInfo* hinfo, ClassProperties* properties, int is_vtkobject)
 {
   int i, j;
-  int propCount;
+  int propCount = 0;
   GetSetDefInfo* getSetInfo = NULL;
   GetSetDefInfo** getSetsInfo = NULL;
   FunctionInfo* theFunc = NULL;
-  const PropertyInfo* theProp = NULL;
-  const char* propName = NULL;
-  char* snakeCasePropName;
-
-  getSetsInfo = (GetSetDefInfo**)calloc(properties->NumberOfProperties, sizeof(GetSetDefInfo*));
 
   /* Populate the table of property methods */
   for (i = 0; i < classInfo->NumberOfFunctions; ++i)
@@ -126,44 +154,16 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     /* Is this method associated with a property? */
     if (properties->MethodHasProperty[i])
     {
-      /* Get the property associated with this method */
-      j = properties->MethodProperties[i];
-      propName = properties->Properties[j]->Name;
-      if (propName != NULL)
+      int isGetter = vtkWrapPython_IsGetter(properties->MethodTypes[i]);
+      int isSetter = vtkWrapPython_IsSetter(properties->MethodTypes[i]);
+      if ((isGetter || isSetter) && strlen(theFunc->Name) > 3)
       {
-        /* Encountering this property for the first time. */
-        if (getSetsInfo[j] == NULL)
-        {
-          getSetsInfo[j] = (GetSetDefInfo*)calloc(1, sizeof(GetSetDefInfo));
-        }
-        /* Update the methods, method types for this property. */
-        getSetInfo = getSetsInfo[j];
-        getSetInfo->HasGetter |= vtkWrapPython_IsGetter(properties->MethodTypes[i]);
-        getSetInfo->HasSetter |= vtkWrapPython_IsSetter(properties->MethodTypes[i]);
+        getSetInfo = vtkWrapPython_FindGetSet(&theFunc->Name[3], &getSetsInfo, &propCount);
+        getSetInfo->HasGetter |= isGetter;
+        getSetInfo->HasSetter |= isSetter;
         getSetInfo->HasMultiSetter |= vtkWrapPython_IsMultiSetter(properties->MethodTypes[i]);
       }
     }
-  }
-
-  /* Count the usable properties */
-  propCount = 0;
-  for (j = 0; j < properties->NumberOfProperties; ++j)
-  {
-    getSetInfo = getSetsInfo[j];
-    if (!getSetInfo || (!getSetInfo->HasGetter && !getSetInfo->HasSetter))
-    {
-      continue;
-    }
-
-    theProp = properties->Properties[j];
-    snakeCasePropName = vtkWrapPython_ConvertPascalToSnake(theProp->Name);
-    if (!snakeCasePropName)
-    {
-      continue;
-    }
-
-    getSetInfo->PropertyName = snakeCasePropName;
-    ++propCount;
   }
 
   if (propCount > 0)
@@ -171,34 +171,21 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     /* generate a table of the class getter/setter methods */
     fprintf(fp, "static PyVTKGetSet Py%s_GetSetMethods[] = {\n", classname);
 
-    for (j = 0; j < properties->NumberOfProperties; ++j)
+    for (j = 0; j < propCount; ++j)
     {
       getSetInfo = getSetsInfo[j];
-      if (!getSetInfo)
-      {
-        continue;
-      }
-
-      snakeCasePropName = getSetInfo->PropertyName;
-      if (!snakeCasePropName)
-      {
-        continue;
-      }
-
-      theProp = properties->Properties[j];
-
       if (getSetInfo->HasGetter && !getSetInfo->HasSetter)
       {
-        fprintf(fp, "  { Py%s_Get%s, nullptr },\n", classname, theProp->Name);
+        fprintf(fp, "  { Py%s_Get%s, nullptr },\n", classname, getSetInfo->Name);
       }
       else if (!getSetInfo->HasGetter && getSetInfo->HasSetter)
       {
-        fprintf(fp, "  { nullptr, Py%s_Set%s },\n", classname, theProp->Name);
+        fprintf(fp, "  { nullptr, Py%s_Set%s },\n", classname, getSetInfo->Name);
       }
       else
       {
-        fprintf(fp, "  { Py%s_Get%s, Py%s_Set%s },\n", classname, theProp->Name, classname,
-          theProp->Name);
+        fprintf(fp, "  { Py%s_Get%s, Py%s_Set%s },\n", classname, getSetInfo->Name, classname,
+          getSetInfo->Name);
       }
     }
 
@@ -226,26 +213,13 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     }
   }
 
-  propCount = 0;
-  for (j = 0; j < properties->NumberOfProperties; ++j)
+  for (j = 0; j < propCount; ++j)
   {
     getSetInfo = getSetsInfo[j];
-    if (!getSetInfo)
-    {
-      continue;
-    }
-
-    snakeCasePropName = getSetInfo->PropertyName;
-    if (!snakeCasePropName)
-    {
-      continue;
-    }
-
-    theProp = properties->Properties[j];
 
     /* Start a new PyGetSetDef item */
     fprintf(fp, "  {\n");
-    fprintf(fp, "    pystr(\"%s\"), // name\n", snakeCasePropName);
+    fprintf(fp, "    pystr(\"%s\"), // name\n", getSetInfo->SnakeName);
 
     /* The getter and setter */
     if (getSetInfo->HasGetter)
@@ -272,19 +246,19 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
     /* Define the doc string */
     if (getSetInfo->HasGetter && !getSetInfo->HasSetter)
     {
-      fprintf(fp, "    pystr(\"read-only, calls Get%s\\n\"), // doc\n", theProp->Name);
+      fprintf(fp, "    pystr(\"read-only, calls Get%s\\n\"), // doc\n", getSetInfo->Name);
     }
     else if (!getSetInfo->HasGetter && getSetInfo->HasSetter)
     {
-      fprintf(fp, "    pystr(\"write-only, calls Set%s\\n\"), // doc\n", theProp->Name);
+      fprintf(fp, "    pystr(\"write-only, calls Set%s\\n\"), // doc\n", getSetInfo->Name);
     }
     else
     {
-      fprintf(fp, "    pystr(\"read-write, calls Get%s/Set%s\\n\"), // doc\n", theProp->Name,
-        theProp->Name);
+      fprintf(fp, "    pystr(\"read-write, calls Get%s/Set%s\\n\"), // doc\n", getSetInfo->Name,
+        getSetInfo->Name);
     }
     /* closure provides the methods that we call */
-    fprintf(fp, "    &Py%s_GetSetMethods[%d], // closure\n", classname, propCount++);
+    fprintf(fp, "    &Py%s_GetSetMethods[%d], // closure\n", classname, j);
     /* Finish the definition of a PyGetSetDef entry */
     fprintf(fp, "  },\n");
   }
@@ -294,11 +268,11 @@ void vtkWrapPython_GenerateProperties(FILE* fp, const char* classname, ClassInfo
   fprintf(fp, "};\n\n");
 
   /* clean up memory of data structures */
-  for (j = 0; j < properties->NumberOfProperties; ++j)
+  for (j = 0; j < propCount; ++j)
   {
     if (getSetsInfo[j])
     {
-      free(getSetsInfo[j]->PropertyName);
+      free(getSetsInfo[j]->SnakeName);
       free(getSetsInfo[j]);
     }
   }
