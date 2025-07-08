@@ -258,12 +258,12 @@ bool TestRedistributeComposite(vtkMPIController* controller)
 {
   int myRank = controller->GetLocalProcessId();
 
-  vtkNew<vtkRandomHyperTreeGridSource> source;
-  source->SetSeed(0);
-  source->SetDimensions(6, 6, 3);
-  source->SetSplitFraction(0.5);
-  source->SetMaskedFraction(0.22);
-  source->SetMaxDepth(5);
+  vtkNew<vtkHyperTreeGridSource> source;
+  source->SetDescriptor("..RR|........");
+  source->SetUseMask(true);
+  source->SetMask("0111|11111110");
+  source->SetDimensions(3, 3, 1);
+  source->SetMaxDepth(2);
 
   vtkNew<vtkGroupDataSetsFilter> group;
   group->SetInputConnection(source->GetOutputPort());
@@ -277,12 +277,9 @@ bool TestRedistributeComposite(vtkMPIController* controller)
   vtkPartitionedDataSet* pds =
     vtkPartitionedDataSet::SafeDownCast(outputPDC->GetPartitionedDataSet(0));
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(pds->GetPartitionAsDataObject(0));
-  // std::cout << htg << std::endl;
 
-  std::array nbTrees{ 17, 17, 16 };
-  std::array nbMaskedTrees{ 2, 6, 2 };
-
-  // return true;
+  std::array nbTrees{ 2, 1, 1 };
+  std::array nbMaskedTrees{ 1, 0, 0 };
 
   if (!::CheckRedistributeResult(htg, nbTrees, nbMaskedTrees, myRank))
   {
@@ -290,12 +287,6 @@ bool TestRedistributeComposite(vtkMPIController* controller)
   }
 
   return true;
-
-  // Redistribute twice and check that it's the same
-  // vtkNew<vtkHyperTreeGridRedistribute> redistribute2;
-  // redistribute2->SetInputConnection(redistribute->GetOutputPort());
-  // redistribute2->UpdatePiece(myRank, controller->GetNumberOfProcesses(), 0);
-  // return ::CheckRedistributeResult(outputHTG2, nbTrees, nbMaskedTrees, myRank);
 }
 }
 
@@ -318,10 +309,10 @@ int TestHyperTreeGridRedistribute(int argc, char* argv[])
   threadName += std::to_string(controller->GetLocalProcessId());
   vtkLogger::SetThreadName(threadName);
 
-  // success &= ::TestRedistributeHTG3D(controller);
-  // success &= ::TestRedistributeHTG2D(controller);
-  // success &= ::TestRedistributeHTG2DOnOneProcess(controller);
-  // success &= ::TestRedistributeMultiComponent(controller);
+  success &= ::TestRedistributeHTG3D(controller);
+  success &= ::TestRedistributeHTG2D(controller);
+  success &= ::TestRedistributeHTG2DOnOneProcess(controller);
+  success &= ::TestRedistributeMultiComponent(controller);
   success &= ::TestRedistributeComposite(controller);
 
   controller->Finalize();
