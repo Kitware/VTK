@@ -110,13 +110,13 @@ void vtkAMRBox::SetDimensions(int ilo, int jlo, int klo, int ihi, int jhi, int k
 
   switch (desc)
   {
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       this->HiCorner[2] = this->LoCorner[2] - 1;
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       this->HiCorner[1] = this->LoCorner[1] - 1;
       break;
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       this->HiCorner[0] = this->LoCorner[0] - 1;
       break;
   }

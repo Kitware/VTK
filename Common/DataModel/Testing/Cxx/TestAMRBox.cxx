@@ -8,13 +8,13 @@
 
 void Construct2DAMRBox(vtkAMRBox& box, int lo[3], int hi[3])
 {
-  box.SetDimensions(lo, hi, VTK_XY_PLANE);
+  box.SetDimensions(lo, hi, vtkStructuredData::VTK_STRUCTURED_XY_PLANE);
 }
 
 //------------------------------------------------------------------------------
 void Construct3DAMRBox(vtkAMRBox& box, int lo[3], int hi[3])
 {
-  box.SetDimensions(lo, hi, VTK_XYZ_GRID);
+  box.SetDimensions(lo, hi, vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
 }
 
 //------------------------------------------------------------------------------

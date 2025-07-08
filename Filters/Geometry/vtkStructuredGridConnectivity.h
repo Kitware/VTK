@@ -266,46 +266,46 @@ protected:
 
     switch (this->DataDescription)
     {
-      case VTK_X_LINE:
+      case vtkStructuredData::VTK_STRUCTURED_X_LINE:
         if ((GridExtent[0] <= i) && (i <= GridExtent[1]))
         {
           status = true;
         }
         break;
-      case VTK_Y_LINE:
+      case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
         if ((GridExtent[2] <= j) && (j <= GridExtent[3]))
         {
           status = true;
         }
         break;
-      case VTK_Z_LINE:
+      case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
         if ((GridExtent[4] <= k) && (k <= GridExtent[5]))
         {
           status = true;
         }
         break;
-      case VTK_XY_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
         if ((GridExtent[0] <= i) && (i <= GridExtent[1]) && (GridExtent[2] <= j) &&
           (j <= GridExtent[3]))
         {
           status = true;
         }
         break;
-      case VTK_YZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
         if ((GridExtent[2] <= j) && (j <= GridExtent[3]) && (GridExtent[4] <= k) &&
           (k <= GridExtent[5]))
         {
           status = true;
         }
         break;
-      case VTK_XZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
         if ((GridExtent[0] <= i) && (i <= GridExtent[1]) && (GridExtent[4] <= k) &&
           (k <= GridExtent[5]))
         {
           status = true;
         }
         break;
-      case VTK_XYZ_GRID:
+      case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
         if ((GridExtent[0] <= i) && (i <= GridExtent[1]) && (GridExtent[2] <= j) &&
           (j <= GridExtent[3]) && (GridExtent[4] <= k) && (k <= GridExtent[5]))
         {
@@ -385,7 +385,8 @@ protected:
 
   /**
    * Based on the user-supplied WholeExtent, this method determines the
-   * topology of the structured domain, e.g., VTK_XYZ_GRID, VTK_XY_PLANE, etc.
+   * topology of the structured domain, e.g., vtkStructuredData::VTK_STRUCTURED_XYZ_GRID,
+   * VTK_STRUCTURED_XY_PLANE, etc.
    */
   void AcquireDataDescription();
 
@@ -675,43 +676,43 @@ inline bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(int i, int j
   bool status = false;
   switch (this->DataDescription)
   {
-    case VTK_X_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_X_LINE:
       if (i == ext[0] || i == ext[1])
       {
         status = true;
       }
       break;
-    case VTK_Y_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
       if (j == ext[2] || j == ext[3])
       {
         status = true;
       }
       break;
-    case VTK_Z_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
       if (k == ext[4] || k == ext[5])
       {
         status = true;
       }
       break;
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       if ((i == ext[0] || i == ext[1]) || (j == ext[2] || j == ext[3]))
       {
         status = true;
       }
       break;
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       if ((j == ext[2] || j == ext[3]) || (k == ext[4] || k == ext[5]))
       {
         status = true;
       }
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       if ((i == ext[0] || i == ext[1]) || (k == ext[4] || k == ext[5]))
       {
         status = true;
       }
       break;
-    case VTK_XYZ_GRID:
+    case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       if ((i == ext[0] || i == ext[1]) || (j == ext[2] || j == ext[3]) ||
         (k == ext[4] || k == ext[5]))
       {
@@ -734,43 +735,43 @@ inline bool vtkStructuredGridConnectivity::IsNodeInterior(int i, int j, int k, i
 
   switch (this->DataDescription)
   {
-    case VTK_X_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_X_LINE:
       if ((GridExtent[0] < i) && (i < GridExtent[1]))
       {
         status = true;
       }
       break;
-    case VTK_Y_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
       if ((GridExtent[2] < j) && (j < GridExtent[3]))
       {
         status = true;
       }
       break;
-    case VTK_Z_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
       if ((GridExtent[4] < k) && (k < GridExtent[5]))
       {
         status = true;
       }
       break;
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       if ((GridExtent[0] < i) && (i < GridExtent[1]) && (GridExtent[2] < j) && (j < GridExtent[3]))
       {
         status = true;
       }
       break;
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       if ((GridExtent[2] < j) && (j < GridExtent[3]) && (GridExtent[4] < k) && (k < GridExtent[5]))
       {
         status = true;
       }
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       if ((GridExtent[0] < i) && (i < GridExtent[1]) && (GridExtent[4] < k) && (k < GridExtent[5]))
       {
         status = true;
       }
       break;
-    case VTK_XYZ_GRID:
+    case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       if ((GridExtent[0] < i) && (i < GridExtent[1]) && (GridExtent[2] < j) &&
         (j < GridExtent[3]) && (GridExtent[4] < k) && (k < GridExtent[5]))
       {

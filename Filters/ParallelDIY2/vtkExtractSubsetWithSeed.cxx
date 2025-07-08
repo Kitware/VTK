@@ -197,7 +197,8 @@ std::vector<SeedT> ExtractSliceFromSeed(const vtkVector3d& seed,
   const std::vector<vtkVector3d>& dirs, BlockT* b, const diy::Master::ProxyWithLink&)
 {
   auto sg = b->Input;
-  assert(vtkStructuredData::GetDataDescriptionFromExtent(sg->GetExtent()) == VTK_XYZ_GRID);
+  assert(vtkStructuredData::GetDataDescriptionFromExtent(sg->GetExtent()) ==
+    vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
 
   const vtkIdType cellid = b->CellLocator->FindCell(const_cast<double*>(seed.GetData()));
   if (cellid <= 0)
@@ -401,7 +402,8 @@ int vtkExtractSubsetWithSeed::RequestData(
     auto sg = vtkStructuredGrid::SafeDownCast(ds);
     // skip empty or non-3D grids.
     return sg == nullptr ||
-      vtkStructuredData::GetDataDescriptionFromExtent(sg->GetExtent()) != VTK_XYZ_GRID;
+      vtkStructuredData::GetDataDescriptionFromExtent(sg->GetExtent()) !=
+      vtkStructuredData::VTK_STRUCTURED_XYZ_GRID;
   };
 
   datasets.erase(std::remove_if(datasets.begin(), datasets.end(), prunePredicate), datasets.end());
@@ -433,7 +435,8 @@ int vtkExtractSubsetWithSeed::RequestData(
     {
       block->Input = vtkStructuredGrid::SafeDownCast(datasets[lid]);
       assert(block->Input != nullptr &&
-        vtkStructuredData::GetDataDescriptionFromExtent(block->Input->GetExtent()) == VTK_XYZ_GRID);
+        vtkStructuredData::GetDataDescriptionFromExtent(block->Input->GetExtent()) ==
+          vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
       block->CellLocator->SetDataSet(block->Input);
       block->CellLocator->BuildLocator();
     }

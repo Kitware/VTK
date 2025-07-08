@@ -104,7 +104,8 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
   double* spacing = nullptr;
 
   int gridDescription = this->GetOriginAndSpacing(ePrimary, origin, spacing);
-  if (gridDescription < VTK_XY_PLANE || gridDescription > VTK_XYZ_GRID)
+  if (gridDescription < vtkStructuredData::VTK_STRUCTURED_XY_PLANE ||
+    gridDescription > vtkStructuredData::VTK_STRUCTURED_XYZ_GRID)
   {
     delete[] spacing;
     vtkErrorMacro("Failed to determine origin/spacing/grid description.");
@@ -119,13 +120,13 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
   const char* grid_description = "XYZ";
   switch (gridDescription)
   {
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       grid_description = "XY";
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       grid_description = "XZ";
       break;
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       grid_description = "YZ";
       break;
   }
@@ -227,7 +228,7 @@ int vtkXMLHierarchicalBoxDataFileConverter::GetOriginAndSpacing(
   }
 
   vtkBoundingBox bbox;
-  int gridDescription = VTK_UNCHANGED;
+  int gridDescription = vtkStructuredData::VTK_STRUCTURED_UNCHANGED;
   spacing = new double[3 * filenames.size() + 1];
   memset(spacing, 0, (3 * filenames.size() + 1) * sizeof(double));
 

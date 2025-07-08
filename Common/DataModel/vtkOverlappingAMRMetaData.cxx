@@ -179,13 +179,13 @@ bool vtkOverlappingAMRMetaData::CheckValidity()
   int emptyDimension(-1);
   switch (this->GetGridDescription())
   {
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       emptyDimension = 0;
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       emptyDimension = 1;
       break;
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       emptyDimension = 2;
       break;
   }
@@ -255,13 +255,13 @@ bool vtkOverlappingAMRMetaData::CheckValidity()
     bool valid(true);
     switch (this->GetGridDescription())
     {
-      case VTK_YZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
         valid = box.EmptyDimension(0);
         break;
-      case VTK_XZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
         valid = box.EmptyDimension(1);
         break;
-      case VTK_XY_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
         valid = box.EmptyDimension(2);
         break;
     }
@@ -443,13 +443,13 @@ void vtkOverlappingAMRMetaData::GenerateRefinementRatio()
     int nonEmptyDimension = 0;
     switch (this->GetGridDescription())
     {
-      case VTK_XY_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
         nonEmptyDimension = 0;
         break;
-      case VTK_YZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
         nonEmptyDimension = 1;
         break;
-      case VTK_XZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
         nonEmptyDimension = 2;
         break;
     }

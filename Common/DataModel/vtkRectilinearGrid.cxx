@@ -60,7 +60,7 @@ void vtkRectilinearGrid::SetZCoordinates(vtkDataArray* zCoords)
 //------------------------------------------------------------------------------
 vtkRectilinearGrid::vtkRectilinearGrid()
 {
-  this->DataDescription = VTK_EMPTY;
+  this->DataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY;
 
   for (int idx = 0; idx < 3; ++idx)
   {
@@ -722,7 +722,7 @@ void vtkRectilinearGrid::SetExtent(int extent[6])
     vtkErrorMacro(<< "Bad Extent, retaining previous values");
   }
 
-  if (description == VTK_UNCHANGED)
+  if (description == vtkStructuredData::VTK_STRUCTURED_UNCHANGED)
   {
     return;
   }

@@ -114,18 +114,18 @@ int vtkStructuredGridLIC2DTestDriver(int argc, char* argv[])
   reader->SetFileName(filename.c_str());
   reader->Update();
 
-  int dataDesc = VTK_XY_PLANE;
+  int dataDesc = vtkStructuredData::VTK_STRUCTURED_XY_PLANE;
   switch (slice_dir)
   {
     case 0:
-      dataDesc = VTK_YZ_PLANE;
+      dataDesc = vtkStructuredData::VTK_STRUCTURED_YZ_PLANE;
       break;
     case 1:
-      dataDesc = VTK_XZ_PLANE;
+      dataDesc = vtkStructuredData::VTK_STRUCTURED_XZ_PLANE;
       break;
     case 2:
     default:
-      dataDesc = VTK_XY_PLANE;
+      dataDesc = vtkStructuredData::VTK_STRUCTURED_XY_PLANE;
   }
 
   int extent[6];
@@ -136,32 +136,32 @@ int vtkStructuredGridLIC2DTestDriver(int argc, char* argv[])
   // If data is 2D, then override the slice-dir
   if (extent[0] == extent[1])
   {
-    dataDesc = VTK_YZ_PLANE;
+    dataDesc = vtkStructuredData::VTK_STRUCTURED_YZ_PLANE;
     slice = 0;
   }
   else if (extent[2] == extent[3])
   {
-    dataDesc = VTK_XZ_PLANE;
+    dataDesc = vtkStructuredData::VTK_STRUCTURED_XZ_PLANE;
     slice = 0;
   }
   else if (extent[4] == extent[5])
   {
-    dataDesc = VTK_XY_PLANE;
+    dataDesc = vtkStructuredData::VTK_STRUCTURED_XY_PLANE;
     slice = 0;
   }
   else
   {
     switch (dataDesc)
     {
-      case VTK_XY_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
         voi[4] = voi[5] = CLAMP(extent[4] + slice, extent[4], extent[5]);
         break;
 
-      case VTK_YZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
         voi[0] = voi[1] = CLAMP(extent[0] + slice, extent[0], extent[1]);
         break;
 
-      case VTK_XZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
         voi[2] = voi[3] = CLAMP(extent[2] + slice, extent[2], extent[3]);
         break;
     }
@@ -278,10 +278,10 @@ int vtkStructuredGridLIC2DTestDriver(int argc, char* argv[])
   {
     switch (dataDesc)
     {
-      case VTK_YZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
         renderer->GetActiveCamera()->Azimuth(90);
         break;
-      case VTK_XZ_PLANE:
+      case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
         renderer->GetActiveCamera()->Elevation(90);
         renderer->GetActiveCamera()->SetViewUp(0, 0, -1);
         break;

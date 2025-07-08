@@ -967,7 +967,7 @@ bool vtkHDFReader::Implementation::ReadAMRTopology(vtkOverlappingAMR* data, unsi
   data->Initialize(
     static_cast<int>(numberOfLoadedLevels), this->AMRInformation.BlocksPerLevel.data());
   data->SetOrigin(origin);
-  data->SetGridDescription(VTK_XYZ_GRID);
+  data->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
 
   while (level < maxLevel)
   {

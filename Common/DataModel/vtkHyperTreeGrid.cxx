@@ -159,7 +159,7 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
   int extent[6] = { 0, -1, 0, -1, 0, -1 };
   memcpy(this->Extent, extent, 6 * sizeof(int));
 
-  this->DataDescription = VTK_EMPTY;
+  this->DataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY;
 
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
@@ -252,7 +252,7 @@ void vtkHyperTreeGrid::Initialize()
   int extent[6] = { 0, -1, 0, -1, 0, -1 };
   memcpy(this->Extent, extent, 6 * sizeof(int));
 
-  this->DataDescription = VTK_EMPTY;
+  this->DataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY;
 
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);
   this->Information->Set(vtkDataObject::DATA_EXTENT(), this->Extent, 6);
@@ -622,7 +622,7 @@ void vtkHyperTreeGrid::SetExtent(const int extent[6])
   {
     this->NumberOfChildren *= this->BranchFactor;
   }
-  if (description == VTK_UNCHANGED)
+  if (description == vtkStructuredData::VTK_STRUCTURED_UNCHANGED)
   {
     return;
   }

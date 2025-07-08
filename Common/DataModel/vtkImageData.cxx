@@ -30,7 +30,7 @@ vtkStandardExtendedNewMacro(vtkImageData);
 //------------------------------------------------------------------------------
 vtkImageData::vtkImageData()
 {
-  this->DataDescription = VTK_EMPTY;
+  this->DataDescription = vtkStructuredData::VTK_STRUCTURED_EMPTY;
 
   for (int idx = 0; idx < 3; ++idx)
   {
@@ -489,18 +489,18 @@ vtkIdType vtkImageData::FindCell(double x[3], vtkCell* vtkNotUsed(cell),
   if (weights)
   {
     // Shift parametric coordinates for XZ/YZ planes
-    if (this->DataDescription == VTK_XZ_PLANE)
+    if (this->DataDescription == vtkStructuredData::VTK_STRUCTURED_XZ_PLANE)
     {
       pcoords[1] = pcoords[2];
       pcoords[2] = 0.0;
     }
-    else if (this->DataDescription == VTK_YZ_PLANE)
+    else if (this->DataDescription == vtkStructuredData::VTK_STRUCTURED_YZ_PLANE)
     {
       pcoords[0] = pcoords[1];
       pcoords[1] = pcoords[2];
       pcoords[2] = 0.0;
     }
-    else if (this->DataDescription == VTK_XY_PLANE)
+    else if (this->DataDescription == vtkStructuredData::VTK_STRUCTURED_XY_PLANE)
     {
       pcoords[2] = 0.0;
     }
@@ -1899,7 +1899,7 @@ void vtkImageData::SetExtent(int* extent)
     vtkErrorMacro(<< "Bad Extent, retaining previous values");
   }
 
-  if (description == VTK_UNCHANGED)
+  if (description == vtkStructuredData::VTK_STRUCTURED_UNCHANGED)
   {
     return;
   }

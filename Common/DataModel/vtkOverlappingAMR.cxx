@@ -243,13 +243,13 @@ bool vtkOverlappingAMR::CheckValidity()
   int emptyDimension(-1);
   switch (this->GetGridDescription())
   {
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       emptyDimension = 0;
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       emptyDimension = 1;
       break;
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       emptyDimension = 2;
       break;
   }

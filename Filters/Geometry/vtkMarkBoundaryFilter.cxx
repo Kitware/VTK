@@ -688,7 +688,8 @@ struct MarkStructured : public MarkCellBoundary
     // is which.
     char ptUses[8] = { 0 };
     vtkIdType faceMark = 0;
-    vtkStructuredData::GetCellPoints(cellId, ptIds, VTK_XYZ_GRID, this->Dims);
+    vtkStructuredData::GetCellPoints(
+      cellId, ptIds, vtkStructuredData::VTK_STRUCTURED_XYZ_GRID, this->Dims);
     vtkIdType tmpPtIds[8];
     std::copy_n(ptIds->GetPointer(0), 8, tmpPtIds);
 

@@ -196,7 +196,8 @@ void vtkStructuredGridConnectivity::AcquireDataDescription()
   this->DataDimension = vtkStructuredData::GetDataDimension(this->DataDescription);
 
   assert("pre: Error acquiring data description" && (this->DataDescription >= 0));
-  assert("pre: grid description cannot be empty" && (this->DataDescription != VTK_EMPTY));
+  assert("pre: grid description cannot be empty" &&
+    (this->DataDescription != vtkStructuredData::VTK_STRUCTURED_EMPTY));
 }
 
 //------------------------------------------------------------------------------
@@ -245,7 +246,8 @@ void vtkStructuredGridConnectivity::ComputeNeighbors()
   // STEP 0: Acquire data description, i.e., determine how the structured data
   // is laid out, e.g., is it volumetric or 2-D along some plane, XY, XZ, or YZ.
   this->AcquireDataDescription();
-  if (this->DataDescription == VTK_EMPTY || this->DataDescription == VTK_SINGLE_POINT)
+  if (this->DataDescription == vtkStructuredData::VTK_STRUCTURED_EMPTY ||
+    this->DataDescription == vtkStructuredData::VTK_STRUCTURED_SINGLE_POINT)
   {
     return;
   }
@@ -502,7 +504,7 @@ void vtkStructuredGridConnectivity::GetRealExtent(int gridID, int GridExtent[6],
 
   switch (this->DataDescription)
   {
-    case VTK_X_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_X_LINE:
       if (this->HasBlockConnection(gridID, BlockFace::LEFT))
       {
         RealExtent[0] += this->NumberOfGhostLayers; // imin
@@ -512,7 +514,7 @@ void vtkStructuredGridConnectivity::GetRealExtent(int gridID, int GridExtent[6],
         RealExtent[1] -= this->NumberOfGhostLayers; // imax
       }
       break;
-    case VTK_Y_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
       if (this->HasBlockConnection(gridID, BlockFace::BOTTOM))
       {
         RealExtent[2] += this->NumberOfGhostLayers; // jmin
@@ -522,7 +524,7 @@ void vtkStructuredGridConnectivity::GetRealExtent(int gridID, int GridExtent[6],
         RealExtent[3] -= this->NumberOfGhostLayers; // jmax
       }
       break;
-    case VTK_Z_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
       if (this->HasBlockConnection(gridID, BlockFace::BACK))
       {
         RealExtent[4] += this->NumberOfGhostLayers; // kmin
@@ -532,7 +534,7 @@ void vtkStructuredGridConnectivity::GetRealExtent(int gridID, int GridExtent[6],
         RealExtent[5] -= this->NumberOfGhostLayers; // kmax
       }
       break;
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       if (this->HasBlockConnection(gridID, BlockFace::LEFT))
       {
         RealExtent[0] += this->NumberOfGhostLayers; // imin
@@ -550,7 +552,7 @@ void vtkStructuredGridConnectivity::GetRealExtent(int gridID, int GridExtent[6],
         RealExtent[3] -= this->NumberOfGhostLayers; // jmax
       }
       break;
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       if (this->HasBlockConnection(gridID, BlockFace::BOTTOM))
       {
         RealExtent[2] += this->NumberOfGhostLayers; // jmin
@@ -558,24 +560,6 @@ void vtkStructuredGridConnectivity::GetRealExtent(int gridID, int GridExtent[6],
       if (this->HasBlockConnection(gridID, BlockFace::TOP))
       {
         RealExtent[3] -= this->NumberOfGhostLayers; // jmax
-      }
-      if (this->HasBlockConnection(gridID, BlockFace::BACK))
-      {
-        RealExtent[4] += this->NumberOfGhostLayers; // kmin
-      }
-      if (this->HasBlockConnection(gridID, BlockFace::FRONT))
-      {
-        RealExtent[5] -= this->NumberOfGhostLayers; // kmax
-      }
-      break;
-    case VTK_XZ_PLANE:
-      if (this->HasBlockConnection(gridID, BlockFace::LEFT))
-      {
-        RealExtent[0] += this->NumberOfGhostLayers; // imin
-      }
-      if (this->HasBlockConnection(gridID, BlockFace::RIGHT))
-      {
-        RealExtent[1] -= this->NumberOfGhostLayers; // imax
       }
       if (this->HasBlockConnection(gridID, BlockFace::BACK))
       {
@@ -586,7 +570,25 @@ void vtkStructuredGridConnectivity::GetRealExtent(int gridID, int GridExtent[6],
         RealExtent[5] -= this->NumberOfGhostLayers; // kmax
       }
       break;
-    case VTK_XYZ_GRID:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
+      if (this->HasBlockConnection(gridID, BlockFace::LEFT))
+      {
+        RealExtent[0] += this->NumberOfGhostLayers; // imin
+      }
+      if (this->HasBlockConnection(gridID, BlockFace::RIGHT))
+      {
+        RealExtent[1] -= this->NumberOfGhostLayers; // imax
+      }
+      if (this->HasBlockConnection(gridID, BlockFace::BACK))
+      {
+        RealExtent[4] += this->NumberOfGhostLayers; // kmin
+      }
+      if (this->HasBlockConnection(gridID, BlockFace::FRONT))
+      {
+        RealExtent[5] -= this->NumberOfGhostLayers; // kmax
+      }
+      break;
+    case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       if (this->HasBlockConnection(gridID, BlockFace::LEFT))
       {
         RealExtent[0] += this->NumberOfGhostLayers; // imin
@@ -694,43 +696,43 @@ void vtkStructuredGridConnectivity::EstablishNeighbors(int i, int j)
 
   switch (this->DataDescription)
   {
-    case VTK_X_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_X_LINE:
       ndim = 1;
       orientation[0] = 0;
       orientation[1] = -1;
       orientation[2] = -1;
       break;
-    case VTK_Y_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
       ndim = 1;
       orientation[0] = 1;
       orientation[1] = -1;
       orientation[2] = -1;
       break;
-    case VTK_Z_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
       ndim = 1;
       orientation[0] = 2;
       orientation[1] = -1;
       orientation[2] = -1;
       break;
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       ndim = 2;
       orientation[0] = 0;
       orientation[1] = 1;
       orientation[2] = -1;
       break;
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       ndim = 2;
       orientation[0] = 1;
       orientation[1] = 2;
       orientation[2] = -1;
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       ndim = 2;
       orientation[0] = 0;
       orientation[1] = 2;
       orientation[2] = -1;
       break;
-    case VTK_XYZ_GRID:
+    case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       ndim = 3;
       orientation[0] = 0;
       orientation[1] = 1;
@@ -948,37 +950,37 @@ void vtkStructuredGridConnectivity::GetIJKBlockOrientation(
 
   switch (this->DataDescription)
   {
-    case VTK_X_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_X_LINE:
       orientation[0] = this->Get1DOrientation(
         i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT, BlockFace::NOT_ON_BLOCK_FACE);
       break;
-    case VTK_Y_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
       orientation[1] = this->Get1DOrientation(
         j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP, BlockFace::NOT_ON_BLOCK_FACE);
       break;
-    case VTK_Z_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
       orientation[2] = this->Get1DOrientation(
         k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT, BlockFace::NOT_ON_BLOCK_FACE);
       break;
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       orientation[0] = this->Get1DOrientation(
         i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT, BlockFace::NOT_ON_BLOCK_FACE);
       orientation[1] = this->Get1DOrientation(
         j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP, BlockFace::NOT_ON_BLOCK_FACE);
       break;
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       orientation[1] = this->Get1DOrientation(
         j, ext[2], ext[3], BlockFace::BOTTOM, BlockFace::TOP, BlockFace::NOT_ON_BLOCK_FACE);
       orientation[2] = this->Get1DOrientation(
         k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT, BlockFace::NOT_ON_BLOCK_FACE);
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       orientation[0] = this->Get1DOrientation(
         i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT, BlockFace::NOT_ON_BLOCK_FACE);
       orientation[2] = this->Get1DOrientation(
         k, ext[4], ext[5], BlockFace::BACK, BlockFace::FRONT, BlockFace::NOT_ON_BLOCK_FACE);
       break;
-    case VTK_XYZ_GRID:
+    case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       orientation[0] = this->Get1DOrientation(
         i, ext[0], ext[1], BlockFace::LEFT, BlockFace::RIGHT, BlockFace::NOT_ON_BLOCK_FACE);
       orientation[1] = this->Get1DOrientation(
@@ -1011,28 +1013,28 @@ void vtkStructuredGridConnectivity::CreateGhostedExtent(int gridID, int N)
 
   switch (this->DataDescription)
   {
-    case VTK_X_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_X_LINE:
       this->GetGhostedExtent(ghostedExtent, ext, 0, 1, N);
       break;
-    case VTK_Y_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Y_LINE:
       this->GetGhostedExtent(ghostedExtent, ext, 2, 3, N);
       break;
-    case VTK_Z_LINE:
+    case vtkStructuredData::VTK_STRUCTURED_Z_LINE:
       this->GetGhostedExtent(ghostedExtent, ext, 4, 5, N);
       break;
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       this->GetGhostedExtent(ghostedExtent, ext, 0, 1, N);
       this->GetGhostedExtent(ghostedExtent, ext, 2, 3, N);
       break;
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       this->GetGhostedExtent(ghostedExtent, ext, 2, 3, N);
       this->GetGhostedExtent(ghostedExtent, ext, 4, 5, N);
       break;
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       this->GetGhostedExtent(ghostedExtent, ext, 0, 1, N);
       this->GetGhostedExtent(ghostedExtent, ext, 4, 5, N);
       break;
-    case VTK_XYZ_GRID:
+    case vtkStructuredData::VTK_STRUCTURED_XYZ_GRID:
       this->GetGhostedExtent(ghostedExtent, ext, 0, 1, N);
       this->GetGhostedExtent(ghostedExtent, ext, 2, 3, N);
       this->GetGhostedExtent(ghostedExtent, ext, 4, 5, N);

@@ -336,19 +336,19 @@ int vtkImageDataLIC2D::RequestData(vtkInformation* vtkNotUsed(request),
   int comp[3] = { 0, 0, 0 };
   switch (dataDescription)
   {
-    case VTK_XY_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XY_PLANE:
       comp[0] = 0;
       comp[1] = 1;
       comp[2] = 2;
       break;
 
-    case VTK_YZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
       comp[0] = 1;
       comp[1] = 2;
       comp[2] = 0;
       break;
 
-    case VTK_XZ_PLANE:
+    case vtkStructuredData::VTK_STRUCTURED_XZ_PLANE:
       comp[0] = 0;
       comp[1] = 2;
       comp[2] = 1;
