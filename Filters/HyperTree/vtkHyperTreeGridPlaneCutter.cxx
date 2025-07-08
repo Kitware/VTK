@@ -14,6 +14,7 @@
 #include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
@@ -31,6 +32,8 @@ vtkIdType First8Integers[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
 constexpr unsigned int MooreCursors3D[26] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16,
   17, 18, 19, 20, 21, 22, 23, 24, 25, 26 };
+
+const double SQRT_DBL_EPSILON = std::sqrt(VTK_DBL_EPSILON);
 }
 
 vtkStandardNewMacro(vtkHyperTreeGridPlaneCutter);
@@ -426,8 +429,6 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal(
     }
   }
 
-  const double SQRT_DBL_EPSILON = std::sqrt(VTK_DBL_EPSILON);
-
   // Check cell-plane intersection
   double functEval[8];
   if (this->CheckIntersection(cellCoords, functEval))
@@ -445,7 +446,7 @@ void vtkHyperTreeGridPlaneCutter::RecursivelyProcessTreePrimal(
       for (int i = 0; i < 8; ++i)
       {
         // Check all cell edges
-        if (std::abs(functEval[i]) < SQRT_DBL_EPSILON)
+        if (std::abs(functEval[i]) < ::SQRT_DBL_EPSILON)
         {
           // If current vertex is intersected then save it
           memcpy(points[n], cellCoords[i], 3 * sizeof(double));
@@ -851,15 +852,15 @@ void vtkHyperTreeGridPlaneCutter::ReorderCutPoints(int n, double points[][3])
     {
       // Compute the distance: number of different coordinates
       int distance = 0;
-      if (points[j][0] != points[i][0])
+      if (!vtkMathUtilities::FuzzyCompare(points[j][0], points[i][0], ::SQRT_DBL_EPSILON))
       {
         ++distance;
       }
-      if (points[j][1] != points[i][1])
+      if (!vtkMathUtilities::FuzzyCompare(points[j][1], points[i][1], ::SQRT_DBL_EPSILON))
       {
         ++distance;
       }
-      if (points[j][2] != points[i][2])
+      if (!vtkMathUtilities::FuzzyCompare(points[j][2], points[i][2], ::SQRT_DBL_EPSILON))
       {
         ++distance;
       }
