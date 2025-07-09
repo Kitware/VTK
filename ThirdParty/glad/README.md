@@ -1,3 +1,5 @@
+# Updating the GLAD library sources
+
 These `vtkglad` library headers and sources are generated from http://glad.sh.
 
 Please go to these permalinks and click the Generate button in order to update these files.
