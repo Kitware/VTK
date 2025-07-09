@@ -9,6 +9,7 @@ KIT
   VTK::Parallel
 GROUPS
   StandAlone
+  Parallel
 DESCRIPTION
   Filters that work in a distributed-memory environment.
 SPDX_LICENSE_IDENTIFIER

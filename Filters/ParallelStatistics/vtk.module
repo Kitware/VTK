@@ -4,6 +4,8 @@ LIBRARY_NAME
   vtkFiltersParallelStatistics
 KIT
   VTK::Parallel
+GROUPS
+  Parallel
 DESCRIPTION
   Filters to compute statistics in distributed-memory parallel environments.
 SPDX_LICENSE_IDENTIFIER

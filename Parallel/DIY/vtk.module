@@ -8,6 +8,7 @@ LIBRARY_NAME
   vtkParallelDIY
 GROUPS
   StandAlone
+  Parallel
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT

@@ -6,6 +6,7 @@ KIT
   VTK::Parallel
 GROUPS
   StandAlone
+  Parallel
 DESCRIPTION
   Filters that perform image processing in distributed-memory parallel environments.
 SPDX_LICENSE_IDENTIFIER

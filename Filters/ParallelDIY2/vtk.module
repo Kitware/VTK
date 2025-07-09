@@ -7,6 +7,8 @@ KIT
 IMPLEMENTS
   VTK::FiltersCore
   VTK::FiltersParallel
+GROUPS
+  Parallel
 DESCRIPTION
   Filters that use the DIY MPI library to perform tasks in a distributed-memory environment.
 SPDX_LICENSE_IDENTIFIER
