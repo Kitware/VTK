@@ -657,6 +657,9 @@ bool vtkChartParallelCoordinates::MouseButtonPressEvent(const vtkContextMouseEve
 {
   if (mouse.GetButton() == this->Actions.Select())
   {
+    int selectionMode = this->GetSelectionModeFromMouseModifiers(mouse);
+    this->SetSelectionMode(selectionMode);
+
     // Select an axis if we are within range
     if (mouse.GetScenePos()[1] > this->Point1[1] && mouse.GetScenePos()[1] < this->Point2[1])
     {
