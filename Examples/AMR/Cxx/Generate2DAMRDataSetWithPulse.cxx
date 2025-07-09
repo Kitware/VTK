@@ -124,7 +124,7 @@ vtkOverlappingAMR* GetAMRDataSet()
   vtkNew<vtkOverlappingAMR> data;
   data->Initialize(NumLevels, BlocksPerLevel);
   data->SetOrigin(origin);
-  data->SetGridDescription(VTK_XY_PLANE);
+  data->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XY_PLANE);
 
   double h[3];
   int ndim[3];

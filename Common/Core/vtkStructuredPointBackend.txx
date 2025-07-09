@@ -43,7 +43,7 @@ void vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, D
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 9 /*VTK_EMPTY*/), ValueType>::type
+typename std::enable_if<(Description == 9 /*VTK_STRUCTURED_EMPTY*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapStructuredXComponentImpl(int vtkNotUsed(i)) const
 {
@@ -54,7 +54,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description != 9 /*VTK_EMPTY*/), ValueType>::type
+typename std::enable_if<(Description != 9 /*VTK_STRUCTURED_EMPTY*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapStructuredXComponentImpl(int i) const
 {
@@ -74,7 +74,7 @@ ValueType vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTyp
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 9 /*VTK_EMPTY*/), ValueType>::type
+typename std::enable_if<(Description == 9 /*VTK_STRUCTURED_EMPTY*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapStructuredYComponentImpl(int vtkNotUsed(j)) const
 {
@@ -85,7 +85,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description != 9 /*VTK_EMPTY*/), ValueType>::type
+typename std::enable_if<(Description != 9 /*VTK_STRUCTURED_EMPTY*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapStructuredYComponentImpl(int j) const
 {
@@ -105,7 +105,7 @@ ValueType vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTyp
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 9 /*VTK_EMPTY*/), ValueType>::type
+typename std::enable_if<(Description == 9 /*VTK_STRUCTURED_EMPTY*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapStructuredZComponentImpl(int vtkNotUsed(k)) const
 {
@@ -116,7 +116,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description != 9 /*VTK_EMPTY*/), ValueType>::type
+typename std::enable_if<(Description != 9 /*VTK_STRUCTURED_EMPTY*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapStructuredZComponentImpl(int k) const
 {
@@ -136,7 +136,7 @@ ValueType vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTyp
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 9 /*VTK_EMPTY*/), void>::type
+typename std::enable_if<(Description == 9 /*VTK_STRUCTURED_EMPTY*/), void>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapStructuredTupleImpl(int vtkNotUsed(ijk)[3], ValueType* tuple) const
 {
@@ -149,7 +149,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description != 9 /*VTK_EMPTY*/), void>::type
+typename std::enable_if<(Description != 9 /*VTK_STRUCTURED_EMPTY*/), void>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapStructuredTupleImpl(int ijk[3], ValueType* tuple) const
 {
@@ -179,7 +179,7 @@ void vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, D
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 9 /*VTK_EMPTY*/), void>::type
+typename std::enable_if<(Description == 9 /*VTK_STRUCTURED_EMPTY*/), void>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::ComputePointStructuredCoords(vtkIdType vtkNotUsed(pointId), int ijk[3]) const
 {
@@ -190,7 +190,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 1 /*VTK_SINGLE_POINT*/), void>::type
+typename std::enable_if<(Description == 1 /*VTK_STRUCTURED_SINGLE_POINT*/), void>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::ComputePointStructuredCoords(vtkIdType vtkNotUsed(pointId), int ijk[3]) const
 {
@@ -201,7 +201,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 2 /*VTK_X_LINE*/), void>::type
+typename std::enable_if<(Description == 2 /*VTK_STRUCTURED_X_LINE*/), void>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::ComputePointStructuredCoords(vtkIdType pointId, int ijk[3]) const
 {
@@ -214,7 +214,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 3 /*VTK_Y_LINE*/), void>::type
+typename std::enable_if<(Description == 3 /*VTK_STRUCTURED_Y_LINE*/), void>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::ComputePointStructuredCoords(vtkIdType pointId, int ijk[3]) const
 {
@@ -227,7 +227,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 4 /*VTK_Z_LINE*/), void>::type
+typename std::enable_if<(Description == 4 /*VTK_STRUCTURED_Z_LINE*/), void>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::ComputePointStructuredCoords(vtkIdType pointId, int ijk[3]) const
 {
@@ -240,7 +240,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 5 /*VTK_XY_PLANE*/), void>::type
+typename std::enable_if<(Description == 5 /*VTK_STRUCTURED_XY_PLANE*/), void>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::ComputePointStructuredCoords(vtkIdType pointId, int ijk[3]) const
 {
@@ -254,7 +254,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 6 /*VTK_YZ_PLANE*/), void>::type
+typename std::enable_if<(Description == 6 /*VTK_STRUCTURED_YZ_PLANE*/), void>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::ComputePointStructuredCoords(vtkIdType pointId, int ijk[3]) const
 {
@@ -268,7 +268,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 7 /*VTK_XZ_PLANE*/), void>::type
+typename std::enable_if<(Description == 7 /*VTK_STRUCTURED_XZ_PLANE*/), void>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::ComputePointStructuredCoords(vtkIdType pointId, int ijk[3]) const
 {
@@ -282,7 +282,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 8 /*VTK_XYZ_GRID*/), void>::type
+typename std::enable_if<(Description == 8 /*VTK_STRUCTURED_XYZ_GRID*/), void>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::ComputePointStructuredCoords(vtkIdType pointId, int ijk[3]) const
 {
@@ -318,7 +318,7 @@ void vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, D
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 9 /*VTK_EMPTY*/), ValueType>::type
+typename std::enable_if<(Description == 9 /*VTK_STRUCTURED_EMPTY*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapComponentImpl(vtkIdType vtkNotUsed(tupleId), int vtkNotUsed(comp)) const
 {
@@ -329,7 +329,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 1 /*VTK_SINGLE_POINT*/), ValueType>::type
+typename std::enable_if<(Description == 1 /*VTK_STRUCTURED_SINGLE_POINT*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapComponentImpl(vtkIdType vtkNotUsed(tupleId), int comp) const
 {
@@ -350,7 +350,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 2 /*VTK_X_LINE*/), ValueType>::type
+typename std::enable_if<(Description == 2 /*VTK_STRUCTURED_X_LINE*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapComponentImpl(vtkIdType tupleId, int comp) const
 {
@@ -371,7 +371,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 3 /*VTK_Y_LINE*/), ValueType>::type
+typename std::enable_if<(Description == 3 /*VTK_STRUCTURED_Y_LINE*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapComponentImpl(vtkIdType tupleId, int comp) const
 {
@@ -392,7 +392,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 4 /*VTK_Z_LINE*/), ValueType>::type
+typename std::enable_if<(Description == 4 /*VTK_STRUCTURED_Z_LINE*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapComponentImpl(vtkIdType tupleId, int comp) const
 {
@@ -413,7 +413,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 5 /*VTK_XY_PLANE*/), ValueType>::type
+typename std::enable_if<(Description == 5 /*VTK_STRUCTURED_XY_PLANE*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapComponentImpl(vtkIdType tupleId, int comp) const
 {
@@ -434,7 +434,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 6 /*VTK_YZ_PLANE*/), ValueType>::type
+typename std::enable_if<(Description == 6 /*VTK_STRUCTURED_YZ_PLANE*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapComponentImpl(vtkIdType tupleId, int comp) const
 {
@@ -455,7 +455,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 7 /*VTK_XZ_PLANE*/), ValueType>::type
+typename std::enable_if<(Description == 7 /*VTK_STRUCTURED_XZ_PLANE*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapComponentImpl(vtkIdType tupleId, int comp) const
 {
@@ -476,7 +476,7 @@ vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDe
 template <typename ValueType, typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ,
   int DataDescription, bool UseDirMatrix>
 template <int Description>
-typename std::enable_if<(Description == 8 /*VTK_XYZ_GRID*/), ValueType>::type
+typename std::enable_if<(Description == 8 /*VTK_STRUCTURED_XYZ_GRID*/), ValueType>::type
 vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ, DataDescription,
   UseDirMatrix>::mapComponentImpl(vtkIdType tupleId, int comp) const
 {

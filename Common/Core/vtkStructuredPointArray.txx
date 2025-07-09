@@ -22,63 +22,63 @@ struct StructuredPointsWorker
 
     switch (dataDescription)
     {
-      case 9 /*VTK_EMPTY*/:
+      case 9 /*VTK_STRUCTURED_EMPTY*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           9, UseDirMatrix>;
         backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
-      case 1 /*VTK_SINGLE_POINT*/:
+      case 1 /*VTK_STRUCTURED_SINGLE_POINT*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           1, UseDirMatrix>;
         backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
-      case 2 /*VTK_X_LINE*/:
+      case 2 /*VTK_STRUCTURED_X_LINE*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           2, UseDirMatrix>;
         backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
-      case 3 /*VTK_Y_LINE*/:
+      case 3 /*VTK_STRUCTURED_Y_LINE*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           3, UseDirMatrix>;
         backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
-      case 4 /*VTK_Z_LINE*/:
+      case 4 /*VTK_STRUCTURED_Z_LINE*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           4, UseDirMatrix>;
         backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
-      case 5 /*VTK_XY_PLANE*/:
+      case 5 /*VTK_STRUCTURED_XY_PLANE*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           5, UseDirMatrix>;
         backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
-      case 6 /*VTK_YZ_PLANE*/:
+      case 6 /*VTK_STRUCTURED_YZ_PLANE*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           6, UseDirMatrix>;
         backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
-      case 7 /*VTK_XZ_PLANE*/:
+      case 7 /*VTK_STRUCTURED_XZ_PLANE*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           7, UseDirMatrix>;
         backend = new TBackend(arrayX, arrayY, arrayZ, extent, dirMatrix);
         break;
       }
-      case 8 /*VTK_XYZ_GRID*/:
+      case 8 /*VTK_STRUCTURED_XYZ_GRID*/:
       {
         using TBackend = vtkStructuredTPointBackend<ValueType, ArrayTypeX, ArrayTypeY, ArrayTypeZ,
           8, UseDirMatrix>;

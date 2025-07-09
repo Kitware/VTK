@@ -58,7 +58,7 @@ public:
 
   /**
    * Set/Get the data description of this uniform grid instance,
-   * e.g. VTK_XYZ_GRID
+   * e.g. VTK_STRUCTURED_XYZ_GRID
    */
   void SetGridDescription(int gridDescription);
   int GetGridDescription();
