@@ -32,6 +32,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLUniforms.h"
 #include "vtkOpenGLVertexBufferObject.h"
+#include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataFS.h"
 #include "vtkPolyDataMapper.h"
@@ -880,6 +881,11 @@ bool vtkOpenGLLowMemoryPolyDataMapper::IsShaderUpToDate(vtkRenderer* renderer, v
   }
   // has the pbr state changed?
   if (this->PBRStateTimeStamp > this->ShaderBuildTimeStamp)
+  {
+    return false;
+  }
+  // have the clipping planes changed?
+  if (this->ClippingPlanes && this->ClippingPlanes->GetMTime() > this->ShaderBuildTimeStamp)
   {
     return false;
   }
