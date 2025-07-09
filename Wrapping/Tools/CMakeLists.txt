@@ -80,6 +80,9 @@ if (NOT TARGET "${ns}::WrapHierarchy")
         "-sSINGLE_FILE=1"
         "-sALLOW_MEMORY_GROWTH=1"
         "-sNODERAWFS=1")
+    set_target_properties(WrapHierarchy
+      PROPERTIES
+        SUFFIX ".cjs")
   endif ()
   add_executable("${ns}::WrapHierarchy" ALIAS
     WrapHierarchy)
@@ -166,6 +169,9 @@ if (NOT TARGET WrapSerDes)
         "-sSINGLE_FILE=1"
         "-sALLOW_MEMORY_GROWTH=1"
         "-sNODERAWFS=1")
+    set_target_properties(WrapSerDes
+      PROPERTIES
+        SUFFIX ".cjs")
   endif ()
   add_executable("${ns}::WrapSerDes" ALIAS
     WrapSerDes)
@@ -189,6 +195,9 @@ if (NOT TARGET WrapJavaScript)
         "-sALLOW_MEMORY_GROWTH=1"
         "-sSINGLE_FILE=1"
         "-sNODERAWFS=1")
+    set_target_properties(WrapJavaScript
+      PROPERTIES
+        SUFFIX ".cjs")
   endif ()
   target_link_libraries(WrapJavaScript
     PRIVATE
