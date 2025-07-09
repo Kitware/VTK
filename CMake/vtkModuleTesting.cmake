@@ -998,6 +998,7 @@ Current limitations of this test are:
     vtk_add_test_mangling(module_name [EXEMPTIONS ...])
 
 Options:
+
 - ``EXEMPTIONS``: List of symbol patterns to excluded from the ABI mangling test
   where it is known that the symbols do not support the ABI mangling but are still
   exported. This option should be extremely rare to use, see the documentation on ABI
