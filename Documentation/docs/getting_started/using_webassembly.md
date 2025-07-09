@@ -6,7 +6,7 @@ To learn more about VTK-Wasm and its capabilities, please take a look at the fol
 
 * [Examples of WebAssembly applications that use VTK for rendering.](https://gitlab.kitware.com/vtk/vtk/-/tree/master/Examples/Emscripten/Cxx)
 
-* [A collection of VTK web-based benchmark applications.](https://github.com/Kitware/vtkWasmBenchmarks)
+* [A collection of VTK WebAssembly demos.](https://github.com/Kitware/vtk-wasm-demos)
 
 * [A guide on using the experimental WebGPU feature in VTK-Wasm.](https://discourse.vtk.org/t/guide-how-do-i-use-vtk-wasm-webgpu-experimental-feature/11164).
 
