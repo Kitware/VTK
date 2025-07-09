@@ -2,8 +2,8 @@
 
 The `vtkWebAssembly.mjs` module provides JavaScript bindings to VTK WebAssembly using Emscripten. It includes two key classes:
 
-- [`vtkStandaloneSession`](#vtkStandaloneSession): For standalone VTK WebAssembly apps capable of creating and manipulating VTK objects.
-- [`vtkRemoteSession`](#vtkRemoteSession): For remote VTK WebAssembly apps meant to sync with a VTK application on a remote server.
+- [`vtkStandaloneSession`](#vtkstandalonesession): For standalone VTK WebAssembly apps capable of creating and manipulating VTK objects.
+- [`vtkRemoteSession`](#vtkremotesession): For remote VTK WebAssembly apps meant to sync with a VTK application on a remote server.
 
 ---
 
@@ -16,7 +16,7 @@ The `vtkWebAssembly.mjs` module provides JavaScript bindings to VTK WebAssembly 
 
 ---
 
-## `vtkStandaloneSession`
+## vtkStandaloneSession
 
 Provides methods to directly create, manage, and manipulate VTK objects.
 
@@ -36,7 +36,7 @@ new vtkStandaloneSession()
 | `observe(objectId: number, eventName: string, callback: Function) => number`   | Registers a JavaScript callback for a VTK event.    |
 | `unObserve(objectId: number, tag: number) => boolean`                          | Unregisters an observer using its tag.              |
 
-## `vtkRemoteSession`
+## vtkRemoteSession
 
 Wraps around VTK session C API for client-server WebAssembly rendering. This is more suitable when the rendering state is controlled remotely.
 
