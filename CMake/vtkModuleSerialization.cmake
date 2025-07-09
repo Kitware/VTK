@@ -10,7 +10,7 @@ vtkModuleSerialization
 .. cmake:command:: vtk_module_generate_library_serdes_registrar
 
   Generate functions that register (de)serialization functions for all classes
-  in a library. |module-wrapping-serdes|
+  in a library. |module-serialization|
 
   .. code-block:: cmake
 
@@ -104,7 +104,7 @@ endfunction ()
 .. cmake:command:: vtk_module_generate_libraries_serdes_registrar
 
   Generate functions that register (de)serialization handlers for a
-  collection of modules. |module-wrapping-serdes|
+  collection of modules. |module-serialization|
 
   .. code-block:: cmake
 
@@ -198,7 +198,7 @@ endfunction ()
 .. cmake:command:: _vtk_module_serdes_generate_sources
 
   Generate (de)serialization functions for classes that belong to
-  ``MODULE`` in ``SERDES_SOURCES``. |module-wrapping-serdes|
+  ``MODULE`` in ``SERDES_SOURCES``. |module-serialization|
 
   .. code-block:: cmake
 
@@ -404,7 +404,7 @@ endfunction ()
 #[==[.rst:
 .. cmake:command:: vtk_module_serdes
 
-  Generate (de)serialization code for all classes in a ``MODULE``. |module-wrapping-serdes|
+  Generate (de)serialization code for all classes in a ``MODULE``. |module-serialization|
 
   .. code-block:: cmake
 
