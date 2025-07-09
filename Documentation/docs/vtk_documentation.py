@@ -44,6 +44,7 @@ def gather_module_documentation(
     root_destination,
     custom_paths=[],
     readme_formats=["README.md", "README", "readme.md", "README.txt"],
+    extra_documentation_dirs=[],
     ignore_list=[],
 ):
     """For every module directory under basepath (i.e. contains a vtk.module file), copy READMEs under root_destination
@@ -52,6 +53,7 @@ def gather_module_documentation(
     A "README" file is any file matching the readme_formats.
     returns a list of dictionaries holding the description of a module (see also parse_vtk_module)
 
+    extra_documentation_dirs: directories to look for additional documentation
     ignore_list: paths relative to basepath to ignore
     """
     try:
@@ -84,6 +86,16 @@ def gather_module_documentation(
         # extract module information
         if "vtk.module" in str(path):
             module = parse_vtk_module(str(path))
+            for doc_dir_name in extra_documentation_dirs:
+                doc_dir = os.path.join(str(basename), doc_dir_name)
+                if os.path.exists(doc_dir):
+                    new_doc_dir = os.path.relpath(doc_dir, start="../../")
+                    dest = Path(os.path.join(root_destination, new_doc_dir))
+                    shutil.copytree(
+                        doc_dir,
+                        dest,
+                        dirs_exist_ok=True,
+                    )
             # Bring module specific readmes while recreating the data structure
             for readme in readme_formats:
                 readme = os.path.join(basename, readme)
