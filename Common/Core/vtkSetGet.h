@@ -1325,8 +1325,7 @@ public:
 #elif defined(VTK_COMPILER_MSVC)
 // MSVC pragma
 #define VTK_DEPRECATED                                                                             \
-  _Pragma(comment(compiler, "VTK_DEPRECATED is deprecated, use [[deprecated]] instead"))           \
-    [[deprecated]]
+  _Pragma("message( \"VTK_DEPRECATED is deprecated, use [[deprecated]] instead\")") [[deprecated]]
 #else
 // Other compiler do not have a deprecated warning
 #define VTK_DEPRECATED [[deprecated]]
@@ -1366,8 +1365,7 @@ public:
 #elif defined(VTK_COMPILER_MSVC)
 // MSVC pragma
 #define VTK_FALLTHROUGH                                                                            \
-  _Pragma(comment(compiler, "VTK_FALLTHROUGH is deprecated, use [[fallthrough]] instead"))         \
-    [[fallthrough]]
+  __pragma(message("VTK_FALLTHROUGH is deprecated, use [[fallthrough]] instead")) [[fallthrough]]
 #else
 // Other compiler do not have a deprecated warning
 #define VTK_FALLTHROUGH [[fallthrough]]
