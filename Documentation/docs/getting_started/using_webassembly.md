@@ -4,6 +4,8 @@ VTK-Wasm is a prototype infrastructure that enables the compilation of VTK C++ c
 
 To learn more about VTK-Wasm and its capabilities, please take a look at the following resources:
 
+* [Homepage for VTK.wasm](https://kitware.github.io/vtk-wasm/)
+
 * [Examples of WebAssembly applications that use VTK for rendering.](https://gitlab.kitware.com/vtk/vtk/-/tree/master/Examples/Emscripten/Cxx)
 
 * [A collection of VTK WebAssembly demos.](https://github.com/Kitware/vtk-wasm-demos)
