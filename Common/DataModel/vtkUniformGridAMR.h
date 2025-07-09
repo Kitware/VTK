@@ -7,7 +7,7 @@
  * vtkUniformGridAMR (AMR stands for Adaptive Mesh Refinement)
  * is a container for vtkUniformGrid. Each grid is added as a block of a given level.
  *
- * The structure of the container is described in a vtkOverlappingAMRMetaData object.
+ * The structure of the container is described in a vtkAMRMetaData object.
  *
  * @sa
  * vtkOverlappingAMR, vtkNonOverlappingAMR, vtkOverlappingAMRMetaData, vtkUniformGridAMRDataIterator
@@ -56,23 +56,25 @@ public:
    */
   virtual void Initialize(int numLevels, const int* blocksPerLevel);
 
+  ///@{
   /**
    * Set/Get the data description of this uniform grid instance,
    * e.g. VTK_STRUCTURED_XYZ_GRID
    */
   void SetGridDescription(int gridDescription);
   int GetGridDescription();
+  ///@}
 
   /**
    * Get number of levels.
    */
-  unsigned int GetNumberOfLevels();
+  [[nodiscard]] unsigned int GetNumberOfLevels() const;
 
   /**
    * Get the number of blocks for all levels including nullptr blocks, or 0 if AMRMetaData is
    * invalid.
    */
-  [[nodiscard]] unsigned int GetNumberOfBlocks();
+  [[nodiscard]] unsigned int GetNumberOfBlocks() const;
 
   /**
    * Deprecated, forward to GetNumberOfBlocks
@@ -84,7 +86,7 @@ public:
    * Get the number of block at the given level, including nullptr blocks, or 0 if AMRMetaData
    * is invalid.
    */
-  [[nodiscard]] unsigned int GetNumberOfBlocks(unsigned int level);
+  [[nodiscard]] unsigned int GetNumberOfBlocks(unsigned int level) const;
 
   /**
    * Deprecated, forward to GetNumberOfBlocks(level)
@@ -127,16 +129,40 @@ public:
   vtkUniformGrid* GetDataSet(unsigned int level, unsigned int idx);
 
   /**
-   * Retrieves the composite index associated with the data at the given
-   * (level,index) pair.
+   * Returns the absolute block index from a level and a relative block index
+   * or -1 if it doesn't exist.
+   * Forward to the internal vtkAMRMetaData.
    */
-  int GetCompositeIndex(unsigned int level, unsigned int index);
+  [[nodiscard]] int GetAbsoluteBlockIndex(unsigned int level, unsigned int index) const;
 
   /**
-   * Given the compositeIdx (as set by SetCompositeIdx) this method returns the
-   * corresponding level and dataset index within the level.
+   * Returns the absolute block index from a level and a relative block index
+   * or -1 if it doesn't exist.
+   * Forward to the internal GetAbsoluteBlockIndex
+   * Deprecated, use GetAbsoluteBlockIndex instead.
    */
-  void GetLevelAndIndex(unsigned int compositeIdx, unsigned int& level, unsigned int& idx);
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use GetAbsoluteBlockIndex() instead")
+  int GetCompositeIndex(unsigned int level, unsigned int index)
+  {
+    return this->GetAbsoluteBlockIndex(level, index);
+  }
+
+  /**
+   * Returns the an index pair (level, relative index) given a absolute block index
+   * Forward to the internal vtkAMRMetaData.
+   */
+  void ComputeIndexPair(unsigned int index, unsigned int& level, unsigned int& id);
+
+  /**
+   * Returns the an index pair (level, relative index) given a absolute block index
+   * Forward to the ComputeIndexPair.
+   * Deprecated, using ComputeIndexPair.
+   */
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated, use ComputeIndexPair() instead")
+  void GetLevelAndIndex(unsigned int compositeIdx, unsigned int& level, unsigned int& idx)
+  {
+    this->ComputeIndexPair(compositeIdx, level, idx);
+  }
 
   ///@{
   /**

@@ -18,7 +18,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDeprecation.h"           // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkObject.h"
-#include "vtkSmartPointer.h" // For vtkSmartPointer
+#include "vtkSmartPointer.h"   // For vtkSmartPointer
+#include "vtkStructuredData.h" // For VTK_STRUCTURED_INVALID
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -34,6 +35,7 @@ public:
    */
   void PrintSelf(ostream& os, vtkIndent indent) override;
   bool operator==(const vtkAMRMetaData& other) const;
+  bool operator!=(const vtkAMRMetaData& other) const { return !(*this == other); }
 
   /**
    * Initialize the meta information
@@ -56,7 +58,8 @@ public:
   [[nodiscard]] unsigned int GetNumberOfLevels() const;
 
   /**
-   * Returns the number of blocks at the given level
+   * Returns the number of blocks at the given level or zero if level is higher or equal than
+   * numLevels
    */
   [[nodiscard]] unsigned int GetNumberOfBlocks(unsigned int level) const;
 
@@ -92,7 +95,7 @@ public:
   }
 
   /**
-   * Returns the an index pair given a single index
+   * Returns the an index pair (level, relative index) given a absolute block index
    */
   void ComputeIndexPair(unsigned int index, unsigned int& level, unsigned int& id);
 
@@ -120,7 +123,9 @@ private:
   //-------------------------------------------------------------------------
   // Essential information that determines an AMR structure. Must be copied
   //-------------------------------------------------------------------------
-  int GridDescription = -1; // example: VTK_STRUCTURED_XYZ_GRID
+
+  // The type of grid stored in this AMR
+  int GridDescription = vtkStructuredData::VTK_STRUCTURED_INVALID;
 
   // NumBlocks[i] stores the total number of blocks from level 0 to level i-1
   std::vector<int> NumBlocks = { 0 };

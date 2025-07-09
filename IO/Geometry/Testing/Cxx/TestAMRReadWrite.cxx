@@ -37,6 +37,7 @@ int TestAMRReadWrite(int argc, char* argv[])
   vtkSmartPointer<vtkOverlappingAMR> amr = CreateTestAMR(argc, argv);
   if (!amr->CheckValidity())
   {
+    std::cerr << "Origin AMR is invalid" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -53,9 +54,15 @@ int TestAMRReadWrite(int argc, char* argv[])
     vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
   if (!amr1->CheckValidity())
   {
+    std::cerr << "Read AMR is invalid" << std::endl;
     return EXIT_FAILURE;
   }
 
-  return (*amr1->GetOverlappingAMRMetaData() == *amr->GetOverlappingAMRMetaData()) ? EXIT_SUCCESS
-                                                                                   : EXIT_FAILURE;
+  if (*amr1->GetOverlappingAMRMetaData() != *amr->GetOverlappingAMRMetaData())
+  {
+    std::cerr << "AMRs metadatas are not equal" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
 }

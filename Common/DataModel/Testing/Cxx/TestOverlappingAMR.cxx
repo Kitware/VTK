@@ -196,15 +196,30 @@ int TestOverlappingAMR(int, char*[])
     return EXIT_FAILURE;
   }
 
+  unsigned int level = 1;
+  unsigned int index = 1;
+  unsigned int compIdx = amr->GetAbsoluteBlockIndex(level, index);
+  if (compIdx != 2)
+  {
+    vtkLogF(ERROR, "Unexpected GetAbsoluteBlockIndex result");
+    return EXIT_FAILURE;
+  }
+  level = index = 0;
+  amr->ComputeIndexPair(compIdx, level, index);
+  if (level != 1 || index != 1)
+  {
+    vtkLogF(ERROR, "Unexpected ComputeIndexPair result");
+    return EXIT_FAILURE;
+  }
+
   double x[3] = { 1, 1, 1 };
-  unsigned int level, id;
-  if (!amr->FindGrid(x, level, id) || level != 1 || id != 0)
+  if (!amr->FindGrid(x, level, index) || level != 1 || index != 0)
   {
     vtkLogF(ERROR, "Unexpected FindGrid result");
     return EXIT_FAILURE;
   }
 
-  if (amr->GetDataSet(level, id) != ug2.Get())
+  if (amr->GetDataSet(level, index) != ug2.Get())
   {
     vtkLogF(ERROR, "Unexpected GetDataSet result");
     return EXIT_FAILURE;

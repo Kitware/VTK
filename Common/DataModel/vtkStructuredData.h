@@ -68,16 +68,18 @@ public:
    */
   enum vtkStructuredDataType
   {
-    VTK_STRUCTURED_UNCHANGED = 0,
-    VTK_STRUCTURED_SINGLE_POINT = 1,
-    VTK_STRUCTURED_X_LINE = 2,
-    VTK_STRUCTURED_Y_LINE = 3,
-    VTK_STRUCTURED_Z_LINE = 4,
-    VTK_STRUCTURED_XY_PLANE = 5,
-    VTK_STRUCTURED_YZ_PLANE = 6,
-    VTK_STRUCTURED_XZ_PLANE = 7,
-    VTK_STRUCTURED_XYZ_GRID = 8,
-    VTK_STRUCTURED_EMPTY = 9
+    VTK_STRUCTURED_INVALID = -1, // An invalid/unset/unitialized grid
+    VTK_STRUCTURED_UNCHANGED =
+      0, // Used by vtkStructuredData API to signify that the type of the grid was not changed
+    VTK_STRUCTURED_SINGLE_POINT = 1, // A single point, 0D
+    VTK_STRUCTURED_X_LINE = 2,       // X aligned line, 1D
+    VTK_STRUCTURED_Y_LINE = 3,       // Y aligned line, 1D
+    VTK_STRUCTURED_Z_LINE = 4,       // Z aligned line, 1D
+    VTK_STRUCTURED_XY_PLANE = 5,     // XY aligned plane, 2D
+    VTK_STRUCTURED_YZ_PLANE = 6,     // XY aligned plane, 2D
+    VTK_STRUCTURED_XZ_PLANE = 7,     // XY aligned plane, 2D
+    VTK_STRUCTURED_XYZ_GRID = 8,     // XYZ grid, 3D
+    VTK_STRUCTURED_EMPTY = 9         // An empty grid
   };
 
   ///@{
@@ -187,6 +189,7 @@ public:
 
   /**
    * Get the points defining a cell. (See vtkDataSet for more info.)
+   * Data description should not be VTK_STRUCTURED_INVALID or VTK_STRUCTURED_UNCHANGED
    */
   static void GetCellPoints(vtkIdType cellId, vtkIdList* ptIds, int dataDescription, int dim[3]);
 
