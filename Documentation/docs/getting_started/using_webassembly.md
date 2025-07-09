@@ -12,7 +12,7 @@ To learn more about VTK-Wasm and its capabilities, please take a look at the fol
 
 * [Instructions for building VTK using Emscripten for WebAssembly.](../advanced/build_wasm_emscripten.md)
 
-* [vtk-wasm-docker](https://gitlab.kitware.com/vtk/vtk-wasm-docker) for building and publishing the [`kitware/vtk-wasm`](https://hub.docker.com/r/kitware/vtk-wasm) docker images.
+* [vtk-wasm-sdk](https://gitlab.kitware.com/vtk/vtk-wasm-sdk) for building and publishing the [`kitware/vtk-wasm-sdk`](https://hub.docker.com/r/kitware/vtk-wasm-sdk) docker images.
 
 * [Deep dive into WebAssembly & WebGPU in VTK: presentation from April 28th, 2023](https://docs.google.com/presentation/d/1Nl0TVa55616QKCSHP54BoYBvByMKe6lIUl6IFZqSeJo/edit#slide=id.p). This presentation covers topics such as Emscripten, VTK-wasm Docker image, WASM Dev tools, VTK and WebGPU: PolyData Mapper, API inspection with RenderDoc, and performance profiles.
 
