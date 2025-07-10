@@ -153,7 +153,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
     std::vector<unsigned int> datasetIndices(numDataSets);
     for (unsigned int cc = 0; cc < numDataSets; ++cc)
     {
-      datasetIndices[cc] = amr->GetCompositeIndex(level, cc);
+      datasetIndices[cc] = amr->GetAbsoluteBlockIndex(level, cc);
     }
     hierarchy->AddDataSetIndices(node, datasetIndices);
     hierarchy->SetAttribute(node, "number_of_datasets", numDataSets);

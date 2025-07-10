@@ -91,7 +91,7 @@ int vtkExtractLevel::RequestUpdateExtent(
         unsigned int level = (*iter);
         for (unsigned int dataIdx = 0; dataIdx < metadata->GetNumberOfBlocks(level); ++dataIdx)
         {
-          blocksToLoad.push_back(metadata->GetCompositeIndex(level, dataIdx));
+          blocksToLoad.push_back(metadata->GetAbsoluteBlockIndex(level, dataIdx));
         }
       }
 

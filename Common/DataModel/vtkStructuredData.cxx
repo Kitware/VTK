@@ -531,9 +531,6 @@ bool vtkStructuredData::IsCellVisible(vtkIdType cellId, VTK_FUTURE_CONST int dim
 
   switch (dataDescription)
   {
-    case VTK_STRUCTURED_EMPTY:
-      return false;
-
     case VTK_STRUCTURED_SINGLE_POINT: // cellId can only be = 0
       numIds = 1;
       ptIds[0] = iMin + jMin * dimensions[0] + kMin * d01;
@@ -616,6 +613,9 @@ bool vtkStructuredData::IsCellVisible(vtkIdType cellId, VTK_FUTURE_CONST int dim
       ptIds[6] = iMax + jMax * dimensions[0] + kMax * d01;
       ptIds[7] = iMin + jMax * dimensions[0] + kMax * d01;
       break;
+
+    default:
+      return false;
   }
 
   for (int i = 0; i < numIds; i++)

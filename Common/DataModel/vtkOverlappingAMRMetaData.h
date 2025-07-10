@@ -4,7 +4,7 @@
  * @class   vtkOverlappingAMRMetaData
  * @brief   Meta data that describes the structure of an overlapping AMR data set
  *
- * vtkAMRInformation encapsulates the following meta information for a generic AMR data set
+ * vtkOverlappingAMRMetaData encapsulates the following meta information for a generic AMR data set
  * - a list of vtkAMRBox objects
  * - Refinement ratio between AMR levels
  * - Grid spacing for each level
@@ -33,6 +33,7 @@ public:
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
   bool operator==(const vtkOverlappingAMRMetaData& other) const;
+  bool operator!=(const vtkOverlappingAMRMetaData& other) const { return !(*this == other); }
 
   /**
    * Initialize the meta information
@@ -124,6 +125,7 @@ public:
 
   /**
    * Returns the refinement of a given level.
+   * Make sure to call SetRefinementRatio or GenerateRefinementRatio first.
    */
   [[nodiscard]] int GetRefinementRatio(unsigned int level) const;
 
@@ -152,7 +154,7 @@ public:
   unsigned int* GetChildren(unsigned int level, unsigned int index, unsigned int& numChildren);
 
   /**
-   * Prints the parents and children of a requested block (Debug Routine)
+   * Generate if needed and prints the parents and children of a requested block (Debug Routine)
    */
   void PrintParentChildInfo(unsigned int level, unsigned int index);
 
@@ -217,19 +219,29 @@ private:
   //-------------------------------------------------------------------------
   // Essential information that determines an AMR structure. Must be copied
   //-------------------------------------------------------------------------
-  double Origin[3]; // the origin of the whole data set
 
-  std::vector<vtkAMRBox> Boxes; // vtkAMRBoxes, one per data set
+  // the origin of the whole data set
+  double Origin[3] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MAX, VTK_DOUBLE_MAX };
 
-  vtkSmartPointer<vtkIntArray>
-    SourceIndex; // Typically, this maps to a file block index used by the reader
-  vtkSmartPointer<vtkDoubleArray> Spacing; // The grid spacing for all levels
-  double Bounds[6];                        // the bounds of the entire domain
+  // vtkAMRBoxes, one per data set
+  std::vector<vtkAMRBox> Boxes;
+
+  // Typically, this maps to a file block index used by the reader
+  vtkSmartPointer<vtkIntArray> SourceIndex;
+
+  // The grid spacing for all levels
+  vtkNew<vtkDoubleArray> Spacing;
+
+  // the bounds of the entire domain
+  double Bounds[6] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX, VTK_DOUBLE_MIN,
+    VTK_DOUBLE_MAX, VTK_DOUBLE_MIN };
 
   //-------------------------------------------------------------------------
   // Auxiliary information that be computed
   //-------------------------------------------------------------------------
-  vtkSmartPointer<vtkIntArray> Refinement; // refinement ratio between two adjacent levels
+
+  // refinement ratio between two adjacent levels
+  vtkNew<vtkIntArray> Refinement;
 
   // parent child information
   std::vector<std::vector<std::vector<unsigned int>>> AllChildren;

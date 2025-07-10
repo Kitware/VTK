@@ -105,21 +105,7 @@ public:
 }
 
 //------------------------------------------------------------------------------
-vtkOverlappingAMRMetaData::vtkOverlappingAMRMetaData()
-{
-  this->Refinement = vtkSmartPointer<vtkIntArray>::New();
-  this->SourceIndex = nullptr;
-
-  this->Origin[0] = this->Origin[1] = this->Origin[2] = VTK_DOUBLE_MAX;
-  this->Spacing = nullptr;
-
-  this->Bounds[0] = VTK_DOUBLE_MAX;
-  this->Bounds[1] = VTK_DOUBLE_MIN;
-  this->Bounds[2] = VTK_DOUBLE_MAX;
-  this->Bounds[3] = VTK_DOUBLE_MIN;
-  this->Bounds[4] = VTK_DOUBLE_MAX;
-  this->Bounds[5] = VTK_DOUBLE_MIN;
-}
+vtkOverlappingAMRMetaData::vtkOverlappingAMRMetaData() = default;
 
 //------------------------------------------------------------------------------
 vtkOverlappingAMRMetaData::~vtkOverlappingAMRMetaData() = default;
@@ -176,7 +162,7 @@ void vtkOverlappingAMRMetaData::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 bool vtkOverlappingAMRMetaData::CheckValidity()
 {
-  int emptyDimension(-1);
+  int emptyDimension = -1;
   switch (this->GetGridDescription())
   {
     case vtkStructuredData::VTK_STRUCTURED_YZ_PLANE:
@@ -191,14 +177,14 @@ bool vtkOverlappingAMRMetaData::CheckValidity()
   }
 
   // Check origin
-  for (int d = 0; d < 3; d++)
+  for (int dim = 0; dim < 3; dim++)
   {
-    if (d != emptyDimension)
+    if (dim != emptyDimension)
     {
-      if (this->Origin[d] != this->Bounds[2 * d])
+      if (this->Origin[dim] != this->Bounds[2 * dim])
       {
         vtkErrorMacro("Bound min does not match origin at dimension "
-          << d << ": " << this->Origin[d] << " != " << this->Bounds[2 * d]);
+          << dim << ": " << this->Origin[dim] << " != " << this->Bounds[2 * dim]);
       }
     }
   }
@@ -211,22 +197,22 @@ bool vtkOverlappingAMRMetaData::CheckValidity()
   }
 
   // check spacing
-  for (unsigned int i = 0; i < this->GetNumberOfLevels(); i++)
+  for (unsigned int level = 0; level < this->GetNumberOfLevels(); level++)
   {
-    double h[3];
-    this->GetSpacing(i, h);
-    for (int d = 0; d < 3; d++)
+    double spacing[3];
+    this->GetSpacing(level, spacing);
+    for (int dim = 0; dim < 3; dim++)
     {
-      if (h[d] < 0)
+      if (spacing[dim] < 0)
       {
-        vtkErrorMacro("Invalid spacing at level " << i << ": " << h[d] << endl);
+        vtkErrorMacro("Invalid spacing at level " << level << ": " << spacing[dim] << endl);
       }
     }
 
     if (this->HasRefinementRatio())
     {
       double ratio = this->Refinement->GetTuple1(0);
-      unsigned int nextLevel = i + 1;
+      unsigned int nextLevel = level + 1;
       if (nextLevel < this->GetNumberOfLevels())
       {
         double nextSpacing[3];
@@ -235,9 +221,10 @@ bool vtkOverlappingAMRMetaData::CheckValidity()
         {
           if (axis != emptyDimension &&
             !vtkMathUtilities::NearlyEqual(
-              ratio, vtkMathUtilities::SafeDivision(h[axis], nextSpacing[axis]), 10e-6))
+              ratio, vtkMathUtilities::SafeDivision(spacing[axis], nextSpacing[axis]), 10e-6))
           {
-            vtkErrorMacro("Spacing and refinement ratio are inconsistent for level " << i << endl);
+            vtkErrorMacro(
+              "Spacing and refinement ratio are inconsistent for level " << level << endl);
           }
         }
       }
@@ -281,13 +268,12 @@ void vtkOverlappingAMRMetaData::Initialize(int numLevels, const int* blocksPerLe
 
   int numBlocks = this->GetNumberOfBlocks();
   this->AllocateBoxes(numBlocks);
-  this->Spacing = vtkSmartPointer<vtkDoubleArray>::New();
   this->Spacing->SetNumberOfTuples(3 * numLevels);
   this->Spacing->SetNumberOfComponents(3);
   for (int i = 0; i < numLevels; i++)
   {
-    double h[3] = { -1, -1, -1 };
-    this->Spacing->SetTuple(i, h);
+    double spacing[3] = { -1, -1, -1 };
+    this->Spacing->SetTuple(i, spacing);
   }
 }
 
@@ -298,7 +284,7 @@ void vtkOverlappingAMRMetaData::AllocateBoxes(unsigned int n)
   for (unsigned int i = 0; i < n; i++)
   {
     vtkAMRBox box;
-    this->Boxes.push_back(box);
+    this->Boxes.emplace_back(box);
   }
 
   for (unsigned int i = 0; i < n; i++)
@@ -312,7 +298,7 @@ void vtkOverlappingAMRMetaData::SetAMRBox(unsigned int level, unsigned int id, c
 {
   unsigned int index = this->GetAbsoluteBlockIndex(level, id);
   this->Boxes[index] = box;
-  if (this->HasSpacing(level)) // has valid spacing
+  if (this->HasSpacing(level))
   {
     this->UpdateBounds(level, id);
   }
@@ -341,11 +327,11 @@ void vtkOverlappingAMRMetaData::SetAMRBlockSourceIndex(int index, int sourceId)
 }
 
 //------------------------------------------------------------------------------
-void vtkOverlappingAMRMetaData::GetOrigin(double o[3])
+void vtkOverlappingAMRMetaData::GetOrigin(double origin[3])
 {
   for (int i = 0; i < 3; ++i)
   {
-    o[i] = this->Origin[i];
+    origin[i] = this->Origin[i];
   }
 }
 
@@ -377,7 +363,7 @@ int vtkOverlappingAMRMetaData::GetRefinementRatio(unsigned int level) const
 //------------------------------------------------------------------------------
 void vtkOverlappingAMRMetaData::SetRefinementRatio(unsigned int level, int refRatio)
 {
-  if (!HasRefinementRatio())
+  if (!this->HasRefinementRatio())
   {
     this->Refinement->SetNumberOfTuples(this->GetNumberOfLevels());
   }
@@ -423,8 +409,7 @@ void vtkOverlappingAMRMetaData::GenerateRefinementRatio()
       continue;
     }
 
-    unsigned int id = 0;
-    for (; id < this->GetNumberOfBlocks(level); id++)
+    for (unsigned int id = 0; id < this->GetNumberOfBlocks(level); id++)
     {
       if (!this->GetAMRBox(level, id).IsInvalid())
       {
@@ -453,6 +438,7 @@ void vtkOverlappingAMRMetaData::GenerateRefinementRatio()
         nonEmptyDimension = 2;
         break;
     }
+
     int ratio = static_cast<int>(
       std::round(currentSpacing[nonEmptyDimension] / childSpacing[nonEmptyDimension]));
 
@@ -508,6 +494,11 @@ unsigned int* vtkOverlappingAMRMetaData::GetChildren(
 //------------------------------------------------------------------------------
 void vtkOverlappingAMRMetaData::PrintParentChildInfo(unsigned int level, unsigned int index)
 {
+  if (!this->HasChildrenInformation())
+  {
+    this->GenerateParentChildInformation();
+  }
+
   unsigned int *ptr, i, numParents;
   std::cerr << "Parent Child Info for block " << index << " of Level: " << level << endl;
   ptr = this->GetParents(level, index, numParents);
@@ -547,27 +538,30 @@ void vtkOverlappingAMRMetaData::GenerateParentChildInformation()
 //------------------------------------------------------------------------------
 bool vtkOverlappingAMRMetaData::HasValidOrigin()
 {
-  return this->Origin[0] != DBL_MAX && this->Origin[1] != DBL_MAX && this->Origin[2] != DBL_MAX;
+  return this->Origin[0] != VTK_DOUBLE_MAX && this->Origin[1] != VTK_DOUBLE_MAX &&
+    this->Origin[2] != VTK_DOUBLE_MAX;
 }
 
 //------------------------------------------------------------------------------
 bool vtkOverlappingAMRMetaData::HasValidBounds()
 {
-  return this->Bounds[0] != DBL_MAX && this->Bounds[1] != DBL_MAX && this->Bounds[2] != DBL_MAX;
+  return this->Bounds[0] != VTK_DOUBLE_MAX && this->Bounds[1] != VTK_DOUBLE_MIN &&
+    this->Bounds[2] != VTK_DOUBLE_MAX && this->Bounds[3] != VTK_DOUBLE_MIN &&
+    this->Bounds[4] != VTK_DOUBLE_MAX && this->Bounds[5] != VTK_DOUBLE_MIN;
 }
 
 //------------------------------------------------------------------------------
-void vtkOverlappingAMRMetaData::SetSpacing(unsigned int level, const double* h)
+void vtkOverlappingAMRMetaData::SetSpacing(unsigned int level, const double* userSpacing)
 {
   double* spacing = this->Spacing->GetTuple(level);
   for (unsigned int i = 0; i < 3; i++)
   {
-    if (spacing[i] > 0 && spacing[i] != h[i])
+    if (spacing[i] > 0 && spacing[i] != userSpacing[i])
     {
-      vtkWarningMacro("Inconsistent spacing: " << spacing[i] << " != " << h[i]);
+      vtkWarningMacro("Inconsistent spacing: " << spacing[i] << " != " << userSpacing[i]);
     }
   }
-  this->Spacing->SetTuple(level, h);
+  this->Spacing->SetTuple(level, userSpacing);
 }
 
 //------------------------------------------------------------------------------
@@ -800,6 +794,7 @@ bool vtkOverlappingAMRMetaData::operator==(const vtkOverlappingAMRMetaData& othe
       return false;
     }
   }
+
   if (this->SourceIndex && other.SourceIndex)
   {
     for (vtkIdType i = 0; i < this->SourceIndex->GetNumberOfTuples(); i++)
@@ -883,11 +878,7 @@ void vtkOverlappingAMRMetaData::DeepCopy(vtkAMRMetaData* other)
     this->SourceIndex = vtkSmartPointer<vtkIntArray>::New();
     this->SourceIndex->DeepCopy(otherMD->SourceIndex);
   }
-  if (otherMD->Spacing)
-  {
-    this->Spacing = vtkSmartPointer<vtkDoubleArray>::New();
-    this->Spacing->DeepCopy(otherMD->Spacing);
-  }
+  this->Spacing->DeepCopy(otherMD->Spacing);
   memcpy(this->Bounds, otherMD->Bounds, sizeof(double) * 6);
 }
 
@@ -901,7 +892,7 @@ bool vtkOverlappingAMRMetaData::HasSpacing(unsigned int level)
 //------------------------------------------------------------------------------
 const double* vtkOverlappingAMRMetaData::GetBounds()
 {
-  if (!HasValidBounds())
+  if (!this->HasValidBounds())
   {
     for (unsigned int i = 0; i < this->GetNumberOfLevels(); i++)
     {

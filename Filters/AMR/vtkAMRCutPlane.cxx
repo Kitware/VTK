@@ -423,7 +423,7 @@ void vtkAMRCutPlane::ComputeAMRBlocksToLoad(vtkPlane* p, vtkOverlappingAMR* m)
       m->GetBounds(level, dataIdx, bounds);
       if (this->PlaneIntersectsAMRBox(plane, bounds))
       {
-        unsigned int amrGridIdx = m->GetCompositeIndex(level, dataIdx);
+        unsigned int amrGridIdx = m->GetAbsoluteBlockIndex(level, dataIdx);
         this->BlocksToLoad.push_back(amrGridIdx);
       }
     } // END for all data

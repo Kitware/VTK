@@ -861,7 +861,7 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad(vtkOverlappingAMR* metadata)
       metadata->GetBounds(level, dataIdx, grd);
       if (this->IsBlockWithinBounds(grd))
       {
-        this->BlocksToLoad.push_back(metadata->GetCompositeIndex(level, dataIdx));
+        this->BlocksToLoad.push_back(metadata->GetAbsoluteBlockIndex(level, dataIdx));
       } // END check if the block is within the bounds of the ROI
     }   // END for all data
   }     // END for all levels

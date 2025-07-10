@@ -137,18 +137,18 @@ int TestNonOverlappingAMR(int, char*[])
 
   unsigned int level = 1;
   unsigned int index = 1;
-  unsigned int compIdx = amr->GetCompositeIndex(level, index);
+  unsigned int compIdx = amr->GetAbsoluteBlockIndex(level, index);
   if (compIdx != 2)
   {
-    vtkLogF(ERROR, "Unexpected GetCompositeIndex result");
+    vtkLogF(ERROR, "Unexpected GetAbsoluteBlockIndex result");
     return EXIT_FAILURE;
   }
 
   level = index = 0;
-  amr->GetLevelAndIndex(compIdx, level, index);
+  amr->ComputeIndexPair(compIdx, level, index);
   if (level != 1 || index != 1)
   {
-    vtkLogF(ERROR, "Unexpected GetLevelAndIndex result");
+    vtkLogF(ERROR, "Unexpected ComputeIndexPair result");
     return EXIT_FAILURE;
   }
   if (amr->GetDataSet(level, index) != ug3.Get())

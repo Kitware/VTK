@@ -68,7 +68,6 @@ unsigned int vtkAMRMetaData::GetNumberOfBlocks(unsigned int level) const
 {
   if (level >= this->GetNumberOfLevels())
   {
-    cerr << "WARNING: No blocks at this level" << endl;
     return 0;
   }
   return this->NumBlocks[level + 1] - this->NumBlocks[level];

@@ -47,7 +47,6 @@ public:
    * Return class name of data type (see vtkType.h for definitions).
    */
   int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_OVERLAPPING_AMR; }
-
   vtkTypeMacro(vtkOverlappingAMR, vtkUniformGridAMR);
 
   /**

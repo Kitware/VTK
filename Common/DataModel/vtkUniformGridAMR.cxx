@@ -33,7 +33,7 @@ vtkAMRMetaData* vtkUniformGridAMR::GetAMRMetaData()
 //------------------------------------------------------------------------------
 vtkUniformGrid* vtkUniformGridAMR::GetDataSet(unsigned int level, unsigned int idx)
 {
-  return this->AMRData->GetDataSet(this->GetCompositeIndex(level, idx));
+  return this->AMRData->GetDataSet(this->GetAbsoluteBlockIndex(level, idx));
 }
 
 //------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ void vtkUniformGridAMR::Initialize(int numLevels, const int* blocksPerLevel)
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkUniformGridAMR::GetNumberOfLevels()
+unsigned int vtkUniformGridAMR::GetNumberOfLevels() const
 {
   unsigned int nlev = 0;
   if (this->AMRMetaData)
@@ -83,7 +83,7 @@ unsigned int vtkUniformGridAMR::GetNumberOfLevels()
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkUniformGridAMR::GetNumberOfBlocks()
+unsigned int vtkUniformGridAMR::GetNumberOfBlocks() const
 {
   unsigned int nblocks = 0;
   if (this->AMRMetaData)
@@ -94,7 +94,7 @@ unsigned int vtkUniformGridAMR::GetNumberOfBlocks()
 }
 
 //------------------------------------------------------------------------------
-unsigned int vtkUniformGridAMR::GetNumberOfBlocks(unsigned int level)
+unsigned int vtkUniformGridAMR::GetNumberOfBlocks(unsigned int level) const
 {
   unsigned int ndata = 0;
   if (this->AMRMetaData)
@@ -187,13 +187,11 @@ vtkDataObject* vtkUniformGridAMR::GetDataSet(vtkCompositeDataIterator* composite
 }
 
 //------------------------------------------------------------------------------
-int vtkUniformGridAMR::GetCompositeIndex(unsigned int level, unsigned int index)
+int vtkUniformGridAMR::GetAbsoluteBlockIndex(unsigned int level, unsigned int index) const
 {
-
   if (level >= this->GetNumberOfLevels() || index >= this->GetNumberOfBlocks(level))
   {
-    vtkErrorMacro("Invalid level-index pair: " << level << ", " << index);
-    return 0;
+    return -1;
   }
   return this->AMRMetaData->GetAbsoluteBlockIndex(level, index);
 }
@@ -208,7 +206,7 @@ void vtkUniformGridAMR::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkUniformGridAMR::GetLevelAndIndex(
+void vtkUniformGridAMR::ComputeIndexPair(
   unsigned int compositeIdx, unsigned int& level, unsigned int& idx)
 {
   this->AMRMetaData->ComputeIndexPair(compositeIdx, level, idx);

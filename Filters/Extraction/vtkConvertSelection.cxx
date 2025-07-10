@@ -246,7 +246,7 @@ int vtkConvertSelection::ConvertToBlockSelection(
     {
       // convert hierarchical index to composite index.
       vtkUniformGridAMR* hbox = vtkUniformGridAMR::SafeDownCast(data);
-      indices.insert(hbox->GetCompositeIndex(
+      indices.insert(hbox->GetAbsoluteBlockIndex(
         static_cast<unsigned int>(properties->Get(vtkSelectionNode::HIERARCHICAL_LEVEL())),
         static_cast<unsigned int>(properties->Get(vtkSelectionNode::HIERARCHICAL_INDEX()))));
     }

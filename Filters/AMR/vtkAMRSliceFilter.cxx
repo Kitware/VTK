@@ -297,7 +297,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
     unsigned int flatIndex = this->BlocksToLoad[i];
     unsigned int level;
     unsigned int dataIdx;
-    inp->GetLevelAndIndex(flatIndex, level, dataIdx);
+    inp->ComputeIndexPair(flatIndex, level, dataIdx);
     assert(level < numLevels);
     blocksPerLevel[level]++;
   }
@@ -329,7 +329,7 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
     int flatIndex = this->BlocksToLoad[i];
     unsigned int level;
     unsigned int dataIdx;
-    inp->GetLevelAndIndex(flatIndex, level, dataIdx);
+    inp->ComputeIndexPair(flatIndex, level, dataIdx);
     vtkUniformGrid* grid = inp->GetDataSet(level, dataIdx);
     vtkUniformGrid* slice = nullptr;
 
