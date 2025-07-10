@@ -138,11 +138,16 @@ private:
 extern "C"
 {
   typedef void (*vtkTimerCallbackFunc)(void*);
+  typedef bool (*vtkEventProcessingFunc)(void*);
+  typedef void (*vtkUnRegisterInteractorFunc)(void*);
+
   int vtkCreateTimer(
     unsigned long duration, bool isOneShot, vtkTimerCallbackFunc callback, void* userData);
   void vtkDestroyTimer(int timerId, bool isOneShot);
   int* vtkGetParentElementBoundingRectSize(const char* selector);
   void vtkInitializeCanvasElement(const char* selector, bool applyStyle);
+  void vtkStartEventLoopAsync(vtkEventProcessingFunc spinOnceAndGetDone,
+    vtkUnRegisterInteractorFunc unRegisterInteractor, void* arg);
 }
 
 VTK_ABI_NAMESPACE_END

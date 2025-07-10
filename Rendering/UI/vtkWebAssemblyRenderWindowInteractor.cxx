@@ -634,39 +634,8 @@ void vtkWebAssemblyRenderWindowInteractor::StartEventLoop()
       // is not destroyed before the first iteration of `spinOnceAndGetDone`
       // is invoked.
       this->Register(nullptr);
-      // clang-format off
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdollar-in-identifier-extension"
-      EM_ASM(
-        {
-          var callback = WebAssembly.promising(getWasmTableEntry($0));
-          var releaseInteractorRef = getWasmTableEntry($1);
-          var interactorRef = $2;
-          async function tick()
-          {
-            // Start the frame callback. 'await' means we won't call
-            // requestAnimationFrame again until it completes.
-            var done = await callback(interactorRef);
-            if (!done)
-            {
-              // If the callback did not return 'true', we continue
-              // to call requestAnimationFrame.
-              requestAnimationFrame(tick);
-            }
-            else
-            {
-              // If the callback returned 'true', we un-register
-              // the interactor as the event loop is done.
-              // This will also decrement the reference count and destroy the interactor
-              // if no other references exist.
-              releaseInteractorRef(interactorRef);
-            }
-          }
-          requestAnimationFrame(tick);
-        },
-        &spinOnceAndGetDone, &unRegisterInteractor, (void*)this);
-#pragma clang diagnostic pop
-      // clang-format on
+      vtkStartEventLoopAsync(
+        &spinOnceAndGetDone, &unRegisterInteractor, reinterpret_cast<void*>(this));
     }
     else
     {

@@ -119,6 +119,40 @@ var vtkWebAssemblyRenderWindowInteractor = {
     }
   },
 
+  /**
+   * Starts the event loop asynchronously.
+   * This is used to process events in a loop until the interactor is terminated.
+   * @param {BigInt} callback pointer to a C++ function that processes events.
+   * @param {BigInt} unRegisterInteractor pointer to a C++ function that un-registers the interactor.
+   * @param {BigInt} interactorRef pointer to the interactor.
+   */
+  vtkStartEventLoopAsync__sig: 'vpp*',
+  vtkStartEventLoopAsync: (callback, unRegisterInteractor, interactorRef) => {
+    var callbackFunc = WebAssembly.promising(getWasmTableEntry(callback));
+    var unRegisterInteractorFunc = getWasmTableEntry(unRegisterInteractor);
+    async function tick()
+    {
+      // Start the frame callback. 'await' means we won't call
+      // requestAnimationFrame again until it completes.
+      var done = await callbackFunc(interactorRef);
+      if (!done)
+      {
+        // If the callback did not return 'true', we continue
+        // to call requestAnimationFrame.
+        requestAnimationFrame(tick);
+      }
+      else
+      {
+        // If the callback returned 'true', we un-register
+        // the interactor as the event loop is done.
+        // This will also decrement the reference count and destroy the interactor
+        // if no other references exist.
+        unRegisterInteractorFunc(interactorRef);
+      }
+    }
+    requestAnimationFrame(tick);
+  },
+
 #if PTHREADS
   $getParentElementBoundingRectSizeCallingThread: (target) => {
     return VTKCanvas.getParentElementBoundingRectSize(target);
