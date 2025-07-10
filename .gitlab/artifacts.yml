@@ -181,7 +181,7 @@
         expire_in: 1d
         when: always
         paths:
-            - build/install/bin/vtWebAssemblyInterface.*
+            - build/install/bin/vtWebAssembly*
             - build/install/bin/vtk-*-wasm*.tar.gz
 
 .cmake_release_artifacts:
