@@ -2880,4 +2880,12 @@ void vtkChartXY::BuildSelection(
   }
 }
 
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_6_0
+//------------------------------------------------------------------------------
+int vtkChartXY::GetMouseSelectionMode(const vtkContextMouseEvent& mouse, int selectionMode)
+{
+  return vtkChart::GetSelectionModeFromMouseModifiers(mouse, selectionMode);
+}
+
 VTK_ABI_NAMESPACE_END
