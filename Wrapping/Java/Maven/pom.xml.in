@@ -79,7 +79,7 @@
          will ease the merge of those directory for a one step maven deploy.
      -->
     <repository>
-      <id>vtk-maven-repo</id>
+      <id>${vtk.maven.repo.id}</id>
       <name>VTK Release Artifact Repository</name>
       <url>${vtk.maven.repo}</url>
     </repository>
