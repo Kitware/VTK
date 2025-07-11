@@ -369,11 +369,17 @@ public:
   vtkGetMacro(SelectionMode, int);
   ///@}
 
+  ///@{
   /**
    * Return the selection mode associated to the mouse event modifiers for a specific mouse event.
    * The value returned is an enum coming from vtkContextScene::SelectionModifier.
+   * The static version takes in a the current selection mode used which will be returned if no
+   * modifier is selected.
    */
   int GetSelectionModeFromMouseModifiers(const vtkContextMouseEvent& mouseEvent);
+  static int GetSelectionModeFromMouseModifiers(
+    const vtkContextMouseEvent& mouseEvent, int currentSelectionMode);
+  ///@}
 
 protected:
   vtkChart();

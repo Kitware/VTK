@@ -447,7 +447,8 @@ vtkBrush* vtkChart::GetBackgroundBrush()
 }
 
 //------------------------------------------------------------------------------
-int vtkChart::GetSelectionModeFromMouseModifiers(const vtkContextMouseEvent& mouseEvent)
+int vtkChart::GetSelectionModeFromMouseModifiers(
+  const vtkContextMouseEvent& mouseEvent, int currentSelectionMode)
 {
   if (mouseEvent.GetModifiers() & vtkContextMouseEvent::SHIFT_MODIFIER &&
     mouseEvent.GetModifiers() & vtkContextMouseEvent::CONTROL_MODIFIER)
@@ -463,7 +464,13 @@ int vtkChart::GetSelectionModeFromMouseModifiers(const vtkContextMouseEvent& mou
     return vtkContextScene::SELECTION_SUBTRACTION;
   }
 
-  return this->GetSelectionMode();
+  return currentSelectionMode;
+}
+
+//------------------------------------------------------------------------------
+int vtkChart::GetSelectionModeFromMouseModifiers(const vtkContextMouseEvent& mouseEvent)
+{
+  return vtkChart::GetSelectionModeFromMouseModifiers(mouseEvent, this->GetSelectionMode());
 }
 
 //------------------------------------------------------------------------------
