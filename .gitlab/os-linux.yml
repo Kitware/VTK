@@ -798,7 +798,7 @@
     extends: .warning_policy
 
     script:
-        - yum install -y --setopt=install_weak_deps=False libX11-devel libXcursor-devel git-core git-lfs gcc-c++
+        - yum install -y --setopt=install_weak_deps=False libX11-devel libXcursor-devel git-core git-lfs gcc-c++ nasm
         - *before_script_linux
         - .gitlab/ci/sccache.sh
         - sccache --start-server

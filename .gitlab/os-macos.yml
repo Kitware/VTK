@@ -227,6 +227,8 @@
     # Download Qt
     - cmake -P .gitlab/ci/download_qt6.cmake
     - export CMAKE_PREFIX_PATH=$PWD/.gitlab/qt6
+    # Download NASM only on x86_64 targets
+    - '[[ "$CMAKE_CONFIGURATION" = *"x86_64"* ]] && cmake -P .gitlab/ci/download_nasm.cmake && export PATH="$PWD/.gitlab/nasm:$PATH"'
     - cmake -P "$PWD/.gitlab/ci/fetch_tags.cmake"
 
 .before_script_java_macos: &before_script_java_macos
