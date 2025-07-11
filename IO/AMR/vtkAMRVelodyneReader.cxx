@@ -215,7 +215,13 @@ int vtkAMRVelodyneReader::FillMetaData()
 
   this->ReadMetaData();
   vtkOverlappingAMR* cAMR = vtkOverlappingAMR::New();
-  cAMR->Initialize(this->Internal->nLevels, this->Internal->blocksPerLevel.data());
+
+  std::vector<unsigned int> blocksPerLevel;
+  std::transform(this->Internal->blocksPerLevel.begin(), this->Internal->blocksPerLevel.end(),
+    std::back_inserter(blocksPerLevel),
+    [](const int value) { return static_cast<unsigned int>(value); });
+
+  cAMR->Initialize(blocksPerLevel);
   cAMR->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
   cAMR->SetOrigin(this->Internal->globalOrigin.data());
   int dims[3];

@@ -227,11 +227,11 @@ vtkUniformGrid* GetGhostedGrid(
 vtkOverlappingAMR* GetGhostedDataSet(const int dimension, const int NG, vtkOverlappingAMR* inputAMR)
 {
   vtkOverlappingAMR* ghostedAMR = vtkOverlappingAMR::New();
-  std::vector<int> blocksPerLevel(2);
+  std::vector<unsigned int> blocksPerLevel(2);
   blocksPerLevel[0] = 1;
   blocksPerLevel[1] = 2;
 
-  ghostedAMR->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
+  ghostedAMR->Initialize(blocksPerLevel);
   ghostedAMR->SetGridDescription(inputAMR->GetGridDescription());
   ghostedAMR->SetOrigin(inputAMR->GetOrigin());
 

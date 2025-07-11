@@ -276,12 +276,12 @@ void vtkAMRUtilities::StripGhostLayers(
   // TODO: At some point we should check for overlapping cells within the
   // same level, e.g., consider a level 0 with 2 abutting blocks that is
   // ghosted by N !!!!
-  std::vector<int> blocksPerLevel(ghostedAMRData->GetNumberOfLevels());
+  std::vector<unsigned int> blocksPerLevel(ghostedAMRData->GetNumberOfLevels());
   for (unsigned int i = 0; i < blocksPerLevel.size(); i++)
   {
     blocksPerLevel[i] = ghostedAMRData->GetNumberOfBlocks(i);
   }
-  strippedAMRData->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
+  strippedAMRData->Initialize(blocksPerLevel);
   strippedAMRData->SetOrigin(ghostedAMRData->GetOrigin());
   strippedAMRData->SetGridDescription(ghostedAMRData->GetGridDescription());
 

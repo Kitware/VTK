@@ -53,11 +53,20 @@ void vtkUniformGridAMR::InstantiateMetaData()
 //------------------------------------------------------------------------------
 void vtkUniformGridAMR::Initialize()
 {
-  this->Initialize(0, nullptr);
+  this->Initialize({});
+}
+
+// VTK_DEPRECATED_IN_9_6_0("Use Initialize(const std::vector<unsigned int>&) instead")
+//------------------------------------------------------------------------------
+void vtkUniformGridAMR::Initialize(int numLevels, const int* blocksPerLevel)
+{
+  std::vector<unsigned int> vec;
+  vec.assign(blocksPerLevel, blocksPerLevel + numLevels);
+  this->Initialize(vec);
 }
 
 //------------------------------------------------------------------------------
-void vtkUniformGridAMR::Initialize(int numLevels, const int* blocksPerLevel)
+void vtkUniformGridAMR::Initialize(const std::vector<unsigned int>& blocksPerLevel)
 {
   this->Bounds[0] = VTK_DOUBLE_MAX;
   this->Bounds[1] = VTK_DOUBLE_MIN;
@@ -67,7 +76,7 @@ void vtkUniformGridAMR::Initialize(int numLevels, const int* blocksPerLevel)
   this->Bounds[5] = VTK_DOUBLE_MIN;
 
   this->InstantiateMetaData();
-  this->AMRMetaData->Initialize(numLevels, blocksPerLevel);
+  this->AMRMetaData->Initialize(blocksPerLevel);
   this->AMRData->Initialize();
 }
 

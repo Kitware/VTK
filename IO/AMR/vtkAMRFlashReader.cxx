@@ -135,7 +135,7 @@ int vtkAMRFlashReader::GetNumberOfLevels()
 }
 
 void vtkAMRFlashReader::ComputeStats(
-  vtkFlashReaderInternal* internal, std::vector<int>& numBlocks, double min[3])
+  vtkFlashReaderInternal* internal, std::vector<unsigned int>& numBlocks, double min[3])
 {
   min[0] = min[1] = min[2] = DBL_MAX;
   numBlocks.resize(this->Internal->NumberOfLevels, 0);
@@ -170,10 +170,10 @@ int vtkAMRFlashReader::FillMetaData()
   this->Internal->ReadMetaData();
 
   double origin[3];
-  std::vector<int> blocksPerLevel;
+  std::vector<unsigned int> blocksPerLevel;
   this->ComputeStats(this->Internal, blocksPerLevel, origin);
 
-  this->Metadata->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
+  this->Metadata->Initialize(blocksPerLevel);
   this->Metadata->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
   this->Metadata->SetOrigin(origin);
 

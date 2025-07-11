@@ -220,16 +220,15 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   this->Metadata = vtkSmartPointer<vtkOverlappingAMR>::New();
 
   // iterate over the XML to fill up the AMRInformation with meta-data.
-  std::vector<unsigned int> blocks_per_level;
+  std::vector<unsigned int> blocksPerLevel;
   std::vector<vtkSpacingType> level_spacing;
   std::vector<std::vector<vtkAMRBox>> amr_boxes;
-  vtkReadMetaData(ePrimary, blocks_per_level, level_spacing, amr_boxes);
+  vtkReadMetaData(ePrimary, blocksPerLevel, level_spacing, amr_boxes);
 
-  if (!blocks_per_level.empty())
+  if (!blocksPerLevel.empty())
   {
     // initialize vtkOverlappingAMRMetaData.
-    this->Metadata->Initialize(
-      static_cast<int>(blocks_per_level.size()), reinterpret_cast<int*>(blocks_per_level.data()));
+    this->Metadata->Initialize(blocksPerLevel);
 
     double origin[3] = { 0, 0, 0 };
     if (!ePrimary->GetVectorAttribute("origin", 3, origin))
@@ -384,10 +383,9 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
   else if (noamr)
   {
     // We process the XML to collect information about the structure.
-    std::vector<unsigned int> blocks_per_level;
-    vtkReadMetaData(element, blocks_per_level);
-    noamr->Initialize(
-      static_cast<int>(blocks_per_level.size()), reinterpret_cast<int*>(blocks_per_level.data()));
+    std::vector<unsigned int> blocksPerLevel;
+    vtkReadMetaData(element, blocksPerLevel);
+    noamr->Initialize(blocksPerLevel);
   }
 
   // Now, simply scan the xml for dataset elements and read them as needed.

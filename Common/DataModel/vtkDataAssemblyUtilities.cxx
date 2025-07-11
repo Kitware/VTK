@@ -530,7 +530,7 @@ vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
   const auto dataType = hierarchy->GetAttributeOrDefault(root, "vtk_type", -1);
   if (vtkDataObjectTypes::TypeIdIsA(dataType, VTK_UNIFORM_GRID_AMR))
   {
-    std::vector<int> blocks_per_level;
+    std::vector<unsigned int> blocksPerLevel;
     for (const auto child : hierarchy->GetChildNodes(root, /*traverse_subtree=*/false))
     {
       auto level = hierarchy->GetAttributeOrDefault(child, "amr_level", 0u);
@@ -539,18 +539,17 @@ vtkDataAssemblyUtilities::GenerateCompositeDataSetFromHierarchy(
 
       const int count = indices.size() == 1 ? input->GetNumberOfPartitions(indices[0]) : 0;
 
-      if (level >= static_cast<unsigned int>(blocks_per_level.size()))
+      if (level >= static_cast<unsigned int>(blocksPerLevel.size()))
       {
-        blocks_per_level.resize(level + 1);
+        blocksPerLevel.resize(level + 1);
       }
 
-      blocks_per_level[level] = count;
+      blocksPerLevel[level] = count;
     }
 
     vtkSmartPointer<vtkUniformGridAMR> amr;
     amr.TakeReference(vtkUniformGridAMR::SafeDownCast(vtkDataObjectTypes::NewDataObject(dataType)));
-    amr->Initialize(static_cast<int>(blocks_per_level.size()),
-      !blocks_per_level.empty() ? blocks_per_level.data() : nullptr);
+    amr->Initialize(blocksPerLevel);
     for (const auto child : hierarchy->GetChildNodes(root, /*traverse_subtree=*/false))
     {
       auto level = hierarchy->GetAttributeOrDefault(child, "amr_level", 0u);

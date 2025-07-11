@@ -35,12 +35,15 @@ public:
   bool operator==(const vtkOverlappingAMRMetaData& other) const;
   bool operator!=(const vtkOverlappingAMRMetaData& other) const { return !(*this == other); }
 
+  // VTK_DEPRECATED_IN_9_6_0
+  // Remove once the deprecated Initialize method in parent class is removed
+  using vtkAMRMetaData::Initialize;
+
   /**
    * Initialize the meta information
-   * numLevels is the number of levels
-   * blocksPerLevel[i] is the number of blocks at level i
+   * blocksPerLevels is the number of blocks for each level
    */
-  void Initialize(int numLevels, const int* blocksPerLevel) override;
+  void Initialize(const std::vector<unsigned int>& blocksPerLevel) override;
 
   ///@{
   /**

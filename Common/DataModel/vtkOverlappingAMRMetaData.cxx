@@ -32,7 +32,7 @@ class DataSetBinner
   unsigned int LoCorner[3];
   // Binsize in "extent coordinates"
   unsigned int BinSize[3];
-  size_t TotalNumBins;
+  std::size_t TotalNumBins;
 
 public:
   // Create a set of bins given:
@@ -46,7 +46,7 @@ public:
     memcpy(this->BinSize, binsize, 3 * sizeof(unsigned int));
     this->TotalNumBins = nbins[0] * nbins[1] * nbins[2];
     this->Bins.resize(this->TotalNumBins);
-    for (size_t i = 0; i < this->TotalNumBins; i++)
+    for (std::size_t i = 0; i < this->TotalNumBins; i++)
     {
       this->Bins[i].reserve(5);
     }
@@ -57,7 +57,7 @@ public:
   // class is used for.
   void AddToBin(unsigned int binIndex[3], int blockId)
   {
-    size_t idx =
+    std::size_t idx =
       binIndex[2] + binIndex[1] * this->NBins[2] + binIndex[0] * this->NBins[2] * this->NBins[1];
     std::vector<unsigned int>& bin = this->Bins[idx];
     bin.push_back(blockId);
@@ -65,7 +65,7 @@ public:
 
   const std::vector<unsigned int>& GetBin(unsigned int binIndex[3]) const
   {
-    size_t idx =
+    std::size_t idx =
       binIndex[2] + binIndex[1] * this->NBins[2] + binIndex[0] * this->NBins[2] * this->NBins[1];
     return this->Bins[idx];
   }
@@ -262,15 +262,15 @@ bool vtkOverlappingAMRMetaData::CheckValidity()
 }
 
 //------------------------------------------------------------------------------
-void vtkOverlappingAMRMetaData::Initialize(int numLevels, const int* blocksPerLevel)
+void vtkOverlappingAMRMetaData::Initialize(const std::vector<unsigned int>& blocksPerLevel)
 {
-  this->Superclass::Initialize(numLevels, blocksPerLevel);
+  this->Superclass::Initialize(blocksPerLevel);
 
   int numBlocks = this->GetNumberOfBlocks();
   this->AllocateBoxes(numBlocks);
-  this->Spacing->SetNumberOfTuples(3 * numLevels);
+  this->Spacing->SetNumberOfTuples(3 * blocksPerLevel.size());
   this->Spacing->SetNumberOfComponents(3);
-  for (int i = 0; i < numLevels; i++)
+  for (std::size_t i = 0; i < blocksPerLevel.size(); i++)
   {
     double spacing[3] = { -1, -1, -1 };
     this->Spacing->SetTuple(i, spacing);
@@ -787,7 +787,7 @@ bool vtkOverlappingAMRMetaData::operator==(const vtkOverlappingAMRMetaData& othe
     }
   }
 
-  for (size_t i = 0; i < this->Boxes.size(); i++)
+  for (std::size_t i = 0; i < this->Boxes.size(); i++)
   {
     if (this->Boxes[i] != other.Boxes[i])
     {

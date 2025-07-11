@@ -86,7 +86,9 @@ private:
   vtkAMRFlashReader(const vtkAMRFlashReader&) = delete;
   void operator=(const vtkAMRFlashReader&) = delete;
 
-  void ComputeStats(vtkFlashReaderInternal* internal, std::vector<int>& numBlocks, double min[3]);
+  void ComputeStats(
+    vtkFlashReaderInternal* internal, std::vector<unsigned int>& numBlocks, double min[3]);
+
   vtkFlashReaderInternal* Internal;
 };
 

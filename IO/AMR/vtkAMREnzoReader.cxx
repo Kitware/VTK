@@ -44,7 +44,7 @@ VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 void vtkAMREnzoReader::ComputeStats(
-  vtkEnzoReaderInternal* internal, std::vector<int>& numBlocks, double min[3])
+  vtkEnzoReaderInternal* internal, std::vector<unsigned int>& numBlocks, double min[3])
 {
   min[0] = min[1] = min[2] = std::numeric_limits<double>::max();
   numBlocks.resize(this->Internal->NumberOfLevels, 0);
@@ -337,10 +337,10 @@ int vtkAMREnzoReader::FillMetaData()
   this->Internal->ReadMetaData();
 
   double origin[3];
-  std::vector<int> blocksPerLevel;
+  std::vector<unsigned int> blocksPerLevel;
   this->ComputeStats(this->Internal, blocksPerLevel, origin);
 
-  this->Metadata->Initialize(static_cast<int>(blocksPerLevel.size()), blocksPerLevel.data());
+  this->Metadata->Initialize(blocksPerLevel);
   this->Metadata->SetGridDescription(vtkStructuredData::VTK_STRUCTURED_XYZ_GRID);
   this->Metadata->SetOrigin(origin);
 
