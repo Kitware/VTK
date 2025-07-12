@@ -788,7 +788,7 @@ public:
    * Set/Get the platform hardware window associated with this window.
    * Default is false.
    */
-  vtkGetObjectMacro(HardwareWindow, vtkHardwareWindow);
+  virtual vtkHardwareWindow* GetHardwareWindow();
   virtual void SetHardwareWindow(vtkHardwareWindow* win);
   ///@}
 
@@ -849,7 +849,7 @@ protected:
 
   bool Initialized = false;
 
-  vtkHardwareWindow* HardwareWindow = nullptr;
+  vtkSmartPointer<vtkHardwareWindow> HardwareWindow;
 
 private:
   vtkRenderWindow(const vtkRenderWindow&) = delete;

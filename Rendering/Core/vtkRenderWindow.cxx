@@ -27,7 +27,7 @@
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkRenderWindow);
-vtkCxxSetObjectMacro(vtkRenderWindow, HardwareWindow, vtkHardwareWindow);
+vtkCxxSetSmartPointerMacro(vtkRenderWindow, HardwareWindow, vtkHardwareWindow);
 
 // Construct an instance of  vtkRenderWindow with its screen size
 // set to 300x300, borders turned on, positioned at (0,0), double
@@ -168,6 +168,11 @@ void vtkRenderWindow::SetInteractor(vtkRenderWindowInteractor* rwi)
       if (this->Interactor->GetRenderWindow() != this)
       {
         this->Interactor->SetRenderWindow(this);
+      }
+
+      if (this->HardwareWindow)
+      {
+        this->HardwareWindow->SetInteractor(this->Interactor);
       }
     }
   }
@@ -830,5 +835,13 @@ const char* vtkRenderWindow::GetStereoTypeAsString(int type)
     default:
       return "";
   }
+}
+
+//------------------------------------------------------------------------------
+vtkHardwareWindow* vtkRenderWindow::GetHardwareWindow()
+{
+  vtkDebugMacro(<< "returning HardwareWindow address "
+                << static_cast<vtkHardwareWindow*>(this->HardwareWindow));
+  return this->HardwareWindow;
 }
 VTK_ABI_NAMESPACE_END
