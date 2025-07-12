@@ -137,6 +137,12 @@ public:
   void SetWindowInfo(const char* info) override;
 
   /**
+   * Set whether this xwindow should be coverable by other windows,
+   * as opposed to always on top.
+   */
+  void SetCoverable(vtkTypeBool coverable) override;
+
+  /**
    * Ensure the X display is opened.
    */
   bool EnsureDisplay() override;
