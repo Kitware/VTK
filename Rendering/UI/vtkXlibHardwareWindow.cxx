@@ -526,13 +526,13 @@ XVisualInfo* vtkXlibHardwareWindow::GetDesiredVisualInfo()
 
   int screenId = XDefaultScreen(this->DisplayId);
   int nitems = 0;
-  XVisualInfo vinfo_template;
+  XVisualInfo vinfo_template = {};
   vinfo_template.screen = screenId;
   XVisualInfo* v = XGetVisualInfo(this->DisplayId, VisualScreenMask, &vinfo_template, &nitems);
 
   bool haveVisual = false;
   // Accept either a TrueColor or DirectColor visual at any multiple-of-8 depth.
-  for (int depth = 32; depth > 0 && !haveVisual; depth -= 8)
+  for (int depth = 24; depth > 0 && !haveVisual; depth -= 8)
   {
     if (XMatchVisualInfo(this->DisplayId, screenId, depth, /*class*/ TrueColor, &vinfo))
     {
