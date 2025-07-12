@@ -31,6 +31,52 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 //-------------------------------------------------------------------------------------------------
+/*******************************************************************************
+ * Motif style hint definitions
+ *
+ * The definitions in this section are taken from here:
+ *
+ *     https://sources.debian.org/src/motif/2.3.4-6+deb8u1/lib/Xm/MwmUtil.h/
+ *
+ * These are likely to be supported as long as xlib is, and the extended
+ * window manager hints documented at freedesktop.org don't seem to have a
+ * good alternative:
+ *
+ *     https://specifications.freedesktop.org/wm-spec/latest/ar01s05.html#id-1.6.7
+ *
+ * The _NET_WM_WINDOW_TYPE_SPLASH window type mentioned there comes close, but
+ * does not result in task bar entries that can be used to bring the windows
+ * to the front.
+ */
+typedef struct
+{
+  int flags;
+  int functions;
+  int decorations;
+  int input_mode;
+  int status;
+} MotifWmHints;
+
+typedef MotifWmHints MwmHints;
+
+/* bit definitions for MwmHints.flags */
+#define MWM_HINTS_FUNCTIONS (1L << 0)
+#define MWM_HINTS_DECORATIONS (1L << 1)
+
+/* bit definitions for MwmHints.functions */
+#define MWM_FUNC_ALL (1L << 0)
+
+/* number of elements of size 32 in _MWM_HINTS */
+#define PROP_MOTIF_WM_HINTS_ELEMENTS 5
+#define PROP_MWM_HINTS_ELEMENTS PROP_MOTIF_WM_HINTS_ELEMENTS
+
+/* atom name for _MWM_HINTS property */
+#define _XA_MOTIF_WM_HINTS "_MOTIF_WM_HINTS"
+#define _XA_MWM_HINTS _XA_MOTIF_WM_HINTS
+/*
+ * Motif style hint definitions
+ ******************************************************************************/
+
 //-------------------------------------------------------------------------------------------------
 template <int EventType>
 int XEventTypeEquals(Display*, XEvent* event, XPointer winptr)
@@ -188,8 +234,9 @@ void vtkXlibHardwareWindow::Create()
   }
 
   attr.override_redirect = False;
-  if (this->Borders == 0.0)
+  if (this->Borders == 0.0 && !this->Coverable)
   {
+    // Removes borders, and makes the window appear on top of all other windows
     attr.override_redirect = True;
   }
 
@@ -220,6 +267,18 @@ void vtkXlibHardwareWindow::Create()
       XCreateWindow(this->DisplayId, this->ParentId, x, y, static_cast<unsigned int>(width),
         static_cast<unsigned int>(height), 0, v->depth, InputOutput, v->visual,
         CWBackPixel | CWBorderPixel | CWColormap | CWOverrideRedirect | CWEventMask, &attr);
+    if (this->Borders == 0.0 && this->Coverable)
+    {
+      // Removes borders, while still allowing other windows on top
+      Atom mwmHintsProperty = XInternAtom(this->DisplayId, _XA_MWM_HINTS, 0);
+      MotifWmHints mwmHints;
+      mwmHints.flags = MWM_HINTS_FUNCTIONS | MWM_HINTS_DECORATIONS;
+      mwmHints.functions = MWM_FUNC_ALL;
+      mwmHints.decorations = 0;
+      XChangeProperty(this->DisplayId, this->WindowId, mwmHintsProperty, XA_ATOM, 32,
+        PropModeReplace, reinterpret_cast<unsigned char*>(&mwmHints), PROP_MWM_HINTS_ELEMENTS);
+    }
+
     XStoreName(this->DisplayId, this->WindowId, this->WindowName);
     XSetNormalHints(this->DisplayId, this->WindowId, &xsh);
 
@@ -778,4 +837,14 @@ void vtkXlibHardwareWindow::SetWindowInfo(const char* info)
 }
 
 //-------------------------------------------------------------------------------------------------
+void vtkXlibHardwareWindow::SetCoverable(vtkTypeBool coverable)
+{
+  if (this->Coverable != coverable)
+  {
+    this->Coverable = coverable;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_END
