@@ -148,6 +148,16 @@ void vtkWebGPURenderWindow::CreateSurface()
     this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
   }
 #elifdef __APPLE__
+#elifdef VTK_USE_Wayland
+  if (auto* waylandhw = vtkWaylandHardwareWindow::SafeDownCast(this->HardwareWindow))
+  {
+    wgpu::SurfaceDescriptorFromWaylandSurface waylandSurfDesc;
+    waylandSurfDesc.surface = waylandhw->GetWindowId();
+    wgpu::SurfaceDescriptor surfDesc = {};
+    surfDesc.label = "VTK Wayland surface";
+    surfDesc.nextInChain = &waylandSurfDesc;
+    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
+  }
 #else
   if (auto* xlibhw = vtkXlibHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
