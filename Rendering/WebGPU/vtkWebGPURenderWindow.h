@@ -301,6 +301,21 @@ public:
   };
   vtkSmartPointer<vtkImageData> SaveAttachmentToVTI(AttachmentTypeForVTISnapshot type);
 
+  /**
+   * Set the interactor for the window
+   */
+  void SetInteractor(vtkRenderWindowInteractor*) override;
+
+  /**
+   * Ensure RenderWindow's display is opened
+   */
+  bool EnsureDisplay() override;
+
+  /**
+   * Get the generic display id for the window.
+   */
+  void* GetGenericDisplayId() override;
+
 protected:
   vtkWebGPURenderWindow();
   ~vtkWebGPURenderWindow() override;
@@ -337,6 +352,8 @@ protected:
   void RecreateComputeRenderTextures();
 
   void RenderOffscreenTexture();
+
+  virtual void SyncWithHardware();
 
   bool RenderTexturesSetup = false;
 

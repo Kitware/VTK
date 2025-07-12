@@ -14,6 +14,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkRendererCollection.h"
+#include "vtkSmartPointer.h"
 #include "vtkTypeUInt32Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkWebGPUCommandEncoderDebugGroup.h"
@@ -96,7 +97,12 @@ vtkWebGPURenderWindow::vtkWebGPURenderWindow()
 }
 
 //------------------------------------------------------------------------------
-vtkWebGPURenderWindow::~vtkWebGPURenderWindow() = default;
+vtkWebGPURenderWindow::~vtkWebGPURenderWindow()
+{
+  this->Finalize();
+  this->WGPUConfiguration = nullptr;
+  this->SetHardwareWindow(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkWebGPURenderWindow::PrintSelf(ostream& os, vtkIndent indent)
@@ -199,7 +205,11 @@ void vtkWebGPURenderWindow::WGPUFinalize()
 void vtkWebGPURenderWindow::Render()
 {
   vtkDebugMacro(<< __func__);
-
+  if (this->HardwareWindow != nullptr)
+  {
+    this->SyncWithHardware();
+    this->HardwareWindow->Render();
+  }
   this->Superclass::Render();
 }
 
@@ -2207,8 +2217,53 @@ void vtkWebGPURenderWindow::CreateAWindow()
     this->HardwareWindow = vtkHardwareWindow::New();
     this->HardwareWindow->Register(this);
   }
+  this->SyncWithHardware();
   this->HardwareWindow->Create();
-  this->HardwareWindow->PrintSelf(std::cout, vtkIndent());
+}
+
+//-------------------------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SetInteractor(vtkRenderWindowInteractor* rwi)
+{
+  this->Superclass::SetInteractor(rwi);
+  if (this->HardwareWindow)
+  {
+    this->HardwareWindow->SetInteractor(rwi);
+  }
+}
+
+//-------------------------------------------------------------------------------------------------
+bool vtkWebGPURenderWindow::EnsureDisplay()
+{
+  if (!this->HardwareWindow)
+  {
+    this->HardwareWindow = vtk::TakeSmartPointer(vtkHardwareWindow::New());
+  }
+  if (this->Interactor && this->Interactor->GetHardwareWindow() != this->HardwareWindow)
+  {
+    this->HardwareWindow->SetInteractor(this->Interactor);
+  }
+  return this->HardwareWindow->EnsureDisplay();
+}
+
+//-------------------------------------------------------------------------------------------------
+void vtkWebGPURenderWindow::SyncWithHardware()
+{
+  if (!this->HardwareWindow)
+  {
+    return;
+  }
+  this->HardwareWindow->SetSize(this->GetSize());
+  this->HardwareWindow->SetCoverable(this->GetCoverable());
+}
+
+//-------------------------------------------------------------------------------------------------
+void* vtkWebGPURenderWindow::GetGenericDisplayId()
+{
+  if (this->HardwareWindow)
+  {
+    return this->HardwareWindow->GetGenericDisplayId();
+  }
+  return this->Superclass::GetGenericDisplayId();
 }
 
 VTK_ABI_NAMESPACE_END
