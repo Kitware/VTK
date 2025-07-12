@@ -19,6 +19,15 @@ endif()
 option(VTK_USE_X "Use X for VTK render windows" "${default_use_x}")
 mark_as_advanced(VTK_USE_X)
 
+set(default_use_wayland OFF)
+if(UNIX AND NOT ANDROID AND NOT APPLE AND NOT APPLE_IOS AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(default_use_wayland ON)
+endif()
+cmake_dependent_option(VTK_USE_Wayland "Use Wayland for VTK render windows"
+  "${default_use_wayland}"
+  "VTK_USE_X" OFF)
+mark_as_advanced(VTK_USE_Wayland)
+
 cmake_dependent_option(VTK_USE_WIN32_OPENGL "Use Win32 APIs for VTK render windows" ON
   "WIN32" OFF)
 mark_as_advanced(VTK_USE_WIN32_OPENGL)
@@ -80,7 +89,7 @@ set(vtk_can_do_headless TRUE)
 if (VTK_USE_WIN32_OPENGL OR VTK_OPENGL_HAS_EGL OR VTK_USE_WAYLAND_OPENGL)
   set(vtk_can_do_offscreen TRUE)
 endif ()
-if (VTK_USE_WIN32_OPENGL OR VTK_USE_COCOA OR VTK_USE_X OR VTK_USE_WAYLAND_OPENGL) # XXX: See error message below.
+if (VTK_USE_WIN32_OPENGL OR VTK_USE_COCOA OR VTK_USE_X OR VTK_USE_WAYLAND_OPENGL OR VTK_USE_Wayland) # XXX: See error message below.
   set(vtk_can_do_onscreen TRUE)
 endif ()
 
