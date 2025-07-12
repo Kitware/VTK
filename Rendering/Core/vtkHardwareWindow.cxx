@@ -19,12 +19,26 @@ vtkHardwareWindow::vtkHardwareWindow()
 }
 
 //------------------------------------------------------------------------------
-vtkHardwareWindow::~vtkHardwareWindow() = default;
+vtkHardwareWindow::~vtkHardwareWindow()
+{
+  this->SetInteractor(nullptr);
+}
 
 //------------------------------------------------------------------------------
 void vtkHardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
+// Set the interactor that will work with this hardware window.
+void vtkHardwareWindow::SetInteractor(vtkRenderWindowInteractor* rwi)
+{
+  this->Interactor = rwi;
+  if (this->Interactor && this->Interactor->GetHardwareWindow() != this)
+  {
+    this->Interactor->SetHardwareWindow(this);
+  }
 }
 
 //------------------------------------------------------------------------------

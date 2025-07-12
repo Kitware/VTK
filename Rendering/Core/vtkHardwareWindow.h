@@ -18,7 +18,9 @@
 #ifndef vtkHardwareWindow_h
 #define vtkHardwareWindow_h
 
-#include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkRenderWindowInteractor.h" // For ivar
+#include "vtkRenderingCoreModule.h"    // For export macro
+#include "vtkWeakPointer.h"            // For ivar
 #include "vtkWindow.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -38,6 +40,14 @@ public:
 
   ///@{
   /**
+   * Set/Get the interactor associated with this window
+   */
+  virtual void SetInteractor(vtkRenderWindowInteractor*);
+  vtkGetObjectMacro(Interactor, vtkRenderWindowInteractor);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get whether windows should be coverable (as opposed to always on
    * top).
    */
@@ -50,6 +60,7 @@ protected:
   vtkHardwareWindow();
   ~vtkHardwareWindow() override;
 
+  vtkWeakPointer<vtkRenderWindowInteractor> Interactor = nullptr;
   vtkTypeBool Coverable;
 
 private:
