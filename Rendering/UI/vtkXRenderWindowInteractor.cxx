@@ -16,6 +16,7 @@
 #include "vtkActor.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCommand.h"
+#include "vtkHardwareWindow.h"
 #include "vtkInteractorStyle.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
@@ -391,6 +392,10 @@ void vtkXRenderWindowInteractor::Initialize()
 
   ren->EnsureDisplay();
   this->DisplayId = static_cast<Display*>(ren->GetGenericDisplayId());
+  if (!this->DisplayId && this->HardwareWindow)
+  {
+    this->DisplayId = static_cast<Display*>(this->HardwareWindow->GetGenericDisplayId());
+  }
 
   vtkXRenderWindowInteractorInternals::Instances.insert(this);
 
@@ -407,6 +412,10 @@ void vtkXRenderWindowInteractor::Initialize()
   ren->End();
 
   this->WindowId = reinterpret_cast<Window>(ren->GetGenericWindowId());
+  if (!this->WindowId && this->HardwareWindow)
+  {
+    this->WindowId = reinterpret_cast<Window>(this->HardwareWindow->GetGenericWindowId());
+  }
 
   if (this->DisplayId && this->WindowId)
   {
