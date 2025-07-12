@@ -228,7 +228,7 @@ void vtkXlibHardwareWindow::Create()
   xsh.height = height;
 
   // get the default display connection
-  if (!this->OpenDisplay())
+  if (!this->EnsureDisplay())
   {
     abort();
   }
@@ -519,7 +519,7 @@ void vtkXlibHardwareWindow::SetPosition(int x, int y)
 XVisualInfo* vtkXlibHardwareWindow::GetDesiredVisualInfo()
 {
   static XVisualInfo vinfo;
-  if (!this->OpenDisplay())
+  if (!this->EnsureDisplay())
   {
     return nullptr;
   }
@@ -550,24 +550,6 @@ XVisualInfo* vtkXlibHardwareWindow::GetDesiredVisualInfo()
     XFree(v);
   }
   return haveVisual ? &vinfo : nullptr;
-}
-
-//-------------------------------------------------------------------------------------------------
-vtkTypeBool vtkXlibHardwareWindow::OpenDisplay()
-{
-  if (this->DisplayId == nullptr)
-  {
-    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
-    if (this->DisplayId)
-    {
-      this->OwnDisplay = 1;
-      return true;
-    }
-    vtkErrorMacro(<< "bad X server connection. DISPLAY=" << vtksys::SystemTools::GetEnv("DISPLAY")
-                  << ". Aborting.\n");
-    return false;
-  }
-  return true;
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -844,6 +826,28 @@ void vtkXlibHardwareWindow::SetCoverable(vtkTypeBool coverable)
     this->Coverable = coverable;
     this->Modified();
   }
+}
+
+//------------------------------------------------------------------------------------------------
+bool vtkXlibHardwareWindow::EnsureDisplay()
+{
+  if (!this->DisplayId)
+  {
+    XInitThreads();
+    this->DisplayId = XOpenDisplay(static_cast<char*>(nullptr));
+    std::cout << __FILE__ << " " << __LINE__ << " " << this->DisplayId << std::endl;
+    if (this->DisplayId == nullptr)
+    {
+      vtkWarningMacro(<< "bad X server connection. DISPLAY="
+                      << vtksys::SystemTools::GetEnv("DISPLAY"));
+    }
+    else
+    {
+      this->OwnDisplay = 1;
+    }
+  }
+
+  return this->DisplayId != nullptr;
 }
 
 //------------------------------------------------------------------------------------------------

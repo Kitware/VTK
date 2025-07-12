@@ -136,13 +136,17 @@ public:
    */
   void SetWindowInfo(const char* info) override;
 
+  /**
+   * Ensure the X display is opened.
+   */
+  bool EnsureDisplay() override;
+
 protected:
   vtkXlibHardwareWindow();
   ~vtkXlibHardwareWindow() override;
 
   // Helper members
   XVisualInfo* GetDesiredVisualInfo();
-  vtkTypeBool OpenDisplay();
   void CloseDisplay();
 
   Display* DisplayId;
