@@ -346,6 +346,7 @@ void vtkXRenderWindowInteractor::StartEventLoop()
   // cannot process events without an X display or window.
   if (!this->DisplayId || !this->WindowId)
   {
+    vtkWarningMacro(<< "Cannot start event loop without X display or window.");
     return;
   }
   for (auto rwi : vtkXRenderWindowInteractorInternals::Instances)
