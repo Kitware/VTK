@@ -26,4 +26,16 @@ void vtkHardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
+
+//------------------------------------------------------------------------------
+void vtkHardwareWindow::SetCoverable(vtkTypeBool coverable)
+{
+  if (coverable)
+  {
+    vtkWarningMacro(<< "SetCoverable(" << coverable << ") is unsupported for "
+                    << this->GetClassName());
+  }
+}
+
+//------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_END

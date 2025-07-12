@@ -36,9 +36,21 @@ public:
   // destroy the window (not the instance)
   virtual void Destroy() {}
 
+  ///@{
+  /**
+   * Set/Get whether windows should be coverable (as opposed to always on
+   * top).
+   */
+  vtkGetMacro(Coverable, vtkTypeBool);
+  vtkBooleanMacro(Coverable, vtkTypeBool);
+  virtual void SetCoverable(vtkTypeBool coverable);
+  ///@}
+
 protected:
   vtkHardwareWindow();
   ~vtkHardwareWindow() override;
+
+  vtkTypeBool Coverable;
 
 private:
   vtkHardwareWindow(const vtkHardwareWindow&) = delete;
