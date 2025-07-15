@@ -197,6 +197,10 @@ bool TrianglesIntersect(double p1[3], double p2[3], double p3[3], double q1[3], 
 
     int nCoincidentPoints = 0;
 
+    // Triangles intersect, but potentially are vertex-, edge-, or face-neighbors.
+    // It is also possible that \a tolerance is too large and all points are coincident
+    // to within the tolerance. Do not report coincident vertices, edges, or triangles
+    // as "intersecting".
     for (int i = 0; i < 3; i++)
     {
       for (int j = 0; j < 3; j++)
@@ -208,8 +212,9 @@ bool TrianglesIntersect(double p1[3], double p2[3], double p3[3], double q1[3], 
         nCoincidentPoints += int(PointsAreCoincident(p[i], q[j], tolerance));
       }
     }
-    return (nCoincidentPoints != 1 && nCoincidentPoints != 2);
+    return nCoincidentPoints == 0;
   }
+  // Triangles are disjoint.
   return false;
 }
 }
@@ -736,17 +741,9 @@ vtkCellValidator::State vtkCellValidator::Check(vtkTetra* tetra, double toleranc
     return state;
   }
 
-  // Ensure that no edges intersect
-  if (!NoIntersectingEdges(tetra, tolerance))
-  {
-    state |= State::IntersectingEdges;
-  }
-
-  // Ensure that no faces intersect
-  if (!NoIntersectingFaces(tetra, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  // Faces and edges cannot self-intersect (so we do not call NoIntersectingEdges
+  // or NoIntersectingFaces), but they can be degenerate (i.e., have coincident/repeated
+  // vertices). We do not have a test for that yet.
 
   return state;
 }
