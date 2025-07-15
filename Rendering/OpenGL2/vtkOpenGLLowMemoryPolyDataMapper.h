@@ -256,7 +256,7 @@ protected:
   /// @name Coordinate shift scale for datasets whose bounding box is far from origin.
   std::array<double, 3> ShiftValues;
   std::array<double, 3> ScaleValues;
-  bool CoordinateShiftAndScaleInUse;
+  bool CoordinateShiftAndScaleInUse = false;
   vtkNew<vtkTransform> SSInverseTransform; // Inverse transform which can undo shift + scale.
   vtkNew<vtkMatrix4x4> SSMatrix;           // Transpose of the above inverse transform.
 
