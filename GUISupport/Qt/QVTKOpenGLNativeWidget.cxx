@@ -218,6 +218,7 @@ void QVTKOpenGLNativeWidget::initializeGL()
 
     if (!this->RenderWindow->GetInitialized())
     {
+#if !defined(__APPLE__)
       auto loadFunc = [](
                         void* userData, const char* name) -> vtkOpenGLRenderWindow::VTKOpenGLAPIProc
       {
@@ -231,6 +232,7 @@ void QVTKOpenGLNativeWidget::initializeGL()
         return nullptr;
       };
       this->RenderWindow->SetOpenGLSymbolLoader(loadFunc, this->context());
+#endif
       this->RenderWindow->vtkOpenGLRenderWindow::OpenGLInit();
     }
     auto ostate = this->RenderWindow->GetState();
