@@ -1,4 +1,4 @@
-## Add vtkAppendPartitionedDataSetCollection
+# Add vtkAppendPartitionedDataSetCollection
 
 vtkAppendPartitionedDataSetCollection is a filter that appends input partitioned dataset
 collections with the same number of partitions and assembly (if present) into a single

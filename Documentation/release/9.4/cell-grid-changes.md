@@ -1,4 +1,4 @@
-## Cell Grid Data-object Improvements
+# Cell Grid Data-object Improvements
 
 vtkCellGrid is a new subclass of vtkDataObject aimed at supporting
 data which breaks the assumptions vtkDataSet makes (such as
@@ -13,7 +13,7 @@ must register instances of subclasses of vtkCellGridResponder to
 respond to the particular queries (subclasses of vtkCellGridQuery)
 you wish to support.
 
-### Discontinuous (and Continuous) Galerkin Cells
+## Discontinuous (and Continuous) Galerkin Cells
 
 This release includes generalizations and extensions to support
 H(Curl), H(Div), and H(Grad) function spaces.
@@ -40,7 +40,7 @@ Finally, as this section's title hints, even though the cell classes
 are named `DG`, they also support continuous (`CG`) cells where each
 degree of freedom is referenced by a connectivity entry.
 
-### Multi-pass Cell Grid Queries
+## Multi-pass Cell Grid Queries
 
 This release, vtkCellGridQuery has been modified to allow for multiple
 passes. A new virtual method `IsAnotherPassRequired()` is provided;
@@ -55,7 +55,7 @@ as needed. This method exists in addition to the `Initialize()`
 and `Finalize()` methods already invoked at the beginning and end
 of the entire query.
 
-### New Queries and Responders
+## New Queries and Responders
 
 The following subclasses of vtkCellGridQuery are now available.
 
@@ -77,7 +77,7 @@ for their cell attributes.
 Only H(Grad) interpolation is supported for a grid's "shape" attribute (the mapping from
 reference elements into world coordinates).
 
-### Filters based on Queries
+## Filters based on Queries
 
 Several of the queries above are used to implement
 subclasses of vtkAlgorithm which accept cell grids.
@@ -101,7 +101,7 @@ nested into the algorithm.
 + vtkCellGridWarp – add a scaled version of a cell-attribute to the shape attribute of a cell-grid.
 + vtkIOSSCellGridReader – read exodus-formatted files as cell-grids rather than unstructured grids.
 
-### Attribute Calculators
+## Attribute Calculators
 
 Just as cell grids can be asked for responders to different types of queries,
 we have added new functionality to deal with cell attributes.
@@ -141,7 +141,7 @@ implementations without changes.
 In the next section below, we discuss the first cell-attribute calculator
 subclass provided by VTK.
 
-### Interpolation Calculator
+## Interpolation Calculator
 
 We now provide a base class, vtkInterpolateCalculator, for evaluating cell attributes
 and their derivatives at one or more points inside cells.
@@ -152,7 +152,7 @@ cells.
 An implementation (via a subclass) is provided for CG/DG cells that works with
 H(Curl), H(Div), and H(Grad) function spaces.
 
-### Rendering
+## Rendering
 
 The rendering query for cell grids has been refactored to support novel function
 spaces and also to make prototyping and debugging simpler;

@@ -1,3 +1,5 @@
+# Numpy integration improvements
+
 ## Add Python logic to enable module import at vtk module load
 
 This feature is mostly driven by the @override capability in Python to automatically enhance native vtk class with some Python one.

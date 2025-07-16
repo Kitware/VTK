@@ -1,4 +1,4 @@
-## Improve speed of vtkUnstructuredGridGeometryFilter for higher order cells
+# Improve speed of vtkUnstructuredGridGeometryFilter for higher order cells
 
 In vtkUnstructuredGridGeometryFilter::RequestData, we iterate over all the cells and grab their point ids.
 For most of the cells, the almost non-op function GetFaceArray is called.

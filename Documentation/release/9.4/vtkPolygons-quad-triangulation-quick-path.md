@@ -1,4 +1,4 @@
-## vtkPolygon: EarCutTriangulation function change.
+# vtkPolygon: EarCutTriangulation function change.
 
 ``vtkPolygon`` has a function EarCutTriangulation that now use a short path to generate quad triangulation.
 

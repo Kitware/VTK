@@ -1,4 +1,4 @@
-## Add the vtkCriticalTime filter
+# Add the vtkCriticalTime filter
 
 Given an input that changes over time, the `vtkCriticalTime` filter generates a new
 data array containing time step values. These values correspond to the time at which a specified

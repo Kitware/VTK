@@ -1,4 +1,4 @@
-## ANARI Rendering Module
+# ANARI Rendering Module
 
 You can now use [ANARI](https://www.khronos.org/anari), by enabling the `vtkRenderingANARI` module, for rendering. At least one [ANARI](https://www.khronos.org/anari) back-end needs to be in your `LIBRARY_PATH` and the `ANARI_LIBRARY` environment variable needs to be set with the correct back-end name (e.g. `export ANARI_LIBRARY=visrtx`).
 

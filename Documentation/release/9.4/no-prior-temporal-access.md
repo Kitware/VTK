@@ -1,4 +1,4 @@
-##  Added a new information key for in situ use
+#  Added a new information key for in situ use
 
 Added the ability to incrementally update a filter for which the
 time steps are incomplete. It is typically used in situ, where
