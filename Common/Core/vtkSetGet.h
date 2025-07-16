@@ -25,13 +25,13 @@
 
 //----------------------------------------------------------------------------
 // Check for unsupported old compilers.
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#error VTK requires MSVC++ 14.0 aka Visual Studio 2015 or newer
+#if defined(_MSC_VER) && _MSC_VER < 1915
+#error VTK requires MSVC++ 15.8 aka Visual Studio 2017 or newer
 #endif
 
 #if !defined(__clang__) && defined(__GNUC__) &&                                                    \
-  (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8))
-#error VTK requires GCC 4.8 or newer
+  (__GNUC__ < 8 || (__GNUC__ == 8 && __GNUC_MINOR__ < 0))
+#error VTK requires GCC 8.0 or newer
 #endif
 
 #if VTK_USE_FUTURE_CONST
