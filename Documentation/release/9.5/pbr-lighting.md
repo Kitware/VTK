@@ -1,4 +1,4 @@
-## Fix lighting calculations for PBR interpolation
+# Fix lighting calculations for PBR interpolation
 
 When both directional and positional lights were intermixed in the view, the polydata mapper treated
 directional lights as positional and generated incorrect renderings. This issue is now fixed.

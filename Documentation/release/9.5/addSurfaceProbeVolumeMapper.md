@@ -1,4 +1,4 @@
-## Add SurfaceProbeVolumeMapper
+# Add SurfaceProbeVolumeMapper
 
 vtkOpenGLSurfaceProbeVolumeMapper is a PolyDataMapper colored with probed volume data.
 The mapper accepts three inputs: the Input, the Source and an optional ProbeInput.

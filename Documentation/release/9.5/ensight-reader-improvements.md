@@ -1,4 +1,4 @@
-## EnsightCombinedReader: Performance improvements pass
+# EnsightCombinedReader: Performance improvements pass
 
 Improve performances of the new vtkEnSightGoldCombinedReader in various ways, especially when reading large binary files containing nfaced/tetrahedron cells:
 * The tetrahedron cell-building logic now uses a tetrahedron-specific vtkUnstructredGrid::InsertNextCell call

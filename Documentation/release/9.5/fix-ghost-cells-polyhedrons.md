@@ -1,4 +1,4 @@
-## vtkDIYGhostUtilities: Ensure arrays are enqueued and dequeued properly
+# vtkDIYGhostUtilities: Ensure arrays are enqueued and dequeued properly
 
 1. vtkDIYUtilities: Make load function be more strict
 2. vtkDIYUtilities: Fix saving any type of arrays

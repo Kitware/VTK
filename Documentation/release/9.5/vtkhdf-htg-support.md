@@ -1,4 +1,4 @@
-## VTKHDF: Add support for HyperTreeGrid
+# VTKHDF: Add support for HyperTreeGrid
 
 HyperTreeGrid support has been added to the VTKHDF specification and reader. It supports temporal & multi-piece reading.
 
