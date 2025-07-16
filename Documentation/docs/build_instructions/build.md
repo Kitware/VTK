@@ -62,6 +62,7 @@ Required:
     If the system package management utilities do not offer cmake or if the offered version is too old
     Precompiled binaries available on [CMake's download page][cmake-download].
 
+  <!-- Keep this section in sync with top-level README.md -->
   * Supported compiler
     - GCC 8.0 or newer
     - Clang 7.0 or newer
