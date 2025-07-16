@@ -188,7 +188,7 @@ bool vtkCellValidator::NoIntersectingEdges(vtkCell* cell, double tolerance)
 namespace
 {
 bool TrianglesIntersect(double p1[3], double p2[3], double p3[3], double q1[3], double q2[3],
-  double q3[3], double tolerance)
+  double q3[3], double tolerance, vtkCellStatus& status)
 {
   if (vtkTriangle::TrianglesIntersect(p1, p2, p3, q1, q2, q3) == 1)
   {
@@ -212,6 +212,10 @@ bool TrianglesIntersect(double p1[3], double p2[3], double p3[3], double q1[3], 
         nCoincidentPoints += int(PointsAreCoincident(p[i], q[j], tolerance));
       }
     }
+    if (nCoincidentPoints > 2)
+    {
+      status |= vtkCellStatus::CoincidentPoints;
+    }
     return nCoincidentPoints == 0;
   }
   // Triangles are disjoint.
@@ -220,10 +224,11 @@ bool TrianglesIntersect(double p1[3], double p2[3], double p3[3], double q1[3], 
 }
 
 //------------------------------------------------------------------------------
-bool vtkCellValidator::NoIntersectingFaces(vtkCell* cell, double tolerance)
+vtkCellStatus vtkCellValidator::NoIntersectingFaces(vtkCell* cell, double tolerance)
 {
   // Ensures no cell faces intersect.
 
+  vtkCellStatus status = vtkCellStatus::Valid;
   double p[3][3], x[3][3];
   vtkIdType nFaces = cell->GetNumberOfFaces();
   vtkCell* face;
@@ -249,15 +254,16 @@ bool vtkCellValidator::NoIntersectingFaces(vtkCell* cell, double tolerance)
           points2->GetPoint(e2 + 1, x[1]);
           points2->GetPoint(e2 + 2, x[2]);
 
-          if (TrianglesIntersect(p[0], p[1], p[2], x[0], x[1], x[2], tolerance))
+          if (TrianglesIntersect(p[0], p[1], p[2], x[0], x[1], x[2], tolerance, status))
           {
-            return false;
+            status |= vtkCellStatus::IntersectingFaces;
+            return status;
           }
         }
       }
     }
   }
-  return true;
+  return status;
 }
 
 //------------------------------------------------------------------------------
@@ -816,10 +822,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkHexahedron* hex, double toler
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(hex, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(hex, tolerance);
 
   // Ensure that the hex is convex
   state |= vtkCellValidator::Convex(hex, vtkCellValidator::GetPlanarityTolerance());
@@ -852,10 +855,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkWedge* wedge, double toleranc
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(wedge, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(wedge, tolerance);
 
   state |= vtkCellValidator::Convex(wedge, vtkCellValidator::GetPlanarityTolerance());
 
@@ -887,10 +887,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkPyramid* pyramid, double tole
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(pyramid, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(pyramid, tolerance);
 
   // Ensure that the pyramid is convex
   state |= vtkCellValidator::Convex(pyramid, vtkCellValidator::GetPlanarityTolerance());
@@ -924,10 +921,7 @@ vtkCellValidator::State vtkCellValidator::Check(
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(pentagonalPrism, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(pentagonalPrism, tolerance);
 
   // Ensure that the pentagonal prism is convex
   state |= vtkCellValidator::Convex(pentagonalPrism, vtkCellValidator::GetPlanarityTolerance());
@@ -960,10 +954,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkHexagonalPrism* hexagonalPris
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(hexagonalPrism, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(hexagonalPrism, tolerance);
 
   // Ensure that the hexagonal prism is convex
   state |= vtkCellValidator::Convex(hexagonalPrism, vtkCellValidator::GetPlanarityTolerance());
@@ -1098,10 +1089,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkQuadraticTetra* tetra, double
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(tetra, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(tetra, tolerance);
 
   // Ensure the tetra's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(tetra, tolerance))
@@ -1131,10 +1119,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkQuadraticHexahedron* hex, dou
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(hex, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(hex, tolerance);
 
   // Ensure the hexahedron's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(hex, tolerance))
@@ -1164,10 +1149,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkQuadraticWedge* wedge, double
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(wedge, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(wedge, tolerance);
 
   // Ensure the wedge's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(wedge, tolerance))
@@ -1197,10 +1179,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkQuadraticPyramid* pyramid, do
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(pyramid, tolerance))
-  {
-    state |= State::IntersectingEdges;
-  }
+  state |= NoIntersectingFaces(pyramid, tolerance);
 
   // Ensure the wedge's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(pyramid, tolerance))
@@ -1257,10 +1236,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkTriQuadraticHexahedron* hex, 
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(hex, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(hex, tolerance);
 
   // Ensure the hexahedron's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(hex, tolerance))
@@ -1290,10 +1266,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkTriQuadraticPyramid* pyramid,
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(pyramid, tolerance))
-  {
-    state |= State::IntersectingEdges;
-  }
+  state |= NoIntersectingFaces(pyramid, tolerance);
 
   // Ensure the wedge's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(pyramid, tolerance))
@@ -1350,10 +1323,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkQuadraticLinearWedge* wedge, 
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(wedge, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(wedge, tolerance);
 
   // Ensure the wedge's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(wedge, tolerance))
@@ -1384,10 +1354,7 @@ vtkCellValidator::State vtkCellValidator::Check(
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(wedge, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(wedge, tolerance);
 
   // Ensure the wedge's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(wedge, tolerance))
@@ -1418,10 +1385,7 @@ vtkCellValidator::State vtkCellValidator::Check(
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(hex, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(hex, tolerance);
 
   // Ensure the hexahedron's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(hex, tolerance))
@@ -1512,10 +1476,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkPolyhedron* polyhedron, doubl
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(polyhedron, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(polyhedron, tolerance);
 
   // Ensure that the polyhedron is convex
   state |= vtkCellValidator::Convex(polyhedron, vtkCellValidator::GetPlanarityTolerance());
@@ -1569,10 +1530,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkLagrangeTriangle* triangle, d
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(triangle, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(triangle, tolerance);
 
   return state;
 }
@@ -1597,10 +1555,7 @@ vtkCellValidator::State vtkCellValidator::Check(
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(quadrilateral, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(quadrilateral, tolerance);
 
   return state;
 }
@@ -1624,10 +1579,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkLagrangeTetra* tetrahedron, d
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(tetrahedron, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(tetrahedron, tolerance);
 
   // Ensure the tetrahedron's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(tetrahedron, tolerance))
@@ -1657,10 +1609,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkLagrangeHexahedron* hexahedro
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(hexahedron, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(hexahedron, tolerance);
 
   // Ensure the hexahedron's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(hexahedron, tolerance))
@@ -1690,10 +1639,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkLagrangeWedge* wedge, double 
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(wedge, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(wedge, tolerance);
 
   // Ensure the wedge's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(wedge, tolerance))
@@ -1744,10 +1690,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkBezierTriangle* triangle, dou
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(triangle, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(triangle, tolerance);
 
   return state;
 }
@@ -1772,10 +1715,7 @@ vtkCellValidator::State vtkCellValidator::Check(
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(quadrilateral, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(quadrilateral, tolerance);
 
   return state;
 }
@@ -1799,10 +1739,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkBezierTetra* tetrahedron, dou
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(tetrahedron, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(tetrahedron, tolerance);
 
   // Ensure the tetrahedron's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(tetrahedron, tolerance))
@@ -1832,10 +1769,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkBezierHexahedron* hexahedron,
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(hexahedron, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(hexahedron, tolerance);
 
   // Ensure the hexahedron's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(hexahedron, tolerance))
@@ -1865,10 +1799,7 @@ vtkCellValidator::State vtkCellValidator::Check(vtkBezierWedge* wedge, double to
   }
 
   // Ensure that no faces intersect
-  if (!NoIntersectingFaces(wedge, tolerance))
-  {
-    state |= State::IntersectingFaces;
-  }
+  state |= NoIntersectingFaces(wedge, tolerance);
 
   // Ensure the wedge's faces are oriented correctly
   if (!FacesAreOrientedCorrectly(wedge, tolerance))

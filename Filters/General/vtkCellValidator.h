@@ -64,6 +64,9 @@
  *                    for topologically distinct points are coincident, collinear, or
  *                    coplanar when they ought not to be.
  *
+ * CoincidentPoints: A cell is otherwise valid but has coincident points, which may
+ *                   arise from distinct entries in vtkPoints with duplicate coordinates
+ *                   or from repeated use of the same connectivity entry.
  * @sa
  * vtkCellQuality
  */
@@ -231,7 +234,7 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   static bool NoIntersectingEdges(vtkCell* cell, double tolerance);
-  static bool NoIntersectingFaces(vtkCell* cell, double tolerance);
+  static State NoIntersectingFaces(vtkCell* cell, double tolerance);
   static bool ContiguousEdges(vtkCell* twoDimensionalCell, double tolerance);
   static State Convex(vtkCell* cell, double tolerance);
   static bool FacesAreOrientedCorrectly(vtkCell* threeDimensionalCell, double tolerance);
