@@ -1,4 +1,4 @@
-## Infinite floor plane with vtkSkybox
+# Infinite floor plane with vtkSkybox
 
 The vtkSkybox class is commonly used for creating a cubemap that encompasses the whole scene.
 In addition to the typical cube projection, the vtkSkybox also allows for mapping a single image

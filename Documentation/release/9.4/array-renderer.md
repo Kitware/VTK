@@ -1,4 +1,4 @@
-## New renderer for shader prototyping
+# New renderer for shader prototyping
 
 The vtkArrayRenderer class is a new OpenGL mapper focused on prototyping
 shader code using vtkDataArray objects bound to texture buffers.

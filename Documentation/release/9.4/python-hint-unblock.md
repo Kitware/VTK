@@ -1,4 +1,4 @@
-## Add Hint to Improve Python Concurrency
+# Add Hint to Improve Python Concurrency
 
 The new `VTK_UNBLOCKTHREADS` wrapper hint indicates methods for which we
 want to release the GIL and allow Python thread concurrency.  In particular,

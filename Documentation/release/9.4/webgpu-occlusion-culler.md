@@ -1,4 +1,4 @@
-### WebGPU Compute API - Hierarchical two-pass occlusion culling
+# WebGPU Compute API - Hierarchical two-pass occlusion culling
 
 Implementation of a hierarchical z-buffer occlusion culling algorithm using the WebGPU Compute API.
 For very simple scenes with large numbers of cells (hundreds of millions), the WebGPU Occlusion culler

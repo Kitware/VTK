@@ -1,4 +1,4 @@
-## Add vtkBatch/vtkBatches and improve vtkTablaBasedClipDataSet's performance
+# Add vtkBatch/vtkBatches and improve vtkTablaBasedClipDataSet's performance
 
 Batches are a concept that is used in several filters in VTK to enable multithreading.
 `vtkBatch`/`vtkBatches` are 2 classes that encapsulate the concept of a batch.

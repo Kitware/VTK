@@ -1,4 +1,4 @@
-## OpenXR Controller Model Rendering
+# OpenXR Controller Model Rendering
 
 VTK now supports basic rendering of controller models under OpenXR.
 

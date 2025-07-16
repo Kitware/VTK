@@ -1,4 +1,4 @@
-## Fix scaling error in vtkWindowedSincPolyDataFilter
+# Fix scaling error in vtkWindowedSincPolyDataFilter
 
 The filter used Hamming window function for low-pass filtering, which resulted in slight change (up to 1%)
 in the overall size of the smoothed output (either larger or smaller)

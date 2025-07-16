@@ -1,6 +1,6 @@
-## Improvements related to vtk Polyhedral cell storage
+# Improvements related to vtk Polyhedral cell storage
 
-###  Storing faces as vtkCellArray
+##  Storing faces as vtkCellArray
 
 When storing face information for polyhedral cells, `vtkUnstructuredGrid` uses a `vtkIdTypeArray` in a special format that looks awfully similar to how `vtkCellArray` used maintain its internal storage.
 The new internal storage simply changes it to using `vtkCellArray` instead.
@@ -18,7 +18,7 @@ Contrast this with how this information was previously stored:
 * **(Legacy)FaceLocations** (`vtkIdTypeArray`): offset array into **(Legacy)Faces** array indicating where the faces for a corresponding cell are stored
 
 
-### Backward compatibility
+## Backward compatibility
 
 To ensure a nice transition to the new storage, some old API are kept.
 More precisely the method `void SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray* cells, vtkIdTypeArray* faceLocations, vtkIdTypeArray* faces);` from vtkUnstructuredGrid is deprecated but can still be used. In this case a copy of faceLocations and faces data will be done.
@@ -29,7 +29,7 @@ The caching process may impact a bit performance.
 The `FaceConn` and `FaceLocs` internal arrays of `vtkUnstructuredGridCellIterator` are no longer available as `vtkIdTypeArray`. This may break your subclasses if you rely on them directly and not on the exposed API of `vtkUnstructuredGridCellIterator`. A solution to keep using them in subclasses is to define them directly in subclasses and handle their logic.
 
 
-### Compatibility with Conduit
+## Compatibility with Conduit
 
 The new layout is much closer to how Conduit store its polyhedral cell information.
 Thus, some gain should be expected on the long run.

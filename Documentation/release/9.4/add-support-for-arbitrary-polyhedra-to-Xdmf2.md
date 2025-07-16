@@ -1,4 +1,4 @@
-Add support for arbitrary polyhedra to Xdmf2.
+# Add support for arbitrary polyhedra to Xdmf2.
 
 The Xdmf2 reader now works with geometries that contain arbitrary polyhedra;
 i.e. cells with an arbitrary number and arrangement of faces.

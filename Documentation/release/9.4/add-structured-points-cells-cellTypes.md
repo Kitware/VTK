@@ -1,4 +1,4 @@
-## vtkImageData/vtkRectilinearGrid/vtkStructuredGrid: Improve performance using structured Points, Cells, CellTypes
+# vtkImageData/vtkRectilinearGrid/vtkStructuredGrid: Improve performance using structured Points, Cells, CellTypes
 
 `vtkStructuredPointArray<ValueType>` has been implemented to enable fast query of structured points.
 

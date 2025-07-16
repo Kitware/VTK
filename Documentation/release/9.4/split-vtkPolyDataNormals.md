@@ -1,4 +1,4 @@
-## vtkPolyDataNormals: Split into separate classes
+# vtkPolyDataNormals: Split into separate classes
 
 `vtkPolyDataNormals` used to be a single class that performed, splitting of strips, orienting polygons,
 splitting sharp edges, and computing normals. This class has been split as follows to make

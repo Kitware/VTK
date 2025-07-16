@@ -1,4 +1,4 @@
-## C++ char parameters only take Python chars
+# C++ char parameters only take Python chars
 
 Previously Python strings like `''` and `'x\0'` or even `'x\0y'` would be
 accepted by VTK methods requiring a C++ `char` parameter.  Now, only strings

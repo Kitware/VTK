@@ -1,4 +1,4 @@
-## Refactor the `vtkRedistributeDataSetFilter` for more modularity
+# Refactor the `vtkRedistributeDataSetFilter` for more modularity
 
 The `vtkRedistributeDataSetFilter` now utilises a strategy pattern `vtkPartitioningStrategy` for encapsulating the partitioning algorithm to use when redistributing a data set. You can now change the partitioning strategy dynamically at runtime.
 
