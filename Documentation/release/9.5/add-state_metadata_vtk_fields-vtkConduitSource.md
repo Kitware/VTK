@@ -1,4 +1,4 @@
-## vtkConduitSource: Add state/metadata/vtk_fields node
+# vtkConduitSource: Add state/metadata/vtk_fields node
 
 When defining fields in a Conduit tree, it is often useful to include metadata about the fields that can be
 interpreted by VTK, and utilized appropriately. To that end, we have added a new node to the Conduit tree

@@ -1,4 +1,4 @@
-## Fix light transforms when computing shadow maps
+# Fix light transforms when computing shadow maps
 
 The `vtkShadowMapBakerPass` computes shadow maps for each light by simulating a `vtkCamera` for each
 light and compositing the rendered images. However, an unintentional side-effect of this was that

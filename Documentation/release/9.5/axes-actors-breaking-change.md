@@ -1,4 +1,4 @@
-## vtkAxisActor and vtkPolarAxesActor breaking changes
+# vtkAxisActor and vtkPolarAxesActor breaking changes
 
 Protected members of `vtkAxisActor` and `vtkPolarAxesActor` classes were moved to private.
 Please use appropriate Getter/Setter to use them instead.

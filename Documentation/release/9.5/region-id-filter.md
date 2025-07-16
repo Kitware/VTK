@@ -1,4 +1,4 @@
-## vtkGenerateRegionIds
+# vtkGenerateRegionIds
 
 `vtkGenerateRegionIds` is a new polydata filter that adds a CellData array, containing a region identifier.
 A region is defined as a collection of cells that match some local criteria. Two cells are on the same region if:

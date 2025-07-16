@@ -1,4 +1,4 @@
-## Delimited Text Reader Preview
+# Delimited Text Reader Preview
 
 vtkDelimitedTextReader offers a `GetPreview` method to inspect the file
 content.  During the `RequestInformation` pass, it reads the

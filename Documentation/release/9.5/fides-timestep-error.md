@@ -1,4 +1,4 @@
-## Remove error for missing Fides timestep
+# Remove error for missing Fides timestep
 
 Previously, the Fides reader would issue an error if the pipeline requested
 a timestep that could not be found in the reported time values. Since the

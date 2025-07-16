@@ -1,4 +1,4 @@
-## HTG Surface Representation improvements
+# HTG Surface Representation improvements
 
 Cells outside the camera frustum are now decimated in 3D as well as 1D and 2D in HTG Surface Representation. The method to check their visibility has been
 generified to work in all cases, including without parallel projection (which was required before), and with masks. Existing tests have been updated and new ones
