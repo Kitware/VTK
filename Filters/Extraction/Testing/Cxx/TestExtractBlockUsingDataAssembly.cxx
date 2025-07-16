@@ -1,16 +1,20 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include <vtkDataAssembly.h>
-#include <vtkDoubleArray.h>
-#include <vtkExtractBlockUsingDataAssembly.h>
-#include <vtkFieldData.h>
-#include <vtkLogger.h>
-#include <vtkNew.h>
-#include <vtkPartitionedDataSet.h>
-#include <vtkPartitionedDataSetCollection.h>
-#include <vtkPolyData.h>
+#include "vtkDataAssembly.h"
+#include "vtkDoubleArray.h"
+#include "vtkExtractBlockUsingDataAssembly.h"
+#include "vtkFieldData.h"
+#include "vtkLogger.h"
+#include "vtkNew.h"
+#include "vtkNonOverlappingAMR.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
+#include "vtkPolyData.h"
+#include "vtkUniformGrid.h"
 
-int TestExtractBlockUsingDataAssembly(int, char*[])
+namespace
+{
+bool TestPDC()
 {
   vtkNew<vtkPartitionedDataSetCollection> pdc;
   pdc->Initialize();
@@ -46,7 +50,7 @@ int TestExtractBlockUsingDataAssembly(int, char*[])
   {
     vtkLogF(ERROR, "Incorrect partitioned-datasets, expected=%d, got=%d!", 4,
       static_cast<int>(output->GetNumberOfPartitionedDataSets()));
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (output->GetPartitionedDataSet(0) != pdc->GetPartitionedDataSet(0) ||
@@ -55,14 +59,86 @@ int TestExtractBlockUsingDataAssembly(int, char*[])
     output->GetPartitionedDataSet(3) != pdc->GetPartitionedDataSet(5))
   {
     vtkLogF(ERROR, "Incorrect blocks extracted!");
-    return EXIT_FAILURE;
+    return false;
   }
 
   if (!output->GetFieldData()->GetArray("SomeArray"))
   {
     vtkLogF(ERROR, "Missing field data arrays!");
-    return EXIT_FAILURE;
+    return false;
   }
 
-  return EXIT_SUCCESS;
+  return true;
+}
+
+bool TestAMR()
+{
+  vtkNew<vtkNonOverlappingAMR> amr;
+
+  // Create and populate the Non Overlapping AMR dataset.
+  // The dataset should look like
+  // Level 0
+  //   uniform grid
+  // Level 1
+  //   uniform grid
+  //   uniform grid
+  //   empty node
+  std::vector<unsigned int> blocksPerLevel{ 1, 3 };
+  amr->Initialize(blocksPerLevel);
+
+  double origin[3] = { 0.0, 0.0, 0.0 };
+  double spacing[3] = { 1.0, 1.0, 1.0 };
+  int dims[3] = { 11, 11, 6 };
+
+  vtkNew<vtkUniformGrid> ug1;
+  // Geometry
+  ug1->SetOrigin(origin);
+  ug1->SetSpacing(spacing);
+  ug1->SetDimensions(dims);
+
+  amr->SetDataSet(0, 0, ug1);
+
+  double origin2[3] = { 0.0, 0.0, 5.0 };
+  double spacing2[3] = { 1.0, 0.5, 1.0 };
+
+  vtkNew<vtkUniformGrid> ug2;
+  // Geometry
+  ug2->SetOrigin(origin2);
+  ug2->SetSpacing(spacing2);
+  ug2->SetDimensions(dims);
+
+  amr->SetDataSet(1, 0, ug2);
+
+  double origin3[3] = { 0.0, 5.0, 5.0 };
+
+  vtkNew<vtkUniformGrid> ug3;
+  // Geometry
+  ug3->SetOrigin(origin3);
+  ug3->SetSpacing(spacing2);
+  ug3->SetDimensions(dims);
+
+  amr->SetDataSet(1, 1, ug3);
+
+  vtkNew<vtkExtractBlockUsingDataAssembly> extractor;
+  extractor->SetInputDataObject(amr);
+  extractor->SetAssemblyName("Hierarchy");
+  extractor->AddSelector("/Root/Level1");
+  extractor->Update();
+
+  auto output = vtkNonOverlappingAMR::SafeDownCast(extractor->GetOutputDataObject(0));
+  if (output->GetNumberOfBlocks() != 3)
+  {
+    vtkLogF(ERROR, "Incorrect AMR, expected=%d, got=%d!", 3, output->GetNumberOfBlocks());
+    return false;
+  }
+  return true;
+}
+}
+
+int TestExtractBlockUsingDataAssembly(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
+{
+  bool success = true;
+  success &= ::TestPDC();
+  success &= ::TestAMR();
+  return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
