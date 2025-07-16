@@ -162,11 +162,11 @@ MANUAL_SUBSTITUTIONS = [
         "destination": "./developers_guide/git/thirdparty-projects.md",
         "substitutions": [
             (
-                "\[.+\]\(UPDATING.md\)",
+                r"\[.+\]\(UPDATING.md\)",
                 "[](thirdparty.md)",
             ),
             (
-                "\* \[(\w+)\]\((.+\/update\.sh)\)$",
+                r"\* \[(\w+)\]\((.+\/update\.sh)\)$",
                 "* \\1",
             ),
         ],
@@ -176,11 +176,11 @@ MANUAL_SUBSTITUTIONS = [
         "destination": "./developers_guide/git/thirdparty.md",
         "substitutions": [
             (
-                "\[imported.md\]\(imported.md\)",
+                r"\[imported.md\]\(imported.md\)",
                 "[](thirdparty-projects.md)",
             ),
             (
-                "\[update-common.sh\]\(update-common.sh\)",
+                r"\[update-common.sh\]\(update-common.sh\)",
                 "[update-common.sh](path:../../../../ThirdParty/update-common.sh)",
             ),
         ],
@@ -262,7 +262,7 @@ def create_release_index(basedir):
     it returns a string holding the toctree of the index file to be injected in basedir/index.md
     """
     # get x.y.0 releases skipping rc's
-    command = "git tag --sort=version:refname  --format '%(refname:strip=2) %(creatordate:format:%Y-%m-%d)'  | grep -v 'rc' | grep 'v[0-9]*\.[0-9]*\.0'"
+    command = r"git tag --sort=version:refname  --format '%(refname:strip=2) %(creatordate:format:%Y-%m-%d)'  | grep -v 'rc' | grep 'v[0-9]*\.[0-9]*\.0'"
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     tags = str(result.stdout).split("\n")[:-1]  # drop last empty line
     tags = tags[4:]  # skip release for which we do not have release notes
