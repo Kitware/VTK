@@ -14,11 +14,15 @@
 
 //VTK::Actor::Def
 
+//VTK::ClippingPlanes::Def
+
 //VTK::Custom::Def
 
 //VTK::Renderer::Bindings
 
 //VTK::Actor::Bindings
+
+//VTK::ClippingPlanes::Bindings
 
 //VTK::Mesh::Bindings
 
@@ -31,6 +35,8 @@
 //VTK::FragmentOutput::Def
 
 //VTK::FragmentMain::Start
+
+  //VTK::ClippingPlanes::Impl
 
   //VTK::Colors::Impl
 

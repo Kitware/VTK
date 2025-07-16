@@ -317,6 +317,11 @@ protected:
   ///@}
 
   /**
+   * Updates the clipping planes buffer with the current clipping planes data.
+   */
+  void UpdateClippingPlanesBuffer(vtkWebGPUConfiguration* wgpuConfiguration, vtkActor* actor);
+
+  /**
    * Get the name of the graphics pipeline type as a string.
    */
   const char* GetGraphicsPipelineTypeAsString(GraphicsPipelineType graphicsPipelineType);
@@ -337,12 +342,16 @@ protected:
     GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
   virtual void ReplaceShaderActorDef(
     GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderClippingPlanesDef(
+    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
   virtual void ReplaceShaderCustomDef(
     GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
 
   virtual void ReplaceShaderRendererBindings(
     GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
   virtual void ReplaceShaderActorBindings(
+    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderClippingPlanesBindings(
     GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
   virtual void ReplaceShaderMeshAttributeBindings(
     GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
@@ -362,6 +371,8 @@ protected:
   virtual void ReplaceVertexShaderPrimitiveId(GraphicsPipelineType pipelineType, std::string& vss);
   virtual void ReplaceVertexShaderCellId(GraphicsPipelineType pipelineType, std::string& vss);
   virtual void ReplaceVertexShaderPosition(GraphicsPipelineType pipelineType, std::string& vss);
+  virtual void ReplaceVertexShaderClippingPlanes(
+    GraphicsPipelineType pipelineType, std::string& vss);
   virtual void ReplaceVertexShaderPositionVC(GraphicsPipelineType pipelineType, std::string& vss);
   virtual void ReplaceVertexShaderPicking(GraphicsPipelineType pipelineType, std::string& vss);
   virtual void ReplaceVertexShaderColors(GraphicsPipelineType pipelineType, std::string& vss);
@@ -373,6 +384,8 @@ protected:
   virtual void ReplaceFragmentShaderOutputDef(GraphicsPipelineType pipelineType, std::string& fss);
 
   virtual void ReplaceFragmentShaderMainStart(GraphicsPipelineType pipelineType, std::string& fss);
+  virtual void ReplaceFragmentShaderClippingPlanes(
+    GraphicsPipelineType pipelineType, std::string& fss);
   virtual void ReplaceFragmentShaderColors(GraphicsPipelineType pipelineType, std::string& fss);
   virtual void ReplaceFragmentShaderNormals(GraphicsPipelineType pipelineType, std::string& fss);
   virtual void ReplaceFragmentShaderEdges(GraphicsPipelineType pipelineType, std::string& fss);
@@ -421,10 +434,17 @@ protected:
   };
   AttributeBuffer PointBuffers[POINT_NB_ATTRIBUTES];
   AttributeBuffer CellBuffers[CELL_NB_ATTRIBUTES];
+  struct
+  {
+    vtkTypeFloat32 PlaneEquations[6][4];
+    vtkTypeUInt32 PlaneCount = 0;
+  } ClippingPlanesData;
+  wgpu::Buffer ClippingPlanesBuffer;
 
   ///@{ Timestamps help reuse previous resources as much as possible.
   vtkTimeStamp CellAttributesBuildTimestamp[CELL_NB_ATTRIBUTES];
   vtkTimeStamp PointAttributesBuildTimestamp[POINT_NB_ATTRIBUTES];
+  vtkTimeStamp ClippingPlanesBuildTimestamp;
   vtkTimeStamp
     IndirectDrawBufferUploadTimeStamp[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
   ///@}
@@ -471,9 +491,14 @@ protected:
     GROUP_RENDERER,
     GROUP_ACTOR,
     GROUP_MESH,
-    GROUP_TOPOLOGY
+    // Clipping planes are bound to the same group as the mesh attributes
+    // because they vary based on the mapper's shift/scale and the actor's
+    // transformation matrix.
+    GROUP_CLIPPING_PLANES = GROUP_MESH,
+    GROUP_TOPOLOGY,
+    GROUP_NB_BINDGROUPS
   };
-  std::array<std::uint32_t, 4> NumberOfBindings = { 0, 0, 0, 0 };
+  std::array<std::uint32_t, GROUP_NB_BINDGROUPS> NumberOfBindings = {};
   vtkNew<vtkWebGPUCellToPrimitiveConverter> CellConverter;
   TopologyBindGroupInfo
     TopologyBindGroupInfos[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
@@ -483,6 +508,7 @@ protected:
   // invoke MapScalars().
   int LastScalarMode = -1;
   bool LastScalarVisibility = false;
+  int LastNumClipPlanes = 0;
   struct ActorState
   {
     bool LastActorBackfaceCulling = false;

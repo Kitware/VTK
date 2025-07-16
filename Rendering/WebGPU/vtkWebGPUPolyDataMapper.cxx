@@ -11,7 +11,9 @@
 #include "vtkFloatArray.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
+#include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
+#include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -210,6 +212,12 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
       // update (i.e, create and write) GPU buffers if the data is outdated.
       this->UpdateMeshGeometryBuffers(wgpuRenderWindow);
       auto* mesh = this->CurrentInput;
+      if (mesh == nullptr || mesh->GetNumberOfPoints() == 0)
+      {
+        wgpuRenderer->InvalidateBundle();
+        return;
+      }
+      this->UpdateClippingPlanesBuffer(wgpuConfiguration, actor);
       vtkTypeUInt32* vertexCounts[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
       wgpu::Buffer*
         connectivityBuffers[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
@@ -302,6 +310,13 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
       break;
     }
     case vtkWebGPURenderer::RenderStageEnum::RecordingCommands:
+    {
+      auto* mesh = this->CurrentInput;
+      if (mesh == nullptr || mesh->GetNumberOfPoints() == 0)
+      {
+        wgpuRenderer->InvalidateBundle();
+        return;
+      }
       if (wgpuRenderer->GetUseRenderBundles())
       {
         this->RecordDrawCommands(renderer, actor, wgpuRenderer->GetRenderBundleEncoder());
@@ -311,6 +326,7 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
         this->RecordDrawCommands(renderer, actor, wgpuRenderer->GetRenderPassEncoder());
       }
       break;
+    }
     default:
       break;
   }
@@ -918,6 +934,12 @@ std::vector<wgpu::BindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGrou
         bindingId++, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
     }
   }
+  if (this->GetNumberOfClippingPlanes() > 0)
+  {
+    entries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+      bindingId++, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
+      wgpu::BufferBindingType::ReadOnlyStorage });
+  }
   return entries;
 }
 
@@ -1000,6 +1022,12 @@ std::vector<wgpu::BindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntri
           this->CellBuffers[attributeIndex].Buffer, 0 };
       entries.emplace_back(initializer.GetAsBinding());
     }
+  }
+  if (this->GetNumberOfClippingPlanes() > 0)
+  {
+    const auto initializer = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
+      this->ClippingPlanesBuffer, 0 };
+    entries.emplace_back(initializer.GetAsBinding());
   }
   return entries;
 }
@@ -1592,6 +1620,72 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::UpdateClippingPlanesBuffer(
+  vtkWebGPUConfiguration* wgpuConfiguration, vtkActor* actor)
+{
+  if (this->GetNumberOfClippingPlanes() == 0)
+  {
+    // Release any previously allocated buffer
+    if (this->ClippingPlanesBuffer)
+    {
+      this->ClippingPlanesBuffer.Destroy();
+      this->ClippingPlanesBuffer = nullptr;
+    }
+    return;
+  }
+  if (this->GetNumberOfClippingPlanes() > 6)
+  {
+    // we only support up to 6 clipping planes.
+    // this is a limitation of the shader code and the way we handle clipping planes.
+    // if more than 6 clipping planes are needed, then we need to use a different approach.
+    // for now, we just log a warning.
+    vtkWarningMacro(<< "Too many clipping planes: " << this->GetNumberOfClippingPlanes()
+                    << ", maximum is " << 6);
+  }
+  this->ClippingPlanesData.PlaneCount = std::min(this->GetNumberOfClippingPlanes(), 6);
+  vtkMTimeType planesMTime = 0;
+  for (vtkTypeUInt32 i = 0; i < this->ClippingPlanesData.PlaneCount; i++)
+  {
+    planesMTime = std::max(planesMTime, this->ClippingPlanes->GetItem(i)->GetMTime());
+  }
+  if (planesMTime < this->ClippingPlanesBuildTimestamp)
+  {
+    // no need to update the clipping planes buffer, it is already up to date.
+    return;
+  }
+  // create a wgpu buffer for clipping planes if not already created.
+  if (this->ClippingPlanesBuffer == nullptr)
+  {
+    const auto label = this->GetObjectDescription() + "-ClippingPlanesBuffer";
+    wgpu::BufferDescriptor desc = {};
+    desc.label = label.c_str();
+    desc.mappedAtCreation = false;
+    desc.size = vtkWebGPUConfiguration::Align(sizeof(this->ClippingPlanesData), 16);
+    desc.usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
+    this->ClippingPlanesBuffer = wgpuConfiguration->CreateBuffer(desc);
+  }
+  vtkNew<vtkMatrix4x4> modelToWorldMatrix;
+  std::array<double, 3> scale = { 1, 1, 1 };
+  std::array<double, 3> shift = { 0, 0, 0 };
+  for (vtkTypeUInt32 i = 0; i < this->ClippingPlanesData.PlaneCount; i++)
+  {
+    double planeEquation[4];
+    actor->GetModelToWorldMatrix(modelToWorldMatrix);
+    this->GetClippingPlaneInDataCoords(modelToWorldMatrix, i, planeEquation);
+
+    // multiply by shift scale if set
+    this->ClippingPlanesData.PlaneEquations[i][0] = planeEquation[0] / scale[0];
+    this->ClippingPlanesData.PlaneEquations[i][1] = planeEquation[1] / scale[1];
+    this->ClippingPlanesData.PlaneEquations[i][2] = planeEquation[2] / scale[2];
+    this->ClippingPlanesData.PlaneEquations[i][3] = planeEquation[3] + planeEquation[0] * shift[0] +
+      planeEquation[1] * shift[1] + planeEquation[2] * shift[2];
+  }
+  this->ClippingPlanesBuildTimestamp.Modified();
+  wgpuConfiguration->WriteBuffer(this->ClippingPlanesBuffer, 0, &this->ClippingPlanesData,
+    sizeof(this->ClippingPlanesData), "ClippingPlanesBufferUpdate");
+}
+
+//------------------------------------------------------------------------------
 const char* vtkWebGPUPolyDataMapper::GetGraphicsPipelineTypeAsString(
   GraphicsPipelineType graphicsPipelineType)
 {
@@ -1721,10 +1815,12 @@ void vtkWebGPUPolyDataMapper::ApplyShaderReplacements(
   this->ReplaceShaderConstantsDef(pipelineType, vss, fss);
   this->ReplaceShaderActorDef(pipelineType, vss, fss);
   this->ReplaceShaderCustomDef(pipelineType, vss, fss);
+  this->ReplaceShaderClippingPlanesDef(pipelineType, vss, fss);
 
   this->ReplaceShaderRendererBindings(pipelineType, vss, fss);
   this->ReplaceShaderActorBindings(pipelineType, vss, fss);
   this->ReplaceShaderMeshAttributeBindings(pipelineType, vss, fss);
+  this->ReplaceShaderClippingPlanesBindings(pipelineType, vss, fss);
   this->ReplaceShaderTopologyBindings(pipelineType, vss, fss);
   this->ReplaceShaderCustomBindings(pipelineType, vss, fss);
 
@@ -1738,6 +1834,7 @@ void vtkWebGPUPolyDataMapper::ApplyShaderReplacements(
   this->ReplaceVertexShaderPrimitiveId(pipelineType, vss);
   this->ReplaceVertexShaderCellId(pipelineType, vss);
   this->ReplaceVertexShaderPosition(pipelineType, vss);
+  this->ReplaceVertexShaderClippingPlanes(pipelineType, vss);
   this->ReplaceVertexShaderPositionVC(pipelineType, vss);
   this->ReplaceVertexShaderPicking(pipelineType, vss);
   this->ReplaceVertexShaderColors(pipelineType, vss);
@@ -1748,6 +1845,7 @@ void vtkWebGPUPolyDataMapper::ApplyShaderReplacements(
 
   this->ReplaceFragmentShaderOutputDef(pipelineType, fss);
   this->ReplaceFragmentShaderMainStart(pipelineType, fss);
+  this->ReplaceFragmentShaderClippingPlanes(pipelineType, fss);
   this->ReplaceFragmentShaderColors(pipelineType, fss);
   this->ReplaceFragmentShaderNormals(pipelineType, fss);
   this->ReplaceFragmentShaderEdges(pipelineType, fss);
@@ -1922,6 +2020,25 @@ struct Actor
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceShaderClippingPlanesDef(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+{
+  if (this->GetNumberOfClippingPlanes() == 0)
+  {
+    return;
+  }
+  const std::string code = R"(
+struct ClippingPlanes
+{
+  plane_equations: array<vec4<f32>, 6>,
+  count: u32,
+};
+)";
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::ClippingPlanes::Def", code, /*all=*/true);
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::ClippingPlanes::Def", code, /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceShaderCustomDef(
   GraphicsPipelineType pipelineType, std::string& vss, std::string& fss)
 {
@@ -1962,6 +2079,26 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderActorBindings(
     vss, "//VTK::Actor::Bindings", codeStream.str(), /*all=*/true);
   vtkWebGPURenderPipelineCache::Substitute(
     fss, "//VTK::Actor::Bindings", codeStream.str(), /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceShaderClippingPlanesBindings(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+{
+  if (this->GetNumberOfClippingPlanes() == 0)
+  {
+    return;
+  }
+  auto& bindingId = this->NumberOfBindings[GROUP_CLIPPING_PLANES];
+
+  std::stringstream codeStream;
+  codeStream << "@group(" << GROUP_CLIPPING_PLANES << ") @binding(" << bindingId++
+             << ") var<storage, read> clipping_planes: ClippingPlanes;";
+
+  vtkWebGPURenderPipelineCache::Substitute(
+    vss, "//VTK::ClippingPlanes::Bindings", codeStream.str(), /*all=*/true);
+  vtkWebGPURenderPipelineCache::Substitute(
+    fss, "//VTK::ClippingPlanes::Bindings", codeStream.str(), /*all=*/true);
 }
 
 //------------------------------------------------------------------------------
@@ -2103,6 +2240,11 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderVertexOutputDef(
       break;
     case GFX_PIPELINE_NB_TYPES:
       break;
+  }
+  if (this->GetNumberOfClippingPlanes() > 0)
+  {
+    codeStream << "  @location(" << id++ << ") clip_dists_0: vec3<f32>,\n";
+    codeStream << "  @location(" << id++ << ") clip_dists_1: vec3<f32>,\n";
   }
   codeStream << "  @location(" << id++ << ") @interpolate(flat) cell_id: u32,\n";
   codeStream << "  @location(" << id++ << ") @interpolate(flat) prop_id: u32,\n";
@@ -2311,6 +2453,9 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(
     let p_coord = TRIANGLE_VERTS[p_coord_id];
   
     let pull_vertex_id = select(2 * primitive_id, 2 * primitive_id + 1, p_coord.x == 1);
+    let vertex_MC = vec4<f32>(point_coordinates[3u * connectivity[pull_vertex_id]],
+      point_coordinates[3u * connectivity[pull_vertex_id] + 1u],
+      point_coordinates[3u * connectivity[pull_vertex_id] + 2u], 1);
   
     // pull the point id
     let point_id = connectivity[pull_vertex_id];
@@ -2393,7 +2538,10 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(
 
   let pull_vertex_id = select(p0_id, p1_id, p_coord.z == 1);
   // pull the point id
-  let point_id = connectivity[pull_vertex_id];)",
+  let point_id = connectivity[pull_vertex_id];
+  let vertex_MC = vec4<f32>(point_coordinates[3u * point_id],
+    point_coordinates[3u * point_id + 1u],
+    point_coordinates[3u * point_id + 2u], 1);)",
         /*all=*/true);
       break;
     case GFX_PIPELINE_LINES_MITER_JOIN:
@@ -2407,6 +2555,9 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(
   let p_coord = TRIANGLE_VERTS[p_coord_id];
 
   let pull_vertex_id = select(2 * primitive_id, 2 * primitive_id + 1, p_coord.x == 1);
+  let vertex_MC = vec4<f32>(point_coordinates[3u * connectivity[pull_vertex_id]],
+    point_coordinates[3u * connectivity[pull_vertex_id] + 1u],
+    point_coordinates[3u * connectivity[pull_vertex_id] + 2u], 1);
 
   // pull the point id
   let point_id = connectivity[pull_vertex_id];
@@ -2525,6 +2676,9 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(
   let p_coord = TRIANGLE_VERTS[p_coord_id];
 
   let pull_vertex_id = select(2 * primitive_id, 2 * primitive_id + 1, p_coord.x == 1);
+  let vertex_MC = vec4<f32>(point_coordinates[3u * connectivity[pull_vertex_id]],
+    point_coordinates[3u * connectivity[pull_vertex_id] + 1u],
+    point_coordinates[3u * connectivity[pull_vertex_id] + 2u], 1);
 
   // pull the point id
   let point_id = connectivity[pull_vertex_id];
@@ -2581,6 +2735,27 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(
     case GFX_PIPELINE_NB_TYPES:
       break;
   }
+}
+
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderClippingPlanes(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+{
+  if (this->GetNumberOfClippingPlanes() == 0)
+  {
+    return;
+  }
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::ClippingPlanes::Impl",
+    R"(for (var i: u32 = 0u; i < clipping_planes.count && i < 3u; i++)
+    {
+      let plane_eq = clipping_planes.plane_equations[i];
+      output.clip_dists_0[i % 3u] = dot(plane_eq, vertex_MC);
+    }
+    for (var i: u32 = 3u; i < clipping_planes.count; i++)
+    {
+      let plane_eq = clipping_planes.plane_equations[i];
+      output.clip_dists_1[i % 3u] = dot(plane_eq, vertex_MC);
+    })",
+    /*all=*/true);
 }
 
 //------------------------------------------------------------------------------
@@ -2861,6 +3036,32 @@ fn fragmentMain(
     case GFX_PIPELINE_NB_TYPES:
       break;
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderClippingPlanes(
+  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& fss)
+{
+  if (this->GetNumberOfClippingPlanes() == 0)
+  {
+    return;
+  }
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::ClippingPlanes::Impl",
+    R"(for (var i: u32 = 0u; i < clipping_planes.count && i < 3u; i++)
+    {
+      if (vertex.clip_dists_0[i % 3u] < 0)
+      {
+        discard;
+      }
+    }
+    for (var i: u32 = 3u; i < clipping_planes.count; i++)
+    {
+      if (vertex.clip_dists_1[i % 3u] < 0)
+      {
+        discard;
+      }
+    })",
+    /*all=*/true);
 }
 
 //------------------------------------------------------------------------------
@@ -3229,6 +3430,11 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
   {
     return true;
   }
+  // have the clipping planes changed?
+  if (this->LastNumClipPlanes != this->GetNumberOfClippingPlanes())
+  {
+    return true;
+  }
   const auto key = std::make_pair(actor, renderer);
   auto it = this->CachedActorRendererProperties.find(key);
   if (it == this->CachedActorRendererProperties.end())
@@ -3263,6 +3469,12 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
     this->PointBuffers[attributeIndex] = {};
     this->PointAttributesBuildTimestamp[attributeIndex] = vtkTimeStamp();
   }
+  if (this->ClippingPlanesBuffer)
+  {
+    this->ClippingPlanesBuffer.Destroy();
+    this->ClippingPlanesBuffer = nullptr;
+  }
+  this->ClippingPlanesBuildTimestamp = vtkTimeStamp();
   this->LastScalarMode = -1;
   this->LastScalarVisibility = false;
   this->MeshAttributeBindGroup = nullptr;
