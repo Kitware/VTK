@@ -73,7 +73,6 @@ void vtkXMLHyperTreeGridReader::SetCoordinatesBoundingBox(
     return;
   }
   this->FixedHTs = false;
-  assert("pre: too_late" && !this->FixedHTs);
   this->SelectedHTs = COORDINATES_BOUNDING_BOX;
   this->CoordinatesBoundingBox[0] = xmin;
   this->CoordinatesBoundingBox[1] = xmax;
@@ -162,12 +161,7 @@ bool vtkXMLHyperTreeGridReader::IsSelectedHT(const vtkHyperTreeGrid* grid, vtkId
                   << (this->IdsSelected.find(treeIndx) != this->IdsSelected.end()) << std::endl;
       }
       return this->IdsSelected.find(treeIndx) != this->IdsSelected.end();
-    case vtkXMLHyperTreeGridReader::COORDINATES_BOUNDING_BOX:
-      // Replace by INDICES_BOUNDING_BOX in CalculateHTs
-      assert(this->SelectedHTs == COORDINATES_BOUNDING_BOX);
-      break;
     default:
-      assert("pre: error_value" && true);
       break;
   }
   return false;
