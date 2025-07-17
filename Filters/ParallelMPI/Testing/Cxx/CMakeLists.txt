@@ -17,9 +17,15 @@ vtk_add_test_mpi(vtkFiltersParallelMPICxxTests-MPI test_5_procs
   TestDistributedPointCloudFilter5,TestDistributedPointCloudFilter.cxx
   )
 
+set(vtkFiltersParallelMPICxxTests-MPI_NUMPROCS 3)
+vtk_add_test_mpi(vtkFiltersParallelMPICxxTests-MPI test_3_procs
+  TestHyperTreeGridRedistribute.cxx,NO_VALID
+)
+
 set(all_tests
   ${tests}
   ${test_4_procs}
+  ${test_3_procs}
   ${test_1_procs}
   ${test_2_procs}
   ${test_5_procs}

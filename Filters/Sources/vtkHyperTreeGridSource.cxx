@@ -238,6 +238,7 @@ void vtkHyperTreeGridSource::SetDimensions(const unsigned int* dims)
       }
       break;
   }
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------

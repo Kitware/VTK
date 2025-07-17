@@ -313,13 +313,7 @@ public:
   bool IsGlobalIndexImplicit() override { return this->Datas->GlobalIndexStart == -1; }
 
   //---------------------------------------------------------------------------
-  void SetGlobalIndexStart(vtkIdType start) override
-  {
-    assert("pre: not_globalindex_start_if_use_globalindex_from_local" &&
-      this->CompactDatas->GlobalIndexTable_stl.size() == 0);
-
-    this->Datas->GlobalIndexStart = start;
-  }
+  void SetGlobalIndexStart(vtkIdType start) override { this->Datas->GlobalIndexStart = start; }
 
   //---------------------------------------------------------------------------
   void SetGlobalIndexFromLocal(vtkIdType index, vtkIdType global) override

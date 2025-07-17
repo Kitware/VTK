@@ -102,27 +102,7 @@ void vtkHyperTreeGrid::SetMask(vtkBitArray* _arg)
 //------------------------------------------------------------------------------
 vtkHyperTreeGrid::vtkHyperTreeGrid()
 {
-  // Grid topology
-  this->TransposedRootIndexing = false;
-
-  // Invalid default grid parameters to force actual initialization
-  this->Orientation = std::numeric_limits<unsigned int>::max();
-  this->BranchFactor = 0;
-  this->NumberOfChildren = 0;
-
-  // Depth limiter
-  this->DepthLimiter = std::numeric_limits<unsigned int>::max();
-
-  // Masked primal leaves
-  this->Mask = nullptr;
-  this->PureMask = nullptr;
-
-  // No interface by default
-  this->HasInterface = false;
-
   // Interface array names
-  this->InterfaceNormalsName = nullptr;
-  this->InterfaceInterceptsName = nullptr;
 
   // Primal grid geometry
   this->WithCoordinates = true;
@@ -166,10 +146,6 @@ vtkHyperTreeGrid::vtkHyperTreeGrid()
 
   // Generate default information
   vtkMath::UninitializeBounds(this->Bounds);
-
-  this->Center[0] = 0.0;
-  this->Center[1] = 0.0;
-  this->Center[2] = 0.0;
 }
 
 //------------------------------------------------------------------------------
