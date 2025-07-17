@@ -61,6 +61,21 @@
         updateSlider(app && app.api.getResolution());
       }
 
+      /**
+       * Lock canvas size for VTK rendering unit tests. These settings make the canvas ignore
+       * resize events from the parent HTML element.
+       */
+      function lockCanvasSize(runtime) {
+        try {
+          if (typeof runtime._setDefaultExpandVTKCanvasToContainer !== 'undefined') {
+            runtime._setDefaultExpandVTKCanvasToContainer(false);
+          }
+          if (typeof runtime._setDefaultInstallHTMLResizeObserver !== 'undefined') {
+            runtime._setDefaultInstallHTMLResizeObserver(false);
+          }
+        } catch (_e) {}
+      }
+
       // ----------------------------------------------------------------------
 
       function createCone() {
@@ -70,17 +85,21 @@
         el.addEventListener('mouseenter', () => activate(el));
         el.classList.add('vtk-app');
         el.classList.add(appId);
-        el.style.width = '300px';
-        el.style.height = '300px';
+        el.style.width = '300';
+        el.style.height = '300';
         el.style.margin = '30px';
         document.querySelector('.appLists').appendChild(el);
-
+        var vtkWasmRuntime = null;
         const context = {
           appId,
           canvas: el,
           onRuntimeInitialized() {
+            lockCanvasSize(vtkWasmRuntime);
             console.log('new cone init:', appId);
           },
+          preRun: [(runtime) => {
+            vtkWasmRuntime = runtime;
+          }],
         };
 
         activate(el);
