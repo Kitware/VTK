@@ -4,12 +4,19 @@
 
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkCellData.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
+#include "vtkDataAssembly.h"
 #include "vtkDataObject.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
 #include "vtkFieldData.h"
 #include "vtkImageData.h"
+#include "vtkInformation.h"
 #include "vtkLogger.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
@@ -18,19 +25,10 @@
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkStringArray.h"
 #include "vtkStructuredGrid.h"
-#include "vtkTypeFloat32Array.h"
-#include "vtkTypeFloat64Array.h"
-#include "vtkTypeInt16Array.h"
-#include "vtkTypeInt32Array.h"
-#include "vtkTypeInt64Array.h"
-#include "vtkTypeInt8Array.h"
-#include "vtkTypeUInt16Array.h"
-#include "vtkTypeUInt32Array.h"
-#include "vtkTypeUInt64Array.h"
-#include "vtkTypeUInt8Array.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <catalyst_conduit.hpp>
+#include <string>
 
 namespace
 {
@@ -125,7 +123,9 @@ bool ConvertDataArrayToMCArray(vtkDataArray* data_array, int offset, int stride,
 
   if (array_type != vtkAbstractArray::AoSDataArrayTemplate)
   {
-    vtkLog(ERROR, "Unsupported data array type: " << data_array->GetArrayTypeAsString());
+    vtkLog(ERROR,
+      "Unsupported data array type: " << data_array->GetArrayTypeAsString() << " for array "
+                                      << data_array->GetName());
     return false;
   }
 
@@ -302,11 +302,12 @@ bool FillMixedShape(vtkUnstructuredGrid* dataset, conduit_cpp::Node& topologies_
 
 //----------------------------------------------------------------------------
 template <class T>
-bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node)
+bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node, const std::string& coordset_name,
+  const std::string& topology_name)
 {
   const char* datasetType = dataset->GetClassName();
 
-  auto coords_node = conduit_node["coordsets/coords"];
+  auto coords_node = conduit_node["coordsets/" + coordset_name];
 
   coords_node["type"] = "explicit";
 
@@ -328,9 +329,9 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node)
     values_node["z"] = std::vector<float>();
   }
 
-  auto topologies_node = conduit_node["topologies/mesh"];
+  auto topologies_node = conduit_node["topologies/" + topology_name];
   topologies_node["type"] = "unstructured";
-  topologies_node["coordset"] = "coords";
+  topologies_node["coordset"] = coordset_name;
 
   int cell_type = VTK_VERTEX;
 
@@ -399,11 +400,12 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node)
 }
 
 //----------------------------------------------------------------------------
-bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
+bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node,
+  const std::string& coordset_name, const std::string& topology_name)
 {
   if (auto imageData = vtkImageData::SafeDownCast(data_set))
   {
-    auto coords_node = conduit_node["coordsets/coords"];
+    auto coords_node = conduit_node["coordsets/" + coordset_name];
 
     coords_node["type"] = "uniform";
 
@@ -422,13 +424,13 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
     coords_node["spacing/dy"] = spacing[1];
     coords_node["spacing/dz"] = spacing[2];
 
-    auto topologies_node = conduit_node["topologies/mesh"];
+    auto topologies_node = conduit_node["topologies/" + topology_name];
     topologies_node["type"] = "uniform";
-    topologies_node["coordset"] = "coords";
+    topologies_node["coordset"] = coordset_name;
   }
   else if (auto rectilinear_grid = vtkRectilinearGrid::SafeDownCast(data_set))
   {
-    auto coords_node = conduit_node["coordsets/coords"];
+    auto coords_node = conduit_node["coordsets/" + coordset_name];
 
     coords_node["type"] = "rectilinear";
 
@@ -453,13 +455,13 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
       return false;
     }
 
-    auto topologies_node = conduit_node["topologies/mesh"];
+    auto topologies_node = conduit_node["topologies/" + topology_name];
     topologies_node["type"] = "rectilinear";
-    topologies_node["coordset"] = "coords";
+    topologies_node["coordset"] = coordset_name;
   }
   else if (auto structured_grid = vtkStructuredGrid::SafeDownCast(data_set))
   {
-    auto coords_node = conduit_node["coordsets/coords"];
+    auto coords_node = conduit_node["coordsets/" + coordset_name];
 
     coords_node["type"] = "explicit";
 
@@ -471,9 +473,9 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
       return false;
     }
 
-    auto topologies_node = conduit_node["topologies/mesh"];
+    auto topologies_node = conduit_node["topologies/" + topology_name];
     topologies_node["type"] = "structured";
-    topologies_node["coordset"] = "coords";
+    topologies_node["coordset"] = coordset_name;
     int dimensions[3];
     structured_grid->GetDimensions(dimensions);
     topologies_node["elements/dims/i"] = dimensions[0];
@@ -482,17 +484,17 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
   }
   else if (auto unstructured_grid = vtkUnstructuredGrid::SafeDownCast(data_set))
   {
-    return FillTopology(unstructured_grid, conduit_node);
+    return FillTopology(unstructured_grid, conduit_node, coordset_name, topology_name);
   }
   else if (auto polydata = vtkPolyData::SafeDownCast(data_set))
   {
-    return FillTopology(polydata, conduit_node);
+    return FillTopology(polydata, conduit_node, coordset_name, topology_name);
   }
   else if (auto pointset = vtkPointSet::SafeDownCast(data_set))
   {
     if (data_set->GetNumberOfCells() == 0) // Implicit topology
     {
-      auto coords_node = conduit_node["coordsets/coords"];
+      auto coords_node = conduit_node["coordsets/" + coordset_name];
 
       coords_node["type"] = "explicit";
 
@@ -504,9 +506,9 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
         return false;
       }
 
-      auto topologies_node = conduit_node["topologies/mesh"];
+      auto topologies_node = conduit_node["topologies/" + topology_name];
       topologies_node["type"] = "points";
-      topologies_node["coordset"] = "coords";
+      topologies_node["coordset"] = coordset_name;
       topologies_node["elements/shape"] = "point";
     }
     else
@@ -525,8 +527,8 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
 }
 
 //----------------------------------------------------------------------------
-bool FillFields(
-  vtkFieldData* field_data, const std::string& association, conduit_cpp::Node& conduit_node)
+bool FillFields(vtkFieldData* field_data, const std::string& association,
+  conduit_cpp::Node& conduit_node, const std::string& topology_name)
 {
   bool is_success = true;
   auto dataset_attributes = vtkDataSetAttributes::SafeDownCast(field_data);
@@ -574,7 +576,7 @@ bool FillFields(
     {
       auto field_node = conduit_node["fields"][name];
       field_node["association"] = association;
-      field_node["topology"] = "mesh";
+      field_node["topology"] = topology_name;
       field_node["volume_dependent"] = "false";
 
       auto values_node = field_node["values"];
@@ -611,11 +613,12 @@ bool FillFields(
 }
 
 //----------------------------------------------------------------------------
-bool FillFields(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
+bool FillFields(
+  vtkDataSet* data_set, conduit_cpp::Node& conduit_node, const std::string& topology_name)
 {
   if (auto cell_data = data_set->GetCellData())
   {
-    if (!FillFields(cell_data, "element", conduit_node))
+    if (!FillFields(cell_data, "element", conduit_node, topology_name))
     {
       vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with element failed.");
       return false;
@@ -624,7 +627,7 @@ bool FillFields(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
 
   if (auto point_data = data_set->GetPointData())
   {
-    if (!FillFields(point_data, "vertex", conduit_node))
+    if (!FillFields(point_data, "vertex", conduit_node, topology_name))
     {
       vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with vertex failed.");
       return false;
@@ -633,7 +636,7 @@ bool FillFields(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
 
   if (auto field_data = data_set->GetFieldData())
   {
-    if (!FillFields(field_data, "", conduit_node))
+    if (!FillFields(field_data, "", conduit_node, topology_name))
     {
       vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with field data failed.");
       return false;
@@ -644,11 +647,75 @@ bool FillFields(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
 }
 
 //----------------------------------------------------------------------------
-bool FillConduitNodeFromDataSet(vtkDataSet* data_set, conduit_cpp::Node& conduit_node)
+bool FillConduitNodeFromDataSet(vtkDataSet* data_set, conduit_cpp::Node& conduit_node,
+  const std::string& coordset_name, const std::string& topology_name)
 {
-  return FillFields(data_set, conduit_node) && FillTopology(data_set, conduit_node);
+  return FillFields(data_set, conduit_node, topology_name) &&
+    FillTopology(data_set, conduit_node, coordset_name, topology_name);
 }
 
+//----------------------------------------------------------------------------
+void FillAssembly(std::map<unsigned int, std::string>& name_map, unsigned int currentIndex,
+  vtkDataAssembly* assembly, conduit_cpp::Node& currentNode)
+{
+  auto datasets = assembly->GetDataSetIndices(currentIndex, false);
+  auto children = assembly->GetChildNodes(currentIndex, false);
+  if (!children.empty())
+  {
+    for (auto child : children)
+    {
+
+      auto childNode = currentNode[assembly->GetNodeName(child)];
+      ::FillAssembly(name_map, child, assembly, childNode);
+    }
+  }
+  else if (datasets.size() == 1)
+  {
+    currentNode = name_map[datasets[0]];
+  }
+  else
+  {
+    for (auto datasetId : datasets)
+    {
+      auto entry = currentNode.append();
+      entry.set(name_map[datasetId]);
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+bool FillConduitMultiMeshNode(vtkPartitionedDataSetCollection* pdc, conduit_cpp::Node& conduit_node)
+{
+  std::map<unsigned int, std::string> name_map;
+
+  for (unsigned int pdsId = 0; pdsId < pdc->GetNumberOfPartitionedDataSets(); pdsId++)
+  {
+    std::string name = "partition" + std::to_string(pdsId);
+    if (pdc->HasMetaData(pdsId))
+    {
+      name = pdc->GetMetaData(pdsId)->Get(vtkCompositeDataSet::NAME());
+    }
+    name_map[pdsId] = name;
+    auto node = conduit_node[name];
+    auto pds = pdc->GetPartitionedDataSet(pdsId);
+    for (unsigned int partId = 0; partId < pds->GetNumberOfPartitions(); partId++)
+    {
+      auto obj = pds->GetPartition(partId);
+      const std::string mesh_name = "mesh_" + std::to_string(partId);
+      const std::string coords_name = "coords_" + std::to_string(partId);
+      FillConduitNodeFromDataSet(obj, node, coords_name, mesh_name);
+    }
+  }
+
+  // Fill Assembly
+  if (auto assembly = pdc->GetDataAssembly())
+  {
+    auto assemblyNode = conduit_node["assembly"];
+    ::FillAssembly(name_map, assembly->GetRootNode(), assembly, assemblyNode);
+  }
+
+  return true;
+}
 } // anonymous namespace
 
 namespace vtkDataObjectToConduit
@@ -659,13 +726,22 @@ VTK_ABI_NAMESPACE_BEGIN
 bool FillConduitNode(vtkDataObject* data_object, conduit_cpp::Node& conduit_node)
 {
   auto data_set = vtkDataSet::SafeDownCast(data_object);
-  if (!data_set)
+  auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(data_object);
+  if (data_set)
   {
-    vtkLogF(ERROR, "Only Data Set objects are supported in vtkDataObjectToConduit.");
+    return FillConduitNodeFromDataSet(data_set, conduit_node, "coords", "mesh");
+  }
+  else if (pdc)
+  {
+    return FillConduitMultiMeshNode(pdc, conduit_node);
+  }
+  else
+  {
+    vtkLogF(ERROR,
+      "Only vtkDataSet and vtkPartitionedDataSetCollection objects are supported in "
+      "vtkDataObjectToConduit.");
     return false;
   }
-
-  return FillConduitNodeFromDataSet(data_set, conduit_node);
 }
 
 VTK_ABI_NAMESPACE_END
