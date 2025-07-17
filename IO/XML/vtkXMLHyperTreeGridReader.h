@@ -74,7 +74,6 @@ public:
    * by set indices coordinates bounding box, exclusive or
    * by set indices HTs (ClearAndAdd and more Add).
    * Only available for files whose major version > 1
-   * Option available in 1.0
    */
   void SetCoordinatesBoundingBox(
     double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);

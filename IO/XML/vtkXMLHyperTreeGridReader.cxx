@@ -1000,52 +1000,55 @@ void vtkXMLHyperTreeGridReader::ReadTrees_2(vtkXMLDataElement* element)
 
     vtkIdType descriptorSize = treeSize - lastDepthSize;
     vtkIdType readableDescriptorSize = readableTreeSize - lastReadableDepthSize;
-    auto descriptor = vtkSmartPointer<vtkBitArray>::Take(
-      vtkArrayDownCast<vtkBitArray>(this->CreateArray(descriptorsElement)));
-    descriptor->SetNumberOfValues(readableDescriptorSize);
-    if (!descriptor)
-    {
-      vtkErrorMacro(<< "Missing Descriptor. Aborting");
-      return;
-    }
-    if (readableDescriptorSize &&
-      !this->ReadArrayValues(
-        descriptorsElement, 0, descriptor, descriptorOffset, readableDescriptorSize))
-    {
-      vtkErrorMacro(<< "Failed reading descriptor at tree " << treeIds->GetValue(treeId)
-                    << ". Aborting.");
-      return;
-    }
 
-    // Parse descriptor storing the global index per level of hypertree
-    output->InitializeNonOrientedCursor(treeCursor, treeIds->GetValue(treeId), true);
-
-    treeCursor->SetGlobalIndexStart(outputOffset);
-    vtkHyperTree* tree = treeCursor->GetTree();
-
-    if (maskElement)
+    if (this->IsSelectedHT(output, treeId))
     {
-      if (!this->ReadArrayValues(maskElement, outputOffset, mask, inputOffset, readableTreeSize))
+      auto descriptor = vtkSmartPointer<vtkBitArray>::Take(
+        vtkArrayDownCast<vtkBitArray>(this->CreateArray(descriptorsElement)));
+      descriptor->SetNumberOfValues(readableDescriptorSize);
+      if (!descriptor)
       {
-        vtkErrorMacro(<< "Failed reading mask at tree " << treeIds->GetValue(treeId)
+        vtkErrorMacro(<< "Missing Descriptor. Aborting");
+        return;
+      }
+      if (readableDescriptorSize &&
+        !this->ReadArrayValues(
+          descriptorsElement, 0, descriptor, descriptorOffset, readableDescriptorSize))
+      {
+        vtkErrorMacro(<< "Failed reading descriptor at tree " << treeIds->GetValue(treeId)
                       << ". Aborting.");
         return;
       }
-    }
 
-    for (std::size_t arrayId = 0; arrayId < arrays.size(); ++arrayId)
-    {
-      if (!this->ReadArrayTuples(
-            arrayElements[arrayId], outputOffset, arrays[arrayId], inputOffset, readableTreeSize))
+      if (maskElement)
       {
-        vtkErrorMacro(<< "Failed reading array " << arrayId << ". Aborting.");
-        return;
+        if (!this->ReadArrayValues(maskElement, outputOffset, mask, inputOffset, readableTreeSize))
+        {
+          vtkErrorMacro(<< "Failed reading mask at tree " << treeIds->GetValue(treeId)
+                        << ". Aborting.");
+          return;
+        }
       }
+
+      for (std::size_t arrayId = 0; arrayId < arrays.size(); ++arrayId)
+      {
+        if (!this->ReadArrayTuples(
+              arrayElements[arrayId], outputOffset, arrays[arrayId], inputOffset, readableTreeSize))
+        {
+          vtkErrorMacro(<< "Failed reading array " << arrayId << ". Aborting.");
+          return;
+        }
+      }
+
+      output->InitializeNonOrientedCursor(treeCursor, treeIds->GetValue(treeId), true);
+      treeCursor->SetGlobalIndexStart(outputOffset);
+      outputOffset += readableTreeSize;
+
+      vtkHyperTree* tree = treeCursor->GetTree();
+      tree->BuildFromBreadthFirstOrderDescriptor(descriptor, readableDescriptorSize, 0);
     }
 
-    tree->BuildFromBreadthFirstOrderDescriptor(descriptor, readableDescriptorSize, 0);
     descriptorOffset += descriptorSize;
-    outputOffset += readableTreeSize;
     inputOffset += treeSize;
   }
 }
