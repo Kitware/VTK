@@ -6,6 +6,7 @@ KIT
   VTK::Parallel
 GROUPS
   StandAlone
+  Parallel
 SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT
