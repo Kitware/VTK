@@ -81,6 +81,12 @@ $env:PATH="$PWD\emsdk\upstream\bin;$PWD\emsdk\upstream\emscripten;$env:PATH"
 
 ## Build project
 
+The following environment variables are assumed:
+
+- `VTK_SOURCE_DIR`: Specifies the path to the root directory of the VTK source code. This variable should point to the location where the VTK source files are located and is used as the input for the build process.
+- `VTK_BUILD_DIR`: Defines the directory where the VTK build artifacts will be generated. This is typically a separate directory from the source to allow for out-of-source builds and to keep build files organized.
+- `VTK_INSTALL_DIR`: Indicates the target directory where the built VTK libraries and headers will be installed after the build process completes. This allows for easy access and reuse of the compiled VTK components.
+
 ### Configure and build
 
 ::::{tab-set}
@@ -88,29 +94,29 @@ $env:PATH="$PWD\emsdk\upstream\bin;$PWD\emsdk\upstream\emscripten;$env:PATH"
 :::{tab-item} wasm32:macOS/Linux
 ```sh
 emcmake cmake \
--S . \
--B buildRelease \
--G "Ninja" \
--DCMAKE_BUILD_TYPE=Release \
--DBUILD_SHARED_LIBS:BOOL=OFF \
--DVTK_ENABLE_WEBGPU:BOOL=ON
-cmake --build ./buildRelease
-cmake --install ./buildRelease --prefix ./installRelease
+  -S ${VTK_SOURCE_DIR} \
+  -B ${VTK_BUILD_DIR} \
+  -G "Ninja" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS:BOOL=OFF \
+  -DVTK_ENABLE_WEBGPU:BOOL=ON
+cmake --build ${VTK_BUILD_DIR}
+cmake --install ${VTK_BUILD_DIR} --prefix ${VTK_INSTALL_DIR}
 ```
 :::
 
 :::{tab-item} wasm64:macOS/Linux
 ```sh
 emcmake cmake \
--S . \
--B buildRelease \
--G "Ninja" \
--DCMAKE_BUILD_TYPE=Release \
--DBUILD_SHARED_LIBS:BOOL=OFF \
--DVTK_ENABLE_WEBGPU:BOOL=ON \
--DVTK_WEBASSEMBLY_64_BIT:BOOL=ON
-cmake --build ./buildRelease
-cmake --install ./buildRelease --prefix ./installRelease
+  -S ${VTK_SOURCE_DIR} \
+  -B ${VTK_BUILD_DIR} \
+  -G "Ninja" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_SHARED_LIBS:BOOL=OFF \
+  -DVTK_ENABLE_WEBGPU:BOOL=ON \
+  -DVTK_WEBASSEMBLY_64_BIT:BOOL=ON
+cmake --build ${VTK_BUILD_DIR}
+cmake --install ${VTK_BUILD_DIR} --prefix ${VTK_INSTALL_DIR}
 ```
 :::
 
@@ -118,14 +124,14 @@ cmake --install ./buildRelease --prefix ./installRelease
 ```pwsh
 # In Powershell
 emcmake cmake `
--S . `
--B buildRelease `
--G "Ninja" `
--DCMAKE_BUILD_TYPE=Release `
--DBUILD_SHARED_LIBS:BOOL=OFF `
--DVTK_ENABLE_WEBGPU:BOOL=ON
-cmake --build .\buildRelease
-cmake --install .\buildRelease --prefix ./installRelease
+  -S $env:VTK_SOURCE_DIR `
+  -B $env:VTK_BUILD_DIR `
+  -G "Ninja" `
+  -DCMAKE_BUILD_TYPE=Release `
+  -DBUILD_SHARED_LIBS:BOOL=OFF `
+  -DVTK_ENABLE_WEBGPU:BOOL=ON
+cmake --build $env:VTK_BUILD_DIR
+cmake --install $env:VTK_BUILD_DIR --prefix $env:VTK_INSTALL_DIR
 ```
 :::
 
@@ -133,20 +139,23 @@ cmake --install .\buildRelease --prefix ./installRelease
 ```pwsh
 # In Powershell
 emcmake cmake `
--S . `
--B buildRelease `
--G "Ninja" `
--DCMAKE_BUILD_TYPE=Release `
--DBUILD_SHARED_LIBS:BOOL=OFF `
--DVTK_ENABLE_WEBGPU:BOOL=ON `
--DVTK_WEBASSEMBLY_64_BIT:BOOL=ON
-cmake --build .\buildRelease
-cmake --install .\buildRelease --prefix ./installRelease
+  -S $env:VTK_SOURCE_DIR `
+  -B $env:VTK_BUILD_DIR `
+  -G "Ninja" `
+  -DCMAKE_BUILD_TYPE=Release `
+  -DBUILD_SHARED_LIBS:BOOL=OFF `
+  -DVTK_ENABLE_WEBGPU:BOOL=ON `
+  -DVTK_WEBASSEMBLY_64_BIT:BOOL=ON
+cmake --build $env:VTK_BUILD_DIR
+cmake --install $env:VTK_BUILD_DIR --prefix $env:VTK_INSTALL_DIR
 ```
 :::
 
 ::::
 
+```{warning}
+When copy pasting the commands on windows, please paste them into a Powershell window and not a Command prompt!
+```
 
 In order to run the unit tests, please enable testing with `-DVTK_BUILD_TESTING=WANT`. Additionally,
 specify the browser that shall be used to run the wasm unit test with `-DVTK_TESTING_WASM_ENGINE:FILEPATH=/path/to/chrome`.
@@ -250,17 +259,17 @@ From the result, we can reconstruct the test command and run the unit test inter
 
 ```pwsh
 ."C:\Program Files\CMake\bin\cmake.exe" `
-"-DEXIT_AFTER_TEST=OFF"
-"-DTESTING_WASM_ENGINE=C:/dev/vtk/.gitlab/chrome/chrome.exe" `
-"-DTESTING_WASM_HTML_TEMPLATE=C:/dev/vtk/CMake/wasm/vtkWasmTest.html.in" `
-"-DTEST_NAME=VTK::RenderingWebGPUCxx-TestHardwareSelector" `
-"-DTEST_OUTPUT_DIR=C:/dev/vtk/buildRelease/Testing/Temporary" `
-"-P" `
-"C:/dev/vtk/CMake/wasm/vtkWasmTestRunner.cmake" `
-"--" `
-"C:/dev/vtk/buildRelease/bin/vtkRenderingWebGPUCxxTests.js" `
-"TestHardwareSelector" `
-"-I"
+  "-DEXIT_AFTER_TEST=OFF" `
+  "-DTESTING_WASM_ENGINE=C:/dev/vtk/.gitlab/chrome/chrome.exe" `
+  "-DTESTING_WASM_HTML_TEMPLATE=C:/dev/vtk/CMake/wasm/vtkWasmTest.html.in" `
+  "-DTEST_NAME=VTK::RenderingWebGPUCxx-TestHardwareSelector" `
+  "-DTEST_OUTPUT_DIR=C:/dev/vtk/buildRelease/Testing/Temporary" `
+  "-P" `
+  "C:/dev/vtk/CMake/wasm/vtkWasmTestRunner.cmake" `
+  "--" `
+  "C:/dev/vtk/buildRelease/bin/vtkRenderingWebGPUCxxTests.js" `
+  "TestHardwareSelector" `
+  "-I"
 ```
 
 Let's breakdown the command. It is important to understand how the command can be customized with additional arguments to the unit test.
