@@ -250,7 +250,7 @@ CONTENT_TEMPLATE2 = """\
 
 Released on {date}.
 
-```{{include}} ../../release/{version}.md
+```{{include}} ../../release/_{version}-stripped.md
 :relative-images:
 :heading-offset: 1
 ```
@@ -261,6 +261,32 @@ Released on {date}.
 {author_notes}
 ```
 """
+
+
+def strip_sphinx_exclude_blocks_from_file(input_path):
+    """
+    Read a Markdown file, remove blocks between
+    <!-- sphinx-exclude-start --> and <!-- sphinx-exclude-end -->,
+    and return the cleaned content as a string.
+    """
+    with open(input_path, "r") as input_file:
+        content = input_file.read()
+    return re.sub(
+        r"<!--\s*sphinx-exclude-start\s*-->.*?<!--\s*sphinx-exclude-end\s*-->",
+        "",
+        content,
+        flags=re.DOTALL,
+    )
+
+
+def write_stripped_release_file(input_path, output_path):
+    """
+    Strip sphinx-exclude block from input_path and write the result to output_path.
+    """
+    content = strip_sphinx_exclude_blocks_from_file(input_path)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w") as output_file:
+        output_file.write(content)
 
 
 def create_release_index(basedir):
@@ -288,7 +314,9 @@ def create_release_index(basedir):
         else:  # look for release note markdown
             release_file_path = f"../release/{short_tag}.md"
             if os.path.exists(release_file_path):
-                with open(release_file_path, "r") as release_file:
+                stripped_release_path = os.path.join("../release", f"_{short_tag}-stripped.md")
+                write_stripped_release_file(release_file_path, stripped_release_path)
+                with open(stripped_release_path, "r") as release_file:
                     release_file_content = release_file.read()
                 author_notes = []
                 short_tag_dir = f"../release/{short_tag}"
