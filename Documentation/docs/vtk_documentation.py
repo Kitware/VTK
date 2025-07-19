@@ -290,7 +290,6 @@ def create_release_index(basedir):
             if os.path.exists(release_file_path):
                 with open(release_file_path, "r") as release_file:
                     release_file_content = release_file.read()
-                # Copy author notes
                 author_notes = []
                 short_tag_dir = f"../release/{short_tag}"
                 if os.path.exists(short_tag_dir):

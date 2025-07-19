@@ -1,5 +1,0 @@
-# VTKHDF Reader: Remove the MergeParts option
-
-The `MergeParts` option of the vtkHDFReader allowed getting a unique Unstructured Grid or PolyData dataset after reading multiple parts. This option has been deprecated and has no effect anymore. Now, multi-piece datasets properly output a vtkPartitionedDataset containing non merged parts. Single-piece datasets still output simple vtkUnstructuredGrid or vtkPolyData. This **changes the default behavior of the reader**: Unstructured Grid and PolyData multi-piece datasets that used to be read with `MergeParts` (default) as a single piece are now read as a partitioned dataset. If `MergeParts` was disabled manually, only the single-piece case will be read differently: instead of forcing the output to be a partitioned dataset with a single piece, the output is now directly the non composite type, Unstructured Grid or PolyData.
-
-Users should replace the use of `MergeParts` by manually merging parts using the `vtkMergeBlocks` or `vtkAppendDatasets` manually instead.
