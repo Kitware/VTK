@@ -289,6 +289,12 @@ def write_stripped_release_file(input_path, output_path):
         output_file.write(content)
 
 
+def extract_image_links(content):
+    """Extract image links of the form ![](../imgs/X.Y/filename.png) from markdown content.
+    """
+    return re.findall(r'!\[.*?\]\(\.\./imgs/([\d.]+)/([^)]+)\)', content)
+
+
 def create_release_index(basedir):
     """Populate basedir with release files X.Y.md with X,Y being the major and minor versions respectively.
     it returns a string holding the toctree of the index file to be injected in basedir/index.md
@@ -327,9 +333,19 @@ def create_release_index(basedir):
                             os.makedirs(dest_short_tag_dir)
                         for fn in filenames:
                             # Copy the note file if is referenced from included "{short_tag}.md"
-                            if f"{short_tag}/{fn}" in release_file_content:
-                                shutil.copy(f"../release/{short_tag}/{fn}", dest_short_tag_dir)
-                                author_notes.append(f"{short_tag}/{fn.removesuffix('.md')}")
+                            full_fn = f"{short_tag}/{fn}"
+                            if full_fn in release_file_content:
+                                src = os.path.join("../release", full_fn)
+                                dst = os.path.join(dest_short_tag_dir, fn)
+                                shutil.copy(src, dst)
+                                author_notes.append(full_fn.removesuffix(".md"))
+                                with open(src, "r") as note_file:
+                                    note_content = note_file.read()
+                                for img_version, img_file in extract_image_links(note_content):
+                                    src_img = os.path.join("../release/imgs", img_version, img_file)
+                                    dst_img_dir = os.path.join("release_details/imgs", img_version)
+                                    os.makedirs(dst_img_dir, exist_ok=True)
+                                    shutil.copy(src_img, os.path.join(dst_img_dir, img_file))
                             else:
                                 print(f"Warning: '{short_tag}/{fn}' is not referenced from '{release_file_path}'")
                 content = CONTENT_TEMPLATE2.format(version=short_tag, date=date, author_notes="\n".join(sorted(author_notes)).strip())
