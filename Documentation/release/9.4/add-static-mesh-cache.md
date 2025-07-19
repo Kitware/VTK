@@ -1,4 +1,4 @@
-# Introduce vtkDataObjectMeshCache
+# Introduce vtkDataObjectMeshCache
 
 vtkDataObjectMeshCache is a new class to store and reuse the mesh of a vtkDataSet,
 and composite of vtkDataSet.
