@@ -1,6 +1,6 @@
 # Relative Mode for vtkTemporalArrayOperatorFilter
 
-The vtkTemporalArrayOperatorFilter now has a `RelativeMode`, where it uses `UPDATE_TIME_STEP` time as first value alongside to a `TimeStepShift` shifted value, instead of two static time steps.
+The `vtkTemporalArrayOperatorFilter` now has a `RelativeMode`, where it uses `UPDATE_TIME_STEP` time as first value alongside to a `TimeStepShift` shifted value, instead of two static time steps.
 
 ## Behavior Breaking Change
 
