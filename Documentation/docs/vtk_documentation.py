@@ -254,6 +254,12 @@ Released on {date}.
 :relative-images:
 :heading-offset: 1
 ```
+
+```{{toctree}}
+:hidden:
+
+{author_notes}
+```
 """
 
 
@@ -280,8 +286,12 @@ def create_release_index(basedir):
                 path=os.path.join(basedir, f"{short_tag}.md"), content=content
             )
         else:  # look for release note markdown
-            if os.path.exists(f"../release/{short_tag}.md"):
+            release_file_path = f"../release/{short_tag}.md"
+            if os.path.exists(release_file_path):
+                with open(release_file_path, "r") as release_file:
+                    release_file_content = release_file.read()
                 # Copy author notes
+                author_notes = []
                 short_tag_dir = f"../release/{short_tag}"
                 if os.path.exists(short_tag_dir):
                     for (dirpath, dirname, filenames) in os.walk(short_tag_dir):
@@ -289,8 +299,13 @@ def create_release_index(basedir):
                         if not os.path.exists(dest_short_tag_dir):
                             os.makedirs(dest_short_tag_dir)
                         for fn in filenames:
-                            shutil.copy(f"../release/{short_tag}/{fn}", dest_short_tag_dir)
-                content = CONTENT_TEMPLATE2.format(version=short_tag, date=date)
+                            # Copy the note file if is referenced from included "{short_tag}.md"
+                            if f"{short_tag}/{fn}" in release_file_content:
+                                shutil.copy(f"../release/{short_tag}/{fn}", dest_short_tag_dir)
+                                author_notes.append(f"{short_tag}/{fn.removesuffix('.md')}")
+                            else:
+                                print(f"Warning: '{short_tag}/{fn}' is not referenced from '{release_file_path}'")
+                content = CONTENT_TEMPLATE2.format(version=short_tag, date=date, author_notes="\n".join(sorted(author_notes)).strip())
                 create_release_file(
                     path=os.path.join(basedir, f"{short_tag}.md"), content=content
                 )
