@@ -142,24 +142,30 @@ inline void InitializeZAxis(vtkAxisActor* axis)
 }
 
 // ----------------------------------------------------------------------------
-inline int TestAxisActorInternal(vtkAxisActor* axis)
+inline void AddToWindow(vtkRenderWindow* renderWindow, vtkAxisActor* axis)
 {
   vtkNew<vtkRenderer> renderer;
   renderer->SetActiveCamera(axis->GetCamera());
   renderer->AddActor(axis);
   renderer->SetBackground(.5, .5, .5);
 
-  vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->AddRenderer(renderer);
 
   renderWindow->SetSize(300, 300);
   renderWindow->SetMultiSamples(0);
+  renderWindow->Render();
+  renderer->ResetCameraScreenSpace(0.8);
+}
+
+// ----------------------------------------------------------------------------
+inline int TestAxisActorInternal(vtkAxisActor* axis)
+{
+  vtkNew<vtkRenderWindow> renderWindow;
+  ::AddToWindow(renderWindow, axis);
 
   vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  renderWindow->Render();
-  renderer->ResetCameraScreenSpace(0.8);
   renderWindow->Render();
   renderWindowInteractor->Start();
 
