@@ -395,6 +395,11 @@ function (vtk_add_test_cxx exename _tests)
     "vulkan: No DRI3 support detected - required for presentation"
     # OpenGL driver cannot render wide lines.
     "a line width has been requested that is larger than your system supports")
+  if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    # Some tests may fail due to GPU process issues if the GPU is not high performance.
+    list(APPEND _vtk_skip_regex
+      "GPU process exited unexpectedly: exit_code=34")
+  endif ()
 
   foreach (name IN LISTS names)
     _vtk_test_set_options("${cxx_options}" "local_" ${_${name}_options})
