@@ -1320,13 +1320,18 @@ int vtkQuadricDecimation::CollapseEdge(vtkIdType pt0Id, vtkIdType pt1Id)
   {
     cellId = this->CollapseCellIds->GetId(i);
     this->Mesh->GetCellPoints(cellId, npts, pts);
-    for (j = 0; j < 3; j++)
+
+    // Some non-triangular cells may have been inserted. Process only triangles here.
+    if (npts == 3)
     {
-      if (pts[j] == pt1Id)
+      for (j = 0; j < 3; j++)
       {
-        this->Mesh->RemoveCellReference(cellId);
-        this->Mesh->DeleteCell(cellId);
-        numDeleted++;
+        if (pts[j] == pt1Id)
+        {
+          this->Mesh->RemoveCellReference(cellId);
+          this->Mesh->DeleteCell(cellId);
+          numDeleted++;
+        }
       }
     }
   }
