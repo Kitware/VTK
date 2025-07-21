@@ -55,6 +55,7 @@ public:
   /**
    * A global multiplier to all ANARI lights.
    * default is 1.0
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* LIGHT_SCALE();
 
@@ -71,6 +72,7 @@ public:
   /**
    * The radius setting, when > 0.0, produces soft shadows in the
    * path tracer.
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* RADIUS();
 
@@ -86,6 +88,7 @@ public:
    * For cone-shaped lights, size (angle in radians) of the region
    * between the rim (of the illumination cone) and full intensity of
    * the spot; should be smaller than half of openingAngle
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* FALLOFF_ANGLE();
 

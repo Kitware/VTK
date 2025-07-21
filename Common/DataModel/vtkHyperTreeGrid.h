@@ -95,10 +95,19 @@ class vtkUnsignedCharArray;
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGrid : public vtkDataObject
 {
 public:
+  ///@{
+  /**
+   * Information keys for vtkHyperTreeGrids
+   * Looks unused -> TODO Deprecation
+   *
+   * \ingroup InformationKeys
+   */
   static vtkInformationIntegerKey* LEVELS();
   static vtkInformationIntegerKey* DIMENSION();
   static vtkInformationIntegerKey* ORIENTATION();
   static vtkInformationDoubleVectorKey* SIZES();
+  ///@}
+
   static vtkHyperTreeGrid* New();
 
   vtkTypeMacro(vtkHyperTreeGrid, vtkDataObject);

@@ -177,6 +177,7 @@ public:
    * The new design wants explicit communication of when a texture
    * is being used.  This key can be used to pass that information
    * down to a mapper.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* GeneralTextureUnit();
 
@@ -188,6 +189,7 @@ public:
    * The new design wants explicit communication of when a texture
    * is being used.  This key can be used to pass that information
    * down to a mapper.
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleVectorKey* GeneralTextureTransform();
 

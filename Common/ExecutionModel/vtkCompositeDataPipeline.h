@@ -72,6 +72,7 @@ public:
   /**
    * An integer key that indicates to the source to load all requested
    * blocks specified in UPDATE_COMPOSITE_INDICES.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* LOAD_REQUESTED_BLOCKS();
 
@@ -81,6 +82,7 @@ public:
    * information about the structure of the composite dataset and things like
    * data-bounds etc.
    * *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
+   * \ingroup InformationKeys
    */
   static vtkInformationObjectBaseKey* COMPOSITE_DATA_META_DATA();
 
@@ -93,6 +95,7 @@ public:
    * Note that UPDATE_COMPOSITE_INDICES has to be sorted vector with increasing
    * indices.
    * *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerVectorKey* UPDATE_COMPOSITE_INDICES();
 
@@ -102,6 +105,7 @@ public:
    * multi-resolution streaming code.  For example in a multi-resolution dataset of
    * points, this key might store the number of points.
    * *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* BLOCK_AMOUNT_OF_DETAIL();
 
@@ -182,8 +186,11 @@ protected:
 
   int NeedToExecuteBasedOnCompositeIndices(vtkInformation* outInfo);
 
-  // Because we sometimes have to swap between "simple" data types and composite
-  // data types, we sometimes want to skip resetting the pipeline information.
+  /**
+   * Because we sometimes have to swap between "simple" data types and composite
+   * data types, we sometimes want to skip resetting the pipeline information.
+   * \ingroup InformationKeys
+   */
   static vtkInformationIntegerKey* SUPPRESS_RESET_PI();
 
   /**
@@ -193,6 +200,7 @@ protected:
    * Note that COMPOSITE_INDICES has to be sorted vector with increasing
    * indices.
    * *** THIS IS AN EXPERIMENTAL FEATURE. IT MAY CHANGE WITHOUT NOTICE ***
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerVectorKey* DATA_COMPOSITE_INDICES();
 

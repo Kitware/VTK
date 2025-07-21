@@ -59,39 +59,46 @@ public:
 
   /**
    * The label for this annotation.
+   * \ingroup InformationKeys
    */
   static vtkInformationStringKey* LABEL();
 
   /**
    * The color for this annotation.
    * This is stored as an RGB triple with values between 0 and 1.
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleVectorKey* COLOR();
 
   /**
    * The color for this annotation.
    * This is stored as a value between 0 and 1.
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* OPACITY();
 
   /**
    * An icon index for this annotation.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* ICON_INDEX();
 
   /**
    * Whether or not this annotation is enabled.
    * A value of 1 means enabled, 0 disabled.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* ENABLE();
 
   /**
    * Whether or not this annotation is visible.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* HIDE();
 
   /**
    * Associate a vtkDataObject with this annotation
+   * \ingroup InformationKeys
    */
   static vtkInformationDataObjectKey* DATA();
 

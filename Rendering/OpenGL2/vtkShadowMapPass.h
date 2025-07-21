@@ -102,6 +102,7 @@ public:
 
   /**
    * this key will contain the shadow map pass
+   * \ingroup InformationKeys
    */
   static vtkInformationObjectBaseKey* ShadowMapPass();
 

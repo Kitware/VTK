@@ -38,6 +38,7 @@ public:
    * Name of the node, used for debugging or representation
    * metadata in case ANARI output is written out to intermediate
    * authoring stages.
+   * \ingroup InformationKeys
    */
   static vtkInformationStringKey* VOLUME_NODE_NAME();
 

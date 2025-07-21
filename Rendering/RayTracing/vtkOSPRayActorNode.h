@@ -61,6 +61,7 @@ public:
    * PointSize/LineWidth and object bounding box. EACH_MAPPED means map every value from
    * SCALE_ARRAY_NAME through the SCALE_FUNCTION lookup table to set each radius independently.
    * EACH_EXACT means use the SCALE_ARRAY_NAME to set each radius directly.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* ENABLE_SCALING();
 
@@ -78,6 +79,7 @@ public:
    * sphere and cylinder representations individually.
    * When not supplied the radius is constant across all elements and
    * is a function of the Mapper's PointSize and LineWidth.
+   * \ingroup InformationKeys
    */
   static vtkInformationStringKey* SCALE_ARRAY_NAME();
 
@@ -89,6 +91,7 @@ public:
   /**
    * A piecewise function for values from the scale array that alters the resulting
    * radii arbitrarily
+   * \ingroup InformationKeys
    */
   static vtkInformationObjectBaseKey* SCALE_FUNCTION();
 
@@ -99,6 +102,7 @@ public:
 
   /**
    * Indicates that the actor acts as a light emitting object.
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* LUMINOSITY();
 

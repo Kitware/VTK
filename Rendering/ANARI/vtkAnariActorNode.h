@@ -64,6 +64,7 @@ public:
    * EACH_MAPPED means map every value from SCALE_ARRAY_NAME through the SCALE_FUNCTION
    * lookup table to set each radius independently.
    * EACH_EXACT means use the SCALE_ARRAY_NAME to set each radius directly.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* ENABLE_SCALING();
 
@@ -81,6 +82,7 @@ public:
    * sphere and cylinder representations individually.
    * When not supplied the radius is constant across all elements and
    * is a function of the Mapper's PointSize and LineWidth.
+   * \ingroup InformationKeys
    */
   static vtkInformationStringKey* SCALE_ARRAY_NAME();
 
@@ -95,6 +97,7 @@ public:
   /**
    * A piecewise function for values from the scale array that alters the resulting
    * radii arbitrarily
+   * \ingroup InformationKeys
    */
   static vtkInformationObjectBaseKey* SCALE_FUNCTION();
 
@@ -108,6 +111,7 @@ public:
 
   /**
    * Indicates that the actor acts as a light emitting object.
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleKey* LUMINOSITY();
 
@@ -124,6 +128,7 @@ public:
    * metadata in case an ANARI backend is chosen which - instead
    * of rendering to a screen - outputs to intermediate
    * authoring stages (such as files or network resources).
+   * \ingroup InformationKeys
    */
   static vtkInformationStringKey* ACTOR_NODE_NAME();
 
@@ -132,22 +137,27 @@ public:
    * within its rendering output. This allows ANARI backends that transfer
    * rendering data to intermediate authoring stages to get access to
    * additional data than what is typically used by VTK's rendering itself.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* OUTPUT_POINT_AND_CELL_ARRAYS();
 
   /**
    * Whether the output enabled with OUTPUT_POINT_AND_CELL_ARRAYS should
    * convert double arrays to float.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* OUTPUT_POINT_AND_CELL_ARRAYS_DOUBLE_TO_FLOAT();
 
+  ///@{
   /**
    * Array metadata for intermediate authoring steps, which denotes the arrays
    * which are not written out separately for every timestep,
    * but instead contain only a single representation for all timesteps.
+   * \ingroup InformationKeys
    */
   static vtkInformationStringVectorKey* SCENEGRAPH_TIME_CONSTANT_POINT_ARRAYS();
   static vtkInformationStringVectorKey* SCENEGRAPH_TIME_CONSTANT_CELL_ARRAYS();
+  ///@}
 
 protected:
   vtkAnariActorNode();

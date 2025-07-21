@@ -50,6 +50,7 @@ public:
    * If this key exists on the PropertyKeys of a prop, the active scalar array
    * on the prop will be rendered as its color. This key is mutually exclusive
    * with the RENDER_LUMINANCE key.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* RENDER_LUMINANCE();
 
@@ -57,6 +58,7 @@ public:
    * if this key exists on the ProperyKeys of a prop, the active vector array on
    * the prop will be rendered as its color. This key is mutually exclusive with
    * the RENDER_LUMINANCE key.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* RENDER_NORMALS();
 

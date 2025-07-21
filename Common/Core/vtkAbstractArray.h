@@ -592,6 +592,7 @@ public:
   /**
    * This key is a hint to end user interface that this array
    * is internal and should not be shown to the end user.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* GUI_HIDE();
 
@@ -606,6 +607,7 @@ public:
    * and ComputeRange(component) <b>before</b> modifying the information object.
    * Otherwise it is possible for modifications to the array to take place
    * without the bounds on the component being updated.
+   * \ingroup InformationKeys
    */
   static vtkInformationInformationVectorKey* PER_COMPONENT();
 
@@ -620,6 +622,7 @@ public:
    * and ComputeFiniteRange(component) <b>before</b> modifying the information object.
    * Otherwise it is possible for modifications to the array to take place
    * without the bounds on the component being updated.
+   * \ingroup InformationKeys
    */
   static vtkInformationInformationVectorKey* PER_FINITE_COMPONENT();
 
@@ -632,6 +635,7 @@ public:
    * A key used to hold discrete values taken on either by the tuples of the
    * array (when present in this->GetInformation()) or individual components
    * (when present in one entry of the PER_COMPONENT() information vector).
+   * \ingroup InformationKeys
    */
   static vtkInformationVariantVectorKey* DISCRETE_VALUES();
 
@@ -641,6 +645,7 @@ public:
    * The first entry corresponds to the maximum uncertainty that prominent values
    * exist but have not been detected. The second entry corresponds to the smallest
    * relative frequency a value is allowed to have and still appear on the list.
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleVectorKey* DISCRETE_VALUE_SAMPLE_PARAMETERS();
 
