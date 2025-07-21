@@ -68,14 +68,12 @@
        * resize events from the parent HTML element.
        */
       function lockCanvasSize(runtime) {
-        try {
-          if (typeof runtime._setDefaultExpandVTKCanvasToContainer !== 'undefined') {
-            runtime._setDefaultExpandVTKCanvasToContainer(false);
-          }
-          if (typeof runtime._setDefaultInstallHTMLResizeObserver !== 'undefined') {
-            runtime._setDefaultInstallHTMLResizeObserver(false);
-          }
-        } catch (_e) {}
+        if (runtime._setDefaultExpandVTKCanvasToContainer) {
+          runtime._setDefaultExpandVTKCanvasToContainer(false);
+        }
+        if (runtime._setDefaultInstallHTMLResizeObserver) {
+          runtime._setDefaultInstallHTMLResizeObserver(false);
+        }
       }
 
       // ----------------------------------------------------------------------

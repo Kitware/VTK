@@ -35,18 +35,16 @@
       });
     };
     /**
-     * Lock canvas size for VTK rendering unit tests. These settings make the canvas ignore
-     * resize events from the parent HTML element.
-     */
-    function lockCanvasSize(wasmRuntime) {
-      try {
-        if (typeof wasmRuntime._setDefaultExpandVTKCanvasToContainer !== 'undefined') {
-          wasmRuntime._setDefaultExpandVTKCanvasToContainer(false);
-        }
-        if (typeof wasmRuntime._setDefaultInstallHTMLResizeObserver !== 'undefined') {
-          wasmRuntime._setDefaultInstallHTMLResizeObserver(false);
-        }
-      } catch (_e) { }
+      * Lock canvas size to the width/height specified on the element. These settings make the canvas ignore
+      * resize events from the parent HTML element.
+      */
+    function lockCanvasSize(runtime) {
+      if (runtime._setDefaultExpandVTKCanvasToContainer) {
+        runtime._setDefaultExpandVTKCanvasToContainer(false);
+      }
+      if (runtime._setDefaultInstallHTMLResizeObserver) {
+        runtime._setDefaultInstallHTMLResizeObserver(false);
+      }
     }
     window.onunhandledrejection = (event) => {
       let message = `Uncaught rejection from ${event.promise}: ${event.reason}`;

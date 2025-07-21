@@ -59,18 +59,16 @@
   <script>
     const numCanvases = 16;
     /**
-     * Lock canvas size for VTK rendering unit tests. These settings make the canvas ignore
+     * Lock canvas size to the width/height specified on the element. These settings make the canvas ignore
      * resize events from the parent HTML element.
      */
-    function lockCanvasSize(wasmRuntime) {
-      try {
-        if (typeof wasmRuntime._setDefaultExpandVTKCanvasToContainer !== 'undefined') {
-          wasmRuntime._setDefaultExpandVTKCanvasToContainer(false);
-        }
-        if (typeof wasmRuntime._setDefaultInstallHTMLResizeObserver !== 'undefined') {
-          wasmRuntime._setDefaultInstallHTMLResizeObserver(false);
-        }
-      } catch (_e) {}
+    function lockCanvasSize(runtime) {
+      if (runtime._setDefaultExpandVTKCanvasToContainer) {
+        runtime._setDefaultExpandVTKCanvasToContainer(false);
+      }
+      if (runtime._setDefaultInstallHTMLResizeObserver) {
+        runtime._setDefaultInstallHTMLResizeObserver(false);
+      }
     }
 
     const resizeObserver = new ResizeObserver((entries) => {
