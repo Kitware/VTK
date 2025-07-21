@@ -107,7 +107,18 @@ COMPOSITE_SLICING = [
 
 MISC_FUNCTIONS = [
     lambda a: reversed(a),
-    lambda a: iter(a)
+    lambda a: iter(a),
+    lambda a: np.zeros_like(a),
+    lambda a: np.ones_like(a)
+]
+
+SET_INDICES = [
+    (5, 1),
+    ((3, 2), 17),
+    (slice(1, 3), 9),
+    ((slice(2, 4), 1), -3),
+    (np.array([0, 1, 2, 5, 3]), 42),
+    (np.array(0), 8)
 ]
 
 class TestVTKCompositeDataArray(vtkTesting.vtkTest):
@@ -161,6 +172,18 @@ class TestVTKCompositeDataArray(vtkTesting.vtkTest):
             np_array_transformed = func(np_array)
             for (v1, v2) in zip(composite_transformed, np_array_transformed):
                 self.assertEqual(np.all(v1 == v2) , True)
+
+    def test_set(self) -> None:
+        composite, np_array = self.get_arrays()
+        for slc, value in SET_INDICES:
+            composite[slc] = value
+            np_array[slc] = value
+            np_composite = self._to_np(composite)
+            self.assertEqual(np.all(np_composite == np_array), True)
+        composite[composite > 6] = -1
+        np_array[np_array > 6] = -1
+        np_composite = self._to_np(composite)
+        self.assertEqual(np.all(np_composite == np_array), True)
 
 if __name__ == "__main__":
     vtkTesting.main([(TestVTKCompositeDataArray, "test")])
