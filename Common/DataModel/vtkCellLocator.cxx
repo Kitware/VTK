@@ -714,7 +714,7 @@ void vtkCellLocator::ForceBuildLocator()
 //  The result is directly addressable and of uniform subdivision.
 void vtkCellLocator::BuildLocatorInternal()
 {
-  double length, cellBounds[6], *cellBoundsPtr;
+  double cellBounds[6], *cellBoundsPtr;
   cellBoundsPtr = cellBounds;
   vtkIdType numCells;
   int ndivs, product;
@@ -740,18 +740,9 @@ void vtkCellLocator::BuildLocatorInternal()
   //  Size the root cell.  Initialize cell data structure, compute
   //  level and divisions.
   const double* bounds = this->DataSet->GetBounds();
-  length = this->DataSet->GetLength();
-  for (i = 0; i < 3; i++)
-  {
-    this->Bounds[2 * i] = bounds[2 * i];
-    this->Bounds[2 * i + 1] = bounds[2 * i + 1];
-    if ((this->Bounds[2 * i + 1] - this->Bounds[2 * i]) <= (length / 1000.0))
-    {
-      // bump out the bounds a little of if min==max
-      this->Bounds[2 * i] -= length / 100.0;
-      this->Bounds[2 * i + 1] += length / 100.0;
-    }
-  }
+  vtkBoundingBox bbox(bounds);
+  bbox.Inflate();
+  bbox.GetBounds(this->Bounds);
 
   if (this->Automatic)
   {
