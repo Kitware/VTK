@@ -35,25 +35,7 @@ public:
     }
   };
 
-  // This functor is only needed for vtkArrayDispatch to correctly fill it up.
-  // otherwise, it'd simply be a set.
-  class AMRIdsT : public std::set<std::pair<unsigned int, unsigned int>>
-  {
-  public:
-    template <typename ArrayType>
-    void operator()(ArrayType* array)
-    {
-      const auto tuples = vtk::DataArrayTupleRange<2>(array);
-      for (const auto tuple : tuples)
-      {
-        this->insert(
-          std::make_pair(static_cast<unsigned int>(tuple[0]), static_cast<unsigned int>(tuple[1])));
-      }
-    }
-  };
-
   CompositeIdsT CompositeIds;
-  AMRIdsT AMRIds;
 
   // note: here `selectors` are path-queries used by vtkDataAssembly and **not**
   // `vtkSelector`.
@@ -87,21 +69,10 @@ void vtkBlockSelector::Initialize(vtkSelectionNode* node)
   if (contentType == vtkSelectionNode::BLOCKS)
   {
     vtkDataArray* selectionList = vtkDataArray::SafeDownCast(this->Node->GetSelectionList());
-    if (selectionList->GetNumberOfComponents() == 2)
+    if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>::Execute(
+          selectionList, internals.CompositeIds))
     {
-      if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>::Execute(
-            selectionList, internals.AMRIds))
-      {
-        vtkGenericWarningMacro("SelectionList of unexpected type!");
-      }
-    }
-    else if (selectionList->GetNumberOfComponents() == 1)
-    {
-      if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>::Execute(
-            selectionList, internals.CompositeIds))
-      {
-        vtkGenericWarningMacro("SelectionList of unexpected type!");
-      }
+      vtkGenericWarningMacro("SelectionList of unexpected type!");
     }
   }
   else if (contentType == vtkSelectionNode::BLOCK_SELECTORS)
@@ -153,21 +124,6 @@ bool vtkBlockSelector::ComputeSelectedElements(
 {
   insidednessArray->FillValue(1);
   return true;
-}
-
-//------------------------------------------------------------------------------
-vtkSelector::SelectionMode vtkBlockSelector::GetAMRBlockSelection(
-  unsigned int level, unsigned int index)
-{
-  auto& internals = (*this->Internals);
-  if (internals.AMRIds.find(std::make_pair(level, index)) != internals.AMRIds.end())
-  {
-    return INCLUDE;
-  }
-  else
-  {
-    return INHERIT;
-  }
 }
 
 //------------------------------------------------------------------------------

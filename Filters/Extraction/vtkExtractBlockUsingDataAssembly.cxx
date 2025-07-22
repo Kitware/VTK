@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExtractBlockUsingDataAssembly.h"
 
-#include "vtkAMRUtilities.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataAssemblyUtilities.h"
 #include "vtkFieldData.h"
@@ -11,10 +10,10 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h"
+#include "vtkUniformGridAMR.h"
 
 #include <algorithm>
 #include <cassert>
@@ -226,13 +225,12 @@ int vtkExtractBlockUsingDataAssembly::RequestDataObject(
   }
 
   auto output = vtkCompositeDataSet::GetData(outputVector, 0);
-  if (vtkOverlappingAMR::SafeDownCast(input) != nullptr)
+  if (vtkUniformGridAMR::SafeDownCast(input) != nullptr)
   {
     if (vtkPartitionedDataSetCollection::SafeDownCast(output) == nullptr)
     {
-      // for vtkOverlappingAMR, we can't guarantee the output will be a valid
-      // overlapping AMR and hence we create a vtkPartitionedDataSetCollection
-      // instead.
+      // for vtkUniformGridAMR, we can't guarantee the output will be a valid
+      // AMR and hence we create a vtkPartitionedDataSetCollection instead.
       output = vtkPartitionedDataSetCollection::New();
       outputVector->GetInformationObject(0)->Set(vtkDataObject::DATA_OBJECT(), output);
       output->FastDelete();

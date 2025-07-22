@@ -11,6 +11,7 @@
 #ifndef vtkSelector_h
 #define vtkSelector_h
 
+#include "vtkDeprecation.h"             // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // For vtkSmartPointer
@@ -104,13 +105,16 @@ protected:
   };
 
   /**
-   * Returns whether the AMR block is to be processed. Return `INCLUDE` to
-   * indicate it must be processed or `EXCLUDE` to indicate it must not be
-   * processed. If the selector cannot make an exact determination for the given
-   * level, index it should return `INHERIT`. If the selection did not specify
-   * which AMR block to extract, then too return `INHERIT`.
+   * Deprecated, always returns EXCLUDE.
+   * Use GetBlockSelection instead.
    */
-  virtual SelectionMode GetAMRBlockSelection(unsigned int level, unsigned int index);
+  VTK_DEPRECATED_IN_9_6_0(
+    "Deprecated method without effect, use GetBlockSelection(idx, false) instead.")
+  virtual SelectionMode GetAMRBlockSelection(
+    unsigned int vtkNotUsed(level), unsigned int vtkNotUsed(index))
+  {
+    return EXCLUDE;
+  };
 
   /**
    * Returns whether the block is to be processed. Return `INCLUDE` to
@@ -152,7 +156,7 @@ private:
   void operator=(const vtkSelector&) = delete;
 
   void ProcessBlock(vtkDataObject* inputBlock, vtkDataObject* outputBlock, bool forceFalse);
-  void ProcessAMR(vtkUniformGridAMR* input, vtkCompositeDataSet* output);
+  void ProcessAMR(vtkUniformGridAMR* input, vtkDataObjectTree* output);
   void ProcessDataObjectTree(vtkDataObjectTree* input, vtkDataObjectTree* output,
     SelectionMode inheritedSelectionMode, unsigned int compositeIndex = 0);
   void ProcessSelectors(vtkCompositeDataSet* input);

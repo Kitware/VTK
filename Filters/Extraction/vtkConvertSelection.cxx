@@ -26,7 +26,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkUniformGridAMR.h"
-#include "vtkUniformGridAMRDataIterator.h"
+#include "vtkUniformGridAMRIterator.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkValueSelector.h"
 #include "vtkVariantArray.h"
@@ -371,7 +371,7 @@ int vtkConvertSelection::ConvertCompositeDataSet(
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(data->NewIterator());
 
-    vtkUniformGridAMRDataIterator* hierIter = vtkUniformGridAMRDataIterator::SafeDownCast(iter);
+    vtkUniformGridAMRIterator* hierIter = vtkUniformGridAMRIterator::SafeDownCast(iter);
 
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
@@ -443,7 +443,7 @@ int vtkConvertSelection::ConvertFromQueryAndBlockSelectionNodeCompositeDataSet(
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(cds->NewIterator());
 
-    vtkUniformGridAMRDataIterator* hierIter = vtkUniformGridAMRDataIterator::SafeDownCast(iter);
+    vtkUniformGridAMRIterator* hierIter = vtkUniformGridAMRIterator::SafeDownCast(iter);
 
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
