@@ -88,6 +88,8 @@ struct EvaluatePoints
     bool isFirst = vtkSMPTools::GetSingleThread();
     vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
+    auto& belowPlane = this->BelowPlane.Local();
+    auto& abovePlane = this->AbovePlane.Local();
     for (; ptId < endPtId; ++ptId)
     {
       if (ptId % checkAbortInterval == 0)
@@ -112,12 +114,12 @@ struct EvaluatePoints
       if (val > 0.0)
       {
         this->PtMap[ptId] = 1;
-        this->AbovePlane.Local() = 1;
+        abovePlane = 1;
       }
       else
       {
         this->PtMap[ptId] = 0;
-        this->BelowPlane.Local() = 1;
+        belowPlane = 1;
       }
     }
   }
@@ -752,7 +754,7 @@ struct CheckConvex
   unsigned char IsConvex; // final, reduced result
 
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> PolyIterator;
-  vtkSMPThreadLocal<unsigned char> isConvex; // per thread result
+  vtkSMPThreadLocal<unsigned char> TLIsConvex; // per thread result
 
   CheckConvex(vtkPoints* pts, vtkCellArray* ca)
     : Points(pts)
@@ -765,7 +767,7 @@ struct CheckConvex
   void Initialize()
   {
     this->PolyIterator.Local().TakeReference(this->Polys->NewIterator());
-    this->isConvex.Local() = 1;
+    this->TLIsConvex.Local() = 1;
   }
 
   void operator()(vtkIdType cellId, vtkIdType endCellId)
@@ -775,12 +777,14 @@ struct CheckConvex
     vtkCellArrayIterator* polyIter = this->PolyIterator.Local();
     vtkPoints* p = this->Points;
 
-    for (; cellId < endCellId && this->isConvex.Local(); ++cellId)
+    auto& isConvex = this->TLIsConvex.Local();
+    for (; cellId < endCellId && isConvex; ++cellId)
     {
       polyIter->GetCellAtId(cellId, npts, pts);
       if (!vtkPolygon::IsConvex(p, npts, pts))
       {
-        this->isConvex.Local() = 0;
+        isConvex = 0;
+        break;
       }
     }
   }
@@ -788,9 +792,9 @@ struct CheckConvex
   void Reduce()
   {
     this->IsConvex = 1;
-    for (auto cItr = this->isConvex.begin(); cItr != this->isConvex.end(); ++cItr)
+    for (const auto& isConvex : this->TLIsConvex)
     {
-      if (!*cItr)
+      if (!isConvex)
       {
         this->IsConvex = 0;
       }
