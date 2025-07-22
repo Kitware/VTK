@@ -123,7 +123,7 @@ public:
   void operator()(vtkIdType begin, vtkIdType end)
   {
     double bounds[6];
-    auto& cell = this->TLCell.Local();
+    auto*& cell = this->TLCell.Local();
     auto& frustumPlanes = this->TLFrustumPlanes.Local();
     auto& vertexBuffer = this->TLVertexBuffer.Local();
 
@@ -609,39 +609,41 @@ public:
 
   void operator()(vtkIdType beginTree, vtkIdType endTree)
   {
+    auto*& cell = this->TLCell.Local();
+    auto& frustumPlanes = this->TLPlanes.Local();
     for (vtkIdType iTree = beginTree; iTree < endTree; ++iTree)
     {
       vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
       cursor->Initialize(this->HTG, iTree);
-      this->RecursivelyIntersectTree(cursor);
+      this->RecursivelyIntersectTree(cursor, cell, frustumPlanes);
     }
   }
 
-  void RecursivelyIntersectTree(vtkHyperTreeGridNonOrientedGeometryCursor* cursor)
+  void RecursivelyIntersectTree(vtkHyperTreeGridNonOrientedGeometryCursor* cursor,
+    vtkGenericCell* cell, FrustumPlanesType& frustumPlanes)
   {
     std::array<double, 6> bounds;
     cursor->GetBounds(bounds.data());
-    auto& cell = this->TLCell.Local();
     if (!this->ConstructCell(cursor, cell))
     {
       vtkErrorWithObjectMacro(nullptr, "Unable to construct cell");
       return;
     }
     vtkIdType cellId = cursor->GetGlobalNodeIndex();
-    int isect = this->CheckCellFrustumHit(cell);
+    int isect = this->CheckCellFrustumHit(cell, frustumPlanes);
     this->Array->SetValue(cellId, isect);
     if (isect && !cursor->IsLeaf())
     {
       for (vtkIdType iChild = 0; iChild < cursor->GetNumberOfChildren(); ++iChild)
       {
         cursor->ToChild(iChild);
-        this->RecursivelyIntersectTree(cursor);
+        this->RecursivelyIntersectTree(cursor, cell, frustumPlanes);
         cursor->ToParent();
       }
     }
   }
 
-  bool CheckCellFrustumHit(vtkGenericCell* cell)
+  bool CheckCellFrustumHit(vtkGenericCell* cell, FrustumPlanesType& frustumPlanes)
   {
     // check every point in the cell if it is in Frustum
     vtkPoints* points = cell->GetPoints();
@@ -669,8 +671,7 @@ public:
       }
       return true;
     };
-    FrustumPlanesType& planes = this->TLPlanes.Local();
-    for (const auto& plane : planes)
+    for (const auto& plane : frustumPlanes)
     {
       for (vtkIdType iPt = 0; iPt < cell->GetNumberOfPoints(); iPt++)
       {
