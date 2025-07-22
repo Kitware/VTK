@@ -223,21 +223,23 @@ public:
 
   void Initialize()
   {
-    this->ThreadLocal.Local().pointIds = std::vector<vtkIdType>();
-    this->ThreadLocal.Local().cellIds = std::vector<vtkIdType>();
+    auto& localData = this->ThreadLocal.Local();
+    localData.pointIds = std::vector<vtkIdType>();
+    localData.cellIds = std::vector<vtkIdType>();
   }
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
     std::vector<double> pt(3, 0.0);
+    auto& localData = this->ThreadLocal.Local();
     for (vtkIdType iP = begin; iP < end; iP++)
     {
       this->Probe->GetPoint(iP, pt.data());
       vtkIdType id = this->Locator->Search(pt.data());
       if (!(id < 0))
       {
-        this->ThreadLocal.Local().pointIds.emplace_back(iP);
-        this->ThreadLocal.Local().cellIds.emplace_back(id);
+        localData.pointIds.emplace_back(iP);
+        localData.cellIds.emplace_back(id);
       }
     }
   }
