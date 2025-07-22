@@ -13,6 +13,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkScalarsToColors.h"
+#include "vtkTexture.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -247,6 +248,65 @@ void vtkCompositeDataDisplayAttributes::RemoveBlockUseLookupTableScalarRanges()
     return;
   }
   this->BlockUseLookupTableScalarRanges.clear();
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::SetBlockTexture(
+  vtkDataObject* dataObject, vtkSmartPointer<vtkTexture> texture)
+{
+  if (this->HasBlockTexture(dataObject) && this->GetBlockTexture(dataObject) == texture)
+  {
+    return;
+  }
+  this->BlockTextures[dataObject] = texture;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkTexture> vtkCompositeDataDisplayAttributes::GetBlockTexture(
+  vtkDataObject* dataObject) const
+{
+  if (this->HasBlockTexture(dataObject))
+  {
+    return this->BlockTextures.at(dataObject);
+  }
+  return nullptr;
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockTexture(vtkDataObject* dataObject) const
+{
+  return this->BlockTextures.find(dataObject) != this->BlockTextures.end();
+}
+
+//----------------------------------------------------------------------------
+bool vtkCompositeDataDisplayAttributes::HasBlockTextures() const
+{
+  return !this->BlockTextures.empty();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockTexture(vtkDataObject* dataObject)
+{
+  if (!this->HasBlockTexture(dataObject))
+  {
+    return;
+  }
+
+  this->BlockTextures.erase(dataObject);
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkCompositeDataDisplayAttributes::RemoveBlockTextures()
+{
+  if (!this->HasBlockTextures())
+  {
+    return;
+  }
+
+  this->BlockTextures.clear();
   this->Modified();
 }
 
