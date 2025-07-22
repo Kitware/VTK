@@ -1,11 +1,11 @@
-## Multi-touch gestures in QtQuick/QML
+# Multi-touch gestures in QtQuick/QML
 
 Added support multi-touch interaction to `QQuickVTKItem` using the
 [PinchHandler](https://doc.qt.io/qt-6/qml-qtquick-pinchhandler.html) QML component. To attach the
 handler to a QQuickVTKItem, simply connect the new slots to the
 `[translation|rotation|scale]Changed` signals of the handler.
 
-### Example usage
+## Example usage
 
 ```qml
 

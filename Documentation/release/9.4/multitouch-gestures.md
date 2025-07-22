@@ -1,4 +1,4 @@
-## Multi-touch gestures in VTK
+# Multi-touch gestures in VTK
 
 Multiple improvements have been introduced to the multi-touch event based gesture handling.
 

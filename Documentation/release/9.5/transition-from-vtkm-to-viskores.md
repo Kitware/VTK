@@ -1,4 +1,4 @@
-## Transition from VTKm to Viskores
+# Transition from VTKm to Viskores
 
 VTK has transitioned its dependency from [VTKm][vtkm] to [Viskores][viskores].
 This transition involves several important changes:
@@ -9,7 +9,7 @@ This transition involves several important changes:
 - VTK Accelerator VTKm API remains fully compatible for downstream users
 - No code changes should be required for applications using the VTK Accelerator API
 
-### Build Breaking Change
+## Build Breaking Change
 
 - The flag `VTK_ENABLE_VISKORES_OVERRIDES` has been introduced * This new flag
   deprecates the previous `VTK_ENABLE_VTKM_OVERRIDES`.

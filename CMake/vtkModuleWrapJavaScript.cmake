@@ -286,8 +286,8 @@ endfunction ()
   automatically retrieve the list of pregenerated wrapped sources.
   Pregenerated sources can be filtered by specifying a list of class names in the following target
   properties prior to calling this macro:
-   - vtk_module_wrap_javascript_exclude: Exclude the specified list of class names
-   - vtk_module_wrap_javascript_include: Only include the specified list of class names 
+  - vtk_module_wrap_javascript_exclude: Exclude the specified list of class names
+  - vtk_module_wrap_javascript_include: Only include the specified list of class names 
 #]==]
 function (vtk_module_wrap_javascript)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_javascript

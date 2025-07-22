@@ -1,4 +1,4 @@
-## Rewrite reader for EnSight Gold files
+# Rewrite reader for EnSight Gold files
 
 There is a new version of the EnSight gold reader. This adds two classes, `vtkEnSightGoldCombinedReader` and `vtkEnSightSOSGoldReader`, to handle EnSight gold casefiles and SOS files, respectively.
 This reader should have all of the functionality of the old reader, as well as supporting some things that the old reader did not. Notable differences between this reader and the old reader:

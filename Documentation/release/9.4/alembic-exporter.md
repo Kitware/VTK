@@ -1,4 +1,4 @@
-## Add Alembic scene exporter
+# Add Alembic scene exporter
 
 The IO/Alembic module now provides a new scene exporter for the [Alembic file format](https://www.alembic.io/).
 This format is used for dynamic scene and complex geometry exchange for 3D modeling packages.

@@ -1,4 +1,4 @@
-## vtkOpenFOAMReader: Multithreaded Reading of case files
+# vtkOpenFOAMReader: Multithreaded Reading of case files
 
 `vtkOpenFOAMReader` now supports multithreaded reading of case files. This feature is on by default, and it can be
 disabled using the`SetSequentialProcessing(true)`. It can be useful to be enabled when reading large case files that

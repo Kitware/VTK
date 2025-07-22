@@ -1,4 +1,4 @@
-## Added new Python API for connecting pipelines
+# Added new Python API for connecting pipelines
 
 A new (Python-only) API to connect and execute pipelines
 was introduced. Pipeline objects can now be connected

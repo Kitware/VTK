@@ -1,4 +1,4 @@
-## Introduce vtkForEach filter
+# Introduce vtkForEach filter
 
 vtkForEach and vtkEndFor are two newly introduced filters that works in
 conjunction.  Their goal is to define a part of the pipeline to repeat. In

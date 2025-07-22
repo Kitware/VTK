@@ -1,7 +1,11 @@
-# Introduce implicit Frustum
+# Introduce New vtkFrustum Implicit Function and Widget
+
+## Introduce implicit Frustum
+
 The new `vtkFrustum` implicit function represents a frustum resembling a pyramid with a clipped top. You can shape it by using the setters for its vertical/horizontal angles, i.e. the angles between its forward axis and its top and bottom, or right and left planes respectively. The distance between the near plane and the frustum's origin can also be set. As for all `vtkImplicitFunction`s, you can manipulate its position/orientation/scale by setting a transform.
 
-# Add a new Implicit Frustum Widget
+## Add a new Implicit Frustum Widget
+
 The new `vtkFrustum` has a widget representation. The representation can be manipulated through widget controls:
  - Rotate through the orientation handles
  - Translate through the origin or near plane center handles

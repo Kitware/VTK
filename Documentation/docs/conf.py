@@ -101,7 +101,7 @@ module_list = vtk_documentation.gather_module_documentation(
     "../../",
     "./modules/vtk-modules",
     custom_paths=[],
-    ignore_list=ignore_list,
+    extra_documentation_dirs=["doc"]
 )
 
 

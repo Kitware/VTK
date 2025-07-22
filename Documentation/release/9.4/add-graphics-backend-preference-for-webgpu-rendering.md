@@ -1,4 +1,4 @@
-## Add Graphics Backend Preference Option For WebGPU Render Window
+# Add Graphics Backend Preference Option For WebGPU Render Window
 
 `vtkWebGPURenderWindow` now provides a way to choose a graphics backend
 at runtime. The available backends vary on different operating systems.

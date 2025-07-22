@@ -1,4 +1,4 @@
-## Add Prolab Transfer function interpolation support
+# Add Prolab Transfer function interpolation support
 
 Now the `vtkColorTransferFunction` supports prolab color space when interpolating between colors.
 

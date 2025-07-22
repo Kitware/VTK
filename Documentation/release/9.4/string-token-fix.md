@@ -1,4 +1,4 @@
-## String tokenization
+# String tokenization
 
 The `vtkStringManager` class caused issues for static builds of VTK;
 because `vtkStringToken` holds a class-static instance of the string

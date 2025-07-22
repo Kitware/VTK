@@ -196,5 +196,3 @@ Here are some valuable resources for learning WebGPU:
    - A well-organized WebGPU API and WGSL summary.
 
 For WGSL specification, refer to: [WGSL Spec](https://www.w3.org/TR/WGSL/)
-
----

@@ -1,4 +1,4 @@
-## New `vtkERFReader` for ERF HDF5 File Format
+# New `vtkERFReader` for ERF HDF5 File Format
 
 You can now read ERF HDF5 file into VTK. It is based on the version 1.2 of the ERF HDF5 spec.
 It supports:

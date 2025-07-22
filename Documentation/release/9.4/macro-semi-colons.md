@@ -1,4 +1,4 @@
-## Some function-like macros now require trailing semi-colons
+# Some function-like macros now require trailing semi-colons
 
 Function-like macros such as vtkVLog, vtkLog, vtkVLogIf, vtkLogIf, vtkOpenGLCheckErrorMacro, vtkOpenGLStaticCheckErrorMacro, and vtkOpenGLDebugCheckErrorMacro (and perhaps more, that are implemented using them), now require a trailing semi-colon where invoked.  For example, this would have previously compiled:
 

@@ -1,6 +1,6 @@
-## Add spatio-temporal harmonics filter/source
+# Add spatio-temporal harmonics filter/source
 
-### Filter
+## Filter
 
 You can now use a new filter to compute spatio-temporal
 harmonics on each point of your input dataset. This avoids
@@ -14,7 +14,7 @@ function for each point. Note that there is no cosinus in
 this function. If no harmonic is specified, values will be
 null.
 
-### Source
+## Source
 
 You can now generate an image data with harmonics data.
 This new source allows you to specify the uniform grid

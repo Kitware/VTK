@@ -1,4 +1,4 @@
-## Add new polyline decimation strategies
+# Add new polyline decimation strategies
 
 The `vtkDecimatePolylineFilter` has been refactored to use a strategy pattern.
 It used a default strategy based on eulerian distances.
