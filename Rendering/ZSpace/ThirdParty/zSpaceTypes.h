@@ -11,8 +11,6 @@
 #ifndef __ZSPACE_TYPES_H__
 #define __ZSPACE_TYPES_H__
 
-
-/// @defgroup Common Common
 /// @{
 
 
