@@ -745,7 +745,8 @@ struct IsAnyBitSetFunctor
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
-    if (this->TLIsAnyBit.Local())
+    auto& isAnyBit = this->TLIsAnyBit.Local();
+    if (isAnyBit)
     {
       return;
     }
@@ -753,7 +754,7 @@ struct IsAnyBitSetFunctor
     {
       if (this->BitSet[i] & this->BitFlag)
       {
-        this->TLIsAnyBit.Local() = 1;
+        isAnyBit = 1;
         return;
       }
     }
