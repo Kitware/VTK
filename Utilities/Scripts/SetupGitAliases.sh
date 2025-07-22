@@ -17,4 +17,7 @@ git config alias.stage-merge '!sh -c "echo '"${stage_disabled}"'"' &&
 git config alias.gitlab-push '!bash Utilities/GitSetup/git-gitlab-push' &&
 git config alias.gitlab-sync '!bash Utilities/GitSetup/git-gitlab-sync' &&
 
+# Alias to fetch a gitlab MR as a local topic branch
+git config alias.fetch-mr '!bash Utilities/GitSetup/git-fetch-mr' &&
+
 true

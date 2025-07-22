@@ -75,11 +75,11 @@ apply_autostash () {
     stash_sha1=$(cat "$state_dir/autostash")
     if git stash apply $stash_sha1 2>&1 >/dev/null
     then
-      gettext 'Applied autostash.'
+      echo 'Applied autostash.'
     else
       git stash store -m "autostash" -q $stash_sha1 ||
-      die "$(eval_gettext "Cannot store \$stash_sha1")"
-      gettext 'Applying autostash resulted in conflicts.
+      die "Cannot store $stash_sha1"
+      echo 'Applying autostash resulted in conflicts.
 Your changes are safe in the stash.
 You can run "git stash pop" or "git stash drop" at any time.
 '
@@ -97,37 +97,36 @@ finish_sync () {
 #-----------------------------------------------------------------------------
 if test "$autostash" = true && ! (require_clean_work_tree) 2>/dev/null
 then
-  gettext 'trying to stash local changes' &&
+  echo 'trying to stash local changes' &&
   stash_sha1=$(git stash create "autostash") ||
-  die "$(gettext 'Cannot autostash')"
+  die 'Cannot autostash'
 
   mkdir -p "$state_dir" &&
   echo $stash_sha1 >"$state_dir/autostash" &&
   stash_abbrev=$(git rev-parse --short $stash_sha1) &&
-  echo "$(eval_gettext 'Created autostash: $stash_abbrev')" &&
+  echo "Created autostash: $stash_abbrev" &&
   git reset --hard
 fi
 
-require_clean_work_tree "sync" "$(gettext "Error syncing \
+require_clean_work_tree "sync" "$(echo "Error syncing \
 We are trying to overwrite all local changes on this branch with the version on \
 gitlab. Before you do this make sure to stash your changes or commit these \
 changes to a different branch.")"
 
 #-----------------------------------------------------------------------------
 
-fetch_stdout=$(git fetch "$remote" $topic); fetch_exit=$?
-gettext "$fetch_stdout"
+fetch_stdout=$(git fetch "$remote" $topic 2>&1); fetch_exit=$?
+echo "$fetch_stdout"
 
 if [ $fetch_exit -eq 0 ]
 then
   if test "$dry_run" = true
   then
-    reset_stdout=$(git diff --color HEAD..FETCH_HEAD); fetch_exit=$?
-    gettext "$reset_stdout"
+    reset_stdout=$(git diff --color HEAD..FETCH_HEAD 2>&1); fetch_exit=$?
+    echo "$reset_stdout"
   else
-    reset_stdout=$(git reset --hard FETCH_HEAD); fetch_exit=$?
-    gettext "$reset_stdout"
-    echo
+    reset_stdout=$(git reset --hard FETCH_HEAD 2>&1); fetch_exit=$?
+    echo "$reset_stdout"
   fi
 fi
 

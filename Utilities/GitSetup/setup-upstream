@@ -38,8 +38,8 @@ remote=$(git config -f config --get upstream.remote ||
 die 'This project is not configured to use a preferred upstream repository.'
 
 # Get current upstream URLs.
-fetchurl=$(git config --get remote."$remote".url || echo '') &&
-pushurl=$(git config --get remote."$remote".pushurl || echo '') &&
+fetchurl=$(git remote get-url "$remote" || echo '') &&
+pushurl=$(git remote get-url --push "$remote" || echo '') &&
 
 if test "$fetchurl" = "$url"; then
 	echo 'Remote "'"$remote"'" already uses recommended upstream repository.'
