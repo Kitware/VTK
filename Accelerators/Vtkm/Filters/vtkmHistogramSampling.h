@@ -44,11 +44,7 @@ public:
   ///@}
 
 protected:
-  vtkmHistogramSampling()
-  {
-    this->NumberOfBins = 10;
-    this->SampleFraction = 0.1;
-  };
+  vtkmHistogramSampling(){};
   ~vtkmHistogramSampling() override = default;
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
@@ -59,8 +55,8 @@ private:
   void operator=(const vtkmHistogramSampling&) = delete;
   vtkmInitializer Initializer;
 
-  double SampleFraction;
-  size_t NumberOfBins;
+  double SampleFraction = 0.1;
+  size_t NumberOfBins = 10;
 };
 
 VTK_ABI_NAMESPACE_END
