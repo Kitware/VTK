@@ -405,12 +405,12 @@ struct vtkHyperTreeGridGeometricLocator::RecurseTreesFunctor
   {
     vtkNew<vtkGenericCell> locCell;
     vtkNew<vtkHyperTreeGridNonOrientedGeometryCursor> cursor;
+    auto& loc = this->Loc.Local();
     for (int iT = first; iT < last; iT++)
     {
       this->HTGLoc->GetHTG()->InitializeNonOrientedGeometryCursor(cursor, iT, false);
-      this->HTGLoc->RecurseAllIntersectsWithLine(this->Pt0, this->Pt1, this->Tol, cursor,
-        &(this->Loc.Local().LocTs), this->Loc.Local().LocPts, this->Loc.Local().LocCellIds,
-        locCell);
+      this->HTGLoc->RecurseAllIntersectsWithLine(
+        this->Pt0, this->Pt1, this->Tol, cursor, &(loc.LocTs), loc.LocPts, loc.LocCellIds, locCell);
     }
   }
 
