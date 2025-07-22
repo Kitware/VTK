@@ -58,6 +58,7 @@ public:
   /**
    * Implemented by sub classes. Actual rendering is done here.
    */
+  void RenderPieceStart(vtkRenderer* renderer, vtkActor* actor) override;
   void RenderPiece(vtkRenderer* renderer, vtkActor* actor) override;
   void UnmarkBatchElements();
   void ClearUnmarkedBatchElements();
@@ -135,6 +136,13 @@ protected:
    */
   int CanUseTextureMapForColoring(vtkDataObject*) override;
 
+  /**
+   * Recover current texture informations on the provided actor into a vector.
+   * The order stays the same as vtkOpenGLPolyDataMapper::GetTextures(), but `BlockTexturePrototype`
+   * is also added in the end of the vector in case a block needs a texture as well.
+   */
+  std::vector<texinfo> GetTextures(vtkActor* actor) override;
+
   // Reference to CPDM
   vtkCompositePolyDataMapper* Parent = nullptr;
   // Maps an address of a vtkPolyData to its rendering attributes.
@@ -156,6 +164,14 @@ protected:
 private:
   vtkOpenGLBatchedPolyDataMapper(const vtkOpenGLBatchedPolyDataMapper&) = delete;
   void operator=(const vtkOpenGLBatchedPolyDataMapper&) = delete;
+
+  /**
+   * This prototype texture is only used to give proper texture information for texturing per
+   * block.
+   * In vtkOpenGLBatchedPolyDataMapper::GetTextures it is passed in the texinfo vector for the
+   * shader generation.
+   */
+  vtkSmartPointer<vtkOpenGLTexture> BlockTexturePrototype;
 };
 
 VTK_ABI_NAMESPACE_END

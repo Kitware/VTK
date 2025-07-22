@@ -83,6 +83,7 @@ protected:
   vtkOpenGLLowMemoryBatchedPolyDataMapper();
   ~vtkOpenGLLowMemoryBatchedPolyDataMapper() override;
 
+  void RenderPieceStart(vtkRenderer* renderer, vtkActor* actor) override;
   void RenderPieceDraw(vtkRenderer* renderer, vtkActor* actor) override;
 
   bool IsDataObjectUpToDate() override;
@@ -103,6 +104,8 @@ protected:
    */
   virtual void SetShaderValues(GLBatchElement* glBatchElement);
 
+  std::vector<TextureInfo> GetTextures(vtkActor* actor) override;
+
   // Reference to CPDM
   vtkCompositePolyDataMapper* Parent = nullptr;
   // Maps an address of a vtkPolyData to its rendering attributes.
@@ -117,6 +120,8 @@ protected:
   std::map<vtkAbstractArray*, vtkDataArray*> ColorArrayMap;
   // cached bbox of all points
   vtkBoundingBox PointsBBox;
+
+  vtkSmartPointer<vtkOpenGLTexture> BlockTexturePrototype;
 
 private:
   vtkOpenGLLowMemoryBatchedPolyDataMapper(const vtkOpenGLLowMemoryBatchedPolyDataMapper&) = delete;

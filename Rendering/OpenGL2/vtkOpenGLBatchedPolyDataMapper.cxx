@@ -36,6 +36,11 @@
 
 namespace
 {
+
+// This color is chosen for textures that shouldn't be used for rendering. If this color shows up in
+// a render, an error might have occured.
+constexpr unsigned char TextureErrorColor[3] = { 255, 0, 255 };
+
 template <typename T>
 class ScopedValueRollback
 {
@@ -74,6 +79,21 @@ vtkOpenGLBatchedPolyDataMapper::vtkOpenGLBatchedPolyDataMapper()
 {
   // force static
   this->Static = true;
+
+  this->BlockTexturePrototype = vtkSmartPointer<vtkOpenGLTexture>::New();
+  vtkNew<vtkImageData> imageData;
+  imageData->SetDimensions(1, 1, 1);
+  imageData->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
+  vtkUnsignedCharArray* scalars =
+    vtkArrayDownCast<vtkUnsignedCharArray>(imageData->GetPointData()->GetScalars());
+  // Gives a magenta color to make sure we don't use this texture anywhere
+  // We must give at least one pixel of data here to give the information that the texture has 3
+  // components (see vtkOpenGLPolyDataMapper::ReplaceShaderTCoord).
+  scalars->FillComponent(0, ::TextureErrorColor[0]);
+  scalars->FillComponent(1, ::TextureErrorColor[1]);
+  scalars->FillComponent(2, ::TextureErrorColor[2]);
+  this->BlockTexturePrototype->SetInputData(imageData);
+  this->BlockTexturePrototype->Update();
 }
 
 //------------------------------------------------------------------------------
@@ -199,6 +219,27 @@ void vtkOpenGLBatchedPolyDataMapper::ClearUnmarkedBatchElements()
     else
     {
       ++iter;
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLBatchedPolyDataMapper::RenderPieceStart(vtkRenderer* renderer, vtkActor* actor)
+{
+  this->Superclass::RenderPieceStart(renderer, actor);
+
+  if (!this->BlockTexturePrototype->GetTextureObject())
+  {
+    this->BlockTexturePrototype->Load(renderer);
+  }
+
+  for (auto& [polyData, element] : this->VTKPolyDataToGLBatchElement)
+  {
+    vtkOpenGLTexture* texture = vtkOpenGLTexture::SafeDownCast(element->Parent.Texture);
+    if (texture)
+    {
+      texture->Load(renderer);
+      texture->GetTextureObject()->Activate();
     }
   }
 }
@@ -858,6 +899,11 @@ void vtkOpenGLBatchedPolyDataMapper::SetShaderValues(
       prog->SetUniformi("OverridesColor", batchElement.OverridesColor);
     }
   }
+
+  if (batchElement.Texture)
+  {
+    prog->SetUniformi("blocktexture", batchElement.Texture->GetTextureUnit());
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1441,6 +1487,25 @@ int vtkOpenGLBatchedPolyDataMapper::CanUseTextureMapForColoring(vtkDataObject*)
   }
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+std::vector<vtkOpenGLPolyDataMapper::texinfo> vtkOpenGLBatchedPolyDataMapper::GetTextures(
+  vtkActor* actor)
+{
+  std::vector<texinfo> textures = this->Superclass::GetTextures(actor);
+
+  bool needBlockTextureSlot = false;
+  for (const auto& [_, batchElement] : this->VTKPolyDataToGLBatchElement)
+  {
+    needBlockTextureSlot |= batchElement->Parent.Texture != nullptr;
+  }
+  if (this->BlockTexturePrototype && needBlockTextureSlot)
+  {
+    textures.emplace_back(this->BlockTexturePrototype, "blocktexture");
+  }
+
+  return textures;
 }
 
 vtkMTimeType vtkOpenGLBatchedPolyDataMapper::GetMTime()
