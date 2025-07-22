@@ -2009,15 +2009,7 @@ template <class T>
 inline T vtkMath::ClampValue(const T& value, const T& min, const T& max)
 {
   assert("pre: valid_range" && min <= max);
-
-#if __cplusplus >= 201703L
   return std::clamp(value, min, max);
-#else
-  // compilers are good at optimizing the ternary operator,
-  // use '<' since it is preferred by STL for custom types
-  T v = (min < value ? value : min);
-  return (v < max ? v : max);
-#endif
 }
 
 //----------------------------------------------------------------------------
