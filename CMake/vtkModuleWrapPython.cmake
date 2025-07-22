@@ -666,8 +666,8 @@ endfunction ()
     function ``void <TARGET>_load()`` which will add all Python modules created
     by this call to the imported module table. For shared Python module builds,
     the same function is provided, but it is a no-op.
-  * ``INSTALL_HEADERS`` (Defaults to ``ON``): If unset, CMake properties will not
-    be installed.
+  * ``INSTALL_HEADERS`` (Defaults to ``ON``): If unset, the CMake properties and
+    the Python wrapping related headers will not be installed.
   * ``BUILD_PYI_FILES`` (Defaults to ``OFF``): If set, ``.pyi`` files will be built
     and installed for the generated modules.
   * ``TARGET_SPECIFIC_COMPONENTS`` (Defaults to ``OFF``): If set, prepend the

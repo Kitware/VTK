@@ -49,10 +49,16 @@ vtk_module_wrap_python(
   INSTALL_EXPORT  wrapping_export
   PYTHON_PACKAGE  "wrapping"
   MODULE_DESTINATION  "${python_destination}"
+  # This is required if INSTALL_HEADERS is ON.
   CMAKE_DESTINATION   "${CMAKE_INSTALL_LIBDIR}/cmake/WrappingPython"
   LIBRARY_DESTINATION "${CMAKE_INSTALL_LIBDIR}"
   # Static Python modules are almost never wanted.
   BUILD_STATIC    OFF
+  # Do not install headers for Python modules. Enable this option
+  # if you are supporting static python module. It will install a header
+  # file `WrappablePython.h`, which defines a function
+  # `void WrappablePythonLoad()` which will add all Python modules created
+  # by this call to the imported module table.
   INSTALL_HEADERS OFF)
 
 # Create an `__init__.py` containing wrapped filters.
@@ -72,15 +78,3 @@ configure_file(
 install(
   FILES       "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/__init__.py"
   DESTINATION "${python_destination}/wrapping/")
-
-# Install the module
-export(
-  EXPORT    wrapping_export
-  NAMESPACE Wrapping::
-  FILE      "${CMAKE_BINARY_DIR}/${python_destination}/wrapping/wrapping_export-targets.cmake")
-install(
-  EXPORT      wrapping_export
-  NAMESPACE   Wrapping::
-  FILE        wrapping_export-targets.cmake
-  DESTINATION "${python_destination}/cmake/wrapping"
-)
