@@ -13,8 +13,6 @@
 #include "vtkLegacy.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
-#include "vtkUniformGridAMR.h"
-#include "vtkUniformGridAMRDataIterator.h"
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -183,21 +181,6 @@ void vtkDataObjectTree::CopyStructure(vtkCompositeDataSet* compositeSource)
       }
     }
   }
-  else if (auto amr = vtkUniformGridAMR::SafeDownCast(compositeSource))
-  {
-    this->SetNumberOfChildren(amr->GetNumberOfLevels());
-    vtkNew<vtkPartitionedDataSet> tempPds;
-    for (unsigned int level = 0; level < amr->GetNumberOfLevels(); level++)
-    {
-      auto child = vtk::TakeSmartPointer(this->CreateForCopyStructure(tempPds));
-      child->SetNumberOfChildren(amr->GetNumberOfBlocks(level));
-      this->SetChild(level, child);
-
-      vtkNew<vtkInformation> info;
-      info->Set(vtkCompositeDataSet::NAME(), "Level " + std::to_string(level));
-      this->SetChildMetaData(level, info);
-    }
-  }
   else
   {
     // WARNING:
@@ -261,45 +244,21 @@ void vtkDataObjectTree::SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject
     return;
   }
 
-  auto uniformGridAMRIter = vtkUniformGridAMRDataIterator::SafeDownCast(iter);
-  if (uniformGridAMRIter)
+  // WARNING: We are doing something special here. See comments
+  // in CopyStructure()
+  unsigned int index = iter->GetCurrentFlatIndex();
+  if (this->GetNumberOfChildren() != 1)
   {
-    if (uniformGridAMRIter->GetCurrentLevel() < this->GetNumberOfChildren())
-    {
-      auto parent =
-        vtkDataObjectTree::SafeDownCast(this->GetChild(uniformGridAMRIter->GetCurrentLevel()));
-      if (parent)
-      {
-        parent->SetChild(uniformGridAMRIter->GetCurrentIndex(), dataObj);
-      }
-      else
-      {
-        vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
-      }
-    }
-    else
-    {
-      vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
-    }
+    vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
+    return;
   }
-  else
+  auto parent = vtkPartitionedDataSet::SafeDownCast(this->GetChild(0));
+  if (!parent)
   {
-    // WARNING: We are doing something special here. See comments
-    // in CopyStructure()
-    unsigned int index = iter->GetCurrentFlatIndex();
-    if (this->GetNumberOfChildren() != 1)
-    {
-      vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
-      return;
-    }
-    auto parent = vtkPartitionedDataSet::SafeDownCast(this->GetChild(0));
-    if (!parent)
-    {
-      vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
-      return;
-    }
-    parent->SetChild(index, dataObj);
+    vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
+    return;
   }
+  parent->SetChild(index, dataObj);
 }
 
 //------------------------------------------------------------------------------
@@ -381,27 +340,6 @@ vtkDataObject* vtkDataObjectTree::GetDataSet(vtkCompositeDataIterator* composite
     }
 
     return parent->GetChild(index.back());
-  }
-  else if (auto amrIter = vtkUniformGridAMRDataIterator::SafeDownCast(compositeIter))
-  {
-    if (amrIter->GetCurrentLevel() < this->GetNumberOfChildren())
-    {
-      auto parent = vtkDataObjectTree::SafeDownCast(this->GetChild(amrIter->GetCurrentLevel()));
-      if (parent)
-      {
-        return parent->GetChild(amrIter->GetCurrentIndex());
-      }
-      else
-      {
-        vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
-        return nullptr;
-      }
-    }
-    else
-    {
-      vtkErrorMacro("Structure is not expected. Did you forget to use copy structure?");
-      return nullptr;
-    }
   }
   else
   {

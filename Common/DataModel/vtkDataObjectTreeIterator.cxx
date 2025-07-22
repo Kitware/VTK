@@ -1,5 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// VTK_DEPRECATED_IN_9_5_0
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkDataObjectTreeIterator.h"
 
 #include "vtkDataObjectTree.h"
@@ -292,6 +296,10 @@ bool vtkDataObjectTreeIterator::IsDataObjectTree(vtkDataObject* dataObject)
     case VTK_PARTITIONED_DATA_SET_COLLECTION:
     case VTK_MULTIPIECE_DATA_SET:
     case VTK_MULTIBLOCK_DATA_SET:
+    case VTK_UNIFORM_GRID_AMR:
+    case VTK_NON_OVERLAPPING_AMR:
+    case VTK_OVERLAPPING_AMR:
+    case VTK_HIERARCHICAL_BOX_DATA_SET: // VTK_DEPRECATED_IN_9_5_0
       return true;
     default:
       return false;
@@ -299,10 +307,16 @@ bool vtkDataObjectTreeIterator::IsDataObjectTree(vtkDataObject* dataObject)
 }
 
 //------------------------------------------------------------------------------
-void vtkDataObjectTreeIterator::GoToFirstItem()
+void vtkDataObjectTreeIterator::InitializeInternal()
 {
   this->SetCurrentFlatIndex(0);
   this->Internals->Iterator->Initialize(this->Reverse != 0, this->DataSet);
+}
+
+//------------------------------------------------------------------------------
+void vtkDataObjectTreeIterator::GoToFirstItem()
+{
+  this->InitializeInternal();
   this->NextInternal();
 
   while (!this->Internals->Iterator->IsDoneWithTraversal())

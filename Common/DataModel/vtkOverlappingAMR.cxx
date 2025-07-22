@@ -9,7 +9,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMRMetaData.h"
 #include "vtkUniformGrid.h"
-#include "vtkUniformGridAMRDataIterator.h"
+#include "vtkUniformGridAMRIterator.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <utility>
@@ -25,14 +25,6 @@ vtkOverlappingAMR::vtkOverlappingAMR() = default;
 
 //------------------------------------------------------------------------------
 vtkOverlappingAMR::~vtkOverlappingAMR() = default;
-
-//------------------------------------------------------------------------------
-vtkCompositeDataIterator* vtkOverlappingAMR::NewIterator()
-{
-  vtkUniformGridAMRDataIterator* iter = vtkUniformGridAMRDataIterator::New();
-  iter->SetDataSet(this);
-  return iter;
-}
 
 //------------------------------------------------------------------------------
 void vtkOverlappingAMR::InstantiateMetaData()
@@ -71,7 +63,11 @@ int vtkOverlappingAMR::GetRefinementRatio(unsigned int level)
 //------------------------------------------------------------------------------
 int vtkOverlappingAMR::GetRefinementRatio(vtkCompositeDataIterator* iter)
 {
-  vtkUniformGridAMRDataIterator* amrIter = vtkUniformGridAMRDataIterator::SafeDownCast(iter);
+  vtkUniformGridAMRIterator* amrIter = vtkUniformGridAMRIterator::SafeDownCast(iter);
+  if (!amrIter)
+  {
+    return -1;
+  }
 
   unsigned int level = amrIter->GetCurrentLevel();
   vtkOverlappingAMRMetaData* oamrMetaData = this->GetOverlappingAMRMetaData();
@@ -254,8 +250,8 @@ bool vtkOverlappingAMR::CheckValidity()
       break;
   }
 
-  vtkSmartPointer<vtkUniformGridAMRDataIterator> iter;
-  iter.TakeReference(vtkUniformGridAMRDataIterator::SafeDownCast(this->NewIterator()));
+  vtkSmartPointer<vtkUniformGridAMRIterator> iter;
+  iter.TakeReference(vtkUniformGridAMRIterator::SafeDownCast(this->NewIterator()));
   iter->SetSkipEmptyNodes(1);
   for (iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {

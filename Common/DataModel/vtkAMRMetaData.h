@@ -89,6 +89,7 @@ public:
 
   /**
    * Returns the absolute block index from a level and a relative block index
+   * or -1 if level is invalid
    */
   [[nodiscard]] int GetAbsoluteBlockIndex(unsigned int level, unsigned int relativeBlockIdx) const;
 

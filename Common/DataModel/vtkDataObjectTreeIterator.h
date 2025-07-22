@@ -70,6 +70,7 @@ public:
    * Flat index is an index obtained by traversing the tree in preorder.
    * This can be used to uniquely identify nodes in the tree.
    * Not valid if IsDoneWithTraversal() returns true.
+   * Require ReverseOff
    */
   unsigned int GetCurrentFlatIndex() override;
 
@@ -104,15 +105,24 @@ protected:
   vtkDataObjectTreeIterator();
   ~vtkDataObjectTreeIterator() override;
 
-  // Use the macro to ensure MTime is updated:
+  /**
+   * Set the CurrentFlatIndex and call Modified()
+   */
   vtkSetMacro(CurrentFlatIndex, unsigned int);
 
-  // Takes the current location to the next dataset. This traverses the tree in
-  // preorder fashion.
-  // If the current location is a composite dataset, next is its 1st child dataset.
-  // If the current is not a composite dataset, then next is the next dataset.
-  // This method gives no guarantees whether the current dataset will be
-  // non-null or leaf.
+  /**
+   *  Set FlatIndex to zero and Initialize internal fields
+   */
+  void InitializeInternal();
+
+  /*
+   * Takes the current location to the next dataset. This traverses the tree in
+   * preorder fashion.
+   * If the current location is a composite dataset, next is its 1st child dataset.
+   * If the current is not a composite dataset, then next is the next dataset.
+   * This method gives no guarantees whether the current dataset will be
+   * non-null or leaf.
+   */
   void NextInternal();
 
   /**
@@ -126,6 +136,11 @@ protected:
 
   unsigned int CurrentFlatIndex;
 
+  /**
+   * Used to improve the speed of vtkDataObjectTree::SafeDownCast().
+   */
+  static bool IsDataObjectTree(vtkDataObject* dataObject);
+
 private:
   vtkDataObjectTreeIterator(const vtkDataObjectTreeIterator&) = delete;
   void operator=(const vtkDataObjectTreeIterator&) = delete;
@@ -133,10 +148,6 @@ private:
   class vtkInternals;
   vtkInternals* Internals;
   friend class vtkInternals;
-  /**
-   * Used to improve the speed of vtkDataObjectTree::SafeDownCast().
-   */
-  static bool IsDataObjectTree(vtkDataObject* dataObject);
 
   vtkTypeBool TraverseSubTree;
   vtkTypeBool VisitOnlyLeaves;

@@ -7,37 +7,55 @@
  * vtkUniformGridAMR (AMR stands for Adaptive Mesh Refinement)
  * is a container for vtkUniformGrid. Each grid is added as a block of a given level.
  *
- * The structure of the container is described in a vtkAMRMetaData object.
+ * Supplemental information are stored in the AMRMetaData.
+ *
+ * The AMR is stored as a vtkPartitionedDataSetCollection, where each AMR Level is a
+ vtkPartitionedDataSet
+ * eg:
+ * - root
+ *  - level 0 (pds)
+     - level 0, index 0
+    - level 1 (pds)
+ *   - level 1, index 0
+ *   - level 1, index 1
+    - level 2 (pds)
+ *   - level 2, index 0
+ *   - level 2, index 1
+ *   - level 2, index 2
+ *   - level 2, index 3
+ *
+ * The AMR metadata is used to reconstruct the level and index of the AMR when needed.
  *
  * @sa
- * vtkOverlappingAMR, vtkNonOverlappingAMR, vtkOverlappingAMRMetaData, vtkUniformGridAMRDataIterator
+ * vtkOverlappingAMR, vtkNonOverlappingAMR, vtkOverlappingAMRMetaData, vtkUniformGridAMRIterator,
+ * vtkPartitioneDataSetCollection, vtkPartitionedDataSet
  */
 
 #ifndef vtkUniformGridAMR_h
 #define vtkUniformGridAMR_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
-#include "vtkCompositeDataSet.h"
-#include "vtkDeprecation.h"  // for VTK_DEPRECATED_IN_9_6_0
-#include "vtkNew.h"          // for vtkNew
+#include "vtkDeprecation.h"           // for VTK_DEPRECATED_IN_9_6_0
+#include "vtkNew.h"                   // for vtkNew
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkCompositeDataIterator;
-class vtkUniformGrid;
+class vtkAMRDataInternals; // VTK_DEPRECATED_IN_9_6_0
 class vtkAMRMetaData;
+class vtkCompositeDataIterator;
 class vtkOverlappingAMRMetaData; // VTK_DEPRECATED_IN_9_6_0
-class vtkAMRDataInternals;
+class vtkUniformGrid;
 
-class VTKCOMMONDATAMODEL_EXPORT vtkUniformGridAMR : public vtkCompositeDataSet
+class VTKCOMMONDATAMODEL_EXPORT vtkUniformGridAMR : public vtkPartitionedDataSetCollection
 {
 public:
   static vtkUniformGridAMR* New();
-  vtkTypeMacro(vtkUniformGridAMR, vtkCompositeDataSet);
+  vtkTypeMacro(vtkUniformGridAMR, vtkPartitionedDataSetCollection);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Return a new iterator (the iterator has to be deleted by the user).
+   * Return a new vtkUniformGridAMRIterator (the iterator has to be deleted by the user).
    */
   VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() override;
 
@@ -52,9 +70,14 @@ public:
   void Initialize() override;
 
   /**
-   * Initialize the AMR with the specified blocksPerLevel
+   * Initialize the AMRMetaData and the AMR with the specified blocksPerLevel
    */
   virtual void Initialize(const std::vector<unsigned int>& blocksPerLevel);
+
+  /**
+   * Initialize AMR using the provided metadata by reconstructing the blocksPerLevel
+   */
+  virtual void Initialize(vtkAMRMetaData* metadata);
 
   /**
    * Initialize the AMR with a specified number of levels and the blocks per level.
@@ -72,13 +95,15 @@ public:
   ///@}
 
   /**
-   * Get number of levels.
+   * Get number of levels. Forward to the internal AMRMetaData.
+   * Return 0 if metadata is invalid.
    */
   [[nodiscard]] unsigned int GetNumberOfLevels() const;
 
   /**
-   * Get the number of blocks for all levels including nullptr blocks, or 0 if AMRMetaData is
-   * invalid.
+   * Get the number of blocks for all levels including nullptr blocks.
+   * Forward to the internal AMRMetaData.
+   * Returns 0 if AMRMetaData is invalid.
    */
   [[nodiscard]] unsigned int GetNumberOfBlocks() const;
 
@@ -89,8 +114,8 @@ public:
   virtual unsigned int GetTotalNumberOfBlocks() { return this->GetNumberOfBlocks(); }
 
   /**
-   * Get the number of block at the given level, including nullptr blocks, or 0 if AMRMetaData
-   * is invalid.
+   * Get the number of block at the given level plus this AMR current level
+   * Returns 0 if AMRMetaData is invalid.
    */
   [[nodiscard]] unsigned int GetNumberOfBlocks(unsigned int level) const;
 
@@ -110,40 +135,27 @@ public:
   void GetMax(double max[3]);
   ///@}
 
-  /**
-   * Overriding superclass method.
-   */
-  void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj) override;
-
+  using Superclass::SetDataSet;
   /**
    * At the passed in level, set grid as the idx'th block at that level. idx must be less
    * than the number of data sets at that level
    */
   virtual void SetDataSet(unsigned int level, unsigned int idx, vtkUniformGrid* grid);
 
-  // Needed because, otherwise vtkCompositeData::GetDataSet(unsigned int flatIndex) is hidden.
   using Superclass::GetDataSet;
-
-  /**
-   * Get the data set pointed to by iter
-   */
-  vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter) override;
-
   /**
    * Get the data set using the (level, index) pair.
    */
   vtkUniformGrid* GetDataSet(unsigned int level, unsigned int idx);
 
   /**
-   * Returns the absolute block index from a level and a relative block index
-   * or -1 if it doesn't exist.
+   * Returns the absolute block index for given level plus this AMR current level
+   * and a relative block index or -1 if it doesn't exist or AMRMetaData is invalid.
    * Forward to the internal vtkAMRMetaData.
    */
   [[nodiscard]] int GetAbsoluteBlockIndex(unsigned int level, unsigned int index) const;
 
   /**
-   * Returns the absolute block index from a level and a relative block index
-   * or -1 if it doesn't exist.
    * Forward to the internal GetAbsoluteBlockIndex
    * Deprecated, use GetAbsoluteBlockIndex instead.
    */
@@ -218,8 +230,8 @@ protected:
    * Get/Set the meta AMR data
    * Deprecated, do not use.
    */
-  VTK_DEPRECATED_IN_9_6_0("This function is deprecated and should not be used")
-  virtual vtkAMRDataInternals* GetAMRData() { return this->AMRData; }
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated and should not be used, returns nullptr")
+  virtual vtkAMRDataInternals* GetAMRData() { return nullptr; }
   VTK_DEPRECATED_IN_9_6_0("This function is deprecated and has no effect")
   virtual void SetAMRData(vtkAMRDataInternals*){};
   ///@}
@@ -231,8 +243,8 @@ protected:
   VTK_DEPRECATED_IN_9_6_0(
     "This function is deprecated and should not be inherited, use GetAMRMetaData() instead")
   virtual vtkOverlappingAMRMetaData* GetAMRInfo() { return nullptr; };
-  VTK_DEPRECATED_IN_9_6_0(
-    "This function is deprecated and should not be inherited, use SetAMRMetaData() instead")
+  VTK_DEPRECATED_IN_9_6_0("This function is deprecated and should not be inherited, use "
+                          "SetAMRMetaData() or Initialize(vtkAMRMetaData*) instead")
   virtual void SetAMRInfo(vtkOverlappingAMRMetaData*){};
   ///@}
 
@@ -240,7 +252,7 @@ private:
   vtkUniformGridAMR(const vtkUniformGridAMR&) = delete;
   void operator=(const vtkUniformGridAMR&) = delete;
 
-  friend class vtkUniformGridAMRDataIterator;
+  void InitializeInternal();
 
   double Bounds[6] = {
     VTK_DOUBLE_MAX,
@@ -250,7 +262,6 @@ private:
     VTK_DOUBLE_MAX,
     VTK_DOUBLE_MIN,
   };
-  vtkNew<vtkAMRDataInternals> AMRData;
   vtkSmartPointer<vtkAMRMetaData> AMRMetaData;
 };
 

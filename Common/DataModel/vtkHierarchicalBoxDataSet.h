@@ -32,11 +32,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Return a new iterator (the iterator has to be deleted by user).
-   */
-  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() override;
-
-  /**
    * Return class name of data type (see vtkType.h for definitions).
    */
   int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_HIERARCHICAL_BOX_DATA_SET; }

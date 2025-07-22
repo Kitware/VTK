@@ -118,7 +118,7 @@ void vtkOverlappingAMRMetaData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Global origin: (" << this->GetOrigin()[0] << ", " << this->GetOrigin()[1] << ", "
      << this->GetOrigin()[2] << ")\n ";
 
-  os << indent << "Refinemnt Ratio: ";
+  os << indent << "Refinement Ratio: ";
   if (this->HasRefinementRatio())
   {
     for (unsigned int i = 0; i < this->GetNumberOfLevels(); i++)
