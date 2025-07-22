@@ -14,7 +14,6 @@
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOverlappingAMR.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"

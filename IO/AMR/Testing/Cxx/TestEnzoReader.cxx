@@ -9,7 +9,7 @@
 #include "vtkSetGet.h"
 #include "vtkTestUtilities.h"
 #include "vtkUniformGrid.h"
-#include "vtkUniformGridAMRDataIterator.h"
+#include "vtkUniformGridAMRIterator.h"
 namespace EnzoReaderTest
 {
 
@@ -31,8 +31,7 @@ int CheckValue(const std::string& name, T actualValue, T expectedValue)
 
 static int ComputeMaxNonEmptyLevel(vtkOverlappingAMR* amr)
 {
-  vtkUniformGridAMRDataIterator* iter =
-    vtkUniformGridAMRDataIterator::SafeDownCast(amr->NewIterator());
+  vtkUniformGridAMRIterator* iter = vtkUniformGridAMRIterator::SafeDownCast(amr->NewIterator());
   iter->SetSkipEmptyNodes(true);
   int maxLevel(-1);
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())

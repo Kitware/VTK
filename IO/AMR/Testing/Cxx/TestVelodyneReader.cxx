@@ -5,7 +5,6 @@
 #include "vtkSetGet.h"
 #include "vtkTestUtilities.h"
 #include "vtkUniformGrid.h"
-#include "vtkUniformGridAMRDataIterator.h"
 #include <iostream>
 #include <string>
 namespace VelodyneReaderTest

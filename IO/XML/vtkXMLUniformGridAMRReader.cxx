@@ -378,7 +378,7 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
   {
     // we don;t have the parse the structure. Just pass the inform from
     // this->Metadata.
-    oamr->SetAMRMetaData(this->Metadata->GetAMRMetaData());
+    oamr->Initialize(this->Metadata->GetAMRMetaData());
   }
   else if (noamr)
   {

@@ -23,7 +23,7 @@
 #include "vtkStructuredData.h"
 #include "vtkTimerLog.h"
 #include "vtkUniformGrid.h"
-#include "vtkUniformGridAMRDataIterator.h"
+#include "vtkUniformGridAMRIterator.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
@@ -244,8 +244,8 @@ void vtkAMRSliceFilter::ComputeAMRBlocksToLoad(vtkPlane* p, vtkOverlappingAMR* m
   plane[3] = p->GetNormal()[0] * p->GetOrigin()[0] + p->GetNormal()[1] * p->GetOrigin()[1] +
     p->GetNormal()[2] * p->GetOrigin()[2];
 
-  vtkSmartPointer<vtkUniformGridAMRDataIterator> iter;
-  iter.TakeReference(vtkUniformGridAMRDataIterator::SafeDownCast(metadata->NewIterator()));
+  vtkSmartPointer<vtkUniformGridAMRIterator> iter;
+  iter.TakeReference(vtkUniformGridAMRIterator::SafeDownCast(metadata->NewIterator()));
   iter->SetSkipEmptyNodes(false);
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
