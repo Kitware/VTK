@@ -20,6 +20,8 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h" // for vtkNew.
 
+#include <map>    // for std::map
+#include <set>    // for std::set
 #include <string> // for std::string
 
 namespace CGNSRead
@@ -339,8 +341,9 @@ protected:
   int GetCurvilinearZone(
     int base, int zone, int cell_dim, int phys_dim, void* zsize, vtkMultiBlockDataSet* mbase);
 
-  int GetUnstructuredZone(
-    int base, int zone, int cell_dim, int phys_dim, void* zsize, vtkMultiBlockDataSet* mbase);
+  int GetUnstructuredZone(int base, int zone, int cell_dim, int phys_dim, void* zsize,
+    vtkMultiBlockDataSet* mbase,
+    const std::map<int, std::set<std::string>>* zoneSurfaceNames = nullptr);
 
   /**
    * Read "UserDefinedData_t" nodes in the given zone. "DataArray_t" nodes found inside
