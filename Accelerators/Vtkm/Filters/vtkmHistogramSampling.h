@@ -1,7 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-// SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
-// SPDX-FileCopyrightText: Copyright 2012 Sandia Corporation.
-// SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
+// SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkmHistogramSampling
  * @brief   Accelerated point to cell interpolation filter.
