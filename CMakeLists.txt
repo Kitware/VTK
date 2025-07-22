@@ -155,7 +155,7 @@ check_cxx_source_runs("${VTK_REQUIRE_LARGE_FILE_SUPPORT_FILE}"
 
 #-----------------------------------------------------------------------------
 # Provide compatibility options.
-option(VTK_LEGACY_REMOVE "Remove all legacy code completely." OFF)
+option(VTK_LEGACY_REMOVE "Remove all legacy code completely." ON)
 option(VTK_LEGACY_SILENT "Silence all legacy code messages." OFF)
 mark_as_advanced(VTK_LEGACY_REMOVE VTK_LEGACY_SILENT)
 
