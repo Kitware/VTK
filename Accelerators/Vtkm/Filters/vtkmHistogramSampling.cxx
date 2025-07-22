@@ -6,13 +6,11 @@
 
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
-#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
-#include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkmlib/ArrayConverters.h"
@@ -28,20 +26,12 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmHistogramSampling);
 
 //------------------------------------------------------------------------------
-vtkmHistogramSampling::vtkmHistogramSampling()
-{
-  this->NumberOfBins = 10;
-  this->SampleFraction = 0.1;
-}
-
-//------------------------------------------------------------------------------
 int vtkmHistogramSampling::RequestDataObject(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkImageData* inImage = vtkImageData::GetData(inputVector[0]);
-  vtkPolyData* inPD = vtkPolyData::GetData(inputVector[0]);
+  vtkUnstructuredGrid* inUG = vtkUnstructuredGrid::GetData(inputVector[0]);
 
-  if (inImage || inPD)
+  if (inUG == nullptr) // must be any other type derived from vtkDataSet
   {
     vtkUnstructuredGrid* output = vtkUnstructuredGrid::GetData(outputVector);
     if (!output)
