@@ -60,11 +60,12 @@ struct MaxCellSizeWorker
 
   void operator()(vtkIdType begin, vtkIdType end)
   {
+    auto*& points = this->Points.Local();
+    auto& maxCellSize = this->MaxCellSize.Local();
     for (vtkIdType idx = begin; idx < end; ++idx)
     {
-      this->Data->GetCellPoints(idx, this->Points.Local());
-      this->MaxCellSize.Local() =
-        std::max(this->MaxCellSize.Local(), this->Points.Local()->GetNumberOfIds());
+      this->Data->GetCellPoints(idx, points);
+      maxCellSize = std::max(maxCellSize, points->GetNumberOfIds());
     }
   }
 
@@ -187,18 +188,19 @@ void vtkAttributeDataToTableFilter::AddCellTypeAndConnectivity(vtkTable* output,
       indices[i] = idarray;
     }
 
-    vtkSMPThreadLocalObject<vtkIdList> locPoints;
+    vtkSMPThreadLocalObject<vtkIdList> tlPoints;
     vtkSMPTools::For(0, numcells,
       [&](vtkIdType begin, vtkIdType end)
       {
+        auto*& locPoints = tlPoints.Local();
         for (vtkIdType cc = begin; cc < end; cc++)
         {
-          ds->GetCellPoints(cc, locPoints.Local());
+          ds->GetCellPoints(cc, locPoints);
           for (vtkIdType pt = 0; pt < maxpoints; pt++)
           {
-            if (pt < locPoints.Local()->GetNumberOfIds())
+            if (pt < locPoints->GetNumberOfIds())
             {
-              indices[pt]->SetValue(cc, locPoints.Local()->GetId(pt));
+              indices[pt]->SetValue(cc, locPoints->GetId(pt));
             }
             else
             {
