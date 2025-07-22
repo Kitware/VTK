@@ -14,6 +14,7 @@ set(classes
   vtkmExtractVOI
   vtkmGradient
   vtkmHistogram
+  vtkmHistogramSampling
   vtkmImageConnectivity
   vtkmLevelOfDetail
   vtkmNDHistogram
