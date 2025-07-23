@@ -87,14 +87,14 @@ static bool TestCellLocatorEvaluatePosition(char* fname)
   double test_point[] = { -5.091451e-02, -1.800857e-01, 1.153756e+00 };
 
   // expected result
-  const double dist_exp = 1.658136e-01;
-  const double closest_point_exp[] = { -1.582647e-01, -5.475835e-01, 1.015066e+00 };
-  const int cell_id_exp = 1944;
+  constexpr double dist_exp = 1.658136e-01;
+  constexpr double closest_point_exp[] = { -1.582647e-01, -5.475835e-01, 1.015066e+00 };
+  constexpr int cell_id_exp = 1944;
 
   // threshold for floating point checking
-  const double thresh = 1e-5;
+  constexpr double thresh = 1e-5;
 
-  const double radius = 0.5;
+  constexpr double radius = 0.5;
   double closest_point[3];
   vtkIdType cell_id;
   int sub_id, inside;

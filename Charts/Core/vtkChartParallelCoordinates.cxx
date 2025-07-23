@@ -476,7 +476,7 @@ void vtkChartParallelCoordinates::UpdateGeometry(vtkContext2D* painter)
     if (this->Legend->GetVisible() && !this->Legend->GetInline())
     {
       this->Legend->Update();
-      const int padding = 10;
+      constexpr int padding = 10;
       const vtkRectf rect = this->Legend->GetBoundingRect(painter);
       this->SetBorders(60 * tileScale.GetX(), 50 * tileScale.GetY(),
         (60 + static_cast<int>(rect.GetWidth()) + padding) * tileScale.GetX(),

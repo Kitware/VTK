@@ -553,7 +553,7 @@ void vtkVolumeOutlineSource::GenerateLines(vtkCellArray* lines, vtkUnsignedCharA
           // Values 0000, 0011, 0110, 1100, 1001, 1111 don't need lines.
           // Build a bitfield to check our bitfield values against, each
           // set bit in this new bitfield corresponds to a non-edge case.
-          const int noLineValues =
+          constexpr int noLineValues =
             ((1 << 0x0) | (1 << 0x3) | (1 << 0x6) | (1 << 0x9) | (1 << 0xc) | (1 << 0xf));
 
           // If our line segment is an edge, there is lots of work to do.

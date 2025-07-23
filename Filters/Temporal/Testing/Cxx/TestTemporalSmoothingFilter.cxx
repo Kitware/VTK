@@ -81,10 +81,10 @@ vtkStandardNewMacro(MockTemporalPointSource);
 
 int TestRequestOutOfBoundsTimeStep()
 {
-  const int numTimeSteps = 30;
-  const int windowHalfSize = 5;
-  const int expectedFirstAvailableTimeStep = windowHalfSize;
-  const int expectedLastAvailableTimestep = numTimeSteps - windowHalfSize - 1;
+  constexpr int numTimeSteps = 30;
+  constexpr int windowHalfSize = 5;
+  constexpr int expectedFirstAvailableTimeStep = windowHalfSize;
+  constexpr int expectedLastAvailableTimestep = numTimeSteps - windowHalfSize - 1;
 
   vtkNew<MockTemporalPointSource> source;
   source->SetNumTimeSteps(numTimeSteps);

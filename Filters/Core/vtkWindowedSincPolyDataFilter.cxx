@@ -1104,7 +1104,7 @@ struct CoefficientsWorker
     int done = 0;
     sigma = 0.0;
 
-    const double errorTolerance = 1e-3;
+    constexpr double errorTolerance = 1e-3;
 
     // Although this loop can run up to 500 times, in practice 20-40 iterations
     // is typical.

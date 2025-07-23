@@ -69,7 +69,7 @@ static int TestTransform(Conditions c)
   std::ostringstream errstream;
   int npoints = (c.npoints > 20 ? 20 : c.npoints);
 
-  const double landmarkPointCoords[20][3] = {
+  constexpr double landmarkPointCoords[20][3] = {
     { -0.8316301300814422, -0.06992580859519772, -1.6034524068257419 },
     { -2.151893827785692, 0.38244721645095636, -0.9275967632551845 },
     { 0.8147291118075928, -0.7016483698682392, 0.15003863332602096 },
@@ -92,7 +92,7 @@ static int TestTransform(Conditions c)
     { -0.09448165336394657, -1.1381967760924927, -0.7171168342666931 },
   };
 
-  const double landmarkPointNoise[20][3] = {
+  constexpr double landmarkPointNoise[20][3] = {
     { 1.5137019295427425, 0.6858246680960894, 0.07331883771349512 },
     { -0.34081703057234036, 0.47987804772801446, 0.982197518178181 },
     { -0.1106079068591361, 1.0523148414328571, 0.17910578196163454 },
@@ -119,7 +119,7 @@ static int TestTransform(Conditions c)
   const double forwardErrorTolerance =
     (c.sourceDimensionality == 3 && c.targetDimensionality == 3 ? 0.0 : 0.001);
   // There can always be some inaccuracies in inverse computation.
-  const double inverseErrorTolerance = 0.001;
+  constexpr double inverseErrorTolerance = 0.001;
 
   vtkNew<vtkTransform> sourceTransform;
   SetTransform(sourceTransform, c.sourceDimensionality, c.sourceRotX, c.sourceRotY, c.sourceRotZ,

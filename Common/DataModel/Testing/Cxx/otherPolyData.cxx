@@ -130,7 +130,7 @@ bool TestRemoveGhostCells()
 
   pd->RemoveGhostCells();
 
-  const int nVerts = 1, nLines = 1, nPolys = 1, nStrips = 2;
+  constexpr int nVerts = 1, nLines = 1, nPolys = 1, nStrips = 2;
 
   if (pd->GetNumberOfVerts() != nVerts || pd->GetNumberOfLines() != nLines ||
     pd->GetNumberOfPolys() != nPolys || pd->GetNumberOfStrips() != nStrips)

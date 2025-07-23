@@ -799,8 +799,8 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPS(vtkPath* path, double rasterPos[3], do
 
   std::stringstream out;
   out.setf(std::ios_base::left | std::ios_base::fixed);
-  const int floatPrec = 2;
-  const int floatWidth = 6;
+  constexpr int floatPrec = 2;
+  constexpr int floatWidth = 6;
   out.precision(floatPrec);
   out.width(floatWidth);
 
@@ -942,8 +942,8 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPDF(vtkPath* path, double rasterPos[3], d
 
   std::stringstream out;
   out.setf(std::ios_base::left | std::ios_base::fixed);
-  const int floatPrec = 2;
-  const int floatWidth = 6;
+  constexpr int floatPrec = 2;
+  constexpr int floatWidth = 6;
   out.precision(floatPrec);
   out.width(floatWidth);
 
@@ -1094,8 +1094,8 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(vtkPath* path, double rasterPos[3], d
   std::stringstream out;
   out.setf(std::ios_base::left | std::ios_base::fixed);
 
-  const int floatPrec = 2;
-  const int floatWidth = 6;
+  constexpr int floatPrec = 2;
+  constexpr int floatWidth = 6;
   out.precision(floatPrec);
   out.width(floatWidth);
 

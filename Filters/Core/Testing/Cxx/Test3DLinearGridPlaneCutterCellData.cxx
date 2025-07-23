@@ -19,7 +19,7 @@
 
 int Test3DLinearGridPlaneCutterCellData(int argc, char* argv[])
 {
-  const auto cellArrayName = "CellIds";
+  constexpr auto cellArrayName = "CellIds";
 
   vtkNew<vtkXMLUnstructuredGridReader> reader;
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/slightlyRotated.vtu");

@@ -15,20 +15,20 @@ int TestPolygonNormalOverflow(int, char*[])
 {
   int returnValue = EXIT_SUCCESS;
 
-  const float scales[] = {
+  constexpr float scales[] = {
     1.0,   // for baseline
     1e+30, // for overflow test
     1e-30, // for underflow test
   };
-  const int nscales = sizeof(scales) / sizeof(*scales);
+  constexpr int nscales = sizeof(scales) / sizeof(*scales);
 
-  const float coords[] = {
+  constexpr float coords[] = {
     0.1, 0.1, 0.0, // 0
     0.9, 0.0, 0.0, // 1
     1.1, 1.1, 0.0, // 2
     0.0, 1.2, 0.0, // 3
   };
-  const vtkIdType npoints = sizeof(coords) / (3 * sizeof(*coords));
+  constexpr vtkIdType npoints = sizeof(coords) / (3 * sizeof(*coords));
 
   double baseline[3]{};
   vtkNew<vtkIdTypeArray> ids;

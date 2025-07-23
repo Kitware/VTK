@@ -92,7 +92,7 @@ void vtkDepthOfFieldPass::Render(const vtkRenderState* s)
   // much easier to find.
   // Objects that are out of view can blur onto the image due to
   // the COC, so we render a few border pixels to prevent discontinuities
-  const int extraPixels = 16;
+  constexpr int extraPixels = 16;
 
   int w = width + extraPixels * 2;
   int h = height + extraPixels * 2;

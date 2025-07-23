@@ -785,7 +785,7 @@ void vtkBoxClipDataSet::WedgeToTetra(
   vtkIdType tab[4];
   vtkIdType tabpyram[5];
 
-  const vtkIdType vwedge[6][4] = {
+  constexpr vtkIdType vwedge[6][4] = {
     { 0, 4, 3, 5 },
     { 1, 4, 3, 5 },
     { 2, 4, 3, 5 },
@@ -825,7 +825,7 @@ void vtkBoxClipDataSet::WedgeToTetra(
   newCellArray->InsertNextCell(4, tab);
 
   // Pyramid :create 2 tetrahedra
-  const vtkIdType vert[6][5] = {
+  constexpr vtkIdType vert[6][5] = {
     { 1, 2, 5, 4, 0 },
     { 2, 0, 3, 5, 1 },
     { 3, 0, 1, 4, 2 },
@@ -869,7 +869,7 @@ void vtkBoxClipDataSet::PyramidToTetra(
   //         2 tetrahedra-> vpy[0]: {v0,v1,v2,v4}
   //                        vpy[1]: {v0,v2,v3,v4}
   //
-  const vtkIdType vpy[8][4] = {
+  constexpr vtkIdType vpy[8][4] = {
     { 0, 1, 2, 4 },
     { 0, 2, 3, 4 },
     { 1, 2, 3, 4 },
@@ -1004,7 +1004,7 @@ void vtkBoxClipDataSet::CellGrid(
   unsigned int idopos;
   unsigned int numbertetra;
 
-  const vtkIdType triPassThrough[3] = { 0, 1, 2 };
+  constexpr vtkIdType triPassThrough[3] = { 0, 1, 2 };
   vtkIdType tri[3];
   vtkIdType line[2];
 
@@ -1065,7 +1065,7 @@ void vtkBoxClipDataSet::CellGrid(
 
     case VTK_PIXEL: // 8
     {
-      const vtkIdType vtrip[2][3] = {
+      constexpr vtkIdType vtrip[2][3] = {
         { 0, 1, 3 },
         { 0, 3, 2 },
       };
@@ -1079,7 +1079,7 @@ void vtkBoxClipDataSet::CellGrid(
     case VTK_BIQUADRATIC_QUAD:
     case VTK_QUADRATIC_LINEAR_QUAD:
     {
-      const vtkIdType vtriq[2][3] = {
+      constexpr vtkIdType vtriq[2][3] = {
         { 0, 1, 2 },
         { 0, 2, 3 },
       };
@@ -1091,7 +1091,7 @@ void vtkBoxClipDataSet::CellGrid(
     case VTK_TETRA: // 10
     case VTK_QUADRATIC_TETRA:
     {
-      const vtkIdType tetra[4] = { 0, 1, 2, 3 };
+      constexpr vtkIdType tetra[4] = { 0, 1, 2, 3 };
       newCellArray->InsertNextCell(ptstetra, tetra);
     }
     break;
@@ -1171,7 +1171,7 @@ void vtkBoxClipDataSet::CellGrid(
         // case 1: create  5 tetraedra
         if ((id == 0) || (id == 3) || (id == 5) || (id == 6))
         {
-          const vtkIdType vtetra[5][4] = {
+          constexpr vtkIdType vtetra[5][4] = {
             { 0, 5, 3, 6 },
             { 0, 4, 5, 6 },
             { 0, 1, 3, 5 },
@@ -1185,7 +1185,7 @@ void vtkBoxClipDataSet::CellGrid(
         }
         else
         {
-          const vtkIdType vtetra[5][4] = {
+          constexpr vtkIdType vtetra[5][4] = {
             { 1, 2, 4, 7 },
             { 0, 1, 2, 4 },
             { 1, 4, 5, 7 },
@@ -1202,7 +1202,7 @@ void vtkBoxClipDataSet::CellGrid(
       else
       {
         // case 2: create 2 wedges-> 6 tetrahedra
-        const vtkIdType vwedge[12][6] = {
+        constexpr vtkIdType vwedge[12][6] = {
           { 0, 5, 4, 2, 7, 6 },
           { 0, 1, 5, 2, 3, 7 },
           { 4, 7, 6, 0, 3, 2 },
@@ -1310,7 +1310,7 @@ void vtkBoxClipDataSet::CellGrid(
       }
 
       // two cases:
-      const unsigned int tabopos[8] = { 6, 7, 4, 5, 2, 3, 0, 1 };
+      constexpr unsigned int tabopos[8] = { 6, 7, 4, 5, 2, 3, 0, 1 };
       idopos = tabopos[id];
       numbertetra = 5;
       for (i = 0; i < 6; i++)
@@ -1334,7 +1334,7 @@ void vtkBoxClipDataSet::CellGrid(
         // case 1: create  5 tetraedra
         if ((id == 0) || (id == 2) || (id == 5) || (id == 7))
         {
-          const vtkIdType vtetra[5][4] = {
+          constexpr vtkIdType vtetra[5][4] = {
             { 0, 5, 2, 7 },
             { 0, 4, 5, 7 },
             { 0, 1, 2, 5 },
@@ -1348,7 +1348,7 @@ void vtkBoxClipDataSet::CellGrid(
         }
         else
         {
-          const vtkIdType vtetra[5][4] = {
+          constexpr vtkIdType vtetra[5][4] = {
             { 1, 3, 4, 6 },
             { 0, 1, 3, 4 },
             { 1, 4, 5, 6 },
@@ -1365,7 +1365,7 @@ void vtkBoxClipDataSet::CellGrid(
       else
       {
         // case 2: create 2 wedges-> 6 tetrahedra
-        const vtkIdType vwedge[12][6] = {
+        constexpr vtkIdType vwedge[12][6] = {
           { 0, 5, 4, 3, 6, 7 },
           { 0, 1, 5, 3, 2, 6 },
           { 4, 6, 7, 0, 2, 3 },
@@ -1425,7 +1425,7 @@ void vtkBoxClipDataSet::CellGrid(
       if (npts == 6) // create 3 tetrahedra
       {
         // first tetrahedron
-        const vtkIdType vwedge[6][4] = {
+        constexpr vtkIdType vwedge[6][4] = {
           { 0, 4, 3, 5 },
           { 1, 4, 3, 5 },
           { 2, 4, 3, 5 },
@@ -1447,7 +1447,7 @@ void vtkBoxClipDataSet::CellGrid(
 
         // Pyramid :create 2 tetrahedra
 
-        const vtkIdType vert[6][5] = {
+        constexpr vtkIdType vert[6][5] = {
           { 1, 2, 5, 4, 0 },
           { 2, 0, 3, 5, 1 },
           { 3, 0, 1, 4, 2 },
@@ -1455,7 +1455,7 @@ void vtkBoxClipDataSet::CellGrid(
           { 2, 0, 3, 5, 4 },
           { 3, 0, 1, 4, 5 },
         };
-        const vtkIdType vpy[8][4] = {
+        constexpr vtkIdType vpy[8][4] = {
           { 0, 1, 2, 4 },
           { 0, 2, 3, 4 },
           { 1, 2, 3, 4 },
@@ -1503,7 +1503,7 @@ void vtkBoxClipDataSet::CellGrid(
       if (npts == 5)
       {
         // note: the first element vpyram[][0] is the smallest index of pyramid
-        const vtkIdType vpyram[8][4] = {
+        constexpr vtkIdType vpyram[8][4] = {
           { 0, 1, 2, 4 },
           { 0, 2, 3, 4 },
           { 1, 2, 3, 4 },
@@ -1560,7 +1560,7 @@ void vtkBoxClipDataSet::CreateTetra(
   {
     // VTK_WEDGE: Create 3 tetrahedra
     // first tetrahedron
-    const vtkIdType vwedge[6][4] = {
+    constexpr vtkIdType vwedge[6][4] = {
       { 0, 4, 3, 5 },
       { 1, 4, 3, 5 },
       { 2, 4, 3, 5 },
@@ -1586,7 +1586,7 @@ void vtkBoxClipDataSet::CreateTetra(
 
     // Pyramid: create 2 tetrahedra
 
-    const vtkIdType vert[6][5] = {
+    constexpr vtkIdType vert[6][5] = {
       { 1, 2, 5, 4, 0 },
       { 2, 0, 3, 5, 1 },
       { 3, 0, 1, 4, 2 },
@@ -1594,7 +1594,7 @@ void vtkBoxClipDataSet::CreateTetra(
       { 2, 0, 3, 5, 4 },
       { 3, 0, 1, 4, 5 },
     };
-    const vtkIdType vpy[8][4] = {
+    constexpr vtkIdType vpy[8][4] = {
       { 0, 1, 2, 4 },
       { 0, 2, 3, 4 },
       { 1, 2, 3, 4 },
@@ -1633,7 +1633,7 @@ void vtkBoxClipDataSet::CreateTetra(
   {
     // VTK_PYRAMID: Create 2 tetrahedra
     // The first element in each set is the smallest index of pyramid
-    const vtkIdType vpyram[8][4] = {
+    constexpr vtkIdType vpyram[8][4] = {
       { 0, 1, 2, 4 },
       { 0, 2, 3, 4 },
       { 1, 2, 3, 4 },
@@ -2021,7 +2021,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints* newPoints, vtkGenericCell* cell,
     double *pedg1, *pedg2;
 
     // Tetrahedron Intersection Cases
-    const unsigned int tab4[6][6] = {
+    constexpr unsigned int tab4[6][6] = {
       { 1, 1, 0, 3, 3, 2 },
       { 2, 0, 0, 3, 2, 1 },
       { 3, 3, 2, 0, 2, 1 },
@@ -2029,13 +2029,13 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints* newPoints, vtkGenericCell* cell,
       { 0, 0, 1, 2, 3, 3 },
       { 0, 1, 2, 1, 2, 3 },
     };
-    const unsigned int tab3[4][6] = {
+    constexpr unsigned int tab3[4][6] = {
       { 0, 2, 1, 1, 3, 2 },
       { 0, 1, 2, 0, 2, 3 },
       { 0, 1, 2, 1, 0, 3 },
       { 0, 1, 2, 0, 1, 2 },
     };
-    const unsigned int tab2[12][5] = {
+    constexpr unsigned int tab2[12][5] = {
       { 0, 0, 1, 2, 3 },
       { 2, 1, 0, 1, 3 },
       { 1, 0, 1, 0, 3 },
@@ -2049,7 +2049,7 @@ void vtkBoxClipDataSet::ClipBox(vtkPoints* newPoints, vtkGenericCell* cell,
       { 3, 1, 0, 0, 2 },
       { 0, 0, 1, 1, 2 },
     };
-    const unsigned int tab1[12][3] = {
+    constexpr unsigned int tab1[12][3] = {
       { 2, 3, 1 },
       { 3, 2, 0 },
       { 3, 0, 1 },
@@ -2511,7 +2511,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints* newPoints, vtkGenericCell* cel
     double *pedg1, *pedg2;
 
     // Tetrahedron Intersection Cases
-    const unsigned int tab4[6][6] = {
+    constexpr unsigned int tab4[6][6] = {
       { 1, 1, 0, 3, 3, 2 },
       { 2, 0, 0, 3, 2, 1 },
       { 3, 3, 2, 0, 2, 1 },
@@ -2519,13 +2519,13 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints* newPoints, vtkGenericCell* cel
       { 0, 0, 1, 2, 3, 3 },
       { 0, 1, 2, 1, 2, 3 },
     };
-    const unsigned int tab3[4][6] = {
+    constexpr unsigned int tab3[4][6] = {
       { 0, 2, 1, 1, 3, 2 },
       { 0, 1, 2, 0, 2, 3 },
       { 0, 1, 2, 1, 0, 3 },
       { 0, 1, 2, 0, 1, 2 },
     };
-    const unsigned int tab2[12][5] = {
+    constexpr unsigned int tab2[12][5] = {
       { 0, 0, 1, 2, 3 },
       { 2, 1, 0, 1, 3 },
       { 1, 0, 1, 0, 3 },
@@ -2539,7 +2539,7 @@ void vtkBoxClipDataSet::ClipHexahedron(vtkPoints* newPoints, vtkGenericCell* cel
       { 3, 1, 0, 0, 2 },
       { 0, 0, 1, 1, 2 },
     };
-    const unsigned int tab1[12][3] = {
+    constexpr unsigned int tab1[12][3] = {
       { 2, 3, 1 },
       { 3, 2, 0 },
       { 3, 0, 1 },
@@ -3019,7 +3019,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints* newPoints, vtkGenericCell* cell,
     double *pedg1, *pedg2;
 
     // Tetrahedron Intersection Cases
-    const unsigned int tab4[6][6] = {
+    constexpr unsigned int tab4[6][6] = {
       { 1, 1, 0, 3, 3, 2 },
       { 2, 0, 0, 3, 2, 1 },
       { 3, 3, 2, 0, 2, 1 },
@@ -3027,13 +3027,13 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints* newPoints, vtkGenericCell* cell,
       { 0, 0, 1, 2, 3, 3 },
       { 0, 1, 2, 1, 2, 3 },
     };
-    const unsigned int tab3[4][6] = {
+    constexpr unsigned int tab3[4][6] = {
       { 0, 2, 1, 1, 3, 2 },
       { 0, 1, 2, 0, 2, 3 },
       { 0, 1, 2, 1, 0, 3 },
       { 0, 1, 2, 0, 1, 2 },
     };
-    const unsigned int tab2[12][5] = {
+    constexpr unsigned int tab2[12][5] = {
       { 0, 0, 1, 2, 3 },
       { 2, 1, 0, 1, 3 },
       { 1, 0, 1, 0, 3 },
@@ -3047,7 +3047,7 @@ void vtkBoxClipDataSet::ClipBoxInOut(vtkPoints* newPoints, vtkGenericCell* cell,
       { 3, 1, 0, 0, 2 },
       { 0, 0, 1, 1, 2 },
     };
-    const unsigned int tab1[12][3] = {
+    constexpr unsigned int tab1[12][3] = {
       { 2, 3, 1 },
       { 3, 2, 0 },
       { 3, 0, 1 },
@@ -3585,7 +3585,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints* newPoints, vtkGenericCell
     double *pedg1, *pedg2;
 
     // Tetrahedron Intersection Cases
-    const unsigned int tab4[6][6] = {
+    constexpr unsigned int tab4[6][6] = {
       { 1, 1, 0, 3, 3, 2 },
       { 2, 0, 0, 3, 2, 1 },
       { 3, 3, 2, 0, 2, 1 },
@@ -3593,13 +3593,13 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints* newPoints, vtkGenericCell
       { 0, 0, 1, 2, 3, 3 },
       { 0, 1, 2, 1, 2, 3 },
     };
-    const unsigned int tab3[4][6] = {
+    constexpr unsigned int tab3[4][6] = {
       { 0, 2, 1, 1, 3, 2 },
       { 0, 1, 2, 0, 2, 3 },
       { 0, 1, 2, 1, 0, 3 },
       { 0, 1, 2, 0, 1, 2 },
     };
-    const unsigned int tab2[12][5] = {
+    constexpr unsigned int tab2[12][5] = {
       { 0, 0, 1, 2, 3 },
       { 2, 1, 0, 1, 3 },
       { 1, 0, 1, 0, 3 },
@@ -3613,7 +3613,7 @@ void vtkBoxClipDataSet::ClipHexahedronInOut(vtkPoints* newPoints, vtkGenericCell
       { 3, 1, 0, 0, 2 },
       { 0, 0, 1, 1, 2 },
     };
-    const unsigned int tab1[12][3] = {
+    constexpr unsigned int tab1[12][3] = {
       { 2, 3, 1 },
       { 3, 2, 0 },
       { 3, 0, 1 },

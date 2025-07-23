@@ -230,7 +230,7 @@ int Test2dFindMultipleCells()
 {
   int retVal = EXIT_SUCCESS;
 
-  double const tol = 0.01;
+  constexpr double tol = 0.01;
   for (int no_extent_dim = 0; no_extent_dim < 3; ++no_extent_dim)
   {
     auto const grid = create2dGrid(no_extent_dim);

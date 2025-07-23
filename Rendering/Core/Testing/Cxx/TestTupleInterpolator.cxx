@@ -13,7 +13,7 @@
 
 namespace
 {
-const double epsilon = 1e-12;
+constexpr double epsilon = 1e-12;
 }
 
 // Test if the interpolation is correct on a few data
@@ -85,8 +85,8 @@ bool TestTupleInterpolatorFillFromData()
 {
   bool retVal = EXIT_SUCCESS;
 
-  const unsigned int Ndata = 20;
-  const unsigned int Ndim = 3;
+  constexpr unsigned int Ndata = 20;
+  constexpr unsigned int Ndim = 3;
 
   // Allocate memory
   std::array<double, Ndata> time;

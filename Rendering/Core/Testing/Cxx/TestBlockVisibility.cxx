@@ -80,7 +80,7 @@ int TestBlockVisibility(int argc, char* argv[])
     vtkSmartPointer<vtkCompositeDataDisplayAttributes>::New();
   mapper->SetCompositeDataDisplayAttributes(attrs);
 
-  const int visblocks[] = { 0, 3, 4, 7, 8, 11, 13, 14, 17 };
+  constexpr int visblocks[] = { 0, 3, 4, 7, 8, 11, 13, 14, 17 };
   std::set<int> vis(visblocks, visblocks + sizeof(visblocks) / sizeof(visblocks[0]));
   for (int i = 0; i < static_cast<int>(mbds->GetNumberOfBlocks()); ++i)
   {

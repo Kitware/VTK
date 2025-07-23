@@ -48,12 +48,12 @@ int BoxClipOrientedPointData(int argc, char* argv[])
   boxClip->SetInputConnection(reader->GetOutputPort());
   boxClip->GenerateClippedOutputOn();
 
-  const double minusx[] = { -1.0, 0.0, 0.0 };
-  const double minusy[] = { 0.0, -1.0, 0.0 };
-  const double minusz[] = { 0.0, 0.0, -1.0 };
-  const double plusx[] = { 1.0, 0.0, 0.0 };
-  const double plusy[] = { 0.0, 1.0, 0.0 };
-  const double plusz[] = { 0.0, 0.0, 1.0 };
+  constexpr double minusx[] = { -1.0, 0.0, 0.0 };
+  constexpr double minusy[] = { 0.0, -1.0, 0.0 };
+  constexpr double minusz[] = { 0.0, 0.0, -1.0 };
+  constexpr double plusx[] = { 1.0, 0.0, 0.0 };
+  constexpr double plusy[] = { 0.0, 1.0, 0.0 };
+  constexpr double plusz[] = { 0.0, 0.0, 1.0 };
   boxClip->SetBoxClip(minusx, minBoxPoint, minusy, minBoxPoint, minusz, minBoxPoint, plusx,
     maxBoxPoint, plusy, maxBoxPoint, plusz, maxBoxPoint);
 

@@ -317,7 +317,7 @@ int vtkAVSucdReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       return 0;
     }
 
-    const long base_offset = 1 + 6 * 4;
+    constexpr long base_offset = 1 + 6 * 4;
     char buffer1[1024], buffer2[1024], label[32];
 
     long offset =

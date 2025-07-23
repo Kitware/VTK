@@ -16,7 +16,7 @@
 
 namespace
 {
-const char arrayName[] = "coordinates";
+constexpr char arrayName[] = "coordinates";
 
 //////////////////////////////////////////////////////////////////////////////
 // Create a dataset for testing

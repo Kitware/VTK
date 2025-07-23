@@ -163,11 +163,11 @@ static int nc_get_scalar_double(int ncid, const char* name, double* dp)
 
 //=============================================================================
 // Describes how faces are defined in a tetrahedra in the files.
-const int tetFaces[4][3] = { { 0, 2, 1 }, { 0, 3, 2 }, { 0, 1, 3 }, { 1, 2, 3 } };
+constexpr int tetFaces[4][3] = { { 0, 2, 1 }, { 0, 3, 2 }, { 0, 1, 3 }, { 1, 2, 3 } };
 
 // Describes the points on each edge of a VTK triangle.  The edges are in the
 // same order as the midpoints are defined in a VTK quadratic triangle.
-const int triEdges[3][2] = { { 0, 1 }, { 1, 2 }, { 0, 2 } };
+constexpr int triEdges[3][2] = { { 0, 1 }, { 1, 2 }, { 0, 2 } };
 
 //=============================================================================
 static int NetCDFTypeToVTKType(nc_type type)

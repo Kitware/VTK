@@ -893,7 +893,7 @@ void vtkLSDynaPartCollection::FillPointProperty(
   const vtkIdType numPointsToSkipEnd(numTuples - (realNumberOfTuples + minGlobalPoint));
 
   vtkIdType offset = numPointsToSkipStart;
-  const vtkIdType numPointsToRead(1048576);
+  constexpr vtkIdType numPointsToRead(1048576);
   const vtkIdType loopTimes(realNumberOfTuples / numPointsToRead);
   const vtkIdType leftOver(realNumberOfTuples % numPointsToRead);
   const vtkIdType bufferChunkSize(numPointsToRead * numComps);

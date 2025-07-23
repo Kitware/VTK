@@ -904,7 +904,7 @@ void vtkTIFFReader::ReadTiles(void* buffer)
         delete[] tile;
         return;
       }
-      const unsigned int zz = 0;
+      constexpr unsigned int zz = 0;
       for (unsigned int yy = 0; yy < tileHeight; ++yy)
       {
         const unsigned int y = flip ? tileHeight + height % tileHeight - yy - 1 : yy;
@@ -926,7 +926,7 @@ void vtkTIFFReader::ReadTiles(void* buffer)
         delete[] tile;
         return;
       }
-      const unsigned int zz = 0;
+      constexpr unsigned int zz = 0;
       for (unsigned int yy = 0; yy < leny; ++yy)
       {
         const unsigned int y = flip ? leny - yy - 1 : yy;
@@ -951,7 +951,7 @@ void vtkTIFFReader::ReadTiles(void* buffer)
       delete[] tile;
       return;
     }
-    const unsigned int zz = 0;
+    constexpr unsigned int zz = 0;
     unsigned int y;
     for (unsigned int yy = 0; yy < leny; ++yy)
     {

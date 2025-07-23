@@ -12,7 +12,7 @@ namespace
 
 void RunTest(bool use64BitStorage)
 {
-  const vtkIdType numTris = 25000;
+  constexpr vtkIdType numTris = 25000;
   vtkIdType num;
 
   auto ca = vtkSmartPointer<vtkCellArray>::New();

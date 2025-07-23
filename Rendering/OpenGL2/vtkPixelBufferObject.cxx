@@ -21,15 +21,15 @@
 // Mapping from Usage values to OpenGL values.
 
 VTK_ABI_NAMESPACE_BEGIN
-static const GLenum OpenGLBufferObjectUsage[9] = { GL_STREAM_DRAW, GL_STREAM_READ, GL_STREAM_COPY,
-  GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ,
+static constexpr GLenum OpenGLBufferObjectUsage[9] = { GL_STREAM_DRAW, GL_STREAM_READ,
+  GL_STREAM_COPY, GL_STATIC_DRAW, GL_STATIC_READ, GL_STATIC_COPY, GL_DYNAMIC_DRAW, GL_DYNAMIC_READ,
   GL_DYNAMIC_COPY };
 
 static const char* BufferObjectUsageAsString[9] = { "StreamDraw", "StreamRead", "StreamCopy",
   "StaticDraw", "StaticRead", "StaticCopy", "DynamicDraw", "DynamicRead", "DynamicCopy" };
 
 // access modes
-const GLenum OpenGLBufferObjectAccess[2] = {
+constexpr GLenum OpenGLBufferObjectAccess[2] = {
 #ifdef GL_ES_VERSION_3_0
   GL_MAP_WRITE_BIT, GL_MAP_READ_BIT
 #else
@@ -38,7 +38,7 @@ const GLenum OpenGLBufferObjectAccess[2] = {
 };
 
 // targets
-const GLenum OpenGLBufferObjectTarget[2] = { GL_PIXEL_UNPACK_BUFFER, GL_PIXEL_PACK_BUFFER };
+constexpr GLenum OpenGLBufferObjectTarget[2] = { GL_PIXEL_UNPACK_BUFFER, GL_PIXEL_PACK_BUFFER };
 VTK_ABI_NAMESPACE_END
 
 #ifdef VTK_PBO_DEBUG

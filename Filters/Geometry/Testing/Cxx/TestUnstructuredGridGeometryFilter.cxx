@@ -130,7 +130,7 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   cellIds->SetName("cellIds");
 
   float scalar = 0.0;
-  const float scalarStep = 0.1;
+  constexpr float scalarStep = 0.1;
   vtkIdType cellId = 0;
   double xOffset = 0.0;
   double yOffset = 0.0;

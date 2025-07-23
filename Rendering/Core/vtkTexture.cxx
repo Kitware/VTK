@@ -137,7 +137,7 @@ void vtkTexture::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  const int WrapAsString[4] = { ClampToEdge, Repeat, MirroredRepeat, ClampToBorder };
+  constexpr int WrapAsString[4] = { ClampToEdge, Repeat, MirroredRepeat, ClampToBorder };
   os << indent << "MaximumAnisotropicFiltering: " << this->MaximumAnisotropicFiltering << "\n";
   os << indent << "Mipmap: " << (this->Mipmap ? "On\n" : "Off\n");
   os << indent << "Interpolate: " << (this->Interpolate ? "On\n" : "Off\n");

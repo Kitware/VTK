@@ -24,7 +24,7 @@
 #include <algorithm>
 
 VTK_ABI_NAMESPACE_BEGIN
-static const unsigned char MASKED_CELL_VALUE =
+static constexpr unsigned char MASKED_CELL_VALUE =
   vtkDataSetAttributes::HIDDENCELL | vtkDataSetAttributes::REFINEDCELL;
 
 static int HEXAHEDRON_POINT_MAP[] = {

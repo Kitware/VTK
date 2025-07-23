@@ -374,7 +374,7 @@ static double warmthTable[] = {
 //------------------------------------------------------------------------------
 void vtkLightKit::InitializeWarmthFunctions()
 {
-  const int len = sizeof(warmthTable) / sizeof(double) / 4;
+  constexpr int len = sizeof(warmthTable) / sizeof(double) / 4;
 
   for (int i = 0; i < 4; i++)
   {
@@ -427,10 +427,10 @@ const char* vtkLightKit::GetShortStringFromSubType(int subtype)
 vtkLightKit::LightKitSubType vtkLightKit::GetSubType(vtkLightKit::LightKitType type, int i)
 {
   // return subtype
-  const LightKitSubType KeyLightSubType[4] = { Warmth, Intensity, Elevation, Azimuth };
-  const LightKitSubType FillLightSubType[4] = { Warmth, KFRatio, Elevation, Azimuth };
-  const LightKitSubType BackLightSubType[4] = { Warmth, KBRatio, Elevation, Azimuth };
-  const LightKitSubType HeadLightSubType[2] = { Warmth, KHRatio };
+  constexpr LightKitSubType KeyLightSubType[4] = { Warmth, Intensity, Elevation, Azimuth };
+  constexpr LightKitSubType FillLightSubType[4] = { Warmth, KFRatio, Elevation, Azimuth };
+  constexpr LightKitSubType BackLightSubType[4] = { Warmth, KBRatio, Elevation, Azimuth };
+  constexpr LightKitSubType HeadLightSubType[2] = { Warmth, KHRatio };
 
   LightKitSubType subtype = Warmth; // please VS6
   switch (type)

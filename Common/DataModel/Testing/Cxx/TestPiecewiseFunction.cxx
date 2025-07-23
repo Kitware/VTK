@@ -59,10 +59,10 @@ int TestInterpolationSearchMethod()
   // one with a linear distributed sampling
   // one with a non linear sampling
   // number of points in the piecewise function
-  const int Ndata = 15000;
+  constexpr int Ndata = 15000;
 
   // number of interpolations asked to the piecewise function
-  const int N = 5 * Ndata;
+  constexpr int N = 5 * Ndata;
 
   std::vector<double> linearInterlacedData(2 * Ndata, 0);
   std::vector<double> nonLinearInterlacedData(2 * Ndata, 0);
@@ -140,12 +140,12 @@ int TestInterpolationSearchMethod()
 int TestGetTable()
 {
   // number of points in the piecewise function
-  const int Ndata = 6;
+  constexpr int Ndata = 6;
   // number of interpolations asked to the piecewise function
-  const int N = 9;
+  constexpr int N = 9;
 
   // expected result
-  const double res[9] = { 2.718281828459, 2.718281828459, 3.684359911713, 5.133477036594,
+  constexpr double res[9] = { 2.718281828459, 2.718281828459, 3.684359911713, 5.133477036594,
     7.803374275898, 10.923088402692, 16.42055751499, 23.654739499744, 34.362347229412 };
 
   std::vector<double> interlacedData(2 * Ndata, 0);

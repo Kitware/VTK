@@ -424,8 +424,8 @@ struct TestIsStorage64BitImpl
     using OffsetsValueType = typename OffsetsArrayType::ValueType;
     using ConnValueType = typename ConnArrayType::ValueType;
 
-    const bool connIs64Bit = sizeof(ConnValueType) == 8;
-    const bool offsetsIs64Bit = sizeof(OffsetsValueType) == 8;
+    constexpr bool connIs64Bit = sizeof(ConnValueType) == 8;
+    constexpr bool offsetsIs64Bit = sizeof(OffsetsValueType) == 8;
 
     TEST_ASSERT(connIs64Bit == expect64Bit);
     TEST_ASSERT(offsetsIs64Bit == expect64Bit);
@@ -1068,7 +1068,7 @@ void TestLegacyAllocate(vtkSmartPointer<vtkCellArray> cellArray)
   vtkLogScopeFunction(INFO);
 
   // Assumes triangles:
-  const vtkIdType numTri = 1024;
+  constexpr vtkIdType numTri = 1024;
   cellArray->Allocate(numTri * 4); // 4 legacy ids per triangle
 
   TEST_ASSERT(cellArray->GetOffsetsArray()->GetSize() == numTri * 4 + 1);

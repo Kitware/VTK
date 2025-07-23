@@ -15,7 +15,7 @@ int TestTransposeTable(int, char*[])
 {
   vtkNew<vtkTable> table;
 
-  const int nbValues = 5;
+  constexpr int nbValues = 5;
 
   vtkNew<vtkStringArray> colName;
   colName->SetName("Name");

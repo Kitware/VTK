@@ -31,7 +31,7 @@ void vtkFileOutputWindow::Initialize()
   {
     if (!this->FileName)
     {
-      const char fileName[] = "vtkMessageLog.log";
+      constexpr char fileName[] = "vtkMessageLog.log";
       this->FileName = new char[strlen(fileName) + 1];
       strcpy(this->FileName, fileName);
     }

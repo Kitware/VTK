@@ -1026,9 +1026,9 @@ struct UnitTestValueReferenceAPI
     const APIType val1 = ref1;
     const APIType val2 = ref2;
 
-    const APIType one = static_cast<APIType>(1);
-    const APIType two = static_cast<APIType>(2);
-    const APIType bignum = static_cast<APIType>(120); // must fit in int8
+    constexpr APIType one = static_cast<APIType>(1);
+    constexpr APIType two = static_cast<APIType>(2);
+    constexpr APIType bignum = static_cast<APIType>(120); // must fit in int8
 
     // +=
     {
@@ -1163,8 +1163,8 @@ struct UnitTestValueReferenceAPI
     const APIType val1 = ref1;
     const APIType val2 = ref2;
 
-    const APIType one = static_cast<APIType>(1);
-    const APIType bignum = static_cast<APIType>(120); // must fit in int8
+    constexpr APIType one = static_cast<APIType>(1);
+    constexpr APIType bignum = static_cast<APIType>(120); // must fit in int8
 
     // ==
     CHECK_TRUE(ref1 == val1);
@@ -1243,9 +1243,9 @@ struct UnitTestValueReferenceAPI
     const APIType val1 = ref1;
     const APIType val2 = ref2;
 
-    const APIType one = static_cast<APIType>(1);
-    const APIType two = static_cast<APIType>(2);
-    const APIType bignum = static_cast<APIType>(120); // must fit in int8
+    constexpr APIType one = static_cast<APIType>(1);
+    constexpr APIType two = static_cast<APIType>(2);
+    constexpr APIType bignum = static_cast<APIType>(120); // must fit in int8
 
     // +
     {

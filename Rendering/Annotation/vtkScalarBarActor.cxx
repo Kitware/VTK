@@ -204,7 +204,7 @@ vtkScalarBarActor::vtkScalarBarActor()
 
   // Create the default texture. Just a "Jail" like grid
 
-  const unsigned int dim = 128;
+  constexpr unsigned int dim = 128;
   vtkImageData* image = vtkImageData::New();
   image->SetDimensions(dim, dim, 1);
   image->AllocateScalars(VTK_UNSIGNED_CHAR, 1);

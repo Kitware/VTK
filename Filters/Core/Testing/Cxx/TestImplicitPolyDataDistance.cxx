@@ -49,7 +49,7 @@ int TestImplicitPolyDataDistance(int argc, char* argv[])
   double xRange[2] = { -47.6, 46.9 };
   double yRange[2] = { -18.2, 82.1 };
   double zRange[2] = { 1.63, 102 };
-  const double spacing = 10.0;
+  constexpr double spacing = 10.0;
   for (double z = zRange[0]; z < zRange[1]; z += spacing)
   {
     for (double y = yRange[0]; y < yRange[1]; y += spacing)

@@ -26,17 +26,17 @@ int TestUnstructuredGridQuadricDecimation(int, char*[])
   // test passes.
 
   // # of points to generate the original tetrahedral mesh
-  const vtkIdType numberOfOriginalPoints = 1.e4;
+  constexpr vtkIdType numberOfOriginalPoints = 1.e4;
 
   // # of decimation tests to perform
-  const vtkIdType numberOfTests = 4;
+  constexpr vtkIdType numberOfTests = 4;
 
   // target reduction values for each test
-  const double targetReduction[numberOfTests] = { .1, .3, .5, .7 };
+  constexpr double targetReduction[numberOfTests] = { .1, .3, .5, .7 };
 
   // absolute tolerance between the expected and received tetrahedron reduction
   // to determine whether the decimation successfully executed
-  const double absTolerance = 1.e-1;
+  constexpr double absTolerance = 1.e-1;
 
   // Generate points within a unit sphere centered at the origin.
   vtkSmartPointer<vtkPointSource> source = vtkSmartPointer<vtkPointSource>::New();

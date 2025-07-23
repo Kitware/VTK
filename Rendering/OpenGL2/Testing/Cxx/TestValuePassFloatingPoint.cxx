@@ -188,7 +188,7 @@ int TestValuePassFloatingPoint(int argc, char* argv[])
   renderer->SetBackground(0.2, 0.2, 0.5);
 
   // Setup the value pass
-  int const comp = 0;
+  constexpr int comp = 0;
 
   vtkSmartPointer<vtkValuePass> valuePass = vtkSmartPointer<vtkValuePass>::New();
   valuePass->SetInputComponentToProcess(comp);

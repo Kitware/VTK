@@ -876,7 +876,7 @@ int vtkMINCImageAttributes::ValidateGlobalAttribute(
 {
   // Global attributes
   static const char* globalAttributes[] = { MIident, MIhistory, MItitle, nullptr };
-  const int autoGlobalAttributes = 2;
+  constexpr int autoGlobalAttributes = 2;
 
   int itry = 0;
   for (itry = 0; globalAttributes[itry] != nullptr; itry++)
@@ -911,7 +911,7 @@ int vtkMINCImageAttributes::ValidateGeneralAttribute(
     MIchildren,                                         // newline-separated list of child variables
     MIcomments, // each variable has specific comments to go with it
     nullptr };
-  const int autoGeneralAttributes = 5;
+  constexpr int autoGeneralAttributes = 5;
 
   int dataType = array->GetDataType();
 
@@ -958,7 +958,7 @@ int vtkMINCImageAttributes::ValidateDimensionAttribute(
     MIunits,             // "mm"
     MIdirection_cosines, // three doubles
     nullptr };
-  const int autoDimensionAttributes = 3;
+  constexpr int autoDimensionAttributes = 3;
 
   vtkIdType size = (array->GetNumberOfTuples() * array->GetNumberOfComponents());
   int dataType = array->GetDataType();
@@ -1025,7 +1025,7 @@ int vtkMINCImageAttributes::ValidateImageAttribute(
     MIvalid_range,  // min and max scalar values as doubles
     nullptr
   };
-  const int autoImageAttributes = 5;
+  constexpr int autoImageAttributes = 5;
 
   int itry = 0;
   for (itry = 0; imageAttributes[itry] != nullptr; itry++)
@@ -1058,7 +1058,7 @@ int vtkMINCImageAttributes::ValidateImageMinMaxAttribute(
     MIunits,      // "normalized", "Hounsfields", etc.
     nullptr
   };
-  const int autoImageMinMaxAttributes = 1;
+  constexpr int autoImageMinMaxAttributes = 1;
 
   int itry = 0;
   for (itry = 0; imageMinMaxAttributes[itry] != nullptr; itry++)

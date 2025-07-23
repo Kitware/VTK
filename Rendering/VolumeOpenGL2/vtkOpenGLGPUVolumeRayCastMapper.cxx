@@ -596,7 +596,7 @@ template <typename T, int SizeX, int SizeY>
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CopyMatrixToVector(
   T* matrix, float* matrixVec, int offset)
 {
-  const int MatSize = SizeX * SizeY;
+  constexpr int MatSize = SizeX * SizeY;
   for (int j = 0; j < MatSize; j++)
   {
     matrixVec[offset + j] = matrix->Element[j / SizeX][j % SizeY];
@@ -1311,7 +1311,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetCroppingRegions(
       static_cast<float>(croppingRegionPlanes[5]) };
 
     prog->SetUniform1fv("in_croppingPlanes", 6, cropPlanes);
-    const int numberOfRegions = 32;
+    constexpr int numberOfRegions = 32;
     int cropFlagsArray[numberOfRegions];
     cropFlagsArray[0] = 0;
     int i = 1;

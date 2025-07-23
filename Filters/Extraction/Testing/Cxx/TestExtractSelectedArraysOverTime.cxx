@@ -109,7 +109,7 @@ int TestExtractSelectedArraysOverTime(int argc, char* argv[])
   textracter->SetInputConnection(reader->GetOutputPort());
   textracter->UpdateInformation();
   textracter->GenerateTimeStepIndices(0, 3, 1);
-  const int num_timesteps = 3;
+  constexpr int num_timesteps = 3;
 
   vtkNew<vtkSelectionSource> selSource;
   selSource->SetContentType(vtkSelectionNode::GLOBALIDS);

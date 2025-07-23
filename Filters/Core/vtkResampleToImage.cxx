@@ -388,7 +388,7 @@ int vtkResampleToImage::RequestData(vtkInformation* vtkNotUsed(request),
     // To avoid accidentally sampling outside the dataset due to floating point roundoff,
     // nudge the bounds inward by epsilon.
     vtkBoundingBox bbox(samplingBounds);
-    const double epsilon = 1.0e-6;
+    constexpr double epsilon = 1.0e-6;
     bbox.ScaleAboutCenter(1.0 - epsilon);
     bbox.GetBounds(samplingBounds);
   }

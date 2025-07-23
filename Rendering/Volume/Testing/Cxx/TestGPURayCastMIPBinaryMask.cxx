@@ -103,7 +103,7 @@ int TestGPURayCastMIPBinaryMask(int argc, char* argv[])
 
   // Create a simple mask that's split along the X axis
   unsigned char* ptr = static_cast<unsigned char*>(mask->GetScalarPointer());
-  const double radiusSq = 70 * 70; // 7cm spherical mask
+  constexpr double radiusSq = 70 * 70; // 7cm spherical mask
   center[0] -= origin[0];
   center[1] -= origin[1];
   center[2] -= origin[2];

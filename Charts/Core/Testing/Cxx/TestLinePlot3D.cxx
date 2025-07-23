@@ -19,9 +19,9 @@ namespace
 {
 void lorenz(const float* varX, float* varXDerivative)
 {
-  const float sigma = 10.f;
-  const float rho = 28.f;
-  const float beta = 2.66666666666f;
+  constexpr float sigma = 10.f;
+  constexpr float rho = 28.f;
+  constexpr float beta = 2.66666666666f;
 
   varXDerivative[0] = sigma * (varX[1] - varX[0]);
   varXDerivative[1] = varX[0] * (rho - varX[2]) - varX[1];
@@ -43,14 +43,14 @@ int TestLinePlot3D(int, char*[])
   vtkNew<vtkFloatArray> arrX2;
   arrX2->SetName("Z");
   varXSolution->AddColumn(arrX2);
-  const unsigned int numberOfTimePoints = 1000;
+  constexpr unsigned int numberOfTimePoints = 1000;
   varXSolution->SetNumberOfRows(numberOfTimePoints);
   float varX[3];
   varX[0] = 0.0f;
   varX[1] = 1.0f;
   varX[2] = 1.05f;
   float varXDerivative[3];
-  const float deltaT = 0.01f;
+  constexpr float deltaT = 0.01f;
   for (unsigned int ii = 0; ii < numberOfTimePoints; ++ii)
   {
     varXSolution->SetValue(ii, 0, varX[0]);

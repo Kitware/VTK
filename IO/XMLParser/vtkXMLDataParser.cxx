@@ -353,8 +353,8 @@ int vtkXMLDataParser::ParseBuffer(const char* buffer, unsigned int count)
 {
   // Parsing must stop when "<AppendedData" is reached.  Use a search
   // similar to the KMP string search algorithm.
-  const char pattern[] = "<AppendedData";
-  const int length = sizeof(pattern) - 1;
+  constexpr char pattern[] = "<AppendedData";
+  constexpr int length = sizeof(pattern) - 1;
 
   const char* s = buffer;
   const char* end = buffer + count;
@@ -430,7 +430,7 @@ int vtkXMLDataParser::ParseBuffer(const char* buffer, unsigned int count)
     }
 
     // Artificially end the VTKFile element.
-    const char finish[] = "\n</VTKFile>\n";
+    constexpr char finish[] = "\n</VTKFile>\n";
     if (!this->Superclass::ParseBuffer(finish, sizeof(finish) - 1))
     {
       return 0;
@@ -675,7 +675,7 @@ size_t vtkXMLDataParser::ReadUncompressedData(
   }
 
   // Read data in 2MB blocks and report progress.
-  size_t const blockSize = 2097152;
+  constexpr size_t blockSize = 2097152;
   size_t left = length;
   unsigned char* p = data;
   this->UpdateProgress(0);

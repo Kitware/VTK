@@ -27,10 +27,10 @@
 // Test functions
 namespace
 {
-const double TestSpacing[3] = { 1.2, 3.8, 1.0 };
-const double TestDirection[9] = { 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 0.0 };
-const double TestOrigin[3] = { -1.8, 0.0, 20.0 };
-const int TestExtent[6] = { 0, 9, -3, 3, 1, 8 };
+constexpr double TestSpacing[3] = { 1.2, 3.8, 1.0 };
+constexpr double TestDirection[9] = { 0.0, 0.0, 1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 0.0 };
+constexpr double TestOrigin[3] = { -1.8, 0.0, 20.0 };
+constexpr int TestExtent[6] = { 0, 9, -3, 3, 1, 8 };
 
 // A simple VTK image source that provides DIRECTION
 class vtkImageInformationSource : public vtkImageAlgorithm

@@ -1642,7 +1642,7 @@ protected:
   vtkPixelListEntry* Last;
 };
 
-const vtkIdType VTK_PIXEL_BLOCK_SIZE = 64;
+constexpr vtkIdType VTK_PIXEL_BLOCK_SIZE = 64;
 
 class vtkPixelListEntryMemory
 {
@@ -1751,7 +1751,7 @@ public:
         // overlapping fragments. (Note that if you start to see "speckling"
         // in the image from filled spaces, we may need to add adjust the
         // tolerance to this calculation.)
-        const double tolerance = 1.0e-8;
+        constexpr double tolerance = 1.0e-8;
         if (p->GetExitFace())
         {
 #ifdef BACK_TO_FRONT

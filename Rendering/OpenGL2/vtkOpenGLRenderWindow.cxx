@@ -80,7 +80,7 @@ struct vtkOpenGLRenderWindowDriverInfo
   const char* Version;
   const char* Renderer;
 };
-static const vtkOpenGLRenderWindowDriverInfo vtkOpenGLRenderWindowMSAATextureBug[] = {
+static constexpr vtkOpenGLRenderWindowDriverInfo vtkOpenGLRenderWindowMSAATextureBug[] = {
   // OpenGL Vendor: Intel
   // OpenGL Version: 4.6 (Core Profile) Mesa 20.1.3
   // OpenGL Renderer: Mesa Intel® HD Graphics 630 (KBL GT2)
@@ -3015,7 +3015,7 @@ int vtkOpenGLRenderWindow::GetNoiseTextureUnit()
     imgReader->Update();
     vtkImageData* textureReader = imgReader->GetOutput();
 
-    int const bufferSize = 64 * 64;
+    constexpr int bufferSize = 64 * 64;
     float* noiseTextureData = new float[bufferSize];
     for (int i = 0; i < bufferSize; i++)
     {

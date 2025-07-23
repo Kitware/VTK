@@ -122,8 +122,8 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
 
   int me = this->Controller->GetLocalProcessId();
 
-  const int VTK_COMPOSITE_Z_PASS_MESSAGE_GATHER = 101;
-  const int VTK_COMPOSITE_Z_PASS_MESSAGE_SCATTER = 102;
+  constexpr int VTK_COMPOSITE_Z_PASS_MESSAGE_GATHER = 101;
+  constexpr int VTK_COMPOSITE_Z_PASS_MESSAGE_SCATTER = 102;
 
   vtkOpenGLRenderer* r = static_cast<vtkOpenGLRenderer*>(s->GetRenderer());
   vtkOpenGLRenderWindow* context = static_cast<vtkOpenGLRenderWindow*>(r->GetRenderWindow());

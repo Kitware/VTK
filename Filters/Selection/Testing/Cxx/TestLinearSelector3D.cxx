@@ -22,7 +22,7 @@
 #include <sstream>
 
 // Reference values
-const vtkIdType cardSelection[] = {
+constexpr vtkIdType cardSelection[] = {
   54,
   76,
   130,

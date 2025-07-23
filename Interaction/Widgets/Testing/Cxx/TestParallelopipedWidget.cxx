@@ -68,8 +68,8 @@ int TestParallelopipedWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cube->SetBounds(bounds);
 
   vtkSmartPointer<vtkMatrix4x4> affineMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
-  const double m[] = { 1.0, 0.1, 0.2, 0.0, 0.1, 1.0, 0.1, 0.0, 0.2, 0.1, 1.0, 0.0, 0.0, 0.0, 0.0,
-    1.0 };
+  constexpr double m[] = { 1.0, 0.1, 0.2, 0.0, 0.1, 1.0, 0.1, 0.0, 0.2, 0.1, 1.0, 0.0, 0.0, 0.0,
+    0.0, 1.0 };
   affineMatrix->DeepCopy(m);
   vtkSmartPointer<vtkMatrixToLinearTransform> transform =
     vtkSmartPointer<vtkMatrixToLinearTransform>::New();

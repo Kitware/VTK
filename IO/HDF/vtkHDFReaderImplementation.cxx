@@ -176,7 +176,7 @@ void vtkHDFReader::Implementation::Close()
 //------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::GetPartitionExtent(hsize_t partitionIndex, int* extent)
 {
-  const int RANK = 2;
+  constexpr int RANK = 2;
   const char* datasetName = "/VTKHDF/Extents";
 
   // create the memory space
@@ -1385,7 +1385,8 @@ VTK_ABI_NAMESPACE_END
 vtkSmartPointer<vtkDataObject> vtkHDFReader::Implementation::GetNewDataSet(
   int dataSetType, int numPieces)
 {
-  const std::array partitionedTypes = { VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, VTK_HYPER_TREE_GRID };
+  constexpr std::array partitionedTypes = { VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA,
+    VTK_HYPER_TREE_GRID };
   vtkSmartPointer<vtkDataObject> newOutput = nullptr;
   if (numPieces > 1 &&
     std::find(partitionedTypes.begin(), partitionedTypes.end(), dataSetType) !=

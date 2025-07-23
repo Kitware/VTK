@@ -91,7 +91,7 @@ void vtkBezierTriangle::SetRationalWeightsFromPointData(vtkPointData* point_data
 //------------------------------------------------------------------------------
 void vtkBezierTriangle::InterpolateFunctions(const double pcoords[3], double* weights)
 {
-  const int dim = 2;
+  constexpr int dim = 2;
   const int deg = GetOrder();
   const vtkIdType nPoints = this->GetPoints()->GetNumberOfPoints();
   std::vector<double> coeffs(nPoints, 0.0);
@@ -123,7 +123,7 @@ void vtkBezierTriangle::InterpolateFunctions(const double pcoords[3], double* we
 //------------------------------------------------------------------------------
 void vtkBezierTriangle::InterpolateDerivs(const double pcoords[3], double* derivs)
 {
-  const int dim = 2;
+  constexpr int dim = 2;
   const int deg = GetOrder();
   const vtkIdType nPoints = this->GetPoints()->GetNumberOfPoints();
   std::vector<double> coeffs(nPoints, 0.0);

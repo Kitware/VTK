@@ -986,7 +986,7 @@ void vtkCellTypeSource::GeneratePentagonalPrism(vtkUnstructuredGrid* output, int
 
   EdgeToPointMap edgeToPointId;
   // pairs go from lower to higher point id
-  const vtkIdType edgePairs[2][2] = { { 0, 2 }, { 5, 7 } };
+  constexpr vtkIdType edgePairs[2][2] = { { 0, 2 }, { 5, 7 } };
 
   for (int k = 0; k < zDim; k++)
   {
@@ -1039,7 +1039,7 @@ void vtkCellTypeSource::GenerateHexagonalPrism(vtkUnstructuredGrid* output, int 
 
   EdgeToPointMap edgeToPointId;
   // pairs go from lower to higher point id
-  const vtkIdType edgePairs[4][2] = { { 0, 2 }, { 3, 5 }, { 6, 8 }, { 9, 11 } };
+  constexpr vtkIdType edgePairs[4][2] = { { 0, 2 }, { 3, 5 }, { 6, 8 }, { 9, 11 } };
 
   for (int k = 0; k < zDim; k++)
   {
@@ -1095,7 +1095,7 @@ void vtkCellTypeSource::GenerateQuadraticTetras(vtkUnstructuredGrid* output, int
 
   EdgeToPointMap edgeToPointId;
   // pairs go from lower to higher point id
-  const vtkIdType edgePairs[12][6][2] = {
+  constexpr vtkIdType edgePairs[12][6][2] = {
     { { 0, 1 }, { 1, 2 }, { 0, 2 }, { 0, 8 }, { 1, 8 }, { 2, 8 } },
     { { 0, 2 }, { 3, 2 }, { 0, 3 }, { 0, 8 }, { 2, 8 }, { 3, 8 } },
     { { 5, 6 }, { 4, 5 }, { 4, 6 }, { 6, 8 }, { 5, 8 }, { 4, 8 } },
@@ -1194,7 +1194,7 @@ void vtkCellTypeSource::GenerateQuadraticHexahedron(vtkUnstructuredGrid* output,
 
   EdgeToPointMap edgeToPointId;
   // pairs go from lower to higher point id
-  const vtkIdType edgePairs[12][2] = {
+  constexpr vtkIdType edgePairs[12][2] = {
     { 0, 1 },
     { 1, 2 },
     { 3, 2 },
@@ -1278,7 +1278,7 @@ void vtkCellTypeSource::GenerateQuadraticWedges(vtkUnstructuredGrid* output, int
 
   EdgeToPointMap edgeToPointId;
   // pairs go from lower to higher point id
-  const vtkIdType edgePairs[2][9][2] = {
+  constexpr vtkIdType edgePairs[2][9][2] = {
     {
       { 0, 3 }, { 1, 3 }, { 0, 1 }, //
       { 4, 7 }, { 5, 7 }, { 4, 5 }, //
@@ -1355,7 +1355,7 @@ void vtkCellTypeSource::GenerateQuadraticPyramids(vtkUnstructuredGrid* output, i
 
   EdgeToPointMap edgeToPointId;
   // pairs go from lower to higher point id
-  const vtkIdType edgePairs[6][8][2] = {
+  constexpr vtkIdType edgePairs[6][8][2] = {
     {
       { 0, 1 }, { 1, 2 }, { 3, 2 }, { 0, 3 }, //
       { 0, 8 }, { 1, 8 }, { 2, 8 }, { 3, 8 }  //

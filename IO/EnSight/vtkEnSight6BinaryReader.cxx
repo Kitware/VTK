@@ -2562,7 +2562,7 @@ int vtkEnSight6BinaryReader::CreateUnstructuredGridOutput(
       }
 
       vtkIdType nodeIds[6];
-      const unsigned char wedgeMap[6] = { 0, 2, 1, 3, 5, 4 };
+      constexpr unsigned char wedgeMap[6] = { 0, 2, 1, 3, 5, 4 };
       for (i = 0; i < numElements; i++)
       {
         if (cellType == vtkEnSightReader::PENTA6)

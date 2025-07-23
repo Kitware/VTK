@@ -24,7 +24,7 @@ int TestNamedComponents(int, char*[])
   vtkIdType i;
 
   vtkIdTypeArray* pointCoords = vtkIdTypeArray::New();
-  const char pcName[] = "point coords";
+  constexpr char pcName[] = "point coords";
   pointCoords->SetName(pcName);
   pointCoords->SetNumberOfComponents(3); // num points + point ids
   pointCoords->SetNumberOfTuples(numPoints);
@@ -71,7 +71,7 @@ int TestNamedComponents(int, char*[])
   }
 
   vtkIntArray* cellIndex = vtkIntArray::New();
-  const char ctName[] = "scalars";
+  constexpr char ctName[] = "scalars";
   cellIndex->SetName(ctName);
   cellIndex->SetNumberOfComponents(1);
   cellIndex->SetNumberOfTuples(numCells);
@@ -84,7 +84,7 @@ int TestNamedComponents(int, char*[])
   cellIndex->Delete();
 
   vtkIdTypeArray* cellPoints = vtkIdTypeArray::New();
-  const char cpName[] = "cell points";
+  constexpr char cpName[] = "cell points";
   cellPoints->SetName(cpName);
   cellPoints->SetNumberOfComponents(4); // num points + point ids
   cellPoints->SetNumberOfTuples(numCells);

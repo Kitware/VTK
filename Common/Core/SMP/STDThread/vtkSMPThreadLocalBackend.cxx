@@ -28,8 +28,8 @@ static ThreadIdType GetThreadId()
 // 32 bit FNV-1a hash function
 inline HashType GetHash(ThreadIdType id)
 {
-  const HashType offset_basis = 2166136261u;
-  const HashType FNV_prime = 16777619u;
+  constexpr HashType offset_basis = 2166136261u;
+  constexpr HashType FNV_prime = 16777619u;
 
   unsigned char* bp = reinterpret_cast<unsigned char*>(&id);
   unsigned char* be = bp + sizeof(id);

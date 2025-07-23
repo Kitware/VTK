@@ -14,8 +14,8 @@
 int TestSpatioTemporalHarmonicsAttribute(int, char*[])
 {
   // Create source
-  const int SPHERE_RADIUS = 10;
-  const int SPHERE_RESOLUTION = 64;
+  constexpr int SPHERE_RADIUS = 10;
+  constexpr int SPHERE_RESOLUTION = 64;
   vtkNew<vtkSphereSource> sphere;
   sphere->SetRadius(SPHERE_RADIUS);
   sphere->SetPhiResolution(SPHERE_RESOLUTION);

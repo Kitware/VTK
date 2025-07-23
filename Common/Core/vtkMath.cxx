@@ -2409,9 +2409,9 @@ void vtkMath::RGBToHSV(float r, float g, float b, float* h, float* s, float* v)
 //------------------------------------------------------------------------------
 void vtkMath::RGBToHSV(double r, double g, double b, double* h, double* s, double* v)
 {
-  const double onethird = 1.0 / 3.0;
-  const double onesixth = 1.0 / 6.0;
-  const double twothird = 2.0 / 3.0;
+  constexpr double onethird = 1.0 / 3.0;
+  constexpr double onesixth = 1.0 / 6.0;
+  constexpr double twothird = 2.0 / 3.0;
 
   double cmax = r;
   double cmin = r;
@@ -2479,10 +2479,10 @@ void vtkMath::HSVToRGB(float h, float s, float v, float* r, float* g, float* b)
 //------------------------------------------------------------------------------
 void vtkMath::HSVToRGB(double h, double s, double v, double* r, double* g, double* b)
 {
-  const double onethird = 1.0 / 3.0;
-  const double onesixth = 1.0 / 6.0;
-  const double twothird = 2.0 / 3.0;
-  const double fivesixth = 5.0 / 6.0;
+  constexpr double onethird = 1.0 / 3.0;
+  constexpr double onesixth = 1.0 / 6.0;
+  constexpr double twothird = 2.0 / 3.0;
+  constexpr double fivesixth = 5.0 / 6.0;
 
   // compute RGB from HSV
   if (h > onesixth && h <= onethird) // green/red
@@ -2581,9 +2581,9 @@ void vtkMath::ProLabToXYZ(double L, double a, double b, double* x, double* y, do
   double var_Y = xyzHomog[0][1] / xyzHomog[0][3]; // ref_Y = 1.000
   double var_Z = xyzHomog[0][2] / xyzHomog[0][3]; // ref_Z = 1.089
 
-  const double ref_X = 0.9505;
-  const double ref_Y = 1.000;
-  const double ref_Z = 1.089;
+  constexpr double ref_X = 0.9505;
+  constexpr double ref_Y = 1.000;
+  constexpr double ref_Z = 1.089;
 
   *x = var_X * ref_X;
   *y = var_Y * ref_Y;
@@ -2593,9 +2593,9 @@ void vtkMath::ProLabToXYZ(double L, double a, double b, double* x, double* y, do
 //------------------------------------------------------------------------------
 void vtkMath::XYZToProLab(double x, double y, double z, double* L, double* a, double* b)
 {
-  const double ref_X = 0.9505;
-  const double ref_Y = 1.000;
-  const double ref_Z = 1.089;
+  constexpr double ref_X = 0.9505;
+  constexpr double ref_Y = 1.000;
+  constexpr double ref_Z = 1.089;
   double var_X = x / ref_X; // ref_X = 0.9505  Observer= 2 deg, Illuminant= D65
   double var_Y = y / ref_Y; // ref_Y = 1.000
   double var_Z = z / ref_Z; // ref_Z = 1.089
@@ -2682,9 +2682,9 @@ void vtkMath::LabToXYZ(double L, double a, double b, double* x, double* y, doubl
   {
     var_Z = (var_Z - 16.0 / 116.0) / 7.787;
   }
-  const double ref_X = 0.9505;
-  const double ref_Y = 1.000;
-  const double ref_Z = 1.089;
+  constexpr double ref_X = 0.9505;
+  constexpr double ref_Y = 1.000;
+  constexpr double ref_Z = 1.089;
   *x = ref_X * var_X; // ref_X = 0.9505  Observer= 2 deg Illuminant= D65
   *y = ref_Y * var_Y; // ref_Y = 1.000
   *z = ref_Z * var_Z; // ref_Z = 1.089
@@ -2693,9 +2693,9 @@ void vtkMath::LabToXYZ(double L, double a, double b, double* x, double* y, doubl
 //------------------------------------------------------------------------------
 void vtkMath::XYZToLab(double x, double y, double z, double* L, double* a, double* b)
 {
-  const double ref_X = 0.9505;
-  const double ref_Y = 1.000;
-  const double ref_Z = 1.089;
+  constexpr double ref_X = 0.9505;
+  constexpr double ref_Y = 1.000;
+  constexpr double ref_Z = 1.089;
   double var_X = x / ref_X; // ref_X = 0.9505  Observer= 2 deg, Illuminant= D65
   double var_Y = y / ref_Y; // ref_Y = 1.000
   double var_Z = z / ref_Z; // ref_Z = 1.089
@@ -2926,10 +2926,10 @@ int vtkMath::GetScalarTypeFittingRange(
     double Max;
   };
 
-  const TypeRange FloatTypes[] = { { VTK_FLOAT, VTK_FLOAT_MIN, VTK_FLOAT_MAX },
+  constexpr TypeRange FloatTypes[] = { { VTK_FLOAT, VTK_FLOAT_MIN, VTK_FLOAT_MAX },
     { VTK_DOUBLE, VTK_DOUBLE_MIN, VTK_DOUBLE_MAX } };
 
-  const TypeRange IntTypes[] = { { VTK_BIT, VTK_BIT_MIN, VTK_BIT_MAX },
+  constexpr TypeRange IntTypes[] = { { VTK_BIT, VTK_BIT_MIN, VTK_BIT_MAX },
     { VTK_CHAR, VTK_CHAR_MIN, VTK_CHAR_MAX },
     { VTK_SIGNED_CHAR, VTK_SIGNED_CHAR_MIN, VTK_SIGNED_CHAR_MAX },
     { VTK_UNSIGNED_CHAR, VTK_UNSIGNED_CHAR_MIN, VTK_UNSIGNED_CHAR_MAX },

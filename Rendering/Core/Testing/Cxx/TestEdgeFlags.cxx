@@ -27,7 +27,7 @@ int TestEdgeFlags(int argc, char* argv[])
   // twice because 2 edges start from them and we will have to attach an
   // edge flags to each point. The last center point is not duplicated
   // as its edge flag will always be 0 (edge hidden).
-  const double pcoords[] = { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+  constexpr double pcoords[] = { 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0,
 
     0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0,
 
@@ -40,7 +40,7 @@ int TestEdgeFlags(int argc, char* argv[])
 
   // Define the 4 triangles
   vtkNew<vtkCellArray> cells;
-  const vtkIdType tris[] = { 0, 5, 8, 1, 6, 8, 2, 7, 8, 3, 4, 8 };
+  constexpr vtkIdType tris[] = { 0, 5, 8, 1, 6, 8, 2, 7, 8, 3, 4, 8 };
   for (int i = 0; i < 4; i++)
   {
     cells->InsertNextCell(3, tris + 3 * i);
@@ -53,7 +53,7 @@ int TestEdgeFlags(int argc, char* argv[])
   edgeflags->SetNumberOfComponents(1);
   edgeflags->SetNumberOfTuples(9);
   // Tip: Turn the last flag on to simulate test failure
-  const unsigned char flags[] = { 1, 1, 1, 1, 0, 0, 0, 0, 0 };
+  constexpr unsigned char flags[] = { 1, 1, 1, 1, 0, 0, 0, 0, 0 };
   for (int i = 0; i < 9; i++)
   {
     edgeflags->SetValue(i, flags[i]);
@@ -81,7 +81,7 @@ int TestEdgeFlags(int argc, char* argv[])
 
   // Define the 4 triangles
   vtkNew<vtkCellArray> cells2;
-  const vtkIdType polys[] = { 0, 1, 6, 8, 3 };
+  constexpr vtkIdType polys[] = { 0, 1, 6, 8, 3 };
   cells2->InsertNextCell(5, polys);
 
   vtkNew<vtkPolyData> pd2;

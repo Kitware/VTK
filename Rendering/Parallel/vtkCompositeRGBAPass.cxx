@@ -140,7 +140,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
 
   int me = this->Controller->GetLocalProcessId();
 
-  const int VTK_COMPOSITE_RGBA_PASS_MESSAGE_GATHER = 201;
+  constexpr int VTK_COMPOSITE_RGBA_PASS_MESSAGE_GATHER = 201;
 
   vtkOpenGLRenderer* r = static_cast<vtkOpenGLRenderer*>(s->GetRenderer());
 

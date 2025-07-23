@@ -749,10 +749,10 @@ void vtkEnSightWriter::WriteData()
               int CellId = CellsByElement[elementType][k];
               vtkIdList* PointIds = input->GetCell(CellId)->GetPointIds();
 
-              const unsigned char bar3Map[3] = { 0, 2, 1 };
-              const unsigned char penta6Map[6] = { 0, 2, 1, 3, 5, 4 };
-              const unsigned char penta15Map[15] = { 0, 2, 1, 3, 5, 4, 8, 7, 6, 11, 10, 9, 12, 14,
-                13 };
+              constexpr unsigned char bar3Map[3] = { 0, 2, 1 };
+              constexpr unsigned char penta6Map[6] = { 0, 2, 1, 3, 5, 4 };
+              constexpr unsigned char penta15Map[15] = { 0, 2, 1, 3, 5, 4, 8, 7, 6, 11, 10, 9, 12,
+                14, 13 };
 
               // write nodes for each cell, converting to EnSight ordering where necessary
               for (int m = 0; m < PointIds->GetNumberOfIds(); m++)

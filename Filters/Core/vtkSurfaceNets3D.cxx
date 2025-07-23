@@ -434,7 +434,7 @@ struct SurfaceNets
   TriadType* Triads;
   vtkIdType TriadDims[3];
   vtkIdType TriadSliceOffset;
-  static const int EdgeMetaDataSize = 5;
+  static constexpr int EdgeMetaDataSize = 5;
   vtkIdType NumberOfEdges;
   vtkIdType* EdgeMetaData;
 
@@ -1097,7 +1097,7 @@ void SurfaceNets<T>::GenerateEdgeStencils(int optLevel)
 {
   // Create the basic stencils without optimization. Basically, convert from
   // the 2^12 edge cases to the 2^6 stencil face cases.
-  const int numEdgeCases = 4096;
+  constexpr int numEdgeCases = 4096;
   for (auto edgeCase = 0; edgeCase < numEdgeCases; ++edgeCase)
   {
     this->StencilTable[edgeCase] = this->GetFaceCase(edgeCase);

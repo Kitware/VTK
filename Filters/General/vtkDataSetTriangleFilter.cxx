@@ -306,8 +306,8 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
         // the wedge is "flipped" compared to other cells in that
         // the normal of the first face points out instead of in
         // so we flip the way we pass the points to the triangulator
-        const vtkIdType wedgemap[18] = { 3, 4, 5, 0, 1, 2, 9, 10, 11, 6, 7, 8, 12, 13, 14, 15, 16,
-          17 };
+        constexpr vtkIdType wedgemap[18] = { 3, 4, 5, 0, 1, 2, 9, 10, 11, 6, 7, 8, 12, 13, 14, 15,
+          16, 17 };
         type = cell->GetCellType();
         if (type == VTK_WEDGE || type == VTK_QUADRATIC_WEDGE ||
           type == VTK_QUADRATIC_LINEAR_WEDGE || type == VTK_BIQUADRATIC_QUADRATIC_WEDGE)

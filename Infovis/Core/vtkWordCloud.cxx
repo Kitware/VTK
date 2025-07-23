@@ -422,7 +422,7 @@ std::multiset<std::pair<std::string, int>, Comparator> FindWordsSortedByFrequenc
   {
     wordContainer[wordCloud->GetTitle()] = 1000;
   }
-  const int N = 1;
+  constexpr int N = 1;
 
   for (auto w : extractedWords)
   {
@@ -659,9 +659,9 @@ void ArchimedesSpiral(std::vector<ExtentOffset>& offset, vtkWordCloud::SizesCont
   const int centerX = sizes[0] / 2.0;
   const int centerY = sizes[1] / 2.0;
 
-  const std::size_t N = 10000;
+  constexpr std::size_t N = 10000;
   constexpr auto pi = 3.141592653589793238462643383279502884L; /* pi */
-  const double deltaAngle = pi * 20 / N;
+  constexpr double deltaAngle = pi * 20 / N;
   double maxX = -1000.0;
   double minX = 1000.0;
   double maxY = -1000.0;

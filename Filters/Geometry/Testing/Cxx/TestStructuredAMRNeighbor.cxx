@@ -61,7 +61,7 @@ int TestParentNeighbor()
   int relationship = vtkStructuredAMRNeighbor::PARENT;
 
   // STEP 0: initialize AMR neighbor parameters
-  const int NG = 1;
+  constexpr int NG = 1;
 
   int wholeExtent[6];
   int gridExtent[6];
@@ -131,7 +131,7 @@ int TestPartiallyOverlappingParent()
   int relationship = vtkStructuredAMRNeighbor::PARTIALLY_OVERLAPPING_PARENT;
 
   // STEP 0: initialize AMR neighbor parameters
-  const int NG = 1;
+  constexpr int NG = 1;
 
   int wholeExtent[6];
   int gridExtent[6];
@@ -207,7 +207,7 @@ int TestChildNeighbor()
   int relationship = vtkStructuredAMRNeighbor::CHILD;
 
   // STEP 0: initialize AMR neighbor parameters
-  const int NG = 1;
+  constexpr int NG = 1;
 
   int wholeExtent[6];
   int gridExtent[6];
@@ -277,7 +277,7 @@ int TestPartiallyOverlappingChild()
   int relationship = vtkStructuredAMRNeighbor::PARTIALLY_OVERLAPPING_CHILD;
 
   // STEP 0: initialize AMR neighbor parameters
-  const int NG = 1;
+  constexpr int NG = 1;
 
   int wholeExtent[6];
   int gridExtent[6];
@@ -353,7 +353,7 @@ int TestSameLevelSibling()
   int relationship = vtkStructuredAMRNeighbor::SAME_LEVEL_SIBLING;
 
   // STEP 0: initialize AMR neighbor parameters
-  const int NG = 1;
+  constexpr int NG = 1;
 
   int wholeExtent[6];
   int gridExtent[6];
@@ -431,7 +431,7 @@ int TestCoarseToFineNeighbor()
   int relationship = vtkStructuredAMRNeighbor::COARSE_TO_FINE_SIBLING;
 
   // STEP 0: initialize AMR neighbor parameters
-  const int NG = 1;
+  constexpr int NG = 1;
 
   int wholeExtent[6];
   int gridExtent[6];
@@ -510,7 +510,7 @@ int TestFineToCoarseNeighbor()
   int relationship = vtkStructuredAMRNeighbor::FINE_TO_COARSE_SIBLING;
 
   // STEP 0: initialize AMR neighbor parameters
-  const int NG = 1;
+  constexpr int NG = 1;
 
   int wholeExtent[6];
   int gridExtent[6];

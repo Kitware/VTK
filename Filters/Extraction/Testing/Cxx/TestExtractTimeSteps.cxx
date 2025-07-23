@@ -17,7 +17,7 @@ enum
   TEST_FAILED_RETVAL = 1
 };
 
-const double e = 1e-5;
+constexpr double e = 1e-5;
 
 int TestExtractTimeSteps(int argc, char* argv[])
 {

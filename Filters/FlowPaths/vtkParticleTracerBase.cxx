@@ -509,7 +509,7 @@ bool vtkParticleTracerBase::SendReceiveParticles(
   this->Controller->AllGather(&numParticles, allNumParticles.data(), 1);
 
   // write the message
-  const int typeSize = sizeof(ParticleInformation);
+  constexpr int typeSize = sizeof(ParticleInformation);
 
   vtkIdType messageSize = numParticles * typeSize;
   std::vector<char> sendMessage(messageSize, 0);

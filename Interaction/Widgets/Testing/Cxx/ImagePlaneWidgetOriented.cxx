@@ -253,7 +253,7 @@ int ImagePlaneWidgetOriented(int argc, char* argv[])
   // rotate original data by Pi/5
   vtkNew<vtkImageData> orientedData;
   orientedData->DeepCopy(straightData);
-  const double ANGLE = vtkMath::Pi() / 5;
+  constexpr double ANGLE = vtkMath::Pi() / 5;
   const double COS = std::cos(ANGLE);
   const double SIN = std::sin(ANGLE);
   orientedData->SetDirectionMatrix(COS, -SIN, 0, SIN, COS, 0, 0, 0, 1);

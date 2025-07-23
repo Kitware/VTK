@@ -326,7 +326,7 @@ std::string WriteTextureBufferAndView(const std::string& gltfFullDir,
 
 int CopyStream(std::istream& in, std::ostream& out)
 {
-  const int BUF_SIZE = 4096;
+  constexpr int BUF_SIZE = 4096;
   char buf[BUF_SIZE];
   int streamSize = 0;
   do

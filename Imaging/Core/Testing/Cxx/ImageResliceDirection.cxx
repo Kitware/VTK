@@ -47,7 +47,7 @@ int ImageResliceDirection(int argc, char* argv[])
   // the columns of the direction matrix give the directions
   // that will map to the screen's horizontal (left->right),
   // vertical (bottom->top), and depth (into the screen)
-  const double directions[4][9] = {
+  constexpr double directions[4][9] = {
     // lower left, sagittal
     { 1.0, 0.0, 0.0,    // 1st
       0.0, 0.0, 1.0,    // 2nd

@@ -17,7 +17,7 @@ VTK_ABI_NAMESPACE_BEGIN
 // Get w characters from is and return trimmed string.
 string fixed_get(istream& is, unsigned int width)
 {
-  const char ws[] = " \t\n\r\f\v"; // whitespace characters
+  constexpr char ws[] = " \t\n\r\f\v"; // whitespace characters
 
   if (width)
   { // read next width characters

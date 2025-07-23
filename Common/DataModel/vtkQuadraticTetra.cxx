@@ -122,9 +122,9 @@ vtkCell* vtkQuadraticTetra::GetFace(int faceId)
 //------------------------------------------------------------------------------
 namespace
 {
-const double VTK_DIVERGED = 1.e6;
-const int VTK_TETRA_MAX_ITERATION = 20;
-const double VTK_TETRA_CONVERGED = 1.e-05;
+constexpr double VTK_DIVERGED = 1.e6;
+constexpr int VTK_TETRA_MAX_ITERATION = 20;
+constexpr double VTK_TETRA_CONVERGED = 1.e-05;
 }
 
 int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3], int& subId,

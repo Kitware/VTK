@@ -74,7 +74,7 @@ vtkLinearRayIntegratorTransferFunction::~vtkLinearRayIntegratorTransferFunction(
   delete[] this->Colors;
 }
 
-static const double huebends[6] = { 1.0 / 6.0, 1.0 / 3.0, 0.5, 2.0 / 3.0, 5.0 / 6.0, 1.0 };
+static constexpr double huebends[6] = { 1.0 / 6.0, 1.0 / 3.0, 0.5, 2.0 / 3.0, 5.0 / 6.0, 1.0 };
 
 void vtkLinearRayIntegratorTransferFunction::GetTransferFunction(vtkColorTransferFunction* color,
   vtkPiecewiseFunction* opacity, double unit_distance, double scalar_range[2])
@@ -579,12 +579,12 @@ static inline float erf(float x)
 /* Compute Dawson's integral as described in Numerical Recipes in C++ by
    Press, et al. */
 #define H 0.4
-static const float dawson_constant0 = 0.852144;
-static const float dawson_constant1 = 0.236928;
-static const float dawson_constant2 = 0.0183156;
-static const float dawson_constant3 = 0.000393669;
-static const float dawson_constant4 = 2.35258e-6;
-static const float dawson_constant5 = 3.90894e-9;
+static constexpr float dawson_constant0 = 0.852144;
+static constexpr float dawson_constant1 = 0.236928;
+static constexpr float dawson_constant2 = 0.0183156;
+static constexpr float dawson_constant3 = 0.000393669;
+static constexpr float dawson_constant4 = 2.35258e-6;
+static constexpr float dawson_constant5 = 3.90894e-9;
 static inline float dawson(float x)
 {
   if (x > 0.2)

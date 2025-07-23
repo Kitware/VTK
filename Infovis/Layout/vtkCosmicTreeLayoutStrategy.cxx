@@ -164,7 +164,7 @@ static int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
     // is close to or exceeds pi, then just start them out
     // with equal slices (independent of radius).
     double Rtot = 0.;
-    const double twopi = 2. * vtkMath::Pi();
+    constexpr double twopi = 2. * vtkMath::Pi();
     std::vector<double> ang;
     std::vector<double> angp;
     ang.resize(N);
@@ -174,7 +174,7 @@ static int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
       Rtot += circles[i].Radius;
     }
     double factor = twopi / Rtot;
-    const double limit = 0.75 * vtkMath::Pi();
+    constexpr double limit = 0.75 * vtkMath::Pi();
     for (i = 0; i < N; ++i)
     {
       ang[i] = factor * circles[i].Radius;

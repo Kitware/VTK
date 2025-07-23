@@ -28,8 +28,8 @@
 
 #include <vector>
 
-const int NumPoints = 13;
-const double PointData[NumPoints * 3] = {
+constexpr int NumPoints = 13;
+constexpr double PointData[NumPoints * 3] = {
   0.0, 0.0, 0.0, //
   0.0, 1.0, 0.0, //
   1.0, 0.0, 0.0, //
@@ -46,59 +46,59 @@ const double PointData[NumPoints * 3] = {
   2.0, 0.5, 1.0  //
 };
 
-const vtkIdType NumTriStripCells = 1;
-const vtkIdType TriStripCells[] = {
+constexpr vtkIdType NumTriStripCells = 1;
+constexpr vtkIdType TriStripCells[] = {
   6, 1, 0, 3, 2, 5, 4 //
 };
 
-const vtkIdType NumQuadCells = 2;
-const vtkIdType QuadCells[] = {
+constexpr vtkIdType NumQuadCells = 2;
+constexpr vtkIdType QuadCells[] = {
   4, 0, 2, 3, 1, //
   4, 2, 4, 5, 3  //
 };
 
-const vtkIdType NumPixelCells = 2;
-const vtkIdType PixelCells[] = {
+constexpr vtkIdType NumPixelCells = 2;
+constexpr vtkIdType PixelCells[] = {
   4, 0, 2, 1, 3, //
   4, 2, 4, 3, 5  //
 };
 
-const vtkIdType NumPolyCells = 3;
-const vtkIdType PolyCells[] = {
+constexpr vtkIdType NumPolyCells = 3;
+constexpr vtkIdType PolyCells[] = {
   4, 0, 2, 3, 1,    //
   3, 2, 4, 5,       //
   5, 6, 8, 12, 9, 7 //
 };
 
-const vtkIdType NumHexCells = 2;
-const vtkIdType HexCells[] = {
+constexpr vtkIdType NumHexCells = 2;
+constexpr vtkIdType HexCells[] = {
   8, 6, 8, 2, 0, 7, 9, 3, 1,  //
   8, 4, 2, 8, 10, 5, 3, 9, 11 //
 };
-const vtkIdType NumExpectedHexSurfacePolys = 20;
+constexpr vtkIdType NumExpectedHexSurfacePolys = 20;
 
-const vtkIdType NumVoxelCells = 2;
-const vtkIdType VoxelCells[] = {
+constexpr vtkIdType NumVoxelCells = 2;
+constexpr vtkIdType VoxelCells[] = {
   8, 0, 2, 1, 3, 6, 8, 7, 9,  //
   8, 10, 8, 11, 9, 4, 2, 5, 3 //
 };
-const vtkIdType NumExpectedVoxelSurfacePolys = 20;
+constexpr vtkIdType NumExpectedVoxelSurfacePolys = 20;
 
-const vtkIdType NumWedgeCells = 4;
-const vtkIdType WedgeCells[] = {
+constexpr vtkIdType NumWedgeCells = 4;
+constexpr vtkIdType WedgeCells[] = {
   6, 0, 1, 2, 6, 7, 8,  //
   6, 7, 8, 9, 1, 2, 3,  //
   6, 8, 11, 9, 2, 5, 3, //
   6, 2, 5, 4, 8, 11, 10 //
 };
-const vtkIdType NumExpectedWedgeSurfacePolys = 20;
+constexpr vtkIdType NumExpectedWedgeSurfacePolys = 20;
 
-const vtkIdType NumPyramidCells = 2;
-const vtkIdType PyramidCells[] = {
+constexpr vtkIdType NumPyramidCells = 2;
+constexpr vtkIdType PyramidCells[] = {
   5, 8, 9, 3, 2, 0, //
   5, 2, 3, 9, 8, 12 //
 };
-const vtkIdType NumExpectedPyramidSurfacePolys = 8;
+constexpr vtkIdType NumExpectedPyramidSurfacePolys = 8;
 
 class BoxClipTriangulateFailed
 {

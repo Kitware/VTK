@@ -20,14 +20,14 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHyperTreeGridToDualGrid);
 
-static const unsigned int CornerNeighborCursorsTable3D0[8] = { 0, 1, 3, 4, 9, 10, 12, 13 };
-static const unsigned int CornerNeighborCursorsTable3D1[8] = { 1, 2, 4, 5, 10, 11, 13, 14 };
-static const unsigned int CornerNeighborCursorsTable3D2[8] = { 3, 4, 6, 7, 12, 13, 15, 16 };
-static const unsigned int CornerNeighborCursorsTable3D3[8] = { 4, 5, 7, 8, 13, 14, 16, 17 };
-static const unsigned int CornerNeighborCursorsTable3D4[8] = { 9, 10, 12, 13, 18, 19, 21, 22 };
-static const unsigned int CornerNeighborCursorsTable3D5[8] = { 10, 11, 13, 14, 19, 20, 22, 23 };
-static const unsigned int CornerNeighborCursorsTable3D6[8] = { 12, 13, 15, 16, 21, 22, 24, 25 };
-static const unsigned int CornerNeighborCursorsTable3D7[8] = { 13, 14, 16, 17, 22, 23, 25, 26 };
+static constexpr unsigned int CornerNeighborCursorsTable3D0[8] = { 0, 1, 3, 4, 9, 10, 12, 13 };
+static constexpr unsigned int CornerNeighborCursorsTable3D1[8] = { 1, 2, 4, 5, 10, 11, 13, 14 };
+static constexpr unsigned int CornerNeighborCursorsTable3D2[8] = { 3, 4, 6, 7, 12, 13, 15, 16 };
+static constexpr unsigned int CornerNeighborCursorsTable3D3[8] = { 4, 5, 7, 8, 13, 14, 16, 17 };
+static constexpr unsigned int CornerNeighborCursorsTable3D4[8] = { 9, 10, 12, 13, 18, 19, 21, 22 };
+static constexpr unsigned int CornerNeighborCursorsTable3D5[8] = { 10, 11, 13, 14, 19, 20, 22, 23 };
+static constexpr unsigned int CornerNeighborCursorsTable3D6[8] = { 12, 13, 15, 16, 21, 22, 24, 25 };
+static constexpr unsigned int CornerNeighborCursorsTable3D7[8] = { 13, 14, 16, 17, 22, 23, 25, 26 };
 static const unsigned int* CornerNeighborCursorsTable3D[8] = {
   CornerNeighborCursorsTable3D0,
   CornerNeighborCursorsTable3D1,
@@ -863,14 +863,14 @@ void vtkHyperTreeGridToDualGrid::GenerateDualCornerFromLeaf2D(
   //   (d-1)-faces are corners, neighbor cursors are 0, 2, 6, 8
   //   (d-2)-faces do not exist
 
-  const unsigned int dS = 1;
-  const unsigned int dW = 3;
-  const unsigned int dE = 5;
-  const unsigned int dN = 7;
-  const unsigned int dSW = 0;
-  const unsigned int dSE = 2;
-  const unsigned int dNW = 6;
-  const unsigned int dNE = 8;
+  constexpr unsigned int dS = 1;
+  constexpr unsigned int dW = 3;
+  constexpr unsigned int dE = 5;
+  constexpr unsigned int dN = 7;
+  constexpr unsigned int dSW = 0;
+  constexpr unsigned int dSE = 2;
+  constexpr unsigned int dNW = 6;
+  constexpr unsigned int dNE = 8;
 
   // Retrieve 2D axes (east-west/south-north)
   unsigned int axisWE = input->GetOrientation() ? 0 : 1;

@@ -70,7 +70,7 @@ bool CheckDecimationValidatity(vtkDecimatePolylineFilter* decimatePolylineFilter
 bool ConstructSceneWithGhostCell(
   vtkRenderer* renderer, vtkDecimatePolylineStrategy* strategy = nullptr)
 {
-  const unsigned int numberOfPointsInCircle = 100;
+  constexpr unsigned int numberOfPointsInCircle = 100;
 
   vtkNew<vtkPoints> points1;
   vtkNew<vtkPoints> points2;
@@ -210,7 +210,7 @@ bool ConstructSceneWithGhostCell(
 
 bool ConstructScene(vtkRenderer* renderer, vtkDecimatePolylineStrategy* strategy = nullptr)
 {
-  const unsigned int numberOfPointsInCircle = 100;
+  constexpr unsigned int numberOfPointsInCircle = 100;
 
   vtkNew<vtkPoints> points;
   vtkNew<vtkDoubleArray> fieldArray;

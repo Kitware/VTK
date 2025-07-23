@@ -28,7 +28,7 @@ namespace
 
 void BuildRenderer(vtkRenderer* renderer, int widthBias)
 {
-  const size_t NUM_LINES = 10;
+  constexpr size_t NUM_LINES = 10;
 
   vtkNew<vtkLineSource> lines[NUM_LINES];
   vtkNew<vtkPolyDataMapper> mappers[NUM_LINES];

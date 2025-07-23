@@ -23,7 +23,7 @@ void vtkXMLFileOutputWindow::Initialize()
   {
     if (!this->FileName)
     {
-      const char fileName[] = "vtkMessageLog.xml";
+      constexpr char fileName[] = "vtkMessageLog.xml";
       this->FileName = new char[strlen(fileName) + 1];
       strcpy(this->FileName, fileName);
     }

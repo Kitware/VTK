@@ -139,7 +139,7 @@ int TestXMLHyperTreeGridIOReduction(int argc, char* argv[])
   // We select 9 HTs at the center of the 5x5 HT grid
   std::cout << "Testing extraction of the 3x3x1 HTs at the center of the 5x5x2 HT grid"
             << std::endl;
-  const double coordsTest[6] = { -6, 2, -6, 2, 0, 10 };
+  constexpr double coordsTest[6] = { -6, 2, -6, 2, 0, 10 };
   reader->SetFileName(fname.c_str());
   reader->SetCoordinatesBoundingBox(
     coordsTest[0], coordsTest[1], coordsTest[2], coordsTest[3], coordsTest[4], coordsTest[5]);

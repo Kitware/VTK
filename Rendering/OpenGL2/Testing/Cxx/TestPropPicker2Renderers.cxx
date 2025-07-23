@@ -81,9 +81,9 @@ void InitRepresentation(vtkRenderer* renderer)
   renderer->AddActor(sphere);
 }
 
-const char PropPickerEventLog[] = "# StreamVersion 1.1\n"
-                                  "LeftButtonPressEvent 160 150 0 0 0 0\n"
-                                  "LeftButtonReleaseEvent 160 150 0 0 0 0\n";
+constexpr char PropPickerEventLog[] = "# StreamVersion 1.1\n"
+                                      "LeftButtonPressEvent 160 150 0 0 0 0\n"
+                                      "LeftButtonReleaseEvent 160 150 0 0 0 0\n";
 
 int TestPropPicker2Renderers(int, char*[])
 {

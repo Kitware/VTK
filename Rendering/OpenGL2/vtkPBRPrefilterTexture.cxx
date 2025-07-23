@@ -328,8 +328,8 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
         quadHelper.Program->SetUniformf("roughness", roughness);
 
         // Heuristic to choose the number of samples according to the roughness
-        const float a = 0.65;
-        const float b = 1.0 - a;
+        constexpr float a = 0.65;
+        constexpr float b = 1.0 - a;
         int nbSamples = roughness * this->PrefilterMaxSamples / (a * roughness + b) + 1;
 
         quadHelper.Program->SetUniformi("nbSamples", nbSamples);

@@ -16,7 +16,7 @@
 #include <vector>
 
 // How many times the tests are run to average the elapsed time.
-static const int STRESS_COUNT = 5;
+static constexpr int STRESS_COUNT = 5;
 
 // Description:
 // Type of console outputs.
@@ -31,7 +31,7 @@ enum VerboseType
   Details = 0x4
 };
 
-static const int VERBOSE_MODE = CDash;
+static constexpr int VERBOSE_MODE = CDash;
 
 //------------------------------------------------------------------------------
 class vtkSimpleCommand : public vtkCommand

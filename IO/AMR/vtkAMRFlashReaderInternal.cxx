@@ -181,7 +181,7 @@ void vtkFlashReaderInternal::Init()
 //------------------------------------------------------------------------------
 int vtkFlashReaderInternal::GetCycle()
 {
-  const bool bTmCycle = true;
+  constexpr bool bTmCycle = true;
 
   hid_t fileIndx = H5Fopen(this->FileName, H5F_ACC_RDONLY, H5P_DEFAULT);
   if (fileIndx < 0)
@@ -199,7 +199,7 @@ int vtkFlashReaderInternal::GetCycle()
 //------------------------------------------------------------------------------
 double vtkFlashReaderInternal::GetTime()
 {
-  const bool bTmCycle = true;
+  constexpr bool bTmCycle = true;
 
   hid_t fileIndx = H5Fopen(this->FileName, H5F_ACC_RDONLY, H5P_DEFAULT);
   if (fileIndx < 0)

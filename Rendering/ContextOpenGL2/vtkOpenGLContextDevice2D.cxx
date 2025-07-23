@@ -201,7 +201,7 @@ void PostDraw(vtkOpenGLHelper& helper, vtkRenderer* ren, unsigned char col[4])
 inline bool IsFullCircle(float startAngle, float stopAngle)
 {
   // A small number practical for rendering purposes.
-  const float TOL = 1e-5f;
+  constexpr float TOL = 1e-5f;
 
   return std::fabs(stopAngle - startAngle) + TOL >= 360.f;
 }

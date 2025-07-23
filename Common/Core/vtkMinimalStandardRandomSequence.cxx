@@ -8,10 +8,10 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMinimalStandardRandomSequence);
 
-const int VTK_K_A = 16807;
-const int VTK_K_M = 2147483647; // Mersenne prime 2^(31)-1
-const int VTK_K_Q = 127773;     // M/A
-const int VTK_K_R = 2836;       // M%A
+constexpr int VTK_K_A = 16807;
+constexpr int VTK_K_M = 2147483647; // Mersenne prime 2^(31)-1
+constexpr int VTK_K_Q = 127773;     // M/A
+constexpr int VTK_K_R = 2836;       // M%A
 
 //------------------------------------------------------------------------------
 vtkMinimalStandardRandomSequence::vtkMinimalStandardRandomSequence()

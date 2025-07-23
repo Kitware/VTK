@@ -377,7 +377,7 @@ void vtkPNGWriter::PrintSelf(ostream& os, vtkIndent indent)
 void vtkPNGWriter::AddText(const char* key, const char* value)
 {
   vtkInternals* impl = this->Internals;
-  const size_t MAX_KEY_LENGTH = 79;
+  constexpr size_t MAX_KEY_LENGTH = 79;
   if (!key || key[0] == '\0')
   {
     vtkWarningMacro("Trying to add PNG text chunk with a null or empty key");

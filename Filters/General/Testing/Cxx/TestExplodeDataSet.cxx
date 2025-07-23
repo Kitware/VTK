@@ -68,7 +68,7 @@ bool TestDataSet(vtkDataSet* dataset)
 {
   vtkDataArray* scalars = dataset->GetCellData()->GetArray(0);
   std::string arrayName = scalars->GetName();
-  const unsigned int nbOfParts = 6;
+  constexpr unsigned int nbOfParts = 6;
 
   vtkNew<vtkExplodeDataSet> split;
   split->SetInputDataObject(dataset);

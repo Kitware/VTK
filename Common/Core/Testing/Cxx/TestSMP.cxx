@@ -16,7 +16,7 @@
 #include <set>
 #include <vector>
 
-static const int Target = 10000;
+static constexpr int Target = 10000;
 
 class ARangeFunctor
 {
@@ -321,7 +321,7 @@ int doTestSMP()
   }*/
 
   // Test LocalScope
-  const int targetThreadNb = 2;
+  constexpr int targetThreadNb = 2;
   int scopeThreadNb = 0;
 
   auto lambdaScope0 = [&]() { scopeThreadNb = vtkSMPTools::GetEstimatedNumberOfThreads(); };
@@ -332,7 +332,7 @@ int doTestSMP()
     return EXIT_FAILURE;
   }
 
-  const bool isNestedTarget = true;
+  constexpr bool isNestedTarget = true;
   bool isNested = false;
 
   auto lambdaScope1 = [&]() { isNested = vtkSMPTools::GetNestedParallelism(); };
@@ -479,7 +479,7 @@ int doTestSMP()
     }
   }
 
-  const double fillValue1 = 42;
+  constexpr double fillValue1 = 42;
   vtkSMPTools::Fill(fillData1.begin(), fillData1.end(), fillValue1);
   for (auto& it : fillData1)
   {

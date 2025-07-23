@@ -34,7 +34,7 @@ vtkStandardNewMacro(vtkFacetReader);
 //
 static bool GetLineFromStream(istream& is, std::string& line, bool* has_newline = nullptr)
 {
-  const int bufferSize = 1024;
+  constexpr int bufferSize = 1024;
   char buffer[bufferSize];
   line = "";
   bool haveData = false;

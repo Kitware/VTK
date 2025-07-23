@@ -22,7 +22,7 @@
 
 #define WRITE_DEBUG 0
 
-const int EXTENT = 30;
+constexpr int EXTENT = 30;
 int TestSMPContour(int, char*[])
 {
   vtkSMPTools::Initialize(2);

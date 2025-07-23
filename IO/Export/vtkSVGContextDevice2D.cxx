@@ -1149,7 +1149,7 @@ void vtkSVGContextDevice2D::DrawEllipseWedge(float cx, float cy, float outRx, fl
   const bool isFilled = inRx == 0.f && inRy == 0.f;
   const bool isCircle = inRx == inRy && outRx == outRy;
   const int largeArcFlag = (arcLength >= 180.f) ? 1 : 0;
-  const int sweepFlag = 0;
+  constexpr int sweepFlag = 0;
   YConverter y(this->CanvasHeight);
 
   if (!isArc)
@@ -1250,7 +1250,7 @@ void vtkSVGContextDevice2D::DrawEllipseWedge(float cx, float cy, float outRx, fl
       path->SetAttribute("d", d.str().c_str());
 
       // Inner ellipse
-      const int innerSweepFlag = 1;
+      constexpr int innerSweepFlag = 1;
       helper = EllipseHelper(cx, cy, inRx, inRy);
       helper.UpdateDegrees(stopAngle);
       d << "L" << helper.X << "," << y(helper.Y) << "\n";
@@ -1275,7 +1275,7 @@ void vtkSVGContextDevice2D::DrawEllipticArc(
   const bool isArc = arcLength < 360.f;
   const bool isCircle = rX == rY;
   const int largeArcFlag = (arcLength >= 180.f) ? 1 : 0;
-  const int sweepFlag = 0;
+  constexpr int sweepFlag = 0;
   YConverter y(this->CanvasHeight);
 
   if (!isArc)
@@ -1663,7 +1663,7 @@ void vtkSVGContextDevice2D::SetupClippingAndTransform()
 
   // If no clipping or transform is present, no need for a new <g> element,
   // just add new primitives to the ContextNode directly.
-  const std::array<double, 9> ident = { { 1., 0., 0., 0., 1., 0., 0., 0., 1. } };
+  constexpr std::array<double, 9> ident = { { 1., 0., 0., 0., 1., 0., 0., 0., 1. } };
   const bool isIdentity = vtkSVGContextDevice2D::Transform2DEqual(ident.data(), mat4);
 
   if (!this->IsClipping && isIdentity)
@@ -2311,7 +2311,7 @@ bool vtkSVGContextDevice2D::LengthLessThanTolerance(const vtkVector2f& p1, const
 bool vtkSVGContextDevice2D::ColorsAreClose(
   const vtkColor4ub& c1, const vtkColor4ub& c2, bool useAlpha)
 {
-  const std::array<unsigned char, 4> tol = { { 16, 8, 32, 32 } };
+  constexpr std::array<unsigned char, 4> tol = { { 16, 8, 32, 32 } };
   int comps = useAlpha ? 4 : 3;
   for (int i = 0; i < comps; ++i)
   {
@@ -2536,10 +2536,10 @@ void vtkSVGContextDevice2D::GetSVGMatrix(double svg[9])
 //------------------------------------------------------------------------------
 bool vtkSVGContextDevice2D::Transform2DEqual(const double mat3[9], const double mat4[16])
 {
-  const double tol = 1e-5;
+  constexpr double tol = 1e-5;
 
-  const std::array<size_t, 6> mat3Map = { { 0, 1, 2, 3, 4, 5 } };
-  const std::array<size_t, 6> mat4Map = { { 0, 1, 3, 4, 5, 7 } };
+  constexpr std::array<size_t, 6> mat3Map = { { 0, 1, 2, 3, 4, 5 } };
+  constexpr std::array<size_t, 6> mat4Map = { { 0, 1, 3, 4, 5, 7 } };
 
   for (size_t i = 0; i < 6; ++i)
   {

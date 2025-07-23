@@ -95,7 +95,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState* s)
 
     // I suggest set this to 100 for debugging, makes some errors
     // much easier to find
-    const int extraPixels = 2; // two on each side, as the kernel is 5x5
+    constexpr int extraPixels = 2; // two on each side, as the kernel is 5x5
 
     int w = width + extraPixels * 2;
     int h = height + extraPixels * 2;

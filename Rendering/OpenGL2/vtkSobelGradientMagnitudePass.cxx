@@ -122,7 +122,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   width = size[0];
   height = size[1];
 
-  const int extraPixels = 1; // one on each side
+  constexpr int extraPixels = 1; // one on each side
 
   int w = width + 2 * extraPixels;
   int h = height + 2 * extraPixels;

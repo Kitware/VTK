@@ -252,7 +252,7 @@ double vtkProperty::ComputeReflectanceOfBaseLayer()
 {
   // Compute F0 of base with the environment
   // Hard coded air environment (could be modified with an other IOR)
-  const double environmentIOR = 1.0;
+  constexpr double environmentIOR = 1.0;
   double baseToEnvironmentF0 =
     vtkProperty::ComputeReflectanceFromIOR(this->BaseIOR, environmentIOR);
   // Recalculate base f0 in case of a coat layer

@@ -41,8 +41,8 @@ vtkCellStatus IsConvex(vtkStringToken shape)
     case "dodecahedron"_hash:
     {
       // create a dodecahedron
-      const int nPoints = 20;
-      const int nFaces = 12;
+      constexpr int nPoints = 20;
+      constexpr int nFaces = 12;
 
       double dodechedronPoint[nPoints][3] = {
         { 1.21412, 0, 1.58931 },
@@ -97,8 +97,8 @@ vtkCellStatus IsConvex(vtkStringToken shape)
     case "u_shape"_hash:
     {
       // create a concave shape
-      const int nPoints = 16;
-      const int nFaces = 10;
+      constexpr int nPoints = 16;
+      constexpr int nFaces = 10;
 
       double concaveShapePoint[nPoints][3] = {
         { .5, -.5, .25 },
@@ -148,8 +148,8 @@ vtkCellStatus IsConvex(vtkStringToken shape)
     case "cube"_hash:
     {
       // create a cube
-      const int nPoints = 8;
-      const int nFaces = 6;
+      constexpr int nPoints = 8;
+      constexpr int nFaces = 6;
 
       double cubeShapePoint[nPoints][3] = {
         { .5, .5, .5 },
@@ -187,8 +187,8 @@ vtkCellStatus IsConvex(vtkStringToken shape)
     case "colinear_cube"_hash:
     {
       // create a cube with two rectangles comprising one of the faces.
-      const int nPoints = 10;
-      const int nFaces = 7;
+      constexpr int nPoints = 10;
+      constexpr int nFaces = 7;
 
       double cubeShapePoint[nPoints][3] = {
         { .5, .5, .5 },
@@ -236,8 +236,8 @@ vtkCellStatus IsConvex(vtkStringToken shape)
     case "degenerate_cube"_hash:
     {
       // create a cube with two degenerate points.
-      const int nPoints = 10;
-      const int nFaces = 7;
+      constexpr int nPoints = 10;
+      constexpr int nFaces = 7;
 
       double cubeShapePoint[nPoints][3] = {
         { .5, .5, .5 },
@@ -285,8 +285,8 @@ vtkCellStatus IsConvex(vtkStringToken shape)
     case "convex_pyramid"_hash:
     {
       // create a simple convex pyramid
-      const int nPoints = 5;
-      const int nFaces = 5;
+      constexpr int nPoints = 5;
+      constexpr int nFaces = 5;
 
       double pyramidShapePoint[nPoints][3] = {
         { 0., 0., -.5 },
@@ -320,8 +320,8 @@ vtkCellStatus IsConvex(vtkStringToken shape)
     case "nonconvex_pyramid"_hash:
     {
       // create a simple non-convex pyramid
-      const int nPoints = 5;
-      const int nFaces = 5;
+      constexpr int nPoints = 5;
+      constexpr int nFaces = 5;
 
       double pyramidShapePoint[nPoints][3] = {
         { 0., 0., -.5 },
@@ -355,8 +355,8 @@ vtkCellStatus IsConvex(vtkStringToken shape)
     case "convex_prism"_hash:
     {
       // create a simple convex prism
-      const int nPoints = 6;
-      const int nFaces = 5;
+      constexpr int nPoints = 6;
+      constexpr int nFaces = 5;
 
       double prismShapePoint[nPoints][3] = {
         { -41.6027, 0., 10.2556 },

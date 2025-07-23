@@ -83,10 +83,10 @@ int TestRangeHandlesItemEvents(int, char*[])
   recorder->ReadFromInputStringOn();
 
   // Move left handle
-  const char leftEvents[] = "# StreamVersion 1\n"
-                            "LeftButtonPressEvent 51 1 0 0 0 0 0\n"
-                            "MouseMoveEvent 70 1 0 0 0 0 0\n"
-                            "LeftButtonReleaseEvent 70 1 0 0 0 0 0\n";
+  constexpr char leftEvents[] = "# StreamVersion 1\n"
+                                "LeftButtonPressEvent 51 1 0 0 0 0 0\n"
+                                "MouseMoveEvent 70 1 0 0 0 0 0\n"
+                                "LeftButtonReleaseEvent 70 1 0 0 0 0 0\n";
   recorder->SetInputString(leftEvents);
   recorder->Play();
 
@@ -111,10 +111,10 @@ int TestRangeHandlesItemEvents(int, char*[])
   cbk->EventSpy.clear();
 
   // Move right handle
-  const char rightEvents[] = "# StreamVersion 1\n"
-                             "LeftButtonPressEvent 199 1 0 0 0 0 0\n"
-                             "MouseMoveEvent 120 1 0 0 0 0 0\n"
-                             "LeftButtonReleaseEvent 120 1 0 0 0 0 0\n";
+  constexpr char rightEvents[] = "# StreamVersion 1\n"
+                                 "LeftButtonPressEvent 199 1 0 0 0 0 0\n"
+                                 "MouseMoveEvent 120 1 0 0 0 0 0\n"
+                                 "LeftButtonReleaseEvent 120 1 0 0 0 0 0\n";
   recorder->SetInputString(rightEvents);
   recorder->Play();
 

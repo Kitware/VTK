@@ -284,7 +284,7 @@ int vtkXMLParser::ParseXML()
 
   // Default stream parser just reads a block at a time.
   istream& in = *(this->Stream);
-  const int bufferSize = 4096;
+  constexpr int bufferSize = 4096;
   char buffer[bufferSize];
 
   // Read in the stream and send its contents to the XML parser.  This

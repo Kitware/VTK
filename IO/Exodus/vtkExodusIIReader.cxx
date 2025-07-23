@@ -357,11 +357,11 @@ void vtkExodusIIReaderPrivate::GlomArrayNames(
   this->ArrayInfo[objtyp].clear();
 
   // Create some objects that try to glom names together in different ways.
-  const char endRZ[] = "RZ";
-  const char endV2[] = "xy";
-  const char endV3[] = "xYz";
-  const char endST23[] = "XXYYZZXYXZYZ";
-  const char endST34[] = "XXXYYYZZZWWWXXYXXZXXWXYYXYZXYWXZZXZWXWWYYZYYWYZZYZWYWWZZWZWW";
+  constexpr char endRZ[] = "RZ";
+  constexpr char endV2[] = "xy";
+  constexpr char endV3[] = "xYz";
+  constexpr char endST23[] = "XXYYZZXYXZYZ";
+  constexpr char endST34[] = "XXXYYYZZZWWWXXYXXZXXWXYYXYZXYWXZZXZWXWWYYZYYWYZZYZWYWWZZWZWW";
 
   vtkExodusIIReaderScalarCheck* scalar = new vtkExodusIIReaderScalarCheck;
   // vtkExodusIIReaderVectorCheck* vecx2 = new vtkExodusIIReaderVectorCheck( endV2, 2 );

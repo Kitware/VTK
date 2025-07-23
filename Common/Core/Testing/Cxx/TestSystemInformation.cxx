@@ -30,7 +30,7 @@ void vtkSystemInformationPrintFile(const char* name, ostream& os)
   {
     os << "Contents of \"" << name << "\":\n";
     os << "----------------------------------------------------------------\n";
-    const int bufferSize = 4096;
+    constexpr int bufferSize = 4096;
     char buffer[bufferSize];
     // This copy loop is very sensitive on certain platforms with
     // slightly broken stream libraries (like HPUX).  Normally, it is

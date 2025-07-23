@@ -1585,7 +1585,7 @@ int vtkFunctionParser::GetMathFunctionNumberByCheckingParenthesis(int currentInd
   // For addition of any new math function, please update NUMBFUNCS
   // and add an entry to each of the three arrays below.
 
-  const int NUMBFUNCS = 24;
+  constexpr int NUMBFUNCS = 24;
 
   static const int charsLens[NUMBFUNCS] = { 4, 4, 5, 6, 3, 6, 4, 5, 4, 5, 4, 5, 4, 5, 5, 5, 5, 4, 4,
     6, 5, 4, 5, 3 };

@@ -221,7 +221,7 @@ void vtkChartMatrix::GoToNextElement(vtkVector2i& index, vtkVector2f& offset)
   const int& numRows = this->Size.GetY();
   int& i = this->Private->Index[0];
   int& j = this->Private->Index[1];
-  const int FIRST = 0;
+  constexpr int FIRST = 0;
 
   // increment j
   ++j;

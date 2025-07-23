@@ -194,7 +194,7 @@ int vtkXYZMolReader::CanReadFile(const char* name)
 
   int valid = 0;
 
-  const int maxlen = 1024;
+  constexpr int maxlen = 1024;
   char buffer[maxlen];
   char comment[maxlen];
   char atom[maxlen];
@@ -237,7 +237,7 @@ int vtkXYZMolReader::CanReadFile(const char* name)
 //------------------------------------------------------------------------------
 void vtkXYZMolReader::ReadSpecificMolecule(FILE* fp)
 {
-  const int maxlen = 1024;
+  constexpr int maxlen = 1024;
   char buffer[maxlen];
   char comment[maxlen];
   char* lptr;

@@ -187,7 +187,7 @@ inline int DoOrientationTest(
 
 int TestImageDataOrientation(int, char*[])
 {
-  const double pi = vtkMath::Pi();
+  constexpr double pi = vtkMath::Pi();
 
   // test 0D, 1D, 2D, 3D data with various extents, spacings, origins, directions
   static int dims[4][3] = {

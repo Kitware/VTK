@@ -43,7 +43,7 @@ int ImageResliceOriented(int argc, char* argv[])
   delete[] fname;
 
   // change to a new orientation for testing
-  const double direction[16] = {
+  constexpr double direction[16] = {
     0.0, 0.0, 1.0, // 1st
     1.0, 0.0, 0.0, // 2nd
     0.0, -1.0, 0.0 // 3rd
@@ -70,7 +70,7 @@ int ImageResliceOriented(int argc, char* argv[])
   // the columns of the direction matrix give the directions
   // that will map to the screen's horizontal (left->right),
   // vertical (bottom->top), and depth (into the screen)
-  const double directions[4][9] = {
+  constexpr double directions[4][9] = {
     // lower left, sagittal
     { 1.0, 0.0, 0.0,    // 1st
       0.0, 0.0, 1.0,    // 2nd

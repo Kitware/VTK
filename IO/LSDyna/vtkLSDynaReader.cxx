@@ -2631,7 +2631,7 @@ int vtkLSDynaReader::ReadDeletion()
       // we are now at the position to read the SPH deletion info from the sph state info
       if (p->NumberOfCells[LSDynaMetaData::PARTICLE] > 0)
       {
-        const LSDynaMetaData::LSDYNA_TYPES type = LSDynaMetaData::PARTICLE;
+        constexpr LSDynaMetaData::LSDYNA_TYPES type = LSDynaMetaData::PARTICLE;
         vtkIdType numCells, numSkipStart, numSkipEnd;
         this->Parts->GetPartReadInfo(type, numCells, numSkipStart, numSkipEnd);
 

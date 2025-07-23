@@ -18,7 +18,7 @@ static int TestSpecificLandmarkTransform(int mode, int dimensionality, int npoin
   std::ostringstream errstream;
   npoints = (npoints > 20 ? 20 : npoints);
 
-  const double lcoords[20][3] = {
+  constexpr double lcoords[20][3] = {
     { -0.8316301300814422, -0.06992580859519772, -1.6034524068257419 },
     { -2.151893827785692, 0.38244721645095636, -0.9275967632551845 },
     { 0.8147291118075928, -0.7016483698682392, 0.15003863332602096 },
@@ -41,7 +41,7 @@ static int TestSpecificLandmarkTransform(int mode, int dimensionality, int npoin
     { -0.09448165336394657, -1.1381967760924927, -0.7171168342666931 },
   };
 
-  const double lnoise[20][3] = {
+  constexpr double lnoise[20][3] = {
     { 1.5137019295427425, 0.6858246680960894, 0.07331883771349512 },
     { -0.34081703057234036, 0.47987804772801446, 0.982197518178181 },
     { -0.1106079068591361, 1.0523148414328571, 0.17910578196163454 },
@@ -275,7 +275,7 @@ int TestLandmarkTransform(int, char*[])
 
   // All sets of test conditions that are commented out are conditions
   // under which vtkLandmarkTransform currently fails.
-  const Conditions benchmarks[] = {
+  constexpr Conditions benchmarks[] = {
     // rigid body with different dimensionalities
     { VTK_LANDMARK_RIGIDBODY, 0, 20, 1e-6, 1.0, 1.0, 1.0 },
     { VTK_LANDMARK_RIGIDBODY, 0, 20, 1e-1, 1.0, 1.0, 1.0 },

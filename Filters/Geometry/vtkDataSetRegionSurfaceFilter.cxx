@@ -952,7 +952,7 @@ void vtkDataSetRegionSurfaceFilter::InsertQuadInHash(
   // assign the face id to ptArray[5], and the region id to ptArray[4],
   // but using pointer math, so that we don't generate a warning about accessing
   // ptArray out of bounds
-  const int quadRealNumPts(4);
+  constexpr int quadRealNumPts(4);
   vtkIdType* quadsRegionId = (quad->ptArray + quadRealNumPts);
   vtkIdType* quadsFaceId = (quad->ptArray + quadRealNumPts + 1);
   *quadsRegionId = regionId;
@@ -1029,7 +1029,7 @@ void vtkDataSetRegionSurfaceFilter::InsertTriInHash(
   // assign the face id to ptArray[4], but using pointer math,
   // so that we don't generate a warning about accessing ptArray
   // out of bounds
-  const int quadRealNumPts(3);
+  constexpr int quadRealNumPts(3);
   vtkIdType* quadsFaceId = (quad->ptArray + quadRealNumPts + 1);
   *quadsFaceId = faceId;
   quad->numPts = quadRealNumPts;

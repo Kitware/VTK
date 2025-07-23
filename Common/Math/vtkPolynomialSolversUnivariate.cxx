@@ -14,7 +14,7 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPolynomialSolversUnivariate);
 
 static const double sqrt3 = sqrt(3.);
-static const double inv3 = 1 / 3.;
+static constexpr double inv3 = 1 / 3.;
 static const double absolute0 = 10. * VTK_DBL_MIN;
 
 double vtkPolynomialSolversUnivariate::DivisionTolerance = 1e-8; // sqrt( VTK_DBL_EPSILON );

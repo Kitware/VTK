@@ -20,7 +20,7 @@
 #include <vtksys/SystemTools.hxx>
 
 //------------------------------------------------------------------------------
-const double densities[] = {
+constexpr double densities[] = {
   0.00013383,
   0.000611902,
   0.00238409,
@@ -49,8 +49,8 @@ int TestExtractFunctionalBagPlot(int, char*[])
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
 
-  const int numCols = 20;
-  const int numPoints = 20;
+  constexpr int numCols = 20;
+  constexpr int numPoints = 20;
 
   for (int j = 0; j < numCols; j++)
   {

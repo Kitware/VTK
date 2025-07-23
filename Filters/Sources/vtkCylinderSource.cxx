@@ -244,7 +244,7 @@ int vtkCylinderSource::CreateHemisphere(vtkPoints* newPoints, vtkFloatArray* new
   double n[3], x[3], norm, theta;
   const double halfHeight = this->Height * 0.5;
   const int thetaResolution = this->Resolution;
-  const int numPoles = 1;
+  constexpr int numPoles = 1;
   double* center = this->Center;
   const int phiResolution = this->Resolution - numPoles;
   const int base = (phiResolution - 1) * thetaResolution;

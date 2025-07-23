@@ -93,7 +93,7 @@ void vtkLookupTableItem::ComputeTexture()
     this->Texture = vtkImageData::New();
   }
   // Could depend of the screen resolution
-  const int dimension = 256;
+  constexpr int dimension = 256;
   double values[256];
   // Texture 1D
   this->Texture->SetExtent(0, dimension - 1, 0, 0, 0, 0);

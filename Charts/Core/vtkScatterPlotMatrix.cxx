@@ -694,8 +694,8 @@ void vtkScatterPlotMatrix::AdvanceAnimation()
       // DO NOT MODIFY. These magic numbers were found by trial and error to
       // position the chart correctly so that the 3D axes are not clipped out
       // of the 3D viewport during animation.
-      const float scaleFactor = 0.08;
-      const float orthogonalScaleFactor = 0.008;
+      constexpr float scaleFactor = 0.08;
+      constexpr float orthogonalScaleFactor = 0.008;
 
       if (this->Private->NextActivePlot.GetY() == this->ActivePlot.GetY())
       {

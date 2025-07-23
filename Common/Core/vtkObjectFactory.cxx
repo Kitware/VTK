@@ -131,7 +131,7 @@ static char* CreateFullPath(const std::string& path, const char* file)
 #ifdef _WIN32
   const char sep = '\\';
 #else
-  const char sep = '/';
+  constexpr char sep = '/';
 #endif
   // make sure the end of path is a separator
   strcpy(ret, path.c_str());

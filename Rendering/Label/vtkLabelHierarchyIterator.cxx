@@ -219,7 +219,7 @@ void vtkLabelHierarchyIterator::BoxAllNodes(vtkPolyData* boxes)
   this->TraversedBounds = tmp;
 }
 
-static const int vtkLabelHierarchyIteratorEdgeIds[12][2] = {
+static constexpr int vtkLabelHierarchyIteratorEdgeIds[12][2] = {
   { 0, 1 },
   { 1, 2 },
   { 2, 3 },

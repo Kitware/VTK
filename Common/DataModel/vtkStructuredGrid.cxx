@@ -28,7 +28,7 @@ vtkStructuredGrid::vtkStructuredGrid()
     this->Dimensions[idx] = 0;
   }
 
-  const int extent[6] = { 0, -1, 0, -1, 0, -1 };
+  constexpr int extent[6] = { 0, -1, 0, -1, 0, -1 };
   memcpy(this->Extent, extent, sizeof(extent));
 
   this->Information->Set(vtkDataObject::DATA_EXTENT_TYPE(), VTK_3D_EXTENT);

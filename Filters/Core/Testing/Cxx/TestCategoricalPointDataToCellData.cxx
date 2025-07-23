@@ -18,7 +18,7 @@
 
 namespace
 {
-const double EPSILON = 1.e-6;
+constexpr double EPSILON = 1.e-6;
 
 // Create a triangle with vertices p0, p1, p2, add the points to the point
 // locator, and add the triangle to the cell array.

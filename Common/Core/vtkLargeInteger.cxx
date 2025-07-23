@@ -13,7 +13,7 @@
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
-const unsigned int BIT_INCREMENT = 32;
+constexpr unsigned int BIT_INCREMENT = 32;
 
 void vtkLargeInteger::Contract()
 {

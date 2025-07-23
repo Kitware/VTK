@@ -23,7 +23,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------------
-static const unsigned char NO_EDGE_FLAG = std::numeric_limits<unsigned char>::max();
+static constexpr unsigned char NO_EDGE_FLAG = std::numeric_limits<unsigned char>::max();
 
 //-----------------------------------------------------------------------------
 // Simple class used internally to define an edge based on the endpoints.

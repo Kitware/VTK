@@ -416,7 +416,7 @@ vtkVector3d vtkAxisExtended::GenerateExtendedTickLabels(
   double bestScore = -2;
   double bestLmin(0), bestLmax(0), bestLstep(0);
 
-  const int INF = 100; // INT_MAX;  Again 100 is hard coded
+  constexpr int INF = 100; // INT_MAX;  Again 100 is hard coded
 
   int j = 1;
   while (j < INF)

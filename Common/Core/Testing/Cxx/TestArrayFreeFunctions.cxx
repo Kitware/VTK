@@ -153,7 +153,7 @@ int ExerciseDelete(FreeType f)
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
   arrays.push_back(vtkScaledSOADataArrayTemplate<double>::New());
 #endif
-  const std::size_t size = 5000;
+  constexpr std::size_t size = 5000;
   for (auto it = arrays.begin(); it != arrays.end(); ++it)
   {
 

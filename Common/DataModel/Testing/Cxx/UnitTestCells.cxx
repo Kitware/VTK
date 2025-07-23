@@ -1263,7 +1263,7 @@ int TestOneCell(VTKCellType cellType, vtkSmartPointer<T> aCell, int linear)
     {
       continue;
     }
-    const double tol = std::numeric_limits<double>::epsilon();
+    constexpr double tol = std::numeric_limits<double>::epsilon();
     bool isDist2AlmostZero = (dist2 <= tol * tol * aCell->GetLength2());
     if (inOut == 1 && isDist2AlmostZero && inOuts[p] == 1)
     {

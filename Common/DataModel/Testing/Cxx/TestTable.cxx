@@ -12,9 +12,9 @@
 #include <ctime>
 #include <vector>
 
-const int size = 100;
-const double prob = 1.0 - 1.0 / size;
-const double highProb = 1.0 - 1.0 / (size * size);
+constexpr int size = 100;
+constexpr double prob = 1.0 - 1.0 / size;
+constexpr double highProb = 1.0 - 1.0 / (size * size);
 
 void CheckEqual(
   vtkTable* table, std::vector<std::vector<double>>& stdTable, const std::string& info)

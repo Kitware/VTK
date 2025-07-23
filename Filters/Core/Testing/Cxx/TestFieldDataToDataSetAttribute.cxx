@@ -20,10 +20,10 @@
 static const std::string FIRST_NAME = "firstArray";
 static const std::string SECOND_NAME = "secondArray";
 
-static const int FIRST_VALUE = 13;
-static const double SECOND_VALUE = -3.7;
+static constexpr int FIRST_VALUE = 13;
+static constexpr double SECOND_VALUE = -3.7;
 
-static const vtkIdType TESTED_INDEX = 42;
+static constexpr vtkIdType TESTED_INDEX = 42;
 
 namespace FieldDataToAttributeDataUtils
 {
@@ -159,14 +159,14 @@ void TestMultiBlock()
 
   vtkNew<vtkImageData> image2;
   image->SetDimensions(10, 10, 10);
-  const double shiftValue = 1;
+  constexpr double shiftValue = 1;
   AddFieldDataArrays(image2, shiftValue);
 
   vtkNew<vtkMultiBlockDataSet> mblock;
   mblock->SetBlock(0, image);
   mblock->SetBlock(1, image2);
 
-  const auto attributeType = vtkDataObject::POINT;
+  constexpr auto attributeType = vtkDataObject::POINT;
   vtkNew<vtkFieldDataToDataSetAttribute> forwarder;
   forwarder->SetInputData(mblock);
   forwarder->SetOutputFieldType(attributeType);
@@ -174,7 +174,7 @@ void TestMultiBlock()
   vtkDataObject* output = forwarder->GetOutput();
   auto outMB = vtkMultiBlockDataSet::SafeDownCast(output);
 
-  const int numberOfOutArrays = 2;
+  constexpr int numberOfOutArrays = 2;
   bool ret =
     CheckOutput(outMB->GetBlock(0), attributeType, numberOfOutArrays, FIRST_NAME, FIRST_VALUE);
   ret = ret &&

@@ -41,9 +41,9 @@ namespace
 //------------------------------------------------------------------------------
 //  GLOBAL DATA
 //------------------------------------------------------------------------------
-const int NumPatches = 4;
+constexpr int NumPatches = 4;
 
-const int NumLevels = 2;
+constexpr int NumLevels = 2;
 
 const std::vector<unsigned int> BlocksPerLevel{ 2, 2 };
 
@@ -56,13 +56,13 @@ int Patches[4][7] = { { 0, 0, 2, 0, 5, 0, 5 }, { 0, 2, 5, 0, 5, 0, 5 }, { 1, 1, 
 
 // Define the number of dimensions for the root level virtual grid
 // The domain is assumed to be square [NDIM x NDIM x NDIM]
-const int NDIM = 6;
+constexpr int NDIM = 6;
 
 // Define uniform grid spacing at level 0
-const double h0 = 1.0;
+constexpr double h0 = 1.0;
 
 // Global origin
-const double origin[3] = { 0.0, 0.0, 0.0 };
+constexpr double origin[3] = { 0.0, 0.0, 0.0 };
 
 #ifdef ENABLE_IO
 //------------------------------------------------------------------------------

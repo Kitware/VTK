@@ -95,8 +95,8 @@ int TestBinCellDataFilter(int, char*[])
   vtkNew<vtkMersenneTwister> seq;
   seq->InitializeSequence(0, 0);
 
-  const vtkIdType numberOfSourcePoints = 1.e4;
-  const vtkIdType numberOfInputPoints = 1.e1;
+  constexpr vtkIdType numberOfSourcePoints = 1.e4;
+  constexpr vtkIdType numberOfInputPoints = 1.e1;
 
   vtkSmartPointer<vtkUnstructuredGrid> sourceGrid =
     ConstructDelaunay3DSphere(numberOfSourcePoints, seq, false);

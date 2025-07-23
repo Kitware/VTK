@@ -4043,7 +4043,7 @@ void vtkFoamEntryValue::ReadCompactLabelListList(vtkFoamIOobject& io)
 //   and we silently skip these
 void vtkFoamEntryValue::ReadDimensionSet(vtkFoamIOobject& io)
 {
-  const int nDimensions = 7; // There are 7 base dimensions
+  constexpr int nDimensions = 7; // There are 7 base dimensions
   this->MakeScalarList(nDimensions, 0.0);
   vtkFloatArray& dims = *(this->Superclass::ScalarListPtr);
 
@@ -8907,7 +8907,7 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry&
 // Convert OpenFOAM dimension array to string representation
 std::string vtkOpenFOAMReaderPrivate::ConstructDimensions(const vtkFoamDict& dict) const
 {
-  const int nDimensions = 7; // There are 7 base dimensions
+  constexpr int nDimensions = 7; // There are 7 base dimensions
   static const char* units[7] = { "kg", "m", "s", "K", "mol", "A", "cd" };
 
   if (!this->Parent->GetAddDimensionsToArrayNames())

@@ -10,7 +10,7 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
-const char events[] = R"(# StreamVersion 1.1
+constexpr char events[] = R"(# StreamVersion 1.1
 KeyPressEvent 158 154 0 0 1 Control_L
 CharEvent 158 154 0 0 1 Control_L
 LeftButtonPressEvent 151 150 2 0 0 Control_L

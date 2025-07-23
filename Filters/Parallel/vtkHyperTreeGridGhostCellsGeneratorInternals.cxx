@@ -186,9 +186,9 @@ void ExtractInterface(vtkHyperTreeGridNonOrientedCursor* inCursor, vtkBitArray* 
   }
 }
 
-const int HTGGCG_SIZE_EXCHANGE_TAG = 5098;
-const int HTGGCG_DATA_EXCHANGE_TAG = 5099;
-const int HTGGCG_DATA2_EXCHANGE_TAG = 5100;
+constexpr int HTGGCG_SIZE_EXCHANGE_TAG = 5098;
+constexpr int HTGGCG_DATA_EXCHANGE_TAG = 5099;
+constexpr int HTGGCG_DATA2_EXCHANGE_TAG = 5100;
 }
 
 //------------------------------------------------------------------------------

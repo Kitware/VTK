@@ -108,10 +108,10 @@ bool TestCellLocators(vtkUnstructuredGrid* dataset, vtkPointSet* transformedData
 
 int TestCellLocatorsLinearTransform(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  const double bound = 10;
-  const vtkIdType numberOfRandomPointsPoints = 100000;
+  constexpr double bound = 10;
+  constexpr vtkIdType numberOfRandomPointsPoints = 100000;
   // Generally the accuracy is around 99% except bsp tree
-  const double acceptableAccuracyPercentage = 90;
+  constexpr double acceptableAccuracyPercentage = 90;
 
   // create a dataset
   vtkNew<vtkRTAnalyticSource> wavelet;

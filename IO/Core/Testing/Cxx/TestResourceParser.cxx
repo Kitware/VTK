@@ -370,7 +370,7 @@ bool TestDiscardPredicate()
   parser->StopOnNewLineOn();
   parser->SetStream(stream);
 
-  const auto discard = [](char c) { return c == '-'; };
+  constexpr auto discard = [](char c) { return c == '-'; };
 
   char c{};
   CheckOk(parser->Parse(c, discard));

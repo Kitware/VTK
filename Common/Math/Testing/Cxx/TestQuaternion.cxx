@@ -406,11 +406,11 @@ int TestQuaternionSlerp() // this test uses vtkQuaterniond
 
   // exhaustive test : 250000 operations
   // Control the sampling of rotation's axis
-  const int M = 5;
+  constexpr int M = 5;
   // Control the sampling of the rotation's angle
-  const int L = 10;
+  constexpr int L = 10;
   // Control the sampling of the interpolation
-  const int N = 20;
+  constexpr int N = 20;
 
   // axis coordinates step
   double dAxis = 1.0 / static_cast<double>(M);
@@ -481,7 +481,7 @@ int TestQuaternionSlerp() // this test uses vtkQuaterniond
   u[2] /= normU;
 
   // interpolation step
-  const int N2 = 1000;
+  constexpr int N2 = 1000;
   double dtheta = 3.0;
   // Set q1 close to the angle boundary
   q1.SetRotationAngleAndAxis(vtkMath::RadiansFromDegrees(359.5), u[0], u[1], u[2]);

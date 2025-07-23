@@ -85,7 +85,7 @@ static int expectedDOFIndices3[] = {
   7, 20, 21, 6    //
 };
 
-static const double expectedFacePoints333[96][3] = {
+static constexpr double expectedFacePoints333[96][3] = {
   { 0, 1, 0 },
   { 0, 0, 0 },
   { 0, 0, 1 },
@@ -189,7 +189,7 @@ static const double expectedFacePoints333[96][3] = {
   { 0.666667, 0.666667, 1 },
 };
 
-static const double expectedEdgePoints333[48][3] = {
+static constexpr double expectedEdgePoints333[48][3] = {
   { 0, 0, 0 },
   { 1, 0, 0 },
   { 0.333333, 0, 0 },

@@ -28,7 +28,7 @@ vtkStandardNewMacro(vtkAxisFollower);
 // Order is MINMIN, MINMAX, MAXMAX, MAXMIN
 namespace
 {
-const double AxisAlignedY[3][4][2][3] = {
+constexpr double AxisAlignedY[3][4][2][3] = {
   { { { 0.0, 1.0, 0.0 }, { 0.0, 0.0, 1.0 } }, { { 0.0, 1.0, 0.0 }, { 0.0, 0.0, -1.0 } },
     { { 0.0, -1.0, 0.0 }, { 0.0, 0.0, -1.0 } }, { { 0.0, -1.0, 0.0 }, { 0.0, 0.0, 1.0 } } },
   { { { 1.0, 0.0, 0.0 }, { 0.0, 0.0, 1.0 } }, { { 1.0, 0.0, 0.0 }, { 0.0, 0.0, -1.0 } },

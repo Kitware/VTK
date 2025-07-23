@@ -401,7 +401,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output, vtkPolyData* inputs[],
         auto inputCD = dataset->GetCellData();
         if (auto numVerts = dataset->GetNumberOfVerts())
         {
-          const vtkIdType inVertOffset = 0;
+          constexpr vtkIdType inVertOffset = 0;
           cellFieldList.CopyData(idx, inputCD, inVertOffset, numVerts, outputCD, outVertOffset);
         }
         if (auto numLines = dataset->GetNumberOfLines())

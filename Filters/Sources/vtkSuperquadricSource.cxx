@@ -115,7 +115,7 @@ void vtkSuperquadricSource::SetPhiRoundness(double e)
   }
 }
 
-static const double SQ_SMALL_OFFSET = 0.01;
+static constexpr double SQ_SMALL_OFFSET = 0.01;
 
 int vtkSuperquadricSource::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)

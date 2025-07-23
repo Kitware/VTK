@@ -20,7 +20,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuad);
 
-static const double VTK_DIVERGED = 1.e6;
+static constexpr double VTK_DIVERGED = 1.e6;
 
 //------------------------------------------------------------------------------
 struct IntersectionStruct
@@ -76,8 +76,8 @@ vtkQuad::~vtkQuad()
 }
 
 //------------------------------------------------------------------------------
-static const int VTK_QUAD_MAX_ITERATION = 20;
-static const double VTK_QUAD_CONVERGED = 1.e-04;
+static constexpr int VTK_QUAD_MAX_ITERATION = 20;
+static constexpr double VTK_QUAD_CONVERGED = 1.e-04;
 
 inline static void ComputeNormal(
   vtkQuad* self, const double* pt1, const double* pt2, const double* pt3, double n[3])

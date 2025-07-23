@@ -29,7 +29,7 @@ vtkStaticDataSource::vtkStaticDataSource()
 {
   this->SetNumberOfInputPorts(0);
 
-  const int numberOfPoints = NB_OF_POINTS;
+  constexpr int numberOfPoints = NB_OF_POINTS;
   vtkNew<vtkPoints> points;
   points->SetNumberOfPoints(numberOfPoints);
   points->SetPoint(0, 0.0, 0.0, 0.0);

@@ -43,7 +43,7 @@ Point indices:                       Face indices:
 #define FACES 6
 #define NPOINTS (CORNERS + EDGES + FACES)
 
-const int Faces[FACES][8] = {
+constexpr int Faces[FACES][8] = {
   { 0, 8, 1, 17, 5, 12, 4, 16 },
   { 1, 9, 2, 18, 6, 13, 5, 17 },
   { 2, 10, 3, 19, 7, 14, 6, 18 },
@@ -52,7 +52,7 @@ const int Faces[FACES][8] = {
   { 4, 12, 5, 13, 6, 14, 7, 15 },
 };
 
-const double Points[CORNERS + EDGES + FACES][3] = {
+constexpr double Points[CORNERS + EDGES + FACES][3] = {
   // first the corner points
   // lower plane
   { 0, 0, 0 },

@@ -549,7 +549,7 @@ int BezierInterpolation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   ok &= testNearlyEqual(coeffs[2], 1.0, "Quad lf 2");
 
   {
-    const double pcoords[3] = { 1, 0, 0 };
+    constexpr double pcoords[3] = { 1, 0, 0 };
     vtkBezierInterpolation::DeCasteljauSimplex(2, 1, pcoords, coeffs);
     ok &= testNearlyEqual(coeffs[0], 0.0, "Simplex lf 0");
     ok &= testNearlyEqual(coeffs[1], 1.0, "Simplex lf 1");
@@ -557,7 +557,7 @@ int BezierInterpolation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   {
-    const double pcoords[3] = { 0, 1, 0 };
+    constexpr double pcoords[3] = { 0, 1, 0 };
     vtkBezierInterpolation::DeCasteljauSimplex(2, 1, pcoords, coeffs);
     ok &= testNearlyEqual(coeffs[0], 0.0, "Simplex lf 0");
     ok &= testNearlyEqual(coeffs[1], 0.0, "Simplex lf 1");
@@ -565,7 +565,7 @@ int BezierInterpolation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   {
-    const double pcoords[3] = { 0, 0, 1 };
+    constexpr double pcoords[3] = { 0, 0, 1 };
     vtkBezierInterpolation::DeCasteljauSimplex(2, 1, pcoords, coeffs);
     ok &= testNearlyEqual(coeffs[0], 1.0, "Simplex lf 0");
     ok &= testNearlyEqual(coeffs[1], 0.0, "Simplex lf 1");
@@ -573,7 +573,7 @@ int BezierInterpolation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   {
-    const double pcoords[3] = { 1, 0, 0 };
+    constexpr double pcoords[3] = { 1, 0, 0 };
     vtkBezierInterpolation::DeCasteljauSimplex(2, 2, pcoords, coeffs);
     ok &= testNearlyEqual(coeffs[0], 0.0, "Simplex lf 0");
     ok &= testNearlyEqual(coeffs[1], 0.0, "Simplex lf 1");
@@ -586,7 +586,7 @@ int BezierInterpolation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   {
-    const double pcoords[3] = { 0, 1, 0 };
+    constexpr double pcoords[3] = { 0, 1, 0 };
     vtkBezierInterpolation::DeCasteljauSimplex(2, 2, pcoords, coeffs);
     ok &= testNearlyEqual(coeffs[0], 0.0, "Simplex lf 0");
     ok &= testNearlyEqual(coeffs[1], 0.0, "Simplex lf 1");
@@ -599,7 +599,7 @@ int BezierInterpolation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   {
-    const double pcoords[3] = { 0, 0, 1 };
+    constexpr double pcoords[3] = { 0, 0, 1 };
     vtkBezierInterpolation::DeCasteljauSimplex(2, 2, pcoords, coeffs);
     ok &= testNearlyEqual(coeffs[0], 1.0, "Simplex lf 0");
     ok &= testNearlyEqual(coeffs[1], 0.0, "Simplex lf 1");
@@ -612,7 +612,7 @@ int BezierInterpolation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   {
-    const double pcoords[3] = { 0.5, 0.5, 0 };
+    constexpr double pcoords[3] = { 0.5, 0.5, 0 };
     vtkBezierInterpolation::DeCasteljauSimplex(2, 2, pcoords, coeffs);
     ok &= testNearlyEqual(coeffs[0], 0.0, "Simplex lf 0");
     ok &= testNearlyEqual(coeffs[1], 0.0, "Simplex lf 1");

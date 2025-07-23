@@ -101,7 +101,7 @@ private:
 };
 
 // The number of times we output a progress message.
-int const quantum = 20;
+constexpr int quantum = 20;
 // The ratio of high ASCII characters to low ASCII characters.
 double hiToLowASCII = 0.1;
 

@@ -278,7 +278,7 @@ struct CopyHiddenGhostPointsWorker
  */
 struct PointTT
 {
-  static const int attr_type = vtkDataObject::POINT;
+  static constexpr int attr_type = vtkDataObject::POINT;
 
   vtkTuple<double, 3> coords;
   int source_gid;
@@ -355,7 +355,7 @@ struct PointTT
 
 struct CellTT
 {
-  static const int attr_type = vtkDataObject::CELL;
+  static constexpr int attr_type = vtkDataObject::CELL;
   vtkTuple<double, 3> center;
   int source_gid;
   vtkIdType source_id;

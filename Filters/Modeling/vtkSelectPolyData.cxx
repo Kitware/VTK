@@ -534,8 +534,8 @@ void vtkSelectPolyData::FillMarksInRegion(vtkPolyData* mesh, vtkIdList* edgePoin
   currentFront->InsertNextId(cellIdInSelectedRegion);
 
   // Initialize the front with the received cell ID
-  const int fillValue = -1;
-  const int boundaryValue = 0;
+  constexpr int fillValue = -1;
+  constexpr int boundaryValue = 0;
   cellMarks->SetValue(cellIdInSelectedRegion, fillValue);
 
   vtkNew<vtkIdList> neighbors;

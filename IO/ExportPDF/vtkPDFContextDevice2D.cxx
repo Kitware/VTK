@@ -2254,7 +2254,7 @@ void vtkPDFContextDevice2D::ApplyTransform()
 
   // Test if the new transform is identity, within tolerance:
   bool isIdentity = true;
-  const double tol = 1e-6;
+  constexpr double tol = 1e-6;
   for (size_t i = 0; i < 3 && isIdentity; ++i)
   {
     for (size_t j = 0; j < 3 && isIdentity; ++j)

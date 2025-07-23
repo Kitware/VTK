@@ -24,7 +24,7 @@ int TestKMeansStatistics(int, char*[])
 {
   int testStatus = 0;
 
-  const int nDim = 4;
+  constexpr int nDim = 4;
   int nVals = 50;
   int numberOfGhosts = 3;
 
@@ -74,8 +74,8 @@ int TestKMeansStatistics(int, char*[])
   vtkTable* paramData = vtkTable::New();
   vtkIdTypeArray* paramCluster;
   vtkDoubleArray* paramArray;
-  const int numRuns = 5;
-  const int numClustersInRun[] = { 5, 2, 3, 4, 5 };
+  constexpr int numRuns = 5;
+  constexpr int numClustersInRun[] = { 5, 2, 3, 4, 5 };
   paramCluster = vtkIdTypeArray::New();
   paramCluster->SetName("K");
 
