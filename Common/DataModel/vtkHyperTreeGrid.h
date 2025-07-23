@@ -59,6 +59,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
+#include "vtkDeprecation.h"  // for deprecation macro
 #include "vtkNew.h"          // vtkSmartPointer
 #include "vtkSmartPointer.h" // vtkSmartPointer
 
@@ -97,14 +98,16 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGrid : public vtkDataObject
 public:
   ///@{
   /**
-   * Information keys for vtkHyperTreeGrids
-   * Looks unused -> TODO Deprecation
-   *
+   * Deprecated information keys for vtkHyperTreeGrids
    * \ingroup InformationKeys
    */
+  VTK_DEPRECATED_IN_9_6_0("Unused key.")
   static vtkInformationIntegerKey* LEVELS();
+  VTK_DEPRECATED_IN_9_6_0("Unused key.")
   static vtkInformationIntegerKey* DIMENSION();
+  VTK_DEPRECATED_IN_9_6_0("Unused key.")
   static vtkInformationIntegerKey* ORIENTATION();
+  VTK_DEPRECATED_IN_9_6_0("Unused key.")
   static vtkInformationDoubleVectorKey* SIZES();
   ///@}
 

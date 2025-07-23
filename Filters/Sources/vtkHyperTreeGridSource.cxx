@@ -330,12 +330,6 @@ int vtkHyperTreeGridSource::RequestInformation(
   // Get the information objects
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
-  // We cannot give the exact number of levels of the hypertrees
-  // because it is not generated yet and this process depends on the recursion formula.
-  // Just send an upper limit instead.
-  outInfo->Set(vtkHyperTreeGrid::LEVELS(), this->MaxDepth);
-  outInfo->Set(vtkHyperTreeGrid::DIMENSION(), this->Dimension);
-
   double origin[3];
   origin[0] = this->XCoordinates->GetTuple1(0);
   origin[1] = this->YCoordinates->GetTuple1(0);
