@@ -14,6 +14,7 @@ set(all_tests
   TestXMLHyperTreeGridIO2.cxx,NO_VALID
   TestXMLHyperTreeGridIOInterface.cxx
   TestXMLHyperTreeGridIOReduction.cxx,NO_VALID
+  TestXMLHyperTreeGridReaderV2Bounds.cxx,NO_VALID
   TestXMLLargeUnstructuredGrid.cxx,NO_VALID
   TestXMLMappedUnstructuredGridIO.cxx,NO_DATA,NO_VALID
   TestXMLMultiBlockDataWriterWithEmptyLeaf.cxx,NO_DATA,NO_VALID
