@@ -4,7 +4,8 @@
 #define vtkFollowerTextPropertyAdaptor_h
 
 #include "vtkCallbackCommand.h"
-#include "vtkNew.h"
+#include "vtkNew.h"         // for vtkNew
+#include "vtkWeakPointer.h" // for vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -66,6 +67,7 @@ private:
 
   unsigned int TextPropObserverId = 0;
   vtkNew<vtkCallbackCommand> ModifiedCallback;
+  vtkWeakPointer<vtkTextProperty> ObservedProperty;
 };
 
 VTK_ABI_NAMESPACE_END

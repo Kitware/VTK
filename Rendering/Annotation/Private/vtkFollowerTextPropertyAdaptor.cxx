@@ -28,7 +28,13 @@ vtkFollowerTextPropertyAdaptor::vtkFollowerTextPropertyAdaptor(
 }
 
 //------------------------------------------------------------------------------
-vtkFollowerTextPropertyAdaptor::~vtkFollowerTextPropertyAdaptor() = default;
+vtkFollowerTextPropertyAdaptor::~vtkFollowerTextPropertyAdaptor()
+{
+  if (this->ObservedProperty)
+  {
+    this->ObservedProperty->RemoveObserver(this->TextPropObserverId);
+  }
+}
 
 //------------------------------------------------------------------------------
 void vtkFollowerTextPropertyAdaptor::OnModified(vtkObject*, unsigned long, void* clientData, void*)
@@ -57,9 +63,13 @@ void vtkFollowerTextPropertyAdaptor::UpdateProperty(
   this->FontScale = size / utils::DefaultFontSize;
   this->MapperFollower->SetScale(scale * this->FontScale);
 
-  textProperty->RemoveObserver(this->TextPropObserverId);
+  if (this->ObservedProperty)
+  {
+    this->ObservedProperty->RemoveObserver(this->TextPropObserverId);
+  }
+  this->ObservedProperty = textProperty;
   this->TextPropObserverId =
-    textProperty->AddObserver(vtkCommand::ModifiedEvent, this->ModifiedCallback);
+    this->ObservedProperty->AddObserver(vtkCommand::ModifiedEvent, this->ModifiedCallback);
 }
 
 //------------------------------------------------------------------------------
