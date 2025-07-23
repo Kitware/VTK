@@ -834,9 +834,9 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(void* renderer, vtkOSPRayActorNode
   // get texture transform
   osp::vec4f texTransform{ 1.f, 0.f, 0.f, 1.f };
   vtkInformation* info = act->GetPropertyKeys();
-  if (info && info->Has(vtkProp::GeneralTextureTransform()))
+  if (info && info->Has(vtkProp::GENERAL_TEXTURE_TRANSFORM()))
   {
-    double* mat = info->Get(vtkProp::GeneralTextureTransform());
+    double* mat = info->Get(vtkProp::GENERAL_TEXTURE_TRANSFORM());
     texTransform.x = mat[0];
     texTransform.y = mat[1];
     texTransform.z = mat[4];

@@ -220,7 +220,7 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(std::string& VSSource, std::string&
   // do we have texture maps?
   bool haveTextures = false;
   vtkInformation* info = actor->GetPropertyKeys();
-  if (info && info->Has(vtkProp::GeneralTextureUnit()))
+  if (info && info->Has(vtkProp::GENERAL_TEXTURE_UNIT()))
   {
     haveTextures = true;
   }
@@ -377,9 +377,9 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
   if (this->VBOs->GetNumberOfComponents("tcoordMC"))
   {
     vtkInformation* info = actor->GetPropertyKeys();
-    if (info && info->Has(vtkProp::GeneralTextureUnit()))
+    if (info && info->Has(vtkProp::GENERAL_TEXTURE_UNIT()))
     {
-      int tunit = info->Get(vtkProp::GeneralTextureUnit());
+      int tunit = info->Get(vtkProp::GENERAL_TEXTURE_UNIT());
       cellBO.Program->SetUniformi("texture1", tunit);
     }
   }

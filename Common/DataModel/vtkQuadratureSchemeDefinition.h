@@ -39,11 +39,13 @@ public:
   vtkTypeMacro(vtkQuadratureSchemeDefinition, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
+  ///@{
   /**
    * \ingroup InformationKeys
    */
   static vtkInformationQuadratureSchemeDefinitionVectorKey* DICTIONARY();
   static vtkInformationStringKey* QUADRATURE_OFFSET_ARRAY_NAME();
+  ///@}
 
   /**
    * New object in an unusable state. You'll have to call

@@ -50,7 +50,7 @@ void AddActors(
         actor->SetPropertyKeys(info);
       }
       double mat[] = { 1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1 };
-      actor->GetPropertyKeys()->Set(vtkProp::GeneralTextureTransform(), mat, 16);
+      actor->GetPropertyKeys()->Set(vtkProp::GENERAL_TEXTURE_TRANSFORM(), mat, 16);
 
       actor->SetTexture(texture);
     }

@@ -51,11 +51,11 @@ int vtkTexturedActor2D::RenderOverlay(vtkViewport* viewport)
       this->SetPropertyKeys(info);
       info->Delete();
     }
-    info->Set(vtkProp::GeneralTextureUnit(), this->Texture->GetTextureUnit());
+    info->Set(vtkProp::GENERAL_TEXTURE_UNIT(), this->Texture->GetTextureUnit());
   }
   else if (info)
   {
-    info->Remove(vtkProp::GeneralTextureUnit());
+    info->Remove(vtkProp::GENERAL_TEXTURE_UNIT());
   }
   int result = this->Superclass::RenderOverlay(viewport);
   if (this->Texture)

@@ -15,8 +15,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkProp, PropertyKeys, vtkInformation);
 
-vtkInformationKeyMacro(vtkProp, GeneralTextureUnit, Integer);
-vtkInformationKeyMacro(vtkProp, GeneralTextureTransform, DoubleVector);
+vtkInformationKeyMacro(vtkProp, GENERAL_TEXTURE_UNIT, Integer);
+vtkInformationKeyMacro(vtkProp, GENERAL_TEXTURE_TRANSFORM, DoubleVector);
 
 //------------------------------------------------------------------------------
 // Creates an Prop with the following defaults: visibility on.

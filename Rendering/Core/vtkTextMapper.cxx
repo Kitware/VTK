@@ -362,7 +362,7 @@ void vtkTextMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* actor)
         actor->SetPropertyKeys(info);
         info->Delete();
       }
-      info->Set(vtkProp::GeneralTextureUnit(), this->Texture->GetTextureUnit());
+      info->Set(vtkProp::GENERAL_TEXTURE_UNIT(), this->Texture->GetTextureUnit());
     }
 
     vtkDebugMacro(<< "PolyData::RenderOverlay called");

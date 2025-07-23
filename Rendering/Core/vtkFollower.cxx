@@ -219,7 +219,7 @@ void vtkFollower::Render(vtkRenderer* ren)
         this->SetPropertyKeys(info);
         info->Delete();
       }
-      info->Set(vtkProp::GeneralTextureTransform(),
+      info->Set(vtkProp::GENERAL_TEXTURE_TRANSFORM(),
         &(this->Texture->GetTransform()->GetMatrix()->Element[0][0]), 16);
     }
   }
@@ -247,7 +247,7 @@ void vtkFollower::Render(vtkRenderer* ren)
     if (this->Texture->GetTransform())
     {
       vtkInformation* info = this->GetPropertyKeys();
-      info->Remove(vtkProp::GeneralTextureTransform());
+      info->Remove(vtkProp::GENERAL_TEXTURE_TRANSFORM());
     }
   }
   this->EstimatedRenderTime = this->Device->GetEstimatedRenderTime();

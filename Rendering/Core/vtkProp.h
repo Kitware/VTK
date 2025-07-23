@@ -17,9 +17,12 @@
 #define vtkProp_h
 
 #include "vtkObject.h"
+
+#include "vtkDeprecation.h"         // for deprecation macro
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
-#include <vector>                   // for method args
+
+#include <vector> // for method args
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAssemblyPath;
@@ -169,6 +172,7 @@ public:
    */
   virtual bool HasKeys(vtkInformation* requiredKeys);
 
+  ///@{
   /**
    * Optional Key Indicating the texture unit for general texture mapping
    * Old OpenGL was a state machine where you would push or pop
@@ -179,8 +183,12 @@ public:
    * down to a mapper.
    * \ingroup InformationKeys
    */
-  static vtkInformationIntegerKey* GeneralTextureUnit();
+  VTK_DEPRECATED_IN_9_6_0("Please use GENERAL_TEXTURE_UNIT() instead.")
+  static vtkInformationIntegerKey* GeneralTextureUnit() { return vtkProp::GENERAL_TEXTURE_UNIT(); }
+  static vtkInformationIntegerKey* GENERAL_TEXTURE_UNIT();
+  ///@}
 
+  ///@{
   /**
    * Optional Key Indicating the texture transform for general texture mapping
    * Old OpenGL was a state machine where you would push or pop
@@ -191,7 +199,13 @@ public:
    * down to a mapper.
    * \ingroup InformationKeys
    */
-  static vtkInformationDoubleVectorKey* GeneralTextureTransform();
+  VTK_DEPRECATED_IN_9_6_0("Please use GENERAL_TEXTURE_UNIT() instead.")
+  static vtkInformationDoubleVectorKey* GeneralTextureTransform()
+  {
+    return vtkProp::GENERAL_TEXTURE_TRANSFORM();
+  }
+  static vtkInformationDoubleVectorKey* GENERAL_TEXTURE_TRANSFORM();
+  ///@}
 
   /**
    * WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE

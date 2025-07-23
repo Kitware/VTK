@@ -2071,10 +2071,10 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
     vec4{ 0.0f, 0.0f, 1.0f, 0.0f }, vec4{ 0.0f, 0.0f, 0.0f, 1.0f } };
   vtkInformation* info = actor->GetPropertyKeys();
 
-  if (info && info->Has(vtkProp::GeneralTextureTransform()))
+  if (info && info->Has(vtkProp::GENERAL_TEXTURE_TRANSFORM()))
   {
-    double* transform = info->Get(vtkProp::GeneralTextureTransform());
-    int length = info->Length(vtkProp::GeneralTextureTransform());
+    double* transform = info->Get(vtkProp::GENERAL_TEXTURE_TRANSFORM());
+    int length = info->Length(vtkProp::GENERAL_TEXTURE_TRANSFORM());
 
     if (length == 16)
     {
