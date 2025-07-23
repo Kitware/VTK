@@ -212,8 +212,7 @@ int vtkTemporalArrayOperatorFilter::RequestUpdateExtent(vtkInformation* vtkNotUs
     double* inputTime = inputInfo->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     assert(inputTime);
 
-    double inputUpdateTimes[2] = { inputTime[timeSteps[0]], inputTime[timeSteps[1]] };
-    inputInfo->Set(vtkMultiTimeStepAlgorithm::UPDATE_TIME_STEPS(), inputUpdateTimes, 2);
+    this->SetTimeSteps({ inputTime[timeSteps[0]], inputTime[timeSteps[1]] });
   }
 
   return 1;
