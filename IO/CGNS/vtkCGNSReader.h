@@ -341,9 +341,8 @@ protected:
   int GetCurvilinearZone(
     int base, int zone, int cell_dim, int phys_dim, void* zsize, vtkMultiBlockDataSet* mbase);
 
-  int GetUnstructuredZone(int base, int zone, int cell_dim, int phys_dim, void* zsize,
-    vtkMultiBlockDataSet* mbase,
-    const std::map<int, std::set<std::string>>* zoneSurfaceNames = nullptr);
+  int GetUnstructuredZone(
+    int base, int zone, int cell_dim, int phys_dim, void* zsize, vtkMultiBlockDataSet* mbase);
 
   /**
    * Read "UserDefinedData_t" nodes in the given zone. "DataArray_t" nodes found inside

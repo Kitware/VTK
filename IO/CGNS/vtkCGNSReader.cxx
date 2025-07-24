@@ -83,18 +83,20 @@ bool IsIdTypeBigEnough(const T& val)
   return (sizeof(vtkIdType) >= sizeof(T) || static_cast<T>(vtkTypeTraits<vtkIdType>::Max()) >= val);
 }
 
-struct duo_t
+// Helper structure to store zone ranges [start, end) for parallel distribution
+// Used in baseToZoneRange mapping to track which zones each rank processes
+struct ZoneRange
 {
-  duo_t()
+  ZoneRange()
   {
-    pair[0] = 0;
-    pair[1] = 0;
+    range[0] = 0;
+    range[1] = 0;
   }
 
-  int& operator[](std::size_t n) { return pair[n]; }
+  int& operator[](std::size_t n) { return range[n]; }
 
 private:
-  int pair[2];
+  int range[2];
 };
 
 class SectionInformation
@@ -2149,9 +2151,21 @@ int vtkCGNSReader::GetCurvilinearZone(
 }
 
 //------------------------------------------------------------------------------
-int vtkCGNSReader::GetUnstructuredZone(int base, int zone, int cellDim, int physicalDim,
-  void* v_zsize, vtkMultiBlockDataSet* mbase,
-  const std::map<int, std::set<std::string>>* zoneSurfaceNames)
+// GetUnstructuredZone - Reads an unstructured CGNS zone
+//
+// This method handles both volume mesh and surface reading. In parallel mode,
+// each rank only calls this method for zones assigned to it, and reads all
+// surfaces for those zones.
+//
+// Structure created:
+// - If only volume mesh: Single vtkUnstructuredGrid
+// - If surfaces/patches present: vtkMultiBlockDataSet with:
+//   - Block 0: "Internal" (volume mesh)
+//   - Block 1: "Patches" (boundary conditions) - if LoadBndPatch=true
+//   - Block 2: "Surfaces" (surface elements) - if LoadSurfacePatch=true
+//------------------------------------------------------------------------------
+int vtkCGNSReader::GetUnstructuredZone(
+  int base, int zone, int cellDim, int physicalDim, void* v_zsize, vtkMultiBlockDataSet* mbase)
 {
   //---------------------------------------------------------------------
   //  Handle initialization
@@ -2189,8 +2203,8 @@ int vtkCGNSReader::GetUnstructuredZone(int base, int zone, int cellDim, int phys
   std::vector<std::string> solutionNames;
   std::string keyMesh;
 
-  std::vector<double> gridChildId;
-  std::size_t nCoordsArray = 0;
+  std::vector<double> gridChildIds;
+  std::size_t numberOfCoordinateArrays = 0;
 
   vtkPrivate::getGridAndSolutionNames(base, gridCoordName, solutionNames, this);
   if (gridCoordName == "Null")
@@ -2200,7 +2214,7 @@ int vtkCGNSReader::GetUnstructuredZone(int base, int zone, int cellDim, int phys
   }
 
   vtkPrivate::getCoordsIdAndFillRind(
-    gridCoordName, physicalDim, nCoordsArray, gridChildId, rind, this);
+    gridCoordName, physicalDim, numberOfCoordinateArrays, gridChildIds, rind, this);
 
   // Rind was parsed or not then populate dimensions :
   // get grid coordinate range
@@ -2269,13 +2283,15 @@ int vtkCGNSReader::GetUnstructuredZone(int base, int zone, int cellDim, int phys
     // Populate the coordinates. Put in 3D points with z=0 if the mesh is 2D.
     if (this->DoublePrecisionMesh != 0) // DOUBLE PRECISION MESHPOINTS
     {
-      CGNSRead::get_XYZ_mesh<double, float>(this->cgioNum, gridChildId, nCoordsArray, cellDim, nPts,
-        srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDims, points.Get());
+      CGNSRead::get_XYZ_mesh<double, float>(this->cgioNum, gridChildIds, numberOfCoordinateArrays,
+        cellDim, nPts, srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDims,
+        points.Get());
     }
     else // SINGLE PRECISION MESHPOINTS
     {
-      CGNSRead::get_XYZ_mesh<float, double>(this->cgioNum, gridChildId, nCoordsArray, cellDim, nPts,
-        srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDims, points.Get());
+      CGNSRead::get_XYZ_mesh<float, double>(this->cgioNum, gridChildIds, numberOfCoordinateArrays,
+        cellDim, nPts, srcStart, srcEnd, srcStride, memStart, memEnd, memStride, memDims,
+        points.Get());
     }
 
     // Add points to cache
@@ -2549,8 +2565,6 @@ int vtkCGNSReader::GetUnstructuredZone(int base, int zone, int cellDim, int phys
       }
     }
   }
-
-  bool isPoly3D = hasNFace || hasNGonPE;
 
   // Create unstructured grid to define points and cells
   vtkSmartPointer<vtkUnstructuredGrid> ugrid;
@@ -4566,6 +4580,19 @@ int vtkCGNSReader::ReadUserDefinedData(int zoneId, vtkMultiBlockDataSet* mbase)
 }
 
 //----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+// RequestData - Main entry point for reading CGNS data
+//
+// PARALLEL READING STRATEGY:
+// 1. Zone Distribution: Zones are distributed evenly among MPI ranks
+// 2. Surface Discovery: Each rank scans its zones for surface elements
+// 3. Global Communication: Surface information is shared across all ranks
+// 4. Structure Creation: All ranks create identical multiblock structures
+//    - Ranks owning zones populate them with data
+//    - Other ranks create empty placeholders
+//
+// This ensures parallel consistency required by VTK's parallel infrastructure.
+//------------------------------------------------------------------------------
 int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -4599,58 +4626,61 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
     numZones += this->Internals->Internal->GetBase(bb).nzones;
   }
 
-  // Divide the files evenly between processors
-  int num_zones_per_process = numZones / numProcessors;
+  //------------------------------------------------------------------------
+  // ZONE DISTRIBUTION LOGIC
+  //------------------------------------------------------------------------
+  // Distribute zones evenly among MPI ranks. Each rank is assigned a
+  // contiguous range of zones to process. This ensures load balancing
+  // while minimizing communication overhead.
+  //
+  // Example with 10 zones and 3 ranks:
+  //   Rank 0: zones 0-3 (4 zones)
+  //   Rank 1: zones 4-6 (3 zones)
+  //   Rank 2: zones 7-9 (3 zones)
+  //------------------------------------------------------------------------
+  int zonesPerProcess = numZones / numProcessors;
+  int extraZones = numZones % numProcessors;
 
-  // This if/else logic is for when you don't have a nice even division of files
-  // Each process computes which sequence of files it needs to read in
-  int left_over_zones = numZones - (num_zones_per_process * numProcessors);
-  // base --> startZone,endZone
-  std::map<int, duo_t> baseToZoneRange;
-
-  // REDO this part !!!!
-  if (processNumber < left_over_zones)
+  // Ranks with ID < extraZones get one additional zone
+  if (processNumber < extraZones)
   {
-    int accumulated = 0;
-    startRange = (num_zones_per_process + 1) * processNumber;
-    endRange = startRange + (num_zones_per_process + 1);
-    for (int bb = 0; bb < numBases; bb++)
-    {
-      duo_t zoneRange;
-      startRange = startRange - accumulated;
-      endRange = endRange - accumulated;
-      int startInterZone = std::max(startRange, 0);
-      int endInterZone = std::min(endRange, this->Internals->Internal->GetBase(bb).nzones);
-
-      if ((endInterZone - startInterZone) > 0)
-      {
-        zoneRange[0] = startInterZone;
-        zoneRange[1] = endInterZone;
-      }
-      accumulated = this->Internals->Internal->GetBase(bb).nzones;
-      baseToZoneRange[bb] = zoneRange;
-    }
+    startRange = processNumber * (zonesPerProcess + 1);
+    endRange = startRange + zonesPerProcess + 1;
   }
   else
   {
-    int accumulated = 0;
-    startRange = num_zones_per_process * processNumber + left_over_zones;
-    endRange = startRange + num_zones_per_process;
-    for (int bb = 0; bb < numBases; bb++)
+    startRange = processNumber * zonesPerProcess + extraZones;
+    endRange = startRange + zonesPerProcess;
+  }
+
+  //------------------------------------------------------------------------
+  // ZONE-TO-BASE MAPPING
+  //------------------------------------------------------------------------
+  // CGNS files can have multiple bases, each containing multiple zones.
+  // We need to map the global zone range [startRange, endRange) to
+  // base-specific ranges. This allows each rank to know which zones
+  // within each base it should process.
+  //
+  // baseToZoneRange[baseIdx] = [startZone, endZone) for that base
+  //------------------------------------------------------------------------
+  std::map<int, ZoneRange> baseToZoneRange;
+  int globalZoneIndex = 0;
+
+  for (int baseIndex = 0; baseIndex < numBases; baseIndex++)
+  {
+    int baseZoneCount = this->Internals->Internal->GetBase(baseIndex).nzones;
+    int baseStartZone = std::max(0, startRange - globalZoneIndex);
+    int baseEndZone = std::min(baseZoneCount, endRange - globalZoneIndex);
+
+    ZoneRange zoneRange;
+    if (baseEndZone > baseStartZone)
     {
-      duo_t zoneRange;
-      startRange = startRange - accumulated;
-      endRange = endRange - accumulated;
-      int startInterZone = std::max(startRange, 0);
-      int endInterZone = std::min(endRange, this->Internals->Internal->GetBase(bb).nzones);
-      if ((endInterZone - startInterZone) > 0)
-      {
-        zoneRange[0] = startInterZone;
-        zoneRange[1] = endInterZone;
-      }
-      accumulated = this->Internals->Internal->GetBase(bb).nzones;
-      baseToZoneRange[bb] = zoneRange;
+      zoneRange[0] = baseStartZone;
+      zoneRange[1] = baseEndZone;
     }
+    baseToZoneRange[baseIndex] = zoneRange;
+
+    globalZoneIndex += baseZoneCount;
   }
 
   // For parallel surface reading, we'll handle distribution within GetUnstructuredZone
@@ -4792,123 +4822,149 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
     std::vector<double> baseChildId;
     CGNSRead::getNodeChildrenId(this->cgioNum, baseIds[numBase], baseChildId);
 
-    std::size_t nz;
-    std::size_t nn;
+    // Filter to keep only Zone_t nodes
+    std::size_t zoneCount = 0;
     CGNSRead::char_33 nodeLabel;
-    for (nz = 0, nn = 0; nn < baseChildId.size(); ++nn)
+    for (std::size_t nodeIdx = 0; nodeIdx < baseChildId.size(); ++nodeIdx)
     {
-      if (cgio_get_label(this->cgioNum, baseChildId[nn], nodeLabel) != CG_OK)
+      if (cgio_get_label(this->cgioNum, baseChildId[nodeIdx], nodeLabel) != CG_OK)
       {
         return false;
       }
 
       if (strcmp(nodeLabel, "Zone_t") == 0)
       {
-        if (nz < nn)
+        if (zoneCount < nodeIdx)
         {
-          baseChildId[nz] = baseChildId[nn];
+          baseChildId[zoneCount] = baseChildId[nodeIdx];
         }
-        nz++;
+        zoneCount++;
       }
       else
       {
-        cgio_release_id(this->cgioNum, baseChildId[nn]);
+        cgio_release_id(this->cgioNum, baseChildId[nodeIdx]);
       }
     }
-    // so we don't keep ids for released nodes.
-    baseChildId.resize(nz);
+    baseChildId.resize(zoneCount);
 
     //------------------------------------------------------------------------
-    // PARALLEL SURFACE READING IMPLEMENTATION
+    // PARALLEL SURFACE READING - PHASE 1: LOCAL SURFACE DISCOVERY
     //------------------------------------------------------------------------
-    // This implementation enables proper surface reading in parallel mode.
-    // Previously, surfaces were disabled when running with multiple MPI ranks.
+    // Each MPI rank scans its assigned zones to discover surface elements.
+    // In CGNS, surfaces are identified as Elements_t nodes with dimension
+    // equal to (cellDim - 1). For 3D meshes, surfaces are 2D elements.
     //
-    // Key changes made:
-    // 1. Zone name preservation: Zone names are re-set after SetBlock() calls
-    //    to ensure proper naming in parallel execution.
-    //
-    // 2. Zone-specific surface mapping: Each MPI rank collects surface names
-    //    for its assigned zones, then this information is gathered via MPI
-    //    communication to ensure all ranks know which surfaces belong to
-    //    which zones.
-    //
-    // 3. Consistent structure creation: All ranks create the same structure
-    //    for each zone, showing only the surfaces that zone actually has.
-    //    This prevents crashes with filters like D3 and ensures the
-    //    Information panel shows the correct structure.
-    //
-    // 4. LoadMesh flag support: The LoadMesh option is now properly honored.
-    //    When LoadMesh is OFF and LoadSurfacePatch is ON, only surfaces
-    //    are loaded, not the volume mesh.
-    //
-    // 5. Parallel structure consistency: In GetUnstructuredZone, the
-    //    createSubStructure logic was modified to force structure creation
-    //    even for empty boundary sections when in parallel mode.
+    // This information must be shared across all ranks to ensure consistent
+    // multiblock structures, otherwise VTK's parallel infrastructure fails.
     //------------------------------------------------------------------------
-
-    // First pass: Process assigned zones to collect zone-specific surface names
-    std::map<int, std::set<std::string>> zoneSurfaceNames; // zone -> surface names
-
-    // Process zones assigned to this rank to collect surface information
-    int zonemin = baseToZoneRange[numBase][0];
-    int zonemax = baseToZoneRange[numBase][1];
+    std::map<int, std::set<std::string>> zoneSurfaceNames; // zone index -> surface names
+    int zoneMin = baseToZoneRange[numBase][0];
+    int zoneMax = baseToZoneRange[numBase][1];
 
     if (this->LoadSurfacePatch || this->LoadBndPatch)
     {
-      for (int zone = zonemin; zone < zonemax; ++zone)
+      for (int zone = zoneMin; zone < zoneMax; ++zone)
       {
-        // Read zone children to find Elements_t nodes
-        std::vector<double> zoneChildId;
-        CGNSRead::getNodeChildrenId(this->cgioNum, baseChildId[zone], zoneChildId);
+        std::vector<double> zoneChildIds;
+        CGNSRead::getNodeChildrenId(this->cgioNum, baseChildId[zone], zoneChildIds);
 
-        for (std::size_t nn = 0; nn < zoneChildId.size(); nn++)
+        // Scan all children of this zone for surface elements
+        for (std::size_t childIdx = 0; childIdx < zoneChildIds.size(); childIdx++)
         {
-          char nodeLabel[CGIO_MAX_NAME_LENGTH + 1];
-          cgio_get_label(this->cgioNum, zoneChildId[nn], nodeLabel);
+          char elementNodeLabel[CGIO_MAX_NAME_LENGTH + 1];
+          cgio_get_label(this->cgioNum, zoneChildIds[childIdx], elementNodeLabel);
 
-          if (strcmp(nodeLabel, "Elements_t") == 0)
+          if (strcmp(elementNodeLabel, "Elements_t") == 0)
           {
-            // Check if this is a surface element
-            char nodeName[CGIO_MAX_NAME_LENGTH + 1];
-            cgio_get_name(this->cgioNum, zoneChildId[nn], nodeName);
+            char elementName[CGIO_MAX_NAME_LENGTH + 1];
+            cgio_get_name(this->cgioNum, zoneChildIds[childIdx], elementName);
 
-            // Read element type to determine if it's a surface
-            CGNS_ENUMT(ElementType_t) elemType;
-            std::vector<vtkTypeInt32> mdata;
-            CGNSRead::readNodeData<vtkTypeInt32>(this->cgioNum, zoneChildId[nn], mdata);
-            if (mdata.size() > 0)
+            // Read element type from the Elements_t node
+            // Format: [ElementType, ElementRangeStart, ElementRangeEnd, ...]
+            std::vector<vtkTypeInt32> elementData;
+            CGNSRead::readNodeData<vtkTypeInt32>(
+              this->cgioNum, zoneChildIds[childIdx], elementData);
+            if (!elementData.empty())
             {
-              elemType = static_cast<CGNS_ENUMT(ElementType_t)>(mdata[0]);
-              int elemDim = CGNSRead::CellDimensions.at(elemType);
+              CGNS_ENUMT(ElementType_t)
+              elemType = static_cast<CGNS_ENUMT(ElementType_t)>(elementData[0]);
+              int elementDimension = CGNSRead::CellDimensions.at(elemType);
 
-              // If element dimension is one less than cell dimension, it's a surface
-              if (elemDim == cellDim - 1)
+              // Surface elements have dimension = cellDim - 1
+              // E.g., in 3D (cellDim=3), surfaces are 2D elements (dimension=2)
+              if (elementDimension == cellDim - 1)
               {
-                zoneSurfaceNames[zone].insert(nodeName);
+                zoneSurfaceNames[zone].insert(elementName);
               }
             }
           }
-          cgio_release_id(this->cgioNum, zoneChildId[nn]);
+          cgio_release_id(this->cgioNum, zoneChildIds[childIdx]);
         }
       }
     }
 
-    // Second pass: Gather zone-surface mapping across all ranks
+    //------------------------------------------------------------------------
+    // PARALLEL SURFACE READING - PHASE 2: GLOBAL INFORMATION SHARING
+    //------------------------------------------------------------------------
+    // All ranks must know which surfaces exist in each zone to create
+    // consistent multiblock structures. We use a gather-broadcast pattern:
+    // 1. All ranks send their local zone-surface mappings to rank 0
+    // 2. Rank 0 merges all mappings into a complete view
+    // 3. Rank 0 broadcasts the complete mapping to all ranks
+    //
+    // This ensures every rank can create empty placeholder structures for
+    // zones it doesn't own, maintaining parallel consistency.
+    //------------------------------------------------------------------------
     std::map<int, std::set<std::string>> allZoneSurfaceNames;
     if (this->Controller && this->Controller->GetNumberOfProcesses() > 1)
     {
-      // Serialize zone-surface mapping for MPI communication
-      std::string localDataStr;
-      for (const auto& zsPair : zoneSurfaceNames)
+      // Serialization format: "zoneIdx:surf1,surf2,surf3|zoneIdx:surf1,surf2|"
+      // Each zone's surfaces are comma-separated, zones are pipe-separated
+      auto serializeMapping = [](const std::map<int, std::set<std::string>>& mapping)
       {
-        localDataStr += std::to_string(zsPair.first) + ":";
-        for (const auto& surfName : zsPair.second)
+        std::string result;
+        for (const auto& [zoneIdx, surfaces] : mapping)
         {
-          localDataStr += surfName + ",";
+          result += std::to_string(zoneIdx) + ":";
+          for (const auto& surface : surfaces)
+          {
+            result += surface + ",";
+          }
+          result += "|";
         }
-        localDataStr += "|";
-      }
+        return result;
+      };
+
+      // Deserialize the string format back into the mapping structure
+      auto deserializeMapping =
+        [](const std::string& data, std::map<int, std::set<std::string>>& mapping)
+      {
+        std::stringstream ss(data);
+        std::string zoneData;
+        while (std::getline(ss, zoneData, '|'))
+        {
+          if (zoneData.empty())
+            continue;
+          size_t colonPos = zoneData.find(':');
+          if (colonPos == std::string::npos)
+            continue;
+
+          int zoneIdx = std::stoi(zoneData.substr(0, colonPos));
+          std::string surfacesStr = zoneData.substr(colonPos + 1);
+
+          std::stringstream surfStream(surfacesStr);
+          std::string surfName;
+          while (std::getline(surfStream, surfName, ','))
+          {
+            if (!surfName.empty())
+            {
+              mapping[zoneIdx].insert(surfName);
+            }
+          }
+        }
+      };
+
+      std::string localDataStr = serializeMapping(zoneSurfaceNames);
 
       if (this->Controller->GetLocalProcessId() == 0)
       {
@@ -4925,48 +4981,13 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
           {
             std::vector<char> buffer(strLength);
             this->Controller->Receive(buffer.data(), strLength, rank, 101);
-
-            // Parse received zone-surface mapping
             std::string receivedData(buffer.begin(), buffer.end());
-            std::stringstream ss(receivedData);
-            std::string zoneData;
-
-            while (std::getline(ss, zoneData, '|'))
-            {
-              if (zoneData.empty())
-                continue;
-
-              size_t colonPos = zoneData.find(':');
-              if (colonPos != std::string::npos)
-              {
-                int zoneIdx = std::stoi(zoneData.substr(0, colonPos));
-                std::string surfacesStr = zoneData.substr(colonPos + 1);
-
-                std::stringstream surfStream(surfacesStr);
-                std::string surfName;
-                while (std::getline(surfStream, surfName, ','))
-                {
-                  if (!surfName.empty())
-                  {
-                    allZoneSurfaceNames[zoneIdx].insert(surfName);
-                  }
-                }
-              }
-            }
+            deserializeMapping(receivedData, allZoneSurfaceNames);
           }
         }
 
         // Serialize complete mapping for broadcast
-        std::string allDataStr;
-        for (const auto& zsPair : allZoneSurfaceNames)
-        {
-          allDataStr += std::to_string(zsPair.first) + ":";
-          for (const auto& surfName : zsPair.second)
-          {
-            allDataStr += surfName + ",";
-          }
-          allDataStr += "|";
-        }
+        std::string allDataStr = serializeMapping(allZoneSurfaceNames);
 
         // Broadcast to all ranks
         vtkIdType strLength = allDataStr.length();
@@ -4995,34 +5016,8 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
         {
           std::vector<char> buffer(strLength);
           this->Controller->Receive(buffer.data(), strLength, 0, 201);
-
-          // Parse complete zone-surface mapping
           std::string receivedData(buffer.begin(), buffer.end());
-          std::stringstream ss(receivedData);
-          std::string zoneData;
-
-          while (std::getline(ss, zoneData, '|'))
-          {
-            if (zoneData.empty())
-              continue;
-
-            size_t colonPos = zoneData.find(':');
-            if (colonPos != std::string::npos)
-            {
-              int zoneIdx = std::stoi(zoneData.substr(0, colonPos));
-              std::string surfacesStr = zoneData.substr(colonPos + 1);
-
-              std::stringstream surfStream(surfacesStr);
-              std::string surfName;
-              while (std::getline(surfStream, surfName, ','))
-              {
-                if (!surfName.empty())
-                {
-                  allZoneSurfaceNames[zoneIdx].insert(surfName);
-                }
-              }
-            }
-          }
+          deserializeMapping(receivedData, allZoneSurfaceNames);
         }
       }
     }
@@ -5031,60 +5026,72 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
       // Serial mode
       allZoneSurfaceNames = zoneSurfaceNames;
     }
-
-    // Third pass: Create structure for zones not assigned to this rank
+    //------------------------------------------------------------------------
+    // PARALLEL SURFACE READING - PHASE 3: EMPTY STRUCTURE CREATION
+    //------------------------------------------------------------------------
+    // Create empty placeholder structures for zones not assigned to this rank.
+    // This is CRITICAL for parallel consistency - all ranks must have identical
+    // multiblock structures, even if some blocks are empty.
+    //
+    // The structure must match what GetUnstructuredZone would create:
+    // - If zone has surfaces: [Internal, Surfaces] blocks
+    // - If no surfaces: just nullptr
+    //
+    // Without this, ParaView's parallel filters (like D3) will fail with
+    // "Structure is not expected" errors.
+    //------------------------------------------------------------------------
     for (int zone = 0; zone < nzones; ++zone)
     {
       if (zone < baseToZoneRange[numBase][0] || zone >= baseToZoneRange[numBase][1])
       {
-        // This zone is not assigned to this rank - create empty structure
         CGNSRead::char_33 zoneName;
-        if (cgio_get_name(this->cgioNum, baseChildId[zone], zoneName) == CG_OK)
+        if (cgio_get_name(this->cgioNum, baseChildId[zone], zoneName) != CG_OK)
         {
-          // Check if this zone has any surfaces
-          auto zsIt = allZoneSurfaceNames.find(zone);
-          bool hasSurfaces = (zsIt != allZoneSurfaceNames.end() && !zsIt->second.empty());
-
-          // Create the structure based on what this zone actually has
-          if ((this->LoadSurfacePatch || this->LoadBndPatch) && hasSurfaces)
-          {
-            vtkNew<vtkMultiBlockDataSet> emptyZone;
-            emptyZone->SetNumberOfBlocks(2); // Internal + Surfaces
-            emptyZone->SetBlock(0, nullptr); // Empty Internal
-            emptyZone->GetMetaData(0u)->Set(vtkCompositeDataSet::NAME(), "Internal");
-
-            // Create surface blocks only for surfaces this zone actually has
-            vtkNew<vtkMultiBlockDataSet> emptySurfaces;
-            const std::set<std::string>& zoneSurfaces = zsIt->second;
-            emptySurfaces->SetNumberOfBlocks(zoneSurfaces.size());
-
-            int surfIdx = 0;
-            for (const auto& surfName : zoneSurfaces)
-            {
-              emptySurfaces->SetBlock(surfIdx, nullptr);
-              emptySurfaces->GetMetaData(static_cast<unsigned int>(surfIdx))
-                ->Set(vtkCompositeDataSet::NAME(), surfName.c_str());
-              surfIdx++;
-            }
-
-            emptyZone->SetBlock(1, emptySurfaces);
-            emptyZone->GetMetaData(1u)->Set(vtkCompositeDataSet::NAME(), "Surfaces");
-
-            mbase->SetBlock(zone, emptyZone);
-          }
-          else
-          {
-            // No surfaces or surfaces not requested - just NULL
-            mbase->SetBlock(zone, nullptr);
-          }
-
-          mbase->GetMetaData(zone)->Set(vtkCompositeDataSet::NAME(), zoneName);
+          continue;
         }
+
+        auto surfaceIter = allZoneSurfaceNames.find(zone);
+        bool hasSurfaces =
+          (surfaceIter != allZoneSurfaceNames.end() && !surfaceIter->second.empty());
+
+        if ((this->LoadSurfacePatch || this->LoadBndPatch) && hasSurfaces)
+        {
+          // Create the same structure that GetUnstructuredZone creates:
+          // Zone multiblock with Internal and Surfaces children
+          vtkNew<vtkMultiBlockDataSet> emptyZone;
+          emptyZone->SetNumberOfBlocks(2);
+          emptyZone->SetBlock(0, nullptr); // Internal block (empty)
+          emptyZone->GetMetaData(0u)->Set(vtkCompositeDataSet::NAME(), "Internal");
+
+          // Create surface blocks with proper names from global mapping
+          vtkNew<vtkMultiBlockDataSet> surfaceBlocks;
+          const auto& surfaceNames = surfaceIter->second;
+          surfaceBlocks->SetNumberOfBlocks(static_cast<unsigned int>(surfaceNames.size()));
+
+          int surfaceIndex = 0;
+          for (const auto& surfaceName : surfaceNames)
+          {
+            surfaceBlocks->SetBlock(surfaceIndex, nullptr);
+            surfaceBlocks->GetMetaData(static_cast<unsigned int>(surfaceIndex))
+              ->Set(vtkCompositeDataSet::NAME(), surfaceName.c_str());
+            surfaceIndex++;
+          }
+
+          emptyZone->SetBlock(1, surfaceBlocks);
+          emptyZone->GetMetaData(1u)->Set(vtkCompositeDataSet::NAME(), "Surfaces");
+          mbase->SetBlock(zone, emptyZone);
+        }
+        else
+        {
+          mbase->SetBlock(zone, nullptr);
+        }
+
+        mbase->GetMetaData(zone)->Set(vtkCompositeDataSet::NAME(), zoneName);
       }
     }
 
-    // Now process the zones assigned to this rank
-    for (int zone = zonemin; zone < zonemax; ++zone)
+    // Process zones assigned to this rank
+    for (int zone = zoneMin; zone < zoneMax; ++zone)
     {
       CGNSRead::char_33 zoneName;
       cgsize_t zsize[9];
@@ -5113,20 +5120,20 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
 
       if (strcmp(dataType, "I4") == 0)
       {
-        std::vector<vtkTypeInt32> mdata;
-        CGNSRead::readNodeData<vtkTypeInt32>(this->cgioNum, baseChildId[zone], mdata);
-        for (std::size_t index = 0; index < mdata.size(); index++)
+        std::vector<vtkTypeInt32> zoneData;
+        CGNSRead::readNodeData<vtkTypeInt32>(this->cgioNum, baseChildId[zone], zoneData);
+        for (std::size_t i = 0; i < zoneData.size(); i++)
         {
-          zsize[index] = static_cast<cgsize_t>(mdata[index]);
+          zsize[i] = static_cast<cgsize_t>(zoneData[i]);
         }
       }
       else if (strcmp(dataType, "I8") == 0)
       {
-        std::vector<vtkTypeInt64> mdata;
-        CGNSRead::readNodeData<vtkTypeInt64>(this->cgioNum, baseChildId[zone], mdata);
-        for (std::size_t index = 0; index < mdata.size(); index++)
+        std::vector<vtkTypeInt64> zoneData;
+        CGNSRead::readNodeData<vtkTypeInt64>(this->cgioNum, baseChildId[zone], zoneData);
+        for (std::size_t i = 0; i < zoneData.size(); i++)
         {
-          zsize[index] = static_cast<cgsize_t>(mdata[index]);
+          zsize[i] = static_cast<cgsize_t>(zoneData[i]);
         }
       }
       else
@@ -5138,13 +5145,12 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
       mbase->GetMetaData(zone)->Set(vtkCompositeDataSet::NAME(), zoneName);
 
       std::string familyName;
-      double famId;
-      if (CGNSRead::getFirstNodeId(this->cgioNum, baseChildId[zone], "FamilyName_t", &famId) ==
-        CG_OK)
+      double familyNodeId;
+      if (CGNSRead::getFirstNodeId(
+            this->cgioNum, baseChildId[zone], "FamilyName_t", &familyNodeId) == CG_OK)
       {
-        CGNSRead::readNodeStringData(this->cgioNum, famId, familyName);
-        cgio_release_id(cgioNum, famId);
-        famId = 0;
+        CGNSRead::readNodeStringData(this->cgioNum, familyNodeId, familyName);
+        cgio_release_id(cgioNum, familyNodeId);
       }
 
       if (!familyName.empty())
@@ -5201,8 +5207,7 @@ int vtkCGNSReader::RequestData(vtkInformation* vtkNotUsed(request),
           break;
         }
         case CGNS_ENUMV(Unstructured):
-          ier = this->GetUnstructuredZone(
-            numBase, zone, cellDim, physicalDim, zsize, mbase, &allZoneSurfaceNames);
+          ier = this->GetUnstructuredZone(numBase, zone, cellDim, physicalDim, zsize, mbase);
           if (ier != CG_OK)
           {
             vtkErrorMacro("Could not read file.");
