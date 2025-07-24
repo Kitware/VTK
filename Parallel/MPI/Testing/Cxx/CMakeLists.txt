@@ -7,6 +7,7 @@ vtk_add_test_mpi(vtkParallelMPICxxTests-MPI no_data_tests
   MPIController.cxx
   PDirectory.cxx
   PSystemTools.cxx
+  TestPExecutableRunner.cxx
   )
 
 set(vtkParallelMPICxxTests-MPI_NUMPROCS 2)
