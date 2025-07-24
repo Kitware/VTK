@@ -745,6 +745,7 @@
 
 .before_script_linux_deps: &before_script_linux_deps
     - '[[ "$CMAKE_CONFIGURATION" =~ "webgpu" ]] && cmake -P "$PWD/.gitlab/ci/download_dawn.cmake"'
+    - cmake -P .gitlab/ci/download_onnxruntime.cmake
 
 .script_linux: &script_linux
     - .gitlab/ci/clang-tidy-cache.sh
@@ -781,6 +782,8 @@
 
     script:
         - *before_script_linux
+        - cmake -P .gitlab/ci/download_onnxruntime.cmake
+        - export LD_LIBRARY_PATH=$PWD/.gitlab/onnxruntime/lib64
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
         - exec .gitlab/ci/check_warnings.sh ./Testing/External
 

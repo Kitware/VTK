@@ -242,6 +242,7 @@
     # this way we can only get it for non-wheel macos builds
     - cmake -P .gitlab/ci/download_adios2.cmake
     - export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:$PWD/.gitlab/adios2
+    - cmake -P.gitlab/ci/download_onnxruntime.cmake
 
 .cmake_build_macos:
     stage: build
