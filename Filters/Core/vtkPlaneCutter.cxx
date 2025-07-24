@@ -37,7 +37,6 @@
 #include "vtkStructuredDataPlaneCutter.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTransform.h"
-#include "vtkUniformGridAMR.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -556,7 +555,7 @@ int vtkPlaneCutter::RequestDataObject(vtkInformation* vtkNotUsed(request),
   {
     outputType = VTK_PARTITIONED_DATA_SET_COLLECTION;
   }
-  else if (vtkMultiBlockDataSet::SafeDownCast(inputDO) || vtkUniformGridAMR::SafeDownCast(inputDO))
+  else if (vtkMultiBlockDataSet::SafeDownCast(inputDO))
   {
     outputType = VTK_MULTIBLOCK_DATA_SET;
   }
@@ -623,16 +622,6 @@ int vtkPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
     auto outputDOT = vtkDataObjectTree::SafeDownCast(outputDO);
     assert(outputDOT != nullptr);
     return this->ExecuteDataObjectTree(inputDOT, outputDOT);
-  }
-  else if (vtkUniformGridAMR::SafeDownCast(inputDO))
-  {
-    vtkNew<vtkConvertToMultiBlockDataSet> toMBDS;
-    toMBDS->SetInputData(inputDO);
-    toMBDS->Update();
-    auto convertInputDOT = vtkMultiBlockDataSet::SafeDownCast(toMBDS->GetOutput());
-    auto outputDOT = vtkDataObjectTree::SafeDownCast(outputDO);
-    assert(outputDOT != nullptr);
-    return this->ExecuteDataObjectTree(convertInputDOT, outputDOT);
   }
   else if (auto inputDS = vtkDataSet::SafeDownCast(inputDO))
   {

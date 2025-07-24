@@ -20,7 +20,7 @@
 #include "vtkSignedCharArray.h"
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
-#include "vtkUniformGridAMRDataIterator.h"
+#include "vtkUniformGridAMRIterator.h"
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -82,19 +82,18 @@ void vtkSelector::Execute(vtkDataObject* input, vtkDataObject* output)
     // vtkSelectionNode's properties.
     this->ProcessSelectors(cd);
 
-    auto inputDOT = vtkDataObjectTree::SafeDownCast(input);
-    auto outputDOT = vtkDataObjectTree::SafeDownCast(output);
-    if (inputDOT && outputDOT)
-    {
-      this->ProcessDataObjectTree(inputDOT, outputDOT, this->GetBlockSelection(0), 0);
-    }
-    else
+    vtkDataObjectTree* outputDOT = vtkDataObjectTree::SafeDownCast(output);
+    if (outputDOT)
     {
       auto inputAMR = vtkUniformGridAMR::SafeDownCast(input);
-      auto outputCD = vtkCompositeDataSet::SafeDownCast(output);
-      if (inputAMR && outputCD)
+      auto inputDOT = vtkDataObjectTree::SafeDownCast(input);
+      if (inputAMR)
       {
-        this->ProcessAMR(inputAMR, outputCD);
+        this->ProcessAMR(inputAMR, outputDOT);
+      }
+      else if (inputDOT)
+      {
+        this->ProcessDataObjectTree(inputDOT, outputDOT, this->GetBlockSelection(0), 0);
       }
     }
   }
@@ -209,58 +208,21 @@ void vtkSelector::ProcessDataObjectTree(vtkDataObjectTree* input, vtkDataObjectT
 }
 
 //------------------------------------------------------------------------------
-void vtkSelector::ProcessAMR(vtkUniformGridAMR* input, vtkCompositeDataSet* output)
+void vtkSelector::ProcessAMR(vtkUniformGridAMR* input, vtkDataObjectTree* output)
 {
-  auto iter = vtkUniformGridAMRDataIterator::SafeDownCast(input->NewIterator());
+  auto iter = vtkUniformGridAMRIterator::SafeDownCast(input->NewIterator());
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
-    auto modeDSUsingCompositeIndex = this->GetBlockSelection(iter->GetCurrentFlatIndex(), false);
-    auto modeDSUsingAMRLevel =
-      this->GetAMRBlockSelection(iter->GetCurrentLevel(), iter->GetCurrentIndex());
-    auto realMode =
-      modeDSUsingAMRLevel == INHERIT ? modeDSUsingCompositeIndex : modeDSUsingAMRLevel;
-    // if both modes are INHERIT then we include everything
-    realMode = (realMode == INHERIT) ? INCLUDE : realMode;
-
+    auto blockMode = this->GetBlockSelection(iter->GetCurrentFlatIndex(), false);
     auto inputDS = iter->GetCurrentDataObject();
     auto outputDS = output->GetDataSet(iter);
     if (inputDS && outputDS)
     {
-      this->ProcessBlock(inputDS, outputDS, realMode == EXCLUDE);
+      this->ProcessBlock(inputDS, outputDS, blockMode == EXCLUDE);
     }
   }
 
   iter->Delete();
-}
-
-//------------------------------------------------------------------------------
-vtkSelector::SelectionMode vtkSelector::GetAMRBlockSelection(unsigned int level, unsigned int index)
-{
-  auto properties = this->Node->GetProperties();
-  auto levelKey = vtkSelectionNode::HIERARCHICAL_LEVEL();
-  auto indexKey = vtkSelectionNode::HIERARCHICAL_INDEX();
-  const auto hasLevel = properties->Has(levelKey);
-  const auto hasIndex = properties->Has(indexKey);
-  if (!hasLevel && !hasIndex)
-  {
-    return INHERIT;
-  }
-  else if (hasLevel && !hasIndex)
-  {
-    return static_cast<unsigned int>(properties->Get(levelKey)) == level ? INCLUDE : EXCLUDE;
-  }
-  else if (hasIndex && !hasLevel)
-  {
-    return static_cast<unsigned int>(properties->Get(indexKey)) == index ? INCLUDE : EXCLUDE;
-  }
-  else
-  {
-    assert(hasIndex && hasLevel);
-    return static_cast<unsigned int>(properties->Get(levelKey)) == level &&
-        static_cast<unsigned int>(properties->Get(indexKey)) == index
-      ? INCLUDE
-      : EXCLUDE;
-  }
 }
 
 //------------------------------------------------------------------------------

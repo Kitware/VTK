@@ -30,6 +30,7 @@
 #include "vtkSignedCharArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
+#include "vtkUniformGridAMR.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkValueSelector.h"
@@ -113,9 +114,14 @@ int vtkExtractSelection::RequestDataObject(
     // when PreserveTopology is ON, we preserve input data type.
     outputType = inputType;
   }
+  else if (vtkUniformGridAMR::SafeDownCast(inputDO))
+  {
+    // For AMR, we create a vtkPartitionedDataSetCollection
+    outputType = VTK_PARTITIONED_DATA_SET_COLLECTION;
+  }
   else if (vtkDataObjectTree::SafeDownCast(inputDO))
   {
-    // For DataObjectTree, preserve the type.
+    // For other DataObjectTree, preserve the type.
     outputType = inputType;
   }
   else if (vtkCompositeDataSet::SafeDownCast(inputDO))
@@ -367,8 +373,6 @@ int vtkExtractSelection::RequestData(vtkInformation* vtkNotUsed(request),
     // Now iterate again over the composite dataset and evaluate the expression to
     // combine all the insidedness arrays and then extract the elements.
     bool globalEvaluationResult = true;
-    // we use the input iterator instead of the output one, because if inputCD is subclass of
-    // vtkUniformGridAMR, GetDataSet requires the iterator to be vtkUniformGridAMRDataIterator
     for (inIter->GoToFirstItem(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
     {
       if (this->CheckAbort())

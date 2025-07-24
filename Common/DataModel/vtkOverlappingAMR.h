@@ -49,11 +49,6 @@ public:
   int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_OVERLAPPING_AMR; }
   vtkTypeMacro(vtkOverlappingAMR, vtkUniformGridAMR);
 
-  /**
-   * Return a new iterator (the iterator has to be deleted by the user).
-   */
-  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() override;
-
   ///@{
   /**
    * Get/Set the global origin of the amr data set
@@ -146,8 +141,8 @@ public:
   ///@}
 
   /**
-   * Returns the refinement ratio for the position pointed by the iterator or -1 if refinement is
-   * invalid.
+   * Returns the refinement ratio for the position pointed by the iterator or -1 if refinement
+   * or iterator is invalid.
    */
   int GetRefinementRatio(vtkCompositeDataIterator* iter);
 

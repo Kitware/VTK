@@ -12,7 +12,7 @@
 #include "vtkOverlappingAMRMetaData.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkUniformGridAMRDataIterator.h"
+#include "vtkUniformGridAMRIterator.h"
 #include "vtkVolume.h"
 #include "vtkVolumeMapper.h"
 #include "vtkVolumeNode.h"
@@ -102,8 +102,8 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
       std::vector<ospcommon::box3i> blockBoundsArray;
       std::vector<int> blockLevelArray;
 
-      vtkSmartPointer<vtkUniformGridAMRDataIterator> iter;
-      iter.TakeReference(vtkUniformGridAMRDataIterator::SafeDownCast(amr->NewIterator()));
+      vtkSmartPointer<vtkUniformGridAMRIterator> iter;
+      iter.TakeReference(vtkUniformGridAMRIterator::SafeDownCast(amr->NewIterator()));
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
         unsigned int level = iter->GetCurrentLevel();

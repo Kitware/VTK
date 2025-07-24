@@ -28,6 +28,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTypeTraits.h"
+#include "vtkUniformGridAMRIterator.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtksys/SystemTools.hxx"
 
@@ -452,7 +453,8 @@ int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet* dobj, xdmf2::XdmfG
 
   vtkCompositeDataIterator* iter = dobj->NewIterator();
   vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
-  if (treeIter)
+  vtkUniformGridAMRIterator* amrIter = vtkUniformGridAMRIterator::SafeDownCast(iter);
+  if (treeIter && !amrIter)
   {
     treeIter->VisitOnlyLeavesOff();
     treeIter->TraverseSubTreeOff();

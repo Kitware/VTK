@@ -11,6 +11,7 @@
 #include "vtkPointData.h"
 #include "vtkSphere.h"
 #include "vtkUniformGrid.h"
+#include "vtkUniformGridAMRIterator.h"
 
 //------------------------------------------------------------------------------
 namespace
@@ -48,6 +49,13 @@ int TestNonOverlappingAMR(int, char*[])
   vtkNew<vtkNonOverlappingAMR> amr;
   const std::vector<unsigned int> blocksPerLevel{ 1, 2 };
   amr->Initialize(blocksPerLevel);
+
+  vtkSmartPointer<vtkCompositeDataIterator> iter = vtk::TakeSmartPointer(amr->NewIterator());
+  if (!iter)
+  {
+    vtkLogF(ERROR, "Could not create an iterator");
+    return EXIT_FAILURE;
+  }
 
   double origin[3] = { 0.0, 0.0, 0.0 };
   double spacing[3] = { 1.0, 1.0, 1.0 };

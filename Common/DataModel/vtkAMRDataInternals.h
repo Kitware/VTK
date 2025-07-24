@@ -15,13 +15,16 @@
 #define vtkAMRDataInternals_h
 
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           //for VTK_DEPRECATED_IN_9_6_0
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" //for storing smart pointers to blocks
-#include <vector>            //for storing blocks
+
+#include <vector> //for storing blocks
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUniformGrid;
-class VTKCOMMONDATAMODEL_EXPORT vtkAMRDataInternals : public vtkObject
+class VTK_DEPRECATED_IN_9_6_0("This class is not used anymore and will be removed.")
+  VTKCOMMONDATAMODEL_EXPORT vtkAMRDataInternals : public vtkObject
 {
 public:
   struct Block

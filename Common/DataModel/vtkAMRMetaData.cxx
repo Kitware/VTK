@@ -72,6 +72,7 @@ unsigned int vtkAMRMetaData::GetNumberOfBlocks(unsigned int level) const
 {
   if (level >= this->GetNumberOfLevels())
   {
+    vtkErrorMacro("Invalid level to GetNumberOfBlocks");
     return 0;
   }
   return this->NumBlocks[level + 1] - this->NumBlocks[level];
@@ -86,6 +87,12 @@ unsigned int vtkAMRMetaData::GetNumberOfBlocks() const
 //------------------------------------------------------------------------------
 int vtkAMRMetaData::GetAbsoluteBlockIndex(unsigned int level, unsigned int relativeBlockIndex) const
 {
+  if (level >= this->GetNumberOfLevels())
+  {
+    vtkErrorMacro("Invalid level to GetAbsoluteBlockIndex: " << level);
+    return -1;
+  }
+
   return this->NumBlocks[level] + relativeBlockIndex;
 }
 
@@ -93,6 +100,14 @@ int vtkAMRMetaData::GetAbsoluteBlockIndex(unsigned int level, unsigned int relat
 void vtkAMRMetaData::ComputeIndexPair(unsigned int index, unsigned int& level, unsigned int& id)
 {
   this->GenerateBlockLevel();
+
+  if (static_cast<vtkIdType>(index) >= this->BlockLevel->GetNumberOfValues())
+  {
+    vtkErrorMacro("Invalid index to ComputeIndexPair: " << index << " "
+                                                        << this->BlockLevel->GetNumberOfValues());
+    return;
+  }
+
   level = this->BlockLevel->GetValue(static_cast<vtkIdType>(index));
   id = index - this->NumBlocks[level];
 }
@@ -104,10 +119,9 @@ void vtkAMRMetaData::GenerateBlockLevel()
   {
     return;
   }
+
   this->BlockLevel = vtkSmartPointer<vtkUnsignedIntArray>::New();
-
   this->BlockLevel->SetNumberOfValues(static_cast<vtkIdType>(this->GetNumberOfBlocks()));
-
   assert(this->NumBlocks.size() == this->GetNumberOfLevels() + 1);
 
   vtkIdType index(0);

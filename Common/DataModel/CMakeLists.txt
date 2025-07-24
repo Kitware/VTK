@@ -1,6 +1,6 @@
 set(classes
   vtkAMRBox
-  vtkAMRDataInternals # DEPRECATED_IN_9_6_0 Move to private classes
+  vtkAMRDataInternals # DEPRECATED_IN_9_6_0
   vtkAMRInformation
   vtkAMRMetaData
   vtkAMRUtilities
@@ -256,6 +256,7 @@ set(classes
   vtkUniformGrid
   vtkUniformGridAMR
   vtkUniformGridAMRDataIterator
+  vtkUniformGridAMRIterator
   vtkUniformHyperTreeGrid
   vtkUnstructuredGrid
   vtkUnstructuredGridBase

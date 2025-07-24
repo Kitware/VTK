@@ -568,7 +568,7 @@ int vtkAMRBaseReader::RequestData(vtkInformation* vtkNotUsed(request),
     vtkOverlappingAMR::SafeDownCast(outInf->Get(vtkDataObject::DATA_OBJECT()));
   assert("pre: output AMR dataset is nullptr" && (output != nullptr));
 
-  output->SetAMRMetaData(this->Metadata->GetAMRMetaData());
+  output->Initialize(this->Metadata->GetAMRMetaData());
 
   // Setup the block request
   vtkTimerLog::MarkStartEvent("vtkAMRBaseReader::SetupBlockRequest");

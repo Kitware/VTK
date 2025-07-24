@@ -125,12 +125,20 @@ bool TestAMR()
   extractor->AddSelector("/Root/Level1");
   extractor->Update();
 
-  auto output = vtkNonOverlappingAMR::SafeDownCast(extractor->GetOutputDataObject(0));
-  if (output->GetNumberOfBlocks() != 3)
+  auto output = vtkPartitionedDataSetCollection::SafeDownCast(extractor->GetOutputDataObject(0));
+  if (output->GetNumberOfPartitions(0) != 3)
   {
-    vtkLogF(ERROR, "Incorrect AMR, expected=%d, got=%d!", 3, output->GetNumberOfBlocks());
+    vtkLogF(ERROR, "Incorrect AMR extractions number of blocks, expected=%d, got=%d!", 3,
+      output->GetNumberOfPartitions(0));
     return false;
   }
+  if (output->GetNumberOfCells() != 1000)
+  {
+    vtkLogF(ERROR, "Incorrect AMR extractions number of cells, expected=%d, got=%d!", 1000,
+      static_cast<int>(output->GetNumberOfCells()));
+    return false;
+  }
+
   return true;
 }
 }

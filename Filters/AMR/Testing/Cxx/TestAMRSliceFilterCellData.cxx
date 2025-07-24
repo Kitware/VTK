@@ -21,7 +21,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
-#include <vtkUniformGridAMRDataIterator.h>
+#include <vtkUniformGridAMRIterator.h>
 
 #include <array>
 
@@ -80,8 +80,8 @@ int TestAMRSliceFilterCellData(int argc, char* argv[])
   int nonLeafNodes = 0;
   {
     vtkOverlappingAMR* oamr = vtkOverlappingAMR::SafeDownCast(slicer->GetOutputDataObject(0));
-    vtkSmartPointer<vtkUniformGridAMRDataIterator> iter =
-      vtkSmartPointer<vtkUniformGridAMRDataIterator>::New();
+    vtkSmartPointer<vtkUniformGridAMRIterator> iter =
+      vtkSmartPointer<vtkUniformGridAMRIterator>::New();
     iter->SetDataSet(oamr);
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
     {
