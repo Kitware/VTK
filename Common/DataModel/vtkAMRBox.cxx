@@ -7,6 +7,7 @@
 #include "vtkMath.h"
 #include "vtkStructuredData.h"
 #include "vtkType.h"
+#include "vtkUniformGrid.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
@@ -727,4 +728,95 @@ void vtkAMRBox::Shrink(int byN)
   }
   assert("post: Grown AMR Box instance is invalid" && !this->IsInvalid());
 }
+
+//------------------------------------------------------------------------------
+int vtkAMRBox::InitializeGrid(vtkUniformGrid* grid, double* origin, double* spacing) const
+{
+  if (this->Empty())
+  {
+    vtkWarningWithObjectMacro(grid, "Can't construct a data set from an empty box.");
+    return 0;
+  }
+  if (this->ComputeDimension() == 2)
+  {
+    // NOTE: define it 3D, with the third dim 0. eg. (X,X,0)(X,X,0)
+    vtkWarningWithObjectMacro(grid, "Can't construct a 3D data set from a 2D box.");
+    return 0;
+  }
+
+  grid->Initialize();
+  int nPoints[3];
+  this->GetNumberOfNodes(nPoints);
+
+  grid->SetDimensions(nPoints);
+  grid->SetSpacing(spacing);
+  grid->SetOrigin(origin);
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkAMRBox::InitializeGrid(vtkUniformGrid* grid, double* origin, double* spacing, int nGhostsI,
+  int nGhostsJ, int nGhostsK) const
+{
+  if (!this->InitializeGrid(grid, origin, spacing))
+  {
+    return 0;
+  }
+
+  // Generate ghost cell array, with no ghosts marked.
+  int nCells[3];
+  this->GetNumberOfCells(nCells);
+  vtkNew<vtkUnsignedCharArray> ghosts;
+  grid->GetCellData()->AddArray(ghosts);
+  ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
+  ghosts->SetNumberOfComponents(1);
+  ghosts->SetNumberOfTuples(nCells[0] * nCells[1] * nCells[2]);
+  ghosts->FillValue(0);
+  // If there are ghost cells mark them.
+  if (nGhostsI || nGhostsJ || nGhostsK)
+  {
+    unsigned char* pG = ghosts->GetPointer(0);
+    const int* lo = this->GetLoCorner();
+    const int* hi = this->GetHiCorner();
+    // Identify & fill ghost regions
+    if (nGhostsI)
+    {
+      const vtkAMRBox left(lo[0], lo[1], lo[2], lo[0] + nGhostsI - 1, hi[1], hi[2]);
+      FillRegion(pG, *this, left, static_cast<unsigned char>(1));
+      const vtkAMRBox right(hi[0] - nGhostsI + 1, lo[1], lo[2], hi[0], hi[1], hi[2]);
+      FillRegion(pG, *this, right, static_cast<unsigned char>(1));
+    }
+    if (nGhostsJ)
+    {
+      const vtkAMRBox front(lo[0], lo[1], lo[2], hi[0], lo[1] + nGhostsJ - 1, hi[2]);
+      FillRegion(pG, *this, front, static_cast<unsigned char>(1));
+      const vtkAMRBox back(lo[0], hi[1] - nGhostsJ + 1, lo[2], hi[0], hi[1], hi[2]);
+      FillRegion(pG, *this, back, static_cast<unsigned char>(1));
+    }
+    if (nGhostsK)
+    {
+      const vtkAMRBox bottom(lo[0], lo[1], lo[2], hi[0], hi[1], lo[2] + nGhostsK - 1);
+      FillRegion(pG, *this, bottom, static_cast<unsigned char>(1));
+      const vtkAMRBox top(lo[0], lo[1], hi[2] - nGhostsK + 1, hi[0], hi[1], hi[2]);
+      FillRegion(pG, *this, top, static_cast<unsigned char>(1));
+    }
+  }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkAMRBox::InitializeGrid(
+  vtkUniformGrid* grid, double* origin, double* spacing, const int nGhosts[3]) const
+{
+  return this->InitializeGrid(grid, origin, spacing, nGhosts[0], nGhosts[1], nGhosts[2]);
+}
+
+//------------------------------------------------------------------------------
+int vtkAMRBox::InitializeGrid(
+  vtkUniformGrid* grid, double* origin, double* spacing, int nGhosts) const
+{
+  return this->InitializeGrid(grid, origin, spacing, nGhosts, nGhosts, nGhosts);
+}
+
 VTK_ABI_NAMESPACE_END

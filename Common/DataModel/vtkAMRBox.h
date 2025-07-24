@@ -19,6 +19,7 @@
 #include "vtkStructuredData.h" // For vtkStructuredData::VTK_STRUCTURED_XYZ_GRID definition
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkUniformGrid;
 class VTKCOMMONDATAMODEL_EXPORT vtkAMRBox
 {
 public:
@@ -298,6 +299,44 @@ public:
    */
   static int ComputeStructuredCoordinates(const vtkAMRBox& box, const double dataOrigin[3],
     const double h[3], const double x[3], int ijk[3], double pcoords[3]);
+
+  /**
+   * Initialize the provided grid with no ghost cell arrays, from the definition in
+   * this box. This box is expected to be 3D, if you have 2D
+   * data set the third dimension to 0. eg. (X,X,0)(X,X,0)
+   * Returns 1 if the initialization succeeded, 0 otherwise
+   */
+  int InitializeGrid(vtkUniformGrid* grid, double* origin, double* spacing) const;
+
+  /**
+   * Initialize the provided grid from the definition in this box, with ghost cell
+   * arrays nGhosts cells thick in all directions. This box is expected
+   * to be 3D, if you have 2D data set the third dimension to 0.
+   * eg. (X,X,0)(X,X,0)
+   * Returns 1 if the initialization succeeded, 0 otherwise
+   */
+  int InitializeGrid(vtkUniformGrid* grid, double* origin, double* spacing, int nGhosts) const;
+
+  /**
+   * Initialize the provided grid from the definition in this box, with ghost cell
+   * arrays of the thickness given in each direction by "nGhosts" array.
+   * This box and ghost array are expected to be 3D, if you have 2D data
+   * set the third dimension to 0. eg. (X,X,0)(X,X,0)
+   * Returns 1 if the initialization succeeded, 0 otherwise
+   */
+  int InitializeGrid(
+    vtkUniformGrid* grid, double* origin, double* spacing, const int nGhosts[3]) const;
+
+  /**
+   * Initialize the provided grid, from the definition in this box,
+   * with ghost cell arrays of the thickness given in each
+   * direction by "nGhosts*". This box and ghost array are expected
+   * to be 3D, if you have 2D data set the third dimension to 0. eg.
+   * (X,X,0)(X,X,0)
+   * Returns 1 if the initialization succeeded, 0 otherwise
+   */
+  int InitializeGrid(vtkUniformGrid* grid, double* origin, double* spacing, int nGhostsI,
+    int nGhostsJ, int nGhostsK) const;
 
 protected:
   /**
