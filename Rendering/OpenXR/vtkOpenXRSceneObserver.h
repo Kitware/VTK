@@ -34,7 +34,7 @@ class vtkOpenXRSceneComponent;
  * @see `vtkOpenXRRenderWindow::GetSceneObserver`
  * @see `vtkOpenXRSceneComponent`
  *
- * @example
+ * Example:
  * ```cpp
  * void OnNewComponent(vtkObject* object, unsigned long, void* calldata) {
  *   auto* component = static_cast<vtkOpenXRSceneComponent*>(calldata);
