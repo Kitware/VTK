@@ -6,6 +6,7 @@ set(classes
   vtkMultiProcessController
   vtkMultiProcessStream
   vtkPDirectory
+  vtkPExecutableRunner
   vtkProcess
   vtkProcessGroup
   vtkPSystemTools
