@@ -9,6 +9,7 @@
 #include "vtkFXAAOptions.h"
 #include "vtkHardwareSelector.h"
 #include "vtkImageData.h"
+#include "vtkIndependentViewerCollection.h"
 #include "vtkLogger.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiProcessController.h"
@@ -124,6 +125,65 @@ public:
     }
   }
 
+  void SaveIndependentViewers(
+    vtkMultiProcessStream& stream, vtkIndependentViewerCollection* viewers)
+  {
+    unsigned int numberOfViewers = 0;
+    if (viewers != nullptr)
+    {
+      numberOfViewers = static_cast<unsigned int>(viewers->GetNumberOfIndependentViewers());
+    }
+
+    stream << numberOfViewers;
+    std::vector<double> values;
+
+    for (unsigned int i = 0; i < numberOfViewers; ++i)
+    {
+      viewers->GetEyeTransform(static_cast<int>(i), values);
+      for (size_t j = 0; j < 16; ++j)
+      {
+        stream << values[j];
+      }
+      stream << viewers->GetEyeSeparation(static_cast<int>(i));
+    }
+  }
+
+  void RestoreIndependentViewers(
+    vtkMultiProcessStream& stream, vtkIndependentViewerCollection* viewers)
+  {
+    unsigned int numberOfViewers = 0;
+
+    stream >> numberOfViewers;
+
+    if (viewers != nullptr)
+    {
+      viewers->SetNumberOfIndependentViewers(static_cast<int>(numberOfViewers));
+    }
+
+    if (numberOfViewers <= 0)
+    {
+      return;
+    }
+
+    std::vector<double> values;
+    double eyeSeparation;
+    values.resize(16);
+
+    for (unsigned int i = 0; i < numberOfViewers; ++i)
+    {
+      for (size_t j = 0; j < 16; ++j)
+      {
+        stream >> values[j];
+      }
+      stream >> eyeSeparation;
+      if (viewers != nullptr)
+      {
+        viewers->SetEyeTransform(static_cast<int>(i), values);
+        viewers->SetEyeSeparation(static_cast<int>(i), eyeSeparation);
+      }
+    }
+  }
+
   std::vector<vtkSmartPointer<vtkSynchronizableActors>> SynchronizedActors;
   bool SynchronizableActorsEnabled;
 };
@@ -175,6 +235,11 @@ vtkSynchronizedRenderers::~vtkSynchronizedRenderers()
   {
     this->FXAAFilter->Delete();
     this->FXAAFilter = nullptr;
+  }
+
+  if (this->IndependentViewers)
+  {
+    this->IndependentViewers->UnRegister(this);
   }
 }
 
@@ -307,6 +372,7 @@ void vtkSynchronizedRenderers::MasterStartRender()
   renInfo.Save(stream);
 
   this->Internal->Save(stream, this->Renderer);
+  this->Internal->SaveIndependentViewers(stream, this->IndependentViewers);
 
   this->ParallelController->Broadcast(stream, this->RootProcessId);
 }
@@ -322,6 +388,7 @@ void vtkSynchronizedRenderers::SlaveStartRender()
   renInfo.CopyTo(this->Renderer);
 
   this->Internal->Restore(stream, this->Renderer);
+  this->Internal->RestoreIndependentViewers(stream, this->IndependentViewers);
 
   this->SetImageReductionFactor(renInfo.ImageReductionFactor);
 }
@@ -564,14 +631,15 @@ void vtkSynchronizedRenderers::RendererInfo::Save(vtkMultiProcessStream& stream)
          << this->EyeTransformMatrix[10] << this->EyeTransformMatrix[11]
          << this->EyeTransformMatrix[12] << this->EyeTransformMatrix[13]
          << this->EyeTransformMatrix[14] << this->EyeTransformMatrix[15]
-         << this->ModelTransformMatrix[0] << this->ModelTransformMatrix[1]
-         << this->ModelTransformMatrix[2] << this->ModelTransformMatrix[3]
-         << this->ModelTransformMatrix[4] << this->ModelTransformMatrix[5]
-         << this->ModelTransformMatrix[6] << this->ModelTransformMatrix[7]
-         << this->ModelTransformMatrix[8] << this->ModelTransformMatrix[9]
-         << this->ModelTransformMatrix[10] << this->ModelTransformMatrix[11]
-         << this->ModelTransformMatrix[12] << this->ModelTransformMatrix[13]
-         << this->ModelTransformMatrix[14] << this->ModelTransformMatrix[15];
+         << this->CameraEyeSeparation << this->ModelTransformMatrix[0]
+         << this->ModelTransformMatrix[1] << this->ModelTransformMatrix[2]
+         << this->ModelTransformMatrix[3] << this->ModelTransformMatrix[4]
+         << this->ModelTransformMatrix[5] << this->ModelTransformMatrix[6]
+         << this->ModelTransformMatrix[7] << this->ModelTransformMatrix[8]
+         << this->ModelTransformMatrix[9] << this->ModelTransformMatrix[10]
+         << this->ModelTransformMatrix[11] << this->ModelTransformMatrix[12]
+         << this->ModelTransformMatrix[13] << this->ModelTransformMatrix[14]
+         << this->ModelTransformMatrix[15];
 }
 
 //------------------------------------------------------------------------------
@@ -595,7 +663,7 @@ bool vtkSynchronizedRenderers::RendererInfo::Restore(vtkMultiProcessStream& stre
     this->EyeTransformMatrix[6] >> this->EyeTransformMatrix[7] >> this->EyeTransformMatrix[8] >>
     this->EyeTransformMatrix[9] >> this->EyeTransformMatrix[10] >> this->EyeTransformMatrix[11] >>
     this->EyeTransformMatrix[12] >> this->EyeTransformMatrix[13] >> this->EyeTransformMatrix[14] >>
-    this->EyeTransformMatrix[15] >> this->ModelTransformMatrix[0] >>
+    this->EyeTransformMatrix[15] >> this->CameraEyeSeparation >> this->ModelTransformMatrix[0] >>
     this->ModelTransformMatrix[1] >> this->ModelTransformMatrix[2] >>
     this->ModelTransformMatrix[3] >> this->ModelTransformMatrix[4] >>
     this->ModelTransformMatrix[5] >> this->ModelTransformMatrix[6] >>
@@ -621,6 +689,7 @@ void vtkSynchronizedRenderers::RendererInfo::CopyFrom(vtkRenderer* ren)
   cam->GetClippingRange(this->CameraClippingRange);
   this->CameraViewAngle = cam->GetViewAngle();
   this->CameraParallelScale = cam->GetParallelScale();
+  this->CameraEyeSeparation = cam->GetEyeSeparation();
 
   vtkMatrix4x4* eyeTransformationMatrix = cam->GetEyeTransformMatrix();
   vtkMatrix4x4* modelTransformationMatrix = cam->GetModelTransformMatrix();
@@ -648,6 +717,7 @@ void vtkSynchronizedRenderers::RendererInfo::CopyTo(vtkRenderer* ren)
   cam->SetClippingRange(this->CameraClippingRange);
   cam->SetViewAngle(this->CameraViewAngle);
   cam->SetParallelScale(this->CameraParallelScale);
+  cam->SetEyeSeparation(this->CameraEyeSeparation);
 
   // We reuse vtkMatrix4x4 objects present on the camera and then use
   // vtkMatrix4x4::SetElement(). This avoids modifying the mtime of the

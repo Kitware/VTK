@@ -18,6 +18,7 @@
 #ifndef vtkSynchronizedRenderers_h
 #define vtkSynchronizedRenderers_h
 
+#include "vtkIndependentViewerCollection.h" // needed for vtkIndependentViewerCollection
 #include "vtkObject.h"
 #include "vtkRenderingParallelModule.h" // For export macro
 #include "vtkSmartPointer.h"            // needed for vtkSmartPointer.
@@ -49,6 +50,16 @@ public:
    */
   virtual void SetRenderer(vtkRenderer*);
   virtual vtkRenderer* GetRenderer();
+  ///@}
+
+  ///@{
+  /**
+   * Optionally, set the independent viewer collection to be synchronized. If
+   * set, a 16-element eye matrix and a single eye separation is synchronized
+   * to remote processes, for each viewer in the collection.
+   */
+  vtkSetObjectMacro(IndependentViewers, vtkIndependentViewerCollection);
+  vtkGetObjectMacro(IndependentViewers, vtkIndependentViewerCollection);
   ///@}
 
   ///@{
@@ -244,6 +255,7 @@ protected:
     double CameraClippingRange[2];
     double CameraViewAngle;
     double CameraParallelScale;
+    double CameraEyeSeparation;
     double EyeTransformMatrix[16];
     double ModelTransformMatrix[16];
 
@@ -269,6 +281,7 @@ protected:
 
   vtkMultiProcessController* ParallelController;
   vtkOpenGLRenderer* Renderer;
+  vtkIndependentViewerCollection* IndependentViewers = nullptr;
 
   /**
    * Can be used in HandleEndRender(), MasterEndRender() or SlaveEndRender()
