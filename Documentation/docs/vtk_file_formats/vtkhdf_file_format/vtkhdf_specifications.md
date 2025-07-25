@@ -45,10 +45,43 @@ as the corresponding attributes for the vtkImageData dataset. `Scalars`,
 `Vectors`, ... string attributes for the `PointData` and `CellData`
 groups specify the active attributes in the dataset.
 
-<figure>
-  <img src="https://raw.githubusercontent.com/Kitware/vtk-examples/gh-pages/src/VTKFileFormats/Figures/vtkhdf-image-data.svg" width="640" alt="Image data VTKHDF File Format">
-  <figcaption>Figure 6. - Image data VTKHDF File Format</figcaption>
-</figure>
+```{graphviz}
+digraph G {
+    graph [bgcolor=transparent, fontname="Helvetica"];
+    node [style=filled, fillcolor=white, fontname="Helvetica"];
+    edge [color=gray, fontname="Helvetica"];
+
+    VTKHDF [label="VTKHDF\n Version, Type, WholeExtent, Origin, Spacing, Direction", shape=Mrecord, fillcolor=lightblue];
+
+    FieldData [label="FieldData", shape=Mrecord, fillcolor=lightblue];
+    PointData [label="PointData\nScalars, Vectors, ...", shape=Mrecord, fillcolor=lightblue];
+    CellData [label="CellData\nScalars, Vectors, ...", shape=Mrecord, fillcolor=lightblue];
+
+    FieldArrayName [label="FieldArrayName", shape=Mrecord, fillcolor=lightgrey];
+    PointArrayName [label="PointArrayName", shape=Mrecord, fillcolor=lightgrey];
+    CellArrayName [label="CellArrayName", shape=Mrecord, fillcolor=lightgrey];
+
+    FieldArrayNameEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+    PointArrayNameEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+    CellArrayNameEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+
+    VTKHDF -> FieldData;
+    VTKHDF -> PointData;
+    VTKHDF -> CellData;
+    FieldData -> FieldArrayName;
+    PointData -> PointArrayName;
+    CellData -> CellArrayName;
+    FieldData -> FieldArrayNameEtc;
+    PointData -> PointArrayNameEtc;
+    CellData -> CellArrayNameEtc;
+}
+
+```
+
+<div align="center">
+Figure 1. - Image Data VTKHDF File Format
+</div>
+
 
 ## Unstructured grid
 
