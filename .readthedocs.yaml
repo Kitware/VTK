@@ -18,7 +18,10 @@ build:
     # Fetch all tags. Required to generate https://docs.vtk.org/en/latest/release_details/index.html
     post_checkout:
       - git fetch --all --tags || true
-
+  # When adding a dependency here, make sure to update the related docker image
+  # in .gitlab/ci/docker/readthedocs/Dockerfile.
+  apt_packages:
+   - graphviz
 
 # Build documentation with Sphinx
 sphinx:
