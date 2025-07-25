@@ -123,10 +123,58 @@ using the following formulas:
 | PointData  | NumberOfPoints[i] * sizeof(point_array_k[0]) |
 | CellData | NumberOfCells[i] * sizeof(cell_array_k[0]) |
 
-<figure>
-  <img src="https://raw.githubusercontent.com/Kitware/vtk-examples/gh-pages/src/VTKFileFormats/Figures/vtkhdf-unstructured-grid.svg" width="640" alt="Unstructured Grid VTKHDF File Format">
-  <figcaption>Figure 7. - Unstructured grid VTKHDF File Format</figcaption>
-</figure>
+```{graphviz}
+digraph G {
+    rankdir=LR;
+    graph [bgcolor=transparent, fontname="Helvetica"];
+    node [style=filled, fillcolor=white, fontname="Helvetica"];
+    edge [color=gray, fontname="Helvetica"];
+
+    VTKHDF [label="VTKHDF\n Version, Type", shape=Mrecord, fillcolor=lightblue];
+
+    NumberOfConnectivityIds [label="NumberOfConnectivityIds", shape=Mrecord, fillcolor=lightgrey];
+    NumberOfPoints [label="NumberOfPoints", shape=Mrecord, fillcolor=lightgrey];
+    NumberOfCells [label="NumberOfCells", shape=Mrecord, fillcolor=lightgrey];
+    Points [label="Points", shape=Mrecord, fillcolor=lightgrey];
+    Types [label="Types", shape=Mrecord, fillcolor=lightgrey];
+    Connectivity [label="Connectivity", shape=Mrecord, fillcolor=lightgrey];
+    Offsets [label="Offsets", shape=Mrecord, fillcolor=lightgrey];
+
+    FieldData [label="FieldData", shape=Mrecord, fillcolor=lightblue];
+    PointData [label="PointData\nScalars, Vectors, ...", shape=Mrecord, fillcolor=lightblue];
+    CellData [label="CellData\nScalars, Vectors, ...", shape=Mrecord, fillcolor=lightblue];
+
+    FieldArrayName [label="FieldArrayName", shape=Mrecord, fillcolor=lightgrey];
+    PointArrayName [label="PointArrayName", shape=Mrecord, fillcolor=lightgrey];
+    CellArrayName [label="CellArrayName", shape=Mrecord, fillcolor=lightgrey];
+
+    FieldArrayNameEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+    PointArrayNameEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+    CellArrayNameEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+
+    VTKHDF -> NumberOfConnectivityIds;
+    VTKHDF -> NumberOfPoints;
+    VTKHDF -> NumberOfCells;
+    VTKHDF -> Points;
+    VTKHDF -> Types;
+    VTKHDF -> Connectivity;
+    VTKHDF -> Offsets;
+    VTKHDF -> FieldData;
+    VTKHDF -> PointData;
+    VTKHDF -> CellData;
+    FieldData -> FieldArrayName;
+    PointData -> PointArrayName;
+    CellData -> CellArrayName;
+    FieldData -> FieldArrayNameEtc;
+    PointData -> PointArrayNameEtc;
+    CellData -> CellArrayNameEtc;
+}
+
+```
+
+<div align="center">
+Figure 2. - Unstructured Grid VTKHDF File Format
+</div>
 
 To read the data for its rank a node reads the information about all
 partitions, compute the correct offset and then read data from that
