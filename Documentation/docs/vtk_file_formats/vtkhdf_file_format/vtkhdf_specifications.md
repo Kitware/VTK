@@ -648,12 +648,59 @@ number of level. These `Level` groups will also contain 2 other datasets to retr
 - `AMRBoxOffsets` : each entry indicates by how many AMR box to offset reading into the `AMRBox`.
 - `NumberOfAMRBoxes` : the number of boxes contained in the `AMRBox` for each timestep.
 
-```{figure} vtkhdf_images/temporal_overlapping_amr_hdf_schema.png
-:width: 640px
-:align: center
+```{graphviz}
+digraph G {
+    graph [bgcolor=transparent, fontname="Helvetica"];
+    node [style=filled, fillcolor=white, fontname="Helvetica"];
+    edge [color=gray, fontname="Helvetica"];
 
-Figure 12. - Temporal OverlappingAMR VTKHDF File Format
+    VTKHDF [label="VTKHDF\n Version, Type, GridDescription, Origin", shape=Mrecord, fillcolor=lightblue];
+    Level0 [label="Level0\n Spacing", shape=Mrecord, fillcolor=lightblue];
+    Level1 [label="Level1\n Spacing", shape=Mrecord, fillcolor=lightblue];
+    Steps [label="Steps\nNSteps", shape=Mrecord, fillcolor=lightblue];
+
+    PointData [label="PointData", shape=Mrecord, fillcolor=lightblue];
+    Level0Etc [label="...", shape=Mrecord, fillcolor=lightblue];
+    AMRBox [label="AMRBox", shape=Mrecord, fillcolor=lightgrey];
+    PointDataArrayName [label="PointArrayName", shape=Mrecord, fillcolor=lightgrey];
+    PointDataArrayNameEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+
+    Values [label="Values", shape=Mrecord, fillcolor=lightgrey];
+    Level0Offsets [label="Level0", shape=Mrecord, fillcolor=lightblue];
+    Level1Offsets [label="Level1", shape=Mrecord, fillcolor=lightblue];
+
+    PointDataOffsets [label="PointDataOffsets", shape=Mrecord, fillcolor=lightblue];
+    NumberOfAMRBoxes [label="NumberOfAMRBoxes", shape=Mrecord, fillcolor=lightgrey];
+    AMRBoxOffsets [label="AMRBoxOffsets", shape=Mrecord, fillcolor=lightgrey];
+    Level0OffsetsEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+    PointDataOffsetsArrayName [label="PointArrayName", shape=Mrecord, fillcolor=lightgrey];
+
+    VTKHDF -> Steps;
+    VTKHDF -> Level0;
+    VTKHDF -> Level1;
+
+    Level0 -> PointData;
+    Level0 -> Level0Etc;
+    Level0 -> AMRBox;
+    PointData -> PointDataArrayName;
+    PointData -> PointDataArrayNameEtc;
+
+    Steps -> Values;
+    Steps -> Level0Offsets;
+    Steps -> Level1Offsets;
+    Level0Offsets -> PointDataOffsets;
+    Level0Offsets -> NumberOfAMRBoxes;
+    Level0Offsets -> AMRBoxOffsets;
+    Level0Offsets -> Level0OffsetsEtc;
+    PointDataOffsets -> PointDataOffsetsArrayName;
+}
+
 ```
+
+<div align="center">
+Figure 8. - Temporal OverlappingAMR VTKHDF File Format
+</div>
+
 
 ## Limitations
 
