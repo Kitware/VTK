@@ -347,6 +347,10 @@ void vtkResampleWithDataSet::SetBlankPointsAndCells(vtkDataSet* dataset)
   vtkUnsignedCharArray* cellGhostArray = dataset->GetCellGhostArray();
 
   vtkIdType numCells = dataset->GetNumberOfCells();
+  if (numCells <= 0)
+  {
+    return;
+  }
   // GetCellPoints needs to be called once from a single thread for safe
   // multi-threaded calls
   vtkNew<vtkIdList> cpts;
