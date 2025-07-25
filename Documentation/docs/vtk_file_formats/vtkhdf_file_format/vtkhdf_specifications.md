@@ -472,8 +472,13 @@ Sub-groups in the `Assembly` group define the dataset(s) they contain using a [H
 to the top-level datasets. The name of the link in the assembly will be the actual name of the block when read.
 Any group can have multiple children that are either links to datasets, or nodes that define datasets deeper in the hierarchy.
 
-The Assembly group and its children need to track creation order to be able to keep subtrees ordered.
+```{admonition} **Track Creation Order**
+:class: warning
+
+VTKHDF group, the Assembly group and its children need to track creation order to be able to keep subtrees ordered.
 For this, you need to set H5G properties `H5P_CRT_ORDER_TRACKED` and `H5P_CRT_ORDER_INDEXED` on each group when writing the Assembly.
+
+```
 
 While both MB and PDC share a common structure, there is still a slight distinction in the format between them.
 For PDC, a group in the assembly that is not a softlink represents a node in the vtkDataAssembly associated to it, and
