@@ -303,10 +303,49 @@ The points and cell arrays for these grids are
 stored serialized in one dimension and stored in a dataset in the
 PointData or CellData group.
 
-<figure>
-  <img src="https://raw.githubusercontent.com/Kitware/vtk-examples/gh-pages/src/VTKFileFormats/Figures/vtkhdf-overlapping-amr.svg" width="640" alt="Overlapping AMR VTKHDF File Format">
-  <figcaption>Figure 9. - Overlapping AMR VTKHDF File Format</figcaption>
-</figure>
+```{graphviz}
+digraph G {
+    graph [bgcolor=transparent, fontname="Helvetica"];
+    node [style=filled, fillcolor=white, fontname="Helvetica"];
+    edge [color=gray, fontname="Helvetica"];
+
+    VTKHDF [label="VTKHDF\n Version, Type, GridDescription, Origin", shape=Mrecord, fillcolor=lightblue];
+
+    Level0 [label="Level0\n Spacing", shape=Mrecord, fillcolor=lightblue];
+    LevelEtc [label="...", shape=Mrecord, fillcolor=lightblue];
+
+    AMRBox [label="AMRBox", shape=Mrecord, fillcolor=lightgrey];
+    FieldData [label="FieldData", shape=Mrecord, fillcolor=lightblue];
+    PointData [label="PointData\nScalars, ...", shape=Mrecord, fillcolor=lightblue];
+    CellData [label="CellData\nScalars, ...", shape=Mrecord, fillcolor=lightblue];
+
+    FieldArrayName [label="FieldArrayName", shape=Mrecord, fillcolor=lightgrey];
+    PointArrayName [label="PointArrayName", shape=Mrecord, fillcolor=lightgrey];
+    CellArrayName [label="CellArrayName", shape=Mrecord, fillcolor=lightgrey];
+
+    FieldArrayEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+    PointArrayEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+    CellArrayEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+
+    VTKHDF -> Level0;
+    VTKHDF -> LevelEtc;
+    Level0 -> AMRBox;
+    Level0 -> PointData;
+    Level0 -> CellData;
+    Level0 -> FieldData;
+    FieldData -> FieldArrayName;
+    PointData -> PointArrayName;
+    CellData -> CellArrayName;
+    FieldData -> FieldArrayEtc;
+    PointData -> PointArrayEtc;
+    CellData -> CellArrayEtc;
+}
+
+```
+
+<div align="center">
+Figure 4. Overlapping AMR VTKHDF File Format
+</div>
 
 ## HyperTreeGrid
 
