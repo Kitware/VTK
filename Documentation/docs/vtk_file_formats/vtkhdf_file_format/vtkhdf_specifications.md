@@ -486,12 +486,47 @@ secondly, an assembly node that is not a softlink represents a nested `vtkMultiB
 A softlink in the assembly represents a dataset nested in its parent `vtkMultiBlockDataSet`.
 Again, this MB format can save space when a block is referenced multiple times.
 
-```{figure} vtkhdf_images/partitioned_dataset_collection_hdf_schema.png
-:width: 640px
-:align: center
+```{graphviz}
+digraph G {
+    graph [bgcolor=transparent, fontname="Helvetica"];
+    node [style=filled, fillcolor=white, fontname="Helvetica"];
+    edge [color=gray, fontname="Helvetica"];
 
-Figure 11. - PartitionedDataSetCollection/MultiBlockDataset VTKHDF File Format
+    VTKHDF [label="VTKHDF\n Version, Type", shape=Mrecord, fillcolor=lightblue];
+
+    Assembly [label="Assembly", shape=Mrecord, fillcolor=lightblue];
+    BlockName0 [label="BlockName0\n Index, Version, Type", shape=Mrecord, fillcolor=lightblue];
+    BlockNameEtc [label="...", shape=Mrecord, fillcolor=lightblue];
+    BlockNameN [label="BlockNameN\n Index, Version, Type", shape=Mrecord, fillcolor=lightblue];
+
+    GroupName0 [label="GroupName0", shape=Mrecord, fillcolor=lightblue];
+    GroupNameEtc [label="...", shape=Mrecord, fillcolor=lightblue];
+    AssemblyBlockName0 [label="BlockName0", shape=Mrecord, fillcolor=plum3];
+    AssemblyBlockNameN [label="BlockNameN", shape=Mrecord, fillcolor=plum3];
+    GroupName0Etc [label="...", shape=Mrecord, fillcolor=plum3];
+
+    VTKHDF -> Assembly;
+    VTKHDF -> BlockName0;
+    VTKHDF -> BlockNameEtc;
+    VTKHDF -> BlockNameN;
+    Assembly -> GroupName0;
+    Assembly -> GroupNameEtc;
+    Assembly -> AssemblyBlockName0;
+    GroupName0 -> GroupName0Etc;
+    GroupName0 -> AssemblyBlockNameN;
+    AssemblyBlockName0 -> BlockName0 [color=plum3, style=dotted, constraint=false];
+    AssemblyBlockNameN -> BlockNameN [color=plum3, style=dotted, constraint=false];
+}
+
 ```
+
+<div align="center">
+Figure 6. - PartitionedDataSetCollection/MultiBlockDataset VTKHDF File Format
+</div>
+
+:::{hint}
+Each block should describe a valid VTKHDF root node for a supported data types. Composite data types is, and will, not be supported.
+:::
 
 ## Temporal Data
 
