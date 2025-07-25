@@ -6,6 +6,7 @@ the decorated functions (by _override_numpy) are not meant to be
 called directly from here but directly through the Numpy API.
 """
 import numpy
+from typing import Optional
 
 from . import dataset_adapter as dsa
 from . import internal_algorithms as algs
@@ -467,6 +468,40 @@ def where(*args):
         return numpy.nonzero(args[0])
     else:
         return NotImplementedError("Support for 3 arguments where has not been implemented yet.")
+
+def _like_VTKCompositeDataArray(array: dsa.VTKCompositeDataArray, kind: str,
+                                dtype: Optional[numpy.dtype] = None, value: Optional[int] = None):
+    """Helper to construct like-structured VTKCompositeDataArray."""
+    arrays = []
+    for arr in array.Arrays:
+        if arr is dsa.NoneArray:
+            arrays.append(dsa.NoneArray)
+            continue
+
+        new_dtype = dtype if dtype is not None else arr.dtype
+
+        if kind == "full":
+            arrays.append(numpy.full(arr.shape, value, dtype=new_dtype))
+        else:
+            arrays.append(numpy.empty(arr.shape, dtype=new_dtype))
+
+    return dsa.VTKCompositeDataArray(arrays, dataset=array.DataSet, association=array.Association)
+
+@dsa._override_numpy(numpy.zeros_like)
+def zeros_like(array: dsa.VTKCompositeDataArray, dtype: Optional[numpy.dtype] = None) -> dsa.VTKCompositeDataArray:
+    """Create a new VTKCompositeDataArray filled with 0 of the same shape as array."""
+    return _like_VTKCompositeDataArray(array, "full", dtype, 0)
+
+@dsa._override_numpy(numpy.ones_like)
+def ones_like(array: dsa.VTKCompositeDataArray, dtype: Optional[numpy.dtype] = None) -> dsa.VTKCompositeDataArray:
+    """Create a new VTKCompositeDataArray filled with 1 of the same shape as array."""
+    return _like_VTKCompositeDataArray(array, "full", dtype, 1)
+
+@dsa._override_numpy(numpy.empty_like)
+def empty_like(array: dsa.VTKCompositeDataArray, dtype: Optional[numpy.dtype] = None) -> dsa.VTKCompositeDataArray:
+    """Create a new uninitialized VTKCompositeDataArray of the same shape as array."""
+    return _like_VTKCompositeDataArray(array, "empty", dtype)
+
 
 in1d = (dsa._override_numpy(numpy.in1d)(_make_ufunc(numpy.in1d)))
 in1d.__doc__ = "Test whether each element of a 1-D array is also present in a second array."

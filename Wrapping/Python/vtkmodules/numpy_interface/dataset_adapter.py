@@ -551,8 +551,58 @@ class VTKCompositeDataArray(object):
 
     Arrays = property(GetArrays)
 
+    def __setitem__(self, index, value) -> None:
+        """Setter overwritten to defer indexing to underlying VTKArrays.
+        For the most part, this will behave like Numpy."""
+        self.__init_from_composite()
+
+        arrays = self._Arrays
+        partition_sizes = [len(a) if a is not NoneArray else 0 for a in arrays]
+        offsets = numpy.cumsum([0] + partition_sizes)
+        total_size = offsets[-1]
+
+        if isinstance(index, VTKCompositeDataArray):
+            # Suboptimal because it converts VTKCompositeDataArray input indices into numpy data
+            self.__setitem__(numpy.concatenate([array for array in index.Arrays if array is not NoneArray]), value)
+        elif isinstance(index, (numpy.ndarray, list)):
+            index = numpy.asarray(index)
+            if index.dtype == bool and index.shape == self.shape:
+                for array_id, array in enumerate(arrays):
+                    if array is NoneArray:
+                        continue
+                    start = offsets[array_id]
+                    end   = offsets[array_id + 1]
+                    local_mask = index[start:end]
+                    array[local_mask] = value
+            elif index.ndim == 0:
+                self.__setitem__(int(index), value)
+            elif index.ndim == 1:
+                for idx in index:
+                    chunk_idx, local_idx = self._global_to_local_id(idx, total_size, offsets)
+                    self._Arrays[chunk_idx][local_idx] = value
+            else:
+              raise IndexError(f"Unsupported index type: {type(index)}")
+        else:
+          if not isinstance(index, tuple):
+              index = (index,)
+          global_index = index[0]
+          remaining_indices = index[1:]
+
+          if isinstance(global_index, int):
+              chunk_idx, local_idx = self._global_to_local_id(global_index, total_size, offsets)
+              self._Arrays[chunk_idx][local_idx][tuple(remaining_indices)] = value
+          elif isinstance(global_index, slice):
+              for array, offset, size in zip(self._Arrays, offsets, partition_sizes):
+                  if array is NoneArray:
+                      continue
+                  local_slice = self._slice_intersection(global_index, offset, size, total_size)
+                  if local_slice is not None:
+                      array[(local_slice,) + remaining_indices] = value
+          else:
+              raise TypeError(f"Unsupported index type: {type(index)}")
+
     def __getitem__(self, index) -> Union[List, "VTKCompositeDataArray", numpy.ndarray]:
-        """Overwritten to refer indexing to underlying VTKArrays.
+        """Getter overwritten to refer indexing to underlying VTKArrays.
         For the most part, this will behave like Numpy."""
         self.__init_from_composite()
 
