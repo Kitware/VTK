@@ -1,8 +1,13 @@
-# VTKHDF File Formats
+# VTKHDF File Format
 
 ```{toctree}
 :maxdepth: 1
 :caption: Contents
-vtkhdf_file_format
+vtkhdf_specifications
 vtkhdf_roadmap_status
+vtkhdf_examples
+```
+
+```{include} vtkhdf_introduction.md
+:heading-offset: 1
 ```

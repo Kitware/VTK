@@ -1,4 +1,4 @@
-# Roadmap Status
+# Roadmap
 
 This document specifies the features currently supported by the VTK implementation of the VTKHDF file format, `vtkHDFReader` and `vtkHDFWriter`.
 The following list only showcases complete and planned developments.
@@ -9,7 +9,7 @@ The following list only showcases complete and planned developments.
 
 VTKHDF File Format should support at some point every data type of VTK (e.g. `vtkTable`, `vtkMolecule`,...).
 
-Here is the list of supported data type by the current format and data type which there was some sort of:
+The following list shows the VTK data types currently supported, at least partially.
 
 | VTK Data Type                   | Status          |
 | ------------------------------- | --------------- |

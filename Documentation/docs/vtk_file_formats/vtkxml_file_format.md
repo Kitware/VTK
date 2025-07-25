@@ -1,4 +1,4 @@
-## XML File Formats
+# XML File Formats
 
 VTK provides another set of data formats using XML syntax. While these formats are much more complicated than the original VTK format described previously (see [Simple Legacy Formats](vtk_legacy_file_format.md)), they support many more features. The major motivation for their development was to facilitate data streaming and parallel I/O. Some features of the format include support for compression, portable binary encoding, random access, big endian and little endian byte order, multiple file representation of piece data, and new file extensions for different VTK dataset types. XML provides many features as well, especially the ability to extend a file format with application specific tags.
 
@@ -55,7 +55,7 @@ The attributes of the element are:
 
 Nested inside the _VTKFile_ element is an element whose name corresponds to the type of the data format (i.e., the _type_ attribute). This element describes the topology the dataset, and is different for the serial and parallel formats, which are described as follows.
 
-### **Serial XML File Formats**
+## **Serial XML File Formats**
 The _VTKFile_ element contains one element whose name corresponds to the type of dataset the file describes. We refer to this as the dataset element, which is one of _ImageData_, _RectilinearGrid_, _StructuredGrid_, _PolyData_, or _UnstructuredGrid_. The dataset element contains one or more _Piece_ elements, each describing a portion of the dataset. Together, the dataset element and _Piece_ elements specify the entire dataset.
 
 Each piece of a dataset must specify the geometry (points and cells) of that piece along with the data associated with each point or cell. Geometry is specified differently for each dataset type, but every piece of every dataset contains
@@ -63,7 +63,7 @@ _PointData_ and _CellData_ elements specifying the data for each point and cell 
 
 The general structure for each serial dataset format is as follows:
 
-#### **ImageData**
+### **ImageData**
 Each ImageData piece specifies its extent within the dataset’s whole extent. The points and cells are described implicitly by the extent, origin, and spacing. Note that the origin and spacing are constant across all pieces, so they are specified as attributes of the _ImageData_ XML element as follows.
 
 ```{code-block} xml
@@ -79,7 +79,7 @@ Each ImageData piece specifies its extent within the dataset’s whole extent. T
 </VTKFile>
 ```
 
-#### **RectilinearGrid**
+### **RectilinearGrid**
 Each RectilinearGrid piece specifies its extent within the dataset’s whole extent. The points are described by the _Coordinates_ element. The cells are described implicitly by the extent.
 
 ```{code-block} xml
@@ -95,7 +95,7 @@ Each RectilinearGrid piece specifies its extent within the dataset’s whole ext
 </VTKFile>
 ```
 
-#### **StructuredGrid**
+### **StructuredGrid**
 Each StructuredGrid piece specifies its extent within the dataset’s whole extent. The points are described explicitly by the Points element. The cells are described implicitly by the extent.
 
 ```{code-block} xml
@@ -111,7 +111,7 @@ Each StructuredGrid piece specifies its extent within the dataset’s whole exte
 </VTKFile>
 ```
 
-#### **PolyData**
+### **PolyData**
 Each PolyData piece specifies a set of points and cells independently from the other pieces. The points are described explicitly by the Points element. The cells are described explicitly by the Verts, Lines, Strips, and Polys elements.
 
 ```{code-block} xml
@@ -132,7 +132,7 @@ Each PolyData piece specifies a set of points and cells independently from the o
 </VTKFile>
 ```
 
-#### **UnstructuredGrid**
+### **UnstructuredGrid**
 Each UnstructuredGrid piece specifies a set of points and cells independently from the other pieces. The points are described explicitly by the Points element. The cells are described explicitly by the Cells element.
 
 ```{code-block} xml
@@ -261,7 +261,7 @@ The appended data section is stored in an _AppendedData_ element that is nested 
 
 The appended data section begins with the first character after the underscore inside the _AppendedData_ element. The underscore is not part of the data, but is always present. Data in this section is always in binary form, but can be compressed and/or base64 encoded. The byte-order of the data matches that specified by the byte_order attribute of the _VTKFile_ element. Each _DataArray_’s data are stored contiguously and appended immediately after the previous _DataArray_’s data without a separator. The _DataArray_’s _offset_ attribute indicates the file position offset from the first character after the underscore to the beginning its data.
 
-### **Parallel File Formats**
+## **Parallel File Formats**
 The parallel file formats do not actually store any data in the file. Instead, the data are broken into pieces, each of which is stored in a serial file of the same dataset type.
 
 The _VTKFile_ element contains one element whose name corresponds to the type of dataset the file describes, but with a "P" prefix. We refer to this as the parallel dataset element, which is one of _PImageData_, _PRectilinearGrid_, _PStructuredGrid_, _PPolyData_, or _PUnstructuredGrid_.
@@ -270,7 +270,7 @@ The parallel dataset element and those nested inside specify the types of the da
 
 The general structure for each parallel dataset format is as follows:
 
-#### **PImageData**
+### **PImageData**
 The _PImageData_ element specifies the whole extent of the dataset and the number of ghost-levels by which the extents in the individual pieces overlap. The Origin and Spacing attributes implicitly specify the point locations. Each _Piece_ element describes the extent of one piece and the file in which it is stored.
 
 ```{code-block} xml
@@ -286,7 +286,7 @@ The _PImageData_ element specifies the whole extent of the dataset and the numbe
   </VTKFile>
 ```
 
-#### **PRectilinearGrid**
+### **PRectilinearGrid**
 The _PRectilinearGrid_ element specifies the whole extent of the dataset and the number of ghost-levels by which the extents in the individual pieces overlap. The _PCoordinates_ element describes the type of arrays used to specify the point ordinates along each axis, but does not actually contain the data. Each _Piece_ element describes the extent of one piece and the file in which it is stored.
 
 ```{code-block} xml
@@ -304,7 +304,7 @@ The _PRectilinearGrid_ element specifies the whole extent of the dataset and the
   </VTKFile>
 ```
 
-#### **PStructuredGrid**
+### **PStructuredGrid**
 The _PStructuredGrid_ element specifies the whole extent of the dataset and the number of ghost-levels by which the extents in the individual pieces overlap. The _PPoints_ element describes the type of array used to specify the point locations, but does not actually contain the data. Each _Piece_ element describes the extent of one piece and the file in which it is stored.
 
 ```{code-block} xml
@@ -322,7 +322,7 @@ The _PStructuredGrid_ element specifies the whole extent of the dataset and the 
   </VTKFile>
 ```
 
-#### **PPolyData**
+### **PPolyData**
 The _PPolyData_ element specifies the number of ghost-levels by which the individual pieces overlap. The _PPoints_ element describes the type of array used to specify the point locations, but does not actually contain the data. Each _Piece_ element specifies the file in which the piece is stored.
 
 ```{code-block} xml
@@ -338,7 +338,7 @@ The _PPolyData_ element specifies the number of ghost-levels by which the indivi
   </VTKFile>
 ```
 
-#### **PUnstructuredGrid**
+### **PUnstructuredGrid**
 The _PUnstructuredGrid_ element specifies the number of ghost-levels by which the individual pieces overlap. The _PPoints_ element describes the type of array used to specify the point locations, but does not actually contain the data. Each _Piece_ element specifies the file in which the piece is stored.
 
 ```{code-block} xml
@@ -397,7 +397,7 @@ All of the data and geometry specifications use _PDataArray_ elements to describ
     <PDataArray type="Float32" Name="vectors" NumberOfComponents="3"/>
 ```
 
-### XML File Example
+## XML File Example
 The following is a complete example specifying a vtkPolyData representing a cube with some scalar data on its points and faces. <sup>[1](https://kitware.com/products/books/VTKUsersGuide.pdf)</sup>
 
 ```xml
