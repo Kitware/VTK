@@ -392,12 +392,69 @@ you can set the offset to the same value as the previous timestep (O),and store 
 Note that for `Mask` and `Descriptors`, the offset is in **bytes** (unlike `DescriptorSize` which is in bits),
 because each new piece starts on a new byte, except if it does not contain any value.
 
-```{figure} vtkhdf_images/hypertreegrid_schema.jpg
-:width: 640px
-:align: center
+```{graphviz}
+digraph G {
+    rankdir=LR;
+    graph [bgcolor=transparent, fontname="Helvetica"];
+    node [style=filled, fillcolor=white, fontname="Helvetica"];
+    edge [color=gray, fontname="Helvetica"];
 
-Figure 10. - HyperTreeGrid VTKHDF File Format
+    VTKHDF [label="VTKHDF\n Version, Type, BranchFactor, Dimensions,\nTransposedRootIndexing, InterfaceInterceptsName,\nInterfaceNormalsName", shape=Mrecord, fillcolor=lightblue];
+
+    Steps [label="Steps\n NSteps", shape=Mrecord, fillcolor=lightblue];
+    XCoordinates [label="XCoordinates", shape=Mrecord, fillcolor=lightgrey];
+    YCoordinates [label="YCoordinates", shape=Mrecord, fillcolor=lightgrey];
+    ZCoordinates [label="ZCoordinates", shape=Mrecord, fillcolor=lightgrey];
+    Descriptors [label="Descriptors", shape=Mrecord, fillcolor=lightgrey];
+    DescriptorsSize [label="DescriptorsSize", shape=Mrecord, fillcolor=lightgrey];
+    TreeIds [label="TreeIds", shape=Mrecord, fillcolor=lightgrey];
+    DepthPerTree [label="DepthPerTree", shape=Mrecord, fillcolor=lightgrey];
+    NumberOfTrees [label="NumberOfTrees", shape=Mrecord, fillcolor=lightgrey];
+    NumberOfDepths [label="NumberOfDepths", shape=Mrecord, fillcolor=lightgrey];
+    Mask [label="Mask", shape=Mrecord, fillcolor=lightgrey];
+
+    Values [label="Values", shape=Mrecord, fillcolor=lightgrey];
+    XCoordinatesOffsets [label="XCoordinatesOffsets", shape=Mrecord, fillcolor=lightgrey];
+    YCoordinatesOffsets [label="YCoordinatesOffsets", shape=Mrecord, fillcolor=lightgrey];
+    ZCoordinatesOffsets [label="ZCoordinatesOffsets", shape=Mrecord, fillcolor=lightgrey];
+    DescriptorsOffsets [label="DescriptorsOffsets", shape=Mrecord, fillcolor=lightgrey];
+    TreeIdsOffsets [label="TreeIdsOffsets", shape=Mrecord, fillcolor=lightgrey];
+    MaskOffsets [label="MaskOffsets", shape=Mrecord, fillcolor=lightgrey];
+    PartOffsets [label="PartOffsets", shape=Mrecord, fillcolor=lightgrey];
+    NumberOfCellsPerTreeDepthOffsets [label="NumberOfCellsPerTreeDepthOffsets", shape=Mrecord, fillcolor=lightgrey];
+
+    CellDataOffsets [label="CellDataOffsets", shape=Mrecord, fillcolor=lightblue];
+    CellDataEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+
+    VTKHDF -> Steps;
+    VTKHDF -> XCoordinates;
+    VTKHDF -> YCoordinates;
+    VTKHDF -> ZCoordinates;
+    VTKHDF -> Descriptors;
+    VTKHDF -> DescriptorsSize;
+    VTKHDF -> TreeIds;
+    VTKHDF -> DepthPerTree;
+    VTKHDF -> NumberOfTrees;
+    VTKHDF -> NumberOfDepths;
+    VTKHDF -> Mask;
+    Steps -> Values;
+    Steps -> XCoordinatesOffsets;
+    Steps -> YCoordinatesOffsets;
+    Steps -> ZCoordinatesOffsets;
+    Steps -> DescriptorsOffsets;
+    Steps -> TreeIdsOffsets;
+    Steps -> MaskOffsets;
+    Steps -> PartOffsets;
+    Steps -> NumberOfCellsPerTreeDepthOffsets;
+    Steps -> CellDataOffsets;
+    CellDataOffsets -> CellDataEtc;
+}
+
 ```
+
+<div align="center">
+Figure 5. - HyperTreeGrid VTKHDF File Format
+</div>
 
 ## PartitionedDataSetCollection and MultiBlockDataSet
 
