@@ -220,13 +220,66 @@ using the following formulas:
 | PointData  | NumberOfPoints[i] * sizeof(point_array_k[0]) |
 | CellData | (∑j {CellCategory_j}/NumberOfCells[i]) * sizeof(cell_array_k[0]) |
 
+```{graphviz}
+digraph G {
+    rankdir=LR;
+    graph [bgcolor=transparent, fontname="Helvetica"];
+    node [style=filled, fillcolor=white, fontname="Helvetica"];
+    edge [color=gray, fontname="Helvetica"];
 
-```{figure} vtkhdf_images/poly_data_hdf_schema.png
-:width: 640px
-:align: center
+    VTKHDF [label="VTKHDF\n Version, Type", shape=Mrecord, fillcolor=lightblue];
 
-Figure 8. - Poly Data VTKHDF File Format
+    NumberOfPoints [label="NumberOfPoints", shape=Mrecord, fillcolor=lightgrey];
+    Points [label="Points", shape=Mrecord, fillcolor=lightgrey];
+
+    Vertices [label="Vertices", shape=Mrecord, fillcolor=lightblue];
+    Lines [label="Lines", shape=Mrecord, fillcolor=lightblue];
+    Polygons [label="Polygons", shape=Mrecord, fillcolor=lightblue];
+    Strips [label="Strips", shape=Mrecord, fillcolor=lightblue];
+
+    FieldData [label="FieldData", shape=Mrecord, fillcolor=lightblue];
+    PointData [label="PointData\nScalars, ...", shape=Mrecord, fillcolor=lightblue];
+    CellData [label="CellData\nScalars, ...", shape=Mrecord, fillcolor=lightblue];
+
+    NumberOfConnectivityIds [label="NumberOfConnectivityIds", shape=Mrecord, fillcolor=lightgrey];
+    Connectivity [label="Connectivity", shape=Mrecord, fillcolor=lightgrey];
+    Offsets [label="Offsets", shape=Mrecord, fillcolor=lightgrey];
+    NumberOfCells [label="NumberOfCells", shape=Mrecord, fillcolor=lightgrey];
+
+    FieldArrayName [label="FieldArrayName", shape=Mrecord, fillcolor=lightgrey];
+    PointArrayName [label="PointArrayName", shape=Mrecord, fillcolor=lightgrey];
+    CellArrayName [label="CellArrayName", shape=Mrecord, fillcolor=lightgrey];
+
+    LinesEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+    PolygonsEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+    StripsEtc [label="...", shape=Mrecord, fillcolor=lightgrey];
+
+    VTKHDF -> NumberOfPoints;
+    VTKHDF -> Points;
+    VTKHDF -> Vertices;
+    VTKHDF -> Lines;
+    VTKHDF -> Polygons;
+    VTKHDF -> Strips;
+    VTKHDF -> FieldData;
+    VTKHDF -> PointData;
+    VTKHDF -> CellData;
+    FieldData -> FieldArrayName;
+    PointData -> PointArrayName;
+    CellData -> CellArrayName;
+    Lines -> LinesEtc;
+    Polygons -> PolygonsEtc;
+    Strips -> StripsEtc;
+    Vertices -> NumberOfConnectivityIds;
+    Vertices -> Connectivity;
+    Vertices -> NumberOfCells;
+    Vertices -> Offsets;
+}
+
 ```
+
+<div align="center">
+Figure 3. - Poly Data VTKHDF File Format
+</div>
 
 To read the data for its rank a node reads the information about all
 partitions, compute the correct offset and then read data from that
