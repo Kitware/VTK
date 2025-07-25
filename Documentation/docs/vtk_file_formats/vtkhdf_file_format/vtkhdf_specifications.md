@@ -7,7 +7,7 @@ VTK HDF files start with a group called `VTKHDF` with two attributes:
 `Version`, an array of two integers and `Type`, a string showing the
 VTK dataset type stored in the file. Additional attributes can follow
 depending on the dataset type. Currently, `Version`
-is the array [2, 2] and `Type` can be `ImageData`, `PolyData`,
+is the array [2, 4] and `Type` can be `ImageData`, `PolyData`,
 `UnstructuredGrid`, `OverlappingAMR`,  `PartitionedDataSetCollection` or
 `MultiBlockDataSet`.
 
@@ -48,7 +48,7 @@ digraph G {
 
 ## Image data
 
-The format for image data is detailed in the Figure 6 where the `Type`
+The format for image data is detailed in the Figure 1 where the `Type`
 attribute of the `VTKHDF` group is `ImageData`.  An
 ImageData (regular grid) is not split into partitions for parallel
 processing. We rely on the writer to chunk the data to optimize
@@ -99,7 +99,7 @@ Figure 1. - Image Data VTKHDF File Format
 
 ## Unstructured grid
 
-The format for unstructured grid is shown in Figure 7. In this case
+The format for unstructured grid is shown in Figure 2. In this case
 the `Type` attribute of the `VTKHDF` group is `UnstructuredGrid`.
 The unstructured grid is split into partitions, with a partition for
 each MPI rank. This is reflected in the HDF5 file structure. Each HDF
@@ -196,7 +196,7 @@ offset.
 
 ## Poly data
 
-The format for poly data is shown in Figure 8. In this case
+The format for poly data is shown in Figure 3. In this case
 the `Type` attribute of the `VTKHDF` group is `PolyData`.
 The poly data is split into partitions, with a partition for
 each MPI rank. This is reflected in the HDF5 file structure. Each HDF
@@ -301,7 +301,7 @@ offset.
 
 ## Overlapping AMR
 
-The format for Overlapping AMR is shown in Figure 9. In this case
+The format for Overlapping AMR is shown in Figure 4. In this case
 the `Type` attribute of the `VTKHDF` group is `OverlappingAMR`.
 The mandatory `Origin` parameter is a double triplet that defines
 the global origin of the AMR data set.
@@ -549,7 +549,7 @@ Each block should describe a valid VTKHDF root node for a supported data types. 
 
 ## Temporal Data
 
-The generic format for all `VTKHDF` temporal data is shown in Figure 12.
+The generic format for all `VTKHDF` temporal data is shown in Figure 7.
 The general idea is to take the static formats described above and use them
 as a base to append all the time dependent data. As such, a file holding static
 data has a very similar structure to a file holding dynamic data. An additional
