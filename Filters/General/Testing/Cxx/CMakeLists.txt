@@ -18,6 +18,7 @@ vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
   TestCellValidator.cxx,NO_VALID
   TestCellValidatorFilter.cxx,NO_VALID
   TestCleanUnstructuredGridStrategies.cxx,NO_VALID
+  TestClipDatasetPolyhedrons.cxx,NO_VALID
   TestContourTriangulator.cxx
   TestContourTriangulatorBadData.cxx
   TestContourTriangulatorCutter.cxx
