@@ -602,12 +602,13 @@ public:
               lastClosestPoint, currentCell, lastCellId, lastSubId, dist2, inside);
             if (closestPointFound)
             {
-              // pcoords, weights and subid are all valid, so we can compute the closest point
-              // using EvaluateLocation
-              // we don't need to calculate the closest point, but we do need to calculate the
-              // weights
-              currentCell->EvaluateLocation(lastSubId, lastPCoords, lastClosestPoint, weights);
-              // copy bounds
+              // Previously computed lastPCoords are not valid, so that we need to compute
+              // them and the weights from the lastClosestPoint.
+              currentCell->EvaluatePosition(
+                lastClosestPoint, nullptr, lastSubId, lastPCoords, dist2, weights);
+              // The use of the nullptr avoids the unnecessary recalculation of the closest point
+              // and set dist2 to zero, making it to be always accepted for any tolerance.
+              // copy bounds.
               lastBBox.SetBounds(currentCell->GetBounds());
               // compute lastLength2
               lastLength2 = lastBBox.GetDiagonalLength2();

@@ -417,10 +417,11 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
           this->CurrentCell, this->LastCellId, this->LastSubId, dist2, inside);
         if (closestPointFound == 1)
         {
-          // pcoords, weights and subid are all valid, so we can compute the closest point
-          // using EvaluateLocation
-          this->CurrentCell->EvaluateLocation(
-            this->LastSubId, this->LastPCoords, this->LastClosestPoint, this->Weights.data());
+          // Previously computed lastPCoords are not valid, so we need to compute
+          // them along with the weights from the lastClosestPoint.
+          this->CurrentCell->EvaluatePosition(this->LastClosestPoint, nullptr, this->LastSubId,
+            this->LastPCoords, dist2, this->Weights.data());
+          // The use of the nullptr avoids the unnecessary recalculation of the closest point.
         }
         else
         {
