@@ -27,10 +27,24 @@ represents (`long` or `long long`). Endianness conversions are done
 automatically.
 
 In the diagrams that follow, showing the HDF file structure for VTK
-datasets, the rounded blue rectangles are HDF groups and the gray
-rectangles are HDF datasets. Each rectangle shows the name of the
-group or dataset in bold font and the attributes underneath with
-regular font.
+datasets, the rounded blue rectangles are HDF groups. Gray
+rectangles are HDF datasets and purple rectangle is for symbolic link.
+Each rectangle shows the name of the group or dataset and the `Attributes`
+underneath :
+
+```{graphviz}
+digraph G {
+    graph [bgcolor=transparent, fontname="Helvetica"];
+    node [style=filled, fillcolor=white, fontname="Helvetica"];
+    edge [color=gray, fontname="Helvetica"];
+
+    Group [label="GroupName\nattribute1, ...", shape=Mrecord, fillcolor=lightblue];
+    Dataset [label="DatasetName", shape=Mrecord, fillcolor=lightgrey];
+    SymLink [label="Symbolic Link", shape=Mrecord, fillcolor=plum3];
+}
+
+```
+
 
 ## Image data
 
