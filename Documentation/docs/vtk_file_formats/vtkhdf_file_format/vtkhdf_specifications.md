@@ -525,7 +525,7 @@ Figure 6. - PartitionedDataSetCollection/MultiBlockDataset VTKHDF File Format
 </div>
 
 :::{hint}
-Each block should describe a valid VTKHDF root node for a supported data types. Composite data types is, and will, not be supported.
+Each block should describe a valid VTKHDF root node for a supported data types. Composite data types are, and will, not be supported.
 :::
 
 ## Temporal Data
@@ -573,12 +573,59 @@ place.
 component and tuple size. In the absence of a data set, the maximum number of components
 and one tuple per step are considered.
 
-```{figure} vtkhdf_images/transient_hdf_schema.png
-:width: 640px
-:align: center
+```{graphviz}
+digraph G {
+    rankdir=LR;
+    graph [bgcolor=transparent, fontname="Helvetica"];
+    node [style=filled, fillcolor=white, fontname="Helvetica"];
+    edge [color=gray, fontname="Helvetica"];
 
-Figure 12. - Temporal Data VTKHDF File Format
+    VTKHDF [label="VTKHDF\n Version, Type", shape=Mrecord, fillcolor=lightblue];
+
+    Steps [label="Steps\nNSteps", shape=Mrecord, fillcolor=lightblue];
+    PointDataOffsets [label="PointDataOffsets", shape=Mrecord, fillcolor=lightblue];
+    CellDataOffsets [label="CellDataOffsets", shape=Mrecord, fillcolor=lightblue];
+    FieldDataOffsets [label="FieldDataOffsets", shape=Mrecord, fillcolor=lightblue];
+    FieldDataSizes [label="FieldDataSizes", shape=Mrecord, fillcolor=lightblue];
+
+    PointDataArrayName [label="ArrayName", shape=Mrecord, fillcolor=lightgrey];
+    CellDataArrayName [label="ArrayName", shape=Mrecord, fillcolor=lightgrey];
+    FieldDataArrayName [label="ArrayName", shape=Mrecord, fillcolor=lightgrey];
+    FieldDataSizeArrayName [label="ArrayName", shape=Mrecord, fillcolor=lightgrey];
+
+    Values [label="Values", shape=Mrecord, fillcolor=lightgrey];
+    PartOffsets [label="PartOffsets", shape=Mrecord, fillcolor=lightgrey];
+    NumberOfParts [label="NumberOfParts", shape=Mrecord, fillcolor=lightgrey];
+    ConnectivityIdOffsets [label="ConnectivityIdOffsets", shape=Mrecord, fillcolor=lightgrey];
+    CellOffsets [label="CellOffsets", shape=Mrecord, fillcolor=lightgrey];
+    PointOffsets [label="PointOffsets", shape=Mrecord, fillcolor=lightgrey];
+
+    VTKHDF -> Steps;
+    Steps -> Values;
+    Steps -> PartOffsets;
+    Steps -> NumberOfParts;
+    Steps -> ConnectivityIdOffsets;
+    Steps -> CellOffsets;
+    Steps -> PointOffsets;
+    Steps -> PointDataOffsets;
+    Steps -> CellDataOffsets;
+    Steps -> FieldDataOffsets;
+    Steps -> FieldDataSizes;
+    PointDataOffsets -> PointDataArrayName;
+    CellDataOffsets -> CellDataArrayName;
+    FieldDataOffsets -> FieldDataArrayName;
+    FieldDataSizes -> FieldDataSizeArrayName;
+}
+
 ```
+
+<div align="center">
+Figure 7. - Temporal Data VTKHDF File Format
+</div>
+
+:::{hint}
+`VTKHDF` group should look exactly as it does for no time steps except that the main dimensions of the datasets incorporate the potentially evolving time data as well. Individual time steps can be accessed in these flattened arrays through the offset information in the `Steps` group by slicing the data. Offset value can be repeated for static data.
+:::
 
 Writing incrementally to `VTKHDF` temporal datasets is relatively straightforward using the
 appending functionality of `HDF5` chunked data sets
