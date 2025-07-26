@@ -30,7 +30,7 @@
 #include <vector> // STL Header
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkMultiBlockDataSet;
+class vtkStatisticalModel;
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPContingencyStatistics
@@ -53,7 +53,7 @@ public:
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) override;
+  void Learn(vtkTable*, vtkTable*, vtkStatisticalModel*) override;
 
 protected:
   vtkPContingencyStatistics();

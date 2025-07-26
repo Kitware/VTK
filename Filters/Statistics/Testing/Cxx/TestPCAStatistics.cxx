@@ -8,11 +8,11 @@
 
 #include "vtkDoubleArray.h"
 #include "vtkMathUtilities.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkOrderStatistics.h"
 #include "vtkPCAStatistics.h"
 #include "vtkSmartPointer.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTestUtilities.h"
@@ -248,25 +248,18 @@ int TestPCAPart(int argc, char* argv[], bool robustPCA)
   pcas->SetAssessOption(false);
   pcas->Update();
 
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
-    pcas->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
+  auto* outputMetaDS = pcas->GetOutputModel();
   vtkTable* outputTest = pcas->GetOutput(vtkStatisticsAlgorithm::OUTPUT_TEST);
 
   std::cout << "## Calculated the following statistics for data set:\n";
-  for (unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++b)
+  vtkTable* primaryTab = outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0);
+  std::cout << "Primary Statistics\n";
+  primaryTab->Dump();
+  for (int b = 0; b < outputMetaDS->GetNumberOfTables(vtkStatisticalModel::Derived); ++b)
   {
-    vtkTable* outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(b));
-
-    if (b == 0)
-    {
-      std::cout << "Primary Statistics\n";
-    }
-    else
-    {
-      std::cout << "Derived Statistics " << (b - 1) << "\n";
-    }
-
-    outputMeta->Dump();
+    vtkTable* derivedTab = outputMetaDS->GetTable(vtkStatisticalModel::Derived, b);
+    std::cout << "Derived Statistics " << b << "\n";
+    derivedTab->Dump();
   }
 
   // Check some results of the Test option
@@ -320,7 +313,7 @@ int TestPCAPart(int argc, char* argv[], bool robustPCA)
 #endif // USE_GNU_R
 
   // Test Assess option
-  vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
+  auto* paramsTables = vtkStatisticalModel::New();
   paramsTables->ShallowCopy(outputMetaDS);
 
   pcas->SetInputData(vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables);
@@ -386,11 +379,10 @@ int TestEigen()
 
   pcaStatistics->Update();
 
-  vtkSmartPointer<vtkMultiBlockDataSet> outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
+  vtkSmartPointer<vtkStatisticalModel> outputMetaDS = vtkStatisticalModel::SafeDownCast(
     pcaStatistics->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
-  vtkSmartPointer<vtkTable> outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(1));
-
+  vtkSmartPointer<vtkTable> outputMeta = outputMetaDS->GetTable(vtkStatisticalModel::Derived, 0);
   outputMeta->Dump();
 
   ///////// Eigenvalues ////////////

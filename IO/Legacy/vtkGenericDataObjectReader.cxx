@@ -15,6 +15,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLegacyCellGridReader.h"
+#include "vtkLegacyStatisticalModelReader.h"
 #include "vtkMolecule.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
@@ -27,6 +28,7 @@
 #include "vtkPolyDataReader.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridReader.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridReader.h"
@@ -126,6 +128,9 @@ vtkDataObject* vtkGenericDataObjectReader::CreateOutput(vtkDataObject* currentOu
     case VTK_RECTILINEAR_GRID:
       output = vtkRectilinearGrid::New();
       break;
+    case VTK_STATISTICAL_MODEL:
+      output = vtkStatisticalModel::New();
+      break;
     case VTK_STRUCTURED_GRID:
       output = vtkStructuredGrid::New();
       break;
@@ -211,6 +216,12 @@ int vtkGenericDataObjectReader::ReadMetaDataSimple(
     case VTK_UNSTRUCTURED_GRID:
       reader = vtkUnstructuredGridReader::New();
       break;
+    case VTK_CELL_GRID:
+      reader = vtkLegacyCellGridReader::New();
+      break;
+    case VTK_STATISTICAL_MODEL:
+      reader = vtkLegacyStatisticalModelReader::New();
+      break;
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_HIERARCHICAL_BOX_DATA_SET:
     case VTK_MULTIPIECE_DATA_SET:
@@ -279,6 +290,12 @@ int vtkGenericDataObjectReader::ReadMeshSimple(const std::string& fname, vtkData
     {
       this->ReadData<vtkRectilinearGridReader, vtkRectilinearGrid>(
         fname.c_str(), "vtkRectilinearGrid", output);
+      return 1;
+    }
+    case VTK_STATISTICAL_MODEL:
+    {
+      this->ReadData<vtkLegacyStatisticalModelReader, vtkStatisticalModel>(
+        fname.c_str(), "vtkStatisticalModel", output);
       return 1;
     }
     case VTK_STRUCTURED_GRID:
@@ -413,6 +430,10 @@ int vtkGenericDataObjectReader::ReadOutputType()
     {
       return VTK_RECTILINEAR_GRID;
     }
+    if (!strncmp(this->LowerCase(line), "statistical_model", 17))
+    {
+      return VTK_STATISTICAL_MODEL;
+    }
     if (!strncmp(this->LowerCase(line), "structured_grid", 15))
     {
       return VTK_STRUCTURED_GRID;
@@ -520,6 +541,11 @@ vtkTable* vtkGenericDataObjectReader::GetTableOutput()
 vtkTree* vtkGenericDataObjectReader::GetTreeOutput()
 {
   return vtkTree::SafeDownCast(this->GetOutput());
+}
+
+vtkStatisticalModel* vtkGenericDataObjectReader::GetStatisticalModelOutput()
+{
+  return vtkStatisticalModel::SafeDownCast(this->GetOutput());
 }
 
 vtkUnstructuredGrid* vtkGenericDataObjectReader::GetUnstructuredGridOutput()

@@ -9,7 +9,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
@@ -169,25 +169,15 @@ int TestAutoCorrelativeStatistics(int, char*[])
   as1->Update();
 
   // Get output model tables
-  vtkMultiBlockDataSet* outputModelAS1 = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputModelAS1 = vtkStatisticalModel::SafeDownCast(
     as1->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
   std::cout << "\n## Calculated the following statistics for first data set:\n";
-  for (unsigned b = 0; b < outputModelAS1->GetNumberOfBlocks(); ++b)
+  for (int b = 0; b < outputModelAS1->GetNumberOfTables(vtkStatisticalModel::Learned); ++b)
   {
-    std::string varName = outputModelAS1->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
+    std::string varName = outputModelAS1->GetTableName(vtkStatisticalModel::Learned, b);
 
-    vtkTable* modelTab = vtkTable::SafeDownCast(outputModelAS1->GetBlock(b));
-    if (varName == "Autocorrelation FFT")
-    {
-      if (modelTab->GetNumberOfRows())
-      {
-        std::cout << "\n   Autocorrelation FFT:\n";
-        modelTab->Dump();
-        continue;
-      }
-    }
-
+    vtkTable* modelTab = outputModelAS1->GetTable(vtkStatisticalModel::Learned, b);
     std::cout << "   Variable=" << varName << "\n";
 
     std::cout << "   ";
@@ -266,25 +256,15 @@ int TestAutoCorrelativeStatistics(int, char*[])
   as2->Update();
 
   // Get output meta tables
-  vtkMultiBlockDataSet* outputModelAS2 = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputModelAS2 = vtkStatisticalModel::SafeDownCast(
     as2->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
   std::cout << "\n## Calculated the following statistics for second data set:\n";
-  for (unsigned b = 0; b < outputModelAS2->GetNumberOfBlocks(); ++b)
+  for (int b = 0; b < outputModelAS2->GetNumberOfTables(vtkStatisticalModel::Learned); ++b)
   {
-    std::string varName = outputModelAS2->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
+    std::string varName = outputModelAS2->GetTableName(vtkStatisticalModel::Learned, b);
 
-    vtkTable* modelTab = vtkTable::SafeDownCast(outputModelAS2->GetBlock(b));
-    if (varName == "Autocorrelation FFT")
-    {
-      if (modelTab->GetNumberOfRows())
-      {
-        std::cout << "\n   Autocorrelation FFT:\n";
-        modelTab->Dump();
-        continue;
-      }
-    }
-
+    vtkTable* modelTab = outputModelAS2->GetTable(vtkStatisticalModel::Learned, b);
     std::cout << "\n   Variable=" << varName << "\n";
 
     std::cout << "   ";
@@ -298,7 +278,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
 
   // Test model aggregation by adding new data to engine which already has a model
   as1->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2);
-  vtkMultiBlockDataSet* model = vtkMultiBlockDataSet::New();
+  auto* model = vtkStatisticalModel::New();
   model->ShallowCopy(outputModelAS1);
   as1->SetInputData(vtkStatisticsAlgorithm::INPUT_MODEL, model);
 
@@ -320,26 +300,16 @@ int TestAutoCorrelativeStatistics(int, char*[])
   double varsXs0[] = { 6.1418651, 7.548397 * 62. / 63. };
 
   // Get output meta tables
-  outputModelAS1 = vtkMultiBlockDataSet::SafeDownCast(
+  outputModelAS1 = vtkStatisticalModel::SafeDownCast(
     as1->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
   std::cout
     << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
-  for (unsigned b = 0; b < outputModelAS1->GetNumberOfBlocks(); ++b)
+  for (int b = 0; b < outputModelAS1->GetNumberOfTables(vtkStatisticalModel::Learned); ++b)
   {
-    std::string varName = outputModelAS1->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
+    std::string varName = outputModelAS1->GetTableName(vtkStatisticalModel::Learned, b);
 
-    vtkTable* modelTab = vtkTable::SafeDownCast(outputModelAS1->GetBlock(b));
-    if (varName == "Autocorrelation FFT")
-    {
-      if (modelTab->GetNumberOfRows())
-      {
-        std::cout << "\n   Autocorrelation FFT:\n";
-        modelTab->Dump();
-        continue;
-      }
-    }
-
+    vtkTable* modelTab = outputModelAS1->GetTable(vtkStatisticalModel::Learned, b);
     std::cout << "\n   Variable=" << varName << "\n";
 
     std::cout << "   ";
@@ -462,15 +432,15 @@ int TestAutoCorrelativeStatistics(int, char*[])
   as3->Update();
 
   // Get output data and meta tables
-  vtkMultiBlockDataSet* outputModelAS3 = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputModelAS3 = vtkStatisticalModel::SafeDownCast(
     as3->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
   std::cout << "\n## Calculated the following statistics for third data set:\n";
-  for (unsigned b = 0; b < outputModelAS3->GetNumberOfBlocks(); ++b)
+  for (int b = 0; b < outputModelAS3->GetNumberOfTables(vtkStatisticalModel::Learned); ++b)
   {
-    std::string varName = outputModelAS3->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
+    std::string varName = outputModelAS3->GetTableName(vtkStatisticalModel::Learned, b);
 
-    vtkTable* modelTab = vtkTable::SafeDownCast(outputModelAS3->GetBlock(b));
+    vtkTable* modelTab = outputModelAS3->GetTable(vtkStatisticalModel::Learned, b);
     if (varName == "Autocorrelation FFT")
     {
       if (modelTab->GetNumberOfRows())

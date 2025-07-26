@@ -15,11 +15,13 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLegacyCellGridWriter.h"
+#include "vtkLegacyStatisticalModelWriter.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridWriter.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridWriter.h"
 #include "vtkStructuredPoints.h"
@@ -108,6 +110,9 @@ void vtkGenericDataObjectWriter::WriteData()
       break;
     case VTK_RECTILINEAR_GRID:
       writer = CreateWriter<vtkRectilinearGridWriter>(input);
+      break;
+    case VTK_STATISTICAL_MODEL:
+      writer = CreateWriter<vtkLegacyStatisticalModelWriter>(input);
       break;
     case VTK_STRUCTURED_GRID:
       writer = CreateWriter<vtkStructuredGridWriter>(input);

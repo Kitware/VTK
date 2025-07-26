@@ -160,6 +160,28 @@ public:
   }
   ///@}
 
+  ///@{
+  /// Return true if \a arrName is in the buffer of field names to add to a request.
+  bool Has(std::string arrName) { return this->Buffer.find(arrName) != this->Buffer.end(); }
+  ///@}
+
+  ///@{
+  /// Copy state from an \a other instance into this instance.
+  ///
+  /// Return true if changes were required (thus requiring the owning class to be
+  /// marked as modified).
+  bool Copy(const vtkStatisticsAlgorithmPrivate& other)
+  {
+    if (this->Requests == other.Requests && this->Buffer == other.Buffer)
+    {
+      return false;
+    }
+    this->Requests = other.Requests;
+    this->Buffer = other.Buffer;
+    return true;
+  }
+  ///@}
+
   std::set<std::set<vtkStdString>> Requests;
   std::set<vtkStdString> Buffer;
 };

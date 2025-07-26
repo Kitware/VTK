@@ -162,7 +162,8 @@ enum vtkTypesDataObject
   VTK_IMAGE_STENCIL_DATA = 48,
   VTK_CELL_GRID = 49,
   VTK_AMR_DATA_OBJECT = 50,
-  VTK_CARTESIAN_GRID = 51
+  VTK_CARTESIAN_GRID = 51,
+  VTK_STATISTICAL_MODEL = 52
 };
 
 /*--------------------------------------------------------------------------*/

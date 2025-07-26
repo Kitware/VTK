@@ -22,7 +22,7 @@
 #include "vtkInformation.h"
 #include "vtkMPIController.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkStatisticalModel.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
@@ -149,9 +149,8 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     ds->Update();
 
     // Get output data and meta tables
-    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
-      ds->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-    vtkTable* outputPrimary = vtkTable::SafeDownCast(outputMetaDS->GetBlock(0));
+    auto* outputMetaDS = ds->GetOutputModel();
+    vtkTable* outputPrimary = outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0);
 
     // Collect and aggregate serial cardinalities, extrema, and means
     int nRows = outputPrimary->GetNumberOfRows();
@@ -278,10 +277,10 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     timer->StopTimer();
 
     // Get output data and meta tables
-    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
+    auto* outputMetaDS = vtkStatisticalModel::SafeDownCast(
       pds->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-    vtkTable* outputPrimary = vtkTable::SafeDownCast(outputMetaDS->GetBlock(0));
-    vtkTable* outputDerived = vtkTable::SafeDownCast(outputMetaDS->GetBlock(1));
+    vtkTable* outputPrimary = outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0);
+    vtkTable* outputDerived = outputMetaDS->GetTable(vtkStatisticalModel::Derived, 0);
     vtkTable* outputData = pds->GetOutput(vtkStatisticsAlgorithm::OUTPUT_DATA);
 
     if (myRank == args->ioRank)
@@ -510,7 +509,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     pas->Update();
 
     // Get output data and meta tables
-    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
+    auto* outputMetaDS = vtkStatisticalModel::SafeDownCast(
       pas->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
     // Synchronize and stop clock
@@ -522,19 +521,19 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
       std::cout << "\n## Completed parallel calculation of auto-correlative statistics (without "
                    "assessment):\n"
                 << "   Total sample size: "
-                << vtkTable::SafeDownCast(outputMetaDS->GetBlock(0))
+                << outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0)
                      ->GetValueByName(0, "Cardinality")
                      .ToInt()
                 << " \n"
                 << "   Wall time: " << timer->GetElapsedTime() << " sec.\n";
 
       std::cout << "   Calculated the following statistics:\n";
-      unsigned int nbm1 = outputMetaDS->GetNumberOfBlocks() - 1;
-      for (unsigned int b = 0; b < nbm1; ++b)
+      int nb = outputMetaDS->GetNumberOfTables(vtkStatisticalModel::Learned);
+      for (int b = 0; b < nb; ++b)
       {
-        const char* tabName = outputMetaDS->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
+        auto tabName = outputMetaDS->GetTableName(vtkStatisticalModel::Learned, b);
         std::cerr << "   " << tabName << "\n";
-        vtkTable* outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(b));
+        vtkTable* outputMeta = outputMetaDS->GetTable(vtkStatisticalModel::Learned, b);
         for (vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); ++r)
         {
           std::cout << "   ";
@@ -546,9 +545,9 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
           std::cout << "\n";
         }
       }
-      const char* tabName = outputMetaDS->GetMetaData(nbm1)->Get(vtkCompositeDataSet::NAME());
+      auto tabName = outputMetaDS->GetTableName(vtkStatisticalModel::Derived, 0);
       std::cerr << "   " << tabName << "\n";
-      vtkTable* outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(nbm1));
+      vtkTable* outputMeta = outputMetaDS->GetTable(vtkStatisticalModel::Derived, 0);
       outputMeta->Dump();
     }
 
@@ -585,10 +584,9 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     pcs->Update();
 
     // Get output data and meta tables
-    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
-      pcs->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-    vtkTable* outputPrimary = vtkTable::SafeDownCast(outputMetaDS->GetBlock(0));
-    vtkTable* outputDerived = vtkTable::SafeDownCast(outputMetaDS->GetBlock(1));
+    auto* outputMetaDS = pcs->GetOutputModel();
+    vtkTable* outputPrimary = outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0);
+    vtkTable* outputDerived = outputMetaDS->GetTable(vtkStatisticalModel::Derived, 0);
 
     // Synchronize and stop clock
     com->Barrier();
@@ -674,8 +672,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     pmcs->Update();
 
     // Get output meta tables
-    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
-      pmcs->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
+    auto* outputMetaDS = pmcs->GetOutputModel();
 
     // Synchronize and stop clock
     com->Barrier();
@@ -683,18 +680,19 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
 
     if (myRank == args->ioRank)
     {
-      std::cout
-        << "\n## Completed parallel calculation of multi-correlative statistics (with "
-           "assessment):\n"
-        << "   Total sample size: "
-        << vtkTable::SafeDownCast(outputMetaDS->GetBlock(0))->GetValueByName(0, "Entries").ToInt()
-        << " \n"
-        << "   Wall time: " << timer->GetElapsedTime() << " sec.\n";
+      std::cout << "\n## Completed parallel calculation of multi-correlative statistics (with "
+                   "assessment):\n"
+                << "   Total sample size: "
+                << outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0)
+                     ->GetValueByName(0, "Entries")
+                     .ToInt()
+                << " \n"
+                << "   Wall time: " << timer->GetElapsedTime() << " sec.\n";
 
       vtkTable* outputMeta;
-      for (unsigned int b = 1; b < outputMetaDS->GetNumberOfBlocks(); ++b)
+      for (int b = 0; b < outputMetaDS->GetNumberOfTables(vtkStatisticalModel::Derived); ++b)
       {
-        outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(b));
+        outputMeta = outputMetaDS->GetTable(vtkStatisticalModel::Derived, b);
         outputMeta->Dump();
       }
     }
@@ -745,8 +743,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     pcas->Update();
 
     // Get output meta tables
-    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
-      pcas->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
+    auto* outputMetaDS = pcas->GetOutputModel();
 
     // Synchronize and stop clock
     com->Barrier();
@@ -754,17 +751,19 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
 
     if (myRank == args->ioRank)
     {
-      std::cout
-        << "\n## Completed parallel calculation of pca statistics (with assessment):\n"
-        << "   Total sample size: "
-        << vtkTable::SafeDownCast(outputMetaDS->GetBlock(0))->GetValueByName(0, "Entries").ToInt()
-        << " \n"
-        << "   Wall time: " << timer->GetElapsedTime() << " sec.\n";
+      std::cout << "\n## Completed parallel calculation of pca statistics (with assessment):\n"
+                << "   Total sample size: "
+                << outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0)
+                     ->GetValueByName(0, "Entries")
+                     .ToInt()
+                << " \n"
+                << "   Wall time: " << timer->GetElapsedTime() << " sec.\n";
 
+      outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0)->Dump();
       vtkTable* outputMeta;
-      for (unsigned int b = 1; b < outputMetaDS->GetNumberOfBlocks(); ++b)
+      for (int b = 0; b < outputMetaDS->GetNumberOfTables(vtkStatisticalModel::Derived); ++b)
       {
-        outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(b));
+        outputMeta = outputMetaDS->GetTable(vtkStatisticalModel::Derived, b);
         outputMeta->Dump();
       }
     }

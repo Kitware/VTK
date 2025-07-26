@@ -8,11 +8,11 @@
 #include "vtkCommunicator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPOrderStatistics.h"
+#include "vtkStatisticalModel.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 
@@ -43,7 +43,7 @@ void vtkPMultiCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 void vtkPMultiCorrelativeStatistics::Learn(
-  vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* inParameters, vtkStatisticalModel* outMeta)
 {
   if (!outMeta)
   {
@@ -54,7 +54,7 @@ void vtkPMultiCorrelativeStatistics::Learn(
   this->Superclass::Learn(inData, inParameters, outMeta);
 
   // Get a hold of the (sparse) covariance matrix
-  vtkTable* sparseCov = vtkTable::SafeDownCast(outMeta->GetBlock(0));
+  vtkTable* sparseCov = outMeta->GetTable(vtkStatisticalModel::Learned, 0);
   if (!sparseCov)
   {
     return;

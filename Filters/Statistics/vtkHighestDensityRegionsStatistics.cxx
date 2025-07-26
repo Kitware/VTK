@@ -7,10 +7,12 @@
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
+#include "vtkStringFormatter.h"
+#include "vtkStringToken.h"
 #include "vtkTable.h"
 
 #include <algorithm>
@@ -41,6 +43,75 @@ void vtkHighestDensityRegionsStatistics::PrintSelf(ostream& os, vtkIndent indent
 
   os << indent << "Sigma matrix: " << this->SmoothHC1[0] << ", " << this->SmoothHC1[1] << ", "
      << this->SmoothHC2[0] << ", " << this->SmoothHC2[1] << "\n";
+}
+
+//------------------------------------------------------------------------------
+void vtkHighestDensityRegionsStatistics::AppendAlgorithmParameters(
+  std::string& algorithmParameters) const
+{
+  this->Superclass::AppendAlgorithmParameters(algorithmParameters);
+  if (algorithmParameters.back() != '(')
+  {
+    algorithmParameters += ",";
+  }
+  if (this->SmoothHC1[0] == this->SmoothHC2[1] && this->SmoothHC1[1] == 0. &&
+    this->SmoothHC2[0] == 0.)
+  {
+    algorithmParameters += "sigma=" + vtk::to_string(std::sqrt(this->SmoothHC1[0]));
+  }
+  else
+  {
+    // clang-format off
+    algorithmParameters +=
+      "sigma_matrix=(("
+        + vtk::to_string(this->SmoothHC1[0]) + ","
+        + vtk::to_string(this->SmoothHC1[1]) + "),("
+        + vtk::to_string(this->SmoothHC2[0]) + ","
+        + vtk::to_string(this->SmoothHC2[1]) + "))";
+    // clang-format on
+  }
+}
+
+//------------------------------------------------------------------------------
+std::size_t vtkHighestDensityRegionsStatistics::ConsumeNextAlgorithmParameter(
+  vtkStringToken parameterName, const std::string& algorithmParameters)
+{
+  using namespace vtk::literals;
+  std::size_t consumed = 0;
+  switch (parameterName.GetHash())
+  {
+    case "sigma"_hash:
+    {
+      double sigma;
+      if ((consumed = this->ConsumeDouble(algorithmParameters, sigma)))
+      {
+        this->SetSigma(sigma);
+      }
+    }
+    break;
+    case "sigma_matrix"_hash:
+    {
+      std::vector<std::vector<double>> matrix;
+      if ((consumed = this->ConsumeDoubleTuples(algorithmParameters, matrix)))
+      {
+        if (matrix.size() == 2 && matrix[0].size() == 2 && matrix[1].size() == 2)
+        {
+          this->SetSigmaMatrix(matrix[0][0], matrix[0][1], matrix[1][0], matrix[1][1]);
+        }
+        else
+        {
+          vtkErrorMacro("Expected a 2x2 matrix for sigma_matrix.");
+          consumed = 0;
+        }
+      }
+    }
+    break;
+    default:
+      consumed =
+        this->Superclass::ConsumeNextAlgorithmParameter(parameterName, algorithmParameters);
+      break;
+  }
+  return consumed;
 }
 
 //------------------------------------------------------------------------------
@@ -82,7 +153,7 @@ void vtkHighestDensityRegionsStatistics::SetSigma(double sigma)
 
 //------------------------------------------------------------------------------
 void vtkHighestDensityRegionsStatistics::Learn(
-  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkStatisticalModel* outMeta)
 {
   if (!inData || !outMeta)
   {
@@ -90,6 +161,8 @@ void vtkHighestDensityRegionsStatistics::Learn(
   }
 
   vtkNew<vtkTable> outputColumns;
+  outMeta->Initialize();
+  outMeta->SetAlgorithmParameters(this->GetAlgorithmParameters());
 
   std::set<std::set<vtkStdString>>::const_iterator reqIt;
 
@@ -169,14 +242,12 @@ void vtkHighestDensityRegionsStatistics::Learn(
     this->NumberOfRequestedColumnsPair++;
   } // End requests iteration.
 
-  outMeta->SetNumberOfBlocks(1);
-  outMeta->SetBlock(0, outputColumns);
-  vtkInformation* info = outMeta->GetMetaData(static_cast<unsigned int>(0));
-  info->Set(vtkCompositeDataSet::NAME(), "Estimator of density Data");
+  outMeta->SetNumberOfTables(vtkStatisticalModel::Learned, 1);
+  outMeta->SetTable(vtkStatisticalModel::Learned, 0, outputColumns, "Estimator of density Data");
 }
 
 //------------------------------------------------------------------------------
-void vtkHighestDensityRegionsStatistics::Derive(vtkMultiBlockDataSet*) {}
+void vtkHighestDensityRegionsStatistics::Derive(vtkStatisticalModel*) {}
 
 //------------------------------------------------------------------------------
 double vtkHighestDensityRegionsStatistics::ComputeHDR(vtkDataArray* inObs, vtkDataArray* outDensity)

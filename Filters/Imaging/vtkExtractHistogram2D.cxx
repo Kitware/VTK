@@ -11,9 +11,9 @@
 #include "vtkImageMedian3D.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
@@ -92,7 +92,7 @@ void vtkExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 }
 //------------------------------------------------------------------------------
 void vtkExtractHistogram2D::Learn(
-  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkStatisticalModel* outMeta)
 {
   if (!outMeta || !inData)
   {
@@ -188,11 +188,9 @@ void vtkExtractHistogram2D::Learn(
   primaryTab->Initialize();
   primaryTab->AddColumn(histogram);
 
-  // Finally set first block of output meta port to primary statistics table
-  outMeta->SetNumberOfBlocks(1);
-  outMeta->GetMetaData(static_cast<unsigned>(0))
-    ->Set(vtkCompositeDataSet::NAME(), "Primary Statistics");
-  outMeta->SetBlock(0, primaryTab);
+  // Finally set first partition of output meta port to primary statistics table
+  outMeta->SetNumberOfTables(vtkStatisticalModel::Learned, 1);
+  outMeta->SetTable(vtkStatisticalModel::Learned, 0, primaryTab, "Primary Statistics");
 
   // Clean up
   primaryTab->Delete();

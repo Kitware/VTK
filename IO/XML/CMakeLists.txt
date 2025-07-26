@@ -36,6 +36,8 @@ set(classes
   vtkXMLReader
   vtkXMLRectilinearGridReader
   vtkXMLRectilinearGridWriter
+  vtkXMLStatisticalModelReader
+  vtkXMLStatisticalModelWriter
   vtkXMLStructuredDataReader
   vtkXMLStructuredDataWriter
   vtkXMLStructuredGridReader

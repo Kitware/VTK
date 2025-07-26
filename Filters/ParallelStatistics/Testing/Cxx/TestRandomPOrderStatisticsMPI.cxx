@@ -13,7 +13,7 @@
 #include "vtkIntArray.h"
 #include "vtkMPIController.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
@@ -208,8 +208,7 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
   // Instantiate a parallel order statistics engine and set its ports
   vtkPOrderStatistics* pos = vtkPOrderStatistics::New();
   pos->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, inputData);
-  vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast(
-    pos->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
+  auto* outputModelDS = pos->GetOutputModel();
 
   // Select columns of interest depending on command line choices
   if (!args->skipInt)
@@ -251,7 +250,8 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
   }
 
   // Now perform verifications
-  vtkTable* outputCard = vtkTable::SafeDownCast(outputModelDS->GetBlock(nVariables));
+  vtkTable* outputCard =
+    outputModelDS->FindTableByName(vtkStatisticalModel::Derived, "Cardinalities");
 
   // Verify that all processes have the same grand total and histograms size
   if (myRank == args->ioRank)
@@ -277,7 +277,7 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
       std::cout << "   " << columnNames[i] << ":\n";
     } // if ( myRank == args->ioRank )
 
-    vtkTable* outputHistogram = vtkTable::SafeDownCast(outputModelDS->GetBlock(i));
+    vtkTable* outputHistogram = outputModelDS->GetTable(vtkStatisticalModel::Learned, i);
     // Print out and verify all cardinalities
     if (myRank == args->ioRank)
     {
@@ -297,7 +297,8 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
   }     // i
 
   // Print out and verify global extrema
-  vtkTable* outputQuantiles = vtkTable::SafeDownCast(outputModelDS->GetBlock(nVariables + 1));
+  vtkTable* outputQuantiles =
+    outputModelDS->FindTableByName(vtkStatisticalModel::Derived, "Quantiles");
   if (myRank == args->ioRank)
   {
     std::cout << "\n## Verifying that calculated global ranges are correct:\n";

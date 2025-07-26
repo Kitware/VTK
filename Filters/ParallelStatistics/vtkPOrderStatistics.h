@@ -31,7 +31,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdTypeArray;
-class vtkMultiBlockDataSet;
+class vtkStatisticalModel;
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderStatistics
@@ -53,7 +53,7 @@ public:
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) override;
+  void Learn(vtkTable*, vtkTable*, vtkStatisticalModel*) override;
 
 protected:
   vtkPOrderStatistics();

@@ -9,9 +9,9 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTableFFT.h"
@@ -44,53 +44,53 @@ void vtkAutoCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkAutoCorrelativeStatistics::Aggregate(
-  vtkDataObjectCollection* inMetaColl, vtkMultiBlockDataSet* outMeta)
+bool vtkAutoCorrelativeStatistics::Aggregate(
+  vtkDataObjectCollection* inMetaColl, vtkStatisticalModel* outMeta)
 {
   if (!outMeta)
   {
-    return;
+    return false;
   }
+  // We do not call outMeta->Initialize() because outMeta is allowed to be a member of inMetaColl.
 
-  vtkDataObject* inMetaDO0 = inMetaColl->GetItem(0);
-  if (!inMetaDO0)
+  // Get hold of the first model in the collection
+  int itemIndex;
+  int numItems = inMetaColl->GetNumberOfItems();
+  // Skip collection entries until we find one with a primary table:
+  vtkStatisticalModel* inMeta0 = nullptr;
+  for (itemIndex = 0; itemIndex < numItems; ++itemIndex)
   {
-    return;
-  }
-
-  // Verify that the first input model is indeed contained in a multiblock data set
-  vtkMultiBlockDataSet* inMeta0 = vtkMultiBlockDataSet::SafeDownCast(inMetaDO0);
-  if (!inMeta0)
-  {
-    return;
-  }
-
-  // Iterate over variable blocks
-  unsigned int nBlocks = inMeta0->GetNumberOfBlocks();
-  for (unsigned int b = 0; b < nBlocks; ++b)
-  {
-    // Get hold of the first model (data object) in the collection
-    vtkCollectionSimpleIterator it;
-    inMetaColl->InitTraversal(it);
-    vtkDataObject* inMetaDO = inMetaColl->GetNextDataObject(it);
-
-    // Verify that the first input model is indeed contained in a multiblock data set
-    vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast(inMetaDO);
-    if (!inMeta)
+    // Verify that the first primary statistics are present
+    inMeta0 = vtkStatisticalModel::SafeDownCast(inMetaColl->GetItemAsObject(itemIndex));
+    auto* primaryTab = inMeta0 ? inMeta0->GetTable(vtkStatisticalModel::Learned, 0) : nullptr;
+    if (primaryTab)
     {
-      continue;
+      ++itemIndex;
+      break;
     }
+  }
+  if (itemIndex >= numItems)
+  {
+    // No models to aggregate. Leave the output model in an empty state.
+    return true;
+  }
 
-    const char* varName = inMeta->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
-    // Skip FFT block if already present in the model
-    if (!strcmp(varName, "Autocorrelation FFT"))
-    {
-      continue;
-    }
-
-    // Verify that the first model is indeed contained in a table
-    vtkTable* currentTab = vtkTable::SafeDownCast(inMeta->GetBlock(b));
+  // Iterate over variable partitions.
+  // Each model is a set of tables in the same order; one per variable.
+  int nParts = inMeta0->GetNumberOfTables(vtkStatisticalModel::Learned);
+  outMeta->SetNumberOfTables(vtkStatisticalModel::Learned, nParts);
+  for (int b = 0; b < nParts; ++b)
+  {
+    auto* currentTab = inMeta0->GetTable(vtkStatisticalModel::Learned, b);
     if (!currentTab)
+    {
+      // Model is empty.
+      continue;
+    }
+
+    // Skip FFT partition if already present in the model
+    auto varName = inMeta0->GetTableName(vtkStatisticalModel::Learned, b);
+    if (varName == "Autocorrelation FFT")
     {
       continue;
     }
@@ -103,35 +103,30 @@ void vtkAutoCorrelativeStatistics::Aggregate(
     }
 
     // Use this first model to initialize the aggregated one
-    vtkTable* aggregatedTab = vtkTable::New();
+    auto aggregatedTab = vtkSmartPointer<vtkTable>::New();
     aggregatedTab->DeepCopy(currentTab);
 
     // Now, loop over all remaining models and update aggregated each time
-    while ((inMetaDO = inMetaColl->GetNextDataObject(it)))
+    for (int ii = itemIndex; ii < numItems; ++ii)
     {
-      // Verify that the current model is indeed contained in a multiblock data set
-      inMeta = vtkMultiBlockDataSet::SafeDownCast(inMetaDO);
+      auto* inMeta = vtkStatisticalModel::SafeDownCast(inMetaColl->GetItemAsObject(ii));
       if (!inMeta)
       {
-        aggregatedTab->Delete();
-
         continue;
       }
 
       // Verify that the current model is indeed contained in a table
-      currentTab = vtkTable::SafeDownCast(inMeta->GetBlock(b));
+      currentTab = inMeta->GetTable(vtkStatisticalModel::Learned, b);
       if (!currentTab)
       {
-        aggregatedTab->Delete();
-
+        vtkWarningMacro("Model " << ii << "'s " << b << "-th table is null. Skipping.");
         continue;
       }
 
       if (currentTab->GetNumberOfRows() != nRow)
       {
         // Models do not match
-        aggregatedTab->Delete();
-
+        vtkWarningMacro("Model " << b << " has mismatched number of rows. Skipping.");
         continue;
       }
 
@@ -143,8 +138,7 @@ void vtkAutoCorrelativeStatistics::Aggregate(
           aggregatedTab->GetValueByName(r, "Variable"))
         {
           // Models do not match
-          aggregatedTab->Delete();
-
+          vtkErrorMacro("Model has mismatched variables. Skipping.");
           continue;
         }
 
@@ -195,36 +189,26 @@ void vtkAutoCorrelativeStatistics::Aggregate(
         aggregatedTab->SetValueByName(r, "M2 Xt", M2Xt);
         aggregatedTab->SetValueByName(r, "M XsXt", MXsXt);
       } // r
-    }   // while ( ( inMetaDO = inMetaColl->GetNextDataObject( it ) ) )
+    }
 
     // Replace initial meta with aggregated table for current variable
     //    const char* varName = inMeta->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
-    outMeta->GetMetaData(b)->Set(vtkCompositeDataSet::NAME(), varName);
-    outMeta->SetBlock(b, aggregatedTab);
-
-    // Clean up
-    aggregatedTab->Delete();
+    outMeta->SetTable(vtkStatisticalModel::Learned, b, aggregatedTab, varName);
   } // b
+  return true;
 }
 
 //------------------------------------------------------------------------------
 void vtkAutoCorrelativeStatistics::Learn(
-  vtkTable* inData, vtkTable* inPara, vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* inPara, vtkStatisticalModel* outMeta)
 {
-  if (!inData)
+  if (!inData || !inPara || !outMeta)
   {
     return;
   }
 
-  if (!inPara)
-  {
-    return;
-  }
-
-  if (!outMeta)
-  {
-    return;
-  }
+  outMeta->Initialize();
+  outMeta->SetAlgorithmParameters(this->GetAlgorithmParameters());
 
   // Verify that a cardinality was specified for the time slices
   if (!this->SliceCardinality)
@@ -258,8 +242,11 @@ void vtkAutoCorrelativeStatistics::Learn(
   row->SetNumberOfValues(7);
 
   // Loop over requests
+  int nParts = 0;
+  outMeta->SetNumberOfTables(
+    vtkStatisticalModel::Learned, static_cast<int>(this->Internals->Requests.size()));
   for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
-       rit != this->Internals->Requests.end(); ++rit)
+       rit != this->Internals->Requests.end(); ++rit, ++nParts)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
     std::set<vtkStdString>::const_iterator it = rit->begin();
@@ -355,10 +342,7 @@ void vtkAutoCorrelativeStatistics::Learn(
     } // p
 
     // Resize output meta and append model table for current variable
-    unsigned int nBlocks = outMeta->GetNumberOfBlocks();
-    outMeta->SetNumberOfBlocks(nBlocks + 1);
-    outMeta->GetMetaData(nBlocks)->Set(vtkCompositeDataSet::NAME(), varName);
-    outMeta->SetBlock(nBlocks, modelTab);
+    outMeta->SetTable(vtkStatisticalModel::Learned, nParts, modelTab, varName);
 
     // Clean up
     modelTab->Delete();
@@ -369,9 +353,9 @@ void vtkAutoCorrelativeStatistics::Learn(
 }
 
 //------------------------------------------------------------------------------
-void vtkAutoCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
+void vtkAutoCorrelativeStatistics::Derive(vtkStatisticalModel* inMeta)
 {
-  if (!inMeta || inMeta->GetNumberOfBlocks() < 1)
+  if (!inMeta || inMeta->GetNumberOfTables(vtkStatisticalModel::Learned) < 1)
   {
     return;
   }
@@ -379,19 +363,19 @@ void vtkAutoCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   // Storage for time series table
   vtkTable* timeTable = vtkTable::New();
 
-  // Iterate over variable blocks
+  // Iterate over variable partitions
   vtkIdType nLags = 0;
-  unsigned int nBlocks = inMeta->GetNumberOfBlocks();
-  for (unsigned int b = 0; b < nBlocks; ++b)
+  int nParts = inMeta->GetNumberOfTables(vtkStatisticalModel::Learned);
+  for (int b = 0; b < nParts; ++b)
   {
-    vtkTable* modelTab = vtkTable::SafeDownCast(inMeta->GetBlock(b));
+    vtkTable* modelTab = inMeta->GetTable(vtkStatisticalModel::Learned, b);
     if (!modelTab)
     {
       continue;
     }
 
     // Verify that number of time lags is consistent
-    const char* varName = inMeta->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
+    std::string varName = inMeta->GetTableName(vtkStatisticalModel::Learned, b);
     vtkIdType nRow = modelTab->GetNumberOfRows();
     if (b)
     {
@@ -432,7 +416,7 @@ void vtkAutoCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     // Storage for derived values
     double* derivedVals = new double[numDerived];
     vtkDoubleArray* timeArray = vtkDoubleArray::New();
-    timeArray->SetName(varName);
+    timeArray->SetName(varName.c_str());
 
     for (int i = 0; i < nRow; ++i)
     {
@@ -519,7 +503,7 @@ void vtkAutoCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     // Clean up
     delete[] derivedVals;
     timeArray->Delete();
-  } // for ( unsigned int b = 0; b < nBlocks; ++ b )
+  } // for ( unsigned int b = 0; b < nParts; ++ b )
 
   // Now calculate FFT of time series
   vtkTableFFT* fft = vtkTableFFT::New();
@@ -527,12 +511,10 @@ void vtkAutoCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   vtkTable* outt = fft->GetOutput();
   fft->Update();
 
-  // Resize output meta so FFT table can be appended
-  inMeta->SetNumberOfBlocks(nBlocks + 1);
-
-  // Append auto-correlation FFT table at block nBlocks
-  inMeta->GetMetaData(nBlocks)->Set(vtkCompositeDataSet::NAME(), "Autocorrelation FFT");
-  inMeta->SetBlock(nBlocks, outt);
+  // Set auto-correlation FFT table
+  inMeta->SetNumberOfTables(vtkStatisticalModel::Derived, 1);
+  inMeta->SetTable(vtkStatisticalModel::Derived, 0, outt, "Autocorrelation FFT");
+  inMeta->SetAlgorithmParameters(this->GetAlgorithmParameters());
 
   // Clean up
   fft->Delete();
@@ -540,7 +522,7 @@ void vtkAutoCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 }
 
 //------------------------------------------------------------------------------
-// Use the invalid value of -1 for p-values if R is absent
+// Use the invalid value of -1 for p-values since R is absent
 vtkDoubleArray* vtkAutoCorrelativeStatistics::CalculatePValues(vtkDoubleArray* statCol)
 {
   // A column must be created first
@@ -549,10 +531,7 @@ vtkDoubleArray* vtkAutoCorrelativeStatistics::CalculatePValues(vtkDoubleArray* s
   // Fill this column
   vtkIdType n = statCol->GetNumberOfTuples();
   testCol->SetNumberOfTuples(n);
-  for (vtkIdType r = 0; r < n; ++r)
-  {
-    testCol->SetTuple1(r, -1);
-  }
+  testCol->FillComponent(0, -1);
 
   return testCol;
 }
@@ -562,20 +541,10 @@ void vtkAutoCorrelativeStatistics::SelectAssessFunctor(
   vtkTable* outData, vtkDataObject* inMetaDO, vtkStringArray* rowNames, AssessFunctor*& dfunc)
 {
   dfunc = nullptr;
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast(inMetaDO);
-  if (!inMeta)
-  {
-    return;
-  }
-
-  vtkTable* modelTab = vtkTable::SafeDownCast(inMeta->GetBlock(0));
-  if (!modelTab)
-  {
-    return;
-  }
-
-  vtkTable* derivedTab = vtkTable::SafeDownCast(inMeta->GetBlock(1));
-  if (!derivedTab)
+  vtkStatisticalModel* inMeta = vtkStatisticalModel::SafeDownCast(inMetaDO);
+  vtkTable* modelTab = inMeta ? inMeta->GetTable(vtkStatisticalModel::Learned, 0) : nullptr;
+  vtkTable* derivedTab = inMeta ? inMeta->GetTable(vtkStatisticalModel::Derived, 0) : nullptr;
+  if (!modelTab || !derivedTab)
   {
     return;
   }

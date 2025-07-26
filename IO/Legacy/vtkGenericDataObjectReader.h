@@ -33,6 +33,7 @@ class vtkGraph;
 class vtkMolecule;
 class vtkPolyData;
 class vtkRectilinearGrid;
+class vtkStatisticalModel;
 class vtkStructuredGrid;
 class vtkStructuredPoints;
 class vtkTable;
@@ -71,6 +72,7 @@ public:
   vtkStructuredPoints* GetStructuredPointsOutput();
   vtkTable* GetTableOutput();
   vtkTree* GetTreeOutput();
+  vtkStatisticalModel* GetStatisticalModelOutput();
   vtkUnstructuredGrid* GetUnstructuredGridOutput();
   ///@}
 

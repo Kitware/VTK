@@ -10,11 +10,11 @@
 #include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOrderStatistics.h"
 #include "vtkPointData.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 
@@ -181,10 +181,10 @@ void vtkComputeQuantiles::ComputeTable(
 
   // Get the output table of the descriptive statistics that contains quantiles
   // of the input data series.
-  vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputModelDS = vtkStatisticalModel::SafeDownCast(
     os->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  unsigned nbq = outputModelDS->GetNumberOfBlocks() - 1;
-  vtkTable* outputNtiles = vtkTable::SafeDownCast(outputModelDS->GetBlock(nbq));
+  vtkTable* outputNtiles =
+    outputModelDS->FindTableByName(vtkStatisticalModel::Derived, "Quantiles");
   if (!outputNtiles || outputNtiles->GetNumberOfColumns() < 2)
   {
     return;

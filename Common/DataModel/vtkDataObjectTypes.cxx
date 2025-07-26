@@ -39,6 +39,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkReebGraph.h"
 #include "vtkSelection.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredPoints.h"
 #include "vtkTable.h"
@@ -113,6 +114,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkCellGrid",
   "vtkAMRDataObject",
   "vtkCartesianGrid",
+  "vtkStatisticalModel",
   nullptr,
 };
 
@@ -120,7 +122,7 @@ namespace
 {
 bool IsTypeIdValid(int typeId)
 {
-  return (typeId >= VTK_POLY_DATA && typeId <= VTK_CARTESIAN_GRID);
+  return (typeId >= VTK_POLY_DATA && typeId <= VTK_STATISTICAL_MODEL);
 }
 }
 
@@ -275,6 +277,8 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
       return vtkAMRDataObject::New();
     case VTK_CARTESIAN_GRID:
       return nullptr;
+    case VTK_STATISTICAL_MODEL:
+      return vtkStatisticalModel::New();
     default:
       vtkLogF(WARNING, "Unknown data type '%d'", type);
       return nullptr;
@@ -340,7 +344,8 @@ int vtkDataObjectTypes::Validate()
     vtkDataObjectTypes::TypeIdIsA(VTK_UNSTRUCTURED_GRID, VTK_POINT_SET) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_UNSTRUCTURED_GRID, VTK_DATA_SET) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_HIERARCHICAL_BOX_DATA_SET, VTK_UNIFORM_GRID_AMR) &&
-    vtkDataObjectTypes::TypeIdIsA(VTK_CELL_GRID, VTK_DATA_OBJECT))
+    vtkDataObjectTypes::TypeIdIsA(VTK_CELL_GRID, VTK_DATA_OBJECT) &&
+    vtkDataObjectTypes::TypeIdIsA(VTK_STATISTICAL_MODEL, VTK_DATA_OBJECT))
   {
     return EXIT_SUCCESS;
   }
@@ -408,7 +413,8 @@ int vtkDataObjectTypes::GetCommonBaseTypeId(int typeA, int typeB)
       { VTK_PARTITIONED_DATA_SET, VTK_DATA_OBJECT_TREE },
       { VTK_MULTIPIECE_DATA_SET, VTK_PARTITIONED_DATA_SET },
       { VTK_MULTIBLOCK_DATA_SET, VTK_DATA_OBJECT_TREE },
-      { VTK_OPEN_QUBE_ELECTRONIC_DATA, VTK_ABSTRACT_ELECTRONIC_DATA } };
+      { VTK_OPEN_QUBE_ELECTRONIC_DATA, VTK_ABSTRACT_ELECTRONIC_DATA },
+      { VTK_STATISTICAL_MODEL, VTK_DATA_OBJECT } };
 
     std::vector<int> branch;
     do

@@ -32,7 +32,7 @@
 #include "vtkStatisticsAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkMultiBlockDataSet;
+class vtkStatisticalModel;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
@@ -45,10 +45,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkCorrelativeStatistics* New();
 
+  /// Correlative statistics requests are bivariate.
+  int GetMaximumNumberOfColumnsPerRequest() const override { return 2; }
+
   /**
    * Given a collection of models, calculate aggregate model
    */
-  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override;
+  bool Aggregate(vtkDataObjectCollection*, vtkStatisticalModel*) override;
 
 protected:
   vtkCorrelativeStatistics();
@@ -57,22 +60,22 @@ protected:
   /**
    * Execute the calculations required by the Learn option.
    */
-  void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) override;
+  void Learn(vtkTable*, vtkTable*, vtkStatisticalModel*) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive(vtkMultiBlockDataSet*) override;
+  void Derive(vtkStatisticalModel*) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override;
+  void Test(vtkTable*, vtkStatisticalModel*, vtkTable*) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  void Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outData) override
+  void Assess(vtkTable* inData, vtkStatisticalModel* inMeta, vtkTable* outData) override
   {
     this->Superclass::Assess(inData, inMeta, outData, 2);
   }

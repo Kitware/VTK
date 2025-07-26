@@ -90,7 +90,7 @@
 #include "vtkStatisticsAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkMultiBlockDataSet;
+class vtkStatisticalModel;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
@@ -103,6 +103,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkDescriptiveStatistics* New();
 
+  /// Descriptive statistics requests are univariate.
+  int GetMaximumNumberOfColumnsPerRequest() const override { return 1; }
+
   ///@{
   /**
    * Getter / Setter on `SampleEstimate`. When turned on, descriptive statistics
@@ -112,7 +115,7 @@ public:
    * variance, the population standard deviation, the population skewness and the population
    * kurtosis are estimated instead.
    *
-   * In short, if the input data is a full description of the population being studied,
+   * Put another way, if the input data is a full description of the population being studied,
    * `SampleEstimate` should be turned off. If the input data is a sample of the population being
    * studied, then `SampleEstimate` should be turned on. By default, `SampleEstimate` is turned
    * on, as it is the most likely case.
@@ -120,7 +123,7 @@ public:
    * Please see class description for a full description of the formulas.
    *
    * @note For large data, the difference between the population estimate and the sample
-   * estimate becomes thin, so this parameter becomes of less worry.
+   * estimate becomes small, so this parameter becomes of less worry.
    */
   vtkSetMacro(SampleEstimate, bool);
   vtkGetMacro(SampleEstimate, bool);
@@ -138,25 +141,33 @@ public:
   vtkBooleanMacro(SignedDeviations, vtkTypeBool);
   ///@}
 
-  ///@{
-  /**
-   * If there is a ghost array in the input, then ghosts matching `GhostsToSkip` mask
-   * will be skipped. It is set to 0xff by default (every ghosts types are skipped).
-   *
-   * @sa
-   * vtkDataSetAttributes
-   * vtkFieldData
-   * vtkPointData
-   * vtkCellData
-   */
-  vtkSetMacro(GhostsToSkip, unsigned char);
-  vtkGetMacro(GhostsToSkip, unsigned char);
-  ///@}
-
   /**
    * Given a collection of models, calculate aggregate model
    */
-  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override;
+  bool Aggregate(vtkDataObjectCollection*, vtkStatisticalModel*) override;
+
+  ///@{
+  /**
+   * Return the mean, variance, standard deviation, skewness, and kurtosis for the given variable.
+   *
+   * This is a helper function that may be called **after** you have Update()'ed this filter with
+   * both LearnOption and DerivedOption enabled; it uses the output model tables to fetch results
+   * into a form more easily used for scripts that wish to use the model.
+   *
+   * This method returns false if a variable named \a fieldName is unavailable. In that
+   * case, the other parameters (passed by reference) will be untouched. If true is returned,
+   * then their values will be updated for the given \a fieldName.
+   */
+  bool GetDistributionForField(const std::string& fieldName, double& mean, double& variance,
+    double& stdev, double& skewness, double& kurtosis);
+  ///@}
+
+  /// Provide a string that can be used to recreate an instance of this algorithm.
+  void AppendAlgorithmParameters(std::string& algorithmParameters) const override;
+
+  /// Implement the inverse of GetAlgorithmParameters(): given a parameter, update this algorithm.
+  std::size_t ConsumeNextAlgorithmParameter(
+    vtkStringToken parameterName, const std::string& algorithmParameters) override;
 
 protected:
   vtkDescriptiveStatistics();
@@ -166,22 +177,22 @@ protected:
    * Execute the calculations required by the Learn option, given some input Data
    * NB: input parameters are unused.
    */
-  void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) override;
+  void Learn(vtkTable*, vtkTable*, vtkStatisticalModel*) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive(vtkMultiBlockDataSet*) override;
+  void Derive(vtkStatisticalModel*) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override;
+  void Test(vtkTable*, vtkStatisticalModel*, vtkTable*) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  void Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outData) override
+  void Assess(vtkTable* inData, vtkStatisticalModel* inMeta, vtkTable* outData) override
   {
     this->Superclass::Assess(inData, inMeta, outData, 1);
   }
@@ -200,7 +211,6 @@ protected:
 
   bool SampleEstimate;
   vtkTypeBool SignedDeviations;
-  unsigned char GhostsToSkip;
 
 private:
   vtkDescriptiveStatistics(const vtkDescriptiveStatistics&) = delete;

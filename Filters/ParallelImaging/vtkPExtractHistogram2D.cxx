@@ -8,10 +8,11 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
+#include "vtkStatisticalModel.h"
 #include "vtkTable.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -36,9 +37,9 @@ void vtkPExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 }
 //------------------------------------------------------------------------------
 void vtkPExtractHistogram2D::Learn(
-  vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* inParameters, vtkStatisticalModel* outMeta)
 {
-  vtkTable* primaryTab = vtkTable::SafeDownCast(outMeta->GetBlock(0));
+  vtkTable* primaryTab = outMeta->GetTable(vtkStatisticalModel::Learned, 0);
   if (!primaryTab)
   {
     return;

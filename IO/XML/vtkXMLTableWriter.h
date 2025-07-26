@@ -4,7 +4,7 @@
  * @class   vtkXMLTableWriter
  * @brief   Write VTK XML Table files.
  *
- * vtkXMLTableWriter provides a functionality for writing vtTable as
+ * vtkXMLTableWriter provides a functionality for writing vtkTable as
  * XML .vtt files.
  */
 

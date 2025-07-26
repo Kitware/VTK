@@ -27,6 +27,7 @@ vtk_add_test_python(
   TestSplineFilter.py
   TestStaticCellLocator.py
   TestStaticCellLocatorPlaneIntersection.py
+  TestSumTables.py,NO_OUTPUT,NO_VALID
   TestSynchronizeTimeFilter.py,NO_OUTPUT,NO_VALID
   TestTemporalPathLineFilter.py,NO_OUTPUT,NO_VALID
   TestTemporalStatistics.py,NO_OUTPUT,NO_VALID

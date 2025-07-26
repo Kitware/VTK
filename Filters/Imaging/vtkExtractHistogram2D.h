@@ -39,7 +39,6 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetAttributes;
 class vtkImageData;
 class vtkIdTypeArray;
-class vtkMultiBlockDataSet;
 
 class VTKFILTERSIMAGING_EXPORT vtkExtractHistogram2D : public vtkStatisticsAlgorithm
 {
@@ -47,6 +46,9 @@ public:
   static vtkExtractHistogram2D* New();
   vtkTypeMacro(vtkExtractHistogram2D, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /// This filter requires bivariate requests.
+  int GetMaximumNumberOfColumnsPerRequest() const override { return 2; }
 
   enum OutputIndices
   {
@@ -158,7 +160,7 @@ public:
   /**
    * Given a collection of models, calculate aggregate model. Not used.
    */
-  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override {}
+  bool Aggregate(vtkDataObjectCollection*, vtkStatisticalModel*) override { return false; }
 
 protected:
   vtkExtractHistogram2D();
@@ -180,22 +182,22 @@ protected:
    * Execute the calculations required by the Learn option.
    * This is what actually does the histogram computation.
    */
-  void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta) override;
+  void Learn(vtkTable* inData, vtkTable* inParameters, vtkStatisticalModel* outMeta) override;
 
   /**
    * Execute the calculations required by the Derive option. Not used.
    */
-  void Derive(vtkMultiBlockDataSet*) override {}
+  void Derive(vtkStatisticalModel*) override {}
 
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
+  void Test(vtkTable*, vtkStatisticalModel*, vtkTable*) override {}
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  void Assess(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
+  void Assess(vtkTable*, vtkStatisticalModel*, vtkTable*) override {}
 
   /**
    * Provide the appropriate assessment functor. Not used.

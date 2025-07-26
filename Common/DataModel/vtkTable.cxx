@@ -58,7 +58,7 @@ vtkTable::~vtkTable()
 void vtkTable::PrintSelf(ostream& os, vtkIndent indent)
 {
   vtkDataObject::PrintSelf(os, indent);
-  os << indent << "RowData: " << (this->RowData ? "" : "(none)") << endl;
+  os << indent << "RowData:" << (this->RowData ? "" : " (none)") << endl;
   if (this->RowData)
   {
     this->RowData->PrintSelf(os, indent.GetNextIndent());

@@ -3,7 +3,6 @@
 
 #include "vtkComputeQuartiles.h"
 #include "vtkDoubleArray.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkStatisticsAlgorithm.h"
 #include "vtkTable.h"

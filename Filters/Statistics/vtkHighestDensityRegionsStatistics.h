@@ -16,7 +16,7 @@
  *   first columns the input columns of interest and for the last columns the
  *   density estimators of each input pair of columns of interest.
  * * Derive: calculate normalized (as a percentage) quantiles coming from
- *   Learn output. The second block of the multibloc dataset contains a
+ *   Learn output. The second block of the multiblock dataset contains a
  *   vtkTable holding some pairs of columns which are for the second one the
  *   quantiles ordered from the stronger to the lower and for the first one
  *   the correspondand quantile index.
@@ -31,7 +31,7 @@
 #include "vtkStatisticsAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkMultiBlockDataSet;
+class vtkStatisticalModel;
 class vtkVariant;
 
 class VTKFILTERSSTATISTICS_EXPORT vtkHighestDensityRegionsStatistics : public vtkStatisticsAlgorithm
@@ -41,10 +41,20 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkHighestDensityRegionsStatistics* New();
 
+  /// This filter requires bivariate requests.
+  int GetMaximumNumberOfColumnsPerRequest() const override { return 2; }
+
   /**
    * Given a collection of models, calculate aggregate model
    */
-  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override {}
+  bool Aggregate(vtkDataObjectCollection*, vtkStatisticalModel*) override { return false; }
+
+  /// Provide a string that can be used to recreate an instance of this algorithm.
+  void AppendAlgorithmParameters(std::string& algorithmParameters) const override;
+
+  /// Implement the inverse of AppendAlgorithmParameters(): given parameters, update this algorithm.
+  std::size_t ConsumeNextAlgorithmParameter(
+    vtkStringToken parameterName, const std::string& algorithmParameters) override;
 
   /**
    * Set the width of the gaussian kernel.
@@ -81,22 +91,22 @@ protected:
   /**
    * Execute the calculations required by the Learn option.
    */
-  void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) override;
+  void Learn(vtkTable*, vtkTable*, vtkStatisticalModel*) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive(vtkMultiBlockDataSet*) override;
+  void Derive(vtkStatisticalModel*) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  void Assess(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
+  void Assess(vtkTable*, vtkStatisticalModel*, vtkTable*) override {}
 
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
+  void Test(vtkTable*, vtkStatisticalModel*, vtkTable*) override {}
 
   /**
    * Provide the appropriate assessment functor.

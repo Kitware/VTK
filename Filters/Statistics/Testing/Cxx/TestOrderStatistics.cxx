@@ -5,12 +5,13 @@
 // Thanks to Philippe Pebay from Sandia National Laboratories
 // for implementing this test.
 
+#include "vtkDataAssembly.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkOrderStatistics.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
@@ -219,11 +220,11 @@ int TestOrderStatistics(int, char*[])
 
   // Get output data and meta tables
   vtkTable* outputData = os->GetOutput(vtkStatisticsAlgorithm::OUTPUT_DATA);
-  vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast(
-    os->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  unsigned nbq = outputModelDS->GetNumberOfBlocks() - 1;
-  vtkTable* outputQuantiles = vtkTable::SafeDownCast(outputModelDS->GetBlock(nbq));
-  vtkTable* outputCard = vtkTable::SafeDownCast(outputModelDS->GetBlock(nbq - 1));
+  auto* outputModelDS = os->GetOutputModel();
+  vtkTable* outputQuantiles =
+    outputModelDS->FindTableByName(vtkStatisticalModel::Derived, "Quantiles");
+  vtkTable* outputCard =
+    outputModelDS->FindTableByName(vtkStatisticalModel::Derived, "Cardinalities");
   vtkTable* outputTest = os->GetOutput(vtkStatisticsAlgorithm::OUTPUT_TEST);
 
   std::cout
@@ -294,13 +295,16 @@ int TestOrderStatistics(int, char*[])
   }
 
   std::cout << "## Calculated the following histograms:\n";
-  for (unsigned b = 0; b < outputModelDS->GetNumberOfBlocks() - 2; ++b)
+  for (int b = 0; b < outputModelDS->GetNumberOfTables(vtkStatisticalModel::Learned); ++b)
   {
-    std::string varName = outputModelDS->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
-    std::cout << "   Variable=" << varName << "\n";
-
-    vtkTable* histoTab = vtkTable::SafeDownCast(outputModelDS->GetBlock(b));
-    histoTab->Dump();
+    vtkTable* histoTab = outputModelDS->GetTable(vtkStatisticalModel::Learned, b);
+    // Allow a null histogram table because we requested an invalid input-data column ("Metric 3"):
+    if (histoTab)
+    {
+      std::string varName = outputModelDS->GetTableName(vtkStatisticalModel::Learned, b);
+      std::cout << "   Variable=" << varName << "\n";
+      histoTab->Dump();
+    }
   }
 
   // Check cardinalities
@@ -363,10 +367,8 @@ int TestOrderStatistics(int, char*[])
   };
 
   // Get calculated model
-  outputModelDS = vtkMultiBlockDataSet::SafeDownCast(
-    os->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  nbq = outputModelDS->GetNumberOfBlocks() - 1;
-  outputQuantiles = vtkTable::SafeDownCast(outputModelDS->GetBlock(nbq));
+  outputModelDS = os->GetOutputModel();
+  outputQuantiles = outputModelDS->FindTableByName(vtkStatisticalModel::Derived, "Quantiles");
 
   std::cout << "\n## Calculated the following quartiles with InverseCDFAveragedSteps quantile "
                "definition:\n";
@@ -409,10 +411,8 @@ int TestOrderStatistics(int, char*[])
   os->Update();
 
   // Get calculated model
-  outputModelDS = vtkMultiBlockDataSet::SafeDownCast(
-    os->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  nbq = outputModelDS->GetNumberOfBlocks() - 1;
-  outputQuantiles = vtkTable::SafeDownCast(outputModelDS->GetBlock(nbq));
+  outputModelDS = os->GetOutputModel();
+  outputQuantiles = outputModelDS->FindTableByName(vtkStatisticalModel::Derived, "Quantiles");
 
   std::cout << "\n## Calculated the following deciles with InverseCDF quantile definition:\n";
   outputQuantiles->Dump();
@@ -475,21 +475,21 @@ int TestOrderStatistics(int, char*[])
 
   // Get output data and meta tables
   vtkTable* outputData2 = os2->GetOutput(vtkStatisticsAlgorithm::OUTPUT_DATA);
-  vtkMultiBlockDataSet* outputModelDS2 = vtkMultiBlockDataSet::SafeDownCast(
-    os2->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  nbq = outputModelDS2->GetNumberOfBlocks() - 1;
-  vtkTable* outputCard2 = vtkTable::SafeDownCast(outputModelDS2->GetBlock(nbq - 1));
-  vtkTable* outputQuantiles2 = vtkTable::SafeDownCast(outputModelDS2->GetBlock(nbq));
+  auto* outputModelDS2 = os2->GetOutputModel();
+  vtkTable* outputCard2 =
+    outputModelDS2->FindTableByName(vtkStatisticalModel::Derived, "Cardinalities");
+  vtkTable* outputQuantiles2 =
+    outputModelDS2->FindTableByName(vtkStatisticalModel::Derived, "Quantiles");
 
   std::cout << "\n## Input text (punctuation omitted):\n   " << text << "\n";
 
   std::cout << "\n## Calculated the following histogram:\n";
-  for (unsigned b = 0; b < outputModelDS2->GetNumberOfBlocks() - 2; ++b)
+  for (int b = 0; b < outputModelDS2->GetNumberOfTables(vtkStatisticalModel::Learned); ++b)
   {
-    std::string varName = outputModelDS2->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
+    std::string varName = outputModelDS2->GetTableName(vtkStatisticalModel::Learned, b);
     std::cout << "   Variable=" << varName << "\n";
 
-    vtkTable* histoTab = vtkTable::SafeDownCast(outputModelDS2->GetBlock(b));
+    vtkTable* histoTab = outputModelDS2->GetTable(vtkStatisticalModel::Learned, b);
     histoTab->Dump();
 
     // Check whether total cardinality is correct
@@ -560,10 +560,8 @@ int TestOrderStatistics(int, char*[])
   os2->Update();
 
   // Get calculated model
-  outputModelDS2 = vtkMultiBlockDataSet::SafeDownCast(
-    os2->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  nbq = outputModelDS2->GetNumberOfBlocks() - 1;
-  outputQuantiles2 = vtkTable::SafeDownCast(outputModelDS2->GetBlock(nbq));
+  outputModelDS2 = os2->GetOutputModel();
+  outputQuantiles2 = outputModelDS2->FindTableByName(vtkStatisticalModel::Derived, "Quantiles");
 
   std::cout << "\n## Input text (punctuation omitted):\n   " << text << "\n";
 

@@ -26,8 +26,14 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::CommonSystem
   VTK::ParallelCore
+  VTK::FiltersCellGrid
+  VTK::FiltersVerdict
+  VTK::IOLegacy
 TEST_DEPENDS
   VTK::CommonSystem
   VTK::TestingCore
 TEST_OPTIONAL_DEPENDS
   VTK::ParallelMPI
+  VTK::IOParallelXML
+  VTK::IOIOSS
+  VTK::IOExodus

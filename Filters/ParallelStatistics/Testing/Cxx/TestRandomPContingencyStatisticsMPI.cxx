@@ -14,7 +14,7 @@
 #include "vtkIntArray.h"
 #include "vtkMPIController.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkStatisticalModel.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
@@ -90,8 +90,7 @@ void RandomContingencyStatistics(vtkMultiProcessController* controller, void* ar
   // Instantiate a parallel contingency statistics engine and set its ports
   vtkPContingencyStatistics* pcs = vtkPContingencyStatistics::New();
   pcs->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, inputData);
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
-    pcs->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
+  auto* outputMetaDS = pcs->GetOutputModel();
 
   // Select column pairs (uniform vs. uniform, normal vs. normal)
   pcs->AddColumnPair(columnNames[0].c_str(), columnNames[1].c_str());
@@ -114,8 +113,8 @@ void RandomContingencyStatistics(vtkMultiProcessController* controller, void* ar
   }
 
   // Now perform verifications
-  vtkTable* outputSummary = vtkTable::SafeDownCast(outputMetaDS->GetBlock(0));
-  vtkTable* outputContingency = vtkTable::SafeDownCast(outputMetaDS->GetBlock(1));
+  vtkTable* outputSummary = outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0);
+  vtkTable* outputContingency = outputMetaDS->GetTable(vtkStatisticalModel::Learned, 1);
 
   vtkIdType nRowSumm = outputSummary->GetNumberOfRows();
   double testDoubleValue1;

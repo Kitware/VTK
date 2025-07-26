@@ -13,7 +13,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkMPIController.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkStatisticalModel.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
@@ -181,36 +181,28 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
 
   if (myRank == args->ioRank)
   {
-    vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
-      pks->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
+    auto* outputMetaDS = pks->GetOutputModel();
 
     std::cout << "\n## Completed parallel calculation of kmeans statistics (with assessment):\n"
               << "   Wall time: " << timer->GetElapsedTime() << " sec.\n";
-    for (unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++b)
+    vtkTable* outputMeta = outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0);
+    vtkIdType testIntValue = 0;
+    for (vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); r++)
     {
-      vtkTable* outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(b));
-      if (!b)
-      {
-        vtkIdType testIntValue = 0;
-        for (vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); r++)
-        {
-          testIntValue += outputMeta->GetValueByName(r, "Cardinality").ToInt();
-        }
+      testIntValue += outputMeta->GetValueByName(r, "Cardinality").ToInt();
+    }
 
-        std::cout << "\n## Computed clusters (cardinality: " << testIntValue << " / run):\n";
+    std::cout << "\n## Computed clusters (cardinality: " << testIntValue << " / run):\n";
 
-        if (testIntValue != nVals * args->nProcs)
-        {
-          vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
-            << testIntValue << " != " << nVals * args->nProcs << ".");
-          *(args->retVal) = 1;
-        }
-      }
-      else
-      {
-        std::cout << "   Ranked cluster: "
-                  << "\n";
-      }
+    if (testIntValue != nVals * args->nProcs)
+    {
+      vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
+        << testIntValue << " != " << nVals * args->nProcs << ".");
+      *(args->retVal) = 1;
+    }
+    for (int b = 0; b < outputMetaDS->GetNumberOfTables(vtkStatisticalModel::Derived); ++b)
+    {
+      std::cout << "   Ranked cluster:\n";
       outputMeta->Dump();
     }
   }

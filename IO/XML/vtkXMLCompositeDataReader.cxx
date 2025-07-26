@@ -25,6 +25,7 @@
 #include "vtkXMLImageDataReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLRectilinearGridReader.h"
+#include "vtkXMLStatisticalModelReader.h"
 #include "vtkXMLStructuredGridReader.h"
 #include "vtkXMLTableReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
@@ -253,6 +254,10 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
   else if (strcmp(type, "vtkXMLHyperTreeGridReader") == 0)
   {
     reader = vtkXMLHyperTreeGridReader::New();
+  }
+  else if (strcmp(type, "vtkXMLStatisticalModelReader") == 0)
+  {
+    reader = vtkXMLStatisticalModelReader::New();
   }
   if (reader)
   {
@@ -554,6 +559,7 @@ const vtkXMLCompositeDataReaderEntry vtkXMLCompositeDataReaderInternals::ReaderL
   { "vtp", "vtkXMLPolyDataReader" }, { "vtu", "vtkXMLUnstructuredGridReader" },
   { "vti", "vtkXMLImageDataReader" }, { "vtr", "vtkXMLRectilinearGridReader" },
   { "vts", "vtkXMLStructuredGridReader" }, { "vtt", "vtkXMLTableReader" },
-  { "htg", "vtkXMLHyperTreeGridReader" }, { nullptr, nullptr }
+  { "htg", "vtkXMLHyperTreeGridReader" }, { "vtstat", "vtkXMLStatisticalModelReader" },
+  { nullptr, nullptr }
 };
 VTK_ABI_NAMESPACE_END

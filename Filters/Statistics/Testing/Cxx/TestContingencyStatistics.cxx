@@ -6,7 +6,8 @@
 // for implementing this test.
 
 #include "vtkContingencyStatistics.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkDataAssembly.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
@@ -121,10 +122,11 @@ int TestContingencyStatistics(int, char*[])
   cs->SetTestOption(true);
   cs->Update();
 
-  vtkMultiBlockDataSet* outputModelDS = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputModelDS = vtkStatisticalModel::SafeDownCast(
     cs->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  vtkTable* outputSummary = vtkTable::SafeDownCast(outputModelDS->GetBlock(0));
-  vtkTable* outputContingency = vtkTable::SafeDownCast(outputModelDS->GetBlock(1));
+  vtkTable* outputSummary = outputModelDS->FindTableByName(vtkStatisticalModel::Learned, "Summary");
+  vtkTable* outputContingency =
+    outputModelDS->FindTableByName(vtkStatisticalModel::Learned, "Contingency Table");
   vtkTable* outputTest =
     vtkTable::SafeDownCast(cs->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_TEST));
 
@@ -214,9 +216,9 @@ int TestContingencyStatistics(int, char*[])
   std::cout << "## Calculated the following marginal probabilities:\n";
   testIntValue = 0;
 
-  for (unsigned int b = 2; b < outputModelDS->GetNumberOfBlocks(); ++b)
+  for (int b = 0; b < outputModelDS->GetNumberOfTables(vtkStatisticalModel::Derived); ++b)
   {
-    outputContingency = vtkTable::SafeDownCast(outputModelDS->GetBlock(b));
+    outputContingency = outputModelDS->GetTable(vtkStatisticalModel::Derived, b);
 
     for (vtkIdType r = 0; r < outputContingency->GetNumberOfRows(); ++r)
     {

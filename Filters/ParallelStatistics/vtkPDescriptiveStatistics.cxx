@@ -8,9 +8,9 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkStatisticalModel.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 
@@ -39,7 +39,7 @@ void vtkPDescriptiveStatistics::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 void vtkPDescriptiveStatistics::Learn(
-  vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* inParameters, vtkStatisticalModel* outMeta)
 {
   if (!outMeta)
   {
@@ -49,7 +49,7 @@ void vtkPDescriptiveStatistics::Learn(
   // First calculate descriptive statistics on local data set
   this->Superclass::Learn(inData, inParameters, outMeta);
 
-  vtkTable* primaryTab = vtkTable::SafeDownCast(outMeta->GetBlock(0));
+  vtkTable* primaryTab = outMeta->GetTable(vtkStatisticalModel::Learned, 0);
   if (!primaryTab)
   {
     return;
