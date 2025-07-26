@@ -468,7 +468,7 @@ void vtkWrapPython_GenerateObjectType(
 
   if (hasNumberProtocol)
   {
-    fprintf(fp, "  Py%s_NumberMethods, // tp_as_number\n", classname);
+    fprintf(fp, "  &Py%s_AsNumber, // tp_as_number\n", classname);
   }
   else
   {
