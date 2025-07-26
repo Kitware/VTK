@@ -369,6 +369,29 @@ const char* vtkWrapPython_GenerateMethods(FILE* fp, const char* classname, Class
 static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const ClassInfo* data,
   WrappedFunction* wrappedFunctions, int numberOfWrappedFunctions, int fnum)
 {
+  int usesMethodKeywords = 0;
+
+  if (strcmp("vtkAlgorithm", data->Name) == 0)
+  {
+    usesMethodKeywords = 1;
+  }
+
+  if (usesMethodKeywords)
+  {
+    fprintf(fp,
+      "/* Ignore the PyCFunction cast warning caused by keyword methods,\n"
+      " * Python will know their true type due to the `METH_KEYWORDS` flag. */\n"
+      "#if defined(__clang__) && defined(__has_warning)\n"
+      "#if __has_warning(\"-Wcast-function-type\")\n"
+      "#pragma clang diagnostic push\n"
+      "#pragma clang diagnostic ignored \"-Wcast-function-type\"\n"
+      "#endif\n"
+      "#elif defined(__GNUC__)\n"
+      "#pragma GCC diagnostic push\n"
+      "#pragma GCC diagnostic ignored \"-Wcast-function-type\"\n"
+      "#endif\n\n");
+  }
+
   /* output the method table, with pointers to each function defined above */
   fprintf(fp, "static PyMethodDef Py%s_Methods[] = {\n", classname);
 
@@ -449,21 +472,7 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const 
   {
     fprintf(fp,
       "  {\n"
-      "  #if defined(__clang__) && defined(__has_warning)\n"
-      "  #if __has_warning(\"-Wcast-function-type\")\n"
-      "  #pragma clang diagnostic push\n"
-      "  /* This cast is fine because Python knows what is actually happening\n"
-      "   * due to `METH_KEYWORDS`. Ignore the warning.\n"
-      "   */\n"
-      "  #pragma clang diagnostic ignored \"-Wcast-function-type\"\n"
-      "  #endif\n"
-      "  #endif\n"
       "  \"update\", (PyCFunction)PyvtkAlgorithm_update, METH_VARARGS|METH_KEYWORDS,\n"
-      "  #if defined(__clang__) && defined(__has_warning)\n"
-      "  #if __has_warning(\"-Wcast-function-type\")\n"
-      "  #pragma clang diagnostic pop\n"
-      "  #endif\n"
-      "  #endif\n"
       "  \"This method updates the pipeline connected to this algorithm\\n\"\n"
       "  \"and returns an Output object with an output property. This property\\n\"\n"
       "  \"provides either a single data object (for algorithms with single output\\n\"\n"
@@ -476,6 +485,18 @@ static void vtkWrapPython_ClassMethodDef(FILE* fp, const char* classname, const 
     "  {nullptr, nullptr, 0, nullptr}\n"
     "};\n"
     "\n");
+
+  if (usesMethodKeywords)
+  {
+    fprintf(fp,
+      "#if defined(__clang__) && defined(__has_warning)\n"
+      "#if __has_warning(\"-Wcast-function-type\")\n"
+      "#pragma clang diagnostic pop\n"
+      "#endif\n"
+      "#elif defined(__GNUC__)\n"
+      "#pragma GCC diagnostic pop\n"
+      "#endif\n\n");
+  }
 }
 
 /* -------------------------------------------------------------------- */
