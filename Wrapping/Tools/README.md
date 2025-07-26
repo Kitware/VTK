@@ -211,24 +211,25 @@ Many of the rules in this file have the same names as in the description
 of the grammar in the official ISO standard.  The file vtkParse.y is
 used to generate the file vtkParse.tab.c, which contains the parser.
 
-1. Get a copy of bison 3.2.3 or later, it has a yacc-compatible front end.
+1. Get a copy of bison 3.8.2 or later, it has a yacc-compatible front end.
 2. Run `bison --no-lines -b vtkParse vtkParse.y`, to generate vtkParse.tab.c
 3. In an editor, replace every `static inline` in vtkParse.tab.c with `static`
 4. Replace `#if ! defined lint || defined __GNUC__` with `#if 1`
 5. remove `YY_ATTRIBUTE_UNUSED` from `yyfillin`, `yyfill`, and `yynormal`
 6. comment out the `break;` after `return yyreportAmbiguity`
 7. replace `(1-yyrhslen)` with `(1-(int)yyrhslen)`
-8. replace `sizeof yynewStates[0]` and `sizeof yyset->yystates[0]` with `sizeof (yyGLRState*)`
-9. replace `sizeof yynewLookaheadNeeds[0]` and `sizeof yyset->yylookaheadNeeds[0]` with `sizeof (yybool)`
-10. replace `sizeof yynewItems[0]` and `sizeof yystackp->yynextFree[0]` with `sizeof (yyGLRStackItem)`
+8. replace `sizeof yynewStates[0]` and `sizeof yyset->yystates[0]` with `sizeof(yyGLRState*)`
+9. replace `sizeof yynewLookaheadNeeds[0]` and `sizeof yyset->yylookaheadNeeds[0]` with `sizeof(yybool)`
+10. replace `sizeof yynewItems[0]` and `sizeof yystackp->yynextFree[0]` with `sizeof(yyGLRStackItem)`
+11. add `// NOLINTNEXTLINE(bugprone-suspicious-include)` before `#include "lex.yy.c"`
 
 If you are familiar with "diff" and "patch" and if you have clang-format,
 you can automate these code changes as follows.  For this, you must use
-exactly version 3.2.3 of bison to ensure that the code that is produced
+exactly version 3.8.2 of bison to ensure that the code that is produced
 is as similar as possible to what is currently in the VTK repository.
 
 1. Run bison (as above) on the vtkParse.y from the master branch
-2. Use clang-format-8 to re-style vtkParse.tab.c to match VTK code style
+2. Use clang-format-14 to re-style vtkParse.tab.c to match VTK code style
 3. Use "git diff -R vtkParse.tab.c" to produce a patch file
 
 If done correctly, this will produce a patch file that contains all the

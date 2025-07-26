@@ -4,20 +4,10 @@
 
 /*
 
-This file must be translated to C and modified to build everywhere.
+The file 'vtkParse.tab.c' is generated from 'vtkParse.y'.
 
-Run bison like this (use bison 3.2.3 or later)
+See the adjacent README.md for instructions.
 
-  bison --no-lines -b vtkParse vtkParse.y
-
-Modify vtkParse.tab.c:
-  - replace all instances of "static inline" with "static"
-  - replace "#if ! defined lint || defined __GNUC__" with "#if 1"
-  - remove YY_ATTRIBUTE_UNUSED from yyfillin, yyfill, and yynormal
-  - remove the "break;" after "return yyreportAmbiguity"
-  - replace "(1-yyrhslen)" with "(1-(int)yyrhslen)"
-  - replace "sizeof yynewStates[0] with "sizeof (yyGLRState*)"
-  - replace "sizeof yynewLookaheadNeeds[0] with "sizeof (yybool)"
 */
 
 /*
@@ -4484,13 +4474,14 @@ static void handle_attribute(const char* att, int pack)
       currentFunction->IsMarshalExcluded = 1;
       currentFunction->MarshalExcludeReason = vtkstrndup(args, la);
     }
-    else if (l == 18 && (strncmp(att, "vtk::marshalgetter", l) == 0 ||
-      strncmp(att, "vtk::marshalsetter", l) == 0) && args &&
-      role == VTK_PARSE_ATTRIB_DECL)
+    else if (l == 18 &&
+      (strncmp(att, "vtk::marshalgetter", l) == 0 || strncmp(att, "vtk::marshalsetter", l) == 0) &&
+      args && role == VTK_PARSE_ATTRIB_DECL)
     {
       if (args[0] != '"')
       {
-        print_parser_error("args were not quoted here! Check macro definition in vtkWrappingHints.h", att, l);
+        print_parser_error(
+          "args were not quoted here! Check macro definition in vtkWrappingHints.h", att, l);
         exit(1);
       }
       /* advance args to next attribute arg */
