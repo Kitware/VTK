@@ -924,46 +924,49 @@ void DICOMAppHelper::RescaleOffsetCallback(
 
 const char* DICOMAppHelper::TransferSyntaxUIDDescription(const char* uid)
 {
-  static const char* DICOM_IMPLICIT_VR_LITTLE_ENDIAN = "1.2.840.10008.1.2";
-  static const char* DICOM_LOSSLESS_JPEG = "1.2.840.10008.1.2.4.70";
-  static const char* DICOM_LOSSY_JPEG_8BIT = "1.2.840.10008.1.2.4.50";
-  static const char* DICOM_LOSSY_JPEG_16BIT = "1.2.840.10008.1.2.4.51";
-  static const char* DICOM_EXPLICIT_VR_LITTLE_ENDIAN = "1.2.840.10008.1.2.1";
-  static const char* DICOM_EXPLICIT_VR_BIG_ENDIAN = "1.2.840.10008.1.2.2";
-  static const char* DICOM_GE_PRIVATE_IMPLICIT_BIG_ENDIAN = "1.2.840.113619.5.2";
+  constexpr struct uid_description
+  {
+    const char* uid;
+    const char* description;
+  } tsUIDs[] = {
+    { "1.2.840.10008.1.2", "Implicit VR little endian" },
+    { "1.2.840.10008.1.2.1", "Explicit VR little endian" },
+    { "1.2.840.10008.1.2.2", "Explicit VR big endian" },
+    { "1.2.840.10008.1.2.5", "Run length encoded" }, // RLE packbits
+    { "1.2.840.10008.1.2.4.50", "JPEG baseline" },
+    { "1.2.840.10008.1.2.4.51", "JPEG extended precision" },
+    { "1.2.840.10008.1.2.4.57", "JPEG lossless" },
+    { "1.2.840.10008.1.2.4.70", "JPEG lossless prediction" },
+    { "1.2.840.10008.1.2.4.80", "JPEG-LS" },
+    { "1.2.840.10008.1.2.4.81", "JPEG-LS constrained error" },
+    { "1.2.840.10008.1.2.4.90", "JPEG 2000 lossless" },
+    { "1.2.840.10008.1.2.4.91", "JPEG 2000 lossless/lossy" },
+    { "1.2.840.10008.1.2.4.100", "MPEG2 ML" }, // video
+    { "1.2.840.10008.1.2.4.101", "MPEG2 HL" },
+    { "1.2.840.10008.1.2.4.102", "MPEG4 AVC/H.264 High Profile / Level 4.1" },
+    { "1.2.840.10008.1.2.4.103", "MPEG4 AVC/H.264 BD-compatible" },
+    { "1.2.840.10008.1.2.4.104", "MPEG4 AVC/H.264 High Profile / 4.2 2D" },
+    { "1.2.840.10008.1.2.4.105", "MPEG4 AVC/H.264 High Profile / 4.2 3D" },
+    { "1.2.840.10008.1.2.4.106", "MPEG4 AVC/H.264 Stereo High Profile / 4.2" },
+    { "1.2.840.10008.1.2.4.107", "HEVC/H.265 Main Profile / 5.1" },
+    { "1.2.840.10008.1.2.4.108", "HEVC/H.265 Main 10 Profile / 5.1" },
+    { "1.2.840.10008.1.2.4.110", "JPEG XL lossless" },
+    { "1.2.840.10008.1.2.4.111", "JPEG XL JPEG recompression" },
+    { "1.2.840.10008.1.2.4.112", "JPEG XL" }, // all other JPEG XL
+    { "1.2.840.10008.1.20", "Papyrus little endian" },
+    { "1.2.840.113619.5.2", "GE private implicit VR big endian pixels" },
+    { nullptr, nullptr } // sentinel
+  };
 
-  if (!strcmp(DICOM_IMPLICIT_VR_LITTLE_ENDIAN, uid))
+  for (int i = 0; tsUIDs[i].uid; ++i)
   {
-    return "Implicit VR, Little Endian";
+    if (strcmp(uid, tsUIDs[i].uid) == 0)
+    {
+      return tsUIDs[i].description;
+    }
   }
-  else if (!strcmp(DICOM_LOSSLESS_JPEG, uid))
-  {
-    return "Lossless JPEG";
-  }
-  else if (!strcmp(DICOM_LOSSY_JPEG_8BIT, uid))
-  {
-    return "Lossy JPEG 8 bit";
-  }
-  else if (!strcmp(DICOM_LOSSY_JPEG_16BIT, uid))
-  {
-    return "Lossy JPEG 16 bit.";
-  }
-  else if (!strcmp(DICOM_EXPLICIT_VR_LITTLE_ENDIAN, uid))
-  {
-    return "Explicit VR, Little Endian.";
-  }
-  else if (!strcmp(DICOM_EXPLICIT_VR_BIG_ENDIAN, uid))
-  {
-    return "Explicit VR, Big Endian.";
-  }
-  else if (!strcmp(DICOM_GE_PRIVATE_IMPLICIT_BIG_ENDIAN, uid))
-  {
-    return "GE Private, Implicit VR, Big Endian Image Data.";
-  }
-  else
-  {
-    return "Unknown.";
-  }
+
+  return "Unknown";
 }
 
 void DICOMAppHelper::RescaleSlopeCallback(
