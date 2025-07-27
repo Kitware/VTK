@@ -15,6 +15,8 @@
 #include "vtkCorrelativeStatistics.h"
 #include "vtkDescriptiveStatistics.h"
 #include "vtkOrderStatistics.h"
+#include "vtkPartitionedDataSetCollection.h"
+#include "vtkStatisticalModel.h"
 
 // QT includes
 #include <vtkDataRepresentation.h>
@@ -47,6 +49,10 @@ StatsView::StatsView()
   this->TableView2 = vtkSmartPointer<vtkQtTableView>::New();
   this->TableView3 = vtkSmartPointer<vtkQtTableView>::New();
   this->TableView4 = vtkSmartPointer<vtkQtTableView>::New();
+  this->TableView1->SetFieldType(vtkQtTableView::ROW_DATA);
+  this->TableView2->SetFieldType(vtkQtTableView::ROW_DATA);
+  this->TableView3->SetFieldType(vtkQtTableView::ROW_DATA);
+  this->TableView4->SetFieldType(vtkQtTableView::ROW_DATA);
 
   // Set widgets for the tree and table views
   this->ui->tableFrame1->layout()->addWidget(this->TableView1->GetWidget());
@@ -131,23 +137,27 @@ void StatsView::slotOpenSQLiteDB()
   // Assign tables to table views
 
   // FIXME: we should not have to make a shallow copy of the output
+  auto* descriptiveModel = vtkStatisticalModel::SafeDownCast(descriptive->GetOutputDataObject(1));
   VTK_CREATE(vtkTable, descriptiveC);
-  descriptiveC->ShallowCopy(descriptive->GetOutput(1));
+  descriptiveC->ShallowCopy(descriptiveModel->GetTable(vtkStatisticalModel::Derived, 0));
   this->TableView1->SetRepresentationFromInput(descriptiveC);
 
   // FIXME: we should not have to make a shallow copy of the output
+  auto* order1Model = vtkStatisticalModel::SafeDownCast(order1->GetOutputDataObject(1));
   VTK_CREATE(vtkTable, order1C);
-  order1C->ShallowCopy(order1->GetOutput(1));
+  order1C->ShallowCopy(order1Model->GetTable(vtkStatisticalModel::Derived, 0));
   this->TableView2->SetRepresentationFromInput(order1C);
 
   // FIXME: we should not have to make a shallow copy of the output
+  auto* order2Model = vtkStatisticalModel::SafeDownCast(order2->GetOutputDataObject(1));
   VTK_CREATE(vtkTable, order2C);
-  order2C->ShallowCopy(order2->GetOutput(1));
+  order2C->ShallowCopy(order2Model->GetTable(vtkStatisticalModel::Derived, 0));
   this->TableView3->SetRepresentationFromInput(order2C);
 
   // FIXME: we should not have to make a shallow copy of the output
+  auto* correlativeModel = vtkStatisticalModel::SafeDownCast(correlative->GetOutputDataObject(1));
   VTK_CREATE(vtkTable, correlativeC);
-  correlativeC->ShallowCopy(correlative->GetOutput(0));
+  correlativeC->ShallowCopy(correlativeModel->GetTable(vtkStatisticalModel::Derived, 0));
   this->TableView4->SetRepresentationFromInput(correlativeC);
 
   // All views need to be updated
