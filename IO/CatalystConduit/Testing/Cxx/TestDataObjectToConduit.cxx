@@ -1,7 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkDataAssembly.h"
 #include "vtkDataObjectToConduit.h"
+#include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
@@ -18,6 +21,8 @@
 #include <vtkTable.h>
 #include <vtkUnstructuredGrid.h>
 
+namespace
+{
 //----------------------------------------------------------------------------
 bool TestNonDataSetObject()
 {
@@ -294,13 +299,13 @@ bool TestStructuredGrid()
   return is_success;
 }
 
-static double unstructured_grid_points_coordinates[27][3] = { { 0, 0, 0 }, { 1, 0, 0 }, { 2, 0, 0 },
+double unstructured_grid_points_coordinates[27][3] = { { 0, 0, 0 }, { 1, 0, 0 }, { 2, 0, 0 },
   { 0, 1, 0 }, { 1, 1, 0 }, { 2, 1, 0 }, { 0, 0, 1 }, { 1, 0, 1 }, { 2, 0, 1 }, { 0, 1, 1 },
   { 1, 1, 1 }, { 2, 1, 1 }, { 0, 1, 2 }, { 1, 1, 2 }, { 2, 1, 2 }, { 0, 1, 3 }, { 1, 1, 3 },
   { 2, 1, 3 }, { 0, 1, 4 }, { 1, 1, 4 }, { 2, 1, 4 }, { 0, 1, 5 }, { 1, 1, 5 }, { 2, 1, 5 },
   { 0, 1, 6 }, { 1, 1, 6 }, { 2, 1, 6 } };
 
-static struct
+struct
 {
   VTKCellType cell_type;
   std::vector<vtkIdType> connectivity;
@@ -1158,17 +1163,110 @@ bool TestPointSet()
 }
 
 //----------------------------------------------------------------------------
+bool TestComposite()
+{
+  vtkNew<vtkImageData> image;
+  image->SetDimensions(2, 3, 1);
+
+  vtkNew<vtkUnstructuredGrid> unstructured_grid;
+  vtkNew<vtkPoints> points;
+  for (int i = 0; i < 27; i++)
+  {
+    points->InsertPoint(i, unstructured_grid_points_coordinates[i]);
+  }
+  unstructured_grid->SetPoints(points);
+  unstructured_grid->Allocate(100);
+  unstructured_grid->InsertNextCell(unstructured_grid_cell_connectivities[6].cell_type,
+    unstructured_grid_cell_connectivities[6].connectivity.size(),
+    unstructured_grid_cell_connectivities[6].connectivity.data());
+
+  vtkNew<vtkPartitionedDataSet> pds1;
+  pds1->SetNumberOfPartitions(1);
+  constexpr int IMAGE_ID = 0, UG_ID = 1;
+  pds1->SetPartition(IMAGE_ID, image);
+
+  vtkNew<vtkPartitionedDataSet> pds2;
+  pds1->SetNumberOfPartitions(2);
+  pds1->SetPartition(IMAGE_ID, unstructured_grid);
+  pds1->SetPartition(UG_ID, unstructured_grid);
+
+  vtkNew<vtkPartitionedDataSetCollection> pdc;
+  pdc->SetNumberOfPartitionedDataSets(2);
+  pdc->SetPartitionedDataSet(IMAGE_ID, pds1);
+  pdc->SetPartitionedDataSet(UG_ID, pds2);
+
+  vtkNew<vtkDataAssembly> assembly;
+  int imageId = assembly->AddNode("Image");
+  int ugId = assembly->AddNode("UG");
+  int sub = assembly->AddNode("subset");
+  int subsub = assembly->AddNode("subsub", sub);
+
+  assembly->AddDataSetIndex(imageId, IMAGE_ID);
+  assembly->AddDataSetIndex(ugId, UG_ID);
+  assembly->AddDataSetIndex(subsub, IMAGE_ID);
+  assembly->AddDataSetIndex(subsub, UG_ID);
+
+  pdc->SetDataAssembly(assembly);
+
+  conduit_cpp::Node node;
+  bool is_success = vtkDataObjectToConduit::FillConduitNode(pdc, node);
+
+  if (!is_success)
+  {
+    std::cerr << "FillConduitNode failed for TestComposite" << std::endl;
+    return is_success;
+  }
+
+  if (node.number_of_children() != 3)
+  {
+    std::cerr << "Expected 3 children but got " << node.number_of_children() << std::endl;
+    return false;
+  }
+  for (conduit_index_t datasetId = 0; datasetId < 2; ++datasetId)
+  {
+    const auto mesh_node = node.child(datasetId);
+    conduit_cpp::Node info;
+    int is_valid =
+      mesh_node.name() == "assembly" || conduit_cpp::Blueprint::verify("mesh", mesh_node, info);
+    if (!is_valid)
+    {
+      info.print();
+      is_success = false;
+    }
+  }
+
+  conduit_cpp::Node expected_assembly;
+  expected_assembly["Image"] = "partition0";
+  expected_assembly["UG"] = "partition1";
+  auto subsub0 = expected_assembly["subset/subsub"].append();
+  subsub0.set("partition0");
+  auto subsub1 = expected_assembly["subset/subsub"].append();
+  subsub1.set("partition1");
+
+  conduit_cpp::Node diff_info;
+  bool are_nodes_different = node["assembly"].diff(expected_assembly, diff_info, 1e-6);
+  if (are_nodes_different)
+  {
+    diff_info.print();
+    is_success = false;
+  }
+
+  return is_success;
+}
+}
+//----------------------------------------------------------------------------
 int TestDataObjectToConduit(int, char*[])
 {
   bool is_success = true;
 
-  is_success &= TestNonDataSetObject();
-  is_success &= TestImageData();
-  is_success &= TestRectilinearGrid();
-  is_success &= TestStructuredGrid();
-  is_success &= TestUnstructuredGrid();
-  is_success &= TestMixedShapePolyData();
-  is_success &= TestPointSet();
+  is_success &= ::TestNonDataSetObject();
+  is_success &= ::TestImageData();
+  is_success &= ::TestRectilinearGrid();
+  is_success &= ::TestStructuredGrid();
+  is_success &= ::TestUnstructuredGrid();
+  is_success &= ::TestMixedShapePolyData();
+  is_success &= ::TestPointSet();
+  is_success &= ::TestComposite();
 
   return is_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

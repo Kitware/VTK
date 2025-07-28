@@ -9,7 +9,6 @@
 #define vtkDataObjectToConduit_h
 
 #include "vtkIOCatalystConduitModule.h" // For windows import/export of shared libraries
-#include "vtkObject.h"
 
 namespace conduit_cpp
 {
@@ -24,8 +23,12 @@ namespace vtkDataObjectToConduit
 {
 VTK_ABI_NAMESPACE_BEGIN
 /**
- * Fill the given conduit node with the data from the data object.
- * The final structure is a valid blueprint mesh.
+ * Fill the given conduit "data" node with the data from the data object.
+ * data_object *must* be either vtkDataSet or vtkPartitionedDataSetCollection.
+ * The final structure is a valid blueprint mesh (for dataset) or multimesh (for pdc).
+ *
+ * The conduit multimesh protocol is documented in ParaView's documentation
+ * https://docs.paraview.org/en/latest/Catalyst/blueprints.html#protocol-multimesh
  *
  * In the specific case of mixed shape unstructured datasets,
  * a new field "vtkCellSizes" is added to the input data object.
@@ -33,6 +36,7 @@ VTK_ABI_NAMESPACE_BEGIN
  */
 VTKIOCATALYSTCONDUIT_EXPORT bool FillConduitNode(
   vtkDataObject* data_object, conduit_cpp::Node& conduit_node);
+
 VTK_ABI_NAMESPACE_END
 }
 
