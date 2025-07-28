@@ -313,9 +313,12 @@ nlohmann::json vtkObjectManager::Invoke(
   if (const auto idIter = resultJson.find("Id"); idIter != resultJson.end())
   {
     const auto resultObjectHandle = idIter->get<vtkTypeUInt32>();
-    // Synchronize the state of the object and return it.
-    // This is necessary because the object may have been modified by the method call
-    this->UpdateStateFromObject(resultObjectHandle);
+    if (resultObjectHandle != 0)
+    {
+      // Synchronize the state of the object and return it.
+      // This is necessary because the object may have been modified by the method call
+      this->UpdateStateFromObject(resultObjectHandle);
+    }
     return this->Context->GetState(resultObjectHandle);
   }
   return {};

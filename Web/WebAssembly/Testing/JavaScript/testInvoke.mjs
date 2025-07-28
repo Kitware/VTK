@@ -45,6 +45,16 @@ async function testInvokeStandalone() {
   if (camera.Id !== cameraId) {
     throw new Error("vtkRenderer::SetActiveCamera did not work!");
   }
+  // Set information on the renderer
+  let informationId = standaloneSession.create("vtkInformation");
+  await standaloneSession.invoke(rendererId, "SetInformation", [{Id: informationId}]);
+  // Check that calling method with null argument works.
+  await standaloneSession.invoke(rendererId, "SetInformation", [null]);
+  // Check that method return values can be null.
+  let information = await standaloneSession.invoke(rendererId, "GetInformation", []);
+  if (information !== null) {
+    throw new Error("vtkRenderer::SetInformation(null) did not work!");
+  }
 }
 
 const tests = [
