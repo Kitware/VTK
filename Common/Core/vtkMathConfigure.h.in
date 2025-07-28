@@ -49,7 +49,7 @@
 // std::isnan because it is in the vtkMath header and not the
 // implementation file. To get around this issue we check __CUDACC__ which
 // is only set when we are compiling with the CUDA compiler
-#ifdef __CUDACC__
+#if defined(__CUDACC__) && defined(__NVCC__)
 
 #if defined(VTK_HAS_STD_ISINF)
 #undef VTK_HAS_STD_ISINF
