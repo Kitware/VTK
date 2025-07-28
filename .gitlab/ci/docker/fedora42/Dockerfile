@@ -4,10 +4,6 @@ MAINTAINER Ben Boeckel <ben.boeckel@kitware.com>
 COPY install_deps.sh /root/install_deps.sh
 RUN sh /root/install_deps.sh
 
-# Set the default compiler to GCC 14
-ENV CC=/usr/bin/gcc-14
-ENV CXX=/usr/bin/g++-14
-
 COPY install_adios.sh /root/install_adios.sh
 RUN sh /root/install_adios.sh
 

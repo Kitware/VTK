@@ -12,7 +12,8 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # Development tools
 dnf install -y --setopt=install_weak_deps=False \
-    libasan libtsan libubsan clang-tools-extra
+    libasan libtsan libubsan clang-tools-extra \
+    gcc gcc-c++ gcc-gfortran
 
 # MPI dependencies
 dnf install -y --setopt=install_weak_deps=False \
@@ -50,10 +51,6 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # wslink will bring aiohttp>=3.7.4
 python3 -m pip install 'wslink>=1.0.4'
-
-# C++ dependencies (along GCC 15 which is the default)
-dnf install -y --setopt=install_weak_deps=False \
-    gcc14 gcc14-c++
 
 # Java dependencies
 dnf install --releasever=41 -y --setopt=install_weak_deps=False \
