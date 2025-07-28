@@ -186,6 +186,8 @@ protected:
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
   void ReplaceShaderTCoord(
     vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
+  void ReplaceShaderClip(
+    vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource);
   void SetShaderParameters(vtkRenderer* renderer, vtkActor* actor);
   // compute and set the maximum point and cell ID used in selection
   void UpdateMaximumPointCellIds(vtkRenderer* ren, vtkActor* actor);
@@ -254,7 +256,7 @@ protected:
   /// @name Coordinate shift scale for datasets whose bounding box is far from origin.
   std::array<double, 3> ShiftValues;
   std::array<double, 3> ScaleValues;
-  bool CoordinateShiftAndScaleInUse;
+  bool CoordinateShiftAndScaleInUse = false;
   vtkNew<vtkTransform> SSInverseTransform; // Inverse transform which can undo shift + scale.
   vtkNew<vtkMatrix4x4> SSMatrix;           // Transpose of the above inverse transform.
 
@@ -319,6 +321,8 @@ private:
   friend class vtkOpenGLLowMemoryVerticesAgent;
   friend class vtkOpenGLLowMemoryLinesAgent;
   friend class vtkOpenGLLowMemoryPolygonsAgent;
+
+  vtkNew<vtkMatrix4x4> TempMatrix4;
 };
 
 VTK_ABI_NAMESPACE_END

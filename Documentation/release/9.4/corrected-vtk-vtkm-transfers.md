@@ -1,4 +1,4 @@
-Fix issues with VTK / VTK-m array conversion
+# Fix issues with VTK / VTK-m array conversion
 
 Changed the VTK to VTK-m array conversion routines to use
 `ArrayHandleRuntimeVec` and `ArrayHandleRecombineVec`. These are new

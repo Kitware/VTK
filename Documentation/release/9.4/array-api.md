@@ -1,4 +1,4 @@
-## Integer API for vtkDataArray
+# Integer API for vtkDataArray
 
 There has been a long-standing need for access to integer
 array data without casting the array to its storage type.

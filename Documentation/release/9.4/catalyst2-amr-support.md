@@ -18,12 +18,12 @@ void MultiLevelToBlueprint (int n_levels,
 This node can then be fed to a Catalyst Conduit node as the data leaf for a Catalyst channel with the type set to `"amrmesh"`.
 
 ```JSON
-catalyst: {
-  state: {...},
-  channels: {
-    mesh: {
-      type: "amrmesh",
-      data: bp_mesh,
+"catalyst": {
+  "state": {/* ... */},
+  "channels": {
+    "mesh": {
+      "type": "amrmesh",
+      "data": "bp_mesh",
     }
   }
 }

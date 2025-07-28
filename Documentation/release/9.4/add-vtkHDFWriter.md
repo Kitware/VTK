@@ -1,4 +1,4 @@
-## Support writing VTKHDF files
+# Support writing VTKHDF files
 
 Previously, only reading VTKHDF files from VTK was supported. We introduce `vtkHDFWriter`,
 capable of writing sequentially VTK data structures to disk in the VTKHDF format.

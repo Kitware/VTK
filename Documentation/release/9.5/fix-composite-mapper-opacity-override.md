@@ -1,4 +1,4 @@
-## Fix vtkCompositePolyDataMapper opacity override
+# Fix vtkCompositePolyDataMapper opacity override
 
 You can now render opaque blocks in a composite dataset even when the actor has an opacity < 1.0 by setting
 the opacity of the block equal to 1.0. Previously, a bug in vtkActor prevented the overridden block's opacity

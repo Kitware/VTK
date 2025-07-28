@@ -1033,14 +1033,17 @@ VTK_ABI_NAMESPACE_END
                   << "): returning " #name "Coordinate address " << this->name##Coordinate);       \
     return this->name##Coordinate;                                                                 \
   }                                                                                                \
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)                                      \
   virtual void Set##name(double x[3])                                                              \
   {                                                                                                \
     this->Set##name(x[0], x[1], x[2]);                                                             \
   }                                                                                                \
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)                                      \
   virtual void Set##name(double x, double y, double z)                                             \
   {                                                                                                \
     this->name##Coordinate->SetValue(x, y, z);                                                     \
   }                                                                                                \
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)                                      \
   virtual double* Get##name() VTK_SIZEHINT(3)                                                      \
   {                                                                                                \
     return this->name##Coordinate->GetValue();                                                     \
@@ -1053,14 +1056,17 @@ VTK_ABI_NAMESPACE_END
                   << "): returning " #name "Coordinate address " << this->name##Coordinate);       \
     return this->name##Coordinate;                                                                 \
   }                                                                                                \
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)                                      \
   virtual void Set##name(double x[2])                                                              \
   {                                                                                                \
     this->Set##name(x[0], x[1]);                                                                   \
   }                                                                                                \
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)                                      \
   virtual void Set##name(double x, double y)                                                       \
   {                                                                                                \
     this->name##Coordinate->SetValue(x, y);                                                        \
   }                                                                                                \
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)                                      \
   virtual double* Get##name() VTK_SIZEHINT(2)                                                      \
   {                                                                                                \
     return this->name##Coordinate->GetValue();                                                     \

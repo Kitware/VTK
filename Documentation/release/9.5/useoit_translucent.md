@@ -1,4 +1,4 @@
-## Add UseOIT flag to vtkRenderer
+# Add UseOIT flag to vtkRenderer
 
 `vtkRenderer` now has a new flag (`UseOIT`) to toggle the use of the new
 `vtkOrderIndependentTranslucentPass` (OIT) for rendering translucent polygonal geometry. This flag

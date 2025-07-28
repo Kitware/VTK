@@ -1,4 +1,4 @@
-## New `vtkFDSReader` for Fire Dynamics Simulator output
+# New `vtkFDSReader` for Fire Dynamics Simulator output
 
 You can now read in output from the Fire Dynamics Simulator (FDS, https://pages.nist.gov/fds-smv/) into VTK. The reader is based on reading the `*.smv` meta-data file to orchestrate the reading of all the other files. It supports:
 

@@ -1,4 +1,4 @@
-## ABI Mangling extension for C/C++ ABI in VTK
+# ABI Mangling extension for C/C++ ABI in VTK
 
 Using the C++ feature `inline namespace` VTK is able to apply ABI mangling
 to VTK without affecting the API interface in code. This feature allows for

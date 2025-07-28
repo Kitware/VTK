@@ -1,4 +1,4 @@
-## vtkLegendScaleActor improvements
+# vtkLegendScaleActor improvements
 
 vtkLegendScaleActor has been improved in several ways:
 - The axes appearance can be configured using a vtkProperty2D

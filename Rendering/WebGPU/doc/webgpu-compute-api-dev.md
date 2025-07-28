@@ -1,4 +1,4 @@
-### Regular buffers
+# Regular buffers
 
 The way rendering resources are managed by VTK internally imposed some constraints on the design
 of the compute API. The goal of this document is to explain the order / flow in which WebGPU
@@ -79,7 +79,7 @@ be called by the user before `Dispatch()`. However, this would be a non-intuitiv
 to perform as having to call a `Finish()` function would slightly expose the internal workings of the API
 (that some operations need to be completed before actually being able to dispatch).
 
-### Render buffers
+# Render buffers
 
 We also uses the same logic (complete the setup of the pipeline when everything is configured) when the
 compute pipeline is integrated in a rendering pipeline:
@@ -219,7 +219,7 @@ So overall, the reason why some parts of the setup are done immediately while ot
 only when rendering a frame / calling `Dispatch()` is because we may not have all required
 pieces of information until rendering the first frame / calling `Dispatch()`.
 
-### Buffer/Textures registration
+# Buffer/Textures registration
 
 Because it may be useful to use a buffer created for a compute pass in another compute pass,
 every time a buffer (or texture or any object) is added to a compute pass, it is also registered
@@ -236,7 +236,7 @@ std::unordered_map<vtkSmartPointer<vtkWebGPUComputeTexture>, wgpu::Texture> Regi
 
 They both map a `vtkWebGPUComputeXXX` to its `wgpu::XXX` equivalent because we want to be able to find the `wgpu::XXX` object from the `vtkWebGPUComputeXXX` object
 
-### Compute passes
+# Compute passes
 
 Compute passes are contained in a `std::vector` in a compute pipeline. A new `vtkWebGPUComputePass`
 is added to the vector when `vtkWebGPUComputePipeline::CreateComputePass()` is called. Every compute

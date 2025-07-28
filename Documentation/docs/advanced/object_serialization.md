@@ -1,6 +1,32 @@
 # Object serialization
 Modules which have `INCLUDE_MARSHAL` in their `vtk.module` will opt their headers into the automated code generation of (de)serializers. Only classes which are annotated by the `VTK_MARSHALAUTO` wrapping hint will have generated serialization code.
 
+## Marshalling Hints
+
+### Classes
+
+VTK auto generates (de)serialization code in C++ for classes annotated by
+the `VTK_MARSHALAUTO` wrapping hint. Additionally, classes that are annotated with
+`VTK_MARSHALMANUAL` require manual code. Please refer to [manual-marshal-code](#manual-marshal-code)
+which explains everything you need to consider when opting out of the automated marshalling code generation process.
+
+### Properties
+
+#### Excluding properties
+
+You can exclude certain properties of a class by simply annotating the relevant setter/getter functions
+with `VTK_MARSHALEXCLUDE(reason)`, where reason is one of `VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL` or
+`VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED`. This reason will be printed in the generated
+C++ source code explaining why the property was not serialized.
+
+### Custom get/set functions
+
+Some properties may not be correctly recognized by the property parser because
+they have different names for their get and set functions. You can override this
+by annotating the get function with the `VTK_MARSHALGETTER(property)` macro. Doing
+so will ensure that the function gets recognized as a getter for `property`.
+`VTK_MARSHALSETTER(property)` serves a similar purpose.
+
 ## Automated code generation
 The `vtkWrapSerDes` executable makes use of the `WrappingTools` package to automatically generate:
 
@@ -85,8 +111,8 @@ That file must satisfy these conditions:
 
 1. It must live in the same module as `vtkClassName`.
 2. It must export a function `int RegisterHandlers_vtkClassNameSerDesHelper(void*, void*, void*)` with C linkage.
-3. It must define and declare the `static` functions from [automated-code-generation](/advanced/object_serialization.html#automated-code-generation).
-4. Finally, it must implement the helper function `RegisterHandlers_vtkClassNameSerDesHelper` to register your handlers with the object manager. Please see the `RegisterHandlers_vtkObjectSerDes` sample code in [automated-code-generation](/advanced/object_serialization.html#automated-code-generation)
+3. It must define and declare the `static` functions from [automated-code-generation](#automated-code-generation).
+4. Finally, it must implement the helper function `RegisterHandlers_vtkClassNameSerDesHelper` to register your handlers with the object manager. Please see the `RegisterHandlers_vtkObjectSerDes` sample code in [automated-code-generation](#automated-code-generation)
 for guidance on implementing this helper.
 
 Example:

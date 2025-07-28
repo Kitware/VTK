@@ -1,4 +1,4 @@
-## Fix backface color in glyph 3D mapper
+# Fix backface color in glyph 3D mapper
 
 Fixes a bug in the OpenGL implementation of `vtkGlyph3DMapper` that did not propagate backface colors
 from the actor to the OpenGL shader program. You can now set the back face color of an actor connected

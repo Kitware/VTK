@@ -1,4 +1,4 @@
-## Add SMP support to more transform classes
+# Add SMP support to more transform classes
 
 SMP acceleration has been implemented for nearly all of the VTK transform
 classes (that is, classes derived from vtkAbstractTransform).  Previously only

@@ -1,4 +1,4 @@
-## Polygon centroid computation fixed
+# Polygon centroid computation fixed
 
 An issue with `vtkPolygon::ComputeCentroid()` has been fixed.
 

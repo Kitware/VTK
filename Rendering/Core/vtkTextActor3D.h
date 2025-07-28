@@ -23,6 +23,7 @@
 
 #include "vtkProp3D.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 #include <string>                   // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -30,7 +31,7 @@ class vtkImageActor;
 class vtkImageData;
 class vtkTextProperty;
 
-class VTKRENDERINGCORE_EXPORT vtkTextActor3D : public vtkProp3D
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkTextActor3D : public vtkProp3D
 {
 public:
   static vtkTextActor3D* New();

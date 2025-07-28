@@ -44,6 +44,7 @@ def gather_module_documentation(
     root_destination,
     custom_paths=[],
     readme_formats=["README.md", "README", "readme.md", "README.txt"],
+    extra_documentation_dirs=[],
     ignore_list=[],
 ):
     """For every module directory under basepath (i.e. contains a vtk.module file), copy READMEs under root_destination
@@ -52,6 +53,7 @@ def gather_module_documentation(
     A "README" file is any file matching the readme_formats.
     returns a list of dictionaries holding the description of a module (see also parse_vtk_module)
 
+    extra_documentation_dirs: directories to look for additional documentation
     ignore_list: paths relative to basepath to ignore
     """
     try:
@@ -84,6 +86,16 @@ def gather_module_documentation(
         # extract module information
         if "vtk.module" in str(path):
             module = parse_vtk_module(str(path))
+            for doc_dir_name in extra_documentation_dirs:
+                doc_dir = os.path.join(str(basename), doc_dir_name)
+                if os.path.exists(doc_dir):
+                    new_doc_dir = os.path.relpath(doc_dir, start="../../")
+                    dest = Path(os.path.join(root_destination, new_doc_dir))
+                    shutil.copytree(
+                        doc_dir,
+                        dest,
+                        dirs_exist_ok=True,
+                    )
             # Bring module specific readmes while recreating the data structure
             for readme in readme_formats:
                 readme = os.path.join(basename, readme)
@@ -150,11 +162,11 @@ MANUAL_SUBSTITUTIONS = [
         "destination": "./developers_guide/git/thirdparty-projects.md",
         "substitutions": [
             (
-                "\[.+\]\(UPDATING.md\)",
+                r"\[.+\]\(UPDATING.md\)",
                 "[](thirdparty.md)",
             ),
             (
-                "\* \[(\w+)\]\((.+\/update\.sh)\)$",
+                r"\* \[(\w+)\]\((.+\/update\.sh)\)$",
                 "* \\1",
             ),
         ],
@@ -164,11 +176,11 @@ MANUAL_SUBSTITUTIONS = [
         "destination": "./developers_guide/git/thirdparty.md",
         "substitutions": [
             (
-                "\[imported.md\]\(imported.md\)",
+                r"\[imported.md\]\(imported.md\)",
                 "[](thirdparty-projects.md)",
             ),
             (
-                "\[update-common.sh\]\(update-common.sh\)",
+                r"\[update-common.sh\]\(update-common.sh\)",
                 "[update-common.sh](path:../../../../ThirdParty/update-common.sh)",
             ),
         ],
@@ -238,11 +250,49 @@ CONTENT_TEMPLATE2 = """\
 
 Released on {date}.
 
-```{{include}} ../../release/{version}.md
+```{{include}} ../../release/_{version}-stripped.md
 :relative-images:
 :heading-offset: 1
 ```
+
+```{{toctree}}
+:hidden:
+
+{author_notes}
+```
 """
+
+
+def strip_sphinx_exclude_blocks_from_file(input_path):
+    """
+    Read a Markdown file, remove blocks between
+    <!-- sphinx-exclude-start --> and <!-- sphinx-exclude-end -->,
+    and return the cleaned content as a string.
+    """
+    with open(input_path, "r") as input_file:
+        content = input_file.read()
+    return re.sub(
+        r"<!--\s*sphinx-exclude-start\s*-->.*?<!--\s*sphinx-exclude-end\s*-->",
+        "",
+        content,
+        flags=re.DOTALL,
+    )
+
+
+def write_stripped_release_file(input_path, output_path):
+    """
+    Strip sphinx-exclude block from input_path and write the result to output_path.
+    """
+    content = strip_sphinx_exclude_blocks_from_file(input_path)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w") as output_file:
+        output_file.write(content)
+
+
+def extract_image_links(content):
+    """Extract image links of the form ![](../imgs/X.Y/filename.png) from markdown content.
+    """
+    return re.findall(r'!\[.*?\]\(\.\./imgs/([\d.]+)/([^)]+)\)', content)
 
 
 def create_release_index(basedir):
@@ -250,7 +300,7 @@ def create_release_index(basedir):
     it returns a string holding the toctree of the index file to be injected in basedir/index.md
     """
     # get x.y.0 releases skipping rc's
-    command = "git tag --sort=version:refname  --format '%(refname:strip=2) %(creatordate:format:%Y-%m-%d)'  | grep -v 'rc' | grep 'v[0-9]*\.[0-9]*\.0'"
+    command = r"git tag --sort=version:refname  --format '%(refname:strip=2) %(creatordate:format:%Y-%m-%d)'  | grep -v 'rc' | grep 'v[0-9]*\.[0-9]*\.0'"
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     tags = str(result.stdout).split("\n")[:-1]  # drop last empty line
     tags = tags[4:]  # skip release for which we do not have release notes
@@ -268,8 +318,13 @@ def create_release_index(basedir):
                 path=os.path.join(basedir, f"{short_tag}.md"), content=content
             )
         else:  # look for release note markdown
-            if os.path.exists(f"../release/{short_tag}.md"):
-                # Copy author notes
+            release_file_path = f"../release/{short_tag}.md"
+            if os.path.exists(release_file_path):
+                stripped_release_path = os.path.join("../release", f"_{short_tag}-stripped.md")
+                write_stripped_release_file(release_file_path, stripped_release_path)
+                with open(stripped_release_path, "r") as release_file:
+                    release_file_content = release_file.read()
+                author_notes = []
                 short_tag_dir = f"../release/{short_tag}"
                 if os.path.exists(short_tag_dir):
                     for (dirpath, dirname, filenames) in os.walk(short_tag_dir):
@@ -277,8 +332,23 @@ def create_release_index(basedir):
                         if not os.path.exists(dest_short_tag_dir):
                             os.makedirs(dest_short_tag_dir)
                         for fn in filenames:
-                            shutil.copy(f"../release/{short_tag}/{fn}", dest_short_tag_dir)
-                content = CONTENT_TEMPLATE2.format(version=short_tag, date=date)
+                            # Copy the note file if is referenced from included "{short_tag}.md"
+                            full_fn = f"{short_tag}/{fn}"
+                            if full_fn in release_file_content:
+                                src = os.path.join("../release", full_fn)
+                                dst = os.path.join(dest_short_tag_dir, fn)
+                                shutil.copy(src, dst)
+                                author_notes.append(full_fn.removesuffix(".md"))
+                                with open(src, "r") as note_file:
+                                    note_content = note_file.read()
+                                for img_version, img_file in extract_image_links(note_content):
+                                    src_img = os.path.join("../release/imgs", img_version, img_file)
+                                    dst_img_dir = os.path.join("release_details/imgs", img_version)
+                                    os.makedirs(dst_img_dir, exist_ok=True)
+                                    shutil.copy(src_img, os.path.join(dst_img_dir, img_file))
+                            else:
+                                print(f"Warning: '{short_tag}/{fn}' is not referenced from '{release_file_path}'")
+                content = CONTENT_TEMPLATE2.format(version=short_tag, date=date, author_notes="\n".join(sorted(author_notes)).strip())
                 create_release_file(
                     path=os.path.join(basedir, f"{short_tag}.md"), content=content
                 )

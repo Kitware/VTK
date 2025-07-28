@@ -1,4 +1,4 @@
-## Add option to independently set thickness of cell edges and lines
+# Add option to independently set thickness of cell edges and lines
 
 You can now set the thickness of cell edges independently without altering the
 thickness of lines. This feature is useful to emphasize either edges or lines in a scene

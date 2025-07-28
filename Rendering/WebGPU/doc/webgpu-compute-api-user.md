@@ -1,4 +1,4 @@
-### Description
+# Description
 
 The new WebGPU compute API allows offloading computations from the CPU to the GPU using WebGPU compute shaders
 through the new `vtkWebGPUComputePass` and `vtkWebGPUComputePipeline` classes.
@@ -7,7 +7,7 @@ A `vtkWebGPUComputePass` is used to set the inputs and outputs to the compute sh
 results back to the CPU. A `vtkWebGPUComputePipeline` contains one or more `vtkWebGPUComputePass` that can be
 executed one after the other in a single `vtkWebGPUComputePipeline->Dispatch()` call.
 
-### Compute pass & pipeline - Usage outside a rendering pipeline
+# Compute pass & pipeline - Usage outside a rendering pipeline
 
 The basic usage of a compute pass outside a rendering pipeline is:
  - Create a vtkWebGPUComputePipeline
@@ -160,7 +160,7 @@ computePipeline->Update();
 is not going to produce the expected results as the buffer would be mapped (and read by the CPU)
 before the compute shader executed.
 
-### Chained compute passes
+# Chained compute passes
 
 Thanks to the concept of compute pipeline, it is possible to chain compute passes so that they execute
 one after the other, potentially using the output of one `vtkWebGPUComputePass` as the input to another pass.
@@ -292,7 +292,7 @@ vector. The output of the second pass is then read back to the CPU.
   computePipeline->Update();
 ```
 
-### Uniforms
+# Uniforms
 
 Uniforms are simply treated as `vtkWebGPUComputeBuffer` with the `vtkWebGPUComputeBuffer::BufferMode::UNIFORM_BUFFER` mode.
 
@@ -346,7 +346,7 @@ int main()
 Because uniforms are buffers, you could also have 'myUniform' be an array in the shader and upload
 more than one float when calling `SetData()`.
 
-### Textures
+# Textures
 
 Besides buffer, compute passes can also use textures and texture views. Although the concept
 of texture may be self explanatory, texture views on the other hand may not. A texture view
@@ -405,7 +405,7 @@ Some comments on the parameters used during the configuration of the texture & t
 Note that all these parameters have reasonable defaults so you may not have to set them all
 for each one of your textures.
 
-### Compute pass & pipeline - Integration in an existing rendering pipeline
+# Compute pass & pipeline - Integration in an existing rendering pipeline
 
 A compute pass can also be used to access and modify data buffers used for rendering
 (point/cell data attributes: colors, positions, normals, ...).
@@ -490,7 +490,7 @@ Render textures are used as regular textures. Add them to a compute pass with `v
 index of the texture returned by that call. Use that texture index to create a texture view with `vtkWebGPUComputePass::CreateTextureView()`.
 Configure the texture view, add it to the compute pass and you're done. Your render texture is ready to be used in one of your shaders.
 
-### Using a dedicated GPU device
+# Using a dedicated GPU device
 
 `vtkWebGPUComputePipeline` automatically initializes a webgpu Device to execute the compute passes.
 You can specify a different device by using the `SetWGPUConfiguration` method with a `vtkWebGPUConfiguration`

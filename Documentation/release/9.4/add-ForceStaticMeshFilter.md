@@ -1,4 +1,4 @@
-## Introduce vtkForceStaticMesh filter
+# Introduce vtkForceStaticMesh filter
 
 The notion of static mesh refers to temporal dataset having varying attributes
 on a static geometry. In VTK data model terms, this is supported by both the

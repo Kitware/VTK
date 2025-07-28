@@ -1,4 +1,4 @@
-## Support collaboration among CAVEs
+# Support collaboration among CAVEs
 
 The RenderingParallel module now provides support for synchronizing collections of actors among the synchronized renderers.  The first such supported actor type is vtkOpenGLAvatar, which lays the foundation for supporting collaboration among users of HMD-based VR and CAVEs.
 

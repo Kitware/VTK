@@ -192,7 +192,6 @@ Common/DataModel/vtkAMRBox.h
 Common/DataModel/vtkAMRDataInternals.h
 Common/DataModel/vtkAMRInformation.h
 Common/DataModel/vtkAMRUtilities.h
-Common/DataModel/vtkAbstractCellLinks.h
 Common/DataModel/vtkAbstractCellLocator.h
 Common/DataModel/vtkAbstractElectronicData.h
 Common/DataModel/vtkAbstractPointLocator.h
@@ -385,8 +384,6 @@ Common/DataModel/vtkPerlinNoise.h
 Common/DataModel/vtkPixel.h
 Common/DataModel/vtkPixelExtent.h
 Common/DataModel/vtkPixelTransfer.h
-Common/DataModel/vtkPlane.h
-Common/DataModel/vtkPlaneCollection.h
 Common/DataModel/vtkPlanes.h
 Common/DataModel/vtkPlanesIntersection.h
 Common/DataModel/vtkPointLocator.h
@@ -427,7 +424,6 @@ Common/DataModel/vtkSphere.h
 Common/DataModel/vtkSpheres.h
 Common/DataModel/vtkSphericalPointIterator.h
 Common/DataModel/vtkSpline.h
-Common/DataModel/vtkStaticCellLinks.h
 Common/DataModel/vtkStaticCellLinksTemplate.h
 Common/DataModel/vtkStaticCellLocator.h
 Common/DataModel/vtkStaticEdgeLocatorTemplate.h
@@ -693,7 +689,6 @@ Rendering/Core/vtkMapperCollection.h
 Rendering/Core/vtkNoise200x200.h
 Rendering/Core/vtkObserverMediator.h
 Rendering/Core/vtkPickingManager.h
-Rendering/Core/vtkPointGaussianMapper.h
 Rendering/Core/vtkPropAssembly.h
 Rendering/Core/vtkPythagoreanQuadruples.h
 Rendering/Core/vtkRayCastStructures.h
@@ -715,7 +710,6 @@ Rendering/Core/vtkTDxInteractorStyle.h
 Rendering/Core/vtkTDxInteractorStyleCamera.h
 Rendering/Core/vtkTDxInteractorStyleSettings.h
 Rendering/Core/vtkTDxMotionEventInfo.h
-Rendering/Core/vtkTextActor3D.h
 Rendering/Core/vtkTextMapper.h
 Rendering/Core/vtkTextRenderer.h
 Rendering/Core/vtkTransformCoordinateSystems.h
@@ -764,7 +758,6 @@ Rendering/OpenGL2/vtkOpenGLBufferObject.h
 Rendering/OpenGL2/vtkOpenGLCellToVTKCellMap.h
 Rendering/OpenGL2/vtkOpenGLCompositePolyDataMapperDelegator.h
 Rendering/OpenGL2/vtkOpenGLFXAAFilter.h
-Rendering/OpenGL2/vtkOpenGLFluidMapper.h
 Rendering/OpenGL2/vtkOpenGLFramebufferObject.h
 Rendering/OpenGL2/vtkOpenGLGL2PSHelper.h
 Rendering/OpenGL2/vtkOpenGLGlyph3DHelper.h
@@ -780,7 +773,6 @@ Rendering/OpenGL2/vtkOpenGLLowMemoryLinesAgent.h
 Rendering/OpenGL2/vtkOpenGLLowMemoryPolygonsAgent.h
 Rendering/OpenGL2/vtkOpenGLLowMemoryStripsAgent.h
 Rendering/OpenGL2/vtkOpenGLLowMemoryVerticesAgent.h
-Rendering/OpenGL2/vtkOpenGLPointGaussianMapper.h
 Rendering/OpenGL2/vtkOpenGLPointGaussianMapperHelper.h
 Rendering/OpenGL2/vtkOpenGLQuadHelper.h
 Rendering/OpenGL2/vtkOpenGLRenderTimer.h
@@ -792,7 +784,6 @@ Rendering/OpenGL2/vtkOpenGLShaderDeclaration.h
 Rendering/OpenGL2/vtkOpenGLSphereMapper.h
 Rendering/OpenGL2/vtkOpenGLState.h
 Rendering/OpenGL2/vtkOpenGLStickMapper.h
-Rendering/OpenGL2/vtkOpenGLTextActor3D.h
 Rendering/OpenGL2/vtkOpenGLTextMapper.h
 Rendering/OpenGL2/vtkOpenGLUniforms.h
 Rendering/OpenGL2/vtkOpenGLVertexArrayObject.h

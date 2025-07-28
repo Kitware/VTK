@@ -1,4 +1,4 @@
-## Introduce vtkExplodeDataSet filter
+# Introduce vtkExplodeDataSet filter
 
 vtkExplodeDataSet creates a vtkPartitionedDataSetCollection from any input dataset according to a cell scalar isovalue criteria.
 Each partition of the output contains cells that share the same value for the given cell array.

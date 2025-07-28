@@ -17,11 +17,12 @@
 
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPiecewiseFunction;
 
-class VTKRENDERINGCORE_EXPORT vtkPointGaussianMapper : public vtkPolyDataMapper
+class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkPointGaussianMapper : public vtkPolyDataMapper
 {
 public:
   static vtkPointGaussianMapper* New();
