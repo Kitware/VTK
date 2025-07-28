@@ -141,12 +141,12 @@ public:
   void InitializePickList();
 
   /**
-   * Add an actor to the pick list.
+   * Add an actor to the pick list. actor must not be nullptr.
    */
   void AddPickList(vtkProp*);
 
   /**
-   * Delete an actor from the pick list.
+   * Delete an actor from the pick list. Does nothing if actor is nullptr.
    */
   void DeletePickList(vtkProp*);
 

@@ -147,7 +147,7 @@ void vtkCollection::InsertItem(int i, vtkObject* a)
 // in description of RemoveItem(int).
 void vtkCollection::RemoveItem(vtkObject* a)
 {
-  if (!this->Top)
+  if (!this->Top || !a)
   {
     return;
   }
@@ -191,7 +191,7 @@ void vtkCollection::RemoveAllItems()
 // object was not found.
 int vtkCollection::IndexOfFirstOccurence(vtkObject* a) VTK_FUTURE_CONST
 {
-  if (!this->Top)
+  if (!this->Top || !a)
   {
     return -1;
   }
@@ -216,7 +216,7 @@ int vtkCollection::IndexOfFirstOccurence(vtkObject* a) VTK_FUTURE_CONST
 // object was not found.
 int vtkCollection::IsItemPresent(vtkObject* a) VTK_FUTURE_CONST
 {
-  if (!this->Top)
+  if (!this->Top || !a)
   {
     return 0;
   }

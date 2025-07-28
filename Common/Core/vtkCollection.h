@@ -52,22 +52,25 @@ public:
 
   /**
    * Add an object to the bottom of the list. Does not prevent duplicate entries.
+   * Given object must not be nullptr.
    */
   void AddItem(vtkObject*);
 
   /**
    * Insert item into the list after the i'th item. Does not prevent duplicate entries.
    * If i < 0 the item is placed at the top of the list.
+   * Given object must not be nullptr.
    */
   void InsertItem(int i, vtkObject*);
 
   /**
    * Replace the i'th item in the collection with another item.
+   * Given object must not be nullptr.
    */
   void ReplaceItem(int i, vtkObject*);
 
   /**
-   * Remove the i'th item in the list.
+   * Remove the i'th item in the list. If i is out-of-range, this function does nothing.
    * Be careful if using this function during traversal of the list using
    * GetNextItemAsObject (or GetNextItem in derived class).  The list WILL
    * be shortened if a valid index is given!  If this->Current is equal to the
@@ -79,6 +82,7 @@ public:
    * Remove an object from the list. Removes the first object found, not
    * all occurrences. If no object found, list is unaffected.  See warning
    * in description of RemoveItem(int).
+   * If given object is nullptr, does nothing.
    */
   void RemoveItem(vtkObject*);
 
@@ -91,6 +95,7 @@ public:
    * Search for an object and return location in list. If the return value is
    * 0, the object was not found. If the object was found, the location is
    * the return value-1.
+   * If given object is nullptr, returns 0.
    */
   int IsItemPresent(vtkObject* a) VTK_FUTURE_CONST;
 
@@ -98,6 +103,7 @@ public:
    * Search for an object and return location in list. If the return value is
    * -1, the object was not found. If the object was found, the location is
    * at the returned (0-based) index.
+   * If given object is nullptr, returns -1.
    */
   int IndexOfFirstOccurence(vtkObject* a) VTK_FUTURE_CONST;
 

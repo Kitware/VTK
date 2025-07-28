@@ -100,12 +100,34 @@ bool TestRemoveItem(int index, bool removeIndex)
 {
   vtkNew<vtkCollection> collection;
   std::vector<vtkSmartPointer<vtkIntArray>> objects;
-  for (int i = 0; i < 10; ++i)
+  constexpr int expectedCount = 10;
+  for (int i = 0; i < expectedCount; ++i)
   {
     vtkNew<vtkIntArray> object;
     collection->AddItem(object);
     objects.emplace_back(object.GetPointer());
   }
+
+  // These should do nothing.
+  collection->RemoveItem(nullptr);
+  collection->RemoveItem(-1);
+  collection->RemoveItem(expectedCount);
+  if (collection->GetNumberOfItems() != expectedCount)
+  {
+    std::cerr << "Nop operations did something.\n";
+    return false;
+  }
+  if (collection->IsItemPresent(nullptr) != 0)
+  {
+    std::cerr << "IsItemPresent found null in collection.\n";
+    return false;
+  }
+  if (collection->IndexOfFirstOccurence(nullptr) != -1)
+  {
+    std::cerr << "IndexOfFirstOccurence found null in collection.\n";
+    return false;
+  }
+
   if (removeIndex)
   {
     collection->RemoveItem(index);
