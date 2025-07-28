@@ -2,9 +2,9 @@
 
 set -e
 
-readonly alembic_version="1.8.5"
+readonly alembic_version="1.8.8"
 readonly alembic_tarball="$alembic_version.tar.gz"
-readonly alembic_sha256sum="180a12f08d391cd89f021f279dbe3b5423b1db751a9898540c8059a45825c2e9"
+readonly alembic_sha256sum="ba1f34544608ef7d3f68cafea946ec9cc84792ddf9cda3e8d5590821df71f6c6"
 
 readonly alembic_root="$HOME/alembic"
 
