@@ -3436,7 +3436,7 @@ ignored_left_parenthesis:
     '(' | LP | LA
 
 %%
-#include <string.h>
+/* NOLINTNEXTLINE(bugprone-suspicious-include) */
 #include "lex.yy.c"
 
 /* fill in the type name if none given */

@@ -8433,9 +8433,8 @@ static void yypdumpstack(yyGLRStack* yystackp)
 #undef yychar
 #undef yynerrs
 
-// NOLINTNEXTLINE(bugprone-suspicious-include)
+/* NOLINTNEXTLINE(bugprone-suspicious-include) */
 #include "lex.yy.c"
-#include <string.h>
 
 /* fill in the type name if none given */
 static const char* type_class(unsigned int type, const char* classname)
