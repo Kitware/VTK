@@ -214,8 +214,6 @@ vtkOpenGLLowMemoryPolyDataMapper::vtkOpenGLLowMemoryPolyDataMapper()
   vtkStringToken edgeValueBufferOffset = "edgeValueBufferOffset";
   vtkStringToken pointIdOffset = "pointIdOffset";
   vtkStringToken primitiveIdOffset = "primitiveIdOffset";
-  vtkStringToken cellType = "cellType";
-  vtkStringToken usesCellMap = "usesCellMap";
 
   (void)positions;
   (void)colors;
@@ -232,8 +230,6 @@ vtkOpenGLLowMemoryPolyDataMapper::vtkOpenGLLowMemoryPolyDataMapper()
   (void)edgeValueBufferOffset;
   (void)pointIdOffset;
   (void)primitiveIdOffset;
-  (void)cellType;
-  (void)usesCellMap;
 }
 
 //------------------------------------------------------------------------------
@@ -828,18 +824,6 @@ void vtkOpenGLLowMemoryPolyDataMapper::InstallArrayTextureShaderDeclarations()
     /*dataType=*/GLSLDataType::Integer,
     /*attributeType=*/GLSLAttributeType::Scalar,
     /*variableName=*/"primitiveIdOffset"_token);
-  this->ShaderDecls.emplace_back(
-    /*qualifier=*/GLSLQualifierType::Uniform,
-    /*precision=*/GLSLPrecisionType::High,
-    /*dataType=*/GLSLDataType::Integer,
-    /*attributeType=*/GLSLAttributeType::Scalar,
-    /*variableName=*/"cellType"_token);
-  this->ShaderDecls.emplace_back(
-    /*qualifier=*/GLSLQualifierType::Uniform,
-    /*precision=*/GLSLPrecisionType::High,
-    /*dataType=*/GLSLDataType::Integer,
-    /*attributeType=*/GLSLAttributeType::Scalar,
-    /*variableName=*/"usesCellMap"_token);
 }
 
 //------------------------------------------------------------------------------
@@ -1100,20 +1084,36 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderPosition(
   int pointId = 0;
   int primitiveId = 0;
   int cellId = 0;
-  int vertexId = gl_VertexID - vertexIdOffset;
-  // pull the vtk point id from vertexIdBuffer
-  pointId = texelFetchBuffer(vertexIdBuffer, gl_VertexID).x + pointIdOffset;
-  // compute primitive id
+  int vertexId = 0;
+  // compute primitive id and vertex id
   if (cellType == 1) // VTK_VERTEX
   {
+    vertexId = gl_VertexID - vertexIdOffset;
     primitiveId = vertexId;
+    // pull the vtk point id from vertexIdBuffer
+    pointId = texelFetchBuffer(vertexIdBuffer, gl_VertexID).x + pointIdOffset;
   }
   else if (cellType == 3) // VTK_LINE
   {
+    if (primitiveSize == 3) // thick lines
+    {
+      // for wide lines, we need to acount for 6 pseudo vertices per line segment.
+      // i.e 2 pseudo vertices per end point of a line segment.
+      vertexId = (gl_VertexID - vertexIdOffset) / 3;
+    }
+    else
+    {
+      vertexId = gl_VertexID - vertexIdOffset;
+      // pull the vtk point id from vertexIdBuffer
+      pointId = texelFetchBuffer(vertexIdBuffer, gl_VertexID).x + pointIdOffset;
+    }
     primitiveId = vertexId >> 1;
   }
   else if (cellType == 5) // VTK_TRIANGLE
   {
+    vertexId = gl_VertexID - vertexIdOffset;
+    // pull the vtk point id from vertexIdBuffer
+    pointId = texelFetchBuffer(vertexIdBuffer, gl_VertexID).x + pointIdOffset;
     primitiveId = vertexId / 3;
   }
   // fast path by default.
@@ -1152,7 +1152,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderNormal(
         "//VTK::Normal::Impl");
       vtkShaderProgram::Substitute(fsSource, "//VTK::Normal::Dec",
         "//VTK::Normal::Dec\n"
-        "in vec3 normalVCVSOutput;");
+        "in vec3 normalVCVSOutput;\n");
       vtkShaderProgram::Substitute(fsSource, "//VTK::Normal::Impl",
         " vec3 vertexNormalVCVS = normalVCVSOutput;\n"
         // Ensure normal is pointing towards camera for points so that both
@@ -1161,7 +1161,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderNormal(
         " if (primitiveSize == 1) vertexNormalVCVS = vec3(0.0, 0.0, 1.0);\n"
         // In similar vein, enforce non-negative components for the normal of
         // line segments to ensure the backside of lines do not appear black.
-        " else if (primitiveSize == 2) vertexNormalVCVS = abs(vertexNormalVCVS);\n"
+        " else if (cellType == 3 || primitiveSize == 2) vertexNormalVCVS = abs(vertexNormalVCVS);\n"
         " else if (gl_FrontFacing == false) vertexNormalVCVS = -vertexNormalVCVS;\n"
         "//VTK::Normal::Impl");
       if (this->HasClearCoat)
@@ -1492,11 +1492,14 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderImplementationCustomUniforms
   vtkShaderProgram::Substitute(vsSource, "//VTK::CustomUniforms::Dec",
     "//VTK::CustomUniforms::Dec\n"
     "uniform highp int primitiveSize;\n"
-    "uniform highp int usesEdgeValues;\n");
+    "uniform highp int usesEdgeValues;\n"
+    "uniform highp int usesCellMap;\n"
+    "uniform highp int cellType;\n");
   vtkShaderProgram::Substitute(fsSource, "//VTK::CustomUniforms::Dec",
     "//VTK::CustomUniforms::Dec\n"
     "uniform highp int primitiveSize;\n"
-    "uniform highp int usesEdgeValues;\n");
+    "uniform highp int usesEdgeValues;\n"
+    "uniform highp int cellType;\n");
 }
 
 //------------------------------------------------------------------------------
@@ -1516,22 +1519,59 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderWideLines(
   // Wide lines only when primitiveSize == 2
   vtkShaderProgram::Substitute(vsSource, "//VTK::LineWidthGLES30::Dec",
     "uniform vec4 viewportDimensions;\n"
-    "uniform float lineWidthStepSize;\n"
-    "uniform float halfLineWidth;");
+    "uniform float lineWidth;");
   vtkShaderProgram::Substitute(vsSource, "//VTK::LineWidthGLES30::Impl",
-    "if (primitiveSize == 2) {"
-    "if (halfLineWidth > 0.0)\n"
-    "{\n"
-    "  float offset = float(gl_InstanceID / 2) * lineWidthStepSize - halfLineWidth;\n"
-    "  vec4 tmpPos = gl_Position;\n"
-    "  vec3 tmpPos2 = tmpPos.xyz / tmpPos.w;\n"
-    "  tmpPos2.x = tmpPos2.x + 2.0 * mod(float(gl_InstanceID), 2.0) * offset / "
-    "viewportDimensions[2];\n"
-    "  tmpPos2.y = tmpPos2.y + 2.0 * mod(float(gl_InstanceID + 1), 2.0) * offset / "
-    "viewportDimensions[3];\n"
-    "  gl_Position = vec4(tmpPos2.xyz * tmpPos.w, tmpPos.w);\n"
-    "}\n"
-    "}\n");
+    R"(
+if (cellType == 3 && primitiveSize == 3) // VTK_LINE rendered as 2 triangle primitives
+{
+  if (lineWidth > 1.0)
+  {
+    // for wide lines, we need to expand the line segment to a quad.
+    vec2 QUAD[6] = vec2[6](
+      vec2(0.0, -0.5),
+      vec2(0.0, 0.5),
+      vec2(1.0, -0.5),
+      vec2(1.0, -0.5),
+      vec2(0.0, 0.5),
+      vec2(1.0, 0.5)
+    );
+    // Assumption: (gl_VertexID - vertexIdOffset) is always non-negative and divisible by 6 for all vertices in the expanded line.
+    // If this assumption fails, it may cause out-of-bounds access or incorrect quad mapping.
+    // Validate index to avoid out-of-bounds access.
+    vec2 pCoord = vec2(0.0, 0.0);
+    int quadIdx = (gl_VertexID - vertexIdOffset) % 6;
+    if (quadIdx < 0 || quadIdx >= 6) {
+      // Invalid index, fallback to first point.
+      pCoord = vec2(0.0, -0.5);
+    } else {
+      pCoord = QUAD[quadIdx];
+    }
+  
+    int p0VertexId = 2 * primitiveId + vertexIdOffset;
+    int p1VertexId = p0VertexId + 1;
+  
+    int p0PointId = texelFetchBuffer(vertexIdBuffer, p0VertexId).x + pointIdOffset;
+    int p1PointId = texelFetchBuffer(vertexIdBuffer, p1VertexId).x + pointIdOffset;
+    vec4 p0MC = vec4(texelFetchBuffer(positions, p0PointId).xyz, 1.0);
+    vec4 p1MC = vec4(texelFetchBuffer(positions, p1PointId).xyz, 1.0);
+    // transform to view and then to clip space.
+    vec4 p0_DC = MCDCMatrix * p0MC;
+    vec4 p1_DC = MCDCMatrix * p1MC;
+    // transform to 2-D screen plane.
+    vec2 p0Screen = viewportDimensions.xy + viewportDimensions.zw * (0.5 * p0_DC.xy / p0_DC.w + 0.5);
+    vec2 p1Screen = viewportDimensions.xy + viewportDimensions.zw * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
+    // compute the line direction vector.
+    vec2 xBasis = normalize(p1Screen - p0Screen);
+    // compute the perpendicular vector to the line direction.
+    vec2 yBasis = vec2(-xBasis.y, xBasis.x);
+    vec2 p0Offset = p0Screen + pCoord.x * xBasis + pCoord.y * yBasis * lineWidth;
+    vec2 p1Offset = p1Screen + pCoord.x * xBasis + pCoord.y * yBasis * lineWidth;
+    vec2 p = mix(p0Offset, p1Offset, pCoord.x);
+    vec4 p_DC = mix(p0_DC, p1_DC, pCoord.x);
+    // compute the final position in clip space.
+    gl_Position = vec4(p_DC.w * ((2.0 * p) / viewportDimensions.zw - 1.0), p_DC.z, p_DC.w);
+  }
+})");
 }
 
 //------------------------------------------------------------------------------
@@ -1547,7 +1587,7 @@ uniform highp int edgeVisibility;)");
   std::ostringstream vsImpl;
   vsImpl
     << R"(// only compute edge equation for provoking vertex i.e p3 in a triangle made of p1, p2, p3
-  if ((((edgeVisibility == 1) || (wireframe == 1)) && (primitiveSize == 3)) && (vertexId % 3 == 2))
+  if ((((edgeVisibility == 1) || (wireframe == 1)) && (cellType == 5)) && (vertexId % 3 == 2))
   {
     int p0 = texelFetchBuffer(vertexIdBuffer, gl_VertexID - 2).x + pointIdOffset;
     int p1 = texelFetchBuffer(vertexIdBuffer, gl_VertexID - 1).x + pointIdOffset;
@@ -1598,7 +1638,7 @@ uniform float edgeWidth;
 
   std::ostringstream fsImpl;
   fsImpl << R"(
-  if (((edgeVisibility == 1) || (wireframe == 1)) && (primitiveSize == 3))
+  if (((edgeVisibility == 1) || (wireframe == 1)) && (cellType == 5)) // VTK_TRIANGLE
   {
     // distance gets larger as you go inside the polygon
     float edist[3];
@@ -2125,8 +2165,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer
   const float edgeWidth = actor->GetProperty()->GetEdgeWidth();
 
   this->ShaderProgram->SetUniform4f("viewportDimensions", vpDims);
-  this->ShaderProgram->SetUniformf("lineWidthStepSize", lineWidth / vtkMath::Ceil(lineWidth));
-  this->ShaderProgram->SetUniformf("halfLineWidth", lineWidth / 2.0);
+  this->ShaderProgram->SetUniformf("lineWidth", lineWidth);
   this->ShaderProgram->SetUniform3f("vertex_color", actor->GetProperty()->GetVertexColor());
   this->ShaderProgram->SetUniform3f("edgeColor", actor->GetProperty()->GetEdgeColor());
   this->ShaderProgram->SetUniformf("edgeOpacity", actor->GetProperty()->GetEdgeOpacity());

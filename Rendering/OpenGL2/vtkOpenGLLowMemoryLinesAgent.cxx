@@ -25,13 +25,16 @@ void vtkOpenGLLowMemoryLinesAgent::PreDrawInternal(
   vtkRenderer*, vtkActor* actor, vtkOpenGLLowMemoryPolyDataMapper* lmMapper) const
 {
   lmMapper->ElementType = vtkDrawTexturedElements::ElementShape::Line;
-  if (actor->GetProperty()->GetLineWidth() > 1)
+  if (actor->GetProperty()->GetLineWidth() > 1 &&
+    actor->GetProperty()->GetRepresentation() != VTK_POINTS)
   {
-    lmMapper->NumberOfInstances = 2 * vtkMath::Ceil(actor->GetProperty()->GetLineWidth());
+    this->NumberOfPseudoPrimitivesPerElement = 2; // Each line segment is drawn as 2 triangles.
+    lmMapper->ElementType = vtkDrawTexturedElements::ElementShape::Triangle;
   }
   else
   {
-    lmMapper->NumberOfInstances = 1;
+    this->NumberOfPseudoPrimitivesPerElement = 1;
+    lmMapper->ElementType = vtkDrawTexturedElements::ElementShape::Line;
   }
   lmMapper->ShaderProgram->SetUniformi("cellType", VTK_LINE);
 }
