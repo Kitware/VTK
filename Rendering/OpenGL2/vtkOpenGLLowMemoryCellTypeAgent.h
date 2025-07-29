@@ -43,6 +43,8 @@ protected:
 
   int NumberOfPointsPerPrimitive = 1;
   bool InVertexVisibilityPass = false;
+  mutable int NumberOfPseudoPrimitivesPerElement =
+    1; // Used to track how many pseudo primitives are used for each element type.
 };
 
 VTK_ABI_NAMESPACE_END
