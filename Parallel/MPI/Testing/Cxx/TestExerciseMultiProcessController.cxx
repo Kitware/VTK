@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "ExerciseMultiProcessController.h"
+#include "TestExerciseMultiProcessController.h"
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -1174,7 +1174,7 @@ static void Run(vtkMultiProcessController* controller, void* _args)
 }
 
 //------------------------------------------------------------------------------
-int ExerciseMultiProcessController(vtkMultiProcessController* controller)
+int TestExerciseMultiProcessController(vtkMultiProcessController* controller)
 {
   controller->CreateOutputWindow();
 

@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "ExerciseMultiProcessController.h"
+#include "TestExerciseMultiProcessController.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
 #include "vtkProcessGroup.h"
@@ -184,7 +184,7 @@ int ExerciseNoBlockCommunications(vtkMPIController* controller)
   return retVal;
 }
 
-int MPIController(int argc, char* argv[])
+int TestMPIController(int argc, char* argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
@@ -198,7 +198,7 @@ int MPIController(int argc, char* argv[])
   controller->Initialize(&argc, &argv, 1);
 
   vtkLogger::SetThreadName("rank: " + std::to_string(controller->GetLocalProcessId()));
-  int retval = ExerciseMultiProcessController(controller);
+  int retval = TestExerciseMultiProcessController(controller);
 
   retval = retval | ExerciseNoBlockCommunications(controller);
 
@@ -215,7 +215,7 @@ int MPIController(int argc, char* argv[])
     controller->vtkMultiProcessController::CreateSubController(group));
   if (!retval)
   {
-    retval = ExerciseMultiProcessController(genericController);
+    retval = TestExerciseMultiProcessController(genericController);
   }
 
   retval = retval | (::CheckProbing(controller) ? 0 : 1);

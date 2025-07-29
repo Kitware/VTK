@@ -326,7 +326,7 @@ void Process1(vtkMultiProcessController* contr, void* arg)
   }
 }
 
-int GenericCommunicator(int argc, char* argv[])
+int TestGenericCommunicator(int argc, char* argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the

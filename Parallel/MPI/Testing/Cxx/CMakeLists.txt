@@ -3,11 +3,11 @@ vtk_add_test_mpi(vtkParallelMPICxxTests-MPI tests
   TestPProbe.cxx
   )
 vtk_add_test_mpi(vtkParallelMPICxxTests-MPI no_data_tests
-  #GenericCommunicator.cxx
-  MPIController.cxx
-  PDirectory.cxx
-  PSystemTools.cxx
+  TestGenericCommunicator.cxx
+  TestMPIController.cxx
+  TestPDirectory.cxx
   TestPExecutableRunner.cxx
+  TestPSystemTools.cxx
   )
 
 set(vtkParallelMPICxxTests-MPI_NUMPROCS 2)
@@ -22,5 +22,5 @@ set(all_tests
   ${2_proc_tests}
   )
 vtk_test_cxx_executable(vtkParallelMPICxxTests-MPI all_tests
-  ExerciseMultiProcessController.cxx
+  TestExerciseMultiProcessController.cxx
   )
