@@ -847,7 +847,7 @@ struct BucketList : public vtkBucketList
     // Process locator blocks/subvolumes.
     void operator()(vtkIdType blockId, vtkIdType endBlockId)
     {
-
+      vtkIdList*& nearby = this->PIds.Local();
       for (; blockId < endBlockId; ++blockId)
       {
         vtkIdType bin = this->GetCurrentBin(blockId, this->CheckerboardIndex);
@@ -859,7 +859,6 @@ struct BucketList : public vtkBucketList
           for (auto i = 0; i < numIds; ++i)
           {
             vtkIdType ptId = ids[i].PtId;
-            vtkIdList*& nearby = this->PIds.Local();
             this->MergePoint(ptId, nearby);
           } // for all points in bin/bucket
         }   // if points exist in bin/bucket

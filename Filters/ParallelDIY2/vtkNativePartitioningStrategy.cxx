@@ -68,6 +68,7 @@ struct PartitionDistributionWorklet
   void operator()(vtkIdType first, vtkIdType last)
   {
     vtkGenericCell* gcell = this->LocalData.Local().GenCell;
+    auto& boundaryNeighborParts = this->LocalData.Local().BoundaryNeighborParts;
     std::vector<double> weights(static_cast<size_t>(this->MaxCellSize));
     for (vtkIdType cellId = first; cellId < last; ++cellId)
     {
@@ -92,8 +93,8 @@ struct PartitionDistributionWorklet
           }
           else
           {
-            this->LocalData.Local().BoundaryNeighborParts.emplace_back(cellId);
-            this->LocalData.Local().BoundaryNeighborParts.emplace_back(itC->at(cutId));
+            boundaryNeighborParts.emplace_back(cellId);
+            boundaryNeighborParts.emplace_back(itC->at(cutId));
           }
         }
         continue;

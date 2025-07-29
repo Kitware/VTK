@@ -98,6 +98,7 @@ struct IntegratingFunctor
   void operator()(vtkIdType partId, vtkIdType endPartId)
   {
     bool isFirst = vtkSMPTools::GetSingleThread();
+    auto*& localData = this->LocalData.Local();
     for (vtkIdType id = partId; id < endPartId; id++)
     {
       if (isFirst)
@@ -109,7 +110,6 @@ struct IntegratingFunctor
         break;
       }
       vtkLagrangianParticle* particle = this->ParticlesVec[id];
-      vtkLagrangianThreadedData* localData = this->LocalData.Local();
 
       // Set threaded data on the particle
       particle->SetThreadedData(localData);

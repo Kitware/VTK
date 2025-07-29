@@ -218,13 +218,14 @@ struct SpatialDensityStrategy : public WeighingStrategy
     vtkSMPThreadLocalObject<vtkIdList> localPointIds;
     auto distribute = [&](vtkIdType begin, vtkIdType end)
     {
+      auto*& pointIds = localPointIds.Local();
       for (vtkIdType iC = begin; iC < end; ++iC)
       {
-        ds->GetCellPoints(iC, localPointIds.Local());
-        double participation = mRange[iC] / localPointIds.Local()->GetNumberOfIds();
-        for (vtkIdType iP = 0; iP < localPointIds.Local()->GetNumberOfIds(); ++iP)
+        ds->GetCellPoints(iC, pointIds);
+        double participation = mRange[iC] / pointIds->GetNumberOfIds();
+        for (vtkIdType iP = 0; iP < pointIds->GetNumberOfIds(); ++iP)
         {
-          dRange[localPointIds.Local()->GetId(iP)] += participation;
+          dRange[pointIds->GetId(iP)] += participation;
         }
       }
     };
