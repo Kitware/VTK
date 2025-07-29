@@ -627,15 +627,16 @@ static void vtkWrapSerDes_WriteArgumentCheck(
       // Verify that the parameter is a JSON object and contains the "Id" key
       // This is needed for vtkSmartPointer and vtkObjectBase types.
       fprintf(fp,
-        "\n   && args[%d].is_object()"
+        "\n   && ((args[%d].is_object()"
         "\n   && (static_cast<void>(idIter%d = args[%d].find(\"Id\")), idIter%d != "
         "args[%d].end())" // uses the comma to initialize idIter inline. This cannot be done outside
                           // because args[i] might throw out of range error. The first expression is
                           // casted to void in order to silence the `-Wcomma` warning
         "\n   && idIter%d->is_number_unsigned()"
         "\n   && (objectFromContext%d = context->GetObjectAtId(*idIter%d))"
-        "\n   && context->GetObjectAtId(*idIter%d)->IsA(\"%s\")",
-        i, i, i, i, i, i, i, i, i, className);
+        "\n   && context->GetObjectAtId(*idIter%d)->IsA(\"%s\"))"
+        "\n   || args[%d].is_null())",
+        i, i, i, i, i, i, i, i, i, className, i);
       free(className);
     }
     else if (isNumeric)

@@ -33,7 +33,7 @@ public:
   // Cache for data arrays.
   nlohmann::json Blobs = nlohmann::json::object();
   // Placeholder returned by reference when an identifier doesn't have a state.
-  nlohmann::json Empty = nlohmann::json::object();
+  nlohmann::json Empty;
   // The global store of weak references to objects.
   vtkMarshalContext::WeakObjectStore WeakObjects;
   // Object manager or deserializer will want to keep strong references to objects
