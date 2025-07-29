@@ -342,7 +342,7 @@ void vtkOpenGLSurfaceProbeVolumeMapper::ReplaceShaderProbePass(vtkActor* actor)
     "{\n"
     "  float l = in_level; \n"
     "  float w = in_window;\n"
-    "  float s = w > 0 ? 0.5 : -0.5;\n" // handle negative window
+    "  float s = w > 0.0 ? 0.5 : -0.5;\n" // handle negative window
     "  color = clamp(color, l - s * w, l + s * w);\n"
     "  return (color - (l - 0.5 * w)) / w;\n"
     "}\n",
