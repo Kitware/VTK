@@ -118,19 +118,14 @@ double vtkTriangle::ComputeArea()
 }
 
 //------------------------------------------------------------------------------
-// Create a new cell and copy this triangle's information into the cell.
-// Returns a pointer to the new cell created.
+// The triangle (barycentric) coordinates and weights are found with the metric tensor method.
+// The finding of the closest point is an implementation of the method sketched in
+// [Ericson, C. (2004). Real-time collision detection. CRC Press] in pages 137--138,
+// using barycentric coordinates.
+// https://www.r-5.org/files/books/computers/algo-list/realtime-3d/Christer_Ericson-Real-Time_Collision_Detection-EN.pdf
 int vtkTriangle::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
   double pcoords[3], double& dist2, double weights[])
 {
-  const double *pt1, *pt2, *pt3, *closest;
-  double n[3];
-  double rhs[2], c1[2], c2[2];
-  double det;
-  int idx = 0, indices[2];
-  double dist2Point, dist2Line1, dist2Line2;
-  double closestPoint1[3], closestPoint2[3], cp[3];
-
   subId = 0;
   pcoords[2] = 0.0;
 
@@ -142,182 +137,105 @@ int vtkTriangle::EvaluatePosition(const double x[3], double closestPoint[3], int
     return 0;
   }
   const double* pts = pointsArray->GetPointer(0);
+  const double* pt0 = pts;
+  const double* pt1 = pts + 3;
+  const double* pt2 = pts + 6;
 
-  // Get normal for triangle, only the normal direction is needed, i.e. the
-  // normal need not be normalized (unit length)
-  //
-  pt1 = pts + 3;
-  pt2 = pts + 6;
-  pt3 = pts;
-
-  vtkTriangle::ComputeNormalDirection(pt1, pt2, pt3, n);
-
-  // Project point to plane
-  //
-  vtkPlane::GeneralizedProjectPoint(x, pt1, n, cp);
-
-  // Construct matrices.  Since we have over determined system, need to find
-  // which 2 out of 3 equations to use to develop equations. (Any 2 should
-  // work since we've projected point to plane.)
-  //
-  double maxComponent = 0.0;
-  for (int i = 0; i < 3; i++)
-  {
-    // trying to avoid an expensive call to std::abs()
-    n[i] = std::abs(n[i]);
-    if (n[i] > maxComponent)
-    {
-      maxComponent = n[i];
-      idx = i;
-    }
-  }
-  for (int j = 0, i = 0; i < 3; i++)
-  {
-    if (i != idx)
-    {
-      indices[j++] = i;
-    }
-  }
-
-  for (int i = 0; i < 2; i++)
-  {
-    rhs[i] = cp[indices[i]] - pt3[indices[i]];
-    c1[i] = pt1[indices[i]] - pt3[indices[i]];
-    c2[i] = pt2[indices[i]] - pt3[indices[i]];
-  }
-
-  if ((det = vtkMath::Determinant2x2(c1, c2)) == 0.0)
+  double c1[3], c2[3], p[3];
+  vtkMath::Subtract(pt1, pt0, c1);
+  vtkMath::Subtract(pt2, pt0, c2);
+  vtkMath::Subtract(x, pt0, p);
+  const double g11 = vtkMath::Dot(c1, c1);
+  const double g12 = vtkMath::Dot(c1, c2);
+  const double g22 = vtkMath::Dot(c2, c2);
+  const double p1 = vtkMath::Dot(p, c1);
+  const double p2 = vtkMath::Dot(p, c2);
+  const double area2 = g11 * g22 - g12 * g12;
+  if (area2 == 0.0)
   {
     pcoords[0] = pcoords[1] = 0.0;
     return -1;
   }
 
-  pcoords[0] = vtkMath::Determinant2x2(rhs, c2) / det;
-  pcoords[1] = vtkMath::Determinant2x2(c1, rhs) / det;
+  pcoords[0] = (g22 * p1 - g12 * p2) / area2;
+  pcoords[1] = (g11 * p2 - g12 * p1) / area2;
 
-  // Okay, now find closest point to element
-  //
   weights[0] = 1.0 - (pcoords[0] + pcoords[1]);
   weights[1] = pcoords[0];
   weights[2] = pcoords[1];
 
-  if (weights[0] >= 0.0 && weights[0] <= 1.0 && weights[1] >= 0.0 && weights[1] <= 1.0 &&
-    weights[2] >= 0.0 && weights[2] <= 1.0)
+  // If requested, we find the closest point on the element
+  if (closestPoint)
   {
-    // projection distance
-    if (closestPoint)
+    // The order of the conditions follows the priority: vertices, edges, and interior.
+    // This corresponds to the volume of each of the conditions from larger to smaller,
+    // for reasonable distances around the triangle.
+    // For a triangle of mean edge length l and a region up to distance r:
+    // Area of vertices = pi * r^2
+    // Area of edges = 3 * r * l
+    // Area of interior <= sqrt(3)/4 * l^2
+    // For r > 3/pi * l = 0.9549297 * l the area of vertices is the largest.
+    if (p1 < 0 && p2 < 0) // Vertex 0
     {
-      dist2 = vtkMath::Distance2BetweenPoints(cp, x);
-      closestPoint[0] = cp[0];
-      closestPoint[1] = cp[1];
-      closestPoint[2] = cp[2];
+      vtkMath::Assign(pt0, closestPoint);
+      dist2 = vtkMath::Distance2BetweenPoints(closestPoint, x);
+      return 0;
     }
+    const double p1_2 = p2 - p1 - g12 + g11;
+    if (p1_2 < 0 && p1 > g11) // Vertex 1
+    {
+      vtkMath::Assign(pt1, closestPoint);
+      dist2 = vtkMath::Distance2BetweenPoints(closestPoint, x);
+      return 0;
+    }
+    const double g1_22 = g22 + g11 - 2 * g12;
+    if (p1_2 > g1_22 && p2 > g22) // Vertex 2
+    {
+      vtkMath::Assign(pt2, closestPoint);
+      dist2 = vtkMath::Distance2BetweenPoints(closestPoint, x);
+      return 0;
+    }
+    if (weights[0] < 0 && p1_2 >= 0 && p1_2 <= g1_22) // Edge 1-2
+    {
+      const double rho2 = p1_2 / g1_22;
+      const double rho1 = 1 - rho2;
+      for (unsigned int i = 0; i < 3; ++i)
+      {
+        closestPoint[i] = rho1 * pt1[i] + rho2 * pt2[i];
+      }
+      dist2 = vtkMath::Distance2BetweenPoints(closestPoint, x);
+      return 0;
+    }
+    if (weights[1] < 0 && p2 >= 0 && p2 <= g22) // Edge 0-1
+    {
+      const double rho2 = p2 / g22;
+      for (unsigned int i = 0; i < 3; ++i)
+      {
+        closestPoint[i] = pt0[i] + rho2 * c2[i];
+      }
+      dist2 = vtkMath::Distance2BetweenPoints(closestPoint, x);
+      return 0;
+    }
+    if (weights[2] < 0 && p1 >= 0 && p1 <= g11) // Edge 0-2
+    {
+      const double rho1 = p1 / g11;
+      for (unsigned int i = 0; i < 3; ++i)
+      {
+        closestPoint[i] = pt0[i] + rho1 * c1[i];
+      }
+      dist2 = vtkMath::Distance2BetweenPoints(closestPoint, x);
+      return 0;
+    }
+    for (unsigned int i = 0; i < 3; ++i) // Projected inside
+    {
+      closestPoint[i] = pt0[i] + pcoords[0] * c1[i] + pcoords[1] * c2[i];
+    }
+    dist2 = vtkMath::Distance2BetweenPoints(closestPoint, x);
     return 1;
   }
-  else
-  {
-    double t;
-    if (closestPoint)
-    {
-      if (weights[1] < 0.0 && weights[2] < 0.0)
-      {
-        dist2Point = vtkMath::Distance2BetweenPoints(x, pt3);
-        dist2Line1 = vtkLine::DistanceToLine(x, pt1, pt3, t, closestPoint1);
-        dist2Line2 = vtkLine::DistanceToLine(x, pt3, pt2, t, closestPoint2);
-        if (dist2Point < dist2Line1)
-        {
-          dist2 = dist2Point;
-          closest = pt3;
-        }
-        else
-        {
-          dist2 = dist2Line1;
-          closest = closestPoint1;
-        }
-        if (dist2Line2 < dist2)
-        {
-          dist2 = dist2Line2;
-          closest = closestPoint2;
-        }
-        for (int i = 0; i < 3; i++)
-        {
-          closestPoint[i] = closest[i];
-        }
-      }
-      else if (weights[2] < 0.0 && weights[0] < 0.0)
-      {
-        dist2Point = vtkMath::Distance2BetweenPoints(x, pt1);
-        dist2Line1 = vtkLine::DistanceToLine(x, pt1, pt3, t, closestPoint1);
-        dist2Line2 = vtkLine::DistanceToLine(x, pt1, pt2, t, closestPoint2);
-        if (dist2Point < dist2Line1)
-        {
-          dist2 = dist2Point;
-          closest = pt1;
-        }
-        else
-        {
-          dist2 = dist2Line1;
-          closest = closestPoint1;
-        }
-        if (dist2Line2 < dist2)
-        {
-          dist2 = dist2Line2;
-          closest = closestPoint2;
-        }
-        for (int i = 0; i < 3; i++)
-        {
-          closestPoint[i] = closest[i];
-        }
-      }
-      else if (weights[1] < 0.0 && weights[0] < 0.0)
-      {
-        dist2Point = vtkMath::Distance2BetweenPoints(x, pt2);
-        dist2Line1 = vtkLine::DistanceToLine(x, pt2, pt3, t, closestPoint1);
-        dist2Line2 = vtkLine::DistanceToLine(x, pt1, pt2, t, closestPoint2);
-        if (dist2Point < dist2Line1)
-        {
-          dist2 = dist2Point;
-          closest = pt2;
-        }
-        else
-        {
-          dist2 = dist2Line1;
-          closest = closestPoint1;
-        }
-        if (dist2Line2 < dist2)
-        {
-          dist2 = dist2Line2;
-          closest = closestPoint2;
-        }
-        for (int i = 0; i < 3; i++)
-        {
-          closestPoint[i] = closest[i];
-        }
-      }
-      else if (weights[0] < 0.0)
-      {
-        dist2 = vtkLine::DistanceToLine(x, pt1, pt2, t, closestPoint);
-      }
-      else if (weights[1] < 0.0)
-      {
-        dist2 = vtkLine::DistanceToLine(x, pt2, pt3, t, closestPoint);
-      }
-      else if (weights[2] < 0.0)
-      {
-        dist2 = vtkLine::DistanceToLine(x, pt1, pt3, t, closestPoint);
-      }
-      else
-      {
-        // This branch seems to be dead code, but just in case, set closestPoint
-        // so that it is always set to something.
-        closestPoint[0] = 0.0;
-        closestPoint[1] = 0.0;
-        closestPoint[2] = 0.0;
-        assert(0 && "Arrived in a branch thought to be dead!");
-      }
-    }
-    return 0;
-  }
+
+  bool inside = (weights[0] >= 0.0 && weights[1] >= 0.0 && weights[2] >= 0.0);
+  return inside;
 }
 
 //------------------------------------------------------------------------------
