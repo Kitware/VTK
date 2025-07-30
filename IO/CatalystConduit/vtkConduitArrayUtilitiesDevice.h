@@ -3,7 +3,6 @@
 /**
  * @class vtkConduitArrayUtilitiesDevice
  * @brief helper to convert Conduit arrays stored on acceleration devices to Viskores arrays.
- * @ingroup Insitu
  *
  * vtkConduitArrayUtilitiesDevice is intended to convert Conduit nodes satisfying the
  * `mcarray` protocol, with memory allocated on acceleration devices, to Viskores arrays. It uses

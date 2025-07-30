@@ -3,7 +3,6 @@
 /**
  * @class vtkConduitArrayUtilities
  * @brief helper to convert Conduit arrays to VTK arrays.
- * @ingroup Insitu
  *
  * vtkConduitArrayUtilities is intended to convert Conduit nodes satisfying the
  * `mcarray` protocol to VTK arrays. It uses zero-copy when possible otherwise

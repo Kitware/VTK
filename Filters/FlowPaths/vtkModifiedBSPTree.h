@@ -111,12 +111,9 @@
  * @par Thanks:
  *  John Biddiscombe for developing and contributing this class
  *
- * @todo
- * -------------
- * Implement intersection heap for testing rays against transparent objects
+ * TODO: Implement intersection heap for testing rays against transparent objects
  *
  * @par Style:
- * --------------
  * This class is currently maintained by J. Biddiscombe who has specially
  * requested that the code style not be modified to the Kitware standard.
  * Please respect the contribution of this class by keeping the style

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOpenXRUtilities
- //----------------------------------------------------------------------------
  * @brief   Header file that contains utility functions for OpenXR
  *
  * This class contains inline functions to create matrices from OpenXR pose
