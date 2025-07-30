@@ -1190,9 +1190,9 @@ char* yytext;
 
 /*
 
-This file must be translated to C and modified to build everywhere.
+The file 'lex.yy.c' is generated from 'vtkParse.l'.
 
-See the adjacent README.txt file for instructions.
+See the adjacent README.md file for instructions.
 
 */
 
