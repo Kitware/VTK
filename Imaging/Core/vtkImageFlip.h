@@ -11,6 +11,7 @@
 #ifndef vtkImageFlip_h
 #define vtkImageFlip_h
 
+#include "vtkDeprecation.h" // for Deprecation macro
 #include "vtkImageReslice.h"
 #include "vtkImagingCoreModule.h" // For export macro
 
@@ -67,9 +68,14 @@ public:
    * implementation was broken.  It is deprecated now and it has
    * no effect (i.e. the ImageExtent is always preserved).
    */
+  VTK_DEPRECATED_IN_9_6_0("This is no a no-op, Image extent is always preserved.")
   vtkSetMacro(PreserveImageExtent, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_6_0("This is no a no-op, Image extent is always preserved.")
   vtkGetMacro(PreserveImageExtent, vtkTypeBool);
-  vtkBooleanMacro(PreserveImageExtent, vtkTypeBool);
+  VTK_DEPRECATED_IN_9_6_0("This is no a no-op, Image extent is always preserved.")
+  void PreserveImageExtentOn() {}
+  VTK_DEPRECATED_IN_9_6_0("This is no a no-op, Image extent is always preserved.")
+  void PreserveImageExtentOff() {}
   ///@}
 
 protected:

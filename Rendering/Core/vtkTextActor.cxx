@@ -500,6 +500,7 @@ void vtkTextActor::SetOrientation(float orientation)
 }
 
 //------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_6_0
 int vtkTextActor::GetAlignmentPoint()
 {
   int alignmentCode = 0;
@@ -540,6 +541,7 @@ int vtkTextActor::GetAlignmentPoint()
 }
 
 //------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_6_0
 void vtkTextActor::SetAlignmentPoint(int val)
 {
   vtkWarningMacro(<< "Alignment point is being deprecated.  You should use "

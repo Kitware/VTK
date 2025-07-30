@@ -26,6 +26,7 @@
 #ifndef vtkLabelPlacer_h
 #define vtkLabelPlacer_h
 
+#include "vtkDeprecation.h" // For deprecation macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkRenderingLabelModule.h" // For export macro
 
@@ -34,7 +35,9 @@ class vtkRenderer;
 class vtkCoordinate;
 class vtkSelectVisiblePoints;
 
-class VTKRENDERINGLABEL_EXPORT vtkLabelPlacer : public vtkPolyDataAlgorithm
+class VTK_DEPRECATED_IN_9_6_0(
+  "Please use vtkLabelPlacementMapper instead") VTKRENDERINGLABEL_EXPORT vtkLabelPlacer
+  : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLabelPlacer* New();

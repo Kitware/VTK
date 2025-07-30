@@ -5,6 +5,8 @@
 // .SECTION Description
 // this program tests vtkLabelPlacer which uses a sophisticated algorithm to
 // prune labels/icons preventing them from overlapping.
+// VTK_DEPRECATED_IN_9_6_0
+#define VTK_DEPRECATION_LEVEL 0
 
 #include "vtkActor.h"
 #include "vtkActor2D.h"

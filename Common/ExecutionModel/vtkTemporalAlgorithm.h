@@ -164,14 +164,6 @@ protected:
    */
   bool IntegrateFullTimeSeries = false;
 
-  /**
-   * When turned on, time steps will be requested backward upstream.
-   *
-   * @warning This is deprecated. This is only here for one release cycle for backward compatibility
-   * of some subclasses. Please avoid setting this.
-   */
-  bool RunBackward = false;
-
   ///@{
   /**
    * When the information key `NO_PRIOR_TEMPORAL_ACCESS()` is not set on the input port, this is

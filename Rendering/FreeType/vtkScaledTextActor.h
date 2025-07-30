@@ -14,11 +14,13 @@
 #ifndef vtkScaledTextActor_h
 #define vtkScaledTextActor_h
 
+#include "vtkDeprecation.h"             // For deprecation macro
 #include "vtkRenderingFreeTypeModule.h" // For export macro
 #include "vtkTextActor.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKRENDERINGFREETYPE_EXPORT vtkScaledTextActor : public vtkTextActor
+class VTK_DEPRECATED_IN_9_6_0("Please use vtkTextActor with SetTextScaleModeToProp() instead.")
+  VTKRENDERINGFREETYPE_EXPORT vtkScaledTextActor : public vtkTextActor
 {
 public:
   vtkTypeMacro(vtkScaledTextActor, vtkTextActor);
