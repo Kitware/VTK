@@ -3,18 +3,31 @@
 
 ## General Specification
 
-VTK HDF files start with a group called `VTKHDF` with two attributes:
-`Version`, an array of two integers and `Type`, a string showing the
-VTK dataset type stored in the file. Additional attributes can follow
-depending on the dataset type. Currently, `Version`
-is the array [2, 4] and `Type` can be `ImageData`, `PolyData`,
-`UnstructuredGrid`, `OverlappingAMR`,  `PartitionedDataSetCollection` or
-`MultiBlockDataSet`.
+VTKHDF files start with a group called `VTKHDF` with two attributes:
+`Version` and `Type`.
 
 Top-level groups outside of `/VTKHDF` do not contain any information related
 to VTK data model and are outside of the scope of this specification.
 They can be useful to store meta-information that could be read and written
 by custom VTKHDF implementations.
+
+### Versioning
+
+VTKHDF File format stores the version in the related attribute `Version`. It is an array of 2 integers `[X,Y]` where
+`X` is the major and `Y` the minor. Major version will be updated for any API break. Minor version will be updated when
+any new specification is made.
+
+It ensures that any file will be read/write correctly for any different minor version in the same major by an implementation.
+
+See the [changelog](vtkhdf_introduction.md#changelog) to be up-to-date regarding any addition or API break.
+
+### Type
+
+The attribute `Type` is a string showing the VTK dataset type stored in the file. It can be : `ImageData`, `PolyData`,
+`UnstructuredGrid`, `HyperTreeGrid`, `OverlappingAMR`,  `PartitionedDataSetCollection` or
+`MultiBlockDataSet`.
+
+### Dataset type
 
 The data type for each HDF dataset is part of the dataset and it is
 determined at write time. The reader matches the type of the dataset
@@ -44,7 +57,6 @@ digraph G {
 }
 
 ```
-
 
 ## Image data
 
