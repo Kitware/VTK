@@ -4,7 +4,6 @@
 
 .windows:
     variables:
-        GIT_SUBMODULE_STRATEGY: none
         GIT_CLONE_PATH: "$CI_BUILDS_DIR\\vtk-ci-ext\\$CI_CONCURRENT_ID"
         # Turn off direct mode until we test it.
         BUILDCACHE_DIRECT_MODE: "false"
@@ -244,11 +243,6 @@
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab;$env:PATH"
     - cmake --version
     - ninja --version
-    # Support submodule references to the user's fork.
-    - git submodule update --init --recursive
-    - git submodule foreach --recursive cmake -P "$pwdpath/.gitlab/ci/fetch_submodule.cmake"
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
     - cmake -P "$PWD/.gitlab/ci/fetch_tags.cmake"
 
 .before_script_windows_openxr_deps: &before_script_windows_openxr_deps
