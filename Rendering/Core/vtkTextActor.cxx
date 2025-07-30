@@ -521,7 +521,7 @@ int vtkTextActor::GetAlignmentPoint()
       alignmentCode = 2;
       break;
     default:
-      vtkErrorMacro(<< "Unknown justifaction code.");
+      vtkErrorMacro(<< "Unknown justification code.");
   }
   switch (this->TextProperty->GetVerticalJustification())
   {
@@ -535,7 +535,7 @@ int vtkTextActor::GetAlignmentPoint()
       alignmentCode += 6;
       break;
     default:
-      vtkErrorMacro(<< "Unknown justifaction code.");
+      vtkErrorMacro(<< "Unknown justification code.");
   }
   return alignmentCode;
 }
@@ -811,41 +811,33 @@ void vtkTextActor::ComputeRectangle(vtkViewport* viewport)
     this->SpecifiedToDisplay(position2, viewport, this->Position2Coordinate->GetCoordinateSystem());
     double maxWidth = position2[0] - position1[0];
     double maxHeight = position2[1] - position1[1];
-    // I could get rid of "GetAlignmentPoint" and use justification directly.
-    switch (this->GetAlignmentPoint())
+    switch (this->TextProperty->GetJustification())
     {
-      case 0:
+      case VTK_TEXT_LEFT:
         break;
-      case 1:
+      case VTK_TEXT_CENTERED:
         xo = (maxWidth - dims[0]) * 0.5;
         break;
-      case 2:
+      case VTK_TEXT_RIGHT:
         xo = (maxWidth - dims[0]);
         break;
-      case 3:
+      default:
+        vtkErrorMacro(<< "Unknown justifaction code.");
+        break;
+    }
+
+    switch (this->TextProperty->GetVerticalJustification())
+    {
+      case VTK_TEXT_BOTTOM:
+        break;
+      case VTK_TEXT_CENTERED:
         yo = (maxHeight - dims[1]) * 0.5;
         break;
-      case 4:
-        xo = (maxWidth - dims[0]) * 0.5;
-        yo = (maxHeight - dims[1]) * 0.5;
-        break;
-      case 5:
-        xo = (maxWidth - dims[0]);
-        yo = (maxHeight - dims[1]) * 0.5;
-        break;
-      case 6:
-        yo = (maxHeight - dims[1]);
-        break;
-      case 7:
-        xo = (maxWidth - dims[0]) * 0.5;
-        yo = (maxHeight - dims[1]);
-        break;
-      case 8:
-        xo = (maxWidth - dims[0]);
+      case VTK_TEXT_TOP:
         yo = (maxHeight - dims[1]);
         break;
       default:
-        vtkErrorMacro(<< "Bad alignment point value.");
+        vtkErrorMacro(<< "Unknown justifaction code.");
     }
   }
   else
