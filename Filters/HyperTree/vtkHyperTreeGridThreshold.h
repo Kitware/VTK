@@ -147,11 +147,6 @@ protected:
    */
   vtkDataArray* InScalars;
 
-  /**
-   * With or without copy (deprecated in favor of MemoryStrategy)
-   */
-  bool JustCreateNewMask;
-
 private:
   vtkHyperTreeGridThreshold(const vtkHyperTreeGridThreshold&) = delete;
   void operator=(const vtkHyperTreeGridThreshold&) = delete;
