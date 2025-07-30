@@ -824,6 +824,7 @@ public:
    * which arrays in the FieldData are GLOBAL and which ones are
    * GLOBAL_TEMPORAL.
    *
+   * \ingroup InformationKeys
    * @sa vtkExtractExodusGlobalTemporalVariables.
    */
   static vtkInformationIntegerKey* GLOBAL_VARIABLE();

@@ -21,10 +21,16 @@ class VTKIOGDAL_EXPORT vtkGDAL : public vtkObject
 public:
   vtkTypeMacro(vtkGDAL, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  // Key used to put GDAL map projection string in the output information
-  // by readers.
+
+  ///@{
+  /**
+   * Key used to put GDAL map projection string in the output information
+   * by readers.
+   * \ingroup InformationKeys
+   */
   static vtkInformationStringKey* MAP_PROJECTION();
   static vtkInformationIntegerVectorKey* FLIP_AXIS();
+  ///@}
 
 protected:
 private:

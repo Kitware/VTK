@@ -48,6 +48,8 @@ public:
    * 0: glDepthMask(GL_FALSE)
    * 1: glDepthMask(GL_TRUE)
    * Anything else: No change to depth mask.
+   *
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* GLDepthMaskOverride();
 

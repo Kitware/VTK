@@ -36,6 +36,7 @@ public:
 
   /**
    * Information key used to pass this filter into the pipeline
+   * \ingroup InformationKeys
    */
   static vtkInformationObjectBaseKey* FOR_EACH_FILTER();
 

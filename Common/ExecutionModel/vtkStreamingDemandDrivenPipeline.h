@@ -237,6 +237,7 @@ public:
    *
    * @note One should check the actual value of this key. Possible values are listed
    * in `NO_PRIOR_TEMPORAL_ACCESS_STATES`.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* NO_PRIOR_TEMPORAL_ACCESS();
 

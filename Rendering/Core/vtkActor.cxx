@@ -219,7 +219,7 @@ int vtkActor::RenderOpaqueGeometry(vtkViewport* vp)
           this->SetPropertyKeys(info);
           info->Delete();
         }
-        info->Set(vtkProp::GeneralTextureTransform(),
+        info->Set(vtkProp::GENERAL_TEXTURE_TRANSFORM(),
           &(this->Texture->GetTransform()->GetMatrix()->Element[0][0]), 16);
       }
     }
@@ -231,7 +231,7 @@ int vtkActor::RenderOpaqueGeometry(vtkViewport* vp)
       if (this->Texture->GetTransform())
       {
         vtkInformation* info = this->GetPropertyKeys();
-        info->Remove(vtkProp::GeneralTextureTransform());
+        info->Remove(vtkProp::GENERAL_TEXTURE_TRANSFORM());
       }
     }
     this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
@@ -285,7 +285,7 @@ int vtkActor::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
           this->SetPropertyKeys(info);
           info->Delete();
         }
-        info->Set(vtkProp::GeneralTextureTransform(),
+        info->Set(vtkProp::GENERAL_TEXTURE_TRANSFORM(),
           &(this->Texture->GetTransform()->GetMatrix()->Element[0][0]), 16);
       }
     }
@@ -297,7 +297,7 @@ int vtkActor::RenderTranslucentPolygonalGeometry(vtkViewport* vp)
       if (this->Texture->GetTransform())
       {
         vtkInformation* info = this->GetPropertyKeys();
-        info->Remove(vtkProp::GeneralTextureTransform());
+        info->Remove(vtkProp::GENERAL_TEXTURE_TRANSFORM());
       }
     }
     this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();

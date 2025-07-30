@@ -145,6 +145,7 @@ public:
 
   /**
    * Key used to put node name in the meta-data associated with a node.
+   * \ingroup InformationKeys
    */
   static vtkInformationStringKey* NAME();
 
@@ -154,6 +155,7 @@ public:
    * to the processes by the reader to indicate further down the pipeline
    * which nodes will be on which processes.
    * ***THIS IS AN EXPERIMENTAL KEY SUBJECT TO CHANGE WITHOUT NOTICE***
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* CURRENT_PROCESS_CAN_LOAD_BLOCK();
 

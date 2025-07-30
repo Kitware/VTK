@@ -332,7 +332,7 @@ bool ApplyGLTFMaterialToVTKActor(std::shared_ptr<vtkGLTFDocumentLoader::Model> m
     generalTransform[0][2], generalTransform[1][0], generalTransform[1][1], 0,
     generalTransform[1][2], 0, 0, 1, 0, generalTransform[2][0], generalTransform[2][1], 0,
     generalTransform[2][2] };
-  actor->GetPropertyKeys()->Set(vtkProp::GeneralTextureTransform(), expandedMat, 16);
+  actor->GetPropertyKeys()->Set(vtkProp::GENERAL_TEXTURE_TRANSFORM(), expandedMat, 16);
 
   if (!material.DoubleSided)
   {

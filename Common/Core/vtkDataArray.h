@@ -524,6 +524,7 @@ public:
    * Two values (a minimum and maximum) are stored for each component.
    * When GetRange() is called when no tuples are present in the array
    * this value is set to { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN }.
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleVectorKey* COMPONENT_RANGE();
 
@@ -533,6 +534,7 @@ public:
    * Two values (a minimum and maximum) are stored for each component.
    * When GetRange() is called when no tuples are present in the array
    * this value is set to { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN }.
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleVectorKey* L2_NORM_RANGE();
 
@@ -542,6 +544,7 @@ public:
    * Two values (a minimum and maximum) are stored for each component.
    * When GetFiniteRange() is called when no tuples are present in the array
    * this value is set to { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN }.
+   * \ingroup InformationKeys
    */
   static vtkInformationDoubleVectorKey* L2_NORM_FINITE_RANGE();
 
@@ -552,6 +555,7 @@ public:
 
   /**
    * A human-readable string indicating the units for the array data.
+   * \ingroup InformationKeys
    */
   static vtkInformationStringKey* UNITS_LABEL();
 

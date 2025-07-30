@@ -366,15 +366,20 @@ public:
     NumberOfMode
   };
 
-  ///@{
   /**
    * Control use of the path tracer backplate and environmental background.
    * 0 means neither is shown, 1 means only backplate is shown,
    * 2 (the default) means only environment is shown, 3 means that
    * both are enabled and therefore backblate shows on screen but
    * actors acquire color from the environment.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* BACKGROUND_MODE();
+
+  ///@{
+  /**
+   * Convenience method to set/get BACKGROUND_MODE
+   */
   static void SetBackgroundMode(BackgroundMode, vtkRenderer* renderer);
   static BackgroundMode GetBackgroundMode(vtkRenderer* renderer);
   ///@}

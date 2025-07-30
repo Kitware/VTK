@@ -71,6 +71,7 @@ public:
   /**
    * Set the number of frames to render which are accumulated to result in a
    * better converged image.
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* ACCUMULATION_COUNT();
   //@{
@@ -84,6 +85,7 @@ public:
   /**
    * used to make the renderer add ANARI's content onto GL rendered
    * content on the window
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* COMPOSITE_ON_GL();
   //@{

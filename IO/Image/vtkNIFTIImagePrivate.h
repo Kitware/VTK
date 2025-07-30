@@ -106,8 +106,8 @@ extern "C"
   -----------------------------------------------------------------------------*/
 
   ///@{
-  /*! \defgroup NIFTI1_DATATYPE_ALIASES NIFTI Datatype Aliases
-      \brief aliases for the nifti1 datatype codes
+  /**
+   *  \brief aliases for the nifti1 datatype codes
    */
   /*! unsigned char. */
 #define NIFTI_TYPE_UINT8 2

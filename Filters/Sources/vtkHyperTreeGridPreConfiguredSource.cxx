@@ -53,8 +53,6 @@ int vtkHyperTreeGridPreConfiguredSource::RequestInformation(
     return 0;
   }
   int wholeExtent[6] = { 0, 1, 0, 1, 0, 1 };
-  unsigned int dimension = 2;
-  unsigned int depth = 3;
   switch (this->HTGMode)
   {
     case UNBALANCED_3DEPTH_2BRANCH_2X3:
@@ -65,26 +63,19 @@ int vtkHyperTreeGridPreConfiguredSource::RequestInformation(
       break;
     case UNBALANCED_2DEPTH_3BRANCH_3X3:
       wholeExtent[1] = wholeExtent[3] = 2;
-      depth = 2;
       break;
     case BALANCED_4DEPTH_3BRANCH_2X2:
-      depth = 4;
       break;
     case UNBALANCED_3DEPTH_2BRANCH_3X2X3:
       wholeExtent[1] = wholeExtent[5] = 2;
-      dimension = 3;
       break;
     case BALANCED_2DEPTH_3BRANCH_3X3X2:
       wholeExtent[1] = wholeExtent[3] = 2;
-      dimension = 3;
-      depth = 2;
       break;
     case CUSTOM:
       wholeExtent[1] = this->CustomSubdivisions[0] - 1;
       wholeExtent[3] = this->CustomSubdivisions[1] - 1;
       wholeExtent[5] = this->CustomSubdivisions[2] - 1;
-      dimension = this->CustomDim;
-      depth = this->CustomDepth;
       break;
     default:
       vtkErrorMacro("No suitable HTG mode found.");
@@ -93,8 +84,6 @@ int vtkHyperTreeGridPreConfiguredSource::RequestInformation(
 
   vtkInformation* info = outputVector->GetInformationObject(0);
   info->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), wholeExtent, 6);
-  info->Set(vtkHyperTreeGrid::LEVELS(), depth);
-  info->Set(vtkHyperTreeGrid::DIMENSION(), dimension);
   info->Set(vtkAlgorithm::CAN_PRODUCE_SUB_EXTENT(), 0);
   return 1;
 }

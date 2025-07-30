@@ -46,6 +46,7 @@ public:
   /**
    * if this key exists on the \a ShaderMods of \a vtkDrawTexturedElements, that mod will be
    * applied before rendering.
+   * \ingroup InformationKeys
    */
   static vtkInformationObjectBaseKey* GLSL_MODIFIERS();
 

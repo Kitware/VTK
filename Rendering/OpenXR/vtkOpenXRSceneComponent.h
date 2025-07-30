@@ -23,7 +23,7 @@ class vtkMatrix4x4;
  *
  * This class is designed as a variant, where the component data varies depending on its type.
  *
- * @example
+ * Example:
  * ```cpp
  * void OnNewComponent(vtkObject* observer, unsigned long event, void* calldata)
  * {

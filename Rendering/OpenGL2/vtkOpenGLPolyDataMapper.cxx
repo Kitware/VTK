@@ -1545,7 +1545,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
   // code for all texture coordinates.
   vtkInformation* info = actor->GetPropertyKeys();
   std::string vsimpl;
-  if (info && info->Has(vtkProp::GeneralTextureTransform()))
+  if (info && info->Has(vtkProp::GENERAL_TEXTURE_TRANSFORM()))
   {
     vtkShaderProgram::Substitute(VSSource, "//VTK::TCoord::Dec",
       "//VTK::TCoord::Dec\n"
@@ -2764,10 +2764,10 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(
     // check for tcoord transform matrix
     vtkInformation* info = actor->GetPropertyKeys();
     vtkOpenGLCheckErrorMacro("failed after Render");
-    if (info && info->Has(vtkProp::GeneralTextureTransform()) &&
+    if (info && info->Has(vtkProp::GENERAL_TEXTURE_TRANSFORM()) &&
       cellBO.Program->IsUniformUsed("tcMatrix"))
     {
-      double* dmatrix = info->Get(vtkProp::GeneralTextureTransform());
+      double* dmatrix = info->Get(vtkProp::GENERAL_TEXTURE_TRANSFORM());
       float fmatrix[16];
       for (int i = 0; i < 4; i++)
       {

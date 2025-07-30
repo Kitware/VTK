@@ -61,6 +61,7 @@ public:
 
   /**
    * Key containing information about the current pass.
+   * \ingroup InformationKeys
    */
   static vtkInformationObjectBaseVectorKey* RenderPasses();
 
