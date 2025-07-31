@@ -25,7 +25,7 @@ if(UNIX AND NOT ANDROID AND NOT APPLE AND NOT APPLE_IOS AND NOT CMAKE_SYSTEM_NAM
 endif()
 cmake_dependent_option(VTK_USE_Wayland "Use Wayland for VTK render windows"
   "${default_use_wayland}"
-  "VTK_USE_X" OFF)
+  "NOT VTK_USE_X" OFF)
 mark_as_advanced(VTK_USE_Wayland)
 
 cmake_dependent_option(VTK_USE_WIN32_OPENGL "Use Win32 APIs for VTK render windows" ON
