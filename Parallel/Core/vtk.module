@@ -13,9 +13,9 @@ SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
+  VTK::CommonSystem
 PRIVATE_DEPENDS
   VTK::CommonDataModel
-  VTK::CommonSystem
   VTK::IOLegacy
   VTK::vtksys
 TEST_DEPENDS

@@ -37,7 +37,7 @@ public:
    * Execute the command currently set if any.
    * This will update the StdOut and StdErr properties.
    */
-  void Execute();
+  virtual void Execute();
 
   ///@{
   /**
