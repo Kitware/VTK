@@ -83,6 +83,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   TestStaticCleanPolyData.cxx,NO_VALID
   TestStripper.cxx,NO_VALID
   TestStructuredGridAppend.cxx,NO_VALID
+  TestSurfaceNets3DNormalsConsistency.cxx,NO_DATA,NO_VALID
   TestSynchronizedTemplates2D.cxx,NO_VALID
   TestSynchronizedTemplates2DRGB.cxx,NO_DATA,NO_VALID
   TestThreshold.cxx,NO_VALID
