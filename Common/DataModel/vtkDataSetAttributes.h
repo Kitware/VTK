@@ -123,20 +123,18 @@ public:
 
   enum CellGhostTypes
   {
-    DUPLICATECELL = 1,        // the cell is present on multiple processors
-    HIGHCONNECTIVITYCELL = 2, // the cell has more neighbors than in a regular mesh
-    LOWCONNECTIVITYCELL = 4,  // the cell has less neighbors than in a regular mesh
-    REFINEDCELL = 8,          // other cells are present that refines it.
-    EXTERIORCELL = 16,        // the cell is on the exterior of the data set
-    HIDDENCELL =
-      32 // the cell is needed to maintain connectivity, but the data values should be ignored.
+    DUPLICATECELL = 1,        // The cell is present on multiple partitions/ranks.
+    HIGHCONNECTIVITYCELL = 2, // The cell has more neighbors than in a regular mesh.
+    LOWCONNECTIVITYCELL = 4,  // The cell has less neighbors than in a regular mesh.
+    REFINEDCELL = 8,          // Other cells are present that refines it.
+    EXTERIORCELL = 16,        // The cell is on the exterior of the data set.
+    HIDDENCELL = 32           // The cell is only present for connectivity; ignore data values.
   };
 
   enum PointGhostTypes
   {
-    DUPLICATEPOINT = 1, // the cell is present on multiple processors
-    HIDDENPOINT =
-      2 // the point is needed to maintain connectivity, but the data values should be ignored.
+    DUPLICATEPOINT = 1, // The point is present in multiple partitions/ranks.
+    HIDDENPOINT = 2     // The point is only present for connectivity; ignore data values.
   };
 
   //-----------------------------------------------------------------------------------

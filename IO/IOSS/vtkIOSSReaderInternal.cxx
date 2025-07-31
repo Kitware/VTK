@@ -42,6 +42,7 @@
 #include <vtk_ioss.h>
 // clang-format off
 #include VTK_IOSS(Ioss_TransformFactory.h)
+#include VTK_IOSS(Ioss_CommSet.h)
 // clang-format on
 #include "vtk_netcdf.h"
 #if VTK_MODULE_USE_EXTERNAL_vtknetcdf
@@ -1273,8 +1274,8 @@ vtkSmartPointer<vtkDataSet> vtkIOSSReaderInternal::GetExodusEntityDataSet(
 
     // handle local cell data
     vtkNew<vtkCellData> blockCD;
-    this->GetFields(
-      blockCD, fieldSelection, region, group_entity, handle, timestep, self->GetReadIds());
+    this->GetFields(blockCD, fieldSelection, region, group_entity, handle, timestep,
+      self->GetReadIds(), nullptr, "", entityGrid->GetFieldData());
     if (self->GetGenerateFileId())
     {
       this->GenerateFileId(blockCD, blockNumberOfCells, group_entity, handle);
@@ -1391,7 +1392,7 @@ std::vector<vtkSmartPointer<vtkDataSet>> vtkIOSSReaderInternal::GetExodusDataSet
   auto fieldSelection = self->GetFieldSelection(vtk_entity_type);
   assert(fieldSelection != nullptr);
   this->GetFields(dataset->GetCellData(), fieldSelection, region, group_entity, handle, timestep,
-    self->GetReadIds());
+    self->GetReadIds(), nullptr, "", dataset->GetFieldData());
 
   auto nodeFieldSelection = self->GetNodeBlockFieldSelection();
   assert(nodeFieldSelection != nullptr);
@@ -2043,8 +2044,9 @@ vtkSmartPointer<vtkAbstractArray> vtkIOSSReaderInternal::GetField(const std::str
 bool vtkIOSSReaderInternal::GetFields(vtkDataSetAttributes* dsa, vtkDataArraySelection* selection,
   Ioss::Region* region, Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle,
   int timestep, bool read_ioss_ids, vtkIdTypeArray* ids_to_extract /*=nullptr*/,
-  const std::string& cache_key_suffix /*= std::string()*/)
+  const std::string& cache_key_suffix /*= std::string()*/, vtkFieldData* field_data /* =nullptr */)
 {
+  vtkSmartPointer<vtkDataArray> globalIdArray;
   std::vector<std::string> fieldnames;
   std::string globalIdsFieldName;
   if (read_ioss_ids)
@@ -2100,7 +2102,8 @@ bool vtkIOSSReaderInternal::GetFields(vtkDataSetAttributes* dsa, vtkDataArraySel
     {
       if (fieldname == globalIdsFieldName)
       {
-        dsa->SetGlobalIds(vtkDataArray::SafeDownCast(array));
+        globalIdArray = vtkDataArray::SafeDownCast(array);
+        dsa->SetGlobalIds(globalIdArray);
       }
       else if (fieldname == vtkDataSetAttributes::GhostArrayName())
       {
@@ -2117,6 +2120,168 @@ bool vtkIOSSReaderInternal::GetFields(vtkDataSetAttributes* dsa, vtkDataArraySel
       {
         dsa->AddArray(array);
       }
+    }
+  }
+
+  // auto commsets = region->get_commsets();
+  // if (!commsets.empty()) {
+  if (this->IOSSReader->GetIncludeGhostNodes() &&
+    (group_entity->type() == Ioss::EntityType::NODEBLOCK ||
+      (group_entity->type() == Ioss::EntityType::ELEMENTBLOCK && field_data)))
+  {
+    unsigned char ghostMask = (group_entity->type() == Ioss::EntityType::NODEBLOCK
+        ? static_cast<unsigned char>(vtkDataSetAttributes::DUPLICATEPOINT)
+        : static_cast<unsigned char>(vtkDataSetAttributes::HIDDENCELL));
+    // If we haven't already fetched global IDs, fetch them as they are needed to
+    // decode the list of remotely-owned entities.
+    if (!globalIdArray)
+    {
+      auto idArray = this->GetField(globalIdsFieldName, region, group_entity, handle, timestep,
+        ids_to_extract, cache_key_suffix);
+      globalIdArray = vtkDataArray::SafeDownCast(idArray);
+    }
+    vtkIdType numValues = dsa->GetNumberOfTuples();
+    if (numValues > 0 && globalIdArray)
+    {
+      // Build a map from global node ID to local, 1-indexed node ID:
+      std::unordered_map<vtkIdType, vtkIdType> globalsToLocalsThisBlock;
+      for (vtkIdType ii = 0; ii < numValues; ++ii)
+      {
+        vtkTypeUInt64 gg;
+        globalIdArray->GetUnsignedTuple(ii, &gg);
+        globalsToLocalsThisBlock[static_cast<vtkIdType>(gg)] = ii;
+      }
+      if (group_entity->type() == Ioss::EntityType::NODEBLOCK)
+      {
+        // Now fetch the list of global IDs that are remote to this entity (node or element).
+        // Note that the same global ID may appear multiple times (once for each
+        // communicating rank). We must take the minimum across all these and the
+        // local (file) rank to determine whether to mark an entry with \a ghostMask.
+        std::vector<int> entityProcessor;
+        Ioss::CommSet* css = region->get_commset("commset_node");
+        if (css)
+        {
+          // Ioss::Utils::check_non_null(css, "communication map", "commset_node", __func__);
+          css->get_field_data("entity_processor", entityProcessor);
+          auto rank = handle.second;
+          // First build a map of gid to owning rank – but only where such ranks are not
+          // the local \a rank.
+          std::unordered_map<vtkIdType, vtkIdType> remoteGlobalIds;
+          if (!entityProcessor.empty())
+          {
+            for (std::size_t ii = 0; ii < entityProcessor.size(); ii += 2)
+            {
+              auto dd = entityProcessor[ii];
+              auto owner = std::min(rank, entityProcessor[ii + 1]);
+              if (globalsToLocalsThisBlock.find(dd) == globalsToLocalsThisBlock.end())
+              {
+                // Skip global node IDs not present in this block.
+                continue;
+              }
+              auto git = remoteGlobalIds.find(dd);
+              if (owner == rank)
+              {
+                // Remove the entry if the local rank supersedes it:
+                if (git != remoteGlobalIds.end() && git->second > rank)
+                {
+                  remoteGlobalIds.erase(git);
+                }
+              }
+              else
+              {
+                if (git != remoteGlobalIds.end())
+                {
+                  if (git->second > owner && owner > rank)
+                  {
+                    // Update the entry if this entry supersedes it and is not the local rank.
+                    git->second = owner;
+                  }
+                }
+                else if (owner < rank)
+                {
+                  // Insert an entry if the owner is not local.
+                  remoteGlobalIds[dd] = owner;
+                }
+              }
+            }
+          }
+          // Now populate the ghost nodes
+          if (!remoteGlobalIds.empty())
+          {
+            vtkNew<vtkUnsignedCharArray> ghostArray;
+            ghostArray->SetName(vtkFieldData::GhostArrayName());
+            ghostArray->SetNumberOfTuples(numValues);
+            ghostArray->FillComponent(0, 0);
+            // Now mark global IDs that are in our local map.
+            // The entityProcessor vector holds tuples of (global-node-id, owning-rank),
+            // but we only care about the global node IDs.
+            for (const auto& entry : remoteGlobalIds)
+            {
+              auto it = globalsToLocalsThisBlock.find(entry.first);
+              if (it != globalsToLocalsThisBlock.end() && it->second < numValues)
+              {
+                // Note that vtkGeometryFilter is set to skip faces when ALL points of a face
+                // are marked as DUPLICATEPOINT:
+                ghostArray->SetValue(it->second, ghostMask);
+              }
+              else
+              {
+                std::cerr << "ERROR: no such global ID " << entry.first << " in block "
+                          << group_entity->name() << " rank " << rank << ".\n";
+              }
+            }
+            dsa->AddArray(ghostArray);
+          }
+        }
+      }
+#if 0
+      // We do not currently use the communicating side information, but this code
+      // will fetch that information and add it to the field data for the element
+      // block. It assumes the field_data API will accept a rank ID associated with
+      // the block as well as the array holding tuples of (cell ID, side ID, remote ranK).
+      else if (group_entity->type() == Ioss::EntityType::ELEMENTBLOCK) // && field_data
+      {
+        // Fetch the sides that communicate with other ranks and transform
+        // the data to use block-local cell offsets instead of global IDs.
+        std::vector<int> entityProcessor;
+        Ioss::CommSet* css = region->get_commset("commset_side");
+        if (css)
+        {
+          Ioss::Utils::check_non_null(css, "communication map", "commset_side", __func__);
+          css->get_field_data("entity_processor", entityProcessor);
+          auto rank = handle.second;
+          // std::cout << group_entity->name() << " commset_side entity_processor " <<
+          // entityProcessor.size() << "\n";
+          if (!entityProcessor.empty())
+          {
+            vtkNew<vtkIdTypeArray> communicatingSides;
+            communicatingSides->SetName(vtkFieldData::CommunicatingSidesArrayName());
+            communicatingSides->SetNumberOfComponents(3);
+            communicatingSides->Allocate(static_cast<vtkIdType>(entityProcessor.size() / 3));
+            for (std::size_t ii = 0; ii < entityProcessor.size() / 3; ++ii)
+            {
+              auto it = globalsToLocalsThisBlock.find(entityProcessor[3 * ii]);
+              if (it != globalsToLocalsThisBlock.end())
+              {
+                std::array<vtkIdType, 3> tuple{ it->second, entityProcessor[3 * ii + 1],
+                  entityProcessor[3 * ii + 2] };
+                communicatingSides->InsertNextTypedTuple(tuple.data());
+              }
+              else
+              {
+                // Not an error because the communicating-side data is for all blocks?
+                // std::array<vtkIdType, 3> blank{0, -1, -1};
+                // communicatingSides->SetTypedTuple(ii, blank.data());
+                // std::cerr << "ERROR: no such global ID " << entityProcessor[3 * ii]
+                //   << " in block " << group_entity->name() << ".\n";
+              }
+            }
+            field_data->AddArray(communicatingSides);
+            field_data->SetRank(rank);
+          }
+        }
+      }
+#endif
     }
   }
 
