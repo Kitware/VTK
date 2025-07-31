@@ -24,6 +24,9 @@
 #ifdef __WIN32__
 #include "vtkWin32HardwareWindow.h"
 #elif __APPLE__
+#include "vtkCocoaHardwareWindow.h"
+#elif VTK_USE_Wayland
+#include "vtkWaylandHardwareWindow.h"
 #else
 #include "vtkXlibHardwareWindow.h"
 #endif
@@ -148,7 +151,7 @@ void vtkWebGPURenderWindow::CreateSurface()
     this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
   }
 #elifdef __APPLE__
-#elifdef VTK_USE_Wayland
+#elif VTK_USE_Wayland
   if (auto* waylandhw = vtkWaylandHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
     wgpu::SurfaceDescriptorFromWaylandSurface waylandSurfDesc;

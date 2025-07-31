@@ -277,6 +277,9 @@ else ()
       PROPERTY
         COMPILE_DEFINITIONS "VTK_HAVE_XCURSOR=$<TARGET_EXISTS:X11::Xcursor>"
     )
+  elseif (VTK_USE_Wayland)
+    set_property(SOURCE vtkWebGPURenderWindow.cxx APPEND
+      PROPERTY COMPILE_DEFINITIONS "VTK_USE_Wayland=1")
   elseif (VTK_USE_COCOA)
     # TODO
   elseif (VTK_USE_WIN32_OPENGL) # FIXME: We need a VTK_USE_WIN32_WINDOW flag here
