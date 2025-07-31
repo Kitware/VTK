@@ -1558,8 +1558,8 @@ if (cellType == 3 && primitiveSize == 3) // VTK_LINE rendered as 2 triangle prim
     vec4 p0_DC = MCDCMatrix * p0MC;
     vec4 p1_DC = MCDCMatrix * p1MC;
     // transform to 2-D screen plane.
-    vec2 p0Screen = viewportDimensions.xy + viewportDimensions.zw * (0.5 * p0_DC.xy / p0_DC.w + 0.5);
-    vec2 p1Screen = viewportDimensions.xy + viewportDimensions.zw * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
+    vec2 p0Screen = (viewportDimensions.xy + viewportDimensions.zw) * (0.5 * p0_DC.xy / p0_DC.w + 0.5);
+    vec2 p1Screen = (viewportDimensions.xy + viewportDimensions.zw) * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
     // compute the line direction vector.
     vec2 xBasis = normalize(p1Screen - p0Screen);
     // compute the perpendicular vector to the line direction.
@@ -1569,7 +1569,8 @@ if (cellType == 3 && primitiveSize == 3) // VTK_LINE rendered as 2 triangle prim
     vec2 p = mix(p0Offset, p1Offset, pCoord.x);
     vec4 p_DC = mix(p0_DC, p1_DC, pCoord.x);
     // compute the final position in clip space.
-    gl_Position = vec4(p_DC.w * ((2.0 * p) / viewportDimensions.zw - 1.0), p_DC.z, p_DC.w);
+    gl_Position = vec4(p_DC.w * ((2.0 * p / (viewportDimensions.zw + viewportDimensions.xy)) - 1.0), p_DC.z, p_DC.w);
+    vertexVCVSOutput = MCVCMatrix * mix(p0MC, p1MC, pCoord.x);
   }
 })");
 }
@@ -1602,7 +1603,7 @@ uniform highp int edgeVisibility;)");
     for(int i = 0; i < 3; ++i)
     {
       pos[i] = pos[i]*vec2(0.5) + vec2(0.5);
-      pos[i] = pos[i]*viewportDimensions.zw + viewportDimensions.xy;
+      pos[i] = pos[i]*(viewportDimensions.zw + viewportDimensions.xy);
     }
     pos[3] = pos[0];
     float ccw = sign(cross(vec3(pos[1] - pos[0], 0.0), vec3(pos[2] - pos[0], 0.0)).z);
