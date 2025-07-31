@@ -265,13 +265,13 @@ void VerifyHistogram(vtkmHistogram* filter, bool verifyPointData)
   }
 
   assert(binExtents->GetNumberOfComponents() == 1);
-  assert(static_cast<size_t>(binExtents->GetNumberOfTuples()) == filter->GetNumberOfBins());
+  assert(binExtents->GetNumberOfTuples() == filter->GetNumberOfBins());
 
   vtkDataArray* binValues =
     vtkDataArray::SafeDownCast(table->GetRowData()->GetAbstractArray("bin_values"));
   assert(binValues != nullptr);
   double sum = 0;
-  vtkIdType numberOfBins = static_cast<vtkIdType>(filter->GetNumberOfBins());
+  vtkIdType numberOfBins = filter->GetNumberOfBins();
   for (vtkIdType i = 0; i < numberOfBins; i++)
   {
     sum += binValues->GetComponent(i, 0);
@@ -358,7 +358,7 @@ int TestVTKMHistogram(int, char*[])
   }
   assert(binExtents != nullptr);
   assert(binExtents->GetNumberOfComponents() == 1);
-  assert(static_cast<size_t>(binExtents->GetNumberOfTuples()) == filter->GetNumberOfBins());
+  assert(binExtents->GetNumberOfTuples() == filter->GetNumberOfBins());
 
   vtkDataArray* binValues =
     vtkDataArray::SafeDownCast(sdTable->GetRowData()->GetAbstractArray("bin_values"));

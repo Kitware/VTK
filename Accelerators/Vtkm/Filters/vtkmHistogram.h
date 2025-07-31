@@ -33,8 +33,8 @@ public:
   /**
    * Specify number of bins.  Default is 10.
    */
-  vtkSetMacro(NumberOfBins, size_t);
-  vtkGetMacro(NumberOfBins, size_t);
+  vtkSetMacro(NumberOfBins, vtkIdType);
+  vtkGetMacro(NumberOfBins, vtkIdType);
   ///@}
 
   ///@{
@@ -94,7 +94,7 @@ private:
 
   void FillBinExtents(vtkDoubleArray* binExtents);
 
-  size_t NumberOfBins;
+  vtkIdType NumberOfBins;
   double BinDelta;
   double CustomBinRange[2];
   bool UseCustomBinRanges;

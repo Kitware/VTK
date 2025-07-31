@@ -39,8 +39,8 @@ public:
   /**
    * Set/get the desired number of histogram bins.
    */
-  vtkSetMacro(NumberOfBins, size_t);
-  vtkGetMacro(NumberOfBins, size_t);
+  vtkSetMacro(NumberOfBins, vtkIdType);
+  vtkGetMacro(NumberOfBins, vtkIdType);
   ///@}
 
 protected:
@@ -56,7 +56,7 @@ private:
   vtkmInitializer Initializer;
 
   double SampleFraction = 0.1;
-  size_t NumberOfBins = 10;
+  vtkIdType NumberOfBins = 10;
 };
 
 VTK_ABI_NAMESPACE_END
