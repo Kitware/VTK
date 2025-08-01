@@ -5,7 +5,6 @@
 .linux:
     variables:
         GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-kitware-sciviz-ci
-        GIT_SUBMODULE_STRATEGY: none
 
 .readthedocs:
     extends: .linux
@@ -719,10 +718,6 @@
     - export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
     - cmake --version
     - ninja --version
-    - "git submodule update --init --recursive || :"
-    - git submodule foreach --recursive cmake -P "$PWD/.gitlab/ci/fetch_submodule.cmake"
-    - git submodule sync --recursive
-    - git submodule update --init --recursive
     - cmake -P "$PWD/.gitlab/ci/fetch_tags.cmake"
     # Load any modules that may be necessary.
     - '[ -n "$MODULES" ] && . /etc/profile.d/modules.sh && module load $MODULES'
