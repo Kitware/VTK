@@ -20,6 +20,8 @@
 #include "vtkMultiBlockDataSetAlgorithm.h"
 #include "vtkNew.h" // for vtkNew.
 
+#include <map>    // for std::map
+#include <set>    // for std::set
 #include <string> // for std::string
 
 namespace CGNSRead
