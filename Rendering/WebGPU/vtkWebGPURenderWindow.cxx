@@ -21,7 +21,7 @@
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPUHelpers.h"
 #include "vtkWebGPURenderer.h"
-#ifdef __WIN32__
+#ifdef _WIN32
 #include "vtkWin32HardwareWindow.h"
 #elif __APPLE__
 #include "vtkCocoaHardwareWindow.h"
@@ -139,7 +139,7 @@ void vtkWebGPURenderWindow::CreateSurface()
     return;
   }
 
-#ifdef __WIN32__
+#ifdef _WIN32
   if (auto* win32hw = vtkWin32HardwareWindow::SafeDownCast(this->HardwareWindow))
   {
     wgpu::SurfaceDescriptorFromWindowsHWND winSurfDesc;
@@ -150,7 +150,7 @@ void vtkWebGPURenderWindow::CreateSurface()
     surfDesc.nextInChain = &winSurfDesc;
     this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
   }
-#elifdef __APPLE__
+#elif __APPLE__
 #elif VTK_USE_Wayland
   if (auto* waylandhw = vtkWaylandHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
