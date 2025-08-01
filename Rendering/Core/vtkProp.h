@@ -199,7 +199,7 @@ public:
    * down to a mapper.
    * \ingroup InformationKeys
    */
-  VTK_DEPRECATED_IN_9_6_0("Please use GENERAL_TEXTURE_UNIT() instead.")
+  VTK_DEPRECATED_IN_9_6_0("Please use GENERAL_TEXTURE_TRANSFORM() instead.")
   static vtkInformationDoubleVectorKey* GeneralTextureTransform()
   {
     return vtkProp::GENERAL_TEXTURE_TRANSFORM();
