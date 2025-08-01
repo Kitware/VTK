@@ -67,7 +67,7 @@ int TestIOSSExodusMergeEntityBlocks(int argc, char* argv[])
   if (output->GetNumberOfPartitionedDataSets() != 3)
   {
     vtkLogF(
-      ERROR, "Expected 3 partitioned dataset but got %d", output->GetNumberOfPartitionedDataSets());
+      ERROR, "Expected 3 partitioned dataset but got %u", output->GetNumberOfPartitionedDataSets());
     return EXIT_FAILURE;
   }
   if (output->GetNumberOfPoints() != 10516)
