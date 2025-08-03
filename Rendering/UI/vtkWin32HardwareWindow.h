@@ -65,6 +65,11 @@ protected:
   HWND WindowId;
   HINSTANCE ApplicationInstance;
 
+  // message handler
+  virtual LRESULT MessageProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+  static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
 private:
   vtkWin32HardwareWindow(const vtkWin32HardwareWindow&) = delete;
   void operator=(const vtkWin32HardwareWindow&) = delete;

@@ -4,6 +4,8 @@
 
 #include <assert.h>
 
+#include "vtksys/Encoding.hxx"
+
 #include "vtkObjectFactory.h"
 
 //============================================================================
@@ -27,41 +29,49 @@ void vtkWin32HardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+// ----------------------------------------------------------------------------
 HINSTANCE vtkWin32HardwareWindow::GetApplicationInstance()
 {
   return this->ApplicationInstance;
 }
 
+// ----------------------------------------------------------------------------
 HWND vtkWin32HardwareWindow::GetWindowId()
 {
   return this->WindowId;
 }
 
+// ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::SetDisplayId(void* arg)
 {
   this->ApplicationInstance = (HINSTANCE)(arg);
 }
 
+// ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::SetWindowId(void* arg)
 {
   this->WindowId = (HWND)(arg);
 }
 
+// ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::SetParentId(void* arg)
 {
   this->ParentId = (HWND)(arg);
 }
 
+// ----------------------------------------------------------------------------
 void* vtkWin32HardwareWindow::GetGenericDisplayId()
 {
   return this->ApplicationInstance;
 }
 
+// ----------------------------------------------------------------------------
 void* vtkWin32HardwareWindow::GetGenericWindowId()
 {
   return this->WindowId;
 }
 
+// ----------------------------------------------------------------------------
 void* vtkWin32HardwareWindow::GetGenericParentId()
 {
   return this->ParentId;
@@ -89,6 +99,7 @@ void AdjustWindowRectForBorders(
 }
 }
 
+// ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::Create()
 {
   // get the application instance if we don't have one already
@@ -110,7 +121,7 @@ void vtkWin32HardwareWindow::Create()
   if (!GetClassInfoA(this->ApplicationInstance, "vtkWin32", &wndClass))
   {
     wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
-    wndClass.lpfnWndProc = DefWindowProc;
+    wndClass.lpfnWndProc = vtkWin32HardwareWindow::WndProc;
     wndClass.cbClsExtra = 0;
     wndClass.hInstance = this->ApplicationInstance;
     wndClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
@@ -173,6 +184,7 @@ void vtkWin32HardwareWindow::Create()
   }
 }
 
+// ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::Destroy()
 {
   ::DestroyWindow(this->WindowId); // windows api
@@ -186,6 +198,11 @@ void vtkWin32HardwareWindow::SetSize(int x, int y)
   if ((this->Size[0] != x) || (this->Size[1] != y))
   {
     this->Superclass::SetSize(x, y);
+
+    if (this->Interactor)
+    {
+      this->Interactor->SetSize(x, y);
+    }
 
     if (!this->UseOffScreenBuffers)
     {
@@ -212,6 +229,7 @@ void vtkWin32HardwareWindow::SetSize(int x, int y)
   }
 }
 
+// ----------------------------------------------------------------------------
 void vtkWin32HardwareWindow::SetPosition(int x, int y)
 {
   static bool resizing = false;
@@ -233,4 +251,78 @@ void vtkWin32HardwareWindow::SetPosition(int x, int y)
     }
   }
 }
+
+//------------------------------------------------------------------------------
+LRESULT APIENTRY vtkWin32HardwareWindow::WndProc(
+  HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  LRESULT res;
+
+  vtkWin32HardwareWindow* me = (vtkWin32HardwareWindow*)vtkGetWindowLong(hWnd, sizeof(vtkLONG));
+
+  if (me && me->GetReferenceCount() > 0)
+  {
+    me->Register(me);
+    res = me->MessageProc(hWnd, message, wParam, lParam);
+    me->UnRegister(me);
+  }
+  else
+  {
+    res = DefWindowProc(hWnd, message, wParam, lParam);
+  }
+
+  return res;
+}
+
+//------------------------------------------------------------------------------
+LRESULT vtkWin32HardwareWindow::MessageProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  switch (message)
+  {
+    case WM_CREATE:
+    {
+      // nothing to be done here, opengl is initialized after the call to
+      // create now
+      return 0;
+    }
+    case WM_DESTROY:
+      return 0;
+    case WM_SIZE:
+      /* track window size changes */
+      if (this->WindowId)
+      {
+        this->SetSize((int)LOWORD(lParam), (int)HIWORD(lParam));
+        return 0;
+      }
+      break;
+    case WM_SETTEXT:
+    {
+      // Support for UTF-8, DefWindowProcW has to be called
+      // see https://stackoverflow.com/a/11515400
+      std::wstring wStr = vtksys::Encoding::ToWide((char*)(lParam));
+      return DefWindowProcW(hWnd, message, wParam, (LPARAM)wStr.c_str());
+    }
+    case WM_PALETTECHANGED:
+      /* realize palette if this is *not* the current window */
+      break;
+    case WM_QUERYNEWPALETTE:
+      break;
+    case WM_PAINT:
+      break;
+    case WM_ERASEBKGND:
+      return TRUE;
+    case WM_SETCURSOR:
+      if (HTCLIENT == LOWORD(lParam))
+      {
+        this->SetCurrentCursor(this->GetCurrentCursor());
+        return TRUE;
+      }
+      break;
+    default:
+      this->InvokeEvent(vtkCommand::RenderWindowMessageEvent, &message);
+      break;
+  }
+  return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
 VTK_ABI_NAMESPACE_END
