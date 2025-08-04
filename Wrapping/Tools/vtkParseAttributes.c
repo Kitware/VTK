@@ -287,6 +287,11 @@ static parse_attribute_return_t handle_function_attribute(
     {
       return parse_quoted_identifier_arg(args, &func->MarshalPropertyName, preprocessor);
     }
+    case VTK_ATTRIB_UNBLOCKTHREADS:
+    {
+      func->IsUnblockThreads = 1;
+      return VTK_ATTRIB_HANDLER_NO_ARGS;
+    }
     default:
     {
       return VTK_ATTRIB_HANDLER_SKIPPED;
@@ -416,11 +421,6 @@ static parse_attribute_return_t handle_value_attribute(
       val->Attributes |= VTK_PARSE_DEPRECATED;
       return parse_deprecation_args(
         args, &val->DeprecatedReason, &val->DeprecatedVersion, preprocessor);
-    }
-    case VTK_ATTRIB_UNBLOCKTHREADS:
-    {
-      val->Attributes |= VTK_PARSE_UNBLOCKTHREADS;
-      return VTK_ATTRIB_HANDLER_NO_ARGS;
     }
     default:
     {

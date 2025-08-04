@@ -197,6 +197,7 @@ struct FunctionInfo_
   int IsFinal;           /* methods only */
   int IsOverride;        /* methods only */
   int IsMarshalExcluded; /* methods only */
+  int IsUnblockThreads;  /* hint to unlock Python GIL before calling */
   int IsExplicit;        /* constructors only */
 #ifndef VTK_PARSE_LEGACY_REMOVE
   int NumberOfArguments;            /* legacy */

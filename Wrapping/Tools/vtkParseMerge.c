@@ -303,6 +303,12 @@ static void merge_function(FileInfo* finfo, FunctionInfo* merge, const FunctionI
   {
     merge->Comment = func->Comment;
   }
+
+  /* these special attributes are inherited */
+  if (func->IsUnblockThreads)
+  {
+    merge->IsUnblockThreads = func->IsUnblockThreads;
+  }
 }
 
 /* try to resolve "Using" declarations with the given class. */

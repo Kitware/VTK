@@ -814,8 +814,7 @@ static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunc
   is_constructor = vtkWrap_IsConstructor(data, currentFunction);
 
   /* add code to allow Python threads during C++ execution */
-  if (currentFunction->ReturnValue &&
-    (currentFunction->ReturnValue->Attributes & VTK_PARSE_UNBLOCKTHREADS) != 0)
+  if (currentFunction->IsUnblockThreads)
   {
     fprintf(fp,
       "#ifdef VTK_PYTHON_FULL_THREADSAFE\n"
@@ -990,8 +989,7 @@ static void vtkWrapPython_GenerateMethodCall(FILE* fp, FunctionInfo* currentFunc
   fprintf(fp, "\n");
 
   /* restore thread state */
-  if (currentFunction->ReturnValue &&
-    (currentFunction->ReturnValue->Attributes & VTK_PARSE_UNBLOCKTHREADS) != 0)
+  if (currentFunction->IsUnblockThreads)
   {
     fprintf(fp,
       "#ifdef VTK_PYTHON_FULL_THREADSAFE\n"

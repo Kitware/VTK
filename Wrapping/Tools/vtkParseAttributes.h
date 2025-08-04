@@ -19,7 +19,6 @@
 #define VTK_PARSE_FILEPATH 0x00000004
 #define VTK_PARSE_WRAPEXCLUDE 0x00000010
 #define VTK_PARSE_DEPRECATED 0x0000020
-#define VTK_PARSE_UNBLOCKTHREADS 0x00000100
 
 /**
  * Return values for attribute handling functions
