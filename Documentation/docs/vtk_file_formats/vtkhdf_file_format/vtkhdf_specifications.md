@@ -1,4 +1,3 @@
-
 # VTKHDF format specification
 
 ## General Specification
@@ -556,7 +555,7 @@ Figure 6. - PartitionedDataSetCollection/MultiBlockDataset VTKHDF File Format
 </div>
 
 :::{hint}
-Each block should describe a valid VTKHDF root node for a supported data types. Composite data types are, and will, not be supported.
+Each block should describe a valid VTKHDF root node for a supported data types. Composite data types are not, and will not, be supported.
 :::
 
 ## Temporal Data
