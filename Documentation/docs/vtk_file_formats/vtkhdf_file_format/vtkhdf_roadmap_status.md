@@ -30,7 +30,7 @@ Here is the list of supported feature which doesn't depends on a VTK data type:
 
 | Features                        | Status          |
 | ------------------------------- | --------------- |
-| Static                          | supported       |
+| Static*                         | supported       |
 | Temporal                        | supported       |
 
 ## Implementation Status in VTK
@@ -53,5 +53,7 @@ Here is the list of supported feature which doesn't depends on a VTK data type:
 | Features                        | vtkHDFReader    |vtkHDFWriter    |
 | ------------------------------- | --------------- |--------------- |
 | Compression                     | supported       |supported       |
-| Static                          | [partially supported](https://gitlab.kitware.com/vtk/vtk/-/issues/19746)       |not supported |
+| Static*                          | [partially supported](https://gitlab.kitware.com/vtk/vtk/-/issues/19746)       |not supported |
 | Temporal                        | supported       |supported       |
+
+*: ability to reuse dataset from another place to save disk space and performance.
