@@ -1,12 +1,15 @@
 # Examples
 
-We present several examples of VTK HDF files, shown using h5dump, an image file, an unstructured grid, a polydata and an overlapping AMR. These files can be examined in the VTK source code, by building VTK and enabling testing (`VTK_BUILD_TESTING`). The files are in the build directory ExternalData at `Testing/Data/mandelbrot-vti.hdf` for the ImageData and at `Testing/Data/can-pvtu.hdf` for the partitioned UnstructuredGrid and `Testing/Data/amr_gaussian_pulse.hdf` for the overlapping AMR.
+We present several examples of VTK HDF files, shown using h5dump, an image file, an unstructured grid, a polydata and an overlapping AMR. These files can be examined in the VTK source code, by building VTK and enabling testing (`VTK_BUILD_TESTING`). The files are in the build directory ExternalData at `Testing/Data/mandelbrot-vti.hdf` for the ImageData. Same thing has been made for `UnstructuredGrid`, `Overlapping AMR`, `PolyData` and `PartitionedDataSetCollection`.
 
 ## ImageData
 
 The image data file is a wavelet source produced in ParaView. Note
 that we don't partition image data, so the same format is used for
 serial and parallel processing.
+
+<details>
+<summary>mandelbrot-vti.hdf</summary>
 
 ```
 HDF5 "ExternalData/Testing/Data/mandelbrot-vti.hdf" {
@@ -109,10 +112,14 @@ GROUP "/" {
 }
 ```
 
+</details>
 
 ## UnstructuredGrid
 
 The unstructured grid is the can example (only the can, not the brick) from ParaView, partitioned in three:
+
+<details>
+<summary>can-pvtu.hdf</summary>
 
 ```
 HDF5 "ExternalData/Testing/Data/can-pvtu.hdf" {
@@ -260,10 +267,14 @@ GROUP "/" {
 }
 }
 ```
+</details>
 
 ## PolyData
 
 The poly data is the `test_poly_data.hdf` from the `VTK` testing data:
+
+<details>
+<summary>test_poly_data.hdf</summary>
 
 ```
 HDF5 "ExternalData/Testing/Data/test_poly_data.hdf" {
@@ -382,12 +393,16 @@ GROUP "/" {
 }
 }
 ```
+</details>
 
 ## Overlapping AMR
 
 The Overlapping AMR data file is an AMR Guaussian Pulse source with two levels
 (0 and 1), describing one Point Data, several Cell Data and a Field Data. Actual
 `Data` are not displayed for readability.
+
+<details>
+<summary>amr_gaussian_pulse.hdf</summary>
 
 ```
 HDF5 "ExternalData/Testing/Data/amr_gaussian_pulse.hdf" {
@@ -508,11 +523,15 @@ GROUP "/" {
 }
 }
 ```
+</details>
 
 ## PartitionedDataSetCollection
 
 This partitioned dataset collection has 2 blocks, one unstructured grid (Block1) and one polydata (Block0).
 Its assembly has 3 elements and no nesting, referencing one of the 2 blocks using symbolic links
+
+<details>
+<summary>composite.hdf</summary>
 
 ```
 HDF5 "composite.hdf" {
@@ -716,10 +735,14 @@ GROUP "/" {
 }
 }
 ```
+</details>
 
 ## Temporal Poly Data
 
 The poly data is the `test_transient_poly_data.hdf` from the `VTK` testing data:
+
+<details>
+<summary>test_transient_poly_data.hdf</summary>
 
 ```
 HDF5 "ExternalData/Testing/Data/test_transient_poly_data.hdf" {
@@ -884,3 +907,4 @@ GROUP "/" {
 }
 }
 ```
+</details>
