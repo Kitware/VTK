@@ -4786,7 +4786,7 @@ void preprocessor_directive(const char* text, size_t l)
         macro->IsExcluded = 0;
         if (result < VTK_PARSE_MACRO_UNDEFINED)
         {
-          add_constant(vtkstrdup(macro->Name), vtkstrdup(macro->Definition), 0, 0, NULL, 1);
+          add_constant(vtkstrdup(macro->Name), vtkstrdup(macro->Definition), 0, NULL, 0, NULL, 1);
         }
       }
     }

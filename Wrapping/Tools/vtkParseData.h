@@ -144,19 +144,21 @@ struct ValueInfo_
   parse_access_t Access;
   const char* Name;
   const char* Comment;
-  const char* Value;       /* for vars or default parameters values */
-  unsigned int Attributes; /* as defined in vtkParseAttributes.h */
-  unsigned int Type;       /* as defined in vtkParseType.h   */
-  const char* Class;       /* classname for type */
-  int Count;               /* total number of values, if known */
-  const char* CountHint;   /* hint about how to get the count */
-  int NumberOfDimensions;  /* dimensionality for arrays */
-  const char** Dimensions; /* dimensions for arrays */
-  FunctionInfo* Function;  /* for function pointer values */
-  TemplateInfo* Template;  /* template parameters, or NULL */
-  int IsStatic;            /* for class variables only */
-  int IsEnum;              /* for constants only */
-  int IsPack;              /* for pack expansions */
+  const char* Value;             /* for vars or default parameters values */
+  unsigned int Attributes;       /* as defined in vtkParseAttributes.h */
+  unsigned int Type;             /* as defined in vtkParseType.h   */
+  const char* Class;             /* classname for type */
+  int Count;                     /* total number of values, if known */
+  const char* CountHint;         /* hint about how to get the count */
+  int NumberOfDimensions;        /* dimensionality for arrays */
+  const char** Dimensions;       /* dimensions for arrays */
+  FunctionInfo* Function;        /* for function pointer values */
+  TemplateInfo* Template;        /* template parameters, or NULL */
+  const char* DeprecatedReason;  /* reason for deprecation, or NULL */
+  const char* DeprecatedVersion; /* version of deprecation, or NULL */
+  int IsStatic;                  /* for class variables only */
+  int IsEnum;                    /* for constants only */
+  int IsPack;                    /* for pack expansions */
 };
 
 /**

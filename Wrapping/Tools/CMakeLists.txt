@@ -8,6 +8,7 @@ endif ()
 
 set(sources
   vtkParse.tab.c
+  vtkParseAttributes.c
   vtkParseData.c
   vtkParseDepends.c
   vtkParseExtras.c

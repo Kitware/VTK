@@ -312,6 +312,8 @@ void vtkParse_InitValue(ValueInfo* val)
   val->Dimensions = NULL;
   val->Function = NULL;
   val->Template = NULL;
+  val->DeprecatedReason = NULL;
+  val->DeprecatedVersion = NULL;
   val->IsStatic = 0;
   val->IsEnum = 0;
   val->IsPack = 0;
@@ -358,6 +360,8 @@ void vtkParse_CopyValue(ValueInfo* val, const ValueInfo* orig)
     vtkParse_CopyTemplate(val->Template, orig->Template);
   }
 
+  val->DeprecatedReason = orig->DeprecatedReason;
+  val->DeprecatedVersion = orig->DeprecatedVersion;
   val->IsStatic = orig->IsStatic;
   val->IsEnum = orig->IsEnum;
   val->IsPack = orig->IsPack;
