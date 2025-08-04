@@ -658,12 +658,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderEdges(
       "edist[1] = dot(edgeEqn[1].xy, gl_FragCoord.xy) + edgeEqn[1].w;\n"
       "edist[2] = dot(edgeEqn[2].xy, gl_FragCoord.xy) + edgeEqn[2].w;\n"
 
-      // "if (abs(edist[0]) > 0.5*lineWidth && abs(edist[1]) > 0.5*lineWidth && abs(edist[2]) >
-      // 0.5*lineWidth) discard;\n"
-
+    // "if (abs(edist[0]) > 0.5*lineWidth && abs(edist[1]) > 0.5*lineWidth && abs(edist[2]) >
+    // 0.5*lineWidth) discard;\n"
+#if !(defined(__APPLE__) && defined(__arm64__))
       "if (edist[0] < -0.5 && edgeEqn[0].z > 0.0) discard;\n"
       "if (edist[1] < -0.5 && edgeEqn[1].z > 0.0) discard;\n"
       "if (edist[2] < -0.5 && edgeEqn[2].z > 0.0) discard;\n"
+#endif
 
       "edist[0] += edgeEqn[0].z;\n"
       "edist[1] += edgeEqn[1].z;\n"
