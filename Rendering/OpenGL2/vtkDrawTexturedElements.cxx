@@ -96,7 +96,10 @@ void vtkDrawTexturedElements::BindArrayToTexture(
   }
   it->second.Arrays = { array };
   // needs to be re-uploaded.
-  it->second.Buffer->FlagBufferAsDirty();
+  if (it->second.Buffer)
+  {
+    it->second.Buffer->FlagBufferAsDirty();
+  }
   it->second.ScalarComponents = asScalars;
 }
 
@@ -128,7 +131,10 @@ void vtkDrawTexturedElements::AppendArrayToTexture(
   {
     it->second.Arrays.emplace_back(array);
     // needs to be re-uploaded.
-    it->second.Buffer->FlagBufferAsDirty();
+    if (it->second.Buffer)
+    {
+      it->second.Buffer->FlagBufferAsDirty();
+    }
   }
 }
 
