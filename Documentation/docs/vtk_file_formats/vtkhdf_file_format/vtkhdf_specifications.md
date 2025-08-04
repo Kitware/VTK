@@ -734,9 +734,9 @@ Figure 8. - Temporal OverlappingAMR VTKHDF File Format
 
 ## Limitations
 
-This specification and the reader available in VTK currently only
-supports ImageData, UnstructuredGrid, PolyData, Overlapping AMR, MultiBlockDataSet and Partitioned
-DataSet Collection. Other dataset types may be added later depending on interest and funding.
+This specification and the reader available in VTK currently only supports `ImageData`,
+`UnstructuredGrid`, `PolyData`, `Overlapping AMR`, `MultiBlockDataSet` and `Partitioned
+DataSet Collection`. Other dataset types may be added later depending on interest and funding.
 
 Unlike XML formats, VTKHDF does not support field names containing `/` and `.` characters,
 because of a limitation in the HDF5 format specification.
