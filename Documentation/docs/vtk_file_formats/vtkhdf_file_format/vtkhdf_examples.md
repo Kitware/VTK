@@ -397,7 +397,7 @@ GROUP "/" {
 
 ## Overlapping AMR
 
-The Overlapping AMR data file is an AMR Guaussian Pulse source with two levels
+The Overlapping AMR data file is an AMR Gaussian Pulse source with two levels
 (0 and 1), describing one Point Data, several Cell Data and a Field Data. Actual
 `Data` are not displayed for readability.
 
