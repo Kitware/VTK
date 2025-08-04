@@ -55,6 +55,38 @@ public:
   void CallbackWithArguments(vtkObject* self, unsigned long, void*) { self->RemoveAllObservers(); }
 };
 
+class OrderTestHandler
+{
+public:
+  std::vector<unsigned> sequence;
+
+  template <unsigned key>
+  void Callback()
+  {
+    sequence.push_back(key);
+  }
+
+  bool match(std::vector<unsigned> ref)
+  {
+    if (sequence == ref)
+      return true;
+
+    std::cerr << "Expected: {";
+    for (auto e : ref)
+    {
+      std::cerr << " " << e;
+    }
+    std::cerr << " }\nActual:  {";
+    for (auto e : sequence)
+    {
+      std::cerr << " " << e;
+    }
+    std::cerr << " }" << endl;
+
+    return false;
+  }
+};
+
 int TestObservers(int, char*[])
 {
   unsigned long event0 = 0;
@@ -205,9 +237,87 @@ int TestObservers(int, char*[])
     OtherHandler::EventCounts[1007] == 2 && OtherHandler::EventCounts[1008] == 1)
   {
     cout << "All non-VTK observer callback counts as expected." << endl;
-    return 0;
+  }
+  else
+  {
+    cerr << "Mismatched callback counts for non-VTK observer." << endl;
+    return 1;
   }
 
-  cerr << "Mismatched callback counts for non-VTK observer." << endl;
-  return 1;
+  OrderTestHandler ohandler{};
+  vtkNew<vtkObject> oobject{};
+
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<1>, 0.0);
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<2>, 0.0);
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<3>, 0.0);
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<4>, 0.0);
+
+  ohandler.sequence.clear();
+  oobject->InvokeEvent(1000);
+  if (!ohandler.match({ 2, 3, 4, 1 }))
+  {
+    cerr << "Incorrect legacy single-priority ordering." << endl;
+    return 1;
+  }
+
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<5>, 1.0);
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<6>, 1.0);
+
+  ohandler.sequence.clear();
+  oobject->InvokeEvent(1000);
+  if (!ohandler.match({ 5, 6, 2, 3, 4, 1 }))
+  {
+    cerr << "Incorrect legacy high-priority ordering." << endl;
+    return 1;
+  }
+
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<7>, -1.0);
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<8>, -1.0);
+
+  ohandler.sequence.clear();
+  oobject->InvokeEvent(1000);
+  if (!ohandler.match({ 5, 6, 2, 3, 4, 1, 8, 7 }))
+  {
+    cerr << "Incorrect legacy low-priority ordering." << endl;
+    return 1;
+  }
+
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<9>, 1.0);
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<10>, 0.0);
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<11>, -1.0);
+
+  ohandler.sequence.clear();
+  oobject->InvokeEvent(1000);
+  if (!ohandler.match({ 5, 6, 9, 2, 3, 4, 1, 10, 8, 11, 7 }))
+  {
+    cerr << "Low-priority events should release pin on middle-priority observer." << endl;
+    return 1;
+  }
+
+  oobject->RemoveObserver(1);
+  oobject->RemoveObserver(7);
+
+  ohandler.sequence.clear();
+  oobject->InvokeEvent(1000);
+  if (!ohandler.match({ 5, 6, 9, 2, 3, 4, 10, 8, 11 }))
+  {
+    cerr << "RemoveObserver should not change existing order." << endl;
+    return 1;
+  }
+
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<12>, 1.0);
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<13>, 0.0);
+  oobject->AddObserver(1000, &ohandler, &OrderTestHandler::Callback<14>, -1.0);
+
+  ohandler.sequence.clear();
+  oobject->InvokeEvent(1000);
+  if (!ohandler.match({ 5, 6, 9, 12, 2, 3, 4, 10, 13, 8, 14, 11 }))
+  {
+    cerr << "RemoveObserver should add pin to low-priority observer." << endl;
+    return 1;
+  }
+
+  cout << "Legacy priority order as expected." << endl;
+
+  return 0;
 }
