@@ -9,6 +9,7 @@
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
+#include "vtkInvoker.h"
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
 #include "vtkLookupTable.h"
@@ -233,7 +234,7 @@ static void Deserialize_vtkDataArray(
   }
 }
 
-int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser, void* vtkNotUsed(invoker))
+int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser, void* invoker)
 {
   int success = 0;
   if (auto* asObjectBase = static_cast<vtkObjectBase*>(ser))
@@ -257,6 +258,18 @@ int RegisterHandlers_vtkDataArraySerDesHelper(void* ser, void* deser, void* vtkN
         deserializer->RegisterHandler(arrayType.TypeInfo, Deserialize_vtkDataArray);
       }
       success = 1;
+    }
+  }
+  // copy invokers
+  if (auto* asObjectBase = static_cast<vtkObjectBase*>(invoker))
+  {
+    if (auto* invokerObject = vtkInvoker::SafeDownCast(asObjectBase))
+    {
+      for (auto& arrayType : ArrayTypes)
+      {
+        invokerObject->RegisterHandler(
+          arrayType.TypeInfo, invokerObject->GetHandler(typeid(vtkDataArray)));
+      }
     }
   }
   return success;
