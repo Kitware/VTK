@@ -22,6 +22,7 @@ The following list shows the VTK data types currently supported, at least partia
 | vtkOverlappingAMR               | supported       |
 | vtkPolyData                     | supported       |
 | vtkRectilinearGrid              | [not implemented](https://gitlab.kitware.com/vtk/vtk/-/issues/19379) |
+| vtkStructuredGrid               | [not implemented](https://discourse.vtk.org/t/vtkhdf-vtkstructuredgrid-support/15920) |
 | vtkUnstructuredGrid             | [partially supported](https://gitlab.kitware.com/vtk/vtk/-/issues/19237) |
 
 ### Additional Features
@@ -46,6 +47,7 @@ Here is the list of supported feature which doesn't depends on a VTK data type:
 | vtkPartitionedDataSetCollection | supported       | supported      |
 | vtkOverlappingAMR               | supported       | not suported   |
 | vtkPolyData                     | supported       | supported      |
+| vtkStructuredGrid               | not supported   | not supported  |
 | vtkUnstructuredGrid             | supported       | supported      |
 
 ### Additional Features
