@@ -2,23 +2,23 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkUniformGrid
- * @brief   image data with blanking
+ * @brief   Deprecated vtkImageData
  *
- * vtkUniformGrid is a subclass of vtkImageData. In addition to all
- * the image data functionality, it supports blanking.
+ * vtkUniformGrid is an empty subclass of vtkImageData that will be deprecated
  */
 
 #ifndef vtkUniformGrid_h
 #define vtkUniformGrid_h
 
+#include "vtkAMRBox.h"                // Fox vtkAMRBox
 #include "vtkCommonDataModelModule.h" // For export macro
+#include "vtkDeprecation.h"           // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkImageData.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkEmptyCell;
 class vtkUnsignedCharArray;
-class vtkAMRBox;
 
 class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALAUTO vtkUniformGrid : public vtkImageData
 {
@@ -29,42 +29,41 @@ public:
    */
   static vtkUniformGrid* New();
   vtkTypeMacro(vtkUniformGrid, vtkImageData);
-  void PrintSelf(ostream& os, vtkIndent indent) override;
   ///@}
-
-  /**
-   * Copy the geometric and topological structure of an input image data
-   * object.
-   */
-  void CopyStructure(vtkDataSet* ds) override;
 
   /**
    * Return what type of dataset this is.
    */
   int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_UNIFORM_GRID; }
 
-  ///@{
-  /**
-   * Standard vtkDataSet API methods. See vtkDataSet for more information.
-   */
-  void Initialize() override;
-  ///@}
+  using Superclass::Initialize;
 
   /**
    * Initialize with no ghost cell arrays, from the definition in
    * the given box. The box is expected to be 3D, if you have 2D
    * data the set the third dimensions 0. eg. (X,X,0)(X,X,0)
-   * Returns 0 if the initialization failed.
+   * Returns 0 if the initialization failed
+   * Deprecated, Use vtkAMRBox::InitializeGrid instead.
    */
-  int Initialize(const vtkAMRBox* def, double* origin, double* spacing);
+  VTK_DEPRECATED_IN_9_6_0("Use vtkAMRBox::InitializeGrid instead")
+  int Initialize(const vtkAMRBox* def, double* origin, double* spacing)
+  {
+    return def->InitializeGrid(this, origin, spacing);
+  };
+
   /**
    * Initialize from the definition in the given box, with ghost cell
    * arrays nGhosts cells thick in all directions. The box is expected
    * to be 3D, if you have 2D data the set the third dimensions 0.
    * eg. (X,X,0)(X,X,0)
    * Returns 0 if the initialization failed.
+   * Deprecated, Use vtkAMRBox::InitializeGrid instead.
    */
-  int Initialize(const vtkAMRBox* def, double* origin, double* spacing, int nGhosts);
+  VTK_DEPRECATED_IN_9_6_0("Use vtkAMRBox::InitializeGrid instead")
+  int Initialize(const vtkAMRBox* def, double* origin, double* spacing, int nGhosts)
+  {
+    return def->InitializeGrid(this, origin, spacing, nGhosts);
+  };
 
   /**
    * Initialize from the definition in the given box, with ghost cell
@@ -72,8 +71,14 @@ public:
    * The box and ghost array are expected to be 3D, if you have 2D data
    * the set the third dimensions 0. eg. (X,X,0)(X,X,0)
    * Returns 0 if the initialization failed.
+   * Deprecated, Use vtkAMRBox::InitializeGrid instead.
    */
-  int Initialize(const vtkAMRBox* def, double* origin, double* spacing, const int nGhosts[3]);
+  VTK_DEPRECATED_IN_9_6_0("Use vtkAMRBox::InitializeGrid instead")
+  int Initialize(const vtkAMRBox* def, double* origin, double* spacing, const int nGhosts[3])
+  {
+    return def->InitializeGrid(this, origin, spacing, nGhosts);
+  };
+
   /**
    * Construct a uniform grid, from the definition in the given box
    * "def", with ghost cell arrays of the thickness given in each
@@ -81,28 +86,31 @@ public:
    * to be 3D, if you have 2D data the set the third dimensions 0. eg.
    * (X,X,0)(X,X,0)
    * Returns 0 if the initialization failed.
+   * Deprecated, Use vtkAMRBox::InitializeGrid instead.
    */
-  int Initialize(const vtkAMRBox* def, double* origin, double* spacing, int nGhostsI, int nGhostsJ,
-    int nGhostsK);
+  VTK_DEPRECATED_IN_9_6_0("Use vtkAMRBox::InitializeGrid instead")
+  int Initialize(
+    const vtkAMRBox* def, double* origin, double* spacing, int nGhostsI, int nGhostsJ, int nGhostsK)
+  {
+    return def->InitializeGrid(this, origin, spacing, nGhostsI, nGhostsJ, nGhostsK);
+  };
 
+  VTK_DEPRECATED_IN_9_6_0("Will be removed, create a vtkImageData manually if needed")
   virtual VTK_NEWINSTANCE vtkImageData* NewImageDataCopy();
 
   ///@{
   /**
    * Retrieve an instance of this class from an information object.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use vtkImageData::GetData instead")
   static vtkUniformGrid* GetData(vtkInformation* info);
+  VTK_DEPRECATED_IN_9_6_0("Use vtkImageData::GetData instead")
   static vtkUniformGrid* GetData(vtkInformationVector* v, int i = 0);
   ///@}
 
 protected:
   vtkUniformGrid();
   ~vtkUniformGrid() override;
-
-  /**
-   * Override this method because of blanking.
-   */
-  void ComputeScalarRange() override;
 
 private:
   vtkUniformGrid(const vtkUniformGrid&) = delete;

@@ -2486,4 +2486,66 @@ void vtkImageData::ApplyPhysicalToIndexMatrix(vtkMatrix4x4* sourcePhysicalToInde
   this->ApplyIndexToPhysicalMatrix(indexToPhysicalMatrix);
 }
 
+//------------------------------------------------------------------------------
+// Override this method because of blanking
+void vtkImageData::ComputeScalarRange()
+{
+  if (this->GetMTime() > this->ScalarRangeComputeTime)
+  {
+    vtkDataArray* ptScalars = this->PointData->GetScalars();
+    vtkDataArray* cellScalars = this->CellData->GetScalars();
+    double ptRange[2];
+    double cellRange[2];
+    double s;
+
+    ptRange[0] = VTK_DOUBLE_MAX;
+    ptRange[1] = VTK_DOUBLE_MIN;
+    if (ptScalars)
+    {
+      vtkIdType num = this->GetNumberOfPoints();
+      for (vtkIdType id = 0; id < num; ++id)
+      {
+        if (this->IsPointVisible(id))
+        {
+          s = ptScalars->GetComponent(id, 0);
+          if (s < ptRange[0])
+          {
+            ptRange[0] = s;
+          }
+          if (s > ptRange[1])
+          {
+            ptRange[1] = s;
+          }
+        }
+      }
+    }
+
+    cellRange[0] = ptRange[0];
+    cellRange[1] = ptRange[1];
+    if (cellScalars)
+    {
+      vtkIdType num = this->GetNumberOfCells();
+      for (vtkIdType id = 0; id < num; ++id)
+      {
+        if (this->IsCellVisible(id))
+        {
+          s = cellScalars->GetComponent(id, 0);
+          if (s < cellRange[0])
+          {
+            cellRange[0] = s;
+          }
+          if (s > cellRange[1])
+          {
+            cellRange[1] = s;
+          }
+        }
+      }
+    }
+
+    this->ScalarRange[0] = (cellRange[0] >= VTK_DOUBLE_MAX ? 0.0 : cellRange[0]);
+    this->ScalarRange[1] = (cellRange[1] <= VTK_DOUBLE_MIN ? 1.0 : cellRange[1]);
+    this->ScalarRangeComputeTime.Modified();
+  }
+}
+
 VTK_ABI_NAMESPACE_END

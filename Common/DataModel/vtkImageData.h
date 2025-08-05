@@ -10,7 +10,7 @@
  * volumes (voxel data) and pixmaps. This representation supports images
  * up to three dimensions. The image may also be oriented (see the
  * DirectionMatrices and related transformation methods). Note however,
- * that not all filters support oriented images.
+ * that not all filters support oriented images. It also supports blanking.
  *
  * @sa
  * vtkImageTransform
@@ -712,6 +712,11 @@ protected:
   void BuildPoints();
   void BuildCells();
   void BuildCellTypes();
+
+  /**
+   * Override this method because of blanking.
+   */
+  void ComputeScalarRange() override;
 
 private:
   void InternalImageDataCopy(vtkImageData* src);
