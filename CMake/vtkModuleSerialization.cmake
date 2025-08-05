@@ -32,8 +32,8 @@ get_filename_component(_vtkModuleSerialization_dir "${CMAKE_CURRENT_LIST_FILE}" 
   * ``EXPORT_MACRO_NAME``: The name of the export macro for ``MODULE``.
   * ``EXPORT_FILE_NAME``: The name of the header file which defines ``EXPORT_MACRO_NAME``
     for ``MODULE``.
-  * ``REGISTRAR_HEADER``: This file will hold the declaration of regsitrar function for ``MODULE``.
-  * ``REGISTRAR_SOURCE``: This file will contain the implementation of regsitrar function for ``MODULE``.
+  * ``REGISTRAR_HEADER``: This file will hold the declaration of registrar function for ``MODULE``.
+  * ``REGISTRAR_SOURCE``: This file will contain the implementation of registrar function for ``MODULE``.
   * ``CLASSES``: List of classes that will be registered with (de)serializer in this library.
 
 #]==]
@@ -121,7 +121,7 @@ endfunction ()
   Code is generated in ``REGISTRAR_SOURCE``.
 
   * ``REGISTRAR_NAME``: The name of the registrar function.
-  * ``REGISTRAR_SOURCE``: This file will contain the implementation of regsitrar
+  * ``REGISTRAR_SOURCE``: This file will contain the implementation of registrar
     function which registers handlers for all ``MANDATORY_MODULES`` and ``OPTIONAL_MODULES``.
   * ``MANDATORY_MODULES``:  A list of ``PUBLIC`` or ``PRIVATE`` dependencies
     of the module which ``REGISTRAR_SOURCE`` is compiled into.
@@ -194,7 +194,7 @@ endfunction ()
 
     _vtk_module_serdes_generate_sources(
       MODULE              <module>
-      SERIALIZED_CLASSES  <serialzied_classes>
+      SERIALIZED_CLASSES  <serialized_classes>
       SERDES_SOURCES      <serdes_sources>)
 
   * ``MODULE``: Generates serialization sources for all classes in ``MODULE``
@@ -410,8 +410,8 @@ endfunction ()
   * ``EXPORT_MACRO_NAME``: The name of the export macro for ``MODULE``.
   * ``EXPORT_FILE_NAME``: The name of the header file which defines ``EXPORT_MACRO_NAME``
     for ``MODULE``.
-  * ``REGISTRAR_HEADER``: This file will contain declaration of regsitrar function for ``MODULE``.
-  * ``REGISTRAR_SOURCE``: This file will contain implementation of regsitrar function for ``MODULE``.
+  * ``REGISTRAR_HEADER``: This file will contain declaration of registrar function for ``MODULE``.
+  * ``REGISTRAR_SOURCE``: This file will contain implementation of registrar function for ``MODULE``.
   * ``SERDES_SOURCES``: This variable holds the list of generated source files with vtkWrapSerDes
     for all classes in ``MODULE``.
 
