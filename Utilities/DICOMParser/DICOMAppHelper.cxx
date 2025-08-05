@@ -715,9 +715,11 @@ void DICOMAppHelper::PixelSpacingCallback(DICOMParser* parser, doublebyte group,
 {
   if (group == 0x0028 && element == 0x0030)
   {
+    // DICOM spacing is in Row/Column order rather than X/Y order,
+    // so we reverse it to provide what the application expects
     if (!val ||
-      sscanf(reinterpret_cast<char*>(val), "%f\\%f", &this->PixelSpacing[0],
-        &this->PixelSpacing[1]) != 2)
+      sscanf(reinterpret_cast<char*>(val), "%f\\%f", &this->PixelSpacing[1],
+        &this->PixelSpacing[0]) != 2)
     {
       this->PixelSpacing[0] = this->PixelSpacing[1] = 0.0;
     }
