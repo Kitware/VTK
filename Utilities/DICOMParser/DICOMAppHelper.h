@@ -170,7 +170,7 @@ public:
    * information from the header as well as the pixel data. */
 
   /** Get the pixel spacing of the last image processed by the
-   *  DICOMParser */
+   *  DICOMParser as (columnSpacing, rowSpacing, sliceSpacing) */
   float* GetPixelSpacing() { return this->PixelSpacing; }
 
   /** Get the image width of the last image processed by the
