@@ -195,16 +195,19 @@ void vtkProjectSphereFilter::TransformCellInformation(
   std::map<vtkIdType, vtkIdType> boundaryMap;
 
   double TOLERANCE = .0001;
+  vtkNew<vtkPoints> tmpPoints;
+  tmpPoints->DeepCopy(output->GetPoints());
+  output->GetPoints()->Reset();
   vtkNew<vtkMergePoints> locator;
   locator->InitPointInsertion(
-    output->GetPoints(), output->GetBounds(), output->GetNumberOfPoints());
+    output->GetPoints(), output->GetBounds(), tmpPoints->GetNumberOfPoints());
   double coord[3];
-  for (vtkIdType i = 0; i < output->GetNumberOfPoints(); i++)
+  for (vtkIdType i = 0; i < tmpPoints->GetNumberOfPoints(); i++)
   {
-    // this is a bit annoying but required for building up the locator properly
-    // otherwise it won't either know these points exist or will start
-    // counting new points at index 0.
-    output->GetPoint(i, coord);
+    // creating a duplicate of the input point and inserting them in the locator
+    // is a bit annoying but required for building up the locator properly
+    // otherwise it won't know these points exist
+    tmpPoints->GetPoint(i, coord);
     locator->InsertNextPoint(coord);
   }
 
