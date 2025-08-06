@@ -1,11 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include <atomic> // for std::atomic
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <map> // for std::map
+#include <map>    // for std::map
 
 #ifndef WINVER
 #define WINVER 0x0601 // for touch support, 0x0601 means target Windows 7 or later
@@ -19,7 +15,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkStringArray.h"
 #include "vtkWin32RenderWindowInteractor.h"
-#include "vtkWindows.h"
 #include "vtksys/Encoding.hxx"
 
 #include <shellapi.h> // for drag and drop
@@ -45,7 +40,6 @@ VTKRENDERINGUI_EXPORT LRESULT CALLBACK vtkHandleMessage2(
   HWND, UINT, WPARAM, LPARAM, class vtkWin32RenderWindowInteractor*);
 
 VTK_ABI_NAMESPACE_END
-#include "vtkActor.h"
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 
