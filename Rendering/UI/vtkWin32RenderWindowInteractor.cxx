@@ -230,7 +230,7 @@ public:
 vtkWin32RenderWindowInteractor::vtkWin32RenderWindowInteractor()
   : Internals(new vtkInternals())
 {
-  this->WindowId = 0;
+  this->WindowId = nullptr;
   this->InstallMessageProc = 1;
   this->MouseInWindow = 0;
   this->StartedMessageLoop = 0;
@@ -527,7 +527,7 @@ void vtkWin32RenderWindowInteractor::Disable()
 }
 
 //------------------------------------------------------------------------------
-void vtkWin32RenderWindowInteractor::TerminateApp(void)
+void vtkWin32RenderWindowInteractor::TerminateApp()
 {
   if (this->Done)
   {
@@ -994,7 +994,7 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 {
   LRESULT res = 0;
   vtkRenderWindow* ren;
-  vtkWin32RenderWindowInteractor* me = 0;
+  vtkWin32RenderWindowInteractor* me = nullptr;
 
   ren = (vtkRenderWindow*)vtkGetWindowLong(hWnd, sizeof(vtkLONG));
 
