@@ -19,7 +19,7 @@ class TestProperty(vtkTesting.vtkTest):
         self.assertTupleEqual(i.dimensions, (2, 2, 4))
 
         # check that i.number_of_points = 2 fails because number_of_points is a read-only property.
-        with self.assertRaisesRegex(AttributeError, "attribute 'number_of_points' of 'vtkmodules.vtkCommonDataModel.vtkImageData' objects is not writable"):
+        with self.assertRaisesRegex(AttributeError, "attribute 'number_of_points' of 'vtkmodules.vtkCommonDataModel.vtkCartesianGrid' objects is not writable"):
             i.number_of_points = 2
 
         i.debug = True
