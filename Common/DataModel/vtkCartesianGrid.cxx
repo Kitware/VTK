@@ -417,6 +417,7 @@ void vtkCartesianGrid::SetExtent(int* extent)
   if (description < 0) // improperly specified
   {
     vtkErrorMacro("Bad Extent, retaining previous values");
+    return;
   }
 
   if (description == vtkStructuredData::VTK_STRUCTURED_UNCHANGED)
