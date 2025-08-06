@@ -149,7 +149,7 @@ endforeach()
 
 vtk_module_add_module(VTK::FiltersCellGrid
   CLASSES ${classes}
-  HEADERS ${header} ${headers}
+  HEADERS ${headers}
   SOURCES ${sources}
   TEMPLATES ${templates}
   PRIVATE_HEADERS ${private_headers}
