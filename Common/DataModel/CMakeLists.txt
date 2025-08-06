@@ -33,6 +33,7 @@ set(classes
   vtkBond
   vtkBoundingBox
   vtkBox
+  vtkCartesianGrid
   vtkCell
   vtkCell3D
   vtkCellArray
