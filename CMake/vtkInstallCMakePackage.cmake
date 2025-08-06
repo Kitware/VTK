@@ -150,6 +150,7 @@ set(vtk_cmake_module_files
   vtkSerializationLibrariesRegistrar.cxx.in
   vtkSerializationLibraryRegistrar.cxx.in
   vtkSerializationLibraryRegistrar.h.in
+  vtkSerializationWebAssemblyBindings.cxx.in
   vtkTestingDriver.cmake
   vtkTestingRenderingDriver.cmake
   vtkTopologicalSort.cmake

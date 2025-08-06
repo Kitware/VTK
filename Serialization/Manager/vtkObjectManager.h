@@ -54,10 +54,28 @@ public:
   /**
    * Loads user provided handlers
    */
+#if !defined(__VTK_WRAP__)
   bool InitializeExtensionModuleHandlers(
     const std::vector<vtkSessionObjectManagerRegistrarFunc>& registrars);
   bool InitializeExtensionModuleHandlers(
     const vtkSessionObjectManagerRegistrarFunc* registrars, std::size_t count);
+#endif
+
+  /**
+   * Loads user provided handler. This is a convenience method for python bindings.
+   * Users can call it with `moduleName.RegisterClasses_moduleName` argument for a module named
+   * `moduleName`.
+   *
+   * Here is an example (assume that vtkInteractionWidgets is built outside VTK):
+   *
+   * ```python
+   * from vtkmodules import vtkInteractionWidgets
+   * from vtkmodules.vtkSerializationManager import vtkObjectManager
+   * object_manager = vtkObjectManager()
+   * object_manager.InitializeExtensionModuleHandler(vtkInteractionWidgets.RegisterClasses_vtkInteractionWidgets)
+   * ```
+   */
+  bool InitializeExtensionModuleHandler(void* registrar);
 
   /**
    * Adds `object` into an internal container and returns a unique identifier.

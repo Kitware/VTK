@@ -399,10 +399,12 @@ function (_vtk_module_wrap_python_library name)
   endif ()
 
   set(_vtk_python_init_data_file "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}Python/${name}-init.data")
-
+  _vtk_module_get_module_property("${_vtk_python_module}"
+    PROPERTY  "include_marshal"
+    VARIABLE  _vtk_python_library_include_marshal)
   file(GENERATE
     OUTPUT  "${_vtk_python_init_data_file}"
-    CONTENT "${_vtk_python_library_name}\n$<JOIN:${_vtk_python_classes},\n>\nDEPENDS\n$<JOIN:${_vtk_python_module_load_depends},\n>\n")
+    CONTENT "${_vtk_python_library_name}\n$<JOIN:${_vtk_python_classes},\n>\nDEPENDS\n$<JOIN:${_vtk_python_module_load_depends},\n>\n$<$<BOOL:${_vtk_python_library_include_marshal}>:INCLUDE_MARSHAL\n>")
 
   set(_vtk_python_init_output
     "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${name}Python/${name}Init.cxx")

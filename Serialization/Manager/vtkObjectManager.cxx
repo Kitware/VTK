@@ -143,6 +143,29 @@ bool vtkObjectManager::InitializeExtensionModuleHandlers(
 }
 
 //------------------------------------------------------------------------------
+bool vtkObjectManager::InitializeExtensionModuleHandler(void* registrar)
+{
+  const char* error = nullptr;
+  vtkVLog(this->GetObjectManagerLogVerbosity(),
+    "InitializeExtensionModuleHandlers called with registrar " << registrar);
+  if (auto registrarFunc = reinterpret_cast<vtkSessionObjectManagerRegistrarFunc>(registrar))
+  {
+    if (!(registrarFunc)(this->Serializer, this->Deserializer, this->Invoker, &error))
+    {
+      vtkErrorMacro(<< "Failed to register an extension SerDes handler. error=\"" << error << "\"");
+      return false;
+    }
+    else
+    {
+      vtkVLog(this->GetObjectManagerLogVerbosity(),
+        "InitializeExtensionModuleHandlers succeeded calling " << registrar);
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
 void vtkObjectManager::Export(const std::string& filename, int indent, char indentChar)
 {
   std::string objectStatesFileName = filename, blobsFileName = filename + ".blobs.json";

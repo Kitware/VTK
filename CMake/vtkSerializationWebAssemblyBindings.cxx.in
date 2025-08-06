@@ -4,26 +4,21 @@
 // Hide VTK_DEPRECATED_IN_9_5_0() warnings.
 #define VTK_DEPRECATION_LEVEL 0
 
-// Init factories.
-#if VTK_MODULE_ENABLE_VTK_RenderingContextOpenGL2
-#include "vtkRenderingContextOpenGL2Module.h"
-#endif
-#if VTK_MODULE_ENABLE_VTK_RenderingOpenGL2
-#include "vtkRenderingOpenGL2Module.h"
-#endif
-#if VTK_MODULE_ENABLE_VTK_RenderingUI
-#include "vtkRenderingUIModule.h"
-#endif
-#if VTK_MODULE_ENABLE_VTK_RenderingVolumeOpenGL2
-#include "vtkRenderingVolumeOpenGL2Module.h"
-#endif
+// clang-format off
+// Includes vtkModuleNameSerDes.h.
+@_vtk_serdes_include_libraries_registrar_headers@
+
+#cmakedefine01 _vtk_serdes_ASYNC
+// clang-format on
 
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
 #include "vtkABINamespace.h"
+#include "vtkLogger.h"
 #include "vtkObjectManager.h"
 #include "vtkRemoteSession.h"
+#include "vtkSession.h"
 #include "vtkStandaloneSession.h"
 #include "vtkVersion.h"
 
@@ -33,6 +28,52 @@ using namespace emscripten;
 
 namespace
 {
+const int SUCCESS = 1;
+const int FAIL = 0;
+
+int PostCreateSession(vtkSession session, const char** error)
+{
+  if (error)
+  {
+    *error = "";
+  }
+  else
+  {
+    vtkLog(ERROR, << "\'error\' argument cannot be null!");
+    return FAIL;
+  }
+  auto* manager = static_cast<vtkObjectManager*>(vtkSessionGetManager(session));
+  if (!manager)
+  {
+    *error = "Session manager is null!";
+    return FAIL;
+  }
+  auto* deserializer = manager->GetDeserializer();
+  if (!deserializer)
+  {
+    *error = "Session deserializer is null!";
+    return FAIL;
+  }
+  auto* serializer = manager->GetSerializer();
+  if (!serializer)
+  {
+    *error = "Session serializer is null!";
+    return FAIL;
+  }
+  auto* invoker = manager->GetInvoker();
+  if (!invoker)
+  {
+    *error = "Session invoker is null!";
+    return FAIL;
+  }
+
+  // clang-format off
+  // call RegisterClasses for each public library.
+@_vtk_serdes_register_libraries@
+  // clang-format on
+  return SUCCESS;
+}
+
 /**
  * This function configures the session to use WebAssembly-specific handlers
  * for serialization and deserialization. It removes the default
@@ -57,6 +98,12 @@ void PatchOpenGLDeserializer(vtkSession session)
 vtkStandaloneSession* makeStandaloneSession()
 {
   auto* standaloneSession = new vtkStandaloneSession();
+  const char* error = nullptr;
+  if (PostCreateSession(standaloneSession->Session, &error) == FAIL)
+  {
+    vtkLogF(ERROR, "post create standalone session failed: %s", error);
+    return nullptr;
+  }
   PatchOpenGLDeserializer(standaloneSession->Session);
   return standaloneSession;
 }
@@ -64,13 +111,19 @@ vtkStandaloneSession* makeStandaloneSession()
 vtkRemoteSession* makeRemoteSession()
 {
   auto* remoteSession = new vtkRemoteSession();
+  const char* error = nullptr;
+  if (PostCreateSession(remoteSession->Session, &error) == FAIL)
+  {
+    vtkLogF(ERROR, "post create remote session failed: %s", error);
+    return nullptr;
+  }
   PatchOpenGLDeserializer(remoteSession->Session);
   return remoteSession;
 }
 }
 
 /// Javascript bindings to the webassembly sessions.
-EMSCRIPTEN_BINDINGS(vtkWebAssembly)
+EMSCRIPTEN_BINDINGS(bindings)
 {
   /**
    * Get the VTK version string.
@@ -86,8 +139,11 @@ EMSCRIPTEN_BINDINGS(vtkWebAssembly)
   /**
    * Determine if the session provides async wrappers.
    */
+#if _vtk_serdes_ASYNC
+  function("isAsync", optional_override([] { return true; }));
+#else
   function("isAsync", optional_override([] { return false; }));
-
+#endif
   /// Wrappings for the WebAssembly standalone session.
   class_<vtkStandaloneSession>("vtkStandaloneSession")
     .constructor(&makeStandaloneSession, allow_raw_pointers())
@@ -95,7 +151,11 @@ EMSCRIPTEN_BINDINGS(vtkWebAssembly)
     .function("destroy", &vtkStandaloneSession::Destroy)
     .function("set", &vtkStandaloneSession::Set)
     .function("get", &vtkStandaloneSession::Get)
+#if _vtk_serdes_ASYNC
+    .function("invoke", &vtkStandaloneSession::Invoke, async())
+#else
     .function("invoke", &vtkStandaloneSession::Invoke)
+#endif
     .function("observe", &vtkStandaloneSession::Observe)
     .function("unObserve", &vtkStandaloneSession::UnObserve);
 
@@ -112,12 +172,20 @@ EMSCRIPTEN_BINDINGS(vtkWebAssembly)
     .function("registerBlob", &vtkRemoteSession::RegisterBlob)
     .function("unRegisterBlob", &vtkRemoteSession::UnRegisterBlob)
     .function("getBlob", &vtkRemoteSession::GetBlob)
+#if _vtk_serdes_ASYNC
+    .function("invoke", &vtkRemoteSession::Invoke, async())
+#else
     .function("invoke", &vtkRemoteSession::Invoke)
+#endif
     .function("getAllDependencies", &vtkRemoteSession::GetAllDependencies)
     .function("updateObjectFromState", &vtkRemoteSession::UpdateObjectFromState)
     .function("updateStateFromObject", &vtkRemoteSession::UpdateStateFromObject)
     .function("setSize", &vtkRemoteSession::SetSize)
+#if _vtk_serdes_ASYNC
+    .function("render", &vtkRemoteSession::Render, async())
+#else
     .function("render", &vtkRemoteSession::Render)
+#endif
     .function("resetCamera", &vtkRemoteSession::ResetCamera)
     .function("startEventLoop", &vtkRemoteSession::StartEventLoop)
     .function("stopEventLoop", &vtkRemoteSession::StopEventLoop)
