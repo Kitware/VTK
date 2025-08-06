@@ -1,8 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Kitware Inc.
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include <vtkXMLMultiBlockDataReader.h>
-
 #include "vtkAxisAlignedReflectionFilter.h"
 #include "vtkCellData.h"
 #include "vtkDataAssembly.h"
@@ -14,13 +12,17 @@
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkPolyLineSource.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSphereSource.h"
+#include "vtkStripper.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridToExplicitStructuredGrid.h"
 #include "vtkXMLHyperTreeGridReader.h"
 #include "vtkXMLImageDataReader.h"
+#include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPartitionedDataSetCollectionReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLRectilinearGridReader.h"
@@ -245,6 +247,75 @@ int TestPolyData(int argc, char* argv[])
 
   AssertMacro(cellPtsIn->GetId(1) == cellPtsOut->GetId(3) && cellPtsOut->GetId(3) == 251,
     polyDataOut->GetClassName(), "Incorrect cells");
+
+  // Test PolyLine
+  vtkNew<vtkPolyLineSource> polylines;
+  polylines->Resize(3);
+  polylines->SetClosed(false);
+  for (vtkIdType i = 0; i < 3; ++i)
+  {
+    polylines->SetPoint(i, i + i % 2, i, 0);
+  }
+  vtkSmartPointer<vtkPartitionedDataSetCollection> output2 =
+    Reflect(polylines->GetOutputPort(), true, false, vtkAxisAlignedReflectionFilter::X_MAX);
+  vtkPolyData* polyLineIn = vtkPolyData::SafeDownCast(output2->GetPartition(0, 0));
+  vtkPolyData* polyLineOut = vtkPolyData::SafeDownCast(output2->GetPartition(1, 0));
+
+  AssertMacro(polyLineOut->GetNumberOfPoints() == polyLineIn->GetNumberOfPoints(),
+    polyLineOut->GetClassName(), "Incorrect number of points");
+  AssertMacro(polyLineOut->GetNumberOfCells() == polyLineIn->GetNumberOfCells(),
+    polyLineOut->GetClassName(), "Incorrect number of cells");
+
+  AssertMacro(
+    polyLineOut->GetNumberOfLines() == 1, polyLineOut->GetClassName(), "Incorrect number of lines");
+  vtkNew<vtkIdList> ptsOut;
+  polyLineOut->GetCellPoints(0, ptsOut);
+  AssertMacro(ptsOut->GetId(0) == 2 && ptsOut->GetId(1) == 1 && ptsOut->GetId(2) == 0,
+    polyLineOut->GetClassName(), "Incorrect point ids in polyline");
+
+  // Test PolyVertex
+  vtkNew<vtkPolyPointSource> polyPoints;
+  polyPoints->Resize(2);
+  polyPoints->SetPoint(0, 0, 0, 0);
+  polyPoints->SetPoint(1, 1, 0, 0);
+  vtkSmartPointer<vtkPartitionedDataSetCollection> output3 =
+    Reflect(polyPoints->GetOutputPort(), true, false, vtkAxisAlignedReflectionFilter::X_MIN);
+  vtkPolyData* polyPointIn = vtkPolyData::SafeDownCast(output3->GetPartition(0, 0));
+  vtkPolyData* polyPointOut = vtkPolyData::SafeDownCast(output3->GetPartition(1, 0));
+
+  AssertMacro(polyPointOut->GetNumberOfPoints() == polyPointIn->GetNumberOfPoints(),
+    polyPointOut->GetClassName(), "Incorrect number of points");
+  AssertMacro(polyPointOut->GetNumberOfCells() == polyPointIn->GetNumberOfCells(),
+    polyPointOut->GetClassName(), "Incorrect number of cells");
+
+  AssertMacro(polyPointOut->GetNumberOfVerts() == 1, polyPointOut->GetClassName(),
+    "Incorrect number of vertices");
+
+  vtkNew<vtkIdList> ptsOutVertex;
+  polyPointOut->GetCellPoints(0, ptsOutVertex);
+  AssertMacro(ptsOutVertex->GetId(0) == 0 && ptsOutVertex->GetId(1) == 1,
+    polyPointOut->GetClassName(), "Incorrect point ids in polyPoints");
+
+  AssertMacro(polyPointOut->GetPoint(0)[0] == 0 && polyPointOut->GetPoint(1)[0] == -1,
+    polyPointOut->GetClassName(), "Incorrect points");
+
+  vtkNew<vtkSphereSource> sphere;
+  vtkNew<vtkStripper> triangleStrips;
+  triangleStrips->SetInputConnection(sphere->GetOutputPort());
+  triangleStrips->Update();
+
+  vtkSmartPointer<vtkPartitionedDataSetCollection> output4 =
+    Reflect(triangleStrips->GetOutputPort(), true, false, vtkAxisAlignedReflectionFilter::X_MIN);
+  vtkPolyData* triangleStripsIn = vtkPolyData::SafeDownCast(output4->GetPartition(0, 0));
+  vtkPolyData* triangleStripsOut = vtkPolyData::SafeDownCast(output4->GetPartition(1, 0));
+
+  AssertMacro(triangleStripsOut->GetNumberOfPoints() == triangleStripsIn->GetNumberOfPoints(),
+    triangleStripsOut->GetClassName(), "Incorrect number of points");
+  AssertMacro(triangleStripsOut->GetNumberOfCells() == triangleStripsIn->GetNumberOfCells(),
+    triangleStripsOut->GetClassName(), "Incorrect number of cells");
+
+  AssertMacro(triangleStripsOut->GetNumberOfStrips() == 18, triangleStripsOut->GetClassName(),
+    "Incorrect number of strips");
 
   return EXIT_SUCCESS;
 }

@@ -618,19 +618,32 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
       std::vector<vtkIdType> newCellPts(nbPts);
       for (int j = 0; j != nbPts; j++)
       {
-        // Indexing in this way ensures proper reflection of quad triangulation
-        newCellPts[(nbPts - j) % nbPts] = cellPts->GetId(j);
+        if (cellType == VTK_POLY_LINE || cellType == VTK_TRIANGLE_STRIP)
+        {
+          newCellPts[j] = cellPts->GetId(nbPts - j - 1);
+        }
+        else
+        {
+          // Indexing in this way ensures proper reflection of quad triangulation
+          newCellPts[(nbPts - j) % nbPts] = cellPts->GetId(j);
+        }
       }
       switch (cellType)
       {
         case VTK_VERTEX:
+        case VTK_POLY_VERTEX:
           newCellId = outVerts->InsertNextCell(numCellPts, newCellPts.data());
           break;
         case VTK_LINE:
+        case VTK_POLY_LINE:
           newCellId = outLines->InsertNextCell(numCellPts, newCellPts.data());
+          break;
+        case VTK_TRIANGLE_STRIP:
+          newCellId = outStrips->InsertNextCell(numCellPts, newCellPts.data());
           break;
         default:
           newCellId = outPolys->InsertNextCell(numCellPts, newCellPts.data());
+          break;
       }
     }
     outCD->CopyData(inCD, i, newCellId);
