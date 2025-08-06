@@ -132,7 +132,8 @@ if (VTK_USE_WIN32_OPENGL AND (NOT CMAKE_CROSSCOMPILING OR DEFINED CMAKE_CROSSCOM
 endif ()
 
 set(sources)
-set(private_headers)
+set(private_sources)
+
 set(private_classes
   vtkOpenGLLowMemoryCellTypeAgent
   vtkOpenGLLowMemoryLinesAgent
@@ -286,9 +287,34 @@ if (VTK_OPENGL_HAS_EGL)
       OVERRIDE vtkOpenGLRenderWindow)
     set(has_vtkRenderWindow_override 1)
   endif ()
-  set_source_files_properties(vtkEGLRenderWindow.cxx
+
+  list(APPEND private_sources
+    "Private/vtkEGLConfig.cxx"
+    "Private/vtkEGLXConfig.cxx"
+    "Private/vtkEGLRenderWindowInternals.cxx")
+  list(APPEND private_headers
+    "Private/vtkEGLConfig.h"
+    "Private/vtkEGLXConfig.h"
+    "Private/vtkEGLRenderWindowInternals.h")
+
+  set_source_files_properties(Private/vtkEGLRenderWindowInternals.cxx
     PROPERTIES
       COMPILE_DEFINITIONS "VTK_DEFAULT_EGL_DEVICE_INDEX=${VTK_DEFAULT_EGL_DEVICE_INDEX}")
+
+  if (VTK_USE_WAYLAND_OPENGL)
+    include("${CMAKE_SOURCE_DIR}/CMake/vtkWaylandProtocols.cmake")
+    list(APPEND private_sources
+      ${XDG_SHELL_C}
+      ${XDG_SHELL_H}
+      "Private/vtkEGLWaylandConfig.h"
+      "Private/vtkEGLWaylandConfig.cxx")
+  endif()
+
+  if (ANDROID)
+    list(APPEND private_sources
+      "Private/vtkEGLAndroidConfig.h"
+      "Private/vtkEGLAndroidConfig.cxx")
+  endif()
 endif ()
 
 # Setup factory overrides and add window system specific render windows.
@@ -406,10 +432,18 @@ configure_file(
 vtk_module_add_module(VTK::RenderingOpenGL2
   CLASSES ${classes}
   PRIVATE_CLASSES ${private_classes}
-  SOURCES ${sources} ${vtk_object_factory_source}
+  SOURCES ${sources} ${vtk_object_factory_source} ${private_sources}
   HEADERS ${headers}
   NOWRAP_HEADERS ${nowrap_headers}
   PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header})
+
+if (VTK_USE_WAYLAND_OPENGL)
+  vtk_module_link(VTK::RenderingOpenGL2
+    PRIVATE
+      ${WAYLAND_CLIENT_LIB}
+      ${WAYLAND_EGL_LIB})
+  vtk_module_definitions(VTK::RenderingOpenGL2 PRIVATE USE_WAYLAND)
+endif()
 
 if (VTK_USE_X)
   vtk_module_find_package(PACKAGE X11)

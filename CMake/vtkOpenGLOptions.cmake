@@ -58,6 +58,10 @@ set(VTK_DEFAULT_EGL_DEVICE_INDEX "0" CACHE STRING
   "EGL device (graphics card) index to use by default for EGL render windows.")
 mark_as_advanced(VTK_DEFAULT_EGL_DEVICE_INDEX)
 
+option(VTK_USE_WAYLAND_OPENGL
+  "Use Wayland for rendering on Linux with EGL." OFF)
+mark_as_advanced(VTK_USE_WAYLAND_OPENGL)
+
 #-----------------------------------------------------------------------------
 # Irrespective of support for offscreen API, VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN
 # lets the user select the default state for the  `Offscreen` flag on the
@@ -73,10 +77,10 @@ set(vtk_can_do_onscreen FALSE)
 # neither the hardware accelerated on/offscreen backends, nor the software-only backends are available.
 set(vtk_can_do_headless TRUE)
 
-if (VTK_USE_WIN32_OPENGL OR VTK_OPENGL_HAS_EGL)
+if (VTK_USE_WIN32_OPENGL OR VTK_OPENGL_HAS_EGL OR VTK_USE_WAYLAND_OPENGL)
   set(vtk_can_do_offscreen TRUE)
 endif ()
-if (VTK_USE_WIN32_OPENGL OR VTK_USE_COCOA OR VTK_USE_X) # XXX: See error message below.
+if (VTK_USE_WIN32_OPENGL OR VTK_USE_COCOA OR VTK_USE_X OR VTK_USE_WAYLAND_OPENGL) # XXX: See error message below.
   set(vtk_can_do_onscreen TRUE)
 endif ()
 
