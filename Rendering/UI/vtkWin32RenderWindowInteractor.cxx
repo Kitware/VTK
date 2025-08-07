@@ -415,7 +415,7 @@ void vtkWin32RenderWindowInteractor::Initialize()
   {
     this->WindowId = (HWND)(this->HardwareWindow->GetGenericWindowId());
     size = this->HardwareWindow->GetSize();
-    vtkSetWindowLong(this->WindowId, sizeof(vtkLONG), (intptr_t)ren);
+    vtkSetWindowLong(this->WindowId, sizeof(vtkLONG), (intptr_t)this->HardwareWindow);
   }
   else
   {
@@ -430,20 +430,32 @@ void vtkWin32RenderWindowInteractor::Initialize()
 //------------------------------------------------------------------------------
 void vtkWin32RenderWindowInteractor::Enable()
 {
-  vtkRenderWindow* ren;
-  vtkRenderWindow* tmp;
   if (this->Enabled)
   {
     return;
   }
   if (this->InstallMessageProc)
   {
+    vtkHardwareWindow* hwren = this->HardwareWindow;
+    vtkRenderWindow* ren = this->RenderWindow;
+
     // add our callback
-    ren = this->RenderWindow;
     this->OldProc = (WNDPROC)vtkGetWindowLong(this->WindowId, vtkGWL_WNDPROC);
-    tmp = (vtkRenderWindow*)vtkGetWindowLong(this->WindowId, sizeof(vtkLONG));
+    auto tmp = vtkGetWindowLong(this->WindowId, sizeof(vtkLONG));
     // watch for odd conditions
-    if (tmp != ren)
+    bool user_msg = false;
+    if (hwren)
+    {
+      if (hwren != (vtkHardwareWindow*)tmp)
+      {
+        user_msg = true;
+      }
+    }
+    else if (ren != (vtkRenderWindow*)tmp)
+    {
+      user_msg = true;
+    }
+    if (user_msg)
     {
       // OK someone else has a hold on our event handler
       // so lets have them handle this stuff
@@ -993,12 +1005,22 @@ int vtkWin32RenderWindowInteractor::OnDropFiles(HWND, WPARAM wParam)
 LRESULT CALLBACK vtkHandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   LRESULT res = 0;
-  vtkRenderWindow* ren;
   vtkWin32RenderWindowInteractor* me = nullptr;
 
-  ren = (vtkRenderWindow*)vtkGetWindowLong(hWnd, sizeof(vtkLONG));
+  auto tmpptr = vtkGetWindowLong(hWnd, sizeof(vtkLONG));
+  vtkHardwareWindow* hwren = (vtkHardwareWindow*)tmpptr;
+  vtkRenderWindow* ren = (vtkRenderWindow*)tmpptr;
+  vtkRenderWindowInteractor* hwme = nullptr;
+  if (hwren != nullptr)
+  {
+    hwme = hwren->GetInteractor();
+  }
 
-  if (ren)
+  if (hwme != nullptr)
+  {
+    me = (vtkWin32RenderWindowInteractor*)hwme;
+  }
+  else if (ren != nullptr)
   {
     me = (vtkWin32RenderWindowInteractor*)ren->GetInteractor();
   }
