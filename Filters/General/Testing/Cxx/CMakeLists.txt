@@ -92,6 +92,12 @@ if (TARGET VTK::IOIOSS)
     )
 endif()
 
+if (VTK_SMP_ENABLE_STDTHREAD)
+  vtk_add_test_cxx(vtkFiltersGeneralCxxTests tests
+    TestGradientSMP.cxx,NO_VALID
+  )
+endif ()
+
 set(all_tests
   ${tests}
   ${data_tests}
