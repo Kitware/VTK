@@ -118,6 +118,7 @@ to the more usual form y x; without parentheses.
 #endif
 
 #include "vtkParse.h"
+#include "vtkParseAttributes.h"
 #include "vtkParseData.h"
 #include "vtkParsePreprocess.h"
 #include "vtkParseSystem.h"
@@ -185,8 +186,6 @@ static TemplateInfo* currentTemplate = NULL;
 static const char* currentEnumName = NULL;
 static const char* currentEnumValue = NULL;
 static unsigned int currentEnumType = 0;
-static const char* deprecationReason = NULL;
-static const char* deprecationVersion = NULL;
 static parse_access_t access_level = VTK_ACCESS_PUBLIC;
 
 /* functions from vtkParse.l */
@@ -201,21 +200,24 @@ static void output_friend_function(void);
 static void output_function(void);
 static void reject_function(void);
 static void set_return(
-  FunctionInfo* func, unsigned int attributes, unsigned int type, const char* typeclass, int count);
+  FunctionInfo* func, unsigned int type, const char* typeclass, int n, const char** attrs);
 static void add_template_parameter(unsigned int datatype, unsigned int extra, const char* funcSig);
 static void add_using(const char* name, int is_namespace);
 static void start_enum(const char* name, int is_scoped, unsigned int type, const char* basename);
 static void add_enum(const char* name, const char* value);
 static void end_enum(void);
 static unsigned int guess_constant_type(const char* valstring);
-static void add_constant(const char* name, const char* value, unsigned int attributes,
-  unsigned int type, const char* typeclass, int flag);
+static void add_constant(const char* name, const char* value, unsigned int type,
+  const char* typeclass, int n, const char** attrs, int flag);
 static unsigned int guess_id_type(const char* cp);
 static unsigned int add_indirection(unsigned int type1, unsigned int type2);
 static unsigned int add_indirection_to_array(unsigned int type);
-static void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigned int datatype,
+static void handle_complex_type(ValueInfo* val, int n, const char** attrs, unsigned int datatype,
   unsigned int extra, const char* funcSig);
-static void handle_attribute(const char* att, int pack);
+static void handle_attribute(const char* attr, int pack);
+static void handle_attribute_error(const char* attr, parse_attribute_return_t rcode);
+static void handle_decl_attributes(FunctionInfo* func, int n, const char** attrs);
+static void handle_value_attributes(ValueInfo* func, int n, const char** attrs);
 static void add_legacy_parameter(FunctionInfo* func, ValueInfo* param);
 
 /*----------------------------------------------------------------
@@ -1158,29 +1160,46 @@ static void postSigRightBracket(const char* s)
 /* "private" variables */
 static unsigned int storedType;
 static unsigned int typeStack[10];
-static unsigned int declAttributes;
-static unsigned int attributeStack[10];
+static int declAttrCount = 0;
+static int idAttrCount = 0;
+static int classAttrCount = 0;
+static const char** declAttrs = NULL;
+static const char** idAttrs = NULL;
+static const char** classAttrs = NULL;
+static struct
+{
+  const char** attrs;
+  int n;
+} declAttrStack[10];
 static int typeDepth = 0;
 
 /* save the type on the stack */
 static void pushType(void)
 {
-  attributeStack[typeDepth] = declAttributes;
+  declAttrStack[typeDepth].attrs = declAttrs;
+  declAttrStack[typeDepth].n = declAttrCount;
   typeStack[typeDepth++] = storedType;
+  declAttrs = NULL;
+  declAttrCount = 0;
+  storedType = 0;
 }
 
 /* pop the type stack */
 static void popType(void)
 {
   storedType = typeStack[--typeDepth];
-  declAttributes = attributeStack[typeDepth];
+  free(declAttrs);
+  declAttrs = declAttrStack[typeDepth].attrs;
+  declAttrCount = declAttrStack[typeDepth].n;
 }
 
 /* clear the storage type */
 static void clearType(void)
 {
   storedType = 0;
-  declAttributes = 0;
+  free(declAttrs);
+  declAttrs = NULL;
+  declAttrCount = 0;
 }
 
 /* save the type */
@@ -1285,15 +1304,73 @@ static unsigned int buildTypeBase(unsigned int a, unsigned int b)
 }
 
 /* add an attribute specifier to the current declaration */
-static void addAttribute(unsigned int flags)
+static void addDeclAttr(const char* att)
 {
-  declAttributes |= flags;
+  vtkParse_AddStringToArray(&declAttrs, &declAttrCount, att);
 }
 
-/* check if an attribute is set for the current declaration */
-static int getAttributes(void)
+/* get the number of attributes for the current declaration */
+static int getDeclAttrCount(void)
 {
-  return declAttributes;
+  return declAttrCount;
+}
+
+/* get the attributes for the current declaration */
+static const char** getDeclAttrs(void)
+{
+  return declAttrs;
+}
+
+/* add an attribute specifier for the preceding identifier */
+static void addIdAttr(const char* att)
+{
+  vtkParse_AddStringToArray(&idAttrs, &idAttrCount, att);
+}
+
+/* get the number of attributes for the preceding identifier */
+static int getIdAttrCount(void)
+{
+  return idAttrCount;
+}
+
+/* get the attributes for the preceding identifier */
+static const char** getIdAttrs(void)
+{
+  return idAttrs;
+}
+
+/* clear the current set of identifier attributes */
+static void clearIdAttrs(void)
+{
+  free(idAttrs);
+  idAttrs = NULL;
+  idAttrCount = 0;
+}
+
+/* add an attribute specifier for the current class */
+static void addClassAttr(const char* att)
+{
+  vtkParse_AddStringToArray(&classAttrs, &classAttrCount, att);
+}
+
+/* get the number of attributes for the current class */
+static int getClassAttrCount(void)
+{
+  return classAttrCount;
+}
+
+/* get the attributes for the current class */
+static const char** getClassAttrs(void)
+{
+  return classAttrs;
+}
+
+/* clear the current set of class attributes */
+static void clearClassAttrs(void)
+{
+  free(classAttrs);
+  classAttrs = NULL;
+  classAttrCount = 0;
 }
 
 /*----------------------------------------------------------------
@@ -2476,49 +2553,49 @@ static const yytype_int8 yytranslate[] = { 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const yytype_int16 yyrline[] = { 0, 1770, 1770, 1772, 1774, 1773, 1784, 1785, 1786, 1787,
-  1788, 1789, 1790, 1791, 1792, 1793, 1794, 1795, 1796, 1797, 1798, 1799, 1800, 1803, 1804, 1805,
-  1806, 1807, 1808, 1811, 1812, 1819, 1826, 1827, 1827, 1829, 1832, 1839, 1840, 1843, 1844, 1845,
-  1848, 1849, 1852, 1852, 1867, 1866, 1872, 1878, 1877, 1882, 1888, 1889, 1890, 1893, 1895, 1897,
-  1900, 1901, 1904, 1905, 1907, 1909, 1908, 1917, 1921, 1922, 1923, 1926, 1927, 1928, 1929, 1930,
-  1931, 1932, 1933, 1934, 1935, 1936, 1937, 1938, 1939, 1942, 1943, 1944, 1945, 1946, 1947, 1950,
-  1951, 1952, 1953, 1957, 1958, 1961, 1963, 1966, 1971, 1972, 1975, 1976, 1979, 1980, 1981, 1992,
-  1993, 1994, 1998, 1999, 2003, 2003, 2016, 2023, 2032, 2033, 2034, 2037, 2038, 2038, 2042, 2043,
-  2045, 2046, 2047, 2047, 2055, 2059, 2060, 2063, 2065, 2067, 2068, 2071, 2072, 2080, 2081, 2084,
-  2085, 2087, 2089, 2091, 2095, 2097, 2098, 2101, 2104, 2105, 2108, 2109, 2108, 2113, 2155, 2158,
-  2159, 2160, 2162, 2164, 2166, 2170, 2173, 2173, 2206, 2205, 2209, 2217, 2208, 2227, 2229, 2228,
-  2233, 2235, 2233, 2237, 2239, 2237, 2241, 2244, 2241, 2255, 2256, 2259, 2260, 2262, 2263, 2266,
-  2266, 2276, 2277, 2285, 2286, 2287, 2288, 2291, 2294, 2295, 2296, 2299, 2300, 2301, 2304, 2305,
-  2306, 2310, 2311, 2312, 2313, 2316, 2317, 2318, 2322, 2327, 2321, 2339, 2343, 2354, 2353, 2362,
-  2366, 2369, 2379, 2383, 2384, 2387, 2388, 2390, 2391, 2392, 2395, 2396, 2398, 2399, 2400, 2402,
-  2403, 2406, 2419, 2420, 2421, 2422, 2429, 2430, 2433, 2433, 2441, 2442, 2443, 2446, 2448, 2449,
-  2453, 2452, 2469, 2493, 2465, 2504, 2504, 2507, 2508, 2511, 2512, 2515, 2516, 2522, 2523, 2523,
-  2526, 2527, 2527, 2529, 2531, 2535, 2537, 2535, 2561, 2562, 2565, 2565, 2567, 2567, 2569, 2569,
-  2574, 2575, 2575, 2583, 2586, 2656, 2657, 2659, 2660, 2660, 2663, 2666, 2667, 2671, 2683, 2682,
-  2704, 2706, 2706, 2727, 2727, 2729, 2733, 2734, 2735, 2734, 2740, 2742, 2743, 2744, 2745, 2746,
-  2747, 2750, 2751, 2755, 2756, 2760, 2761, 2764, 2765, 2769, 2770, 2771, 2772, 2775, 2776, 2779,
-  2779, 2782, 2783, 2786, 2786, 2790, 2791, 2791, 2798, 2799, 2802, 2803, 2804, 2805, 2806, 2809,
-  2811, 2813, 2817, 2819, 2821, 2823, 2825, 2827, 2829, 2829, 2834, 2837, 2840, 2843, 2843, 2851,
-  2851, 2860, 2861, 2862, 2863, 2864, 2865, 2866, 2867, 2868, 2875, 2876, 2877, 2878, 2879, 2880,
-  2886, 2887, 2890, 2891, 2893, 2894, 2897, 2898, 2901, 2902, 2903, 2904, 2907, 2908, 2909, 2910,
-  2911, 2915, 2916, 2917, 2920, 2921, 2924, 2925, 2933, 2936, 2936, 2938, 2938, 2942, 2943, 2945,
-  2949, 2950, 2952, 2952, 2955, 2957, 2961, 2964, 2964, 2966, 2966, 2970, 2973, 2973, 2975, 2975,
-  2979, 2980, 2982, 2984, 2986, 2988, 2990, 2994, 2995, 2998, 2999, 3000, 3001, 3002, 3003, 3004,
-  3005, 3006, 3009, 3010, 3011, 3012, 3013, 3014, 3015, 3016, 3017, 3018, 3019, 3020, 3021, 3022,
-  3042, 3043, 3044, 3045, 3048, 3052, 3056, 3056, 3060, 3061, 3076, 3077, 3102, 3102, 3106, 3106,
-  3110, 3110, 3114, 3114, 3118, 3118, 3122, 3122, 3125, 3126, 3129, 3133, 3134, 3137, 3140, 3141,
-  3142, 3143, 3146, 3146, 3150, 3151, 3154, 3155, 3158, 3159, 3166, 3167, 3168, 3169, 3170, 3171,
-  3172, 3173, 3174, 3175, 3176, 3177, 3178, 3181, 3182, 3183, 3184, 3185, 3186, 3187, 3188, 3189,
-  3190, 3191, 3192, 3193, 3194, 3195, 3196, 3197, 3198, 3199, 3200, 3201, 3202, 3203, 3204, 3205,
-  3206, 3207, 3208, 3209, 3210, 3211, 3212, 3213, 3214, 3217, 3218, 3219, 3220, 3221, 3222, 3223,
-  3224, 3225, 3226, 3227, 3228, 3229, 3230, 3231, 3232, 3233, 3234, 3235, 3236, 3237, 3238, 3239,
-  3240, 3241, 3242, 3243, 3244, 3245, 3246, 3249, 3250, 3251, 3252, 3253, 3254, 3255, 3256, 3257,
-  3258, 3265, 3266, 3269, 3270, 3271, 3272, 3272, 3273, 3276, 3277, 3280, 3281, 3282, 3283, 3319,
-  3319, 3320, 3321, 3322, 3323, 3325, 3326, 3329, 3330, 3331, 3332, 3335, 3336, 3337, 3340, 3341,
-  3343, 3344, 3346, 3347, 3350, 3351, 3354, 3355, 3356, 3360, 3359, 3373, 3374, 3377, 3377, 3379,
-  3379, 3383, 3383, 3385, 3385, 3387, 3387, 3391, 3391, 3396, 3397, 3399, 3400, 3403, 3404, 3407,
-  3408, 3411, 3412, 3413, 3414, 3415, 3416, 3417, 3418, 3418, 3418, 3418, 3418, 3419, 3420, 3421,
-  3422, 3423, 3426, 3429, 3430, 3433, 3436, 3436, 3436 };
+static const yytype_int16 yyrline[] = { 0, 1847, 1847, 1857, 1859, 1858, 1869, 1870, 1871, 1872,
+  1873, 1874, 1875, 1876, 1877, 1878, 1879, 1880, 1881, 1882, 1883, 1884, 1885, 1888, 1889, 1890,
+  1891, 1892, 1893, 1896, 1897, 1904, 1911, 1912, 1912, 1914, 1917, 1924, 1925, 1928, 1929, 1930,
+  1933, 1934, 1937, 1937, 1952, 1951, 1957, 1963, 1962, 1967, 1973, 1974, 1975, 1978, 1980, 1982,
+  1985, 1986, 1989, 1990, 1992, 1994, 1993, 2002, 2006, 2007, 2008, 2011, 2012, 2013, 2014, 2015,
+  2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2027, 2028, 2029, 2030, 2031, 2032, 2035,
+  2036, 2037, 2038, 2042, 2043, 2046, 2048, 2051, 2056, 2057, 2060, 2061, 2064, 2065, 2066, 2077,
+  2078, 2079, 2083, 2084, 2088, 2088, 2101, 2108, 2117, 2118, 2119, 2122, 2123, 2123, 2127, 2128,
+  2130, 2131, 2132, 2132, 2140, 2144, 2145, 2148, 2150, 2152, 2153, 2156, 2157, 2165, 2166, 2169,
+  2170, 2172, 2174, 2176, 2180, 2182, 2183, 2186, 2189, 2190, 2193, 2194, 2193, 2198, 2239, 2242,
+  2243, 2244, 2246, 2248, 2250, 2254, 2257, 2257, 2290, 2289, 2293, 2301, 2292, 2311, 2313, 2312,
+  2317, 2319, 2317, 2321, 2323, 2321, 2325, 2328, 2325, 2339, 2340, 2343, 2344, 2346, 2347, 2350,
+  2350, 2360, 2361, 2369, 2370, 2371, 2372, 2375, 2378, 2379, 2380, 2383, 2384, 2385, 2388, 2389,
+  2390, 2394, 2395, 2396, 2397, 2400, 2401, 2402, 2406, 2411, 2405, 2423, 2427, 2438, 2437, 2446,
+  2450, 2453, 2463, 2467, 2468, 2471, 2472, 2474, 2475, 2476, 2479, 2480, 2482, 2483, 2484, 2486,
+  2487, 2490, 2503, 2504, 2505, 2506, 2513, 2514, 2517, 2517, 2525, 2526, 2527, 2530, 2532, 2533,
+  2537, 2536, 2553, 2570, 2549, 2581, 2581, 2584, 2585, 2588, 2589, 2592, 2593, 2599, 2600, 2600,
+  2603, 2604, 2604, 2606, 2608, 2612, 2614, 2612, 2638, 2639, 2642, 2642, 2644, 2644, 2646, 2646,
+  2651, 2652, 2652, 2660, 2663, 2734, 2735, 2737, 2738, 2738, 2741, 2744, 2745, 2749, 2761, 2760,
+  2782, 2784, 2784, 2805, 2805, 2807, 2811, 2812, 2813, 2812, 2818, 2820, 2821, 2822, 2823, 2824,
+  2825, 2828, 2829, 2833, 2834, 2838, 2839, 2842, 2843, 2847, 2848, 2849, 2850, 2853, 2854, 2857,
+  2857, 2860, 2861, 2864, 2864, 2868, 2869, 2869, 2876, 2877, 2880, 2881, 2882, 2883, 2884, 2887,
+  2889, 2891, 2895, 2897, 2899, 2901, 2903, 2905, 2907, 2907, 2912, 2915, 2918, 2921, 2921, 2929,
+  2929, 2938, 2939, 2940, 2941, 2942, 2943, 2944, 2945, 2946, 2953, 2954, 2955, 2956, 2957, 2958,
+  2964, 2965, 2968, 2969, 2971, 2972, 2975, 2976, 2979, 2980, 2981, 2982, 2985, 2986, 2987, 2988,
+  2989, 2993, 2994, 2995, 2998, 2999, 3002, 3003, 3011, 3014, 3014, 3016, 3016, 3020, 3021, 3023,
+  3027, 3028, 3030, 3030, 3033, 3035, 3039, 3042, 3042, 3044, 3044, 3048, 3051, 3051, 3053, 3053,
+  3057, 3058, 3060, 3062, 3064, 3066, 3068, 3072, 3073, 3076, 3077, 3078, 3079, 3080, 3081, 3082,
+  3083, 3084, 3087, 3088, 3089, 3090, 3091, 3092, 3093, 3094, 3095, 3096, 3097, 3098, 3099, 3100,
+  3120, 3121, 3122, 3123, 3126, 3130, 3134, 3134, 3138, 3139, 3154, 3155, 3180, 3180, 3184, 3184,
+  3188, 3188, 3192, 3192, 3196, 3196, 3200, 3200, 3203, 3204, 3207, 3211, 3212, 3215, 3218, 3219,
+  3220, 3221, 3224, 3224, 3228, 3229, 3232, 3233, 3236, 3237, 3244, 3245, 3246, 3247, 3248, 3249,
+  3250, 3251, 3252, 3253, 3254, 3255, 3256, 3259, 3260, 3261, 3262, 3263, 3264, 3265, 3266, 3267,
+  3268, 3269, 3270, 3271, 3272, 3273, 3274, 3275, 3276, 3277, 3278, 3279, 3280, 3281, 3282, 3283,
+  3284, 3285, 3286, 3287, 3288, 3289, 3290, 3291, 3292, 3295, 3296, 3297, 3298, 3299, 3300, 3301,
+  3302, 3303, 3304, 3305, 3306, 3307, 3308, 3309, 3310, 3311, 3312, 3313, 3314, 3315, 3316, 3317,
+  3318, 3319, 3320, 3321, 3322, 3323, 3324, 3327, 3328, 3329, 3330, 3331, 3332, 3333, 3334, 3335,
+  3336, 3343, 3344, 3347, 3348, 3349, 3350, 3350, 3351, 3354, 3355, 3358, 3359, 3360, 3361, 3397,
+  3397, 3398, 3399, 3400, 3401, 3403, 3404, 3407, 3408, 3409, 3410, 3413, 3414, 3415, 3418, 3419,
+  3421, 3422, 3424, 3425, 3428, 3429, 3432, 3433, 3434, 3438, 3437, 3451, 3452, 3455, 3455, 3457,
+  3457, 3461, 3461, 3463, 3463, 3465, 3465, 3469, 3469, 3474, 3475, 3477, 3478, 3481, 3482, 3485,
+  3486, 3489, 3490, 3491, 3492, 3493, 3494, 3495, 3496, 3496, 3496, 3496, 3496, 3497, 3498, 3499,
+  3500, 3501, 3504, 3507, 3508, 3511, 3514, 3514, 3514 };
 #endif
 
 #define YYPACT_NINF (-867)
@@ -4140,6 +4217,17 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
   YY_REDUCE_PRINT((yynormal || yyk == -1, yyvsp, yyk, yyrule));
   switch (yyrule)
   {
+    case 2: /* translation_unit: opt_declaration_seq  */
+    {
+      /* release various resources when parse is done */
+      clearType();
+      clearTypeId();
+      clearTemplate();
+      clearIdAttrs();
+      clearClassAttrs();
+    }
+    break;
+
     case 4: /* $@1: %empty  */
     {
       startSig();
@@ -4503,7 +4591,7 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
       item->ItemType = VTK_TYPEDEF_INFO;
       item->Access = access_level;
 
-      handle_complex_type(item, getAttributes(), getType(),
+      handle_complex_type(item, getDeclAttrCount(), getDeclAttrs(), getType(),
         (YY_CAST(yyGLRStackItem const*, yyvsp)[YYFILL(0)].yystate.yysemantics.yyval.integer),
         getSig());
 
@@ -4603,7 +4691,7 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
       item->ItemType = VTK_TYPEDEF_INFO;
       item->Access = access_level;
 
-      handle_complex_type(item, getAttributes(), getType(),
+      handle_complex_type(item, getDeclAttrCount(), getDeclAttrs(), getType(),
         (YY_CAST(yyGLRStackItem const*, yyvsp)[YYFILL(-1)].yystate.yysemantics.yyval.integer),
         copySig());
 
@@ -4788,7 +4876,7 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
     {
       postSig("(");
       currentFunction->IsExplicit = ((getType() & VTK_PARSE_EXPLICIT) != 0);
-      set_return(currentFunction, getAttributes(), getType(), getTypeId(), 0);
+      set_return(currentFunction, getType(), getTypeId(), getDeclAttrCount(), getDeclAttrs());
     }
     break;
 
@@ -4831,7 +4919,7 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
     {
       postSig("(");
       currentFunction->IsOperator = 1;
-      set_return(currentFunction, getAttributes(), getType(), getTypeId(), 0);
+      set_return(currentFunction, getType(), getTypeId(), getDeclAttrCount(), getDeclAttrs());
     }
     break;
 
@@ -4958,14 +5046,14 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
     case 243: /* trailing_return_type: OP_ARROW $@27 trailing_type_specifier_seq  */
     {
       chopSig();
-      set_return(currentFunction, getAttributes(), getType(), getTypeId(), 0);
+      set_return(currentFunction, getType(), getTypeId(), getDeclAttrCount(), getDeclAttrs());
     }
     break;
 
     case 250: /* $@28: %empty  */
     {
       postSig("(");
-      set_return(currentFunction, getAttributes(), getType(), getTypeId(), 0);
+      set_return(currentFunction, getType(), getTypeId(), getDeclAttrCount(), getDeclAttrs());
     }
     break;
 
@@ -4987,19 +5075,12 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
       {
         currentFunction->IsExplicit = 1;
       }
-      if (getAttributes() & VTK_PARSE_WRAPEXCLUDE)
-      {
-        currentFunction->IsExcluded = 1;
-      }
-      if (getAttributes() & VTK_PARSE_DEPRECATED)
-      {
-        currentFunction->IsDeprecated = 1;
-        currentFunction->DeprecatedReason = deprecationReason;
-        currentFunction->DeprecatedVersion = deprecationVersion;
-      }
       currentFunction->Name =
         (YY_CAST(yyGLRStackItem const*, yyvsp)[YYFILL(-3)].yystate.yysemantics.yyval.str);
       currentFunction->Comment = vtkstrdup(getComment());
+
+      /* handle any attributes present in the declaration */
+      handle_decl_attributes(currentFunction, getDeclAttrCount(), getDeclAttrs());
     }
     break;
 
@@ -5080,7 +5161,7 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
       ValueInfo* param = (ValueInfo*)malloc(sizeof(ValueInfo));
       vtkParse_InitValue(param);
 
-      handle_complex_type(param, getAttributes(), getType(),
+      handle_complex_type(param, getDeclAttrCount(), getDeclAttrs(), getType(),
         (YY_CAST(yyGLRStackItem const*, yyvsp)[YYFILL(0)].yystate.yysemantics.yyval.integer),
         copySig());
       add_legacy_parameter(currentFunction, param);
@@ -5170,14 +5251,15 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
 
     case 286: /* init_declarator_id: direct_declarator opt_initializer  */
     {
-      unsigned int attributes = getAttributes();
+      const char** attrs = getDeclAttrs();
+      int n = getDeclAttrCount();
       unsigned int type = getType();
       ValueInfo* var = (ValueInfo*)malloc(sizeof(ValueInfo));
       vtkParse_InitValue(var);
       var->ItemType = VTK_VARIABLE_INFO;
       var->Access = access_level;
 
-      handle_complex_type(var, attributes, type,
+      handle_complex_type(var, n, attrs, type,
         (YY_CAST(yyGLRStackItem const*, yyvsp)[YYFILL(-1)].yystate.yysemantics.yyval.integer),
         getSig());
 
@@ -6232,6 +6314,7 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
     case 472: /* $@61: %empty  */
     {
       setAttributeRole(VTK_PARSE_ATTRIB_ID);
+      clearIdAttrs();
     }
     break;
 
@@ -6280,6 +6363,7 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
     case 480: /* $@65: %empty  */
     {
       setAttributeRole(VTK_PARSE_ATTRIB_CLASS);
+      clearClassAttrs();
     }
     break;
 
@@ -6310,6 +6394,7 @@ static YYRESULTTAG yyuserAction(yyRuleNum yyrule, int yyrhslen, yyGLRStackItem* 
 
     case 493: /* attribute: $@66 attribute_sig attribute_pack  */
     {
+      chopSig();
       handle_attribute(cutSig(),
         (YY_CAST(yyGLRStackItem const*, yyvsp)[YYFILL(0)].yystate.yysemantics.yyval.integer));
     }
@@ -8516,6 +8601,11 @@ static const char* type_class(unsigned int type, const char* classname)
 static void start_class(const char* classname, int is_struct_or_union)
 {
   ClassInfo* outerClass = currentClass;
+  int i;
+  int n = getClassAttrCount();
+  const char** attrs = getClassAttrs();
+  parse_attribute_return_t attrResult;
+
   pushClass();
   currentClass = (ClassInfo*)malloc(sizeof(ClassInfo));
   vtkParse_InitClass(currentClass);
@@ -8529,29 +8619,10 @@ static void start_class(const char* classname, int is_struct_or_union)
     currentClass->ItemType = VTK_UNION_INFO;
   }
 
-  if (getAttributes() & VTK_PARSE_WRAPEXCLUDE)
+  for (i = 0; i < n; i++)
   {
-    currentClass->IsExcluded = 1;
-  }
-
-  if (getAttributes() & VTK_PARSE_DEPRECATED)
-  {
-    currentClass->IsDeprecated = 1;
-    currentClass->DeprecatedReason = deprecationReason;
-    currentClass->DeprecatedVersion = deprecationVersion;
-  }
-
-  if (getAttributes() & VTK_PARSE_MARSHALAUTO)
-  {
-    currentClass->MarshalType = VTK_MARSHAL_AUTO_MODE;
-  }
-  else if (getAttributes() & VTK_PARSE_MARSHALMANUAL)
-  {
-    currentClass->MarshalType = VTK_MARSHAL_MANUAL_MODE;
-  }
-  else
-  {
-    currentClass->MarshalType = VTK_MARSHAL_NONE;
+    attrResult = vtkParse_ClassAttribute(currentClass, attrs[i], preprocessor);
+    handle_attribute_error(attrs[i], attrResult);
   }
 
   if (classname && classname[0] != '\0')
@@ -8674,6 +8745,10 @@ static void add_using(const char* name, int is_namespace)
 static void start_enum(const char* name, int is_scoped, unsigned int type, const char* basename)
 {
   EnumInfo* item;
+  int i;
+  int n = getClassAttrCount();
+  const char** attrs = getClassAttrs();
+  parse_attribute_return_t attrResult;
 
   currentEnumType = (type ? type : VTK_PARSE_INT);
   currentEnumName = "int";
@@ -8693,16 +8768,10 @@ static void start_enum(const char* name, int is_scoped, unsigned int type, const
     item->Comment = vtkstrdup(getComment());
     item->Access = access_level;
 
-    if (getAttributes() & VTK_PARSE_WRAPEXCLUDE)
+    for (i = 0; i < n; i++)
     {
-      item->IsExcluded = 1;
-    }
-
-    if (getAttributes() & VTK_PARSE_DEPRECATED)
-    {
-      item->IsDeprecated = 1;
-      item->DeprecatedReason = deprecationReason;
-      item->DeprecatedVersion = deprecationVersion;
+      attrResult = vtkParse_ClassAttribute(currentClass, attrs[i], preprocessor);
+      handle_attribute_error(attrs[i], attrResult);
     }
 
     if (currentClass)
@@ -8744,7 +8813,6 @@ static void end_enum(void)
 static void add_enum(const char* name, const char* value)
 {
   static char text[2048];
-  unsigned int attribs = getAttributes();
   int i;
   long j;
 
@@ -8784,7 +8852,8 @@ static void add_enum(const char* name, const char* value)
     currentEnumValue = "0";
   }
 
-  add_constant(name, currentEnumValue, attribs, currentEnumType, currentEnumName, 2);
+  add_constant(
+    name, currentEnumValue, currentEnumType, currentEnumName, getIdAttrCount(), getIdAttrs(), 2);
 }
 
 /* for a macro constant, guess the constant type, doesn't do any math */
@@ -8984,8 +9053,8 @@ static unsigned int guess_constant_type(const char* valstring)
 }
 
 /* add a constant to the current class or namespace */
-static void add_constant(const char* name, const char* value, unsigned int attributes,
-  unsigned int type, const char* typeclass, int flag)
+static void add_constant(const char* name, const char* value, unsigned int type,
+  const char* typeclass, int nattrs, const char** attrs, int flag)
 {
   ValueInfo* con = (ValueInfo*)malloc(sizeof(ValueInfo));
   vtkParse_InitValue(con);
@@ -8993,7 +9062,6 @@ static void add_constant(const char* name, const char* value, unsigned int attri
   con->Name = name;
   con->Comment = vtkstrdup(getComment());
   con->Value = value;
-  con->Attributes = attributes;
   con->Type = type;
   con->Class = type_class(type, typeclass);
 
@@ -9001,6 +9069,9 @@ static void add_constant(const char* name, const char* value, unsigned int attri
   {
     con->IsEnum = 1;
   }
+
+  /* handle any attributes that were present in the declaration */
+  handle_value_attributes(con, nattrs, attrs);
 
   if (flag == 1)
   {
@@ -9087,41 +9158,65 @@ static void add_template_parameter(unsigned int datatype, unsigned int extra, co
 {
   ValueInfo* param = (ValueInfo*)malloc(sizeof(ValueInfo));
   vtkParse_InitValue(param);
-  handle_complex_type(param, 0, datatype, extra, funcSig);
+  handle_complex_type(param, 0, NULL, datatype, extra, funcSig);
   param->Name = getVarName();
   vtkParse_AddParameterToTemplate(currentTemplate, param);
 }
 
+/* attach attributes to a value (variable, parameter, etc.) */
+static void handle_value_attributes(ValueInfo* val, int n, const char** attrs)
+{
+  int i;
+  parse_attribute_return_t attrResult;
+
+  for (i = 0; i < n; ++i)
+  {
+    attrResult = vtkParse_ValueAttribute(val, attrs[i], preprocessor);
+    handle_attribute_error(attrs[i], attrResult);
+  }
+}
+
+/* attach attributes to either the function or its return value */
+static void handle_decl_attributes(FunctionInfo* func, int n, const char** attrs)
+{
+  int i;
+  parse_attribute_return_t attrResult;
+
+  for (i = 0; i < n; ++i)
+  {
+    attrResult = vtkParse_FunctionAttribute(func, attrs[i], preprocessor);
+    if (func->ReturnValue && attrResult == VTK_ATTRIB_HANDLER_SKIPPED)
+    {
+      attrResult = vtkParse_ValueAttribute(func->ReturnValue, attrs[i], preprocessor);
+    }
+    handle_attribute_error(attrs[i], attrResult);
+  }
+}
+
 /* set the return type for the current function */
 static void set_return(
-  FunctionInfo* func, unsigned int attributes, unsigned int type, const char* typeclass, int count)
+  FunctionInfo* func, unsigned int type, const char* typeclass, int n, const char** attrs)
 {
-  char text[64];
   ValueInfo* val = (ValueInfo*)malloc(sizeof(ValueInfo));
 
   vtkParse_InitValue(val);
-  val->Attributes = attributes;
   val->Type = type;
   val->Class = type_class(type, typeclass);
 
-  if (count)
-  {
-    val->Count = count;
-    snprintf(text, sizeof(text), "%i", count);
-    vtkParse_AddStringToArray(&val->Dimensions, &val->NumberOfDimensions, vtkstrdup(text));
-  }
-
   if (func->ReturnValue)
   {
+    /* there will already be a placeholder if we are setting a trailing
+     * return return value, so we free the placeholder first */
     vtkParse_FreeValue(func->ReturnValue);
   }
   func->ReturnValue = val;
 
+  /* attach attributes to either the function or its return value */
+  handle_decl_attributes(func, n, attrs);
+
 #ifndef VTK_PARSE_LEGACY_REMOVE
   func->ReturnType = val->Type;
   func->ReturnClass = val->Class;
-  func->HaveHint = (count > 0);
-  func->HintSize = count;
 #endif
 }
 
@@ -9162,7 +9257,7 @@ static int count_from_dimensions(ValueInfo* val)
 }
 
 /* deal with types that include function pointers or arrays */
-static void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigned int datatype,
+static void handle_complex_type(ValueInfo* val, int n, const char** attrs, unsigned int datatype,
   unsigned int extra, const char* funcSig)
 {
   FunctionInfo* func = 0;
@@ -9184,7 +9279,6 @@ static void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigne
     func = getFunction();
     func->ReturnValue = (ValueInfo*)malloc(sizeof(ValueInfo));
     vtkParse_InitValue(func->ReturnValue);
-    func->ReturnValue->Attributes = attributes;
     func->ReturnValue->Type = datatype;
     func->ReturnValue->Class = type_class(datatype, getTypeId());
     if (funcSig)
@@ -9192,6 +9286,12 @@ static void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigne
       func->Signature = vtkstrdup(funcSig);
     }
     val->Function = func;
+
+    /* attach attributes to either the function or its return value */
+    handle_decl_attributes(func, n, attrs);
+
+    /* set n=0 since all attributes have been consumed */
+    n = 0;
 
 #ifndef VTK_PARSE_LEGACY_REMOVE
     func->ReturnType = func->ReturnValue->Type;
@@ -9202,7 +9302,6 @@ static void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigne
     clearTypeId();
     setTypeId(func->Class ? "method" : "function");
     datatype = (extra & (VTK_PARSE_UNQUALIFIED_TYPE | VTK_PARSE_RVALUE));
-    attributes = 0;
   }
   else if ((extra & VTK_PARSE_INDIRECT) == VTK_PARSE_BAD_INDIRECT)
   {
@@ -9253,9 +9352,6 @@ static void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigne
     }
   }
 
-  /* get the attributes */
-  val->Attributes = attributes;
-
   /* get the data type */
   val->Type = datatype;
   val->Class = type_class(datatype, getTypeId());
@@ -9267,19 +9363,18 @@ static void handle_complex_type(ValueInfo* val, unsigned int attributes, unsigne
 
   /* count is the product of the dimensions */
   val->Count = count_from_dimensions(val);
+
+  /* handle any attributes that were present in the declaration */
+  handle_value_attributes(val, n, attrs);
 }
 
 /* handle [[attributes]] */
-static void handle_attribute(const char* att, int pack)
+static void handle_attribute(const char* attr, int pack)
 {
   /* the role means "this is what the attribute applies to" */
   int role = getAttributeRole();
 
-  size_t l = 0;
-  size_t la = 0;
-  const char* args = NULL;
-
-  if (!att)
+  if (!attr)
   {
     return;
   }
@@ -9287,213 +9382,89 @@ static void handle_attribute(const char* att, int pack)
   /* append the prefix from the "using" statement */
   if (getAttributePrefix())
   {
-    att = vtkstrcat(getAttributePrefix(), att);
+    attr = vtkstrcat(getAttributePrefix(), attr);
   }
 
-  /* search for arguments */
-  l = vtkParse_SkipId(att);
-  while (att[l] == ':' && att[l + 1] == ':')
+  if (pack && strncmp(attr, "vtk::", 5) == 0)
   {
-    l += 2;
-    l += vtkParse_SkipId(&att[l]);
-  }
-  if (att[l] == '(')
-  {
-    /* strip the parentheses and whitespace from the args */
-    args = &att[l + 1];
-    while (*args == ' ')
-    {
-      args++;
-    }
-    la = strlen(args);
-    while (la > 0 && args[la - 1] == ' ')
-    {
-      la--;
-    }
-    if (la > 0 && args[la - 1] == ')')
-    {
-      la--;
-    }
-    while (la > 0 && args[la - 1] == ' ')
-    {
-      la--;
-    }
+    /* pack attributes are not handled (yet) */
+    const char* errtext = "\"...\" not allowed with VTK attributes.";
+    print_parser_error(attr, errtext, strlen(errtext));
+    exit(1);
   }
 
-  /* check for namespace */
-  if (strncmp(att, "vtk::", 5) == 0)
+  if (role == VTK_PARSE_ATTRIB_DECL)
   {
-    if (pack)
-    {
-      /* no current vtk attributes use '...' */
-      print_parser_error("attribute takes no ...", att, l);
-      exit(1);
-    }
-    else if (l == 16 && strncmp(att, "vtk::wrapexclude", l) == 0 && !args &&
-      (role == VTK_PARSE_ATTRIB_DECL || role == VTK_PARSE_ATTRIB_CLASS))
-    {
-      addAttribute(VTK_PARSE_WRAPEXCLUDE);
-    }
-    else if (l == 16 && strncmp(att, "vtk::propexclude", l) == 0 && !args &&
-      role == VTK_PARSE_ATTRIB_DECL)
-    {
-      addAttribute(VTK_PARSE_PROPEXCLUDE);
-    }
-    else if (l == 16 && strncmp(att, "vtk::newinstance", l) == 0 && !args &&
-      role == VTK_PARSE_ATTRIB_DECL)
-    {
-      addAttribute(VTK_PARSE_NEWINSTANCE);
-    }
-    else if (l == 13 && strncmp(att, "vtk::zerocopy", l) == 0 && !args &&
-      role == VTK_PARSE_ATTRIB_DECL)
-    {
-      addAttribute(VTK_PARSE_ZEROCOPY);
-    }
-    else if (l == 19 && strncmp(att, "vtk::unblockthreads", l) == 0 && !args &&
-      role == VTK_PARSE_ATTRIB_DECL)
-    {
-      addAttribute(VTK_PARSE_UNBLOCKTHREADS);
-    }
-    else if (l == 13 && strncmp(att, "vtk::filepath", l) == 0 && !args &&
-      role == VTK_PARSE_ATTRIB_DECL)
-    {
-      addAttribute(VTK_PARSE_FILEPATH);
-    }
-    else if (l == 15 && strncmp(att, "vtk::deprecated", l) == 0 &&
-      (role == VTK_PARSE_ATTRIB_DECL || role == VTK_PARSE_ATTRIB_CLASS ||
-        role == VTK_PARSE_ATTRIB_ID))
-    {
-      addAttribute(VTK_PARSE_DEPRECATED);
-      deprecationReason = NULL;
-      deprecationVersion = NULL;
-      if (args)
-      {
-        size_t lr = vtkParse_SkipQuotes(args);
-        deprecationReason = vtkstrndup(args, lr);
-        if (lr < la && args[lr] == ',')
-        {
-          /* skip spaces and get the next argument */
-          do
-          {
-            ++lr;
-          } while (lr < la && args[lr] == ' ');
-          deprecationVersion = vtkstrndup(&args[lr], vtkParse_SkipQuotes(&args[lr]));
-        }
-      }
-    }
-    else if (l == 12 && strncmp(att, "vtk::expects", l) == 0 && args &&
-      role == VTK_PARSE_ATTRIB_FUNC)
-    {
-      /* add to the preconditions */
-      vtkParse_AddStringToArray(
-        &currentFunction->Preconds, &currentFunction->NumberOfPreconds, vtkstrndup(args, la));
-    }
-    else if (l == 13 && strncmp(att, "vtk::sizehint", l) == 0 && args &&
-      role == VTK_PARSE_ATTRIB_FUNC)
-    {
-      /* first arg is parameter name, unless return value hint */
-      ValueInfo* arg = currentFunction->ReturnValue;
-      size_t n = vtkParse_SkipId(args);
-      preproc_int_t count;
-      int is_unsigned;
-      int i;
+    /* store the attribute until declaration is complete */
+    addDeclAttr(attr);
+  }
+  else if (role == VTK_PARSE_ATTRIB_ID)
+  {
+    /* store the attribute until the identifier is processed */
+    addIdAttr(attr);
+  }
+  else if (role == VTK_PARSE_ATTRIB_CLASS)
+  {
+    /* store the attribute until the class declaration begins */
+    addClassAttr(attr);
+  }
+  else if (role == VTK_PARSE_ATTRIB_FUNC)
+  {
+    /* this is for attributes that follow the parameter list */
+    parse_attribute_return_t attrResult;
+    attrResult = vtkParse_AfterFunctionAttribute(currentFunction, attr, preprocessor);
+    handle_attribute_error(attr, attrResult);
+  }
+  else if (role == VTK_PARSE_ATTRIB_REF)
+  {
+    /* no handling for attributes that modify *, &, etc. */
+    handle_attribute_error(attr, VTK_ATTRIB_HANDLER_SKIPPED);
+  }
+  else if (role == VTK_PARSE_ATTRIB_ARRAY)
+  {
+    /* no handling for attributes that modify arrays */
+    handle_attribute_error(attr, VTK_ATTRIB_HANDLER_SKIPPED);
+  }
+}
 
-      l = n;
-      while (args[n] == ' ')
-      {
-        n++;
-      }
-      if (l > 0 && args[n] == ',')
-      {
-        do
-        {
-          n++;
-        } while (args[n] == ' ');
-        /* find the named parameter */
-        for (i = 0; i < currentFunction->NumberOfParameters; i++)
-        {
-          arg = currentFunction->Parameters[i];
-          if (arg->Name && strlen(arg->Name) == l && strncmp(arg->Name, args, l) == 0)
-          {
-            break;
-          }
-        }
-        if (i == currentFunction->NumberOfParameters)
-        {
-          /* underscore by itself signifies the return value */
-          if (l == 1 && args[0] == '_')
-          {
-            arg = currentFunction->ReturnValue;
-          }
-          else
-          {
-            print_parser_error("unrecognized parameter name", args, l);
-            exit(1);
-          }
-        }
-        /* advance args to second attribute arg */
-        args += n;
-        la -= n;
-      }
-      /* set the size hint */
-      arg->CountHint = vtkstrndup(args, la);
-      /* see if hint is an integer */
-      if (VTK_PARSE_OK ==
-        vtkParsePreprocess_EvaluateExpression(preprocessor, arg->CountHint, &count, &is_unsigned))
-      {
-        if (count > 0 && count < 127)
-        {
-          arg->CountHint = NULL;
-          arg->Count = (int)count;
-#ifndef VTK_PARSE_LEGACY_REMOVE
-          if (arg == currentFunction->ReturnValue)
-          {
-            currentFunction->HaveHint = 1;
-            currentFunction->HintSize = arg->Count;
-          }
-#endif
-        }
-      }
-    }
-    else if (l == 16 && strncmp(att, "vtk::marshalauto", l) == 0 && !args &&
-      (role == VTK_PARSE_ATTRIB_DECL || role == VTK_PARSE_ATTRIB_CLASS))
+/* check attribute handling return code for error information */
+static void handle_attribute_error(const char* attr, parse_attribute_return_t rcode)
+{
+  if (rcode == VTK_ATTRIB_HANDLER_ERRORED)
+  {
+    /* get error text and print it */
+    size_t n = 0;
+    const char* errtext = vtkParse_GetAttributeError();
+    if (errtext)
     {
-      addAttribute(VTK_PARSE_MARSHALAUTO);
+      n = strlen(errtext);
     }
-    else if (l == 18 && strncmp(att, "vtk::marshalmanual", l) == 0 && !args &&
-      (role == VTK_PARSE_ATTRIB_DECL || role == VTK_PARSE_ATTRIB_CLASS))
+    print_parser_error(attr, errtext, n);
+    exit(1); /* fatal error */
+  }
+  else if (rcode == VTK_ATTRIB_HANDLER_NO_ARGS)
+  {
+    size_t l = vtkParse_SkipId(attr);
+    while (attr[l] == ':' && attr[l + 1] == ':')
     {
-      addAttribute(VTK_PARSE_MARSHALMANUAL);
+      l += 2;
+      l += vtkParse_SkipId(&attr[l]);
     }
-    else if (l == 19 && strncmp(att, "vtk::marshalexclude", l) == 0 && args &&
-      role == VTK_PARSE_ATTRIB_DECL)
+    if (attr[l] == '(')
     {
-      currentFunction->IsMarshalExcluded = 1;
-      currentFunction->MarshalExcludeReason = vtkstrndup(args, la);
+      const char* errtext = "attribute takes no arguments.";
+      print_parser_error(attr, errtext, strlen(errtext));
+      exit(1); /* fatal error */
     }
-    else if (l == 18 &&
-      (strncmp(att, "vtk::marshalgetter", l) == 0 || strncmp(att, "vtk::marshalsetter", l) == 0) &&
-      args && role == VTK_PARSE_ATTRIB_DECL)
+  }
+  else if (rcode == VTK_ATTRIB_HANDLER_SKIPPED)
+  {
+    /* is this an unrecognized VTK attribute? */
+    if (strncmp(attr, "vtk::", 5) == 0)
     {
-      if (args[0] != '"')
-      {
-        print_parser_error(
-          "args were not quoted here! Check macro definition in vtkWrappingHints.h", att, l);
-        exit(1);
-      }
-      /* advance args to next attribute arg */
-      while ((args[0] == '"') || (args[0] == ' '))
-      {
-        args += 1;
-        la -= 1;
-      }
-      size_t n = vtkParse_SkipId(args);
-      currentFunction->MarshalPropertyName = vtkstrndup(args, n);
-    }
-    else
-    {
-      print_parser_error("attribute cannot be used here", att, l);
-      exit(1);
+      const char* errtext = "attribute is not recognized in this context.";
+      print_parser_error(attr, errtext, strlen(errtext));
+      exit(1); /* fatal error */
     }
   }
 }
@@ -9567,29 +9538,6 @@ static void output_function(void)
   /* check return value for specifiers that apply to the function */
   if (currentFunction->ReturnValue)
   {
-    if (currentFunction->ReturnValue->Attributes & VTK_PARSE_WRAPEXCLUDE)
-    {
-      /* remove "wrapexclude" attrib from ReturnValue, attach it to function */
-      currentFunction->ReturnValue->Attributes ^= VTK_PARSE_WRAPEXCLUDE;
-      currentFunction->IsExcluded = 1;
-    }
-
-    if (currentFunction->ReturnValue->Attributes & VTK_PARSE_PROPEXCLUDE)
-    {
-      /* remove "propexclude" attrib from ReturnValue, attach it to function */
-      currentFunction->ReturnValue->Attributes ^= VTK_PARSE_PROPEXCLUDE;
-      currentFunction->IsPropExcluded = 1;
-    }
-
-    if (currentFunction->ReturnValue->Attributes & VTK_PARSE_DEPRECATED)
-    {
-      /* remove "deprecated" attrib from ReturnValue, attach it to function */
-      currentFunction->ReturnValue->Attributes ^= VTK_PARSE_DEPRECATED;
-      currentFunction->IsDeprecated = 1;
-      currentFunction->DeprecatedReason = deprecationReason;
-      currentFunction->DeprecatedVersion = deprecationVersion;
-    }
-
     if (currentFunction->ReturnValue->Type & VTK_PARSE_FRIEND)
     {
       /* remove "friend" specifier from ReturnValue */

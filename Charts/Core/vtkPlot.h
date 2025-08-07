@@ -286,7 +286,7 @@ public:
   /**
    * This is a convenience function to set the input connection for the plot.
    */
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   virtual void SetInputConnection(vtkAlgorithmOutput* input);
   ///@}
 
@@ -299,7 +299,7 @@ public:
   /**
    * Get the input connection used by the plot.
    */
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_INTERNAL)
   vtkAlgorithmOutput* GetInputConnection();
 
   /**

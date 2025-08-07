@@ -71,9 +71,9 @@ public:
    * The origin is shifted in the direction of the normal
    * by the offset.
    */
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_IS_REDUNDANT)
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetOffset(double _arg);
-  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_IS_REDUNDANT)
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   vtkGetMacro(Offset, double);
   ///@}
 

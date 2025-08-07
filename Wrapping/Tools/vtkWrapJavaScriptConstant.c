@@ -141,7 +141,7 @@ void vtkWrapJavaScript_GenerateConstants(
   while (j < data->NumberOfConstants)
   {
     val = data->Constants[j];
-    if (val->Access != VTK_ACCESS_PUBLIC)
+    if (val->Access != VTK_ACCESS_PUBLIC && (val->Attributes & VTK_PARSE_WRAPEXCLUDE) == 0)
     {
       j++;
       continue;
@@ -171,7 +171,7 @@ void vtkWrapJavaScript_GenerateConstants(
     for (k = j; k < data->NumberOfConstants; k++)
     {
       val = data->Constants[k];
-      if (val->Access == VTK_ACCESS_PUBLIC)
+      if (val->Access == VTK_ACCESS_PUBLIC && (val->Attributes & VTK_PARSE_WRAPEXCLUDE) == 0)
       {
         tname = (val->IsEnum ? val->Class : vtkWrap_GetTypeName(val));
         if (val->Type != valtype || strcmp(tname, typeName) != 0)
@@ -237,7 +237,7 @@ void vtkWrapJavaScript_GenerateConstants(
     while (j < k)
     {
       val = data->Constants[j++];
-      if (val->Access == VTK_ACCESS_PUBLIC)
+      if (val->Access == VTK_ACCESS_PUBLIC && (val->Attributes & VTK_PARSE_WRAPEXCLUDE) == 0)
       {
         if (scopeType)
         {
