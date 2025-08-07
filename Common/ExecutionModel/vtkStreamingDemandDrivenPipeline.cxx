@@ -1329,8 +1329,8 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
     return 1;
   }
 
-  int hasusteps = outInfo->Has(UPDATE_TIME_STEP());
-  double ustep = outInfo->Get(UPDATE_TIME_STEP());
+  int outputHasUpdateTime = outInfo->Has(UPDATE_TIME_STEP());
+  double outputTime = outInfo->Get(UPDATE_TIME_STEP());
 
   // First check if time request is the same as previous time request.
   // If the previous update request did not correspond to an existing
@@ -1338,11 +1338,11 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
   // data time step will be different than the request. If the same time
   // step is requested again, there is no need to re-execute the
   // algorithm.  We know that it does not have this time step.
-  if (outInfo->Has(PREVIOUS_UPDATE_TIME_STEP()) && hasusteps)
+  if (outInfo->Has(PREVIOUS_UPDATE_TIME_STEP()) && outputHasUpdateTime)
   {
     bool match = true;
-    double pstep = outInfo->Get(PREVIOUS_UPDATE_TIME_STEP());
-    if (pstep != ustep)
+    double outputPreviousTime = outInfo->Get(PREVIOUS_UPDATE_TIME_STEP());
+    if (outputPreviousTime != outputTime)
     {
       match = false;
     }
@@ -1352,13 +1352,13 @@ int vtkStreamingDemandDrivenPipeline::NeedToExecuteBasedOnTime(
     }
   }
 
-  int hasdsteps = dataInfo->Has(vtkDataObject::DATA_TIME_STEP());
-  double dstep = dataInfo->Get(vtkDataObject::DATA_TIME_STEP());
-  if ((hasdsteps && !hasusteps) || (!hasdsteps && hasusteps))
+  int dataHasTime = dataInfo->Has(vtkDataObject::DATA_TIME_STEP());
+  double dataTime = dataInfo->Get(vtkDataObject::DATA_TIME_STEP());
+  if ((dataHasTime && !outputHasUpdateTime) || (!dataHasTime && outputHasUpdateTime))
   {
     return 1;
   }
-  if (dstep != ustep)
+  if (dataTime != outputTime)
   {
     return 1;
   }
