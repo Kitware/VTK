@@ -71,7 +71,8 @@ void vtkVolumeMapper::ConvertCroppingRegionPlanesToVoxels()
     {
       int ijkI[3];
       double pCoords[3];
-      if (!rectGrid->ComputeStructuredCoordinates(physicalPt, ijkI, pCoords))
+      const double* pt = physicalPt;
+      if (!rectGrid->ComputeStructuredCoordinates(pt, ijkI, pCoords))
       {
         if (physicalPt[i / 2] < bds[i / 2])
         {
