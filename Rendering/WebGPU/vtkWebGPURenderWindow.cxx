@@ -2229,6 +2229,10 @@ void vtkWebGPURenderWindow::CreateAWindow()
   {
     this->HardwareWindow = vtkHardwareWindow::New();
     this->HardwareWindow->Register(this);
+    if (this->Interactor)
+    {
+      this->HardwareWindow->SetInteractor(this->Interactor);
+    }
   }
   this->SyncWithHardware();
   this->HardwareWindow->Create();
