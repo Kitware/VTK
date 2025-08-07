@@ -13,7 +13,11 @@
  * vtkPointLocator has two distinct methods of interaction. In the first
  * method, you supply it with a dataset, and it operates on the points in
  * the dataset. In the second method, you supply it with an array of points,
- * and the object operates on the array.
+ * and the object operates on the array. The locator can be initialized with a
+ * non-empty vtkPoints instance. In this case, pre-existing points are not
+ * registered by the locator. This can be useful for performance reasons in some
+ * cases. If you want the locator to test a point, you should register it by
+ * calling appropriate insertion methods after initialization.
  *
  * @warning
  * Many other types of spatial locators have been developed such as

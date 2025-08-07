@@ -53,8 +53,11 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;
+class vtkCellArray;
+class vtkCellData;
 class vtkImplicitFunction;
 class vtkIncrementalPointLocator;
+class vtkUnsignedCharArray;
 
 class VTKFILTERSGENERAL_EXPORT vtkClipDataSet : public vtkUnstructuredGridAlgorithm
 {
@@ -227,6 +230,22 @@ protected:
 private:
   vtkClipDataSet(const vtkClipDataSet&) = delete;
   void operator=(const vtkClipDataSet&) = delete;
+
+  /**
+   * First step of the clipping algorithm, separating cells cut by the clipping surface
+   * from those kept untouched.
+   */
+  vtkIdType SeparateCellIds(vtkIdType numCells, vtkDataSet* input, std::vector<vtkIdType>& pointMap,
+    std::vector<vtkIdType>& clippingCellIds, double clipValue, vtkDataArray* clipScalars,
+    std::array<std::vector<vtkIdType>, 2>& intactCellIds);
+
+  /**
+   * Second step of the clipping algorithm, which copies intact cells structure.
+   */
+  void FillIntactCells(vtkDataSet* input, int numOutputs,
+    std::array<std::vector<vtkIdType>, 2>& intactCellIds, std::vector<vtkIdType>& pointMap,
+    vtkSmartPointer<vtkCellArray> conn[2], vtkCellData* outCD[2], vtkCellData* inCD,
+    vtkSmartPointer<vtkUnsignedCharArray> types[2]);
 };
 
 VTK_ABI_NAMESPACE_END

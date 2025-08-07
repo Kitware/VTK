@@ -271,7 +271,6 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   {
     this->CreateDefaultLocator();
   }
-  this->Locator->InitPointInsertion(newPoints, input->GetBounds());
 
   // Determine whether we're clipping with input scalars or a clip function
   // and do necessary setup.
@@ -334,26 +333,114 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     outCD[1]->CopyAllocate(inCD, estimatedSize, estimatedSize / 2);
   }
 
+  std::vector<vtkIdType> pointMap(numPts, -1);
+  std::vector<vtkIdType> clippingCellIds;
+  std::array<std::vector<vtkIdType>, 2> intactCellIds;
+  intactCellIds[0].reserve(numPts / 2);
+  if (this->GenerateClippedOutput)
+  {
+    intactCellIds[1].reserve(numPts / 2);
+  }
+
+  double clipValue = 0.0;
+  if (this->UseValueAsOffset || !this->ClipFunction)
+  {
+    clipValue = this->Value;
+  }
+
+  // Identify inside/outside cells and cells at the border
+  vtkIdType newPointsNumber = this->SeparateCellIds(
+    numCells, input, pointMap, clippingCellIds, clipValue, clipScalars, intactCellIds);
+  this->UpdateProgress(0.15);
+
+  // Fill points and copy point data
+  newPoints->SetNumberOfPoints(newPointsNumber);
+  for (vtkIdType pointId = 0; pointId < numPts; ++pointId)
+  {
+    vtkIdType newId = pointMap[pointId];
+    if (newId >= 0)
+    {
+      double coords[3];
+      input->GetPoint(pointId, coords);
+      newPoints->SetPoint(newId, coords);
+      outPD->CopyData(inPD, pointId, newId);
+    }
+  }
+  this->UpdateProgress(0.2);
+
+  this->FillIntactCells(input, numOutputs, intactCellIds, pointMap, conn, outCD, inCD, types);
+  this->UpdateProgress(0.4);
+
+  this->Locator->InitPointInsertion(newPoints, input->GetBounds());
+  int traversalId[2];
+  traversalId[0] = conn[0]->GetNumberOfCells();
+  if (this->GenerateClippedOutput)
+  {
+    traversalId[1] = conn[1]->GetNumberOfCells();
+  }
+
+  auto getGeneratedCellType = [](vtkGenericCell* gCell, vtkIdType nPts, bool isSameCell)
+  {
+    if (isSameCell)
+    {
+      return static_cast<VTKCellType>(gCell->GetCellType());
+    }
+    else if (gCell->GetCellType() == VTK_POLYHEDRON)
+    {
+      return VTK_POLYHEDRON;
+    }
+    else
+    {
+      switch (gCell->GetCellDimension())
+      {
+        case 0: // points are generated--------------------------------
+          return (nPts > 1 ? VTK_POLY_VERTEX : VTK_VERTEX);
+
+        case 1: // lines are generated---------------------------------
+          return (nPts > 2 ? VTK_POLY_LINE : VTK_LINE);
+
+        case 2: // polygons are generated------------------------------
+          return (nPts == 3 ? VTK_TRIANGLE : (nPts == 4 ? VTK_QUAD : VTK_POLYGON));
+
+        case 3: // tetrahedra or wedges are generated------------------
+          return (nPts == 4 ? VTK_TETRA : VTK_WEDGE);
+
+        default:
+          vtkErrorWithObjectMacro(nullptr, "Dimension cannot be lower than 0 or higher than 3");
+          break;
+      }
+    }
+
+    return VTK_EMPTY_CELL;
+  };
+
   // Process all cells and clip each in turn
   //
   bool abort = false;
-  vtkIdType updateTime = numCells / 20 + 1; // update roughly every 5%
-  vtkSmartPointer<vtkGenericCell> cell = vtkSmartPointer<vtkGenericCell>::New();
+  vtkIdType updateTime =
+    static_cast<vtkIdType>(clippingCellIds.size()) / 20 + 1; // update roughly every 5%
   int num[2];
-  num[0] = num[1] = 0;
+  num[0] = conn[0]->GetNumberOfCells();
+  num[1] = 0;
+  if (this->GenerateClippedOutput)
+  {
+    num[1] = conn[1]->GetNumberOfCells();
+  }
   int numNew[2];
   numNew[0] = numNew[1] = 0;
   bool sameCell[2] = { false, false };
-
-  for (vtkIdType cellId = 0; cellId < numCells && !abort; cellId++)
+  vtkSmartPointer<vtkGenericCell> cell = vtkSmartPointer<vtkGenericCell>::New();
+  for (vtkIdType cellId = 0; cellId < static_cast<vtkIdType>(clippingCellIds.size()) && !abort;
+       ++cellId)
   {
     if (!(cellId % updateTime))
     {
-      this->UpdateProgress(static_cast<double>(cellId) / numCells);
+      this->UpdateProgress(0.4 + (static_cast<double>(cellId) / clippingCellIds.size()) * 0.45);
       abort = this->CheckAbort();
     }
 
-    input->GetCell(cellId, cell);
+    vtkIdType cid = clippingCellIds[cellId];
+    input->GetCell(cid, cell);
     cellPts = cell->GetPoints();
     cellIds = cell->GetPointIds();
     npts = cellPts->GetNumberOfPoints();
@@ -366,25 +453,19 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
       cellScalars->InsertTuple(i, &s);
     }
 
-    double value = 0.0;
-    if (this->UseValueAsOffset || !this->ClipFunction)
-    {
-      value = this->Value;
-    }
-
     // perform the clipping
     for (i = 0; i < numOutputs; ++i)
     {
       if (this->StableClipNonLinear && nonLinearCell != nullptr)
       {
-        sameCell[i] = nonLinearCell->StableClip(value, cellScalars, this->Locator, conn[i], inPD,
-          outPD, inCD, cellId, outCD[i], this->InsideOut);
+        sameCell[i] = nonLinearCell->StableClip(clipValue, cellScalars, this->Locator, conn[i],
+          inPD, outPD, inCD, cid, outCD[i], this->InsideOut);
         numNew[i] = conn[i]->GetNumberOfCells() - num[i];
         num[i] = conn[i]->GetNumberOfCells();
       }
       else
       {
-        cell->Clip(value, cellScalars, this->Locator, conn[i], inPD, outPD, inCD, cellId, outCD[i],
+        cell->Clip(clipValue, cellScalars, this->Locator, conn[i], inPD, outPD, inCD, cid, outCD[i],
           this->InsideOut);
         numNew[i] = conn[i]->GetNumberOfCells() - num[i];
         num[i] = conn[i]->GetNumberOfCells();
@@ -392,47 +473,13 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
       }
     }
 
-    auto getCellType = [](vtkGenericCell* gCell, vtkIdType nPts, bool isSameCell)
-    {
-      if (isSameCell)
-      {
-        return static_cast<VTKCellType>(gCell->GetCellType());
-      }
-      else if (gCell->GetCellType() == VTK_POLYHEDRON)
-      {
-        return VTK_POLYHEDRON;
-      }
-      else
-      {
-        switch (gCell->GetCellDimension())
-        {
-          case 0: // points are generated--------------------------------
-            return (nPts > 1 ? VTK_POLY_VERTEX : VTK_VERTEX);
-
-          case 1: // lines are generated---------------------------------
-            return (nPts > 2 ? VTK_POLY_LINE : VTK_LINE);
-
-          case 2: // polygons are generated------------------------------
-            return (nPts == 3 ? VTK_TRIANGLE : (nPts == 4 ? VTK_QUAD : VTK_POLYGON));
-
-          case 3: // tetrahedra or wedges are generated------------------
-            return (nPts == 4 ? VTK_TETRA : VTK_WEDGE);
-
-          default:
-            vtkErrorWithObjectMacro(nullptr, "Dimension cannot be lower than 0 or higher than 3");
-            break;
-        }
-      }
-
-      return VTK_EMPTY_CELL;
-    };
-
     for (i = 0; i < numOutputs; i++)
     {
       for (j = 0; j < numNew[i]; j++)
       {
-        conn[i]->GetNextCell(npts, pts);
-        types[i]->InsertNextValue(getCellType(cell, npts, sameCell[i]));
+        conn[i]->GetCellAtId(traversalId[i], npts, pts);
+        traversalId[i]++;
+        types[i]->InsertNextValue(getGeneratedCellType(cell, npts, sameCell[i]));
       }
     }
   }
@@ -442,6 +489,7 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     clipScalars->Delete();
     inPD->Delete();
   }
+
   output->SetPoints(newPoints);
   output->SetCells(types[0], conn[0]);
 
@@ -450,11 +498,114 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     clippedOutput->SetPoints(newPoints);
     clippedOutput->SetCells(types[1], conn[1]);
   }
+  this->UpdateProgress(1.0);
 
   this->Locator->Initialize(); // release any extra memory
   output->Squeeze();
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkClipDataSet::SeparateCellIds(vtkIdType numCells, vtkDataSet* input,
+  std::vector<vtkIdType>& pointMap, std::vector<vtkIdType>& clippingCellIds, double clipValue,
+  vtkDataArray* clipScalars, std::array<std::vector<vtkIdType>, 2>& intactCellIds)
+{
+  vtkSmartPointer<vtkIdList> cellPointIds = vtkSmartPointer<vtkIdList>::New();
+  vtkIdType outputPointCounter = 0;
+
+  auto registerCell = [&outputPointCounter, &pointMap, &cellPointIds](
+                        vtkIdType cId, std::vector<vtkIdType>& cellList)
+  {
+    cellList.push_back(cId);
+    for (vtkIdType idx = 0; idx < cellPointIds->GetNumberOfIds(); ++idx)
+    {
+      vtkIdType pid = cellPointIds->GetId(idx);
+      if (pointMap[pid] < 0)
+      {
+        pointMap[pid] = outputPointCounter++;
+      }
+    }
+  };
+
+  for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
+  {
+    input->GetCellPoints(cellId, cellPointIds);
+    int type = input->GetCellType(cellId);
+    // Only polyhedrons are optimized for now
+    // Other cell types should probably be considered
+    if (type != VTK_POLYHEDRON)
+    {
+      clippingCellIds.push_back(cellId);
+      continue;
+    }
+
+    bool isInside = false;
+    bool isOutside = false;
+
+    for (vtkIdType idx = 0; idx < cellPointIds->GetNumberOfIds(); ++idx)
+    {
+      double val = clipScalars->GetComponent(cellPointIds->GetId(idx), 0);
+      bool inDomain = this->InsideOut ? (val <= clipValue) : (val >= clipValue);
+      isInside |= inDomain;
+      isOutside |= !inDomain;
+    }
+
+    if (isInside && !isOutside)
+    {
+      registerCell(cellId, intactCellIds[0]);
+    }
+
+    if (!isInside && isOutside && this->GenerateClippedOutput)
+    {
+      registerCell(cellId, intactCellIds[1]);
+    }
+
+    if (isInside && isOutside)
+    {
+      clippingCellIds.push_back(cellId);
+    }
+  }
+  return outputPointCounter;
+}
+
+//------------------------------------------------------------------------------
+void vtkClipDataSet::FillIntactCells(vtkDataSet* input, int numOutputs,
+  std::array<std::vector<vtkIdType>, 2>& intactCellIds, std::vector<vtkIdType>& pointMap,
+  vtkSmartPointer<vtkCellArray> conn[2], vtkCellData* outCD[2], vtkCellData* inCD,
+  vtkSmartPointer<vtkUnsignedCharArray> types[2])
+{
+  auto ug = vtkUnstructuredGrid::SafeDownCast(input);
+  vtkSmartPointer<vtkGenericCell> cell = vtkSmartPointer<vtkGenericCell>::New();
+  for (int i = 0; i < numOutputs; ++i)
+  {
+    for (vtkIdType idx = 0; idx < static_cast<vtkIdType>(intactCellIds[i].size()); ++idx)
+    {
+      vtkIdType cellId = intactCellIds[i][idx];
+
+      vtkNew<vtkIdList> faceStream;
+      // This is safe because this loop is entered only if there are polyhedrons
+      // which are necessary attached to vtkUnstructuredGrid
+      ug->GetFaceStream(cellId, faceStream);
+
+      // Update the new faceStream ids
+      int faceIdCursor = 1;
+      for (int _ = 0; _ < faceStream->GetId(0); ++_)
+      {
+        vtkIdType nFaces = faceStream->GetId(faceIdCursor);
+        for (int j = 1; j < faceStream->GetId(faceIdCursor) + 1; ++j)
+        {
+          vtkIdType newId = pointMap[faceStream->GetId(faceIdCursor + j)];
+          faceStream->SetId(faceIdCursor + j, newId);
+        }
+        faceIdCursor += nFaces + 1;
+      }
+
+      vtkIdType newCellId = conn[i]->InsertNextCell(faceStream);
+      outCD[i]->CopyData(inCD, cellId, newCellId);
+      types[i]->InsertNextValue(VTK_POLYHEDRON);
+    }
+  }
 }
 
 //------------------------------------------------------------------------------

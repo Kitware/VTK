@@ -1198,6 +1198,11 @@ int vtkPointLocator::InitPointInsertion(
   // Update internal performance variables
   this->ComputePerformanceFactors();
 
+  // Allow to initialize the locator with a non-empty vtkPoints instance.
+  // Note that pre-existing points in the input are not registered by the locator.
+  // Useful in workflows where points are aggregated from different algorithms.
+  this->InsertionPointId = newPts->GetNumberOfPoints();
+
   return 1;
 }
 
