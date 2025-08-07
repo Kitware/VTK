@@ -487,7 +487,7 @@ public:
    *
    * The `EnableT` template parameter is used to make sure that this version
    * doesn't capture the `float*`, `float[]`, `double*`, `double[]` as
-   * those should go to the other `Distance2BetweenPoints` functions.
+   * those should go to the other `Dot` functions.
    *
    * @warning This method assumes that both parameters have 3 components.
    */
