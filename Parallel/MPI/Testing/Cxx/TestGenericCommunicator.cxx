@@ -23,7 +23,6 @@
 #include "vtkSphereSource.h"
 #include "vtkUnsignedLongArray.h"
 
-#include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"
 
 static const int scMsgLength = 10;
