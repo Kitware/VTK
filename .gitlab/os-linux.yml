@@ -9,7 +9,7 @@
 .readthedocs:
     extends: .linux
 
-    image: "readthedocs/build:ubuntu-24.04-2024.06.17"
+    image: "kitware/vtk:ci-readthedocs-20250730"
     variables:
         PYTHON_VERSION: 3.11.6
 

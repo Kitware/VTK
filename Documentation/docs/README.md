@@ -2,6 +2,10 @@
 
 This is the source of the [vtk docs](docs.vtk.org) website.
 
+## Optional Dependency
+
+To generate diagram for this documentation you'll need to install on your system `graphviz` (pip package isn't sufficient).
+
 ## Build environment
 
 To compile the document locally create a python virtual environment and install the required packages.

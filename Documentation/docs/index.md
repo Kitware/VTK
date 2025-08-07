@@ -26,6 +26,7 @@ modules/index
 build_instructions/index.md
 api/index
 advanced/index
+vtk_file_formats/index
 design_documents/index
 developers_guide/index
 resources
