@@ -81,15 +81,12 @@ int vtkConvertToPolyhedra::RequestData(vtkInformation* vtkNotUsed(request),
     // copy them to the output.
     if (cell->GetCellDimension() < 3 || !cell->IsLinear())
     {
-      if (!this->OutputAllCells)
-      {
-        continue;
-      }
-      else
+      if (this->OutputAllCells)
       {
         outCellId = output->InsertNextCell(cell->GetCellType(), cell->PointIds);
         outCD->CopyData(inCD, cellId, outCellId);
       }
+      continue;
     }
 
     // Process faces. Use the original cell's point ids to create the new
