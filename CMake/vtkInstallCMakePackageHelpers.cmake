@@ -52,6 +52,8 @@ set(Python3_find_package_vars
   Python3_EXECUTABLE
   Python3_INCLUDE_DIR
   Python3_LIBRARY)
+set(OpenXRRemoting_find_package_vars
+  OpenXRRemoting_BIN_DIR)
 
 if ("ospray" IN_LIST _vtk_packages)
   # FIXME: ospray depends on embree, but does not help finders at all.
