@@ -437,11 +437,14 @@ int vtkImageSliceMapper::GetOrientationFromCamera(double const* propMatrix, vtkC
     vec[2] = mat[c + 8];
     vtkMath::Normalize(vec);
     double dot = vtkMath::Dot(vec, normal);
-    if (fabs(dot) > fabs(maxDot))
+    // code is written this way (with the continue) to work around
+    // what seems to be a bug in Apple clang version 17.0.0
+    if (fabs(dot) <= fabs(maxDot))
     {
-      maxIdx = c;
-      maxDot = dot;
+      continue;
     }
+    maxIdx = c;
+    maxDot = dot;
   }
 
   return maxIdx + (maxDot < 0.0 ? 3 : 0);
