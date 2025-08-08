@@ -259,10 +259,18 @@ if(VTK_USE_X)
              "VTK_HAVE_XCURSOR=$<TARGET_EXISTS:X11::Xcursor>"
   )
 elseif(VTK_USE_COCOA)
+  find_library(
+    FRAMEWORK_QuartzCore
+    NAMES QuartzCore
+    PATHS ${CMAKE_OSX_SYSROOT}/System/Library
+    PATH_SUFFIXES Frameworks
+    NO_DEFAULT_PATH
+  )
   vtk_module_link(
     VTK::RenderingUI
     PUBLIC
     "-framework Cocoa"
+    ${FRAMEWORK_QuartzCore}
   )
 endif()
 
