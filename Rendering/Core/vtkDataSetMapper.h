@@ -21,7 +21,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyDataMapper;
-class vtkDataSetSurfaceFilter;
+class vtkGeometryFilter;
 
 class VTKRENDERINGCORE_EXPORT VTK_MARSHALMANUAL vtkDataSetMapper : public vtkMapper
 {
@@ -62,7 +62,7 @@ protected:
   vtkDataSetMapper();
   ~vtkDataSetMapper() override;
 
-  vtkDataSetSurfaceFilter* GeometryExtractor;
+  vtkGeometryFilter* GeometryExtractor;
   vtkPolyDataMapper* PolyDataMapper;
 
   void ReportReferences(vtkGarbageCollector*) override;

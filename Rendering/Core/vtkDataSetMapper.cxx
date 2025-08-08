@@ -3,9 +3,9 @@
 #include "vtkDataSetMapper.h"
 
 #include "vtkDataSet.h"
-#include "vtkDataSetSurfaceFilter.h"
 #include "vtkExecutive.h"
 #include "vtkGarbageCollector.h"
+#include "vtkGeometryFilter.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
@@ -82,7 +82,7 @@ void vtkDataSetMapper::Render(vtkRenderer* ren, vtkActor* act)
   //
   if (this->PolyDataMapper == nullptr)
   {
-    vtkDataSetSurfaceFilter* gf = vtkDataSetSurfaceFilter::New();
+    vtkGeometryFilter* gf = vtkGeometryFilter::New();
     vtkPolyDataMapper* pm = vtkPolyDataMapper::New();
     pm->SetInputConnection(gf->GetOutputPort());
 
