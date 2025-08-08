@@ -48,8 +48,6 @@
   // Set the metal layer
   [self setWantsLayer:YES];
   [self setLayer:[CAMetalLayer layer]];
-  // Use retina if the window was created with retina support.
-  [[self layer] setContentsScale:[nsWindow backingScaleFactor]];
 
   // Force Cocoa into "multi threaded mode" because VTK spawns pthreads.
   // Apple's docs say: "If you intend to use Cocoa calls, you must force

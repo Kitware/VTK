@@ -8,27 +8,6 @@
 #include <AppKit/AppKit.h>
 
 #import <Cocoa/Cocoa.h>
-#import <QuartzCore/CAMetalLayer.h>
-
-//------------------------------------------------------------------------------
-// A custom NSView that is layer-hosting and uses a CAMetalLayer.
-// This is the key to enabling Metal rendering in this window.
-@interface vtkMetalView : NSView
-@end
-
-@implementation vtkMetalView
-// By returning YES, this view becomes a layer-hosting view.
-- (BOOL)wantsUpdateLayer
-{
-  return YES;
-}
-
-// Specify that the backing layer should be a CAMetalLayer.
-- (CALayer*)makeBackingLayer
-{
-  return [CAMetalLayer layer];
-}
-@end
 
 //------------------------------------------------------------------------------
 // A custom delegate to handle NSWindow notifications.
@@ -147,17 +126,6 @@ void vtkCocoaHardwareWindow::Create()
                                   NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
                                     backing:NSBackingStoreBuffered
                                       defer:NO];
-    // this->WindowId = [[NSWindow alloc] initWithContentRect:frame
-    //                                              styleMask:NSWindowStyleMaskTitled
-    //                                                backing:NSBackingStoreBuffered
-    //                                                  defer:false];
-
-    // [this->WindowId autorelease];
-    // [this->WindowId setTitle:[NSString stringWithUTF8String:"VTK Window"]];
-    // [this->WindowId setBackgroundColor:[NSColor blueColor]];
-    // NSWindowController* windowController = [[NSWindowController alloc]
-    // initWithWindow:this->WindowId]; [windowController autorelease]; [this->WindowId
-    // makeKeyAndOrderFront:NSApp]; [NSApp run];
 
     if (!this->WindowId)
     {
@@ -192,8 +160,6 @@ void vtkCocoaHardwareWindow::Create()
       // Activate the application itself to bring it to the foreground.
       [NSApp activateIgnoringOtherApps:YES];
       [this->WindowId makeKeyAndOrderFront:nil];
-      NSRunLoop* mainRunLoop = [NSRunLoop mainRunLoop];
-      [mainRunLoop runUntilDate:[NSDate distantPast]];
     }
 
     this->Mapped = true;
@@ -205,8 +171,6 @@ void vtkCocoaHardwareWindow::Destroy()
 {
   if (this->OwnsWindow && this->WindowId)
   {
-    // Close the window, which will release it.
-    [this->WindowId close];
     this->WindowId = nullptr;
     this->ViewId = nullptr; // Was the content view of the window
   }
