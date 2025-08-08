@@ -26,7 +26,7 @@ void vtkEGLAndroidConfig::CreateContext(EGLContext& context, EGLDisplay display,
 }
 
 //------------------------------------------------------------------------------
-void vtkEGLAndroidConfig::CreateWindow(
+void vtkEGLAndroidConfig::CreateWindowSurface(
   EGLSurface& surface, EGLDisplay display, EGLConfig config, int width, int height)
 {
   const EGLint surface_attribs[] = { EGL_WIDTH, width, EGL_HEIGHT, height, EGL_NONE };

@@ -37,7 +37,7 @@ public:
   /**
    * Create the window surface.
    */
-  void CreateWindow(
+  void CreateWindowSurface(
     EGLSurface& surface, EGLDisplay display, EGLConfig config, int width, int height) override;
 
   /**

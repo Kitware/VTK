@@ -47,7 +47,7 @@ public:
    * Create an EGL window surface.
    */
   virtual void CreateWindowSurface(
-    EGLSurface& surface, EGLDisplay display, EGLConfig config, int height, int width) = 0;
+    EGLSurface& surface, EGLDisplay display, EGLConfig config, int width, int height) = 0;
 
   /**
    * Create an EGL context.
