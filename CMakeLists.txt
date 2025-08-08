@@ -921,6 +921,9 @@ endif ()
 # Option to use threadsafe
 #-----------------------------------------------------------------------------
 option (HDF5_ENABLE_THREADSAFE "Enable thread-safety" OFF)
+endif ()
+# XXX(Kitware): VTK sets VTK_HDF5_ENABLE_THREADSAFE, not HDF5_ENABLE_THREADSAFE.
+set (HDF5_ENABLE_THREADSAFE ${VTK_HDF5_ENABLE_THREADSAFE})
 if (HDF5_ENABLE_THREADSAFE)
   # check for unsupported options
   if (WIN32)
@@ -980,9 +983,6 @@ if (HDF5_ENABLE_THREADSAFE)
   if (Threads_FOUND)
     set (H5_HAVE_THREADSAFE 1)
   endif ()
-endif ()
-else ()
-set(HDF5_ENABLE_THREADSAFE OFF)
 endif ()
 
 #-----------------------------------------------------------------------------
