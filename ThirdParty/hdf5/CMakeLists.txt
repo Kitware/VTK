@@ -39,6 +39,14 @@ if (VTK_MODULE_USE_EXTERNAL_vtkhdf5 AND HDF5_IS_PARALLEL)
       VTK::mpi)
 endif ()
 
+cmake_dependent_option(
+  VTK_HDF5_ENABLE_THREADSAFE
+  "Enable thread-safe HDF5"
+  OFF
+  "NOT VTK_MODULE_USE_EXTERNAL_vtkhdf5"
+  OFF)
+mark_as_advanced(VTK_HDF5_ENABLE_THREADSAFE)
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtk_hdf5.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtk_hdf5.h")
