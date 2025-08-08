@@ -150,8 +150,7 @@ void vtkWebGPURenderWindow::CreateSurface()
     surfDesc.nextInChain = &winSurfDesc;
     this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
   }
-#elif __APPLE__
-#elif VTK_USE_Wayland
+#elif defined VTK_USE_Wayland
   if (auto* waylandhw = vtkWaylandHardwareWindow::SafeDownCast(this->HardwareWindow))
   {
     wgpu::SurfaceDescriptorFromWaylandSurface waylandSurfDesc;
@@ -159,6 +158,16 @@ void vtkWebGPURenderWindow::CreateSurface()
     wgpu::SurfaceDescriptor surfDesc = {};
     surfDesc.label = "VTK Wayland surface";
     surfDesc.nextInChain = &waylandSurfDesc;
+    this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
+  }
+#elif defined __APPLE__
+  if (auto* cocoahw = vtkCocoaHardwareWindow::SafeDownCast(this->HardwareWindow))
+  {
+    wgpu::SurfaceDescriptorFromMetalLayer metalSurfDesc;
+    metalSurfDesc.layer = cocoahw->GetMetalLayer();
+    wgpu::SurfaceDescriptor surfDesc = {};
+    surfDesc.label = "VTK Cocoa surface";
+    surfDesc.nextInChain = &metalSurfDesc;
     this->Surface = this->WGPUConfiguration->GetInstance().CreateSurface(&surfDesc);
   }
 #else
