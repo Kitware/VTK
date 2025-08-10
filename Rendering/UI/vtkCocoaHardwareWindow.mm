@@ -192,12 +192,60 @@ void vtkCocoaHardwareWindow::Destroy()
 //------------------------------------------------------------------------------
 void vtkCocoaHardwareWindow::SetSize(int width, int height)
 {
+  static bool resizing = false;
   if (this->Size[0] != width || this->Size[1] != height)
   {
     this->Superclass::SetSize(width, height);
-    if (this->WindowId)
+    if (this->WindowId && this->ViewId)
     {
-      [this->WindowId setContentSize:NSMakeSize(width, height)];
+      // Set the NSView size, not the window size.
+      if (!resizing)
+      {
+        resizing = true;
+
+        // Get the NSView's current frame (in points).
+        NSView* theView = this->GetViewId();
+        NSRect viewRect = [theView frame];
+
+        // Convert the given new size from pixels to points.
+        NSSize backingNewSize = NSMakeSize((CGFloat)width, (CGFloat)height);
+        NSSize newSize = [theView convertSizeFromBacking:backingNewSize];
+
+        // Test that there's actually a change so as not to recurse into viewFrameDidChange:.
+        if (!NSEqualSizes(newSize, viewRect.size))
+        {
+          // Update the view's frame (in points) keeping the bottom-left
+          // corner in the same place.
+          CGFloat oldHeight = NSHeight(viewRect);
+          CGFloat xpos = NSMinX(viewRect);
+          CGFloat ypos = NSMinY(viewRect) - (newSize.height - oldHeight);
+          NSRect newRect = NSMakeRect(xpos, ypos, newSize.width, newSize.height);
+          [theView setFrame:newRect];
+          [theView setNeedsDisplay:YES];
+        }
+
+        resizing = false;
+      }
+      else if (this->WindowId)
+      {
+        if (!resizing)
+        {
+          resizing = true;
+
+          // Convert the given new size from pixels to points.
+          NSRect backingNewRect = NSMakeRect(0.0, 0.0, (CGFloat)width, (CGFloat)height);
+          NSRect newRect = [this->WindowId convertRectFromBacking:backingNewRect];
+
+          // Test that there's actually a change so as not to recurse into viewFrameDidChange:.
+          if (!NSEqualSizes(newRect.size, [this->WindowId frame].size))
+          {
+            // Set the window size and the view size.
+            [this->WindowId setContentSize:newRect.size];
+          }
+
+          resizing = false;
+        }
+      }
     }
     this->Modified();
   }
