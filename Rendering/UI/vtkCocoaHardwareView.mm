@@ -142,7 +142,7 @@
 {
   (void)theRect;
 
-  if (_myHardwareWindow && _myHardwareWindow->GetMapped())
+  if (_myHardwareWindow)
   {
     _myHardwareWindow->Render();
   }

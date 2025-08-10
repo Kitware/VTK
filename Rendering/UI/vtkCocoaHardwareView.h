@@ -49,13 +49,13 @@ class vtkCocoaHardwareWindow;
 class vtkCocoaRenderWindowInteractor;
 
 // Type declarations
-typedef vtkCocoaHardwareWindow* vtkCocoaRenderWindowRef;
+typedef vtkCocoaHardwareWindow* vtkCocoaHardwareWindowRef;
 typedef vtkCocoaRenderWindowInteractor* vtkCocoaRenderWindowInteractorRef;
 
 VTK_ABI_NAMESPACE_END
 #else
 // Type declarations
-typedef void* vtkCocoaRenderWindowRef;
+typedef void* vtkCocoaHardwareWindowRef;
 typedef void* vtkCocoaRenderWindowInteractorRef;
 #endif
 
@@ -63,12 +63,14 @@ VTKRENDERINGUI_EXPORT
 @interface vtkCocoaHardwareView : NSView<NSDraggingDestination>
 {
 @private
-  vtkCocoaRenderWindowRef _myHardwareWindow;
+  vtkCocoaHardwareWindowRef _myHardwareWindow;
   NSTrackingArea* _rolloverTrackingArea;
 }
 
-- (vtkCocoaRenderWindowRef)getHardwareWindow;
-- (void)setHardwareWindow:(vtkCocoaRenderWindowRef)theHardwareWindow;
+- (vtkCocoaHardwareWindowRef)getHardwareWindow;
+- (void)setHardwareWindow:(vtkCocoaHardwareWindowRef)theHardwareWindow;
+
+- (vtkCocoaRenderWindowInteractorRef)getInteractor;
 @end
 
 #endif /* vtkCocoaHardwareView_h */
