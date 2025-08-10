@@ -143,9 +143,12 @@ void vtkCocoaHardwareWindow::Create()
     [this->WindowId setDelegate:this->Delegate];
 
     // Create our custom Metal-ready view
-    this->ViewId = [[vtkCocoaHardwareView alloc] initWithFrame:frame];
+    vtkCocoaHardwareView* view = [[vtkCocoaHardwareView alloc] initWithFrame:frame];
+    this->ViewId = view;
     [this->ViewId setWantsLayer:YES]; // Explicitly enable layer-backing
+    [view setHardwareWindow:this];
     [this->WindowId setContentView:this->ViewId];
+    [this->WindowId makeFirstResponder:this->ViewId];
     // When not using ARC, this would require a release.
     // [this->ViewId release];
 
@@ -157,8 +160,7 @@ void vtkCocoaHardwareWindow::Create()
 
     if (this->ShowWindow)
     {
-      // Activate the application itself to bring it to the foreground.
-      [NSApp activateIgnoringOtherApps:YES];
+      // makeKeyAndOrderFront: will show the window
       [this->WindowId makeKeyAndOrderFront:nil];
     }
 
