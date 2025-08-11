@@ -1126,8 +1126,14 @@ if (BUILD_SHARED_LIBS)
     PRIVATE
       hdf5_shared_EXPORTS)
 endif ()
+if (HDF5_ENABLE_THREADSAFE)
+    target_compile_definitions(vtkhdf5_src
+      PRIVATE
+        $<$<BOOL:${HDF5_ENABLE_THREADSAFE}>:H5_HAVE_THREADSAFE>)
+endif ()
 target_link_libraries(vtkhdf5_src
   PRIVATE
+    $<$<BOOL:${HDF5_ENABLE_THREADSAFE}>:Threads::Threads>
     VTK::zlib)
 _vtk_module_apply_properties(vtkhdf5_src)
 _vtk_module_install(vtkhdf5_src)
