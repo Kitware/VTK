@@ -57,6 +57,23 @@ public:
   using vtkHardwareWindow::SetPosition;
   ///@}
 
+  ///@{
+  /**
+   * Hide or Show the mouse cursor, it is nice to be able to hide the
+   * default cursor if you want VTK to display a 3D cursor instead.
+   * Set cursor position in window (note that (0,0) is the lower left
+   * corner).
+   */
+  void HideCursor() override;
+  void ShowCursor() override;
+  void SetCursorPosition(int x, int y) override;
+  ///@}
+
+  /**
+   * Change the shape of the cursor
+   */
+  void SetCurrentCursor(int) override;
+
 protected:
   vtkWin32HardwareWindow();
   ~vtkWin32HardwareWindow() override;
@@ -69,6 +86,8 @@ protected:
   virtual LRESULT MessageProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
   static LRESULT APIENTRY WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+  bool CursorHidden;
 
 private:
   vtkWin32HardwareWindow(const vtkWin32HardwareWindow&) = delete;

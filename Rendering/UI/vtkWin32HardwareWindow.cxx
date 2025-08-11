@@ -325,4 +325,113 @@ LRESULT vtkWin32HardwareWindow::MessageProc(HWND hWnd, UINT message, WPARAM wPar
   return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
+//------------------------------------------------------------------------------
+void vtkWin32HardwareWindow::HideCursor()
+{
+  if (this->CursorHidden)
+  {
+    return;
+  }
+  this->CursorHidden = 1;
+
+  ::ShowCursor(!this->CursorHidden);
+}
+
+//------------------------------------------------------------------------------
+void vtkWin32HardwareWindow::ShowCursor()
+{
+  if (!this->CursorHidden)
+  {
+    return;
+  }
+  this->CursorHidden = 0;
+
+  ::ShowCursor(!this->CursorHidden);
+}
+
+//------------------------------------------------------------------------------
+void vtkWin32HardwareWindow::SetCursorPosition(int x, int y)
+{
+  const int* size = this->GetSize();
+
+  POINT point;
+  point.x = x;
+  point.y = size[1] - y - 1;
+
+  if (ClientToScreen(this->WindowId, &point))
+  {
+    SetCursorPos(point.x, point.y);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWin32HardwareWindow::SetCurrentCursor(int shape)
+{
+  if (this->InvokeEvent(vtkCommand::CursorChangedEvent, &shape))
+  {
+    return;
+  }
+  this->Superclass::SetCurrentCursor(shape);
+  LPCTSTR cursorName = 0;
+  switch (shape)
+  {
+    case VTK_CURSOR_DEFAULT:
+    case VTK_CURSOR_ARROW:
+      cursorName = IDC_ARROW;
+      break;
+    case VTK_CURSOR_SIZENE:
+    case VTK_CURSOR_SIZESW:
+      cursorName = IDC_SIZENESW;
+      break;
+    case VTK_CURSOR_SIZENW:
+    case VTK_CURSOR_SIZESE:
+      cursorName = IDC_SIZENWSE;
+      break;
+    case VTK_CURSOR_SIZENS:
+      cursorName = IDC_SIZENS;
+      break;
+    case VTK_CURSOR_SIZEWE:
+      cursorName = IDC_SIZEWE;
+      break;
+    case VTK_CURSOR_SIZEALL:
+      cursorName = IDC_SIZEALL;
+      break;
+    case VTK_CURSOR_HAND:
+#if (WINVER >= 0x0500)
+      cursorName = IDC_HAND;
+#else
+      cursorName = IDC_ARROW;
+#endif
+      break;
+    case VTK_CURSOR_CROSSHAIR:
+      cursorName = IDC_CROSS;
+      break;
+    case VTK_CURSOR_CUSTOM:
+      cursorName = static_cast<LPCTSTR>(this->GetCursorFileName());
+      break;
+    default:
+      cursorName = 0;
+      break;
+  }
+
+  if (cursorName)
+  {
+    UINT fuLoad = LR_SHARED | LR_DEFAULTSIZE;
+    if (shape == VTK_CURSOR_CUSTOM)
+    {
+      fuLoad |= LR_LOADFROMFILE;
+    }
+    HANDLE cursor = LoadImage(0, cursorName, IMAGE_CURSOR, 0, 0, fuLoad);
+    if (!cursor)
+    {
+      vtkErrorMacro("failed to load requested cursor shape " << GetLastError());
+    }
+    else
+    {
+      SetCursor((HCURSOR)cursor);
+      DestroyCursor((HCURSOR)cursor);
+    }
+  }
+}
+
 VTK_ABI_NAMESPACE_END
