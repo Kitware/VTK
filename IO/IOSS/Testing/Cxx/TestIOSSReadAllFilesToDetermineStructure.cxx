@@ -28,7 +28,7 @@ int TestIOSSReadAllFilesToDetermineStructure(int argc, char* argv[])
   if (output->GetNumberOfPartitionedDataSets() != 1)
   {
     vtkLogF(
-      ERROR, "Expected 1 partitioned dataset but got %d", output->GetNumberOfPartitionedDataSets());
+      ERROR, "Expected 1 partitioned dataset but got %u", output->GetNumberOfPartitionedDataSets());
     return EXIT_FAILURE;
   }
   reader->ReadAllFilesToDetermineStructureOn();
@@ -44,7 +44,7 @@ int TestIOSSReadAllFilesToDetermineStructure(int argc, char* argv[])
   if (output->GetNumberOfPartitionedDataSets() != 4)
   {
     vtkLogF(
-      ERROR, "Expected 4 partitioned dataset but got %d", output->GetNumberOfPartitionedDataSets());
+      ERROR, "Expected 4 partitioned dataset but got %u", output->GetNumberOfPartitionedDataSets());
     return EXIT_FAILURE;
   }
 

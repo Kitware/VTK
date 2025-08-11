@@ -128,7 +128,7 @@ bool TestAMR()
   auto output = vtkPartitionedDataSetCollection::SafeDownCast(extractor->GetOutputDataObject(0));
   if (output->GetNumberOfPartitions(0) != 3)
   {
-    vtkLogF(ERROR, "Incorrect AMR extractions number of blocks, expected=%d, got=%d!", 3,
+    vtkLogF(ERROR, "Incorrect AMR extractions number of blocks, expected=%d, got=%u!", 3,
       output->GetNumberOfPartitions(0));
     return false;
   }

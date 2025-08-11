@@ -1509,7 +1509,7 @@ void vtkCocoaRenderWindow::SetWindowInfo(const char* info)
 {
   // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
-  ptrdiff_t tmp = 0;
+  uintptr_t tmp = 0;
   if (info)
   {
     (void)sscanf(info, "%tu", &tmp);
@@ -1523,7 +1523,7 @@ void vtkCocoaRenderWindow::SetParentInfo(const char* info)
 {
   // The parameter is an ASCII string of a decimal number representing
   // a pointer to the window. Convert it back to a pointer.
-  ptrdiff_t tmp = 0;
+  uintptr_t tmp = 0;
   if (info)
   {
     (void)sscanf(info, "%tu", &tmp);

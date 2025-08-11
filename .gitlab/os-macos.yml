@@ -7,7 +7,7 @@
         GIT_CLONE_PATH: "$CI_BUILDS_DIR/vtk-ci-ext/$CI_CONCURRENT_ID"
         # TODO: Factor this out so that each job selects the Xcode version to
         # use so that different versions can be tested in a single pipeline.
-        DEVELOPER_DIR: "/Applications/Xcode-16.1.app/Contents/Developer"
+        DEVELOPER_DIR: "/Applications/Xcode-16.4.app/Contents/Developer"
 
 .wheel_macos_arm64:
     extends: .macos
@@ -164,7 +164,7 @@
         - vtk
         - macos-x86_64
         - shell
-        - xcode-16.1
+        - xcode-16.4
         - nonconcurrent
 
 .macos_x86_64_wheel_builder_tags:
@@ -172,7 +172,7 @@
         - vtk
         - macos-x86_64
         - shell
-        - xcode-16.1
+        - xcode-16.4
         - concurrent
 
 .macos_x86_64_ext_builder_tags:
@@ -180,7 +180,7 @@
         - vtk
         - macos-x86_64
         - shell
-        - xcode-16.1
+        - xcode-16.4
         - concurrent
 
 .macos_arm64_builder_tags:
@@ -188,7 +188,7 @@
         - vtk
         - macos-arm64
         - shell
-        - xcode-16.1
+        - xcode-16.4
         - nonconcurrent
 
 .macos_arm64_wheel_builder_tags:
@@ -196,7 +196,7 @@
         - vtk
         - macos-arm64
         - shell
-        - xcode-16.1
+        - xcode-16.4
         - concurrent
 
 ## macOS-specific scripts
