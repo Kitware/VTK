@@ -266,7 +266,8 @@ bool vtkEGLRenderWindowInternals::SetDeviceAsDisplay(int deviceIndex)
            "EGL_EXT_device_base EGL_EXT_platform_device EGL_EXT_platform_base extensions");
 
     vtkLog(WARNING, "Attempting to use the default egl display for the current platform...");
-    this->Display = eglGetDisplay(this->Config->GetDisplay());
+    this->Display =
+      eglGetDisplay(reinterpret_cast<EGLNativeDisplayType>(this->Config->GetDisplay()));
 
     if (vtkEGLDisplayInitializationHelper::Initialize(this->Display, &major, &minor) == EGL_FALSE)
     {
