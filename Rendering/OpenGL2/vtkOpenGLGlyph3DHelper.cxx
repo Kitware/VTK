@@ -333,7 +333,8 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
     representation = GL_POINTS;
   }
   int iEnd = vtkOpenGLPolyDataMapper::PrimitiveEnd;
-  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  if (!actor->GetProperty()->GetVertexVisibility() ||
+    (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS))
   {
     // when selecting points, the selection pass renders points at a larger size.
     // so don't show vertices as they might conflict with the selection pass.
