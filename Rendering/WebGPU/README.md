@@ -20,16 +20,16 @@ line arguments.
 - Git
 - tools for building VTK
 
-This module uses Dawn's C++ WebGPU implementation on desktop and the `emdawnwebgpu` subcomponent for wasm. You can either build Dawn from scratch or download pre-built releases for your machine from [kitware:utils/ci-utilities/dawn-v7153-20250502.0](https://gitlab.kitware.com/utils/ci-utilities/-/releases/dawn%2Fv7153-20250502.0)
+This module uses Dawn's C++ WebGPU implementation on desktop and the `emdawnwebgpu` subcomponent for wasm. You can either build Dawn from scratch or download pre-built releases for your machine from [kitware:utils/ci-utilities/dawn-v20250621.085109-20250630.1](https://gitlab.kitware.com/utils/ci-utilities/-/releases/dawn%2Fv20250621.085109-20250630.1)
 
 #### Cloning and Building Dawn
 
-Dawn should be built at tag [chromium/7153](https://dawn.googlesource.com/dawn.git/+show/chromium/7153).
+Dawn should be built at tag [v20250621.085109](https://github.com/google/dawn/tree/v20250621.085109).
 
 ```sh
 # Clone the repo and checkout the required version
-git clone https://dawn.googlesource.com/dawn dawn && cd dawn
-git checkout chromium/7153
+git clone https://github.com/google/dawn dawn && cd dawn
+git checkout v20250621.085109
 ```
 
 ##### Build Dawn with `CMake` and `Ninja`
