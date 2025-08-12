@@ -220,7 +220,7 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
     if (cellTypes)
     {
       int allsimplices = 1;
-      for (vtkIdType cellId = 0; cellId < cellTypes->GetSize() && allsimplices; cellId++)
+      for (vtkIdType cellId = 0; cellId < cellTypes->GetNumberOfValues() && allsimplices; cellId++)
       {
         switch (cellTypes->GetValue(cellId))
         {
