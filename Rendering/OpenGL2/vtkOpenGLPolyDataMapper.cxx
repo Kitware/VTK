@@ -3493,7 +3493,8 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor* actor)
 
   vtkHardwareSelector* selector = ren->GetSelector();
   int iEnd = vtkOpenGLPolyDataMapper::PrimitiveEnd;
-  if (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+  if (!actor->GetProperty()->GetVertexVisibility() ||
+    (selector && selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS))
   {
     // when selecting points, the selection pass renders points at a larger size.
     // so don't show vertices as they might conflict with the selection pass.
