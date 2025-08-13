@@ -14,7 +14,6 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindow.h"
 #include "vtkShaderProgram.h"
 #include "vtkTexture.h"
 
@@ -39,9 +38,8 @@ vtkOpenGLSkybox::vtkOpenGLSkybox()
   polys->InsertCellPoint(2);
   polys->InsertCellPoint(3);
 
-  // this->CubeMapper->SetInputConnection(this->Cube->GetOutputPort(0));
   this->CubeMapper->SetInputData(poly);
-  this->SetMapper(this->CubeMapper);
+  this->vtkOpenGLSkybox::SetMapper(this->CubeMapper);
   this->OpenGLActor->SetMapper(this->CubeMapper);
 
   vtkOpenGLShaderProperty* sp =
@@ -98,12 +96,15 @@ void vtkOpenGLSkybox::UpdateUniforms(vtkObject*, unsigned long, void* calldata)
   program->SetUniform3f("floorFront", front);
   program->SetUniformf(
     "leftEye", (this->CurrentRenderer->GetActiveCamera()->GetLeftEye() ? 1.0 : 0.0));
+  program->SetUniformMatrix("rotationMatrix", this->RotationMatrix);
 }
 
 // Actual Skybox render method.
 void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
 {
   vtkOpenGLClearErrorMacro();
+
+  this->RotationMatrix->SetData(ren->GetEnvironmentRotationMatrix()->GetData());
 
   if (this->LastProjection != this->Projection || this->LastGammaCorrect != this->GammaCorrect)
   {
@@ -114,6 +115,8 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
                       "//VTK::Output::Dec\n" // always have this line in your FS
                       "in vec3 TexCoords;\n"
                       "uniform vec3 cameraPos;\n" // wc camera position;
+                      "uniform mat3 rotationMatrix;\n"
+                      "const float PI = acos(-1);\n"
                       "//VTK::Projection::Dec\n"
                       "void main () {\n"
                       "//VTK::Projection::Impl\n"
@@ -130,6 +133,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
 
       vtkShaderProgram::Substitute(str, "//VTK::Projection::Impl",
         "  vec3 diri = normalize(TexCoords - cameraPos);\n"
+        "  diri = rotationMatrix * diri;\n"
         "  vec3 dirv = vec3(dot(diri,floorRight),\n"
         "    dot(diri,floorPlane.xyz),\n"
         "    dot(diri,floorFront));\n"
@@ -138,41 +142,30 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
     }
     if (this->Projection == vtkSkybox::Sphere)
     {
-      vtkShaderProgram::Substitute(str, "//VTK::Projection::Dec",
-        "uniform sampler2D actortexture;\n"
-        "uniform vec4 floorPlane;\n" // floor plane eqn
-        "uniform vec3 floorRight;\n" // floor plane right
-        "uniform vec3 floorFront;\n" // floor plane front
-      );
+      vtkShaderProgram::Substitute(
+        str, "//VTK::Projection::Dec", "uniform sampler2D actortexture;\n");
 
       vtkShaderProgram::Substitute(str, "//VTK::Projection::Impl",
         "  vec3 diri = normalize(TexCoords - cameraPos);\n"
-        "  vec3 dirv = vec3(dot(diri,floorRight),\n"
-        "    dot(diri,floorPlane.xyz),\n"
-        "    dot(diri,floorFront));\n"
+        "  vec3 dirv = rotationMatrix * diri;\n"
         "  float phix = length(vec2(dirv.x, dirv.z));\n"
-        "  vec4 color = textureLod(actortexture, vec2(0.5*atan(dirv.x, "
-        "dirv.z)/3.1415927 + 0.5, atan(dirv.y,phix)/3.1415927 + 0.5), 0.0);\n"
+        "  vec4 color = textureLod(actortexture, vec2(0.5*atan(dirv.z, "
+        "dirv.x)/PI + 0.5, atan(dirv.y,phix)/PI + 0.5), 0.0);\n"
         "//VTK::Gamma::Impl\n");
     }
     if (this->Projection == vtkSkybox::StereoSphere)
     {
       vtkShaderProgram::Substitute(str, "//VTK::Projection::Dec",
         "uniform sampler2D actortexture;\n"
-        "uniform vec4 floorPlane;\n" // floor plane eqn
-        "uniform vec3 floorRight;\n" // floor plane right
-        "uniform vec3 floorFront;\n" // floor plane front
-        "uniform float leftEye;\n"   // 1.0 for left, 0.0 for right
+        "uniform float leftEye;\n" // 1.0 for left, 0.0 for right
       );
 
       vtkShaderProgram::Substitute(str, "//VTK::Projection::Impl",
         "  vec3 diri = normalize(TexCoords - cameraPos);\n"
-        "  vec3 dirv = vec3(dot(diri,floorRight),\n"
-        "    dot(diri,floorPlane.xyz),\n"
-        "    dot(diri,floorFront));\n"
+        "  vec3 dirv = rotationMatrix * diri;\n"
         "  float phix = length(vec2(dirv.x, dirv.z));\n"
-        "  vec4 color = textureLod(actortexture, vec2(0.5*atan(dirv.x, dirv.z)/3.1415927 + "
-        "0.5, 0.5*atan(dirv.y,phix)/3.1415927 + 0.25 + 0.5*leftEye), 0.0);\n"
+        "  vec4 color = textureLod(actortexture, vec2(0.5*atan(dirv.z, dirv.x)/PI + "
+        "0.5, 0.5*atan(dirv.y,phix)/PI + 0.25 + 0.5*leftEye), 0.0);\n"
         "//VTK::Gamma::Impl\n");
     }
     if (this->Projection == vtkSkybox::Floor)

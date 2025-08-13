@@ -3007,23 +3007,6 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
     cellBO.Program->SetUniformf("cFactor", factor);
   }
 
-  vtkNew<vtkMatrix3x3> env;
-  if (program->IsUniformUsed("envMatrix"))
-  {
-    double up[3];
-    double right[3];
-    double front[3];
-    ren->GetEnvironmentUp(up);
-    ren->GetEnvironmentRight(right);
-    vtkMath::Cross(right, up, front);
-    for (int i = 0; i < 3; i++)
-    {
-      env->SetElement(i, 0, right[i]);
-      env->SetElement(i, 1, up[i]);
-      env->SetElement(i, 2, front[i]);
-    }
-  }
-
   // If the VBO coordinates were shifted and scaled, apply the inverse transform
   // to the model->view matrix:
   vtkOpenGLVertexBufferObject* vvbo = this->VBOs->GetVBO("vertexMC");
@@ -3117,7 +3100,8 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(
   if (program->IsUniformUsed("envMatrix"))
   {
     vtkMatrix3x3::Invert(norms, this->TempMatrix3);
-    vtkMatrix3x3::Multiply3x3(this->TempMatrix3, env, this->TempMatrix3);
+    vtkMatrix3x3::Multiply3x3(
+      this->TempMatrix3, ren->GetEnvironmentRotationMatrix(), this->TempMatrix3);
     program->SetUniformMatrix("envMatrix", this->TempMatrix3);
   }
 

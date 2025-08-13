@@ -24,7 +24,8 @@
 #include "vtkViewport.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
-#include "vtkActorCollection.h"  // Needed for access in inline members
+#include "vtkActorCollection.h" // Needed for access in inline members
+#include "vtkMatrix3x3.h"
 #include "vtkVolumeCollection.h" // Needed for access in inline members
 
 #include <array> // To store matrices
@@ -902,17 +903,45 @@ public:
   ///@{
   /**
    * Set/Get the environment up vector.
+   *
+   * GetEnvironmentUp returns a double* for retro-compatibility purposes only. If this is ever
+   * reworked, please return a std::array instead, and remove EnvironmentUp member which is only
+   * here to allow returning a double*
    */
-  vtkGetVector3Macro(EnvironmentUp, double);
-  vtkSetVector3Macro(EnvironmentUp, double);
+  virtual double* GetEnvironmentUp();
+  virtual void GetEnvironmentUp(double& vectorUpX, double& vectorUpY, double& vectorUpZ);
+  virtual void GetEnvironmentUp(double vectorUp[3]);
+  virtual void SetEnvironmentUp(double vectorUpX, double vectorUpY, double vectorUpZ);
+  virtual void SetEnvironmentUp(double vectorUp[3]);
   ///@}
 
   ///@{
   /**
    * Set/Get the environment right vector.
+   *
+   * GetEnvironmentRight returns a double* for retro-compatibility purposes only. If this is ever
+   * reworked, please return a std::array instead, and remove EnvironmentRight member which is only
+   * here to allow returning a double*
    */
-  vtkGetVector3Macro(EnvironmentRight, double);
-  vtkSetVector3Macro(EnvironmentRight, double);
+  virtual double* GetEnvironmentRight();
+  virtual void GetEnvironmentRight(
+    double& vectorRightX, double& vectorRightY, double& vectorRightZ);
+  virtual void GetEnvironmentRight(double vectorRight[3]);
+  virtual void SetEnvironmentRight(double vectorRightX, double vectorRightY, double vectorRightZ);
+  virtual void SetEnvironmentRight(double vectorRight[3]);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the environment rotation matrix.
+   *
+   * Default is identity matrix.
+   */
+  vtkMatrix3x3* GetEnvironmentRotationMatrix() { return this->EnvironmentRotationMatrix; }
+  void SetEnvironmentRotationMatrix(vtkMatrix3x3* matrix)
+  {
+    this->EnvironmentRotationMatrix->SetData(matrix->GetData());
+  }
   ///@}
 
   ///@{
@@ -1206,9 +1235,6 @@ protected:
   bool UseImageBasedLighting;
   vtkTexture* EnvironmentTexture;
 
-  double EnvironmentUp[3];
-  double EnvironmentRight[3];
-
 private:
   /**
    * Cache of CompositeProjectionTransformationMatrix.
@@ -1254,6 +1280,18 @@ private:
    * If this flag affect GetZ. See Get/Set macro for more information.
    */
   bool SafeGetZ = false;
+
+  /**
+   * Rotation matrix of the environment.
+   */
+  vtkNew<vtkMatrix3x3> EnvironmentRotationMatrix;
+
+  /**
+   * Tmp members to allow returning double* in GetEnvironmentUp/Right methods.
+   * Can be removed if someday GetEnvironmentUp/Right returns a std::array.
+   */
+  double EnvironmentUp[3] = { 0.0, 0.0, 0.0 };
+  double EnvironmentRight[3] = { 0.0, 0.0, 0.0 };
 
   vtkRenderer(const vtkRenderer&) = delete;
   void operator=(const vtkRenderer&) = delete;

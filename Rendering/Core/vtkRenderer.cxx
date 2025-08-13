@@ -133,12 +133,6 @@ vtkRenderer::vtkRenderer()
 
   this->UseImageBasedLighting = false;
   this->EnvironmentTexture = nullptr;
-  this->EnvironmentUp[0] = 0.0;
-  this->EnvironmentUp[1] = 1.0;
-  this->EnvironmentUp[2] = 0.0;
-  this->EnvironmentRight[0] = 1.0;
-  this->EnvironmentRight[1] = 0.0;
-  this->EnvironmentRight[2] = 0.0;
 
   vtkMatrix4x4::Identity(this->CompositeProjectionTransformationMatrix.data());
   this->LastCompositeProjectionTransformationMatrixTiledAspectRatio = VTK_DOUBLE_MIN;
@@ -2084,11 +2078,13 @@ void vtkRenderer::ExpandBounds(double bounds[6], vtkMatrix4x4* matrix)
   bounds[5] = max[2];
 }
 
+//------------------------------------------------------------------------------
 vtkTypeBool vtkRenderer::Transparent()
 {
   return this->PreserveColorBuffer;
 }
 
+//------------------------------------------------------------------------------
 double vtkRenderer::GetTiledAspectRatio()
 {
   int usize, vsize;
@@ -2114,6 +2110,7 @@ double vtkRenderer::GetTiledAspectRatio()
   return finalAspect;
 }
 
+//------------------------------------------------------------------------------
 int vtkRenderer::CaptureGL2PSSpecialProp(vtkProp* prop)
 {
   if (this->GL2PSSpecialPropCollection &&
@@ -2126,8 +2123,10 @@ int vtkRenderer::CaptureGL2PSSpecialProp(vtkProp* prop)
   return 0;
 }
 
+//------------------------------------------------------------------------------
 vtkCxxSetObjectMacro(vtkRenderer, GL2PSSpecialPropCollection, vtkPropCollection);
 
+//------------------------------------------------------------------------------
 const std::array<double, 16>& vtkRenderer::GetViewTransformMatrix()
 {
   if (this->LastViewTransformCameraModified != this->ActiveCamera->GetMTime())
@@ -2140,6 +2139,7 @@ const std::array<double, 16>& vtkRenderer::GetViewTransformMatrix()
   return this->ViewTransformMatrix;
 }
 
+//------------------------------------------------------------------------------
 const std::array<double, 16>& vtkRenderer::GetCompositeProjectionTransformationMatrix()
 {
   const double tiledAspectRatio = this->GetTiledAspectRatio();
@@ -2157,6 +2157,7 @@ const std::array<double, 16>& vtkRenderer::GetCompositeProjectionTransformationM
   return this->CompositeProjectionTransformationMatrix;
 }
 
+//------------------------------------------------------------------------------
 const std::array<double, 16>& vtkRenderer::GetProjectionTransformationMatrix()
 {
   const double tiledAspectRatio = this->GetTiledAspectRatio();
@@ -2170,5 +2171,92 @@ const std::array<double, 16>& vtkRenderer::GetProjectionTransformationMatrix()
     this->LastProjectionTransformationMatrixCameraModified = this->ActiveCamera->GetMTime();
   }
   return this->ProjectionTransformationMatrix;
+}
+
+//------------------------------------------------------------------------------
+double* vtkRenderer::GetEnvironmentUp()
+{
+  this->EnvironmentUp[0] = this->EnvironmentRotationMatrix->GetElement(0, 1);
+  this->EnvironmentUp[1] = this->EnvironmentRotationMatrix->GetElement(1, 1);
+  this->EnvironmentUp[2] = this->EnvironmentRotationMatrix->GetElement(2, 1);
+  return this->EnvironmentUp;
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderer::GetEnvironmentUp(double& vectorUpX, double& vectorUpY, double& vectorUpZ)
+{
+  vectorUpX = this->GetEnvironmentUp()[0];
+  vectorUpY = this->GetEnvironmentUp()[1];
+  vectorUpZ = this->GetEnvironmentUp()[2];
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderer::GetEnvironmentUp(double vectorUp[3])
+{
+  this->GetEnvironmentUp(vectorUp[0], vectorUp[1], vectorUp[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderer::SetEnvironmentUp(double vectorUpX, double vectorUpY, double vectorUpZ)
+{
+  if (this->EnvironmentRotationMatrix->GetElement(0, 1) != vectorUpX ||
+    this->EnvironmentRotationMatrix->GetElement(1, 1) != vectorUpY ||
+    this->EnvironmentRotationMatrix->GetElement(2, 1) != vectorUpZ)
+  {
+    this->EnvironmentRotationMatrix->SetElement(0, 1, vectorUpX);
+    this->EnvironmentRotationMatrix->SetElement(1, 1, vectorUpY);
+    this->EnvironmentRotationMatrix->SetElement(2, 1, vectorUpZ);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderer::SetEnvironmentUp(double vectorUp[3])
+{
+  this->SetEnvironmentUp(vectorUp[0], vectorUp[1], vectorUp[2]);
+}
+
+//------------------------------------------------------------------------------
+double* vtkRenderer::GetEnvironmentRight()
+{
+  this->EnvironmentRight[0] = this->EnvironmentRotationMatrix->GetElement(0, 0);
+  this->EnvironmentRight[1] = this->EnvironmentRotationMatrix->GetElement(1, 0);
+  this->EnvironmentRight[2] = this->EnvironmentRotationMatrix->GetElement(2, 0);
+  return this->EnvironmentRight;
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderer::GetEnvironmentRight(
+  double& vectorRightX, double& vectorRightY, double& vectorRightZ)
+{
+  vectorRightX = this->GetEnvironmentRight()[0];
+  vectorRightY = this->GetEnvironmentRight()[1];
+  vectorRightZ = this->GetEnvironmentRight()[2];
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderer::GetEnvironmentRight(double vectorRight[3])
+{
+  this->GetEnvironmentRight(vectorRight[0], vectorRight[1], vectorRight[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderer::SetEnvironmentRight(double vectorRightX, double vectorRightY, double vectorRightZ)
+{
+  if (this->EnvironmentRotationMatrix->GetElement(0, 0) != vectorRightX ||
+    this->EnvironmentRotationMatrix->GetElement(1, 0) != vectorRightY ||
+    this->EnvironmentRotationMatrix->GetElement(2, 0) != vectorRightZ)
+  {
+    this->EnvironmentRotationMatrix->SetElement(0, 0, vectorRightX);
+    this->EnvironmentRotationMatrix->SetElement(1, 0, vectorRightY);
+    this->EnvironmentRotationMatrix->SetElement(2, 0, vectorRightZ);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderer::SetEnvironmentRight(double vectorRight[3])
+{
+  this->SetEnvironmentRight(vectorRight[0], vectorRight[1], vectorRight[2]);
 }
 VTK_ABI_NAMESPACE_END

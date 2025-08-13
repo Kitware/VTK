@@ -11,6 +11,7 @@
 #ifndef vtkOpenGLSkybox_h
 #define vtkOpenGLSkybox_h
 
+#include "vtkMatrix3x3.h"
 #include "vtkNew.h"                    // for ivars
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSkybox.h"
@@ -55,6 +56,8 @@ protected:
 private:
   vtkOpenGLSkybox(const vtkOpenGLSkybox&) = delete;
   void operator=(const vtkOpenGLSkybox&) = delete;
+
+  vtkNew<vtkMatrix3x3> RotationMatrix;
 };
 
 VTK_ABI_NAMESPACE_END
