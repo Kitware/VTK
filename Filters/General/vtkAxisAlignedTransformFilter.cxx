@@ -70,10 +70,10 @@ void ReverseDoubleArray(vtkDoubleArray* arr)
 {
   vtkNew<vtkDoubleArray> tmp;
   tmp->DeepCopy(arr);
-  for (int i = 0; i < arr->GetSize(); i++)
+  for (int i = 0; i < arr->GetNumberOfTuples(); i++)
   {
     double value = tmp->GetTuple1(i);
-    arr->SetTuple1(arr->GetSize() - i - 1, -value);
+    arr->SetTuple1(arr->GetNumberOfTuples() - i - 1, -value);
   }
 }
 
