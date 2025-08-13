@@ -137,6 +137,7 @@ void Fill(vtkDataArray* array, DataT vtkNotUsed(data), int replacementValueOptio
       return;
   }
 }
+
 template <class DataT>
 int GetOutputDataType(DataT vtkNotUsed(data))
 {
@@ -146,7 +147,6 @@ int GetOutputDataType(DataT vtkNotUsed(data))
   }
   return VTK_FLOAT;
 }
-
 } // end anonymous namespace
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -671,7 +671,6 @@ struct CellGradients : public GradientsBase<TData>
         auto divergence = vtk::DataArrayTupleRange(this->Divergence);
         ComputeDivergenceFromGradient(cellGrad.data(), divergence[cellId]);
       }
-
     } // for all cells
   }   // operator()
 
@@ -723,7 +722,6 @@ struct StructuredGradientsWorker
     }
   }
 };
-
 } // end anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -823,6 +821,12 @@ int vtkGradientFilter::ComputeUnstructuredGridGradient(vtkDataArray* array, int 
       vtkNew<vtkStaticCellLinks> cellLinks;
       cellLinks->SetDataSet(input);
       cellLinks->BuildLinks();
+
+      auto pd = vtkPolyData::SafeDownCast(input);
+      if (pd != nullptr && pd->NeedToBuildCells())
+      {
+        pd->BuildCells();
+      }
 
       using PointGradientsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
       PointGradientsWorker pgWorker;
@@ -1132,7 +1136,6 @@ VTK_ABI_NAMESPACE_END
 
 namespace // anonymous
 {
-
 //------------------------------------------------------------------------------
 int GetCellParametricData(
   vtkIdType pointId, double pointCoord[3], vtkCell* cell, int& subId, double parametricCoord[3])
@@ -1536,5 +1539,4 @@ void ComputeGradientsSG(GridT* output, int* dims, DataT* array, DataT* gradients
 
   vtkSMPTools::For(0, dims[2], structuredSliceWorker);
 }
-
 } // end anonymous namespace
