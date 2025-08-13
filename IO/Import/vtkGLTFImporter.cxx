@@ -29,10 +29,12 @@
 #include "vtkRenderer.h"
 #include "vtkShaderProperty.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkTransform2D.h"
 #include "vtkUniforms.h"
+
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
@@ -626,7 +628,7 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
     }
     else
     {
-      dasmNodeName = "node" + std::to_string(nodeId);
+      dasmNodeName = "node" + vtk::to_string(nodeId);
     }
     const int dasmNode = this->SceneHierarchy->AddNode(dasmNodeName.c_str(), dasmParent);
 
@@ -677,14 +679,14 @@ void vtkGLTFImporter::ImportActors(vtkRenderer* renderer)
           std::string primitiveName = mesh.Name;
           if (mesh.Primitives.size() > 1)
           {
-            primitiveName += "_primitive_" + std::to_string(primitiveId++);
+            primitiveName += "_primitive_" + vtk::to_string(primitiveId++);
           }
           this->OutputsDescription += primitiveName;
           meshNodeName = vtkDataAssembly::MakeValidNodeName(primitiveName.c_str());
         }
         else
         {
-          meshNodeName = "primitive_" + std::to_string(primitiveId++);
+          meshNodeName = "primitive_" + vtk::to_string(primitiveId++);
         }
         this->OutputsDescription += "Primitive Geometry:\n";
         this->OutputsDescription +=

@@ -177,9 +177,9 @@ public:
 
   ///@{
   /**
-   * Specify the format to use for auto-labelling.
+   * Specify the std::format style format to use for auto-labelling.
    */
-  vtkSetStringMacro(LabelFormat);
+  void SetLabelFormat(const char* format);
   vtkGetStringMacro(LabelFormat);
   ///@}
 

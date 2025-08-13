@@ -26,6 +26,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSMPTools.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
@@ -959,7 +960,7 @@ vtkSmartPointer<vtkDataSet> CreateMixedUnstructuredGrid(
     vtkConduitArrayUtilities::IsDevicePointer(connectivity.element_ptr(0), id, working);
   if (isDevicePointer && !working)
   {
-    throw std::runtime_error("Viskores does not support device" + std::to_string(id));
+    throw std::runtime_error("Viskores does not support device" + vtk::to_string(id));
   }
 
   // check presence of polyhedra
@@ -1151,7 +1152,7 @@ vtkIdType GetNumberOfPointsInCellType(int vtk_cell_type)
     case VTK_HEXAHEDRON:
       return 8;
     default:
-      throw std::runtime_error("unsupported cell type " + std::to_string(vtk_cell_type));
+      throw std::runtime_error("unsupported cell type " + vtk::to_string(vtk_cell_type));
   }
 }
 

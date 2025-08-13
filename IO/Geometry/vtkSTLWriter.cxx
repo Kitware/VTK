@@ -11,9 +11,11 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
+#include "vtkStringFormatter.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleStrip.h"
 #include "vtkUnsignedCharArray.h"
+
 #include <vtksys/SystemTools.hxx>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
@@ -113,12 +115,12 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints* pts, vtkCellArray* polys, vtkCellArr
   //  Write header
   //
   vtkDebugMacro("Writing ASCII sla file");
-  fprintf(fp, "solid ");
+  vtk::print(fp, "solid ");
   if (this->GetHeader())
   {
-    fprintf(fp, "%s", this->GetHeader());
+    vtk::print(fp, "{:s}", this->GetHeader());
   }
-  fprintf(fp, "\n");
+  vtk::print(fp, "\n");
 
   //
   // Decompose any triangle strips into triangles
@@ -143,15 +145,15 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints* pts, vtkCellArray* polys, vtkCellArr
 
     vtkTriangle::ComputeNormal(pts, npts, indx, n);
 
-    fprintf(fp, " facet normal %.*g %.*g %.*g\n  outer loop\n", max_double_digits, n[0],
-      max_double_digits, n[1], max_double_digits, n[2]);
-    fprintf(fp, "   vertex %.*g %.*g %.*g\n", max_double_digits, v1[0], max_double_digits, v1[1],
-      max_double_digits, v1[2]);
-    fprintf(fp, "   vertex %.*g %.*g %.*g\n", max_double_digits, v2[0], max_double_digits, v2[1],
-      max_double_digits, v2[2]);
-    fprintf(fp, "   vertex %.*g %.*g %.*g\n", max_double_digits, v3[0], max_double_digits, v3[1],
-      max_double_digits, v3[2]);
-    fprintf(fp, "  endloop\n endfacet\n");
+    vtk::print(fp, " facet normal {1:.{0}g} {3:.{2}g} {5:.{4}g}\n  outer loop\n", max_double_digits,
+      n[0], max_double_digits, n[1], max_double_digits, n[2]);
+    vtk::print(fp, "   vertex {1:.{0}g} {3:.{2}g} {5:.{4}g}\n", max_double_digits, v1[0],
+      max_double_digits, v1[1], max_double_digits, v1[2]);
+    vtk::print(fp, "   vertex {1:.{0}g} {3:.{2}g} {5:.{4}g}\n", max_double_digits, v2[0],
+      max_double_digits, v2[1], max_double_digits, v2[2]);
+    vtk::print(fp, "   vertex {1:.{0}g} {3:.{2}g} {5:.{4}g}\n", max_double_digits, v3[0],
+      max_double_digits, v3[1], max_double_digits, v3[2]);
+    vtk::print(fp, "  endloop\n endfacet\n");
   }
 
   // Write out triangle polygons. If not a triangle polygon, triangulate it
@@ -167,15 +169,15 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints* pts, vtkCellArray* polys, vtkCellArr
 
       vtkTriangle::ComputeNormal(pts, npts, indx, n);
 
-      fprintf(fp, " facet normal %.*g %.*g %.*g\n  outer loop\n", max_double_digits, n[0],
-        max_double_digits, n[1], max_double_digits, n[2]);
-      fprintf(fp, "   vertex %.*g %.*g %.*g\n", max_double_digits, v1[0], max_double_digits, v1[1],
-        max_double_digits, v1[2]);
-      fprintf(fp, "   vertex %.*g %.*g %.*g\n", max_double_digits, v2[0], max_double_digits, v2[1],
-        max_double_digits, v2[2]);
-      fprintf(fp, "   vertex %.*g %.*g %.*g\n", max_double_digits, v3[0], max_double_digits, v3[1],
-        max_double_digits, v3[2]);
-      fprintf(fp, "  endloop\n endfacet\n");
+      vtk::print(fp, " facet normal {1:.{0}g} {3:.{2}g} {5:.{4}g}\n  outer loop\n",
+        max_double_digits, n[0], max_double_digits, n[1], max_double_digits, n[2]);
+      vtk::print(fp, "   vertex {1:.{0}g} {3:.{2}g} {5:.{4}g}\n", max_double_digits, v1[0],
+        max_double_digits, v1[1], max_double_digits, v1[2]);
+      vtk::print(fp, "   vertex {1:.{0}g} {3:.{2}g} {5:.{4}g}\n", max_double_digits, v2[0],
+        max_double_digits, v2[1], max_double_digits, v2[2]);
+      vtk::print(fp, "   vertex {1:.{0}g} {3:.{2}g} {5:.{4}g}\n", max_double_digits, v3[0],
+        max_double_digits, v3[1], max_double_digits, v3[2]);
+      vtk::print(fp, "  endloop\n endfacet\n");
     }
     else if (npts > 3)
     {
@@ -200,20 +202,20 @@ void vtkSTLWriter::WriteAsciiSTL(vtkPoints* pts, vtkCellArray* polys, vtkCellArr
       {
         vtkTriangle::ComputeNormal(pts, 3, ptIds->GetPointer(3 * i), n);
 
-        fprintf(fp, " facet normal %.6g %.6g %.6g\n  outer loop\n", n[0], n[1], n[2]);
+        vtk::print(fp, " facet normal {:.6g} {:.6g} {:.6g}\n  outer loop\n", n[0], n[1], n[2]);
 
         for (vtkIdType j = 0; j < 3; ++j)
         {
           vtkIdType ptId = ptIds->GetId(3 * i + j);
           poly->GetPoints()->GetPoint(ptId, v1);
-          fprintf(fp, "   vertex %.6g %.6g %.6g\n", v1[0], v1[1], v1[2]);
+          vtk::print(fp, "   vertex {:.6g} {:.6g} {:.6g}\n", v1[0], v1[1], v1[2]);
         }
-        fprintf(fp, "  endloop\n endfacet\n");
+        vtk::print(fp, "  endloop\n endfacet\n");
       }
     }
   }
 
-  fprintf(fp, "endsolid\n");
+  vtk::print(fp, "endsolid\n");
   if (fflush(fp))
   {
     fclose(fp);

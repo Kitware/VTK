@@ -15,7 +15,9 @@
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexBufferObjectCache.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringOutputWindow.h"
+#include "vtkStringScanner.h"
 #include "vtkWin32RenderWindowInteractor.h"
 
 #include <cmath>
@@ -914,7 +916,7 @@ void vtkWin32OpenGLRenderWindow::CreateAWindow()
       if (this->GetWindowName() == DEFAULT_BASE_WINDOW_NAME)
       {
         static int count = 1;
-        this->SetWindowName((DEFAULT_BASE_WINDOW_NAME + std::to_string(count++)).c_str());
+        this->SetWindowName((DEFAULT_BASE_WINDOW_NAME + vtk::to_string(count++)).c_str());
       }
 
       int x = this->Position[0];
@@ -1301,8 +1303,7 @@ void vtkWin32OpenGLRenderWindow::SetWindowId(HWND arg)
 void vtkWin32OpenGLRenderWindow::SetWindowInfo(const char* info)
 {
   int tmp;
-
-  sscanf(info, "%i", &tmp);
+  VTK_FROM_CHARS_IF_ERROR_BREAK(info, tmp);
 
   this->WindowId = (HWND)tmp;
   vtkDebugMacro(<< "Setting WindowId to " << this->WindowId << "\n");
@@ -1312,8 +1313,7 @@ void vtkWin32OpenGLRenderWindow::SetWindowInfo(const char* info)
 void vtkWin32OpenGLRenderWindow::SetNextWindowInfo(const char* info)
 {
   int tmp;
-
-  sscanf(info, "%i", &tmp);
+  VTK_FROM_CHARS_IF_ERROR_BREAK(info, tmp);
 
   this->SetNextWindowId((HWND)tmp);
 }
@@ -1342,8 +1342,7 @@ void vtkWin32OpenGLRenderWindow::SetDeviceContext(HDC arg)
 void vtkWin32OpenGLRenderWindow::SetParentInfo(const char* info)
 {
   int tmp;
-
-  sscanf(info, "%i", &tmp);
+  VTK_FROM_CHARS_IF_ERROR_BREAK(info, tmp);
 
   this->ParentId = (HWND)tmp;
   vtkDebugMacro(<< "Setting ParentId to " << this->ParentId << "\n");

@@ -4,6 +4,7 @@
 
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 #include "vtkWindows.h"
 
 #include "vtksys/Encoding.hxx"
@@ -232,9 +233,7 @@ int vtkWin32OutputWindow::Initialize()
 //------------------------------------------------------------------------------
 void vtkWin32OutputWindow::PromptText(const char* someText)
 {
-  size_t vtkmsgsize = strlen(someText) + 100;
-  char* vtkmsg = new char[vtkmsgsize];
-  snprintf(vtkmsg, vtkmsgsize, "%s\nPress Cancel to suppress any further messages.", someText);
+  auto vtkmsg = vtk::format("{}\nPress Cancel to suppress any further messages.", someText);
   std::wstring wmsg = vtksys::Encoding::ToWide(vtkmsg);
   const auto messageType = this->GetCurrentMessageType();
   if (messageType == MESSAGE_TYPE_ERROR)
@@ -259,7 +258,6 @@ void vtkWin32OutputWindow::PromptText(const char* someText)
       vtkObject::GlobalWarningDisplayOff();
     }
   }
-  delete[] vtkmsg;
 }
 
 //------------------------------------------------------------------------------

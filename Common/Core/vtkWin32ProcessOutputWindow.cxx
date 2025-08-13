@@ -3,6 +3,7 @@
 #include "vtkWin32ProcessOutputWindow.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 #include "vtkWindows.h"
 
 #include <mutex>
@@ -75,7 +76,6 @@ void vtkWin32ProcessOutputWindow::DisplayText(const char* text)
 int vtkWin32ProcessOutputWindow::Initialize()
 {
   // Write the executable as a temporary file.  It will delete itself.
-  char exeName[_MAX_FNAME + 1] = "";
   char tempDir[_MAX_PATH + 1] = "";
 
   // We will try putting the executable in the system temp directory.
@@ -88,24 +88,17 @@ int vtkWin32ProcessOutputWindow::Initialize()
 
   // Construct the executable name from the process id, pointer to
   // this output window instance, and a count.  This should be unique.
-  snprintf(exeName, sizeof(exeName), "vtkWin32OWP_%" PRIdword "_%p_%u.exe", GetCurrentProcessId(),
-    this, this->Count++);
+  // Construct the executable name from the process id, pointer to this output window instance, and
+  // a count.
+  auto exeName = vtk::format(
+    "vtkWin32OWP_{}_{:p}_{}.exe", GetCurrentProcessId(), static_cast<void*>(this), this->Count++);
 
-  // Allocate a buffer to hold the executable path.
-  size_t tdlen = strlen(tempDir);
-  char* exeFullPath = (char*)malloc(tdlen + strlen(exeName) + 2);
-  if (!exeFullPath)
-  {
-    return 0;
-  }
-
-  // Construct the full path to the executable.
-  snprintf(exeFullPath, sizeof(exeFullPath), "%s%s", tempDir, exeName);
+  // Construct the full path to the executable.¬
+  auto exeFullPath = vtk::format("{:s}{:s}", tempDir, exeName);
 
   // Try to write the executable to disk.
-  if (!vtkEncodedArrayWin32OutputWindowProcessWrite(exeFullPath))
+  if (!vtkEncodedArrayWin32OutputWindowProcessWrite(exeFullPath.c_str()))
   {
-    free(exeFullPath);
     return 0;
   }
 
@@ -123,16 +116,14 @@ int vtkWin32ProcessOutputWindow::Initialize()
     !DuplicateHandle(GetCurrentProcess(), si.hStdInput, GetCurrentProcess(), &si.hStdInput, 0, TRUE,
       DUPLICATE_SAME_ACCESS | DUPLICATE_CLOSE_SOURCE))
   {
-    DeleteFile(exeFullPath);
-    free(exeFullPath);
+    DeleteFile(exeFullPath.c_str());
     return 0;
   }
 
   // Create the child process.
-  if (!CreateProcess(0, exeFullPath, 0, 0, TRUE, NORMAL_PRIORITY_CLASS, 0, 0, &si, &pi))
+  if (!CreateProcess(0, exeFullPath.data(), 0, 0, TRUE, NORMAL_PRIORITY_CLASS, 0, 0, &si, &pi))
   {
-    DeleteFile(exeFullPath);
-    free(exeFullPath);
+    DeleteFile(exeFullPath.c_str());
     CloseHandle(si.hStdInput);
     return 0;
   }
@@ -141,7 +132,6 @@ int vtkWin32ProcessOutputWindow::Initialize()
   CloseHandle(si.hStdInput);
   CloseHandle(pi.hThread);
   CloseHandle(pi.hProcess);
-  free(exeFullPath);
   return 1;
 }
 

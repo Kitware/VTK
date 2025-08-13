@@ -23,10 +23,9 @@
 #include "vtkRenderer.h"
 #include "vtkSphere.h"
 #include "vtkSphereSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
-#include "vtkTransform.h"
-#include "vtkWindow.h"
 
 #include <cassert>
 
@@ -732,7 +731,8 @@ void vtkSphereRepresentation::BuildRepresentation()
     r = (r <= 0.0 ? 1.0 : r);
     double theta = vtkMath::DegreesFromRadians(atan2((hc[1] - c[1]), (hc[0] - c[0])));
     double phi = vtkMath::DegreesFromRadians(acos((hc[2] - c[2]) / r));
-    snprintf(str, sizeof(str), "(%0.2g, %1.1f, %1.1f)", r, theta, phi);
+    auto result = vtk::format_to_n(str, sizeof(str), "({:0.2g}, {:1.1f}, {:1.1f})", r, theta, phi);
+    *result.out = '\0';
     this->HandleTextMapper->SetInput(str);
     vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, hc[0], hc[1], hc[2], tc);
     this->HandleTextActor->GetPositionCoordinate()->SetValue(tc[0] + 10, tc[1] + 10);

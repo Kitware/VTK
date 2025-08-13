@@ -6,7 +6,6 @@
 #include "vtkDummyController.h"
 #endif
 
-#include "vtksys/FStream.hxx"
 #include <vtkCell.h>
 #include <vtkCellData.h>
 #include <vtkFloatArray.h>
@@ -17,11 +16,14 @@
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkStringArray.h>
+#include <vtkStringFormatter.h>
 #include <vtkTestUtilities.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLPUnstructuredGridReader.h>
 #include <vtkXMLPUnstructuredGridWriter.h>
 #include <vtkXMLUnstructuredGridReader.h>
+
+#include "vtksys/FStream.hxx"
 
 #include <string>
 
@@ -141,7 +143,7 @@ int TestParallelUnstructuredGridIO(int argc, char* argv[])
   vtkNew<vtkDummyController> contr;
 #endif
   contr->Initialize(&argc, &argv);
-  vtkLogger::SetThreadName("rank=" + std::to_string(contr->GetLocalProcessId()));
+  vtkLogger::SetThreadName("rank=" + vtk::to_string(contr->GetLocalProcessId()));
   vtkMultiProcessController::SetGlobalController(contr);
 
   vtkNew<vtkPoints> points;

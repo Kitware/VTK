@@ -16,6 +16,7 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 
 #define ensure(x, msg)                                                                             \
@@ -73,7 +74,7 @@ int TestAMReXParticlesReader(int argc, char* argv[])
   controller->Initialize(&argc, &argv);
   const int processId = controller->GetLocalProcessId();
   const int numberOfProcesses = controller->GetNumberOfProcesses();
-  vtkLogger::SetThreadName("processId=" + std::to_string(processId));
+  vtkLogger::SetThreadName("processId=" + vtk::to_string(processId));
   vtkMultiProcessController::SetGlobalController(controller);
   // Test 3D
   {

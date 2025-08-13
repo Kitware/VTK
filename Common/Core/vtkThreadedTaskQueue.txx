@@ -3,6 +3,7 @@
 #include "vtkLogger.h"
 
 #include "vtkMultiThreader.h"
+#include "vtkStringFormatter.h"
 
 #include <cassert>
 #include <queue>
@@ -178,7 +179,7 @@ vtkThreadedTaskQueue<R, Args...>::vtkThreadedTaskQueue(
 {
   auto f = [this](int thread_id)
   {
-    vtkLogger::SetThreadName("ttq::worker" + std::to_string(thread_id));
+    vtkLogger::SetThreadName("ttq::worker" + vtk::to_string(thread_id));
     while (true)
     {
       std::function<R()> task;
@@ -276,7 +277,7 @@ vtkThreadedTaskQueue<void, Args...>::vtkThreadedTaskQueue(std::function<void(Arg
 {
   auto f = [this](int thread_id)
   {
-    vtkLogger::SetThreadName("ttq::worker" + std::to_string(thread_id));
+    vtkLogger::SetThreadName("ttq::worker" + vtk::to_string(thread_id));
     while (true)
     {
       std::function<void()> task;

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkFunctionParser.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringScanner.h"
 
 #include <algorithm>
 #include <cctype>
@@ -1795,7 +1796,8 @@ unsigned int vtkFunctionParser::GetOperandNumber(int currentIndex)
       this->Immediates[i] = tempImmediates[i];
     }
 
-    this->Immediates[this->ImmediatesSize] = atof(&this->Function[currentIndex]);
+    VTK_FROM_CHARS_IF_ERROR_BREAK(
+      &this->Function[currentIndex], this->Immediates[this->ImmediatesSize]);
     this->ImmediatesSize++;
     delete[] tempImmediates;
     return VTK_PARSER_IMMEDIATE;
@@ -1898,7 +1900,6 @@ void vtkFunctionParser::CheckExpression(int& pos, char** error)
   this->RemoveSpaces();
 
   int index = 0, parenthesisCount = 0, currentChar;
-  char* ptr;
   int functionNumber, constantNumber;
   int* expectCommaOnParenthesisCount = new int[this->FunctionLength];
   int* expectTwoCommasOnParenthesisCount = new int[this->FunctionLength];
@@ -1986,11 +1987,13 @@ void vtkFunctionParser::CheckExpression(int& pos, char** error)
     // Check for number
     if (isdigit(currentChar) || (currentChar == '.' && isdigit(this->Function[index + 1])))
     {
-      double value = strtod(&this->Function[index], &ptr);
+      double value;
+      auto result = vtk::from_chars(&this->Function[index], value);
+      VTK_FROM_CHARS_RESULT_IF_ERROR_BREAK(result, value);
       // ignore the return value, we just try to figure out
       // the position of the pointer after the double value.
       static_cast<void>(value);
-      index += int(ptr - &this->Function[index]);
+      index += int(result.ptr - &this->Function[index]);
       currentChar = this->Function[index];
     }
     // Check for named constant

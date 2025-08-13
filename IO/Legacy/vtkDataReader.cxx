@@ -25,7 +25,6 @@
 #include "vtkInformationStringKey.h"
 #include "vtkInformationStringVectorKey.h"
 #include "vtkInformationUnsignedLongKey.h"
-#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLegacyReaderVersion.h"
 #include "vtkLongArray.h"
@@ -35,8 +34,8 @@
 #include "vtkPointSet.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkShortArray.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkTable.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkTypeUInt64Array.h"
@@ -558,14 +557,15 @@ int vtkDataReader::ReadHeader(const char* fname)
     this->SetErrorCode(vtkErrorCode::UnrecognizedFileTypeError);
     return 0;
   }
-  if (sscanf(line + VERSION_PREFIX_LENGTH, "%d.%d", &this->FileMajorVersion,
-        &this->FileMinorVersion) != 2)
+  auto result = vtk::scan<int, int>(std::string_view(line + VERSION_PREFIX_LENGTH), "{:d}.{:d}");
+  if (!result)
   {
     vtkWarningMacro(<< "Cannot read file version: " << line
                     << " for file: " << (fname ? fname : "(Null FileName)"));
     this->FileMajorVersion = 0;
     this->FileMinorVersion = 0;
   }
+  std::tie(this->FileMajorVersion, this->FileMinorVersion) = result->values();
   if (this->FileMajorVersion > vtkLegacyReaderMajorVersion ||
     (this->FileMajorVersion == vtkLegacyReaderMajorVersion &&
       this->FileMinorVersion > vtkLegacyReaderMinorVersion))
@@ -2039,15 +2039,16 @@ vtkAbstractArray* vtkDataReader::ReadArray(
 
   while (this->ReadLine(line))
   {
+    std::string_view lineView(line);
     this->LowerCase(line, 256);
 
     // Blank line indicates end of metadata:
-    if (strlen(line) == 0)
+    if (lineView.empty())
     {
       break;
     }
 
-    if (strncmp(line, "component_names", 15) == 0)
+    if (lineView.substr(0, 15) == "component_names")
     {
       char decoded[256];
       for (int i = 0; i < numComp; ++i)
@@ -2065,14 +2066,15 @@ vtkAbstractArray* vtkDataReader::ReadArray(
       continue;
     }
 
-    if (strncmp(line, "information", 11) == 0)
+    if (lineView.substr(0, 11) == "information")
     {
-      int numKeys;
-      if (sscanf(line, "information %d", &numKeys) != 1)
+      auto result = vtk::scan<int>(lineView, "information {:d}");
+      if (!result)
       {
         vtkWarningMacro("Invalid information header: " << line);
         continue;
       }
+      const int numKeys = result->value();
 
       vtkInformation* info = array->GetInformation();
       this->ReadInformation(info, numKeys);
@@ -2230,7 +2232,7 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes* a, vtkIdType numPts)
   // the next string could be an integer number of components or a lookup table
   if (strcmp(this->LowerCase(key), "lookup_table") != 0)
   {
-    numComp = atoi(key);
+    VTK_FROM_CHARS_IF_ERROR_RETURN(key, numComp, 0);
     if (numComp < 1 || !this->ReadString(key))
     {
       const char* fname = this->CurrentFileName.c_str();
@@ -2752,8 +2754,6 @@ int vtkDataReader::ReadInformation(vtkInformation* info, vtkIdType numKeys)
 {
   // Assuming that the opening INFORMATION line has been read.
   char line[256];
-  char name[256];
-  char location[256];
   for (int keyIdx = 0; keyIdx < numKeys; ++keyIdx)
   {
     do
@@ -2767,11 +2767,14 @@ int vtkDataReader::ReadInformation(vtkInformation* info, vtkIdType numKeys)
 
     if (strncmp("NAME ", line, 5) == 0)
     { // New key
-      if (sscanf(line, "NAME %s LOCATION %s", name, location) != 2)
+      auto result =
+        vtk::scan<std::string, std::string>(std::string_view(line), "NAME {:s} LOCATION {:s}");
+      if (!result)
       {
         vtkWarningMacro("Invalid line in information specification: " << line);
         continue;
       }
+      auto& [name, location] = result->values();
 
       vtkInformationKey* key = vtkInformationKeyLookup::Find(name, location);
       if (!key)
@@ -2916,15 +2919,16 @@ int vtkDataReader::ReadInformation(vtkInformation* info, vtkIdType numKeys)
           continue;
         }
 
-        char value[256];
-        if (sscanf(line, "DATA %s", value) != 1)
+        auto resultData = vtk::scan<std::string>(std::string_view(line), "DATA {:s}");
+        if (!resultData)
         {
           vtkWarningMacro("Malformed data block for key " << location << "::" << name << ".");
           continue;
         }
+        auto& value = resultData->value();
 
         char decoded[256];
-        this->DecodeString(decoded, value);
+        this->DecodeString(decoded, value.c_str());
 
         info->Set(sKey, decoded);
       }
@@ -3585,12 +3589,17 @@ void vtkDataReader::CheckFor(const char* name, char* line, int& num, char**& arr
     }
 
     // enter the name
-    char nameOfAttribute[256];
-    sscanf(line, "%*s %s", nameOfAttribute);
-    if (*nameOfAttribute)
+    auto result =
+      vtk::scan<std::string_view, std::string_view>(std::string_view(line), "{:s} {:s}");
+    if (result)
     {
-      array[num - 1] = new char[strlen(nameOfAttribute) + 1];
-      strcpy(array[num - 1], nameOfAttribute);
+      auto& [_, nameOfAttribute] = result->values();
+      if (!nameOfAttribute.empty())
+      {
+        array[num] = new char[nameOfAttribute.size() + 1];
+        std::copy_n(nameOfAttribute.data(), nameOfAttribute.size(), array[num - 1]);
+        array[num - 1][nameOfAttribute.size()] = '\0';
+      }
     }
   } // found one
 }
@@ -3824,7 +3833,8 @@ int vtkDataReader::DecodeString(char* resname, const char* name)
         buffer[2] = name[cc + 1];
         buffer[3] = name[cc + 2];
         buffer[4] = 0;
-        sscanf(buffer, "%x", &ch);
+        auto result = vtk::scan<unsigned int>(std::string_view(buffer), "{:x}");
+        ch = result->value();
         str << static_cast<char>(ch);
         cc += 2;
         reslen++;

@@ -688,7 +688,7 @@ int TestAngleWidget3D(int argc, char* argv[])
   vtkSmartPointer<vtkAngleRepresentation3D> rep = vtkSmartPointer<vtkAngleRepresentation3D>::New();
   rep->SetHandleRepresentation(handle);
   rep->SetScale(vtkMath::Pi() / 180.0);
-  rep->SetLabelFormat("%-#6.3g rad");
+  rep->SetLabelFormat("{:<#6.3g} rad");
 
   vtkSmartPointer<vtkAngleWidget> widget = vtkSmartPointer<vtkAngleWidget>::New();
   widget->SetInteractor(iren);

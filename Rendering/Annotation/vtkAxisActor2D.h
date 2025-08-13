@@ -184,10 +184,10 @@ public:
 
   ///@{
   /**
-   * Set/Get the format with which to print the labels on the scalar
+   * Set/Get the std::format style format with which to print the labels on the scalar
    * bar.
    */
-  vtkSetStringMacro(LabelFormat);
+  void SetLabelFormat(const char* format);
   vtkGetStringMacro(LabelFormat);
   ///@}
 

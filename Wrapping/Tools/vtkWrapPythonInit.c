@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* this routine creates the init file */
 static void CreateInitFile(
   const char* libName, int numDepends, char** depends, int numFiles, char** files, FILE* fout)
@@ -189,3 +191,5 @@ int VTK_PARSE_MAIN(int argc, const char* argv[])
 
   return 0;
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

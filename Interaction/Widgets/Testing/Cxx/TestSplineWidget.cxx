@@ -285,7 +285,7 @@ int TestSplineWidget(int argc, char* argv[])
   profile->SetYRange(range[0], range[1]);
   profile->GetProperty()->SetColor(0, 0, 0);
   profile->GetProperty()->SetLineWidth(2);
-  profile->SetLabelFormat("%g");
+  profile->SetLabelFormat("{:g}");
   vtkTextProperty* tprop = profile->GetTitleTextProperty();
   tprop->SetColor(0.02, 0.06, 0.62);
   tprop->SetFontFamilyToArial();

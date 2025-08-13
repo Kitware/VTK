@@ -73,7 +73,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Instantiate object with 64 maximum colors; 5 labels; %%-#6.3g label
+   * Instantiate object with 64 maximum colors; 5 labels; {:<#6.3g} label
    * format, no title, and vertical orientation. The initial scalar bar
    * size is (0.05 x 0.8) of the viewport size.
    */
@@ -228,10 +228,10 @@ public:
 
   ///@{
   /**
-   * Set/Get the format with which to print the labels on the scalar
+   * Set/Get the std::format style format with which to print the labels on the scalar
    * bar.
    */
-  vtkSetStringMacro(LabelFormat);
+  void SetLabelFormat(const char* format);
   vtkGetStringMacro(LabelFormat);
   ///@}
 

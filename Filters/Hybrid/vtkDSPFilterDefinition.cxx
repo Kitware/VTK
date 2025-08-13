@@ -27,7 +27,6 @@ public:
 //------------------------------------------------------------------------------
 vtkDSPFilterDefinition::vtkDSPFilterDefinition()
 {
-  // printf("    in vtkDSPFilterDefinition::vtkDSPFilterDefinition()\n");
   this->NumeratorWeights = new vtkDSPFilterDefinitionVectorDoubleSTLCloak;
   this->ForwardNumeratorWeights = new vtkDSPFilterDefinitionVectorDoubleSTLCloak;
   this->DenominatorWeights = new vtkDSPFilterDefinitionVectorDoubleSTLCloak;
@@ -43,8 +42,6 @@ vtkDSPFilterDefinition::vtkDSPFilterDefinition()
 //------------------------------------------------------------------------------
 vtkDSPFilterDefinition::vtkDSPFilterDefinition(vtkDSPFilterDefinition* other)
 {
-  // printf("    in vtkDSPFilterDefinition::vtkDSPFilterDefinition(vtkDSPFilterDefinition
-  // *other)\n");
   this->NumeratorWeights = new vtkDSPFilterDefinitionVectorDoubleSTLCloak;
   this->ForwardNumeratorWeights = new vtkDSPFilterDefinitionVectorDoubleSTLCloak;
   this->DenominatorWeights = new vtkDSPFilterDefinitionVectorDoubleSTLCloak;
@@ -60,7 +57,6 @@ vtkDSPFilterDefinition::vtkDSPFilterDefinition(vtkDSPFilterDefinition* other)
 //------------------------------------------------------------------------------
 void vtkDSPFilterDefinition::Copy(vtkDSPFilterDefinition* other)
 {
-  // printf("    in vtkDSPFilterDefinition::Copy(vtkDSPFilterDefinition *other)\n");
   this->NumeratorWeights->m_vector = other->NumeratorWeights->m_vector;
   this->ForwardNumeratorWeights->m_vector = other->ForwardNumeratorWeights->m_vector;
   this->DenominatorWeights->m_vector = other->DenominatorWeights->m_vector;
@@ -100,13 +96,11 @@ bool vtkDSPFilterDefinition::IsThisInputVariableInstanceNeeded(int a_timestep, i
     if ((int)(this->ForwardNumeratorWeights->m_vector.size()) >= l_index)
     {
       // the filter does use this future input
-      // printf("FILTER USES FUTURE INPUT %d for output %d\n",a_timestep,a_outputTimestep);
       return (true);
     }
     else
     {
       // future inputs not used for 1d filter
-      // printf("FILTER doesn't use FUTURE INPUT %d for output %d\n",a_timestep,a_outputTimestep);
       return (false);
     }
   }

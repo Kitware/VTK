@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkIOSSFilesScanner.h"
-
 #include "vtkObjectFactory.h"
+#include "vtkStringScanner.h"
 
 #include <vtksys/Directory.hxx>
 #include <vtksys/FStream.hxx>
@@ -108,7 +108,9 @@ std::set<std::string> vtkIOSSFilesScanner::GetRelatedFiles(
     vtksys::RegularExpression procRegEx(R"(^.*\.([0-9]+)\.[0-9]+$)");
     if (procRegEx.find(fname))
     {
-      return std::atoi(procRegEx.match(1).c_str());
+      int procCount = 0;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(procRegEx.match(1), procCount, 0);
+      return procCount;
     }
     return -1;
   };

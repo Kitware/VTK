@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* convert a C++ templated type to pythonic dict form */
 size_t vtkWrapPython_PyTemplateName(const char* name, char* pname)
@@ -405,3 +407,5 @@ int vtkWrapPython_WrapTemplatedClass(
 
   return 0;
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

@@ -10,6 +10,7 @@
 #include "vtkOpenVRModel.h"
 #include "vtkOpenVRRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringFormatter.h"
 #include "vtkVRCamera.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -369,8 +370,9 @@ void vtkOpenVRRenderWindow::Initialize()
   {
     this->HMD = nullptr;
     char buf[1024];
-    snprintf(buf, sizeof(buf), "Unable to init VR runtime: %s",
+    auto result = vtk::format_to_n(buf, sizeof(buf), "Unable to init VR runtime: {:s}",
       vr::VR_GetVRInitErrorAsEnglishDescription(eError));
+    *result.out = '\0';
     vtkErrorMacro(<< "VR_Init Failed" << buf);
     return;
   }
@@ -383,8 +385,9 @@ void vtkOpenVRRenderWindow::Initialize()
     vr::VR_Shutdown();
 
     char buf[1024];
-    snprintf(buf, sizeof(buf), "Unable to get render model interface: %s",
+    auto result = vtk::format_to_n(buf, sizeof(buf), "Unable to get render model interface: {:s}",
       vr::VR_GetVRInitErrorAsEnglishDescription(eError));
+    *result.out = '\0';
     vtkErrorMacro(<< "VR_Init Failed" << buf);
     return;
   }

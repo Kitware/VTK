@@ -1,14 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include <array>
-#include <limits>
-#include <map>
-#include <sstream>
-#include <stdexcept>
-#include <unordered_map>
-
-#include "Core/vtkADIOS2CoreTypeTraits.h"
 #include "vtkADIOS2CoreImageReader.h"
+#include "Core/vtkADIOS2CoreTypeTraits.h"
 
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
@@ -38,12 +31,14 @@
 #include "vtkSignedCharArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkType.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkUnstructuredGrid.h"
+
 #include "vtksys/SystemTools.hxx"
 
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI
@@ -52,8 +47,15 @@
 #endif
 
 #include <adios2.h> // adios2
-#include <istream>  // istringStream
+
+#include <array>
+#include <istream> // istringStream
+#include <limits>
+#include <map>
+#include <sstream>
+#include <stdexcept>
 #include <string>
+#include <unordered_map>
 
 //------------------------------------------------------------------------------
 // Helper functions
@@ -72,7 +74,7 @@ inline std::vector<int> parseDimensions(const std::string& dimsStr)
   std::string token;
   while (std::getline(f, token, ','))
   {
-    dims.push_back(std::atoi(token.c_str()));
+    dims.push_back(vtk::scan_int<int>(token)->value());
   }
   return dims;
 }

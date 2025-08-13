@@ -13,6 +13,7 @@
 #include "vtkImageData.h"
 #include "vtkImageDifference.h"
 #include "vtkImageExtractComponents.h"
+#include "vtkImageRGBToHSI.h"
 #include "vtkImageRGBToXYZ.h"
 #include "vtkImageSSIM.h"
 #include "vtkImageShiftScale.h"
@@ -31,21 +32,20 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
+#ifdef __EMSCRIPTEN__
+#include "vtkTestUtilities.h"
+#endif
 #include "vtkTimerLog.h"
 #include "vtkWindowToImageFilter.h"
+#include "vtkXMLImageDataWriter.h"
 
-#include "vtkImageRGBToHSI.h"
-
-#include <sstream>
 #include <vtksys/SystemTools.hxx>
 
 #include <array>
 #include <numeric>
-
-#ifdef __EMSCRIPTEN__
-#include "vtkTestUtilities.h"
-#endif
-#include "vtkXMLImageDataWriter.h"
+#include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTesting);
@@ -292,7 +292,7 @@ bool vtkTesting::GetMesaVersion(vtkRenderWindow* renderWindow, int version[3])
     const auto versionNumbers = vtksys::SystemTools::SplitString(versionString, '.');
     for (int i = 0; i < 3; ++i)
     {
-      version[i] = std::stoi(versionNumbers[i]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(versionNumbers[i], version[i], false);
     }
   }
   return true;
@@ -337,26 +337,18 @@ int vtkTesting::IsValidImageSpecified()
 //------------------------------------------------------------------------------
 char* vtkTesting::IncrementFileName(const char* fname, int count)
 {
-  char counts[256];
-  snprintf(counts, sizeof(counts), "%d", count);
-
-  int orgLen = static_cast<int>(strlen(fname));
+  const int orgLen = static_cast<int>(strlen(fname));
   if (orgLen < 5)
   {
     return nullptr;
   }
-  int extLen = static_cast<int>(strlen(counts));
-  char* newFileName = new char[orgLen + extLen + 2];
-  strcpy(newFileName, fname);
 
-  newFileName[orgLen - 4] = '_';
-  int i, marker;
-  for (marker = orgLen - 3, i = 0; marker < orgLen - 3 + extLen; marker++, i++)
-  {
-    newFileName[marker] = counts[i];
-  }
-  strcpy(newFileName + marker, ".png");
-
+  const int extLen = (count > 0) ? static_cast<int>(std::log10(count)) + 1 : 1;
+  const size_t newLen = orgLen + extLen + 2;
+  char* newFileName = new char[newLen];
+  const auto fileNameWithoutExt = std::string_view(fname, orgLen - 4);
+  auto result = vtk::format_to_n(newFileName, newLen, "{:s}_{:d}.png", fileNameWithoutExt, count);
+  *result.out = '\0';
   return newFileName;
 }
 //------------------------------------------------------------------------------

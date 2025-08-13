@@ -6,10 +6,9 @@
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredPoints.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -219,7 +218,7 @@ int vtkStructuredPointsReader::ReadMetaDataSimple(
             int numComp;
             if (strcmp(this->LowerCase(line), "lookup_table") != 0)
             {
-              numComp = atoi(line);
+              VTK_FROM_CHARS_IF_ERROR_RETURN(line, numComp, 1);
               if (numComp < 1 || !this->ReadString(line))
               {
                 vtkErrorMacro(<< "Cannot read scalar header!"
@@ -239,7 +238,8 @@ int vtkStructuredPointsReader::ReadMetaDataSimple(
           {
             this->ReadString(line);
             this->ReadString(line);
-            int numComp = atoi(line);
+            int numComp;
+            VTK_FROM_CHARS_IF_ERROR_RETURN(line, numComp, 1);
             if (numComp < 1)
             {
               vtkErrorMacro("Cannot read color_scalar header!"

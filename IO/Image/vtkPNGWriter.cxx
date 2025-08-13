@@ -3,14 +3,16 @@
 #include "vtkPNGWriter.h"
 
 #include "vtkAlgorithmOutput.h"
-#include "vtkEndian.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtk_png.h"
+
 #include <vtksys/SystemTools.hxx>
+
+#include "vtk_png.h"
 
 #include <vector>
 
@@ -99,27 +101,34 @@ void vtkPNGWriter::Write()
     uExt[4] = uExt[5] = this->FileNumber;
     if (!this->WriteToMemory)
     {
-      int bytes_printed = 0;
+      std::size_t bytes_printed = 0;
       // determine the name
       if (this->FileName)
       {
-        bytes_printed =
-          snprintf(this->InternalFileName, internalFileNameSize, "%s", this->FileName);
+
+        auto result =
+          vtk::format_to_n(this->InternalFileName, internalFileNameSize, "{:s}", this->FileName);
+        *result.out = '\0';
+        bytes_printed = result.size;
       }
       else
       {
         if (this->FilePrefix)
         {
-          bytes_printed = snprintf(this->InternalFileName, internalFileNameSize, this->FilePattern,
-            this->FilePrefix, this->FileNumber);
+          auto result = vtk::format_to_n(this->InternalFileName, internalFileNameSize,
+            this->FilePattern, this->FilePrefix, this->FileNumber);
+          *result.out = '\0';
+          bytes_printed = result.size;
         }
         else
         {
-          bytes_printed = snprintf(
-            this->InternalFileName, internalFileNameSize, this->FilePattern, this->FileNumber);
+          auto result = vtk::format_to_n(
+            this->InternalFileName, internalFileNameSize, this->FilePattern, "", this->FileNumber);
+          *result.out = '\0';
+          bytes_printed = result.size;
         }
       }
-      if (static_cast<size_t>(bytes_printed) >= internalFileNameSize)
+      if (bytes_printed >= internalFileNameSize)
       {
         // add null terminating character just to be safe.
         this->InternalFileName[internalFileNameSize - 1] = 0;
@@ -165,7 +174,7 @@ extern "C"
 {
   static void vtkPNGWriteWarningFunction(png_structp /*png_ptr*/, png_const_charp warning_msg)
   {
-    fprintf(stderr, "libpng warning: %s\n", warning_msg);
+    vtk::print(stderr, "libpng warning: {:s}\n", warning_msg);
   }
 }
 

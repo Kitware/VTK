@@ -14,7 +14,6 @@
 #include "vtkGLTFDocumentLoaderInternals.h"
 #include "vtkGLTFUtils.h"
 #include "vtkGenericDataArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkImageReader2.h"
 #include "vtkImageReader2Factory.h"
@@ -23,13 +22,14 @@
 #include "vtkIntArray.h"
 #include "vtkJPEGReader.h"
 #include "vtkMath.h"
-#include "vtkMatrix3x3.h"
 #include "vtkPNGReader.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkQuaternion.h"
+#include "vtkStringFormatter.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
+
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -57,16 +57,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
-//------------------------------------------------------------------------------
-// Replacement for std::to_string as it is not supported by certain compilers
-template <typename T>
-std::string value_to_string(const T& val)
-{
-  std::ostringstream ss;
-  ss << val;
-  return ss.str();
-}
-
 //------------------------------------------------------------------------------
 vtkIdType GetNumberOfCellsForPrimitive(int mode, int cellSize, int numberOfIndices)
 {
@@ -1263,19 +1253,19 @@ bool vtkGLTFDocumentLoader::BuildPolyDataFromPrimitive(Primitive& primitive)
     std::string name;
     if (target.AttributeValues.count("POSITION"))
     {
-      name = "target" + value_to_string(targetId) + "_position";
+      name = "target" + vtk::to_string(targetId) + "_position";
       target.AttributeValues["POSITION"]->SetName(name.c_str());
       pointData->AddArray(target.AttributeValues["POSITION"]);
     }
     if (target.AttributeValues.count("NORMAL"))
     {
-      name = "target" + value_to_string(targetId) + "_normal";
+      name = "target" + vtk::to_string(targetId) + "_normal";
       target.AttributeValues["NORMAL"]->SetName(name.c_str());
       pointData->AddArray(target.AttributeValues["NORMAL"]);
     }
     if (target.AttributeValues.count("TANGENT"))
     {
-      name = "target" + value_to_string(targetId) + "_tangent";
+      name = "target" + vtk::to_string(targetId) + "_tangent";
       target.AttributeValues["TANGENT"]->SetName(name.c_str());
       pointData->AddArray(target.AttributeValues["TANGENT"]);
     }

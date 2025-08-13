@@ -2,16 +2,15 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDistanceRepresentation2D.h"
 #include "vtkAxisActor2D.h"
-#include "vtkBox.h"
 #include "vtkCoordinate.h"
 #include "vtkInteractorObserver.h"
 #include "vtkLineSource.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointHandleRepresentation2D.h"
-#include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 
@@ -175,9 +174,8 @@ void vtkDistanceRepresentation2D::BuildRepresentation()
     }
     this->AxisActor->SetNumberOfLabels(this->NumberOfRulerTicks);
 
-    char string[512];
-    snprintf(string, sizeof(string), this->LabelFormat, this->Distance * this->Scale);
-    this->AxisActor->SetTitle(string);
+    auto string = vtk::format(this->LabelFormat, this->Distance * this->Scale);
+    this->AxisActor->SetTitle(string.c_str());
 
     this->BuildTime.Modified();
   }

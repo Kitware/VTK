@@ -15,7 +15,6 @@ PRIVATE_DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
   VTK::FiltersTemporal
-  VTK::fmt
   VTK::ParallelCore
 OPTIONAL_DEPENDS
   VTK::ParallelMPI

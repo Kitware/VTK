@@ -21,6 +21,7 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextProperty.h"
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
@@ -824,10 +825,9 @@ void vtkDistanceCallback::Execute(vtkObject*, unsigned long eid, void* callData)
     this->Distance->GetPoint2WorldPosition(pos2);
     double dist = sqrt(vtkMath::Distance2BetweenPoints(pos1, pos2));
 
-    char title[256];
     this->Distance->GetAxis()->SetRange(0.0, dist);
-    snprintf(title, sizeof(title), "%-#6.3g", dist);
-    this->Distance->GetAxis()->SetTitle(title);
+    auto title = vtk::format("{:<#6.3g}", dist);
+    this->Distance->GetAxis()->SetTitle(title.c_str());
   }
   else
   {

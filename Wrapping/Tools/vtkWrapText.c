@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* Convert special characters in a string into their escape codes
  * so that the string can be quoted in a source file.  The specified
@@ -1284,3 +1286,5 @@ int vtkWrapText_IsJavaScriptKeyword(const char* name)
   }
   return 0;
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

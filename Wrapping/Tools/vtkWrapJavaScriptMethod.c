@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 #ifdef NDEBUG
 #define DLOG(...)
 #else
@@ -1136,3 +1138,5 @@ void vtkWrapJavaScript_GenerateMethods(FILE* fp, const char* classname, ClassInf
   free(wrappedFunctions);
   free(unwrappableFunctions);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

@@ -7,36 +7,36 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkDataSetMapper.h"
 #include "vtkExtractSelection.h"
 #include "vtkFastLabeledDataMapper.h"
 #include "vtkFloatArray.h"
 #include "vtkGenerateIds.h"
 #include "vtkGeometryFilter.h"
+#include "vtkHardwareSelector.h"
+#include "vtkIdTypeArray.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkPassThrough.h"
 #include "vtkPlaneSource.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkRendererCollection.h"
+#include "vtkSelection.h"
+#include "vtkSelectionNode.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTrivialProducer.h"
-
-#include "vtkDataSetAttributes.h"
-#include "vtkDataSetMapper.h"
-#include "vtkHardwareSelector.h"
-#include "vtkIdTypeArray.h"
-#include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkProperty.h"
-#include "vtkRendererCollection.h"
-#include "vtkSelection.h"
-#include "vtkSelectionNode.h"
 
 #include <array>
 
@@ -134,7 +134,6 @@ void UpdatePlaneArrays(int prefix = 0)
   types->SetName(LABEL_TYPES);
   vtkNew<vtkStringArray> names;
   names->SetName(LABEL_TEXT_NAMES);
-  char buf[30];
   vtkNew<vtkFloatArray> frames;
   frames->SetNumberOfComponents(3);
   frames->SetName(LABEL_FRAMES);
@@ -142,16 +141,17 @@ void UpdatePlaneArrays(int prefix = 0)
   for (int i = 0; i < dataset->GetNumberOfPoints(); i++)
   {
     types->InsertNextValue(i % 10);
+    std::string buf;
     if (prefix > 0)
     {
-      snprintf(buf, 30, "%d_Z_%d_a", prefix, i);
+      buf = vtk::format("{:d}_Z_{:d}_a", prefix, i);
     }
     else
     {
-      snprintf(buf, 30, "Z_%d_a", i);
+      buf = vtk::format("Z_{:d}_a", i);
     }
     names->InsertNextValue(buf);
-    double v = i / (double)dataset->GetNumberOfPoints();
+    const double v = i / static_cast<double>(dataset->GetNumberOfPoints());
     frames->InsertNextTuple3(v, v, v);
   }
 
@@ -179,12 +179,10 @@ vtkSmartPointer<vtkPolyData> GetFilteredPolyDataInput()
   polyData->SetPoints(points);
 
   int numPoints = 11;
-  char buf[30];
   for (int i = 0; i < numPoints; i++)
   {
     types->InsertNextValue(i % 10);
-    snprintf(buf, 30, "FPD_%d", i);
-    names->InsertNextValue(buf);
+    names->InsertNextValue(vtk::format("FPD_{:d}", i));
     points->InsertNextPoint((i * 0.1) - 0.5, 0.8, 0.0);
   }
 

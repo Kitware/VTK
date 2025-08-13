@@ -16,7 +16,7 @@ int TestPeriodicTable(int, char*[])
   if (pTab->GetAtomicNumber("25") != 25)
   {
     cout << "vtkPeriodicTable::GetAtomicNumber cannot parse numeric "
-         << "strings properly. Given \"25\", should get 25, got %hu." << pTab->GetAtomicNumber("25")
+         << "strings properly. Given \"25\", should get 25, got " << pTab->GetAtomicNumber("25")
          << endl;
     ++errors;
   }

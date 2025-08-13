@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkVolume16Reader.h"
 
-#include "vtkEndian.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -10,8 +9,10 @@
 #include "vtkPlatform.h" // for VTK_MAXPATH
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
+
 #include <vtksys/SystemTools.hxx>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -264,11 +265,14 @@ void vtkVolume16Reader::ReadImage(int sliceNumber, vtkUnsignedShortArray* scalar
   // build the file name. if there is no prefix, just use the slice number
   if (this->FilePrefix)
   {
-    snprintf(filename, sizeof(filename), this->FilePattern, this->FilePrefix, sliceNumber);
+    auto result = vtk::format_to_n(
+      filename, sizeof(filename), this->FilePattern, this->FilePrefix, sliceNumber);
+    *result.out = '\0';
   }
   else
   {
-    snprintf(filename, sizeof(filename), this->FilePattern, sliceNumber);
+    auto result = vtk::format_to_n(filename, sizeof(filename), this->FilePattern, "", sliceNumber);
+    *result.out = '\0';
   }
   if (!(fp = vtksys::SystemTools::Fopen(filename, "rb")))
   {
@@ -327,11 +331,14 @@ void vtkVolume16Reader::ReadVolume(int first, int last, vtkUnsignedShortArray* s
     // build the file name. if there is no prefix, just use the slice number
     if (this->FilePrefix)
     {
-      snprintf(filename, sizeof(filename), this->FilePattern, this->FilePrefix, fileNumber);
+      auto result = vtk::format_to_n(
+        filename, sizeof(filename), this->FilePattern, this->FilePrefix, fileNumber);
+      *result.out = '\0';
     }
     else
     {
-      snprintf(filename, sizeof(filename), this->FilePattern, fileNumber);
+      auto result = vtk::format_to_n(filename, sizeof(filename), this->FilePattern, "", fileNumber);
+      *result.out = '\0';
     }
     if (!(fp = vtksys::SystemTools::Fopen(filename, "rb")))
     {

@@ -16,6 +16,7 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkSocketController.h"
+#include "vtkStringFormatter.h"
 #include "vtkSubGroup.h"
 #include "vtkTimerLog.h"
 #include "vtkUnstructuredGrid.h"
@@ -212,11 +213,14 @@ int vtkPKdTree::AllCheckForFailure(int rc, const char* where, const char* how)
   {
     if (rc)
     {
-      snprintf(errmsg, sizeof(errmsg), "%s on my node (%s)", how, where);
+      auto result = vtk::format_to_n(errmsg, sizeof(errmsg), "{:s} on my node ({:s})", how, where);
+      *result.out = '\0';
     }
     else
     {
-      snprintf(errmsg, sizeof(errmsg), "%s on a remote node (%s)", how, where);
+      auto result =
+        vtk::format_to_n(errmsg, sizeof(errmsg), "{:s} on a remote node ({:s})", how, where);
+      *result.out = '\0';
     }
     VTKWARNING(errmsg);
 

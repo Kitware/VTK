@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* check whether an enum type will be wrapped */
 int vtkWrapPython_IsEnumWrapped(const HierarchyInfo* hinfo, const char* enumname)
@@ -286,3 +288,5 @@ void vtkWrapPython_AddPublicEnumTypes(
     }
   }
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

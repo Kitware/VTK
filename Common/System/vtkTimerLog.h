@@ -18,6 +18,7 @@
 
 #include "vtkCommonSystemModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkStringFormatter.h" // For vtk::format_to_n
 
 #include <string> // STL Header
 
@@ -105,7 +106,28 @@ public:
    * string.  The internal buffer is 4096 bytes and will truncate anything longer.
    */
 #ifndef __VTK_WRAP__
-  static void FormatAndMarkEvent(const char* format, ...) VTK_FORMAT_PRINTF(1, 2);
+  template <typename... T>
+  static void FormatAndMarkEvent(const char* formatArg, T&&... args)
+  {
+    if (!vtkTimerLog::Logging)
+    {
+      return;
+    }
+    std::string format = formatArg ? formatArg : "";
+    if (vtk::is_printf_format(format))
+    {
+      // VTK_DEPRECATED_IN_9_6_0
+      vtkWarningWithObjectMacro(nullptr,
+        "The given format "
+          << format << " is a printf format. The format will be "
+          << "converted to std::format. This conversion has been deprecated in 9.6.0");
+      format = vtk::printf_to_std_format(format);
+    }
+    static char event[4096];
+    auto result = vtk::format_to_n(event, sizeof(event), format, std::forward<T>(args)...);
+    *result.out = '\0';
+    vtkTimerLog::MarkEventInternal(event, vtkTimerLogEntry::STANDALONE);
+  }
 #endif
 
   ///@{
@@ -273,8 +295,8 @@ private:
 //
 #define vtkTimerLogMacro(string)                                                                   \
   {                                                                                                \
-    vtkTimerLog::FormatAndMarkEvent(                                                               \
-      "Mark: In %s, line %d, class %s: %s", __FILE__, __LINE__, this->GetClassName(), string);     \
+    vtkTimerLog::FormatAndMarkEvent("Mark: In {:s}, line {:s}, class {:s}: {:s}", __FILE__,        \
+      __LINE__, this->GetClassName(), string);                                                     \
   }
 
 // Implementation detail for Schwarz counter idiom.

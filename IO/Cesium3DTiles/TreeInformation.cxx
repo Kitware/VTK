@@ -37,7 +37,7 @@
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
-#include "vtkTransform.h"
+#include "vtkStringFormatter.h"
 
 #include "vtksys/SystemTools.hxx"
 #include <vtksys/FStream.hxx>
@@ -540,7 +540,7 @@ void TreeInformation::SaveTilesBuildings(bool mergeTilePolyData, size_t mergedTe
 void TreeInformation::WriteTileTexture(
   vtkIncrementalOctreeNode* node, const std::string& fileName, vtkImageData* tileImage)
 {
-  std::string dirPath = this->OutputDir + "/" + std::to_string(node->GetID());
+  std::string dirPath = this->OutputDir + "/" + vtk::to_string(node->GetID());
   vtkDirectory::MakeDirectory(dirPath.c_str());
   std::string filePath = dirPath + "/" + fileName;
   vtkNew<vtkPNGWriter> writer;
@@ -705,7 +705,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
               double* secondBounds = tileTextures[second]->GetBounds();
               return (firstBounds[3] - firstBounds[2]) > (secondBounds[3] - secondBounds[2]);
             });
-          std::string mergedFileName = "merged_texture_" + std::to_string(i) + ".png";
+          std::string mergedFileName = "merged_texture_" + vtk::to_string(i) + ".png";
           int tileDims[3];
           vtkSmartPointer<vtkImageData> tileImage =
             MergeTextures(tileTextures, textureIds, mergedTextureWidth, textureOrigin);
@@ -755,7 +755,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
         vtkPolyData* tileMeshWithTexture = vtkPolyData::SafeDownCast(append->GetOutput());
         b->SetBlock(meshBlockIndex++, tileMeshWithTexture);
         SetField(tileMeshWithTexture, "texture_uri", mergedFileNames);
-        textureBaseDirectory = this->OutputDir + "/" + std::to_string(node->GetID());
+        textureBaseDirectory = this->OutputDir + "/" + vtk::to_string(node->GetID());
       }
       else
       {
@@ -1074,9 +1074,9 @@ void TreeInformation::SaveTileMesh(vtkIncrementalOctreeNode* node, void* voidAux
           this->SplitTileTexture(tileMesh, datasetImage, maxIndex == i ? tcoordsTile : nullptr);
         if (tileImage)
         {
-          this->WriteTileTexture(node, std::to_string(i) + ".png", tileImage);
+          this->WriteTileTexture(node, vtk::to_string(i) + ".png", tileImage);
           tileTextureFileNames.push_back(
-            std::to_string(node->GetID()) + "/" + std::to_string(i) + ".png");
+            vtk::to_string(node->GetID()) + "/" + vtk::to_string(i) + ".png");
         }
       }
       tileMesh->GetPointData()->SetTCoords(tcoordsTile);

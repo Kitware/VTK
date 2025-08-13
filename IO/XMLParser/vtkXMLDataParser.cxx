@@ -6,9 +6,9 @@
 #include "vtkByteSwap.h"
 #include "vtkCommand.h"
 #include "vtkDataCompressor.h"
-#include "vtkEndian.h"
 #include "vtkInputStream.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringScanner.h"
 #include "vtkXMLDataElement.h"
 #define vtkXMLDataHeaderPrivate_DoNotInclude
 #include "vtkXMLDataHeaderPrivate.h"
@@ -1026,7 +1026,7 @@ static float* vtkXMLParseAsciiData(istream& is, int* length, float*, int)
           stringBuffer.begin(), stringBuffer.end(), [](char& c) { c = std::tolower(c); });
         if (stringBuffer == "inf" || stringBuffer == "nan" || stringBuffer == "-inf")
         {
-          element = strtof(stringBuffer.c_str(), nullptr);
+          VTK_FROM_CHARS_IF_ERROR_BREAK(stringBuffer, element);
         }
         else
         {
@@ -1081,7 +1081,7 @@ static double* vtkXMLParseAsciiData(istream& is, int* length, double*, int)
           stringBuffer.begin(), stringBuffer.end(), [](char& c) { c = std::tolower(c); });
         if (stringBuffer == "inf" || stringBuffer == "nan" || stringBuffer == "-inf")
         {
-          element = strtod(stringBuffer.c_str(), nullptr);
+          VTK_FROM_CHARS_IF_ERROR_BREAK(stringBuffer, element);
         }
         else
         {

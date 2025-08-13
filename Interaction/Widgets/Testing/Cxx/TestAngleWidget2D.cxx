@@ -410,7 +410,7 @@ int TestAngleWidget2D(int argc, char* argv[])
   vtkSmartPointer<vtkAngleRepresentation2D> rep = vtkSmartPointer<vtkAngleRepresentation2D>::New();
   rep->SetHandleRepresentation(handle);
   rep->SetScale(vtkMath::Pi() / 180.0);
-  rep->SetLabelFormat("%-#6.3g rad");
+  rep->SetLabelFormat("{:<#6.3g} rad");
   rep->GetArc()->SetLabelFactor(2.0);
   rep->GetArc()->GetProperty()->SetColor(1, 0, 0);
   rep->GetArc()->GetLabelTextProperty()->SetColor(1, 0, 0);

@@ -12,6 +12,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSMPTools.h"
+#include "vtkStringFormatter.h"
 #include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
 
@@ -142,7 +143,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
 
   for (unsigned int level = 0, numLevels = amr->GetNumberOfLevels(); level < numLevels; ++level)
   {
-    const auto label = "Level " + std::to_string(level);
+    const auto label = "Level " + vtk::to_string(level);
     const auto name = vtkDataAssembly::MakeValidNodeName(label.c_str());
     auto node = hierarchy->AddNode(name.c_str());
     hierarchy->SetAttribute(node, "label", label.c_str());
@@ -166,7 +167,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
         output->SetPartition(level, cc, amr->GetDataSet(level, cc));
       }
       output->GetMetaData(level)->Set(
-        vtkCompositeDataSet::NAME(), "Level " + std::to_string(level));
+        vtkCompositeDataSet::NAME(), "Level " + vtk::to_string(level));
     }
   }
 
@@ -249,7 +250,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
         auto metadata = mb->HasMetaData(bidx) ? mb->GetMetaData(bidx) : nullptr;
 
         std::string label, name;
-        std::tie(name, label) = ::GetBlockNameAndLabel(metadata, "Block" + std::to_string(bidx));
+        std::tie(name, label) = ::GetBlockNameAndLabel(metadata, "Block" + vtk::to_string(bidx));
 
         auto child = hierarchy->AddNode(name.c_str(), nodeid);
         if (!label.empty())
@@ -326,7 +327,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(vtkPartitionedDataSetCo
   {
     auto metadata = input->HasMetaData(p) ? input->GetMetaData(p) : nullptr;
     std::string name, label;
-    std::tie(name, label) = ::GetBlockNameAndLabel(metadata, "Block" + std::to_string(p));
+    std::tie(name, label) = ::GetBlockNameAndLabel(metadata, "Block" + vtk::to_string(p));
 
     auto node = hierarchy->AddNode(name.c_str());
 

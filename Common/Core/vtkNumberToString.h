@@ -4,7 +4,7 @@
  * @class vtkNumberToString
  * @brief Convert floating and fixed point numbers to strings
  *
- * This class uses the double-conversion library to convert float and double
+ * This class uses the fmt library to convert float and double
  * numbers to std::string without numerical precision errors.
  * You can use specify the output format using SetNotation to either Mixed,
  * Scientific or Fixed. In Mixed mode (default),
@@ -13,7 +13,7 @@
  *
  * Unless specified using `SetPrecision`, the formatted value will not have trailing zeroes.
  *
- * For types other than float and double, this class relies on std::to_string.
+ * For types other than float and double, this class relies on vtk::to_string.
  *
  * Typical use:
  *
@@ -47,7 +47,7 @@
 #define vtkNumberToString_h
 
 #include "vtkCommonCoreModule.h" // For export macro
-#include "vtkTypeTraits.h"
+#include "vtkStringFormatter.h"  // For vtk::to_string/format
 
 #include <ostream>
 #include <string>
@@ -121,7 +121,7 @@ public:
   ///@{
   /**
    * Convert a number to an accurate string representation of that number.
-   * A templated generic implementation is provided, which rely on std::to_string for types
+   * A templated generic implementation is provided, which rely on vtk::to_string for types
    * other than double or float.
    */
   std::string Convert(double val);
@@ -129,7 +129,7 @@ public:
   template <typename T>
   std::string Convert(const T& val)
   {
-    return std::to_string(val);
+    return vtk::to_string(val);
   }
   ///@}
 

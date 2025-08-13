@@ -83,9 +83,9 @@ int TestCubeAxesSticky(int argc, char* argv[])
   axes->SetXAxisRange(20, 300);
   axes->SetYAxisRange(-.01, .01);
   axes->SetCamera(ren2->GetActiveCamera());
-  axes->SetXLabelFormat("%6.1f");
-  axes->SetYLabelFormat("%6.1f");
-  axes->SetZLabelFormat("%6.1f");
+  axes->SetXLabelFormat("{:6.1f}");
+  axes->SetYLabelFormat("{:6.1f}");
+  axes->SetZLabelFormat("{:6.1f}");
   axes->SetScreenSize(15.);
   axes->SetFlyModeToClosestTriad();
   axes->SetCornerOffset(.0);

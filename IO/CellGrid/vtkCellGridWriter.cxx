@@ -14,6 +14,7 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkOptions.h"
+#include "vtkStringFormatter.h"
 #include "vtkVariant.h"
 
 #include <fstream>
@@ -231,7 +232,7 @@ bool getCachedRange(vtkCellGridRangeQuery::CacheMap& rangeCache, vtkCellAttribut
     }
     else
     {
-      rangeInfo[std::to_string(compNum - 2)] = entry;
+      rangeInfo[vtk::to_string(compNum - 2)] = entry;
     }
     ++compNum;
   }

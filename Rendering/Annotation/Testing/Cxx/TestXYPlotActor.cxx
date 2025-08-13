@@ -133,7 +133,7 @@ int TestXYPlotActor(int argc, char* argv[])
   // Label settings
   xyPlot->SetAxisLabelFontFamily(VTK_COURIER);
   xyPlot->SetAxisLabelColor(0., 0., .9);
-  xyPlot->SetLabelFormat("%g");
+  xyPlot->SetLabelFormat("{:g}");
   xyPlot->SetAdjustXLabels(0);
   xyPlot->SetNumberOfXLabels(nSteps + 1);
   xyPlot->SetAdjustYLabels(0);

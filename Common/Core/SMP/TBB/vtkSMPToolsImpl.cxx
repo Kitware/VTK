@@ -3,6 +3,7 @@
 
 #include "SMP/Common/vtkSMPToolsImpl.h"
 #include "SMP/TBB/vtkSMPToolsImpl.txx"
+#include "vtkStringScanner.h"
 
 #include <cstdlib> // For std::getenv()
 #include <mutex>   // For std::mutex
@@ -86,7 +87,7 @@ void vtkSMPToolsImpl<BackendType::TBB>::Initialize(int numThreads)
     const char* vtkSmpNumThreads = std::getenv("VTK_SMP_MAX_THREADS");
     if (vtkSmpNumThreads)
     {
-      numThreads = std::atoi(vtkSmpNumThreads);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(vtkSmpNumThreads, numThreads);
     }
     else if (taskArena->is_active())
     {

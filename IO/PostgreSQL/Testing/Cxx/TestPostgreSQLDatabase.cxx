@@ -12,6 +12,7 @@
 #include "vtkSQLDatabaseSchema.h"
 #include "vtkSQLQuery.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
@@ -91,9 +92,8 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
 
   for (int i = 0; i < 40; ++i)
   {
-    char insertQuery[200];
-    snprintf(insertQuery, sizeof(insertQuery),
-      "INSERT INTO people VALUES('John Manyjars %d', %d, %d)", i, i, 10 * i);
+    auto insertQuery =
+      vtk::format("INSERT INTO people VALUES('John Manyjars {:d}', {:d}, {:d})", i, i, 10 * i);
     cout << insertQuery << endl;
     query->SetQuery(insertQuery);
     if (!query->Execute())

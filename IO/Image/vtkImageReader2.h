@@ -68,19 +68,19 @@ public:
 
   ///@{
   /**
-   * Specify file prefix for the image file or files.  This can be
-   * used in place of SetFileName or SetFileNames if the filenames
+   * Specify file prefix for the image file or files.
+   * This can be used in place of SetFileName or SetFileNames if the filenames
    * follow a specific naming pattern, but you must explicitly set
    * the DataExtent so that the reader will know what range of slices
    * to load.
    */
-  virtual void SetFilePrefix(VTK_FILEPATH const char*);
+  vtkSetFilePathMacro(FilePrefix);
   vtkGetFilePathMacro(FilePrefix);
   ///@}
 
   ///@{
   /**
-   * The snprintf-style format string used to build filename from
+   * The std::format style format string used to build filename from
    * FilePrefix and slice number.
    */
   virtual void SetFilePattern(VTK_FILEPATH const char*);

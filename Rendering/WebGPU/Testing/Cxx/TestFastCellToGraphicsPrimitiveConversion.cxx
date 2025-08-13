@@ -1,5 +1,6 @@
 #include "vtkCellArray.h"
 #include "vtkLogger.h"
+#include "vtkStringFormatter.h"
 #include "vtkWebGPUCellToPrimitiveConverter.h"
 #include "vtkWebGPUConfiguration.h"
 
@@ -62,7 +63,7 @@ int TestFastCellToGraphicsPrimitiveConversion(int argc, char* argv[])
     wgpuConfig->Initialize();
 
     const auto& numPrimitives = ::NumPrimitives[i];
-    std::string scopeId = std::to_string(numPrimitives) + " cells";
+    std::string scopeId = vtk::to_string(numPrimitives) + " cells";
     vtkLogScopeF(INFO, "%s", scopeId.c_str());
 
     vtkLogStartScope(INFO, "Build triangles");

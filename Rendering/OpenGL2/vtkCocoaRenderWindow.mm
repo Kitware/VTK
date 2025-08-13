@@ -16,6 +16,7 @@
 #import "vtkOpenGLVertexBufferObjectCache.h"
 #import "vtkRenderWindowInteractor.h"
 #import "vtkRendererCollection.h"
+#import "vtkStringScanner.h"
 
 #import <sstream>
 
@@ -1512,7 +1513,7 @@ void vtkCocoaRenderWindow::SetWindowInfo(const char* info)
   uintptr_t tmp = 0;
   if (info)
   {
-    (void)sscanf(info, "%tu", &tmp);
+    vtk::from_chars(info, tmp);
   }
 
   this->SetWindowId(reinterpret_cast<void*>(tmp));
@@ -1526,7 +1527,7 @@ void vtkCocoaRenderWindow::SetParentInfo(const char* info)
   uintptr_t tmp = 0;
   if (info)
   {
-    (void)sscanf(info, "%tu", &tmp);
+    vtk::from_chars(info, tmp);
   }
 
   this->SetParentId(reinterpret_cast<void*>(tmp));

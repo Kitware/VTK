@@ -5,11 +5,10 @@
 
 #include "vtkAxisActor2D.h"
 #include "vtkMath.h"
-#include "vtkNumberToString.h"
 #include "vtkObjectFactory.h"
 #include "vtkPropCollection.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextProperty.h"
-#include "vtkViewport.h"
 
 #include <cmath>
 
@@ -106,10 +105,7 @@ void vtkRadialGridActor2D::ComputeAxisWorldRange(
 //------------------------------------------------------------------------------
 void vtkRadialGridActor2D::UpdateAxisTitle(vtkAxisActor2D* axis, double angle)
 {
-  vtkNumberToString converter;
-  converter.SetNotation(vtkNumberToString::Fixed);
-  converter.SetPrecision(0);
-  std::string formattedString = converter.Convert(angle);
+  std::string formattedString = vtk::format("{:.0f}", angle);
   std::string title = formattedString + " deg";
 
   axis->SetTitle(title.c_str());

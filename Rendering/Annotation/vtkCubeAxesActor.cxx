@@ -7,7 +7,6 @@
 #include "vtkBoundingBox.h"
 #include "vtkCamera.h"
 #include "vtkCoordinate.h"
-#include "vtkFollower.h"
 #include "vtkFrustumSource.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -15,6 +14,7 @@
 #include "vtkProp3DAxisFollower.h"
 #include "vtkProperty.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
 
@@ -147,18 +147,69 @@ vtkCubeAxesActor::vtkCubeAxesActor()
   }
 
   this->XTitle = new char[7];
-  snprintf(this->XTitle, 7, "%s", "X-Axis");
+  auto result = vtk::format_to_n(this->XTitle, 7, "{:s}", "X-Axis");
+  *result.out = '\0';
   this->YTitle = new char[7];
-  snprintf(this->YTitle, 7, "%s", "Y-Axis");
+  result = vtk::format_to_n(this->YTitle, 7, "{:s}", "Y-Axis");
+  *result.out = '\0';
   this->ZTitle = new char[7];
-  snprintf(this->ZTitle, 7, "%s", "Z-Axis");
+  result = vtk::format_to_n(this->ZTitle, 7, "{:s}", "Z-Axis");
+  *result.out = '\0';
 
-  this->XLabelFormat = new char[8];
-  snprintf(this->XLabelFormat, 8, "%s", "%-#6.3g");
-  this->YLabelFormat = new char[8];
-  snprintf(this->YLabelFormat, 8, "%s", "%-#6.3g");
-  this->ZLabelFormat = new char[8];
-  snprintf(this->ZLabelFormat, 8, "%s", "%-#6.3g");
+  this->XLabelFormat = new char[10];
+  result = vtk::format_to_n(this->XLabelFormat, 10, "{:s}", "{:<#6.3g}");
+  *result.out = '\0';
+  this->YLabelFormat = new char[10];
+  result = vtk::format_to_n(this->YLabelFormat, 10, "{:s}", "{:<#6.3g}");
+  *result.out = '\0';
+  this->ZLabelFormat = new char[10];
+  result = vtk::format_to_n(this->ZLabelFormat, 10, "{:s}", "{:<#6.3g}");
+  *result.out = '\0';
+}
+
+//------------------------------------------------------------------------------
+void vtkCubeAxesActor::SetXLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(XLabelFormat, formatStr);
+}
+
+//------------------------------------------------------------------------------
+void vtkCubeAxesActor::SetYLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(YLabelFormat, formatStr);
+}
+
+//------------------------------------------------------------------------------
+void vtkCubeAxesActor::SetZLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(ZLabelFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------
@@ -978,7 +1029,8 @@ void vtkCubeAxesActor::AdjustRange(const double ranges[6])
   if (xAxisDigits != this->LastXAxisDigits)
   {
     char format[16];
-    snprintf(format, sizeof(format), "%%.%df", xAxisDigits);
+    auto result = vtk::format_to_n(format, sizeof(format), "{{:.{:d}f}}", xAxisDigits);
+    *result.out = '\0';
     this->SetXLabelFormat(format);
     this->LastXAxisDigits = xAxisDigits;
   }
@@ -987,7 +1039,8 @@ void vtkCubeAxesActor::AdjustRange(const double ranges[6])
   if (yAxisDigits != this->LastYAxisDigits)
   {
     char format[16];
-    snprintf(format, sizeof(format), "%%.%df", yAxisDigits);
+    auto result = vtk::format_to_n(format, sizeof(format), "{{:.{:d}f}}", yAxisDigits);
+    *result.out = '\0';
     this->SetYLabelFormat(format);
     this->LastYAxisDigits = yAxisDigits;
   }
@@ -996,7 +1049,8 @@ void vtkCubeAxesActor::AdjustRange(const double ranges[6])
   if (zAxisDigits != this->LastZAxisDigits)
   {
     char format[16];
-    snprintf(format, sizeof(format), "%%.%df", zAxisDigits);
+    auto result = vtk::format_to_n(format, sizeof(format), "{{:.{:d}f}}", zAxisDigits);
+    *result.out = '\0';
     this->SetZLabelFormat(format);
     this->LastZAxisDigits = zAxisDigits;
   }
@@ -1859,7 +1913,7 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor* axes[NUMBER_OF_ALIGNED_AXIS])
   vtkStringArray* customizedLabels = nullptr;
 
   vtkStringArray* labels = vtkStringArray::New();
-  const char* format = "%s";
+  const char* format = "{:s}";
   switch (axes[0]->GetAxisType())
   {
     case vtkAxisActor::VTK_AXIS_TYPE_X:
@@ -1923,11 +1977,13 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor* axes[NUMBER_OF_ALIGNED_AXIS])
       }
       if (mustAdjustValue)
       {
-        snprintf(label, sizeof(label), format, val * scaleFactor);
+        auto result = vtk::format_to_n(label, sizeof(label), format, val * scaleFactor);
+        *result.out = '\0';
       }
       else
       {
-        snprintf(label, sizeof(label), format, val);
+        auto result = vtk::format_to_n(label, sizeof(label), format, val);
+        *result.out = '\0';
       }
       if (fabs(val) < tol)
       {
@@ -1935,27 +1991,33 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor* axes[NUMBER_OF_ALIGNED_AXIS])
         // The maximum number of digits that we allow past the decimal is 5.
         if (strcmp(label, "-0") == 0)
         {
-          snprintf(label, sizeof(label), "0");
+          auto result = vtk::format_to_n(label, sizeof(label), "0");
+          *result.out = '\0';
         }
         else if (strcmp(label, "-0.0") == 0)
         {
-          snprintf(label, sizeof(label), "0.0");
+          auto result = vtk::format_to_n(label, sizeof(label), "0.0");
+          *result.out = '\0';
         }
         else if (strcmp(label, "-0.00") == 0)
         {
-          snprintf(label, sizeof(label), "0.00");
+          auto result = vtk::format_to_n(label, sizeof(label), "0.00");
+          *result.out = '\0';
         }
         else if (strcmp(label, "-0.000") == 0)
         {
-          snprintf(label, sizeof(label), "0.000");
+          auto result = vtk::format_to_n(label, sizeof(label), "0.000");
+          *result.out = '\0';
         }
         else if (strcmp(label, "-0.0000") == 0)
         {
-          snprintf(label, sizeof(label), "0.0000");
+          auto result = vtk::format_to_n(label, sizeof(label), "0.0000");
+          *result.out = '\0';
         }
         else if (strcmp(label, "-0.00000") == 0)
         {
-          snprintf(label, sizeof(label), "0.00000");
+          auto result = vtk::format_to_n(label, sizeof(label), "0.00000");
+          *result.out = '\0';
         }
       }
       labels->SetValue(i, label);

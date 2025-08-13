@@ -7,14 +7,16 @@
 
 #include "PyVTKMethodDescriptor.h"
 
-#include "vtkSystemIncludes.h"
-
 #include "vtkObject.h"
 #include "vtkPythonCommand.h"
+#ifdef PY_LIMITED_API
 #include "vtkSmartPyObject.h"
+#endif
+#include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
+#include "vtkSystemIncludes.h"
 #include "vtkVariant.h"
 #include "vtkWeakPointer.h"
-#include "vtkWindows.h"
 
 #include <algorithm>
 #include <atomic>
@@ -22,7 +24,6 @@
 #include <map>
 #include <sstream>
 #include <string>
-#include <utility>
 #include <vector>
 
 // for uintptr_t
@@ -685,9 +686,11 @@ vtkObjectBase* vtkPythonUtil::GetPointerFromObject(PyObject* obj, const char* re
 #ifdef VTKPYTHONDEBUG
     vtkGenericWarningMacro("vtk bad argument, type conversion failed.");
 #endif
-    snprintf(error_string, sizeof(error_string), "method requires a %.500s, a %.500s was provided.",
+    auto result = vtk::format_to_n(error_string, sizeof(error_string),
+      "method requires a {:.500s}, a {:.500s} was provided.",
       vtkPythonUtil::PythonicClassName(result_type),
       vtkPythonUtil::PythonicClassName(ptr->GetClassName()));
+    *result.out = '\0';
     PyErr_SetString(PyExc_TypeError, error_string);
     return nullptr;
   }
@@ -725,37 +728,44 @@ PyObject* vtkPythonUtil::GetObjectFromObject(PyObject* arg, const char* type)
   {
     vtkObjectBase* ptr;
     char* ptrText = PyBytes_AsString(arg);
-
-    char typeCheck[1024]; // typeCheck is currently not used
-    unsigned long long l;
-    int i = sscanf(ptrText, "_%llx_%s", &l, typeCheck);
-    u.l = static_cast<uintptr_t>(l);
-
-    if (i <= 0)
+    const auto text = std::string_view(ptrText);
+    std::string_view typeCheck;
+    auto lAndTypeResult = vtk::scan<unsigned long long, std::string_view>(text, "_{:x}_{:s}");
+    if (lAndTypeResult)
     {
-      i = sscanf(ptrText, "Addr=0x%llx", &l);
-      u.l = static_cast<uintptr_t>(l);
+      std::tie(u.l, typeCheck) = lAndTypeResult->values();
     }
-    if (i <= 0)
+    else
     {
-      i = sscanf(ptrText, "%p", &u.p);
+      auto lResult = vtk::scan<unsigned long long>(text, "Addr=0x{:x}");
+      if (lResult)
+      {
+        u.l = lResult->value();
+      }
+      else
+      {
+        auto pResult = vtk::scan<void*>(text, "{:p}");
+        if (pResult)
+        {
+          u.p = pResult->value();
+        }
+        else
+        {
+          Py_XDECREF(tmp);
+          PyErr_SetString(PyExc_ValueError, "could not extract address from argument string");
+          return nullptr;
+        }
+      }
     }
-    if (i <= 0)
-    {
-      Py_XDECREF(tmp);
-      PyErr_SetString(
-        PyExc_ValueError, "could not extract hexadecimal address from argument string");
-      return nullptr;
-    }
-
     ptr = static_cast<vtkObjectBase*>(u.p);
 
     if (!ptr->IsA(type))
     {
       char error_string[2048];
-      snprintf(error_string, sizeof(error_string),
-        "method requires a %.500s address, a %.500s address was provided.", type,
+      auto result = vtk::format_to_n(error_string, sizeof(error_string),
+        "method requires a {:.500s} address, a {:.500s} address was provided.", type,
         ptr->GetClassName());
+      *result.out = '\0';
       Py_XDECREF(tmp);
       PyErr_SetString(PyExc_TypeError, error_string);
       return nullptr;
@@ -821,8 +831,9 @@ void* vtkPythonUtil::GetPointerFromSpecialObject(
     {
       char error_text[2048];
       Py_DECREF(sobj);
-      snprintf(error_text, sizeof(error_text), "cannot pass %.500s as a non-const %.500s reference",
-        object_type, result_type);
+      auto result = vtk::format_to_n(error_text, sizeof(error_text),
+        "cannot pass {:.500s} as a non-const {:.500s} reference", object_type, result_type);
+      *result.out = '\0';
       PyErr_SetString(PyExc_TypeError, error_text);
       return nullptr;
     }
@@ -847,8 +858,9 @@ void* vtkPythonUtil::GetPointerFromSpecialObject(
 #endif
 
   char error_string[2048];
-  snprintf(error_string, sizeof(error_string), "method requires a %.500s, a %.500s was provided.",
-    result_type, object_type);
+  auto result = vtk::format_to_n(error_string, sizeof(error_string),
+    "method requires a {:.500s}, a {:.500s} was provided.", result_type, object_type);
+  *result.out = '\0';
   PyErr_SetString(PyExc_TypeError, error_string);
 
   return nullptr;
@@ -1062,8 +1074,9 @@ char* vtkPythonUtil::ManglePointer(const void* ptr, const char* type)
   int ndigits = 2 * (int)sizeof(void*);
   union vtkPythonUtilConstPointerUnion u;
   u.p = ptr;
-  snprintf(ptrText, sizeof(ptrText), "_%*.*llx_%s", ndigits, ndigits,
-    static_cast<unsigned long long>(u.l), type);
+  auto result = vtk::format_to_n(
+    ptrText, sizeof(ptrText), "_{:0{}x}_{}", static_cast<unsigned long long>(u.l), ndigits, type);
+  *result.out = '\0';
 
   return ptrText;
 }
@@ -1075,8 +1088,6 @@ void* vtkPythonUtil::UnmanglePointer(char* ptrText, int* len, const char* type)
   int i;
   union vtkPythonUtilPointerUnion u;
   char text[1024];
-  char typeCheck[1024];
-  typeCheck[0] = '\0';
 
   // Do some minimal checks that it might be a swig pointer.
   if (*len < 256 && *len > 4 && ptrText[0] == '_')
@@ -1098,20 +1109,24 @@ void* vtkPythonUtil::UnmanglePointer(char* ptrText, int* len, const char* type)
     // If no null bytes, then do a full check for a swig pointer
     if (i == 0)
     {
-      unsigned long long l;
-      i = sscanf(text, "_%llx_%s", &l, typeCheck);
-      u.l = static_cast<uintptr_t>(l);
-
-      if (strcmp(type, typeCheck) == 0)
-      { // successfully unmangle
-        *len = 0;
-        return u.p;
-      }
-      else if (i == 2)
-      { // mangled pointer of wrong type
+      const std::string_view textView(text);
+      std::string_view typeCheck;
+      auto lAndTypeResult = vtk::scan<unsigned long long, std::string_view>(textView, "_{:x}_{:s}");
+      if (lAndTypeResult)
+      {
+        std::tie(u.l, typeCheck) = lAndTypeResult->values();
+        if (typeCheck == type)
+        { // successfully unmangle
+          *len = 0;
+          return u.p;
+        }
+        // mangled pointer of wrong type
         *len = -1;
         return nullptr;
       }
+      // mangled pointer of wrong type
+      *len = -1;
+      return nullptr;
     }
   }
 

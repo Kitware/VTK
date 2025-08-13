@@ -11,7 +11,6 @@
 #include VTK_NLOHMANN_JSON(json.hpp)
 
 #include "vtkAssemblyPath.h"
-#include "vtkBase64OutputStream.h"
 #include "vtkCamera.h"
 #include "vtkCollectionRange.h"
 #include "vtkCompositeDataIterator.h"
@@ -28,6 +27,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
+#include "vtkStringFormatter.h"
 #include "vtkTexture.h"
 #include "vtkTriangleFilter.h"
 #include "vtkTrivialProducer.h"
@@ -320,7 +320,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
   }
 
   nlohmann::json amesh;
-  std::string meshName = "mesh" + std::to_string(meshes.size());
+  std::string meshName = "mesh" + vtk::to_string(meshes.size());
   amesh["name"] = meshName;
   amesh["primitives"] = prims;
   meshes.emplace_back(amesh);

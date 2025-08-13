@@ -34,7 +34,6 @@
 #include VTK_IOSS(Ioss_Transform.h)
 #include VTK_IOSS(Ioss_StructuredBlock.h)
 #include VTK_IOSS(Ioss_SideSet.h)
-#include VTK_IOSS(Ioss_SideBlock.h)
 // clang-format on
 
 #include <cassert>

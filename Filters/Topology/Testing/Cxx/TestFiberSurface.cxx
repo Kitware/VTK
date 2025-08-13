@@ -7,15 +7,13 @@
 #include <sstream>
 #include <string>
 
-#include "vtkActor.h"
-#include "vtkCellArray.h"
 #include "vtkCleanPolyData.h"
 #include "vtkFiberSurface.h"
-#include "vtkFloatArray.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
@@ -110,7 +108,7 @@ int TestFiberSurface(int argc, char* argv[])
   /************** output to error file ****************/
   /****************************************************/
 
-  printf("FiberSurface test cases");
+  vtk::print("FiberSurface test cases");
   /****************************************************/
 
   for (int i = 0; i < 3; i++) // loop for three input files
@@ -180,14 +178,13 @@ int TestFiberSurface(int argc, char* argv[])
       {
         pass = false;
         { // writing to file
-          printf("\n\n/**************************************/");
-          printf("\n/********Test Unsuccessful*************/");
-          printf("\nInput  Data: %s", (std::string(inputDataFiles[i]).substr(6, 31)).c_str());
-          printf(
-            "\nInput  FSCP: %s", (std::string(inputFSCPFiles[cmpIndex]).substr(6, 30)).c_str());
-          printf("\nString to compare: %s", dataToCompare[cmpIndex].c_str());
-          printf("\nOutput String     : %s", outputString.c_str());
-          printf("\n/**************************************/");
+          vtk::print("\n\n/**************************************/");
+          vtk::print("\n/********Test Unsuccessful*************/");
+          vtk::print("\nInput  Data: {:s}", (std::string(inputDataFiles[i]).substr(6, 31)));
+          vtk::print("\nInput  FSCP: {:s}", (std::string(inputFSCPFiles[cmpIndex]).substr(6, 30)));
+          vtk::print("\nString to compare: {:s}", dataToCompare[cmpIndex]);
+          vtk::print("\nOutput String     : {:s}", outputString);
+          vtk::print("\n/**************************************/");
         } // end of writing
       }
       cmpIndex++;

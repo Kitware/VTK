@@ -74,7 +74,7 @@ public:
   /**
    * Instantiate object with autorange computation;
    * the number of labels set to 5 for the x and y axes;
-   * a label format of "%-#6.3g"; and x coordinates computed from point
+   * a label format of "{:<#6.3g}"; and x coordinates computed from point
    * ids.
    */
   static vtkParallelCoordinatesActor* New();
@@ -111,9 +111,9 @@ public:
 
   ///@{
   /**
-   * Set/Get the format with which to print the labels on the axes.
+   * Set/Get the std::format style format with which to print the labels on the axes.
    */
-  vtkSetStringMacro(LabelFormat);
+  void SetLabelFormat(const char* format);
   vtkGetStringMacro(LabelFormat);
   ///@}
 

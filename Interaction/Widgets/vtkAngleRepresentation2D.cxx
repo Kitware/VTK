@@ -8,6 +8,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointHandleRepresentation2D.h"
 #include "vtkRenderer.h"
+#include "vtkStringFormatter.h"
 #include "vtkVector.h"
 #include "vtkWindow.h"
 
@@ -253,17 +254,14 @@ void vtkAngleRepresentation2D::BuildRepresentation()
   const double angle = vtkMath::DegreesFromRadians(std::acos(vector1.Dot(vector2))) * this->Scale;
 
   // Construct label
-  const int size_s = std::snprintf(nullptr, 0, this->LabelFormat, angle) + 1;
-  if (size_s <= 0)
+  const std::string string = vtk::format(this->LabelFormat, angle);
+  if (string.empty())
   {
     this->ArcVisibility = 0;
     vtkWarningMacro("Couldn't format label.");
     return;
   }
-  char* string = new char[size_s];
-  std::snprintf(string, size_s, this->LabelFormat, angle);
-  this->Arc->SetLabel(string);
-  delete[] string;
+  this->Arc->SetLabel(string.c_str());
 
   // Place the label and place the arc
   vtkVector3d p1d, p2d, cd;

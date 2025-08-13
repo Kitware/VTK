@@ -223,13 +223,6 @@ public:
   virtual vtkStdString GetGroupName();
 
   /**
-   * Generate and return the tooltip label string for this plot
-   * The segmentIndex is implemented here.
-   */
-  vtkStdString GetTooltipLabel(
-    const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex) override;
-
-  /**
    * Select all points in the specified rectangle.
    */
   bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max) override;

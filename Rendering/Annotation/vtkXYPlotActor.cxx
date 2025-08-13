@@ -23,6 +23,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextActor.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
@@ -64,7 +65,8 @@ vtkXYPlotActor::vtkXYPlotActor()
 
   this->Title = nullptr;
   this->XTitle = new char[7];
-  snprintf(this->XTitle, 7, "%s", "X Axis");
+  auto result = vtk::format_to_n(this->XTitle, 7, "{:s}", "X Axis");
+  *result.out = '\0';
 
   this->YTitleActor = vtkTextActor::New();
   this->YTitleActor->SetInput("Y Axis");
@@ -97,11 +99,13 @@ vtkXYPlotActor::vtkXYPlotActor()
   this->AxisTitleTextProperty->SetShadow(1);
   this->AxisTitleTextProperty->SetFontFamilyToArial();
 
-  this->XLabelFormat = new char[8];
-  snprintf(this->XLabelFormat, 8, "%s", "%-#6.3g");
+  this->XLabelFormat = new char[10];
+  result = vtk::format_to_n(this->XLabelFormat, 10, "{:s}", "{:<#6.3g}");
+  *result.out = '\0';
 
-  this->YLabelFormat = new char[8];
-  snprintf(this->YLabelFormat, 8, "%s", "%-#6.3g");
+  this->YLabelFormat = new char[10];
+  result = vtk::format_to_n(this->YLabelFormat, 10, "{:s}", "{:<#6.3g}");
+  *result.out = '\0';
 
   this->Logx = 0;
 
@@ -799,7 +803,9 @@ int vtkXYPlotActor::RenderOpaqueGeometry(vtkViewport* viewport)
         if (!this->LegendActor->GetEntryString(i))
         {
           char legendString[18];
-          snprintf(legendString, sizeof(legendString), "%s%d", "Curve ", i);
+          auto result =
+            vtk::format_to_n(legendString, sizeof(legendString), "{:s}{:d}", "Curve ", i);
+          *result.out = '\0';
           this->LegendActor->SetEntryString(i, legendString);
         }
       }
@@ -2225,16 +2231,19 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport* viewport, const int* size, int pos[2
   // Calculate string length from YTitleActor,
   //  + 1 for the case where there is only one character
   //  + 1 for the final \0
-  int len = int((strlen(YTitleActor->GetInput()) + 1) * .5) + 1;
+  int len = int((strlen(this->YTitleActor->GetInput()) + 1) * .5) + 1;
   char* tmp = new char[len];
   switch (this->YTitlePosition)
   {
     case VTK_XYPLOT_Y_AXIS_TOP:
-      snprintf(tmp, len, "%s", YTitleActor->GetInput());
+    {
+      auto result = vtk::format_to_n(tmp, len, "{:s}", this->YTitleActor->GetInput());
+      *result.out = '\0';
       textMapper->SetInput(tmp);
-      break;
+    }
+    break;
     case VTK_XYPLOT_Y_AXIS_HCENTER:
-      textMapper->SetInput(YTitleActor->GetInput());
+      textMapper->SetInput(this->YTitleActor->GetInput());
       break;
     case VTK_XYPLOT_Y_AXIS_VCENTER:
       // Create a dummy title to ensure that the added YTitleActor is visible
@@ -2251,8 +2260,12 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport* viewport, const int* size, int pos[2
   // At this point the thing to do would be to actually ask the Y axis
   // actor to return the largest label.
   // In the meantime, let's try with the min and max
-  snprintf(str1, sizeof(str1), axisY->GetLabelFormat(), axisY->GetAdjustedRange()[0]);
-  snprintf(str2, sizeof(str2), axisY->GetLabelFormat(), axisY->GetAdjustedRange()[1]);
+  auto result =
+    vtk::format_to_n(str1, sizeof(str1), axisY->GetLabelFormat(), axisY->GetAdjustedRange()[0]);
+  *result.out = '\0';
+  result =
+    vtk::format_to_n(str2, sizeof(str2), axisY->GetLabelFormat(), axisY->GetAdjustedRange()[1]);
+  *result.out = '\0';
   tprop->ShallowCopy(axisY->GetLabelTextProperty());
   textMapper->SetInput(strlen(str1) > strlen(str2) ? str1 : str2);
   vtkTextMapper::SetRelativeFontSize(
@@ -2260,7 +2273,9 @@ void vtkXYPlotActor::PlaceAxes(vtkViewport* viewport, const int* size, int pos[2
 
   // We do only care of the height of the label in the X axis, so let's
   // use the min for example
-  snprintf(str1, sizeof(str1), axisX->GetLabelFormat(), axisX->GetAdjustedRange()[0]);
+  result =
+    vtk::format_to_n(str1, sizeof(str1), axisX->GetLabelFormat(), axisX->GetAdjustedRange()[0]);
+  *result.out = '\0';
   tprop->ShallowCopy(axisX->GetLabelTextProperty());
   textMapper->SetInput(str1);
   vtkTextMapper::SetRelativeFontSize(
@@ -2755,63 +2770,35 @@ void vtkXYPlotActor::SetLabelFormat(const char* _arg)
 }
 
 //------------------------------------------------------------------------------
-void vtkXYPlotActor::SetXLabelFormat(const char* _arg)
+void vtkXYPlotActor::SetXLabelFormat(const char* formatArg)
 {
-  if (this->XLabelFormat == nullptr && _arg == nullptr)
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
   {
-    return;
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
   }
-
-  if (this->XLabelFormat && _arg && (!strcmp(this->XLabelFormat, _arg)))
-  {
-    return;
-  }
-
-  delete[] this->XLabelFormat;
-
-  if (_arg)
-  {
-    this->XLabelFormat = new char[strlen(_arg) + 1];
-    strcpy(this->XLabelFormat, _arg);
-  }
-  else
-  {
-    this->XLabelFormat = nullptr;
-  }
-
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(XLabelFormat, formatStr);
   this->XAxis->SetLabelFormat(this->XLabelFormat);
-
-  this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkXYPlotActor::SetYLabelFormat(const char* _arg)
+void vtkXYPlotActor::SetYLabelFormat(const char* formatArg)
 {
-  if (this->YLabelFormat == nullptr && _arg == nullptr)
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
   {
-    return;
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
   }
-
-  if (this->YLabelFormat && _arg && (!strcmp(this->YLabelFormat, _arg)))
-  {
-    return;
-  }
-
-  delete[] this->YLabelFormat;
-
-  if (_arg)
-  {
-    this->YLabelFormat = new char[strlen(_arg) + 1];
-    strcpy(this->YLabelFormat, _arg);
-  }
-  else
-  {
-    this->YLabelFormat = nullptr;
-  }
-
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(YLabelFormat, formatStr);
   this->YAxis->SetLabelFormat(this->YLabelFormat);
-
-  this->Modified();
 }
 
 //------------------------------------------------------------------------------

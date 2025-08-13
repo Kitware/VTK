@@ -15,27 +15,23 @@
 #include "vtkImageMapToWindowLevelColors.h"
 #include "vtkImageMapper3D.h"
 #include "vtkImageReslice.h"
-#include "vtkInteractorObserver.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
 #include "vtkPlaneSource.h"
-#include "vtkPointHandleRepresentation2D.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkPolyDataMapper2D.h"
-#include "vtkProperty2D.h"
 #include "vtkRenderer.h"
 #include "vtkResliceCursor.h"
 #include "vtkResliceCursorPolyDataAlgorithm.h"
 #include "vtkScalarsToColors.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextActor.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
-#include "vtkWindow.h"
 
 #include <sstream>
 
@@ -73,8 +69,9 @@ vtkResliceCursorRepresentation::vtkResliceCursorRepresentation()
   this->CreateDefaultResliceAlgorithm();
   this->PlaneSource = vtkPlaneSource::New();
 
-  this->ThicknessLabelFormat = new char[6];
-  snprintf(this->ThicknessLabelFormat, 6, "%s", "%0.3g");
+  this->ThicknessLabelFormat = new char[8];
+  auto result = vtk::format_to_n(this->ThicknessLabelFormat, 8, "{}", "{:0.3g}");
+  *result.out = '\0';
 
   this->ResliceAxes = vtkMatrix4x4::New();
   this->NewResliceAxes = vtkMatrix4x4::New();
@@ -140,6 +137,21 @@ vtkResliceCursorRepresentation::~vtkResliceCursorRepresentation()
   this->Texture->Delete();
   this->TexturePlaneActor->Delete();
   this->TextActor->Delete();
+}
+
+//------------------------------------------------------------------------------
+void vtkResliceCursorRepresentation::SetThicknessLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(ThicknessLabelFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------
@@ -876,8 +888,9 @@ void vtkResliceCursorRepresentation::ManageTextDisplay()
 
   if (this->ManipulationMode == vtkResliceCursorRepresentation::WindowLevelling)
   {
-    snprintf(this->TextBuff, VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF,
-      "Window, Level: ( %g, %g )", this->CurrentWindow, this->CurrentLevel);
+    auto result = vtk::format_to_n(this->TextBuff, VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF,
+      "Window, Level: ( {:g}, {:g} )", this->CurrentWindow, this->CurrentLevel);
+    *result.out = '\0';
   }
   else if (this->ManipulationMode == vtkResliceCursorRepresentation::ResizeThickness)
   {
@@ -886,8 +899,9 @@ void vtkResliceCursorRepresentation::ManageTextDisplay()
     axis = this->InteractionState == OnAxis2 ? this->GetCursorAlgorithm()->GetPlaneAxis2() : axis;
 
     // For now all the thickness' are the same anyway.
-    snprintf(this->TextBuff, VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF,
-      "Reslice Thickness: %g mm", this->GetResliceCursor()->GetThickness()[axis]);
+    auto result = vtk::format_to_n(this->TextBuff, VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF,
+      "Reslice Thickness: {:g} mm", this->GetResliceCursor()->GetThickness()[axis]);
+    *result.out = '\0';
   }
 
   this->TextActor->SetInput(this->TextBuff);
@@ -909,7 +923,9 @@ vtkTextProperty* vtkResliceCursorRepresentation::GetTextProperty()
 //------------------------------------------------------------------------------
 void vtkResliceCursorRepresentation::GenerateText()
 {
-  snprintf(this->TextBuff, VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF, "NA");
+  auto result =
+    vtk::format_to_n(this->TextBuff, VTK_RESLICE_CURSOR_REPRESENTATION_MAX_TEXTBUFF, "NA");
+  *result.out = '\0';
   this->TextActor->SetInput(this->TextBuff);
   this->TextActor->SetTextScaleModeToNone();
 

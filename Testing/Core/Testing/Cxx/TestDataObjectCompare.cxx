@@ -19,8 +19,6 @@
 #include "vtkMatrix3x3.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
-#include "vtkObject.h"
-#include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
@@ -30,6 +28,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTable.h"
 #include "vtkTesting.h"
@@ -778,7 +777,7 @@ vtkNew<vtkTable> MakeTable()
 
   for (vtkIdType i = 0; i < N; ++i)
   {
-    stringArray->SetValue(i, std::to_string(i));
+    stringArray->SetValue(i, vtk::to_string(i));
     for (int j = 0; j < 8; ++j)
     {
       bitArray->SetValue(8 * i + j, j % 2);

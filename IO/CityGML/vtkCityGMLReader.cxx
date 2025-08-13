@@ -20,19 +20,19 @@
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
 #include "vtkSmartPointer.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 #include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
+
 #include "vtk_pugixml.h"
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
 #include <array>
-#include <cstdlib>
-#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -163,7 +163,7 @@ public:
   void CacheImplicitGeometry(pugi::xml_document& doc, const char* gmlNamespace, const char* feature)
   {
     auto xmultiSurface = doc.select_nodes((std::string("//") + gmlNamespace + ":" + feature + "/" +
-      gmlNamespace + ":lod" + std::to_string(this->LOD) +
+      gmlNamespace + ":lod" + vtk::to_string(this->LOD) +
       "ImplicitRepresentation/"
       "core:ImplicitGeometry/core:relativeGMLGeometry/gml:MultiSurface")
                                             .c_str());
@@ -239,7 +239,7 @@ public:
     vtkCityGMLReader::SetField(b, "element", "grp:CityObjectGroup");
     auto ximplicitGeometry =
       doc.select_nodes((std::string("//") + gmlNamespace + ":" + feature + "/" + gmlNamespace +
-        ":" + "lod" + std::to_string(this->LOD) + "ImplicitRepresentation/core:ImplicitGeometry")
+        ":" + "lod" + vtk::to_string(this->LOD) + "ImplicitRepresentation/core:ImplicitGeometry")
                          .c_str());
     for (auto it = ximplicitGeometry.begin(); it != ximplicitGeometry.end(); ++it)
     {
@@ -554,15 +554,15 @@ public:
   {
     std::string id(idC);
     size_t uPrev = id.find_first_of("_-"), u;
-    char* strEnd;
+    int value;
     while ((u = id.find_first_of("_-", uPrev + 1)) != std::string::npos)
     {
-      int value = std::strtol(id.substr(uPrev + 1, u - uPrev - 1).c_str(), &strEnd, 16);
+      VTK_FROM_CHARS_WITH_PARAM_IF_ERROR_BREAK(id.substr(uPrev + 1, u - uPrev - 1), value, 16);
       components->push_back(value);
       uPrev = u;
     }
     u = id.size();
-    int value = std::strtol(id.substr(uPrev + 1, u - uPrev - 1).c_str(), &strEnd, 16);
+    VTK_FROM_CHARS_WITH_PARAM_IF_ERROR_BREAK(id.substr(uPrev + 1, u - uPrev - 1), value, 16);
     components->push_back(value);
   }
 
@@ -860,9 +860,9 @@ public:
       vtkNew<vtkMultiBlockDataSet> groupBlock;
       ostr.str("");
       ostr << "descendant::" << gmlNamespace
-           << ":lod" + std::to_string(this->LOD) + "Geometry/gml:MultiSurface |"
+           << ":lod" + vtk::to_string(this->LOD) + "Geometry/gml:MultiSurface |"
            << "descendant::" << gmlNamespace
-           << ":lod" + std::to_string(this->LOD) + "MultiSurface/gml:MultiSurface";
+           << ":lod" + vtk::to_string(this->LOD) + "MultiSurface/gml:MultiSurface";
 
       auto xMultiSurface = featureNode.node().select_nodes(ostr.str().c_str());
       for (auto it = xMultiSurface.begin(); it != xMultiSurface.end(); ++it)
@@ -892,7 +892,7 @@ public:
 
     pugi::xpath_node_set xrelief;
     xrelief = doc.select_nodes(("//dem:ReliefFeature//dem:TINRelief[number(child::dem:lod) = " +
-      std::to_string(this->LOD) + "]//gml:TriangulatedSurface")
+      vtk::to_string(this->LOD) + "]//gml:TriangulatedSurface")
                                  .c_str());
     for (auto itSurface = xrelief.begin(); itSurface != xrelief.end(); ++itSurface)
     {
@@ -935,11 +935,11 @@ public:
     vtkNew<vtkMultiBlockDataSet> b;
     vtkCityGMLReader::SetField(b, "element", "wtr:WaterBody");
     auto xWaterSurface = doc.select_nodes(("//wtr:WaterBody//wtr:WaterSurface/wtr:lod" +
-      std::to_string(this->LOD) + "Surface/gml:CompositeSurface")
+      vtk::to_string(this->LOD) + "Surface/gml:CompositeSurface")
                                             .c_str());
     this->ReadMultiSurface(xWaterSurface.begin()->node(), b);
     auto xWaterGroundSurface = doc.select_nodes(("//wtr:WaterBody//wtr:WaterGroundSurface/wtr:lod" +
-      std::to_string(this->LOD) + "Surface/gml:CompositeSurface")
+      vtk::to_string(this->LOD) + "Surface/gml:CompositeSurface")
                                                   .c_str());
     this->ReadMultiSurface(xWaterGroundSurface.begin()->node(), b);
     if (b->GetNumberOfBlocks())

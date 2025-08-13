@@ -37,7 +37,7 @@ int TestPolarAxesNoData(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   polarAxes->SetMaximumAngle(210.);
   polarAxes->SetRequestedNumberOfRadialAxes(10);
   polarAxes->SetCamera(renderer->GetActiveCamera());
-  polarAxes->SetPolarLabelFormat("%6.1f");
+  polarAxes->SetPolarLabelFormat("{:6.1f}");
   polarAxes->GetLastRadialAxisProperty()->SetColor(0.0, 1.0, 0.0);
   polarAxes->GetSecondaryRadialAxesProperty()->SetColor(0.0, 0.0, 1.0);
   polarAxes->GetPolarArcsProperty()->SetColor(1.0, 0.0, 0.0);

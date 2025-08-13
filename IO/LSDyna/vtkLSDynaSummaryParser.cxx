@@ -4,6 +4,7 @@
 #include "vtkLSDynaSummaryParser.h"
 #include "LSDynaMetaData.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringScanner.h"
 
 #include <string>
 
@@ -67,7 +68,7 @@ void vtkLSDynaSummaryParser::StartElement(const char* name, const char** atts)
       {
         if (!strcmp(atts[i], "id"))
         {
-          if (sscanf(atts[i + 1], "%d", &this->PartId) <= 0)
+          if (vtk::from_chars(atts[i + 1], this->PartId).ec != std::errc{})
           {
             this->PartId = -1;
             this->ReportBadAttribute(name, atts[i], atts[i + 1]);
@@ -75,7 +76,7 @@ void vtkLSDynaSummaryParser::StartElement(const char* name, const char** atts)
         }
         else if (!strcmp(atts[i], "material"))
         {
-          if (sscanf(atts[i + 1], "%d", &this->PartMaterial) <= 0)
+          if (vtk::from_chars(atts[i + 1], this->PartMaterial).ec != std::errc{})
           {
             this->PartMaterial = -1;
             this->ReportBadAttribute(name, atts[i], atts[i + 1]);
@@ -83,7 +84,7 @@ void vtkLSDynaSummaryParser::StartElement(const char* name, const char** atts)
         }
         else if (!strcmp(atts[i], "status"))
         {
-          if (sscanf(atts[i + 1], "%d", &this->PartStatus) <= 0)
+          if (vtk::from_chars(atts[i + 1], this->PartStatus).ec != std::errc{})
           {
             this->PartStatus = 1;
             this->ReportBadAttribute(name, atts[i], atts[i + 1]);

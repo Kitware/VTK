@@ -26,6 +26,7 @@
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPointData.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridPartitioner.h"
 #include "vtkUniformGrid.h"
@@ -471,8 +472,8 @@ int TestStructuredGridGhostDataGenerator(int argc, char* argv[])
     return 0;
   }
 
-  NumBlocks = atoi(argv[1]);
-  NumGhostLayers = atoi(argv[2]);
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], NumBlocks, EXIT_FAILURE);
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[2], NumGhostLayers, EXIT_FAILURE);
 
   std::cout << "Running 2-D Test with just geometry...";
   std::cout.flush();

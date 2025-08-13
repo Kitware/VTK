@@ -30,12 +30,12 @@ bool TestLabelsNotation()
   window->Render();
 
   std::vector<std::string> expectedLabels = {
-    "0.000e+0",
-    "2.000e-1",
-    "4.000e-1",
-    "6.000e-1",
-    "8.000e-1",
-    "1.000e+0",
+    "0.000e+00",
+    "2.000e-01",
+    "4.000e-01",
+    "6.000e-01",
+    "8.000e-01",
+    "1.000e+00",
   };
   bool status = axis->CompareLabelMapperString(expectedLabels);
 

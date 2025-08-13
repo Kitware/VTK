@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* The scope, attrib, and valstring parameters are optional and can be
    set to NULL.
@@ -321,3 +323,5 @@ void vtkWrapPython_AddConstant(FILE* fp, const char* indent, const char* dictvar
 {
   vtkWrapPython_AddConstantHelper(fp, indent, dictvar, objvar, scope, scope, NULL, NULL, val);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

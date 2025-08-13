@@ -6,11 +6,11 @@
 #include "vtkExecutive.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkMolecule.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPeriodicTable.h"
+#include "vtkStringScanner.h"
 #include "vtkXMLParser.h"
 
 #include "vtksys/SystemTools.hxx"
@@ -192,12 +192,17 @@ void vtkCMLParser::NewAtom(const char** attr)
 
     // Get position
     else if (strcmp(cur, "x3") == 0)
-      pos[0] = atof(attr[++attrInd]);
+    {
+      VTK_FROM_CHARS_IF_ERROR_BREAK(attr[++attrInd], pos[0]);
+    }
     else if (strcmp(cur, "y3") == 0)
-      pos[1] = atof(attr[++attrInd]);
+    {
+      VTK_FROM_CHARS_IF_ERROR_BREAK(attr[++attrInd], pos[1]);
+    }
     else if (strcmp(cur, "z3") == 0)
-      pos[2] = atof(attr[++attrInd]);
-
+    {
+      VTK_FROM_CHARS_IF_ERROR_BREAK(attr[++attrInd], pos[2]);
+    }
     // string id / names
     else if (strcmp(cur, "id") == 0)
       id = attr[++attrInd];
@@ -297,7 +302,7 @@ void vtkCMLParser::NewBond(const char** attr)
     // Get bond order
     else if (strcmp(cur, "order") == 0)
     {
-      order = static_cast<unsigned short>(atoi(attr[++attrInd]));
+      VTK_FROM_CHARS_IF_ERROR_BREAK(attr[++attrInd], order);
     }
 
     else

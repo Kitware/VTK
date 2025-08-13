@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkStringFormatter.h"
 #include "vtkVariant.h"
 
 #include <array>
@@ -67,7 +68,7 @@ bool CheckIntConversionHelper()
 
   for (auto value : IntegersValues<T>())
   {
-    vtkVariant variant = std::to_string(value).c_str();
+    vtkVariant variant = vtk::to_string(value).c_str();
     Check(ToNumeric<T>(variant, &valid) == value && valid, "Conversion failed");
   }
 

@@ -219,14 +219,14 @@ public:
 
   ///@{
   /**
-   * Set/Get the format with which to print the labels on each of the
+   * Set/Get the std::format style format with which to print the labels on each of the
    * x-y-z axes.
    */
-  vtkSetStringMacro(XLabelFormat);
+  void SetXLabelFormat(const char* format);
   vtkGetStringMacro(XLabelFormat);
-  vtkSetStringMacro(YLabelFormat);
+  void SetYLabelFormat(const char* format);
   vtkGetStringMacro(YLabelFormat);
-  vtkSetStringMacro(ZLabelFormat);
+  void SetZLabelFormat(const char* format);
   vtkGetStringMacro(ZLabelFormat);
   ///@}
 

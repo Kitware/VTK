@@ -16,6 +16,7 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkSuperquadricSource.h"
 #include "vtkWebAssemblyOpenGLRenderWindow.h"
 #include "vtkWebAssemblyRenderWindowInteractor.h"
@@ -40,7 +41,8 @@ int main(int argc, char* argv[])
   {
     std::cerr << "Usage: MultipleCanvases <numCanvases>\n";
   }
-  const int numCanvases = std::atoi(argv[1]);
+  int numCanvases;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], numCanvases, EXIT_FAILURE);
   std::array<vtkSmartPointer<vtkAlgorithm>, 10> sources;
   std::size_t i = 0;
   sources[i++] = { vtk::TakeSmartPointer(vtkArrowSource::New()) };
@@ -56,7 +58,7 @@ int main(int argc, char* argv[])
 
   for (int iCanvas = 0; iCanvas < numCanvases; ++iCanvas)
   {
-    const std::string canvasId = "canvas" + std::to_string(iCanvas);
+    const std::string canvasId = "canvas" + vtk::to_string(iCanvas);
     const std::string canvasSelector = "#" + canvasId;
     vtkNew<vtkRenderWindow> renderWindow;
     vtkNew<vtkRenderWindowInteractor> interactor;

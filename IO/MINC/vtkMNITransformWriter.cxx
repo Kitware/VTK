@@ -14,18 +14,17 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMINC.h"
 #include "vtkMINCImageAttributes.h"
 #include "vtkMINCImageWriter.h"
 #include "vtkMath.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkThinPlateSplineTransform.h"
 #include "vtkTransform.h"
 
 #include <cctype>
-#include <cstdio>
 #include <ctime>
 
 #include <stack>
@@ -90,13 +89,10 @@ int vtkMNITransformWriter::WriteLinearTransform(
 
   outfile << "Linear_Transform =";
 
-  char text[256];
   for (int i = 0; i < 3; i++)
   {
-    outfile << "\n";
-    snprintf(text, sizeof(text), " %.15g %.15g %.15g %.15g", matrix->GetElement(i, 0),
+    outfile << vtk::format("\n {:.15g} {:.15g} {:.15g} {:.15g}", matrix->GetElement(i, 0),
       matrix->GetElement(i, 1), matrix->GetElement(i, 2), matrix->GetElement(i, 3));
-    outfile << text;
   }
   outfile << ";\n";
 
@@ -181,8 +177,8 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
     for (j = 0; j < ndim; j++)
     {
       char text[64];
-      snprintf(text, sizeof(text), " %.15g", p[j]);
-
+      auto result = vtk::format_to_n(text, sizeof(text), " {:.15g}", p[j]);
+      *result.out = '\0';
       outfile << text;
     }
   }
@@ -264,8 +260,8 @@ int vtkMNITransformWriter::WriteThinPlateSplineTransform(
     for (j = 0; j < ndim; j++)
     {
       char text[64];
-      snprintf(text, sizeof(text), " %.15g", X[j][i]);
-
+      auto result = vtk::format_to_n(text, sizeof(text), " {:.15g}", X[j][i]);
+      *result.out = '\0';
       outfile << text;
     }
   }
@@ -374,12 +370,10 @@ int vtkMNITransformWriter::WriteFile()
   outfile << "MNI Transform File\n";
 
   // Get the local time and write as first comment line
-  char buf[1024];
-  time_t t;
-  time(&t);
-  strftime(buf, sizeof(buf), "%Y:%m:%d %H:%M:%S", localtime(&t));
+  std::time_t t = std::time(nullptr);
+  auto date = vtk::format("{:%Y.%m.%d.%H.%M.%S}", vtk::localtime(t));
 
-  outfile << "% Creation time: " << buf << "\n";
+  outfile << "% Creation time: " << date << "\n";
 
   // Write user comments
   if (this->Comments)

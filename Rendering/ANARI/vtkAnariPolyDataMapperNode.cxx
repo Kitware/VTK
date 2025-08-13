@@ -26,6 +26,7 @@
 #include "vtkRenderer.h"
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTexture.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -1037,7 +1038,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
     triangleGeometry = this->InheritInterface->InitializeTriangles(poly, property, vertices,
       indexArray, normals, textureCoords, pointValueTextureCoords, pointColors, cellFlag);
     std::string usdTriangleName =
-      this->ActorName + this->InheritInterface->GetTrianglesPostfix() + std::to_string(geometryId);
+      this->ActorName + this->InheritInterface->GetTrianglesPostfix() + vtk::to_string(geometryId);
 
     anari::setParameter(
       this->AnariDevice, triangleGeometry, "name", ANARI_STRING, usdTriangleName.c_str());
@@ -1064,7 +1065,9 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
   else
   {
     char buffer[50];
-    snprintf(buffer, 50, "[RenderAsTriangles] numVertices = %ld", numVertices);
+    auto result =
+      vtk::format_to_n(buffer, 50, "[RenderAsTriangles] numVertices = {:d}", numVertices);
+    *result.out = '\0';
     vtkDebugWithObjectMacro(this->Owner, << buffer);
     return nullptr;
   }
@@ -1219,7 +1222,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsTriangles(anari::Sam
   // applies either full-object or per-primitive color and material information
   auto anariSurface = anari::newObject<anari::Surface>(this->AnariDevice);
   std::string surfaceName = this->ActorName + "_surface" +
-    this->InheritInterface->GetTrianglesPostfix() + std::to_string(geometryId);
+    this->InheritInterface->GetTrianglesPostfix() + vtk::to_string(geometryId);
   anari::setParameter(this->AnariDevice, anariSurface, "name", ANARI_STRING, surfaceName.c_str());
   anari::setAndReleaseParameter(this->AnariDevice, anariSurface, "geometry", triangleGeometry);
 
@@ -1276,7 +1279,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
       this->InheritInterface->InitializeCylinders(poly, property, vertices, indexArray, lineWidth,
         scaleArray, scaleFunction, textureCoords, pointValueTextureCoords, pointColors, cellFlag);
     std::string usdCylinderName =
-      this->ActorName + this->InheritInterface->GetCylindersPostfix() + std::to_string(geometryId);
+      this->ActorName + this->InheritInterface->GetCylindersPostfix() + vtk::to_string(geometryId);
 
     anari::setParameter(
       this->AnariDevice, cylinderGeometry, "name", ANARI_STRING, usdCylinderName.c_str());
@@ -1303,7 +1306,9 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
   else
   {
     char buffer[50];
-    snprintf(buffer, 50, "[RenderAsCylinders] numVertices = %ld", numVertices);
+    auto result =
+      vtk::format_to_n(buffer, 50, "[RenderAsCylinders] numVertices = {:d}", numVertices);
+    *result.out = '\0';
     vtkDebugWithObjectMacro(this->Owner, << buffer);
     return nullptr;
   }
@@ -1444,7 +1449,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCylinders(anari::Sam
   // applies either full-object or per-primitive color and material information
   auto anariSurface = anari::newObject<anari::Surface>(this->AnariDevice);
   std::string surfaceName = this->ActorName + "_surface" +
-    this->InheritInterface->GetCylindersPostfix() + std::to_string(geometryId);
+    this->InheritInterface->GetCylindersPostfix() + vtk::to_string(geometryId);
   anari::setParameter(this->AnariDevice, anariSurface, "name", ANARI_STRING, surfaceName.c_str());
   anari::setAndReleaseParameter(this->AnariDevice, anariSurface, "geometry", cylinderGeometry);
 
@@ -1501,7 +1506,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
       this->InheritInterface->InitializeCurves(poly, property, vertices, indexArray, lineWidth,
         scaleArray, scaleFunction, textureCoords, pointValueTextureCoords, pointColors, cellFlag);
     std::string usdCurveName =
-      this->ActorName + this->InheritInterface->GetCurvesPostfix() + std::to_string(geometryId);
+      this->ActorName + this->InheritInterface->GetCurvesPostfix() + vtk::to_string(geometryId);
 
     anari::setParameter(
       this->AnariDevice, curveGeometry, "name", ANARI_STRING, usdCurveName.c_str());
@@ -1528,7 +1533,8 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
   else
   {
     char buffer[50];
-    snprintf(buffer, 50, "[RenderAsCurves] numVertices = %ld", numVertices);
+    auto result = vtk::format_to_n(buffer, 50, "[RenderAsCurves] numVertices = {:d}", numVertices);
+    *result.out = '\0';
     vtkDebugWithObjectMacro(this->Owner, << buffer);
     return nullptr;
   }
@@ -1666,7 +1672,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsCurves(anari::Sample
   // applies either full-object or per-primitive color and material information
   auto anariSurface = anari::newObject<anari::Surface>(this->AnariDevice);
   std::string surfaceName = this->ActorName + "_surface" +
-    this->InheritInterface->GetCurvesPostfix() + std::to_string(geometryId);
+    this->InheritInterface->GetCurvesPostfix() + vtk::to_string(geometryId);
   anari::setParameter(this->AnariDevice, anariSurface, "name", ANARI_STRING, surfaceName.c_str());
   anari::setAndReleaseParameter(this->AnariDevice, anariSurface, "geometry", curveGeometry);
 
@@ -1727,7 +1733,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampl
         scaleArray, scaleFunction, textureCoords, pointValueTextureCoords, pointColors, cellFlag);
 
     std::string usdSphereName =
-      this->ActorName + this->InheritInterface->GetSpheresPostfix() + std::to_string(geometryId);
+      this->ActorName + this->InheritInterface->GetSpheresPostfix() + vtk::to_string(geometryId);
 
     anari::setParameter(
       this->AnariDevice, sphereGeometry, "name", ANARI_STRING, usdSphereName.c_str());
@@ -1754,7 +1760,8 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampl
   else
   {
     char buffer[50];
-    snprintf(buffer, 50, "[RenderAsSpheres] numVertices = %ld", numVertices);
+    auto result = vtk::format_to_n(buffer, 50, "[RenderAsSpheres] numVertices = {:d}", numVertices);
+    *result.out = '\0';
     vtkDebugWithObjectMacro(this->Owner, << buffer);
     return nullptr;
   }
@@ -1884,7 +1891,7 @@ anari::Surface vtkAnariPolyDataMapperNodeInternals::RenderAsSpheres(anari::Sampl
   // applies either full-object or per-primitive color and material information
   auto anariSurface = anari::newObject<anari::Surface>(this->AnariDevice);
   std::string surfaceName = this->ActorName + "_surface" +
-    this->InheritInterface->GetSpheresPostfix() + std::to_string(geometryId);
+    this->InheritInterface->GetSpheresPostfix() + vtk::to_string(geometryId);
   anari::setParameter(this->AnariDevice, anariSurface, "name", ANARI_STRING, surfaceName.c_str());
   anari::setAndReleaseParameter(this->AnariDevice, anariSurface, "geometry", sphereGeometry);
 
@@ -1960,7 +1967,7 @@ void vtkAnariPolyDataMapperNodeInternals::SetAttributeArrays(
       anariUnmapArray(this->AnariDevice, anariArray);
 
       // Set the array and its name
-      std::string attributeIdxString = std::to_string(reservedAttribs + attribArrayIdx);
+      std::string attributeIdxString = vtk::to_string(reservedAttribs + attribArrayIdx);
       std::string attributePostfixString = std::string(".attribute") + attributeIdxString;
       std::string attribParamName =
         (attribArray.IsCellArray ? std::string("primitive") : std::string("vertex")) +

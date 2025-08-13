@@ -17,15 +17,18 @@
 #include "vtkSmartPointer.h"
 #include "vtkStaticCleanUnstructuredGrid.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkTimerLog.h"
 #include "vtkTrivialProducer.h"
 #include "vtkTypeUInt32Array.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
+
+#include <vtksys/SystemTools.hxx>
+
 #include <map>
 #include <new>
 #include <string>
-#include <vtksys/SystemTools.hxx>
 
 #ifdef _WIN32
 #include <algorithm>
@@ -245,10 +248,13 @@ bool vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputV
     this->timestep_has_mesh[i] = false;
     file_index = this->datafile_start + i;
 
-    snprintf(dfName, sizeof(dfName), this->datafile_format.c_str(), 0, file_index);
+    // the format is expected to be in printf style format, so it's converted to std::format
+    auto result = vtk::format_to_n(
+      dfName, sizeof(dfName), vtk::printf_to_std_format(this->datafile_format), 0, file_index);
     vtkDebugMacro(<< "vtkNek5000Reader::GetAllTimesAndVariableNames:  this->datafile_start = "
                   << this->datafile_start << "  i: " << i << " file_index: " << file_index
                   << " dfName: " << dfName);
+    *result.out = '\0';
 
     dfPtr.open(dfName, std::ifstream::binary);
 
@@ -510,7 +516,8 @@ size_t vtkNek5000Reader::GetVariableNamesFromData(char* varTags)
         for (int sloop = 0; sloop < numSFields; sloop++)
         {
           char sname[12];
-          snprintf(sname, sizeof(sname), "S%02d", sloop + 1);
+          auto result = vtk::format_to_n(sname, sizeof(sname), "S{:02d}", sloop + 1);
+          *result.out = '\0';
           this->PointDataArraySelection->AddArray(sname);
           this->var_names[this->num_vars] = strdup(sname);
           vtkDebugMacro(<< "GetVariableNamesFromData:  this->var_names[" << this->num_vars
@@ -698,7 +705,6 @@ void vtkNek5000Reader::readData(char* dfName)
 
 void vtkNek5000Reader::partitionAndReadMesh()
 {
-  char dfName[265];
   std::ifstream dfPtr;
   int i;
   string buf2, tag;
@@ -718,7 +724,9 @@ void vtkNek5000Reader::partitionAndReadMesh()
     num_ranks = 1;
   }
 
-  snprintf(dfName, sizeof(dfName), this->datafile_format.c_str(), 0, this->datafile_start);
+  // the format is expected to be in printf style format, so it's converted to std::format
+  auto dfName =
+    vtk::format(vtk::printf_to_std_format(this->datafile_format), 0, this->datafile_start);
   dfPtr.open(dfName, std::ifstream::binary);
 
   if ((dfPtr.rdstate() & std::ifstream::failbit) != 0)
@@ -805,7 +813,8 @@ void vtkNek5000Reader::partitionAndReadMesh()
   int* all_element_list;
   ext++;
   size_t extLength = strlen(ext);
-  snprintf(ext, extLength + 1, "map");
+  auto result = vtk::format_to_n(ext, extLength + 1, "map");
+  *result.out = '\0';
   std::ifstream mptr(map_filename);
   int* map_elements = nullptr;
   if (mptr.is_open())
@@ -1054,7 +1063,8 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
       }
       else
       {
-        snprintf(buf, 2048, "Error parsing file.  Unknown tag %s", tag.c_str());
+        auto result = vtk::format_to_n(buf, 2048, "Error parsing file.  Unknown tag {:s}", tag);
+        *result.out = '\0';
         cerr << buf << endl;
         exit(1);
       }
@@ -1101,7 +1111,10 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
     vtkDebugMacro(<< "Rank: " << my_rank << " :: this->datafile_start= " << this->datafile_start);
 
-    snprintf(dfName, sizeof(dfName), this->datafile_format.c_str(), 0, this->datafile_start);
+    // the format is expected to be in printf style format, so it's converted to std::format
+    auto result = vtk::format_to_n(dfName, sizeof(dfName),
+      vtk::printf_to_std_format(this->datafile_format), 0, this->datafile_start);
+    *result.out = '\0';
     this->SetDataFileName(dfName);
 
     vtkInformation* outInfo0 = outputVector->GetInformationObject(0);
@@ -1179,7 +1192,6 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
     double minDist = -1;
     for (int cnt = 0; cnt < tsLength; cnt++)
     {
-      // fprintf(stderr, "RequestData: steps[%d]=%f\n", cnt, steps[cnt]);
       double tdist = (steps[cnt] - this->TimeValue > this->TimeValue - steps[cnt])
         ? steps[cnt] - this->TimeValue
         : this->TimeValue - steps[cnt];
@@ -1264,8 +1276,10 @@ int vtkNek5000Reader::RequestData(vtkInformation* request,
   }
 
   // Get the file name for requested time step
-
-  snprintf(dfName, sizeof(dfName), this->datafile_format.c_str(), 0, this->requested_step);
+  // the format is expected to be in printf style format, so it's converted to std::format
+  auto result = vtk::format_to_n(dfName, sizeof(dfName),
+    vtk::printf_to_std_format(this->datafile_format), 0, this->requested_step);
+  *result.out = '\0';
   vtkDebugMacro(<< "vtkNek5000Reader::RequestData: Rank: " << my_rank
                 << " Now reading data from file: " << dfName
                 << " this->requested_step: " << this->requested_step);

@@ -13,6 +13,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* Common types. */
 
@@ -1351,3 +1353,5 @@ void vtkWrap_WarnEmpty(const OptionInfo* options)
     fprintf(stderr, "warning: did not wrap anything from %s [-Wempty]\n", options->InputFileName);
   }
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

@@ -7,6 +7,7 @@
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 
@@ -43,11 +44,8 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
   vtkDebugMacro(<< "PDB File (" << this->HBScale << ", " << this->BScale << ")");
 
   // Loop variables
-  char linebuf[82], dum1[8], dum2[8];
-  char chain, startChain, endChain;
-  int startResi, endResi;
-  int resi;
-  float x[3];
+  char linebuf[82];
+  std::array<float, 3> x;
 
   unsigned int currentModelNumber = 1;
   bool modelCommandFound = false;
@@ -56,38 +54,44 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
   while (fgets(linebuf, sizeof linebuf, fp) != nullptr &&
     !(strncmp("END", linebuf, 3) == 0 && strncmp("ENDMDL", linebuf, 6) != 0))
   {
+    const std::string_view lineBuffer(linebuf);
     char elem[3] = { 0 };
-    char c[7] = { 0 };
-    sscanf(&linebuf[0], "%6s", c);
-    std::string command = c;
+    auto command = vtk::scan<std::string>(lineBuffer, "{:s}")->value();
     StdStringToUpper(command);
     if (command == "ATOM" || command == "HETATM")
     {
-      sscanf(&linebuf[12], "%4s", dum1);
-      sscanf(&linebuf[17], "%3s", dum2);
-      chain = linebuf[21];
-      sscanf(&linebuf[22], "%d", &resi);
-      sscanf(&linebuf[30], "%8f%8f%8f", x, x + 1, x + 2);
-      if (strlen(linebuf) >= 78)
+      auto atomName = vtk::scan<std::string_view>(lineBuffer.substr(12), "{:s}")->value();
+      // auto dum2 = vtk::scan<std::string_view>(lineBuffer.substr(17), "{:3s}")->value();
+      const char chain = lineBuffer[21];
+      const int resi = vtk::scan_int<int>(lineBuffer.substr(22))->value();
+      std::tie(x[0], x[1], x[2]) =
+        vtk::scan<float, float, float>(lineBuffer.substr(30), "{:8f}{:8f}{:8f}")->values();
+      if (lineBuffer.size() >= 78)
       {
-        sscanf(&linebuf[76], "%2s", elem);
+        if (auto result = vtk::scan<std::string_view>(lineBuffer.substr(76), "{:2s}"))
+        {
+          auto elemSymbol = result->value();
+          elem[0] = elemSymbol[0];
+          elem[1] = elemSymbol[1];
+          elem[2] = '\0';
+        }
       }
       if (elem[0] == '\0')
       {
         // If element symbol was not specified, just use the "Atom name".
-        elem[0] = dum1[0];
-        elem[1] = dum1[1];
+        elem[0] = atomName[0];
+        elem[1] = atomName[1];
         elem[2] = '\0';
       }
 
       // Only insert non-hydrogen atoms
       if (!((elem[0] == 'H' || elem[0] == 'h') && elem[1] == '\0'))
       {
-        this->Points->InsertNextPoint(x);
+        this->Points->InsertNextPoint(x.data());
         this->Residue->InsertNextValue(resi);
         this->Chain->InsertNextValue(chain);
         this->AtomType->InsertNextValue(this->MakeAtomType(elem));
-        this->AtomTypeStrings->InsertNextValue(dum1);
+        this->AtomTypeStrings->InsertNextValue(vtkStdString(atomName.data(), atomName.size()));
         this->IsHetatm->InsertNextValue(command[0] == 'H');
         this->Model->InsertNextValue(currentModelNumber);
         this->NumberOfAtoms++;
@@ -95,20 +99,20 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
     }
     else if (command == "SHEET")
     {
-      sscanf(&linebuf[21], "%c", &startChain);
-      sscanf(&linebuf[22], "%d", &startResi);
-      sscanf(&linebuf[32], "%c", &endChain);
-      sscanf(&linebuf[33], "%d", &endResi);
-      int tuple[4] = { startChain, startResi, endChain, endResi };
+      const auto startChain = lineBuffer[21];
+      const auto startResi = vtk::scan_int<int>(lineBuffer.substr(22))->value();
+      const auto endChain = lineBuffer[32];
+      const auto endResi = vtk::scan_int<int>(lineBuffer.substr(33))->value();
+      const int tuple[4] = { startChain, startResi, endChain, endResi };
       Sheets->InsertNextTypedTuple(tuple);
     }
     else if (command == "HELIX")
     {
-      sscanf(&linebuf[19], "%c", &startChain);
-      sscanf(&linebuf[21], "%d", &startResi);
-      sscanf(&linebuf[31], "%c", &endChain);
-      sscanf(&linebuf[33], "%d", &endResi);
-      int tuple[4] = { startChain, startResi, endChain, endResi };
+      const auto startChain = lineBuffer[19];
+      const auto startResi = vtk::scan_int<int>(lineBuffer.substr(21))->value();
+      const auto endChain = lineBuffer[31];
+      const auto endResi = vtk::scan_int<int>(lineBuffer.substr(33))->value();
+      const int tuple[4] = { startChain, startResi, endChain, endResi };
       Helix->InsertNextTypedTuple(tuple);
     }
     else if (command == "MODEL")
@@ -143,7 +147,7 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
   for (vtkIdType i = 0; i < this->Points->GetNumberOfPoints(); i++)
   {
     this->SecondaryStructures->SetValue(i, 'c');
-    resi = this->Residue->GetValue(i);
+    const vtkIdType resi = this->Residue->GetValue(i);
 
     for (vtkIdType j = 0; j < Sheets->GetNumberOfTuples(); j++)
     {

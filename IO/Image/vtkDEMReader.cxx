@@ -9,6 +9,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringScanner.h"
+
 #include <vtksys/SystemTools.hxx>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -152,7 +154,6 @@ int vtkDEMReader::RequestData(vtkInformation* vtkNotUsed(request),
 
 int vtkDEMReader::ReadTypeARecord()
 {
-  char record[1025];
   float elevationConversion;
   FILE* fp;
 
@@ -178,55 +179,54 @@ int vtkDEMReader::ReadTypeARecord()
   //
   // read the record. it is always 1024 characters long
   //
-  int result = fscanf(fp, "%512c", record);
-  if (result != 1)
+  auto result = vtk::scan<std::string>(fp, "{:.1024c}");
+  if (!result)
   {
     vtkErrorMacro(
-      "For the file " << this->FileName << " fscanf expected 1 items but got " << result);
+      "For the file " << this->FileName << " we got the following error: " << result.error().msg());
     fclose(fp);
     return -1;
   }
-  result = fscanf(fp, "%512c", record + 512);
-  if (result != 1)
-  {
-    vtkErrorMacro(
-      "For the file " << this->FileName << " fscanf expected 1 items but got " << result);
-    fclose(fp);
-    return -1;
-  }
-  record[1024] = '\0';
+  auto& record = result->value();
 
   //
   // convert any D+ or D- to E+ or E-. c++ and c i/o cannot read D+/-
   //
-  ConvertDNotationToENotation(record);
+  ConvertDNotationToENotation(record.data());
 
-  char* current = record;
+  std::string_view current(record);
 
-  this->MapLabel[144] = '\0';
-  sscanf(current, "%144c", this->MapLabel);
-  current += 144;
+  auto mapLabelView = current.substr(0, 144);
+  std::copy_n(mapLabelView.data(), mapLabelView.size(), this->MapLabel);
+  this->MapLabel[mapLabelView.size()] = '\0';
+  current = current.substr(144);
 
-  sscanf(current, "%6d%6d%6d%6d", &this->DEMLevel, &this->ElevationPattern, &this->GroundSystem,
-    &this->GroundZone);
-  current += 24;
-  sscanf(current, "%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g%24g",
-    &this->ProjectionParameters[0], &this->ProjectionParameters[1], &this->ProjectionParameters[2],
-    &this->ProjectionParameters[3], &this->ProjectionParameters[4], &this->ProjectionParameters[5],
-    &this->ProjectionParameters[6], &this->ProjectionParameters[7], &this->ProjectionParameters[8],
-    &this->ProjectionParameters[9], &this->ProjectionParameters[10],
-    &this->ProjectionParameters[11], &this->ProjectionParameters[12],
-    &this->ProjectionParameters[13], &this->ProjectionParameters[14]);
-  current += 360;
-  sscanf(current, "%6d%6d%6d", &this->PlaneUnitOfMeasure, &this->ElevationUnitOfMeasure,
-    &this->PolygonSize);
-  current += 18;
-  sscanf(current, "%24g%24g%24g%24g%24g%24g%24g%24g", &this->GroundCoords[0][0],
-    &this->GroundCoords[0][1], &this->GroundCoords[1][0], &this->GroundCoords[1][1],
-    &this->GroundCoords[2][0], &this->GroundCoords[2][1], &this->GroundCoords[3][0],
-    &this->GroundCoords[3][1]);
-  current += 192;
-  sscanf(current, "%24g%24g", &this->ElevationBounds[0], &this->ElevationBounds[1]);
+  auto resultInfo = vtk::scan<int, int, int, int>(current, "{:6d}{:6d}{:6d}{:6d}");
+  std::tie(this->DEMLevel, this->ElevationPattern, this->GroundSystem, this->GroundZone) =
+    resultInfo->values();
+  current = current.substr(24);
+  auto resultProjectionParm = vtk::scan<float, float, float, float, float, float, float, float,
+    float, float, float, float, float, float, float>(current,
+    "{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}");
+  std::tie(this->ProjectionParameters[0], this->ProjectionParameters[1],
+    this->ProjectionParameters[2], this->ProjectionParameters[3], this->ProjectionParameters[4],
+    this->ProjectionParameters[5], this->ProjectionParameters[6], this->ProjectionParameters[7],
+    this->ProjectionParameters[8], this->ProjectionParameters[9], this->ProjectionParameters[10],
+    this->ProjectionParameters[11], this->ProjectionParameters[12], this->ProjectionParameters[13],
+    this->ProjectionParameters[14]) = resultProjectionParm->values();
+  current = current.substr(360);
+  auto resultInfo2 = vtk::scan<int, int, int>(current, "{:6d}{:6d}{:6d}");
+  std::tie(this->PlaneUnitOfMeasure, this->ElevationUnitOfMeasure, this->PolygonSize) =
+    resultInfo2->values();
+  current = current.substr(18);
+  auto resultGroundRecords = vtk::scan<float, float, float, float, float, float, float, float>(
+    current, "{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}{:24g}");
+  std::tie(this->GroundCoords[0][0], this->GroundCoords[0][1], this->GroundCoords[1][0],
+    this->GroundCoords[1][1], this->GroundCoords[2][0], this->GroundCoords[2][1],
+    this->GroundCoords[3][0], this->GroundCoords[3][1]) = resultGroundRecords->values();
+  current = current.substr(192);
+  auto resultElevationBounds = vtk::scan<float, float>(current, "{:24g}{:24g}");
+  std::tie(this->ElevationBounds[0], this->ElevationBounds[1]) = resultElevationBounds->values();
   elevationConversion = 1.0;
   if (this->ElevationUnitOfMeasure == 1) // feet
   {
@@ -238,21 +238,17 @@ int vtkDEMReader::ReadTypeARecord()
   }
   this->ElevationBounds[0] *= elevationConversion;
   this->ElevationBounds[1] *= elevationConversion;
-  current += 48;
-  sscanf(current, "%24g", &this->LocalRotation);
-  current += 24;
-  sscanf(current, "%6d", &this->AccuracyCode);
-  current += 6;
-  char buf[13];
-  buf[12] = '\0';
-  memcpy(buf, current, 12);
-  sscanf(buf, "%12g", &this->SpatialResolution[0]);
-  memcpy(buf, current + 12, 12);
-  sscanf(buf, "%12g", &this->SpatialResolution[1]);
-  memcpy(buf, current + 24, 12);
-  sscanf(buf, "%12g", &this->SpatialResolution[2]);
-  current += 36;
-  sscanf(current, "%6d%6d", &this->ProfileDimension[0], &this->ProfileDimension[1]);
+  current = current.substr(48);
+  auto resultLocationRotationAndAccuracyCode = vtk::scan<float, int>(current, "{:24g}{:6d}");
+  std::tie(this->LocalRotation, this->AccuracyCode) =
+    resultLocationRotationAndAccuracyCode->values();
+  current = current.substr(30);
+  this->SpatialResolution[0] = vtk::scan_value<float>(current.substr(0, 12))->value();
+  this->SpatialResolution[1] = vtk::scan_value<float>(current.substr(12, 12))->value();
+  this->SpatialResolution[2] = vtk::scan_value<float>(current.substr(24, 12))->value();
+  current = current.substr(36);
+  auto resultProfileDimension = vtk::scan<int, int>(current, "{:6d}{:6d}");
+  std::tie(this->ProfileDimension[0], this->ProfileDimension[1]) = resultProfileDimension->values();
 
   this->ProfileSeekOffset = ftell(fp);
 
@@ -341,7 +337,6 @@ void vtkDEMReader::ComputeExtentOriginAndSpacing(int extent[6], double origin[3]
 
 int vtkDEMReader::ReadProfiles(vtkImageData* data)
 {
-  char record[145];
   float *outPtr, *ptr;
   float elevationExtrema[2];
   float localElevation;
@@ -358,7 +353,6 @@ int vtkDEMReader::ReadProfiles(vtkImageData* data)
   int rowId, columnId;
   int updateInterval;
   int status = 0;
-  int result;
   FILE* fp;
 
   if (!this->FileName)
@@ -389,7 +383,6 @@ int vtkDEMReader::ReadProfiles(vtkImageData* data)
   units *= elevationConversion;
   // seek to start of profiles
   fseek(fp, this->ProfileSeekOffset, SEEK_SET);
-  record[120] = '\0';
 
   // initialize output to the lowest elevation
   lowPoint = this->ElevationBounds[0];
@@ -406,34 +399,32 @@ int vtkDEMReader::ReadProfiles(vtkImageData* data)
     //
     // read four int's
     //
-    status = fscanf(fp, "%6d%6d%6d%6d", &profileId[0], /* 1 */
-      &profileId[1],                                   /* 1 */
-      &profileSize[0],                                 /* 2 */
-      &profileSize[1]);                                /* 2 */
-    if (status == EOF)
+    auto resultInt4 = vtk::scan<int, int, int, int>(fp, "{:6d}{:6d}{:6d}{:6d}");
+    if (!resultInt4)
     {
       break;
     }
+    std::tie(profileId[0], profileId[1], profileSize[0], profileSize[1]) = resultInt4->values();
     //
     // read the doubles as strings so we can convert floating point format
     //
-    result = fscanf(fp, "%120c", record);
-    if (result != 1)
+    auto resultString = vtk::scan<std::string>(fp, "{:.120c}");
+    if (!resultString)
     {
-      vtkErrorMacro(
-        "For the file " << this->FileName << " fscanf expected 1 items but got " << result);
+      vtkErrorMacro("For the file "
+        << this->FileName << " we got the following error: " << resultString.error().msg());
       fclose(fp);
       return -1;
     }
+    auto& record = resultString->value();
     //
     // convert any D+ or D- to E+ or E-
     //
-    ConvertDNotationToENotation(record);
-    sscanf(record, "%24g%24g%24g%24g%24g", &planCoords[0], /* 3 */
-      &planCoords[1],                                      /* 3 */
-      &localElevation,                                     /* 4 */
-      &elevationExtrema[0],                                /* 5 */
-      &elevationExtrema[1]);                               /* 5 */
+    ConvertDNotationToENotation(record.data());
+    auto resultInfo =
+      vtk::scan<float, float, float, float, float>(record, "{:24g}{:24g}{:24g}{:24g}{:24g}");
+    std::tie(planCoords[0], planCoords[1], localElevation, elevationExtrema[0],
+      elevationExtrema[1]) = resultInfo->values();
     rowId = profileId[0] - 1;
     columnId = profileId[1] - 1;
     lastRow = rowId + profileSize[0] - 1;
@@ -449,14 +440,15 @@ int vtkDEMReader::ReadProfiles(vtkImageData* data)
     // read a column
     for (row = rowId; row <= lastRow; row++)
     {
-      result = fscanf(fp, "%6d", &elevation);
-      if (result != 1)
+      auto resultInt = vtk::scan_value<int>(fp);
+      if (!resultInt)
       {
-        vtkErrorMacro(
-          "For the file " << this->FileName << " fscanf expected 1 items but got " << result);
+        vtkErrorMacro("For the file "
+          << this->FileName << " we got the following error: " << resultInt.error().msg());
         fclose(fp);
         return -1;
       }
+      elevation = resultInt->value();
       *(outPtr + columnId + row * numberOfColumns) = elevation * units;
     }
   }

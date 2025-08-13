@@ -5,10 +5,10 @@
 #include "vtkAxisActor2D.h"
 #include "vtkCellArray.h"
 #include "vtkFieldData.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTrivialProducer.h"
@@ -78,8 +78,9 @@ vtkParallelCoordinatesActor::vtkParallelCoordinatesActor()
   this->TitleTextProperty = vtkTextProperty::New();
   this->TitleTextProperty->ShallowCopy(this->LabelTextProperty);
 
-  this->LabelFormat = new char[8];
-  snprintf(this->LabelFormat, 8, "%s", "%-#6.3g");
+  this->LabelFormat = new char[10];
+  auto result = vtk::format_to_n(this->LabelFormat, 10, "{:s}", "{:<#6.3g}");
+  *result.out = '\0';
 
   this->LastPosition[0] = this->LastPosition[1] = this->LastPosition2[0] = this->LastPosition2[1] =
     0;
@@ -110,6 +111,21 @@ vtkParallelCoordinatesActor::~vtkParallelCoordinatesActor()
 
   this->SetLabelTextProperty(nullptr);
   this->SetTitleTextProperty(nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkParallelCoordinatesActor::SetLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(LabelFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------

@@ -19,6 +19,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRendererCollection.h"
 #include "vtkStringOutputWindow.h"
+#include "vtkStringScanner.h"
 
 #include <sstream>
 
@@ -1534,7 +1535,7 @@ void vtkXOpenGLRenderWindow::SetWindowInfo(const char* info)
   this->EnsureDisplay();
 
   int tmp;
-  sscanf(info, "%i", &tmp);
+  VTK_FROM_CHARS_IF_ERROR_BREAK(info, tmp);
   this->SetWindowId(static_cast<Window>(tmp));
 }
 
@@ -1542,7 +1543,7 @@ void vtkXOpenGLRenderWindow::SetWindowInfo(const char* info)
 void vtkXOpenGLRenderWindow::SetNextWindowInfo(const char* info)
 {
   int tmp;
-  sscanf(info, "%i", &tmp);
+  VTK_FROM_CHARS_IF_ERROR_BREAK(info, tmp);
   this->SetNextWindowId(static_cast<Window>(tmp));
 }
 
@@ -1553,7 +1554,7 @@ void vtkXOpenGLRenderWindow::SetParentInfo(const char* info)
   this->EnsureDisplay();
 
   int tmp;
-  sscanf(info, "%i", &tmp);
+  VTK_FROM_CHARS_IF_ERROR_BREAK(info, tmp);
   this->SetParentId(static_cast<Window>(tmp));
 }
 

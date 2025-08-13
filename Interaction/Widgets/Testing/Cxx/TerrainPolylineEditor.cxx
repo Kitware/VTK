@@ -9,10 +9,8 @@
 #include "vtkImageData.h"
 #include "vtkImageDataGeometryFilter.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkLODActor.h"
 #include "vtkLookupTable.h"
 #include "vtkOrientedGlyphContourRepresentation.h"
-#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
@@ -23,6 +21,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 #include "vtkTerrainContourLineInterpolator.h"
 #include "vtkTerrainDataPointPlacer.h"
 #include "vtkTestUtilities.h"
@@ -276,12 +275,16 @@ int TerrainPolylineEditor(int argc, char* argv[])
   {
     if (strcmp("-ProjectionMode", argv[i]) == 0)
     {
-      interpolator->GetProjector()->SetProjectionMode(atoi(argv[i + 1]));
+      int projectionMode;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i + 1], projectionMode, EXIT_FAILURE);
+      interpolator->GetProjector()->SetProjectionMode(projectionMode);
     }
     if (strcmp("-HeightOffset", argv[i]) == 0)
     {
-      interpolator->GetProjector()->SetHeightOffset(atoi(argv[i + 1]));
-      pointPlacer->SetHeightOffset(atof(argv[i + 1]));
+      double heightOffset;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i + 1], heightOffset, EXIT_FAILURE);
+      interpolator->GetProjector()->SetHeightOffset(static_cast<int>(heightOffset));
+      pointPlacer->SetHeightOffset(heightOffset);
     }
     if (strcmp("-InitialPath", argv[i]) == 0)
     {

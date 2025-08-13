@@ -14,6 +14,7 @@
 #include "vtkIOSSReader.h"
 #include "vtkLogger.h"
 #include "vtkRedistributeDataSetFilter.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkVector.h"
 
@@ -46,7 +47,7 @@ int TestRedistributeDataSetFilterOnIOSS(int argc, char* argv[])
   vtkMultiProcessController::SetGlobalController(controller);
 
   const int rank = controller->GetLocalProcessId();
-  vtkLogger::SetThreadName("rank:" + std::to_string(rank));
+  vtkLogger::SetThreadName("rank:" + vtk::to_string(rank));
 
   vtkNew<vtkIOSSReader> reader;
   auto fname = GetFileName(argc, argv, std::string("Data/Exodus/can.e.4/can.e.4.0"));

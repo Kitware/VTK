@@ -20,6 +20,7 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 
 #include "vtkBitArray.h"
 #include "vtkHyperTree.h"
@@ -804,7 +805,7 @@ void PIOAdaptor::addMaterialVariableEntries(
   for (int j = 1; j <= this->numMaterials; j++)
   {
     // the material name is <var>_<material number>_<material_name>
-    vtkStdString matName = var + "_" + std::to_string(j) + "_" + matident[j - 1];
+    vtkStdString matName = var + "_" + vtk::to_string(j) + "_" + matident[j - 1];
     this->variableName.emplace_back(matName);
 
     PIOMaterialVariable* matvar = new PIOMaterialVariable();

@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /*-------------------------------------------------------------------
  * A struct that lays out the function information in a way
  * that makes it easy to find methods that act on the same ivars.
@@ -1489,3 +1491,5 @@ const char* vtkParseProperties_MethodTypeAsString(unsigned int methodType)
       return "UNKNOWN";
   }
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

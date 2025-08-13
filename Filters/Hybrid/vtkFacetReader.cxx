@@ -5,7 +5,6 @@
 #include "vtkAppendPolyData.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCellType.h"
 #include "vtkDoubleArray.h"
 #include "vtkErrorCode.h"
 #include "vtkGarbageCollector.h"
@@ -15,6 +14,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedIntArray.h"
 
 #include <vtksys/FStream.hxx>
@@ -154,7 +154,8 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Read number of parts
   int num_parts = 0;
-  if (!GetLineFromStream(ifs, line) || sscanf(line.c_str(), "%d", &num_parts) != 1 || num_parts < 0)
+  if (!GetLineFromStream(ifs, line) || vtk::from_chars(line, num_parts).ec != std::errc{} ||
+    num_parts < 0)
   {
     vtkErrorMacro("Bad number of parts line");
     return 1;
@@ -201,10 +202,18 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
     // Read cell/point index and geometry information including the number of
     // points. cell/point index for points is always 0
     int cell_point_index = -1;
-    int numpts = -1, tmp;
-    if (!GetLineFromStream(ifs, line) || sscanf(line.c_str(), "%d", &cell_point_index) != 1 ||
-      cell_point_index != 0 || !GetLineFromStream(ifs, line) ||
-      sscanf(line.c_str(), "%d %d %d", &numpts, &tmp, &tmp) != 3 || numpts < 0)
+    vtk::scan_result_type<std::string&, int, int, int> resultNumPoints;
+    if (!GetLineFromStream(ifs, line) ||
+      vtk::from_chars(line, cell_point_index).ec != std::errc{} || cell_point_index != 0 ||
+      !GetLineFromStream(ifs, line) ||
+      !((resultNumPoints = vtk::scan<int, int, int>(line, "{:d} {:d} {:d}"))))
+    {
+      vtkErrorMacro("Problem reading number of points");
+      error = 1;
+      break;
+    }
+    auto& [numpts, _1, _2] = resultNumPoints->values();
+    if (numpts < 0)
     {
       vtkErrorMacro("Problem reading number of points");
       error = 1;
@@ -224,13 +233,15 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
         break;
       }
       // Read point
-      double x = 0, y = 0, z = 0;
-      if (!GetLineFromStream(ifs, line) || sscanf(line.c_str(), "%lf %lf %lf", &x, &y, &z) != 3)
+      vtk::scan_result_type<std::string&, double, double, double> pointResult;
+      if (!GetLineFromStream(ifs, line) ||
+        !((pointResult = vtk::scan<double, double, double>(line, "{} {} {}"))))
       {
-        vtkErrorMacro("Problem reading point: " << point);
+        vtkErrorMacro("Problem reading point: " << point << " " << line);
         error = 1;
         break;
       }
+      auto& [x, y, z] = pointResult->values();
       myPointsPtr->InsertNextPoint(x, y, z);
     }
     if (error)
@@ -239,8 +250,8 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     // Read cell point index
-    if (!GetLineFromStream(ifs, line) || sscanf(line.c_str(), "%d", &cell_point_index) != 1 ||
-      cell_point_index != 1)
+    if (!GetLineFromStream(ifs, line) ||
+      vtk::from_chars(line, cell_point_index).ec != std::errc{} || cell_point_index != 1)
     {
       vtkErrorMacro("Cannot read cell/point index or it is not 1");
       error = 1;
@@ -256,10 +267,16 @@ int vtkFacetReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     // Read topology information
-    int numcells = -1, numpointpercell = -1;
+    vtk::scan_result_type<std::string&, int, int> resultNumCells;
     if (!GetLineFromStream(ifs, line) ||
-      sscanf(line.c_str(), "%d %d", &numcells, &numpointpercell) != 2 || numcells < 0 ||
-      numpointpercell < 0)
+      !((resultNumCells = vtk::scan<int, int>(line, "{:d} {:d}"))))
+    {
+      vtkErrorMacro("Problem reading number of cells and points per cell");
+      error = 1;
+      break;
+    }
+    auto& [numcells, numpointpercell] = resultNumCells->values();
+    if (numcells < 0 || numpointpercell < 0)
     {
       vtkErrorMacro("Problem reading number of cells and points per cell");
       error = 1;

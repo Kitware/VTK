@@ -235,10 +235,10 @@ public:
 
   ///@{
   /**
-   * Set/Get the format with which to print the labels on each of the
+   * Set/Get the std::format style format with which to print the labels on each of the
    * x-y-z axes.
    */
-  vtkSetStringMacro(LabelFormat);
+  void SetLabelFormat(const char* format);
   vtkGetStringMacro(LabelFormat);
   ///@}
 

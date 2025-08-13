@@ -10,12 +10,11 @@
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
 #include "vtkOverlappingAMR.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredAMRGridConnectivity.h"
 #include "vtkStructuredData.h"
 #include "vtkStructuredExtent.h"
 #include "vtkUniformGrid.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkXMLImageDataWriter.h"
 
 // C++ includes
 #include <cassert>
@@ -570,9 +569,9 @@ int TestStructuredAMRGridConnectivity_internal(int argc, char* argv[])
 //------------------------------------------------------------------------------
 int TestSimpleAMRGridConnectivity(int vtkNotUsed(argc), char* argv[])
 {
-  int rc = 0;
-  int dim = atoi(argv[1]);
-  int ratio = atoi(argv[2]);
+  int rc = 0, dim, ratio;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], dim, EXIT_FAILURE);
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[2], ratio, EXIT_FAILURE);
 
   switch (dim)
   {

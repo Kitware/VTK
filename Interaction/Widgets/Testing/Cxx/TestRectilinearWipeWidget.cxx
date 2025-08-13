@@ -4,10 +4,8 @@
 // This example tests the vtkRectilinearWipeWidget.
 
 // First include the required header files for the VTK classes we are using.
-#include "vtkCommand.h"
 #include "vtkImageActor.h"
 #include "vtkImageCanvasSource2D.h"
-#include "vtkImageData.h"
 #include "vtkImageMapper3D.h"
 #include "vtkImageRectilinearWipe.h"
 #include "vtkImageWrapPad.h"
@@ -18,7 +16,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
-#include "vtkTestUtilities.h"
+#include "vtkStringScanner.h"
 #include "vtkTesting.h"
 
 const char eventLog[] = "# StreamVersion 1\n"
@@ -437,7 +435,7 @@ int TestRectilinearWipeWidget(int argc, char* argv[])
   int wipeMode = 0;
   if (argc > 1)
   {
-    wipeMode = atoi(argv[1]);
+    vtk::from_chars(argv[1], wipeMode);
   }
 
   // Create the RenderWindow, Renderer and both Actors

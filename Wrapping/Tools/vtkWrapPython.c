@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* the main entry method, called by vtkParse.y */
 void vtkParseOutput(FILE* fp, FileInfo* data);
@@ -585,3 +587,5 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
 
   return vtkParse_FinalizeMain(0);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

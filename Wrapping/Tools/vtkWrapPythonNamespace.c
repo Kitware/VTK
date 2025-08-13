@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* Wrap the namespace */
 int vtkWrapPython_WrapNamespace(FILE* fp, const char* module, NamespaceInfo* data)
@@ -55,3 +57,5 @@ int vtkWrapPython_WrapNamespace(FILE* fp, const char* module, NamespaceInfo* dat
 
   return 1;
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

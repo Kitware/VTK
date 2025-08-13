@@ -135,7 +135,7 @@ int vtkLANLX3DReader::RequestData(
     has_numbered_files = true;
 
     std::string base = fn.substr(0, fn.size() - 5);
-    first_file_piece = std::stoi(fn.substr(fn.size() - 5));
+    VTK_FROM_CHARS_IF_ERROR_RETURN(fn.substr(fn.size() - 5), first_file_piece, 0);
     end_file_piece = first_file_piece + 1;
     fn = base;
 

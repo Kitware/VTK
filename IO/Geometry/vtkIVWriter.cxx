@@ -8,6 +8,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
+#include "vtkStringFormatter.h"
+
 #include <vtksys/SystemTools.hxx>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -37,8 +39,8 @@ void vtkIVWriter::WriteData()
   //  Write header
   //
   vtkDebugMacro("Writing OpenInventor file");
-  fprintf(fp, "#Inventor V2.0 ascii\n");
-  fprintf(fp, "# OpenInventor file written by the visualization toolkit\n\n");
+  vtk::print(fp, "#Inventor V2.0 ascii\n");
+  vtk::print(fp, "# OpenInventor file written by the visualization toolkit\n\n");
   this->WritePolyData(this->GetInput(), fp);
   if (fclose(fp))
   {
@@ -76,134 +78,134 @@ void vtkIVWriter::WritePolyData(vtkPolyData* pd, FILE* fp)
     }
   }
 
-  fprintf(fp, "Separator {\n");
+  vtk::print(fp, "Separator {{\n");
 
   // Point data (coordinates)
-  fprintf(fp, "\tCoordinate3 {\n");
-  fprintf(fp, "\t\tpoint [\n");
-  fprintf(fp, "\t\t\t");
+  vtk::print(fp, "\tCoordinate3 {{\n");
+  vtk::print(fp, "\t\tpoint [\n");
+  vtk::print(fp, "\t\t\t");
   for (i = 0; i < points->GetNumberOfPoints(); i++)
   {
     double xyz[3];
     points->GetPoint(i, xyz);
-    fprintf(fp, "%g %g %g, ", xyz[0], xyz[1], xyz[2]);
+    vtk::print(fp, "{:g} {:g} {:g}, ", xyz[0], xyz[1], xyz[2]);
     if (!((i + 1) % 2))
     {
-      fprintf(fp, "\n\t\t\t");
+      vtk::print(fp, "\n\t\t\t");
     }
   }
-  fprintf(fp, "\n\t\t]");
-  fprintf(fp, "\t}\n");
+  vtk::print(fp, "\n\t\t]");
+  vtk::print(fp, "\t}}\n");
 
   // Per vertex coloring
-  fprintf(fp, "\tMaterialBinding {\n");
-  fprintf(fp, "\t\tvalue PER_VERTEX_INDEXED\n");
-  fprintf(fp, "\t}\n");
+  vtk::print(fp, "\tMaterialBinding {{\n");
+  vtk::print(fp, "\t\tvalue PER_VERTEX_INDEXED\n");
+  vtk::print(fp, "\t}}\n");
 
   // Colors, if any
   if (colors)
   {
-    fprintf(fp, "\tMaterial {\n");
-    fprintf(fp, "\t\tdiffuseColor [\n");
-    fprintf(fp, "\t\t\t");
+    vtk::print(fp, "\tMaterial {{\n");
+    vtk::print(fp, "\t\tdiffuseColor [\n");
+    vtk::print(fp, "\t\t\t");
     for (i = 0; i < colors->GetNumberOfTuples(); i++)
     {
       unsigned char* rgba;
       rgba = colors->GetPointer(4 * i);
-      fprintf(fp, "%g %g %g, ", rgba[0] / 255.0f, rgba[1] / 255.0f, rgba[2] / 255.0f);
+      vtk::print(fp, "{:g} {:g} {:g}, ", rgba[0] / 255.0f, rgba[1] / 255.0f, rgba[2] / 255.0f);
       if (!((i + 1) % 2))
       {
-        fprintf(fp, "\n\t\t\t");
+        vtk::print(fp, "\n\t\t\t");
       }
     }
-    fprintf(fp, "\n\t\t]\n");
-    fprintf(fp, "\t}\n");
+    vtk::print(fp, "\n\t\t]\n");
+    vtk::print(fp, "\t}}\n");
     colors->Delete();
   }
 
   // write out polys if any
   if (pd->GetNumberOfPolys() > 0)
   {
-    fprintf(fp, "\tIndexedFaceSet {\n");
-    fprintf(fp, "\t\tcoordIndex [\n");
+    vtk::print(fp, "\tIndexedFaceSet {{\n");
+    vtk::print(fp, "\t\tcoordIndex [\n");
     cells = pd->GetPolys();
     for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
     {
-      fprintf(fp, "\t\t\t");
+      vtk::print(fp, "\t\t\t");
       for (i = 0; i < npts; i++)
       {
         // treating vtkIdType as int
-        fprintf(fp, "%i, ", (int)indx[i]);
+        vtk::print(fp, "{:d}, ", (int)indx[i]);
       }
-      fprintf(fp, "-1,\n");
+      vtk::print(fp, "-1,\n");
     }
-    fprintf(fp, "\t\t]\n");
-    fprintf(fp, "\t}\n");
+    vtk::print(fp, "\t\t]\n");
+    vtk::print(fp, "\t}}\n");
   }
 
   // write out lines if any
   if (pd->GetNumberOfLines() > 0)
   {
-    fprintf(fp, "\tIndexedLineSet {\n");
-    fprintf(fp, "\t\tcoordIndex  [\n");
+    vtk::print(fp, "\tIndexedLineSet {{\n");
+    vtk::print(fp, "\t\tcoordIndex  [\n");
 
     cells = pd->GetLines();
     for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
     {
-      fprintf(fp, "\t\t\t");
+      vtk::print(fp, "\t\t\t");
       for (i = 0; i < npts; i++)
       {
         // treating vtkIdType as int
-        fprintf(fp, "%i, ", (int)indx[i]);
+        vtk::print(fp, "{:d}, ", (int)indx[i]);
       }
-      fprintf(fp, "-1,\n");
+      vtk::print(fp, "-1,\n");
     }
-    fprintf(fp, "\t\t]\n");
-    fprintf(fp, "\t}\n");
+    vtk::print(fp, "\t\t]\n");
+    vtk::print(fp, "\t}}\n");
   }
 
   // write out verts if any
   if (pd->GetNumberOfVerts() > 0)
   {
-    fprintf(fp, "\tIndexdedPointSet {\n");
-    fprintf(fp, "\t\tcoordIndex [");
+    vtk::print(fp, "\tIndexdedPointSet {{\n");
+    vtk::print(fp, "\t\tcoordIndex [");
     cells = pd->GetVerts();
     for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
     {
-      fprintf(fp, "\t\t\t");
+      vtk::print(fp, "\t\t\t");
       for (i = 0; i < npts; i++)
       {
         // treating vtkIdType as int
-        fprintf(fp, "%i, ", (int)indx[i]);
+        vtk::print(fp, "{:d}, ", (int)indx[i]);
       }
-      fprintf(fp, "-1,\n");
+      vtk::print(fp, "-1,\n");
     }
-    fprintf(fp, "\t\t]\n");
-    fprintf(fp, "\t}\n");
+    vtk::print(fp, "\t\t]\n");
+    vtk::print(fp, "\t}}\n");
   }
 
   // write out tstrips if any
   if (pd->GetNumberOfStrips() > 0)
   {
 
-    fprintf(fp, "\tIndexedTriangleStripSet {\n");
-    fprintf(fp, "\t\tcoordIndex [\n");
+    vtk::print(fp, "\tIndexedTriangleStripSet {{\n");
+    vtk::print(fp, "\t\tcoordIndex [\n");
     cells = pd->GetStrips();
     for (cells->InitTraversal(); cells->GetNextCell(npts, indx);)
     {
-      fprintf(fp, "\t\t\t");
+      vtk::print(fp, "\t\t\t");
       for (i = 0; i < npts; i++)
       {
         // treating vtkIdType as int
-        fprintf(fp, "%i, ", (int)indx[i]);
+        vtk::print(fp, "{:d}, ", (int)indx[i]);
       }
-      fprintf(fp, "-1,\n");
+      vtk::print(fp, "-1,\n");
     }
-    fprintf(fp, "\t\t]\n");
-    fprintf(fp, "\t}\n");
+    vtk::print(fp, "\t\t]\n");
+    vtk::print(fp, "\t}}\n");
   }
 
-  fprintf(fp, "}\n"); // close the Shape
+  vtk::print(fp, "}}\n"); // close the Shape
 }
 
 //------------------------------------------------------------------------------

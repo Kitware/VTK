@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-LANL-Triad-USGov
 #include "X3D_reader.hxx"
 #include "X3D_tokens.hxx"
+#include "vtkStringFormatter.h"
 
 #include <iostream>
 
@@ -30,7 +31,8 @@ string Reader::expect_starts_with(const string& s)
   }
   else // unexpected block begin/end
   {
-    throw ReadError(s, line, filename + ": " + to_string(file.tellg()));
+    throw ReadError(
+      s, line, filename + ": " + vtk::to_string(static_cast<std::size_t>(file.tellg())));
   }
 }
 
@@ -105,7 +107,8 @@ Reader::Reader(const string& filename_, const Version version_)
   {
     file >> x3 >> a23 >> i10 >> eat_endl; // (3X, A23, I10)
     if (key != a23())                     // unexpected key
-      throw ReadError(key, a23(), block + ": " + to_string(file.tellg()));
+      throw ReadError(
+        key, a23(), block + ": " + vtk::to_string(static_cast<std::size_t>(file.tellg())));
     size[key] = i10();
   }
   expect_starts_with("end_" + block);
@@ -126,7 +129,8 @@ Materials Reader::materials(const string& block)
   {
     file >> x3 >> i10 >> x3 >> a >> eat_endl; // (3X, I10, 3X, A)
     if (i + 1 != i10())                       // unexpected material id
-      throw ReadError(i + 1, i10(), block + ": " + to_string(file.tellg()));
+      throw ReadError(
+        i + 1, i10(), block + ": " + vtk::to_string(static_cast<std::size_t>(file.tellg())));
     m.push_back(a());
   }
   expect_starts_with("end_" + block);
@@ -149,7 +153,8 @@ Nodes Reader::nodes()
   {                     // (i10, 3(1PE22.14))
     file >> i10;        // node id
     if (i + 1 != i10()) // unexpected node id
-      throw ReadError(i + 1, i10(), block + ": " + to_string(file.tellg()));
+      throw ReadError(
+        i + 1, i10(), block + ": " + vtk::to_string(static_cast<std::size_t>(file.tellg())));
     Node vec;
     for (unsigned int j = 0; j < vec.size(); j++)
     { // node coordinates
@@ -184,7 +189,8 @@ Faces Reader::faces()
     Face fl;
     file >> i10 >> rn;  // face id
     if (i + 1 != i10()) // unexpected face id
-      throw ReadError(i + 1, i10(), block + ": " + to_string(file.tellg()));
+      throw ReadError(
+        i + 1, i10(), block + ": " + vtk::to_string(static_cast<std::size_t>(file.tellg())));
     fl.face_id = i + 1;
     file >> i10 >> rn; // number of face nodes
     int num_nodes = i10();
@@ -195,7 +201,8 @@ Faces Reader::faces()
     }
     file >> i10 >> rn;
     if (this_process_id != i10()) // unexpected process id
-      throw ReadError(this_process_id, i10(), block + ": " + to_string(file.tellg()));
+      throw ReadError(this_process_id, i10(),
+        block + ": " + vtk::to_string(static_cast<std::size_t>(file.tellg())));
     file >> i10 >> rn;
     fl.neighbor_process_id = i10();
     file >> i10 >> rn;
@@ -230,7 +237,8 @@ Cells Reader::cells()
   { // ((2+num_faces)(I10))
     file >> i10;
     if (i + 1 != i10()) // unexpected element id
-      throw ReadError(i + 1, i10(), block + ": " + to_string(file.tellg()));
+      throw ReadError(
+        i + 1, i10(), block + ": " + vtk::to_string(static_cast<std::size_t>(file.tellg())));
     file >> i10;
     int num_faces = i10();
     vector<int> cl;
@@ -257,7 +265,8 @@ ConstrainedNodes Reader::constrained_nodes()
   file.seekg(offset_of(block));
   file >> a12 >> i10 >> eat_endl;
   if (a12() != block)
-    throw ReadError(block, a12(), filename + ": " + to_string(file.tellg()));
+    throw ReadError(
+      block, a12(), filename + ": " + vtk::to_string(static_cast<std::size_t>(file.tellg())));
   int num_lines = size.at(block);
   if (i10() != num_lines)
     throw ReadError(num_lines, i10(), block);
@@ -266,7 +275,8 @@ ConstrainedNodes Reader::constrained_nodes()
     ConstrainedNode sl;
     file >> i10;
     if (i + 1 != i10()) // unexpected constrained node id
-      throw ReadError(i + 1, i10(), block + ": " + to_string(file.tellg()));
+      throw ReadError(
+        i + 1, i10(), block + ": " + vtk::to_string(static_cast<std::size_t>(file.tellg())));
     file >> i10;
     sl.vertex_id = i10();
     file >> i10;
@@ -295,7 +305,8 @@ SharedNodes Reader::shared_nodes()
   file.seekg(offs);
   file >> a12 >> i10 >> eat_endl;
   if (a12() != block)
-    throw ReadError(block, a12(), filename + ": " + to_string(file.tellg()));
+    throw ReadError(
+      block, a12(), filename + ": " + vtk::to_string(static_cast<std::size_t>(file.tellg())));
   int num_lines = size.at(block);
   if (i10() != num_lines)
     throw ReadError(num_lines, i10(), block);

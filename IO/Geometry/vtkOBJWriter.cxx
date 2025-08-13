@@ -7,12 +7,12 @@
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
-#include "vtkNumberToString.h"
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTriangleStrip.h"
 
 #include "vtksys/FStream.hxx"
@@ -87,13 +87,11 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
   vtkIdType nbPts = pts->GetNumberOfPoints();
 
   // Positions
-  vtkNumberToString converter;
   for (vtkIdType i = 0; i < nbPts; i++)
   {
     double p[3];
     pts->GetPoint(i, p);
-    f << "v " << converter.Convert(p[0]) << " " << converter.Convert(p[1]) << " "
-      << converter.Convert(p[2]) << "\n";
+    f << vtk::format("v {} {} {}\n", p[0], p[1], p[2]);
   }
 
   // Normals
@@ -103,8 +101,7 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
     {
       double p[3];
       normals->GetTuple(i, p);
-      f << "vn " << converter.Convert(p[0]) << " " << converter.Convert(p[1]) << " "
-        << converter.Convert(p[2]) << "\n";
+      f << vtk::format("vn {} {} {}\n", p[0], p[1], p[2]);
     }
   }
 
@@ -125,7 +122,7 @@ void WritePoints(std::ostream& f, vtkPoints* pts, vtkDataArray* normals,
           tcoords->GetTuple(i, p);
           if (p[0] != -1.0)
           {
-            f << "vt " << converter.Convert(p[0]) << " " << converter.Convert(p[1]) << "\n";
+            f << vtk::format("vt {} {}\n", p[0], p[1]);
             ++vtEndIndex;
             pointEndIndex = i + 1;
           }

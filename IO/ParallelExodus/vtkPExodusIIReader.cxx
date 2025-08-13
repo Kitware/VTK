@@ -6,12 +6,9 @@
 #include "vtkAppendCompositeDataLeaves.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
-#include "vtkDoubleArray.h"
 #include "vtkExodusIIReaderPrivate.h"
-#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
@@ -19,18 +16,18 @@
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtk_exodusII.h"
 #include "vtk_netcdf.h"
 
+#include "vtksys/RegularExpression.hxx"
 #include "vtksys/SystemTools.hxx"
 
-#include <vector>
-
-#include <vtksys/RegularExpression.hxx>
-
 #include <cctype>
+#include <vector>
 
 #undef DBG_PEXOIIRDR
 #define vtkPExodusIIReaderMAXPATHLEN 2048
@@ -151,6 +148,21 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
 }
 
 //------------------------------------------------------------------------------
+void vtkPExodusIIReader::SetFilePattern(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(FilePattern, formatStr);
+}
+
+//------------------------------------------------------------------------------
 void vtkPExodusIIReader::SetController(vtkMultiProcessController* c)
 {
   vtkSetObjectBodyMacro(Controller, vtkMultiProcessController, c);
@@ -206,7 +218,9 @@ int vtkPExodusIIReader::RequestInformation(
     {
       size_t nmSize = strlen(this->FilePattern) + strlen(this->FilePrefix) + 20;
       char* nm = new char[nmSize];
-      snprintf(nm, nmSize, this->FilePattern, this->FilePrefix, this->FileRange[0]);
+      auto result =
+        vtk::format_to_n(nm, nmSize, this->FilePattern, this->FilePrefix, this->FileRange[0]);
+      *result.out = '\0';
       delete[] this->FileName;
       this->FileName = nm;
     }
@@ -238,8 +252,9 @@ int vtkPExodusIIReader::RequestInformation(
     }
     else if (this->FilePattern)
     {
-      snprintf(
+      auto result = vtk::format_to_n(
         this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN, this->FilePattern, this->FilePrefix, 0);
+      *result.out = '\0';
     }
     delete[] this->FileName;
     this->FileName = vtksys::SystemTools::DuplicateString(this->MultiFileName);
@@ -451,8 +466,9 @@ int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
     else if (this->FilePattern)
     {
-      snprintf(this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN, this->FilePattern,
-        this->FilePrefix, fileIndex);
+      auto result = vtk::format_to_n(this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN,
+        this->FilePattern, this->FilePrefix, fileIndex);
+      *result.out = '\0';
       if (this->GetGenerateFileIdArray())
       {
         fileId = fileIndex;
@@ -738,7 +754,7 @@ int vtkPExodusIIReader::DetermineFileId(const char* file)
     {
       if (isdigit(*numString))
       {
-        fileId = atoi(numString);
+        VTK_FROM_CHARS_IF_ERROR_BREAK(numString, fileId);
       }
       return fileId; // no numbers in file name
     }
@@ -753,11 +769,11 @@ int vtkPExodusIIReader::DetermineFileId(const char* file)
 
   if ((numString == start) && (isdigit(*numString)))
   {
-    fileId = atoi(numString);
+    VTK_FROM_CHARS_IF_ERROR_BREAK(numString, fileId);
   }
   else
   {
-    fileId = atoi(++numString);
+    VTK_FROM_CHARS_IF_ERROR_BREAK(++numString, fileId);
   }
 
   return fileId;
@@ -765,7 +781,7 @@ int vtkPExodusIIReader::DetermineFileId(const char* file)
 
 int vtkPExodusIIReader::DeterminePattern(const char* file)
 {
-  char pattern[20] = "%s";
+  char pattern[20] = "{:s}";
   int scount = 0;
   int cc = 0;
   int min = 0, max = 0;
@@ -812,7 +828,9 @@ int vtkPExodusIIReader::DeterminePattern(const char* file)
   std::string extension = numberRegEx.match(3);
 
   // Determine the pattern
-  snprintf(pattern, sizeof(pattern), "%%s%%0%ii%s", scount, extension.c_str());
+  auto result =
+    vtk::format_to_n(pattern, sizeof(pattern), "{{:s}}{{:0{:d}d}}{:s}", scount, extension.c_str());
+  *result.out = '\0';
 
   // Count up the files
   char buffer[1024];
@@ -821,7 +839,9 @@ int vtkPExodusIIReader::DeterminePattern(const char* file)
   // First go up every 100
   for (cc = min + 100; true; cc += 100)
   {
-    snprintf(buffer, sizeof(buffer), pattern, prefix.c_str(), cc);
+    result =
+      vtk::format_to_n(buffer, sizeof(buffer), std::string_view(pattern), prefix.c_str(), cc);
+    *result.out = '\0';
 
     if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
@@ -830,7 +850,8 @@ int vtkPExodusIIReader::DeterminePattern(const char* file)
   cc = cc - 100;
   for (cc = cc + 1; true; ++cc)
   {
-    snprintf(buffer, sizeof(buffer), pattern, prefix.c_str(), cc);
+    result = vtk::format_to_n(buffer, sizeof(buffer), pattern, prefix.c_str(), cc);
+    *result.out = '\0';
 
     if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
@@ -846,7 +867,8 @@ int vtkPExodusIIReader::DeterminePattern(const char* file)
     if (cc < 0)
       break;
 
-    snprintf(buffer, sizeof(buffer), pattern, prefix.c_str(), cc);
+    result = vtk::format_to_n(buffer, sizeof(buffer), pattern, prefix.c_str(), cc);
+    *result.out = '\0';
 
     if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;
@@ -859,7 +881,8 @@ int vtkPExodusIIReader::DeterminePattern(const char* file)
     if (cc < 0)
       break;
 
-    snprintf(buffer, sizeof(buffer), pattern, prefix.c_str(), cc);
+    result = vtk::format_to_n(buffer, sizeof(buffer), pattern, prefix.c_str(), cc);
+    *result.out = '\0';
 
     if (vtksys::SystemTools::Stat(buffer, &fs) == -1)
       break;

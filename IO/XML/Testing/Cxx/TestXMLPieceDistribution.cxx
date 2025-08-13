@@ -16,6 +16,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
+#include <vtkStringFormatter.h>
 #include <vtkTestUtilities.h>
 #include <vtkXMLMultiBlockDataReader.h>
 
@@ -40,7 +41,7 @@ vtkSmartPointer<vtkActor> GetActor(
     reader->SetPieceDistribution(mode);
 
     vtkNew<vtkArrayCalculator> calculator;
-    calculator->SetFunction(std::to_string(idx).c_str());
+    calculator->SetFunction(vtk::to_string(idx).c_str());
     calculator->SetResultArrayName("piece-id");
     calculator->SetAttributeTypeToCellData();
     calculator->SetInputConnection(reader->GetOutputPort());

@@ -6,11 +6,14 @@
 #include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringScanner.h"
 #include "vtkXMLDataElement.h"
+
 #include <sstream>
+#include <string>
+
 using std::istringstream;
 using std::ostringstream;
-#include <string>
 using std::string;
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -433,7 +436,7 @@ int vtkQuadratureSchemeDefinition::RestoreState(vtkXMLDataElement* root)
     return 0;
   }
   value = e->GetAttribute("value");
-  this->CellType = atoi(value);
+  VTK_FROM_CHARS_IF_ERROR_RETURN(value, this->CellType, 0);
   //
   e = root->FindNestedElementWithName("NumberOfNodes");
   if (e == nullptr)
@@ -443,7 +446,7 @@ int vtkQuadratureSchemeDefinition::RestoreState(vtkXMLDataElement* root)
     return 0;
   }
   value = e->GetAttribute("value");
-  this->NumberOfNodes = atoi(value);
+  VTK_FROM_CHARS_IF_ERROR_RETURN(value, this->NumberOfNodes, 0);
   //
   e = root->FindNestedElementWithName("NumberOfQuadraturePoints");
   if (e == nullptr)
@@ -453,7 +456,7 @@ int vtkQuadratureSchemeDefinition::RestoreState(vtkXMLDataElement* root)
     return 0;
   }
   value = e->GetAttribute("value");
-  this->NumberOfQuadraturePoints = atoi(value);
+  VTK_FROM_CHARS_IF_ERROR_RETURN(value, this->NumberOfQuadraturePoints, 0);
   // Extract the weights.
   if (this->SecureResources())
   {

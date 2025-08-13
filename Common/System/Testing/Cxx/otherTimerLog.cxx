@@ -31,7 +31,7 @@ void otherTimerLogTest(ostream& strm)
   timer1->StartTimer();
   for (j = 0; j < 4; j++)
   {
-    vtkTimerLog::FormatAndMarkEvent("%s%d", "start", j);
+    vtkTimerLog::FormatAndMarkEvent("{:s}{:d}", "start", j);
     for (i = 0; i < 10000000; i++)
     {
       a *= a;
@@ -42,7 +42,7 @@ void otherTimerLogTest(ostream& strm)
     Sleep(1000);
 #endif
     vtkTimerLog::InsertTimedEvent("Timed Event", .00001, 0);
-    vtkTimerLog::FormatAndMarkEvent("%s%d", "end", j);
+    vtkTimerLog::FormatAndMarkEvent("{:s}{:d}", "end", j);
   }
   timer1->StopTimer();
   strm << *timer1;

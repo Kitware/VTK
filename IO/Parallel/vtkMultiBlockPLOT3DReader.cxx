@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include <sstream>
-
 #include "vtkMultiBlockPLOT3DReader.h"
+#include "vtkMultiBlockPLOT3DReaderInternals.h"
 
 #include "vtkByteSwap.h"
 #include "vtkCellData.h"
@@ -24,14 +23,15 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkSMPTools.h"
+#include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
+
 #include <vtksys/SystemTools.hxx>
 
-#include "vtkMultiBlockPLOT3DReaderInternals.h"
-#include "vtkSMPTools.h"
-
+#include <sstream>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -2235,7 +2235,6 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
             record.GetLengthWithSeparators(offset, nTotalPts * this->Internal->Settings.Precision);
         } /// end of new
 
-        char res[100];
         // Read species and turbulence variables for overflow q files
         for (int j = 0; j < nqc; j++)
         {
@@ -2243,8 +2242,8 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
           temp->SetNumberOfComponents(1);
           temp->SetNumberOfTuples(npts);
           int k = j + 1;
-          snprintf(res, sizeof(res), "Species Density #%d", k);
-          temp->SetName(res);
+          auto name = vtk::format("Species Density #{:d}", k);
+          temp->SetName(name.c_str());
           if (this->ReadScalar(qFp2, extent, wextent, temp, offset, record) == 0)
           {
             vtkErrorMacro("Encountered premature end-of-file while reading "
@@ -2263,14 +2262,14 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
         for (int v = 0; v < nqc; v++)
         {
           vtkDataArray* rat = this->NewFloatArray();
-          snprintf(res, sizeof(res), "Species Density #%d", v + 1);
+          auto name = vtk::format("Species Density #{:d}", v + 1);
           vtkPointData* outputPD = nthOutput->GetPointData();
-          vtkDataArray* spec = outputPD->GetArray(res);
+          vtkDataArray* spec = outputPD->GetArray(name.c_str());
           vtkDataArray* dens = outputPD->GetArray("Density");
           rat->SetNumberOfComponents(1);
           rat->SetNumberOfTuples(ldims[0] * ldims[1] * ldims[2]);
-          snprintf(res, sizeof(res), "Spec Dens #%d / rho", v + 1);
-          rat->SetName(res);
+          name = vtk::format("Spec Dens #{:d} / rho", v + 1);
+          rat->SetName(name.c_str());
           for (int w = 0; w < npts; w++)
           {
             r = dens->GetComponent(w, 0);
@@ -2287,8 +2286,8 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
           temp->SetNumberOfComponents(1);
           temp->SetNumberOfTuples(ldims[0] * ldims[1] * ldims[2]);
           int k = a + 1;
-          snprintf(res, sizeof(res), "Turb Field Quant #%d", k);
-          temp->SetName(res);
+          auto name = vtk::format("Turb Field Quant #{:d}", k);
+          temp->SetName(name.c_str());
           if (this->ReadScalar(qFp2, extent, wextent, temp, offset, record) == 0)
           {
             vtkErrorMacro("Encountered premature end-of-file while reading "
@@ -2705,9 +2704,9 @@ int vtkMultiBlockPLOT3DReader::ReadIntBlock(FILE* fp, int n, int* block)
     vtkIdType count = 0;
     for (int i = 0; i < n; i++)
     {
-      int num = fscanf(fp, "%d", &(block[i]));
-      if (num > 0)
+      if (auto result = vtk::scan_value<int>(fp))
       {
+        block[i] = result->value();
         count++;
       }
       else
@@ -2760,9 +2759,9 @@ vtkIdType vtkMultiBlockPLOT3DReader::ReadValues(FILE* fp, int n, vtkDataArray* s
       int count = 0;
       for (int i = 0; i < n; i++)
       {
-        int num = fscanf(fp, "%f", &(values[i]));
-        if (num > 0)
+        if (auto result = vtk::scan_value<float>(fp))
         {
+          values[i] = result->value();
           count++;
         }
         else
@@ -2780,9 +2779,9 @@ vtkIdType vtkMultiBlockPLOT3DReader::ReadValues(FILE* fp, int n, vtkDataArray* s
       int count = 0;
       for (int i = 0; i < n; i++)
       {
-        int num = fscanf(fp, "%lf", &(values[i]));
-        if (num > 0)
+        if (auto result = vtk::scan_value<double>(fp))
         {
+          values[i] = result->value();
           count++;
         }
         else
@@ -2872,9 +2871,9 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(void* vfp, int extent[6], int wextent[
       int count = 0;
       for (int i = 0; i < n; i++)
       {
-        int num = fscanf(fp, "%f", &(values[i]));
-        if (num > 0)
+        if (auto result = vtk::scan_value<float>(fp))
         {
+          values[i] = result->value();
           count++;
         }
         else
@@ -2892,9 +2891,9 @@ int vtkMultiBlockPLOT3DReader::ReadScalar(void* vfp, int extent[6], int wextent[
       int count = 0;
       for (int i = 0; i < n; i++)
       {
-        int num = fscanf(fp, "%lf", &(values[i]));
-        if (num > 0)
+        if (auto result = vtk::scan_value<double>(fp))
         {
+          values[i] = result->value();
           count++;
         }
         else

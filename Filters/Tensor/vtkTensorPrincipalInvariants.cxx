@@ -14,6 +14,7 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkStringFormatter.h"
 
 #include <cstring>
 
@@ -365,14 +366,14 @@ std::array<int, 3> vtkTensorPrincipalInvariants::GetDecreasingOrder(double value
 std::string vtkTensorPrincipalInvariants::GetSigmaValueArrayName(
   const std::string& baseName, int index)
 {
-  return baseName + " - Sigma " + std::to_string(index);
+  return baseName + " - Sigma " + vtk::to_string(index);
 }
 
 //------------------------------------------------------------------------------
 std::string vtkTensorPrincipalInvariants::GetSigmaVectorArrayName(
   const std::string& baseName, int index)
 {
-  return baseName + " - Sigma " + std::to_string(index) + " (Vector)";
+  return baseName + " - Sigma " + vtk::to_string(index) + " (Vector)";
 }
 
 //------------------------------------------------------------------------------

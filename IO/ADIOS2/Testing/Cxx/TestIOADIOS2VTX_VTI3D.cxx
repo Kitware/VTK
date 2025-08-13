@@ -35,6 +35,7 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 
 #include <adios2.h>
@@ -259,7 +260,7 @@ int TestIOADIOS2VTX_VTI3D(int argc, char* argv[])
     // 3D tests
     for (const auto id : ids)
     {
-      fileName = "Data/ADIOS2/vtx/" + dir + "/heat3D_" + std::to_string(id) + ".bp";
+      fileName = "Data/ADIOS2/vtx/" + dir + "/heat3D_" + vtk::to_string(id) + ".bp";
       filePath = vtkTestUtilities::ExpandDataFileName(argc, argv, fileName.c_str());
       lf_DoTest(filePath, steps);
     }

@@ -6,6 +6,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
 #include "vtkValueFromString.h"
 
@@ -276,7 +277,7 @@ vtkSmartPointer<vtkStringArray> vtkDelimitedTextCodecIteratorPrivate::ToStringAr
 
   for (vtkIdType i = 0; i < array->GetNumberOfTuples(); ++i)
   {
-    output->SetValue(i, std::to_string(array->GetValue(i)));
+    output->SetValue(i, vtk::to_string(array->GetValue(i)));
   }
 
   return output;

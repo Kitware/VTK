@@ -5,13 +5,13 @@
 #include "vtkCommand.h"
 #include "vtkCullerCollection.h"
 #include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkMath.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
+#include "vtkStringScanner.h"
 #include "vtkTimerLog.h"
 
 int TestManyActors(int argc, char* argv[])
@@ -34,13 +34,13 @@ int TestManyActors(int argc, char* argv[])
     if (!strcmp(argv[i], "-N"))
     {
       ++i;
-      numActors = atoi(argv[i]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i], numActors, EXIT_FAILURE);
       continue;
     }
     if (!strcmp(argv[i], "-R"))
     {
       ++i;
-      numRenders = atoi(argv[i]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i], numRenders, EXIT_FAILURE);
       continue;
     }
     cerr << argv[0] << " options:" << endl;

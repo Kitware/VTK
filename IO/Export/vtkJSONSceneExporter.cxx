@@ -32,10 +32,12 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkScalarsToColors.h"
+#include "vtkStringFormatter.h"
 #include "vtkTexture.h"
 #include "vtkVolume.h"
 #include "vtkVolumeCollection.h"
 #include "vtkVolumeProperty.h"
+
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -529,7 +531,7 @@ std::string vtkJSONSceneExporter::WriteDataSet(
     meta << "\n";
   }
   constexpr const char* INDENT = "    ";
-  std::string dsName = (name ? name : std::to_string(this->DatasetCount));
+  std::string dsName = (name ? name : vtk::to_string(this->DatasetCount));
   meta << INDENT << "{\n"
        << INDENT << "  \"name\": \"" << dsName << "\",\n"
        << INDENT << "  \"type\": \"vtkHttpDataSetReader\",\n"
@@ -854,8 +856,8 @@ std::string vtkJSONSceneExporter::WriteTextureLODSeries(vtkTexture* texture)
     // Name is "<name>_<dataset_number>-<width>x<height><ext>"
     // For example, "texture_1-256x256.jpg"
     std::stringstream full_name;
-    full_name << name << "_" << std::to_string(this->DatasetCount + 1) << "-"
-              << std::to_string(dims[0]) << "x" << std::to_string(dims[1]) << ext;
+    full_name << name << "_" << vtk::to_string(this->DatasetCount + 1) << "-"
+              << vtk::to_string(dims[0]) << "x" << vtk::to_string(dims[1]) << ext;
     std::string full_path = path + full_name.str();
 
     vtkNew<vtkJPEGWriter> writer;
@@ -961,7 +963,7 @@ vtkSmartPointer<vtkPolyData> vtkJSONSceneExporter::WritePolyLODSeries(
     // Write out the source LOD
     // They are not zipped yet, but they should be zipped by subclasses
     std::string name =
-      "sourceLOD_" + std::to_string(this->DatasetCount) + "_" + std::to_string(++count) + ".zip";
+      "sourceLOD_" + vtk::to_string(this->DatasetCount) + "_" + vtk::to_string(++count) + ".zip";
     std::string full_path = path + name;
     dsWriter->SetInputData(polyData);
     dsWriter->GetArchiver()->SetArchiveName(full_path.c_str());

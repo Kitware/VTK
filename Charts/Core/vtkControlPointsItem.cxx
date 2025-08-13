@@ -11,13 +11,12 @@
 #include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkIdTypeArray.h"
-#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
-#include "vtkPoints2D.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTransform2D.h"
 #include "vtkVector.h"
 
@@ -123,7 +122,7 @@ vtkControlPointsItem::vtkControlPointsItem()
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(vtkControlPointsItem::CallComputePoints);
 
-  this->SetLabelFormat("%.3f, %.3f");
+  this->SetLabelFormat("{:.3f}, {:.3f}");
 
   this->AddPointItem->ControlPointsItem = this;
 }
@@ -145,6 +144,21 @@ void vtkControlPointsItem::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "EndPointsRemovable: " << this->EndPointsRemovable << endl;
   os << indent << "ShowLabels: " << this->ShowLabels << endl;
   os << indent << "UseAddPointItems: " << this->UseAddPointItem << endl;
+}
+
+//------------------------------------------------------------------------------
+void vtkControlPointsItem::SetLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(LabelFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------
@@ -1714,11 +1728,9 @@ std::string vtkControlPointsItem::GetControlPointLabel(vtkIdType pointId)
   std::string result;
   if (this->LabelFormat)
   {
-    result.resize(1024);
     double point[4];
     this->GetControlPoint(pointId, point);
-    // NOLINTNEXTLINE(readability-container-data-pointer): needs C++17
-    snprintf(&result[0], 1024, this->LabelFormat, point[0], point[1], point[2], point[3]);
+    result = vtk::format(this->LabelFormat, point[0], point[1], point[2], point[3]);
   }
   return result;
 }

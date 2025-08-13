@@ -241,7 +241,7 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtk_numeric_types)
       "${CMAKE_CURRENT_SOURCE_DIR}/${_prefix}.cxx.in"
       "${CMAKE_CURRENT_BINARY_DIR}/${_prefix}_${_suffix}.cxx"
       @ONLY)
-      
+
     list(APPEND "bulk_instantiation_sources_${_suffix}"
       "#include \"${_prefix}_${_suffix}.cxx\"")
   endforeach ()
@@ -410,6 +410,7 @@ endif ()
 set(sources
   vtkArrayIteratorTemplateInstantiate.cxx
   vtkGenericDataArray.cxx
+  vtkStringFormatter.cxx
   vtkValueFromString.cxx
 
   vtkDataArray_CopyComponent.cxx
@@ -439,6 +440,28 @@ configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
 
+include(CheckCXXSourceCompiles)
+
+function(CHECK_CXX_EXPRESSION_COMPILES EXPRESSION FILES VARIABLE)
+  set(SOURCE "/* CHECK_CXX_EXPRESSION_COMPILES */\n")
+  foreach (FILE ${FILES})
+    string(APPEND SOURCE "#include <${FILE}>\n")
+  endforeach ()
+  string(APPEND SOURCE "\nint main()\n{\n")
+  string(APPEND SOURCE "  static_cast<void>(${EXPRESSION});\n\n")
+  string(APPEND SOURCE "  return 0;\n}\n")
+  check_cxx_source_compiles("${SOURCE}" "${VARIABLE}")
+endfunction()
+
+# Check C++ <charconv> next, where the C++17 standard says these must be.
+check_cxx_expression_compiles("std::chars_format()" "charconv" VTK_HAS_STD_CHARS_FORMAT)
+check_cxx_expression_compiles("std::from_chars_result()" "charconv" VTK_HAS_STD_FROM_CHARS_RESULT)
+check_cxx_expression_compiles("std::to_chars_result()" "charconv" VTK_HAS_STD_TO_CHARS_RESULT)
+
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/vtkCharConvCompatibility.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkCharConvCompatibility.h")
+
 set(headers
   vtkABI.h
   vtkArrayIteratorIncludes.h
@@ -464,6 +487,8 @@ set(headers
   vtkRangeIterableTraits.h
   vtkSetGet.h
   vtkSmartPointer.h
+  vtkStringFormatter.h
+  vtkStringScanner.h
   vtkSystemIncludes.h
   vtkTemplateAliasMacro.h
   vtkTestDataArray.h
@@ -484,6 +509,7 @@ set(headers
   ${serialization_helper_headers}
   "${CMAKE_CURRENT_BINARY_DIR}/vtkABINamespace.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkCharConvCompatibility.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
@@ -646,19 +672,6 @@ foreach (type IN LISTS vtk_numeric_types)
     @ONLY)
   unset(BULK_INSTANTIATION_SOURCES)
 endforeach()
-
-include(CheckCXXSourceCompiles)
-
-macro(CHECK_CXX_EXPRESSION_COMPILES EXPRESSION FILES VARIABLE)
-  set(SOURCE "/* CHECK_CXX_EXPRESSION_COMPILES */\n")
-  foreach(FILE ${FILES})
-    set(SOURCE "${SOURCE}#include <${FILE}>\n")
-  endforeach()
-  set(SOURCE "${SOURCE}\nint main()\n{\n")
-  set(SOURCE "${SOURCE}  static_cast<void>(${EXPRESSION});\n\n")
-  set(SOURCE "${SOURCE}  return 0;\n}\n")
-  check_cxx_source_compiles("${SOURCE}" "${VARIABLE}")
-endmacro()
 
 # Check C++ <cmath> first, where the C++11 standard says these must be.
 check_cxx_expression_compiles("std::isnan(0.0)" "cmath" VTK_HAS_STD_ISNAN)

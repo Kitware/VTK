@@ -45,18 +45,17 @@ public:
 
   ///@{
   /**
-   * Set/Get the format with which to print the labels.  This should
-   * be a printf-style format string.
+   * Set/Get the std::format style format with which to print the labels.
 
    * By default, the mapper will try to print each component of the
-   * tuple using a sane format: %d for integers, %f for floats, %g for
-   * doubles, %ld for longs, et cetera.  If you need a different
+   * tuple using a sane format: {:d} for integers, {:f} for floats, {:g} for
+   * doubles, et cetera.  If you need a different
    * format, set it here.  You can do things like limit the number of
    * significant digits, add prefixes/suffixes, basically anything
-   * that printf can do.  If you only want to print one component of a
+   * that std::format can do.  If you only want to print one component of a
    * vector, see the ivar LabeledComponent.
    */
-  vtkSetStringMacro(LabelFormat);
+  void SetLabelFormat(const char* format);
   vtkGetStringMacro(LabelFormat);
   ///@}
 

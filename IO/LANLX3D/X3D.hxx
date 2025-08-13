@@ -15,6 +15,7 @@
 #define X3D_HXX
 
 #include "vtkABINamespace.h"
+#include "vtkStringFormatter.h"
 
 #include <array>
 #include <map>
@@ -120,7 +121,7 @@ inline std::string error_message(
 */
 inline std::string error_message(int expect, int found, const std::string& where)
 {
-  return error_message(std::to_string(expect), std::to_string(found), where);
+  return error_message(vtk::to_string(expect), vtk::to_string(found), where);
 }
 
 }

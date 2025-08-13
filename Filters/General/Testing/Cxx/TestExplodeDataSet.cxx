@@ -9,11 +9,11 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkNew.h"
-#include "vtkNumberToString.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRandomAttributeGenerator.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLImageDataReader.h"
@@ -47,8 +47,7 @@ bool CheckOutput(vtkDataSet* input, vtkPartitionedDataSetCollection* output, uns
       std::cerr << "Partition should have a single value FieldData\n";
     }
     double partId = partIdArray->GetTuple1(0);
-    vtkNumberToString converter;
-    auto blockname = arrayName + "_" + converter.Convert(partId);
+    auto blockname = arrayName + "_" + vtk::to_string(partId);
     auto name = output->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME());
     if (name == nullptr || blockname != name)
     {

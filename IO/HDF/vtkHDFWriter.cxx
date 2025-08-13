@@ -22,6 +22,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -56,7 +57,7 @@ std::string getBlockName(vtkPartitionedDataSetCollection* pdc, unsigned int data
   }
   if (name.empty())
   {
-    name = "Block" + std::to_string(datasetId);
+    name = "Block" + vtk::to_string(datasetId);
   }
   return name;
 }
@@ -248,7 +249,7 @@ void vtkHDFWriter::WriteData()
     // Write all pieces concurrently
     if (this->NbPieces > 1)
     {
-      const std::string partitionSuffix = "part" + std::to_string(this->CurrentPiece);
+      const std::string partitionSuffix = "part" + vtk::to_string(this->CurrentPiece);
       const std::string filePath =
         ::GetExternalBlockFileName(std::string(this->FileName), partitionSuffix);
       this->Impl->CreateFile(this->Overwrite, filePath);
@@ -271,7 +272,7 @@ void vtkHDFWriter::WriteData()
   // Write the time step data in an external file
   if (this->NbPieces == 1 && this->IsTemporal && this->UseExternalTimeSteps)
   {
-    const std::string timestepSuffix = std::to_string(this->CurrentTimeIndex);
+    const std::string timestepSuffix = vtk::to_string(this->CurrentTimeIndex);
     const std::string subFilePath =
       ::GetExternalBlockFileName(std::string(this->FileName), timestepSuffix);
     vtkNew<vtkHDFWriter> writer;
@@ -328,7 +329,7 @@ void vtkHDFWriter::WriteDistributedMetafile(vtkDataObject* input)
     this->Impl->CreateFile(this->Overwrite, this->FileName);
     for (int i = 0; i < this->NbPieces; i++)
     {
-      const std::string partitionSuffix = "part" + std::to_string(i);
+      const std::string partitionSuffix = "part" + vtk::to_string(i);
       const std::string subFilePath =
         ::GetExternalBlockFileName(std::string(this->FileName), partitionSuffix);
       if (!this->Impl->OpenSubfile(subFilePath))
@@ -497,7 +498,7 @@ bool vtkHDFWriter::WriteDatasetToFile(hid_t group, vtkPartitionedDataSet* input)
     // Write individual partitions in different files
     if (this->UseExternalPartitions)
     {
-      const std::string partitionSuffix = "part" + std::to_string(partIndex);
+      const std::string partitionSuffix = "part" + vtk::to_string(partIndex);
       const std::string subFilePath =
         ::GetExternalBlockFileName(std::string(this->FileName), partitionSuffix);
       vtkNew<vtkHDFWriter> writer;
@@ -1498,7 +1499,7 @@ bool vtkHDFWriter::AppendMultiblock(hid_t assemblyGroup, vtkMultiBlockDataSet* m
     leafIndex++;
 
     // Retrieve name from metadata or create one
-    std::string uniqueSubTreeName = "Block_" + std::to_string(leafIndex);
+    std::string uniqueSubTreeName = "Block_" + vtk::to_string(leafIndex);
     std::string originalSubTreeName;
     if (mb->HasMetaData(treeIter) && mb->GetMetaData(treeIter)->Has(vtkCompositeDataSet::NAME()))
     {

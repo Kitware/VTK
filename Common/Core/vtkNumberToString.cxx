@@ -2,12 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkNumberToString.h"
 
-// clang-format off
-#include "vtk_doubleconversion.h"
-#include VTK_DOUBLECONVERSION_HEADER(double-conversion.h)
-// clang-format on
-
-#include <array>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -83,62 +77,92 @@ int vtkNumberToString::GetPrecision()
   return this->Precision;
 }
 
+// Helper function to remove trailing zeros in scientific notation (e.g., "1.23000e+05" ->
+// "1.23e+05")
+static std::string RemoveTrailingZerosScientific(const std::string_view& str)
+{
+  const auto e_pos = str.find('e');
+  if (e_pos == std::string::npos)
+  {
+    return std::string(str); // Not in scientific notation
+  }
+  const auto dot_pos = str.find('.');
+  if (dot_pos == std::string::npos || dot_pos >= e_pos)
+  {
+    return std::string(str); // No decimal part or malformed scientific format
+  }
+  // Find last non-zero digit before 'e'
+  size_t last_non_zero = e_pos;
+  while (last_non_zero > dot_pos && str[last_non_zero - 1] == '0')
+  {
+    --last_non_zero;
+  }
+  // If only the dot is left (e.g., "1.000e+05" -> "1e+05")
+  if (last_non_zero == dot_pos + 1)
+  {
+    --last_non_zero;
+  }
+  // Build the final string efficiently
+  std::string result;
+  result.reserve(str.size()); // optional, for performance
+  result.append(str.substr(0, last_non_zero));
+  result.append(str.substr(e_pos));
+  return result;
+}
+
+//------------------------------------------------------------------------------
+template <typename T, typename = std::enable_if_t<std::is_floating_point_v<T>>>
+static std::string ConvertFloat(
+  const int& notation, const int& precision, const int& lowExponent, const int& highExponent, T val)
+{
+  // Handle special cases
+  if (std::isinf(val))
+  {
+    return val > 0 ? "Infinity" : "-Infinity";
+  }
+  if (std::isnan(val))
+  {
+    return "NaN";
+  }
+  switch (notation)
+  {
+    case vtkNumberToString::Scientific:
+    {
+      // Scientific notation
+      return vtk::format(FMT_STRING("{:.{}e}"), val, precision);
+    }
+    case vtkNumberToString::Fixed:
+    {
+      // Fixed notation
+      return vtk::format(FMT_STRING("{:.{}f}"), val, precision);
+    }
+    case vtkNumberToString::Mixed:
+    default:
+    {
+      const int exponent = val != 0.0 ? static_cast<int>(std::floor(std::log10(std::abs(val)))) : 0;
+      if (exponent <= lowExponent || exponent >= highExponent)
+      {
+        // Scientific notation
+        static constexpr int maxDigits = std::numeric_limits<T>::max_digits10;
+        // Use maximum precision to ensure accuracy, and remove trailing zeros
+        return RemoveTrailingZerosScientific(vtk::format(FMT_STRING("{:.{}e}"), val, maxDigits));
+      }
+      // Shortest notation
+      return vtk::to_string(val);
+    }
+  }
+}
+
 //------------------------------------------------------------------------------
 std::string vtkNumberToString::Convert(double val)
 {
-  // Copied from double-conversion::EcmaScriptConverter
-  // the last two arguments of the constructor have no effect with ToShortest
-  constexpr int flags = double_conversion::DoubleToStringConverter::UNIQUE_ZERO |
-    double_conversion::DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN;
-  double_conversion::DoubleToStringConverter converter(
-    flags, "Infinity", "NaN", 'e', this->LowExponent, this->HighExponent + 1, 6, 0);
-
-  std::array<char, 256> buf;
-  double_conversion::StringBuilder builder(buf.data(), static_cast<int>(buf.size()));
-  builder.Reset();
-
-  if (this->GetNotation() == Scientific)
-  {
-    converter.ToExponential(val, this->Precision, &builder);
-  }
-  else if (this->GetNotation() == Fixed)
-  {
-    converter.ToFixed(val, this->Precision, &builder);
-  }
-  else
-  {
-    converter.ToShortest(val, &builder);
-  }
-  return builder.Finalize();
+  return ConvertFloat(this->Notation, this->Precision, this->LowExponent, this->HighExponent, val);
 }
 
 //------------------------------------------------------------------------------
 std::string vtkNumberToString::Convert(float val)
 {
-  // Copied from double-conversion::EcmaScriptConverter
-  // the last two arguments of the constructor have no effect with ToShortest
-  constexpr int flags = double_conversion::DoubleToStringConverter::UNIQUE_ZERO |
-    double_conversion::DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN;
-  double_conversion::DoubleToStringConverter converter(
-    flags, "Infinity", "NaN", 'e', this->LowExponent, this->HighExponent + 1, 6, 0);
-
-  std::array<char, 256> buf;
-  double_conversion::StringBuilder builder(buf.data(), static_cast<int>(buf.size()));
-  builder.Reset();
-
-  if (this->GetNotation() == Scientific)
-  {
-    converter.ToExponential(val, this->Precision, &builder);
-  }
-  else if (this->GetNotation() == Fixed)
-  {
-    converter.ToFixed(val, this->Precision, &builder);
-  }
-  else
-  {
-    converter.ToShortestSingle(val, &builder);
-  }
-  return builder.Finalize();
+  return ConvertFloat(this->Notation, this->Precision, this->LowExponent, this->HighExponent, val);
 }
 
 VTK_ABI_NAMESPACE_END

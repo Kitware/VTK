@@ -3,8 +3,10 @@
 #include "vtkXMLUtilities.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
+
 #include "vtksys/FStream.hxx"
 
 #include <sstream>
@@ -591,8 +593,7 @@ int vtkXMLUtilities::FactorElementsInternal(
 
   // Otherwise replace those trees with factored refs
 
-  char buffer[5];
-  snprintf(buffer, sizeof(buffer), "%02d_", pool->GetNumberOfNestedElements());
+  auto buffer = vtk::format("{:02d}_", pool->GetNumberOfNestedElements());
 
   std::ostringstream id;
   id << buffer << tree->GetName();

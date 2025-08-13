@@ -14,6 +14,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTrivialProducer.h"
@@ -631,7 +632,8 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(s
       }
       else
       {
-        snprintf(label, sizeof(label), "%d", static_cast<int>(i));
+        auto result = vtk::format_to_n(label, sizeof(label), "{:d}", i);
+        *result.out = '\0';
         this->LabelMappers[i]->SetInput(label);
       }
       this->LabelMappers[i]->GetTextProperty()->ShallowCopy(this->LabelTextProperty);
@@ -699,7 +701,8 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(s
       color = this->LegendActor->GetEntryColor(j);
       colors->InsertNextTuple3(255 * color[0], 255 * color[1], 255 * color[2]);
       this->LegendActor->SetEntrySymbol(j, this->GlyphSource->GetOutput());
-      snprintf(buf, sizeof(buf), "%d", static_cast<int>(j));
+      auto result = vtk::format_to_n(buf, sizeof(buf), "{:d}", j);
+      *result.out = '\0';
       this->LegendActor->SetEntryString(j, buf);
       for (i = 0, k = 0; i < numColumns && k < numComponents; k++)
       {
@@ -742,7 +745,8 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(s
       color = this->LegendActor->GetEntryColor(j);
       colors->InsertNextTuple3(255 * color[0], 255 * color[1], 255 * color[2]);
       this->LegendActor->SetEntrySymbol(j, this->GlyphSource->GetOutput());
-      snprintf(buf, sizeof(buf), "%d", static_cast<int>(j));
+      auto result = vtk::format_to_n(buf, sizeof(buf), "{:d}", j);
+      *result.out = '\0';
       this->LegendActor->SetEntryString(j, buf);
       for (i = 0; i < numRows; i++)
       {

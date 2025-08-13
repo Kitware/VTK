@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkRIBProperty.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRIBProperty);
@@ -52,7 +53,9 @@ void vtkRIBProperty::SetVariable(const char* variable, const char* value)
   size_t length = strlen("Declare ") + strlen(variable) + strlen(value) + 8;
   this->Declarations = new char[length];
 
-  snprintf(this->Declarations, length, "Declare \"%s\" \"%s\"\n", variable, value);
+  auto result =
+    vtk::format_to_n(this->Declarations, length, "Declare \"{:s}\" \"{:s}\"\n", variable, value);
+  *result.out = '\0';
   this->Modified();
 }
 
@@ -64,17 +67,13 @@ void vtkRIBProperty::AddVariable(const char* variable, const char* value)
   }
   else
   {
-    size_t length = strlen("Declare ") + strlen(variable) + strlen(value) + 8;
-    char* newVariable = new char[length];
-
-    snprintf(newVariable, length, "Declare \"%s\" \"%s\"\n", variable, value);
+    auto newVariable = vtk::format("Declare \"{}\" \"{}\"\n", variable, value);
     char* oldDeclarations = this->Declarations;
 
-    this->Declarations = new char[strlen(oldDeclarations) + strlen(newVariable) + 1];
+    this->Declarations = new char[strlen(oldDeclarations) + newVariable.size() + 1];
     strcpy(this->Declarations, oldDeclarations);
-    strcat(this->Declarations, newVariable);
+    strcat(this->Declarations, newVariable.c_str());
     delete[] oldDeclarations;
-    delete[] newVariable;
     this->Modified();
   }
 }
@@ -94,7 +93,9 @@ void vtkRIBProperty::SetSurfaceShaderParameter(const char* parameter, const char
   size_t length = strlen(parameter) + strlen(value) + 7;
   this->SurfaceShaderParameters = new char[length];
 
-  snprintf(this->SurfaceShaderParameters, length, " \"%s\" [%s]", parameter, value);
+  auto result =
+    vtk::format_to_n(this->SurfaceShaderParameters, length, " \"{}\" [{}]", parameter, value);
+  *result.out = '\0';
   this->Modified();
 }
 
@@ -106,7 +107,9 @@ void vtkRIBProperty::SetDisplacementShaderParameter(const char* parameter, const
   size_t length = strlen(parameter) + strlen(value) + 7;
   this->DisplacementShaderParameters = new char[length];
 
-  snprintf(this->DisplacementShaderParameters, length, " \"%s\" [%s]", parameter, value);
+  auto result =
+    vtk::format_to_n(this->DisplacementShaderParameters, length, " \"{}\" [{}]", parameter, value);
+  *result.out = '\0';
   this->Modified();
 }
 
@@ -126,18 +129,14 @@ void vtkRIBProperty::AddSurfaceShaderParameter(
   }
   else
   {
-    size_t length = strlen(SurfaceShaderParameter) + strlen(value) + 7;
-    char* newSurfaceShaderParameter = new char[length];
-
-    snprintf(newSurfaceShaderParameter, length, " \"%s\" [%s]", SurfaceShaderParameter, value);
+    auto newSurfaceShaderParameter = vtk::format(" \"{}\" [{}]", SurfaceShaderParameter, value);
     char* oldSurfaceShaderParameters = this->SurfaceShaderParameters;
 
     this->SurfaceShaderParameters =
-      new char[strlen(oldSurfaceShaderParameters) + strlen(newSurfaceShaderParameter) + 1];
+      new char[strlen(oldSurfaceShaderParameters) + newSurfaceShaderParameter.size() + 1];
     strcpy(this->SurfaceShaderParameters, oldSurfaceShaderParameters);
-    strcat(this->SurfaceShaderParameters, newSurfaceShaderParameter);
+    strcat(this->SurfaceShaderParameters, newSurfaceShaderParameter.c_str());
     delete[] oldSurfaceShaderParameters;
-    delete[] newSurfaceShaderParameter;
     this->Modified();
   }
 }
@@ -151,19 +150,15 @@ void vtkRIBProperty::AddDisplacementShaderParameter(
   }
   else
   {
-    size_t length = strlen(DisplacementShaderParameter) + strlen(value) + 7;
-    char* newDisplacementShaderParameter = new char[length];
-
-    snprintf(
-      newDisplacementShaderParameter, length, " \"%s\" [%s]", DisplacementShaderParameter, value);
+    auto newDisplacementShaderParameter =
+      vtk::format(" \"{}\" [{}]", DisplacementShaderParameter, value);
     char* oldDisplacementShaderParameters = this->DisplacementShaderParameters;
 
-    this->DisplacementShaderParameters = new char[strlen(oldDisplacementShaderParameters) +
-      strlen(newDisplacementShaderParameter) + 1];
+    this->DisplacementShaderParameters =
+      new char[strlen(oldDisplacementShaderParameters) + newDisplacementShaderParameter.size() + 1];
     strcpy(this->DisplacementShaderParameters, oldDisplacementShaderParameters);
-    strcat(this->DisplacementShaderParameters, newDisplacementShaderParameter);
+    strcat(this->DisplacementShaderParameters, newDisplacementShaderParameter.c_str());
     delete[] oldDisplacementShaderParameters;
-    delete[] newDisplacementShaderParameter;
     this->Modified();
   }
 }

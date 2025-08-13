@@ -8,6 +8,7 @@
 #include "vtkImageData.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 
 #include <cmath>
 
@@ -20,11 +21,13 @@ int TestThreadedCopy(int ac, char* av[])
   {
     if (i < ac - 1 && !strcmp(av[i], "--numThreads"))
     {
-      vtkSMPTools::Initialize(atoi(av[i + 1]));
+      int numThreads;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(av[i + 1], numThreads, EXIT_FAILURE);
+      vtkSMPTools::Initialize(numThreads);
     }
     if (i < ac - 1 && !strcmp(av[i], "--GB"))
     {
-      GB = atof(av[i + 1]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(av[i + 1], GB, EXIT_FAILURE);
     }
     if (!strcmp(av[i], "--write"))
     {

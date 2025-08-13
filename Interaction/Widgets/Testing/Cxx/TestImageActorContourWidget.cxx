@@ -866,7 +866,7 @@ int TestImageActorContourWidget(int argc, char* argv[])
   SliderRepres->SetEndCapLength(0.01);
   SliderRepres->SetEndCapWidth(0.03);
   SliderRepres->SetTubeWidth(0.005);
-  SliderRepres->SetLabelFormat("%3.0lf");
+  SliderRepres->SetLabelFormat("{:3.0f}");
   SliderRepres->SetTitleHeight(0.02);
   SliderRepres->SetLabelHeight(0.02);
 

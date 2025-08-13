@@ -8,6 +8,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 
@@ -92,17 +93,22 @@ char* vtkXYZMolReader::GetNextLine(FILE* fp, char* line, int maxlen)
 //------------------------------------------------------------------------------
 int vtkXYZMolReader::GetLine1(const char* line, int* cnt)
 {
-  char dummy[1024] = "";
-  if (!line || sscanf(line, "%d%s", cnt, dummy) < 1)
+  auto resultCount = vtk::scan_int<int>(std::string_view(line));
+  if (!resultCount)
   {
     return 0;
   }
-  int cc;
-  for (cc = 0; cc < static_cast<int>(strlen(dummy)); ++cc)
+  *cnt = resultCount->value();
+  auto resultDummy = vtk::scan_value<std::string_view>(resultCount->range());
+  if (resultDummy)
   {
-    if (dummy[cc] != ' ' && dummy[cc] != '\t' && dummy[cc] != '\n' && dummy[cc] != '\r')
+    const auto dummy = resultDummy->value();
+    for (const char& ch : dummy)
     {
-      return 0;
+      if (!std::isspace(ch))
+      {
+        return 0;
+      }
     }
   }
   return 1;
@@ -111,29 +117,40 @@ int vtkXYZMolReader::GetLine1(const char* line, int* cnt)
 //------------------------------------------------------------------------------
 int vtkXYZMolReader::GetLine2(const char* line, char* name)
 {
-  char dummy[1024] = "";
-  if (!line || sscanf(line, "%s%s", name, dummy) < 1)
+  auto resultName = vtk::scan_value<std::string_view>(std::string_view(line));
+  if (!resultName)
   {
     return 0;
   }
+  auto nameStr = resultName->value();
+  std::copy_n(nameStr.data(), nameStr.size(), name);
+  name[nameStr.size()] = '\0'; // Ensure null-termination
   return 1;
 }
 
 //------------------------------------------------------------------------------
 int vtkXYZMolReader::GetAtom(const char* line, char* atom, float* x)
 {
-  // cout << "Lookinf for atom: " << line << endl;
-  char dummy[1024] = "";
-  if (!line || sscanf(line, "%s %f %f %f%s", atom, x, x + 1, x + 2, dummy) < 4)
+  auto resultAtom =
+    vtk::scan<std::string_view, float, float, float>(std::string_view(line), "{:s} {:f} {:f} {:f}");
+  if (!resultAtom)
   {
     return 0;
   }
-  int cc;
-  for (cc = 0; cc < static_cast<int>(strlen(dummy)); ++cc)
+  std::string_view atomStr;
+  std::tie(atomStr, x[0], x[1], x[2]) = resultAtom->values();
+  std::copy_n(atomStr.data(), atomStr.size(), atom);
+  atom[atomStr.size()] = '\0'; // Ensure null-termination
+  auto resultDummy = vtk::scan_value<std::string_view>(resultAtom->range());
+  if (resultDummy)
   {
-    if (dummy[cc] != ' ' && dummy[cc] != '\t' && dummy[cc] != '\n' && dummy[cc] != '\r')
+    const auto dummy = resultDummy->value();
+    for (const char& ch : dummy)
     {
-      return 0;
+      if (!std::isspace(ch))
+      {
+        return 0;
+      }
     }
   }
   return 1;

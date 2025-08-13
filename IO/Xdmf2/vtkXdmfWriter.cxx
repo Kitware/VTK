@@ -26,6 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTypeTraits.h"
 #include "vtkUniformGridAMRIterator.h"
@@ -500,8 +501,6 @@ void vtkXdmfWriter::SetupDataArrayXML(XdmfElement* e, XdmfArray* a) const
 int vtkXdmfWriter::CreateTopology(vtkDataSet* ds, xdmf2::XdmfGrid* grid, vtkIdType PDims[3],
   vtkIdType CDims[3], vtkIdType& PRank, vtkIdType& CRank, void* staticdata)
 {
-  // cerr << "Writing " << dobj << " a " << dobj->GetClassName() << endl;
-
   grid->SetGridType(XDMF_GRID_UNIFORM);
 
   const char* heavyName = nullptr;
@@ -560,7 +559,9 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet* ds, xdmf2::XdmfGrid* grid, vtkIdTy
       XdmfConstString topologyType = staticnode->DOM->Get(staticTopo, "TopologyType");
       //
       t->SetTopologyTypeFromString(topologyType);
-      t->SetNumberOfElements(atoi(dimensions));
+      int dim;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(dimensions, dim);
+      t->SetNumberOfElements(dim);
       t->SetDataXml(xmltext);
       reusing_topology = true;
       // @TODO : t->SetNodesPerElement(ppCell);

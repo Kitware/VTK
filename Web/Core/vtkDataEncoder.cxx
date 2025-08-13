@@ -11,6 +11,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPNGWriter.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <cassert>
@@ -68,7 +69,7 @@ class vtkWorkQueue
 
   static void DoWork(int threadIndex, vtkWorkQueue* self)
   {
-    vtkLogger::SetThreadName("Worker " + std::to_string(threadIndex));
+    vtkLogger::SetThreadName("Worker " + vtk::to_string(threadIndex));
     vtkLogF(TRACE, "starting worker thread");
     vtkNew<vtkJPEGWriter> writer;
     writer->WriteToMemoryOn();

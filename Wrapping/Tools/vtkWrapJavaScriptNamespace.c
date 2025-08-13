@@ -17,6 +17,8 @@
 #include "vtkWrapJavaScriptConstant.h"
 #include "vtkWrapJavaScriptEnum.h"
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* Wrap the namespace */
 int vtkWrapJavaScript_Namespace(FILE* fp, const char* module, NamespaceInfo* data)
@@ -25,3 +27,5 @@ int vtkWrapJavaScript_Namespace(FILE* fp, const char* module, NamespaceInfo* dat
   vtkWrapJavaScript_GenerateConstants(fp, module, NULL, "  ", data);
   return 1;
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

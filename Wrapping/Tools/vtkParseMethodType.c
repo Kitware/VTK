@@ -6,6 +6,8 @@
 #include <stddef.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 int vtkParseMethodType_IsSetMethod(const char* name)
 {
   return name && (!strncmp(name, "Set", 3) && (strnlen(name, 4) == 4) && isupper(name[3]));
@@ -170,3 +172,5 @@ int vtkParseMethodType_IsGetMaxValueMethod(const char* name)
 
   return 0;
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

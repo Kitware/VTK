@@ -7,6 +7,7 @@
 #include <vtkOMETIFFReader.h>
 #include <vtkPointData.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkStringScanner.h>
 #include <vtkVector.h>
 #include <vtksys/RegularExpression.hxx>
 
@@ -31,27 +32,27 @@ int TestOMETIFFReader(int argc, char* argv[])
     {
       if (regex.find(argv[++cc]))
       {
-        size[0] = std::atoi(regex.match(1).c_str());
-        size[1] = std::atoi(regex.match(2).c_str());
-        size[2] = std::atoi(regex.match(3).c_str());
+        VTK_FROM_CHARS_IF_ERROR_RETURN(regex.match(1), size[0], EXIT_FAILURE);
+        VTK_FROM_CHARS_IF_ERROR_RETURN(regex.match(2), size[1], EXIT_FAILURE);
+        VTK_FROM_CHARS_IF_ERROR_RETURN(regex.match(3), size[2], EXIT_FAILURE);
       }
     }
     else if (strcmp(argv[cc], "--physical-size") == 0)
     {
       if (regex.find(argv[++cc]))
       {
-        physicalSize[0] = std::atof(regex.match(1).c_str());
-        physicalSize[1] = std::atof(regex.match(2).c_str());
-        physicalSize[2] = std::atof(regex.match(3).c_str());
+        VTK_FROM_CHARS_IF_ERROR_RETURN(regex.match(1), physicalSize[0], EXIT_FAILURE);
+        VTK_FROM_CHARS_IF_ERROR_RETURN(regex.match(2), physicalSize[1], EXIT_FAILURE);
+        VTK_FROM_CHARS_IF_ERROR_RETURN(regex.match(3), physicalSize[2], EXIT_FAILURE);
       }
     }
     else if (strcmp(argv[cc], "--size_c") == 0)
     {
-      sizeC = std::atoi(argv[++cc]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[++cc], sizeC, EXIT_FAILURE);
     }
     else if (strcmp(argv[cc], "--size_t") == 0)
     {
-      sizeT = std::atoi(argv[++cc]);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(argv[++cc], sizeT, EXIT_FAILURE);
     }
   }
 

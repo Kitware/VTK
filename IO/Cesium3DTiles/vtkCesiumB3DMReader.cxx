@@ -12,6 +12,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkResourceStream.h"
+#include "vtkStringFormatter.h"
 
 #include <array>
 #include <fstream>
@@ -29,7 +30,7 @@ void read4le(istream& in, uint32_t* p)
   }
   else
   {
-    throw std::runtime_error("Read " + std::to_string(in.gcount()) + " out of 4 bytes");
+    throw std::runtime_error("Read " + vtk::to_string(in.gcount()) + " out of 4 bytes");
   }
 }
 }

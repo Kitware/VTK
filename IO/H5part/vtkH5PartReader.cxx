@@ -22,6 +22,8 @@
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
 #include "vtkShortArray.h"
+#include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
@@ -93,7 +95,7 @@ static hid_t H5PartGetDiskShape(H5PartFile* f, hid_t dataset)
     r = H5Sselect_hyperslab(space, H5S_SELECT_SET, range, &stride, &count, nullptr);
     if (r < 0)
     {
-      fprintf(stderr, "Abort: Selection Failed!\n");
+      vtk::print(stderr, "Abort: Selection Failed!\n");
       return space;
     }
   }
@@ -234,7 +236,8 @@ int vtkH5PartReader::IndexOfVectorComponent(const char* name)
   vtksys::RegularExpression re1(".*_([0-9]+)");
   if (re1.find(name))
   {
-    int index = atoi(re1.match(1).c_str());
+    int index;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(re1.match(1), index, 0);
     return index + 1;
   }
   return 0;

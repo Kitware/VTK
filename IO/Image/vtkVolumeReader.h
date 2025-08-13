@@ -12,7 +12,7 @@
  * 3D volume.
  *
  * File names are created using FilePattern and FilePrefix as follows:
- * snprintf (filename, sizeof(filename), FilePattern, FilePrefix, number);
+ * vtk::format_to_n (filename, sizeof(filename), FilePattern, FilePrefix, number);
  * where number is in the range ImageRange[0] to ImageRange[1]. If
  * ImageRange[1] <= ImageRange[0], then slice number ImageRange[0] is
  * read. Thus to read an image set ImageRange[0] = ImageRange[1] = slice
@@ -53,9 +53,9 @@ public:
 
   ///@{
   /**
-   * The snprintf format used to build filename from FilePrefix and number.
+   * The std::format style format used to build filename from FilePrefix and number.
    */
-  vtkSetFilePathMacro(FilePattern);
+  virtual void SetFilePattern(VTK_FILEPATH const char*);
   vtkGetFilePathMacro(FilePattern);
   ///@}
 

@@ -11,6 +11,7 @@
 
 #include <cassert>
 #include <sstream>
+#include <vtkStringScanner.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExodusIIReaderParser);
@@ -138,7 +139,7 @@ void vtkExodusIIReaderParser::StartElement(const char* tagName, const char** att
     int id = -1;
     if (blockString)
     {
-      id = atoi(blockString);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(blockString, id, );
     }
 
     if (id >= 0)

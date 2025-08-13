@@ -16,6 +16,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 #include "vtksys/SystemTools.hxx"
 
 #include "vtkOBJImporterInternals.h"
@@ -550,6 +551,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
   bool everything_ok = true; // (use of this flag avoids early return and associated memory leak)
   const double v_scale = this->VertexScale;
   const bool use_scale = (fabs(v_scale - 1.0) > 1e-3);
+  using Integer = std::int64_t;
 
   // -- work through the file line by line, assigning into the above 7 structures as appropriate --
   { // (make a local scope section to emphasise that the variables below are only used here)
@@ -571,10 +573,9 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
       {
         // this is a vertex definition, expect three floats (six if vertex color), separated by
         // whitespace:
-        int nbRead =
-          sscanf(pLine, "%f %f %f %f %f %f", xyz, xyz + 1, xyz + 2, col, col + 1, col + 2);
-        if (nbRead >= 3)
+        if (auto resultXYZ = vtk::scan<float, float, float>(std::string_view(pLine), "{} {} {}"))
         {
+          std::tie(xyz[0], xyz[1], xyz[2]) = resultXYZ->values();
           if (use_scale)
           {
             xyz[0] *= v_scale;
@@ -584,8 +585,9 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
           points->InsertNextPoint(xyz);
           lastVertexIndex++;
 
-          if (nbRead == 6)
+          if (auto resultColor = vtk::scan<float, float, float>(resultXYZ->range(), " {} {} {}"))
           {
+            std::tie(col[0], col[1], col[2]) = resultColor->values();
             hasColors = true;
             colors->InsertNextTypedTuple(col);
           }
@@ -603,8 +605,9 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
       else if (strcmp(cmd, "vt") == 0) /** Texture Coord, whango! */
       {
         // this is a tcoord, expect two floats, separated by whitespace:
-        if (sscanf(pLine, "%f %f", xyz, xyz + 1) == 2)
+        if (auto resultTCoord = vtk::scan<float, float>(std::string_view(pLine), "{} {}"))
         {
+          std::tie(xyz[0], xyz[1]) = resultTCoord->values();
           tcoords->InsertNextTypedTuple(xyz);
         }
         else
@@ -616,8 +619,9 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
       else if (strcmp(cmd, "vn") == 0)
       {
         // this is a normal, expect three floats, separated by whitespace:
-        if (sscanf(pLine, "%f %f %f", xyz, xyz + 1, xyz + 2) == 3)
+        if (auto resultNormal = vtk::scan<float, float, float>(std::string_view(pLine), "{} {} {}"))
         {
+          std::tie(xyz[0], xyz[1], xyz[2]) = resultNormal->values();
           normals->InsertNextTypedTuple(xyz);
           hasNormals = true;
         }
@@ -644,9 +648,9 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
 
           if (pLine < pEnd) // there is still data left on this line
           {
-            int iVert;
-            if (sscanf(pLine, "%d", &iVert) == 1)
+            if (auto resultVert = vtk::scan_int<int>(std::string_view(pLine)))
             {
+              const int iVert = resultVert->value();
               if (iVert <= 0)
               {
                 vtkErrorMacro(<< "Unexpected point indices value");
@@ -715,9 +719,10 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
 
           if (pLine < pEnd) // there is still data left on this line
           {
-            int iVert, dummyInt;
-            if (sscanf(pLine, "%d/%d", &iVert, &dummyInt) == 2)
+            const std::string_view pLineView(pLine);
+            if (auto resultVert = vtk::scan<Integer, Integer>(pLineView, "{:d}/{:d}"))
             {
+              auto& [iVert, _] = resultVert->values();
               if (iVert <= 0)
               {
                 vtkErrorMacro(<< "Unexpected point indices value");
@@ -730,8 +735,9 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
                 nVerts++;
               }
             }
-            else if (sscanf(pLine, "%d", &iVert) == 1)
+            else if (auto resultVert2 = vtk::scan_int<Integer>(pLineView))
             {
+              auto iVert = resultVert2->value();
               if (iVert <= 0)
               {
                 vtkErrorMacro(<< "Unexpected point indices value");
@@ -803,9 +809,10 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
 
           if (pLine < pEnd) // there is still data left on this line
           {
-            int iVert, iTCoord, iNormal;
-            if (sscanf(pLine, "%d/%d/%d", &iVert, &iTCoord, &iNormal) == 3)
+            const std::string_view pLineView(pLine);
+            if (auto result = vtk::scan<Integer, Integer, Integer>(pLineView, "{:d}/{:d}/{:d}"))
             {
+              auto& [iVert, iTCoord, iNormal] = result->values();
               // negative indices are specified relative to the current maximum vertex
               // position.  (-1 references the last vertex defined). This makes it easy
               // to describe the points in a face, then the face, without the need to
@@ -847,8 +854,9 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
                 }
               }
             }
-            else if (sscanf(pLine, "%d//%d", &iVert, &iNormal) == 2)
+            else if (auto result2 = vtk::scan<Integer, Integer>(pLineView, "{:d}//{:d}"))
             {
+              auto& [iVert, iNormal] = result2->values();
               if (iVert < 0)
               {
                 iVert = lastVertexIndex + iVert + 1;
@@ -875,8 +883,9 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
                 }
               }
             }
-            else if (sscanf(pLine, "%d/%d", &iVert, &iTCoord) == 2)
+            else if (auto result3 = vtk::scan<Integer, Integer>(pLineView, "{:d}/{:d}"))
             {
+              auto& [iVert, iTCoord] = result3->values();
               if (iVert < 0)
               {
                 iVert = lastVertexIndex + iVert + 1;
@@ -903,8 +912,9 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
                 }
               }
             }
-            else if (sscanf(pLine, "%d", &iVert) == 1)
+            else if (auto result4 = vtk::scan_int<int>(pLineView))
             {
+              auto iVert = result4->value();
               if (iVert < 0)
               {
                 iVert = lastVertexIndex + iVert + 1;

@@ -23,6 +23,8 @@
 #include "vtkRowQueryToTable.h"
 #include "vtkSQLDatabaseSchema.h"
 #include "vtkSQLQuery.h"
+#include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
 #include "vtkTable.h"
 #include "vtkTimePointUtility.h"
 #include "vtkVariant.h"
@@ -59,9 +61,8 @@ int TestMySQLDatabase(int, char** const)
 
   for (int i = 0; i < 40; ++i)
   {
-    char insertQuery[200];
-    snprintf(insertQuery, sizeof(insertQuery), "INSERT INTO people VALUES('John Doe %d', %d, %d)",
-      i, i, 10 * i);
+    auto insertQuery =
+      vtk::format("INSERT INTO people VALUES('John Doe {:d}', {:d}, {:d})", i, i, 10 * i);
     cout << insertQuery << endl;
     query->SetQuery(insertQuery);
     if (!query->Execute())
@@ -294,7 +295,8 @@ int TestMySQLDatabase(int, char** const)
     int idxHandle = -1;
     while (query->NextRow())
     {
-      int cnmHandle = atoi(query->DataValue(3).ToString()) - 1;
+      int cnmHandle;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(query->DataValue(3).ToString(), cnmHandle, EXIT_FAILURE);
       if (!cnmHandle)
       {
         ++idxHandle;

@@ -11,6 +11,7 @@
 #include "vtkSQLQuery.h"
 #include "vtkSQLiteDatabase.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
@@ -147,11 +148,10 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   int i;
   for (i = 0; i < 20; i++)
   {
-    char insertQuery[200];
-    snprintf(insertQuery, sizeof(insertQuery),
-      "INSERT INTO people (name, age, weight) VALUES('John Doe %d', %d, %f)", i, i, 10.1 * i);
+    auto insertQuery = vtk::format(
+      "INSERT INTO people (name, age, weight) VALUES('John Doe {:d}', {:d}, {:f})", i, i, 10.1 * i);
     cout << insertQuery << endl;
-    query->SetQuery(insertQuery);
+    query->SetQuery(insertQuery.c_str());
     if (!query->Execute())
     {
       cerr << "Insert query " << i << " failed" << endl;
@@ -163,8 +163,7 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   query->SetQuery(placeholders);
   for (i = 21; i < 40; i++)
   {
-    char name[20];
-    snprintf(name, sizeof(name), "John Doe %d", i);
+    auto name = vtk::format("John Doe {:d}", i);
     bool bind1 = query->BindParameter(0, name);
     bool bind2 = query->BindParameter(1, i);
     bool bind3 = query->BindParameter(2, 10.1 * i);

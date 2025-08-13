@@ -17,6 +17,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 
@@ -36,7 +37,7 @@ int TestRedistributeDataSetFilterWithPolyData(int argc, char* argv[])
   controller->Initialize(&argc, &argv);
   vtkMultiProcessController::SetGlobalController(controller);
   const int rank = controller->GetLocalProcessId();
-  vtkLogger::SetThreadName("rank:" + std::to_string(rank));
+  vtkLogger::SetThreadName("rank:" + vtk::to_string(rank));
 
   vtkNew<vtkPolyData> pd;
   if (controller->GetLocalProcessId() == 0)

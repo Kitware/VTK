@@ -13,6 +13,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkSetGet.h"
+#include "vtkStringFormatter.h"
 #include "vtkTypeFloat32Array.h"
 #include "vtkTypeFloat64Array.h"
 #include "vtkTypeInt16Array.h"
@@ -337,7 +338,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
   bool isDevicePointer = IsDevicePointer(mcarray.child(0).element_ptr(0), id, working);
   if (isDevicePointer && !working)
   {
-    vtkLog(ERROR, "Viskores does not support device" + std::to_string(id));
+    vtkLog(ERROR, "Viskores does not support device" + vtk::to_string(id));
     return nullptr;
   }
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
@@ -564,7 +565,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
   bool isDevicePointer = IsDevicePointer(mcarray.element_ptr(0), id, working);
   if (isDevicePointer && !working)
   {
-    vtkLog(ERROR, "Viskores does not support device" + std::to_string(id));
+    vtkLog(ERROR, "Viskores does not support device" + vtk::to_string(id));
     return nullptr;
   }
   if (!connectivity)
@@ -607,7 +608,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
   bool isDevicePointer = IsDevicePointer(leaf.element_ptr(0), id, working);
   if (isDevicePointer && !working)
   {
-    vtkLog(ERROR, "Viskores does not support device" + std::to_string(id));
+    vtkLog(ERROR, "Viskores does not support device" + vtk::to_string(id));
     return nullptr;
   }
 

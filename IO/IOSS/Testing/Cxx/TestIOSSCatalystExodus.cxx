@@ -9,6 +9,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
+#include <vtkStringFormatter.h>
 #include <vtkTestUtilities.h>
 
 #include "vtksys/SystemTools.hxx"
@@ -41,7 +42,7 @@ int TestIOSSCatalystExodus(int argc, char* argv[])
   const int numProcs = contr->GetNumberOfProcesses();
   const int myRank = contr->GetLocalProcessId();
 
-  const std::string filename = "Data/Iocatalyst_can_ex2_MPI_" + std::to_string(numProcs);
+  const std::string filename = "Data/Iocatalyst_can_ex2_MPI_" + vtk::to_string(numProcs);
   const std::string filepath = GetFileName(argc, argv, filename);
   vtksys::SystemTools::PutEnv("CATALYST_READER_TIME_STEP=0");
   vtksys::SystemTools::PutEnv("CATALYST_DATA_DUMP_DIRECTORY=" + filepath);

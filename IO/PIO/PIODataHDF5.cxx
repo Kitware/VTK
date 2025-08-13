@@ -1,14 +1,18 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-FileCopyrightText: Copyright (c) 2021, Triad National Security, LLC
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-LANL-Triad-USGov
+#include <PIODataHDF5.h>
 
 #include "vtkMath.h"
 #include "vtkStdString.h"
-#include <PIODataHDF5.h>
-#include <cstdlib>
-#include <iostream>
+#include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
+
 #include <vtk_hdf5.h>
 #include <vtksys/FStream.hxx>
+
+#include <cstdlib>
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -66,7 +70,7 @@ PIO_DATA_HDF5::PIO_DATA_HDF5(const char* piofile)
       index_str[j] = suffix[j + 2];
     }
     index_str[suffixlen - 2] = '\0';
-    pio_field[i].index = atoi(index_str);
+    VTK_FROM_CHARS_IF_ERROR_BREAK(index_str, pio_field[i].index);
     delete[] index_str;
 
     // data and cdata are always null. data is never stored there and instead read on demand using
@@ -168,7 +172,7 @@ bool PIO_DATA_HDF5::set_scalar_field(std::valarray<int>& v, const char* fieldnam
 
   // form the complete field name with index
   vtkStdString fieldname0(fieldname);
-  fieldname0 = fieldname0 + ".." + std::to_string(index);
+  fieldname0 = fieldname0 + ".." + vtk::to_string(index);
 
   // open the dataset
   hid_t dataset_id = H5Dopen(hdf5_file_id, fieldname0.c_str(), hid_t(0));
@@ -216,7 +220,7 @@ bool PIO_DATA_HDF5::set_scalar_field(std::valarray<int64_t>& v, const char* fiel
 
   // form the complete field name with index
   vtkStdString fieldname0(fieldname);
-  fieldname0 = fieldname0 + ".." + std::to_string(index);
+  fieldname0 = fieldname0 + ".." + vtk::to_string(index);
 
   // open the dataset
   hid_t dataset_id = H5Dopen(hdf5_file_id, fieldname0.c_str(), hid_t(0));
@@ -424,7 +428,7 @@ bool PIO_DATA_HDF5::read_dataset(std::valarray<double>& v, const char* fieldname
 
   // add "..<index>" suffix to the field name
   vtkStdString fieldname0(fieldname);
-  fieldname0 = fieldname0 + ".." + std::to_string(index);
+  fieldname0 = fieldname0 + ".." + vtk::to_string(index);
   if (VarMMap.count(fieldname0.c_str()) != 1)
   {
     v.resize(0);
@@ -508,7 +512,7 @@ bool PIO_DATA_HDF5::read_dataset(std::valarray<std::string>& v, const char* fiel
 
   // add "..<index>" suffix to the field name
   vtkStdString fieldname0(fieldname);
-  fieldname0 = fieldname0 + ".." + std::to_string(index);
+  fieldname0 = fieldname0 + ".." + vtk::to_string(index);
   if (VarMMap.count(fieldname0.c_str()) != 1)
   {
     v.resize(0);
@@ -686,7 +690,7 @@ int PIO_DATA_HDF5::get_num_components(const char* fieldname) const
   int num_components = 0;
   while (true)
   {
-    vtkStdString cur_fieldname(fieldname_base + ".." + std::to_string(num_components + 1));
+    vtkStdString cur_fieldname(fieldname_base + ".." + vtk::to_string(num_components + 1));
     if (VarMMap.count(cur_fieldname.c_str()) != 1)
     {
       break;
@@ -989,7 +993,7 @@ bool PIO_DATA_HDF5::get_material_names(std::valarray<std::string>& matnames)
   for (size_t i = 0; i < matdef.size(); i++)
   {
     matnames[i] =
-      "Mat-" + std::to_string(i) + "-" + std::to_string(static_cast<int64_t>(matdef[i][0]));
+      "Mat-" + vtk::to_string(i) + "-" + vtk::to_string(static_cast<int64_t>(matdef[i][0]));
   }
 
   return true;

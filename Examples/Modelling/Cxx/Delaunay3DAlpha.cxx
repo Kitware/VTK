@@ -3,6 +3,7 @@
 #include <vtkCleanPolyData.h>
 #include <vtkDelaunay3D.h>
 #include <vtkSmartPointer.h>
+#include <vtkStringScanner.h>
 #include <vtkXMLDataSetWriter.h>
 #include <vtkXMLPolyDataReader.h>
 
@@ -28,7 +29,9 @@ int main(int argc, char* argv[])
   // alpha radius are output.
   vtkSmartPointer<vtkDelaunay3D> delaunay3D = vtkSmartPointer<vtkDelaunay3D>::New();
   delaunay3D->SetInputConnection(cleaner->GetOutputPort());
-  delaunay3D->SetAlpha(atof(argv[1]));
+  double alpha;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], alpha, EXIT_FAILURE);
+  delaunay3D->SetAlpha(alpha);
 
   // Output the mesh
   vtkSmartPointer<vtkXMLDataSetWriter> writer = vtkSmartPointer<vtkXMLDataSetWriter>::New();

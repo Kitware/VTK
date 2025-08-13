@@ -15,6 +15,7 @@
 #include "vtkPolyLineSource.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkSphereSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkStripper.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTestUtilities.h"
@@ -469,11 +470,11 @@ int TestMultiBlockOnlyDataSets(int argc, char* argv[])
 
   for (int i = 0; i < 10; i++)
   {
-    std::string inputCorrect = "Input_" + std::to_string(i);
+    std::string inputCorrect = "Input_" + vtk::to_string(i);
     AssertMacro(
       strcmp(assembly->GetNodeName(assembly->GetChild(inputId, i)), inputCorrect.c_str()) == 0,
       output->GetClassName(), "Incorrect assembly");
-    std::string reflectionCorrect = "Reflection_" + std::to_string(i);
+    std::string reflectionCorrect = "Reflection_" + vtk::to_string(i);
     AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, i)),
                   reflectionCorrect.c_str()) == 0,
       output->GetClassName(), "Incorrect assembly");

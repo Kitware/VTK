@@ -6,6 +6,7 @@
 #include "vtkLogger.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 
 #include <vtksys/RegularExpression.hxx>
 
@@ -894,20 +895,20 @@ void vtkDataAssembly::SetAttribute(int id, const char* name, const char* value)
 //------------------------------------------------------------------------------
 void vtkDataAssembly::SetAttribute(int id, const char* name, int value)
 {
-  this->SetAttribute(id, name, std::to_string(value).c_str());
+  this->SetAttribute(id, name, vtk::to_string(value).c_str());
 }
 
 //------------------------------------------------------------------------------
 void vtkDataAssembly::SetAttribute(int id, const char* name, unsigned int value)
 {
-  this->SetAttribute(id, name, std::to_string(value).c_str());
+  this->SetAttribute(id, name, vtk::to_string(value).c_str());
 }
 
 //------------------------------------------------------------------------------
 #if VTK_ID_TYPE_IMPL != VTK_INT
 void vtkDataAssembly::SetAttribute(int id, const char* name, vtkIdType value)
 {
-  this->SetAttribute(id, name, std::to_string(value).c_str());
+  this->SetAttribute(id, name, vtk::to_string(value).c_str());
 }
 #endif
 

@@ -12,7 +12,6 @@
 #include "vtkVector.h"
 
 #include <cctype>  // for std::tolower/std::toupper
-#include <cstdlib> // for strtol
 #include <sstream> // for basisName
 
 VTK_ABI_NAMESPACE_BEGIN

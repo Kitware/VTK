@@ -70,7 +70,7 @@ int TestScatterPlot(int, char*[])
   points->SetColor(0, 0, 0, 255);
   points->SetWidth(1.0);
   points->SetIndexedLabels(labels);
-  points->SetTooltipLabelFormat("%i from %l (%x, %y)");
+  points->SetTooltipLabelFormat("{i} from {l} ({x}, {y})");
   vtkPlotPoints::SafeDownCast(points)->SetMarkerStyle(vtkPlotPoints::CROSS);
   points = chart->AddPlot(vtkChart::POINTS);
   points->SetInputData(table, 0, 2);

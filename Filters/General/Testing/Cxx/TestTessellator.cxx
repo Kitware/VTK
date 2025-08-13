@@ -29,6 +29,7 @@
 #include "vtkShrinkFilter.h"
 #include "vtkSphereSource.h"
 #include "vtkStreamingTessellator.h"
+#include "vtkStringFormatter.h"
 #include "vtkTessellatorFilter.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextActor.h"
@@ -3028,8 +3029,7 @@ int TestTessellator(int argc, char* argv[])
   vtkUnstructuredGrid* startTet = nullptr;
   vtkPoints* startTetPts = nullptr;
   vtkIdType startTetConn[4];
-  char annotation[512];
-  char screenshotfile[512];
+  std::string screenshotfile, annotation;
   vtkTextActor* annotationActor = nullptr;
   vtkIdTypeArray* pids = nullptr;
   vtkTessellatorScreenShot* ss = nullptr;
@@ -3091,7 +3091,7 @@ int TestTessellator(int argc, char* argv[])
     startTetLabelActor = vtkActor2D::New();
     startTetLabelMapper->SetInputData(startTet);
     startTetLabelMapper->SetLabelModeToLabelScalars();
-    startTetLabelMapper->SetLabelFormat("  %2d");
+    startTetLabelMapper->SetLabelFormat("  {:2d}");
     // startTetLabelMapper->SetLabelModeToLabelIds();
     startTetLabelActor->SetMapper(startTetLabelMapper);
     r->AddViewProp(startTetLabelActor);
@@ -3122,10 +3122,10 @@ int TestTessellator(int argc, char* argv[])
     vertMarkers->SetScaleFactor(0.125);
     r->AddActor(vertMarkerActor);
 
-    snprintf(screenshotfile, sizeof(screenshotfile), "somethingIsWrong.png");
+    screenshotfile = "somethingIsWrong.png";
     ss = vtkTessellatorScreenShot::New();
     ss->RenderWindow = rw;
-    ss->FileName = screenshotfile;
+    ss->FileName = screenshotfile.data();
     ri->AddObserver(vtkCommand::UserEvent, ss);
   }
 
@@ -3179,8 +3179,7 @@ int TestTessellator(int argc, char* argv[])
       {
         lastTestId = tt->GetCurrentTestId();
         edgeCode = tt->GetCurrentTest();
-        snprintf(screenshotfile, sizeof(screenshotfile), "Tessellator-%03du-%02d.png", lastTestId,
-          edgeCode);
+        screenshotfile = vtk::format("Tessellator-{:03d}-{:02d}.png", lastTestId, edgeCode);
 
         if (vtkTessellatorIsInteractive)
         {
@@ -3212,16 +3211,16 @@ int TestTessellator(int argc, char* argv[])
           }
           k++;
         }
-        snprintf(annotation, sizeof(annotation), "Edge code %d = %d%d%d%d%d%d, Test ID %d",
-          edgeCode, (edgeCode & 1), ((edgeCode >> 1) & 1), ((edgeCode >> 2) & 1),
-          ((edgeCode >> 3) & 1), ((edgeCode >> 4) & 1), ((edgeCode >> 5) & 1), lastTestId);
+        annotation = vtk::format("Edge code {} = {}{}{}{}{}{}, Test ID {}", edgeCode,
+          (edgeCode & 1), ((edgeCode >> 1) & 1), ((edgeCode >> 2) & 1), ((edgeCode >> 3) & 1),
+          ((edgeCode >> 4) & 1), ((edgeCode >> 5) & 1), lastTestId);
         if (vtkTessellatorIsInteractive)
         {
           startTet->SetPoints(startTetPts);
           startTetPts->FastDelete();
           startTet->InsertNextCell(VTK_TETRA, 4, startTetConn);
 
-          annotationActor->SetInput(annotation);
+          annotationActor->SetInput(annotation.c_str());
         }
 #ifdef VTK_GENERATE_BASELINE
         // tessellatorRegressionTest.StdOut() << annotation << "\nOutput Tetrahedra:\n";
@@ -3234,7 +3233,7 @@ int TestTessellator(int argc, char* argv[])
                                                              // otet << "},\n{\n";
 #endif                                                       // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
-        if (strcmp(vtkTestSummaries[vtkTstCode].Name, annotation) != 0)
+        if (annotation != vtkTestSummaries[vtkTstCode].Name)
         {
           std::cerr << "ERROR: Test " << vtkTstCode << " was named \"" << annotation
                     << ", expecting \"" << vtkTestSummaries[vtkTstCode].Name << "\"\n";
@@ -3286,8 +3285,8 @@ int TestTessellator(int argc, char* argv[])
     if (tet < 0)
       continue;
 
-    snprintf(screenshotfile, sizeof(screenshotfile), "Tessellator-%03da-%02d.png",
-      tt->GetCurrentTestId(), tt->GetCurrentTest());
+    screenshotfile =
+      vtk::format("Tessellator-{:03d}-{:02d}.png", tt->GetCurrentTestId(), tt->GetCurrentTest());
 
     tetPoints = vtkTestTessellatorSubdivision::TestPointsCanAmbig + 24 * tet;
 #ifdef VTK_GENERATE_BASELINE
@@ -3360,16 +3359,16 @@ int TestTessellator(int argc, char* argv[])
         }
       }
     }
-    snprintf(annotation, sizeof(annotation), "Edge code %d = %d%d%d%d%d%d, Test ID %d*", edgeCode,
-      (edgeCode & 1), ((edgeCode >> 1) & 1), ((edgeCode >> 2) & 1), ((edgeCode >> 3) & 1),
-      ((edgeCode >> 4) & 1), ((edgeCode >> 5) & 1), lastTestId);
+    annotation = vtk::format("Edge code {} = {}{}{}{}{}{}, Test ID {}*", edgeCode, (edgeCode & 1),
+      ((edgeCode >> 1) & 1), ((edgeCode >> 2) & 1), ((edgeCode >> 3) & 1), ((edgeCode >> 4) & 1),
+      ((edgeCode >> 5) & 1), lastTestId);
     if (vtkTessellatorIsInteractive)
     {
       startTet->SetPoints(startTetPts);
       startTetPts->FastDelete();
       startTet->InsertNextCell(VTK_TETRA, 4, startTetConn);
 
-      annotationActor->SetInput(annotation);
+      annotationActor->SetInput(annotation.c_str());
     }
 #ifdef VTK_GENERATE_BASELINE
     // tessellatorRegressionTest.StdOut() << annotation << "\nOutput Tetrahedra:\n";
@@ -3383,7 +3382,7 @@ int TestTessellator(int argc, char* argv[])
     tstc << "  { \"" << annotation << "\", " << otetCtr; // << " },\n";
 #endif                                                   // VTK_GENERATE_BASELINE
 #ifdef VTK_CHECK_RESULTS
-    if (strcmp(vtkTestSummaries[vtkTstCode].Name, annotation) != 0)
+    if (annotation != vtkTestSummaries[vtkTstCode].Name)
     {
       std::cerr << "ERROR: Test " << vtkTstCode << " was named \"" << annotation << ", expecting \""
                 << vtkTestSummaries[vtkTstCode].Name << "\"\n";

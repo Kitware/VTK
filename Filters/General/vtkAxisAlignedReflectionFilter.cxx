@@ -26,6 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkReflectionUtilities.h"
+#include "vtkStringFormatter.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUniformHyperTreeGrid.h"
 #include "vtkUnstructuredGrid.h"
@@ -81,7 +82,7 @@ void vtkAxisAlignedReflectionFilter::AddPartitionedDataSet(
   }
   else
   {
-    nodeName = nodeNamePrefix + std::to_string(count++);
+    nodeName = nodeNamePrefix + vtk::to_string(count++);
   }
 
   outputPDSC->GetMetaData(this->PartitionIndex)->Set(vtkCompositeDataSet::NAME(), nodeName.c_str());
@@ -234,7 +235,7 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
     inputNodeId = outputHierarchy->AddNode("Input", rootId);
     if (inputNodeId == -1)
     {
-      vtkErrorMacro("Unable to a add new child node for node " + std::to_string(rootId));
+      vtkErrorMacro("Unable to a add new child node for node " + vtk::to_string(rootId));
       return 0;
     }
   }
@@ -242,7 +243,7 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
   int reflectionNodeId = outputHierarchy->AddNode("Reflection", rootId);
   if (reflectionNodeId == -1)
   {
-    vtkErrorMacro("Unable to a add new child node for node " + std::to_string(rootId));
+    vtkErrorMacro("Unable to a add new child node for node " + vtk::to_string(rootId));
     return 0;
   }
 

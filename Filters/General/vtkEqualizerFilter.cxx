@@ -8,10 +8,9 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkMath.h"
-#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 #include "vtkTable.h"
 #include "vtkVector.h"
 
@@ -224,8 +223,9 @@ void vtkEqualizerFilter::SetPoints(const std::string& pointsStr)
     std::vector<std::string> pointStr{ vtkInternal::splitStringByDelimiter(point, ',') };
     if (pointStr.size() > 1)
     {
-      float x = std::stof(pointStr.at(0));
-      float y = std::stof(pointStr.at(1));
+      float x, y;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(pointStr.at(0), x);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(pointStr.at(1), y);
       this->Internal->Points.emplace_back(x, y);
     }
   }

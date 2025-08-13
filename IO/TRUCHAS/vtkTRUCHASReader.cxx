@@ -13,6 +13,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnstructuredGrid.h"
 
 #include "vtk_hdf5.h"
@@ -296,7 +297,7 @@ public:
     for (std::set<int>::iterator it = unique_blocks.begin(); it != unique_blocks.end(); ++it)
     {
       // keep record of the "name" of the block for GUI to choose from
-      self->BlockChoices->AddArray(std::to_string(*it).c_str());
+      self->BlockChoices->AddArray(vtk::to_string(*it).c_str());
       // keep track of location to block id
       this->blockmap.push_back(*it);
       // keep track of block id to location
@@ -364,7 +365,7 @@ public:
     bool done = false;
     while (!done)
     {
-      std::string nextpartname = "/Simulations/MAIN/Non-series Data/part" + std::to_string(partnum);
+      std::string nextpartname = "/Simulations/MAIN/Non-series Data/part" + vtk::to_string(partnum);
       htri_t exists = H5Lexists(this->FileIndx, nextpartname.c_str(), H5P_DEFAULT);
       if (!exists)
       {
@@ -546,7 +547,7 @@ public:
 
     for (unsigned int i = 0; i < this->part_to_blocks.size(); i++)
     {
-      std::string nextpartname = "translate_part" + std::to_string(i + 1);
+      std::string nextpartname = "translate_part" + vtk::to_string(i + 1);
       hid_t att = H5Aopen(now_gid, nextpartname.c_str(), H5P_DEFAULT);
       double transform[3];
       H5Aread(att, H5T_NATIVE_DOUBLE, &transform);
@@ -1044,7 +1045,7 @@ int vtkTRUCHASReader::RequestData(
             // For the VOF field, name the components by the given FIELDNAMEX attribute.
             for (size_t i = 0; i < dims[1]; i++)
             {
-              std::string attr_name = "FIELDNAME" + std::to_string(i + 1);
+              std::string attr_name = "FIELDNAME" + vtk::to_string(i + 1);
               if (!H5Aexists_by_name(now_gid, array_name, attr_name.c_str(), H5P_DEFAULT))
                 continue;
               hid_t attr = H5Aopen(did, attr_name.c_str(), H5P_DEFAULT);
@@ -1174,7 +1175,7 @@ int vtkTRUCHASReader::RequestData(
   for (unsigned int b = 0; b < totalNumBlocks; b++)
   {
     int gblockid = this->Internals->blockmap[b];
-    std::string bname = std::to_string(gblockid);
+    std::string bname = vtk::to_string(gblockid);
     output->SetBlock(b, grid[b]);
     output->GetMetaData(b)->Set(vtkCompositeDataSet::NAME(), bname);
   }

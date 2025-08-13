@@ -16,19 +16,19 @@
 #include "vtkExtractGrid.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkMultiProcessStreamSerialization.h"
-#include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkRemoveUnusedPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -145,7 +145,7 @@ bool vtkIOSSReaderInternal::UpdateDatabaseNames(vtkIOSSReader* self)
       filenames.clear();
       for (int i = 0; i < ranks; ++i)
       {
-        filenames.insert("catalyst.bin." + std::to_string(ranks) + "." + std::to_string(i));
+        filenames.insert("catalyst.bin." + vtk::to_string(ranks) + "." + vtk::to_string(i));
       }
     }
     else if (self->GetScanForRelatedFiles())
@@ -177,8 +177,9 @@ bool vtkIOSSReaderInternal::UpdateDatabaseNames(vtkIOSSReader* self)
     if (regEx.find(fname))
     {
       auto dbasename = regEx.match(1);
-      auto processor_count = std::atoi(regEx.match(2).c_str());
-      auto my_processor = std::atoi(regEx.match(3).c_str());
+      int processor_count, my_processor;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(regEx.match(2), processor_count, false);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(regEx.match(3), my_processor, false);
 
       auto& info = databases[dbasename];
       if (info.ProcessCount == 0 || info.ProcessCount == processor_count)
@@ -922,14 +923,14 @@ Ioss::Region* vtkIOSSReaderInternal::GetRegion(const std::string& dbasename, int
             vtkLog(TRACE, << name << " : " << properties.get(name).get_pointer());
             break;
           case Ioss::Property::BasicType::INTEGER:
-            vtkLog(TRACE, << name << " : " << std::to_string(properties.get(name).get_int()));
+            vtkLog(TRACE, << name << " : " << vtk::to_string(properties.get(name).get_int()));
             break;
           case Ioss::Property::BasicType::INVALID:
             vtkLog(TRACE, << name << " : "
                           << "invalid type");
             break;
           case Ioss::Property::BasicType::REAL:
-            vtkLog(TRACE, << name << " : " << std::to_string(properties.get(name).get_real()));
+            vtkLog(TRACE, << name << " : " << vtk::to_string(properties.get(name).get_real()));
             break;
           case Ioss::Property::BasicType::STRING:
             vtkLog(TRACE, << name << " : " << properties.get(name).get_string());
@@ -1860,13 +1861,13 @@ vtkSmartPointer<vtkAbstractArray> vtkIOSSReaderInternal::GetField(const std::str
 
     if (iter == stateVector.end())
     {
-      throw std::runtime_error("Invalid timestep chosen: " + std::to_string(timestep));
+      throw std::runtime_error("Invalid timestep chosen: " + vtk::to_string(timestep));
     }
     const int state = iter->first;
     region->begin_state(state);
     try
     {
-      const std::string key = "__vtk_transient_" + fieldname + "_" + std::to_string(state) + "__";
+      const std::string key = "__vtk_transient_" + fieldname + "_" + vtk::to_string(state) + "__";
       auto f =
         vtkIOSSUtilities::GetData(entity, fieldname, /*transform=*/nullptr, &this->Cache, key);
       region->end_state(state);
@@ -1905,7 +1906,7 @@ vtkSmartPointer<vtkAbstractArray> vtkIOSSReaderInternal::GetField(const std::str
   auto& cache = this->Cache;
   const std::string cacheKey =
     (vtkIOSSUtilities::IsFieldTransient(group_entity, fieldname)
-        ? "__vtk_transientfield_" + fieldname + std::to_string(timestep) + "__"
+        ? "__vtk_transientfield_" + fieldname + vtk::to_string(timestep) + "__"
         : "__vtk_field_" + fieldname + "__") +
     cache_key_suffix;
   if (auto cached = vtkAbstractArray::SafeDownCast(cache.Find(group_entity, cacheKey)))
@@ -2138,7 +2139,7 @@ bool vtkIOSSReaderInternal::ApplyDisplacements(vtkPointSet* grid, Ioss::Region* 
 
   auto& cache = this->Cache;
   const auto xformPtsCacheKeyEnding =
-    std::to_string(timestep) + std::to_string(std::hash<double>{}(this->DisplacementMagnitude));
+    vtk::to_string(timestep) + vtk::to_string(std::hash<double>{}(this->DisplacementMagnitude));
   const auto xformPtsCacheKey = !mergeExodusEntityBlocks
     ? "__vtk_xformed_pts_" + xformPtsCacheKeyEnding
     : "__vtk_merged_xformed_pts_" + xformPtsCacheKeyEnding;

@@ -29,6 +29,7 @@
 #include "vtkSpatioTemporalHarmonicsAttribute.h"
 #include "vtkSphereSource.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkTransform.h"
@@ -108,7 +109,7 @@ bool TestDistributedObject(
   // Write it to disk
   std::string prefix = tempDir + "/parallel_sphere_" + (usePolyData ? "PD" : "UG");
   std::string filePath = prefix + ".vtkhdf";
-  std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
+  std::string filePathPart = prefix + "_part" + vtk::to_string(myRank) + ".vtkhdf";
 
   vtkNew<vtkHDFWriter> writer;
   writer->SetInputConnection(
@@ -165,9 +166,9 @@ bool TestCompositeDistributedObject(
   addAssembly->SetInputConnection(group->GetOutputPort());
 
   // Write it to disk
-  std::string prefix = tempDir + "/parallel_composite_" + std::to_string(compositeType);
+  std::string prefix = tempDir + "/parallel_composite_" + vtk::to_string(compositeType);
   std::string filePath = prefix + ".vtkhdf";
-  std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
+  std::string filePathPart = prefix + "_part" + vtk::to_string(myRank) + ".vtkhdf";
 
   vtkNew<vtkHDFWriter> writer;
   writer->SetInputConnection(compositeType == VTK_PARTITIONED_DATA_SET_COLLECTION
@@ -286,7 +287,7 @@ bool TestDistributedTemporal(vtkMPIController* controller, const std::string& te
   std::string prefix = tempDir + "/parallel_time_cow" + (usePolyData ? "_PD" : "_UG") +
     (staticMesh ? "_static" : "") + (nullPart ? "_null" : "");
   std::string filePath = prefix + ".vtkhdf";
-  std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
+  std::string filePathPart = prefix + "_part" + vtk::to_string(myRank) + ".vtkhdf";
 
   vtkNew<vtkHDFWriter> writer;
 
@@ -423,9 +424,9 @@ bool TestCompositeTemporalDistributedObject(
   harmonics->SetInputConnection(generateTimeSteps->GetOutputPort());
 
   // Write it to disk
-  std::string prefix = tempDir + "/parallel_temporal_composite_" + std::to_string(compositeType);
+  std::string prefix = tempDir + "/parallel_temporal_composite_" + vtk::to_string(compositeType);
   std::string filePath = prefix + ".vtkhdf";
-  std::string filePathPart = prefix + "_part" + std::to_string(myRank) + ".vtkhdf";
+  std::string filePathPart = prefix + "_part" + vtk::to_string(myRank) + ".vtkhdf";
 
   vtkNew<vtkHDFWriter> writer;
   writer->SetWriteAllTimeSteps(true);
@@ -710,7 +711,7 @@ int TestHDFWriterDistributed(int argc, char* argv[])
   vtkMultiProcessController::SetGlobalController(controller);
 
   std::string threadName = "rank #";
-  threadName += std::to_string(controller->GetLocalProcessId());
+  threadName += vtk::to_string(controller->GetLocalProcessId());
   vtkLogger::SetThreadName(threadName);
 
   // Retrieve temporary testing directory

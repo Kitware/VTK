@@ -146,7 +146,6 @@ ids.CellIdsOn()
 ids.FieldDataOn()
 ldm = vtkLabeledDataMapper()
 ldm.SetInputConnection(ids.GetOutputPort())
-#  ldm SetLabelFormat "%g"
 ldm.SetLabelModeToLabelFieldData()
 pointLabels = vtkActor2D()
 pointLabels.SetMapper(ldm)

@@ -19,6 +19,7 @@ resulting in wrapper code that is faster and more compact.
 
 #include "vtkObject.h"
 #include "vtkSmartPointerBase.h"
+#include "vtkStringFormatter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
@@ -957,8 +958,10 @@ PyObject* vtkPythonArgs::GetSelfFromFirstArg(PyObject* self, PyObject* args)
     }
 
     char buf[256];
-    snprintf(buf, sizeof(buf), "unbound method requires a %.200s as the first argument",
-      vtkPythonUtil::GetTypeName(pytype));
+    auto result =
+      vtk::format_to_n(buf, sizeof(buf), "unbound method requires a {:.200s} as the first argument",
+        vtkPythonUtil::GetTypeNameForObject(self));
+    *result.out = '\0';
     PyErr_SetString(PyExc_TypeError, buf);
     return nullptr;
   }
@@ -1485,11 +1488,11 @@ bool vtkPythonArgs::ArgCountError(Py_ssize_t m, Py_ssize_t n)
   const char* name = this->MethodName;
   Py_ssize_t nargs = this->N;
 
-  snprintf(text, sizeof(text),
-    "%.200s%s takes %s %" PY_FORMAT_SIZE_T "d argument%s (%" PY_FORMAT_SIZE_T "d given)",
-    (name ? name : "function"), (name ? "()" : ""),
-    ((m == n) ? "exactly" : ((nargs < m) ? "at least" : "at most")), ((nargs < m) ? m : n),
-    ((((nargs < m) ? m : n)) == 1 ? "" : "s"), nargs);
+  auto result = vtk::format_to_n(text, sizeof(text),
+    "{:.200s}{:s} takes {:s} {:d} argument{:s} ({:d} given)", (name ? name : "function"),
+    (name ? "()" : ""), ((m == n) ? "exactly" : ((nargs < m) ? "at least" : "at most")),
+    ((nargs < m) ? m : n), ((((nargs < m) ? m : n)) == 1 ? "" : "s"), nargs);
+  *result.out = '\0';
   PyErr_SetString(PyExc_TypeError, text);
   return false;
 }
@@ -1499,9 +1502,10 @@ bool vtkPythonArgs::ArgCountError(Py_ssize_t m, Py_ssize_t n)
 bool vtkPythonArgs::ArgCountError(Py_ssize_t n, const char* name)
 {
   char text[256];
-
-  snprintf(text, sizeof(text), "no overloads of %.200s%s take %" PY_FORMAT_SIZE_T "d argument%s",
-    (name ? name : "function"), (name ? "()" : ""), n, (n == 1 ? "" : "s"));
+  auto result =
+    vtk::format_to_n(text, sizeof(text), "no overloads of {:.200s}{:s} take {:d} argument{:s}",
+      (name ? name : "function"), (name ? "()" : ""), n, (n == 1 ? "" : "s"));
+  *result.out = '\0';
   PyErr_SetString(PyExc_TypeError, text);
   return false;
 }
@@ -1511,8 +1515,8 @@ bool vtkPythonArgs::ArgCountError(Py_ssize_t n, const char* name)
 bool vtkPythonArgs::PrecondError(const char* ctext)
 {
   char text[256];
-
-  snprintf(text, sizeof(text), "expects %.200s", ctext);
+  auto result = vtk::format_to_n(text, sizeof(text), "expects {:.200s}", ctext);
+  *result.out = '\0';
   PyErr_SetString(PyExc_ValueError, text);
   return false;
 }
@@ -1522,8 +1526,9 @@ bool vtkPythonArgs::PrecondError(const char* ctext)
 bool vtkPythonArgs::PureVirtualError()
 {
   char text[256];
-
-  snprintf(text, sizeof(text), "pure virtual method %.200s() was called", this->MethodName);
+  auto result = vtk::format_to_n(
+    text, sizeof(text), "pure virtual method {:.200s}() was called", this->MethodName);
+  *result.out = '\0';
   PyErr_SetString(PyExc_TypeError, text);
   return false;
 }
@@ -1563,13 +1568,18 @@ bool vtkPythonSequenceError(PyObject* o, size_t n, size_t m)
   char text[80];
   if (m == n)
   {
-    snprintf(text, sizeof(text), "expected a sequence of %lld value%s, got %s",
-      static_cast<long long>(n), ((n == 1) ? "" : "s"), vtkPythonUtil::GetTypeNameForObject(o));
+
+    auto result =
+      vtk::format_to_n(text, sizeof(text), "expected a sequence of {:d} value{:s}, got {:s}",
+        static_cast<long long>(n), ((n == 1) ? "" : "s"), vtkPythonUtil::GetTypeNameForObject(o));
+    *result.out = '\0';
   }
   else
   {
-    snprintf(text, sizeof(text), "expected a sequence of %lld value%s, got %lld values",
-      static_cast<long long>(n), ((n == 1) ? "" : "s"), static_cast<long long>(m));
+    auto result =
+      vtk::format_to_n(text, sizeof(text), "expected a sequence of {:d} value{:s}, got {:d} values",
+        static_cast<long long>(n), ((n == 1) ? "" : "s"), static_cast<long long>(m));
+    *result.out = '\0';
   }
   PyErr_SetString(PyExc_TypeError, text);
   return false;

@@ -6,15 +6,17 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkQtSQLQuery.h"
-
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
 #include "vtkVariant.h"
+
+#include <vtksys/SystemTools.hxx>
 
 #include <QtSql/QSqlError>
 #include <QtSql/QtSql>
 
 #include <sstream>
-#include <vtksys/SystemTools.hxx>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQtSQLDatabase);
@@ -275,7 +277,9 @@ bool vtkQtSQLDatabase::ParseURL(const char* URL)
   this->SetDatabaseType(qtType.toUtf8().data());
   this->SetUserName(username.c_str());
   this->SetHostName(hostname.c_str());
-  this->SetDbPort(atoi(dataport.c_str()));
+  int port;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(dataport, port, false);
+  this->SetDbPort(port);
   this->SetDatabaseName(database.c_str());
   return true;
 }
@@ -302,7 +306,7 @@ vtkStdString vtkQtSQLDatabase::GetURL()
   url += "@";
   url += this->GetHostName();
   url += ":";
-  url += std::to_string(this->GetDbPort());
+  url += vtk::to_string(this->GetDbPort());
   url += "/";
   url += this->GetDatabaseName();
   return url;

@@ -67,7 +67,6 @@ visPts.SetRenderer(ren1)
 
 ldm = vtkLabeledDataMapper()
 ldm.SetInputConnection(mask.GetOutputPort())
-#    ldm.SetLabelFormat("%g")
 ldm.SetLabelModeToLabelScalars()
 
 tprop = ldm.GetLabelTextProperty()

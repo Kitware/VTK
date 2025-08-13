@@ -17,6 +17,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataToImageStencil.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 #include "vtkTesting.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTrivialProducer.h"
@@ -163,19 +164,21 @@ int TestImageStencilData(int argc, char* argv[])
     testing->AddArgument(argv[cc]);
   }
 
-  if (atoi(argv[1]) == 1)
+  long addStencils;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], addStencils, EXIT_FAILURE);
+  if (addStencils == 1L)
   {
     // Test Add stencils
     stencil1->Add(stencil2);
     GetStencilDataAsImageData(stencil1, image);
   }
-  else if (atoi(argv[1]) == 2)
+  else if (addStencils == 2L)
   {
     // Test subtraction of stencils
     stencil1->Subtract(stencil2);
     GetStencilDataAsImageData(stencil1, image);
   }
-  else if (atoi(argv[1]) == 3)
+  else if (addStencils == 3L)
   {
     // Test clipping of stencils
     stencil1->Add(stencil2);

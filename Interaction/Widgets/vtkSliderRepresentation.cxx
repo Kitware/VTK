@@ -5,6 +5,7 @@
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderer.h"
+#include "vtkStringFormatter.h"
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -26,7 +27,8 @@ vtkSliderRepresentation::vtkSliderRepresentation()
   this->ShowSliderLabel = 1;
 
   this->LabelFormat = new char[8];
-  snprintf(this->LabelFormat, 8, "%s", "%0.3g");
+  auto result = vtk::format_to_n(this->LabelFormat, 8, "{}", "{:0.3g}");
+  *result.out = '\0';
 
   this->LabelHeight = 0.05;
   this->TitleHeight = 0.15;
@@ -37,6 +39,21 @@ vtkSliderRepresentation::~vtkSliderRepresentation()
 {
   delete[] this->LabelFormat;
   this->LabelFormat = nullptr;
+}
+
+//------------------------------------------------------------------------------
+void vtkSliderRepresentation::SetLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(LabelFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------

@@ -6,15 +6,16 @@
 // .SECTION Description
 //  Simple test for structured grid partitioner
 
-#include <cassert>
-#include <iostream>
-#include <sstream>
-
 #include "vtkMultiBlockDataSet.h"
+#include "vtkStringScanner.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridPartitioner.h"
 #include "vtkXMLMultiBlockDataWriter.h"
 #include "vtkXMLStructuredGridReader.h"
+
+#include <cassert>
+#include <iostream>
+#include <sstream>
 
 //------------------------------------------------------------------------------
 // Description:
@@ -60,8 +61,9 @@ int TestStructuredGridPartitioner(int argc, char* argv[])
     return -1;
   }
 
-  std::string fileName = std::string(argv[1]);
-  int NumPartitions = atoi(argv[2]);
+  std::string fileName = argv[1] ? argv[1] : "";
+  int NumPartitions;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[2], NumPartitions, EXIT_FAILURE);
 
   vtkStructuredGrid* grid = GetGridFromFile(fileName);
   assert("pre: grid is not nullptr" && (grid != nullptr));

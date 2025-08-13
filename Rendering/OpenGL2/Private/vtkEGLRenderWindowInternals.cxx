@@ -4,6 +4,7 @@
 #include "Private/vtkEGLRenderWindowInternals.h"
 
 #include "vtkLogger.h"
+#include "vtkStringScanner.h"
 
 #include <cassert>
 
@@ -126,22 +127,8 @@ vtkEGLRenderWindowInternals::vtkEGLRenderWindowInternals()
   char* EGLDefaultDeviceIndexEnv = std::getenv("VTK_DEFAULT_EGL_DEVICE_INDEX");
   if (EGLDefaultDeviceIndexEnv)
   {
-    try
-    {
-      int index = atoi(EGLDefaultDeviceIndexEnv);
-      if (index >= 0)
-      {
-        vtkEGLDisplayInitializationHelper::DefaultDeviceIndex = index;
-      }
-    }
-    catch (const std::out_of_range&)
-    {
-      vtkLog(ERROR, "VTK_DEFAULT_EGL_DEVICE_INDEX is out of range.");
-    }
-    catch (const std::invalid_argument&)
-    {
-      vtkLog(ERROR, "VTK_DEFAULT_EGL_DEVICE_INDEX is not a valid integer.");
-    }
+    VTK_FROM_CHARS_IF_ERROR_RETURN(
+      EGLDefaultDeviceIndexEnv, vtkEGLDisplayInitializationHelper::DefaultDeviceIndex, );
   }
 }
 

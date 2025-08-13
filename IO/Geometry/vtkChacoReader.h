@@ -21,6 +21,9 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+#include <string> // For std::string
+#include <vector> // For std::vector
+
 VTK_ABI_NAMESPACE_BEGIN
 class VTKIOGEOMETRY_EXPORT vtkChacoReader : public vtkUnstructuredGridAlgorithm
 {
@@ -184,8 +187,8 @@ protected:
   char* CurrentBaseName;
   vtkSetStringMacro(CurrentBaseName);
 
-  char** VarrayName;
-  char** EarrayName;
+  std::vector<std::string> VarrayName;
+  std::vector<std::string> EarrayName;
 
   //----------------------------------------------------------------------
   // The following metadata is read during RequestInformation.  If you

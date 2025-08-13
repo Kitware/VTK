@@ -4,26 +4,25 @@
 
 #include "vtkMNITagPointReader.h"
 
-#include "vtkObjectFactory.h"
-
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 
-#include <cctype>
-
-#include <string>
-#include <vector>
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
+
+#include <cctype>
+#include <string>
+#include <vector>
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -312,14 +311,14 @@ int vtkMNITagPointReader::ParseIntValues(
   while (pos != linetext.end() && *pos != ';' && i < n)
   {
     const char* cp = linetext.c_str() + (pos - linetext.begin());
-    char* ep = nullptr;
-    long val = strtol(cp, &ep, 10);
-    if (ep == cp)
+    auto result = vtk::scan_int<long>(std::string_view(cp));
+    if (!result)
     {
       vtkErrorMacro("Syntax error " << this->FileName << ":" << this->LineNumber);
       return 0;
     }
-    pos += (ep - cp);
+    long val = result->value();
+    pos += (result->range().data() - cp);
     values[i++] = static_cast<int>(val);
     this->SkipWhitespace(infile, linetext, pos, 0);
   }
@@ -344,14 +343,14 @@ int vtkMNITagPointReader::ParseFloatValues(
   while (pos != linetext.end() && *pos != ';' && i < n)
   {
     const char* cp = linetext.c_str() + (pos - linetext.begin());
-    char* ep = nullptr;
-    double val = strtod(cp, &ep);
-    if (ep == cp)
+    auto result = vtk::scan_value<double>(std::string_view(cp));
+    if (!result)
     {
       vtkErrorMacro("Syntax error " << this->FileName << ":" << this->LineNumber);
       return 0;
     }
-    pos += (ep - cp);
+    double val = result->value();
+    pos += (result->range().data() - cp);
     values[i++] = val;
     this->SkipWhitespace(infile, linetext, pos, 0);
   }

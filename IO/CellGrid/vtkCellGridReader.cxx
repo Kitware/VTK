@@ -11,6 +11,7 @@
 #include "vtkFiltersCellGrid.h"
 #include "vtkIOCellGrid.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringScanner.h"
 #include "vtkStringToken.h"
 
 #include <array>
@@ -100,7 +101,7 @@ void addCachedRange(vtkCellGridRangeQuery::CacheMap& rangeCache, vtkCellAttribut
     }
     else
     {
-      comp = std::stoi(entry.key()) + 2;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(entry.key(), comp, );
       if (comp < 2 || comp > attribute->GetNumberOfComponents() + 2)
       {
         vtkWarningWithObjectMacro(attribute,

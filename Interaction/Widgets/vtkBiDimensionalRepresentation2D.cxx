@@ -9,12 +9,12 @@
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointHandleRepresentation2D.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
@@ -611,7 +611,6 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
       return;
     }
 
-    char distStr1[256], distStr2[256];
     double p1[3], p2[3], p3[3], p4[3];
     this->GetPoint1DisplayPosition(p1);
     this->GetPoint2DisplayPosition(p2);
@@ -653,8 +652,8 @@ void vtkBiDimensionalRepresentation2D::BuildRepresentation()
     {
       label << this->ID << ": ";
     }
-    snprintf(distStr1, sizeof(distStr1), this->LabelFormat, line1Dist);
-    snprintf(distStr2, sizeof(distStr2), this->LabelFormat, line2Dist);
+    auto distStr1 = vtk::format(this->LabelFormat, line1Dist);
+    auto distStr2 = vtk::format(this->LabelFormat, line2Dist);
 
     if (line1Dist > line2Dist)
     {

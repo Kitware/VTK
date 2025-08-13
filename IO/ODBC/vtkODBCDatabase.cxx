@@ -19,12 +19,13 @@
 
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 
-#include <sstream>
 #include <vtksys/SystemTools.hxx>
 
 #include <cassert>
 #include <cstring>
+#include <sstream>
 #include <vector>
 
 #include <sql.h>
@@ -640,7 +641,9 @@ bool vtkODBCDatabase::ParseURL(const char* URL)
   if (protocol == "odbc")
   {
     this->SetUserName(username.c_str());
-    this->SetServerPort(atoi(dataport.c_str()));
+    int port;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(dataport, port, false);
+    this->SetServerPort(port);
     this->SetDatabaseName(database.c_str());
     this->SetDataSourceName(dsname.c_str());
     return true;

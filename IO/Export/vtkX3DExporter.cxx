@@ -27,6 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkRendererCollection.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkTexture.h"
@@ -981,8 +982,7 @@ static bool vtkX3DExporterWriterRenderFaceSet(int cellType, int representation, 
 static void vtkX3DExporterWriteData(vtkPoints* points, vtkDataArray* normals, vtkDataArray* tcoords,
   vtkUnsignedCharArray* colors, int index, vtkX3DExporterWriter* writer)
 {
-  char indexString[100];
-  snprintf(indexString, sizeof(indexString), "%04d", index);
+  std::string indexString = vtk::format("{:04d}", index);
 
   // write out the points
   std::string defString = "VTKcoordinates";
@@ -1035,8 +1035,7 @@ static void vtkX3DExporterWriteData(vtkPoints* points, vtkDataArray* normals, vt
 static void vtkX3DExporterUseData(
   bool normals, bool tcoords, bool colors, int index, vtkX3DExporterWriter* writer)
 {
-  char indexString[100];
-  snprintf(indexString, sizeof(indexString), "%04d", index);
+  std::string indexString = vtk::format("{:04d}", index);
   std::string defString = "VTKcoordinates";
   writer->StartNode(Coordinate);
   writer->SetField(USE, defString.append(indexString).c_str());

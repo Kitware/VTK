@@ -71,7 +71,7 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, int iteration)
   out << "[INFO]: " << numOfErrors << "/" << ghostGrid->GetNumberOfPoints()
       << " nodes appear wrong: " << std::endl;
   out << err.str();
-  vtkMPIUtilities::SynchronizedPrintf(cntrl, "%s", out.str().c_str());
+  vtkMPIUtilities::SynchronizedPrint(cntrl, "{:s}", out.str());
 
   // likewise, check cell-fields
   vtkDoubleArray* cellXYZ =
@@ -124,7 +124,7 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, int iteration)
   out << "[INFO]: " << numOfErrors << "/" << ghostGrid->GetNumberOfCells()
       << " cells appear wrong: " << std::endl;
   out << err.str();
-  vtkMPIUtilities::SynchronizedPrintf(cntrl, "%s", out.str().c_str());
+  vtkMPIUtilities::SynchronizedPrint(cntrl, "{:s}", out.str());
   ptIds->Delete();
   return (rc);
 }

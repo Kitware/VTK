@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 typedef struct ParseDepends_
 {
   StringCache Strings;
@@ -150,3 +152,5 @@ void vtkParse_FinalizeDependencyTracking(void)
   DepTracker.Target = NULL;
   vtkParse_FreeStringCache(&DepTracker.Strings);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

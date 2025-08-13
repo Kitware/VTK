@@ -5,6 +5,7 @@
 #include "vtkTimePointUtility.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkStringScanner.h"
 
 #include <cctype> // for isdigit
 #include <locale> // C++ locale
@@ -177,7 +178,7 @@ vtkTypeUInt64 vtkTimePointUtility::ISO8601ToTimePoint(const char* cstr, bool* ok
   bool formatValid = true;
   vtkTypeUInt64 value = 0;
 
-  std::string str(cstr);
+  std::string str = cstr ? cstr : "";
 
   if (str.length() == 19 || str.length() == 23)
   {
@@ -228,16 +229,17 @@ vtkTypeUInt64 vtkTimePointUtility::ISO8601ToTimePoint(const char* cstr, bool* ok
     }
     if (formatValid)
     {
-      int year = atoi(str.substr(0, 4).c_str());
-      int month = atoi(str.substr(5, 2).c_str());
-      int day = atoi(str.substr(8, 2).c_str());
-      int hour = atoi(str.substr(11, 2).c_str());
-      int minute = atoi(str.substr(14, 2).c_str());
-      int second = atoi(str.substr(17, 2).c_str());
+      int year, month, day, hour, minute, second;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(0, 4), year);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(5, 2), month);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(8, 2), day);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(11, 2), hour);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(14, 2), minute);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(17, 2), second);
       int msec = 0;
       if (str.length() == 23)
       {
-        msec = atoi(str.substr(20, 3).c_str());
+        VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(20, 3), msec);
       }
       value = DateTimeToTimePoint(year, month, day, hour, minute, second, msec);
     }
@@ -264,9 +266,10 @@ vtkTypeUInt64 vtkTimePointUtility::ISO8601ToTimePoint(const char* cstr, bool* ok
     }
     if (formatValid)
     {
-      int year = atoi(str.substr(0, 4).c_str());
-      int month = atoi(str.substr(5, 2).c_str());
-      int day = atoi(str.substr(8, 2).c_str());
+      int year, month, day;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(0, 4), year);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(5, 2), month);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(8, 2), day);
       value = DateToTimePoint(year, month, day);
     }
   }
@@ -303,13 +306,14 @@ vtkTypeUInt64 vtkTimePointUtility::ISO8601ToTimePoint(const char* cstr, bool* ok
     }
     if (formatValid)
     {
-      int hour = atoi(str.substr(0, 2).c_str());
-      int minute = atoi(str.substr(3, 2).c_str());
-      int second = atoi(str.substr(6, 2).c_str());
+      int hour, minute, second;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(0, 2), hour);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(3, 2), minute);
+      VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(6, 2), second);
       int msec = 0;
       if (str.length() == 12)
       {
-        msec = atoi(str.substr(9, 3).c_str());
+        VTK_FROM_CHARS_IF_ERROR_BREAK(str.substr(9, 3), msec);
       }
       value = TimeToTimePoint(hour, minute, second, msec);
     }

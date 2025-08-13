@@ -4,8 +4,8 @@
 #include "vtkDoubleArray.h"
 #include "vtkImageAccumulate.h"
 #include "vtkImageData.h"
-#include "vtkPointData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringScanner.h"
 
 int ImageAccumulateLarge(int argc, char* argv[])
 {
@@ -17,7 +17,7 @@ int ImageAccumulateLarge(int argc, char* argv[])
   }
   // For routine testing (nightly, local) we keep these dimensions small
   // To test bin overflow, change the 32, to 2048
-  dim = atoi(argv[1]);
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[1], dim, EXIT_FAILURE);
 
   // Allocate an image
   vtkSmartPointer<vtkImageData> image = vtkSmartPointer<vtkImageData>::New();

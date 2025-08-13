@@ -17,10 +17,10 @@
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkWindow.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLegendScaleActor);
@@ -410,7 +410,8 @@ void vtkLegendScaleActor::BuildRepresentation(vtkViewport* viewport)
     xR[2] = x[2];
     double len = sqrt(vtkMath::Distance2BetweenPoints(xL, xR));
     char buf[256];
-    snprintf(buf, sizeof(buf), "Scale 1 : %g", len);
+    auto result = vtk::format_to_n(buf, sizeof(buf), "Scale 1 : {:g}", len);
+    *result.out = '\0';
     this->LabelMappers[5]->SetInput(buf);
 
     // Now specify the position of the legend labels

@@ -6,15 +6,16 @@
 // .SECTION Description
 //  Simple test for rectilinear grid partitioner
 
-#include <cassert>
-#include <iostream>
-#include <sstream>
-
 #include "vtkMultiBlockDataSet.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridPartitioner.h"
+#include "vtkStringScanner.h"
 #include "vtkXMLMultiBlockDataWriter.h"
 #include "vtkXMLRectilinearGridReader.h"
+
+#include <cassert>
+#include <iostream>
+#include <sstream>
 
 //------------------------------------------------------------------------------
 // Description:
@@ -59,8 +60,9 @@ int TestRectilinearGridPartitioner(int argc, char* argv[])
     return -1;
   }
 
-  std::string fileName = std::string(argv[1]);
-  int NumPartitions = atoi(argv[2]);
+  std::string fileName = argv[1] ? argv[1] : "";
+  int NumPartitions;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(argv[2], NumPartitions, EXIT_FAILURE);
 
   vtkRectilinearGrid* grid = GetGridFromFile(fileName);
   assert("pre: grid is not nullptr" && (grid != nullptr));

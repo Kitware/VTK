@@ -126,7 +126,7 @@ band_edges_actor.GetProperty().SetLineWidth(1.3)
 scalar_value_mapper = vtkLabeledDataMapper()
 scalar_value_mapper.SetInputConnection(src.GetOutputPort())
 scalar_value_mapper.SetLabelModeToLabelScalars()
-scalar_value_mapper.SetLabelFormat("%1.3f")
+scalar_value_mapper.SetLabelFormat("{:1.3f}")
 scalar_value_actor = vtkActor2D()
 scalar_value_actor.SetMapper(scalar_value_mapper)
 

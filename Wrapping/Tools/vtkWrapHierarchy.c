@@ -35,6 +35,8 @@
 #include <unistd.h>
 #endif
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /**
  * Helper to append a text line to an array of lines
  */
@@ -965,3 +967,5 @@ int VTK_PARSE_MAIN(int argc, char* argv[])
 
   return vtkParse_FinalizeMain(retValue);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

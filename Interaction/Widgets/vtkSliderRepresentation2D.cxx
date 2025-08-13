@@ -5,7 +5,6 @@
 #include "vtkCellArray.h"
 #include "vtkCommand.h"
 #include "vtkEvent.h"
-#include "vtkInteractorObserver.h"
 #include "vtkLine.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -14,7 +13,7 @@
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
 #include "vtkRenderer.h"
-#include "vtkTextActor.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
@@ -428,7 +427,8 @@ void vtkSliderRepresentation2D::BuildRepresentation()
       this->LabelActor->VisibilityOn();
       int labelSize[2];
       char label[256];
-      snprintf(label, sizeof(label), this->LabelFormat, this->Value);
+      auto result = vtk::format_to_n(label, sizeof(label), this->LabelFormat, this->Value);
+      *result.out = '\0';
       this->LabelMapper->SetInput(label);
       this->LabelProperty->SetFontSize(static_cast<int>(this->LabelHeight * size[1]));
       this->LabelMapper->GetSize(this->Renderer, labelSize);

@@ -8,6 +8,7 @@
 #include "vtkFloatArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedShortArray.h"
 
 #include <vtksys/SystemTools.hxx>
@@ -453,7 +454,9 @@ void vtkBlueObeliskDataParser::ResizeAndSetValue(
 //------------------------------------------------------------------------------
 int vtkBlueObeliskDataParser::parseInt(const char* d)
 {
-  return atoi(d);
+  int value;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(d, value, 0);
+  return value;
 }
 
 //------------------------------------------------------------------------------
@@ -481,7 +484,7 @@ void vtkBlueObeliskDataParser::parseFloat3(const char* str, float arr[3])
 
   for (auto&& tok : tokens)
   {
-    arr[ind++] = std::stof(tok);
+    VTK_FROM_CHARS_IF_ERROR_RETURN(tok, arr[ind++], );
   }
 
   if (ind != 3)
@@ -493,7 +496,9 @@ void vtkBlueObeliskDataParser::parseFloat3(const char* str, float arr[3])
 //------------------------------------------------------------------------------
 unsigned short vtkBlueObeliskDataParser::parseUnsignedShort(const char* d)
 {
-  return static_cast<unsigned short>(atoi(d));
+  unsigned short value;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(d, value, 0);
+  return value;
 }
 
 //------------------------------------------------------------------------------

@@ -21,26 +21,15 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnstructuredGrid.h"
 
 // clang-format off
 #include VTK_IOSS(Ionit_Initializer.h)
 #include VTK_IOSS(Ioss_Assembly.h)
 #include VTK_IOSS(Ioss_DatabaseIO.h)
-#include VTK_IOSS(Ioss_EdgeBlock.h)
-#include VTK_IOSS(Ioss_EdgeSet.h)
-#include VTK_IOSS(Ioss_ElementBlock.h)
-#include VTK_IOSS(Ioss_ElementSet.h)
-#include VTK_IOSS(Ioss_ElementTopology.h)
-#include VTK_IOSS(Ioss_FaceBlock.h)
-#include VTK_IOSS(Ioss_FaceSet.h)
 #include VTK_IOSS(Ioss_IOFactory.h)
-#include VTK_IOSS(Ioss_NodeBlock.h)
-#include VTK_IOSS(Ioss_NodeSet.h)
 #include VTK_IOSS(Ioss_Region.h)
-#include VTK_IOSS(Ioss_SideBlock.h)
-#include VTK_IOSS(Ioss_SideSet.h)
-#include VTK_IOSS(Ioss_StructuredBlock.h)
 // clang-format on
 
 #include <array>
@@ -625,7 +614,7 @@ vtkStringArray* vtkIOSSReader::GetEntityIdMapAsString(int type) const
   for (const auto& pair : map)
   {
     strings->SetValue(index++, pair.first);
-    strings->SetValue(index++, std::to_string(pair.second));
+    strings->SetValue(index++, vtk::to_string(pair.second));
   }
 
   return strings;

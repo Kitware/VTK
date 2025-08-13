@@ -17,35 +17,29 @@
 #include "vtkCellData.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
-#include "vtkEndian.h"
 #include "vtkErrorCode.h"
 #include "vtkFieldData.h"
-#include "vtkFloatArray.h"
 #include "vtkHexahedron.h"
 #include "vtkIdList.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPyramid.h"
 #include "vtkQuad.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkWedge.h"
+
 #include "vtk_hdf5.h"
-#include "vtksys/Encoding.hxx"
-#include "vtksys/FStream.hxx"
 
 #include <algorithm>
 #include <cctype>
 #include <fstream>
-#include <map>
 #include <set>
 #include <sstream>
 #include <string>
@@ -55,7 +49,7 @@
 #define CHECK_HDF(fct)                                                                             \
   if (fct < 0)                                                                                     \
   throw std::runtime_error("HDF5 error in vtkFLUENTCFFReader: " + std::string(__func__) + " at " + \
-    std::to_string(__LINE__))
+    vtk::to_string(__LINE__))
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFLUENTCFFReader);
@@ -682,7 +676,7 @@ void vtkFLUENTCFFReader::GetNodes()
     {
       throw std::runtime_error("Unable to open HDF group (GetNodes coords).");
     }
-    dset_coords = H5Dopen(group_coords, std::to_string(Id[iZone]).c_str(), H5P_DEFAULT);
+    dset_coords = H5Dopen(group_coords, vtk::to_string(Id[iZone]).c_str(), H5P_DEFAULT);
     if (dset_coords < 0)
     {
       throw std::runtime_error("Unable to open HDF group (GetNodes coords).");
@@ -879,7 +873,7 @@ void vtkFLUENTCFFReader::GetCells()
       {
         int16_t ctype_elementType;
         std::string groupname =
-          std::string("/meshes/1/cells/ctype/" + std::to_string(iSection + 1));
+          std::string("/meshes/1/cells/ctype/" + vtk::to_string(iSection + 1));
         group_ctype = H5Gopen(this->HDFImpl->FluentCaseFile, groupname.c_str(), H5P_DEFAULT);
         if (group_ctype < 0)
         {
@@ -1125,7 +1119,7 @@ void vtkFLUENTCFFReader::GetFaces()
   for (uint64_t iSection = 0; iSection < nSections; iSection++)
   {
     uint64_t minId_fnodes, maxId_fnodes, nodes_size;
-    std::string groupname = std::string("/meshes/1/faces/nodes/" + std::to_string(iSection + 1));
+    std::string groupname = std::string("/meshes/1/faces/nodes/" + vtk::to_string(iSection + 1));
     group = H5Gopen(this->HDFImpl->FluentCaseFile, groupname.c_str(), H5P_DEFAULT);
     if (group < 0)
     {
@@ -1211,7 +1205,7 @@ void vtkFLUENTCFFReader::GetFaces()
   {
     uint64_t minc0, maxc0;
 
-    dset = H5Dopen(group, std::to_string(iSection + 1).c_str(), H5P_DEFAULT);
+    dset = H5Dopen(group, vtk::to_string(iSection + 1).c_str(), H5P_DEFAULT);
     if (dset < 0)
     {
       throw std::runtime_error("Unable to open HDF dataset (GetFaces c0 iSection).");
@@ -1267,7 +1261,7 @@ void vtkFLUENTCFFReader::GetFaces()
   {
     uint64_t minc1, maxc1;
 
-    dset = H5Dopen(group, std::to_string(iSection + 1).c_str(), H5P_DEFAULT);
+    dset = H5Dopen(group, vtk::to_string(iSection + 1).c_str(), H5P_DEFAULT);
     if (dset < 0)
     {
       throw std::runtime_error("Unable to open HDF dataset (GetFaces c1 iSection).");
@@ -1352,7 +1346,7 @@ topology.data()); CHECK_HDF(H5Dclose(dset));
 
     for (int iSection = 0; iSection < nSections; iSection++)
     {
-      hid_t groupTopo = H5Gopen(group, std::to_string(topology[iSection]).c_str(), H5P_DEFAULT);
+      hid_t groupTopo = H5Gopen(group, vtk::to_string(topology[iSection]).c_str(), H5P_DEFAULT);
       if (groupTopo < 0)
       {
         throw std::runtime_error("Unable to open HDF group (GetCellOverset topology).");
@@ -1609,7 +1603,7 @@ void vtkFLUENTCFFReader::GetInterfaceFaceParents()
       int minId = static_cast<int>(nciTopology[iZone * nData + 1]);
       int maxId = static_cast<int>(nciTopology[iZone * nData + 2]);
 
-      hid_t group_int = H5Gopen(group, std::to_string(zoneId).c_str(), H5P_DEFAULT);
+      hid_t group_int = H5Gopen(group, vtk::to_string(zoneId).c_str(), H5P_DEFAULT);
       if (group_int < 0)
       {
         throw std::runtime_error("Unable to open HDF group (GetInterfaceFaceParents topology).");
@@ -2317,11 +2311,11 @@ int vtkFLUENTCFFReader::GetData()
     int iphase = 1;
     while (
       H5Gget_objinfo(this->HDFImpl->FluentDataFile,
-        std::string("/results/1/phase-" + std::to_string(iphase)).c_str(), false, nullptr) == 0)
+        std::string("/results/1/phase-" + vtk::to_string(iphase)).c_str(), false, nullptr) == 0)
     {
       hid_t group, attr, dset, groupcell, space, dataType;
       group = H5Gopen(this->HDFImpl->FluentDataFile,
-        std::string("/results/1/phase-" + std::to_string(iphase)).c_str(), H5P_DEFAULT);
+        std::string("/results/1/phase-" + vtk::to_string(iphase)).c_str(), H5P_DEFAULT);
       if (group < 0)
       {
         vtkErrorMacro("Unable to open HDF group (GetData).");
@@ -2364,7 +2358,7 @@ int vtkFLUENTCFFReader::GetData()
         if (iphase > 1)
         {
           strSectionName =
-            std::string("phase_") + std::to_string(iphase - 1) + std::string("-") + strSectionName;
+            std::string("phase_") + vtk::to_string(iphase - 1) + std::string("-") + strSectionName;
         }
 
         if (this->CellDataArraySelection->ArrayIsEnabled(strSectionName.c_str()))
@@ -2380,7 +2374,7 @@ int vtkFLUENTCFFReader::GetData()
 
           for (uint64_t iSection = 0; iSection < nSections; iSection++)
           {
-            dset = H5Dopen(groupdata, std::to_string(iSection + 1).c_str(), H5P_DEFAULT);
+            dset = H5Dopen(groupdata, vtk::to_string(iSection + 1).c_str(), H5P_DEFAULT);
             if (dset < 0)
             {
               throw std::runtime_error("Unable to open HDF dataset (GetData dat iSection).");
@@ -2488,11 +2482,11 @@ int vtkFLUENTCFFReader::GetMetaData()
     int iphase = 1;
     while (
       H5Gget_objinfo(this->HDFImpl->FluentDataFile,
-        std::string("/results/1/phase-" + std::to_string(iphase)).c_str(), false, nullptr) == 0)
+        std::string("/results/1/phase-" + vtk::to_string(iphase)).c_str(), false, nullptr) == 0)
     {
       hid_t group, attr, dset, groupcell, space, dataType;
       group = H5Gopen(this->HDFImpl->FluentDataFile,
-        std::string("/results/1/phase-" + std::to_string(iphase)).c_str(), H5P_DEFAULT);
+        std::string("/results/1/phase-" + vtk::to_string(iphase)).c_str(), H5P_DEFAULT);
       if (group < 0)
       {
         vtkErrorMacro("Unable to open HDF group (GetMetaData).");
@@ -2539,7 +2533,7 @@ int vtkFLUENTCFFReader::GetMetaData()
         if (iphase > 1)
         {
           strSectionName =
-            std::string("phase_") + std::to_string(iphase - 1) + std::string("-") + strSectionName;
+            std::string("phase_") + vtk::to_string(iphase - 1) + std::string("-") + strSectionName;
         }
 
         uint64_t nSections;
@@ -2553,7 +2547,7 @@ int vtkFLUENTCFFReader::GetMetaData()
 
         for (uint64_t iSection = 0; iSection < nSections; iSection++)
         {
-          dset = H5Dopen(groupdata, std::to_string(iSection + 1).c_str(), H5P_DEFAULT);
+          dset = H5Dopen(groupdata, vtk::to_string(iSection + 1).c_str(), H5P_DEFAULT);
           if (dset < 0)
           {
             throw std::runtime_error("Unable to open HDF dataset (GetMetaData data iSection).");

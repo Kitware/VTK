@@ -10,15 +10,14 @@
 #include "vtkInformationVector.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkObjectFactory.h"
-#include "vtkRectilinearGrid.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkStructuredGrid.h"
-#include "vtkStructuredPoints.h"
+#include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
+
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -486,8 +485,7 @@ int vtkEnSightReader::ReadCaseFileScripts(char* line)
 //------------------------------------------------------------------------------
 int vtkEnSightReader::ReadCaseFileGeometry(char* line)
 {
-  char subLine[256];
-  int timeSet, fileSet, lineRead;
+  int lineRead;
 
   // There will definitely be a "model" line.  There may also be "measured"
   // and "match" lines.
@@ -498,50 +496,67 @@ int vtkEnSightReader::ReadCaseFileGeometry(char* line)
   {
     if (strncmp(line, "model:", 6) == 0)
     {
-      if (sscanf(line, " %*s %d%*[ \t]%d%*[ \t]%[^\t\r\n]", &timeSet, &fileSet, subLine) == 3)
+      const std::string_view lineView(line);
+      if (auto resultSubLine0 =
+            vtk::scan<std::string_view, int, int, std::string>(lineView, " {:s} {:d} {:d} {:s}"))
       {
+        auto& [_0, timeSet, fileSet, subLine] = resultSubLine0->values();
         this->GeometryTimeSet = timeSet;
         this->GeometryFileSet = fileSet;
-        this->SetGeometryFileName(subLine);
+        this->SetGeometryFileName(subLine.c_str());
         vtkDebugMacro(<< this->GetGeometryFileName());
       }
-      else if (sscanf(line, " %*s %d%*[ \t]%[^\t\r\n]", &timeSet, subLine) == 2)
+      else if (auto resultSubLine1 =
+                 vtk::scan<std::string_view, int, std::string>(lineView, " {:s} {:d} {:s}"))
       {
+        auto& [_0, timeSet, subLine] = resultSubLine1->values();
         this->GeometryTimeSet = timeSet;
-        this->SetGeometryFileName(subLine);
+        this->SetGeometryFileName(subLine.c_str());
         vtkDebugMacro(<< this->GetGeometryFileName());
+        ;
       }
-      else if (sscanf(line, " %*s %[^\t\r\n]", subLine) == 1)
+      else if (auto resultSubLine2 =
+                 vtk::scan<std::string_view, std::string>(lineView, " {:s} {:s}"))
       {
-        this->SetGeometryFileName(subLine);
+        auto& [_0, subLine] = resultSubLine2->values();
+        this->SetGeometryFileName(subLine.c_str());
         vtkDebugMacro(<< this->GetGeometryFileName());
       }
     }
     else if (strncmp(line, "measured:", 9) == 0)
     {
-      if (sscanf(line, " %*s %d%*[ \t]%d%*[ \t]%[^\t\r\n]", &timeSet, &fileSet, subLine) == 3)
+      const std::string_view lineView(line);
+      if (auto resultSubLine0 =
+            vtk::scan<std::string_view, int, int, std::string>(lineView, " {:s} {:d} {:d} {:s}"))
       {
+        auto& [_0, timeSet, fileSet, subLine] = resultSubLine0->values();
         this->MeasuredTimeSet = timeSet;
         this->MeasuredFileSet = fileSet;
-        this->SetMeasuredFileName(subLine);
+        this->SetMeasuredFileName(subLine.c_str());
         vtkDebugMacro(<< this->GetMeasuredFileName());
       }
-      else if (sscanf(line, " %*s %d%*[ \t]%[^\t\r\n]", &timeSet, subLine) == 2)
+      else if (auto resultSubLine1 =
+                 vtk::scan<std::string_view, int, std::string>(lineView, " {:s} {:d} {:s}"))
       {
+        auto& [_0, timeSet, subLine] = resultSubLine1->values();
         this->MeasuredTimeSet = timeSet;
-        this->SetMeasuredFileName(subLine);
+        this->SetMeasuredFileName(subLine.c_str());
         vtkDebugMacro(<< this->GetMeasuredFileName());
       }
-      else if (sscanf(line, " %*s %[^\t\r\n]", subLine) == 1)
+      else if (auto resultSubLine2 =
+                 vtk::scan<std::string_view, std::string>(lineView, " {:s} {:s}"))
       {
-        this->SetMeasuredFileName(subLine);
+        auto& [_0, subLine] = resultSubLine2->values();
+        this->SetMeasuredFileName(subLine.c_str());
         vtkDebugMacro(<< this->GetMeasuredFileName());
       }
     }
     else if (strncmp(line, "match:", 6) == 0)
     {
-      sscanf(line, " %*s %[^\t\r\n]", subLine);
-      this->SetMatchFileName(subLine);
+      auto resultSubLine =
+        vtk::scan<std::string_view, std::string>(std::string_view(line), " {:s} {:s}");
+      auto& [_0, subLine] = resultSubLine->values();
+      this->SetMatchFileName(subLine.c_str());
       vtkDebugMacro(<< this->GetMatchFileName());
     }
     else if (strncmp(line, "boundary", 8) == 0)
@@ -552,8 +567,10 @@ int vtkEnSightReader::ReadCaseFileGeometry(char* line)
     }
     else if (strncmp(line, "rigid_body", 10) == 0)
     {
-      sscanf(line, " %*s %[^\t\r\n]", subLine);
-      this->SetRigidBodyFileName(subLine);
+      auto resultSubLine =
+        vtk::scan<std::string_view, std::string>(std::string_view(line), " {:s} {:s}");
+      auto& [_0, subLine] = resultSubLine->values();
+      this->SetRigidBodyFileName(subLine.c_str());
       vtkDebugMacro(<< this->GetRigidBodyFileName());
     }
     lineRead = this->ReadNextDataLine(line);
@@ -565,8 +582,7 @@ int vtkEnSightReader::ReadCaseFileGeometry(char* line)
 //------------------------------------------------------------------------------
 int vtkEnSightReader::ReadCaseFileVariable(char* line)
 {
-  char subLine[256], subLine2[256];
-  int timeSet, fileSet, lineRead;
+  int lineRead, timeSet, fileSet;
 
   this->NumberOfScalarsPerNode = 0;
   this->NumberOfVectorsPerNode = 0;
@@ -594,193 +610,237 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
     }
     else if (strncmp(line, "scalar", 6) == 0)
     {
-      sscanf(line, " %*s %*s %s", subLine);
-      if (strcmp(subLine, "node:") == 0)
+      auto resultSubLine0 = vtk::scan<std::string_view, std::string_view, std::string>(
+        std::string_view(line), " {:s} {:s} {:s}");
+      auto subLine = std::get<2>(resultSubLine0->values());
+      if (subLine == "node:")
       {
         vtkDebugMacro("scalar per node");
         this->VariableMode = vtkEnSightReader::SCALAR_PER_NODE;
-        if (sscanf(line, " %*s %*s %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+        if (auto resultSubLine1 =
+              vtk::scan<int, int, std::string_view>(resultSubLine0->range(), "{:d} {:d} {:s}"))
         {
+          std::tie(timeSet, fileSet, subLine) = resultSubLine1->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine1->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %d %s", &timeSet, subLine) == 2)
+        else if (auto resultSubLine2 =
+                   vtk::scan<int, std::string_view>(resultSubLine0->range(), "{:d} {:s}"))
         {
+          std::tie(timeSet, subLine) = resultSubLine2->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine2->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %s", subLine) == 1)
+        else if (auto resultSubLine3 = vtk::scan_value<std::string_view>(resultSubLine0->range()))
         {
+          subLine = resultSubLine3->value();
           this->VariableTimeSetIds->InsertNextId(1);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine3->range())->value();
         }
         this->AddVariableType();
         this->NumberOfScalarsPerNode++;
       }
-      else if (strcmp(subLine, "element:") == 0)
+      else if (subLine == "element:")
       {
         vtkDebugMacro("scalar per element");
         this->VariableMode = vtkEnSightReader::SCALAR_PER_ELEMENT;
-        if (sscanf(line, " %*s %*s %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+        if (auto resultSubLine1 =
+              vtk::scan<int, int, std::string_view>(resultSubLine0->range(), "{:d} {:d} {:s}"))
         {
+          std::tie(timeSet, fileSet, subLine) = resultSubLine1->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine1->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %d %s", &timeSet, subLine) == 2)
+        else if (auto resultSubLine2 =
+                   vtk::scan<int, std::string_view>(resultSubLine0->range(), "{:d} {:s}"))
         {
+          std::tie(timeSet, subLine) = resultSubLine2->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine2->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %s", subLine) == 1)
+        else if (auto resultSubLine3 = vtk::scan_value<std::string_view>(resultSubLine0->range()))
         {
+          subLine = resultSubLine3->value();
           this->VariableTimeSetIds->InsertNextId(1);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine3->range())->value();
         }
         this->AddVariableType();
         this->NumberOfScalarsPerElement++;
       }
-      else if (strcmp(subLine, "measured") == 0)
+      else if (subLine == "measured")
       {
         vtkDebugMacro("scalar per measured node");
         this->VariableMode = vtkEnSightReader::SCALAR_PER_MEASURED_NODE;
-        if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+        if (auto resultSubLine1 = vtk::scan<std::string_view, int, int, std::string_view>(
+              resultSubLine0->range(), "{:s} {:d} {:d} {:s}"))
         {
+          std::tie(std::ignore, timeSet, fileSet, subLine) = resultSubLine1->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine1->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet, subLine) == 2)
+        else if (auto resultSubLine2 = vtk::scan<std::string_view, int, std::string_view>(
+                   resultSubLine0->range(), "{:s} {:d} {:s}"))
         {
+          std::tie(std::ignore, timeSet, subLine) = resultSubLine2->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine2->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %*s %s", subLine) == 1)
+        else if (auto resultSubLine3 = vtk::scan<std::string_view, std::string_view>(
+                   resultSubLine0->range(), "{:s} {:s}"))
         {
+          std::tie(std::ignore, subLine) = resultSubLine3->values();
           this->VariableTimeSetIds->InsertNextId(1);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine3->range())->value();
         }
         this->AddVariableType();
         this->NumberOfScalarsPerMeasuredNode++;
       }
-      this->AddVariableFileName(subLine);
+      this->AddVariableFileName(subLine.c_str());
       this->NumberOfVariables++;
     }
     else if (strncmp(line, "vector", 6) == 0)
     {
-      sscanf(line, " %*s %*s %s", subLine);
-      if (strcmp(subLine, "node:") == 0)
+      auto resultSubLine0 = vtk::scan<std::string_view, std::string_view, std::string>(
+        std::string_view(line), " {:s} {:s} {:s}");
+      auto subLine = std::get<2>(resultSubLine0->values());
+      if (subLine == "node:")
       {
         vtkDebugMacro("vector per node");
         this->VariableMode = vtkEnSightReader::VECTOR_PER_NODE;
-        if (sscanf(line, " %*s %*s %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+        if (auto resultSubLine1 =
+              vtk::scan<int, int, std::string_view>(resultSubLine0->range(), "{:d} {:d} {:s}"))
         {
+          std::tie(timeSet, fileSet, subLine) = resultSubLine1->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine1->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %d %s", &timeSet, subLine) == 2)
+        else if (auto resultSubLine2 =
+                   vtk::scan<int, std::string_view>(resultSubLine0->range(), "{:d} {:s}"))
         {
+          std::tie(timeSet, subLine) = resultSubLine2->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine2->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %s", subLine) == 1)
+        else if (auto resultSubLine3 = vtk::scan_value<std::string_view>(resultSubLine0->range()))
         {
+          subLine = resultSubLine3->value();
           this->VariableTimeSetIds->InsertNextId(1);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine3->range())->value();
         }
         this->AddVariableType();
         this->NumberOfVectorsPerNode++;
       }
-      else if (strcmp(subLine, "element:") == 0)
+      else if (subLine == "element:")
       {
         vtkDebugMacro("vector per element");
         this->VariableMode = vtkEnSightReader::VECTOR_PER_ELEMENT;
-        if (sscanf(line, " %*s %*s %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+        if (auto resultSubLine1 =
+              vtk::scan<int, int, std::string_view>(resultSubLine0->range(), "{:d} {:d} {:s}"))
         {
+          std::tie(timeSet, fileSet, subLine) = resultSubLine1->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine1->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %d %s", &timeSet, subLine) == 2)
+        else if (auto resultSubLine2 =
+                   vtk::scan<int, std::string_view>(resultSubLine0->range(), "{:d} {:s}"))
         {
+          std::tie(timeSet, subLine) = resultSubLine2->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine2->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %s", subLine) == 1)
+        else if (auto resultSubLine3 = vtk::scan_value<std::string_view>(resultSubLine0->range()))
         {
+          subLine = resultSubLine3->value();
           this->VariableTimeSetIds->InsertNextId(1);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine3->range())->value();
         }
         this->AddVariableType();
         this->NumberOfVectorsPerElement++;
       }
-      else if (strcmp(subLine, "measured") == 0)
+      else if (subLine == "measured")
       {
         vtkDebugMacro("vector per measured node");
         this->VariableMode = vtkEnSightReader::VECTOR_PER_MEASURED_NODE;
-        if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+        if (auto resultSubLine1 = vtk::scan<std::string_view, int, int, std::string_view>(
+              resultSubLine0->range(), "{:s} {:d} {:d} {:s}"))
         {
+          std::tie(std::ignore, timeSet, fileSet, subLine) = resultSubLine1->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine1->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet, subLine) == 2)
+        else if (auto resultSubLine2 = vtk::scan<std::string_view, int, std::string_view>(
+                   resultSubLine0->range(), "{:s} {:d} {:s}"))
         {
+          std::tie(std::ignore, timeSet, subLine) = resultSubLine2->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine2->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %*s %s", subLine) == 1)
+        else if (auto resultSubLine3 = vtk::scan<std::string_view, std::string_view>(
+                   resultSubLine0->range(), "{:s} {:s}"))
         {
+          std::tie(std::ignore, subLine) = resultSubLine3->values();
           this->VariableTimeSetIds->InsertNextId(1);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine3->range())->value();
         }
         this->AddVariableType();
         this->NumberOfVectorsPerMeasuredNode++;
       }
-      this->AddVariableFileName(subLine);
+      this->AddVariableFileName(subLine.c_str());
       this->NumberOfVariables++;
     }
     else if (strncmp(line, "tensor", 6) == 0)
     {
+      const std::string_view lineView(line);
       // According to EnSight documentation tensor entry should be of the form:
       // tensor symm per node/element
       // but it seems like you can also find:
       // tensor per node/element
       // Let handle this case here:
-      char symm[10];
-      char per[10];
+      std::string_view symm, per;
+      std::string subLine;
       bool asym = false;
-      if (sscanf(line, " %*s %s %s %s", symm, per, subLine) != 3)
+      auto resultSubLine0 =
+        vtk::scan<std::string_view, std::string_view, std::string_view, std::string_view>(
+          lineView, " {:s} {:s} {:s} {:s}");
+      if (!resultSubLine0)
       {
         vtkErrorMacro("Error while reading: " << line);
       }
-      if (!((strcmp(symm, "symm") == 0 || strcmp(symm, "asym") == 0) && strcmp(per, "per") == 0))
+      std::tie(std::ignore, symm, per, subLine) = resultSubLine0->values();
+      if (!((symm == "symm" || symm == "asym") && per == "per"))
       {
-        if (sscanf(line, " %*s %s %s", per, subLine) != 2)
+        auto resultSubLine1 = vtk::scan<std::string_view, std::string_view, std::string_view>(
+          lineView, " {:s} {:s} {:s}");
+        if (!resultSubLine1)
         {
           vtkErrorMacro("Error while reading: " << line);
         }
-        if (strcmp(per, "per") == 0)
+        std::tie(std::ignore, per, subLine) = resultSubLine1->values();
+        if (per == "per")
         {
           // Not valid file but seems alright, only 'symm' is missing
           vtkWarningMacro(
@@ -791,33 +851,38 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
           vtkErrorMacro("Trouble reading: " << line);
         }
       }
-      if (strcmp(symm, "asym") == 0)
+      if (symm == "asym")
       {
         asym = true;
       }
-      if (strcmp(subLine, "node:") == 0)
+      if (subLine == "node:")
       {
         vtkDebugMacro("tensor symm per node");
         this->VariableMode =
           asym ? vtkEnSightReader::TENSOR_ASYM_PER_NODE : vtkEnSightReader::TENSOR_SYMM_PER_NODE;
-        if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+        if (auto resultSubLine1 =
+              vtk::scan<int, int, std::string_view>(resultSubLine0->range(), "{:d} {:d} {:s}"))
         {
+          std::tie(timeSet, fileSet, subLine) = resultSubLine1->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine1->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet, subLine) == 2)
+        else if (auto resultSubLine2 =
+                   vtk::scan<int, std::string_view>(resultSubLine0->range(), "{:d} {:s}"))
         {
+          std::tie(timeSet, subLine) = resultSubLine2->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine2->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %*s %s", subLine) == 1)
+        else if (auto resultSubLine3 = vtk::scan_value<std::string_view>(resultSubLine0->range()))
         {
+          subLine = resultSubLine3->value();
           this->VariableTimeSetIds->InsertNextId(1);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine3->range())->value();
         }
         this->AddVariableType();
         if (asym)
@@ -829,29 +894,34 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
           this->NumberOfTensorsSymmPerNode++;
         }
       }
-      else if (strcmp(subLine, "element:") == 0)
+      else if (subLine == "element:")
       {
         vtkDebugMacro("tensor symm per element");
         this->VariableMode = asym ? vtkEnSightReader::TENSOR_ASYM_PER_ELEMENT
                                   : vtkEnSightReader::TENSOR_SYMM_PER_ELEMENT;
-        if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+        if (auto resultSubLine1 =
+              vtk::scan<int, int, std::string_view>(resultSubLine0->range(), "{:d} {:d} {:s}"))
         {
+          std::tie(timeSet, fileSet, subLine) = resultSubLine1->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
           this->VariableFileSetIds->InsertNextId(fileSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine1->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet, subLine) == 2)
+        else if (auto resultSubLine2 =
+                   vtk::scan<int, std::string_view>(resultSubLine0->range(), "{:d} {:s}"))
         {
+          std::tie(timeSet, subLine) = resultSubLine2->values();
           this->VariableTimeSetIds->InsertNextId(timeSet);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*d %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine2->range())->value();
         }
-        else if (sscanf(line, " %*s %*s %*s %*s %s", subLine) == 1)
+        else if (auto resultSubLine3 = vtk::scan_value<std::string_view>(resultSubLine0->range()))
         {
+          subLine = resultSubLine3->value();
           this->VariableTimeSetIds->InsertNextId(1);
-          this->AddVariableDescription(subLine);
-          sscanf(line, " %*s %*s %*s %*s %*s %[^\t\r\n]", subLine);
+          this->AddVariableDescription(subLine.c_str());
+          subLine = vtk::scan_value<std::string_view>(resultSubLine3->range())->value();
         }
         this->AddVariableType();
         if (asym)
@@ -867,125 +937,176 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
       {
         vtkErrorMacro("Unknown type, faulty line was:" << line);
       }
-      this->AddVariableFileName(subLine);
+      this->AddVariableFileName(subLine.c_str());
       this->NumberOfVariables++;
     }
     else if (strncmp(line, "complex", 6) == 0)
     {
-      sscanf(line, " %*s %s", subLine);
-      if (strcmp(subLine, "scalar") == 0)
+      auto resultSubLine =
+        vtk::scan<std::string_view, std::string>(std::string_view(line), " {:s} {:s}");
+      auto subLine = std::get<1>(resultSubLine->values());
+      std::string subLine2;
+      if (subLine == "scalar")
       {
-        sscanf(line, " %*s %*s %*s %s", subLine);
-        if (strcmp(subLine, "node:") == 0)
+        auto resultSubLine0 =
+          vtk::scan<std::string_view, std::string_view>(resultSubLine->range(), "{:s} {:s}");
+        subLine = std::get<1>(resultSubLine0->values());
+        if (subLine == "node:")
         {
           vtkDebugMacro("complex scalar per node");
           this->VariableMode = vtkEnSightReader::COMPLEX_SCALAR_PER_NODE;
-          if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+          if (auto resultSubLine1 =
+                vtk::scan<int, int, std::string_view>(resultSubLine0->range(), "{:d} {:d} {:s}"))
           {
+            std::tie(timeSet, fileSet, subLine) = resultSubLine1->values();
             this->ComplexVariableTimeSetIds->InsertNextId(timeSet);
             this->ComplexVariableFileSetIds->InsertNextId(fileSet);
-            this->AddVariableDescription(subLine);
-            sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s %s", subLine, subLine2);
+            this->AddVariableDescription(subLine.c_str());
+            std::tie(subLine, subLine2) =
+              vtk::scan<std::string_view, std::string_view>(resultSubLine1->range(), "{:s} {:s}")
+                ->values();
           }
-          else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet, subLine) == 2)
+          else if (auto resultSubLine2 =
+                     vtk::scan<int, std::string_view>(resultSubLine0->range(), "{:d} {:s}"))
           {
+            std::tie(timeSet, subLine) = resultSubLine2->values();
             this->ComplexVariableTimeSetIds->InsertNextId(timeSet);
-            this->AddVariableDescription(subLine);
-            sscanf(line, " %*s %*s %*s %*s %*d %*s %s %s", subLine, subLine2);
+            this->AddVariableDescription(subLine.c_str());
+            std::tie(subLine, subLine2) =
+              vtk::scan<std::string_view, std::string_view>(resultSubLine2->range(), "{:s} {:s}")
+                ->values();
           }
-          else if (sscanf(line, " %*s %*s %*s %*s %s", subLine) == 1)
+          else if (auto resultSubLine3 = vtk::scan_value<std::string_view>(resultSubLine0->range()))
           {
+            subLine = resultSubLine3->value();
             this->ComplexVariableTimeSetIds->InsertNextId(1);
-            this->AddVariableDescription(subLine);
-            sscanf(line, " %*s %*s %*s %*s %*s %s %s", subLine, subLine2);
+            this->AddVariableDescription(subLine.c_str());
+            std::tie(subLine, subLine2) =
+              vtk::scan<std::string_view, std::string_view>(resultSubLine3->range(), "{:s} {:s}")
+                ->values();
           }
           this->AddVariableType();
           this->NumberOfComplexScalarsPerNode++;
         }
-        else if (strcmp(subLine, "element:") == 0)
+        else if (subLine == "element:")
         {
           vtkDebugMacro("complex scalar per element");
           this->VariableMode = vtkEnSightReader::COMPLEX_SCALAR_PER_ELEMENT;
-          if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+          if (auto resultSubLine1 =
+                vtk::scan<int, int, std::string_view>(resultSubLine0->range(), "{:d} {:d} {:s}"))
           {
+            std::tie(timeSet, fileSet, subLine) = resultSubLine1->values();
             this->ComplexVariableTimeSetIds->InsertNextId(timeSet);
             this->ComplexVariableFileSetIds->InsertNextId(fileSet);
-            this->AddVariableDescription(subLine);
-            sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s %s", subLine, subLine2);
+            this->AddVariableDescription(subLine.c_str());
+            std::tie(subLine, subLine2) =
+              vtk::scan<std::string_view, std::string_view>(resultSubLine1->range(), "{:s} {:s}")
+                ->values();
           }
-          else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet, subLine) == 2)
+          else if (auto resultSubLine2 =
+                     vtk::scan<int, std::string_view>(resultSubLine0->range(), "{:d} {:s}"))
           {
+            std::tie(timeSet, subLine) = resultSubLine2->values();
             this->ComplexVariableTimeSetIds->InsertNextId(timeSet);
-            this->AddVariableDescription(subLine);
-            sscanf(line, " %*s %*s %*s %*s %*d %*s %s %s", subLine, subLine2);
+            this->AddVariableDescription(subLine.c_str());
+            std::tie(subLine, subLine2) =
+              vtk::scan<std::string_view, std::string_view>(resultSubLine2->range(), "{:s} {:s}")
+                ->values();
           }
-          else if (sscanf(line, " %*s %*s %*s %*s %s", subLine) == 1)
+          else if (auto resultSubLine3 = vtk::scan_value<std::string_view>(resultSubLine0->range()))
           {
+            subLine = resultSubLine3->value();
             this->ComplexVariableTimeSetIds->InsertNextId(1);
-            this->AddVariableDescription(subLine);
-            sscanf(line, " %*s %*s %*s %*s %*s %s %s", subLine, subLine2);
+            this->AddVariableDescription(subLine.c_str());
+            std::tie(subLine, subLine2) =
+              vtk::scan<std::string_view, std::string_view>(resultSubLine3->range(), "{:s} {:s}")
+                ->values();
           }
           this->AddVariableType();
           this->NumberOfComplexScalarsPerElement++;
         }
       }
-      else if (strcmp(subLine, "vector") == 0)
+      else if (subLine == "vector")
       {
-        sscanf(line, " %*s %*s %*s %s", subLine);
-        if (strcmp(subLine, "node:") == 0)
+        auto resultSubLine0 =
+          vtk::scan<std::string_view, std::string_view>(resultSubLine->range(), "{:s} {:s}");
+        subLine = std::get<1>(resultSubLine0->values());
+        if (subLine == "node:")
         {
           vtkDebugMacro("complex vector per node");
           this->VariableMode = vtkEnSightReader::COMPLEX_VECTOR_PER_NODE;
-          if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+          if (auto resultSubLine1 =
+                vtk::scan<int, int, std::string_view>(resultSubLine0->range(), "{:d} {:d} {:s}"))
           {
+            std::tie(timeSet, fileSet, subLine) = resultSubLine1->values();
             this->ComplexVariableTimeSetIds->InsertNextId(timeSet);
             this->ComplexVariableFileSetIds->InsertNextId(fileSet);
-            this->AddVariableDescription(subLine);
-            sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s %s", subLine, subLine2);
+            this->AddVariableDescription(subLine.c_str());
+            std::tie(subLine, subLine2) =
+              vtk::scan<std::string_view, std::string_view>(resultSubLine1->range(), "{:s} {:s}")
+                ->values();
           }
-          else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet, subLine) == 2)
+          else if (auto resultSubLine2 =
+                     vtk::scan<int, std::string_view>(resultSubLine0->range(), "{:d} {:s}"))
           {
+            std::tie(timeSet, subLine) = resultSubLine2->values();
             this->ComplexVariableTimeSetIds->InsertNextId(timeSet);
-            this->AddVariableDescription(subLine);
-            sscanf(line, " %*s %*s %*s %*s %*d %*s %s %s", subLine, subLine2);
+            this->AddVariableDescription(subLine.c_str());
+            std::tie(subLine, subLine2) =
+              vtk::scan<std::string_view, std::string_view>(resultSubLine2->range(), "{:s} {:s}")
+                ->values();
           }
-          else if (sscanf(line, " %*s %*s %*s %*s %s", subLine) == 1)
+          else if (auto resultSubLine3 = vtk::scan_value<std::string_view>(resultSubLine0->range()))
           {
+            subLine = resultSubLine3->value();
             this->ComplexVariableTimeSetIds->InsertNextId(1);
-            this->AddVariableDescription(subLine);
-            sscanf(line, " %*s %*s %*s %*s %*s %s %s", subLine, subLine2);
+            this->AddVariableDescription(subLine.c_str());
+            std::tie(subLine, subLine2) =
+              vtk::scan<std::string_view, std::string_view>(resultSubLine3->range(), "{:s} {:s}")
+                ->values();
           }
           this->AddVariableType();
           this->NumberOfComplexVectorsPerNode++;
         }
-        else if (strcmp(subLine, "element:") == 0)
+        else if (subLine == "element:")
         {
           vtkDebugMacro("complex vector per element");
           this->VariableMode = vtkEnSightReader::COMPLEX_VECTOR_PER_ELEMENT;
-          if (sscanf(line, " %*s %*s %*s %*s %d %d %s", &timeSet, &fileSet, subLine) == 3)
+          if (auto resultSubLine1 =
+                vtk::scan<int, int, std::string_view>(resultSubLine0->range(), "{:d} {:d} {:s}"))
           {
+            std::tie(timeSet, fileSet, subLine) = resultSubLine1->values();
             this->ComplexVariableTimeSetIds->InsertNextId(timeSet);
             this->ComplexVariableFileSetIds->InsertNextId(fileSet);
-            this->AddVariableDescription(subLine);
-            sscanf(line, " %*s %*s %*s %*s %*d %*d %*s %s %s", subLine, subLine2);
+            this->AddVariableDescription(subLine.c_str());
+            std::tie(subLine, subLine2) =
+              vtk::scan<std::string_view, std::string_view>(resultSubLine1->range(), "{:s} {:s}")
+                ->values();
           }
-          else if (sscanf(line, " %*s %*s %*s %*s %d %s", &timeSet, subLine) == 2)
+          else if (auto resultSubLine2 =
+                     vtk::scan<int, std::string_view>(resultSubLine0->range(), "{:d} {:s}"))
           {
+            std::tie(timeSet, subLine) = resultSubLine2->values();
             this->ComplexVariableTimeSetIds->InsertNextId(timeSet);
-            this->AddVariableDescription(subLine);
-            sscanf(line, " %*s %*s %*s %*s %*d %*s %s %s", subLine, subLine2);
+            this->AddVariableDescription(subLine.c_str());
+            std::tie(subLine, subLine2) =
+              vtk::scan<std::string_view, std::string_view>(resultSubLine2->range(), "{:s} {:s}")
+                ->values();
           }
-          else if (sscanf(line, " %*s %*s %*s %*s %s", subLine) == 1)
+          else if (auto resultSubLine3 = vtk::scan_value<std::string_view>(resultSubLine0->range()))
           {
+            subLine = resultSubLine3->value();
             this->ComplexVariableTimeSetIds->InsertNextId(1);
-            this->AddVariableDescription(subLine);
-            sscanf(line, " %*s %*s %*s %*s %*s %s %s", subLine, subLine2);
+            this->AddVariableDescription(subLine.c_str());
+            std::tie(subLine, subLine2) =
+              vtk::scan<std::string_view, std::string_view>(resultSubLine3->range(), "{:s} {:s}")
+                ->values();
           }
           this->AddVariableType();
           this->NumberOfComplexVectorsPerElement++;
         }
       }
-      this->AddVariableFileName(subLine, subLine2);
+      this->AddVariableFileName(subLine.c_str(), subLine2.c_str());
       this->NumberOfComplexVariables++;
     }
     else
@@ -1006,24 +1127,27 @@ int vtkEnSightReader::ReadCaseFileVariable(char* line)
 //------------------------------------------------------------------------------
 int vtkEnSightReader::ReadCaseFileTime(char* line)
 {
-  char formatLine[256];
-  char subLine[256];
-  int timeSet, numTimeSteps, i, filenameNum, increment, lineRead;
+  int timeSet = 0, numTimeSteps = 0, i, filenameNum, increment = 0, lineRead;
   double timeStep;
+  std::string_view subLine;
 
   // found TIME section
   int firstTimeStep = 1;
 
   this->UseTimeSetsOn();
-  int lineScanResult = 0;
   lineRead = this->ReadNextDataLine(line);
   while (lineRead && strncmp(line, "FORMAT", 6) != 0 && strncmp(line, "GEOMETRY", 8) != 0 &&
     strncmp(line, "VARIABLE", 8) != 0 && strncmp(line, "TIME", 4) != 0 &&
     strncmp(line, "FILE", 4) != 0)
   {
     // 'time set: <int>' --- to obtain timeSet, an index
-    lineScanResult = sscanf(line, "%*s %s %d", subLine, &timeSet);
-    if (lineScanResult != 2 || strncmp(line, "time", 4) != 0 || strcmp(subLine, "set:") != 0)
+    auto resultSubLine0 =
+      vtk::scan<std::string_view, std::string_view, int>(std::string_view(line), "{:s} {:s} {:d}");
+    if (resultSubLine0)
+    {
+      std::tie(std::ignore, subLine, timeSet) = resultSubLine0->values();
+    }
+    if (!resultSubLine0 || strncmp(line, "time", 4) != 0 || subLine != "set:")
     {
       vtkErrorMacro("Error with vtkEnSightReader: 'time set' not found!!!");
       return 0;
@@ -1038,8 +1162,13 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
       return 0;
     }
 
-    lineScanResult = sscanf(line, "%*s %*s %s %d", subLine, &numTimeSteps);
-    if (lineScanResult != 2 || strncmp(line, "number", 6) != 0 || strcmp(subLine, "steps:") != 0)
+    auto resultSubLine1 = vtk::scan<std::string_view, std::string_view, std::string_view, int>(
+      std::string_view(line), "{:s} {:s} {:s} {:d}");
+    if (resultSubLine1)
+    {
+      std::tie(std::ignore, std::ignore, subLine, numTimeSteps) = resultSubLine1->values();
+    }
+    if (!resultSubLine1 || strncmp(line, "number", 6) != 0 || subLine != "steps:")
     {
       vtkErrorMacro("Error with vtkEnSightReader: 'number of steps' not found!!!");
       return 0;
@@ -1060,19 +1189,24 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
       vtkIdList* filenameNumbers = vtkIdList::New();
       this->TimeSetsWithFilenameNumbers->InsertNextId(timeSet);
 
-      if (sscanf(line, "%*s %s", subLine) != 1)
+      auto resultSubLine2 =
+        vtk::scan<std::string_view, std::string_view>(std::string_view(line), "{:s} {:s}");
+      if (!resultSubLine2)
       {
         vtkErrorMacro("Error with vtkEnSightReader: 'filename ......' not found!!!");
         return 0;
       }
+      std::tie(std::ignore, subLine) = resultSubLine2->values();
 
       // 'filename numbers:'
-      if (strncmp(subLine, "numbers", 7) == 0)
+      if (subLine == "numbers:")
       {
         // Filename numbers may be provided on the line(s) following
         // 'filename numbers:', as is usually the case --- not "inline". Thus we need
         // to go to the FIRST line that indeed contains filename numbers.
-        if (sscanf(line, "%*s %*s %d", &filenameNum) != 1)
+        auto resultFilenameNumInline = vtk::scan_value<int>(resultSubLine2->range());
+        std::string_view current;
+        if (!resultFilenameNumInline)
         {
           // not "inline"
           if (this->ReadNextDataLine(line) == 0)
@@ -1080,25 +1214,20 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
             vtkErrorMacro("Error with vtkEnSightReader: filename numbers not found!!!");
             return 0;
           }
-          // access the sub-strings from the very beginning
-          strcpy(formatLine, "");
-          strcpy(subLine, "");
+          current = std::string_view(line);
         }
         else
         {
-          // "inline" ----> skip the first two sub-strings: 'filename numbers:'
-          strcpy(formatLine, "%*s %*s ");
-          strcpy(subLine, "%*s %*s ");
+          current =
+            std::string_view(resultSubLine2->range().data(), resultSubLine2->range().size());
         }
 
         for (i = 0; i < numTimeSteps; i++)
         {
-          strcat(formatLine, "%d ");
-
-          // More lines might be needed to provide the remaining filename numbers
-          // and then formatLine and subLine need to be updated. 'while' is used here
-          // instead of 'if' in case of any invalid filename numbers.
-          while (sscanf(line, formatLine, &filenameNum) != 1)
+          // More lines might be needed to provide the remaining filename numbers.
+          // 'while' is used here instead of 'if' in case of any invalid filename numbers.
+          vtk::scan_result_type<std::string_view, int> resultFilenameNum;
+          while (!((resultFilenameNum = vtk::scan_value<int>(current))))
           {
             if (this->ReadNextDataLine(line) == 0)
             {
@@ -1115,26 +1244,26 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
               vtkErrorMacro("Error with vtkEnSightReader: insufficient filename numbers!!!");
               return 0;
             }
-
-            // to access a new line
-            strcpy(formatLine, "%d ");
-            strcpy(subLine, "");
           }
-
+          current =
+            std::string_view(resultFilenameNum->range().data(), resultFilenameNum->range().size());
+          filenameNum = resultFilenameNum->value();
           filenameNumbers->InsertNextId(filenameNum);
-          strcat(subLine, "%*d ");
-          strcpy(formatLine, subLine);
         }
       }
       else
       // subLine == "start" ----> 'filename start number: <int>' followed by
       // 'filename increment: <int>'
       {
-        if (strcmp(subLine, "start") != 0 || sscanf(line, "%*s %*s %*s %d", &filenameNum) != 1)
+        vtk::scan_result_type<std::string_view, std::string_view, int> resultFilenameNum2;
+        if (subLine != "start" ||
+          !((resultFilenameNum2 =
+               vtk::scan<std::string_view, int>(resultSubLine2->range(), "{:s} {:d}"))))
         {
           vtkErrorMacro("Error with vtkEnSightReader: 'filename start number' not found!!!");
           return 0;
         }
+        std::tie(std::ignore, filenameNum) = resultFilenameNum2->values();
 
         if (this->ReadNextDataLine(line) == 0)
         {
@@ -1142,8 +1271,13 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
           return 0;
         }
 
-        lineScanResult = sscanf(line, "%*s %s %d", subLine, &increment);
-        if (lineScanResult != 2 || strcmp(subLine, "increment:") != 0)
+        auto resultSubLine3 = vtk::scan<std::string_view, std::string_view, int>(
+          std::string_view(line), "{:s} {:s} {:d}");
+        if (resultSubLine3)
+        {
+          std::tie(std::ignore, subLine, increment) = resultSubLine3->values();
+        }
+        if (!resultSubLine3 || subLine != "increment:")
         {
           vtkErrorMacro("Error with vtkEnSightReader: 'filename increment' not found!!!");
           return 0;
@@ -1171,6 +1305,15 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
       }
     }
 
+    auto resultSubLine2 =
+      vtk::scan<std::string_view, std::string_view>(std::string_view(line), "{:s} {:s}");
+    if (!resultSubLine2)
+    {
+      vtkErrorMacro("Error with vtkEnSightReader: 'time ......' not found!!!");
+      return 0;
+    }
+    std::tie(std::ignore, subLine) = resultSubLine2->values();
+
     // 'time values:' --- to obtain timeStep(s)
     vtkDoubleArray* timeValues = vtkDoubleArray::New();
     timeValues->SetNumberOfComponents(1);
@@ -1179,7 +1322,9 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
     // Time values may be provided on the line(s) following  'time values:',
     // as is usually the case --- not "inline". Thus we need to go to the
     // FIRST line that indeed contains time values.
-    if (sscanf(line, "%*s %*s %lf", &timeStep) != 1)
+    auto resultTimeStepInline = vtk::scan_value<double>(resultSubLine2->range());
+    std::string_view current;
+    if (!resultTimeStepInline)
     {
       // not "inline"
       if (this->ReadNextDataLine(line) == 0)
@@ -1187,25 +1332,19 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
         vtkErrorMacro("Error with vtkEnSightReader: time values not found!!!");
         return 0;
       }
-      // access the sub-strings from the very beginning
-      strcpy(formatLine, "");
-      strcpy(subLine, "");
+      current = std::string_view(line);
     }
     else
     {
-      // "inline" ----> skip the first two sub-strings: 'time values:'
-      strcpy(formatLine, "%*s %*s ");
-      strcpy(subLine, "%*s %*s ");
+      current = std::string_view(resultSubLine2->range().data(), resultSubLine2->range().size());
     }
 
     for (i = 0; i < numTimeSteps; i++)
     {
-      strcat(formatLine, "%lf ");
-
-      // More lines might be needed to provide the remaining time values
-      // and then formatLine and subLine need to be updated. 'while' is used
+      // More lines might be needed to provide the remaining time values, 'while' is used
       // here instead of 'if' in case of any invalid time values.
-      while (sscanf(line, formatLine, &timeStep) != 1)
+      vtk::scan_result_type<std::string_view, double> resultTimeStep;
+      while (!((resultTimeStep = vtk::scan_value<double>(current))))
       {
         if (this->ReadNextDataLine(line) == 0)
         {
@@ -1219,15 +1358,12 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
           vtkErrorMacro("Error with vtkEnSightReader: insufficient time values!!!");
           return 0;
         }
-
-        // to access a new line
-        strcpy(formatLine, "%lf ");
-        strcpy(subLine, "");
+        current = std::string_view(line);
       }
+      current = std::string_view(resultTimeStep->range().data(), resultTimeStep->range().size());
+      timeStep = resultTimeStep->value();
 
-      timeValues->SetComponent(i, 0, timeStep);
-      strcat(subLine, "%*lf ");
-      strcpy(formatLine, subLine);
+      timeValues->SetValue(i, timeStep);
 
       // init min and max only upon the access to the FIRST 'timeStep'
       if (firstTimeStep)
@@ -1276,17 +1412,19 @@ int vtkEnSightReader::ReadCaseFileTime(char* line)
 //------------------------------------------------------------------------------
 int vtkEnSightReader::ReadCaseFileFile(char* line)
 {
-  int fileSet, numTimeSteps, filenameNum, lineRead;
+  int numTimeSteps, filenameNum;
 
   this->UseFileSetsOn();
-  lineRead = this->ReadNextDataLine(line);
+  int lineRead = this->ReadNextDataLine(line);
   while (lineRead && strncmp(line, "FORMAT", 6) != 0 && strncmp(line, "GEOMETRY", 8) != 0 &&
     strncmp(line, "VARIABLE", 8) != 0 && strncmp(line, "TIME", 4) != 0 &&
     strncmp(line, "FILE", 4) != 0)
   {
     vtkIdList* filenameNums = vtkIdList::New();
     vtkIdList* numSteps = vtkIdList::New();
-    sscanf(line, "%*s %*s %d", &fileSet);
+    auto resultFileSet =
+      vtk::scan<std::string_view, std::string_view, int>(std::string_view(line), "{:s} {:s} {:d}");
+    int fileSet = std::get<2>(resultFileSet->values());
     this->FileSets->InsertNextId(fileSet);
     lineRead = this->ReadNextDataLine(line);
     if (strncmp(line, "filename", 8) == 0)
@@ -1294,10 +1432,14 @@ int vtkEnSightReader::ReadCaseFileFile(char* line)
       this->FileSetsWithFilenameNumbers->InsertNextId(fileSet);
       while (lineRead != 0 && strncmp(line, "filename", 8) == 0)
       {
-        sscanf(line, "%*s %*s %d", &filenameNum);
+        auto resultFilenameNum = vtk::scan<std::string_view, std::string_view, int>(
+          std::string_view(line), "{:s} {:s} {:d}");
+        filenameNum = std::get<2>(resultFilenameNum->values());
         filenameNums->InsertNextId(filenameNum);
         this->ReadNextDataLine(line);
-        sscanf(line, "%*s %*s %*s %d", &numTimeSteps);
+        auto resultNumSteps = vtk::scan<std::string_view, std::string_view, std::string_view, int>(
+          std::string_view(line), "{:s} {:s} {:s} {:d}");
+        numTimeSteps = std::get<3>(resultNumSteps->values());
         numSteps->InsertNextId(numTimeSteps);
         lineRead = this->ReadNextDataLine(line);
       }
@@ -1305,7 +1447,9 @@ int vtkEnSightReader::ReadCaseFileFile(char* line)
     }
     else
     {
-      sscanf(line, "%*s %*s %*s %d", &numTimeSteps);
+      auto resultNumSteps = vtk::scan<std::string_view, std::string_view, std::string_view, int>(
+        std::string_view(line), "{:s} {:s} {:s} {:d}");
+      numTimeSteps = std::get<3>(resultNumSteps->values());
       numSteps->InsertNextId(numTimeSteps);
       lineRead = this->ReadNextDataLine(line);
     }
@@ -1323,8 +1467,6 @@ int vtkEnSightReader::ReadCaseFileFile(char* line)
 int vtkEnSightReader::ReadCaseFile()
 {
   char line[256];
-  char subLine[256];
-  int stringRead;
   int i;
   int ret;
   vtkDebugMacro("In vtkEnSightReader::ReadCaseFile");
@@ -1404,10 +1546,12 @@ int vtkEnSightReader::ReadCaseFile()
     vtkDebugMacro("*** FORMAT section");
     this->ReadNextDataLine(line);
 
-    stringRead = sscanf(line, " %*s %*s %s", subLine);
-    if (stringRead == 1)
+    auto resultSubLine = vtk::scan<std::string_view, std::string_view, std::string_view>(
+      std::string_view(line), " {:s} {:s} {:s}");
+    if (resultSubLine)
     {
-      if (strcmp(subLine, "gold") == 0 && strcmp(this->GetClassName(), "vtkEnSight6Reader") == 0)
+      auto subLine = std::get<2>(resultSubLine->values());
+      if (subLine == "gold" && strcmp(this->GetClassName(), "vtkEnSight6Reader") == 0)
       {
         // The class is vtkEnSight6Reader, but the case file says "gold".
         vtkErrorMacro("This is not an EnSight6 file.");
@@ -1490,24 +1634,24 @@ int vtkEnSightReader::ReadRigidBodyMatrixLines(
 {
   vtkDebugMacro("Reading matrix lines");
   // reads all 4 matrix lines into a vtkMatrix4x4 and concatenates it into transform
-  char subLine[256];
-  subLine[0] = '\0';
-  std::string transType;
+  std::string transType, subLine;
   double values[4];
 
   // first line of matrix starts with either 'M:' or 'Mv:'
-  if (sscanf(
-        line, " %s %lf %lf %lf %lf", subLine, &values[0], &values[1], &values[2], &values[3]) == 5)
+  if (auto resultValues0 = vtk::scan<std::string, double, double, double, double>(
+        std::string_view(line), "{:s} {} {} {} {}"))
   {
-    transType = subLine;
+    std::tie(transType, values[0], values[1], values[2], values[3]) = resultValues0->values();
   }
-  else if (sscanf(line, " %s %lf %lf %lf", subLine, &values[1], &values[2], &values[3]) == 4)
+  else if (auto resultValues1 = vtk::scan<std::string, double, double, double>(
+             std::string_view(line), " {:s} {} {} {}"))
   {
+    std::tie(subLine, values[1], values[2], values[3]) = resultValues1->values();
     // there may not be a space between M:/Mv: and the first number
     // so split up subLine to get the transType and values[0]
     auto strParts = vtksys::SystemTools::SplitString(subLine, ':');
     transType = strParts[0];
-    values[0] = std::stod(strParts[1]);
+    VTK_FROM_CHARS_IF_ERROR_RETURN(strParts[1], values[0], 0);
   }
   else
   {
@@ -1529,11 +1673,15 @@ int vtkEnSightReader::ReadRigidBodyMatrixLines(
     if (row != 0)
     {
       this->ReadNextDataLine(line);
-      if (sscanf(line, " %lf %lf %lf %lf", &values[0], &values[1], &values[2], &values[3]) != 4)
+      auto resultValues2 =
+        vtk::scan<double, double, double, double>(std::string_view(line), " {} {} {} {}");
+      if (!resultValues2)
       {
         vtkErrorMacro(
           "could not correctly read matrix values for row " << row << " from line " << line);
+        return 0;
       }
+      std::tie(values[0], values[1], values[2], values[3]) = resultValues2->values();
     }
 
     for (int col = 0; col < 4; ++col)
@@ -1559,9 +1707,8 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
 
   vtkDebugMacro("Reading rigid body geometry file (erb)");
 
-  char line[256], subLine[256];
+  char line[256];
   line[0] = '\0';
-  subLine[0] = '\0';
 
   std::string filename(this->RigidBodyFileName);
   std::string sfilename;
@@ -1612,14 +1759,15 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
     return 0;
   }
 
-  float version;
-  if (sscanf(line, " %*s %f", &version) != 1)
+  auto resultVersion = vtk::scan<std::string_view, float>(std::string_view(line), " {:s} {:f}");
+  if (!resultVersion)
   {
     vtkErrorMacro("version line '" << line << "' does not contain a valid version number");
     delete this->IS;
     this->IS = nullptr;
     return 0;
   }
+  float version = std::get<1>(resultVersion->values());
   if (version != 2.0)
   {
     vtkErrorMacro("currently only version 2.0 of the rigid body format is supported.");
@@ -1659,7 +1807,7 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
     this->IS = nullptr;
     return 0;
   }
-  int numParts = std::stoi(line);
+  int numParts = vtk::scan_int<int>(line)->value();
 
   // read the number of following part names / part numbers
   int lineRead = this->ReadNextDataLine(line); // either a part name or number
@@ -1679,12 +1827,13 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
       // Need to make sure that we remove any quotes from the partId
       partName = line;
       this->SanitizeFileName(partName);
-      partId = std::stoi(partName) - 1; // EnSight starts #ing at 1.
-      partName = std::to_string(partId);
+      VTK_FROM_CHARS_IF_ERROR_RETURN(partName, partId, 0);
+      --partId; // EnSight starts #ing at 1.
+      partName = vtk::to_string(partId);
     }
 
     this->ReadNextDataLine(line); // num of transformations
-    int numTransformations = std::stoi(line);
+    int numTransformations = vtk::scan_int<int>(line)->value();
     vtkDebugMacro("reading transforms for part " << partName << ", which has " << numTransformations
                                                  << " transformations");
 
@@ -1709,13 +1858,13 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
         // we can't actually read this file yet because ReadNextDataLine
         // operates on this->IS, so we have to read this whole file first,
         // then go back and read the Euler param file
-        char title[256];
-        title[0] = '\0';
-        if (sscanf(line, " %*s %s %s", subLine, title) == 2)
+        auto resultTitle = vtk::scan<std::string_view, std::string_view, std::string_view>(
+          std::string_view(line), " {:s} {:s} {:s}");
+        if (resultTitle)
         {
-          currentPartTransform.EETFilename = subLine;
+          currentPartTransform.EETFilename = std::get<1>(resultTitle->values());
           this->SanitizeFileName(currentPartTransform.EETFilename);
-          currentPartTransform.EETTransTitle = title;
+          currentPartTransform.EETTransTitle = std::get<2>(resultTitle->values());
           this->SanitizeFileName(currentPartTransform.EETTransTitle);
         }
         vtkDebugMacro("Eul section EET file: " << currentPartTransform.EETFilename);
@@ -1756,15 +1905,15 @@ int vtkEnSightReader::ReadRigidBodyGeometryFile()
         // other possibilities are all single values
         // rotations and scaling should be applied to geometry and vectors
         // translations are only applied to geometry
-        double value;
-        if (sscanf(line, " %s %lf", subLine, &value) != 2)
+        auto resultValue = vtk::scan<std::string, double>(std::string_view(line), " {:s} {:f}");
+        if (!resultValue)
         {
           vtkErrorMacro("Expected a transformation with a single value for line: " << line);
           delete this->IS;
           this->IS = nullptr;
           return 0;
         }
-        std::string transStr(subLine);
+        auto& [transStr, value] = resultValue->values();
         vtkDebugMacro("Found transformation " << transStr << ", with value of " << value);
         if (transStr == "Tx:")
         {
@@ -1926,7 +2075,6 @@ int vtkEnSightReader::ReadRigidBodyEulerParameterFile(const char* path)
   this->IS = new vtksys::ifstream(sfilename.c_str(), ios::in);
   if (this->IS->fail())
   {
-    std::cout << "Unable to open file: " << sfilename << std::endl;
     vtkErrorMacro("Unable to open file: " << sfilename);
     delete this->IS;
     this->IS = nullptr;
@@ -1959,7 +2107,7 @@ int vtkEnSightReader::ReadRigidBodyEulerParameterFile(const char* path)
     return 0;
   }
 
-  int numTimes = std::stoi(line);
+  int numTimes = vtk::scan_int<int>(line)->value();
   vtkDebugMacro("number of timesteps: " << numTimes);
   // UseTimeSets is set to on in ReadCaseFileTime. If it is off, that means the dataset
   // doesn't have time set info, but the euler transformations provide that
@@ -1991,7 +2139,7 @@ int vtkEnSightReader::ReadRigidBodyEulerParameterFile(const char* path)
     return 0;
   }
 
-  int numTrans = std::stoi(line);
+  int numTrans = vtk::scan_int<int>(line)->value();
   vtkDebugMacro("number of transforms: " << numTrans);
 
   if (this->ReadNextDataLine(line) == 0 || strncmp(line, "Titles:", 7) != 0)
@@ -2033,7 +2181,7 @@ int vtkEnSightReader::ReadRigidBodyEulerParameterFile(const char* path)
     }
 
     this->ReadNextDataLine(line);
-    double time = std::stod(line);
+    double time = vtk::scan_value<double>(line)->value();
     if (this->UseEulerTimeSteps)
     {
       this->EulerTimeSteps->SetComponent(timeIdx, 0, time);
@@ -2061,10 +2209,16 @@ int vtkEnSightReader::ReadRigidBodyEulerParameterFile(const char* path)
 
       // each line should have 7 floats:
       // 3 translations in x, y, z and 4 euler parameters
-      double tx, ty, tz, e0, e1, e2, e3;
-      if (sscanf(line, " %lf %lf %lf %lf %lf %lf %lf", &tx, &ty, &tz, &e0, &e1, &e2, &e3) != 7)
+      double tx = 0, ty = 0, tz = 0, e0 = 0, e1 = 0, e2 = 0, e3 = 0;
+      auto resultTransform = vtk::scan<double, double, double, double, double, double, double>(
+        std::string_view(line), " {} {} {} {} {} {} {}");
+      if (!resultTransform)
       {
         vtkErrorMacro("Unable to read translation and euler parameters from line " << line);
+      }
+      else
+      {
+        std::tie(tx, ty, tz, e0, e1, e2, e3) = resultTransform->values();
       }
 
       vtkNew<vtkTransform> transform;
@@ -2111,7 +2265,7 @@ int vtkEnSightReader::ApplyRigidBodyTransforms(int partId, const char* name, vtk
   if (!this->UsePartNamesRB)
   {
     // need to first convert part id to a string and use that as the partName
-    partName = std::to_string(partId);
+    partName = vtk::to_string(partId);
   }
   if (this->RigidBodyTransforms.find(partName) == this->RigidBodyTransforms.end())
   {

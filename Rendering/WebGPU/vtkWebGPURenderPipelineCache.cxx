@@ -4,6 +4,7 @@
 #include "vtkWebGPURenderPipelineCache.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 #include "vtkWebGPURenderWindow.h"
 
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
@@ -171,10 +172,10 @@ std::string vtkWebGPURenderPipelineCache::GetPipelineKey(wgpu::RenderPipelineDes
     vtkErrorMacro(<< "Invalid fragment shader source: nullptr");
     return {};
   }
-  const auto cullModeStr = std::to_string(
+  const auto cullModeStr = vtk::to_string(
     static_cast<std::underlying_type<wgpu::CullMode>::type>(descriptor->primitive.cullMode));
   const auto topologyStr =
-    std::to_string(static_cast<std::underlying_type<wgpu::PrimitiveTopology>::type>(
+    vtk::to_string(static_cast<std::underlying_type<wgpu::PrimitiveTopology>::type>(
       descriptor->primitive.topology));
   std::string hash;
   this->Internals->ComputeMD5({ vertexShaderSource, fragmentShaderSource, cullModeStr, topologyStr,

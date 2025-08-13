@@ -17,6 +17,7 @@
 #include "vtkPlatform.h" // for VTK_MAXPATH
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringScanner.h"
 #include "vtkThinPlateSplineTransform.h"
 #include "vtkTransform.h"
 
@@ -286,13 +287,10 @@ int vtkMNITransformReader::ParseFloatValues(
   this->SkipWhitespace(infile, linetext, &cp);
   while (infile.good() && *cp != ';')
   {
-    char* tmp = cp;
-    double val = strtod(cp, &cp);
-    if (cp == tmp)
-    {
-      vtkErrorMacro("Syntax error " << this->FileName << ":" << this->LineNumber);
-      return 0;
-    }
+    const char* tmp = cp;
+    auto result = vtk::scan_value<double>(std::string_view(tmp));
+    auto val = result ? result->value() : 0.0;
+    cp = const_cast<char*>(result->range().data());
     array->InsertNextValue(val);
     this->SkipWhitespace(infile, linetext, &cp);
   }

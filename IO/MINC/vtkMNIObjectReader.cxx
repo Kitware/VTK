@@ -19,6 +19,7 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <cctype>
@@ -230,33 +231,32 @@ int vtkMNIObjectReader::ParseValues(vtkDataArray* array, vtkIdType n)
     {
       case VTK_FLOAT:
       {
-        double val = strtod(cp, &cp);
+        auto result = vtk::scan_value<float>(std::string_view(cp));
+        auto val = result ? result->value() : 0;
+        cp = const_cast<char*>(result->range().data());
         static_cast<vtkFloatArray*>(array)->SetValue(i, val);
       }
       break;
       case VTK_INT:
       {
-        unsigned long lval = strtoul(cp, &cp, 10);
-        if (lval > static_cast<unsigned long>(VTK_INT_MAX))
-        {
-          vtkErrorMacro("Value " << lval << " is too large for int " << this->FileName << ":"
-                                 << this->LineNumber);
-          return 0;
-        }
-        int val = static_cast<int>(lval);
+        auto result = vtk::scan_int<int>(std::string_view(cp));
+        auto val = result ? result->value() : 0;
+        cp = const_cast<char*>(result->range().data());
         static_cast<vtkIntArray*>(array)->SetValue(i, val);
       }
       break;
       case VTK_UNSIGNED_CHAR:
       {
-        double dval = strtod(cp, &cp);
-        if (dval < 0.0 || dval > 1.0)
+        auto result = vtk::scan_value<double>(std::string_view(cp));
+        auto val = result ? result->value() : 0;
+        cp = const_cast<char*>(result->range().data());
+        if (val < 0.0 || val > 1.0)
         {
           vtkErrorMacro("Color value must be [0..1] " << this->FileName << ":" << this->LineNumber);
           return 0;
         }
-        unsigned char val = static_cast<unsigned char>(dval * 255.0);
-        static_cast<vtkUnsignedCharArray*>(array)->SetValue(i, val);
+        unsigned char color = static_cast<unsigned char>(val * 255.0);
+        static_cast<vtkUnsignedCharArray*>(array)->SetValue(i, color);
       }
       break;
     }
@@ -296,7 +296,9 @@ int vtkMNIObjectReader::ParseIdValue(vtkIdType* value)
 
   char* cp = this->CharPointer;
 
-  long long lval = strtoll(cp, &cp, 10);
+  auto result = vtk::scan_int<long long>(std::string_view(cp));
+  auto lval = result ? result->value() : 0;
+  cp = const_cast<char*>(result->range().data());
   if (lval > static_cast<long long>(VTK_INT_MAX) || lval < static_cast<long long>(VTK_INT_MIN))
   {
     vtkErrorMacro(

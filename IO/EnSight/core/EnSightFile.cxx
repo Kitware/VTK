@@ -3,13 +3,11 @@
 
 #include "EnSightFile.h"
 
+#include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
+
 #include <cctype> // for std::tolower
 #include <regex>
-
-#include <vtk_fmt.h>
-// clang-format off
-#include VTK_FMT(fmt/format.h)
-// clang-format on
 
 namespace ensight_gold
 {
@@ -37,43 +35,37 @@ bool stringTo(const std::string& input, std::string& output)
 template <>
 bool stringTo(const std::string& input, int& output)
 {
-  try
-  {
-    output = std::stoi(input);
-    return true;
-  }
-  catch (...)
+  auto result = vtk::scan_int<int>(input);
+  if (!result)
   {
     return false;
   }
+  output = result->value();
+  return true;
 }
 
 template <>
 bool stringTo(const std::string& input, float& output)
 {
-  try
-  {
-    output = std::stof(input);
-    return true;
-  }
-  catch (...)
+  auto result = vtk::scan_value<float>(input);
+  if (!result)
   {
     return false;
   }
+  output = result->value();
+  return true;
 }
 
 template <>
 bool stringTo(const std::string& input, double& output)
 {
-  try
-  {
-    output = std::stod(input);
-    return true;
-  }
-  catch (...)
+  auto result = vtk::scan_value<double>(input);
+  if (!result)
   {
     return false;
   }
+  output = result->value();
+  return true;
 }
 
 int getFileNameNumberIndex(double actualTimeValue, std::shared_ptr<TimeSetInfo> info)
@@ -126,7 +118,7 @@ std::string replaceWildcards(const std::string& pattern, int num)
   if (std::regex_search(pattern, sm, exp))
   {
     auto numWildcards = sm.length(0);
-    filename = fmt::format(
+    filename = vtk::format(
       "{}{:0{}d}{}", std::string(sm.prefix()), num, numWildcards, std::string(sm.suffix()));
   }
 

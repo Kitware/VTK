@@ -10,6 +10,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper2D.h"
 #include "vtkProperty2D.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 #include "vtkViewport.h"
@@ -320,8 +321,9 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->TitleTextProperty = vtkTextProperty::New();
   this->TitleTextProperty->ShallowCopy(this->LabelTextProperty);
 
-  this->LabelFormat = new char[8];
-  snprintf(this->LabelFormat, 8, "%s", "%-#6.3g");
+  this->LabelFormat = new char[10];
+  auto result = vtk::format_to_n(this->LabelFormat, 10, "{:s}", "{:<#6.3g}");
+  *result.out = '\0';
 
   this->TitleMapper = vtkTextMapper::New();
   this->TitleActor = vtkActor2D::New();
@@ -366,6 +368,21 @@ vtkAxisActor2D::~vtkAxisActor2D()
 
   this->SetLabelTextProperty(nullptr);
   this->SetTitleTextProperty(nullptr);
+}
+
+//------------------------------------------------------------------------------
+void vtkAxisActor2D::SetLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(LabelFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------
@@ -781,12 +798,13 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
     for (int i = 0; i < nbOfLabels; i++)
     {
       double val = this->TickValues[i];
-      if (this->GetNotation() == 0)
+      if (this->GetNotation() == vtkNumberToString::Mixed)
       {
         // Use default legend notation : don't use vtkNumberToString
         // for the default setting in order to ensure retrocompatibility
         char string[512];
-        snprintf(string, sizeof(string), this->LabelFormat, val);
+        auto result = vtk::format_to_n(string, sizeof(string), this->LabelFormat, val);
+        *result.out = '\0';
         this->LabelMappers[i]->SetInput(string);
       }
       else

@@ -17,10 +17,10 @@
 #include "vtkRenderer.h"
 #include "vtkStatisticsAlgorithm.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
-#include "vtkTextProperty.h"
-
 #include "vtkTestErrorObserver.h"
+#include "vtkTextProperty.h"
 
 //------------------------------------------------------------------------------
 int TestBoxPlot2(int, char*[])
@@ -39,10 +39,9 @@ int TestBoxPlot2(int, char*[])
 
   for (int i = 0; i < numberOfColumns; ++i)
   {
-    char num[10];
-    snprintf(num, sizeof(num), "Run %d", i + 1);
+    auto num = vtk::format("Run {:d}", i + 1);
     vtkSmartPointer<vtkIntArray> arrIndex = vtkSmartPointer<vtkIntArray>::New();
-    arrIndex->SetName(num);
+    arrIndex->SetName(num.c_str());
     inputBoxPlotTable->AddColumn(arrIndex);
   }
 

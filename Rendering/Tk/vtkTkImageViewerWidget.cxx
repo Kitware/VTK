@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTkImageViewerWidget.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkStringScanner.h"
 #include "vtkTkInternals.h"
 #include "vtkVersionMacros.h"
 
@@ -604,8 +605,8 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
     // is IV an address ? big ole python hack here
     if (self->IV[0] == 'A' && self->IV[1] == 'd' && self->IV[2] == 'd' && self->IV[3] == 'r')
     {
-      void* tmp;
-      sscanf(self->IV + 5, "%p", &tmp);
+      auto result = vtk::scan<void*>(std::string_view(self->IV + 5), "{:p}");
+      void* temp = result->value();
       imgViewer = (vtkImageViewer*)tmp;
     }
     else
@@ -760,8 +761,8 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
     // is IV an address ? big ole python hack here
     if (self->IV[0] == 'A' && self->IV[1] == 'd' && self->IV[2] == 'd' && self->IV[3] == 'r')
     {
-      void* tmp;
-      sscanf(self->IV + 5, "%p", &tmp);
+      auto result = vtk::scan<void*>(std::string_view(self->IV + 5), "{:p}");
+      void* tmp = result->value();
       imgViewer = reinterpret_cast<vtkImageViewer*>(tmp);
     }
     if (imgViewer != self->ImageViewer)
@@ -830,8 +831,8 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
     // is IV an address ? big ole python hack here
     if (self->IV[0] == 'A' && self->IV[1] == 'd' && self->IV[2] == 'd' && self->IV[3] == 'r')
     {
-      void* tmp;
-      sscanf(self->IV + 5, "%p", &tmp);
+      auto result = vtk::scan<void*>(std::string_view(self->IV + 5), "{:p}");
+      void* tmp = result->value();
       imgViewer = (vtkImageViewer*)tmp;
     }
     if (imgViewer != self->ImageViewer)

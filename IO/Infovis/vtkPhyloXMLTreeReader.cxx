@@ -7,10 +7,8 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
-#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationStringKey.h"
-#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
 #include "vtkMutableDirectedGraph.h"
@@ -20,6 +18,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
 #include "vtkUnsignedCharArray.h"
@@ -394,7 +393,8 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray);
     }
-    double prop = strtod(propertyValue.c_str(), nullptr);
+    double prop;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(propertyValue, prop, );
     g->GetVertexData()
       ->GetAbstractArray(propertyName.c_str())
       ->SetVariantValue(vertex, vtkVariant(prop));
@@ -411,7 +411,8 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray);
     }
-    int prop = strtol(propertyValue.c_str(), nullptr, 0);
+    int prop;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(propertyValue, prop, );
     g->GetVertexData()
       ->GetAbstractArray(propertyName.c_str())
       ->SetVariantValue(vertex, vtkVariant(prop));
@@ -427,7 +428,8 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray);
     }
-    long prop = strtol(propertyValue.c_str(), nullptr, 0);
+    long prop;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(propertyValue, prop, );
     g->GetVertexData()
       ->GetAbstractArray(propertyName.c_str())
       ->SetVariantValue(vertex, vtkVariant(prop));
@@ -443,7 +445,8 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray);
     }
-    short prop = strtol(propertyValue.c_str(), nullptr, 0);
+    short prop;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(propertyValue, prop, );
     g->GetVertexData()
       ->GetAbstractArray(propertyName.c_str())
       ->SetVariantValue(vertex, vtkVariant(prop));
@@ -459,7 +462,8 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray);
     }
-    char prop = strtol(propertyValue.c_str(), nullptr, 0);
+    char prop;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(propertyValue, prop, );
     g->GetVertexData()
       ->GetAbstractArray(propertyName.c_str())
       ->SetVariantValue(vertex, vtkVariant(prop));
@@ -476,7 +480,8 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray);
     }
-    unsigned int prop = strtoul(propertyValue.c_str(), nullptr, 0);
+    unsigned int prop;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(propertyValue, prop, );
     g->GetVertexData()
       ->GetAbstractArray(propertyName.c_str())
       ->SetVariantValue(vertex, vtkVariant(prop));
@@ -491,7 +496,8 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray);
     }
-    unsigned long prop = strtoul(propertyValue.c_str(), nullptr, 0);
+    unsigned long prop;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(propertyValue, prop, );
     g->GetVertexData()
       ->GetAbstractArray(propertyName.c_str())
       ->SetVariantValue(vertex, vtkVariant(prop));
@@ -506,7 +512,8 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray);
     }
-    unsigned short prop = strtoul(propertyValue.c_str(), nullptr, 0);
+    unsigned short prop;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(propertyValue, prop, );
     g->GetVertexData()
       ->GetAbstractArray(propertyName.c_str())
       ->SetVariantValue(vertex, vtkVariant(prop));
@@ -521,7 +528,8 @@ void vtkPhyloXMLTreeReader::ReadPropertyElement(
       propertyArray->SetName(propertyName.c_str());
       g->GetVertexData()->AddArray(propertyArray);
     }
-    unsigned char prop = strtoul(propertyValue.c_str(), nullptr, 0);
+    unsigned char prop;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(propertyValue, prop, );
     g->GetVertexData()
       ->GetAbstractArray(propertyName.c_str())
       ->SetVariantValue(vertex, vtkVariant(prop));
@@ -558,7 +566,8 @@ void vtkPhyloXMLTreeReader::ReadBranchLengthElement(
   vtkXMLDataElement* element, vtkMutableDirectedGraph* g, vtkIdType vertex)
 {
   std::string weightStr = this->GetTrimmedString(element->GetCharacterData());
-  double weight = strtod(weightStr.c_str(), nullptr);
+  double weight;
+  VTK_FROM_CHARS_IF_ERROR_RETURN(weightStr, weight, );
 
   // This assumes that the vertex only has one incoming edge.
   // We have to use GetInEdge because g does not have a GetParent()
@@ -576,7 +585,7 @@ void vtkPhyloXMLTreeReader::ReadConfidenceElement(
   if (element->GetCharacterData() != nullptr)
   {
     std::string confidenceStr = this->GetTrimmedString(element->GetCharacterData());
-    confidence = strtod(confidenceStr.c_str(), nullptr);
+    VTK_FROM_CHARS_IF_ERROR_RETURN(confidenceStr, confidence, );
   }
 
   // get the confidence type
@@ -637,7 +646,8 @@ void vtkPhyloXMLTreeReader::ReadColorElement(
       continue;
     }
     std::string childVal = this->GetTrimmedString(childElement->GetCharacterData());
-    unsigned char val = static_cast<unsigned char>(strtod(childVal.c_str(), nullptr));
+    unsigned char val;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(childVal, val, );
     if (strcmp(childElement->GetName(), "red") == 0)
     {
       red = val;

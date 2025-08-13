@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* A struct for special types to store info about the type, it is fairly
  * small because not many operators or special features are wrapped */
@@ -905,3 +907,5 @@ void vtkWrapPython_GenerateSpecialType(FILE* fp, const char* module, const char*
     "  return (PyObject *)pytype;\n"
     "}\n\n");
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

@@ -76,7 +76,7 @@ int TestTilingCxx(int argc, char* argv[])
   scalarBar->SetOrientationToVertical();
   scalarBar->SetWidth(0.8);
   scalarBar->SetHeight(0.9);
-  scalarBar->SetLabelFormat("%-#6.3f");
+  scalarBar->SetLabelFormat("{:<#6.3f}");
 
   // Test the Get/Set Position
   scalarBar->SetPosition(scalarBar->GetPosition());

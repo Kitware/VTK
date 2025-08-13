@@ -24,6 +24,7 @@
 #include "vtkRectilinearGrid.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -233,7 +234,7 @@ bool ConvertDataArrayToMCArray(vtkDataArray* data_array, conduit_cpp::Node& cond
       }
       else
       {
-        component_node = conduit_node[std::to_string(i)];
+        component_node = conduit_node[vtk::to_string(i)];
       }
       success = success && ConvertDataArrayToMCArray(data_array, i, nComponents, component_node);
     }
@@ -690,7 +691,7 @@ bool FillConduitMultiMeshNode(vtkPartitionedDataSetCollection* pdc, conduit_cpp:
 
   for (unsigned int pdsId = 0; pdsId < pdc->GetNumberOfPartitionedDataSets(); pdsId++)
   {
-    std::string name = "partition" + std::to_string(pdsId);
+    std::string name = "partition" + vtk::to_string(pdsId);
     if (pdc->HasMetaData(pdsId))
     {
       name = pdc->GetMetaData(pdsId)->Get(vtkCompositeDataSet::NAME());
@@ -701,8 +702,8 @@ bool FillConduitMultiMeshNode(vtkPartitionedDataSetCollection* pdc, conduit_cpp:
     for (unsigned int partId = 0; partId < pds->GetNumberOfPartitions(); partId++)
     {
       auto obj = pds->GetPartition(partId);
-      const std::string mesh_name = "mesh_" + std::to_string(partId);
-      const std::string coords_name = "coords_" + std::to_string(partId);
+      const std::string mesh_name = "mesh_" + vtk::to_string(partId);
+      const std::string coords_name = "coords_" + vtk::to_string(partId);
       FillConduitNodeFromDataSet(obj, node, coords_name, mesh_name);
     }
   }

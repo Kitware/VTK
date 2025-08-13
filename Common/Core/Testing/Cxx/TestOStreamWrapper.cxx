@@ -3,6 +3,7 @@
 #define VTK_STREAMS_FWD_ONLY // like wrapper-generated sources
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkSystemIncludes.h"
 
 #include <cstdio> // test covers NOT including <iostream>
@@ -20,7 +21,7 @@ int TestOStreamWrapper(int, char*[])
   vtkmsg.rdbuf()->freeze(0);
   if (actual != expect)
   {
-    fprintf(stderr, "Expected '%s' but got '%s'\n", expect.c_str(), actual.c_str());
+    vtk::println(stderr, "Expected '{:s}' but got '{:s}'", expect, actual);
     return 1;
   }
 
@@ -36,9 +37,9 @@ int TestOStreamWrapper(int, char*[])
 
   if (smartPointerStr != strStream.str())
   {
-    fprintf(stderr,
-      "Output of oStrStreamWrapper for vtkSmartPointer (%s) differs from its address (%s)\n",
-      smartPointerStr.c_str(), strStream.str().c_str());
+    vtk::println(stderr,
+      "Output of oStrStreamWrapper for vtkSmartPointer ({:s}) differs from its address ({:s})",
+      smartPointerStr, strStream.str());
     return 1;
   }
 

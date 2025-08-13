@@ -18,11 +18,8 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
-#include "vtkInformationVector.h"
-#include "vtkObjectFactory.h"
-#include "vtkPartitionedDataSet.h"
-#include "vtkPartitionedDataSetCollection.h"
 #include "vtkSMPTools.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVector.h"
 
@@ -234,7 +231,7 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetSide
     {
       throw std::logic_error("Side block " + sideBlock->name() + " of side set " +
         group_entity->name() + " with parent " + elementBlock->name() + " has " +
-        std::to_string(sources.size()) + " cell-grids, but 1 is expected.");
+        vtk::to_string(sources.size()) + " cell-grids, but 1 is expected.");
     }
     // Now that we've ensured "sources" matches our expectation, get the lone vtkCellGrid from it
     // and the lone cell-metadata entry in it:
@@ -783,7 +780,7 @@ bool vtkIOSSCellGridReaderInternal::ApplyDisplacements(vtkCellGrid* grid, Ioss::
   auto node_block = region->get_entity("nodeblock_1", Ioss::EntityType::NODEBLOCK);
   auto& cache = this->Cache;
   const auto xformPtsCacheKeyEnding =
-    std::to_string(timestep) + std::to_string(std::hash<double>{}(this->DisplacementMagnitude));
+    vtk::to_string(timestep) + vtk::to_string(std::hash<double>{}(this->DisplacementMagnitude));
   const auto xformPtsCacheKey = "__vtk_xformed_pts_" + xformPtsCacheKeyEnding;
   if (auto* xformedPts = vtkDataArray::SafeDownCast(cache.Find(node_block, xformPtsCacheKey)))
   {

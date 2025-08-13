@@ -7,7 +7,9 @@
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
+
 #include <vtksys/SystemTools.hxx>
 
 extern "C"
@@ -85,19 +87,23 @@ void vtkJPEGWriter::Write()
     // determine the name
     if (this->FileName)
     {
-      snprintf(this->InternalFileName, this->InternalFileNameSize, "%s", this->FileName);
+      auto result = vtk::format_to_n(
+        this->InternalFileName, this->InternalFileNameSize, "{:s}", this->FileName);
+      *result.out = '\0';
     }
     else
     {
       if (this->FilePrefix)
       {
-        snprintf(this->InternalFileName, this->InternalFileNameSize, this->FilePattern,
-          this->FilePrefix, this->FileNumber);
+        auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
+          this->FilePattern, this->FilePrefix, this->FileNumber);
+        *result.out = '\0';
       }
       else
       {
-        snprintf(
-          this->InternalFileName, this->InternalFileNameSize, this->FilePattern, this->FileNumber);
+        auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
+          this->FilePattern, "", this->FileNumber);
+        *result.out = '\0';
       }
     }
     this->GetInputAlgorithm()->UpdateExtent(uExtent);

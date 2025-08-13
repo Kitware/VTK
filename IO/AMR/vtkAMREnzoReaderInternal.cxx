@@ -16,9 +16,11 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkShortArray.h"
+#include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedShortArray.h"
+
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -380,7 +382,6 @@ int vtkEnzoReaderInternal::LoadAttribute(const char* attribute, int blockIdx)
   // retrieve the contents of the root directory to look for a group
   // corresponding to the target block, if available, open that group
 
-  int blckIndx;
   char blckName[65];
   int objIndex;
   hsize_t numbObjs;
@@ -392,8 +393,8 @@ int vtkEnzoReaderInternal::LoadAttribute(const char* attribute, int blockIdx)
     if (type == H5G_GROUP)
     {
       H5Gget_objname_by_idx(rootIndx, objIndex, blckName, 64);
-      if ((sscanf(blckName, "Grid%d", &blckIndx) == 1) &&
-        ((blckIndx == blockIdx) || (blckIndx == blockIdx + 1)))
+      auto result = vtk::scan<int>(blckName, "Grid{:d}");
+      if (result && (result->value() == blockIdx || result->value() == (blockIdx + 1)))
       {
         // located the target block
         rootIndx = H5Gopen(rootIndx, blckName);
@@ -759,7 +760,8 @@ void vtkEnzoReaderInternal::ReadBlockStructures()
       while ((tmpChr = stream.get()) != ']')
         theStr += tmpChr;
 
-      int blkIdx = atoi(theStr.c_str());
+      int blkIdx;
+      VTK_FROM_CHARS_IF_ERROR_RETURN(theStr, blkIdx, );
       stream.get(); // -
       stream.get(); // >
       stream >> theStr;
@@ -916,13 +918,11 @@ void vtkEnzoReaderInternal::GetAttributeNames()
   {
     if (H5Gget_objtype_by_idx(rootIndx, objIndex) == H5G_GROUP)
     {
-      int blckIndx;
       char blckName[65];
       H5Gget_objname_by_idx(rootIndx, objIndex, blckName, 64);
 
-      if (sscanf(blckName, "Grid%d", &blckIndx) == 1 &&
-        (blckIndx == blkIndex) // does this block have the fewest cells?
-      )
+      auto result = vtk::scan<int>(blckName, "Grid{:d}");
+      if (result && result->value() == blkIndex) // does this block have the fewest cells?
       {
         rootIndx = H5Gopen(rootIndx, blckName); // located the target block
         break;

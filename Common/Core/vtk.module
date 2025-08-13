@@ -20,13 +20,13 @@ SPDX_CUSTOM_LICENSE_NAME
 LICENSE_FILES
   LICENSE
 DEPENDS
-  VTK::kwiml
-  VTK::vtksys
-  VTK::token
-  VTK::nlohmannjson
-PRIVATE_DEPENDS
   VTK::fast_float
-  VTK::doubleconversion
+  VTK::fmt
+  VTK::kwiml
+  VTK::nlohmannjson
+  VTK::scn
+  VTK::token
+  VTK::vtksys
 OPTIONAL_DEPENDS
   VTK::loguru
 TEST_DEPENDS
@@ -36,6 +36,4 @@ TEST_DEPENDS
   VTK::CommonTransforms
   VTK::TestingCore
   VTK::vtksys
-  VTK::fmt
-  VTK::scn
 INCLUDE_MARSHAL

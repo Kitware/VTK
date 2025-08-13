@@ -9,12 +9,9 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCityGMLReader.h"
+#include "vtkFieldData.h"
 #include "vtkGLTFImporter.h"
 #include "vtkGLTFWriter.h"
-
-#include "vtkCompositeDataIterator.h"
-#include "vtkFieldData.h"
-#include "vtkJPEGReader.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkOBJReader.h"
@@ -25,8 +22,9 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkTestUtilities.h"
-#include "vtkTexture.h"
+
 #include "vtksys/SystemTools.hxx"
 
 #include <sstream>
@@ -119,14 +117,7 @@ int TestGLTFWriter(int argc, char* argv[])
   int lod = 3;
   if (argc > 3)
   {
-    try
-    {
-      lod = std::stoi(argv[3]);
-    }
-    catch (std::exception&)
-    {
-      lod = 3;
-    }
+    vtk::from_chars(argv[3], lod);
   }
   std::string filePath = vtksys::SystemTools::GetFilenamePath(fileName);
   std::string fileExt = vtksys::SystemTools::GetFilenameExtension(fileName);

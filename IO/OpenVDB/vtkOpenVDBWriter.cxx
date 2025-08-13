@@ -17,6 +17,7 @@
 #include "vtkScalarsToColors.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
 
 #include <vtksys/SystemTools.hxx>
@@ -39,7 +40,7 @@ std::string GetVDBGridName(const char* arrayName, int component, int numberOfCom
   std::string vdbName = arrayName;
   if (numberOfComponents != 1 && numberOfComponents != 3)
   {
-    vdbName = vdbName + "_" + std::to_string(component);
+    vdbName = vdbName + "_" + vtk::to_string(component);
   }
   return vdbName;
 }
@@ -96,13 +97,13 @@ void WriteVDBGrids(std::vector<openvdb::GridBase::Ptr>& grids,
     if (writeAllTimeSteps && numberOfTimeSteps > 1)
     {
       std::string newFileName = path + "/" + fileNameBase + "_" +
-        std::to_string(controller->GetLocalProcessId()) + "_" + oss.str() + ext;
+        vtk::to_string(controller->GetLocalProcessId()) + "_" + oss.str() + ext;
       openvdb::io::File(newFileName).write(grids);
     }
     else
     {
       std::string newFileName =
-        path + "/" + fileNameBase + "_" + std::to_string(controller->GetLocalProcessId()) + ext;
+        path + "/" + fileNameBase + "_" + vtk::to_string(controller->GetLocalProcessId()) + ext;
       openvdb::io::File(newFileName).write(grids);
     }
   }
@@ -231,12 +232,12 @@ public:
         else
         {
           int counter = 1;
-          std::string nextName = vdbFieldName + "_" + std::to_string(counter);
+          std::string nextName = vdbFieldName + "_" + vtk::to_string(counter);
           bool found = vdbFieldNames.find(nextName) != vdbFieldNames.end();
           while (found)
           {
             counter++;
-            nextName = vdbFieldName + "_" + std::to_string(counter);
+            nextName = vdbFieldName + "_" + vtk::to_string(counter);
             found = vdbFieldNames.find(nextName) != vdbFieldNames.end();
           }
           vdbFieldName = nextName;

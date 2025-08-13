@@ -7,6 +7,7 @@
 #include "vtkDataSet.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextProperty.h"
 #include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
@@ -82,8 +83,9 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   this->AxisTitleTextProperty = vtkTextProperty::New();
   this->AxisTitleTextProperty->ShallowCopy(this->AxisLabelTextProperty);
 
-  this->LabelFormat = new char[8];
-  snprintf(this->LabelFormat, 8, "%s", "%-#6.3g");
+  this->LabelFormat = new char[10];
+  auto result = vtk::format_to_n(this->LabelFormat, 10, "{:s}", "{:<#6.3g}");
+  *result.out = '\0';
   this->FontFactor = 1.0;
   this->CornerOffset = 0.05;
   this->Inertia = 1;
@@ -95,17 +97,35 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
   this->ZAxisVisibility = 1;
 
   this->XLabel = new char[2];
-  snprintf(this->XLabel, 2, "%s", "X");
+  result = vtk::format_to_n(this->XLabel, 2, "{:s}", "X");
+  *result.out = '\0';
   this->YLabel = new char[2];
-  snprintf(this->YLabel, 2, "%s", "Y");
+  result = vtk::format_to_n(this->YLabel, 2, "{:s}", "Y");
+  *result.out = '\0';
   this->ZLabel = new char[2];
-  snprintf(this->ZLabel, 2, "%s", "Z");
+  result = vtk::format_to_n(this->ZLabel, 2, "{:s}", "Z");
+  *result.out = '\0';
 
   // Allow the user to specify an origin for the axes. The axes will then run
   // from this origin to the bounds and will cross over at this origin.
   this->XOrigin = VTK_DOUBLE_MAX;
   this->YOrigin = VTK_DOUBLE_MAX;
   this->ZOrigin = VTK_DOUBLE_MAX;
+}
+
+//------------------------------------------------------------------------------
+void vtkCubeAxesActor2D::SetLabelFormat(const char* formatArg)
+{
+  std::string format = formatArg ? formatArg : "";
+  if (vtk::is_printf_format(format))
+  {
+    // VTK_DEPRECATED_IN_9_6_0
+    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
+                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
+    format = vtk::printf_to_std_format(format);
+  }
+  const char* formatStr = format.c_str();
+  vtkSetStringBodyMacro(LabelFormat, formatStr);
 }
 
 //------------------------------------------------------------------------------

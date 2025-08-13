@@ -5,6 +5,7 @@
 #include "vtkCellAttribute.h"
 #include "vtkCellGrid.h"
 #include "vtkDGOperatorEntry.h"
+#include "vtkStringFormatter.h"
 #include "vtkStringToken.h"
 #include "vtkTypeFloat32Array.h"
 #include "vtkTypeInt32Array.h"
@@ -128,7 +129,7 @@ vtkDGCell::Source& vtkDGCell::GetCellSource(int sideType)
   }
   else if (sideType >= static_cast<int>(this->SideSpecs.size()))
   {
-    throw std::logic_error("No source specifier at index " + std::to_string(sideType));
+    throw std::logic_error("No source specifier at index " + vtk::to_string(sideType));
   }
   return this->SideSpecs[sideType];
 }

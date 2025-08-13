@@ -84,11 +84,11 @@ public:
 
   ///@{
   /**
-   * Specify the format to use for labelling the distance. Note that an empty
-   * string results in no label, or a format string without a "%" character
+   * Specify the std::formay style format to use for labelling the distance. Note that an empty
+   * string results in no label, or a format string without a "{}" character
    * will not print the thickness value.
    */
-  vtkSetStringMacro(ThicknessLabelFormat);
+  void SetThicknessLabelFormat(const char* format);
   vtkGetStringMacro(ThicknessLabelFormat);
   ///@}
 

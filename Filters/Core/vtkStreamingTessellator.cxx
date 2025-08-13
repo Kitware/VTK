@@ -10,7 +10,7 @@
 
 #include "vtkEdgeSubdivisionCriterion.h"
 #include "vtkStreamingTessellator.h"
-
+#include "vtkStringFormatter.h"
 
 #undef UGLY_ASPECT_RATIO_HACK
 #undef DBG_MIDPTS
@@ -426,19 +426,19 @@ void vtkStreamingTessellator::AdaptivelySample2Facet( double* v0, double* v1, do
 #ifdef DBG_MIDPTS
   if ( maxDepth == 0 )
   {
-    fprintf( stderr, "midpoint of v%d (%g %g %g/%g %g %g)-v%d (%g %g %g/%g %g %g) = (%g %g %g/%g %g %g)\n",
+    vtk::print( stderr, "midpoint of v{:d} ({:g} {:g} {:g}/{:g} {:g} {:g})-v{:d} ({:g} {:g} {:g}/{:g} {:g} {:g}) = ({:g} {:g} {:g}/{:g} {:g} {:g})\n",
       0, v0[0], v0[1], v0[2], v0[3], v0[4], v0[5],
       1, v1[0], v1[1], v1[2], v1[3], v1[4], v1[5],
          midpt0[0], midpt0[1], midpt0[2], midpt0[3], midpt0[4], midpt0[5]
     );
 
-    fprintf( stderr, "midpoint of v%d (%g %g %g/%g %g %g)-v%d (%g %g %g/%g %g %g) = (%g %g %g/%g %g %g)\n",
+    vtk::print( stderr, "midpoint of v{:d} ({:g} {:g} {:g}/{:g} {:g} {:g})-v{:d} ({:g} {:g} {:g}/{:g} {:g} {:g}) = ({:g} {:g} {:g}/{:g} {:g} {:g})\n",
       1, v1[0], v1[1], v1[2], v1[3], v1[4], v1[5],
       2, v2[0], v2[1], v2[2], v2[3], v2[4], v2[5],
          midpt1[0], midpt1[1], midpt1[2], midpt1[3], midpt1[4], midpt1[5]
     );
 
-    fprintf( stderr, "midpoint of v%d (%g %g %g/%g %g %g)-v%d (%g %g %g/%g %g %g) = (%g %g %g/%g %g %g)\n\n",
+    vtk::print( stderr, "midpoint of v{:d} ({:g} {:g} {:g}/{:g} {:g} {:g})-v{:d} ({:g} {:g} {:g}/{:g} {:g} {:g}) = ({:g} {:g} {:g}/{:g} {:g} {:g})\n\n",
       2, v2[0], v2[1], v2[2], v2[3], v2[4], v2[5],
       0, v0[0], v0[1], v0[2], v0[3], v0[4], v0[5],
          midpt2[0], midpt2[1], midpt2[2], midpt2[3], midpt2[4], midpt2[5]

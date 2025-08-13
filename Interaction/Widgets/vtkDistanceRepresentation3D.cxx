@@ -10,7 +10,6 @@
 #include "vtkDoubleArray.h"
 #include "vtkFollower.h"
 #include "vtkGlyph3D.h"
-#include "vtkInteractorObserver.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -21,6 +20,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkVectorText.h"
@@ -285,10 +285,9 @@ void vtkDistanceRepresentation3D::BuildRepresentation()
     this->LinePoints->Modified();
 
     // Label
-    char string[512];
-    snprintf(string, sizeof(string), this->LabelFormat, this->Distance, fabs(p1[0] - p2[0]),
-      fabs(p1[1] - p2[1]), fabs(p1[2] - p2[2]));
-    this->LabelText->SetText(string);
+    auto string = vtk::format(this->LabelFormat, this->Distance, std::abs(p1[0] - p2[0]),
+      std::abs(p1[1] - p2[1]), std::abs(p1[2] - p2[2]));
+    this->LabelText->SetText(string.c_str());
     this->UpdateLabelPosition();
     if (this->Renderer) // make the label face the camera
     {

@@ -3,28 +3,22 @@
 
 #include "vtkAMREnzoReader.h"
 #include "vtkAMRBox.h"
+#include "vtkAMREnzoReaderInternal.h"
+#include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
+#include "vtkDataSet.h"
 #include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPolyData.h"
+#include "vtkStringScanner.h"
 #include "vtkUniformGrid.h"
+#include "vtkUnsignedShortArray.h"
+
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
-
-#include "vtkCellData.h"
-#include "vtkDataSet.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
-#include "vtkIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkLongLongArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedShortArray.h"
 
 #define H5_USE_16_API
 #include "vtk_hdf5.h"
@@ -33,8 +27,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include "vtkAMREnzoReaderInternal.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMREnzoReader);
@@ -99,7 +91,9 @@ int vtkAMREnzoReader::GetIndexFromArrayName(std::string arrayName)
   char stringIdx[2];
   stringIdx[0] = arrayName.at(arrayName.size() - 2);
   stringIdx[1] = '\0';
-  return (atoi(stringIdx));
+  int value;
+  vtk::from_chars(stringIdx, stringIdx + 2, value);
+  return value;
 }
 
 //------------------------------------------------------------------------------
@@ -156,7 +150,7 @@ void vtkAMREnzoReader::ParseCFactor(const std::string& labelString, int& idx, do
   }
 
   idx = this->GetIndexFromArrayName(strings[0]);
-  factor = atof(strings[strings.size() - 1].c_str());
+  VTK_FROM_CHARS_IF_ERROR_BREAK(strings[strings.size() - 1], factor);
 }
 
 //------------------------------------------------------------------------------

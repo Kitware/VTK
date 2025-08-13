@@ -9,6 +9,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
+#include "vtkStringFormatter.h"
 #include "vtkTextureObject.h"
 
 #include "vtk_glad.h"
@@ -118,7 +119,7 @@ void vtkPBRPrefilterTexture::Load(vtkRenderer* ren)
       // The solid angle of the texel = 4*PI/(6*w*h)
       // We remove the 4, simplification with saSample
       "const float saTexel  = PI / (6.0 * " +
-        std::to_string(this->PrefilterSize * this->PrefilterSize) +
+        vtk::to_string(this->PrefilterSize * this->PrefilterSize) +
         ".0);\n"
         "vec3 GetSampleColor(vec3 dir, float mipLevel)\n"
         "{\n"

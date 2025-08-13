@@ -4,6 +4,7 @@
 
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringScanner.h"
 
 // The VTK_SOCKET_FAKE_API definition is given to the compiler
 // command line by CMakeLists.txt if there is no real sockets
@@ -178,7 +179,8 @@ int vtkSocket::BindSocket(int socketdescriptor, int port, const std::string& bin
       {
         nextDot = bindAddr.size();
       }
-      int byte = std::stoi(bindAddr.substr(lastDot, nextDot - lastDot));
+      int byte;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(bindAddr.substr(lastDot, nextDot - lastDot), byte);
       if (byte < 0 || byte > 255)
       {
         vtkSocketErrorMacro(vtkErrnoMacro, "Wrong bind address.");

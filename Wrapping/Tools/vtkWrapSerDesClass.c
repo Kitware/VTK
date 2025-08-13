@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* get the true superclass */
 const char* vtkWrapSerDes_GetSuperClass(
@@ -308,3 +310,5 @@ void vtkWrapSerDes_Class(FILE* fp, const HierarchyInfo* hinfo, ClassInfo* classI
   }
   vtkWrapSerDes_DefineClassRegistrars(fp, classInfo);
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

@@ -11,13 +11,12 @@
 #include "vtkDataSetAttributes.h"
 #include "vtkExtractCells.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkNumberToString.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnstructuredGrid.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -109,8 +108,7 @@ int vtkExplodeDataSet::RequestData(vtkInformation* vtkNotUsed(request),
     vtkSmartPointer<vtkPointSet> part =
       vtk::TakeSmartPointer(this->CreatePartition(input, partCellIds));
     output->SetPartition(partId, 0, part);
-    vtkNumberToString converter;
-    std::string partName = arrayName + "_" + converter.Convert(partValue);
+    std::string partName = arrayName + "_" + vtk::to_string(partId);
     output->GetMetaData(partId)->Set(vtkCompositeDataSet::NAME(), partName.c_str());
     partId++;
 

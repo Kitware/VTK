@@ -8,14 +8,15 @@
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkInformation.h"
-#include "vtkInformationVector.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
+#include "vtkStringScanner.h"
 #include "vtkTree.h"
 #include "vtkTreeDFSIterator.h"
+
 #include "vtksys/FStream.hxx"
 
 #include <fstream>
@@ -350,7 +351,9 @@ vtkIdType vtkNewickTreeReader::BuildTree(char* buffer, vtkMutableDirectedGraph* 
       *colon = ':';
       // Weight
       colon++;
-      weights->SetValue(g->GetEdgeId(parent, node), atof(colon));
+      double weight;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(colon, weight);
+      weights->SetValue(g->GetEdgeId(parent, node), weight);
     }
   }
   else
@@ -448,7 +451,9 @@ vtkIdType vtkNewickTreeReader::BuildTree(char* buffer, vtkMutableDirectedGraph* 
       }
       temp = *current;
       *current = '\0';
-      weights->SetValue(g->GetEdgeId(parent, node), atof(start));
+      double weight;
+      VTK_FROM_CHARS_IF_ERROR_BREAK(start, weight);
+      weights->SetValue(g->GetEdgeId(parent, node), weight);
       names->SetValue(node, "");
       *current = temp;
     }
@@ -476,7 +481,9 @@ vtkIdType vtkNewickTreeReader::BuildTree(char* buffer, vtkMutableDirectedGraph* 
         }
         temp = *current;
         *current = '\0';
-        weights->SetValue(g->GetEdgeId(parent, node), atof(start));
+        double weight;
+        VTK_FROM_CHARS_IF_ERROR_BREAK(start, weight);
+        weights->SetValue(g->GetEdgeId(parent, node), weight);
         *current = temp;
       }
     }

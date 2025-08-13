@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* prototypes for the methods used by the python wrappers */
 
@@ -630,3 +632,5 @@ int vtkWrapPython_WrapOneClass(FILE* fp, const char* module, const char* classna
 
   return 1;
 }
+
+// NOLINTEND(bugprone-unsafe-functions)

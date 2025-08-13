@@ -865,13 +865,13 @@ bool vtkPlotBar::UpdateCache()
   // Set the default tooltip according to the segments
   if (this->Private->Segments.size() > 1)
   {
-    this->TooltipDefaultLabelFormat = "%s: ";
+    this->TooltipDefaultLabelFormat = "{s}: ";
   }
   if (this->IndexedLabels)
   {
-    this->TooltipDefaultLabelFormat += "%i: ";
+    this->TooltipDefaultLabelFormat += "{i}: ";
   }
-  this->TooltipDefaultLabelFormat += "%x,  %y";
+  this->TooltipDefaultLabelFormat += "{x},  {y}";
 
   this->BuildTime.Modified();
   return true;
@@ -1023,48 +1023,6 @@ bool vtkPlotBar::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
   this->Selection->SetNumberOfTuples(0);
 
   return this->Private->SelectPoints(min, max, this->Width, this->Offset, this->Orientation);
-}
-
-//------------------------------------------------------------------------------
-vtkStdString vtkPlotBar::GetTooltipLabel(
-  const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex)
-{
-  std::string baseLabel = Superclass::GetTooltipLabel(plotPos, seriesIndex, segmentIndex);
-  std::string tooltipLabel;
-  bool escapeNext = false;
-  for (size_t i = 0; i < baseLabel.length(); ++i)
-  {
-    if (escapeNext)
-    {
-      switch (baseLabel[i])
-      {
-        case 's':
-          if (segmentIndex >= 0 && this->GetLabels() &&
-            segmentIndex < this->GetLabels()->GetNumberOfTuples())
-          {
-            tooltipLabel += this->GetLabels()->GetValue(segmentIndex);
-          }
-          break;
-        default: // If no match, insert the entire format tag
-          tooltipLabel += "%";
-          tooltipLabel += baseLabel[i];
-          break;
-      }
-      escapeNext = false;
-    }
-    else
-    {
-      if (baseLabel[i] == '%')
-      {
-        escapeNext = true;
-      }
-      else
-      {
-        tooltipLabel += baseLabel[i];
-      }
-    }
-  }
-  return tooltipLabel;
 }
 
 //------------------------------------------------------------------------------

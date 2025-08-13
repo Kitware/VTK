@@ -23,6 +23,7 @@
 #include "vtkInformationIntegerVectorKey.h"
 #include "vtkInformationIterator.h"
 #include "vtkInformationKeyLookup.h"
+#include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationStringVectorKey.h"
 #include "vtkInformationUnsignedLongKey.h"
@@ -33,6 +34,7 @@
 #include "vtkPoints.h"
 #include "vtkStdString.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkZLibDataCompressor.h"
 #define vtkXMLOffsetsManager_DoNotInclude
@@ -41,18 +43,13 @@
 #define vtkXMLDataHeaderPrivate_DoNotInclude
 #include "vtkXMLDataHeaderPrivate.h"
 #undef vtkXMLDataHeaderPrivate_DoNotInclude
-#include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
-#include "vtkInformationStringKey.h"
-#include "vtkNumberToString.h"
-#include "vtkQuadratureSchemeDefinition.h"
 #include "vtkXMLDataElement.h"
-#include "vtkXMLReaderVersion.h"
-#include "vtksys/Encoding.hxx"
+
 #include "vtksys/FStream.hxx"
-#include <memory>
 
 #include <cassert>
 #include <cmath>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -1575,14 +1572,13 @@ const char* vtkXMLWriter::GetWordTypeName(int dataType)
 template <class T>
 int vtkXMLWriterWriteVectorAttribute(ostream& os, const char* name, int length, T* data)
 {
-  vtkNumberToString converter;
   os << " " << name << "=\"";
   if (length)
   {
-    os << converter.Convert(data[0]);
+    os << vtk::to_string(data[0]);
     for (int i = 1; i < length; ++i)
     {
-      os << " " << converter.Convert(data[i]);
+      os << " " << vtk::to_string(data[i]);
     }
   }
   os << "\"";
@@ -1878,8 +1874,7 @@ bool vtkXMLWriter::WriteInformation(vtkInformation* info, vtkIndent indent)
 template <class T>
 inline ostream& vtkXMLWriteAsciiValue(ostream& os, const T& value)
 {
-  vtkNumberToString converter;
-  os << converter.Convert(value);
+  os << vtk::to_string(value);
   return os;
 }
 

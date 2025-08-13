@@ -21,6 +21,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
+#include <vtkStringFormatter.h>
 #include <vtkTableBasedClipDataSet.h>
 #include <vtkTestUtilities.h>
 
@@ -105,7 +106,7 @@ int TestIOSSExodusParallelWriter(int argc, char* argv[])
   else
   {
     auto parallelOutputFileName =
-      ofname + "." + std::to_string(contr->GetNumberOfProcesses()) + ".0";
+      ofname + "." + vtk::to_string(contr->GetNumberOfProcesses()) + ".0";
     reader->SetFileName(parallelOutputFileName.c_str());
   }
   reader->UpdateInformation();

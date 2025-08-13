@@ -18,6 +18,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+#include "vtkStringFormatter.h"
 #include "vtkTesting.h"
 
 #include <cstdlib>
@@ -169,7 +170,7 @@ int TestCompositePolyDataMapperToggleScalarVisibilities(int argc, char* argv[])
     if (i > 0)
     {
       auto pos = newValidImageFileName.find(".png");
-      std::string suffix = "_" + std::to_string(i) + ".png";
+      std::string suffix = "_" + vtk::to_string(i) + ".png";
       newValidImageFileName.replace(pos, 6, suffix);
     }
     // Replace the -V argument image name with incremented suffix

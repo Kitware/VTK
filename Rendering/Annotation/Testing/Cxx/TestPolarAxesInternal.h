@@ -30,7 +30,7 @@ inline void InitializeAxes(vtkPolarAxesActor* polarAxes)
   polarAxes->SetMinimumAngle(-60.);
   polarAxes->SetMaximumAngle(210.);
   polarAxes->SetRequestedNumberOfRadialAxes(10);
-  polarAxes->SetPolarLabelFormat("%6.1f");
+  polarAxes->SetPolarLabelFormat("{:6.1f}");
   polarAxes->GetLastRadialAxisProperty()->SetColor(0.0, 1.0, 0.0);
   polarAxes->GetSecondaryRadialAxesProperty()->SetColor(0.0, 0.0, 1.0);
   polarAxes->GetPolarArcsProperty()->SetColor(1.0, 0.0, 0.0);

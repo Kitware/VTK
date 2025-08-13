@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOLINTBEGIN(bugprone-unsafe-functions)
+
 /* -------------------------------------------------------------------- */
 /* prototypes for the methods used by the python wrappers */
 
@@ -995,6 +997,7 @@ static void vtkWrapPython_ObjectBaseMethods(FILE* fp, const char* classname, Cla
       "  if (op && ap.CheckArgCount(1) &&\n"
       "      ap.GetValue(temp0))\n"
       "  {\n"
+      "    // NOLINTNEXTLINE(bugprone-unsafe-functions)\n"
       "    snprintf(tempr, sizeof(tempr), \"Addr=%%p\", static_cast<void*>(op));\n"
       "\n"
       "    result = ap.BuildValue(tempr);\n"
@@ -1341,3 +1344,5 @@ static void vtkWrapPython_AlgorithmMethods(FILE* fp, const char* classname, cons
       data->Name);
   }
 }
+
+// NOLINTEND(bugprone-unsafe-functions)
