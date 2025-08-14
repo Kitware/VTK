@@ -762,14 +762,14 @@ int TestParallelCoordinatesSelection(int vtkNotUsed(argc), char* vtkNotUsed(argv
     return EXIT_FAILURE;
   }
 
-  if (ids->GetSize() != 31)
+  if (ids->GetNumberOfValues() != 31)
   {
-    std::cerr << "Wrong number of id selection. Expected to have 14 ids but got " << ids->GetSize()
-              << std::endl;
+    std::cerr << "Wrong number of id selection. Expected to have 14 ids but got "
+              << ids->GetNumberOfValues() << std::endl;
     return EXIT_FAILURE;
   }
 
-  for (int i = 0; i < ids->GetSize(); i++)
+  for (int i = 0; i < ids->GetNumberOfValues(); i++)
   {
     if (ids->GetValue(i) != expectedValues[i])
     {
