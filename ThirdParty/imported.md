@@ -17,7 +17,6 @@ framework described in the [UPDATING](UPDATING.md) document:
   * [cgns](cgns/update.sh)
   * [cli11](cli11/update.sh)
   * [diy2](diy2/update.sh)
-  * [doubleconversion](doubleconversion/update.sh)
   * [eigen](eigen/update.sh)
   * [exodusII](exodusII/update.sh)
   * [expat](expat/update.sh)
