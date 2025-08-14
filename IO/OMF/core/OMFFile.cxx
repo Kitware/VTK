@@ -346,7 +346,7 @@ vtkSmartPointer<vtkImageData> OMFFile::ReadPNGFromStream(const Json::Value& json
 
   vtkNew<vtkPNGReader> reader;
   reader->SetMemoryBuffer(array->GetVoidPointer(0));
-  reader->SetMemoryBufferLength(array->GetSize());
+  reader->SetMemoryBufferLength(array->GetDataSize());
   reader->Update();
   vtkNew<vtkImageData> data;
   data->ShallowCopy(reader->GetOutput());

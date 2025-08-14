@@ -1927,7 +1927,7 @@ int vtkPolyData::GetScalarFieldCriticalIndex(vtkIdType pointId, vtkDataArray* sc
             *upperLinkPointList = vtkIdList::New(), *pointList = nullptr;
   double pointFieldValue = scalarField->GetComponent(pointId, 0);
 
-  if (this->GetNumberOfPoints() != scalarField->GetSize())
+  if (this->GetNumberOfPoints() != scalarField->GetNumberOfTuples())
   {
     return vtkPolyData::ERR_INCORRECT_FIELD;
   }

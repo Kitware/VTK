@@ -566,13 +566,13 @@ void vtkWebGLPolyData::GetPolygonsFromPointData(
   // Index
   // ndata contain 4 values for the normal: [number of values per index, index[3]]
   // We don't need the first value
-  int* indexes = new int[ndata->GetSize() * 3 / 4];
-  for (int i = 0; i < ndata->GetSize(); i++)
+  int* indexes = new int[ndata->GetNumberOfValues() * 3 / 4];
+  for (int i = 0; i < ndata->GetNumberOfValues(); i++)
     if (i % 4 != 0)
       indexes[i * 3 / 4] = ndata->GetValue(i);
   // Normal
-  float* normal = new float[attr->GetNormals()->GetSize()];
-  for (int i = 0; i < attr->GetNormals()->GetSize(); i++)
+  float* normal = new float[attr->GetNormals()->GetDataSize()];
+  for (int i = 0; i < attr->GetNormals()->GetDataSize(); i++)
     normal[i] = attr->GetNormals()->GetComponent(0, i);
   // Colors
   unsigned char* color = new unsigned char[data->GetNumberOfPoints() * 4];
@@ -581,13 +581,13 @@ void vtkWebGLPolyData::GetPolygonsFromPointData(
   float* tcoord = nullptr;
   if (attr->GetTCoords())
   {
-    tcoord = new float[attr->GetTCoords()->GetSize()];
-    for (int i = 0; i < attr->GetTCoords()->GetSize(); i++)
+    tcoord = new float[attr->GetTCoords()->GetDataSize()];
+    for (int i = 0; i < attr->GetTCoords()->GetDataSize(); i++)
       tcoord[i] = attr->GetTCoords()->GetComponent(0, i);
   }
 
-  object->SetMesh(vertices, data->GetNumberOfPoints(), indexes, ndata->GetSize() * 3 / 4, normal,
-    color, tcoord, maxSize);
+  object->SetMesh(vertices, data->GetNumberOfPoints(), indexes, ndata->GetNumberOfValues() * 3 / 4,
+    normal, color, tcoord, maxSize);
   polynormals->Delete();
 }
 
@@ -696,7 +696,7 @@ void vtkWebGLPolyData::GetColorsFromPointData(
 {
   vtkDataSetAttributes* attr = (vtkDataSetAttributes*)pointdata;
 
-  int colorSize = attr->GetNormals()->GetSize() * 4 / 3;
+  int colorSize = attr->GetNormals()->GetDataSize() * 4 / 3;
 
   vtkDataArray* array;
   if (actor->GetMapper()->GetArrayAccessMode() == VTK_GET_ARRAY_BY_ID)

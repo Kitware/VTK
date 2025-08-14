@@ -1077,10 +1077,10 @@ int vtkHyperTreeGridSource::InitializeFromBitsDescriptor()
 {
   // Verify that grid and material specifications are consistent
   if (this->UseMask && !this->LevelZeroMaterialIndex &&
-    this->MaskBits->GetSize() != this->DescriptorBits->GetSize())
+    this->MaskBits->GetNumberOfValues() != this->DescriptorBits->GetNumberOfValues())
   {
-    vtkErrorMacro(<< "Material mask is used but has length " << this->MaskBits->GetSize()
-                  << " != " << this->DescriptorBits->GetSize()
+    vtkErrorMacro(<< "Material mask is used but has length " << this->MaskBits->GetNumberOfValues()
+                  << " != " << this->DescriptorBits->GetNumberOfValues()
                   << " which is the length of the grid descriptor.");
 
     return 0;
