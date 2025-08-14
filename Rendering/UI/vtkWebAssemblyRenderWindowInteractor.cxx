@@ -639,6 +639,10 @@ void vtkWebAssemblyRenderWindowInteractor::StartEventLoop()
     }
     else
     {
+      if (vtkRenderWindowInteractor::InteractorManagesTheEventLoop)
+      {
+        this->Register(nullptr);
+      }
       emscripten_set_main_loop_arg(
         &spinOnce, (void*)this, 0, vtkRenderWindowInteractor::InteractorManagesTheEventLoop);
     }
