@@ -133,6 +133,7 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests data_tests
   TestMeanValueCoordinatesInterpolation2.cxx
   TestPolyhedron2.cxx,NO_VALID
   TestPolyhedron4.cxx,NO_VALID,NO_OUTPUT
+  TestPolyhedronConcaveCentroid.cxx,NO_VALID,NO_OUTPUT
   TestPolyhedronContouring.cxx,NO_VALID
   TestPolyhedronCutter.cxx,NO_VALID
   TestPolyhedronDecompose.cxx,NO_DATA
