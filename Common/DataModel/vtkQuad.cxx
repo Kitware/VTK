@@ -164,25 +164,22 @@ int vtkQuad::EvaluatePosition(const double x[3], double closestPoint[3], int& su
 
     //  calculate newton functions
     //
-    for (i = 0; i < 2; i++)
-    {
-      fcol[i] = rcol[i] = scol[i] = 0.0;
-    }
+    fcol[0] = rcol[0] = scol[0] = 0.0;
+    fcol[1] = rcol[1] = scol[1] = 0.0;
+
     for (i = 0; i < 4; i++)
     {
       pt = pts + 3 * i;
-      for (j = 0; j < 2; j++)
-      {
-        fcol[j] += pt[indices[j]] * weights[i];
-        rcol[j] += pt[indices[j]] * derivs[i];
-        scol[j] += pt[indices[j]] * derivs[i + 4];
-      }
+      fcol[0] += pt[indices[0]] * weights[i];
+      rcol[0] += pt[indices[0]] * derivs[i];
+      scol[0] += pt[indices[0]] * derivs[i + 4];
+      fcol[1] += pt[indices[1]] * weights[i];
+      rcol[1] += pt[indices[1]] * derivs[i];
+      scol[1] += pt[indices[1]] * derivs[i + 4];
     }
 
-    for (j = 0; j < 2; j++)
-    {
-      fcol[j] -= cp[indices[j]];
-    }
+    fcol[0] -= cp[indices[0]];
+    fcol[1] -= cp[indices[1]];
 
     //  compute determinants and generate improvements
     //
