@@ -329,7 +329,8 @@ public:
   ///@}
 
   /**
-   * Return the size of the data.
+   * Get the capacity of the array.  This returns the number of value slots
+   * in the array's allocated storage.
    */
   vtkIdType GetSize() const { return this->Size; }
 
