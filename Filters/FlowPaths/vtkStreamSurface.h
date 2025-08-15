@@ -63,10 +63,10 @@ private:
    * field is the vector values dataset in which the streamsurface is advected
    * seeds is the polydata with the start curve
    * output is the final streamsurface
-   * @param field: vector field in which the surfave is advected
-   * @param seeds: initial values
-   * @param integrationDirection: forward, backward, or both
-   * @param output: the final surface
+   * @param field vector field in which the surfave is advected
+   * @param seeds initial values
+   * @param integrationDirection forward, backward, or both
+   * @param output the final surface
    * @return 1 if successful, 0 if not
    */
   int AdvectIterative(
