@@ -676,7 +676,7 @@ void vtkAxisActor2D::UpdateTicksValueAndPosition(vtkViewport* viewport)
 
     for (int minor = 1; minor <= this->NumberOfMinorTicks; minor++)
     {
-      value = value + minor * minorDelta;
+      value = value + minorDelta;
       position = (value - this->Range[0]) * scale;
       if (position > 1)
       {
@@ -895,6 +895,8 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
   }
 
   vtkPoints* pts = this->Axis->GetPoints();
+  const vtkIdType nbOfPoints = pts->GetNumberOfPoints();
+
   // Position the mappers
   for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
   {
@@ -903,6 +905,11 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
     // first point in the list is the Axis start, not a tick point.
     vtkIdType startPointId = tickId * 2 + 1;
     vtkIdType endPointId = startPointId + 1;
+    if (endPointId >= nbOfPoints)
+    {
+      vtkErrorMacro("Trying to use an inexisting tick when computing label position.");
+      return;
+    }
     pts->GetPoint(endPointId, xTick);
     double theta = this->GetAxisAngle(viewport);
     double textAngle = this->LabelTextProperty->GetOrientation();
