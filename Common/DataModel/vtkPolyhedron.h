@@ -196,11 +196,7 @@ public:
     vtkWarningMacro(<< "vtkPolyhedron::GetPointToOneRingPoints Not Implemented");
     return 0;
   }
-  bool GetCentroid(double vtkNotUsed(centroid)[3]) const override
-  {
-    vtkWarningMacro(<< "vtkPolyhedron::GetCentroid Not Implemented");
-    return false;
-  }
+  bool GetCentroid(double centroid[3]) const override;
   ///@}
 
   /**

@@ -24,7 +24,6 @@
 #include "vtkVector.h"
 
 #include <cmath>
-#include <functional>
 #include <map>
 #include <set>
 #include <unordered_map>
@@ -1005,19 +1004,68 @@ int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), const double pcoords[3], 
 }
 
 //----------------------------------------------------------------------------
-int vtkPolyhedron::GetParametricCenter(double pcoords[3])
+bool vtkPolyhedron::GetCentroid(double centroid[3]) const
 {
+  assert(this->Faces != nullptr && "Faces must be set before calling GetCentroid.");
   const vtkIdType numPts = this->Points->GetNumberOfPoints();
-  double center[3] = { 0.0, 0.0, 0.0 };
-  double x[3];
+  // compute apex center as the centroid of all points
+  double apexCentroid[3] = { 0.0, 0.0, 0.0 }, x[3];
   for (vtkIdType i = 0; i < numPts; i++)
   {
     this->Points->GetPoint(i, x);
-    vtkMath::Add(center, x, center);
+    vtkMath::Add(apexCentroid, x, apexCentroid);
   }
-  vtkMath::MultiplyScalar(center, 1.0 / numPts);
-  this->ComputeParametricCoordinate(center, pcoords);
-  return 0;
+  vtkMath::MultiplyScalar(apexCentroid, 1.0 / numPts);
+
+  // computer the weighted barycenter of the pyramids formed by the apex and each face
+  const vtkIdType numFaces = this->Faces->GetNumberOfCells();
+  std::fill_n(centroid, 3, 0.0);
+  double totalVolume = 0.0, normal[3];
+  const vtkIdType* facePts = nullptr;
+  vtkIdType numFacePts;
+  for (vtkIdType i = 0; i < numFaces; ++i)
+  {
+    this->Faces->GetCellAtId(i, numFacePts, facePts);
+    // compute centroid of the face
+    double faceCentroid[3];
+    vtkPolygon::ComputeCentroid(this->Points, numFacePts, facePts, faceCentroid);
+    // compute area and normal of the face
+    const double faceArea = vtkPolygon::ComputeArea(this->Points, numFacePts, facePts, normal);
+    // compute barycenter of the face
+    double baryCenter[3] = { (0.75 * faceCentroid[0]) + (0.25 * apexCentroid[0]),
+      (0.75 * faceCentroid[1]) + (0.25 * apexCentroid[1]),
+      (0.75 * faceCentroid[2]) + (0.25 * apexCentroid[2]) };
+    // compute the volume of the pyramid formed by the face and the apex
+    double centerDiff[3];
+    vtkMath::Subtract(apexCentroid, faceCentroid, centerDiff);
+    // projection along normal that is signed to handle non-convex polyhedra
+    const double height = vtkMath::Dot(centerDiff, normal);
+    const double volume = faceArea * height / 3.0;
+    totalVolume += volume;
+    // accumulate the weighted barycenter and volume
+    vtkMath::MultiplyScalar(baryCenter, volume);
+    vtkMath::Add(centroid, baryCenter, centroid);
+  }
+  if (std::abs(totalVolume) > 1e-12)
+  {
+    vtkMath::MultiplyScalar(centroid, 1.0 / totalVolume);
+    return true;
+  }
+  else
+  {
+    std::copy_n(apexCentroid, 3, centroid);
+    return false;
+  }
+}
+
+//----------------------------------------------------------------------------
+int vtkPolyhedron::GetParametricCenter(double pcoords[3])
+{
+  this->GenerateFaces();
+  double centroid[3];
+  this->GetCentroid(centroid);
+  this->ComputeParametricCoordinate(centroid, pcoords);
+  return 0; // The subId is always 0 for vtkPolyhedron
 }
 
 //------------------------------------------------------------------------------
