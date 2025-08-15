@@ -82,8 +82,7 @@ if (EXISTS "${TEST_OUTPUT_DIR}/vtkhttp.lock")
   string(JSON HTTP_SERVER_PORT GET "${HTTP_LOCK}" port)
   set(HTTP_SERVER_URL "http://${HTTP_SERVER_ADDRESS}:${HTTP_SERVER_PORT}")
 else ()
-  message(FATAL_ERROR "${TEST_OUTPUT_DIR}/vtkhttp.lock file does not exist!")
-  cmake_language(EXIT ${EXIT_CODE})
+  message(WARNING "${TEST_OUTPUT_DIR}/vtkhttp.lock file does not exist!")
 endif()
 
 # Create user profile directory
