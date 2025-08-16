@@ -78,7 +78,7 @@ void vtkSOADataArrayTemplate<ValueType>::ShallowCopy(vtkDataArray* other)
   SelfType* o = SelfType::FastDownCast(other);
   if (o)
   {
-    this->Size = o->Size;
+    this->Capacity = o->Capacity;
     this->MaxId = o->MaxId;
     this->SetName(o->Name);
     this->SetNumberOfComponents(o->NumberOfComponents);
@@ -142,7 +142,7 @@ void vtkSOADataArrayTemplate<ValueType>::InsertTuples(
   }
 
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
-  if (this->Size < newSize)
+  if (this->Capacity < newSize)
   {
     if (!this->Resize(maxDstTupleId + 1))
     {
@@ -211,8 +211,8 @@ void vtkSOADataArrayTemplate<ValueType>::SetArray(
 
   if (updateMaxId)
   {
-    this->Size = numComps * size;
-    this->MaxId = this->Size - 1;
+    this->Capacity = numComps * size;
+    this->MaxId = this->Capacity - 1;
   }
 
   this->DataChanged();

@@ -139,7 +139,7 @@ extern "C"
         uc->Allocate(10000);
       }
       cinfo->dest->next_output_byte = uc->GetPointer(0);
-      cinfo->dest->free_in_buffer = uc->GetSize();
+      cinfo->dest->free_in_buffer = uc->GetCapacity();
     }
   }
 }
@@ -155,10 +155,10 @@ extern "C"
     {
       vtkUnsignedCharArray* uc = self->GetResult();
       // we must grow the array
-      vtkIdType oldSize = uc->GetSize();
+      vtkIdType oldSize = uc->GetCapacity();
       uc->Resize(oldSize + oldSize / 2);
       // Resize do grow the array but it is not the size we expect
-      vtkIdType newSize = uc->GetSize();
+      vtkIdType newSize = uc->GetCapacity();
       cinfo->dest->next_output_byte = uc->GetPointer(oldSize);
       cinfo->dest->free_in_buffer = static_cast<size_t>(newSize - oldSize);
     }
@@ -175,7 +175,7 @@ extern "C"
     {
       vtkUnsignedCharArray* uc = self->GetResult();
       // we must close the array
-      vtkIdType realSize = uc->GetSize() - static_cast<vtkIdType>(cinfo->dest->free_in_buffer);
+      vtkIdType realSize = uc->GetCapacity() - static_cast<vtkIdType>(cinfo->dest->free_in_buffer);
       uc->SetNumberOfTuples(realSize);
     }
   }

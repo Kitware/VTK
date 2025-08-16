@@ -476,7 +476,7 @@ inline void vtkBitArray::SetValue(vtkIdType id, int value)
 
 inline void vtkBitArray::InsertValue(vtkIdType valueIdx, int value)
 {
-  if (valueIdx >= this->Size)
+  if (valueIdx >= this->Capacity)
   {
     if (!this->Resize((valueIdx + 1) / this->NumberOfComponents + 1))
     {

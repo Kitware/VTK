@@ -581,7 +581,7 @@ bool vtkCellArray::DefaultStorageIs64Bit = false;
 vtkIdType vtkCellArray::GetSize()
 {
   // We can still compute roughly the same result, so go ahead and do that.
-  return this->GetOffsetsArray()->GetSize() + this->GetConnectivityArray()->GetSize();
+  return this->GetOffsetsArray()->GetCapacity() + this->GetConnectivityArray()->GetCapacity();
 }
 
 //------------------------------------------------------------------------------

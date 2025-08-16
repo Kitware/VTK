@@ -1763,7 +1763,7 @@ protected:
     vtkIdType numValues = numTuples * this->GetNumberOfComponents();
     if (this->Buffer->Allocate(numValues))
     {
-      this->Size = this->Buffer->GetSize();
+      this->Capacity = this->Buffer->GetSize();
       return true;
     }
     return false;
@@ -1772,7 +1772,7 @@ protected:
   {
     if (this->Buffer->Reallocate(numTuples * this->GetNumberOfComponents()))
     {
-      this->Size = this->Buffer->GetSize();
+      this->Capacity = this->Buffer->GetSize();
       return true;
     }
     return false;

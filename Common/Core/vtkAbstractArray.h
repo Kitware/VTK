@@ -94,7 +94,7 @@ public:
    * Allocate memory for this array. Delete old storage only if necessary.
    * Note that ext is no longer used.
    * This method will reset MaxId to -1 and resize the array capacity such that
-   * this->Size >= numValues.
+   * this->Capacity >= numValues.
    * If numValues is 0, all memory will be freed.
    * Return 1 on success, 0 on failure.
    */
@@ -357,7 +357,7 @@ public:
    * Get the capacity of the array.  This returns the number of value slots
    * in the array's allocated storage.
    */
-  vtkIdType GetSize() const { return this->Size; }
+  vtkIdType GetCapacity() const { return this->Capacity; }
 
   /**
    * What is the maximum id currently in the array.
@@ -726,6 +726,12 @@ public:
   }
   ///@}
 
+  /**
+   * Deprecated method to get the array capacity, use GetCapacity() instead.
+   */
+  VTK_DEPRECATED_IN_9_7_0("Use GetCapacity() instead")
+  vtkIdType GetSize() const { return this->GetCapacity(); }
+
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkAbstractArray();
@@ -751,7 +757,9 @@ protected:
    */
   virtual void UpdateDiscreteValueSet(double uncertainty, double minProminence);
 
-  vtkIdType Size;         // allocated size of data
+  vtkIdType& Size VTK_DEPRECATED_IN_9_7_0("Use Capacity instead");
+
+  vtkIdType Capacity;     // allocated capacity of the array
   vtkIdType MaxId;        // maximum index inserted thus far
   int NumberOfComponents; // the number of components per tuple
 

@@ -260,13 +260,6 @@ public:
   /**@}*/
 
   /**
-   * Return the capacity in typeof T units of the current array.
-   * Leftover from vtkDataArrayTemplate, redundant with GetSize.
-   */
-  VTK_DEPRECATED_IN_9_6_0("Use GetSize() instead")
-  vtkIdType Capacity() { return this->Size; }
-
-  /**
    * Set component @a comp of all tuples to @a value.
    */
   virtual void FillTypedComponent(int compIdx, ValueType value);

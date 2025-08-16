@@ -164,7 +164,7 @@ void vtkDataArray::InsertTuple(
   vtkIdType dstTupleIdx, vtkIdType srcTupleIdx, vtkAbstractArray* source)
 {
   vtkIdType newSize = (dstTupleIdx + 1) * this->NumberOfComponents;
-  if (this->Size < newSize)
+  if (this->Capacity < newSize)
   {
     if (!this->Resize(dstTupleIdx + 1))
     {
@@ -692,7 +692,7 @@ unsigned long vtkDataArray::GetActualMemorySize() const
   double size;
   // The allocated array may be larger than the number of primitives used.
   // numPrims = this->GetNumberOfTuples() * this->GetNumberOfComponents();
-  numPrims = this->GetSize();
+  numPrims = this->GetCapacity();
 
   size = vtkDataArray::GetDataTypeSize(this->GetDataType());
 
@@ -1099,7 +1099,7 @@ void vtkDataArray::PrintSelf(ostream& os, vtkIndent indent)
   }
   os << indent << "Number Of Components: " << this->NumberOfComponents << "\n";
   os << indent << "Number Of Tuples: " << this->GetNumberOfTuples() << "\n";
-  os << indent << "Size: " << this->Size << "\n";
+  os << indent << "Capacity: " << this->Capacity << "\n";
   os << indent << "MaxId: " << this->MaxId << "\n";
   if (this->LookupTable)
   {

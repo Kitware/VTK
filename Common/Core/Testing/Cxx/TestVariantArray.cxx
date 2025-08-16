@@ -122,25 +122,25 @@ int TestVariantArray(int, char*[])
   // * void SetArray(vtkVariant* arr, vtkIdType size, int save);
 
   arr->Allocate(1000);
-  if (arr->GetSize() != 1000 || arr->GetNumberOfTuples() != 0)
+  if (arr->GetCapacity() != 1000 || arr->GetNumberOfTuples() != 0)
   {
-    std::cerr << "1) size (" << arr->GetSize() << ") should be 1000, "
+    std::cerr << "1) Capacity (" << arr->GetCapacity() << ") should be 1000, "
               << "tuples (" << arr->GetNumberOfTuples() << ") should be 0." << std::endl;
     return EXIT_FAILURE;
   }
 
   arr->SetNumberOfValues(2000);
-  if (arr->GetSize() != 3000 || arr->GetNumberOfTuples() != 2000)
+  if (arr->GetCapacity() != 3000 || arr->GetNumberOfTuples() != 2000)
   {
-    std::cerr << "2) size (" << arr->GetSize() << ") should be 3000, "
+    std::cerr << "2) Capacity (" << arr->GetCapacity() << ") should be 3000, "
               << "tuples (" << arr->GetNumberOfTuples() << ") should be 2000." << std::endl;
     return EXIT_FAILURE;
   }
 
   arr->Initialize();
-  if (arr->GetSize() != 0 || arr->GetNumberOfTuples() != 0)
+  if (arr->GetCapacity() != 0 || arr->GetNumberOfTuples() != 0)
   {
-    std::cerr << "3) size (" << arr->GetSize() << ") should be 0, "
+    std::cerr << "3) Capacity (" << arr->GetCapacity() << ") should be 0, "
               << "tuples (" << arr->GetNumberOfTuples() << ") should be 0." << std::endl;
     return EXIT_FAILURE;
   }
@@ -148,50 +148,50 @@ int TestVariantArray(int, char*[])
   arr->SetNumberOfComponents(3);
 
   arr->SetNumberOfTuples(1000);
-  if (arr->GetSize() != 3000 || arr->GetNumberOfTuples() != 1000)
+  if (arr->GetCapacity() != 3000 || arr->GetNumberOfTuples() != 1000)
   {
-    std::cerr << "4) size (" << arr->GetSize() << ") should be 3000, "
+    std::cerr << "4) Capacity (" << arr->GetCapacity() << ") should be 3000, "
               << "tuples (" << arr->GetNumberOfTuples() << ") should be 1000." << std::endl;
     return EXIT_FAILURE;
   }
 
   arr->SetNumberOfTuples(500);
-  if (arr->GetSize() != 1500 || arr->GetNumberOfTuples() != 500)
+  if (arr->GetCapacity() != 1500 || arr->GetNumberOfTuples() != 500)
   {
-    std::cerr << "5) size (" << arr->GetSize() << ") should be 1500, "
+    std::cerr << "5) Capacity (" << arr->GetCapacity() << ") should be 1500, "
               << "tuples (" << arr->GetNumberOfTuples() << ") should be 500." << std::endl;
     return EXIT_FAILURE;
   }
 
   arr->Squeeze();
-  if (arr->GetSize() != 1500 || arr->GetNumberOfTuples() != 500)
+  if (arr->GetCapacity() != 1500 || arr->GetNumberOfTuples() != 500)
   {
-    std::cerr << "6) size (" << arr->GetSize() << ") should be 1500, "
+    std::cerr << "6) Capacity (" << arr->GetCapacity() << ") should be 1500, "
               << "tuples (" << arr->GetNumberOfTuples() << ") should be 500." << std::endl;
     return EXIT_FAILURE;
   }
 
   arr->SetNumberOfTuples(1000);
-  if (arr->GetSize() != 4500 || arr->GetNumberOfTuples() != 1000)
+  if (arr->GetCapacity() != 4500 || arr->GetNumberOfTuples() != 1000)
   {
-    std::cerr << "7) size (" << arr->GetSize() << ") should be 4500, "
+    std::cerr << "7) Capacity (" << arr->GetCapacity() << ") should be 4500, "
               << "tuples (" << arr->GetNumberOfTuples() << ", should be 1000." << std::endl;
     return EXIT_FAILURE;
   }
 
   arr->Resize(500);
-  if (arr->GetSize() != 1500 || arr->GetNumberOfTuples() != 500)
+  if (arr->GetCapacity() != 1500 || arr->GetNumberOfTuples() != 500)
   {
-    std::cerr << "8) size=" << arr->GetSize() << ", should be 1500, "
+    std::cerr << "8) Capacity=" << arr->GetCapacity() << ", should be 1500, "
               << "tuples=" << arr->GetNumberOfTuples() << ", should be 500." << std::endl;
     return EXIT_FAILURE;
   }
 
   vtkVariant* userArray = new vtkVariant[3000];
   arr->SetVoidArray(reinterpret_cast<void*>(userArray), 3000, 0);
-  if (arr->GetSize() != 3000 || arr->GetNumberOfTuples() != 1000)
+  if (arr->GetCapacity() != 3000 || arr->GetNumberOfTuples() != 1000)
   {
-    std::cerr << "9) size=" << arr->GetSize() << ", should be 3000, "
+    std::cerr << "9) Capacity=" << arr->GetCapacity() << ", should be 3000, "
               << "tuples=" << arr->GetNumberOfTuples() << ", should be 1000." << std::endl;
     return EXIT_FAILURE;
   }

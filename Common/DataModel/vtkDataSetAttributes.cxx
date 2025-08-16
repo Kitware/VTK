@@ -903,7 +903,7 @@ void vtkDataSetAttributes::CopyData(
     {
       // This ensures thread safetiness in `InsertTuples` calls that will be performed in parallel.
       vtkAbstractArray* array = this->GetAbstractArray(this->TargetIndices[i]);
-      if (numberOfTuples > array->GetSize() / array->GetNumberOfComponents())
+      if (numberOfTuples > array->GetCapacity() / array->GetNumberOfComponents())
       {
         array->Resize(numberOfTuples); // this preserves already existing data
       }
@@ -942,7 +942,7 @@ void vtkDataSetAttributes::CopyData(
     {
       // This ensures thread safetiness in `InsertTuples` calls that will be performed in parallel.
       vtkAbstractArray* array = this->GetAbstractArray(this->TargetIndices[i]);
-      if (numberOfTuples > array->GetSize() / array->GetNumberOfComponents())
+      if (numberOfTuples > array->GetCapacity() / array->GetNumberOfComponents())
       {
         array->Resize(numberOfTuples); // this preserves already existing data
       }
@@ -980,7 +980,7 @@ void vtkDataSetAttributes::CopyData(
     {
       // This ensures thread safetiness in `InsertTuples` calls that will be performed in parallel.
       vtkAbstractArray* array = this->GetAbstractArray(this->TargetIndices[i]);
-      if (numberOfTuples > array->GetSize() / array->GetNumberOfComponents())
+      if (numberOfTuples > array->GetCapacity() / array->GetNumberOfComponents())
       {
         array->Resize(numberOfTuples); // this preserves already existing data
       }

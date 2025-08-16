@@ -438,9 +438,9 @@ vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Allocate(
 {
   // Allocator must update this->MaxId properly.
   this->MaxId = -1;
-  if (size > this->Size || size == 0)
+  if (size > this->Capacity || size == 0)
   {
-    this->Size = 0;
+    this->Capacity = 0;
 
     // let's keep the size an integral multiple of the number of components.
     size = size < 0 ? 0 : size;
@@ -461,7 +461,7 @@ vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Allocate(
       return 0;
 #endif
     }
-    this->Size = numTuples * numComps;
+    this->Capacity = numTuples * numComps;
   }
   this->DataChanged();
   return 1;
@@ -472,7 +472,7 @@ template <class DerivedT, class ValueTypeT, int ArrayType>
 vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Resize(vtkIdType numTuples)
 {
   int numComps = this->GetNumberOfComponents();
-  vtkIdType curNumTuples = this->Size / (numComps > 0 ? numComps : 1);
+  vtkIdType curNumTuples = this->Capacity / (numComps > 0 ? numComps : 1);
   if (numTuples > curNumTuples)
   {
     // Requested size is bigger than current size.  Allocate enough
@@ -510,12 +510,12 @@ vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Resize(vtkIdTy
   }
 
   // Allocation was successful. Save it.
-  this->Size = numTuples * numComps;
+  this->Capacity = numTuples * numComps;
 
   // Update MaxId if we truncated:
-  if ((this->Size - 1) < this->MaxId)
+  if ((this->Capacity - 1) < this->MaxId)
   {
-    this->MaxId = (this->Size - 1);
+    this->MaxId = (this->Capacity - 1);
   }
 
   return 1;
@@ -641,7 +641,7 @@ void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTuples(
   }
 
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
-  if (this->Size < newSize)
+  if (this->Capacity < newSize)
   {
     if (!this->Resize(maxDstTupleId + 1))
     {
@@ -713,7 +713,7 @@ void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTuplesStartingA
   }
 
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
-  if (this->Size < newSize)
+  if (this->Capacity < newSize)
   {
     if (!this->Resize(maxDstTupleId + 1))
     {
@@ -908,7 +908,7 @@ template <class DerivedT, class ValueTypeT, int ArrayType>
 vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertNextValue(ValueType value)
 {
   vtkIdType nextValueIdx = this->MaxId + 1;
-  if (nextValueIdx >= this->Size)
+  if (nextValueIdx >= this->Capacity)
   {
     vtkIdType tuple = nextValueIdx / this->NumberOfComponents;
     this->EnsureAccessToTuple(tuple);
@@ -1083,7 +1083,7 @@ bool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::EnsureAccessToTuple(v
   vtkIdType expectedMaxId = minSize - 1;
   if (this->MaxId < expectedMaxId)
   {
-    if (this->Size < minSize)
+    if (this->Capacity < minSize)
     {
       if (!this->Resize(tupleIdx + 1))
       {

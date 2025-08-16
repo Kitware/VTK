@@ -89,7 +89,7 @@ bool vtkStringArray::AllocateTuples(vtkIdType numTuples)
   vtkIdType numValues = numTuples * this->GetNumberOfComponents();
   if (this->Buffer->Allocate(numValues))
   {
-    this->Size = this->Buffer->GetSize();
+    this->Capacity = this->Buffer->GetSize();
     return true;
   }
   return false;
@@ -99,14 +99,14 @@ bool vtkStringArray::AllocateTuples(vtkIdType numTuples)
 bool vtkStringArray::ReallocateTuples(vtkIdType numTuples)
 {
   vtkIdType newSize = numTuples * this->GetNumberOfComponents();
-  if (newSize == this->Size)
+  if (newSize == this->Capacity)
   {
     return true;
   }
 
   if (this->Buffer->Reallocate(newSize))
   {
-    this->Size = this->Buffer->GetSize();
+    this->Capacity = this->Buffer->GetSize();
     // Notify observers that the buffer may have changed
     this->InvokeEvent(vtkCommand::BufferChangedEvent);
     return true;
@@ -125,7 +125,7 @@ bool vtkStringArray::EnsureAccessToTuple(vtkIdType tupleIdx)
   vtkIdType expectedMaxId = minSize - 1;
   if (this->MaxId < expectedMaxId)
   {
-    if (this->Size < minSize)
+    if (this->Capacity < minSize)
     {
       if (!this->Resize(tupleIdx + 1))
       {
@@ -189,8 +189,8 @@ void vtkStringArray::SetArray(ValueType* array, vtkIdType size, int save, int de
     this->Buffer->SetFreeFunction(save != 0, free);
   }
 
-  this->Size = size;
-  this->MaxId = this->Size - 1;
+  this->Capacity = size;
+  this->MaxId = this->Capacity - 1;
   this->DataChanged();
 }
 
@@ -207,9 +207,9 @@ vtkTypeBool vtkStringArray::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
 {
   // Allocator must update this->MaxId properly.
   this->MaxId = -1;
-  if (size > this->Size || size == 0)
+  if (size > this->Capacity || size == 0)
   {
-    this->Size = 0;
+    this->Capacity = 0;
 
     // let's keep the size an integral multiple of the number of components.
     size = size < 0 ? 0 : size;
@@ -230,7 +230,7 @@ vtkTypeBool vtkStringArray::Allocate(vtkIdType size, vtkIdType vtkNotUsed(ext))
       return 0;
 #endif
     }
-    this->Size = numTuples * numComps;
+    this->Capacity = numTuples * numComps;
   }
   this->DataChanged();
   return 1;
@@ -307,7 +307,7 @@ void vtkStringArray::ShallowCopy(vtkAbstractArray* src)
   vtkStringArray* o = vtkStringArray::FastDownCast(src);
   if (o)
   {
-    this->Size = o->Size;
+    this->Capacity = o->Capacity;
     this->MaxId = o->MaxId;
     this->SetName(o->Name);
     this->SetNumberOfComponents(o->NumberOfComponents);
@@ -405,7 +405,7 @@ void vtkStringArray::PrintSelf(ostream& os, vtkIndent indent)
 vtkTypeBool vtkStringArray::Resize(vtkIdType numTuples)
 {
   int numComps = this->GetNumberOfComponents();
-  vtkIdType curNumTuples = this->Size / (numComps > 0 ? numComps : 1);
+  vtkIdType curNumTuples = this->Capacity / (numComps > 0 ? numComps : 1);
   if (numTuples > curNumTuples)
   {
     // Requested size is bigger than current size.  Allocate enough
@@ -443,10 +443,10 @@ vtkTypeBool vtkStringArray::Resize(vtkIdType numTuples)
   }
 
   // Allocation was successful. Save it.
-  this->Size = numTuples * numComps;
+  this->Capacity = numTuples * numComps;
 
   // Update MaxId if we truncated:
-  this->MaxId = std::min(this->Size - 1, this->MaxId);
+  this->MaxId = std::min(this->Capacity - 1, this->MaxId);
 
   return 1;
 }
@@ -455,7 +455,7 @@ vtkTypeBool vtkStringArray::Resize(vtkIdType numTuples)
 vtkStringArray::ValueType* vtkStringArray::WritePointer(vtkIdType valueIdx, vtkIdType numValues)
 {
   vtkIdType newSize = valueIdx + numValues;
-  if (newSize > this->Size)
+  if (newSize > this->Capacity)
   {
     if (!this->Resize(newSize / this->NumberOfComponents + 1))
     {
@@ -490,7 +490,7 @@ void vtkStringArray::InsertValue(vtkIdType valueIdx, ValueType value)
 vtkIdType vtkStringArray::InsertNextValue(ValueType value)
 {
   vtkIdType nextValueIdx = this->MaxId + 1;
-  if (nextValueIdx >= this->Size)
+  if (nextValueIdx >= this->Capacity)
   {
     vtkIdType tuple = nextValueIdx / this->NumberOfComponents;
     this->EnsureAccessToTuple(tuple);
@@ -517,7 +517,7 @@ int vtkStringArray::GetDataTypeSize() const
 unsigned long vtkStringArray::GetActualMemorySize() const
 {
   size_t totalSize = 0;
-  size_t numPrims = static_cast<size_t>(this->GetSize());
+  size_t numPrims = static_cast<size_t>(this->GetCapacity());
 
   for (size_t i = 0; i < numPrims; ++i)
   {
@@ -634,7 +634,7 @@ void vtkStringArray::InsertTuples(vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstr
   }
 
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
-  if (this->Size < newSize)
+  if (this->Capacity < newSize)
   {
     if (!this->Resize(maxDstTupleId + 1))
     {
@@ -704,7 +704,7 @@ void vtkStringArray::InsertTuplesStartingAt(
   }
 
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
-  if (this->Size < newSize)
+  if (this->Capacity < newSize)
   {
     if (!this->Resize(maxDstTupleId + 1))
     {
@@ -769,7 +769,7 @@ void vtkStringArray::InsertTuples(
   }
 
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
-  if (this->Size < newSize)
+  if (this->Capacity < newSize)
   {
     if (!this->Resize(maxDstTupleId + 1))
     {

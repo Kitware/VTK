@@ -36,7 +36,7 @@ void vtkPeriodicDataArray<Scalar>::Initialize()
   }
 
   this->MaxId = -1;
-  this->Size = 0;
+  this->Capacity = 0;
   this->Normalize = false;
   this->Modified();
 }
@@ -53,7 +53,7 @@ void vtkPeriodicDataArray<Scalar>::InitializeArray(vtkAOSDataArrayTemplate<Scala
   }
 
   this->NumberOfComponents = data->GetNumberOfComponents();
-  this->Size = data->GetSize();
+  this->Capacity = data->GetCapacity();
   this->MaxId = data->GetMaxId();
   this->Data = data;
   this->Data->Register(nullptr);
@@ -696,7 +696,7 @@ vtkPeriodicDataArray<Scalar>::vtkPeriodicDataArray()
   this->TempTupleIdx = -1;
   this->Data = nullptr;
   this->MaxId = -1;
-  this->Size = 0;
+  this->Capacity = 0;
 
   this->InvalidRange = true;
   this->Normalize = false;
