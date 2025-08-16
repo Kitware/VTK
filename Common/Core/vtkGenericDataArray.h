@@ -56,7 +56,8 @@
 
 #include "vtkDataArray.h"
 
-#include "vtkCompiler.h" // for VTK_USE_EXTERN_TEMPLATE
+#include "vtkCompiler.h"    // for VTK_USE_EXTERN_TEMPLATE
+#include "vtkDeprecation.h" // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkGenericDataArrayLookupHelper.h"
 #include "vtkSmartPointer.h"
 #include "vtkTypeTraits.h"
@@ -251,8 +252,9 @@ public:
 
   /**
    * Return the capacity in typeof T units of the current array.
-   * TODO Leftover from vtkDataArrayTemplate, redundant with GetSize. Deprecate?
+   * Leftover from vtkDataArrayTemplate, redundant with GetSize.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use GetSize() instead")
   vtkIdType Capacity() { return this->Size; }
 
   /**
