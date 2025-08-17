@@ -268,7 +268,7 @@ int vtkHigherOrderWedge::CellBoundary(
   // We do not try to evaluate the exactly closest face in world
   // coordinates as that would be too slow to be useful and
   // too chaotic to be numerically stable.
-  const double separatrixNormals[9][3] = {
+  constexpr double separatrixNormals[9][3] = {
     { 0.00000, 0.70711, -0.70711 },   // face 0-2
     { -0.40825, -0.40825, -0.81650 }, // face 0-3
     { 0.70711, 0.00000, -0.70711 },   // face 0-4
@@ -281,7 +281,7 @@ int vtkHigherOrderWedge::CellBoundary(
     { 0.94868, 0.31623, 0.00000 },   // face 3-4
     { -0.70711, 0.70711, 0.00000 }   // face 4-2
   };
-  const double basepoints[3][3] = {
+  constexpr double basepoints[3][3] = {
     { 0.25000, 0.25000, 0.25000 }, // face 0-[234]
     { 0.25000, 0.25000, 0.75000 }, // face 1-[234]
     { 0.25000, 0.25000, 0.50000 }  // face [234]-[342]
@@ -1043,7 +1043,7 @@ vtkWedge* vtkHigherOrderWedge::GetApproximateWedge(
   // in the approximating wedge spanning half of (i, i+1) x (j, j+1) x (k, k+1):
   // vtkIdType aconn[8]; // = {0, 1, 2, 3, 4, 5, 6, 7};
   // std::cout << "Wedgeproximate " << subId << "\n";
-  const int deltas[2][3][2] = {
+  constexpr int deltas[2][3][2] = {
     { { 0, 0 }, { 1, 0 }, { 0, 1 } }, // positive orientation: r, s axes increase as i, j increase
     { { 1, 1 }, { 0, 1 }, { 1, 0 } }  // negative orientation: r, s axes decrease as i, j increase
   };

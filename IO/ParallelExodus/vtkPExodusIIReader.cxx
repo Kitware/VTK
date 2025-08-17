@@ -33,22 +33,22 @@
 #define vtkPExodusIIReaderMAXPATHLEN 2048
 
 VTK_ABI_NAMESPACE_BEGIN
-static const int objTypes[] = { vtkExodusIIReader::EDGE_BLOCK, vtkExodusIIReader::FACE_BLOCK,
+static constexpr int objTypes[] = { vtkExodusIIReader::EDGE_BLOCK, vtkExodusIIReader::FACE_BLOCK,
   vtkExodusIIReader::ELEM_BLOCK, vtkExodusIIReader::NODE_SET, vtkExodusIIReader::EDGE_SET,
   vtkExodusIIReader::FACE_SET, vtkExodusIIReader::SIDE_SET, vtkExodusIIReader::ELEM_SET,
   vtkExodusIIReader::NODE_MAP, vtkExodusIIReader::EDGE_MAP, vtkExodusIIReader::FACE_MAP,
   vtkExodusIIReader::ELEM_MAP };
-static const int numObjTypes = sizeof(objTypes) / sizeof(objTypes[0]);
+static constexpr int numObjTypes = sizeof(objTypes) / sizeof(objTypes[0]);
 
-static const int objResultTypes[] = { vtkExodusIIReader::NODAL, vtkExodusIIReader::EDGE_BLOCK,
+static constexpr int objResultTypes[] = { vtkExodusIIReader::NODAL, vtkExodusIIReader::EDGE_BLOCK,
   vtkExodusIIReader::FACE_BLOCK, vtkExodusIIReader::ELEM_BLOCK, vtkExodusIIReader::NODE_SET,
   vtkExodusIIReader::EDGE_SET, vtkExodusIIReader::FACE_SET, vtkExodusIIReader::SIDE_SET,
   vtkExodusIIReader::ELEM_SET, vtkExodusIIReader::GLOBAL };
-static const int numObjResultTypes = sizeof(objResultTypes) / sizeof(objResultTypes[0]);
+static constexpr int numObjResultTypes = sizeof(objResultTypes) / sizeof(objResultTypes[0]);
 
-static const int objAttribTypes[] = { vtkExodusIIReader::EDGE_BLOCK, vtkExodusIIReader::FACE_BLOCK,
-  vtkExodusIIReader::ELEM_BLOCK };
-static const int numObjAttribTypes = sizeof(objAttribTypes) / sizeof(objAttribTypes[0]);
+static constexpr int objAttribTypes[] = { vtkExodusIIReader::EDGE_BLOCK,
+  vtkExodusIIReader::FACE_BLOCK, vtkExodusIIReader::ELEM_BLOCK };
+static constexpr int numObjAttribTypes = sizeof(objAttribTypes) / sizeof(objAttribTypes[0]);
 
 vtkStandardNewMacro(vtkPExodusIIReader);
 

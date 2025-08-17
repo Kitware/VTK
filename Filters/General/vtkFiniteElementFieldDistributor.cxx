@@ -1998,7 +1998,7 @@ int vtkFiniteElementFieldDistributor::RequestData(vtkInformation* vtkNotUsed(req
       newFd->DeepCopy(oldFd);
 
       // explode geometry, interpolate fields.
-      const double progressGranularity = 0.1;
+      constexpr double progressGranularity = 0.1;
       const vtkIdType nCells = oldCells->GetNumberOfCells();
       const vtkIdType reportEveryNCells = progressGranularity * nCells;
       for (vtkIdType c = 0; c < nCells && !abortNow; ++c)

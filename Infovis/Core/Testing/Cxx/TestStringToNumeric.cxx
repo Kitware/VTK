@@ -129,7 +129,7 @@ int WhitespaceAndEmptyCellsTest()
 
   // Setup the vtkStringToNumeric which is under test
   vtkNew<vtkStringToNumeric> numeric;
-  int const defaultIntValue = 100;
+  constexpr int defaultIntValue = 100;
   numeric->SetDefaultIntegerValue(defaultIntValue);
   numeric->SetDefaultDoubleValue(vtkMath::Nan());
   numeric->SetTrimWhitespacePriorToNumericConversion(true);

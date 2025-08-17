@@ -94,17 +94,17 @@ int TestMultiCorrelativeStatistics(int, char*[])
   };
   int nVals = 33;
 
-  const char m0Name[] = "M0";
+  constexpr char m0Name[] = "M0";
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
   dataset1Arr->SetNumberOfComponents(1);
   dataset1Arr->SetName(m0Name);
 
-  const char m1Name[] = "M1";
+  constexpr char m1Name[] = "M1";
   vtkDoubleArray* dataset2Arr = vtkDoubleArray::New();
   dataset2Arr->SetNumberOfComponents(1);
   dataset2Arr->SetName(m1Name);
 
-  const char m2Name[] = "M2";
+  constexpr char m2Name[] = "M2";
   vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
   dataset3Arr->SetNumberOfComponents(1);
   dataset3Arr->SetName(m2Name);

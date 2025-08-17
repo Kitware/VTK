@@ -125,10 +125,10 @@ int TestPlotBarRangeHandlesItem(int, char*[])
   //
   // Moving left handle
   //
-  const char leftEvents[] = "# StreamVersion 1\n"
-                            "LeftButtonPressEvent 0 10 0 0 0 0 0\n"
-                            "MouseMoveEvent 3 10 0 0 0 0 0\n"
-                            "LeftButtonReleaseEvent 3 10 0 0 0 0 0\n";
+  constexpr char leftEvents[] = "# StreamVersion 1\n"
+                                "LeftButtonPressEvent 0 10 0 0 0 0 0\n"
+                                "MouseMoveEvent 3 10 0 0 0 0 0\n"
+                                "LeftButtonReleaseEvent 3 10 0 0 0 0 0\n";
   recorder->SetInputString(leftEvents);
   recorder->Play();
 
@@ -158,10 +158,10 @@ int TestPlotBarRangeHandlesItem(int, char*[])
   // Moving right handle
   //
   cbk->EventSpy.clear();
-  const char rightEvents[] = "# StreamVersion 1\n"
-                             "LeftButtonPressEvent 12 10 0 0 0 0 0\n"
-                             "MouseMoveEvent 10 10 0 0 0 0 0\n"
-                             "LeftButtonReleaseEvent 10 10 0 0 0 0 0\n";
+  constexpr char rightEvents[] = "# StreamVersion 1\n"
+                                 "LeftButtonPressEvent 12 10 0 0 0 0 0\n"
+                                 "MouseMoveEvent 10 10 0 0 0 0 0\n"
+                                 "LeftButtonReleaseEvent 10 10 0 0 0 0 0\n";
   recorder->SetInputString(rightEvents);
   recorder->Play();
 
@@ -206,10 +206,10 @@ int TestPlotBarRangeHandlesItem(int, char*[])
   }
 
   cbk->EventSpy.clear();
-  const char hRightEvents[] = "# StreamVersion 1\n"
-                              "LeftButtonPressEvent 1 12 0 0 0 0 0\n"
-                              "MouseMoveEvent 1 5 0 0 0 0 0\n"
-                              "LeftButtonReleaseEvent 1 5 0 0 0 0 0\n";
+  constexpr char hRightEvents[] = "# StreamVersion 1\n"
+                                  "LeftButtonPressEvent 1 12 0 0 0 0 0\n"
+                                  "MouseMoveEvent 1 5 0 0 0 0 0\n"
+                                  "LeftButtonReleaseEvent 1 5 0 0 0 0 0\n";
   recorder->SetInputString(hRightEvents);
   recorder->Play();
 

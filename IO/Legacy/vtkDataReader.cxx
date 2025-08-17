@@ -548,7 +548,7 @@ int vtkDataReader::ReadHeader(const char* fname)
     this->SetErrorCode(vtkErrorCode::PrematureEndOfFileError);
     return 0;
   }
-  const int VERSION_PREFIX_LENGTH = 22;
+  constexpr int VERSION_PREFIX_LENGTH = 22;
   if (strncmp("# vtk DataFile Version", line, VERSION_PREFIX_LENGTH) != 0)
   {
     vtkErrorMacro(<< "Unrecognized file type: " << line

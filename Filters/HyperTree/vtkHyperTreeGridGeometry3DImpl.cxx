@@ -57,7 +57,7 @@ constexpr unsigned int FACE_OFFSET[] = { 0, 0, 0, 1, 1, 1 };
 
 // Arbitrary default edge index
 // Should be superior to 12, i.e. the number of edges of a given cell
-const unsigned int VTK_DEFAULT_EDGE_INDEX = 42;
+constexpr unsigned int VTK_DEFAULT_EDGE_INDEX = 42;
 }
 
 //------------------------------------------------------------------------------

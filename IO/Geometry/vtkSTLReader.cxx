@@ -231,7 +231,7 @@ bool vtkSTLReader::ReadBinarySTL(FILE* fp, vtkPoints* newPts, vtkCellArray* newP
     vtkNew<vtkUnsignedCharArray> binaryHeader;
     this->SetBinaryHeader(binaryHeader);
   }
-  const int headerSize = 80;                             // fixed in STL file format
+  constexpr int headerSize = 80;                         // fixed in STL file format
   this->BinaryHeader->SetNumberOfValues(headerSize + 1); // allocate +1 byte for zero termination)
   this->BinaryHeader->FillValue(0);
   if (fread(this->BinaryHeader->GetVoidPointer(0), 1, headerSize, fp) != headerSize)

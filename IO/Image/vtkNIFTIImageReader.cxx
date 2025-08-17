@@ -501,7 +501,7 @@ int vtkNIFTIImageReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   nifti_1_header* hdr1 = new nifti_1_header;
   nifti_2_header hdr2obj;
   nifti_2_header* hdr2 = &hdr2obj;
-  const int hsize = vtkNIFTIImageHeader::NIFTI1HeaderSize;
+  constexpr int hsize = vtkNIFTIImageHeader::NIFTI1HeaderSize;
   int rsize = gzread(file, hdr1, hsize);
   if (rsize == hsize)
   {
@@ -509,7 +509,7 @@ int vtkNIFTIImageReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     if (niftiVersion >= 2)
     {
       // the header was a NIFTIv2 header
-      const int h2size = vtkNIFTIImageHeader::NIFTI2HeaderSize;
+      constexpr int h2size = vtkNIFTIImageHeader::NIFTI2HeaderSize;
       // copy what was read into the NIFTIv1 header
       memcpy(hdr2, hdr1, hsize);
       // read the remainder of the NIFTIv2 header
@@ -908,7 +908,7 @@ int vtkNIFTIImageReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     // If any matrix values are close to zero, then they should actually
     // be zero but aren't due to limited numerical precision in the
     // quaternion-to-matrix conversion.
-    const double tol = 2.384185791015625e-07; // 2**-22
+    constexpr double tol = 2.384185791015625e-07; // 2**-22
     for (int i = 0; i < 3; i++)
     {
       for (int j = 0; j < 3; j++)

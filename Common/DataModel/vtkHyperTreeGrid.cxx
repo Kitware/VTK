@@ -1606,20 +1606,20 @@ vtkHyperTree* vtkHyperTreeGrid::vtkHyperTreeGridIterator::GetNextTree()
 
 //=============================================================================
 // Hard-coded child mask bitcodes
-static const unsigned int HyperTreeGridMask_1_2[2] = { 0x80000000, 0x20000000 };
+static constexpr unsigned int HyperTreeGridMask_1_2[2] = { 0x80000000, 0x20000000 };
 
-static const unsigned int HyperTreeGridMask_1_3[3] = { 0x80000000, 0x40000000, 0x20000000 };
+static constexpr unsigned int HyperTreeGridMask_1_3[3] = { 0x80000000, 0x40000000, 0x20000000 };
 
-static const unsigned int HyperTreeGridMask_2_2[4] = { 0xd0000000, 0x64000000, 0x13000000,
+static constexpr unsigned int HyperTreeGridMask_2_2[4] = { 0xd0000000, 0x64000000, 0x13000000,
   0x05800000 };
 
-static const unsigned int HyperTreeGridMask_2_3[9] = { 0xd0000000, 0x40000000, 0x64000000,
+static constexpr unsigned int HyperTreeGridMask_2_3[9] = { 0xd0000000, 0x40000000, 0x64000000,
   0x10000000, 0x08000000, 0x04000000, 0x13000000, 0x01000000, 0x05800000 };
 
-static const unsigned int HyperTreeGridMask_3_2[8] = { 0xd8680000, 0x6c320000, 0x1b098000,
+static constexpr unsigned int HyperTreeGridMask_3_2[8] = { 0xd8680000, 0x6c320000, 0x1b098000,
   0x0d82c000, 0x00683600, 0x00321b00, 0x000986c0, 0x0002c360 };
 
-static const unsigned int HyperTreeGridMask_3_3[27] = { 0xd8680000, 0x48200000, 0x6c320000,
+static constexpr unsigned int HyperTreeGridMask_3_3[27] = { 0xd8680000, 0x48200000, 0x6c320000,
   0x18080000, 0x08000000, 0x0c020000, 0x1b098000, 0x09008000, 0x0d82c000, 0x00680000, 0x00200000,
   0x00320000, 0x00080000, 0x00040000, 0x00020000, 0x00098000, 0x00008000, 0x0002c000, 0x00683600,
   0x00201200, 0x00321b00, 0x00080600, 0x00000200, 0x00020300, 0x000986c0, 0x00008240, 0x0002c360 };

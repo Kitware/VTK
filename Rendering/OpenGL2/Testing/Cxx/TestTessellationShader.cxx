@@ -150,10 +150,10 @@ void main()
 }
 )";
 
-const float ambient[3] = { 0.04, 0.04, 0.04 };
-const float diffuse[3] = { 1.0, 0.388, 0.27 };
-const float lightPosition[3] = { 0.25, 0.25, 1. };
-const float lightIntensity = 1.5;
+constexpr float ambient[3] = { 0.04, 0.04, 0.04 };
+constexpr float diffuse[3] = { 1.0, 0.388, 0.27 };
+constexpr float lightPosition[3] = { 0.25, 0.25, 1. };
+constexpr float lightIntensity = 1.5;
 
 class TesselationDrawCommand : public vtkCallbackCommand
 {

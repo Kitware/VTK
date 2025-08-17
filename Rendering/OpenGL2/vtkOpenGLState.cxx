@@ -269,7 +269,7 @@ namespace
 {
 bool reportOpenGLErrors(std::string& result)
 {
-  const int maxErrors = 16;
+  constexpr int maxErrors = 16;
   unsigned int errCode[maxErrors] = { 0 };
   const char* errDesc[maxErrors] = { nullptr };
 

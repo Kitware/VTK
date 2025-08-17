@@ -36,7 +36,7 @@
 #include <iostream>
 #include <list>
 
-const char eventLogTestPickingManagerSeedWidget2[] =
+constexpr char eventLogTestPickingManagerSeedWidget2[] =
   ""
   "# StreamVersion 1\n"
   "EnterEvent 599 295 0 0 0 0 0\n"
@@ -191,7 +191,7 @@ int TestPickingManagerSeedWidget2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[]
 
   // Create a cube full of seeds
   // base correspond to the side of the cube --> (2*base)^3 seeds
-  const int baseCube = 2;
+  constexpr int baseCube = 2;
   std::list<vtkSmartPointer<vtkHandleWidget>> seeds;
   for (int i = -baseCube; i < baseCube; ++i)
   {

@@ -1708,7 +1708,7 @@ int vtkMPASReader::AllocSphericalGeometry()
 
 int vtkMPASReader::AllocProjectedGeometry()
 {
-  const float BLOATFACTOR = .5;
+  constexpr float BLOATFACTOR = .5;
   this->ModNumPoints = (int)floor(this->NumberOfPoints * (1.0 + BLOATFACTOR));
   this->ModNumCells = (int)floor(this->NumberOfCells * (1.0 + BLOATFACTOR)) + 1;
 
@@ -2014,7 +2014,7 @@ void vtkMPASReader::FixPoints()
     {
       // BUG FIX for problem where cells are stretching to a faraway point
       size_t lastk = this->PointsPerCell - 1;
-      const double thresh = .06981317007977; // 4 degrees
+      constexpr double thresh = .06981317007977; // 4 degrees
       for (size_t k = 0; k < this->PointsPerCell; k++)
       {
         double ydiff = std::abs(this->PointY[conns[k]] - this->PointY[conns[lastk]]);
@@ -2078,7 +2078,7 @@ int vtkMPASReader::EliminateXWrap()
       return 0;
   }
 
-  const double tolerance = 5.5;
+  constexpr double tolerance = 5.5;
 
   // For each cell, examine vertices
   // Add new points and cells where needed to account for wraparound.

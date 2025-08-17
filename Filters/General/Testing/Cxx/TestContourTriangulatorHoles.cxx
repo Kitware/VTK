@@ -27,7 +27,7 @@ int TestContourTriangulatorHoles(int argc, char* argv[])
   vtkNew<vtkTesting> testHelper;
   testHelper->AddArguments(argc, argv);
 
-  const double polys[6][4][3] = {
+  constexpr double polys[6][4][3] = {
     {
       { -100.0, -100.0, 0.0 },
       { +100.0, -100.0, 0.0 },

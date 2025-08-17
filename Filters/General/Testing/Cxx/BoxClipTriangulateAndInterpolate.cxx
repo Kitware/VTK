@@ -21,8 +21,8 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-const int NumImagesX = 6;
-const int NumImagesY = 2;
+constexpr int NumImagesX = 6;
+constexpr int NumImagesY = 2;
 
 static void CreateHex(vtkUnstructuredGrid* hex)
 {
@@ -131,12 +131,12 @@ static void SetClipAsHexahedron(vtkBoxClipDataSet* clip, double xmin, double xma
 {
   double lowPoint[3] = { xmin, ymin, zmin };
   double highPoint[3] = { xmax, ymax, zmax };
-  const double negXVec[3] = { -1.0, 0.0, 0.0 };
-  const double negYVec[3] = { 0.0, -1.0, 0.0 };
-  const double negZVec[3] = { 0.0, 0.0, -1.0 };
-  const double posXVec[3] = { 1.0, 0.0, 0.0 };
-  const double posYVec[3] = { 0.0, 1.0, 0.0 };
-  const double posZVec[3] = { 0.0, 0.0, 1.0 };
+  constexpr double negXVec[3] = { -1.0, 0.0, 0.0 };
+  constexpr double negYVec[3] = { 0.0, -1.0, 0.0 };
+  constexpr double negZVec[3] = { 0.0, 0.0, -1.0 };
+  constexpr double posXVec[3] = { 1.0, 0.0, 0.0 };
+  constexpr double posYVec[3] = { 0.0, 1.0, 0.0 };
+  constexpr double posZVec[3] = { 0.0, 0.0, 1.0 };
 
   clip->SetBoxClip(negXVec, lowPoint, negYVec, lowPoint, negZVec, lowPoint, posXVec, highPoint,
     posYVec, highPoint, posZVec, highPoint);

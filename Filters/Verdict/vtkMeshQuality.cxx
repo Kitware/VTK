@@ -622,8 +622,8 @@ public:
 //----------------------------------------------------------------------------
 void vtkMeshQuality::PrintSelf(ostream& os, vtkIndent indent)
 {
-  const char onStr[] = "On";
-  const char offStr[] = "Off";
+  constexpr char onStr[] = "On";
+  constexpr char offStr[] = "Off";
 
   this->Superclass::PrintSelf(os, indent);
 

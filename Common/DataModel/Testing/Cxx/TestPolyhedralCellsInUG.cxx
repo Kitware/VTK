@@ -88,7 +88,7 @@ bool compare_double(const double x, const double y, const double e)
 // A structured grid is converted to a polyhedral mesh.
 int TestPolyhedralCellsInUG(int argc, char* argv[])
 {
-  const double tol = 0.001;
+  constexpr double tol = 0.001;
   double p1[3] = { -100, 0, 0 };
   double p2[3] = { 100, 0, 0 };
   double t, x[3], pc[3];

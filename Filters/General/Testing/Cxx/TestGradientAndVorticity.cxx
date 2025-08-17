@@ -255,16 +255,16 @@ int PerformTest(vtkDataSet* grid)
   // an analytic function that I know the gradient of
   grid->GetPointData()->Initialize();
   grid->GetCellData()->Initialize();
-  const char fieldName[] = "LinearField";
+  constexpr char fieldName[] = "LinearField";
   int offset = 1;
-  const int numberOfComponents = 3;
+  constexpr int numberOfComponents = 3;
   CreateCellData(grid, numberOfComponents, offset, fieldName);
   CreatePointData(grid, numberOfComponents, offset, fieldName);
 
   VTK_CREATE(vtkGradientFilter, cellGradients);
   cellGradients->SetInputData(grid);
   cellGradients->SetInputScalars(vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
-  const char resultName[] = "Result";
+  constexpr char resultName[] = "Result";
   cellGradients->SetResultArrayName(resultName);
 
   VTK_CREATE(vtkGradientFilter, pointGradients);

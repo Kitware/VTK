@@ -411,7 +411,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     bool mtllibDefined = false;
     { // (make a local scope section to emphasise that the variables below are only used here)
 
-      const int MAX_LINE = 100000;
+      constexpr int MAX_LINE = 100000;
       char rawLine[MAX_LINE];
 
       while (fgets(rawLine, MAX_LINE, in) != nullptr)
@@ -556,7 +556,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
   // -- work through the file line by line, assigning into the above 7 structures as appropriate --
   { // (make a local scope section to emphasise that the variables below are only used here)
 
-    const int MAX_LINE = 100000;
+    constexpr int MAX_LINE = 100000;
     char rawLine[MAX_LINE];
     float xyz[3];
     float col[3];

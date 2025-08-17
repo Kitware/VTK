@@ -63,8 +63,8 @@ bool TestImageNoDirection()
   std::cout << "Testing with no image direction:" << std::endl;
 
   // basic image information
-  const double origin[3] = { 5.1234165, -12.09375, 0.857643 };
-  const double spacing[3] = { 5.0, 2.0, 3.0 };
+  constexpr double origin[3] = { 5.1234165, -12.09375, 0.857643 };
+  constexpr double spacing[3] = { 5.0, 2.0, 3.0 };
   int extent[6] = { 0, 19, 0, 49, 0, 29 };
 
   // the input image
@@ -159,14 +159,14 @@ bool TestImageWithDirection()
   std::cout << "Testing with image direction:" << std::endl;
 
   // basic image information
-  const double origin[3] = { 5.1234165, -12.09375, 0.857643 };
-  const double direction[9] = {
+  constexpr double origin[3] = { 5.1234165, -12.09375, 0.857643 };
+  constexpr double direction[9] = {
     // 3x3 matrix
     -0.5618556200580342, -0.34610201570703625, 0.7513532171573689, // 1st row
     0.826672975724893, -0.2014274000446417, 0.525393941454797,     // 2nd row
     -0.030496777130583796, 0.9163189385987733, 0.39928629997767906 // 3rd row
   };
-  const double spacing[3] = { 5.0, 2.0, 3.0 };
+  constexpr double spacing[3] = { 5.0, 2.0, 3.0 };
   int extent[6] = { 0, 19, 0, 49, 0, 29 };
 
   // the direction matrix

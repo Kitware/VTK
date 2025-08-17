@@ -180,7 +180,7 @@ bool vtkRemoteInteractionAdapter::ProcessEvent(vtkRenderWindowInteractor* iren,
         static double accumulatedDelta = 0;
         const double verticalDelta = event.at("spinY").get<double>();
         accumulatedDelta += verticalDelta;
-        const double threshold = 1.0; // in vtk-js the value comes normalized
+        constexpr double threshold = 1.0; // in vtk-js the value comes normalized
 
         // invoke vtk event when accumulated delta passes the threshold
         // Note: in javascript a forward (away from the user MouseWheelEvent is

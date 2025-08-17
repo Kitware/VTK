@@ -1551,7 +1551,7 @@ vtkAbstractTransform* vtkDelaunay2D::ComputeBestFittingPlane(vtkPointSet* input)
   double normal[3];
   double origin[3];
 
-  const double tolerance = 1.0e-03;
+  constexpr double tolerance = 1.0e-03;
 
   //  This code was taken from the vtkTextureMapToPlane class
   //  and slightly modified.

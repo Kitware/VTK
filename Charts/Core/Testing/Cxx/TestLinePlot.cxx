@@ -15,8 +15,8 @@
 
 #include <string>
 
-static const int NPOINTS = 65;
-static const float INCX = 7.5;
+static constexpr int NPOINTS = 65;
+static constexpr float INCX = 7.5;
 
 class vtkTestSineTableSource : public vtkTableAlgorithm
 {

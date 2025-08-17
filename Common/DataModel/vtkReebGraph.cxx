@@ -1276,7 +1276,7 @@ int vtkReebGraph::Implementation::SimplifyBranches(
 
   int nsimp = 0;
   int cont = 0;
-  const int step = 10000;
+  constexpr int step = 10000;
   bool redo;
 
   vtkDataSet* input = inputMesh;

@@ -208,9 +208,9 @@ void vtkBiQuadraticQuadraticHexahedron::Subdivide(
 }
 
 //------------------------------------------------------------------------------
-static const double VTK_DIVERGED = 1.e6;
-static const int VTK_HEX_MAX_ITERATION = 20;
-static const double VTK_HEX_CONVERGED = 1.e-03;
+static constexpr double VTK_DIVERGED = 1.e6;
+static constexpr int VTK_HEX_MAX_ITERATION = 20;
+static constexpr double VTK_HEX_CONVERGED = 1.e-03;
 
 int vtkBiQuadraticQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPoint[3],
   int& subId, double pcoords[3], double& dist2, double weights[])

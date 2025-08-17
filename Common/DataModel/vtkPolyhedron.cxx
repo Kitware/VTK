@@ -606,8 +606,8 @@ int vtkPolyhedron::IntersectWithLine(const double p1[3], const double p2[3], dou
   return (numHits > 0);
 }
 
-static const int VTK_MAX_ITER = 10; // Maximum iterations for ray-firing
-static const int VTK_VOTE_THRESHOLD = 3;
+static constexpr int VTK_MAX_ITER = 10; // Maximum iterations for ray-firing
+static constexpr int VTK_VOTE_THRESHOLD = 3;
 
 //------------------------------------------------------------------------------
 // Shoot random rays and count the number of intersections
@@ -1844,7 +1844,7 @@ bool GetContourPoints(double value, vtkPolyhedron* cell,
 
   vtkPoints* cellPoints = cell->GetPoints();
 
-  const double eps = 1e-6;
+  constexpr double eps = 1e-6;
 
   double p0[3], p1[3], cp[3]; // left, right and contour point
 

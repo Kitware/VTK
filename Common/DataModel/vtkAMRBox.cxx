@@ -440,7 +440,7 @@ int vtkAMRBox::ComputeStructuredCoordinates(const vtkAMRBox& box, const double d
   vtkAMRBox::GetBounds(box, dataOrigin, h, bounds);
 
   // tolerance is needed for 2D data (this is squared tolerance)
-  const double tol2 = 1e-12;
+  constexpr double tol2 = 1e-12;
 
   //
   //  Compute the ijk location

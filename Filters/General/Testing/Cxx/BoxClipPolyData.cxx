@@ -20,24 +20,24 @@
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
-const double minpoint1[] = { -1.00002, -0.50002, -0.50002 };
-const double maxpoint1[] = { -0.0511337, 0.5, 0.5 };
+constexpr double minpoint1[] = { -1.00002, -0.50002, -0.50002 };
+constexpr double maxpoint1[] = { -0.0511337, 0.5, 0.5 };
 
-const double minpoint2[] = { -3.0, -1.0, -1.0 };
-const double maxpoint2[] = { -1.0, 1.0, 1.0 };
+constexpr double minpoint2[] = { -3.0, -1.0, -1.0 };
+constexpr double maxpoint2[] = { -1.0, 1.0, 1.0 };
 
-const double minpoint3[] = { -3.0, -1.0, 0.0 };
-const double maxpoint3[] = { 0.0, 0.5, 1.0 };
+constexpr double minpoint3[] = { -3.0, -1.0, 0.0 };
+constexpr double maxpoint3[] = { 0.0, 0.5, 1.0 };
 
-const double minusx[] = { -1.0, 0.0, 0.0 };
-const double minusy[] = { 0.0, -1.0, 0.0 };
-const double minusz[] = { 0.0, 0.0, -1.0 };
-const double plusx[] = { 1.0, 0.0, 0.0 };
-const double plusy[] = { 0.0, 1.0, 0.0 };
-const double plusz[] = { 0.0, 0.0, 1.0 };
+constexpr double minusx[] = { -1.0, 0.0, 0.0 };
+constexpr double minusy[] = { 0.0, -1.0, 0.0 };
+constexpr double minusz[] = { 0.0, 0.0, -1.0 };
+constexpr double plusx[] = { 1.0, 0.0, 0.0 };
+constexpr double plusy[] = { 0.0, 1.0, 0.0 };
+constexpr double plusz[] = { 0.0, 0.0, 1.0 };
 
-const int numTriangles = 6;
-const int numTrianglePoints = numTriangles * 3 * 3;
+constexpr int numTriangles = 6;
+constexpr int numTrianglePoints = numTriangles * 3 * 3;
 static double trianglePointData[numTrianglePoints] = { -4.0, -1.0, 0.0, -2.0, -1.0, 0.0, -3.0, -0.5,
   0.0,
 
@@ -53,7 +53,7 @@ static double trianglePointData[numTrianglePoints] = { -4.0, -1.0, 0.0, -2.0, -1
 
 //------------------------------------------------------------------------------
 
-const int numPolySets = 5;
+constexpr int numPolySets = 5;
 
 static void TestPolyData(vtkPolyData* data, int num, vtkRenderWindow* renwin,
   const double minBoxPoint[3], const double maxBoxPoint[3])

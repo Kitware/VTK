@@ -192,7 +192,7 @@ struct SurfaceNets
 
   // Algorithm-derived data for bookkeeping data locations
   // when parallel computing.
-  static const int EdgeMetaDataSize = 5;
+  static constexpr int EdgeMetaDataSize = 5;
   unsigned char* DyadCases;
   vtkIdType DyadDims[2];
   vtkIdType* EdgeMetaData;

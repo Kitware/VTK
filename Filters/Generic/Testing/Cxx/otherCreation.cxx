@@ -146,7 +146,7 @@ int TestEmpty(ostream& strm)
   double bounds[6];
   double center[3];
   double* c;
-  const double epsilon = 0.000001; // 10^{-6}
+  constexpr double epsilon = 0.000001; // 10^{-6}
 
   strm << "GetBounds() start" << endl;
 
@@ -346,7 +346,7 @@ int TestWithPoints(ostream& strm)
   double bounds[6];
   double center[3];
   double* c;
-  const double epsilon = 0.000001; // 10^{-6}
+  constexpr double epsilon = 0.000001; // 10^{-6}
 
   strm << "GetBounds() start" << endl;
 
@@ -805,7 +805,7 @@ int TestWithPointsAndCells(ostream& strm)
   double bounds[6];
   double center[3];
   double* c;
-  const double epsilon = 0.000001; // 10^{-6}
+  constexpr double epsilon = 0.000001; // 10^{-6}
 
   strm << "GetBounds() start" << endl;
 
@@ -1185,7 +1185,7 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   double bounds[6];
   double center[3];
   double* c = nullptr;
-  const double epsilon = 0.000001; // 10^{-6}
+  constexpr double epsilon = 0.000001; // 10^{-6}
 
   strm << "GetBounds() start" << endl;
 

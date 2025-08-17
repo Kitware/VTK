@@ -94,7 +94,7 @@ int vtkTerrainContourLineInterpolator::InterpolateLine(
   // contains 2 points. We will, from this polydata figure out the ordered set
   // of points that form the projected path..
 
-  const double tolerance = 1.0;
+  constexpr double tolerance = 1.0;
   bool traversalDone = false;
   while (!traversalDone)
   {

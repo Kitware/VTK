@@ -32,7 +32,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPentagonalPrism);
 
-static const double VTK_DIVERGED = 1.e6;
+static constexpr double VTK_DIVERGED = 1.e6;
 
 //------------------------------------------------------------------------------
 // Construct the prism with ten points.
@@ -75,8 +75,8 @@ vtkPentagonalPrism::~vtkPentagonalPrism()
 //  Method to calculate parametric coordinates in a pentagonal prism
 //  from global coordinates
 //
-static const int VTK_PENTA_MAX_ITERATION = 10;
-static const double VTK_PENTA_CONVERGED = 1.e-03;
+static constexpr int VTK_PENTA_MAX_ITERATION = 10;
+static constexpr double VTK_PENTA_CONVERGED = 1.e-03;
 
 //------------------------------------------------------------------------------
 int vtkPentagonalPrism::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,

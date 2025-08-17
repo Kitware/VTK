@@ -311,7 +311,7 @@ bool TestExampleFile(const std::string& dataRoot)
     return false;
   }
 
-  const double value_at_t0 = -0.00013127682905178517103195190429688;
+  constexpr double value_at_t0 = -0.00013127682905178517103195190429688;
   if (!testValueFuzzy(boundary->GetPointData()->GetArray("gauge")->GetComponent(0, 0), value_at_t0,
         "gauge in Mesh01_Blockage_3 boundary"))
   {
@@ -353,7 +353,7 @@ bool TestExampleFile(const std::string& dataRoot)
   nodeIds = outAssembly->GetDataSetIndices(outAssembly->FindFirstNodeWithName("Mesh01_Blockage_3"));
   boundary = vtkRectilinearGrid::SafeDownCast(output->GetPartition(nodeIds[0], 0));
 
-  const double value_at_t8 = 0.935839116573333740234375;
+  constexpr double value_at_t8 = 0.935839116573333740234375;
   if (!testValueFuzzy(boundary->GetPointData()->GetArray("gauge")->GetComponent(0, 0), value_at_t8,
         "gauge in Mesh01_Blockage_3 boundary at time value 8.1"))
   {

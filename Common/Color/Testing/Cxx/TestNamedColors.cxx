@@ -13,13 +13,13 @@
 #include <string>
 #include <vector>
 
-const int NUMBER_OF_SYNONYMS = 81;
-const int NUMBER_OF_COLORS = 283;
-const int PRINT_SELF_STRING_SIZE = 9242;
+constexpr int NUMBER_OF_SYNONYMS = 81;
+constexpr int NUMBER_OF_COLORS = 283;
+constexpr int PRINT_SELF_STRING_SIZE = 9242;
 // For comparing unsigned char converted to double precision.
-const double EPS1 = 0.004; // 1/255 = 0.0039
+constexpr double EPS1 = 0.004; // 1/255 = 0.0039
 // For comparing two double precision numbers.
-const double EPS2 = 1.0e-9;
+constexpr double EPS2 = 1.0e-9;
 
 // Forward declaration of the test functions.
 //  A test to see if black is returned if the color name is empty.
@@ -856,7 +856,7 @@ int TestNamedColors(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
 
   int counter = -1;
-  const int colorsToSkip = 20;
+  constexpr int colorsToSkip = 20;
   std::vector<std::string> cn = ParseColorNames(nc->GetColorNames());
   for (std::vector<std::string>::const_iterator p = cn.begin(); p != cn.end(); ++p)
   {

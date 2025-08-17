@@ -30,7 +30,7 @@
 
 // The 3D cell with the maximum number of points is VTK_LAGRANGE_HEXAHEDRON.
 // We support up to 6th order hexahedra.
-static const int VTK_MAXIMUM_NUMBER_OF_POINTS = 216;
+static constexpr int VTK_MAXIMUM_NUMBER_OF_POINTS = 216;
 
 void img_compare(vtkUnstructuredGrid* ugrid2, bool tessellate = true)
 {
@@ -119,7 +119,7 @@ static int test_VTK_BEZIER_CURVE_quadratic_quarter_circle()
 
   vtkCell* cell = ugrid->GetCell(0);
   int subId = 0;
-  const double pcoords[3]{ 0.23, 0, 0 };
+  constexpr double pcoords[3]{ 0.23, 0, 0 };
   double x[3];
   double weights[VTK_MAXIMUM_NUMBER_OF_POINTS];
   cell->EvaluateLocation(subId, pcoords, x, weights);
@@ -330,7 +330,7 @@ static int test_VTK_BEZIER_TRIANGLE_quadratic_full_disk()
 
 static int test_VTK_BEZIER_TRIANGLE_quartic_sphereOctant()
 {
-  const int nPoints = 15;
+  constexpr int nPoints = 15;
 
   vtkIdType pointIds[nPoints];
   for (int i = 0; i < nPoints; i++)
@@ -435,7 +435,7 @@ static int test_VTK_BEZIER_HEXAHEDRON_triquadratic_cube()
     20, 21, 22, 23, 24, 25, 26 };
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
-  const int nPoints = 27;
+  constexpr int nPoints = 27;
   vtkSmartPointer<vtkDoubleArray> rationalWeights = vtkSmartPointer<vtkDoubleArray>::New();
   rationalWeights->SetName("RationalWeights");
   rationalWeights->SetNumberOfComponents(1);
@@ -519,7 +519,7 @@ static int test_VTK_BEZIER_HEXAHEDRON_triquadratic_cube()
 
 static int test_VTK_BEZIER_HEXAHEDRON_triquartic_full_sphere()
 {
-  const int nPoints = 125;
+  constexpr int nPoints = 125;
 
   vtkIdType pointIds[nPoints];
   for (int i = 0; i < nPoints; i++)
@@ -682,7 +682,7 @@ static int test_VTK_BEZIER_HEXAHEDRON_triquartic_full_sphere()
   double weights[VTK_MAXIMUM_NUMBER_OF_POINTS];
   cell->EvaluateLocation(subId, pcoords, x, weights);
 
-  const double radius = 1;
+  constexpr double radius = 1;
   if (std::abs(sqrt(x[0] * x[0] + x[1] * x[1] + x[2] * x[2]) - radius) > 1e-7)
   {
     vtkGenericWarningMacro(
@@ -721,7 +721,7 @@ static int test_VTK_BEZIER_HEXAHEDRON_triquartic_full_sphere()
 
 static int test_VTK_BEZIER_HEXAHEDRON_bilinearquadratic_quarteRingWithSquareSection()
 {
-  const int nPoints = 12;
+  constexpr int nPoints = 12;
   vtkIdType pointIds[nPoints] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -817,7 +817,7 @@ static int test_VTK_BEZIER_TETRA_quadratic()
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   vtkSmartPointer<vtkDoubleArray> rationalWeights = vtkSmartPointer<vtkDoubleArray>::New();
-  const double sqrt2over2 = 1.0;
+  constexpr double sqrt2over2 = 1.0;
   // const double sqrt2over2 = std::sqrt( 2. ) / 2.;
   rationalWeights->SetName("RationalWeights");
   rationalWeights->SetNumberOfComponents(1);
@@ -864,7 +864,7 @@ static int test_VTK_BEZIER_TETRA_quadratic()
 
 static int test_VTK_BEZIER_TETRA_quartic_solidSphereOctant()
 {
-  const int nPoints = 35;
+  constexpr int nPoints = 35;
 
   vtkIdType pointIds[nPoints];
   for (int i = 0; i < nPoints; i++)
@@ -882,12 +882,12 @@ static int test_VTK_BEZIER_TETRA_quartic_solidSphereOctant()
   const double c2 = (sqrt(3) + 1.) / (2. * sqrt(3));
   const double c3 = 1. - (5. - sqrt(2)) * (7. - sqrt(3)) / 46.;
 
-  const double c1o3 = 0.25;
-  const double c2o3 = 0.5;
+  constexpr double c1o3 = 0.25;
+  constexpr double c2o3 = 0.5;
 
-  const double c1o4 = 1. / 4.;
-  const double c2o4 = 2. / 4.;
-  const double c3o4 = 3. / 4.;
+  constexpr double c1o4 = 1. / 4.;
+  constexpr double c2o4 = 2. / 4.;
+  constexpr double c3o4 = 3. / 4.;
 
   points->SetPoint(0, 1, 0, 0);
   points->SetPoint(1, 0, 1, 0);
@@ -1074,7 +1074,7 @@ static int test_VTK_BEZIER_WEDGE_biquadratic_quarterCylinder()
 
 static int test_VTK_BEZIER_WEDGE_quarticLinear_thickSphereOctant()
 {
-  const int nPoints = 30;
+  constexpr int nPoints = 30;
 
   vtkIdType pointIds[nPoints];
   for (int i = 0; i < nPoints; i++)

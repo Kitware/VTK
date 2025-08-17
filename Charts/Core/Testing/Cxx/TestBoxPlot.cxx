@@ -43,7 +43,7 @@ int TestBoxPlot(int, char*[])
   inputBoxPlotTable->SetNumberOfRows(5);
 
   // This scaling parameter can be used to test Y axis positioning
-  const double scale = 1e02;
+  constexpr double scale = 1e02;
   for (int i = 0; i < numParam; i++)
   {
     inputBoxPlotTable->SetValue(0, i, (i / 2) * scale);         // Q0

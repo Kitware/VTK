@@ -12,8 +12,8 @@ int TestComputeBoundingSphere(int, char*[])
 {
   int status = 0;
 
-  const size_t numberOfPoints = 1000;
-  const size_t numberOfSpheres = 100;
+  constexpr size_t numberOfPoints = 1000;
+  constexpr size_t numberOfSpheres = 100;
 
   {
     std::cout << "Testing 0 points...";

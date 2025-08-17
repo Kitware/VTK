@@ -40,8 +40,8 @@ double GetMinVolume(vtkUnstructuredGrid* ugIn)
 // https://numpy.org/doc/2.1/reference/generated/numpy.isclose.html
 bool IsClose(double a, double b)
 {
-  const double rtol = 1e-5;
-  const double atol = 1e-8;
+  constexpr double rtol = 1e-5;
+  constexpr double atol = 1e-8;
   return fabs(a - b) <= (atol + rtol * fabs(b));
 }
 

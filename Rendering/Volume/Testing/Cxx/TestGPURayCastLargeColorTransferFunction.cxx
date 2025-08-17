@@ -36,7 +36,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
 
   // Initialize vtkLookupTable
-  int const NumValues = 5023;
+  constexpr int NumValues = 5023;
   lut->SetNumberOfTableValues(NumValues);
   lut->SetTableRange(0, NumValues - 1);
   for (int i = 0; i < NumValues; i++)
@@ -388,8 +388,8 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   double value = lut->GetRange()[0];
   const double step = (lut->GetRange()[1] - lut->GetRange()[0] + 1.0) / numColors;
   double color[4] = { 0.0, 0.0, 0.0, 1.0 };
-  const double midPoint = 0.5;
-  const double sharpness = 1.0;
+  constexpr double midPoint = 0.5;
+  constexpr double sharpness = 1.0;
   for (int i = 0; i < numColors; i++, value += step)
   {
     lut->GetTableValue(i, color);

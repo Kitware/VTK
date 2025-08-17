@@ -26,9 +26,9 @@ vtkStandardNewMacro(vtkPyramid);
 
 namespace
 {
-const double VTK_DIVERGED = 1.e6;
-const int VTK_MAX_ITERATION = 10;
-const double VTK_CONVERGED = 1.e-03;
+constexpr double VTK_DIVERGED = 1.e6;
+constexpr int VTK_MAX_ITERATION = 10;
+constexpr double VTK_CONVERGED = 1.e-03;
 }
 
 //------------------------------------------------------------------------------

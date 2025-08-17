@@ -22,7 +22,7 @@
 #include <sstream>
 
 // Reference values
-const vtkIdType cardCellDistanceSelection3D[] = {
+constexpr vtkIdType cardCellDistanceSelection3D[] = {
   125,
   16,
   20,

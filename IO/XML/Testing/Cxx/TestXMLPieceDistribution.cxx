@@ -63,7 +63,7 @@ vtkSmartPointer<vtkActor> GetActor(
 
 int TestXMLPieceDistribution(int argc, char* argv[])
 {
-  const int numPieces = 3;
+  constexpr int numPieces = 3;
 
   // These are multiblocks that have multipieces alone. These should be
   // split with each piece distributed across the ranks separately.

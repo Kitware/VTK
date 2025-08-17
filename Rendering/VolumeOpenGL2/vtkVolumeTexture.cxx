@@ -1234,8 +1234,8 @@ void vtkVolumeTexture::ComputeCellToPointMatrix(int extents[6])
     this->CellToPointMatrix->SetElement(2, 3, min[2]);
 
     // Adjust limit coordinates for texture access.
-    float const zeros[4] = { 0.0f, 0.0f, 0.0f, 1.0f }; // GL tex min
-    float const ones[4] = { 1.0f, 1.0f, 1.0f, 1.0f };  // GL tex max
+    constexpr float zeros[4] = { 0.0f, 0.0f, 0.0f, 1.0f }; // GL tex min
+    constexpr float ones[4] = { 1.0f, 1.0f, 1.0f, 1.0f };  // GL tex max
     this->CellToPointMatrix->MultiplyPoint(zeros, this->AdjustedTexMin);
     this->CellToPointMatrix->MultiplyPoint(ones, this->AdjustedTexMax);
   }

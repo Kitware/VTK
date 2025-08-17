@@ -24,7 +24,7 @@
 
 int TestOutput(vtkMultiBlockDataSet* mb, double size)
 {
-  const double eps = 1e-5;
+  constexpr double eps = 1e-5;
   unsigned int nBlocks = mb->GetNumberOfBlocks();
   cout << "nBlocks = " << nBlocks << endl;
   vtk_assert(nBlocks > 0);

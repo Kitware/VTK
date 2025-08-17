@@ -1484,7 +1484,7 @@ double vtkTemporalFractal::EvaluateSet(double p[4])
   double cReal, cImag, zReal, zImag;
   double zReal2, zImag2;
 
-  const int maximumNumberOfIterations = 100;
+  constexpr int maximumNumberOfIterations = 100;
 
   cReal = p[0];
   cImag = p[1];

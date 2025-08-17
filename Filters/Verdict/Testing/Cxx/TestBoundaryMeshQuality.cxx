@@ -44,7 +44,7 @@ int TestBoundaryMeshQuality(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  const auto distanceEpsilon = 1e-6;
+  constexpr auto distanceEpsilon = 1e-6;
   double range1[2];
   distance1->GetRange(range1);
   if (!vtkMathUtilities::FuzzyCompare(range1[0], 0.00951085, distanceEpsilon) ||
@@ -63,7 +63,7 @@ int TestBoundaryMeshQuality(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  const auto angleEpsilon = 1e-4;
+  constexpr auto angleEpsilon = 1e-4;
   double range3[2];
   angle->GetRange(range3);
   if (!vtkMathUtilities::FuzzyCompare(range3[0], 0.0569455, angleEpsilon) ||

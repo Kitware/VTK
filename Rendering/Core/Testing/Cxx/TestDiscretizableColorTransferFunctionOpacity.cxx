@@ -13,7 +13,7 @@
 int TestDiscretizableColorTransferFunctionOpacity(int, char*[])
 {
   // Discretizable color transfer function
-  const double controlPoints[] = { 0.0, 1.0, 0.0, 0.0, 255.0, 0.0, 0.0, 1.0 };
+  constexpr double controlPoints[] = { 0.0, 1.0, 0.0, 0.0, 255.0, 0.0, 0.0, 1.0 };
 
   vtkSmartPointer<vtkDiscretizableColorTransferFunction> dctf =
     vtkSmartPointer<vtkDiscretizableColorTransferFunction>::New();
@@ -24,7 +24,7 @@ int TestDiscretizableColorTransferFunctionOpacity(int, char*[])
   }
 
   // Scalar opacity transfer function
-  const double opacityControlPoints[] = { 0.0, 0.0, 255.0, 0.5 };
+  constexpr double opacityControlPoints[] = { 0.0, 0.0, 255.0, 0.5 };
 
   vtkSmartPointer<vtkPiecewiseFunction> pf = vtkSmartPointer<vtkPiecewiseFunction>::New();
   for (int i = 0; i < 2; ++i)

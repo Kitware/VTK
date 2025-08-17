@@ -193,12 +193,12 @@ vtkSmartPointer<vtkUnstructuredGrid> constructGrid(int nX, int nY, int nZ, GridT
 
 void constructFieldProfile(vtkUnstructuredGrid* unstructuredGrid)
 {
-  const double z0 = -1.5;
+  constexpr double z0 = -1.5;
 
   auto f = [=](const double& t) -> std::array<double, 2>
   {
-    const double amplitude = .8;
-    const double phase = 2.;
+    constexpr double amplitude = .8;
+    constexpr double phase = 2.;
 
     return { amplitude * cos(2. * M_PI * t / phase), amplitude * sin(2. * M_PI * t / phase) };
   };

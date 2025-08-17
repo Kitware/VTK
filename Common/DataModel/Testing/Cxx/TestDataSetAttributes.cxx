@@ -13,7 +13,7 @@ int TestDataSetAttributes(int, char*[])
     // We test if vtkDataSetAttributes skips
     constexpr int EXT = 10;
     constexpr int N = EXT * EXT * EXT;
-    const int EXTENT[] = { 0, EXT - 1, 0, EXT - 1, 0, EXT - 1 };
+    constexpr int EXTENT[] = { 0, EXT - 1, 0, EXT - 1, 0, EXT - 1 };
     constexpr int GHOST_INDICES[] = { 3, 15, 30, 40, -1 };
 
     auto makeGhostArray = [&](unsigned char ghostType)

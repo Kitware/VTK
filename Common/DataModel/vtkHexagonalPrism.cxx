@@ -26,7 +26,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHexagonalPrism);
 
-static const double VTK_DIVERGED = 1.e6;
+static constexpr double VTK_DIVERGED = 1.e6;
 
 // You can recompute the value by doing:
 // const double a = sqrt(3.0)/4.0 + 0.5;
@@ -75,8 +75,8 @@ vtkHexagonalPrism::~vtkHexagonalPrism()
 //  Method to calculate parametric coordinates in an eight noded
 //  linear hexahedron element from global coordinates.
 //
-static const int VTK_HEX_MAX_ITERATION = 10;
-static const double VTK_HEX_CONVERGED = 1.e-03;
+static constexpr int VTK_HEX_MAX_ITERATION = 10;
+static constexpr double VTK_HEX_CONVERGED = 1.e-03;
 
 //------------------------------------------------------------------------------
 int vtkHexagonalPrism::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,

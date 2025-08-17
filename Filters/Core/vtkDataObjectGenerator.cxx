@@ -54,7 +54,7 @@ enum vtkDataObjectGeneratorTokenCodes
   NUMTOKENS
 };
 
-const char vtkDataObjectGeneratorTokenStrings[NUMTOKENS][4] = {
+constexpr char vtkDataObjectGeneratorTokenStrings[NUMTOKENS][4] = {
   "ID1",
   "ID2",
   "UF1",
@@ -74,7 +74,7 @@ const char vtkDataObjectGeneratorTokenStrings[NUMTOKENS][4] = {
   "}",
 };
 
-const char vtkDataObjectGeneratorTypeStrings[NUMTOKENS][30] = {
+constexpr char vtkDataObjectGeneratorTypeStrings[NUMTOKENS][30] = {
   "vtkImageData",
   "vtkImageData",
   "vtkUniformGrid",

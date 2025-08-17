@@ -55,7 +55,7 @@ int TestPolyDataRemoveCell(int, char*[])
   }
 
   vtkIntArray* cellTypes = vtkIntArray::New();
-  const char ctName[] = "cell types";
+  constexpr char ctName[] = "cell types";
   cellTypes->SetName(ctName);
   cellTypes->SetNumberOfComponents(1);
   cellTypes->SetNumberOfTuples(numCells);
@@ -67,7 +67,7 @@ int TestPolyDataRemoveCell(int, char*[])
   cellTypes->Delete();
 
   vtkIdTypeArray* cellPoints = vtkIdTypeArray::New();
-  const char cpName[] = "cell points";
+  constexpr char cpName[] = "cell points";
   cellPoints->SetName(cpName);
   cellPoints->SetNumberOfComponents(4); // num points + point ids
   cellPoints->SetNumberOfTuples(numCells);

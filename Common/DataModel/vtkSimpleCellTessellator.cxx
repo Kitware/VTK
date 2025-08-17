@@ -27,8 +27,8 @@
 // format of the arrays LeftPoint, MidPoint, RightPoint is global, parametric,
 // attributes: xyz rst [abc de...]
 VTK_ABI_NAMESPACE_BEGIN
-const int PARAMETRIC_OFFSET = 3;
-const int ATTRIBUTES_OFFSET = 6;
+constexpr int PARAMETRIC_OFFSET = 3;
+constexpr int ATTRIBUTES_OFFSET = 6;
 
 // Pre computed table for the point to edge equivalence:
 // [edge][point]
@@ -1437,7 +1437,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTriangleTile& tri)
   vtkIdType l, r;
   vtkIdType cellId = this->GenericCell->GetId();
 
-  const double alpha = 0.5;
+  constexpr double alpha = 0.5;
   assert("check: normalized alpha" && alpha > 0 && alpha < 1);
 
   // First setup the point reference count:
@@ -1645,7 +1645,7 @@ void vtkSimpleCellTessellator::InsertEdgesIntoEdgeTable(vtkTetraTile& tetra)
   const vtkIdType cellId = this->GenericCell->GetId();
 
   //  double alpha=0.5+0.02*(rand()/(RAND_MAX+1.0)-0.5);
-  const double alpha = 0.5;
+  constexpr double alpha = 0.5;
   assert("check: normalized alpha" && alpha > 0 && alpha < 1);
 
   // First setup the point reference count:
@@ -2459,7 +2459,7 @@ void vtkSimpleCellTessellator::Triangulate(vtkGenericAdaptorCell* cell,
   else
   {
     vtkIdType pts[3] = { 0, 1, 2 };
-    const vtkIdType edgeIds[3] = { 0, 1, 2 };
+    constexpr vtkIdType edgeIds[3] = { 0, 1, 2 };
     this->AllocatePointIds(cell->GetNumberOfBoundaries(0));
     cell->GetPointIds(this->PointIds);
     this->TriangulateTriangle(

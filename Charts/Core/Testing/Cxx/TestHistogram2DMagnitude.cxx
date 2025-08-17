@@ -16,8 +16,8 @@
 //------------------------------------------------------------------------------
 int TestHistogram2DMagnitude(int, char*[])
 {
-  const int EXTENT = 200;
-  const int SIZE = 2 * EXTENT + 1;
+  constexpr int EXTENT = 200;
+  constexpr int SIZE = 2 * EXTENT + 1;
   const char* ARRAY_NAME = "swirl";
 
   // Set up a 2D scene, add an XY chart to it

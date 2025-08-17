@@ -81,10 +81,10 @@ int TestControlPointsItemEvents(int, char*[])
   recorder->ReadFromInputStringOn();
 
   // Add a point at (60, 0.5) and move it to (62, 0.5)
-  const char addAndDragEvents[] = "# StreamVersion 1\n"
-                                  "LeftButtonPressEvent 60 1 0 0 0 0 0\n"
-                                  "MouseMoveEvent 62 1 0 0 0 0 0\n"
-                                  "LeftButtonReleaseEvent 62 1 0 0 0 0 0\n";
+  constexpr char addAndDragEvents[] = "# StreamVersion 1\n"
+                                      "LeftButtonPressEvent 60 1 0 0 0 0 0\n"
+                                      "MouseMoveEvent 62 1 0 0 0 0 0\n"
+                                      "LeftButtonReleaseEvent 62 1 0 0 0 0 0\n";
   recorder->SetInputString(addAndDragEvents);
   recorder->Play();
 
@@ -126,7 +126,7 @@ int TestControlPointsItemEvents(int, char*[])
 
   cbk->EventSpy.clear();
 
-  const char dblClickEvents[] =
+  constexpr char dblClickEvents[] =
     "# StreamVersion 1\n"
     "MouseMoveEvent 56 1 0 0 0 0 0\n"       // shouldn't move the point
     "LeftButtonPressEvent 55 1 0 0 0 0 0\n" // select the first point

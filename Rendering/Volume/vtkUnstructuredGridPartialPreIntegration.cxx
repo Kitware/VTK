@@ -41,7 +41,7 @@ public:
   std::vector<acolor> Colors;
 };
 
-static const double huebends[6] = { 1.0 / 6.0, 1.0 / 3.0, 0.5, 2.0 / 3.0, 5.0 / 6.0, 1.0 };
+static constexpr double huebends[6] = { 1.0 / 6.0, 1.0 / 3.0, 0.5, 2.0 / 3.0, 5.0 / 6.0, 1.0 };
 
 void vtkPartialPreIntegrationTransferFunction::GetTransferFunction(vtkColorTransferFunction* color,
   vtkPiecewiseFunction* opacity, double unit_distance, double scalar_range[2])

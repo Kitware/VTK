@@ -53,7 +53,7 @@ int TestGradientBackgroundWithTiledViewport(int argc, char* argv[])
     // Purposefully render at a higher resolution using tiled display
     // Scale the 640x480 render window by 2x, take a screenshot of all tiles
     // and validate the result against the higher resolution image.
-    const double threshold = 0.05;
+    constexpr double threshold = 0.05;
     vtkNew<vtkWindowToImageFilter> rtW2if;
     rtW2if->SetInput(win);
     rtW2if->SetScale(2, 2);

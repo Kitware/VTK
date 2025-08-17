@@ -27,7 +27,7 @@ int TestPointSetToMoleculeFilter(int, char*[])
 {
   vtkNew<vtkPolyData> polyData;
   vtkNew<vtkPoints> points;
-  const int numberOfAtoms = 4;
+  constexpr int numberOfAtoms = 4;
   points->SetNumberOfPoints(numberOfAtoms);
   points->SetPoint(0, 0, 0, 0);
   points->SetPoint(1, 1, 1, 1);
@@ -37,7 +37,7 @@ int TestPointSetToMoleculeFilter(int, char*[])
 
   vtkNew<vtkUnsignedShortArray> scalars;
   scalars->SetNumberOfValues(numberOfAtoms);
-  const unsigned short firstAtomicNb = 42;
+  constexpr unsigned short firstAtomicNb = 42;
   scalars->SetValue(0, firstAtomicNb);
   scalars->SetValue(1, firstAtomicNb + 1);
   scalars->SetValue(2, firstAtomicNb + 2);

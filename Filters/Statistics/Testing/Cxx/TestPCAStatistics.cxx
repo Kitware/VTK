@@ -62,7 +62,7 @@ int TestPCARobust(int argc, char* argv[])
 //=============================================================================
 int TestPCARobust2()
 {
-  const int nVals = 7;
+  constexpr int nVals = 7;
   double mingledData[] = {
     0., 1.,  //
     1., 1.,  //
@@ -73,12 +73,12 @@ int TestPCARobust2()
     10., 10. //
   };
 
-  const char m0Name[] = "M0";
+  constexpr char m0Name[] = "M0";
   vtkNew<vtkDoubleArray> dataset1Arr;
   dataset1Arr->SetNumberOfComponents(1);
   dataset1Arr->SetName(m0Name);
 
-  const char m1Name[] = "M1";
+  constexpr char m1Name[] = "M1";
   vtkNew<vtkDoubleArray> dataset2Arr;
   dataset2Arr->SetNumberOfComponents(1);
   dataset2Arr->SetName(m1Name);
@@ -173,17 +173,17 @@ int TestPCAPart(int argc, char* argv[], bool robustPCA)
   };
   int nVals = 32;
 
-  const char m0Name[] = "M0";
+  constexpr char m0Name[] = "M0";
   vtkDoubleArray* dataset1Arr = vtkDoubleArray::New();
   dataset1Arr->SetNumberOfComponents(1);
   dataset1Arr->SetName(m0Name);
 
-  const char m1Name[] = "M1";
+  constexpr char m1Name[] = "M1";
   vtkDoubleArray* dataset2Arr = vtkDoubleArray::New();
   dataset2Arr->SetNumberOfComponents(1);
   dataset2Arr->SetName(m1Name);
 
-  const char m2Name[] = "M2";
+  constexpr char m2Name[] = "M2";
   vtkDoubleArray* dataset3Arr = vtkDoubleArray::New();
   dataset3Arr->SetNumberOfComponents(1);
   dataset3Arr->SetName(m2Name);
@@ -342,7 +342,7 @@ int TestPCAPart(int argc, char* argv[], bool robustPCA)
 
 int TestEigen()
 {
-  const char m0Name[] = "M0";
+  constexpr char m0Name[] = "M0";
   vtkSmartPointer<vtkDoubleArray> dataset1Arr = vtkSmartPointer<vtkDoubleArray>::New();
   dataset1Arr->SetNumberOfComponents(1);
   dataset1Arr->SetName(m0Name);
@@ -350,7 +350,7 @@ int TestEigen()
   dataset1Arr->InsertNextValue(1);
   dataset1Arr->InsertNextValue(0);
 
-  const char m1Name[] = "M1";
+  constexpr char m1Name[] = "M1";
   vtkSmartPointer<vtkDoubleArray> dataset2Arr = vtkSmartPointer<vtkDoubleArray>::New();
   dataset2Arr->SetNumberOfComponents(1);
   dataset2Arr->SetName(m1Name);
@@ -358,7 +358,7 @@ int TestEigen()
   dataset2Arr->InsertNextValue(0);
   dataset2Arr->InsertNextValue(1);
 
-  const char m2Name[] = "M2";
+  constexpr char m2Name[] = "M2";
   vtkSmartPointer<vtkDoubleArray> dataset3Arr = vtkSmartPointer<vtkDoubleArray>::New();
   dataset3Arr->SetNumberOfComponents(1);
   dataset3Arr->SetName(m2Name);

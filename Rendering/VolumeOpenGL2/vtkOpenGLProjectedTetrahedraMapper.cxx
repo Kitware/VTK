@@ -72,7 +72,7 @@ public:
 
 static int tet_edges[6][2] = { { 0, 1 }, { 1, 2 }, { 2, 0 }, { 0, 3 }, { 1, 3 }, { 2, 3 } };
 
-const int SqrtTableSize = 2048;
+constexpr int SqrtTableSize = 2048;
 
 //------------------------------------------------------------------------------
 class vtkOpenGLProjectedTetrahedraMapper::vtkInternals

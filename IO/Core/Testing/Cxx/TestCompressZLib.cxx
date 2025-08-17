@@ -10,7 +10,7 @@
 int TestCompressZLib(int argc, char* argv[])
 {
   int res = 1;
-  const unsigned int start_size = 100024;
+  constexpr unsigned int start_size = 100024;
   unsigned int cc;
   unsigned char buffer[start_size];
   unsigned char* cbuffer;

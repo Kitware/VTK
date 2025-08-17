@@ -782,7 +782,7 @@ void vtkMFIXReader::SkipBytes(istream& in, int n)
 //------------------------------------------------------------------------------
 void vtkMFIXReader::GetBlockOfDoubles(istream& in, vtkDoubleArray* v, int n)
 {
-  const int numberOfDoublesInBlock = 512 / sizeof(double);
+  constexpr int numberOfDoublesInBlock = 512 / sizeof(double);
   double tempArray[numberOfDoublesInBlock];
   int numberOfRecords;
 
@@ -815,7 +815,7 @@ void vtkMFIXReader::GetBlockOfDoubles(istream& in, vtkDoubleArray* v, int n)
 //------------------------------------------------------------------------------
 void vtkMFIXReader::GetBlockOfInts(istream& in, vtkIntArray* v, int n)
 {
-  const int numberOfIntsInBlock = 512 / sizeof(int);
+  constexpr int numberOfIntsInBlock = 512 / sizeof(int);
   int tempArray[numberOfIntsInBlock];
   int numberOfRecords;
 
@@ -848,7 +848,7 @@ void vtkMFIXReader::GetBlockOfInts(istream& in, vtkIntArray* v, int n)
 //------------------------------------------------------------------------------
 void vtkMFIXReader::GetBlockOfFloats(istream& in, vtkFloatArray* v, int n)
 {
-  const int numberOfFloatsInBlock = 512 / sizeof(float);
+  constexpr int numberOfFloatsInBlock = 512 / sizeof(float);
   float tempArray[numberOfFloatsInBlock];
   int numberOfRecords;
 
@@ -1095,7 +1095,7 @@ void vtkMFIXReader::ReadRestartFile()
     this->SkipBytes(in, 364);
   }
 
-  const int numberOfFloatsInBlock = 512 / sizeof(float);
+  constexpr int numberOfFloatsInBlock = 512 / sizeof(float);
 
   if (this->IJKMaximum2 % numberOfFloatsInBlock == 0)
   {

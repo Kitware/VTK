@@ -123,7 +123,7 @@ int TestSelectVisiblePoints(int argc, char* argv[])
 
   // All points should be visible if we set tolerance to be the glyph size
   // (except those 4 points that are covered by another point's glyph).
-  const int numberOfOccludedPoints = 4;
+  constexpr int numberOfOccludedPoints = 4;
   if (result == EXIT_SUCCESS)
   {
     selectVisiblePoints->SetToleranceWorld(glypher->GetScaleFactor() * 0.5);

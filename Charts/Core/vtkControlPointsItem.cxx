@@ -1380,7 +1380,7 @@ void vtkControlPointsItem::Stroke(const vtkVector2f& newPos)
     vtkIdType lastPointId = this->CurrentPoint;
     double lastPoint[4] = { 0.0, 0.0, 0.0, 0.0 };
     this->GetControlPoint(lastPointId, lastPoint);
-    const double pointSpacing = 1.15;
+    constexpr double pointSpacing = 1.15;
     float oldScreenPointRadius = this->ScreenPointRadius;
     this->ScreenPointRadius *= pointSpacing;
     // ignore the stroke if it is too close from the last point

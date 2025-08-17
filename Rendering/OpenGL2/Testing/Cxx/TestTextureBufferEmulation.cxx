@@ -21,8 +21,8 @@
 int TestTextureBufferEmulation(int /*argc*/, char* /*argv*/[])
 {
   bool success = false;
-  const int width = 12;
-  const int height = 5;
+  constexpr int width = 12;
+  constexpr int height = 5;
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(width, height);

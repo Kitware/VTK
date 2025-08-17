@@ -473,7 +473,7 @@ int vtkPResampleToImage::RequestData(
     // Note: this is same as what's done in the non-parallel version of this
     // filter i.e. vtkResampleToImage. So just doing the same here for
     // consistency.
-    const double epsilon = 1.0e-6;
+    constexpr double epsilon = 1.0e-6;
     bbox.ScaleAboutCenter(1.0 - epsilon);
     bbox.GetBounds(samplingBounds);
   }

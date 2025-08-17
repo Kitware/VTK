@@ -52,9 +52,9 @@ vtkStandardNewMacro(vtkCameraOrientationRepresentation);
 //-----------------------------------------------------------------------------
 namespace
 {
-const double xyzBaseColor[3][3] = { { 0.870, 0.254, 0.188 }, { 0.952, 0.752, 0.090 },
+constexpr double xyzBaseColor[3][3] = { { 0.870, 0.254, 0.188 }, { 0.952, 0.752, 0.090 },
   { 0.654, 0.823, 0.549 } };
-const double minusXyzTextBgColor[3][3] = { { 0.655, 0.157, 0.106 }, { 0.898, 0.698, 0.047 },
+constexpr double minusXyzTextBgColor[3][3] = { { 0.655, 0.157, 0.106 }, { 0.898, 0.698, 0.047 },
   { 0.49, 0.737, 0.333 } };
 
 enum class HandleDirType : int

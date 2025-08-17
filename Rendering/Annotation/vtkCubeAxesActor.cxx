@@ -1130,8 +1130,8 @@ int vtkCubeAxesActor::LabelExponent(double min, double max)
   double range = (fabs(min) > fabs(max) ? fabs(min) : fabs(max));
   double pow10 = log10(range);
 
-  const double eformat_cut_min = -1.5;
-  const double eformat_cut_max = 3.0;
+  constexpr double eformat_cut_min = -1.5;
+  constexpr double eformat_cut_max = 3.0;
   const /*expr*/ double cut_min = pow(10., eformat_cut_min);
   const /*expr*/ double cut_max = pow(10., eformat_cut_max);
   double ipow10;

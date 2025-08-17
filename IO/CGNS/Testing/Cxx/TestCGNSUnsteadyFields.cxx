@@ -25,7 +25,7 @@
 
 int TestField(vtkMultiBlockDataSet* mb, double value)
 {
-  const double eps = 1e-5;
+  constexpr double eps = 1e-5;
   unsigned int nBlocks = mb->GetNumberOfBlocks();
   vtk_assert(nBlocks > 0);
   for (unsigned int i = 0; i < nBlocks; ++i)

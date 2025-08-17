@@ -450,7 +450,7 @@ bool vtkChartXY::Paint(vtkContext2D* painter)
   // Update the clipping if necessary
   // An extra padding of 1 pixel is taken into account such that lines near
   // the edge of the chart's patch are correctly shown.
-  const double pad = 1;
+  constexpr double pad = 1;
   this->ChartPrivate->Clip->SetClip(this->Point1[0] - pad, this->Point1[1] - pad,
     this->Point2[0] - this->Point1[0] + 2 * pad, this->Point2[1] - this->Point1[1] + 2 * pad);
 

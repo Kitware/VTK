@@ -46,9 +46,9 @@ int TestGetNumNodesAndCells()
 {
 
 #ifdef VTK_USE_64BIT_IDS
-  const int maxDim = 2047;
+  constexpr int maxDim = 2047;
 #else
-  const int maxDim = 511;
+  constexpr int maxDim = 511;
 #endif
 
   // Extent for 2048^3 grid

@@ -15,7 +15,7 @@ namespace
  */
 double SgnPower(double x, double n)
 {
-  const double eps = 1.0e-06;
+  constexpr double eps = 1.0e-06;
   if (x == 0)
   {
     return 0;

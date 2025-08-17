@@ -45,7 +45,7 @@ Transfer2DPtr Create2DTransfer()
     {
       if (i > 130 && i < 190 && j < 50)
       {
-        double const jFactor = 256.0 / 50;
+        constexpr double jFactor = 256.0 / 50;
 
         vtkIdType const index = bins[0] * j + i;
         double const red = static_cast<double>(i) / bins[0];

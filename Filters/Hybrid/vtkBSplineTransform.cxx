@@ -33,8 +33,8 @@ namespace
 // does not pass through the knots.
 inline void vtkBSplineTransformWeights(double F[4], double G[4], double f)
 {
-  const double sixth = 1.0 / 6.0;
-  const double half = 0.5;
+  constexpr double sixth = 1.0 / 6.0;
+  constexpr double half = 0.5;
 
   double f2 = f * f;
 

@@ -171,7 +171,7 @@ void vtkPixelExtent::Subtract(
   tmpA0.push_back(A);
   for (int q = 0; q < 4; ++q)
   {
-    const int ids[8] = { 0, 2, 1, 2, 1, 3, 0, 3 };
+    constexpr int ids[8] = { 0, 2, 1, 2, 1, 3, 0, 3 };
     int qq = 2 * q;
     int i = I[ids[qq]];
     int j = I[ids[qq + 1]];

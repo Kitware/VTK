@@ -114,7 +114,7 @@ int TestImageAndAnnotations(int argc, char* argv[])
   renderer->AddViewProp(cornerAnnotation);
 
   // Setup images
-  const unsigned int Dim = 300;
+  constexpr unsigned int Dim = 300;
   {
     // lower left: background/opaque
     bool transparent = false;

@@ -1209,7 +1209,7 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::GenerateOutput(
   // load the inc0/inc1/inc2 into local memory
   const int incs[3] = { this->Inc0, this->Inc1, this->Inc2 };
   const T* sPtr = rowPtr + xL * incs[0];
-  const double xSpace = 1.0;
+  constexpr double xSpace = 1.0;
   const vtkIdType dim0Wall = this->Dims[0] - 2;
 
   for (i = xL; i < xR; ++i)

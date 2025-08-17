@@ -16,7 +16,7 @@ int UnitTestImplicitDataSet(int, char*[])
 {
   int status = 0;
 
-  const int dim = 5;
+  constexpr int dim = 5;
 
   // Create a volume
   vtkSmartPointer<vtkImageData> aVolume = MakeVolume(dim, dim, dim);

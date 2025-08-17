@@ -437,8 +437,8 @@ void vtkMeasurementCubeHandleRepresentation3D::UpdateHandle()
 
 namespace
 {
-const int OpposingDiagonals[4][2][3] = { { { 0, 2, 4 }, { 1, 3, 5 } }, { { 1, 2, 4 }, { 0, 3, 5 } },
-  { { 0, 3, 4 }, { 1, 2, 5 } }, { { 0, 2, 5 }, { 1, 3, 4 } } };
+constexpr int OpposingDiagonals[4][2][3] = { { { 0, 2, 4 }, { 1, 3, 5 } },
+  { { 1, 2, 4 }, { 0, 3, 5 } }, { { 0, 3, 4 }, { 1, 2, 5 } }, { { 0, 2, 5 }, { 1, 3, 4 } } };
 }
 
 //------------------------------------------------------------------------------
@@ -727,8 +727,8 @@ void vtkMeasurementCubeHandleRepresentation3D::SetSideLength(double d)
 //------------------------------------------------------------------------------
 namespace
 {
-const double RelativeCubeScreenAreaUpperLimit = 1.;
-const double RelativeCubeScreenAreaLowerLimit = 1.e-6;
+constexpr double RelativeCubeScreenAreaUpperLimit = 1.;
+constexpr double RelativeCubeScreenAreaLowerLimit = 1.e-6;
 }
 
 //------------------------------------------------------------------------------

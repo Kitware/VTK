@@ -75,7 +75,7 @@ void initUniformHyperTreeOneRootCell(vtkUniformHyperTreeGrid* uhtg)
   uhtg->SetMask(mask);
 
   vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
-  const unsigned int treeId = 1;
+  constexpr unsigned int treeId = 1;
   const vtkIdType nbElementsInHTG = uhtg->GetNumberOfCells();
   uhtg->InitializeNonOrientedCursor(cursor, treeId, true);
   cursor->SetGlobalIndexStart(nbElementsInHTG);

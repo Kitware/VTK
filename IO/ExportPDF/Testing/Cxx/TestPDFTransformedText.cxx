@@ -30,8 +30,8 @@
 namespace
 {
 
-const int Width = 900;
-const int Height = 900;
+constexpr int Width = 900;
+constexpr int Height = 900;
 
 using Rotation = std::pair<double, double>; // tprop, painter
 std::array<Rotation, 4> RotArray{

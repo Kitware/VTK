@@ -108,10 +108,10 @@ void DrawTriangles(double* p1, double* q1, double* r1, double* p2, double* q2, d
 
 namespace
 {
-const double EPSILON = 1.e-6;
+constexpr double EPSILON = 1.e-6;
 
-const int VTK_NO_INTERSECTION = 0;
-const int VTK_YES_INTERSECTION = 1;
+constexpr int VTK_NO_INTERSECTION = 0;
+constexpr int VTK_YES_INTERSECTION = 1;
 
 typedef vtkMinimalStandardRandomSequence vtkRandom;
 
@@ -628,7 +628,7 @@ int UnitTestTriangleIntersection(int, char*[])
 
   sequence->SetSeed(2);
 
-  const unsigned nTest = 1.e5;
+  constexpr unsigned nTest = 1.e5;
 
   std::cout << "Testing vtkTriangle::TriangleIntersection" << std::endl;
   if (TestTriangleIntersection(sequence, nTest) == EXIT_FAILURE)

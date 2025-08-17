@@ -134,7 +134,7 @@ vtkIdType FindCellWalk(vtkClosestPointStrategy* self, vtkPointSet* ps, double x[
   double* weights, std::vector<unsigned char>& visitedCells, vtkIdList* visitedCellIds,
   vtkIdList* ptIds, vtkIdList* neighbors)
 {
-  const int VTK_MAX_WALK = 12;
+  constexpr int VTK_MAX_WALK = 12;
   double closestPoint[3];
   double dist2;
   for (int walk = 0; walk < VTK_MAX_WALK; walk++)

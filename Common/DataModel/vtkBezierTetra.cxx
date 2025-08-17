@@ -126,7 +126,7 @@ void vtkBezierTetra::SetRationalWeightsFromPointData(vtkPointData* point_data, v
 //------------------------------------------------------------------------------
 void vtkBezierTetra::InterpolateFunctions(const double pcoords[3], double* weights)
 {
-  const int dim = 3;
+  constexpr int dim = 3;
   const int deg = GetOrder();
   const vtkIdType nPoints = this->GetPoints()->GetNumberOfPoints();
   std::vector<double> coeffs(nPoints, 0.0);
@@ -158,7 +158,7 @@ void vtkBezierTetra::InterpolateFunctions(const double pcoords[3], double* weigh
 //------------------------------------------------------------------------------
 void vtkBezierTetra::InterpolateDerivs(const double pcoords[3], double* derivs)
 {
-  const int dim = 3;
+  constexpr int dim = 3;
   const int deg = GetOrder();
   const vtkIdType nPoints = this->GetPoints()->GetNumberOfPoints();
 

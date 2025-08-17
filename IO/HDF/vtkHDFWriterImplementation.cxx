@@ -524,7 +524,7 @@ bool vtkHDFWriter::Implementation::AddSingleValueToDataset(
 {
   vtkDebugWithObjectMacro(this->Writer, "Adding 1 value to " << this->GetGroupName(dataset));
   // Create a new dataspace containing a single value
-  const hsize_t addedDims[1] = { 1 };
+  constexpr hsize_t addedDims[1] = { 1 };
   vtkHDF::ScopedH5SHandle newDataspace = H5Screate_simple(1, addedDims, nullptr);
   if (newDataspace == H5I_INVALID_HID)
   {

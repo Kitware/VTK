@@ -77,7 +77,7 @@ int vtkAttributesErrorMetric::RequiresEdgeSubdivision(
 
   this->ComputeSquareAbsoluteAttributeTolerance();
 
-  const int ATTRIBUTE_OFFSET = 6;
+  constexpr int ATTRIBUTE_OFFSET = 6;
 
   ac = this->DataSet->GetAttributes();
   vtkGenericAttribute* a = ac->GetAttribute(ac->GetActiveAttribute());
@@ -164,7 +164,7 @@ double vtkAttributesErrorMetric::GetError(
 
   this->ComputeSquareAbsoluteAttributeTolerance();
 
-  const int ATTRIBUTE_OFFSET = 6;
+  constexpr int ATTRIBUTE_OFFSET = 6;
 
   ac = this->DataSet->GetAttributes();
   vtkGenericAttribute* a = ac->GetAttribute(ac->GetActiveAttribute());

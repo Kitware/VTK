@@ -167,7 +167,7 @@ int TestFluidMapper(int argc, char* argv[])
   setupInteractiveDemo(renderWindow, renderer, iren, pointData, dragon, fluidMapper);
 #else
   renderWindow->SetSize(400, 400);
-  const float spacing = 0.1f;
+  constexpr float spacing = 0.1f;
   for (int z = 0; z < 50; ++z)
   {
     for (int y = 0; y < 15; ++y)

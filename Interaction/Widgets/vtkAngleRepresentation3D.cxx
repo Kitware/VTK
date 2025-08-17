@@ -303,7 +303,7 @@ void vtkAngleRepresentation3D::BuildRepresentation()
     }
 
     const double length = l1 < l2 ? l1 : l2;
-    const double anglePlacementRatio = 0.5;
+    constexpr double anglePlacementRatio = 0.5;
     const double l = length * anglePlacementRatio;
     double arcp1[3] = { l * vector1[0] + c[0], l * vector1[1] + c[1], l * vector1[2] + c[2] };
     double arcp2[3] = { l * vector2[0] + c[0], l * vector2[1] + c[1], l * vector2[2] + c[2] };

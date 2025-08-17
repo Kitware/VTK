@@ -21,8 +21,8 @@
 int TestFunctionalBagPlot(int, char*[])
 {
   // Creates an input table
-  const int numCols = 7;
-  const int numVals = 100;
+  constexpr int numCols = 7;
+  constexpr int numVals = 100;
 
   vtkNew<vtkTable> inputTable;
   vtkNew<vtkDoubleArray> arr[numCols];

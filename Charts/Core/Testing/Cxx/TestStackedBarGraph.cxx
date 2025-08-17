@@ -20,29 +20,31 @@
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-const int num_months = 12;
+constexpr int num_months = 12;
 
-static const int month[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+static constexpr int month[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
-static const int book_2008[] = { 5675, 5902, 6388, 5990, 5575, 7393, 9878, 8082, 6417, 5946, 5526,
-  5166 };
-static const int new_popular_2008[] = { 701, 687, 736, 696, 750, 814, 923, 860, 786, 735, 680,
+static constexpr int book_2008[] = { 5675, 5902, 6388, 5990, 5575, 7393, 9878, 8082, 6417, 5946,
+  5526, 5166 };
+static constexpr int new_popular_2008[] = { 701, 687, 736, 696, 750, 814, 923, 860, 786, 735, 680,
   741 };
-static const int periodical_2008[] = { 184, 176, 166, 131, 171, 191, 231, 166, 197, 162, 152, 143 };
-static const int audiobook_2008[] = { 903, 1038, 987, 1073, 1144, 1203, 1173, 1196, 1213, 1076, 926,
-  874 };
-static const int video_2008[] = { 1524, 1565, 1627, 1445, 1179, 1816, 2293, 1811, 1588, 1561, 1542,
-  1563 };
+static constexpr int periodical_2008[] = { 184, 176, 166, 131, 171, 191, 231, 166, 197, 162, 152,
+  143 };
+static constexpr int audiobook_2008[] = { 903, 1038, 987, 1073, 1144, 1203, 1173, 1196, 1213, 1076,
+  926, 874 };
+static constexpr int video_2008[] = { 1524, 1565, 1627, 1445, 1179, 1816, 2293, 1811, 1588, 1561,
+  1542, 1563 };
 
-static const int book_2009[] = { 6388, 5990, 5575, 9878, 8082, 5675, 7393, 5902, 5526, 5166, 5946,
-  6417 };
-static const int new_popular_2009[] = { 696, 735, 786, 814, 736, 860, 750, 687, 923, 680, 741,
+static constexpr int book_2009[] = { 6388, 5990, 5575, 9878, 8082, 5675, 7393, 5902, 5526, 5166,
+  5946, 6417 };
+static constexpr int new_popular_2009[] = { 696, 735, 786, 814, 736, 860, 750, 687, 923, 680, 741,
   701 };
-static const int periodical_2009[] = { 197, 166, 176, 231, 171, 152, 166, 131, 184, 191, 143, 162 };
-static const int audiobook_2009[] = { 1213, 1076, 926, 987, 903, 1196, 1073, 1144, 1203, 1038, 874,
-  1173 };
-static const int video_2009[] = { 2293, 1561, 1542, 1627, 1588, 1179, 1563, 1445, 1811, 1565, 1524,
-  1816 };
+static constexpr int periodical_2009[] = { 197, 166, 176, 231, 171, 152, 166, 131, 184, 191, 143,
+  162 };
+static constexpr int audiobook_2009[] = { 1213, 1076, 926, 987, 903, 1196, 1073, 1144, 1203, 1038,
+  874, 1173 };
+static constexpr int video_2009[] = { 2293, 1561, 1542, 1627, 1588, 1179, 1563, 1445, 1811, 1565,
+  1524, 1816 };
 
 static void build_array(const char* name, vtkIntArray* array, const int c_array[])
 {

@@ -13,7 +13,7 @@
 int TestSpatioTemporalHarmonicsSource(int, char*[])
 {
   // Create source
-  const int MAX_EXTENT = 10;
+  constexpr int MAX_EXTENT = 10;
   vtkNew<vtkSpatioTemporalHarmonicsSource> source;
   source->SetWholeExtent(-MAX_EXTENT, MAX_EXTENT, -MAX_EXTENT, MAX_EXTENT, -MAX_EXTENT, MAX_EXTENT);
 

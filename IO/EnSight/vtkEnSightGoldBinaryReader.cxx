@@ -2825,8 +2825,8 @@ int vtkEnSightGoldBinaryReader::CreateUnstructuredGridOutput(
         this->ReadIntArray(nodeIdList.data(), numElements * 6);
       }
 
-      const unsigned char penta6Map[6] = { 0, 2, 1, 3, 5, 4 };
-      const unsigned char penta15Map[15] = { 0, 2, 1, 3, 5, 4, 8, 7, 6, 11, 10, 9, 12, 14, 13 };
+      constexpr unsigned char penta6Map[6] = { 0, 2, 1, 3, 5, 4 };
+      constexpr unsigned char penta15Map[15] = { 0, 2, 1, 3, 5, 4, 8, 7, 6, 11, 10, 9, 12, 14, 13 };
 
       vtkIdType nodeIds[15];
       for (i = 0; i < numElements; i++)

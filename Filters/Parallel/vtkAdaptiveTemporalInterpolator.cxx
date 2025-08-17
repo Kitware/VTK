@@ -128,7 +128,7 @@ vtkDataSet* vtkAdaptiveTemporalInterpolator ::InterpolateDataSet(
   // refinement will have accumulated error until it is unacceptable
   // while the refinement must (in theory) have a significant
   // improvement or it would be abandoned. Thus we prefer the latter:
-  const int sourceInput = 1;
+  constexpr int sourceInput = 1;
   vtkDataSet* output = input[0]->NewInstance();
   output->CopyStructure(input[0]);
 

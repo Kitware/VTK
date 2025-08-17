@@ -43,7 +43,7 @@ int TestPCANormalEstimationModes(int, char*[])
 
 int TestPCANormalEstimation1Point()
 {
-  const double pt1[3] = { 0, 0, 0 };
+  constexpr double pt1[3] = { 0, 0, 0 };
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataTypeToDouble();
@@ -63,16 +63,16 @@ int TestPCANormalEstimation1Point()
 
   // Get output normals
   vtkDataArray* normals = output->GetPointData()->GetNormals();
-  const double expectedOutput[3] = { 0, 1, 0 }; // 1 point default normal
+  constexpr double expectedOutput[3] = { 0, 1, 0 }; // 1 point default normal
   return TestOutput(normals, expectedOutput);
 }
 
 int TestPCANormalEstimationKNN()
 {
-  const double pt1[3] = { 0, 0, 0 };
-  const double pt2[3] = { 1, 0, 0 };
-  const double pt3[3] = { 0, 1, 0 };
-  const double pt4[3] = { 2, 1, 0 };
+  constexpr double pt1[3] = { 0, 0, 0 };
+  constexpr double pt2[3] = { 1, 0, 0 };
+  constexpr double pt3[3] = { 0, 1, 0 };
+  constexpr double pt4[3] = { 2, 1, 0 };
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataTypeToDouble();
@@ -95,16 +95,16 @@ int TestPCANormalEstimationKNN()
 
   // Get output normals
   vtkDataArray* normals = output->GetPointData()->GetNormals();
-  const double expectedOutput[3] = { 0, 0, 1 };
+  constexpr double expectedOutput[3] = { 0, 0, 1 };
   return TestOutput(normals, expectedOutput);
 }
 
 int TestPCANormalEstimationRadius()
 {
-  const double pt1[3] = { 0, 0, 0 };
-  const double pt2[3] = { 0, 0, 1 };
-  const double pt3[3] = { 0, 1, 0 };
-  const double pt4[3] = { 0, 1, 2 };
+  constexpr double pt1[3] = { 0, 0, 0 };
+  constexpr double pt2[3] = { 0, 0, 1 };
+  constexpr double pt3[3] = { 0, 1, 0 };
+  constexpr double pt4[3] = { 0, 1, 2 };
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataTypeToDouble();
@@ -127,17 +127,17 @@ int TestPCANormalEstimationRadius()
 
   // Get output normals
   vtkDataArray* normals = output->GetPointData()->GetNormals();
-  const double expectedOutput[3] = { 1, 0, 0 };
+  constexpr double expectedOutput[3] = { 1, 0, 0 };
   return TestOutput(normals, expectedOutput);
 }
 
 int TestPCANormalEstimationKNNAndRadius()
 {
-  const double pt1[3] = { 0, 0, 0 };
-  const double pt2[3] = { 0, 0, 1 };
-  const double pt3[3] = { 0, 1, 0 };
-  const double pt4[3] = { 0, 0, 2 };
-  const double pt5[3] = { 0, 1, 2 };
+  constexpr double pt1[3] = { 0, 0, 0 };
+  constexpr double pt2[3] = { 0, 0, 1 };
+  constexpr double pt3[3] = { 0, 1, 0 };
+  constexpr double pt4[3] = { 0, 0, 2 };
+  constexpr double pt5[3] = { 0, 1, 2 };
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataTypeToDouble();
@@ -151,7 +151,7 @@ int TestPCANormalEstimationKNNAndRadius()
   polyData->SetPoints(points);
 
   // Both modes should return the same result
-  const double expectedOutput[3] = { 1, 0, 0 };
+  constexpr double expectedOutput[3] = { 1, 0, 0 };
 
   // Test KNN mode with radius
   vtkNew<vtkPCANormalEstimation> normalEstimation;
@@ -189,11 +189,11 @@ int TestOutput(vtkDataArray* normals, const double output[3])
 
 int TestPCANormalEstimationGenerationMode()
 {
-  const double pt1[3] = { 0, 0, 0 };
-  const double pt2[3] = { 0, 0, 1 };
-  const double pt3[3] = { 0, 1, 0 };
-  const double pt4[3] = { 0, 0, 2 };
-  const double pt5[3] = { 0, 1, 2 };
+  constexpr double pt1[3] = { 0, 0, 0 };
+  constexpr double pt2[3] = { 0, 0, 1 };
+  constexpr double pt3[3] = { 0, 1, 0 };
+  constexpr double pt4[3] = { 0, 0, 2 };
+  constexpr double pt5[3] = { 0, 1, 2 };
 
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataTypeToDouble();

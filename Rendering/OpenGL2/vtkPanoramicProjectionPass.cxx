@@ -252,7 +252,7 @@ void vtkPanoramicProjectionPass::Project(vtkOpenGLRenderWindow* renWin)
 void vtkPanoramicProjectionPass::RenderOnFace(const vtkRenderState* s, int faceIndex)
 {
   // We can cull the back face is angle is inferior to 2 * (pi - atan(sqrt(2))) radians
-  const double cullBackFaceAngle = 250.528779;
+  constexpr double cullBackFaceAngle = 250.528779;
 
   if (faceIndex == GL_TEXTURE_CUBE_MAP_NEGATIVE_Z && this->Angle <= cullBackFaceAngle)
   {

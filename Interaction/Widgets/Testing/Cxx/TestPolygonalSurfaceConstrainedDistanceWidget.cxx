@@ -39,7 +39,7 @@
 #include "vtkTriangleFilter.h"
 #include "vtkWarpScalar.h"
 
-const char TestPolygonalSurfaceConstrainedDistanceWidgetLog[] =
+constexpr char TestPolygonalSurfaceConstrainedDistanceWidgetLog[] =
   "# StreamVersion 1 i\n"
   "RenderEvent 0 0 0 0 0 0 0 i\n"
   "EnterEvent 293 1 0 0 0 0 0 i\n"

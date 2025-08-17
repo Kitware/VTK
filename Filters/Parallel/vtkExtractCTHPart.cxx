@@ -48,9 +48,9 @@ vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart, ClipPlane, vtkPlane);
 vtkCxxSetObjectMacro(vtkExtractCTHPart, Controller, vtkMultiProcessController);
 
-const double CTH_AMR_SURFACE_VALUE = 0.499;
-const double CTH_AMR_SURFACE_VALUE_FLOAT = 1;
-const double CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR = 255;
+constexpr double CTH_AMR_SURFACE_VALUE = 0.499;
+constexpr double CTH_AMR_SURFACE_VALUE_FLOAT = 1;
+constexpr double CTH_AMR_SURFACE_VALUE_UNSIGNED_CHAR = 255;
 
 //------------------------------------------------------------------------------
 //=============================================================================

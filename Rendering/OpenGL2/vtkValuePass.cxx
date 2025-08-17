@@ -195,7 +195,7 @@ public:
     if (!this->InvertibleLookupTable)
     {
       vtkLookupTable* table = vtkLookupTable::New();
-      const int MML = 0x1000;
+      constexpr int MML = 0x1000;
       table->SetNumberOfTableValues(MML);
       table->SetBelowRangeColor(0.0, 0.0, 0.0, 1.0);
       table->SetAboveRangeColor(0.0, 0.0, 0.0, 1.0);
@@ -975,7 +975,7 @@ void vtkValuePass::BindAttributes(vtkShaderProgram* prog, vtkOpenGLVertexArrayOb
   {
     if (prog->IsAttributeUsed("dataAttribute"))
     {
-      size_t const stride = sizeof(float);
+      constexpr size_t stride = sizeof(float);
 
       if (!VAO->AddAttributeArray(
             prog, this->ImplFloat->PointBuffer, "dataAttribute", 0, stride, VTK_FLOAT, 1, false))

@@ -190,8 +190,8 @@ template <class G> bool operator!=(const allocator<G>&a1,
 }
 #endif
 
-const unsigned int VTK_DEFAULT_CHUNK_SIZE = 50;
-const int VTK_DEFAULT_NUMBER_OF_CHUNKS = 100;
+constexpr unsigned int VTK_DEFAULT_CHUNK_SIZE = 50;
+constexpr int VTK_DEFAULT_NUMBER_OF_CHUNKS = 100;
 
 //------------------------------------------------------------------------------
 // Memory management with a pool of objects to make allocation of chunks of
@@ -368,7 +368,7 @@ public:
 
 //------------------------------------------------------------------------------
 // Hashtable of surfels.
-const int VTK_HASH_PRIME = 31;
+constexpr int VTK_HASH_PRIME = 31;
 class vtkHashTableOfSurfels
 {
 public:

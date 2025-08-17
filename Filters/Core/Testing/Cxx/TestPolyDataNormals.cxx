@@ -28,7 +28,7 @@ vtkNew<vtkPolyData> MakeTetrahedron()
 
   tet->SetPoints(points);
 
-  int const nTri = 4;
+  constexpr int nTri = 4;
   vtkNew<vtkCellArray> polys;
   polys->AllocateExact(nTri, 3 * nTri);
   polys->InsertNextCell({ 0, 1, 2 });

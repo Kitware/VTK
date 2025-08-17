@@ -165,7 +165,7 @@ int vtkContinuousScatterplot::RequestData(
   }
 
   // Divide the tetrahedron into four faces. The index of each face.
-  const int tetTemplate[4][3] = { { 0, 1, 2 }, { 0, 1, 3 }, { 0, 2, 3 }, { 1, 2, 3 } };
+  constexpr int tetTemplate[4][3] = { { 0, 1, 2 }, { 0, 1, 3 }, { 0, 2, 3 }, { 1, 2, 3 } };
 
   // fragments of current cell: each cell is placed into the inputQ,
   // then fresh fragments from current slice put into outputQ.

@@ -30,7 +30,7 @@ vtkSuperquadric::vtkSuperquadric()
   this->Size = .5;
 }
 
-static const double MAX_FVAL = 1e12;
+static constexpr double MAX_FVAL = 1e12;
 static double VTK_MIN_SUPERQUADRIC_ROUNDNESS = 1e-24;
 
 void vtkSuperquadric::SetThetaRoundness(double e)

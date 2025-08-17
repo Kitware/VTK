@@ -40,7 +40,7 @@ public:
 
   vtkPolygonalSurfacePointPlacerNode* GetNodeAtSurfaceWorldPosition(double worldPos[3])
   {
-    const double tolerance = 0.0005;
+    constexpr double tolerance = 0.0005;
     for (unsigned int i = 0; i < this->Nodes.size(); i++)
     {
       if (vtkMath::Distance2BetweenPoints(this->Nodes[i]->SurfaceWorldPosition, worldPos) <
@@ -54,7 +54,7 @@ public:
 
   vtkPolygonalSurfacePointPlacerNode* GetNodeAtWorldPosition(double worldPos[3])
   {
-    const double tolerance = 0.0005;
+    constexpr double tolerance = 0.0005;
     for (unsigned int i = 0; i < this->Nodes.size(); i++)
     {
       if (vtkMath::Distance2BetweenPoints(this->Nodes[i]->WorldPosition, worldPos) < tolerance)

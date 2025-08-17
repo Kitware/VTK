@@ -338,7 +338,7 @@ int vtkProcrustesAlignmentFilter::RequestData(vtkInformation* vtkNotUsed(request
   // compute mean and align all the shapes to it, until convergence
   int converged = 0; // bool converged=false
   int iterations = 0;
-  const int MAX_ITERATIONS = 5;
+  constexpr int MAX_ITERATIONS = 5;
   double difference;
   double point[3], p[3], p2[3];
   double outPoint[3];

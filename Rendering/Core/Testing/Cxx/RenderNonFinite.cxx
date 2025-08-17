@@ -49,8 +49,8 @@
 // Create the data described above.
 static vtkSmartPointer<vtkPolyData> CreateData()
 {
-  const int cellsHigh = 6;
-  const int pointsHigh = cellsHigh + 1;
+  constexpr int cellsHigh = 6;
+  constexpr int pointsHigh = cellsHigh + 1;
   const double pointValues[pointsHigh] = { vtkMath::NegInf(), 0.0, 0.5, vtkMath::Nan(), 0.5, 1.0,
     vtkMath::Inf() };
 
@@ -159,7 +159,7 @@ static vtkSmartPointer<vtkRenderer> CreateRenderer(
   return renderer;
 }
 
-const int NUM_RENDERERS = 8;
+constexpr int NUM_RENDERERS = 8;
 static void AddRenderer(vtkRenderer* renderer, vtkRenderWindow* renwin)
 {
   static int rencount = 0;

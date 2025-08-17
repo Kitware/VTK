@@ -79,10 +79,10 @@ bool TestPassthrough()
 {
   std::cout << "Testing Information Passthrough:" << std::endl;
 
-  const int extent[6] = { 0, 1, 0, 1, 1, 2 };
-  const double spacing[3] = { 2.0, 3.0, 4.0 };
-  const double direction[9] = { 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0 };
-  const double origin[3] = { 10.0, -3.0, 8.0 };
+  constexpr int extent[6] = { 0, 1, 0, 1, 1, 2 };
+  constexpr double spacing[3] = { 2.0, 3.0, 4.0 };
+  constexpr double direction[9] = { 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0 };
+  constexpr double origin[3] = { 10.0, -3.0, 8.0 };
 
   vtkNew<vtkImageImport> source;
   source->SetDataScalarTypeToFloat();
@@ -127,9 +127,9 @@ bool TestInformationInput()
 
   // the information
   int extent[6] = { 0, 1, 0, 1, -1, 0 };
-  const double spacing[3] = { 6.0, 2.0, 5.0 };
-  const double direction[9] = { 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0 };
-  const double origin[3] = { 9.0, 2.0, 1.5 };
+  constexpr double spacing[3] = { 6.0, 2.0, 5.0 };
+  constexpr double direction[9] = { 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0 };
+  constexpr double origin[3] = { 9.0, 2.0, 1.5 };
 
   // the information input
   vtkNew<vtkImageData> info;
@@ -172,10 +172,10 @@ bool TestSetInformation()
   input->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
 
   // the information
-  const int extent[6] = { 0, 1, 0, 1, 2, 3 };
-  const double spacing[3] = { 6.5, 2.5, 5.5 };
-  const double direction[9] = { 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0 };
-  const double origin[3] = { 9.0, 2.0, 1.5 };
+  constexpr int extent[6] = { 0, 1, 0, 1, 2, 3 };
+  constexpr double spacing[3] = { 6.5, 2.5, 5.5 };
+  constexpr double direction[9] = { 0.0, 0.0, -1.0, 1.0, 0.0, 0.0, 0.0, -1.0, 0.0 };
+  constexpr double origin[3] = { 9.0, 2.0, 1.5 };
 
   // manually set the new information
   vtkNew<vtkImageChangeInformation> change;
@@ -213,9 +213,9 @@ bool TestAdjustInformation()
   input->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
 
   // the information
-  const int extent[6] = { 3, 4, -1, 0, 2, 3 };
-  const double spacing[3] = { 6.5, 2.5, 5.5 };
-  const double origin[3] = { 9.0, 2.0, 1.5 };
+  constexpr int extent[6] = { 3, 4, -1, 0, 2, 3 };
+  constexpr double spacing[3] = { 6.5, 2.5, 5.5 };
+  constexpr double origin[3] = { 9.0, 2.0, 1.5 };
 
   // adjust the information via translation and scaling
   vtkNew<vtkImageChangeInformation> change;
@@ -262,7 +262,7 @@ bool TestCenter()
   vtkImageData* output = change->GetOutput();
   double center[3];
   output->GetCenter(center);
-  const double expectedCenter[3] = { 0.0, 0.0, 0.0 };
+  constexpr double expectedCenter[3] = { 0.0, 0.0, 0.0 };
   bool success = CompareVectorFuzzy("Center:", expectedCenter, center, 3);
 
   if (success)

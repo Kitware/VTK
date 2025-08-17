@@ -25,10 +25,10 @@ vtkStandardNewMacro(vtkHexahedron);
 
 namespace
 {
-const double VTK_DIVERGED = 1.e6;
-const int VTK_HEX_MAX_ITERATION = 10;
-const double VTK_HEX_CONVERGED = 1.e-05;
-const double VTK_HEX_OUTSIDE_CELL_TOLERANCE = 1.e-06;
+constexpr double VTK_DIVERGED = 1.e6;
+constexpr int VTK_HEX_MAX_ITERATION = 10;
+constexpr double VTK_HEX_CONVERGED = 1.e-05;
+constexpr double VTK_HEX_OUTSIDE_CELL_TOLERANCE = 1.e-06;
 }
 
 //------------------------------------------------------------------------------

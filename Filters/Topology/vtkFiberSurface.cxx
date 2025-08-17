@@ -42,14 +42,14 @@
 // table. This array can also be used in the clipping case look-up table
 // clipTriangleVertices.
 VTK_ABI_NAMESPACE_BEGIN
-static const char ternaryShift[4] = { 1, 3, 9, 27 };
+static constexpr char ternaryShift[4] = { 1, 3, 9, 27 };
 
 //------------------------------------------------------------------------------
 
 // In the Marching Tethrhedron with Grey case, the iso-surface can be either a triangle
 // ,quad or null. The number of triangles in each case is at most 2. This array
 // records the number of triangles for every case.
-static const int nTriangles[81] = {
+static constexpr int nTriangles[81] = {
   0, 0, 1, 0, 0, 1, 1, 1, 2, // cases 0000-0022
   0, 0, 1, 0, 1, 1, 1, 1, 1, // cases 0100-0122
   1, 1, 2, 1, 1, 1, 2, 1, 1, // cases 0200-0222
@@ -70,7 +70,7 @@ static const int nTriangles[81] = {
 // there are total 81 cases. Each case contains at most two triangles.
 // The order these cases arranged are as follows: starting from 0000 to 0002,
 // then from 0010 to 0022, then from 0100 to 0222, finally from 1000 to 2222.
-static const vtkFiberSurface::BaseVertexType greyTetTriangles[81][2][3] = {
+static constexpr vtkFiberSurface::BaseVertexType greyTetTriangles[81][2][3] = {
   { // 0. case 0000 (A)
     { vtkFiberSurface::bv_not_used, vtkFiberSurface::bv_not_used, vtkFiberSurface::bv_not_used },
 
@@ -401,7 +401,7 @@ static const vtkFiberSurface::BaseVertexType greyTetTriangles[81][2][3] = {
 
 // conversion from the enum semantics for edges to actual edge numbers
 // depends on the ordering of bv_edge_** in BaseVertexType enum
-static const int edge2endpoints[6][2] = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 },
+static constexpr int edge2endpoints[6][2] = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 },
   { 2, 3 } };
 
 //------------------------------------------------------------------------------
@@ -409,12 +409,12 @@ static const int edge2endpoints[6][2] = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }
 // convert edge_*_param_* enum to edge numbers
 // depends on the ordering of edge_0 and edge_1 enums (i.e. edge_0 + 2 == edge_1 + 1
 // == edge_2)
-static const int clip2points[3][2] = { { 1, 2 }, { 2, 0 }, { 0, 1 } };
+static constexpr int clip2points[3][2] = { { 1, 2 }, { 2, 0 }, { 0, 1 } };
 
 //------------------------------------------------------------------------------
 
 // this table lists the number of triangles per case for fiber clipping
-static const int nClipTriangles[27] = {
+static constexpr int nClipTriangles[27] = {
   0, 1, 2, 1, 2, 3, 2, 3, 2, // cases 000 - 022
   1, 2, 3, 2, 1, 2, 3, 2, 1, // cases 100 - 122
   2, 3, 2, 3, 2, 1, 2, 1, 0  // cases 200 - 222
@@ -427,7 +427,7 @@ static const int nClipTriangles[27] = {
 // clarity by doing it this way.
 // This array therefore specifies the vertices of each triangle to be rendered in the
 // clipping process.
-static const int clipTriangleVertices[27][3][3] = {
+static constexpr int clipTriangleVertices[27][3][3] = {
   // 0. case 000: A - empty
   { { vtkFiberSurface::not_used, vtkFiberSurface::not_used, vtkFiberSurface::not_used },
 

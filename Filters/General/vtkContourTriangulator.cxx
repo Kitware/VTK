@@ -1124,7 +1124,7 @@ void vtkCCSFindTrueEdges(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
   std::vector<vtkCCSPolyEdges>& polyEdges, vtkCCSCellArray& originalEdges)
 {
   // Tolerance^2 for angle to see if line segments are parallel
-  const double atol2 = (VTK_CCS_POLYGON_TOLERANCE * VTK_CCS_POLYGON_TOLERANCE);
+  constexpr double atol2 = (VTK_CCS_POLYGON_TOLERANCE * VTK_CCS_POLYGON_TOLERANCE);
 
   for (size_t polyId = 0; polyId < polys.size(); polyId++)
   {

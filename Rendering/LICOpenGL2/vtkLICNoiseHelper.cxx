@@ -132,7 +132,7 @@ float* vtkLICRandomNoise2D::GenerateUniform(int sideLen, int grainSize, float mi
 
   // map single pixel random values onto a patch of values of
   // the requested grain size
-  const int ncomp = 2;
+  constexpr int ncomp = 2;
   const int dim2 = sideLen * sideLen;
   const int ntup = ncomp * dim2;
   float* noise = (float*)malloc(ntup * sizeof(float));
@@ -160,7 +160,7 @@ float* vtkLICRandomNoise2D::GenerateGaussian(int sideLen, int grainSize, float m
   float maxNoiseVal, int nLevels, double impulseProb, float impulseBgNoiseVal, int seed)
 {
   // the distribution becomes Gaussian as N goes to infinity
-  const int N = 2048;
+  constexpr int N = 2048;
 
   // generate a patch of single pixel random values
   // with a gaussian distribution
@@ -237,7 +237,7 @@ float* vtkLICRandomNoise2D::GenerateGaussian(int sideLen, int grainSize, float m
 
   // map single pixel random values onto a patch of values of
   // the requested grain size
-  const int ncomp = 2;
+  constexpr int ncomp = 2;
   const int dim2 = sideLen * sideLen;
   const int ntup = ncomp * dim2;
   float* noise = (float*)malloc(ntup * sizeof(float));
@@ -265,7 +265,7 @@ float* vtkLICRandomNoise2D::GeneratePerlin(int sideLen, int grainSize, float min
   float maxNoiseVal, int nLevels, double impulseProb, float impulseBgNoiseVal, int seed)
 {
   // note: requires power of 2 sideLen, and sideLen > grainSize
-  const int ncomp = 2;
+  constexpr int ncomp = 2;
   const int dim2 = sideLen * sideLen;
   const int ntup = ncomp * dim2;
   float* noise = static_cast<float*>(malloc(ntup * sizeof(float)));

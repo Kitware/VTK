@@ -16,7 +16,7 @@ vtkWindow::vtkWindow()
   this->Size[0] = this->Size[1] = 0;
   this->Position[0] = this->Position[1] = 0;
   this->Mapped = 0;
-  const char windowname[] = "Visualization Toolkit";
+  constexpr char windowname[] = "Visualization Toolkit";
   this->WindowName = new char[strlen(windowname) + 1];
   strcpy(this->WindowName, windowname);
   this->Erase = 1;

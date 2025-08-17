@@ -28,7 +28,7 @@ int TestGeoProjection(int, char*[])
   std::array<double, 3> galatiCart{ 3960080.027008516, 2102195.367671419, 4521336.196173832 };
   const std::array<double, 3> galatiLonLatExpected{ 27.96144955485114, 45.43337341871766,
     84.56871610693634 };
-  const int zoneExpected = 35;
+  constexpr int zoneExpected = 35;
   std::array<double, 3> galatiLonLat;
   vtkNew<vtkGeoTransform> transform;
   transform->SetTransformZCoordinate(true);

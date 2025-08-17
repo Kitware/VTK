@@ -19,7 +19,7 @@
 
 #include <cmath>
 
-const int SPLAT_IMAGE_SIZE = 100;
+constexpr int SPLAT_IMAGE_SIZE = 100;
 
 int FastSplatter(int, char*[])
 {

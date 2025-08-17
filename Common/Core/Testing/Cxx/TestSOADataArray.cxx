@@ -14,7 +14,7 @@
 
 namespace
 {
-const int numValues = 5;
+constexpr int numValues = 5;
 double firstData[numValues] = { 0, 1.5, 2, std::numeric_limits<double>::max(), nan("") };
 double secondData[numValues] = { 10, 11.5, 12, std::numeric_limits<double>::infinity(), 15 };
 const double voidPointerData[2 * numValues] = { -1, -2.5, std::numeric_limits<double>::infinity(),

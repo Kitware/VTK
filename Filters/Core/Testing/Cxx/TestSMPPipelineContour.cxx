@@ -15,9 +15,9 @@
 #include "vtkTimerLog.h"
 #include "vtkXMLMultiBlockDataWriter.h"
 
-const int EXTENT = 100;
+constexpr int EXTENT = 100;
 static int WholeExtent[] = { -EXTENT, EXTENT, -EXTENT, EXTENT, -EXTENT, EXTENT };
-const int NUMBER_OF_PIECES = 50;
+constexpr int NUMBER_OF_PIECES = 50;
 static vtkImageData* Pieces[NUMBER_OF_PIECES];
 
 class vtkCreateImageData

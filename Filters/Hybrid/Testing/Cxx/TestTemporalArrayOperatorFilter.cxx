@@ -20,8 +20,8 @@
 
 namespace
 {
-const double TIME_RANGE[2] = { 0, 5 };
-const double TIME_VALUES[6] = { 0, 0.1, 0.2, 0.3, 0.4, 0.5 };
+constexpr double TIME_RANGE[2] = { 0, 5 };
+constexpr double TIME_VALUES[6] = { 0, 0.1, 0.2, 0.3, 0.4, 0.5 };
 const std::string ARRAY_NAME = "timeData";
 
 /**
@@ -138,14 +138,14 @@ bool TestDefault()
   operatorFilter->SetInputArrayToProcess(
     ARRAY_NAME.c_str(), vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
-  const int firstTimeStep = 3;
-  const int secondTimeStep = 0;
+  constexpr int firstTimeStep = 3;
+  constexpr int secondTimeStep = 0;
   operatorFilter->SetFirstTimeStepIndex(firstTimeStep);
   operatorFilter->SetSecondTimeStepIndex(secondTimeStep);
 
   operatorFilter->UpdateInformation();
   // requested time value is not taken into account because RelativeMode is off
-  const int requestTimeStep = 2;
+  constexpr int requestTimeStep = 2;
   operatorFilter->UpdateTimeStep(::TIME_VALUES[requestTimeStep]);
 
   vtkDataSet* outputData = vtkDataSet::SafeDownCast(operatorFilter->GetOutputDataObject(0));
@@ -188,12 +188,12 @@ bool TestOperatorSub()
     ARRAY_NAME.c_str(), vtkDataObject::FIELD_ASSOCIATION_POINTS);
   operatorFilter->SetOperator(vtkTemporalArrayOperatorFilter::SUB);
   operatorFilter->SetOutputArrayNameSuffix("_diff");
-  const int firstTimeStep = 3;
-  const int secondTimeStep = 0;
+  constexpr int firstTimeStep = 3;
+  constexpr int secondTimeStep = 0;
   operatorFilter->SetFirstTimeStepIndex(firstTimeStep);
   operatorFilter->SetSecondTimeStepIndex(secondTimeStep);
 
-  const int requestTimeStep = 2;
+  constexpr int requestTimeStep = 2;
   operatorFilter->UpdateTimeStep(::TIME_VALUES[requestTimeStep]);
 
   vtkDataSet* outputData = vtkDataSet::SafeDownCast(operatorFilter->GetOutputDataObject(0));
@@ -229,7 +229,7 @@ bool TestRelativeMode()
   operatorFilter->SetInputArrayToProcess(
     ARRAY_NAME.c_str(), vtkDataObject::FIELD_ASSOCIATION_POINTS);
   operatorFilter->SetOperator(vtkTemporalArrayOperatorFilter::MUL);
-  const int requestTimeStep = 3;
+  constexpr int requestTimeStep = 3;
   operatorFilter->SetRelativeMode(true);
   operatorFilter->SetTimeStepShift(-requestTimeStep);
 
@@ -271,7 +271,7 @@ bool TestTable()
   operatorFilter->SetOperator(vtkTemporalArrayOperatorFilter::SUB);
 
   const int shift = operatorFilter->GetTimeStepShift();
-  const int currentTimeStep = 1;
+  constexpr int currentTimeStep = 1;
   operatorFilter->UpdateTimeStep(::TIME_VALUES[currentTimeStep]);
 
   vtkTable* diff = vtkTable::SafeDownCast(operatorFilter->GetOutputDataObject(0));

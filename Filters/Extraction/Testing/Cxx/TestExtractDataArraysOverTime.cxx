@@ -83,7 +83,7 @@ int TestExtractDataArraysOverTime(int argc, char* argv[])
   textracter->SetInputConnection(reader->GetOutputPort());
   textracter->UpdateInformation();
   textracter->GenerateTimeStepIndices(1, 11, 1);
-  const int num_timesteps = 10;
+  constexpr int num_timesteps = 10;
 
   vtkNew<vtkExtractDataArraysOverTime> extractor;
   extractor->SetReportStatisticsOnly(true);

@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkSTLWriter);
 vtkCxxSetObjectMacro(vtkSTLWriter, BinaryHeader, vtkUnsignedCharArray);
 
 static char vtkSTLWriterDefaultHeader[] = "Visualization Toolkit generated SLA File";
-static const int vtkSTLWriterBinaryHeaderSize = 80;
+static constexpr int vtkSTLWriterBinaryHeaderSize = 80;
 
 vtkSTLWriter::vtkSTLWriter()
 {

@@ -178,7 +178,7 @@ void vtkBezierInterpolation::DeCasteljauSimplex(
     ? std::array<double, 4>{ 1 - pcoords[0] - pcoords[1], pcoords[0], pcoords[1], 0 }
     : std::array<double, 4>{ 1 - pcoords[0] - pcoords[1] - pcoords[2], pcoords[0], pcoords[1],
         pcoords[2] };
-  const int lin_degree = 1;
+  constexpr int lin_degree = 1;
   const int sub_degree_length_max = NumberOfSimplexFunctions(dim, deg - 1);
   const int shape_func_length = NumberOfSimplexFunctions(dim, lin_degree);
 

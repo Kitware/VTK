@@ -800,7 +800,7 @@ bool vtkGLSLModLight::SetShaderParameters(vtkOpenGLRenderer* renderer, vtkShader
     {
       // Compute the reflectance of the coat layer and the exterior
       // Hard coded air environment (ior = 1.0)
-      const double environmentIOR = 1.0;
+      constexpr double environmentIOR = 1.0;
       program->SetUniformf("coatF0Uniform",
         static_cast<float>(
           vtkProperty::ComputeReflectanceFromIOR(ppty->GetCoatIOR(), environmentIOR)));

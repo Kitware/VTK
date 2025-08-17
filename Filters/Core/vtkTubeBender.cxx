@@ -38,7 +38,7 @@ vtkTubeBender::~vtkTubeBender() = default;
 int vtkTubeBender::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  const double INCREMENT = 2.0 * vtkMath::Pi() / 12;
+  constexpr double INCREMENT = 2.0 * vtkMath::Pi() / 12;
 
   // get the input and output
   vtkPolyData* input = vtkPolyData::GetData(inputVector[0], 0);

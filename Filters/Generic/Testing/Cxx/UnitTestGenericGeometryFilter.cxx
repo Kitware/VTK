@@ -24,7 +24,7 @@ static vtkSmartPointer<vtkBridgeDataSet> CreateTetraData();
 
 int UnitTestGenericGeometryFilter(int, char*[])
 {
-  const int xres = 20, yres = 10;
+  constexpr int xres = 20, yres = 10;
   int status = EXIT_SUCCESS;
   {
     std::cout << "Testing empty print...";

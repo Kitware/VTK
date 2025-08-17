@@ -54,7 +54,7 @@ static vtkSmartPointer<vtkImageStencilData> CreateBoxStencilData(double d1, doub
   // Apply a transformation to the output polydata that subtracts 0.5 from
   // the z coordinate.
 
-  const double m[16] = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, -0.5, 0, 0, 0, 1 };
+  constexpr double m[16] = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, -0.5, 0, 0, 0, 1 };
   vtkMatrixToLinearTransform* linearTransform = vtkMatrixToLinearTransform::New();
   linearTransform->GetMatrix()->DeepCopy(m);
   vtkTransformPolyDataFilter* transformPolyData = vtkTransformPolyDataFilter::New();

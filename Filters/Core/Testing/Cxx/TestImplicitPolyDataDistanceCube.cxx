@@ -19,7 +19,7 @@ bool isPointInsideCube(double x, double y, double z)
 int TestImplicitPolyDataDistanceCube(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Create a cube with side length 1.0
-  const double length = 1.0;
+  constexpr double length = 1.0;
   vtkNew<vtkCubeSource> cube;
   cube->SetXLength(length);
   cube->SetYLength(length);
@@ -34,7 +34,7 @@ int TestImplicitPolyDataDistanceCube(int vtkNotUsed(argc), char* vtkNotUsed(argv
   signedDistance->SetInput(cubePolydata);
 
   // Grid step size for sampling points
-  const double step = 0.05;
+  constexpr double step = 0.05;
 
   // Calculate number of steps in each dimension
   int numSteps = static_cast<int>(2 * length / step) + 1;

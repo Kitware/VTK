@@ -15,9 +15,9 @@ void vtkBase64Utilities::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-static const unsigned char vtkBase64UtilitiesEncodeTable[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                                               "abcdefghijklmnopqrstuvwxyz"
-                                                               "0123456789+/";
+static constexpr unsigned char vtkBase64UtilitiesEncodeTable[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                                                   "abcdefghijklmnopqrstuvwxyz"
+                                                                   "0123456789+/";
 
 //------------------------------------------------------------------------------
 inline static unsigned char vtkBase64UtilitiesEncodeChar(unsigned char c)
@@ -103,7 +103,7 @@ unsigned long vtkBase64Utilities::Encode(
 }
 
 //------------------------------------------------------------------------------
-static const unsigned char vtkBase64UtilitiesDecodeTable[256] = {
+static constexpr unsigned char vtkBase64UtilitiesDecodeTable[256] = {
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, //
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, //
   0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, //

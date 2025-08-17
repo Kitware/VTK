@@ -3,7 +3,7 @@
 #include "vtkGenericCell.h"
 #include "vtkPoints.h"
 
-static const unsigned int depth = 5;
+static constexpr unsigned int depth = 5;
 static unsigned char HigherOrderCell[][depth] = {
   { VTK_LINE, VTK_QUADRATIC_EDGE, VTK_NUMBER_OF_CELL_TYPES, VTK_NUMBER_OF_CELL_TYPES,
     VTK_NUMBER_OF_CELL_TYPES },
@@ -93,7 +93,7 @@ int TestHigherOrderCell(int, char*[])
   };
 
   const unsigned char* orderCell;
-  const unsigned int nCells = sizeof(HigherOrderCell) / depth;
+  constexpr unsigned int nCells = sizeof(HigherOrderCell) / depth;
   vtkCell* cellArray[depth];
   for (unsigned int i = 0; i < nCells; ++i)
   {

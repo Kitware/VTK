@@ -446,7 +446,7 @@ int vtkHigherOrderTetra::CellBoundary(
     }
   }
 
-  const int closestFaceByAxis[4][3] = { { 0, 3, 2 }, { 0, 1, 3 }, { 0, 2, 1 }, { 1, 2, 3 } };
+  constexpr int closestFaceByAxis[4][3] = { { 0, 3, 2 }, { 0, 1, 3 }, { 0, 2, 1 }, { 1, 2, 3 } };
 
   pts->SetNumberOfIds(3);
   for (int ii = 0; ii < 3; ++ii)

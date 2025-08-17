@@ -204,7 +204,7 @@ void vtkThinPlateSplineTransform::InternalUpdate()
   }
 
   const vtkIdType N = this->SourceLandmarks->GetNumberOfPoints();
-  const int D = 3; // dimensions
+  constexpr int D = 3; // dimensions
 
   // the output weights matrix
   double** W = vtkNewMatrix(N + D + 1, D);

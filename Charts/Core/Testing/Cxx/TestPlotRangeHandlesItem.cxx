@@ -112,10 +112,10 @@ int TestPlotRangeHandlesItem(int, char*[])
   //
   // Moving vertical right handle
   //
-  const char rightEvents[] = "# StreamVersion 1\n"
-                             "LeftButtonPressEvent 10 2 0 0 0 0 0\n"
-                             "MouseMoveEvent 20 2 0 0 0 0 0\n"
-                             "LeftButtonReleaseEvent 20 2 0 0 0 0 0\n";
+  constexpr char rightEvents[] = "# StreamVersion 1\n"
+                                 "LeftButtonPressEvent 10 2 0 0 0 0 0\n"
+                                 "MouseMoveEvent 20 2 0 0 0 0 0\n"
+                                 "LeftButtonReleaseEvent 20 2 0 0 0 0 0\n";
   recorder->SetInputString(rightEvents);
   recorder->Play();
 
@@ -144,10 +144,10 @@ int TestPlotRangeHandlesItem(int, char*[])
   // Moving vertical left handle
   //
   Vcbk->EventSpy.clear();
-  const char leftEvents[] = "# StreamVersion 1\n"
-                            "LeftButtonPressEvent 0 2 0 0 0 0 0\n"
-                            "MouseMoveEvent 10 2 0 0 0 0 0\n"
-                            "LeftButtonReleaseEvent 10 2 0 0 0 0 0\n";
+  constexpr char leftEvents[] = "# StreamVersion 1\n"
+                                "LeftButtonPressEvent 0 2 0 0 0 0 0\n"
+                                "MouseMoveEvent 10 2 0 0 0 0 0\n"
+                                "LeftButtonReleaseEvent 10 2 0 0 0 0 0\n";
   recorder->SetInputString(leftEvents);
   recorder->Play();
 
@@ -177,10 +177,10 @@ int TestPlotRangeHandlesItem(int, char*[])
   //
   VRangeItem->SynchronizeRangeHandlesOff();
   Vcbk->EventSpy.clear();
-  const char leftEvents2[] = "# StreamVersion 1\n"
-                             "LeftButtonPressEvent 10 2 0 0 0 0 0\n"
-                             "MouseMoveEvent 20 2 0 0 0 0 0\n"
-                             "LeftButtonReleaseEvent 20 2 0 0 0 0 0\n";
+  constexpr char leftEvents2[] = "# StreamVersion 1\n"
+                                 "LeftButtonPressEvent 10 2 0 0 0 0 0\n"
+                                 "MouseMoveEvent 20 2 0 0 0 0 0\n"
+                                 "LeftButtonReleaseEvent 20 2 0 0 0 0 0\n";
   recorder->SetInputString(leftEvents2);
   recorder->Play();
 
@@ -208,10 +208,10 @@ int TestPlotRangeHandlesItem(int, char*[])
   //
   // Move horizontal right handle (top handle)
   //
-  const char topEvents[] = "# StreamVersion 1\n"
-                           "LeftButtonPressEvent 2 20 0 0 0 0 0\n"
-                           "MouseMoveEvent 2 30 0 0 0 0 0\n"
-                           "LeftButtonReleaseEvent 2 30 0 0 0 0 0\n";
+  constexpr char topEvents[] = "# StreamVersion 1\n"
+                               "LeftButtonPressEvent 2 20 0 0 0 0 0\n"
+                               "MouseMoveEvent 2 30 0 0 0 0 0\n"
+                               "LeftButtonReleaseEvent 2 30 0 0 0 0 0\n";
   recorder->SetInputString(topEvents);
   recorder->Play();
 
@@ -240,10 +240,10 @@ int TestPlotRangeHandlesItem(int, char*[])
   // Move horizontal left handle (bottom handle)
   //
   Hcbk->EventSpy.clear();
-  const char bottomEvents[] = "# StreamVersion 1\n"
-                              "LeftButtonPressEvent 2 0 0 0 0 0 0\n"
-                              "MouseMoveEvent 2 30 0 0 0 0 0\n"
-                              "LeftButtonReleaseEvent 2 30 0 0 0 0 0\n";
+  constexpr char bottomEvents[] = "# StreamVersion 1\n"
+                                  "LeftButtonPressEvent 2 0 0 0 0 0 0\n"
+                                  "MouseMoveEvent 2 30 0 0 0 0 0\n"
+                                  "LeftButtonReleaseEvent 2 30 0 0 0 0 0\n";
   recorder->SetInputString(bottomEvents);
   recorder->Play();
 
@@ -273,10 +273,10 @@ int TestPlotRangeHandlesItem(int, char*[])
   //
   HRangeItem->SynchronizeRangeHandlesOff();
   Hcbk->EventSpy.clear();
-  const char bottomEvents2[] = "# StreamVersion 1\n"
-                               "LeftButtonPressEvent 2 30 0 0 0 0 0\n"
-                               "MouseMoveEvent 2 20 0 0 0 0 0\n"
-                               "LeftButtonReleaseEvent 2 20 0 0 0 0 0\n";
+  constexpr char bottomEvents2[] = "# StreamVersion 1\n"
+                                   "LeftButtonPressEvent 2 30 0 0 0 0 0\n"
+                                   "MouseMoveEvent 2 20 0 0 0 0 0\n"
+                                   "LeftButtonReleaseEvent 2 20 0 0 0 0 0\n";
   recorder->SetInputString(bottomEvents2);
   recorder->Play();
 
@@ -306,10 +306,10 @@ int TestPlotRangeHandlesItem(int, char*[])
   //
   VRangeItem->ExtentToAxisRangeOff();
   Vcbk->EventSpy.clear();
-  const char leftEvents3[] = "# StreamVersion 1\n"
-                             "LeftButtonPressEvent 20 10 0 0 0 0 0\n"
-                             "MouseMoveEvent 10 10 0 0 0 0 0\n"
-                             "LeftButtonReleaseEvent 10 10 0 0 0 0 0\n";
+  constexpr char leftEvents3[] = "# StreamVersion 1\n"
+                                 "LeftButtonPressEvent 20 10 0 0 0 0 0\n"
+                                 "MouseMoveEvent 10 10 0 0 0 0 0\n"
+                                 "LeftButtonReleaseEvent 10 10 0 0 0 0 0\n";
   recorder->SetInputString(leftEvents3);
   recorder->Play();
 

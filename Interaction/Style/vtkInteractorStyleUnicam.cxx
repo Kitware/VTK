@@ -448,7 +448,7 @@ void vtkInteractorStyleUnicam::RotateXY(int X, int Y)
     // function could probably be used rather than a hard cutoff, but
     // time constraints prevent figuring that out right now.)
     //
-    const double OVER_THE_TOP_THRESHOLD = 0.99;
+    constexpr double OVER_THE_TOP_THRESHOLD = 0.99;
     if (vtkMath::Dot(UPvec, atV) > OVER_THE_TOP_THRESHOLD && rdist < 0)
     {
       rdist = 0;

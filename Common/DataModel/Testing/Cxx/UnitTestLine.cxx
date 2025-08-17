@@ -11,7 +11,7 @@
 
 namespace
 {
-const double EPSILON = 1.e-6;
+constexpr double EPSILON = 1.e-6;
 
 void GenerateIntersectingLineSegments(vtkMinimalStandardRandomSequence* seq, double* a1, double* a2,
   double* b1, double* b2, double& u, double& v)
@@ -492,7 +492,7 @@ int TestDistanceBetweenLineSegments(vtkMinimalStandardRandomSequence* seq, unsig
 
 int TestDistanceToLine(vtkMinimalStandardRandomSequence* seq, unsigned nTests)
 {
-  const double epsilon = 256 * std::numeric_limits<double>::epsilon();
+  constexpr double epsilon = 256 * std::numeric_limits<double>::epsilon();
 
   double a1[3], a2[3], p[3], dist;
 
@@ -518,7 +518,7 @@ int UnitTestLine(int, char*[])
 
   sequence->SetSeed(1);
 
-  const unsigned nTest = 1.e4;
+  constexpr unsigned nTest = 1.e4;
 
   std::cout << "Testing vtkLine::vtkLine::Intersection" << std::endl;
   if (TestLineIntersection(sequence, nTest) == EXIT_FAILURE)

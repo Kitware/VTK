@@ -43,7 +43,7 @@ bool vtkPlotLine::Paint(vtkContext2D* painter)
   {
     // draw lines skipping bad points
     float* points = static_cast<float*>(this->Points->GetVoidPointer(0));
-    const int pointSize = 2;
+    constexpr int pointSize = 2;
     vtkIdType lastGood = 0;
     vtkIdType bpIdx = 0;
     vtkIdType lineIncrement = this->PolyLine ? 1 : 2;

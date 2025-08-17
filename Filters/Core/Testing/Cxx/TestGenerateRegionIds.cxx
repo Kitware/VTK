@@ -92,7 +92,7 @@ bool CheckArrayName()
 bool CheckDefaults()
 {
   const std::string expectedName = "vtkRegionIds";
-  const int expectedNumberOfRegions = 1;
+  constexpr int expectedNumberOfRegions = 1;
 
   vtkNew<vtkSphereSource> sphere;
   vtkNew<vtkGenerateRegionIds> generateRegionIds;

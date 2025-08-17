@@ -452,8 +452,8 @@ template <class F, class T>
 void vtkImageMapperShiftScale(const T* inPtr, unsigned char* outPtr, int ncols, int nrows,
   int numComp, vtkIdType inIncX, vtkIdType inIncY, vtkIdType outIncY, F shift, F scale)
 {
-  const F vmin = static_cast<F>(0);
-  const F vmax = static_cast<F>(255);
+  constexpr F vmin = static_cast<F>(0);
+  constexpr F vmax = static_cast<F>(255);
   unsigned char alpha = 255;
 
   // loop through the data and copy it for the texture

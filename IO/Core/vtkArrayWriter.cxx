@@ -66,7 +66,7 @@ void WriteHeader(const std::string& array_type, const std::string& type_name, vt
 void WriteEndianOrderMark(ostream& stream)
 {
   // Serialize an endian-order mark ...
-  const vtkTypeUInt32 endian_order = 0x12345678;
+  constexpr vtkTypeUInt32 endian_order = 0x12345678;
   stream.write(reinterpret_cast<const char*>(&endian_order), sizeof(endian_order));
 }
 
