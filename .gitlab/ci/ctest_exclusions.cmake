@@ -276,11 +276,10 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64" AND "$ENV{CMAKE_CO
   list(APPEND test_exclusions
     # Failure since viskores: https://gitlab.kitware.com/vtk/vtk/-/issues/19739
     "^VTK::AcceleratorsVTKmFiltersCxx-TestVTKMAbort$"
-    "^VTK::AcceleratorsVTKmFiltersCxx-TestVTKMClip$"
-    "^VTK::AcceleratorsVTKmFiltersCxx-TestVTKMClipWithImplicitFunction$"
     "^VTK::AcceleratorsVTKmFiltersCxx-TestVTKMGradient$"
     "^VTK::AcceleratorsVTKmFiltersCxx-TestVTKMGradientAndVorticity$"
     "^VTK::AcceleratorsVTKmFiltersCxx-TestVTKMProbe$"
+    "^VTK::AcceleratorsVTKmFiltersCxx-TestVTKMSlice$"
     )
 endif ()
 
