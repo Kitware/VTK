@@ -351,6 +351,8 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
     state.LastRepresentation = displayProperty->GetRepresentation();
     state.LastVertexVisibility = displayProperty->GetVertexVisibility();
     state.LastHasRenderingTranslucentGeometry = hasTranslucentPolygonalGeometry;
+    state.LastPointSize = displayProperty->GetPointSize();
+    state.LastLineWidth = displayProperty->GetLineWidth();
     this->CachedActorRendererProperties[key] = state;
     return true;
   }
@@ -383,6 +385,22 @@ bool vtkWebGPUPolyDataMapper::CacheActorRendererProperties(vtkActor* actor, vtkR
       cacheChanged = true;
     }
     state.LastHasRenderingTranslucentGeometry = hasTranslucentPolygonalGeometry;
+    if (auto* webgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
+    {
+      if (webgpuRenderer->GetUseRenderBundles())
+      {
+        if (state.LastPointSize != displayProperty->GetPointSize())
+        {
+          cacheChanged = true;
+        }
+        state.LastPointSize = displayProperty->GetPointSize();
+        if (state.LastLineWidth != displayProperty->GetLineWidth())
+        {
+          cacheChanged = true;
+        }
+        state.LastLineWidth = displayProperty->GetLineWidth();
+      }
+    }
     return cacheChanged;
   }
 }

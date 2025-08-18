@@ -516,6 +516,8 @@ protected:
     bool LastVertexVisibility = false;
     int LastRepresentation = VTK_SURFACE;
     bool LastHasRenderingTranslucentGeometry = false;
+    int LastPointSize = 1;
+    int LastLineWidth = 1;
   };
 
 private:
