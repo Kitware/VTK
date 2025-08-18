@@ -33,8 +33,11 @@ elseif (VTK_USE_COCOA)
       BASE vtkRenderWindowInteractor
       OVERRIDE vtkCocoaRenderWindowInteractor)
   endif ()
-  list(APPEND sources vtkCocoaRenderWindowInteractor.mm)
+  list(APPEND sources
+    vtkCocoaAutoreleasePool.mm
+    vtkCocoaRenderWindowInteractor.mm)
   list(APPEND headers
+    vtkCocoaAutoreleasePool.h
     vtkCocoaRenderWindowInteractor.h)
   list(APPEND nowrap_headers
     vtkCocoaMacOSXSDKCompatibility.h)
