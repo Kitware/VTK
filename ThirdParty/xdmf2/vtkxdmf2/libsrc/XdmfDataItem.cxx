@@ -377,7 +377,7 @@ XdmfInt32 XdmfDataItem::UpdateFunction(){
             SrcItem->SetArrayIsMine(0);
             ItemToDelete[ NTmp++ ] = TmpItem;
             ItemToDelete[ NTmp++ ] = SrcItem;
-            delete Coordinates;
+            delete[] Coordinates;
     }
     if(this->ItemType == XDMF_ITEM_HYPERSLAB){
         // $0 is Selection $1 is Data Source

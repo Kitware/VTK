@@ -245,22 +245,18 @@ XdmfDOM::GenerateTail() {
 
 XdmfConstString
 XdmfDOM::Serialize(XdmfXmlNode Node) {
-int buflen;
 xmlBufferPtr bufp;
 
 if(!Node) Node = this->Tree;
 if(!Node) return(NULL);
 bufp = xmlBufferCreate();
-buflen = xmlNodeDump(bufp, this->Doc, Node, 0, 1);
+xmlNodeDump(bufp, this->Doc, Node, 0, 1);
 return(this->DupBuffer(bufp));
 }
 
 XdmfInt32 XdmfDOM::Write(XdmfConstString wOutput){
-    XdmfConstString OldOutputFileName;
-
     if(wOutput){
         this->SetOutputFileName(wOutput);
-        OldOutputFileName = this->GetOutputFileName();
     }
     if(!this->GenerateHead()) return(XDMF_FAIL);
     if(!this->Puts(this->Serialize())) return(XDMF_FAIL);

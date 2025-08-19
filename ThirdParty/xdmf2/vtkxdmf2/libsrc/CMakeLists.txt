@@ -282,6 +282,11 @@ vtk_module_add_module(VTK::xdmf2
 set_target_properties(xdmf2
   PROPERTIES
     DEFINE_SYMBOL Xdmf_EXPORTS)
+if (CMAKE_CXX_COMPILER_ID MATCHES "^(GNU|AppleClang|Clang)$")
+  vtk_module_compile_options(VTK::xdmf2 PRIVATE -Wno-deprecated-declarations)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  vtk_module_compile_options(VTK::xdmf2 PRIVATE /wd4996)
+endif ()
 endif ()
 
 #setup dependencies for the optional parts of library

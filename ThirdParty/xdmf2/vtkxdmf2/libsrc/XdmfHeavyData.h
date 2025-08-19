@@ -146,7 +146,8 @@ protected:
 /// Callback function to decorate opening a heavy dataset.
 class XdmfOpenCallback {
     public :
-  virtual XdmfInt32 DoOpen( 
+  virtual ~XdmfOpenCallback() = default;
+  virtual XdmfInt32 DoOpen(
     XdmfHeavyData* ds, 
     XdmfConstString name,
     XdmfConstString access )
@@ -158,6 +159,7 @@ class XdmfOpenCallback {
 /// Callback function to decorate reading a heavy dataset.
 class XdmfReadCallback {
     public :
+  virtual ~XdmfReadCallback() = default;
   virtual XdmfArray* DoRead( XdmfHeavyData* ds, XdmfArray* array ) {
     return ds->DoRead( array );
   }
@@ -166,6 +168,7 @@ class XdmfReadCallback {
 /// Callback function to decorate writing a heavy dataset.
 class XdmfWriteCallback {
     public :
+  virtual ~XdmfWriteCallback() = default;
   virtual XdmfInt32 DoWrite( XdmfHeavyData* ds, XdmfArray* array ) {
     return ds->DoWrite( array );
   }
@@ -174,6 +177,7 @@ class XdmfWriteCallback {
 /// Callback function to decorate closing a heavy dataset.
 class XdmfCloseCallback {
     public :
+  virtual ~XdmfCloseCallback() = default;
   virtual XdmfInt32 DoClose( XdmfHeavyData* ds ) {
     return ds->DoClose();
   }

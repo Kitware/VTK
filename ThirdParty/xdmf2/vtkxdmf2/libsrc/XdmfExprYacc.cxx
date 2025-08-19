@@ -1324,7 +1324,7 @@ yyreduce:
                         xdmf2::XdmfArray *Array2 = ( xdmf2::XdmfArray *)yyvsp[0].ArrayPointer;
                         xdmf2::XdmfArray *NewArray = new xdmf2::XdmfArray();
                         XdmfInt32 i, Rank1, Rank2;
-                        XdmfInt64 NewLength, Length1, Length2, IFactor, Lcd;
+                        XdmfInt64 NewLength, Length1, Length2, /*IFactor,*/ Lcd;
                         XdmfInt64 Dimension1[ XDMF_MAX_DIMENSION ];
                         XdmfInt64 Dimension2[ XDMF_MAX_DIMENSION ];
                         XdmfInt64 Start[ XDMF_MAX_DIMENSION ];
@@ -1344,7 +1344,7 @@ yyreduce:
                         Length1 = Array1->GetNumberOfElements();
                         Length2 = Array2->GetNumberOfElements();
                         NewLength = Length1 + Length2;
-                        IFactor = Length1 / Length2;
+                        // IFactor = Length1 / Length2;
                         Lcd = Length1;
                         if( Length2 < Length1 ){
                                 Lcd = Length2;
