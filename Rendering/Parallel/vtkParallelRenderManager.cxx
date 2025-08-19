@@ -1523,7 +1523,7 @@ void vtkParallelRenderManager::ReadReducedImage()
     }
     this->FullImageUpToDate = 1;
     this->ReducedImage->SetNumberOfComponents(this->FullImage->GetNumberOfComponents());
-    this->ReducedImage->SetArray(this->FullImage->GetPointer(0), this->FullImage->GetSize(), 1);
+    this->ReducedImage->SetArray(this->FullImage->GetPointer(0), this->FullImage->GetDataSize(), 1);
     this->ReducedImage->SetNumberOfTuples(this->FullImage->GetNumberOfTuples());
   }
 
@@ -1546,7 +1546,7 @@ void vtkParallelRenderManager::GetPixelData(vtkUnsignedCharArray* data)
   this->MagnifyReducedImage();
 
   data->SetNumberOfComponents(this->FullImage->GetNumberOfComponents());
-  data->SetArray(this->FullImage->GetPointer(0), this->FullImage->GetSize(), 1);
+  data->SetArray(this->FullImage->GetPointer(0), this->FullImage->GetDataSize(), 1);
   data->SetNumberOfTuples(this->FullImage->GetNumberOfTuples());
 }
 
@@ -1612,7 +1612,7 @@ void vtkParallelRenderManager::GetReducedPixelData(vtkUnsignedCharArray* data)
   this->ReadReducedImage();
 
   data->SetNumberOfComponents(this->ReducedImage->GetNumberOfComponents());
-  data->SetArray(this->ReducedImage->GetPointer(0), this->ReducedImage->GetSize(), 1);
+  data->SetArray(this->ReducedImage->GetPointer(0), this->ReducedImage->GetDataSize(), 1);
   data->SetNumberOfTuples(this->ReducedImage->GetNumberOfTuples());
 }
 

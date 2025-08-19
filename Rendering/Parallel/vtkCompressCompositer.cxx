@@ -503,7 +503,7 @@ void vtkCompressCompositer::CompositeBuffer(
   // Make sure we have an internal buffer of the correct length.
   if (this->InternalPData == nullptr || this->InternalPData->GetDataType() != pBuf->GetDataType() ||
     this->InternalPData->GetNumberOfTuples() != pBuf->GetNumberOfTuples() ||
-    this->InternalPData->GetSize() < pBuf->GetSize())
+    this->InternalPData->GetDataSize() < pBuf->GetDataSize())
   {
     if (this->InternalPData)
     {
@@ -514,17 +514,18 @@ void vtkCompressCompositer::CompositeBuffer(
     {
       this->InternalPData = vtkUnsignedCharArray::New();
       vtkCompositer::ResizeUnsignedCharArray(
-        static_cast<vtkUnsignedCharArray*>(this->InternalPData), numComps, pBuf->GetSize());
+        static_cast<vtkUnsignedCharArray*>(this->InternalPData), numComps,
+        pBuf->GetNumberOfTuples());
     }
     else
     {
       this->InternalPData = vtkFloatArray::New();
       vtkCompositer::ResizeFloatArray(
-        static_cast<vtkFloatArray*>(this->InternalPData), numComps, pBuf->GetSize());
+        static_cast<vtkFloatArray*>(this->InternalPData), numComps, pBuf->GetNumberOfTuples());
     }
   }
   // Now float array.
-  if (this->InternalZData == nullptr || this->InternalZData->GetSize() < zBuf->GetSize())
+  if (this->InternalZData == nullptr || this->InternalZData->GetDataSize() < zBuf->GetDataSize())
   {
     if (this->InternalZData)
     {
@@ -532,7 +533,7 @@ void vtkCompressCompositer::CompositeBuffer(
       this->InternalZData = nullptr;
     }
     this->InternalZData = vtkFloatArray::New();
-    vtkCompositer::ResizeFloatArray(this->InternalZData, 1, zBuf->GetSize());
+    vtkCompositer::ResizeFloatArray(this->InternalZData, 1, zBuf->GetDataSize());
   }
 
   // Compress the incoming buffers (in place operation).

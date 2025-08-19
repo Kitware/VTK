@@ -129,7 +129,7 @@ bool CheckScalarsArray(vtkDataSetAttributes* fieldData, long long nbOfRegions)
   // we do not test with more regions because it take too much time.
   unsigned int elementSize = vtkDataArray::GetDataTypeSize(expectedDataType);
 
-  unsigned int expectedSize = scalars->GetSize() * elementSize;
+  unsigned int expectedSize = scalars->GetDataSize() * elementSize;
   unsigned int expectedKiBSize =
     static_cast<unsigned int>(std::ceil(static_cast<double>(expectedSize) / 1024.0));
   unsigned int actualSize = scalars->GetActualMemorySize();

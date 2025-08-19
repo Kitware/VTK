@@ -8835,7 +8835,7 @@ vtkSmartPointer<vtkFloatArray> vtkOpenFOAMReaderPrivate::FillField(vtkFoamEntry&
       else if (entry.FirstValue().GetType() == vtkFoamToken::SCALARLIST)
       {
         vtkFloatArray& sl = entry.ScalarList();
-        nComponents = static_cast<int>(sl.GetSize());
+        nComponents = static_cast<int>(sl.GetNumberOfValues());
         tuple = sl.GetPointer(0);
       }
       else
@@ -9148,7 +9148,7 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
 #endif
     return;
   }
-  else if (iData->GetSize() == 0)
+  else if (iData->GetNumberOfTuples() == 0)
   {
 #if VTK_OPENFOAM_TIME_PROFILING
     this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
@@ -9681,7 +9681,7 @@ void vtkOpenFOAMReaderPrivate::GetPointFieldAtTimeStep(const std::string& varNam
 #endif
     return;
   }
-  else if (iData->GetSize() == 0)
+  else if (iData->GetNumberOfTuples() == 0)
   {
 #if VTK_OPENFOAM_TIME_PROFILING
     this->RequestDataTimeInMicroseconds += io.TimeInMicroseconds;
