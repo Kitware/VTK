@@ -250,7 +250,7 @@ int vtkAreaPicker::PickProps(vtkRenderer* renderer)
           double dist;
           if (this->ABoxFrustumIsect(bounds, dist))
           {
-            if (this->Prop3Ds->IndexOfFirstOccurence(prop) < 0)
+            if (this->Prop3Ds->IndexOfFirstOccurrence(prop) < 0)
             {
               this->Prop3Ds->AddItem(static_cast<vtkProp3D*>(prop));
               if (dist < mindist) // new nearest, remember it

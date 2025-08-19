@@ -37,7 +37,7 @@ vtkPropAssembly::~vtkPropAssembly()
 // Add a part to the list of Parts.
 void vtkPropAssembly::AddPart(vtkProp* prop)
 {
-  if (this->Parts->IndexOfFirstOccurence(prop) < 0)
+  if (this->Parts->IndexOfFirstOccurrence(prop) < 0)
   {
     this->Parts->AddItem(prop);
     prop->AddConsumer(this);
@@ -48,7 +48,7 @@ void vtkPropAssembly::AddPart(vtkProp* prop)
 // Remove a part from the list of parts,
 void vtkPropAssembly::RemovePart(vtkProp* prop)
 {
-  if (this->Parts->IndexOfFirstOccurence(prop) >= 0)
+  if (this->Parts->IndexOfFirstOccurrence(prop) >= 0)
   {
     prop->RemoveConsumer(this);
     this->Parts->RemoveItem(prop);

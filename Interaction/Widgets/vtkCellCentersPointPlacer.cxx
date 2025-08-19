@@ -59,7 +59,7 @@ void vtkCellCentersPointPlacer::RemoveAllProps()
 //------------------------------------------------------------------------------
 vtkTypeBool vtkCellCentersPointPlacer::HasProp(vtkProp* prop)
 {
-  int index = this->PickProps->IndexOfFirstOccurence(prop);
+  int index = this->PickProps->IndexOfFirstOccurrence(prop);
 
 #if defined(VTK_LEGACY_REMOVE)
   return (index >= 0);

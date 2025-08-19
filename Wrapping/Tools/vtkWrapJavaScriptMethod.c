@@ -754,7 +754,7 @@ void vtkWrapJavaScript_GenerateOneMethod(FILE* fp, const char* classname,
     // have same number of parameters
     int ParameterCount;
     // number of occurrences of these functions which are unwrappable.
-    int UnwrappableOccurenceCount;
+    int UnwrappableOccurrenceCount;
   } BucketData;
   BucketData* bucketData = calloc(numBuckets + 1, sizeof(BucketData));
 
@@ -775,7 +775,7 @@ void vtkWrapJavaScript_GenerateOneMethod(FILE* fp, const char* classname,
       if (wrappedFunctions[i]->Name &&
         !strcmp(wrappedFunctions[i]->Name, unwrappableFunctions[j]->Name))
       {
-        bucketData[bucketId].UnwrappableOccurenceCount += 1;
+        bucketData[bucketId].UnwrappableOccurrenceCount += 1;
       }
     }
   }
@@ -785,7 +785,7 @@ void vtkWrapJavaScript_GenerateOneMethod(FILE* fp, const char* classname,
   {
     DLOG("\n=> %d function(s) in bucketId:%d", bucketData[i].ItemCount, i);
     DLOG("\n=> %d occurrences in bucketId:%d cannot be wrapped",
-      bucketData[i].UnwrappableOccurenceCount, i);
+      bucketData[i].UnwrappableOccurrenceCount, i);
   }
 
   // process functions from the buckets one at a time.
@@ -802,7 +802,7 @@ void vtkWrapJavaScript_GenerateOneMethod(FILE* fp, const char* classname,
     // clang-format on
     const int needsOverloadSelection = (bucketData[bucketId].ItemCount > 1) ||
       (bucketData[bucketId].ItemCount == 1 && numBuckets > 1) ||
-      (bucketData[bucketId].UnwrappableOccurenceCount > 0);
+      (bucketData[bucketId].UnwrappableOccurrenceCount > 0);
     if (needsOverloadSelection)
     {
       DLOG("\n=> Generate select_overload code");

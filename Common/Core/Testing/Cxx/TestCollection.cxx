@@ -122,9 +122,9 @@ bool TestRemoveItem(int index, bool removeIndex)
     std::cerr << "IsItemPresent found null in collection.\n";
     return false;
   }
-  if (collection->IndexOfFirstOccurence(nullptr) != -1)
+  if (collection->IndexOfFirstOccurrence(nullptr) != -1)
   {
-    std::cerr << "IndexOfFirstOccurence found null in collection.\n";
+    std::cerr << "IndexOfFirstOccurrence found null in collection.\n";
     return false;
   }
 

@@ -40,7 +40,7 @@ vtkAnimationScene::~vtkAnimationScene()
 //------------------------------------------------------------------------------
 void vtkAnimationScene::AddCue(vtkAnimationCue* cue)
 {
-  if (this->AnimationCues->IndexOfFirstOccurence(cue) >= 0)
+  if (this->AnimationCues->IndexOfFirstOccurrence(cue) >= 0)
   {
     vtkErrorMacro("Animation cue already present in the scene");
     return;

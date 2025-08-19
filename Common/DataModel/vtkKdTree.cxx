@@ -424,7 +424,7 @@ void vtkKdTree::AddDataSet(vtkDataSet* set)
     return;
   }
 
-  if (this->DataSets->IndexOfFirstOccurence(set) >= 0)
+  if (this->DataSets->IndexOfFirstOccurrence(set) >= 0)
   {
     return;
   }
@@ -459,7 +459,7 @@ int vtkKdTree::GetNumberOfDataSets()
 //------------------------------------------------------------------------------
 int vtkKdTree::GetDataSetIndex(vtkDataSet* set)
 {
-  return this->DataSets->IndexOfFirstOccurence(set);
+  return this->DataSets->IndexOfFirstOccurrence(set);
 }
 
 //------------------------------------------------------------------------------

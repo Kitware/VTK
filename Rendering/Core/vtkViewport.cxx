@@ -134,7 +134,7 @@ void vtkViewport::RemoveActor2D(vtkProp* p)
 //------------------------------------------------------------------------------
 vtkTypeBool vtkViewport::HasViewProp(vtkProp* p)
 {
-  return (p && this->Props->IndexOfFirstOccurence(p) >= 0);
+  return (p && this->Props->IndexOfFirstOccurrence(p) >= 0);
 }
 
 //------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ void vtkViewport::RemoveViewProp(vtkProp* p)
 {
   if (p)
   {
-    int index = this->Props->IndexOfFirstOccurence(p);
+    int index = this->Props->IndexOfFirstOccurrence(p);
     if (index >= 0)
     {
       if (this->VTKWindow)

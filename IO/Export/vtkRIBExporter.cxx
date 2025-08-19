@@ -121,7 +121,7 @@ void vtkRIBExporter::WriteData()
     if (anActor->GetVisibility())
     {
       aTexture = anActor->GetTexture();
-      if (aTexture && textures->IndexOfFirstOccurence(aTexture) < 0)
+      if (aTexture && textures->IndexOfFirstOccurrence(aTexture) < 0)
       {
         this->WriteTexture(aTexture);
         textures->AddItem(aTexture);
