@@ -58,6 +58,12 @@ public:
   void Initialize() override;
 
   /**
+   * Copy one component from \a src into a (potentially different) component
+   * of this array. Note that \a src must be a vtkStringArray.
+   */
+  bool CopyComponent(int dstComponent, vtkAbstractArray* src, int srcComponent) override;
+
+  /**
    * Return the size of the data type.  WARNING: This may not mean
    * what you expect with strings.  It will return
    * sizeof(std::string) and not take into account the data

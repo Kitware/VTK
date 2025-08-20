@@ -424,6 +424,17 @@ public:
   static vtkInformationIntegerKey* FIELD_ASSOCIATION();
   /**
    * \ingroup InformationKeys
+   *
+   * If present, this key specifies an actual or virtual component
+   * of the array. Virtual components are functions of tuples that
+   * evaluate to a single number – such as L₁ or L₂ norms.
+   *
+   * This takes on values from the vtkArrayComponents enumeration as
+   * well as non-negative integers.
+   */
+  static vtkInformationIntegerKey* FIELD_ATTRIBUTE_COMPONENT();
+  /**
+   * \ingroup InformationKeys
    */
   static vtkInformationIntegerKey* FIELD_ATTRIBUTE_TYPE();
   /**

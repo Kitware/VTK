@@ -105,6 +105,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestArrayAPIDense.cxx
   TestArrayAPISparse.cxx
   TestArrayBool.cxx
+  TestArrayComponents.cxx
   TestArrayDispatchers.cxx
   TestAtomic.cxx
   TestScalarsToColors.cxx

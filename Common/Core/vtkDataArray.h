@@ -324,6 +324,7 @@ public:
    */
   virtual void Fill(double value);
 
+  ///@{
   /**
    * Copy a component from one data array into a component on this data array.
    * This method copies the specified component ("srcComponent") from the
@@ -331,8 +332,13 @@ public:
    * over all the tuples in this data array.  This method can be used to extract
    * a component (column) from one data array and paste that data into
    * a component on this data array.
+   *
+   * If \a src is not vtkDataArray, this method will return false and no action
+   * will be taken.
    */
-  virtual void CopyComponent(int dstComponent, vtkDataArray* src, int srcComponent);
+  bool CopyComponent(int dstComponent, vtkAbstractArray* src, int srcComponent) override;
+  virtual bool CopyComponent(int dstComponent, vtkDataArray* src, int srcComponent);
+  ///@}
 
   /**
    * Get the address of a particular data index. Make sure data is allocated

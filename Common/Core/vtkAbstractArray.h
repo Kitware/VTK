@@ -160,6 +160,22 @@ public:
   int CopyComponentNames(vtkAbstractArray* da);
 
   /**
+   * Copy a component from one array into a component on this array.
+   *
+   * This method may fail if the array storage types are incompatible
+   * (for example, there is no automatic conversion from a string array
+   * to a double array). Data arrays will convert types, but as a rule
+   * variant and string arrays must have matching types.
+   *
+   * This method copies the specified component ("srcComponent") from the
+   * specified data array ("src") to the specified component ("dstComponent")
+   * over all the tuples in this data array.  This method can be used to extract
+   * a component (column) from one data array and paste that data into
+   * a component on this data array.
+   */
+  virtual bool CopyComponent(int dstComponent, vtkAbstractArray* src, int srcComponent) = 0;
+
+  /**
    * Set the number of tuples (a component group) in the array. Note that
    * this may allocate space depending on the number of components.
    * Also note that if allocation is performed no copy is performed so

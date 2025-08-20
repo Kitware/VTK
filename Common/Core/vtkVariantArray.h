@@ -68,6 +68,12 @@ public:
   void Initialize() override;
 
   /**
+   * Copy one component from \a src into a (potentially different) component
+   * of this array. Note that \a src must be a vtkStringArray.
+   */
+  bool CopyComponent(int dstComponent, vtkAbstractArray* src, int srcComponent) override;
+
+  /**
    * Return the underlying data type. An integer indicating data type is
    * returned as specified in vtkSetGet.h.
    */
