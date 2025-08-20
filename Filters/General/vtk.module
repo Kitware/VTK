@@ -36,6 +36,7 @@ PRIVATE_DEPENDS
   VTK::fmt
 TEST_DEPENDS
   VTK::CommonColor
+  VTK::FiltersAMR
   VTK::FiltersExtraction
   VTK::FiltersFlowPaths
   VTK::FiltersGeometry

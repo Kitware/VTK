@@ -1,10 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <vtkAMRGaussianPulseSource.h>
 #include <vtkCellData.h>
 #include <vtkDataArraySelection.h>
 #include <vtkDoubleArray.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
+#include <vtkOverlappingAMR.h>
 #include <vtkPassSelectedArrays.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
@@ -46,9 +48,8 @@ int GetArrayCount(vtkDataObject* dobj, int assoc)
   }
   return 0;
 }
-}
 
-int TestPassSelectedArrays(int, char*[])
+bool TestData()
 {
   auto data = GetData();
   AddArray(data, "Temp", vtkDataObject::FIELD_ASSOCIATION_POINTS);
@@ -77,7 +78,7 @@ int TestPassSelectedArrays(int, char*[])
     GetArrayCount(data, vtkDataObject::FIELD_ASSOCIATION_NONE) != 0)
   {
     vtkLogF(ERROR, "no arrays should have been passed through!");
-    return EXIT_FAILURE;
+    return false;
   }
 
   // case 2: pass all point arrays only.
@@ -89,7 +90,7 @@ int TestPassSelectedArrays(int, char*[])
     GetArrayCount(data, vtkDataObject::FIELD_ASSOCIATION_NONE) != 0)
   {
     vtkLogF(ERROR, "expecting point array only!");
-    return EXIT_FAILURE;
+    return false;
   }
   passArrays->GetPointDataArraySelection()->SetUnknownArraySetting(0);
 
@@ -109,15 +110,44 @@ int TestPassSelectedArrays(int, char*[])
     GetArrayCount(data, vtkDataObject::FIELD_ASSOCIATION_NONE) != 1)
   {
     vtkLogF(ERROR, "expecting exactly 1 array of each type!");
-    return EXIT_FAILURE;
+    return false;
   }
 
   // ensure attribute type is getting preserved too.
   if (data->GetPointData()->GetScalars() == nullptr || data->GetCellData()->GetScalars() != nullptr)
   {
     vtkLogF(ERROR, "incorrect attribute type preserved.");
-    return EXIT_FAILURE;
+    return false;
   }
+  return true;
+}
 
-  return EXIT_SUCCESS;
+bool TestReturnType()
+{
+  vtkNew<vtkAMRGaussianPulseSource> amr_source;
+  amr_source->Update();
+
+  vtkOverlappingAMR* amr = amr_source->GetOutput();
+
+  vtkNew<vtkPassSelectedArrays> selection;
+  selection->SetInputData(amr);
+  selection->Update();
+
+  vtkDataObject* amr2 = selection->GetOutput();
+  if (!amr2->IsA(amr->GetClassName()))
+  {
+    vtkLogF(ERROR, "Wrong output type. Expected %s but got %s", amr->GetClassName(),
+      amr2->GetClassName());
+    return false;
+  }
+  return true;
+}
+}
+
+int TestPassSelectedArrays(int, char*[])
+{
+  bool res = true;
+  res &= TestData();
+  res &= TestReturnType();
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
