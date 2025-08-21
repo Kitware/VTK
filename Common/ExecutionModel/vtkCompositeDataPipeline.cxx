@@ -1013,8 +1013,19 @@ std::vector<vtkSmartPointer<vtkDataObject>> vtkCompositeDataPipeline::CreateOutp
 
     // Check if the algorithm can accept UniformGrid on the input port.
     vtkInformation* inPortInfo = this->Algorithm->GetInputPortInformation(compositePort);
-    const char* inputType = inPortInfo->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
-    if (!tempInput->IsA(inputType))
+
+    int nbKeys = inPortInfo->GetNumberOfKeys();
+    bool acceptsUniformGrid = false;
+    for (int k = 0; k < nbKeys; ++k)
+    {
+      const char* inputType = inPortInfo->Get(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), k);
+      if (inputType && tempInput->IsA(inputType))
+      {
+        acceptsUniformGrid = true;
+        break;
+      }
+    }
+    if (!acceptsUniformGrid)
     {
       for (int i = 0; i < numOutputPorts; ++i)
       {
