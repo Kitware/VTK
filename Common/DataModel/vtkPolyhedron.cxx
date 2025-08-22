@@ -1555,7 +1555,7 @@ void FindLowestNeighbor(vtkIdType n, vtkIdType* arr, int idx, bool& mustReverse)
 // therefore the same polygonized border.
 void TriangulateQuad(vtkCell* quad, FaceVector& faces)
 {
-  std::vector<vtkIdType> consistentTri1(3), consistentTri2(2);
+  std::vector<vtkIdType> consistentTri1(3), consistentTri2(3);
   int l = FindLowestIndex(4, quad->GetPointIds()->GetPointer(0));
   bool mustReverse(false);
   FindLowestNeighbor(4, quad->GetPointIds()->GetPointer(0), l, mustReverse);
