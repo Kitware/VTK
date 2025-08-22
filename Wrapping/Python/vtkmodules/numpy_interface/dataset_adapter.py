@@ -658,6 +658,7 @@ class VTKCompositeDataArray(object):
             i = 0
             for (array, offset, size) in zip(arrays, offsets, partition_sizes):
                 if array is NoneArray:
+                    i += 1
                     continue
                 local_slice = self._slice_intersection(global_index, offset, size, total_size)
                 if local_slice is not None:
