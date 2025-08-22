@@ -562,8 +562,9 @@ class VTKCompositeDataArray(object):
         total_size = offsets[-1]
 
         if isinstance(index, VTKCompositeDataArray):
-            # Suboptimal because it converts VTKCompositeDataArray input indices into numpy data
-            self.__setitem__(numpy.concatenate([array for array in index.Arrays if array is not NoneArray]), value)
+            for array, idx in zip(self._Arrays, index._Arrays):
+                if array is not NoneArray:
+                    array[idx] = value
         elif isinstance(index, (numpy.ndarray, list)):
             index = numpy.asarray(index)
             if index.dtype == bool and index.shape == self.shape:
@@ -612,8 +613,13 @@ class VTKCompositeDataArray(object):
         total_size = offsets[-1]
 
         if isinstance(index, VTKCompositeDataArray):
-            # Suboptimal because it converts VTKCompositeDataArray input indices into numpy data
-            return self[numpy.concatenate([array for array in index.Arrays if array is not NoneArray])]
+            res = []
+            for a, idx in zip(arrays, index._Arrays):
+                if a is not NoneArray:
+                    res.append(a.__getitem__(idx))
+                else:
+                    res.append(NoneArray)
+            return VTKCompositeDataArray(res, dataset=self.DataSet)
 
         if isinstance(index, (numpy.ndarray, list)):
             index = numpy.asarray(index)
