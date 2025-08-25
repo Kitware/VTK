@@ -37,7 +37,7 @@ void DataArray::ConvertTo3DVTK(const std::vector<double>& fillValues)
   {
     // copy contents to a temporary
     double* data = vtkDoubleArray::SafeDownCast(this->Data.GetPointer())->GetPointer(0);
-    const size_t size = static_cast<size_t>(this->Data->GetSize());
+    const size_t size = static_cast<size_t>(this->Data->GetDataSize());
     // using raw memory to just use new and copy without initializing
     double* temporary = new double[size];
     std::copy(data, data + size, temporary);
@@ -78,7 +78,7 @@ void DataArray::ConvertTo3DVTK(const std::vector<double>& fillValues)
   if (IsSOA)
   {
     double* data = vtkDoubleArray::SafeDownCast(this->Data.GetPointer())->GetPointer(0);
-    const size_t size = static_cast<size_t>(this->Data->GetSize());
+    const size_t size = static_cast<size_t>(this->Data->GetDataSize());
     // using raw memory to just use new and copy without initializing
     double* temporary = new double[size];
     std::copy(data, data + size, temporary);

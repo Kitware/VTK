@@ -44,7 +44,7 @@ def base64Encode(x):
 def hashDataArray(dataArray):
     hashedBit = hashlib.md5(memoryview(dataArray)).hexdigest()
     typeCode = arrayTypesMapping[dataArray.GetDataType()]
-    return "%s_%d%s" % (hashedBit, dataArray.GetSize(), typeCode)
+    return "%s_%d%s" % (hashedBit, dataArray.GetDataSize(), typeCode)
 
 
 def getJSArrayType(dataArray):
