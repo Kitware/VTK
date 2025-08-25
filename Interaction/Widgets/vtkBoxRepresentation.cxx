@@ -801,6 +801,36 @@ void vtkBoxRepresentation::Rotate(
     (Y - this->LastEventPosition[1]) * (Y - this->LastEventPosition[1]);
   theta = 360.0 * sqrt(l2 / (size[0] * size[0] + size[1] * size[1]));
 
+  if (this->IsRotationAxisLocked())
+  {
+    double a[3] = { 0, 0, 0 };
+    switch (this->RotationAxisMode)
+    {
+      case vtkBoxRepresentation::ROTATE_X:
+        a[0] = 1.0;
+        break;
+      case vtkBoxRepresentation::ROTATE_Y:
+        a[1] = 1.0;
+        break;
+      case vtkBoxRepresentation::ROTATE_Z:
+        a[2] = 1.0;
+        break;
+      default:
+        return; // FREE
+    }
+
+    vtkMath::Normalize(axis);
+    vtkMath::Normalize(a);
+
+    double dot = vtkMath::Dot(axis, a);
+    dot = std::max(-1.0, std::min(1.0, dot));
+
+    theta *= dot;
+    axis[0] = a[0];
+    axis[1] = a[1];
+    axis[2] = a[2];
+  }
+
   // Manipulate the transform to reflect the rotation
   this->Transform->Identity();
   this->Transform->Translate(center[0], center[1], center[2]);

@@ -336,6 +336,30 @@ public:
   void SetCorners(std::vector<double> points);
   ///@}
 
+  enum RotationAxisModeEnum
+  {
+    ROTATE_FREE = 0,
+    ROTATE_X = 1,
+    ROTATE_Y = 2,
+    ROTATE_Z = 3
+  };
+
+  ///@{
+  /**
+   * Get/Set the rotation mode of the box.
+   *
+   * Default is ROTATE_FREE.
+   */
+  vtkSetMacro(RotationAxisMode, int);
+  vtkGetMacro(RotationAxisMode, int);
+  void SetRotationAxisModeToFree() { this->SetRotationAxisMode(ROTATE_FREE); }
+  void SetRotationAxisModeToX() { this->SetRotationAxisMode(ROTATE_X); }
+  void SetRotationAxisModeToY() { this->SetRotationAxisMode(ROTATE_Y); }
+  void SetRotationAxisModeToZ() { this->SetRotationAxisMode(ROTATE_Z); }
+
+  bool IsRotationAxisLocked() const { return this->RotationAxisMode != ROTATE_FREE; }
+  ///@}
+
 protected:
   vtkBoxRepresentation();
   ~vtkBoxRepresentation() override;
@@ -441,6 +465,8 @@ protected:
 private:
   vtkBoxRepresentation(const vtkBoxRepresentation&) = delete;
   void operator=(const vtkBoxRepresentation&) = delete;
+
+  int RotationAxisMode = ROTATE_FREE;
 };
 
 VTK_ABI_NAMESPACE_END

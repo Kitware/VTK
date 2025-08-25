@@ -82,6 +82,7 @@
 #define vtkBoxWidget2_h
 
 #include "vtkAbstractWidget.h"
+#include "vtkBoxRepresentation.h"
 #include "vtkInteractionWidgetsModule.h" // For export macro
 #include "vtkWrappingHints.h"            // For VTK_MARSHALAUTO
 
@@ -149,6 +150,20 @@ public:
    * widget must enable its internal handle widgets.
    */
   void SetEnabled(int enabling) override;
+
+  ///@{
+  /**
+   * Get/Set the rotation mode of the box.
+   *
+   * Default is vtkBoxRepresentation::ROTATE_FREE.
+   */
+  void SetRotationAxisMode(int mode);
+  int GetRotationAxisMode();
+  void SetRotationAxisModeToFree() { this->SetRotationAxisMode(vtkBoxRepresentation::ROTATE_FREE); }
+  void SetRotationAxisModeToX() { this->SetRotationAxisMode(vtkBoxRepresentation::ROTATE_X); }
+  void SetRotationAxisModeToY() { this->SetRotationAxisMode(vtkBoxRepresentation::ROTATE_Y); }
+  void SetRotationAxisModeToZ() { this->SetRotationAxisMode(vtkBoxRepresentation::ROTATE_Z); }
+  ///@}
 
 protected:
   vtkBoxWidget2();

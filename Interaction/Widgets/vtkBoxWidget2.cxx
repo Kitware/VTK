@@ -12,7 +12,6 @@
 #include "vtkRenderer.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
-#include "vtkWidgetEventTranslator.h"
 
 #include <algorithm>
 
@@ -131,6 +130,26 @@ void vtkBoxWidget2::SetEnabled(int enabling)
       this->Interactor->RemoveObserver(this->KeyEventCallbackCommand);
     }
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkBoxWidget2::SetRotationAxisMode(int mode)
+{
+  if (auto* br = vtkBoxRepresentation::SafeDownCast(this->WidgetRep))
+  {
+    br->SetRotationAxisMode(mode);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkBoxWidget2::GetRotationAxisMode()
+{
+  if (auto* br = vtkBoxRepresentation::SafeDownCast(this->WidgetRep))
+  {
+    return br->GetRotationAxisMode();
+  }
+  return vtkBoxRepresentation::ROTATE_FREE;
 }
 
 //------------------------------------------------------------------------------
