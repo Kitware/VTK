@@ -2436,6 +2436,10 @@ int vtkCGNSReader::GetUnstructuredZone(
     // Define total data size for elements
     if (elemType != CGNS_ENUMV(NGON_n) && elemType != CGNS_ENUMV(NFACE_n))
     {
+      if (elemType == CGNS_ENUMV(MIXED))
+      {
+        dimVals[0] -= elementSize;
+      }
       sizeElemSec.push_back(dimVals[0]);
       startElemSec.push_back(sectionInfoList[sec].range[0] - 1);
       numElemCells += elementSize;
