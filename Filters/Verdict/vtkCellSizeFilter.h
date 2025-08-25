@@ -135,7 +135,7 @@ protected:
   double IntegrateVoxel(vtkDataSet* input, vtkIdList* cellPtIds);
   double IntegrateGeneral1DCell(vtkDataSet* input, vtkIdList* cellPtIds);
   double IntegrateGeneral2DCell(vtkPointSet* input, vtkIdList* cellPtIds);
-  double IntegrateGeneral3DCell(vtkPointSet* input, vtkIdList* cellPtIds);
+  double IntegrateGeneral3DCell(vtkPointSet* input, vtkIdList* cellPtIds, vtkTetra* tet);
   ///@}
 
   ///@{

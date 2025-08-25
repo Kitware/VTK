@@ -100,6 +100,7 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, doub
 
   vtkNew<vtkGenericCell> cell;
   vtkPointSet* inputPS = vtkPointSet::SafeDownCast(input);
+  vtkNew<vtkTetra> tet;
 
   vtkUnsignedCharArray* ghostArray = nullptr;
   if (sum)
@@ -308,7 +309,7 @@ void vtkCellSizeFilter::ExecuteBlock(vtkDataSet* input, vtkDataSet* output, doub
             if (this->ComputeVolume)
             {
               cell->TriangulateIds(1, cellPtIds);
-              value = this->IntegrateGeneral3DCell(inputPS, cellPtIds);
+              value = this->IntegrateGeneral3DCell(inputPS, cellPtIds, tet);
             }
             else
             {
@@ -680,7 +681,8 @@ double vtkCellSizeFilter::IntegrateVoxel(vtkDataSet* input, vtkIdList* cellPtIds
 }
 
 //------------------------------------------------------------------------------
-double vtkCellSizeFilter::IntegrateGeneral3DCell(vtkPointSet* input, vtkIdList* ptIds)
+double vtkCellSizeFilter::IntegrateGeneral3DCell(
+  vtkPointSet* input, vtkIdList* ptIds, vtkTetra* tet)
 {
   vtkIdType nPnts = ptIds->GetNumberOfIds();
   // There should be a number of points that is a multiple of 4
@@ -701,7 +703,6 @@ double vtkCellSizeFilter::IntegrateGeneral3DCell(vtkPointSet* input, vtkIdList* 
     tetPtIds[1] = ptIds->GetId(tetIdx++);
     tetPtIds[2] = ptIds->GetId(tetIdx++);
     tetPtIds[3] = ptIds->GetId(tetIdx++);
-    vtkNew<vtkTetra> tet;
     tet->Initialize(4, tetPtIds, input->GetPoints());
     sum += vtkMeshQuality::TetVolume(tet);
   }
