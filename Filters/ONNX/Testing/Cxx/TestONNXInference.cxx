@@ -50,7 +50,7 @@ bool TestGaussianKernel(int argc, char* argv[])
 
   vtkFloatArray* prediction =
     vtkFloatArray::SafeDownCast(output->GetCellData()->GetArray("PredictedField"));
-  test &= ::Assert(prediction->GetSize() == 100, "CELL DATA, Wrong output shape.");
+  test &= ::Assert(prediction->GetNumberOfTuples() == 100, "CELL DATA, Wrong output shape.");
   test &= ::Assert(
     vtkMathUtilities::FuzzyCompare(prediction->GetTuple1(0), 0.8095716238021850585993750, 0.0001),
     "CELL DATA, Wrong prediction value.");
@@ -88,7 +88,7 @@ bool TestGaussianKernelOnPoints(int argc, char* argv[])
 
   vtkFloatArray* prediction =
     vtkFloatArray::SafeDownCast(output->GetPointData()->GetArray("PredictedField"));
-  test &= ::Assert(prediction->GetSize() == 100, "POINT DATA, Wrong output shape.");
+  test &= ::Assert(prediction->GetNumberOfTuples() == 50, "POINT DATA, Wrong output shape.");
   test &= ::Assert(
     vtkMathUtilities::FuzzyCompare(prediction->GetTuple2(0)[1], 0.874813258647918701171875, 0.0001),
     "POINT DATA, Wrong prediction value.");
@@ -136,7 +136,7 @@ bool TestGaussianKernelWithTime(int argc, char* argv[])
   vtkFloatArray* prediction =
     vtkFloatArray::SafeDownCast(output->GetCellData()->GetArray("PredictedField"));
 
-  test &= ::Assert(prediction->GetSize() == 100, "TIME, Wrong output shape.");
+  test &= ::Assert(prediction->GetNumberOfTuples() == 100, "TIME, Wrong output shape.");
   test &= ::Assert(
     vtkMathUtilities::FuzzyCompare(prediction->GetTuple1(0), 0.688853085041046142578125, 0.0001),
     "TIME, Wrong prediction value.");
@@ -147,7 +147,7 @@ bool TestGaussianKernelWithTime(int argc, char* argv[])
   outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeValues[1]);
   filter->Update();
 
-  test &= ::Assert(prediction->GetSize() == 100, "TIME, Wrong output shape.");
+  test &= ::Assert(prediction->GetNumberOfTuples() == 100, "TIME, Wrong output shape.");
   test &= ::Assert(
     vtkMathUtilities::FuzzyCompare(prediction->GetTuple1(0), 0.841141164302825927734375, 0.0001),
     "TIME, Wrong prediction value.");
