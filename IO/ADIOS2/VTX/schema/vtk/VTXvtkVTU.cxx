@@ -181,7 +181,7 @@ void VTXvtkVTU::ReadPiece(size_t step, size_t pieceID)
         ++itBlocks;
       }
 
-      vtkIdType size = connectivity.Data->GetSize();
+      vtkIdType size = connectivity.Data->GetNumberOfValues();
       vtkNew<vtkCellArray> cellArray;
 
       cellArray->AllocateExact(size, iconnectivity->GetNumberOfValues() - size);
@@ -196,7 +196,7 @@ void VTXvtkVTU::ReadPiece(size_t step, size_t pieceID)
       types::DataArray& types = dataSet.at("types");
 
       // single type cells
-      if (types.Data->GetSize() == 1)
+      if (types.Data->GetDataSize() == 1)
       {
         int type = -1;
 
