@@ -445,7 +445,6 @@ void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
     this->InputHTG->GetZCoordinates();
   this->Controller->Broadcast(&hasCoords, 1, 0);
   if (hasCoords)
-  // if (false)
   {
     vtkNew<vtkDoubleArray> xCoords, yCoords, zCoords;
     if (this->Controller->GetLocalProcessId() == 0)

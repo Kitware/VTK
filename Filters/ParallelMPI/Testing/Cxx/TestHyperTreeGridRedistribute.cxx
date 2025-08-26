@@ -16,7 +16,9 @@
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkStringFormatter.h"
+#include "vtkTestUtilities.h"
 #include "vtkType.h"
+#include "vtkXMLHyperTreeGridReader.h"
 
 namespace
 {
@@ -51,6 +53,10 @@ bool CheckDepthArray(vtkHyperTreeGridNonOrientedCursor* cursor, vtkDataArray* de
 bool CheckTreeDepths(vtkHyperTreeGrid* htg)
 {
   vtkDataArray* depthArray = htg->GetCellData()->GetArray("Depth");
+  if (!depthArray)
+  {
+    depthArray = htg->GetCellData()->GetArray("level");
+  }
 
   vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
   vtkHyperTreeGrid::vtkHyperTreeGridIterator inputIterator;
@@ -289,6 +295,33 @@ bool TestRedistributeComposite(vtkMPIController* controller)
 
   return true;
 }
+
+bool TestRedistributeXML(vtkMPIController* controller, const char* shell_name)
+{
+  int myRank = controller->GetLocalProcessId();
+
+  vtkNew<vtkXMLHyperTreeGridReader> source;
+  source->SetFileName(shell_name);
+  source->UpdatePiece(myRank, controller->GetNumberOfProcesses(), 0);
+
+  // Redistribute a HTG read from a file with a single piece.
+  // Only rank 0 has valid metadata, we make sure that this data is broadcasted properly to other
+  // ranks.
+  vtkNew<vtkHyperTreeGridRedistribute> redistribute;
+  redistribute->SetInputConnection(source->GetOutputPort());
+  redistribute->UpdatePiece(myRank, controller->GetNumberOfProcesses(), 0);
+  vtkHyperTreeGrid* outputHTG = redistribute->GetHyperTreeGridOutput();
+
+  std::array nbTrees{ 8, 8, 8 };
+  std::array nbMaskedTrees{ 2, 4, 4 };
+
+  if (!::CheckRedistributeResult(outputHTG, nbTrees, nbMaskedTrees, myRank))
+  {
+    return false;
+  }
+
+  return true;
+}
 }
 
 int TestHyperTreeGridRedistribute(int argc, char* argv[])
@@ -306,6 +339,8 @@ int TestHyperTreeGridRedistribute(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
+  char* shell_name = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/HTG/shell_3d.htg");
+
   std::string threadName = "rank #";
   threadName += vtk::to_string(controller->GetLocalProcessId());
   vtkLogger::SetThreadName(threadName);
@@ -315,6 +350,9 @@ int TestHyperTreeGridRedistribute(int argc, char* argv[])
   success &= ::TestRedistributeHTG2DOnOneProcess(controller);
   success &= ::TestRedistributeMultiComponent(controller);
   success &= ::TestRedistributeComposite(controller);
+  success &= ::TestRedistributeXML(controller, shell_name);
+
+  delete[] shell_name;
 
   controller->Finalize();
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
