@@ -27,7 +27,9 @@
 #define vtkCellSizeFilter_h
 
 #include "vtkFiltersVerdictModule.h" // For export macro
+#include "vtkNew.h"
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkTetra.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
@@ -135,7 +137,7 @@ protected:
   double IntegrateVoxel(vtkDataSet* input, vtkIdList* cellPtIds);
   double IntegrateGeneral1DCell(vtkDataSet* input, vtkIdList* cellPtIds);
   double IntegrateGeneral2DCell(vtkPointSet* input, vtkIdList* cellPtIds);
-  double IntegrateGeneral3DCell(vtkPointSet* input, vtkIdList* cellPtIds, vtkTetra* tet);
+  double IntegrateGeneral3DCell(vtkPointSet* input, vtkIdList* cellPtIds);
   ///@}
 
   ///@{
@@ -166,6 +168,7 @@ private:
   char* LengthArrayName;
   char* AreaArrayName;
   char* VolumeArrayName;
+  vtkNew<vtkTetra> TetCell;
 };
 
 VTK_ABI_NAMESPACE_END
