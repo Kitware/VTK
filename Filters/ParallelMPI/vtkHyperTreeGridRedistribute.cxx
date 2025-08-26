@@ -6,6 +6,7 @@
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
 #include "vtkCommunicator.h"
+#include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
@@ -266,26 +267,20 @@ int vtkHyperTreeGridRedistribute::RequestData(vtkInformation* vtkNotUsed(request
     vtkWarningMacro("Incorrect HTG for piece " << currentPiece);
   }
 
-  // Make sure every HTG piece has a correct extent and can be processed.
+  // Make sure every HTG piece can be processed
   // This way, we make sure the `ProcessTrees` function will either be executed by all ranks
   // or by none, and avoids getting stuck on barriers.
-  int correctExtent = this->InputHTG &&
-    this->InputHTG->GetExtent()[0] <= this->InputHTG->GetExtent()[1] &&
-    this->InputHTG->GetExtent()[2] <= this->InputHTG->GetExtent()[3] &&
-    this->InputHTG->GetExtent()[4] <= this->InputHTG->GetExtent()[5];
-
-  if (!correctExtent)
+  int nullPiece = this->InputHTG != nullptr;
+  if (!nullPiece)
   {
-    vtkWarningMacro("Piece " << currentPiece << " does not have a valid extend. Cannot process.");
+    vtkWarningMacro("Piece " << currentPiece << " is null.");
   }
 
-  int allCorrect = 1; // Reduction operation cannot be done on bools
-  this->Controller->AllReduce(&correctExtent, &allCorrect, 1, vtkCommunicator::LOGICAL_AND_OP);
-
-  if (!allCorrect)
+  int allNonNull = 1; // Reduction operation cannot be done on bools
+  this->Controller->AllReduce(&nullPiece, &allNonNull, 1, vtkCommunicator::LOGICAL_AND_OP);
+  if (!allNonNull)
   {
-    vtkWarningMacro("Every individual distributed process does not have a valid HTG extent. No "
-                    "ghost cells will be generated.");
+    vtkWarningMacro("Every distributed process does not have a valid HTG. Cannot proceed further.");
     if (outputHTG)
     {
       outputHTG->ShallowCopy(this->InputHTG);
@@ -312,10 +307,9 @@ int vtkHyperTreeGridRedistribute::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
     return 0;
   }
 
-  this->OutputHTG->CopyEmptyStructure(input);
-  this->OutputHTG->GetCellData()->CopyStructure(this->InputHTG->GetCellData());
+  this->ExchangeHTGMetadata();
 
-  if (this->InputHTG->HasMask())
+  if (input->HasMask())
   {
     this->OutMask = vtk::TakeSmartPointer(vtkBitArray::New());
   }
@@ -326,7 +320,7 @@ int vtkHyperTreeGridRedistribute::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
 
   // Compute tree id <=> target partition id map
   vtkDebugMacro("Build target partition map");
-  this->TreeTargetPartId.resize(this->InputHTG->GetMaxNumberOfTrees());
+  this->TreeTargetPartId.resize(this->OutputHTG->GetMaxNumberOfTrees());
   this->BuildTargetPartMap();
   this->UpdateProgress(0.4);
 
@@ -338,7 +332,7 @@ int vtkHyperTreeGridRedistribute::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
   std::vector<int> treeSizesReceivedBuffer;
   std::vector<int> maskSizesReceivedBuffer;
   std::vector<int> descriptorsByteOffsets;
-  this->ExchangeHTGMetaData(descriptorSendBuffer, descriptorSizesReceivedBuffer,
+  this->ExchangeHyperTreeMetaData(descriptorSendBuffer, descriptorSizesReceivedBuffer,
     treeSizesSendBuffer, maskSizesSendBuffer, treeSizesReceivedBuffer, maskSizesReceivedBuffer,
     descriptorsByteOffsets);
 
@@ -348,7 +342,7 @@ int vtkHyperTreeGridRedistribute::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
   this->OutputHTG->InitializeLocalIndexNode();
   this->UpdateProgress(0.6);
 
-  if (this->InputHTG->HasMask())
+  if (this->HasMask)
   {
     vtkDebugMacro("Exchange mask information");
     this->ExchangeMask(maskSizesSendBuffer, maskSizesReceivedBuffer);
@@ -376,6 +370,133 @@ int vtkHyperTreeGridRedistribute::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
   this->TreeIdsReceivedBuffer.clear();
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
+{
+  // Make sure all ranks share the same HTG metadata
+  // We assume that rank 0 has correct metadata, and that other ranks may not.
+  // This can happen, for instance, when we read a HTG from a .htg file in parallel;
+  // all ranks have unconfigured HTGs except rank 0.
+
+  this->OutputHTG->Initialize();
+
+  // Exchange BranchFactor
+  int branchFactor = this->InputHTG->GetBranchFactor();
+  this->Controller->Broadcast(&branchFactor, 1, 0);
+  this->OutputHTG->SetBranchFactor(branchFactor);
+
+  // Exchange DepthLimiter
+  int depth = this->InputHTG->GetDepthLimiter();
+  this->Controller->Broadcast(&depth, 1, 0);
+  this->OutputHTG->SetDepthLimiter(depth);
+
+  // Exchange mask info
+  int hasMask = this->InputHTG->HasMask();
+  this->Controller->Broadcast(&hasMask, 1, 0);
+  if (hasMask)
+  {
+    this->OutMask = vtkSmartPointer<vtkBitArray>::New();
+    this->HasMask = true;
+  }
+
+  // Exchange TransposedRootIndexing
+  int transposedRoot = this->InputHTG->GetTransposedRootIndexing();
+  this->Controller->Broadcast(&transposedRoot, 1, 0);
+  this->OutputHTG->SetTransposedRootIndexing(transposedRoot);
+
+  // Exchange Dimensions
+  int dims[3];
+  this->InputHTG->GetDimensions(dims);
+  this->Controller->Broadcast(dims, 3, 0);
+  this->OutputHTG->SetDimensions(dims);
+
+  // Exchange Interface
+  int hasInterface = this->InputHTG->GetHasInterface();
+  this->Controller->Broadcast(&hasInterface, 1, 0);
+  this->OutputHTG->SetHasInterface(hasInterface);
+  if (hasInterface)
+  {
+    int interfaceNameSize;
+    std::string interfaceName;
+
+    if (this->Controller->GetLocalProcessId() == 0)
+    {
+      interfaceName = this->InputHTG->GetInterfaceNormalsName();
+      interfaceNameSize = static_cast<int>(interfaceName.size());
+    }
+    this->Controller->Broadcast(&interfaceNameSize, 1, 0);
+    this->Controller->Broadcast(const_cast<char*>(interfaceName.c_str()), interfaceNameSize + 1, 0);
+    this->OutputHTG->SetInterfaceNormalsName(interfaceName.c_str());
+
+    if (this->Controller->GetLocalProcessId() == 0)
+    {
+      interfaceName = this->InputHTG->GetInterfaceInterceptsName();
+      interfaceNameSize = static_cast<int>(interfaceName.size());
+    }
+    this->Controller->Broadcast(&interfaceNameSize, 1, 0);
+    this->Controller->Broadcast(const_cast<char*>(interfaceName.c_str()), interfaceNameSize + 1, 0);
+    this->OutputHTG->SetInterfaceInterceptsName(interfaceName.c_str());
+  }
+
+  // Exchange Coordinate arrays
+  int hasCoords = this->InputHTG->GetXCoordinates() && this->InputHTG->GetYCoordinates() &&
+    this->InputHTG->GetZCoordinates();
+  this->Controller->Broadcast(&hasCoords, 1, 0);
+  if (hasCoords)
+  // if (false)
+  {
+    vtkNew<vtkDoubleArray> xCoords, yCoords, zCoords;
+    if (this->Controller->GetLocalProcessId() == 0)
+    {
+      xCoords->ShallowCopy(this->InputHTG->GetXCoordinates());
+      yCoords->ShallowCopy(this->InputHTG->GetYCoordinates());
+      zCoords->ShallowCopy(this->InputHTG->GetZCoordinates());
+    }
+
+    this->Controller->Broadcast(xCoords, 0);
+    this->Controller->Broadcast(yCoords, 0);
+    this->Controller->Broadcast(zCoords, 0);
+
+    this->OutputHTG->SetXCoordinates(xCoords);
+    this->OutputHTG->SetYCoordinates(yCoords);
+    this->OutputHTG->SetZCoordinates(zCoords);
+  }
+
+  // Exchange array structure
+  vtkCellData* inputCD = this->InputHTG->GetCellData();
+  vtkCellData* outputCD = this->OutputHTG->GetCellData();
+  for (int i = 0; i < outputCD->GetNumberOfArrays(); i++)
+  {
+    outputCD->RemoveArray(i);
+  }
+  int nbArrays = inputCD->GetNumberOfArrays();
+  this->Controller->Broadcast(&nbArrays, 1, 0);
+  for (int arrayId = 0; arrayId < nbArrays; arrayId++)
+  {
+    int arrayNameSize, arrayType, numComp;
+    std::string arrayName;
+    if (this->Controller->GetLocalProcessId() == 0)
+    {
+      vtkDataArray* arr = inputCD->GetArray(arrayId);
+      arrayName = arr->GetName();
+      arrayNameSize = static_cast<int>(arrayName.size());
+      arrayType = arr->GetDataType();
+      numComp = arr->GetNumberOfComponents();
+    }
+
+    this->Controller->Broadcast(&arrayNameSize, 1, 0);
+    this->Controller->Broadcast(&arrayType, 1, 0);
+    this->Controller->Broadcast(&numComp, 1, 0);
+    this->Controller->Broadcast(const_cast<char*>(arrayName.c_str()), arrayNameSize + 1, 0);
+
+    vtkDataArray* arr = vtkDataArray::CreateDataArray(arrayType);
+    arr->SetName(arrayName.c_str());
+    arr->SetNumberOfComponents(numComp);
+    this->OutputHTG->GetCellData()->AddArray(arr);
+    arr->FastDelete();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -409,7 +530,7 @@ void vtkHyperTreeGridRedistribute::BuildTargetPartMap()
    * using the number of cells in each tree
    */
 
-  vtkIdType maxTrees = this->InputHTG->GetMaxNumberOfTrees();
+  vtkIdType maxTrees = this->OutputHTG->GetMaxNumberOfTrees();
 
   for (vtkIdType part = 0; part < this->NumPartitions; part++)
   {
@@ -434,7 +555,7 @@ void vtkHyperTreeGridRedistribute::BuildTargetPartMap()
 }
 
 //------------------------------------------------------------------------------
-void vtkHyperTreeGridRedistribute::ExchangeHTGMetaData(vtkBitArray* descriptorSendBuffer,
+void vtkHyperTreeGridRedistribute::ExchangeHyperTreeMetaData(vtkBitArray* descriptorSendBuffer,
   std::vector<int>& descriptorSizesReceivedBuffer, std::vector<int>& treeSizesSendBuffer,
   std::vector<int>& maskSizesSendBuffer, std::vector<int>& treeSizesReceivedBuffer,
   std::vector<int>& maskSizesReceivedBuffer, std::vector<int>& descriptorsByteOffsets)
@@ -740,11 +861,16 @@ void vtkHyperTreeGridRedistribute::ExchangeCellArray(int arrayId,
   std::vector<int>& cellsSentPerPartOffset, std::vector<int>& cellsReceivedPerPartOffset,
   std::vector<int>& nbCellDataSentPerPart, std::vector<int>& nbCellDataReceivedPerPart)
 {
-  vtkAbstractArray* inputArray = this->InputHTG->GetCellData()->GetArray(arrayId);
-  int numComp = inputArray->GetNumberOfComponents();
+  vtkAbstractArray* outputArray = this->OutputHTG->GetCellData()->GetAbstractArray(arrayId);
+  vtkAbstractArray* inputArray = nullptr;
+  if (arrayId < this->InputHTG->GetCellData()->GetNumberOfArrays())
+  {
+    inputArray = this->InputHTG->GetCellData()->GetAbstractArray(arrayId);
+  }
+  int numComp = outputArray->GetNumberOfComponents();
 
   vtkSmartPointer<vtkAbstractArray> cellDataSendArrayBuffer =
-    vtk::TakeSmartPointer(inputArray->NewInstance());
+    vtk::TakeSmartPointer(outputArray->NewInstance());
   cellDataSendArrayBuffer->SetNumberOfComponents(numComp);
   int totalNbCellsSent =
     std::accumulate(nbCellDataSentPerPart.begin(), nbCellDataSentPerPart.end(), 0);
@@ -758,7 +884,10 @@ void vtkHyperTreeGridRedistribute::ExchangeCellArray(int arrayId,
     for (size_t id = 0; id < this->TreesToSend[part].size(); id++)
     {
       this->InputHTG->InitializeNonOrientedCursor(cursor, this->TreesToSend[part][id]);
-      ::CollectArray(cursor, inputArray, cellDataSendArrayBuffer, countCells);
+      if (inputArray)
+      {
+        ::CollectArray(cursor, inputArray, cellDataSendArrayBuffer, countCells);
+      }
     }
   }
 
@@ -767,7 +896,7 @@ void vtkHyperTreeGridRedistribute::ExchangeCellArray(int arrayId,
 
   // Prepare input send/recv structures
   vtkSmartPointer<vtkAbstractArray> cellDataReceivedBuffer =
-    vtk::TakeSmartPointer(inputArray->NewInstance());
+    vtk::TakeSmartPointer(outputArray->NewInstance());
   cellDataReceivedBuffer->SetNumberOfComponents(numComp);
   cellDataReceivedBuffer->SetNumberOfTuples(totalNbCellsReceived);
 
@@ -787,11 +916,12 @@ void vtkHyperTreeGridRedistribute::ExchangeCellArray(int arrayId,
   // Exchange cell data information
   this->MPIComm->AllToAllVVoidArray(cellDataSendArrayBuffer->GetVoidPointer(0),
     cellDataSentSizes.data(), cellDataSentOffsets.data(), cellDataReceivedBuffer->GetVoidPointer(0),
-    cellDataReceivedSizes.data(), cellDataReceivedOffsets.data(), inputArray->GetDataType());
+    cellDataReceivedSizes.data(), cellDataReceivedOffsets.data(), outputArray->GetDataType());
 
   // Iterate over trees received
-  vtkAbstractArray* outputDataArray = this->OutputHTG->GetCellData()->GetArray(arrayId);
+  vtkDataArray* outputDataArray = this->OutputHTG->GetCellData()->GetArray(arrayId);
   outputDataArray->SetNumberOfTuples(this->OutputHTG->GetNumberOfCells());
+  outputDataArray->Fill(0); // Avoid uninit values for masked cells
 
   for (int part = 0, treeId = 0, recvReadOffset = 0; part < this->NumPartitions; part++)
   {
@@ -814,11 +944,12 @@ void vtkHyperTreeGridRedistribute::ExchangeCellArray(int arrayId,
       this->InputHTG->InitializeNonOrientedCursor(inCursor, id);
       this->OutputHTG->InitializeNonOrientedCursor(outCursor, id);
 
-      ::CopyArrayValues(inCursor, outCursor, this->OutMask, inputArray, outputDataArray);
+      if (inputArray)
+      {
+        ::CopyArrayValues(inCursor, outCursor, this->OutMask, inputArray, outputDataArray);
+      }
     }
   }
-
-  inputArray->Squeeze();
 }
 
 VTK_ABI_NAMESPACE_END
