@@ -29,7 +29,6 @@
 #include "vtkFiltersVerdictModule.h" // For export macro
 #include "vtkNew.h"
 #include "vtkPassInputTypeAlgorithm.h"
-#include "vtkTetra.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
@@ -37,6 +36,7 @@ class vtkDoubleArray;
 class vtkIdList;
 class vtkImageData;
 class vtkPointSet;
+class vtkTetra;
 
 class VTKFILTERSVERDICT_EXPORT vtkCellSizeFilter : public vtkPassInputTypeAlgorithm
 {
@@ -168,7 +168,7 @@ private:
   char* LengthArrayName;
   char* AreaArrayName;
   char* VolumeArrayName;
-  vtkNew<vtkTetra> TetCell;
+  vtkNew<vtkTetra> LocalTetCell;
 };
 
 VTK_ABI_NAMESPACE_END

@@ -20,6 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 #include "vtkPolygon.h"
+#include "vtkTetra.h"
 #include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -700,8 +701,8 @@ double vtkCellSizeFilter::IntegrateGeneral3DCell(vtkPointSet* input, vtkIdList* 
     tetPtIds[1] = ptIds->GetId(tetIdx++);
     tetPtIds[2] = ptIds->GetId(tetIdx++);
     tetPtIds[3] = ptIds->GetId(tetIdx++);
-    this->TetCell->Initialize(4, tetPtIds, input->GetPoints());
-    sum += vtkMeshQuality::TetVolume(this->TetCell);
+    this->LocalTetCell->Initialize(4, tetPtIds, input->GetPoints());
+    sum += vtkMeshQuality::TetVolume(this->LocalTetCell);
   }
   return sum;
 }
