@@ -146,7 +146,9 @@ Common/Core/vtkSortDataArray.h
 Common/Core/vtkSparseArray.h
 Common/Core/vtkStdFunctionArray.h
 Common/Core/vtkStdString.h
+Common/Core/vtkStringFormatter.h
 Common/Core/vtkStringOutputWindow.h
+Common/Core/vtkStringScanner.h
 Common/Core/vtkStringToken.h
 Common/Core/vtkStructuredPointArray.h
 Common/Core/vtkStructuredPointBackend.h
@@ -442,6 +444,7 @@ Common/DataModel/vtkTriangle.h
 Common/DataModel/vtkTriangleStrip.h
 Common/DataModel/vtkUniformGridAMR.h
 Common/DataModel/vtkUniformGridAMRDataIterator.h
+Common/DataModel/vtkUniformGridAMRIterator.h
 Common/DataModel/vtkUniformHyperTreeGrid.h
 Common/DataModel/vtkUnstructuredGridCellIterator.h
 Common/DataModel/vtkVector.h
