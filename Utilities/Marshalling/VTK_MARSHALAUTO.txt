@@ -59,6 +59,7 @@ Common/Core/vtkPoints2D.h
 Common/Core/vtkWindow.h
 Common/DataModel/vtkAbstractCellArray.h
 Common/DataModel/vtkAbstractCellLinks.h
+Common/DataModel/vtkCartesianGrid.h
 Common/DataModel/vtkCellData.h
 Common/DataModel/vtkCompositeDataSet.h
 Common/DataModel/vtkDataObject.h
