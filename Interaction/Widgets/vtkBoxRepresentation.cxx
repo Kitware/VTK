@@ -699,27 +699,28 @@ void vtkBoxRepresentation::Translate(const double* p1, const double* p2)
 
 //------------------------------------------------------------------------------
 void vtkBoxRepresentation::Scale(
-  const double* vtkNotUsed(p1), const double* vtkNotUsed(p2), int vtkNotUsed(X), int Y)
+  const double* p1, const double* p2, int vtkNotUsed(X), int vtkNotUsed(Y))
 {
-  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
-  double* center = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(3 * 14);
-  double sf;
+  const double* center = this->Points->GetPoint(14);
 
-  if (Y > this->LastEventPosition[1])
+  const double d1sq = vtkMath::Distance2BetweenPoints(p1, center);
+  const double d2sq = vtkMath::Distance2BetweenPoints(p2, center);
+
+  if (d1sq <= 1e-18)
   {
-    sf = 1.03;
-  }
-  else
-  {
-    sf = 0.97;
+    return;
   }
 
-  // Move the corners
-  for (int i = 0; i < 8; i++, pts += 3)
+  double sf = std::sqrt(d2sq / d1sq); // >1 if moving away, <1 if moving toward
+
+  for (int i = 0; i < 8; ++i)
   {
-    pts[0] = sf * (pts[0] - center[0]) + center[0];
-    pts[1] = sf * (pts[1] - center[1]) + center[1];
-    pts[2] = sf * (pts[2] - center[2]) + center[2];
+    double p[3];
+    this->Points->GetPoint(i, p);
+    p[0] = sf * (p[0] - center[0]) + center[0];
+    p[1] = sf * (p[1] - center[1]) + center[1];
+    p[2] = sf * (p[2] - center[2]) + center[2];
+    this->Points->SetPoint(i, p);
   }
   this->PositionHandles();
 }
@@ -823,12 +824,10 @@ void vtkBoxRepresentation::Rotate(
     vtkMath::Normalize(a);
 
     double dot = vtkMath::Dot(axis, a);
-    dot = std::max(-1.0, std::min(1.0, dot));
+    vtkMath::ClampValue(dot, -1.0, 1.0);
 
     theta *= dot;
-    axis[0] = a[0];
-    axis[1] = a[1];
-    axis[2] = a[2];
+    vtkMath::Assign(a, axis);
   }
 
   // Manipulate the transform to reflect the rotation
