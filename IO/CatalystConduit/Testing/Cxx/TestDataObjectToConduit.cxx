@@ -1,14 +1,18 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkCellType.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataObjectToConduit.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkType.h"
 
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
 
+#include <conduit_bitwidth_style_types.h>
+#include <initializer_list>
 #include <vtkCellData.h>
 #include <vtkDoubleArray.h>
 #include <vtkImageData.h>
@@ -25,6 +29,17 @@ namespace
 {
 constexpr int IMAGE_ID = 0, UG_ID = 1;
 
+//----------------------------------------------------------------------------
+void FillCoordsNode(conduit_cpp::Node& coords_node)
+{
+  coords_node["type"] = "explicit";
+  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
+    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
+  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
+    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+}
 //----------------------------------------------------------------------------
 bool TestNonDataSetObject()
 {
@@ -359,13 +374,7 @@ bool TestMixedShapedUnstructuredGrid()
 
   conduit_cpp::Node expected_node;
   auto coords_node = expected_node["coordsets/coords"];
-  coords_node["type"] = "explicit";
-  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
-    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
-  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
-    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+  ::FillCoordsNode(coords_node);
 
   auto topologies_node0 = expected_node["topologies/mesh"];
   topologies_node0["type"] = "unstructured";
@@ -442,13 +451,7 @@ bool TestHexahedronUnstructuredGrid()
 
   conduit_cpp::Node expected_node;
   auto coords_node = expected_node["coordsets/coords"];
-  coords_node["type"] = "explicit";
-  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
-    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
-  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
-    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+  ::FillCoordsNode(coords_node);
 
   auto topologies_node0 = expected_node["topologies/mesh"];
   topologies_node0["type"] = "unstructured";
@@ -520,13 +523,7 @@ bool TestTetrahedronUnstructuredGrid()
 
   conduit_cpp::Node expected_node;
   auto coords_node = expected_node["coordsets/coords"];
-  coords_node["type"] = "explicit";
-  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
-    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
-  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
-    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+  ::FillCoordsNode(coords_node);
 
   auto topologies_node = expected_node["topologies/mesh"];
   topologies_node["type"] = "unstructured";
@@ -588,13 +585,7 @@ bool TestPolygonalUnstructuredGrid()
 
   conduit_cpp::Node expected_node;
   auto coords_node = expected_node["coordsets/coords"];
-  coords_node["type"] = "explicit";
-  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
-    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
-  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
-    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+  ::FillCoordsNode(coords_node);
 
   auto topologies_node = expected_node["topologies/mesh"];
   topologies_node["type"] = "unstructured";
@@ -657,13 +648,7 @@ bool TestQuadUnstructuredGrid()
 
   conduit_cpp::Node expected_node;
   auto coords_node = expected_node["coordsets/coords"];
-  coords_node["type"] = "explicit";
-  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
-    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
-  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
-    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+  ::FillCoordsNode(coords_node);
 
   auto topologies_node = expected_node["topologies/mesh"];
   topologies_node["type"] = "unstructured";
@@ -733,13 +718,7 @@ bool TestTriangleUnstructuredGrid()
 
   conduit_cpp::Node expected_node;
   auto coords_node = expected_node["coordsets/coords"];
-  coords_node["type"] = "explicit";
-  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
-    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
-  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
-    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+  ::FillCoordsNode(coords_node);
 
   auto topologies_node = expected_node["topologies/mesh"];
   topologies_node["type"] = "unstructured";
@@ -809,13 +788,7 @@ bool TestLineUnstructuredGrid()
 
   conduit_cpp::Node expected_node;
   auto coords_node = expected_node["coordsets/coords"];
-  coords_node["type"] = "explicit";
-  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
-    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
-  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
-    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+  ::FillCoordsNode(coords_node);
 
   auto topologies_node = expected_node["topologies/mesh"];
   topologies_node["type"] = "unstructured";
@@ -881,13 +854,7 @@ bool TestPointUnstructuredGrid()
 
   conduit_cpp::Node expected_node;
   auto coords_node = expected_node["coordsets/coords"];
-  coords_node["type"] = "explicit";
-  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
-    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
-  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
-    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+  ::FillCoordsNode(coords_node);
 
   auto topologies_node = expected_node["topologies/mesh"];
   topologies_node["type"] = "unstructured";
@@ -1070,24 +1037,77 @@ bool TestMixedShapePolyData()
     points->InsertPoint(i, unstructured_grid_points_coordinates[i]);
   }
   poly_data->SetPoints(points);
-  poly_data->Allocate(100);
-  poly_data->InsertNextCell(unstructured_grid_cell_connectivities[10].cell_type,
-    unstructured_grid_cell_connectivities[10].connectivity.size(),
-    unstructured_grid_cell_connectivities[10].connectivity.data());
-  poly_data->InsertNextCell(unstructured_grid_cell_connectivities[11].cell_type,
-    unstructured_grid_cell_connectivities[11].connectivity.size(),
-    unstructured_grid_cell_connectivities[11].connectivity.data());
 
-  auto previous_verbosity = vtkLogger::GetCurrentVerbosityCutoff();
-  vtkLogger::SetStderrVerbosity(vtkLogger::VERBOSITY_OFF);
+  poly_data->Allocate(100);
+  struct
+  {
+    VTKCellType cell_type;
+    std::vector<vtkIdType> connectivity;
+  } pd_connectivities[] = {
+    { VTK_VERTEX, { 0 } },
+    { VTK_VERTEX, { 1 } },
+    { VTK_POLY_VERTEX, { 17, 18 } },
+    { VTK_LINE, { 2, 3 } },
+    { VTK_POLY_LINE, { 13, 14, 15, 16 } },
+    { VTK_TRIANGLE, { 4, 5, 6 } },
+    { VTK_POLYGON, { 7, 8, 9, 10, 11, 12 } },
+    { VTK_TRIANGLE_STRIP, { 21, 22, 23, 24, 25 } },
+  };
+
+  for (const auto& cell : pd_connectivities)
+  {
+    poly_data->InsertNextCell(cell.cell_type, cell.connectivity.size(), cell.connectivity.data());
+  }
 
   conduit_cpp::Node node;
   bool is_filling_success =
     vtkDataObjectToConduit::FillConduitNode(vtkDataObject::SafeDownCast(poly_data), node);
 
-  vtkLogger::SetStderrVerbosity(previous_verbosity);
+  if (!is_filling_success)
+  {
+    std::cerr << "FillConduitNode failed for TestMixedShapePolyData" << std::endl;
+    return is_filling_success;
+  }
 
-  return !is_filling_success;
+  conduit_cpp::Node expected_node;
+  auto coords_node = expected_node["coordsets/coords"];
+  ::FillCoordsNode(coords_node);
+
+  auto topologies_node = expected_node["topologies/mesh"];
+  topologies_node["type"] = "unstructured";
+  topologies_node["coordset"] = "coords";
+  topologies_node["elements/shape"] = "mixed";
+  topologies_node["elements/shape_map/point"] = VTK_VERTEX;
+  topologies_node["elements/shape_map/line"] = VTK_LINE;
+  topologies_node["elements/shape_map/tri"] = VTK_TRIANGLE;
+  topologies_node["elements/shape_map/polygonal"] = VTK_POLYGON;
+  topologies_node["elements/shapes"] =
+    std::vector<conduit_uint8>{ 1, 1, 1, 1, 3, 3, 3, 3, 7, 7, 5, 5, 5 };
+  topologies_node["elements/offsets"] =
+    std::vector<conduit_int64>{ 0, 1, 2, 3, 4, 6, 8, 10, 12, 15, 21, 24, 27 };
+  topologies_node["elements/sizes"] =
+    std::vector<conduit_int64>{ 1, 1, 1, 1, 2, 2, 2, 2, 3, 6, 3, 3, 3 };
+
+  std::vector<conduit_int32> conn{ 0, 1, 17, 18, 2, 3, 13, 14, 14, 15, 15, 16, 4, 5, 6, 7, 8, 9, 10,
+    11, 12, 21, 22, 23, 22, 23, 24, 23, 24, 25 };
+
+  if (poly_data->GetVerts()->IsStorage64Bit())
+  {
+    topologies_node["elements/connectivity"] = std::vector<conduit_int64>(conn.begin(), conn.end());
+  }
+  else
+  {
+    topologies_node["elements/connectivity"] = conn;
+  }
+
+  conduit_cpp::Node diff_info;
+  bool are_nodes_different = node.diff(expected_node, diff_info, 1e-6);
+  if (are_nodes_different)
+  {
+    diff_info.print();
+  }
+
+  return !are_nodes_different;
 }
 
 //----------------------------------------------------------------------------
@@ -1132,13 +1152,7 @@ bool TestPointSet()
 
   conduit_cpp::Node expected_node;
   auto coords_node = expected_node["coordsets/coords"];
-  coords_node["type"] = "explicit";
-  coords_node["values/x"] = std::vector<float>{ 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, 1,
-    2, 0, 1, 2, 0, 1, 2, 0, 1, 2 };
-  coords_node["values/y"] = std::vector<float>{ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-  coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
-    3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
+  ::FillCoordsNode(coords_node);
 
   auto topologies_node = expected_node["topologies/mesh"];
   topologies_node["type"] = "points";
