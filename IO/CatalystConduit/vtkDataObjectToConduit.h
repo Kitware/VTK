@@ -17,6 +17,7 @@ class Node;
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
+class vtkPartitionedDataSetCollection;
 VTK_ABI_NAMESPACE_END
 
 namespace vtkDataObjectToConduit
@@ -36,6 +37,13 @@ VTK_ABI_NAMESPACE_BEGIN
  */
 VTKIOCATALYSTCONDUIT_EXPORT bool FillConduitNode(
   vtkDataObject* data_object, conduit_cpp::Node& conduit_node);
+
+/**
+ * Append PDC assembly node to conduit channel.
+ * The node provided is usually the parent of the "data" node given to FillConduitNode.
+ */
+VTKIOCATALYSTCONDUIT_EXPORT void FillConduitNodeAssembly(
+  vtkPartitionedDataSetCollection* pdc, conduit_cpp::Node& conduit_node);
 
 VTK_ABI_NAMESPACE_END
 }
