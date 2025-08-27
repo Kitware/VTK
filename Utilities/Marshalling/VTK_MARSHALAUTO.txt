@@ -50,6 +50,7 @@ Common/Color/vtkNamedColors.h
 Common/Core/vtkAbstractArray.h
 Common/Core/vtkCollection.h
 Common/Core/vtkIdList.h
+Common/Core/vtkInformationVector.h
 Common/Core/vtkLookupTable.h
 Common/Core/vtkObject.h
 Common/Core/vtkObjectBase.h

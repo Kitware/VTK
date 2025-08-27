@@ -99,7 +99,6 @@ Common/Core/vtkInformationStringVectorKey.h
 Common/Core/vtkInformationUnsignedLongKey.h
 Common/Core/vtkInformationVariantKey.h
 Common/Core/vtkInformationVariantVectorKey.h
-Common/Core/vtkInformationVector.h
 Common/Core/vtkInherits.h
 Common/Core/vtkIntArray.h
 Common/Core/vtkInvoker.h
