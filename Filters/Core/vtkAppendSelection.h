@@ -28,13 +28,14 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <memory> // For std::unique_ptr
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSelection;
 
-class VTKFILTERSCORE_EXPORT vtkAppendSelection : public vtkSelectionAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkAppendSelection : public vtkSelectionAlgorithm
 {
 public:
   static vtkAppendSelection* New();

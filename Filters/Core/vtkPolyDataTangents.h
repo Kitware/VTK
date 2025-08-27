@@ -14,13 +14,14 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFloatArray;
 class vtkIdList;
 class vtkPolyData;
 
-class VTKFILTERSCORE_EXPORT vtkPolyDataTangents : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkPolyDataTangents : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkPolyDataTangents, vtkPolyDataAlgorithm);

@@ -20,9 +20,10 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkTableAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkTransposeTable : public vtkTableAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkTransposeTable : public vtkTableAlgorithm
 {
 public:
   static vtkTransposeTable* New();

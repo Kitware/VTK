@@ -62,13 +62,15 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPlane;
 class vtkUnstructuredGrid;
 class vtkPolyData;
 
-class VTKFILTERSCORE_EXPORT vtk3DLinearGridPlaneCutter : public vtkDataObjectAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtk3DLinearGridPlaneCutter
+  : public vtkDataObjectAlgorithm
 {
 public:
   ///@{

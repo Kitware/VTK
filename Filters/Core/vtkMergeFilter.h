@@ -15,11 +15,12 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFieldList;
 
-class VTKFILTERSCORE_EXPORT vtkMergeFilter : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkMergeFilter : public vtkDataSetAlgorithm
 {
 public:
   static vtkMergeFilter* New();

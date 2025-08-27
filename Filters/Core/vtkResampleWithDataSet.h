@@ -21,13 +21,15 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkNew.h"               // For vtkCompositeDataProbeFilter member variable
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractCellLocator;
 class vtkCompositeDataProbeFilter;
 class vtkDataSet;
 
-class VTKFILTERSCORE_EXPORT vtkResampleWithDataSet : public vtkPassInputTypeAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkResampleWithDataSet
+  : public vtkPassInputTypeAlgorithm
 {
 public:
   vtkTypeMacro(vtkResampleWithDataSet, vtkPassInputTypeAlgorithm);

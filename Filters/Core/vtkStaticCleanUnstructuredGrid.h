@@ -62,7 +62,8 @@
 #include "vtkSmartPointer.h"       // Pointer to locator
 #include "vtkStaticPointLocator.h" // Locator
 #include "vtkUnstructuredGridAlgorithm.h"
-#include <vector> // API to vtkStaticCleanUnstructuredGrid
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include <vector>             // API to vtkStaticCleanUnstructuredGrid
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
@@ -70,7 +71,8 @@ class vtkCellData;
 class vtkPointData;
 class vtkPoints;
 
-class VTKFILTERSCORE_EXPORT vtkStaticCleanUnstructuredGrid : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkStaticCleanUnstructuredGrid
+  : public vtkUnstructuredGridAlgorithm
 {
 public:
   ///@{

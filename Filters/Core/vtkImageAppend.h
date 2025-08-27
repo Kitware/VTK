@@ -19,9 +19,10 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkThreadedImageAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkImageAppend : public vtkThreadedImageAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkImageAppend : public vtkThreadedImageAlgorithm
 {
 public:
   static vtkImageAppend* New();

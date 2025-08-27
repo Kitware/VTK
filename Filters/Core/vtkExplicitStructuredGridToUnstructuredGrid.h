@@ -10,9 +10,10 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkExplicitStructuredGridToUnstructuredGrid
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkExplicitStructuredGridToUnstructuredGrid
   : public vtkUnstructuredGridAlgorithm
 {
 public:

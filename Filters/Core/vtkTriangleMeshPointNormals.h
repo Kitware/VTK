@@ -53,11 +53,13 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
-class VTKFILTERSCORE_EXPORT vtkTriangleMeshPointNormals : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkTriangleMeshPointNormals
+  : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkTriangleMeshPointNormals, vtkPolyDataAlgorithm);

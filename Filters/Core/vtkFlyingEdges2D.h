@@ -54,11 +54,12 @@
 #include "vtkContourValues.h"     // Needed for direct access to ContourValues
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
-class VTKFILTERSCORE_EXPORT vtkFlyingEdges2D : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkFlyingEdges2D : public vtkPolyDataAlgorithm
 {
 public:
   static vtkFlyingEdges2D* New();

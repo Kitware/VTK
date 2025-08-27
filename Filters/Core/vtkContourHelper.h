@@ -23,6 +23,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkWeakPointer.h"       // For vtkWeakPointer
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
@@ -32,7 +33,7 @@ class vtkCellData;
 class vtkCell;
 class vtkDataArray;
 
-class VTKFILTERSCORE_EXPORT vtkContourHelper
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkContourHelper
 {
 public:
   /**

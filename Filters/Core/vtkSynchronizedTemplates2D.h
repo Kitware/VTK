@@ -21,13 +21,14 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkContourValues.h" // Needed for direct access to ContourValues
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
-class VTKFILTERSCORE_EXPORT vtkSynchronizedTemplates2D : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkSynchronizedTemplates2D : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSynchronizedTemplates2D* New();

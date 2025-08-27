@@ -32,12 +32,13 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkDataSetCollection;
 
-class VTKFILTERSCORE_EXPORT vtkAppendDataSets : public vtkPointSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkAppendDataSets : public vtkPointSetAlgorithm
 {
 public:
   static vtkAppendDataSets* New();

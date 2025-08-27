@@ -73,6 +73,7 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkIdTypeArray.h"       //
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #define VTK_EXTRACT_POINT_SEEDED_REGIONS 1
 #define VTK_EXTRACT_CELL_SEEDED_REGIONS 2
@@ -89,7 +90,8 @@ class vtkIdList;
 class vtkIdTypeArray;
 class vtkEdgeTable;
 
-class VTKFILTERSCORE_EXPORT vtkPolyDataEdgeConnectivityFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkPolyDataEdgeConnectivityFilter
+  : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

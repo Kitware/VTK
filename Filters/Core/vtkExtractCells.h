@@ -27,12 +27,13 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"      // For vtkSmartPointer
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkExtractCellsIdList;
 
-class VTKFILTERSCORE_EXPORT vtkExtractCells : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkExtractCells : public vtkUnstructuredGridAlgorithm
 {
 public:
   ///@{

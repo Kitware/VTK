@@ -70,6 +70,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
@@ -77,7 +78,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkPriorityQueue;
 
-class VTKFILTERSCORE_EXPORT vtkDecimatePro : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkDecimatePro : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkDecimatePro, vtkPolyDataAlgorithm);

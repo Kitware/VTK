@@ -63,13 +63,14 @@
 #include "vtkDataObject.h"        // For attribute types
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
-#include "vtkTuple.h" // needed for vtkTuple
-#include <vector>     // needed for vector
+#include "vtkTuple.h"         // needed for vtkTuple
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include <vector>             // needed for vector
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
-class VTKFILTERSCORE_EXPORT vtkArrayCalculator : public vtkPassInputTypeAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkArrayCalculator : public vtkPassInputTypeAlgorithm
 {
 public:
   vtkTypeMacro(vtkArrayCalculator, vtkPassInputTypeAlgorithm);

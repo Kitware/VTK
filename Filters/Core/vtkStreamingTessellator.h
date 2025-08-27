@@ -66,13 +66,14 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #undef PARAVIEW_DEBUG_TESSELLATOR
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkEdgeSubdivisionCriterion;
 
-class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkStreamingTessellator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkStreamingTessellator, vtkObject);
@@ -97,7 +98,9 @@ public:
   /**
    * Get/Set the function called for each output tetrahedron (3-facet).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetTetrahedronCallback(TetrahedronProcessorFunction);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual TetrahedronProcessorFunction GetTetrahedronCallback() const;
   ///@}
 
@@ -105,7 +108,9 @@ public:
   /**
    * Get/Set the function called for each output triangle (2-facet).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetTriangleCallback(TriangleProcessorFunction);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual TriangleProcessorFunction GetTriangleCallback() const;
   ///@}
 
@@ -113,7 +118,9 @@ public:
   /**
    * Get/Set the function called for each output line segment (1-facet).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetEdgeCallback(EdgeProcessorFunction);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual EdgeProcessorFunction GetEdgeCallback() const;
   ///@}
 
@@ -121,7 +128,9 @@ public:
   /**
    * Get/Set the function called for each output line segment (1-facet).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetVertexCallback(VertexProcessorFunction);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual VertexProcessorFunction GetVertexCallback() const;
   ///@}
 
@@ -129,7 +138,9 @@ public:
   /**
    * Get/Set a void pointer passed to the triangle and edge output functions.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetPrivateData(void* Private);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void* GetPrivateData() const;
   ///@}
 
@@ -140,7 +151,9 @@ public:
   /**
    * Get/Set a constant void pointer passed to the simplex output functions.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual void SetConstPrivateData(const void* ConstPrivate);
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual const void* GetConstPrivateData() const;
   ///@}
 

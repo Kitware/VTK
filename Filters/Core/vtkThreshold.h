@@ -38,6 +38,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #define VTK_ATTRIBUTE_MODE_DEFAULT 0
 #define VTK_ATTRIBUTE_MODE_USE_POINT_DATA 1
@@ -52,7 +53,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkIdList;
 
-class VTKFILTERSCORE_EXPORT vtkThreshold : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkThreshold : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkThreshold* New();

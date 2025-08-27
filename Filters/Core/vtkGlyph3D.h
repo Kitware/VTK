@@ -70,6 +70,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #define VTK_SCALE_BY_SCALAR 0
 #define VTK_SCALE_BY_VECTOR 1
@@ -92,7 +93,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTransform;
 
-class VTKFILTERSCORE_EXPORT vtkGlyph3D : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkGlyph3D : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGlyph3D, vtkPolyDataAlgorithm);

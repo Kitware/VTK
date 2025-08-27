@@ -81,13 +81,15 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
 class vtkUnsignedCharArray;
 class vtkIdTypeArray;
 
-class VTKFILTERSCORE_EXPORT vtkMultiObjectMassProperties : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkMultiObjectMassProperties
+  : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

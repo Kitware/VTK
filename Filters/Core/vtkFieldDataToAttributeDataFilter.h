@@ -45,6 +45,7 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 #define VTK_DATA_OBJECT_FIELD 0
 #define VTK_POINT_DATA_FIELD 1
@@ -58,7 +59,8 @@ class vtkDataArray;
 class vtkDataSetAttributes;
 class vtkFieldData;
 
-class VTKFILTERSCORE_EXPORT vtkFieldDataToAttributeDataFilter : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkFieldDataToAttributeDataFilter
+  : public vtkDataSetAlgorithm
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;

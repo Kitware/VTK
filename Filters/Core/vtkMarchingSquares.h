@@ -29,6 +29,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkContourValues.h" // Passes calls to vtkContourValues
 
@@ -36,7 +37,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkIncrementalPointLocator;
 
-class VTKFILTERSCORE_EXPORT vtkMarchingSquares : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkMarchingSquares : public vtkPolyDataAlgorithm
 {
 public:
   static vtkMarchingSquares* New();

@@ -16,12 +16,13 @@
 #include "vtkAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkNew.h"               // For vtkCompositeDataProbeFilter member variable
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataObject;
 class vtkImageData;
 
-class VTKFILTERSCORE_EXPORT vtkResampleToImage : public vtkAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkResampleToImage : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkResampleToImage, vtkAlgorithm);

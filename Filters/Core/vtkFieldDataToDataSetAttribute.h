@@ -21,6 +21,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkDataObject.h" // for vtkDataObject::AttributeType enum
 
@@ -28,7 +29,8 @@
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkFieldDataToDataSetAttribute : public vtkPassInputTypeAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkFieldDataToDataSetAttribute
+  : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkFieldDataToDataSetAttribute* New();

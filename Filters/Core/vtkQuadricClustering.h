@@ -80,6 +80,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
@@ -87,7 +88,7 @@ class vtkFeatureEdges;
 class vtkPoints;
 class vtkQuadricClusteringCellSet;
 
-class VTKFILTERSCORE_EXPORT vtkQuadricClustering : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkQuadricClustering : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

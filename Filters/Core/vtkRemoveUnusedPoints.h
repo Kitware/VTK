@@ -13,9 +13,11 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkRemoveUnusedPoints : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkRemoveUnusedPoints
+  : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkRemoveUnusedPoints* New();

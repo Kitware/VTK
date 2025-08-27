@@ -60,12 +60,14 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
 class vtkImplicitFunction;
 
-class VTKFILTERSCORE_EXPORT vtk3DLinearGridCrinkleExtractor : public vtkDataObjectAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtk3DLinearGridCrinkleExtractor
+  : public vtkDataObjectAlgorithm
 {
 public:
   ///@{

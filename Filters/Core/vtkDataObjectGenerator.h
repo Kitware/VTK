@@ -27,11 +27,12 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkInternalStructureCache;
 
-class VTKFILTERSCORE_EXPORT vtkDataObjectGenerator : public vtkDataObjectAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkDataObjectGenerator : public vtkDataObjectAlgorithm
 {
 public:
   static vtkDataObjectGenerator* New();

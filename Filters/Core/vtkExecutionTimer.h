@@ -22,12 +22,13 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAlgorithm;
 class vtkCallbackCommand;
 
-class VTKFILTERSCORE_EXPORT vtkExecutionTimer : public vtkObject
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkExecutionTimer : public vtkObject
 {
 public:
   vtkTypeMacro(vtkExecutionTimer, vtkObject);

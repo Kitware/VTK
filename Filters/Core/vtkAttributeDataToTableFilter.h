@@ -17,13 +17,14 @@
 
 #include "vtkFiltersCoreModule.h" // needed for export macro
 #include "vtkTableAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkFieldData;
 class vtkIdTypeArray;
 
-class VTKFILTERSCORE_EXPORT vtkAttributeDataToTableFilter : public vtkTableAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkAttributeDataToTableFilter : public vtkTableAlgorithm
 {
 public:
   static vtkAttributeDataToTableFilter* New();

@@ -85,12 +85,13 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
-#include <memory> // For std::unique_ptr<>
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include <memory>             // For std::unique_ptr<>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSmoothPoints;
 
-class VTKFILTERSCORE_EXPORT vtkSmoothPolyDataFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkSmoothPolyDataFilter : public vtkPolyDataAlgorithm
 {
 public:
   /**

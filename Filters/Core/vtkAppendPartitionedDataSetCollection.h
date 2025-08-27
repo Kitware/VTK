@@ -18,10 +18,11 @@
 
 #include "vtkFiltersCoreModule.h"
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKFILTERSCORE_EXPORT vtkAppendPartitionedDataSetCollection
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkAppendPartitionedDataSetCollection
   : public vtkPartitionedDataSetCollectionAlgorithm
 {
 public:

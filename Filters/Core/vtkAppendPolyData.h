@@ -27,6 +27,7 @@
 #include "vtkDeprecation.h"       // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
@@ -34,7 +35,7 @@ class vtkDataArray;
 class vtkPoints;
 class vtkPolyData;
 
-class VTKFILTERSCORE_EXPORT vtkAppendPolyData : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkAppendPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkAppendPolyData* New();

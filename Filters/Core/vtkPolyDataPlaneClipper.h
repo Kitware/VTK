@@ -44,9 +44,10 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkPolyDataPlaneCutter.h" // For CanFullyProcessDataObject() method
 #include "vtkSmartPointer.h"        // For SmartPointer
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkPolyDataPlaneClipper : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkPolyDataPlaneClipper : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

@@ -18,12 +18,13 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 class vtkDataArray;
 
-class VTKFILTERSCORE_EXPORT vtkCenterOfMass : public vtkPointSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkCenterOfMass : public vtkPointSetAlgorithm
 {
 public:
   static vtkCenterOfMass* New();

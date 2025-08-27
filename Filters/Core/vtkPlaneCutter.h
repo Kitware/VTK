@@ -62,6 +62,7 @@
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSmartPointer.h"      // For SmartPointer
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 #include <map>                    // For std::map
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -70,7 +71,7 @@ class vtkPlane;
 class vtkPolyData;
 class vtkSphereTree;
 
-class VTKFILTERSCORE_EXPORT vtkPlaneCutter : public vtkDataObjectAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkPlaneCutter : public vtkDataObjectAlgorithm
 {
 public:
   ///@{

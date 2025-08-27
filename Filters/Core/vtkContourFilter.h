@@ -38,6 +38,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkContourValues.h" // Needed for inline methods
 
@@ -55,7 +56,7 @@ class vtkScalarTree;
 class vtkSynchronizedTemplates2D;
 class vtkSynchronizedTemplates3D;
 
-class VTKFILTERSCORE_EXPORT vtkContourFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkContourFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkContourFilter, vtkPolyDataAlgorithm);

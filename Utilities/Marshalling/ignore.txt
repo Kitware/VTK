@@ -527,6 +527,7 @@ Common/Transforms/vtkSphericalTransform.h
 Common/Transforms/vtkThinPlateSplineTransform.h
 Common/Transforms/vtkTransformCollection.h
 Common/Transforms/vtkWarpTransform.h
+Filters/Core/vtk3DLinearGridInternal.h
 Imaging/Color/vtkImageHSIToRGB.h
 Imaging/Color/vtkImageHSVToRGB.h
 Imaging/Color/vtkImageLuminance.h
@@ -812,6 +813,7 @@ Rendering/OpenGL2/vtkTextureUnitManager.h
 Rendering/OpenGL2/vtkTransformFeedback.h
 Rendering/OpenGL2/vtkWin32OpenGLDXRenderWindow.h
 Rendering/UI/vtkAndroidRenderWindowInteractor.h
+Rendering/UI/vtkCocoaAutoreleasePool.h
 Rendering/UI/vtkCocoaMacOSXSDKCompatibility.h
 Rendering/UI/vtkIOSRenderWindowInteractor.h
 Rendering/Volume/vtkAnariVolumeInterface.h
