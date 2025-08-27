@@ -9,7 +9,10 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
+#include "vtkStringFormatter.h"
 #include "vtkTriangle.h"
+
+#include <algorithm>
 #include <limits>
 
 #include <iostream>
@@ -71,10 +74,9 @@ int TestTriangle(int, char*[])
     { 1.333, 3.333, 0 },
   };
 
-  int inside;
   for (int i = 0; i < 31; i++)
   {
-    inside = vtkTriangle::PointInTriangle(pnts[i], pnt0, pnt1, pnt2, 0.00000001);
+    int inside = vtkTriangle::PointInTriangle(pnts[i], pnt0, pnt1, pnt2, 0.00000001);
 
     if (inside && i < 17)
     {
@@ -192,6 +194,109 @@ int TestTriangle(int, char*[])
     std::cerr << "Output coordinates of intersecting point incorrect" << std::endl;
     return EXIT_FAILURE;
   }
+
+  // Testing vtkTriangle::EvaluatePosition with points in different relative configurations
+
+  // Points defining the vertices of an obtuse triangle not aligned with coordinate axes.
+  double ptB0[3] = { 1, 0, 0 };
+  double ptB1[3] = { 2, 0, 0 };
+  double ptB2[3] = { 0, 1, 1 };
+
+  // Points to test the relative position and the closest point
+  struct TestPointData
+  {
+    double p[3];
+    double closestP[3];
+    int inside;
+  };
+  std::vector<TestPointData> data = {
+    // Points that are already inside the triangle (strictly coplanar)
+    { { 1.00001, 0.00001, 0.00001 }, { 1.00001, 0.00001, 0.00001 }, 1 },
+    { { 1.00001, 0.49999, 0.49999 }, { 1.00001, 0.49999, 0.49999 }, 1 },
+    { { 1.99996, 0.00001, 0.00001 }, { 1.99996, 0.00001, 0.00001 }, 1 },
+    { { 0.5, 0.50001, 0.50001 }, { 0.5, 0.50001, 0.50001 }, 1 },
+    { { 0.5, 0.625, 0.625 }, { 0.5, 0.625, 0.625 }, 1 },
+    { { 0.5, 0.74999, 0.74999 }, { 0.5, 0.74999, 0.74999 }, 1 },
+    { { 0.00004, 0.99997, 0.99997 }, { 0.00004, 0.99997, 0.99997 }, 1 },
+    // Inside the triangle bounding box and with projection inside the triangle.
+    // This is currently considered inside (bug or feature?)
+    { { 1.00001, 0.00001, 0.99997 }, { 1.00001, 0.49999, 0.49999 }, 1 },
+    { { 1.00001, 0.99997, 0.00001 }, { 1.00001, 0.49999, 0.49999 }, 1 },
+    { { 0.5, 0.00003, 0.99999 }, { 0.5, 0.50001, 0.50001 }, 1 },
+    { { 0.5, 0.99999, 0.00003 }, { 0.5, 0.50001, 0.50001 }, 1 },
+    { { 0.5, 0.25001, 0.99999 }, { 0.5, 0.625, 0.625 }, 1 },
+    { { 0.5, 0.99999, 0.25001 }, { 0.5, 0.625, 0.625 }, 1 },
+    // Outside the triangle, projecting to edge 0-1
+    { { 1.00001, -0.5, -0.5 }, { 1.00001, 0., 0. }, 0 },
+    { { 1.00001, -0.5, 0 }, { 1.00001, 0., 0. }, 0 },
+    { { 1.99999, -0.5, -0.5 }, { 1.99999, 0., 0. }, 0 },
+    { { 1.99999, 0, -0.5 }, { 1.99999, 0., 0. }, 0 },
+    // Outside the triangle, projecting to edge 1-2
+    { { 2.99998, 1.00001, 1.00001 }, { 1.99998, 0.00001, 0.00001 }, 0 },
+    { { 2.99998, 0.00001, 2.00001 }, { 1.99998, 0.00001, 0.00001 }, 0 },
+    { { 1.00002, 1.99999, 1.99999 }, { 0.00002, 0.99999, 0.99999 }, 0 },
+    { { 1.00002, 2.99999, 0.99999 }, { 0.00002, 0.99999, 0.99999 }, 0 },
+    // Outside the triangle, projecting to edge 2-0
+    { { -0.00001, 0.99998, 0.99998 }, { 0.00001, 0.99999, 0.99999 }, 0 },
+    { { -0.00001, -0.00002, 1.99998 }, { 0.00001, 0.99999, 0.99999 }, 0 },
+    { { -0.00001, -0.49999, -0.49999 }, { 0.99999, 0.00001, 0.00001 }, 0 },
+    { { -0.00001, 0.00001, -0.99999 }, { 0.99999, 0.00001, 0.00001 }, 0 },
+    // Outside the triangle, projecting to vertex 0
+    { { 0.9, -0.5, -0.5 }, { 1., 0., 0. }, 0 },
+    { { 0.9, -1., 0. }, { 1., 0., 0. }, 0 },
+    { { 0.1, -0.5, -0.5 }, { 1., 0., 0. }, 0 },
+    { { 0.1, 0., -1. }, { 1., 0., 0. }, 0 },
+    // Outside the triangle, projecting to vertex 1
+    { { 2.1, -0.5, -0.5 }, { 2., 0., 0. }, 0 },
+    { { 2.1, 0.5, -1.5 }, { 2., 0., 0. }, 0 },
+    { { 3., 0.9, 0.9 }, { 2., 0., 0. }, 0 },
+    { { 3., 1.4, 0.4 }, { 2., 0., 0. }, 0 },
+    // Outside the triangle, projecting to vertex 2
+    { { 0.9, 2., 2. }, { 0., 1., 1. }, 0 },
+    { { 0.9, 1., 3. }, { 0., 1., 1. }, 0 },
+    { { -0.3, 0.9, 0.9 }, { 0., 1., 1. }, 0 },
+    { { -0.3, 0.4, 1.4 }, { 0., 1., 1. }, 0 },
+  };
+
+  std::vector<int> pId = { 0, 1, 2 };
+  do
+  {
+    vtkNew<vtkTriangle> obtuseTriangle;
+    vtkPoints* pts = obtuseTriangle->GetPoints();
+    pts->SetPoint(pId[0], ptB0);
+    pts->SetPoint(pId[1], ptB1);
+    pts->SetPoint(pId[2], ptB2);
+
+    double closestPoint[3];
+    double weights[3];
+    double dist2;
+    for (unsigned int i = 0; i < data.size(); ++i)
+    {
+      int inside =
+        obtuseTriangle->EvaluatePosition(data[i].p, closestPoint, subId, pcoords, dist2, weights);
+      if (inside != data[i].inside)
+      {
+        std::cerr << "ERROR: EvaluatePosition on point " << vtk::format("{}", data[i].p)
+                  << std::endl
+                  << "       and vertex permutation " << vtk::format("{}", pId) << std::endl
+                  << "       returns value " << inside << std::endl
+                  << "       not coinciding with insideGT = " << data[i].inside << std::endl;
+        ;
+        return EXIT_FAILURE;
+      }
+      if (vtkMath::Distance2BetweenPoints(closestPoint, data[i].closestP) > 1e-12)
+      {
+        std::cerr << "ERROR: EvaluatePosition on point " << vtk::format("{}", data[i].p)
+                  << std::endl
+                  << "       and vertex permutation " << vtk::format("{}", pId) << std::endl
+                  << "       gives the closest point " << vtk::format("{}", closestPoint)
+                  << std::endl
+                  << "       when it should be " << vtk::format("{}", data[i].closestP)
+                  << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+  } while (std::next_permutation(pId.begin(), pId.end()));
 
   return EXIT_SUCCESS;
 }
