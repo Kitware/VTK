@@ -14,11 +14,13 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkWrappingHints.h"              // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiBlockDataSet;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkMultiBlockDataSetAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkMultiBlockDataSetAlgorithm
+  : public vtkAlgorithm
 {
 public:
   static vtkMultiBlockDataSetAlgorithm* New();

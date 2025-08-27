@@ -11,12 +11,14 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkWrappingHints.h"              // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 class vtkExplicitStructuredGrid;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExplicitStructuredGridAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkExplicitStructuredGridAlgorithm
+  : public vtkAlgorithm
 {
 public:
   static vtkExplicitStructuredGridAlgorithm* New();
