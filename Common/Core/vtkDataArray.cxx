@@ -709,6 +709,21 @@ vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
 }
 
 //------------------------------------------------------------------------------
+vtkSmartPointer<vtkDataArray> vtkDataArray::ToAOSDataArray()
+{
+  if (this->HasStandardMemoryLayout())
+  {
+    return this;
+  }
+  else
+  {
+    auto aos = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(this->GetDataType()));
+    aos->DeepCopy(this);
+    return aos;
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkDataArray::FillComponent(int compIdx, double value)
 {
   if (compIdx < 0 || compIdx >= this->GetNumberOfComponents())
