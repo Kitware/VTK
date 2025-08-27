@@ -71,9 +71,7 @@ int TestScaledSOADataArrayTemplate(int, char*[])
   }
 
   // fourth check is for getting raw pointer
-  // Silence the void pointer warnings for these calls
-  vtksys::SystemTools::PutEnv("VTK_SILENCE_GET_VOID_POINTER_WARNINGS=1");
-  double* rawPointer = array->GetPointer(0);
+  double* rawPointer = array->GetComponentArrayPointer(0);
   if (!vtkMathUtilities::NearlyEqual(rawPointer[0], 2.))
   {
     vtkGenericWarningMacro("Incorrect values returned from scaled array after GetPointer()");

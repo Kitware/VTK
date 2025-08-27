@@ -176,11 +176,13 @@ public:
    * supporting this API, they should override this method.
    */
   void* GetVoidPointer(vtkIdType valueIdx) override;
+  VTK_DEPRECATED_IN_9_7_0("Use vtkAOSDataArrayTemplate::GetPointer(valueIdx) instead")
   ValueType* GetPointer(vtkIdType valueIdx);
   void SetVoidArray(void*, vtkIdType, int) override;
   void SetVoidArray(void*, vtkIdType, int, int) override;
   void SetArrayFreeFunction(void (*callback)(void*)) override;
   void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues) override;
+  VTK_DEPRECATED_IN_9_7_0("Use vtkAOSDataArrayTemplate::WritePointer(valueIdx, numValues) instead")
   ValueType* WritePointer(vtkIdType valueIdx, vtkIdType numValues);
   ///@}
 

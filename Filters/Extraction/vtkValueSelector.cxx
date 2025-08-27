@@ -75,8 +75,9 @@ struct ArrayValueMatchFunctor
 
     using ValueType = vtk::GetAPIType<SelectionListArrayType>;
 
-    const ValueType* haystack_begin = selList->GetPointer(0);
-    const ValueType* haystack_end = haystack_begin + selList->GetNumberOfValues();
+    auto selRange = vtk::DataArrayValueRange<1>(selList);
+    const auto haystack_begin = selRange.begin();
+    const auto haystack_end = selRange.end();
     const int comp = fArray->GetNumberOfComponents() == 1 ? 0 : this->ComponentNo;
 
     vtkSignedCharArray* insidednessArray = this->InsidednessArray;

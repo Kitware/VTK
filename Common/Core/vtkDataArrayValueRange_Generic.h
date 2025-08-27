@@ -962,11 +962,13 @@ public:
   VTK_DEPRECATED_IN_9_6_0("Use iterators instead.")
   value_type* data() noexcept
   {
+    // NOLINTNEXTLINE(bugprone-unsafe-functions)
     return reinterpret_cast<value_type*>(this->Array->GetVoidPointer(0));
   }
   VTK_DEPRECATED_IN_9_6_0("Use iterators instead.")
   value_type* data() const noexcept
   {
+    // NOLINTNEXTLINE(bugprone-unsafe-functions)
     return reinterpret_cast<value_type*>(this->Array->GetVoidPointer(0));
   }
   ///@}

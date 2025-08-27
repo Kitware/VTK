@@ -294,6 +294,7 @@ public:
    * TODO this is only defined for AOS (vtkDataArrayTemplate leftover).
    * Deprecate to favor DataChanged?
    */
+  VTK_DEPRECATED_IN_9_7_0("Use DataChanged() instead")
   void DataElementChanged(vtkIdType) { this->DataChanged(); }
 
   /**

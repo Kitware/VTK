@@ -307,7 +307,7 @@ template <class DerivedT, class ValueTypeT, int ArrayType>
 typename vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ValueType*
 vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetPointer(vtkIdType id)
 {
-  return static_cast<ValueType*>(this->GetVoidPointer(id));
+  return static_cast<ValueType*>(this->GetVoidPointer(id)); // NOLINT(bugprone-unsafe-functions)
 }
 
 //-----------------------------------------------------------------------------
