@@ -90,6 +90,7 @@ bool TestFunctionTypeCompleteness()
     // Testing the queue on some exotic inputs
 
     // lambdas
+    queue->Push([] {}); // empty lambda used to fail with MSVC ARM64
     queue->Push([](A&&) {}, ::A());
     queue->Push([](::A&, const ::A&, ::A&&, const ::A&&) {}, ::A(), ::A(), ::A(), ::A());
 
