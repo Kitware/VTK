@@ -106,6 +106,7 @@ Imaging/Core/vtkImageMapToColors.h
 Imaging/Core/vtkImageReslice.h
 Imaging/Core/vtkImageResliceToColors.h
 Imaging/Core/vtkImageStencilData.h
+Imaging/Core/vtkRTAnalyticSource.h
 Interaction/Style/vtkInteractorStyleDrawPolygon.h
 Interaction/Style/vtkInteractorStyleFlight.h
 Interaction/Style/vtkInteractorStyleImage.h

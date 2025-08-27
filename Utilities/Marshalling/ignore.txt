@@ -589,7 +589,6 @@ Imaging/Core/vtkImageStencilSource.h
 Imaging/Core/vtkImageThreshold.h
 Imaging/Core/vtkImageTranslateExtent.h
 Imaging/Core/vtkImageWrapPad.h
-Imaging/Core/vtkRTAnalyticSource.h
 Interaction/Widgets/vtk3DWidget.h
 Interaction/Widgets/vtkAbstractPolygonalHandleRepresentation3D.h
 Interaction/Widgets/vtkAbstractSplineRepresentation.h
