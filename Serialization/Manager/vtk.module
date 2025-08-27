@@ -18,6 +18,7 @@ OPTIONAL_DEPENDS
   VTK::CommonTransforms
   VTK::CommonMath
   VTK::CommonMisc
+  VTK::FiltersSources
   VTK::ImagingColor
   VTK::ImagingCore
   VTK::InteractionStyle

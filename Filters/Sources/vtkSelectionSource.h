@@ -33,12 +33,13 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
 #include "vtkSelectionNode.h" // For FieldType
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <memory> // for std::shared_ptr
 #include <vector> // for std::vector
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSSOURCES_EXPORT vtkSelectionSource : public vtkSelectionAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkSelectionSource : public vtkSelectionAlgorithm
 {
 public:
   static vtkSelectionSource* New();

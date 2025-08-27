@@ -10,6 +10,7 @@
 
 #include "vtkFiltersSourcesModule.h" //for export macro
 #include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #ifndef vtkHyperTreeGridPreConfiguredSource_h
 #define vtkHyperTreeGridPreConfiguredSource_h
@@ -19,7 +20,7 @@ class vtkHyperTreeGrid;
 class vtkHyperTreeGridNonOrientedCursor;
 class vtkDoubleArray;
 
-class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridPreConfiguredSource
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkHyperTreeGridPreConfiguredSource
   : public vtkHyperTreeGridAlgorithm
 {
 public:

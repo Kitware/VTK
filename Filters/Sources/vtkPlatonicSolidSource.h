@@ -16,6 +16,7 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #define VTK_SOLID_TETRAHEDRON 0
 #define VTK_SOLID_CUBE 1
@@ -24,7 +25,7 @@
 #define VTK_SOLID_DODECAHEDRON 4
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSSOURCES_EXPORT vtkPlatonicSolidSource : public vtkPolyDataAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkPlatonicSolidSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkPlatonicSolidSource* New();

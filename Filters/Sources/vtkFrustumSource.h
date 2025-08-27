@@ -22,10 +22,11 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPlanes;
 
-class VTKFILTERSSOURCES_EXPORT vtkFrustumSource : public vtkPolyDataAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkFrustumSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkFrustumSource* New();

@@ -28,6 +28,7 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersSourcesModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkGraph;
@@ -39,7 +40,7 @@ class vtkStructuredPoints;
 class vtkTable;
 class vtkUnstructuredGrid;
 
-class VTKFILTERSSOURCES_EXPORT vtkProgrammableSource : public vtkDataObjectAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkProgrammableSource : public vtkDataObjectAlgorithm
 {
 public:
   static vtkProgrammableSource* New();

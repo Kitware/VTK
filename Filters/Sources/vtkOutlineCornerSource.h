@@ -13,9 +13,10 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkOutlineSource.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSSOURCES_EXPORT vtkOutlineCornerSource : public vtkOutlineSource
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkOutlineCornerSource : public vtkOutlineSource
 {
 public:
   vtkTypeMacro(vtkOutlineCornerSource, vtkOutlineSource);

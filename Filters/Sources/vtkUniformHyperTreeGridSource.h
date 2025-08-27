@@ -22,9 +22,11 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHyperTreeGridSource.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSSOURCES_EXPORT vtkUniformHyperTreeGridSource : public vtkHyperTreeGridSource
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkUniformHyperTreeGridSource
+  : public vtkHyperTreeGridSource
 {
 public:
   vtkTypeMacro(vtkUniformHyperTreeGridSource, vtkHyperTreeGridSource);

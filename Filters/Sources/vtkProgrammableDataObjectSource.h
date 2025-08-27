@@ -26,9 +26,11 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersSourcesModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSSOURCES_EXPORT vtkProgrammableDataObjectSource : public vtkDataObjectAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkProgrammableDataObjectSource
+  : public vtkDataObjectAlgorithm
 {
 public:
   static vtkProgrammableDataObjectSource* New();

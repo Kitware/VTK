@@ -19,10 +19,12 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKFILTERSSOURCES_EXPORT vtkGoldenBallSource : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkGoldenBallSource
+  : public vtkUnstructuredGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkGoldenBallSource, vtkUnstructuredGridAlgorithm);

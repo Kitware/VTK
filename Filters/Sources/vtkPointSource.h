@@ -30,6 +30,7 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #define VTK_POINT_SHELL 0
 #define VTK_POINT_UNIFORM 1
@@ -38,7 +39,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRandomSequence;
 
-class VTKFILTERSSOURCES_EXPORT vtkPointSource : public vtkPolyDataAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkPointSource : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

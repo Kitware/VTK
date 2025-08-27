@@ -20,11 +20,12 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSSOURCES_EXPORT vtkConeSource : public vtkPolyDataAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkConeSource : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkConeSource, vtkPolyDataAlgorithm);
