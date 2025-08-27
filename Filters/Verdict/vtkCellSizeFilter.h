@@ -27,7 +27,7 @@
 #define vtkCellSizeFilter_h
 
 #include "vtkFiltersVerdictModule.h" // For export macro
-#include "vtkNew.h"
+#include "vtkNew.h"                  //For vtkNew
 #include "vtkPassInputTypeAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
