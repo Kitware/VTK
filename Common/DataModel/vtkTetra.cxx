@@ -124,12 +124,12 @@ vtkTetra::vtkTetra()
 }
 
 //------------------------------------------------------------------------------
+// The finding of the closest point is an implementation of the method sketched in
+// [Ericson, C. (2004). Real-time collision detection. CRC Press] in page 145,
+// using barycentric coordinates.
 int vtkTetra::EvaluatePosition(const double x[3], double closestPoint[3], int& subId,
   double pcoords[3], double& minDist2, double weights[])
 {
-  double rhs[3], c1[3], c2[3], c3[3];
-  double det;
-
   subId = 0;
   pcoords[0] = pcoords[1] = pcoords[2] = 0.0;
 
@@ -141,70 +141,209 @@ int vtkTetra::EvaluatePosition(const double x[3], double closestPoint[3], int& s
     return 0;
   }
   const double* pts = pointsArray->GetPointer(0);
+  const double* pt0 = pts;
   const double* pt1 = pts + 3;
   const double* pt2 = pts + 6;
   const double* pt3 = pts + 9;
-  const double* pt4 = pts;
 
-  for (int i = 0; i < 3; i++)
-  {
-    rhs[i] = x[i] - pt4[i];
-    c1[i] = pt1[i] - pt4[i];
-    c2[i] = pt2[i] - pt4[i];
-    c3[i] = pt3[i] - pt4[i];
-  }
+  double c1[3], c2[3], c3[3], p[3];
+  vtkMath::Subtract(pt1, pt0, c1);
+  vtkMath::Subtract(pt2, pt0, c2);
+  vtkMath::Subtract(pt3, pt0, c3);
+  vtkMath::Subtract(x, pt0, p);
 
-  if ((det = vtkMath::Determinant3x3(c1, c2, c3)) == 0.0)
+  const double det = vtkMath::Determinant3x3(c1, c2, c3);
+  if (det == 0.0)
   {
     return -1;
   }
 
-  pcoords[0] = vtkMath::Determinant3x3(rhs, c2, c3) / det;
-  pcoords[1] = vtkMath::Determinant3x3(c1, rhs, c3) / det;
-  pcoords[2] = vtkMath::Determinant3x3(c1, c2, rhs) / det;
-  double p4 = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
+  pcoords[0] = vtkMath::Determinant3x3(p, c2, c3) / det;
+  pcoords[1] = vtkMath::Determinant3x3(c1, p, c3) / det;
+  pcoords[2] = vtkMath::Determinant3x3(c1, c2, p) / det;
 
-  weights[0] = p4;
+  weights[0] = 1.0 - pcoords[0] - pcoords[1] - pcoords[2];
   weights[1] = pcoords[0];
   weights[2] = pcoords[1];
   weights[3] = pcoords[2];
 
-  if (pcoords[0] >= -0.001 && pcoords[0] <= 1.001 && pcoords[1] >= -0.001 && pcoords[1] <= 1.001 &&
-    pcoords[2] >= -0.001 && pcoords[2] <= 1.001 && p4 >= -0.001 && p4 <= 1.001)
-  {
-    if (closestPoint)
-    {
-      closestPoint[0] = x[0];
-      closestPoint[1] = x[1];
-      closestPoint[2] = x[2];
-      minDist2 = 0.0; // inside tetra
-    }
-    return 1;
-  }
-  else
-  {
-    if (closestPoint)
-    {
-      // could easily be sped up using parametric localization - next release
-      double w[3], closest[3], pc[3], dist2;
-      int sub;
-      minDist2 = VTK_DOUBLE_MAX;
-      for (int i = 0; i < 4; i++)
-      {
-        vtkTriangle* triangle = static_cast<vtkTriangle*>(this->GetFace(i));
-        triangle->EvaluatePosition(x, closest, sub, pc, dist2, w);
+  static constexpr double eps = 100.0 * std::numeric_limits<double>::epsilon();
 
-        if (dist2 < minDist2)
+  bool inside = (weights[0] > -eps && weights[1] > -eps && weights[2] > -eps && weights[3] > -eps);
+
+  if (closestPoint)
+  {
+    if (inside)
+    {
+      vtkMath::Assign(x, closestPoint);
+      minDist2 = 0;
+    }
+    else
+    {
+      // Metric of the edge vectors with origin at pt0
+      const double g11 = vtkMath::Dot(c1, c1);
+      const double g12 = vtkMath::Dot(c1, c2);
+      const double g13 = vtkMath::Dot(c1, c3);
+      const double g22 = vtkMath::Dot(c2, c2);
+      const double g23 = vtkMath::Dot(c2, c3);
+      const double g33 = vtkMath::Dot(c3, c3);
+      // Metric of the edge vectors with origin at different vertices
+      // g_{i,jk} = (c_j - c_i) \cdot (c_k - c_i)
+      const double g1_22 = g22 + g11 - 2 * g12;
+      const double g1_33 = g33 + g11 - 2 * g13;
+      const double g1_23 = g23 + g11 - g12 - g13;
+      const double g2_33 = g33 + g22 - 2 * g23;
+      const double g2_13 = g13 + g22 - g12 - g23;
+      const double g1_02 = g11 - g12;
+      const double g1_03 = g11 - g13;
+      const double g2_03 = g22 - g23;
+      // Project point to each of the edge vectors with origin at vertex pt0
+      const double p1 = vtkMath::Dot(p, c1);
+      const double p2 = vtkMath::Dot(p, c2);
+      const double p3 = vtkMath::Dot(p, c3);
+      // Project point to each of the edge vectors with origin at different vertices
+      // p_{i,j} = (p - c_i) \cdot (c_j - c_i)
+      const double p1_0 = g11 - p1;
+      const double p2_0 = g22 - p2;
+      const double p3_0 = g33 - p3;
+      const double p1_2 = p2 - p1 + g1_02;
+      const double p1_3 = p3 - p1 + g1_03;
+      const double p2_3 = p3 - p2 + g2_03;
+      const double p2_1 = g1_22 - p1_2;
+      const double p3_1 = g1_33 - p1_3;
+      const double p3_2 = g2_33 - p2_3;
+      // Multiple of the signed distance of the point to the plane
+      // perpendicular to each of the faces and containing each of their edges:
+      // q_{ij,k} = (((c_k - c_i) \wedge (c_j - c_i)) \cdot (c_j - c_i)) \cdot (p - c_i)
+      //          = g_{i,jj} p_{i,k} - g_{i,jk} p_{i,j}
+      // Although not evident in the expression, it satisfies the simmetry
+      // q_{ij,k} = q_{ji,k}
+      const double q01_2 = g11 * p2 - g12 * p1;
+      const double q01_3 = g11 * p3 - g13 * p1;
+      const double q02_1 = g22 * p1 - g12 * p2;
+      const double q02_3 = g22 * p3 - g23 * p2;
+      const double q03_1 = g33 * p1 - g13 * p3;
+      const double q03_2 = g33 * p2 - g23 * p3;
+      const double q12_3 = g1_22 * p1_3 - g1_23 * p1_2;
+      const double q13_2 = g1_33 * p1_2 - g1_23 * p1_3;
+      const double q23_1 = g2_33 * p2_1 - g2_13 * p2_3;
+      const double q12_0 = g1_22 * p1_0 - g1_02 * p1_2;
+      const double q13_0 = g1_33 * p1_0 - g1_03 * p1_3;
+      const double q23_0 = g2_33 * p2_0 - g2_03 * p2_3;
+
+      if (p1 <= 0 && p2 <= 0 && p3 <= 0) // Vertex 0
+      {
+        vtkMath::Assign(pt0, closestPoint);
+      }
+      else if (p1_2 <= 0 && p1_3 <= 0 && p1_0 <= 0) // Vertex 1
+      {
+        vtkMath::Assign(pt1, closestPoint);
+      }
+      else if (p2_3 <= 0 && p2_0 <= 0 && p2_1 <= 0) // Vertex 2
+      {
+        vtkMath::Assign(pt2, closestPoint);
+      }
+      else if (p3_0 <= 0 && p3_1 <= 0 && p3_2 <= 0) // Vertex 3
+      {
+        vtkMath::Assign(pt3, closestPoint);
+      }
+      else if (q01_2 <= 0 && q01_3 <= 0 && p1 >= 0 && p1_0 >= 0) // Edge 0-1
+      {
+        const double rho1 = p1 / g11;
+        for (unsigned int i = 0; i < 3; ++i)
         {
-          closestPoint[0] = closest[0];
-          closestPoint[1] = closest[1];
-          closestPoint[2] = closest[2];
-          minDist2 = dist2;
+          closestPoint[i] = pt0[i] + rho1 * c1[i];
         }
       }
+      else if (q02_1 <= 0 && q02_3 <= 0 && p2 >= 0 && p2_0 >= 0) // Edge 0-2
+      {
+        const double rho2 = p2 / g22;
+        for (unsigned int i = 0; i < 3; ++i)
+        {
+          closestPoint[i] = pt0[i] + rho2 * c2[i];
+        }
+      }
+      else if (q03_1 <= 0 && q03_2 <= 0 && p3 >= 0 && p3_0 >= 0) // Edge 0-3
+      {
+        const double rho3 = p3 / g33;
+        for (unsigned int i = 0; i < 3; ++i)
+        {
+          closestPoint[i] = pt0[i] + rho3 * c3[i];
+        }
+      }
+      else if (q12_0 <= 0 && q12_3 <= 0 && p1_2 >= 0 && p2_1 >= 0) // Edge 1-2
+      {
+        const double rho2 = p1_2 / g1_22;
+        const double rho1 = 1 - rho2;
+        for (unsigned int i = 0; i < 3; ++i)
+        {
+          closestPoint[i] = rho1 * pt1[i] + rho2 * pt2[i];
+        }
+      }
+      else if (q13_0 <= 0 && q13_2 <= 0 && p1_3 >= 0 && p3_1 >= 0) // Edge 1-3
+      {
+        const double rho3 = p1_3 / g1_33;
+        const double rho1 = 1 - rho3;
+        for (unsigned int i = 0; i < 3; ++i)
+        {
+          closestPoint[i] = rho1 * pt1[i] + rho3 * pt3[i];
+        }
+      }
+      else if (q23_0 <= 0 && q23_1 <= 0 && p2_3 >= 0 && p3_2 >= 0) // Edge 2-3
+      {
+        const double rho3 = p2_3 / g2_33;
+        const double rho2 = 1 - rho3;
+        for (unsigned int i = 0; i < 3; ++i)
+        {
+          closestPoint[i] = rho2 * pt2[i] + rho3 * pt3[i];
+        }
+      }
+      else if (weights[1] <= 0 && q02_3 >= 0 && q23_0 >= 0 && q03_2 >= 0) // Face 0-2-3
+      {
+        const double adjg11 = vtkMath::Determinant2x2(g22, g23, g23, g33);
+        const double rho2 = q03_2 / adjg11;
+        const double rho3 = q02_3 / adjg11;
+        for (unsigned int i = 0; i < 3; ++i)
+        {
+          closestPoint[i] = pt0[i] + rho2 * c2[i] + rho3 * c3[i];
+        }
+      }
+      else if (weights[2] <= 0 && q01_3 >= 0 && q13_0 >= 0) // Face 0-1-3 (q03_1 >= 0 from prev ifs)
+      {
+        const double adjg22 = vtkMath::Determinant2x2(g11, g13, g13, g33);
+        const double rho1 = q03_1 / adjg22;
+        const double rho3 = q01_3 / adjg22;
+        for (unsigned int i = 0; i < 3; ++i)
+        {
+          closestPoint[i] = pt0[i] + rho1 * c1[i] + rho3 * c3[i];
+        }
+      }
+      else if (weights[3] <= 0 && q12_0 >= 0) // Face 0-1-2 (q01_2 >= 0 && q02_1 >= 0 from prev ifs)
+      {
+        const double adjg33 = vtkMath::Determinant2x2(g11, g12, g12, g22);
+        const double rho1 = q02_1 / adjg33;
+        const double rho2 = q01_2 / adjg33;
+        for (unsigned int i = 0; i < 3; ++i)
+        {
+          closestPoint[i] = pt0[i] + rho1 * c1[i] + rho2 * c2[i];
+        }
+      }
+      else // Face 1-2-3 (weights[0] <= 0 && q13_2 >= 0 && q12_3 >= 0 && q23_1 >= 0 from prev ifs)
+      {
+        const double adjg1_00 = vtkMath::Determinant2x2(g1_22, g1_23, g1_23, g1_33);
+        const double rho2 = q13_2 / adjg1_00;
+        const double rho3 = q12_3 / adjg1_00;
+        const double rho1 = 1 - rho2 - rho3;
+        for (unsigned int i = 0; i < 3; ++i)
+        {
+          closestPoint[i] = rho1 * pt1[i] + rho2 * pt2[i] + rho3 * pt3[i];
+        }
+      }
+      minDist2 = vtkMath::Distance2BetweenPoints(closestPoint, x);
     }
-    return 0;
   }
+
+  return static_cast<int>(inside);
 }
 
 //------------------------------------------------------------------------------
