@@ -12,12 +12,6 @@ set(VTK_DISPATCH_INDEXED_ARRAYS ON CACHE BOOL "")
 set(VTK_DISPATCH_SOA_ARRAYS ON CACHE BOOL "")
 set(VTK_DISPATCH_STD_FUNCTION_ARRAYS ON CACHE BOOL "")
 set(VTK_DISPATCH_STRUCTURED_POINT_ARRAYS ON CACHE BOOL "")
-# `vtkHyperTreeGridContour` uses `vtkNew<ArrayType>` on dispatched types but
-# `vtkTypedDataArray` is an abstract type and cannot be instantiated in this
-# way. Until this is fixed (#19213), disable dispatching even though the
-# template instantiation logic is more important for this CI configuration
-# because `VTK::TestingCore` needs `VTK::FiltersHyperTree`.
-set(VTK_DISPATCH_TYPED_ARRAYS OFF CACHE BOOL "") # VTK_DEPRECATED_IN_9_5_0
 
 # Disable viskores as the artifacts are too large.
 set(VTK_MODULE_ENABLE_VTK_vtkviskores NO CACHE STRING "")

@@ -4,7 +4,6 @@
 #include "vtkCleanUnstructuredGrid.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkArrayDispatchArrayList.h"
 #include "vtkBitArray.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
