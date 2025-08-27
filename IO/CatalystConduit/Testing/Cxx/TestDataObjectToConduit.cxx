@@ -23,6 +23,8 @@
 
 namespace
 {
+constexpr int IMAGE_ID = 0, UG_ID = 1;
+
 //----------------------------------------------------------------------------
 bool TestNonDataSetObject()
 {
@@ -1182,7 +1184,6 @@ bool TestComposite()
 
   vtkNew<vtkPartitionedDataSet> pds1;
   pds1->SetNumberOfPartitions(1);
-  constexpr int IMAGE_ID = 0, UG_ID = 1;
   pds1->SetPartition(IMAGE_ID, image);
 
   vtkNew<vtkPartitionedDataSet> pds2;
@@ -1195,19 +1196,6 @@ bool TestComposite()
   pdc->SetPartitionedDataSet(IMAGE_ID, pds1);
   pdc->SetPartitionedDataSet(UG_ID, pds2);
 
-  vtkNew<vtkDataAssembly> assembly;
-  int imageId = assembly->AddNode("Image");
-  int ugId = assembly->AddNode("UG");
-  int sub = assembly->AddNode("subset");
-  int subsub = assembly->AddNode("subsub", sub);
-
-  assembly->AddDataSetIndex(imageId, IMAGE_ID);
-  assembly->AddDataSetIndex(ugId, UG_ID);
-  assembly->AddDataSetIndex(subsub, IMAGE_ID);
-  assembly->AddDataSetIndex(subsub, UG_ID);
-
-  pdc->SetDataAssembly(assembly);
-
   conduit_cpp::Node node;
   bool is_success = vtkDataObjectToConduit::FillConduitNode(pdc, node);
 
@@ -1217,9 +1205,9 @@ bool TestComposite()
     return is_success;
   }
 
-  if (node.number_of_children() != 3)
+  if (node.number_of_children() != 2)
   {
-    std::cerr << "Expected 3 children but got " << node.number_of_children() << std::endl;
+    std::cerr << "Expected 2 children but got " << node.number_of_children() << std::endl;
     return false;
   }
   for (conduit_index_t datasetId = 0; datasetId < 2; ++datasetId)
@@ -1234,6 +1222,38 @@ bool TestComposite()
       is_success = false;
     }
   }
+  return is_success;
+}
+
+//----------------------------------------------------------------------------
+bool TestAssembly()
+{
+  // Test PDC Assembly
+  vtkNew<vtkPartitionedDataSetCollection> pdc;
+  vtkNew<vtkDataAssembly> assembly;
+  int imageId = assembly->AddNode("Image");
+  int ugId = assembly->AddNode("UG");
+  int sub = assembly->AddNode("subset");
+  int subsub = assembly->AddNode("subsub", sub);
+
+  assembly->AddDataSetIndex(imageId, IMAGE_ID);
+  assembly->AddDataSetIndex(ugId, UG_ID);
+  assembly->AddDataSetIndex(subsub, IMAGE_ID);
+  assembly->AddDataSetIndex(subsub, UG_ID);
+
+  vtkNew<vtkPartitionedDataSet> pds1;
+  pds1->SetNumberOfPartitions(1);
+
+  vtkNew<vtkPartitionedDataSet> pds2;
+  pds1->SetNumberOfPartitions(2);
+
+  pdc->SetPartitionedDataSet(IMAGE_ID, pds1);
+  pdc->SetPartitionedDataSet(UG_ID, pds2);
+
+  pdc->SetDataAssembly(assembly);
+
+  conduit_cpp::Node assembly_node;
+  vtkDataObjectToConduit::FillConduitNodeAssembly(pdc, assembly_node);
 
   conduit_cpp::Node expected_assembly;
   expected_assembly["Image"] = "partition0";
@@ -1244,7 +1264,8 @@ bool TestComposite()
   subsub1.set("partition1");
 
   conduit_cpp::Node diff_info;
-  bool are_nodes_different = node["assembly"].diff(expected_assembly, diff_info, 1e-6);
+  bool is_success = true;
+  bool are_nodes_different = assembly_node["assembly"].diff(expected_assembly, diff_info, 1e-6);
   if (are_nodes_different)
   {
     diff_info.print();
@@ -1254,6 +1275,7 @@ bool TestComposite()
   return is_success;
 }
 }
+
 //----------------------------------------------------------------------------
 int TestDataObjectToConduit(int, char*[])
 {
@@ -1267,6 +1289,7 @@ int TestDataObjectToConduit(int, char*[])
   is_success &= ::TestMixedShapePolyData();
   is_success &= ::TestPointSet();
   is_success &= ::TestComposite();
+  is_success &= ::TestAssembly();
 
   return is_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
