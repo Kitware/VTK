@@ -83,7 +83,7 @@ public:
 
 protected:
   vtkSpatioTemporalHarmonicsSource();
-  ~vtkSpatioTemporalHarmonicsSource() override = default;
+  ~vtkSpatioTemporalHarmonicsSource() override;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

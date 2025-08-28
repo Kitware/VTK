@@ -57,8 +57,8 @@ public:
   void operator=(const vtkPointHandleSource&) = delete;
 
 protected:
-  vtkPointHandleSource() = default;
-  ~vtkPointHandleSource() override = default;
+  vtkPointHandleSource();
+  ~vtkPointHandleSource() override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void RecomputeSphere();

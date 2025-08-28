@@ -52,6 +52,9 @@ vtkSpatioTemporalHarmonicsSource::vtkSpatioTemporalHarmonicsSource()
 }
 
 //------------------------------------------------------------------------------
+vtkSpatioTemporalHarmonicsSource::~vtkSpatioTemporalHarmonicsSource() = default;
+
+//------------------------------------------------------------------------------
 void vtkSpatioTemporalHarmonicsSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

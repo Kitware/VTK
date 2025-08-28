@@ -10,6 +10,12 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPointHandleSource);
 
 //------------------------------------------------------------------------------
+vtkPointHandleSource::vtkPointHandleSource() = default;
+
+//------------------------------------------------------------------------------
+vtkPointHandleSource::~vtkPointHandleSource() = default;
+
+//------------------------------------------------------------------------------
 void vtkPointHandleSource::SetPosition(double xPos, double yPos, double zPos)
 {
   if ((this->Position[0] != xPos) || (this->Position[1] != yPos) || (this->Position[2] != zPos))
