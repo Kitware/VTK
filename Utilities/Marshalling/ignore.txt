@@ -470,6 +470,7 @@ Common/ExecutionModel/vtkExtentTranslator.h
 Common/ExecutionModel/vtkFilteringInformationKeyManager.h
 Common/ExecutionModel/vtkForEach.h
 Common/ExecutionModel/vtkGraphAlgorithm.h
+Common/ExecutionModel/vtkHierarchicalBoxDataSetAlgorithm.h
 Common/ExecutionModel/vtkHyperTreeGridAlgorithm.h
 Common/ExecutionModel/vtkImageInPlaceFilter.h
 Common/ExecutionModel/vtkImageProgressIterator.h
@@ -528,6 +529,7 @@ Common/Transforms/vtkThinPlateSplineTransform.h
 Common/Transforms/vtkTransformCollection.h
 Common/Transforms/vtkWarpTransform.h
 Filters/Core/vtk3DLinearGridInternal.h
+Filters/Core/vtkHyperTreeGridProbeFilterUtilities.h
 Imaging/Color/vtkImageHSIToRGB.h
 Imaging/Color/vtkImageHSVToRGB.h
 Imaging/Color/vtkImageLuminance.h

@@ -91,7 +91,6 @@ Common/ExecutionModel/vtkDataSetAlgorithm.h
 Common/ExecutionModel/vtkDemandDrivenPipeline.h
 Common/ExecutionModel/vtkExecutive.h
 Common/ExecutionModel/vtkExplicitStructuredGridAlgorithm.h
-Common/ExecutionModel/vtkHierarchicalBoxDataSetAlgorithm.h
 Common/ExecutionModel/vtkImageAlgorithm.h
 Common/ExecutionModel/vtkMultiBlockDataSetAlgorithm.h
 Common/ExecutionModel/vtkNonOverlappingAMRAlgorithm.h
@@ -225,7 +224,6 @@ Filters/Core/vtkGridSynchronizedTemplates3D.h
 Filters/Core/vtkHedgeHog.h
 Filters/Core/vtkHull.h
 Filters/Core/vtkHyperTreeGridProbeFilter.h
-Filters/Core/vtkHyperTreeGridProbeFilterUtilities.h
 Filters/Core/vtkImageAppend.h
 Filters/Core/vtkImageDataToExplicitStructuredGrid.h
 Filters/Core/vtkImplicitPolyDataDistance.h
