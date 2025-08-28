@@ -21,6 +21,7 @@
 
 #include <cmath>
 #include <limits>
+#include <utility>
 
 namespace
 {
@@ -307,7 +308,13 @@ int vtkHyperTreeGridThreshold::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObje
         break;
       }
 
+#if VTK_ID_TYPE_IMPL != VTK_INT
       queue.Push(static_cast<int>(outIndex));
+#else
+      // if cast becomes no-op, convert outIndex from lvalue to rvalue
+      // (avoids "can't convert from 'int' to 'int&&'" error for MSVC)
+      queue.Push(std::move(outIndex));
+#endif
     }
 
     queue.Flush();
