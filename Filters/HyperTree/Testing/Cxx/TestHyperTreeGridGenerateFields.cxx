@@ -34,8 +34,8 @@ bool CheckCellValidity(double expectedValidity, vtkIdType currentId, vtkHyperTre
     vtkDataArray::SafeDownCast(outputHTG->GetCellData()->GetArray("Valid"));
   if (expectedValidity != visibilityField->GetTuple1(currentId))
   {
-    vtkLogF(ERROR, "Cell id %lld expected validity is %.1f but got %.1f\n", currentId,
-      expectedValidity, visibilityField->GetTuple1(currentId));
+    vtkLogF(ERROR, "Cell id %" VTK_ID_TYPE_PRId " expected validity is %.1f but got %.1f\n",
+      currentId, expectedValidity, visibilityField->GetTuple1(currentId));
     return false;
   }
   return true;
@@ -52,8 +52,9 @@ bool CheckVolume(vtkIdType currentId, vtkHyperTreeGrid* outputHTG)
     vtkDataArray::SafeDownCast(outputHTG->GetCellData()->GetArray("Depth"));
   if (::expectedVolumes[depthField->GetTuple1(currentId)] != volumeField->GetTuple1(currentId))
   {
-    vtkLogF(ERROR, "Cell id %lld expected volume is %f but got %f instead.\n", currentId,
-      ::expectedVolumes[depthField->GetTuple1(currentId)], volumeField->GetTuple1(currentId));
+    vtkLogF(ERROR, "Cell id %" VTK_ID_TYPE_PRId " expected volume is %f but got %f instead.\n",
+      currentId, ::expectedVolumes[depthField->GetTuple1(currentId)],
+      volumeField->GetTuple1(currentId));
     return false;
   }
   return true;
@@ -134,7 +135,7 @@ bool TestMaskGhostSizes(int argc, char* argv[])
     leavesVolumeHTG->InitializeNonOrientedGeometryCursor(outCursor, index);
     if (!::CheckTree(outCursor, leavesVolumeHTG))
     {
-      vtkLogF(ERROR, "Node %lld failed validation.\n", index);
+      vtkLogF(ERROR, "Node %" VTK_ID_TYPE_PRId " failed validation.\n", index);
       return false;
     }
   }
