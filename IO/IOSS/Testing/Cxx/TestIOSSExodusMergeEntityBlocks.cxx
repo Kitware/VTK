@@ -72,12 +72,12 @@ int TestIOSSExodusMergeEntityBlocks(int argc, char* argv[])
   }
   if (output->GetNumberOfPoints() != 10516)
   {
-    vtkLogF(ERROR, "Expected 10516 points but got %lld", output->GetNumberOfPoints());
+    vtkLogF(ERROR, "Expected 10516 points but got %" VTK_ID_TYPE_PRId, output->GetNumberOfPoints());
     return EXIT_FAILURE;
   }
   if (output->GetNumberOfCells() != 7152)
   {
-    vtkLogF(ERROR, "Expected 7152 cells but got %lld", output->GetNumberOfCells());
+    vtkLogF(ERROR, "Expected 7152 cells but got %" VTK_ID_TYPE_PRId, output->GetNumberOfCells());
     return EXIT_FAILURE;
   }
 

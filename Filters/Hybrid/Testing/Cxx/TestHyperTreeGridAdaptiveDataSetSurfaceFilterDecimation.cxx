@@ -69,8 +69,10 @@ bool RenderAndCheckVisibleCells(vtkCamera* camera, vtkRenderWindow* renWin, doub
   renWin->Render();
   if (pd->GetNumberOfCells() != expected)
   {
-    vtkLogF(ERROR, "Incorrect number of visible cells. Expected %lld but got %lld.", expected,
-      pd->GetNumberOfCells());
+    vtkLogF(ERROR,
+      "Incorrect number of visible cells. Expected %" VTK_ID_TYPE_PRId " but got %" VTK_ID_TYPE_PRId
+      ".",
+      expected, pd->GetNumberOfCells());
     return false;
   }
   return true;

@@ -356,8 +356,8 @@ bool ValidateMeshTypePoints()
   auto ps = vtkPointSet::SafeDownCast(pds->GetPartition(0));
   VERIFY(ps != nullptr, "missing partition 0");
 
-  VERIFY(ps->GetNumberOfPoints() == 27, "incorrect number of points, expected 27, got %lld",
-    ps->GetNumberOfPoints());
+  VERIFY(ps->GetNumberOfPoints() == 27,
+    "incorrect number of points, expected 27, got %" VTK_ID_TYPE_PRId, ps->GetNumberOfPoints());
   return true;
 }
 
@@ -435,10 +435,10 @@ bool ValidateMeshTypeUnstructured()
   auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
   VERIFY(ug != nullptr, "missing partition 0");
 
-  VERIFY(ug->GetNumberOfPoints() == 9, "incorrect number of points, expected 9, got %lld",
-    ug->GetNumberOfPoints());
-  VERIFY(ug->GetNumberOfCells() == 8, "incorrect number of cells, expected 8, got %lld",
-    ug->GetNumberOfCells());
+  VERIFY(ug->GetNumberOfPoints() == 9,
+    "incorrect number of points, expected 9, got %" VTK_ID_TYPE_PRId, ug->GetNumberOfPoints());
+  VERIFY(ug->GetNumberOfCells() == 8,
+    "incorrect number of cells, expected 8, got %" VTK_ID_TYPE_PRId, ug->GetNumberOfCells());
   VERIFY(ug->GetCellData()->GetAttribute(vtkDataSetAttributes::SCALARS) != nullptr,
     "missing 'field' cell-data array with attribute '%s'",
     vtkDataSetAttributes::GetAttributeTypeAsString(vtkDataSetAttributes::SCALARS));
@@ -919,8 +919,10 @@ bool ValidateMeshTypeMixed2D()
   auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
 
   // 16 triangles, 4 quads: 24 cells
-  VERIFY(ug->GetNumberOfCells() == 24, "expected 24 cells, got %lld", ug->GetNumberOfCells());
-  VERIFY(ug->GetNumberOfPoints() == 25, "Expected 25 points, got %lld", ug->GetNumberOfPoints());
+  VERIFY(ug->GetNumberOfCells() == 24, "expected 24 cells, got %" VTK_ID_TYPE_PRId,
+    ug->GetNumberOfCells());
+  VERIFY(ug->GetNumberOfPoints() == 25, "Expected 25 points, got %" VTK_ID_TYPE_PRId,
+    ug->GetNumberOfPoints());
 
   // check cell types
   const auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
@@ -1254,14 +1256,15 @@ bool ValidateMeshTypeMixed()
     pds->GetNumberOfPartitions());
   auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
 
-  VERIFY(ug->GetNumberOfPoints() == nX * nY * nZ, "expected %d points got %lld", nX * nY * nZ,
-    ug->GetNumberOfPoints());
+  VERIFY(ug->GetNumberOfPoints() == nX * nY * nZ, "expected %d points got %" VTK_ID_TYPE_PRId,
+    nX * nY * nZ, ug->GetNumberOfPoints());
 
   // 160 cells expected: 4 layers of
   //                     - 2 columns with 4 hexahedra
   //                     - 2 columns with 4 polyhedra (wedges) and 12 tetra
   //                     96 tetras + 32 hexas + 32 polyhedra
-  VERIFY(ug->GetNumberOfCells() == 160, "expected 160 cells, got %lld", ug->GetNumberOfCells());
+  VERIFY(ug->GetNumberOfCells() == 160, "expected 160 cells, got %" VTK_ID_TYPE_PRId,
+    ug->GetNumberOfCells());
 
   // check cell types
   auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
@@ -1277,7 +1280,7 @@ bool ValidateMeshTypeMixed()
       {
         ++nPolyhedra;
         const vtkIdType nFaces = it->GetNumberOfFaces();
-        VERIFY(nFaces == 5, "Expected 5 faces, got %lld", nFaces);
+        VERIFY(nFaces == 5, "Expected 5 faces, got %" VTK_ID_TYPE_PRId, nFaces);
         break;
       }
       case VTK_HEXAHEDRON:
@@ -1315,14 +1318,15 @@ bool ValidateMeshTypeMixed()
     pds->GetNumberOfPartitions());
   ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
 
-  VERIFY(ug->GetNumberOfPoints() == nX * nY * nZ, "expected %d points got %lld", nX * nY * nZ,
-    ug->GetNumberOfPoints());
+  VERIFY(ug->GetNumberOfPoints() == nX * nY * nZ, "expected %d points got %" VTK_ID_TYPE_PRId,
+    nX * nY * nZ, ug->GetNumberOfPoints());
 
   // 64 cells expected: 4 layers of
   //                     - 2 columns with 4 pyramids
   //                     - 2 columns with 4 wedges
   //                     32 pyramids + 32 wedges
-  VERIFY(ug->GetNumberOfCells() == 64, "expected 64 cells, got %lld", ug->GetNumberOfCells());
+  VERIFY(ug->GetNumberOfCells() == 64, "expected 64 cells, got %" VTK_ID_TYPE_PRId,
+    ug->GetNumberOfCells());
 
   // check cell types
   it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
@@ -1446,10 +1450,11 @@ bool ValidatePolyhedra()
   auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
 
   VERIFY(ug->GetNumberOfPoints() == static_cast<vtkIdType>(grid.GetNumberOfPoints()),
-    "expected %zu points got %lld", grid.GetNumberOfPoints(), ug->GetNumberOfPoints());
+    "expected %zu points got %" VTK_ID_TYPE_PRId, grid.GetNumberOfPoints(),
+    ug->GetNumberOfPoints());
 
   VERIFY(ug->GetNumberOfCells() == static_cast<vtkIdType>(grid.GetNumberOfCells()),
-    "expected %zu cells, got %lld", grid.GetNumberOfCells(), ug->GetNumberOfCells());
+    "expected %zu cells, got %" VTK_ID_TYPE_PRId, grid.GetNumberOfCells(), ug->GetNumberOfCells());
 
   // check cell types
   auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
@@ -1464,7 +1469,7 @@ bool ValidatePolyhedra()
       {
         ++nPolyhedra;
         const vtkIdType nFaces = it->GetNumberOfFaces();
-        VERIFY(nFaces == 6, "Expected 6 faces, got %lld", nFaces);
+        VERIFY(nFaces == 6, "Expected 6 faces, got %" VTK_ID_TYPE_PRId, nFaces);
         break;
       }
       default:
@@ -1476,7 +1481,7 @@ bool ValidatePolyhedra()
   }
 
   VERIFY(nPolyhedra == static_cast<vtkIdType>(grid.GetNumberOfCells()),
-    "Expected %zu polyhedra, got %lld", grid.GetNumberOfCells(), nPolyhedra);
+    "Expected %zu polyhedra, got %" VTK_ID_TYPE_PRId, grid.GetNumberOfCells(), nPolyhedra);
   return true;
 }
 
