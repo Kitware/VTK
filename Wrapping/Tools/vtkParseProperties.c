@@ -17,23 +17,24 @@
 
 typedef struct MethodAttributes_
 {
-  const char* Name;      /* method name */
-  unsigned int Type;     /* data type of gettable/settable value */
-  int Count;             /* count for gettable/settable value */
-  const char* ClassName; /* class name for if the type is a class */
-  const char* Comment;   /* documentation for method */
-  parse_access_t Access; /* method is private, protected */
-  int HasProperty;       /* method accesses a property */
-  int IsLegacy;          /* method is marked "legacy" */
-  int IsStatic;          /* method is static */
-  int IsRepeat;          /* method is a repeat of a similar method */
-  int IsHinted;          /* method has a hint */
-  int IsMultiValue;      /* method is e.g. SetValue(x0, x1, x2) */
-  int IsIndexed;         /* method is e.g. SetValue(i, val) */
-  int IsEnumerated;      /* method is e.g. SetValueToSomething() */
-  int IsBoolean;         /* method is ValueOn() or ValueOff() */
-  int IsRHS;             /* method is GetValue(val), not val = GetValue() */
-  int IsNoDiscard;       /* method is int AddValue() or bool RemoveValue() */
+  const char* Name;       /* method name */
+  unsigned int Type;      /* data type of gettable/settable value */
+  int Count;              /* count for gettable/settable value */
+  unsigned int IndexType; /* the integer type for indexed properties */
+  const char* ClassName;  /* class name for if the type is a class */
+  const char* Comment;    /* documentation for method */
+  parse_access_t Access;  /* method is private, protected */
+  int HasProperty;        /* method accesses a property */
+  int IsLegacy;           /* method is marked "legacy" */
+  int IsStatic;           /* method is static */
+  int IsRepeat;           /* method is a repeat of a similar method */
+  int IsHinted;           /* method has a hint */
+  int IsMultiValue;       /* method is e.g. SetValue(x0, x1, x2) */
+  int IsIndexed;          /* method is e.g. SetValue(i, val) */
+  int IsEnumerated;       /* method is e.g. SetValueToSomething() */
+  int IsBoolean;          /* method is ValueOn() or ValueOff() */
+  int IsRHS;              /* method is GetValue(val), not val = GetValue() */
+  int IsNoDiscard;        /* method is int AddValue() or bool RemoveValue() */
 } MethodAttributes;
 
 typedef struct ClassPropertyMethods_
@@ -550,6 +551,10 @@ static int getMethodAttributes(FunctionInfo* func, MethodAttributes* attrs)
     {
       indexed = 1;
     }
+    if (indexed)
+    {
+      attrs->IndexType = func->Parameters[0]->Type;
+    }
 
     attrs->IsIndexed = indexed;
   }
@@ -990,6 +995,7 @@ static void initializePropertyInfo(
 
   property->ClassName = meth->ClassName;
   property->Count = meth->Count;
+  property->IndexType = meth->IsIndexed ? meth->IndexType : VTK_PARSE_UNKNOWN;
   property->IsStatic = meth->IsStatic;
   property->EnumConstantNames = 0;
   property->PublicMethods = 0;

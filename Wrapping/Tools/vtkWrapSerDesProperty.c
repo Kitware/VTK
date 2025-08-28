@@ -677,7 +677,13 @@ int vtkWrapSerDes_WritePropertyDeserializer(FILE* fp, const ClassInfo* classInfo
     fprintf(fp, "      const auto items = arrIter->get<nlohmann::json::array_t>();\n");
     if (vtkWrapSerDes_HasSettableSize(propertyInfo->PublicMethods))
     {
-      fprintf(fp, "      object->SetNumberOf%ss(static_cast<vtkIdType>(items.size()));\n", keyName);
+      ValueInfo* indexVal = malloc(sizeof(ValueInfo));
+      indexVal->Type = propertyInfo->IndexType;
+      indexVal->Class = NULL;
+      const char* indexClass = vtkWrap_GetTypeName(indexVal);
+      fprintf(
+        fp, "      object->SetNumberOf%ss(static_cast<%s>(items.size()));\n", keyName, indexClass);
+      free(indexVal);
     }
     fprintf(fp, "      for (auto iter = items.begin(); iter != items.end(); ++iter)\n");
     fprintf(fp, "      {\n");
