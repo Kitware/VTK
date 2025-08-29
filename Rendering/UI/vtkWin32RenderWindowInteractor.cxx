@@ -217,7 +217,7 @@ public:
   std::map<int, std::unique_ptr<TimerContext>> TimerContextMap;
   bool IsRunning = false;
 
-  static void OnTimerFired(PVOID lpParameter, BOOLEAN)
+  static void CALLBACK OnTimerFired(PVOID lpParameter, BOOLEAN)
   {
     auto* timerContext = static_cast<TimerContext*>(lpParameter);
     // Do not post another message for the same timer if already posted
