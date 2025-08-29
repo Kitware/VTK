@@ -296,7 +296,8 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
   }
   else
   {
-    vtkErrorMacro("Unhandled data type: " << inputCD->GetClassName());
+    vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0], 0);
+    vtkErrorMacro("Unhandled data type: " << inputDO->GetClassName());
     return 0;
   }
 
