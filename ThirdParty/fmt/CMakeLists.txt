@@ -18,3 +18,11 @@ configure_file(
 
 vtk_module_install_headers(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/vtk_fmt.h")
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  # This is added to ensure that applications that link to VTK will inherit
+  # the same compile options for fmt.
+  vtk_module_compile_options(VTK::fmt
+    INTERFACE
+      -utf-8)
+endif()
