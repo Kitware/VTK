@@ -701,9 +701,8 @@ double vtkCellSizeFilter::IntegrateGeneral3DCell(vtkPointSet* input, vtkIdList* 
     tetPtIds[1] = ptIds->GetId(tetIdx++);
     tetPtIds[2] = ptIds->GetId(tetIdx++);
     tetPtIds[3] = ptIds->GetId(tetIdx++);
-    vtkNew<vtkTetra> tet;
-    tet->Initialize(4, tetPtIds, input->GetPoints());
-    sum += vtkMeshQuality::TetVolume(tet);
+    this->LocalTetCell->Initialize(4, tetPtIds, input->GetPoints());
+    sum += vtkMeshQuality::TetVolume(this->LocalTetCell);
   }
   return sum;
 }
