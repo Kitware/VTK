@@ -269,7 +269,7 @@ static void vtkWrapSerDes_MarkAllEnums(NamespaceInfo* contents, const HierarchyI
 
 /**
  * This is the main entry point for generating object coders.
- * When called, it will print the vtkXXXSerialization.cxx file contents to "fp".
+ * When called, it will print the vtkClassNameSerDes.cxx file contents to "fp".
  */
 int VTK_PARSE_MAIN(int argc, char* argv[])
 {
