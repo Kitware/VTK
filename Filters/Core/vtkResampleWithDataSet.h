@@ -158,6 +158,17 @@ public:
 
   ///@{
   /**
+   * Set the radius used to snap to the closest cell.
+   * Call forwarded to the internal prober, which
+   * only uses it if SnapToCellWithClosestPoint is on.
+   * Default is the double positive infinity.
+   */
+  void SetSnappingRadius(double arg);
+  double GetSnappingRadius();
+  ///@}
+
+  ///@{
+  /**
    * Get/Set whether or not the filter should use implicit arrays.
    * If set to true, probed values will not be copied to the output
    * but retrieved from the source through indexation (thanks to indexed arrays).

@@ -195,6 +195,16 @@ public:
 
   ///@{
   /**
+   * Set the  radius used to snap to the closest cell.
+   * It is only used if SnapToCellWithClosestPoint is on.
+   * The default snapping radius is the double positive infinity.
+   */
+  vtkSetMacro(SnappingRadius, double);
+  vtkGetMacro(SnappingRadius, double);
+  ///@}
+
+  ///@{
+  /**
    * Set whether to use the Tolerance field or precompute the tolerance.
    * When on, the tolerance will be computed and the field
    * value is ignored. On by default.
@@ -276,7 +286,6 @@ protected:
 
   double Tolerance;
   bool ComputeTolerance;
-  bool SnapToCellWithClosestPoint;
 
   char* ValidPointMaskArrayName;
   vtkIdTypeArray* ValidPoints;
@@ -318,6 +327,9 @@ private:
 
   std::vector<vtkDataArray*> InputCellArrays;
   std::vector<vtkDataArray*> SourceCellArrays;
+
+  bool SnapToCellWithClosestPoint;
+  double SnappingRadius;
 };
 
 VTK_ABI_NAMESPACE_END

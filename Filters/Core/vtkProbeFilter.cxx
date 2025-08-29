@@ -76,6 +76,7 @@ vtkProbeFilter::vtkProbeFilter()
   this->Tolerance = 1.0;
   this->ComputeTolerance = true;
   this->SnapToCellWithClosestPoint = false;
+  this->SnappingRadius = std::numeric_limits<double>::infinity();
 }
 
 //------------------------------------------------------------------------------
@@ -596,10 +597,10 @@ public:
         {
           if (this->ProbeFilter->SnapToCellWithClosestPoint && strategy)
           {
-            // Find the closest point and the cell that it belong to
-            constexpr double snappingRadius = std::numeric_limits<double>::infinity();
-            closestPointFound = strategy->FindClosestPointWithinRadius(x, snappingRadius,
-              lastClosestPoint, currentCell, lastCellId, lastSubId, dist2, inside);
+            // Find the closest point within the snapping radius and the cell that it belong to
+            closestPointFound =
+              strategy->FindClosestPointWithinRadius(x, this->ProbeFilter->SnappingRadius,
+                lastClosestPoint, currentCell, lastCellId, lastSubId, dist2, inside);
             if (closestPointFound)
             {
               // Previously computed lastPCoords are not valid, so that we need to compute
