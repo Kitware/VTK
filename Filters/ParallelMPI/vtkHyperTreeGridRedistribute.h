@@ -60,9 +60,10 @@ private:
   void operator=(const vtkHyperTreeGridRedistribute&) = delete;
 
   /* Subroutines */
+  void ExchangeHTGMetadata();
   void CollectLocalTreeIds();
   void BuildTargetPartMap();
-  void ExchangeHTGMetaData(vtkBitArray* descriptorSendBuffer,
+  void ExchangeHyperTreeMetaData(vtkBitArray* descriptorSendBuffer,
     std::vector<int>& descriptorSizesReceivedBuffer, std::vector<int>& treeSizesSendBuffer,
     std::vector<int>& maskSizesSendBuffer, std::vector<int>& treeSizesReceivedBuffer,
     std::vector<int>& maskSizesReceivedBuffer, std::vector<int>& descriptorsByteOffsets);
@@ -81,6 +82,7 @@ private:
   vtkHyperTreeGrid* InputHTG;
   vtkHyperTreeGrid* OutputHTG;
   vtkSmartPointer<vtkBitArray> OutMask;
+  bool HasMask = false;
   int NumPartitions;
 
   std::vector<int> TreeTargetPartId; // Map Tree <-> Target Part Id

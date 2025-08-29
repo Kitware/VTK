@@ -19,7 +19,7 @@ vtk_add_test_mpi(vtkFiltersParallelMPICxxTests-MPI test_5_procs
 
 set(vtkFiltersParallelMPICxxTests-MPI_NUMPROCS 3)
 vtk_add_test_mpi(vtkFiltersParallelMPICxxTests-MPI test_3_procs
-  TestHyperTreeGridRedistribute.cxx,NO_VALID
+  TestHyperTreeGridRedistribute.cxx,TESTING_DATA,NO_VALID
 )
 
 set(all_tests
