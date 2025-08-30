@@ -27,6 +27,7 @@
 #include "vtkFiltersCoreModule.h" //For export Macro
 #include "vtkNew.h"               //For init in header
 #include "vtkSmartPointer.h"      //For members
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCharArray;
@@ -36,7 +37,7 @@ class vtkDataSet;
 class vtkHyperTreeGrid;
 class vtkHyperTreeGridLocator;
 
-class VTKFILTERSCORE_EXPORT vtkHyperTreeGridProbeFilter : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkHyperTreeGridProbeFilter : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridProbeFilter, vtkDataSetAlgorithm);

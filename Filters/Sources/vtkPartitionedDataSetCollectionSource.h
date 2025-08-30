@@ -17,9 +17,10 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPartitionedDataSetCollectionAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSSOURCES_EXPORT vtkPartitionedDataSetCollectionSource
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkPartitionedDataSetCollectionSource
   : public vtkPartitionedDataSetCollectionAlgorithm
 {
 public:

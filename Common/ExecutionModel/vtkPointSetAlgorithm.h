@@ -22,6 +22,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkWrappingHints.h"              // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPointSet;
@@ -29,7 +30,7 @@ class vtkPolyData;
 class vtkStructuredGrid;
 class vtkUnstructuredGrid;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPointSetAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkPointSetAlgorithm : public vtkAlgorithm
 {
 public:
   static vtkPointSetAlgorithm* New();

@@ -21,13 +21,14 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkDataSetAttributes.h" // needed for vtkDataSetAttributes::FieldList
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 #include "vtkContourValues.h" // Needed for inline methods
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractCellLocator;
 
-class VTKFILTERSCORE_EXPORT vtkBinCellDataFilter : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkBinCellDataFilter : public vtkDataSetAlgorithm
 {
 public:
   typedef vtkContourValues vtkBinValues;

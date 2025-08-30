@@ -21,11 +21,13 @@
 #include "vtkContourValues.h"     // Because it passes all the calls to it
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStructuredGrid;
 
-class VTKFILTERSCORE_EXPORT vtkGridSynchronizedTemplates3D : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkGridSynchronizedTemplates3D
+  : public vtkPolyDataAlgorithm
 {
 public:
   static vtkGridSynchronizedTemplates3D* New();

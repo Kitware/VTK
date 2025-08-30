@@ -37,12 +37,14 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkParametricFunction;
 
-class VTKFILTERSSOURCES_EXPORT vtkParametricFunctionSource : public vtkPolyDataAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkParametricFunctionSource
+  : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkParametricFunctionSource, vtkPolyDataAlgorithm);

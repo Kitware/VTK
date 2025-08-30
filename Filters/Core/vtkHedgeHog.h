@@ -15,12 +15,13 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #define VTK_USE_VECTOR 0
 #define VTK_USE_NORMAL 1
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkHedgeHog : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkHedgeHog : public vtkPolyDataAlgorithm
 {
 public:
   static vtkHedgeHog* New();

@@ -26,6 +26,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <vector> // For std::vector
 
@@ -33,7 +34,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetAttributes;
 class vtkDataSetCollection;
 
-class VTKFILTERSCORE_EXPORT vtkAppendFilter : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkAppendFilter : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkAppendFilter* New();

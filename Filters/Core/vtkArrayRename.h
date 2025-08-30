@@ -18,6 +18,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkDataObject.h" // for AttributeTypes enum
 
@@ -25,7 +26,7 @@
 #include <string> // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkArrayRename : public vtkPassInputTypeAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkArrayRename : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkArrayRename* New();

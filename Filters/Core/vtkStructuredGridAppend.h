@@ -14,9 +14,11 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkStructuredGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkStructuredGridAppend : public vtkStructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkStructuredGridAppend
+  : public vtkStructuredGridAlgorithm
 {
 public:
   static vtkStructuredGridAppend* New();

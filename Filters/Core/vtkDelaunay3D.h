@@ -84,6 +84,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
@@ -93,7 +94,7 @@ class vtkPoints;
 class vtkTetraArray;
 class vtkIncrementalPointLocator;
 
-class VTKFILTERSCORE_EXPORT vtkDelaunay3D : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkDelaunay3D : public vtkUnstructuredGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkDelaunay3D, vtkUnstructuredGridAlgorithm);

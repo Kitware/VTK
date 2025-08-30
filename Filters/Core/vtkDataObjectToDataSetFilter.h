@@ -55,6 +55,7 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
@@ -67,7 +68,8 @@ class vtkStructuredGrid;
 class vtkStructuredPoints;
 class vtkUnstructuredGrid;
 
-class VTKFILTERSCORE_EXPORT vtkDataObjectToDataSetFilter : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkDataObjectToDataSetFilter
+  : public vtkDataSetAlgorithm
 {
 public:
   static vtkDataObjectToDataSetFilter* New();

@@ -10,6 +10,7 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <vector>
 #include <vtkNew.h> // For vtkNew
@@ -20,7 +21,8 @@ class vtkExtentTranslator;
 class vtkHyperTreeGridNonOrientedCursor;
 class vtkMinimalStandardRandomSequence;
 
-class VTKFILTERSSOURCES_EXPORT vtkRandomHyperTreeGridSource : public vtkHyperTreeGridAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkRandomHyperTreeGridSource
+  : public vtkHyperTreeGridAlgorithm
 {
 public:
   static vtkRandomHyperTreeGridSource* New();

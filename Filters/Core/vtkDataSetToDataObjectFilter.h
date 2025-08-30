@@ -37,11 +37,13 @@
 
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
 
-class VTKFILTERSCORE_EXPORT vtkDataSetToDataObjectFilter : public vtkDataObjectAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkDataSetToDataObjectFilter
+  : public vtkDataObjectAlgorithm
 {
 public:
   vtkTypeMacro(vtkDataSetToDataObjectFilter, vtkDataObjectAlgorithm);

@@ -99,7 +99,6 @@ Common/Core/vtkInformationStringVectorKey.h
 Common/Core/vtkInformationUnsignedLongKey.h
 Common/Core/vtkInformationVariantKey.h
 Common/Core/vtkInformationVariantVectorKey.h
-Common/Core/vtkInformationVector.h
 Common/Core/vtkInherits.h
 Common/Core/vtkIntArray.h
 Common/Core/vtkInvoker.h
@@ -147,7 +146,9 @@ Common/Core/vtkSortDataArray.h
 Common/Core/vtkSparseArray.h
 Common/Core/vtkStdFunctionArray.h
 Common/Core/vtkStdString.h
+Common/Core/vtkStringFormatter.h
 Common/Core/vtkStringOutputWindow.h
+Common/Core/vtkStringScanner.h
 Common/Core/vtkStringToken.h
 Common/Core/vtkStructuredPointArray.h
 Common/Core/vtkStructuredPointBackend.h
@@ -443,6 +444,7 @@ Common/DataModel/vtkTriangle.h
 Common/DataModel/vtkTriangleStrip.h
 Common/DataModel/vtkUniformGridAMR.h
 Common/DataModel/vtkUniformGridAMRDataIterator.h
+Common/DataModel/vtkUniformGridAMRIterator.h
 Common/DataModel/vtkUniformHyperTreeGrid.h
 Common/DataModel/vtkUnstructuredGridCellIterator.h
 Common/DataModel/vtkVector.h
@@ -457,15 +459,11 @@ Common/ExecutionModel/vtkArrayDataAlgorithm.h
 Common/ExecutionModel/vtkCachedStreamingDemandDrivenPipeline.h
 Common/ExecutionModel/vtkCastToConcrete.h
 Common/ExecutionModel/vtkCellGridAlgorithm.h
-Common/ExecutionModel/vtkCompositeDataSetAlgorithm.h
-Common/ExecutionModel/vtkDataObjectAlgorithm.h
-Common/ExecutionModel/vtkDataSetAlgorithm.h
 Common/ExecutionModel/vtkDirectedGraphAlgorithm.h
 Common/ExecutionModel/vtkEndFor.h
 Common/ExecutionModel/vtkEnsembleSource.h
 Common/ExecutionModel/vtkExecutionAggregator.h
 Common/ExecutionModel/vtkExecutionRange.h
-Common/ExecutionModel/vtkExplicitStructuredGridAlgorithm.h
 Common/ExecutionModel/vtkExtentRCBPartitioner.h
 Common/ExecutionModel/vtkExtentSplitter.h
 Common/ExecutionModel/vtkExtentTranslator.h
@@ -483,17 +481,11 @@ Common/ExecutionModel/vtkInformationExecutivePortKey.h
 Common/ExecutionModel/vtkInformationExecutivePortVectorKey.h
 Common/ExecutionModel/vtkInformationIntegerRequestKey.h
 Common/ExecutionModel/vtkMoleculeAlgorithm.h
-Common/ExecutionModel/vtkMultiBlockDataSetAlgorithm.h
 Common/ExecutionModel/vtkMultiTimeStepAlgorithm.h
-Common/ExecutionModel/vtkNonOverlappingAMRAlgorithm.h
 Common/ExecutionModel/vtkOverlappingAMRAlgorithm.h
 Common/ExecutionModel/vtkParallelReader.h
-Common/ExecutionModel/vtkPartitionedDataSetAlgorithm.h
-Common/ExecutionModel/vtkPartitionedDataSetCollectionAlgorithm.h
-Common/ExecutionModel/vtkPassInputTypeAlgorithm.h
 Common/ExecutionModel/vtkPiecewiseFunctionAlgorithm.h
 Common/ExecutionModel/vtkPiecewiseFunctionShiftScale.h
-Common/ExecutionModel/vtkPointSetAlgorithm.h
 Common/ExecutionModel/vtkProgressObserver.h
 Common/ExecutionModel/vtkReaderAlgorithm.h
 Common/ExecutionModel/vtkRectilinearGridAlgorithm.h
@@ -505,7 +497,6 @@ Common/ExecutionModel/vtkSimpleReader.h
 Common/ExecutionModel/vtkSimpleScalarTree.h
 Common/ExecutionModel/vtkSpanSpace.h
 Common/ExecutionModel/vtkSphereTree.h
-Common/ExecutionModel/vtkStructuredGridAlgorithm.h
 Common/ExecutionModel/vtkTableAlgorithm.h
 Common/ExecutionModel/vtkTemporalAlgorithm.h
 Common/ExecutionModel/vtkThreadedCompositeDataPipeline.h
@@ -513,10 +504,7 @@ Common/ExecutionModel/vtkTimeRange.h
 Common/ExecutionModel/vtkTreeAlgorithm.h
 Common/ExecutionModel/vtkTrivialConsumer.h
 Common/ExecutionModel/vtkUndirectedGraphAlgorithm.h
-Common/ExecutionModel/vtkUniformGridAMRAlgorithm.h
 Common/ExecutionModel/vtkUniformGridPartitioner.h
-Common/ExecutionModel/vtkUnstructuredGridAlgorithm.h
-Common/ExecutionModel/vtkUnstructuredGridBaseAlgorithm.h
 Common/Math/vtkAmoebaMinimizer.h
 Common/Math/vtkFFT.h
 Common/Math/vtkFunctionSet.h
@@ -540,6 +528,8 @@ Common/Transforms/vtkSphericalTransform.h
 Common/Transforms/vtkThinPlateSplineTransform.h
 Common/Transforms/vtkTransformCollection.h
 Common/Transforms/vtkWarpTransform.h
+Filters/Core/vtk3DLinearGridInternal.h
+Filters/Core/vtkHyperTreeGridProbeFilterUtilities.h
 Imaging/Color/vtkImageHSIToRGB.h
 Imaging/Color/vtkImageHSVToRGB.h
 Imaging/Color/vtkImageLuminance.h
@@ -590,7 +580,6 @@ Imaging/Core/vtkImageStencilSource.h
 Imaging/Core/vtkImageThreshold.h
 Imaging/Core/vtkImageTranslateExtent.h
 Imaging/Core/vtkImageWrapPad.h
-Imaging/Core/vtkRTAnalyticSource.h
 Interaction/Widgets/vtk3DWidget.h
 Interaction/Widgets/vtkAbstractPolygonalHandleRepresentation3D.h
 Interaction/Widgets/vtkAbstractSplineRepresentation.h
@@ -826,6 +815,7 @@ Rendering/OpenGL2/vtkTextureUnitManager.h
 Rendering/OpenGL2/vtkTransformFeedback.h
 Rendering/OpenGL2/vtkWin32OpenGLDXRenderWindow.h
 Rendering/UI/vtkAndroidRenderWindowInteractor.h
+Rendering/UI/vtkCocoaAutoreleasePool.h
 Rendering/UI/vtkCocoaMacOSXSDKCompatibility.h
 Rendering/UI/vtkIOSRenderWindowInteractor.h
 Rendering/Volume/vtkAnariVolumeInterface.h

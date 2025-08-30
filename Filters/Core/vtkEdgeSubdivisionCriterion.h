@@ -24,13 +24,14 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetAttributes;
 class vtkMatrix4x4;
 class vtkStreamingTessellator;
 
-class VTKFILTERSCORE_EXPORT vtkEdgeSubdivisionCriterion : public vtkObject
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkEdgeSubdivisionCriterion : public vtkObject
 {
 public:
   vtkTypeMacro(vtkEdgeSubdivisionCriterion, vtkObject);

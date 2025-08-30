@@ -47,6 +47,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkEdgeTable;
@@ -55,7 +56,7 @@ class vtkPointData;
 class vtkPriorityQueue;
 class vtkDoubleArray;
 
-class VTKFILTERSCORE_EXPORT vtkQuadricDecimation : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkQuadricDecimation : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkQuadricDecimation, vtkPolyDataAlgorithm);

@@ -20,6 +20,7 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkCell.h" // Needed for VTK_CELL_SIZE
 
@@ -28,7 +29,7 @@ VTK_ABI_NAMESPACE_BEGIN
 // Forward declarations
 class vtkFloatArray;
 
-class VTKFILTERSSOURCES_EXPORT vtkCylinderSource : public vtkPolyDataAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkCylinderSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkCylinderSource* New();

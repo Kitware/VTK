@@ -56,9 +56,11 @@
 #include "vtkCellArray.h"         // For point smoothing stencils
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkConstrainedSmoothingFilter : public vtkPointSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkConstrainedSmoothingFilter
+  : public vtkPointSetAlgorithm
 {
 public:
   ///@{

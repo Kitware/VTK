@@ -25,6 +25,7 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPartitionedDataSetAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <map> // For std::map
 
@@ -32,7 +33,8 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkParametricFunction;
 class vtkPartitionedDataSet;
 
-class VTKFILTERSSOURCES_EXPORT vtkPartitionedDataSetSource : public vtkPartitionedDataSetAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkPartitionedDataSetSource
+  : public vtkPartitionedDataSetAlgorithm
 {
 public:
   static vtkPartitionedDataSetSource* New();

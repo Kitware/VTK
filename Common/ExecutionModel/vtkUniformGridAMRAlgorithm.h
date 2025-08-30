@@ -14,6 +14,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkWrappingHints.h"              // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUniformGridAMR;
@@ -21,7 +22,8 @@ class vtkInformation;
 class vtkInformationVector;
 class vtkExecutive;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkUniformGridAMRAlgorithm
+  : public vtkAlgorithm
 {
 public:
   static vtkUniformGridAMRAlgorithm* New();

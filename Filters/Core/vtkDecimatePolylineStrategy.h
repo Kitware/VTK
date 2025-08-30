@@ -19,12 +19,13 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkPointSet;
 
-class VTKFILTERSCORE_EXPORT vtkDecimatePolylineStrategy : public vtkObject
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkDecimatePolylineStrategy : public vtkObject
 {
 public:
   vtkTypeMacro(vtkDecimatePolylineStrategy, vtkObject);

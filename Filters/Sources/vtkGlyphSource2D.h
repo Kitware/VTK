@@ -22,6 +22,7 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #define VTK_NO_GLYPH 0
 #define VTK_VERTEX_GLYPH 1
@@ -44,7 +45,7 @@ class vtkPoints;
 class vtkUnsignedCharArray;
 class vtkCellArray;
 
-class VTKFILTERSSOURCES_EXPORT vtkGlyphSource2D : public vtkPolyDataAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkGlyphSource2D : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGlyphSource2D, vtkPolyDataAlgorithm);

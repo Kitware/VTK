@@ -30,6 +30,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkProbeFilter.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <map> // For std::map
 
@@ -40,7 +41,7 @@ class vtkFindCellStrategy;
 template <typename T>
 class vtkSmartPointer;
 
-class VTKFILTERSCORE_EXPORT vtkCompositeDataProbeFilter : public vtkProbeFilter
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkCompositeDataProbeFilter : public vtkProbeFilter
 {
 public:
   static vtkCompositeDataProbeFilter* New();

@@ -44,13 +44,14 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFieldData;
 
-class VTKFILTERSCORE_EXPORT vtkRearrangeFields : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkRearrangeFields : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkRearrangeFields, vtkDataSetAlgorithm);

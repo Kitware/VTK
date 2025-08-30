@@ -27,12 +27,13 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 class vtkFieldData;
 
-class VTKFILTERSCORE_EXPORT vtkMergeFields : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkMergeFields : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkMergeFields, vtkDataSetAlgorithm);

@@ -19,11 +19,13 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMergePoints;
 
-class VTKFILTERSSOURCES_EXPORT vtkCellTypeSource : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkCellTypeSource
+  : public vtkUnstructuredGridAlgorithm
 {
 public:
   ///@{

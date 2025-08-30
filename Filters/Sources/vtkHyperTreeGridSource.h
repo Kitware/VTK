@@ -43,6 +43,7 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <map>    // STL Header
 #include <string> // STL Header
@@ -57,7 +58,8 @@ class vtkImplicitFunction;
 class vtkHyperTreeGrid;
 class vtkQuadric;
 
-class VTKFILTERSSOURCES_EXPORT vtkHyperTreeGridSource : public vtkHyperTreeGridAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkHyperTreeGridSource
+  : public vtkHyperTreeGridAlgorithm
 {
 public:
   vtkTypeMacro(vtkHyperTreeGridSource, vtkHyperTreeGridAlgorithm);

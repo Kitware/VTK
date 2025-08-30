@@ -31,6 +31,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #define VTK_SPHERE_TREE_LEVELS 0
 #define VTK_SPHERE_TREE_POINT 1
@@ -40,7 +41,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSphereTree;
 
-class VTKFILTERSCORE_EXPORT vtkSphereTreeFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkSphereTreeFilter : public vtkPolyDataAlgorithm
 {
 public:
   /**

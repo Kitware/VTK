@@ -60,11 +60,12 @@
 #include "vtkContourValues.h"     // Passes calls through
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
-class VTKFILTERSCORE_EXPORT vtkFlyingEdges3D : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkFlyingEdges3D : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

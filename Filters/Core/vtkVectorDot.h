@@ -25,9 +25,10 @@
 
 #include "vtkDataSetAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkVectorDot : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkVectorDot : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkVectorDot, vtkDataSetAlgorithm);

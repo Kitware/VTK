@@ -22,11 +22,12 @@
 #include "vtkContourValues.h"     // Passes calls through
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 
-class VTKFILTERSCORE_EXPORT vtkSynchronizedTemplates3D : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkSynchronizedTemplates3D : public vtkPolyDataAlgorithm
 {
 public:
   static vtkSynchronizedTemplates3D* New();

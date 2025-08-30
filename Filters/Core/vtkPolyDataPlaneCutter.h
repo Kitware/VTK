@@ -36,10 +36,11 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPlane.h"             // For cutting plane
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkSmartPointer.h" // For SmartPointer
+#include "vtkSmartPointer.h"  // For SmartPointer
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkPolyDataPlaneCutter : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkPolyDataPlaneCutter : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

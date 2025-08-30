@@ -92,6 +92,7 @@ typedef struct PropertyInfo_
   const char* Name;               /* property name */
   unsigned int Type;              /* property type as VTK_PARSE constant */
   int Count;                      /* the count for array-type properties */
+  unsigned int IndexType;         /* the integer type for indexed properties */
   const char* ClassName;          /* VTK object type of the property, or NULL */
   const char** EnumConstantNames; /* the names of int enum values */
   unsigned int PublicMethods;     /* bitfield for public methods */

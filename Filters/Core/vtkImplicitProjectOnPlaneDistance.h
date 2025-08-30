@@ -24,13 +24,15 @@
 #include "vtkAbstractCellLocator.h" // User defined cellLocator
 #include "vtkFiltersCoreModule.h"   // For export macro
 #include "vtkSmartPointer.h"        // It has vtkSmartPointer fields
+#include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkGenericCell;
 class vtkPolyData;
 class vtkPlane;
 
-class VTKFILTERSCORE_EXPORT vtkImplicitProjectOnPlaneDistance : public vtkImplicitFunction
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkImplicitProjectOnPlaneDistance
+  : public vtkImplicitFunction
 {
 public:
   enum class NormType

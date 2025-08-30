@@ -16,11 +16,13 @@
 
 #include "vtkArrayDataAlgorithm.h"
 #include "vtkFiltersSourcesModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkArray;
 
-class VTKFILTERSSOURCES_EXPORT vtkDiagonalMatrixSource : public vtkArrayDataAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkDiagonalMatrixSource
+  : public vtkArrayDataAlgorithm
 {
 public:
   static vtkDiagonalMatrixSource* New();

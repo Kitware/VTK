@@ -64,9 +64,10 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkStaticPointLocator.h" // For enums
+#include "vtkWrappingHints.h"      // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkStaticCleanPolyData : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkStaticCleanPolyData : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

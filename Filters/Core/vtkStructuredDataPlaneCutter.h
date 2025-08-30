@@ -38,12 +38,14 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkSphereTree;
 class vtkPlane;
 
-class VTKFILTERSCORE_EXPORT vtkStructuredDataPlaneCutter : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkStructuredDataPlaneCutter
+  : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

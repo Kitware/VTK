@@ -47,6 +47,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkNew.h" // for member
 
@@ -66,7 +67,7 @@ class vtkIdTypeArray;
 class vtkIntArray;
 class vtkPolyData;
 
-class VTKFILTERSCORE_EXPORT vtkConnectivityFilter : public vtkPointSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkConnectivityFilter : public vtkPointSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkConnectivityFilter, vtkPointSetAlgorithm);

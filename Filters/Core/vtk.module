@@ -56,3 +56,4 @@ TEST_OPTIONAL_DEPENDS
   VTK::AcceleratorsVTKmFilters
   VTK::mpi
   VTK::ParallelMPI
+INCLUDE_MARSHAL

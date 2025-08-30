@@ -37,13 +37,15 @@
 
 #include "vtkDecimatePolylineDistanceStrategy.h" // Default decimation strategy
 #include "vtkFiltersCoreModule.h"                // For export macro
+#include "vtkSmartPointer.h"                     // Needed for SP ivars
+#include "vtkWrappingHints.h"                    // For VTK_MARSHALAUTO
+
 #include "vtkPolyDataAlgorithm.h"
-#include "vtkSmartPointer.h" // Needed for SP ivars
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPriorityQueue;
 
-class VTKFILTERSCORE_EXPORT vtkDecimatePolylineFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkDecimatePolylineFilter : public vtkPolyDataAlgorithm
 {
 public:
   ///@{
@@ -107,8 +109,8 @@ public:
   vtkMTimeType GetMTime() override;
 
 protected:
-  vtkDecimatePolylineFilter() = default;
-  ~vtkDecimatePolylineFilter() override = default;
+  vtkDecimatePolylineFilter();
+  ~vtkDecimatePolylineFilter() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestUpdateExtent(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,

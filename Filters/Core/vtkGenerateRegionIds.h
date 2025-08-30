@@ -31,13 +31,14 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <set>    // for std::set
 #include <string> // for std::string
 
 VTK_ABI_NAMESPACE_BEGIN
 
-class VTKFILTERSCORE_EXPORT vtkGenerateRegionIds : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkGenerateRegionIds : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkGenerateRegionIds, vtkPolyDataAlgorithm);

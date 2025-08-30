@@ -17,11 +17,12 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 
-class VTKFILTERSCORE_EXPORT vtkOrientPolyData : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkOrientPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkOrientPolyData* New();

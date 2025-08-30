@@ -13,11 +13,12 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyPointSource.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 
-class VTKFILTERSSOURCES_EXPORT vtkPolyLineSource : public vtkPolyPointSource
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkPolyLineSource : public vtkPolyPointSource
 {
 public:
   static vtkPolyLineSource* New();

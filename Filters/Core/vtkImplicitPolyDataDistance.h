@@ -32,12 +32,13 @@
 #include "vtkGenericCell.h"       // For thread local storage
 #include "vtkImplicitFunction.h"
 #include "vtkSMPThreadLocalObject.h" // For thread local storage
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellLocator;
 class vtkPolyData;
 
-class VTKFILTERSCORE_EXPORT vtkImplicitPolyDataDistance : public vtkImplicitFunction
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkImplicitPolyDataDistance : public vtkImplicitFunction
 {
 public:
   static vtkImplicitPolyDataDistance* New();

@@ -19,9 +19,11 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkConvertToMultiBlockDataSet : public vtkMultiBlockDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkConvertToMultiBlockDataSet
+  : public vtkMultiBlockDataSetAlgorithm
 {
 public:
   static vtkConvertToMultiBlockDataSet* New();

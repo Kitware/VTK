@@ -27,12 +27,14 @@
 
 #include "vtkEdgeSubdivisionCriterion.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
 class vtkDataSet;
 
-class VTKFILTERSCORE_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeSubdivisionCriterion
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkDataSetEdgeSubdivisionCriterion
+  : public vtkEdgeSubdivisionCriterion
 {
 public:
   vtkTypeMacro(vtkDataSetEdgeSubdivisionCriterion, vtkEdgeSubdivisionCriterion);

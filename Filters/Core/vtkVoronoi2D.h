@@ -81,6 +81,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkStaticPointLocator2D;
@@ -88,7 +89,7 @@ class vtkAbstractTransform;
 class vtkPointSet;
 class vtkSpheres;
 
-class VTKFILTERSCORE_EXPORT vtkVoronoi2D : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkVoronoi2D : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

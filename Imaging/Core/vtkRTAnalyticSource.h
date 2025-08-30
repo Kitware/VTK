@@ -14,9 +14,10 @@
 
 #include "vtkImageAlgorithm.h"
 #include "vtkImagingCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKIMAGINGCORE_EXPORT vtkRTAnalyticSource : public vtkImageAlgorithm
+class VTKIMAGINGCORE_EXPORT VTK_MARSHALAUTO vtkRTAnalyticSource : public vtkImageAlgorithm
 {
 public:
   static vtkRTAnalyticSource* New();

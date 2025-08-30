@@ -56,6 +56,7 @@
 #include "vtkDataSetAlgorithm.h"
 #include "vtkDataSetAttributes.h" // needed for vtkDataSetAttributes::FieldList
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 #include <vector> // For std::vector
 
@@ -68,7 +69,7 @@ class vtkImageData;
 class vtkPointData;
 class vtkFindCellStrategy;
 
-class VTKFILTERSCORE_EXPORT vtkProbeFilter : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkProbeFilter : public vtkDataSetAlgorithm
 {
 public:
   static vtkProbeFilter* New();

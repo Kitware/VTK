@@ -18,11 +18,13 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkSynchronizedTemplates3D.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
 
-class VTKFILTERSCORE_EXPORT vtkSynchronizedTemplatesCutter3D : public vtkSynchronizedTemplates3D
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkSynchronizedTemplatesCutter3D
+  : public vtkSynchronizedTemplates3D
 {
 public:
   static vtkSynchronizedTemplatesCutter3D* New();

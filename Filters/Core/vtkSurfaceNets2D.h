@@ -121,12 +121,13 @@
 #include "vtkFiltersCoreModule.h"          // For export macro
 #include "vtkPolyData.h"                   // To support data caching
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkImageData;
 
-class VTKFILTERSCORE_EXPORT vtkSurfaceNets2D : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkSurfaceNets2D : public vtkPolyDataAlgorithm
 {
 public:
   ///@{

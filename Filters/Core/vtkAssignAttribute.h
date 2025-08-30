@@ -38,13 +38,14 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include "vtkDataSetAttributes.h" // Needed for NUM_ATTRIBUTES
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFieldData;
 
-class VTKFILTERSCORE_EXPORT vtkAssignAttribute : public vtkPassInputTypeAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkAssignAttribute : public vtkPassInputTypeAlgorithm
 {
 public:
   vtkTypeMacro(vtkAssignAttribute, vtkPassInputTypeAlgorithm);

@@ -104,6 +104,7 @@
 #include "vtkContourValues.h" // Needed for inline methods
 #include "vtkDataObjectAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
@@ -111,7 +112,7 @@ class vtkUnstructuredGrid;
 class vtkScalarTree;
 struct vtkScalarTreeMap;
 
-class VTKFILTERSCORE_EXPORT vtkContour3DLinearGrid : public vtkDataObjectAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkContour3DLinearGrid : public vtkDataObjectAlgorithm
 {
 public:
   ///@{

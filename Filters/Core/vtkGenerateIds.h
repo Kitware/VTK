@@ -23,13 +23,14 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellData;
 class vtkPointData;
-class VTKFILTERSCORE_EXPORT vtkGenerateIds : public vtkPassInputTypeAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkGenerateIds : public vtkPassInputTypeAlgorithm
 {
 public:
   vtkTypeMacro(vtkGenerateIds, vtkPassInputTypeAlgorithm);

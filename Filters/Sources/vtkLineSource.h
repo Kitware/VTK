@@ -41,12 +41,13 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <vector> //  for std::vector
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
 
-class VTKFILTERSSOURCES_EXPORT vtkLineSource : public vtkPolyDataAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkLineSource : public vtkPolyDataAlgorithm
 {
 public:
   static vtkLineSource* New();

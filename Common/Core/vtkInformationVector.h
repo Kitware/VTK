@@ -15,13 +15,15 @@
 #define vtkInformationVector_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"    // For VTK_MARSHALAUTO
+
 #include "vtkObject.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkInformation;
 class vtkInformationVectorInternals;
 
-class VTKCOMMONCORE_EXPORT vtkInformationVector : public vtkObject
+class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkInformationVector : public vtkObject
 {
 public:
   static vtkInformationVector* New();

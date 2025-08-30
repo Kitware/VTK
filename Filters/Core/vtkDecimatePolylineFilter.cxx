@@ -64,6 +64,12 @@ public:
 };
 
 //------------------------------------------------------------------------------
+vtkDecimatePolylineFilter::vtkDecimatePolylineFilter() = default;
+
+//------------------------------------------------------------------------------
+vtkDecimatePolylineFilter::~vtkDecimatePolylineFilter() = default;
+
+//------------------------------------------------------------------------------
 vtkMTimeType vtkDecimatePolylineFilter::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();

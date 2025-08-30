@@ -18,11 +18,13 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
 
-class VTKFILTERSCORE_EXPORT vtkPolyDataToUnstructuredGrid : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkPolyDataToUnstructuredGrid
+  : public vtkUnstructuredGridAlgorithm
 {
 public:
   static vtkPolyDataToUnstructuredGrid* New();

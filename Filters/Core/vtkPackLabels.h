@@ -54,11 +54,12 @@
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkIdTypeArray.h"       // For returning count of labels
 #include "vtkSmartPointer.h"      // For returning list of labels
+#include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 struct vtkLabelMap;
 
-class VTKFILTERSCORE_EXPORT vtkPackLabels : public vtkDataSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkPackLabels : public vtkDataSetAlgorithm
 {
 public:
   ///@{

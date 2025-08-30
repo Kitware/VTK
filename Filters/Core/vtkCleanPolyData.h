@@ -71,13 +71,14 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <unordered_set>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIncrementalPointLocator;
 
-class VTKFILTERSCORE_EXPORT vtkCleanPolyData : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkCleanPolyData : public vtkPolyDataAlgorithm
 {
 public:
   static vtkCleanPolyData* New();

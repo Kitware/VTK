@@ -16,12 +16,13 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkHandleSource.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkConeSource;
 class vtkSphereSource;
 
-class VTKFILTERSSOURCES_EXPORT vtkPointHandleSource : public vtkHandleSource
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkPointHandleSource : public vtkHandleSource
 {
 public:
   static vtkPointHandleSource* New();
@@ -56,8 +57,8 @@ public:
   void operator=(const vtkPointHandleSource&) = delete;
 
 protected:
-  vtkPointHandleSource() = default;
-  ~vtkPointHandleSource() override = default;
+  vtkPointHandleSource();
+  ~vtkPointHandleSource() override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void RecomputeSphere();

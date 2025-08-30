@@ -21,11 +21,13 @@
 
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSSOURCES_EXPORT vtkSpatioTemporalHarmonicsSource : public vtkImageAlgorithm
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkSpatioTemporalHarmonicsSource
+  : public vtkImageAlgorithm
 {
 public:
   static vtkSpatioTemporalHarmonicsSource* New();
@@ -81,7 +83,7 @@ public:
 
 protected:
   vtkSpatioTemporalHarmonicsSource();
-  ~vtkSpatioTemporalHarmonicsSource() override = default;
+  ~vtkSpatioTemporalHarmonicsSource() override;
 
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;

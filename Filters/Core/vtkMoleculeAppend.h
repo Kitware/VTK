@@ -20,9 +20,10 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkMoleculeAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkMoleculeAppend : public vtkMoleculeAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkMoleculeAppend : public vtkMoleculeAlgorithm
 {
 public:
   static vtkMoleculeAppend* New();

@@ -34,13 +34,14 @@
 
 #include "vtkButtonSource.h"
 #include "vtkFiltersSourcesModule.h" // For export macro
+#include "vtkWrappingHints.h"        // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkFloatArray;
 class vtkPoints;
 
-class VTKFILTERSSOURCES_EXPORT vtkRectangularButtonSource : public vtkButtonSource
+class VTKFILTERSSOURCES_EXPORT VTK_MARSHALAUTO vtkRectangularButtonSource : public vtkButtonSource
 {
 public:
   void PrintSelf(ostream& os, vtkIndent indent) override;

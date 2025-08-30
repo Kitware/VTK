@@ -45,6 +45,7 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 #define VTK_VARY_RADIUS_OFF 0
 #define VTK_VARY_RADIUS_BY_SCALAR 1
@@ -65,7 +66,7 @@ class vtkFloatArray;
 class vtkPointData;
 class vtkPoints;
 
-class VTKFILTERSCORE_EXPORT vtkTubeFilter : public vtkPolyDataAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkTubeFilter : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkTubeFilter, vtkPolyDataAlgorithm);

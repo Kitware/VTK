@@ -13,12 +13,13 @@
 
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkUniformGridAMRAlgorithm.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkNonOverlappingAMR;
 class vtkInformation;
 
-class VTKCOMMONEXECUTIONMODEL_EXPORT vtkNonOverlappingAMRAlgorithm
+class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkNonOverlappingAMRAlgorithm
   : public vtkUniformGridAMRAlgorithm
 {
 public:

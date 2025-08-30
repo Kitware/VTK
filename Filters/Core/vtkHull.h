@@ -31,7 +31,8 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
-#include <vector> //for storing planes
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
+#include <vector>             //for storing planes
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
@@ -39,7 +40,7 @@ class vtkPlanes;
 class vtkPoints;
 class vtkPolyData;
 
-class VTKFILTERSCORE_EXPORT vtkHull : public vtkPointSetAlgorithm
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkHull : public vtkPointSetAlgorithm
 {
 public:
   ///@{

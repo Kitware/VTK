@@ -23,9 +23,10 @@
 
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkGlyph3D.h"
+#include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSCORE_EXPORT vtkGlyph2D : public vtkGlyph3D
+class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkGlyph2D : public vtkGlyph3D
 {
 public:
   ///@{
