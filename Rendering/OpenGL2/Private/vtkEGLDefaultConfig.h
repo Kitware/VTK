@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#ifndef vtkEGLXConfig_h
-#define vtkEGLXConfig_h
+#ifndef vtkEGLDefaultConfig_h
+#define vtkEGLDefaultConfig_h
 
 #include "Private/vtkEGLConfig.h"
 
@@ -11,17 +11,17 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 /**
- * @brief vtkEGLXConfig
+ * @brief vtkEGLDefaultConfig
  *
- * This class is used to setup the EGL configuration for X.
+ * This class is used to setup the EGL configuration for default builds.
  * It supports only offscreen rendering.
  *
  * @a vtkEGLRenderWindowInternals
  */
-class vtkEGLXConfig : public vtkEGLConfig
+class vtkEGLDefaultConfig : public vtkEGLConfig
 {
 public:
-  vtkEGLXConfig();
+  vtkEGLDefaultConfig();
 
   ///@{
   /**
