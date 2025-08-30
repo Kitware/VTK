@@ -47,7 +47,6 @@
 #include <array>
 #include <iostream>
 #include <sstream>
-#include <webgpu/webgpu_cpp.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 
