@@ -1,10 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+// This must be included first because of conflicts between fmt and egl.h on Windows
+#include "vtkStringScanner.h"
+
 #include "Private/vtkEGLRenderWindowInternals.h"
 
 #include "vtkLogger.h"
-#include "vtkStringScanner.h"
 
 #include <cassert>
 
