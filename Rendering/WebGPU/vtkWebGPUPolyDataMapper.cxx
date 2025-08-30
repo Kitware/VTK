@@ -3457,8 +3457,9 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
     return true;
   }
   // have the clipping planes changed?
-  if (this->LastNumClipPlanes != std::min(this->GetNumberOfClippingPlanes(), 6))
+  if (this->LastNumClipPlanes != this->ClippingPlanesData.PlaneCount)
   {
+    this->LastNumClipPlanes = this->ClippingPlanesData.PlaneCount;
     return true;
   }
   const auto key = std::make_pair(actor, renderer);
@@ -3513,6 +3514,7 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
   }
   this->CellConverter->ReleaseGraphicsResources(w);
   this->RebuildGraphicsPipelines = true;
+  this->LastNumClipPlanes = VTK_TYPE_UINT32_MAX;
   for (auto& it : this->CachedActorRendererProperties)
   {
     if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(it.first.second))

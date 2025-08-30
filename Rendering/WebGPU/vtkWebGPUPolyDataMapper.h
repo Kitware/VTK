@@ -508,7 +508,7 @@ protected:
   // invoke MapScalars().
   int LastScalarMode = -1;
   bool LastScalarVisibility = false;
-  int LastNumClipPlanes = 0;
+  vtkTypeUInt32 LastNumClipPlanes = 0;
   struct ActorState
   {
     bool LastActorBackfaceCulling = false;
