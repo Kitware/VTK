@@ -11,6 +11,7 @@
 #include "vtkTriangle.h"
 
 #include <algorithm> //std::copy
+#include <array>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBiQuadraticTriangle);
@@ -249,7 +250,9 @@ int vtkBiQuadraticTriangle::IntersectWithLine(
 int vtkBiQuadraticTriangle::TriangulateLocalIds(int vtkNotUsed(index), vtkIdList* ptIds)
 {
   ptIds->SetNumberOfIds(18);
-  std::copy(&LinearTris[0][0], &LinearTris[0][0] + 18, ptIds->begin());
+  constexpr std::array<vtkIdType, 18> localPtIds{ 0, 3, 6, 6, 3, 4, 6, 4, 5, 0, 6, 5, 3, 1, 4, 5, 4,
+    2 };
+  std::copy(localPtIds.begin(), localPtIds.end(), ptIds->begin());
   return 1;
 }
 
