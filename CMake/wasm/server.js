@@ -94,6 +94,12 @@ if (OPERATION == OPERATIONS.START) {
 } else if (OPERATION == OPERATIONS.RUN) {
   // Create a local server to receive data from
   const server = http.createServer((incomingMesssage, response) => {
+    const headers = {
+      'Access-Control-Allow-Origin': '*', /* @dev First, read about security */
+      'Access-Control-Allow-Methods': 'OPTIONS, POST, GET',
+      'Access-Control-Max-Age': 2592000, // 30 days
+      /** add other headers as per requirement */
+    };
     const url = new URL(incomingMesssage.url, `http://${incomingMesssage.headers.host}/`);
     console.debug(`${incomingMesssage.method} ${url.toString()}`);
     if (
@@ -107,6 +113,7 @@ if (OPERATION == OPERATIONS.START) {
             const body = Buffer.from('OK');
             response
               .writeHead(200, {
+                ...headers,
                 'Content-Length': Buffer.byteLength(body),
                 'Content-Type': 'text/plain'
               })
@@ -116,6 +123,7 @@ if (OPERATION == OPERATIONS.START) {
             const body = Buffer.from(`Internal server error ${err.name}, ${err.message}`);
             response
               .writeHead(500, {
+                ...headers,
                 'Content-Length': Buffer.byteLength(body),
                 'Content-Type': 'text/plain'
               })
@@ -125,6 +133,7 @@ if (OPERATION == OPERATIONS.START) {
         const body = Buffer.from('Invalid query for /dump, expects /dump?file="/path/to/filename.ext"');
         response
           .writeHead(400, {
+            ...headers,
             'Content-Length': Buffer.byteLength(body),
             'Content-Type': 'text/plain',
           })
