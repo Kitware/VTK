@@ -1,30 +1,29 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkAbstractArray.h"
 #include "vtkAlgorithm.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include <cassert>
 
-#define CHECK(b, errors)                                                                           \
+#include <cstdlib>
+
+#define CHECK(b)                                                                                   \
   do                                                                                               \
   {                                                                                                \
     if (!(b))                                                                                      \
     {                                                                                              \
-      errors++;                                                                                    \
       cerr << "Error on Line " << __LINE__ << ":" << endl;                                         \
+      return false;                                                                                \
     }                                                                                              \
   } while (false)
 
+namespace
+{
+//------------------------------------------------------------------------------
 class TestAlgorithm : public vtkAlgorithm
 {
 public:
@@ -107,6 +106,7 @@ protected:
 };
 vtkStandardNewMacro(TestAlgorithm);
 
+//------------------------------------------------------------------------------
 class TestTimeSource : public TestAlgorithm
 {
 public:
@@ -168,6 +168,7 @@ private:
 };
 vtkStandardNewMacro(TestTimeSource);
 
+//------------------------------------------------------------------------------
 class TestTimeFilter : public TestAlgorithm
 {
 public:
@@ -237,9 +238,9 @@ private:
 };
 vtkStandardNewMacro(TestTimeFilter);
 
-int TestTimeDependentInformationExecution()
+//------------------------------------------------------------------------------
+bool TestTimeDependentInformationExecution()
 {
-  int numErrors(0);
   for (int i = 1; i < 2; i++)
   {
     bool hasTemporalMeta = i != 0;
@@ -253,35 +254,35 @@ int TestTimeDependentInformationExecution()
     filter->SetStartTime(2.0);
     filter->Update();
 
-    CHECK(imageSource->GetNumRequestData() == 1, numErrors);
-    CHECK(imageSource->GetNumRequestInformation() == 1, numErrors);
-    CHECK(imageSource->GetNumRequestUpdateExtent() == 1, numErrors);
+    CHECK(imageSource->GetNumRequestData() == 1);
+    CHECK(imageSource->GetNumRequestInformation() == 1);
+    CHECK(imageSource->GetNumRequestUpdateExtent() == 1);
     if (hasTemporalMeta)
     {
-      CHECK(imageSource->GetNumRequestTimeDependentInformation() == 1, numErrors);
-      CHECK(filter->GetNumRequestUpdateTime() == 1, numErrors);
+      CHECK(imageSource->GetNumRequestTimeDependentInformation() == 1);
+      CHECK(filter->GetNumRequestUpdateTime() == 1);
     }
     else
     {
-      CHECK(imageSource->GetNumRequestTimeDependentInformation() == 0, numErrors);
-      CHECK(filter->GetNumRequestUpdateTime() == 0, numErrors);
+      CHECK(imageSource->GetNumRequestTimeDependentInformation() == 0);
+      CHECK(filter->GetNumRequestUpdateTime() == 0);
     }
 
     filter->SetStartTime(3.0);
     filter->Update(0);
     double dataTime =
       imageSource->GetOutputDataObject(0)->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
-    CHECK(dataTime == 3.0, numErrors);
+    CHECK(dataTime == 3.0);
   }
 
-  return numErrors;
+  return true;
 }
 
+//------------------------------------------------------------------------------
 int TestContinueExecution()
 {
-  int numErrors(0);
-  vtkSmartPointer<TestTimeSource> imageSource = vtkSmartPointer<TestTimeSource>::New();
-  vtkSmartPointer<TestTimeFilter> filter = vtkSmartPointer<TestTimeFilter>::New();
+  vtkNew<TestTimeSource> imageSource;
+  vtkNew<TestTimeFilter> filter;
   filter->SetInputConnection(imageSource->GetOutputPort());
 
   int numSteps = 3;
@@ -290,23 +291,23 @@ int TestContinueExecution()
     filter->SetStartTime(t);
     filter->Update();
   }
-  CHECK(imageSource->GetNumRequestData() == numSteps + 1, numErrors);
-  return numErrors;
+  CHECK(imageSource->GetNumRequestData() == numSteps + 1);
+  return true;
+}
 }
 
+//------------------------------------------------------------------------------
 int TestTemporalSupport(int, char*[])
 {
-  int totalErrors(0);
-  int errors(0);
-  if ((errors = TestTimeDependentInformationExecution()) != 0)
+  if (!::TestTimeDependentInformationExecution())
   {
-    totalErrors += errors;
-    cerr << errors << " errors in TestTimeDependentInformationExecution" << endl;
+    cerr << "Errors in TestTimeDependentInformationExecution" << endl;
+    return EXIT_FAILURE;
   }
-  if ((errors = TestContinueExecution()) != 0)
+  if (!::TestContinueExecution())
   {
-    totalErrors += errors;
-    cerr << errors << " errors in TestContinueExecution" << endl;
+    cerr << "Errors in TestContinueExecution" << endl;
+    return EXIT_FAILURE;
   }
-  return totalErrors;
+  return EXIT_SUCCESS;
 }

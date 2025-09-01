@@ -272,21 +272,15 @@ int vtkTemporalInterpolator::RequestUpdateExtent(vtkInformation* vtkNotUsed(requ
     // only if the input is not continuous should we do anything
     if (inTimes)
     {
-      // compute request times f
-      double inUpTimes[2];
-      int numInUpTimes(0);
-
-      // for each requested time mark the required input times
-      numInUpTimes = 0;
       // below the range
       if (upTime <= inTimes[0])
       {
-        inUpTimes[numInUpTimes++] = inTimes[0];
+        this->SetTimeSteps({ inTimes[0] });
       }
       // above the range?
       else if (upTime >= inTimes[numInTimes - 1])
       {
-        inUpTimes[numInUpTimes++] = inTimes[numInTimes - 1];
+        this->SetTimeSteps({ inTimes[numInTimes - 1] });
       }
       // in the middle
       else
@@ -296,11 +290,8 @@ int vtkTemporalInterpolator::RequestUpdateExtent(vtkInformation* vtkNotUsed(requ
         {
           ++i;
         }
-        inUpTimes[numInUpTimes++] = inTimes[i - 1];
-        inUpTimes[numInUpTimes++] = inTimes[i];
+        this->SetTimeSteps({ inTimes[i - 1], inTimes[i] });
       }
-
-      inInfo->Set(vtkMultiTimeStepAlgorithm::UPDATE_TIME_STEPS(), inUpTimes, numInUpTimes);
     }
   }
   return 1;

@@ -63,11 +63,8 @@ int vtkTemporalAlgorithm<AlgorithmT>::RequestInformation(
     for (int outPort = 0; outPort < outputVector->GetNumberOfInformationObjects(); ++outPort)
     {
       vtkInformation* outInfo = outputVector->GetInformationObject(outPort);
-      if (this->IntegrateFullTimeSeries)
-      {
-        outInfo->Remove(vtkSDDP::TIME_STEPS());
-        outInfo->Remove(vtkSDDP::TIME_RANGE());
-      }
+      outInfo->Remove(vtkSDDP::TIME_STEPS());
+      outInfo->Remove(vtkSDDP::TIME_RANGE());
     }
   }
 

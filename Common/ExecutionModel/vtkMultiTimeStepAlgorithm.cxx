@@ -3,14 +3,11 @@
 
 #include "vtkMultiTimeStepAlgorithm.h"
 
-#include "vtkCommand.h"
 #include "vtkCompositeDataPipeline.h"
-#include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationKey.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -62,15 +59,6 @@ vtkTypeBool vtkMultiTimeStepAlgorithm::ProcessRequest(
     if (this->RequestUpdateIndex == 0)
     {
       retVal = this->RequestUpdateExtent(request, inputVector, outputVector);
-
-      double* upTimes = inInfo->Get(UPDATE_TIME_STEPS());
-      int numUpTimes = inInfo->Length(UPDATE_TIME_STEPS());
-      this->UpdateTimeSteps.clear();
-      for (int i = 0; i < numUpTimes; i++)
-      {
-        this->UpdateTimeSteps.push_back(upTimes[i]);
-      }
-      inInfo->Remove(UPDATE_TIME_STEPS());
     }
 
     size_t nTimeSteps = this->UpdateTimeSteps.size();
@@ -181,6 +169,12 @@ vtkTypeBool vtkMultiTimeStepAlgorithm::ProcessRequest(
   }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
+}
+
+//------------------------------------------------------------------------------
+void vtkMultiTimeStepAlgorithm::SetTimeSteps(const std::vector<double>& values)
+{
+  this->UpdateTimeSteps = values;
 }
 
 //------------------------------------------------------------------------------

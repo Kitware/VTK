@@ -15,12 +15,9 @@
  * Subclasses can then override `Execute` which is provided a vector of input
  * data objects corresponding to the requested timesteps.
  *
- * In VTK 9.1 and earlier, subclasses overrode `RequestData` instead of
- * `Execute`. RequestData was passed a `vtkMultiBlockDataSet` with blocks corresponding
- * to the input timesteps. However, with addition of vtkPartitionedDataSet and
- * vtkPartitionedDataSetCollection in VTK 9.2, it is not possible to package all
- * input data types into a multiblock dataset. Hence, the method is deprecated
- * and only used when `Execute` is not overridden.
+ * The REQUEST_DATA request is handled to aggregate the input data for each
+ * timestep. On the last call, it forwards them to the `Execute` method.
+ * Thus the usual RequestData is not defined here.
  */
 
 #ifndef vtkMultiTimeStepAlgorithm_h
@@ -28,6 +25,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkCommonExecutionModelModule.h" // For export macro
+#include "vtkDeprecation.h"                // For Deprecation macro
 #include "vtkSmartPointer.h"               //needed for a private variable
 
 #include "vtkDataObject.h" // needed for the smart pointer
@@ -51,6 +49,7 @@ protected:
   /**
    * This is filled by the child class to request multiple time steps
    */
+  VTK_DEPRECATED_IN_9_6_0("Please use SetTimeSteps directly instead.")
   static vtkInformationDoubleVectorKey* UPDATE_TIME_STEPS();
 
   ///@{
@@ -101,6 +100,11 @@ protected:
 
   vtkTypeBool ProcessRequest(
     vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+  /**
+   * Set the list of time steps values.
+   */
+  void SetTimeSteps(const std::vector<double>& values);
 
   bool CacheData;
   unsigned int NumberOfCacheEntries;
