@@ -982,6 +982,15 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
 void vtkOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "OpenGL State: " << '\n';
+  if (this->State)
+  {
+    this->State->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent.GetNextIndent() << "Not available" << '\n';
+  }
 }
 
 //------------------------------------------------------------------------------
