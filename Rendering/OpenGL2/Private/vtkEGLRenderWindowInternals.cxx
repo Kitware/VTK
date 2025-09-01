@@ -1,10 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+// This must be included first because of conflicts between fmt and egl.h on Windows
+#include "vtkStringScanner.h"
+
 #include "Private/vtkEGLRenderWindowInternals.h"
 
 #include "vtkLogger.h"
-#include "vtkStringScanner.h"
 
 #include <cassert>
 
@@ -13,7 +15,7 @@
 #elif defined(USE_WAYLAND)
 #include "Private/vtkEGLWaylandConfig.h"
 #else
-#include "Private/vtkEGLXConfig.h"
+#include "Private/vtkEGLDefaultConfig.h"
 #endif
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -118,7 +120,7 @@ vtkEGLRenderWindowInternals::vtkEGLRenderWindowInternals()
 #elif defined(USE_WAYLAND)
   this->Config = std::make_unique<vtkEGLWaylandConfig>();
 #else
-  this->Config = std::make_unique<vtkEGLXConfig>();
+  this->Config = std::make_unique<vtkEGLDefaultConfig>();
 #endif
 
   gladLoaderLoadEGL(this->Display);

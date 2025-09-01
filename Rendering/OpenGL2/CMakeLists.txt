@@ -290,11 +290,11 @@ if (VTK_OPENGL_HAS_EGL)
 
   list(APPEND private_sources
     "Private/vtkEGLConfig.cxx"
-    "Private/vtkEGLXConfig.cxx"
+    "Private/vtkEGLDefaultConfig.cxx"
     "Private/vtkEGLRenderWindowInternals.cxx")
   list(APPEND private_headers
     "Private/vtkEGLConfig.h"
-    "Private/vtkEGLXConfig.h"
+    "Private/vtkEGLDefaultConfig.h"
     "Private/vtkEGLRenderWindowInternals.h")
 
   set_source_files_properties(Private/vtkEGLRenderWindowInternals.cxx
