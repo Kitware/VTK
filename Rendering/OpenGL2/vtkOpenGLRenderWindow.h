@@ -505,6 +505,24 @@ public:
    */
   void SetOpenGLSymbolLoader(VTKOpenGLLoaderFunction loader, void* userData);
 
+  typedef VTKOpenGLAPIProc (*VTKOpenGLGetProcAddress)(const char* name);
+  /**
+   * Provide an indirect function pointer which can load OpenGL core/extension functions.
+   * OpenGL proc loader. This is provided by the window system.
+   *
+   * `toolGetProcAddressFunc` represents the OpenGL function resolver, pass zero to ignore.
+   * Possible `toolGetProcAddressFunc` values:
+   * - glx: glXGetProcAddress
+   * - egl: eglGetProcAddress
+   * - wgl: wglGetProcAddress
+   *
+   * If `toolGetProcAddressFunc` returns nullptr and `glLibHandle` is not zero,
+   * implementation will utilize `dlsym` via given `glLibHandle` directly.
+   *
+   * `glLibHandle` represents the preloaded OpenGL library handle, pass zero to ignore.
+   */
+  void SetOpenGLSymbolLoader2(long long toolGetProcAddressFunc, long long glLibHandle);
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow() override;
@@ -630,6 +648,12 @@ protected:
     VTKOpenGLLoaderFunction LoadFunction = nullptr;
     void* UserData = nullptr;
   } SymbolLoader;
+
+  struct GLFuncResolverState
+  {
+    VTKOpenGLGetProcAddress resolveFunc = nullptr;
+    void* libHandle = nullptr;
+  } FuncResolverState;
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) = delete;

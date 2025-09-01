@@ -45,6 +45,7 @@
 #endif
 #include "vtkOSOpenGLRenderWindow.h"
 
+#include "vtksys/DynamicLoader.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include "BlueNoiseTexture64x64.h"
@@ -1477,6 +1478,35 @@ void vtkOpenGLRenderWindow::SetOpenGLSymbolLoader(VTKOpenGLLoaderFunction loader
 {
   this->SymbolLoader.LoadFunction = loader;
   this->SymbolLoader.UserData = userData;
+}
+
+void vtkOpenGLRenderWindow::SetOpenGLSymbolLoader2(
+  long long toolGetProcAddressFunc, long long glLibHandle)
+{
+  static_assert(sizeof(long long) >= sizeof(void*)); // ensure binary compatibility
+  FuncResolverState.resolveFunc = (VTKOpenGLGetProcAddress)toolGetProcAddressFunc;
+  FuncResolverState.libHandle = (void*)glLibHandle;
+
+  auto loadFunc = [](void* userptr, const char* name) -> VTKOpenGLAPIProc
+  {
+    GLFuncResolverState* state = reinterpret_cast<GLFuncResolverState*>(userptr);
+    if (!name || !state)
+    {
+      return nullptr;
+    }
+    VTKOpenGLAPIProc p = nullptr;
+    if (state->resolveFunc)
+    {
+      p = state->resolveFunc(name);
+    }
+    if (!p && state->libHandle)
+    {
+      p = (VTKOpenGLAPIProc)vtksys::DynamicLoader::GetSymbolAddress(
+        (vtksys::DynamicLoader::LibraryHandle)state->libHandle, name);
+    }
+    return p;
+  };
+  this->SetOpenGLSymbolLoader(loadFunc, &FuncResolverState);
 }
 
 void vtkOpenGLRenderWindow::TextureDepthBlit(vtkTextureObject* source, int srcX, int srcY,

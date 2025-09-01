@@ -42,6 +42,13 @@ public class vtkAbstractJoglComponent<T extends java.awt.Component> extends vtkA
         if (!ctx.isCurrent()) {
           ctx.makeCurrent();
         }
+        final com.jogamp.common.os.DynamicLibraryBundle dlb = ctx.getDynamicLibraryBundle();
+        if( null != dlb ) {
+          final long glGetProcAddressFunc = dlb.getToolGetProcAddressHandle();
+          final com.jogamp.common.os.NativeLibrary glLib = dlb.getToolLibrary(0);
+          final long glLibHandle = null != glLib ? glLib.getLibraryHandle() : 0;
+          setOpenGLSymbolLoader2(glGetProcAddressFunc, glLibHandle);
+        }
 
         // Init VTK OpenGL RenderWindow
         vtkAbstractJoglComponent.this.glRenderWindow.SetMapped(1);
@@ -102,5 +109,29 @@ public class vtkAbstractJoglComponent<T extends java.awt.Component> extends vtkA
    */
   public boolean isWindowSet() {
     return this.isWindowCreated;
+  }
+
+  /**
+   * Provide an indirect function pointer which can load OpenGL core/extension functions.
+   * OpenGL proc loader. This is provided by the window system.
+   *
+   * @param glGetProcAddressFunc represents the OpenGL function resolver, pass zero to ignore.
+   * Possible `glGetProcAddressFunc` values:
+   * - glx: glXGetProcAddress
+   * - egl: eglGetProcAddress
+   * - wgl: wglGetProcAddress
+   *
+   * If `glGetProcAddressFunc` returns nullptr and `glLibHandle` is not zero,
+   * implementation will utilize `dlsym` via given `glLibHandle` directly.
+   *
+   * @param glLibHandle represents the preloaded OpenGL library handle, pass zero to ignore.
+   * @return true if successful, otherwise false
+   */
+  protected boolean setOpenGLSymbolLoader2(long glGetProcAddressFunc, long glLibHandle) {
+    if( glRenderWindow != null ) {
+      glRenderWindow.SetOpenGLSymbolLoader2(glGetProcAddressFunc, glLibHandle);
+      return true;
+    }
+    return false;
   }
 }
