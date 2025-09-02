@@ -415,11 +415,8 @@ bool vtkAbstractInterpolatedVelocityField::FindAndUpdateCell(
         // if we are on a surface dataset, we can use the strategy to find the closest point
         closestPointFound = strategy->FindClosestPointWithinRadius(x, tol, this->LastClosestPoint,
           this->CurrentCell, this->LastCellId, this->LastSubId, dist2, inside);
-        // FindClosestPointWithinRadius does not return the correct CurrentCell, so in case we find
-        // something we need to extract it and calculate the weights
         if (closestPointFound == 1)
         {
-          dataset->GetCell(this->LastCellId, this->CurrentCell);
           // pcoords, weights and subid are all valid, so we can compute the closest point
           // using EvaluateLocation
           this->CurrentCell->EvaluateLocation(

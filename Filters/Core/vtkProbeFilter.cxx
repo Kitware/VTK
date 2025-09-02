@@ -604,7 +604,6 @@ public:
             {
               // pcoords, weights and subid are all valid, so we can compute the closest point
               // using EvaluateLocation
-              this->Source->GetCell(lastCellId, currentCell);
               // we don't need to calculate the closest point, but we do need to calculate the
               // weights
               currentCell->EvaluateLocation(lastSubId, lastPCoords, lastClosestPoint, weights);

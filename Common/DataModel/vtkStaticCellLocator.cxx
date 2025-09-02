@@ -1099,6 +1099,11 @@ vtkIdType CellProcessor<T>::FindClosestPointWithinRadius(const double x[3], doub
       }
     }
   }
+  if (retVal == 1)
+  {
+    this->DataSet->GetCell(closestCellId, cell);
+  }
+
   return retVal;
 }
 

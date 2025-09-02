@@ -356,6 +356,8 @@ vtkIdType vtkClosestPointStrategy::FindClosestPointWithinRadius(double x[3], dou
       // pcoords are not used again
     }
   }
+  // If reach here, closestCellId != -1 is guaranteed.
+  this->PointSet->GetCell(closestCellId, genCell);
   // the closest is within the given radius
   if (minDist2 > radius * radius)
   {

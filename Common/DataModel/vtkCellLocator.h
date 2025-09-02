@@ -111,9 +111,17 @@ public:
    * need not be one of the vertices of the cell. This method returns 1 if a
    * point is found within the specified radius. If there are no cells within
    * the specified radius, the method returns 0 and the values of
-   * closestPoint, cellId, subId, and dist2 are undefined. If a closest point
-   * is found, inside returns the return value of the EvaluatePosition call to
-   * the closest cell; inside(=1) or outside(=0).
+   * closestPoint, cellId, subId, and dist2 are undefined. This version takes
+   * in a vtkGenericCell to avoid allocating and deallocating the cell.  This
+   * is much faster than the version which does not take a cell, especially
+   * when this function is called many times in a row such as by a for loop,
+   * where the allocation and dealloction can be done only once outside the
+   * for loop.  If a closest point is found, "cell" contains the points and
+   * ptIds for the cell "cellId" upon exit. If a closest point is found,
+   * inside returns the return value of the EvaluatePosition call to the
+   * closest cell; inside(=1) or outside(=0).
+   *
+   * THIS FUNCTION IS THREAD SAFE.
    *
    * For other FindClosestPointWithinRadius signatures, see vtkAbstractCellLocator.
    */
