@@ -27,6 +27,8 @@
 #include "vtkTexturedActor2D.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
+#include "vtkDeprecation.h" // For deprecation macro
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImageData;
 class vtkPoints;
@@ -139,8 +141,10 @@ public:
    * Currently TextActor is not oriented around its AlignmentPoint.
    */
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
+  VTK_DEPRECATED_IN_9_6_0("Please use vtkTextProperty Justification instead.")
   void SetAlignmentPoint(int point);
   VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
+  VTK_DEPRECATED_IN_9_6_0("Please use vtkTextProperty Justification instead.")
   int GetAlignmentPoint();
   ///@}
 

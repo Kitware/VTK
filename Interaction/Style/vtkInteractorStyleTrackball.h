@@ -16,12 +16,15 @@
 #ifndef vtkInteractorStyleTrackball_h
 #define vtkInteractorStyleTrackball_h
 
+#include "vtkDeprecation.h"            // For deprecation macro
 #include "vtkInteractionStyleModule.h" // For export macro
 #include "vtkInteractorStyleSwitch.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleTrackball
+
+class VTK_DEPRECATED_IN_9_6_0("Please use vtkInteractorStyleSwitch instead.")
+  VTKINTERACTIONSTYLE_EXPORT VTK_MARSHALAUTO vtkInteractorStyleTrackball
   : public vtkInteractorStyleSwitch
 {
 public:

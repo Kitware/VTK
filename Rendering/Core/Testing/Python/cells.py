@@ -721,26 +721,26 @@ class cells(vtkmodules.test.Testing.vtkTest):
         # basically have IO/Export ?
         if vtk_has_IOExport:
             rib = vtkRIBExporter()
-            rib.SetInput(renWin)
+            rib.SetRenderWindow(renWin)
             rib.SetFilePrefix(dir + '/cells')
             rib.SetTexturePrefix(dir + '/cells')
             rib.Write()
 
             iv = vtkIVExporter()
-            iv.SetInput(renWin)
+            iv.SetRenderWindow(renWin)
             iv.SetFileName(dir + "/cells.iv")
             iv.Write()
             os.remove(dir + '/cells.iv')
 
             obj = vtkOBJExporter()
-            obj.SetInput(renWin)
+            obj.SetRenderWindow(renWin)
             obj.SetFilePrefix(dir + "/cells")
             obj.Write()
             os.remove(dir + '/cells.obj')
             os.remove(dir + '/cells.mtl')
 
             vrml = vtkVRMLExporter()
-            vrml.SetInput(renWin)
+            vrml.SetRenderWindow(renWin)
             #vrml.SetStartWrite(vrml.SetFileName(dir + "/cells.wrl"))
             #vrml.SetEndWrite(vrml.SetFileName("/a/acells.wrl"))
             vrml.SetFileName(dir + "/cells.wrl")
@@ -749,7 +749,7 @@ class cells(vtkmodules.test.Testing.vtkTest):
             os.remove(dir + '/cells.wrl')
 
             oogl = vtkOOGLExporter()
-            oogl.SetInput(renWin)
+            oogl.SetRenderWindow(renWin)
             oogl.SetFileName(dir + "/cells.oogl")
             oogl.Write()
             os.remove(dir + '/cells.oogl')

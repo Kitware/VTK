@@ -162,7 +162,7 @@ int TestRIBExporter(int argc, char* argv[])
   renWin->Render();
 
   vtkSmartPointer<vtkRIBExporter> aRib = vtkSmartPointer<vtkRIBExporter>::New();
-  aRib->SetInput(renWin);
+  aRib->SetRenderWindow(renWin);
   aRib->SetFilePrefix(prefix.c_str());
   aRib->SetTexturePrefix(prefix.c_str());
   aRib->BackgroundOn();

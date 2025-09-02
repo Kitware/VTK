@@ -1315,7 +1315,7 @@ public:
 
 //----------------------------------------------------------------------------
 // Deprecation attribute, currently deprecated and will be removed
-// at the same time as VTK_DEPRECATION_IN_9_6_0 deprecations
+// at the same time as VTK_DEPRECATED_IN_9_6_0 deprecations
 #if !defined(VTK_WRAPPING_CXX)
 
 #if defined(VTK_COMPILER_GCC) || defined(VTK_COMPILER_CLANG) || defined(VTK_COMPILER_ICC)
@@ -1353,7 +1353,7 @@ public:
 
 //----------------------------------------------------------------------------
 // Switch case fall-through policy, currently deprecated and will be removed
-// at the same time as VTK_DEPRECATION_IN_9_6_0 deprecations
+// at the same time as VTK_DEPRECATED_IN_9_6_0 deprecations
 
 // Use "VTK_FALLTHROUGH;" to annotate deliberate fall-through in switches,
 // use it analogously to "break;".  The trailing semi-colon is required.

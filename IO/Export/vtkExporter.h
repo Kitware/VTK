@@ -27,8 +27,10 @@
 #ifndef vtkExporter_h
 #define vtkExporter_h
 
+#include "vtkDeprecation.h"    // For deprecation macro
 #include "vtkIOExportModule.h" // For export macro
 #include "vtkObject.h"
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderWindow;
 class vtkRenderer;
@@ -80,7 +82,9 @@ public:
    * These methods are provided for backward compatibility. Will disappear
    * soon.
    */
+  VTK_DEPRECATED_IN_9_6_0("Please use SetRenderWindow instead")
   void SetInput(vtkRenderWindow* renWin) { this->SetRenderWindow(renWin); }
+  VTK_DEPRECATED_IN_9_6_0("Please use GetRenderWindow instead")
   vtkRenderWindow* GetInput() { return this->GetRenderWindow(); }
   ///@}
 

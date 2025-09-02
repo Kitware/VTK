@@ -24,10 +24,13 @@
 
 #include "vtkCommand.h"
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For deprecation macro
 
 // the old style void fund(void *) callbacks
 VTK_ABI_NAMESPACE_BEGIN
-class VTKCOMMONCORE_EXPORT vtkOldStyleCallbackCommand : public vtkCommand
+class VTK_DEPRECATED_IN_9_6_0(
+  "Legacy command, do not use anymore.") VTKCOMMONCORE_EXPORT vtkOldStyleCallbackCommand
+  : public vtkCommand
 {
 public:
   vtkTypeMacro(vtkOldStyleCallbackCommand, vtkCommand);

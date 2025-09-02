@@ -58,7 +58,7 @@ int X3DTest(int argc, char* argv[])
   renWin->Render();
 
   vtkNew<vtkX3DExporter> exporter;
-  exporter->SetInput(renWin);
+  exporter->SetRenderWindow(renWin);
   exporter->SetFileName("testX3DExporter.x3d");
   exporter->Update();
   exporter->Write();

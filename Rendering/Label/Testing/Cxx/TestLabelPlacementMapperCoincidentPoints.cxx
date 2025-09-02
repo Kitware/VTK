@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-// .NAME Test of vtkLabelPlacer
+// .NAME Test of vtkLabelPlacementMapper
 // .SECTION Description
-// this program tests vtkLabelPlacer which uses a sophisticated algorithm to
+// this program tests vtkLabelPlacementMapper which uses a sophisticated algorithm to
 // prune labels/icons preventing them from overlapping.
 
 #include "vtkActor.h"

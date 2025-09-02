@@ -9,7 +9,7 @@
  * "observed" for any events it might invoke. For example,
  * vtkRenderer invokes a StartEvent as it begins to render and a
  * EndEvent when it finishes rendering. Filters (subclasses of
- * vtkProcessObject) invoke StartEvent, ProgressEvent, and EndEvent as
+ * vtkAlgorithm) invoke StartEvent, ProgressEvent, and EndEvent as
  * the filter processes data. Observers of events are added with the
  * AddObserver() method found in vtkObject.  AddObserver(), besides
  * requiring an event id or name, also takes an instance of vtkCommand
@@ -212,7 +212,7 @@
  *  - vtkOutputWindow fires this with `char char*` for the text
  *
  * @sa
- * vtkObject vtkCallbackCommand vtkOldStyleCallbackCommand
+ * vtkObject vtkCallbackCommand
  * vtkInteractorObserver vtk3DWidget
  */
 

@@ -3,9 +3,6 @@
 
 #include "vtkCellTypes.h"
 #include "vtkGenericCell.h"
-#include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
-#include "vtkLegacy.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -85,7 +82,6 @@ int vtkCellTypes::GetTypeIdFromClassName(const char* classname)
 //------------------------------------------------------------------------------
 vtkCellTypes::vtkCellTypes()
   : TypeArray(vtkSmartPointer<vtkUnsignedCharArray>::New())
-  , LocationArray(vtkSmartPointer<vtkIdTypeArray>::New())
   , MaxId(-1)
 {
 }
@@ -101,23 +97,22 @@ int vtkCellTypes::Allocate(vtkIdType sz, vtkIdType ext)
   }
   this->TypeArray->Allocate(sz, ext);
 
-  if (!this->LocationArray)
-  {
-    this->LocationArray = vtkSmartPointer<vtkIdTypeArray>::New();
-  }
-  this->LocationArray->Allocate(sz, ext);
-
   return 1;
 }
 
 //------------------------------------------------------------------------------
-// Add a cell at specified id.
-void vtkCellTypes::InsertCell(vtkIdType cellId, unsigned char type, vtkIdType loc)
+// VTK_DEPRECATED_IN_9_6_0
+void vtkCellTypes::InsertCell(vtkIdType id, unsigned char type, vtkIdType)
 {
-  vtkDebugMacro(<< "Insert Cell id: " << cellId << " at location " << loc);
-  TypeArray->InsertValue(cellId, type);
+  this->InsertCell(id, type);
+}
 
-  LocationArray->InsertValue(cellId, loc);
+//------------------------------------------------------------------------------
+// Add a cell at specified id.
+void vtkCellTypes::InsertCell(vtkIdType cellId, unsigned char type)
+{
+  vtkDebugMacro(<< "Insert Cell id: " << cellId);
+  TypeArray->InsertValue(cellId, type);
 
   if (cellId > this->MaxId)
   {
@@ -126,11 +121,18 @@ void vtkCellTypes::InsertCell(vtkIdType cellId, unsigned char type, vtkIdType lo
 }
 
 //------------------------------------------------------------------------------
-// Add a cell to the object in the next available slot.
-vtkIdType vtkCellTypes::InsertNextCell(unsigned char type, vtkIdType loc)
+// VTK_DEPRECATED_IN_9_6_0
+vtkIdType vtkCellTypes::InsertNextCell(unsigned char type, vtkIdType)
 {
-  vtkDebugMacro(<< "Insert Next Cell " << type << " location " << loc);
-  this->InsertCell(++this->MaxId, type, loc);
+  return this->InsertNextCell(type);
+}
+
+//------------------------------------------------------------------------------
+// Add a cell to the object in the next available slot.
+vtkIdType vtkCellTypes::InsertNextCell(unsigned char type)
+{
+  vtkDebugMacro(<< "Insert Next Cell " << type);
+  this->InsertCell(++this->MaxId, type);
   return this->MaxId;
 }
 
@@ -236,7 +238,6 @@ int vtkCellTypes::GetDimension(unsigned char type)
 void vtkCellTypes::Squeeze()
 {
   this->TypeArray->Squeeze();
-  this->LocationArray->Squeeze();
 }
 
 //------------------------------------------------------------------------------
@@ -256,11 +257,6 @@ unsigned long vtkCellTypes::GetActualMemorySize()
     size += this->TypeArray->GetActualMemorySize();
   }
 
-  if (this->LocationArray)
-  {
-    size += this->LocationArray->GetActualMemorySize();
-  }
-
   return static_cast<unsigned long>(ceil(size / 1024.0)); // kibibytes
 }
 
@@ -273,12 +269,6 @@ void vtkCellTypes::DeepCopy(vtkCellTypes* src)
   }
   this->TypeArray->DeepCopy(src->TypeArray);
 
-  if (!this->LocationArray)
-  {
-    this->LocationArray = vtkSmartPointer<vtkIdTypeArray>::New();
-  }
-  this->LocationArray->DeepCopy(src->LocationArray);
-
   this->MaxId = src->MaxId;
 }
 
@@ -289,8 +279,6 @@ void vtkCellTypes::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "TypeArray:\n";
   this->TypeArray->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "LocationArray:\n";
-  this->LocationArray->PrintSelf(os, indent.GetNextIndent());
 
   os << indent << "MaxId: " << this->MaxId << "\n";
 }

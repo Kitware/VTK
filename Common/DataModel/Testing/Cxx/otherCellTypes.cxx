@@ -9,18 +9,19 @@
 
 #include "vtkCellType.h"
 #include "vtkCellTypes.h"
-#include "vtkIntArray.h"
+#include "vtkNew.h"
+#include "vtkUnsignedCharArray.h"
 
 void TestOCT()
 {
   // actual test
-  vtkCellTypes* ct = vtkCellTypes::New();
+  vtkNew<vtkCellTypes> ct;
   ct->Allocate();
 
-  ct->InsertCell(0, VTK_QUAD, 0);
-  ct->InsertNextCell(VTK_PIXEL, 1);
+  ct->InsertCell(0, VTK_QUAD);
+  ct->InsertNextCell(VTK_PIXEL);
 
-  vtkUnsignedCharArray* cellTypes = vtkUnsignedCharArray::New();
+  vtkNew<vtkUnsignedCharArray> cellTypes;
 
   cellTypes->InsertNextValue(VTK_QUAD);
 
@@ -44,15 +45,11 @@ void TestOCT()
 
   ct->GetActualMemorySize();
 
-  vtkCellTypes* ct1 = vtkCellTypes::New();
+  vtkNew<vtkCellTypes> ct1;
   ct1->DeepCopy(ct);
 
   ct->Reset();
   ct->Squeeze();
-
-  ct1->Delete();
-  ct->Delete();
-  cellTypes->Delete();
 }
 
 int otherCellTypes(int, char*[])

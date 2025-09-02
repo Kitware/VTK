@@ -28,6 +28,7 @@
 #include "vtkObject.h"
 
 #include "vtkCellType.h"          // Needed for inline methods
+#include "vtkDeprecation.h"       // for deprec macros
 #include "vtkIdTypeArray.h"       // Needed for inline methods
 #include "vtkSmartPointer.h"      // Needed for internals
 #include "vtkUnsignedCharArray.h" // Needed for inline methods
@@ -47,15 +48,23 @@ public:
    */
   int Allocate(vtkIdType sz = 512, vtkIdType ext = 1000);
 
+  ///@{
   /**
    * Add a cell at specified id.
    */
-  void InsertCell(vtkIdType id, unsigned char type, vtkIdType loc);
+  VTK_DEPRECATED_IN_9_6_0("Location is not used anymore, use InsertCell(id, type).")
+  void InsertCell(vtkIdType id, unsigned char type, vtkIdType);
+  void InsertCell(vtkIdType id, unsigned char type);
+  ///@}
 
+  ///@{
   /**
    * Add a cell to the object in the next available slot.
    */
-  vtkIdType InsertNextCell(unsigned char type, vtkIdType loc);
+  VTK_DEPRECATED_IN_9_6_0("Location is not used anymore, use InsertCell(id, type).")
+  vtkIdType InsertNextCell(unsigned char type, vtkIdType);
+  vtkIdType InsertNextCell(unsigned char type);
+  ///@}
 
   /**
    * Specify a group of cell types.
@@ -80,7 +89,7 @@ public:
   /**
    * Add the type specified to the end of the list. Range checking is performed.
    */
-  vtkIdType InsertNextType(unsigned char type) { return this->InsertNextCell(type, -1); }
+  vtkIdType InsertNextType(unsigned char type) { return this->InsertNextCell(type); }
 
   /**
    * Return the type of cell.
@@ -143,6 +152,7 @@ public:
    * Methods for obtaining the arrays representing types and locations.
    */
   vtkUnsignedCharArray* GetCellTypesArray() { return this->TypeArray; }
+  VTK_DEPRECATED_IN_9_6_0("Location is not used anymore.")
   vtkIdTypeArray* GetCellLocationsArray() { return this->LocationArray; }
   ///@}
 
@@ -152,10 +162,8 @@ protected:
 
   vtkSmartPointer<vtkUnsignedCharArray> TypeArray; // pointer to types array
 
-  // DEPRECATION_IN_9_2_0 Note for whoever is in deprecation duties:
-  // The attribute LocationArray needs to be deleted, and any code in this class that would fail
-  // compiling because of its removal deleted as well.
-  vtkSmartPointer<vtkIdTypeArray> LocationArray; // pointer to array of offsets
+  // VTK_DEPRECATED_IN_9_6_0
+  vtkNew<vtkIdTypeArray> LocationArray; // pointer to array of offsets
 
   vtkIdType MaxId; // maximum index inserted thus far
 
