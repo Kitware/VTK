@@ -5,6 +5,7 @@
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkAbstractArray.h"
 #include "vtkCellData.h"
+#include "vtkCellType.h"
 #include "vtkCellTypeUtilities.h"
 #include "vtkCellTypes.h"
 #include "vtkCompositeDataSet.h"
@@ -40,98 +41,6 @@
 #include <cstdint>
 #include <string>
 
-namespace
-{
-
-const std::map<int, std::string> VTK_DATATYPE_TO_CONDUIT_SHAPE = {
-  { VTK_HEXAHEDRON, "hex" },
-  { VTK_TETRA, "tet" },
-  { VTK_POLYGON, "polygonal" },
-  { VTK_QUAD, "quad" },
-  { VTK_TRIANGLE, "tri" },
-  { VTK_LINE, "line" },
-  { VTK_VERTEX, "point" },
-  { VTK_PYRAMID, "pyramid" },
-  { VTK_WEDGE, "wedge" },
-};
-
-//----------------------------------------------------------------------------
-std::string GetPartitionedDSName(vtkPartitionedDataSetCollection* pdc, unsigned int pdsId)
-{
-  std::string name = "partition" + vtk::to_string(pdsId);
-  if (pdc->HasMetaData(pdsId))
-  {
-    name = pdc->GetMetaData(pdsId)->Get(vtkCompositeDataSet::NAME());
-  }
-  return name;
-}
-
-//----------------------------------------------------------------------------
-bool IsMixedShape(vtkUnstructuredGrid* unstructured_grid)
-{
-  auto* cell_types = unstructured_grid->GetDistinctCellTypesArray();
-  return cell_types->GetNumberOfTuples() > 1;
-}
-
-//----------------------------------------------------------------------------
-bool IsMixedShape(vtkPolyData* grid)
-{
-  return (grid->GetNumberOfVerts() > 0) + (grid->GetNumberOfLines() > 0) +
-    (grid->GetNumberOfPolys() > 0) + (grid->GetNumberOfStrips() > 0) >
-    1;
-}
-
-//----------------------------------------------------------------------------
-vtkCellArray* GetCells(vtkUnstructuredGrid* ugrid, int)
-{
-  return ugrid->GetCells();
-}
-
-//----------------------------------------------------------------------------
-vtkCellArray* GetCells(vtkPolyData* polydata, int cellType)
-{
-  switch (cellType)
-  {
-    case VTK_QUAD:
-    case VTK_TRIANGLE:
-      return polydata->GetStrips();
-    case VTK_LINE:
-      return polydata->GetLines();
-    case VTK_VERTEX:
-      return polydata->GetVerts();
-    default:
-      vtkLog(ERROR, << "Unsupported cell type in polydata. Cell type: "
-                    << vtkCellTypeUtilities::GetClassNameFromTypeId(cellType));
-      return nullptr;
-  }
-}
-//----------------------------------------------------------------------------
-bool IsSignedIntegralType(int data_type)
-{
-  constexpr bool is_char_type_signed = (CHAR_MIN == SCHAR_MIN) && (CHAR_MAX == SCHAR_MAX);
-
-  return (is_char_type_signed && (data_type == VTK_CHAR)) || (data_type == VTK_SIGNED_CHAR) ||
-    (data_type == VTK_SHORT) || (data_type == VTK_INT) || (data_type == VTK_LONG) ||
-    (data_type == VTK_ID_TYPE) || (data_type == VTK_LONG_LONG) || (data_type == VTK_TYPE_INT64);
-}
-
-//----------------------------------------------------------------------------
-bool IsUnsignedIntegralType(int data_type)
-{
-  constexpr bool is_char_type_signed = (CHAR_MIN == SCHAR_MIN) && (CHAR_MAX == SCHAR_MAX);
-
-  return (!is_char_type_signed && (data_type == VTK_CHAR)) || (data_type == VTK_UNSIGNED_CHAR) ||
-    (data_type == VTK_UNSIGNED_SHORT) || (data_type == VTK_UNSIGNED_INT) ||
-    (data_type == VTK_UNSIGNED_LONG) || (data_type == VTK_ID_TYPE) ||
-    (data_type == VTK_UNSIGNED_LONG_LONG);
-}
-
-//----------------------------------------------------------------------------
-bool IsFloatType(int data_type)
-{
-  return ((data_type == VTK_FLOAT) || (data_type == VTK_DOUBLE));
-}
-
 #define conduit_set_array(node, arr, type, native_type, num_elem, offset, stride, external)        \
   {                                                                                                \
     auto arraySOA = vtkSOADataArrayTemplate<native_type>::FastDownCast(data_array);                \
@@ -162,6 +71,124 @@ bool IsFloatType(int data_type)
       }                                                                                            \
     }                                                                                              \
   }
+
+namespace
+{
+
+const std::map<int, std::string> VTK_DATATYPE_TO_CONDUIT_SHAPE = {
+  { VTK_HEXAHEDRON, "hex" },
+  { VTK_TETRA, "tet" },
+  { VTK_POLYGON, "polygonal" },
+  { VTK_QUAD, "quad" },
+  { VTK_TRIANGLE, "tri" },
+  { VTK_TRIANGLE_STRIP, "tri" },
+  { VTK_LINE, "line" },
+  { VTK_POLY_LINE, "line" },
+  { VTK_VERTEX, "point" },
+  { VTK_POLY_VERTEX, "point" },
+  { VTK_PYRAMID, "pyramid" },
+  { VTK_WEDGE, "wedge" },
+};
+
+//----------------------------------------------------------------------------
+std::string GetPartitionedDSName(vtkPartitionedDataSetCollection* pdc, unsigned int pdsId)
+{
+  std::string name = "partition" + vtk::to_string(pdsId);
+  if (pdc->HasMetaData(pdsId))
+  {
+    name = pdc->GetMetaData(pdsId)->Get(vtkCompositeDataSet::NAME());
+  }
+  return name;
+}
+
+//----------------------------------------------------------------------------
+bool IsMixedShape(vtkUnstructuredGrid* unstructured_grid)
+{
+  auto* cell_types = unstructured_grid->GetDistinctCellTypesArray();
+  return cell_types->GetNumberOfTuples() > 1;
+}
+
+//----------------------------------------------------------------------------
+bool IsMixedShape(vtkPolyData* grid)
+{
+  return (grid->GetNumberOfVerts() > 0) + (grid->GetNumberOfLines() > 0) +
+    (grid->GetNumberOfStrips() > 0) + (grid->GetNumberOfPolys() > 0) >
+    1;
+}
+
+//----------------------------------------------------------------------------
+bool HasMultiCells(vtkPointSet* grid)
+{
+  // Return true if the grid has cells that are serialized to multiple in the Conduit node.
+  // This can happen for poly vertex/lines or strips.
+  // grid->GetDistinctCellTypes(vtkCellTypes *types)
+  for (vtkIdType i = 0; i < grid->GetNumberOfCells(); i++)
+  {
+    auto type = grid->GetCellType(i);
+    if (type == VTK_TRIANGLE_STRIP || type == VTK_POLY_LINE || type == VTK_POLY_VERTEX)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
+vtkCellArray* GetCells(vtkUnstructuredGrid* ugrid, int)
+{
+  return ugrid->GetCells();
+}
+
+//----------------------------------------------------------------------------
+vtkCellArray* GetCells(vtkPolyData* polydata, int cellType)
+{
+  switch (cellType)
+  {
+    case VTK_QUAD:
+    case VTK_TRIANGLE:
+    case VTK_POLYGON:
+      return polydata->GetPolys();
+    case VTK_TRIANGLE_STRIP:
+      return polydata->GetStrips();
+    case VTK_LINE:
+    case VTK_POLY_LINE:
+      return polydata->GetLines();
+    case VTK_VERTEX:
+    case VTK_POLY_VERTEX:
+      return polydata->GetVerts();
+    default:
+      vtkLog(ERROR, << "Unsupported cell type in polydata. Cell type: "
+                    << vtkCellTypeUtilities::GetClassNameFromTypeId(cellType));
+      return nullptr;
+  }
+}
+
+//----------------------------------------------------------------------------
+bool IsSignedIntegralType(int data_type)
+{
+  constexpr bool is_char_type_signed = (CHAR_MIN == SCHAR_MIN) && (CHAR_MAX == SCHAR_MAX);
+
+  return (is_char_type_signed && (data_type == VTK_CHAR)) || (data_type == VTK_SIGNED_CHAR) ||
+    (data_type == VTK_SHORT) || (data_type == VTK_INT) || (data_type == VTK_LONG) ||
+    (data_type == VTK_ID_TYPE) || (data_type == VTK_LONG_LONG) || (data_type == VTK_TYPE_INT64);
+}
+
+//----------------------------------------------------------------------------
+bool IsUnsignedIntegralType(int data_type)
+{
+  constexpr bool is_char_type_signed = (CHAR_MIN == SCHAR_MIN) && (CHAR_MAX == SCHAR_MAX);
+
+  return (!is_char_type_signed && (data_type == VTK_CHAR)) || (data_type == VTK_UNSIGNED_CHAR) ||
+    (data_type == VTK_UNSIGNED_SHORT) || (data_type == VTK_UNSIGNED_INT) ||
+    (data_type == VTK_UNSIGNED_LONG) || (data_type == VTK_ID_TYPE) ||
+    (data_type == VTK_UNSIGNED_LONG_LONG);
+}
+
+//----------------------------------------------------------------------------
+bool IsFloatType(int data_type)
+{
+  return ((data_type == VTK_FLOAT) || (data_type == VTK_DOUBLE));
+}
 
 //----------------------------------------------------------------------------
 bool ConvertDataArrayToMCArray(vtkDataArray* data_array, int offset, int stride,
@@ -382,7 +409,7 @@ bool FillMixedShape(vtkPolyData* dataset, conduit_cpp::Node& topologies_node)
 
   if (!convert_offsets || !convert_shapes || !convert_connectivity || !convert_sizes)
   {
-    vtkLogF(ERROR, "ConvertDataArrayToMCArray failed for mixed shapes unstructured grid.");
+    vtkLogF(ERROR, "ConvertDataArrayToMCArray failed for mixed shapes polydata.");
     return false;
   }
 
@@ -484,7 +511,7 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node, const std::string
   {
     if (!FillMixedShape(dataset, topologies_node))
     {
-      vtkLogF(ERROR, "%s with mixed shape type partially supported.", datasetType);
+      vtkLogF(ERROR, "%s with mixed shape type failed.", datasetType);
       return false;
     }
   }
@@ -497,7 +524,7 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node, const std::string
       cell_type = dataset->GetCellType(0);
     }
 
-    switch (cell_type)
+    if (::VTK_DATATYPE_TO_CONDUIT_SHAPE.find(cell_type) != ::VTK_DATATYPE_TO_CONDUIT_SHAPE.end())
     {
       topologies_node["elements/shape"] = ::VTK_DATATYPE_TO_CONDUIT_SHAPE.at(cell_type);
     }
@@ -507,20 +534,62 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node, const std::string
         vtkCellTypeUtilities::GetClassNameFromTypeId(cell_type));
       return false;
     }
+
+    auto cell_array = GetCells(dataset, cell_type);
+    if (!cell_array)
+    {
+      vtkLogF(ERROR, "Could not retrieve cells of type %i from %s.", cell_type, datasetType);
+      return false;
+    }
+
+    // Add sizes and offset information required for polygon type
+    if (cell_type == VTK_POLYGON)
+    {
+      auto offsets_node = topologies_node["elements/offsets"];
+      auto sizes_node = topologies_node["elements/sizes"];
+
+      vtkNew<vtkIdTypeArray> sizes;
+      sizes->SetNumberOfTuples(number_of_cells);
+      for (vtkIdType i = 0; i < number_of_cells; i++)
+      {
+        sizes->SetValue(i, dataset->GetCellSize(i));
+      }
+      auto offsets_array = cell_array->GetOffsetsArray();
+
+      if (!ConvertDataArrayToMCArray(offsets_array, 0, 0, offsets_node, number_of_cells) ||
+        !ConvertDataArrayToMCArray(sizes, sizes_node, std::vector<std::string>(), false))
+      {
+        vtkLogF(ERROR, "ConvertDataArrayToMCArray failed for %s.", datasetType);
+        return false;
+      }
+    }
+    else if (HasMultiCells(dataset))
+    {
+      // "Multi-cells" need to be handled separately,
+      // because they correspond to multiple cells in Conduit
+      // For that, use the mixed shapes routine, without writing the shape or offset array
+      bool res = ::FillMixedShape(dataset, topologies_node);
+      topologies_node["elements/shape"] = ::VTK_DATATYPE_TO_CONDUIT_SHAPE.at(cell_type);
+      topologies_node["elements"].remove("shape_map");
+      topologies_node["elements"].remove("shapes");
+      topologies_node["elements"].remove("sizes");
+      topologies_node["elements"].remove("offsets");
+      if (!res)
+      {
+        vtkLogF(ERROR, "Failed to convert dataset.");
+      }
+      return res;
+    }
+
+    auto connectivity_node = topologies_node["elements/connectivity"];
+    if (!ConvertDataArrayToMCArray(cell_array->GetConnectivityArray(), connectivity_node))
+    {
+      vtkLogF(ERROR, "ConvertDataArrayToMCArray failed for %s.", datasetType);
+      return false;
+    }
   }
 
-  // TODO: support polygons by adding the "sizes" array
-  auto cell_connectivity = GetCells(dataset, cell_type);
-  auto connectivity_node = topologies_node["elements/connectivity"];
-
-  if (!ConvertDataArrayToMCArray(cell_connectivity->GetConnectivityArray(), connectivity_node))
-  {
-    vtkLogF(ERROR, "ConvertDataArrayToMCArray failed for %s.", datasetType);
-    return false;
-  }
-}
-
-return true;
+  return true;
 }
 
 //----------------------------------------------------------------------------
@@ -651,7 +720,7 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node,
 }
 
 //----------------------------------------------------------------------------
-bool FillFields(vtkFieldData* field_data, const std::string& association,
+bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::string& association,
   conduit_cpp::Node& conduit_node, const std::string& topology_name)
 {
   bool is_success = true;
@@ -698,17 +767,50 @@ bool FillFields(vtkFieldData* field_data, const std::string& association,
     }
     else if (auto data_array = vtkDataArray::SafeDownCast(array))
     {
-      // FIXME: conversion may fail for polydata types TRIANGLE_STRIP, POLY_LINE, POLY_VERTEX
-      // Where there are more than 1 Conduit cell for each VTK cell. We need to insert values to
-      // handle this case And avoid having less cell field values than cells in the Conduit node.
-
       auto field_node = conduit_node["fields"][name];
       field_node["association"] = association;
       field_node["topology"] = topology_name;
       field_node["volume_dependent"] = "false";
 
       auto values_node = field_node["values"];
-      is_success = ConvertDataArrayToMCArray(data_array, values_node);
+      auto pointSet = vtkPointSet::SafeDownCast(data_set);
+
+      // Conversion may fail for cell types TRIANGLE_STRIP, POLY_LINE, POLY_VERTEX
+      // Where we create more than 1 conduit cell for each VTK cell. We need to insert values to
+      // handle this case And avoid having less cell field values than cells in the Conduit node.
+      if (association == "element" && pointSet && HasMultiCells(pointSet))
+      {
+        auto newArray = vtkSmartPointer<vtkDataArray>::NewInstance(data_array);
+        newArray->Allocate(data_array->GetNumberOfTuples());
+        newArray->SetNumberOfComponents(data_array->GetNumberOfComponents());
+        for (int i = 0; i < pointSet->GetNumberOfCells(); i++)
+        {
+          auto type = pointSet->GetCellType(i);
+          std::map<int, int> topo_num_vertices{ { VTK_POLY_VERTEX, 1 }, { VTK_POLY_LINE, 2 },
+            { VTK_TRIANGLE_STRIP, 3 } };
+          if (topo_num_vertices.find(type) != topo_num_vertices.end())
+          {
+            auto numCells = pointSet->GetCellSize(i) / topo_num_vertices.at(type);
+            for (int j = 0; j < numCells; j++)
+            {
+              newArray->InsertNextTuple(data_array->GetTuple(i));
+            }
+          }
+          else
+          {
+            newArray->InsertNextTuple(data_array->GetTuple(i));
+          }
+        }
+
+        // Array is not owned in this case, hard copy it
+        is_success =
+          ConvertDataArrayToMCArray(newArray, values_node, std::vector<std::string>(), false);
+      }
+      else
+      {
+        is_success = ConvertDataArrayToMCArray(data_array, values_node);
+      }
+
       if (dataset_attributes)
       {
         bool is_dataset_attribute = false;
@@ -746,7 +848,7 @@ bool FillFields(
 {
   if (auto cell_data = data_set->GetCellData())
   {
-    if (!FillFields(cell_data, "element", conduit_node, topology_name))
+    if (!FillFields(data_set, cell_data, "element", conduit_node, topology_name))
     {
       vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with element failed.");
       return false;
@@ -755,7 +857,7 @@ bool FillFields(
 
   if (auto point_data = data_set->GetPointData())
   {
-    if (!FillFields(point_data, "vertex", conduit_node, topology_name))
+    if (!FillFields(data_set, point_data, "vertex", conduit_node, topology_name))
     {
       vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with vertex failed.");
       return false;
@@ -764,7 +866,7 @@ bool FillFields(
 
   if (auto field_data = data_set->GetFieldData())
   {
-    if (!FillFields(field_data, "", conduit_node, topology_name))
+    if (!FillFields(data_set, field_data, "", conduit_node, topology_name))
     {
       vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with field data failed.");
       return false;

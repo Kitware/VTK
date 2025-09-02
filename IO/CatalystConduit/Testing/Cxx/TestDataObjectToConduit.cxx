@@ -1117,8 +1117,6 @@ bool TestMixedShapePolyData()
   field["volume_dependent"] = "false";
   field["values"] = std::vector<double>{ 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
 
-  std::cout << expected_node.to_yaml() << std::endl;
-
   conduit_cpp::Node diff_info;
   bool are_nodes_different = node.diff(expected_node, diff_info, 1e-6);
   if (are_nodes_different)
