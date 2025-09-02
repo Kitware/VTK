@@ -104,7 +104,7 @@ protected:
   vtkDataSet* ReadDataset(vtkXMLDataElement* xmlElem, const char* filePath) override;
 
   vtkSmartPointer<vtkOverlappingAMR> Metadata;
-  unsigned int MaximumLevelsToReadByDefault = 1;
+  unsigned int MaximumLevelsToReadByDefault = 0;
 
 private:
   vtkXMLUniformGridAMRReader(const vtkXMLUniformGridAMRReader&) = delete;
