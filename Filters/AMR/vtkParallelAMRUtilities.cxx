@@ -124,11 +124,7 @@ void vtkParallelAMRUtilities::BlankCells(
   }
   if (!amrMData->HasChildrenInformation())
   {
-    if (!amrMData->GenerateParentChildInformation())
-    {
-      vtkErrorWithObjectMacro(amr, "Could not generate parent child information, aborting");
-      return;
-    }
+    amrMData->GenerateParentChildInformation();
   }
 
   std::vector<int> processorMap;

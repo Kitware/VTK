@@ -41,7 +41,7 @@ int TestAMRRefinedGhostFlag(int argc, char* argv[])
   amrReader->Update();
   auto amrDataSet = vtkOverlappingAMR::SafeDownCast(amrReader->GetOutput());
 
-  auto firstLevelDataset = amrDataSet->GetDataSet(0, 0);
+  auto firstLevelDataset = amrDataSet->GetDataSetAsCartesianGrid(0, 0);
   auto ghostArray = firstLevelDataset->GetGhostArray(vtkDataObject::CELL);
   for (vtkIdType index = 0; index < ghostArray->GetNumberOfValues(); ++index)
   {

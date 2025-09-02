@@ -100,7 +100,7 @@ protected:
     {
       for (unsigned int idx = 0; idx < output->GetNumberOfBlocks(level); ++idx)
       {
-        vtkUniformGrid* grid = output->GetDataSet(level, idx);
+        vtkCartesianGrid* grid = output->GetDataSetAsCartesianGrid(level, idx);
         if (!grid)
         {
           continue;

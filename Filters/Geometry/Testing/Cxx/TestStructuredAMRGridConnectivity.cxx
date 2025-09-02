@@ -390,7 +390,7 @@ void RegisterGrids(
     for (; dataIdx < amr->GetNumberOfBlocks(levelIdx); ++dataIdx)
     {
       int idx = amr->GetAbsoluteBlockIndex(levelIdx, dataIdx);
-      vtkUniformGrid* grid = amr->GetDataSet(levelIdx, dataIdx);
+      vtkImageData* grid = amr->GetDataSetAsImageData(levelIdx, dataIdx);
       if (grid != nullptr)
       {
         GetGridExtent(idx, dim, ratio, ext);
@@ -424,7 +424,7 @@ void GetGhostedAMRData(vtkOverlappingAMR* amr, vtkStructuredAMRGridConnectivity*
     for (; dataIdx < amr->GetNumberOfBlocks(levelIdx); ++dataIdx)
     {
       int linearIdx = amr->GetAbsoluteBlockIndex(levelIdx, dataIdx);
-      vtkUniformGrid* grid = amr->GetDataSet(levelIdx, dataIdx);
+      vtkImageData* grid = amr->GetDataSetAsImageData(levelIdx, dataIdx);
 
       if (grid != nullptr)
       {
