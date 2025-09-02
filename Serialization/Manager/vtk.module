@@ -10,34 +10,7 @@ SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::CommonCore
-OPTIONAL_DEPENDS
-  VTK::ChartsCore
-  VTK::CommonColor
   VTK::CommonDataModel
-  VTK::CommonExecutionModel
-  VTK::CommonTransforms
-  VTK::CommonMath
-  VTK::CommonMisc
-  VTK::FiltersCore
-  VTK::FiltersSources
-  VTK::ImagingColor
-  VTK::ImagingCore
-  VTK::InteractionStyle
-  VTK::InteractionWidgets
-  VTK::RenderingAnnotation
-  VTK::RenderingCore
-  VTK::RenderingContext2D
-  VTK::RenderingContextOpenGL2
-  VTK::RenderingGridAxes
-  VTK::RenderingImage
-  VTK::RenderingLabel
-  VTK::RenderingOpenGL2
-  VTK::RenderingUI
-  VTK::RenderingVolume
-  VTK::RenderingVolumeOpenGL2
-  VTK::ViewsCore
-  VTK::ViewsContext2D
-  VTK::ViewsInfovis
 TEST_DEPENDS
   VTK::TestingCore
   VTK::TestingSerialization

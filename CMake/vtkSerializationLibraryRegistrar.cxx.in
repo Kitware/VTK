@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "@_vtk_serdes_library_registrar_header@"
+#include "vtkMarshalContext.h"
 
 #include <iostream> // for std::cerr
 
@@ -27,5 +28,14 @@ int RegisterClasses_@_vtk_serdes_library@(void* serializer, void* deserializer, 
   }
 @_vtk_serdes_register_classes@
   return SUCCESS;
+}
+
+static unsigned int @_vtk_serdes_library@SerDes = 0;
+void AddRegistrar_@_vtk_serdes_library@()
+{
+  if (++@_vtk_serdes_library@SerDes == 1)
+  {
+    vtkMarshalContext::AddRegistrar(RegisterClasses_@_vtk_serdes_library@);
+  }
 }
 VTK_ABI_NAMESPACE_END

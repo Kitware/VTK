@@ -23,13 +23,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
-extern "C"
-{
-  int RegisterLibraries_vtkObjectManagerDefaultSerDes(
-    void* ser, void* deser, void* invoker, const char** error);
-}
-
-//------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkObjectManager);
 
 //------------------------------------------------------------------------------
@@ -111,7 +104,7 @@ bool vtkObjectManager::Initialize()
 bool vtkObjectManager::InitializeDefaultHandlers()
 {
   const char* error = nullptr;
-  if (!RegisterLibraries_vtkObjectManagerDefaultSerDes(
+  if (!vtkMarshalContext::CallRegistrars(
         this->Serializer.Get(), this->Deserializer.Get(), this->Invoker.Get(), &error))
   {
     vtkErrorMacro(<< "Failed to register a default VTK SerDes handler. error=\"" << error << "\"");
