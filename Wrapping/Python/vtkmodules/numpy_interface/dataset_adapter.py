@@ -556,8 +556,7 @@ class VTKCompositeDataArray(object):
         For the most part, this will behave like Numpy."""
         self.__init_from_composite()
 
-        arrays = self._Arrays
-        partition_sizes = [len(a) if a is not NoneArray else 0 for a in arrays]
+        partition_sizes = [len(a) if a is not NoneArray else 0 for a in self._Arrays]
         offsets = numpy.cumsum([0] + partition_sizes)
         total_size = offsets[-1]
 
@@ -568,7 +567,7 @@ class VTKCompositeDataArray(object):
         elif isinstance(index, (numpy.ndarray, list)):
             index = numpy.asarray(index)
             if index.dtype == bool and index.shape == self.shape:
-                for array_id, array in enumerate(arrays):
+                for array_id, array in enumerate(self._Arrays):
                     if array is NoneArray:
                         continue
                     start = offsets[array_id]
@@ -578,9 +577,13 @@ class VTKCompositeDataArray(object):
             elif index.ndim == 0:
                 self.__setitem__(int(index), value)
             elif index.ndim == 1:
-                for idx in index:
-                    chunk_idx, local_idx = self._global_to_local_id(idx, total_size, offsets)
-                    self._Arrays[chunk_idx][local_idx] = value
+                index = numpy.where(index < 0, index + total_size, index)
+                for i, array in enumerate(self._Arrays):
+                    if array is NoneArray:
+                        continue
+                    idx_mask = numpy.logical_and(index >= offsets[i], index < offsets[i+1])
+                    whr = numpy.nonzero(idx_mask)
+                    array[index[whr]-offsets[i]] = value
             else:
               raise IndexError(f"Unsupported index type: {type(index)}")
         else:
@@ -607,16 +610,25 @@ class VTKCompositeDataArray(object):
         For the most part, this will behave like Numpy."""
         self.__init_from_composite()
 
-        arrays = self._Arrays
-        partition_sizes = [len(a) if a is not NoneArray else 0 for a in arrays]
+        empty = True
+        for a in self._Arrays:
+            if a is not NoneArray:
+                empty = False
+                dtype = a.dtype
+                output_shape = a.shape[1:]
+                break
+        if len(self._Arrays) == 0 or empty:
+            raise IndexError("Index out of bounds")
+
+        partition_sizes = [len(a) if a is not NoneArray else 0 for a in self._Arrays]
         offsets = numpy.cumsum([0] + partition_sizes)
         total_size = offsets[-1]
 
         if isinstance(index, VTKCompositeDataArray):
             res = []
-            for a, idx in zip(arrays, index._Arrays):
-                if a is not NoneArray:
-                    res.append(a.__getitem__(idx))
+            for array, idx in zip(self._Arrays, index._Arrays):
+                if array is not NoneArray:
+                    res.append(array.__getitem__(idx))
                 else:
                     res.append(NoneArray)
             return VTKCompositeDataArray(res, dataset=self.DataSet)
@@ -626,16 +638,15 @@ class VTKCompositeDataArray(object):
             if index.ndim == 0:
                 return self[int(index)]
             elif index.ndim == 1:
-                if index.dtype == bool:
-                    if len(index) != total_size:
-                        raise IndexError("Boolean index must be the same length as the array")
-                    # Convert boolean mask to integer indices
-                    index = numpy.nonzero(index)[0]
-                result = []
-                for idx in index:
-                    chunk_idx, local_idx = self._global_to_local_id(idx, total_size, offsets)
-                    result.append(arrays[chunk_idx][local_idx])
-                return numpy.asarray(result)
+                index = numpy.where(index < 0, index + total_size, index)
+                res = numpy.empty(index.shape + output_shape, dtype=dtype)
+                for i, array in enumerate(self._Arrays):
+                    if array is NoneArray:
+                        continue
+                    idx_mask = numpy.logical_and(index >= offsets[i], index < offsets[i+1])
+                    whr = numpy.nonzero(idx_mask)
+                    res[whr] = array[index[whr]-offsets[i]]
+                return res
             else:
                 raise IndexError("Only 1D Numpy or list indexing is supported for now")
 
@@ -647,16 +658,16 @@ class VTKCompositeDataArray(object):
 
         if isinstance(global_index, int):
             chunk_idx, local_idx = self._global_to_local_id(global_index, total_size, offsets)
-            result = arrays[chunk_idx][local_idx]
+            result = self._Arrays[chunk_idx][local_idx]
             if remaining_indices:
                 result = result[tuple(remaining_indices)]
             return result
 
         if isinstance(global_index, slice):
             step = global_index.step if global_index.step is not None else 1
-            result = [NoneArray] * len(arrays)
+            result = [NoneArray] * len(self._Arrays)
             i = 0
-            for (array, offset, size) in zip(arrays, offsets, partition_sizes):
+            for (array, offset, size) in zip(self._Arrays, offsets, partition_sizes):
                 if array is NoneArray:
                     i += 1
                     continue
