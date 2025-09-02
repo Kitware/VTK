@@ -275,7 +275,7 @@ template <class T>
 struct vtkThreadedCallbackQueue::InvokerImpl::DereferenceImpl<T,
   std::true_type /* CanBeDereferencedT */>
 {
-  using Type = decltype(*std::declval<T>());
+  using Type = typename std::remove_pointer<decltype(*std::declval<T>())>::type;
   static Type& Get(T& instance) { return *instance; }
 };
 
