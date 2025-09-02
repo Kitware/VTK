@@ -37,7 +37,7 @@ vs. distributed data or static vs. temporal data.
 
 ### How to stay informed?
 
-There is a global [roadmap](vtkhdf_roadmap_status.md) that tracks potential work and implementation status of the specification in the `vtkHDFReader` and `vtkHDFWriter`. Bug tracking and proposals are tracked in a master issue [here](https://gitlab.kitware.com/vtk/vtk/-/issues/19243). Additionally, all VTKHDF issues are [tagged appropriately](https://gitlab.kitware.com/vtk/vtk/-/issues/?sort=created_date&state=opened&label_name%5B%5D=area%3AVTKHDF&first_page_size=20) as `area:VTKHDF`.
+We keep a [status](vtkhdf_status.md) page up to date, that tracks current work and implementation status of the specification in the `vtkHDFReader` and `vtkHDFWriter`. Bug tracking and proposals are tracked in a [Gitlab issue](https://gitlab.kitware.com/vtk/vtk/-/issues/19243). Additionally, all VTKHDF issues are [tagged appropriately](https://gitlab.kitware.com/vtk/vtk/-/issues/?sort=created_date&state=opened&label_name%5B%5D=area%3AVTKHDF&first_page_size=20) as `area:VTKHDF`.
 
 ### Where should we create a proposal for the file format?
 
