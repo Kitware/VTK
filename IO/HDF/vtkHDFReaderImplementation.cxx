@@ -775,7 +775,7 @@ bool vtkHDFReader::Implementation::ReadLevelData(unsigned int level,
       for (unsigned int dataSetIndex = 0; dataSetIndex < numberOfDatasets; ++dataSetIndex)
       {
         const vtkAMRBox& amrBox = data->GetAMRBox(level, dataSetIndex);
-        auto dataSet = data->GetDataSet(level, dataSetIndex);
+        vtkImageData* dataSet = data->GetDataSetAsImageData(level, dataSetIndex);
         if (dataSet == nullptr)
         {
           vtkErrorWithObjectMacro(this->Reader,
