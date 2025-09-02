@@ -533,14 +533,17 @@ void vtkBoxWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clie
     if (keySym == "X")
     {
       rep->SetXTranslationAxisOn();
+      rep->SetRotationAxisModeToX();
     }
     else if (keySym == "Y")
     {
       rep->SetYTranslationAxisOn();
+      rep->SetRotationAxisModeToY();
     }
     else if (keySym == "Z")
     {
       rep->SetZTranslationAxisOn();
+      rep->SetRotationAxisModeToZ();
     }
   }
   else if (event == vtkCommand::KeyReleaseEvent)
@@ -548,6 +551,7 @@ void vtkBoxWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clie
     if (keySym == "X" || keySym == "Y" || keySym == "Z")
     {
       rep->SetTranslationAxisOff();
+      rep->SetRotationAxisModeToFree();
     }
   }
 }
