@@ -9,6 +9,8 @@ from vtkmodules.vtkRenderingCore import vtkTexture, vtkRenderWindow, vtkSkybox, 
 from vtkmodules.vtkRenderingOpenGL2 import vtkOpenGLSkybox
 from vtkmodules.vtkIOImage import vtkHDRReader
 
+import vtkmodules.vtkInteractionStyle
+
 
 class TestSkybox(vtkTesting.vtkTest):
 
