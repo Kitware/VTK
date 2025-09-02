@@ -18,7 +18,7 @@
 #include <iostream>
 
 // Main program
-int TestGDALRasterPalette(int argc, char** argv)
+int TestGDALRasterPalette(int argc, char* argv[])
 {
   if (argc < 3)
   {
