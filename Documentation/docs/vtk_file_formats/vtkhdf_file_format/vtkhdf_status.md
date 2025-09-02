@@ -1,4 +1,4 @@
-# VTKHDF Current Status
+# VTKHDF: Implementation Status
 
 This document specifies the features currently supported by the VTK implementation of the VTKHDF file format, `vtkHDFReader` and `vtkHDFWriter`.
 The following list only showcases complete and planned developments.
