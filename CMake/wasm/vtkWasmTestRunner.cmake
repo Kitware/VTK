@@ -99,7 +99,7 @@ message(STATUS "USER_PROFILE_DIR=${USER_PROFILE_DIR}")
 message(STATUS "HTTP_SERVER_URL=${HTTP_SERVER_URL}")
 
 set(IMPLICIT_ENGINE_ARGS "")
-if (TESTING_WASM_ENGINE MATCHES "chrome|chromium")
+if (TESTING_WASM_ENGINE MATCHES "chrome|chromium|Google Chrome")
   set(IMPLICIT_ENGINE_ARGS
     "--disable-application-cache"
     "--disable-extensions"

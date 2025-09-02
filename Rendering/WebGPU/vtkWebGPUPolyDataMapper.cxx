@@ -9,6 +9,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
+#include "vtkLogger.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
@@ -46,7 +47,6 @@
 #include <array>
 #include <iostream>
 #include <sstream>
-#include <webgpu/webgpu_cpp.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -190,6 +190,7 @@ vtkPolyDataMapper::MapperHashType vtkWebGPUPolyDataMapper::GenerateHash(vtkPolyD
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor)
 {
+  vtkLogScopeFunction(TRACE);
   auto wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   // Note for emscripten: the indirection to js getTimeNow is a bit costly. it can quickly add up
   // for really large number of actors. However, vtkRenderWindow caps it to 5 times per second. the
@@ -204,7 +205,9 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
   auto* displayProperty = actor->GetProperty();
-
+  vtkLog(TRACE,
+    "RenderPiece for actor: " << actor << " in renderer: " << renderer
+                              << " in stage: " << static_cast<int>(wgpuRenderer->GetRenderStage()));
   switch (wgpuRenderer->GetRenderStage())
   {
     case vtkWebGPURenderer::RenderStageEnum::UpdatingBuffers:
@@ -295,6 +298,7 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
       // setup graphics pipeline
       if (this->GetNeedToRebuildGraphicsPipelines(actor, renderer))
       {
+        vtkLog(TRACE, "rebuild graphics pipelines");
         // Create bind group for the point/cell attribute buffers.
         this->MeshAttributeBindGroup = this->CreateMeshAttributeBindGroup(
           wgpuConfiguration->GetDevice(), this->GetObjectDescription() + "-MeshAttributeBindGroup");
@@ -471,6 +475,7 @@ vtkWebGPUPolyDataMapper::DrawCallArgs vtkWebGPUPolyDataMapper::GetDrawCallArgsFo
 void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   vtkRenderer* renderer, vtkActor* actor, const wgpu::RenderPassEncoder& passEncoder)
 {
+  vtkLogScopeFunction(TRACE);
   passEncoder.SetBindGroup(2, this->MeshAttributeBindGroup);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
@@ -701,6 +706,7 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
 void vtkWebGPUPolyDataMapper::RecordDrawCommands(
   vtkRenderer* renderer, vtkActor* actor, const wgpu::RenderBundleEncoder& bundleEncoder)
 {
+  vtkLog(TRACE, "record draw commands to bundle");
   bundleEncoder.SetBindGroup(2, this->MeshAttributeBindGroup);
 
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
@@ -1380,6 +1386,7 @@ void vtkWebGPUPolyDataMapper::ResetPointCellAttributeState()
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* wgpuRenderWindow)
 {
+  vtkLogScopeFunction(TRACE);
   if ((this->CachedInput != nullptr) && (this->CurrentInput != nullptr) &&
     (this->CurrentInput != this->CachedInput))
   {
@@ -1747,6 +1754,7 @@ const char* vtkWebGPUPolyDataMapper::GetGraphicsPipelineTypeAsString(
 void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
   const wgpu::Device& device, vtkRenderer* renderer, vtkActor* actor)
 {
+  vtkLogScopeFunction(TRACE);
   auto* wgpuActor = vtkWebGPUActor::SafeDownCast(actor);
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(renderer->GetRenderWindow());
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
@@ -3449,8 +3457,9 @@ bool vtkWebGPUPolyDataMapper::GetNeedToRebuildGraphicsPipelines(
     return true;
   }
   // have the clipping planes changed?
-  if (this->LastNumClipPlanes != this->GetNumberOfClippingPlanes())
+  if (this->LastNumClipPlanes != this->ClippingPlanesData.PlaneCount)
   {
+    this->LastNumClipPlanes = this->ClippingPlanesData.PlaneCount;
     return true;
   }
   const auto key = std::make_pair(actor, renderer);
@@ -3505,6 +3514,7 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
   }
   this->CellConverter->ReleaseGraphicsResources(w);
   this->RebuildGraphicsPipelines = true;
+  this->LastNumClipPlanes = VTK_TYPE_UINT32_MAX;
   for (auto& it : this->CachedActorRendererProperties)
   {
     if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(it.first.second))
