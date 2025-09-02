@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExtractDataSets.h"
 
+#include "vtkCartesianGrid.h"
 #include "vtkCellData.h"
+#include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkObjectFactory.h"
-#include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -119,16 +120,16 @@ int vtkExtractDataSets::RequestData(vtkInformation* vtkNotUsed(request),
     {
       break;
     }
-    vtkUniformGrid* inUG = input->GetDataSet(iter->Level, iter->Index);
-    if (inUG)
+    vtkCartesianGrid* cg = input->GetDataSetAsCartesianGrid(iter->Level, iter->Index);
+    if (cg)
     {
       vtkMultiPieceDataSet* mpds =
         vtkMultiPieceDataSet::SafeDownCast(output->GetBlock(iter->Level));
       assert("pre: mpds is nullptr!" && (mpds != nullptr));
 
       unsigned int out_index = mpds->GetNumberOfPieces();
-      vtkUniformGrid* clone = inUG->NewInstance();
-      clone->ShallowCopy(inUG);
+      vtkDataSet* clone = cg->NewInstance();
+      clone->ShallowCopy(cg);
 
       // Remove blanking from output datasets.
       clone->GetCellData()->RemoveArray(vtkDataSetAttributes::GhostArrayName());

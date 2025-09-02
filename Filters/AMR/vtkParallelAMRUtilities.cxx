@@ -114,6 +114,7 @@ void vtkParallelAMRUtilities::BlankCells(
   vtkOverlappingAMRMetaData* amrMData = amr->GetOverlappingAMRMetaData();
   if (!amrMData)
   {
+    vtkErrorWithObjectMacro(amr, "Could not recover AMR Meta Data, aborting");
     return;
   }
 
@@ -123,7 +124,11 @@ void vtkParallelAMRUtilities::BlankCells(
   }
   if (!amrMData->HasChildrenInformation())
   {
-    amrMData->GenerateParentChildInformation();
+    if (!amrMData->GenerateParentChildInformation())
+    {
+      vtkErrorWithObjectMacro(amr, "Could not generate parent child information, aborting");
+      return;
+    }
   }
 
   std::vector<int> processorMap;

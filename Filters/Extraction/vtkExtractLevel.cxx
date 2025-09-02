@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExtractLevel.h"
 
+#include "vtkCartesianGrid.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
 
 #include <set>
@@ -155,10 +155,10 @@ int vtkExtractLevel::RequestData(vtkInformation* vtkNotUsed(request),
       unsigned int dataIdx = 0;
       for (; dataIdx < input->GetNumberOfBlocks(level); ++dataIdx)
       {
-        vtkUniformGrid* data = input->GetDataSet(level, dataIdx);
+        vtkCartesianGrid* data = input->GetDataSetAsCartesianGrid(level, dataIdx);
         if (data != nullptr)
         {
-          vtkUniformGrid* copy = data->NewInstance();
+          vtkDataSet* copy = data->NewInstance();
           copy->ShallowCopy(data);
           output->SetBlock(blockIdx, copy);
           copy->Delete();

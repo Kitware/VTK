@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOverlappingAMRLevelIdScalars.h"
 
+#include "vtkCartesianGrid.h"
 #include "vtkCellData.h"
 #include "vtkConstantArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkUniformGrid.h"
 #include "vtkUniformGridAMR.h"
 
 #include <cassert>
@@ -39,10 +39,10 @@ void vtkOverlappingAMRLevelIdScalars::AddColorLevels(
     unsigned int numDS = input->GetNumberOfBlocks(levelIdx);
     for (unsigned int cc = 0; cc < numDS; cc++)
     {
-      vtkUniformGrid* ds = input->GetDataSet(levelIdx, cc);
-      if (ds != nullptr)
+      vtkCartesianGrid* cg = input->GetDataSetAsCartesianGrid(levelIdx, cc);
+      if (cg != nullptr)
       {
-        vtkUniformGrid* copy = this->ColorLevel(ds, levelIdx);
+        vtkDataSet* copy = this->ColorLevel(cg, levelIdx);
         output->SetDataSet(levelIdx, cc, copy);
         copy->Delete();
       }
@@ -76,9 +76,9 @@ int vtkOverlappingAMRLevelIdScalars::RequestData(vtkInformation* vtkNotUsed(requ
 }
 
 //------------------------------------------------------------------------------
-vtkUniformGrid* vtkOverlappingAMRLevelIdScalars::ColorLevel(vtkUniformGrid* input, int group)
+vtkDataSet* vtkOverlappingAMRLevelIdScalars::ColorLevel(vtkDataSet* input, int group)
 {
-  vtkUniformGrid* output = input->NewInstance();
+  vtkDataSet* output = input->NewInstance();
   output->ShallowCopy(input);
   vtkDataSet* dsOutput = vtkDataSet::SafeDownCast(output);
   vtkIdType numCells = dsOutput->GetNumberOfCells();

@@ -1,24 +1,24 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include <vtkStreamSurface.h>
+#include "vtkStreamSurface.h"
 
-#include <vtkAppendPolyData.h>
-#include <vtkCellArray.h>
-#include <vtkCellData.h>
-#include <vtkDoubleArray.h>
-#include <vtkInformation.h>
-#include <vtkInformationVector.h>
-#include <vtkNew.h>
-#include <vtkNonOverlappingAMR.h>
-#include <vtkObjectFactory.h>
-#include <vtkPointData.h>
-#include <vtkPoints.h>
-#include <vtkPolyData.h>
-#include <vtkRuledSurfaceFilter.h>
-#include <vtkStreamTracer.h>
-#include <vtkTriangle.h>
-#include <vtkUniformGrid.h>
-#include <vtkUniformGridAMR.h>
+#include "vtkAppendPolyData.h"
+#include "vtkCartesianGrid.h"
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
+#include "vtkDoubleArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
+#include "vtkNew.h"
+#include "vtkNonOverlappingAMR.h"
+#include "vtkObjectFactory.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkRuledSurfaceFilter.h"
+#include "vtkStreamTracer.h"
+#include "vtkTriangle.h"
+#include "vtkUniformGridAMR.h"
 
 //----------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -77,7 +77,7 @@ int vtkStreamSurface::AdvectIterative(
   else if (field->IsA("vtkUniformGridAMR"))
   {
     vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
-    dataset = data->GetDataSet(0, 0);
+    dataset = data->GetDataSetAsCartesianGrid(0, 0);
     if (this->IntegrationStepUnit == CELL_LENGTH_UNIT)
     {
       distThreshold *= sqrt(dataset->GetCell(0)->GetLength2());
@@ -317,7 +317,7 @@ int vtkStreamSurface::AdvectSimple(vtkDataObject* field, vtkPolyData* seeds, vtk
   else if (field->IsA("vtkUniformGridAMR"))
   {
     vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
-    dataset = data->GetDataSet(0, 0);
+    dataset = data->GetDataSetAsCartesianGrid(0, 0);
   }
 
   int vecType(0);
@@ -366,7 +366,7 @@ int vtkStreamSurface::RequestData(vtkInformation* vtkNotUsed(request),
   else if (field->IsA("vtkUniformGridAMR"))
   {
     vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
-    dataset = data->GetDataSet(0, 0);
+    dataset = data->GetDataSetAsCartesianGrid(0, 0);
   }
 
   int vecType(0);

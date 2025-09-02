@@ -7,6 +7,10 @@
  *  A concrete instance of vtkOverlappingAMRAlgorithm which implements
  *  functionality for extracting slices from AMR data. Unlike the conventional
  *  slice filter, the output of this filter is a 2-D AMR dataset itself.
+ *
+ * @warning
+ *  This filter does not support AMR of rectilinear grids yet.
+ *
  */
 
 #ifndef vtkAMRSliceFilter_h

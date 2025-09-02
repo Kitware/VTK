@@ -16,8 +16,8 @@
 #include "vtkOverlappingAMRAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkUniformGrid;
 class vtkUniformGridAMR;
+class vtkDataSet;
 
 class VTKFILTERSGENERAL_EXPORT vtkOverlappingAMRLevelIdScalars : public vtkOverlappingAMRAlgorithm
 {
@@ -33,11 +33,12 @@ protected:
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   void AddColorLevels(vtkUniformGridAMR* input, vtkUniformGridAMR* output);
-  vtkUniformGrid* ColorLevel(vtkUniformGrid* input, int group);
 
 private:
   vtkOverlappingAMRLevelIdScalars(const vtkOverlappingAMRLevelIdScalars&) = delete;
   void operator=(const vtkOverlappingAMRLevelIdScalars&) = delete;
+
+  vtkDataSet* ColorLevel(vtkDataSet* input, int group);
 };
 
 VTK_ABI_NAMESPACE_END

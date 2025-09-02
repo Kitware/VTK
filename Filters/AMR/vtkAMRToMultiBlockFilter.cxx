@@ -72,10 +72,10 @@ void vtkAMRToMultiBlockFilter::CopyAMRToMultiBlock(
         abort = true;
         break;
       }
-      vtkUniformGrid* grid = amr->GetDataSet(levelIdx, dataIdx);
+      vtkCartesianGrid* grid = amr->GetDataSetAsCartesianGrid(levelIdx, dataIdx);
       if (grid != nullptr)
       {
-        vtkUniformGrid* gridCopy = vtkUniformGrid::New();
+        vtkSmartPointer<vtkCartesianGrid> gridCopy = vtk::TakeSmartPointer(grid->NewInstance());
         gridCopy->ShallowCopy(grid);
         mbds->SetBlock(blockIdx, gridCopy);
       }

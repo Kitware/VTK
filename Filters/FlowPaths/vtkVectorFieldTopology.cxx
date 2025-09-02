@@ -45,7 +45,7 @@
 #include <vtkStreamTracer.h>
 #include <vtkTetra.h>
 #include <vtkTriangle.h>
-#include <vtkUniformGrid.h>
+#include <vtkUniformGridAMR.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkVector.h>
 #include <vtkVertex.h>
@@ -1868,11 +1868,11 @@ int vtkVectorFieldTopology::RequestData(vtkInformation* vtkNotUsed(request),
   {
     dataset = vtkDataSet::SafeDownCast(field);
   }
-  else if (field->IsA("vtkUniformGridAMR"))
+  else if (field->IsA("vtkAMRDataObject"))
   {
-    vtkUniformGridAMR* data = vtkUniformGridAMR::SafeDownCast(field);
-    dataset = data->GetDataSet(0, 0);
-    this->Dimension = vtkImageData::SafeDownCast(dataset)->GetDataDimension();
+    vtkAMRDataObject* data = vtkAMRDataObject::SafeDownCast(field);
+    dataset = data->GetDataSetAsCartesianGrid(0, 0);
+    this->Dimension = vtkCartesianGrid::SafeDownCast(dataset)->GetDataDimension();
   }
 
   int vecType(0);
