@@ -338,11 +338,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* 
       if (dataset)
       {
         *fp << "CHILD " << level << " " << index << "\n";
-        // since we cannot write vtkUniformGrid's, we create a vtkImageData and
-        // write it.
-        vtkNew<vtkImageData> image;
-        image->ShallowCopy(dataset);
-        if (!this->WriteBlock(fp, image))
+        if (!this->WriteBlock(fp, dataset))
         {
           return false;
         }

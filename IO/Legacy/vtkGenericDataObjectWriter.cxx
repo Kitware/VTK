@@ -82,6 +82,7 @@ void vtkGenericDataObjectWriter::WriteData()
       vtkErrorMacro(<< "Cannot write hyper octree");
       return;
     case VTK_IMAGE_DATA:
+    case VTK_UNIFORM_GRID:
       writer = CreateWriter<vtkStructuredPointsWriter>(input);
       break;
     case VTK_MULTIBLOCK_DATA_SET:
@@ -122,9 +123,6 @@ void vtkGenericDataObjectWriter::WriteData()
       break;
     case VTK_TEMPORAL_DATA_SET:
       vtkErrorMacro(<< "Cannot write temporal data set");
-      return;
-    case VTK_UNIFORM_GRID:
-      vtkErrorMacro(<< "Cannot write uniform grid");
       return;
     case VTK_UNSTRUCTURED_GRID_BASE:
     case VTK_UNSTRUCTURED_GRID:
