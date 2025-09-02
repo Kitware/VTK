@@ -3,7 +3,9 @@
 
 #include "vtkOverlappingAMR.h"
 #include "vtkBoundingBox.h"
+#include "vtkCartesianGrid.h"
 #include "vtkCellData.h"
+#include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkInformationIdTypeKey.h"
 #include "vtkObjectFactory.h"
@@ -137,6 +139,43 @@ const vtkAMRBox& vtkOverlappingAMR::GetAMRBox(unsigned int level, unsigned int i
 }
 
 //------------------------------------------------------------------------------
+void vtkOverlappingAMR::SetDataSet(unsigned int level, unsigned int idx, vtkDataSet* grid)
+{
+  vtkOverlappingAMRMetaData* oamrMetaData = this->GetOverlappingAMRMetaData();
+  if (oamrMetaData)
+  {
+    // Check GridType coherency
+    unsigned int gridType = oamrMetaData->GetGridType();
+    if (gridType != VTK_DATA_SET)
+    {
+      unsigned int newGridType = grid->GetDataObjectType();
+      if (newGridType != gridType)
+      {
+        vtkErrorMacro(<< "Inconsistent grid type: " << gridType << " is different than "
+                      << newGridType);
+        return;
+      }
+      else
+      {
+        oamrMetaData->SetGridType(gridType);
+      }
+    }
+  }
+
+  this->Superclass::SetDataSet(level, idx, grid);
+
+  // Check the grid was indeed set
+  vtkCartesianGrid* cg = this->GetDataSetAsCartesianGrid(level, idx);
+  if (cg && oamrMetaData)
+  {
+    // Set the bounds
+    double bb[6];
+    cg->GetBounds(bb);
+    oamrMetaData->SetBounds(level, idx, bb);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkOverlappingAMR::SetSpacing(unsigned int level, const double spacing[3])
 {
   vtkOverlappingAMRMetaData* oamrMetaData = this->GetOverlappingAMRMetaData();
@@ -255,8 +294,10 @@ bool vtkOverlappingAMR::CheckValidity()
   iter->SetSkipEmptyNodes(1);
   for (iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
-    vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(iter->GetCurrentDataObject());
-    int hasGhost = grid->HasAnyGhostCells();
+    vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+    vtkCartesianGrid* cg = vtkCartesianGrid::SafeDownCast(ds);
+    vtkUniformGrid* ug = vtkUniformGrid::SafeDownCast(cg);
+    int hasGhost = ds->HasAnyGhostCells();
 
     unsigned int level = iter->GetCurrentLevel();
     unsigned int id = iter->GetCurrentIndex();
@@ -274,23 +315,27 @@ bool vtkOverlappingAMR::CheckValidity()
     {
       if (d == emptyDimension)
       {
-        if (grid->GetSpacing()[d] != spacing[d])
-        {
-          vtkErrorMacro(
-            "The grid spacing does not match AMRInfo at (" << level << ", " << id << ")");
-          ret = false;
-        }
-        if (!hasGhost && grid->GetOrigin()[d] != origin[d])
-        {
-          vtkErrorMacro(
-            "The grid origin does not match AMRInfo at (" << level << ", " << id << ")");
-          ret = false;
-        }
-        if (!hasGhost && grid->GetDimensions()[d] != dims[d])
+        if (!hasGhost && cg->GetDimensions()[d] != dims[d])
         {
           vtkErrorMacro(
             "The grid dimensions does not match AMRInfo at (" << level << ", " << id << ")");
           ret = false;
+        }
+
+        if (ug)
+        {
+          if (ug->GetSpacing()[d] != spacing[d])
+          {
+            vtkErrorMacro(
+              "The grid spacing does not match AMRInfo at (" << level << ", " << id << ")");
+            ret = false;
+          }
+          if (!hasGhost && ug->GetOrigin()[d] != origin[d])
+          {
+            vtkErrorMacro(
+              "The grid origin does not match AMRInfo at (" << level << ", " << id << ")");
+            ret = false;
+          }
         }
       }
     }

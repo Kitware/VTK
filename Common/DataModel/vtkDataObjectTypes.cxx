@@ -6,6 +6,7 @@
 
 #include "vtkDataObjectTypes.h"
 
+#include "vtkAMRDataObject.h"
 #include "vtkAnnotation.h"
 #include "vtkAnnotationLayers.h"
 #include "vtkArrayData.h"
@@ -44,6 +45,7 @@
 #include "vtkTree.h"
 #include "vtkUndirectedGraph.h"
 #include "vtkUniformGrid.h"
+#include "vtkUniformGridAMR.h"
 #include "vtkUniformHyperTreeGrid.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -106,6 +108,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkGeoJSONFeature",
   "vtkImageStencilData",
   "vtkCellGrid",
+  "vtkAMRDataObject",
   nullptr,
 };
 
@@ -113,7 +116,7 @@ namespace
 {
 bool IsTypeIdValid(int typeId)
 {
-  return (typeId >= VTK_POLY_DATA && typeId <= VTK_CELL_GRID);
+  return (typeId >= VTK_POLY_DATA && typeId <= VTK_AMR_DATA_OBJECT);
 }
 }
 
@@ -264,6 +267,8 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
       return nullptr;
     case VTK_CELL_GRID:
       return vtkCellGrid::New();
+    case VTK_AMR_DATA_OBJECT:
+      return vtkAMRDataObject::New();
     default:
       vtkLogF(WARNING, "Unknown data type '%d'", type);
       return nullptr;
@@ -323,6 +328,7 @@ int vtkDataObjectTypes::Validate()
     !vtkDataObjectTypes::TypeIdIsA(VTK_DATA_SET, VTK_TABLE) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_PARTITIONED_DATA_SET_COLLECTION, VTK_COMPOSITE_DATA_SET) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_MULTIBLOCK_DATA_SET, VTK_DATA_OBJECT_TREE) &&
+    vtkDataObjectTypes::TypeIdIsA(VTK_UNIFORM_GRID_AMR, VTK_AMR_DATA_OBJECT) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_OVERLAPPING_AMR, VTK_UNIFORM_GRID_AMR) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_UNSTRUCTURED_GRID, VTK_POINT_SET) &&
     vtkDataObjectTypes::TypeIdIsA(VTK_UNSTRUCTURED_GRID, VTK_DATA_SET) &&
@@ -385,7 +391,8 @@ int vtkDataObjectTypes::GetCommonBaseTypeId(int typeA, int typeB)
       { VTK_STRUCTURED_GRID, VTK_POINT_SET }, { VTK_POLY_DATA, VTK_POINT_SET },
       { VTK_PATH, VTK_POINT_SET }, { VTK_EXPLICIT_STRUCTURED_GRID, VTK_POINT_SET },
       { VTK_UNSTRUCTURED_GRID, VTK_UNSTRUCTURED_GRID_BASE }, { VTK_UNIFORM_GRID, VTK_IMAGE_DATA },
-      { VTK_STRUCTURED_POINTS, VTK_IMAGE_DATA }, { VTK_OVERLAPPING_AMR, VTK_UNIFORM_GRID_AMR },
+      { VTK_STRUCTURED_POINTS, VTK_IMAGE_DATA }, { VTK_UNIFORM_GRID_AMR, VTK_AMR_DATA_OBJECT },
+      { VTK_OVERLAPPING_AMR, VTK_UNIFORM_GRID_AMR },
       { VTK_HIERARCHICAL_BOX_DATA_SET, VTK_OVERLAPPING_AMR },
       { VTK_NON_OVERLAPPING_AMR, VTK_UNIFORM_GRID_AMR },
       { VTK_DATA_OBJECT_TREE, VTK_COMPOSITE_DATA_SET },

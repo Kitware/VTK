@@ -6,9 +6,13 @@
  *
  * vtkOverlappingAMRMetaData encapsulates the following meta information for a generic AMR data set
  * - a list of vtkAMRBox objects
- * - Refinement ratio between AMR levels
- * - Grid spacing for each level
+ * - RefinementRatio between AMR levels
+ * - GridSpacing for each level
+ * - BlockBounds for each block
  * - parent child information, if requested
+ *
+ * For many methods, Refinement/Spacing will be used preferentially if available
+ * then BlockBounds as a fallback if available. See each method documentation.
  *
  * @sa vtkUniformGridAMR, vtkOverlappingAMR, vtkAMRBox, vtkOverlappingAMRMetaData,
  * vtkNonOverlappingAMR
@@ -19,6 +23,7 @@
 
 #include "vtkAMRBox.h" //for storing AMR Boxes
 #include "vtkAMRMetaData.h"
+#include "vtkBoundingBox.h"           //for storing AMR Bounding boxes
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSmartPointer.h"          //for ivars
 
@@ -62,24 +67,50 @@ public:
 
   /**
    * Returns the bounding box of a given box
+   * Rely on the BlockBounds if available or compute them on the fly
+   * using Spacing and Refinement if not.
    */
   void GetBounds(unsigned int level, unsigned int id, double* bb);
 
   /**
+   * Set the Bounds of a specific AMR block
+   * This is usually called when using vtkRectilinearGrid in an OverlappingAMR
+   * and once set for all blocks, you can avoid using Spacing and RefinementRatio.
+   */
+  void SetBounds(unsigned int level, unsigned int id, double* bb);
+
+  /**
    * Recover the origin of the grid at (level,id).
    * Return true if sucessful, false otherwise.
+   * Use Spacing if available, fallback on BlockBounds
    */
   bool GetOrigin(unsigned int level, unsigned int id, double* origin);
 
   /**
-   * Return the spacing at the given fiven
+   * Return the spacing at the given level
+   * Should only be called if HasSpacing() is true.
    */
   void GetSpacing(unsigned int level, double spacing[3]);
 
   /**
    * Return if a specific level has spacing
    */
-  [[nodiscard]] bool HasSpacing(unsigned int level);
+  [[nodiscard]] bool HasSpacing(unsigned int level) const;
+
+  /**
+   * Return if all levels have spacing
+   */
+  [[nodiscard]] bool HasSpacing() const;
+
+  /**
+   * Return true if a specific block bounds have been set
+   */
+  [[nodiscard]] bool HasBlockBounds(unsigned int index) const;
+
+  /**
+   * Return true if block bounds have been set on all blocks
+   */
+  [[nodiscard]] bool HasBlockBounds() const;
 
   ///@{
   /**
@@ -87,12 +118,15 @@ public:
    */
   void SetAMRBox(unsigned int level, unsigned int id, const vtkAMRBox& box);
   [[nodiscard]] const vtkAMRBox& GetAMRBox(unsigned int level, unsigned int id) const;
+  bool GetAMRBox(unsigned int level, unsigned int id, vtkAMRBox& box) const;
   ///@}
 
   /**
-   * return the amr box coarsened to the previous level
+   * Fill the provided box coarsened to the previous level
+   * Requite spacing/refinement ratio.
+   * Return true on sucess, false otherwise.
    */
-  bool GetCoarsenedAMRBox(unsigned int level, unsigned int id, vtkAMRBox& box) const;
+  bool GetCoarsenedAMRBox(unsigned int level, unsigned int id, vtkAMRBox& box);
 
   ///@{
   /**
@@ -111,14 +145,17 @@ public:
    * .SECTION Assumptions
    * 1) Within each level, the refinement ratios are the same for all blocks.
    * 2) The refinement ratio is uniform along each dimension of the block.
+   * Require HasSpacing() == true.
+   * Return true on success, false otherwise.
    */
-  void GenerateRefinementRatio();
+  bool GenerateRefinementRatio();
 
   /**
    * Returns whether refinement ratio has been set (either by calling
    * GenerateRefinementRatio() or by calling SetRefinementRatio()
+   * If this is true, then HasSpacing is true too.
    */
-  [[nodiscard]] bool HasRefinementRatio();
+  [[nodiscard]] bool HasRefinementRatio() const;
 
   /**
    * Set the refinement ratio at a level. This method should be
@@ -128,7 +165,8 @@ public:
 
   /**
    * Returns the refinement of a given level.
-   * Make sure to call SetRefinementRatio or GenerateRefinementRatio first.
+   * Make sure to call SetRefinementRatio or GenerateRefinementRatio first
+   * and that HasRefinementRatio is true
    */
   [[nodiscard]] int GetRefinementRatio(unsigned int level) const;
 
@@ -140,19 +178,19 @@ public:
   /**
    * Return whether parent child information has been generated
    */
-  [[nodiscard]] bool HasChildrenInformation();
+  [[nodiscard]] bool HasChildrenInformation() const;
 
   /**
-   * Return a pointer to Parents of a block.  The first entry is the number
-   * of parents the block has followed by its parent ids in level-1.
+   * Generate parent/children information if needed then return a pointer to Parents of a block.
+   * The first entry is the number of parents the block has followed by its parent ids in level-1.
    * If none exits it returns nullptr.
    */
   unsigned int* GetParents(unsigned int level, unsigned int index, unsigned int& numParents);
 
   /**
-   * Return a pointer to Children of a block.  The first entry is the number
-   * of children the block has followed by its children ids in level+1.
-   * If none exits it returns nullptr.
+   * Generate parent/children information if needed then return a pointer to Children of a block.
+   * The first entry is the number of children the block has followed by its children ids in
+   * level+1. If none exits it returns nullptr.
    */
   unsigned int* GetChildren(unsigned int level, unsigned int index, unsigned int& numChildren);
 
@@ -164,6 +202,9 @@ public:
   /**
    * Generate the parent/child relationships - needed to be called
    * before GetParents or GetChildren can be used!
+   * Will GenerateRefinementRatio if not generated yet and BlockBounds are not set
+   *
+   * Use Spacing/RefinementRatio if set, fallback on BlockBounds and skip block if not available.
    */
   void GenerateParentChildInformation();
 
@@ -176,6 +217,7 @@ public:
    * Given a point q, find whether q is bounded by the data set at
    * (level,index).  If it is, set cellIdx to the cell index and return
    * true; otherwise return false
+   * Require Spacing.
    */
   bool FindCell(double q[3], unsigned int level, unsigned int index, int& cellIdx);
 
@@ -191,11 +233,20 @@ public:
 
   /**
    * Get children at a specific level
+   * HasChildrenInformation is NOT checked by this method.
    */
   [[nodiscard]] std::vector<std::vector<unsigned int>>& GetChildrenAtLevel(unsigned int i)
   {
     return this->AllChildren[i];
   }
+
+  ///@{
+  /**
+   * Returns the grid type, VTK_DATA_SET by default.
+   */
+  [[nodiscard]] vtkGetMacro(GridType, unsigned int);
+  vtkSetMacro(GridType, unsigned int);
+  ///@}
 
   /**
    * Check it is an vtkOverlappingAMRMetaData and
@@ -211,10 +262,11 @@ private:
   vtkOverlappingAMRMetaData(const vtkOverlappingAMRMetaData&) = delete;
   void operator=(const vtkOverlappingAMRMetaData&) = delete;
 
-  bool HasValidOrigin();
-  bool HasValidBounds();
+  bool HasValidOrigin() const;
+  bool HasValidBounds() const;
   void UpdateBounds(int level, int id);
   void AllocateBoxes(unsigned int n);
+  void AllocateBlockBounds(unsigned int n);
   void CalculateParentChildRelationShip(unsigned int level,
     std::vector<std::vector<unsigned int>>& children,
     std::vector<std::vector<unsigned int>>& parents);
@@ -222,12 +274,16 @@ private:
   //-------------------------------------------------------------------------
   // Essential information that determines an AMR structure. Must be copied
   //-------------------------------------------------------------------------
+  unsigned int GridType = VTK_DATA_SET;
 
   // the origin of the whole data set
   double Origin[3] = { VTK_DOUBLE_MAX, VTK_DOUBLE_MAX, VTK_DOUBLE_MAX };
 
-  // vtkAMRBoxes, one per data set
+  // vtkAMRBoxes, one per block
   std::vector<vtkAMRBox> Boxes;
+
+  // BoundingBoxes, one per block if used
+  std::vector<vtkBoundingBox> BlockBounds;
 
   // Typically, this maps to a file block index used by the reader
   vtkSmartPointer<vtkIntArray> SourceIndex;

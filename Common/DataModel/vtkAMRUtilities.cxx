@@ -290,7 +290,17 @@ void vtkAMRUtilities::StripGhostLayers(
   unsigned int dataIdx = 0;
   for (; dataIdx < ghostedAMRData->GetNumberOfBlocks(0); ++dataIdx)
   {
-    vtkUniformGrid* grid = ghostedAMRData->GetDataSet(0, dataIdx);
+    vtkCartesianGrid* cg = ghostedAMRData->GetDataSetAsCartesianGrid(0, dataIdx);
+    // XXX: The vtkCartesianGrid could be used instead of using spacing, which would provide
+    // an alternative implementation when spacing is not available, which can happen when not using
+    // vtkUniformGrid.
+    vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(cg);
+    if (cg && !grid)
+    {
+      // this method supports nullptr data but not cartesian grid.
+      vtkErrorWithObjectMacro(nullptr, "Cannot StripGhostLayers for an AMR of non vtkUniformGrid");
+      return;
+    }
     const vtkAMRBox& box = ghostedAMRData->GetAMRBox(0, dataIdx);
     strippedAMRData->SetAMRBox(0, dataIdx, box);
     strippedAMRData->SetDataSet(0, dataIdx, grid);
@@ -305,7 +315,8 @@ void vtkAMRUtilities::StripGhostLayers(
     strippedAMRData->SetSpacing(levelIdx, spacing);
     for (; dataIdx < ghostedAMRData->GetNumberOfBlocks(levelIdx); ++dataIdx)
     {
-      vtkUniformGrid* grid = ghostedAMRData->GetDataSet(levelIdx, dataIdx);
+      vtkUniformGrid* grid =
+        vtkUniformGrid::SafeDownCast(ghostedAMRData->GetDataSetAsCartesianGrid(levelIdx, dataIdx));
       int r = ghostedAMRData->GetRefinementRatio(levelIdx);
       vtkAMRBox myBox = ghostedAMRData->GetAMRBox(levelIdx, dataIdx);
       vtkAMRBox strippedBox = myBox;
@@ -349,6 +360,11 @@ void vtkAMRUtilities::BlankCells(vtkOverlappingAMR* amr)
     amrMData->GenerateParentChildInformation();
   }
 
+  if (amr->GetNumberOfBlocks() == 0)
+  {
+    return;
+  }
+
   std::vector<int> processorMap;
   processorMap.resize(amr->GetNumberOfBlocks(), -1);
   vtkSmartPointer<vtkCompositeDataIterator> iter;
@@ -378,7 +394,7 @@ void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
   for (unsigned int dataSetIdx = 0; dataSetIdx < numDataSets; dataSetIdx++)
   {
     const vtkAMRBox& box = amr->GetAMRBox(levelIdx, dataSetIdx);
-    vtkUniformGrid* grid = amr->GetDataSet(levelIdx, dataSetIdx);
+    vtkCartesianGrid* grid = amr->GetDataSetAsCartesianGrid(levelIdx, dataSetIdx);
     if (grid == nullptr)
     {
       continue;
@@ -406,8 +422,10 @@ void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
           continue;
         }
 
+        // Use refinement ratio and coarsened box if possible
         vtkOverlappingAMRMetaData* amrMData = amr->GetOverlappingAMRMetaData();
-        if (amrMData && amrMData->GetCoarsenedAMRBox(levelIdx + 1, *iter, ibox))
+        if (amrMData && amrMData->HasRefinementRatio() &&
+          amrMData->GetCoarsenedAMRBox(levelIdx + 1, *iter, ibox))
         {
           bool shouldBeTrue = ibox.Intersect(box);
           assert(shouldBeTrue); // if the boxes don't intersect, there is a bug
@@ -427,6 +445,28 @@ void vtkAMRUtilities::BlankGridsAtLevel(vtkOverlappingAMR* amr, int levelIdx,
               } // END for x
             }   // END for y
           }     // END for z
+        }
+        // Fallback on block bounds
+        else if (amrMData && amrMData->HasBlockBounds(childGridIndex))
+        {
+          // Recover bounding box of the children grid
+          vtkBoundingBox higherLevelBoundingBox;
+          double ibb[6];
+          amrMData->GetBounds(levelIdx + 1, *iter, ibb);
+          higherLevelBoundingBox.SetBounds(ibb);
+
+          // check if each cell is contained in children grid
+          vtkBoundingBox cellBoundingBox;
+          double bb[6];
+          for (vtkIdType i = 0; i < grid->GetNumberOfCells(); i++)
+          {
+            grid->GetCellBounds(i, bb);
+            cellBoundingBox.SetBounds(bb);
+            if (higherLevelBoundingBox.Contains(cellBoundingBox))
+            {
+              ghosts->SetValue(i, ghosts->GetValue(i) | vtkDataSetAttributes::REFINEDCELL);
+            }
+          }
         }
       } // Processing all higher boxes for a specific coarse grid
     }

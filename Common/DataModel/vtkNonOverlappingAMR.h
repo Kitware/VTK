@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkNonOverlappingAMR
- * @brief   A concrete instance of vtkUniformGridAMR to store uniform grids at different
+ * @brief   A concrete instance of vtkAMRDataObject to store uniform grids at different
  *  levels of resolution that do not overlap with each other.
  *
  * @sa
- * vtkUniformGridAMR
+ * vtkUniformGridAMR vtkAMRDataObject
  */
 
 #ifndef vtkNonOverlappingAMR_h

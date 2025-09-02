@@ -53,7 +53,7 @@ public:
 
   ///@{
   /**
-   * returns the value of vtkUniformGrid::GridDescription() of any block
+   * returns the grid description used for all blocks
    */
   [[nodiscard]] vtkGetMacro(GridDescription, int);
   void SetGridDescription(int description);

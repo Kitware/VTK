@@ -164,7 +164,7 @@ bool vtkDataAssemblyUtilities::GenerateHierarchyInternal(
       output->SetNumberOfPartitions(level, numDataSets);
       for (unsigned int cc = 0; cc < numDataSets; ++cc)
       {
-        output->SetPartition(level, cc, amr->GetDataSet(level, cc));
+        output->SetPartition(level, cc, amr->GetDataSetAsCartesianGrid(level, cc));
       }
       output->GetMetaData(level)->Set(
         vtkCompositeDataSet::NAME(), "Level " + vtk::to_string(level));

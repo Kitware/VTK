@@ -41,6 +41,7 @@ public:
 
    * .SECTION Assumptions
    * 1) The ghosted AMR data must have complete metadata information.
+   * 2) The ghosted AMR must contains vtkUniformGrid
    */
   static void StripGhostLayers(
     vtkOverlappingAMR* ghostedAMRData, vtkOverlappingAMR* strippedAMRData);

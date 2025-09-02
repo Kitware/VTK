@@ -1,6 +1,7 @@
 set(classes
   vtkAMRBox
-  vtkAMRDataInternals # DEPRECATED_IN_9_6_0
+  vtkAMRDataInternals # VTK_DEPRECATED_IN_9_6_0
+  vtkAMRDataObject
   vtkAMRInformation
   vtkAMRMetaData
   vtkAMRUtilities
