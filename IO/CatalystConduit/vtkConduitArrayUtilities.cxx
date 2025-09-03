@@ -5,15 +5,20 @@
 #include "vtkConduitArrayUtilities.h"
 #include "vtkConduitArrayUtilitiesInternals.h"
 
+#include "vtkAffineArray.h"
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDeviceMemoryType.h"
+#include "vtkIndexedArray.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkSetGet.h"
+#include "vtkSmartPointer.h"
+#include "vtkStridedArray.h"
 #include "vtkStringFormatter.h"
+#include "vtkType.h"
 #include "vtkTypeFloat32Array.h"
 #include "vtkTypeFloat64Array.h"
 #include "vtkTypeInt16Array.h"
@@ -83,6 +88,24 @@ vtkSmartPointer<ArrayT> CreateAOSArray(
   array->SetNumberOfComponents(number_of_components);
   array->SetArray(const_cast<typename ArrayT::ValueType*>(raw_ptr),
     number_of_tuples * number_of_components, /*save=*/1);
+  return array;
+}
+
+template <typename ValueType>
+vtkSmartPointer<vtkDataArray> CreateStridedArray(const conduit_cpp::Node& arrayNode)
+{
+  const auto& child0 = arrayNode.child(0);
+  const conduit_cpp::DataType dtype0 = child0.dtype();
+  const int number_of_components = static_cast<int>(arrayNode.number_of_children());
+  const vtkIdType number_of_tuples = static_cast<vtkIdType>(dtype0.number_of_elements());
+  const int strideBytes = dtype0.stride();
+  const int index_stride = strideBytes / (sizeof(ValueType));
+
+  auto array = vtkSmartPointer<vtkStridedArray<ValueType>>::New();
+  array->SetNumberOfComponents(number_of_components);
+  array->SetNumberOfTuples(number_of_tuples);
+  array->ConstructBackend(
+    reinterpret_cast<const ValueType*>(child0.element_ptr(0)), index_stride, number_of_components);
   return array;
 }
 
@@ -360,6 +383,16 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     }
     else
     {
+      const auto& child0 = mcarray.child(0);
+      const conduit_cpp::DataType dtype0 = child0.dtype();
+
+      if (mcarray.number_of_children() * dtype0.element_bytes() != dtype0.stride())
+      {
+        // there is some data interlaced with current array
+        return vtkConduitArrayUtilities::MCArrayToVTKStridedArray(
+          conduit_cpp::c_node(&mcarray), force_signed);
+      }
+
       return vtkConduitArrayUtilities::MCArrayToVTKAOSArray(
         conduit_cpp::c_node(&mcarray), force_signed);
     }
@@ -410,6 +443,52 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
   }
 
   return nullptr;
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKStridedArray(
+  const conduit_node* c_mcarray, bool force_signed)
+{
+  const conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
+  const auto& child0 = mcarray.child(0);
+  const conduit_cpp::DataType dtype0 = child0.dtype();
+
+  switch (internals::GetTypeId(dtype0.id(), force_signed))
+  {
+    case conduit_cpp::DataType::Id::int8:
+      return internals::CreateStridedArray<vtkTypeInt8>(mcarray);
+
+    case conduit_cpp::DataType::Id::int16:
+      return internals::CreateStridedArray<vtkTypeInt16>(mcarray);
+
+    case conduit_cpp::DataType::Id::int32:
+      return internals::CreateStridedArray<vtkTypeInt32>(mcarray);
+
+    case conduit_cpp::DataType::Id::int64:
+      return internals::CreateStridedArray<vtkTypeInt64>(mcarray);
+
+    case conduit_cpp::DataType::Id::uint8:
+      return internals::CreateStridedArray<vtkTypeUInt8>(mcarray);
+
+    case conduit_cpp::DataType::Id::uint16:
+      return internals::CreateStridedArray<vtkTypeUInt16>(mcarray);
+
+    case conduit_cpp::DataType::Id::uint32:
+      return internals::CreateStridedArray<vtkTypeUInt32>(mcarray);
+
+    case conduit_cpp::DataType::Id::uint64:
+      return internals::CreateStridedArray<vtkTypeUInt64>(mcarray);
+
+    case conduit_cpp::DataType::Id::float32:
+      return internals::CreateStridedArray<vtkTypeFloat32>(mcarray);
+
+    case conduit_cpp::DataType::Id::float64:
+      return internals::CreateStridedArray<vtkTypeFloat64>(mcarray);
+
+    default:
+      vtkLogF(ERROR, "unsupported data type '%s' ", dtype0.name().c_str());
+      return nullptr;
+  }
 }
 
 //----------------------------------------------------------------------------

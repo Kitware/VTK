@@ -105,6 +105,8 @@ protected:
     const conduit_node* mcarray, bool force_signed);
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKSOAArray(
     const conduit_node* mcarray, bool force_signed);
+  static vtkSmartPointer<vtkDataArray> MCArrayToVTKStridedArray(
+    const conduit_node* mcarray, bool force_signed);
 
 private:
   vtkConduitArrayUtilities(const vtkConduitArrayUtilities&) = delete;
