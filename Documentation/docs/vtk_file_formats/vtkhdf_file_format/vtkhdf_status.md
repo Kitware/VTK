@@ -40,12 +40,12 @@ Here is the list of supported feature which doesn't depends on a VTK data type:
 
 | VTK Data Type                   | vtkHDFReader    |vtkHDFWriter    |
 | ------------------------------- | --------------- |--------------- |
-| vtkHyperTreeGrid                | supported       | not suported   |
-| vtkImageData                    | supported       | not suported   |
+| vtkHyperTreeGrid                | supported       | not supported  |
+| vtkImageData                    | supported       | not supported  |
 | vtkMultiBlockDataSet            | supported       | supported      |
 | vtkPartitionedDataSet           | supported       | supported      |
 | vtkPartitionedDataSetCollection | supported       | supported      |
-| vtkOverlappingAMR               | supported       | not suported   |
+| vtkOverlappingAMR               | supported       | not supported  |
 | vtkPolyData                     | supported       | supported      |
 | vtkStructuredGrid               | not supported   | not supported  |
 | vtkUnstructuredGrid             | supported       | supported      |
