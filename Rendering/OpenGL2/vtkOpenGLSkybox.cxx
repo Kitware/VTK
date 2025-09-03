@@ -116,7 +116,7 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
                       "in vec3 TexCoords;\n"
                       "uniform vec3 cameraPos;\n" // wc camera position;
                       "uniform mat3 rotationMatrix;\n"
-                      "const float PI = acos(-1);\n"
+                      "const float PI = acos(-1.0);\n"
                       "//VTK::Projection::Dec\n"
                       "void main () {\n"
                       "//VTK::Projection::Impl\n"
@@ -124,19 +124,12 @@ void vtkOpenGLSkybox::Render(vtkRenderer* ren, vtkMapper* mapper)
 
     if (this->Projection == vtkSkybox::Cube)
     {
-      vtkShaderProgram::Substitute(str, "//VTK::Projection::Dec",
-        "uniform samplerCube actortexture;\n"
-        "uniform vec4 floorPlane;\n" // floor plane eqn
-        "uniform vec3 floorRight;\n" // floor plane right
-        "uniform vec3 floorFront;\n" // floor plane front
-      );
+      vtkShaderProgram::Substitute(
+        str, "//VTK::Projection::Dec", "uniform samplerCube actortexture;\n");
 
       vtkShaderProgram::Substitute(str, "//VTK::Projection::Impl",
         "  vec3 diri = normalize(TexCoords - cameraPos);\n"
-        "  diri = rotationMatrix * diri;\n"
-        "  vec3 dirv = vec3(dot(diri,floorRight),\n"
-        "    dot(diri,floorPlane.xyz),\n"
-        "    dot(diri,floorFront));\n"
+        "  vec3 dirv = rotationMatrix * diri;\n"
         "  vec4 color = textureLod(actortexture, dirv, 0.0);\n"
         "//VTK::Gamma::Impl\n");
     }
