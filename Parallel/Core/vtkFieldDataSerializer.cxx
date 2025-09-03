@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
 #include "vtkFieldDataSerializer.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
-#include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
 #include "vtkMultiProcessStream.h"
 #include "vtkObjectFactory.h"
@@ -124,7 +124,7 @@ void vtkFieldDataSerializer::Serialize(vtkFieldData* fieldData, vtkMultiProcessS
   for (int array = 0; array < fieldData->GetNumberOfArrays(); ++array)
   {
     vtkDataArray* dataArray = fieldData->GetArray(array);
-    vtkFieldDataSerializer::SerializeDataArray(dataArray, bytestream);
+    bytestream.Push(dataArray);
   } // END for all arrays
 }
 
@@ -157,7 +157,7 @@ void vtkFieldDataSerializer::SerializeTuples(
     assert("pre: subset array is nullptr!" && (subSet != nullptr));
 
     // STEP 3: Serialize only a subset of the data
-    vtkFieldDataSerializer::SerializeDataArray(subSet, bytestream);
+    bytestream.Push(subSet);
     subSet->Delete();
   } // END for all arrays
 }
@@ -192,7 +192,7 @@ void vtkFieldDataSerializer::SerializeSubExtent(
     assert("pre: subset array is nullptr!" && (subSet != nullptr));
 
     // STEP 3: Serialize only a subset of the data
-    vtkFieldDataSerializer::SerializeDataArray(subSet, bytestream);
+    bytestream.Push(subSet);
     subSet->Delete();
   } // END for all arrays
 }
@@ -217,7 +217,7 @@ void vtkFieldDataSerializer::DeSerializeToSubExtent(
   for (int array = 0; array < numArrays; ++array)
   {
     vtkDataArray* dataArray = nullptr;
-    vtkFieldDataSerializer::DeserializeDataArray(bytestream, dataArray);
+    bytestream.Pop(dataArray);
     assert("post: dataArray is nullptr!" && (dataArray != nullptr));
     assert("post: fieldData does not have array!" && fieldData->HasArray(dataArray->GetName()));
 
@@ -304,62 +304,15 @@ vtkDataArray* vtkFieldDataSerializer::ExtractSelectedTuples(
   subSetArray->SetName(inputDataArray->GetName());
   subSetArray->SetNumberOfComponents(inputDataArray->GetNumberOfComponents());
   subSetArray->SetNumberOfTuples(tupleIds->GetNumberOfIds());
-
-  vtkIdType idx = 0;
-  for (; idx < tupleIds->GetNumberOfIds(); ++idx)
-  {
-    vtkIdType tupleIdx = tupleIds->GetId(idx);
-    assert("pre: tuple ID is out-of bounds" && (tupleIdx >= 0) &&
-      (tupleIdx < inputDataArray->GetNumberOfTuples()));
-
-    subSetArray->SetTuple(idx, tupleIdx, inputDataArray);
-  } // END for all tuples to extract
-  return (subSetArray);
+  subSetArray->InsertTuplesStartingAt(0, tupleIds, inputDataArray);
+  return subSetArray;
 }
 
 //------------------------------------------------------------------------------
 void vtkFieldDataSerializer::SerializeDataArray(
   vtkDataArray* dataArray, vtkMultiProcessStream& bytestream)
 {
-  if (dataArray == nullptr)
-  {
-    vtkGenericWarningMacro("data array is nullptr!");
-    return;
-  }
-
-  // STEP 0: Serialize array information
-  int dataType = dataArray->GetDataType();
-  int numComp = dataArray->GetNumberOfComponents();
-  int numTuples = dataArray->GetNumberOfTuples();
-
-  // serialize array information
-  bytestream << dataType << numTuples << numComp;
-  bytestream << std::string(dataArray->GetName());
-
-  // STEP 1: Push the raw data into the bytestream
-  // TODO: Add more cases for more datatypes here (?)
-  unsigned int size = numComp * numTuples;
-  if (dataArray->IsA("vtkFloatArray"))
-  {
-    bytestream.Push(static_cast<vtkFloatArray*>(dataArray)->GetPointer(0), size);
-  }
-  else if (dataArray->IsA("vtkDoubleArray"))
-  {
-    bytestream.Push(static_cast<vtkDoubleArray*>(dataArray)->GetPointer(0), size);
-  }
-  else if (dataArray->IsA("vtkIntArray"))
-  {
-    bytestream.Push(static_cast<vtkIntArray*>(dataArray)->GetPointer(0), size);
-  }
-  else if (dataArray->IsA("vtkIdTypeArray"))
-  {
-    bytestream.Push(static_cast<vtkIdTypeArray*>(dataArray)->GetPointer(0), size);
-  }
-  else
-  {
-    assert("ERROR: cannot serialize data of given type" && false);
-    cerr << "Cannot serialize data of type=" << dataArray->GetDataType() << endl;
-  }
+  bytestream.Push(dataArray);
 }
 
 //------------------------------------------------------------------------------
@@ -390,7 +343,7 @@ void vtkFieldDataSerializer::Deserialize(vtkMultiProcessStream& bytestream, vtkF
   for (int array = 0; array < numberOfArrays; ++array)
   {
     vtkDataArray* dataArray = nullptr;
-    vtkFieldDataSerializer::DeserializeDataArray(bytestream, dataArray);
+    bytestream.Pop(dataArray);
     assert("post: deserialized data array should not be nullptr!" && (dataArray != nullptr));
     fieldData->AddArray(dataArray);
     dataArray->Delete();
@@ -406,54 +359,6 @@ void vtkFieldDataSerializer::DeserializeDataArray(
     vtkGenericWarningMacro("Bytestream is empty!");
     return;
   }
-
-  // STEP 0: Deserialize array information
-  int dataType, numTuples, numComp;
-  std::string name;
-
-  bytestream >> dataType >> numTuples >> numComp >> name;
-  assert("pre: numComp >= 1" && (numComp >= 1));
-
-  // STEP 1: Construct vtkDataArray object
-  dataArray = vtkDataArray::CreateDataArray(dataType);
-  dataArray->SetNumberOfComponents(numComp);
-  dataArray->SetNumberOfTuples(numTuples);
-  dataArray->SetName(name.c_str());
-
-  // STEP 2: Extract raw data to vtkDataArray
-  // TODO: Add more cases for more datatypes here (?)
-  unsigned int size = numTuples * numComp;
-  void* rawPtr = dataArray->GetVoidPointer(0);
-  assert("pre: raw pointer is nullptr!" && (rawPtr != nullptr));
-  switch (dataType)
-  {
-    case VTK_FLOAT:
-    {
-      float* data = static_cast<float*>(rawPtr);
-      bytestream.Pop(data, size);
-    }
-    break;
-    case VTK_DOUBLE:
-    {
-      double* data = static_cast<double*>(rawPtr);
-      bytestream.Pop(data, size);
-    }
-    break;
-    case VTK_INT:
-    {
-      int* data = static_cast<int*>(rawPtr);
-      bytestream.Pop(data, size);
-    }
-    break;
-    case VTK_ID_TYPE:
-    {
-      vtkIdType* data = static_cast<vtkIdType*>(rawPtr);
-      bytestream.Pop(data, size);
-    }
-    break;
-    default:
-      assert("ERROR: cannot serialize data of given type" && false);
-      cerr << "Cannot serialize data of type=" << dataArray->GetDataType() << endl;
-  }
+  bytestream.Pop(dataArray);
 }
 VTK_ABI_NAMESPACE_END

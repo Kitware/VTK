@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPStructuredGridConnectivity.h"
+#include "vtkFieldDataSerializer.h"
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
 #include "vtkMultiProcessController.h"
@@ -484,8 +485,7 @@ void vtkPStructuredGridConnectivity::UnpackGhostData()
           this->RcvBufferSizes[gridIdx][nei]);
       } // END if the grid is remote
     }   // END for all neighbors
-
-  } // END for all local grids
+  }     // END for all local grids
 }
 
 //------------------------------------------------------------------------------
@@ -807,123 +807,19 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPoints(
 void vtkPStructuredGridConnectivity::SerializeDataArray(
   vtkDataArray* dataArray, vtkMultiProcessStream& bytestream)
 {
-  assert("pre: Cannot serialize a nullptr data array" && (dataArray != nullptr));
-
-  // STEP 0: Compute number of elements in flat array
-  int k = dataArray->GetNumberOfComponents();
-  assert("pre: number of components must be at least 1" && (k >= 1));
-  vtkIdType N = dataArray->GetNumberOfTuples();
-  assert("pre: number of elements must be at least 1" && (N >= 1));
-
-  unsigned int size = N * k;
-
-  // STEP 1: Push the raw data into the bytestream
-  // TODO: Add more cases here
-  switch (dataArray->GetDataType())
-  {
-    case VTK_FLOAT:
-      bytestream.Push(static_cast<float*>(dataArray->GetVoidPointer(0)), size);
-      break;
-    case VTK_DOUBLE:
-      bytestream.Push(static_cast<double*>(dataArray->GetVoidPointer(0)), size);
-      break;
-    case VTK_INT:
-      bytestream.Push(static_cast<int*>(dataArray->GetVoidPointer(0)), size);
-      break;
-    default:
-      vtkErrorMacro("Cannot serialize data array of type" << dataArray->GetDataType());
-  }
+  bytestream.Push(dataArray);
 }
 
 //------------------------------------------------------------------------------
-void vtkPStructuredGridConnectivity::DeserializeDataArray(vtkDataArray*& dataArray, int dataType,
-  int numberOfTuples, int numberOfComponents, vtkMultiProcessStream& bytestream)
+void vtkPStructuredGridConnectivity::DeserializeDataArray(vtkDataArray*& dataArray,
+  int vtkNotUsed(dataType), int numberOfTuples, int numberOfComponents,
+  vtkMultiProcessStream& bytestream)
 {
-  assert("pre: Cannot deserialize an empty bytestream" && !bytestream.Empty());
-
-  switch (dataType)
+  bytestream.Pop(dataArray);
+  if (!dataArray || dataArray->GetNumberOfTuples() != numberOfTuples ||
+    dataArray->GetNumberOfComponents() != numberOfComponents)
   {
-    case VTK_FLOAT:
-    {
-      // STEP 0: Get the raw data
-      unsigned int size = 0;
-      float* data = nullptr;
-      bytestream.Pop(data, size);
-      assert("pre: de-serialized data array is not of the expected size" &&
-        (size == static_cast<unsigned int>((numberOfTuples * numberOfComponents))));
-
-      // STEP 1: Allocate vtkdata array
-      dataArray = vtkDataArray::CreateDataArray(dataType);
-      dataArray->SetNumberOfComponents(numberOfComponents);
-      dataArray->SetNumberOfTuples(numberOfTuples);
-
-      // STEP 2: Copy the data
-      float* dataArrayPtr = static_cast<float*>(dataArray->GetVoidPointer(0));
-      for (int i = 0; i < numberOfTuples; ++i)
-      {
-        for (int j = 0; j < numberOfComponents; ++j)
-        {
-          dataArrayPtr[i * numberOfComponents + j] = data[i * numberOfComponents + j];
-        } // END for all components
-      }   // END for all tuples
-      delete[] data;
-    } // END VTK_FLOAT case
-    break;
-    case VTK_DOUBLE:
-    {
-      // STEP 0: Get the raw data
-      unsigned int size = 0;
-      double* data = nullptr;
-      bytestream.Pop(data, size);
-      assert("pre: de-serialized data array is not of the expected size" &&
-        (size == static_cast<unsigned int>((numberOfTuples * numberOfComponents))));
-
-      // STEP 1: Allocate vtkdata array
-      dataArray = vtkDataArray::CreateDataArray(dataType);
-      dataArray->SetNumberOfComponents(numberOfComponents);
-      dataArray->SetNumberOfTuples(numberOfTuples);
-
-      // STEP 2: Copy the data
-      double* dataArrayPtr = static_cast<double*>(dataArray->GetVoidPointer(0));
-      for (int i = 0; i < numberOfTuples; ++i)
-      {
-        for (int j = 0; j < numberOfComponents; ++j)
-        {
-          dataArrayPtr[i * numberOfComponents + j] = data[i * numberOfComponents + j];
-        } // END for all components
-      }   // END for all tuples
-      delete[] data;
-    } // END VTK_DOUBLE case
-    break;
-    case VTK_INT:
-    {
-      // STEP 0: Get the raw data
-      unsigned int size = 0;
-      int* data = nullptr;
-      bytestream.Pop(data, size);
-      assert("pre: de-serialized data array is not of the expected size" &&
-        (size == static_cast<unsigned int>((numberOfTuples * numberOfComponents))));
-
-      // STEP 1: Allocate vtkdata array
-      dataArray = vtkDataArray::CreateDataArray(dataType);
-      dataArray->SetNumberOfComponents(numberOfComponents);
-      dataArray->SetNumberOfTuples(numberOfTuples);
-
-      // STEP 2: Copy the data
-      int* dataArrayPtr = static_cast<int*>(dataArray->GetVoidPointer(0));
-      for (int i = 0; i < numberOfTuples; ++i)
-      {
-        for (int j = 0; j < numberOfComponents; ++j)
-        {
-          dataArrayPtr[i * numberOfComponents + j] = data[i * numberOfComponents + j];
-        } // END for all components
-      }   // END for all tuples
-      delete[] data;
-    } // END VTK_INT case
-    break;
-    default:
-      vtkErrorMacro("Cannot de-serialize data array of this type");
-      assert(false);
+    vtkErrorMacro("Deserialized data array does not match expected layout");
   }
 }
 
@@ -942,21 +838,13 @@ void vtkPStructuredGridConnectivity::SerializeFieldData(
     vtkDataArray* myArray = fieldData->GetArray(array);
     assert("pre: attempting to serialize a nullptr array!" && (myArray != nullptr));
 
-    int dataType = myArray->GetDataType();
-    int numComp = myArray->GetNumberOfComponents();
-    int numTuples = vtkStructuredData::GetNumberOfPoints(ext);
-
-    // STEP 1: Write the datatype and number of components
-    bytestream << dataType << numTuples << numComp;
-    bytestream << std::string(myArray->GetName());
-
-    // STEP 2: Extract the ghost data within the given ext
+    // STEP 1: Extract the ghost data within the given ext
     // Allocate the ghost array where the data will be extracted
     vtkDataArray* ghostArray = vtkDataArray::CreateDataArray(myArray->GetDataType());
 
     ghostArray->SetName(myArray->GetName());
-    ghostArray->SetNumberOfComponents(numComp);
-    ghostArray->SetNumberOfTuples(numTuples);
+    ghostArray->SetNumberOfComponents(myArray->GetNumberOfComponents());
+    ghostArray->SetNumberOfTuples(vtkStructuredData::GetNumberOfPoints(ext));
 
     int ijk[3];
     for (int i = ext[0]; i <= ext[1]; ++i)
@@ -989,7 +877,7 @@ void vtkPStructuredGridConnectivity::SerializeFieldData(
     }     // END for i
 
     // STEP 3: Serialize the ghost array
-    this->SerializeDataArray(ghostArray, bytestream);
+    bytestream.Push(ghostArray);
     ghostArray->Delete();
   } // END for all arrays
 }
@@ -1001,29 +889,7 @@ void vtkPStructuredGridConnectivity::DeserializeFieldData(
   assert("pre: Cannot deserialize an empty bytestream" && !bytestream.Empty());
   assert("pre: field data should not be nullptr!" && (fieldData != nullptr));
 
-  int NumberOfArrays;
-  bytestream >> NumberOfArrays;
-  assert("ERROR: number of arrays must be greater or equal to 1" && (NumberOfArrays >= 1));
-
-  vtkDataArray* dataArray;
-  int dataType;
-  int numTuples;
-  int numComponents;
-  std::string arrayName;
-
-  for (int i = 0; i < NumberOfArrays; ++i)
-  {
-    dataArray = nullptr;
-    bytestream >> dataType >> numTuples >> numComponents;
-    bytestream >> arrayName;
-
-    this->DeserializeDataArray(dataArray, dataType, numTuples, numComponents, bytestream);
-    assert("ERROR: data array should not be nullptr!" && (dataArray != nullptr));
-
-    dataArray->SetName(arrayName.c_str());
-    fieldData->AddArray(dataArray);
-    dataArray->Delete();
-  } // END for all arrays
+  vtkFieldDataSerializer::Deserialize(bytestream, fieldData);
 }
 
 //------------------------------------------------------------------------------
@@ -1054,7 +920,7 @@ void vtkPStructuredGridConnectivity::SerializeGhostPointData(
 
 //------------------------------------------------------------------------------
 void vtkPStructuredGridConnectivity::DeserializeGhostPointData(
-  int gridIdx, int nei, int ext[6], vtkMultiProcessStream& bytestream)
+  int gridIdx, int nei, int vtkNotUsed(ext)[6], vtkMultiProcessStream& bytestream)
 {
   assert("pre: Cannot deserialize an empty bytestream" && !bytestream.Empty());
   assert("pre:Grid index is out-of-bounds" && (gridIdx >= 0) &&
@@ -1079,7 +945,7 @@ void vtkPStructuredGridConnectivity::DeserializeGhostPointData(
 
   // STEP 1: De-serialize the point data
   this->RemotePointData[gridIdx][nei] = vtkPointData::New();
-  this->DeserializeFieldData(ext, this->RemotePointData[gridIdx][nei], bytestream);
+  vtkFieldDataSerializer::Deserialize(bytestream, this->RemotePointData[gridIdx][nei]);
 }
 
 //------------------------------------------------------------------------------
@@ -1143,7 +1009,7 @@ void vtkPStructuredGridConnectivity::DeserializeGhostCellData(
   this->RemoteCellData[gridIdx][nei] = vtkCellData::New();
   int cellext[6];
   vtkStructuredData::GetCellExtentFromPointExtent(ext, cellext);
-  this->DeserializeFieldData(cellext, this->RemoteCellData[gridIdx][nei], bytestream);
+  vtkFieldDataSerializer::Deserialize(bytestream, this->RemoteCellData[gridIdx][nei]);
 }
 
 //------------------------------------------------------------------------------
