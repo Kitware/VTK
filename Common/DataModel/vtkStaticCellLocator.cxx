@@ -834,56 +834,8 @@ struct CellPlaneCandidates
     // bin to the plane is unchanged during processing. The bin radius is
     // simply the maximum distance that one of the eight bin corner points is
     // away from a plane passing through the center of the bin.
-    double x[3], d, dMax = 0.0;
-    x[0] = -this->BinOffsetX;
-    x[1] = -this->BinOffsetY;
-    x[2] = -this->BinOffsetZ;
-    d = vtkMath::Dot(x, this->Normal); // simplified because plane passes through origin
-    dMax = (d > dMax ? d : dMax);
-
-    x[0] = this->BinOffsetX;
-    x[1] = -this->BinOffsetY;
-    x[2] = -this->BinOffsetZ;
-    d = vtkMath::Dot(x, this->Normal);
-    dMax = (d > dMax ? d : dMax);
-
-    x[0] = -this->BinOffsetX;
-    x[1] = this->BinOffsetY;
-    x[2] = -this->BinOffsetZ;
-    d = vtkMath::Dot(x, this->Normal);
-    dMax = (d > dMax ? d : dMax);
-
-    x[0] = this->BinOffsetX;
-    x[1] = this->BinOffsetY;
-    x[2] = -this->BinOffsetZ;
-    d = vtkMath::Dot(x, this->Normal);
-    dMax = (d > dMax ? d : dMax);
-
-    x[0] = -this->BinOffsetX;
-    x[1] = -this->BinOffsetY;
-    x[2] = this->BinOffsetZ;
-    d = vtkMath::Dot(x, this->Normal);
-    dMax = (d > dMax ? d : dMax);
-
-    x[0] = this->BinOffsetX;
-    x[1] = -this->BinOffsetY;
-    x[2] = this->BinOffsetZ;
-    d = vtkMath::Dot(x, this->Normal);
-    dMax = (d > dMax ? d : dMax);
-
-    x[0] = -this->BinOffsetX;
-    x[1] = this->BinOffsetY;
-    x[2] = this->BinOffsetZ;
-    d = vtkMath::Dot(x, this->Normal);
-    dMax = (d > dMax ? d : dMax);
-
-    x[0] = this->BinOffsetX;
-    x[1] = this->BinOffsetY;
-    x[2] = this->BinOffsetZ;
-    d = vtkMath::Dot(x, this->Normal);
-    dMax = (d > dMax ? d : dMax);
-
-    this->BinRadius = dMax;
+    this->BinRadius = std::abs(this->BinOffsetX * this->Normal[0]) +
+      std::abs(this->BinOffsetY * this->Normal[1]) + std::abs(this->BinOffsetZ * this->Normal[2]);
   }
 
   // Operate on slabs (e.g., z-slab) of bins. The algorithm works by checking
