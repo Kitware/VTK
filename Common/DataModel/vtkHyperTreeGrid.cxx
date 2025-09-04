@@ -8,7 +8,6 @@
 #include "vtkCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
-#include "vtkGenericCell.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
@@ -27,7 +26,6 @@
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
-#include "vtkLegacy.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -269,8 +267,8 @@ vtkHyperTreeGrid::~vtkHyperTreeGrid()
     this->ZCoordinates->Delete();
     this->ZCoordinates = nullptr;
   }
-  this->SetInterfaceNormalsName(nullptr);
-  this->SetInterfaceInterceptsName(nullptr);
+  this->vtkHyperTreeGrid::SetInterfaceNormalsName(nullptr);
+  this->vtkHyperTreeGrid::SetInterfaceInterceptsName(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -584,6 +582,8 @@ void vtkHyperTreeGrid::SetExtent(const int extent[6])
       {
         std::swap(this->Axis[0], this->Axis[1]);
       }
+      break;
+    default:
       break;
   }
 
@@ -927,6 +927,8 @@ vtkHyperTreeGridNonOrientedGeometryCursor* vtkHyperTreeGrid::FindNonOrientedGeom
       assert("pre: not_implemented_raf_3" && false);
       break;
     }
+    default:
+      break;
   }
 
   return cursor;
@@ -1437,6 +1439,8 @@ vtkIdType vtkHyperTreeGrid::GetShiftedLevelZeroIndex(
       local_ijk[2] += dk;
       break;
     }
+    default:
+      break;
   }
   vtkIdType shifttreeindex;
   // It is very important to use the GetIndexFromLevelZeroCoordinates method,
