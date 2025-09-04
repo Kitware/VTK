@@ -28,6 +28,7 @@
 #include "vtkObject.h"
 
 #include "vtkCellType.h"          // Needed for inline methods
+#include "vtkCellTypeUtilities.h" // for backward compatibility
 #include "vtkDeprecation.h"       // for deprec macros
 #include "vtkIdTypeArray.h"       // Needed for inline methods
 #include "vtkSmartPointer.h"      // Needed for internals
@@ -126,12 +127,14 @@ public:
    * Given an int (as defined in vtkCellType.h) identifier for a class
    * return it's classname.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use vtkCellTypeUtilities variant instead.")
   static const char* GetClassNameFromTypeId(int typeId);
 
   /**
    * Given a data object classname, return it's int identified (as
    * defined in vtkCellType.h)
    */
+  VTK_DEPRECATED_IN_9_6_0("Use vtkCellTypeUtilities variant instead.")
   static int GetTypeIdFromClassName(const char* classname);
 
   /**
@@ -140,11 +143,13 @@ public:
    * efficient than getting the appropriate vtkCell and checking its IsLinear
    * method.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use vtkCellTypeUtilities variant instead.")
   static int IsLinear(unsigned char type);
 
   /**
    * Get the dimension of a cell.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use vtkCellTypeUtilities variant instead.")
   static int GetDimension(unsigned char type);
 
   ///@{
@@ -190,7 +195,7 @@ inline int vtkCellTypes::IsType(unsigned char type)
 //-----------------------------------------------------------------------------
 inline int vtkCellTypes::IsLinear(unsigned char type)
 {
-  return ((type <= 20) || (type == VTK_CONVEX_POINT_SET) || (type == VTK_POLYHEDRON));
+  return vtkCellTypeUtilities::IsLinear(type);
 }
 
 VTK_ABI_NAMESPACE_END
