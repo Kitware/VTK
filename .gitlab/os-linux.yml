@@ -733,10 +733,10 @@
     - *before_script_linux
     - cmake -P .gitlab/ci/download_maven.cmake
     - export PATH="$PWD/.gitlab/maven/bin:$PATH"
-    - 'mvn dependency:get "-DrepoUrl=http://download.java.net/maven/2/" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2"'
-    - 'mvn dependency:get "-DrepoUrl=http://download.java.net/maven/2/" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2:jar:natives-linux-amd64"'
-    - 'mvn dependency:get "-DrepoUrl=http://download.java.net/maven/2/" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2"'
-    - 'mvn dependency:get "-DrepoUrl=http://download.java.net/maven/2/" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2:jar:natives-linux-amd64"'
+    - 'mvn dependency:get "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.6.0"'
+    - 'mvn dependency:get "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.6.0:jar:natives-linux-amd64"'
+    - 'mvn dependency:get "-Dartifact=org.jogamp.jogl:jogl-all:2.6.0"'
+    - 'mvn dependency:get "-Dartifact=org.jogamp.jogl:jogl-all:2.6.0:jar:natives-linux-amd64"'
 
 .before_script_linux_deps: &before_script_linux_deps
     - '[[ "$CMAKE_CONFIGURATION" =~ "webgpu" ]] && cmake -P "$PWD/.gitlab/ci/download_dawn.cmake"'

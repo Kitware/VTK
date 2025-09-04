@@ -396,12 +396,14 @@ endif()
 # it has to be the last install rule that get executed
 if(VTK_BUILD_MAVEN_PKG)
   set(MAVEN_NATIVE_ARTIFACT_XML)
+  set(MAVEN_REPOSITORIES_XML)
   foreach(native_name ${MAVEN_NATIVE_ARTIFACTS})
     string(APPEND MAVEN_NATIVE_ARTIFACT_XML
       "\n                <artifact><file>vtk${MAVEN_VTK_ARTIFACT_SUFFIX}-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION}-natives-${native_name}.jar</file><classifier>natives-${native_name}</classifier><type>jar</type></artifact>")
   endforeach()
   if(VTK_JAVA_JOGL_COMPONENT)
     string(APPEND MAVEN_DEPENDENCY_XML "\n      <dependency><groupId>org.jogamp.jogl</groupId><artifactId>jogl-all-main</artifactId><version>${JOGL_VERSION}</version></dependency>\n      <dependency><groupId>org.jogamp.gluegen</groupId><artifactId>gluegen-rt-main</artifactId><version>${JOGL_VERSION}</version></dependency>")
+    string(APPEND MAVEN_REPOSITORIES_XML "\n    <repository><id>jogamp-remote</id><name>jogamp-remote</name><url>https://jogamp.org/deployment/maven/</url></repository>")
   endif()
   configure_file(JavaInstall.cmake.in
                  ${CMAKE_CURRENT_BINARY_DIR}/JavaInstall.cmake @ONLY)

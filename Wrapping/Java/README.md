@@ -25,27 +25,27 @@ For that you can run the following command lines:
 
 ```
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get \
-  -DrepoUrl=http://download.java.net/maven/2/  \
-  -Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2
+  -DrepoUrl=https://jogamp.org/deployment/maven/ \
+  -Dartifact=org.jogamp.gluegen:gluegen-rt:2.6.0
 
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get \
-  -DrepoUrl=http://download.java.net/maven/2/  \
-  -Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2:jar:CLASSIFIER
+  -DrepoUrl=https://jogamp.org/deployment/maven/ \
+  -Dartifact=org.jogamp.gluegen:gluegen-rt:2.6.0:jar:CLASSIFIER
 
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get \
-  -DrepoUrl=http://download.java.net/maven/2/  \
-  -Dartifact=org.jogamp.jogl:jogl-all:2.3.2
+  -DrepoUrl=https://jogamp.org/deployment/maven/ \
+  -Dartifact=org.jogamp.jogl:jogl-all:2.6.0
 
 mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get \
-  -DrepoUrl=http://download.java.net/maven/2/  \
-  -Dartifact=org.jogamp.jogl:jogl-all:2.3.2:jar:CLASSIFIER
+  -DrepoUrl=https://jogamp.org/deployment/maven/ \
+  -Dartifact=org.jogamp.jogl:jogl-all:2.6.0:jar:CLASSIFIER
 
 cmake --build build --source vtk-source \
   -DVTK_WRAP_JAVA=ON \
   -DVTK_JAVA_JOGL_COMPONENT=ON \
-  -DJOGL_VERSION="2.3.2" \
-  -DJOGL_GLUE=$HOME/.m2/repository/org/jogamp/gluegen/gluegen-rt/2.3.2/gluegen-rt-2.3.2.jar \
-  -DJOGL_LIB=$HOME/.m2/repository/org/jogamp/jogl/jogl-all/2.3.2/jogl-all-2.3.2.jar
+  -DJOGL_VERSION="2.6.0" \
+  -DJOGL_GLUE=$HOME/.m2/repository/org/jogamp/gluegen/gluegen-rt/2.6.0/gluegen-rt-2.6.0.jar \
+  -DJOGL_LIB=$HOME/.m2/repository/org/jogamp/jogl/jogl-all/2.6.0/jogl-all-2.6.0.jar
 
 # Substitute $INSTALLDIR
 cmake --install build --prefix $INSTALLDIR
@@ -53,5 +53,5 @@ cmake --install build --prefix $INSTALLDIR
 
 ## Demonstration
 ```
-java -cp $INSTALLDIR/vtk-XY.jar:/home/kitware/.m2/repository/org/jogamp/gluegen/gluegen-rt/2.3.2/gluegen-rt-2.3.2.jar:/home/kitware/.m2/repository/org/jogamp/jogl/jogl-all/2.3.2/jogl-all-2.3.2.jar -Djava.library.path=$INSTALLDIR/natives-Linux-64bit vtk.sample.Demo
+java -cp $INSTALLDIR/vtk-XY.jar:/home/kitware/.m2/repository/org/jogamp/gluegen/gluegen-rt/2.6.0/gluegen-rt-2.6.0.jar:/home/kitware/.m2/repository/org/jogamp/jogl/jogl-all/2.6.0/jogl-all-2.6.0.jar -Djava.library.path=$INSTALLDIR/natives-Linux-64bit vtk.sample.Demo
 ```

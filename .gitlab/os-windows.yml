@@ -268,10 +268,10 @@
     - Set-Item -Force -Path "env:JAVA_HOME" -Value "$pwdpath\.gitlab\jdk\"
     - cmake -P .gitlab/ci/download_maven.cmake
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\maven\bin\;$env:PATH"
-    - 'mvn dependency:get "-Dmaven.repo.local=$env:GIT_CLONE_PATH\.gitlab\m2" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2"'
-    - 'mvn dependency:get "-Dmaven.repo.local=$env:GIT_CLONE_PATH\.gitlab\m2" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2:jar:natives-windows-amd64"'
-    - 'mvn dependency:get "-Dmaven.repo.local=$env:GIT_CLONE_PATH\.gitlab\m2" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2"'
-    - 'mvn dependency:get "-Dmaven.repo.local=$env:GIT_CLONE_PATH\.gitlab\m2" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2:jar:natives-windows-amd64"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$env:GIT_CLONE_PATH\.gitlab\m2" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.6.0"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$env:GIT_CLONE_PATH\.gitlab\m2" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.6.0:jar:natives-windows-amd64"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$env:GIT_CLONE_PATH\.gitlab\m2" "-Dartifact=org.jogamp.jogl:jogl-all:2.6.0"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$env:GIT_CLONE_PATH\.gitlab\m2" "-Dartifact=org.jogamp.jogl:jogl-all:2.6.0:jar:natives-windows-amd64"'
 
 .script_windows: &script_windows
     # Build and activate the venv
