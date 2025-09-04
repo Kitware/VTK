@@ -553,4 +553,91 @@ void vtkCartesianGrid::BuildCellTypes()
   this->StructuredCellTypes = vtkStructuredData::GetCellTypes(this->GetExtent(), true);
 }
 
+//------------------------------------------------------------------------------
+// This Method returns an index to a location in the vtkImageData.
+// Coordinates are in pixel units and are relative to the whole image origin.
+vtkIdType vtkCartesianGrid::GetTupleIndex(vtkDataArray* array, int coordinate[3])
+{
+  vtkIdType incs[3];
+  vtkIdType idx;
+
+  if (array == nullptr)
+  {
+    return -1;
+  }
+
+  const int* extent = this->GetExtent();
+  // error checking: since most accesses will be from pointer arithmetic.
+  // this should not waste much time.
+  for (idx = 0; idx < 3; ++idx)
+  {
+    if (coordinate[idx] < extent[idx * 2] || coordinate[idx] > extent[idx * 2 + 1])
+    {
+      vtkErrorMacro(<< "GetPointer: Pixel (" << coordinate[0] << ", " << coordinate[1] << ", "
+                    << coordinate[2] << ") not in current extent: (" << extent[0] << ", "
+                    << extent[1] << ", " << extent[2] << ", " << extent[3] << ", " << extent[4]
+                    << ", " << extent[5] << ")");
+      return -1;
+    }
+  }
+
+  // compute the index of the vector.
+
+  // Array increments incorporate the number of components, which is not how
+  // vtkDataArrays are indexed. Instead, compute the tuple increments.
+  {
+    incs[0] = 1;
+    incs[1] = (extent[1] - extent[0] + 1);
+    incs[2] = incs[1] * (extent[3] - extent[2] + 1);
+  }
+
+  idx = ((coordinate[0] - extent[0]) * incs[0] + (coordinate[1] - extent[2]) * incs[1] +
+    (coordinate[2] - extent[4]) * incs[2]);
+  // I could check to see if the array has the correct number
+  // of tuples for the extent, but that would be an extra multiply.
+  if (idx < 0 || idx > array->GetMaxId())
+  {
+    vtkErrorMacro("Coordinate (" << coordinate[0] << ", " << coordinate[1] << ", " << coordinate[2]
+                                 << ") out side of array (max = " << array->GetMaxId());
+    return -1;
+  }
+
+  return idx;
+}
+
+//-------------------------------------------------------------------------------
+vtkIdType vtkCartesianGrid::GetTupleIndex(vtkDataArray* array, int x, int y, int z)
+{
+  int temp[3] = { x, y, z };
+  return this->GetTupleIndex(array, temp);
+}
+
+//-------------------------------------------------------------------------------
+vtkIdType vtkCartesianGrid::GetTupleIndexForExtent(vtkDataArray* array, int extent[6])
+{
+  int tmp[3] = { extent[0], extent[2], extent[4] };
+  return this->GetTupleIndex(array, tmp);
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkCartesianGrid::GetValueIndex(vtkDataArray* array, int coordinate[3])
+{
+  vtkIdType tupleIndex = this->GetTupleIndex(array, coordinate);
+  return tupleIndex >= 0 ? tupleIndex * array->GetNumberOfComponents() : -1;
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkCartesianGrid::GetValueIndex(vtkDataArray* array, int x, int y, int z)
+{
+  int tmp[3] = { x, y, z };
+  return this->GetValueIndex(array, tmp);
+}
+
+//------------------------------------------------------------------------------
+vtkIdType vtkCartesianGrid::GetValueIndexForExtent(vtkDataArray* array, int extent[6])
+{
+  int tmp[3] = { extent[0], extent[2], extent[4] };
+  return this->GetValueIndex(array, tmp);
+}
+
 VTK_ABI_NAMESPACE_END

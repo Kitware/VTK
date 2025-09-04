@@ -434,17 +434,7 @@ public:
    */
   void* GetArrayPointerForExtent(vtkDataArray* array, int extent[6]);
   void* GetArrayPointer(vtkDataArray* array, int coordinates[3]);
-  ///@}
-
-  ///@{
-  /**
-   * Given a data array and a coordinate, return the index of the tuple in the
-   * array corresponding to that coordinate.
-   *
-   * This method is analogous to GetArrayPointer(), but it conforms to the API
-   * of vtkGenericDataArray.
-   */
-  vtkIdType GetTupleIndex(vtkDataArray* array, int coordinates[3]);
+  void* GetArrayPointer(vtkDataArray* array, int x, int y, int z);
   ///@}
 
   /**

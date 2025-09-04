@@ -259,6 +259,26 @@ public:
   int GetNumberOfScalarComponents();
   ///@}
 
+  ///@{
+  /**
+   * Given a data array and a coordinate, return the index of the tuple in the
+   * array corresponding to that coordinate.
+   */
+  vtkIdType GetTupleIndexForExtent(vtkDataArray* array, int extent[6]);
+  vtkIdType GetTupleIndex(vtkDataArray* array, int coordinates[3]);
+  vtkIdType GetTupleIndex(vtkDataArray* array, int x, int y, int z);
+  ///@}
+
+  ///@{
+  /**
+   * Given a data array and a coordinate, return the index of the value in the
+   * array corresponding to that coordinate, considering the number of components.
+   */
+  vtkIdType GetValueIndexForExtent(vtkDataArray* array, int extent[6]);
+  vtkIdType GetValueIndex(vtkDataArray* array, int coordinates[3]);
+  vtkIdType GetValueIndex(vtkDataArray* array, int x, int y, int z);
+  ///@}
+
 protected:
   vtkCartesianGrid();
   ~vtkCartesianGrid() override = default;
