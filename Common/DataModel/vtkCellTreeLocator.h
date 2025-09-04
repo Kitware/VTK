@@ -98,6 +98,7 @@ public:
 
   // Reuse any superclass signatures that we don't override.
   using vtkAbstractCellLocator::FindCell;
+  using vtkAbstractCellLocator::FindCellsAlongLine;
   using vtkAbstractCellLocator::IntersectWithLine;
 
   /**
@@ -124,20 +125,6 @@ public:
    * user must provide the vtkIdList to populate.
    */
   void FindCellsWithinBounds(double* bbox, vtkIdList* cells) override;
-
-  /**
-   * Take the passed line segment and intersect it with the data set.
-   * For each intersection with the bounds of a cell, the cellIds
-   * have the relevant information added sort by t. If cellIds is nullptr
-   * pointer, then no information is generated for that list.
-   *
-   * Reimplemented from vtkAbstractCellLocator to showcase that it's a supported function.
-   */
-  void FindCellsAlongLine(
-    const double p1[3], const double p2[3], double tol, vtkIdList* cellsIds) override
-  {
-    this->Superclass::FindCellsAlongLine(p1, p2, tol, cellsIds);
-  }
 
   /**
    * Find the cell containing a given point. returns -1 if no cell found
