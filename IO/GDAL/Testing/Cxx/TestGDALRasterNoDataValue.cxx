@@ -13,7 +13,7 @@
 #include <limits>
 
 // Main program
-int TestGDALRasterNoDataValue(int argc, char** argv)
+int TestGDALRasterNoDataValue(int argc, char* argv[])
 {
   if (argc < 3)
   {

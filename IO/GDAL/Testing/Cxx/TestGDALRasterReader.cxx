@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include <vtkGDALRasterReader.h>
+#include "vtkGDALRasterReader.h"
 
 // VTK includes
 #include <vtkCellData.h>
@@ -31,7 +31,7 @@
 #include <sstream>
 
 // Main program
-int TestGDALRasterReader(int argc, char** argv)
+int TestGDALRasterReader(int argc, char* argv[])
 {
   const char* rasterFileName =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/GIS/raster.tif");
