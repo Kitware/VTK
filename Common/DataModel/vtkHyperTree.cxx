@@ -98,7 +98,7 @@ bool vtkHyperTree::Initialize(const unsigned char branchFactor, const unsigned c
   this->Datas->GlobalIndexStart = -1;
 
   this->Datas->ParentToElderChild.resize(1);
-  this->Datas->ParentToElderChild[0] = 0;
+  this->Datas->ParentToElderChild[0] = std::numeric_limits<unsigned int>::max();
   // By default, the root doesn't have a parent
   this->Datas->GlobalIndexTable.clear();
 
