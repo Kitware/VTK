@@ -483,7 +483,7 @@ Figure 5. - HyperTreeGrid VTKHDF File Format
 
 ## PartitionedDataSetCollection and MultiBlockDataSet
 
-VTKHDF supports composite types, made of multiple datasets of simple types, organised as a tree.
+VTKHDF supports composite types, made of multiple datasets of simple types, organized as a tree.
 The format currently supports vtkPartitionedDataSetCollection (PDC) and vtkMultiBlockDataSet (MB) composite types, as shown in Figure 11.
 The `Type` attribute of the `VTKHDF` group for them should be either `PartitionedDataSetCollection` or `MultiBlockDataSet`.
 
