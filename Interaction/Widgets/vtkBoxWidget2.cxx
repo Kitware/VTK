@@ -12,7 +12,6 @@
 #include "vtkRenderer.h"
 #include "vtkWidgetCallbackMapper.h"
 #include "vtkWidgetEvent.h"
-#include "vtkWidgetEventTranslator.h"
 
 #include <algorithm>
 
@@ -131,6 +130,26 @@ void vtkBoxWidget2::SetEnabled(int enabling)
       this->Interactor->RemoveObserver(this->KeyEventCallbackCommand);
     }
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkBoxWidget2::SetRotationAxisMode(int mode)
+{
+  if (auto* br = vtkBoxRepresentation::SafeDownCast(this->WidgetRep))
+  {
+    br->SetRotationAxisMode(mode);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkBoxWidget2::GetRotationAxisMode()
+{
+  if (auto* br = vtkBoxRepresentation::SafeDownCast(this->WidgetRep))
+  {
+    return br->GetRotationAxisMode();
+  }
+  return vtkBoxRepresentation::ROTATE_FREE;
 }
 
 //------------------------------------------------------------------------------
@@ -514,14 +533,17 @@ void vtkBoxWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clie
     if (keySym == "X")
     {
       rep->SetXTranslationAxisOn();
+      rep->SetRotationAxisModeToX();
     }
     else if (keySym == "Y")
     {
       rep->SetYTranslationAxisOn();
+      rep->SetRotationAxisModeToY();
     }
     else if (keySym == "Z")
     {
       rep->SetZTranslationAxisOn();
+      rep->SetRotationAxisModeToZ();
     }
   }
   else if (event == vtkCommand::KeyReleaseEvent)
@@ -529,6 +551,7 @@ void vtkBoxWidget2::ProcessKeyEvents(vtkObject*, unsigned long event, void* clie
     if (keySym == "X" || keySym == "Y" || keySym == "Z")
     {
       rep->SetTranslationAxisOff();
+      rep->SetRotationAxisModeToFree();
     }
   }
 }

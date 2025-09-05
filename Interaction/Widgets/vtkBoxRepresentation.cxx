@@ -699,27 +699,28 @@ void vtkBoxRepresentation::Translate(const double* p1, const double* p2)
 
 //------------------------------------------------------------------------------
 void vtkBoxRepresentation::Scale(
-  const double* vtkNotUsed(p1), const double* vtkNotUsed(p2), int vtkNotUsed(X), int Y)
+  const double* p1, const double* p2, int vtkNotUsed(X), int vtkNotUsed(Y))
 {
-  double* pts = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(0);
-  double* center = static_cast<vtkDoubleArray*>(this->Points->GetData())->GetPointer(3 * 14);
-  double sf;
+  const double* center = this->Points->GetPoint(14);
 
-  if (Y > this->LastEventPosition[1])
+  const double d1sq = vtkMath::Distance2BetweenPoints(p1, center);
+  const double d2sq = vtkMath::Distance2BetweenPoints(p2, center);
+
+  if (d1sq <= 1e-18)
   {
-    sf = 1.03;
-  }
-  else
-  {
-    sf = 0.97;
+    return;
   }
 
-  // Move the corners
-  for (int i = 0; i < 8; i++, pts += 3)
+  double sf = std::sqrt(d2sq / d1sq); // >1 if moving away, <1 if moving toward
+
+  for (int i = 0; i < 8; ++i)
   {
-    pts[0] = sf * (pts[0] - center[0]) + center[0];
-    pts[1] = sf * (pts[1] - center[1]) + center[1];
-    pts[2] = sf * (pts[2] - center[2]) + center[2];
+    double p[3];
+    this->Points->GetPoint(i, p);
+    p[0] = sf * (p[0] - center[0]) + center[0];
+    p[1] = sf * (p[1] - center[1]) + center[1];
+    p[2] = sf * (p[2] - center[2]) + center[2];
+    this->Points->SetPoint(i, p);
   }
   this->PositionHandles();
 }
@@ -800,6 +801,34 @@ void vtkBoxRepresentation::Rotate(
   double l2 = (X - this->LastEventPosition[0]) * (X - this->LastEventPosition[0]) +
     (Y - this->LastEventPosition[1]) * (Y - this->LastEventPosition[1]);
   theta = 360.0 * sqrt(l2 / (size[0] * size[0] + size[1] * size[1]));
+
+  if (this->IsRotationAxisLocked())
+  {
+    double a[3] = { 0, 0, 0 };
+    switch (this->RotationAxisMode)
+    {
+      case vtkBoxRepresentation::ROTATE_X:
+        a[0] = 1.0;
+        break;
+      case vtkBoxRepresentation::ROTATE_Y:
+        a[1] = 1.0;
+        break;
+      case vtkBoxRepresentation::ROTATE_Z:
+        a[2] = 1.0;
+        break;
+      default:
+        return; // FREE
+    }
+
+    vtkMath::Normalize(axis);
+    vtkMath::Normalize(a);
+
+    double dot = vtkMath::Dot(axis, a);
+    vtkMath::ClampValue(dot, -1.0, 1.0);
+
+    theta *= dot;
+    vtkMath::Assign(a, axis);
+  }
 
   // Manipulate the transform to reflect the rotation
   this->Transform->Identity();
