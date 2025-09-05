@@ -128,7 +128,8 @@ enum vtkTypesDataObject
   VTK_GEO_JSON_FEATURE = 47,
   VTK_IMAGE_STENCIL_DATA = 48,
   VTK_CELL_GRID = 49,
-  VTK_AMR_DATA_OBJECT = 50
+  VTK_AMR_DATA_OBJECT = 50,
+  VTK_CARTESIAN_GRID = 51
 };
 
 /*--------------------------------------------------------------------------*/

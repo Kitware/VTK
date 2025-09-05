@@ -34,6 +34,11 @@ public:
   void CopyStructure(vtkDataSet* ds) override;
   ///@}
 
+  /**
+   * Return what type of dataset this is.
+   */
+  int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_CARTESIAN_GRID; }
+
   using Superclass::FindCell;
   using Superclass::GetCell;
   using Superclass::GetPoint;

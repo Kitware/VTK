@@ -109,6 +109,7 @@ static const char* vtkDataObjectTypesStrings[] = {
   "vtkImageStencilData",
   "vtkCellGrid",
   "vtkAMRDataObject",
+  "vtkCartesianGrid",
   nullptr,
 };
 
@@ -116,7 +117,7 @@ namespace
 {
 bool IsTypeIdValid(int typeId)
 {
-  return (typeId >= VTK_POLY_DATA && typeId <= VTK_AMR_DATA_OBJECT);
+  return (typeId >= VTK_POLY_DATA && typeId <= VTK_CARTESIAN_GRID);
 }
 }
 
@@ -269,6 +270,8 @@ vtkDataObject* vtkDataObjectTypes::NewDataObject(int type)
       return vtkCellGrid::New();
     case VTK_AMR_DATA_OBJECT:
       return vtkAMRDataObject::New();
+    case VTK_CARTESIAN_GRID:
+      return nullptr;
     default:
       vtkLogF(WARNING, "Unknown data type '%d'", type);
       return nullptr;
@@ -386,10 +389,11 @@ int vtkDataObjectTypes::GetCommonBaseTypeId(int typeA, int typeB)
       { VTK_UNDIRECTED_GRAPH, VTK_GRAPH }, { VTK_DIRECTED_GRAPH, VTK_GRAPH },
       { VTK_MOLECULE, VTK_UNDIRECTED_GRAPH }, { VTK_DIRECTED_ACYCLIC_GRAPH, VTK_DIRECTED_GRAPH },
       { VTK_REEB_GRAPH, VTK_DIRECTED_GRAPH }, { VTK_TREE, VTK_DIRECTED_ACYCLIC_GRAPH },
-      { VTK_RECTILINEAR_GRID, VTK_DATA_SET }, { VTK_POINT_SET, VTK_DATA_SET },
-      { VTK_IMAGE_DATA, VTK_DATA_SET }, { VTK_UNSTRUCTURED_GRID_BASE, VTK_POINT_SET },
-      { VTK_STRUCTURED_GRID, VTK_POINT_SET }, { VTK_POLY_DATA, VTK_POINT_SET },
-      { VTK_PATH, VTK_POINT_SET }, { VTK_EXPLICIT_STRUCTURED_GRID, VTK_POINT_SET },
+      { VTK_RECTILINEAR_GRID, VTK_CARTESIAN_GRID }, { VTK_POINT_SET, VTK_DATA_SET },
+      { VTK_CARTESIAN_GRID, VTK_DATA_SET }, { VTK_IMAGE_DATA, VTK_CARTESIAN_GRID },
+      { VTK_UNSTRUCTURED_GRID_BASE, VTK_POINT_SET }, { VTK_STRUCTURED_GRID, VTK_POINT_SET },
+      { VTK_POLY_DATA, VTK_POINT_SET }, { VTK_PATH, VTK_POINT_SET },
+      { VTK_EXPLICIT_STRUCTURED_GRID, VTK_POINT_SET },
       { VTK_UNSTRUCTURED_GRID, VTK_UNSTRUCTURED_GRID_BASE }, { VTK_UNIFORM_GRID, VTK_IMAGE_DATA },
       { VTK_STRUCTURED_POINTS, VTK_IMAGE_DATA }, { VTK_UNIFORM_GRID_AMR, VTK_AMR_DATA_OBJECT },
       { VTK_OVERLAPPING_AMR, VTK_UNIFORM_GRID_AMR },
