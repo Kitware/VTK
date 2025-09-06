@@ -4078,6 +4078,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer* ren, vtkActor* act, vtkPolyD
 
   bool draw_surface_with_edges =
     (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
+  bool vertexVisibility = prop->GetVertexVisibility();
 
   // do we really need to rebuild the IBO? Since the operation is costly we
   // construct a string of values that impact the IBO and see if that string has
@@ -4089,6 +4090,7 @@ void vtkOpenGLPolyDataMapper::BuildIBO(vtkRenderer* ren, vtkActor* act, vtkPolyD
   this->TempState.Append(prims[2]->GetNumberOfCells() ? prims[2]->GetMTime() : 0, "prim2 mtime");
   this->TempState.Append(prims[3]->GetNumberOfCells() ? prims[3]->GetMTime() : 0, "prim3 mtime");
   this->TempState.Append(representation, "representation");
+  this->TempState.Append(vertexVisibility, "vertex visibility");
   this->TempState.Append(ef ? ef->GetMTime() : 0, "edge flags mtime");
   this->TempState.Append(draw_surface_with_edges, "draw surface with edges");
 
