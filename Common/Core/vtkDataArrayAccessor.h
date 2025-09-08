@@ -110,16 +110,31 @@ struct vtkDataArrayAccessor
   }
 
   VTK_ALWAYS_INLINE
+  APIType Get(vtkIdType valueIdx) const { return this->Array->GetValue(valueIdx); }
+
+  VTK_ALWAYS_INLINE
   void Set(vtkIdType tupleIdx, int compIdx, APIType val) const
   {
     this->Array->SetTypedComponent(tupleIdx, compIdx, val);
   }
 
   VTK_ALWAYS_INLINE
+  void Set(vtkIdType valueIdx, APIType val) const { this->Array->SetValue(valueIdx, val); }
+
+  VTK_ALWAYS_INLINE
   void Insert(vtkIdType tupleIdx, int compIdx, APIType val) const
   {
     this->Array->InsertTypedComponent(tupleIdx, compIdx, val);
   }
+
+  VTK_ALWAYS_INLINE
+  void Insert(vtkIdType valueIdx, APIType val) const { this->Array->InsertValue(valueIdx, val); }
+
+  VTK_ALWAYS_INLINE
+  void InsertNext(APIType val) const { this->Array->InsertNextValue(val); }
+
+  VTK_ALWAYS_INLINE
+  void InsertNext(APIType* tuple) const { this->Array->InsertNextTypedTuple(tuple); }
 
   VTK_ALWAYS_INLINE
   void Get(vtkIdType tupleIdx, APIType* tuple) const
@@ -161,9 +176,23 @@ struct vtkDataArrayAccessor<vtkDataArray>
   }
 
   VTK_ALWAYS_INLINE
+  APIType Get(vtkIdType valueIdx) const
+  {
+    auto div = std::div(valueIdx, static_cast<vtkIdType>(this->Array->GetNumberOfComponents()));
+    return this->Array->GetComponent(div.quot, div.rem);
+  }
+
+  VTK_ALWAYS_INLINE
   void Set(vtkIdType tupleIdx, int compIdx, APIType val) const
   {
     this->Array->SetComponent(tupleIdx, compIdx, val);
+  }
+
+  VTK_ALWAYS_INLINE
+  void Set(vtkIdType valueIdx, APIType val) const
+  {
+    auto div = std::div(valueIdx, static_cast<vtkIdType>(this->Array->GetNumberOfComponents()));
+    this->Array->SetComponent(div.quot, div.rem, val);
   }
 
   VTK_ALWAYS_INLINE
@@ -171,6 +200,19 @@ struct vtkDataArrayAccessor<vtkDataArray>
   {
     this->Array->InsertComponent(tupleIdx, compIdx, val);
   }
+
+  VTK_ALWAYS_INLINE
+  void Insert(vtkIdType valueIdx, APIType val) const
+  {
+    auto div = std::div(valueIdx, static_cast<vtkIdType>(this->Array->GetNumberOfComponents()));
+    this->Array->InsertComponent(div.quot, div.rem, val);
+  }
+
+  VTK_ALWAYS_INLINE
+  void InsertNext(APIType val) const { this->Array->InsertNextTuple1(val); }
+
+  VTK_ALWAYS_INLINE
+  void InsertNext(APIType* tuple) const { this->Array->InsertNextTuple(tuple); }
 
   VTK_ALWAYS_INLINE
   void Get(vtkIdType tupleIdx, APIType* tuple) const { this->Array->GetTuple(tupleIdx, tuple); }
