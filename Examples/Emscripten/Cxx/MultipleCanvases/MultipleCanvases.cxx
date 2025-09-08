@@ -17,6 +17,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkStringFormatter.h"
+#include "vtkStringScanner.h"
 #include "vtkSuperquadricSource.h"
 #include "vtkWebAssemblyOpenGLRenderWindow.h"
 #include "vtkWebAssemblyRenderWindowInteractor.h"
