@@ -170,8 +170,8 @@ private:
   /**
    * main function if input is vtkImageData
    * triangulate, compute critical points, separatrices, and surfaces
-   * @param dataset: the input dataset
-   * @param tridataset: the triangulated version of the input dataset
+   * @param dataSetInput the input dataset
+   * @param tridataset the triangulated version of the input dataset
    * @return 1 if successfully terminated
    */
   int ImageDataPrepare(vtkDataSet* dataSetInput, vtkUnstructuredGrid* tridataset);
@@ -179,15 +179,15 @@ private:
   /**
    * main function if input is vtkUnstructuredGrid
    * triangulate if necessary, compute critical points, separatrices, and surfaces
-   * @param dataset: the input dataset
-   * @param tridataset: the triangulated version of the input dataset
+   * @param dataSetInput the input dataset
+   * @param tridataset the triangulated version of the input dataset
    * @return 1 if successfully terminated
    */
   int UnstructuredGridPrepare(vtkDataSet* dataSetInput, vtkUnstructuredGrid* tridataset);
 
   /**
    * delete the cells that touch the boundary
-   * @param tridataset: input vector field after triangulation
+   * @param tridataset input vector field after triangulation
    * @return 1 if successful, 0 if not
    */
   int RemoveBoundary(vtkSmartPointer<vtkUnstructuredGrid> tridataset);
@@ -195,8 +195,8 @@ private:
   /**
    * for each triangle, we solve the linear vector field analytically for its zeros
    *  if this location is inside the triangle, we have found a critical point
-   * @param criticalPoints: list of the locations where the vf is zero
-   * @param tridataset: input vector field after triangulation
+   * @param criticalPoints list of the locations where the vf is zero
+   * @param tridataset input vector field after triangulation
    * @return 1 if successful, 0 if not
    */
   int ComputeCriticalPoints2D(
@@ -205,8 +205,8 @@ private:
   /**
    * for each tetrahedron, we solve the linear vector field analytically for its zeros
    *  if this location is inside the tetrahedron, we have found a critical point
-   * @param criticalPoints: list of the locations where the vf is zero
-   * @param tridataset: input vector field after tetrahedrization
+   * @param criticalPoints list of the locations where the vf is zero
+   * @param tridataset input vector field after tetrahedrization
    * @return 1 if successfully terminated
    */
   int ComputeCriticalPoints3D(
@@ -215,20 +215,20 @@ private:
   /**
    * Given 1D position x0 <= x <= x1, and two 3-vectors v0 and v1, this functions interpolates a
    * 3-vector at x.
-   * @param x0: minimum 1D position
-   * @param x1: maximum 1D position
-   * @param x: target 1D position
-   * @param v0: 3-vector at x0
-   * @param v1: 3-vector at x1
-   * @param v: output 3-vector at x
+   * @param x0 minimum 1D position
+   * @param x1 maximum 1D position
+   * @param x target 1D position
+   * @param v0 3-vector at x0
+   * @param v1 3-vector at x1
+   * @param v output 3-vector at x
    */
   static void InterpolateVector(
     double x0, double x1, double x, const double v0[3], const double v1[3], double v[3]);
 
   /**
    * This functions compute boundary switch points from boundaries that are lines.
-   * @param boundarySwitchPoints: list of the locations of the boundary switch points
-   * @param tridataset: input vector field after triangulation
+   * @param boundarySwitchPoints list of the locations of the boundary switch points
+   * @param tridataset input vector field after triangulation
    * @return 1 if successful, 0 if not
    */
   int ComputeBoundarySwitchPoints(
@@ -237,18 +237,17 @@ private:
   /**
    * This function computes separatrix lines using boundary switch points, by using the
    * vtkStreamTracer filter
-   * @param boundarySwitchPoints: list of the locations of boundaries where the directions of the
+   * @param boundarySwitchPoints list of the locations of boundaries where the directions of the
    * flow change
-   * @param separatrices: inegration lines
-   * @param field: input data object that contains the information of the type of dataset
-   * @param dataset: input vector field
-   * @param interestPoints: a set of points that includes both critical points and boundary switch
+   * @param separatrices inegration lines
+   * @param field input data object that contains the information of the type of dataset
+   * @param dataset input vector field
+   * @param interestPoints a set of points that includes both critical points and boundary switch
    * points
-   * @param integrationStepUnit: whether the sizes are expressed in coordinate scale or cell scale
-   * @param dist: size of the offset of the seeding
-   * @param stepSize: stepsize of the integrator
-   * @param maxNumSteps: maximal number of integration steps
-   * @param numberOfSeparatingLines: number of separating lines
+   * @param integrationStepUnit whether the sizes are expressed in coordinate scale or cell scale
+   * @param dist size of the offset of the seeding
+   * @param maxNumSteps maximal number of integration steps
+   * @param numberOfSeparatingLines number of separating lines
    * @return 1 if successfully terminated
    */
   int ComputeSeparatricesBoundarySwitchPoints(vtkPolyData* boundarySwitchPoints,
@@ -259,17 +258,16 @@ private:
    * This function computes boundary switch lines from boundaries that surfaces.
    * It then computes separatrix surfaces using boundary switch lines, by using the
    * vtkStreamSurfaces filter.
-   * @param boundarySwitchLines: list of the locations of boundaries where the directions of the
+   * @param boundarySwitchLines list of the locations of boundaries where the directions of the
    * flow change
-   * @param separatrices: inegration surfaces
-   * @param field: input data object that contains the information of the type of dataset
-   * @param dataset: input vector field
-   * @param integrationStepUnit: whether the sizes are expressed in coordinate scale or cell scale
-   * @param dist: size of the offset of the seeding
-   * @param stepSize: stepsize of the integrator
-   * @param maxNumSteps: maximal number of integration steps
-   * @param computeSurfaces: depending on this boolean the separating surfaces are computed or not
-   * @param useIterativeSeeding: depending on this boolean the separating surfaces  are computed
+   * @param separatrices inegration surfaces
+   * @param field input data object that contains the information of the type of dataset
+   * @param dataset input vector field
+   * @param integrationStepUnit whether the sizes are expressed in coordinate scale or cell scale
+   * @param dist size of the offset of the seeding
+   * @param maxNumSteps maximal number of integration steps
+   * @param computeSurfaces depending on this boolean the separating surfaces are computed or not
+   * @param useIterativeSeeding depending on this boolean the separating surfaces  are computed
    * either good or fast
    * @return 1 if successfully terminated
    */
@@ -280,22 +278,22 @@ private:
   /**
    * we classify the critical points based on the eigenvalues of the jacobian
    * for the saddles, we seed in an offset of dist and integrate
-   * @param criticalPoints: list of the locations where the vf is zero
-   * @param separatrices: inegration lines starting at saddles
-   * @param surfaces: inegration surfaces starting at saddles
-   * @param field: input data object that contains the information of the type of dataset
-   * @param dataset: input vector field
-   * @param interestPoints: a set of points that includes both critical points and boundary switch
+   * @param criticalPoints list of the locations where the vf is zero
+   * @param separatrices inegration lines starting at saddles
+   * @param surfaces inegration surfaces starting at saddles
+   * @param field input data object that contains the information of the type of dataset
+   * @param dataset input vector field
+   * @param interestPoints a set of points that includes both critical points and boundary switch
    * points
-   * @param integrationStepUnit: whether the sizes are expressed in coordinate scale or cell scale
-   * @param dist: size of the offset of the seeding
-   * @param stepSize: stepsize of the integrator
-   * @param maxNumSteps: maximal number of integration steps
-   * @param computeSurfaces: depending on this boolean the separating surfaces are computed or not
-   * @param useIterativeSeeding: depending on this boolean the separating surfaces  are computed
+   * @param integrationStepUnit whether the sizes are expressed in coordinate scale or cell scale
+   * @param dist size of the offset of the seeding
+   * @param stepSize stepsize of the integrator
+   * @param maxNumSteps maximal number of integration steps
+   * @param computeSurfaces depending on this boolean the separating surfaces are computed or not
+   * @param useIterativeSeeding depending on this boolean the separating surfaces  are computed
    * either good or fast
-   * @param numberOfSeparatingLines: the number of separating lines
-   * @param numberOfSeparatingSurfaces: the number of separating surfaces
+   * @param numberOfSeparatingLines the number of separating lines
+   * @param numberOfSeparatingSurfaces the number of separating surfaces
    * @return 1 if successfully terminated
    */
   int ComputeSeparatrices(vtkPolyData* criticalPoints, vtkPolyData* separatrices,
@@ -306,17 +304,17 @@ private:
   /**
    * this method computes streamsurfaces
    * in the plane of the two eigenvectors of the same sign around saddles
-   * @param isBackward: is 1 if the integration direction is backward and 0 for forward
-   * @param normal: direction along the one eigenvector with opposite sign
-   * @param zeroPos: location of the saddle
-   * @param streamSurfaces: surfaces that have so far been computed
-   * @param field: input data object that contains the information of the type of dataset
-   * @param dataset: the vector field in which we advect
-   * @param integrationStepUnit: whether the sizes are expressed in coordinate scale or cell scale
-   * @param dist: size of the offset of the seeding
-   * @param stepSize: stepsize of the integrator
-   * @param maxNumSteps: maximal number of integration steps
-   * @param useIterativeSeeding: depending on this boolean the separating surfaces  are computed
+   * @param isBackward is 1 if the integration direction is backward and 0 for forward
+   * @param normal direction along the one eigenvector with opposite sign
+   * @param zeroPos location of the saddle
+   * @param streamSurfaces surfaces that have so far been computed
+   * @param field input data object that contains the information of the type of dataset
+   * @param dataset the vector field in which we advect
+   * @param integrationStepUnit whether the sizes are expressed in coordinate scale or cell scale
+   * @param dist size of the offset of the seeding
+   * @param stepSize stepsize of the integrator
+   * @param maxNumSteps maximal number of integration steps
+   * @param useIterativeSeeding depending on this boolean the separating surfaces  are computed
    * either good or fast
    * @return 1 if successful, 0 if empty
    */
@@ -386,18 +384,18 @@ private:
 
   /**
    * determine which type of critical point we have based on the eigenvalues of the Jacobian in 2D
-   * @param countReal: number of complex valued eigenvalues
-   * @param countPos: number of positive eigenvalues
-   * @param countNeg: number of negative eigenvalues
+   * @param countComplex number of complex valued eigenvalues
+   * @param countPos number of positive eigenvalues
+   * @param countNeg number of negative eigenvalues
    * @return type of critical point: SOURCE_2D 2, SADDLE_2D 1, SINK_2D 0, (CENTER_2D 3)
    */
   static int Classify2D(int countComplex, int countPos, int countNeg);
 
   /**
    * determine which type of critical point we have including distinction between node and spiral
-   * @param countReal: number of complex valued eigenvalues
-   * @param countPos: number of positive eigenvalues
-   * @param countNeg: number of negative eigenvalues
+   * @param countComplex number of complex valued eigenvalues
+   * @param countPos number of positive eigenvalues
+   * @param countNeg number of negative eigenvalues
    * @return type of critical point: ATTRACTING_NODE_2D 0, ATTRACTING_FOCUS_2D 1, NODE_SADDLE_2D 2,
    * REPELLING_NODE_2D 3, REPELLING_FOCUS_2D 4, CENTER_DETAILED_2D 5,
    */
@@ -405,9 +403,9 @@ private:
 
   /**
    * determine which type of critical point we have based on the eigenvalues of the Jacobian in 3D
-   * @param countReal: number of complex valued eigenvalues
-   * @param countPos: number of positive eigenvalues
-   * @param countNeg: number of negative eigenvalues
+   * @param countComplex number of complex valued eigenvalues
+   * @param countPos number of positive eigenvalues
+   * @param countNeg number of negative eigenvalues
    * @return type of critical point: SOURCE_3D 3, SADDLE_2_3D 2, SADDLE_1_3D 1, SINK_3D 0,
    * (CENTER_3D 4)
    */
@@ -415,9 +413,9 @@ private:
 
   /**
    * determine which type of critical point we have including distinction between node and spiral
-   * @param countReal: number of complex valued eigenvalues
-   * @param countPos: number of positive eigenvalues
-   * @param countNeg: number of negative eigenvalues
+   * @param countComplex number of complex valued eigenvalues
+   * @param countPos number of positive eigenvalues
+   * @param countNeg number of negative eigenvalues
    * @return type of critical point: ATTRACTING_NODE_3D 0, ATTRACTING_FOCUS_3D 1, NODE_SADDLE_1_3D
    * 2, FOCUS_SADDLE_1_3D 3, NODE_SADDLE_2_3D 4, FOCUS_SADDLE_2_3D 5, REPELLING_NODE_3D 6,
    * REPELLING_FOCUS_3D 7, CENTER_DETAILED_3D 8
@@ -429,8 +427,8 @@ private:
    * This function is used for 3D data because the vtkGeometryFilter -> vtkDataSetSurfaceFilter ->
    * vtkCellDataToPointData -> vtkContourFilter pipeline in the
    * ComputeSeparatricesBoundarySwitchLines function copies those arrays.
-   * @param source: A source is the input to filter whose datatype equals to vtkDataSet
-   * @param target: A target is BoundarySwitchLines whose datatype equals to vtkPolyData
+   * @param source A source is the input to filter whose datatype equals to vtkDataSet
+   * @param target A target is BoundarySwitchLines whose datatype equals to vtkPolyData
    */
   static void CopyBoundarySwitchLinesArray(vtkDataSet* source, vtkPolyData* target);
 

@@ -63,7 +63,7 @@ class EventTimer(wx.Timer):
 
     def __init__(self, iren):
         """Default class constructor.
-        @param iren: current render window
+        @param iren current render window
         """
         wx.Timer.__init__(self)
         self.iren = iren
@@ -93,9 +93,9 @@ class wxVTKRenderWindowInteractor(baseClass):
 
     def __init__(self, parent, ID, *args, **kw):
         """Default class constructor.
-        @param parent: parent window
-        @param ID: window id
-        @param **kw: wxPython keywords (position, size, style) plus the
+        @param parent parent window
+        @param ID window id
+        @param **kw wxPython keywords (position, size, style) plus the
         'stereo' keyword
         """
         # private attributes

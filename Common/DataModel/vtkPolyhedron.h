@@ -402,9 +402,8 @@ public:
   /**
    * Get the faces of the polyhedron.
    * Face are expressed as sequences of <b> global point IDs </b>.
-   *
-   * @param faces vtkCellArray that stores the list of polygonal faces with their corresponding
-   * global point IDs
+   * The vtkCellArray stores the list of polygonal faces with their corresponding
+   * global point IDs.
    */
   vtkCellArray* GetCellFaces();
   void GetCellFaces(vtkCellArray* faces);

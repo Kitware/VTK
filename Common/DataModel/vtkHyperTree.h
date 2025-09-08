@@ -184,19 +184,19 @@ public:
    * Restore a state from read data, without using a cursor
    * Call after create hypertree with initialize.
    *
-   * @param numberOfLevels: the maximum number of levels.
-   * @param nbVertices: the number of vertices of the future tree
+   * @param numberOfLevels the maximum number of levels.
+   * @param nbVertices the number of vertices of the future tree
    * (coarse and leaves), fixed either the information loading
    * (for load reduction) or defined by the fixed level of reader.
-   * @param nbVerticesOfLastLevel: the number of vertices of last
+   * @param nbVerticesOfLastLevel the number of vertices of last
    * valid level.
-   * @param isParent: a binary decomposition tree by level with
+   * @param isParent a binary decomposition tree by level with
    * constraint all describe children. It is useless to declare
    * all the latest values to False, especially the last level
    * may not be defined.
-   * @param isMasked: a binary mask corresponding. It is useless
+   * @param isMasked a binary mask corresponding. It is useless
    * to declare all the latest values to False.
-   * @param outIsMasked: the mask of hypertree grid including
+   * @param outIsMasked the mask of hypertree grid including
    * this hypertree which is a vtkBitArray.
    */
   virtual void InitializeForReader(vtkIdType numberOfLevels, vtkIdType nbVertices,
@@ -217,11 +217,11 @@ public:
    * would be the size of `descriptor`
    * before calling this method, plus `id`.
    *
-   * @param numberOfBits: Number of bits to be read in the descriptor to build
+   * @param numberOfBits Number of bits to be read in the descriptor to build
    * the tree. Remember that the last depth of the tree is not encoded in the
    * descriptor, as we know that they are full of zeros (because leaves have no children).
    *
-   * @param startIndex: Input descriptor is being read starting at this index.
+   * @param startIndex Input descriptor is being read starting at this index.
    */
   virtual void BuildFromBreadthFirstOrderDescriptor(
     vtkBitArray* descriptor, vtkIdType numberOfBits, vtkIdType startIndex = 0) = 0;
