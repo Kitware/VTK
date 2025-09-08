@@ -348,8 +348,8 @@ public:
   /**
    * Set the input data arrays that this algorithm will process.
    * Default to SetInputArrayToProcess(0, 0, 0, fieldAssociation, name)
-   * @param name: the name of the array to process
-   * @param fieldAssociation: the field in the data object where the array is stored.
+   * @param name the name of the array to process
+   * @param fieldAssociation the field in the data object where the array is stored.
    * See vtkDataObject::FieldAssociations for detail.
    *
    * @see void SetInputArrayToProcess(int, int, int, int, const char*)
@@ -364,30 +364,30 @@ public:
    *
    * Full signature with array name.
    *
-   * @param idx: the intern index of the array, in vtkAlgorithm scope.
+   * @param idx the intern index of the array, in vtkAlgorithm scope.
    * Useful for algorithm expecting different arrays to work.
-   * @param port: the algorithm input port of the data object where to look for the requested array.
+   * @param port the algorithm input port of the data object where to look for the requested array.
    * See @ref GetInputDataObject
-   * @param connection: the algorithm input connection of the data object where to look for the
+   * @param connection the algorithm input connection of the data object where to look for the
    * requested array. See @ref GetInputDataObject
-   * @param fieldAssociation: the field in the data object where the array is stored.
+   * @param fieldAssociation the field in the data object where the array is stored.
    * See vtkDataObject::FieldAssociations for detail.
-   * @param name: the name of the array to process
+   * @param name the name of the array to process
    */
   virtual void SetInputArrayToProcess(
     int idx, int port, int connection, int fieldAssociation, const char* name);
   /**
    * Set the input data arrays that this algorithm will process.
    * Full signature with attribute type.
-   * @param idx: the intern index of the array, in vtkAlgorithm scope.
+   * @param idx the intern index of the array, in vtkAlgorithm scope.
    * Useful for algorithm expecting different arrays to work.
-   * @param port: the algorithm input port of the data object where to look for the requested array.
+   * @param port the algorithm input port of the data object where to look for the requested array.
    * See @ref GetInputDataObject
-   * @param connection: the algorithm input connection of the data object where to look for the
+   * @param connection the algorithm input connection of the data object where to look for the
    * requested array. See @ref GetInputDataObject
-   * @param fieldAssociation: the field in the data object where the array is stored.
+   * @param fieldAssociation the field in the data object where the array is stored.
    * See vtkDataObject::FieldAssociations for detail.
-   * @param fieldAttributeType: the attribute type related to the array to use.
+   * @param fieldAttributeType the attribute type related to the array to use.
    * See vtkDataSetAttributes::AttributeTypes for possible values.
    */
   virtual void SetInputArrayToProcess(

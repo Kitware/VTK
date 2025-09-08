@@ -52,7 +52,7 @@ int MPIGetSize();
  * Get safely a pugi::xml_document from XML as a string
  * @param input entire XML contents as a string or file, depending on bool
  * isFile
- * @param debugMode true: safe mode throws exceptions
+ * @param debugMode true safe mode throws exceptions
  * @param hint add extra information on exceptions
  * @return xml as pugi object
  * @throws std::invalid_argument
@@ -63,10 +63,10 @@ pugi::xml_document XMLDocument(const std::string& input, bool debugMode, const s
  * Get safely a pugi::xml_document from a pugmi::xml_document
  * @param nodeName input node to be found
  * @param xmlDocument input document
- * @param debugMode true: safe mode throws exceptions
+ * @param debugMode true safe mode throws exceptions
  * @param hint add extra information on exceptions
- * @param isMandatory true: throws exception if node is not found
- * @param isUnique true: throws exception if node exist more than once
+ * @param isMandatory true throws exception if node is not found
+ * @param isUnique true throws exception if node exist more than once
  * @return node if found, empty node if not mandatory
  * @throws std::invalid_argument
  */
@@ -78,10 +78,10 @@ pugi::xml_node XMLNode(std::string nodeName, const pugi::xml_document& xmlDocume
  * upperNode
  * @param nodeName input node to be found
  * @param upperNode input node to search inside for nodeName
- * @param debugMode true: safe mode throws exceptions
+ * @param debugMode true safe mode throws exceptions
  * @param hint add extra information on exceptions
- * @param isMandatory true: throws exception if node is not found
- * @param isUnique true: throws exception if node exist more than once
+ * @param isMandatory true throws exception if node is not found
+ * @param isUnique true throws exception if node exist more than once
  * @return node if found, empty node if not mandatory
  * @throws std::invalid_argument
  */
@@ -99,9 +99,9 @@ std::string FileToString(const std::string& fileName);
  * Get a node attribute identified by its key
  * @param attributeName input xml attribute to be found
  * @param node input node to search inside for attributeName
- * @param debugMode true: safe mode throws exceptions
+ * @param debugMode true safe mode throws exceptions
  * @param hint add extra information on exceptions
- * @param isMandatory true: throws exception if node is not found
+ * @param isMandatory true throws exception if node is not found
  * @return attribute if found, empty node if not mandatory
  * @throws std::invalid_argument
  */

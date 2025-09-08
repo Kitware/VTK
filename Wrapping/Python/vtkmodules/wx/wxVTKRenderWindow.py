@@ -108,9 +108,9 @@ class wxVTKRenderWindow(baseClass):
 
     def __init__(self, parent, ID, *args, **kw):
         """Default class constructor.
-        @param parent: parent window
-        @param ID: window id
-        @param **kw: wxPython keywords (position, size, style) plus the
+        @param parent parent window
+        @param ID window id
+        @param **kw wxPython keywords (position, size, style) plus the
         'stereo' keyword
         """
         # miscellaneous protected variables

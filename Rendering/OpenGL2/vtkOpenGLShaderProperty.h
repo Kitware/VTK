@@ -95,13 +95,13 @@ public:
   void ClearAllShaderReplacements(vtkShader::Type shaderType);
   ///@}
 
+  typedef std::map<vtkShader::ReplacementSpec, vtkShader::ReplacementValue> ReplacementMap;
   /**
    * @brief GetAllShaderReplacements returns all user-specified shader
    * replacements. It is provided for iteration purposes only (const)
    * and is mainly used by mappers when building the shaders.
    * @return const reference to internal map holding all replacements
    */
-  typedef std::map<vtkShader::ReplacementSpec, vtkShader::ReplacementValue> ReplacementMap;
   const ReplacementMap& GetAllShaderReplacements() { return this->UserShaderReplacements; }
 
 protected:
