@@ -52,9 +52,7 @@ NUMPY_FUNCTIONS = [
     lambda a: np.arccosh(a + 1),
     lambda a: np.arctanh(a/10),
     lambda a: np.flatnonzero(a),
-    lambda a: np.nonzero(a),
     lambda a: np.expand_dims(a, 1),
-    lambda a: np.where(a < 3),
     lambda a: np.power(a, 5),
     lambda a: np.power(a, a),
     lambda a: np.power(a, np.array([[2,2,2],[2,2,2],[2,2,2],[2,2,2],[2,2,2],[2,2,2],[2,2,2]])),
@@ -98,11 +96,6 @@ SLICING = [
     np.array(-4),
     [-3],
     [5, 2, 3],
-]
-
-COMPOSITE_SLICING = [
-    dsa.VTKCompositeDataArray([dsa.VTKArray([0, 2]), dsa.VTKArray([5, 6])]),
-    dsa.VTKCompositeDataArray([dsa.VTKArray([-2]), dsa.NoneArray, dsa.VTKArray([2, -6])])
 ]
 
 MISC_FUNCTIONS = [
@@ -157,13 +150,16 @@ class TestVTKCompositeDataArray(vtkTesting.vtkTest):
             np_composite_sliced = self._to_np(composite_sliced)
             self.assertEqual(np.all(np_array_sliced == np_composite_sliced) , True)
 
-    def test_composite_slicing(self) -> None:
+    def test_composite_get_set(self) -> None:
         composite, np_array = self.get_arrays()
-        for slc in COMPOSITE_SLICING:
-            composite_sliced = composite[slc]
-            np_array_sliced = np_array[self._to_np(slc)]
-            np_composite_sliced = self._to_np(composite_sliced)
-            self.assertEqual(np.all(np_array_sliced == np_composite_sliced) , True)
+        composite[composite > 6] = -1
+        np_array[np_array > 6] = -1
+        np_composite = self._to_np(composite)
+        self.assertEqual(np.all(np_composite == np_array), True)
+        composite_transformed = composite[composite > 2]
+        np_array_transformed = np_array[np_array > 2]
+        np_composite_transformed = self._to_np(composite_transformed)
+        self.assertEqual(np.all(np_composite_transformed == np_array_transformed), True)
 
     def test_misc(self) -> None:
         composite, np_array = self.get_arrays()
@@ -180,10 +176,6 @@ class TestVTKCompositeDataArray(vtkTesting.vtkTest):
             np_array[slc] = value
             np_composite = self._to_np(composite)
             self.assertEqual(np.all(np_composite == np_array), True)
-        composite[composite > 6] = -1
-        np_array[np_array > 6] = -1
-        np_composite = self._to_np(composite)
-        self.assertEqual(np.all(np_composite == np_array), True)
 
 if __name__ == "__main__":
     vtkTesting.main([(TestVTKCompositeDataArray, "test")])

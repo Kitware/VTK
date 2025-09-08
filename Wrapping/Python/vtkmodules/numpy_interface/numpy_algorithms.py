@@ -421,54 +421,6 @@ def flatnonzero(array):
     else:
         return numpy.flatnonzero(array)
 
-@dsa._override_numpy(numpy.nonzero)
-def nonzero(array):
-    """
-    Return the indices of the non-zero elements of the input array.
-    """
-    if array is dsa.NoneArray:
-        return dsa.NoneArray
-    elif type(array) == dsa.VTKCompositeDataArray:
-        res = []
-        offset = 0
-        for arr in array.Arrays:
-            if arr is not dsa.NoneArray:
-                nz_chunk = numpy.nonzero(arr)
-                if len(res) == 0:
-                    res = [numpy.array([])] * len(nz_chunk)
-                for i in range(len(nz_chunk)):
-                    res[i] = numpy.concatenate((res[i], nz_chunk[i] + (offset if i == 0 else 0)))
-                offset += arr.shape[0]
-        return tuple(numpy.asarray(coord, dtype=int) for coord in res)
-    else:
-        return numpy.nonzero(array)
-
-@dsa._override_numpy(numpy.where)
-def where(*args):
-    """Returns the location (indices) of an array where the given
-    expression is true. For scalars, it returns a single array of indices.
-    For vectors and matrices, it returns two arrays: first with tuple indices,
-    second with component indices. The output of this method can be used to
-    extract the values from the array also by using it as the index of the [] operator.
-
-    For example:
-
-    >>> np.where(np.array([1,2,3]) == 2)
-    (array([1]),)
-
-    >>> np.where(np.array([[1,2,3], [2,1,1]]) == 2)
-    (array([0, 1]), array([1, 0]))
-
-    >>> a = array([[1,2,3], [2,1,1]])
-    >>> indices = np.where(a > 2)
-    >>> a[indices]
-    array([3])
-    """
-    if len(args) == 1:
-        return numpy.nonzero(args[0])
-    else:
-        return NotImplementedError("Support for 3 arguments where has not been implemented yet.")
-
 def _like_VTKCompositeDataArray(array: dsa.VTKCompositeDataArray, kind: str,
                                 dtype: Optional[numpy.dtype] = None, value: Optional[int] = None):
     """Helper to construct like-structured VTKCompositeDataArray."""
@@ -501,6 +453,32 @@ def ones_like(array: dsa.VTKCompositeDataArray, dtype: Optional[numpy.dtype] = N
 def empty_like(array: dsa.VTKCompositeDataArray, dtype: Optional[numpy.dtype] = None) -> dsa.VTKCompositeDataArray:
     """Create a new uninitialized VTKCompositeDataArray of the same shape as array."""
     return _like_VTKCompositeDataArray(array, "empty", dtype)
+
+nonzero = (dsa._override_numpy(numpy.nonzero)(_make_ufunc(numpy.nonzero)))
+nonzero.__doc__ = """Return the indices of the non-zero elements of the input array.
+For vtkCompositeDataArray, indices are local to each chunk."""
+
+where = (dsa._override_numpy(numpy.where)(_make_ufunc(numpy.where)))
+where.__doc__ = """Returns the location (indices) of an array where the given
+expression is true. For vtkCompositeDataArray, indices are local to each chunk.
+For scalars, it returns a single array of indices.
+For vectors and matrices, it returns two arrays: first with tuple indices,
+second with component indices. The output of this method can be used to
+extract the values from the array also by using it as the index of the [] operator.
+
+For example:
+
+>>> algs.where(algs.array([1,2,3]) == 2)
+(array([1]),)
+
+>>> algs.where(algs.array([[1,2,3], [2,1,1]]) == 2)
+(array([0, 1]), array([1, 0]))
+
+>>> a = array([[1,2,3], [2,1,1]])
+>>> indices = algs.where(a > 2)
+>>> a[indices]
+array([3])
+"""
 
 
 in1d = (dsa._override_numpy(numpy.in1d)(_make_ufunc(numpy.in1d)))
