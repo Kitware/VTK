@@ -101,16 +101,19 @@ struct vtkDataArraySerializer
       return;
     }
 
-    auto values = vtk::DataArrayValueRange(array);
     auto context = serializer->GetContext();
     auto blob = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
-    vtkIdType arrSize = values.size() * array->GetDataTypeSize();
-    if (array->IsA("vtkBitArray"))
+    vtkIdType arrSize = array->GetNumberOfValues() * array->GetDataTypeSize();
+    if (auto bitArray = vtkBitArray::SafeDownCast(array))
     {
-      arrSize = (values.size() + 7) / 8;
-      state["NumberOfBits"] = values.size();
+      arrSize = (array->GetNumberOfValues() + 7) / 8;
+      state["NumberOfBits"] = array->GetNumberOfValues();
+      blob->SetArray(bitArray->GetPointer(0), arrSize, 1);
     }
-    blob->SetArray(reinterpret_cast<vtkTypeUInt8*>(values.data()), arrSize, 1);
+    else
+    {
+      blob->SetArray(reinterpret_cast<vtkTypeUInt8*>(array->GetVoidPointer(0)), arrSize, 1);
+    }
 
     std::string hash;
     if (context->RegisterBlob(blob, hash))
@@ -153,12 +156,11 @@ struct vtkDataArrayDeserializer
         return;
       }
       const auto& content = blobIter.value().get_binary();
-      auto dst = vtk::DataArrayValueRange(array);
 
-      if (array->IsA("vtkBitArray"))
+      if (auto bitArray = vtkBitArray::SafeDownCast(array))
       {
-        std::copy(content.data(), content.data() + ((dst.size() + 7) / 8),
-          reinterpret_cast<unsigned char*>(dst.data()));
+        std::copy(content.data(), content.data() + ((bitArray->GetNumberOfValues() + 7) / 8),
+          bitArray->GetPointer(0));
         array->SetNumberOfValues(state["NumberOfBits"]);
       }
       else
@@ -166,7 +168,8 @@ struct vtkDataArrayDeserializer
         using APIType = vtk::GetAPIType<ArrayT>;
         const APIType* c_ptr = reinterpret_cast<const APIType*>(content.data());
         auto src = const_cast<APIType*>(c_ptr);
-        std::copy(src, src + dst.size(), dst.data());
+        auto dst = reinterpret_cast<APIType*>(array->GetVoidPointer(0));
+        std::copy(src, src + array->GetNumberOfValues(), dst);
       }
       // nifty memory savings below, unfortunately, doesn't work correctly when there are point
       // scalars.

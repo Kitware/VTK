@@ -967,10 +967,12 @@ public:
    *  Ex: the elements are completely different when an array of 32-bit floats is reinterpreted as
    * an array of unsigned 8-bit integer,
    */
+  VTK_DEPRECATED_IN_9_6_0("Use iterators instead.")
   value_type* data() noexcept
   {
     return reinterpret_cast<value_type*>(this->Array->GetVoidPointer(0));
   }
+  VTK_DEPRECATED_IN_9_6_0("Use iterators instead.")
   value_type* data() const noexcept
   {
     return reinterpret_cast<value_type*>(this->Array->GetVoidPointer(0));
