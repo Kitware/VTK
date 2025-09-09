@@ -8,7 +8,6 @@
 #include "vtkCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
-#include "vtkGenericCell.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
@@ -21,13 +20,11 @@
 #include "vtkHyperTreeGridOrientedCursor.h"
 #include "vtkHyperTreeGridOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridScales.h"
-#include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVector.h"
-#include "vtkLegacy.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -46,9 +43,10 @@ vtkInformationKeyMacro(vtkHyperTreeGrid, ORIENTATION, Integer);
 vtkInformationKeyRestrictedMacro(vtkHyperTreeGrid, SIZES, DoubleVector, 3);
 
 vtkStandardNewMacro(vtkHyperTreeGrid);
-vtkCxxSetObjectMacro(vtkHyperTreeGrid, XCoordinates, vtkDataArray);
-vtkCxxSetObjectMacro(vtkHyperTreeGrid, YCoordinates, vtkDataArray);
-vtkCxxSetObjectMacro(vtkHyperTreeGrid, ZCoordinates, vtkDataArray);
+
+vtkCxxSetSmartPointerMacro(vtkHyperTreeGrid, XCoordinates, vtkDataArray);
+vtkCxxSetSmartPointerMacro(vtkHyperTreeGrid, YCoordinates, vtkDataArray);
+vtkCxxSetSmartPointerMacro(vtkHyperTreeGrid, ZCoordinates, vtkDataArray);
 
 void vtkHyperTreeGrid::CopyCoordinates(const vtkHyperTreeGrid* output)
 {
@@ -86,10 +84,35 @@ void vtkHyperTreeGrid::SetFixedCoordinates(unsigned int axis, double value)
   }
 }
 
-void vtkHyperTreeGrid::SetMask(vtkBitArray* _arg)
+//------------------------------------------------------------------------------
+void vtkHyperTreeGrid::SetMask(vtkBitArray* mask)
 {
-  vtkSetObjectBodyMacro(Mask, vtkBitArray, _arg);
+  vtkSetSmartPointerBodyMacro(Mask, vtkBitArray, mask);
   this->CleanPureMask();
+}
+
+//------------------------------------------------------------------------------
+vtkBitArray* vtkHyperTreeGrid::GetMask()
+{
+  return this->Mask;
+}
+
+//------------------------------------------------------------------------------
+vtkDataArray* vtkHyperTreeGrid::GetXCoordinates()
+{
+  return this->XCoordinates;
+}
+
+//------------------------------------------------------------------------------
+vtkDataArray* vtkHyperTreeGrid::GetYCoordinates()
+{
+  return this->YCoordinates;
+}
+
+//------------------------------------------------------------------------------
+vtkDataArray* vtkHyperTreeGrid::GetZCoordinates()
+{
+  return this->ZCoordinates;
 }
 
 // Helper macros to quickly fetch a HT at a given index or iterator
@@ -101,20 +124,20 @@ void vtkHyperTreeGrid::SetMask(vtkBitArray* _arg)
 
 //------------------------------------------------------------------------------
 vtkHyperTreeGrid::vtkHyperTreeGrid()
+  : XCoordinates(vtkSmartPointer<vtkDoubleArray>::New())
+  , YCoordinates(vtkSmartPointer<vtkDoubleArray>::New())
+  , ZCoordinates(vtkSmartPointer<vtkDoubleArray>::New())
 {
   // Interface array names
 
   // Primal grid geometry
   this->WithCoordinates = true;
-  this->XCoordinates = vtkDoubleArray::New();
   this->XCoordinates->SetNumberOfTuples(1);
   this->XCoordinates->SetTuple1(0, 0.0);
 
-  this->YCoordinates = vtkDoubleArray::New();
   this->YCoordinates->SetNumberOfTuples(1);
   this->YCoordinates->SetTuple1(0, 0.0);
 
-  this->ZCoordinates = vtkDoubleArray::New();
   this->ZCoordinates->SetNumberOfTuples(1);
   this->ZCoordinates->SetTuple1(0, 0.0);
 
@@ -185,27 +208,15 @@ void vtkHyperTreeGrid::Initialize()
   // but there is currently a conflict with vtkUniformHyperTreeGrid
   // which inherits from vtkHyperTreeGrid.
   // To be fixed when a better inheritance tree is implemented.
-  if (this->XCoordinates)
-  {
-    this->XCoordinates->Delete();
-  }
-  this->XCoordinates = vtkDoubleArray::New();
+  this->XCoordinates = vtkSmartPointer<vtkDoubleArray>::New();
   this->XCoordinates->SetNumberOfTuples(1);
   this->XCoordinates->SetTuple1(0, 0.0);
 
-  if (this->YCoordinates)
-  {
-    this->YCoordinates->Delete();
-  }
-  this->YCoordinates = vtkDoubleArray::New();
+  this->YCoordinates = vtkSmartPointer<vtkDoubleArray>::New();
   this->YCoordinates->SetNumberOfTuples(1);
   this->YCoordinates->SetTuple1(0, 0.0);
 
-  if (this->ZCoordinates)
-  {
-    this->ZCoordinates->Delete();
-  }
-  this->ZCoordinates = vtkDoubleArray::New();
+  this->ZCoordinates = vtkSmartPointer<vtkDoubleArray>::New();
   this->ZCoordinates->SetNumberOfTuples(1);
   this->ZCoordinates->SetTuple1(0, 0.0);
 
@@ -244,33 +255,10 @@ void vtkHyperTreeGrid::Initialize()
 //------------------------------------------------------------------------------
 vtkHyperTreeGrid::~vtkHyperTreeGrid()
 {
-  if (this->Mask)
-  {
-    this->Mask->Delete();
-    this->Mask = nullptr;
-  }
-
   this->CleanPureMask();
 
-  if (this->XCoordinates)
-  {
-    this->XCoordinates->Delete();
-    this->XCoordinates = nullptr;
-  }
-
-  if (this->YCoordinates)
-  {
-    this->YCoordinates->Delete();
-    this->YCoordinates = nullptr;
-  }
-
-  if (this->ZCoordinates)
-  {
-    this->ZCoordinates->Delete();
-    this->ZCoordinates = nullptr;
-  }
-  this->SetInterfaceNormalsName(nullptr);
-  this->SetInterfaceInterceptsName(nullptr);
+  this->vtkHyperTreeGrid::SetInterfaceNormalsName(nullptr);
+  this->vtkHyperTreeGrid::SetInterfaceInterceptsName(nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -584,6 +572,8 @@ void vtkHyperTreeGrid::SetExtent(const int extent[6])
       {
         std::swap(this->Axis[0], this->Axis[1]);
       }
+      break;
+    default:
       break;
   }
 
@@ -927,6 +917,8 @@ vtkHyperTreeGridNonOrientedGeometryCursor* vtkHyperTreeGrid::FindNonOrientedGeom
       assert("pre: not_implemented_raf_3" && false);
       break;
     }
+    default:
+      break;
   }
 
   return cursor;
@@ -1437,6 +1429,8 @@ vtkIdType vtkHyperTreeGrid::GetShiftedLevelZeroIndex(
       local_ijk[2] += dk;
       break;
     }
+    default:
+      break;
   }
   vtkIdType shifttreeindex;
   // It is very important to use the GetIndexFromLevelZeroCoordinates method,

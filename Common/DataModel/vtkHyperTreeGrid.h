@@ -302,7 +302,7 @@ public:
    * Set/Get the grid coordinates in the x-direction.
    */
   virtual void SetXCoordinates(vtkDataArray*);
-  vtkGetObjectMacro(XCoordinates, vtkDataArray);
+  virtual vtkDataArray* GetXCoordinates();
   ///@}
 
   ///@{
@@ -310,7 +310,7 @@ public:
    * Set/Get the grid coordinates in the y-direction.
    */
   virtual void SetYCoordinates(vtkDataArray*);
-  vtkGetObjectMacro(YCoordinates, vtkDataArray);
+  virtual vtkDataArray* GetYCoordinates();
   ///@}
 
   ///@{
@@ -318,7 +318,7 @@ public:
    * Set/Get the grid coordinates in the z-direction.
    */
   virtual void SetZCoordinates(vtkDataArray*);
-  vtkGetObjectMacro(ZCoordinates, vtkDataArray);
+  virtual vtkDataArray* GetZCoordinates();
   ///@}
 
   ///@{
@@ -334,7 +334,7 @@ public:
    * Set/Get the blanking mask of primal leaf cells
    */
   void SetMask(vtkBitArray*);
-  vtkGetObjectMacro(Mask, vtkBitArray);
+  virtual vtkBitArray* GetMask();
   ///@}
 
   /**
@@ -846,12 +846,12 @@ protected:
   int Extent[6] = { 0, -1, 0, -1, 0, -1 };
 
   bool WithCoordinates = false;
-  vtkDataArray* XCoordinates = nullptr;
-  vtkDataArray* YCoordinates = nullptr;
-  vtkDataArray* ZCoordinates = nullptr;
+  vtkSmartPointer<vtkDataArray> XCoordinates;
+  vtkSmartPointer<vtkDataArray> YCoordinates;
+  vtkSmartPointer<vtkDataArray> ZCoordinates;
   // --------------------------------
 
-  vtkBitArray* Mask = nullptr;
+  vtkSmartPointer<vtkBitArray> Mask;
   vtkBitArray* PureMask = nullptr;
 
   bool HasInterface = false;
