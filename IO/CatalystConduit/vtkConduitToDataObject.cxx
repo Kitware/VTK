@@ -548,6 +548,8 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
           vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&values), fieldname);
         if (array->GetNumberOfTuples() != dataset->GetNumberOfElements(vtk_association))
         {
+          vtkLog(ERROR, << "Array has " << array->GetNumberOfTuples() << " tuples but dataset has "
+                        << dataset->GetNumberOfElements(vtk_association) << " elements.");
           throw std::runtime_error("mismatched tuple count!");
         }
         if (fieldMetadata.find(fieldname) != fieldMetadata.end())

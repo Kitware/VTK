@@ -359,7 +359,7 @@ template <class DerivedT, class ValueTypeT>
 vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT>::Allocate(
   vtkIdType size, vtkIdType vtkNotUsed(ext))
 {
-  // Allocator must updated this->Size and this->MaxId properly.
+  // Allocator must update this->MaxId properly.
   this->MaxId = -1;
   if (size > this->Size || size == 0)
   {

@@ -187,6 +187,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestImplicitArrayTraits.cxx
   TestIndexedArray.cxx
   TestIndexedImplicitBackend.cxx
+  TestStridedArray.cxx
   TestStdFunctionArray.cxx
   TestStructuredPointArray.cxx)
 

@@ -1,0 +1,6 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#define VTK_STRIDED_ARRAY_INSTANTIATING
+#include "vtkStridedArray.h"
+
+VTK_INSTANTIATE_STRIDED_ARRAY(@INSTANTIATION_VALUE_TYPE@)
