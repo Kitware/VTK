@@ -23,6 +23,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
+#include "vtkTransform.h"
 
 #include "vtkLight.h"
 
@@ -126,6 +127,24 @@ int TestCubeMap2(int argc, char* argv[])
   vtkNew<vtkSkybox> world;
   world->SetTexture(texture);
   renderer->AddActor(world);
+
+  vtkNew<vtkTransform> transform;
+  transform->Identity();
+  transform->RotateX(0);
+  transform->RotateY(-180);
+  transform->RotateZ(0);
+
+  vtkMatrix4x4* mat4 = transform->GetMatrix();
+  vtkNew<vtkMatrix3x3> rotMat;
+  for (int i = 0; i < 3; ++i)
+  {
+    for (int j = 0; j < 3; ++j)
+    {
+      rotMat->SetElement(i, j, mat4->GetElement(i, j));
+    }
+  }
+
+  renderer->SetEnvironmentRotationMatrix(rotMat);
 
   renderer->GetActiveCamera()->SetPosition(0.0, 0.55, 2.0);
   renderer->GetActiveCamera()->SetFocalPoint(0.0, 0.55, 0.0);
