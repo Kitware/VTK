@@ -182,7 +182,7 @@ private:
    * Helper function for HTG only. Creates a new Hyper Tree similar
    * to the input but rotated according to the provided permutation vector.
    */
-  vtkHyperTree* CreateNewRotatedHyperTree(
+  vtkSmartPointer<vtkHyperTree> CreateNewRotatedHyperTree(
     vtkHyperTreeGrid* htg, vtkHyperTree* dest, const std::vector<unsigned int>& permutation);
 
   // Transformation parameters

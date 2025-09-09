@@ -56,7 +56,8 @@ vtkHyperTree* vtkUniformHyperTreeGrid::GetTree(vtkIdType index, bool create)
   // Create a new cursor if only required to do so
   if (create && !tree)
   {
-    tree = vtkHyperTree::CreateInstance(this->BranchFactor, this->Dimension);
+    tree = vtkHyperTree::New();
+    tree->Initialize(this->BranchFactor, this->Dimension);
     tree->SetTreeIndex(index);
     this->HyperTrees[index] = tree;
     tree->Delete();

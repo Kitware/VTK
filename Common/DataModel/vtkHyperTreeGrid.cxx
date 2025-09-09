@@ -415,11 +415,14 @@ void vtkHyperTreeGrid::CopyStructure(vtkDataObject* ds)
          htg->HyperTrees.begin();
        it != htg->HyperTrees.end(); ++it)
   {
-    vtkHyperTree* tree = vtkHyperTree::CreateInstance(this->BranchFactor, this->Dimension);
-    assert("pre: same_type" && tree != nullptr);
+    vtkNew<vtkHyperTree> tree;
+    if (!tree->Initialize(this->BranchFactor, this->Dimension))
+    {
+      vtkGenericWarningMacro("Failed to copy structure.");
+      break;
+    }
     tree->CopyStructure(it->second);
     this->HyperTrees[it->first] = tree;
-    tree->Delete();
   }
 
   if (htg->HasAnyGhostCells())
@@ -1020,8 +1023,12 @@ vtkHyperTree* vtkHyperTreeGrid::GetTree(vtkIdType index, bool create)
   // Create a new cursor if only required to do so
   if (create && !tree)
   {
-    tree = vtkHyperTree::CreateInstance(this->BranchFactor, this->Dimension);
-    assert(tree != nullptr);
+    tree = vtkHyperTree::New();
+    if (!tree->Initialize(this->BranchFactor, this->Dimension))
+    {
+      vtkGenericWarningMacro("Failed to create hyper tree.");
+      return nullptr;
+    }
     tree->SetTreeIndex(index);
     this->HyperTrees[index] = tree;
     tree->Delete();
@@ -1138,11 +1145,14 @@ void vtkHyperTreeGrid::DeepCopy(vtkDataObject* src)
          htg->HyperTrees.begin();
        it != htg->HyperTrees.end(); ++it)
   {
-    vtkHyperTree* tree = vtkHyperTree::CreateInstance(this->BranchFactor, this->Dimension);
-    assert("pre: same_type" && tree != nullptr);
+    vtkNew<vtkHyperTree> tree;
+    if (!tree->Initialize(this->BranchFactor, this->Dimension))
+    {
+      vtkGenericWarningMacro("Failed to deep copy.");
+      break;
+    }
     tree->CopyStructure(it->second);
     this->HyperTrees[it->first] = tree;
-    tree->Delete();
   }
 }
 

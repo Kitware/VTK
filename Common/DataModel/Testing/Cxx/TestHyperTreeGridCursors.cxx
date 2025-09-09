@@ -8,6 +8,7 @@
 #include "vtkHyperTreeGridNonOrientedUnlimitedMooreSuperCursor.h"
 #include "vtkHyperTreeGridNonOrientedVonNeumannSuperCursor.h"
 #include "vtkHyperTreeGridOrientedCursor.h"
+#include "vtkLogger.h"
 #include "vtkUniformHyperTreeGrid.h"
 
 #include <array>
@@ -257,13 +258,17 @@ int TestTreeDeletion()
 {
   // Setup a HTG with a few trees at given ids
   vtkNew<vtkHyperTreeGrid> htg;
-  vtkHyperTree* tree = vtkHyperTree::CreateInstance(2, 2);
+  vtkNew<vtkHyperTree> tree;
+  if (!tree->Initialize(2, 3))
+  {
+    vtkLog(ERROR, "Failed to initialize tree.");
+    return 1;
+  }
   std::array<vtkIdType, 6> ids{ 0, 1, 3, 5, 8, 12 };
   for (auto id : ids)
   {
     htg->SetTree(id, tree);
   }
-  tree->Delete();
 
   // Delete some trees
   vtkIdType totalTreesRemoved = 0;
