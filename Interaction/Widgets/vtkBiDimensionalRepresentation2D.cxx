@@ -394,8 +394,8 @@ void vtkBiDimensionalRepresentation2D::StartWidgetManipulation(double e[2])
 // This handles all the nasty special cases when the length of the arms of the
 // bidimensional widget become zero. Basically the method prevents the arms
 // from getting too short.
-void vtkBiDimensionalRepresentation2D::ProjectOrthogonalPoint(const double x[4], const double y[3],
-  const double x1[3], const double x2[3], const double x21[3], double xP[3])
+void vtkBiDimensionalRepresentation2D::ProjectOrthogonalPoint(
+  const double x[4], const double y[3], const double x1[3], const double x2[3], double xP[3])
 {
   double t, closest[3];
 
@@ -511,26 +511,22 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
   }
   else if (this->InteractionState == NearP1)
   {
-    this->ProjectOrthogonalPoint(
-      pw, this->P2World, this->P3World, this->P4World, this->P43World, p1);
+    this->ProjectOrthogonalPoint(pw, this->P2World, this->P3World, this->P4World, p1);
     this->SetPoint1WorldPosition(p1);
   }
   else if (this->InteractionState == NearP2)
   {
-    this->ProjectOrthogonalPoint(
-      pw, this->P1World, this->P3World, this->P4World, this->P43World, p2);
+    this->ProjectOrthogonalPoint(pw, this->P1World, this->P3World, this->P4World, p2);
     this->SetPoint2WorldPosition(p2);
   }
   else if (this->InteractionState == NearP3)
   {
-    this->ProjectOrthogonalPoint(
-      pw, this->P4World, this->P1World, this->P2World, this->P21World, p3);
+    this->ProjectOrthogonalPoint(pw, this->P4World, this->P1World, this->P2World, p3);
     this->SetPoint3WorldPosition(p3);
   }
   else if (this->InteractionState == NearP4)
   {
-    this->ProjectOrthogonalPoint(
-      pw, this->P3World, this->P1World, this->P2World, this->P21World, p4);
+    this->ProjectOrthogonalPoint(pw, this->P3World, this->P1World, this->P2World, p4);
     this->SetPoint4WorldPosition(p4);
   } // near P4
 }

@@ -147,8 +147,8 @@ protected:
   vtkActor2D* TextActor;
 
   // Helper method
-  void ProjectOrthogonalPoint(const double x[4], const double y[3], const double x1[3],
-    const double x2[3], const double x21[3], double xP[3]);
+  void ProjectOrthogonalPoint(
+    const double x[4], const double y[3], const double x1[3], const double x2[3], double xP[3]);
 
 private:
   vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&) = delete;
