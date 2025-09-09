@@ -10,7 +10,31 @@ PRIVATE_DEPENDS
   VTK::SerializationManager
   VTK::WebAssemblySession
 OPTIONAL_DEPENDS
+  VTK::ChartsCore
+  VTK::CommonColor
+  VTK::CommonCore
+  VTK::CommonDataModel
+  VTK::CommonExecutionModel
+  VTK::CommonTransforms
+  VTK::CommonMath
+  VTK::CommonMisc
+  VTK::FiltersCore
+  VTK::FiltersSources
+  VTK::ImagingColor
+  VTK::ImagingCore
+  VTK::InteractionStyle
+  VTK::InteractionWidgets
+  VTK::RenderingAnnotation
+  VTK::RenderingCore
+  VTK::RenderingContext2D
   VTK::RenderingContextOpenGL2
+  VTK::RenderingGridAxes
+  VTK::RenderingImage
+  VTK::RenderingLabel
   VTK::RenderingOpenGL2
   VTK::RenderingUI
+  VTK::RenderingVolume
   VTK::RenderingVolumeOpenGL2
+  VTK::ViewsCore
+  VTK::ViewsContext2D
+  VTK::ViewsInfovis
