@@ -219,26 +219,37 @@ int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
   {
     parameters[this->TimeStepIndex] = timeValue;
   }
-  Ort::Value inputTensor = ::VecToTensor(parameters, this->InputSize);
-  std::vector<Ort::Value> outputTensors = this->RunModel(inputTensor);
 
-  // Retrieve output
-  float* outData = outputTensors[0].GetTensorMutableData<float>();
   int64_t numElements = this->OnCellData ? input->GetNumberOfCells() : input->GetNumberOfPoints();
-  Ort::TensorTypeAndShapeInfo shapeInfo = outputTensors[0].GetTensorTypeAndShapeInfo();
-  std::vector<int64_t> outputShape = shapeInfo.GetShape();
+  float* outData = nullptr;
 
-  if (outputShape.size() == 1)
+  try
   {
-    if (numElements != outputShape[0] / this->OutputDimension)
+    Ort::Value inputTensor = ::VecToTensor(parameters, this->InputSize);
+    std::vector<Ort::Value> outputTensors = this->RunModel(inputTensor);
+
+    // Retrieve output
+    outData = outputTensors[0].GetTensorMutableData<float>();
+    Ort::TensorTypeAndShapeInfo shapeInfo = outputTensors[0].GetTensorTypeAndShapeInfo();
+    std::vector<int64_t> outputShape = shapeInfo.GetShape();
+
+    if (outputShape.size() == 1)
     {
-      vtkErrorMacro("Model output number of elements does not match number of cells or points.");
+      if (numElements != outputShape[0] / this->OutputDimension)
+      {
+        vtkErrorMacro("Model output number of elements does not match number of cells or points.");
+        return 0;
+      }
+    }
+    else
+    {
+      vtkErrorMacro("Output shape size should be 1. Here it is: " << outputShape.size());
       return 0;
     }
   }
-  else
+  catch (const Ort::Exception& exception)
   {
-    vtkErrorMacro("Output shape size should be 1. Here it is: " << outputShape.size());
+    vtkErrorMacro(<< "Error during the ONNX inference. " << exception.what());
     return 0;
   }
 
