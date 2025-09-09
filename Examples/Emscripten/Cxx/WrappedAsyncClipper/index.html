@@ -75,6 +75,9 @@
     var mouseDown = false;
 
     var Module = {
+      'canvas': (function () {
+        return document.getElementById('canvas');
+      })(),
       'print': (function () {
         var logs = document.getElementById('logs');
         if (logs) logs.value = ''; // clear browser cache
