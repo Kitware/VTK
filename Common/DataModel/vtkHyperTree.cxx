@@ -510,7 +510,7 @@ protected:
   {
     // Set default tree structure with a single node at the root
     this->CompactDatas->ParentToElderChild_stl.resize(1);
-    this->CompactDatas->ParentToElderChild_stl[0] = 0;
+    this->CompactDatas->ParentToElderChild_stl[0] = std::numeric_limits<unsigned int>::max();
     // By default, the root don't have parent
     this->CompactDatas->GlobalIndexTable_stl.clear();
   }
