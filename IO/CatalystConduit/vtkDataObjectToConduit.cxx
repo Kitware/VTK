@@ -59,7 +59,7 @@ bool IsMixedShape(vtkPolyData* grid)
 {
   // WARNING: This is inefficient
   vtkNew<vtkCellTypes> cell_types;
-  grid->GetCellTypes(cell_types);
+  grid->GetDistinctCellTypes(cell_types);
   return cell_types->GetNumberOfTypes() > 1;
 }
 

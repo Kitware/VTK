@@ -632,7 +632,7 @@ void vtkIntegrationGaussianStrategy::AddPointDataArray()
 void vtkIntegrationGaussianStrategy::InitializeQuadratureOffsets()
 {
   vtkNew<vtkCellTypes> cellTypes;
-  this->Intermediate->GetCellTypes(cellTypes);
+  this->Intermediate->GetDistinctCellTypes(cellTypes);
   int nCellTypes = cellTypes ? cellTypes->GetNumberOfTypes() : 0;
 
   // Offsets = vtkSmartPointer<vtkIdTypeArray>::New();

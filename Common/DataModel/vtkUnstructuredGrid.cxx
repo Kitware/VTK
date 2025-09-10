@@ -982,7 +982,7 @@ void vtkUnstructuredGrid::GetCellPoints(vtkIdType cellId, vtkIdList* ptIds)
 }
 
 //------------------------------------------------------------------------------
-void vtkUnstructuredGrid::GetCellTypes(vtkCellTypes* types)
+void vtkUnstructuredGrid::GetDistinctCellTypes(vtkCellTypes* types)
 {
   this->GetDistinctCellTypesArray();
   types->DeepCopy(this->DistinctCellTypes);
@@ -1013,7 +1013,7 @@ vtkUnsignedCharArray* vtkUnstructuredGrid::GetDistinctCellTypesArray()
       this->DistinctCellTypes->Register(this);
       this->DistinctCellTypes->Delete();
     }
-    vtkDataSet::GetCellTypes(this->DistinctCellTypes);
+    vtkDataSet::GetDistinctCellTypes(this->DistinctCellTypes);
 
     this->DistinctCellTypesUpdateMTime = this->Types->GetMTime();
   }

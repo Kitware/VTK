@@ -584,7 +584,7 @@ std::map<unsigned char, int64_t> GetElementCounts(
       case VTK_UNSTRUCTURED_GRID_BASE:
       {
         vtkNew<vtkCellTypes> cellTypesOfUnstructuredData;
-        ds->GetCellTypes(cellTypesOfUnstructuredData);
+        ds->GetDistinctCellTypes(cellTypesOfUnstructuredData);
         auto range = vtk::DataArrayValueRange(cellTypesOfUnstructuredData->GetCellTypesArray());
         std::copy(range.begin(), range.end(), std::inserter(cellTypes, cellTypes.end()));
         break;

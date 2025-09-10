@@ -161,7 +161,7 @@ vtkTypeBool vtkXMLUnstructuredDataWriter::ProcessRequest(
           else
           {
             vtkNew<vtkCellTypes> cellTypes;
-            dataSet->GetCellTypes(cellTypes);
+            dataSet->GetDistinctCellTypes(cellTypes);
             cellTypesArray->ShallowCopy(cellTypes->GetCellTypesArray());
           }
           if (vtkNeedsNewFileVersionV8toV9(cellTypesArray))

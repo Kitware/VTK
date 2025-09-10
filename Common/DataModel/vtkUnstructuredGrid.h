@@ -120,6 +120,7 @@ public:
    */
   vtkIdType GetCellSize(vtkIdType cellId) override;
 
+  ///@{
   /**
    * Get a list of types of cells in a dataset. The list consists of an array
    * of types (not necessarily in any order), with a single entry per type.
@@ -131,7 +132,10 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  void GetCellTypes(vtkCellTypes* types) override;
+  void GetDistinctCellTypes(vtkCellTypes* types) override;
+  VTK_DEPRECATED_IN_9_6_0("Use GetDistinctCellTypes(vtkCellTypes* types) instead.")
+  void GetCellTypes(vtkCellTypes* types) override { this->GetDistinctCellTypes(types); }
+  ///@}
 
   /**
    * Get a list of types of cells in a dataset. The list consists of an array
