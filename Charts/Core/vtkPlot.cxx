@@ -460,11 +460,6 @@ void vtkPlot::SetTooltipLabelFormat(const vtkStdString& labelFormat)
   auto tooltipLabelFormat = labelFormat;
   if (::is_old_tooltip_label_format(labelFormat))
   {
-    // VTK_DEPRECATED_IN_9_6_0
-    vtkWarningMacro(<< "The given format " << labelFormat
-                    << " is a printf style format. The format will be "
-                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
-
     tooltipLabelFormat = ::old_to_new_tooltip_label_format(labelFormat);
   }
 

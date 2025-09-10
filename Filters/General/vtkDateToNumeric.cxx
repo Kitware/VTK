@@ -41,9 +41,6 @@ void vtkDateToNumeric::SetDateFormat(const char* formatArg)
   std::string format = formatArg ? formatArg : "";
   if (!::is_not_strftime_format(format))
   {
-    // VTK_DEPRECATED_IN_9_6_0
-    vtkWarningMacro(<< "The given format " << format << " is a strftime format. The format will be "
-                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
     format = "{:" + format + '}';
   }
   const char* formatStr = format.c_str();
