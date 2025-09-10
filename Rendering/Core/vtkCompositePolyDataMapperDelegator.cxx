@@ -44,7 +44,7 @@ void vtkCompositePolyDataMapperDelegator::ShallowCopy(vtkCompositePolyDataMapper
     vtkErrorMacro(<< "Delegate is not initialized! \n"
                   << "Possible cause: An object factory override for the abstract class "
                   << "vtkCompositePolyDataMapperDelegator was not correctly implemented.");
-    std::terminate();
+    return;
   }
 }
 
