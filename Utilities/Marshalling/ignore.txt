@@ -332,7 +332,6 @@ Common/DataModel/vtkImageIterator.h
 Common/DataModel/vtkImageTransform.h
 Common/DataModel/vtkImplicitBoolean.h
 Common/DataModel/vtkImplicitDataSet.h
-Common/DataModel/vtkImplicitFunction.h
 Common/DataModel/vtkImplicitFunctionCollection.h
 Common/DataModel/vtkImplicitHalo.h
 Common/DataModel/vtkImplicitSelectionLoop.h
