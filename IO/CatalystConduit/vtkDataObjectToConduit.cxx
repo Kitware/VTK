@@ -35,6 +35,17 @@ namespace
 {
 
 //----------------------------------------------------------------------------
+std::string GetPartitionedDSName(vtkPartitionedDataSetCollection* pdc, unsigned int pdsId)
+{
+  std::string name = "partition" + vtk::to_string(pdsId);
+  if (pdc->HasMetaData(pdsId))
+  {
+    name = pdc->GetMetaData(pdsId)->Get(vtkCompositeDataSet::NAME());
+  }
+  return name;
+}
+
+//----------------------------------------------------------------------------
 bool IsMixedShape(vtkUnstructuredGrid* unstructured_grid)
 {
   auto* cell_types = unstructured_grid->GetDistinctCellTypesArray();
@@ -691,13 +702,8 @@ bool FillConduitMultiMeshNode(vtkPartitionedDataSetCollection* pdc, conduit_cpp:
 
   for (unsigned int pdsId = 0; pdsId < pdc->GetNumberOfPartitionedDataSets(); pdsId++)
   {
-    std::string name = "partition" + vtk::to_string(pdsId);
-    if (pdc->HasMetaData(pdsId))
-    {
-      name = pdc->GetMetaData(pdsId)->Get(vtkCompositeDataSet::NAME());
-    }
-    name_map[pdsId] = name;
-    auto node = conduit_node[name];
+    name_map[pdsId] = ::GetPartitionedDSName(pdc, pdsId);
+    auto node = conduit_node[name_map[pdsId]];
     auto pds = pdc->GetPartitionedDataSet(pdsId);
     for (unsigned int partId = 0; partId < pds->GetNumberOfPartitions(); partId++)
     {
@@ -706,13 +712,6 @@ bool FillConduitMultiMeshNode(vtkPartitionedDataSetCollection* pdc, conduit_cpp:
       const std::string coords_name = "coords_" + vtk::to_string(partId);
       FillConduitNodeFromDataSet(obj, node, coords_name, mesh_name);
     }
-  }
-
-  // Fill Assembly
-  if (auto assembly = pdc->GetDataAssembly())
-  {
-    auto assemblyNode = conduit_node["assembly"];
-    ::FillAssembly(name_map, assembly->GetRootNode(), assembly, assemblyNode);
   }
 
   return true;
@@ -742,6 +741,22 @@ bool FillConduitNode(vtkDataObject* data_object, conduit_cpp::Node& conduit_node
       "Only vtkDataSet and vtkPartitionedDataSetCollection objects are supported in "
       "vtkDataObjectToConduit.");
     return false;
+  }
+}
+
+//----------------------------------------------------------------------------
+void FillConduitNodeAssembly(vtkPartitionedDataSetCollection* pdc, conduit_cpp::Node& conduit_node)
+{
+  std::map<unsigned int, std::string> name_map;
+  for (unsigned int pdsId = 0; pdsId < pdc->GetNumberOfPartitionedDataSets(); pdsId++)
+  {
+    name_map[pdsId] = ::GetPartitionedDSName(pdc, pdsId);
+  }
+
+  if (auto assembly = pdc->GetDataAssembly())
+  {
+    auto assemblyNode = conduit_node["assembly"];
+    ::FillAssembly(name_map, assembly->GetRootNode(), assembly, assemblyNode);
   }
 }
 
