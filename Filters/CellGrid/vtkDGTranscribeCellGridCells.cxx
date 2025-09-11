@@ -216,7 +216,7 @@ void vtkDGTranscribeCellGridCells::GenerateConnectivity(
   auto& contribs = FetchPointContributionCache(request, cellType, caches);
 
   auto* cellArray = request->GetOutput()->GetCells();
-  auto* cellTypes = request->GetOutput()->GetCellTypesArray();
+  auto* cellTypes = request->GetOutput()->GetCellTypes<vtkUnsignedCharArray>();
   auto* locator = request->GetLocator();
   auto& pointMap = request->GetConnectivityTransform(cellTypeToken);
   auto& pointCounts = request->GetConnectivityCount();

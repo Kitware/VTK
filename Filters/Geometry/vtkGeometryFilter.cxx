@@ -8,6 +8,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellTypeUtilities.h"
+#include "vtkConstantUnsignedCharArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGenericCell.h"
@@ -1374,9 +1375,9 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
 
   struct FaceOperator : public vtkCellArray::DispatchUtilities
   {
-    template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, ExtractUG* This, vtkIdType beginHash,
-      vtkIdType endHash)
+    template <class OffsetsT, class ConnectivityT, class CellTypesT>
+    void operator()(OffsetsT* offsets, ConnectivityT* conn, CellTypesT* cellTypes, ExtractUG* This,
+      vtkIdType beginHash, vtkIdType endHash)
     {
       auto& localData = This->LocalData.Local();
       auto& faceHashLinks = This->FaceHashLinks;
@@ -1386,7 +1387,7 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
       using ValueType = GetAPIType<OffsetsT>;
       const auto connectivityPtr = GetRange(conn).begin();
       const auto offsetsRange = GetRange(offsets);
-      const unsigned char* cellTypes = This->Grid->GetCellTypesArray()->GetPointer(0);
+      const auto cellTypesRange = vtk::DataArrayValueRange<1, unsigned char>(cellTypes);
 
       vtkIdType localFaceId;
       bool isGhost;
@@ -1433,7 +1434,7 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
           // 2) When RemoveGhostInterfaces is off, we want to keep only the duplicate ghosts.
           // Since isGhost is always false for duplicates, the duplicate cells will be kept and the
           // the rest will be skipped.
-          const unsigned char& type = cellTypes[cellId];
+          const unsigned char& type = cellTypesRange[cellId];
           isGhost = This->CellGhosts && This->CellGhosts[cellId] & This->MASKED_CELL;
           if (isGhost &&
             (vtkCellTypeUtilities::GetDimension(type) < 3 || !This->RemoveGhostInterfaces))
@@ -1464,7 +1465,15 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
 
   void operator()(vtkIdType beginHash, vtkIdType endHash)
   {
-    this->Grid->GetCells()->Dispatch(FaceOperator{}, this, beginHash, endHash);
+    using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkCellArray::StorageOffsetsArrays,
+      vtkCellArray::StorageConnectivityArrays, vtkUnstructuredGrid::CellTypesArrays>;
+    auto cells = this->Grid->GetCells();
+    if (!Dispatcher::Execute(cells->GetOffsetsArray(), cells->GetConnectivityArray(),
+          this->Grid->GetCellTypes(), FaceOperator{}, this, beginHash, endHash))
+    {
+      FaceOperator{}(cells->GetOffsetsArray(), cells->GetConnectivityArray(),
+        this->Grid->GetCellTypes(), this, beginHash, endHash);
+    }
   }
 
   // Composite local thread data

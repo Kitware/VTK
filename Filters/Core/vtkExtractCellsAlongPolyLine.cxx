@@ -5,6 +5,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkConstantUnsignedCharArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
@@ -183,14 +184,14 @@ void InputCellHandler<vtkUnstructuredGrid>::CopyCell(vtkIdType inputCellId,
 }
 
 //==============================================================================
-template <class DataSetHelperT, class LineCellArrayT>
+template <class DataSetHelperT, class LineCellArrayT, class CellTypesArrayT>
 struct IntersectLinesWorker
 {
   using DataSetType = typename DataSetHelperT::DataSetType;
 
-  IntersectLinesWorker(DataSetType* input, vtkCellArray* lineCells,
-    vtkUnsignedCharArray* lineCellTypes, vtkPoints* linePoints, vtkAbstractCellLocator* locator,
-    vtkIdType& connectivitySize, std::unordered_set<vtkIdType>& intersectedCellIds,
+  IntersectLinesWorker(DataSetType* input, vtkCellArray* lineCells, CellTypesArrayT* lineCellTypes,
+    vtkPoints* linePoints, vtkAbstractCellLocator* locator, vtkIdType& connectivitySize,
+    std::unordered_set<vtkIdType>& intersectedCellIds,
     std::unordered_set<vtkIdType>& intersectedCellPointIds, vtkExtractCellsAlongPolyLine* filter)
     : Input(input)
     , LineCells(lineCells)
@@ -222,6 +223,7 @@ struct IntersectLinesWorker
     std::unordered_set<vtkIdType>& intersectedCellIds = this->IntersectedCellIds.Local();
     std::unordered_set<vtkIdType>& intersectedCellPointIds = this->IntersectedCellPointIds.Local();
     vtkIdType& connectivitySize = this->ConnectivitySize.Local();
+    auto cellTypes = vtk::DataArrayValueRange<1, unsigned char>(this->LineCellTypes);
 
     bool isFirst = vtkSMPTools::GetSingleThread();
     vtkIdType checkAbortInterval = std::min((endId - startId) / 10 + 1, (vtkIdType)1000);
@@ -246,7 +248,7 @@ struct IntersectLinesWorker
 
       if (this->LineCellTypes)
       {
-        unsigned char cellType = this->LineCellTypes->GetValue(lineId);
+        unsigned char cellType = cellTypes[lineId];
 
         // We skip cells that are not lines
         if (cellType != VTK_LINE && cellType != VTK_POLY_LINE)
@@ -300,7 +302,7 @@ struct IntersectLinesWorker
 
   DataSetType* Input;
   vtkCellArray* LineCells;
-  vtkUnsignedCharArray* LineCellTypes;
+  CellTypesArrayT* LineCellTypes;
   vtkPoints* LinePoints;
   vtkAbstractCellLocator* Locator;
 
@@ -315,30 +317,31 @@ struct IntersectLinesWorker
 };
 
 //------------------------------------------------------------------------------
-template <class DataSetHelperT, class LineCellArrayT>
+template <class DataSetHelperT, class LineCellArrayT, class CellTypesArrayT>
 void IntersectLines(typename DataSetHelperT::DataSetType* input, vtkCellArray* lineCells,
-  vtkUnsignedCharArray* lineCellTypes, vtkPoints* linePoints, vtkAbstractCellLocator* locator,
+  CellTypesArrayT* lineCellTypes, vtkPoints* linePoints, vtkAbstractCellLocator* locator,
   vtkIdType& connectivitySize, std::unordered_set<vtkIdType>& intersectedCellIds,
   std::unordered_set<vtkIdType>& intersectedCellPointIds, vtkExtractCellsAlongPolyLine* self)
 {
-  IntersectLinesWorker<DataSetHelperT, LineCellArrayT> worker(input, lineCells, lineCellTypes,
-    linePoints, locator, connectivitySize, intersectedCellIds, intersectedCellPointIds, self);
+  IntersectLinesWorker<DataSetHelperT, LineCellArrayT, CellTypesArrayT> worker(input, lineCells,
+    lineCellTypes, linePoints, locator, connectivitySize, intersectedCellIds,
+    intersectedCellPointIds, self);
 
   vtkSMPTools::For(0, lineCells->GetNumberOfCells(), worker);
 }
 
 //==============================================================================
 template <class LineCellArrayT>
-struct InputUnstructuredGridCellArrayDispatcher
+struct InputUnstructuredGridCellArrayWorker
 {
-  template <class InputCellArrayT>
-  void operator()(InputCellArrayT*, vtkUnstructuredGrid* input, vtkCellArray* lineCells,
-    vtkUnsignedCharArray* lineCellTypes, vtkPoints* linePoints, vtkAbstractCellLocator* locator,
+  template <class InputCellArrayT, class CellTypesArrayT>
+  void operator()(InputCellArrayT*, CellTypesArrayT* lineCellTypes, vtkUnstructuredGrid* input,
+    vtkCellArray* lineCells, vtkPoints* linePoints, vtkAbstractCellLocator* locator,
     vtkIdType& connectivitySize, std::unordered_set<vtkIdType>& intersectedCellIds,
     std::unordered_set<vtkIdType>& intersectedCellPointIds, vtkExtractCellsAlongPolyLine* self)
   {
-    ::IntersectLines<::UnstructuredGridHelper<InputCellArrayT>, LineCellArrayT>(input, lineCells,
-      lineCellTypes, linePoints, locator, connectivitySize, intersectedCellIds,
+    ::IntersectLines<::UnstructuredGridHelper<InputCellArrayT>, LineCellArrayT, CellTypesArrayT>(
+      input, lineCells, lineCellTypes, linePoints, locator, connectivitySize, intersectedCellIds,
       intersectedCellPointIds, self);
   }
 };
@@ -624,7 +627,7 @@ int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPoint
   // This filter supports lines inside vtkPolyData as well as vtkUnstructuredGrid
   vtkCellArray* lineCells = linesPD ? linesPD->GetLines() : linesUG->GetCells();
 
-  vtkUnsignedCharArray* lineCellTypes = linesUG ? linesUG->GetCellTypesArray() : nullptr;
+  vtkDataArray* lineCellTypes = linesUG ? linesUG->GetCellTypes() : nullptr;
 
   auto inputUG = vtkUnstructuredGrid::SafeDownCast(input);
 
@@ -635,13 +638,14 @@ int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPoint
     vtkCellArray* cells = inputUG->GetCells();
     if (cells && cells->GetNumberOfCells())
     {
-      ::InputUnstructuredGridCellArrayDispatcher<LineCellArrayT> dispatcher;
-      if (!vtkArrayDispatch::DispatchByArray<CellArrayTypes>::Execute(cells->GetConnectivityArray(),
-            dispatcher, inputUG, lineCells, lineCellTypes, linePoints, locator, connectivitySize,
+      ::InputUnstructuredGridCellArrayWorker<LineCellArrayT> dispatcher;
+      if (!vtkArrayDispatch::Dispatch2ByArray<CellArrayTypes,
+            vtkUnstructuredGrid::CellTypesArrays>::Execute(cells->GetConnectivityArray(),
+            lineCellTypes, dispatcher, inputUG, lineCells, linePoints, locator, connectivitySize,
             intersectedCellIds, intersectedCellPointIds, self))
       {
         // fallback if dispatching fails
-        dispatcher(cells->GetConnectivityArray(), inputUG, lineCells, lineCellTypes, linePoints,
+        dispatcher(cells->GetConnectivityArray(), lineCellTypes, inputUG, lineCells, linePoints,
           locator, connectivitySize, intersectedCellIds, intersectedCellPointIds, self);
       }
     }

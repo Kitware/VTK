@@ -10,6 +10,7 @@
 #include "vtkIOSSUtilities.h"
 
 #include "vtkCellData.h"
+#include "vtkConstantUnsignedCharArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataSet.h"
@@ -1716,7 +1717,7 @@ std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>> vtkIOSSReaderInternal
   return blocks;
 }
 
-std::pair<vtkSmartPointer<vtkUnsignedCharArray>, vtkSmartPointer<vtkCellArray>>
+std::pair<vtkSmartPointer<vtkDataArray>, vtkSmartPointer<vtkCellArray>>
 vtkIOSSReaderInternal::CombineTopologies(
   const std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>>& topologicalBlocks)
 {
@@ -1728,9 +1729,9 @@ vtkIOSSReaderInternal::CombineTopologies(
   {
     const int cell_type = topologicalBlocks[0].first;
     const auto cellarray = topologicalBlocks[0].second;
-    auto cellTypes = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    cellTypes->SetNumberOfTuples(cellarray->GetNumberOfCells());
-    cellTypes->FillValue(cell_type);
+    vtkNew<vtkConstantUnsignedCharArray> cellTypes;
+    cellTypes->ConstructBackend(static_cast<unsigned char>(cell_type));
+    cellTypes->SetNumberOfValues(cellarray->GetNumberOfCells());
     return { cellTypes, cellarray };
   }
   else
@@ -1767,7 +1768,8 @@ vtkIOSSReaderInternal::CombineTopologies(
     {
       // all blocks have same cell type.
       vtkNew<vtkCellArray> appendedCellArray;
-      auto firstCellArray = topologicalBlocks[0].second;
+      auto& firstBlock = topologicalBlocks[0];
+      auto firstCellArray = firstBlock.second;
       if (firstCellArray->IsStorageFixedSize64Bit())
       {
         appendedCellArray->UseFixedSize64BitStorage(firstCellArray->GetCellSize(0));
@@ -1783,9 +1785,9 @@ vtkIOSSReaderInternal::CombineTopologies(
         const auto cellarray = block.second;
         appendedCellArray->Append(cellarray);
       }
-      vtkNew<vtkUnsignedCharArray> cellTypesArray;
-      cellTypesArray->SetNumberOfTuples(numCells);
-      cellTypesArray->FillValue(*cellTypes.begin());
+      vtkNew<vtkConstantUnsignedCharArray> cellTypesArray;
+      cellTypesArray->ConstructBackend(static_cast<unsigned char>(firstBlock.first));
+      cellTypesArray->SetNumberOfValues(numCells);
       return { cellTypesArray, appendedCellArray };
     }
   }

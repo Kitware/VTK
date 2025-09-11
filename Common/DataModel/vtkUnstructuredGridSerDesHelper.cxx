@@ -35,7 +35,7 @@ static nlohmann::json Serialize_vtkUnstructuredGrid(
   state["SuperClassNames"].push_back("vtkUnstructuredGridBase");
   state["DataObjectType"] = object->GetDataObjectType();
   state["Cells"] = serializer->SerializeJSON(object->GetCells());
-  state["CellTypes"] = serializer->SerializeJSON(object->GetCellTypesArray());
+  state["CellTypes"] = serializer->SerializeJSON(object->GetCellTypes());
   state["MeshMTime"] = object->GetMeshMTime();
   return state;
 }
@@ -49,7 +49,7 @@ static void Deserialize_vtkUnstructuredGrid(
     f(state, object, deserializer);
   }
 
-  vtkSmartPointer<vtkUnsignedCharArray> cellTypes;
+  vtkSmartPointer<vtkDataArray> cellTypes;
   vtkSmartPointer<vtkCellArray> connectivity;
   {
     auto iter = state.find("CellTypes");
@@ -59,7 +59,7 @@ static void Deserialize_vtkUnstructuredGrid(
       const auto identifier = iter->at("Id").get<vtkTypeUInt32>();
       auto subObject = context->GetObjectAtId(identifier);
       deserializer->DeserializeJSON(identifier, subObject);
-      cellTypes = vtkUnsignedCharArray::SafeDownCast(subObject);
+      cellTypes = vtkDataArray::SafeDownCast(subObject);
     }
   }
   {

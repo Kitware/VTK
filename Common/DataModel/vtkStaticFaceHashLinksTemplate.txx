@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkStaticFaceHashLinksTemplate.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkBatch.h"
 #include "vtkGenericCell.h"
 #include "vtkHexagonalPrism.h"
@@ -135,13 +136,13 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
 
   struct FaceInformationOperator : public vtkCellArray::DispatchUtilities
   {
-    template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, CreateFacesInformation* This,
-      vtkIdType beginBatchId, vtkIdType endBatchId)
+    template <class OffsetsT, class ConnectivityT, class CellTypesT>
+    void operator()(OffsetsT* offsets, ConnectivityT* conn, CellTypesT* cellTypes,
+      CreateFacesInformation* This, vtkIdType beginBatchId, vtkIdType endBatchId)
     {
       const auto connectivityRange = GetRange(conn);
       const auto offsetsRange = GetRange(offsets);
-      const unsigned char* cellTypes = This->Input->GetCellTypesArray()->GetPointer(0);
+      const auto cellTypesRange = vtk::DataArrayValueRange<1, unsigned char>(cellTypes);
 
       auto cell = This->TLCell.Local();
       auto faceIdsList = This->TLFaceIds.Local();
@@ -160,7 +161,7 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
         auto facesOffset = batch.Data.FacesOffset;
         for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; ++cellId)
         {
-          const unsigned char& cellType = cellTypes[cellId];
+          const unsigned char& cellType = cellTypesRange[cellId];
           // get cell points by just accessing the connectivity/offsets array
           const auto pts = connectivityRange.GetSubRange(offsetsRange[cellId]);
 
@@ -338,7 +339,15 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
 
   void operator()(vtkIdType beginBatchId, vtkIdType endBatchId)
   {
-    this->Input->GetCells()->Dispatch(FaceInformationOperator{}, this, beginBatchId, endBatchId);
+    using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkCellArray::StorageOffsetsArrays,
+      vtkCellArray::StorageConnectivityArrays, vtkUnstructuredGrid::CellTypesArrays>;
+    auto cells = this->Input->GetCells();
+    if (!Dispatcher::Execute(cells->GetOffsetsArray(), cells->GetConnectivityArray(),
+          this->Input->GetCellTypes(), FaceInformationOperator{}, this, beginBatchId, endBatchId))
+    {
+      FaceInformationOperator{}(cells->GetOffsetsArray(), cells->GetConnectivityArray(),
+        this->Input->GetCellTypes(), this, beginBatchId, endBatchId);
+    }
   }
 
   void Reduce()

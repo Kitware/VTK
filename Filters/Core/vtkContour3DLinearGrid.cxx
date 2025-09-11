@@ -1500,8 +1500,7 @@ void vtkContour3DLinearGrid::ProcessPiece(
   vtkIdType totalTris = 0;
 
   // Set up the cells for processing. A specialized iterator is used to traverse the cells.
-  auto cellTypes = vtkUnsignedCharArray::SafeDownCast(input->GetCellTypesArray())->GetPointer(0);
-  CellIter* cellIter = new CellIter(numCells, cellTypes, input->GetCells());
+  CellIter* cellIter = new CellIter(numCells, input->GetCellTypes(), input->GetCells());
 
   // Now produce the output: fast path or general path
   bool mergePoints = this->MergePoints || this->ComputeNormals || this->InterpolateAttributes;

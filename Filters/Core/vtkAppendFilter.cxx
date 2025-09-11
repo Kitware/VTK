@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAppendFilter.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataSetCollection.h"
 #include "vtkIdTypeArray.h"
@@ -491,9 +492,8 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
         if (auto ug = vtkUnstructuredGrid::SafeDownCast(dataset)) // vtkUnstructuredGrid
         {
           // copy cell types
-          auto cellTypes = ug->GetCellTypesArray();
-          std::copy_n(
-            cellTypes->GetPointer(0), numberOfCells, cellTypesArray->GetPointer(cellOffset));
+          auto cellTypes = ug->GetCellTypes();
+          cellTypesArray->InsertTuples(cellOffset, cellTypes->GetNumberOfTuples(), 0, cellTypes);
           // copy cells
           ug->GetCells()->Dispatch(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
             cellConnectivityOffset, globalIndices, pointOffset);

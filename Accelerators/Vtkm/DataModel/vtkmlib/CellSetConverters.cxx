@@ -24,6 +24,7 @@
 #include "vtkCellType.h"
 #include "vtkIdTypeArray.h"
 #include "vtkNew.h"
+#include "vtkSMPTools.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkmDataArray.h"
@@ -78,7 +79,115 @@ vtkIdType IsHomogeneous(vtkCellArray* cells)
 
 bool IsHomogeneous(vtkUnstructuredGrid* ugrid)
 {
+  auto cellTypes = ugrid->GetCellTypes();
+  if (auto constantTypes = vtkmDataArray<viskores::UInt8>::SafeDownCast(cellTypes))
+  {
+    auto unknownArrayHandle = constantTypes->GetVtkmUnknownArrayHandle();
+    return unknownArrayHandle.CanConvert<viskores::cont::ArrayHandleConstant<viskores::UInt8>>();
+  }
   return ugrid->IsHomogeneous();
+}
+
+struct BuildCellTypesViskores : viskores::worklet::WorkletMapField
+{
+  using ControlSignature = void(FieldOut, WholeArrayIn);
+  using ExecutionSignature = _1(InputIndex, _2);
+
+  template <class OffsetsT>
+  VISKORES_EXEC viskores::UInt8 operator()(viskores::Id id, OffsetsT& offsets) const
+  {
+    auto cellSize = offsets.Get(id + 1) - offsets.Get(id);
+    switch (cellSize)
+    {
+      case 3:
+        return viskores::CELL_SHAPE_TRIANGLE;
+      case 4:
+        return viskores::CELL_SHAPE_QUAD;
+      default:
+        return viskores::CELL_SHAPE_POLYGON;
+    }
+  }
+};
+
+struct BuildCellTypesVTK : vtkCellArray::DispatchUtilities
+{
+  template <typename OffsetsT, typename ConnectivityT>
+  void operator()(
+    OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), vtkUnsignedCharArray* types) const
+  {
+    vtkSMPTools::For(0, offsets->GetNumberOfValues() - 1,
+      [&](vtkIdType begin, vtkIdType end)
+      {
+        auto offsetsRange = GetRange(offsets);
+        for (vtkIdType i = begin; i < end; ++i)
+        {
+          auto cellSize = offsetsRange[i + 1] - offsetsRange[i];
+          unsigned char cellType;
+          switch (cellSize)
+          {
+            case 3:
+              cellType = VTK_TRIANGLE;
+              break;
+            case 4:
+              cellType = VTK_QUAD;
+              break;
+            default:
+              cellType = VTK_POLYGON;
+              break;
+          }
+          types->SetValue(i, cellType);
+        }
+      });
+  }
+};
+
+vtkSmartPointer<vtkDataArray> CreatePolygonalCellTypes(vtkCellArray* cells)
+{
+  auto offsets = cells->GetOffsetsArray();
+  using ArrayHandle64 = viskores::cont::ArrayHandleBasic<viskores::Int64>;
+  using ArrayHandle32 = viskores::cont::ArrayHandleBasic<viskores::Int32>;
+  using ArrayHandle64Cast = viskores::cont::ArrayHandleCast<viskores::Int64, ArrayHandle32>;
+  using ArrayHandle32Cast = viskores::cont::ArrayHandleCast<viskores::Int32, ArrayHandle64>;
+  viskores::cont::ArrayHandleBasic<viskores::UInt8> cellTypes;
+  viskores::cont::Invoker invoke;
+  if (auto offsets64 = vtkmDataArray<viskores::Int64>::SafeDownCast(offsets))
+  {
+    auto unknownArrayHandle = offsets64->GetVtkmUnknownArrayHandle();
+    cellTypes.Allocate(cells->GetNumberOfCells());
+    if (unknownArrayHandle.CanConvert<ArrayHandle64>())
+    {
+      auto arrayHandle = unknownArrayHandle.AsArrayHandle<ArrayHandle64>();
+      invoke(BuildCellTypesViskores{}, cellTypes, arrayHandle);
+      return vtk::TakeSmartPointer(make_vtkmDataArray(cellTypes));
+    }
+    else
+    {
+      auto arrayHandle = unknownArrayHandle.AsArrayHandle<ArrayHandle64Cast>();
+      invoke(BuildCellTypesViskores{}, cellTypes, arrayHandle);
+      return vtk::TakeSmartPointer(make_vtkmDataArray(cellTypes));
+    }
+  }
+  else if (auto offsets32 = vtkmDataArray<viskores::Int32>::SafeDownCast(offsets))
+  {
+    auto unknownArrayHandle = offsets32->GetVtkmUnknownArrayHandle();
+    cellTypes.Allocate(cells->GetNumberOfCells());
+    if (unknownArrayHandle.CanConvert<ArrayHandle32>())
+    {
+      auto arrayHandle = unknownArrayHandle.AsArrayHandle<ArrayHandle32>();
+      invoke(BuildCellTypesViskores{}, cellTypes, arrayHandle);
+      return vtk::TakeSmartPointer(make_vtkmDataArray(cellTypes));
+    }
+    else
+    {
+      auto arrayHandle = unknownArrayHandle.AsArrayHandle<ArrayHandle32Cast>();
+      invoke(BuildCellTypesViskores{}, cellTypes, arrayHandle);
+      return vtk::TakeSmartPointer(make_vtkmDataArray(cellTypes));
+    }
+  }
+  auto types = vtkSmartPointer<vtkUnsignedCharArray>::New();
+  types->SetNumberOfValues(cells->GetNumberOfCells());
+  cells->Dispatch(BuildCellTypesVTK{}, types);
+  return types;
 }
 
 namespace
@@ -449,16 +558,52 @@ struct SupportedCellShape
 
 // convert a cell array of mixed types to a viskores CellSetExplicit
 viskores::cont::UnknownCellSet Convert(
-  vtkUnsignedCharArray* types, vtkCellArray* cells, vtkIdType numberOfPoints, bool forceViskores)
+  vtkDataArray* types, vtkCellArray* cells, vtkIdType numberOfPoints, bool forceViskores)
 {
-  auto shapes = tovtkm::vtkAOSDataArrayToFlatArrayHandle(types);
-  if (!viskores::cont::Algorithm::Reduce(
-        viskores::cont::make_ArrayHandleTransform(shapes, SupportedCellShape{}), true,
-        viskores::LogicalAnd()))
+  if (auto shapesAsAOSArray = vtkUnsignedCharArray::FastDownCast(types))
   {
-    throw viskores::cont::ErrorBadType("Unsupported VTK cell type in CellSet converter.");
+    auto shapes = tovtkm::vtkAOSDataArrayToFlatArrayHandle(shapesAsAOSArray);
+    if (!viskores::cont::Algorithm::Reduce(
+          viskores::cont::make_ArrayHandleTransform(shapes, SupportedCellShape{}), true,
+          viskores::LogicalAnd()))
+    {
+      throw viskores::cont::ErrorBadType("Unsupported VTK cell type in CellSet converter.");
+    }
+    return BuildExplicitCellSetVisitor{}(cells, shapes, numberOfPoints, forceViskores);
   }
-  return BuildExplicitCellSetVisitor{}(cells, shapes, numberOfPoints, forceViskores);
+  if (auto shapesAsVTKmArray = vtkmDataArray<viskores::UInt8>::SafeDownCast(types))
+  {
+    auto shapes = shapesAsVTKmArray->GetVtkmUnknownArrayHandle();
+    using ArrayHandle = viskores::cont::ArrayHandleBasic<viskores::UInt8>;
+    if (!shapes.template CanConvert<ArrayHandle>())
+    {
+      throw viskores::cont::ErrorBadType(
+        "Viskores Cell types array is expected to be of type ArrayHandleBasic<viskores::UInt8>.");
+    }
+    auto shapesHandle = shapes.template AsArrayHandle<ArrayHandle>();
+    // no check needs because it's a vtkmDataArray
+    return BuildExplicitCellSetVisitor{}(cells, shapesHandle, numberOfPoints, forceViskores);
+  }
+  if (forceViskores)
+  {
+    auto typesRange = vtk::DataArrayValueRange<1, unsigned char>(types);
+    viskores::cont::ArrayHandleBasic<viskores::UInt8> shapes;
+    shapes.Allocate(typesRange.size());
+    std::copy(typesRange.begin(), typesRange.end(),
+      viskores::cont::ArrayPortalToIteratorBegin(shapes.WritePortal()));
+    if (!viskores::cont::Algorithm::Reduce(
+          viskores::cont::make_ArrayHandleTransform(shapes, SupportedCellShape{}), true,
+          viskores::LogicalAnd()))
+    {
+      throw viskores::cont::ErrorBadType("Unsupported VTK cell type in CellSet converter.");
+    }
+    return BuildExplicitCellSetVisitor{}(cells, shapes, numberOfPoints, forceViskores);
+  }
+  else
+  {
+    throw viskores::cont::ErrorBadType("Unsupported VTK cell types array type in "
+                                       "CellSetExplicit converter.");
+  }
 }
 
 VTK_ABI_NAMESPACE_END
@@ -468,8 +613,15 @@ namespace fromvtkm
 {
 VTK_ABI_NAMESPACE_BEGIN
 
+bool Convert(
+  const viskores::cont::UnknownCellSet& toConvert, vtkCellArray* cells, bool forceViskores)
+{
+  vtkSmartPointer<vtkDataArray> types = nullptr;
+  return Convert(toConvert, cells, types, forceViskores);
+}
+
 bool Convert(const viskores::cont::UnknownCellSet& toConvert, vtkCellArray* cells,
-  vtkUnsignedCharArray* typesArray, bool forceViskores)
+  vtkSmartPointer<vtkDataArray>& typesDAArray, bool forceViskores)
 {
   const auto* cellset = toConvert.GetCellSetBase();
   const viskores::Id numCells = cellset->GetNumberOfCells();
@@ -483,15 +635,10 @@ bool Convert(const viskores::cont::UnknownCellSet& toConvert, vtkCellArray* cell
     auto connectivity = vtk::TakeSmartPointer(make_vtkmDataArray(single.GetConnectivityArray(
       viskores::TopologyElementTagCell(), viskores::TopologyElementTagPoint())));
     cells->SetData(offsets, connectivity);
-    if (typesArray != nullptr)
+    if (typesDAArray != nullptr)
     {
-      typesArray->SetNumberOfComponents(1);
-      typesArray->SetNumberOfTuples(static_cast<vtkIdType>(numCells));
-      for (viskores::Id cellId = 0; cellId < numCells; ++cellId)
-      {
-        const vtkIdType vtkCellId = static_cast<vtkIdType>(cellId);
-        typesArray->SetValue(vtkCellId, cellset->GetCellShape(cellId));
-      }
+      typesDAArray = vtk::TakeSmartPointer(make_vtkmDataArray(
+        viskores::cont::ArrayHandleConstant<viskores::UInt8>(single.GetCellShape(0), numCells)));
     }
     return true;
   }
@@ -504,15 +651,10 @@ bool Convert(const viskores::cont::UnknownCellSet& toConvert, vtkCellArray* cell
     auto connectivity = vtk::TakeSmartPointer(make_vtkmDataArray(single.GetConnectivityArray(
       viskores::TopologyElementTagCell(), viskores::TopologyElementTagPoint())));
     cells->SetData(offsets, connectivity);
-    if (typesArray != nullptr)
+    if (typesDAArray != nullptr)
     {
-      typesArray->SetNumberOfComponents(1);
-      typesArray->SetNumberOfTuples(static_cast<vtkIdType>(numCells));
-      for (viskores::Id cellId = 0; cellId < numCells; ++cellId)
-      {
-        const vtkIdType vtkCellId = static_cast<vtkIdType>(cellId);
-        typesArray->SetValue(vtkCellId, cellset->GetCellShape(cellId));
-      }
+      typesDAArray = vtk::TakeSmartPointer(make_vtkmDataArray(
+        viskores::cont::ArrayHandleConstant<viskores::UInt8>(single.GetCellShape(0), numCells)));
     }
     return true;
   }
@@ -527,15 +669,9 @@ bool Convert(const viskores::cont::UnknownCellSet& toConvert, vtkCellArray* cell
     cells->SetData(offsets, connectivity);
     auto shapesArray = explicitCS.GetShapesArray(
       viskores::TopologyElementTagCell(), viskores::TopologyElementTagPoint());
-    if (typesArray != nullptr)
+    if (typesDAArray != nullptr)
     {
-      typesArray->SetNumberOfComponents(1);
-      typesArray->SetNumberOfTuples(static_cast<vtkIdType>(numCells));
-      for (viskores::Id cellId = 0; cellId < numCells; ++cellId)
-      {
-        const vtkIdType vtkCellId = static_cast<vtkIdType>(cellId);
-        typesArray->SetValue(vtkCellId, cellset->GetCellShape(cellId));
-      }
+      typesDAArray = vtk::TakeSmartPointer(make_vtkmDataArray(shapesArray));
     }
     return true;
   }
@@ -550,15 +686,9 @@ bool Convert(const viskores::cont::UnknownCellSet& toConvert, vtkCellArray* cell
     cells->SetData(offsets, connectivity);
     auto shapesArray = explicitCS.GetShapesArray(
       viskores::TopologyElementTagCell(), viskores::TopologyElementTagPoint());
-    if (typesArray != nullptr)
+    if (typesDAArray != nullptr)
     {
-      typesArray->SetNumberOfComponents(1);
-      typesArray->SetNumberOfTuples(static_cast<vtkIdType>(numCells));
-      for (viskores::Id cellId = 0; cellId < numCells; ++cellId)
-      {
-        const vtkIdType vtkCellId = static_cast<vtkIdType>(cellId);
-        typesArray->SetValue(vtkCellId, cellset->GetCellShape(cellId));
-      }
+      typesDAArray = vtk::TakeSmartPointer(make_vtkmDataArray(shapesArray));
     }
     return true;
   }
@@ -568,12 +698,13 @@ bool Convert(const viskores::cont::UnknownCellSet& toConvert, vtkCellArray* cell
   }
 
   const viskores::Id maxSize = numCells * 8; // largest cell type is hex
-  // no-copy optimization.
+
   vtkNew<vtkIdTypeArray> offsetsArray;
   offsetsArray->SetNumberOfTuples(static_cast<vtkIdType>(numCells + 1));
   vtkNew<vtkIdTypeArray> connArray;
   connArray->SetNumberOfTuples(static_cast<vtkIdType>(maxSize));
 
+  vtkNew<vtkUnsignedCharArray> typesArray;
   if (typesArray)
   {
     typesArray->SetNumberOfComponents(1);
@@ -605,6 +736,7 @@ bool Convert(const viskores::cont::UnknownCellSet& toConvert, vtkCellArray* cell
   offsetsArray->SetValue(static_cast<vtkIdType>(numCells), connSize);
   connArray->Resize(connSize);
   cells->SetData(offsetsArray, connArray);
+  typesDAArray = typesArray;
 
   return true;
 }

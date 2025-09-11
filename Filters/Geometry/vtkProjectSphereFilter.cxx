@@ -477,6 +477,7 @@ void vtkProjectSphereFilter::SplitCell(vtkPointSet* input, vtkPointSet* output,
 void vtkProjectSphereFilter::SetCellInformation(
   vtkUnstructuredGrid* output, vtkCell* cell, vtkIdType numberOfNewCells)
 {
+  auto cellTypes = output->GetCellTypes<vtkUnsignedCharArray>();
   for (vtkIdType i = 0; i < numberOfNewCells; i++)
   {
     vtkIdType prevCellId = output->GetNumberOfCells() + i - numberOfNewCells - 1;
@@ -488,7 +489,7 @@ void vtkProjectSphereFilter::SetCellInformation(
     {
       if (numPts > 2)
       {
-        output->GetCellTypesArray()->InsertValue(newCellId, VTK_POLY_VERTEX);
+        cellTypes->InsertValue(newCellId, VTK_POLY_VERTEX);
       }
       else
       {
@@ -499,11 +500,11 @@ void vtkProjectSphereFilter::SetCellInformation(
     {
       if (numPts == 2)
       {
-        output->GetCellTypesArray()->InsertValue(newCellId, VTK_LINE);
+        cellTypes->InsertValue(newCellId, VTK_LINE);
       }
       else if (numPts > 2)
       {
-        output->GetCellTypesArray()->InsertValue(newCellId, VTK_POLY_LINE);
+        cellTypes->InsertValue(newCellId, VTK_POLY_LINE);
       }
       else
       {
@@ -514,15 +515,15 @@ void vtkProjectSphereFilter::SetCellInformation(
     {
       if (numPts == 3)
       {
-        output->GetCellTypesArray()->InsertValue(newCellId, VTK_TRIANGLE);
+        cellTypes->InsertValue(newCellId, VTK_TRIANGLE);
       }
       else if (numPts > 3 && cell->GetCellType() == VTK_TRIANGLE_STRIP)
       {
-        output->GetCellTypesArray()->InsertValue(newCellId, VTK_TRIANGLE_STRIP);
+        cellTypes->InsertValue(newCellId, VTK_TRIANGLE_STRIP);
       }
       else if (numPts == 4)
       {
-        output->GetCellTypesArray()->InsertValue(newCellId, VTK_QUAD);
+        cellTypes->InsertValue(newCellId, VTK_QUAD);
       }
       else
       {
@@ -533,19 +534,19 @@ void vtkProjectSphereFilter::SetCellInformation(
     {
       if (numPts == 4)
       {
-        output->GetCellTypesArray()->InsertValue(newCellId, VTK_TETRA);
+        cellTypes->InsertValue(newCellId, VTK_TETRA);
       }
       else if (numPts == 5)
       {
-        output->GetCellTypesArray()->InsertValue(newCellId, VTK_PYRAMID);
+        cellTypes->InsertValue(newCellId, VTK_PYRAMID);
       }
       else if (numPts == 6)
       {
-        output->GetCellTypesArray()->InsertValue(newCellId, VTK_WEDGE);
+        cellTypes->InsertValue(newCellId, VTK_WEDGE);
       }
       else if (numPts == 8)
       {
-        output->GetCellTypesArray()->InsertValue(newCellId, VTK_HEXAHEDRON);
+        cellTypes->InsertValue(newCellId, VTK_HEXAHEDRON);
       }
       else
       {

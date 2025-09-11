@@ -3837,7 +3837,7 @@ void CloneUnstructuredGrid(
   {
     ::DeepCopyCells(
       ug->GetCells(), clone->GetCells(), redirectionMap, info.InputToOutputPointIdRedirectionMap);
-    ug->GetCellTypesArray()->GetTuples(redirectionMap, clone->GetCellTypesArray());
+    ug->GetCellTypes()->GetTuples(redirectionMap, clone->GetCellTypes());
 
     vtkCellArray* ugFaceLocations = ug->GetPolyhedronFaceLocations();
     if (clone->GetPolyhedronFaceLocations() && ugFaceLocations &&
@@ -3856,7 +3856,7 @@ void CloneUnstructuredGrid(
     ugConnectivity->GetTuples(
       0, ugConnectivity->GetNumberOfTuples() - 1, cloneCellArray->GetConnectivityArray());
     ugOffsets->GetTuples(0, ugOffsets->GetNumberOfTuples() - 1, cloneCellArray->GetOffsetsArray());
-    ug->GetCellTypesArray()->GetTuples(0, ug->GetNumberOfCells() - 1, clone->GetCellTypesArray());
+    ug->GetCellTypes()->GetTuples(0, ug->GetNumberOfCells() - 1, clone->GetCellTypes());
 
     vtkCellArray* ugFaces = ug->GetPolyhedronFaces();
 
@@ -5534,7 +5534,7 @@ void FillReceivedGhosts(::UnstructuredGridBlock* block, int myGid, int gid,
   ::UnstructuredGridBlockStructure& blockStructure = block->BlockStructures.at(gid);
 
   vtkCellArray* outputCellArray = output->GetCells();
-  vtkUnsignedCharArray* outputTypes = output->GetCellTypesArray();
+  vtkDataArray* outputTypes = output->GetCellTypes();
   vtkCellArray* outputFaceLocations = output->GetPolyhedronFaceLocations();
   vtkCellArray* outputFaces = output->GetPolyhedronFaces();
 

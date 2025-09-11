@@ -1089,13 +1089,8 @@ void vtkExtractSelection::ExtractSelectedPoints(
   // create cell array
   vtkNew<vtkCellArray> cells;
   cells->SetData(1, connectivity);
-  // create cell types
-  vtkNew<vtkUnsignedCharArray> cellTypes;
-  cellTypes->SetNumberOfValues(newNumPts);
-  static constexpr unsigned char cellType = VTK_VERTEX;
-  vtkSMPTools::Fill(cellTypes->GetPointer(0), cellTypes->GetPointer(newNumPts), cellType);
   // set cells
-  output->SetCells(cellTypes, cells);
+  output->SetCells(VTK_VERTEX, cells);
 
   // Copy field data
   output->GetFieldData()->ShallowCopy(input->GetFieldData());

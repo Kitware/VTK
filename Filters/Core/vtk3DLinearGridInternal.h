@@ -365,7 +365,7 @@ struct CellIter
 
   // References to unstructured grid for cell traversal.
   vtkIdType NumCells;
-  const unsigned char* Types;
+  vtk::detail::ValueRange<vtkDataArray, 1, unsigned char> Types;
   vtkSmartPointer<vtkCellArray> CellArray;
   vtkSmartPointer<vtkCellArrayIterator> ConnIter;
 
@@ -384,7 +384,6 @@ struct CellIter
     , NumVerts(0)
     , Cases(nullptr)
     , NumCells(0)
-    , Types(nullptr)
     , Tetra(nullptr)
     , Hexahedron(nullptr)
     , Pyramid(nullptr)
@@ -394,13 +393,13 @@ struct CellIter
   {
   }
 
-  CellIter(vtkIdType numCells, unsigned char* types, vtkCellArray* cellArray)
+  CellIter(vtkIdType numCells, vtkDataArray* types, vtkCellArray* cellArray)
     : Copy(false)
     , Cell(nullptr)
     , NumVerts(0)
     , Cases(nullptr)
     , NumCells(numCells)
-    , Types(types)
+    , Types(vtk::DataArrayValueRange<1, unsigned char>(types))
     , CellArray(cellArray)
     , ConnIter(vtk::TakeSmartPointer(cellArray->NewIterator()))
   {
@@ -437,7 +436,10 @@ struct CellIter
     this->Cases = cellIter.Cases;
 
     this->NumCells = cellIter.NumCells;
-    this->Types = cellIter.Types;
+    if (cellIter.Types.GetArray())
+    {
+      this->Types = vtk::DataArrayValueRange<1, unsigned char>(cellIter.Types.GetArray());
+    }
     this->CellArray = cellIter.CellArray;
 
     // This class is passed around by pointer and only copied deliberately

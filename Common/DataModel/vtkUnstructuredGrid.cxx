@@ -13,6 +13,7 @@
 #include "vtkCellLinks.h"
 #include "vtkCellTypeUtilities.h"
 #include "vtkCellTypes.h"
+#include "vtkConstantUnsignedCharArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkGarbageCollector.h"
@@ -22,7 +23,6 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPolyhedron.h"
 #include "vtkStaticCellLinks.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGridCellIterator.h"
@@ -45,10 +45,10 @@ struct RemoveGhostCellsWorker
   vtkNew<vtkIdList> NewPointIdMap;
   vtkNew<vtkIdList> NewCellIdMap;
 
-  template <class ArrayT1, class ArrayT2, class ArrayT3>
-  void operator()(ArrayT1* inputOffsets, ArrayT2* inputFacesOffsets,
-    ArrayT3* inputFaceLocationsOffsets, vtkDataArray* inputConnectivityDA,
-    vtkDataArray* inputFacesDA, vtkDataArray* inputFaceLocationsDA, vtkUnsignedCharArray* types,
+  template <class OffsetsT, class OffsetsFacesT, class OffsetsFacesLocationsT>
+  void operator()(OffsetsT* inputOffsets, OffsetsFacesT* inputFacesOffsets,
+    OffsetsFacesLocationsT* inputFaceLocationsOffsets, vtkDataArray* inputConnectivityDA,
+    vtkDataArray* inputFacesDA, vtkDataArray* inputFaceLocationsDA, vtkDataArray* types,
     vtkUnsignedCharArray* ghostCells, vtkIdType numPoints, vtkDataArray* outputOffsetsDA,
     vtkDataArray* outputConnectivityDA, vtkDataArray* outputFacesOffsetsDA,
     vtkDataArray* outputFacesDA, vtkDataArray* outputFaceLocationsOffsetsDA,
@@ -58,45 +58,63 @@ struct RemoveGhostCellsWorker
     {
       return;
     }
+    using ValueT = typename vtk::GetAPIType<OffsetsT, vtkIdType>;
+    using ConnectivityT = std::conditional_t<std::is_base_of_v<vtkAffineArray<ValueT>, OffsetsT> ||
+        std::is_base_of_v<vtkAOSDataArrayTemplate<ValueT>, OffsetsT>,
+      vtkAOSDataArrayTemplate<ValueT>, vtkDataArray>;
 
-    auto outputOffsets = vtkArrayDownCast<ArrayT1>(outputOffsetsDA);
-    auto inputConnectivity = vtkArrayDownCast<ArrayT1>(inputConnectivityDA);
-    auto outputConnectivity = vtkArrayDownCast<ArrayT1>(outputConnectivityDA);
+    auto outputOffsets = vtkArrayDownCast<OffsetsT>(outputOffsetsDA);
+    auto inputConnectivity = vtkArrayDownCast<ConnectivityT>(inputConnectivityDA);
+    auto outputConnectivity = vtkArrayDownCast<ConnectivityT>(outputConnectivityDA);
 
     outputOffsets->SetNumberOfValues(inputOffsets->GetNumberOfValues());
     outputConnectivity->SetNumberOfValues(inputConnectivity->GetNumberOfValues());
 
-    auto inputOffsetsRange = vtk::DataArrayValueRange<1>(inputOffsets);
-    auto inputConnectivityRange = vtk::DataArrayValueRange<1>(inputConnectivity);
-    using ValueType = typename decltype(inputOffsetsRange)::ValueType;
+    auto inputOffsetsRange = vtk::DataArrayValueRange<1, vtkIdType>(inputOffsets);
+    auto inputConnectivityRange = vtk::DataArrayValueRange<1, vtkIdType>(inputConnectivity);
 
-    auto outputOffsetsRange = vtk::DataArrayValueRange<1>(outputOffsets);
-    auto outputConnectivityRange = vtk::DataArrayValueRange<1>(outputConnectivity);
+    auto outputOffsetsRange = vtk::DataArrayValueRange<1, vtkIdType>(outputOffsets);
+    auto outputConnectivityRange = vtk::DataArrayValueRange<1, vtkIdType>(outputConnectivity);
 
-    auto typesRange = vtk::DataArrayValueRange<1>(types);
+    auto typesRange = vtk::DataArrayValueRange<1, unsigned char>(types);
     auto ghostCellsRange = vtk::DataArrayValueRange<1>(ghostCells);
 
-    //
-    auto inputFaces = vtkArrayDownCast<ArrayT2>(inputFacesDA);
-    auto inputFaceLocations = vtkArrayDownCast<ArrayT3>(inputFaceLocationsDA);
+    using FacesValueT = typename vtk::GetAPIType<OffsetsFacesT, vtkIdType>;
+    using FacesLocationsValueT = typename vtk::GetAPIType<OffsetsFacesLocationsT, vtkIdType>;
+    using ConnectivityFacesT =
+      std::conditional_t<std::is_base_of_v<vtkAffineArray<FacesValueT>, OffsetsFacesT> ||
+          std::is_base_of_v<vtkAOSDataArrayTemplate<FacesValueT>, OffsetsFacesT>,
+        vtkAOSDataArrayTemplate<FacesValueT>, vtkDataArray>;
+    using ConnectivityFacesLocationsT = std::conditional_t<
+      std::is_base_of_v<vtkAffineArray<FacesLocationsValueT>, OffsetsFacesLocationsT> ||
+        std::is_base_of_v<vtkAOSDataArrayTemplate<FacesLocationsValueT>, OffsetsFacesLocationsT>,
+      vtkAOSDataArrayTemplate<FacesLocationsValueT>, vtkDataArray>;
 
-    auto outputFaces = vtkArrayDownCast<ArrayT2>(outputFacesDA);
-    auto outputFacesOffsets = vtkArrayDownCast<ArrayT2>(outputFacesOffsetsDA);
-    auto outputFaceLocations = vtkArrayDownCast<ArrayT3>(outputFaceLocationsDA);
-    auto outputFaceLocationsOffsets = vtkArrayDownCast<ArrayT3>(outputFaceLocationsOffsetsDA);
+    auto inputFaces = vtkArrayDownCast<ConnectivityFacesT>(inputFacesDA);
+    auto outputFacesOffsets = vtkArrayDownCast<OffsetsFacesT>(outputFacesOffsetsDA);
+    auto outputFaces = vtkArrayDownCast<ConnectivityFacesT>(outputFacesDA);
 
-    using RangeFaces = typename vtk::detail::SelectValueRange<ArrayT2, 1>::type;
-    using RangeFacesLocations = typename vtk::detail::SelectValueRange<ArrayT3, 1>::type;
+    auto inputFaceLocations = vtkArrayDownCast<ConnectivityFacesLocationsT>(inputFaceLocationsDA);
+    auto outputFaceLocationsOffsets =
+      vtkArrayDownCast<OffsetsFacesLocationsT>(outputFaceLocationsOffsetsDA);
+    auto outputFaceLocations = vtkArrayDownCast<ConnectivityFacesLocationsT>(outputFaceLocationsDA);
 
-    RangeFaces inputFacesOffsetsRange;
-    RangeFaces inputFacesRange;
-    RangeFacesLocations inputFaceLocsOffsetRange;
-    RangeFacesLocations inputFaceLocsRange;
+    using RangeOffsetsFaces = decltype(vtk::DataArrayValueRange<1, vtkIdType>(inputFacesOffsets));
+    using RangeConnectivityFaces = decltype(vtk::DataArrayValueRange<1, vtkIdType>(inputFaces));
+    using RangeFacesOffsetsLocations =
+      decltype(vtk::DataArrayValueRange<1, vtkIdType>(inputFaceLocationsOffsets));
+    using RangeConnectivityFacesLocations =
+      decltype(vtk::DataArrayValueRange<1, vtkIdType>(inputFaceLocations));
 
-    RangeFaces outputFacesOffsetRange;
-    RangeFaces outputFacesRange;
-    RangeFacesLocations outputFaceLocsOffsetRange;
-    RangeFacesLocations outputFaceLocsRange;
+    RangeOffsetsFaces inputFacesOffsetsRange;
+    RangeConnectivityFaces inputFacesRange;
+    RangeFacesOffsetsLocations inputFaceLocsOffsetRange;
+    RangeConnectivityFacesLocations inputFaceLocsRange;
+
+    RangeOffsetsFaces outputFacesOffsetRange;
+    RangeConnectivityFaces outputFacesRange;
+    RangeFacesOffsetsLocations outputFaceLocsOffsetRange;
+    RangeConnectivityFacesLocations outputFaceLocsRange;
 
     if (inputFacesOffsets && inputFaces)
     {
@@ -108,17 +126,18 @@ struct RemoveGhostCellsWorker
       outputFaceLocationsOffsets->Fill(-1);
       outputFaceLocations->SetNumberOfValues(inputFaceLocations->GetNumberOfValues());
 
-      inputFacesOffsetsRange = vtk::DataArrayValueRange<1>(inputFacesOffsets);
-      inputFacesRange = vtk::DataArrayValueRange<1>(inputFaces);
+      inputFacesOffsetsRange = vtk::DataArrayValueRange<1, vtkIdType>(inputFacesOffsets);
+      inputFacesRange = vtk::DataArrayValueRange<1, vtkIdType>(inputFaces);
 
-      inputFaceLocsOffsetRange = vtk::DataArrayValueRange<1>(inputFaceLocationsOffsets);
-      inputFaceLocsRange = vtk::DataArrayValueRange<1>(inputFaceLocations);
+      inputFaceLocsOffsetRange = vtk::DataArrayValueRange<1, vtkIdType>(inputFaceLocationsOffsets);
+      inputFaceLocsRange = vtk::DataArrayValueRange<1, vtkIdType>(inputFaceLocations);
 
-      outputFacesOffsetRange = vtk::DataArrayValueRange<1>(outputFacesOffsets);
-      outputFacesRange = vtk::DataArrayValueRange<1>(outputFaces);
+      outputFacesOffsetRange = vtk::DataArrayValueRange<1, vtkIdType>(outputFacesOffsets);
+      outputFacesRange = vtk::DataArrayValueRange<1, vtkIdType>(outputFaces);
 
-      outputFaceLocsOffsetRange = vtk::DataArrayValueRange<1>(outputFaceLocationsOffsets);
-      outputFaceLocsRange = vtk::DataArrayValueRange<1>(outputFaceLocations);
+      outputFaceLocsOffsetRange =
+        vtk::DataArrayValueRange<1, vtkIdType>(outputFaceLocationsOffsets);
+      outputFaceLocsRange = vtk::DataArrayValueRange<1, vtkIdType>(outputFaceLocations);
     }
 
     std::vector<vtkIdType> pointIdRedirectionMap(numPoints, -1);
@@ -127,11 +146,11 @@ struct RemoveGhostCellsWorker
     this->NewCellIdMap->Allocate(types->GetNumberOfValues());
 
     vtkIdType newPointsMaxId = -1;
-    ValueType startId = inputOffsetsRange[0];
+    ValueT startId = inputOffsetsRange[0];
     vtkIdType newCellsMaxId = -1;
-    ValueType currentOutputOffset = 0;
-    ValueType currentOutFacesOffset = 0;
-    ValueType currentOutFaceLocsOffset = 0;
+    ValueT currentOutputOffset = 0;
+    FacesValueT currentOutFacesOffset = 0;
+    FacesLocationsValueT currentOutFaceLocsOffset = 0;
 
     for (vtkIdType cellId = 0; cellId < inputOffsets->GetNumberOfValues() - 1; ++cellId)
     {
@@ -143,15 +162,15 @@ struct RemoveGhostCellsWorker
 
       this->NewCellIdMap->InsertNextId(cellId);
 
-      ValueType endId = inputOffsetsRange[cellId + 1];
-      ValueType size = endId - startId;
+      const auto& endId = inputOffsetsRange[cellId + 1];
+      ValueT size = endId - startId;
 
       outputOffsetsRange[++newCellsMaxId] = currentOutputOffset;
       outputOffsetsRange[newCellsMaxId + 1] = currentOutputOffset + size;
 
-      for (ValueType cellPointId = 0; cellPointId < size; ++cellPointId)
+      for (ValueT cellPointId = 0; cellPointId < size; ++cellPointId)
       {
-        vtkIdType pointId = inputConnectivityRange[startId + cellPointId];
+        const auto& pointId = inputConnectivityRange[startId + cellPointId];
         if (pointIdRedirectionMap[pointId] == -1)
         {
           pointIdRedirectionMap[pointId] = ++newPointsMaxId;
@@ -162,19 +181,19 @@ struct RemoveGhostCellsWorker
 
       if (typesRange[cellId] == VTK_POLYHEDRON)
       {
-        ValueType startFaceId = inputFaceLocsOffsetRange[cellId];
-        ValueType endFaceId = inputFaceLocsOffsetRange[cellId + 1];
-        ValueType numberOfFaces = endFaceId - startFaceId;
+        const auto& startFaceId = inputFaceLocsOffsetRange[cellId];
+        const auto& endFaceId = inputFaceLocsOffsetRange[cellId + 1];
+        FacesLocationsValueT numberOfFaces = endFaceId - startFaceId;
 
         outputFaceLocsOffsetRange[newCellsMaxId] = currentOutFaceLocsOffset;
         outputFaceLocsOffsetRange[newCellsMaxId + 1] = currentOutFaceLocsOffset + numberOfFaces;
 
-        for (ValueType faceLoc = 0; faceLoc < numberOfFaces; ++faceLoc)
+        for (FacesLocationsValueT faceLoc = 0; faceLoc < numberOfFaces; ++faceLoc)
         {
-          ValueType faceId = inputFaceLocsRange[startFaceId + faceLoc];
-          ValueType startFace = inputFacesOffsetsRange[faceId];
-          ValueType endFace = inputFacesOffsetsRange[faceId + 1];
-          ValueType faceSize = endFace - startFace;
+          const auto& faceId = inputFaceLocsRange[startFaceId + faceLoc];
+          const auto& startFace = inputFacesOffsetsRange[faceId];
+          const auto& endFace = inputFacesOffsetsRange[faceId + 1];
+          FacesValueT faceSize = endFace - startFace;
 
           outputFaceLocsRange[currentOutFaceLocsOffset + faceLoc] =
             currentOutFaceLocsOffset + faceLoc;
@@ -182,7 +201,7 @@ struct RemoveGhostCellsWorker
           outputFacesOffsetRange[currentOutFaceLocsOffset + faceLoc + 1] =
             currentOutFacesOffset + faceSize;
 
-          for (ValueType pointLoc = 0; pointLoc < faceSize; ++pointLoc)
+          for (FacesValueT pointLoc = 0; pointLoc < faceSize; ++pointLoc)
           {
             vtkIdType pointId = inputFacesRange[startFace + pointLoc];
             outputFacesRange[currentOutFacesOffset + pointLoc] = pointIdRedirectionMap[pointId];
@@ -333,8 +352,7 @@ void vtkUnstructuredGrid::Initialize()
 //------------------------------------------------------------------------------
 int vtkUnstructuredGrid::GetCellType(vtkIdType cellId)
 {
-  vtkDebugMacro(<< "Returning cell type " << static_cast<int>(this->Types->GetValue(cellId)));
-  return static_cast<int>(this->Types->GetValue(cellId));
+  return static_cast<int>(this->Types->GetComponent(cellId, 0));
 }
 
 //------------------------------------------------------------------------------
@@ -353,7 +371,7 @@ vtkCell* vtkUnstructuredGrid::GetCell(vtkIdType cellId)
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 {
-  const int cellType = static_cast<int>(this->Types->GetValue(cellId));
+  const int cellType = static_cast<int>(this->Types->GetComponent(cellId, 0));
   cell->SetCellType(cellType);
 
   this->Connectivity->GetCellAtId(cellId, cell->PointIds);
@@ -480,7 +498,8 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(int type, vtkIdList* ptIds
   }
 
   // insert cell type
-  return this->Types->InsertNextValue(static_cast<unsigned char>(type));
+  double val = static_cast<double>(type);
+  return this->Types->InsertNextTuple(&val);
 }
 
 //------------------------------------------------------------------------------
@@ -528,7 +547,8 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(
       npts, ptIds, realnpts, this->Connectivity, this->Faces, this->FaceLocations);
   }
 
-  return this->Types->InsertNextValue(static_cast<unsigned char>(type));
+  double val = static_cast<double>(type);
+  return this->Types->InsertNextTuple(&val);
 }
 
 //------------------------------------------------------------------------------
@@ -575,7 +595,8 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(
     faces += npts + 1;
   } // for all faces
 
-  return this->Types->InsertNextValue(static_cast<unsigned char>(type));
+  double val = static_cast<double>(type);
+  return this->Types->InsertNextTuple(&val);
 }
 
 //------------------------------------------------------------------------------
@@ -616,7 +637,8 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(
   }
   this->Faces->Append(faces); // all faces
 
-  return this->Types->InsertNextValue(static_cast<unsigned char>(type));
+  double val = static_cast<double>(type);
+  return this->Types->InsertNextTuple(&val);
 }
 
 //------------------------------------------------------------------------------
@@ -786,10 +808,9 @@ vtkCellArray* vtkUnstructuredGrid::GetPolyhedronFaceLocations()
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetCells(int type, vtkCellArray* cells)
 {
-  vtkNew<vtkUnsignedCharArray> types;
-  types->SetNumberOfComponents(1);
+  vtkNew<vtkConstantUnsignedCharArray> types;
+  types->ConstructBackend(static_cast<unsigned char>(type));
   types->SetNumberOfValues(cells->GetNumberOfCells());
-  types->FillValue(static_cast<unsigned char>(type));
 
   this->SetCells(types, cells);
 }
@@ -810,11 +831,11 @@ void vtkUnstructuredGrid::SetCells(int* types, vtkCellArray* cells)
 }
 
 //------------------------------------------------------------------------------
-void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray* cells)
+void vtkUnstructuredGrid::SetCells(vtkDataArray* cellTypes, vtkCellArray* cells)
 {
   // check if cells contain any polyhedron cell
   const vtkIdType ncells = cells->GetNumberOfCells();
-  const auto typeRange = vtk::DataArrayValueRange<1>(cellTypes);
+  const auto typeRange = vtk::DataArrayValueRange<1, unsigned char>(cellTypes);
   const bool containPolyhedron =
     std::find(typeRange.cbegin(), typeRange.cend(), VTK_POLYHEDRON) != typeRange.cend();
 
@@ -837,16 +858,13 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray
   vtkNew<vtkCellArray> faceLocations;
   faceLocations->AllocateExact(ncells, 4 * ncells);
 
-  auto cellIter = vtkSmartPointer<vtkCellArrayIterator>::Take(cells->NewIterator());
-
-  for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
+  for (vtkIdType cellId = 0; cellId < cells->GetNumberOfCells(); ++cellId)
   {
     vtkIdType npts;
     const vtkIdType* pts;
-    cellIter->GetCurrentCell(npts, pts);
-    const vtkIdType cellId = cellIter->GetCurrentCellId();
+    cells->GetCellAtId(cellId, npts, pts);
 
-    if (cellTypes->GetValue(cellId) != VTK_POLYHEDRON)
+    if (typeRange[cellId] != VTK_POLYHEDRON)
     {
       newCells->InsertNextCell(npts, pts);
       faceLocations->InsertNextCell(0);
@@ -915,8 +933,8 @@ void vtkUnstructuredGrid::SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray
 }
 
 //------------------------------------------------------------------------------
-void vtkUnstructuredGrid::SetPolyhedralCells(vtkUnsignedCharArray* cellTypes, vtkCellArray* cells,
-  vtkCellArray* faceLocations, vtkCellArray* faces)
+void vtkUnstructuredGrid::SetPolyhedralCells(
+  vtkDataArray* cellTypes, vtkCellArray* cells, vtkCellArray* faceLocations, vtkCellArray* faces)
 {
   this->Connectivity = cells;
   this->Types = cellTypes;
@@ -1013,7 +1031,15 @@ vtkUnsignedCharArray* vtkUnstructuredGrid::GetDistinctCellTypesArray()
       this->DistinctCellTypes->Register(this);
       this->DistinctCellTypes->Delete();
     }
-    vtkDataSet::GetDistinctCellTypes(this->DistinctCellTypes);
+    if (auto constantTypes = this->GetCellTypes<vtkConstantUnsignedCharArray>())
+    {
+      this->DistinctCellTypes->Reset();
+      this->DistinctCellTypes->InsertNextType(constantTypes->GetValue(0));
+    }
+    else
+    {
+      vtkDataSet::GetDistinctCellTypes(this->DistinctCellTypes);
+    }
 
     this->DistinctCellTypesUpdateMTime = this->Types->GetMTime();
   }
@@ -1021,11 +1047,13 @@ vtkUnsignedCharArray* vtkUnstructuredGrid::GetDistinctCellTypesArray()
   return this->DistinctCellTypes->GetCellTypesArray();
 }
 
-//------------------------------------------------------------------------------
-vtkUnsignedCharArray* vtkUnstructuredGrid::GetCellTypesArray()
-{
-  return this->Types;
-}
+//----------------------------------------------------------------------------
+template vtkUnsignedCharArray* vtkUnstructuredGrid::GetCellTypes<vtkUnsignedCharArray>();
+//----------------------------------------------------------------------------
+template vtkConstantUnsignedCharArray*
+vtkUnstructuredGrid::GetCellTypes<vtkConstantUnsignedCharArray>();
+//----------------------------------------------------------------------------
+template vtkDataArray* vtkUnstructuredGrid::GetCellTypes<vtkDataArray>();
 
 //----------------------------------------------------------------------------
 // Supporting functions for GetFaceStream()
@@ -1382,7 +1410,7 @@ void vtkUnstructuredGrid::DeepCopy(vtkDataObject* dataObject)
     }
     if (grid->Types)
     {
-      this->Types = vtkSmartPointer<vtkUnsignedCharArray>::New();
+      this->Types = vtk::TakeSmartPointer(grid->Types->NewInstance());
       this->Types->DeepCopy(grid->Types);
     }
     else
@@ -1798,19 +1826,13 @@ int vtkUnstructuredGrid::GetCellNumberOfFaces(
 //------------------------------------------------------------------------------
 int vtkUnstructuredGrid::IsHomogeneous()
 {
-  unsigned char type;
   if (this->Types && this->Types->GetMaxId() >= 0)
   {
-    type = Types->GetValue(0);
-    vtkIdType numCells = this->GetNumberOfCells();
-    for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
+    if (this->GetCellTypes<vtkConstantUnsignedCharArray>())
     {
-      if (this->Types->GetValue(cellId) != type)
-      {
-        return 0;
-      }
+      return 1;
     }
-    return 1;
+    return this->GetDistinctCellTypesArray()->GetNumberOfValues() == 1 ? 1 : 0;
   }
   return 0;
 }
@@ -1819,9 +1841,10 @@ int vtkUnstructuredGrid::IsHomogeneous()
 // Fill container with indices of cells which match given type.
 void vtkUnstructuredGrid::GetIdsOfCellsOfType(int type, vtkIdTypeArray* array)
 {
+  const auto cellTypesRange = vtk::DataArrayValueRange<1, int>(this->Types);
   for (int cellId = 0; cellId < this->GetNumberOfCells(); cellId++)
   {
-    if (static_cast<int>(Types->GetValue(cellId)) == type)
+    if (cellTypesRange[cellId] == type)
     {
       array->InsertNextValue(cellId);
     }

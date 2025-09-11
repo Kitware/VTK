@@ -752,9 +752,7 @@ int vtk3DLinearGridCrinkleExtractor::ProcessPiece(
   vtkCellArray* newCells = vtkCellArray::New();
 
   // Set up the cells for processing. A specialized iterator is used to traverse the cells.
-  unsigned char* cellTypes =
-    static_cast<unsigned char*>(input->GetCellTypesArray()->GetVoidPointer(0));
-  CellIter* cellIter = new CellIter(numCells, cellTypes, cells);
+  CellIter* cellIter = new CellIter(numCells, input->GetCellTypes(), cells);
 
   // Classify the cell points based on the specified implicit function. A
   // fast path is available for planes.

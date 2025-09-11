@@ -429,7 +429,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
   if (!firstSet)
   {
     cellArray = grid->GetCells();
-    types = grid->GetCellTypesArray()->GetPointer(0);
+    types = grid->GetCellTypes<vtkUnsignedCharArray>()->GetPointer(0);
     flocs = grid->GetPolyhedronFaceLocations() ? grid->GetPolyhedronFaceLocations() : nullptr;
     faces = grid->GetPolyhedronFaces() ? grid->GetPolyhedronFaces() : nullptr;
 

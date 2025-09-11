@@ -282,7 +282,7 @@ bool FillMixedShape(vtkUnstructuredGrid* dataset, conduit_cpp::Node& topologies_
   shape_map["polygonal"] = VTK_POLYGON;
 
   auto offsets = dataset->GetCells()->GetOffsetsArray();
-  auto shapes = dataset->GetCellTypesArray();
+  auto shapes = dataset->GetCellTypes<vtkUnsignedCharArray>();
 
   vtkNew<vtkIdTypeArray> sizes;
   sizes->SetName("vtkCellSizes");

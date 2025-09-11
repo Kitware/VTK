@@ -353,7 +353,7 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
     {
       vtkNew<vtkUnsignedCharArray> cTypes;
       // append types to themselves too
-      cTypes->DeepCopy(ugOutput->GetCellTypesArray());
+      cTypes->DeepCopy(ugOutput->GetCellTypes());
       vtkIdType typeSize = cTypes->GetNumberOfTuples();
       cTypes->InsertTuples(typeSize, typeSize, 0, cTypes);
       // update the output UG

@@ -144,8 +144,6 @@ int vtkExtractUnstructuredGridPiece::RequestData(vtkInformation* vtkNotUsed(requ
 
   vtkPointData *pd = input->GetPointData(), *outPD = output->GetPointData();
   vtkCellData *cd = input->GetCellData(), *outCD = output->GetCellData();
-  unsigned char* cellTypes =
-    (input->GetCellTypesArray() ? input->GetCellTypesArray()->GetPointer(0) : nullptr);
   int cellType;
   vtkIntArray* cellTags;
   int ghostLevel, piece, numPieces;
@@ -232,7 +230,7 @@ int vtkExtractUnstructuredGridPiece::RequestData(vtkInformation* vtkNotUsed(requ
       const vtkIdType* ids;
       cellIter->GetCurrentCell(numCellPts, ids);
 
-      cellType = cellTypes[cellId];
+      cellType = input->GetCellType(cellId);
 
       if (cellTags->GetValue(cellId) != -1) // satisfied thresholding
       {

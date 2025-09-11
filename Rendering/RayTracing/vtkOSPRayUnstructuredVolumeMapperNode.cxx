@@ -131,7 +131,8 @@ void vtkOSPRayUnstructuredVolumeMapperNode::Render(bool prepass)
 
       // Now the connectivity
       auto cellArray = dataSet->GetCells();
-      auto ctypes = dataSet->GetCellTypesArray();
+      vtkNew<vtkUnsignedCharArray> ctypes;
+      ctypes->ShallowCopy(dataSet->GetCellTypes()); // convert if needed
       OSPData cellTypeData = ospNewSharedData1D(ctypes->GetPointer(0), OSP_UCHAR, numberOfCells);
       ospCommit(cellTypeData);
       ospSetObject(this->OSPRayVolume, "cell.type", cellTypeData);

@@ -215,35 +215,30 @@ void vtkDataSetTriangleFilter::UnstructuredExecute(
   vtkUnstructuredGrid* inUgrid = vtkUnstructuredGrid::SafeDownCast(dataSetInput);
   if (inUgrid)
   {
-    // avoid doing cell simplification if all cells are already simplices
-    vtkUnsignedCharArray* cellTypes = inUgrid->GetCellTypesArray();
-    if (cellTypes)
+    int allSimplices = 1;
+    for (vtkIdType cellId = 0; cellId < inUgrid->GetNumberOfCells() && allSimplices; cellId++)
     {
-      int allsimplices = 1;
-      for (vtkIdType cellId = 0; cellId < cellTypes->GetNumberOfValues() && allsimplices; cellId++)
+      switch (inUgrid->GetCellType(cellId))
       {
-        switch (cellTypes->GetValue(cellId))
-        {
-          case VTK_TETRA:
-            break;
-          case VTK_VERTEX:
-          case VTK_LINE:
-          case VTK_TRIANGLE:
-            if (this->TetrahedraOnly)
-            {
-              allsimplices = 0; // don't shallowcopy need to strip non tets
-            }
-            break;
-          default:
-            allsimplices = 0;
-            break;
-        }
+        case VTK_TETRA:
+          break;
+        case VTK_VERTEX:
+        case VTK_LINE:
+        case VTK_TRIANGLE:
+          if (this->TetrahedraOnly)
+          {
+            allSimplices = 0; // don't shallowcopy need to strip non tets
+          }
+          break;
+        default:
+          allSimplices = 0;
+          break;
       }
-      if (allsimplices)
-      {
-        output->ShallowCopy(input);
-        return;
-      }
+    }
+    if (allSimplices)
+    {
+      output->ShallowCopy(input);
+      return;
     }
   }
 

@@ -64,7 +64,7 @@ protected:
   void SetUnstructuredGrid(vtkUnstructuredGrid* ug);
 
   vtkSmartPointer<vtkCellArrayIterator> Cells;
-  vtkSmartPointer<vtkUnsignedCharArray> Types;
+  vtkSmartPointer<vtkDataArray> Types;
   vtkSmartPointer<vtkCellArray> PolyFaceConn;
   vtkSmartPointer<vtkCellArray> PolyFaceLocs;
   vtkSmartPointer<vtkPoints> Coords;

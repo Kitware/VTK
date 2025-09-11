@@ -74,7 +74,7 @@ void vtkUnstructuredGridCellIterator::PrintSelf(ostream& os, vtkIndent indent)
 void vtkUnstructuredGridCellIterator::SetUnstructuredGrid(vtkUnstructuredGrid* ug)
 {
   // If the unstructured grid has not been initialized yet, these may not exist:
-  vtkUnsignedCharArray* cellTypeArray = ug ? ug->GetCellTypesArray() : nullptr;
+  vtkDataArray* cellTypeArray = ug ? ug->GetCellTypes() : nullptr;
   vtkCellArray* cellArray = ug ? ug->GetCells() : nullptr;
   vtkPoints* points = ug ? ug->GetPoints() : nullptr;
 
@@ -132,7 +132,7 @@ void vtkUnstructuredGridCellIterator::ResetToFirstCell()
 void vtkUnstructuredGridCellIterator::FetchCellType()
 {
   const vtkIdType cellId = this->Cells->GetCurrentCellId();
-  this->CellType = this->Types->GetValue(cellId);
+  this->CellType = static_cast<int>(this->Types->GetComponent(cellId, 0));
 }
 
 //------------------------------------------------------------------------------

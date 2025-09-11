@@ -37,6 +37,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkCellData;
+class vtkDataArray;
 class vtkDataAssembly;
 class vtkDataSetAttributes;
 class vtkFieldData;
@@ -45,7 +46,6 @@ class vtkPartitionedDataSetCollection;
 class vtkPointData;
 class vtkPointSet;
 class vtkStructuredGrid;
-class vtkUnsignedCharArray;
 class vtkUnstructuredGrid;
 
 struct DatabasePartitionInfo
@@ -376,9 +376,9 @@ protected:
 
   /**
    * Combine a vector cell types, cell arrays pairs into a single
-   * vtkUnsignedCharArray of cell types and a vtkCellArray.
+   * vtkDataArray of cell types and a vtkCellArray.
    */
-  std::pair<vtkSmartPointer<vtkUnsignedCharArray>, vtkSmartPointer<vtkCellArray>> CombineTopologies(
+  std::pair<vtkSmartPointer<vtkDataArray>, vtkSmartPointer<vtkCellArray>> CombineTopologies(
     const std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>>& topologies);
 
   /**

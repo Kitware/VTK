@@ -20,17 +20,15 @@
 #include "vtkCellArray.h"             // inline GetCellPoints()
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDeprecation.h"           // VTK_DEPRECATED_IN_9_6_0()
-#include "vtkIdTypeArray.h"           // inline GetCellPoints()
 #include "vtkSmartPointer.h"          // for smart pointer
 #include "vtkUnstructuredGridBase.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkCellArray;
+class vtkConstantUnsignedCharArray;
 class vtkIdList;
 class vtkIdTypeArray;
 class vtkUnsignedCharArray;
-class vtkIdTypeArray;
 
 class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALMANUAL vtkUnstructuredGrid
   : public vtkUnstructuredGridBase
@@ -200,12 +198,25 @@ public:
   ///@}
 
   /**
+   * The possible types of arrays to use for the cell types array.
+   */
+  using CellTypesArrays = vtkTypeList::Create<vtkUnsignedCharArray, vtkConstantUnsignedCharArray>;
+
+  ///@{
+  /**
    * Get the array of all cell types in the grid. Each single-component
    * tuple in the array at an index that corresponds to the type of the cell
    * with the same index. To get an array of only the distinct cell types in
    * the dataset, use GetCellTypes().
    */
-  vtkUnsignedCharArray* GetCellTypesArray();
+  template <class TCellTypesArray = vtkDataArray>
+  TCellTypesArray* GetCellTypes()
+  {
+    return TCellTypesArray::FastDownCast(this->Types);
+  }
+  VTK_DEPRECATED_IN_9_6_0("Use GetCellTypes() instead")
+  vtkUnsignedCharArray* GetCellTypesArray() { return this->GetCellTypes<vtkUnsignedCharArray>(); }
+  ///@}
 
   /**
    * Squeeze all arrays in the grid to conserve memory.
@@ -267,9 +278,9 @@ public:
    */
   void SetCells(int type, vtkCellArray* cells);
   void SetCells(int* types, vtkCellArray* cells);
-  void SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray* cells);
-  void SetPolyhedralCells(vtkUnsignedCharArray* cellTypes, vtkCellArray* cells,
-    vtkCellArray* faceLocations, vtkCellArray* faces);
+  void SetCells(vtkDataArray* cellTypes, vtkCellArray* cells);
+  void SetPolyhedralCells(
+    vtkDataArray* cellTypes, vtkCellArray* cells, vtkCellArray* faceLocations, vtkCellArray* faces);
 
   // This was incorrectly deprecated in v9.4, so it should only been fully removed when removing
   // VTK_DEPRECATED_IN_9_6_0
@@ -542,7 +553,7 @@ protected:
   // all the cells that use a point), the cell links array is built.
   vtkSmartPointer<vtkCellArray> Connectivity;
   vtkSmartPointer<vtkAbstractCellLinks> Links;
-  vtkSmartPointer<vtkUnsignedCharArray> Types;
+  vtkSmartPointer<vtkDataArray> Types;
 
   // Set of all cell types present in the grid. All entries are unique.
   vtkSmartPointer<vtkCellTypes> DistinctCellTypes;

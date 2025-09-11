@@ -24,37 +24,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
-struct build_type_array : vtkCellArray::DispatchUtilities
-{
-  template <typename OffsetsT, typename ConnectivityT>
-  void operator()(
-    OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), vtkUnsignedCharArray* types) const
-  {
-    vtkSMPTools::For(0, offsets->GetNumberOfValues() - 1,
-      [&](vtkIdType begin, vtkIdType end)
-      {
-        auto offsetsRange = GetRange(offsets);
-        for (vtkIdType i = begin; i < end; ++i)
-        {
-          auto cellSize = offsetsRange[i + 1] - offsetsRange[i];
-          unsigned char cellType;
-          switch (cellSize)
-          {
-            case 3:
-              cellType = VTK_TRIANGLE;
-              break;
-            case 4:
-              cellType = VTK_QUAD;
-              break;
-            default:
-              cellType = VTK_POLYGON;
-              break;
-          }
-          types->SetValue(i, cellType);
-        }
-      });
-  }
-};
+
 }
 VTK_ABI_NAMESPACE_END
 namespace tovtkm
@@ -109,11 +79,7 @@ viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields, bool forc
       // need to construct a vtkUnsignedCharArray* types mapping for our zoo data
       // we can do this by mapping number of points per cell to the type
       // 3 == tri, 4 == quad, else polygon
-      vtkNew<vtkUnsignedCharArray> types;
-      types->SetNumberOfComponents(1);
-      types->SetNumberOfTuples(cells->GetNumberOfCells());
-
-      cells->Dispatch(build_type_array{}, types.GetPointer());
+      vtkSmartPointer<vtkDataArray> types = CreatePolygonalCellTypes(cells);
 
       auto dcells = Convert(types, cells, numPoints, forceViskores);
       dataset.SetCellSet(dcells);
@@ -188,8 +154,7 @@ bool Convert(const viskores::cont::DataSet& voutput, vtkPolyData* output, vtkDat
   // into a new array
   auto const& outCells = voutput.GetCellSet();
   vtkNew<vtkCellArray> cells;
-  const bool cellsConverted =
-    fromvtkm::Convert(outCells, cells.GetPointer(), nullptr, forceViskores);
+  const bool cellsConverted = fromvtkm::Convert(outCells, cells.GetPointer(), forceViskores);
   if (!cellsConverted)
   {
     return false;
