@@ -544,7 +544,7 @@ void vtkOpenGLSurfaceProbeVolumeMapper::CreateTexture(
   {
     texture->SetContext(renWin);
     texture->SetFormat(GL_RGBA);
-    texture->SetInternalFormat(GL_RGBA16F);
+    texture->SetInternalFormat(GL_RGBA32F);
     texture->SetDataType(GL_FLOAT);
     texture->SetWrapS(vtkTextureObject::ClampToEdge);
     texture->SetWrapT(vtkTextureObject::ClampToEdge);
