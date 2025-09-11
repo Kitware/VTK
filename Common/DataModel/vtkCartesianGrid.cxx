@@ -6,7 +6,7 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
-#include "vtkConstantArray.h"
+#include "vtkConstantUnsignedCharArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
@@ -118,7 +118,8 @@ void vtkCartesianGrid::GetPoint(vtkIdType ptId, double x[3])
 int vtkCartesianGrid::GetCellType(vtkIdType cellId)
 {
   // see whether the cell is blanked
-  return this->IsCellVisible(cellId) ? this->StructuredCellTypes->GetValue(cellId) : VTK_EMPTY_CELL;
+  return this->IsCellVisible(cellId) ? static_cast<int>(this->StructuredCellTypes->GetValue(cellId))
+                                     : VTK_EMPTY_CELL;
 }
 
 //------------------------------------------------------------------------------
@@ -252,9 +253,24 @@ vtkStructuredCellArray* vtkCartesianGrid::GetCells()
 }
 
 //------------------------------------------------------------------------------
-vtkConstantArray<int>* vtkCartesianGrid::GetCellTypesArray()
+vtkConstantUnsignedCharArray* vtkCartesianGrid::GetCellTypes()
 {
   return this->StructuredCellTypes;
+}
+
+//------------------------------------------------------------------------------
+vtkConstantArray<int>* vtkCartesianGrid::GetCellTypesArray()
+{
+  if (!this->LegacyStructuredCellTypes)
+  {
+    this->LegacyStructuredCellTypes = vtkSmartPointer<vtkConstantArray<int>>::New();
+    this->LegacyStructuredCellTypes->ConstructBackend(
+      static_cast<int>(this->StructuredCellTypes->GetBackend()->Value));
+    this->LegacyStructuredCellTypes->SetNumberOfComponents(1);
+    this->LegacyStructuredCellTypes->SetNumberOfTuples(
+      this->StructuredCellTypes->GetNumberOfTuples());
+  }
+  return this->LegacyStructuredCellTypes;
 }
 
 //------------------------------------------------------------------------------
@@ -534,7 +550,7 @@ void vtkCartesianGrid::BuildCells()
 //------------------------------------------------------------------------------
 void vtkCartesianGrid::BuildCellTypes()
 {
-  this->StructuredCellTypes = vtkStructuredData::GetCellTypesArray(this->GetExtent(), true);
+  this->StructuredCellTypes = vtkStructuredData::GetCellTypes(this->GetExtent(), true);
 }
 
 VTK_ABI_NAMESPACE_END

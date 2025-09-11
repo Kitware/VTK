@@ -6,7 +6,7 @@
 #include "vtkRectilinearGrid.h"
 
 #include "vtkCellData.h"
-#include "vtkConstantArray.h"
+#include "vtkConstantUnsignedCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
@@ -163,7 +163,7 @@ void vtkRectilinearGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
     return;
   }
   // set cell type
-  cell->SetCellType(this->GetCellTypesArray()->GetValue(cellId));
+  cell->SetCellType(this->GetCellTypes()->GetValue(cellId));
 
   // get min max ijk
   int ijkMin[3], ijkMax[3];

@@ -16,6 +16,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataSet.h"
+#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_6_0()
 #include "vtkStructuredData.h" // For inline methods
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -115,13 +116,18 @@ public:
    */
   vtkStructuredCellArray* GetCells();
 
+  ///@{
   /**
    * Get the array of all cell types in the image data. Each single-component
    * integer value is the same. The array is of size GetNumberOfCells().
    *
    * NOTE: the returned object should not be modified.
    */
+  using vtkDataSet::GetCellTypes; // VTK_DEPRECATED_IN_9_6_0
+  vtkConstantUnsignedCharArray* GetCellTypes();
+  VTK_DEPRECATED_IN_9_6_0("Use vtkConstantUnsignedCharArray* GetCellTypes() instead")
   vtkConstantArray<int>* GetCellTypesArray();
+  ///@}
 
   /**
    * Given the node dimensions of this grid instance, this method computes the
@@ -284,7 +290,8 @@ private:
   // Internals fields
   vtkSmartPointer<vtkPoints> StructuredPoints;
   vtkSmartPointer<vtkStructuredCellArray> StructuredCells;
-  vtkSmartPointer<vtkConstantArray<int>> StructuredCellTypes;
+  vtkSmartPointer<vtkConstantUnsignedCharArray> StructuredCellTypes;
+  vtkSmartPointer<vtkConstantArray<int>> LegacyStructuredCellTypes; // VTK_DEPRECATED_IN_9_6_0
 };
 
 //----------------------------------------------------------------------------
