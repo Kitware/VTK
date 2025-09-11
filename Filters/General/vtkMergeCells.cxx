@@ -317,9 +317,10 @@ struct InsertMappedNextCellPoints : public vtkCellArray::DispatchUtilities
     const PointTypeIter pts, vtkIdType NumberOfIds, vtkIdType* idMap)
   {
     using ValueType = GetAPIType<OffsetsT>;
-    using AccessorType = vtkDataArrayAccessor<OffsetsT>;
-    AccessorType connAccessor(conn);
-    AccessorType offsetsAccessor(offsets);
+    using OffsetsAccessorType = vtkDataArrayAccessor<OffsetsT>;
+    using ConnectivityAccessorType = vtkDataArrayAccessor<ConnectivityT>;
+    ConnectivityAccessorType connAccessor(conn);
+    OffsetsAccessorType offsetsAccessor(offsets);
 
     const vtkIdType cellId = offsets->GetNumberOfValues() - 1;
 

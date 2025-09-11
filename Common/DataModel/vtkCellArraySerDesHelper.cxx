@@ -109,8 +109,8 @@ static void Deserialize_vtkCellArray(
       // the internal shallow copy which would change the MTime of the cellArray.
       SetDataGenericImpl worker{ cellArray };
       using Dispatcher =
-        vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageArrayList,
-          vtkCellArray::StorageArrayList>;
+        vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
+          vtkCellArray::StorageConnectivityArrays>;
       if (!Dispatcher::Execute(offsets, connectivity, worker))
       {
         // Fallback to generic storage

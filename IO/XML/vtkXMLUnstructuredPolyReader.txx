@@ -126,7 +126,7 @@ struct FaceIdRangeDispatchWrapper
 
 bool FindPolyFaceRange(vtkIdType* ranges, vtkDataArray* polyhedron_faces)
 {
-  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageArrayList>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageConnectivityArrays>;
 
   FaceIdRangeDispatchWrapper worker(ranges);
 
@@ -229,7 +229,7 @@ vtk::GetAPIType<vtkDataArray> OffsettingWrapper::InitOffsetWithFirstValue(vtkDat
 
 bool RebaseOffset(vtkDataArray* arr)
 {
-  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageArrayList>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageConnectivityArrays>;
 
   OffsettingWrapper worker(0);
   worker.UseStartValue = true;
@@ -248,7 +248,7 @@ bool RebaseOffset(vtkDataArray* arr)
 
 bool RebasePolyFaces(vtkDataArray* arr, vtkIdType offset)
 {
-  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageArrayList>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageConnectivityArrays>;
 
   OffsettingWrapper worker(offset);
   worker.UseStartValue = false;

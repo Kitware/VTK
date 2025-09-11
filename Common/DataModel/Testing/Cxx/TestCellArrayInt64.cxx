@@ -7,7 +7,7 @@ int TestCellArrayInt64(int, char*[])
 {
   try
   {
-    ::RunTests<vtkCellArray::Int64>();
+    ::RunTests<vtkCellArray::Int64, false>();
   }
   catch (std::exception& err)
   {

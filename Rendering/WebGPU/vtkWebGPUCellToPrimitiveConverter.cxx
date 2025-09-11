@@ -372,7 +372,10 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellToPrimitiveComputePipeline(
     return false;
   }
 
-  if (!cells->ConvertTo32BitStorage())
+  const vtkIdType fixedCellSize = cells->IsHomogeneous();
+  const bool convertedTo32Bit =
+    fixedCellSize > 0 ? cells->ConvertToFixedSize32BitStorage() : cells->ConvertTo32BitStorage();
+  if (!convertedTo32Bit)
   {
     vtkErrorMacro(<< "Failed to convert cell array storage to 32-bit");
     return false;
@@ -380,8 +383,7 @@ bool vtkWebGPUCellToPrimitiveConverter::DispatchCellToPrimitiveComputePipeline(
   const char* cellTypeAsString = this->GetCellTypeAsString(cellType);
   const char* primitiveTypeAsString = this->GetTessellatedPrimitiveTypeAsString(idx);
   const auto primitiveSize = this->GetTessellatedPrimitiveSize(idx);
-  const std::size_t maxCellSize = static_cast<std::size_t>(cells->GetMaxCellSize());
-  if (primitiveSize == maxCellSize)
+  if (primitiveSize == static_cast<std::size_t>(fixedCellSize))
   {
     auto* ids = cells->GetConnectivityArray();
 

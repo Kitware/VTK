@@ -264,6 +264,7 @@ public:
   {
     this->Initialize<BackendT>();
     this->Squeeze();
+    this->GenericDataArrayType::Initialize();
   }
 
   /**
@@ -280,6 +281,7 @@ public:
     return this->GetActualMemorySizeImpl<BackendT>();
   }
 
+  ///@{
   /**
    * Specific DeepCopy for implicit arrays
    *
@@ -304,6 +306,25 @@ public:
     this->SetNumberOfTuples(other->GetNumberOfTuples());
     this->SetBackend(other->GetBackend());
   }
+  using vtkDataArray::DeepCopy;
+  void DeepCopy(vtkDataArray* da) override
+  {
+    if (da == nullptr || da == this)
+    {
+      return;
+    }
+    // dispatch to the templated version if possible
+    if (auto otherImplicit = vtkImplicitArray<BackendT, ArrayTypeTag::value>::FastDownCast(da))
+    {
+      this->ImplicitDeepCopy(otherImplicit);
+    }
+    else
+    {
+      // otherwise fallback to generic implementation that will copy all values
+      this->vtkDataArray::DeepCopy(da);
+    }
+  }
+  ///@}
 
   ///@{
   /**

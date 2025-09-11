@@ -22,6 +22,8 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestAMRBox.cxx
   TestAMRIterator.cxx
   TestBiQuadraticQuad.cxx
+  TestCellArrayFixedSizeInt32.cxx
+  TestCellArrayFixedSizeInt64.cxx
   TestCellArrayGeneric1.cxx
   TestCellArrayGeneric2.cxx
   TestCellArrayGeneric3.cxx
@@ -40,9 +42,6 @@ vtk_add_test_cxx(vtkCommonDataModelCxxTests tests
   TestCellArrayGeneric16.cxx
   TestCellArrayGeneric17.cxx
   TestCellArrayGeneric18.cxx
-  TestCellArrayGeneric19.cxx
-  TestCellArrayGeneric20.cxx
-  TestCellArrayGeneric21.cxx
   TestCellArrayInt32.cxx
   TestCellArrayInt64.cxx
   TestCellArrayTraversal.cxx

@@ -3,11 +3,11 @@
 
 #include "TestCellArrayHelpers.h"
 
-int TestCellArrayInt32(int, char*[])
+int TestCellArrayFixedSizeInt32(int, char*[])
 {
   try
   {
-    ::RunTests<vtkCellArray::Int32, false>();
+    ::RunTests<vtkCellArray::FixedSizeInt32, true>();
   }
   catch (std::exception& err)
   {

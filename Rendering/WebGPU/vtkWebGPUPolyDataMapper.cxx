@@ -1439,7 +1439,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
   vtkDataArray* pointTangents = pointData->GetTangents();
   vtkDataArray* pointUvs = pointData->GetTCoords();
 
-  using DispatchT = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
+  using DispatchT = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
 
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
 

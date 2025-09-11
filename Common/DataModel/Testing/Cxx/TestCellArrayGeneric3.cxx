@@ -8,15 +8,17 @@ int TestCellArrayGeneric3(int, char*[])
   try
   {
     // <signed, signed>
-    RunTests<vtkCellArray::Generic, MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeInt16>>();
-    RunTests<vtkCellArray::Generic, MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeInt32>>();
-    RunTests<vtkCellArray::Generic, MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeInt64>>();
-    RunTests<vtkCellArray::Generic, MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeInt16>>();
-    RunTests<vtkCellArray::Generic, MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeInt32>>();
-    RunTests<vtkCellArray::Generic, MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeInt64>>();
-    RunTests<vtkCellArray::Generic, MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeInt16>>();
-    RunTests<vtkCellArray::Generic, MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeInt32>>();
-    RunTests<vtkCellArray::Generic, MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeInt64>>();
+    // clang-format off
+    ::RunTests<vtkCellArray::Generic, false, MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeInt16>>();
+    ::RunTests<vtkCellArray::Generic, false, MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeInt32>>();
+    ::RunTests<vtkCellArray::Generic, false, MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeInt64>>();
+    ::RunTests<vtkCellArray::Generic, false, MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeInt16>>();
+    ::RunTests<vtkCellArray::Generic, false, MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeInt32>>();
+    ::RunTests<vtkCellArray::Generic, false, MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeInt64>>();
+    ::RunTests<vtkCellArray::Generic, false, MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeInt16>>();
+    ::RunTests<vtkCellArray::Generic, false, MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeInt32>>();
+    ::RunTests<vtkCellArray::Generic, false, MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeInt64>>();
+    // clang-format on
   }
   catch (std::exception& err)
   {

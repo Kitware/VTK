@@ -69,29 +69,51 @@
  * arrays of point ids can share the internal storage; otherwise a copy of
  * internal memory must be performed.)
  *
+ * Additionally, the internal arrays may be "fixed size", meaning that
+ * each cell is required to have the same number of points. This allows
+ * more compact storage and faster traversal, but is only appropriate for
+ * datasets where all cells are the same type (e.g., all triangles, or all
+ * quads, etc.). Fixed size storage with a cell size of N means that the
+ * Connectivity array will have N entries per cell, and the Offsets array
+ * will have values {0, N, 2N, 3N, ... }.
+ *
  * Methods for managing the storage type are:
  *
  * - `bool IsStorage64Bit()`
  * - `bool IsStorage32Bit()`
+ * - `bool IsStorageFixedSize64Bit()`
+ * - `bool IsStorageFixedSize32Bit()`
+ * - `bool IsStorageFixedSize() // Either 32- or 64-bit fixed size`
  * - `bool IsStorageGeneric()`
  * - `bool IsStorageShareable() // Can pointers to internal storage be shared`
  * - `void Use64BitStorage()`
  * - `void Use32BitStorage()`
  * - `void UseDefaultStorage() // Depends on vtkIdType`
+ * - `void UseFixedSize64BitStorage(vtkIdType cellSize)`
+ * - `void UseFixedSize32BitStorage(vtkIdType cellSize)`
+ * - `void UseFixedSizeStorage(vtkIdType cellSize) // Depends on vtkIdType`
  * - `bool CanConvertTo32BitStorage()`
  * - `bool CanConvertTo64BitStorage()`
  * - `bool CanConvertToDefaultStorage() // Depends on vtkIdType`
- * - `bool ConvertTo32BitStorage()`
+ * - `bool CanConvertToFixedSize32BitStorage()`
+ * - `bool CanConvertToFixedSize64BitStorage()`
+ * - `bool CanConvertToFixedSizeStorage() // Depends on vtkIdType`
+ * - `bool CanConvertToStorageType(int type) // Int64, Int32, FixedSizeInt64, FixedSizeInt32`
  * - `bool ConvertTo64BitStorage()`
+ * - `bool ConvertTo32BitStorage()`
  * - `bool ConvertToDefaultStorage() // Depends on vtkIdType`
+ * - `bool ConvertToFixedSize64BitStorage()`
+ * - `bool ConvertToFixedSize32BitStorage()`
+ * - `bool ConvertToFixedSizeStorage() // Depends on vtkIdType`
  * - `bool ConvertToSmallestStorage() // Depends on current values in arrays`
+ * - `bool ConvertToStorageType(int type) // Int64, Int32, FixedSizeInt64, FixedSizeInt32`
  *
  * There is an additional mode of storage to allow any kind of vtkDataArray derived
  * types. The Generic storage mode allows separate array types for offsets and connectivity.
  * There is no method to explicitly use generic storage mode.
  * vtkCellArray will automatically switch over to using generic
  * storage when any overload of vtkCellArray::SetData is invoked with array types that
- * are NOT in vtkCellArray::InputArrayList.
+ * are NOT in vtkCellArray::InputConnectivityArrays.
  *
  * Note that some legacy methods are still available that reflect the
  * previous storage format of this data, which embedded the cell sizes into
@@ -136,6 +158,7 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkWrappingHints.h"         // For VTK_MARSHALMANUAL
 
+#include "vtkAffineArray.h"    // Needed for inline methods
 #include "vtkCell.h"           // Needed for inline methods
 #include "vtkDataArrayRange.h" // Needed for inline methods
 #include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_6_0
@@ -181,6 +204,8 @@ class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALMANUAL vtkCellArray : public vtkAbstr
 public:
   using ArrayType32 = vtkTypeInt32Array;
   using ArrayType64 = vtkTypeInt64Array;
+  using AffineArrayType32 = vtkAffineArray<vtkTypeInt32>;
+  using AffineArrayType64 = vtkAffineArray<vtkTypeInt64>;
 
   ///@{
   /**
@@ -193,6 +218,7 @@ public:
   void PrintDebug(ostream& os);
   ///@}
 
+  ///@{
   /**
    * List of possible array types used for storage. May be used with
    * vtkArrayDispatch::Dispatch[2]ByArray to process internal arrays.
@@ -201,8 +227,14 @@ public:
    *
    * @sa vtkCellArray::Dispatch() for a simpler mechanism.
    */
-  using StorageArrayList = vtkTypeList::Create<ArrayType32, ArrayType64>;
+  using StorageOffsetsArrays =
+    vtkTypeList::Create<ArrayType32, ArrayType64, AffineArrayType32, AffineArrayType64>;
+  using StorageConnectivityArrays = vtkTypeList::Create<ArrayType32, ArrayType64>;
+  using StorageArrayList VTK_DEPRECATED_IN_9_6_0(
+    "Use StorageOffsetsArrays/StorageConnectivityArrays instead.") = StorageConnectivityArrays;
+  ///@}
 
+  ///@{
   /**
    * List of possible ArrayTypes that are compatible with internal storage.
    * Single component AOS-layout arrays holding one of these types may be
@@ -211,9 +243,16 @@ public:
    * This can be used with vtkArrayDispatch::DispatchByArray, etc to
    * check input arrays before assigning them to a cell array.
    */
-  using InputArrayList =
+  using InputOffsetsArrays =
+    typename vtkTypeList::Unique<vtkTypeList::Create<vtkAOSDataArrayTemplate<int>,
+      vtkAOSDataArrayTemplate<long>, vtkAOSDataArrayTemplate<long long>, vtkAffineArray<int>,
+      vtkAffineArray<long>, vtkAffineArray<long long>>>::Result;
+  using InputConnectivityArrays =
     typename vtkTypeList::Unique<vtkTypeList::Create<vtkAOSDataArrayTemplate<int>,
       vtkAOSDataArrayTemplate<long>, vtkAOSDataArrayTemplate<long long>>>::Result;
+  using InputArrayList VTK_DEPRECATED_IN_9_6_0(
+    "Use InputOffsetsArrays/InputConnectivityArrays instead.") = InputConnectivityArrays;
+  ///@}
 
   /**
    * Allocate memory.
@@ -359,9 +398,10 @@ public:
    *
    * Note that the input arrays may be copied and not used directly. To avoid
    * copying, use vtkIdTypeArray, vtkCellArray::ArrayType32, or
-   * vtkCellArray::ArrayType64.
-   *
-   * @{
+   * vtkCellArray::ArrayType64 for connectivity, and vtkIdTypeArray,
+   * vtkCellArray::ArrayType32, vtkCellArray::ArrayType64,
+   * vtkCellArray::AffineArrayType32, or vtkCellArray::AffineArrayType64
+   * for offsets.
    */
   void SetData(vtkIdTypeArray* offsets, vtkIdTypeArray* connectivity);
   void SetData(vtkAOSDataArrayTemplate<int>* offsets, vtkAOSDataArrayTemplate<int>* connectivity);
@@ -370,6 +410,13 @@ public:
     vtkAOSDataArrayTemplate<long long>* offsets, vtkAOSDataArrayTemplate<long long>* connectivity);
   void SetData(vtkTypeInt32Array* offsets, vtkTypeInt32Array* connectivity);
   void SetData(vtkTypeInt64Array* offsets, vtkTypeInt64Array* connectivity);
+  void SetData(vtkAffineArray<vtkIdType>* offsets, vtkIdTypeArray* connectivity);
+  void SetData(vtkAffineArray<int>* offsets, vtkAOSDataArrayTemplate<int>* connectivity);
+  void SetData(vtkAffineArray<long>* offsets, vtkAOSDataArrayTemplate<long>* connectivity);
+  void SetData(
+    vtkAffineArray<long long>* offsets, vtkAOSDataArrayTemplate<long long>* connectivity);
+  void SetData(vtkAffineArray<vtkTypeInt32>* offsets, vtkTypeInt32Array* connectivity);
+  void SetData(vtkAffineArray<vtkTypeInt64>* offsets, vtkTypeInt64Array* connectivity);
   ///@}
 
   /**
@@ -379,7 +426,8 @@ public:
    * are not met:
    *
    * - Both arrays must be of the same type.
-   * - The array type must be one of the types in InputArrayList.
+   * - The offsets array type must be one of the types in InputOffsetsArrays.
+   * - The connectivity array type must be one of the types in InputConnectivityArrays.
    *
    * If invalid arrays are passed in, an error is logged and the function
    * will return false.
@@ -393,7 +441,7 @@ public:
    * This is a convenience method, and may fail if the following conditions
    * are not met:
    *
-   * - The `connectivity` array must be one of the types in InputArrayList.
+   * - The `connectivity` array must be one of the types in InputConnectivityArrays.
    * - The `connectivity` array size must be a multiple of `cellSize`.
    *
    * If invalid arrays are passed in, an error is logged and the function
@@ -405,6 +453,8 @@ public:
   {
     Int64,
     Int32,
+    FixedSizeInt64,
+    FixedSizeInt32,
     Generic,
   };
 
@@ -424,6 +474,24 @@ public:
   bool IsStorage32Bit() const { return this->StorageType == StorageTypes::Int32; }
 
   /**
+   * @return True if the internal storage is using FixedSize 64 bit arrays.
+   */
+  bool IsStorageFixedSize64Bit() const { return this->StorageType == StorageTypes::FixedSizeInt64; }
+
+  /**
+   * @return True if the internal storage is using FixedSize 32 bit arrays.
+   */
+  bool IsStorageFixedSize32Bit() const { return this->StorageType == StorageTypes::FixedSizeInt32; }
+
+  /**
+   * @return True if the internal storage is using FixedSize arrays.
+   */
+  bool IsStorageFixedSize() const
+  {
+    return this->IsStorageFixedSize32Bit() || this->IsStorageFixedSize64Bit();
+  }
+
+  /**
    * @return True if the internal storage is using vtkDataArray.
    */
   bool IsStorageGeneric() const { return this->StorageType == StorageTypes::Generic; }
@@ -439,8 +507,10 @@ public:
     switch (this->StorageType)
     {
       case StorageTypes::Int32:
+      case StorageTypes::FixedSizeInt32:
         return std::is_same_v<vtkTypeInt32, vtkIdType>;
       case StorageTypes::Int64:
+      case StorageTypes::FixedSizeInt64:
         return std::is_same_v<vtkTypeInt64, vtkIdType>;
       case StorageTypes::Generic:
       default:
@@ -459,6 +529,9 @@ public:
   void Use32BitStorage();
   void Use64BitStorage();
   void UseDefaultStorage();
+  void UseFixedSize32BitStorage(vtkIdType cellSize);
+  void UseFixedSize64BitStorage(vtkIdType cellSize);
+  void UseFixedSizeDefaultStorage(vtkIdType cellSize);
   /**@}*/
 
   /**
@@ -472,6 +545,26 @@ public:
   bool CanConvertTo32BitStorage() const;
   bool CanConvertTo64BitStorage() const;
   bool CanConvertToDefaultStorage() const;
+  bool CanConvertToFixedSize32BitStorage() const;
+  bool CanConvertToFixedSize64BitStorage() const;
+  bool CanConvertToFixedSizeDefaultStorage() const;
+  bool CanConvertToStorageType(StorageTypes type) const
+  {
+    switch (type)
+    {
+      case StorageTypes::Int32:
+        return this->CanConvertTo32BitStorage();
+      case StorageTypes::Int64:
+        return this->CanConvertTo64BitStorage();
+      case StorageTypes::FixedSizeInt32:
+        return this->CanConvertToFixedSize32BitStorage();
+      case StorageTypes::FixedSizeInt64:
+        return this->CanConvertToFixedSize64BitStorage();
+      case StorageTypes::Generic:
+      default:
+        return true;
+    }
+  }
   /**@}*/
 
   /**
@@ -493,7 +586,27 @@ public:
   bool ConvertTo32BitStorage();
   bool ConvertTo64BitStorage();
   bool ConvertToDefaultStorage();
+  bool ConvertToFixedSize32BitStorage();
+  bool ConvertToFixedSize64BitStorage();
+  bool ConvertToFixedSizeDefaultStorage();
   bool ConvertToSmallestStorage();
+  bool ConvertToStorageType(StorageTypes type)
+  {
+    switch (type)
+    {
+      case StorageTypes::Int32:
+        return this->ConvertTo32BitStorage();
+      case StorageTypes::Int64:
+        return this->ConvertTo64BitStorage();
+      case StorageTypes::FixedSizeInt32:
+        return this->ConvertToFixedSize32BitStorage();
+      case StorageTypes::FixedSizeInt64:
+        return this->ConvertToFixedSize64BitStorage();
+      case StorageTypes::Generic:
+      default:
+        return true;
+    }
+  }
   /**@}*/
 
   /**
@@ -504,6 +617,14 @@ public:
   vtkDataArray* GetOffsetsArray() const { return this->Offsets; }
   ArrayType32* GetOffsetsArray32() const { return ArrayType32::FastDownCast(this->Offsets); }
   ArrayType64* GetOffsetsArray64() const { return ArrayType64::FastDownCast(this->Offsets); }
+  AffineArrayType32* GetOffsetsAffineArray32()
+  {
+    return AffineArrayType32::FastDownCast(this->Offsets);
+  }
+  AffineArrayType64* GetOffsetsAffineArray64()
+  {
+    return AffineArrayType64::FastDownCast(this->Offsets);
+  }
   /**@}*/
 
   /**
@@ -921,6 +1042,14 @@ public:
         functor(static_cast<ArrayType64*>(this->Offsets.Get()),
           static_cast<ArrayType64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
         break;
+      case StorageTypes::FixedSizeInt32:
+        functor(static_cast<AffineArrayType32*>(this->Offsets.Get()),
+          static_cast<ArrayType32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        break;
+      case StorageTypes::FixedSizeInt64:
+        functor(static_cast<AffineArrayType64*>(this->Offsets.Get()),
+          static_cast<ArrayType64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        break;
       default:
         functor(this->Offsets.Get(), this->Connectivity.Get(), std::forward<Args>(args)...);
         break;
@@ -937,6 +1066,14 @@ public:
         break;
       case StorageTypes::Int64:
         functor(static_cast<ArrayType64*>(this->Offsets.Get()),
+          static_cast<ArrayType64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        break;
+      case StorageTypes::FixedSizeInt32:
+        functor(static_cast<AffineArrayType32*>(this->Offsets.Get()),
+          static_cast<ArrayType32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        break;
+      case StorageTypes::FixedSizeInt64:
+        functor(static_cast<AffineArrayType64*>(this->Offsets.Get()),
           static_cast<ArrayType64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
         break;
       default:
@@ -1443,9 +1580,10 @@ struct InsertNextCellImpl : public vtkCellArray::DispatchUtilities
     const vtkIdType pts[], vtkIdType& cellId)
   {
     using ValueType = GetAPIType<OffsetsT>;
-    using AccessorType = vtkDataArrayAccessor<OffsetsT>;
-    AccessorType offsetsAccesor(offsets);
-    AccessorType connAccesor(conn);
+    using OffsetsAccessorType = vtkDataArrayAccessor<OffsetsT>;
+    using ConnectivityAccessorType = vtkDataArrayAccessor<ConnectivityT>;
+    OffsetsAccessorType offsetsAccesor(offsets);
+    ConnectivityAccessorType connAccesor(conn);
 
     cellId = offsets->GetNumberOfValues() - 1;
 

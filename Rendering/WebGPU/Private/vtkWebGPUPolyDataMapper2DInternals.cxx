@@ -363,7 +363,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       const auto label = "MeshAttributes-" + input->GetObjectDescription();
       this->MeshData.Buffer = wgpuConfiguration->CreateBuffer(requiredBufferSize,
         wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage, false, label.c_str());
-      using DispatchT = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
+      using DispatchT = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
       ::WriteTypedArray<vtkTypeFloat32> meshDataWriter{ 0, this->MeshData.Buffer, wgpuConfiguration,
         1. };
 

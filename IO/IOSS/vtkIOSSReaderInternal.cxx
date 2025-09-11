@@ -1736,27 +1736,58 @@ vtkIOSSReaderInternal::CombineTopologies(
   else
   {
     vtkIdType numCells = 0, connectivitySize = 0;
+    std::set<unsigned char> cellTypes;
     for (const auto& block : topologicalBlocks)
     {
+      cellTypes.insert(static_cast<unsigned char>(block.first));
       const auto cellarray = block.second;
       numCells += cellarray->GetNumberOfCells();
-      connectivitySize += cellarray->GetNumberOfConnectivityEntries();
+      connectivitySize += cellarray->GetNumberOfConnectivityIds();
     }
-    // this happens when side block has mixed topological elements.
-    vtkNew<vtkCellArray> appendedCellArray;
-    appendedCellArray->AllocateExact(numCells, connectivitySize);
-    vtkNew<vtkUnsignedCharArray> cellTypesArray;
-    cellTypesArray->SetNumberOfTuples(numCells);
-    auto ptr = cellTypesArray->GetPointer(0);
-    for (auto& block : topologicalBlocks)
+    if (cellTypes.size() != 1)
     {
-      const int cell_type = block.first;
-      const auto cellarray = block.second;
-      appendedCellArray->Append(cellarray);
-      ptr =
-        std::fill_n(ptr, block.second->GetNumberOfCells(), static_cast<unsigned char>(cell_type));
+      // this happens when side block has mixed topological elements.
+      vtkNew<vtkCellArray> appendedCellArray;
+      appendedCellArray->AllocateExact(numCells, connectivitySize);
+      vtkNew<vtkUnsignedCharArray> cellTypesArray;
+      cellTypesArray->SetNumberOfValues(numCells);
+      auto ptr = cellTypesArray->GetPointer(0);
+      for (auto& block : topologicalBlocks)
+      {
+        const int cell_type = block.first;
+        const auto cellarray = block.second;
+        appendedCellArray->Append(cellarray);
+        ptr =
+          std::fill_n(ptr, block.second->GetNumberOfCells(), static_cast<unsigned char>(cell_type));
+        ptr += block.second->GetNumberOfCells();
+      }
+      return { cellTypesArray, appendedCellArray };
     }
-    return { cellTypesArray, appendedCellArray };
+    else
+    {
+      // all blocks have same cell type.
+      vtkNew<vtkCellArray> appendedCellArray;
+      auto firstCellArray = topologicalBlocks[0].second;
+      if (firstCellArray->IsStorageFixedSize64Bit())
+      {
+        appendedCellArray->UseFixedSize64BitStorage(firstCellArray->GetCellSize(0));
+      }
+      else
+      {
+        assert(firstCellArray->IsStorageFixedSize32Bit());
+        appendedCellArray->UseFixedSize32BitStorage(firstCellArray->GetCellSize(0));
+      }
+      appendedCellArray->AllocateExact(numCells, connectivitySize);
+      for (auto& block : topologicalBlocks)
+      {
+        const auto cellarray = block.second;
+        appendedCellArray->Append(cellarray);
+      }
+      vtkNew<vtkUnsignedCharArray> cellTypesArray;
+      cellTypesArray->SetNumberOfTuples(numCells);
+      cellTypesArray->FillValue(*cellTypes.begin());
+      return { cellTypesArray, appendedCellArray };
+    }
   }
 }
 

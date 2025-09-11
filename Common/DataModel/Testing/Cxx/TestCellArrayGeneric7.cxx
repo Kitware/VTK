@@ -1,23 +1,25 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "TestCellArrayHelpersSingleCellType1.h"
-#include "vtkSOADataArrayTemplate.h"
+#include "TestCellArrayHelpers.h"
 
 int TestCellArrayGeneric7(int, char*[])
 {
   try
   {
     // clang-format off
-    // Connectivity: vtkSOADataArrayTemplate<All integral types>
-    TestSetDataSingleCellType<vtkSOADataArrayTemplate<vtkTypeUInt8>>(vtk::TakeSmartPointer(vtkCellArray::New()));
-    TestSetDataSingleCellType<vtkSOADataArrayTemplate<vtkTypeUInt16>>(vtk::TakeSmartPointer(vtkCellArray::New()));
-    TestSetDataSingleCellType<vtkSOADataArrayTemplate<vtkTypeUInt32>>(vtk::TakeSmartPointer(vtkCellArray::New()));
-    TestSetDataSingleCellType<vtkSOADataArrayTemplate<vtkTypeUInt64>>(vtk::TakeSmartPointer(vtkCellArray::New()));
-    TestSetDataSingleCellType<vtkSOADataArrayTemplate<vtkTypeInt16>>(vtk::TakeSmartPointer(vtkCellArray::New()));
-    TestSetDataSingleCellType<vtkSOADataArrayTemplate<vtkTypeInt32>>(vtk::TakeSmartPointer(vtkCellArray::New()));
-    TestSetDataSingleCellType<vtkSOADataArrayTemplate<vtkTypeInt64>>(vtk::TakeSmartPointer(vtkCellArray::New()));
-    TestSetDataSingleCellType<vtkSOADataArrayTemplate<vtkIdType>>(vtk::TakeSmartPointer(vtkCellArray::New()));
+    ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeUInt8>, vtkAffineArray<vtkTypeInt16>>();
+    ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeUInt16>, vtkAffineArray<vtkTypeInt16>>();
+    ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeUInt32>, vtkAffineArray<vtkTypeInt16>>();
+    ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeUInt64>, vtkAffineArray<vtkTypeInt16>>();
+    ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeUInt8>, vtkAffineArray<vtkTypeInt32>>();
+    ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeUInt16>, vtkAffineArray<vtkTypeInt32>>();
+    ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeUInt32>, vtkAffineArray<vtkTypeInt32>>();
+    ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeUInt64>, vtkAffineArray<vtkTypeInt32>>();
+    ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeUInt8>, vtkAffineArray<vtkTypeInt64>>();
+    ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeUInt16>, vtkAffineArray<vtkTypeInt64>>();
+    ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeUInt32>, vtkAffineArray<vtkTypeInt64>>();
+    ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeUInt64>, vtkAffineArray<vtkTypeInt64>>();
     // clang-format on
   }
   catch (std::exception& err)

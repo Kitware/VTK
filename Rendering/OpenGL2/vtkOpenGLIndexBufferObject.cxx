@@ -220,8 +220,8 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(std::vector<unsigned 
   // Define our dispatcher
   using FloatArrays = vtkArrayDispatch::FilterArraysByValueType<vtkArrayDispatch::AllArrays,
     vtkArrayDispatch::Reals>::Result;
-  using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<FloatArrays, vtkCellArray::StorageArrayList,
-    vtkCellArray::StorageArrayList>;
+  using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<FloatArrays,
+    vtkCellArray::StorageOffsetsArrays, vtkCellArray::StorageConnectivityArrays>;
   AppendTrianglesWorker worker;
   // Execute the dispatcher:
   if (!Dispatcher::Execute(points->GetData(), cells->GetOffsetsArray(),
@@ -245,7 +245,7 @@ size_t vtkOpenGLIndexBufferObject::CreateTriangleIndexBuffer(vtkCellArray* cells
 
   const bool hasOnlyTriangles =
     cells->GetNumberOfConnectivityIds() == cells->GetNumberOfCells() * 3;
-  if (cells->IsStorage32Bit() && hasOnlyTriangles)
+  if ((cells->IsStorage32Bit() || cells->IsStorageFixedSize32Bit()) && hasOnlyTriangles)
   {
     // If connectivity ids are 32-bits and we only have triangles, upload them as-is.
     vtkCellArray::ArrayType32* array = cells->GetConnectivityArray32();
