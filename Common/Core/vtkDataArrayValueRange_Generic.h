@@ -286,6 +286,10 @@ public:
     {
       return this->Array->GetComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
     }
+    else if constexpr (TupleSize == 1)
+    {
+      return this->Array->GetValue(this->Id.GetValueId());
+    }
     else
     {
       return this->Array->GetTypedComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
@@ -377,6 +381,10 @@ public:
     {
       return this->Array->GetComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
     }
+    else if constexpr (TupleSize == 1)
+    {
+      return this->Array->GetValue(this->Id.GetValueId());
+    }
     else
     {
       return this->Array->GetTypedComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
@@ -390,6 +398,10 @@ public:
     if constexpr (std::is_same_v<ArrayType, vtkDataArray>)
     {
       this->Array->SetComponent(this->Id.GetTupleId(), this->Id.GetComponentId(), val);
+    }
+    else if constexpr (TupleSize == 1)
+    {
+      this->Array->SetValue(this->Id.GetValueId(), val);
     }
     else
     {
