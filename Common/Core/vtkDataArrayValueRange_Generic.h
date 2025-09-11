@@ -278,25 +278,18 @@ public:
     return *this;
   }
 
-  VTK_ITER_INLINE operator APIType() const noexcept { return this->castOperator(); }
-
-protected:
-  template <typename AT = ArrayType>
-  typename std::enable_if<std::is_same<AT, vtkDataArray>::value, APIType>::type VTK_ITER_INLINE
-  castOperator() const noexcept
+  VTK_ITER_INLINE operator APIType() const noexcept
   {
     VTK_ITER_ASSUME(this->Id.GetTupleSize() > 0);
     VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
-    return this->Array->GetComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
-  }
-
-  template <typename AT = ArrayType>
-  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value, APIType>::type VTK_ITER_INLINE
-  castOperator() const noexcept
-  {
-    VTK_ITER_ASSUME(this->Id.GetTupleSize() > 0);
-    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
-    return this->Array->GetTypedComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
+    if constexpr (std::is_same_v<ArrayType, vtkDataArray>)
+    {
+      return this->Array->GetComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
+    }
+    else
+    {
+      return this->Array->GetTypedComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
+    }
   }
 
   mutable ArrayType* Array;
@@ -376,27 +369,32 @@ public:
     return *this = std::move(tmp);
   }
 
-  VTK_ITER_INLINE operator APIType() const noexcept { return this->castOperator(); }
-
-  template <typename AT = ArrayType>
-  typename std::enable_if<std::is_same<AT, vtkDataArray>::value, ValueReference>::type
-    VTK_ITER_INLINE
-    operator=(APIType val) noexcept
+  VTK_ITER_INLINE operator APIType() const noexcept
   {
     VTK_ITER_ASSUME(this->Id.GetTupleSize() > 0);
     VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
-    this->Array->SetComponent(this->Id.GetTupleId(), this->Id.GetComponentId(), val);
-    return *this;
+    if constexpr (std::is_same_v<ArrayType, vtkDataArray>)
+    {
+      return this->Array->GetComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
+    }
+    else
+    {
+      return this->Array->GetTypedComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
+    }
   }
 
-  template <typename AT = ArrayType>
-  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value, ValueReference>::type
-    VTK_ITER_INLINE
-    operator=(APIType val) noexcept
+  VTK_ITER_INLINE ValueReference operator=(APIType val) noexcept
   {
     VTK_ITER_ASSUME(this->Id.GetTupleSize() > 0);
     VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
-    this->Array->SetTypedComponent(this->Id.GetTupleId(), this->Id.GetComponentId(), val);
+    if constexpr (std::is_same_v<ArrayType, vtkDataArray>)
+    {
+      this->Array->SetComponent(this->Id.GetTupleId(), this->Id.GetComponentId(), val);
+    }
+    else
+    {
+      this->Array->SetTypedComponent(this->Id.GetTupleId(), this->Id.GetComponentId(), val);
+    }
     return *this;
   }
 
@@ -499,24 +497,6 @@ public:
   friend struct ValueIterator<ArrayType, TupleSize, ForceValueTypeForVtkDataArray>;
 
 protected:
-  template <typename AT = ArrayType>
-  typename std::enable_if<std::is_same<AT, vtkDataArray>::value, APIType>::type VTK_ITER_INLINE
-  castOperator() const noexcept
-  {
-    VTK_ITER_ASSUME(this->Id.GetTupleSize() > 0);
-    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
-    return this->Array->GetComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
-  }
-
-  template <typename AT = ArrayType>
-  typename std::enable_if<!std::is_same<AT, vtkDataArray>::value, APIType>::type VTK_ITER_INLINE
-  castOperator() const noexcept
-  {
-    VTK_ITER_ASSUME(this->Id.GetTupleSize() > 0);
-    VTK_ITER_ASSUME(this->Array->GetNumberOfComponents() == this->Id.GetTupleSize());
-    return this->Array->GetTypedComponent(this->Id.GetTupleId(), this->Id.GetComponentId());
-  }
-
   void CopyReference(const ValueReference& o) noexcept
   {
     this->Array = o.Array;
