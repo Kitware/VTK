@@ -733,7 +733,8 @@ public:
     {
       amrFunc->SetLastDataSet(amrPoint->GetLevel(), amrPoint->GetGridId());
 #ifdef DEBUGTRACE
-      vtkUniformGrid* grid = this->AMR->GetDataSet(amrPoint->GetLevel(), amrPoint->GetGridId());
+      vtkCartesianGrid* grid =
+        this->AMR->GetDataSetAsCartesianGrid(amrPoint->GetLevel(), amrPoint->GetGridId());
       if (!grid || !InBB(amrPoint->GetSeed(), grid->GetBounds()))
       {
         PRINT("WARNING: Bad AMR Point "
@@ -779,7 +780,8 @@ public:
       return false;
     }
     AssertNe(amrp, nullptr);
-    vtkUniformGrid* grid = this->AMR->GetDataSet(amrp->GetLevel(), amrp->GetGridId());
+    vtkCartesianGrid* grid =
+      this->AMR->GetDataSetAsCartesianGrid(amrp->GetLevel(), amrp->GetGridId());
     return grid != nullptr;
   }
 

@@ -134,7 +134,7 @@ vtkUnsignedCharArray* GetGhostArray(const vtkSmartPointer<vtkOverlappingAMR>& am
 {
   vtkUnsignedCharArray* ghostArray = nullptr;
 
-  vtkUniformGrid* grid = amr->GetDataSet(0, 0);
+  vtkCartesianGrid* grid = amr->GetDataSetAsCartesianGrid(0, 0);
   if (grid != nullptr)
   {
     vtkDataArray* dataArray = grid->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName());

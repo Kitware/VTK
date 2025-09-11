@@ -86,7 +86,7 @@ int TestNonOverlappingAMR(int, char*[])
   // Data
   vtkNew<vtkFloatArray> scalars2;
   ug2->GetPointData()->SetScalars(scalars2);
-  MakeScalars(dims, origin, spacing2, scalars2);
+  MakeScalars(dims, origin2, spacing2, scalars2);
 
   amr->SetDataSet(1, 0, ug2);
 
@@ -159,12 +159,11 @@ int TestNonOverlappingAMR(int, char*[])
     vtkLogF(ERROR, "Unexpected ComputeIndexPair result");
     return EXIT_FAILURE;
   }
-  if (amr->GetDataSet(level, index) != ug3.Get())
+  if (amr->GetDataSetAsCartesianGrid(level, index) != ug3.Get())
   {
     vtkLogF(ERROR, "Unexpected GetDataSet result");
     return EXIT_FAILURE;
   }
-
   if (amr->GetAMRMetaData() == nullptr)
   {
     vtkLogF(ERROR, "Unexpected GetAMRMetaData result");

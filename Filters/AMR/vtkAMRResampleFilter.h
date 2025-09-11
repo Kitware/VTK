@@ -12,6 +12,9 @@
  *  operation.
  *
  * @warning
+ *  This filter does not support AMR of rectilinear grids yet.
+ *
+ * @warning
  *  Data of the input AMR dataset is assumed to be cell-centered.
  *
  * @sa

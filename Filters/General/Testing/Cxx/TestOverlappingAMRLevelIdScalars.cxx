@@ -64,10 +64,8 @@ int TestOverlappingAMRLevelIdScalars(int, char*[])
 
   // Retrieve level datasets
   vtkOverlappingAMR* outputAMR = vtkOverlappingAMR::SafeDownCast(levelIdFilter->GetOutput());
-  std::array<vtkUniformGrid*, 3> outputImages{ vtkUniformGrid::SafeDownCast(
-                                                 outputAMR->GetDataSet(0, 0)),
-    vtkUniformGrid::SafeDownCast(outputAMR->GetDataSet(0, 1)),
-    vtkUniformGrid::SafeDownCast(outputAMR->GetDataSet(1, 0)) };
+  std::array<vtkImageData*, 3> outputImages{ outputAMR->GetDataSetAsImageData(0, 0),
+    outputAMR->GetDataSetAsImageData(0, 1), outputAMR->GetDataSetAsImageData(1, 0) };
 
   // Check level id field
   for (int datasetId = 0; datasetId < static_cast<int>(outputImages.size()); datasetId++)

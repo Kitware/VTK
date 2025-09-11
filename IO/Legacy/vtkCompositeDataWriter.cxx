@@ -334,7 +334,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(ostream* fp, vtkOverlappingAMR* 
     unsigned int num_datasets = oamr->GetNumberOfBlocks(level);
     for (unsigned int index = 0; index < num_datasets; index++, metadata_index++)
     {
-      vtkUniformGrid* dataset = oamr->GetDataSet(level, index);
+      vtkCartesianGrid* dataset = oamr->GetDataSetAsCartesianGrid(level, index);
       if (dataset)
       {
         *fp << "CHILD " << level << " " << index << "\n";

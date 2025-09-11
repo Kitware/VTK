@@ -4,6 +4,7 @@
 // Inspired by OverlappingAMR example from VTK examples
 
 #include "vtkAMRBox.h"
+#include "vtkAMRUtilities.h"
 #include "vtkFloatArray.h"
 #include "vtkLogger.h"
 #include "vtkNew.h"
@@ -12,6 +13,7 @@
 #include "vtkPointData.h"
 #include "vtkSphere.h"
 #include "vtkUniformGrid.h"
+#include "vtkUnsignedCharArray.h"
 
 //------------------------------------------------------------------------------
 namespace
@@ -219,7 +221,7 @@ int TestOverlappingAMR(int, char*[])
     return EXIT_FAILURE;
   }
 
-  if (amr->GetDataSet(level, index) != ug2.Get())
+  if (amr->GetDataSetAsCartesianGrid(level, index) != ug2.Get())
   {
     vtkLogF(ERROR, "Unexpected GetDataSet result");
     return EXIT_FAILURE;
@@ -228,6 +230,24 @@ int TestOverlappingAMR(int, char*[])
   if (amr->GetOverlappingAMRMetaData() == nullptr)
   {
     vtkLogF(ERROR, "Unexpected GetOverlappingAMRMetaData result");
+    return EXIT_FAILURE;
+  }
+
+  // Check cell blanking
+  vtkAMRUtilities::BlankCells(amr);
+  vtkCartesianGrid* cg = amr->GetDataSetAsCartesianGrid(0, 0);
+  vtkUnsignedCharArray* ghostCells = cg->GetCellGhostArray();
+  vtkIdType ghostCount = 0;
+  for (vtkIdType i = 0; i < ghostCells->GetNumberOfTuples(); i++)
+  {
+    if (ghostCells->GetValue(i) & vtkDataSetAttributes::REFINEDCELL)
+    {
+      ghostCount++;
+    }
+  }
+  if (ghostCount != 250)
+  {
+    vtkLogF(ERROR, "Unexpected number of ghost cells, expecting 250, got %lld", ghostCount);
     return EXIT_FAILURE;
   }
 

@@ -969,7 +969,7 @@ void vtkTemporalFractal::AddTestArray(vtkOverlappingAMR* output)
     while (block < blocks)
     {
       vtkUniformGrid* grid;
-      grid = vtkUniformGrid::SafeDownCast(output->GetDataSet(level, block));
+      grid = vtkUniformGrid::SafeDownCast(output->GetDataSetAsCartesianGrid(level, block));
       assert("check: grid_exists" && grid != nullptr);
 
       vtkDoubleArray* array = vtkDoubleArray::New();
@@ -1033,7 +1033,7 @@ void vtkTemporalFractal::AddVectorArray(vtkOverlappingAMR* output)
     while (block < blocks)
     {
       vtkUniformGrid* grid;
-      grid = vtkUniformGrid::SafeDownCast(output->GetDataSet(level, block));
+      grid = vtkUniformGrid::SafeDownCast(output->GetDataSetAsCartesianGrid(level, block));
       assert("check: grid_exists" && grid != nullptr);
 
       vtkDoubleArray* array = vtkDoubleArray::New();
@@ -1181,7 +1181,7 @@ void vtkTemporalFractal::AddBlockIdArray(vtkOverlappingAMR* output)
     while (block < blocks)
     {
       vtkUniformGrid* grid;
-      grid = vtkUniformGrid::SafeDownCast(output->GetDataSet(level, block));
+      grid = vtkUniformGrid::SafeDownCast(output->GetDataSetAsCartesianGrid(level, block));
       assert("check: grid_exists" && grid != nullptr);
 
       vtkIntArray* array = vtkIntArray::New();
@@ -1215,7 +1215,7 @@ void vtkTemporalFractal::AddDepthArray(vtkOverlappingAMR* output)
     while (block < blocks)
     {
       vtkUniformGrid* grid;
-      grid = vtkUniformGrid::SafeDownCast(output->GetDataSet(level, block));
+      grid = vtkUniformGrid::SafeDownCast(output->GetDataSetAsCartesianGrid(level, block));
       assert("check: grid_exists" && grid != nullptr);
 
       vtkIntArray* array = vtkIntArray::New();

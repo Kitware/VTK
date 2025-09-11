@@ -150,17 +150,17 @@ int vtkAMRInterpolatedVelocityField::FunctionValues(double* x, double* f)
   this->LastLevel = level;
   this->LastId = gridId;
 
-  auto ds = this->AmrDataSet->GetDataSet(level, gridId);
-  if (!ds)
+  vtkCartesianGrid* cg = this->AmrDataSet->GetDataSetAsCartesianGrid(level, gridId);
+  if (!cg)
   {
     return 0;
   }
-  if (!this->FunctionValues(ds, x, f))
+  if (!this->FunctionValues(cg, x, f))
   {
     return 0;
   }
 
-  this->LastDataSet = ds;
+  this->LastDataSet = cg;
   return 1;
 }
 
@@ -169,7 +169,7 @@ bool vtkAMRInterpolatedVelocityField::SetLastDataSet(int level, int id)
 {
   this->LastLevel = level;
   this->LastId = id;
-  this->LastDataSet = this->AmrDataSet->GetDataSet(level, id);
+  this->LastDataSet = this->AmrDataSet->GetDataSetAsCartesianGrid(level, id);
   return this->LastDataSet != nullptr;
 }
 

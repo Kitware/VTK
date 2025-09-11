@@ -3,12 +3,12 @@
 #include "vtkXMLUniformGridAMRWriter.h"
 
 #include "vtkAMRBox.h"
+#include "vtkCartesianGrid.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkSmartPointer.h"
-#include "vtkUniformGrid.h"
 #include "vtkXMLDataElement.h"
 
 #include <cassert>
@@ -24,7 +24,7 @@ vtkXMLUniformGridAMRWriter::~vtkXMLUniformGridAMRWriter() = default;
 //------------------------------------------------------------------------------
 int vtkXMLUniformGridAMRWriter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation* info)
 {
-  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkUniformGridAMR");
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAMRDataObject");
   return 1;
 }
 
@@ -32,7 +32,7 @@ int vtkXMLUniformGridAMRWriter::FillInputPortInformation(int vtkNotUsed(port), v
 int vtkXMLUniformGridAMRWriter::WriteComposite(
   vtkCompositeDataSet* compositeData, vtkXMLDataElement* parent, int& writerIdx)
 {
-  vtkUniformGridAMR* amr = vtkUniformGridAMR::SafeDownCast(compositeData);
+  vtkAMRDataObject* amr = vtkAMRDataObject::SafeDownCast(compositeData);
   assert(amr != nullptr);
 
   vtkOverlappingAMR* oamr = vtkOverlappingAMR::SafeDownCast(amr);
@@ -90,7 +90,7 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(
     unsigned int numDS = amr->GetNumberOfBlocks(level);
     for (unsigned int cc = 0; cc < numDS; cc++)
     {
-      vtkUniformGrid* ug = amr->GetDataSet(level, cc);
+      vtkCartesianGrid* cg = amr->GetDataSetAsCartesianGrid(level, cc);
 
       vtkSmartPointer<vtkXMLDataElement> datasetXML = vtkSmartPointer<vtkXMLDataElement>::New();
       datasetXML->SetName("DataSet");
@@ -127,7 +127,7 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(
 
       // if this->WriteNonCompositeData() returns 0, it doesn't meant it's an
       // error, it just means that it didn't write a file for the current node.
-      this->WriteNonCompositeData(ug, datasetXML, writerIdx, fileName.c_str());
+      this->WriteNonCompositeData(cg, datasetXML, writerIdx, fileName.c_str());
 
       if (this->GetErrorCode() != vtkErrorCode::NoError)
       {

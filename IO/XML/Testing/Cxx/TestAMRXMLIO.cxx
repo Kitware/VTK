@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAMRGaussianPulseSource.h"
+#include "vtkAMRMetaData.h"
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
@@ -28,17 +29,28 @@ namespace
     }                                                                                              \
   } while (false)
 
-bool Validate(vtkOverlappingAMR* input, vtkOverlappingAMR* result)
+bool Validate(vtkAMRDataObject* input, vtkAMRDataObject* result)
 {
   vtk_assert(input->GetNumberOfLevels() == result->GetNumberOfLevels());
-  vtk_assert(input->GetOrigin()[0] == result->GetOrigin()[0]);
-  vtk_assert(input->GetOrigin()[1] == result->GetOrigin()[1]);
-  vtk_assert(input->GetOrigin()[2] == result->GetOrigin()[2]);
-
   for (unsigned int level = 0; level < input->GetNumberOfLevels(); level++)
   {
     vtk_assert(input->GetNumberOfBlocks(level) == result->GetNumberOfBlocks(level));
   }
+
+  vtk_assert(*input->GetAMRMetaData() == *result->GetAMRMetaData());
+
+  return true;
+}
+
+bool ValidateOAMR(vtkOverlappingAMR* input, vtkOverlappingAMR* result)
+{
+  if (!::Validate(input, result))
+  {
+    return false;
+  }
+  vtk_assert(input->GetOrigin()[0] == result->GetOrigin()[0]);
+  vtk_assert(input->GetOrigin()[1] == result->GetOrigin()[1]);
+  vtk_assert(input->GetOrigin()[2] == result->GetOrigin()[2]);
 
   std::cout << "Check input validity" << endl;
   bool ret = input->CheckValidity();
@@ -64,7 +76,7 @@ bool TestAMRXMLIO_OverlappingAMR2D(const std::string& output_dir)
   reader->SetFileName(filename.c_str());
   reader->Update();
 
-  return Validate(vtkOverlappingAMR::SafeDownCast(pulse->GetOutputDataObject(0)),
+  return ValidateOAMR(vtkOverlappingAMR::SafeDownCast(pulse->GetOutputDataObject(0)),
     vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0)));
 }
 
@@ -85,7 +97,7 @@ bool TestAMRXMLIO_OverlappingAMR3D(const std::string& output_dir)
   reader->SetFileName(filename.c_str());
   reader->Update();
 
-  return Validate(vtkOverlappingAMR::SafeDownCast(pulse->GetOutputDataObject(0)),
+  return ValidateOAMR(vtkOverlappingAMR::SafeDownCast(pulse->GetOutputDataObject(0)),
     vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0)));
 }
 
@@ -118,7 +130,7 @@ bool TestAMRXMLIO_HierarchicalBox(const std::string& input_dir, const std::strin
   vtkNew<vtkXMLUniformGridAMRReader> reader2;
   reader2->SetFileName(filename.c_str());
   reader2->Update();
-  return Validate(output, vtkOverlappingAMR::SafeDownCast(reader2->GetOutputDataObject(0)));
+  return ValidateOAMR(output, vtkOverlappingAMR::SafeDownCast(reader2->GetOutputDataObject(0)));
 }
 
 bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
@@ -141,7 +153,7 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   reader->SetCellArrayStatus("Gaussian-Pulse", 0);
   reader->Update();
   auto output = vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
-  auto firstDataSet = output->GetDataSet(0, 0);
+  auto firstDataSet = output->GetDataSetAsImageData(0, 0);
   if (firstDataSet->GetCellData()->GetArray("Centroid") ||
     firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
   {
@@ -152,7 +164,7 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   reader->SetCellArrayStatus("Centroid", 1);
   reader->Update();
   output = vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
-  firstDataSet = output->GetDataSet(0, 0);
+  firstDataSet = output->GetDataSetAsImageData(0, 0);
   if (!firstDataSet->GetCellData()->GetArray("Centroid"))
   {
     std::cerr << "Array status failure. Enabled array, Centroid, is not available." << endl;
@@ -168,7 +180,7 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   reader->SetCellArrayStatus("Gaussian-Pulse", 1);
   reader->Update();
   output = vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
-  firstDataSet = output->GetDataSet(0, 0);
+  firstDataSet = output->GetDataSetAsImageData(0, 0);
   if (!firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
   {
     std::cerr << "Array status failure. Enabled array, Gaussian-Pulse, is not available." << endl;
@@ -184,7 +196,7 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   reader->SetCellArrayStatus("Gaussian-Pulse", 1);
   reader->Update();
   output = vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0));
-  firstDataSet = output->GetDataSet(0, 0);
+  firstDataSet = output->GetDataSetAsImageData(0, 0);
   if (!firstDataSet->GetCellData()->GetArray("Centroid") ||
     !firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
   {
@@ -193,6 +205,49 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   }
   return true;
 }
+
+bool TestAMRXMLIO_NonOverlappingAMR(
+  const std::string& input_dir, const std::string& output_dir, const std::string& file)
+{
+  std::string inputFilename = input_dir + "/" + file;
+  vtkNew<vtkXMLUniformGridAMRReader> reader;
+  reader->SetFileName(inputFilename.c_str());
+
+  std::string outputFilename = output_dir + "/" + file;
+  vtkNew<vtkXMLUniformGridAMRWriter> writer;
+  writer->SetInputConnection(reader->GetOutputPort());
+  writer->SetFileName(outputFilename.c_str());
+  writer->Write();
+
+  vtkNew<vtkXMLUniformGridAMRReader> reader2;
+  reader2->SetFileName(outputFilename.c_str());
+  reader2->Update();
+
+  return Validate(vtkNonOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0)),
+    vtkNonOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0)));
+}
+
+bool TestAMRXMLIO_OverlappingAMR(
+  const std::string& input_dir, const std::string& output_dir, const std::string& file)
+{
+  std::string inputFilename = input_dir + "/" + file;
+  vtkNew<vtkXMLUniformGridAMRReader> reader;
+  reader->SetFileName(inputFilename.c_str());
+
+  std::string outputFilename = output_dir + "/" + file;
+  vtkNew<vtkXMLUniformGridAMRWriter> writer;
+  writer->SetInputConnection(reader->GetOutputPort());
+  writer->SetFileName(outputFilename.c_str());
+  writer->Write();
+
+  vtkNew<vtkXMLUniformGridAMRReader> reader2;
+  reader2->SetFileName(outputFilename.c_str());
+  reader2->Update();
+
+  return ValidateOAMR(vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0)),
+    vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0)));
+}
+
 }
 
 #define VTK_SUCCESS 0
@@ -232,6 +287,24 @@ int TestAMRXMLIO(int argc, char* argv[])
   std::string input_dir = data_dir;
   input_dir += "/Data";
   delete[] data_dir;
+
+  std::cout << "Test NonOverlapping AMR (UG)" << endl;
+  if (!TestAMRXMLIO_NonOverlappingAMR(input_dir, output_dir, "AMR/noamr_ug.vth"))
+  {
+    return VTK_FAILURE;
+  }
+
+  std::cout << "Test NonOverlapping AMR (RG)" << endl;
+  if (!TestAMRXMLIO_NonOverlappingAMR(input_dir, output_dir, "AMR/noamr_rg.vth"))
+  {
+    return VTK_FAILURE;
+  }
+
+  std::cout << "Test Overlapping AMR (RG)" << endl;
+  if (!TestAMRXMLIO_OverlappingAMR(input_dir, output_dir, "AMR/amr_rg.vth"))
+  {
+    return VTK_FAILURE;
+  }
 
   std::cout << "Test HierarchicalBox AMR (v1.1)" << endl;
   if (!TestAMRXMLIO_HierarchicalBox(input_dir, output_dir))

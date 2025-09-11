@@ -118,6 +118,22 @@ void vtkOverlappingAMRMetaData::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Global origin: (" << this->GetOrigin()[0] << ", " << this->GetOrigin()[1] << ", "
      << this->GetOrigin()[2] << ")\n ";
 
+  os << indent << "Spacing: \n";
+  for (unsigned int i = 0; i < this->GetNumberOfLevels(); i++)
+  {
+    if (this->HasSpacing(i))
+    {
+      double spacing[3];
+      this->GetSpacing(i, spacing);
+      os << indent << "level " << i << ": " << spacing[0] << " " << spacing[1] << " " << spacing[2]
+         << "\n";
+    }
+    else
+    {
+      os << indent << "level " << i << ": empty\n";
+    }
+  }
+
   os << indent << "Refinement Ratio: ";
   if (this->HasRefinementRatio())
   {
@@ -131,6 +147,30 @@ void vtkOverlappingAMRMetaData::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << "None\n";
   }
+
+  os << indent << "Block bounds: \n";
+  if (this->HasBlockBounds())
+  {
+    for (unsigned int i = 0; i < static_cast<unsigned int>(this->BlockBounds.size()); i++)
+    {
+      if (this->BlockBounds[i].IsValid())
+      {
+        const double* minPoint = this->BlockBounds[i].GetMinPoint();
+        const double* maxPoint = this->BlockBounds[i].GetMinPoint();
+        os << indent << "index " << i << ": " << minPoint[0] << " " << minPoint[1] << " "
+           << minPoint[2] << " " << maxPoint[0] << " " << maxPoint[1] << " " << maxPoint[2] << "\n";
+      }
+      else
+      {
+        os << indent << "index " << i << ": invalid\n";
+      }
+    }
+  }
+  else
+  {
+    os << indent << "None\n";
+  }
+
   for (unsigned int levelIdx = 0; levelIdx < this->GetNumberOfLevels(); levelIdx++)
   {
     unsigned int numBlocks = this->GetNumberOfBlocks(levelIdx);
@@ -185,6 +225,7 @@ bool vtkOverlappingAMRMetaData::CheckValidity()
       {
         vtkErrorMacro("Bound min does not match origin at dimension "
           << dim << ": " << this->Origin[dim] << " != " << this->Bounds[2 * dim]);
+        return false;
       }
     }
   }
@@ -194,21 +235,28 @@ bool vtkOverlappingAMRMetaData::CheckValidity()
     static_cast<unsigned int>(this->Refinement->GetNumberOfTuples()) != this->GetNumberOfLevels())
   {
     vtkErrorMacro("Refinement levels wrong " << this->Refinement->GetNumberOfTuples());
+    return false;
   }
 
-  // check spacing
   for (unsigned int level = 0; level < this->GetNumberOfLevels(); level++)
   {
+    // check spacing
+
     double spacing[3];
-    this->GetSpacing(level, spacing);
-    for (int dim = 0; dim < 3; dim++)
+    if (this->HasSpacing())
     {
-      if (spacing[dim] < 0)
+      this->GetSpacing(level, spacing);
+      for (int dim = 0; dim < 3; dim++)
       {
-        vtkErrorMacro("Invalid spacing at level " << level << ": " << spacing[dim] << endl);
+        if (spacing[dim] < 0)
+        {
+          vtkErrorMacro("Invalid spacing at level " << level << ": " << spacing[dim] << endl);
+          return false;
+        }
       }
     }
 
+    // check refinement ratio
     if (this->HasRefinementRatio())
     {
       double ratio = this->Refinement->GetTuple1(0);
@@ -225,6 +273,7 @@ bool vtkOverlappingAMRMetaData::CheckValidity()
           {
             vtkErrorMacro(
               "Spacing and refinement ratio are inconsistent for level " << level << endl);
+            return false;
           }
         }
       }
@@ -238,6 +287,7 @@ bool vtkOverlappingAMRMetaData::CheckValidity()
     if (box.IsInvalid())
     {
       vtkErrorMacro("Invalid AMR Box");
+      return false;
     }
     bool valid(true);
     switch (this->GetGridDescription())
@@ -255,6 +305,7 @@ bool vtkOverlappingAMRMetaData::CheckValidity()
     if (!valid)
     {
       vtkErrorMacro("Invalid AMRBox. Wrong dimension");
+      return false;
     }
   }
 
@@ -274,6 +325,16 @@ void vtkOverlappingAMRMetaData::Initialize(const std::vector<unsigned int>& bloc
   {
     double spacing[3] = { -1, -1, -1 };
     this->Spacing->SetTuple(i, spacing);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkOverlappingAMRMetaData::AllocateBlockBounds(unsigned int n)
+{
+  this->BlockBounds.clear();
+  for (unsigned int i = 0; i < n; i++)
+  {
+    this->BlockBounds.emplace_back();
   }
 }
 
@@ -298,10 +359,7 @@ void vtkOverlappingAMRMetaData::SetAMRBox(unsigned int level, unsigned int id, c
 {
   unsigned int index = this->GetAbsoluteBlockIndex(level, id);
   this->Boxes[index] = box;
-  if (this->HasSpacing(level))
-  {
-    this->UpdateBounds(level, id);
-  }
+  this->UpdateBounds(level, id);
 }
 
 //------------------------------------------------------------------------------
@@ -371,15 +429,20 @@ void vtkOverlappingAMRMetaData::SetRefinementRatio(unsigned int level, int refRa
 }
 
 //------------------------------------------------------------------------------
-bool vtkOverlappingAMRMetaData::HasRefinementRatio()
+bool vtkOverlappingAMRMetaData::HasRefinementRatio() const
 {
   return this->Refinement &&
     static_cast<unsigned int>(this->Refinement->GetNumberOfTuples()) == this->GetNumberOfLevels();
 }
 
 //------------------------------------------------------------------------------
-void vtkOverlappingAMRMetaData::GenerateRefinementRatio()
+bool vtkOverlappingAMRMetaData::GenerateRefinementRatio()
 {
+  if (!this->HasSpacing())
+  {
+    return false;
+  }
+
   this->Refinement->SetNumberOfTuples(this->GetNumberOfLevels());
 
   // sanity check
@@ -388,7 +451,7 @@ void vtkOverlappingAMRMetaData::GenerateRefinementRatio()
   if (numLevels < 1)
   {
     // AMR is empty!
-    return;
+    return true;
   }
 
   if (numLevels == 1)
@@ -397,7 +460,7 @@ void vtkOverlappingAMRMetaData::GenerateRefinementRatio()
     // The refinement ratio is set to 2 to satisfy the
     // vtkOverlappingAMR requirement.
     this->Refinement->SetValue(0, 2);
-    return;
+    return true;
   }
 
   for (int level = 0; level < numLevels - 1; ++level)
@@ -451,10 +514,12 @@ void vtkOverlappingAMRMetaData::GenerateRefinementRatio()
     }
     this->Refinement->SetValue(level, ratio);
   } // END for all hi-res levels
+
+  return true;
 }
 
 //------------------------------------------------------------------------------
-bool vtkOverlappingAMRMetaData::HasChildrenInformation()
+bool vtkOverlappingAMRMetaData::HasChildrenInformation() const
 {
   return !this->AllChildren.empty();
 }
@@ -463,6 +528,11 @@ bool vtkOverlappingAMRMetaData::HasChildrenInformation()
 unsigned int* vtkOverlappingAMRMetaData::GetParents(
   unsigned int level, unsigned int index, unsigned int& num)
 {
+  if (!this->HasChildrenInformation())
+  {
+    this->GenerateParentChildInformation();
+  }
+
   if (level >= this->AllParents.size() || index >= this->AllParents[level].size() ||
     this->AllParents[level][index].empty())
   {
@@ -479,6 +549,11 @@ unsigned int* vtkOverlappingAMRMetaData::GetParents(
 unsigned int* vtkOverlappingAMRMetaData::GetChildren(
   unsigned int level, unsigned int index, unsigned int& size)
 {
+  if (!this->HasChildrenInformation())
+  {
+    this->GenerateParentChildInformation();
+  }
+
   if (level >= this->AllChildren.size() || index >= this->AllChildren[level].size() ||
     this->AllChildren[level][index].empty())
   {
@@ -523,6 +598,8 @@ void vtkOverlappingAMRMetaData::GenerateParentChildInformation()
 {
   if (!this->HasRefinementRatio())
   {
+    // RefinementRatio takes priority over block bounds has it is faster
+    // once generated
     this->GenerateRefinementRatio();
   }
   this->AllChildren.resize(this->GetNumberOfLevels());
@@ -536,14 +613,14 @@ void vtkOverlappingAMRMetaData::GenerateParentChildInformation()
 }
 
 //------------------------------------------------------------------------------
-bool vtkOverlappingAMRMetaData::HasValidOrigin()
+bool vtkOverlappingAMRMetaData::HasValidOrigin() const
 {
   return this->Origin[0] != VTK_DOUBLE_MAX && this->Origin[1] != VTK_DOUBLE_MAX &&
     this->Origin[2] != VTK_DOUBLE_MAX;
 }
 
 //------------------------------------------------------------------------------
-bool vtkOverlappingAMRMetaData::HasValidBounds()
+bool vtkOverlappingAMRMetaData::HasValidBounds() const
 {
   return this->Bounds[0] != VTK_DOUBLE_MAX && this->Bounds[1] != VTK_DOUBLE_MIN &&
     this->Bounds[2] != VTK_DOUBLE_MAX && this->Bounds[3] != VTK_DOUBLE_MIN &&
@@ -565,16 +642,61 @@ void vtkOverlappingAMRMetaData::SetSpacing(unsigned int level, const double* use
 }
 
 //------------------------------------------------------------------------------
+void vtkOverlappingAMRMetaData::SetBounds(unsigned int level, unsigned int id, double* bb)
+{
+  if (this->BlockBounds.empty())
+  {
+    this->AllocateBlockBounds(this->GetNumberOfBlocks());
+  }
+
+  unsigned int index = this->GetAbsoluteBlockIndex(level, id);
+  this->BlockBounds[index] = vtkBoundingBox(bb);
+  this->UpdateBounds(level, id);
+}
+
+//------------------------------------------------------------------------------
 void vtkOverlappingAMRMetaData::GetBounds(unsigned int level, unsigned int id, double* bb)
 {
-  const vtkAMRBox& box = this->Boxes[this->GetAbsoluteBlockIndex(level, id)];
-  vtkAMRBox::GetBounds(box, this->Origin, this->Spacing->GetTuple(level), bb);
+  unsigned int index = this->GetAbsoluteBlockIndex(level, id);
+  if (this->HasBlockBounds(index))
+  {
+    const vtkBoundingBox& bounds = this->BlockBounds[index];
+    if (bounds.IsValid())
+    {
+      bounds.GetBounds(bb);
+    }
+    else
+    {
+      vtkErrorMacro("Could not GetBounds, please SetBounds for all blocks");
+    }
+  }
+  else if (this->HasSpacing(level))
+  {
+    const vtkAMRBox& box = this->Boxes[index];
+    vtkAMRBox::GetBounds(box, this->Origin, this->Spacing->GetTuple(level), bb);
+  }
+  else
+  {
+    vtkErrorMacro("Could not GetBounds, please set Spacing or BlockBounds");
+  }
 }
 
 //------------------------------------------------------------------------------
 const vtkAMRBox& vtkOverlappingAMRMetaData::GetAMRBox(unsigned int level, unsigned int id) const
 {
   return this->Boxes[this->GetAbsoluteBlockIndex(level, id)];
+}
+
+//------------------------------------------------------------------------------
+bool vtkOverlappingAMRMetaData::GetAMRBox(unsigned int level, unsigned int id, vtkAMRBox& box) const
+{
+  int idx = this->GetAbsoluteBlockIndex(level, id);
+  if (idx < 0)
+  {
+    return false;
+  }
+  box = this->Boxes[idx];
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -592,127 +714,162 @@ void vtkOverlappingAMRMetaData::CalculateParentChildRelationShip(unsigned int le
     return;
   }
 
-  // 1. Find the bounds of all boxes at level n-1
-  // 2. Find the average block size
-  int extents[6] = { VTK_INT_MAX, -VTK_INT_MAX, VTK_INT_MAX, -VTK_INT_MAX, VTK_INT_MAX,
-    -VTK_INT_MAX };
-  float totalsize[3] = { 0, 0, 0 };
-  unsigned int numParentBlocks = this->GetNumberOfBlocks(level - 1);
-  int refinementRatio = this->GetRefinementRatio(level - 1);
-  for (unsigned int id = 0; id < numParentBlocks; id++)
+  children.resize(this->GetNumberOfBlocks(level - 1));
+  parents.resize(this->GetNumberOfBlocks(level));
+
+  if (this->HasRefinementRatio())
   {
-    vtkAMRBox box = this->GetAMRBox(level - 1, id);
-    if (!box.IsInvalid())
+    // RefinementRatio takes priority over block bounds has it is faster
+
+    // 1. Find the bounds of all boxes at level n-1
+    // 2. Find the average block size
+    int extents[6] = { VTK_INT_MAX, -VTK_INT_MAX, VTK_INT_MAX, -VTK_INT_MAX, VTK_INT_MAX,
+      -VTK_INT_MAX };
+    float totalsize[3] = { 0, 0, 0 };
+    unsigned int numParentBlocks = this->GetNumberOfBlocks(level - 1);
+    int refinementRatio = this->GetRefinementRatio(level - 1);
+    for (unsigned int id = 0; id < numParentBlocks; id++)
     {
-      box.Refine(refinementRatio);
-      const int* loCorner = box.GetLoCorner();
-      int hiCorner[3];
-      box.GetValidHiCorner(hiCorner);
-      for (int i = 0; i < 3; i++)
+      vtkAMRBox box = this->GetAMRBox(level - 1, id);
+      if (!box.IsInvalid())
       {
-        if (loCorner[i] < extents[2 * i])
+        box.Refine(refinementRatio);
+        const int* loCorner = box.GetLoCorner();
+        int hiCorner[3];
+        box.GetValidHiCorner(hiCorner);
+        for (int i = 0; i < 3; i++)
         {
-          extents[2 * i] = loCorner[i];
+          if (loCorner[i] < extents[2 * i])
+          {
+            extents[2 * i] = loCorner[i];
+          }
+          if (hiCorner[i] > extents[2 * i + 1])
+          {
+            extents[2 * i + 1] = hiCorner[i];
+          }
+          totalsize[i] += (hiCorner[i] - loCorner[i] + 1);
         }
-        if (hiCorner[i] > extents[2 * i + 1])
-        {
-          extents[2 * i + 1] = hiCorner[i];
-        }
-        totalsize[i] += (hiCorner[i] - loCorner[i] + 1);
       }
     }
-  }
 
-  // Calculate number of bins and binsize. Note that bins
-  // are cell aligned and we use AMRBox indices to represent
-  // them
-  unsigned int nbins[3];
-  unsigned int binsize[3];
-  for (int i = 0; i < 3; i++)
-  {
-    binsize[i] = static_cast<int>(std::round(totalsize[i] / numParentBlocks));
-    nbins[i] = (extents[2 * i + 1] - extents[2 * i]) / binsize[i] + 1;
-  }
-
-  double origin[3];
-  double spacing[3];
-
-  this->GetOrigin(origin);
-  this->GetSpacing(0, spacing);
-  for (unsigned int i = 0; i < level; i++)
-  {
-    for (int j = 0; j < 3; j++)
-      spacing[j] /= this->GetRefinementRatio(i);
-  }
-
-  unsigned int loExtent[3];
-  loExtent[0] = extents[0];
-  loExtent[1] = extents[2];
-  loExtent[2] = extents[4];
-  DataSetBinner binner(nbins, loExtent, binsize);
-
-  // Bin the blocks
-  for (unsigned int i = 0; i < numParentBlocks; i++)
-  {
-    vtkAMRBox box = this->GetAMRBox(level - 1, i);
-    if (!box.IsInvalid())
+    // Calculate number of bins and binsize. Note that bins
+    // are cell aligned and we use AMRBox indices to represent
+    // them
+    unsigned int nbins[3];
+    unsigned int binsize[3];
+    for (int i = 0; i < 3; i++)
     {
-      unsigned int minbin[3];
-      unsigned int maxbin[3];
+      binsize[i] = static_cast<int>(std::round(totalsize[i] / numParentBlocks));
+      nbins[i] = (extents[2 * i + 1] - extents[2 * i]) / binsize[i] + 1;
+    }
 
-      box.Refine(refinementRatio);
+    double origin[3];
+    double spacing[3];
 
-      const int* loCorner = box.GetLoCorner();
-      int hiCorner[3];
-      box.GetValidHiCorner(hiCorner);
-
+    this->GetOrigin(origin);
+    this->GetSpacing(0, spacing);
+    for (unsigned int i = 0; i < level; i++)
+    {
       for (int j = 0; j < 3; j++)
-      {
-        minbin[j] = (loCorner[j] - extents[2 * j]) / binsize[j];
-        maxbin[j] = (hiCorner[j] - extents[2 * j]) / binsize[j];
-      }
+        spacing[j] /= this->GetRefinementRatio(i);
+    }
 
-      unsigned int idx[3];
-      for (idx[0] = minbin[0]; idx[0] <= maxbin[0]; idx[0]++)
+    unsigned int loExtent[3];
+    loExtent[0] = extents[0];
+    loExtent[1] = extents[2];
+    loExtent[2] = extents[4];
+    DataSetBinner binner(nbins, loExtent, binsize);
+
+    // Bin the blocks
+    for (unsigned int i = 0; i < numParentBlocks; i++)
+    {
+      vtkAMRBox box = this->GetAMRBox(level - 1, i);
+      if (!box.IsInvalid())
       {
-        for (idx[1] = minbin[1]; idx[1] <= maxbin[1]; idx[1]++)
+        unsigned int minbin[3];
+        unsigned int maxbin[3];
+
+        box.Refine(refinementRatio);
+
+        const int* loCorner = box.GetLoCorner();
+        int hiCorner[3];
+        box.GetValidHiCorner(hiCorner);
+
+        for (int j = 0; j < 3; j++)
         {
-          for (idx[2] = minbin[2]; idx[2] <= maxbin[2]; idx[2]++)
+          minbin[j] = (loCorner[j] - extents[2 * j]) / binsize[j];
+          maxbin[j] = (hiCorner[j] - extents[2 * j]) / binsize[j];
+        }
+
+        unsigned int idx[3];
+        for (idx[0] = minbin[0]; idx[0] <= maxbin[0]; idx[0]++)
+        {
+          for (idx[1] = minbin[1]; idx[1] <= maxbin[1]; idx[1]++)
           {
-            binner.AddToBin(idx, i);
+            for (idx[2] = minbin[2]; idx[2] <= maxbin[2]; idx[2]++)
+            {
+              binner.AddToBin(idx, i);
+            }
+          }
+        }
+      }
+    }
+
+    // Write bins for debugging
+    // WriteBins(origin, spacing, extents, binsize, nbins, binner);
+
+    // Actually find parent-children relationship
+    // between blocks in level and level-1
+    unsigned int numBlocks = this->GetNumberOfBlocks(level);
+    for (unsigned int i = 0; i < numBlocks; i++)
+    {
+      const vtkAMRBox& box = this->GetAMRBox(level, i);
+      if (!box.IsInvalid())
+      {
+        std::set<unsigned int> boxes;
+        binner.GetBoxesInIntersectingBins(box, boxes);
+        std::set<unsigned int>::iterator iter;
+        for (iter = boxes.begin(); iter != boxes.end(); ++iter)
+        {
+          vtkAMRBox potentialParent = this->GetAMRBox(level - 1, *iter);
+          if (!potentialParent.IsInvalid())
+          {
+            potentialParent.Refine(refinementRatio);
+            if (box.DoesIntersect(potentialParent))
+            {
+              children[*iter].push_back(i);
+              parents[i].push_back(*iter);
+            }
           }
         }
       }
     }
   }
-
-  // Write bins for debugging
-  // WriteBins(origin, spacing, extents, binsize, nbins, binner);
-
-  // Actually find parent-children relationship
-  // between blocks in level and level-1
-  children.resize(this->GetNumberOfBlocks(level - 1));
-  parents.resize(this->GetNumberOfBlocks(level));
-
-  unsigned int numBlocks = this->GetNumberOfBlocks(level);
-  for (unsigned int i = 0; i < numBlocks; i++)
+  else
   {
-    const vtkAMRBox& box = this->GetAMRBox(level, i);
-    if (!box.IsInvalid())
+    // Check each block bounds at this level
+    // against each block bounds at parent level
+    // to find parents and children
+    // if a block bounds doesn't exist, just skip it.
+    unsigned int numBlocks = this->GetNumberOfBlocks(level);
+    unsigned int numBlocksParents = this->GetNumberOfBlocks(level - 1);
+    for (unsigned int i = 0; i < numBlocks; i++)
     {
-      std::set<unsigned int> boxes;
-      binner.GetBoxesInIntersectingBins(box, boxes);
-      std::set<unsigned int>::iterator iter;
-      for (iter = boxes.begin(); iter != boxes.end(); ++iter)
+      unsigned int index = this->GetAbsoluteBlockIndex(level, i);
+      if (this->HasBlockBounds(index))
       {
-        vtkAMRBox potentialParent = this->GetAMRBox(level - 1, *iter);
-        if (!potentialParent.IsInvalid())
+        const vtkBoundingBox& childrenBox = this->BlockBounds[index];
+        for (unsigned int j = 0; j < numBlocksParents; j++)
         {
-          potentialParent.Refine(refinementRatio);
-          if (box.DoesIntersect(potentialParent))
+          index = this->GetAbsoluteBlockIndex(level - 1, j);
+          if (this->HasBlockBounds(index))
           {
-            children[*iter].push_back(i);
-            parents[i].push_back(*iter);
+            const vtkBoundingBox& parentBox = this->BlockBounds[index];
+            if (parentBox.Contains(childrenBox))
+            {
+              children[j].emplace_back(i);
+              parents[i].emplace_back(j);
+            }
           }
         }
       }
@@ -724,33 +881,44 @@ void vtkOverlappingAMRMetaData::CalculateParentChildRelationShip(unsigned int le
 bool vtkOverlappingAMRMetaData::FindCell(
   double q[3], unsigned int level, unsigned int id, int& cellIdx)
 {
-  double h[3];
-  this->GetSpacing(level, h);
-
-  const vtkAMRBox& box = this->GetAMRBox(level, id);
-  double gbounds[6];
-  this->GetBounds(level, id, gbounds);
-  if ((q[0] < gbounds[0]) || (q[0] > gbounds[1]) || (q[1] < gbounds[2]) || (q[1] > gbounds[3]) ||
-    (q[2] < gbounds[4]) || (q[2] > gbounds[5]))
+  if (this->HasSpacing(level))
   {
+    double h[3];
+    this->GetSpacing(level, h);
+
+    const vtkAMRBox& box = this->GetAMRBox(level, id);
+    double gbounds[6];
+    this->GetBounds(level, id, gbounds);
+    if ((q[0] < gbounds[0]) || (q[0] > gbounds[1]) || (q[1] < gbounds[2]) || (q[1] > gbounds[3]) ||
+      (q[2] < gbounds[4]) || (q[2] > gbounds[5]))
+    {
+      return false;
+    }
+    int ijk[3];
+    double pcoords[3];
+    int status = vtkAMRBox::ComputeStructuredCoordinates(box, this->Origin, h, q, ijk, pcoords);
+    if (status == 1)
+    {
+      int dims[3];
+      box.GetNumberOfNodes(dims);
+      cellIdx = vtkStructuredData::ComputeCellId(dims, ijk);
+      return true;
+    }
+  }
+  else
+  {
+    // XXX: This cannot be implemented with block bounds but instead we should add
+    // vtkOverlappingAMR::FindCell and use the cartesian grid there when spacing is not available.
+    vtkErrorMacro("Cannot FindCell, please use SetSpacing");
     return false;
   }
-  int ijk[3];
-  double pcoords[3];
-  int status = vtkAMRBox::ComputeStructuredCoordinates(box, this->Origin, h, q, ijk, pcoords);
-  if (status == 1)
-  {
-    int dims[3];
-    box.GetNumberOfNodes(dims);
-    cellIdx = vtkStructuredData::ComputeCellId(dims, ijk);
-    return true;
-  }
+
   return false;
 }
 
 //------------------------------------------------------------------------------
 bool vtkOverlappingAMRMetaData::GetCoarsenedAMRBox(
-  unsigned int level, unsigned int id, vtkAMRBox& box) const
+  unsigned int level, unsigned int id, vtkAMRBox& box)
 {
   if (level == 0)
   {
@@ -758,15 +926,23 @@ bool vtkOverlappingAMRMetaData::GetCoarsenedAMRBox(
     return false;
   }
 
-  box = this->GetAMRBox(level, id);
-  if (box.IsInvalid())
+  if (this->HasRefinementRatio())
   {
-    vtkErrorMacro("Invalid AMR box.");
+    box = this->GetAMRBox(level, id);
+    if (box.IsInvalid())
+    {
+      vtkErrorMacro("Invalid AMR box.");
+      return false;
+    }
+
+    int refinementRatio = this->GetRefinementRatio(level - 1);
+    box.Coarsen(refinementRatio);
+  }
+  else
+  {
     return false;
   }
 
-  int refinementRatio = this->GetRefinementRatio(level - 1);
-  box.Coarsen(refinementRatio);
   return true;
 }
 
@@ -817,6 +993,24 @@ bool vtkOverlappingAMRMetaData::operator==(const vtkOverlappingAMRMetaData& othe
       return false;
     }
   }
+
+  if (this->BlockBounds.size() != other.BlockBounds.size())
+  {
+    return false;
+  }
+  for (size_t i = 0; i < this->BlockBounds.size(); i++)
+  {
+    for (unsigned int j = 0; j < 6; j++)
+    {
+      // Bounds computation can have numerical imprecision
+      if (!vtkMathUtilities::NearlyEqual(
+            this->BlockBounds[i].GetBound(j), other.BlockBounds[i].GetBound(j), 1e-5))
+      {
+        return false;
+      }
+    }
+  }
+
   return true;
 }
 
@@ -829,14 +1023,23 @@ bool vtkOverlappingAMRMetaData::GetOrigin(unsigned int level, unsigned int id, d
     return false;
   }
 
-  const vtkAMRBox& box = this->Boxes[this->GetAbsoluteBlockIndex(level, id)];
-  if (box.IsInvalid())
-  {
-    vtkErrorMacro("Invalid AMR box.");
-    return false;
-  }
+  unsigned int index = this->GetAbsoluteBlockIndex(level, id);
 
-  vtkAMRBox::GetBoxOrigin(box, this->Origin, this->Spacing->GetTuple(level), origin);
+  if (this->HasSpacing(level))
+  {
+    const vtkAMRBox& box = this->Boxes[this->GetAbsoluteBlockIndex(level, id)];
+    if (box.IsInvalid())
+    {
+      vtkErrorMacro("Invalid AMR box.");
+      return false;
+    }
+
+    vtkAMRBox::GetBoxOrigin(box, this->Origin, this->Spacing->GetTuple(level), origin);
+  }
+  else if (this->HasBlockBounds(index))
+  {
+    this->BlockBounds[index].GetMinPoint(origin);
+  }
   return true;
 }
 
@@ -844,19 +1047,36 @@ bool vtkOverlappingAMRMetaData::GetOrigin(unsigned int level, unsigned int id, d
 void vtkOverlappingAMRMetaData::UpdateBounds(int level, int id)
 {
   double bb[6];
-  vtkAMRBox::GetBounds(
-    this->GetAMRBox(level, id), this->Origin, this->Spacing->GetTuple(level), bb);
-  for (int i = 0; i < 3; ++i)
+
+  unsigned int index = this->GetAbsoluteBlockIndex(level, id);
+  bool update = false;
+  if (this->HasBlockBounds(index))
   {
-    if (bb[i * 2] < this->Bounds[i * 2])
+    const vtkBoundingBox& blockBounds = this->BlockBounds[index];
+    blockBounds.GetBounds(bb);
+    update = true;
+  }
+  else if (this->HasSpacing(level))
+  {
+    vtkAMRBox::GetBounds(
+      this->GetAMRBox(level, id), this->Origin, this->Spacing->GetTuple(level), bb);
+    update = true;
+  }
+
+  if (update)
+  {
+    for (int i = 0; i < 3; ++i)
     {
-      this->Bounds[i * 2] = bb[i * 2];
-    }
-    if (bb[i * 2 + 1] > this->Bounds[i * 2 + 1])
-    {
-      this->Bounds[i * 2 + 1] = bb[i * 2 + 1];
-    }
-  } // END for each dimension
+      if (bb[i * 2] < this->Bounds[i * 2])
+      {
+        this->Bounds[i * 2] = bb[i * 2];
+      }
+      if (bb[i * 2 + 1] > this->Bounds[i * 2 + 1])
+      {
+        this->Bounds[i * 2 + 1] = bb[i * 2 + 1];
+      }
+    } // END for each dimension
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -880,10 +1100,47 @@ void vtkOverlappingAMRMetaData::DeepCopy(vtkAMRMetaData* other)
   }
   this->Spacing->DeepCopy(otherMD->Spacing);
   memcpy(this->Bounds, otherMD->Bounds, sizeof(double) * 6);
+
+  this->BlockBounds = otherMD->BlockBounds;
 }
 
 //------------------------------------------------------------------------------
-bool vtkOverlappingAMRMetaData::HasSpacing(unsigned int level)
+bool vtkOverlappingAMRMetaData::HasBlockBounds() const
+{
+  bool hasBlockBounds =
+    !this->BlockBounds.empty() && this->BlockBounds.size() == this->GetNumberOfBlocks();
+  for (unsigned int i = 0; i < static_cast<unsigned int>(this->BlockBounds.size()); i++)
+  {
+    if (!this->BlockBounds[i].IsValid())
+    {
+      hasBlockBounds = false;
+    }
+  }
+  return hasBlockBounds;
+}
+
+//------------------------------------------------------------------------------
+bool vtkOverlappingAMRMetaData::HasBlockBounds(unsigned int index) const
+{
+  return !this->BlockBounds.empty() && this->BlockBounds[index].IsValid();
+}
+
+//------------------------------------------------------------------------------
+bool vtkOverlappingAMRMetaData::HasSpacing() const
+{
+  bool hasSpacing = true;
+  for (unsigned int i = 0; i < this->GetNumberOfLevels(); i++)
+  {
+    if (!this->HasSpacing(i))
+    {
+      hasSpacing = false;
+    }
+  }
+  return hasSpacing;
+}
+
+//------------------------------------------------------------------------------
+bool vtkOverlappingAMRMetaData::HasSpacing(unsigned int level) const
 {
   return this->Spacing->GetTuple(level)[0] >= 0 || this->Spacing->GetTuple(level)[1] >= 0 ||
     this->Spacing->GetTuple(level)[2] >= 0;

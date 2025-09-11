@@ -2,15 +2,22 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkOverlappingAMR
- * @brief   a multi-resolution dataset based on vtkUniformGrid allowing overlaps
+ * @brief   a multi-resolution dataset based on vtkCartesianGrid allowing overlaps
  *
- * vtkOverlappingAMR groups vtkUniformGrid into level of different refinement
+ * vtkOverlappingAMR groups vtkCartesianGrid into level of different refinement
  * (AMR stands for Adaptive Mesh Refinement). See SetDataSet to add a new grid.
  *
- * The grids of a level are expected to have the same spacing and refinement ratio.
+ * When using vtkUniformGrid, the grids of a level are expected to have the
+ * same spacing and refinement ratio.
  * The refinement ratio represent the spacing factor between a level and the
  * previous one. This class does not ensure the link between spacing and refinement
  * ratio: please set them carefully.
+ *
+ * Each block also knows its own bounds as they are recovered
+ * when using SetDataSet. Use GetBounds when needed.
+ *
+ * Mixing vtkUniformGrid and vtkRectilinearGrid is not supported, use
+ * a single type of grids.
  *
  * Associated to each grid, a vtkAMRBox object describes the main information
  * of the grid: origin, extent, spacing. When creating a vtkOverlappingAMR,
@@ -22,7 +29,6 @@
  * @sa
  * vtkOverlappingAMRMetaData, vtkNonOverlappingAMR, vtkUniformGridAMR, vtkAMRBox
  */
-
 #ifndef vtkOverlappingAMR_h
 #define vtkOverlappingAMR_h
 
@@ -34,7 +40,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAMRBox;
 class vtkCompositeDataIterator;
-class vtkUniformGrid;
 class vtkOverlappingAMRMetaData;
 class vtkInformationIdTypeKey;
 
@@ -83,8 +88,13 @@ public:
   const vtkAMRBox& GetAMRBox(unsigned int level, unsigned int id);
   ///@}
 
-  using Superclass::GetBounds;
+  using Superclass::SetDataSet;
+  /**
+   * Call Superclass::SetDataSet then set bounds on the provided level and idx
+   */
+  void SetDataSet(unsigned int level, unsigned int idx, vtkDataSet* grid) override;
 
+  using Superclass::GetBounds;
   /**
    * If AMRMetaData is set and superclass bounds are empty,
    * return AMRMetaData::GetBounds, return superclass bounds otherwise.
@@ -92,7 +102,8 @@ public:
   const double* GetBounds() override;
 
   /**
-   * Returns the bounding information of a data set.
+   * Returns the bounding information of a data set, SetDataSet should have been called
+   * on this specific level and id to get a valid bounding box.
    */
   void GetBounds(unsigned int level, unsigned int id, double bb[6]);
 

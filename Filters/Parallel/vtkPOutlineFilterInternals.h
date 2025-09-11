@@ -30,7 +30,7 @@ class vtkInformationVector;
 class vtkMultiProcessController;
 class vtkOverlappingAMR;
 class vtkPolyData;
-class vtkUniformGridAMR;
+class vtkAMRDataObject;
 
 class VTKFILTERSPARALLEL_EXPORT vtkPOutlineFilterInternals
 {
@@ -69,7 +69,7 @@ private:
   vtkPOutlineFilterInternals& operator=(const vtkPOutlineFilterInternals&) = delete;
 
   int RequestData(vtkOverlappingAMR* amr, vtkPolyData* output);
-  int RequestData(vtkUniformGridAMR* amr, vtkPolyData* output);
+  int RequestData(vtkAMRDataObject* amr, vtkPolyData* output);
   int RequestData(vtkDataObjectTree* cd, vtkPolyData* output);
   int RequestData(vtkDataSet* ds, vtkPolyData* output);
   int RequestData(vtkGraph* graph, vtkPolyData* output);

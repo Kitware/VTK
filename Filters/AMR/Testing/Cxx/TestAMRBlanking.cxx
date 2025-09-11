@@ -155,7 +155,7 @@ int TestAMRVisibility(const int dataDescription)
   vtkOverlappingAMR* myAMR = GetAMRDataSet(dataDescription);
   assert("pre: AMR dataset is nullptr" && (myAMR != nullptr));
 
-  vtkUniformGrid* root = myAMR->GetDataSet(0, 0);
+  vtkCartesianGrid* root = myAMR->GetDataSetAsCartesianGrid(0, 0);
   assert("ERROR: root AMR block is nullptr!" && (root != nullptr));
 
   vtkIdType cellIdx = 0;

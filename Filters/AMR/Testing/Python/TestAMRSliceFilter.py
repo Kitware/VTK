@@ -23,7 +23,7 @@ def NumCells(out):
   n =0
   for i in range(out.GetNumberOfLevels()):
     for j in range(out.GetNumberOfBlocks(i)):
-      m = out.GetDataSet(i,j).GetNumberOfCells()
+      m = out.GetDataSetAsImageData(i,j).GetNumberOfCells()
       #print (i,j,m)
       n = n + m
   return n

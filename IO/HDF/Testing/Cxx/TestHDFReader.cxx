@@ -375,8 +375,8 @@ int TestOverlappingAMR(const std::string& dataRoot)
     for (unsigned int datasetIndex = 0; datasetIndex < expectedData->GetNumberOfBlocks(levelIndex);
          ++datasetIndex)
     {
-      auto dataset = data->GetDataSet(levelIndex, datasetIndex);
-      auto expectedDataset = expectedData->GetDataSet(levelIndex, datasetIndex);
+      vtkImageData* dataset = data->GetDataSetAsImageData(levelIndex, datasetIndex);
+      vtkImageData* expectedDataset = expectedData->GetDataSetAsImageData(levelIndex, datasetIndex);
       if (!vtkTestUtilities::CompareDataObjects(dataset, expectedDataset))
       {
         std::cerr << "Datasets does not match for level " << levelIndex << " dataset "

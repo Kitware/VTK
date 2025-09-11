@@ -1,0 +1,241 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
+// Inspired by OverlappingAMR example from VTK examples
+
+#include "vtkAMRMetaData.h"
+#include "vtkDoubleArray.h"
+#include "vtkLogger.h"
+#include "vtkNew.h"
+#include "vtkNonOverlappingAMR.h"
+#include "vtkPointData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkSphere.h"
+#include "vtkUniformGridAMRIterator.h"
+
+//------------------------------------------------------------------------------
+namespace
+{
+void MakeCoords(int dims[3], double const origin[3], double const spacing[3],
+  vtkDoubleArray* xCoords, vtkDoubleArray* yCoords, vtkDoubleArray* zCoords)
+{
+  xCoords->SetNumberOfTuples(dims[0]);
+  for (int i = 0; i < dims[0]; i++)
+  {
+    auto x = origin[0] + spacing[0] * i;
+    xCoords->SetValue(i, x);
+  }
+
+  yCoords->SetNumberOfTuples(dims[1]);
+  for (int j = 0; j < dims[1]; j++)
+  {
+    auto y = origin[1] + spacing[1] * j;
+    yCoords->SetValue(j, y);
+  }
+
+  zCoords->SetNumberOfTuples(dims[2]);
+  for (int k = 0; k < dims[2]; k++)
+  {
+    auto z = origin[2] + spacing[2] * k;
+    zCoords->SetValue(k, z);
+  }
+}
+
+void MakeScalars(
+  int dims[3], double const origin[3], double const spacing[3], vtkDoubleArray* scalars)
+{
+  // Implicit function used to compute scalars.
+  vtkNew<vtkSphere> sphere;
+  sphere->SetRadius(3);
+  sphere->SetCenter(5, 5, 5);
+
+  scalars->SetNumberOfTuples(dims[0] * dims[1] * dims[2]);
+  for (int k = 0; k < dims[2]; k++)
+  {
+    auto z = origin[2] + spacing[2] * k;
+    for (int j = 0; j < dims[1]; j++)
+    {
+      auto y = origin[1] + spacing[1] * j;
+      for (int i = 0; i < dims[0]; i++)
+      {
+        auto x = origin[0] + spacing[0] * i;
+        scalars->SetValue(
+          k * dims[0] * dims[1] + j * dims[0] + i, sphere->EvaluateFunction(x, y, z));
+      }
+    }
+  }
+}
+} // namespace
+
+//------------------------------------------------------------------------------
+int TestNonOverlappingAMRRectilinear(int, char*[])
+{
+  // Create and populate the AMR dataset.
+  vtkNew<vtkNonOverlappingAMR> amr;
+  const std::vector<unsigned int> blocksPerLevel{ 1, 2 };
+  amr->Initialize(blocksPerLevel);
+
+  vtkSmartPointer<vtkCompositeDataIterator> iter = vtk::TakeSmartPointer(amr->NewIterator());
+  if (!iter)
+  {
+    vtkLogF(ERROR, "Could not create an iterator");
+    return EXIT_FAILURE;
+  }
+
+  double origin[3] = { 0.0, 0.0, 0.0 };
+  double spacing[3] = { 1.0, 1.0, 1.0 };
+  int dims[3] = { 11, 11, 6 };
+
+  vtkNew<vtkRectilinearGrid> rg1;
+  // Geometry
+  rg1->SetDimensions(dims);
+
+  vtkNew<vtkDoubleArray> xCoords;
+  vtkNew<vtkDoubleArray> yCoords;
+  vtkNew<vtkDoubleArray> zCoords;
+  ::MakeCoords(dims, origin, spacing, xCoords, yCoords, zCoords);
+  rg1->SetXCoordinates(xCoords);
+  rg1->SetYCoordinates(yCoords);
+  rg1->SetZCoordinates(zCoords);
+
+  // Data
+  vtkNew<vtkDoubleArray> scalars;
+  rg1->GetPointData()->SetScalars(scalars);
+  ::MakeScalars(dims, origin, spacing, scalars);
+
+  amr->SetDataSet(0, 0, rg1);
+
+  double origin2[3] = { 0.0, 0.0, 5.0 };
+  double spacing2[3] = { 1.0, 0.5, 1.0 };
+
+  vtkNew<vtkRectilinearGrid> rg2;
+  // Geometry
+  rg2->SetDimensions(dims);
+
+  vtkNew<vtkDoubleArray> xCoords2;
+  vtkNew<vtkDoubleArray> yCoords2;
+  vtkNew<vtkDoubleArray> zCoords2;
+  ::MakeCoords(dims, origin2, spacing2, xCoords2, yCoords2, zCoords2);
+  rg2->SetXCoordinates(xCoords2);
+  rg2->SetYCoordinates(yCoords2);
+  rg2->SetZCoordinates(zCoords2);
+
+  // Data
+  vtkNew<vtkDoubleArray> scalars2;
+  rg2->GetPointData()->SetScalars(scalars2);
+  ::MakeScalars(dims, origin2, spacing2, scalars2);
+
+  amr->SetDataSet(1, 0, rg2);
+
+  double origin3[3] = { 0.0, 5.0, 5.0 };
+
+  vtkNew<vtkRectilinearGrid> rg3;
+  // Geometry
+  rg3->SetDimensions(dims);
+
+  vtkNew<vtkDoubleArray> xCoords3;
+  vtkNew<vtkDoubleArray> yCoords3;
+  vtkNew<vtkDoubleArray> zCoords3;
+  ::MakeCoords(dims, origin3, spacing2, xCoords3, yCoords3, zCoords3);
+  rg3->SetXCoordinates(xCoords3);
+  rg3->SetYCoordinates(yCoords3);
+  rg3->SetZCoordinates(zCoords3);
+
+  // Data
+  vtkNew<vtkDoubleArray> scalars3;
+  rg3->GetPointData()->SetScalars(scalars3);
+  ::MakeScalars(dims, origin3, spacing2, scalars3);
+
+  amr->SetDataSet(1, 1, rg3);
+
+  if (amr->GetNumberOfPoints() != 2178)
+  {
+    vtkLogF(ERROR, "Invalid number of points");
+    return EXIT_FAILURE;
+  }
+
+  if (amr->GetNumberOfCells() != 1500)
+  {
+    vtkLogF(ERROR, "Invalid number of cells");
+    return EXIT_FAILURE;
+  }
+
+  if (amr->GetNumberOfLevels() != 2)
+  {
+    vtkLogF(ERROR, "Invalid number of levels");
+    return EXIT_FAILURE;
+  }
+
+  if (amr->GetNumberOfBlocks(1) != 2)
+  {
+    vtkLogF(ERROR, "Invalid number of blocks for a level");
+    return EXIT_FAILURE;
+  }
+
+  if (amr->GetNumberOfBlocks() != 3)
+  {
+    vtkLogF(ERROR, "Invalid total number of blocks");
+    return EXIT_FAILURE;
+  }
+
+  const double* bounds = amr->GetBounds();
+  if (!bounds || bounds[0] != 0 || bounds[1] != 10 || bounds[2] != 0 || bounds[3] != 10 ||
+    bounds[4] != 0 || bounds[5] != 10)
+  {
+    vtkLogF(ERROR, "Unexpected GetBounds result");
+    return EXIT_FAILURE;
+  }
+
+  unsigned int level = 1;
+  unsigned int index = 1;
+  unsigned int compIdx = amr->GetAbsoluteBlockIndex(level, index);
+  if (compIdx != 2)
+  {
+    vtkLogF(ERROR, "Unexpected GetAbsoluteBlockIndex result");
+    return EXIT_FAILURE;
+  }
+
+  level = index = 0;
+  amr->ComputeIndexPair(compIdx, level, index);
+  if (level != 1 || index != 1)
+  {
+    vtkLogF(ERROR, "Unexpected ComputeIndexPair result");
+    return EXIT_FAILURE;
+  }
+  if (amr->GetDataSetAsRectilinearGrid(level, index) != rg3.Get())
+  {
+    vtkLogF(ERROR, "Unexpected GetDataSet result");
+    return EXIT_FAILURE;
+  }
+
+  if (amr->GetAMRMetaData() == nullptr)
+  {
+    vtkLogF(ERROR, "Unexpected GetAMRMetaData result");
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkAMRMetaData> anotherMetaData;
+  amr->SetAMRMetaData(anotherMetaData);
+  if (amr->GetAMRMetaData() != anotherMetaData.Get())
+  {
+    vtkLogF(ERROR, "Unexpected SetAMRMetaData result");
+    return EXIT_FAILURE;
+  }
+
+  vtkNew<vtkNonOverlappingAMR> amr2;
+  amr2->ShallowCopy(amr);
+  if (amr->GetAMRMetaData() != amr2->GetAMRMetaData())
+  {
+    vtkLogF(ERROR, "Unexpected ShallowCopy result");
+    return EXIT_FAILURE;
+  }
+
+  amr2->Initialize();
+  if (amr->GetAMRMetaData() == amr2->GetAMRMetaData())
+  {
+    vtkLogF(ERROR, "Unexpected Initialize result");
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}

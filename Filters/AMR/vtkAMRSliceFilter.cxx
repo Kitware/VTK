@@ -330,10 +330,17 @@ void vtkAMRSliceFilter::GetAMRSliceInPlane(
     unsigned int level;
     unsigned int dataIdx;
     inp->ComputeIndexPair(flatIndex, level, dataIdx);
-    vtkUniformGrid* grid = inp->GetDataSet(level, dataIdx);
+
+    vtkCartesianGrid* cg = inp->GetDataSetAsCartesianGrid(level, dataIdx);
+    vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(cg);
     vtkUniformGrid* slice = nullptr;
 
-    if (grid)
+    if (cg && !grid)
+    {
+      vtkWarningMacro("vtkAMRSliceFilter does not support rectilinear grid yet");
+      continue;
+    }
+    else if (grid)
     {
       // Get the 3-D Grid dimensions
       int dims[3];

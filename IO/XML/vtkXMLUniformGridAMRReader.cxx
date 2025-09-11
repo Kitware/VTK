@@ -150,7 +150,7 @@ const char* vtkXMLUniformGridAMRReader::GetDataSetName()
   if (!this->OutputDataType)
   {
     vtkWarningMacro("We haven't determine a valid output type yet.");
-    return "vtkUniformGridAMR";
+    return "vtkAMRDataObject";
   }
 
   return this->OutputDataType;
@@ -269,8 +269,6 @@ int vtkXMLUniformGridAMRReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
     }
   }
 
-  this->Metadata->GenerateParentChildInformation();
-
   this->SynchronizeDataArraySelectionRecursively(ePrimary, this->GetFilePath());
 
   return 1;
@@ -350,10 +348,10 @@ int vtkXMLUniformGridAMRReader::RequestInformation(
 void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
   vtkCompositeDataSet* composite, const char* filePath, unsigned int& dataSetIndex)
 {
-  vtkUniformGridAMR* amr = vtkUniformGridAMR::SafeDownCast(composite);
+  vtkAMRDataObject* amr = vtkAMRDataObject::SafeDownCast(composite);
   if (!amr)
   {
-    vtkErrorMacro("Dataset must be a vtkUniformGridAMR.");
+    vtkErrorMacro("Dataset must be a vtkAMRDataObject.");
     return;
   }
 
@@ -431,14 +429,13 @@ void vtkXMLUniformGridAMRReader::ReadComposite(vtkXMLDataElement* element,
         {
           vtkSmartPointer<vtkDataSet> ds;
           ds.TakeReference(this->ReadDataset(datasetXML, filePath));
-          if (ds && !ds->IsA("vtkUniformGrid"))
+          if (ds && !ds->IsA("vtkCartesianGrid"))
           {
-            vtkErrorMacro("vtkUniformGridAMR can only contain vtkUniformGrids.");
+            vtkErrorMacro("vtkAMRDataObject can only contain vtkCartesianGrids.");
           }
           else
           {
-            amr->SetDataSet(static_cast<unsigned int>(level), static_cast<unsigned int>(index),
-              vtkUniformGrid::SafeDownCast(ds));
+            amr->SetDataSet(static_cast<unsigned int>(level), static_cast<unsigned int>(index), ds);
           }
         }
       }

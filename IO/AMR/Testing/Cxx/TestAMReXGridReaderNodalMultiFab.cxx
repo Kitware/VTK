@@ -28,7 +28,7 @@ int Validate(vtkOverlappingAMR* mb)
   ensure(mb != nullptr, "expecting Overlapping AMR Dataset.");
   ensure(mb->GetNumberOfLevels() == 3, "expecting num-levels == 3");
 
-  auto mp = mb->GetDataSet(0, 0);
+  vtkImageData* mp = mb->GetDataSetAsImageData(0, 0);
   // we should have a valid level with a nodal array
   ensure(mp != nullptr, "expecting level is maintained in a vtkUniformGrid.");
   ensure(mp->GetPointData()->GetArray("nu") != nullptr, "missing nodal array nu");

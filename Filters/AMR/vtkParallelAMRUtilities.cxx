@@ -114,6 +114,7 @@ void vtkParallelAMRUtilities::BlankCells(
   vtkOverlappingAMRMetaData* amrMData = amr->GetOverlappingAMRMetaData();
   if (!amrMData)
   {
+    vtkErrorWithObjectMacro(amr, "Could not recover AMR Meta Data, aborting");
     return;
   }
 

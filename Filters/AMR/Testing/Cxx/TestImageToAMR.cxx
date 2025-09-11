@@ -32,7 +32,7 @@ int ComputeNumCells(vtkOverlappingAMR* amr)
     int numDataSets = amr->GetNumberOfBlocks(level);
     for (int i = 0; i < numDataSets; i++)
     {
-      vtkUniformGrid* grid = amr->GetDataSet(level, i);
+      vtkCartesianGrid* grid = amr->GetDataSetAsCartesianGrid(level, i);
       int numCells = grid->GetNumberOfCells();
       for (int cellId = 0; cellId < numCells; cellId++)
       {
@@ -109,7 +109,7 @@ int TestImageToAMR(int, char*[])
         unsigned int level, id;
         if (amr->FindGrid(x, level, id))
         {
-          vtkUniformGrid* grid = amr->GetDataSet(level, id);
+          vtkImageData* grid = amr->GetDataSetAsImageData(level, id);
           vtkIdTypeArray* cd1 =
             vtkArrayDownCast<vtkIdTypeArray>(grid->GetCellData()->GetArray("vtkCellIds"));
           vtkIdType cellId1 = FindCell(grid, x);
