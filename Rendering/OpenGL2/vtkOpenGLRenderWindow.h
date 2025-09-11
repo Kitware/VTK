@@ -505,7 +505,6 @@ public:
    */
   void SetOpenGLSymbolLoader(VTKOpenGLLoaderFunction loader, void* userData);
 
-  typedef VTKOpenGLAPIProc (*VTKOpenGLGetProcAddress)(const char* name);
   /**
    * Provide an indirect function pointer which can load OpenGL core/extension functions.
    * OpenGL proc loader. This is provided by the window system.
@@ -649,6 +648,7 @@ protected:
     void* UserData = nullptr;
   } SymbolLoader;
 
+  typedef VTKOpenGLAPIProc (*VTKOpenGLGetProcAddress)(const char* name);
   struct GLFuncResolverState
   {
     VTKOpenGLGetProcAddress resolveFunc = nullptr;
