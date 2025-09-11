@@ -456,6 +456,7 @@ void vtkAxisAlignedReflectionFilter::ProcessExplicitStructuredGrid(vtkExplicitSt
 
   vtkIdType numCells = input->GetNumberOfCells();
   vtkSmartPointer<vtkCellArray> outCells = vtkSmartPointer<vtkCellArray>::New();
+  outCells->UseFixedSize64BitStorage(8);
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
   outCells->Allocate(numCells);

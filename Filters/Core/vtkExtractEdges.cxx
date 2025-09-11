@@ -9,7 +9,6 @@
 #include "vtkDataSet.h"
 #include "vtkEdgeTable.h"
 #include "vtkGenericCell.h"
-#include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
@@ -86,30 +85,25 @@ struct ExtractEdges
       edgeLoc.MergeEdges(static_cast<vtkIdType>(edges.size()), edges.data(), totalEdges);
 
     // Allocate output VTK structures and construct the output lines.
-    vtkNew<vtkIdTypeArray> offsets;
-    offsets->SetNumberOfTuples(totalEdges + 1);
-    vtkIdType* offsetsPtr = offsets->GetPointer(0);
     vtkNew<vtkIdTypeArray> conn;
     conn->SetNumberOfTuples(2 * totalEdges);
     vtkIdType* connPtr = conn->GetPointer(0);
 
     // In place lambda to do the threaded copying of edges
     vtkSMPTools::For(0, totalEdges,
-      [&edgeOffsets, &edges, offsetsPtr, connPtr](vtkIdType edgeId, vtkIdType endEdgeId)
+      [&edgeOffsets, &edges, connPtr](vtkIdType edgeId, vtkIdType endEdgeId)
       {
         for (; edgeId < endEdgeId; ++edgeId)
         {
           vtkIdType* c = connPtr + 2 * edgeId;
           const EdgeTupleType& edge = edges[edgeOffsets[edgeId]];
-          offsetsPtr[edgeId] = 2 * edgeId;
           c[0] = edge.V0;
           c[1] = edge.V1;
         }
       });
 
     vtkCellArray* newLines = this->Output->GetLines();
-    offsetsPtr[totalEdges] = 2 * totalEdges; // top off cell array offsets
-    newLines->SetData(offsets, conn);
+    newLines->SetData(2, conn);
 
     // If cell data has been requested, produce it. Note that because of the
     // undefined nature of cell data on an edge, we use the lowest cell id

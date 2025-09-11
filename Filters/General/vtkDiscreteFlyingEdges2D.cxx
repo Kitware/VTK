@@ -130,38 +130,18 @@ public:
   struct GenerateLinesImpl : vtkCellArray::DispatchUtilities
   {
     template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, const unsigned char* edges,
+    void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, const unsigned char* edges,
       int numLines, vtkIdType* eIds, vtkIdType& lineId)
     {
-      using ValueType = GetAPIType<OffsetsT>;
-
-      auto offsetRange = GetRange(offsets);
-      auto offsetIter = offsetRange.begin() + lineId;
       auto connRange = GetRange(conn);
       auto connIter = connRange.begin() + (lineId * 2);
 
       for (int i = 0; i < numLines; ++i)
       {
-        *offsetIter++ = static_cast<ValueType>(2 * lineId++);
         *connIter++ = eIds[*edges++];
         *connIter++ = eIds[*edges++];
       }
-
-      // Write the last offset:
-      *offsetIter = static_cast<ValueType>(2 * lineId);
-    }
-  };
-  // Finalize the lines cell array: after all the lines are inserted,
-  // the last offset has to be added to complete the offsets array.
-  struct FinalizeLinesImpl : vtkCellArray::DispatchUtilities
-  {
-    template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType numLines)
-    {
-      using ValueType = GetAPIType<OffsetsT>;
-      auto offsetRange = GetRange(offsets);
-      auto offsetIter = offsetRange.begin() + numLines;
-      *offsetIter = static_cast<ValueType>(2 * numLines);
+      lineId += numLines;
     }
   };
   void GenerateLines(
@@ -846,7 +826,6 @@ void vtkDiscreteFlyingEdges2DAlgorithm<T>::ContourImage(vtkDiscreteFlyingEdges2D
       newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
       algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
       newLines->ResizeExact(numOutLines, 2 * numOutLines);
-      newLines->Dispatch(FinalizeLinesImpl{}, numOutLines);
       algo.NewLines = newLines;
       if (newScalars)
       {
@@ -944,6 +923,7 @@ int vtkDiscreteFlyingEdges2D::RequestData(vtkInformation* vtkNotUsed(request),
   // Create necessary objects to hold output. We will defer the
   // actual allocation to a later point.
   vtkNew<vtkCellArray> newLines;
+  newLines->UseFixedSizeDefaultStorage(2);
   vtkNew<vtkPoints> newPts;
   newPts->SetDataTypeToFloat();
   vtkSmartPointer<vtkDataArray> newScalars;

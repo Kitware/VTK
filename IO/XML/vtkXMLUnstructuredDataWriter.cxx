@@ -1001,6 +1001,14 @@ struct ConvertCellsVisitor : public vtkCellArray::DispatchUtilities
         aosArrayTrimmed->SetArray(aosArray->GetPointer(1), numOffsets - 1, 1 /*save*/);
         this->Offsets = aosArrayTrimmed;
       }
+      else if (auto affineArray = vtkAffineArray<ValueType>::FastDownCast(offsetsIn))
+      {
+        auto affineArrayTrimmed = vtkSmartPointer<vtkAffineArray<ValueType>>::New();
+        affineArrayTrimmed->ConstructBackend(
+          affineArray->GetBackend()->Slope, affineArray->GetBackend()->Slope);
+        affineArrayTrimmed->SetNumberOfValues(numOffsets - 1);
+        this->Offsets = affineArrayTrimmed;
+      }
       else
       {
         this->Offsets->InsertTuples(0, numOffsets - 1, 1, offsetsIn);

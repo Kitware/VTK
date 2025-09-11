@@ -39,7 +39,8 @@ void RunTest(vtkCellArray::StorageTypes storageType)
       // By passing array types which are NOT in vtkCellArray::InputConnectivityArrays,
       // vtkCellArray can be put into the "Generic" storage mode.
       vtkNew<vtkTypeUInt8Array> placeholderConn;
-      vtkNew<vtkAOSDataArrayTemplate<vtkIdType>> offsets;
+      vtkNew<vtkAffineArray<vtkIdType>> offsets;
+      offsets->ConstructBackend(/*cellSize=*/3, 0);
       offsets->InsertNextValue(0); // initialize the offsets array with one element
       ca->SetData(offsets, placeholderConn);
       break;

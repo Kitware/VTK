@@ -223,36 +223,19 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
   struct GenerateTrisImpl : public vtkCellArray::DispatchUtilities
   {
     template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, const unsigned char* edges, int numTris,
-      vtkIdType* eIds, vtkIdType& triId)
+    void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, const unsigned char* edges,
+      int numTris, vtkIdType* eIds, vtkIdType& triId)
     {
-      using ValueType = GetAPIType<OffsetsT>;
-
-      auto offsetRange = GetRange(offsets);
-      auto offsetIter = offsetRange.begin() + triId;
       auto connRange = GetRange(conn);
       auto connIter = connRange.begin() + (triId * 3);
 
       for (int i = 0; i < numTris; ++i)
       {
-        *offsetIter++ = static_cast<ValueType>(3 * triId++);
         *connIter++ = eIds[*edges++];
         *connIter++ = eIds[*edges++];
         *connIter++ = eIds[*edges++];
       }
-    }
-  };
-  // Finalize the triangle cell array: after all the tris are inserted,
-  // the last offset has to be added to complete the offsets array.
-  struct FinalizeTrisImpl : public vtkCellArray::DispatchUtilities
-  {
-    template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType numTris)
-    {
-      using ValueType = GetAPIType<OffsetsT>;
-      auto offsetRange = GetRange(offsets);
-      auto offsetIter = offsetRange.begin() + numTris;
-      *offsetIter = static_cast<ValueType>(3 * numTris);
+      triId += numTris;
     }
   };
   void GenerateTris(unsigned char eCase, unsigned char numTris, vtkIdType* eIds, vtkIdType& triId)
@@ -1439,7 +1422,6 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
     newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
     algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
     newTris->ResizeExact(numOutTris, 3 * numOutTris);
-    newTris->Dispatch(FinalizeTrisImpl{}, numOutTris);
     algo.NewTris = newTris;
 
     if (newScalars)
@@ -1585,6 +1567,7 @@ int vtkFlyingEdgesPlaneCutter::RequestData(
   // Create necessary objects to hold output. We will defer the
   // actual allocation to a later point.
   vtkNew<vtkCellArray> newTris;
+  newTris->UseFixedSizeDefaultStorage(3);
   vtkNew<vtkPoints> newPts;
   newPts->SetDataTypeToFloat();
 

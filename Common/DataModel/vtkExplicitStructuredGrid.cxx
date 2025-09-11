@@ -54,6 +54,7 @@ vtkStandardNewMacro(vtkExplicitStructuredGrid);
 vtkExplicitStructuredGrid::vtkExplicitStructuredGrid()
 {
   this->Cells = vtkSmartPointer<vtkCellArray>::New();
+  this->Cells->UseFixedSizeDefaultStorage(8);
 
   this->FacesConnectivityFlagsArrayName = nullptr;
 
@@ -452,6 +453,7 @@ void vtkExplicitStructuredGrid::SetExtent(int x0, int x1, int y0, int y1, int z0
     (this->Extent[3] - this->Extent[2]) * (this->Extent[5] - this->Extent[4]);
 
   vtkNew<vtkCellArray> cells;
+  cells->UseFixedSize64BitStorage(8);
   this->SetCells(cells);
 
   // Initialize the cell array
@@ -786,6 +788,7 @@ void vtkExplicitStructuredGrid::Crop(
     outCD->CopyAllocate(inCD, outSize, outSize);
 
     vtkNew<vtkCellArray> cells;
+    cells->UseFixedSize64BitStorage(8);
     cells->AllocateEstimate(outSize, 8);
 
     // CellArray which links the new cells ids with the old ones

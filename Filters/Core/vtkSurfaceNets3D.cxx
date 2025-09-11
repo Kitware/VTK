@@ -786,14 +786,10 @@ struct SurfaceNets
   struct GenerateQuadsImpl : public vtkCellArray::DispatchUtilities
   {
     template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType i, vtkIdType row,
+    void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType i, vtkIdType row,
       vtkIdType slice, struct SurfaceNets* snet, TriadType triad, vtkIdType* pIds,
       vtkIdType& quadId)
     {
-      using ValueType = GetAPIType<OffsetsT>;
-
-      auto offsetRange = GetRange(offsets);
-      auto offsetIter = offsetRange.begin() + quadId;
       auto connRange = GetRange(conn);
       auto connIter = connRange.begin() + (quadId * 4);
 
@@ -803,7 +799,6 @@ struct SurfaceNets
 
       if (SurfaceNets::GenerateXYQuad(triad))
       {
-        *offsetIter++ = static_cast<ValueType>(4 * quadId);
         *connIter++ = pIds[4];
         *connIter++ = pIds[4] - 1;
         *connIter++ = pIds[3] - 1;
@@ -815,7 +810,6 @@ struct SurfaceNets
 
       if (SurfaceNets::GenerateXZQuad(triad))
       {
-        *offsetIter++ = static_cast<ValueType>(4 * quadId);
         *connIter++ = pIds[4];
         *connIter++ = pIds[1];
         *connIter++ = pIds[1] - 1;
@@ -827,7 +821,6 @@ struct SurfaceNets
 
       if (SurfaceNets::GenerateYZQuad(triad))
       {
-        *offsetIter++ = static_cast<ValueType>(4 * quadId);
         *connIter++ = pIds[4];
         *connIter++ = pIds[3];
         *connIter++ = pIds[0];
@@ -839,20 +832,6 @@ struct SurfaceNets
 
     } // operator()
   };  // GenerateQuadsImpl
-
-  // Finalize the quads array: after all the quads are inserted,
-  // the last offset has to be added to complete the offsets array.
-  struct FinalizeQuadsOffsetsImpl : public vtkCellArray::DispatchUtilities
-  {
-    template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType numQuads)
-    {
-      using ValueType = GetAPIType<OffsetsT>;
-      auto offsetRange = GetRange(offsets);
-      auto offsetIter = offsetRange.begin() + numQuads;
-      *offsetIter = static_cast<ValueType>(4 * numQuads);
-    }
-  };
 
   // Produce the smoothing stencils for this voxel cell.
   struct GenerateStencilImpl : public vtkCellArray::DispatchUtilities
@@ -929,7 +908,8 @@ struct SurfaceNets
   struct FinalizeStencilsOffsetsImpl : public vtkCellArray::DispatchUtilities
   {
     template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType numPts, vtkIdType numSEdges)
+    void operator()(
+      OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), vtkIdType numPts, vtkIdType numSEdges)
     {
       using ValueType = GetAPIType<OffsetsT>;
       auto offsetRange = GetRange(offsets);
@@ -1441,8 +1421,8 @@ void SurfaceNets<T>::ConfigureOutput(
     this->NewPts = fPts->GetPointer(0);
 
     // Boundaries, a set of quads contained in vtkCellArray
+    newQuads->UseFixedSizeDefaultStorage(4);
     newQuads->ResizeExact(numOutQuads, 4 * numOutQuads);
-    newQuads->Dispatch(FinalizeQuadsOffsetsImpl{}, numOutQuads);
     this->NewQuads = newQuads;
 
     // Scalars, which are of type T and 2-components
@@ -1828,38 +1808,20 @@ void SmoothOutput(vtkPolyData* geomCache, vtkCellArray* stencils, vtkPolyData* o
 struct ConvertToTrisImpl : public vtkCellArray::DispatchUtilities
 {
   template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType cellId, vtkIdType* ptIds)
+  void operator()(
+    OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType cellId, vtkIdType* ptIds)
   {
-    using ValueType = GetAPIType<OffsetsT>;
-
-    auto offsetRange = GetRange(offsets);
-    auto offsetItr = offsetRange.begin() + 2 * cellId;
     auto connRange = GetRange(conn);
     auto connItr = connRange.begin() + (cellId * 6);
 
     // Add two triangles
-    *offsetItr++ = static_cast<ValueType>(6 * cellId);
     *connItr++ = ptIds[0];
     *connItr++ = ptIds[1];
     *connItr++ = ptIds[2];
 
-    *offsetItr = static_cast<ValueType>(6 * cellId + 3);
     *connItr++ = ptIds[1];
     *connItr++ = ptIds[0];
     *connItr++ = ptIds[3];
-  }
-};
-
-// Complete the cell array offsets.
-struct FinalizeMeshConversionImpl : public vtkCellArray::DispatchUtilities
-{
-  template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType numCells, vtkIdType connSize)
-  {
-    using ValueType = GetAPIType<OffsetsT>;
-    auto offsetRange = GetRange(offsets);
-    auto offsetIter = offsetRange.begin() + numCells;
-    *offsetIter = static_cast<ValueType>(connSize);
   }
 };
 
@@ -1926,8 +1888,6 @@ struct TransformMesh
   {
   }
 
-  void Initialize() {}
-
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
     auto* idList = this->TLIdList.Local();
@@ -1984,12 +1944,6 @@ struct TransformMesh
       this->OutputMesh->Dispatch(ConvertToTrisImpl{}, cellId, conn);
     } // over this batch of cells
   }
-
-  void Reduce()
-  {
-    this->OutputMesh->Dispatch(
-      FinalizeMeshConversionImpl{}, this->NumOutputCells, this->OutputConnSize);
-  }
 }; // TransformMesh
 
 // Transform quad mesh to triangles. Also transform the cell data associated with the
@@ -2004,10 +1958,9 @@ struct TransformMeshToTris : public TransformMesh
     this->OutputConnSize = 6 * qMesh->GetNumberOfCells();
 
     this->OutputMesh = vtkSmartPointer<vtkCellArray>::New();
+    this->OutputMesh->UseFixedSizeDefaultStorage(3);
     this->OutputMesh->ResizeExact(this->NumOutputCells, this->OutputConnSize);
   }
-  void Initialize() { this->TransformMesh::Initialize(); }
-  void Reduce() { this->TransformMesh::Reduce(); }
 }; // TransformMeshToTris
 
 // This function is used to triangulate the output quads produced by the
@@ -2061,37 +2014,18 @@ void TransformMeshType(
 struct CopyCellsImpl : public vtkCellArray::DispatchUtilities
 {
   template <class OffsetsT, class ConnectivityT>
-  void operator()(
-    OffsetsT* offsets, ConnectivityT* conn, vtkIdType cellId, int cellSize, const vtkIdType* pts)
+  void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType cellId,
+    int cellSize, const vtkIdType* pts)
   {
-    using ValueType = GetAPIType<OffsetsT>;
-
-    auto offsetRange = GetRange(offsets);
-    auto offsetIter = offsetRange.begin() + cellId;
     auto connRange = GetRange(conn);
     auto connIter = connRange.begin() + (cellId * cellSize);
 
-    *offsetIter = static_cast<ValueType>(cellSize * cellId);
     for (auto i = 0; i < cellSize; ++i)
     {
       *connIter++ = pts[i];
     }
   } // operator()
 };  // CopyCellsImpl
-
-// Finalize the copying of cells. The last offset has to be added to complete
-// the offsets array.
-struct FinalizeCopyCellsImpl : public vtkCellArray::DispatchUtilities
-{
-  template <class OffsetsT, class ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType numCells, int cellSize)
-  {
-    using ValueType = GetAPIType<OffsetsT>;
-    auto offsetRange = GetRange(offsets);
-    auto offsetIter = offsetRange.begin() + numCells;
-    *offsetIter = static_cast<ValueType>(cellSize * numCells);
-  }
-};
 
 // Select polys for output: either on the boundary, or specified labels.
 // Boundary faces are those used by just one region. Faces surrounding (a)
@@ -2166,8 +2100,8 @@ struct SelectWorker
     // Threaded operation operates across all input cells.
     vtkCellArray* newCells = output->GetPolys();
     vtkNew<vtkCellArray> outCells;
+    outCells->UseFixedSizeDefaultStorage(cellSize);
     outCells->ResizeExact(numOutCells, cellSize * numOutCells);
-    outCells->Dispatch(FinalizeCopyCellsImpl{}, numOutCells, cellSize);
     vtkSMPThreadLocalObject<vtkIdList> tlIdList;
     vtkSMPTools::For(0, numCells,
       [newCells, &selectedCells, &outCells, cellSize, &tlIdList](

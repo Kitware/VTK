@@ -186,26 +186,19 @@ public:
   struct GenerateTrisImpl : public vtkCellArray::DispatchUtilities
   {
     template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, const unsigned char* edges, int numTris,
-      vtkIdType* eIds, vtkIdType& triId)
+    void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, const unsigned char* edges,
+      int numTris, vtkIdType* eIds, vtkIdType& triId)
     {
-      using ValueType = GetAPIType<OffsetsT>;
-
-      auto offsetRange = GetRange(offsets);
-      auto offsetIter = offsetRange.begin() + triId;
       auto connRange = GetRange(conn);
       auto connIter = connRange.begin() + (triId * 3);
 
       while (numTris-- > 0)
       {
-        *offsetIter++ = static_cast<ValueType>(3 * triId++);
+        ++triId;
         *connIter++ = eIds[*edges++];
         *connIter++ = eIds[*edges++];
         *connIter++ = eIds[*edges++];
       }
-
-      // Write the last offset:
-      *offsetIter = static_cast<ValueType>(3 * triId);
     }
   };
   void GenerateTris(unsigned char eCase, unsigned char numTris, vtkIdType* eIds, vtkIdType& triId)
@@ -1365,6 +1358,7 @@ int vtkExtractSurface::RequestData(
   // Create necessary objects to hold output. We will defer the
   // actual allocation to a later point.
   vtkCellArray* newTris = vtkCellArray::New();
+  newTris->UseFixedSizeDefaultStorage(3);
   vtkPoints* newPts = vtkPoints::New();
   newPts->SetDataTypeToFloat();
   vtkFloatArray* newNormals = nullptr;

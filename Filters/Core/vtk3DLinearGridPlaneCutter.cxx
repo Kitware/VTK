@@ -471,15 +471,9 @@ struct ProduceTriangles
   struct Impl : public vtkCellArray::DispatchUtilities
   {
     template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType triId, vtkIdType endTriId)
+    void operator()(
+      OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType triId, vtkIdType endTriId)
     {
-      using ValueType = GetAPIType<OffsetsT>;
-
-      auto offsetRange = GetRange(offsets).GetSubRange(triId, endTriId + 1);
-      ValueType offset = 3 * (triId - 1); // Incremented before first use
-      std::generate(
-        offsetRange.begin(), offsetRange.end(), [&]() -> ValueType { return offset += 3; });
-
       auto connRange = GetRange(conn).GetSubRange(3 * triId, 3 * endTriId);
       vtkIdType ptId = 3 * triId;
       std::iota(connRange.begin(), connRange.end(), ptId);
@@ -598,11 +592,6 @@ struct ProduceMergedTriangles
   {
   }
 
-  void Initialize()
-  {
-    // without this method Reduce() is not called
-  }
-
   struct Impl : public vtkCellArray::DispatchUtilities
   {
     template <class OffsetsT, class ConnectivityT>
@@ -645,24 +634,6 @@ struct ProduceMergedTriangles
   {
     this->Tris->Dispatch(Impl{}, ptId, endPtId, this->Offsets, this->MergeArray, this->Filter);
   }
-
-  struct ReduceImpl : public vtkCellArray::DispatchUtilities
-  {
-    template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), const vtkIdType numTris)
-    {
-      using ValueType = GetAPIType<OffsetsT>;
-
-      auto offsetsRange = GetRange(offsets).GetSubRange(0, numTris + 1);
-      ValueType offset = -3; // +=3 on first access
-      std::generate(
-        offsetsRange.begin(), offsetsRange.end(), [&]() -> ValueType { return offset += 3; });
-    }
-  };
-
-  // Update the triangle connectivity (numPts for each triangle. This could
-  // be done in parallel but it's probably not faster.
-  void Reduce() { this->Tris->Dispatch(ReduceImpl{}, this->NumTris); }
 };
 
 // This method generates the output isosurface points. One point per
@@ -919,7 +890,7 @@ int ProcessEdges(vtkIdType numCells, vtkPoints* inPts, CellIter* cellIter, vtkPl
 
     // Generate triangles from merged edges.
     ProduceMergedTriangles<TIds> produceTris(mergeEdges, offsets, numTris, newPolys, filter);
-    EXECUTE_REDUCED_SMPFOR(seqProcessing, numPts, produceTris, numThreads);
+    EXECUTE_SMPFOR(seqProcessing, numPts, produceTris);
     numThreads = nt;
 
     // Generate points (one per unique edge)
@@ -1153,6 +1124,7 @@ int vtk3DLinearGridPlaneCutter::ProcessPiece(
 
   // Output triangles go here.
   auto newPolys = vtkSmartPointer<vtkCellArray>::New();
+  newPolys->UseFixedSizeDefaultStorage(3);
 
   // Set up the cells for processing. A specialized iterator is used to traverse the cells.
   unsigned char* cellTypes =

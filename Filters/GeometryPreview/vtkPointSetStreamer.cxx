@@ -110,12 +110,8 @@ int vtkPointSetStreamer::RequestData(
     connectivity->SetNumberOfValues(numberOfPointsInBucket);
     std::iota(connectivity->GetPointer(0), connectivity->GetPointer(numberOfPointsInBucket), 0);
 
-    vtkNew<vtkIdTypeArray> offsets;
-    offsets->SetNumberOfValues(numberOfPointsInBucket + 1);
-    std::iota(offsets->GetPointer(0), offsets->GetPointer(numberOfPointsInBucket + 1), 0);
-
     vtkNew<vtkCellArray> vertices;
-    vertices->SetData(offsets, connectivity);
+    vertices->SetData(1, connectivity);
     output->SetVerts(vertices);
   }
   return 1;

@@ -197,17 +197,13 @@ struct ContourCellsBase
     struct Impl : public vtkCellArray::DispatchUtilities
     {
       template <class OffsetsT, class ConnectivityT>
-      void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType triBegin,
+      void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, const vtkIdType triBegin,
         const vtkIdType triEnd, const vtkIdType totalTris)
       {
         using ValueType = GetAPIType<OffsetsT>;
 
         const vtkIdType offsetsBegin = totalTris + triBegin;
         const vtkIdType offsetsEnd = totalTris + triEnd + 1;
-        auto offset = static_cast<ValueType>(3 * (totalTris + triBegin - 1));
-        auto offsetsRange = GetRange(offsets).GetSubRange(offsetsBegin, offsetsEnd);
-        std::generate(
-          offsetsRange.begin(), offsetsRange.end(), [&]() -> ValueType { return offset += 3; });
 
         const vtkIdType connBegin = 3 * offsetsBegin;
         const vtkIdType connEnd = 3 * (offsetsEnd - 1);
@@ -867,11 +863,6 @@ struct ProduceMergedTriangles
   {
   }
 
-  void Initialize()
-  {
-    // without this method Reduce() is not called
-  }
-
   struct Impl : public vtkCellArray::DispatchUtilities
   {
     template <class OffsetsT, class ConnectivityT>
@@ -915,25 +906,6 @@ struct ProduceMergedTriangles
     this->Tris->Dispatch(Impl{}, ptId, endPtId, this->TotalPts, 3 * this->TotalTris, this->Offsets,
       this->MergeArray, this->Filter);
   }
-
-  struct ReduceImpl : public vtkCellArray::DispatchUtilities
-  {
-    template <class OffsetsT, class ConnectivityT>
-    void operator()(
-      OffsetsT* offsets, ConnectivityT* conn, const vtkIdType totalTris, const vtkIdType nTris)
-    {
-      using ValueType = GetAPIType<OffsetsT>;
-
-      auto offsetsRange = GetRange(offsets).GetSubRange(totalTris, totalTris + nTris + 1);
-      ValueType offset = 3 * (totalTris - 1); // +=3 on first access
-      std::generate(
-        offsetsRange.begin(), offsetsRange.end(), [&]() -> ValueType { return offset += 3; });
-    }
-  };
-
-  // Update the triangle connectivity (numPts for each triangle. This could
-  // be done in parallel but it's probably not faster.
-  void Reduce() { this->Tris->Dispatch(ReduceImpl{}, this->TotalTris, this->NumTris); }
 };
 
 // This method generates the output isosurface points. One point per
@@ -1150,7 +1122,7 @@ int ProcessMerged(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* o
   // Generate triangles.
   ProduceMergedTriangles<TIds> produceTris(
     mergeEdges, offsets, numTris, newPolys, totalPts, totalTris, filter);
-  EXECUTE_REDUCED_SMPFOR(filter->GetSequentialProcessing(), numPts, produceTris, numThreads);
+  EXECUTE_SMPFOR(filter->GetSequentialProcessing(), numPts, produceTris);
   numThreads = nt;
 
   // Generate points (one per unique edge)
@@ -1521,6 +1493,7 @@ void vtkContour3DLinearGrid::ProcessPiece(
 
   // Output triangles go here.
   vtkNew<vtkCellArray> newPolys;
+  newPolys->UseFixedSizeDefaultStorage(3);
 
   // Process all contour values
   vtkIdType totalPts = 0;

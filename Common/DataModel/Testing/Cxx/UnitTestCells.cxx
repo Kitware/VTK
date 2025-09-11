@@ -775,7 +775,6 @@ vtkSmartPointer<vtkPolyhedron> MakeCube()
   aCube->GetPoints()->SetPoint(6, 1.0, 1.0, 1.0);
   aCube->GetPoints()->SetPoint(7, -1.0, 1.0, 1.0);
 
-  vtkIdType face_offsets[7] = { 0, 4, 8, 12, 16, 20, 24 };
   vtkIdType face_conns[24] = {
     0, 3, 2, 1, //
     0, 4, 7, 3, //
@@ -785,11 +784,9 @@ vtkSmartPointer<vtkPolyhedron> MakeCube()
     2, 3, 7, 6  //
   };
   vtkNew<vtkCellArray> faces;
-  vtkNew<vtkIdTypeArray> offsets_arr;
   vtkNew<vtkIdTypeArray> conns_arr;
-  offsets_arr->SetArray(face_offsets, 7, 1);
   conns_arr->SetArray(face_conns, 24, 1);
-  faces->SetData(offsets_arr, conns_arr);
+  faces->SetData(4, conns_arr);
 
   aCube->SetCellFaces(faces);
   aCube->Initialize();
@@ -830,7 +827,6 @@ vtkSmartPointer<vtkPolyhedron> MakeDodecahedron()
   aDodecahedron->GetPoints()->InsertNextPoint(-0.375185, -1.1547, -1.58931);
   aDodecahedron->GetPoints()->InsertNextPoint(0.982247, -0.713644, -1.58931);
 
-  vtkIdType face_offsets[13] = { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60 };
   vtkIdType face_conns[60] = {
     0, 1, 2, 3, 4,     // ids
     0, 5, 10, 6, 1,    //
@@ -846,11 +842,9 @@ vtkSmartPointer<vtkPolyhedron> MakeDodecahedron()
     19, 18, 17, 16, 15 //
   };
   vtkNew<vtkCellArray> faces;
-  vtkNew<vtkIdTypeArray> offsets_arr;
   vtkNew<vtkIdTypeArray> conns_arr;
-  offsets_arr->SetArray(face_offsets, 13, 1);
   conns_arr->SetArray(face_conns, 60, 1);
-  faces->SetData(offsets_arr, conns_arr);
+  faces->SetData(5, conns_arr);
 
   aDodecahedron->SetCellFaces(faces);
   aDodecahedron->Initialize();

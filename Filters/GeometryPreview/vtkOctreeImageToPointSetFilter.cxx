@@ -363,19 +363,8 @@ int vtkOctreeImageToPointSetFilter::RequestData(
           connectivityPtr[i] = i;
         }
       });
-    vtkNew<vtkIdTypeArray> offsets;
-    offsets->SetNumberOfValues(numberOfOutputPoints + 1);
-    vtkSMPTools::For(0, numberOfOutputPoints + 1,
-      [&](vtkIdType begin, vtkIdType end)
-      {
-        auto offsetsPtr = offsets->GetPointer(0);
-        for (vtkIdType i = begin; i < end; ++i)
-        {
-          offsetsPtr[i] = i;
-        }
-      });
     vtkNew<vtkCellArray> cells;
-    cells->SetData(offsets, connectivity);
+    cells->SetData(1, connectivity);
     output->SetVerts(cells);
   }
 

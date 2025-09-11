@@ -289,45 +289,27 @@ struct SurfaceNets
   struct GenerateLinesImpl : public vtkCellArray::DispatchUtilities
   {
     template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, unsigned char sqCase, vtkIdType* pIds,
-      vtkIdType& lineId)
+    void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, unsigned char sqCase,
+      vtkIdType* pIds, vtkIdType& lineId)
     {
-      using ValueType = GetAPIType<OffsetsT>;
-
-      auto offsetRange = GetRange(offsets);
-      auto offsetIter = offsetRange.begin() + lineId;
       auto connRange = GetRange(conn);
       auto connIter = connRange.begin() + (lineId * 2);
 
       if (SurfaceNets::GenerateXLine(sqCase))
       {
-        *offsetIter++ = static_cast<ValueType>(2 * lineId++);
+        lineId++;
         *connIter++ = pIds[1];
         *connIter++ = pIds[1] + 1; // in the +x direction
       }
 
       if (SurfaceNets::GenerateYLine(sqCase))
       {
-        *offsetIter++ = static_cast<ValueType>(2 * lineId++);
+        lineId++;
         *connIter++ = pIds[1];
         *connIter++ = pIds[2]; // in the +y direction
       }
     } // operator()
   };  // GenerateLinesImpl
-
-  // Finalize the lines array: after all the lines are inserted,
-  // the last offset has to be added to complete the offsets array.
-  struct FinalizeLinesOffsetsImpl : public vtkCellArray::DispatchUtilities
-  {
-    template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType numLines)
-    {
-      using ValueType = GetAPIType<OffsetsT>;
-      auto offsetRange = GetRange(offsets);
-      auto offsetIter = offsetRange.begin() + numLines;
-      *offsetIter = static_cast<ValueType>(2 * numLines);
-    }
-  };
 
   // Produce the smoothing stencils for this square.
   struct GenerateStencilImpl : public vtkCellArray::DispatchUtilities
@@ -392,7 +374,8 @@ struct SurfaceNets
   struct FinalizeStencilsOffsetsImpl : public vtkCellArray::DispatchUtilities
   {
     template <class OffsetsT, class ConnectivityT>
-    void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType numPts, vtkIdType numSEdges)
+    void operator()(
+      OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), vtkIdType numPts, vtkIdType numSEdges)
     {
       using ValueType = GetAPIType<OffsetsT>;
       auto offsetRange = GetRange(offsets);
@@ -790,8 +773,8 @@ void SurfaceNets<T>::ConfigureOutput(
     this->NewPts = fPts->GetPointer(0);
 
     // Boundaries, a set of lines contained in vtkCellArray
+    newLines->UseFixedSizeDefaultStorage(2);
     newLines->ResizeExact(numOutLines, 2 * numOutLines);
-    newLines->Dispatch(FinalizeLinesOffsetsImpl{}, numOutLines);
     this->NewLines = newLines;
 
     // Scalars, which are of type T and 2-components
