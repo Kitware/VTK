@@ -480,7 +480,7 @@ void vtkPolyhedron::SetFaces(vtkIdType* faces)
   }
 
   vtkIdType nfaces = faces[0];
-  this->GlobalFaces->Allocate(nfaces);
+  this->GlobalFaces->AllocateEstimate(nfaces, nfaces);
   vtkIdType* face = faces + 1;
   vtkIdType faceLoc = 1;
   vtkIdType fid;

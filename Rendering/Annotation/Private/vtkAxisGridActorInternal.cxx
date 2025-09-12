@@ -79,8 +79,7 @@ void vtkAxisGridActorInternal::BuildGrid()
   // Init data structures
   this->PolyDataPoints->Allocate(totalLines * 2);
   this->PolyDataPoints->SetDataType(VTK_DOUBLE);
-  this->PolyDataLines->Allocate(
-    this->PolyDataLines->EstimateSize(static_cast<vtkIdType>(totalLines), 2));
+  this->PolyDataLines->AllocateEstimate(static_cast<vtkIdType>(totalLines), 2);
 
   // Create horizontal lines
   for (int i = 0; i < nbXLines; i++)

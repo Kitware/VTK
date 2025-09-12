@@ -464,7 +464,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
 
   // FACES LOCATION ARRAY
   vtkNew<vtkCellArray> facesLocationArray;
-  facesLocationArray->Allocate(totalNumCells);
+  facesLocationArray->AllocateEstimate(totalNumCells, 4); // assume 4 faces/cell
   facesLocationArray->GetOffsetsArray()->SetNumberOfValues(totalNumCells + 1);
   if (!firstSet && flocs)
   {
@@ -481,7 +481,7 @@ vtkIdType vtkMergeCells::AddNewCellsUnstructuredGrid(vtkDataSet* set, vtkIdType*
 
   // FACES ARRAY
   vtkNew<vtkCellArray> facesArray;
-  facesArray->Allocate(numFaces, numFacesConnections);
+  facesArray->AllocateExact(numFaces, numFacesConnections);
   if (!firstSet && faces)
   {
     havePolyhedron = true;

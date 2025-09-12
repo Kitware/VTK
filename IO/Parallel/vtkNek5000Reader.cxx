@@ -1498,7 +1498,7 @@ void vtkNek5000Reader::addCellsToContinuumMesh()
   if (this->MeshIs3D)
   {
     cellTypes->Fill(VTK_HEXAHEDRON);
-    outCells->Allocate(9L * numVTKCells);
+    outCells->AllocateExact(numVTKCells, 8 * numVTKCells); // 8 nodes per hex
     for (auto e = 0; e < this->myNumBlocks; ++e)
     {
       for (auto ii = 0; ii < this->blockDims[0] - 1; ++ii)
@@ -1532,7 +1532,7 @@ void vtkNek5000Reader::addCellsToContinuumMesh()
   else // 2D
   {
     cellTypes->Fill(VTK_QUAD);
-    outCells->Allocate(5L * numVTKCells);
+    outCells->AllocateExact(numVTKCells, 4 * numVTKCells); // 4 nodes per quad
     for (auto e = 0; e < this->myNumBlocks; ++e)
     {
       for (auto ii = 0; ii < this->blockDims[0] - 1; ++ii)

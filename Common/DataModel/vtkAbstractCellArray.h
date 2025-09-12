@@ -54,9 +54,6 @@ public:
 
   /**
    * Get the size of the connectivity array that stores the point ids.
-   * @note Do not confuse this with the deprecated
-   * GetNumberOfConnectivityEntries(), which refers to the legacy memory
-   * layout.
    */
   virtual vtkIdType GetNumberOfConnectivityIds() const = 0;
 

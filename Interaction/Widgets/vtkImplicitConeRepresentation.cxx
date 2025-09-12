@@ -1141,7 +1141,7 @@ void vtkImplicitConeRepresentation::BuildCone()
   edgePoints->InsertPoints(0, conePoints->GetNumberOfPoints() - 1, 1, conePoints);
 
   vtkCellArray* edgeLines = this->EdgesPD->GetLines();
-  edgeLines->SetNumberOfCells(conePoints->GetNumberOfPoints() - 2);
+  edgeLines->AllocateEstimate(conePoints->GetNumberOfPoints() - 1, 2); // 2 points per line
   for (vtkIdType pointIdx = 1; pointIdx < edgePoints->GetNumberOfPoints(); ++pointIdx)
   {
     edgeLines->InsertNextCell({ pointIdx - 1, pointIdx });

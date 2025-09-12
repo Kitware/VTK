@@ -459,7 +459,7 @@ void vtkAxisAlignedReflectionFilter::ProcessExplicitStructuredGrid(vtkExplicitSt
   outCells->UseFixedSize64BitStorage(8);
   vtkCellData* inCD = input->GetCellData();
   vtkCellData* outCD = output->GetCellData();
-  outCells->Allocate(numCells);
+  outCells->AllocateExact(numCells, input->GetCells()->GetNumberOfConnectivityIds());
   outCD->CopyAllOn();
   outCD->CopyAllocate(inCD);
 
@@ -549,10 +549,14 @@ void vtkAxisAlignedReflectionFilter::ProcessPolyData(vtkPolyData* input, vtkPoly
   vtkSmartPointer<vtkCellArray> outLines = vtkSmartPointer<vtkCellArray>::New();
   vtkSmartPointer<vtkCellArray> outPolys = vtkSmartPointer<vtkCellArray>::New();
   vtkSmartPointer<vtkCellArray> outStrips = vtkSmartPointer<vtkCellArray>::New();
-  outVerts->Allocate(input->GetNumberOfVerts());
-  outLines->Allocate(input->GetNumberOfLines());
-  outPolys->Allocate(input->GetNumberOfPolys());
-  outStrips->Allocate(input->GetNumberOfStrips());
+  outVerts->AllocateExact(
+    input->GetNumberOfVerts(), input->GetVerts()->GetNumberOfConnectivityIds());
+  outLines->AllocateExact(
+    input->GetNumberOfLines(), input->GetLines()->GetNumberOfConnectivityIds());
+  outPolys->AllocateExact(
+    input->GetNumberOfPolys(), input->GetPolys()->GetNumberOfConnectivityIds());
+  outStrips->AllocateExact(
+    input->GetNumberOfStrips(), input->GetStrips()->GetNumberOfConnectivityIds());
 
   outPoints->Allocate(numPts);
   outPD->CopyAllOn();

@@ -115,39 +115,6 @@
  * storage when any overload of vtkCellArray::SetData is invoked with array types that
  * are NOT in vtkCellArray::InputConnectivityArrays.
  *
- * Note that some legacy methods are still available that reflect the
- * previous storage format of this data, which embedded the cell sizes into
- * the Connectivity array:
- *
- * ```
- * vtkCellArray (legacy):
- * ----------------------
- * Connectivity: {3, 0, 1, 2, 3, 5, 7, 2, 4, 3, 4, 6, 7, 2, 5, 8}
- *                |--Cell 0--||--Cell 1--||----Cell 2---||--C3-|
- * ```
- *
- * The methods require an external lookup table to allow random access, which
- * was historically stored in the vtkCellTypes object. The following methods in
- * vtkCellArray still support this style of indexing for compatibility
- * purposes, but these are slow as they must perform some complex computations
- * to convert the old "location" into the new "offset" and should be avoided.
- * These methods (and their modern equivalents) are:
- *
- * - GetCell (Prefer GetCellAtId)
- * - GetInsertLocation (Prefer GetNumberOfCells)
- * - GetTraversalLocation (Prefer GetTraversalCellId, or better, NewIterator)
- * - SetTraversalLocation (Prefer SetTraversalLocation, or better, NewIterator)
- * - ReverseCell (Prefer ReverseCellAtId)
- * - ReplaceCell (Prefer ReplaceCellAtId)
- * - SetCells (Use ImportLegacyFormat, or SetData)
- * - GetData (Use ExportLegacyFormat, or Get[Offsets|Connectivity]Array[|32|64])
- *
- * Some other legacy methods were completely removed, such as GetPointer() /
- * WritePointer(), since they are cannot be effectively emulated under the
- * current design. If external code needs to support both the old and new
- * version of the vtkCellArray API, the VTK_CELL_ARRAY_V2 preprocessor
- * definition may be used to detect which API is being compiled against.
- *
  * @sa vtkAbstractCellArray vtkStructuredCellArray vtkCellTypes vtkCellLinks
  */
 
@@ -172,28 +139,6 @@
 #include <initializer_list> // Needed for API
 #include <type_traits>      // Needed for std::is_same
 #include <utility>          // Needed for std::forward
-
-/**
- * @def VTK_CELL_ARRAY_V2
- * @brief This preprocessor definition indicates that the updated vtkCellArray
- * is being used. It may be used to conditionally switch between old and new
- * API when both must be supported.
- *
- * For example:
- *
- * ```
- * vtkIdType npts;
- *
- * #ifdef VTK_CELL_ARRAY_V2
- * const vtkIdType *pts;
- * #else // VTK_CELL_ARRAY_V2
- * vtkIdType *pts'
- * #endif // VTK_CELL_ARRAY_V2
- *
- * cellArray->GetCell(legacyLocation, npts, pts);
- * ```
- */
-#define VTK_CELL_ARRAY_V2
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArrayIterator;
@@ -262,6 +207,7 @@ public:
    * @note It is preferable to use AllocateEstimate(numCells, maxCellSize)
    * or AllocateExact(numCells, connectivitySize) instead.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use AllocateEstimate or AllocateExact instead.")
   vtkTypeBool Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext) = 1000)
   {
     return this->AllocateExact(sz, sz) ? 1 : 0;
@@ -375,9 +321,6 @@ public:
 
   /**
    * Get the size of the connectivity array that stores the point ids.
-   * @note Do not confuse this with the deprecated
-   * GetNumberOfConnectivityEntries(), which refers to the legacy memory
-   * layout.
    */
   vtkIdType GetNumberOfConnectivityIds() const override
   {
@@ -1388,6 +1331,7 @@ public:
    *
    * @note This call has no effect.
    */
+  VTK_DEPRECATED_IN_9_6_0("This call has no effect.")
   virtual void SetNumberOfCells(vtkIdType);
 
   /**
@@ -1401,6 +1345,7 @@ public:
    * @note This method was often misused (e.g. called alone and then
    * discarding the result). Use AllocateEstimate directly instead.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use AllocateEstimate directly instead.")
   vtkIdType EstimateSize(vtkIdType numCells, int maxPtsPerCell);
 
   /**
@@ -1411,6 +1356,7 @@ public:
    *
    * @note Method incompatible with current internal storage.
    */
+  VTK_DEPRECATED_IN_9_6_0("Method incompatible with current internal storage.")
   vtkIdType GetSize();
 
   /**
@@ -1419,6 +1365,7 @@ public:
    *
    * @note Method incompatible with current internal storage.
    */
+  VTK_DEPRECATED_IN_9_6_0("Method incompatible with current internal storage.")
   vtkIdType GetNumberOfConnectivityEntries();
 
   /**
@@ -1430,6 +1377,7 @@ public:
    * @note The location-based API is now a super-slow compatibility layer.
    * Prefer GetCellAtId.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use GetCellAtId.")
   void GetCell(vtkIdType loc, vtkIdType& npts, const vtkIdType*& pts)
     VTK_EXPECTS(0 <= loc && loc < GetNumberOfConnectivityEntries()) VTK_SIZEHINT(pts, npts);
 
@@ -1439,6 +1387,7 @@ public:
    * @note The location-based API is now a super-slow compatibility layer.
    * Prefer GetCellAtId.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use GetCellAtId.")
   void GetCell(vtkIdType loc, vtkIdList* pts)
     VTK_EXPECTS(0 <= loc && loc < GetNumberOfConnectivityEntries());
 
@@ -1448,6 +1397,7 @@ public:
    *
    * @note The location-based API is now a super-slow compatibility layer.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use GetNumberOfCells.")
   vtkIdType GetInsertLocation(int npts);
 
   /**
@@ -1457,8 +1407,11 @@ public:
    * Prefer Get/SetTraversalCellId.
    * @{
    */
+  VTK_DEPRECATED_IN_9_6_0("Use GetTraversalCellId.")
   vtkIdType GetTraversalLocation();
+  VTK_DEPRECATED_IN_9_6_0("Use GetTraversalCellId.")
   vtkIdType GetTraversalLocation(vtkIdType npts);
+  VTK_DEPRECATED_IN_9_6_0("Use SetTraversalCellId.")
   void SetTraversalLocation(vtkIdType loc);
   /**@}*/
 
@@ -1469,6 +1422,7 @@ public:
    * @note The location-based API is now a super-slow compatibility layer.
    * Prefer ReverseCellAtId;
    */
+  VTK_DEPRECATED_IN_9_6_0("Use ReverseCellAtId.")
   void ReverseCell(vtkIdType loc) VTK_EXPECTS(0 <= loc && loc < GetNumberOfConnectivityEntries());
 
   /**
@@ -1482,6 +1436,7 @@ public:
    * @note The location-based API is now a super-slow compatibility layer.
    * Prefer ReplaceCellAtId.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use ReplaceCellAtId.")
   void ReplaceCell(vtkIdType loc, int npts, const vtkIdType pts[])
     VTK_EXPECTS(0 <= loc && loc < GetNumberOfConnectivityEntries()) VTK_SIZEHINT(pts, npts);
 
@@ -1499,6 +1454,7 @@ public:
    *
    * @note Use ImportLegacyFormat or SetData instead.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use ImportLegacyFormat or SetData instead.")
   void SetCells(vtkIdType ncells, vtkIdTypeArray* cells);
 
   /**
@@ -1511,6 +1467,8 @@ public:
    * @note Use ExportLegacyFormat, or GetOffsetsArray/GetConnectivityArray
    * instead.
    */
+  VTK_DEPRECATED_IN_9_6_0(
+    "Use ExportLegacyFormat, or GetOffsetsArray/GetConnectivityArray instead.")
   vtkIdTypeArray* GetData();
 
   //=================== End Legacy Methods =====================================

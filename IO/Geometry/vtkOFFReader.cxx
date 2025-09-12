@@ -154,7 +154,7 @@ int vtkOFFReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   // allocate polygons
   auto polys = vtkSmartPointer<vtkCellArray>::New();
-  polys->Allocate(numPolys);
+  polys->AllocateEstimate(numPolys, 3); // assume 3 points per polygon
 
   // scaling factor for the progress bar
   double progressScale = 1.0 / double(numPoints + numPoints);

@@ -123,11 +123,9 @@ bool ConstructSceneWithGhostCell(
 
   // Construct associated cell arrays, containing both polylines.
   vtkNew<vtkCellArray> lines1;
-  lines1->SetNumberOfCells(1);
   lines1->InsertNextCell(numberOfPointsInCircle + 1, lineIds1->GetPointer(0));
 
   vtkNew<vtkCellArray> lines2;
-  lines2->SetNumberOfCells(1);
   lines2->InsertNextCell((numberOfPointsInCircle * 3) / 4, lineIds2->GetPointer(0));
 
   // Create cell data for each line.

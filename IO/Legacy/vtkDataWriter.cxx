@@ -2189,7 +2189,7 @@ int vtkDataWriter::WriteCellsLegacy(ostream* fp, vtkCellArray* cells, const char
   }
 
   int ncells = cells->GetNumberOfCells();
-  int size = cells->GetNumberOfConnectivityEntries();
+  int size = cells->GetNumberOfConnectivityIds() + cells->GetNumberOfCells();
 
   if (ncells < 1)
   {
@@ -2222,7 +2222,7 @@ int vtkDataWriter::WriteCellsLegacy(ostream* fp, vtkCellArray* cells, const char
   {
     // swap the bytes if necessary
     // currently writing vtkIdType as int
-    int arraySize = cells->GetNumberOfConnectivityEntries();
+    int arraySize = cells->GetNumberOfConnectivityIds() + cells->GetNumberOfCells();
     int* intArray = new int[arraySize];
 
     int* intArrayPtr = intArray;

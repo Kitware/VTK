@@ -56,7 +56,7 @@ int vtkLinearCellExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request
 
   vtkDataArray* inputNormals = input->GetCellData()->GetNormals();
 
-  output->Allocate(polys->GetSize() * 2); // estimation
+  output->AllocateExact(polys->GetNumberOfCells() * 2, polys->GetNumberOfConnectivityIds() * 2);
 
   std::vector<std::array<double, 3>> topPoints;
   std::vector<vtkIdType> polyhedronIds; // used for polyhedrons

@@ -513,9 +513,9 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(
     if (!this->Faces)
     {
       this->Faces = vtkSmartPointer<vtkCellArray>::New();
-      this->Faces->Allocate(this->Types->GetSize());
+      this->Faces->AllocateEstimate(this->Types->GetSize() * 6, 4); // assume 4 pts/face
       this->FaceLocations = vtkSmartPointer<vtkCellArray>::New();
-      this->FaceLocations->Allocate(this->Types->GetSize());
+      this->FaceLocations->AllocateEstimate(this->Types->GetSize(), 6); // assume 6 faces/cell
       // FaceLocations must be padded until the current position
       for (vtkIdType i = 0; i <= this->Types->GetMaxId(); i++)
       {
@@ -551,9 +551,9 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(
   if (!this->Faces)
   {
     this->Faces = vtkSmartPointer<vtkCellArray>::New();
-    this->Faces->Allocate(this->Types->GetSize());
+    this->Faces->AllocateEstimate(this->Types->GetSize() * 6, 4); // assume 4 pts/face
     this->FaceLocations = vtkSmartPointer<vtkCellArray>::New();
-    this->FaceLocations->Allocate(this->Types->GetSize());
+    this->FaceLocations->AllocateEstimate(this->Types->GetSize(), 6); // assume 6 faces/cell
     // FaceLocations must be padded until the current position
     for (vtkIdType i = 0; i <= this->Types->GetMaxId(); i++)
     {
@@ -598,9 +598,9 @@ vtkIdType vtkUnstructuredGrid::InternalInsertNextCell(
   if (!this->Faces)
   {
     this->Faces = vtkSmartPointer<vtkCellArray>::New();
-    this->Faces->Allocate(this->Types->GetSize());
+    this->Faces->AllocateEstimate(this->Types->GetSize() * 6, 4); // assume 4 pts/face
     this->FaceLocations = vtkSmartPointer<vtkCellArray>::New();
-    this->FaceLocations->Allocate(this->Types->GetSize());
+    this->FaceLocations->AllocateEstimate(this->Types->GetSize(), 6); // assume 6 faces/cell
     // FaceLocations must be padded until the current position
     for (vtkIdType i = 0; i <= this->Types->GetMaxId(); i++)
     {
@@ -630,10 +630,9 @@ int vtkUnstructuredGrid::InitializeFacesRepresentation(vtkIdType numPrevCells)
   }
 
   this->Faces = vtkSmartPointer<vtkCellArray>::New();
-  this->Faces->Allocate(this->Types->GetSize());
-
+  this->Faces->AllocateEstimate(this->Types->GetSize() * 6, 4); // assume 4 pts/face
   this->FaceLocations = vtkSmartPointer<vtkCellArray>::New();
-  this->FaceLocations->Allocate(this->Types->GetSize());
+  this->FaceLocations->AllocateEstimate(this->Types->GetSize(), 6); // assume 6 faces/cell
 
   // FaceLocations must be padded until the current position
   for (vtkIdType i = 0; i < numPrevCells; i++)
@@ -1862,8 +1861,9 @@ void vtkUnstructuredGrid::RemoveGhostCells()
     FaceLocationsOffset = this->FaceLocations->GetOffsetsArray();
     FaceLocationsElements = this->FaceLocations->GetConnectivityArray();
     //
-    newFaces->Allocate(FacesOffset->GetNumberOfValues() - 1, FacesElements->GetNumberOfValues());
-    newFaceLocations->Allocate(
+    newFaces->AllocateEstimate(
+      FacesOffset->GetNumberOfValues() - 1, FacesElements->GetNumberOfValues());
+    newFaceLocations->AllocateEstimate(
       this->GetNumberOfCells(), FaceLocationsElements->GetNumberOfValues());
   }
 

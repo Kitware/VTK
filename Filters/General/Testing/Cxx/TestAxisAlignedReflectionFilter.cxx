@@ -281,9 +281,9 @@ int TestPolyData(int argc, char* argv[])
     "Incorrect points");
 
   vtkNew<vtkIdList> cellPtsIn;
-  polyDataIn->GetPolys()->GetCell(0, cellPtsIn);
+  polyDataIn->GetPolys()->GetCellAtId(0, cellPtsIn);
   vtkNew<vtkIdList> cellPtsOut;
-  polyDataOut->GetPolys()->GetCell(0, cellPtsOut);
+  polyDataOut->GetPolys()->GetCellAtId(0, cellPtsOut);
 
   AssertMacro(cellPtsIn->GetId(1) == cellPtsOut->GetId(3) && cellPtsOut->GetId(3) == 251,
     polyDataOut->GetClassName(), "Incorrect cells");

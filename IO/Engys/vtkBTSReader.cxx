@@ -343,7 +343,7 @@ bool vtkBTSReader::ReadFaces(vtkPolyData* polyData)
   }
 
   vtkNew<vtkCellArray> polys;
-  polys->Allocate(numberOfFaces);
+  polys->AllocateEstimate(numberOfFaces, 3); // 3 vertices per face
 
   int pointsIds[3];
   vtkIdType vtkPointsIds[3];

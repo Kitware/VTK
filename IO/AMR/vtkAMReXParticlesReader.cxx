@@ -239,14 +239,6 @@ class vtkAMReXParticlesReader::AMReXParticleHeader
       pd->SetPoints(pts);
     }
 
-    //// Now build connectivity information.
-    // vtkNew<vtkCellArray> verts;
-    // verts->Allocate(verts->EstimateSize(count, 1));
-    // for (vtkIdType cc=0; cc < count; ++cc)
-    //{
-    //  verts->InsertNextCell(1, &cc);
-    //}
-    // pd->SetVerts(verts);
     return true;
   }
 

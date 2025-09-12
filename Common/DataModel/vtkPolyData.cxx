@@ -1637,24 +1637,23 @@ void vtkPolyData::RemoveGhostCells()
   if (this->Verts)
   {
     this->Verts->IsStorage64Bit() ? newVerts->Use64BitStorage() : newVerts->Use32BitStorage();
+    newVerts->AllocateExact(this->GetNumberOfVerts(), this->Verts->GetNumberOfConnectivityIds());
   }
   if (this->Lines)
   {
     this->Lines->IsStorage64Bit() ? newLines->Use64BitStorage() : newLines->Use32BitStorage();
+    newLines->AllocateExact(this->GetNumberOfLines(), this->Lines->GetNumberOfConnectivityIds());
   }
   if (this->Polys)
   {
     this->Polys->IsStorage64Bit() ? newPolys->Use64BitStorage() : newPolys->Use32BitStorage();
+    newPolys->AllocateExact(this->GetNumberOfPolys(), this->Polys->GetNumberOfConnectivityIds());
   }
   if (this->Strips)
   {
     this->Strips->IsStorage64Bit() ? newStrips->Use64BitStorage() : newStrips->Use32BitStorage();
+    newStrips->AllocateExact(this->GetNumberOfStrips(), this->Strips->GetNumberOfConnectivityIds());
   }
-
-  newVerts->Allocate(this->GetNumberOfVerts());
-  newLines->Allocate(this->GetNumberOfLines());
-  newPolys->Allocate(this->GetNumberOfPolys());
-  newStrips->Allocate(this->GetNumberOfStrips());
 
   newCellData->CopyAllOn(vtkDataSetAttributes::COPYTUPLE);
   newCellData->CopyAllocate(this->CellData, numCells);
