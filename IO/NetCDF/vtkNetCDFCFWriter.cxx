@@ -4,28 +4,20 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkAssume.h"
-#include "vtkCellData.h"
-#include "vtkCellTypes.h"
 #include "vtkCharArray.h"
 #include "vtkDataArrayAccessor.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
-#include "vtkLogger.h"
-#include "vtkLongArray.h"
 #include "vtkNew.h"
-#include "vtkPointData.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkSmartPointer.h"
-#include "vtkStringArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedShortArray.h"
+#include "vtkUnsignedCharArray.h"
 
-#include <algorithm>
 #include <array>
 #include <iostream>
 #include <map>

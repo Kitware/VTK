@@ -5,7 +5,7 @@
 #include "vtkActor2D.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
-#include "vtkCellTypes.h"
+#include "vtkCellType.h"
 #include "vtkCommand.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"

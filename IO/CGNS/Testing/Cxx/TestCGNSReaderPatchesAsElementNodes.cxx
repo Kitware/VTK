@@ -3,7 +3,6 @@
 
 #include "vtkCGNSReader.h"
 
-#include "vtkCellTypes.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"

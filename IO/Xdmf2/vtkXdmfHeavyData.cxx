@@ -4,7 +4,7 @@
 
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCellTypes.h"
+#include "vtkCellType.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataObjectTypes.h"
 #include "vtkDoubleArray.h"
