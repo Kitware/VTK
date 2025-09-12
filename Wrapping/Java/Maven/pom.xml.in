@@ -56,6 +56,9 @@
   <dependencies>
 @MAVEN_DEPENDENCY_XML@
   </dependencies>
+  <repositories>
+@MAVEN_REPOSITORIES_XML@
+  </repositories>
   <distributionManagement>
     <!-- Warning: Generating release artifacts is only meant to be used after
          a compilation of VTK across all the targeted platforms while overriding

@@ -217,10 +217,10 @@
     - export JAVA_HOME=$PWD/.gitlab/jdk/Contents/Home/
     - cmake -P .gitlab/ci/download_maven.cmake
     - export PATH="$PWD/.gitlab/maven/bin:$PATH"
-    - 'mvn dependency:get "-Dmaven.repo.local=$GIT_CLONE_PATH/.gitlab/m2" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2"'
-    - 'mvn dependency:get "-Dmaven.repo.local=$GIT_CLONE_PATH/.gitlab/m2" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.3.2:jar:natives-macosx-universal"'
-    - 'mvn dependency:get "-Dmaven.repo.local=$GIT_CLONE_PATH/.gitlab/m2" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2"'
-    - 'mvn dependency:get "-Dmaven.repo.local=$GIT_CLONE_PATH/.gitlab/m2" "-Dartifact=org.jogamp.jogl:jogl-all:2.3.2:jar:natives-macosx-universal"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$GIT_CLONE_PATH/.gitlab/m2" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.6.0"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$GIT_CLONE_PATH/.gitlab/m2" "-Dartifact=org.jogamp.gluegen:gluegen-rt:2.6.0:jar:natives-macosx-universal"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$GIT_CLONE_PATH/.gitlab/m2" "-Dartifact=org.jogamp.jogl:jogl-all:2.6.0"'
+    - 'mvn dependency:get "-Dmaven.repo.local=$GIT_CLONE_PATH/.gitlab/m2" "-Dartifact=org.jogamp.jogl:jogl-all:2.6.0:jar:natives-macosx-universal"'
     - ls -R $GIT_CLONE_PATH/.gitlab/m2
 
 .script_macos: &script_macos

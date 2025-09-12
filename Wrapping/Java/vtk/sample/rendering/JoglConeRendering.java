@@ -9,12 +9,19 @@ import java.util.Arrays;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLContext;
+import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.JoglVersion;
+
 import vtk.vtkActor;
 import vtk.vtkBoxRepresentation;
 import vtk.vtkBoxWidget2;
 import vtk.vtkCell;
 import vtk.vtkCellPicker;
 import vtk.vtkConeSource;
+import vtk.vtkOpenGLRenderWindow;
 import vtk.vtkLookupTable;
 import vtk.vtkNativeLibrary;
 import vtk.vtkPolyDataMapper;
@@ -32,6 +39,7 @@ public class JoglConeRendering {
   // Load VTK library and print which library was not properly loaded
 
   static {
+    GLProfile.initSingleton(); // Enforce JOGL to load OpenGL 1st
     if (!vtkNativeLibrary.LoadAllNativeLibraries()) {
       for (vtkNativeLibrary lib : vtkNativeLibrary.values()) {
         if (!lib.IsLoaded()) {
@@ -141,6 +149,28 @@ public class JoglConeRendering {
           }
         });
 
+        ((GLAutoDrawable)joglWidget.getComponent()).addGLEventListener( new GLEventListener() {
+          public void init(GLAutoDrawable drawable) {
+            final vtkOpenGLRenderWindow glWin = joglWidget.getGLRenderWindow();
+            System.err.println(JoglConeRendering.class.getName()+" GLRenderWindow: "+glWin.getClass().getName());
+            System.err.println("JOGL OpenGL:");
+            GLContext ctx = drawable.getContext();
+            final com.jogamp.common.os.DynamicLibraryBundle dlb = ctx.getDynamicLibraryBundle();
+            if( null != dlb ) {
+              final long glGetProcAddressFunc = dlb.getToolGetProcAddressHandle();
+              final com.jogamp.common.os.NativeLibrary glLib = dlb.getToolLibrary(0);
+              System.err.println("- glGetProcAddressFunc: 0x"+Long.toHexString(glGetProcAddressFunc));
+              System.err.println("- glLib: "+glLib);
+            }
+            System.err.println(JoglVersion.getGLStrings(drawable.getGL().getGL(), null, false).toString());
+            System.err.println("VTK OpenGL:");
+            System.err.println(glWin.toString());
+          }
+
+          public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) { }
+          public void display(GLAutoDrawable drawable) { }
+          public void dispose(GLAutoDrawable drawable) { }
+        } );
         // UI part
         JFrame frame = new JFrame("SimpleVTK");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
