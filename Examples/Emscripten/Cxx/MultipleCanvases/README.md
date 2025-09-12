@@ -7,6 +7,8 @@ In WebGL, there can be atmost 16 contexts. As a result, the max.
 number of canvases are limited. This example does not yet support webgpu, it will need slight
 refactoring to make it compatible.
 
+## Using local VTK WASM build tree
+
 ```
 emcmake cmake \
   -G Ninja \
@@ -15,6 +17,31 @@ emcmake cmake \
   -DVTK_DIR=/path/to/where/vtk/wasm/was/built
 
 cmake --build out/build
+```
+
+## Using vtk-wasm-sdk
+
+### Linux/macOS
+```sh
+# Configure
+docker run --rm -it \
+  -v"$PWD":/work kitware/vtk-wasm-sdk:latest \
+  emcmake cmake -GNinja -S /work -B /work/build -DVTK_DIR=/VTK-install/Release/wasm32/lib/cmake/vtk
+# Build
+docker run --rm -it \
+  -v"$PWD":/work kitware/vtk-wasm-sdk:latest \
+  cmake --build /work/build
+```
+
+### Windows
+```sh
+docker run --rm -it `
+  -v"$PWD":/work kitware/vtk-wasm-sdk:latest `
+  emcmake cmake -GNinja -S /work -B /work/build -DVTK_DIR=/VTK-install/Release/wasm32/lib/cmake/vtk
+# Build
+docker run --rm -it `
+  -v"$PWD":/work kitware/vtk-wasm-sdk:latest `
+  cmake --build /work/build
 ```
 
 # Serve and test generated code
