@@ -22,8 +22,7 @@
 // GetCell() and vtkGenericCell::SetCellType(). Also, to do the job right,
 // you'll also have to modify some filters (vtkGeometryFilter...) and
 // regression tests (example scripts) to reflect the new cell addition.
-// Also, make sure to update vtkCellTypesStrings in vtkCellTypes.cxx
-// and the vtkCellTypes::IsLinear method in vtkCellTypes.h.
+// Also, make sure to update vtkCellTypeUtilities.h
 
 // .SECTION Caveats
 // An unstructured grid stores the types of its cells as a

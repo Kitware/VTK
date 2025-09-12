@@ -57,6 +57,7 @@ set(classes
   vtkCellLocatorStrategy
   vtkCellMetadata
   vtkCellTreeLocator
+  vtkCellTypeUtilities
   vtkCellTypes
   vtkClosestNPointsStrategy
   vtkClosestPointStrategy
