@@ -521,6 +521,8 @@ int vtkGLTFImporter::ImportBegin()
   vtkNew<vtkEventForwarderCommand> forwarder;
   forwarder->SetTarget(this);
   this->Loader->AddObserver(vtkCommand::ProgressEvent, forwarder);
+  this->Loader->AddObserver(vtkCommand::WarningEvent, forwarder);
+  this->Loader->AddObserver(vtkCommand::ErrorEvent, forwarder);
 
   // Check extension
   std::vector<char> glbBuffer;
