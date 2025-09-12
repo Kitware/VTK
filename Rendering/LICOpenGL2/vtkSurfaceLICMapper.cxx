@@ -8,6 +8,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLFramebufferObject.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
@@ -64,6 +65,12 @@ void vtkSurfaceLICMapper::ShallowCopy(vtkAbstractMapper* mapper)
 //------------------------------------------------------------------------------
 void vtkSurfaceLICMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
+  if (!this->ResourceCallback->IsReleasing())
+  {
+    this->ResourceCallback->Release();
+    return;
+  }
+
   this->LICInterface->ReleaseGraphicsResources(win);
   this->Superclass::ReleaseGraphicsResources(win);
 }

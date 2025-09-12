@@ -1510,6 +1510,12 @@ void vtkFastLabeledDataMapper::RenderPieceFinish(vtkRenderer* ren, vtkActor* act
 //-----------------------------------------------------------------------------
 void vtkFastLabeledDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
+  if (!this->ResourceCallback->IsReleasing())
+  {
+    this->ResourceCallback->Release();
+    return;
+  }
+
   this->Implementation->GlyphsTO->ReleaseGraphicsResources(win);
   this->Superclass::ReleaseGraphicsResources(win);
 }

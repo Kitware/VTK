@@ -62,6 +62,12 @@ vtkOpenGLGlyph3DHelper::vtkOpenGLGlyph3DHelper()
 // Release any graphics resources that are being consumed by this mapper.
 void vtkOpenGLGlyph3DHelper::ReleaseGraphicsResources(vtkWindow* window)
 {
+  if (!this->ResourceCallback->IsReleasing())
+  {
+    this->ResourceCallback->Release();
+    return;
+  }
+
   this->InstanceBuffersBuildTime = vtkTimeStamp();
   this->NormalMatrixBuffer->ReleaseGraphicsResources();
   this->MatrixBuffer->ReleaseGraphicsResources();
