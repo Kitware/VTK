@@ -259,6 +259,12 @@ vtkIdType vtkReflectionUtilities::ReflectNon3DCellInternal(vtkDataSet* input,
       }
       break;
     }
+    case VTK_POLY_LINE:
+      for (int j = 0; j != numCellPts; j++)
+      {
+        newCellPts[j] = cellPts->GetId(numCellPts - j - 1);
+      }
+      break;
     default:
     {
       if (input->GetCell(cellId)->IsA("vtkNonLinearCell") || cellType > VTK_POLYHEDRON)
