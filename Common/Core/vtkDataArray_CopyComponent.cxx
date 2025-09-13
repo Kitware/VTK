@@ -41,27 +41,53 @@ struct CopyComponentWorker
 
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
-void vtkDataArray::CopyComponent(int dstComponent, vtkDataArray* src, int srcComponent)
+bool vtkDataArray::CopyComponent(int dstComponent, vtkAbstractArray* source, int srcComponent)
 {
+  if (!source)
+  {
+    vtkErrorMacro(<< "The 'from' array must be non-null.");
+    return false;
+  }
+
+  auto* src = vtkDataArray::SafeDownCast(source);
+  if (!src)
+  {
+    vtkErrorMacro(<< "The 'from' array must be a vtkDataArray (not " << source->GetClassName()
+                  << ").");
+    return false;
+  }
+
+  return this->CopyComponent(dstComponent, src, srcComponent);
+}
+
+//------------------------------------------------------------------------------
+bool vtkDataArray::CopyComponent(int dstComponent, vtkDataArray* src, int srcComponent)
+{
+  if (!src)
+  {
+    vtkErrorMacro(<< "The 'from' array must be non-null.");
+    return false;
+  }
+
   if (this->GetNumberOfTuples() != src->GetNumberOfTuples())
   {
     vtkErrorMacro(<< "Number of tuples in 'from' (" << src->GetNumberOfTuples() << ") and 'to' ("
                   << this->GetNumberOfTuples() << ") do not match.");
-    return;
+    return false;
   }
 
   if (dstComponent < 0 || dstComponent >= this->GetNumberOfComponents())
   {
     vtkErrorMacro(<< "Specified component " << dstComponent << " in 'to' array is not in [0, "
                   << this->GetNumberOfComponents() << ")");
-    return;
+    return false;
   }
 
   if (srcComponent < 0 || srcComponent >= src->GetNumberOfComponents())
   {
     vtkErrorMacro(<< "Specified component " << srcComponent << " in 'from' array is not in [0, "
                   << src->GetNumberOfComponents() << ")");
-    return;
+    return false;
   }
 
   CopyComponentWorker copyComponentWorker(srcComponent, dstComponent);
@@ -69,5 +95,6 @@ void vtkDataArray::CopyComponent(int dstComponent, vtkDataArray* src, int srcCom
   {
     copyComponentWorker(this, src);
   }
+  return true;
 }
 VTK_ABI_NAMESPACE_END

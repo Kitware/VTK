@@ -254,6 +254,7 @@ set(classes
   vtkAnimationCue
   vtkArchiver
   vtkArray
+  vtkArrayComponents
   vtkArrayCoordinates
   vtkArrayExtents
   vtkArrayExtentsList

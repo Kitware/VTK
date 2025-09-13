@@ -558,6 +558,20 @@ vtkVector<T, Size>& operator+=(vtkVector<T, Size>& a, const vtkVector<T, Size>& 
 }
 
 /**
+ * Multiply a vector a by a scalar.
+ */
+template <typename T, int Size, typename Scalar>
+vtkVector<T, Size>& operator*=(vtkVector<T, Size>& a, Scalar f)
+{
+  for (int dim = 0; dim < Size; ++dim)
+  {
+    a[dim] *= f;
+  }
+
+  return a;
+}
+
+/**
  * Performs subtraction of vectors of the same basic type.
  */
 template <typename A, int Size>

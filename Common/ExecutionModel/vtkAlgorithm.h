@@ -20,6 +20,7 @@
 #ifndef vtkAlgorithm_h
 #define vtkAlgorithm_h
 
+#include "vtkArrayComponents.h"            // For enum
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
@@ -351,16 +352,31 @@ public:
    * @param name the name of the array to process
    * @param fieldAssociation the field in the data object where the array is stored.
    * See vtkDataObject::FieldAssociations for detail.
+   * @param component If provided, this must be a non-negative integer or a value from
+   * the vtkArrayComponents enumeration.
+   *
+   * The value of \a component determines how tuple values from the array
+   * should be processed. You may choose whether a single component of the array
+   * should be considered in isolation, a norm of each tuple value be computed, or
+   * the entire tuple value should be used.
+   * The default is for the entire tuple to be used.
    *
    * @see void SetInputArrayToProcess(int, int, int, int, const char*)
    */
-  void SetInputArrayToProcess(const char* name, int fieldAssociation);
+  void SetInputArrayToProcess(
+    const char* name, int fieldAssociation, int component = vtkArrayComponents::AllComponents);
+  ///@}
+  ///@{
   /**
    * Set the input data arrays that this algorithm will process.
    *
-   * Array is expected to be in the input data object specified by (port, connection),
-   * and is stored under the given fieldAssociation with given name
-   * Internally, this algorithm references it at idx position.
+   * The array is expected to be in the input data object specified by
+   * (\a port, \a connection), and is stored under the given
+   * \a fieldAssociation with given \a name.
+   * You may request the algorithm use a single \a component or norm of
+   * the array, however algorithms may ignore this (especially algorithms
+   * written before this feature was implemented).
+   * Internally, this algorithm references it at the \a idx-th position.
    *
    * Full signature with array name.
    *
@@ -377,8 +393,29 @@ public:
   virtual void SetInputArrayToProcess(
     int idx, int port, int connection, int fieldAssociation, const char* name);
   /**
+   * This method variant also accepts a \a component to consider rather than the entire tuple.
+   *
+   * @param idx the intern index of the array, in vtkAlgorithm scope.
+   * Useful for algorithm expecting different arrays to work.
+   * @param port the algorithm input port of the data object where to look for the requested array.
+   * See @ref GetInputDataObject
+   * @param connection the algorithm input connection of the data object where to look for the
+   * requested array. See @ref GetInputDataObject
+   * @param fieldAssociation the field in the data object where the array is stored.
+   * See vtkDataObject::FieldAssociations for detail.
+   * @param name the name of the array to process
+   * @param component the component of the array to process.
+   * See vtkArrayComponents.h for special values to indicate norms, etc.
+   */
+  virtual void SetInputArrayToProcess(
+    int idx, int port, int connection, int fieldAssociation, const char* name, int component);
+  ///@}
+
+  ///@{
+  /**
    * Set the input data arrays that this algorithm will process.
    * Full signature with attribute type.
+   *
    * @param idx the intern index of the array, in vtkAlgorithm scope.
    * Useful for algorithm expecting different arrays to work.
    * @param port the algorithm input port of the data object where to look for the requested array.
@@ -392,6 +429,25 @@ public:
    */
   virtual void SetInputArrayToProcess(
     int idx, int port, int connection, int fieldAssociation, int fieldAttributeType);
+  /**
+   * This method variant also accepts a \a component to consider rather than the entire tuple.
+   *
+   * @param idx the intern index of the array, in vtkAlgorithm scope.
+   * Useful for algorithm expecting different arrays to work.
+   * @param port the algorithm input port of the data object where to look for the requested array.
+   * See @ref GetInputDataObject
+   * @param connection the algorithm input connection of the data object where to look for the
+   * requested array. See @ref GetInputDataObject
+   * @param fieldAssociation the field in the data object where the array is stored.
+   * See vtkDataObject::FieldAssociations for detail.
+   * @param fieldAttributeType the attribute type related to the array to use.
+   * See vtkDataSetAttributes::AttributeTypes for possible values.
+   * @param component the component of the array to process.
+   * See vtkArrayComponents.h for special values to indicate norms, etc.
+   */
+  virtual void SetInputArrayToProcess(
+    int idx, int port, int connection, int fieldAssociation, int fieldAttributeType, int component);
+  ///@}
 
   /**
    * Set the input data arrays that this algorithm will process.
@@ -400,6 +456,7 @@ public:
    */
   virtual void SetInputArrayToProcess(int idx, vtkInformation* info);
 
+  ///@{
   /**
    * Set the input data arrays that this algorithm will process.
    * String based version of SetInputArrayToProcess(). Because
@@ -421,13 +478,37 @@ public:
    * - vtkDataSetAttributes::TCOORDS
    * - vtkDataSetAttributes::TENSORS
    *
-   * If the last argument is not an attribute type, it is assumed to
-   * be an array name.
-   * @see void SetInputArrayToProcess(int, int, int, int, int)
+   * If the \a attributeTypeOrName argument is not an attribute type above,
+   * it is assumed to be an array name.
+   *
+   * If the \a component argument is not "All", "L1Norm", or "L2Norm" (see
+   * the enum in `vtkArrayComponents.h`), then its string should be convertible
+   * to a non-negative integer component index.
+   *
+   * @see void SetInputArrayToProcess(int, int, int, int, int, int)
    */
   virtual void SetInputArrayToProcess(int idx, int port, int connection,
     const char* fieldAssociation, const char* attributeTypeorName);
+  virtual void SetInputArrayToProcess(int idx, int port, int connection,
+    const char* fieldAssociation, const char* attributeTypeorName, const char* component);
   ///@}
+
+  /**
+   * Get the number of input array indices that have already been set.
+   */
+  int GetNumberOfInputArraySpecifications();
+
+  /**
+   * Clear all existing input array specifications (as if SetInputArrayToProcess had
+   * never been called).
+   *
+   * This allows users to easily reconfigure a filter that accepts a variable number
+   * of arrays to process.
+   * The return value is true if any specifications existed before the call (and
+   * thus this->Modified() was called) and false otherwise (indicating the algorithm was
+   * not modified).
+   */
+  bool ResetInputArraySpecifications();
 
   /**
    * Get the info object for the specified input array to this algorithm
@@ -868,6 +949,27 @@ protected:
   int GetInputArrayAssociation(int idx, vtkDataObject* input);
   ///@}
 
+  /**
+   * Get the component to process of the actual data array for the input
+   * array specified by \a idx, this is only reasonable during the REQUEST_DATA pass.
+   *
+   * This value may either be a component index (when non-negative) or a
+   * special value from the vtkArrayComponents enumeration.
+   *
+   * This currently presumes that all input data on the same \a idx must have
+   * matching array components. For example, consider an algorithm that wishes
+   * to process one component of a 6-value symmetric strain tensor. All the blocks
+   * of a composite dataset at \a idx must have the strain tensor components
+   * ordered the same way so that "σ₃₃" can be extracted.
+   * If one dataset ordered strain (σ₁₁, σ₂₂, σ₃₃, σ₁₂, σ₁₃, σ₂₃) while
+   * the other used (σ₁₁, σ₁₂, σ₁₃, σ₂₂, σ₂₃, σ₃₃) different physical strains would
+   * be present at index 2 (σ₃₃ for the first dataset and σ₁₃ for the second).
+   *
+   * At some point in the future, it may be possible to request named components
+   * rather than fixed component indices.
+   */
+  int GetInputArrayComponent(int idx);
+
   ///@{
   /**
    * Get the actual data array for the input array specified by idx, this is
@@ -921,12 +1023,57 @@ protected:
   vtkAbstractArray* GetInputAbstractArrayToProcess(int idx, vtkDataObject* input, int& association);
   ///@}
 
+  ///@{
+  /**
+   * Get an array from the input at index \a idx.
+   * This is only reasonable during the REQUEST_DATA pass.
+   *
+   * This function may return
+   * + an empty smart-pointer (for invalid arguments);
+   * + the actual input array from an input data argument (when the \a component
+   *   requested is vtkArrayComponents::AllComponents or actual input array has a single
+   *   component and that component is requested); or
+   * + a vtkImplicitArray that extracts a requested \a component from the
+   *   specified array (either the one requested by SetInputArrayToProcess
+   *   or an override provided by \a component here).
+   *
+   * Upon success, the \a association argument is set to an enumerant
+   * from vtkDataObject::FieldAssociations.
+   *
+   * The purpose of \a requestedComponent is so you can force your algorithm to run
+   * on a single component or norm even when a user configures an array with multiple
+   * components. It is only used if (1) SetInputArrayToProcess() was called with no
+   * component specified or with vtkArrayComponents::AllComponents and (2) you provide
+   * a \a requestedComponent that is either a valid non-negative component index or
+   * one of the norm enumerants in vtkArrayComponents (L1Norm, L2Norm, or LInfNorm).
+   * Specifically, if SetInputArrayToProcess() was called with a specific norm or
+   * component, that will always take precedence over \a requestedComponent.
+   *
+   * The templated `GetInputArrayAs<>()` method allows you to safely downcast an
+   * array to a specific type. Typically, you will use this when you need a data
+   * array (rather than an abstract array).
+   */
+  vtkSmartPointer<vtkAbstractArray> GetInputArray(int idx, int connection,
+    vtkInformationVector** inputVector, int& association,
+    int requestedComponent = vtkArrayComponents::Requested);
+  vtkSmartPointer<vtkAbstractArray> GetInputArray(int idx, vtkDataObject* input, int& association,
+    int requestedComponent = vtkArrayComponents::Requested);
+  template <typename ArrayType, typename... Params>
+  vtkSmartPointer<ArrayType> GetInputArrayAs(Params&&... params)
+  {
+    auto abstractArray = this->GetInputArray(std::forward<Params>(params)...);
+    auto* castArray = ArrayType::SafeDownCast(abstractArray.GetPointer());
+    auto result = vtkSmartPointer<ArrayType>(castArray);
+    return result;
+  }
+  ///@}
+
   /**
    * This method takes in an index (as specified in SetInputArrayToProcess)
    * and a pipeline information vector. It then finds the information about
    * input array idx and then uses that information to find the field
-   * information from the relevant field in the pifo vector (as done by
-   * vtkDataObject::GetActiveFieldInformation)
+   * information from the relevant field in the pipeline information
+   * vector (as done by vtkDataObject::GetActiveFieldInformation).
    */
   vtkInformation* GetInputArrayFieldInformation(int idx, vtkInformationVector** inputVector);
 

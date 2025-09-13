@@ -17,6 +17,7 @@
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
+#include "vtkSMPTools.h"
 #include "vtkSortDataArray.h"
 
 #include <algorithm>
@@ -190,6 +191,31 @@ void vtkStringArray::Initialize()
   this->MaxId = -1;
   this->DeleteFunction = DefaultDeleteFunction;
   this->DataChanged();
+}
+
+//------------------------------------------------------------------------------
+bool vtkStringArray::CopyComponent(int dstComponent, vtkAbstractArray* src, int srcComponent)
+{
+  auto* source = vtkStringArray::SafeDownCast(src);
+  if (!source || source->GetNumberOfTuples() != this->GetNumberOfTuples() || srcComponent < 0 ||
+    srcComponent >= source->GetNumberOfComponents() || dstComponent < 0 ||
+    dstComponent >= this->GetNumberOfComponents())
+  {
+    return false;
+  }
+
+  vtkIdType nn = this->GetNumberOfTuples();
+  vtkSMPTools::For(0, nn,
+    [this, dstComponent, source, srcComponent](vtkIdType begin, vtkIdType end)
+    {
+      vtkIdType ndc = this->GetNumberOfComponents();
+      vtkIdType nsc = source->GetNumberOfComponents();
+      for (vtkIdType ii = begin; ii < end; ++ii)
+      {
+        this->SetValue(ii * ndc + dstComponent, source->GetValue(ii * nsc + srcComponent));
+      }
+    });
+  return true;
 }
 
 //------------------------------------------------------------------------------

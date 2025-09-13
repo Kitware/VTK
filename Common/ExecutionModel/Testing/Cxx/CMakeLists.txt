@@ -8,6 +8,7 @@ vtk_add_test_cxx(vtkCommonExecutionModelCxxTests tests
   TestTemporalHelpers.cxx
   TestImageDataToStructuredGrid.cxx
   TestMetaData.cxx
+  TestMultipleInputArrayComponents.cxx
   TestSetInputDataObject.cxx
   TestTemporalSupport.cxx
   TestThreadedImageAlgorithmSplitExtent.cxx

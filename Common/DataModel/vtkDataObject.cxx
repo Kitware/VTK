@@ -37,6 +37,7 @@ vtkInformationKeyMacro(vtkDataObject, VERTEX_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, EDGE_DATA_VECTOR, InformationVector);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ARRAY_TYPE, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ASSOCIATION, Integer);
+vtkInformationKeyMacro(vtkDataObject, FIELD_ATTRIBUTE_COMPONENT, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ATTRIBUTE_TYPE, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_ACTIVE_ATTRIBUTE, Integer);
 vtkInformationKeyMacro(vtkDataObject, FIELD_NAME, String);

@@ -987,7 +987,7 @@ int vtkXMLUnstructuredDataReader::ReadPolyhedronCellArray(vtkIdType numberOfCell
     if (!this->ReadArrayValues(polyOffsets, 1, polyhedronCellOffsets, 0, numberOfCells) &&
       !this->AbortExecute)
     {
-      vtkErrorMacro("Cannot read polyhedorn cell offsets from "
+      vtkErrorMacro("Cannot read polyhedron cell offsets from "
         << eCells->GetName() << " in piece " << this->Piece
         << " because the \"polyhedron_offsets\" array is not long enough.");
       return 0;

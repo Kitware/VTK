@@ -57,6 +57,57 @@ vtkInformationKeyMacro(vtkAlgorithm, ABORTED, Integer);
 vtkExecutive* vtkAlgorithm::DefaultExecutivePrototype = nullptr;
 vtkTimeStamp vtkAlgorithm::LastAbortTime;
 
+namespace
+{
+
+// Returns true if the FIELD_ATTRIBUTE_COMPONENT() of \a info matches \a component.
+// This includes testing whether the key is present or absent as well as its value.
+bool arrayComponentInfoMatches(vtkInformation* info, int component)
+{
+  if (info->Has(vtkDataObject::FIELD_ATTRIBUTE_COMPONENT()))
+  {
+    return info->Get(vtkDataObject::FIELD_ATTRIBUTE_COMPONENT()) == component;
+  }
+  return component == vtkArrayComponents::AllComponents;
+}
+
+// Set or unset the vtkDataObject::FIELD_ATTRIBUTE_COMPONENT() value of \a info.
+void setArrayComponentInfo(vtkInformation* info, int component)
+{
+  switch (component)
+  {
+    case vtkArrayComponents::Requested:
+      vtkErrorWithObjectMacro(
+        info, "SetInputArrayToProcess should never be called with 'requested' components.");
+      [[fallthrough]];
+    case vtkArrayComponents::AllComponents:
+      // Remove the key since entire tuples should be processed rather than a component.
+      info->Remove(vtkDataObject::FIELD_ATTRIBUTE_COMPONENT());
+      break;
+    default:
+      info->Set(vtkDataObject::FIELD_ATTRIBUTE_COMPONENT(), component);
+      break;
+  }
+}
+
+vtkSmartPointer<vtkAbstractArray> arrayWithRequestedComponent(
+  vtkAbstractArray* array, int specifiedComponent, int requestedComponent)
+{
+  assert(!!array && "Array must be non-null.");
+
+  // Override requestedComponent with specifiedComponent in most cases:
+  if (specifiedComponent != vtkArrayComponents::AllComponents ||
+    requestedComponent == vtkArrayComponents::Requested)
+  {
+    requestedComponent = specifiedComponent;
+  }
+
+  auto result = vtk::ComponentOrNormAsArray(array, requestedComponent);
+  return result;
+}
+
+} // anonymous namespace
+
 //------------------------------------------------------------------------------
 class vtkAlgorithmInternals
 {
@@ -315,6 +366,30 @@ vtkInformation* vtkAlgorithm ::GetInputArrayFieldInformation(
 }
 
 //------------------------------------------------------------------------------
+int vtkAlgorithm::GetNumberOfInputArraySpecifications()
+{
+  vtkInformationVector* inArrayVec = this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
+  if (!inArrayVec)
+  {
+    return 0;
+  }
+  return inArrayVec->GetNumberOfInformationObjects();
+}
+
+//------------------------------------------------------------------------------
+bool vtkAlgorithm::ResetInputArraySpecifications()
+{
+  vtkInformationVector* inArrayVec = this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
+  if (!inArrayVec)
+  {
+    return false;
+  }
+  this->Information->Remove(INPUT_ARRAYS_TO_PROCESS());
+  this->Modified();
+  return true;
+}
+
+//------------------------------------------------------------------------------
 vtkInformation* vtkAlgorithm::GetInputArrayInformation(int idx)
 {
   // add this info into the algorithms info object
@@ -347,12 +422,31 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, vtkInformation* inInfo)
 void vtkAlgorithm::SetInputArrayToProcess(
   int idx, int port, int connection, int fieldAssociation, int attributeType)
 {
+  this->SetInputArrayToProcess(
+    idx, port, connection, fieldAssociation, attributeType, vtkArrayComponents::AllComponents);
+}
+
+void vtkAlgorithm::SetInputArrayToProcess(
+  int idx, int port, int connection, int fieldAssociation, int attributeType, int component)
+{
   vtkInformation* info = this->GetInputArrayInformation(idx);
+
+  // Test whether the arguments specify a value identical to what is already set.
+  if (info->Get(INPUT_PORT()) == port && info->Get(INPUT_CONNECTION()) == connection &&
+    info->Get(vtkDataObject::FIELD_ASSOCIATION()) == fieldAssociation &&
+    info->Has(vtkDataObject::FIELD_ATTRIBUTE_TYPE()) &&
+    info->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE()) == attributeType &&
+    arrayComponentInfoMatches(info, component))
+  {
+    // No change made.
+    return;
+  }
 
   info->Set(INPUT_PORT(), port);
   info->Set(INPUT_CONNECTION(), connection);
   info->Set(vtkDataObject::FIELD_ASSOCIATION(), fieldAssociation);
   info->Set(vtkDataObject::FIELD_ATTRIBUTE_TYPE(), attributeType);
+  setArrayComponentInfo(info, component);
 
   // remove name if there is one
   info->Remove(vtkDataObject::FIELD_NAME());
@@ -364,6 +458,13 @@ void vtkAlgorithm::SetInputArrayToProcess(
 void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
   const char* fieldAssociation, const char* fieldAttributeTypeOrName)
 {
+  this->SetInputArrayToProcess(
+    idx, port, connection, fieldAssociation, fieldAttributeTypeOrName, "AllComponents");
+}
+
+void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
+  const char* fieldAssociation, const char* fieldAttributeTypeOrName, const char* component)
+{
   if (!fieldAssociation)
   {
     vtkErrorMacro("Association is required");
@@ -372,6 +473,11 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
   if (!fieldAttributeTypeOrName)
   {
     vtkErrorMacro("Attribute type or array name is required");
+    return;
+  }
+  if (!component || !component[0])
+  {
+    vtkErrorMacro("Component id is empty");
     return;
   }
 
@@ -393,6 +499,7 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
     return;
   }
 
+  int compInt = vtk::ArrayComponents(component);
   int attributeType = -1;
   for (i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; i++)
   {
@@ -406,17 +513,25 @@ void vtkAlgorithm::SetInputArrayToProcess(int idx, int port, int connection,
   if (attributeType == -1)
   {
     // Set by association and array name
-    this->SetInputArrayToProcess(idx, port, connection, association, fieldAttributeTypeOrName);
+    this->SetInputArrayToProcess(
+      idx, port, connection, association, fieldAttributeTypeOrName, compInt);
     return;
   }
 
   // Set by association and attribute type
-  this->SetInputArrayToProcess(idx, port, connection, association, attributeType);
+  this->SetInputArrayToProcess(idx, port, connection, association, attributeType, compInt);
 }
 
 //------------------------------------------------------------------------------
 void vtkAlgorithm::SetInputArrayToProcess(
   int idx, int port, int connection, int fieldAssociation, const char* name)
+{
+  this->SetInputArrayToProcess(
+    idx, port, connection, fieldAssociation, name, vtkArrayComponents::AllComponents);
+}
+
+void vtkAlgorithm::SetInputArrayToProcess(
+  int idx, int port, int connection, int fieldAssociation, const char* name, int component)
 {
   // ignore nullptr string
   if (!name)
@@ -434,7 +549,7 @@ void vtkAlgorithm::SetInputArrayToProcess(
   if (info->Has(vtkDataObject::FIELD_NAME()) && info->Get(INPUT_PORT()) == port &&
     info->Get(INPUT_CONNECTION()) == connection &&
     info->Get(vtkDataObject::FIELD_ASSOCIATION()) == fieldAssociation &&
-    info->Get(vtkDataObject::FIELD_NAME()) &&
+    arrayComponentInfoMatches(info, component) && info->Get(vtkDataObject::FIELD_NAME()) &&
     strcmp(info->Get(vtkDataObject::FIELD_NAME()), name) == 0)
   {
     return;
@@ -444,14 +559,15 @@ void vtkAlgorithm::SetInputArrayToProcess(
   info->Set(INPUT_CONNECTION(), connection);
   info->Set(vtkDataObject::FIELD_ASSOCIATION(), fieldAssociation);
   info->Set(vtkDataObject::FIELD_NAME(), name);
+  setArrayComponentInfo(info, component);
 
   this->Modified();
 }
 
 //------------------------------------------------------------------------------
-void vtkAlgorithm::SetInputArrayToProcess(const char* name, int fieldAssociation)
+void vtkAlgorithm::SetInputArrayToProcess(const char* name, int fieldAssociation, int component)
 {
-  this->SetInputArrayToProcess(0, 0, 0, fieldAssociation, name);
+  this->SetInputArrayToProcess(0, 0, 0, fieldAssociation, name, component);
 }
 
 //------------------------------------------------------------------------------
@@ -477,6 +593,30 @@ int vtkAlgorithm::GetInputArrayAssociation(int idx, vtkDataObject* input)
   int association = vtkDataObject::FIELD_ASSOCIATION_NONE;
   this->GetInputArrayToProcess(idx, input, association);
   return association;
+}
+
+//------------------------------------------------------------------------------
+int vtkAlgorithm::GetInputArrayComponent(int idx)
+{
+  vtkInformationVector* inArrayVec = this->Information->Get(INPUT_ARRAYS_TO_PROCESS());
+  if (!inArrayVec)
+  {
+    vtkErrorMacro("Attempt to get an input array for an index that has not been specified");
+    return vtkArrayComponents::AllComponents;
+  }
+  vtkInformation* inArrayInfo = inArrayVec->GetInformationObject(idx);
+  if (!inArrayInfo)
+  {
+    vtkErrorMacro("Attempt to get an input array for an index that has not been specified");
+    return vtkArrayComponents::AllComponents;
+  }
+
+  if (inArrayInfo->Has(vtkDataObject::FIELD_ATTRIBUTE_COMPONENT()))
+  {
+    int component = inArrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_COMPONENT());
+    return component;
+  }
+  return vtkArrayComponents::AllComponents;
 }
 
 //------------------------------------------------------------------------------
@@ -617,113 +757,108 @@ vtkAbstractArray* vtkAlgorithm::GetInputAbstractArrayToProcess(
   int fieldAssoc = inArrayInfo->Get(vtkDataObject::FIELD_ASSOCIATION());
   association = fieldAssoc;
 
+  // Fetch array by name:
   if (inArrayInfo->Has(vtkDataObject::FIELD_NAME()))
   {
     const char* name = inArrayInfo->Get(vtkDataObject::FIELD_NAME());
 
-    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_NONE)
-    {
-      vtkFieldData* fd = input->GetFieldData();
-      return fd->GetAbstractArray(name);
-    }
-
-    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_ROWS)
-    {
-      vtkTable* inputT = vtkTable::SafeDownCast(input);
-      if (!inputT)
-      {
-        vtkErrorMacro("Attempt to get row data from a non-table");
-        return nullptr;
-      }
-      return inputT->GetColumnByName(name);
-    }
-
-    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_VERTICES ||
-      fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_EDGES)
-    {
-      vtkGraph* inputG = vtkGraph::SafeDownCast(input);
-      if (!inputG)
-      {
-        vtkErrorMacro("Attempt to get vertex or edge data from a non-graph");
-        return nullptr;
-      }
-      vtkFieldData* fd = nullptr;
-      if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_VERTICES)
-      {
-        association = vtkDataObject::FIELD_ASSOCIATION_VERTICES;
-        fd = inputG->GetVertexData();
-      }
-      else
-      {
-        association = vtkDataObject::FIELD_ASSOCIATION_EDGES;
-        fd = inputG->GetEdgeData();
-      }
-      return fd->GetAbstractArray(name);
-    }
-
-    if (vtkGraph::SafeDownCast(input) && fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS)
-    {
-      return vtkGraph::SafeDownCast(input)->GetVertexData()->GetAbstractArray(name);
-    }
-
+    // HyperTreeGrids apparently ignore field association and always look for cell data:
     if (vtkHyperTreeGrid::SafeDownCast(input))
     {
       return vtkHyperTreeGrid::SafeDownCast(input)->GetCellData()->GetAbstractArray(name);
     }
 
-    vtkDataSet* inputDS = vtkDataSet::SafeDownCast(input);
-    if (!inputDS)
+    vtkFieldData* fd;
+    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
     {
-      vtkErrorMacro("Attempt to get point or cell data from a data object");
+      fd = input->GetAttributesAsFieldData(vtkDataObject::FIELD_ASSOCIATION_POINTS);
+      if (auto* array = fd ? fd->GetAbstractArray(name) : nullptr)
+      {
+        association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+        return array;
+      }
+      fd = input->GetAttributesAsFieldData(vtkDataObject::FIELD_ASSOCIATION_CELLS);
+      if (auto* array = fd ? fd->GetAbstractArray(name) : nullptr)
+      {
+        association = vtkDataObject::FIELD_ASSOCIATION_CELLS;
+        return array;
+      }
+      // No matching array found.
       return nullptr;
     }
 
-    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+    fd = input->GetAttributesAsFieldData(fieldAssoc);
+    auto* array = fd ? fd->GetAbstractArray(name) : nullptr;
+    if (fd && array)
     {
-      return inputDS->GetPointData()->GetAbstractArray(name);
+      association = fieldAssoc;
     }
-    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS &&
-      inputDS->GetPointData()->GetAbstractArray(name))
-    {
-      association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
-      return inputDS->GetPointData()->GetAbstractArray(name);
-    }
-
-    association = vtkDataObject::FIELD_ASSOCIATION_CELLS;
-    return inputDS->GetCellData()->GetAbstractArray(name);
+    return array;
   }
   else if (inArrayInfo->Has(vtkDataObject::FIELD_ATTRIBUTE_TYPE()))
   {
-    vtkDataSet* inputDS = vtkDataSet::SafeDownCast(input);
-    if (!inputDS)
-    {
-      if (vtkHyperTreeGrid::SafeDownCast(input))
-      {
-        int fType = inArrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
-        return vtkHyperTreeGrid::SafeDownCast(input)->GetCellData()->GetAbstractAttribute(fType);
-      }
-      vtkErrorMacro("Attempt to get point or cell data from a data object");
-      return nullptr;
-    }
     int fType = inArrayInfo->Get(vtkDataObject::FIELD_ATTRIBUTE_TYPE());
-    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+    vtkDataSetAttributes* attributes;
+    if (vtkHyperTreeGrid::SafeDownCast(input))
     {
-      return inputDS->GetPointData()->GetAbstractAttribute(fType);
-    }
-    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS &&
-      inputDS->GetPointData()->GetAbstractAttribute(fType))
-    {
-      association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
-      return inputDS->GetPointData()->GetAbstractAttribute(fType);
+      return vtkHyperTreeGrid::SafeDownCast(input)->GetCellData()->GetAbstractAttribute(fType);
     }
 
-    association = vtkDataObject::FIELD_ASSOCIATION_CELLS;
-    return inputDS->GetCellData()->GetAbstractAttribute(fType);
+    if (fieldAssoc == vtkDataObject::FIELD_ASSOCIATION_POINTS_THEN_CELLS)
+    {
+      attributes = input->GetAttributes(vtkDataObject::FIELD_ASSOCIATION_POINTS);
+      auto* array = attributes ? attributes->GetAbstractAttribute(fType) : nullptr;
+      if (array)
+      {
+        association = vtkDataObject::FIELD_ASSOCIATION_POINTS;
+        return array;
+      }
+      attributes = input->GetAttributes(vtkDataObject::FIELD_ASSOCIATION_CELLS);
+      array = attributes ? attributes->GetAbstractAttribute(fType) : nullptr;
+      if (array)
+      {
+        association = vtkDataObject::FIELD_ASSOCIATION_CELLS;
+        return array;
+      }
+      return nullptr;
+    }
+    attributes = input->GetAttributes(fieldAssoc);
+    auto* array = attributes ? attributes->GetAbstractAttribute(fType) : nullptr;
+    if (attributes && array)
+    {
+      association = fieldAssoc;
+    }
+    return array;
   }
   else
   {
     return nullptr;
   }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkAbstractArray> vtkAlgorithm::GetInputArray(int idx, int connection,
+  vtkInformationVector** inputVector, int& association, int requestedComponent)
+{
+  auto* array = this->GetInputAbstractArrayToProcess(idx, connection, inputVector, association);
+  if (!array)
+  {
+    return vtkSmartPointer<vtkAbstractArray>();
+  }
+  int specifiedComponent = this->GetInputArrayComponent(idx);
+  return arrayWithRequestedComponent(array, specifiedComponent, requestedComponent);
+}
+
+vtkSmartPointer<vtkAbstractArray> vtkAlgorithm::GetInputArray(
+  int idx, vtkDataObject* input, int& association, int requestedComponent)
+{
+  auto* array = this->GetInputAbstractArrayToProcess(idx, input, association);
+  if (!array)
+  {
+    return vtkSmartPointer<vtkAbstractArray>();
+  }
+  int specifiedComponent = this->GetInputArrayComponent(idx);
+  return arrayWithRequestedComponent(array, specifiedComponent, requestedComponent);
 }
 
 //------------------------------------------------------------------------------
