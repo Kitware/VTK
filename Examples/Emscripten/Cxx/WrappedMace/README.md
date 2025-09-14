@@ -1,5 +1,7 @@
 # Build
 
+## Using local VTK WASM build tree
+
 ```
 emcmake cmake \
   -G Ninja \
@@ -9,6 +11,32 @@ emcmake cmake \
 
 cmake --build out/build
 ```
+
+## Using vtk-wasm-sdk
+
+### Linux/macOS
+```sh
+# Configure
+docker run --rm -it \
+  -v"$PWD":/work kitware/vtk-wasm-sdk:latest \
+  emcmake cmake -GNinja -S /work -B /work/build -DVTK_DIR=/VTK-install/Release/wasm32/lib/cmake/vtk
+# Build
+docker run --rm -it \
+  -v"$PWD":/work kitware/vtk-wasm-sdk:latest \
+  cmake --build /work/build
+```
+
+### Windows
+```sh
+docker run --rm -it `
+  -v"$PWD":/work kitware/vtk-wasm-sdk:latest `
+  emcmake cmake -GNinja -S /work -B /work/build -DVTK_DIR=/VTK-install/Release/wasm32/lib/cmake/vtk
+# Build
+docker run --rm -it `
+  -v"$PWD":/work kitware/vtk-wasm-sdk:latest `
+  cmake --build /work/build
+```
+
 
 # Serve and test generated code
 

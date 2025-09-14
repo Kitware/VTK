@@ -1,5 +1,7 @@
 # Build
 
+## Using local VTK WASM build tree
+
 This example needs VTK.wasm compiled with `VTK_WEBASSEMBLY_THREADS=ON`. If you're compiling
 with vtk-wasm-sdk image from dockerhub, make sure to use the threads variant.
 
@@ -19,6 +21,30 @@ emcmake cmake \
   -DVTK_DIR=/path/to/where/vtk/wasm/was/built
 
 cmake --build out/build
+```
+## Using vtk-wasm-sdk
+
+### Linux/macOS
+```sh
+# Configure
+docker run --rm -it \
+  -v"$PWD":/work kitware/vtk-wasm-sdk:latest \
+  emcmake cmake -GNinja -S /work -B /work/build -DVTK_DIR=/VTK-install/Release/wasm32-threads/lib/cmake/vtk
+# Build
+docker run --rm -it \
+  -v"$PWD":/work kitware/vtk-wasm-sdk:latest \
+  cmake --build /work/build
+```
+
+### Windows
+```sh
+docker run --rm -it `
+  -v"$PWD":/work kitware/vtk-wasm-sdk:latest `
+  emcmake cmake -GNinja -S /work -B /work/build -DVTK_DIR=/VTK-install/Release/wasm32-threads/lib/cmake/vtk
+# Build
+docker run --rm -it `
+  -v"$PWD":/work kitware/vtk-wasm-sdk:latest `
+  cmake --build /work/build
 ```
 
 # Serve and test generated code
