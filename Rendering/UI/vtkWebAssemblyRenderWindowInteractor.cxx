@@ -522,7 +522,7 @@ void vtkWebAssemblyRenderWindowInteractor::ProcessEvent(int type, const std::uin
     case EMSCRIPTEN_EVENT_WHEEL:
     {
       auto emEvent = reinterpret_cast<const EmscriptenWheelEvent*>(event);
-      this->SetEventInformationFlipY(emEvent->mouse.targetX, emEvent->mouse.targetY,
+      this->SetEventInformationFlipY(emEvent->mouse.targetX * dpr, emEvent->mouse.targetY * dpr,
         emEvent->mouse.ctrlKey, emEvent->mouse.shiftKey);
       this->SetAltKey(emEvent->mouse.altKey);
       this->InvokeEvent(emEvent->deltaY < 0 ? vtkCommand::MouseWheelForwardEvent
