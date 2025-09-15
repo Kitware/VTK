@@ -6,6 +6,9 @@
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
 #include "vtkCommunicator.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
+#include "vtkDataObjectTypes.h"
 #include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
@@ -455,26 +458,34 @@ int vtkHyperTreeGridRedistribute::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
 {
-  // Make sure all ranks share the same HTG metadata
-  // We assume that rank 0 has correct metadata, and that other ranks may not.
-  // This can happen, for instance, when we read a HTG from a .htg file in parallel;
-  // all ranks have unconfigured HTGs except rank 0.
+  // Make sure all ranks share the same HTG metadata.
+  // Metadata mismatch can happen, for instance, when we read a HTG from a .htg file in parallel;
+  // all ranks have unconfigured HTGs except one rank.
+
+  // Get minimum rank id with an initialized input HTG (correct bounds).
+  // This rank will broadcast its metadata.
+  int metadataSourceProcess = 0;
+  double* bounds = this->InputHTG->GetBounds();
+  int processInit = bounds[0] <= bounds[1] ? this->Controller->GetLocalProcessId()
+                                           : std::numeric_limits<int>::max();
+  this->Controller->AllReduce(&processInit, &metadataSourceProcess, 1, vtkCommunicator::MIN_OP);
+  vtkDebugMacro("Metadata source process is " << metadataSourceProcess);
 
   this->OutputHTG->Initialize();
 
   // Exchange BranchFactor
   int branchFactor = this->InputHTG->GetBranchFactor();
-  this->Controller->Broadcast(&branchFactor, 1, 0);
+  this->Controller->Broadcast(&branchFactor, 1, metadataSourceProcess);
   this->OutputHTG->SetBranchFactor(branchFactor);
 
   // Exchange DepthLimiter
   int depth = this->InputHTG->GetDepthLimiter();
-  this->Controller->Broadcast(&depth, 1, 0);
+  this->Controller->Broadcast(&depth, 1, metadataSourceProcess);
   this->OutputHTG->SetDepthLimiter(depth);
 
   // Exchange mask info
   int hasMask = this->InputHTG->HasMask();
-  this->Controller->Broadcast(&hasMask, 1, 0);
+  this->Controller->Broadcast(&hasMask, 1, metadataSourceProcess);
   if (hasMask)
   {
     this->OutMask = vtkSmartPointer<vtkBitArray>::New();
@@ -483,60 +494,62 @@ void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
 
   // Exchange TransposedRootIndexing
   int transposedRoot = this->InputHTG->GetTransposedRootIndexing();
-  this->Controller->Broadcast(&transposedRoot, 1, 0);
+  this->Controller->Broadcast(&transposedRoot, 1, metadataSourceProcess);
   this->OutputHTG->SetTransposedRootIndexing(transposedRoot);
 
   // Exchange Dimensions
   int dims[3];
   this->InputHTG->GetDimensions(dims);
-  this->Controller->Broadcast(dims, 3, 0);
+  this->Controller->Broadcast(dims, 3, metadataSourceProcess);
   this->OutputHTG->SetDimensions(dims);
 
   // Exchange Interface
   int hasInterface = this->InputHTG->GetHasInterface();
-  this->Controller->Broadcast(&hasInterface, 1, 0);
+  this->Controller->Broadcast(&hasInterface, 1, metadataSourceProcess);
   this->OutputHTG->SetHasInterface(hasInterface);
   if (hasInterface)
   {
     int interfaceNameSize;
     std::string interfaceName;
 
-    if (this->Controller->GetLocalProcessId() == 0)
+    if (this->Controller->GetLocalProcessId() == metadataSourceProcess)
     {
       interfaceName = this->InputHTG->GetInterfaceNormalsName();
       interfaceNameSize = static_cast<int>(interfaceName.size());
     }
-    this->Controller->Broadcast(&interfaceNameSize, 1, 0);
-    this->Controller->Broadcast(const_cast<char*>(interfaceName.c_str()), interfaceNameSize + 1, 0);
+    this->Controller->Broadcast(&interfaceNameSize, 1, metadataSourceProcess);
+    this->Controller->Broadcast(
+      const_cast<char*>(interfaceName.c_str()), interfaceNameSize + 1, metadataSourceProcess);
     this->OutputHTG->SetInterfaceNormalsName(interfaceName.c_str());
 
-    if (this->Controller->GetLocalProcessId() == 0)
+    if (this->Controller->GetLocalProcessId() == metadataSourceProcess)
     {
       interfaceName = this->InputHTG->GetInterfaceInterceptsName();
       interfaceNameSize = static_cast<int>(interfaceName.size());
     }
-    this->Controller->Broadcast(&interfaceNameSize, 1, 0);
-    this->Controller->Broadcast(const_cast<char*>(interfaceName.c_str()), interfaceNameSize + 1, 0);
+    this->Controller->Broadcast(&interfaceNameSize, 1, metadataSourceProcess);
+    this->Controller->Broadcast(
+      const_cast<char*>(interfaceName.c_str()), interfaceNameSize + 1, metadataSourceProcess);
     this->OutputHTG->SetInterfaceInterceptsName(interfaceName.c_str());
   }
 
   // Exchange Coordinate arrays
   int hasCoords = this->InputHTG->GetXCoordinates() && this->InputHTG->GetYCoordinates() &&
     this->InputHTG->GetZCoordinates();
-  this->Controller->Broadcast(&hasCoords, 1, 0);
+  this->Controller->Broadcast(&hasCoords, 1, metadataSourceProcess);
   if (hasCoords)
   {
     vtkNew<vtkDoubleArray> xCoords, yCoords, zCoords;
-    if (this->Controller->GetLocalProcessId() == 0)
+    if (this->Controller->GetLocalProcessId() == metadataSourceProcess)
     {
       xCoords->ShallowCopy(this->InputHTG->GetXCoordinates());
       yCoords->ShallowCopy(this->InputHTG->GetYCoordinates());
       zCoords->ShallowCopy(this->InputHTG->GetZCoordinates());
     }
 
-    this->Controller->Broadcast(xCoords, 0);
-    this->Controller->Broadcast(yCoords, 0);
-    this->Controller->Broadcast(zCoords, 0);
+    this->Controller->Broadcast(xCoords, metadataSourceProcess);
+    this->Controller->Broadcast(yCoords, metadataSourceProcess);
+    this->Controller->Broadcast(zCoords, metadataSourceProcess);
 
     this->OutputHTG->SetXCoordinates(xCoords);
     this->OutputHTG->SetYCoordinates(yCoords);
@@ -551,12 +564,12 @@ void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
     outputCD->RemoveArray(i);
   }
   int nbArrays = inputCD->GetNumberOfArrays();
-  this->Controller->Broadcast(&nbArrays, 1, 0);
+  this->Controller->Broadcast(&nbArrays, 1, metadataSourceProcess);
   for (int arrayId = 0; arrayId < nbArrays; arrayId++)
   {
     int arrayNameSize, arrayType, numComp;
     std::string arrayName;
-    if (this->Controller->GetLocalProcessId() == 0)
+    if (this->Controller->GetLocalProcessId() == metadataSourceProcess)
     {
       vtkDataArray* arr = inputCD->GetArray(arrayId);
       arrayName = arr->GetName();
@@ -565,10 +578,11 @@ void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
       numComp = arr->GetNumberOfComponents();
     }
 
-    this->Controller->Broadcast(&arrayNameSize, 1, 0);
-    this->Controller->Broadcast(&arrayType, 1, 0);
-    this->Controller->Broadcast(&numComp, 1, 0);
-    this->Controller->Broadcast(const_cast<char*>(arrayName.c_str()), arrayNameSize + 1, 0);
+    this->Controller->Broadcast(&arrayNameSize, 1, metadataSourceProcess);
+    this->Controller->Broadcast(&arrayType, 1, metadataSourceProcess);
+    this->Controller->Broadcast(&numComp, 1, metadataSourceProcess);
+    this->Controller->Broadcast(
+      const_cast<char*>(arrayName.c_str()), arrayNameSize + 1, metadataSourceProcess);
 
     vtkDataArray* arr = vtkDataArray::CreateDataArray(arrayType);
     arr->SetName(arrayName.c_str());
