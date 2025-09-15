@@ -2,10 +2,12 @@
 #
 #   sha256sum $files | awk '{ print "set(\"" $2 "_hash\" " $1 ")" }' >> $thisfile
 
+set("6.9.0-0-202501171339icu-linux-Rhel8.6-x86_64.7z_hash" 7025758f30a5b06760e7e050d8feec0188a868e0c1c86b605f7b695e07f4dd1a)
 set("6.9.0-0-202503301022qtbase-Linux-RHEL_8_10-GCC-Linux-RHEL_8_10-X86_64.7z_hash" c6f2bb9b2384cb9633eb2923e47de297555002ee4fac4b678be9c0d7d2d1a999)
 set("6.9.0-0-202503301022qtdeclarative-Linux-RHEL_8_10-GCC-Linux-RHEL_8_10-X86_64.7z_hash" f1599ebc225fa68ce215bf4852a36b0264a190c7059e663aba2d41e1570d4731)
 set("6.9.0-0-202503301022qttools-Linux-RHEL_8_10-GCC-Linux-RHEL_8_10-X86_64.7z_hash" 1a70be6042a26bf19fd279d0df7b8b7fc0edc59e0c89f3ac2e54f530653ac56e)
 
+set("6.9.0-0-202501171339icu-linux-Debian11.6-arm64.7z_hash" 7934726be9552488101b6285040a4050cf28beb3530b19cdfd57d3b10f530c99)
 set("6.9.0-0-202503101208qttools-Linux-Ubuntu_24_04-GCC-Linux-Ubuntu_24_04-AARCH64.7z_hash" bbc81653a8bb626915f799ae02566aeb45003fa379723ee759ae3704457fc343)
 set("6.9.0-0-202503301022qtdeclarative-Linux-Ubuntu_24_04-GCC-Linux-Ubuntu_24_04-AARCH64.7z_hash" d9ca506ef0d4e228469661ee415ae91d462378ee3c2cfd4d60dd5af77a4fe14e)
 set("6.9.0-0-202503301022qttools-Linux-Ubuntu_24_04-GCC-Linux-Ubuntu_24_04-AARCH64.7z_hash" 24d79ab912c9bd22f278a010eb5700a65064647df89986da4ca8536ca6464d34)

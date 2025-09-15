@@ -76,6 +76,8 @@ elseif (qt_platform STREQUAL "linux_x64")
     list(APPEND qt_files
       "qt.qt6.${qt_version_nodot}.${qt_abi}/${qt_file_name_prefix}${qt_component}-Linux-RHEL_8_10-GCC-Linux-RHEL_8_10-X86_64.7z")
   endforeach ()
+  list(APPEND qt_files
+    "qt.qt6.${qt_version_nodot}${qt_addon_directory_for_${qt_component}}.${qt_abi}/6.9.0-0-202501171339icu-linux-Rhel8.6-x86_64.7z")
 
   set(qt_subdir "${qt_version}/clang_64")
 elseif (qt_platform STREQUAL "linux_arm64")
@@ -86,6 +88,8 @@ elseif (qt_platform STREQUAL "linux_arm64")
     list(APPEND qt_files
       "qt.qt6.${qt_version_nodot}.${qt_abi}/${qt_file_name_prefix}${qt_component}-Linux-Ubuntu_24_04-GCC-Linux-Ubuntu_24_04-AARCH64.7z")
   endforeach ()
+  list(APPEND qt_files
+    "qt.qt6.${qt_version_nodot}${qt_addon_directory_for_${qt_component}}.${qt_abi}/6.9.0-0-202501171339icu-linux-Debian11.6-arm64.7z")
 
   set(qt_subdir "${qt_version}/clang_64")
 else ()
@@ -133,13 +137,20 @@ foreach (qt_file IN LISTS qt_files)
       "Failed to download ${qt_file}: ${err}")
   endif ()
 
+  set(reldir "")
+  set(subdir "")
+  if (qt_file MATCHES "icu-linux")
+    set(reldir "../")
+    set(subdir "/lib")
+  endif ()
+
   # Extract the file.
   execute_process(
     COMMAND
       "${CMAKE_COMMAND}"
       -E tar
-      xf "../${qt_filename}"
-    WORKING_DIRECTORY ".gitlab/qt6"
+      xf "${reldir}../${qt_filename}"
+    WORKING_DIRECTORY ".gitlab/qt6${subdir}"
     RESULT_VARIABLE res
     ERROR_VARIABLE err
     ERROR_STRIP_TRAILING_WHITESPACE)
