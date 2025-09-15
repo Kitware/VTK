@@ -64,6 +64,7 @@ Common/DataModel/vtkDataObject.h
 Common/DataModel/vtkDataObjectTree.h
 Common/DataModel/vtkDataSet.h
 Common/DataModel/vtkImageData.h
+Common/DataModel/vtkImplicitFunction.h
 Common/DataModel/vtkMultiPieceDataSet.h
 Common/DataModel/vtkPlane.h
 Common/DataModel/vtkPlaneCollection.h
