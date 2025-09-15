@@ -3,6 +3,7 @@
 
 #include "vtkAxisAlignedReflectionFilter.h"
 #include "vtkCellData.h"
+#include "vtkClipDataSet.h"
 #include "vtkDataAssembly.h"
 #include "vtkExplicitStructuredGrid.h"
 #include "vtkHyperTreeGrid.h"
@@ -107,6 +108,44 @@ int TestUnstructuredGrid(int argc, char* argv[])
 
   AssertMacro(unstructGridOut->GetPointData()->GetArray("ACCL")->GetTuple3(0)[0] == -2269740,
     unstructGridOut->GetClassName(), "Incorrect cell data");
+
+  // Test PolyLine
+  vtkNew<vtkPolyLineSource> polylines;
+  polylines->Resize(3);
+  polylines->SetClosed(false);
+  for (vtkIdType i = 0; i < 3; ++i)
+  {
+    polylines->SetPoint(i, i + i % 2, i, 0);
+  }
+
+  polylines->Update();
+  double bounds[6];
+  polylines->GetOutput()->GetBounds(bounds);
+  double origin[3] = { (bounds[0] + bounds[1]) / 2, (bounds[2] + bounds[3]) / 2,
+    (bounds[4] + bounds[5]) / 2 };
+
+  vtkNew<vtkPlane> plane;
+  plane->SetOrigin(origin);
+  plane->SetNormal(1.0, 0.0, 0.0);
+
+  vtkNew<vtkClipDataSet> clipper;
+  clipper->SetInputConnection(polylines->GetOutputPort());
+  clipper->SetClipFunction(plane);
+  clipper->Update();
+
+  vtkSmartPointer<vtkPartitionedDataSetCollection> output2 =
+    Reflect(clipper->GetOutputPort(), true, false, vtkAxisAlignedReflectionFilter::X_MAX);
+  vtkUnstructuredGrid* polyLineIn = vtkUnstructuredGrid::SafeDownCast(output2->GetPartition(0, 0));
+  vtkUnstructuredGrid* polyLineOut = vtkUnstructuredGrid::SafeDownCast(output2->GetPartition(1, 0));
+
+  AssertMacro(polyLineOut->GetNumberOfPoints() == polyLineIn->GetNumberOfPoints(),
+    polyLineOut->GetClassName(), "Incorrect number of points");
+  AssertMacro(polyLineOut->GetNumberOfCells() == polyLineIn->GetNumberOfCells(),
+    polyLineOut->GetClassName(), "Incorrect number of cells");
+
+  polyLineOut->GetCellPoints(0, ptsOut);
+  AssertMacro(ptsOut->GetId(0) == 2 && ptsOut->GetId(1) == 1 && ptsOut->GetId(2) == 0,
+    polyLineOut->GetClassName(), "Incorrect point ids in polyline");
 
   return EXIT_SUCCESS;
 }
