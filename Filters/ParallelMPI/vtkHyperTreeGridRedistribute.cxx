@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <limits>
 #include <numeric>
 #include <vector>
 
@@ -179,7 +180,6 @@ constexpr int GetNumberOfBytes(int nbBits)
 //------------------------------------------------------------------------------
 vtkHyperTreeGridRedistribute::vtkHyperTreeGridRedistribute()
 {
-  this->AppropriateOutput = true;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
@@ -205,7 +205,7 @@ vtkMultiProcessController* vtkHyperTreeGridRedistribute::GetController()
 int vtkHyperTreeGridRedistribute::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
 
@@ -216,28 +216,116 @@ int vtkHyperTreeGridRedistribute::RequestData(vtkInformation* vtkNotUsed(request
   this->UpdateProgress(0.);
 
   vtkInformation* info = outputVector->GetInformationObject(0);
-  int currentPiece = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  this->CurrentPiece = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   this->NumPartitions = this->Controller->GetNumberOfProcesses();
 
-  // Make sure input is either a HTG or a PartitionedDataSet that contains a HTG piece.
-  this->InputHTG = vtkHyperTreeGrid::GetData(inputVector[0], 0);
-  vtkPartitionedDataSet* inputPDS = vtkPartitionedDataSet::GetData(inputVector[0], 0);
+  int result = this->ProcessComposite(
+    vtkDataObject::GetData(inputVector[0]), vtkDataObject::GetData(outputVector));
 
-  if (!inputPDS && !this->InputHTG)
+  this->UpdateProgress(1.);
+  return result;
+}
+
+//------------------------------------------------------------------------------
+int vtkHyperTreeGridRedistribute::ProcessComposite(vtkDataObject* input, vtkDataObject* output)
+{
+  auto inPds = vtkPartitionedDataSet::SafeDownCast(input);
+  auto inHTG = vtkHyperTreeGrid::SafeDownCast(input);
+  auto inComposite = vtkCompositeDataSet::SafeDownCast(input);
+  auto outComposite = vtkCompositeDataSet::SafeDownCast(output);
+
+  int result = 1;
+  if (inPds || inHTG)
   {
-    vtkErrorMacro("Input data is neither HTG or PartitionedDataSet. Cannot proceed with ghost cell "
-                  "generation.");
+    result |= this->ProcessBlock(input, output);
+  }
+  else if (inComposite && outComposite)
+  {
+    outComposite->CopyStructure(inComposite);
+
+    auto outputRange = vtk::Range(outComposite, vtk::CompositeDataSetOptions::None);
+    auto inputRange = vtk::Range(inComposite, vtk::CompositeDataSetOptions::None);
+    for (auto inIt = inputRange.begin(), outIt = outputRange.begin(); inIt != inputRange.end();
+         ++inIt, ++outIt)
+    {
+      // Make sure type is shared among ranks.
+      // Some ranks may not have a non-null dataset, so they don't know what type to instantiate
+      constexpr int INVALID_TYPE = -1;
+      int typeOut = INVALID_TYPE;
+      int typeIn = *inIt ? inIt->GetDataObjectType() : INVALID_TYPE;
+      this->Controller->AllReduce(&typeIn, &typeOut, 1, vtkCommunicator::MAX_OP);
+
+      if (typeOut == INVALID_TYPE)
+      {
+        *outIt = nullptr;
+        continue;
+      }
+      if (!*inIt)
+      {
+        *inIt = vtkSmartPointer<vtkDataObject>::Take(vtkDataObjectTypes::NewDataObject(typeOut));
+      }
+
+      *outIt = vtkSmartPointer<vtkDataObject>::Take(inIt->NewInstance());
+
+      auto inputComposite = vtkCompositeDataSet::SafeDownCast(*inIt);
+      auto outputComposite = vtkCompositeDataSet::SafeDownCast(*outIt);
+
+      bool isComposite = inputComposite != nullptr;
+      bool isPDS = inIt->GetDataObjectType() == VTK_PARTITIONED_DATA_SET;
+
+      if (isComposite && !isPDS)
+      {
+        if (!outputComposite)
+        {
+          vtkErrorMacro(<< "Found no composite output data object");
+          result = 0;
+          continue;
+        }
+        // Composite but not PartitionedDS: recurse over the composite structure
+        result |= this->ProcessComposite(inputComposite, outputComposite);
+      }
+      else
+      {
+        // PDS or HTG: process single block
+        result |= this->ProcessBlock(*inIt, *outIt);
+      }
+    }
+  }
+  else
+  {
+    vtkErrorMacro("Dataset type unsupported.");
     return 0;
   }
 
-  vtkHyperTreeGrid* outputHTG = vtkHyperTreeGrid::GetData(outputVector, 0);
-  vtkPartitionedDataSet* outputPDS = vtkPartitionedDataSet::GetData(outputVector, 0);
-  if (outputPDS)
+  return result;
+}
+
+//------------------------------------------------------------------------------
+int vtkHyperTreeGridRedistribute::ProcessBlock(vtkDataObject* input, vtkDataObject* outputDO)
+{
+  // Make sure input is either a HTG or composite dataset that contains HTG pieces.
+  vtkPartitionedDataSet* inputPDS = vtkPartitionedDataSet::SafeDownCast(input);
+  this->InputHTG = vtkHyperTreeGrid::SafeDownCast(input);
+
+  if (!inputPDS && !this->InputHTG)
   {
-    outputPDS->CopyStructure(inputPDS);
+    vtkErrorMacro("Input data is neither HTG or PartitionedDataSet, cannot proceed");
+    return 0;
   }
+
+  vtkHyperTreeGrid* outputHTG = vtkHyperTreeGrid::SafeDownCast(outputDO);
+  vtkPartitionedDataSet* outputPDS = vtkPartitionedDataSet::SafeDownCast(outputDO);
+
+  if (!outputHTG && !outputPDS)
+  {
+    vtkErrorMacro("No output available. Cannot proceed with hyper tree grid algorithm.");
+    return 0;
+  }
+
   if (inputPDS && outputPDS)
   {
+    outputPDS->CopyStructure(inputPDS);
+
     for (unsigned int partId = 0; partId < inputPDS->GetNumberOfPartitions(); partId++)
     {
       auto partHTG = vtkHyperTreeGrid::SafeDownCast(inputPDS->GetPartitionAsDataObject(partId));
@@ -246,7 +334,7 @@ int vtkHyperTreeGridRedistribute::RequestData(vtkInformation* vtkNotUsed(request
         if (this->InputHTG)
         {
           vtkWarningMacro("Found more than one non-null HTG in the partitioned dataset for piece "
-            << currentPiece << ". Generating ghost data only for partition " << partId);
+            << this->CurrentPiece << ". Generating ghost data only for partition " << partId);
         }
         this->InputHTG = partHTG;
         vtkNew<vtkHyperTreeGrid> newOutputHTG;
@@ -256,15 +344,9 @@ int vtkHyperTreeGridRedistribute::RequestData(vtkInformation* vtkNotUsed(request
     }
   }
 
-  if (!outputHTG && !outputPDS)
-  {
-    vtkErrorMacro("No output available. Cannot proceed with hyper tree grid algorithm.");
-    return 0;
-  }
-
   if (!this->InputHTG)
   {
-    vtkWarningMacro("Incorrect HTG for piece " << currentPiece);
+    vtkWarningMacro("Incorrect HTG for piece " << this->CurrentPiece);
   }
 
   // Make sure every HTG piece can be processed
@@ -273,7 +355,7 @@ int vtkHyperTreeGridRedistribute::RequestData(vtkInformation* vtkNotUsed(request
   int nullPiece = this->InputHTG != nullptr;
   if (!nullPiece)
   {
-    vtkWarningMacro("Piece " << currentPiece << " is null.");
+    vtkWarningMacro("Piece " << this->CurrentPiece << " is null.");
   }
 
   int allNonNull = 1; // Reduction operation cannot be done on bools
@@ -292,8 +374,6 @@ int vtkHyperTreeGridRedistribute::RequestData(vtkInformation* vtkNotUsed(request
     return 0;
   }
 
-  // Update progress and return
-  this->UpdateProgress(1.);
   return 1;
 }
 
