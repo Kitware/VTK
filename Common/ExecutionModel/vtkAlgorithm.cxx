@@ -1256,7 +1256,7 @@ void vtkAlgorithm::SetInputConnection(int port, vtkAlgorithmOutput* input)
   // The connection is not present.
   vtkDebugMacro("Setting connection to input port index "
     << consumerPort << " from output port index " << producerPort << " on algorithm "
-    << (producer ? producer->GetObjectDescription() : nullptr) << ".");
+    << (producer ? producer->GetObjectDescription() : std::string("nullptr")) << ".");
 
   // Add this consumer to the new input's list of consumers.
   if (newInfo)
