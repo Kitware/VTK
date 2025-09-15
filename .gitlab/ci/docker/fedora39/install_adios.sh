@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 readonly adios_repo="https://github.com/ornladios/ADIOS2"
 readonly adios_commit="v2.10.1"
 
