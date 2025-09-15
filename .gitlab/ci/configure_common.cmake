@@ -34,9 +34,6 @@ set(CMAKE_INSTALL_LIBDIR "lib" CACHE STRING "")
 set(VTK_ENABLE_EXTRA_BUILD_WARNINGS ON CACHE BOOL "")
 set(VTK_ENABLE_EXTRA_BUILD_WARNINGS_EVERYTHING ON CACHE BOOL "")
 
-# Remove this after Utilities/OpenGL is deleted.
-set(VTK_MODULE_ENABLE_VTK_opengl NO CACHE STRING "")
-
 include("${CMAKE_CURRENT_LIST_DIR}/configure_options.cmake")
 
 # Default to Release builds.
