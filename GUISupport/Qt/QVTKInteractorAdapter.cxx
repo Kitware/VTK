@@ -484,7 +484,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
       // When using MacOS trackpad, the center of the pinch event is already reported in widget
       // coordinates. For other platforms, the coordinates need to be converted from global to
       // local.
-#ifndef Q_OS_OSX
+#ifndef Q_OS_MACOS
       QWidget* widget = qobject_cast<QWidget*>(this->parent());
       if (widget)
       {
