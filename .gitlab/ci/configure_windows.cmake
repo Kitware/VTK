@@ -38,9 +38,12 @@ set(VTK_DISABLE_QT_MULTICONFIG_WINDOWS_WARNING ON CACHE BOOL "")
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "python")
   file(TO_CMAKE_PATH "$ENV{CI_PROJECT_DIR}" ci_project_dir)
   set(vtk_dll_paths)
-  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt")
+  if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5")
     list(APPEND vtk_dll_paths
       "${ci_project_dir}/.gitlab/qt/bin")
+  elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt")
+    list(APPEND vtk_dll_paths
+      "${ci_project_dir}/.gitlab/qt6/bin")
   endif ()
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "tbb")
     file(TO_CMAKE_PATH "$ENV{TBB_REDIST_DIR}" tbb_redist_dir)
