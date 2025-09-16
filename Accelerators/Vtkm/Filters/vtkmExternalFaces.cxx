@@ -28,6 +28,7 @@ vtkStandardNewMacro(vtkmExternalFaces);
 vtkmExternalFaces::vtkmExternalFaces()
   : CompactPoints(false)
 {
+  this->ForceVTKm = true; // Because it's NOT VTKm a implementation of  VTK filter.
   this->SetNumberOfInputPorts(1);
   this->SetNumberOfOutputPorts(1);
 }
@@ -97,7 +98,7 @@ int vtkmExternalFaces::RequestData(vtkInformation* vtkNotUsed(request),
   try
   {
     // convert the input dataset to a viskores::cont::DataSet
-    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells, this->ForceVTKm);
 
     // apply the filter
     viskores::filter::entity_extraction::ExternalFaces filter;
@@ -106,7 +107,7 @@ int vtkmExternalFaces::RequestData(vtkInformation* vtkNotUsed(request),
     auto result = filter.Execute(in);
 
     // convert back to vtkDataSet (vtkUnstructuredGrid)
-    if (!fromvtkm::Convert(result, output, input))
+    if (!fromvtkm::Convert(result, output, input, this->ForceVTKm))
     {
       vtkErrorMacro(<< "Unable to convert Viskores DataSet back to VTK");
       return 0;

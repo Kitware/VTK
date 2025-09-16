@@ -37,7 +37,12 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // for export macro
 #include "vtkTriangleMeshPointNormals.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkTriangleMeshPointNormals vtkmAlgorithm<vtkTriangleMeshPointNormals>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmTriangleMeshPointNormals
@@ -46,27 +51,16 @@ class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmTriangleMeshPointNormals
 public:
   vtkTypeMacro(vtkmTriangleMeshPointNormals, vtkTriangleMeshPointNormals);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+#ifndef __VTK_WRAP__
+#undef vtkTriangleMeshPointNormals
+#endif
   static vtkmTriangleMeshPointNormals* New();
-
-  ///@{
-  /**
-   * When this flag is off (the default), then the computation will fall back
-   * to the serial VTK version if Viskores fails to run. When the flag is on,
-   * the filter will generate an error if Viskores fails to run. This is mostly
-   * useful in testing to make sure the expected algorithm is run.
-   */
-  vtkGetMacro(ForceVTKm, vtkTypeBool);
-  vtkSetMacro(ForceVTKm, vtkTypeBool);
-  vtkBooleanMacro(ForceVTKm, vtkTypeBool);
-  ///@}
 
 protected:
   vtkmTriangleMeshPointNormals();
   ~vtkmTriangleMeshPointNormals() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
-  vtkTypeBool ForceVTKm = false;
 
 private:
   vtkmTriangleMeshPointNormals(const vtkmTriangleMeshPointNormals&) = delete;

@@ -20,7 +20,6 @@
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
 #include "vtkmlib/ImplicitFunctionConverter.h"
-#include "vtkmlib/PolyDataConverter.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 
 #include <viskores/cont/Algorithm.h>
@@ -131,7 +130,7 @@ int vtkmClip::RequestData(
     // Convert inputs to viskores objects:
     auto fieldsFlag =
       this->GetComputeScalars() ? tovtkm::FieldsFlag::PointsAndCells : tovtkm::FieldsFlag::None;
-    auto in = tovtkm::Convert(input, fieldsFlag);
+    auto in = tovtkm::Convert(input, fieldsFlag, this->ForceVTKm);
 
     if (CellSetHasUnsupportedCells(in.GetCellSet()))
     {
@@ -165,8 +164,8 @@ int vtkmClip::RequestData(
     }
 
     // Convert result to output:
-    if (!fromvtkm::Convert(result, output, input) ||
-      (clippedOutput && !fromvtkm::Convert(result1, clippedOutput, input)))
+    if (!fromvtkm::Convert(result, output, input, this->ForceVTKm) ||
+      (clippedOutput && !fromvtkm::Convert(result1, clippedOutput, input, this->ForceVTKm)))
     {
       throw viskores::cont::ErrorFilterExecution(
         "Unable to convert Viskores result dataSet back to VTK.");

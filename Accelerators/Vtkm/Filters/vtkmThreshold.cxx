@@ -141,7 +141,7 @@ int vtkmThreshold::RequestData(
     }
 
     // convert the input dataset to a viskores::cont::DataSet
-    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells, this->ForceVTKm);
 
     const char* activeFieldName = inputArray->GetName();
     if (!activeFieldName || activeFieldName[0] == '\0')
@@ -196,7 +196,7 @@ int vtkmThreshold::RequestData(
 
     // now we are done the algorithm and conversion of arrays so
     // convert back the dataset to VTK
-    if (!fromvtkm::Convert(result, output, input))
+    if (!fromvtkm::Convert(result, output, input, this->ForceVTKm))
     {
       throw viskores::cont::ErrorFilterExecution(
         "Unable to convert Viskores result dataSet back to VTK.");

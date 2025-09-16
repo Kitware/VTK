@@ -17,7 +17,12 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkUnstructuredGridAlgorithm vtkmAlgorithm<vtkUnstructuredGridAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
@@ -27,7 +32,9 @@ class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmCleanGrid : public vtkUnstructuredGr
 {
 public:
   vtkTypeMacro(vtkmCleanGrid, vtkUnstructuredGridAlgorithm);
-
+#ifndef __VTK_WRAP__
+#undef vtkUnstructuredGridAlgorithm
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmCleanGrid* New();
 

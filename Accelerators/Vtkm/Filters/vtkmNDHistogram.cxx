@@ -58,7 +58,10 @@ void vtkmNDHistogram::PrintSelf(std::ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-vtkmNDHistogram::vtkmNDHistogram() = default;
+vtkmNDHistogram::vtkmNDHistogram()
+{
+  this->ForceVTKm = true; // Because it's NOT VTKm a implementation of  VTK filter.
+}
 
 //------------------------------------------------------------------------------
 vtkmNDHistogram::~vtkmNDHistogram() = default;
@@ -113,7 +116,8 @@ int vtkmNDHistogram::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    viskores::cont::DataSet in =
+      tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells, this->ForceVTKm);
 
     viskores::filter::density_estimate::NDHistogram filter;
     for (size_t i = 0; i < this->FieldNames.size(); i++)

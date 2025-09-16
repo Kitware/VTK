@@ -23,11 +23,11 @@ namespace tovtkm
 VTK_ABI_NAMESPACE_BEGIN
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
 viskores::cont::UnknownCellSet ConvertSingleType(
-  vtkCellArray* cells, int cellType, vtkIdType numberOfPoints);
+  vtkCellArray* cells, int cellType, vtkIdType numberOfPoints, bool forceViskores = false);
 
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-viskores::cont::UnknownCellSet Convert(
-  vtkUnsignedCharArray* types, vtkCellArray* cells, vtkIdType numberOfPoints);
+viskores::cont::UnknownCellSet Convert(vtkUnsignedCharArray* types, vtkCellArray* cells,
+  vtkIdType numberOfPoints, bool forceViskores = false);
 VTK_ABI_NAMESPACE_END
 }
 
@@ -37,7 +37,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
 bool Convert(const viskores::cont::UnknownCellSet& toConvert, vtkCellArray* cells,
-  vtkUnsignedCharArray* types = nullptr);
+  vtkUnsignedCharArray* types = nullptr, bool forceViskores = false);
 VTK_ABI_NAMESPACE_END
 }
 

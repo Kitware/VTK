@@ -49,7 +49,7 @@ int vtkmPointElevation::RequestData(
   try
   {
     // Convert the input dataset to a viskores::cont::DataSet
-    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points);
+    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points, this->ForceVTKm);
 
     // Setup input
     viskores::filter::field_transform::PointElevation filter;

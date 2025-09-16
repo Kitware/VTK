@@ -18,15 +18,22 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // required for correct export
 #include "vtkWarpVector.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkWarpVector vtkmAlgorithm<vtkWarpVector>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmWarpVector : public vtkWarpVector
 {
 public:
   vtkTypeMacro(vtkmWarpVector, vtkWarpVector);
+#ifndef __VTK_WRAP__
+#undef vtkWarpVector
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
   static vtkmWarpVector* New();
 
 protected:

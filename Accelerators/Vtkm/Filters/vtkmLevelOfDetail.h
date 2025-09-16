@@ -38,13 +38,21 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkPolyDataAlgorithm vtkmAlgorithm<vtkPolyDataAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmLevelOfDetail : public vtkPolyDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkmLevelOfDetail, vtkPolyDataAlgorithm);
+#ifndef __VTK_WRAP__
+#undef vtkPolyDataAlgorithm
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmLevelOfDetail* New();
 

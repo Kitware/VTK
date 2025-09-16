@@ -346,7 +346,8 @@ void vtkFidesWriter::WriteData()
         }
       }
 
-      viskores::cont::DataSet ds = tovtkm::Convert(partition, tovtkm::FieldsFlag::PointsAndCells);
+      viskores::cont::DataSet ds =
+        tovtkm::Convert(partition, tovtkm::FieldsFlag::PointsAndCells, /*forceViskores=*/true);
       vtkmPDS.AppendPartition(ds);
     }
 

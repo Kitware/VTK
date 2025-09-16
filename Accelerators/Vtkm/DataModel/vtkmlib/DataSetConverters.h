@@ -41,7 +41,8 @@ viskores::cont::DataSet Convert(vtkRectilinearGrid* input, FieldsFlag fields);
 
 // determine the type and call the proper Convert routine
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-viskores::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields = FieldsFlag::None);
+viskores::cont::DataSet Convert(
+  vtkDataSet* input, FieldsFlag fields = FieldsFlag::None, bool forceViskores = false);
 VTK_ABI_NAMESPACE_END
 }
 

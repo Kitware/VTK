@@ -24,7 +24,8 @@ namespace tovtkm
 VTK_ABI_NAMESPACE_BEGIN
 // convert an polydata type
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields = FieldsFlag::None);
+viskores::cont::DataSet Convert(
+  vtkPolyData* input, FieldsFlag fields = FieldsFlag::None, bool forceViskores = false);
 VTK_ABI_NAMESPACE_END
 }
 
@@ -32,7 +33,8 @@ namespace fromvtkm
 {
 VTK_ABI_NAMESPACE_BEGIN
 VTKACCELERATORSVTKMDATAMODEL_EXPORT
-bool Convert(const viskores::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet* input);
+bool Convert(const viskores::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet* input,
+  bool forceViskores = false);
 VTK_ABI_NAMESPACE_END
 }
 #endif // vtkmlib_PolyDataConverter_h

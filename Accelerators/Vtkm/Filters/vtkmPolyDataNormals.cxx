@@ -53,7 +53,7 @@ int vtkmPolyDataNormals::RequestData(
   try
   {
     // convert the input dataset to a viskores::cont::DataSet
-    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
+    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::None, this->ForceVTKm);
 
     viskores::cont::DataSet result;
 
@@ -78,7 +78,7 @@ int vtkmPolyDataNormals::RequestData(
       return this->Superclass::RequestData(request, inputVector, outputVector);
     }
 
-    if (!fromvtkm::Convert(result, output, input))
+    if (!fromvtkm::Convert(result, output, input, this->ForceVTKm))
     {
       vtkErrorMacro(<< "Unable to convert Viskores DataSet back to VTK");
       return 0;

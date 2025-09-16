@@ -26,6 +26,7 @@ vtkStandardNewMacro(vtkmProbe);
 vtkmProbe::vtkmProbe()
 {
   this->SetNumberOfInputPorts(2);
+  this->ForceVTKm = true; // Because it's NOT VTKm a implementation of  VTK filter.
   this->PassCellArrays = false;
   this->PassPointArrays = false;
   this->PassFieldArrays = true;
@@ -75,9 +76,10 @@ int vtkmProbe::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
   try
   {
     // Convert the input dataset to a viskores::cont::DataSet
-    viskores::cont::DataSet in = tovtkm::Convert(input);
+    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::None, this->ForceVTKm);
     // Viskores' probe filter requires the source to have at least a cellSet.
-    viskores::cont::DataSet so = tovtkm::Convert(source, tovtkm::FieldsFlag::PointsAndCells);
+    viskores::cont::DataSet so =
+      tovtkm::Convert(source, tovtkm::FieldsFlag::PointsAndCells, this->ForceVTKm);
     if (so.GetNumberOfCells() <= 0)
     {
       vtkErrorMacro(<< "The source geometry does not have any cell set,"

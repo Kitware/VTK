@@ -24,27 +24,23 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkGradientFilter.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkGradientFilter vtkmAlgorithm<vtkGradientFilter>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmGradient : public vtkGradientFilter
 {
 public:
   vtkTypeMacro(vtkmGradient, vtkGradientFilter);
+#ifndef __VTK_WRAP__
+#undef vtkGradientFilter
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmGradient* New();
-
-  ///@{
-  /**
-   * When this flag is off (the default), then the computation will fall back
-   * to the serial VTK version if Viskores fails to run. When the flag is on,
-   * the filter will generate an error if Viskores fails to run. This is mostly
-   * useful in testing to make sure the expected algorithm is run.
-   */
-  vtkGetMacro(ForceVTKm, vtkTypeBool);
-  vtkSetMacro(ForceVTKm, vtkTypeBool);
-  vtkBooleanMacro(ForceVTKm, vtkTypeBool);
-  ///@}
 
 protected:
   /// \brief Check if the input dataset and parameters combination is supported by this filter
@@ -58,8 +54,6 @@ protected:
   ~vtkmGradient() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
-  vtkTypeBool ForceVTKm = false;
 
 private:
   vtkmGradient(const vtkmGradient&) = delete;

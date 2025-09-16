@@ -27,6 +27,7 @@ vtkStandardNewMacro(vtkmLevelOfDetail);
 //------------------------------------------------------------------------------
 vtkmLevelOfDetail::vtkmLevelOfDetail()
 {
+  this->ForceVTKm = true; // Because it's NOT VTKm a implementation of  VTK filter.
   this->NumberOfDivisions[0] = 512;
   this->NumberOfDivisions[1] = 512;
   this->NumberOfDivisions[2] = 512;
@@ -116,7 +117,7 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
   try
   {
     // convert the input dataset to a viskores::cont::DataSet
-    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells, this->ForceVTKm);
     if (in.GetNumberOfCells() == 0 || in.GetNumberOfPoints() == 0)
     {
       return 0;
@@ -129,7 +130,7 @@ int vtkmLevelOfDetail::RequestData(vtkInformation* vtkNotUsed(request),
     auto result = filter.Execute(in);
 
     // convert back the dataset to VTK
-    if (!fromvtkm::Convert(result, output, input))
+    if (!fromvtkm::Convert(result, output, input, this->ForceVTKm))
     {
       vtkErrorMacro(<< "Unable to convert Viskores DataSet back to VTK");
       return 0;

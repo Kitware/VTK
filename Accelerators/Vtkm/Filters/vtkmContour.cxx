@@ -201,7 +201,8 @@ int vtkmContour::RequestData(
     }
 
     // convert the input dataset to a viskores::cont::DataSet
-    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    viskores::cont::DataSet in =
+      tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells, this->ForceVTKm);
     if (!this->ComputeScalars)
     {
       // don't pass the scalar field
@@ -213,7 +214,7 @@ int vtkmContour::RequestData(
     ChangeTriangleOrientation(result);
 
     // convert back the dataset to VTK
-    if (!fromvtkm::Convert(result, output, input))
+    if (!fromvtkm::Convert(result, output, input, this->ForceVTKm))
     {
       throw viskores::cont::ErrorFilterExecution(
         "Unable to convert Viskores result dataSet back to VTK.");
@@ -236,9 +237,17 @@ int vtkmContour::RequestData(
   }
   catch (const viskores::cont::Error& e)
   {
-    vtkWarningMacro(<< "Viskores failed with message: " << e.GetMessage() << "\n"
-                    << "Falling back to the default VTK implementation.");
-    return this->Superclass::RequestData(request, inputVector, outputVector);
+    if (this->ForceVTKm)
+    {
+      vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
+      return 0;
+    }
+    else
+    {
+      vtkWarningMacro(<< "Viskores failed with message: " << e.GetMessage() << "\n"
+                      << "Falling back to the default VTK implementation.");
+      return this->Superclass::RequestData(request, inputVector, outputVector);
+    }
   }
 
   // we got this far, everything is good

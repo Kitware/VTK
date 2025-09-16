@@ -23,19 +23,27 @@
 #ifndef vtkmNDHistogram_h
 #define vtkmNDHistogram_h
 
+#include "vtkAcceleratorsVTKmFiltersModule.h" // required for correct export
+#include "vtkArrayDataAlgorithm.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
+#include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
 #include <string>  // for std::string
 #include <utility> // for std::pair
 #include <vector>  // for std::vector
 
-#include "vtkAcceleratorsVTKmFiltersModule.h" // required for correct export
-#include "vtkArrayDataAlgorithm.h"
-#include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+#ifndef __VTK_WRAP__
+#define vtkArrayDataAlgorithm vtkmAlgorithm<vtkArrayDataAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmNDHistogram : public vtkArrayDataAlgorithm
 {
 public:
   vtkTypeMacro(vtkmNDHistogram, vtkArrayDataAlgorithm);
+#ifndef __VTK_WRAP__
+#undef vtkArrayDataAlgorithm
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   void AddFieldAndBin(const std::string& fieldName, const vtkIdType& numberOfBins);

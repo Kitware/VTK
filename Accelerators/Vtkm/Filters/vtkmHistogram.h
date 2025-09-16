@@ -17,7 +17,12 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct export
 #include "vtkTableAlgorithm.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkTableAlgorithm vtkmAlgorithm<vtkTableAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;
@@ -26,6 +31,9 @@ class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmHistogram : public vtkTableAlgorithm
 {
 public:
   vtkTypeMacro(vtkmHistogram, vtkTableAlgorithm);
+#ifndef __VTK_WRAP__
+#undef vtkTableAlgorithm
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmHistogram* New();
 

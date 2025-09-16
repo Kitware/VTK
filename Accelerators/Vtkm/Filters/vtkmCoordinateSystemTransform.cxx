@@ -29,6 +29,7 @@ vtkStandardNewMacro(vtkmCoordinateSystemTransform);
 //------------------------------------------------------------------------------
 vtkmCoordinateSystemTransform::vtkmCoordinateSystemTransform()
 {
+  this->ForceVTKm = true; // Because it's NOT VTKm a implementation of  VTK filter.
   this->TransformType = TransformTypes::None;
 }
 
@@ -144,7 +145,8 @@ int vtkmCoordinateSystemTransform::RequestData(
 
   try
   {
-    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points);
+    viskores::cont::DataSet in =
+      tovtkm::Convert(input, tovtkm::FieldsFlag::Points, this->ForceVTKm);
     vtkPoints* points = nullptr;
     if (this->TransformType == TransformTypes::CarToCyl ||
       this->TransformType == TransformTypes::CylToCar)

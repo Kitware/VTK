@@ -8,8 +8,6 @@
 #include "DataSetConverters.h"
 
 #include <viskores/cont/openmp/DeviceAdapterOpenMP.h>
-#include <viskores/cont/serial/DeviceAdapterSerial.h>
-#include <viskores/cont/tbb/DeviceAdapterTBB.h>
 
 #include <viskores/cont/Algorithm.h>
 #include <viskores/cont/ArrayCopy.h>
@@ -105,7 +103,7 @@ struct BuildSingleTypeVoxelCellSetVisitor
 
 // convert a cell array of a single type to a viskores CellSetSingleType
 viskores::cont::UnknownCellSet ConvertSingleType(
-  vtkCellArray* cells, int cellType, vtkIdType numberOfPoints)
+  vtkCellArray* cells, int cellType, vtkIdType numberOfPoints, bool vtkNotUsed(forceViskores))
 {
   switch (cellType)
   {
@@ -202,8 +200,8 @@ struct SupportedCellShape
 } // end anon namespace
 
 // convert a cell array of mixed types to a viskores CellSetExplicit
-viskores::cont::UnknownCellSet Convert(
-  vtkUnsignedCharArray* types, vtkCellArray* cells, vtkIdType numberOfPoints)
+viskores::cont::UnknownCellSet Convert(vtkUnsignedCharArray* types, vtkCellArray* cells,
+  vtkIdType numberOfPoints, bool vtkNotUsed(forceViskores))
 {
   auto shapes = tovtkm::vtkAOSDataArrayToFlatArrayHandle(types);
   if (!viskores::cont::Algorithm::Reduce(
@@ -224,7 +222,7 @@ namespace fromvtkm
 VTK_ABI_NAMESPACE_BEGIN
 
 bool Convert(const viskores::cont::UnknownCellSet& toConvert, vtkCellArray* cells,
-  vtkUnsignedCharArray* typesArray)
+  vtkUnsignedCharArray* typesArray, bool vtkNotUsed(forceViskores))
 {
   const auto* cellset = toConvert.GetCellSetBase();
 

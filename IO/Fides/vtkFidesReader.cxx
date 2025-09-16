@@ -544,7 +544,7 @@ vtkDataSet* ConvertDataSet(const viskores::cont::DataSet& ds)
     cs.IsType<viskores::cont::CellSetExplicit<>>())
   {
     vtkUnstructuredGrid* ug = vtkUnstructuredGrid::New();
-    fromvtkm::Convert(ds, ug, dstmp);
+    fromvtkm::Convert(ds, ug, dstmp, /*forceViskores*/ true);
     return ug;
   }
   else if (cs.IsType<viskores::cont::CellSetStructured<2>>() ||

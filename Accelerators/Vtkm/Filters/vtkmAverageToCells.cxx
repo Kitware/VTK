@@ -70,14 +70,14 @@ int vtkmAverageToCells::RequestData(
     viskores::cont::DataSet in;
     if (this->ProcessAllArrays)
     {
-      in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points);
+      in = tovtkm::Convert(input, tovtkm::FieldsFlag::Points, this->ForceVTKm);
     }
     else
     {
       std::vector<const char*> pointArrayNames(this->GetNumberOfPointArraysToProcess());
       this->GetPointArraysToProcess(pointArrayNames.data());
 
-      in = tovtkm::Convert(input);
+      in = tovtkm::Convert(input, tovtkm::FieldsFlag::None, this->ForceVTKm);
       for (auto name : pointArrayNames)
       {
         auto array = input->GetPointData()->GetArray(name);
@@ -147,9 +147,17 @@ int vtkmAverageToCells::RequestData(
   }
   catch (const viskores::cont::Error& e)
   {
-    vtkWarningMacro(<< "Viskores failed with message: " << e.GetMessage() << "\n"
-                    << "Falling back to the default VTK implementation.");
-    return this->Superclass::RequestData(request, inputVector, outputVector);
+    if (this->ForceVTKm)
+    {
+      vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
+      return 0;
+    }
+    else
+    {
+      vtkWarningMacro(<< "Viskores failed with message: " << e.GetMessage() << "\n"
+                      << "Falling back to the default VTK implementation.");
+      return this->Superclass::RequestData(request, inputVector, outputVector);
+    }
   }
 
   return 1;

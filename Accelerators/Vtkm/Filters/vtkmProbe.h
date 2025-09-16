@@ -37,13 +37,21 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for export
 #include "vtkDataSetAlgorithm.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkDataSetAlgorithm vtkmAlgorithm<vtkDataSetAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmProbe : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkmProbe, vtkDataSetAlgorithm);
+#ifndef __VTK_WRAP__
+#undef vtkDataSetAlgorithm
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmProbe* New();
 
