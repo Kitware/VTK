@@ -2206,6 +2206,8 @@ void vtkRenderer::SetEnvironmentUp(double vectorUpX, double vectorUpY, double ve
     this->EnvironmentRotationMatrix->SetElement(0, 1, vectorUpX);
     this->EnvironmentRotationMatrix->SetElement(1, 1, vectorUpY);
     this->EnvironmentRotationMatrix->SetElement(2, 1, vectorUpZ);
+
+    this->ComputeRotationMatrixForwardVector();
     this->Modified();
   }
 }
@@ -2250,6 +2252,8 @@ void vtkRenderer::SetEnvironmentRight(double vectorRightX, double vectorRightY, 
     this->EnvironmentRotationMatrix->SetElement(0, 0, vectorRightX);
     this->EnvironmentRotationMatrix->SetElement(1, 0, vectorRightY);
     this->EnvironmentRotationMatrix->SetElement(2, 0, vectorRightZ);
+
+    this->ComputeRotationMatrixForwardVector();
     this->Modified();
   }
 }
@@ -2258,5 +2262,26 @@ void vtkRenderer::SetEnvironmentRight(double vectorRightX, double vectorRightY, 
 void vtkRenderer::SetEnvironmentRight(double vectorRight[3])
 {
   this->SetEnvironmentRight(vectorRight[0], vectorRight[1], vectorRight[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderer::ComputeRotationMatrixForwardVector()
+{
+  double up[3] = { this->EnvironmentRotationMatrix->GetElement(0, 1),
+    this->EnvironmentRotationMatrix->GetElement(1, 1),
+    this->EnvironmentRotationMatrix->GetElement(2, 1) };
+
+  double right[3] = { this->EnvironmentRotationMatrix->GetElement(0, 0),
+    this->EnvironmentRotationMatrix->GetElement(1, 0),
+    this->EnvironmentRotationMatrix->GetElement(2, 0) };
+
+  double forward[3];
+  vtkMath::Cross(right, up, forward);
+  vtkMath::Normalize(forward);
+
+  for (int i = 0; i < 3; ++i)
+  {
+    this->EnvironmentRotationMatrix->SetElement(i, 2, forward[i]);
+  }
 }
 VTK_ABI_NAMESPACE_END

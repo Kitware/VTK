@@ -1237,6 +1237,11 @@ protected:
 
 private:
   /**
+   * Compute and set the forward vector of the environment rotation matrix.
+   */
+  void ComputeRotationMatrixForwardVector();
+
+  /**
    * Cache of CompositeProjectionTransformationMatrix.
    */
   std::array<double, 16> CompositeProjectionTransformationMatrix;
