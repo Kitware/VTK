@@ -37,6 +37,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <catalyst_conduit.hpp>
+#include <cstdint>
 #include <string>
 
 namespace
@@ -131,16 +132,35 @@ bool IsFloatType(int data_type)
   return ((data_type == VTK_FLOAT) || (data_type == VTK_DOUBLE));
 }
 
-#define conduit_set_array(node, arr, type, num_elem, offset, stride, external)                     \
-  if (external)                                                                                    \
+#define conduit_set_array(node, arr, type, native_type, num_elem, offset, stride, external)        \
   {                                                                                                \
-    node.set_external_##type##_ptr((conduit_##type*)arr->GetVoidPointer(0), num_elem,              \
-      offset * sizeof(conduit_##type), stride * sizeof(conduit_##type));                           \
-  }                                                                                                \
-  else                                                                                             \
-  {                                                                                                \
-    node.set_##type##_ptr((conduit_##type*)arr->GetVoidPointer(0), num_elem,                       \
-      offset * sizeof(conduit_##type), stride * sizeof(conduit_##type));                           \
+    auto arraySOA = vtkSOADataArrayTemplate<native_type>::FastDownCast(data_array);                \
+    if (arraySOA && arraySOA->GetStorageType() == arraySOA->StorageTypeEnum::SOA)                  \
+    {                                                                                              \
+      if (external)                                                                                \
+      {                                                                                            \
+        node.set_##type##_ptr((conduit_##type*)arraySOA->GetComponentArrayPointer(offset),         \
+          num_elem, 0, sizeof(conduit_##type));                                                    \
+      }                                                                                            \
+      else                                                                                         \
+      {                                                                                            \
+        node.set_##type##_ptr((conduit_##type*)arraySOA->GetComponentArrayPointer(offset),         \
+          num_elem, 0, sizeof(conduit_##type));                                                    \
+      }                                                                                            \
+    }                                                                                              \
+    else                                                                                           \
+    {                                                                                              \
+      if (external)                                                                                \
+      {                                                                                            \
+        node.set_external_##type##_ptr((conduit_##type*)arr->GetVoidPointer(0), num_elem,          \
+          offset * sizeof(conduit_##type), stride * sizeof(conduit_##type));                       \
+      }                                                                                            \
+      else                                                                                         \
+      {                                                                                            \
+        node.set_##type##_ptr((conduit_##type*)arr->GetVoidPointer(0), num_elem,                   \
+          offset * sizeof(conduit_##type), stride * sizeof(conduit_##type));                       \
+      }                                                                                            \
+    }                                                                                              \
   }
 
 //----------------------------------------------------------------------------
@@ -163,7 +183,8 @@ bool ConvertDataArrayToMCArray(vtkDataArray* data_array, int offset, int stride,
   int data_type_size = data_array->GetDataTypeSize();
   int array_type = data_array->GetArrayType();
 
-  if (array_type != vtkArrayTypes::AoSDataArrayTemplate)
+  if (array_type != vtkArrayTypes::AoSDataArrayTemplate &&
+    array_type != vtkArrayTypes::SoADataArrayTemplate)
   {
     vtkLog(ERROR,
       "Unsupported data array type: " << data_array->GetArrayTypeAsString() << " for array "
@@ -179,22 +200,22 @@ bool ConvertDataArrayToMCArray(vtkDataArray* data_array, int offset, int stride,
     {
       case 1:
         conduit_set_array(
-          conduit_node, data_array, int8, number_of_elements, offset, stride, external);
+          conduit_node, data_array, int8, int8_t, number_of_elements, offset, stride, external);
         break;
 
       case 2:
         conduit_set_array(
-          conduit_node, data_array, int16, number_of_elements, offset, stride, external);
+          conduit_node, data_array, int16, int16_t, number_of_elements, offset, stride, external);
         break;
 
       case 4:
         conduit_set_array(
-          conduit_node, data_array, int32, number_of_elements, offset, stride, external);
+          conduit_node, data_array, int32, int32_t, number_of_elements, offset, stride, external);
         break;
 
       case 8:
         conduit_set_array(
-          conduit_node, data_array, int64, number_of_elements, offset, stride, external);
+          conduit_node, data_array, int64, int64_t, number_of_elements, offset, stride, external);
         break;
 
       default:
@@ -207,22 +228,22 @@ bool ConvertDataArrayToMCArray(vtkDataArray* data_array, int offset, int stride,
     {
       case 1:
         conduit_set_array(
-          conduit_node, data_array, uint8, number_of_elements, offset, stride, external);
+          conduit_node, data_array, uint8, uint8_t, number_of_elements, offset, stride, external);
         break;
 
       case 2:
         conduit_set_array(
-          conduit_node, data_array, uint16, number_of_elements, offset, stride, external);
+          conduit_node, data_array, uint16, uint16_t, number_of_elements, offset, stride, external);
         break;
 
       case 4:
         conduit_set_array(
-          conduit_node, data_array, int32, number_of_elements, offset, stride, external);
+          conduit_node, data_array, int32, uint32_t, number_of_elements, offset, stride, external);
         break;
 
       case 8:
         conduit_set_array(
-          conduit_node, data_array, int64, number_of_elements, offset, stride, external);
+          conduit_node, data_array, int64, uint64_t, number_of_elements, offset, stride, external);
         break;
 
       default:
@@ -235,12 +256,12 @@ bool ConvertDataArrayToMCArray(vtkDataArray* data_array, int offset, int stride,
     {
       case 4:
         conduit_set_array(
-          conduit_node, data_array, float32, number_of_elements, offset, stride, external);
+          conduit_node, data_array, float32, float, number_of_elements, offset, stride, external);
         break;
 
       case 8:
         conduit_set_array(
-          conduit_node, data_array, float64, number_of_elements, offset, stride, external);
+          conduit_node, data_array, float64, double, number_of_elements, offset, stride, external);
         break;
 
       default:
@@ -677,6 +698,10 @@ bool FillFields(vtkFieldData* field_data, const std::string& association,
     }
     else if (auto data_array = vtkDataArray::SafeDownCast(array))
     {
+      // FIXME: conversion may fail for polydata types TRIANGLE_STRIP, POLY_LINE, POLY_VERTEX
+      // Where there are more than 1 Conduit cell for each VTK cell. We need to insert values to
+      // handle this case And avoid having less cell field values than cells in the Conduit node.
+
       auto field_node = conduit_node["fields"][name];
       field_node["association"] = association;
       field_node["topology"] = topology_name;

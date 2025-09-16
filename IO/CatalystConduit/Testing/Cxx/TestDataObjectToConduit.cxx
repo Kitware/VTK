@@ -1,29 +1,32 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include "vtkAOSDataArrayTemplate.h"
+#include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataObjectToConduit.h"
+#include "vtkDoubleArray.h"
+#include "vtkGenericDataArray.txx"
+#include "vtkImageData.h"
+#include "vtkLogger.h"
+#include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkRectilinearGrid.h"
+#include "vtkSOADataArrayTemplate.h"
+#include "vtkStructuredGrid.h"
+#include "vtkTable.h"
 #include "vtkType.h"
+#include "vtkUnstructuredGrid.h"
 
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
 
 #include <conduit_bitwidth_style_types.h>
-#include <initializer_list>
-#include <vtkCellData.h>
-#include <vtkDoubleArray.h>
-#include <vtkImageData.h>
-#include <vtkLogger.h>
-#include <vtkNew.h>
-#include <vtkPointData.h>
-#include <vtkPolyData.h>
-#include <vtkRectilinearGrid.h>
-#include <vtkStructuredGrid.h>
-#include <vtkTable.h>
-#include <vtkUnstructuredGrid.h>
 
 namespace
 {
@@ -1059,6 +1062,14 @@ bool TestMixedShapePolyData()
     poly_data->InsertNextCell(cell.cell_type, cell.connectivity.size(), cell.connectivity.data());
   }
 
+  vtkNew<vtkDoubleArray> cellData;
+  cellData->SetName("myField");
+  for (int i = 0; i < poly_data->GetNumberOfCells(); i++)
+  {
+    cellData->InsertNextTuple1(i);
+  }
+  poly_data->GetCellData()->AddArray(cellData);
+
   conduit_cpp::Node node;
   bool is_filling_success =
     vtkDataObjectToConduit::FillConduitNode(vtkDataObject::SafeDownCast(poly_data), node);
@@ -1099,6 +1110,14 @@ bool TestMixedShapePolyData()
   {
     topologies_node["elements/connectivity"] = conn;
   }
+
+  auto field = expected_node["fields/myField"];
+  field["association"] = "element";
+  field["topology"] = "mesh";
+  field["volume_dependent"] = "false";
+  field["values"] = std::vector<double>{ 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0 };
+
+  std::cout << expected_node.to_yaml() << std::endl;
 
   conduit_cpp::Node diff_info;
   bool are_nodes_different = node.diff(expected_node, diff_info, 1e-6);
@@ -1289,6 +1308,60 @@ bool TestAssembly()
   return is_success;
 }
 }
+//----------------------------------------------------------------------------
+bool TestSOAPoints()
+{
+  // Test that both AOS and SOA arrays conversion work properly
+
+  vtkNew<vtkAOSDataArrayTemplate<double>> ptsAOSarr;
+  ptsAOSarr->SetNumberOfComponents(3);
+
+  std::vector<std::array<double, 3>> rawPtsAOS{
+    { 1.0, 3.2, 2.1 },
+    { 4.0, 3.7, 2.4 },
+    { 5.3, 7.0, 2.3 },
+    { 6.0, 3.9, -5.1 },
+  };
+  for (const auto& pt : rawPtsAOS)
+  {
+    ptsAOSarr->InsertNextTuple(pt.data());
+  }
+
+  vtkNew<vtkSOADataArrayTemplate<double>> ptsSOAarr;
+  std::vector<std::array<double, 4>> rawPtsSOA{ { 1.0, 4.0, 5.3, 6.0 }, { 3.2, 3.7, 7.0, 3.9 },
+    { 2.1, 2.4, 2.3, -5.1 } };
+  ptsSOAarr->SetNumberOfComponents(3);
+  ptsSOAarr->SetNumberOfTuples(rawPtsSOA[0].size());
+  for (int i = 0; i < static_cast<int>(rawPtsSOA.size()); i++)
+  {
+    ptsSOAarr->SetArray(i, rawPtsSOA[i].data(), rawPtsSOA[i].size());
+  }
+  ptsSOAarr->SetArrayFreeFunction(nullptr);
+
+  vtkNew<vtkUnstructuredGrid> ugAOS, ugSOA;
+  vtkNew<vtkPoints> ptsAOS, ptsSOA;
+
+  ptsAOS->SetData(ptsAOSarr);
+  ugAOS->SetPoints(ptsAOS);
+
+  ptsSOA->SetData(ptsSOAarr);
+  ugSOA->SetPoints(ptsSOA);
+
+  conduit_cpp::Node nodeAOS, nodeSOA, diff_info;
+  bool is_success =
+    vtkDataObjectToConduit::FillConduitNode(vtkDataObject::SafeDownCast(ugAOS), nodeAOS);
+  is_success &=
+    vtkDataObjectToConduit::FillConduitNode(vtkDataObject::SafeDownCast(ugSOA), nodeSOA);
+
+  bool are_nodes_different = nodeAOS.diff(nodeSOA, diff_info, 1e-6);
+  if (are_nodes_different)
+  {
+    diff_info.print();
+    return false;
+  }
+
+  return is_success;
+}
 
 //----------------------------------------------------------------------------
 int TestDataObjectToConduit(int, char*[])
@@ -1304,6 +1377,7 @@ int TestDataObjectToConduit(int, char*[])
   is_success &= ::TestPointSet();
   is_success &= ::TestComposite();
   is_success &= ::TestAssembly();
+  is_success &= ::TestSOAPoints();
 
   return is_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
