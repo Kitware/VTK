@@ -375,10 +375,18 @@ bool FillMixedShape(vtkPolyData* dataset, conduit_cpp::Node& topologies_node)
       vtkIdType cell_offset = topo.second->GetOffset(cellId);
       if (type_num_vertices == num_vertices || topo.first == VTK_POLYGON)
       {
-        // Handle Polyline/vertex and strips, where one cell can contain multiple base elements
-        int num_vertices = topo_num_vertices.at(topo.first);
-        vtkIdType numElemsInCell = topo.second->GetCellSize(i) / num_vertices;
-        for (vtkIdType elemId = 0; elemId < numElemsInCell; elemId++)
+        // Simple cell type, 1 VTK cell = 1 Conduit cell
+        shapes->InsertNextValue(topo.first);
+        sizes->InsertNextValue(num_vertices);
+        offsets->InsertNextValue(startOffset);
+        connectivity->InsertTuples(connectivity->GetNumberOfTuples(), num_vertices, cell_offset,
+          topo.second->GetConnectivityArray());
+      }
+      else
+      {
+        // Handle Poly[line/vertex] and strips,
+        // where one cell can contain multiple Conduit base elements
+        for (vtkIdType vertexId = type_num_vertices - 1; vertexId < num_vertices; vertexId++)
         {
           shapes->InsertNextValue(topo.first);
           sizes->InsertNextValue(type_num_vertices);
@@ -719,6 +727,54 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node,
   return true;
 }
 
+bool FillFieldArrayValues(vtkDataSet* data_set, conduit_cpp::Node& values_node,
+  const std::string& association, vtkDataArray* data_array)
+{
+  bool is_success = true;
+  auto pointSet = vtkPointSet::SafeDownCast(data_set);
+
+  // Conversion may fail for cell types TRIANGLE_STRIP, POLY_LINE, POLY_VERTEX
+  // Where we create more than 1 conduit cell for each VTK cell. We need to insert values to
+  // handle this case And avoid having less cell field values than cells in the Conduit node.
+  if (association == "element" && pointSet && HasMultiCells(pointSet))
+  {
+    const std::map<int, int> topo_num_vertices{ { VTK_POLY_VERTEX, 1 }, { VTK_POLY_LINE, 2 },
+      { VTK_TRIANGLE_STRIP, 3 } };
+
+    auto newArray = vtkSmartPointer<vtkDataArray>::NewInstance(data_array);
+    newArray->Allocate(data_array->GetNumberOfTuples());
+    newArray->SetNumberOfComponents(data_array->GetNumberOfComponents());
+    for (vtkIdType i = 0; i < pointSet->GetNumberOfCells(); i++)
+    {
+      auto type = pointSet->GetCellType(i);
+
+      if (topo_num_vertices.find(type) != topo_num_vertices.end())
+      {
+        // triangle strip with 5 points has 3 triangles
+        auto numCells = pointSet->GetCellSize(i) - topo_num_vertices.at(type) + 1;
+        for (vtkIdType j = 0; j < numCells; j++)
+        {
+          newArray->InsertNextTuple(data_array->GetTuple(i));
+        }
+      }
+      else
+      {
+        newArray->InsertNextTuple(data_array->GetTuple(i));
+      }
+    }
+
+    // Array is not owned in this case, hard copy it
+    is_success =
+      ConvertDataArrayToMCArray(newArray, values_node, std::vector<std::string>(), false);
+  }
+  else
+  {
+    is_success = ConvertDataArrayToMCArray(data_array, values_node);
+  }
+
+  return is_success;
+}
+
 //----------------------------------------------------------------------------
 bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::string& association,
   conduit_cpp::Node& conduit_node, const std::string& topology_name)
@@ -773,43 +829,7 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
       field_node["volume_dependent"] = "false";
 
       auto values_node = field_node["values"];
-      auto pointSet = vtkPointSet::SafeDownCast(data_set);
-
-      // Conversion may fail for cell types TRIANGLE_STRIP, POLY_LINE, POLY_VERTEX
-      // Where we create more than 1 conduit cell for each VTK cell. We need to insert values to
-      // handle this case And avoid having less cell field values than cells in the Conduit node.
-      if (association == "element" && pointSet && HasMultiCells(pointSet))
-      {
-        auto newArray = vtkSmartPointer<vtkDataArray>::NewInstance(data_array);
-        newArray->Allocate(data_array->GetNumberOfTuples());
-        newArray->SetNumberOfComponents(data_array->GetNumberOfComponents());
-        for (int i = 0; i < pointSet->GetNumberOfCells(); i++)
-        {
-          auto type = pointSet->GetCellType(i);
-          std::map<int, int> topo_num_vertices{ { VTK_POLY_VERTEX, 1 }, { VTK_POLY_LINE, 2 },
-            { VTK_TRIANGLE_STRIP, 3 } };
-          if (topo_num_vertices.find(type) != topo_num_vertices.end())
-          {
-            auto numCells = pointSet->GetCellSize(i) / topo_num_vertices.at(type);
-            for (int j = 0; j < numCells; j++)
-            {
-              newArray->InsertNextTuple(data_array->GetTuple(i));
-            }
-          }
-          else
-          {
-            newArray->InsertNextTuple(data_array->GetTuple(i));
-          }
-        }
-
-        // Array is not owned in this case, hard copy it
-        is_success =
-          ConvertDataArrayToMCArray(newArray, values_node, std::vector<std::string>(), false);
-      }
-      else
-      {
-        is_success = ConvertDataArrayToMCArray(data_array, values_node);
-      }
+      ::FillFieldArrayValues(data_set, values_node, association, data_array);
 
       if (dataset_attributes)
       {
