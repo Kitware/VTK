@@ -217,6 +217,8 @@ if (NOT cdash_show_third_party_warnings)
     # warnings from moc generated code such as
     # GUISupport/Qt/GUISupportQt_autogen/EWIEGA46WW/moc_QVTKInteractorInternal.cpp:73:55: warning: redundant parentheses surrounding declarator [-Wredundant-parens]
     "autogen.*moc.*redundant parentheses"
+    # GUISupport/Qt/GUISupportQt_autogen/EWIEGA46WW/moc_QFilterTreeProxyModel.cpp:40:5: warning: 'StringRefStorage' may not intend to support class template argument deduction [-Wctad-maybe-unsupported]
+    "autogen.*moc.*ctad-maybe-unsupported"
 
     # third party hdf5
     # if(NULL == (*full_name = (char *)H5MM_malloc(path1_len + path2_len + 2 + 2))) /* Extra "+2" to quiet GCC warning - 2019/07/05, QAK */
