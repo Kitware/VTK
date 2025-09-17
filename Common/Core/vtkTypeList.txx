@@ -65,6 +65,24 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // Description:
+// Get the Size of the TypeList TList.
+
+// Terminal case: empty list has size 0
+template <>
+struct Size<vtkTypeList::NullType>
+{
+  static constexpr int Result = 0;
+};
+
+// Recursive case: count head + tail
+template <typename ArrayHead, typename ArrayTail>
+struct Size<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
+{
+  static constexpr int Result = 1 + Size<ArrayTail>::Result;
+};
+
+//------------------------------------------------------------------------------
+// Description:
 // Sets Result to T if Exp is true, or F if Exp is false.
 template <bool Exp, typename T, typename F>
 struct Select // True case:

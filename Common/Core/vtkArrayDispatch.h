@@ -412,6 +412,22 @@ struct Dispatch3BySameValueTypeUsingArrays;
 template <typename ValueTypeList>
 struct Dispatch3BySameValueType;
 
+//----------------------------------------------------------------------------
+/**
+ * Filter the ArrayList to contain only arrays with ArrayType::ArrayTypeTag that
+ * exist in ArrayTypeTagList. The result TypeList is stored in Result.
+ */
+template <typename ArrayList, typename ArrayTypeTagList>
+struct FilterArraysByArrayTypeTag;
+
+//------------------------------------------------------------------------------
+/**
+ * Filter the ArrayList to contain only arrays with ArrayType::DataTypeTag that
+ * exist in DataTypeTagList. The result TypeList is stored in Result.
+ */
+template <typename ArrayList, typename DataTypeTagList>
+struct FilterArraysByDataTypeTag;
+
 //------------------------------------------------------------------------------
 /**
  * Filter the ArrayList to contain only arrays with ArrayType::ValueType that
