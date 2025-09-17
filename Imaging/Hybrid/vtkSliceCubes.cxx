@@ -330,14 +330,8 @@ int vtkSliceCubesContour(T* slice, S* scalars, int imageRange[2], int dims[3], d
             {
               point[jj] = x1[jj] + t * (x2[jj] - x1[jj]);
               point[jj + 3] = n1[jj] + t * (n2[jj] - n1[jj]);
-              if (point[jj] < xmin[jj])
-              {
-                xmin[jj] = point[jj];
-              }
-              if (point[jj] > xmax[jj])
-              {
-                xmax[jj] = point[jj];
-              }
+              xmin[jj] = std::min<double>(point[jj], xmin[jj]);
+              xmax[jj] = std::max<double>(point[jj], xmax[jj]);
             }
             vtkMath::Normalize(point + 3);
             // swap bytes if necessary

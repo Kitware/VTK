@@ -68,18 +68,9 @@ void vtkImageRGBToYIQExecute(
       I *= max;
       Q *= max;
 
-      if (Y > max)
-      {
-        Y = max;
-      }
-      if (I > max)
-      {
-        I = max;
-      }
-      if (Q > max)
-      {
-        Q = max;
-      }
+      Y = std::min(Y, max);
+      I = std::min(I, max);
+      Q = std::min(Q, max);
 
       // assign output.
       *outSI = static_cast<T>(Y);

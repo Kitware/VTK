@@ -496,9 +496,11 @@ struct vtkTriEdgeList : public std::vector<vtkTriEdge>
     {
       vtkTriEdge& triEdge = triEdgeList[offset];
       vtkIdType currentId = triEdge.V0;
-      currentOffset = offset;
-      while (++currentOffset < numEdges && triEdgeList[currentOffset].V0 == currentId)
-        ; // advance
+      currentOffset = offset + 1;
+      while (currentOffset < numEdges && triEdgeList[currentOffset].V0 == currentId)
+      {
+        ++currentOffset;
+      }
       vtkIdType num = currentOffset - offset;
       this->Map.emplace(currentId, vtkTriEdgeOffset(offset, num));
       offset += num;
@@ -2281,6 +2283,7 @@ struct Triangulate
     {
       npts = cInfo->OutCellsNPts[i];
       pts = conn + offset;
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       cellType = (npts == 3 ? VTK_TRIANGLE : (npts == 4 ? VTK_QUAD : VTK_POLYGON));
       this->DebugOutput->InsertNextCell(cellType, npts, pts);
       offset += npts;
@@ -2679,6 +2682,7 @@ struct Triangulate
         {
           npts = cInfo->OutCellsNPts[i];
           pts = conn + offset;
+          // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
           cellType = (npts == 3 ? VTK_TRIANGLE : (npts == 4 ? VTK_QUAD : VTK_POLYGON));
           if (outputType != vtkImprintFilter::IMPRINTED_REGION ||
             cInfo->OutCellsClass[i] == ImprintCell)
@@ -2785,10 +2789,7 @@ struct ComputeEdgeLength
       auto lEnd = this->MinLength2.end();
       for (auto lItr = this->MinLength2.begin(); lItr != lEnd; ++lItr)
       {
-        if (*lItr < minLength2)
-        {
-          minLength2 = *lItr;
-        }
+        minLength2 = std::min(*lItr, minLength2);
       }
       this->MinEdgeLength = sqrt(minLength2);
     } // computing min edge length

@@ -114,7 +114,8 @@ const vtkIdType* vtkQuadraticWedge::GetFaceArray(vtkIdType faceId)
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticWedge::GetEdge(int edgeId)
 {
-  edgeId = (edgeId < 0 ? 0 : (edgeId > 8 ? 8 : edgeId));
+  edgeId = std::max(edgeId, 0);
+  edgeId = std::min(edgeId, 8);
 
   for (int i = 0; i < 3; i++)
   {
@@ -128,7 +129,8 @@ vtkCell* vtkQuadraticWedge::GetEdge(int edgeId)
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticWedge::GetFace(int faceId)
 {
-  faceId = (faceId < 0 ? 0 : (faceId > 4 ? 4 : faceId));
+  faceId = std::max(faceId, 0);
+  faceId = std::min(faceId, 4);
 
   // load point id's and coordinates
   // be careful with the last two:
@@ -180,10 +182,7 @@ int vtkQuadraticWedge::EvaluatePosition(const double* x, double closestPoint[3],
     pt0 = pts + 3 * WedgeEdges[i][0];
     pt1 = pts + 3 * WedgeEdges[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
-    if (longestEdge < d2)
-    {
-      longestEdge = d2;
-    }
+    longestEdge = std::max(longestEdge, d2);
   }
   // longestEdge value is already squared
   double volumeBound = longestEdge * std::sqrt(longestEdge);

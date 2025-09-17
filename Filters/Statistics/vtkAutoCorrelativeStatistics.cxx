@@ -239,10 +239,7 @@ void vtkAutoCorrelativeStatistics::Learn(
   for (vtkIdType p = 0; p < nRowPara; ++p)
   {
     vtkIdType lag = inPara->GetValue(p, 0).ToInt();
-    if (lag > maxLag)
-    {
-      maxLag = lag;
-    }
+    maxLag = std::max(lag, maxLag);
   } // p
 
   // Verify that a slice cardinality, maximum lag, and data size are consistent

@@ -202,10 +202,10 @@ struct VectorsComparator<true /* FloatingPointT */>
     // This method has the advantage of not relying on max or abs, which avoids using conditionals
     // in the formulation.
 
-    ValueType squaredNormSum = vtkMath::SquaredNorm<N>(std::forward<VectorT1>(u)) +
-      vtkMath::SquaredNorm<N>(std::forward<VectorT2>(v));
-    ValueType dot =
-      vtkMath::Dot<ValueType, N>(std::forward<VectorT1>(u), std::forward<VectorT2>(v));
+    VectorT1& uR = u;
+    VectorT2& vR = v;
+    ValueType squaredNormSum = vtkMath::SquaredNorm<N>(uR) + vtkMath::SquaredNorm<N>(vR);
+    ValueType dot = vtkMath::Dot<ValueType, N>(uR, vR);
 
     return RealVectorsNearlyEqualImpl<N>(squaredNormSum, dot, toleranceFactor);
   }
@@ -254,9 +254,9 @@ struct VectorsComparator<false /* FloatingPointT */>
     using ValueType = typename vtkMatrixUtilities::ScalarTypeExtractor<VectorT1>::value_type;
 
     // We do not want to overflow the integer, so we directly test ||u - v||^2 == 0
-    return vtkMath::SquaredNorm<N>(std::move(
-             VectorDiff<ValueType, N>(std::forward<VectorT1>(u), std::forward<VectorT2>(v))
-               .Diff)) == 0;
+    VectorT1& uR = u;
+    VectorT2& vR = v;
+    return vtkMath::SquaredNorm<N>(std::move(VectorDiff<ValueType, N>(uR, vR).Diff)) == 0;
   }
 };
 
@@ -266,8 +266,10 @@ bool VectorsAreNearlyEqual(VectorT1&& u, VectorT2&& v, double toleranceFactor)
 {
   using ValueType = typename vtkMatrixUtilities::ScalarTypeExtractor<VectorT1>::value_type;
 
+  VectorT1& uR = u;
+  VectorT2& vR = v;
   return VectorsComparator<std::is_floating_point<ValueType>::value>::template NearlyEqual<N>(
-    std::forward<VectorT1>(u), std::forward<VectorT2>(v), toleranceFactor);
+    uR, vR, toleranceFactor);
 }
 
 //============================================================================
@@ -534,11 +536,11 @@ void DispatchArrays(vtkAbstractArray* array1, vtkAbstractArray* array2,
         vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::AllTypes>;
       DataArrayMatchingDispatcher<LauncherT> dataArrayWorker;
 
-      if (!DataArrayDispatcher::Execute(da1, da2, dataArrayWorker, mapper1, mapper2,
-            std::forward<ProcessorT>(processor), ghosts, ghostsToSkip))
+      ProcessorT& processorR = processor;
+      if (!DataArrayDispatcher::Execute(
+            da1, da2, dataArrayWorker, mapper1, mapper2, processorR, ghosts, ghostsToSkip))
       {
-        dataArrayWorker(
-          da1, da2, mapper1, mapper2, std::forward<ProcessorT>(processor), ghosts, ghostsToSkip);
+        dataArrayWorker(da1, da2, mapper1, mapper2, processorR, ghosts, ghostsToSkip);
       }
       break;
     }
@@ -1239,6 +1241,7 @@ bool TestFieldData(vtkFieldData* fd1, vtkFieldData* fd2, ArrayMapperT&& mapper,
     return false;
   }
 
+  ArrayMapperT& mapperR = mapper;
   for (int id = 0; id < fd1->GetNumberOfArrays(); ++id)
   {
     vtkAbstractArray* array1 = fd1->GetAbstractArray(id);
@@ -1259,18 +1262,17 @@ bool TestFieldData(vtkFieldData* fd1, vtkFieldData* fd2, ArrayMapperT&& mapper,
 
     if (ignoreNumberOfTuples)
     {
-      mapper.Size = array1->GetNumberOfTuples();
+      mapperR.Size = array1->GetNumberOfTuples();
     }
 
-    if (!TestAbstractArray(array1, array2, std::forward<ArrayMapperT>(mapper), toleranceFactor,
-          ghosts1, ghostsToSkip1))
+    if (!TestAbstractArray(array1, array2, mapperR, toleranceFactor, ghosts1, ghostsToSkip1))
     {
       vtkLog(ERROR, "Array mismatch for " << array1->GetName() << " in input " << fdName << ".");
       return false;
     }
   }
 
-  if (ghosts1 && !TestAbstractArray(ghosts1, ghosts2, std::forward<ArrayMapperT>(mapper), 0))
+  if (ghosts1 && !TestAbstractArray(ghosts1, ghosts2, mapperR, 0))
   {
     vtkLog(ERROR, "Ghost arrays in " << fdName << " do not match.");
     return false;

@@ -91,10 +91,7 @@ vtkMTimeType vtkAssemblyPath::GetMTime()
   for (this->InitTraversal(); (node = this->GetNextNode());)
   {
     vtkMTimeType nodeMTime = node->GetMTime();
-    if (nodeMTime > mtime)
-    {
-      mtime = nodeMTime;
-    }
+    mtime = std::max(nodeMTime, mtime);
   }
   return mtime;
 }

@@ -38,6 +38,7 @@ namespace
 {
 inline double Sign(double a)
 {
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   return a == 0.0 ? 0.0 : (a < 0.0 ? -1.0 : 1.0);
 }
 inline bool IntersectBox(vtkImplicitFunction* func, double bounds[6], double value)

@@ -106,6 +106,7 @@ struct InOutPlanePoints
       eval = vtkPlane::Evaluate(n, o, p);
 
       // Point is either above(=2), below(=1), or on(=0) the plane.
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       *inOutItr = (eval > zero ? 2 : (eval < zero ? 1 : 0));
     }
   }
@@ -226,9 +227,20 @@ struct CuttingFunctor
 
     vtkIdType numCells = this->Input->GetNumberOfCells();
 
-    int precisionType = (this->OutputPrecision == vtkAlgorithm::DEFAULT_PRECISION
-        ? this->InPointsArray->GetDataType()
-        : (this->OutputPrecision == vtkAlgorithm::SINGLE_PRECISION ? VTK_FLOAT : VTK_DOUBLE));
+    int precisionType;
+    switch (this->OutputPrecision)
+    {
+      case vtkAlgorithm::SINGLE_PRECISION:
+        precisionType = VTK_FLOAT;
+        break;
+      case vtkAlgorithm::DOUBLE_PRECISION:
+        precisionType = VTK_DOUBLE;
+        break;
+      case vtkAlgorithm::DEFAULT_PRECISION:
+      default:
+        precisionType = this->InPointsArray->GetDataType();
+        break;
+    }
     vtkPoints*& newPts = this->NewPts.Local();
     newPts->SetDataType(precisionType);
     output->SetPoints(newPts);

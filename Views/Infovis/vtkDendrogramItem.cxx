@@ -152,17 +152,11 @@ void vtkDendrogramItem::SetTree(vtkTree* tree)
   {
     vtkIdType childVertex = this->Tree->GetChild(root, child);
     int numLeaves = this->CountLeafNodes(childVertex);
-    if (numLeaves > numLeavesInBiggestSubTree)
-    {
-      numLeavesInBiggestSubTree = numLeaves;
-    }
+    numLeavesInBiggestSubTree = std::max(numLeaves, numLeavesInBiggestSubTree);
   }
 
   double rangeMinimum = 2.0;
-  if (numLeavesInBiggestSubTree < rangeMinimum)
-  {
-    rangeMinimum = numLeavesInBiggestSubTree;
-  }
+  rangeMinimum = std::min<double>(numLeavesInBiggestSubTree, rangeMinimum);
 
   this->TriangleLookupTable->SetNumberOfTableValues(256);
   this->TriangleLookupTable->SetHueRange(0.5, 0.045);
@@ -295,14 +289,8 @@ void vtkDendrogramItem::ComputeMultipliers()
       this->LayoutTree->GetPoint(target, targetPoint);
       double x = fabs(targetPoint[0]);
       double y = fabs(targetPoint[1]);
-      if (x > xMax)
-      {
-        xMax = x;
-      }
-      if (y > yMax)
-      {
-        yMax = y;
-      }
+      xMax = std::max(x, xMax);
+      yMax = std::max(y, yMax);
     }
   }
 
@@ -343,38 +331,14 @@ void vtkDendrogramItem::ComputeBounds()
     double x1 = this->Position[0] + targetPoint[0] * this->MultiplierX;
     double y1 = this->Position[1] + targetPoint[1] * this->MultiplierY;
 
-    if (x0 < this->MinX)
-    {
-      this->MinX = x0;
-    }
-    if (y0 < this->MinY)
-    {
-      this->MinY = y0;
-    }
-    if (x0 > this->MaxX)
-    {
-      this->MaxX = x0;
-    }
-    if (y0 > this->MaxY)
-    {
-      this->MaxY = y0;
-    }
-    if (x1 < this->MinX)
-    {
-      this->MinX = x1;
-    }
-    if (y1 < this->MinY)
-    {
-      this->MinY = y1;
-    }
-    if (x1 > this->MaxX)
-    {
-      this->MaxX = x1;
-    }
-    if (y1 > this->MaxY)
-    {
-      this->MaxY = y1;
-    }
+    this->MinX = std::min(x0, this->MinX);
+    this->MinY = std::min(y0, this->MinY);
+    this->MaxX = std::max(x0, this->MaxX);
+    this->MaxY = std::max(y0, this->MaxY);
+    this->MinX = std::min(x1, this->MinX);
+    this->MinY = std::min(y1, this->MinY);
+    this->MaxX = std::max(x1, this->MaxX);
+    this->MaxY = std::max(y1, this->MaxY);
   }
 }
 
@@ -1195,14 +1159,8 @@ void vtkDendrogramItem::SetColorArray(const char* arrayName)
   for (vtkIdType id = 0; id < this->ColorArray->GetNumberOfTuples(); ++id)
   {
     double d = this->ColorArray->GetValue(id);
-    if (d > maxValue)
-    {
-      maxValue = d;
-    }
-    if (d < minValue)
-    {
-      minValue = d;
-    }
+    maxValue = std::max(d, maxValue);
+    minValue = std::min(d, minValue);
   }
 
   // special case: when there is no range of values to display, all edges should
@@ -1440,10 +1398,7 @@ void vtkDendrogramItem::ComputeLabelWidth(vtkContext2D* painter)
   for (vtkIdType i = 0; i < vertexNames->GetNumberOfTuples(); ++i)
   {
     painter->ComputeStringBounds(vertexNames->GetValue(i), bounds);
-    if (bounds[2] > this->LabelWidth)
-    {
-      this->LabelWidth = bounds[2];
-    }
+    this->LabelWidth = std::max(bounds[2], this->LabelWidth);
   }
 
   // restore orientation

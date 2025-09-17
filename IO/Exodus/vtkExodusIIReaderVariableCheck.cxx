@@ -457,10 +457,8 @@ bool vtkExodusIIReaderIntPointCheck::AddIntegrationPoint(std::string iptName)
       this->Rank = 0;
       return false;
     }
-    if (this->IntPtMin[i] > ival)
-      this->IntPtMin[i] = ival;
-    if (this->IntPtMax[i] < ival)
-      this->IntPtMax[i] = ival;
+    this->IntPtMin[i] = std::min(this->IntPtMin[i], ival);
+    this->IntPtMax[i] = std::max(this->IntPtMax[i], ival);
   }
   return true;
 }

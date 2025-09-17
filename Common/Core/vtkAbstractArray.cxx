@@ -1,6 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+// VTK_DEPRECATED_IN_9_5_0()
+// VTK_DEPRECATED_IN_9_6_0()
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkAbstractArray.h"
 
 #include "vtkArrayDispatch.h"
@@ -585,8 +589,8 @@ const char* vtkAbstractArray::GetArrayTypeAsString() const
       return "TypedDataArray";
     case MappedDataArray:
       return "MappedDataArray";
-    case ScaleSoADataArrayTemplate:
-      return "ScaleSoADataArrayTemplate";
+    case ScaledSoADataArrayTemplate:
+      return "ScaledSoADataArrayTemplate";
     case ImplicitArray:
       return "ImplicitArray";
   }
@@ -607,10 +611,11 @@ void vtkAbstractArray::GetProminentComponentValues(
 
   bool justCreated = false;
   vtkInformation* info = this->GetInformation();
-  const double* lastParams = info
-    ? (info->Has(DISCRETE_VALUE_SAMPLE_PARAMETERS()) ? info->Get(DISCRETE_VALUE_SAMPLE_PARAMETERS())
-                                                     : nullptr)
-    : nullptr;
+  const double* lastParams = nullptr;
+  if (info && info->Has(DISCRETE_VALUE_SAMPLE_PARAMETERS()))
+  {
+    lastParams = info->Get(DISCRETE_VALUE_SAMPLE_PARAMETERS());
+  }
   if (comp >= 0 && info)
   {
     vtkInformationVector* infoVec = info->Get(PER_COMPONENT());

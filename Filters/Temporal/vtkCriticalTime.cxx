@@ -79,7 +79,7 @@ private:
   // Returns true if value is comprised between the lower and upper thresholds
   bool Between(double value) const
   {
-    return (value >= this->LowerThreshold ? (value <= this->UpperThreshold ? true : false) : false);
+    return value >= this->LowerThreshold && value <= this->UpperThreshold;
   }
 
   // Returns true if value is lower than the lower threshold

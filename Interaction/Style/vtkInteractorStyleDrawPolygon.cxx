@@ -97,22 +97,10 @@ void vtkInteractorStyleDrawPolygon::OnMouseMove()
   this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
   this->EndPosition[1] = this->Interactor->GetEventPosition()[1];
   const int* size = this->Interactor->GetRenderWindow()->GetSize();
-  if (this->EndPosition[0] > (size[0] - 1))
-  {
-    this->EndPosition[0] = size[0] - 1;
-  }
-  if (this->EndPosition[0] < 0)
-  {
-    this->EndPosition[0] = 0;
-  }
-  if (this->EndPosition[1] > (size[1] - 1))
-  {
-    this->EndPosition[1] = size[1] - 1;
-  }
-  if (this->EndPosition[1] < 0)
-  {
-    this->EndPosition[1] = 0;
-  }
+  this->EndPosition[0] = std::min(this->EndPosition[0], size[0] - 1);
+  this->EndPosition[0] = std::max(this->EndPosition[0], 0);
+  this->EndPosition[1] = std::min(this->EndPosition[1], size[1] - 1);
+  this->EndPosition[1] = std::max(this->EndPosition[1], 0);
 
   vtkVector2i lastPoint = this->Internal->GetPoint(this->Internal->GetNumberOfPoints() - 1);
   vtkVector2i newPoint(this->EndPosition[0], this->EndPosition[1]);

@@ -18,6 +18,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStructuredData.h"
 
+#include <algorithm>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -119,9 +120,9 @@ struct vtkBucketList
     vtkIdType tmp1 = static_cast<vtkIdType>(((x[1] - bY) * fY));
     vtkIdType tmp2 = static_cast<vtkIdType>(((x[2] - bZ) * fZ));
 
-    ijk[0] = tmp0 < 0 ? 0 : (tmp0 >= xD ? xD - 1 : tmp0);
-    ijk[1] = tmp1 < 0 ? 0 : (tmp1 >= yD ? yD - 1 : tmp1);
-    ijk[2] = tmp2 < 0 ? 0 : (tmp2 >= zD ? zD - 1 : tmp2);
+    ijk[0] = std::min(std::max<vtkIdType>(tmp0, 0), xD - 1);
+    ijk[1] = std::min(std::max<vtkIdType>(tmp1, 0), yD - 1);
+    ijk[2] = std::min(std::max<vtkIdType>(tmp2, 0), zD - 1);
   }
 
   //-----------------------------------------------------------------------------
@@ -788,8 +789,8 @@ struct BucketList : public vtkBucketList
       : MergeClose<T>(blist, tol, mergeMap)
     {
       BucketList<T>* bl = this->BList;
-      double hMin = (bl->hX < bl->hY ? (bl->hX < bl->hZ ? bl->hX : bl->hZ)
-                                     : (bl->hY < bl->hZ ? bl->hY : bl->hZ));
+      double hMin = std::min(bl->hX, bl->hY);
+      hMin = std::min(hMin, bl->hZ);
       this->CheckerboardDimension =
         1 + (hMin == 0.0 ? 1 : (1 + vtkMath::Floor(tol / (hMin / 2.0))));
 
@@ -1250,10 +1251,7 @@ vtkIdType BucketList<TIds>::FindClosestPointWithinRadius(
     if (refinedRadius < currentRadius && ii > 2) // always check ii==1
     {
       ii = static_cast<int>(static_cast<double>(ii) * (refinedRadius / currentRadius)) + 1;
-      if (ii < 2)
-      {
-        ii = 2;
-      }
+      ii = std::max(ii, 2);
     }
   } // for each radius in the radius schedule
 
@@ -1330,10 +1328,7 @@ void BucketList<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList* r
           {
             res[currentCount].Dist2 = dist2;
             res[currentCount].PtId = ptId;
-            if (dist2 > maxDistance)
-            {
-              maxDistance = dist2;
-            }
+            maxDistance = std::max(dist2, maxDistance);
             currentCount++;
             if (currentCount == N)
             {

@@ -2056,10 +2056,7 @@ void vtkMFIXReader::MakeTimeStepTable(int numberOfVariables)
           (int)((float)this->MaximumTimestep / (float)this->VariableTimesteps->GetValue(i) + 0.5);
         timestep++;
       }
-      if (timestep > this->VariableTimesteps->GetValue(i))
-      {
-        timestep = this->VariableTimesteps->GetValue(i);
-      }
+      timestep = std::min(timestep, this->VariableTimesteps->GetValue(i));
     }
   }
 }
@@ -2176,10 +2173,7 @@ void vtkMFIXReader::CalculateMaxTimeStep()
   this->MaximumTimestep = 0;
   for (int i = 0; i <= this->VariableNames->GetMaxId(); i++)
   {
-    if (this->VariableTimesteps->GetValue(i) > this->MaximumTimestep)
-    {
-      this->MaximumTimestep = this->VariableTimesteps->GetValue(i);
-    }
+    this->MaximumTimestep = std::max(this->VariableTimesteps->GetValue(i), this->MaximumTimestep);
   }
 }
 

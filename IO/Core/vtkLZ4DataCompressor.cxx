@@ -4,6 +4,8 @@
 #include "vtkObjectFactory.h"
 #include "vtk_lz4.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLZ4DataCompressor);
 
@@ -81,11 +83,10 @@ void vtkLZ4DataCompressor::SetCompressionLevel(int compressionLevel)
   // we accept compressionLevel values 1..9. 1 is fastest, 9 is slowest
   // 1 is worst compression, 9 is best compression. LZ4 acceleration works inversely, with no upper
   // bound. Note: LZ4 Acceleration set/get exists in header file, with no upper bound.
-  if (this->AccelerationLevel !=
-    (10 - (compressionLevel < min ? min : (compressionLevel > max ? max : compressionLevel))))
+  compressionLevel = std::min(std::max(compressionLevel, min), max);
+  if (this->AccelerationLevel != (10 - compressionLevel))
   {
-    this->AccelerationLevel =
-      10 - (compressionLevel < min ? min : (compressionLevel > max ? max : compressionLevel));
+    this->AccelerationLevel = 10 - compressionLevel;
     this->Modified();
   }
 }

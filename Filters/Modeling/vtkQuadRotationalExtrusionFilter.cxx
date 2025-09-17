@@ -95,25 +95,13 @@ int vtkQuadRotationalExtrusionFilter::RotateAroundAxis(double blockAngle, vtkIdT
       if (radius > 0.)
       {
         double tempd = x[idx1] / radius;
-        if (tempd < -1.)
-        {
-          tempd = -1.;
-        }
-        if (tempd > 1.)
-        {
-          tempd = 1.;
-        }
+        tempd = std::max(tempd, -1.);
+        tempd = std::min(tempd, 1.);
         double theta = acos(tempd);
 
         tempd = x[idx2] / radius;
-        if (tempd < -1.)
-        {
-          tempd = -1.;
-        }
-        if (tempd > 1.)
-        {
-          tempd = 1.;
-        }
+        tempd = std::max(tempd, -1.);
+        tempd = std::min(tempd, 1.);
         double psi = asin(tempd);
 
         if (psi < 0.)

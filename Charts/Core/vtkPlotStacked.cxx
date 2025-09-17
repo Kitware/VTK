@@ -489,22 +489,10 @@ public:
          it != this->Segments.end(); ++it)
     {
       (*it)->GetBounds(segment_bounds);
-      if (segment_bounds[0] < bounds[0])
-      {
-        bounds[0] = segment_bounds[0];
-      }
-      if (segment_bounds[1] > bounds[1])
-      {
-        bounds[1] = segment_bounds[1];
-      }
-      if (segment_bounds[2] < bounds[2])
-      {
-        bounds[2] = segment_bounds[2];
-      }
-      if (segment_bounds[3] > bounds[3])
-      {
-        bounds[3] = segment_bounds[3];
-      }
+      bounds[0] = std::min(segment_bounds[0], bounds[0]);
+      bounds[1] = std::max(segment_bounds[1], bounds[1]);
+      bounds[2] = std::min(segment_bounds[2], bounds[2]);
+      bounds[3] = std::max(segment_bounds[3], bounds[3]);
     }
   }
 

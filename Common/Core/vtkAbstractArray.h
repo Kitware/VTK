@@ -681,18 +681,23 @@ public:
   vtkSetMacro(MaxDiscreteValues, unsigned int);
   ///@}
 
+  // NOLINTNEXTLINE(readability-enum-initial-value)
   enum
   {
     AbstractArray = 0,
     DataArray,
     AoSDataArrayTemplate,
     SoADataArrayTemplate,
-    TypedDataArray,
-    MappedDataArray,
-    ScaleSoADataArrayTemplate,
+    TypedDataArray VTK_DEPRECATED_IN_9_5_0("TypedDataArray has been deprecated"),
+    MappedDataArray VTK_DEPRECATED_IN_9_5_0("MappedDataArray has been deprecated"),
+    ScaledSoADataArrayTemplate,
     ImplicitArray,
 
-    DataArrayTemplate = AoSDataArrayTemplate //! Legacy
+    DataArrayTemplate VTK_DEPRECATED_IN_9_6_0("DataArrayTemplate has been deprecated") =
+      AoSDataArrayTemplate,
+    ScaleSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
+      "ScaleSoADataArrayTemplate has been renamed to ScaledSoADataArrayTemplate") =
+      ScaledSoADataArrayTemplate
   };
 
   /**

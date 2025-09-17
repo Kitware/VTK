@@ -203,14 +203,8 @@ void vtkOBBTree::ComputeOBB(
     for (i = 0; i < 3; i++)
     {
       vtkLine::DistanceToLine(x, mean, a[i], t, closest);
-      if (t < tMin[i])
-      {
-        tMin[i] = t;
-      }
-      if (t > tMax[i])
-      {
-        tMax[i] = t;
-      }
+      tMin[i] = std::min(t, tMin[i]);
+      tMax[i] = std::max(t, tMax[i]);
     }
   } // for all points
 
@@ -432,14 +426,8 @@ void vtkOBBTree::ComputeOBB(
     for (i = 0; i < 3; i++)
     {
       vtkLine::DistanceToLine(p, mean, a[i], t, closest);
-      if (t < tMin[i])
-      {
-        tMin[i] = t;
-      }
-      if (t > tMax[i])
-      {
-        tMax[i] = t;
-      }
+      tMin[i] = std::min(t, tMin[i]);
+      tMax[i] = std::max(t, tMax[i]);
     }
   } // for all points
 
@@ -1023,14 +1011,8 @@ void vtkOBBNode::DebugPrintTree(int level, double* leaf_vol, int* minCells, int*
   if (nCells != 0)
   {
     *leaf_vol += volume;
-    if (nCells < *minCells)
-    {
-      *minCells = nCells;
-    }
-    if (nCells > *maxCells)
-    {
-      *maxCells = nCells;
-    }
+    *minCells = std::min<vtkIdType>(nCells, *minCells);
+    *maxCells = std::max<vtkIdType>(nCells, *maxCells);
   }
   if (this->Kids != nullptr)
   {
@@ -1136,10 +1118,7 @@ void vtkOBBTree::BuildTree(vtkIdList* cells, vtkOBBNode* OBBptr, int level)
   vtkIdList* cellPts = vtkIdList::New();
   double size[3];
 
-  if (level > this->Level)
-  {
-    this->Level = level;
-  }
+  this->Level = std::max(level, this->Level);
   //
   // Now compute the OBB
   //

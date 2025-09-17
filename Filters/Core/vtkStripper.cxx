@@ -324,10 +324,7 @@ int vtkStripper::RequestData(vtkInformation* vtkNotUsed(request),
               numPts++;
             }
 
-            if (numPts > longestStrip)
-            {
-              longestStrip = numPts;
-            }
+            longestStrip = std::max(numPts, longestStrip);
 
             // note: if updates value of neighbor
             // Note2: for a degenerate triangle this test will

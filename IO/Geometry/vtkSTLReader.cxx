@@ -268,10 +268,7 @@ bool vtkSTLReader::ReadBinarySTL(FILE* fp, vtkPoints* newPts, vtkCellArray* newP
   ulFileLength /=
     50; // 50 byte - twelve 32-bit-floating point numbers + 2 byte for attribute byte count
 
-  if (numTris < static_cast<int>(ulFileLength))
-  {
-    numTris = static_cast<int>(ulFileLength);
-  }
+  numTris = std::max<int>(numTris, ulFileLength);
 
   // now we can allocate the memory we need for this STL file
   newPts->Allocate(numTris * 3);

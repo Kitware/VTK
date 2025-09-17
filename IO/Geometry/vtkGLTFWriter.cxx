@@ -559,6 +559,7 @@ void WriteMesh(nlohmann::json& accessors, nlohmann::json& buffers, nlohmann::jso
     acc["byteOffset"] = 0;
     acc["type"] = da->GetNumberOfComponents() == 4
       ? "VEC4"
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       : (da->GetNumberOfComponents() == 3 ? "VEC3" : "SCALAR");
     acc["componentType"] = GetGLType(da);
     acc["count"] = da->GetNumberOfTuples();

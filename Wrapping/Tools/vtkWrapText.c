@@ -13,6 +13,7 @@
 #include <string.h>
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 /* -------------------------------------------------------------------- */
 /* Convert special characters in a string into their escape codes
@@ -1287,4 +1288,5 @@ int vtkWrapText_IsJavaScriptKeyword(const char* name)
   return 0;
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

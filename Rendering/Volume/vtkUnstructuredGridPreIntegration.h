@@ -27,6 +27,8 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkUnstructuredGridVolumeRayIntegrator.h"
 
+#include <algorithm> // std::min, std::max
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkVolumeProperty;
 
@@ -145,18 +147,12 @@ inline float* vtkUnstructuredGridPreIntegration::GetIndexedTableEntry(
   // Snap entries to bounds.  I don't really want to spend cycles doing
   // this, but I've had the ray caster give me values that are noticeably
   // out of bounds.
-  if (scalar_front_index < 0)
-    scalar_front_index = 0;
-  if (scalar_front_index >= this->IntegrationTableScalarResolution)
-    scalar_front_index = this->IntegrationTableScalarResolution - 1;
-  if (scalar_back_index < 0)
-    scalar_back_index = 0;
-  if (scalar_back_index >= this->IntegrationTableScalarResolution)
-    scalar_back_index = this->IntegrationTableScalarResolution - 1;
-  if (length_index < 0)
-    length_index = 0;
-  if (length_index >= this->IntegrationTableLengthResolution)
-    length_index = this->IntegrationTableLengthResolution - 1;
+  scalar_front_index = std::max(scalar_front_index, 0);
+  scalar_front_index = std::min(scalar_front_index, this->IntegrationTableScalarResolution - 1);
+  scalar_back_index = std::max(scalar_back_index, 0);
+  scalar_back_index = std::min(scalar_back_index, this->IntegrationTableScalarResolution - 1);
+  length_index = std::max(length_index, 0);
+  length_index = std::min(length_index, this->IntegrationTableLengthResolution - 1);
 
   return (this->IntegrationTable[component] +
     4 *

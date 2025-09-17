@@ -346,9 +346,13 @@ vtkSmartPointer<vtkConstantArray<int>> vtkStructuredData::GetCellTypesArray(
 {
   const int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(extent);
   const int dimension = vtkStructuredData::GetDataDimension(dataDescription);
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   const int cellType = dimension == 3 ? (usePixelVoxelOrientation ? VTK_VOXEL : VTK_HEXAHEDRON)
-    : dimension == 2                  ? (usePixelVoxelOrientation ? VTK_PIXEL : VTK_QUAD)
-    : dimension == 1                  ? VTK_LINE
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+    : dimension == 2 ? (usePixelVoxelOrientation ? VTK_PIXEL : VTK_QUAD)
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+    : dimension == 1 ? VTK_LINE
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     : dimension == 0 && dataDescription == VTK_STRUCTURED_SINGLE_POINT ? VTK_VERTEX
                                                                        : VTK_EMPTY_CELL;
   auto cellTypesArray = vtkSmartPointer<vtkConstantArray<int>>::New();
@@ -866,10 +870,7 @@ void vtkStructuredData::GetCellNeighbors(
 
   for (i = 0; i < 3; i++)
   {
-    if (cellDim[i] < 1)
-    {
-      cellDim[i] = 1;
-    }
+    cellDim[i] = std::max<vtkIdType>(cellDim[i], 1);
   }
 
   for (j = 0; j < 8; j++)

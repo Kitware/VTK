@@ -77,10 +77,7 @@ int vtkImageDataGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
     extent[2 * i] = this->Extent[2 * i] < 0 ? 0 : this->Extent[2 * i];
     extent[2 * i] = this->Extent[2 * i] >= dims[i] ? dims[i] - 1 : this->Extent[2 * i];
     extent[2 * i + 1] = this->Extent[2 * i + 1] >= dims[i] ? dims[i] - 1 : this->Extent[2 * i + 1];
-    if (extent[2 * i + 1] < extent[2 * i])
-    {
-      extent[2 * i + 1] = extent[2 * i];
-    }
+    extent[2 * i + 1] = std::max(extent[2 * i + 1], extent[2 * i]);
     if ((extent[2 * i + 1] - extent[2 * i]) == 0)
     {
       dimension--;
@@ -453,14 +450,8 @@ void vtkImageDataGeometryFilter::SetExtent(int extent[6])
     this->Modified();
     for (i = 0; i < 3; i++)
     {
-      if (extent[2 * i] < 0)
-      {
-        extent[2 * i] = 0;
-      }
-      if (extent[2 * i + 1] < extent[2 * i])
-      {
-        extent[2 * i + 1] = extent[2 * i];
-      }
+      extent[2 * i] = std::max(extent[2 * i], 0);
+      extent[2 * i + 1] = std::max(extent[2 * i + 1], extent[2 * i]);
       this->Extent[2 * i] = extent[2 * i];
       this->Extent[2 * i + 1] = extent[2 * i + 1];
     }

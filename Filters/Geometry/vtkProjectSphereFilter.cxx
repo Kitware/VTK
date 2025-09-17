@@ -431,10 +431,7 @@ double vtkProjectSphereFilter::GetZTranslation(vtkPointSet* input)
   {
     input->GetPoint(i, coord);
     double dist2 = vtkMath::Distance2BetweenPoints(coord, this->Center);
-    if (dist2 > maxRadius2)
-    {
-      maxRadius2 = dist2;
-    }
+    maxRadius2 = std::max(dist2, maxRadius2);
   }
   return sqrt(maxRadius2);
 }

@@ -11,6 +11,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTrivialProducer.h"
 
+#include <algorithm>
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -1004,7 +1005,9 @@ void vtkGridTransform::InverseTransformDerivative(
     a = -functionDerivative / (2 * (functionValue - lastFunctionValue - functionDerivative));
 
     // clamp to range [0.1,0.5]
-    f *= (a < 0.1 ? 0.1 : (a > 0.5 ? 0.5 : a));
+    a = std::min(std::max(a, 0.1), 0.5);
+
+    f *= a;
 
     // re-calculate inverse using fractional distance
     inverse[0] = lastInverse[0] - f * deltaI[0] * invSpacing[0];

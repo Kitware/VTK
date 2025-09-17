@@ -119,7 +119,8 @@ const vtkIdType* vtkQuadraticHexahedron::GetFaceArray(vtkIdType faceId)
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticHexahedron::GetEdge(int edgeId)
 {
-  edgeId = (edgeId < 0 ? 0 : (edgeId > 11 ? 11 : edgeId));
+  edgeId = std::max(edgeId, 0);
+  edgeId = std::min(edgeId, 11);
 
   for (int i = 0; i < 3; i++)
   {
@@ -133,7 +134,8 @@ vtkCell* vtkQuadraticHexahedron::GetEdge(int edgeId)
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticHexahedron::GetFace(int faceId)
 {
-  faceId = (faceId < 0 ? 0 : (faceId > 5 ? 5 : faceId));
+  faceId = std::max(faceId, 0);
+  faceId = std::min(faceId, 5);
 
   for (int i = 0; i < 8; i++)
   {
@@ -229,10 +231,7 @@ int vtkQuadraticHexahedron::EvaluatePosition(const double x[3], double closestPo
     pt0 = pts + 3 * diagonals[i][0];
     pt1 = pts + 3 * diagonals[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
-    if (longestDiagonal < d2)
-    {
-      longestDiagonal = d2;
-    }
+    longestDiagonal = std::max(longestDiagonal, d2);
   }
   // longestDiagonal value is already squared
   double volumeBound = longestDiagonal * std::sqrt(longestDiagonal);

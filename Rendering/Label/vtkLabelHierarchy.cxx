@@ -611,10 +611,7 @@ void vtkLabelHierarchyFullSortIterator::Begin(vtkIdTypeArray* vtkNotUsed(lastPla
     if (node.Node->num_children() > 0)
     {
       ++level;
-      if (level > maxLevel)
-      {
-        maxLevel = level;
-      }
+      maxLevel = std::max(level, maxLevel);
       for (int c = 0; c < 8; ++c)
       {
         vtkHierarchyNode child;
@@ -948,7 +945,7 @@ struct vtkQuadtreeNodeDistCompare
       da += va * va;
       db += vb * vb;
     }
-    return da < db ? true : (da == db ? (a < b) : false);
+    return (da < db) || ((da == db) && (a < b));
   }
 };
 
@@ -1286,7 +1283,7 @@ struct vtkOctreeNodeDistCompare
       da += va * va;
       db += vb * vb;
     }
-    return da < db ? true : (da == db ? (a < b) : false);
+    return (da < db) || ((da == db) && (a < b));
   }
 };
 
@@ -1762,7 +1759,18 @@ extern "C"
   {
     const vtkDistNodeStruct* da = static_cast<const vtkDistNodeStruct*>(va);
     const vtkDistNodeStruct* db = static_cast<const vtkDistNodeStruct*>(vb);
-    return (da->Distance < db->Distance ? -1 : (da->Distance > db->Distance ? 1 : 0));
+    if (da->Distance < db->Distance)
+    {
+      return -1;
+    }
+    else if (da->Distance > db->Distance)
+    {
+      return 1;
+    }
+    else
+    {
+      return 0;
+    }
   }
 }
 
@@ -1973,8 +1981,7 @@ void vtkLabelHierarchy::ComputeHierarchy()
   {
     center[i] = (bounds[2 * i] + bounds[2 * i + 1]) / 2.;
     delta = fabs(bounds[2 * i + 1] - bounds[2 * i]);
-    if (delta > maxDim)
-      maxDim = delta;
+    maxDim = std::max(delta, maxDim);
   }
   // Implementation::PriorityComparator comparator( this );
   // Implementation::LabelSet allAnchors( comparator );
@@ -2460,10 +2467,7 @@ void vtkLabelHierarchy::Implementation::DropAnchor2(vtkIdType anchor)
     curs.down(child);
   }
   curs->value().Insert(anchor);
-  if (curs.level() > this->ActualDepth)
-  {
-    this->ActualDepth = curs.level();
-  }
+  this->ActualDepth = std::max(curs.level(), this->ActualDepth);
 
   this->SmudgeAnchor2(curs, anchor, x);
 }
@@ -2520,10 +2524,7 @@ void vtkLabelHierarchy::Implementation::DropAnchor3(vtkIdType anchor)
     curs.down(child);
   }
   curs->value().Insert(anchor);
-  if (curs.level() > this->ActualDepth)
-  {
-    this->ActualDepth = curs.level();
-  }
+  this->ActualDepth = std::max(curs.level(), this->ActualDepth);
 
   this->SmudgeAnchor3(curs, anchor, x);
 }

@@ -791,7 +791,7 @@ void vtkIncrementalOctreeNode::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Index: " << this->ID << endl;
   os << indent << "Parent: " << this->Parent << endl;
-  os << indent << "Children: " << this->Children << endl;
+  os << indent << "Children: " << reinterpret_cast<const void*>(this->Children) << endl;
   os << indent << "PointIdSet: " << this->PointIdSet << endl;
   os << indent << "NumberOfPoints: " << this->NumberOfPoints << endl;
   os << indent << "MinBounds: " << this->MinBounds[0] << " " << this->MinBounds[1] << " "

@@ -9,6 +9,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageSeedConnectivity);
 
@@ -48,10 +50,7 @@ void vtkImageSeedConnectivity::AddSeed(int num, int* index)
   int idx, newIndex[3];
   vtkImageConnectorSeed* seed;
 
-  if (num > 3)
-  {
-    num = 3;
-  }
+  num = std::max(num, 3);
   for (idx = 0; idx < num; ++idx)
   {
     newIndex[idx] = index[idx];
@@ -190,14 +189,7 @@ int vtkImageSeedConnectivity::RequestData(vtkInformation* vtkNotUsed(request),
   {
     temp = seed->Index[0];
     // make sure z value of seed is acceptable
-    if (seed->Index[2] < min2)
-    {
-      seed->Index[2] = min2;
-    }
-    if (seed->Index[2] > max2)
-    {
-      seed->Index[2] = max2;
-    }
+    seed->Index[2] = std::clamp(seed->Index[2], min2, max2);
     outPtr0 = static_cast<unsigned char*>(outData->GetScalarPointer(seed->Index));
     for (idx0 = temp; idx0 <= max0; ++idx0)
     {

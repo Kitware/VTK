@@ -661,10 +661,7 @@ int vtkImageStencilData::GetNextExtent(
       return 0;
     }
     r1 = clist[iter++];
-    if (r1 < rmin)
-    {
-      r1 = rmin;
-    }
+    r1 = std::max(r1, rmin);
   }
 
   if (r1 > rmax)
@@ -680,10 +677,7 @@ int vtkImageStencilData::GetNextExtent(
 
   r2 = clist[iter++] - 1;
 
-  if (r2 > rmax)
-  {
-    r2 = rmax;
-  }
+  r2 = std::min(r2, rmax);
 
   return 1;
 }
@@ -840,14 +834,8 @@ void vtkImageStencilData::LogicalOperationInPlace(vtkImageStencilData* stencil, 
   stencil->GetExtent(extent);
   for (int i = 0; i < 3; i++)
   {
-    if (this->Extent[2 * i] > extent[2 * i])
-    {
-      extent[2 * i] = this->Extent[2 * i];
-    }
-    if (this->Extent[2 * i + 1] < extent[2 * i + 1])
-    {
-      extent[2 * i + 1] = this->Extent[2 * i + 1];
-    }
+    extent[2 * i] = std::max(this->Extent[2 * i], extent[2 * i]);
+    extent[2 * i + 1] = std::min(this->Extent[2 * i + 1], extent[2 * i + 1]);
     if (extent[2 * i] > extent[2 * i + 1])
     {
       extent[2 * i] = this->Extent[2 * i + 1] + 1;

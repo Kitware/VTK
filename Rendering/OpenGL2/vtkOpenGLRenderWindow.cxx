@@ -2803,10 +2803,7 @@ int vtkOpenGLRenderWindow::CreateFramebuffers(int width, int height)
 #ifdef GL_MAX_SAMPLES
       int msamples = 0;
       this->GetState()->vtkglGetIntegerv(GL_MAX_SAMPLES, &msamples);
-      if (this->MultiSamples > msamples)
-      {
-        this->MultiSamples = msamples;
-      }
+      this->MultiSamples = std::min(this->MultiSamples, msamples);
       if (this->MultiSamples == 1)
       {
         this->MultiSamples = 0;

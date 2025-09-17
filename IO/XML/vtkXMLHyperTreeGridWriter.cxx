@@ -657,6 +657,7 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
     // squeezing last zeros of last row out of descriptor
     if (vtkIdType lastNonZeroId = descriptor->GetNumberOfValues())
     {
+      // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
       while (lastNonZeroId && !descriptor->GetValue(--lastNonZeroId))
         ;
 
@@ -673,6 +674,7 @@ int vtkXMLHyperTreeGridWriter::WriteTrees_1(vtkIndent indent)
       // squeezing last zeros of last row out of mask
       if (vtkIdType lastNonZeroId = mask->GetNumberOfValues())
       {
+        // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
         while (lastNonZeroId && !mask->GetValue(--lastNonZeroId))
           ;
 

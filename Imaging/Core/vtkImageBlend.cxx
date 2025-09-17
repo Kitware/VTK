@@ -107,14 +107,8 @@ void vtkImageBlend::SetOpacity(int idx, double opacity)
   int newLength;
   double* newArray;
 
-  if (opacity < 0.0)
-  {
-    opacity = 0.0;
-  }
-  if (opacity > 1.0)
-  {
-    opacity = 1.0;
-  }
+  opacity = std::max(opacity, 0.0);
+  opacity = std::min(opacity, 1.0);
 
   if (idx >= this->OpacityArrayLength)
   {
@@ -167,14 +161,8 @@ void vtkImageBlend::InternalComputeInputUpdateExtent(
   // clip with the whole extent
   for (i = 0; i < 3; i++)
   {
-    if (inExt[2 * i] < wholeExtent[2 * i])
-    {
-      inExt[2 * i] = wholeExtent[2 * i];
-    }
-    if (inExt[2 * i + 1] > wholeExtent[2 * i + 1])
-    {
-      inExt[2 * i + 1] = wholeExtent[2 * i + 1];
-    }
+    inExt[2 * i] = std::max(inExt[2 * i], wholeExtent[2 * i]);
+    inExt[2 * i + 1] = std::min(inExt[2 * i + 1], wholeExtent[2 * i + 1]);
   }
 }
 

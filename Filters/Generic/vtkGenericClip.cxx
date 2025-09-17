@@ -26,6 +26,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -176,10 +177,7 @@ int vtkGenericClip::RequestData(vtkInformation* vtkNotUsed(request),
   // allocate the output and associated helper classes
   estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   vtkPoints* newPoints = vtkPoints::New();
   newPoints->Allocate(numPts, numPts / 2);
@@ -326,7 +324,18 @@ int vtkGenericClip::RequestData(vtkInformation* vtkNotUsed(request),
             break;
 
           case 2: // polygons are generated------------------------------
-            cellType = (npts == 3 ? VTK_TRIANGLE : (npts == 4 ? VTK_QUAD : VTK_POLYGON));
+            if (npts == 3)
+            {
+              cellType = VTK_TRIANGLE;
+            }
+            else if (npts == 4)
+            {
+              cellType = VTK_QUAD;
+            }
+            else
+            {
+              cellType = VTK_POLYGON;
+            }
             break;
 
           case 3: // tetrahedra or wedges are generated------------------

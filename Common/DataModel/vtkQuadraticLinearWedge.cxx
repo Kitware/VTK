@@ -104,7 +104,8 @@ const vtkIdType* vtkQuadraticLinearWedge::GetFaceArray(vtkIdType faceId)
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticLinearWedge::GetEdge(int edgeId)
 {
-  edgeId = (edgeId < 0 ? 0 : (edgeId > 8 ? 8 : edgeId));
+  edgeId = std::max(edgeId, 0);
+  edgeId = std::min(edgeId, 8);
 
   // We have 6 quadratic edges and 3 linear edges
   if (edgeId < 6)
@@ -130,7 +131,8 @@ vtkCell* vtkQuadraticLinearWedge::GetEdge(int edgeId)
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticLinearWedge::GetFace(int faceId)
 {
-  faceId = (faceId < 0 ? 0 : (faceId > 4 ? 4 : faceId));
+  faceId = std::max(faceId, 0);
+  faceId = std::min(faceId, 4);
 
   // load point id's and coordinates
   // be careful with the last two:

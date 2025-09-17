@@ -16,6 +16,7 @@
 #include "vtkPoints.h"
 #include "vtkQuadraticEdge.h"
 #include "vtkQuadraticQuad.h"
+#include <algorithm>
 #include <array>
 #include <cassert>
 
@@ -117,7 +118,8 @@ const vtkIdType* vtkBiQuadraticQuadraticHexahedron::GetFaceArray(vtkIdType faceI
 //------------------------------------------------------------------------------
 vtkCell* vtkBiQuadraticQuadraticHexahedron::GetEdge(int edgeId)
 {
-  edgeId = (edgeId < 0 ? 0 : (edgeId > 11 ? 11 : edgeId));
+  edgeId = std::max(edgeId, 0);
+  edgeId = std::min(edgeId, 11);
 
   for (int i = 0; i < 3; i++)
   {
@@ -131,7 +133,8 @@ vtkCell* vtkBiQuadraticQuadraticHexahedron::GetEdge(int edgeId)
 //------------------------------------------------------------------------------
 vtkCell* vtkBiQuadraticQuadraticHexahedron::GetFace(int faceId)
 {
-  faceId = (faceId < 0 ? 0 : (faceId > 5 ? 5 : faceId));
+  faceId = std::max(faceId, 0);
+  faceId = std::min(faceId, 5);
 
   // 4 BiQuaduadaticQuads
   if (faceId < 4)

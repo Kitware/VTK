@@ -239,10 +239,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
       if (table)
       {
         vtkMTimeType mtime = table->GetMTime();
-        if (mtime > propertyMTime)
-        {
-          propertyMTime = mtime;
-        }
+        propertyMTime = std::max(mtime, propertyMTime);
       }
     }
   }

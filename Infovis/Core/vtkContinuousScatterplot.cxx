@@ -430,14 +430,8 @@ int vtkContinuousScatterplot::RequestData(
         double fval = newPointsPD->GetArray((int)fieldNr)->GetComponent(pnr, 0);
 
         ////cout << "    fval: " << fval << endl;
-        if (maxCell < fval)
-        {
-          maxCell = fval;
-        }
-        if (minCell > fval)
-        {
-          minCell = fval;
-        }
+        maxCell = std::max<double>(maxCell, fval);
+        minCell = std::min<double>(minCell, fval);
       }
 
       ////cout << "D"  << endl;
@@ -858,10 +852,7 @@ int vtkContinuousScatterplot::RequestData(
       }
 
       // finding the largest volume in a bin.
-      if (imageBin[binIndexFirst][binIndexSecond] > maxBinSize)
-      {
-        maxBinSize = imageBin[binIndexFirst][binIndexSecond];
-      }
+      maxBinSize = std::max(imageBin[binIndexFirst][binIndexSecond], maxBinSize);
 
       // Clear faces from current polytope in output queue.
       while (!outputQ[co]->empty())

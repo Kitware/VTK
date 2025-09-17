@@ -141,6 +141,7 @@ public:
           // Can't just do vtkCellArray::AppendLegacyFormat bc of this funky
           // conversion:
           vid = static_cast<size_t>(*verts++);
+          // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
           vid = (vid <= 3 ? vid : (vid <= 13 ? (vid - 6) : 8));
           conn->SetValue(cellConnBegin++, static_cast<ValueType>(ptIds[vid]));
         }

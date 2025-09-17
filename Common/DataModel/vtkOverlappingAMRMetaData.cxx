@@ -739,14 +739,8 @@ void vtkOverlappingAMRMetaData::CalculateParentChildRelationShip(unsigned int le
         box.GetValidHiCorner(hiCorner);
         for (int i = 0; i < 3; i++)
         {
-          if (loCorner[i] < extents[2 * i])
-          {
-            extents[2 * i] = loCorner[i];
-          }
-          if (hiCorner[i] > extents[2 * i + 1])
-          {
-            extents[2 * i + 1] = hiCorner[i];
-          }
+          extents[2 * i] = std::min(loCorner[i], extents[2 * i]);
+          extents[2 * i + 1] = std::max(hiCorner[i], extents[2 * i + 1]);
           totalsize[i] += (hiCorner[i] - loCorner[i] + 1);
         }
       }
@@ -1067,14 +1061,8 @@ void vtkOverlappingAMRMetaData::UpdateBounds(int level, int id)
   {
     for (int i = 0; i < 3; ++i)
     {
-      if (bb[i * 2] < this->Bounds[i * 2])
-      {
-        this->Bounds[i * 2] = bb[i * 2];
-      }
-      if (bb[i * 2 + 1] > this->Bounds[i * 2 + 1])
-      {
-        this->Bounds[i * 2 + 1] = bb[i * 2 + 1];
-      }
+      this->Bounds[i * 2] = std::min(bb[i * 2], this->Bounds[i * 2]);
+      this->Bounds[i * 2 + 1] = std::max(bb[i * 2 + 1], this->Bounds[i * 2 + 1]);
     } // END for each dimension
   }
 }

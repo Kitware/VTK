@@ -145,10 +145,7 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(
         inputSize[idx] = inputPipelineSize[1];
 
         // Is the max returned bigger than the max we've seen so far?
-        if (inputPipelineSize[2] > maxSize)
-        {
-          maxSize = inputPipelineSize[2];
-        }
+        maxSize = std::max(inputPipelineSize[2], maxSize);
 
         // If we are going to release this input, then its size won't matter
         // downstream from here.
@@ -183,10 +180,7 @@ void vtkPipelineSize::GenericComputeSourcePipelineSize(
 
   // Is the state of the pipeline during this filter's execution the
   // largest that it has been so far?
-  if (mySize.CastToUnsignedLong() > maxSize)
-  {
-    maxSize = mySize.CastToUnsignedLong();
-  }
+  maxSize = std::max(mySize.CastToUnsignedLong(), maxSize);
 
   // The first size is the memory going downstream from here - which is all
   // the memory coming in minus any data released. The second size is the

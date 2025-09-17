@@ -79,7 +79,7 @@ public:
     CELL_DATA = 1,
     VERTEX_DATA = 2,
     EDGE_DATA = 3,
-    NUM_ATTRIBUTE_LOCS
+    NUM_ATTRIBUTE_LOCS = 4
   };
 
 protected:

@@ -83,7 +83,7 @@ public:
 
   enum Passes
   {
-    RenderPass,
+    RenderPass = 0,
     DepthPass = 1
   };
 

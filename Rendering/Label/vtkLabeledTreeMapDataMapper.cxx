@@ -158,10 +158,7 @@ void vtkLabeledTreeMapDataMapper::UpdateFontSizes()
       this->TextMappers[0]->SetInput(test);
       this->TextMappers[0]->GetSize(this->CurrentViewPort, tSize);
       this->FontWidths[i][test[0] - 32] = tSize[0];
-      if (this->FontHeights[i] < tSize[1])
-      {
-        this->FontHeights[i] = tSize[1];
-      }
+      this->FontHeights[i] = std::max(this->FontHeights[i], tSize[1]);
     }
   }
 }
@@ -552,10 +549,7 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree* tree, vtkFloatArray* boxInf
 int vtkLabeledTreeMapDataMapper::GetStringSize(char* string, int level)
 {
 
-  if (level > this->MaxFontLevel)
-  {
-    level = this->MaxFontLevel;
-  }
+  level = std::min(level, this->MaxFontLevel);
   int size = 0, i;
   for (i = 0; string[i] != '\0'; i++)
   {
@@ -612,25 +606,10 @@ int vtkLabeledTreeMapDataMapper::ConvertToDC(float* binfo, float* newBinfo)
     return 0;
   }
 
-  if (newBinfo[0] < 0)
-  {
-    newBinfo[0] = 0;
-  }
-
-  if (newBinfo[1] > windowWidth)
-  {
-    newBinfo[1] = windowWidth;
-  }
-
-  if (newBinfo[2] < 0)
-  {
-    newBinfo[2] = 0;
-  }
-
-  if (newBinfo[3] > windowHeight)
-  {
-    newBinfo[3] = windowHeight;
-  }
+  newBinfo[0] = std::max(newBinfo[0], 0.f);
+  newBinfo[1] = std::min<double>(newBinfo[1], windowWidth);
+  newBinfo[2] = std::max(newBinfo[2], 0.f);
+  newBinfo[3] = std::min<double>(newBinfo[3], windowHeight);
 
   return 0;
 }

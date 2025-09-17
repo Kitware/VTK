@@ -97,10 +97,7 @@ double vtkPlanes::EvaluateFunction(double x[3])
     this->Normals->GetTuple(i, normal);
     this->Points->GetPoint(i, point);
     val = this->Plane->Evaluate(normal, point, x);
-    if (val > maxVal)
-    {
-      maxVal = val;
-    }
+    maxVal = std::max(val, maxVal);
   }
 
   return maxVal;

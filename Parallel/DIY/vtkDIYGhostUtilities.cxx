@@ -536,18 +536,13 @@ void ExtendSharedInterfaceIfNeeded(int idx, int outputGhostLevels,
   if (extent[idx] > localExtent[idx])
   {
     shiftedExtentWithNewGhosts[idx] -= outputGhostLevels;
-    if (shiftedExtentWithNewGhosts[idx] < localExtent[idx])
-    {
-      shiftedExtentWithNewGhosts[idx] = localExtent[idx];
-    }
+    shiftedExtentWithNewGhosts[idx] = std::max(shiftedExtentWithNewGhosts[idx], localExtent[idx]);
   }
   if (extent[idx + 1] < localExtent[idx + 1])
   {
     shiftedExtentWithNewGhosts[idx + 1] += outputGhostLevels;
-    if (shiftedExtentWithNewGhosts[idx + 1] > localExtent[idx + 1])
-    {
-      shiftedExtentWithNewGhosts[idx + 1] = localExtent[idx + 1];
-    }
+    shiftedExtentWithNewGhosts[idx + 1] =
+      std::min(shiftedExtentWithNewGhosts[idx + 1], localExtent[idx + 1]);
   }
 }
 

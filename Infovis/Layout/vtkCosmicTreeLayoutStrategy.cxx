@@ -221,10 +221,7 @@ static int vtkCosmicTreeLayoutStrategyComputeCentersQuick(
         cumAngle += ang[i];
         sumAngp += (angp[i] = 2. * asin(circ->Radius / (Re - circ->Radius)));
         double localErr = fabs(angp[i] - ang[i]);
-        if (localErr > err)
-        {
-          err = localErr;
-        }
+        err = std::max(localErr, err);
       }
       for (i = 0; i < N; ++i)
       {

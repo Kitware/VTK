@@ -55,18 +55,9 @@ void vtkImageRGBToHSVExecute(
       S *= max;
       V *= max;
 
-      if (H > max)
-      {
-        H = max;
-      }
-      if (S > max)
-      {
-        S = max;
-      }
-      if (V > max)
-      {
-        V = max;
-      }
+      H = std::min(H, max);
+      S = std::min(S, max);
+      V = std::min(V, max);
 
       // assign output.
       *outSI = static_cast<T>(H);

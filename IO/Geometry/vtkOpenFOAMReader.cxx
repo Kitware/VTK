@@ -1452,16 +1452,18 @@ public:
   float ToFloat() const noexcept
   {
     return this->Type == LABEL ? static_cast<float>(this->Int)
-      : this->Type == SCALAR   ? static_cast<float>(this->Double)
-                               : 0.0F;
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+      : this->Type == SCALAR ? static_cast<float>(this->Double)
+                             : 0.0F;
   }
 
   // Mostly the same as To<double>, with additional check
   double ToDouble() const noexcept
   {
     return this->Type == LABEL ? static_cast<double>(this->Int)
-      : this->Type == SCALAR   ? this->Double
-                               : 0.0;
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+      : this->Type == SCALAR ? this->Double
+                             : 0.0;
   }
 
   std::string ToString() const { return *this->StringPtr; }
@@ -2095,9 +2097,10 @@ public:
         case '$': // $-variable expansion
         {
           std::string variable;
-          while (++charI < nChars && (isalnum(pathIn[charI]) || pathIn[charI] == '_'))
+          ++charI; // skip the '$'
+          while (charI < nChars && (isalnum(pathIn[charI]) || pathIn[charI] == '_'))
           {
-            variable += pathIn[charI];
+            variable += pathIn[charI++];
           }
           if (variable == "FOAM_CASE") // discard path until the variable
           {
@@ -2138,10 +2141,11 @@ public:
           if (wasPathSeparator)
           {
             std::string userName;
-            while (++charI < nChars && (pathIn[charI] != '/' && pathIn[charI] != '\\') &&
+            ++charI; // skip the '~'
+            while (charI < nChars && (pathIn[charI] != '/' && pathIn[charI] != '\\') &&
               pathIn[charI] != '$')
             {
-              userName += pathIn[charI];
+              userName += pathIn[charI++];
             }
 
             std::string homeDir;
@@ -6599,6 +6603,7 @@ namespace
 // - No change and first instance: it is "constant" time instance
 inline void UpdateTimeInstance(std::vector<vtkIdType>& list, vtkIdType i, bool changed)
 {
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   list[i] = changed ? i : (i == 0) ? TIMEINDEX_CONSTANT : list[i - 1];
 }
 
@@ -8184,8 +8189,9 @@ void vtkOpenFOAMReaderPrivate::InsertFacesToGrid(vtkPolyData* boundaryMesh,
     }
 
     const int vtkFaceType = (nFacePoints == 3 ? VTK_TRIANGLE
-        : nFacePoints == 4                    ? VTK_QUAD
-                                              : VTK_POLYGON);
+        // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+        : nFacePoints == 4 ? VTK_QUAD
+                           : VTK_POLYGON);
     boundaryMesh->InsertNextCell(vtkFaceType, nFacePoints, facePointIds.data());
   }
 }
@@ -8637,6 +8643,7 @@ void vtkOpenFOAMReaderPrivate::InterpolateCellToPoint(vtkFloatArray* pData, vtkF
           {
             *it = (*volIt > 0
                 ? *volIt
+                // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
                 : (*areaIt > 0 ? *areaIt : (*lenIt > 0 ? *lenIt : (*vcIt > 0 ? *vcIt : -1.0))));
           }
         });
@@ -9939,7 +9946,12 @@ vtkMultiBlockDataSet* vtkOpenFOAMReaderPrivate::MakeLagrangianMesh()
     const std::string displayName(selection->GetArrayName(itemi));
 
     auto slash = displayName.rfind('/');
-    if (slash == std::string::npos || displayName.compare(0, ++slash, regionCloudPrefix) != 0)
+    if (slash == std::string::npos)
+    {
+      continue;
+    }
+    ++slash;
+    if (displayName.compare(0, slash, regionCloudPrefix) != 0)
     {
       continue;
     }

@@ -215,14 +215,8 @@ int vtkMassProperties::RequestData(vtkInformation* vtkNotUsed(request),
     s = 0.5 * (a + b + c);
     area = sqrt(fabs(s * (s - a) * (s - b) * (s - c)));
     surfacearea += area;
-    if (area < mincellarea)
-    {
-      mincellarea = area;
-    }
-    if (area > maxcellarea)
-    {
-      maxcellarea = area;
-    }
+    mincellarea = std::min(area, mincellarea);
+    maxcellarea = std::max(area, maxcellarea);
 
     // volume elements ...
     //

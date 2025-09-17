@@ -11,6 +11,8 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFieldDataToAttributeDataFilter);
 
@@ -264,31 +266,31 @@ void vtkFieldDataToAttributeDataFilter::SetScalarComponent(
 
 const char* vtkFieldDataToAttributeDataFilter::GetScalarComponentArrayName(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 3 ? 3 : comp));
+  comp = std::min(std::max(comp, 0), 3);
   return this->ScalarArrays[comp];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetScalarComponentArrayComponent(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 3 ? 3 : comp));
+  comp = std::min(std::max(comp, 0), 3);
   return this->ScalarArrayComponents[comp];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetScalarComponentMinRange(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 3 ? 3 : comp));
+  comp = std::min(std::max(comp, 0), 3);
   return this->ScalarComponentRange[comp][0];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetScalarComponentMaxRange(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 3 ? 3 : comp));
+  comp = std::min(std::max(comp, 0), 3);
   return this->ScalarComponentRange[comp][1];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetScalarComponentNormalizeFlag(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 3 ? 3 : comp));
+  comp = std::min(std::max(comp, 0), 3);
   return this->ScalarNormalize[comp];
 }
 
@@ -414,31 +416,31 @@ void vtkFieldDataToAttributeDataFilter::SetVectorComponent(
 
 const char* vtkFieldDataToAttributeDataFilter::GetVectorComponentArrayName(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->VectorArrays[comp];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetVectorComponentArrayComponent(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->VectorArrayComponents[comp];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetVectorComponentMinRange(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->VectorComponentRange[comp][0];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetVectorComponentMaxRange(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->VectorComponentRange[comp][1];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetVectorComponentNormalizeFlag(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->VectorNormalize[comp];
 }
 
@@ -556,31 +558,31 @@ void vtkFieldDataToAttributeDataFilter::SetNormalComponent(
 
 const char* vtkFieldDataToAttributeDataFilter::GetNormalComponentArrayName(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->NormalArrays[comp];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetNormalComponentArrayComponent(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->NormalArrayComponents[comp];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetNormalComponentMinRange(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->NormalComponentRange[comp][0];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetNormalComponentMaxRange(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->NormalComponentRange[comp][1];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetNormalComponentNormalizeFlag(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->NormalNormalize[comp];
 }
 
@@ -702,31 +704,31 @@ void vtkFieldDataToAttributeDataFilter::SetTCoordComponent(
 
 const char* vtkFieldDataToAttributeDataFilter::GetTCoordComponentArrayName(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->TCoordArrays[comp];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetTCoordComponentArrayComponent(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->TCoordArrayComponents[comp];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetTCoordComponentMinRange(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->TCoordComponentRange[comp][0];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetTCoordComponentMaxRange(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->TCoordComponentRange[comp][1];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetTCoordComponentNormalizeFlag(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->TCoordNormalize[comp];
 }
 
@@ -853,31 +855,31 @@ void vtkFieldDataToAttributeDataFilter::SetTensorComponent(
 
 const char* vtkFieldDataToAttributeDataFilter::GetTensorComponentArrayName(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 8 ? 8 : comp));
+  comp = std::min(std::max(comp, 0), 8);
   return this->TensorArrays[comp];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetTensorComponentArrayComponent(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 8 ? 8 : comp));
+  comp = std::min(std::max(comp, 0), 8);
   return this->TensorArrayComponents[comp];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetTensorComponentMinRange(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 8 ? 8 : comp));
+  comp = std::min(std::max(comp, 0), 8);
   return this->TensorComponentRange[comp][0];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetTensorComponentMaxRange(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 8 ? 8 : comp));
+  comp = std::min(std::max(comp, 0), 8);
   return this->TensorComponentRange[comp][1];
 }
 
 int vtkFieldDataToAttributeDataFilter::GetTensorComponentNormalizeFlag(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 8 ? 8 : comp));
+  comp = std::min(std::max(comp, 0), 8);
   return this->TensorNormalize[comp];
 }
 
@@ -997,14 +999,8 @@ int vtkFieldDataToAttributeDataFilter::ConstructArray(vtkDataArray* da, int comp
   for (i = 0; i < n; i++)
   {
     compValue = fieldArray->GetComponent(min + i, fieldComp);
-    if (compValue < minValue)
-    {
-      minValue = compValue;
-    }
-    if (compValue > maxValue)
-    {
-      maxValue = compValue;
-    }
+    minValue = std::min(compValue, minValue);
+    maxValue = std::max(compValue, maxValue);
     da->SetComponent(i, comp, compValue);
   }
 
@@ -1032,10 +1028,7 @@ int vtkFieldDataToAttributeDataFilter::GetComponentsType(int numComp, vtkDataArr
   for (int i = 0; i < numComp; i++)
   {
     type = arrays[i]->GetDataType();
-    if (type > mostComplexType)
-    {
-      mostComplexType = type;
-    }
+    mostComplexType = std::max(type, mostComplexType);
   }
 
   return mostComplexType;

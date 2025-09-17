@@ -27,6 +27,8 @@
 #include "vtkLookupTable.h"
 #include "vtkRenderingCoreModule.h" // For export macro
 
+#include <algorithm> // For std::max
+
 VTK_ABI_NAMESPACE_BEGIN
 class VTKRENDERINGCORE_EXPORT vtkWindowLevelLookupTable : public vtkLookupTable
 {
@@ -48,10 +50,7 @@ public:
    */
   void SetWindow(double window)
   {
-    if (window < 1e-5)
-    {
-      window = 1e-5;
-    }
+    window = std::max(window, 1e-5);
     this->Window = window;
     this->SetTableRange(this->Level - this->Window / 2.0, this->Level + this->Window / 2.0);
   }

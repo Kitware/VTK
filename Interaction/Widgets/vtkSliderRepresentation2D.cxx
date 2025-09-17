@@ -20,6 +20,8 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSliderRepresentation2D);
 
@@ -325,7 +327,7 @@ double vtkSliderRepresentation2D::ComputePickPosition(double eventPos[2])
   double scale = (2.0 * this->X - 2.0 * this->EndCapLength) /
     (2.0 * this->X - 2.0 * this->EndCapLength - this->SliderLength);
   this->PickedT = 0.5 + (this->PickedT - 0.5) * scale;
-  this->PickedT = (this->PickedT < 0 ? 0.0 : (this->PickedT > 1.0 ? 1.0 : this->PickedT));
+  this->PickedT = std::min(std::max(this->PickedT, 0.0), 1.0);
 
   return this->PickedT;
 }
@@ -414,9 +416,7 @@ void vtkSliderRepresentation2D::BuildRepresentation()
     // we have to take into account the text height and width.
     int titleSize[2];
     double textSize[2];
-    double maxY = (this->SliderWidth > this->TubeWidth
-        ? (this->SliderWidth > this->EndCapWidth ? this->SliderWidth : this->EndCapWidth)
-        : (this->TubeWidth > this->EndCapWidth ? this->TubeWidth : this->EndCapWidth));
+    double maxY = std::max({ this->SliderWidth, this->TubeWidth, this->EndCapWidth });
 
     if (!this->ShowSliderLabel)
     {

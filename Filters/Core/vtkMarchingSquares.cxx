@@ -127,14 +127,8 @@ struct ContourImageWorker
     }
     for (min = max = values[0], i = 1; i < numValues; i++)
     {
-      if (values[i] < min)
-      {
-        min = values[i];
-      }
-      if (values[i] > max)
-      {
-        max = values[i];
-      }
+      min = std::min(values[i], min);
+      max = std::max(values[i], max);
     }
 
     // assign coordinate value to non-varying coordinate direction
@@ -393,10 +387,7 @@ int vtkMarchingSquares::RequestData(vtkInformation* vtkNotUsed(request),
   //
   estimatedSize = (int)(numContours * sqrt((double)dims[0] * dims[1]));
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max(estimatedSize, 1024);
 
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize, estimatedSize);

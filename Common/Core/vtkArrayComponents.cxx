@@ -181,11 +181,7 @@ vtkSmartPointer<vtkDataArray> computeLInfNorm(vtkDataArray* array)
           double max = std::abs(tuple[0]);
           for (int jj = 1; jj < numComponents; ++jj)
           {
-            double val = std::abs(tuple[jj]);
-            if (val > max)
-            {
-              max = val;
-            }
+            max = std::max(max, std::abs(tuple[jj]));
           }
           norm->SetTuple1(ii, max);
         }

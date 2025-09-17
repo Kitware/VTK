@@ -246,10 +246,7 @@ static void vtkImageEuclideanDistanceExecuteSaito(
           if (*outPtr0 != 0)
           {
             df++;
-            if (sq[df] < *outPtr0)
-            {
-              *outPtr0 = sq[df];
-            }
+            *outPtr0 = std::min(sq[df], *outPtr0);
           }
           else
           {
@@ -265,10 +262,7 @@ static void vtkImageEuclideanDistanceExecuteSaito(
           if (*outPtr0 != 0)
           {
             df++;
-            if (sq[df] < *outPtr0)
-            {
-              *outPtr0 = sq[df];
-            }
+            *outPtr0 = std::min(sq[df], *outPtr0);
           }
           else
           {
@@ -460,10 +454,7 @@ static void vtkImageEuclideanDistanceExecuteSaitoCached(
           if (*outPtr0 != 0)
           {
             df++;
-            if (sq[df] < *outPtr0)
-            {
-              *outPtr0 = sq[df];
-            }
+            *outPtr0 = std::min(sq[df], *outPtr0);
           }
           else
           {
@@ -480,10 +471,7 @@ static void vtkImageEuclideanDistanceExecuteSaitoCached(
           if (*outPtr0 != 0)
           {
             df++;
-            if (sq[df] < *outPtr0)
-            {
-              *outPtr0 = sq[df];
-            }
+            *outPtr0 = std::min(sq[df], *outPtr0);
           }
           else
           {

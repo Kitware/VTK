@@ -30,6 +30,8 @@
 
 #include "vtkOpenGLError.h"
 
+#include <cmath>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenGLImageMapper);
 
@@ -280,13 +282,14 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper* self, vtkImageData* d
   // The "*2.0" and "*1.0" ensure that the comparison is done
   // with double-precision math.
   int bitShift = 0;
-  double absScale = ((scale < 0) ? -scale : scale);
+  double absScale = std::abs(scale);
 
   while ((static_cast<long>(1 << bitShift) * absScale) * 2.0 * USHRT_MAX < INT_MAX * 1.0)
   {
     bitShift++;
   }
   bitShift--;
+  bitShift = std::max(bitShift, 0);
 
   long sscale = static_cast<long>(scale * (1 << bitShift));
   long sshift = static_cast<long>(sscale * shift);

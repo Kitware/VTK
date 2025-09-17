@@ -719,27 +719,6 @@ private:
   void operator=(const vtkDataArray&) = delete;
 };
 
-//------------------------------------------------------------------------------
-inline vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray* source)
-{
-  if (source)
-  {
-    switch (source->GetArrayType())
-    {
-      case AoSDataArrayTemplate:
-      case SoADataArrayTemplate:
-      case ImplicitArray:
-      case TypedDataArray:
-      case DataArray:
-      case MappedDataArray:
-        return static_cast<vtkDataArray*>(source);
-      default:
-        break;
-    }
-  }
-  return nullptr;
-}
-
 vtkArrayDownCast_FastCastMacro(vtkDataArray);
 VTK_ABI_NAMESPACE_END
 

@@ -300,10 +300,7 @@ unsigned int vtkHyperTreeGridSource::GetMaxDepth()
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridSource::SetMaxDepth(unsigned int levels)
 {
-  if (levels < 1)
-  {
-    levels = 1;
-  }
+  levels = std::max<unsigned int>(levels, 1);
 
   if (this->MaxDepth == levels)
   {

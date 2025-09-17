@@ -75,10 +75,7 @@ void vtkPYoungsMaterialInterface::Aggregate(int nmat, int* inputsPerMaterial)
   {
     // Sum all counts from all processes
     int inputsPerMaterialSum = tmp[offset + m];
-    if (inputsPerMaterialSum > this->NumberOfDomains)
-    {
-      this->NumberOfDomains = inputsPerMaterialSum;
-    }
+    this->NumberOfDomains = std::max(inputsPerMaterialSum, this->NumberOfDomains);
 
     // Calculate partial sum of all preceding processors
     inputsPerMaterial[m] = (myid ? tmp[(myid - 1) * nmat + m] : 0);

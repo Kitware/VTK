@@ -157,6 +157,7 @@ vtkCellGraphicsPrimitiveMap::PrimitiveDescriptor vtkCellGraphicsPrimitiveMap::Pr
         result.VertexIDs->InsertNextValue(pts[0]);
         result.VertexIDs->InsertNextValue(pts[i + 1]);
         result.VertexIDs->InsertNextValue(pts[i + 2]);
+        // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
         uint8_t val = npts == 3 ? 7 : i == 0 ? 3 : i == numSubTriangles - 1 ? 6 : 2;
         if (ef)
         {

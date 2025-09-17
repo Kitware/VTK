@@ -307,10 +307,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::packBrotherNodes(
   {
     circlesArray->GetTuple(*it, circle);
     double distance = sqrt(pow(circle[0] - Xfc, 2) + pow(circle[1] - Yfc, 2)) + circle[2];
-    if (distance > layoutRadius)
-    {
-      layoutRadius = distance;
-    }
+    layoutRadius = std::max(distance, layoutRadius);
   }
 
   double scaleFactor = (layoutRadius == 0) ? 1.0 : (enclosingCircleRadius / layoutRadius);

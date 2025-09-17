@@ -160,22 +160,10 @@ void vtkInteractorStyleRubberBand3D::OnMouseMove()
     this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
     this->EndPosition[1] = this->Interactor->GetEventPosition()[1];
     const int* size = this->Interactor->GetRenderWindow()->GetSize();
-    if (this->EndPosition[0] > (size[0] - 1))
-    {
-      this->EndPosition[0] = size[0] - 1;
-    }
-    if (this->EndPosition[0] < 0)
-    {
-      this->EndPosition[0] = 0;
-    }
-    if (this->EndPosition[1] > (size[1] - 1))
-    {
-      this->EndPosition[1] = size[1] - 1;
-    }
-    if (this->EndPosition[1] < 0)
-    {
-      this->EndPosition[1] = 0;
-    }
+    this->EndPosition[0] = std::min(this->EndPosition[0], size[0] - 1);
+    this->EndPosition[0] = std::max(this->EndPosition[0], 0);
+    this->EndPosition[1] = std::min(this->EndPosition[1], size[1] - 1);
+    this->EndPosition[1] = std::max(this->EndPosition[1], 0);
     this->InvokeEvent(vtkCommand::InteractionEvent);
     this->RedrawRubberBand();
   }
@@ -229,47 +217,23 @@ void vtkInteractorStyleRubberBand3D::RedrawRubberBand()
 
   min[0] =
     this->StartPosition[0] <= this->EndPosition[0] ? this->StartPosition[0] : this->EndPosition[0];
-  if (min[0] < 0)
-  {
-    min[0] = 0;
-  }
-  if (min[0] >= size[0])
-  {
-    min[0] = size[0] - 1;
-  }
+  min[0] = std::max(min[0], 0);
+  min[0] = std::min(min[0], size[0] - 1);
 
   min[1] =
     this->StartPosition[1] <= this->EndPosition[1] ? this->StartPosition[1] : this->EndPosition[1];
-  if (min[1] < 0)
-  {
-    min[1] = 0;
-  }
-  if (min[1] >= size[1])
-  {
-    min[1] = size[1] - 1;
-  }
+  min[1] = std::max(min[1], 0);
+  min[1] = std::min(min[1], size[1] - 1);
 
   max[0] =
     this->EndPosition[0] > this->StartPosition[0] ? this->EndPosition[0] : this->StartPosition[0];
-  if (max[0] < 0)
-  {
-    max[0] = 0;
-  }
-  if (max[0] >= size[0])
-  {
-    max[0] = size[0] - 1;
-  }
+  max[0] = std::max(max[0], 0);
+  max[0] = std::min(max[0], size[0] - 1);
 
   max[1] =
     this->EndPosition[1] > this->StartPosition[1] ? this->EndPosition[1] : this->StartPosition[1];
-  if (max[1] < 0)
-  {
-    max[1] = 0;
-  }
-  if (max[1] >= size[1])
-  {
-    max[1] = size[1] - 1;
-  }
+  max[1] = std::max(max[1], 0);
+  max[1] = std::min(max[1], size[1] - 1);
 
   int i;
   for (i = min[0]; i <= max[0]; i++)

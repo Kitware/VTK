@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <algorithm>
+
 #include "vtkConnectedPointsFilter.h"
 
 #include "vtkCellData.h"
@@ -137,10 +139,7 @@ int vtkConnectedPointsFilter::RequestData(vtkInformation* vtkNotUsed(request),
   }
   else
   {
-    if (this->ScalarRange[1] < this->ScalarRange[0])
-    {
-      this->ScalarRange[1] = this->ScalarRange[0];
-    }
+    this->ScalarRange[1] = std::max(this->ScalarRange[1], this->ScalarRange[0]);
   }
 
   // Initialize.  Keep track of points and cells visited.

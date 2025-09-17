@@ -20,10 +20,7 @@ static constexpr char blanks[VTK_NUMBER_OF_BLANKS + 1] = "                      
 vtkIndent vtkIndent::GetNextIndent()
 {
   int indent = this->Indent + VTK_STD_INDENT;
-  if (indent > VTK_NUMBER_OF_BLANKS)
-  {
-    indent = VTK_NUMBER_OF_BLANKS;
-  }
+  indent = std::min(indent, VTK_NUMBER_OF_BLANKS);
   return vtkIndent(indent);
 }
 

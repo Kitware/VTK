@@ -89,7 +89,8 @@ const vtkIdType* vtkQuadraticTetra::GetFaceArray(vtkIdType faceId)
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticTetra::GetEdge(int edgeId)
 {
-  edgeId = (edgeId < 0 ? 0 : (edgeId > 5 ? 5 : edgeId));
+  edgeId = std::max(edgeId, 0);
+  edgeId = std::min(edgeId, 5);
 
   // load point id's
   this->Edge->PointIds->SetId(0, this->PointIds->GetId(TetraEdges[edgeId][0]));
@@ -107,7 +108,8 @@ vtkCell* vtkQuadraticTetra::GetEdge(int edgeId)
 //------------------------------------------------------------------------------
 vtkCell* vtkQuadraticTetra::GetFace(int faceId)
 {
-  faceId = (faceId < 0 ? 0 : (faceId > 3 ? 3 : faceId));
+  faceId = std::max(faceId, 0);
+  faceId = std::min(faceId, 3);
 
   // load point id's and coordinates
   for (int i = 0; i < 6; i++)
@@ -150,10 +152,7 @@ int vtkQuadraticTetra::EvaluatePosition(const double* x, double closestPoint[3],
     pt0 = pts + 3 * TetraEdges[i][0];
     pt1 = pts + 3 * TetraEdges[i][1];
     double d2 = vtkMath::Distance2BetweenPoints(pt0, pt1);
-    if (longestEdge < d2)
-    {
-      longestEdge = d2;
-    }
+    longestEdge = std::max(longestEdge, d2);
   }
   // longestEdge value is already squared
   double volumeBound = longestEdge * std::sqrt(longestEdge);
@@ -324,6 +323,7 @@ void vtkQuadraticTetra::Contour(double value, vtkDataArray* cellScalars,
   double sDiff0 = fabs(cellScalars->GetTuple1(8) - cellScalars->GetTuple1(6));
   double sDiff1 = fabs(cellScalars->GetTuple1(9) - cellScalars->GetTuple1(4));
   double sDiff2 = fabs(cellScalars->GetTuple1(7) - cellScalars->GetTuple1(5));
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   int dir = ((sDiff0 < sDiff1 ? (sDiff0 < sDiff2 ? 0 : 2) : (sDiff1 < sDiff2 ? 1 : 2)));
 
   for (int i = 0; i < 8; i++) // for each subdivided tetra
@@ -492,6 +492,7 @@ void vtkQuadraticTetra::Clip(double value, vtkDataArray* cellScalars,
   double sDiff0 = fabs(cellScalars->GetTuple1(8) - cellScalars->GetTuple1(6));
   double sDiff1 = fabs(cellScalars->GetTuple1(9) - cellScalars->GetTuple1(4));
   double sDiff2 = fabs(cellScalars->GetTuple1(7) - cellScalars->GetTuple1(5));
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   int dir = ((sDiff0 < sDiff1 ? (sDiff0 < sDiff2 ? 0 : 2) : (sDiff1 < sDiff2 ? 1 : 2)));
 
   for (int i = 0; i < 8; i++) // for each subdivided tetra
@@ -517,6 +518,7 @@ bool vtkQuadraticTetra::StableClip(double value, vtkDataArray* cellScalars,
   const double sDiff0 = fabs(cellScalars->GetTuple1(8) - cellScalars->GetTuple1(6));
   const double sDiff1 = fabs(cellScalars->GetTuple1(9) - cellScalars->GetTuple1(4));
   const double sDiff2 = fabs(cellScalars->GetTuple1(7) - cellScalars->GetTuple1(5));
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   const int dir = ((sDiff0 < sDiff1 ? (sDiff0 < sDiff2 ? 0 : 2) : (sDiff1 < sDiff2 ? 1 : 2)));
 
   // check if totally inside or outside. If it is then no need to tessalate, we can
@@ -661,10 +663,7 @@ double vtkQuadraticTetra::GetParametricDistance(const double pcoords[3])
     {
       pDist = 0.0;
     }
-    if (pDist > pDistMax)
-    {
-      pDistMax = pDist;
-    }
+    pDistMax = std::max(pDist, pDistMax);
   }
 
   return pDistMax;

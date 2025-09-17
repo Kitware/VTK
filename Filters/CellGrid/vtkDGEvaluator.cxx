@@ -48,10 +48,7 @@ void centerAndRadiusOfCellPoints(
   for (const auto& corner : cellCorners)
   {
     double cornerRadius = (corner - center).Norm();
-    if (cornerRadius > radius)
-    {
-      radius = cornerRadius;
-    }
+    radius = std::max(cornerRadius, radius);
   }
 }
 

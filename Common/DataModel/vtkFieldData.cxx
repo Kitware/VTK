@@ -371,10 +371,7 @@ void vtkFieldData::CopyStructure(vtkFieldData* inputField)
 // Set the number of arrays used to define the field.
 void vtkFieldData::AllocateArrays(int num)
 {
-  if (num < 0)
-  {
-    num = 0;
-  }
+  num = std::max(num, 0);
 
   if (num == this->NumberOfArrays)
   {
@@ -814,10 +811,7 @@ vtkMTimeType vtkFieldData::GetMTime()
     if (aa)
     {
       vtkMTimeType otherMTime = aa->GetMTime();
-      if (otherMTime > mTime)
-      {
-        mTime = otherMTime;
-      }
+      mTime = std::max(otherMTime, mTime);
     }
   }
 

@@ -165,10 +165,7 @@ int vtkClipPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   //
   estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   newPoints = vtkPoints::New();
 

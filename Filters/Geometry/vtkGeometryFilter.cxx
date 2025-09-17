@@ -135,10 +135,7 @@ void vtkGeometryFilter::SetExtent(double extent[6])
     this->Modified();
     for (i = 0; i < 3; i++)
     {
-      if (extent[2 * i + 1] < extent[2 * i])
-      {
-        extent[2 * i + 1] = extent[2 * i];
-      }
+      extent[2 * i + 1] = std::max(extent[2 * i + 1], extent[2 * i]);
       this->Extent[2 * i] = extent[2 * i];
       this->Extent[2 * i + 1] = extent[2 * i + 1];
     }
@@ -561,7 +558,7 @@ private:
   static constexpr size_t ChunkSize = static_cast<size_t>(5000 * FaceMemoryPool::SizeOfFace(4));
   size_t NextChunkIndex;
   size_t NextFaceIndex;
-  std::vector<std::shared_ptr<unsigned char>> Chunks;
+  std::vector<std::shared_ptr<unsigned char[]>> Chunks;
 
 public:
   FaceMemoryPool()
@@ -587,8 +584,8 @@ public:
     this->NextFaceIndex = 0;
     this->Chunks.resize(numberOfInitialChunks, nullptr);
     // Initialize the first chunk
-    this->Chunks[0] = std::shared_ptr<unsigned char>(
-      new unsigned char[FaceMemoryPool::ChunkSize], std::default_delete<unsigned char[]>());
+    this->Chunks[0] =
+      std::shared_ptr<unsigned char[]>(new unsigned char[FaceMemoryPool::ChunkSize]);
   }
 
   void ResetIndices()
@@ -621,8 +618,8 @@ public:
       // Next: allocate a new array if necessary.
       if (this->Chunks[this->NextChunkIndex] == nullptr)
       {
-        this->Chunks[this->NextChunkIndex] = std::shared_ptr<unsigned char>(
-          new unsigned char[FaceMemoryPool::ChunkSize], std::default_delete<unsigned char[]>());
+        this->Chunks[this->NextChunkIndex] =
+          std::shared_ptr<unsigned char[]>(new unsigned char[FaceMemoryPool::ChunkSize]);
       }
     }
 

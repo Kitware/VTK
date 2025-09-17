@@ -24,6 +24,7 @@
 #include "vtkSMPTools.h"
 #include "vtkTriangle.h"
 
+#include <algorithm>
 #include <atomic>
 #include <vector>
 
@@ -103,9 +104,9 @@ struct BinPoints
     TIds tmp1 = static_cast<TIds>(((x[1] - bY) * fY));
     TIds tmp2 = static_cast<TIds>(((x[2] - bZ) * fZ));
 
-    ijk[0] = tmp0 < 0 ? 0 : (tmp0 >= xD ? xD - 1 : tmp0);
-    ijk[1] = tmp1 < 0 ? 0 : (tmp1 >= yD ? yD - 1 : tmp1);
-    ijk[2] = tmp2 < 0 ? 0 : (tmp2 >= zD ? zD - 1 : tmp2);
+    ijk[0] = std::min(std::max<vtkIdType>(tmp0, 0), xD - 1);
+    ijk[1] = std::min(std::max<vtkIdType>(tmp1, 0), yD - 1);
+    ijk[2] = std::min(std::max<vtkIdType>(tmp2, 0), zD - 1);
   }
 
   TIds GetBinIndex(const double* x) const

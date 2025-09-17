@@ -86,10 +86,7 @@ double vtkSpheres::EvaluateFunction(double x[3])
     this->Radii->GetTuple(i, radius);
     this->Centers->GetPoint(i, center);
     val = vtkSphere::Evaluate(center, radius[0], x);
-    if (val < minVal)
-    {
-      minVal = val;
-    }
+    minVal = std::min(val, minVal);
   }
 
   return minVal;

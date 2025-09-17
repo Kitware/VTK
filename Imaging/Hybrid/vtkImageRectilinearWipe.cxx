@@ -85,10 +85,7 @@ static int vtkImageRectilinearWipeClampExtents(int wipeExt[6], int outExt[6])
   for (int i = 0; i < 3; i++)
   {
     // the lower and upper extents cannot be below the lower output extent
-    if (wipeExt[2 * i] < outExt[2 * i])
-    {
-      wipeExt[2 * i] = outExt[2 * i];
-    }
+    wipeExt[2 * i] = std::max(wipeExt[2 * i], outExt[2 * i]);
     if (wipeExt[2 * i + 1] < outExt[2 * i])
     {
       wipeExt[2 * i + 1] = outExt[2 * i];
@@ -101,10 +98,7 @@ static int vtkImageRectilinearWipeClampExtents(int wipeExt[6], int outExt[6])
       wipeExt[2 * i] = outExt[2 * i + 1];
       status = 0;
     }
-    if (wipeExt[2 * i + 1] > outExt[2 * i + 1])
-    {
-      wipeExt[2 * i + 1] = outExt[2 * i + 1];
-    }
+    wipeExt[2 * i + 1] = std::min(wipeExt[2 * i + 1], outExt[2 * i + 1]);
   }
   return status;
 }

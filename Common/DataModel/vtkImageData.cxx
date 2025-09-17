@@ -502,18 +502,12 @@ void vtkImageData::ComputeBounds()
       for (int* ijkCorner : ijkCorners)
       {
         this->TransformIndexToPhysicalPoint(ijkCorner, xyz);
-        if (xyz[0] < xMin)
-          xMin = xyz[0];
-        if (xyz[0] > xMax)
-          xMax = xyz[0];
-        if (xyz[1] < yMin)
-          yMin = xyz[1];
-        if (xyz[1] > yMax)
-          yMax = xyz[1];
-        if (xyz[2] < zMin)
-          zMin = xyz[2];
-        if (xyz[2] > zMax)
-          zMax = xyz[2];
+        xMin = std::min(xyz[0], xMin);
+        xMax = std::max(xyz[0], xMax);
+        yMin = std::min(xyz[1], yMin);
+        yMax = std::max(xyz[1], yMax);
+        zMin = std::min(xyz[2], zMin);
+        zMax = std::max(xyz[2], zMax);
       }
       this->Bounds[0] = xMin;
       this->Bounds[1] = xMax;
@@ -832,26 +826,10 @@ void vtkImageData::GetContinuousIncrements(
   incX = 0;
   const int* selfExtent = this->GetExtent();
 
-  e0 = extent[0];
-  if (e0 < selfExtent[0])
-  {
-    e0 = selfExtent[0];
-  }
-  e1 = extent[1];
-  if (e1 > selfExtent[1])
-  {
-    e1 = selfExtent[1];
-  }
-  e2 = extent[2];
-  if (e2 < selfExtent[2])
-  {
-    e2 = selfExtent[2];
-  }
-  e3 = extent[3];
-  if (e3 > selfExtent[3])
-  {
-    e3 = selfExtent[3];
-  }
+  e0 = std::max(extent[0], selfExtent[0]);
+  e1 = std::min(extent[1], selfExtent[1]);
+  e2 = std::max(extent[2], selfExtent[2]);
+  e3 = std::min(extent[3], selfExtent[3]);
 
   // Make sure the increments are up to date
   vtkIdType inc[3];
@@ -1294,30 +1272,12 @@ void vtkImageData::Crop(const int* updateExtent)
   // Take the intersection of the two extent so that
   // we are not asking for more than the extent.
   memcpy(nExt, updateExtent, 6 * sizeof(int));
-  if (nExt[0] < extent[0])
-  {
-    nExt[0] = extent[0];
-  }
-  if (nExt[1] > extent[1])
-  {
-    nExt[1] = extent[1];
-  }
-  if (nExt[2] < extent[2])
-  {
-    nExt[2] = extent[2];
-  }
-  if (nExt[3] > extent[3])
-  {
-    nExt[3] = extent[3];
-  }
-  if (nExt[4] < extent[4])
-  {
-    nExt[4] = extent[4];
-  }
-  if (nExt[5] > extent[5])
-  {
-    nExt[5] = extent[5];
-  }
+  nExt[0] = std::max(nExt[0], extent[0]);
+  nExt[1] = std::min(nExt[1], extent[1]);
+  nExt[2] = std::max(nExt[2], extent[2]);
+  nExt[3] = std::min(nExt[3], extent[3]);
+  nExt[4] = std::max(nExt[4], extent[4]);
+  nExt[5] = std::min(nExt[5], extent[5]);
 
   // If the extents are the same just return.
   if (extent[0] == nExt[0] && extent[1] == nExt[1] && extent[2] == nExt[2] &&
@@ -2015,13 +1975,10 @@ void vtkImageData::ComputeScalarRange()
         if (this->IsPointVisible(id))
         {
           s = ptScalars->GetComponent(id, 0);
-          if (s < ptRange[0])
+          if (!std::isnan(s))
           {
-            ptRange[0] = s;
-          }
-          if (s > ptRange[1])
-          {
-            ptRange[1] = s;
+            ptRange[0] = std::min(s, ptRange[0]);
+            ptRange[1] = std::max(s, ptRange[1]);
           }
         }
       }
@@ -2037,13 +1994,10 @@ void vtkImageData::ComputeScalarRange()
         if (this->IsCellVisible(id))
         {
           s = cellScalars->GetComponent(id, 0);
-          if (s < cellRange[0])
+          if (!std::isnan(s))
           {
-            cellRange[0] = s;
-          }
-          if (s > cellRange[1])
-          {
-            cellRange[1] = s;
+            cellRange[0] = std::min(s, cellRange[0]);
+            cellRange[1] = std::max(s, cellRange[1]);
           }
         }
       }

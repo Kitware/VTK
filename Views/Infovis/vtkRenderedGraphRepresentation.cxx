@@ -1365,22 +1365,10 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
   {
     data->GetPoint(vertexList->GetValue(i), position);
 
-    if (position[0] < bounds[0])
-    {
-      bounds[0] = position[0];
-    }
-    if (position[0] > bounds[1])
-    {
-      bounds[1] = position[0];
-    }
-    if (position[1] < bounds[2])
-    {
-      bounds[2] = position[1];
-    }
-    if (position[1] > bounds[3])
-    {
-      bounds[3] = position[1];
-    }
+    bounds[0] = std::min(position[0], bounds[0]);
+    bounds[1] = std::max(position[0], bounds[1]);
+    bounds[2] = std::min(position[1], bounds[2]);
+    bounds[3] = std::max(position[1], bounds[3]);
   }
 }
 

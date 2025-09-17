@@ -94,10 +94,7 @@ void vtkStackedTreeLayoutStrategy::Layout(
     for (int i = 0; i < levelTree->GetNumberOfVertices(); i++)
     {
       int level = levelArray->GetValue(i);
-      if (level > max_level)
-      {
-        max_level = level;
-      }
+      max_level = std::max(level, max_level);
     }
     outer_radius = max_level * this->RingThickness + this->InteriorRadius;
   }
@@ -218,17 +215,11 @@ void vtkStackedTreeLayoutStrategy::LayoutEdgePoints(vtkTree* inputTree, vtkDataA
   for (int i = 0; i < outputTree->GetNumberOfVertices(); i++)
   {
     int level = levelArray->GetValue(i);
-    if (level > max_level)
-    {
-      max_level = level;
-    }
+    max_level = std::max(level, max_level);
     if (inputTree->IsLeaf(i))
     {
       sectorsArray->GetTuple(i, sector_coords);
-      if (sector_coords[2] < exteriorRadius)
-      {
-        exteriorRadius = sector_coords[2];
-      }
+      exteriorRadius = std::min(sector_coords[2], exteriorRadius);
     }
   }
 

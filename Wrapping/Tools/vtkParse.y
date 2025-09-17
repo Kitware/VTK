@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 %{
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 /*
 
 The file 'vtkParse.tab.c' is generated from 'vtkParse.y'.
@@ -5163,4 +5164,5 @@ const char* vtkParse_FindIncludeFile(const char* filename)
   return vtkParsePreprocess_FindIncludeFile(&info, filename, VTK_PARSE_SOURCE_INCLUDE, &val);
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

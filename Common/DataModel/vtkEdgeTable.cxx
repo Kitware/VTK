@@ -297,10 +297,7 @@ vtkIdType vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2)
     this->Resize(index + 1);
   }
 
-  if (index > this->TableMaxId)
-  {
-    this->TableMaxId = index;
-  }
+  this->TableMaxId = std::max(index, this->TableMaxId);
 
   if (this->Table[index] == nullptr)
   {
@@ -348,10 +345,7 @@ void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, vtkIdType attributeId)
     this->Resize(index + 1);
   }
 
-  if (index > this->TableMaxId)
-  {
-    this->TableMaxId = index;
-  }
+  this->TableMaxId = std::max(index, this->TableMaxId);
 
   if (this->Table[index] == nullptr)
   {
@@ -393,10 +387,7 @@ void vtkEdgeTable::InsertEdge(vtkIdType p1, vtkIdType p2, void* ptr)
     this->Resize(index + 1);
   }
 
-  if (index > this->TableMaxId)
-  {
-    this->TableMaxId = index;
-  }
+  this->TableMaxId = std::max(index, this->TableMaxId);
 
   if (this->Table[index] == nullptr)
   {

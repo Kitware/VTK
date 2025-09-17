@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <algorithm>
+
 #include "vtkXMLWriterBase.h"
 
 #include "vtkDataCompressor.h"
@@ -132,11 +134,10 @@ void vtkXMLWriterBase::SetCompressionLevel(int compressionLevel)
   constexpr int max = 9;
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting "
                 << "CompressionLevel  to " << compressionLevel);
-  if (this->CompressionLevel !=
-    (compressionLevel < min ? min : (compressionLevel > max ? max : compressionLevel)))
+  compressionLevel = std::clamp(compressionLevel, min, max);
+  if (this->CompressionLevel != compressionLevel)
   {
-    this->CompressionLevel =
-      (compressionLevel < min ? min : (compressionLevel > max ? max : compressionLevel));
+    this->CompressionLevel = compressionLevel;
     if (this->Compressor)
     {
       this->Compressor->SetCompressionLevel(compressionLevel);
@@ -159,10 +160,7 @@ void vtkXMLWriterBase::SetBlockSize(size_t blockSize)
   if (remainder)
   {
     nbs -= remainder;
-    if (nbs < sizeof(LargestScalarType))
-    {
-      nbs = sizeof(LargestScalarType);
-    }
+    nbs = std::max(nbs, sizeof(LargestScalarType));
     vtkWarningMacro("BlockSize must be a multiple of "
       << int(sizeof(LargestScalarType)) << ".  Using " << nbs << " instead of " << blockSize
       << ".");

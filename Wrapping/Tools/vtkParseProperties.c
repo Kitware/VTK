@@ -9,6 +9,7 @@
 #include <string.h>
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 /*-------------------------------------------------------------------
  * A struct that lays out the function information in a way
@@ -1498,4 +1499,5 @@ const char* vtkParseProperties_MethodTypeAsString(unsigned int methodType)
   }
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

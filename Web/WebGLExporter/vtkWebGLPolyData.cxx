@@ -471,8 +471,7 @@ void vtkWebGLPolyData::SetPoints(
   for (int i = 0; i < numObjs; i++)
   {
     size = numberOfPoints - offset;
-    if (size > maxSize)
-      size = maxSize;
+    size = std::min(size, maxSize);
 
     float* _points = new float[size * 3];
     unsigned char* _colors = new unsigned char[size * 4];

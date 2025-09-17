@@ -14,6 +14,8 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSplineFilter);
 vtkCxxSetObjectMacro(vtkSplineFilter, Spline, vtkSpline);
@@ -265,10 +267,7 @@ int vtkSplineFilter::GeneratePoints(vtkIdType offset, vtkIdType npts, const vtkI
   {
     numDivs = static_cast<int>(length / this->Length);
   }
-  numDivs =
-    (numDivs < 1 ? 1
-                 : (numDivs > this->MaximumNumberOfSubdivisions ? this->MaximumNumberOfSubdivisions
-                                                                : numDivs));
+  numDivs = std::min<vtkIdType>(std::max<vtkIdType>(numDivs, 1), this->MaximumNumberOfSubdivisions);
 
   // Now compute the new points
   numNewPts = numDivs + 1;

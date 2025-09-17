@@ -60,10 +60,7 @@ static void vtkSynchronizedTemplatesCutter3DInitializeOutput(
 
   estimatedSize =
     (int)pow((double)((ext[1] - ext[0] + 1) * (ext[3] - ext[2] + 1) * (ext[5] - ext[4] + 1)), .75);
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<long>(estimatedSize, 1024);
   newPts = vtkPoints::New();
 
   // set precision for the points in the output

@@ -420,10 +420,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadAnimation(
           "Empty accessor.max value for sampler input accessor. Max is mandatory in this case.");
         return false;
       }
-      if (accessor.Max[0] > maxDuration)
-      {
-        maxDuration = accessor.Max[0];
-      }
+      maxDuration = std::max<double>(accessor.Max[0], maxDuration);
     }
     else
     {
@@ -1663,10 +1660,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadKHRLightsPunctualExtensionLight(
   if (vtkGLTFUtils::GetDoubleValue(root, "range", light.Range))
   {
     // Must be positive
-    if (light.Range < 0)
-    {
-      light.Range = 0;
-    }
+    light.Range = std::max(light.Range, 0.0);
   }
   return true;
 }

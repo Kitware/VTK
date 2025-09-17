@@ -108,10 +108,7 @@ int vtkMultiThreader::GetGlobalDefaultNumberOfThreads()
 #endif
 
     // Lets limit the number of threads to VTK_MAX_THREADS
-    if (num > VTK_MAX_THREADS)
-    {
-      num = VTK_MAX_THREADS;
-    }
+    num = std::min(num, VTK_MAX_THREADS);
 
     vtkMultiThreaderGlobalDefaultNumberOfThreads = num;
   }

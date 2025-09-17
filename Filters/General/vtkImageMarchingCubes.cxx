@@ -142,10 +142,7 @@ int vtkImageMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   estimatedSize *= static_cast<vtkIdType>(extent[5] - extent[4] + 1);
   estimatedSize = static_cast<vtkIdType>(pow(1.0 * estimatedSize, 0.75));
   estimatedSize = (estimatedSize / 1024) * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
   vtkDebugMacro(<< "Estimated number of points/triangles: " << estimatedSize);
   this->Points = vtkPoints::New();
   this->Points->Allocate(estimatedSize, estimatedSize / 2);
@@ -179,10 +176,7 @@ int vtkImageMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
   {
     // Get the chunk from the input
     chunkMax = chunkMin + this->NumberOfSlicesPerChunk;
-    if (chunkMax > zMax)
-    {
-      chunkMax = zMax;
-    }
+    chunkMax = std::min(chunkMax, zMax);
     extent[4] = chunkMin;
     extent[5] = chunkMax;
     // Expand if computing gradients with central differences
@@ -192,14 +186,8 @@ int vtkImageMarchingCubes::RequestData(vtkInformation* vtkNotUsed(request),
       ++extent[5];
     }
     // Don't go over boundary of data.
-    if (extent[4] < zMin)
-    {
-      extent[4] = zMin;
-    }
-    if (extent[5] > zMax)
-    {
-      extent[5] = zMax;
-    }
+    extent[4] = std::max(extent[4], zMin);
+    extent[5] = std::min(extent[5], zMax);
     // Get the chunk from the input
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);
     inputExec->Update();

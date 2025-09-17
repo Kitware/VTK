@@ -1097,10 +1097,7 @@ int vtkCubeAxesActor::Digits(double min, double max)
       // Anything more than 5 is just noise.  (and probably 5 is noise with
       // doubling point if the part before the decimal is big).
 
-      if (digitsPastDecimal > 5)
-      {
-        digitsPastDecimal = 5;
-      }
+      digitsPastDecimal = std::min<long>(digitsPastDecimal, 5);
     }
   }
 
@@ -1580,7 +1577,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport* viewport)
   }
 
   // Take into account the inertia. Process only so often.
-  if (this->RenderCount++ == 0 || !(this->RenderCount % this->Inertia))
+  if (this->RenderCount == 0 || !((this->RenderCount + 1) % this->Inertia))
   {
     if (this->FlyMode == VTK_FLY_CLOSEST_TRIAD)
     {
@@ -1610,6 +1607,7 @@ void vtkCubeAxesActor::DetermineRenderAxes(vtkViewport* viewport)
     yloc = this->InertiaLocs[1];
     zloc = this->InertiaLocs[2];
   }
+  ++this->RenderCount;
 
   // Set axes to be rendered
   this->RenderAxesX[0] = xloc % NUMBER_OF_ALIGNED_AXIS;
@@ -2492,6 +2490,7 @@ void vtkCubeAxesActor::FindBoundaryEdge(int& xloc, int& yloc, int& zloc, double 
 
   // Find the final point by determining which global x-y-z axes have not
   // been represented, and then determine the point closest to the viewer.
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   zAxes = (xAxes != 0 && yAxes != 0 ? 0 : (xAxes != 1 && yAxes != 1 ? 1 : 2));
   if (pts[vtkCubeAxesActorConn[xIdx][zAxes]][2] < pts[vtkCubeAxesActorConn[yIdx][zAxes]][2])
   {

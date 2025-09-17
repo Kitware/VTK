@@ -583,14 +583,8 @@ void vtkExplicitStructuredGrid::GenerateGhostArray(int zeroExt[6], bool vtkNotUs
         }
         // Compute Manhattan distance.
         int dist = di;
-        if (dj > dist)
-        {
-          dist = dj;
-        }
-        if (dk > dist)
-        {
-          dist = dk;
-        }
+        dist = std::max(dj, dist);
+        dist = std::max(dk, dist);
         unsigned char value = ghostCells->GetValue(index);
         if (dist > 0)
         {
@@ -721,15 +715,9 @@ void vtkExplicitStructuredGrid::Crop(
   for (int i = 0; i < 3; ++i)
   {
     newExtent[i * 2] = updateExtent[i * 2];
-    if (newExtent[i * 2] < oldExtent[i * 2])
-    {
-      newExtent[i * 2] = oldExtent[i * 2];
-    }
+    newExtent[i * 2] = std::max(newExtent[i * 2], oldExtent[i * 2]);
     newExtent[i * 2 + 1] = updateExtent[i * 2 + 1];
-    if (newExtent[i * 2 + 1] > oldExtent[i * 2 + 1])
-    {
-      newExtent[i * 2 + 1] = oldExtent[i * 2 + 1];
-    }
+    newExtent[i * 2 + 1] = std::min(newExtent[i * 2 + 1], oldExtent[i * 2 + 1]);
     if (newExtent[i * 2] == newExtent[i * 2 + 1])
     {
       if (newExtent[i * 2 + 1] == oldExtent[i * 2 + 1])
@@ -905,14 +893,8 @@ void vtkExplicitStructuredGrid::ComputeScalarRange()
       for (int id = 0; id < num; id++)
       {
         double s = ptScalars->GetComponent(id, 0);
-        if (s < ptRange[0])
-        {
-          ptRange[0] = s;
-        }
-        if (s > ptRange[1])
-        {
-          ptRange[1] = s;
-        }
+        ptRange[0] = std::min(s, ptRange[0]);
+        ptRange[1] = std::max(s, ptRange[1]);
       }
     }
 
@@ -925,14 +907,8 @@ void vtkExplicitStructuredGrid::ComputeScalarRange()
       for (int id = 0; id < num; id++)
       {
         double s = cellScalars->GetComponent(id, 0);
-        if (s < cellRange[0])
-        {
-          cellRange[0] = s;
-        }
-        if (s > cellRange[1])
-        {
-          cellRange[1] = s;
-        }
+        cellRange[0] = std::min(s, cellRange[0]);
+        cellRange[1] = std::max(s, cellRange[1]);
       }
     }
 

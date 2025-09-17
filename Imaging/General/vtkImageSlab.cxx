@@ -63,14 +63,8 @@ int vtkImageSlab::RequestInformation(
 
   // clamp the range to the whole extent
   this->GetSliceRange(range);
-  if (range[0] < extent[2 * dimIndex])
-  {
-    range[0] = extent[2 * dimIndex];
-  }
-  if (range[1] > extent[2 * dimIndex + 1])
-  {
-    range[1] = extent[2 * dimIndex + 1];
-  }
+  range[0] = std::max(range[0], extent[2 * dimIndex]);
+  range[1] = std::min(range[1], extent[2 * dimIndex + 1]);
 
   // set new origin to be in the center of the stack of slices
   sliceSpacing = spacing[dimIndex];
@@ -135,14 +129,8 @@ int vtkImageSlab::RequestUpdateExtent(
 
   // clamp the range to the whole extent
   this->GetSliceRange(range);
-  if (range[0] < extent[2 * dimIndex])
-  {
-    range[0] = extent[2 * dimIndex];
-  }
-  if (range[1] > extent[2 * dimIndex + 1])
-  {
-    range[1] = extent[2 * dimIndex + 1];
-  }
+  range[0] = std::max(range[0], extent[2 * dimIndex]);
+  range[1] = std::min(range[1], extent[2 * dimIndex + 1]);
 
   // input range is the output range plus the specified slice range
   inExt[2 * dimIndex] += range[0];
@@ -243,14 +231,8 @@ void vtkImageSlabExecute(vtkImageSlab* self, vtkImageData* inData, T1* inPtr, vt
   // clamp the range to the whole extent
   int range[2];
   self->GetSliceRange(range);
-  if (range[0] < inExt[2 * dimIndex])
-  {
-    range[0] = inExt[2 * dimIndex];
-  }
-  if (range[1] > inExt[2 * dimIndex + 1])
-  {
-    range[1] = inExt[2 * dimIndex + 1];
-  }
+  range[0] = std::max(range[0], inExt[2 * dimIndex]);
+  range[1] = std::min(range[1], inExt[2 * dimIndex + 1]);
   int numSlices = range[1] - range[0] + 1;
 
   // trapezoid integration is impossible if only one slice
@@ -446,14 +428,8 @@ void vtkImageSlab::ThreadedRequestData(vtkInformation*, vtkInformationVector** i
   vtkInformation* inInfo = inVector[0]->GetInformationObject(0);
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
   this->GetSliceRange(range);
-  if (range[0] < extent[2 * dimIndex])
-  {
-    range[0] = extent[2 * dimIndex];
-  }
-  if (range[1] > extent[2 * dimIndex + 1])
-  {
-    range[1] = extent[2 * dimIndex + 1];
-  }
+  range[0] = std::max(range[0], extent[2 * dimIndex]);
+  range[1] = std::min(range[1], extent[2 * dimIndex + 1]);
 
   // initialize input extent to output extent
   inExt[0] = outExt[0];

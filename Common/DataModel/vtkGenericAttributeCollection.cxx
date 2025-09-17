@@ -379,10 +379,7 @@ void vtkGenericAttributeCollection::ComputeNumbers()
     {
       count = this->GetAttribute(i)->GetNumberOfComponents();
       memory = memory + this->GetAttribute(i)->GetActualMemorySize();
-      if (count > maxNb)
-      {
-        maxNb = count;
-      }
+      maxNb = std::max(count, maxNb);
       nb += count;
       if (this->GetAttribute(i)->GetCentering() == vtkPointCentered)
       {

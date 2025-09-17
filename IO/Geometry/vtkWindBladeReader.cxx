@@ -910,10 +910,7 @@ void vtkWindBladeReader::CreateCoordinates()
     this->ZMinValue = this->ZTopographicValues[0];
     for (size_t k = 0; k < this->BlockSize; k++)
     {
-      if (this->ZMinValue > this->ZTopographicValues[k])
-      {
-        this->ZMinValue = this->ZTopographicValues[k];
-      }
+      this->ZMinValue = std::min(this->ZMinValue, this->ZTopographicValues[k]);
     }
   }
 

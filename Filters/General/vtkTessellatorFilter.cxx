@@ -265,15 +265,13 @@ vtkMTimeType vtkTessellatorFilter::GetMTime()
   if (this->Tessellator)
   {
     tmp = this->Tessellator->GetMTime();
-    if (tmp > mt)
-      mt = tmp;
+    mt = std::max(tmp, mt);
   }
 
   if (this->Subdivider)
   {
     tmp = this->Subdivider->GetMTime();
-    if (tmp > mt)
-      mt = tmp;
+    mt = std::max(tmp, mt);
   }
 
   return mt;

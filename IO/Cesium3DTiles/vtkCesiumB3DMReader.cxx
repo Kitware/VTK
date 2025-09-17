@@ -26,7 +26,7 @@ void read4le(istream& in, uint32_t* p)
   in.read(reinterpret_cast<char*>(p), 4);
   if (in)
   {
-    vtkByteSwap::Swap4LE(&p);
+    vtkByteSwap::Swap4LE(&p); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
   }
   else
   {

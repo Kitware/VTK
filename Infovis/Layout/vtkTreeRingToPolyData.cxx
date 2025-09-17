@@ -130,10 +130,7 @@ int vtkTreeRingToPolyData::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     int num_angles = static_cast<int>(end_angle - start_angle);
-    if (num_angles < 1)
-    {
-      num_angles = 1;
-    }
+    num_angles = std::max(num_angles, 1);
     int num_points = 2 * num_angles + 2;
     strips->InsertNextCell(num_points);
     for (int j = 0; j < num_angles; ++j)

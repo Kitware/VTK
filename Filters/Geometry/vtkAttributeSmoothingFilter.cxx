@@ -136,9 +136,20 @@ struct BuildStencil
           }
           else
           {
-            double weight = (weightsType == vtkAttributeSmoothingFilter::AVERAGE
-                ? 1.0
-                : (weightsType == vtkAttributeSmoothingFilter::DISTANCE ? sqrt(w[i]) : w[i]));
+            double weight;
+            switch (weightsType)
+            {
+              case vtkAttributeSmoothingFilter::DISTANCE:
+                weight = sqrt(w[i]);
+                break;
+              case vtkAttributeSmoothingFilter::DISTANCE2:
+                weight = w[i];
+                break;
+              case vtkAttributeSmoothingFilter::AVERAGE:
+              default:
+                weight = 1.0;
+                break;
+            }
             w[i] = 1.0 / weight;
           }
           wSum += w[i];

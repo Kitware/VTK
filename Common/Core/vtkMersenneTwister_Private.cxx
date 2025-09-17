@@ -26,6 +26,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <algorithm>
+
 #include "vtkType.h"
 #include "vtkStringFormatter.h"
 typedef vtkTypeUInt32 uint32_t;
@@ -474,9 +476,7 @@ static int pivot_reduction(eqdeg_t *eq, int v)
 
     min = lattice[0]->count;
     for (i = 1; i < v; i++) {
-        if (min > lattice[i]->count) {
-            min = lattice[i]->count;
-        }
+        min = std::min(min, lattice[i]->count);
     }
     free_lattice( lattice, v );
     return min;
@@ -525,7 +525,7 @@ static void free_lattice( Vector **lattice, int v)
 
     for( i=0; i<=v; i++)
         freeVector_t( lattice[i] );
-    free( lattice );
+    free( lattice ); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
 }
 
 /* adds v to u (then u will change) */
@@ -1109,7 +1109,7 @@ void InitPrescreening_dc_(prescr_t *pre, int m, int n, int r, int w)
 
     for (i=pre->sizeofA; i>=0; i--)
         FreePoly(pre->preModPolys[i]);
-    free(pre->preModPolys);
+    free(pre->preModPolys); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
 
 }
 
@@ -1119,7 +1119,7 @@ void EndPrescreening_dc_(prescr_t *pre)
 
     for (i=0; i<NIRREDPOLY; i++)
       free(pre->modlist[i]);
-    free(pre->modlist);
+    free(pre->modlist); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
 }
 
 /*************************************************/

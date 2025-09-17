@@ -239,14 +239,8 @@ void vtkImageOrthoPlanes::HandlePlanePush(
 
   if (center[i] < bounds[2 * i] || center[i] > bounds[2 * i + 1])
   {
-    if (center[i] < bounds[2 * i])
-    {
-      center[i] = bounds[2 * i];
-    }
-    if (center[i] > bounds[2 * i + 1])
-    {
-      center[i] = bounds[2 * i + 1];
-    }
+    center[i] = std::max(center[i], bounds[2 * i]);
+    center[i] = std::min(center[i], bounds[2 * i + 1]);
 
     this->Transform->TransformPoint(this->Origin[i], origin);
     this->Transform->TransformPoint(this->Point1[i], point1);

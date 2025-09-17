@@ -6,19 +6,16 @@ bugprone-*,\
 -bugprone-argument-comment,\
 -bugprone-assignment-in-if-condition,\
 -bugprone-branch-clone,\
--bugprone-casting-through-void,\
 -bugprone-crtp-constructor-accessibility,\
 -bugprone-easily-swappable-parameters,\
 -bugprone-empty-catch,\
 -bugprone-fold-init-type,\
 -bugprone-implicit-widening-of-multiplication-result,\
--bugprone-inc-dec-in-conditions,\
 -bugprone-incorrect-roundings,\
 -bugprone-infinite-loop,\
 -bugprone-integer-division,\
 -bugprone-macro-parentheses,\
 -bugprone-misplaced-widening-cast,\
--bugprone-multi-level-implicit-pointer-conversion,\
 -bugprone-narrowing-conversions,\
 -bugprone-not-null-terminated-result,\
 -bugprone-pointer-arithmetic-on-polymorphic-object,\
@@ -28,9 +25,7 @@ bugprone-*,\
 -bugprone-suspicious-realloc-usage,\
 -bugprone-switch-missing-default-case,\
 -bugprone-unhandled-self-assignment,\
--bugprone-use-after-move,\
 clang-analyzer-*,\
--clang-analyzer-core.BitwiseShift,\
 -clang-analyzer-core.CallAndMessage,\
 -clang-analyzer-core.DivideZero,\
 -clang-analyzer-core.NonNullParamChecker,\
@@ -102,13 +97,11 @@ performance-*,\
 portability-*,\
 -portability-template-virtual-member-function,\
 readability-*,\
--readability-avoid-nested-conditional-operator,\
 -readability-avoid-unconditional-preprocessor-if,\
 -readability-braces-around-statements,\
 -readability-container-contains,\
 -readability-convert-member-functions-to-static,\
 -readability-else-after-return,\
--readability-enum-initial-value,\
 -readability-identifier-length,\
 -readability-function-cognitive-complexity,\
 -readability-function-size,\
@@ -128,7 +121,6 @@ readability-*,\
 -readability-suspicious-call-argument,\
 -readability-uppercase-literal-suffix,\
 -readability-use-anyofallof,\
--readability-use-std-min-max,\
 "
 CheckOptions:
   - key: bugprone-unsafe-functions.ReportDefaultFunctions

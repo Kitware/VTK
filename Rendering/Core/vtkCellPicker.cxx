@@ -1010,14 +1010,8 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3], const double p
   {
     return VTK_DOUBLE_MAX;
   }
-  if (s1 >= t1)
-  {
-    t1 = s1;
-  }
-  if (s2 <= t2)
-  {
-    t2 = s2;
-  }
+  t1 = std::max(s1, t1);
+  t2 = std::min(s2, t2);
 
   // Sanity check
   if (t2 < t1)
@@ -1446,10 +1440,7 @@ int vtkCellPicker::ClipLineWithPlanes(vtkAbstractMapper3D* mapper, vtkMatrix4x4*
       // else point p2 was clipped, so adjust t2
       else
       {
-        if (t <= t2)
-        {
-          t2 = t;
-        }
+        t2 = std::min(t, t2);
       }
 
       // If this happens, there's no line left
@@ -1735,14 +1726,8 @@ void vtkCellPicker::SetImageDataPickInfo(const double x[3], const int extent[6])
   for (int j = 0; j < 3; j++)
   {
     double xj = x[j];
-    if (xj < extent[2 * j])
-    {
-      xj = extent[2 * j];
-    }
-    if (xj > extent[2 * j + 1])
-    {
-      xj = extent[2 * j + 1];
-    }
+    xj = std::max<double>(xj, extent[2 * j]);
+    xj = std::min<double>(xj, extent[2 * j + 1]);
 
     this->CellIJK[j] = vtkMath::Floor(xj);
     this->PCoords[j] = xj - this->CellIJK[j];

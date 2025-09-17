@@ -164,14 +164,8 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::Integrate(vtkDoubleArray* inte
       {
         int table_index =
           (int)(this->TableScale[0] * nearIntersections->GetComponent(i, 0) + this->TableShift[0]);
-        if (table_index < 0)
-        {
-          table_index = 0;
-        }
-        if (table_index >= this->TransferFunctionTableSize)
-        {
-          table_index = this->TransferFunctionTableSize - 1;
-        }
+        table_index = std::max(table_index, 0);
+        table_index = std::min(table_index, this->TransferFunctionTableSize - 1);
         float* c = this->ColorTable[0] + 3 * table_index;
         float tau = this->AttenuationTable[0][table_index];
         float alpha = 1 - (float)exp(-intersectionLengths->GetComponent(i, 0) * tau);
@@ -189,14 +183,8 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::Integrate(vtkDoubleArray* inte
         float newcolor[4];
         int table_index =
           (int)(this->TableScale[0] * nearIntersections->GetComponent(i, 0) + this->TableShift[0]);
-        if (table_index < 0)
-        {
-          table_index = 0;
-        }
-        if (table_index >= this->TransferFunctionTableSize)
-        {
-          table_index = this->TransferFunctionTableSize - 1;
-        }
+        table_index = std::max(table_index, 0);
+        table_index = std::min(table_index, this->TransferFunctionTableSize - 1);
         float* c = this->ColorTable[0] + 3 * table_index;
         float tau = this->AttenuationTable[0][table_index];
         newcolor[0] = c[0];
@@ -208,14 +196,8 @@ void vtkUnstructuredGridHomogeneousRayIntegrator::Integrate(vtkDoubleArray* inte
           table_index =
             (int)(this->TableScale[component] * nearIntersections->GetComponent(i, component) +
               this->TableShift[component]);
-          if (table_index < 0)
-          {
-            table_index = 0;
-          }
-          if (table_index >= this->TransferFunctionTableSize)
-          {
-            table_index = this->TransferFunctionTableSize - 1;
-          }
+          table_index = std::max(table_index, 0);
+          table_index = std::min(table_index, this->TransferFunctionTableSize - 1);
           c = this->ColorTable[component] + 3 * table_index;
           tau = this->AttenuationTable[component][table_index];
           // Here we handle the mixing of material properties.  This never

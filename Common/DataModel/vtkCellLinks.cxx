@@ -60,8 +60,7 @@ void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
 {
   this->Initialize();
   this->Size = sz;
-  // NOLINTNEXTLINE(modernize-make-shared)
-  this->ArraySharedPtr.reset(new Link[sz](), std::default_delete<Link[]>());
+  this->ArraySharedPtr = std::shared_ptr<Link[]>(new Link[sz]());
   this->Array = this->ArraySharedPtr.get();
   this->Extend = ext;
   this->MaxId = -1;
@@ -112,7 +111,7 @@ vtkCellLinks::Link* vtkCellLinks::Resize(vtkIdType sz)
     newSize = sz;
   }
 
-  std::shared_ptr<Link> newArraySharedPtr(new Link[newSize], std::default_delete<Link[]>());
+  std::shared_ptr<Link[]> newArraySharedPtr(new Link[newSize]);
   Link* newArray = newArraySharedPtr.get();
 
   for (vtkIdType i = 0; i < sz && i < this->Size; i++)

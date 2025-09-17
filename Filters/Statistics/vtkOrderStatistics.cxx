@@ -842,10 +842,7 @@ void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
 
       // Calculate vertical distance between CDFs and update maximum if needed
       double d = fabs(cit->second - mcdf);
-      if (d > Dmn)
-      {
-        Dmn = d;
-      }
+      Dmn = std::max(d, Dmn);
     }
 
     // Insert variable name and calculated Kolmogorov-Smirnov statistic

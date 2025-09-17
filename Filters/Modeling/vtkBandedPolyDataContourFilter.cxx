@@ -434,10 +434,7 @@ int vtkBandedPolyDataContourFilter::RequestData(vtkInformation* vtkNotUsed(reque
   estimatedSize = static_cast<vtkIdType>(pow(static_cast<double>(numCells), .9));
   estimatedSize *= numClipValues;
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   // The original set of points and point data are copied. Later on
   // intersection points due to clipping will be created.

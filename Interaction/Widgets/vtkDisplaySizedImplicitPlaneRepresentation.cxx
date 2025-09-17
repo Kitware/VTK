@@ -1514,14 +1514,10 @@ void vtkDisplaySizedImplicitPlaneRepresentation::GetNormal(double xyz[3])
 //------------------------------------------------------------------------------
 void vtkDisplaySizedImplicitPlaneRepresentation::SetRadiusMultiplier(double radiusMultiplier)
 {
-  if (this->RadiusMultiplier !=
-    (radiusMultiplier < 0.000001
-        ? 0.000001
-        : (radiusMultiplier > VTK_DOUBLE_MAX ? VTK_DOUBLE_MAX : radiusMultiplier)))
+  radiusMultiplier = std::min(std::max(radiusMultiplier, 0.000001), VTK_DOUBLE_MAX);
+  if (this->RadiusMultiplier != radiusMultiplier)
   {
-    this->RadiusMultiplier = (radiusMultiplier < 0.000001
-        ? 0.000001
-        : (radiusMultiplier > VTK_DOUBLE_MAX ? VTK_DOUBLE_MAX : radiusMultiplier));
+    this->RadiusMultiplier = radiusMultiplier;
     this->Modified();
     this->BuildRepresentation();
   }

@@ -26,6 +26,7 @@
 #include "vtkPolyData.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -208,10 +209,7 @@ int vtkGenericCutter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType estimatedSize =
     static_cast<vtkIdType>(pow(static_cast<double>(numCells), .75)) * numContours;
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   vtkPoints* newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize, estimatedSize);

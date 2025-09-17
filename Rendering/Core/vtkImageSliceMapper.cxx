@@ -93,14 +93,8 @@ vtkTypeBool vtkImageSliceMapper::ProcessRequest(
     {
       for (int i = 0; i < 3; i++)
       {
-        if (extent[2 * i] < this->CroppingRegion[2 * i])
-        {
-          extent[2 * i] = this->CroppingRegion[2 * i];
-        }
-        if (extent[2 * i + 1] > this->CroppingRegion[2 * i + 1])
-        {
-          extent[2 * i + 1] = this->CroppingRegion[2 * i + 1];
-        }
+        extent[2 * i] = std::max(extent[2 * i], this->CroppingRegion[2 * i]);
+        extent[2 * i + 1] = std::min(extent[2 * i + 1], this->CroppingRegion[2 * i + 1]);
       }
     }
 
@@ -162,14 +156,8 @@ vtkTypeBool vtkImageSliceMapper::ProcessRequest(
     this->SliceNumberMinValue = wholeExtent[2 * orientation];
     this->SliceNumberMaxValue = wholeExtent[2 * orientation + 1];
 
-    if (this->SliceNumber < extent[2 * orientation])
-    {
-      this->SliceNumber = extent[2 * orientation];
-    }
-    if (this->SliceNumber > extent[2 * orientation + 1])
-    {
-      this->SliceNumber = extent[2 * orientation + 1];
-    }
+    this->SliceNumber = std::max(this->SliceNumber, extent[2 * orientation]);
+    this->SliceNumber = std::min(this->SliceNumber, extent[2 * orientation + 1]);
 
     // the test is for an empty extent (0, -1, 0, -1, 0, -1) which
     // otherwise would be changed into (0, -1, 0, -1, -1, -1)
@@ -282,15 +270,9 @@ vtkMTimeType vtkImageSliceMapper::GetMTime()
     {
       vtkCamera* camera = ren->GetActiveCamera();
       vtkMTimeType mTime2 = prop->GetMTime();
-      if (mTime2 > mTime)
-      {
-        mTime = mTime2;
-      }
+      mTime = std::max(mTime2, mTime);
       mTime2 = camera->GetMTime();
-      if (mTime2 > mTime)
-      {
-        mTime = mTime2;
-      }
+      mTime = std::max(mTime2, mTime);
     }
   }
 

@@ -401,14 +401,8 @@ std::pair<int, int> vtkDGCell::GetSideRangeForDimension(int dimension) const
     auto shape = this->GetSideShape(rr.first);
     if (vtkDGCell::GetShapeDimension(shape) == dimension)
     {
-      if (lo > rr.first)
-      {
-        lo = rr.first;
-      }
-      if (hi < rr.second)
-      {
-        hi = rr.second;
-      }
+      lo = std::min(lo, rr.first);
+      hi = std::max(hi, rr.second);
     }
   }
   if (hi >= 0 && lo < hi)

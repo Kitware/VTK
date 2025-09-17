@@ -872,30 +872,12 @@ void vtkParallelRenderManager::ComputeVisiblePropBounds(vtkRenderer* ren, double
 
       this->Controller->Receive(tmp, 6, id, vtkParallelRenderManager::BOUNDS_TAG);
 
-      if (tmp[0] < bounds[0])
-      {
-        bounds[0] = tmp[0];
-      }
-      if (tmp[1] > bounds[1])
-      {
-        bounds[1] = tmp[1];
-      }
-      if (tmp[2] < bounds[2])
-      {
-        bounds[2] = tmp[2];
-      }
-      if (tmp[3] > bounds[3])
-      {
-        bounds[3] = tmp[3];
-      }
-      if (tmp[4] < bounds[4])
-      {
-        bounds[4] = tmp[4];
-      }
-      if (tmp[5] > bounds[5])
-      {
-        bounds[5] = tmp[5];
-      }
+      bounds[0] = std::min(tmp[0], bounds[0]);
+      bounds[1] = std::max(tmp[1], bounds[1]);
+      bounds[2] = std::min(tmp[2], bounds[2]);
+      bounds[3] = std::max(tmp[3], bounds[3]);
+      bounds[4] = std::min(tmp[4], bounds[4]);
+      bounds[5] = std::max(tmp[5], bounds[5]);
     }
   }
   else
@@ -1038,10 +1020,7 @@ void vtkParallelRenderManager::SetImageReductionFactorForUpdateRate(double desir
 
   double allottedPixelTime = 1.0 / desiredUpdateRate - renderTime;
   // Give ourselves at least 15% of render time.
-  if (allottedPixelTime < 0.15 * renderTime)
-  {
-    allottedPixelTime = 0.15 * renderTime;
-  }
+  allottedPixelTime = std::max(allottedPixelTime, 0.15 * renderTime);
 
   vtkDebugMacro("TimePerPixel: " << timePerPixel
                                  << ", AverageTimePerPixel: " << this->AverageTimePerPixel
@@ -1084,14 +1063,8 @@ void vtkParallelRenderManager::SetRenderWindowSize()
     }
 
     // Make sure the reduced image is no bigger than the full image.
-    if (this->ReducedImageSize[0] > this->FullImageSize[0])
-    {
-      this->ReducedImageSize[0] = this->FullImageSize[0];
-    }
-    if (this->ReducedImageSize[1] > this->FullImageSize[1])
-    {
-      this->ReducedImageSize[1] = this->FullImageSize[1];
-    }
+    this->ReducedImageSize[0] = std::min(this->ReducedImageSize[0], this->FullImageSize[0]);
+    this->ReducedImageSize[1] = std::min(this->ReducedImageSize[1], this->FullImageSize[1]);
   }
 
   // Correct image reduction factor.

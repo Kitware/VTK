@@ -125,10 +125,7 @@ void vtkTreeLayoutStrategy::Layout()
       leafCount++;
       lastLeafLevel = tree->GetLevel(vertex);
     }
-    if (tree->GetLevel(vertex) > maxLevel)
-    {
-      maxLevel = tree->GetLevel(vertex);
-    }
+    maxLevel = std::max(tree->GetLevel(vertex), maxLevel);
   }
 
   // Divide the "extra spacing" between tree branches among all internal nodes.
@@ -141,10 +138,7 @@ void vtkTreeLayoutStrategy::Layout()
   // To do this, we interpolate between these values.
   vtkIdType internalCount = tree->GetNumberOfVertices() - leafCount;
   double alpha = (this->Angle - 270) / 90;
-  if (alpha < 0.0)
-  {
-    alpha = 0.0;
-  }
+  alpha = std::max(alpha, 0.0);
   double internalCountInterp =
     alpha * (internalCount - 1) + (1.0 - alpha) * (internalCount - lastLeafLevel);
   double internalSpacing = 0.0;
@@ -310,14 +304,8 @@ void vtkTreeLayoutStrategy::Layout()
           vtkIdType child = it->Next();
           double pt[3];
           newPoints->GetPoint(child, pt);
-          if (pt[0] < minX)
-          {
-            minX = pt[0];
-          }
-          if (pt[0] > maxX)
-          {
-            maxX = pt[0];
-          }
+          minX = std::min(pt[0], minX);
+          maxX = std::max(pt[0], maxX);
         }
         x = (minX + maxX) / 2.0;
       }

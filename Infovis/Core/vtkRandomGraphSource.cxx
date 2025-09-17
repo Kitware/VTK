@@ -164,10 +164,7 @@ int vtkRandomGraphSource::RequestData(
       MaxEdges = (this->NumberOfVertices * (this->NumberOfVertices - 1)) / 2;
     }
 
-    if (this->NumberOfEdges > MaxEdges)
-    {
-      this->NumberOfEdges = MaxEdges;
-    }
+    this->NumberOfEdges = std::min<vtkIdType>(this->NumberOfEdges, MaxEdges);
 
     for (vtkIdType i = 0; i < this->NumberOfEdges; i++)
     {

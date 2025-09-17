@@ -212,14 +212,8 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim, int x, int y,
       // assign the root to c because MSVC5.0 optimizer has problems with this
       // function
       c = -0.5 * b / a;
-      if (c > 1.0)
-      {
-        c = 1.0;
-      }
-      if (c < -1.0)
-      {
-        c = -1.0;
-      }
+      c = std::min(c, 1.0);
+      c = std::max(c, -1.0);
       result[0] += vec[0] * c;
       result[1] += vec[1] * c;
 
@@ -351,14 +345,8 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim, int x, int y,
         c = -0.5 * b / a;
       }
 
-      if (c > 1.0)
-      {
-        c = 1.0;
-      }
-      if (c < -1.0)
-      {
-        c = -1.0;
-      }
+      c = std::min(c, 1.0);
+      c = std::max(c, -1.0);
       result[0] = result[0] + vec[0] * c;
       result[1] = result[1] + vec[1] * c;
       result[2] = result[2] + vec[2] * c;
@@ -478,14 +466,8 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim, int x, int y,
       // assign the root to c because MSVC5.0 optimizer has problems with this
       // function
       c = -0.5 * b / a;
-      if (c > 1.0)
-      {
-        c = 1.0;
-      }
-      if (c < -1.0)
-      {
-        c = -1.0;
-      }
+      c = std::min(c, 1.0);
+      c = std::max(c, -1.0);
       result[0] += vec[0] * c;
       result[1] += vec[1] * c;
 
@@ -617,14 +599,8 @@ void vtkSubPixelPositionEdgels::Move(int xdim, int ydim, int zdim, int x, int y,
         c = -0.5 * b / a;
       }
 
-      if (c > 1.0)
-      {
-        c = 1.0;
-      }
-      if (c < -1.0)
-      {
-        c = -1.0;
-      }
+      c = std::min(c, 1.0);
+      c = std::max(c, -1.0);
       result[0] = result[0] + vec[0] * c;
       result[1] = result[1] + vec[1] * c;
       result[2] = result[2] + vec[2] * c;

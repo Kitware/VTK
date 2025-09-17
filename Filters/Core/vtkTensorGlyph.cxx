@@ -310,10 +310,7 @@ int vtkTensorGlyph::RequestData(vtkInformation* vtkNotUsed(request),
     {
       for (maxScale = 0.0, i = 0; i < 3; i++)
       {
-        if (maxScale < fabs(w[i]))
-        {
-          maxScale = fabs(w[i]);
-        }
+        maxScale = std::max(maxScale, fabs(w[i]));
       }
       if (maxScale > this->MaxScaleFactor)
       {
@@ -330,10 +327,7 @@ int vtkTensorGlyph::RequestData(vtkInformation* vtkNotUsed(request),
     // make sure scale is okay (non-zero) and scale data
     for (maxScale = 0.0, i = 0; i < 3; i++)
     {
-      if (w[i] > maxScale)
-      {
-        maxScale = w[i];
-      }
+      maxScale = std::max(w[i], maxScale);
     }
     if (maxScale == 0.0)
     {

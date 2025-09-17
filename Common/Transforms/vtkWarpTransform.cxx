@@ -3,6 +3,8 @@
 #include "vtkWarpTransform.h"
 #include "vtkMath.h"
 
+#include <algorithm>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 void vtkWarpTransform::PrintSelf(ostream& os, vtkIndent indent)
@@ -180,7 +182,10 @@ void vtkWarpInverseTransformPoint(
     a = -functionDerivative / (2 * (functionValue - lastFunctionValue - functionDerivative));
 
     // clamp to range [0.1,0.5]
-    f *= (a < 0.1 ? 0.1 : (a > 0.5 ? 0.5 : a));
+    a = std::max<T>(a, 0.1);
+    a = std::min<T>(a, 0.5);
+
+    f *= a;
 
     // re-calculate inverse using fractional distance
     inverse[0] = lastInverse[0] - f * deltaI[0];

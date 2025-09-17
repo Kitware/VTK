@@ -117,10 +117,7 @@ vtkMTimeType vtkPointSet::GetMTime()
 
   if (this->Points)
   {
-    if (this->Points->GetMTime() > dsTime)
-    {
-      dsTime = this->Points->GetMTime();
-    }
+    dsTime = std::max(this->Points->GetMTime(), dsTime);
   }
 
   // don't get locator's mtime because its an internal object that cannot be

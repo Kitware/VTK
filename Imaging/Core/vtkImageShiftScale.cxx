@@ -81,14 +81,8 @@ void vtkImageShiftScaleExecute(vtkImageShiftScale* self, vtkImageData* inData,
       {
         // Pixel operation
         double val = (static_cast<double>(*inSI) + shift) * scale;
-        if (val > typeMax)
-        {
-          val = typeMax;
-        }
-        if (val < typeMin)
-        {
-          val = typeMin;
-        }
+        val = std::min(val, typeMax);
+        val = std::max(val, typeMin);
         *outSI = static_cast<OT>(val);
         ++outSI;
         ++inSI;

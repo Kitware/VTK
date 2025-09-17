@@ -683,10 +683,7 @@ double vtkPiecewiseFunction::FindMinimumXDistance()
   for (size_t i = 0; i < size - 1; i++)
   {
     double const currentDist = nodes[i + 1]->X - nodes[i]->X;
-    if (currentDist < distance)
-    {
-      distance = currentDist;
-    }
+    distance = std::min(currentDist, distance);
   }
 
   return distance;
@@ -860,15 +857,8 @@ void vtkPiecewiseFunction::GetTable(
 
       // Move midpoint away from extreme ends of range to avoid
       // degenerate math
-      if (midpoint < epsilon)
-      {
-        midpoint = epsilon;
-      }
-
-      if (midpoint > 1 - epsilon)
-      {
-        midpoint = 1 - epsilon;
-      }
+      midpoint = std::max(midpoint, epsilon);
+      midpoint = std::min(midpoint, 1 - epsilon);
 
       // Our first attempt at a normalized location [0, 1] -
       // we will be modifying this based on midpoint and

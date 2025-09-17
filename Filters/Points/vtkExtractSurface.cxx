@@ -17,6 +17,7 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm>
 #include <cfloat>
 #include <cmath>
 
@@ -1054,8 +1055,30 @@ void vtkExtractSurfaceAlgorithm<T>::GenerateOutput(
   // Determine the proximity to the boundary of volume. This information is
   // used to generate edge intersections.
   unsigned char loc, yLoc, zLoc, yzLoc;
-  yLoc = (row < 1 ? MinBoundary : (row >= (this->Dims[1] - 2) ? MaxBoundary : Interior));
-  zLoc = (slice < 1 ? MinBoundary : (slice >= (this->Dims[2] - 2) ? MaxBoundary : Interior));
+  if (row < 1)
+  {
+    yLoc = MinBoundary;
+  }
+  else if (row >= (this->Dims[1] - 2))
+  {
+    yLoc = MaxBoundary;
+  }
+  else
+  {
+    yLoc = Interior;
+  }
+  if (slice < 1)
+  {
+    zLoc = MinBoundary;
+  }
+  else if (slice >= (this->Dims[2] - 2))
+  {
+    zLoc = MaxBoundary;
+  }
+  else
+  {
+    zLoc = Interior;
+  }
   yzLoc = (yLoc << 2) | (zLoc << 4);
 
   // Run along voxels in x-row direction and generate output primitives. Note
@@ -1086,7 +1109,18 @@ void vtkExtractSurfaceAlgorithm<T>::GenerateOutput(
 
       // Now generate point(s) along voxel axes if needed. Remember to take
       // boundary into account.
-      loc = yzLoc | (i < 1 ? MinBoundary : (i >= (this->Dims[0] - 2) ? MaxBoundary : Interior));
+      if (i < 1)
+      {
+        loc = yzLoc | MinBoundary;
+      }
+      else if (i >= (this->Dims[0] - 2))
+      {
+        loc = yzLoc | MaxBoundary;
+      }
+      else
+      {
+        loc = yzLoc | Interior;
+      }
       if (this->CaseIncludesAxes(eCase) || loc != Interior)
       {
         unsigned char const* const edgeUses = this->GetEdgeUses(eCase);
@@ -1315,14 +1349,8 @@ int vtkExtractSurface::RequestData(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);
   for (int i = 0; i < 3; i++)
   {
-    if (inExt[2 * i] > exExt[2 * i])
-    {
-      exExt[2 * i] = inExt[2 * i];
-    }
-    if (inExt[2 * i + 1] < exExt[2 * i + 1])
-    {
-      exExt[2 * i + 1] = inExt[2 * i + 1];
-    }
+    exExt[2 * i] = std::max(inExt[2 * i], exExt[2 * i]);
+    exExt[2 * i + 1] = std::min(inExt[2 * i + 1], exExt[2 * i + 1]);
   }
   if (exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5])
   {

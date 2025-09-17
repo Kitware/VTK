@@ -229,10 +229,7 @@ int vtkPolyDataEdgeConnectivityFilter::RequestData(vtkInformation* vtkNotUsed(re
   }
   else
   {
-    if (this->ScalarRange[1] < this->ScalarRange[0])
-    {
-      this->ScalarRange[1] = this->ScalarRange[0];
-    }
+    this->ScalarRange[1] = std::max(this->ScalarRange[1], this->ScalarRange[0]);
   }
 
   // Build cell structure. Note that although only polygons are processed, we

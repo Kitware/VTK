@@ -291,14 +291,8 @@ void vtkCheckerboardSplatterAlgorithm<TPoints, TScalars>::SplatPoint(vtkIdType p
   {
     min[i] = static_cast<vtkIdType>(floor(static_cast<double>(loc[i]) - this->Footprint));
     max[i] = static_cast<vtkIdType>(ceil(static_cast<double>(loc[i]) + this->Footprint));
-    if (min[i] < 0)
-    {
-      min[i] = 0;
-    }
-    if (max[i] >= this->Dims[i])
-    {
-      max[i] = this->Dims[i] - 1;
-    }
+    min[i] = std::max<vtkIdType>(min[i], 0);
+    max[i] = std::min<vtkIdType>(max[i], this->Dims[i] - 1);
   }
 
   splat.SetSliceBounds(min, max);

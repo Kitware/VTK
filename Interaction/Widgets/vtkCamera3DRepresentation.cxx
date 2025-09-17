@@ -449,9 +449,8 @@ void vtkCamera3DRepresentation::SetSecondaryHandlesVisibility(bool visible)
 void vtkCamera3DRepresentation::SetInteractionState(int state)
 {
   // Clamp to allowable values
-  state = (state < vtkCamera3DRepresentation::Outside
-      ? vtkCamera3DRepresentation::Outside
-      : (state > vtkCamera3DRepresentation::Scaling ? vtkCamera3DRepresentation::Scaling : state));
+  state = std::max<int>(
+    vtkCamera3DRepresentation::Outside, std::min<int>(state, vtkCamera3DRepresentation::Scaling));
 
   this->InteractionState = state;
   if (state != vtkCamera3DRepresentation::Outside)

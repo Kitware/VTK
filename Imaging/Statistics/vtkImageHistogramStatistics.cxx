@@ -5,6 +5,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 
+#include <algorithm>
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -139,14 +140,8 @@ int vtkImageHistogramStatistics::RequestData(
   this->AutoRange[1] = highVal * binSpacing + binOrigin;
 
   // clamp the auto range to the full data range
-  if (this->AutoRange[0] < this->Minimum)
-  {
-    this->AutoRange[0] = this->Minimum;
-  }
-  if (this->AutoRange[1] > this->Maximum)
-  {
-    this->AutoRange[1] = this->Maximum;
-  }
+  this->AutoRange[0] = std::max(this->AutoRange[0], this->Minimum);
+  this->AutoRange[1] = std::min(this->AutoRange[1], this->Maximum);
 
   return 1;
 }

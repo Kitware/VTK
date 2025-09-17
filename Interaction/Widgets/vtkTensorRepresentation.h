@@ -35,6 +35,8 @@
 #include "vtkWidgetRepresentation.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
+#include <algorithm> // std::min, std::max
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkPolyDataMapper;
@@ -107,7 +109,7 @@ public:
   }
   void GetEigenvector(int n, double ev[3])
   {
-    n = (n < 0 ? 0 : (n > 2 ? 2 : n));
+    n = std::min(std::max(n, 0), 2);
     std::copy(this->Eigenvectors[n], this->Eigenvectors[n] + 3, ev);
   }
   ///@}

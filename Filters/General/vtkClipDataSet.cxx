@@ -218,10 +218,7 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   // allocate the output and associated helper classes
   estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
   cellScalars = vtkSmartPointer<vtkFloatArray>::New();
   cellScalars->Allocate(VTK_CELL_SIZE);
   vtkSmartPointer<vtkCellArray> conn[2];
@@ -400,6 +397,7 @@ int vtkClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
           return (nPts > 2 ? VTK_POLY_LINE : VTK_LINE);
 
         case 2: // polygons are generated------------------------------
+          // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
           return (nPts == 3 ? VTK_TRIANGLE : (nPts == 4 ? VTK_QUAD : VTK_POLYGON));
 
         case 3: // tetrahedra or wedges are generated------------------

@@ -7,6 +7,8 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkSpline.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTupleInterpolator);
 
@@ -223,9 +225,7 @@ void vtkTupleInterpolator::InitializeInterpolation()
 //------------------------------------------------------------------------------
 void vtkTupleInterpolator::SetInterpolationType(int type)
 {
-  type = (type < INTERPOLATION_TYPE_LINEAR
-      ? INTERPOLATION_TYPE_LINEAR
-      : (type > INTERPOLATION_TYPE_SPLINE ? INTERPOLATION_TYPE_SPLINE : type));
+  type = std::clamp<int>(type, INTERPOLATION_TYPE_LINEAR, INTERPOLATION_TYPE_SPLINE);
   if (type != this->InterpolationType)
   {
     this->Initialize(); // wipe out data
@@ -313,7 +313,7 @@ void vtkTupleInterpolator::InterpolateTuple(double t, double tuple[])
   if (this->InterpolationType == INTERPOLATION_TYPE_LINEAR)
   {
     double* range = this->Linear[0]->GetRange();
-    t = (t < range[0] ? range[0] : (t > range[1] ? range[1] : t));
+    t = std::clamp(t, range[0], range[1]);
     for (i = 0; i < this->NumberOfComponents; i++)
     {
       tuple[i] = this->Linear[i]->GetValue(t);

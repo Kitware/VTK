@@ -92,10 +92,7 @@ int vtkInterpolateDataSetAttributes::RequestData(vtkInformation* vtkNotUsed(requ
 
   highDS = lowDS + 1;
   t = this->T - static_cast<double>(lowDS);
-  if (t > 1.0)
-  {
-    t = 1.0;
-  }
+  t = std::min(t, 1.0);
 
   vtkInformation* dsInfo = inputVector[0]->GetInformationObject(lowDS);
   vtkInformation* ds2Info = inputVector[0]->GetInformationObject(highDS);

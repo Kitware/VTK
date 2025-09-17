@@ -662,10 +662,7 @@ size_t vtkXMLDataParser::ReadUncompressedData(
     return 0;
   }
   vtkTypeUInt64 end = offset + length;
-  if (end > size)
-  {
-    end = size;
-  }
+  end = std::min(end, size);
   length = end - offset;
 
   // Read the data.
@@ -741,10 +738,7 @@ size_t vtkXMLDataParser::ReadCompressedData(
   {
     return 0;
   }
-  if (endOffset > totalSize)
-  {
-    endOffset = totalSize;
-  }
+  endOffset = std::min(endOffset, totalSize);
 
   // Find the range of compression blocks to read.
   vtkTypeUInt64 firstBlock = beginOffset / this->BlockUncompressedSize;
@@ -915,10 +909,7 @@ size_t vtkXMLDataParser::ReadAsciiData(
   {
     return 0;
   }
-  if (endWord > this->AsciiDataBufferLength)
-  {
-    endWord = this->AsciiDataBufferLength;
-  }
+  endWord = std::min<vtkTypeUInt64>(endWord, this->AsciiDataBufferLength);
   size_t wordSize = this->GetWordTypeSize(wordType);
   size_t actualWords = endWord - startWord;
   size_t actualBytes = wordSize * actualWords;

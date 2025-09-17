@@ -41,6 +41,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkIncrementalPointLocator.h"
 
+#include <algorithm> // for std::min/std::max
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
 class vtkIdList;
@@ -276,9 +278,9 @@ protected:
     vtkIdType tmp1 = static_cast<vtkIdType>(((x[1] - this->BY) * this->FY));
     vtkIdType tmp2 = static_cast<vtkIdType>(((x[2] - this->BZ) * this->FZ));
 
-    ijk[0] = tmp0 < 0 ? 0 : (tmp0 >= this->XD ? this->XD - 1 : tmp0);
-    ijk[1] = tmp1 < 0 ? 0 : (tmp1 >= this->YD ? this->YD - 1 : tmp1);
-    ijk[2] = tmp2 < 0 ? 0 : (tmp2 >= this->ZD ? this->ZD - 1 : tmp2);
+    ijk[0] = std::min(std::max<vtkIdType>(tmp0, 0), this->XD - 1);
+    ijk[1] = std::min(std::max<vtkIdType>(tmp1, 0), this->YD - 1);
+    ijk[2] = std::min(std::max<vtkIdType>(tmp2, 0), this->ZD - 1);
   }
 
   vtkIdType GetBucketIndex(const double* x) const

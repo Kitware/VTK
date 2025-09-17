@@ -47,16 +47,9 @@ int vtkImageSkeleton2D::IterativeRequestUpdateExtent(vtkInformation* in, vtkInfo
     inExt[idx * 2 + 1] = outExt[idx * 2 + 1] + 1;
 
     // If the expanded region is out of the IMAGE Extent (grow min)
-    if (inExt[idx * 2] < wholeExtent[idx * 2])
-    {
-      inExt[idx * 2] = wholeExtent[idx * 2];
-    }
+    inExt[idx * 2] = std::max(inExt[idx * 2], wholeExtent[idx * 2]);
     // If the expanded region is out of the IMAGE Extent (shrink max)
-    if (inExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
-    {
-      // shrink the required region extent
-      inExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
-    }
+    inExt[idx * 2 + 1] = std::min(inExt[idx * 2 + 1], wholeExtent[idx * 2 + 1]);
   }
 
   in->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);

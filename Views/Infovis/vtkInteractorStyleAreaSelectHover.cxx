@@ -237,8 +237,7 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
           sector->SetEndAngle(sinfo[1]);
 
           int resolution = (int)((sinfo[1] - sinfo[0]) / 1);
-          if (resolution < 1)
-            resolution = 1;
+          resolution = std::max(resolution, 1);
           sector->SetCircumferentialResolution(resolution);
           sector->Update();
 

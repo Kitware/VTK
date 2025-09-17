@@ -55,15 +55,23 @@ void vtkImageResliceToColors::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "LookupTable: " << this->GetLookupTable() << "\n";
-  os << indent << "OutputFormat: "
-     << (this->OutputFormat == VTK_RGBA
-            ? "RGBA"
-            : (this->OutputFormat == VTK_RGB
-                  ? "RGB"
-                  : (this->OutputFormat == VTK_LUMINANCE_ALPHA
-                        ? "LuminanceAlpha"
-                        : (this->OutputFormat == VTK_LUMINANCE ? "Luminance" : "Unknown"))))
-     << "\n";
+  const char* format = "Unknown";
+  switch (this->OutputFormat)
+  {
+    case VTK_RGBA:
+      format = "RGBA";
+      break;
+    case VTK_RGB:
+      format = "RGB";
+      break;
+    case VTK_LUMINANCE_ALPHA:
+      format = "LuminanceAlpha";
+      break;
+    case VTK_LUMINANCE:
+      format = "Luminance";
+      break;
+  }
+  os << indent << "OutputFormat: " << format << "\n";
   os << indent << "Bypass: " << (this->Bypass ? "On\n" : "Off\n");
 }
 

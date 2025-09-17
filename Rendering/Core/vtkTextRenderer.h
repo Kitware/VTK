@@ -141,8 +141,8 @@ public:
   {
     Default = -1,
     Detect = 0,
-    FreeType,
-    MathText,
+    FreeType = 1,
+    MathText = 2,
 
     UserBackend = 16
   };

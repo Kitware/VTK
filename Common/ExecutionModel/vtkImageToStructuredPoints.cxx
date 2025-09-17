@@ -234,30 +234,12 @@ int vtkImageToStructuredPoints::RequestInformation(vtkInformation* vtkNotUsed(re
   if (vInfo)
   {
     tmp = vInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
-    if (tmp[0] > whole[0])
-    {
-      whole[0] = tmp[0];
-    }
-    if (tmp[2] > whole[2])
-    {
-      whole[2] = tmp[2];
-    }
-    if (tmp[4] > whole[4])
-    {
-      whole[4] = tmp[4];
-    }
-    if (tmp[1] < whole[1])
-    {
-      whole[1] = tmp[1];
-    }
-    if (tmp[3] < whole[3])
-    {
-      whole[3] = tmp[3];
-    }
-    if (tmp[5] < whole[5])
-    {
-      whole[5] = tmp[5];
-    }
+    whole[0] = std::max(tmp[0], whole[0]);
+    whole[2] = std::max(tmp[2], whole[2]);
+    whole[4] = std::max(tmp[4], whole[4]);
+    whole[1] = std::min(tmp[1], whole[1]);
+    whole[3] = std::min(tmp[3], whole[3]);
+    whole[5] = std::min(tmp[5], whole[5]);
   }
 
   // slide min extent to 0,0,0 (I Hate this !!!!)

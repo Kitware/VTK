@@ -61,20 +61,14 @@ float vtkStrahlerMetric::CalculateStrahler(vtkIdType root, vtkFloatArray* metric
     for (vtkIdType j = 1; j < nrChildren; j++)
     {
       same = same && (maxStrahler == childStrahler[j]);
-      if (maxStrahler < childStrahler[j])
-      {
-        maxStrahler = childStrahler[j];
-      }
+      maxStrahler = std::max(maxStrahler, childStrahler[j]);
     }
     // Calculate the strahler value for this node
     strahler = (same) ? maxStrahler + nrChildren - 1 : maxStrahler + nrChildren - 2;
   }
   // Record the strahler value within the array.
   metric->InsertValue(root, strahler);
-  if (strahler > this->MaxStrahler)
-  {
-    this->MaxStrahler = strahler;
-  }
+  this->MaxStrahler = std::max(strahler, this->MaxStrahler);
   return strahler;
 }
 

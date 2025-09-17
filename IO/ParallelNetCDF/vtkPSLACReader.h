@@ -107,8 +107,7 @@ protected:
   vtkIdType EndPointRead(int process)
   {
     vtkIdType result = this->StartPointRead(process + 1);
-    if (result > this->NumberOfGlobalPoints)
-      result = this->NumberOfGlobalPoints;
+    result = std::min(result, this->NumberOfGlobalPoints);
     return result;
   }
   ///@}

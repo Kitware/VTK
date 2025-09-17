@@ -81,10 +81,7 @@ static void vtkSynchronizedTemplates3DInitializeOutput(int* ext, vtkImageData* i
     static_cast<vtkIdType>(ext[3] - ext[2] + 1) * static_cast<vtkIdType>(ext[5] - ext[4] + 1);
 
   vtkIdType estimatedSize = (vtkIdType)pow(static_cast<double>(numCells), .75);
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize, estimatedSize);
   newPolys = vtkCellArray::New();
@@ -689,14 +686,8 @@ void vtkSynchronizedTemplates3D::ThreadedExecute(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);
   for (int i = 0; i < 3; i++)
   {
-    if (inExt[2 * i] > exExt[2 * i])
-    {
-      exExt[2 * i] = inExt[2 * i];
-    }
-    if (inExt[2 * i + 1] < exExt[2 * i + 1])
-    {
-      exExt[2 * i + 1] = inExt[2 * i + 1];
-    }
+    exExt[2 * i] = std::max(inExt[2 * i], exExt[2 * i]);
+    exExt[2 * i + 1] = std::min(inExt[2 * i + 1], exExt[2 * i + 1]);
   }
   if (exExt[0] >= exExt[1] || exExt[2] >= exExt[3] || exExt[4] >= exExt[5])
   {

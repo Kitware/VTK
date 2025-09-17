@@ -119,14 +119,8 @@ int vtkImplicitTextureCoords::RequestData(vtkInformation* vtkNotUsed(request),
 
     for (i = 0; i < tcoordDim; i++)
     {
-      if (tCoord[i] < min[i])
-      {
-        min[i] = tCoord[i];
-      }
-      if (tCoord[i] > max[i])
-      {
-        max[i] = tCoord[i];
-      }
+      min[i] = std::min(tCoord[i], min[i]);
+      max[i] = std::max(tCoord[i], max[i]);
     }
 
     newTCoords->InsertTuple(ptId, tCoord);

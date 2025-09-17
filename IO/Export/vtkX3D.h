@@ -31,6 +31,7 @@ enum X3DTypes
 };
 
 /* Elements */
+// NOLINTNEXTLINE(readability-enum-initial-value)
 enum X3DElement
 {
   Shape = 0,

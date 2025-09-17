@@ -187,14 +187,8 @@ int vtkTemporalDataSetCache::RequestInformation(
   for (; pos != this->Cache.end();)
   {
     this->TimeStepValues.push_back(pos->first);
-    if (pos->first < min)
-    {
-      min = pos->first;
-    }
-    if (pos->first > max)
-    {
-      max = pos->first;
-    }
+    min = std::min(pos->first, min);
+    max = std::max(pos->first, max);
     if (hasInTime && pos->first == inTime)
     {
       hasInTime = false;
@@ -205,14 +199,8 @@ int vtkTemporalDataSetCache::RequestInformation(
   {
     // cache doesn't contain our input, but it will when we are asked later
     // so announce it's time too
-    if (inTime < min)
-    {
-      min = inTime;
-    }
-    if (inTime > max)
-    {
-      max = inTime;
-    }
+    min = std::min(inTime, min);
+    max = std::max(inTime, max);
     this->TimeStepValues.push_back(inTime);
   }
   std::sort(this->TimeStepValues.begin(), this->TimeStepValues.end());

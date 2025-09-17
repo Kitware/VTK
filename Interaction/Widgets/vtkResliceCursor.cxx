@@ -546,10 +546,7 @@ vtkMTimeType vtkResliceCursor::GetMTime()
   for (int i = 0; i < 3; i++)
   {
     vtkMTimeType time = this->GetPlane(i)->GetMTime();
-    if (time > mTime)
-    {
-      mTime = time;
-    }
+    mTime = std::max(time, mTime);
   }
 
   return mTime;

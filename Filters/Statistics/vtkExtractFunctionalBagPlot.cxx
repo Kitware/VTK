@@ -161,14 +161,8 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
     for (size_t j = 0; j < medianCount; j++)
     {
       double v = medianLines[j]->GetVariantValue(i).ToDouble();
-      if (v < vMin)
-      {
-        vMin = v;
-      }
-      if (v > vMax)
-      {
-        vMax = v;
-      }
+      vMin = std::min(v, vMin);
+      vMax = std::max(v, vMax);
     }
     q2Points->SetTuple2(i, vMin, vMax);
 
@@ -177,14 +171,8 @@ int vtkExtractFunctionalBagPlot::RequestData(vtkInformation* /*request*/,
     for (size_t j = 0; j < q3Count; j++)
     {
       double v = q3Lines[j]->GetVariantValue(i).ToDouble();
-      if (v < vMin)
-      {
-        vMin = v;
-      }
-      if (v > vMax)
-      {
-        vMax = v;
-      }
+      vMin = std::min(v, vMin);
+      vMax = std::max(v, vMax);
     }
     q3Points->SetTuple2(i, vMin, vMax);
   }

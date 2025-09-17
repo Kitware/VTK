@@ -288,7 +288,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
   }
 
   // Take into account the inertia. Process only so often.
-  if (this->RenderCount++ == 0 || !(this->RenderCount % this->Inertia))
+  if (this->RenderCount == 0 || !((this->RenderCount + 1) % this->Inertia))
   {
     // Okay, we have a bounding box, maybe clipped and scaled, that is visible.
     // We setup the axes depending on the fly mode.
@@ -385,6 +385,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 
       // Find the final point by determining which global x-y-z axes have not
       // been represented, and then determine the point closest to the viewer.
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       zAxes = (xAxes != 0 && yAxes != 0 ? 0 : (xAxes != 1 && yAxes != 1 ? 1 : 2));
       if (pts[Conn[xIdx][zAxes]][2] < pts[Conn[yIdx][zAxes]][2])
       {
@@ -417,6 +418,7 @@ int vtkCubeAxesActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
     yAxes = this->InertiaAxes[6];
     zAxes = this->InertiaAxes[7];
   }
+  ++this->RenderCount;
 
   // Setup the axes for plotting
   double xCoords[4], yCoords[4], zCoords[4], xRange[2], yRange[2], zRange[2];
@@ -1027,10 +1029,7 @@ double vtkCubeAxesActor2D::EvaluatePoint(double planes[24], double x[3])
     plane = planes + kk * 4;
     val = plane[0] * x[0] + plane[1] * x[1] + plane[2] * x[2] + plane[3];
 
-    if (val < minPlanesValue)
-    {
-      minPlanesValue = val;
-    }
+    minPlanesValue = std::min(val, minPlanesValue);
   } // for all planes
 
   return minPlanesValue;
@@ -1054,10 +1053,7 @@ double vtkCubeAxesActor2D::EvaluateBounds(double planes[24], double bounds[6])
       {
         x[0] = bounds[i];
         val = this->EvaluatePoint(planes, x);
-        if (val < minVal)
-        {
-          minVal = val;
-        }
+        minVal = std::min(val, minVal);
       }
     }
   } // loop over verts of bounding box

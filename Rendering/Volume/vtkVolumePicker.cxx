@@ -1,7 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkVolumePicker.h"
+#include <algorithm>
+
 #include "vtkObjectFactory.h"
+#include "vtkVolumePicker.h"
 
 #include "vtkBox.h"
 #include "vtkImageData.h"
@@ -101,14 +103,8 @@ double vtkVolumePicker::IntersectVolumeWithLine(const double p1[3], const double
       double b2 = (bounds[2 * j + 1] - origin[j]) / spacing[j];
       bounds[2 * j] = (b1 < b2 ? b1 : b2);
       bounds[2 * j + 1] = (b1 < b2 ? b2 : b1);
-      if (bounds[2 * j] < extent[2 * j])
-      {
-        bounds[2 * j] = extent[2 * j];
-      }
-      if (bounds[2 * j + 1] > extent[2 * j + 1])
-      {
-        bounds[2 * j + 1] = extent[2 * j + 1];
-      }
+      bounds[2 * j] = std::max<double>(bounds[2 * j], extent[2 * j]);
+      bounds[2 * j + 1] = std::min<double>(bounds[2 * j + 1], extent[2 * j + 1]);
       if (bounds[2 * j] > bounds[2 * j + 1])
       {
         return VTK_DOUBLE_MAX;
@@ -238,14 +234,8 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(const double bounds[6], const in
     return 0;
   }
 
-  if (s1 >= t1)
-  {
-    t1 = s1;
-  }
-  if (s2 <= t2)
-  {
-    t2 = s2;
-  }
+  t1 = std::max(s1, t1);
+  t2 = std::min(s2, t2);
 
   if (t2 < t1)
   {
@@ -258,14 +248,8 @@ int vtkVolumePicker::ClipLineWithCroppingRegion(const double bounds[6], const in
   {
     x[i] = x1[i] * (1.0 - t1) + x2[i] * t1;
     // Watch for out-of-bounds due to numerical roundoff
-    if (x[i] < extent[2 * i])
-    {
-      x[i] = extent[2 * i];
-    }
-    if (x[i] > extent[2 * i + 1])
-    {
-      x[i] = extent[2 * i + 1];
-    }
+    x[i] = std::max<double>(x[i], extent[2 * i]);
+    x[i] = std::min<double>(x[i], extent[2 * i + 1]);
   }
   if (t1 == s1 && extentPlaneId >= 0)
   {

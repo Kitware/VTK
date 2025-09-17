@@ -732,6 +732,7 @@ int vtkImageBSplineInterpolatedValue(const T* Bcoeff, /* input B-spline array of
       {
         xIndex[l] = (Width == 1L)
           ? (0L)
+          // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
           : ((xIndex[l] < 0L) ? (-xIndex[l] - Width2 * ((-xIndex[l]) / Width2))
                               : (xIndex[l] - Width2 * (xIndex[l] / Width2)));
         if (Width <= xIndex[l])
@@ -740,6 +741,7 @@ int vtkImageBSplineInterpolatedValue(const T* Bcoeff, /* input B-spline array of
         }
         yIndex[l] = (Height == 1L)
           ? (0L)
+          // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
           : ((yIndex[l] < 0L) ? (-yIndex[l] - Height2 * ((-yIndex[l]) / Height2))
                               : (yIndex[l] - Height2 * (yIndex[l] / Height2)));
         if (Height <= yIndex[l])
@@ -748,6 +750,7 @@ int vtkImageBSplineInterpolatedValue(const T* Bcoeff, /* input B-spline array of
         }
         zIndex[l] = (Slices == 1L)
           ? (0L)
+          // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
           : ((zIndex[l] < 0L) ? (-zIndex[l] - Slices2 * ((-zIndex[l]) / Slices2))
                               : (zIndex[l] - Slices2 * (zIndex[l] / Slices2)));
         if (Slices <= zIndex[l])

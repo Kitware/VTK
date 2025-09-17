@@ -22,6 +22,8 @@
 #include "vtkTransform.h"
 #include "vtkWorldPointPicker.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
@@ -351,10 +353,11 @@ void vtkInteractorStyleUnicam::ChooseXY(int X, int Y)
 template <class Type>
 inline Type clamp(const Type a, const Type b, const Type c)
 {
-  return a > b ? (a < c ? a : c) : b;
+  return std::min(std::max(a, b), c);
 }
 inline int Sign(double a)
 {
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   return a > 0 ? 1 : a < 0 ? -1 : 0;
 }
 

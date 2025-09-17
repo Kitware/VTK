@@ -45,18 +45,12 @@ vtkImageMapToColors::~vtkImageMapToColors()
 //------------------------------------------------------------------------------
 vtkMTimeType vtkImageMapToColors::GetMTime()
 {
-  vtkMTimeType t1, t2;
-
-  t1 = this->Superclass::GetMTime();
+  vtkMTimeType t = this->Superclass::GetMTime();
   if (this->LookupTable)
   {
-    t2 = this->LookupTable->GetMTime();
-    if (t2 > t1)
-    {
-      t1 = t2;
-    }
+    t = std::max(t, this->LookupTable->GetMTime());
   }
-  return t1;
+  return t;
 }
 
 //------------------------------------------------------------------------------
@@ -296,15 +290,23 @@ void vtkImageMapToColors::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "OutputFormat: "
-     << (this->OutputFormat == VTK_RGBA
-            ? "RGBA"
-            : (this->OutputFormat == VTK_RGB
-                  ? "RGB"
-                  : (this->OutputFormat == VTK_LUMINANCE_ALPHA
-                        ? "LuminanceAlpha"
-                        : (this->OutputFormat == VTK_LUMINANCE ? "Luminance" : "Unknown"))))
-     << "\n";
+  const char* format = "Unknown";
+  switch (this->OutputFormat)
+  {
+    case VTK_RGBA:
+      format = "RGBA";
+      break;
+    case VTK_RGB:
+      format = "RGB";
+      break;
+    case VTK_LUMINANCE_ALPHA:
+      format = "LuminanceAlpha";
+      break;
+    case VTK_LUMINANCE:
+      format = "Luminance";
+      break;
+  }
+  os << indent << "OutputFormat: " << format << "\n";
   os << indent << "ActiveComponent: " << this->ActiveComponent << "\n";
   os << indent << "PassAlphaToOutput: " << this->PassAlphaToOutput << "\n";
   os << indent << "LookupTable: ";

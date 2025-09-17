@@ -1165,8 +1165,21 @@ vtkSmartPointer<vtkLagrangeTriangle> MakeBrokenLagrangeTriangle()
   double* points = triangle->GetParametricCoords();
   for (vtkIdType i = 0; i < nPoints; i++)
   {
-    triangle->GetPointIds()->SetId(i, (i == 2 ? 1 : i == 1 ? 2 : i));
-    triangle->GetPoints()->SetPoint(i, &points[3 * (i == 2 ? 1 : i == 1 ? 2 : i)]);
+    vtkIdType id;
+    switch (i)
+    {
+      case 2:
+        id = 1;
+        break;
+      case 1:
+        id = 2;
+        break;
+      default:
+        id = i;
+        break;
+    }
+    triangle->GetPointIds()->SetId(i, id);
+    triangle->GetPoints()->SetPoint(i, &points[3 * id]);
   }
 
   return triangle;

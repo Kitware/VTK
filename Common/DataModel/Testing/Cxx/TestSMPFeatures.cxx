@@ -46,10 +46,7 @@ struct HullFunctor
         v = -(planes[j * 4 + 0] * coord[0] + planes[j * 4 + 1] * coord[1] +
           planes[j * 4 + 2] * coord[2]);
         // negative means further in + direction of plane
-        if (v < planes[j * 4 + 3])
-        {
-          planes[j * 4 + 3] = v;
-        }
+        planes[j * 4 + 3] = std::min(planes[j * 4 + 3], v);
       }
     }
   }
@@ -191,10 +188,7 @@ int TestSMPFeatures(int, char*[])
           v = -(planes[j * 4 + 0] * coord[0] + planes[j * 4 + 1] * coord[1] +
             planes[j * 4 + 2] * coord[2]);
           // negative means further in + direction of plane
-          if (v < planes[j * 4 + 3])
-          {
-            planes[j * 4 + 3] = v;
-          }
+          planes[j * 4 + 3] = std::min(planes[j * 4 + 3], v);
         }
       }
     }); // end lambda

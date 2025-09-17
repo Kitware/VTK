@@ -182,14 +182,8 @@ void vtkSingleVTPExporter::ProcessTriangle(const vtkIdType* pts, vtkPolyData* op
   bool outside = false;
   for (int i = 0; i < 3; ++i)
   {
-    if (tcoord[i][0] < min[0])
-    {
-      min[0] = tcoord[i][0];
-    }
-    if (tcoord[i][1] < min[1])
-    {
-      min[1] = tcoord[i][1];
-    }
+    min[0] = std::min(tcoord[i][0], min[0]);
+    min[1] = std::min(tcoord[i][1], min[1]);
     if (tcoord[i][0] < 0.0 || tcoord[i][0] > 1.5 || tcoord[i][1] < 0.0 || tcoord[i][1] > 1.5)
     {
       outside = true;
@@ -376,18 +370,9 @@ void vtkSingleVTPExporter::WriteVTP(std::vector<actorData>& actors)
     float col[3] = { static_cast<float>(dcolor[0] * diffuse + acolor[0] * ambient),
       static_cast<float>(dcolor[1] * diffuse + acolor[1] * ambient),
       static_cast<float>(dcolor[2] * diffuse + acolor[2] * ambient) };
-    if (col[0] > maxColor)
-    {
-      maxColor = col[0];
-    }
-    if (col[1] > maxColor)
-    {
-      maxColor = col[1];
-    }
-    if (col[2] > maxColor)
-    {
-      maxColor = col[2];
-    }
+    maxColor = std::max(col[0], maxColor);
+    maxColor = std::max(col[1], maxColor);
+    maxColor = std::max(col[2], maxColor);
   }
   maxColor = 255.0 / maxColor;
 
@@ -643,20 +628,14 @@ void vtkSingleVTPExporter::WriteTexture(std::vector<actorData>& actors)
           dims[1] *= 1.5;
         }
         totalPixels += (dims[0] * dims[1]);
-        if (dims[0] > maxXDim)
-        {
-          maxXDim = dims[0];
-        }
+        maxXDim = std::max(dims[0], maxXDim);
         knownTextures[ad.Texture] = ad;
       }
     }
   }
   // ~= the minimum x dim for a perfectly packed texture
   int minXDim = ceil(sqrt(totalPixels));
-  if (minXDim < maxXDim)
-  {
-    minXDim = maxXDim;
-  }
+  minXDim = std::max(minXDim, maxXDim);
 
   knownTextures.clear();
 
@@ -694,14 +673,8 @@ void vtkSingleVTPExporter::WriteTexture(std::vector<actorData>& actors)
         ad->ImagePosition[0] = currX;
         ad->ImagePosition[1] = currY;
         currX += dims[0];
-        if (rowMaxY < dims[1])
-        {
-          rowMaxY = dims[1];
-        }
-        if (imageMaxX < currX)
-        {
-          imageMaxX = currX;
-        }
+        rowMaxY = std::max(rowMaxY, dims[1]);
+        imageMaxX = std::max(imageMaxX, currX);
         knownTextures[ad->Texture] = *ad;
       }
       else

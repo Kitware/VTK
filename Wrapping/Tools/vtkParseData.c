@@ -6,6 +6,7 @@
 #include <string.h>
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 /* Initialize the FileInfo struct */
 void vtkParse_InitFile(FileInfo* file_info)
@@ -1082,4 +1083,5 @@ void vtkParse_AddDefaultConstructors(ClassInfo* cls, StringCache* cache)
   }
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

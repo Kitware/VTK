@@ -739,10 +739,7 @@ vtkMTimeType vtkLabeledDataMapper::GetMTime()
   {
     vtkTextProperty* p = it->second;
     vtkMTimeType curMTime = p->GetMTime();
-    if (curMTime > mtime)
-    {
-      mtime = curMTime;
-    }
+    mtime = std::max(curMTime, mtime);
   }
   return mtime;
 }

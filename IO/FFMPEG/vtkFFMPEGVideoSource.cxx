@@ -480,10 +480,7 @@ static void vtkThreadSleep(double time)
     }
 
     // do not sleep for more than 0.1 seconds
-    if (remaining > 0.1)
-    {
-      remaining = 0.1;
-    }
+    remaining = std::min(remaining, 0.1);
 
     vtksys::SystemTools::Delay(static_cast<unsigned int>(remaining * 1000.0));
   }

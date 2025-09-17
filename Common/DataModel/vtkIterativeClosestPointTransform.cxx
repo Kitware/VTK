@@ -180,37 +180,25 @@ vtkMTimeType vtkIterativeClosestPointTransform::GetMTime()
   if (this->Source)
   {
     mtime = this->Source->GetMTime();
-    if (mtime > result)
-    {
-      result = mtime;
-    }
+    result = std::max(mtime, result);
   }
 
   if (this->Target)
   {
     mtime = this->Target->GetMTime();
-    if (mtime > result)
-    {
-      result = mtime;
-    }
+    result = std::max(mtime, result);
   }
 
   if (this->Locator)
   {
     mtime = this->Locator->GetMTime();
-    if (mtime > result)
-    {
-      result = mtime;
-    }
+    result = std::max(mtime, result);
   }
 
   if (this->LandmarkTransform)
   {
     mtime = this->LandmarkTransform->GetMTime();
-    if (mtime > result)
-    {
-      result = mtime;
-    }
+    result = std::max(mtime, result);
   }
 
   return result;

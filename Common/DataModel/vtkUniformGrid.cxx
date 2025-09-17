@@ -15,6 +15,8 @@
 #include "vtkPointData.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUniformGrid);
 

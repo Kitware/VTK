@@ -1561,10 +1561,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
 
       // We use fabs() in case the spacing is negative.
       double worldSpacing = fabs(cellSpacing[i] * sqrt(tmp2));
-      if (worldSpacing < minWorldSpacing)
-      {
-        minWorldSpacing = worldSpacing;
-      }
+      minWorldSpacing = std::min(worldSpacing, minWorldSpacing);
       ++i;
     }
 

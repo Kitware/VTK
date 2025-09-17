@@ -498,11 +498,9 @@ double vtkHigherOrderHexahedron::GetParametricDistance(const double pcoords[3])
 
   for (int ii = 0; ii < 3; ++ii)
   {
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     pDist = (pcoords[ii] < 0. ? -pcoords[ii] : (pcoords[ii] > 1. ? pcoords[ii] - 1. : 0.));
-    if (pDist > pDistMax)
-    {
-      pDistMax = pDist;
-    }
+    pDistMax = std::max(pDist, pDistMax);
   }
 
   return pDistMax;
@@ -608,6 +606,7 @@ int vtkHigherOrderHexahedron::PointIndexFromIJK(int i, int j, int k, const int* 
 
   if (nbdy == 3) // Vertex DOF
   {              // ijk is a corner node. Return the proper index (somewhere in [0,7]):
+                 // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     return (i ? (j ? 2 : 1) : (j ? 3 : 0)) + (k ? 4 : 0);
   }
 
@@ -626,6 +625,7 @@ int vtkHigherOrderHexahedron::PointIndexFromIJK(int i, int j, int k, const int* 
     }
     // !kbdy, On k axis
     offset += 4 * (order[0] - 1) + 4 * (order[1] - 1);
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     return (k - 1) + (order[2] - 1) * (i ? (j ? 2 : 1) : (j ? 3 : 0)) + offset;
   }
 

@@ -95,10 +95,7 @@ int vtkPlanesIntersection::GetRegionVertices(double* v, int nvertices)
 
   int npts = this->RegionPts->GetNumberOfPoints();
 
-  if (npts > nvertices)
-  {
-    npts = nvertices;
-  }
+  npts = std::min(npts, nvertices);
 
   for (i = 0; i < npts; i++)
   {

@@ -27,6 +27,8 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSmartVolumeMapper);
 
@@ -939,7 +941,7 @@ void vtkSmartVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkSmartVolumeMapper::SetVectorMode(int mode)
 {
-  int const clampedMode = mode < -1 ? -1 : (mode > 1 ? 1 : mode);
+  int const clampedMode = std::min(std::max(mode, -1), 1);
   if (clampedMode != this->VectorMode)
   {
     if (clampedMode == MAGNITUDE)

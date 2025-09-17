@@ -453,10 +453,7 @@ void vtkVRPanelRepresentation::PlaceWidgetExtended(
   int tbounds[4];
   this->TextActor->GetBoundingBox(tbounds);
   int maxdim = tbounds[1] - tbounds[0];
-  if (tbounds[3] - tbounds[2] > maxdim)
-  {
-    maxdim = tbounds[3] - tbounds[2];
-  }
+  maxdim = std::max(tbounds[3] - tbounds[2], maxdim);
   // should always be at least 50 pixels
   // for any reasonable string.
   maxdim = maxdim > 50 ? maxdim : 50.0;

@@ -332,6 +332,7 @@ static void vtkExtractArraysAssignUniqueCoordNames(
     for (int i = 0; i < 3; ++i)
     {
       std::ostringstream os;
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       os << "SelnCoords" << counter << "_" << (i ? (i > 1 ? "Z" : "Y") : "X");
       actualNames[i] = os.str();
     }

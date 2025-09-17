@@ -1773,22 +1773,10 @@ void vtkAxis::GenerateLogSpacedLinearTicks(int order, double min, double max)
 void vtkAxis::GenerateLogScaleTickMarks(int order, double min, double max, bool detailLabels)
 {
   // If the values min and max are not within limits we set defaults
-  if (min < 1.0)
-  {
-    min = 1.0;
-  }
-  if (min > 9.0)
-  {
-    min = 9.0;
-  }
-  if (max < 1.0)
-  {
-    max = 1.0;
-  }
-  if (max > 9.0)
-  {
-    max = 9.0;
-  }
+  min = std::max(min, 1.0);
+  min = std::min(min, 9.0);
+  max = std::max(max, 1.0);
+  max = std::min(max, 9.0);
   if (fabs(max - min) < 1.0)
   {
     min = 1.0;

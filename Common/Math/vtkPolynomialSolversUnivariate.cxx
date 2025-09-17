@@ -1017,11 +1017,9 @@ static int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double* 
         // If leftx <= upperBnds[nloc-1] then we have to gracefully
         // clean up the mess.
         // For now assume we moved well enough...
-        if (leftVarSgn > varSgn[0])
-          leftVarSgn = varSgn[0];
+        leftVarSgn = std::min(leftVarSgn, varSgn[0]);
 
-        if (rightVarSgn < varSgn[1])
-          rightVarSgn = varSgn[1];
+        rightVarSgn = std::max(rightVarSgn, varSgn[1]);
 
         if (rightVarSgn > varSgn[0])
           rightVarSgn = varSgn[0] - nloc + 1;
@@ -1057,10 +1055,7 @@ static int vtkHabichtOrSturmBisectionSolve(double* P, int d, double* a, double* 
         {
           lowerBnds[i] = leftx;
         }
-        if (upperBnds[i] > rightx)
-        {
-          upperBnds[i] = rightx;
-        }
+        upperBnds[i] = std::min(upperBnds[i], rightx);
       }
     }
 

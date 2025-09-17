@@ -101,9 +101,21 @@ double ComputePulse(const int dimension, double location[3], double pulseOrigin[
 void GetCell(vtkUniformGrid* grid, vtkIdType cellIdx, vtkGenericCell* cell)
 {
   const auto gridDims = grid->GetDataDimension();
-  const auto cellType = gridDims == 3
-    ? VTK_VOXEL
-    : (gridDims == 2 ? VTK_PIXEL : (gridDims == 1 ? VTK_LINE : VTK_VERTEX));
+  VTKCellType cellType;
+  switch (gridDims)
+  {
+    case 3:
+      cellType = VTK_VOXEL;
+      break;
+    case 2:
+      cellType = VTK_PIXEL;
+      break;
+    case 1:
+      cellType = VTK_LINE;
+      break;
+    default:
+      cellType = VTK_VERTEX;
+  }
   // vtkImageData not checks for visibility of cells, so we need to do it manually
   cell->SetCellType(cellType);
   grid->GetCellPoints(cellIdx, cell->PointIds);

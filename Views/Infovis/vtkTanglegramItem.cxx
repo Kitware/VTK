@@ -666,14 +666,8 @@ void vtkTanglegramItem::GenerateLookupTable()
       {
         continue;
       }
-      if (d > max)
-      {
-        max = d;
-      }
-      if (d < min)
-      {
-        min = d;
-      }
+      max = std::max(d, max);
+      min = std::min(d, min);
     }
   }
 

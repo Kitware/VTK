@@ -85,10 +85,7 @@ void vtkPExodusIIWriter::CheckBlockInfoMap()
     std::map<int, Block>::const_iterator iter;
     for (iter = this->BlockInfoMap.begin(); iter != this->BlockInfoMap.end(); ++iter)
     {
-      if (iter->first > maxId)
-      {
-        maxId = iter->first;
-      }
+      maxId = std::max(iter->first, maxId);
     }
     vtkMultiProcessController* c = vtkMultiProcessController::GetGlobalController();
     int globalMaxId;
