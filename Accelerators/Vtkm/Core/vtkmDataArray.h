@@ -37,6 +37,7 @@
 #include <viskores/cont/UnknownArrayHandle.h> // For viskores::cont::UnknownArrayHandle
 
 #include <memory> // For std::unique_ptr<>
+#include <mutex>  // For std::mutex
 
 namespace fromvtkm
 {
@@ -46,7 +47,13 @@ template <typename T>
 class ArrayHandleHelperBase;
 
 template <typename T>
-struct ArrayHandleHelperSwapper;
+class ArrayHandleHelperUnknown;
+
+template <typename ArrayHandleType>
+class ArrayHandleHelperRead;
+
+template <typename ArrayHandleType>
+class ArrayHandleHelperWrite;
 
 VTK_ABI_NAMESPACE_END
 } // fromvtkm
@@ -118,9 +125,16 @@ protected:
 private:
   // To access concept methods
   friend class vtkGenericDataArray<SelfType, ValueType, ArrayTypeTag::value>;
-  friend fromvtkm::ArrayHandleHelperSwapper<T>;
+  friend fromvtkm::ArrayHandleHelperBase<T>;
+  friend fromvtkm::ArrayHandleHelperUnknown<T>;
+  template <typename ArrayHandleType>
+  friend class fromvtkm::ArrayHandleHelperRead;
+  template <typename ArrayHandleType>
+  friend class fromvtkm::ArrayHandleHelperWrite;
 
   mutable std::unique_ptr<fromvtkm::ArrayHandleHelperBase<T>> Helper;
+
+  mutable std::mutex Mutex;
 
   vtkmDataArray(const vtkmDataArray&) = delete;
   void operator=(const vtkmDataArray&) = delete;
