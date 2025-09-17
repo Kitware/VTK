@@ -342,11 +342,20 @@ void vtkEGLRenderWindowInternals::ConfigureWindow(int width, int height)
     return;
   }
 
-  this->Config->CreateContext(this->Context, this->Display, config);
   if (this->Context == EGL_NO_CONTEXT)
   {
-    vtkLog(WARNING, "Failed to create EGL context.");
-    return;
+    this->Config->CreateContext(this->Context, this->Display, config);
+    if (this->Context == EGL_NO_CONTEXT)
+    {
+      vtkLog(WARNING, "Failed to create EGL context.");
+      return;
+    }
+  }
+
+  if (this->Surface != EGL_NO_SURFACE)
+  {
+    eglDestroySurface(this->Display, this->Surface);
+    this->Surface = EGL_NO_SURFACE;
   }
 
   this->Config->CreateWindowSurface(this->Surface, this->Display, config, width, height);
