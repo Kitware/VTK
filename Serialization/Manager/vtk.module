@@ -11,6 +11,15 @@ SPDX_COPYRIGHT_TEXT
 DEPENDS
   VTK::CommonCore
   VTK::CommonDataModel
+OPTIONAL_DEPENDS
+  VTK::RenderingCore
 TEST_DEPENDS
+  VTK::FiltersCore
+  VTK::ImagingCore
+  VTK::InteractionStyle
+  VTK::RenderingCore
+  VTK::RenderingOpenGL2
+  VTK::RenderingUI
   VTK::TestingCore
+  VTK::TestingRendering
   VTK::TestingSerialization
