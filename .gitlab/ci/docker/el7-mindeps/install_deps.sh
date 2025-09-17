@@ -26,6 +26,10 @@ sed -i s/^mirrorlist=http/#mirrorlist=http/g /etc/yum.repos.d/CentOS-*.repo
 yum install -y --setopt=install_weak_deps=False \
     devtoolset-8
 
+# Modern git version
+yum install -y --setopt=install_weak_deps=False \
+    rh-git227
+
 yum install -y --setopt=install_weak_deps=False \
     rh-python38-python rh-python38-python-devel \
     rh-python38-python-pip rh-python38-python-numpy
