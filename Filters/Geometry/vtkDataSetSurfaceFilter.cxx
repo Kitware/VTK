@@ -9,7 +9,7 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCellTypes.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkHexahedron.h"
@@ -1372,14 +1372,14 @@ int vtkDataSetSurfaceFilter::UnstructuredGridBaseExecute(
     {
       if (numCells >= 1)
       {
-        handleSubdivision = !vtkCellTypes::IsLinear(input->GetCellType(0));
+        handleSubdivision = !vtkCellTypeUtilities::IsLinear(input->GetCellType(0));
       }
     }
     else
     {
       for (vtkIdType cellId = 0; cellId < numCells; ++cellId)
       {
-        if (!vtkCellTypes::IsLinear(input->GetCellType(cellId)))
+        if (!vtkCellTypeUtilities::IsLinear(input->GetCellType(cellId)))
         {
           handleSubdivision = true;
           break;

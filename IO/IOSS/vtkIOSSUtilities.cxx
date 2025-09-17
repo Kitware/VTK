@@ -10,7 +10,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellType.h"
-#include "vtkCellTypes.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkDataSet.h"
 #include "vtkGenericCell.h"
 #include "vtkHigherOrderCurve.h"
@@ -537,7 +537,7 @@ const Ioss::ElementTopology* GetElementTopology(int vtk_cell_type)
     return element;
   }
 
-  const std::string cellName = vtkCellTypes::GetClassNameFromTypeId(vtk_cell_type);
+  const std::string cellName = vtkCellTypeUtilities::GetClassNameFromTypeId(vtk_cell_type);
   vtkLogF(ERROR, "%s cannot be mapped to an Ioss element type!", cellName.c_str());
   throw std::runtime_error("Unsupported cell type " + cellName);
 }

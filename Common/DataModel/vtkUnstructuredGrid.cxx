@@ -11,6 +11,7 @@
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkCellLinks.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkCellTypes.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
@@ -423,7 +424,7 @@ int vtkUnstructuredGrid::GetMaxSpatialDimension()
     int maxDim = 0;
     for (vtkIdType i = 0; i < cellTypes->GetNumberOfValues(); ++i)
     {
-      maxDim = std::max(maxDim, vtkCellTypes::GetDimension(cellTypes->GetValue(i)));
+      maxDim = std::max(maxDim, vtkCellTypeUtilities::GetDimension(cellTypes->GetValue(i)));
     }
     return maxDim;
   }
@@ -438,7 +439,7 @@ int vtkUnstructuredGrid::GetMinSpatialDimension()
     int minDim = 3;
     for (vtkIdType i = 0; i < cellTypes->GetNumberOfValues(); ++i)
     {
-      minDim = std::min(minDim, vtkCellTypes::GetDimension(cellTypes->GetValue(i)));
+      minDim = std::min(minDim, vtkCellTypeUtilities::GetDimension(cellTypes->GetValue(i)));
     }
     return minDim;
   }

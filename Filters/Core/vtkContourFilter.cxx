@@ -6,6 +6,7 @@
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkContour3DLinearGrid.h"
 #include "vtkContourGrid.h"
 #include "vtkContourHelper.h"
@@ -557,7 +558,7 @@ int vtkContourFilter::RequestData(
             vtkErrorMacro("Unknown cell type " << cellType);
             continue;
           }
-          if (vtkCellTypes::GetDimension(cellType) != dimensionality)
+          if (vtkCellTypeUtilities::GetDimension(cellType) != dimensionality)
           {
             continue;
           }

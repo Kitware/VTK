@@ -318,7 +318,7 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
               break;
             default:
               // Other types of 3D linear cells handled by vtkGeometryFilter. Exactly what
-              // is a linear cell is defined by vtkCellTypes::IsLinear().
+              // is a linear cell is defined by vtkCellTypeUtilities::IsLinear().
               This->Input->GetCell(cellId, cell);
               if (cell->GetCellDimension() == 3 && cell->IsLinear())
               {

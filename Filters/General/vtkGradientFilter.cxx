@@ -7,6 +7,7 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellDataToPointData.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
@@ -477,7 +478,7 @@ struct PointGradients : public GradientsBase<TData>
         {
           const auto cellType =
             static_cast<unsigned char>(input->GetCellType(cellsOnPoint[neighbor]));
-          int cellDimension = vtkCellTypes::GetDimension(cellType);
+          int cellDimension = vtkCellTypeUtilities::GetDimension(cellType);
           if (cellDimension > maxSpatialDimension)
           {
             maxSpatialDimension = cellDimension;

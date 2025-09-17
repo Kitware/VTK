@@ -4,6 +4,8 @@
 
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkCellData.h"
+#include "vtkCellTypeUtilities.h"
+#include "vtkCellTypes.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataAssembly.h"
@@ -82,7 +84,7 @@ vtkCellArray* GetCells(vtkPolyData* polydata, int cellType)
       return polydata->GetVerts();
     default:
       vtkLog(ERROR, << "Unsupported cell type in polydata. Cell type: "
-                    << vtkCellTypes::GetClassNameFromTypeId(cellType));
+                    << vtkCellTypeUtilities::GetClassNameFromTypeId(cellType));
       return nullptr;
   }
 }
@@ -395,7 +397,7 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node, const std::string
         break;
       default:
         vtkLogF(ERROR, "Unsupported cell type in %s. Cell type: %s", datasetType,
-          vtkCellTypes::GetClassNameFromTypeId(cell_type));
+          vtkCellTypeUtilities::GetClassNameFromTypeId(cell_type));
         return false;
     }
   }

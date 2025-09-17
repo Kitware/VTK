@@ -7,7 +7,7 @@
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCellTypes.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGenericCell.h"
@@ -1190,7 +1190,7 @@ void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellT
     }
     default:
       // Other types of 3D linear cells handled by vtkGeometryFilter. Exactly what
-      // is a linear cell is defined by vtkCellTypes::IsLinear().
+      // is a linear cell is defined by vtkCellTypeUtilities::IsLinear().
       auto cell = localData->Cell;
       input->GetCell(cellId, cell);
       if (cell->GetCellDimension() == 3 && cell->GetNumberOfFaces() > 0)
@@ -1434,7 +1434,8 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
           // the rest will be skipped.
           const unsigned char& type = cellTypes[cellId];
           isGhost = This->CellGhosts && This->CellGhosts[cellId] & This->MASKED_CELL;
-          if (isGhost && (vtkCellTypes::GetDimension(type) < 3 || !This->RemoveGhostInterfaces))
+          if (isGhost &&
+            (vtkCellTypeUtilities::GetDimension(type) < 3 || !This->RemoveGhostInterfaces))
           {
             continue;
           }

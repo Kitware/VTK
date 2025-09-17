@@ -7,7 +7,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
-#include "vtkCellTypes.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkContourHelper.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
@@ -621,7 +621,7 @@ void vtkCutter::DataSetCutter(vtkDataSet* input, vtkPolyData* output)
 
         // I assume that "GetCellType" is fast.
         cellType = static_cast<unsigned char>(input->GetCellType(cellId));
-        if (vtkCellTypes::GetDimension(cellType) != dimensionality)
+        if (vtkCellTypeUtilities::GetDimension(cellType) != dimensionality)
         {
           continue;
         }
@@ -899,7 +899,7 @@ void vtkCutter::UnstructuredGridCutter(vtkDataSet* input, vtkPolyData* output)
         // Just fetch the cell type -- least expensive.
         cellType = static_cast<unsigned char>(cellIter->GetCellType());
         // Check if the type is valid for this pass
-        if (vtkCellTypes::GetDimension(cellType) != dimensionality)
+        if (vtkCellTypeUtilities::GetDimension(cellType) != dimensionality)
         {
           continue;
         }

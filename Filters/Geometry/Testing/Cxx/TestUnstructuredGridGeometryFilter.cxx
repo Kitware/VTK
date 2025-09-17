@@ -31,7 +31,7 @@
 #include "vtkActor.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
-#include "vtkCellTypes.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkLookupTable.h"
 #include "vtkPolyData.h"
 #include "vtkRegressionTestImage.h"
@@ -3800,7 +3800,7 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   for (vtkIdType j = 0; j < uniqueCells->GetNumberOfValues(); ++j)
   {
     unsigned char cellType = uniqueCells->GetValue(j);
-    std::cout << vtkCellTypes::GetClassNameFromTypeId(cellType) << ": "
+    std::cout << vtkCellTypeUtilities::GetClassNameFromTypeId(cellType) << ": "
               << static_cast<int>(cellType) << std::endl;
   }
 

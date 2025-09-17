@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkIntegrationLinearStrategy.h"
 #include "vtkCellData.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
@@ -452,7 +453,7 @@ void vtkIntegrationLinearStrategy::IntegrateDefault(vtkDataSet* input, vtkUnstru
   cell->TriangulateIds(1, cellPtIds);
 
   int cellType = input->GetCellType(cellId);
-  int cellDim = vtkCellTypes::GetDimension(cellType);
+  int cellDim = vtkCellTypeUtilities::GetDimension(cellType);
   switch (cellDim)
   {
     case 1:

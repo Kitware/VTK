@@ -5,6 +5,7 @@
 
 #include "vtkCellData.h"
 #include "vtkCellSizeFilter.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
 #include "vtkMathUtilities.h"
@@ -63,7 +64,7 @@ int TestCGNSReaderHOElements(int argc, char* argv[])
   {
     std::cerr
       << "Wrong type of cell in main mesh. Expected VTK_LAGRANGE_HEXAHEDRON for cell 0 but got "
-      << vtkCellTypes::GetClassNameFromTypeId(internal_hexa_125->GetCellType(0)) << "."
+      << vtkCellTypeUtilities::GetClassNameFromTypeId(internal_hexa_125->GetCellType(0)) << "."
       << std::endl;
     return EXIT_FAILURE;
   }
@@ -72,7 +73,7 @@ int TestCGNSReaderHOElements(int argc, char* argv[])
   {
     std::cerr
       << "Wrong type of cell in main mesh. Expected VTK_LAGRANGE_HEXAHEDRON for cell 0 but got "
-      << vtkCellTypes::GetClassNameFromTypeId(internal_hexa_125->GetCellType(0)) << "."
+      << vtkCellTypeUtilities::GetClassNameFromTypeId(internal_hexa_125->GetCellType(0)) << "."
       << std::endl;
     return EXIT_FAILURE;
   }

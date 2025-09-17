@@ -7,6 +7,7 @@
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
@@ -162,7 +163,7 @@ struct Spread
         {
           break;
         }
-        int dimension = vtkCellTypes::GetDimension(src->GetCellType(cid));
+        int dimension = vtkCellTypeUtilities::GetDimension(src->GetCellType(cid));
         if (dimension >= highestCellDimension)
         {
           const auto srcTuple = srcTuples[cid];
@@ -653,7 +654,7 @@ int vtkCellDataToPointData::RequestDataForUnstructuredData(
       int maxDimension = input->IsA("vtkPolyData") == 1 ? 2 : 3;
       for (vtkIdType i = 0; i < numberOfCells; i++)
       {
-        int dim = vtkCellTypes::GetDimension(input->GetCellType(i));
+        int dim = vtkCellTypeUtilities::GetDimension(input->GetCellType(i));
         if (dim > highestCellDimension)
         {
           highestCellDimension = dim;
