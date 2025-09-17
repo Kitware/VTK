@@ -126,6 +126,11 @@ if (VTK_USE_WIN32_OPENGL)
     TestWin32OpenGLDXRenderWindow.cxx)
 endif ()
 
+if (VTK_OPENGL_HAS_EGL AND NOT WIN32)
+  vtk_add_test_cxx(vtkRenderingOpenGL2CxxTests tests
+    TestEGLRenderWindowResize.cxx)
+endif ()
+
 vtk_test_cxx_executable(vtkRenderingOpenGL2CxxTests tests
   DISABLE_FLOATING_POINT_EXCEPTIONS
   RENDERING_FACTORY
