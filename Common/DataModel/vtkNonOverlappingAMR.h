@@ -33,11 +33,19 @@ public:
    */
   static vtkNonOverlappingAMR* GetData(vtkInformation* info)
   {
-    return vtkNonOverlappingAMR::SafeDownCast(Superclass::GetData(info));
+    // VTK_DEPRECATED_IN_9_6_0:
+    // We cannot use Superclass directly because this method is deprecated
+    // When removing deprecated code, please Remove this command and replace
+    // `vtkAMRDataObject` by `Superclass` in the line below.
+    return vtkNonOverlappingAMR::SafeDownCast(vtkAMRDataObject::GetData(info));
   }
   static vtkNonOverlappingAMR* GetData(vtkInformationVector* v, int i = 0)
   {
-    return vtkNonOverlappingAMR::SafeDownCast(Superclass::GetData(v, i));
+    // VTK_DEPRECATED_IN_9_6_0:
+    // We cannot use Superclass directly because this method is deprecated
+    // When removing deprecated code, please Remove this command and replace
+    // `vtkAMRDataObject` by `Superclass` in the line below.
+    return vtkNonOverlappingAMR::SafeDownCast(vtkAMRDataObject::GetData(v, i));
   }
 
 protected:

@@ -25,6 +25,17 @@ public:
    */
   int GetDataObjectType() VTK_FUTURE_CONST override { return VTK_UNIFORM_GRID_AMR; }
 
+  ///@{
+  /**
+   * Retrieve an instance of this class from an information object.
+   */
+  VTK_DEPRECATED_IN_9_6_0("Use vtkAMRDataObject::GetData instead")
+  static vtkUniformGridAMR* GetData(vtkInformation* info);
+
+  VTK_DEPRECATED_IN_9_6_0("Use vtkAMRDataObject::GetData instead")
+  static vtkUniformGridAMR* GetData(vtkInformationVector* v, int i = 0);
+  ///@}
+
 protected:
   vtkUniformGridAMR();
   ~vtkUniformGridAMR() override;
