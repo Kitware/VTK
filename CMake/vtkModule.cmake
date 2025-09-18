@@ -4662,6 +4662,25 @@ VTK_MODULE_AUTOINIT(${_vtk_add_module_library_name})
       "${_vtk_add_module_autoinit_content}")
   endif ()
 
+  if (_vtk_build_ENABLE_SERIALIZATION AND _vtk_add_module_include_marshal)
+    string(APPEND _vtk_add_module_module_content
+      "
+VTK_ABI_NAMESPACE_BEGIN
+${_vtk_add_module_EXPORT_MACRO_PREFIX}_EXPORT void AddRegistrar_${_vtk_add_module_library_name}();
+VTK_ABI_NAMESPACE_END
+namespace
+{
+  struct ${_vtk_add_module_library_name}_SerDesRegistrar
+  {
+    ${_vtk_add_module_library_name}_SerDesRegistrar()
+    {
+      AddRegistrar_${_vtk_add_module_library_name}();
+    }
+  } ${_vtk_add_module_library_name}_SerDesRegistrar_Instance;
+}
+")
+  endif ()
+
   if (NOT _vtk_add_module_HEADER_ONLY AND NOT _vtk_add_module_third_party)
     generate_export_header("${_vtk_add_module_real_target}"
       EXPORT_MACRO_NAME         "${_vtk_add_module_EXPORT_MACRO_PREFIX}_EXPORT"

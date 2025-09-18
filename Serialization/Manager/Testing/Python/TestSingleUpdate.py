@@ -2,6 +2,9 @@ from pathlib import Path
 
 from vtkmodules.test import Testing as vtkTesting
 
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingOpenGL2
+
 class TestSingleUpdate(vtkTesting.vtkTest):
 
     def testSceneManagement(self):

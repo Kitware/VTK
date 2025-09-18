@@ -582,6 +582,25 @@ function (vtk_module_add_serdes_wasm_package)
     list(APPEND _vtk_serdes_marshal_depends
       "${_vtk_serdes_optional_depend}")
   endforeach ()
+
+  # Ensure every module that includes marshal support is a dependency
+  foreach (_vtk_serdes_module IN LISTS vtk_modules) # Comes from top-level CMakeLists.txt
+    if (NOT TARGET "${_vtk_serdes_module}")
+      continue ()
+    endif ()
+    _vtk_module_get_module_property("${_vtk_serdes_module}"
+      PROPERTY  "include_marshal"
+      VARIABLE  _vtk_serdes_module_include_marshal)
+    if (NOT _vtk_serdes_module_include_marshal)
+      continue ()
+    endif ()
+    if (NOT "${_vtk_serdes_module}" IN_LIST _vtk_serdes_marshal_depends
+        AND NOT "${_vtk_serdes_module}" STREQUAL "VTK::RenderingWebGPU")
+      message(FATAL_ERROR
+        "${_vtk_serdes_module} has `INCLUDE_MARSHAL` but it is not a dependency of ${_vtk_serdes_MODULE}")
+    endif ()
+  endforeach ()
+
   # Generate code that registers (de)serialization functions for all classes
   # in all the dependencies.
   set(_vtk_serdes_include_libraries_registrar_headers "")

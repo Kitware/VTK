@@ -5,6 +5,7 @@ from vtkmodules.vtkSerializationManager import vtkObjectManager
 from vtkmodules.vtkFiltersSources import vtkSuperquadricSource, vtkPlaneSource
 from vtkmodules.vtkRenderingCore import vtkActor, vtkColorTransferFunction, vtkCompositeDataDisplayAttributes, vtkGlyph3DMapper, vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor
 
+import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingOpenGL2
 
 class TestGlyph3DMapper(vtkTesting.vtkTest):

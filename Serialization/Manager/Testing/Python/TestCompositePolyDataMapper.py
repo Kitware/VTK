@@ -4,6 +4,7 @@ from vtkmodules.vtkFiltersSources import vtkPartitionedDataSetCollectionSource
 from vtkmodules.vtkRenderingCore import vtkActor, vtkColorTransferFunction, vtkCompositeDataDisplayAttributes, vtkCompositePolyDataMapper, vtkRenderer, vtkRenderWindow, vtkRenderWindowInteractor
 from pathlib import Path
 
+import vtkmodules.vtkInteractionStyle
 import vtkmodules.vtkRenderingOpenGL2
 
 

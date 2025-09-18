@@ -1,6 +1,9 @@
 from vtkmodules.test import Testing as vtkTesting
 import sys
 
+import vtkmodules.vtkInteractionStyle
+import vtkmodules.vtkRenderingOpenGL2
+
 class TestDynamic(vtkTesting.vtkTest):
 
     def test(self):

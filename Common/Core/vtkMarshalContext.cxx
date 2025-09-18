@@ -98,6 +98,34 @@ void vtkMarshalContext::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
+std::vector<vtkMarshalContextRegistrarFunc>& vtkMarshalContext::GetSerDesRegistrars()
+{
+  static std::vector<vtkMarshalContextRegistrarFunc> SerDesRegistrars;
+  return SerDesRegistrars;
+}
+
+//------------------------------------------------------------------------------
+void vtkMarshalContext::AddRegistrar(vtkMarshalContextRegistrarFunc registrar)
+{
+  vtkMarshalContext::GetSerDesRegistrars().push_back(registrar);
+}
+
+//------------------------------------------------------------------------------
+bool vtkMarshalContext::CallRegistrars(void* ser, void* deser, void* invoker, const char** error)
+{
+  std::vector<vtkMarshalContextRegistrarFunc> SerDesRegistrars =
+    vtkMarshalContext::GetSerDesRegistrars();
+  for (auto registrar = SerDesRegistrars.begin(); registrar != SerDesRegistrars.end(); ++registrar)
+  {
+    if (!(*(registrar))(ser, deser, invoker, error))
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
 const nlohmann::json& vtkMarshalContext::Blobs() const
 {
   return this->Internals->Blobs;
