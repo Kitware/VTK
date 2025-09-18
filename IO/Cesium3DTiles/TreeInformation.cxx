@@ -677,10 +677,7 @@ void TreeInformation::SaveTileBuildings(vtkIncrementalOctreeNode* node, void* au
 
       // how many polydata textures along one side of the merged texture
       size_t mergedTextureWidth = std::ceil(std::sqrt(meshesWithTexture.size()));
-      if (info.MergedTextureWidth < mergedTextureWidth)
-      {
-        mergedTextureWidth = info.MergedTextureWidth;
-      }
+      mergedTextureWidth = std::min(info.MergedTextureWidth, mergedTextureWidth);
       // merge textures and change the tcoords arrays
       // all textures use the same tcoords array
       // if there is only one texture, there is nothing to merge.
@@ -1467,7 +1464,15 @@ nlohmann::json TreeInformation::GenerateTileJson(vtkIncrementalOctreeNode* node)
 
 std::string TreeInformation::ContentTypeExtension() const
 {
-  int index = this->ContentGLTF ? (this->ContentGLTFSaveGLB ? 1 : 2) : 0;
+  int index;
+  if (this->ContentGLTF)
+  {
+    index = this->ContentGLTFSaveGLB ? 1 : 2;
+  }
+  else
+  {
+    index = 0;
+  }
   switch (this->InputType)
   {
     case vtkCesium3DTilesWriter::Buildings:

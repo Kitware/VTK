@@ -653,10 +653,7 @@ void vtkPNetCDFPOPReader::SetReaderRanks(vtkIdList* ranks)
 
     int numReaders = numProcs < 24 ? 4 : 8;
 
-    if (numProcs < numReaders) // sanity check
-    {
-      numReaders = numProcs;
-    }
+    numReaders = std::min(numProcs, numReaders); // sanity check
     int proc = 0;
     while (proc < numProcs)
     {

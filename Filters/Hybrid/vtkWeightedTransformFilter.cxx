@@ -302,10 +302,7 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
     }
 
     pdComponents = pdArray->GetNumberOfComponents();
-    if (pdComponents > this->NumberOfTransforms)
-    {
-      pdComponents = this->NumberOfTransforms;
-    }
+    pdComponents = std::min(pdComponents, this->NumberOfTransforms);
   }
 
   tiArray = nullptr;
@@ -370,10 +367,7 @@ int vtkWeightedTransformFilter::RequestData(vtkInformation* vtkNotUsed(request),
       return 1;
     }
     cdComponents = cdArray->GetNumberOfComponents();
-    if (cdComponents > this->NumberOfTransforms)
-    {
-      cdComponents = this->NumberOfTransforms;
-    }
+    cdComponents = std::min(cdComponents, this->NumberOfTransforms);
   }
 
   cdtiArray = nullptr;

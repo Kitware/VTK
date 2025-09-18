@@ -315,7 +315,17 @@ void vtkWindowToImageFilter::RequestData(vtkInformation* vtkNotUsed(request),
   int imageSize[2] = { vpSize[0] * magTileScale[0], vpSize[1] * magTileScale[1] };
 
   int inIncrY = vpSize[0];
-  inIncrY *= (this->InputBufferType == VTK_RGB) ? 3 : ((this->InputBufferType == VTK_RGBA) ? 4 : 1);
+  switch (this->InputBufferType)
+  {
+    case VTK_RGB:
+      inIncrY *= 3;
+      break;
+    case VTK_RGBA:
+      inIncrY *= 4;
+      break;
+    default:
+      break;
+  }
 
   int outIncrY = imageSize[0] * out->GetNumberOfScalarComponents();
 

@@ -694,10 +694,7 @@ void vtkSelectPolyData::SetSelectionScalarsToOutput(vtkPointData* originalPointD
       double t;
       double xLoop[3];
       double dist2 = vtkLine::DistanceToLine(x, x0, x1, t, xLoop);
-      if (dist2 < closestDist2)
-      {
-        closestDist2 = dist2;
-      }
+      closestDist2 = std::min(dist2, closestDist2);
     }
     // Set signed distance
     double closestDist = 0.0;

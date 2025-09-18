@@ -85,14 +85,8 @@ void vtkPoints2D::ComputeBounds()
       this->GetPoint(i, x);
       for (int j = 0; j < 2; ++j)
       {
-        if (x[j] < this->Bounds[2 * j])
-        {
-          this->Bounds[2 * j] = x[j];
-        }
-        if (x[j] > this->Bounds[2 * j + 1])
-        {
-          this->Bounds[2 * j + 1] = x[j];
-        }
+        this->Bounds[2 * j] = std::min(x[j], this->Bounds[2 * j]);
+        this->Bounds[2 * j + 1] = std::max(x[j], this->Bounds[2 * j + 1]);
       }
     }
 

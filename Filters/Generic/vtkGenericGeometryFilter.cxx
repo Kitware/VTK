@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include <algorithm>
+
 #include "vtkGenericGeometryFilter.h"
 
 #include "vtkCellArray.h"
@@ -103,10 +105,7 @@ void vtkGenericGeometryFilter::SetExtent(double extent[6])
     this->Modified();
     for (i = 0; i < 3; i++)
     {
-      if (extent[2 * i + 1] < extent[2 * i])
-      {
-        extent[2 * i + 1] = extent[2 * i];
-      }
+      extent[2 * i + 1] = std::max(extent[2 * i + 1], extent[2 * i]);
       this->Extent[2 * i] = extent[2 * i];
       this->Extent[2 * i + 1] = extent[2 * i + 1];
     }
@@ -209,10 +208,7 @@ int vtkGenericGeometryFilter::RequestData(vtkInformation* vtkNotUsed(request),
   //
   vtkIdType estimatedSize = input->GetEstimatedSize();
   estimatedSize = (estimatedSize / 1024 + 1) * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
   output->AllocateEstimate(numCells, 1);
 
   vtkPoints* newPts = vtkPoints::New();

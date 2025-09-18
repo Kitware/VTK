@@ -241,10 +241,10 @@ private:
   {
     None = -1,
     Right = 0,
-    Left,
-    Top,
-    Bottom,
-    Near,
+    Left = 1,
+    Top = 2,
+    Bottom = 3,
+    Near = 4
   };
 
   struct SphereHandle

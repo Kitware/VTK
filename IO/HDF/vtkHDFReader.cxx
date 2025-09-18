@@ -1766,8 +1766,7 @@ bool vtkHDFReader::ReadData(vtkInformation* outInfo, vtkDataObject* data)
       this->Step = std::distance(values,
                      std::upper_bound(values, values + this->NumberOfSteps, requestedValue)) -
         1;
-      this->Step = this->Step >= this->NumberOfSteps ? this->NumberOfSteps - 1
-                                                     : (this->Step < 0 ? 0 : this->Step);
+      this->Step = std::min(std::max<vtkIdType>(this->Step, 0), this->NumberOfSteps - 1);
       data->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), this->TimeValue);
     }
     this->TimeValue = values[this->Step];

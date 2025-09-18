@@ -190,17 +190,11 @@ inline void UpdateBB(double* a, const double* b)
 {
   for (int i = 0; i <= 4; i += 2)
   {
-    if (b[i] < a[i])
-    {
-      a[i] = b[i];
-    }
+    a[i] = std::min(a[i], b[i]);
   }
   for (int i = 1; i <= 5; i += 2)
   {
-    if (b[i] > a[i])
-    {
-      a[i] = b[i];
-    }
+    a[i] = std::max(a[i], b[i]);
   }
 }
 }

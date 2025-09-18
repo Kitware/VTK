@@ -128,7 +128,7 @@ public:
     VERTEX_DATA = 2,
     EDGE_DATA = 3,
     ROW_DATA = 4,
-    NUM_ATTRIBUTE_LOCS
+    NUM_ATTRIBUTE_LOCS = 5
   };
 
 protected:

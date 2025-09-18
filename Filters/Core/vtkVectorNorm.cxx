@@ -94,10 +94,7 @@ struct vtkVectorNormDispatch // Interface between VTK and templated functions.
     vtkSMPThreadLocal<double>::iterator itr;
     for (itr = norm.Max.begin(); itr != norm.Max.end(); ++itr)
     {
-      if (*itr > max)
-      {
-        *itr = max;
-      }
+      *itr = std::min(*itr, max);
     }
 
     if (max > 0.0 && normalize)

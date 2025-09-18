@@ -1490,6 +1490,7 @@ bool vtkPythonArgs::ArgCountError(Py_ssize_t m, Py_ssize_t n)
 
   auto result = vtk::format_to_n(text, sizeof(text),
     "{:.200s}{:s} takes {:s} {:d} argument{:s} ({:d} given)", (name ? name : "function"),
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     (name ? "()" : ""), ((m == n) ? "exactly" : ((nargs < m) ? "at least" : "at most")),
     ((nargs < m) ? m : n), ((((nargs < m) ? m : n)) == 1 ? "" : "s"), nargs);
   *result.out = '\0';

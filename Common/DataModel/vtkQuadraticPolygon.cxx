@@ -11,6 +11,8 @@
 #include "vtkPolygon.h"
 #include "vtkQuadraticEdge.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadraticPolygon);
 
@@ -35,7 +37,8 @@ vtkCell* vtkQuadraticPolygon::GetEdge(int edgeId)
 {
   int numEdges = this->GetNumberOfEdges();
 
-  edgeId = (edgeId < 0 ? 0 : (edgeId > numEdges - 1 ? numEdges - 1 : edgeId));
+  edgeId = std::max(edgeId, 0);
+  edgeId = std::min(edgeId, numEdges - 1);
   int p = (edgeId + 1) % numEdges;
 
   // load point id's

@@ -1081,30 +1081,12 @@ double vtkCCSPolygonBounds(const vtkCCSPoly& poly, vtkPoints* points, double bou
   for (size_t j = 1; j < n; j++)
   {
     points->GetPoint(poly[j], p);
-    if (p[0] < bounds[0])
-    {
-      bounds[0] = p[0];
-    }
-    if (p[0] > bounds[1])
-    {
-      bounds[1] = p[0];
-    }
-    if (p[1] < bounds[2])
-    {
-      bounds[2] = p[1];
-    }
-    if (p[1] > bounds[3])
-    {
-      bounds[3] = p[1];
-    }
-    if (p[2] < bounds[4])
-    {
-      bounds[4] = p[2];
-    }
-    if (p[2] > bounds[5])
-    {
-      bounds[5] = p[2];
-    }
+    bounds[0] = std::min(p[0], bounds[0]);
+    bounds[1] = std::max(p[0], bounds[1]);
+    bounds[2] = std::min(p[1], bounds[2]);
+    bounds[3] = std::max(p[1], bounds[3]);
+    bounds[4] = std::min(p[2], bounds[4]);
+    bounds[5] = std::max(p[2], bounds[5]);
   }
 
   double bx = (bounds[1] - bounds[0]);
@@ -1637,10 +1619,7 @@ void vtkCCSMakeHoleyPolys(std::vector<vtkCCSPoly>& newPolys, vtkPoints* points,
   for (size_t kk = 0; kk < numNewPolys; kk++)
   {
     size_t n = newPolys[kk].size();
-    if (n > nmax)
-    {
-      nmax = n;
-    }
+    nmax = std::max(n, nmax);
   }
 
   // These are some values needed for poly-in-poly checks
@@ -2000,10 +1979,7 @@ double vtkCCSCutQuality(
   {
     q = vtkMath::Dot(v1, v2);
     q *= q / l2;
-    if (q > qmax)
-    {
-      qmax = q;
-    }
+    qmax = std::max(q, qmax);
   }
 
   points->GetPoint(outerPoly[b], p0);
@@ -2015,10 +1991,7 @@ double vtkCCSCutQuality(
   {
     q = vtkMath::Dot(v1, v2);
     q *= q / l2;
-    if (q > qmax)
-    {
-      qmax = q;
-    }
+    qmax = std::max(q, qmax);
   }
 
   points->GetPoint(innerPoly[c], p0);
@@ -2030,10 +2003,7 @@ double vtkCCSCutQuality(
   {
     q = vtkMath::Dot(v1, v2);
     q *= q / l2;
-    if (q > qmax)
-    {
-      qmax = q;
-    }
+    qmax = std::max(q, qmax);
   }
 
   points->GetPoint(innerPoly[d], p0);
@@ -2045,10 +2015,7 @@ double vtkCCSCutQuality(
   {
     q = vtkMath::Dot(v1, v2);
     q *= q / l2;
-    if (q > qmax)
-    {
-      qmax = q;
-    }
+    qmax = std::max(q, qmax);
   }
 
   if (l1 > 0)
@@ -2430,10 +2397,7 @@ int vtkCCSCutHoleyPolys(std::vector<vtkCCSPoly>& polys, vtkPoints* points,
             polyGroup.erase(polyGroup.begin() + ii);
 
             // Reduce the groupId to ensure that this new group will get cut
-            if (innerPolyId < nextGroupId)
-            {
-              nextGroupId = innerPolyId;
-            }
+            nextGroupId = std::min(innerPolyId, nextGroupId);
           }
         }
         delete[] pp;

@@ -221,10 +221,13 @@ float vtkSurfaceLICComposite::GetFudgeFactor(int nx[2])
 {
   float aspect = float(nx[0]) / float(nx[1]);
   float fudge = (aspect > 4.0f) ? 3.0f
-    : (aspect > 1.0f)           ? (2.0f / 3.0f) * aspect + (5.0f / 6.0f)
-    : (aspect < 0.25)           ? 3.0f
-    : (aspect < 1.0f)           ? (-8.0f / 3.0f) * aspect + (25.0f / 6.0f)
-                                : 1.5f;
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+    : (aspect > 1.0f) ? (2.0f / 3.0f) * aspect + (5.0f / 6.0f)
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+    : (aspect < 0.25) ? 3.0f
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+    : (aspect < 1.0f) ? (-8.0f / 3.0f) * aspect + (25.0f / 6.0f)
+                      : 1.5f;
   return fudge;
 }
 

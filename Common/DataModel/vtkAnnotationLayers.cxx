@@ -145,20 +145,14 @@ vtkMTimeType vtkAnnotationLayers::GetMTime()
     if (ann)
     {
       vtkMTimeType atime = ann->GetMTime();
-      if (atime > mtime)
-      {
-        mtime = atime;
-      }
+      mtime = std::max(atime, mtime);
     }
   }
   vtkAnnotation* s = this->GetCurrentAnnotation();
   if (s)
   {
     vtkMTimeType stime = s->GetMTime();
-    if (stime > mtime)
-    {
-      mtime = stime;
-    }
+    mtime = std::max(stime, mtime);
   }
   return mtime;
 }

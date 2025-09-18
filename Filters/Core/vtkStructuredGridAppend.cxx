@@ -86,30 +86,12 @@ int vtkStructuredGridAppend::RequestInformation(vtkInformation* vtkNotUsed(reque
     int* inExt = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
 
     // Compute union for preserving extents.
-    if (inExt[0] < unionExt[0])
-    {
-      unionExt[0] = inExt[0];
-    }
-    if (inExt[1] > unionExt[1])
-    {
-      unionExt[1] = inExt[1];
-    }
-    if (inExt[2] < unionExt[2])
-    {
-      unionExt[2] = inExt[2];
-    }
-    if (inExt[3] > unionExt[3])
-    {
-      unionExt[3] = inExt[3];
-    }
-    if (inExt[4] < unionExt[4])
-    {
-      unionExt[4] = inExt[4];
-    }
-    if (inExt[5] > unionExt[5])
-    {
-      unionExt[5] = inExt[5];
-    }
+    unionExt[0] = std::min(inExt[0], unionExt[0]);
+    unionExt[1] = std::max(inExt[1], unionExt[1]);
+    unionExt[2] = std::min(inExt[2], unionExt[2]);
+    unionExt[3] = std::max(inExt[3], unionExt[3]);
+    unionExt[4] = std::min(inExt[4], unionExt[4]);
+    unionExt[5] = std::max(inExt[5], unionExt[5]);
   }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), unionExt, 6);

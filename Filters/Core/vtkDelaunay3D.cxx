@@ -67,10 +67,7 @@ void vtkTetraArray::InsertTetra(vtkIdType id, double r2, double center[3])
   this->Array[id].center[0] = center[0];
   this->Array[id].center[1] = center[1];
   this->Array[id].center[2] = center[2];
-  if (id > this->MaxId)
-  {
-    this->MaxId = id;
-  }
+  this->MaxId = std::max(id, this->MaxId);
 }
 
 //------------------------------------------------------------------------------

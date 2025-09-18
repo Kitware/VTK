@@ -45,8 +45,21 @@ int otherCellGrid(int, char*[])
         ok = false;
         vtkLog(ERROR, "Failed to parse '" << std::get<0>(test) << "'.");
       }
-      std::cout << "Space <" << space << ">, dimension <" << dim << ">, restriction "
-                << (hs == 0 ? "(none)" : (hs < 0 ? "negative" : "positive")) << "\n";
+      std::string restriction;
+      if (hs == 0)
+      {
+        restriction = "(none)";
+      }
+      else if (hs < 0)
+      {
+        restriction = "negative";
+      }
+      else
+      {
+        restriction = "positive";
+      }
+      std::cout << "Space <" << space << ">, dimension <" << dim << ">, restriction " << restriction
+                << "\n";
       if (space != std::get<2>(test))
       {
         ok = false;

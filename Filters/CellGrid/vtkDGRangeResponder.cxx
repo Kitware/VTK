@@ -208,14 +208,8 @@ struct BaseRangeWorker
     for (int ii = 0; ii < nn; ++ii)
     {
       request->AddRange(ii, { this->ReducedRange[2 * ii], this->ReducedRange[2 * ii + 1] });
-      if (l1Norm[0] > this->ReducedRange[2 * ii])
-      {
-        l1Norm[0] = this->ReducedRange[2 * ii];
-      }
-      if (l1Norm[1] < this->ReducedRange[2 * ii + 1])
-      {
-        l1Norm[1] = this->ReducedRange[2 * ii + 1];
-      }
+      l1Norm[0] = std::min(l1Norm[0], this->ReducedRange[2 * ii]);
+      l1Norm[1] = std::max(l1Norm[1], this->ReducedRange[2 * ii + 1]);
     }
     // Add the L₁ norm to the request.
     request->AddRange(-1, l1Norm);

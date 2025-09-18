@@ -181,7 +181,7 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display* DisplayId, int drawabl
   {
     // cout << "            STATUS : SUCCESS!!!" << endl;
     GLXFBConfig result = fb[0];
-    XFree(fb);
+    XFree(fb); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
     return result;
   }
   // cout << "            STATUS : FAILURE!!!" << endl;
@@ -606,7 +606,7 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
             this->Internal->FBConfig = fbc[i];
           }
         }
-        XFree(fbc);
+        XFree(fbc); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
       }
     }
   }

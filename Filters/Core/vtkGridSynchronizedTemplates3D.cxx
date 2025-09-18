@@ -94,10 +94,7 @@ static void vtkGridSynchronizedTemplates3DInitializeOutput(int* ext, int precisi
   estimatedSize = static_cast<int>(
     pow(static_cast<double>((ext[1] - ext[0] + 1) * (ext[3] - ext[2] + 1) * (ext[5] - ext[4] + 1)),
       .75));
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<long>(estimatedSize, 1024);
 
   newPts = vtkPoints::New();
 
@@ -849,14 +846,8 @@ void vtkGridSynchronizedTemplates3D::ThreadedExecute(
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), exExt);
   for (int i = 0; i < 3; i++)
   {
-    if (inExt[2 * i] > exExt[2 * i])
-    {
-      exExt[2 * i] = inExt[2 * i];
-    }
-    if (inExt[2 * i + 1] < exExt[2 * i + 1])
-    {
-      exExt[2 * i + 1] = inExt[2 * i + 1];
-    }
+    exExt[2 * i] = std::max(inExt[2 * i], exExt[2 * i]);
+    exExt[2 * i + 1] = std::min(inExt[2 * i + 1], exExt[2 * i + 1]);
   }
 
   vtkDataArray* inScalars = this->GetInputArrayToProcess(0, inputVector);

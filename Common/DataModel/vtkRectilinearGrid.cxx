@@ -510,16 +510,10 @@ void vtkRectilinearGrid::Crop(const int* updateExtent)
   {
     uExt[i * 2] = updateExtent[i * 2];
     ext[i * 2] = extent[i * 2];
-    if (uExt[i * 2] < ext[i * 2])
-    {
-      uExt[i * 2] = ext[i * 2];
-    }
+    uExt[i * 2] = std::max(uExt[i * 2], ext[i * 2]);
     uExt[i * 2 + 1] = updateExtent[i * 2 + 1];
     ext[i * 2 + 1] = extent[i * 2 + 1];
-    if (uExt[i * 2 + 1] > ext[i * 2 + 1])
-    {
-      uExt[i * 2 + 1] = ext[i * 2 + 1];
-    }
+    uExt[i * 2 + 1] = std::min(uExt[i * 2 + 1], ext[i * 2 + 1]);
   }
 
   // If extents already match, then we need to do nothing.

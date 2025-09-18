@@ -168,6 +168,7 @@ void vtkPDFExporter::RenderContextActor(vtkContextActor* actor, vtkRenderer* ren
   vtkContextDevice2D* oldForceDevice = actor->GetForceDevice();
 
   vtkNew<vtkPDFContextDevice2D> device;
+  // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
   device->SetHaruObjects(&this->Impl->Document, &this->Impl->Page);
   device->SetRenderer(ren);
   actor->SetForceDevice(device);

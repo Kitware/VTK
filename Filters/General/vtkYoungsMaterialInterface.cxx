@@ -518,10 +518,7 @@ void vtkYoungsMaterialInterface::Aggregate(int nmat, int* inputsPerMaterial)
   {
     // Sum all counts from all processes
     int inputsPerMaterialSum = inputsPerMaterial[m];
-    if (inputsPerMaterialSum > this->NumberOfDomains)
-    {
-      this->NumberOfDomains = inputsPerMaterialSum;
-    }
+    this->NumberOfDomains = std::max(inputsPerMaterialSum, this->NumberOfDomains);
 
     // Reset array
     inputsPerMaterial[m] = 0;
@@ -2636,8 +2633,7 @@ REAL findTriangleSetCuttingPlane(const REAL_COORD normal, // IN  , normal vector
     xmax = dot(vertices[index[s + 1]], normal);
     sum = evalPolynomialFunc(F, xmax);
   }
-  if (s < 0)
-    s = 0;
+  s = std::max(s, 0);
 
   DBG_MESG("step=" << s << ", x in [" << xmin << ';' << xmax << ']');
   DBG_MESG("surface reminder = " << y);
@@ -2797,8 +2793,7 @@ REAL findTriangleSetCuttingCone(const REAL2 normal, // IN  , normal vector
     xmax = dot(vertices[index[s + 1]], normal);
     sum = evalPolynomialFunc(F, xmax);
   }
-  if (s < 0)
-    s = 0;
+  s = std::max(s, 0);
 
   // look for the function piece that contain the target volume
   DBG_MESG("step=" << s << ", x in [" << xmin << ';' << xmax << ']');
@@ -2993,8 +2988,7 @@ REAL findTetraSetCuttingPlane(const REAL3 normal, // IN  , normal vector
     xmax = dot(vertices[index[s + 1]], normal);
     sum = evalPolynomialFunc(F, xmax);
   }
-  if (s < 0)
-    s = 0;
+  s = std::max(s, 0);
   // F, F' : free derivatives
 
   // search the function range that contains the value
@@ -3224,24 +3218,16 @@ double vtkYoungsMaterialInterfaceCellCut::findTetraSetCuttingPlane(const double 
   vmin = vmax = V[0];
   for (int i = 1; i < vertexCount; i++)
   {
-    if (V[i].x < vmin.x)
-      vmin.x = V[i].x;
-    if (V[i].x > vmax.x)
-      vmax.x = V[i].x;
-    if (V[i].y < vmin.y)
-      vmin.y = V[i].y;
-    if (V[i].y > vmax.y)
-      vmax.y = V[i].y;
-    if (V[i].z < vmin.z)
-      vmin.z = V[i].z;
-    if (V[i].z > vmax.z)
-      vmax.z = V[i].z;
+    vmin.x = std::min(V[i].x, vmin.x);
+    vmax.x = std::max(V[i].x, vmax.x);
+    vmin.y = std::min(V[i].y, vmin.y);
+    vmax.y = std::max(V[i].y, vmax.y);
+    vmin.z = std::min(V[i].z, vmin.z);
+    vmax.z = std::max(V[i].z, vmax.z);
   }
   scale = vmax.x - vmin.x;
-  if ((vmax.y - vmin.y) > scale)
-    scale = vmax.y - vmin.y;
-  if ((vmax.z - vmin.z) > scale)
-    scale = vmax.z - vmin.z;
+  scale = std::max(vmax.y - vmin.y, scale);
+  scale = std::max(vmax.z - vmin.z, scale);
   for (int i = 0; i < vertexCount; i++)
     V[i] /= scale;
 
@@ -3352,18 +3338,13 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
     vmin = vmax = V[0];
     for (int i = 1; i < vertexCount; i++)
     {
-      if (V[i].x < vmin.x)
-        vmin.x = V[i].x;
-      if (V[i].x > vmax.x)
-        vmax.x = V[i].x;
-      if (V[i].y < vmin.y)
-        vmin.y = V[i].y;
-      if (V[i].y > vmax.y)
-        vmax.y = V[i].y;
+      vmin.x = std::min(V[i].x, vmin.x);
+      vmax.x = std::max(V[i].x, vmax.x);
+      vmin.y = std::min(V[i].y, vmin.y);
+      vmax.y = std::max(V[i].y, vmax.y);
     }
     scale = vmax.x - vmin.x;
-    if ((vmax.y - vmin.y) > scale)
-      scale = vmax.y - vmin.y;
+    scale = std::max(vmax.y - vmin.y, scale);
     for (int i = 0; i < vertexCount; i++)
       V[i] /= scale;
     double dist0 = vertices[0][0] * normal[0] + vertices[0][1] * normal[1];
@@ -3387,24 +3368,16 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
     vmin = vmax = V[0];
     for (int i = 1; i < vertexCount; i++)
     {
-      if (V[i].x < vmin.x)
-        vmin.x = V[i].x;
-      if (V[i].x > vmax.x)
-        vmax.x = V[i].x;
-      if (V[i].y < vmin.y)
-        vmin.y = V[i].y;
-      if (V[i].y > vmax.y)
-        vmax.y = V[i].y;
-      if (V[i].z < vmin.z)
-        vmin.z = V[i].z;
-      if (V[i].z > vmax.z)
-        vmax.z = V[i].z;
+      vmin.x = std::min(V[i].x, vmin.x);
+      vmax.x = std::max(V[i].x, vmax.x);
+      vmin.y = std::min(V[i].y, vmin.y);
+      vmax.y = std::max(V[i].y, vmax.y);
+      vmin.z = std::min(V[i].z, vmin.z);
+      vmax.z = std::max(V[i].z, vmax.z);
     }
     scale = vmax.x - vmin.x;
-    if ((vmax.y - vmin.y) > scale)
-      scale = vmax.y - vmin.y;
-    if ((vmax.z - vmin.z) > scale)
-      scale = vmax.z - vmin.z;
+    scale = std::max(vmax.y - vmin.y, scale);
+    scale = std::max(vmax.z - vmin.z, scale);
     for (int i = 0; i < vertexCount; i++)
       V[i] /= scale;
     double dist0 =

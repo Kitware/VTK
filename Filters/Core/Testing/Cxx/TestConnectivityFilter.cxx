@@ -61,9 +61,20 @@ bool CheckOutputPointsType(vtkUnstructuredGrid* output, int inputType, int expec
   vtkPoints* points = output->GetPoints();
   int outputDataType = points->GetDataType();
 
-  int expectedType = expectedPrecision == vtkAlgorithm::DEFAULT_PRECISION ? inputType
-    : expectedPrecision == vtkAlgorithm::SINGLE_PRECISION                 ? VTK_FLOAT
-                                                                          : VTK_DOUBLE;
+  int expectedType;
+  switch (expectedPrecision)
+  {
+    case vtkAlgorithm::SINGLE_PRECISION:
+      expectedType = VTK_FLOAT;
+      break;
+    case vtkAlgorithm::DOUBLE_PRECISION:
+      expectedType = VTK_DOUBLE;
+      break;
+    case vtkAlgorithm::DEFAULT_PRECISION:
+    default:
+      expectedType = inputType;
+      break;
+  }
 
   if (expectedType != outputDataType)
   {

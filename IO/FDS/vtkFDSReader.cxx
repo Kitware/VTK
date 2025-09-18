@@ -759,9 +759,7 @@ public:
                                     std::upper_bound(hrrData.TimeValues.begin(),
                                       hrrData.TimeValues.end(), this->RequestedTimeValue)) -
       1;
-    requestedTimeStep = requestedTimeStep >= static_cast<vtkIdType>(hrrData.TimeValues.size())
-      ? hrrData.TimeValues.size() - 1
-      : (requestedTimeStep < 0 ? 0 : requestedTimeStep);
+    requestedTimeStep = std::clamp<vtkIdType>(requestedTimeStep, 0, hrrData.TimeValues.size() - 1);
 
     std::map<std::string, vtkSmartPointer<vtkDataArray>> hrrMap;
     vtkNew<vtkDelimitedTextReader> reader;
@@ -842,9 +840,7 @@ public:
                                     std::upper_bound(sData.TimeValues.begin(),
                                       sData.TimeValues.end(), this->RequestedTimeValue)) -
       1;
-    requestedTimeStep = requestedTimeStep >= static_cast<vtkIdType>(sData.TimeValues.size())
-      ? sData.TimeValues.size() - 1
-      : (requestedTimeStep < 0 ? 0 : requestedTimeStep);
+    requestedTimeStep = std::clamp<vtkIdType>(requestedTimeStep, 0, sData.TimeValues.size() - 1);
 
     vtkSmartPointer<vtkRectilinearGrid> slice =
       ::GenerateSubGrid(gData->Geometry, sData.GridSubExtent);
@@ -944,9 +940,8 @@ public:
                                       std::upper_bound(bfieldData.TimeValues.begin(),
                                         bfieldData.TimeValues.end(), this->RequestedTimeValue)) -
         1;
-      requestedTimeStep = requestedTimeStep >= static_cast<vtkIdType>(bfieldData.TimeValues.size())
-        ? bfieldData.TimeValues.size() - 1
-        : (requestedTimeStep < 0 ? 0 : requestedTimeStep);
+      requestedTimeStep =
+        std::clamp<vtkIdType>(requestedTimeStep, 0, bfieldData.TimeValues.size() - 1);
 
       vtkSmartPointer<vtkDataArray> field = ::ReadBoundaryFile(
         bfieldData.FileName, requestedTimeStep, oData.BlockageNumber, copy->GetNumberOfPoints(), 1);
@@ -2009,9 +2004,8 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
         std::upper_bound(
           timeValues, timeValues + this->Internals->NumberOfTimeSteps, requestedTimeValue)) -
       1;
-    requestedTimeStep = requestedTimeStep >= this->Internals->NumberOfTimeSteps
-      ? this->Internals->NumberOfTimeSteps - 1
-      : (requestedTimeStep < 0 ? 0 : requestedTimeStep);
+    requestedTimeStep =
+      std::clamp<vtkIdType>(requestedTimeStep, 0, this->Internals->NumberOfTimeSteps - 1);
     output->GetInformation()->Set(
       vtkDataObject::DATA_TIME_STEP(), this->Internals->TimeValues[requestedTimeStep]);
   }
@@ -2049,9 +2043,7 @@ int vtkFDSReader::RequestData(vtkInformation* vtkNotUsed(request),
                                         devcFileData.TimeValues.end(), requestedTimeValue)) -
         1;
       requestedTimeStep =
-        requestedTimeStep >= static_cast<vtkIdType>(devcFileData.TimeValues.size())
-        ? devcFileData.TimeValues.size() - 1
-        : (requestedTimeStep < 0 ? 0 : requestedTimeStep);
+        std::clamp<vtkIdType>(requestedTimeStep, 0, devcFileData.TimeValues.size() - 1);
 
       ::ReadAndExtractRowFromCSV(
         csvReader, devcFileData.FileName, requestedTimeStep, deviceVisitor->DeviceValueMap);

@@ -1044,18 +1044,12 @@ void vtkVolumeTexture::ComputeBounds(VolumeBlock* block)
     {
       rGrid->GetPoint(ijkCorner[0], ijkCorner[1], ijkCorner[2], xyz);
     }
-    if (xyz[0] < xMin)
-      xMin = xyz[0];
-    if (xyz[0] > xMax)
-      xMax = xyz[0];
-    if (xyz[1] < yMin)
-      yMin = xyz[1];
-    if (xyz[1] > yMax)
-      yMax = xyz[1];
-    if (xyz[2] < zMin)
-      zMin = xyz[2];
-    if (xyz[2] > zMax)
-      zMax = xyz[2];
+    xMin = std::min(xyz[0], xMin);
+    xMax = std::max(xyz[0], xMax);
+    yMin = std::min(xyz[1], yMin);
+    yMax = std::max(xyz[1], yMax);
+    zMin = std::min(xyz[2], zMin);
+    zMax = std::max(xyz[2], zMax);
   }
   block->LoadedBoundsAA[0] = xMin;
   block->LoadedBoundsAA[1] = xMax;

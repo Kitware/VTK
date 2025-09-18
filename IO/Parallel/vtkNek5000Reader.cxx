@@ -213,8 +213,7 @@ vtkNek5000Reader::~vtkNek5000Reader()
   }
 
   delete[] this->var_length;
-  if (this->var_names)
-    free(this->var_names);
+  delete[] this->var_names;
   this->PointDataArraySelection->Delete();
 
   delete[] this->myBlockPositions;
@@ -458,7 +457,7 @@ size_t vtkNek5000Reader::GetVariableNamesFromData(char* varTags)
 
   // allocate space for variable names and lengths,
   // will be at most 4 + numSFields  (4 for velocity, velocity_magnitude, pressure and temperature)
-  this->var_names = (char**)malloc((4 + numSFields) * sizeof(char*));
+  this->var_names = new char*[4 + numSFields];
   for (int i = 0; i < 4 + numSFields; i++)
     this->var_names[i] = nullptr;
 

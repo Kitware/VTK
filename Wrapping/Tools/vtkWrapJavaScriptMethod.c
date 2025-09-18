@@ -26,6 +26,7 @@
 #include <string.h>
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 #ifdef NDEBUG
 #define DLOG(...)
@@ -1139,4 +1140,5 @@ void vtkWrapJavaScript_GenerateMethods(FILE* fp, const char* classname, ClassInf
   free(unwrappableFunctions);
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

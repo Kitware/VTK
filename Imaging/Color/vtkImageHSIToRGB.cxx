@@ -97,18 +97,9 @@ void vtkImageHSIToRGBExecute(
       // if (G > 255.0) G = max;
       // if (B > 255.0) B = max;
       // mixed constant 255 and max ?????
-      if (R > max)
-      {
-        R = max;
-      }
-      if (G > max)
-      {
-        G = max;
-      }
-      if (B > max)
-      {
-        B = max;
-      }
+      R = std::min(R, max);
+      G = std::min(G, max);
+      B = std::min(B, max);
 
       // assign output.
       *outSI = static_cast<T>(R);

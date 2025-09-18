@@ -430,10 +430,7 @@ int vtkDensifyPolyData::RequestData(vtkInformation* vtkNotUsed(request),
 
     if (this->NumberOfSubdivisions > 0)
     {
-      if (nSubdivisions > this->NumberOfSubdivisions)
-      {
-        nSubdivisions = this->NumberOfSubdivisions;
-      }
+      nSubdivisions = std::min(nSubdivisions, this->NumberOfSubdivisions);
     }
 
     if (nSubdivisions == 0 || nSubdivisions == VTK_UNSIGNED_INT_MAX)

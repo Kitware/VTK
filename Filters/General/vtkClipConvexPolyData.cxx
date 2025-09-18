@@ -70,10 +70,7 @@ vtkMTimeType vtkClipConvexPolyData::GetMTime()
   if (this->Planes != nullptr)
   {
     vtkMTimeType planesTime = this->Planes->GetMTime();
-    if (planesTime > result)
-    {
-      result = planesTime;
-    }
+    result = std::max(planesTime, result);
   }
   return result;
 }

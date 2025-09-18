@@ -167,14 +167,8 @@ void vtkCellGridRangeQuery::AddRange(int component, const std::array<double, 2>&
     return;
   }
 
-  if (this->Ranges[component + 2][0] > range[0])
-  {
-    this->Ranges[component + 2][0] = range[0];
-  }
-  if (this->Ranges[component + 2][1] < range[1])
-  {
-    this->Ranges[component + 2][1] = range[1];
-  }
+  this->Ranges[component + 2][0] = std::min(this->Ranges[component + 2][0], range[0]);
+  this->Ranges[component + 2][1] = std::max(this->Ranges[component + 2][1], range[1]);
 }
 
 VTK_ABI_NAMESPACE_END

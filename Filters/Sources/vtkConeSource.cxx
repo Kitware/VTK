@@ -72,10 +72,7 @@ int vtkConeSource::RequestData(vtkInformation* vtkNotUsed(request),
   }
   numPieces = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
   maxPieces = this->Resolution != 0 ? this->Resolution : 1;
-  if (numPieces > maxPieces)
-  {
-    numPieces = maxPieces;
-  }
+  numPieces = std::min(numPieces, maxPieces);
   if (piece >= maxPieces)
   {
     // Super class should do this for us,

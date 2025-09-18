@@ -14,6 +14,8 @@
 #include "vtkSMPTools.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
+
 // Methods and functors for processing in parallel
 VTK_ABI_NAMESPACE_BEGIN
 namespace
@@ -142,8 +144,8 @@ struct vtkInternalSpanSpace
       static_cast<vtkIdType>(static_cast<double>(this->Dim) * (sMin - this->SMin) / this->Range);
     vtkIdType j =
       static_cast<vtkIdType>(static_cast<double>(this->Dim) * (sMax - this->SMin) / this->Range);
-    i = (i < 0 ? 0 : (i >= this->Dim ? this->Dim - 1 : i));
-    j = (j < 0 ? 0 : (j >= this->Dim ? this->Dim - 1 : j));
+    i = std::min(std::max<vtkIdType>(i, 0), this->Dim - 1);
+    j = std::min(std::max<vtkIdType>(j, 0), this->Dim - 1);
     this->Space[id].CellId = id;
     this->Space[id].Index = i + j * Dim;
   }
@@ -316,14 +318,8 @@ struct MapToSpanSpace
       double sMax = VTK_DOUBLE_MIN;
       for (vtkIdType j = 0; j < numScalars; j++)
       {
-        if (s[j] < sMin)
-        {
-          sMin = s[j];
-        }
-        if (s[j] > sMax)
-        {
-          sMax = s[j];
-        }
+        sMin = std::min(s[j], sMin);
+        sMax = std::max(s[j], sMax);
       } // for all cell scalars
       // Compute span space id, and prepare to map
       this->SpanSpace->SetSpanPoint(cellId, sMin, sMax);
@@ -525,8 +521,7 @@ void vtkSpanSpace::BuildTree()
   {
     this->Resolution = static_cast<vtkIdType>(
       sqrt(static_cast<double>(numCells) / static_cast<double>(this->NumberOfCellsPerBucket)));
-    this->Resolution =
-      (this->Resolution < 100 ? 100 : (this->Resolution > 10000 ? 10000 : this->Resolution));
+    this->Resolution = std::min<vtkIdType>(std::max<vtkIdType>(this->Resolution, 100), 10000);
   }
   this->SpanSpace = new vtkInternalSpanSpace(this->Resolution, range[0], range[1], numCells);
 

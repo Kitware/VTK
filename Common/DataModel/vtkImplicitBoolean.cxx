@@ -33,10 +33,7 @@ vtkMTimeType vtkImplicitBoolean::GetMTime()
        (f = this->FunctionList->GetNextImplicitFunction(sit));)
   {
     fMtime = f->GetMTime();
-    if (fMtime > mtime)
-    {
-      mtime = fMtime;
-    }
+    mtime = std::max(fMtime, mtime);
   }
   return mtime;
 }

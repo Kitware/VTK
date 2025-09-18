@@ -2151,8 +2151,7 @@ int vtkImagePlaneWidget::UpdateDiscreteCursor(double* q)
     iqtemp = static_cast<int>(std::round((closestPt[i] - origin[i]) / spacing[i]));
 
     // we have a valid pick already, just enforce bounds check
-    iq[i] = (iqtemp < extent[2 * i]) ? extent[2 * i]
-                                     : ((iqtemp > extent[2 * i + 1]) ? extent[2 * i + 1] : iqtemp);
+    iq[i] = std::min(std::max(iqtemp, extent[2 * i]), extent[2 * i + 1]);
 
     // compute image to world coords
     q[i] = iq[i] * spacing[i] + origin[i];

@@ -1976,11 +1976,7 @@ int vtkPDFContextDevice2D::GetNumberOfArcIterations(
     maxRadius = rY;
   }
 
-  if (error > maxRadius)
-  {
-    // to make sure the argument of asin() is in a valid range.
-    error = maxRadius;
-  }
+  error = std::min(error, maxRadius); // error should not be greater than maxRadius.
 
   // Angle of a sector so that its chord is `error' pixels.
   // This is will be our maximum angle step.

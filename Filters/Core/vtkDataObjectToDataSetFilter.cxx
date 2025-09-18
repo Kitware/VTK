@@ -16,6 +16,8 @@
 #include "vtkStructuredPoints.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectToDataSetFilter);
 
@@ -441,35 +443,35 @@ void vtkDataObjectToDataSetFilter::SetPointComponent(
 //------------------------------------------------------------------------------
 const char* vtkDataObjectToDataSetFilter::GetPointComponentArrayName(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->PointArrays[comp];
 }
 
 //------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetPointComponentArrayComponent(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->PointArrayComponents[comp];
 }
 
 //------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetPointComponentMinRange(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->PointComponentRange[comp][0];
 }
 
 //------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetPointComponentMaxRange(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->PointComponentRange[comp][1];
 }
 
 //------------------------------------------------------------------------------
 int vtkDataObjectToDataSetFilter::GetPointComponentNormailzeFlag(int comp)
 {
-  comp = (comp < 0 ? 0 : (comp > 2 ? 2 : comp));
+  comp = std::min(std::max(comp, 0), 2);
   return this->PointNormalize[comp];
 }
 

@@ -388,6 +388,7 @@ bool vtkHDFUtilities::GetStringAttribute(
   if (H5Tis_variable_str(hdfType) > 0)
   {
     char* buffer = nullptr;
+    // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
     if (H5Aread(typeAttributeHID, hdfType, &buffer) < 0)
     {
       vtkErrorWithObjectMacro(
@@ -597,6 +598,7 @@ vtkStringArray* vtkHDFUtilities::NewStringArray(
     vtkErrorWithObjectMacro(nullptr, << "Error H5Screate_simple for memory space");
     return nullptr;
   }
+  // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
   if (H5Dread(dataset, memtype, memspace, filespace, H5P_DEFAULT, rdata.data()) < 0)
   {
     vtkErrorWithObjectMacro(nullptr, << "Error H5Dread");

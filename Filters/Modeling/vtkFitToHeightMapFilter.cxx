@@ -300,14 +300,8 @@ struct FitCells
         z = w[0] * scalars[s0] + w[1] * scalars[s1] + w[2] * scalars[s2] + w[3] * scalars[s3];
 
         // Gather information for final determination of height z
-        if (z < min)
-        {
-          min = z;
-        }
-        if (z > max)
-        {
-          max = z;
-        }
+        min = std::min(z, min);
+        max = std::max(z, max);
         sum += z; // to compute average
       }           // for all tessellated primitives
 
@@ -540,14 +534,8 @@ void vtkFitToHeightMapFilter::AdjustPoints(
       newPts->GetPoint(pId, p0);
       z = p0[2];
 
-      if (z < min)
-      {
-        min = z;
-      }
-      if (z > max)
-      {
-        max = z;
-      }
+      min = std::min(z, min);
+      max = std::max(z, max);
       sum += z; // to compute average
     }           // over primitive points
 

@@ -335,12 +335,12 @@
 
 .el7_x86_64_mindeps:
     extends: .linux
-    image: "kitware/vtk:ci-el7-x86_64-mindeps-20250116"
+    image: "kitware/vtk:ci-el7-x86_64-mindeps-20250916"
 
     variables:
         VENV_ROOT: "/opt/python38/venv"
         SITE_PACKAGES_DIR: python3.8
-        LAUNCHER: "scl enable rh-python38 devtoolset-8 --"
+        LAUNCHER: "scl enable rh-git227 rh-python38 devtoolset-8 --"
 
 .el8_x86_64_icc:
     extends: .linux
@@ -718,7 +718,7 @@
     - export PATH=$PWD/.gitlab:$PWD/.gitlab/cmake/bin:$PATH
     - cmake --version
     - ninja --version
-    - cmake -P "$PWD/.gitlab/ci/fetch_tags.cmake"
+    - $LAUNCHER cmake -P "$PWD/.gitlab/ci/fetch_tags.cmake"
     # Load any modules that may be necessary.
     - '[ -n "$MODULES" ] && . /etc/profile.d/modules.sh && module load $MODULES'
     # Load a venv
@@ -881,7 +881,7 @@
 
 .cmake_source_tarballs:
     stage: build
-    image: "fedora:36"
+    image: "fedora:42"
     tags:
         - linux-x86_64
         - docker
@@ -898,7 +898,7 @@
 
 .cmake_doc_tarball:
     stage: release-prep
-    image: "fedora:36"
+    image: "fedora:42"
     tags:
         - linux-x86_64
         - docker
@@ -922,12 +922,12 @@
         - git fetch origin --force --prune --prune-tags --depth 50 # get tags so we can create releases page
         - asdf install python $PYTHON_VERSION
         - asdf global python $PYTHON_VERSION
-        - python -m venv env && source env/bin/activate
+        - python -m venv env
+        - source env/bin/activate
         - python -m pip install --upgrade --no-cache-dir pip setuptools
         - python -m pip install --upgrade --no-cache-dir sphinx readthedocs-sphinx-ext
         - python -m pip install --exists-action=w --no-cache-dir -r Documentation/docs/requirements.txt
-        - cd Documentation/docs
-        - make html |& tee $GIT_CLONE_PATH/sphinx_output.log
+        - make -C Documentation/docs html |& tee sphinx_output.log
     interruptible: true
 
 .before_script_linux_emscripten: &before_script_linux_emscripten
@@ -957,9 +957,10 @@
         - .gitlab/ci/sccache.sh
         - sccache --start-server
         - sccache --show-stats
-        - python3 -m venv build/ci-venv && source build/ci-venv/bin/activate
+        - python3 -m venv build/ci-venv
+        - source build/ci-venv/bin/activate
         - python3 -m pip install --upgrade --no-cache-dir pip
-        - python3 -m pip install --exists-action=w --no-cache-dir "Jinja2==3.1.3"
+        - python3 -m pip install --exists-action=w --no-cache-dir -r .gitlab/ci/requirements-wasm.txt
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_configure.cmake
         - $LAUNCHER ctest -VV -S .gitlab/ci/ctest_build.cmake &> $GIT_CLONE_PATH/compile_output.log
         - sccache --show-stats
@@ -979,7 +980,8 @@
     stage: upload
     script:
         - *before_script_java_linux
-        - cp .gitlab/maven/conf/settings.xml "$HOME/.m2/settings.xml"
+        - mkdir "$GIT_CLONE_PATH/.gitlab/m2"
+        - cp .gitlab/maven/conf/settings.xml "$GIT_CLONE_PATH/.gitlab/m2/settings.xml"
         - xmlstarlet ed -O -L
             -d '/_:settings/_:servers'
             -s '/_:settings' -t elem -n servers -v ""
@@ -987,7 +989,7 @@
             -s '/_:settings/servers/server' -t elem -n id -v "github"
             -s '/_:settings/servers/server' -t elem -n username -v '${vtk.github.username}'
             -s '/_:settings/servers/server' -t elem -n password -v '${vtk.github.token}'
-            "$HOME/.m2/settings.xml"
+            "$GIT_CLONE_PATH/.gitlab/m2/settings.xml"
         - cd build/install
         - mvn deploy
             -Dvtk.maven.repo=https://maven.pkg.github.com/kitware/vtk

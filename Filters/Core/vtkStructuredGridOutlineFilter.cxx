@@ -65,14 +65,8 @@ int vtkStructuredGridOutlineFilter::RequestData(vtkInformation* vtkNotUsed(reque
   memcpy(cExt, ext, 6 * sizeof(int));
   for (i = 0; i < 3; ++i)
   {
-    if (cExt[2 * i] < wExt[2 * i])
-    {
-      cExt[2 * i] = wExt[2 * i];
-    }
-    if (cExt[2 * i + 1] > wExt[2 * i + 1])
-    {
-      cExt[2 * i + 1] = wExt[2 * i + 1];
-    }
+    cExt[2 * i] = std::max(cExt[2 * i], wExt[2 * i]);
+    cExt[2 * i + 1] = std::min(cExt[2 * i + 1], wExt[2 * i + 1]);
   }
 
   for (i = 0; i < 12; i++)

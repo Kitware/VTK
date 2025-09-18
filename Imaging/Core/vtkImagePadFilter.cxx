@@ -115,22 +115,10 @@ void vtkImagePadFilter::ComputeInputUpdateExtent(int inExt[6], int outExt[6], in
   {
     inExt[idx * 2] = outExt[idx * 2];
     inExt[idx * 2 + 1] = outExt[idx * 2 + 1];
-    if (inExt[idx * 2] < wholeExtent[idx * 2])
-    {
-      inExt[idx * 2] = wholeExtent[idx * 2];
-    }
-    if (inExt[idx * 2] > wholeExtent[idx * 2 + 1])
-    {
-      inExt[idx * 2] = wholeExtent[idx * 2 + 1];
-    }
-    if (inExt[idx * 2 + 1] < wholeExtent[idx * 2])
-    {
-      inExt[idx * 2 + 1] = wholeExtent[idx * 2];
-    }
-    if (inExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
-    {
-      inExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
-    }
+    inExt[idx * 2] = std::max(inExt[idx * 2], wholeExtent[idx * 2]);
+    inExt[idx * 2] = std::min(inExt[idx * 2], wholeExtent[idx * 2 + 1]);
+    inExt[idx * 2 + 1] = std::max(inExt[idx * 2 + 1], wholeExtent[idx * 2]);
+    inExt[idx * 2 + 1] = std::min(inExt[idx * 2 + 1], wholeExtent[idx * 2 + 1]);
   }
 }
 

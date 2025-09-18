@@ -12,12 +12,14 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkShrinkPolyData);
 
 vtkShrinkPolyData::vtkShrinkPolyData(double sf)
 {
-  sf = (sf < 0.0 ? 0.0 : (sf > 1.0 ? 1.0 : sf));
+  sf = std::min(std::max(sf, 0.0), 1.0);
   this->ShrinkFactor = sf;
 }
 

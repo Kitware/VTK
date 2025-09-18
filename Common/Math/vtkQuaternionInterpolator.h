@@ -65,7 +65,7 @@ public:
   {
     BinarySearch = 0,
     LinearSearch = 1,
-    MaxEnum
+    MaxEnum = 3
   };
 
   /**

@@ -1576,10 +1576,7 @@ void vtkStructuredAMRGridConnectivity::RegisterGrid(int gridIdx, int level, int 
   assert("pre: Grid index is out-of-bounds!" &&
     ((gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids))));
 
-  if (level > this->MaxLevel)
-  {
-    this->MaxLevel = level;
-  }
+  this->MaxLevel = std::max(level, this->MaxLevel);
 
   this->GridLevels[gridIdx] = level;
   this->InsertGridAtLevel(level, gridIdx);
@@ -2095,17 +2092,8 @@ void vtkStructuredAMRGridConnectivity::ComputeWholeExtent()
     {
       for (int dim = 0; dim < 3; ++dim)
       {
-
-        if (this->WholeExtent[dim * 2] > ext[dim * 2])
-        {
-          this->WholeExtent[dim * 2] = ext[dim * 2];
-        }
-
-        if (this->WholeExtent[dim * 2 + 1] < ext[dim * 2 + 1])
-        {
-          this->WholeExtent[dim * 2 + 1] = ext[dim * 2 + 1];
-        }
-
+        this->WholeExtent[dim * 2] = std::min(this->WholeExtent[dim * 2], ext[dim * 2]);
+        this->WholeExtent[dim * 2 + 1] = std::max(this->WholeExtent[dim * 2 + 1], ext[dim * 2 + 1]);
       } // END for all dimensions
     }   // END else
   }     // END for all grids at level L0

@@ -335,6 +335,7 @@ int vtkPointHandleRepresentation3D::DetermineConstraintAxis(
     v[0] = fabs(x[0] - startPickPoint[0]);
     v[1] = fabs(x[1] - startPickPoint[1]);
     v[2] = fabs(x[2] - startPickPoint[2]);
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     return (v[0] > v[1] ? (v[0] > v[2] ? 0 : 2) : (v[1] > v[2] ? 1 : 2));
   }
   else

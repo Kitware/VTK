@@ -552,22 +552,10 @@ void vtkViewport::NormalizedViewportToView(double& x, double& y, double& vtkNotU
     this->GetViewport(nvport);
 
     // clip the viewport to the tiled viewport
-    if (nvport[0] < tvport[0])
-    {
-      nvport[0] = tvport[0];
-    }
-    if (nvport[1] < tvport[1])
-    {
-      nvport[1] = tvport[1];
-    }
-    if (nvport[2] > tvport[2])
-    {
-      nvport[2] = tvport[2];
-    }
-    if (nvport[3] > tvport[3])
-    {
-      nvport[3] = tvport[3];
-    }
+    nvport[0] = std::max(nvport[0], tvport[0]);
+    nvport[1] = std::max(nvport[1], tvport[1]);
+    nvport[2] = std::min(nvport[2], tvport[2]);
+    nvport[3] = std::min(nvport[3], tvport[3]);
 
     x = x * (vport[2] - vport[0]) + vport[0];
     y = y * (vport[3] - vport[1]) + vport[1];
@@ -652,22 +640,10 @@ void vtkViewport::ViewToNormalizedViewport(double& x, double& y, double& vtkNotU
     this->GetViewport(nvport);
 
     // clip the viewport to the tiled viewport
-    if (nvport[0] < tvport[0])
-    {
-      nvport[0] = tvport[0];
-    }
-    if (nvport[1] < tvport[1])
-    {
-      nvport[1] = tvport[1];
-    }
-    if (nvport[2] > tvport[2])
-    {
-      nvport[2] = tvport[2];
-    }
-    if (nvport[3] > tvport[3])
-    {
-      nvport[3] = tvport[3];
-    }
+    nvport[0] = std::max(nvport[0], tvport[0]);
+    nvport[1] = std::max(nvport[1], tvport[1]);
+    nvport[2] = std::min(nvport[2], tvport[2]);
+    nvport[3] = std::min(nvport[3], tvport[3]);
 
     x = (x + 1.0) / 2.0;
     y = (y + 1.0) / 2.0;
@@ -809,26 +785,14 @@ void vtkViewport::GetTiledSizeAndOrigin(int* usize, int* vsize, int* lowerLeftU,
   double vpu2 = vtkMath::ClampValue(vport[2] - tileViewPort[0], 0.0, 1.0);
   double vpv2 = vtkMath::ClampValue(vport[3] - tileViewPort[1], 0.0, 1.0);
   // also watch for the upper right boundary of the tile
-  if (vpu2 > (tileViewPort[2] - tileViewPort[0]))
-  {
-    vpu2 = tileViewPort[2] - tileViewPort[0];
-  }
-  if (vpv2 > (tileViewPort[3] - tileViewPort[1]))
-  {
-    vpv2 = tileViewPort[3] - tileViewPort[1];
-  }
+  vpu2 = std::min(vpu2, tileViewPort[2] - tileViewPort[0]);
+  vpv2 = std::min(vpv2, tileViewPort[3] - tileViewPort[1]);
   this->NormalizedDisplayToDisplay(vpu2, vpv2);
   // now compute the size of the intersection of the viewport with the
   // current tile
   *usize = static_cast<int>(vpu2 + 0.5) - *lowerLeftU;
   *vsize = static_cast<int>(vpv2 + 0.5) - *lowerLeftV;
-  if (*usize < 0)
-  {
-    *usize = 0;
-  }
-  if (*vsize < 0)
-  {
-    *vsize = 0;
-  }
+  *usize = std::max(*usize, 0);
+  *vsize = std::max(*vsize, 0);
 }
 VTK_ABI_NAMESPACE_END

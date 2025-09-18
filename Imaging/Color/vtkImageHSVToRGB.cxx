@@ -55,18 +55,9 @@ void vtkImageHSVToRGBExecute(
       G *= max;
       B *= max;
 
-      if (R > max)
-      {
-        R = max;
-      }
-      if (G > max)
-      {
-        G = max;
-      }
-      if (B > max)
-      {
-        B = max;
-      }
+      R = std::min(R, max);
+      G = std::min(G, max);
+      B = std::min(B, max);
 
       // assign output.
       *outSI = static_cast<T>(R);

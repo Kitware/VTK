@@ -440,10 +440,7 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(s
     }
     numColumns += array->GetNumberOfComponents();
     numTuples = array->GetNumberOfTuples();
-    if (numTuples < numRows)
-    {
-      numRows = numTuples;
-    }
+    numRows = std::min(numTuples, numRows);
   }
 
   // Determine the number of independent variables
@@ -491,14 +488,8 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(s
         {
           // v = field->GetComponent(i,j);
           ::vtkSpiderPlotActorGetComponent(field, i, j, &v);
-          if (v < this->Mins[k])
-          {
-            this->Mins[k] = v;
-          }
-          if (v > this->Maxs[k])
-          {
-            this->Maxs[k] = v;
-          }
+          this->Mins[k] = std::min(v, this->Mins[k]);
+          this->Maxs[k] = std::max(v, this->Maxs[k]);
         }
         k++;
       }
@@ -515,14 +506,8 @@ int vtkSpiderPlotActor::PlaceAxes(vtkViewport* viewport, const int* vtkNotUsed(s
             // non-numeric component, simply skip.
             continue;
           }
-          if (v < this->Mins[j])
-          {
-            this->Mins[j] = v;
-          }
-          if (v > this->Maxs[j])
-          {
-            this->Maxs[j] = v;
-          }
+          this->Mins[j] = std::min(v, this->Mins[j]);
+          this->Maxs[j] = std::max(v, this->Maxs[j]);
         }
       }
     }

@@ -778,10 +778,7 @@ int vtkGLTFReader::RequestInformation(
       if (this->AnimationSelection->ArrayIsEnabled(this->AnimationSelection->GetArrayName(i)))
       {
         float duration = model->Animations[i].Duration;
-        if (maxDuration < duration)
-        {
-          maxDuration = duration;
-        }
+        maxDuration = std::max<double>(maxDuration, duration);
       }
     }
   }

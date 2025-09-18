@@ -367,10 +367,7 @@ void vtkVRRenderer::ResetCameraClippingRange(const double bounds[6])
   range[1] += 3.0;           // add 3 meters for room to walk around
 
   // to see transmitters make sure far is at least 10 meters
-  if (range[1] < 10.0)
-  {
-    range[1] = 10.0;
-  }
+  range[1] = std::max(range[1], 10.0);
 
   this->ActiveCamera->SetClippingRange(range[0] * physicalScale, range[1] * physicalScale);
 }

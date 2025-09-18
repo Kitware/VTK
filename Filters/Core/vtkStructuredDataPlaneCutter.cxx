@@ -183,6 +183,7 @@ struct EvaluatePointsWithPlaneFunctor
       slice[ptId] = vtkPlane::Evaluate(this->Normal, this->Origin, point);
 
       // Point is either above(=2), below(=1), or on(=0) the plane.
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       inOut[ptId] = (slice[ptId] > zero ? 2 : (slice[ptId] < zero ? 1 : 0));
     }
   }

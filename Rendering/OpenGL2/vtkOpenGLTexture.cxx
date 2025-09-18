@@ -139,10 +139,7 @@ void vtkOpenGLTexture::Load(vtkRenderer* ren)
         {
           break;
         }
-        if (inputTime < in->GetMTime())
-        {
-          inputTime = in->GetMTime();
-        }
+        inputTime = std::max(inputTime, in->GetMTime());
         numIns++;
       }
 

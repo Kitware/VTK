@@ -1597,11 +1597,8 @@ int vtkOpenGLContextDevice2D::GetNumberOfArcIterations(
     maxRadius = rY;
   }
 
-  if (error > maxRadius)
-  {
-    // to make sure the argument of asin() is in a valid range.
-    error = maxRadius;
-  }
+  // to make sure the argument of asin() is in a valid range.
+  error = std::min(error, maxRadius);
 
   // Angle of a sector so that its chord is `error' pixels.
   // This is will be our maximum angle step.

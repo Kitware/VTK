@@ -655,7 +655,8 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray>
     auto& lOriginalCellIds = localData.OriginalCellIds;
     CellIter* cellIter = &localData.LocalCellIter;
     const vtkIdType* c = cellIter->Initialize(cellId); // connectivity array
-    unsigned int isoCase, numEdges, vi;
+    unsigned short isoCase, numEdges;
+    unsigned char isoIdx;
     const unsigned short* edges;
     double s[MAX_CELL_VERTS], value = this->Value, deltaScalar;
     float t;
@@ -678,10 +679,10 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray>
         }
       }
       // Compute case by repeated masking of scalar value
-      for (isoCase = 0, vi = 0; vi < cellIter->NumVerts; ++vi)
+      for (isoCase = 0, isoIdx = 0; isoIdx < cellIter->NumVerts; ++isoIdx)
       {
-        s[vi] = static_cast<double>(scalars[c[vi]]);
-        isoCase |= (s[vi] >= value ? BaseCell::Mask[vi] : 0);
+        s[isoIdx] = static_cast<double>(scalars[c[isoIdx]]);
+        isoCase |= (s[isoIdx] >= value ? BaseCell::Mask[isoIdx] : 0);
       }
       edges = cellIter->GetCase(isoCase);
 
@@ -693,7 +694,7 @@ struct ExtractEdges : public ExtractEdgesBase<IDType, TScalarsArray>
         {
           lOriginalCellIds.push_back(static_cast<IDType>(cellId));
         }
-        for (unsigned int i = 0; i < numEdges; ++i, edges += 2)
+        for (unsigned short i = 0; i < numEdges; ++i, edges += 2)
         {
           v0 = edges[0];
           v1 = edges[1];
@@ -742,7 +743,8 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray>
     auto& lOriginalCellIds = localData.OriginalCellIds;
     CellIter* cellIter = &localData.LocalCellIter;
     const vtkIdType* c;
-    unsigned int isoCase, numEdges, vi;
+    unsigned short isoCase, numEdges;
+    unsigned char isoIdx;
     const unsigned short* edges;
     double s[MAX_CELL_VERTS], value = this->Value, deltaScalar;
     float t;
@@ -773,10 +775,10 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray>
         cellId = cellIds[idx];
         c = cellIter->GetCellIds(cellId);
         // Compute case by repeated masking of scalar value
-        for (isoCase = 0, vi = 0; vi < cellIter->NumVerts; ++vi)
+        for (isoCase = 0, isoIdx = 0; isoIdx < cellIter->NumVerts; ++isoIdx)
         {
-          s[vi] = static_cast<double>(scalars[c[vi]]);
-          isoCase |= (s[vi] >= value ? BaseCell::Mask[vi] : 0);
+          s[isoIdx] = static_cast<double>(scalars[c[isoIdx]]);
+          isoCase |= (s[isoIdx] >= value ? BaseCell::Mask[isoIdx] : 0);
         }
         edges = cellIter->GetCase(isoCase);
 
@@ -788,7 +790,7 @@ struct ExtractEdgesST : public ExtractEdgesBase<IDType, TScalarsArray>
           {
             lOriginalCellIds.push_back(static_cast<IDType>(cellId));
           }
-          for (unsigned int i = 0; i < numEdges; ++i, edges += 2)
+          for (unsigned short i = 0; i < numEdges; ++i, edges += 2)
           {
             v0 = edges[0];
             v1 = edges[1];

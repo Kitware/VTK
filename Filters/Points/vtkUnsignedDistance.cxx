@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <algorithm>
+
 #include "vtkUnsignedDistance.h"
 
 #include "vtkAbstractPointLocator.h"
@@ -118,10 +120,7 @@ void ComputeModelBounds(vtkPolyData* input, int dims[3], int adjustBounds, doubl
     double maxDist = 0.0;
     for (i = 0; i < 3; i++)
     {
-      if ((bounds[2 * i + 1] - bounds[2 * i]) > maxDist)
-      {
-        maxDist = bounds[2 * i + 1] - bounds[2 * i];
-      }
+      maxDist = std::max(bounds[2 * i + 1] - bounds[2 * i], maxDist);
     }
 
     // adjust bounds so model fits strictly inside (only if not set previously)

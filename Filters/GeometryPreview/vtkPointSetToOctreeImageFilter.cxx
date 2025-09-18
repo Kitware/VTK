@@ -140,11 +140,11 @@ struct vtkPointSetToOctreeImageFilter::PointSetToImageFunctor
       const auto& inPt = inPoints[i];
       // calculate ijk
       ijk[0] = static_cast<int>((inPt[0] - origin[0]) / spacing[0]);
-      ijk[0] = ijk[0] < extent[0] ? extent[0] : (ijk[0] >= extent[1] ? extent[1] - 1 : ijk[0]);
+      ijk[0] = std::clamp(ijk[0], extent[0], extent[1] - 1);
       ijk[1] = static_cast<int>((inPt[1] - origin[1]) / spacing[1]);
-      ijk[1] = ijk[1] < extent[2] ? extent[2] : (ijk[1] >= extent[3] ? extent[3] - 1 : ijk[1]);
+      ijk[1] = std::clamp(ijk[1], extent[2], extent[3] - 1);
       ijk[2] = static_cast<int>((inPt[2] - origin[2]) / spacing[2]);
-      ijk[2] = ijk[2] < extent[4] ? extent[4] : (ijk[2] >= extent[5] ? extent[5] - 1 : ijk[2]);
+      ijk[2] = std::clamp(ijk[2], extent[4], extent[5] - 1);
       // calculate output point and cell id
       outPtId = ijk[0] + ijk[1] * dimensions[0] + ijk[2] * dimensions[0] * dimensions[1];
       outCellId = ijk[0] + ijk[1] * extent[1] + ijk[2] * extent[1] * extent[3];

@@ -17,6 +17,8 @@
 #include "vtkRenderer.h"
 #include "vtkTexture.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadricLODActor);
 
@@ -76,7 +78,7 @@ void vtkQuadricLODActor::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(m))
   // determine out how much time we have to render
   float allowedTime = this->AllocatedRenderTime;
   double frameRate = ren->GetRenderWindow()->GetInteractor()->GetDesiredUpdateRate();
-  frameRate = (frameRate < 1.0 ? 1.0 : (frameRate > 75 ? 75.0 : frameRate));
+  frameRate = std::min(std::max(frameRate, 1.0), 75.0);
   int interactiveRender = 0;
   // interactive renders are defined when compared with the desired update rate. Here we use
   // a generous fudge factor to ensure that the LOD kicks in.
@@ -164,7 +166,7 @@ void vtkQuadricLODActor::Render(vtkRenderer* ren, vtkMapper* vtkNotUsed(m))
       h[0] = bounds[1] - bounds[0];
       h[1] = bounds[3] - bounds[2];
       h[2] = bounds[5] - bounds[4];
-      double hMax = (h[0] > h[1]) ? (h[0] > h[2] ? h[0] : h[2]) : (h[1] > h[2] ? h[1] : h[2]);
+      double hMax = std::max({ h[0], h[1], h[2] });
       int nDivs[3];
       for (int i = 0; i < 3; i++)
       {

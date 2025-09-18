@@ -555,10 +555,8 @@ void vtkHardwareSelector::BuildPropHitList(unsigned char* pixelbuffer)
         }
         if (depthBuffer)
         {
-          if (depthBuffer[offset] < this->Internals->ZValues[val])
-          {
-            this->Internals->ZValues[val] = depthBuffer[offset];
-          }
+          this->Internals->ZValues[val] = std::min<std::map<int, double>::mapped_type>(
+            depthBuffer[offset], this->Internals->ZValues[val]);
         }
         this->Internals->PropPixels[val].push_back(offset * 3);
       }

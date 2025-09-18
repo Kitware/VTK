@@ -81,14 +81,8 @@ int vtkImageNonMaximumSuppression::RequestUpdateExtent(vtkInformation* vtkNotUse
     if (this->HandleBoundaries)
     {
       // we must clip extent with whole extent if we handle boundaries.
-      if (inExt[idx * 2] < wholeExtent[idx * 2])
-      {
-        inExt[idx * 2] = wholeExtent[idx * 2];
-      }
-      if (inExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
-      {
-        inExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
-      }
+      inExt[idx * 2] = std::max(inExt[idx * 2], wholeExtent[idx * 2]);
+      inExt[idx * 2 + 1] = std::min(inExt[idx * 2 + 1], wholeExtent[idx * 2 + 1]);
     }
   }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);

@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <algorithm>
+
 #include "vtkFixedPointRayCastImage.h"
 #include "vtkObjectFactory.h"
 
@@ -88,10 +90,8 @@ void vtkFixedPointRayCastImage::AllocateZBuffer()
     // size in pixels is smaller than the zbuffer we are
     // requesting - which will probably not make OpenGL
     // very happy.
-    if (this->ZBufferMemorySize < this->ZBufferSize[0] * this->ZBufferSize[1])
-    {
-      this->ZBufferMemorySize = this->ZBufferSize[0] * this->ZBufferSize[1];
-    }
+    this->ZBufferMemorySize =
+      std::max(this->ZBufferMemorySize, this->ZBufferSize[0] * this->ZBufferSize[1]);
 
     // Allocate the memory
     this->ZBuffer = new float[this->ZBufferMemorySize];

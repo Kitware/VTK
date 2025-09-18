@@ -53,14 +53,8 @@ void vtkImageRGBToHSIExecute(
       inSI++;
       // Saturation
       temp = R;
-      if (G < temp)
-      {
-        temp = G;
-      }
-      if (B < temp)
-      {
-        temp = B;
-      }
+      temp = std::min(G, temp);
+      temp = std::min(B, temp);
       double sumRGB = R + G + B;
       if (sumRGB == 0.0)
       {

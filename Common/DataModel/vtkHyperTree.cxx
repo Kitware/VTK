@@ -163,6 +163,7 @@ void vtkHyperTree::ComputeBreadthFirstOrderDescriptor(const unsigned int depthLi
 
   // Reducing maxDepth to squeeze out depths in which all subtrees are
   // entirely masked.
+  // NOLINTNEXTLINE(bugprone-inc-dec-in-conditions)
   while (maxDepth && breadthFirstOrderIdMapPerDepth[--maxDepth].empty())
     ;
   ++maxDepth;
@@ -259,10 +260,7 @@ void vtkHyperTree::InitializeForReader(vtkIdType numberOfLevels, vtkIdType nbVer
   assert(isParent->GetNumberOfComponents() == 1);
 
   vtkIdType firstOffsetLastdepth = nbVertices - nbVerticesOfLastdepth;
-  if (nbIsParent < firstOffsetLastdepth)
-  {
-    firstOffsetLastdepth = nbIsParent;
-  }
+  firstOffsetLastdepth = std::min(nbIsParent, firstOffsetLastdepth);
   this->Datas->ParentToElderChild.resize(firstOffsetLastdepth);
 
   vtkIdType nbCoarses = isParent->GetValue(0);

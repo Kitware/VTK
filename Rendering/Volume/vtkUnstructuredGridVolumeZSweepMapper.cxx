@@ -3187,13 +3187,10 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow* renWin)
           {
             double z = this->Vertices->Vector[vids[i]].GetZview();
 #ifdef BACK_TO_FRONT
-            if (z < zTarget)
+            zTarget = std::min(z, zTarget);
 #else
-            if (z > zTarget)
+            zTarget = std::max(z, zTarget);
 #endif
-            {
-              zTarget = z;
-            }
             ++i;
           }
           ++it;
@@ -3225,13 +3222,10 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow* renWin)
           {
             double z = this->Vertices->Vector[vids[i]].GetZview();
 #ifdef BACK_TO_FRONT
-            if (z < zTarget)
+            zTarget = std::min(z, zTarget);
 #else
-            if (z > zTarget)
+            zTarget = std::max(z, zTarget);
 #endif
-            {
-              zTarget = z;
-            }
             ++i;
           }
           ++it;
@@ -4203,10 +4197,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
         }
         else
         {
-          if (x > newXBounds[1])
-          {
-            newXBounds[1] = x;
-          }
+          newXBounds[1] = std::max(x, newXBounds[1]);
         }
         if (y < newYBounds[0])
         {
@@ -4214,10 +4205,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::CompositeFunction(double zTarget)
         }
         else
         {
-          if (y > newYBounds[1])
-          {
-            newYBounds[1] = y;
-          }
+          newYBounds[1] = std::max(y, newYBounds[1]);
         }
       }
 
@@ -4254,10 +4242,7 @@ unsigned char vtkUnstructuredGridVolumeZSweepMapper::ColorComponentRealToByte(fl
   }
   else
   {
-    if (val < 0)
-    {
-      val = 0;
-    }
+    val = std::max(val, 0);
   }
   return static_cast<unsigned char>(val);
 }

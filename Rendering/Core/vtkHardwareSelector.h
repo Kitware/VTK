@@ -349,25 +349,24 @@ public:
   // have to happen before the last process and compoite
   // passes respectively
   //
-  //
   enum PassTypes
   {
     // always must be first so that the prop IDs are set
-    ACTOR_PASS,
+    ACTOR_PASS = 0,
     // must always be second for composite mapper
-    COMPOSITE_INDEX_PASS,
+    COMPOSITE_INDEX_PASS = 1,
 
-    POINT_ID_LOW24,
-    POINT_ID_HIGH24, // if needed
-    PROCESS_PASS,    // must be after point id pass
+    POINT_ID_LOW24 = 2,
+    POINT_ID_HIGH24 = 3, // if needed
+    PROCESS_PASS = 4,    // must be after point id pass
 
-    CELL_ID_LOW24,
-    CELL_ID_HIGH24, // if needed
+    CELL_ID_LOW24 = 5,
+    CELL_ID_HIGH24 = 6, // if needed
 
-    CELLGRID_CELL_TYPE_INDEX_PASS,
-    CELLGRID_SOURCE_INDEX_PASS,
-    CELLGRID_TUPLE_ID_LOW24,
-    CELLGRID_TUPLE_ID_HIGH24,
+    CELLGRID_CELL_TYPE_INDEX_PASS = 7,
+    CELLGRID_SOURCE_INDEX_PASS = 8,
+    CELLGRID_TUPLE_ID_LOW24 = 9,
+    CELLGRID_TUPLE_ID_HIGH24 = 10,
 
     MAX_KNOWN_PASS = CELLGRID_TUPLE_ID_HIGH24,
     MIN_KNOWN_PASS = ACTOR_PASS

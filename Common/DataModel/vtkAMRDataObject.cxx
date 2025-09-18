@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include <algorithm>
+
 #include "vtkAMRDataObject.h"
 #include "vtkAMRMetaData.h"
 #include "vtkCartesianGrid.h"
@@ -206,14 +208,8 @@ void vtkAMRDataObject::SetDataSet(unsigned int level, unsigned int idx, vtkDataS
   grid->GetBounds(bb);
   for (int i = 0; i < 3; ++i)
   {
-    if (bb[i * 2] < this->Bounds[i * 2])
-    {
-      this->Bounds[i * 2] = bb[i * 2];
-    }
-    if (bb[i * 2 + 1] > this->Bounds[i * 2 + 1])
-    {
-      this->Bounds[i * 2 + 1] = bb[i * 2 + 1];
-    }
+    this->Bounds[i * 2] = std::min(bb[i * 2], this->Bounds[i * 2]);
+    this->Bounds[i * 2 + 1] = std::max(bb[i * 2 + 1], this->Bounds[i * 2 + 1]);
   } // END for each dimension
 
   this->SetPartition(level, idx, grid);

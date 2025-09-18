@@ -36,11 +36,7 @@ static int ComputeMaxNonEmptyLevel(vtkOverlappingAMR* amr)
   int maxLevel(-1);
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
   {
-    int level = iter->GetCurrentLevel();
-    if (level > maxLevel)
-    {
-      maxLevel = level;
-    }
+    maxLevel = static_cast<unsigned int>(std::max<int>(iter->GetCurrentLevel(), maxLevel));
   }
   iter->Delete();
   return maxLevel + 1;

@@ -493,6 +493,7 @@ template <class SharedFutureContainerT>
 void vtkThreadedCallbackQueue::Wait(SharedFutureContainerT&& priorSharedFutures)
 {
   int mustWait = false;
+  SharedFutureContainerT& priorSharedFuturesR = priorSharedFutures;
 
   // First pass: we look if we find any prior that is neither on hold, constructing,
   // ready or running.
@@ -513,7 +514,7 @@ void vtkThreadedCallbackQueue::Wait(SharedFutureContainerT&& priorSharedFutures)
     }
   }
 
-  if (!mustWait || !this->MustWait(std::forward<SharedFutureContainerT>(priorSharedFutures)))
+  if (!mustWait || !this->MustWait(priorSharedFuturesR))
   {
     return;
   }
@@ -532,7 +533,7 @@ void vtkThreadedCallbackQueue::Wait(SharedFutureContainerT&& priorSharedFutures)
   // InvokerQueue.
   invoker->IsHighPriority = true;
 
-  this->HandleDependentInvoker(std::forward<SharedFutureContainerT>(priorSharedFutures), invoker);
+  this->HandleDependentInvoker(priorSharedFuturesR, invoker);
 
   invoker->Wait();
 }
@@ -561,8 +562,9 @@ vtkThreadedCallbackQueue::SharedFuturePointer<vtkThreadedCallbackQueue::InvokeRe
 vtkThreadedCallbackQueue::PushDependent(
   SharedFutureContainerT&& priorSharedFutures, FT&& f, ArgsT&&... args)
 {
+  SharedFutureContainerT& priorSharedFuturesR = priorSharedFutures;
   // If we can avoid doing tricks with dependent shared futures, let's do it.
-  if (!this->MustWait(std::forward<SharedFutureContainerT>(priorSharedFutures)))
+  if (!this->MustWait(priorSharedFuturesR))
   {
     return this->Push(std::forward<FT>(f), std::forward<ArgsT>(args)...);
   }
@@ -573,7 +575,7 @@ vtkThreadedCallbackQueue::PushDependent(
 
   this->Push(
     &vtkThreadedCallbackQueue::HandleDependentInvoker<SharedFutureContainerT, InvokerPointerType>,
-    this, std::forward<SharedFutureContainerT>(priorSharedFutures), invoker);
+    this, priorSharedFuturesR, invoker);
 
   return invoker;
 }

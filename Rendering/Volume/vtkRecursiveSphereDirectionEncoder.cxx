@@ -3,6 +3,7 @@
 #include "vtkRecursiveSphereDirectionEncoder.h"
 #include "vtkObjectFactory.h"
 
+#include <algorithm>
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -59,14 +60,8 @@ int vtkRecursiveSphereDirectionEncoder::GetEncodedDirection(float n[3])
     xindex = (int)((x + 1.0) * (float)(this->InnerSize) + 0.5);
     yindex = (int)((y + 1.0) * (float)(this->InnerSize) + 0.5);
 
-    if (xindex > 2 * this->InnerSize)
-    {
-      xindex = 2 * this->InnerSize;
-    }
-    if (yindex > 2 * this->InnerSize)
-    {
-      yindex = 2 * this->InnerSize;
-    }
+    xindex = std::min(xindex, 2 * this->InnerSize);
+    yindex = std::min(yindex, 2 * this->InnerSize);
 
     value = this->IndexTable[xindex * (this->OuterSize + this->InnerSize) + yindex];
 
@@ -239,14 +234,8 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable()
       // boundary conditions.
       xindex = (int)((x + 1.0) * (float)(this->InnerSize) + 0.5);
       yindex = (int)((y + 1.0) * (float)(this->InnerSize) + 0.5);
-      if (xindex > 2 * this->InnerSize)
-      {
-        xindex = 2 * this->InnerSize;
-      }
-      if (yindex > 2 * this->InnerSize)
-      {
-        yindex = 2 * this->InnerSize;
-      }
+      xindex = std::min(xindex, 2 * this->InnerSize);
+      yindex = std::min(yindex, 2 * this->InnerSize);
       this->IndexTable[xindex * (this->OuterSize + this->InnerSize) + yindex] = index;
 
       // Do the grid location to the left - unless we are at the left
@@ -263,14 +252,8 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable()
         y = 0.5 * (tmp_x - (1.0 / (float)this->InnerSize)) + 0.5 * tmp_y;
         xindex = (int)((x + 1.0) * (float)(this->InnerSize) + 0.5);
         yindex = (int)((y + 1.0) * (float)(this->InnerSize) + 0.5);
-        if (xindex > 2 * this->InnerSize)
-        {
-          xindex = 2 * this->InnerSize;
-        }
-        if (yindex > 2 * this->InnerSize)
-        {
-          yindex = 2 * this->InnerSize;
-        }
+        xindex = std::min(xindex, 2 * this->InnerSize);
+        yindex = std::min(yindex, 2 * this->InnerSize);
         this->IndexTable[xindex * (this->OuterSize + this->InnerSize) + yindex] = index;
       }
 
@@ -282,14 +265,8 @@ void vtkRecursiveSphereDirectionEncoder::InitializeIndexTable()
         y = 0.5 * (tmp_x + (1.0 / (float)this->InnerSize)) + 0.5 * tmp_y;
         xindex = (int)((x + 1.0) * (float)(this->InnerSize) + 0.5);
         yindex = (int)((y + 1.0) * (float)(this->InnerSize) + 0.5);
-        if (xindex > 2 * this->InnerSize)
-        {
-          xindex = 2 * this->InnerSize;
-        }
-        if (yindex > 2 * this->InnerSize)
-        {
-          yindex = 2 * this->InnerSize;
-        }
+        xindex = std::min(xindex, 2 * this->InnerSize);
+        yindex = std::min(yindex, 2 * this->InnerSize);
         this->IndexTable[xindex * (this->OuterSize + this->InnerSize) + yindex] = index;
       }
 

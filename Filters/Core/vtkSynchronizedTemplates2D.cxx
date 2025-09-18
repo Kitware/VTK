@@ -23,6 +23,7 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
+#include <algorithm>
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -407,14 +408,8 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
   inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext);
   for (int i = 0; i < 3; i++)
   {
-    if (inExt[2 * i] > ext[2 * i])
-    {
-      ext[2 * i] = inExt[2 * i];
-    }
-    if (inExt[2 * i + 1] < ext[2 * i + 1])
-    {
-      ext[2 * i + 1] = inExt[2 * i + 1];
-    }
+    ext[2 * i] = std::max(inExt[2 * i], ext[2 * i]);
+    ext[2 * i + 1] = std::min(inExt[2 * i + 1], ext[2 * i + 1]);
   }
 
   inScalars = this->GetInputArrayToProcess(0, inputVector);

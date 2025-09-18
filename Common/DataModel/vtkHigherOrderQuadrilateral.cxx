@@ -407,11 +407,9 @@ double vtkHigherOrderQuadrilateral::GetParametricDistance(const double pcoords[3
 
   for (int ii = 0; ii < 2; ++ii)
   {
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     pDist = (pcoords[ii] < 0. ? -pcoords[ii] : (pcoords[ii] > 1. ? pcoords[ii] - 1. : 0.));
-    if (pDist > pDistMax)
-    {
-      pDistMax = pDist;
-    }
+    pDistMax = std::max(pDist, pDistMax);
   }
 
   // The quadrilateral's 3rd parametric coordinate should always be 0:
@@ -519,6 +517,7 @@ int vtkHigherOrderQuadrilateral::PointIndexFromIJK(int i, int j, const int* orde
 
   if (nbdy == 2) // Vertex DOF
   {              // ijk is a corner node. Return the proper index (somewhere in [0,7]):
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     return (i ? (j ? 2 : 1) : (j ? 3 : 0));
   }
 

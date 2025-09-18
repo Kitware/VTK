@@ -45,8 +45,7 @@ static vtkIdType BinomialCoefficient(int n, int k)
   }
   else
   {
-    if (k > n - k)
-      k = n - k;
+    k = std::min(k, n - k);
     int num = 1;
     int den = 1;
 

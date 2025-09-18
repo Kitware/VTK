@@ -153,10 +153,7 @@ vtkMTimeType vtkAnnotation::GetMTime()
   if (this->Selection)
   {
     vtkMTimeType stime = this->Selection->GetMTime();
-    if (stime > mtime)
-    {
-      mtime = stime;
-    }
+    mtime = std::max(stime, mtime);
   }
   return mtime;
 }

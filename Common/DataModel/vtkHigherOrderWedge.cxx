@@ -622,11 +622,9 @@ double vtkHigherOrderWedge::GetParametricDistance(const double pcoords[3])
 
   for (int ii = 0; ii < 3; ++ii)
   {
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     pDist = (pcoords[ii] < 0. ? -pcoords[ii] : (pcoords[ii] > 1. ? pcoords[ii] - 1. : 0.));
-    if (pDist > pDistMax)
-    {
-      pDistMax = pDist;
-    }
+    pDistMax = std::max(pDist, pDistMax);
   }
 
   return pDistMax;
@@ -728,6 +726,7 @@ int vtkHigherOrderWedge::PointIndexFromIJK(int i, int j, int k, const int* order
 
   if (nbdy == 3) // Vertex DOF
   {              // ijk is a corner node. Return the proper index (somewhere in [0,5]):
+                 // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     return (ibdy && jbdy ? 0 : (jbdy && ijbdy ? 1 : 2)) + (k ? 3 : 0);
   }
 
@@ -737,6 +736,7 @@ int vtkHigherOrderWedge::PointIndexFromIJK(int i, int j, int k, const int* order
     if (!kbdy)
     { // Must be on a vertical edge and 2 of {ibdy, jbdy, ijbdy} are true
       offset += rm1 * 6;
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       return offset + (k - 1) + ((ibdy && jbdy) ? 0 : (jbdy && ijbdy ? 1 : 2)) * tm1;
     }
     else
@@ -1175,6 +1175,7 @@ void vtkHigherOrderWedge::GetQuadrilateralFace(int faceId, const int* order,
   if (nptsActual == 21)
   {
     set_number_of_ids_and_points(9);
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     int quadFace = (di == -dj ? 1 : (dj == 0 ? 0 : 2));
     for (int ii = 0; ii < 9; ++ii)
     {

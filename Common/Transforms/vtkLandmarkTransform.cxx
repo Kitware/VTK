@@ -383,18 +383,12 @@ vtkMTimeType vtkLandmarkTransform::GetMTime()
   if (this->SourceLandmarks)
   {
     mtime = this->SourceLandmarks->GetMTime();
-    if (mtime > result)
-    {
-      result = mtime;
-    }
+    result = std::max(mtime, result);
   }
   if (this->TargetLandmarks)
   {
     mtime = this->TargetLandmarks->GetMTime();
-    if (mtime > result)
-    {
-      result = mtime;
-    }
+    result = std::max(mtime, result);
   }
   return result;
 }

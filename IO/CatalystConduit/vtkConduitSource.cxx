@@ -222,10 +222,19 @@ bool vtkConduitSource::GeneratePartitionedDataSetCollection(vtkDataObject* outpu
 int vtkConduitSource::RequestDataObject(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
 {
-  const int dataType = this->OutputMultiBlock ? VTK_MULTIBLOCK_DATA_SET
-    : this->UseMultiMeshProtocol              ? VTK_PARTITIONED_DATA_SET_COLLECTION
-    : this->UseAMRMeshProtocol                ? VTK_OVERLAPPING_AMR
-                                              : VTK_PARTITIONED_DATA_SET;
+  int dataType = VTK_PARTITIONED_DATA_SET; // default
+  if (this->OutputMultiBlock)
+  {
+    dataType = VTK_MULTIBLOCK_DATA_SET;
+  }
+  else if (this->UseMultiMeshProtocol)
+  {
+    dataType = VTK_PARTITIONED_DATA_SET_COLLECTION;
+  }
+  else if (this->UseAMRMeshProtocol)
+  {
+    dataType = VTK_OVERLAPPING_AMR;
+  }
 
   return this->SetOutputDataObject(dataType, outputVector->GetInformationObject(0), /*exact=*/true)
     ? 1

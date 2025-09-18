@@ -374,7 +374,7 @@ void vtkSlidingWindowAllocateWorkspace(vtkInterpolationWeights* weights, F*)
   }
 
   // make the workspace available to the interpolator
-  weights->Workspace = workPtr;
+  weights->Workspace = reinterpret_cast<void*>(workPtr);
 
   // initialize the "last position" of the sliding window to invalid
   // values (i.e. to a position outside of the extent)

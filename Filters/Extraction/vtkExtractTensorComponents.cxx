@@ -120,9 +120,20 @@ int vtkExtractTensorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     vtkWarningMacro(<< "No data is being extracted");
   }
 
-  int precisionType = (this->OutputPrecision == vtkAlgorithm::DEFAULT_PRECISION
-      ? inTensors->GetDataType()
-      : (this->OutputPrecision == vtkAlgorithm::SINGLE_PRECISION ? VTK_FLOAT : VTK_DOUBLE));
+  int precisionType;
+  switch (this->OutputPrecision)
+  {
+    case vtkAlgorithm::SINGLE_PRECISION:
+      precisionType = VTK_FLOAT;
+      break;
+    case vtkAlgorithm::DOUBLE_PRECISION:
+      precisionType = VTK_DOUBLE;
+      break;
+    case vtkAlgorithm::DEFAULT_PRECISION:
+    default:
+      precisionType = inTensors->GetDataType();
+      break;
+  }
 
   outPD->CopyAllOn();
   if (!this->PassTensorsToOutput)
@@ -135,8 +146,10 @@ int vtkExtractTensorComponents::RequestData(vtkInformation* vtkNotUsed(request),
     newScalars = CreateDataArray(precisionType,
       this->ScalarMode == VTK_EXTRACT_COMPONENT
         ? "Tensor Component"
+        // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
         : (this->ScalarMode == VTK_EXTRACT_DETERMINANT
               ? "Tensor Determinant"
+              // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
               : (this->ScalarMode == VTK_EXTRACT_NONNEGATIVE_DETERMINANT
                     ? "NonNegative Tensor Determinant"
                     : "Tensor Effective Stress")));

@@ -360,10 +360,7 @@ void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume* volume, vtkDataArr
     double diagonal_length = sqrt(SQR(cellbounds[1] - cellbounds[0]) +
       SQR(cellbounds[3] - cellbounds[2]) + SQR(cellbounds[5] - cellbounds[4]));
 #undef SQR
-    if (diagonal_length > this->MaxLength)
-    {
-      this->MaxLength = diagonal_length;
-    }
+    this->MaxLength = std::max(diagonal_length, this->MaxLength);
   }
 
   this->BuildPreIntegrationTables(scalars);

@@ -54,15 +54,7 @@ int TestGPURayCastTextureStreamingMask(int argc, char* argv[])
   // min spacing divided by 2. Nyquist-Shannon theorem says so.
   // sample distance could be bigger if we compute the actual max frequency
   // in the data.
-  double distance = spacing[0];
-  if (distance > spacing[1])
-  {
-    distance = spacing[1];
-  }
-  if (distance > spacing[2])
-  {
-    distance = spacing[2];
-  }
+  double distance = std::min({ spacing[0], spacing[1], spacing[2] });
   distance = distance / 2.0;
 
   mapper->SetSampleDistance(static_cast<float>(distance));

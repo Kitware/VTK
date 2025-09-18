@@ -4,6 +4,8 @@
 #include "vtkObjectFactory.h"
 #include "vtk_lzma.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLZMADataCompressor);
 
@@ -123,11 +125,10 @@ void vtkLZMADataCompressor::SetCompressionLevel(int compressionLevel)
   int max = 9;
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting CompressionLevel to "
                 << compressionLevel);
-  if (this->CompressionLevel !=
-    (compressionLevel < min ? min : (compressionLevel > max ? max : compressionLevel)))
+  compressionLevel = std::min(std::max(compressionLevel, min), max);
+  if (this->CompressionLevel != compressionLevel)
   {
-    this->CompressionLevel =
-      (compressionLevel < min ? min : (compressionLevel > max ? max : compressionLevel));
+    this->CompressionLevel = compressionLevel;
     this->Modified();
   }
 }

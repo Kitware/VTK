@@ -274,10 +274,7 @@ static bool vtkCompareFileNamesIgnoreCase(const std::string& s1, const std::stri
 
   // find the minimum of the two lengths
   unsigned int n = n1;
-  if (n > n2)
-  {
-    n = n2;
-  }
+  n = std::min(n, n2);
 
   // compare the strings with no case
   for (unsigned int i = 0; i < n; i++)

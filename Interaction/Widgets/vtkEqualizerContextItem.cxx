@@ -378,10 +378,7 @@ bool vtkEqualizerContextItem::MouseMoveEvent(const vtkContextMouseEvent& mouse)
     auto posX = vtkMath::ClampValue<int>(posScene.GetX(), scope.first, scope.second);
 
     auto posY = posScene.GetY();
-    if (posY < 0)
-    {
-      posY = 0;
-    }
+    posY = std::max(posY, 0.f);
 
     point.freq = posX;
     point.coef = posY;

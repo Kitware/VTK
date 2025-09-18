@@ -80,16 +80,20 @@ int TestOpenFOAMReaderLagrangianSerial(int argc, char* argv[])
     std::string displayName(reader->GetPatchArrayName(i));
     auto slash = displayName.rfind('/');
 
-    if (slash != std::string::npos && displayName.compare(0, ++slash, "lagrangian/") == 0)
+    if (slash != std::string::npos)
     {
-      std::string cloudName(displayName.substr(slash));
-      std::cout << "  Display " << displayName << " = Cloud <" << cloudName << ">" << std::endl;
-
-      auto* cloudData = findBlock<vtkPolyData>(lagrangianBlocks, cloudName.c_str());
-      if (cloudData)
+      ++slash;
+      if (displayName.compare(0, slash, "lagrangian/") == 0)
       {
-        ++nClouds;
-        nParticles += cloudData->GetNumberOfPoints();
+        std::string cloudName(displayName.substr(slash));
+        std::cout << "  Display " << displayName << " = Cloud <" << cloudName << ">" << std::endl;
+
+        auto* cloudData = findBlock<vtkPolyData>(lagrangianBlocks, cloudName.c_str());
+        if (cloudData)
+        {
+          ++nClouds;
+          nParticles += cloudData->GetNumberOfPoints();
+        }
       }
     }
   }

@@ -381,14 +381,8 @@ void vtkApplyColors::ProcessColorArray(vtkUnsignedCharArray* colorArr, vtkScalar
       for (vtkIdType i = 0; i < colorArr->GetNumberOfTuples(); ++i)
       {
         double val = arr->GetVariantValue(i).ToDouble();
-        if (val > maxVal)
-        {
-          maxVal = val;
-        }
-        if (val < minVal)
-        {
-          minVal = val;
-        }
+        maxVal = std::max(val, maxVal);
+        minVal = std::min(val, minVal);
       }
     }
 

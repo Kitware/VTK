@@ -188,10 +188,7 @@ void vtkOpenVROverlay::LoadNextCameraPose()
   // find the next pose index in the map
   for (auto p : this->SavedCameraPoses)
   {
-    if (p.first < firstValue)
-    {
-      firstValue = p.first;
-    }
+    firstValue = std::min(p.first, firstValue);
     if (p.first > this->LastCameraPoseIndex)
     {
       nextValue = p.first;

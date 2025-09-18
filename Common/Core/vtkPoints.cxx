@@ -141,10 +141,7 @@ void vtkPoints::GetBounds(double bounds[6])
 vtkMTimeType vtkPoints::GetMTime()
 {
   vtkMTimeType doTime = this->Superclass::GetMTime();
-  if (this->Data->GetMTime() > doTime)
-  {
-    doTime = this->Data->GetMTime();
-  }
+  doTime = std::max(this->Data->GetMTime(), doTime);
   return doTime;
 }
 

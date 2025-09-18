@@ -14,6 +14,8 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLine);
 
@@ -395,7 +397,9 @@ double vtkLine::DistanceBetweenLineSegments(double l0[3], double l1[3], // line 
       if (dist < minDist)
       {
         minDist = dist;
-        *(uv1[i]) = (t < 0. ? 0. : (t > 1. ? 1. : t));
+        t = std::max(t, 0.);
+        t = std::min(t, 1.);
+        *(uv1[i]) = t;
         *(uv2[i]) = static_cast<double>(i % 2); // the corresponding extremum
         for (unsigned j = 0; j < 3; j++)
         {

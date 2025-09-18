@@ -73,6 +73,7 @@ struct AppendTrianglesWorker
             indexArray->push_back(static_cast<unsigned int>(id3 + vOffset));
             if (edgeArray)
             {
+              // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
               int val = cellSize == 3 ? 7 : i == 1 ? 3 : i == cellSize - 2 ? 6 : 2;
               if (edgeFlags)
               {
@@ -150,10 +151,7 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(std::vector<unsigned 
       indexArray.size() + (cells->GetNumberOfConnectivityIds() - cells->GetNumberOfCells() * 2) * 3;
     if (targetSize > indexArray.capacity())
     {
-      if (targetSize < indexArray.capacity() * 1.5)
-      {
-        targetSize = indexArray.capacity() * 1.5;
-      }
+      targetSize = std::max<double>(targetSize, indexArray.capacity() * 1.5);
       indexArray.reserve(targetSize);
     }
   }
@@ -225,10 +223,7 @@ void vtkOpenGLIndexBufferObject::AppendPointIndexBuffer(
   size_t targetSize = indexArray.size() + cells->GetNumberOfConnectivityIds();
   if (targetSize > indexArray.capacity())
   {
-    if (targetSize < indexArray.capacity() * 1.5)
-    {
-      targetSize = indexArray.capacity() * 1.5;
-    }
+    targetSize = std::max<double>(targetSize, indexArray.capacity() * 1.5);
     indexArray.reserve(targetSize);
   }
 
@@ -268,10 +263,7 @@ void vtkOpenGLIndexBufferObject::AppendTriangleLineIndexBuffer(
   size_t targetSize = indexArray.size() + 2 * cells->GetNumberOfConnectivityIds();
   if (targetSize > indexArray.capacity())
   {
-    if (targetSize < indexArray.capacity() * 1.5)
-    {
-      targetSize = indexArray.capacity() * 1.5;
-    }
+    targetSize = std::max<double>(targetSize, indexArray.capacity() * 1.5);
     indexArray.reserve(targetSize);
   }
 
@@ -319,10 +311,7 @@ void vtkOpenGLIndexBufferObject::AppendLineIndexBuffer(
       indexArray.size() + 2 * (cells->GetNumberOfConnectivityIds() - cells->GetNumberOfCells());
     if (targetSize > indexArray.capacity())
     {
-      if (targetSize < indexArray.capacity() * 1.5)
-      {
-        targetSize = indexArray.capacity() * 1.5;
-      }
+      targetSize = std::max<double>(targetSize, indexArray.capacity() * 1.5);
       indexArray.reserve(targetSize);
     }
   }
@@ -424,10 +413,7 @@ void vtkOpenGLIndexBufferObject::AppendEdgeFlagIndexBuffer(
       indexArray.size() + 2 * (cells->GetNumberOfConnectivityIds() - cells->GetNumberOfCells());
     if (targetSize > indexArray.capacity())
     {
-      if (targetSize < indexArray.capacity() * 1.5)
-      {
-        targetSize = indexArray.capacity() * 1.5;
-      }
+      targetSize = std::max<double>(targetSize, indexArray.capacity() * 1.5);
       indexArray.reserve(targetSize);
     }
   }
@@ -485,10 +471,7 @@ void vtkOpenGLIndexBufferObject::AppendVertexIndexBuffer(
   size_t targetSize = indexArray.size() + vertsUsed.size();
   if (targetSize > indexArray.capacity())
   {
-    if (targetSize < indexArray.capacity() * 1.5)
-    {
-      targetSize = indexArray.capacity() * 1.5;
-    }
+    targetSize = std::max<double>(targetSize, indexArray.capacity() * 1.5);
     indexArray.reserve(targetSize);
   }
 

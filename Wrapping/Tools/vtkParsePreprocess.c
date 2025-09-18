@@ -16,6 +16,7 @@
 */
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 #define PREPROC_DEBUG 0
 
@@ -1002,7 +1003,15 @@ static int preproc_evaluate_bitshift(
     {
       if (op == TOK_LSHIFT)
       {
-        *val = *val << rval;
+        if (rval < 0 || rval >= (int)(sizeof(preproc_int_t) * CHAR_BIT))
+        {
+          // handle overflow/invalid shift safely
+          *val = 0;
+        }
+        else
+        {
+          *val = *val << rval;
+        }
       }
       else if (op == TOK_RSHIFT)
       {
@@ -4818,4 +4827,5 @@ void vtkParsePreprocess_Free(PreprocessInfo* info)
   free(info);
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

@@ -2113,17 +2113,18 @@ inline void vtkQuaternionToMatrix3x3(QuaternionT&& quat, MatrixT&& A)
 
   typedef vtkMatrixUtilities::Wrapper<3, 3, MatrixT> Wrapper;
 
-  Wrapper::template Get<0, 0>(std::forward<MatrixT>(A)) = xx * f + s;
-  Wrapper::template Get<1, 0>(std::forward<MatrixT>(A)) = (xy + wz) * f;
-  Wrapper::template Get<2, 0>(std::forward<MatrixT>(A)) = (xz - wy) * f;
+  MatrixT& Ar = A;
+  Wrapper::template Get<0, 0>(Ar) = xx * f + s;
+  Wrapper::template Get<1, 0>(Ar) = (xy + wz) * f;
+  Wrapper::template Get<2, 0>(Ar) = (xz - wy) * f;
 
-  Wrapper::template Get<0, 1>(std::forward<MatrixT>(A)) = (xy - wz) * f;
-  Wrapper::template Get<1, 1>(std::forward<MatrixT>(A)) = yy * f + s;
-  Wrapper::template Get<2, 1>(std::forward<MatrixT>(A)) = (yz + wx) * f;
+  Wrapper::template Get<0, 1>(Ar) = (xy - wz) * f;
+  Wrapper::template Get<1, 1>(Ar) = yy * f + s;
+  Wrapper::template Get<2, 1>(Ar) = (yz + wx) * f;
 
-  Wrapper::template Get<0, 2>(std::forward<MatrixT>(A)) = (xz + wy) * f;
-  Wrapper::template Get<1, 2>(std::forward<MatrixT>(A)) = (yz - wx) * f;
-  Wrapper::template Get<2, 2>(std::forward<MatrixT>(A)) = zz * f + s;
+  Wrapper::template Get<0, 2>(Ar) = (xz + wy) * f;
+  Wrapper::template Get<1, 2>(Ar) = (yz - wx) * f;
+  Wrapper::template Get<2, 2>(Ar) = zz * f + s;
 }
 } // anonymous namespace
 
@@ -2164,34 +2165,26 @@ inline void vtkMatrix3x3ToQuaternion(MatrixT&& A, QuaternionT&& quat)
 
   typedef vtkMatrixUtilities::Wrapper<3, 3, MatrixT> Wrapper;
 
+  MatrixT& Ar = A;
+
   // on-diagonal elements
-  N[0][0] = Wrapper::template Get<0, 0>(std::forward<MatrixT>(A)) +
-    Wrapper::template Get<1, 1>(std::forward<MatrixT>(A)) +
-    Wrapper::template Get<2, 2>(std::forward<MatrixT>(A));
-  N[1][1] = Wrapper::template Get<0, 0>(std::forward<MatrixT>(A)) -
-    Wrapper::template Get<1, 1>(std::forward<MatrixT>(A)) -
-    Wrapper::template Get<2, 2>(std::forward<MatrixT>(A));
-  N[2][2] = -Wrapper::template Get<0, 0>(std::forward<MatrixT>(A)) +
-    Wrapper::template Get<1, 1>(std::forward<MatrixT>(A)) -
-    Wrapper::template Get<2, 2>(std::forward<MatrixT>(A));
-  N[3][3] = -Wrapper::template Get<0, 0>(std::forward<MatrixT>(A)) -
-    Wrapper::template Get<1, 1>(std::forward<MatrixT>(A)) +
-    Wrapper::template Get<2, 2>(std::forward<MatrixT>(A));
+  N[0][0] = Wrapper::template Get<0, 0>(Ar) + Wrapper::template Get<1, 1>(Ar) +
+    Wrapper::template Get<2, 2>(Ar);
+  N[1][1] = Wrapper::template Get<0, 0>(Ar) - Wrapper::template Get<1, 1>(Ar) -
+    Wrapper::template Get<2, 2>(Ar);
+  N[2][2] = -Wrapper::template Get<0, 0>(Ar) + Wrapper::template Get<1, 1>(Ar) -
+    Wrapper::template Get<2, 2>(Ar);
+  N[3][3] = -Wrapper::template Get<0, 0>(Ar) - Wrapper::template Get<1, 1>(Ar) +
+    Wrapper::template Get<2, 2>(Ar);
 
   // off-diagonal elements
-  N[0][1] = N[1][0] = Wrapper::template Get<2, 1>(std::forward<MatrixT>(A)) -
-    Wrapper::template Get<1, 2>(std::forward<MatrixT>(A));
-  N[0][2] = N[2][0] = Wrapper::template Get<0, 2>(std::forward<MatrixT>(A)) -
-    Wrapper::template Get<2, 0>(std::forward<MatrixT>(A));
-  N[0][3] = N[3][0] = Wrapper::template Get<1, 0>(std::forward<MatrixT>(A)) -
-    Wrapper::template Get<0, 1>(std::forward<MatrixT>(A));
+  N[0][1] = N[1][0] = Wrapper::template Get<2, 1>(Ar) - Wrapper::template Get<1, 2>(Ar);
+  N[0][2] = N[2][0] = Wrapper::template Get<0, 2>(Ar) - Wrapper::template Get<2, 0>(Ar);
+  N[0][3] = N[3][0] = Wrapper::template Get<1, 0>(Ar) - Wrapper::template Get<0, 1>(Ar);
 
-  N[1][2] = N[2][1] = Wrapper::template Get<1, 0>(std::forward<MatrixT>(A)) +
-    Wrapper::template Get<0, 1>(std::forward<MatrixT>(A));
-  N[1][3] = N[3][1] = Wrapper::template Get<0, 2>(std::forward<MatrixT>(A)) +
-    Wrapper::template Get<2, 0>(std::forward<MatrixT>(A));
-  N[2][3] = N[3][2] = Wrapper::template Get<2, 1>(std::forward<MatrixT>(A)) +
-    Wrapper::template Get<1, 2>(std::forward<MatrixT>(A));
+  N[1][2] = N[2][1] = Wrapper::template Get<1, 0>(Ar) + Wrapper::template Get<0, 1>(Ar);
+  N[1][3] = N[3][1] = Wrapper::template Get<0, 2>(Ar) + Wrapper::template Get<2, 0>(Ar);
+  N[2][3] = N[3][2] = Wrapper::template Get<2, 1>(Ar) + Wrapper::template Get<1, 2>(Ar);
 
   Scalar eigenvectors[4][4], eigenvalues[4];
 

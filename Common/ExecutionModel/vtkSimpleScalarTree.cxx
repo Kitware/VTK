@@ -159,14 +159,8 @@ void vtkSimpleScalarTree::BuildTree()
 
       for (j = 0; j < numScalars; j++)
       {
-        if (s[j] < tree->min)
-        {
-          tree->min = s[j];
-        }
-        if (s[j] > tree->max)
-        {
-          tree->max = s[j];
-        }
+        tree->min = std::min(s[j], tree->min);
+        tree->max = std::max(s[j], tree->max);
       }
     }
   }
@@ -185,14 +179,8 @@ void vtkSimpleScalarTree::BuildTree()
       for (i = 0; i < this->BranchingFactor && leaf < numLeafs; i++, leaf++)
       {
         tree = TTree + offset + leaf;
-        if (tree->min < parent->min)
-        {
-          parent->min = tree->min;
-        }
-        if (tree->max > parent->max)
-        {
-          parent->max = tree->max;
-        }
+        parent->min = std::min(tree->min, parent->min);
+        parent->max = std::max(tree->max, parent->max);
       }
     }
 
@@ -335,14 +323,8 @@ vtkCell* vtkSimpleScalarTree::GetNextCell(
       for (i = 0; i < numScalars; i++)
       {
         s = cellScalars->GetTuple1(i);
-        if (s < min)
-        {
-          min = s;
-        }
-        if (s > max)
-        {
-          max = s;
-        }
+        min = std::min(s, min);
+        max = std::max(s, max);
       }
       if (this->ScalarValue >= min && this->ScalarValue <= max)
       {

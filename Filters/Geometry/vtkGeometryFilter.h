@@ -99,7 +99,7 @@ struct VTKFILTERSGEOMETRY_EXPORT vtkGeometryFilterHelper
     STRIPS = 3,
     OTHER_LINEAR_CELLS = 4,
     NON_LINEAR_CELLS = 5,
-    NUM_CELL_TYPES
+    NUM_CELL_TYPES = 6
   };
   using CellTypesInformation = std::array<bool, NUM_CELL_TYPES>;
   CellTypesInformation CellTypesInfo;

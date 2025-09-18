@@ -199,20 +199,11 @@ vtkMTimeType vtkGraph::GetMTime()
 {
   vtkMTimeType doTime = vtkDataObject::GetMTime();
 
-  if (this->VertexData->GetMTime() > doTime)
-  {
-    doTime = this->VertexData->GetMTime();
-  }
-  if (this->EdgeData->GetMTime() > doTime)
-  {
-    doTime = this->EdgeData->GetMTime();
-  }
+  doTime = std::max(this->VertexData->GetMTime(), doTime);
+  doTime = std::max(this->EdgeData->GetMTime(), doTime);
   if (this->Points)
   {
-    if (this->Points->GetMTime() > doTime)
-    {
-      doTime = this->Points->GetMTime();
-    }
+    doTime = std::max(this->Points->GetMTime(), doTime);
   }
 
   return doTime;

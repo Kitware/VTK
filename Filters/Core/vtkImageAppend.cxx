@@ -104,30 +104,12 @@ int vtkImageAppend::RequestInformation(vtkInformation* vtkNotUsed(request),
     if (this->PreserveExtents)
     {
       // Compute union for preserving extents.
-      if (inExt[0] < unionExt[0])
-      {
-        unionExt[0] = inExt[0];
-      }
-      if (inExt[1] > unionExt[1])
-      {
-        unionExt[1] = inExt[1];
-      }
-      if (inExt[2] < unionExt[2])
-      {
-        unionExt[2] = inExt[2];
-      }
-      if (inExt[3] > unionExt[3])
-      {
-        unionExt[3] = inExt[3];
-      }
-      if (inExt[4] < unionExt[4])
-      {
-        unionExt[4] = inExt[4];
-      }
-      if (inExt[5] > unionExt[5])
-      {
-        unionExt[5] = inExt[5];
-      }
+      unionExt[0] = std::min(inExt[0], unionExt[0]);
+      unionExt[1] = std::max(inExt[1], unionExt[1]);
+      unionExt[2] = std::min(inExt[2], unionExt[2]);
+      unionExt[3] = std::max(inExt[3], unionExt[3]);
+      unionExt[4] = std::min(inExt[4], unionExt[4]);
+      unionExt[5] = std::max(inExt[5], unionExt[5]);
       this->Shifts[idx] = 0;
     }
     else
@@ -175,15 +157,9 @@ void vtkImageAppend::InternalComputeInputUpdateExtent(
 
   // now clip the outExtent against the outExtent for this input (intersect)
   tmp = outExt[this->AppendAxis * 2];
-  if (min < tmp)
-  {
-    min = tmp;
-  }
+  min = std::max(min, tmp);
   tmp = outExt[this->AppendAxis * 2 + 1];
-  if (max > tmp)
-  {
-    max = tmp;
-  }
+  max = std::min(max, tmp);
 
   // now if min > max, we do not need the input at all.  I assume
   // the pipeline will interpret this extent this way.
@@ -196,14 +172,8 @@ void vtkImageAppend::InternalComputeInputUpdateExtent(
   // do not ask for more than the whole extent of the other axes.
   for (idx = 0; idx < 3; ++idx)
   {
-    if (inExt[idx * 2] < inWextent[idx * 2])
-    {
-      inExt[idx * 2] = inWextent[idx * 2];
-    }
-    if (inExt[idx * 2 + 1] > inWextent[idx * 2 + 1])
-    {
-      inExt[idx * 2 + 1] = inWextent[idx * 2 + 1];
-    }
+    inExt[idx * 2] = std::max(inExt[idx * 2], inWextent[idx * 2]);
+    inExt[idx * 2 + 1] = std::min(inExt[idx * 2 + 1], inWextent[idx * 2 + 1]);
   }
 }
 
@@ -245,25 +215,13 @@ static void vtkImageAppendGetContinuousIncrements(int wExtent[6], int sExtent[6]
   int e0, e1, e2, e3;
   incX = 0;
   e0 = sExtent[0];
-  if (e0 < wExtent[0])
-  {
-    e0 = wExtent[0];
-  }
+  e0 = std::max(e0, wExtent[0]);
   e1 = sExtent[1];
-  if (e1 > wExtent[1])
-  {
-    e1 = wExtent[1];
-  }
+  e1 = std::min(e1, wExtent[1]);
   e2 = sExtent[2];
-  if (e2 < wExtent[2])
-  {
-    e2 = wExtent[2];
-  }
+  e2 = std::max(e2, wExtent[2]);
   e3 = sExtent[3];
-  if (e3 > wExtent[3])
-  {
-    e3 = wExtent[3];
-  }
+  e3 = std::min(e3, wExtent[3]);
 
   int ptAdjust = (forCells ? 0 : 1);
   int idx;

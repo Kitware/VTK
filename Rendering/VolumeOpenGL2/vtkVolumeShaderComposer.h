@@ -2467,6 +2467,7 @@ inline std::string GradientCacheDec(vtkRenderer* vtkNotUsed(ren), vtkVolume* vtk
   const int numInputs = static_cast<int>(inputs.size());
   const int comp = numInputs == 1 ?
                                   // Dependent components use a single opacity lut.
+                                  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     (!independentComponents ? 1 : numInputs)
                                   :
                                   // Independent components not supported with multiple-inputs

@@ -272,10 +272,7 @@ int vtkTextActor::SetMultipleConstrainedFontSize(vtkViewport* viewport, int targ
     {
       actors[i]->GetTextProperty()->SetFontSize(fontSize);
       aSize = actors[i]->SetConstrainedFontSize(viewport, targetWidth, targetHeight);
-      if (aSize < fontSize)
-      {
-        fontSize = aSize;
-      }
+      fontSize = std::min(aSize, fontSize);
     }
   }
 
@@ -709,14 +706,8 @@ void vtkTextActor::ComputeScaledFont(vtkViewport* viewport)
         this->LastSize[1] = size[1];
 
         // limit by minimum size
-        if (this->MinimumSize[0] > size[0])
-        {
-          size[0] = this->MinimumSize[0];
-        }
-        if (this->MinimumSize[1] > size[1])
-        {
-          size[1] = this->MinimumSize[1];
-        }
+        size[0] = std::max(this->MinimumSize[0], size[0]);
+        size[1] = std::max(this->MinimumSize[1], size[1]);
         int max_height = static_cast<int>(this->MaximumLineHeight * size[1]);
 
         vtkWindow* win = viewport->GetVTKWindow();

@@ -58,10 +58,7 @@ int vtkImageCorrelation::RequestUpdateExtent(vtkInformation* vtkNotUsed(request)
     inUExt1[idx * 2 + 1] = inUExt1[idx * 2 + 1] + (inWExt2[idx * 2 + 1] - inWExt2[idx * 2]);
 
     // clip to whole extent
-    if (inUExt1[idx * 2 + 1] > inWExt1[idx * 2 + 1])
-    {
-      inUExt1[idx * 2 + 1] = inWExt1[idx * 2 + 1];
-    }
+    inUExt1[idx * 2 + 1] = std::min(inUExt1[idx * 2 + 1], inWExt1[idx * 2 + 1]);
   }
   inInfo1->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inUExt1, 6);
 
@@ -117,10 +114,7 @@ void vtkImageCorrelationExecute(vtkImageCorrelation* self, vtkImageData* in1Data
   {
     // how much of kernel to use
     zKernMax = maxIZ - idxZ;
-    if (zKernMax > in2Extent[5])
-    {
-      zKernMax = in2Extent[5];
-    }
+    zKernMax = std::min(zKernMax, in2Extent[5]);
     for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
     {
       if (!id)
@@ -132,19 +126,13 @@ void vtkImageCorrelationExecute(vtkImageCorrelation* self, vtkImageData* in1Data
         count++;
       }
       yKernMax = maxIY - idxY;
-      if (yKernMax > in2Extent[3])
-      {
-        yKernMax = in2Extent[3];
-      }
+      yKernMax = std::min(yKernMax, in2Extent[3]);
       for (idxX = 0; idxX <= maxX; idxX++)
       {
         // determine the extent of input 1 that contributes to this pixel
         *outPtr = 0.0;
         xKernMax = maxIX - idxX;
-        if (xKernMax > in2Extent[1])
-        {
-          xKernMax = in2Extent[1];
-        }
+        xKernMax = std::min(xKernMax, in2Extent[1]);
 
         // summation
         for (kIdxZ = 0; kIdxZ <= zKernMax; kIdxZ++)

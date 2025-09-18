@@ -743,10 +743,7 @@ int vtkPythonOverload::CheckArg(PyObject* arg, const char* format, const char* n
           Py_DECREF(sarg);
         }
         // always consider PySequence to std::vector as a conversion
-        if (penalty < VTK_PYTHON_NEEDS_CONVERSION)
-        {
-          penalty = VTK_PYTHON_NEEDS_CONVERSION;
-        }
+        penalty = std::max<int>(penalty, VTK_PYTHON_NEEDS_CONVERSION);
       }
       else
       {

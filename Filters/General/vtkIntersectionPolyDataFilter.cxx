@@ -2346,14 +2346,8 @@ int vtkIntersectionPolyDataFilter::RequestData(vtkInformation* vtkNotUsed(reques
   {
     int minIdx = 2 * i;
     int maxIdx = 2 * i + 1;
-    if (bounds1[minIdx] < bounds0[minIdx])
-    {
-      bounds0[minIdx] = bounds1[minIdx];
-    }
-    if (bounds1[maxIdx] > bounds0[maxIdx])
-    {
-      bounds0[maxIdx] = bounds1[maxIdx];
-    }
+    bounds0[minIdx] = std::min(bounds1[minIdx], bounds0[minIdx]);
+    bounds0[maxIdx] = std::max(bounds1[maxIdx], bounds0[maxIdx]);
   }
 
   // Set up the point merger for insertion of points into the intersection

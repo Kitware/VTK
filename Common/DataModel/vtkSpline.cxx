@@ -4,6 +4,8 @@
 
 #include "vtkPiecewiseFunction.h"
 
+#include <algorithm>
+
 //------------------------------------------------------------------------------
 // Construct a spline with the following defaults:
 // ClampValueOff
@@ -107,9 +109,7 @@ void vtkSpline::AddPoint(double t, double x)
 {
   if (this->ParametricRange[0] != this->ParametricRange[1])
   {
-    t = (t < this->ParametricRange[0]
-        ? this->ParametricRange[0]
-        : (t > this->ParametricRange[1] ? this->ParametricRange[1] : t));
+    t = std::min(std::max(t, this->ParametricRange[0]), this->ParametricRange[1]);
   }
   this->PiecewiseFunction->AddPoint(t, x);
 }
@@ -126,9 +126,7 @@ void vtkSpline::RemovePoint(double t)
 {
   if (this->ParametricRange[0] != this->ParametricRange[1])
   {
-    t = (t < this->ParametricRange[0]
-        ? this->ParametricRange[0]
-        : (t > this->ParametricRange[1] ? this->ParametricRange[1] : t));
+    t = std::min(std::max(t, this->ParametricRange[0]), this->ParametricRange[1]);
   }
   this->PiecewiseFunction->RemovePoint(t);
 }

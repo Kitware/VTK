@@ -194,10 +194,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
   // allocate the output and associated helper classes
   estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
   vtkCellArray* conn[2];
   conn[0] = vtkCellArray::New();
   conn[0]->AllocateEstimate(estimatedSize, 1);
@@ -447,6 +444,7 @@ int vtkBoxClipDataSet::RequestData(vtkInformation* vtkNotUsed(request),
             break;
 
           case 2: // polygons are generated------------------------------
+                  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
             cellType = (npts == 3 ? VTK_TRIANGLE : (npts == 4 ? VTK_QUAD : VTK_POLYGON));
             break;
 

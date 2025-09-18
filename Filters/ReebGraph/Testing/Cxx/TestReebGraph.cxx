@@ -857,9 +857,7 @@ int DisplaySurfaceSkeleton(vtkPolyData* surfaceMesh, vtkTable* skeleton)
   sphereMapper->SetInputConnection(nodeSphere->GetOutputPort());
 
   // 2 nodes per arc of the skeleton
-  vtkActor** nodeActors =
-    // NOLINTNEXTLINE(bugprone-sizeof-expression)
-    (vtkActor**)malloc(sizeof(*nodeActors) * 2 * skeleton->GetNumberOfColumns());
+  std::vector<vtkSmartPointer<vtkActor>> nodeActors(2 * skeleton->GetNumberOfColumns(), nullptr);
 
   int sampleId = 0;
   double* point = (double*)malloc(sizeof(double) * 3);
@@ -876,14 +874,14 @@ int DisplaySurfaceSkeleton(vtkPolyData* surfaceMesh, vtkTable* skeleton)
 
     // critical point at the origin of the arc
     arc->GetTypedTuple(0, point);
-    nodeActors[2 * i] = vtkActor::New();
+    nodeActors[2 * i] = vtkSmartPointer<vtkActor>::New();
     nodeActors[2 * i]->SetMapper(sphereMapper);
     nodeActors[2 * i]->GetProperty()->SetColor(0, 0, 1);
     nodeActors[2 * i]->SetPosition(point);
     renderer->AddActor(nodeActors[2 * i]);
 
     arc->GetTypedTuple(arc->GetNumberOfTuples() - 1, point);
-    nodeActors[2 * i + 1] = vtkActor::New();
+    nodeActors[2 * i + 1] = vtkSmartPointer<vtkActor>::New();
     nodeActors[2 * i + 1]->SetMapper(sphereMapper);
     nodeActors[2 * i + 1]->GetProperty()->SetColor(0, 0, 1);
     nodeActors[2 * i + 1]->SetPosition(point);
@@ -938,10 +936,7 @@ int DisplaySurfaceSkeleton(vtkPolyData* surfaceMesh, vtkTable* skeleton)
 
   skeletonActor->Delete();
   lineMapper->Delete();
-  for (int i = 0; i < 2 * skeleton->GetNumberOfColumns(); i++)
-    nodeActors[i]->Delete();
   embeddedSkeleton->Delete();
-  free(nodeActors);
   sphereMapper->Delete();
   nodeSphere->Delete();
   surfaceActor->Delete();
@@ -979,9 +974,7 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable*
   sphereMapper->SetInputConnection(nodeSphere->GetOutputPort());
 
   // 2 nodes per arc of the skeleton
-  vtkActor** nodeActors =
-    // NOLINTNEXTLINE(bugprone-sizeof-expression)
-    (vtkActor**)malloc(sizeof(*nodeActors) * 2 * skeleton->GetNumberOfColumns());
+  std::vector<vtkSmartPointer<vtkActor>> nodeActors(2 * skeleton->GetNumberOfColumns(), nullptr);
 
   int sampleId = 0;
   double* point = (double*)malloc(sizeof(double) * 3);
@@ -998,14 +991,14 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable*
 
     // critical point at the origin of the arc
     arc->GetTypedTuple(0, point);
-    nodeActors[2 * i] = vtkActor::New();
+    nodeActors[2 * i] = vtkSmartPointer<vtkActor>::New();
     nodeActors[2 * i]->SetMapper(sphereMapper);
     nodeActors[2 * i]->GetProperty()->SetColor(0, 0, 1);
     nodeActors[2 * i]->SetPosition(point);
     renderer->AddActor(nodeActors[2 * i]);
 
     arc->GetTypedTuple(arc->GetNumberOfTuples() - 1, point);
-    nodeActors[2 * i + 1] = vtkActor::New();
+    nodeActors[2 * i + 1] = vtkSmartPointer<vtkActor>::New();
     nodeActors[2 * i + 1]->SetMapper(sphereMapper);
     nodeActors[2 * i + 1]->GetProperty()->SetColor(0, 0, 1);
     nodeActors[2 * i + 1]->SetPosition(point);
@@ -1060,10 +1053,7 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable*
 
   skeletonActor->Delete();
   lineMapper->Delete();
-  for (int i = 0; i < 2 * skeleton->GetNumberOfColumns(); i++)
-    nodeActors[i]->Delete();
   embeddedSkeleton->Delete();
-  free(nodeActors);
   sphereMapper->Delete();
   nodeSphere->Delete();
   windowInteractor->Delete();

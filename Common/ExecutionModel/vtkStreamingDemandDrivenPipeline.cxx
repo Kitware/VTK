@@ -246,15 +246,9 @@ vtkTypeBool vtkStreamingDemandDrivenPipeline ::ProcessRequest(
             for (int ii = 0; ii < 6; ii += 2)
             {
               newExtent[ii] = combinedExtent[ii];
-              if (updateExtent[ii] < newExtent[ii])
-              {
-                newExtent[ii] = updateExtent[ii];
-              }
+              newExtent[ii] = std::min(updateExtent[ii], newExtent[ii]);
               newExtent[ii + 1] = combinedExtent[ii + 1];
-              if (updateExtent[ii + 1] > newExtent[ii + 1])
-              {
-                newExtent[ii + 1] = updateExtent[ii + 1];
-              }
+              newExtent[ii + 1] = std::max(updateExtent[ii + 1], newExtent[ii + 1]);
             }
             outInfo->Set(COMBINED_UPDATE_EXTENT(), newExtent, 6);
             outInfo->Set(UPDATE_EXTENT(), newExtent, 6);

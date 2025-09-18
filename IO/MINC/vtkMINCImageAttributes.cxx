@@ -429,10 +429,7 @@ void vtkMINCImageAttributes::PrintFileHeader(ostream& os)
         // dimensions for these variables
         if (varname[5] == '-')
         {
-          if (this->NumberOfImageMinMaxDimensions < nvardim)
-          {
-            nvardim = this->NumberOfImageMinMaxDimensions;
-          }
+          nvardim = std::min<vtkIdType>(this->NumberOfImageMinMaxDimensions, nvardim);
           os << "\tdouble " << varname;
         }
         else

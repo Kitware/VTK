@@ -16,6 +16,7 @@
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 
+#include <algorithm>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -114,8 +115,8 @@ struct vtkBucketList2D
     vtkIdType tmp0 = static_cast<vtkIdType>(((x[0] - bX) * fX));
     vtkIdType tmp1 = static_cast<vtkIdType>(((x[1] - bY) * fY));
 
-    ij[0] = tmp0 < 0 ? 0 : (tmp0 >= xD ? xD - 1 : tmp0);
-    ij[1] = tmp1 < 0 ? 0 : (tmp1 >= yD ? yD - 1 : tmp1);
+    ij[0] = std::min(std::max<vtkIdType>(tmp0, 0), xD - 1);
+    ij[1] = std::min(std::max<vtkIdType>(tmp1, 0), yD - 1);
   }
 
   //-----------------------------------------------------------------------------
@@ -925,10 +926,7 @@ vtkIdType BucketList2D<TIds>::FindClosestPointWithinRadius(
     if (refinedRadius < currentRadius && ii > 2) // always check ii==1
     {
       ii = static_cast<int>(static_cast<double>(ii) * (refinedRadius / currentRadius)) + 1;
-      if (ii < 2)
-      {
-        ii = 2;
-      }
+      ii = std::max(ii, 2);
     }
   } // for each radius in the radius schedule
 
@@ -1007,10 +1005,7 @@ void BucketList2D<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList*
           ptId = ids[j].PtId;
           this->DataSet->GetPoint(ptId, pt);
           dist2 = Distance2BetweenPoints2D(x, pt);
-          if (dist2 > maxDist2)
-          {
-            maxDist2 = dist2;
-          }
+          maxDist2 = std::max(dist2, maxDist2);
           sortedPts.emplace_back(ptId, dist2);
         }
         // As soon as N points found, jump out.

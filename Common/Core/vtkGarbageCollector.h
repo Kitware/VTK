@@ -188,7 +188,8 @@ void VTKCOMMONCORE_EXPORT vtkGarbageCollectorReport(
 template <class T>
 void vtkGarbageCollectorReport(vtkGarbageCollector* collector, vtkNew<T>& ptr, const char* desc)
 {
-  vtkGarbageCollectorReportInternal(collector, ptr.Object, &ptr.Object, desc);
+  vtkGarbageCollectorReportInternal(
+    collector, ptr.Object, reinterpret_cast<void*>(&ptr.Object), desc);
 }
 
 /**
@@ -197,7 +198,7 @@ void vtkGarbageCollectorReport(vtkGarbageCollector* collector, vtkNew<T>& ptr, c
 template <class T>
 void vtkGarbageCollectorReport(vtkGarbageCollector* collector, T*& ptr, const char* desc)
 {
-  vtkGarbageCollectorReportInternal(collector, ptr, &ptr, desc);
+  vtkGarbageCollectorReportInternal(collector, ptr, reinterpret_cast<void*>(&ptr), desc);
 }
 
 VTK_ABI_NAMESPACE_END

@@ -106,10 +106,8 @@ void vtkWebGLExporter::SetMaxAllowedSize(int mesh, int lines)
     this->meshObjMaxSize = 65532 / 3;
   if (this->lineObjMaxSize * 2 > 65534)
     this->lineObjMaxSize = 65534 / 2;
-  if (this->meshObjMaxSize < 10)
-    this->meshObjMaxSize = 10;
-  if (this->lineObjMaxSize < 10)
-    this->lineObjMaxSize = 10;
+  this->meshObjMaxSize = std::max(this->meshObjMaxSize, 10);
+  this->lineObjMaxSize = std::max(this->lineObjMaxSize, 10);
   for (size_t i = 0; i < this->Internal->Objects.size(); i++)
     this->Internal->Objects[i]->GenerateBinaryData();
 }

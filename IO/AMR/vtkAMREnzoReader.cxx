@@ -23,6 +23,7 @@
 #define H5_USE_16_API
 #include "vtk_hdf5.h"
 
+#include <algorithm>
 #include <cassert>
 #include <sstream>
 #include <string>
@@ -45,18 +46,9 @@ void vtkAMREnzoReader::ComputeStats(
   {
     vtkEnzoReaderBlock& theBlock = internal->Blocks[i + 1];
     double* gridMin = theBlock.MinBounds;
-    if (gridMin[0] < min[0])
-    {
-      min[0] = gridMin[0];
-    }
-    if (gridMin[1] < min[1])
-    {
-      min[1] = gridMin[1];
-    }
-    if (gridMin[2] < min[2])
-    {
-      min[2] = gridMin[2];
-    }
+    min[0] = std::min(gridMin[0], min[0]);
+    min[1] = std::min(gridMin[1], min[1]);
+    min[2] = std::min(gridMin[2], min[2]);
     numBlocks[theBlock.Level]++;
   }
 }

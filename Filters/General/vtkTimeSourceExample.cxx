@@ -48,14 +48,8 @@ void vtkTimeSourceExample::LookupTimeAndValue(double& time, double& value)
   {
     time = t;
     // clamp within range
-    if (time < this->Steps[0])
-    {
-      time = this->Steps[0];
-    }
-    if (time > this->Steps[this->NumSteps - 1])
-    {
-      time = this->Steps[this->NumSteps - 1];
-    }
+    time = std::max(time, this->Steps[0]);
+    time = std::min(time, this->Steps[this->NumSteps - 1]);
     value = this->ValueFunction(time);
   }
   else

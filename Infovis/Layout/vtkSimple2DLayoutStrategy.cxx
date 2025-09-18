@@ -143,10 +143,7 @@ void vtkSimple2DLayoutStrategy::Initialize()
       for (vtkIdType w = 0; w < weightArray->GetNumberOfTuples(); w++)
       {
         weight = weightArray->GetTuple1(w);
-        if (weight > maxWeight)
-        {
-          maxWeight = weight;
-        }
+        maxWeight = std::max(weight, maxWeight);
       }
     }
   }

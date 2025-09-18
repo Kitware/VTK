@@ -39,10 +39,7 @@ void vtkSMPToolsImpl<BackendType::Sequential>::For(
     while (b < last)
     {
       vtkIdType e = b + grain;
-      if (e > last)
-      {
-        e = last;
-      }
+      e = std::min(e, last);
       fi.Execute(b, e);
       b = e;
     }

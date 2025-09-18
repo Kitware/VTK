@@ -2263,10 +2263,8 @@ vtkIdType vtkReebGraph::Implementation::AddMeshVertex(vtkIdType vertexId, double
   }
   else
   {
-    if (node->Value > this->MaximumScalarValue)
-      this->MaximumScalarValue = node->Value;
-    if (node->Value < this->MinimumScalarValue)
-      this->MinimumScalarValue = node->Value;
+    this->MaximumScalarValue = std::max(node->Value, this->MaximumScalarValue);
+    this->MinimumScalarValue = std::min(node->Value, this->MinimumScalarValue);
   }
   firstVertex = false;
 

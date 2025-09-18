@@ -139,27 +139,17 @@ void vtkImageOpenClose3D::Modified()
 // MTime
 vtkMTimeType vtkImageOpenClose3D::GetMTime()
 {
-  vtkMTimeType t1, t2;
-
-  t1 = this->Superclass::GetMTime();
+  vtkMTimeType t = this->Superclass::GetMTime();
   if (this->Filter0)
   {
-    t2 = this->Filter0->GetMTime();
-    if (t2 > t1)
-    {
-      t1 = t2;
-    }
+    t = std::max(t, this->Filter0->GetMTime());
   }
   if (this->Filter1)
   {
-    t2 = this->Filter1->GetMTime();
-    if (t2 > t1)
-    {
-      t1 = t2;
-    }
+    t = std::max(t, this->Filter1->GetMTime());
   }
 
-  return t1;
+  return t;
 }
 
 //------------------------------------------------------------------------------

@@ -280,6 +280,7 @@ int vtkPointWidget::DetermineConstraintAxis(int constraint, double* x)
     v[0] = fabs(x[0] - this->LastPickPosition[0]);
     v[1] = fabs(x[1] - this->LastPickPosition[1]);
     v[2] = fabs(x[2] - this->LastPickPosition[2]);
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     return (v[0] > v[1] ? (v[0] > v[2] ? 0 : 2) : (v[1] > v[2] ? 1 : 2));
   }
   else

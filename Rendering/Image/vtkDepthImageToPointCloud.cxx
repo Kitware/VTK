@@ -203,10 +203,7 @@ vtkMTimeType vtkDepthImageToPointCloud::GetMTime()
 
   // Check the camera
   t2 = cam->GetMTime();
-  if (t2 > t1)
-  {
-    t1 = t2;
-  }
+  t1 = std::max(t2, t1);
 
   return t1;
 }

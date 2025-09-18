@@ -315,11 +315,7 @@ void vtkImageThresholdConnectivityExecute(vtkImageThresholdConnectivity* self, v
 {
   // Get active component (only one component is thresholded)
   int nComponents = outData->GetNumberOfScalarComponents();
-  int activeComponent = self->GetActiveComponent();
-  if (activeComponent < 0)
-  {
-    activeComponent = 0;
-  }
+  int activeComponent = std::max(self->GetActiveComponent(), 0);
   activeComponent = activeComponent % nComponents;
 
   // Get thresholds as input data type
@@ -397,14 +393,8 @@ void vtkImageThresholdConnectivityExecute(vtkImageThresholdConnectivity* self, v
     { // extents don't intersect, we're done
       return;
     }
-    if (extent[2 * ii] < inExt[2 * ii])
-    {
-      extent[2 * ii] = inExt[2 * ii];
-    }
-    if (extent[2 * ii + 1] > inExt[2 * ii + 1])
-    {
-      extent[2 * ii + 1] = inExt[2 * ii + 1];
-    }
+    extent[2 * ii] = std::max(extent[2 * ii], inExt[2 * ii]);
+    extent[2 * ii + 1] = std::min(extent[2 * ii + 1], inExt[2 * ii + 1]);
     // check against output extent
     if (extent[2 * ii] < outExt[2 * ii] || extent[2 * ii + 1] > outExt[2 * ii + 1])
     {
@@ -684,14 +674,8 @@ int vtkImageThresholdConnectivity::RequestUpdateExtent(vtkInformation* vtkNotUse
   // Clip the extent to the inExt
   for (int i = 0; i < 3; i++)
   {
-    if (extent[2 * i] < inExt[2 * i])
-    {
-      extent[2 * i] = inExt[2 * i];
-    }
-    if (extent[2 * i + 1] > inExt[2 * i + 1])
-    {
-      extent[2 * i + 1] = inExt[2 * i + 1];
-    }
+    extent[2 * i] = std::max(extent[2 * i], inExt[2 * i]);
+    extent[2 * i + 1] = std::min(extent[2 * i + 1], inExt[2 * i + 1]);
   }
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), extent, 6);

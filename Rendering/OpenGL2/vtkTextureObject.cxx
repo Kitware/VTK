@@ -599,10 +599,7 @@ void vtkTextureObject::SendParameters()
   {
     float aniso = 0.0f;
     glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
-    if (aniso > this->MaximumAnisotropicFiltering)
-    {
-      aniso = this->MaximumAnisotropicFiltering;
-    }
+    aniso = std::min(aniso, this->MaximumAnisotropicFiltering);
     glTexParameterf(this->Target, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso);
   }
 #endif

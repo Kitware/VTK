@@ -61,10 +61,7 @@ static void ExecuteConvolve(
     }
 
     kStart = center + i;
-    if (kStart > kernelSize - 1)
-    {
-      kStart = kernelSize - 1;
-    }
+    kStart = std::min(kStart, kernelSize - 1);
     count = iEnd - iStart + 1;
     for (j = 0; j < count; ++j)
     {
@@ -166,16 +163,12 @@ int vtkImageSeparableConvolution::IterativeRequestUpdateExtent(
   int inExt[6];
   memcpy(inExt, outExt, 6 * sizeof(int));
   inExt[this->Iteration * 2] = outExt[this->Iteration * 2] - kernelSize;
-  if (inExt[this->Iteration * 2] < wholeExtent[this->Iteration * 2])
-  {
-    inExt[this->Iteration * 2] = wholeExtent[this->Iteration * 2];
-  }
+  inExt[this->Iteration * 2] =
+    std::max(inExt[this->Iteration * 2], wholeExtent[this->Iteration * 2]);
 
   inExt[this->Iteration * 2 + 1] = outExt[this->Iteration * 2 + 1] + kernelSize;
-  if (inExt[this->Iteration * 2 + 1] > wholeExtent[this->Iteration * 2 + 1])
-  {
-    inExt[this->Iteration * 2 + 1] = wholeExtent[this->Iteration * 2 + 1];
-  }
+  inExt[this->Iteration * 2 + 1] =
+    std::min(inExt[this->Iteration * 2 + 1], wholeExtent[this->Iteration * 2 + 1]);
 
   input->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
 

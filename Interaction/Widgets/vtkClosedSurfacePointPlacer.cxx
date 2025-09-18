@@ -225,15 +225,22 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(vtkRenderer* ren, double d
   // top candidate is outsude, we have failed to intersect the object.
 
   std::vector<vtkClosedSurfacePointPlacerNode>::const_iterator it = intersections.begin();
-  if (intersections.size() < 2 || it->Distance < (-1.0 * this->WorldTolerance) ||
-    (++it)->Distance < (-1.0 * this->WorldTolerance))
+  // The display point points to a location outside the object. Just
+  // return 0. In actuality, I'd like to return the closest point in the
+  // object. For this I require an algorithm that can, given a point "p" and
+  // an object "O", defined by a set of bounding planes, find the point on
+  // "O" that is closest to "p"
+  if (intersections.size() < 2)
   {
-    // The display point points to a location outside the object. Just
-    // return 0. In actuality, I'd like to return the closest point in the
-    // object. For this I require an algorithm that can, given a point "p" and
-    // an object "O", defined by a set of bounding planes, find the point on
-    // "O" that is closest to "p"
-
+    return 0;
+  }
+  if (it->Distance < (-1.0 * this->WorldTolerance))
+  {
+    return 0;
+  }
+  ++it; // Advance the iterator to the second element
+  if (it->Distance < (-1.0 * this->WorldTolerance))
+  {
     return 0;
   }
 
@@ -246,7 +253,7 @@ int vtkClosedSurfacePointPlacer::ComputeWorldPosition(vtkRenderer* ren, double d
   }
 
   vtkLine::DistanceToLine(refWorldPos, ls[0], ls[1], t, worldPos);
-  t = (t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t));
+  t = std::min(std::max(t, 0.0), 1.0);
 
   // the point "worldPos", now lies within the object and on the line from
   // the eye along the direction of projection.

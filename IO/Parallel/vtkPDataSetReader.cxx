@@ -763,10 +763,7 @@ int vtkPDataSetReader::PolyDataExecute(
   updateNumberOfPieces = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   // Only the first N pieces have anything in them.
-  if (updateNumberOfPieces > this->NumberOfPieces)
-  {
-    updateNumberOfPieces = this->NumberOfPieces;
-  }
+  updateNumberOfPieces = std::min(updateNumberOfPieces, this->NumberOfPieces);
   if (updatePiece >= updateNumberOfPieces)
   { // This duplicates functionality of the pipeline super classes ...
     return 1;
@@ -833,10 +830,7 @@ int vtkPDataSetReader::UnstructuredGridExecute(
   updateNumberOfPieces = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
 
   // Only the first N pieces have anything in them.
-  if (updateNumberOfPieces > this->NumberOfPieces)
-  {
-    updateNumberOfPieces = this->NumberOfPieces;
-  }
+  updateNumberOfPieces = std::min(updateNumberOfPieces, this->NumberOfPieces);
   if (updatePiece >= updateNumberOfPieces)
   { // This duplicates functionality of the pipeline super classes ...
     return 1;
@@ -942,14 +936,8 @@ int vtkPDataSetReader::ImageDataExecute(
         reader->GetOutput()->GetExtent(ext);
         for (j = 0; j < 3; ++j)
         {
-          if (ext[j * 2] < uExt[j * 2])
-          {
-            ext[j * 2] = uExt[j * 2];
-          }
-          if (ext[j * 2 + 1] > uExt[j * 2 + 1])
-          {
-            ext[j * 2 + 1] = uExt[j * 2 + 1];
-          }
+          ext[j * 2] = std::max(ext[j * 2], uExt[j * 2]);
+          ext[j * 2 + 1] = std::min(ext[j * 2 + 1], uExt[j * 2 + 1]);
         }
         output->CopyAndCastFrom(reader->GetOutput(), ext);
         vtkDataArray* scalars = reader->GetOutput()->GetPointData()->GetScalars();

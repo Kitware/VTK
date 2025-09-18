@@ -145,14 +145,8 @@ void vtkOctreePointLocatorNode::ComputeOctreeNodeInformation(
       const double* max = this->Children[i]->GetMaxDataBounds();
       for (int j = 0; j < 3; j++)
       {
-        if (min[j] < this->MinDataBounds[j])
-        {
-          this->MinDataBounds[j] = min[j];
-        }
-        if (max[j] > this->MaxDataBounds[j])
-        {
-          this->MaxDataBounds[j] = max[j];
-        }
+        this->MinDataBounds[j] = std::min(min[j], this->MinDataBounds[j]);
+        this->MaxDataBounds[j] = std::max(max[j], this->MaxDataBounds[j]);
       }
     }
   }
@@ -488,8 +482,11 @@ double vtkOctreePointLocatorNode::GetDistance2ToBoundaryPrivate(double x, double
   }
   else if (withinX || withinY || withinZ) // point is closest to an edge
   {
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     edgePt[0] = (withinX ? x : (xless ? xmin : xmax));
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     edgePt[1] = (withinY ? y : (yless ? ymin : ymax));
+    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     edgePt[2] = (withinZ ? z : (zless ? zmin : zmax));
 
     pt3[0] = x;
@@ -606,7 +603,7 @@ void vtkOctreePointLocatorNode::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "NumberOfPoints: " << this->NumberOfPoints << endl;
-  os << indent << "Children: " << this->Children << endl;
+  os << indent << "Children: " << reinterpret_cast<const void*>(this->Children) << endl;
   os << indent << "ID: " << this->ID << endl;
   os << indent << "MinID: " << this->MinID << endl;
   os << indent << "MinBounds: " << this->MinBounds[0] << " " << this->MinBounds[1] << " "

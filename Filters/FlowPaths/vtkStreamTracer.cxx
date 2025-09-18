@@ -35,6 +35,7 @@
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 
+#include <algorithm>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -643,10 +644,7 @@ int vtkStreamTracer::CheckInputs(vtkAbstractInterpolatedVelocityField*& func, in
       if (inp)
       {
         int cellSize = inp->GetMaxCellSize();
-        if (cellSize > *maxCellSize)
-        {
-          *maxCellSize = cellSize;
-        }
+        *maxCellSize = std::max(cellSize, *maxCellSize);
         compVelocityField->AddDataSet(inp);
       }
       iter->GoToNextItem();

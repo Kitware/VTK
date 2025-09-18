@@ -131,10 +131,7 @@ int vtkWarpTo::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVe
     {
       inPts->GetPoint(ptId, x);
       mag = sqrt(vtkMath::Distance2BetweenPoints(this->Position, x));
-      if (mag < minMag)
-      {
-        minMag = mag;
-      }
+      minMag = std::min(mag, minMag);
     }
   }
 

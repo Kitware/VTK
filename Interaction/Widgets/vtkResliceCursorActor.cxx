@@ -165,10 +165,7 @@ vtkMTimeType vtkResliceCursorActor::GetMTime()
   {
     vtkMTimeType time;
     time = this->CursorAlgorithm->GetMTime();
-    if (time > mTime)
-    {
-      mTime = time;
-    }
+    mTime = std::max(time, mTime);
   }
 
   return mTime;

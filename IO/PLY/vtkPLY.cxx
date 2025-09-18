@@ -310,6 +310,7 @@ void vtkPLY::ply_describe_property(PlyFile* plyfile, const char* elem_name, PlyP
   else
   {
     elem->nprops++;
+    // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
     elem->props = (PlyProperty**)realloc(elem->props, sizeof(PlyProperty*) * elem->nprops);
     elem->store_prop = (char*)realloc(elem->store_prop, sizeof(char) * elem->nprops);
   }
@@ -353,6 +354,7 @@ void vtkPLY::ply_describe_other_properties(PlyFile* plyfile, PlyOtherProp* other
   {
     int newsize;
     newsize = elem->nprops + other->nprops;
+    // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
     elem->props = (PlyProperty**)realloc(elem->props, sizeof(PlyProperty*) * newsize);
     elem->store_prop = (char*)realloc(elem->store_prop, sizeof(char) * newsize);
   }
@@ -621,7 +623,7 @@ void vtkPLY::ply_put_comment(PlyFile* plyfile, const char* comment)
   }
   else
   {
-    plyfile->comments =
+    plyfile->comments = // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
       (char**)realloc(plyfile->comments, sizeof(char*) * (plyfile->num_comments + 1));
   }
 
@@ -648,7 +650,7 @@ void vtkPLY::ply_put_obj_info(PlyFile* plyfile, const char* obj_info)
   }
   else
   {
-    plyfile->obj_info =
+    plyfile->obj_info = // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
       (char**)realloc(plyfile->obj_info, sizeof(char*) * (plyfile->num_obj_info + 1));
   }
 
@@ -1369,24 +1371,24 @@ void vtkPLY::ply_close(PlyFile* plyfile)
     }
     if (elem->nprops > 0)
     {
-      free(elem->props);
+      free(elem->props); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
     }
     free(elem->store_prop);
     free(elem);
   }
-  free(plyfile->elems);
+  free(plyfile->elems); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
 
   for (i = 0; i < plyfile->num_comments; i++)
   {
     free(plyfile->comments[i]);
   }
-  free(plyfile->comments);
+  free(plyfile->comments); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
 
   for (i = 0; i < plyfile->num_obj_info; i++)
   {
     free(plyfile->obj_info[i]);
   }
-  free(plyfile->obj_info);
+  free(plyfile->obj_info); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
 
   delete plyfile;
 
@@ -2557,7 +2559,7 @@ void vtkPLY::add_element(PlyFile* plyfile, const std::vector<char*>& words)
   if (plyfile->nelems == 0)
     plyfile->elems = (PlyElement**)myalloc(sizeof(PlyElement*));
   else
-    plyfile->elems =
+    plyfile->elems = // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
       (PlyElement**)realloc(plyfile->elems, sizeof(PlyElement*) * (plyfile->nelems + 1));
 
   /* add the new element to the object's list */
@@ -2625,7 +2627,10 @@ void vtkPLY::add_property(PlyFile* plyfile, const std::vector<char*>& words)
   if (elem->nprops == 0)
     elem->props = (PlyProperty**)myalloc(sizeof(PlyProperty*));
   else
+  {
+    // NOLINTNEXTLINE(bugprone-multi-level-implicit-pointer-conversion)
     elem->props = (PlyProperty**)realloc(elem->props, sizeof(PlyProperty*) * (elem->nprops + 1));
+  }
 
   elem->props[elem->nprops] = prop;
   elem->nprops++;

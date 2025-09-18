@@ -49,7 +49,7 @@ public:
     SOLID = 4,
     RIGID_BODY = 5,
     ROAD_SURFACE = 6,
-    NUM_CELL_TYPES
+    NUM_CELL_TYPES = 7
   };
 
   // If this is 0, the rest of the members have undefined

@@ -23,6 +23,8 @@
 #include "vtkWidgetRepresentation.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
+#include <algorithm> // std::min, std::max
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkDiskSource;
@@ -68,8 +70,7 @@ public:
   InteractionStateType GetInteractionStateAsEnum() noexcept
   {
     // clamp to 0-2
-    this->InteractionState =
-      this->InteractionState < 0 ? 0 : (this->InteractionState > 2 ? 2 : this->InteractionState);
+    this->InteractionState = std::min(std::max(this->InteractionState, 0), 2);
     // convert
     return static_cast<InteractionStateType>(this->InteractionState);
   }

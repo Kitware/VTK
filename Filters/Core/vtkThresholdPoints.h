@@ -99,7 +99,7 @@ protected:
   int Upper(double s) { return (s >= this->UpperThreshold ? 1 : 0); }
   int Between(double s)
   {
-    return (s >= this->LowerThreshold ? (s <= this->UpperThreshold ? 1 : 0) : 0);
+    return ((s >= this->LowerThreshold && s <= this->UpperThreshold) ? 1 : 0);
   }
 
 private:

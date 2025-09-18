@@ -561,14 +561,8 @@ bool AddWordToFinal(vtkWordCloud* wordCloud, std::string word, int frequency, st
 
   // Set the font size
   int fontSize = wordCloud->GetFontMultiplier() * frequency;
-  if (fontSize > wordCloud->GetMaxFontSize())
-  {
-    fontSize = wordCloud->GetMaxFontSize();
-  }
-  if (fontSize < wordCloud->GetMinFontSize())
-  {
-    fontSize = wordCloud->GetMinFontSize();
-  }
+  fontSize = std::min(fontSize, wordCloud->GetMaxFontSize());
+  fontSize = std::max(fontSize, wordCloud->GetMinFontSize());
   if (frequency == 1000)
   {
     fontSize *= 1.2;

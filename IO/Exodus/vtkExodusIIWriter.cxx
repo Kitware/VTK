@@ -765,10 +765,7 @@ int vtkExodusIIWriter::CheckInputArrays()
       // computing the max known id in order to create unique fill in values below
       for (int j = 0; j < numCells; j++)
       {
-        if (this->BlockIdList[i]->GetValue(j) > this->MaxId)
-        {
-          this->MaxId = this->BlockIdList[i]->GetValue(j);
-        }
+        this->MaxId = std::max(this->BlockIdList[i]->GetValue(j), this->MaxId);
       }
     }
     else
@@ -3072,10 +3069,7 @@ unsigned int GetLongestFieldDataName(vtkFieldData* fd)
   for (int i = 0; i < fd->GetNumberOfArrays(); i++)
   {
     unsigned int length = static_cast<unsigned int>(strlen(fd->GetArrayName(i)));
-    if (length > maxName)
-    {
-      maxName = length;
-    }
+    maxName = std::max(length, maxName);
   }
   return maxName;
 }
@@ -3084,20 +3078,11 @@ unsigned int GetLongestDataSetName(vtkDataSet* ds)
 {
   unsigned int maxName = 32;
   unsigned int maxDataSetName = GetLongestFieldDataName(ds->GetPointData());
-  if (maxDataSetName > maxName)
-  {
-    maxName = maxDataSetName;
-  }
+  maxName = std::max(maxDataSetName, maxName);
   maxDataSetName = GetLongestFieldDataName(ds->GetCellData());
-  if (maxDataSetName > maxName)
-  {
-    maxName = maxDataSetName;
-  }
+  maxName = std::max(maxDataSetName, maxName);
   maxDataSetName = GetLongestFieldDataName(ds->GetFieldData());
-  if (maxDataSetName > maxName)
-  {
-    maxName = maxDataSetName;
-  }
+  maxName = std::max(maxDataSetName, maxName);
   return maxName;
 }
 }
@@ -3115,19 +3100,13 @@ unsigned int vtkExodusIIWriter::GetMaxNameLength()
       if (vtkDataSet* dataSet = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject()))
       {
         unsigned int maxDataSetName = GetLongestDataSetName(dataSet);
-        if (maxDataSetName > maxName)
-        {
-          maxName = maxDataSetName;
-        }
+        maxName = std::max(maxDataSetName, maxName);
         if (vtkInformation* info = iter->GetCurrentMetaData())
         {
           if (const char* objectName = info->Get(vtkCompositeDataSet::NAME()))
           {
             maxDataSetName = static_cast<unsigned int>(strlen(objectName));
-            if (maxDataSetName > maxName)
-            {
-              maxName = maxDataSetName;
-            }
+            maxName = std::max(maxDataSetName, maxName);
           }
         }
       }

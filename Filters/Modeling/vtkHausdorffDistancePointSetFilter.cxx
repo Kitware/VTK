@@ -134,10 +134,7 @@ int vtkHausdorffDistancePointSetFilter::RequestData(vtkInformation* vtkNotUsed(r
       std::pow(currentPoint[2] - closestPoint[2], 2));
     distanceAToB->SetValue(i, dist);
 
-    if (dist > this->RelativeDistance[0])
-    {
-      this->RelativeDistance[0] = dist;
-    }
+    this->RelativeDistance[0] = std::max(dist, this->RelativeDistance[0]);
   }
 
   for (int i = 0; i < inputB->GetNumberOfPoints(); i++)
@@ -162,10 +159,7 @@ int vtkHausdorffDistancePointSetFilter::RequestData(vtkInformation* vtkNotUsed(r
       std::pow(currentPoint[2] - closestPoint[2], 2));
     distanceBToA->SetValue(i, dist);
 
-    if (dist > this->RelativeDistance[1])
-    {
-      this->RelativeDistance[1] = dist;
-    }
+    this->RelativeDistance[1] = std::max(dist, this->RelativeDistance[1]);
   }
 
   if (this->RelativeDistance[0] >= RelativeDistance[1])

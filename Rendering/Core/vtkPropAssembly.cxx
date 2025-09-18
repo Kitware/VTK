@@ -290,14 +290,8 @@ double* vtkPropAssembly::GetBounds()
         {
           for (n = 0; n < 3; n++)
           {
-            if (bbox[i * 3 + n] < this->Bounds[n * 2])
-            {
-              this->Bounds[n * 2] = bbox[i * 3 + n];
-            }
-            if (bbox[i * 3 + n] > this->Bounds[n * 2 + 1])
-            {
-              this->Bounds[n * 2 + 1] = bbox[i * 3 + n];
-            }
+            this->Bounds[n * 2] = std::min(bbox[i * 3 + n], this->Bounds[n * 2]);
+            this->Bounds[n * 2 + 1] = std::max(bbox[i * 3 + n], this->Bounds[n * 2 + 1]);
           }
         } // for each point of box
       }   // if bounds

@@ -54,7 +54,8 @@ public:
     T* local = reinterpret_cast<T*>(ptr);
     if (!ptr)
     {
-      ptr = local = new T(this->Exemplar);
+      local = new T(this->Exemplar);
+      ptr = static_cast<vtk::detail::smp::STDThread::StoragePointerType>(local);
     }
     return *local;
   }

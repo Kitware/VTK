@@ -26,6 +26,8 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCenteredSliderRepresentation);
 
@@ -357,7 +359,7 @@ double vtkCenteredSliderRepresentation ::ComputePickPosition(double vtkNotUsed(x
   this->PickedT = (y - point1[1]) / (point2[1] - point1[1]);
   this->PickedT = (this->PickedT - this->ArcStart) / (this->ArcEnd - this->ArcStart);
 
-  this->PickedT = (this->PickedT < 0 ? 0.0 : (this->PickedT > 1.0 ? 1.0 : this->PickedT));
+  this->PickedT = std::min(std::max(this->PickedT, 0.0), 1.0);
 
   return this->PickedT;
 }

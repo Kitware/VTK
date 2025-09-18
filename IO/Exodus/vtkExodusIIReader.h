@@ -160,6 +160,7 @@ public:
    * The name of the array is returned by GetGlobalElementIdArrayName()
    * ***NOTE*** No more "unique" global ID. Instead we have an arbitrary number of maps.
    */
+  // NOLINTNEXTLINE(readability-enum-initial-value)
   enum
   {
     SEARCH_TYPE_ELEMENT = 0,

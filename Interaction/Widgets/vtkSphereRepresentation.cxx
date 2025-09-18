@@ -27,6 +27,7 @@
 #include "vtkTextMapper.h"
 #include "vtkTextProperty.h"
 
+#include <algorithm>
 #include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -572,15 +573,9 @@ void vtkSphereRepresentation::PlaceWidget(double bds[6])
   this->AdjustBounds(bds, bounds, center);
 
   radius = (bounds[1] - bounds[0]) / 2.0;
-  if (radius > ((bounds[3] - bounds[2]) / 2.0))
-  {
-    radius = (bounds[3] - bounds[2]) / 2.0;
-  }
+  radius = std::min(radius, (bounds[3] - bounds[2]) / 2.0);
   radius = (bounds[1] - bounds[0]) / 2.0;
-  if (radius > ((bounds[5] - bounds[4]) / 2.0))
-  {
-    radius = (bounds[5] - bounds[4]) / 2.0;
-  }
+  radius = std::min(radius, (bounds[5] - bounds[4]) / 2.0);
 
   this->SphereSource->SetCenter(center);
   this->SphereSource->SetRadius(radius);
@@ -678,9 +673,8 @@ void vtkSphereRepresentation::AdaptCenterCursorBounds()
 void vtkSphereRepresentation::SetInteractionState(int state)
 {
   // Clamp to allowable values
-  state = (state < vtkSphereRepresentation::Outside
-      ? vtkSphereRepresentation::Outside
-      : (state > vtkSphereRepresentation::Scaling ? vtkSphereRepresentation::Scaling : state));
+  state = std::min<int>(
+    std::max<int>(state, vtkSphereRepresentation::Outside), vtkSphereRepresentation::Scaling);
 
   // Depending on state, highlight appropriate parts of representation
   this->InteractionState = state;

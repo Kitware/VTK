@@ -221,10 +221,7 @@ int vtkLinearToQuadraticCellsFilter::RequestData(vtkInformation* vtkNotUsed(requ
 
   vtkIdType estimatedSize = input->GetNumberOfCells();
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   output->GetPointData()->InterpolateAllocate(
     input->GetPointData(), estimatedSize, estimatedSize / 2);

@@ -339,18 +339,9 @@ void vtk3DSImporter::ImportProperties(vtkRenderer* vtkNotUsed(renderer))
     }
 
     phong_size = 0.7 * m->shininess;
-    if (phong_size < 1.0)
-    {
-      phong_size = 1.0;
-    }
-    if (phong_size > 30.0)
-    {
-      phong = 1.0;
-    }
-    else
-    {
-      phong = phong_size / 30.0;
-    }
+    phong_size = std::max(phong_size, 1.0f);
+    phong_size = std::min(phong_size, 30.0f);
+    phong = phong_size / 30.0;
     property = m->aProperty;
     property->SetAmbientColor(m->ambient.red, m->ambient.green, m->ambient.blue);
     property->SetAmbient(amb);
@@ -429,15 +420,15 @@ vtk3DSImporter::~vtk3DSImporter()
     }
     if (mesh->vertex)
     {
-      free(mesh->vertex);
+      free(mesh->vertex); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
     }
     if (mesh->face)
     {
-      free(mesh->face);
+      free(mesh->face); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
     }
     if (mesh->mtl)
     {
-      free(mesh->mtl);
+      free(mesh->mtl); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
     }
   }
 

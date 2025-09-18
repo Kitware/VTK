@@ -253,10 +253,7 @@ void vtkKCoreDecomposition::Cores(vtkGraph* g, vtkIntArray* KCoreNumbers)
       neighborVertices.Next();
     }
     deg[v] = d;
-    if (d > md)
-    {
-      md = d;
-    }
+    md = std::max(d, md);
   }
 
   if (md > bin.getArraySize())

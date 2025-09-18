@@ -122,14 +122,8 @@ struct ComputeBoundsFunctor
       this->DataSet->GetPoint(pointId, x);
       for (j = 0; j < 3; j++)
       {
-        if (x[j] < bounds[2 * j])
-        {
-          bounds[2 * j] = x[j];
-        }
-        if (x[j] > bounds[2 * j + 1])
-        {
-          bounds[2 * j + 1] = x[j];
-        }
+        bounds[2 * j] = std::min(x[j], bounds[2 * j]);
+        bounds[2 * j + 1] = std::max(x[j], bounds[2 * j + 1]);
       }
     }
   }
@@ -142,14 +136,8 @@ struct ComputeBoundsFunctor
     {
       for (uint8_t j = 0; j < 3; j++)
       {
-        if (bounds[2 * j] < this->Bounds[2 * j])
-        {
-          this->Bounds[2 * j] = bounds[2 * j];
-        }
-        if (bounds[2 * j + 1] > this->Bounds[2 * j + 1])
-        {
-          this->Bounds[2 * j + 1] = bounds[2 * j + 1];
-        }
+        this->Bounds[2 * j] = std::min(bounds[2 * j], this->Bounds[2 * j]);
+        this->Bounds[2 * j + 1] = std::max(bounds[2 * j + 1], this->Bounds[2 * j + 1]);
       }
     }
   }
@@ -845,14 +833,8 @@ void vtkDataSet::GenerateGhostArray(int zeroExt[6], bool cellOnly)
           }
           // Compute Manhattan distance.
           dist = di;
-          if (dj > dist)
-          {
-            dist = dj;
-          }
-          if (dk > dist)
-          {
-            dist = dk;
-          }
+          dist = std::max(dj, dist);
+          dist = std::max(dk, dist);
           unsigned char value = ghostPoints->GetValue(index);
           if (dist > 0)
           {
@@ -934,14 +916,8 @@ void vtkDataSet::GenerateGhostArray(int zeroExt[6], bool cellOnly)
         }
         // Compute Manhattan distance.
         dist = di;
-        if (dj > dist)
-        {
-          dist = dj;
-        }
-        if (dk > dist)
-        {
-          dist = dk;
-        }
+        dist = std::max(dj, dist);
+        dist = std::max(dk, dist);
         unsigned char value = ghostCells->GetValue(index);
         if (dist > 0)
         {

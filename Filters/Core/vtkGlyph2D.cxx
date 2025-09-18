@@ -13,6 +13,8 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGlyph2D);
 
@@ -289,11 +291,9 @@ int vtkGlyph2D::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationV
     // Clamp data scale if enabled
     if (this->Clamping)
     {
-      scalex = (scalex < this->Range[0] ? this->Range[0]
-                                        : (scalex > this->Range[1] ? this->Range[1] : scalex));
+      scalex = std::min(std::max(scalex, this->Range[0]), this->Range[1]);
       scalex = (scalex - this->Range[0]) / den;
-      scaley = (scaley < this->Range[0] ? this->Range[0]
-                                        : (scaley > this->Range[1] ? this->Range[1] : scaley));
+      scaley = std::min(std::max(scaley, this->Range[0]), this->Range[1]);
       scaley = (scaley - this->Range[0]) / den;
     }
 
@@ -314,7 +314,7 @@ int vtkGlyph2D::RequestData(vtkInformation* vtkNotUsed(request), vtkInformationV
       }
 
       index = static_cast<int>((value - this->Range[0]) * numberOfSources / den);
-      index = (index < 0 ? 0 : (index >= numberOfSources ? (numberOfSources - 1) : index));
+      index = std::min(std::max(index, 0), numberOfSources - 1);
 
       source = this->GetSource(index, inputVector[1]);
       if (source != nullptr)

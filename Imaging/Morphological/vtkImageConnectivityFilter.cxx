@@ -713,30 +713,12 @@ vtkIdType vtkICF::Fill(OT* outPtr, vtkIdType outInc[3], int outLimits[6], unsign
 
     if (fillExtent != nullptr)
     {
-      if (seed[0] < fillExtent[0])
-      {
-        fillExtent[0] = seed[0];
-      }
-      if (seed[0] > fillExtent[1])
-      {
-        fillExtent[1] = seed[0];
-      }
-      if (seed[1] < fillExtent[2])
-      {
-        fillExtent[2] = seed[1];
-      }
-      if (seed[1] > fillExtent[3])
-      {
-        fillExtent[3] = seed[1];
-      }
-      if (seed[2] < fillExtent[4])
-      {
-        fillExtent[4] = seed[2];
-      }
-      if (seed[2] > fillExtent[5])
-      {
-        fillExtent[5] = seed[2];
-      }
+      fillExtent[0] = std::min(fillExtent[0], seed[0]);
+      fillExtent[1] = std::max(fillExtent[1], seed[0]);
+      fillExtent[2] = std::min(fillExtent[2], seed[1]);
+      fillExtent[3] = std::max(fillExtent[3], seed[1]);
+      fillExtent[4] = std::min(fillExtent[4], seed[2]);
+      fillExtent[5] = std::max(fillExtent[5], seed[2]);
     }
 
     if (outLimits == nullptr)

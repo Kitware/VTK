@@ -68,14 +68,8 @@ vtkMTimeType vtkCompositeCellGridReader::GetMTime()
   vtkMTimeType result = this->Superclass::GetMTime();
   vtkMTimeType ctt = this->CellTypeSelection->GetMTime();
   vtkMTimeType cat = this->CellAttributeSelection->GetMTime();
-  if (result < ctt)
-  {
-    result = ctt;
-  }
-  if (result < cat)
-  {
-    result = cat;
-  }
+  result = std::max(result, ctt);
+  result = std::max(result, cat);
   return result;
 }
 

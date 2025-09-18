@@ -25,6 +25,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <algorithm>
 #include <map>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -846,14 +847,11 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
         // Clamp data scale if enabled
         if (this->Clamping && this->ScaleMode != NO_DATA_SCALING)
         {
-          scalex = (scalex < this->Range[0] ? this->Range[0]
-                                            : (scalex > this->Range[1] ? this->Range[1] : scalex));
+          scalex = std::min(std::max(scalex, this->Range[0]), this->Range[1]);
           scalex = (scalex - this->Range[0]) / den;
-          scaley = (scaley < this->Range[0] ? this->Range[0]
-                                            : (scaley > this->Range[1] ? this->Range[1] : scaley));
+          scaley = std::min(std::max(scaley, this->Range[0]), this->Range[1]);
           scaley = (scaley - this->Range[0]) / den;
-          scalez = (scalez < this->Range[0] ? this->Range[0]
-                                            : (scalez > this->Range[1] ? this->Range[1] : scalez));
+          scalez = std::min(std::max(scalez, this->Range[0]), this->Range[1]);
           scalez = (scalez - this->Range[0]) / den;
         }
       }

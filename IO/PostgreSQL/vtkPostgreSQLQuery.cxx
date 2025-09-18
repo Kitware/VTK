@@ -40,10 +40,11 @@ DECLARE_CONVERTER(UnsignedLongLong);
 template <typename T>
 void ConvertFromNetworkOrder(T& target, const char* rawBytes)
 {
+  target = 0; // make sure we start from 0
   for (unsigned int i = 0; i < sizeof(T); ++i)
   {
     int targetByte = sizeof(T) - (i + 1);
-    target |= (rawBytes[i] << (8 * targetByte));
+    target |= (static_cast<T>(static_cast<unsigned char>(rawBytes[i])) << (8 * targetByte));
   }
 }
 
@@ -652,7 +653,7 @@ vtkVariant ConvertStringToSignedShort(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
-    short result = 0;
+    short result;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
   }
@@ -669,7 +670,7 @@ vtkVariant ConvertStringToUnsignedShort(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
-    unsigned short result = 0;
+    unsigned short result;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
   }
@@ -686,7 +687,7 @@ vtkVariant ConvertStringToSignedInt(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
-    int result = 0;
+    int result;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
   }
@@ -703,7 +704,7 @@ vtkVariant ConvertStringToUnsignedInt(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
-    unsigned int result = 0;
+    unsigned int result;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
   }
@@ -720,7 +721,7 @@ vtkVariant ConvertStringToSignedLong(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
-    signed long result = 0;
+    signed long result;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
   }
@@ -737,7 +738,7 @@ vtkVariant ConvertStringToUnsignedLong(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
-    unsigned long result = 0;
+    unsigned long result;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
   }
@@ -754,7 +755,7 @@ vtkVariant ConvertStringToSignedLongLong(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
-    long long result = 0;
+    long long result;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
   }
@@ -771,7 +772,7 @@ vtkVariant ConvertStringToUnsignedLongLong(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
-    unsigned long long result = 0;
+    unsigned long long result;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
   }
@@ -793,7 +794,7 @@ vtkVariant ConvertStringToFloat(bool isBinary, const char* rawData)
     // and then transmits them that way.  This... frightens me.  It assumes
     // that both sender and recipient use IEEE floats.  Still, I'm not sure
     // there's any other good way to do it.
-    unsigned int intResult = 0;
+    unsigned int intResult;
     ConvertFromNetworkOrder(intResult, rawData);
 
     // This is the idiom that libpq uses internally to convert between the
@@ -869,7 +870,7 @@ vtkVariant ConvertStringToVtkIdType(bool isBinary, const char* rawData)
 {
   if (isBinary)
   {
-    vtkIdType result = 0;
+    vtkIdType result;
     ConvertFromNetworkOrder(result, rawData);
     return vtkVariant(result);
   }
@@ -896,7 +897,7 @@ vtkVariant ConvertStringToDouble(bool isBinary, const char* rawData)
     // there's any other good way to do it.
 
     // Let's hope that we always have a 64-bit type.
-    vtkTypeUInt64 intResult = 0;
+    vtkTypeUInt64 intResult;
     ConvertFromNetworkOrder(intResult, rawData);
     union
     {

@@ -134,10 +134,7 @@ int vtkImageClip::RequestInformation(vtkInformation* vtkNotUsed(request),
       extent[idx * 2 + 1] = this->OutputWholeExtent[idx * 2 + 1];
     }
     // make sure the order is correct
-    if (extent[idx * 2] > extent[idx * 2 + 1])
-    {
-      extent[idx * 2] = extent[idx * 2 + 1];
-    }
+    extent[idx * 2] = std::min(extent[idx * 2], extent[idx * 2 + 1]);
   }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);

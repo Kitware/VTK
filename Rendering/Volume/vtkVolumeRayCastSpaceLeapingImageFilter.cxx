@@ -169,14 +169,8 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ComputeInputExtentsForOutput(
     inExt[2 * i + 1] = (outExt[2 * i + 1] + 1) * VTK_SL_BLK + inWholeExt[2 * i] + 1;
 
     // Clip the extents with the whole extent.
-    if (inExt[2 * i] < inWholeExt[2 * i])
-    {
-      inExt[2 * i] = inWholeExt[2 * i];
-    }
-    if (inExt[2 * i + 1] > inWholeExt[2 * i + 1])
-    {
-      inExt[2 * i + 1] = inWholeExt[2 * i + 1];
-    }
+    inExt[2 * i] = std::max(inExt[2 * i], inWholeExt[2 * i]);
+    inExt[2 * i + 1] = std::min(inExt[2 * i + 1], inWholeExt[2 * i + 1]);
 
     inDim[i] = inExt[2 * i + 1] - inExt[2 * i] + 1;
   }
@@ -251,10 +245,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
     sz2 += outExt[4];
 
     // Bounds check
-    if (sz2 > outExt[5])
-    {
-      sz2 = outExt[5];
-    }
+    sz2 = std::min(sz2, outExt[5]);
 
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
@@ -268,10 +259,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
       sy2 += outExt[2];
 
       // Bounds check
-      if (sy2 > outExt[3])
-      {
-        sy2 = outExt[3];
-      }
+      sy2 = std::min(sy2, outExt[3]);
 
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
@@ -285,10 +273,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
         sx2 += outExt[0];
 
         // Bounds check
-        if (sx2 > outExt[1])
-        {
-          sx2 = outExt[1];
-        }
+        sx2 = std::min(sx2, outExt[1]);
 
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
@@ -313,14 +298,8 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
               tmpPtr = tmpPtrI + (z - sz1) * outInc2 + (y - sy1) * outInc1;
               for (x = sx1; x <= sx2; x++, tmpPtr += outInc0)
               {
-                if (val < tmpPtr[0])
-                {
-                  tmpPtr[0] = val;
-                }
-                if (val > tmpPtr[1])
-                {
-                  tmpPtr[1] = val;
-                }
+                tmpPtr[0] = std::min(val, tmpPtr[0]);
+                tmpPtr[1] = std::max(val, tmpPtr[1]);
               }
             }
           }
@@ -397,10 +376,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
     sz2 += outExt[4];
 
     // Bounds check
-    if (sz2 > outExt[5])
-    {
-      sz2 = outExt[5];
-    }
+    sz2 = std::min(sz2, outExt[5]);
 
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
@@ -416,10 +392,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
       sy2 += outExt[2];
 
       // Bounds check
-      if (sy2 > outExt[3])
-      {
-        sy2 = outExt[3];
-      }
+      sy2 = std::min(sy2, outExt[3]);
 
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
@@ -433,10 +406,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
         sx2 += outExt[0];
 
         // Bounds check
-        if (sx2 > outExt[1])
-        {
-          sx2 = outExt[1];
-        }
+        sx2 = std::min(sx2, outExt[1]);
 
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
@@ -542,10 +512,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute
     sz2 += outExt[4];
 
     // Bounds check
-    if (sz2 > outExt[5])
-    {
-      sz2 = outExt[5];
-    }
+    sz2 = std::min(sz2, outExt[5]);
 
     tmpPtrK = outBasePtr + sz1 * outInc2;
 
@@ -561,10 +528,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute
       sy2 += outExt[2];
 
       // Bounds check
-      if (sy2 > outExt[3])
-      {
-        sy2 = outExt[3];
-      }
+      sy2 = std::min(sy2, outExt[3]);
 
       tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
@@ -578,10 +542,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute
         sx2 += outExt[0];
 
         // Bounds check
-        if (sx2 > outExt[1])
-        {
-          sx2 = outExt[1];
-        }
+        sx2 = std::min(sx2, outExt[1]);
 
         tmpPtrI = tmpPtrJ + sx1 * outInc0;
 
@@ -611,18 +572,9 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute
               for (x = sx1; x <= sx2; x++, tmpPtr += outInc0)
               {
 
-                if (minMaxVal < tmpPtr[0])
-                {
-                  tmpPtr[0] = minMaxVal;
-                }
-                if (minMaxVal > tmpPtr[1])
-                {
-                  tmpPtr[1] = minMaxVal;
-                }
-                if (val > (tmpPtr[2] >> 8))
-                {
-                  tmpPtr[2] = (val << 8);
-                }
+                tmpPtr[0] = std::min(minMaxVal, tmpPtr[0]);
+                tmpPtr[1] = std::max(minMaxVal, tmpPtr[1]);
+                tmpPtr[2] = std::max<unsigned short>(val << 8, tmpPtr[2]);
               }
             }
           }

@@ -107,7 +107,7 @@ public:
     RATIONALWEIGHTS = 9,
     HIGHERORDERDEGREES = 10,
     PROCESSIDS = 11,
-    NUM_ATTRIBUTES
+    NUM_ATTRIBUTES = 12
   };
 
   enum AttributeLimitTypes
@@ -363,6 +363,7 @@ public:
 
   // -- attribute copy properties ------------------------------------------
 
+  // NOLINTNEXTLINE(readability-enum-initial-value)
   enum AttributeCopyOperations
   {
     COPYTUPLE = 0,

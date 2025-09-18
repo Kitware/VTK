@@ -150,7 +150,7 @@ void vtkScalarsToColors::SetVectorModeToRGBColors()
 // do not use SetMacro() because we do not want the table to rebuild.
 void vtkScalarsToColors::SetAlpha(double alpha)
 {
-  this->Alpha = (alpha < 0.0 ? 0.0 : (alpha > 1.0 ? 1.0 : alpha));
+  this->Alpha = std::clamp(alpha, 0.0, 1.0);
 }
 
 //------------------------------------------------------------------------------
@@ -307,14 +307,7 @@ vtkUnsignedCharArray* vtkScalarsToColors::MapScalars(
     }
     else
     {
-      if (component < 0)
-      {
-        component = 0;
-      }
-      if (component >= numberOfComponents)
-      {
-        component = numberOfComponents - 1;
-      }
+      component = std::clamp(component, 0, numberOfComponents - 1);
 
       // Map the scalars to colors
       this->MapScalarsThroughTable(scalars->GetVoidPointer(component), newColors->GetPointer(0),
@@ -346,14 +339,7 @@ void vtkScalarsToColors::MapVectorsThroughTable(void* input, unsigned char* outp
       // if set to -1, use default value provided by table
       vectorComponent = this->GetVectorComponent();
     }
-    if (vectorComponent < 0)
-    {
-      vectorComponent = 0;
-    }
-    if (vectorComponent >= inComponents)
-    {
-      vectorComponent = inComponents - 1;
-    }
+    vectorComponent = std::clamp(vectorComponent, 0, inComponents - 1);
   }
   else
   {
@@ -370,14 +356,7 @@ void vtkScalarsToColors::MapVectorsThroughTable(void* input, unsigned char* outp
     }
     else
     {
-      if (vectorComponent < 0)
-      {
-        vectorComponent = 0;
-      }
-      if (vectorComponent >= inComponents)
-      {
-        vectorComponent = inComponents - 1;
-      }
+      vectorComponent = std::clamp(vectorComponent, 0, inComponents - 1);
       if (vectorComponent + vectorSize > inComponents)
       {
         vectorSize = inComponents - vectorComponent;
@@ -1101,14 +1080,7 @@ void vtkScalarsToColors::MapColorsToColors(void* inPtr, unsigned char* outPtr, i
   scale *= 255.0;
 
   double alpha = this->Alpha;
-  if (alpha < 0.0)
-  {
-    alpha = 0.0;
-  }
-  if (alpha > 1.0)
-  {
-    alpha = 1.0;
-  }
+  alpha = std::clamp(alpha, 0.0, 1.0);
 
   if (inputDataType == VTK_UNSIGNED_CHAR && static_cast<int>(shift * scale + 0.5) == 0 &&
     static_cast<int>((255 + shift) * scale + 0.5) == 255)
@@ -1383,14 +1355,7 @@ void vtkScalarsToColors::MapScalarsThroughTable2(void* inPtr, unsigned char* out
   scale *= 255.0;
 
   double alpha = this->Alpha;
-  if (alpha < 0.0)
-  {
-    alpha = 0.0;
-  }
-  if (alpha > 1.0)
-  {
-    alpha = 1.0;
-  }
+  alpha = std::clamp(alpha, 0.0, 1.0);
 
   if (inputDataType == VTK_UNSIGNED_CHAR && static_cast<int>(shift * scale + 0.5) == 0 &&
     static_cast<int>((255 + shift) * scale + 0.5) == 255)

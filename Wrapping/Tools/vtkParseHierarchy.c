@@ -11,6 +11,7 @@
 #include <string.h>
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 static size_t skip_space(const char* text)
 {
@@ -1312,4 +1313,5 @@ const char* vtkParseHierarchy_QualifiedEnumName(
   return NULL;
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

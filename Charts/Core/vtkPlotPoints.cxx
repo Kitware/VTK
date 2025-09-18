@@ -114,10 +114,7 @@ bool vtkPlotPoints::Paint(vtkContext2D* painter)
   if (width < 0.0f)
   {
     width = this->Pen->GetWidth() * 2.3;
-    if (width < 8.0)
-    {
-      width = 8.0;
-    }
+    width = std::max(width, 8.0f);
   }
 
   // If there is a marker style, then draw the marker for each point too
@@ -202,10 +199,7 @@ bool vtkPlotPoints::PaintLegend(vtkContext2D* painter, const vtkRectf& rect, int
   if (this->MarkerStyle)
   {
     float width = this->Pen->GetWidth() * 2.3;
-    if (width < 8.0)
-    {
-      width = 8.0;
-    }
+    width = std::max(width, 8.0f);
     painter->ApplyPen(this->Pen);
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);

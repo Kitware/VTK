@@ -265,6 +265,7 @@ double vtkHigherOrderCurve::GetParametricDistance(const double pcoords[3])
 {
   double pDist, pDistMax;
 
+  // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
   pDistMax = (pcoords[0] < 0. ? -pcoords[0] : (pcoords[0] > 1. ? pcoords[0] - 1. : 0.));
 
   // The quadrilateral's 2nd and 3rd parametric coordinate should always be 0:

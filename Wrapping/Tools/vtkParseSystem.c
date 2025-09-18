@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 
 // NOLINTBEGIN(bugprone-unsafe-functions)
+// NOLINTBEGIN(bugprone-multi-level-implicit-pointer-conversion)
 
 /* for PGI compiler, use dirent64 if readdir is readdir64 */
 /* (KWSys has similar code in Directory.cxx) */
@@ -547,4 +548,5 @@ FILE* vtkParse_FileOpen(const char* fname, const char* mode)
   return vtkParse_FileOpenNoDependency(fname, mode);
 }
 
+// NOLINTEND(bugprone-multi-level-implicit-pointer-conversion)
 // NOLINTEND(bugprone-unsafe-functions)

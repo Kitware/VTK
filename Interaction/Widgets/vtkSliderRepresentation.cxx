@@ -124,15 +124,7 @@ void vtkSliderRepresentation::SetValue(double value)
     return;
   }
 
-  if (value < this->MinimumValue)
-  {
-    value = this->MinimumValue;
-  }
-
-  if (value > this->MaximumValue)
-  {
-    value = this->MaximumValue;
-  }
+  value = std::min(std::max(value, this->MinimumValue), this->MaximumValue);
 
   this->Value = value;
   this->CurrentT = (value - this->MinimumValue) / (this->MaximumValue - this->MinimumValue);

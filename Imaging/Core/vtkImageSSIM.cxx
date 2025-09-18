@@ -300,14 +300,8 @@ void vtkImageSSIM::GrowExtent(int* uExt, int* wholeExtent)
     uExt[idx * 2 + 1] += 2;
 
     // we must clip extent with whole extent is we handle boundaries.
-    if (uExt[idx * 2] < wholeExtent[idx * 2])
-    {
-      uExt[idx * 2] = wholeExtent[idx * 2];
-    }
-    if (uExt[idx * 2 + 1] > wholeExtent[idx * 2 + 1])
-    {
-      uExt[idx * 2 + 1] = wholeExtent[idx * 2 + 1];
-    }
+    uExt[idx * 2] = std::max(uExt[idx * 2], wholeExtent[idx * 2]);
+    uExt[idx * 2 + 1] = std::min(uExt[idx * 2 + 1], wholeExtent[idx * 2 + 1]);
   }
 }
 
@@ -533,15 +527,9 @@ int vtkImageSSIM::RequestInformation(vtkInformation* vtkNotUsed(request),
   for (int i = 0; i < 3; ++i)
   {
     ext[i * 2] = in1Ext[i * 2];
-    if (ext[i * 2] < in2Ext[i * 2])
-    {
-      ext[i * 2] = in2Ext[i * 2];
-    }
+    ext[i * 2] = std::max(ext[i * 2], in2Ext[i * 2]);
     ext[i * 2 + 1] = in1Ext[i * 2 + 1];
-    if (ext[i * 2 + 1] > in2Ext[i * 2 + 1])
-    {
-      ext[i * 2 + 1] = in2Ext[i * 2 + 1];
-    }
+    ext[i * 2 + 1] = std::min(ext[i * 2 + 1], in2Ext[i * 2 + 1]);
   }
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext, 6);
 

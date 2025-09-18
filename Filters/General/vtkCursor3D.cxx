@@ -89,14 +89,8 @@ int vtkCursor3D::RequestData(vtkInformation* vtkNotUsed(request),
   {
     for (i = 0; i < 3; i++)
     {
-      if (this->FocalPoint[i] < this->ModelBounds[2 * i])
-      {
-        this->FocalPoint[i] = this->ModelBounds[2 * i];
-      }
-      if (this->FocalPoint[i] > this->ModelBounds[2 * i + 1])
-      {
-        this->FocalPoint[i] = this->ModelBounds[2 * i + 1];
-      }
+      this->FocalPoint[i] = std::max(this->FocalPoint[i], this->ModelBounds[2 * i]);
+      this->FocalPoint[i] = std::min(this->FocalPoint[i], this->ModelBounds[2 * i + 1]);
     }
   }
 
@@ -413,10 +407,7 @@ void vtkCursor3D::SetModelBounds(
 
     for (int i = 0; i < 3; i++)
     {
-      if (this->ModelBounds[2 * i] > this->ModelBounds[2 * i + 1])
-      {
-        this->ModelBounds[2 * i] = this->ModelBounds[2 * i + 1];
-      }
+      this->ModelBounds[2 * i] = std::min(this->ModelBounds[2 * i], this->ModelBounds[2 * i + 1]);
     }
   }
 }

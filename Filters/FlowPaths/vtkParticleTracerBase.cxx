@@ -175,13 +175,10 @@ void vtkParticleTracerBase::RemoveAllSources()
 //------------------------------------------------------------------------------
 void vtkParticleTracerBase::SetMeshOverTime(int meshOverTime)
 {
-  if (this->MeshOverTime !=
-    (meshOverTime < DIFFERENT ? DIFFERENT
-                              : (meshOverTime > SAME_TOPOLOGY ? SAME_TOPOLOGY : meshOverTime)))
+  meshOverTime = std::clamp<int>(meshOverTime, DIFFERENT, SAME_TOPOLOGY);
+  if (this->MeshOverTime != meshOverTime)
   {
-    this->MeshOverTime =
-      (meshOverTime < DIFFERENT ? DIFFERENT
-                                : (meshOverTime > SAME_TOPOLOGY ? SAME_TOPOLOGY : meshOverTime));
+    this->MeshOverTime = meshOverTime;
     this->Modified();
     // Needed since the value needs to be set at the same time.
     this->Interpolator->SetMeshOverTime(this->MeshOverTime);

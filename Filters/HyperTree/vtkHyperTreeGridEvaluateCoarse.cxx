@@ -276,10 +276,7 @@ double vtkHyperTreeGridEvaluateCoarse::Min(const std::vector<double>& array)
   double val = array[0];
   for (std::vector<double>::const_iterator it = array.begin() + 1; it != array.end(); ++it)
   {
-    if (*it < val)
-    {
-      val = *it;
-    }
+    val = std::min(*it, val);
   }
   return val;
 }
@@ -294,10 +291,7 @@ double vtkHyperTreeGridEvaluateCoarse::Max(const std::vector<double>& array)
   double val = array[0];
   for (std::vector<double>::const_iterator it = array.begin() + 1; it != array.end(); ++it)
   {
-    if (*it > val)
-    {
-      val = *it;
-    }
+    val = std::max(*it, val);
   }
   return val;
 }

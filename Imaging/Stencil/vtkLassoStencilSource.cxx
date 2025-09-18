@@ -14,6 +14,7 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm>
 #include <cmath>
 #include <map>
 
@@ -89,11 +90,7 @@ vtkMTimeType vtkLassoStencilSource::GetMTime()
 
   if (this->Points != nullptr)
   {
-    vtkMTimeType t = this->Points->GetMTime();
-    if (t > mTime)
-    {
-      mTime = t;
-    }
+    mTime = std::max(this->Points->GetMTime(), mTime);
   }
 
   if (!this->PointMap->empty())
@@ -101,11 +98,7 @@ vtkMTimeType vtkLassoStencilSource::GetMTime()
     vtkLSSPointMap::iterator iter = this->PointMap->begin();
     while (iter != this->PointMap->end())
     {
-      vtkMTimeType t = iter->second->GetMTime();
-      if (t > mTime)
-      {
-        mTime = t;
-      }
+      mTime = std::max(iter->second->GetMTime(), mTime);
       ++iter;
     }
   }

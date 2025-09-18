@@ -19,6 +19,7 @@
 #include "vtkTextProperty.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -537,7 +538,7 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
   else if (this->InteractionState == OnL1Inner)
   {
     vtkLine::DistanceToLine(pw, this->P3World, this->P4World, t, closest);
-    t = (t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t));
+    t = std::min(std::max(t, 0.0), 1.0);
     for (int i = 0; i < 3; i++)
     {
       p1[i] = this->P1World[i] + (t - this->T43) * this->P43World[i];
@@ -551,7 +552,7 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
   else if (this->InteractionState == OnL2Inner)
   {
     vtkLine::DistanceToLine(pw, this->P1World, this->P2World, t, closest);
-    t = (t < 0.0 ? 0.0 : (t > 1.0 ? 1.0 : t));
+    t = std::min(std::max(t, 0.0), 1.0);
     for (int i = 0; i < 3; i++)
     {
       p3[i] = this->P3World[i] + (t - this->T21) * this->P21World[i];

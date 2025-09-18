@@ -112,22 +112,10 @@ int vtkVolumeOutlineSource::ComputeCubePlanes(
     }
 
     // Clamp cropping planes to bounds
-    if (b < a)
-    {
-      b = a;
-    }
-    if (b > d)
-    {
-      b = d;
-    }
-    if (c < a)
-    {
-      c = a;
-    }
-    if (c > d)
-    {
-      c = d;
-    }
+    b = std::max(b, a);
+    b = std::min(b, d);
+    c = std::max(c, a);
+    c = std::min(c, d);
 
     planes[i][0] = a;
     planes[i][1] = b;
@@ -147,10 +135,7 @@ int vtkVolumeOutlineSource::ComputePipelineMTime(vtkInformation* vtkNotUsed(requ
   if (this->VolumeMapper)
   {
     vtkMTimeType mapperMTime = this->VolumeMapper->GetMTime();
-    if (mapperMTime > mTime)
-    {
-      mTime = mapperMTime;
-    }
+    mTime = std::max(mapperMTime, mTime);
     vtkDemandDrivenPipeline* input =
       vtkDemandDrivenPipeline::SafeDownCast(this->VolumeMapper->GetInputExecutive());
     if (input)
@@ -159,10 +144,7 @@ int vtkVolumeOutlineSource::ComputePipelineMTime(vtkInformation* vtkNotUsed(requ
       // to the Mapper's pipeline
       input->UpdateInformation();
       vtkMTimeType pipelineMTime = input->GetPipelineMTime();
-      if (pipelineMTime > mTime)
-      {
-        mTime = pipelineMTime;
-      }
+      mTime = std::max(pipelineMTime, mTime);
     }
   }
 
@@ -745,14 +727,8 @@ void vtkVolumeOutlineSource::CreateColorValues(
     for (int j = 0; j < 3; j++)
     {
       double val = dcolors[i][j];
-      if (val < 0)
-      {
-        val = 0;
-      }
-      if (val > 1)
-      {
-        val = 1;
-      }
+      val = std::max(val, 0.0);
+      val = std::min(val, 1.0);
       colors[i][j] = static_cast<unsigned char>(val * 255);
     }
   }

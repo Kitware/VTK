@@ -3349,6 +3349,7 @@ void vtkOpenGLPolyDataMapper::UpdateMaximumPointCellIds(vtkRenderer* ren, vtkAct
       {
         mode = GL_POINTS;
       }
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       unsigned int stride = (mode == GL_POINTS ? 1 : (mode == GL_LINES ? 2 : 3));
       vtkIdType strideMax = static_cast<vtkIdType>(this->Primitives[i].IBO->IndexCount / stride);
       maxCellId += strideMax;

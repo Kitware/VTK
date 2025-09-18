@@ -202,7 +202,8 @@ const vtkIdType* vtkTriQuadraticPyramid::GetFaceArray(vtkIdType faceId)
 //------------------------------------------------------------------------------
 vtkCell* vtkTriQuadraticPyramid::GetEdge(int edgeId)
 {
-  edgeId = (edgeId < 0 ? 0 : (edgeId > 7 ? 7 : edgeId));
+  edgeId = std::max(edgeId, 0);
+  edgeId = std::min(edgeId, 7);
 
   for (int i = 0; i < 3; i++)
   {
@@ -216,7 +217,8 @@ vtkCell* vtkTriQuadraticPyramid::GetEdge(int edgeId)
 //------------------------------------------------------------------------------
 vtkCell* vtkTriQuadraticPyramid::GetFace(int faceId)
 {
-  faceId = (faceId < 0 ? 0 : (faceId > 4 ? 4 : faceId));
+  faceId = std::max(faceId, 0);
+  faceId = std::min(faceId, 4);
 
   // load point id's and coordinates
   // be careful with the first one:
@@ -1042,10 +1044,7 @@ double vtkTriQuadraticPyramid::GetParametricDistance(const double pcoords[3])
     {
       pDist = 0.0;
     }
-    if (pDist > pDistMax)
-    {
-      pDistMax = pDist;
-    }
+    pDistMax = std::max(pDist, pDistMax);
   }
   return pDistMax;
 }

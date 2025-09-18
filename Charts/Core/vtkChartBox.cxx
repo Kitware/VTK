@@ -114,14 +114,8 @@ void vtkChartBox::Update()
     double range[2];
     if (rowData->GetRange(this->VisibleColumns->GetValue(i).c_str(), range))
     {
-      if (range[0] < grange[0])
-      {
-        grange[0] = range[0];
-      }
-      if (range[1] > grange[1])
-      {
-        grange[1] = range[1];
-      }
+      grange[0] = std::min(range[0], grange[0]);
+      grange[1] = std::max(range[1], grange[1]);
     }
   }
 

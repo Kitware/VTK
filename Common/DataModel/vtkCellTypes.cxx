@@ -114,10 +114,7 @@ void vtkCellTypes::InsertCell(vtkIdType cellId, unsigned char type)
   vtkDebugMacro(<< "Insert Cell id: " << cellId);
   TypeArray->InsertValue(cellId, type);
 
-  if (cellId > this->MaxId)
-  {
-    this->MaxId = cellId;
-  }
+  this->MaxId = std::max(cellId, this->MaxId);
 }
 
 //------------------------------------------------------------------------------

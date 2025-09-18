@@ -267,25 +267,13 @@ void vtkDEMReader::ComputeExtentOriginAndSpacing(int extent[6], double origin[3]
   // compute number of samples
   //
   eastMost = this->GroundCoords[VTK_NE][0];
-  if (eastMost < this->GroundCoords[VTK_SE][0])
-  {
-    eastMost = this->GroundCoords[VTK_SE][0];
-  }
+  eastMost = std::max(eastMost, this->GroundCoords[VTK_SE][0]);
   westMost = this->GroundCoords[VTK_NW][0];
-  if (westMost > this->GroundCoords[VTK_SW][0])
-  {
-    westMost = this->GroundCoords[VTK_SW][0];
-  }
+  westMost = std::min(westMost, this->GroundCoords[VTK_SW][0]);
   northMost = this->GroundCoords[VTK_NE][1];
-  if (northMost < this->GroundCoords[VTK_NW][1])
-  {
-    northMost = this->GroundCoords[VTK_NW][1];
-  }
+  northMost = std::max(northMost, this->GroundCoords[VTK_NW][1]);
   southMost = this->GroundCoords[VTK_SW][1];
-  if (southMost > this->GroundCoords[VTK_SE][1])
-  {
-    southMost = this->GroundCoords[VTK_SE][1];
-  }
+  southMost = std::min(southMost, this->GroundCoords[VTK_SE][1]);
 
   //
   // compute the number of rows and columns

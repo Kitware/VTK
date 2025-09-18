@@ -146,10 +146,7 @@ double FindEpsilon(vtkDataArray* contourValues)
     {
       continue;
     }
-    if (difference < epsilon)
-    {
-      epsilon = difference;
-    }
+    epsilon = std::min(difference, epsilon);
   }
 
   // Ensure there is no overlap by dividing min diff by 10
@@ -569,10 +566,7 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
   vtkIdType estimatedSize = static_cast<vtkIdType>(pow(static_cast<double>(numCells), .75));
   estimatedSize *= numContours;
   estimatedSize = estimatedSize / 1024 * 1024;
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   // Create storage for output points
   vtkPoints* newPts = vtkPoints::New();
@@ -618,7 +612,7 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
 
   // Initialize storage for signs and values
   // NOLINTNEXTLINE(bugprone-sizeof-expression)
-  this->CellSigns = (vtkBitArray**)malloc(numContours * sizeof(*this->CellSigns));
+  this->CellSigns = new vtkBitArray*[numContours];
   this->Signs.resize(numContours, true);
   for (int c = 0; c < numContours; ++c)
   {
@@ -689,7 +683,7 @@ int vtkHyperTreeGridContour::ProcessTrees(vtkHyperTreeGrid* input, vtkDataObject
       this->CellSigns[c]->Delete();
     }
   } // c
-  free(this->CellSigns);
+  delete[] this->CellSigns;
   delete this->Helper;
   this->CellScalars->Delete();
   newPts->Delete();

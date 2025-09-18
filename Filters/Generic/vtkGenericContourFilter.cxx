@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkGenericContourFilter.h"
+#include <algorithm>
+
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -12,6 +13,7 @@
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericCellIterator.h"
 #include "vtkGenericCellTessellator.h"
+#include "vtkGenericContourFilter.h"
 #include "vtkGenericDataSet.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
@@ -117,10 +119,7 @@ int vtkGenericContourFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkIdType numCells = input->GetNumberOfCells();
   vtkIdType estimatedSize = input->GetEstimatedSize();
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
-  if (estimatedSize < 1024)
-  {
-    estimatedSize = 1024;
-  }
+  estimatedSize = std::max<vtkIdType>(estimatedSize, 1024);
 
   vtkPoints* newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize, estimatedSize);

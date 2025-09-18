@@ -1091,14 +1091,8 @@ vtkMTimeType vtkExprTkFunctionParser::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
 
-  if (this->ParseMTime > mTime)
-  {
-    mTime = this->ParseMTime;
-  }
-  if (this->FunctionMTime > mTime)
-  {
-    mTime = this->FunctionMTime;
-  }
+  mTime = std::max<vtkMTimeType>(this->ParseMTime, mTime);
+  mTime = std::max<vtkMTimeType>(this->FunctionMTime, mTime);
 
   return mTime;
 }

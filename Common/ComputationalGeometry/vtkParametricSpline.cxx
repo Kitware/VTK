@@ -6,6 +6,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParametricSpline);
 
@@ -160,7 +162,7 @@ void vtkParametricSpline::Evaluate(double U[3], double Pt[3], double*)
     }
   }
 
-  double t = (U[0] < 0.0 ? 0.0 : (U[0] > 1.0 ? 1.0 : U[0]));
+  double t = std::min(std::max(U[0], 0.0), 1.0);
   if (this->Closed)
   {
     t *= this->ClosedLength;

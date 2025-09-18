@@ -208,8 +208,7 @@ int LSDynaFamily::SkipToWord(SectionType sType, vtkIdType sId, vtkIdType wordNum
   if (sType != TimeStepSection && sType < ElementDeletionState)
   {
     assert(sId < (int)this->Adaptations.size());
-    if (sId < 0)
-      sId = 0;
+    sId = std::max<vtkIdType>(sId, 0);
     mark = this->AdaptationsMarkers[sId].Marks[sType];
     mark.Offset += wordNumber;
   }
