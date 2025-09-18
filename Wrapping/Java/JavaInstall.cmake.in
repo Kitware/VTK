@@ -61,12 +61,12 @@ endif()
 # Rename vtk.jar with version number
 file(RENAME
   "${install_prefix_dir}/@CMAKE_INSTALL_JARDIR@/vtk.jar"
-  "${install_prefix_dir}/vtk-@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@.jar"
+  "${install_prefix_dir}/vtk-@VTK_VERSION@.jar"
 )
 
 # Create the jar file
 execute_process(
-  COMMAND "@JAVA_ARCHIVE@" -cf "${install_prefix_dir}/vtk@MAVEN_VTK_ARTIFACT_SUFFIX@-@VTK_MAJOR_VERSION@.@VTK_MINOR_VERSION@-${NATIVE_NAME}.jar" -C "${install_prefix_dir}/${NATIVE_NAME}" .
+  COMMAND "@JAVA_ARCHIVE@" -cf "${install_prefix_dir}/vtk@MAVEN_VTK_ARTIFACT_SUFFIX@-@VTK_VERSION@-${NATIVE_NAME}.jar" -C "${install_prefix_dir}/${NATIVE_NAME}" .
 )
 
 # Copy maven files
