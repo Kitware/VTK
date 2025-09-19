@@ -223,9 +223,9 @@ fedora39-x86_64-helide-mpi-python-qt-tbb:test:
     needs:
         - fedora39-x86_64-helide-mpi-python-qt-tbb:build
 
-fedora39-x86_64-mpi-offscreen-osmesa-python:test:
+fedora39-x86_64-mpi-offscreen-osmesa-python-qt-tbb:test:
     extends:
-        - .fedora39_x86_64_mpi_offscreen_osmesa_python
+        - .fedora39_x86_64_mpi_offscreen_osmesa_python_qt_tbb
         - .cmake_test_linux
         - .linux_x86_64_builder_tags
         - .cmake_test_artifacts
@@ -233,15 +233,15 @@ fedora39-x86_64-mpi-offscreen-osmesa-python:test:
     needs:
         - fedora39-x86_64-mpi-python-qt-tbb:build
 
-vtk:fedora39-x86_64-mpi-offscreen-osmesa-python:test-ext:
+vtk:fedora39-x86_64-mpi-offscreen-osmesa-python-qt-tbb:test-ext:
     extends:
-        - .fedora39_x86_64_mpi_offscreen_osmesa_python_ext_vtk
+        - .fedora39_x86_64_mpi_offscreen_osmesa_python_qt_tbb_ext_vtk
         - .cmake_test_external_linux
         - .linux_x86_64_builder_tags
         - .cmake_junit_artifacts
         - .run_automatically
     needs:
-        - fedora39-x86_64-mpi-offscreen-osmesa-python:test
+        - fedora39-x86_64-mpi-offscreen-osmesa-python-qt-tbb:test
     timeout: 90 minutes
 
 fedora39-x86_64-mpi-ospray-python-qt-tbb:build:

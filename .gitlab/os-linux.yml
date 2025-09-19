@@ -446,24 +446,24 @@
     variables:
         CMAKE_CONFIGURATION: fedora39_x86_64_cuda_mpi_offscreen_osmesa_ext_vtk
 
-.fedora39_x86_64_mpi_offscreen_osmesa_python:
+.fedora39_x86_64_mpi_offscreen_osmesa_python_qt_tbb:
     extends:
         - .fedora39_x86_64
         - .fedora_mpich_x86_64_addon
         - .fedora_osmesa_addon
 
     variables:
-        CMAKE_CONFIGURATION: fedora39_x86_64_mpi_offscreen_osmesa_python
+        CMAKE_CONFIGURATION: fedora39_x86_64_mpi_offscreen_osmesa_python_qt_tbb
         VTK_INSTALL: 1
 
-.fedora39_x86_64_mpi_offscreen_osmesa_python_ext_vtk:
+.fedora39_x86_64_mpi_offscreen_osmesa_python_qt_tbb_ext_vtk:
     extends:
         - .fedora39_x86_64
         - .fedora_mpich_x86_64_addon
         - .fedora_osmesa_addon
 
     variables:
-        CMAKE_CONFIGURATION: fedora39_x86_64_mpi_offscreen_osmesa_python_ext_vtk
+        CMAKE_CONFIGURATION: fedora39_x86_64_mpi_offscreen_osmesa_python_qt_tbb_ext_vtk
 
 .fedora39_x86_64_mpi_renderless:
     extends:
