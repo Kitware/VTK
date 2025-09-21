@@ -35,6 +35,7 @@
 
 #include "vtkDataAssembly.h"   // for vtkDataAssembly
 #include "vtkIOImportModule.h" // For export macro
+#include "vtkResourceStream.h" // For Stream
 #include "vtkSmartPointer.h"   // for vtkSmartPointer
 
 #include "vtkObject.h"
@@ -57,6 +58,24 @@ class VTKIOIMPORT_EXPORT vtkImporter : public vtkObject
 public:
   vtkTypeMacro(vtkImporter, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  ///@{
+  /**
+   * Specify file name of the file to read
+   */
+  vtkSetFilePathMacro(FileName);
+  vtkGetFilePathMacro(FileName);
+  ///@}
+
+  ///@{
+  /**
+   * Specify stream to read from
+   * When both `Stream` and `Filename` are set, it's left to the implementation to determine which
+   * one is used. If both are not set, importer outputs nothing.
+   */
+  vtkSetSmartPointerMacro(Stream, vtkResourceStream);
+  vtkGetSmartPointerMacro(Stream, vtkResourceStream);
+  ///@}
 
   ///@{
   /**
@@ -255,6 +274,9 @@ private:
   void operator=(const vtkImporter&) = delete;
 
   bool SetAndCheckUpdateStatus();
+
+  char* FileName = nullptr;
+  vtkSmartPointer<vtkResourceStream> Stream;
 
   UpdateStatusEnum UpdateStatus = UpdateStatusEnum::SUCCESS;
   bool ImportArmature = false;
