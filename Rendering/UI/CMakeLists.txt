@@ -1,6 +1,4 @@
-set(classes
-    vtkGenericRenderWindowInteractor
-)
+set(classes vtkGenericRenderWindowInteractor)
 
 set(headers)
 set(nowrap_headers)
@@ -8,70 +6,34 @@ set(nowrap_headers)
 # Setup factory overrides and add window system specific render windows.
 if(VTK_USE_X)
   # Add some custom overrides
-  if(NOT
-     VTK_DEFAULT_RENDER_WINDOW_HEADLESS
-  )
-    vtk_object_factory_declare(
-      BASE
-      vtkRenderWindowInteractor
-      OVERRIDE
-      vtkXRenderWindowInteractor
-    )
-    vtk_object_factory_declare(
-      BASE
-      vtkHardwareWindow
-      OVERRIDE
-      vtkXlibHardwareWindow
-    )
+  if(NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+    vtk_object_factory_declare(BASE vtkRenderWindowInteractor OVERRIDE
+                               vtkXRenderWindowInteractor)
+    vtk_object_factory_declare(BASE vtkHardwareWindow OVERRIDE
+                               vtkXlibHardwareWindow)
   endif()
-  list(
-    APPEND
-    classes
-    vtkXRenderWindowInteractor
-    vtkXlibHardwareWindow
-  )
+  list(APPEND classes vtkXRenderWindowInteractor vtkXlibHardwareWindow)
 elseif(VTK_USE_Wayland)
-  if(NOT
-     VTK_DEFAULT_RENDER_WINDOW_HEADLESS
-  )
+  if(NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+    vtk_module_find_package(PACKAGE WAYLAND)
+    set(WAYLAND_PROTOCOLS)
+    wayland_generate_xdg_protocol(WAYLAND_PROTOCOLS)
     # vtk_object_factory_declare( BASE vtkRenderWindowInteractor OVERRIDE
     # vtkXRenderWindowInteractor)
-    vtk_object_factory_declare(
-      BASE
-      vtkHardwareWindow
-      OVERRIDE
-      vtkWaylandHardwareWindow
-    )
+    vtk_object_factory_declare(BASE vtkHardwareWindow OVERRIDE
+                               vtkWaylandHardwareWindow)
+    list(APPEND sources ${WAYLAND_PROTOCOLS})
   endif()
-  list(
-    APPEND
-    classes
-    vtkWaylandHardwareWindow
-  )
+  list(APPEND classes vtkWaylandHardwareWindow)
 elseif(WIN32)
   # Add some custom overrides
-  if(NOT
-     VTK_DEFAULT_RENDER_WINDOW_HEADLESS
-  )
-    vtk_object_factory_declare(
-      BASE
-      vtkRenderWindowInteractor
-      OVERRIDE
-      vtkWin32RenderWindowInteractor
-    )
-    vtk_object_factory_declare(
-      BASE
-      vtkHardwareWindow
-      OVERRIDE
-      vtkWin32HardwareWindow
-    )
+  if(NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
+    vtk_object_factory_declare(BASE vtkRenderWindowInteractor OVERRIDE
+                               vtkWin32RenderWindowInteractor)
+    vtk_object_factory_declare(BASE vtkHardwareWindow OVERRIDE
+                               vtkWin32HardwareWindow)
   endif()
-  list(
-    APPEND
-    classes
-    vtkWin32HardwareWindow
-    vtkWin32RenderWindowInteractor
-  )
+  list(APPEND classes vtkWin32HardwareWindow vtkWin32RenderWindowInteractor)
 elseif(VTK_USE_COCOA)
   # Add some custom overrides
   if(NOT
@@ -96,93 +58,46 @@ elseif(VTK_USE_COCOA)
     vtkCocoaAutoreleasePool.mm
     vtkCocoaHardwareView.mm
     vtkCocoaHardwareWindow.mm
-    vtkCocoaRenderWindowInteractor.mm
-  )
-  list(
-    APPEND
-    headers
+    vtkCocoaRenderWindowInteractor.mm)
+  list(APPEND headers
     vtkCocoaAutoreleasePool.h
     vtkCocoaHardwareView.h
     vtkCocoaHardwareWindow.h
-    vtkCocoaRenderWindowInteractor.h
-  )
-  list(
-    APPEND
-    nowrap_headers
-    vtkCocoaMacOSXSDKCompatibility.h
-  )
+    vtkCocoaRenderWindowInteractor.h)
+  list(APPEND nowrap_headers
+    vtkCocoaMacOSXSDKCompatibility.h)
   # Set specified Objective-C++ flags, if any.
   if(VTK_REQUIRED_OBJCXX_FLAGS)
     set_source_files_properties(
       vtkCocoaRenderWindowInteractor.mm
-      PROPERTIES COMPILE_FLAGS
-                 "${VTK_REQUIRED_OBJCXX_FLAGS}"
-    )
+      PROPERTIES COMPILE_FLAGS "${VTK_REQUIRED_OBJCXX_FLAGS}")
   endif()
 elseif(ANDROID)
   # Add some custom overrides
-  vtk_object_factory_declare(
-    BASE
-    vtkRenderWindowInteractor
-    OVERRIDE
-    vtkAndroidRenderWindowInteractor
-  )
-  list(
-    APPEND
-    classes
-    vtkAndroidRenderWindowInteractor
-  )
+  vtk_object_factory_declare(BASE vtkRenderWindowInteractor OVERRIDE
+                             vtkAndroidRenderWindowInteractor)
+  list(APPEND classes vtkAndroidRenderWindowInteractor)
   include_directories("${CMAKE_ANDROID_NDK}/sources/android/native_app_glue")
 elseif(APPLE_IOS)
   # Add some custom overrides
-  vtk_object_factory_declare(
-    BASE
-    vtkRenderWindowInteractor
-    OVERRIDE
-    vtkIOSRenderWindowInteractor
-  )
-  list(
-    APPEND
-    sources
-    vtkIOSRenderWindowInteractor.mm
-  )
-  list(
-    APPEND
-    headers
-    vtkIOSRenderWindowInteractor.h
-  )
+  vtk_object_factory_declare(BASE vtkRenderWindowInteractor OVERRIDE
+                             vtkIOSRenderWindowInteractor)
+  list(APPEND sources vtkIOSRenderWindowInteractor.mm)
+  list(APPEND headers vtkIOSRenderWindowInteractor.h)
   # Set specified Objective-C++ flags, if any.
   if(VTK_REQUIRED_OBJCXX_FLAGS)
     set_source_files_properties(
-      vtkIOSRenderWindowInteractor.mm
-      PROPERTIES COMPILE_FLAGS
-                 "${VTK_REQUIRED_OBJCXX_FLAGS}"
-    )
+      vtkIOSRenderWindowInteractor.mm PROPERTIES COMPILE_FLAGS
+                                                 "${VTK_REQUIRED_OBJCXX_FLAGS}")
   endif()
-elseif(
-  CMAKE_SYSTEM_NAME
-  STREQUAL
-  "Emscripten"
-)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   # Add some custom overrides
-  vtk_object_factory_declare(
-    BASE
-    vtkRenderWindowInteractor
-    OVERRIDE
-    vtkWebAssemblyRenderWindowInteractor
-  )
-  list(
-    APPEND
-    classes
-    vtkWebAssemblyRenderWindowInteractor
-  )
+  vtk_object_factory_declare(BASE vtkRenderWindowInteractor OVERRIDE
+                             vtkWebAssemblyRenderWindowInteractor)
+  list(APPEND classes vtkWebAssemblyRenderWindowInteractor)
 else() # use generic
-  vtk_object_factory_declare(
-    BASE
-    vtkRenderWindowInteractor
-    OVERRIDE
-    vtkGenericRenderWindowInteractor
-  )
+  vtk_object_factory_declare(BASE vtkRenderWindowInteractor OVERRIDE
+                             vtkGenericRenderWindowInteractor)
 endif()
 
 vtk_object_factory_configure(
@@ -196,8 +111,7 @@ vtk_object_factory_configure(
   "<vtkCollection.h>"
   "<vtkObjectFactoryCollection.h>"
   "<vtkLogger.h>"
-  "<cstdlib>"
-)
+  "<cstdlib>")
 
 vtk_module_add_module(
   VTK::RenderingUI
@@ -211,13 +125,9 @@ vtk_module_add_module(
   ${sources}
   ${vtk_object_factory_source}
   PRIVATE_HEADERS
-  ${vtk_object_factory_header}
-)
+  ${vtk_object_factory_header})
 
-if(CMAKE_SYSTEM_NAME
-   STREQUAL
-   "Emscripten"
-)
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_link_options(
     VTK::RenderingUI
     INTERFACE
@@ -227,28 +137,14 @@ if(CMAKE_SYSTEM_NAME
   )
   install(
     FILES "${CMAKE_CURRENT_SOURCE_DIR}/vtkWebAssemblyRenderWindowInteractor.js"
-    DESTINATION ${_vtk_build_LIBRARY_DESTINATION}
-  )
+    DESTINATION ${_vtk_build_LIBRARY_DESTINATION})
 endif()
 
 if(VTK_USE_X)
-  vtk_module_find_package(
-    PACKAGE
-    X11
-  )
-  vtk_module_link(
-    VTK::RenderingUI
-    PUBLIC
-    X11::X11
-  )
-  if(TARGET
-     X11::Xcursor
-  )
-    vtk_module_link(
-      VTK::RenderingUI
-      PRIVATE
-      X11::Xcursor
-    )
+  vtk_module_find_package(PACKAGE X11)
+  vtk_module_link(VTK::RenderingUI PUBLIC X11::X11)
+  if(TARGET X11::Xcursor)
+    vtk_module_link(VTK::RenderingUI PRIVATE X11::Xcursor)
   else()
     message(WARNING "X11::Xcursor not found; custom cursors will be ignored.")
   endif()
@@ -275,18 +171,10 @@ elseif(VTK_USE_COCOA)
 endif()
 
 if(ANDROID)
-  vtk_module_link(
-    VTK::RenderingUI
-    PRIVATE
-    android
-  )
+  vtk_module_link(VTK::RenderingUI PRIVATE android)
 endif()
 
 if(APPLE_IOS)
-  vtk_module_link(
-    VTK::RenderingUI
-    PUBLIC
-    "-framework UIKit"
-  )
+  vtk_module_link(VTK::RenderingUI PUBLIC "-framework UIKit")
 endif()
 vtk_add_test_mangling(VTK::RenderingUI)
