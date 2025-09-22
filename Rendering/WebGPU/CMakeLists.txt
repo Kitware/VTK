@@ -106,7 +106,11 @@ set(webgpu_overrides
     ShaderProperty
     # NI: Uniforms
     Renderer
-    # NI: RenderTimerLog NI: Skybox NI: TextActor NI: TextActor3D NI: TextMapper
+    # NI: RenderTimerLog 
+    # NI: Skybox 
+    # NI: TextActor 
+    # NI: TextActor3D 
+    # NI: TextMapper
     # NI: Texture
 )
 
@@ -304,6 +308,18 @@ elseif(VTK_USE_WIN32_OPENGL) # FIXME: We need a VTK_USE_WIN32_WINDOW flag here
     set(vtk_webgpu_factory_override_classname
         "vtkWebGPURenderWindow"
     )
+  elseif(VTK_USE_Wayland)
+    set(has_vtkRenderWindow_override
+        1
+    )
+  endif()
+elseif(VTK_USE_Wayland)
+  if(NOT
+     VTK_DEFAULT_RENDER_WINDOW_HEADLESS
+  )
+    set(vtk_webgpu_factory_override_classname
+        "vtkWebGPURenderWindow"
+    )
     set(has_vtkRenderWindow_override
         1
     )
@@ -424,12 +440,6 @@ else()
     else()
       message(WARNING "X11::Xcursor not found; custom cursors will be ignored.")
     endif()
-    set_property(
-      SOURCE vtkXWebGPURenderWindow.cxx
-      APPEND
-      PROPERTY COMPILE_DEFINITIONS
-               "VTK_HAVE_XCURSOR=$<TARGET_EXISTS:X11::Xcursor>"
-    )
   elseif(VTK_USE_Wayland)
     vtk_module_find_package(
       PACKAGE
@@ -438,7 +448,7 @@ else()
     vtk_module_link(
       VTK::RenderingWebGPU
       PUBLIC
-      WAYLAND::WAYLAND
+      WAYLAND::Client
     )
     set_property(
       SOURCE vtkWebGPURenderWindow.cxx
