@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 readonly catalyst_repo="https://gitlab.kitware.com/paraview/catalyst"
 # Use 2.0.0 release
 readonly catalyst_commit="v2.0.0"

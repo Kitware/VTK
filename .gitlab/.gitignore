@@ -27,7 +27,7 @@
 /osmesa*
 # ci/download_python.cmake
 /python*
-# ci/download_qt.cmake
+# ci/download_qt6.cmake
 /*d3dcompiler*
 /*opengl32sw*
 /*qt*

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 readonly adios_repo="https://github.com/ornladios/ADIOS2"
 readonly adios_commit="v2.10.1"
 
@@ -41,6 +43,16 @@ adios_build () {
     cmake --build "$adios_build_root/$subdir"
     cmake --build "$adios_build_root/$subdir" --target install
 }
+
+if [ -n "$CC" ]; then
+    export MPICH_CC="$CC"
+    export OMPI_CC="$CC"
+fi
+
+if [ -n "$CXX" ]; then
+    export MPICH_CXX="$CXX"
+    export OMPI_CXX="$CXX"
+fi
 
 # MPI-less
 adios_build nompi /usr \

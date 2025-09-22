@@ -90,6 +90,8 @@ endif()
 configuration_flag_module(VTK_GROUP_ENABLE_Qt "qt")
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt5")
   set(VTK_QT_VERSION 5 CACHE STRING "")
+elseif ("$ENV{CMAKE_CONFIGURATION}" MATCHES "qt")
+  set(VTK_QT_VERSION 6 CACHE STRING "")
 endif ()
 
 # "nogl" builds

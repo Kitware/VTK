@@ -13,19 +13,15 @@ dnf install -y --setopt=install_weak_deps=False \
 # Development tools
 dnf install -y --setopt=install_weak_deps=False \
     libasan libtsan libubsan clang-tools-extra \
-    ninja-build
+    gcc gcc-c++
 
 # MPI dependencies
 dnf install -y --setopt=install_weak_deps=False \
     openmpi-devel mpich-devel
 
-# Qt5 dependencies
-dnf install -y --setopt=install_weak_deps=False \
-    qt5-qtbase-devel qt5-qttools-devel qt5-qtquickcontrols2-devel
-
 # Qt6 dependencies
 dnf install -y --setopt=install_weak_deps=False \
-    qt6-qtbase-devel qt6-qttools-devel qt6-qtquickcontrols2-devel
+    xcb-util-cursor
 
 # Mesa dependencies
 dnf install -y --setopt=install_weak_deps=False \
@@ -49,6 +45,10 @@ dnf install -y --setopt=install_weak_deps=False \
     python3 python3-devel python3-numpy python3-tkinter \
     python3-pip python3-mpi4py-mpich python3-mpi4py-openmpi python3-matplotlib \
     python3-xarray python3-cftime netcdf4-python
+
+# CI dependencies packages
+dnf install -y --setopt=install_weak_deps=False \
+    ninja-build cmake
 
 # Tcl/Tk dependencies (for building RenderingTk)
 dnf install -y --setopt=install_weak_deps=False \

@@ -208,8 +208,8 @@
     - cmake --version
     - ninja --version
     # Download Qt
-    - cmake -P .gitlab/ci/download_qt.cmake
-    - export CMAKE_PREFIX_PATH=$PWD/.gitlab/qt
+    - cmake -P .gitlab/ci/download_qt6.cmake
+    - export CMAKE_PREFIX_PATH=$PWD/.gitlab/qt6
     - cmake -P "$PWD/.gitlab/ci/fetch_tags.cmake"
 
 .before_script_java_macos: &before_script_java_macos
