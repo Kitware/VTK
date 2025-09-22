@@ -6,6 +6,9 @@
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
 #include "vtkCommunicator.h"
+#include "vtkCompositeDataSet.h"
+#include "vtkCompositeDataSetRange.h"
+#include "vtkDataObjectTypes.h"
 #include "vtkDoubleArray.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
@@ -24,6 +27,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <limits>
 #include <numeric>
 #include <vector>
 
@@ -179,7 +183,6 @@ constexpr int GetNumberOfBytes(int nbBits)
 //------------------------------------------------------------------------------
 vtkHyperTreeGridRedistribute::vtkHyperTreeGridRedistribute()
 {
-  this->AppropriateOutput = true;
   this->SetController(vtkMultiProcessController::GetGlobalController());
 }
 
@@ -205,7 +208,7 @@ vtkMultiProcessController* vtkHyperTreeGridRedistribute::GetController()
 int vtkHyperTreeGridRedistribute::FillInputPortInformation(int, vtkInformation* info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkHyperTreeGrid");
-  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPartitionedDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
 
@@ -216,28 +219,116 @@ int vtkHyperTreeGridRedistribute::RequestData(vtkInformation* vtkNotUsed(request
   this->UpdateProgress(0.);
 
   vtkInformation* info = outputVector->GetInformationObject(0);
-  int currentPiece = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
+  this->CurrentPiece = info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
   this->NumPartitions = this->Controller->GetNumberOfProcesses();
 
-  // Make sure input is either a HTG or a PartitionedDataSet that contains a HTG piece.
-  this->InputHTG = vtkHyperTreeGrid::GetData(inputVector[0], 0);
-  vtkPartitionedDataSet* inputPDS = vtkPartitionedDataSet::GetData(inputVector[0], 0);
+  int result = this->ProcessComposite(
+    vtkDataObject::GetData(inputVector[0]), vtkDataObject::GetData(outputVector));
 
-  if (!inputPDS && !this->InputHTG)
+  this->UpdateProgress(1.);
+  return result;
+}
+
+//------------------------------------------------------------------------------
+int vtkHyperTreeGridRedistribute::ProcessComposite(vtkDataObject* input, vtkDataObject* output)
+{
+  auto inPds = vtkPartitionedDataSet::SafeDownCast(input);
+  auto inHTG = vtkHyperTreeGrid::SafeDownCast(input);
+  auto inComposite = vtkCompositeDataSet::SafeDownCast(input);
+  auto outComposite = vtkCompositeDataSet::SafeDownCast(output);
+
+  int result = 1;
+  if (inPds || inHTG)
   {
-    vtkErrorMacro("Input data is neither HTG or PartitionedDataSet. Cannot proceed with ghost cell "
-                  "generation.");
+    result |= this->ProcessBlock(input, output);
+  }
+  else if (inComposite && outComposite)
+  {
+    outComposite->CopyStructure(inComposite);
+
+    auto outputRange = vtk::Range(outComposite, vtk::CompositeDataSetOptions::None);
+    auto inputRange = vtk::Range(inComposite, vtk::CompositeDataSetOptions::None);
+    for (auto inIt = inputRange.begin(), outIt = outputRange.begin(); inIt != inputRange.end();
+         ++inIt, ++outIt)
+    {
+      // Make sure type is shared among ranks.
+      // Some ranks may not have a non-null dataset, so they don't know what type to instantiate
+      constexpr int INVALID_TYPE = -1;
+      int typeOut = INVALID_TYPE;
+      int typeIn = *inIt ? inIt->GetDataObjectType() : INVALID_TYPE;
+      this->Controller->AllReduce(&typeIn, &typeOut, 1, vtkCommunicator::MAX_OP);
+
+      if (typeOut == INVALID_TYPE)
+      {
+        *outIt = nullptr;
+        continue;
+      }
+      if (!*inIt)
+      {
+        *inIt = vtkSmartPointer<vtkDataObject>::Take(vtkDataObjectTypes::NewDataObject(typeOut));
+      }
+
+      *outIt = vtkSmartPointer<vtkDataObject>::Take(inIt->NewInstance());
+
+      auto inputComposite = vtkCompositeDataSet::SafeDownCast(*inIt);
+      auto outputComposite = vtkCompositeDataSet::SafeDownCast(*outIt);
+
+      bool isComposite = inputComposite != nullptr;
+      bool isPDS = inIt->GetDataObjectType() == VTK_PARTITIONED_DATA_SET;
+
+      if (isComposite && !isPDS)
+      {
+        if (!outputComposite)
+        {
+          vtkErrorMacro(<< "Found no composite output data object");
+          result = 0;
+          continue;
+        }
+        // Composite but not PartitionedDS: recurse over the composite structure
+        result |= this->ProcessComposite(inputComposite, outputComposite);
+      }
+      else
+      {
+        // PDS or HTG: process single block
+        result |= this->ProcessBlock(*inIt, *outIt);
+      }
+    }
+  }
+  else
+  {
+    vtkErrorMacro("Dataset type unsupported.");
     return 0;
   }
 
-  vtkHyperTreeGrid* outputHTG = vtkHyperTreeGrid::GetData(outputVector, 0);
-  vtkPartitionedDataSet* outputPDS = vtkPartitionedDataSet::GetData(outputVector, 0);
-  if (outputPDS)
+  return result;
+}
+
+//------------------------------------------------------------------------------
+int vtkHyperTreeGridRedistribute::ProcessBlock(vtkDataObject* input, vtkDataObject* outputDO)
+{
+  // Make sure input is either a HTG or composite dataset that contains HTG pieces.
+  vtkPartitionedDataSet* inputPDS = vtkPartitionedDataSet::SafeDownCast(input);
+  this->InputHTG = vtkHyperTreeGrid::SafeDownCast(input);
+
+  if (!inputPDS && !this->InputHTG)
   {
-    outputPDS->CopyStructure(inputPDS);
+    vtkErrorMacro("Input data is neither HTG or PartitionedDataSet, cannot proceed");
+    return 0;
   }
+
+  vtkHyperTreeGrid* outputHTG = vtkHyperTreeGrid::SafeDownCast(outputDO);
+  vtkPartitionedDataSet* outputPDS = vtkPartitionedDataSet::SafeDownCast(outputDO);
+
+  if (!outputHTG && !outputPDS)
+  {
+    vtkErrorMacro("No output available. Cannot proceed with hyper tree grid algorithm.");
+    return 0;
+  }
+
   if (inputPDS && outputPDS)
   {
+    outputPDS->CopyStructure(inputPDS);
+
     for (unsigned int partId = 0; partId < inputPDS->GetNumberOfPartitions(); partId++)
     {
       auto partHTG = vtkHyperTreeGrid::SafeDownCast(inputPDS->GetPartitionAsDataObject(partId));
@@ -246,7 +337,7 @@ int vtkHyperTreeGridRedistribute::RequestData(vtkInformation* vtkNotUsed(request
         if (this->InputHTG)
         {
           vtkWarningMacro("Found more than one non-null HTG in the partitioned dataset for piece "
-            << currentPiece << ". Generating ghost data only for partition " << partId);
+            << this->CurrentPiece << ". Generating ghost data only for partition " << partId);
         }
         this->InputHTG = partHTG;
         vtkNew<vtkHyperTreeGrid> newOutputHTG;
@@ -256,15 +347,9 @@ int vtkHyperTreeGridRedistribute::RequestData(vtkInformation* vtkNotUsed(request
     }
   }
 
-  if (!outputHTG && !outputPDS)
-  {
-    vtkErrorMacro("No output available. Cannot proceed with hyper tree grid algorithm.");
-    return 0;
-  }
-
   if (!this->InputHTG)
   {
-    vtkWarningMacro("Incorrect HTG for piece " << currentPiece);
+    vtkWarningMacro("Incorrect HTG for piece " << this->CurrentPiece);
   }
 
   // Make sure every HTG piece can be processed
@@ -273,7 +358,7 @@ int vtkHyperTreeGridRedistribute::RequestData(vtkInformation* vtkNotUsed(request
   int nullPiece = this->InputHTG != nullptr;
   if (!nullPiece)
   {
-    vtkWarningMacro("Piece " << currentPiece << " is null.");
+    vtkWarningMacro("Piece " << this->CurrentPiece << " is null.");
   }
 
   int allNonNull = 1; // Reduction operation cannot be done on bools
@@ -292,8 +377,6 @@ int vtkHyperTreeGridRedistribute::RequestData(vtkInformation* vtkNotUsed(request
     return 0;
   }
 
-  // Update progress and return
-  this->UpdateProgress(1.);
   return 1;
 }
 
@@ -375,26 +458,34 @@ int vtkHyperTreeGridRedistribute::ProcessTrees(vtkHyperTreeGrid* input, vtkDataO
 //------------------------------------------------------------------------------
 void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
 {
-  // Make sure all ranks share the same HTG metadata
-  // We assume that rank 0 has correct metadata, and that other ranks may not.
-  // This can happen, for instance, when we read a HTG from a .htg file in parallel;
-  // all ranks have unconfigured HTGs except rank 0.
+  // Make sure all ranks share the same HTG metadata.
+  // Metadata mismatch can happen, for instance, when we read a HTG from a .htg file in parallel;
+  // all ranks have unconfigured HTGs except one rank.
+
+  // Get minimum rank id with an initialized input HTG (correct bounds).
+  // This rank will broadcast its metadata.
+  int metadataSourceProcess = 0;
+  double* bounds = this->InputHTG->GetBounds();
+  int processInit = bounds[0] <= bounds[1] ? this->Controller->GetLocalProcessId()
+                                           : std::numeric_limits<int>::max();
+  this->Controller->AllReduce(&processInit, &metadataSourceProcess, 1, vtkCommunicator::MIN_OP);
+  vtkDebugMacro("Metadata source process is " << metadataSourceProcess);
 
   this->OutputHTG->Initialize();
 
   // Exchange BranchFactor
   int branchFactor = this->InputHTG->GetBranchFactor();
-  this->Controller->Broadcast(&branchFactor, 1, 0);
+  this->Controller->Broadcast(&branchFactor, 1, metadataSourceProcess);
   this->OutputHTG->SetBranchFactor(branchFactor);
 
   // Exchange DepthLimiter
   int depth = this->InputHTG->GetDepthLimiter();
-  this->Controller->Broadcast(&depth, 1, 0);
+  this->Controller->Broadcast(&depth, 1, metadataSourceProcess);
   this->OutputHTG->SetDepthLimiter(depth);
 
   // Exchange mask info
   int hasMask = this->InputHTG->HasMask();
-  this->Controller->Broadcast(&hasMask, 1, 0);
+  this->Controller->Broadcast(&hasMask, 1, metadataSourceProcess);
   if (hasMask)
   {
     this->OutMask = vtkSmartPointer<vtkBitArray>::New();
@@ -403,60 +494,62 @@ void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
 
   // Exchange TransposedRootIndexing
   int transposedRoot = this->InputHTG->GetTransposedRootIndexing();
-  this->Controller->Broadcast(&transposedRoot, 1, 0);
+  this->Controller->Broadcast(&transposedRoot, 1, metadataSourceProcess);
   this->OutputHTG->SetTransposedRootIndexing(transposedRoot);
 
   // Exchange Dimensions
   int dims[3];
   this->InputHTG->GetDimensions(dims);
-  this->Controller->Broadcast(dims, 3, 0);
+  this->Controller->Broadcast(dims, 3, metadataSourceProcess);
   this->OutputHTG->SetDimensions(dims);
 
   // Exchange Interface
   int hasInterface = this->InputHTG->GetHasInterface();
-  this->Controller->Broadcast(&hasInterface, 1, 0);
+  this->Controller->Broadcast(&hasInterface, 1, metadataSourceProcess);
   this->OutputHTG->SetHasInterface(hasInterface);
   if (hasInterface)
   {
     int interfaceNameSize;
     std::string interfaceName;
 
-    if (this->Controller->GetLocalProcessId() == 0)
+    if (this->Controller->GetLocalProcessId() == metadataSourceProcess)
     {
       interfaceName = this->InputHTG->GetInterfaceNormalsName();
       interfaceNameSize = static_cast<int>(interfaceName.size());
     }
-    this->Controller->Broadcast(&interfaceNameSize, 1, 0);
-    this->Controller->Broadcast(const_cast<char*>(interfaceName.c_str()), interfaceNameSize + 1, 0);
+    this->Controller->Broadcast(&interfaceNameSize, 1, metadataSourceProcess);
+    this->Controller->Broadcast(
+      const_cast<char*>(interfaceName.c_str()), interfaceNameSize + 1, metadataSourceProcess);
     this->OutputHTG->SetInterfaceNormalsName(interfaceName.c_str());
 
-    if (this->Controller->GetLocalProcessId() == 0)
+    if (this->Controller->GetLocalProcessId() == metadataSourceProcess)
     {
       interfaceName = this->InputHTG->GetInterfaceInterceptsName();
       interfaceNameSize = static_cast<int>(interfaceName.size());
     }
-    this->Controller->Broadcast(&interfaceNameSize, 1, 0);
-    this->Controller->Broadcast(const_cast<char*>(interfaceName.c_str()), interfaceNameSize + 1, 0);
+    this->Controller->Broadcast(&interfaceNameSize, 1, metadataSourceProcess);
+    this->Controller->Broadcast(
+      const_cast<char*>(interfaceName.c_str()), interfaceNameSize + 1, metadataSourceProcess);
     this->OutputHTG->SetInterfaceInterceptsName(interfaceName.c_str());
   }
 
   // Exchange Coordinate arrays
   int hasCoords = this->InputHTG->GetXCoordinates() && this->InputHTG->GetYCoordinates() &&
     this->InputHTG->GetZCoordinates();
-  this->Controller->Broadcast(&hasCoords, 1, 0);
+  this->Controller->Broadcast(&hasCoords, 1, metadataSourceProcess);
   if (hasCoords)
   {
     vtkNew<vtkDoubleArray> xCoords, yCoords, zCoords;
-    if (this->Controller->GetLocalProcessId() == 0)
+    if (this->Controller->GetLocalProcessId() == metadataSourceProcess)
     {
       xCoords->ShallowCopy(this->InputHTG->GetXCoordinates());
       yCoords->ShallowCopy(this->InputHTG->GetYCoordinates());
       zCoords->ShallowCopy(this->InputHTG->GetZCoordinates());
     }
 
-    this->Controller->Broadcast(xCoords, 0);
-    this->Controller->Broadcast(yCoords, 0);
-    this->Controller->Broadcast(zCoords, 0);
+    this->Controller->Broadcast(xCoords, metadataSourceProcess);
+    this->Controller->Broadcast(yCoords, metadataSourceProcess);
+    this->Controller->Broadcast(zCoords, metadataSourceProcess);
 
     this->OutputHTG->SetXCoordinates(xCoords);
     this->OutputHTG->SetYCoordinates(yCoords);
@@ -471,12 +564,12 @@ void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
     outputCD->RemoveArray(i);
   }
   int nbArrays = inputCD->GetNumberOfArrays();
-  this->Controller->Broadcast(&nbArrays, 1, 0);
+  this->Controller->Broadcast(&nbArrays, 1, metadataSourceProcess);
   for (int arrayId = 0; arrayId < nbArrays; arrayId++)
   {
     int arrayNameSize, arrayType, numComp;
     std::string arrayName;
-    if (this->Controller->GetLocalProcessId() == 0)
+    if (this->Controller->GetLocalProcessId() == metadataSourceProcess)
     {
       vtkDataArray* arr = inputCD->GetArray(arrayId);
       arrayName = arr->GetName();
@@ -485,10 +578,11 @@ void vtkHyperTreeGridRedistribute::ExchangeHTGMetadata()
       numComp = arr->GetNumberOfComponents();
     }
 
-    this->Controller->Broadcast(&arrayNameSize, 1, 0);
-    this->Controller->Broadcast(&arrayType, 1, 0);
-    this->Controller->Broadcast(&numComp, 1, 0);
-    this->Controller->Broadcast(const_cast<char*>(arrayName.c_str()), arrayNameSize + 1, 0);
+    this->Controller->Broadcast(&arrayNameSize, 1, metadataSourceProcess);
+    this->Controller->Broadcast(&arrayType, 1, metadataSourceProcess);
+    this->Controller->Broadcast(&numComp, 1, metadataSourceProcess);
+    this->Controller->Broadcast(
+      const_cast<char*>(arrayName.c_str()), arrayNameSize + 1, metadataSourceProcess);
 
     vtkDataArray* arr = vtkDataArray::CreateDataArray(arrayType);
     arr->SetName(arrayName.c_str());

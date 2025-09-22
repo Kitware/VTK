@@ -11,6 +11,7 @@
 #include "vtkHyperTreeGridSource.h"
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -19,9 +20,11 @@
 #include "vtkTestUtilities.h"
 #include "vtkType.h"
 #include "vtkXMLHyperTreeGridReader.h"
+#include "vtkXMLMultiBlockDataReader.h"
 
 namespace
 {
+//------------------------------------------------------------------------------
 bool CheckDepthArray(vtkHyperTreeGridNonOrientedCursor* cursor, vtkDataArray* depthArray)
 {
   if (!cursor->IsMasked() &&
@@ -50,6 +53,7 @@ bool CheckDepthArray(vtkHyperTreeGridNonOrientedCursor* cursor, vtkDataArray* de
   return res;
 }
 
+//------------------------------------------------------------------------------
 bool CheckTreeDepths(vtkHyperTreeGrid* htg)
 {
   vtkDataArray* depthArray = htg->GetCellData()->GetArray("Depth");
@@ -78,6 +82,7 @@ bool CheckTreeDepths(vtkHyperTreeGrid* htg)
   return true;
 }
 
+//------------------------------------------------------------------------------
 int CountMaskedTrees(vtkHyperTreeGrid* htg)
 {
   int countMaskedTrees = 0;
@@ -99,6 +104,7 @@ int CountMaskedTrees(vtkHyperTreeGrid* htg)
   return countMaskedTrees;
 }
 
+//------------------------------------------------------------------------------
 bool CheckRedistributeResult(vtkHyperTreeGrid* outputHTG, const std::array<int, 3>& nbTrees,
   const std::array<int, 3>& nbMaskedTrees, const int myRank)
 {
@@ -128,6 +134,7 @@ bool CheckRedistributeResult(vtkHyperTreeGrid* outputHTG, const std::array<int, 
   return true;
 }
 
+//------------------------------------------------------------------------------
 bool TestRedistributeHTG3D(vtkMPIController* controller)
 {
   int myRank = controller->GetLocalProcessId();
@@ -160,6 +167,7 @@ bool TestRedistributeHTG3D(vtkMPIController* controller)
   return ::CheckRedistributeResult(outputHTG2, nbTrees, nbMaskedTrees, myRank);
 }
 
+//------------------------------------------------------------------------------
 bool TestRedistributeHTG2D(vtkMPIController* controller)
 {
   int myRank = controller->GetLocalProcessId();
@@ -182,6 +190,7 @@ bool TestRedistributeHTG2D(vtkMPIController* controller)
   return ::CheckRedistributeResult(outputHTG, nbTrees, nbMaskedTrees, myRank);
 }
 
+//------------------------------------------------------------------------------
 bool TestRedistributeHTG2DOnOneProcess(vtkMPIController* controller)
 {
   int myRank = controller->GetLocalProcessId();
@@ -261,6 +270,7 @@ bool TestRedistributeMultiComponent(vtkMPIController* controller)
   return ::CheckRedistributeResult(outputHTG, nbTrees, nbMaskedTrees, myRank);
 }
 
+//------------------------------------------------------------------------------
 bool TestRedistributeComposite(vtkMPIController* controller)
 {
   int myRank = controller->GetLocalProcessId();
@@ -296,6 +306,47 @@ bool TestRedistributeComposite(vtkMPIController* controller)
   return true;
 }
 
+//------------------------------------------------------------------------------
+bool TestRedistributeMultiBlock(vtkMPIController* controller, char* muliblock_name)
+{
+  int myRank = controller->GetLocalProcessId();
+
+  // Read a .vtm file containing 2 HyperTreeGrid on 3 ranks:
+  // First one will be on rank 0, and the second one on rank 1.
+  // This way, we make sure that meta information is correctly broadcasted from
+  // the only (and changing) non-null rank.
+
+  vtkNew<vtkXMLMultiBlockDataReader> reader;
+  reader->SetFileName(muliblock_name);
+
+  vtkNew<vtkHyperTreeGridRedistribute> redistribute;
+  redistribute->SetInputConnection(reader->GetOutputPort());
+  redistribute->UpdatePiece(myRank, controller->GetNumberOfProcesses(), 0);
+  vtkMultiBlockDataSet* outputMB =
+    vtkMultiBlockDataSet::SafeDownCast(redistribute->GetOutputDataObject(0));
+  vtkHyperTreeGrid* htg1 = vtkHyperTreeGrid::SafeDownCast(outputMB->GetBlock(0));
+  vtkHyperTreeGrid* htg2 = vtkHyperTreeGrid::SafeDownCast(outputMB->GetBlock(1));
+
+  std::array nbTrees1{ 17, 17, 16 };
+  std::array nbMaskedTrees1{ 0, 0, 0 };
+
+  if (!::CheckRedistributeResult(htg1, nbTrees1, nbMaskedTrees1, myRank))
+  {
+    return false;
+  }
+
+  std::array nbTrees2{ 17, 17, 16 };
+  std::array nbMaskedTrees2{ 0, 0, 0 };
+
+  if (!::CheckRedistributeResult(htg2, nbTrees2, nbMaskedTrees2, myRank))
+  {
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
 bool TestRedistributeXML(vtkMPIController* controller, const char* shell_name)
 {
   int myRank = controller->GetLocalProcessId();
@@ -340,6 +391,8 @@ int TestHyperTreeGridRedistribute(int argc, char* argv[])
   }
 
   char* shell_name = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/HTG/shell_3d.htg");
+  char* multiblock_name =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/HTG/random_multi_block.vtm");
 
   std::string threadName = "rank #";
   threadName += vtk::to_string(controller->GetLocalProcessId());
@@ -350,6 +403,7 @@ int TestHyperTreeGridRedistribute(int argc, char* argv[])
   success &= ::TestRedistributeHTG2DOnOneProcess(controller);
   success &= ::TestRedistributeMultiComponent(controller);
   success &= ::TestRedistributeComposite(controller);
+  success &= ::TestRedistributeMultiBlock(controller, multiblock_name);
   success &= ::TestRedistributeXML(controller, shell_name);
 
   delete[] shell_name;

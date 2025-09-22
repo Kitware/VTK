@@ -8,7 +8,7 @@
 #ifndef vtkHyperTreeGridRedistribute_h
 #define vtkHyperTreeGridRedistribute_h
 
-#include "vtkHyperTreeGridAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
 #include "vtkFiltersParallelMPIModule.h" // For export macro
 #include "vtkSmartPointer.h"             // For vtkSmartPointer
@@ -17,12 +17,13 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
 class vtkMPICommunicator;
+class vtkBitArray;
 
-class VTKFILTERSPARALLELMPI_EXPORT vtkHyperTreeGridRedistribute : public vtkHyperTreeGridAlgorithm
+class VTKFILTERSPARALLELMPI_EXPORT vtkHyperTreeGridRedistribute : public vtkPassInputTypeAlgorithm
 {
 public:
   static vtkHyperTreeGridRedistribute* New();
-  vtkTypeMacro(vtkHyperTreeGridRedistribute, vtkHyperTreeGridAlgorithm);
+  vtkTypeMacro(vtkHyperTreeGridRedistribute, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   ///@{
@@ -50,14 +51,25 @@ protected:
   int RequestData(vtkInformation* vtkNotUsed(request), vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;
 
-  /**
-   * Main routine to redistribute trees and exchange cell data
-   */
-  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*) override;
-
 private:
   vtkHyperTreeGridRedistribute(const vtkHyperTreeGridRedistribute&) = delete;
   void operator=(const vtkHyperTreeGridRedistribute&) = delete;
+
+  /**
+   * Main routine to redistribute trees and exchange cell data from a single HTG.
+   */
+  int ProcessTrees(vtkHyperTreeGrid*, vtkDataObject*);
+
+  /**
+   * Process simple HTG or HTG partitioned block.
+   */
+  int ProcessBlock(vtkDataObject*, vtkDataObject*);
+
+  /**
+   * Process composite block, recursing over blocks.
+   * Can handle composite structure where not all ranks have non-null blocks.
+   */
+  int ProcessComposite(vtkDataObject*, vtkDataObject*);
 
   /* Subroutines */
   void ExchangeHTGMetadata();
@@ -83,7 +95,8 @@ private:
   vtkHyperTreeGrid* OutputHTG;
   vtkSmartPointer<vtkBitArray> OutMask;
   bool HasMask = false;
-  int NumPartitions;
+  int NumPartitions = 0;
+  int CurrentPiece = 0;
 
   std::vector<int> TreeTargetPartId; // Map Tree <-> Target Part Id
   std::vector<int> TreeIdsReceivedBuffer;
