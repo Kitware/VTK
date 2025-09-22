@@ -119,7 +119,7 @@ static void pj_create_lock()
     pthread_mutexattr_t mutex_attr;
 
     pthread_mutexattr_init(&mutex_attr);
-#ifdef HAVE_PTHREAD_MUTEX_RECURSIVE
+#if defined(HAVE_PTHREAD_MUTEX_RECURSIVE) || defined(__APPLE__)
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
 #else
     pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE_NP);
