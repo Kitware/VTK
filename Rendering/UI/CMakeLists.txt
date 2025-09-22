@@ -168,6 +168,30 @@ elseif(VTK_USE_COCOA)
     "-framework Cocoa"
     ${FRAMEWORK_QuartzCore}
   )
+elseif(VTK_USE_Wayland)
+  vtk_module_find_package(PACKAGE WAYLAND)
+  vtk_module_link(
+    VTK::RenderingUI
+    PUBLIC
+    WAYLAND::Client
+  )
+  if(TARGET WAYLAND::Cursor)
+    vtk_module_link(
+      VTK::RenderingUI
+      PRIVATE
+      WAYLAND::Cursor
+    )
+  else()
+    message(
+      WARNING "WAYLAND::Cursor not found; custom cursors will be ignored."
+    )
+  endif()
+  set_property(
+    SOURCE vtkWaylandHardwareWindow.cxx
+    APPEND
+    PROPERTY COMPILE_DEFINITIONS
+             "VTK_HAVE_WAYLAND_CURSOR=$<TARGET_EXISTS:WAYLAND::Cursor>"
+  )
 endif()
 
 if(ANDROID)
