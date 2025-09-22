@@ -16,8 +16,13 @@ vtkEGLDefaultConfig::vtkEGLDefaultConfig()
 //------------------------------------------------------------------------------
 void vtkEGLDefaultConfig::CreateContext(EGLContext& context, EGLDisplay display, EGLConfig config)
 {
-  const EGLint contextES2[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
-  context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextES2);
+#if VTK_OPENGL_USE_GLES
+  const EGLint attribs[] = { EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE };
+#else
+  const EGLint attribs[] = { EGL_CONTEXT_MAJOR_VERSION, 3, EGL_CONTEXT_MINOR_VERSION, 2, EGL_NONE };
+#endif
+
+  context = eglCreateContext(display, config, EGL_NO_CONTEXT, attribs);
 }
 
 //------------------------------------------------------------------------------
