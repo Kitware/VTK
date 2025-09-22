@@ -155,6 +155,7 @@ void vtkWebGPURenderWindow::CreateSurface()
   {
     wgpu::SurfaceDescriptorFromWaylandSurface waylandSurfDesc;
     waylandSurfDesc.surface = waylandhw->GetWindowId();
+    waylandSurfDesc.display = waylandhw->GetDisplayId();
     wgpu::SurfaceDescriptor surfDesc = {};
     surfDesc.label = "VTK Wayland surface";
     surfDesc.nextInChain = &waylandSurfDesc;
