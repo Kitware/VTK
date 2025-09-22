@@ -7,6 +7,7 @@
  * vtk3DSImporter imports 3D Studio files into vtk.
  *
  * This importer doesn't support scene hierarchy API
+ * This importer doesn't support reading streams
  *
  * This importer supports the collection API
  *
@@ -31,14 +32,6 @@ public:
 
   vtkTypeMacro(vtk3DSImporter, vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  ///@{
-  /**
-   * Specify the name of the file to read.
-   */
-  vtkSetFilePathMacro(FileName);
-  vtkGetFilePathMacro(FileName);
-  ///@}
 
   ///@{
   /**
@@ -80,7 +73,6 @@ protected:
   vtkPolyData* GeneratePolyData(vtk3DSMesh* meshPtr);
   int Read3DS();
 
-  char* FileName;
   FILE* FileFD;
   vtkTypeBool ComputeNormals;
 

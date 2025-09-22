@@ -32,15 +32,8 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOBJImporter);
 vtkStandardNewMacro(vtkOBJPolyDataProcessor);
 
-//------------------------------------------------------------------------------
-vtkOBJImporter::vtkOBJImporter()
+namespace
 {
-  this->Impl = vtkSmartPointer<vtkOBJPolyDataProcessor>::New();
-}
-
-//------------------------------------------------------------------------------
-vtkOBJImporter::~vtkOBJImporter() = default;
-
 int CanReadFile(vtkObject* that, const std::string& fname)
 {
   FILE* fileFD = vtksys::SystemTools::Fopen(fname, "rb");
@@ -52,14 +45,24 @@ int CanReadFile(vtkObject* that, const std::string& fname)
   fclose(fileFD);
   return 1;
 }
+}
+
+//------------------------------------------------------------------------------
+vtkOBJImporter::vtkOBJImporter()
+{
+  this->Impl = vtkSmartPointer<vtkOBJPolyDataProcessor>::New();
+}
+
+//------------------------------------------------------------------------------
+vtkOBJImporter::~vtkOBJImporter() = default;
 
 int vtkOBJImporter::ImportBegin()
 {
-  if (!CanReadFile(this, this->GetFileName()))
+  if (!::CanReadFile(this, this->GetFileName()))
   {
     return 0;
   }
-  if (!std::string(GetFileNameMTL()).empty() && !CanReadFile(this, this->GetFileNameMTL()))
+  if (!std::string(GetFileNameMTL()).empty() && !::CanReadFile(this, this->GetFileNameMTL()))
   {
     return 0;
   }
@@ -75,6 +78,7 @@ void vtkOBJImporter::ImportEnd()
 //------------------------------------------------------------------------------
 void vtkOBJImporter::ReadData()
 {
+  this->Impl->SetFileName(this->GetFileName());
   this->Impl->Update();
   if (Impl->GetSuccessParsingFiles())
   {
@@ -96,11 +100,6 @@ void vtkOBJImporter::PrintSelf(std::ostream& os, vtkIndent indent)
   vtkImporter::PrintSelf(os, indent);
 }
 
-void vtkOBJImporter::SetFileName(const char* arg)
-{
-  this->Impl->SetFileName(arg);
-}
-
 void vtkOBJImporter::SetFileNameMTL(const char* arg)
 {
   this->Impl->SetMTLfileName(arg);
@@ -109,11 +108,6 @@ void vtkOBJImporter::SetFileNameMTL(const char* arg)
 void vtkOBJImporter::SetTexturePath(const char* path)
 {
   this->Impl->SetTexturePath(path);
-}
-
-const char* vtkOBJImporter::GetFileName() const
-{
-  return this->Impl->GetFileName().data();
 }
 
 const char* vtkOBJImporter::GetFileNameMTL() const
@@ -209,7 +203,6 @@ struct vtkOBJImportedPolyDataWithMaterial
 vtkOBJPolyDataProcessor::vtkOBJPolyDataProcessor()
 {
   // Instantiate object with nullptr filename, and no materials yet loaded.
-  this->FileName = "";
   this->MTLFileName = "";
   this->DefaultMTLFileName = true;
   this->TexturePath = "";
@@ -1266,7 +1259,6 @@ void vtkOBJPolyDataProcessor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FileName: " << (this->FileName.empty() ? this->FileName : "(none)") << "\n";
   os << indent << "MTLFileName: " << (this->MTLFileName.empty() ? this->MTLFileName : "(none)")
      << "\n";
   os << indent << "TexturePath: " << (this->TexturePath.empty() ? this->TexturePath : "(none)")

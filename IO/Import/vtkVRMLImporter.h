@@ -8,6 +8,7 @@
  * vtkVRMLImporter imports VRML 2.0 files into VTK.
  *
  * This importer doesn't support scene hierarchy API
+ * This importer doesn't support reading streams
  *
  * This importer supports the collection API
  *
@@ -74,14 +75,6 @@ public:
 
   ///@{
   /**
-   * Specify the name of the file to read.
-   */
-  vtkSetFilePathMacro(FileName);
-  vtkGetFilePathMacro(FileName);
-  ///@}
-
-  ///@{
-  /**
    * Specify the resolution for Sphere, Cone and Cylinder shape sources.
    * Default is 12.
    */
@@ -132,7 +125,6 @@ protected:
    */
   FILE* GetFileFD() { return this->FileFD; }
 
-  char* FileName;
   FILE* FileFD;
   int ShapeResolution;
 

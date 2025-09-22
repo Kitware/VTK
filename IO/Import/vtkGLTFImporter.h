@@ -45,6 +45,11 @@
  *   The importer supports the KHR_texture_transform extension, but assumes all texture transforms
  * are equal. The base color texture transform is used for all textures.
  *
+ * When selecting the input method, `Stream` has a
+ * higher priority than `FileName` i.e. if a stream is provided, the filename is ignored.
+ * \note When readering from stream, if the stream contains non-data URIs, specifying a custom uri
+ * loader is crucial. \sa SetStreamURILoader() \sa SetStreamIsBinary()
+ *
  * @sa
  * vtkImporter
  * vtkGLTFReader
@@ -55,9 +60,8 @@
 
 #include "vtkIOImportModule.h" // For export macro
 #include "vtkImporter.h"
-#include "vtkResourceStream.h" // For Stream
-#include "vtkSmartPointer.h"   // For SmartPointer
-#include "vtkURILoader.h"      // For URILoader
+#include "vtkSmartPointer.h" // For SmartPointer
+#include "vtkURILoader.h"    // For URILoader
 
 #include <map>    // For map
 #include <vector> // For vector
@@ -78,28 +82,6 @@ public:
 
   vtkTypeMacro(vtkGLTFImporter, vtkImporter);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
-  ///@{
-  /**
-   * Specify the name of the file to read.
-   */
-  vtkSetFilePathMacro(FileName);
-  vtkGetFilePathMacro(FileName);
-  ///@}
-
-  ///@{
-  /**
-   * Specify the glTF source stream to read from. When selecting the input method, `Stream` has a
-   * higher priority than `FileName` i.e. if a stream is provided, the filename is ignored.
-   *
-   * \note If the stream contains non-data URIs, specifying a custom uri loader is crucial.
-   * \sa SetStreamURILoader()
-   *
-   * \sa SetStreamIsBinary()
-   */
-  vtkSetSmartPointerMacro(Stream, vtkResourceStream);
-  vtkGetSmartPointerMacro(Stream, vtkResourceStream);
-  ///@}
 
   ///@{
   /**
@@ -192,7 +174,7 @@ public:
 
 protected:
   vtkGLTFImporter() = default;
-  ~vtkGLTFImporter() override;
+  ~vtkGLTFImporter() override = default;
 
   /**
    * Initialize the document loader.
@@ -215,8 +197,6 @@ protected:
    */
   virtual void ApplyArmatureProperties(vtkActor* actor);
 
-  char* FileName = nullptr;
-  vtkSmartPointer<vtkResourceStream> Stream;
   vtkSmartPointer<vtkURILoader> StreamURILoader;
   bool StreamIsBinary = false;
 

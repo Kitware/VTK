@@ -5,6 +5,7 @@
  * @brief   import from .obj wavefront files
  *
  * This importer doesn't support scene hierarchy API
+ * This importer doesn't support reading streams
  *
  * This importer supports the collection API
  *
@@ -63,17 +64,15 @@ public:
   ///@{
   /**
    * Specify the name of the file to read.
-   * FileName must be provided.
+   * FileName must be provided in the parent class.
    * FileNameMTL can be provided, if not provided, we will do, in order:
    *  - Use mtllib is provided in the .obj file
    *  - Check for a FileName.mtl and use it if it exists
    *  - Check for a FileStem.mtl and use it if it exists
    * TexturePath can be provided, it not provided, the folder containing FileName will be used
    */
-  void SetFileName(VTK_FILEPATH const char* arg);
   void SetFileNameMTL(VTK_FILEPATH const char* arg);
   void SetTexturePath(VTK_FILEPATH const char* path);
-  VTK_FILEPATH const char* GetFileName() const;
   VTK_FILEPATH const char* GetFileNameMTL() const;
   VTK_FILEPATH const char* GetTexturePath() const;
   ///@}

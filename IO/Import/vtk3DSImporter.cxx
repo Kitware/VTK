@@ -113,7 +113,6 @@ vtk3DSImporter::vtk3DSImporter()
   this->MeshList = nullptr;
   this->MaterialList = nullptr;
   this->MatPropList = nullptr;
-  this->FileName = nullptr;
   this->FileFD = nullptr;
   this->ComputeNormals = 0;
 }
@@ -121,10 +120,11 @@ vtk3DSImporter::vtk3DSImporter()
 int vtk3DSImporter::ImportBegin()
 {
   vtkDebugMacro(<< "Opening import file as binary");
-  this->FileFD = vtksys::SystemTools::Fopen(this->FileName, "rb");
+  char* filename = this->GetFileName();
+  this->FileFD = vtksys::SystemTools::Fopen(filename, "rb");
   if (this->FileFD == nullptr)
   {
-    vtkErrorMacro(<< "Unable to open file: " << this->FileName);
+    vtkErrorMacro(<< "Unable to open file: " << filename);
     return 0;
   }
   return this->Read3DS();
@@ -162,7 +162,7 @@ int vtk3DSImporter::Read3DS()
 
   if (parse_3ds_file(this) == 0)
   {
-    vtkErrorMacro(<< "Error readings .3ds file: " << this->FileName << "\n");
+    vtkErrorMacro(<< "Error readings .3ds file: " << this->GetFileName() << "\n");
     return 0;
   }
 
@@ -447,15 +447,11 @@ vtk3DSImporter::~vtk3DSImporter()
 
   // then delete the list structure
   VTK_LIST_KILL(this->MatPropList);
-
-  delete[] this->FileName;
 }
 
 void vtk3DSImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
-
   os << indent << "Compute Normals: " << (this->ComputeNormals ? "On\n" : "Off\n");
 }
 VTK_ABI_NAMESPACE_END
