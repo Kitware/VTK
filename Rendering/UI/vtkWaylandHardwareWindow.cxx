@@ -19,8 +19,10 @@
 #include "vtksys/SystemTools.hxx"
 
 // Wayland specific headers
-#include "xdg-shell-client-protocol.h" // Generated from xdg-shell.xml
+#include "xdg-shell-protocol.h" // Generated from xdg-shell.xml
+#include <wayland-client-protocol.h>
 #include <wayland-client.h>
+#include <wayland-util.h>
 
 #include <iostream> // for cerr
 #include <string.h> // for strcmp

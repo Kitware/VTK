@@ -29,6 +29,7 @@
 
 // Forward declarations for Wayland types to keep the header clean.
 // The actual headers will be included in the .cxx file.
+struct wl_array;
 struct wl_display;
 struct wl_compositor;
 struct wl_surface;
@@ -104,6 +105,19 @@ public:
    */
   void SetCurrentCursor(int) override;
 
+  // Listener callbacks for Wayland events
+  static void RegistryHandleGlobal(
+    void* data, wl_registry* registry, uint32_t name, const char* interface, uint32_t version);
+  static void RegistryHandleGlobalRemove(void* data, wl_registry* registry, uint32_t name);
+
+  static void XdgWmBaseHandlePing(void* data, xdg_wm_base* xdg_wm_base, uint32_t serial);
+
+  static void XdgSurfaceHandleConfigure(void* data, xdg_surface* xdg_surface, uint32_t serial);
+
+  static void XdgToplevelHandleConfigure(
+    void* data, xdg_toplevel* xdg_toplevel, int32_t width, int32_t height, wl_array* states);
+  static void XdgToplevelHandleClose(void* data, xdg_toplevel* xdg_toplevel);
+
 protected:
   vtkWaylandHardwareWindow();
   ~vtkWaylandHardwareWindow() override;
@@ -122,19 +136,6 @@ protected:
 
   bool OwnDisplay = false;
   bool CursorHidden = false;
-
-  // Listener callbacks for Wayland events
-  static void RegistryHandleGlobal(
-    void* data, wl_registry* registry, uint32_t name, const char* interface, uint32_t version);
-  static void RegistryHandleGlobalRemove(void* data, wl_registry* registry, uint32_t name);
-
-  static void XdgWmBaseHandlePing(void* data, xdg_wm_base* xdg_wm_base, uint32_t serial);
-
-  static void XdgSurfaceHandleConfigure(void* data, xdg_surface* xdg_surface, uint32_t serial);
-
-  static void XdgToplevelHandleConfigure(
-    void* data, xdg_toplevel* xdg_toplevel, int32_t width, int32_t height, wl_array* states);
-  static void XdgToplevelHandleClose(void* data, xdg_toplevel* xdg_toplevel);
 
 private:
   vtkWaylandHardwareWindow(const vtkWaylandHardwareWindow&) = delete;
