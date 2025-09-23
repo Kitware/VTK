@@ -584,6 +584,7 @@ public:
     this->NextFaceIndex = 0;
     this->Chunks.resize(numberOfInitialChunks, nullptr);
     // Initialize the first chunk
+    // NOLINTNEXTLINE(modernize-make-shared)
     this->Chunks[0] = std::shared_ptr<unsigned char>(
       new unsigned char[FaceMemoryPool::ChunkSize], std::default_delete<unsigned char[]>());
   }
@@ -618,6 +619,7 @@ public:
       // Next: allocate a new array if necessary.
       if (this->Chunks[this->NextChunkIndex] == nullptr)
       {
+        // NOLINTNEXTLINE(modernize-make-shared)
         this->Chunks[this->NextChunkIndex] = std::shared_ptr<unsigned char>(
           new unsigned char[FaceMemoryPool::ChunkSize], std::default_delete<unsigned char[]>());
       }

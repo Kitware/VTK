@@ -541,8 +541,10 @@ void vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::BuildHashLinksIn
   const vtkIdType numberOfCells = input->GetNumberOfCells();
   this->NumberOfHashes = input->GetNumberOfPoints() + 1 /* for the 0D-1D-2D faces */;
   // allocate memory for the cell offsets and face hash values
+  // NOLINTNEXTLINE(modernize-make-shared)
   std::shared_ptr<TCellOffSetIdType> cellOffsets(
     new TCellOffSetIdType[numberOfCells + 1], std::default_delete<TCellOffSetIdType[]>());
+  // NOLINTNEXTLINE(modernize-make-shared)
   std::shared_ptr<TInputIdType> faceHashValues(
     new TInputIdType[this->NumberOfFaces], std::default_delete<TInputIdType[]>());
 
@@ -557,6 +559,7 @@ void vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::BuildHashLinksIn
   vtkSMPTools::For(0, numberOfCells, countHash);
 
   // Perform prefix sum to determine offsets
+  // NOLINTNEXTLINE(modernize-make-shared)
   this->FaceOffsets = std::shared_ptr<vtkIdType>(
     new vtkIdType[this->NumberOfHashes + 1], std::default_delete<vtkIdType[]>());
   const auto numberOfThreads = static_cast<vtkIdType>(vtkSMPTools::GetEstimatedNumberOfThreads());
@@ -565,8 +568,10 @@ void vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::BuildHashLinksIn
   vtkSMPTools::For(0, numberOfThreads, prefixSum);
 
   // Build face hash links
+  // NOLINTNEXTLINE(modernize-make-shared)
   this->CellIdOfFaceLinks = std::shared_ptr<TInputIdType>(
     new TInputIdType[this->NumberOfFaces], std::default_delete<TInputIdType[]>());
+  // NOLINTNEXTLINE(modernize-make-shared)
   this->FaceIdOfFaceLinks = std::shared_ptr<TFaceIdType>(
     new TFaceIdType[this->NumberOfFaces], std::default_delete<TFaceIdType[]>());
   BuildFaceHashLinks<TCellOffSetIdType> buildFaceHashLinks(cellOffsets, faceHashValues, counts,

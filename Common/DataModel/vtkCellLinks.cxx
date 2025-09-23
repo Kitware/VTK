@@ -112,6 +112,7 @@ vtkCellLinks::Link* vtkCellLinks::Resize(vtkIdType sz)
     newSize = sz;
   }
 
+  // NOLINTNEXTLINE(modernize-make-shared)
   std::shared_ptr<Link> newArraySharedPtr(new Link[newSize], std::default_delete<Link[]>());
   Link* newArray = newArraySharedPtr.get();
 

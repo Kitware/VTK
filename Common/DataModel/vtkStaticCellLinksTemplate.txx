@@ -128,6 +128,7 @@ void vtkStaticCellLinksTemplate<TIds>::BuildLinks(vtkDataSet* ds)
   }
 
   // Perform prefix sum to determine offsets
+  // NOLINTNEXTLINE(modernize-make-shared)
   this->OffsetsSharedPtr.reset(new TIds[this->NumPts + 1], std::default_delete<TIds[]>());
   this->Offsets = this->OffsetsSharedPtr.get();
   this->Offsets[0] = 0;
@@ -139,6 +140,7 @@ void vtkStaticCellLinksTemplate<TIds>::BuildLinks(vtkDataSet* ds)
   this->Offsets[this->NumPts] = this->LinksSize;
 
   // Allocate links array, Extra one allocated to simplify later pointer manipulation
+  // NOLINTNEXTLINE(modernize-make-shared)
   this->LinkSharedPtr.reset(new TIds[this->LinksSize + 1], std::default_delete<TIds[]>());
   this->Links = this->LinkSharedPtr.get();
   this->Links[this->LinksSize] = this->NumPts;
@@ -334,6 +336,7 @@ void vtkStaticCellLinksTemplate<TIds>::BuildLinksFromMultipleArrays(
   }
 
   // Perform prefix sum to determine offsets
+  // NOLINTNEXTLINE(modernize-make-shared)
   this->OffsetsSharedPtr.reset(new TIds[numPts + 1], std::default_delete<TIds[]>());
   this->Offsets = this->OffsetsSharedPtr.get();
   this->Offsets[0] = 0;
@@ -345,6 +348,7 @@ void vtkStaticCellLinksTemplate<TIds>::BuildLinksFromMultipleArrays(
   this->Offsets[numPts] = this->LinksSize;
 
   // Allocate links array, Extra one allocated to simplify later pointer manipulation
+  // NOLINTNEXTLINE(modernize-make-shared)
   this->LinkSharedPtr.reset(new TIds[this->LinksSize + 1], std::default_delete<TIds[]>());
   this->Links = this->LinkSharedPtr.get();
   this->Links[this->LinksSize] = this->NumPts;
@@ -534,11 +538,13 @@ void vtkStaticCellLinksTemplate<TIds>::DeepCopy(vtkStaticCellLinksTemplate* link
   this->NumPts = links->NumPts;
   this->NumCells = links->NumCells;
 
+  // NOLINTNEXTLINE(modernize-make-shared)
   this->LinkSharedPtr.reset(new TIds[this->LinksSize + 1], std::default_delete<TIds[]>());
   this->Links = this->LinkSharedPtr.get();
   vtkSMPTools::For(0, this->LinksSize + 1,
     [&](vtkIdType beginLink, vtkIdType endLink)
     { std::copy(links->Links + beginLink, links->Links + endLink, this->Links + beginLink); });
+  // NOLINTNEXTLINE(modernize-make-shared)
   this->OffsetsSharedPtr.reset(new TIds[this->NumPts + 1], std::default_delete<TIds[]>());
   this->Offsets = this->OffsetsSharedPtr.get();
   vtkSMPTools::For(0, this->NumPts + 1,
