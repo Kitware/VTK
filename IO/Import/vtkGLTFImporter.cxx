@@ -502,7 +502,7 @@ int vtkGLTFImporter::ImportBegin()
 {
   // Make sure we have a file to read.
   vtkResourceStream* stream = this->GetStream();
-  char* filename = this->GetFileName();
+  const char* filename = this->GetFileName();
   if (!stream && !filename)
   {
     vtkErrorMacro("Neither FileName nor Stream has been specified.");
