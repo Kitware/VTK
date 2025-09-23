@@ -941,16 +941,16 @@ void vtkImageInterpolatorPrecomputeWeights(const F newmat[16], const int outExt[
           }
           else
           {
-            // it gets tricky if there are fewer than 4 slices
+            // it gets tricky if there are fewer than 4 samples
             F gg[4] = { 0, 0, 0, 0 };
             for (int ll = 0; ll < 4; ll++)
             {
-              int rIdx = inId[ll] - minExt;
+              int rIdx = inId[ll];
               gg[rIdx] += g[ll];
             }
             for (int jj = 0; jj < step; jj++)
             {
-              positions[step * i + jj] = minExt + jj;
+              positions[step * i + jj] = jj * inInc;
               constants[step * i + jj] = gg[jj];
             }
           }
