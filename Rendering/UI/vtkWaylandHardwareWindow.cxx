@@ -276,6 +276,10 @@ void vtkWaylandHardwareWindow::SetSize(int width, int height)
   if (this->Size[0] != width || this->Size[1] != height)
   {
     this->Superclass::SetSize(width, height);
+    if (this->Interactor)
+    {
+      this->Interactor->SetSize(width, height);
+    }
     if (this->XdgToplevel)
     {
       // Note: This is a suggestion. The compositor will respond with a

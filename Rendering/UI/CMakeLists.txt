@@ -18,13 +18,13 @@ elseif(VTK_USE_Wayland)
     vtk_module_find_package(PACKAGE WAYLAND)
     set(WAYLAND_PROTOCOLS)
     wayland_generate_xdg_protocol(WAYLAND_PROTOCOLS)
-    # vtk_object_factory_declare( BASE vtkRenderWindowInteractor OVERRIDE
-    # vtkXRenderWindowInteractor)
+    vtk_object_factory_declare(BASE vtkRenderWindowInteractor OVERRIDE
+                               vtkWaylandRenderWindowInteractor)
     vtk_object_factory_declare(BASE vtkHardwareWindow OVERRIDE
                                vtkWaylandHardwareWindow)
     list(APPEND sources ${WAYLAND_PROTOCOLS})
   endif()
-  list(APPEND classes vtkWaylandHardwareWindow)
+  list(APPEND classes vtkWaylandRenderWindowInteractor vtkWaylandHardwareWindow)
 elseif(WIN32)
   # Add some custom overrides
   if(NOT VTK_DEFAULT_RENDER_WINDOW_HEADLESS)
@@ -186,6 +186,8 @@ elseif(VTK_USE_Wayland)
       WARNING "WAYLAND::Cursor not found; custom cursors will be ignored."
     )
   endif()
+  vtk_module_find_package(PACKAGE X11)
+  vtk_module_link(VTK::RenderingUI PUBLIC X11::xkbcommon)
   set_property(
     SOURCE vtkWaylandHardwareWindow.cxx
     APPEND
