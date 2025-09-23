@@ -265,6 +265,160 @@ bool TestImageWithDirection()
   return success;
 }
 
+bool TestInterpolateRow()
+{
+  std::cout << "Test interpolating a row of pixels:" << std::endl;
+
+  // basic image information
+  constexpr double origin[3] = { 0.0, 0.0, 0.0 };
+  constexpr double spacing[3] = { 1.0, 1.0, 1.0 };
+  int extent[6] = { 0, 1, 2, 3, 0, 9 };
+
+  // the input image
+  vtkNew<vtkImageData> input;
+  input->SetSpacing(spacing);
+  input->SetOrigin(origin);
+  input->SetExtent(extent);
+  input->AllocateScalars(VTK_FLOAT, 3);
+
+  // set the data values to index times spacing for testing
+  vtkDataArray* pixels = input->GetPointData()->GetScalars();
+  vtkIdType idx = 0;
+  for (int k = extent[4]; k <= extent[5]; ++k)
+  {
+    for (int j = extent[2]; j <= extent[3]; ++j)
+    {
+      for (int i = extent[0]; i <= extent[1]; ++i)
+      {
+        pixels->SetTuple3(idx++, i * spacing[0], j * spacing[1], k * spacing[2]);
+      }
+    }
+  }
+
+  constexpr double matrix[16] = {
+    // matrix exchanges x and z
+    0.0, 0.0, 0.25, 0.0, //
+    0.0, 0.25, 0.0, 0.0, //
+    0.25, 0.0, 0.0, 0.0, //
+    0.0, 0.0, 0.0, 1.0,  //
+  };
+  constexpr int outExtent[6] = { -2, 37, 0, 15, 2, 2 };
+
+  vtkNew<vtkImageInterpolator> interpolator;
+  interpolator->SetInterpolationModeToCubic();
+  interpolator->Initialize(input);
+
+  double interpolatedData[114];
+  int checkExtent[6];
+  vtkInterpolationWeights* weights;
+  interpolator->PrecomputeWeightsForExtent(matrix, outExtent, checkExtent, weights);
+  interpolator->InterpolateRow(weights, -1, 7, 2, interpolatedData, 38);
+  interpolator->FreePrecomputedWeights(weights);
+
+  bool success = true;
+  constexpr int expectedCheck[6] = { 0, 36, 8, 12, 2, 2 };
+  constexpr double expectedData[114] = {
+    // 3 components per pixel
+    0.500000, 1.929688, -0.070312, //
+    0.500000, 1.929688, 0.000000,  //
+    0.500000, 1.929688, 0.179688,  //
+    0.500000, 1.929688, 0.437500,  //
+    0.500000, 1.929688, 0.726562,  //
+    0.500000, 1.929688, 1.000000,  //
+    0.500000, 1.929688, 1.250000,  //
+    0.500000, 1.929688, 1.500000,  //
+    0.500000, 1.929688, 1.750000,  //
+    0.500000, 1.929688, 2.000000,  //
+    0.500000, 1.929688, 2.250000,  //
+    0.500000, 1.929688, 2.500000,  //
+    0.500000, 1.929688, 2.750000,  //
+    0.500000, 1.929688, 3.000000,  //
+    0.500000, 1.929688, 3.250000,  //
+    0.500000, 1.929688, 3.500000,  //
+    0.500000, 1.929688, 3.750000,  //
+    0.500000, 1.929688, 4.000000,  //
+    0.500000, 1.929688, 4.250000,  //
+    0.500000, 1.929688, 4.500000,  //
+    0.500000, 1.929688, 4.750000,  //
+    0.500000, 1.929688, 5.000000,  //
+    0.500000, 1.929688, 5.250000,  //
+    0.500000, 1.929688, 5.500000,  //
+    0.500000, 1.929688, 5.750000,  //
+    0.500000, 1.929688, 6.000000,  //
+    0.500000, 1.929688, 6.250000,  //
+    0.500000, 1.929688, 6.500000,  //
+    0.500000, 1.929688, 6.750000,  //
+    0.500000, 1.929688, 7.000000,  //
+    0.500000, 1.929688, 7.250000,  //
+    0.500000, 1.929688, 7.500000,  //
+    0.500000, 1.929688, 7.750000,  //
+    0.500000, 1.929688, 8.000000,  //
+    0.500000, 1.929688, 8.273438,  //
+    0.500000, 1.929688, 8.562500,  //
+    0.500000, 1.929688, 8.820312,  //
+    0.500000, 1.929688, 9.000000,  //
+  };
+
+  std::cout << "CheckExtent:";
+  for (int i = 0; i < 6; i++)
+  {
+    std::cout << " " << checkExtent[i];
+  }
+
+  // check extent should be input extent divided by matrix
+  if (checkExtent[0] != expectedCheck[0] || checkExtent[1] != expectedCheck[1] ||
+    checkExtent[2] != expectedCheck[2] || checkExtent[3] != expectedCheck[3] ||
+    checkExtent[4] != expectedCheck[4] || checkExtent[5] != expectedCheck[5])
+  {
+    std::cout << " !=";
+    for (int i = 0; i < 6; i++)
+    {
+      std::cout << " " << expectedCheck[i];
+    }
+    success = false;
+  }
+  std::cout << std::endl;
+
+  std::ios_base::fmtflags savedFlags = std::cout.flags();
+  std::cout << "OutputData:" << std::endl;
+  std::cout << std::fixed << std::setprecision(6);
+  for (int i = 0; i < 38; i++)
+  {
+    std::cout << "    "                              //
+              << interpolatedData[3 * i] << ", "     //
+              << interpolatedData[3 * i + 1] << ", " //
+              << interpolatedData[3 * i + 2] << ","; //
+
+    bool different = false;
+    for (int j = 0; j < 3; j++)
+    {
+      if (!vtkMathUtilities::FuzzyCompare(
+            interpolatedData[3 * i + j], expectedData[3 * i + j], 1e-6))
+      {
+        different = true;
+        break;
+      }
+    }
+
+    if (different)
+    {
+      std::cout << " // expected: "                //
+                << expectedData[3 * i] << ", "     //
+                << expectedData[3 * i + 1] << ", " //
+                << expectedData[3 * i + 2];        //
+      success = false;
+    }
+    std::cout << std::endl;
+  }
+  std::cout.flags(savedFlags);
+
+  if (success)
+  {
+    std::cout << "Success!" << std::endl;
+  }
+
+  return success;
+}
 }
 
 // Driver Function
@@ -274,6 +428,7 @@ int ImageInterpolator(int, char*[])
 
   success &= TestImageNoDirection();
   success &= TestImageWithDirection();
+  success &= TestInterpolateRow();
 
   return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
