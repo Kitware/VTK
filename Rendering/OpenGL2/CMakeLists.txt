@@ -437,8 +437,9 @@ vtk_module_add_module(VTK::RenderingOpenGL2
   NOWRAP_HEADERS ${nowrap_headers}
   PRIVATE_HEADERS ${private_headers} ${vtk_object_factory_header})
 
-vtk_module_definitions(VTK::RenderingOpenGL2
-  PUBLIC "VTK_OPENGL_USE_GLES=$<BOOL:${VTK_OPENGL_USE_GLES}>")
+set_property(SOURCE vtkEGLDefaultConfig.cxx vtkEGLWaylandConfig.cxx APPEND
+  PROPERTY
+    COMPILE_DEFINITIONS "VTK_OPENGL_USE_GLES=$<BOOL:${VTK_OPENGL_USE_GLES}>")
 
 if (VTK_USE_WAYLAND_OPENGL)
   vtk_module_link(VTK::RenderingOpenGL2
