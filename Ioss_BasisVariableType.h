@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2024 National Technology & Engineering Solutions
+ * Copyright(C) 2024, 2025 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -33,7 +33,7 @@ namespace Ioss {
     std::vector<BasisComponent> basies;
   };
 
-  class IOSS_EXPORT BasisVariableType : public VariableType
+  class IOSS_EXPORT BasisVariableType final : public VariableType
   {
   public:
     //  'which' is 1-based

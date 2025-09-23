@@ -36,21 +36,22 @@ namespace Iocatalyst {
     inline static const std::string CATALYST_INPUT_DEFAULT    = "input";
     inline static const std::string CATALYST_MULTI_INPUT_PIPELINE_NAME =
         "CATALYST_MULTI_INPUT_PIPELINE_NAME";
-    inline static const std::string CATALYST_SCRIPT            = "CATALYST_SCRIPT";
-    inline static const std::string CATALYST_SCRIPT_EXTRA_FILE = "CATALYST_SCRIPT_EXTRA_FILE";
-    inline static const std::string CHANNELS                   = "channels";
-    inline static const std::string CYCLE                      = "cycle";
-    inline static const std::string DATA                       = "data";
-    inline static const std::string PHACTORI_JSON_SCRIPT       = "PHACTORI_JSON_SCRIPT";
-    inline static const std::string PIPELINES                  = "pipelines";
-    inline static const std::string FILENAME                   = "filename";
-    inline static const std::string FS                         = "/";
-    inline static const std::string IOSS                       = "ioss";
-    inline static const std::string SCRIPTS                    = "scripts";
-    inline static const std::string STATE                      = "state";
-    inline static const std::string TIME                       = "time";
-    inline static const std::string TIMESTEP                   = "timestep";
-    inline static const std::string TYPE                       = "type";
+    inline static const std::string CATALYST_SCRIPT             = "CATALYST_SCRIPT";
+    inline static const std::string CATALYST_SCRIPT_EXTRA_FILE  = "CATALYST_SCRIPT_EXTRA_FILE";
+    inline static const std::string CHANNELS                    = "channels";
+    inline static const std::string CYCLE                       = "cycle";
+    inline static const std::string DATA                        = "data";
+    inline static const std::string PHACTORI_JSON_SCRIPT        = "PHACTORI_JSON_SCRIPT";
+    inline static const std::string PIPELINES                   = "pipelines";
+    inline static const std::string FILENAME                    = "filename";
+    inline static const std::string FS                          = "/";
+    inline static const std::string IOSS                        = "ioss";
+    inline static const std::string SCRIPTS                     = "scripts";
+    inline static const std::string STATE                       = "state";
+    inline static const std::string TIME                        = "time";
+    inline static const std::string TIMESTEP                    = "timestep";
+    inline static const std::string TYPE                        = "type";
+    inline static const std::string PHACTORI_DRIVER_SCRIPT_PATH = "PHACTORI_DRIVER_SCRIPT_PATH";
 
     static CatalystManager &getInstance()
     {
@@ -58,7 +59,7 @@ namespace Iocatalyst {
       return instance;
     }
 
-    std::string getCatalystPythonDriverPath() { return "/todo/create/real/path"; }
+    std::string getCatalystPythonDriverPath();
 
     conduit_cpp::Node getInitializeConduit();
 

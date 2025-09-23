@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2024 National Technology & Engineering Solutions
+ * Copyright(C) 2024, 2025 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -161,7 +161,7 @@ namespace Ioss {
     auto hist_max = *std::max_element(histogram.begin(), histogram.end());
     for (size_t i = 0; i < hist_size; i++) {
       int         max_star = 50;
-      int         star_cnt = ((double)histogram[i] / hist_max * max_star);
+      int         star_cnt = (static_cast<double>(histogram[i]) / hist_max * max_star);
       std::string stars(star_cnt, '*');
       for (int j = 9; j < star_cnt;) {
         stars[j] = '|';
@@ -492,21 +492,22 @@ namespace Ioss {
       fmt::print("\nWork per processor:\n\tMinimum = {}, Maximum = {}, Median = {}, Ratio = "
                  "{:.3}\n\n",
                  fmt::group_digits(min_work), fmt::group_digits(max_work),
-                 fmt::group_digits(median), (double)(max_work) / min_work);
+                 fmt::group_digits(median), static_cast<double>(max_work) / min_work);
     }
     if (min_work == max_work) {
       fmt::print("Work on all processors is {}\n\n", fmt::group_digits(min_work));
     }
     else {
       int max_star = 40;
-      int min_star = max_star * ((double)min_work / (double)(max_work));
+      int min_star = max_star * (static_cast<double>(min_work) / static_cast<double>(max_work));
       min_star     = std::max(1, min_star);
       int delta    = max_star - min_star;
 
-      avg_work = (double)total_work / (double)proc_count;
+      avg_work = static_cast<double>(total_work) / static_cast<double>(proc_count);
       for (size_t i = 0; i < work_per_rank.size(); i++) {
         int star_cnt =
-            (double)(work_per_rank[i] - min_work) / (max_work - min_work) * delta + min_star;
+            static_cast<double>(work_per_rank[i] - min_work) / (max_work - min_work) * delta +
+            min_star;
         std::string stars(star_cnt, '*');
         auto tmp = fmt::format(fmt::runtime("\tProcessor {:{}}, work = {:{}}  ({:.2f})\t{}\n"), i,
                                proc_width, fmt::group_digits(work_per_rank[i]), work_width,
@@ -533,8 +534,8 @@ namespace Ioss {
     // "max_work" is done.  Penalty = max_work / avg_work.
     fmt::print("\nImbalance Penalty:\n\tMaximum Work = {}, Average Work = {}, Penalty (max/avg) "
                "= {:.2f}\n\n",
-               fmt::group_digits(max_work), fmt::group_digits((size_t)avg_work),
-               (double)max_work / avg_work);
+               fmt::group_digits(max_work), fmt::group_digits(static_cast<size_t>(avg_work)),
+               static_cast<double>(max_work) / avg_work);
 
     return std::make_pair(avg_work, median);
   }

@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020, 2023 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2023, 2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -13,6 +13,7 @@
 #include "exonull/Ioexnl_SuperElement.h" // for SuperElement
 #include <cassert>
 #include <cstddef>
+#include <vtk_exodusII.h>
 #include "vtk_fmt.h"
 #include VTK_FMT(fmt/ostream.h)
 #include <iosfwd>
@@ -29,7 +30,7 @@ namespace {
 
     int varid  = 0;
     int status = nc_inq_varid(ncid, name, &varid);
-    if (status != NC_NOERR) {
+    if (status != EX_NOERR) {
       return status;
     }
 
@@ -45,7 +46,7 @@ namespace {
     int dimid = -1;
 
     int status = nc_inq_dimid(ncid, DIMENSION, &dimid);
-    if (status != NC_NOERR) {
+    if (status != EX_NOERR) {
       if (status == NC_EBADDIM) {
         // Value is zero if the dimension is not defined.
         *count = 0;
@@ -56,7 +57,7 @@ namespace {
     }
 
     status = nc_inq_dimlen(ncid, dimid, count);
-    if (status != NC_NOERR) {
+    if (status != EX_NOERR) {
       fmt::print(errmsg, "ERROR: Failed to get number of {} in superelement file.", label);
       IOSS_ERROR(errmsg);
     }
@@ -77,7 +78,7 @@ Ioexnl::SuperElement::SuperElement(std::string filename, const std::string &my_n
   std::string local_filename = fileName;
 
   int status = nc_open(local_filename.c_str(), NC_NOWRITE, &filePtr);
-  if (status != NC_NOERR) {
+  if (status != EX_NOERR) {
     std::ostringstream errmsg;
     fmt::print(errmsg, "ERROR: Failed to open superelement file '{}'.", local_filename);
     IOSS_ERROR(errmsg);

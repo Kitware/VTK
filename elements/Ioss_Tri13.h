@@ -14,7 +14,7 @@
 #include "Ioss_ElementTopology.h" // for ElementTopology
 
 namespace Ioss {
-  class IOSS_EXPORT Tri13 : public Ioss::ElementTopology
+  class IOSS_EXPORT Tri13 final : public Ioss::ElementTopology
   {
 
   public:

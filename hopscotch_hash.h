@@ -1717,7 +1717,7 @@ namespace tsl {
         while (neighborhood_infos != 0) {
           if ((neighborhood_infos & 1) == 1) {
             // Check StoreHash before calling bucket_hash_equal. Functionally it
-            // doesn't change anythin. If StoreHash is false, bucket_hash_equal is a
+            // doesn't change anything. If StoreHash is false, bucket_hash_equal is a
             // no-op. Avoiding the call is there to help GCC optimizes `my_hash`
             // parameter away, it seems to not be able to do without this hint.
             if ((!StoreHash || bucket_for_hash->bucket_hash_equal(my_hash)) &&

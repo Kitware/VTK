@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 2024 National Technology & Engineering Solutions
+ * Copyright(C) 2024, 2025 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -24,7 +24,7 @@ namespace Ioss {
     double weight;
   };
 
-  class IOSS_EXPORT QuadratureVariableType : public VariableType
+  class IOSS_EXPORT QuadratureVariableType final : public VariableType
   {
   public:
     //  'which' is 1-based

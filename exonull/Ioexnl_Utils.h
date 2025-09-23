@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2022, 2023, 2024 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2022, 2023, 2024, 2025 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -97,8 +97,6 @@ namespace Ioexnl {
   IOSS_NODISCARD IOEXNL_EXPORT int64_t extract_id(const std::string &name_id);
   IOEXNL_EXPORT bool    set_id(const Ioss::GroupingEntity *entity, Ioexnl::EntityIdSet *idset);
   IOEXNL_EXPORT int64_t get_id(const Ioss::GroupingEntity *entity, Ioexnl::EntityIdSet *idset);
-  IOEXNL_EXPORT void    decode_surface_name(Ioexnl::SideSetMap &fs_map, Ioexnl::SideSetSet &fs_set,
-                                            const std::string &name);
   IOEXNL_EXPORT void    fix_bad_name(char *name);
 
   IOEXNL_EXPORT void exodus_error(int exoid, int lineno, const char *function,

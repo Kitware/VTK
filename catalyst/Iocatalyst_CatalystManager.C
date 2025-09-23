@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2021, 2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2021, 2024, 2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -78,7 +78,7 @@ namespace Iocatalyst {
     if (props.exists(CATALYST_SCRIPT)) {
       catalystProps.catalystPythonFilename = props.get(CATALYST_SCRIPT).get_string();
     }
-    else {
+    else if (!catalystProps.catalystBlockJSON.empty()) {
       catalystProps.catalystPythonFilename = this->getCatalystPythonDriverPath();
     }
 
@@ -115,6 +115,21 @@ namespace Iocatalyst {
 
     catPipes[catalystProps.catalystPipelineID] = catalystProps;
     return catalystProps.catalystPipelineID;
+  }
+
+  std::string CatalystManager::getCatalystPythonDriverPath()
+  {
+    std::string driverPath;
+    if (const char *ts = std::getenv(PHACTORI_DRIVER_SCRIPT_PATH.c_str())) {
+      driverPath = ts;
+    }
+    else {
+      std::ostringstream errmsg;
+      errmsg << "Error: environment variable " << PHACTORI_DRIVER_SCRIPT_PATH
+             << " not set to the full path of PhactoriDriver.py";
+      IOSS_ERROR(errmsg);
+    }
+    return driverPath;
   }
 
   CatalystManager::CatalystProps &CatalystManager::getCatalystProps(CatalystPipelineID id)
@@ -295,8 +310,6 @@ namespace Iocatalyst {
   void CatalystManager::broadCastString(IOSS_MAYBE_UNUSED std::string &s,
                                         IOSS_MAYBE_UNUSED const Ioss::ParallelUtils &putils)
   {
-    IOSS_PAR_UNUSED(s);
-    IOSS_PAR_UNUSED(putils);
 #ifdef SEACAS_HAVE_MPI
     int size = s.size();
     putils.broadcast(size);
@@ -310,8 +323,6 @@ namespace Iocatalyst {
   void CatalystManager::broadCastStatusCode(IOSS_MAYBE_UNUSED bool &statusCode,
                                             IOSS_MAYBE_UNUSED const Ioss::ParallelUtils &putils)
   {
-    IOSS_PAR_UNUSED(statusCode);
-    IOSS_PAR_UNUSED(putils);
 #ifdef SEACAS_HAVE_MPI
 
     int code = statusCode;

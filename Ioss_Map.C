@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -589,15 +589,19 @@ void Ioss::Map::build_reorder_map_nl(int64_t start, int64_t count)
 // Sierra wants entities in a global system. These routines
 // take care of the mapping from local <-> global
 
-int64_t Ioss::Map::global_to_local(int64_t global, bool must_exist) const
+int64_t Ioss::Map::global_to_local(int64_t global, bool must_exist, bool output_error) const
 {
   IOSS_FUNC_ENTER(m_);
-  return global_to_local_nl(global, must_exist);
+  return global_to_local_nl(global, must_exist, output_error);
 }
 
-int64_t Ioss::Map::global_to_local_nl(int64_t global, bool must_exist) const
+int64_t Ioss::Map::global_to_local_nl(int64_t global, bool must_exist, bool output_error) const
 {
   int64_t local = global;
+
+  // The case where `must_exist==false && output_error == true` is for improving parallel error
+  // reporting, so for all intents, it is `must_exist == true` in the logic below...
+  bool should_exist = must_exist || output_error;
 #if defined USE_LAZY_REVERSE
   if (!is_sequential() && m_reverse.empty() && m_reorder.empty()) {
     auto *new_this = const_cast<Ioss::Map *>(this);
@@ -630,7 +634,7 @@ int64_t Ioss::Map::global_to_local_nl(int64_t global, bool must_exist) const
     }
 #endif
   }
-  else if (!must_exist && global > static_cast<int64_t>(m_map.size()) - 1) {
+  else if (!should_exist && global > static_cast<int64_t>(m_map.size()) - 1) {
     local = 0;
   }
   else {
@@ -655,6 +659,14 @@ int64_t Ioss::Map::global_to_local_nl(int64_t global, bool must_exist) const
                "This should not happen, please report.\n",
                m_entityType, global, m_myProcessor, m_filename);
     IOSS_ERROR(errmsg);
+  }
+  else if (local <= 0 && should_exist) {
+    fmt::print(stderr,
+               "ERROR: Ioss Mapping routines could not find a {0} with global id equal to {1} in "
+               "the {0} map\n"
+               "on processor {2}, filename '{3}'.\n"
+               "This should not happen, please report.\n",
+               m_entityType, global, m_myProcessor, m_filename);
   }
   return local;
 }

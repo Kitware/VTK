@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -88,7 +88,7 @@ namespace Ioss {
 
   /** \brief A structured zone -- i,j,k
    */
-  class IOSS_EXPORT StructuredBlock : public EntityBlock
+  class IOSS_EXPORT StructuredBlock final : public EntityBlock
   {
   public:
     StructuredBlock(DatabaseIO *io_database, const std::string &my_name, int index_dim, int ni,

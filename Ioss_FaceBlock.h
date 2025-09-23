@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020, 2022, 2023, 2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022, 2023, 2024, 2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -26,7 +26,7 @@ namespace Ioss {
 
   /** \brief A collection of element faces with the same topology.
    */
-  class IOSS_EXPORT FaceBlock : public EntityBlock
+  class IOSS_EXPORT FaceBlock final : public EntityBlock
   {
   public:
     FaceBlock(DatabaseIO *io_database, const std::string &my_name, const std::string &face_type,

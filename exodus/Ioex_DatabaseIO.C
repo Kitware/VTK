@@ -239,7 +239,7 @@ namespace Ioex {
           *bad_count = std::count_if(status.begin(), status.end(), [](int i) { return i < 0; });
         }
         if (abort_if_error) {
-          IOSS_ERROR(fmt::format("ERROR: Cannot {} file '{}'\n", open_create, get_filename()));
+          IOSS_ABORT(fmt::format("ERROR: Cannot {} file '{}'\n", open_create, get_filename()));
         }
       }
       return false;
@@ -266,15 +266,13 @@ namespace Ioex {
     }
 #endif
 
-    bool do_timer = false;
-    Ioss::Utils::check_set_bool_property(properties, "IOSS_TIME_FILE_OPEN_CLOSE", do_timer);
-    double t_begin = ((do_timer && isParallel) ? Ioss::Utils::timer() : 0);
+    double t_begin = (timeFileOpenCloseFlush ? Ioss::Utils::timer() : 0);
 
     int app_opt_val = ex_opts(EX_VERBOSE);
     m_exodusFilePtr = ex_open(decoded_filename().c_str(), EX_READ | mode, &cpu_word_size,
                               &io_word_size, &version);
 
-    if (do_timer && isParallel) {
+    if (timeFileOpenCloseFlush) {
       double t_end    = Ioss::Utils::timer();
       double duration = util().global_minmax(t_end - t_begin, Ioss::ParallelUtils::DO_MAX);
       if (myProcessor == 0) {
@@ -340,7 +338,8 @@ namespace Ioex {
       mode |= EX_DISKLESS;
     }
 #endif
-    int app_opt_val = ex_opts(EX_VERBOSE);
+    int    app_opt_val = ex_opts(EX_VERBOSE);
+    double t_begin     = (timeFileOpenCloseFlush ? Ioss::Utils::timer() : 0);
     if (fileExists) {
       m_exodusFilePtr = ex_open(decoded_filename().c_str(), EX_WRITE | mode, &cpu_word_size,
                                 &io_word_size, &version);
@@ -362,6 +361,14 @@ namespace Ioex {
       }
       m_exodusFilePtr =
           ex_create(decoded_filename().c_str(), mode, &cpu_word_size, &dbRealWordSize);
+    }
+    if (timeFileOpenCloseFlush) {
+      double t_end    = Ioss::Utils::timer();
+      double duration = util().global_minmax(t_end - t_begin, Ioss::ParallelUtils::DO_MAX);
+      if (myProcessor == 0) {
+        fmt::print(Ioss::DebugOut(), "File {} Time = {} ({})\n", fileExists ? "Open" : "Create",
+                   duration, decoded_filename());
+      }
     }
 
     is_ok = check_valid_file_ptr(write_message, error_msg, bad_count, abort_if_error);
@@ -453,12 +460,12 @@ namespace Ioex {
     // Checks that the file is open and if not, opens it first.
     if (Ioss::SerializeIO::isEnabled()) {
       if (!Ioss::SerializeIO::inBarrier()) {
-        IOSS_ERROR(fmt::format("ERROR: Process {} is attempting to do I/O without serialized I/O",
+        IOSS_ABORT(fmt::format("ERROR: Process {} is attempting to do I/O without serialized I/O",
                                Ioss::SerializeIO::getRank()));
       }
 
       if (!Ioss::SerializeIO::inMyGroup()) {
-        IOSS_ERROR(fmt::format("ERROR: Process {} is attempting to do I/O while {} owns the token",
+        IOSS_ABORT(fmt::format("ERROR: Process {} is attempting to do I/O while {} owns the token",
                                Ioss::SerializeIO::getRank(), Ioss::SerializeIO::getOwner()));
       }
     }
@@ -586,7 +593,7 @@ namespace Ioex {
     }
     else if (nodeCount < 0) {
       // NOTE: Code will not continue past this call...
-      IOSS_ERROR(fmt::format("ERROR: Negative node count was found in the model\n"
+      IOSS_ABORT(fmt::format("ERROR: Negative node count was found in the model\n"
                              "       File: '{}'.\n",
                              decoded_filename()));
     }
@@ -598,14 +605,14 @@ namespace Ioex {
 
     if (elementCount < 0) {
       // NOTE: Code will not continue past this call...
-      IOSS_ERROR(fmt::format("ERROR: Negative element count was found in the model\n"
+      IOSS_ABORT(fmt::format("ERROR: Negative element count was found in the model\n"
                              "       File: '{}'.\n",
                              decoded_filename()));
     }
 
     if (elementCount > 0 && m_groupCount[EX_ELEM_BLOCK] <= 0) {
       // NOTE: Code will not continue past this call...
-      IOSS_ERROR(fmt::format("ERROR: No element blocks were found in the model\n"
+      IOSS_ABORT(fmt::format("ERROR: No element blocks were found in the model\n"
                              "       File: '{}'.\n",
                              decoded_filename()));
     }
@@ -723,12 +730,22 @@ namespace Ioex {
           auto max_timestep_count =
               util().global_minmax(timestepCount, Ioss::ParallelUtils::DO_MAX);
           if (max_timestep_count != 0) {
+            std::vector<int> all_counts;
+            util().gather(timestepCount, all_counts);
             if (myProcessor == 0) {
+              // Determine which rank(s) have no timesteps..
+              std::vector<size_t> ranks;
+              for (size_t i = 0; i < all_counts.size(); i++) {
+                if (all_counts[i] == 0) {
+                  ranks.push_back(i);
+                }
+              }
               // NOTE: Don't want to warn on all processors if the
               // timestep count is zero on some, but not all ranks.
               fmt::print(Ioss::WarnOut(),
-                         "At least one database has no timesteps.  No times will be read on ANY"
-                         " database for consistency.\n");
+                         "On rank(s) {}, the database `{}` has no timesteps.\n"
+                         "\tNo times will be read on ANY rank for consistency.\n\n",
+                         Ioss::Utils::format_id_list(ranks, ".."), get_filename());
             }
           }
         }
@@ -825,6 +842,15 @@ namespace Ioex {
         }
       }
 
+      std::vector<int> step_count{numSteps, -numSteps};
+      util().global_array_minmax(step_count, Ioss::ParallelUtils::DO_MIN);
+      if (step_count[0] != -step_count[1]) {
+        IOSS_ABORT(fmt::format("ERROR: The database file '{}' does not contain the same number\n"
+                               "       of timesteps (or time values) on all processors."
+                               "  The range is {} to {}.\n",
+                               get_filename(), step_count[0], -step_count[1]));
+      }
+
       tsteps.resize(numSteps);
     }
 
@@ -870,7 +896,7 @@ namespace Ioex {
       // Not a nemesis file
       nemesis_file = false;
       if (isParallel && util().parallel_size() > 1) {
-        IOSS_ERROR(fmt::format("ERROR: Exodus file '{}' does not contain nemesis information.\n",
+        IOSS_ABORT(fmt::format("ERROR: Exodus file '{}' does not contain nemesis information.\n",
                                get_filename()));
       }
       file_type[0] = 'p';
@@ -886,19 +912,19 @@ namespace Ioex {
     }
 
     if (isParallel && num_proc != util().parallel_size() && util().parallel_size() > 1) {
-      IOSS_ERROR(fmt::format(
+      IOSS_ABORT(fmt::format(
           "ERROR: Exodus file '{}' was decomposed for {} processors; application is currently "
           "being run on {} processors",
           get_filename(), num_proc, util().parallel_size()));
     }
     if (num_proc_in_file != 1) {
-      IOSS_ERROR(fmt::format(
+      IOSS_ABORT(fmt::format(
           "ERROR: Exodus file '{}' contains data for {} processors; application requires 1 "
           "processor per file.",
           get_filename(), num_proc_in_file));
     }
     if (file_type[0] != 'p') {
-      IOSS_ERROR(fmt::format(
+      IOSS_ABORT(fmt::format(
           "ERROR: Exodus file '{}' contains scalar nemesis data; application requires parallel "
           "nemesis data.",
           get_filename()));
@@ -1015,7 +1041,7 @@ namespace Ioex {
     case EX_EDGE_SET: return get_map(edgeMap, edgeCount, EX_EDGE_MAP, EX_INQ_EDGE_MAP);
 
     default:
-      IOSS_ERROR("INTERNAL ERROR: Invalid map type. "
+      IOSS_ABORT("INTERNAL ERROR: Invalid map type. "
                  "Something is wrong in the Ioex::DatabaseIO::get_map() function. "
                  "Please report.\n");
     }
@@ -1034,7 +1060,7 @@ namespace Ioex {
       case EX_FACE_MAP: read_exodus_map = !properties.exists("IGNORE_FACE_MAP"); break;
       case EX_EDGE_MAP: read_exodus_map = !properties.exists("IGNORE_EDGE_MAP"); break;
       default:
-        IOSS_ERROR("INTERNAL ERROR: Invalid map type. "
+        IOSS_ABORT("INTERNAL ERROR: Invalid map type. "
                    "Something is wrong in the Ioex::DatabaseIO::get_map() function. "
                    "Please report.\n");
       }
@@ -1262,7 +1288,7 @@ namespace Ioex {
       else {
         Ioss::SerializeIO serializeio_(this);
         block_name = Ioex::get_entity_name(get_file_pointer(), entity_type, id, basename,
-                                           maximumNameLength, db_has_name);
+                                           maximumNameLength, lowerCaseDatabaseNames, db_has_name);
       }
       if (get_use_generic_canonical_name()) {
         std::swap(block_name, alias);
@@ -1324,7 +1350,7 @@ namespace Ioex {
         get_region()->add(eblock);
       }
       else {
-        IOSS_ERROR("ERROR: Invalid type in get_blocks()");
+        IOSS_ABORT("ERROR: Invalid type in get_blocks()");
       }
 
       // See which connectivity options were defined for this block.
@@ -1552,7 +1578,6 @@ namespace Ioex {
           }
           if (ss_name[0] != '\0') {
             Ioss::Utils::fixup_name(Data(ss_name));
-            Ioex::decode_surface_name(fs_map, fs_set, Data(ss_name));
           }
         }
       }
@@ -1591,8 +1616,9 @@ namespace Ioex {
             side_set_name = alias;
           }
           else {
-            side_set_name = Ioex::get_entity_name(get_file_pointer(), EX_SIDE_SET, id, "surface",
-                                                  maximumNameLength, db_has_name);
+            side_set_name =
+                Ioex::get_entity_name(get_file_pointer(), EX_SIDE_SET, id, "surface",
+                                      maximumNameLength, lowerCaseDatabaseNames, db_has_name);
           }
 
           if (side_set_name == "universal_sideset") {
@@ -1831,7 +1857,7 @@ namespace Ioex {
               else if (split_type == Ioss::SPLIT_BY_ELEMENT_BLOCK) {
                 block = get_region()->get_element_block(topo_or_block_name);
                 if (block == nullptr || Ioss::Utils::block_is_omitted(block)) {
-                  IOSS_ERROR(fmt::format(
+                  IOSS_ABORT(fmt::format(
                       "INTERNAL ERROR: Could not find element block '{}' Something is wrong "
                       "in the Ioex::DatabaseIO class. Please report.\n",
                       topo_or_block_name));
@@ -1845,7 +1871,7 @@ namespace Ioex {
                 elem_topo = Ioss::ElementTopology::factory(topo_or_block_name);
               }
               else {
-                IOSS_ERROR(fmt::format(
+                IOSS_ABORT(fmt::format(
                     "INTERNAL ERROR: Invalid setting for `split_type` {}. Something is wrong "
                     "in the Ioex::DatabaseIO class. Please report.\n",
                     static_cast<int>(split_type)));
@@ -1996,8 +2022,9 @@ namespace Ioex {
             Xset_name = alias;
           }
           else {
-            Xset_name = Ioex::get_entity_name(get_file_pointer(), type, id, base + "list",
-                                              maximumNameLength, db_has_name);
+            Xset_name =
+                Ioex::get_entity_name(get_file_pointer(), type, id, base + "list",
+                                      maximumNameLength, lowerCaseDatabaseNames, db_has_name);
           }
 
           if (get_use_generic_canonical_name()) {
@@ -2303,11 +2330,9 @@ namespace Ioex {
                 size_t ep_data_size = ent_proc.size() * sizeof(int64_t);
                 get_field_internal(css, ep_field, Data(ent_proc), ep_data_size);
                 for (size_t i = 0; i < ent_proc.size(); i += 2) {
-                  int64_t node = ent_proc[i + 0];
-                  int64_t proc = ent_proc[i + 1];
-                  if (proc < myProcessor) {
-                    idata[node - 1] = proc;
-                  }
+                  int64_t node    = ent_proc[i + 0];
+                  int64_t proc    = ent_proc[i + 1];
+                  idata[node - 1] = std::min(idata[node - 1], static_cast<int>(proc));
                 }
               }
               else {
@@ -2317,11 +2342,9 @@ namespace Ioex {
                 size_t           ep_data_size = ent_proc.size() * sizeof(int);
                 get_field_internal(css, ep_field, Data(ent_proc), ep_data_size);
                 for (size_t i = 0; i < ent_proc.size(); i += 2) {
-                  int node = ent_proc[i + 0];
-                  int proc = ent_proc[i + 1];
-                  if (proc < myProcessor) {
-                    idata[node - 1] = proc;
-                  }
+                  int node        = ent_proc[i + 0];
+                  int proc        = ent_proc[i + 1];
+                  idata[node - 1] = std::min(idata[node - 1], proc);
                 }
               }
             }
@@ -3258,7 +3281,7 @@ namespace Ioex {
             for (int64_t iel = 0; iel < 2 * entity_count; iel += 2) {
               int64_t new_id = static_cast<int64_t>(10) * els[iel] + els[iel + 1];
               if (new_id > int_max) {
-                IOSS_ERROR(fmt::format(
+                IOSS_ABORT(fmt::format(
                     "ERROR: Process {} accessing the sideset field 'ids'\n"
                     "\t\thas exceeded the integer bounds for entity {}, local side id {}"
                     ".\n\t\tTry using 64-bit mode to read the file '{}'.\n",
@@ -3939,7 +3962,7 @@ namespace Ioex {
       // Verify that number_distribution_factors is sane...
       if (number_sides * nfnodes != number_distribution_factors &&
           number_sides != number_distribution_factors) {
-        IOSS_ERROR(fmt::format(
+        IOSS_ABORT(fmt::format(
             "ERROR: SideBlock '{}' in file '{}'\n"
             "\thas incorrect distribution factor count.\n"
             "\tThere are {} '{}' sides with "
@@ -4039,7 +4062,7 @@ namespace Ioex {
       }
 
       if (block == nullptr) {
-        IOSS_ERROR(fmt::format(
+        IOSS_ABORT(fmt::format(
             "INTERNAL ERROR: Could not find element block containing element with id {}. "
             "Something is wrong in the Ioex::DatabaseIO class. Please report.\n",
             elem_id));
@@ -4048,7 +4071,7 @@ namespace Ioex {
       const Ioss::ElementTopology *topo = block->topology()->boundary_type(side_id);
 
       if (topo == nullptr) {
-        IOSS_ERROR("INTERNAL ERROR: Could not find topology of element block boundary. "
+        IOSS_ABORT("INTERNAL ERROR: Could not find topology of element block boundary. "
                    "Something is wrong in the Ioex::DatabaseIO class. Please report.\n");
       }
 
@@ -5485,7 +5508,7 @@ namespace Ioex {
           meta->elementMap.emplace_back(id, count, 'e');
         }
         else {
-          IOSS_ERROR("Internal Program Error...");
+          IOSS_ABORT("Internal Program Error...");
         }
       }
     }

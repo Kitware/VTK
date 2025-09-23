@@ -47,17 +47,20 @@ namespace Ioss {
     }
     auto storage = fld.raw_storage()->name();
     if (storage == "scalar") {
-      fmt::print(os, "\tField: {}, Storage: {}\t{}\t{}\n", fld.get_name(),
+      fmt::print(os, "\tField: {}, Storage: {},\t{},\t{}\n", fld.get_name(),
                  fld.raw_storage()->name(), fld.type_string(), fld.role_string());
     }
     else {
+      auto suffix0 = fld.get_suffix_separator(0);
+      auto suffix1 = fld.get_suffix_separator(1);
+      suffix0      = suffix0 == 1 ? '_' : suffix0;
+      suffix1      = suffix1 == 1 ? '_' : suffix1;
       fmt::print(os,
                  "\tField: {}, Storage: {} ({}),\t{},\t{}, Sep1: '{}', Sep2: '{}'\n"
                  "\t\t\tComponents ({}): {}\n",
                  fld.get_name(), fld.raw_storage()->name(), fld.raw_storage()->type_string(),
-                 fld.type_string(), fld.role_string(), fld.get_suffix_separator(0),
-                 fld.get_suffix_separator(1), fld.get_component_count(Field::InOut::INPUT),
-                 fmt::join(components, ", "));
+                 fld.type_string(), fld.role_string(), suffix0, suffix1,
+                 fld.get_component_count(Field::InOut::INPUT), fmt::join(components, ", "));
     }
     return os;
   }
@@ -303,7 +306,7 @@ bool Ioss::Field::add_transform(Transform *my_transform)
     size_ = size;
   }
 
-  transforms_.push_back(my_transform);
+  transforms_.emplace_back(my_transform);
   return true;
 }
 

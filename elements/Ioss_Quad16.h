@@ -13,7 +13,7 @@
 #include "Ioss_ElementTopology.h" // for ElementTopology
 
 namespace Ioss {
-  class IOSS_EXPORT Quad16 : public Ioss::ElementTopology
+  class IOSS_EXPORT Quad16 final : public Ioss::ElementTopology
   {
 
   public:

@@ -4,7 +4,7 @@
 // * Single Base.
 // * ZoneGridConnectivity is 1to1 with point lists for unstructured
 
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -81,6 +81,79 @@
 // extern char hdf5_access[64];
 
 namespace {
+  extern "C" {
+  // From private CGNS header: `cgio_internal_type.h`
+  typedef struct _cgns_io_ctx_t
+  {
+    /* Flag indicating if HDF5 file accesses is PARALLEL or NATIVE */
+    char hdf5_access[64];
+#if CG_BUILD_PARALLEL
+    /* MPI-2 info object */
+    MPI_Comm pcg_mpi_comm;
+    int      pcg_mpi_comm_size;
+    int      pcg_mpi_comm_rank;
+    /* flag indicating if mpi_initialized was called */
+    int      pcg_mpi_initialized;
+    MPI_Info pcg_mpi_info;
+    int64_t  default_pio_mode;
+#endif
+  } cgns_io_ctx_t;
+
+  extern cgns_io_ctx_t ctx_cgio; /* located in cgns_io.c */
+  }
+
+  // There is a bug in the CGNS library (4.4.0 and before) where it
+  // has a global symbol `ctx_cgio` which controls whether
+  // file-per-rank access is being used, or parallel io (single file,
+  // multiple ranks).  In an application (like many IOSS uses) that
+  // uses both access methods in the same execution, this can result
+  // in hangs and corruprtion due to the wrong access type being used
+  // at the wrong time (collective for a file-per-rank typically).
+  //
+  // The code below is a kluge to workaround this shortcoming in the
+  // CGNS library.  Before each file-per-rank access of the underlying
+  // file, the code below access the CGNS global `ctx_cgio` and sets
+  // it to non-parallel access.  After the access, the destructor of
+  // the class sets the global back to its previous value.
+  //
+  // The CGNS developers are aware of the issue and are looking at
+  // options.  See https://github.com/CGNS/CGNS/issues/835
+  struct ParallelGuard
+  {
+    ParallelGuard(bool yes_no)
+    {
+#if CG_BUILD_PARALLEL
+      m_wasSet = strcmp(ctx_cgio.hdf5_access, "PARALLEL") == 0;
+      if (m_wasSet != yes_no) {
+        m_changed = true;
+        if (yes_no) {
+          strcpy(ctx_cgio.hdf5_access, "PARALLEL");
+        }
+        else {
+          strcpy(ctx_cgio.hdf5_access, "NATIVE");
+        }
+      }
+#endif
+    }
+    ~ParallelGuard()
+    {
+#if CG_BUILD_PARALLEL
+      if (m_changed) {
+        if (m_wasSet) {
+          strcpy(ctx_cgio.hdf5_access, "PARALLEL");
+        }
+        else {
+          strcpy(ctx_cgio.hdf5_access, "NATIVE");
+        }
+      }
+#endif
+    }
+#if CG_BUILD_PARALLEL
+    bool m_wasSet{false};
+    bool m_changed{false};
+#endif
+  };
+
   size_t global_to_zone_local_idx(size_t i, const Ioss::Map *block_map, const Ioss::Map &nodeMap,
                                   bool isParallel)
   {
@@ -645,7 +718,7 @@ namespace Iocgns {
 
 #if CG_BUILD_PARALLEL
       cgp_mpi_comm(Ioss::ParallelUtils::comm_self());
-      int ierr = cgp_open(decoded_filename().c_str(), mode, &m_cgnsFilePtr);
+      int ierr = cg_open(decoded_filename().c_str(), mode, &m_cgnsFilePtr);
       cgp_mpi_comm(util().communicator());
 #else
       int ierr = cg_open(decoded_filename().c_str(), mode, &m_cgnsFilePtr);
@@ -794,8 +867,6 @@ namespace Iocgns {
                                                size_t & /* num_node */)
   {
     SMART_ASSERT(isParallel);
-    IOSS_PAR_UNUSED(base);
-    IOSS_PAR_UNUSED(num_zones);
 #if CG_BUILD_PARALLEL
     // Each processor may have a different set of zones.  This routine
     // will sync the information such that at return, each procesosr
@@ -998,7 +1069,7 @@ namespace Iocgns {
       Ioss::IJK_t global_ijk;
       Ioss::IJK_t offset_ijk;
 
-      zone_data[id++]; // proc field. Not currently used.
+      id++; // proc field. Not currently used.
       unpack(id, Data(zone_data), local_ijk.data(), 3);
       unpack(id, Data(zone_data), global_ijk.data(), 3);
       unpack(id, Data(zone_data), offset_ijk.data(), 3);
@@ -1147,17 +1218,19 @@ namespace Iocgns {
 
       int idx = 0;
       for (const auto &sb : blocks) {
-        unsigned    assem_hash = assem_ids[idx++];
-        std::string name       = assembly_hash_map[assem_hash];
-        auto       *assembly   = get_region()->get_assembly(name);
-        assert(assembly != nullptr);
-        if (!sb->property_exists("assembly")) {
-          assembly->add(sb);
-          Ioss::StructuredBlock *new_sb = const_cast<Ioss::StructuredBlock *>(sb);
-          new_sb->property_add(Ioss::Property("assembly", assembly->name()));
+        unsigned assem_hash = assem_ids[idx++];
+        if (assem_hash > 0) {
+          std::string name     = assembly_hash_map[assem_hash];
+          auto       *assembly = get_region()->get_assembly(name);
+          assert(assembly != nullptr);
+          if (!sb->property_exists("assembly")) {
+            assembly->add(sb);
+            Ioss::StructuredBlock *new_sb = const_cast<Ioss::StructuredBlock *>(sb);
+            new_sb->property_add(Ioss::Property("assembly", assembly->name()));
+          }
+          SMART_ASSERT(sb->get_property("assembly").get_string() == assembly->name())
+          (sb->get_property("assembly").get_string())(assembly->name());
         }
-        SMART_ASSERT(sb->get_property("assembly").get_string() == assembly->name())
-        (sb->get_property("assembly").get_string())(assembly->name());
       }
     }
 #endif
@@ -1533,6 +1606,7 @@ namespace Iocgns {
           "ERROR: CGNS: Too many bases; only support files with a single bases at this time");
     }
 
+    ParallelGuard serial(0);
     get_step_times_nl();
 
     if (open_create_behavior() == Ioss::DB_APPEND) {
@@ -1574,10 +1648,6 @@ namespace Iocgns {
         else if (mesh_type == Ioss::MeshType::UNSTRUCTURED) {
           create_unstructured_block(base, zone, num_node);
         }
-#if IOSS_ENABLE_HYBRID
-        else if (mesh_type == Ioss::MeshType::HYBRID) {
-        }
-#endif
         else {
           IOSS_ERROR(fmt::format("ERROR: CGNS: Zone {} is not of type Unstructured or Structured "
                                  "which are the only types currently supported",
@@ -1586,7 +1656,7 @@ namespace Iocgns {
       }
     }
 
-    if (mesh_type == Ioss::MeshType::STRUCTURED || mesh_type == Ioss::MeshType::HYBRID) {
+    if (mesh_type == Ioss::MeshType::STRUCTURED) {
       num_node = finalize_structured_blocks();
     }
 
@@ -1862,6 +1932,7 @@ namespace Iocgns {
     };
     // End of lambda...
 
+    ParallelGuard serial(0);
     if (role == Ioss::Field::MESH) {
       if (field.get_name() == "mesh_model_coordinates_x") {
         // Use the lambda...
@@ -2000,6 +2071,7 @@ namespace Iocgns {
       return 0;
     }
 
+    ParallelGuard         serial(0);
     Ioss::Field::RoleType role = field.get_role();
     if (role == Ioss::Field::TRANSIENT) {
       // Get the StructuredBlock that this NodeBlock is contained in:
@@ -2069,7 +2141,8 @@ namespace Iocgns {
   int64_t DatabaseIO::get_field_internal(const Ioss::ElementBlock *eb, const Ioss::Field &field,
                                          void *data, size_t data_size) const
   {
-    size_t num_to_get = field.verify(data_size);
+    ParallelGuard serial(0);
+    size_t        num_to_get = field.verify(data_size);
     if (num_to_get > 0) {
 
       int                   base             = eb->get_property("base").get_int();
@@ -2209,7 +2282,8 @@ namespace Iocgns {
     int                   base = sb->get_property("base").get_int();
     int                   zone = Iocgns::Utils::get_db_zone(sb);
 
-    cgsize_t num_to_get = field.verify(data_size);
+    cgsize_t      num_to_get = field.verify(data_size);
+    ParallelGuard serial(0);
 
     // In this routine, if isParallel, then reading file-per-processor; not parallel io from single
     // file.
@@ -2398,9 +2472,10 @@ namespace Iocgns {
   int64_t DatabaseIO::get_field_internal(const Ioss::SideBlock *sb, const Ioss::Field &field,
                                          void *data, size_t data_size) const
   {
-    int base = sb->get_property("base").get_int();
-    int zone = Iocgns::Utils::get_db_zone(sb);
-    int sect = sb->get_property("section").get_int();
+    ParallelGuard serial(0);
+    int           base = sb->get_property("base").get_int();
+    int           zone = Iocgns::Utils::get_db_zone(sb);
+    int           sect = sb->get_property("section").get_int();
 
     int64_t num_to_get = field.verify(data_size);
     if (num_to_get > 0) {
@@ -2554,6 +2629,7 @@ namespace Iocgns {
 
     // In this routine, if isParallel, then writing file-per-processor; not parallel io to single
     // file.
+    ParallelGuard serial(0);
     if (isParallel && num_to_get == 0) {
       return 0;
     }
@@ -2664,7 +2740,8 @@ namespace Iocgns {
   int64_t DatabaseIO::put_field_internal(const Ioss::ElementBlock *eb, const Ioss::Field &field,
                                          void *data, size_t data_size) const
   {
-    size_t num_to_get = field.verify(data_size);
+    ParallelGuard serial(0);
+    size_t        num_to_get = field.verify(data_size);
     if (num_to_get > 0) {
 
       Ioss::Field::RoleType role = field.get_role();
@@ -2835,6 +2912,7 @@ namespace Iocgns {
       return put_field_internal_sub_nb(nb, field, data, data_size);
     }
 
+    ParallelGuard serial(0);
     // Instead of outputting a global nodeblock's worth of data,
     // the data is output a "zone" at a time.
     // The m_globalToBlockLocalNodeMap[zone] map is used (Ioss::Map pointer)
@@ -3007,6 +3085,7 @@ namespace Iocgns {
     int                         zone       = Iocgns::Utils::get_db_zone(sb);
     cgsize_t                    num_to_get = field.verify(data_size);
 
+    ParallelGuard serial(0);
     // In this routine, if isParallel, then writing file-per-processor; not parallel io to single
     // file.
     if (isParallel && num_to_get == 0) {
@@ -3070,6 +3149,7 @@ namespace Iocgns {
   int64_t DatabaseIO::put_field_internal(const Ioss::SideBlock *sb, const Ioss::Field &field,
                                          void *data, size_t data_size) const
   {
+    ParallelGuard            serial(0);
     const Ioss::EntityBlock *parent_block = sb->parent_block();
     if (parent_block == nullptr) {
       IOSS_ERROR(fmt::format(
