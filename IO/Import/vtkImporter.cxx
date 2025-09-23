@@ -114,8 +114,16 @@ void vtkImporter::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
   }
 
-  this->Stream->PrintSelf(os, indent.GetNextIndent());
-  os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)");
+  os << indent << "Stream: ";
+  if (this->Stream)
+  {
+    this->Stream->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << "(none)\n";
+  }
+  os << indent << "File Name: " << (this->FileName ? this->FileName : "(none)") << "\n";
 }
 
 //------------------------------------------------------------------------------
