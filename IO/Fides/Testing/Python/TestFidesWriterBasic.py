@@ -40,7 +40,6 @@ class TestFidesWriterBasic(Testing.vtkTest):
         self.assertEqual(nsteps, 1)
 
         self.assertEqual(reader.GetNumberOfPointArrays(), 0)
-        reader.ConvertToVTKOn()
         reader.Update()
 
         pdsc = reader.GetOutputDataObject(0)
@@ -76,7 +75,6 @@ class TestFidesWriterBasic(Testing.vtkTest):
         self.assertEqual(nsteps, 1)
 
         self.assertEqual(reader.GetNumberOfPointArrays(), 1)
-        reader.ConvertToVTKOn()
         reader.Update()
 
         pdsc = reader.GetOutputDataObject(0)
@@ -111,7 +109,6 @@ class TestFidesWriterBasic(Testing.vtkTest):
         self.assertEqual(nsteps, 1)
 
         self.assertEqual(reader.GetNumberOfPointArrays(), 1)
-        reader.ConvertToVTKOn()
         reader.Update()
 
         pdsc = reader.GetOutputDataObject(0)
@@ -146,7 +143,6 @@ class TestFidesWriterBasic(Testing.vtkTest):
         self.assertEqual(nsteps, 1)
 
         self.assertEqual(reader.GetNumberOfPointArrays(), 1)
-        reader.ConvertToVTKOn()
         reader.Update()
 
         pdsc = reader.GetOutputDataObject(0)

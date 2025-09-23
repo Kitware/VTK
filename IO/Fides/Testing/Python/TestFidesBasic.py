@@ -32,7 +32,6 @@ class TestFidesBasic(Testing.vtkTest):
         pds = r.GetPointDataArraySelection()
         pds.DisableAllArrays()
         pds.EnableArray("dpot2")
-        r.ConvertToVTKOn()
         r.Update()
 
         pdsc = r.GetOutputDataObject(0)
@@ -77,7 +76,6 @@ class TestFidesBasic(Testing.vtkTest):
         self.assertEqual(ds.GetNumberOfPoints(), 20)
         self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 1)
         self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "dpot2")
-        self.assertEqual(ds.GetClassName(), "vtkmDataSet")
         return
 
     def testThird(self):
@@ -104,7 +102,7 @@ class TestFidesBasic(Testing.vtkTest):
         self.assertEqual(ds.GetNumberOfPoints(), 20)
         self.assertEqual(ds.GetPointData().GetNumberOfArrays(), 2)
         self.assertEqual(ds.GetPointData().GetArray(0).GetName(), "dpot")
-        self.assertEqual(ds.GetClassName(), "vtkmDataSet")
+        self.assertEqual(ds.GetClassName(), "vtkUnstructuredGrid")
         return
 
     def testFourth(self):
@@ -123,7 +121,6 @@ class TestFidesBasic(Testing.vtkTest):
         pds = r.GetPointDataArraySelection()
         pds.DisableAllArrays()
         pds.EnableArray("density")
-        r.ConvertToVTKOn()
         r.Update()
 
         pdsc = r.GetOutputDataObject(0)
@@ -160,7 +157,6 @@ class TestFidesBasic(Testing.vtkTest):
         cds.DisableAllArrays()
         cds.EnableArray("eqps")
         cds.EnableArray("mises")
-        r.ConvertToVTKOn()
         r.Update()
 
         pdsc = r.GetOutputDataObject(0)
@@ -195,7 +191,6 @@ class TestFidesBasic(Testing.vtkTest):
         for i in range(nsteps):
             self.assertEqual(r.GetOutputInformation(0).Get(
                 vtkStreamingDemandDrivenPipeline.TIME_STEPS(),i), i)
-        r.ConvertToVTKOn()
         r.CreateSharedPointsOff()
         r.Update()
 

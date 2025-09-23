@@ -23,6 +23,7 @@
 #define vtkFidesReader_h
 
 #include "vtkAlgorithm.h"
+#include "vtkDeprecation.h"   // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkIOFidesModule.h" // For export macro
 #include <memory>             // for std::unique_ptr
 #include <string>             // for std::string
@@ -128,9 +129,14 @@ public:
    * is mainly VTK filters (as opposed to Viskores accelerated VTK
    * filters), set this to on. False by default.
    */
-  vtkBooleanMacro(ConvertToVTK, bool);
-  vtkSetMacro(ConvertToVTK, bool);
-  vtkGetMacro(ConvertToVTK, bool);
+  VTK_DEPRECATED_IN_9_6_0("ConvertToVTK is deprecated since vtkmDataSet was deprecated.")
+  virtual void SetConvertToVTK(bool){};
+  VTK_DEPRECATED_IN_9_6_0("ConvertToVTK is deprecated since vtkmDataSet was deprecated.")
+  virtual bool GetConvertToVTK() { return true; };
+  VTK_DEPRECATED_IN_9_6_0("ConvertToVTK is deprecated since vtkmDataSet was deprecated.")
+  virtual void ConvertToVTKOn() {}
+  VTK_DEPRECATED_IN_9_6_0("ConvertToVTK is deprecated since vtkmDataSet was deprecated.")
+  virtual void ConvertToVTKOff() {}
   ///@}
 
   ///@{
@@ -212,7 +218,6 @@ protected:
   std::unique_ptr<vtkFidesReaderImpl> Impl;
 
   std::string FileName;
-  bool ConvertToVTK;
   bool StreamSteps;
   StepStatus NextStepStatus;
   bool CreateSharedPoints;

@@ -88,7 +88,6 @@ class TestFidesWriterTime(Testing.vtkTest):
         self.assertEqual(nsteps, 6)
 
         self.assertEqual(reader.GetNumberOfPointArrays(), 2)
-        reader.ConvertToVTKOn()
         reader.Update()
 
         pdsc = reader.GetOutputDataObject(0)
@@ -118,7 +117,6 @@ class TestFidesWriterTime(Testing.vtkTest):
         self.assertEqual(nsteps, 3)
 
         self.assertEqual(reader.GetNumberOfPointArrays(), 2)
-        reader.ConvertToVTKOn()
         reader.Update()
 
         pdsc = reader.GetOutputDataObject(0)

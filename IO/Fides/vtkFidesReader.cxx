@@ -16,7 +16,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringArray.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkmDataSet.h"
 #include "vtkmlib/ImageDataConverter.h"
 #include "vtkmlib/UnstructuredGridConverter.h"
 #include "vtksys/SystemTools.hxx"
@@ -106,7 +105,6 @@ vtkFidesReader::vtkFidesReader()
   this->PointDataArraySelection = vtkDataArraySelection::New();
   this->CellDataArraySelection = vtkDataArraySelection::New();
   this->FieldDataArraySelection = vtkDataArraySelection::New();
-  this->ConvertToVTK = false;
   this->StreamSteps = false;
   this->NextStepStatus = static_cast<StepStatus>(fides::StepStatus::NotReady);
   this->CreateSharedPoints = true;
@@ -241,7 +239,6 @@ void vtkFidesReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Filename: " << this->FileName << "\n";
-  os << indent << "Convert To VTK: " << this->ConvertToVTK << "\n";
   os << indent << "Stream Steps: " << this->StreamSteps << "\n";
   os << indent << "Next step status: " << this->NextStepStatus << "\n";
   os << indent << "Use Preset model: " << this->Impl->UsePresetModel << "\n";
@@ -762,19 +759,9 @@ int vtkFidesReader::RequestData(
     for (viskores::Id i = 0; i < nParts; i++)
     {
       auto& ds = datasets.GetPartition(i);
-      if (this->ConvertToVTK)
+      vtkDataSet* vds = ConvertDataSet(ds);
+      if (vds)
       {
-        vtkDataSet* vds = ConvertDataSet(ds);
-        if (vds)
-        {
-          output->SetPartition(pdsIdx, i, vds);
-          vds->Delete();
-        }
-      }
-      else
-      {
-        vtkmDataSet* vds = vtkmDataSet::New();
-        vds->SetVtkmDataSet(ds);
         output->SetPartition(pdsIdx, i, vds);
         vds->Delete();
       }
