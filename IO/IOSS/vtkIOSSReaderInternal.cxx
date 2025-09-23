@@ -1814,6 +1814,13 @@ bool vtkIOSSReaderInternal::GetGeometry(
   extents[4] = static_cast<int>(sblock.get_property("offset_k").get_int());
   extents[5] = extents[4] + static_cast<int>(sblock.get_property("nk").get_int());
 
+  // if extents are all 0, then the block has data, then you need to redo extents,
+  // so that extents 1, 3, and 5 are minus 1
+  if (std::all_of(extents, extents + 6, [](int e) { return e == 0; }))
+  {
+    extents[1] = extents[3] = extents[5] = -1;
+  }
+
   assert(
     sblock.get_property("node_count").get_int() == vtkStructuredData::GetNumberOfPoints(extents));
   assert(
