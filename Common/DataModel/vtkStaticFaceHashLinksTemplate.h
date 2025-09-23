@@ -112,9 +112,9 @@ public:
 protected:
   vtkIdType NumberOfFaces = 0;
   vtkIdType NumberOfHashes = 0;
-  std::shared_ptr<TInputIdType[]> CellIdOfFaceLinks;
-  std::shared_ptr<TFaceIdType[]> FaceIdOfFaceLinks;
-  std::shared_ptr<vtkIdType[]> FaceOffsets;
+  std::shared_ptr<TInputIdType> CellIdOfFaceLinks;
+  std::shared_ptr<TFaceIdType> FaceIdOfFaceLinks;
+  std::shared_ptr<vtkIdType> FaceOffsets;
 
 private:
   vtkStaticFaceHashLinksTemplate(const vtkStaticFaceHashLinksTemplate&) = delete;

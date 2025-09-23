@@ -128,7 +128,7 @@ void vtkStaticCellLinksTemplate<TIds>::BuildLinks(vtkDataSet* ds)
   }
 
   // Perform prefix sum to determine offsets
-  this->OffsetsSharedPtr = std::shared_ptr<TIds[]>(new TIds[this->NumPts + 1]());
+  this->OffsetsSharedPtr.reset(new TIds[this->NumPts + 1], std::default_delete<TIds[]>());
   this->Offsets = this->OffsetsSharedPtr.get();
   this->Offsets[0] = 0;
   for (vtkIdType ptId = 1; ptId < this->NumPts; ++ptId)
@@ -139,7 +139,7 @@ void vtkStaticCellLinksTemplate<TIds>::BuildLinks(vtkDataSet* ds)
   this->Offsets[this->NumPts] = this->LinksSize;
 
   // Allocate links array, Extra one allocated to simplify later pointer manipulation
-  this->LinkSharedPtr = std::shared_ptr<TIds[]>(new TIds[this->LinksSize + 1]());
+  this->LinkSharedPtr.reset(new TIds[this->LinksSize + 1], std::default_delete<TIds[]>());
   this->Links = this->LinkSharedPtr.get();
   this->Links[this->LinksSize] = this->NumPts;
 
@@ -334,7 +334,7 @@ void vtkStaticCellLinksTemplate<TIds>::BuildLinksFromMultipleArrays(
   }
 
   // Perform prefix sum to determine offsets
-  this->OffsetsSharedPtr = std::shared_ptr<TIds[]>(new TIds[numPts + 1]());
+  this->OffsetsSharedPtr.reset(new TIds[numPts + 1], std::default_delete<TIds[]>());
   this->Offsets = this->OffsetsSharedPtr.get();
   this->Offsets[0] = 0;
   for (vtkIdType ptId = 1; ptId < numPts; ++ptId)
@@ -345,7 +345,7 @@ void vtkStaticCellLinksTemplate<TIds>::BuildLinksFromMultipleArrays(
   this->Offsets[numPts] = this->LinksSize;
 
   // Allocate links array, Extra one allocated to simplify later pointer manipulation
-  this->LinkSharedPtr = std::shared_ptr<TIds[]>(new TIds[this->LinksSize + 1]());
+  this->LinkSharedPtr.reset(new TIds[this->LinksSize + 1], std::default_delete<TIds[]>());
   this->Links = this->LinkSharedPtr.get();
   this->Links[this->LinksSize] = this->NumPts;
 
@@ -534,12 +534,12 @@ void vtkStaticCellLinksTemplate<TIds>::DeepCopy(vtkStaticCellLinksTemplate* link
   this->NumPts = links->NumPts;
   this->NumCells = links->NumCells;
 
-  this->LinkSharedPtr = std::shared_ptr<TIds[]>(new TIds[this->LinksSize + 1]());
+  this->LinkSharedPtr.reset(new TIds[this->LinksSize + 1], std::default_delete<TIds[]>());
   this->Links = this->LinkSharedPtr.get();
   vtkSMPTools::For(0, this->LinksSize + 1,
     [&](vtkIdType beginLink, vtkIdType endLink)
     { std::copy(links->Links + beginLink, links->Links + endLink, this->Links + beginLink); });
-  this->OffsetsSharedPtr = std::shared_ptr<TIds[]>(new TIds[this->NumPts + 1]());
+  this->OffsetsSharedPtr.reset(new TIds[this->NumPts + 1], std::default_delete<TIds[]>());
   this->Offsets = this->OffsetsSharedPtr.get();
   vtkSMPTools::For(0, this->NumPts + 1,
     [&](vtkIdType beginPoint, vtkIdType endPoint) {
