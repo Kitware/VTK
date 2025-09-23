@@ -217,6 +217,21 @@ function(
     xdg-shell-protocol.h
     xdg-shell-protocol.c
   )
+
+  find_file(
+    WAYLAND_XDG_DECORATION_XML
+    NAMES xdg-decoration-unstable-v1.xml
+    HINTS ${WAYLAND_INCLUDE_DIRS}
+          ${WAYLAND_PROTOCOLS_DATADIR}/unstable/xdg-decoration
+          ${WAYLAND_PROTOCOLS_DATADIR}/xdg-decoration
+  )
+  wayland_generate_protocol(
+    ${output_var}
+    ${WAYLAND_XDG_DECORATION_XML}
+    xdg-decoration-protocol.h
+    xdg-decoration-protocol.c
+  )
+
   set(${output_var}
       "${${output_var}}"
       PARENT_SCOPE

@@ -40,6 +40,7 @@ struct wl_shm;
 struct xdg_wm_base;
 struct xdg_surface;
 struct xdg_toplevel;
+struct zxdg_decoration_manager_v1;
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -133,6 +134,7 @@ protected:
   xdg_wm_base* XdgWmBase = nullptr;
   xdg_surface* XdgSurface = nullptr;
   xdg_toplevel* XdgToplevel = nullptr;
+  zxdg_decoration_manager_v1* DecorationManager = nullptr;
 
   bool OwnDisplay = false;
   bool CursorHidden = false;

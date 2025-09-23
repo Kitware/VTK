@@ -16,13 +16,14 @@
 
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
-#include "vtksys/SystemTools.hxx"
 
 // Wayland specific headers
-#include "xdg-shell-protocol.h" // Generated from xdg-shell.xml
 #include <wayland-client-protocol.h>
 #include <wayland-client.h>
 #include <wayland-util.h>
+
+#include "xdg-decoration-protocol.h" // Generated from xdg-decoration-unstable-v1.xml
+#include "xdg-shell-protocol.h"      // Generated from xdg-shell.xml
 
 #include <iostream> // for cerr
 #include <string.h> // for strcmp
@@ -49,6 +50,12 @@ void vtkWaylandHardwareWindow::RegistryHandleGlobal(
   {
     self->XdgWmBase =
       static_cast<xdg_wm_base*>(wl_registry_bind(registry, name, &xdg_wm_base_interface, 1));
+  }
+  // Look for the decoration manager global
+  else if (strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0)
+  {
+    self->DecorationManager = static_cast<zxdg_decoration_manager_v1*>(
+      wl_registry_bind(registry, name, &zxdg_decoration_manager_v1_interface, 1));
   }
   else if (strcmp(interface, wl_shm_interface.name) == 0)
   {
@@ -84,6 +91,19 @@ void vtkWaylandHardwareWindow::XdgWmBaseHandlePing(
 
 static const xdg_wm_base_listener xdg_wm_base_listener = {
   .ping = vtkWaylandHardwareWindow::XdgWmBaseHandlePing,
+};
+
+// Add a listener for the decoration object.
+// The compositor uses this to tell us which decoration mode is active.
+static void decoration_handle_configure(
+  void* data, zxdg_toplevel_decoration_v1* decoration, uint32_t mode)
+{
+  // We requested server-side, but the compositor makes the final decision.
+  // A full CSD implementation would check the mode here and draw decorations if needed.
+}
+
+static const struct zxdg_toplevel_decoration_v1_listener decoration_listener = {
+  .configure = decoration_handle_configure,
 };
 
 // Listener for xdg_surface (the window surface itself)
@@ -183,6 +203,13 @@ void vtkWaylandHardwareWindow::Create()
   // Add the ping listener for the window manager
   xdg_wm_base_add_listener(this->XdgWmBase, &xdg_wm_base_listener, this);
 
+  // Check if we found the decoration manager. It is optional.
+  if (!this->DecorationManager)
+  {
+    vtkWarningMacro("Compositor does not support xdg-decoration protocol. "
+                    "Window decorations will not be available.");
+  }
+
   // Step 3: Create the core surface
   this->Surface = wl_compositor_create_surface(this->Compositor);
   if (!this->Surface)
@@ -198,6 +225,16 @@ void vtkWaylandHardwareWindow::Create()
 
   this->XdgToplevel = xdg_surface_get_toplevel(this->XdgSurface);
   xdg_toplevel_add_listener(this->XdgToplevel, &xdg_toplevel_listener, this);
+
+  // If the decoration manager exists, request server-side decorations.
+  if (this->DecorationManager)
+  {
+    struct zxdg_toplevel_decoration_v1* decoration =
+      zxdg_decoration_manager_v1_get_toplevel_decoration(
+        this->DecorationManager, this->XdgToplevel);
+    zxdg_toplevel_decoration_v1_add_listener(decoration, &decoration_listener, this);
+    zxdg_toplevel_decoration_v1_set_mode(decoration, ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
+  }
 
   // Set the window title if it exists
   if (this->WindowName)
