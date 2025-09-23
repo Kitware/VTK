@@ -1432,8 +1432,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
                 "  vec3 specularBrdf = F0 * brdf.r + F90 * brdf.g;\n"
                 "  vec3 iblSpecular = prefilteredSpecularColor * specularBrdf;\n"
                 // no diffuse for metals
-                "  vec3 iblDiffuse = (1.0 - F0) * (1.0 - metallic) * irradiance * "
-                "DiffuseLambert(albedo);\n"
+                "  vec3 iblDiffuse = (1.0 - F0) * (1.0 - metallic) * irradiance * albedo;\n"
                 "  vec3 color = iblDiffuse + iblSpecular;\n"
                 "\n";
 
