@@ -5,6 +5,8 @@
 ##   VTK_CI_RUN_MANUALLY
 ##     Set to "true" if the job should be manually triggered in MRs. These jobs
 ##     will also be delayed for branch update pipelines
+##   VTK_CI_MERGED_ONLY
+##     Set to "true" to make the job only run for merged pipelines.
 ####
 
 # When to even consider running a pipeline.
@@ -48,6 +50,9 @@ workflow:
 
 .rules:
     rules:
+        # Merged-only jobs never run on MRs.
+        - if: '$CI_MERGE_REQUEST_ID && $VTK_CI_MERGED_ONLY == "true"'
+          when: never
         # MRs use manual triggers, but only if there are code chagens.
         - if: '$CI_MERGE_REQUEST_ID && $VTK_CI_RUN_MANUALLY == "true"'
           changes: *code_change
@@ -81,16 +86,6 @@ workflow:
           when: on_success
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
           when: on_success
-        - when: never
-
-.merged_only:
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
-          when: never
-        - if: '$CI_PIPELINE_SOURCE == "schedule"'
-          when: on_success
-        - when: delayed
-          start_in: 4 hours
         - when: never
 
 .release_only:
