@@ -1549,7 +1549,7 @@ wheel-linux-python313-aarch64-egl:test-x11:
 wheel:pypi:upload:
     extends:
         - .pypi_upload
-        - .tag_only
+        - .release_only
     needs:
         - wheel-linux-python38-x86_64:build
         - job: wheel-linux-python38-x86_64:test
@@ -2134,13 +2134,13 @@ source:build:
     extends:
         - .cmake_source_tarballs
         - .cmake_release_artifacts
-        - .tag_only
+        - .release_only
 
 documentation:release-prep:
     extends:
         - .cmake_doc_tarball
         - .cmake_release_artifacts
-        - .tag_only
+        - .release_only
     needs:
         - documentation:build
 
