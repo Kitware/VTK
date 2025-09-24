@@ -70,7 +70,7 @@ readthedocs:build:
         - .linux_x86_64_builder_tags
         - .make_sphinx_docs
         - .sphinx_artifacts
-        - .run_automatically
+        - .rules
     needs: []
     timeout: 15 minutes
 
@@ -94,7 +94,7 @@ el7-x86_64-mindeps-debug-python-qt5:build:
 #         - .cmake_test_linux
 #         - .linux_x86_64_tester_tags
 #         - .cmake_test_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - el7-x86_64-mindeps-python-qt5:build
 
@@ -113,7 +113,7 @@ el8-x86_64-python:test:
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - el8-x86_64-python:build
 
@@ -132,7 +132,7 @@ fedora41-aarch64-mpi-python:test:
         - .cmake_test_linux
         - .linux_aarch64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora41-aarch64-mpi-python:build
 
@@ -151,7 +151,7 @@ fedora39-x86_64-mpi-renderless:test:
         - .cmake_test_linux
         - .linux_x86_64_builder_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-renderless:build
 
@@ -161,7 +161,7 @@ vtk:fedora39-x86_64-mpi-renderless:test-ext:
         - .cmake_test_external_linux
         - .linux_x86_64_builder_tags
         - .cmake_junit_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-renderless:test
 
@@ -183,7 +183,7 @@ fedora39-x86_64-cuda-mpi:test:
         - .cmake_test_linux
         - .cmake_test_artifacts
         - .linux_x86_64_cuda_tester_tags
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-cuda-mpi:build
     variables:
@@ -196,7 +196,7 @@ vtk:fedora39-x86_64-cuda-mpi:test-ext:
         - .cmake_test_external_linux
         - .cmake_tidy_artifacts
         - .linux_x86_64_cuda_tester_tags
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-cuda-mpi:test
     variables:
@@ -219,7 +219,7 @@ fedora39-x86_64-helide-mpi-python-qt-tbb:test:
         - .cmake_test_linux
         - .linux_x86_64_fast_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-helide-mpi-python-qt-tbb:build
 
@@ -229,7 +229,7 @@ fedora39-x86_64-mpi-offscreen-osmesa-python:test:
         - .cmake_test_linux
         - .linux_x86_64_builder_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-python-qt-tbb:build
 
@@ -239,7 +239,7 @@ vtk:fedora39-x86_64-mpi-offscreen-osmesa-python:test-ext:
         - .cmake_test_external_linux
         - .linux_x86_64_builder_tags
         - .cmake_junit_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-offscreen-osmesa-python:test
     timeout: 90 minutes
@@ -260,7 +260,7 @@ fedora39-x86_64-mpi-ospray-python-qt-tbb:test:
         - .cmake_test_linux
         - .linux_x86_64_fast_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-ospray-python-qt-tbb:build
 
@@ -304,7 +304,7 @@ fedora39-x86_64-mpi-python-qt-tbb:test:
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-python-qt-tbb:build
 
@@ -314,7 +314,7 @@ vtk:fedora39-x86_64-mpi-python-qt-tbb:test-ext:
         - .cmake_test_external_linux
         - .linux_x86_64_tester_tags
         - .cmake_junit_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-python-qt-tbb:test
 
@@ -326,7 +326,7 @@ fedora39-x86_64-mpi-python-qt-stdthread:test:
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-python-qt-tbb:build
 
@@ -346,7 +346,7 @@ fedora39-x86_64-mangling:test:
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mangling:build
 
@@ -366,7 +366,7 @@ fedora39-x86_64-mpi-python-viskoresoverride:test:
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-python-viskoresoverride:build
 
@@ -387,7 +387,7 @@ fedora39-x86_64-webgpu:test:
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     timeout: 90 minutes
     needs:
         - fedora39-x86_64-webgpu:build
@@ -409,7 +409,7 @@ wasm32-emscripten:package:
         - .cmake_package_wasm_emscripten_linux
         - .linux_x86_64_packager_tags
         - .cmake_webassembly_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - wasm32-emscripten-linux:build
 
@@ -438,7 +438,7 @@ wasm64-emscripten-linux:build:
 #         - .cmake_package_wasm_emscripten_linux
 #         - .linux_packager_tags
 #         - .cmake_webassembly_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - wasm64-emscripten-linux:build
 
@@ -457,7 +457,7 @@ wasm32-emscripten-windows-chrome:test-ext:
         - .cmake_test_wasm_emscripten_windows_ext
         - .windows_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - wasm32-emscripten-linux:build
 
@@ -468,7 +468,7 @@ wasm64-emscripten-windows-chrome:test-ext:
         - .cmake_test_wasm_emscripten_windows_ext
         - .windows_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - wasm64-emscripten-linux:build
 
@@ -833,7 +833,7 @@ wheel-linux-python313-x86_64:test:
         - .wheel_linux313_x86_64
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-x86_64:build
@@ -843,7 +843,7 @@ wheel-linux-python313-x86_64:test-x11:
         - .wheel_linux313_x86_64
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-x86_64:build
@@ -853,7 +853,7 @@ wheel-linux-python313-x86_64-osmesa:test:
         - .wheel_linux313_x86_64_osmesa
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-x86_64:build
@@ -863,7 +863,7 @@ wheel-linux-python313-x86_64-osmesa:test-x11:
         - .wheel_linux313_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-x86_64:build
@@ -873,7 +873,7 @@ wheel-linux-python313-x86_64-egl:test:
         - .wheel_linux313_x86_64_egl
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-x86_64:build
@@ -883,7 +883,7 @@ wheel-linux-python313-x86_64-egl:test-x11:
         - .wheel_linux313_x86_64_egl
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-x86_64:build
@@ -1249,7 +1249,7 @@ wheel-linux-python313-aarch64:test:
         - .wheel_linux313_aarch64
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
@@ -1259,7 +1259,7 @@ wheel-linux-python313-aarch64:test-x11:
         - .wheel_linux313_aarch64
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
@@ -1269,7 +1269,7 @@ wheel-linux-python313-aarch64-osmesa:test:
         - .wheel_linux313_aarch64_osmesa
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
@@ -1279,7 +1279,7 @@ wheel-linux-python313-aarch64-osmesa:test-x11:
         - .wheel_linux313_aarch64_osmesa
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
@@ -1289,7 +1289,7 @@ wheel-linux-python313-aarch64-egl:test:
         - .wheel_linux313_aarch64_egl
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
@@ -1299,7 +1299,7 @@ wheel-linux-python313-aarch64-egl:test-x11:
         - .wheel_linux313_aarch64_egl
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
@@ -1815,7 +1815,7 @@ fedora39-x86_64-tidy:build:
 #         - .cmake_memcheck_linux
 #         - .linux_x86_64_tester_priv_tags
 #         - .cmake_test_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - fedora39-x86_64-asan:build
 #
@@ -1834,7 +1834,7 @@ fedora39-x86_64-tidy:build:
 #         - .cmake_memcheck_linux
 #         - .linux_x86_64_tester_priv_tags
 #         - .cmake_test_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - fedora39-x86_64-tsan:build
 #
@@ -1853,7 +1853,7 @@ fedora39-x86_64-tidy:build:
 #         - .cmake_memcheck_linux
 #         - .linux_x86_64_tester_priv_tags
 #         - .cmake_test_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - fedora39-x86_64-ubsan:build
 
@@ -2138,7 +2138,7 @@ macos-arm64-kits-python-qt:test:
         - .cmake_test_macos
         - .macos_arm64_builder_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - macos-arm64-kits-python-qt:build
 
@@ -2159,7 +2159,7 @@ macos-x86_64-kits-python-qt:test:
         - .cmake_test_macos
         - .macos_x86_64_builder_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - macos-x86_64-kits-python-qt:build
     timeout: 2 hours
@@ -2172,7 +2172,7 @@ macos-x86_64-kits-python-qt-stdthread:test:
         - .cmake_test_macos
         - .macos_x86_64_builder_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - macos-x86_64-kits-python-qt:build
     timeout: 2 hours
@@ -2191,7 +2191,7 @@ macos-x86_64-kits-python-qt-stdthread:test:
 #         - .cmake_test_external_macos
 #         - .macos_ext_builder_tags
 #         - .cmake_junit_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - macos-x86_64-kits-python-qt:test
 
@@ -2387,7 +2387,7 @@ wheel-macos-python313-arm64:test:
         - .wheel_macos313_arm64
         - .cmake_test_wheel_macos
         - .macos_arm64_wheel_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-macos-python313-arm64:build
@@ -2407,7 +2407,7 @@ wheel-macos-python313-x86_64:test:
         - .wheel_macos313_x86_64
         - .cmake_test_wheel_macos
         - .macos_x86_64_wheel_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-macos-python313-x86_64:build
@@ -2433,7 +2433,7 @@ windows-vs2022-debug-mpi-qt:build:
 #         - .cmake_test_windows
 #         - .windows_tester_tags
 #         - .cmake_test_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - windows-vs2022-debug-mpi-qt:build
 
@@ -2453,7 +2453,7 @@ windows-vs2022-kits-mpi-python-qt:test:
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - windows-vs2022-kits-mpi-python-qt:build
@@ -2466,7 +2466,7 @@ windows-vs2022-kits-mpi-python-qt-stdthread:test:
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - windows-vs2022-kits-mpi-python-qt:build
 
@@ -2485,7 +2485,7 @@ windows-vs2022-kits-mpi-python-qt-stdthread:test:
 #         - .cmake_test_external_windows
 #         - .windows_ext_builder_tags
 #         - .cmake_junit_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - windows-vs2022-kits-mpi-python-qt:test
 
@@ -2505,7 +2505,7 @@ windows-vs2022-mpi-python-qt:test:
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - windows-vs2022-mpi-python-qt:build
 
@@ -2525,7 +2525,7 @@ windows-vs2022-mpi-python-qt-static:test:
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - windows-vs2022-mpi-python-qt-static:build
 
@@ -2690,7 +2690,7 @@ wheel-windows-python313-x86_64:test:
         - .wheel_windows313_x86_64
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-windows-python313-x86_64:build
@@ -2700,7 +2700,7 @@ wheel-windows-python313-x86_64-osmesa:test:
         - .wheel_windows313_x86_64_osmesa
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-windows-python313-x86_64:build

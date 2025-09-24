@@ -30,26 +30,32 @@ workflow:
         # Skip pipelines in all other cases.
         - when: never
 
-.run_on_code_change:
-  # The following rules are intended to include all files and directories
-  # except the `Documentation` directory.
-  rules:
-      changes: &code_change
+# Discover code changes
+.changes: &code_change
+    paths:
+        # Ignore the documentation directory.
         - '!Documentation/**/*'
         - '**/*'
         - '.*'                # any hidden file is touched
         - '.*/**/*'           # any file within a hidden directory
-      when: on_success
 
-
-.run_automatically:
+.rules:
     rules:
+        # Normal jobs run automatically, but only if there are code changes.
         - if: '$CI_MERGE_REQUEST_ID'
           changes: *code_change
           when: on_success
-        - changes: *code_change
+        # Any other jobs on a MR do not run.
+        - if: '$CI_MERGE_REQUEST_ID'
+          when: never
+        # Jobs on a tag run right away.
+        - if: '$CI_COMMIT_TAG'
           when: on_success
-        - when: never
+        # Scheduled jobs run automatically.
+        - if: '$CI_PIPELINE_SOURCE == "schedule"'
+          when: on_success
+        # Normal jobs on the project run automatically.
+        - when: on_success
 
 .scheduled_only:
     rules:
