@@ -392,12 +392,9 @@ struct CutFunctionWorker
 void vtkPlane::EvaluateFunction(vtkDataArray* input, vtkDataArray* output)
 {
   CutFunctionWorker worker(this->InternalNormal, this->InternalOrigin);
-  typedef vtkTypeList::Create<float, double> InputTypes;
-  typedef vtkTypeList::Create<float, double> OutputTypes;
-  typedef vtkArrayDispatch::Dispatch2ByValueTypeUsingArrays<vtkArrayDispatch::AllArrays, InputTypes,
-    OutputTypes>
-    MyDispatch;
-  if (!MyDispatch::Execute(input, output, worker))
+  using Dispatcher = vtkArrayDispatch::Dispatch2ByArrayAndValueType<vtkArrayDispatch::AllArrays,
+    vtkArrayDispatch::Arrays, vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+  if (!Dispatcher::Execute(input, output, worker))
   {
     worker(input, output); // Use vtkDataArray API if dispatch fails.
   }

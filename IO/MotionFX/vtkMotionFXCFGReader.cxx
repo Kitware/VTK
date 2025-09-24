@@ -194,7 +194,7 @@ protected:
       vtkSMPTools::For(0, darray->GetNumberOfTuples(),
         [&](vtkIdType begin, vtkIdType end)
         {
-          auto drange = vtk::DataArrayTupleRange(darray, begin, end);
+          auto drange = vtk::DataArrayTupleRange<3>(darray, begin, end);
           for (auto tuple : drange)
           {
             vtkVector4<ValueType> in, out;
@@ -258,8 +258,11 @@ struct ImposeVelMotion : public Motion
       ApplyDisplacement worker(s);
 
       // displace points.
-      using PointTypes = vtkTypeList::Create<float, double>;
-      vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
+      if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+            pts->GetData(), worker))
+      {
+        worker(pts->GetData());
+      }
       pts->GetData()->Modified();
     }
 
@@ -365,8 +368,11 @@ struct RotateAxisMotion : public Motion
 
       ApplyTransform worker(transform);
       // transform points.
-      using PointTypes = vtkTypeList::Create<float, double>;
-      vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
+      if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+            pts->GetData(), worker))
+      {
+        worker(pts->GetData());
+      }
       pts->GetData()->Modified();
     }
     return true;
@@ -429,8 +435,11 @@ struct RotateMotion : public Motion
 
       ApplyTransform worker(transform);
       // transform points.
-      using PointTypes = vtkTypeList::Create<float, double>;
-      vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
+      if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+            pts->GetData(), worker))
+      {
+        worker(pts->GetData());
+      }
       pts->GetData()->Modified();
     }
     return true;
@@ -552,8 +561,11 @@ struct PlanetaryMotion : public Motion
 
       ApplyTransform worker(transform);
       // transform points.
-      using PointTypes = vtkTypeList::Create<float, double>;
-      vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
+      if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+            pts->GetData(), worker))
+      {
+        worker(pts->GetData());
+      }
       pts->GetData()->Modified();
     }
     return true;
@@ -716,8 +728,11 @@ struct PositionFileMotion : public Motion
 
     ApplyTransform worker(transform);
     // transform points.
-    using PointTypes = vtkTypeList::Create<float, double>;
-    vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
+    if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+          pts->GetData(), worker))
+    {
+      worker(pts->GetData());
+    }
     pts->GetData()->Modified();
     return true;
   }
@@ -867,8 +882,11 @@ struct UniversalTransformMotion : public Motion
 
     ApplyTransform worker(transform);
     // transform points.
-    using PointTypes = vtkTypeList::Create<float, double>;
-    vtkArrayDispatch::DispatchByValueType<PointTypes>::Execute(pts->GetData(), worker);
+    if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+          pts->GetData(), worker))
+    {
+      worker(pts->GetData());
+    }
     pts->GetData()->Modified();
     return true;
   }

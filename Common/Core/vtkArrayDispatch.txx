@@ -1220,7 +1220,7 @@ public:
 template <typename ValueList>
 struct FilterArraysByValueType<vtkTypeList::NullType, ValueList>
 {
-  typedef vtkTypeList::NullType Result;
+  using Result = vtkTypeList::NullType;
 };
 
 // Recursive case:
@@ -1228,16 +1228,16 @@ template <typename ArrayHead, typename ArrayTail, typename ValueList>
 struct FilterArraysByValueType<vtkTypeList::TypeList<ArrayHead, ArrayTail>, ValueList>
 {
 private:
-  typedef typename ArrayHead::ValueType ValueType;
+  using ValueType = typename ArrayHead::ValueType;
   enum
   {
     ValueIsAllowed = vtkTypeList::IndexOf<ValueList, ValueType>::Result >= 0
   };
-  typedef typename FilterArraysByValueType<ArrayTail, ValueList>::Result NewTail;
+  using NewTail = typename FilterArraysByValueType<ArrayTail, ValueList>::Result;
 
 public:
-  typedef typename vtkTypeList::Select<ValueIsAllowed, vtkTypeList::TypeList<ArrayHead, NewTail>,
-    NewTail>::Result Result;
+  using Result = typename vtkTypeList::Select<ValueIsAllowed,
+    vtkTypeList::TypeList<ArrayHead, NewTail>, NewTail>::Result;
 };
 
 //------------------------------------------------------------------------------
@@ -1248,10 +1248,10 @@ template <typename ArrayHead, typename ArrayTail>
 struct DispatchByArray<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
 {
 private:
-  typedef vtkTypeList::TypeList<ArrayHead, ArrayTail> ArrayList;
-  typedef typename vtkTypeList::Unique<ArrayList>::Result UniqueArrays;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArrays>::Result SortedUniqueArrays;
-  typedef impl::Dispatch<SortedUniqueArrays> ArrayDispatcher;
+  using ArrayList = vtkTypeList::TypeList<ArrayHead, ArrayTail>;
+  using UniqueArrays = typename vtkTypeList::Unique<ArrayList>::Result;
+  using SortedUniqueArrays = typename vtkTypeList::DerivedToFront<UniqueArrays>::Result;
+  using ArrayDispatcher = impl::Dispatch<SortedUniqueArrays>;
 
 public:
   template <typename Worker, typename... Params>
@@ -1266,34 +1266,23 @@ public:
 // Dispatch implementation:
 // (defined after DispatchByArray to prevent 'incomplete type' errors)
 //------------------------------------------------------------------------------
-struct Dispatch
+struct Dispatch : public DispatchByArray<Arrays>
 {
-private:
-  typedef DispatchByArray<Arrays> Dispatcher;
-
-public:
-  template <typename Worker, typename... Params>
-  static bool Execute(vtkDataArray* array, Worker&& worker, Params&&... params)
-  {
-    return Dispatcher::Execute(
-      array, std::forward<Worker>(worker), std::forward<Params>(params)...);
-  }
 };
 
 //------------------------------------------------------------------------------
-// DispatchByValueType implementation:
+// DispatchByArrayAndValueType implementation:
 //------------------------------------------------------------------------------
 // Preprocess and pass off to impl::Dispatch
 template <typename ArrayList, typename ValueTypeHead, typename ValueTypeTail>
-struct DispatchByValueTypeUsingArrays<ArrayList,
-  vtkTypeList::TypeList<ValueTypeHead, ValueTypeTail>>
+struct DispatchByArrayAndValueType<ArrayList, vtkTypeList::TypeList<ValueTypeHead, ValueTypeTail>>
 {
 private:
-  typedef vtkTypeList::TypeList<ValueTypeHead, ValueTypeTail> ValueTypeList;
-  typedef typename FilterArraysByValueType<ArrayList, ValueTypeList>::Result FilteredArrayList;
-  typedef typename vtkTypeList::Unique<FilteredArrayList>::Result UniqueArrays;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArrays>::Result SortedUniqueArrays;
-  typedef impl::Dispatch<SortedUniqueArrays> ArrayDispatcher;
+  using ValueTypeList = vtkTypeList::TypeList<ValueTypeHead, ValueTypeTail>;
+  using FilteredArrayList = typename FilterArraysByValueType<ArrayList, ValueTypeList>::Result;
+  using UniqueArrays = typename vtkTypeList::Unique<FilteredArrayList>::Result;
+  using SortedUniqueArrays = typename vtkTypeList::DerivedToFront<UniqueArrays>::Result;
+  using ArrayDispatcher = impl::Dispatch<SortedUniqueArrays>;
 
 public:
   template <typename Worker, typename... Params>
@@ -1303,8 +1292,18 @@ public:
       inArray, std::forward<Worker>(worker), std::forward<Params>(params)...);
   }
 };
+//------------------------------------------------------------------------------
+// DispatchByValueType implementation:
+//------------------------------------------------------------------------------
 template <typename ValueTypeList>
-struct DispatchByValueType : public DispatchByValueTypeUsingArrays<Arrays, ValueTypeList>
+struct DispatchByValueType : public DispatchByArrayAndValueType<Arrays, ValueTypeList>
+{
+};
+//------------------------------------------------------------------------------
+// DispatchByValueTypeUsingArrays implementation:
+//------------------------------------------------------------------------------
+template <typename ArrayList, typename ValueTypeList>
+struct DispatchByValueTypeUsingArrays : public DispatchByArrayAndValueType<ArrayList, ValueTypeList>
 {
 };
 
@@ -1316,11 +1315,11 @@ template <typename ArrayList1, typename ArrayList2>
 struct Dispatch2ByArray
 {
 private:
-  typedef typename vtkTypeList::Unique<ArrayList1>::Result UniqueArray1;
-  typedef typename vtkTypeList::Unique<ArrayList2>::Result UniqueArray2;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray1>::Result SortedUniqueArray1;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray2>::Result SortedUniqueArray2;
-  typedef impl::Dispatch2<SortedUniqueArray1, SortedUniqueArray2> ArrayDispatcher;
+  using UniqueArray1 = typename vtkTypeList::Unique<ArrayList1>::Result;
+  using UniqueArray2 = typename vtkTypeList::Unique<ArrayList2>::Result;
+  using SortedUniqueArray1 = typename vtkTypeList::DerivedToFront<UniqueArray1>::Result;
+  using SortedUniqueArray2 = typename vtkTypeList::DerivedToFront<UniqueArray2>::Result;
+  using ArrayDispatcher = impl::Dispatch2<SortedUniqueArray1, SortedUniqueArray2>;
 
 public:
   template <typename Worker, typename... Params>
@@ -1335,36 +1334,26 @@ public:
 //------------------------------------------------------------------------------
 // Dispatch2 implementation:
 //------------------------------------------------------------------------------
-struct Dispatch2
+struct Dispatch2 : public Dispatch2ByArray<Arrays, Arrays>
 {
-private:
-  typedef Dispatch2ByArray<Arrays, Arrays> Dispatcher;
-
-public:
-  template <typename Worker, typename... Params>
-  static bool Execute(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
-  {
-    return Dispatcher::Execute(
-      array1, array2, std::forward<Worker>(worker), std::forward<Params>(params)...);
-  }
 };
 
 //------------------------------------------------------------------------------
-// Dispatch2ByValueType implementation:
+// Dispatch2ByArrayAndValueType implementation:
 //------------------------------------------------------------------------------
 // Preprocess and pass off to impl::Dispatch2
-template <typename ArrayList, typename ValueTypeList1, typename ValueTypeList2>
-struct Dispatch2ByValueTypeUsingArrays
+template <typename ArrayList1, typename ArrayList2, typename ValueTypeList1,
+  typename ValueTypeList2>
+struct Dispatch2ByArrayAndValueType
 {
 private:
-  typedef typename FilterArraysByValueType<ArrayList, ValueTypeList1>::Result FilteredArrayList1;
-  typedef typename FilterArraysByValueType<ArrayList, ValueTypeList2>::Result FilteredArrayList2;
-  typedef typename vtkTypeList::Unique<FilteredArrayList1>::Result UniqueArray1;
-  typedef typename vtkTypeList::Unique<FilteredArrayList2>::Result UniqueArray2;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray1>::Result SortedUniqueArray1;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray2>::Result SortedUniqueArray2;
-  typedef impl::Dispatch2<SortedUniqueArray1, SortedUniqueArray2> ArrayDispatcher;
+  using FilteredArrayList1 = typename FilterArraysByValueType<ArrayList1, ValueTypeList1>::Result;
+  using FilteredArrayList2 = typename FilterArraysByValueType<ArrayList2, ValueTypeList2>::Result;
+  using UniqueArray1 = typename vtkTypeList::Unique<FilteredArrayList1>::Result;
+  using UniqueArray2 = typename vtkTypeList::Unique<FilteredArrayList2>::Result;
+  using SortedUniqueArray1 = typename vtkTypeList::DerivedToFront<UniqueArray1>::Result;
+  using SortedUniqueArray2 = typename vtkTypeList::DerivedToFront<UniqueArray2>::Result;
+  using ArrayDispatcher = impl::Dispatch2<SortedUniqueArray1, SortedUniqueArray2>;
 
 public:
   template <typename Worker, typename... Params>
@@ -1375,24 +1364,35 @@ public:
       array1, array2, std::forward<Worker>(worker), std::forward<Params>(params)...);
   }
 };
+//------------------------------------------------------------------------------
+// Dispatch2ByValueType implementation:
+//------------------------------------------------------------------------------
 template <typename ValueTypeList1, typename ValueTypeList2>
 struct Dispatch2ByValueType
-  : Dispatch2ByValueTypeUsingArrays<Arrays, ValueTypeList1, ValueTypeList2>
+  : Dispatch2ByArrayAndValueType<Arrays, Arrays, ValueTypeList1, ValueTypeList2>
+{
+};
+//------------------------------------------------------------------------------
+// Dispatch2ByValueTypeUsingArrays implementation:
+//------------------------------------------------------------------------------
+template <typename ArrayList, typename ValueTypeList1, typename ValueTypeList2>
+struct Dispatch2ByValueTypeUsingArrays
+  : Dispatch2ByArrayAndValueType<ArrayList, ArrayList, ValueTypeList1, ValueTypeList2>
 {
 };
 
 //------------------------------------------------------------------------------
-// Dispatch2BySameValueType implementation:
+// Dispatch2ByArrayAndSameValueType implementation:
 //------------------------------------------------------------------------------
 // Preprocess and pass off to impl::Dispatch2Same
 template <typename ArrayList, typename ValueTypeList>
-struct Dispatch2BySameValueTypeUsingArrays
+struct Dispatch2ByArrayAndSameValueType
 {
 private:
-  typedef typename FilterArraysByValueType<ArrayList, ValueTypeList>::Result FilteredArrayList;
-  typedef typename vtkTypeList::Unique<FilteredArrayList>::Result UniqueArray;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray>::Result SortedUniqueArray;
-  typedef impl::Dispatch2Same<SortedUniqueArray, SortedUniqueArray> Dispatcher;
+  using FilteredArrayList = typename FilterArraysByValueType<ArrayList, ValueTypeList>::Result;
+  using UniqueArray = typename vtkTypeList::Unique<FilteredArrayList>::Result;
+  using SortedUniqueArray = typename vtkTypeList::DerivedToFront<UniqueArray>::Result;
+  using Dispatcher = impl::Dispatch2Same<SortedUniqueArray, SortedUniqueArray>;
 
 public:
   template <typename Worker, typename... Params>
@@ -1403,8 +1403,19 @@ public:
       array1, array2, std::forward<Worker>(worker), std::forward<Params>(params)...);
   }
 };
+//------------------------------------------------------------------------------
+// Dispatch2BySameValueType implementation:
+//------------------------------------------------------------------------------
 template <typename ValueTypeList>
-struct Dispatch2BySameValueType : Dispatch2BySameValueTypeUsingArrays<Arrays, ValueTypeList>
+struct Dispatch2BySameValueType : Dispatch2ByArrayAndSameValueType<Arrays, ValueTypeList>
+{
+};
+//------------------------------------------------------------------------------
+// Dispatch2BySameValueTypeUsingArrays implementation:
+//------------------------------------------------------------------------------
+template <typename ArrayList, typename ValueTypeList>
+struct Dispatch2BySameValueTypeUsingArrays
+  : Dispatch2ByArrayAndSameValueType<ArrayList, ValueTypeList>
 {
 };
 
@@ -1416,11 +1427,11 @@ template <typename ArrayList1, typename ArrayList2>
 struct Dispatch2ByArrayWithSameValueType
 {
 private:
-  typedef typename vtkTypeList::Unique<ArrayList1>::Result UniqueArray1;
-  typedef typename vtkTypeList::Unique<ArrayList2>::Result UniqueArray2;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray1>::Result SortedUniqueArray1;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray2>::Result SortedUniqueArray2;
-  typedef impl::Dispatch2Same<SortedUniqueArray1, SortedUniqueArray2> Dispatcher;
+  using UniqueArray1 = typename vtkTypeList::Unique<ArrayList1>::Result;
+  using UniqueArray2 = typename vtkTypeList::Unique<ArrayList2>::Result;
+  using SortedUniqueArray1 = typename vtkTypeList::DerivedToFront<UniqueArray1>::Result;
+  using SortedUniqueArray2 = typename vtkTypeList::DerivedToFront<UniqueArray2>::Result;
+  using Dispatcher = impl::Dispatch2Same<SortedUniqueArray1, SortedUniqueArray2>;
 
 public:
   template <typename Worker, typename... Params>
@@ -1435,22 +1446,15 @@ public:
 //------------------------------------------------------------------------------
 // Dispatch2SameValueType implementation:
 //------------------------------------------------------------------------------
+struct Dispatch2SameValueType : public Dispatch2ByArrayWithSameValueType<Arrays, Arrays>
+{
+};
+//------------------------------------------------------------------------------
+// Dispatch2SameValueTypeUsingArrays implementation:
+//------------------------------------------------------------------------------
 template <typename ArrayList>
 struct Dispatch2SameValueTypeUsingArrays
-{
-private:
-  typedef Dispatch2ByArrayWithSameValueType<ArrayList, ArrayList> Dispatcher;
-
-public:
-  template <typename Worker, typename... Params>
-  static bool Execute(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
-  {
-    return Dispatcher::Execute(
-      array1, array2, std::forward<Worker>(worker), std::forward<Params>(params)...);
-  }
-};
-struct Dispatch2SameValueType : public Dispatch2SameValueTypeUsingArrays<Arrays>
+  : public Dispatch2ByArrayWithSameValueType<ArrayList, ArrayList>
 {
 };
 
@@ -1462,14 +1466,14 @@ template <typename ArrayList1, typename ArrayList2, typename ArrayList3>
 struct Dispatch3ByArray
 {
 private:
-  typedef typename vtkTypeList::Unique<ArrayList1>::Result UniqueArray1;
-  typedef typename vtkTypeList::Unique<ArrayList2>::Result UniqueArray2;
-  typedef typename vtkTypeList::Unique<ArrayList3>::Result UniqueArray3;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray1>::Result SortedUniqueArray1;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray2>::Result SortedUniqueArray2;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray3>::Result SortedUniqueArray3;
-  typedef impl::Dispatch3<SortedUniqueArray1, SortedUniqueArray2, SortedUniqueArray3>
-    ArrayDispatcher;
+  using UniqueArray1 = typename vtkTypeList::Unique<ArrayList1>::Result;
+  using UniqueArray2 = typename vtkTypeList::Unique<ArrayList2>::Result;
+  using UniqueArray3 = typename vtkTypeList::Unique<ArrayList3>::Result;
+  using SortedUniqueArray1 = typename vtkTypeList::DerivedToFront<UniqueArray1>::Result;
+  using SortedUniqueArray2 = typename vtkTypeList::DerivedToFront<UniqueArray2>::Result;
+  using SortedUniqueArray3 = typename vtkTypeList::DerivedToFront<UniqueArray3>::Result;
+  using ArrayDispatcher =
+    impl::Dispatch3<SortedUniqueArray1, SortedUniqueArray2, SortedUniqueArray3>;
 
 public:
   template <typename Worker, typename... Params>
@@ -1484,41 +1488,30 @@ public:
 //------------------------------------------------------------------------------
 // Dispatch3 implementation:
 //------------------------------------------------------------------------------
-struct Dispatch3
+struct Dispatch3 : public Dispatch3ByArray<Arrays, Arrays, Arrays>
 {
-private:
-  typedef Dispatch3ByArray<Arrays, Arrays, Arrays> Dispatcher;
-
-public:
-  template <typename Worker, typename... Params>
-  static bool Execute(vtkDataArray* array1, vtkDataArray* array2, vtkDataArray* array3,
-    Worker&& worker, Params&&... params)
-  {
-    return Dispatcher::Execute(
-      array1, array2, array3, std::forward<Worker>(worker), std::forward<Params>(params)...);
-  }
 };
 
 //------------------------------------------------------------------------------
-// Dispatch3ByValueType implementation:
+// Dispatch3ByArrayAndValueType implementation:
 //------------------------------------------------------------------------------
 // Preprocess and pass off to impl::Dispatch3
-template <typename ArrayList, typename ValueTypeList1, typename ValueTypeList2,
-  typename ValueTypeList3>
-struct Dispatch3ByValueTypeUsingArrays
+template <typename ArrayList1, typename ArrayList2, typename ArrayList3, typename ValueTypeList1,
+  typename ValueTypeList2, typename ValueTypeList3>
+struct Dispatch3ByArrayAndValueType
 {
 private:
-  typedef typename FilterArraysByValueType<ArrayList, ValueTypeList1>::Result FilteredArrayList1;
-  typedef typename FilterArraysByValueType<ArrayList, ValueTypeList2>::Result FilteredArrayList2;
-  typedef typename FilterArraysByValueType<ArrayList, ValueTypeList3>::Result FilteredArrayList3;
-  typedef typename vtkTypeList::Unique<FilteredArrayList1>::Result UniqueArray1;
-  typedef typename vtkTypeList::Unique<FilteredArrayList2>::Result UniqueArray2;
-  typedef typename vtkTypeList::Unique<FilteredArrayList3>::Result UniqueArray3;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray1>::Result SortedUniqueArray1;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray2>::Result SortedUniqueArray2;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray3>::Result SortedUniqueArray3;
-  typedef impl::Dispatch3<SortedUniqueArray1, SortedUniqueArray2, SortedUniqueArray3>
-    ArrayDispatcher;
+  using FilteredArrayList1 = typename FilterArraysByValueType<ArrayList1, ValueTypeList1>::Result;
+  using FilteredArrayList2 = typename FilterArraysByValueType<ArrayList2, ValueTypeList2>::Result;
+  using FilteredArrayList3 = typename FilterArraysByValueType<ArrayList3, ValueTypeList3>::Result;
+  using UniqueArray1 = typename vtkTypeList::Unique<FilteredArrayList1>::Result;
+  using UniqueArray2 = typename vtkTypeList::Unique<FilteredArrayList2>::Result;
+  using UniqueArray3 = typename vtkTypeList::Unique<FilteredArrayList3>::Result;
+  using SortedUniqueArray1 = typename vtkTypeList::DerivedToFront<UniqueArray1>::Result;
+  using SortedUniqueArray2 = typename vtkTypeList::DerivedToFront<UniqueArray2>::Result;
+  using SortedUniqueArray3 = typename vtkTypeList::DerivedToFront<UniqueArray3>::Result;
+  using ArrayDispatcher =
+    impl::Dispatch3<SortedUniqueArray1, SortedUniqueArray2, SortedUniqueArray3>;
 
 public:
   template <typename Worker, typename... Params>
@@ -1529,24 +1522,38 @@ public:
       array1, array2, array3, std::forward<Worker>(worker), std::forward<Params>(params)...);
   }
 };
+//------------------------------------------------------------------------------
+// Dispatch3ByValueType implementation:
+//------------------------------------------------------------------------------
 template <typename ValueTypeList1, typename ValueTypeList2, typename ValueTypeList3>
 struct Dispatch3ByValueType
-  : public Dispatch3ByValueTypeUsingArrays<Arrays, ValueTypeList1, ValueTypeList2, ValueTypeList3>
+  : public Dispatch3ByArrayAndValueType<Arrays, Arrays, Arrays, ValueTypeList1, ValueTypeList2,
+      ValueTypeList3>
+{
+};
+//------------------------------------------------------------------------------
+// Dispatch3ByValueTypeUsingArrays implementation:
+//------------------------------------------------------------------------------
+template <typename ArrayList, typename ValueTypeList1, typename ValueTypeList2,
+  typename ValueTypeList3>
+struct Dispatch3ByValueTypeUsingArrays
+  : public Dispatch3ByArrayAndValueType<ArrayList, ArrayList, ArrayList, ValueTypeList1,
+      ValueTypeList2, ValueTypeList3>
 {
 };
 
 //------------------------------------------------------------------------------
-// Dispatch3BySameValueType implementation:
+// Dispatch3ByArraySameValue implementation:
 //------------------------------------------------------------------------------
 // Preprocess and pass off to impl::Dispatch3Same
 template <typename ArrayList, typename ValueTypeList>
-struct Dispatch3BySameValueTypeUsingArrays
+struct Dispatch3ByArraySameValue
 {
 private:
-  typedef typename FilterArraysByValueType<ArrayList, ValueTypeList>::Result FilteredArrayList;
-  typedef typename vtkTypeList::Unique<FilteredArrayList>::Result UniqueArray;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray>::Result SortedUniqueArray;
-  typedef impl::Dispatch3Same<SortedUniqueArray, SortedUniqueArray, SortedUniqueArray> Dispatcher;
+  using FilteredArrayList = typename FilterArraysByValueType<ArrayList, ValueTypeList>::Result;
+  using UniqueArray = typename vtkTypeList::Unique<FilteredArrayList>::Result;
+  using SortedUniqueArray = typename vtkTypeList::DerivedToFront<UniqueArray>::Result;
+  using Dispatcher = impl::Dispatch3Same<SortedUniqueArray, SortedUniqueArray, SortedUniqueArray>;
 
 public:
   template <typename Worker, typename... Params>
@@ -1557,8 +1564,18 @@ public:
       array1, array2, array3, std::forward<Worker>(worker), std::forward<Params>(params)...);
   }
 };
+//------------------------------------------------------------------------------
+// Dispatch3BySameValueType implementation:
+//------------------------------------------------------------------------------
 template <typename ValueTypeList>
-struct Dispatch3BySameValueType : public Dispatch3BySameValueTypeUsingArrays<Arrays, ValueTypeList>
+struct Dispatch3BySameValueType : public Dispatch3ByArraySameValue<Arrays, ValueTypeList>
+{
+};
+//------------------------------------------------------------------------------
+// Dispatch3BySameValueTypeUsingArrays implementation:
+//------------------------------------------------------------------------------
+template <typename ArrayList, typename ValueTypeList>
+struct Dispatch3BySameValueTypeUsingArrays : public Dispatch3ByArraySameValue<Arrays, ValueTypeList>
 {
 };
 
@@ -1570,14 +1587,14 @@ template <typename ArrayList1, typename ArrayList2, typename ArrayList3>
 struct Dispatch3ByArrayWithSameValueType
 {
 private:
-  typedef typename vtkTypeList::Unique<ArrayList1>::Result UniqueArray1;
-  typedef typename vtkTypeList::Unique<ArrayList2>::Result UniqueArray2;
-  typedef typename vtkTypeList::Unique<ArrayList3>::Result UniqueArray3;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray1>::Result SortedUniqueArray1;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray2>::Result SortedUniqueArray2;
-  typedef typename vtkTypeList::DerivedToFront<UniqueArray3>::Result SortedUniqueArray3;
-  typedef impl::Dispatch3Same<SortedUniqueArray1, SortedUniqueArray2, SortedUniqueArray3>
-    Dispatcher;
+  using UniqueArray1 = typename vtkTypeList::Unique<ArrayList1>::Result;
+  using UniqueArray2 = typename vtkTypeList::Unique<ArrayList2>::Result;
+  using UniqueArray3 = typename vtkTypeList::Unique<ArrayList3>::Result;
+  using SortedUniqueArray1 = typename vtkTypeList::DerivedToFront<UniqueArray1>::Result;
+  using SortedUniqueArray2 = typename vtkTypeList::DerivedToFront<UniqueArray2>::Result;
+  using SortedUniqueArray3 = typename vtkTypeList::DerivedToFront<UniqueArray3>::Result;
+  using Dispatcher =
+    impl::Dispatch3Same<SortedUniqueArray1, SortedUniqueArray2, SortedUniqueArray3>;
 
 public:
   template <typename Worker, typename... Params>
@@ -1590,24 +1607,17 @@ public:
 };
 
 //------------------------------------------------------------------------------
-// Dispatch3SameValueType implementation:
+// Dispatch3SameValueTypeUsingArrays implementation:
 //------------------------------------------------------------------------------
 template <typename ArrayList>
 struct Dispatch3SameValueTypeUsingArrays
+  : public Dispatch3ByArrayWithSameValueType<ArrayList, ArrayList, ArrayList>
 {
-private:
-  typedef Dispatch3ByArrayWithSameValueType<ArrayList, ArrayList, ArrayList> Dispatcher;
-
-public:
-  template <typename Worker, typename... Params>
-  static bool Execute(vtkDataArray* array1, vtkDataArray* array2, vtkDataArray* array3,
-    Worker&& worker, Params&&... params)
-  {
-    return Dispatcher::Execute(
-      array1, array2, array3, std::forward<Worker>(worker), std::forward<Params>(params)...);
-  }
 };
-struct Dispatch3SameValueType : Dispatch3SameValueTypeUsingArrays<Arrays>
+//------------------------------------------------------------------------------
+// Dispatch3SameValueType implementation:
+//------------------------------------------------------------------------------
+struct Dispatch3SameValueType : Dispatch3ByArrayWithSameValueType<Arrays, Arrays, Arrays>
 {
 };
 

@@ -235,10 +235,21 @@ struct DispatchByArray;
  * The entry point is:
  * bool DispatchByValueType<...>::Execute(vtkDataArray *array, Worker &worker).
  */
-template <typename ArrayList, typename ValueTypeList>
-struct DispatchByValueTypeUsingArrays;
 template <typename ValueTypeList>
 struct DispatchByValueType;
+
+//------------------------------------------------------------------------------
+/**
+ * Dispatch a single array against all array types in ArrayList with the added
+ * restriction that the array must have a type that appears the ValueTypeList TypeList.
+ * The entry point is:
+ * bool DispatchByArrayAndValueType<...>::Execute(vtkDataArray *array, Worker &worker).
+ */
+template <typename ArrayList, typename ValueTypeList>
+struct DispatchByArrayAndValueType;
+template <typename ArrayList, typename ValueTypeList>
+struct VTK_DEPRECATED_IN_9_6_0(
+  "Use DispatchByArrayAndValueType instead.") DispatchByValueTypeUsingArrays;
 
 //------------------------------------------------------------------------------
 /**
@@ -259,9 +270,26 @@ struct Dispatch2;
  * bool Dispatch2SameValueType::Execute(
  * vtkDataArray *a1, vtkDataArray *a2, Worker &worker).
  */
-template <typename ArrayList>
-struct Dispatch2SameValueTypeUsingArrays;
 struct Dispatch2SameValueType;
+
+//------------------------------------------------------------------------------
+/**
+ * Dispatch two arrays, restricting the valid code paths to use
+ * ValueType-filtered versions of the ArrayList1 and ArrayList2 TypeLists.
+ * The first array's ValueType must be in the ValueTypeList1 TypeList,
+ * and the second's must be in ValueTypeList2.
+ * If all types are to be considered, use vtkArrayDispatch::AllTypes for the
+ * last two template parameters.
+ * The entry point is:
+ * bool Dispatch2ByArrayAndValueType<...>::Execute(vtkDataArray *a1, vtkDataArray *a2,
+ * Worker &worker).
+ */
+template <typename ArrayList1, typename ArrayList2, typename ValueTypeList1,
+  typename ValueTypeList2>
+struct Dispatch2ByArrayAndValueType;
+template <typename ArrayList, typename ValueTypeList1, typename ValueTypeList2>
+struct VTK_DEPRECATED_IN_9_6_0(
+  "Use Dispatch2ByArrayAndValueType instead.") Dispatch2ByValueTypeUsingArrays;
 
 //------------------------------------------------------------------------------
 /**
@@ -288,8 +316,6 @@ struct Dispatch2ByArray;
  * bool Dispatch2ByValueType<...>::Execute(vtkDataArray *a1, vtkDataArray *a2,
  * Worker &worker).
  */
-template <typename ArrayList, typename ValueTypeList1, typename ValueTypeList2>
-struct Dispatch2ByValueTypeUsingArrays;
 template <typename ValueTypeList1, typename ValueTypeList2>
 struct Dispatch2ByValueType;
 
@@ -306,6 +332,9 @@ struct Dispatch2ByValueType;
  */
 template <typename ArrayList1, typename ArrayList2>
 struct Dispatch2ByArrayWithSameValueType;
+template <typename ArrayList>
+struct VTK_DEPRECATED_IN_9_6_0(
+  "Use Dispatch2ByArrayWithSameValueType instead.") Dispatch2SameValueTypeUsingArrays;
 
 //------------------------------------------------------------------------------
 /**
@@ -319,10 +348,26 @@ struct Dispatch2ByArrayWithSameValueType;
  * bool Dispatch2BySameValueType<...>::Execute(
  * vtkDataArray *a1, vtkDataArray *a2, Worker &worker).
  */
-template <typename ArrayList, typename ValueTypeList>
-struct Dispatch2BySameValueTypeUsingArrays;
 template <typename ValueTypeList>
 struct Dispatch2BySameValueType;
+
+//------------------------------------------------------------------------------
+/**
+ * Dispatch two arrays, restricting the valid code paths to use only array types
+ * found in ArrayList that have a
+ * ValueType contained in the ValueTypeList TypeList. This dispatcher also
+ * enforces that all arrays have the same ValueType.
+ * If all types are to be considered, use vtkArrayDispatch::AllTypes for the
+ * last template parameter.
+ * The entry point is:
+ * bool Dispatch2ByArrayAndSameValueType<...>::Execute(
+ * vtkDataArray *a1, vtkDataArray *a2, Worker &worker).
+ */
+template <typename ArrayList, typename ValueTypeList>
+struct Dispatch2ByArrayAndSameValueType;
+template <typename ArrayList, typename ValueTypeList>
+struct VTK_DEPRECATED_IN_9_6_0(
+  "Use Dispatch2ByArrayAndSameValueType instead.") Dispatch2BySameValueTypeUsingArrays;
 
 //------------------------------------------------------------------------------
 /**
@@ -343,8 +388,6 @@ struct Dispatch3;
  * bool Dispatch3SameValueType::Execute(
  * vtkDataArray *a1, vtkDataArray *a2, vtkDataArray *a3, Worker &worker).
  */
-template <typename ArrayList>
-struct Dispatch3SameValueTypeUsingArrays;
 struct Dispatch3SameValueType;
 
 //------------------------------------------------------------------------------
@@ -374,12 +417,29 @@ struct Dispatch3ByArray;
  * bool Dispatch3ByValueType<...>::Execute(vtkDataArray *a1, vtkDataArray *a2,
  * vtkDataArray *a3, Worker &worker).
  */
-
-template <typename ArrayList, typename ValueTypeList1, typename ValueTypeList2,
-  typename ValueTypeList3>
-struct Dispatch3ByValueTypeUsingArrays;
 template <typename ValueTypeList1, typename ValueTypeList2, typename ValueTypeList3>
 struct Dispatch3ByValueType;
+
+//------------------------------------------------------------------------------
+/**
+ * Dispatch three arrays, restricting the valid code paths to use
+ * ValueType-filtered versions of ArrayList1 , ArrayList2, and ArrayList3
+ * TypeList. The first array's ValueType must be in the ValueTypeList1 TypeList,
+ * the second's must be in ValueTypeList2, and the third's must be in
+ * ValueTypeList3.
+ * If all types are to be considered, use vtkArrayDispatch::AllTypes for the
+ * last three template parameters.
+ * The entry point is:
+ * bool Dispatch3ByValueType<...>::Execute(vtkDataArray *a1, vtkDataArray *a2,
+ * vtkDataArray *a3, Worker &worker).
+ */
+template <typename ArrayList1, typename ArrayList2, typename ArrayList3, typename ValueTypeList1,
+  typename ValueTypeList2, typename ValueTypeList3>
+struct Dispatch3ByArrayAndValueType;
+template <typename ArrayList, typename ValueTypeList1, typename ValueTypeList2,
+  typename ValueTypeList3>
+struct VTK_DEPRECATED_IN_9_6_0(
+  "Use Dispatch3ByArrayAndValueType instead.") Dispatch3ByValueTypeUsingArrays;
 
 //------------------------------------------------------------------------------
 /**
@@ -394,6 +454,9 @@ struct Dispatch3ByValueType;
  */
 template <typename ArrayList1, typename ArrayList2, typename ArrayList3>
 struct Dispatch3ByArrayWithSameValueType;
+template <typename ArrayList>
+struct VTK_DEPRECATED_IN_9_6_0(
+  "Use Dispatch3ByArrayWithSameValueType instead.") Dispatch3SameValueTypeUsingArrays;
 
 //------------------------------------------------------------------------------
 /**
@@ -407,10 +470,26 @@ struct Dispatch3ByArrayWithSameValueType;
  * bool Dispatch3BySameValueType<...>::Execute(
  * vtkDataArray *a1, vtkDataArray *a2, vtkDataArray *a3, Worker &worker).
  */
-template <typename ArrayList, typename ValueTypeList>
-struct Dispatch3BySameValueTypeUsingArrays;
 template <typename ValueTypeList>
 struct Dispatch3BySameValueType;
+
+//------------------------------------------------------------------------------
+/**
+ * Dispatch three arrays, restricting the valid code paths to use only array
+ * types found in ArrayList TypeList that have a ValueType contained in the
+ * ValueTypeList TypeList. This dispatcher also enforces that all arrays have
+ * the same ValueType.
+ * If all types are to be considered, use vtkArrayDispatch::AllTypes for the
+ * first three template parameters.
+ * The entry point is:
+ * bool Dispatch3ByArraySameValue<...>::Execute(
+ * vtkDataArray *a1, vtkDataArray *a2, vtkDataArray *a3, Worker &worker).
+ */
+template <typename ArrayList, typename ValueTypeList>
+struct Dispatch3ByArraySameValue;
+template <typename ArrayList, typename ValueTypeList>
+struct VTK_DEPRECATED_IN_9_6_0(
+  "Use Dispatch3ByArraySameValue instead.") Dispatch3BySameValueTypeUsingArrays;
 
 //----------------------------------------------------------------------------
 /**

@@ -442,14 +442,13 @@ struct PointSetPointsCopyWorker
 
   void operator()(vtkIdType startId, vtkIdType endId)
   {
-    using FloatTypes = vtkTypeList::Create<float, double>;
-    using Dispatch = vtkArrayDispatch::Dispatch2BySameValueType<FloatTypes>;
+    using Dispatcher = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
 
     ::PointSetPointsCopyDispatcher dispatcher(this->Filter);
     vtkDataArray* inputData = this->Input->GetData();
     vtkDataArray* outputData = this->Output->GetData();
 
-    if (!Dispatch::Execute(inputData, outputData, dispatcher, this->PointIds, startId, endId))
+    if (!Dispatcher::Execute(inputData, outputData, dispatcher, this->PointIds, startId, endId))
     {
       // fallback if dispatching fails
       dispatcher(inputData, outputData, this->PointIds, startId, endId);

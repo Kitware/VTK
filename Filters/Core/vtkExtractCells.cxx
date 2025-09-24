@@ -142,8 +142,8 @@ vtkSmartPointer<vtkPoints> ExtractPoints(
 
   ExtractPointsWorker<PointWorkT> worker;
   using PointsDispatcher =
-    vtkArrayDispatch::Dispatch2ByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
-      vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+    vtkArrayDispatch::Dispatch2ByArrayAndValueType<vtkArrayDispatch::AllArrays,
+      vtkArrayDispatch::Arrays, vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
   if (!PointsDispatcher::Execute(inputPoints, outputPoints, worker, work))
   {
     worker(inputPoints, outputPoints, work);
