@@ -67,7 +67,6 @@ workflow:
           when: on_success
         # Manual jobs run delayed (e.g., merges to branches)
         - if: '$VTK_CI_RUN_MANUALLY == "true"'
-          changes: *code_change
           when: delayed
           start_in: 4 hours
         # Normal jobs on the project run automatically.
