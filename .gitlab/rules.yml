@@ -9,6 +9,8 @@
 ##     Set to "true" to make the job only run for merged pipelines.
 ##   VTK_CI_NIGHTLY_ONLY
 ##     Set to "true" if the job should only run for nightly pipelines.
+##   VTK_CI_RELEASE_ONLY
+##     Set to "true" if the job should only run for release pipelines.
 ####
 
 # When to even consider running a pipeline.
@@ -52,6 +54,9 @@ workflow:
 
 .rules:
     rules:
+        # Release-only jobs never run on MRs.
+        - if: '$CI_MERGE_REQUEST_ID && $VTK_CI_RELEASE_ONLY == "true"'
+          when: never
         # Merged-only jobs never run on MRs.
         - if: '$CI_MERGE_REQUEST_ID && $VTK_CI_MERGED_ONLY == "true"'
           when: never
@@ -69,6 +74,9 @@ workflow:
         # Jobs on a tag run right away.
         - if: '$CI_COMMIT_TAG'
           when: on_success
+        # Any release-only jobs do not run without a tag.
+        - if: '$VTK_CI_RELEASE_ONLY == "true"'
+          when: never
         # Skip schedule jobs without a schedule.
         - if: '$CI_PIPELINE_SOURCE != "schedule" && $VTK_CI_NIGHTLY_ONLY == "true"'
           when: never
@@ -81,12 +89,6 @@ workflow:
           start_in: 4 hours
         # Normal jobs on the project run automatically.
         - when: on_success
-
-.release_only:
-    rules:
-      - if: '$CI_COMMIT_TAG'
-        when: on_success
-      - when: never
 
 .upload_only:
     rules:
