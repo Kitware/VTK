@@ -558,7 +558,7 @@ private:
   static constexpr size_t ChunkSize = static_cast<size_t>(5000 * FaceMemoryPool::SizeOfFace(4));
   size_t NextChunkIndex;
   size_t NextFaceIndex;
-  std::vector<std::shared_ptr<unsigned char[]>> Chunks;
+  std::vector<std::shared_ptr<unsigned char>> Chunks;
 
 public:
   FaceMemoryPool()
@@ -584,8 +584,9 @@ public:
     this->NextFaceIndex = 0;
     this->Chunks.resize(numberOfInitialChunks, nullptr);
     // Initialize the first chunk
-    this->Chunks[0] =
-      std::shared_ptr<unsigned char[]>(new unsigned char[FaceMemoryPool::ChunkSize]);
+    // NOLINTNEXTLINE(modernize-make-shared)
+    this->Chunks[0] = std::shared_ptr<unsigned char>(
+      new unsigned char[FaceMemoryPool::ChunkSize], std::default_delete<unsigned char[]>());
   }
 
   void ResetIndices()
@@ -618,8 +619,9 @@ public:
       // Next: allocate a new array if necessary.
       if (this->Chunks[this->NextChunkIndex] == nullptr)
       {
-        this->Chunks[this->NextChunkIndex] =
-          std::shared_ptr<unsigned char[]>(new unsigned char[FaceMemoryPool::ChunkSize]);
+        // NOLINTNEXTLINE(modernize-make-shared)
+        this->Chunks[this->NextChunkIndex] = std::shared_ptr<unsigned char>(
+          new unsigned char[FaceMemoryPool::ChunkSize], std::default_delete<unsigned char[]>());
       }
     }
 

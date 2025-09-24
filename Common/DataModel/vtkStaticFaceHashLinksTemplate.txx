@@ -113,8 +113,8 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
 {
   vtkUnstructuredGrid* Input;
   GeometryInformation& GeometryInfo;
-  std::shared_ptr<TCellOffSetIdType[]> CellOffsets;
-  std::shared_ptr<TInputIdType[]> FaceHashValues;
+  std::shared_ptr<TCellOffSetIdType> CellOffsets;
+  std::shared_ptr<TInputIdType> FaceHashValues;
   const TInputIdType NumberOfPoints;
 
   vtkSMPThreadLocalObject<vtkGenericCell> TLCell;
@@ -122,8 +122,7 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
   vtkSMPThreadLocalObject<vtkIdList> TLFacePointIds;
 
   CreateFacesInformation(vtkUnstructuredGrid* input, GeometryInformation& geometryInfo,
-    std::shared_ptr<TCellOffSetIdType[]>& cellOffsets,
-    std::shared_ptr<TInputIdType[]>& faceHashValues)
+    std::shared_ptr<TCellOffSetIdType>& cellOffsets, std::shared_ptr<TInputIdType>& faceHashValues)
     : Input(input)
     , GeometryInfo(geometryInfo)
     , CellOffsets(cellOffsets)
@@ -358,13 +357,13 @@ template <typename TInputIdType, typename TFaceIdType>
 template <typename TCellOffSetIdType>
 struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CountHashes
 {
-  std::shared_ptr<TCellOffSetIdType[]> CellOffsets;
-  std::shared_ptr<TInputIdType[]> FaceHashValues;
+  std::shared_ptr<TCellOffSetIdType> CellOffsets;
+  std::shared_ptr<TInputIdType> FaceHashValues;
 
   std::atomic<TInputIdType>* Counts;
 
-  CountHashes(std::shared_ptr<TCellOffSetIdType[]> cellOffsets,
-    std::shared_ptr<TInputIdType[]> faceHashValues, std::atomic<TInputIdType>* counts)
+  CountHashes(std::shared_ptr<TCellOffSetIdType> cellOffsets,
+    std::shared_ptr<TInputIdType> faceHashValues, std::atomic<TInputIdType>* counts)
     : CellOffsets(cellOffsets)
     , FaceHashValues(faceHashValues)
     , Counts(counts)
@@ -398,14 +397,14 @@ template <typename TInputIdType, typename TFaceIdType>
 struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::PrefixSum
 {
   std::atomic<TInputIdType>* Counts;
-  std::shared_ptr<vtkIdType[]> FaceOffsets;
+  std::shared_ptr<vtkIdType> FaceOffsets;
   const vtkIdType NumberOfFaces;
   const vtkIdType NumberOfHashes;
   const vtkIdType NumberOfThreads;
 
   std::vector<vtkIdType> ThreadSum;
 
-  PrefixSum(std::atomic<TInputIdType>* counts, std::shared_ptr<vtkIdType[]> faceOffsets,
+  PrefixSum(std::atomic<TInputIdType>* counts, std::shared_ptr<vtkIdType> faceOffsets,
     vtkIdType numberOfFaces, vtkIdType numberOfHashes, vtkIdType numberOfThreads)
     : Counts(counts)
     , FaceOffsets(faceOffsets)
@@ -476,19 +475,19 @@ template <typename TInputIdType, typename TFaceIdType>
 template <typename TCellOffSetIdType>
 struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::BuildFaceHashLinks
 {
-  std::shared_ptr<TCellOffSetIdType[]> CellOffsets;
-  std::shared_ptr<TInputIdType[]> FaceHashValues;
+  std::shared_ptr<TCellOffSetIdType> CellOffsets;
+  std::shared_ptr<TInputIdType> FaceHashValues;
 
   std::atomic<TInputIdType>* Counts;
-  std::shared_ptr<vtkIdType[]> FaceOffsets;
+  std::shared_ptr<vtkIdType> FaceOffsets;
 
-  std::shared_ptr<TInputIdType[]> CellIdOfFaceLinks;
-  std::shared_ptr<TFaceIdType[]> FaceIdOfFaceLinks;
+  std::shared_ptr<TInputIdType> CellIdOfFaceLinks;
+  std::shared_ptr<TFaceIdType> FaceIdOfFaceLinks;
 
-  BuildFaceHashLinks(std::shared_ptr<TCellOffSetIdType[]> cellOffsets,
-    std::shared_ptr<TInputIdType[]> faceHashValues, std::atomic<TInputIdType>* counts,
-    std::shared_ptr<vtkIdType[]> faceOffsets, std::shared_ptr<TInputIdType[]> cellIdOfFaceLinks,
-    std::shared_ptr<TFaceIdType[]> faceIdOfFaceLinks)
+  BuildFaceHashLinks(std::shared_ptr<TCellOffSetIdType> cellOffsets,
+    std::shared_ptr<TInputIdType> faceHashValues, std::atomic<TInputIdType>* counts,
+    std::shared_ptr<vtkIdType> faceOffsets, std::shared_ptr<TInputIdType> cellIdOfFaceLinks,
+    std::shared_ptr<TFaceIdType> faceIdOfFaceLinks)
     : CellOffsets(cellOffsets)
     , FaceHashValues(faceHashValues)
     , Counts(counts)
@@ -542,10 +541,12 @@ void vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::BuildHashLinksIn
   const vtkIdType numberOfCells = input->GetNumberOfCells();
   this->NumberOfHashes = input->GetNumberOfPoints() + 1 /* for the 0D-1D-2D faces */;
   // allocate memory for the cell offsets and face hash values
-  std::shared_ptr<TCellOffSetIdType[]> cellOffsets =
-    std::shared_ptr<TCellOffSetIdType[]>(new TCellOffSetIdType[numberOfCells + 1]);
-  std::shared_ptr<TInputIdType[]> faceHashValues =
-    std::shared_ptr<TInputIdType[]>(new TInputIdType[this->NumberOfFaces]);
+  // NOLINTNEXTLINE(modernize-make-shared)
+  std::shared_ptr<TCellOffSetIdType> cellOffsets(
+    new TCellOffSetIdType[numberOfCells + 1], std::default_delete<TCellOffSetIdType[]>());
+  // NOLINTNEXTLINE(modernize-make-shared)
+  std::shared_ptr<TInputIdType> faceHashValues(
+    new TInputIdType[this->NumberOfFaces], std::default_delete<TInputIdType[]>());
 
   // create the faces information
   CreateFacesInformation<TCellOffSetIdType> facesInformationCreator(
@@ -558,15 +559,21 @@ void vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::BuildHashLinksIn
   vtkSMPTools::For(0, numberOfCells, countHash);
 
   // Perform prefix sum to determine offsets
-  this->FaceOffsets = std::shared_ptr<vtkIdType[]>(new vtkIdType[this->NumberOfHashes + 1]);
+  // NOLINTNEXTLINE(modernize-make-shared)
+  this->FaceOffsets = std::shared_ptr<vtkIdType>(
+    new vtkIdType[this->NumberOfHashes + 1], std::default_delete<vtkIdType[]>());
   const auto numberOfThreads = static_cast<vtkIdType>(vtkSMPTools::GetEstimatedNumberOfThreads());
   PrefixSum prefixSum(
     counts, this->FaceOffsets, this->NumberOfFaces, this->NumberOfHashes, numberOfThreads);
   vtkSMPTools::For(0, numberOfThreads, prefixSum);
 
   // Build face hash links
-  this->CellIdOfFaceLinks = std::shared_ptr<TInputIdType[]>(new TInputIdType[this->NumberOfFaces]);
-  this->FaceIdOfFaceLinks = std::shared_ptr<TFaceIdType[]>(new TFaceIdType[this->NumberOfFaces]);
+  // NOLINTNEXTLINE(modernize-make-shared)
+  this->CellIdOfFaceLinks = std::shared_ptr<TInputIdType>(
+    new TInputIdType[this->NumberOfFaces], std::default_delete<TInputIdType[]>());
+  // NOLINTNEXTLINE(modernize-make-shared)
+  this->FaceIdOfFaceLinks = std::shared_ptr<TFaceIdType>(
+    new TFaceIdType[this->NumberOfFaces], std::default_delete<TFaceIdType[]>());
   BuildFaceHashLinks<TCellOffSetIdType> buildFaceHashLinks(cellOffsets, faceHashValues, counts,
     this->FaceOffsets, this->CellIdOfFaceLinks, this->FaceIdOfFaceLinks);
   vtkSMPTools::For(0, numberOfCells, buildFaceHashLinks);
