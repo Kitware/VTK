@@ -2125,10 +2125,12 @@ documentation:build:
 documentation:upload:
     extends:
         - .rsync_upload_docs
-        - .upload_only
+        - .rules
     needs:
         - documentation:build
     variables:
+        VTK_CI_DOCUMENTATION_UPLOAD: "true"
+        VTK_CI_MERGED_ONLY: "true"
         RSYNC_SOURCE: build/install/usr/share/doc/vtk/doxygen/html/
         RSYNC_DESTINATION: VTKDoxygen/html
 

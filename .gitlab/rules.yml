@@ -11,6 +11,11 @@
 ##     Set to "true" if the job should only run for nightly pipelines.
 ##   VTK_CI_RELEASE_ONLY
 ##     Set to "true" if the job should only run for release pipelines.
+##   VTK_CI_DOCUMENTATION_UPLOAD
+##     Set to "true" if the job uploads documentation.
+## Pipeline variables:
+##   ENABLE_DOCUMENTATION_UPLOAD
+##     Set to "true" when documentation upload jobs should be performed.
 ####
 
 # When to even consider running a pipeline.
@@ -80,6 +85,9 @@ workflow:
         # Skip schedule jobs without a schedule.
         - if: '$CI_PIPELINE_SOURCE != "schedule" && $VTK_CI_NIGHTLY_ONLY == "true"'
           when: never
+        # Documentation upload jobs require an enable flag.
+        - if: '$VTK_CI_DOCUMENTATION_UPLOAD == "true" && $ENABLE_DOCUMENTATION_UPLOAD != "true"'
+          when: never
         # Scheduled jobs run automatically.
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
           when: on_success
@@ -89,12 +97,6 @@ workflow:
           start_in: 4 hours
         # Normal jobs on the project run automatically.
         - when: on_success
-
-.upload_only:
-    rules:
-      - if: '$RSYNC_UPLOAD_ENABLE == "true"'
-        when: on_success
-      - when: never
 
 .weekly_upload_only:
     rules:
