@@ -13,9 +13,13 @@
 ##     Set to "true" if the job should only run for release pipelines.
 ##   VTK_CI_DOCUMENTATION_UPLOAD
 ##     Set to "true" if the job uploads documentation.
+##   VTK_CI_WEEKLY_UPLOAD
+##     Set to "true" if the job performs a weekly upload.
 ## Pipeline variables:
 ##   ENABLE_DOCUMENTATION_UPLOAD
 ##     Set to "true" when documentation upload jobs should be performed.
+##   ENABLE_WEEKLY_UPLOAD
+##     Set to "true" when weekly upload jobs should be performed.
 ####
 
 # When to even consider running a pipeline.
@@ -88,6 +92,9 @@ workflow:
         # Documentation upload jobs require an enable flag.
         - if: '$VTK_CI_DOCUMENTATION_UPLOAD == "true" && $ENABLE_DOCUMENTATION_UPLOAD != "true"'
           when: never
+        # Weekly upload jobs require an enable flag.
+        - if: '$VTK_CI_WEEKLY_UPLOAD == "true" && $ENABLE_WEEKLY_UPLOAD != "true"'
+          when: never
         # Scheduled jobs run automatically.
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
           when: on_success
@@ -97,13 +104,3 @@ workflow:
           start_in: 4 hours
         # Normal jobs on the project run automatically.
         - when: on_success
-
-.weekly_upload_only:
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
-          when: never
-        - if: '$CI_COMMIT_TAG'
-          when: on_success
-        - if: '$PYPI_WEEKLY_UPLOAD == "true"'
-          when: on_success
-        - when: never
