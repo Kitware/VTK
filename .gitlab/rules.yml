@@ -1,5 +1,12 @@
 # Rules for where jobs can run
 
+###
+## Job variables:
+##   VTK_CI_RUN_MANUALLY
+##     Set to "true" if the job should be manually triggered in MRs. These jobs
+##     will also be delayed for branch update pipelines
+####
+
 # When to even consider running a pipeline.
 workflow:
     rules:
@@ -41,6 +48,10 @@ workflow:
 
 .rules:
     rules:
+        # MRs use manual triggers, but only if there are code chagens.
+        - if: '$CI_MERGE_REQUEST_ID && $VTK_CI_RUN_MANUALLY == "true"'
+          changes: *code_change
+          when: manual
         # Normal jobs run automatically, but only if there are code changes.
         - if: '$CI_MERGE_REQUEST_ID'
           changes: *code_change
@@ -54,6 +65,11 @@ workflow:
         # Scheduled jobs run automatically.
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
           when: on_success
+        # Manual jobs run delayed (e.g., merges to branches)
+        - if: '$VTK_CI_RUN_MANUALLY == "true"'
+          changes: *code_change
+          when: delayed
+          start_in: 4 hours
         # Normal jobs on the project run automatically.
         - when: on_success
 
@@ -66,18 +82,6 @@ workflow:
           when: on_success
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
           when: on_success
-        - when: never
-
-.run_manually:
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
-          changes: *code_change
-          when: manual
-        - if: '$CI_PIPELINE_SOURCE == "schedule"'
-          when: on_success
-        - changes: *code_change
-          when: delayed
-          start_in: 4 hours
         - when: never
 
 .merged_only:
