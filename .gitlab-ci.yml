@@ -1171,7 +1171,7 @@ wheel-linux-python312-aarch64:build:
         - .cmake_build_wheel_linux
         - .linux_aarch64_builder_tags
         - .cmake_wheel_artifacts
-        - .merged_only
+        - .scheduled_only
     needs: []
 
 wheel-linux-python312-aarch64:test:
@@ -1179,7 +1179,7 @@ wheel-linux-python312-aarch64:test:
         - .wheel_linux312_aarch64
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .merged_only
+        - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python312-aarch64:build
@@ -1189,7 +1189,7 @@ wheel-linux-python312-aarch64:test-x11:
         - .wheel_linux312_aarch64
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .merged_only
+        - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python312-aarch64:build
@@ -1199,7 +1199,7 @@ wheel-linux-python312-aarch64-osmesa:test:
         - .wheel_linux312_aarch64_osmesa
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .merged_only
+        - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python312-aarch64:build
@@ -1209,7 +1209,7 @@ wheel-linux-python312-aarch64-osmesa:test-x11:
         - .wheel_linux312_aarch64_osmesa
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_builder_tags
-        - .merged_only
+        - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python312-aarch64:build
@@ -1219,7 +1219,7 @@ wheel-linux-python312-aarch64-egl:test:
         - .wheel_linux312_aarch64_egl
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .merged_only
+        - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python312-aarch64:build
@@ -1229,7 +1229,7 @@ wheel-linux-python312-aarch64-egl:test-x11:
         - .wheel_linux312_aarch64_egl
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .merged_only
+        - .scheduled_only
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python312-aarch64:build
