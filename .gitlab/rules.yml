@@ -7,6 +7,8 @@
 ##     will also be delayed for branch update pipelines
 ##   VTK_CI_MERGED_ONLY
 ##     Set to "true" to make the job only run for merged pipelines.
+##   VTK_CI_NIGHTLY_ONLY
+##     Set to "true" if the job should only run for nightly pipelines.
 ####
 
 # When to even consider running a pipeline.
@@ -67,6 +69,9 @@ workflow:
         # Jobs on a tag run right away.
         - if: '$CI_COMMIT_TAG'
           when: on_success
+        # Skip schedule jobs without a schedule.
+        - if: '$CI_PIPELINE_SOURCE != "schedule" && $VTK_CI_NIGHTLY_ONLY == "true"'
+          when: never
         # Scheduled jobs run automatically.
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
           when: on_success
@@ -76,16 +81,6 @@ workflow:
           start_in: 4 hours
         # Normal jobs on the project run automatically.
         - when: on_success
-
-.scheduled_only:
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
-          when: never
-        - if: '$CI_COMMIT_TAG'
-          when: on_success
-        - if: '$CI_PIPELINE_SOURCE == "schedule"'
-          when: on_success
-        - when: never
 
 .release_only:
     rules:
