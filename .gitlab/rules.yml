@@ -2,6 +2,8 @@
 
 ###
 ## Job variables:
+##   VTK_CI_RUN_ALWAYS
+##     Set to "true" if the job should always run.
 ##   VTK_CI_RUN_MANUALLY
 ##     Set to "true" if the job should be manually triggered in MRs. These jobs
 ##     will also be delayed for branch update pipelines
@@ -63,6 +65,9 @@ workflow:
 
 .rules:
     rules:
+        # Some jobs always run.
+        - if: '$VTK_CI_RUN_ALWAYS == "true"'
+          when: always
         # Release-only jobs never run on MRs.
         - if: '$CI_MERGE_REQUEST_ID && $VTK_CI_RELEASE_ONLY == "true"'
           when: never

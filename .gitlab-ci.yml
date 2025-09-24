@@ -50,16 +50,13 @@ dummy:build:
         - build
         - docker
         - linux-x86_64
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
-          when: on_success
-        - if: '$CI_PROJECT_PATH == "vtk/vtk"'
-          when: on_success
-        - when: never
+    extends:
+        - .rules
     script:
         - echo "dummy"
     variables:
         GIT_STRATEGY: none
+        VTK_CI_RUN_ALWAYS: "true"
     needs: []
 
 ## readthedocs documentation build
