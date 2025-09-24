@@ -7,6 +7,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
+#include "vtkFileResourceStream.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkObjectFactory.h"
@@ -15,6 +16,7 @@
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRenderer.h"
+#include "vtkResourceStream.h"
 #include "vtkStripper.h"
 #include "vtksys/SystemTools.hxx"
 
@@ -93,18 +95,19 @@ static short parse_int_percentage(vtk3DSImporter* importer);
 static float parse_float_percentage(vtk3DSImporter* importer);
 static vtk3DSMaterial* update_materials(
   vtk3DSImporter* importer, const char* new_material, int ext);
-static void start_chunk(vtk3DSImporter* importer, vtk3DSChunk* chunk);
-static void end_chunk(vtk3DSImporter* importer, vtk3DSChunk* chunk);
-static byte read_byte(vtk3DSImporter* importer);
-static word read_word(vtk3DSImporter* importer);
-static word peek_word(vtk3DSImporter* importer);
-static dword peek_dword(vtk3DSImporter* importer);
-static float read_float(vtk3DSImporter* importer);
-static void read_point(vtk3DSImporter* importer, vtk3DSVector v);
-static char* read_string(vtk3DSImporter* importer);
+static void start_chunk(vtkResourceStream* stream, vtk3DSChunk* chunk);
+static void end_chunk(vtkResourceStream* stream, vtk3DSChunk* chunk);
+static byte read_byte(vtkResourceStream* stream);
+static word read_word(vtkResourceStream* stream);
+static word peek_word(vtkResourceStream* stream);
+static dword peek_dword(vtkResourceStream* stream);
+static float read_float(vtkResourceStream* stream);
+static void read_point(vtkResourceStream* stream, vtk3DSVector v);
+static char* read_string(vtkResourceStream* stream);
 
 VTK_ABI_NAMESPACE_BEGIN
 
+//------------------------------------------------------------------------------
 vtk3DSImporter::vtk3DSImporter()
 {
   this->OmniList = nullptr;
@@ -113,31 +116,14 @@ vtk3DSImporter::vtk3DSImporter()
   this->MeshList = nullptr;
   this->MaterialList = nullptr;
   this->MatPropList = nullptr;
-  this->FileFD = nullptr;
   this->ComputeNormals = 0;
 }
 
+//------------------------------------------------------------------------------
 int vtk3DSImporter::ImportBegin()
 {
   vtkDebugMacro(<< "Opening import file as binary");
-  char* filename = this->GetFileName();
-  this->FileFD = vtksys::SystemTools::Fopen(filename, "rb");
-  if (this->FileFD == nullptr)
-  {
-    vtkErrorMacro(<< "Unable to open file: " << filename);
-    return 0;
-  }
   return this->Read3DS();
-}
-
-void vtk3DSImporter::ImportEnd()
-{
-  vtkDebugMacro(<< "Closing import file");
-  if (this->FileFD != nullptr)
-  {
-    fclose(this->FileFD);
-  }
-  this->FileFD = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -158,11 +144,25 @@ std::string vtk3DSImporter::GetOutputsDescription()
 
 int vtk3DSImporter::Read3DS()
 {
+  // Stream is higher priority than filename.
+  this->TempStream = this->GetStream();
+  vtkNew<vtkFileResourceStream> fileStream;
+  if (!this->TempStream)
+  {
+    if (!fileStream->Open(this->GetFileName()))
+    {
+      vtkErrorMacro("Unable to open " << this->GetFileName() << " , aborting.");
+      return 0;
+    }
+
+    this->TempStream = fileStream;
+  }
+
   vtk3DSMatProp* aMaterial;
 
   if (parse_3ds_file(this) == 0)
   {
-    vtkErrorMacro(<< "Error readings .3ds file: " << this->GetFileName() << "\n");
+    vtkErrorMacro(<< "Error readings .3ds file\n");
     return 0;
   }
 
@@ -581,7 +581,7 @@ static int parse_3ds_file(vtk3DSImporter* importer)
 {
   vtk3DSChunk chunk;
 
-  start_chunk(importer, &chunk);
+  start_chunk(importer->GetTempStream(), &chunk);
 
   if (chunk.tag == 0x4D4D)
   {
@@ -593,7 +593,7 @@ static int parse_3ds_file(vtk3DSImporter* importer)
     return 0;
   }
 
-  end_chunk(importer, &chunk);
+  end_chunk(importer->GetTempStream(), &chunk);
   return 1;
 }
 
@@ -603,7 +603,7 @@ static void parse_3ds(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
 
   do
   {
-    start_chunk(importer, &chunk);
+    start_chunk(importer->GetTempStream(), &chunk);
 
     if (chunk.end <= mainchunk->end)
     {
@@ -614,7 +614,7 @@ static void parse_3ds(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
           break;
       }
     }
-    end_chunk(importer, &chunk);
+    end_chunk(importer->GetTempStream(), &chunk);
   } while (chunk.end <= mainchunk->end);
 }
 
@@ -625,7 +625,7 @@ static void parse_mdata(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
 
   do
   {
-    start_chunk(importer, &chunk);
+    start_chunk(importer->GetTempStream(), &chunk);
 
     if (chunk.end <= mainchunk->end)
     {
@@ -652,7 +652,7 @@ static void parse_mdata(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
       }
     }
 
-    end_chunk(importer, &chunk);
+    end_chunk(importer->GetTempStream(), &chunk);
   } while (chunk.end <= mainchunk->end);
 }
 
@@ -660,16 +660,16 @@ static void parse_fog(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
 {
   vtk3DSChunk chunk;
 
-  (void)read_float(importer);
-  (void)read_float(importer);
-  (void)read_float(importer);
-  (void)read_float(importer);
+  (void)read_float(importer->GetTempStream());
+  (void)read_float(importer->GetTempStream());
+  (void)read_float(importer->GetTempStream());
+  (void)read_float(importer->GetTempStream());
 
   parse_colour(importer, &vtk3DS::fogColour);
 
   do
   {
-    start_chunk(importer, &chunk);
+    start_chunk(importer->GetTempStream(), &chunk);
 
     if (chunk.end <= mainchunk->end)
     {
@@ -681,7 +681,7 @@ static void parse_fog(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
       }
     }
 
-    end_chunk(importer, &chunk);
+    end_chunk(importer->GetTempStream(), &chunk);
   } while (chunk.end <= mainchunk->end);
 }
 
@@ -696,13 +696,13 @@ static void parse_mat_entry(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
 
   do
   {
-    start_chunk(importer, &chunk);
+    start_chunk(importer->GetTempStream(), &chunk);
     if (chunk.end <= mainchunk->end)
     {
       switch (chunk.tag)
       {
         case 0xA000:
-          strcpy(mprop->name, read_string(importer));
+          strcpy(mprop->name, read_string(importer->GetTempStream()));
           cleanup_name(mprop->name);
           break;
 
@@ -754,7 +754,7 @@ static void parse_mat_entry(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
       }
     }
 
-    end_chunk(importer, &chunk);
+    end_chunk(importer->GetTempStream(), &chunk);
   } while (chunk.end <= mainchunk->end);
 
   VTK_LIST_INSERT(importer->MatPropList, mprop);
@@ -767,19 +767,19 @@ static char* parse_mapname(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
 
   do
   {
-    start_chunk(importer, &chunk);
+    start_chunk(importer->GetTempStream(), &chunk);
 
     if (chunk.end <= mainchunk->end)
     {
       switch (chunk.tag)
       {
         case 0xA300:
-          strcpy(name, read_string(importer));
+          strcpy(name, read_string(importer->GetTempStream()));
           break;
       }
     }
 
-    end_chunk(importer, &chunk);
+    end_chunk(importer->GetTempStream(), &chunk);
   } while (chunk.end <= mainchunk->end);
 
   return name;
@@ -790,14 +790,14 @@ static void parse_named_object(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
   vtk3DSMesh* mesh;
   vtk3DSChunk chunk;
 
-  strcpy(vtk3DS::objName, read_string(importer));
+  strcpy(vtk3DS::objName, read_string(importer->GetTempStream()));
   cleanup_name(vtk3DS::objName);
 
   mesh = nullptr;
 
   do
   {
-    start_chunk(importer, &chunk);
+    start_chunk(importer->GetTempStream(), &chunk);
     if (chunk.end <= mainchunk->end)
     {
       switch (chunk.tag)
@@ -826,7 +826,7 @@ static void parse_named_object(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
       }
     }
 
-    end_chunk(importer, &chunk);
+    end_chunk(importer->GetTempStream(), &chunk);
   } while (chunk.end <= mainchunk->end);
 }
 
@@ -839,7 +839,7 @@ static void parse_n_tri_object(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
 
   do
   {
-    start_chunk(importer, &chunk);
+    start_chunk(importer->GetTempStream(), &chunk);
 
     if (chunk.end <= mainchunk->end)
     {
@@ -857,7 +857,7 @@ static void parse_n_tri_object(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
       }
     }
 
-    end_chunk(importer, &chunk);
+    end_chunk(importer->GetTempStream(), &chunk);
   } while (chunk.end <= mainchunk->end);
 
   VTK_LIST_INSERT(importer->MeshList, mesh);
@@ -867,11 +867,11 @@ static void parse_point_array(vtk3DSImporter* importer, vtk3DSMesh* mesh)
 {
   int i;
 
-  mesh->vertices = read_word(importer);
+  mesh->vertices = read_word(importer->GetTempStream());
   mesh->vertex = (vtk3DSVector*)malloc(mesh->vertices * sizeof(*(mesh->vertex)));
   for (i = 0; i < mesh->vertices; i++)
   {
-    read_point(importer, mesh->vertex[i]);
+    read_point(importer->GetTempStream(), mesh->vertex[i]);
   }
 }
 
@@ -880,24 +880,24 @@ static void parse_face_array(vtk3DSImporter* importer, vtk3DSMesh* mesh, vtk3DSC
   vtk3DSChunk chunk;
   int i;
 
-  mesh->faces = read_word(importer);
+  mesh->faces = read_word(importer->GetTempStream());
   mesh->face = (vtk3DSFace*)malloc(mesh->faces * sizeof(*(mesh->face)));
   // NOLINTNEXTLINE(bugprone-sizeof-expression)
   mesh->mtl = (vtk3DSMaterial**)malloc(mesh->faces * sizeof(*mesh->mtl));
 
   for (i = 0; i < mesh->faces; i++)
   {
-    mesh->face[i].a = read_word(importer);
-    mesh->face[i].b = read_word(importer);
-    mesh->face[i].c = read_word(importer);
-    (void)read_word(importer);
+    mesh->face[i].a = read_word(importer->GetTempStream());
+    mesh->face[i].b = read_word(importer->GetTempStream());
+    mesh->face[i].c = read_word(importer->GetTempStream());
+    (void)read_word(importer->GetTempStream());
 
     mesh->mtl[i] = nullptr;
   }
 
   do
   {
-    start_chunk(importer, &chunk);
+    start_chunk(importer->GetTempStream(), &chunk);
     if (chunk.end <= mainchunk->end)
     {
       switch (chunk.tag)
@@ -911,7 +911,7 @@ static void parse_face_array(vtk3DSImporter* importer, vtk3DSMesh* mesh, vtk3DSC
       }
     }
 
-    end_chunk(importer, &chunk);
+    end_chunk(importer->GetTempStream(), &chunk);
   } while (chunk.end <= mainchunk->end);
 
   for (i = 0; i < mesh->faces; i++)
@@ -930,16 +930,16 @@ static void parse_msh_mat_group(vtk3DSImporter* importer, vtk3DSMesh* mesh)
   int mtlcnt;
   int i, face;
 
-  strcpy(mtlname, read_string(importer));
+  strcpy(mtlname, read_string(importer->GetTempStream()));
   cleanup_name(mtlname);
 
   new_mtl = update_materials(importer, mtlname, 0);
 
-  mtlcnt = read_word(importer);
+  mtlcnt = read_word(importer->GetTempStream());
 
   for (i = 0; i < mtlcnt; i++)
   {
-    face = read_word(importer);
+    face = read_word(importer->GetTempStream());
     mesh->mtl[face] = new_mtl;
   }
 }
@@ -958,12 +958,12 @@ static void parse_n_direct_light(vtk3DSImporter* importer, vtk3DSChunk* mainchun
   vtk3DSOmniLight* o;
   int spot_flag = 0;
 
-  read_point(importer, vtk3DS::pos);
+  read_point(importer->GetTempStream(), vtk3DS::pos);
   parse_colour(importer, &vtk3DS::col);
 
   do
   {
-    start_chunk(importer, &chunk);
+    start_chunk(importer->GetTempStream(), &chunk);
 
     if (chunk.end <= mainchunk->end)
     {
@@ -978,7 +978,7 @@ static void parse_n_direct_light(vtk3DSImporter* importer, vtk3DSChunk* mainchun
       }
     }
 
-    end_chunk(importer, &chunk);
+    end_chunk(importer->GetTempStream(), &chunk);
   } while (chunk.end <= mainchunk->end);
 
   if (!spot_flag)
@@ -1047,10 +1047,10 @@ static void parse_n_direct_light(vtk3DSImporter* importer, vtk3DSChunk* mainchun
 
 static void parse_dl_spotlight(vtk3DSImporter* importer)
 {
-  read_point(importer, vtk3DS::target);
+  read_point(importer->GetTempStream(), vtk3DS::target);
 
-  vtk3DS::hotspot = read_float(importer);
-  vtk3DS::falloff = read_float(importer);
+  vtk3DS::hotspot = read_float(importer->GetTempStream());
+  vtk3DS::falloff = read_float(importer->GetTempStream());
 }
 
 static void parse_n_camera(vtk3DSImporter* importer)
@@ -1059,10 +1059,10 @@ static void parse_n_camera(vtk3DSImporter* importer)
   float lens;
   vtk3DSCamera* c = (vtk3DSCamera*)malloc(sizeof(vtk3DSCamera));
 
-  read_point(importer, vtk3DS::pos);
-  read_point(importer, vtk3DS::target);
-  bank = read_float(importer);
-  lens = read_float(importer);
+  read_point(importer->GetTempStream(), vtk3DS::pos);
+  read_point(importer->GetTempStream(), vtk3DS::target);
+  bank = read_float(importer->GetTempStream());
+  lens = read_float(importer->GetTempStream());
 
   strcpy(c->name, vtk3DS::objName);
   c->pos[0] = vtk3DS::pos[0];
@@ -1082,7 +1082,7 @@ static void parse_colour(vtk3DSImporter* importer, vtk3DSColour* colour)
   vtk3DSChunk chunk;
   vtk3DSColour_24 colour_24;
 
-  start_chunk(importer, &chunk);
+  start_chunk(importer->GetTempStream(), &chunk);
 
   switch (chunk.tag)
   {
@@ -1101,21 +1101,21 @@ static void parse_colour(vtk3DSImporter* importer, vtk3DSColour* colour)
       vtkGenericWarningMacro(<< "Error parsing colour");
   }
 
-  end_chunk(importer, &chunk);
+  end_chunk(importer->GetTempStream(), &chunk);
 }
 
 static void parse_colour_f(vtk3DSImporter* importer, vtk3DSColour* colour)
 {
-  colour->red = read_float(importer);
-  colour->green = read_float(importer);
-  colour->blue = read_float(importer);
+  colour->red = read_float(importer->GetTempStream());
+  colour->green = read_float(importer->GetTempStream());
+  colour->blue = read_float(importer->GetTempStream());
 }
 
 static void parse_colour_24(vtk3DSImporter* importer, vtk3DSColour_24* colour)
 {
-  colour->red = read_byte(importer);
-  colour->green = read_byte(importer);
-  colour->blue = read_byte(importer);
+  colour->red = read_byte(importer->GetTempStream());
+  colour->green = read_byte(importer->GetTempStream());
+  colour->blue = read_byte(importer->GetTempStream());
 }
 
 static float parse_percentage(vtk3DSImporter* importer)
@@ -1123,7 +1123,7 @@ static float parse_percentage(vtk3DSImporter* importer)
   vtk3DSChunk chunk;
   float percent = 0.0;
 
-  start_chunk(importer, &chunk);
+  start_chunk(importer->GetTempStream(), &chunk);
 
   switch (chunk.tag)
   {
@@ -1139,30 +1139,30 @@ static float parse_percentage(vtk3DSImporter* importer)
       vtkGenericWarningMacro(<< "Error parsing percentage\n");
   }
 
-  end_chunk(importer, &chunk);
+  end_chunk(importer->GetTempStream(), &chunk);
 
   return percent;
 }
 
 static short parse_int_percentage(vtk3DSImporter* importer)
 {
-  word percent = read_word(importer);
+  word percent = read_word(importer->GetTempStream());
 
   return percent;
 }
 
 static float parse_float_percentage(vtk3DSImporter* importer)
 {
-  float percent = read_float(importer);
+  float percent = read_float(importer->GetTempStream());
 
   return percent;
 }
 
-static void start_chunk(vtk3DSImporter* importer, vtk3DSChunk* chunk)
+static void start_chunk(vtkResourceStream* stream, vtk3DSChunk* chunk)
 {
-  chunk->start = ftell(importer->GetFileFD());
-  chunk->tag = peek_word(importer);
-  chunk->length = peek_dword(importer);
+  chunk->start = stream->Tell();
+  chunk->tag = peek_word(stream);
+  chunk->length = peek_dword(stream);
   if (chunk->length == 0)
   {
     chunk->length = 1;
@@ -1170,38 +1170,38 @@ static void start_chunk(vtk3DSImporter* importer, vtk3DSChunk* chunk)
   chunk->end = chunk->start + chunk->length;
 }
 
-static void end_chunk(vtk3DSImporter* importer, vtk3DSChunk* chunk)
+static void end_chunk(vtkResourceStream* stream, vtk3DSChunk* chunk)
 {
-  fseek(importer->GetFileFD(), chunk->end, 0);
+  stream->Seek(chunk->end, vtkResourceStream::SeekDirection::Begin);
 }
 
-static byte read_byte(vtk3DSImporter* importer)
+static byte read_byte(vtkResourceStream* stream)
 {
   byte data;
-
-  data = fgetc(importer->GetFileFD());
-
+  if (stream->Read(&data, 1) != 1)
+  {
+    vtkErrorWithObjectMacro(nullptr, "Premature end of file in read_byte\n");
+    data = 0;
+  }
   return data;
 }
 
-static word read_word(vtk3DSImporter* importer)
+static word read_word(vtkResourceStream* stream)
 {
   word data;
-
-  if (fread(&data, 2, 1, importer->GetFileFD()) != 1)
+  if (stream->Read(&data, 2) != 2)
   {
-    vtkErrorWithObjectMacro(importer, "Pre-mature end of file in read_word\n");
+    vtkErrorWithObjectMacro(nullptr, "Premature end of file in read_word\n");
     data = 0;
   }
   vtkByteSwap::Swap2LE((short*)&data);
   return data;
 }
 
-static word peek_word(vtk3DSImporter* importer)
+static word peek_word(vtkResourceStream* stream)
 {
   word data;
-
-  if (fread(&data, 2, 1, importer->GetFileFD()) != 1)
+  if (stream->Read(&data, 2) != 2)
   {
     data = 0;
   }
@@ -1209,11 +1209,10 @@ static word peek_word(vtk3DSImporter* importer)
   return data;
 }
 
-static dword peek_dword(vtk3DSImporter* importer)
+static dword peek_dword(vtkResourceStream* stream)
 {
   dword data;
-
-  if (fread(&data, 4, 1, importer->GetFileFD()) != 1)
+  if (stream->Read(&data, 4) != 4)
   {
     data = 0;
   }
@@ -1222,13 +1221,12 @@ static dword peek_dword(vtk3DSImporter* importer)
   return data;
 }
 
-static float read_float(vtk3DSImporter* importer)
+static float read_float(vtkResourceStream* stream)
 {
   float data;
-
-  if (fread(&data, 4, 1, importer->GetFileFD()) != 1)
+  if (stream->Read(&data, 4) != 4)
   {
-    vtkErrorWithObjectMacro(importer, "Pre-mature end of file in read_float\n");
+    vtkErrorWithObjectMacro(nullptr, "Premature end of file in read_float\n");
     data = 0;
   }
 
@@ -1236,21 +1234,21 @@ static float read_float(vtk3DSImporter* importer)
   return data;
 }
 
-static void read_point(vtk3DSImporter* importer, vtk3DSVector v)
+static void read_point(vtkResourceStream* stream, vtk3DSVector v)
 {
-  v[0] = read_float(importer);
-  v[1] = read_float(importer);
-  v[2] = read_float(importer);
+  v[0] = read_float(stream);
+  v[1] = read_float(stream);
+  v[2] = read_float(stream);
 }
 
-static char* read_string(vtk3DSImporter* importer)
+static char* read_string(vtkResourceStream* stream)
 {
   static char string[80];
   int i;
 
   for (i = 0; i < 80; i++)
   {
-    string[i] = read_byte(importer);
+    string[i] = read_byte(stream);
 
     if (string[i] == '\0')
     {

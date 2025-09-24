@@ -7,8 +7,7 @@
  * vtk3DSImporter imports 3D Studio files into vtk.
  *
  * This importer doesn't support scene hierarchy API
- * This importer doesn't support reading streams
- *
+ * This importer supports reading stream, and select stream preferentially over filename
  * This importer supports the collection API
  *
  * @sa
@@ -24,6 +23,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPolyData;
+class vtkResourceStream;
 
 class VTKIOIMPORT_EXPORT vtk3DSImporter : public vtkImporter
 {
@@ -49,9 +49,15 @@ public:
   std::string GetOutputsDescription() override;
 
   /**
-   * Return the file pointer to the open file.
+   * Deprecated, returns nullptr
    */
-  FILE* GetFileFD() { return this->FileFD; }
+  VTK_DEPRECATED_IN_9_6_0("This now always returns nullptr, do not use.")
+  FILE* GetFileFD() { return nullptr; }
+
+  /**
+   * Return the stream being read or nullptr when not reading
+   */
+  vtkResourceStream* GetTempStream() { return this->TempStream; }
 
   vtk3DSOmniLight* OmniList;
   vtk3DSSpotLight* SpotLightList;
@@ -65,7 +71,6 @@ protected:
   ~vtk3DSImporter() override;
 
   int ImportBegin() override;
-  void ImportEnd() override;
   void ImportActors(vtkRenderer* renderer) override;
   void ImportCameras(vtkRenderer* renderer) override;
   void ImportLights(vtkRenderer* renderer) override;
@@ -73,12 +78,13 @@ protected:
   vtkPolyData* GeneratePolyData(vtk3DSMesh* meshPtr);
   int Read3DS();
 
-  FILE* FileFD;
   vtkTypeBool ComputeNormals;
 
 private:
   vtk3DSImporter(const vtk3DSImporter&) = delete;
   void operator=(const vtk3DSImporter&) = delete;
+
+  vtkResourceStream* TempStream;
 };
 
 VTK_ABI_NAMESPACE_END
