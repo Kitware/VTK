@@ -82,7 +82,9 @@ el7-x86_64-mindeps-debug-python-qt5:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     stage: quick
 
 # Disable testing for now. Even with a modern Mesa and the llvmpipe backend,
@@ -104,7 +106,9 @@ el8-x86_64-python:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 el8-x86_64-python:test:
@@ -123,7 +127,9 @@ fedora41-aarch64-mpi-python:build:
         - .cmake_build_linux
         - .linux_aarch64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 fedora41-aarch64-mpi-python:test:
@@ -142,7 +148,9 @@ fedora39-x86_64-mpi-renderless:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 fedora39-x86_64-mpi-renderless:test:
@@ -171,8 +179,9 @@ fedora39-x86_64-cuda-mpi:build:
         - .cmake_build_linux
         - .cmake_build_artifacts
         - .linux_x86_64_builder_tags
-        - .run_manually
+        - .rules
     variables:
+        VTK_CI_RUN_MANUALLY: "true"
         CTEST_MAX_PARALLELISM: 4
     timeout: 8 hours
     needs: []
@@ -209,7 +218,9 @@ fedora39-x86_64-helide-mpi-python-qt-tbb:build:
         - .cmake_build_linux
         - .linux_x86_64_fast_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     stage: quick
 
@@ -250,7 +261,9 @@ fedora39-x86_64-mpi-ospray-python-qt-tbb:build:
         - .cmake_build_linux
         - .linux_x86_64_fast_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     stage: quick
 
@@ -282,10 +295,11 @@ fedora39-x86_64-java11:build:
         - .cmake_build_java_linux
         - .linux_x86_64_builder_tags
         - .cmake_maven_artifacts
-        - .run_manually
-    timeout: 2 hours
+        - .rules
     variables:
+        VTK_CI_RUN_MANUALLY: "true"
         VTK_JAVA_VERSION: 11
+    timeout: 2 hours
     needs: []
 
 fedora39-x86_64-mpi-python-qt-tbb:build:
@@ -294,7 +308,9 @@ fedora39-x86_64-mpi-python-qt-tbb:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -336,7 +352,9 @@ fedora39-x86_64-mangling:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     stage: quick
 
@@ -356,7 +374,9 @@ fedora39-x86_64-mpi-python-viskoresoverride:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -377,7 +397,9 @@ fedora39-x86_64-webgpu:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -399,7 +421,9 @@ wasm32-emscripten-linux:build:
         - .cmake_build_wasm_emscripten_linux
         - .linux_x86_64_builder_tags
         - .cmake_wasm_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
     stage: quick
 
@@ -428,7 +452,9 @@ wasm64-emscripten-linux:build:
         - .cmake_build_wasm_emscripten_linux
         - .linux_x86_64_builder_tags
         - .cmake_wasm_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wasm64-emscripten:package:
@@ -824,7 +850,9 @@ wheel-linux-python313-x86_64:build:
         - .cmake_build_wheel_linux
         - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-linux-python313-x86_64:test:
@@ -1240,7 +1268,9 @@ wheel-linux-python313-aarch64:build:
         - .cmake_build_wheel_linux
         - .linux_aarch64_builder_tags
         - .cmake_wheel_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-linux-python313-aarch64:test:
@@ -1785,7 +1815,9 @@ fedora42-x86_64-tidy:build:
         - .cmake_build_linux
         - .linux_x86_64_fast_builder_tags
         - .cmake_tidy_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     # Use fast builder tag as tidy can takes a very long time on slow machine
     # Move it to the test stage so that the build stage can be required to be
     # green. `clang-tidy` just takes too long to require for every MR prior to
@@ -1805,7 +1837,9 @@ fedora42-x86_64-tidy:build:
 #         - .cmake_build_linux
 #         - .linux_x86_64_builder_tags
 #         - .cmake_build_artifacts
-#         - .run_manually
+#         - .rules
+#     variables:
+#         VTK_CI_RUN_MANUALLY: "true"
 #     needs: []
 #
 # fedora39-x86_64-asan:test:
@@ -1824,7 +1858,9 @@ fedora42-x86_64-tidy:build:
 #         - .cmake_build_linux
 #         - .linux_x86_64_builder_tags
 #         - .cmake_build_artifacts
-#         - .run_manually
+#         - .rules
+#     variables:
+#         VTK_CI_RUN_MANUALLY: "true"
 #     needs: []
 #
 # fedora39-x86_64-tsan:test:
@@ -1843,7 +1879,9 @@ fedora42-x86_64-tidy:build:
 #         - .cmake_build_linux
 #         - .linux_x86_64_builder_tags
 #         - .cmake_build_artifacts
-#         - .run_manually
+#         - .rules
+#     variables:
+#         VTK_CI_RUN_MANUALLY: "true"
 #     needs: []
 #
 # fedora39-x86_64-ubsan:test:
@@ -1864,7 +1902,9 @@ documentation:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_doxygen_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 documentation:upload:
@@ -2128,7 +2168,9 @@ macos-arm64-kits-python-qt:build:
         - .cmake_build_macos
         - .macos_arm64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     stage: quick
 
 macos-arm64-kits-python-qt:test:
@@ -2147,7 +2189,9 @@ macos-x86_64-kits-python-qt:build:
         - .cmake_build_macos
         - .macos_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     # Some of the macOS runners are not very powerful.
     timeout: 150 minutes
     needs: []
@@ -2378,7 +2422,9 @@ wheel-macos-python313-arm64:build:
         - .cmake_build_wheel_macos
         - .macos_arm64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-macos-python313-arm64:test:
@@ -2397,7 +2443,9 @@ wheel-macos-python313-x86_64:build:
         - .cmake_build_wheel_macos
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -2422,7 +2470,9 @@ windows-vs2022-debug-mpi-qt:build:
         - .windows_builder_tags
         # - .cmake_build_artifacts
         - .cmake_tidy_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 180 minutes
     needs: []
 
@@ -2442,7 +2492,9 @@ windows-vs2022-kits-mpi-python-qt:build:
         - .cmake_build_windows
         - .windows_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 180 minutes
     stage: quick
 
@@ -2494,7 +2546,9 @@ windows-vs2022-mpi-python-qt:build:
         - .cmake_build_windows
         - .windows_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 180 minutes
     needs: []
 
@@ -2514,7 +2568,9 @@ windows-vs2022-mpi-python-qt-static:build:
         - .cmake_build_windows
         - .windows_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 180 minutes
     needs: []
 
@@ -2681,7 +2737,9 @@ wheel-windows-python313-x86_64:build:
         - .cmake_build_wheel_windows
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-windows-python313-x86_64:test:
