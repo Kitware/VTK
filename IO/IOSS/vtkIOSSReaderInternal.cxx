@@ -1266,11 +1266,10 @@ void vtkIOSSReaderInternal::GenerateElementAndSideIds(vtkDataSet* dataset, Ioss:
               << "[.\n";
 #endif
     // ioss element_side_raw is 1-indexed; make it 0-indexed for VTK.
-    auto transform = std::unique_ptr<Ioss::Transform>(Ioss::TransformFactory::create("offset"));
+    auto transform = Ioss::TransformFactory::create("offset");
     transform->set_property("offset", -1);
 
-    auto element_side_raw =
-      vtkIOSSUtilities::GetData(sideBlock, "element_side_raw", transform.get());
+    auto element_side_raw = vtkIOSSUtilities::GetData(sideBlock, "element_side_raw", transform);
     auto sideBlockType = sideBlock->topology()->base_topology_permutation_name();
     (void)element_side_raw;
     std::ostringstream sideElemName;
