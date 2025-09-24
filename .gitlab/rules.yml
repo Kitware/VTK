@@ -65,7 +65,6 @@ workflow:
           changes: *code_change
           when: on_success
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
-          changes: *code_change
           when: on_success
         - when: never
 
@@ -75,7 +74,6 @@ workflow:
           changes: *code_change
           when: manual
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
-          changes: *code_change
           when: on_success
         - changes: *code_change
           when: delayed
@@ -87,10 +85,8 @@ workflow:
         - if: '$CI_MERGE_REQUEST_ID'
           when: never
         - if: '$CI_PIPELINE_SOURCE == "schedule"'
-          changes: *code_change
           when: on_success
-        - changes: *code_change
-          when: delayed
+        - when: delayed
           start_in: 4 hours
         - when: never
 
