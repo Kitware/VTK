@@ -1549,7 +1549,9 @@ wheel-linux-python313-aarch64-egl:test-x11:
 wheel:pypi:upload:
     extends:
         - .pypi_upload
-        - .release_only
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-linux-python38-x86_64:build
         - job: wheel-linux-python38-x86_64:test
@@ -2134,20 +2136,27 @@ source:build:
     extends:
         - .cmake_source_tarballs
         - .cmake_release_artifacts
-        - .release_only
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
 
 documentation:release-prep:
     extends:
         - .cmake_doc_tarball
         - .cmake_release_artifacts
-        - .release_only
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
     needs:
         - documentation:build
 
 release-artifacts:upload:
     extends:
         - .rsync_upload_release_artifacts
-        - .release_only
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+        RSYNC_SOURCE: release/
     needs:
         - source:build
         - documentation:release-prep
@@ -2370,8 +2379,6 @@ release-artifacts:upload:
           artifacts: false
         - job: wheel-windows-python313-x86_64-osmesa:test
           artifacts: false
-    variables:
-        RSYNC_SOURCE: release/
 
 # macOS
 
