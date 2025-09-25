@@ -5,8 +5,7 @@
  * @brief   import from .obj wavefront files
  *
  * This importer doesn't support scene hierarchy API
- * This importer doesn't support reading streams
- *
+ * This importer supports reading streams
  * This importer supports the collection API
  *
  *                        from Wavefront .obj & associated .mtl files.
@@ -63,17 +62,28 @@ public:
 
   ///@{
   /**
-   * Specify the name of the file to read.
-   * FileName must be provided in the parent class.
-   * FileNameMTL can be provided, if not provided, we will do, in order:
+   * Specify the name of the file or the stream to read as MTL file.
+   * Stream or FileNameMTL can be provided, if both are provided, Stream will be used.
+   * if none is provided, we will do, in order:
    *  - Use mtllib is provided in the .obj file
    *  - Check for a FileName.mtl and use it if it exists
    *  - Check for a FileStem.mtl and use it if it exists
-   * TexturePath can be provided, it not provided, the folder containing FileName will be used
    */
+  void SetMTLStream(vtkResourceStream* stream);
   void SetFileNameMTL(VTK_FILEPATH const char* arg);
-  void SetTexturePath(VTK_FILEPATH const char* path);
   VTK_FILEPATH const char* GetFileNameMTL() const;
+  ///@}
+
+  ///@{
+
+  /**
+   * Set TexturePath or TextureStreams.
+   * TextureStreams is a map where the filename are the string keys.
+   * If both are provided, the streams will be used.
+   * If none is provided, the folder containing FileName will be used
+   */
+  void SetTextureStreams(std::map<std::string, vtkResourceStream*> streamMap);
+  void SetTexturePath(VTK_FILEPATH const char* path);
   VTK_FILEPATH const char* GetTexturePath() const;
   ///@}
 
@@ -95,11 +105,11 @@ protected:
   void ImportEnd() override /*override*/;
   void ReadData() override /* override */;
 
-  vtkSmartPointer<vtkOBJPolyDataProcessor> Impl;
-
 private:
   vtkOBJImporter(const vtkOBJImporter&) = delete;
   void operator=(const vtkOBJImporter&) = delete;
+
+  vtkSmartPointer<vtkOBJPolyDataProcessor> Impl;
 };
 
 VTK_ABI_NAMESPACE_END

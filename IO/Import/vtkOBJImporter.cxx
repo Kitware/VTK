@@ -4,6 +4,7 @@
 
 #include "vtkActor.h"
 #include "vtkCellArray.h"
+#include "vtkFileResourceStream.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -34,16 +35,38 @@ vtkStandardNewMacro(vtkOBJPolyDataProcessor);
 
 namespace
 {
-int CanReadFile(vtkObject* that, const std::string& fname)
+bool CanReadFile(vtkObject* that, const std::string& fname)
 {
-  FILE* fileFD = vtksys::SystemTools::Fopen(fname, "rb");
-  if (fileFD == nullptr)
+  vtkNew<vtkFileResourceStream> file;
+  if (!file->Open(fname.c_str()))
   {
     vtkErrorWithObjectMacro(that, << "Unable to open file: " << fname);
-    return 0;
+    return false;
   }
-  fclose(fileFD);
-  return 1;
+  return true;
+}
+
+/**
+ * Read a line char by char from a vtkResourceStream
+ * Behave like fgets as specified here: https://en.cppreference.com/w/c/io/fgets
+ */
+bool ReadLine(char* rawLine, int maxLine, vtkResourceStream* stream)
+{
+  int nRead = 0;
+  for (; nRead < maxLine - 1 && !stream->EndOfStream(); nRead++)
+  {
+    if (stream->Read(rawLine, 1) != 1)
+    {
+      return false;
+    }
+    if (*rawLine == '\n')
+    {
+      *(rawLine + 1) = '\0';
+      return true;
+    }
+    rawLine++;
+  }
+  return nRead > 0;
 }
 }
 
@@ -58,7 +81,7 @@ vtkOBJImporter::~vtkOBJImporter() = default;
 
 int vtkOBJImporter::ImportBegin()
 {
-  if (!::CanReadFile(this, this->GetFileName()))
+  if (!this->GetStream() && !::CanReadFile(this, this->GetFileName()))
   {
     return 0;
   }
@@ -100,21 +123,37 @@ void vtkOBJImporter::PrintSelf(std::ostream& os, vtkIndent indent)
   vtkImporter::PrintSelf(os, indent);
 }
 
+//------------------------------------------------------------------------------
+void vtkOBJImporter::SetMTLStream(vtkResourceStream* mtlStream)
+{
+  this->Impl->SetMTLStream(mtlStream);
+}
+
+//------------------------------------------------------------------------------
 void vtkOBJImporter::SetFileNameMTL(const char* arg)
 {
   this->Impl->SetMTLfileName(arg);
 }
 
-void vtkOBJImporter::SetTexturePath(const char* path)
-{
-  this->Impl->SetTexturePath(path);
-}
-
+//------------------------------------------------------------------------------
 const char* vtkOBJImporter::GetFileNameMTL() const
 {
   return this->Impl->GetMTLFileName().data();
 }
 
+//------------------------------------------------------------------------------
+void vtkOBJImporter::SetTextureStreams(std::map<std::string, vtkResourceStream*> streamMap)
+{
+  this->Impl->SetTextureStreams(streamMap);
+}
+
+//------------------------------------------------------------------------------
+void vtkOBJImporter::SetTexturePath(const char* path)
+{
+  this->Impl->SetTexturePath(path);
+}
+
+//------------------------------------------------------------------------------
 const char* vtkOBJImporter::GetTexturePath() const
 {
   return this->Impl->GetTexturePath().data();
@@ -332,17 +371,18 @@ p <v_a> <v_b> ...
 int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* vtkNotUsed(outputVector))
 {
-  if (this->FileName.empty())
+  // Stream is higher priority than filename.
+  vtkResourceStream* stream = this->Stream;
+  vtkNew<vtkFileResourceStream> fileStream;
+  if (!stream)
   {
-    vtkErrorMacro(<< "A FileName must be specified.");
-    return 0;
-  }
+    if (!fileStream->Open(this->FileName.c_str()))
+    {
+      vtkErrorMacro("Unable to open " << this->GetFileName() << " , aborting.");
+      return 0;
+    }
 
-  FILE* in = vtksys::SystemTools::Fopen(this->FileName, "r");
-  if (in == nullptr)
-  {
-    vtkErrorMacro(<< "File " << this->FileName << " not found");
-    return 0;
+    stream = fileStream;
   }
 
   // clear old poly list
@@ -352,8 +392,6 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     poly_list[k] = nullptr;
   }
   poly_list.clear();
-
-  vtkDebugMacro(<< "Reading file" << this->FileName);
 
   // clear any old mtls
   for (size_t k = 0; k < this->parsedMTLs.size(); ++k)
@@ -407,7 +445,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
       constexpr int MAX_LINE = 100000;
       char rawLine[MAX_LINE];
 
-      while (fgets(rawLine, MAX_LINE, in) != nullptr)
+      while (::ReadLine(rawLine, MAX_LINE, stream))
       {
         _extractLine(rawLine);
 
@@ -441,8 +479,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
       // Reset file position
-      clearerr(in);           // clear error and EOF flags
-      fseek(in, 0, SEEK_SET); // move to beginning
+      stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
     }
 
     if (mtllibDefined)
@@ -488,8 +525,23 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     this->SetTexturePath(vtksys::SystemTools::GetFilenamePath(this->FileName).c_str());
   }
 
+  // MTLStream is higher priority than MTLFilename.
+  vtkResourceStream* mtlStream = this->MTLStream;
+  vtkNew<vtkFileResourceStream> mtlFileStream;
+  if (!this->MTLFileName.empty() && !mtlStream)
+  {
+    if (!mtlFileStream->Open(this->MTLFileName.c_str()))
+    {
+      vtkErrorMacro("Unable to open MTL: " << this->MTLFileName << " , aborting.");
+      return 0;
+    }
+
+    mtlStream = mtlFileStream;
+  }
+
+  // Parse OBJ and MTL
   int mtlParseResult;
-  this->parsedMTLs = ParseOBJandMTL(this->MTLFileName, mtlParseResult);
+  this->parsedMTLs = ParseOBJandMTL(mtlStream, mtlParseResult);
   if (this->parsedMTLs.empty())
   { // construct a default material to define the single polydata's actor.
     this->parsedMTLs.push_back(new vtkOBJImportedMaterial);
@@ -556,7 +608,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
 
     int lineNr = 0;
     long lastVertexIndex = 0;
-    while (everything_ok && fgets(rawLine, MAX_LINE, in) != nullptr)
+    while (everything_ok && ::ReadLine(rawLine, MAX_LINE, stream))
     { /** While OK and there is another line in the file */
       lineNr++;
       _extractLine(rawLine);
@@ -658,7 +710,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
             else if (strcmp(pLine, "\\\n") == 0)
             {
               // handle backslash-newline continuation
-              if (fgets(rawLine, MAX_LINE, in) != nullptr)
+              if (::ReadLine(rawLine, MAX_LINE, stream))
               {
                 lineNr++;
                 pLine = rawLine;
@@ -745,7 +797,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
             else if (strcmp(pLine, "\\\n") == 0)
             {
               // handle backslash-newline continuation
-              if (fgets(rawLine, MAX_LINE, in) != nullptr)
+              if (::ReadLine(rawLine, MAX_LINE, stream))
               {
                 lineNr++;
                 pLine = rawLine;
@@ -927,7 +979,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
             else if (strcmp(pLine, "\\\n") == 0)
             {
               // handle backslash-newline continuation
-              if (fgets(rawLine, MAX_LINE, in) != nullptr)
+              if (::ReadLine(rawLine, MAX_LINE, stream))
               {
                 lineNr++;
                 pLine = rawLine;
@@ -1042,9 +1094,6 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
       }
     } /** Looping over lines of file */ // (end of while loop)
   }                                     // (end of local scope section)
-
-  // we have finished with the file
-  fclose(in);
 
   /** based on how many used materials are present,
                  set the number of output ports of vtkPolyData */

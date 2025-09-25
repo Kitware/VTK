@@ -18,6 +18,13 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  OBJImport-Stream,TestOBJImporter.cxx
+    DATA{../Data/Input/cube-scene.obj}
+    DATA{../Data/Input/cube-scene.mtl}
+    DATA{../Data/Input/noise.png}
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
   OBJImport-mtllib-texturepath,TestOBJImporter.cxx
     DATA{../Data/Input/cube-scene.obj}
 )
