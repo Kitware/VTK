@@ -50,7 +50,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 template <typename T>
-using vtkCompositeArray = vtkImplicitArray<vtkCompositeImplicitBackend<T>>;
+using vtkCompositeArray =
+  vtkImplicitArray<vtkCompositeImplicitBackend<T>, vtkArrayTypes::CompositeArray>;
 VTK_ABI_NAMESPACE_END
 
 namespace vtk
@@ -77,22 +78,25 @@ VTK_ABI_NAMESPACE_END
 // which when Dispatching is enabled, it instantiates a class with a value type, before exporting it
 #define VTK_INSTANTIATE_COMPOSITE_ARRAY(ValueType)                                                 \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template class VTKCOMMONCORE_EXPORT vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>>;    \
+  template class VTKCOMMONCORE_EXPORT                                                              \
+    vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>, vtkArrayTypes::CompositeArray>;       \
   VTK_ABI_NAMESPACE_END                                                                            \
   namespace vtkDataArrayPrivate                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
-    vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>>, double)                              \
+    VTK_WRAP_TEMPLATE(                                                                             \
+      vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>, vtkArrayTypes::CompositeArray>),    \
+    double)                                                                                        \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
 #define VTK_INSTANTIATE_COMPOSITE_ARRAY_FUNCTIONS(ValueType)                                       \
   namespace vtk                                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template VTKCOMMONCORE_EXPORT                                                                    \
-    vtkSmartPointer<vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>>>                      \
-    ConcatenateDataArrays(const std::vector<vtkDataArray*>& arrays);                               \
+  template VTKCOMMONCORE_EXPORT vtkSmartPointer<                                                   \
+    vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>, vtkArrayTypes::CompositeArray>>       \
+  ConcatenateDataArrays(const std::vector<vtkDataArray*>& arrays);                                 \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
 
@@ -106,8 +110,9 @@ VTK_ABI_NAMESPACE_END
 #pragma warning(disable : 4910) // extern and dllexport incompatible
 #endif
 VTK_ABI_NAMESPACE_BEGIN
-vtkExternSecondOrderTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkCompositeImplicitBackend);
+vtkExternSecondOrderWithParameterTemplateMacro(
+  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkCompositeImplicitBackend,
+  vtkArrayTypes::CompositeArray);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -138,8 +143,9 @@ VTK_ABI_NAMESPACE_END
 // Use an "extern explicit instantiation" to give the class a DLL
 // interface.  This is a compiler-specific extension.
 VTK_ABI_NAMESPACE_BEGIN
-vtkInstantiateSecondOrderTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkCompositeImplicitBackend);
+vtkInstantiateSecondOrderWithParameterTemplateMacro(
+  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkCompositeImplicitBackend,
+  vtkArrayTypes::CompositeArray);
 
 #pragma warning(pop)
 

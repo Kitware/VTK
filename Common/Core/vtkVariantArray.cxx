@@ -101,6 +101,22 @@ vtkVariantArray::~vtkVariantArray()
   delete this->Lookup;
 }
 
+//------------------------------------------------------------------------------
+vtkVariantArray* vtkVariantArray::FastDownCast(vtkAbstractArray* source)
+{
+  if (source)
+  {
+    switch (source->GetArrayType())
+    {
+      case vtkVariantArray::ArrayTypeTag::value:
+        return static_cast<vtkVariantArray*>(source);
+      default:
+        break;
+    }
+  }
+  return nullptr;
+}
+
 //
 //
 // Functions required by vtkAbstractArray

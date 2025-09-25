@@ -88,6 +88,22 @@ vtkStringArray::~vtkStringArray()
 }
 
 //------------------------------------------------------------------------------
+vtkStringArray* vtkStringArray::FastDownCast(vtkAbstractArray* source)
+{
+  if (source)
+  {
+    switch (source->GetArrayType())
+    {
+      case vtkStringArray::ArrayTypeTag::value:
+        return static_cast<vtkStringArray*>(source);
+      default:
+        break;
+    }
+  }
+  return nullptr;
+}
+
+//------------------------------------------------------------------------------
 vtkArrayIterator* vtkStringArray::NewIterator()
 {
   vtkArrayIteratorTemplate<vtkStdString>* iter = vtkArrayIteratorTemplate<vtkStdString>::New();

@@ -55,7 +55,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
-using vtkIndexedArray = vtkImplicitArray<vtkIndexedImplicitBackend<T>>;
+using vtkIndexedArray = vtkImplicitArray<vtkIndexedImplicitBackend<T>, vtkArrayTypes::IndexedArray>;
 VTK_ABI_NAMESPACE_END
 
 #endif // vtkIndexedArray_h
@@ -64,13 +64,16 @@ VTK_ABI_NAMESPACE_END
 
 #define VTK_INSTANTIATE_INDEXED_ARRAY(ValueType)                                                   \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template class VTKCOMMONCORE_EXPORT vtkImplicitArray<vtkIndexedImplicitBackend<ValueType>>;      \
+  template class VTKCOMMONCORE_EXPORT                                                              \
+    vtkImplicitArray<vtkIndexedImplicitBackend<ValueType>, vtkArrayTypes::IndexedArray>;           \
   VTK_ABI_NAMESPACE_END                                                                            \
   namespace vtkDataArrayPrivate                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
-    vtkImplicitArray<vtkIndexedImplicitBackend<ValueType>>, double)                                \
+    VTK_WRAP_TEMPLATE(                                                                             \
+      vtkImplicitArray<vtkIndexedImplicitBackend<ValueType>, vtkArrayTypes::IndexedArray>),        \
+    double)                                                                                        \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
 
@@ -84,8 +87,9 @@ VTK_ABI_NAMESPACE_END
 #pragma warning(disable : 4910) // extern and dllexport incompatible
 #endif
 VTK_ABI_NAMESPACE_BEGIN
-vtkExternSecondOrderTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkIndexedImplicitBackend);
+vtkExternSecondOrderWithParameterTemplateMacro(
+  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkIndexedImplicitBackend,
+  vtkArrayTypes::IndexedArray);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -116,8 +120,9 @@ VTK_ABI_NAMESPACE_END
 // Use an "extern explicit instantiation" to give the class a DLL
 // interface.  This is a compiler-specific extension.
 VTK_ABI_NAMESPACE_BEGIN
-vtkInstantiateSecondOrderTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkIndexedImplicitBackend);
+vtkInstantiateSecondOrderWithParameterTemplateMacro(
+  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkIndexedImplicitBackend,
+  vtkArrayTypes::IndexedArray);
 
 #pragma warning(pop)
 

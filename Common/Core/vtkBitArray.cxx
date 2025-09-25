@@ -65,6 +65,22 @@ vtkBitArray::~vtkBitArray()
   delete this->Lookup;
 }
 
+//------------------------------------------------------------------------------
+vtkBitArray* vtkBitArray::FastDownCast(vtkAbstractArray* source)
+{
+  if (source)
+  {
+    switch (source->GetArrayType())
+    {
+      case vtkBitArray::ArrayTypeTag::value:
+        return static_cast<vtkBitArray*>(source);
+      default:
+        break;
+    }
+  }
+  return nullptr;
+}
+
 void vtkBitArray::InitializeUnusedBitsInLastByte()
 {
   if (this->MaxId > -1)

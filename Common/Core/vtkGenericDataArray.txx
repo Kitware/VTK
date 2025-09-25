@@ -9,10 +9,31 @@
 #include "vtkMath.h"
 #include "vtkVariantCast.h"
 
-//-----------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
-template <class DerivedT, class ValueTypeT>
-double* vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuple(vtkIdType tupleIdx)
+#ifndef __VTK_WRAP__
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT, int ArrayType>
+DerivedT* vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::FastDownCast(
+  vtkAbstractArray* source)
+{
+  if (source)
+  {
+    switch (source->GetArrayType())
+    {
+      case DerivedT::ArrayTypeTag::value:
+        if (vtkDataTypesCompare(source->GetDataType(), DerivedT::DataTypeTag::value))
+        {
+          return static_cast<DerivedT*>(source);
+        }
+        break;
+    }
+  }
+  return nullptr;
+}
+#endif
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT, int ArrayType>
+double* vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetTuple(vtkIdType tupleIdx)
 {
   assert(!this->LegacyTuple.empty() && "Number of components is nonzero.");
   this->GetTuple(tupleIdx, this->LegacyTuple.data());
@@ -20,8 +41,9 @@ double* vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuple(vtkIdType tupleIdx)
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuple(vtkIdType tupleIdx, double* tuple)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetTuple(
+  vtkIdType tupleIdx, double* tuple)
 {
   for (int c = 0; c < this->NumberOfComponents; ++c)
   {
@@ -30,8 +52,8 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuple(vtkIdType tupleIdx, dou
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InterpolateTuple(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InterpolateTuple(
   vtkIdType dstTupleIdx, vtkIdList* ptIndices, vtkAbstractArray* source, double* weights)
 {
   // First, check for the common case of typeid(source) == typeid(this). This
@@ -72,8 +94,8 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InterpolateTuple(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InterpolateTuple(vtkIdType dstTupleIdx,
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InterpolateTuple(vtkIdType dstTupleIdx,
   vtkIdType srcTupleIdx1, vtkAbstractArray* source1, vtkIdType srcTupleIdx2,
   vtkAbstractArray* source2, double t)
 {
@@ -140,8 +162,8 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InterpolateTuple(vtkIdType dstTu
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::SetComponent(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::SetComponent(
   vtkIdType tupleIdx, int compIdx, double value)
 {
   // Reimplemented for efficiency (base impl allocates heap memory)
@@ -149,16 +171,17 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::SetComponent(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-double vtkGenericDataArray<DerivedT, ValueTypeT>::GetComponent(vtkIdType tupleIdx, int compIdx)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+double vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetComponent(
+  vtkIdType tupleIdx, int compIdx)
 {
   // Reimplemented for efficiency (base impl allocates heap memory)
   return static_cast<double>(this->GetTypedComponent(tupleIdx, compIdx));
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::RemoveTuple(vtkIdType id)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::RemoveTuple(vtkIdType id)
 {
   if (id < 0 || id >= this->GetNumberOfTuples())
   {
@@ -192,83 +215,90 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::RemoveTuple(vtkIdType id)
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::SetVoidArray(void*, vtkIdType, int)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::SetVoidArray(void*, vtkIdType, int)
 {
   vtkErrorMacro("SetVoidArray is not supported by this class.");
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::SetVoidArray(void*, vtkIdType, int, int)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::SetVoidArray(void*, vtkIdType, int, int)
 {
   vtkErrorMacro("SetVoidArray is not supported by this class.");
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::SetArrayFreeFunction(void (*)(void*))
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::SetArrayFreeFunction(void (*)(void*))
 {
   vtkErrorMacro("SetArrayFreeFunction is not supported by this class.");
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void* vtkGenericDataArray<DerivedT, ValueTypeT>::WriteVoidPointer(vtkIdType, vtkIdType)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void* vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::WriteVoidPointer(vtkIdType, vtkIdType)
 {
   vtkErrorMacro("WriteVoidPointer is not supported by this class.");
   return nullptr;
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-typename vtkGenericDataArray<DerivedT, ValueTypeT>::ValueType*
-vtkGenericDataArray<DerivedT, ValueTypeT>::WritePointer(vtkIdType id, vtkIdType number)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+typename vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ValueType*
+vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::WritePointer(vtkIdType id, vtkIdType number)
 {
   return static_cast<ValueType*>(this->WriteVoidPointer(id, number));
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-int vtkGenericDataArray<DerivedT, ValueTypeT>::GetDataType() const
+template <class DerivedT, class ValueTypeT, int ArrayType>
+int vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetArrayType() const
+{
+  return vtkGenericDataArray::ArrayTypeTag::value;
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT, int ArrayType>
+int vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetDataType() const
 {
   return vtkTypeTraits<ValueType>::VTK_TYPE_ID;
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-int vtkGenericDataArray<DerivedT, ValueTypeT>::GetDataTypeSize() const
+template <class DerivedT, class ValueTypeT, int ArrayType>
+int vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetDataTypeSize() const
 {
   return static_cast<int>(sizeof(ValueType));
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-bool vtkGenericDataArray<DerivedT, ValueTypeT>::HasStandardMemoryLayout() const
+template <class DerivedT, class ValueTypeT, int ArrayType>
+bool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::HasStandardMemoryLayout() const
 {
   // False by default, AoS should set true.
   return false;
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void* vtkGenericDataArray<DerivedT, ValueTypeT>::GetVoidPointer(vtkIdType)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void* vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetVoidPointer(vtkIdType)
 {
   vtkErrorMacro("GetVoidPointer is not supported by this class.");
   return nullptr;
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-typename vtkGenericDataArray<DerivedT, ValueTypeT>::ValueType*
-vtkGenericDataArray<DerivedT, ValueTypeT>::GetPointer(vtkIdType id)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+typename vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ValueType*
+vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetPointer(vtkIdType id)
 {
   return static_cast<ValueType*>(this->GetVoidPointer(id));
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::LookupValue(vtkVariant valueVariant)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::LookupValue(vtkVariant valueVariant)
 {
   bool valid = true;
   ValueType value = vtkVariantCast<ValueType>(valueVariant, &valid);
@@ -280,15 +310,16 @@ vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::LookupValue(vtkVariant valu
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::LookupTypedValue(ValueType value)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::LookupTypedValue(ValueType value)
 {
   return this->Lookup.LookupValue(value);
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::LookupValue(vtkVariant valueVariant, vtkIdList* ids)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::LookupValue(
+  vtkVariant valueVariant, vtkIdList* ids)
 {
   ids->Reset();
   bool valid = true;
@@ -300,30 +331,31 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::LookupValue(vtkVariant valueVari
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::LookupTypedValue(ValueType value, vtkIdList* ids)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::LookupTypedValue(
+  ValueType value, vtkIdList* ids)
 {
   ids->Reset();
   this->Lookup.LookupValue(value, ids);
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::ClearLookup()
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ClearLookup()
 {
   this->Lookup.ClearLookup();
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::DataChanged()
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::DataChanged()
 {
   this->Lookup.ClearLookup();
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::SetVariantValue(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::SetVariantValue(
   vtkIdType valueIdx, vtkVariant valueVariant)
 {
   bool valid = true;
@@ -335,15 +367,15 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::SetVariantValue(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkVariant vtkGenericDataArray<DerivedT, ValueTypeT>::GetVariantValue(vtkIdType valueIdx)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkVariant vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetVariantValue(vtkIdType valueIdx)
 {
   return vtkVariant(this->GetValue(valueIdx));
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertVariantValue(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertVariantValue(
   vtkIdType valueIdx, vtkVariant valueVariant)
 {
   bool valid = true;
@@ -355,8 +387,8 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertVariantValue(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT>::Allocate(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Allocate(
   vtkIdType size, vtkIdType vtkNotUsed(ext))
 {
   // Allocator must update this->MaxId properly.
@@ -391,8 +423,8 @@ vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT>::Allocate(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT>::Resize(vtkIdType numTuples)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Resize(vtkIdType numTuples)
 {
   int numComps = this->GetNumberOfComponents();
   vtkIdType curNumTuples = this->Size / (numComps > 0 ? numComps : 1);
@@ -445,16 +477,16 @@ vtkTypeBool vtkGenericDataArray<DerivedT, ValueTypeT>::Resize(vtkIdType numTuple
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::SetNumberOfComponents(int num)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::SetNumberOfComponents(int num)
 {
   this->vtkDataArray::SetNumberOfComponents(num);
   this->LegacyTuple.resize(num);
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::SetNumberOfTuples(vtkIdType number)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::SetNumberOfTuples(vtkIdType number)
 {
   vtkIdType newSize = number * this->NumberOfComponents;
   if (this->Allocate(newSize, 0))
@@ -464,23 +496,23 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::SetNumberOfTuples(vtkIdType numb
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::Initialize()
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Initialize()
 {
   this->Resize(0);
   this->DataChanged();
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::Squeeze()
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::Squeeze()
 {
   this->Resize(this->GetNumberOfTuples());
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::SetTuple(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::SetTuple(
   vtkIdType dstTupleIdx, vtkIdType srcTupleIdx, vtkAbstractArray* source)
 {
   // First, check for the common case of typeid(source) == typeid(this). This
@@ -509,8 +541,8 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::SetTuple(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuples(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTuples(
   vtkIdList* dstIds, vtkIdList* srcIds, vtkAbstractArray* source)
 {
   // First, check for the common case of typeid(source) == typeid(this). This
@@ -589,8 +621,8 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuples(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuplesStartingAt(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTuplesStartingAt(
   vtkIdType dstStart, vtkIdList* srcIds, vtkAbstractArray* source)
 {
   if (!srcIds->GetNumberOfIds())
@@ -661,8 +693,8 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuplesStartingAt(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuple(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTuple(
   vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 {
   this->EnsureAccessToTuple(i);
@@ -670,24 +702,26 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuple(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuple(vtkIdType i, const float* source)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTuple(
+  vtkIdType i, const float* source)
 {
   this->EnsureAccessToTuple(i);
   this->SetTuple(i, source);
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuple(vtkIdType i, const double* source)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTuple(
+  vtkIdType i, const double* source)
 {
   this->EnsureAccessToTuple(i);
   this->SetTuple(i, source);
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertComponent(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertComponent(
   vtkIdType tupleIdx, int compIdx, double value)
 {
   // Update MaxId to the inserted component (not the complete tuple) for
@@ -707,8 +741,8 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertComponent(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::InsertNextTuple(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertNextTuple(
   vtkIdType srcTupleIdx, vtkAbstractArray* source)
 {
   vtkIdType nextTuple = this->GetNumberOfTuples();
@@ -717,8 +751,8 @@ vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::InsertNextTuple(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::InsertNextTuple(const float* tuple)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertNextTuple(const float* tuple)
 {
   vtkIdType nextTuple = this->GetNumberOfTuples();
   this->InsertTuple(nextTuple, tuple);
@@ -726,8 +760,8 @@ vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::InsertNextTuple(const float
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::InsertNextTuple(const double* tuple)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertNextTuple(const double* tuple)
 {
   vtkIdType nextTuple = this->GetNumberOfTuples();
   this->InsertTuple(nextTuple, tuple);
@@ -735,8 +769,8 @@ vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::InsertNextTuple(const doubl
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuples(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetTuples(
   vtkIdList* tupleIds, vtkAbstractArray* output)
 {
   // First, check for the common case of typeid(source) == typeid(this). This
@@ -778,8 +812,8 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuples(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuples(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetTuples(
   vtkIdType p1, vtkIdType p2, vtkAbstractArray* output)
 {
   // First, check for the common case of typeid(source) == typeid(this). This
@@ -816,16 +850,16 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuples(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkArrayIterator* vtkGenericDataArray<DerivedT, ValueTypeT>::NewIterator()
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkArrayIterator* vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::NewIterator()
 {
   vtkWarningMacro(<< "No vtkArrayIterator defined for " << this->GetClassName() << " arrays.");
   return nullptr;
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::InsertNextValue(ValueType value)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertNextValue(ValueType value)
 {
   vtkIdType nextValueIdx = this->MaxId + 1;
   if (nextValueIdx >= this->Size)
@@ -849,8 +883,9 @@ vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::InsertNextValue(ValueType v
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertValue(vtkIdType valueIdx, ValueType value)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertValue(
+  vtkIdType valueIdx, ValueType value)
 {
   vtkIdType tuple = valueIdx / this->NumberOfComponents;
   // Update MaxId to the inserted component (not the complete tuple) for
@@ -865,8 +900,8 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertValue(vtkIdType valueIdx, 
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTypedTuple(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTypedTuple(
   vtkIdType tupleIdx, const ValueType* t)
 {
   if (this->EnsureAccessToTuple(tupleIdx))
@@ -876,8 +911,9 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTypedTuple(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::InsertNextTypedTuple(const ValueType* t)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertNextTypedTuple(
+  const ValueType* t)
 {
   vtkIdType nextTuple = this->GetNumberOfTuples();
   this->InsertTypedTuple(nextTuple, t);
@@ -885,8 +921,8 @@ vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>::InsertNextTypedTuple(const 
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTypedComponent(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::InsertTypedComponent(
   vtkIdType tupleIdx, int compIdx, ValueType val)
 {
   // Update MaxId to the inserted component (not the complete tuple) for
@@ -906,9 +942,9 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTypedComponent(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-typename vtkGenericDataArray<DerivedT, ValueTypeT>::ValueType*
-vtkGenericDataArray<DerivedT, ValueTypeT>::GetValueRange(int comp)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+typename vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ValueType*
+vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetValueRange(int comp)
 {
   this->LegacyValueRange.resize(2);
   this->GetValueRange(this->LegacyValueRange.data(), comp);
@@ -916,9 +952,9 @@ vtkGenericDataArray<DerivedT, ValueTypeT>::GetValueRange(int comp)
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-typename vtkGenericDataArray<DerivedT, ValueTypeT>::ValueType*
-vtkGenericDataArray<DerivedT, ValueTypeT>::GetFiniteValueRange(int comp)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+typename vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ValueType*
+vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetFiniteValueRange(int comp)
 {
   this->LegacyValueRange.resize(2);
   this->GetFiniteValueRange(this->LegacyValueRange.data(), comp);
@@ -926,23 +962,25 @@ vtkGenericDataArray<DerivedT, ValueTypeT>::GetFiniteValueRange(int comp)
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::GetFiniteValueRange(ValueType range[2], int comp)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetFiniteValueRange(
+  ValueType range[2], int comp)
 {
   this->GetFiniteValueRange(range, comp, nullptr);
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::GetFiniteValueRange(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetFiniteValueRange(
   ValueType range[2], int comp, const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   this->ComputeFiniteValueRange(range, comp, ghosts, ghostsToSkip);
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::FillTypedComponent(int compIdx, ValueType value)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::FillTypedComponent(
+  int compIdx, ValueType value)
 {
   if (compIdx < 0 || compIdx >= this->NumberOfComponents)
   {
@@ -957,8 +995,8 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::FillTypedComponent(int compIdx, 
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::FillValue(ValueType value)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::FillValue(ValueType value)
 {
   for (int i = 0; i < this->NumberOfComponents; ++i)
   {
@@ -967,15 +1005,15 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::FillValue(ValueType value)
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::FillComponent(int compIdx, double value)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::FillComponent(int compIdx, double value)
 {
   this->FillTypedComponent(compIdx, static_cast<ValueType>(value));
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkGenericDataArray<DerivedT, ValueTypeT>::vtkGenericDataArray()
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::vtkGenericDataArray()
 {
   // Initialize internal data structures:
   this->Lookup.SetArray(this);
@@ -983,12 +1021,12 @@ vtkGenericDataArray<DerivedT, ValueTypeT>::vtkGenericDataArray()
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-vtkGenericDataArray<DerivedT, ValueTypeT>::~vtkGenericDataArray() = default;
+template <class DerivedT, class ValueTypeT, int ArrayType>
+vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::~vtkGenericDataArray() = default;
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-bool vtkGenericDataArray<DerivedT, ValueTypeT>::EnsureAccessToTuple(vtkIdType tupleIdx)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+bool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::EnsureAccessToTuple(vtkIdType tupleIdx)
 {
   if (tupleIdx < 0)
   {
@@ -1092,8 +1130,8 @@ VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeValueRange(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ComputeValueRange(
   ValueType range[2], int comp, const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   using namespace vtk_GDA_detail;
@@ -1146,23 +1184,24 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeValueRange(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::GetValueRange(ValueType range[2], int comp)
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetValueRange(
+  ValueType range[2], int comp)
 {
   this->GetValueRange(range, comp, nullptr);
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::GetValueRange(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetValueRange(
   ValueType range[2], int comp, const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   this->ComputeValueRange(range, comp, ghosts, ghostsToSkip);
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-void vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeFiniteValueRange(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+void vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ComputeFiniteValueRange(
   ValueType range[2], int comp, const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   using namespace vtk_GDA_detail;
@@ -1278,8 +1317,8 @@ VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeScalarValueRange(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+bool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ComputeScalarValueRange(
   ValueType* ranges, const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   using namespace vtk_GDA_detail;
@@ -1289,8 +1328,8 @@ bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeScalarValueRange(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeVectorValueRange(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+bool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ComputeVectorValueRange(
   ValueType range[2], const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   using namespace vtk_GDA_detail;
@@ -1300,8 +1339,8 @@ bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeVectorValueRange(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeFiniteScalarValueRange(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+bool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ComputeFiniteScalarValueRange(
   ValueType* range, const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   using namespace vtk_GDA_detail;
@@ -1311,8 +1350,8 @@ bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeFiniteScalarValueRange(
 }
 
 //-----------------------------------------------------------------------------
-template <class DerivedT, class ValueTypeT>
-bool vtkGenericDataArray<DerivedT, ValueTypeT>::ComputeFiniteVectorValueRange(
+template <class DerivedT, class ValueTypeT, int ArrayType>
+bool vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::ComputeFiniteVectorValueRange(
   ValueType range[2], const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   using namespace vtk_GDA_detail;

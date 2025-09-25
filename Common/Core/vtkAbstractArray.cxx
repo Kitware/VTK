@@ -573,26 +573,50 @@ void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-const char* vtkAbstractArray::GetArrayTypeAsString() const
+const char* vtkAbstractArray::GetArrayTypeAsString(int arrayType)
 {
-  switch (this->GetArrayType())
+  switch (arrayType)
   {
-    case AbstractArray:
+    case vtkArrayTypes::AbstractArray:
       return "AbstractArray";
-    case DataArray:
+    case vtkArrayTypes::DataArray:
       return "DataArray";
-    case AoSDataArrayTemplate:
+    case vtkArrayTypes::StringArray:
+      return "StringArray";
+    case vtkArrayTypes::VariantArray:
+      return "VariantArray";
+    case vtkArrayTypes::BitArray:
+      return "BitArray";
+    case vtkArrayTypes::AoSDataArrayTemplate:
       return "AoSDataArrayTemplate";
-    case SoADataArrayTemplate:
+    case vtkArrayTypes::SoADataArrayTemplate:
       return "SoADataArrayTemplate";
-    case TypedDataArray:
+    case vtkAbstractArray::TypedDataArray:
       return "TypedDataArray";
-    case MappedDataArray:
+    case vtkAbstractArray::MappedDataArray:
       return "MappedDataArray";
-    case ScaledSoADataArrayTemplate:
-      return "ScaledSoADataArrayTemplate";
-    case ImplicitArray:
+    case vtkArrayTypes::ScaledSoADataArrayTemplate:
+      return "ScaleSoADataArrayTemplate";
+    case vtkArrayTypes::VTKmDataArray:
+      return "VTKmDataArray";
+    case vtkArrayTypes::PeriodicDataArray:
+      return "PeriodicDataArray";
+    case vtkArrayTypes::ImplicitArray:
       return "ImplicitArray";
+    case vtkArrayTypes::AffineArray:
+      return "AffineArray";
+    case vtkArrayTypes::CompositeArray:
+      return "CompositeArray";
+    case vtkArrayTypes::ConstantArray:
+      return "ConstantArray";
+    case vtkArrayTypes::IndexedArray:
+      return "IndexedArray";
+    case vtkArrayTypes::StdFunctionArray:
+      return "StdFunctionArray";
+    case vtkArrayTypes::StridedArray:
+      return "StridedArray";
+    case vtkArrayTypes::StructuredPointArray:
+      return "StructuredPointArray";
   }
   return "Unknown";
 }

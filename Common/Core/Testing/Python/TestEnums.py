@@ -6,9 +6,9 @@ Created on Nov 13, 2014 by David Gobbi
 import sys
 from vtkmodules.vtkCommonColor import vtkColorSeries
 from vtkmodules.vtkCommonCore import (
-    vtkAbstractArray,
     vtkEventDataAction,
     vtkEventDataForDevice,
+    vtkTimePointUtility,
 )
 from vtkmodules.vtkCommonMisc import vtkErrorCode
 
@@ -47,8 +47,8 @@ class TestEnum(Testing.vtkTest):
     def testAnonymousEnum(self):
         """Check that anonymous enums are wrapped.
         """
-        # defined in vtkAbstractArray.h
-        self.assertEqual(vtkAbstractArray.AbstractArray, 0)
+        # defined in vtkTimePointUtility.h
+        self.assertEqual(vtkTimePointUtility.ISO8601_DATETIME_MILLIS, 0)
 
     def testEnumClass(self):
         """Check that "enum class" members are wrapped.

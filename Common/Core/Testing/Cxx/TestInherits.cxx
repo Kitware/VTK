@@ -55,7 +55,7 @@ int TestInherits(int, char*[])
   std::cout << "\n";
 
   std::vector<std::string> expected{ "vtkDoubleArray", "vtkAOSDataArrayTemplate<double>",
-    "vtkGenericDataArray<vtkAOSDataArrayTemplate<double>, double>", "vtkDataArray",
+    "vtkGenericDataArray<vtkAOSDataArrayTemplate<double>, double, 5>", "vtkDataArray",
     "vtkAbstractArray", "vtkObject", "vtkObjectBase" };
 
   if (linearHierarchy != expected)

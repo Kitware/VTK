@@ -34,10 +34,19 @@ public:
     VTK_DATA_ARRAY_ALIGNED_FREE = vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
     VTK_DATA_ARRAY_USER_DEFINED = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
   };
+  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::BitArray>;
 
   static vtkBitArray* New();
   vtkTypeMacro(vtkBitArray, vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * Perform a fast, safe cast from a vtkAbstractArray to a vtkBitArray.
+   * This method checks if source->GetArrayType() returns BitArray,
+   * and performs a static_cast to return source as a vtkBitArray pointer.
+   * Otherwise, nullptr is returned.
+   */
+  static vtkBitArray* FastDownCast(vtkAbstractArray* source);
 
   /**
    * Allocate memory for this array. Delete old storage only if necessary.
@@ -51,6 +60,7 @@ public:
   void Initialize() override;
 
   // satisfy vtkDataArray API
+  int GetArrayType() const override { return vtkBitArray::ArrayTypeTag::value; }
   int GetDataType() const override { return VTK_BIT; }
   int GetDataTypeSize() const override { return 0; }
 
@@ -367,6 +377,9 @@ private:
   vtkBitArrayLookup* Lookup;
   void UpdateLookup();
 };
+
+// Declare vtkArrayDownCast implementations for vtkBitArray:
+vtkArrayDownCast_FastCastMacro(vtkBitArray);
 
 inline void vtkBitArray::SetValue(vtkIdType id, int value)
 {

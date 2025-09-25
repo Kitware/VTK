@@ -83,12 +83,26 @@ vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray* source)
   {
     switch (source->GetArrayType())
     {
-      case AoSDataArrayTemplate:
-      case SoADataArrayTemplate:
-      case ImplicitArray:
-      case TypedDataArray:
-      case DataArray:
-      case MappedDataArray:
+      case vtkArrayTypes::DataArray:
+      // DataArray subclasses
+      case vtkArrayTypes::BitArray:
+      // GenericDataArray subclasses
+      case vtkArrayTypes::AoSDataArrayTemplate:
+      case vtkArrayTypes::SoADataArrayTemplate:
+      case vtkAbstractArray::TypedDataArray:
+      case vtkAbstractArray::MappedDataArray:
+      case vtkArrayTypes::ScaledSoADataArrayTemplate:
+      case vtkArrayTypes::VTKmDataArray:
+      case vtkArrayTypes::PeriodicDataArray:
+      case vtkArrayTypes::ImplicitArray:
+      // ImplicitArray subclasses/typedefs
+      case vtkArrayTypes::AffineArray:
+      case vtkArrayTypes::CompositeArray:
+      case vtkArrayTypes::ConstantArray:
+      case vtkArrayTypes::IndexedArray:
+      case vtkArrayTypes::StdFunctionArray:
+      case vtkArrayTypes::StridedArray:
+      case vtkArrayTypes::StructuredPointArray:
         return static_cast<vtkDataArray*>(source);
       default:
         break;

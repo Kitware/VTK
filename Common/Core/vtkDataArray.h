@@ -41,6 +41,7 @@ class VTKCOMMONCORE_EXPORT VTK_MARSHALMANUAL vtkDataArray : public vtkAbstractAr
 public:
   vtkTypeMacro(vtkDataArray, vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::DataArray>;
 
   /**
    * Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
@@ -577,7 +578,7 @@ public:
   /**
    * Method for type-checking in FastDownCast implementations.
    */
-  int GetArrayType() const override { return DataArray; }
+  int GetArrayType() const override { return vtkDataArray::ArrayTypeTag::value; }
 
 protected:
   friend class vtkPoints;

@@ -32,15 +32,17 @@
 VTK_ABI_NAMESPACE_BEGIN
 template <class ValueTypeT>
 class VTKCOMMONCORE_EXPORT vtkScaledSOADataArrayTemplate
-  : public vtkGenericDataArray<vtkScaledSOADataArrayTemplate<ValueTypeT>, ValueTypeT>
+  : public vtkGenericDataArray<vtkScaledSOADataArrayTemplate<ValueTypeT>, ValueTypeT,
+      vtkArrayTypes::ScaledSoADataArrayTemplate>
 {
-  typedef vtkGenericDataArray<vtkScaledSOADataArrayTemplate<ValueTypeT>, ValueTypeT>
-    GenericDataArrayType;
+  using GenericDataArrayType = vtkGenericDataArray<vtkScaledSOADataArrayTemplate<ValueTypeT>,
+    ValueTypeT, vtkArrayTypes::ScaledSoADataArrayTemplate>;
 
 public:
-  typedef vtkScaledSOADataArrayTemplate<ValueTypeT> SelfType;
+  using SelfType = vtkScaledSOADataArrayTemplate<ValueTypeT>;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
-  typedef typename Superclass::ValueType ValueType;
+  using typename Superclass::ArrayTypeTag;
+  using typename Superclass::ValueType;
 
   enum DeleteMethod
   {
@@ -195,34 +197,6 @@ public:
    */
   void ExportToVoidPointer(void* ptr) override;
 
-#ifndef __VTK_WRAP__
-  ///@{
-  /**
-   * Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
-   * This method checks if source->GetArrayType() returns DataArray
-   * or a more derived type, and performs a static_cast to return
-   * source as a vtkDataArray pointer. Otherwise, nullptr is returned.
-   */
-  static vtkScaledSOADataArrayTemplate<ValueType>* FastDownCast(vtkAbstractArray* source)
-  {
-    if (source)
-    {
-      switch (source->GetArrayType())
-      {
-        case vtkAbstractArray::ScaleSoADataArrayTemplate:
-          if (vtkDataTypesCompare(source->GetDataType(), vtkTypeTraits<ValueType>::VTK_TYPE_ID))
-          {
-            return static_cast<vtkScaledSOADataArrayTemplate<ValueType>*>(source);
-          }
-          break;
-      }
-    }
-    return nullptr;
-  }
-  ///@}
-#endif
-
-  int GetArrayType() const override { return vtkAbstractArray::ScaledSoADataArrayTemplate; }
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   void SetNumberOfComponents(int numComps) override;
   void ShallowCopy(vtkDataArray* other) override;
@@ -271,14 +245,14 @@ private:
     comp = valueIdx % this->NumberOfComponents;
   }
 
-  friend class vtkGenericDataArray<vtkScaledSOADataArrayTemplate<ValueTypeT>, ValueTypeT>;
+  friend class vtkGenericDataArray<SelfType, ValueType, ArrayTypeTag::value>;
   /**
    * The value to scale the data stored in memory by.
    */
   ValueType Scale;
 };
 
-// Declare vtkArrayDownCast implementations for scale SoA containers:
+// Declare vtkArrayDownCast implementations for scaled SoA containers:
 vtkArrayDownCast_TemplateFastCastMacro(vtkScaledSOADataArrayTemplate);
 
 VTK_ABI_NAMESPACE_END

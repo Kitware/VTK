@@ -25,7 +25,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 
-template <typename T>
+template <typename T, int ArrayType>
 class vtkImplicitArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkStructuredCellArray : public vtkAbstractCellArray
@@ -166,7 +166,8 @@ protected:
   struct vtkStructuredCellBackend;
   template <int DataDescription, bool UsePixelVoxelOrientation>
   struct vtkStructuredTCellBackend;
-  vtkSmartPointer<vtkImplicitArray<vtkStructuredCellBackend>> Connectivity;
+  vtkSmartPointer<vtkImplicitArray<vtkStructuredCellBackend, vtkArrayTypes::ImplicitArray>>
+    Connectivity;
 
 private:
   vtkStructuredCellArray(const vtkStructuredCellArray&) = delete;

@@ -33,17 +33,25 @@ public:
     VTK_DATA_ARRAY_ALIGNED_FREE = vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
     VTK_DATA_ARRAY_USER_DEFINED = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
   };
+  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::StringArray>;
 
   static vtkStringArray* New();
   static vtkStringArray* ExtendedNew();
   vtkTypeMacro(vtkStringArray, vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  //
-  //
-  // Functions required by vtkAbstractArray
-  //
-  //
+  /**
+   * Perform a fast, safe cast from a vtkAbstractArray to a vtkStringArray.
+   * This method checks if source->GetArrayType() returns StringArray,
+   * and performs a static_cast to return source as a vtkStringArray pointer.
+   * Otherwise, nullptr is returned.
+   */
+  static vtkStringArray* FastDownCast(vtkAbstractArray* source);
+
+  /**
+   * Return the array type.
+   */
+  int GetArrayType() const override { return vtkStringArray::ArrayTypeTag::value; }
 
   /**
    * Get the data type.
@@ -364,6 +372,9 @@ private:
   vtkStringArrayLookup* Lookup;
   void UpdateLookup();
 };
+
+// Declare vtkArrayDownCast implementations for vtkStringArray:
+vtkArrayDownCast_FastCastMacro(vtkStringArray);
 
 VTK_ABI_NAMESPACE_END
 #endif

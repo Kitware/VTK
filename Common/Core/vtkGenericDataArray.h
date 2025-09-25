@@ -65,13 +65,17 @@
 #include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
-template <class DerivedT, class ValueTypeT>
+template <class DerivedT, class ValueTypeT, int ArrayType = vtkArrayTypes::DataArray>
 class vtkGenericDataArray : public vtkDataArray
 {
-  typedef vtkGenericDataArray<DerivedT, ValueTypeT> SelfType;
+  using SelfType = vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>;
+  static_assert(
+    ArrayType >= vtkArrayTypes::AbstractArray && ArrayType < vtkArrayTypes::NumArrayTypes,
+    "ArrayType must be a valid vtkAbstractArray::ArrayType enum value");
 
 public:
-  typedef ValueTypeT ValueType;
+  using ValueType = ValueTypeT;
+  using ArrayTypeTag = std::integral_constant<int, ArrayType>;
   vtkTemplateTypeMacro(SelfType, vtkDataArray);
 
   /**
@@ -267,6 +271,18 @@ public:
    */
   virtual void FillValue(ValueType value);
 
+#ifndef __VTK_WRAP__
+  ///@{
+  /**
+   * Perform a fast, safe cast from a vtkAbstractArray to a DerivedT.
+   * This method checks if source->GetArrayType() returns ArrayTypeTag::value
+   * or a more derived type, checks the data types, and performs a static_cast
+   * to return source as a vtkDataArray pointer. Otherwise, nullptr is returned.
+   */
+  static DerivedT* FastDownCast(vtkAbstractArray* source);
+  ///@}
+#endif
+  int GetArrayType() const override;
   int GetDataType() const override;
   int GetDataTypeSize() const override;
   bool HasStandardMemoryLayout() const override;
@@ -510,7 +526,7 @@ VTK_ABI_NAMESPACE_END
 protected:                                                                                         \
   vtkObjectBase* NewInstanceInternal() const override                                              \
   {                                                                                                \
-    if (vtkDataArray* da = vtkDataArray::CreateDataArray(thisClass::VTK_DATA_TYPE))                \
+    if (vtkDataArray* da = vtkDataArray::CreateDataArray(thisClass::DataTypeTag::value))           \
     {                                                                                              \
       return da;                                                                                   \
     }                                                                                              \
