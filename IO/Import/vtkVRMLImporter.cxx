@@ -148,7 +148,7 @@ int vtkVRMLImporter::OpenImportFile()
 {
   vtkDebugMacro(<< "Opening import file");
 
-  char* filename = this->GetFileName();
+  const char* filename = this->GetFileName();
   if (!filename)
   {
     vtkErrorMacro(<< "No file specified!");

@@ -149,9 +149,10 @@ int vtk3DSImporter::Read3DS()
   vtkNew<vtkFileResourceStream> fileStream;
   if (!this->TempStream)
   {
-    if (!fileStream->Open(this->GetFileName()))
+    const char* filename = this->GetFileName();
+    if (!fileStream->Open(filename))
     {
-      vtkErrorMacro("Unable to open " << this->GetFileName() << " , aborting.");
+      vtkErrorMacro("Unable to open " << filename << " , aborting.");
       return 0;
     }
 

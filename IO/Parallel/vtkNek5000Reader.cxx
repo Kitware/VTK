@@ -1001,7 +1001,7 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
     // Might consider having just the master node read the .nek5000 file, and broadcast each line to
     // the other processes ??
 
-    char* filename = this->GetFileName();
+    const char* filename = this->GetFileName();
     std::ifstream inPtr(this->GetFileName());
 
     // print the name of the file we're supposed to open
