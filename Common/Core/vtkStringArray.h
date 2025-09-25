@@ -34,6 +34,7 @@ public:
     VTK_DATA_ARRAY_USER_DEFINED = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
   };
   using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::StringArray>;
+  using DataTypeTag = std::integral_constant<int, VTK_STRING>;
 
   static vtkStringArray* New();
   static vtkStringArray* ExtendedNew();
@@ -56,7 +57,7 @@ public:
   /**
    * Get the data type.
    */
-  int GetDataType() const override { return VTK_STRING; }
+  int GetDataType() const override { return vtkStringArray::DataTypeTag::value; }
 
   int IsNumeric() const override { return 0; }
 

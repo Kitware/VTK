@@ -33,6 +33,7 @@ public:
   using SelfType = vtkPeriodicDataArray<Scalar>;
   vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, GenericDataArrayType);
   using typename Superclass::ArrayTypeTag;
+  using typename Superclass::DataTypeTag;
   using typename Superclass::ValueType;
 
   void PrintSelf(ostream& os, vtkIndent indent) override;

@@ -47,6 +47,7 @@ public:
     VTK_DATA_ARRAY_USER_DEFINED = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
   };
   using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VariantArray>;
+  using DataTypeTag = std::integral_constant<int, VTK_VARIANT>;
 
   static vtkVariantArray* New();
   static vtkVariantArray* ExtendedNew();

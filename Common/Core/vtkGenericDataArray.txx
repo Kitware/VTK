@@ -262,7 +262,7 @@ int vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetArrayType() const
 template <class DerivedT, class ValueTypeT, int ArrayType>
 int vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetDataType() const
 {
-  return vtkTypeTraits<ValueType>::VTK_TYPE_ID;
+  return vtkGenericDataArray::DataTypeTag::value;
 }
 
 //-----------------------------------------------------------------------------

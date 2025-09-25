@@ -190,7 +190,7 @@ bool vtkVariantArray::CopyComponent(int dstComponent, vtkAbstractArray* src, int
 //------------------------------------------------------------------------------
 int vtkVariantArray::GetDataType() const
 {
-  return VTK_VARIANT;
+  return vtkVariantArray::DataTypeTag::value;
 }
 
 //------------------------------------------------------------------------------
@@ -590,7 +590,8 @@ void vtkVariantArray::InterpolateTuple(vtkIdType i, vtkIdType id1, vtkAbstractAr
 {
   // Note: Something much more fancy could be done here, allowing
   // the source array to be any data type.
-  if (source1->GetDataType() != VTK_VARIANT || source2->GetDataType() != VTK_VARIANT)
+  if (source1->GetDataType() != vtkVariantArray::DataTypeTag::value ||
+    source2->GetDataType() != vtkVariantArray::DataTypeTag::value)
   {
     vtkErrorMacro("All arrays to InterpolateValue() must be of same type.");
     return;

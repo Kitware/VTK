@@ -173,6 +173,7 @@ public:
   using SelfType = vtkImplicitArray<BackendT, ArrayType>;
   vtkImplicitArrayTypeMacro(SelfType, GenericDataArrayType);
   using typename Superclass::ArrayTypeTag;
+  using typename Superclass::DataTypeTag;
   using typename Superclass::ValueType;
   using BackendType = BackendT;
 

@@ -35,6 +35,7 @@ public:
     VTK_DATA_ARRAY_USER_DEFINED = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
   };
   using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::BitArray>;
+  using DataTypeTag = std::integral_constant<int, VTK_BIT>;
 
   static vtkBitArray* New();
   vtkTypeMacro(vtkBitArray, vtkDataArray);
@@ -61,7 +62,7 @@ public:
 
   // satisfy vtkDataArray API
   int GetArrayType() const override { return vtkBitArray::ArrayTypeTag::value; }
-  int GetDataType() const override { return VTK_BIT; }
+  int GetDataType() const override { return vtkBitArray::DataTypeTag::value; }
   int GetDataTypeSize() const override { return 0; }
 
   /**

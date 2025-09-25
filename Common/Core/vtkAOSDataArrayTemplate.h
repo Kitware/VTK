@@ -63,6 +63,7 @@ public:
   using SelfType = vtkAOSDataArrayTemplate<ValueTypeT>;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
   using typename Superclass::ArrayTypeTag;
+  using typename Superclass::DataTypeTag;
   using typename Superclass::ValueType;
 
   enum DeleteMethod

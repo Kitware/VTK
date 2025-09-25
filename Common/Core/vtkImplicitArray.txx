@@ -95,7 +95,7 @@ vtkImplicitArray<BackendT, ArrayType>* vtkImplicitArray<BackendT, ArrayType>::Fa
       switch (source->GetArrayType())
       {
         case vtkArrayTypes::ImplicitArray:
-          if (vtkDataTypesCompare(source->GetDataType(), vtkTypeTraits<ValueType>::VTK_TYPE_ID))
+          if (vtkDataTypesCompare(source->GetDataType(), vtkImplicitArray::DataTypeTag::value))
           {
             // The problem here is that we do not know what type of backend to use and any pointer
             // to an implicit array will down cast to any other pointer to an implicit array.

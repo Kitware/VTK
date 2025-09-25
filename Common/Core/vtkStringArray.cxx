@@ -333,7 +333,8 @@ void vtkStringArray::InterpolateTuple(
 void vtkStringArray::InterpolateTuple(vtkIdType i, vtkIdType id1, vtkAbstractArray* source1,
   vtkIdType id2, vtkAbstractArray* source2, double t)
 {
-  if (source1->GetDataType() != VTK_STRING || source2->GetDataType() != VTK_STRING)
+  if (source1->GetDataType() != vtkStringArray::DataTypeTag::value ||
+    source2->GetDataType() != vtkStringArray::DataTypeTag::value)
   {
     vtkErrorMacro("All arrays to InterpolateValue() must be of same type.");
     return;

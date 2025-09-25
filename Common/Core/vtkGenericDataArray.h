@@ -68,22 +68,24 @@ VTK_ABI_NAMESPACE_BEGIN
 template <class DerivedT, class ValueTypeT, int ArrayType = vtkArrayTypes::DataArray>
 class vtkGenericDataArray : public vtkDataArray
 {
-  using SelfType = vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>;
   static_assert(
     ArrayType >= vtkArrayTypes::AbstractArray && ArrayType < vtkArrayTypes::NumArrayTypes,
     "ArrayType must be a valid vtkAbstractArray::ArrayType enum value");
 
 public:
-  using ValueType = ValueTypeT;
-  using ArrayTypeTag = std::integral_constant<int, ArrayType>;
+  using SelfType = vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>;
   vtkTemplateTypeMacro(SelfType, vtkDataArray);
+  using ArrayTypeTag = std::integral_constant<int, ArrayType>;
+  using DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueTypeT>::VTK_TYPE_ID>;
+  using ValueType = ValueTypeT;
 
   /**
    * Compile time access to the VTK type identifier.
    */
   enum
   {
-    VTK_DATA_TYPE = vtkTypeTraits<ValueType>::VTK_TYPE_ID
+    VTK_DATA_TYPE VTK_DEPRECATED_IN_9_6_0("Use DataTypeTag::value") =
+      vtkTypeTraits<ValueType>::VTK_TYPE_ID
   };
 
   /// @defgroup vtkGDAConceptMethods vtkGenericDataArray Concept Methods

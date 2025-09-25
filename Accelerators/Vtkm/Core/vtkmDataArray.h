@@ -64,6 +64,7 @@ public:
   using SelfType = vtkmDataArray<T>;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
   using typename Superclass::ArrayTypeTag;
+  using typename Superclass::DataTypeTag;
   using typename Superclass::ValueType;
 
   static vtkmDataArray* New();

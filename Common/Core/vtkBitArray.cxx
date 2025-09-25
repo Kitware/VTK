@@ -220,7 +220,7 @@ void vtkBitArray::DeepCopy(vtkDataArray* ia)
 
   this->DataChanged();
 
-  if (ia->GetDataType() != VTK_BIT)
+  if (ia->GetDataType() != vtkBitArray::DataTypeTag::value)
   {
     vtkIdType numTuples = ia->GetNumberOfTuples();
     this->NumberOfComponents = ia->GetNumberOfComponents();

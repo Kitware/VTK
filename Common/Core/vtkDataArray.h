@@ -42,6 +42,7 @@ public:
   vtkTypeMacro(vtkDataArray, vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::DataArray>;
+  using typename vtkAbstractArray::DataTypeTag;
 
   /**
    * Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.

@@ -83,6 +83,7 @@ public:
   vtkTypeMacro(vtkAbstractArray, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
   using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::AbstractArray>;
+  using DataTypeTag = std::integral_constant<int, VTK_OPAQUE>;
 
   /**
    * Print the array values to an `ostream` object.
@@ -108,7 +109,7 @@ public:
    * Return the underlying data type. An integer indicating data type is
    * returned as specified in vtkType.h.
    */
-  virtual int GetDataType() const = 0;
+  virtual int GetDataType() const { return vtkAbstractArray::DataTypeTag::value; };
 
   ///@{
   /**
