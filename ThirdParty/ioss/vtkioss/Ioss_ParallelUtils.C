@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -96,7 +96,6 @@ void Ioss::ParallelUtils::add_environment_properties(Ioss::PropertyManager &prop
 bool Ioss::ParallelUtils::get_environment(const std::string &name, std::string &value,
                                           IOSS_MAYBE_UNUSED bool sync_parallel) const
 {
-  IOSS_PAR_UNUSED(sync_parallel);
 #ifdef SEACAS_HAVE_MPI
   char *result_string = nullptr;
 
@@ -163,7 +162,6 @@ bool Ioss::ParallelUtils::get_environment(const std::string     &name,
 {
   // Return true if 'name' defined, no matter what the value.
   // Return false if 'name' not defined.
-  IOSS_PAR_UNUSED(sync_parallel);
 #ifdef SEACAS_HAVE_MPI
   char *result_string = nullptr;
   int   string_length = 0;
@@ -260,7 +258,6 @@ void Ioss::ParallelUtils::hwm_memory_stats(int64_t &min, int64_t &max, int64_t &
 // Used by some applications for uniquely identifying an entity.
 int64_t Ioss::ParallelUtils::generate_guid(size_t id, IOSS_MAYBE_UNUSED int rank) const
 {
-  IOSS_PAR_UNUSED(rank);
 #ifdef SEACAS_HAVE_MPI
   static size_t lpow2 = 0;
   if (lpow2 == 0) {
@@ -278,8 +275,6 @@ int64_t Ioss::ParallelUtils::generate_guid(size_t id, IOSS_MAYBE_UNUSED int rank
 void Ioss::ParallelUtils::attribute_reduction(IOSS_MAYBE_UNUSED const int length,
                                               IOSS_MAYBE_UNUSED char      buffer[]) const
 {
-  IOSS_PAR_UNUSED(length);
-  IOSS_PAR_UNUSED(buffer);
 #ifdef SEACAS_HAVE_MPI
   if (1 < parallel_size()) {
     static_assert(sizeof(char) == 1, "");
@@ -376,7 +371,6 @@ template <typename T>
 T Ioss::ParallelUtils::global_minmax(T                 local_minmax,
                                      IOSS_MAYBE_UNUSED Ioss::ParallelUtils::MinMax which) const
 {
-  IOSS_PAR_UNUSED(which);
   T minmax = local_minmax;
 
 #ifdef SEACAS_HAVE_MPI
@@ -413,8 +407,6 @@ namespace Ioss {
   void ParallelUtils::broadcast(IOSS_MAYBE_UNUSED std::string &my_str,
                                 IOSS_MAYBE_UNUSED int          root) const
   {
-    IOSS_PAR_UNUSED(my_str);
-    IOSS_PAR_UNUSED(root);
 #ifdef SEACAS_HAVE_MPI
     if (parallel_size() > 1) {
       const int success = MPI_Bcast(const_cast<char *>(my_str.data()), (int)my_str.size() + 1,
@@ -430,8 +422,6 @@ namespace Ioss {
 template <typename T>
 void Ioss::ParallelUtils::broadcast(IOSS_MAYBE_UNUSED T &my_value, IOSS_MAYBE_UNUSED int root) const
 {
-  IOSS_PAR_UNUSED(my_value);
-  IOSS_PAR_UNUSED(root);
 #ifdef SEACAS_HAVE_MPI
   if (parallel_size() > 1) {
     const int success = MPI_Bcast((void *)&my_value, 1, mpi_type(T()), root, communicator_);
@@ -459,8 +449,6 @@ namespace Ioss {
   ParallelUtils::broadcast(IOSS_MAYBE_UNUSED std::vector<std::pair<int, int>> &my_value,
                            IOSS_MAYBE_UNUSED int                               root) const
   {
-    IOSS_PAR_UNUSED(my_value);
-    IOSS_PAR_UNUSED(root);
 #ifdef SEACAS_HAVE_MPI
     if (parallel_size() > 1) {
       const int success = MPI_Bcast(Data(my_value), (int)my_value.size() * 2, mpi_type(int(0)),
@@ -477,8 +465,6 @@ template <typename T>
 void Ioss::ParallelUtils::broadcast(IOSS_MAYBE_UNUSED std::vector<T> &my_value,
                                     IOSS_MAYBE_UNUSED int             root) const
 {
-  IOSS_PAR_UNUSED(my_value);
-  IOSS_PAR_UNUSED(root);
 #ifdef SEACAS_HAVE_MPI
   if (parallel_size() > 1) {
     const int success =
@@ -624,7 +610,6 @@ template <typename T>
 int Ioss::ParallelUtils::gather(int num_vals, IOSS_MAYBE_UNUSED int size_per_val,
                                 std::vector<T> &my_values, std::vector<T> &result) const
 {
-  IOSS_PAR_UNUSED(size_per_val);
 #ifdef SEACAS_HAVE_MPI
   std::vector<int> vals_per_proc;
   gather(num_vals, vals_per_proc);

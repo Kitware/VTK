@@ -14,7 +14,7 @@
 #include "vtk_ioss_mangle.h"
 
 namespace Ioss {
-  class IOSS_EXPORT Pyramid5 : public Ioss::ElementTopology
+  class IOSS_EXPORT Pyramid5 final : public Ioss::ElementTopology
   {
 
   public:

@@ -105,7 +105,6 @@ namespace Iocatalyst {
     inline static const std::string NIGLOBAL           = "ni_global";
     inline static const std::string NJGLOBAL           = "nj_global";
     inline static const std::string NKGLOBAL           = "nk_global";
-    inline static const std::string NODEBLOCKONE       = "nodeblock_1";
     inline static const std::string IDS                = "ids";
     inline static const std::string INDEX              = "index";
     inline static const std::string OFFSET_I           = "offset_i";
@@ -374,7 +373,7 @@ namespace Iocatalyst {
       const auto groupName      = getName(entityGroup);
       const auto num_to_get     = field.verify(data_size);
       const auto num_components = field.raw_storage()->component_count();
-      if (num_to_get > 0) {
+      if (num_to_get >= 0) {
         auto &&node = this->DBNode[getFieldPath(containerName, groupName, field.get_name())];
         node[detail::ROLE].set(static_cast<std::int8_t>(field.get_role()));
         node[detail::TYPE].set(static_cast<std::int8_t>(field.get_type()));
@@ -641,10 +640,15 @@ namespace Iocatalyst {
         return this->NodeMap;
       }
 
-      auto nbone_path = detail::NODEBLOCKS + detail::FS + detail::NODEBLOCKONE + detail::FS +
-                        detail::FIELDS + detail::FS + detail::IDS;
-      auto &&idsNode  = this->DBNode[nbone_path];
-      auto   node_ids = const_cast<void *>(idsNode[detail::VALUE].element_ptr(0));
+      if (this->DBNode[detail::NODEBLOCKS].number_of_children() == 0) {
+        std::ostringstream errmsg;
+        fmt::print(errmsg, "ERROR in {} no nodeblocks found, unable to create NodeMap\n", __func__);
+        IOSS_ERROR(errmsg);
+      }
+
+      auto &&idsNode = this->DBNode[detail::NODEBLOCKS][0][detail::FIELDS][detail::IDS];
+
+      auto node_ids = const_cast<void *>(idsNode[detail::VALUE].element_ptr(0));
       this->NodeMap.set_size(idsNode[detail::COUNT].as_int64());
       if (idsNode[detail::TYPE].as_int8() == Ioss::Field::BasicType::INT32) {
         this->NodeMap.set_map(reinterpret_cast<int32_t *>(node_ids),
@@ -769,11 +773,7 @@ namespace Iocatalyst {
     bool addProperties(conduit_cpp::Node parent, GroupingEntityT *entityGroup)
     {
       Ioss::NameList names;
-      // skip implicit properties.
-      entityGroup->property_describe(Ioss::Property::INTERNAL, &names);
-      entityGroup->property_describe(Ioss::Property::EXTERNAL, &names);
-      entityGroup->property_describe(Ioss::Property::ATTRIBUTE, &names);
-      entityGroup->property_describe(Ioss::Property::IMPLICIT, &names);
+      entityGroup->property_describe(&names);
 
       auto &&propertiesNode = parent[detail::PROPERTIES];
       for (const auto &name : names) {
@@ -799,9 +799,11 @@ namespace Iocatalyst {
           node[detail::VALUE].set(property.get_vec_double());
           break;
 
-        case Ioss::Property::BasicType::POINTER:
-        case Ioss::Property::BasicType::INVALID:
-        default: return false;
+        case Ioss::Property::BasicType::POINTER: break;
+
+        case Ioss::Property::BasicType::INVALID: break;
+
+        default: break;
         }
       }
       return true;
@@ -1159,12 +1161,7 @@ namespace Iocatalyst {
       auto &&child = parent[idx];
       auto block = detail::createEntityGroup<Ioss::StructuredBlock>(child, region->get_database());
       region->add(block);
-      auto parent = block->get_node_block().get_property(detail::IOSSCONTAINEDIN);
       this->readProperties(child[detail::PROPERTIES], block);
-      this->readProperties(
-          child[getName(&block->get_node_block()) + detail::FS + detail::PROPERTIES],
-          &block->get_node_block());
-      block->get_node_block().property_add(parent);
 
       // read fields (meta-data only)
       this->readFields(child[detail::FIELDS], block);

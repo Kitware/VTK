@@ -6,6 +6,9 @@
 
 #include <Ioss_Utils.h>
 #include <catalyst/Iocatalyst_CatalystLogging.h>
+#include "vtk_fmt.h"
+#include VTK_FMT(fmt/format.h)
+#include VTK_FMT(fmt/ostream.h)
 #include <fstream>
 #include <iostream>
 #include <time.h>
@@ -46,9 +49,7 @@ namespace Iocatalyst {
       std::fstream logFile;
       logFile.open(getLogFilePath(), std::ios::out | std::ios::app);
       if (!logFile) {
-        std::ostringstream errmsg;
-        errmsg << "Unable to open Catalyst log file: " << getLogFilePath() << "\n";
-        IOSS_ERROR(errmsg);
+        fmt::print(Ioss::OUTPUT(), "\tUnable to open Catalyst log file: {}\n", getLogFilePath());
       }
       else {
         std::vector<std::string> headers = getLogFileHeaders();

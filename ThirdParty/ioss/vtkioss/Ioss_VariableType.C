@@ -159,15 +159,10 @@ namespace Ioss {
   bool VariableType::add_field_type_mapping(const std::string &raw_field,
                                             const std::string &raw_type)
   {
-    // See if storage type 'type' exists...
+    // Add storage type 'type' if it does not already exist...
     std::string field = Utils::lowercase(raw_field);
     std::string type  = Utils::lowercase(raw_type);
-    if (registry().find(type) == registry().end()) {
-      return false;
-    }
-
-    // Add mapping.
-    return registry().customFieldTypes.insert(std::make_pair(field, type)).second;
+    return registry().customFieldTypes.try_emplace(field, type).second;
   }
 
   bool VariableType::create_named_suffix_type(const std::string    &type_name,

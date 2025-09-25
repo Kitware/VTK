@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020, 2022, 2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022, 2024, 2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -75,6 +75,8 @@ namespace Ioss {
 
     IOSS_NODISCARD off_t size() const; //!< File size in bytes. Only if is_file() == true
 
+    IOSS_NODISCARD std::string_view
+    filesystem_type() const; //!< Best guess at filesystem type (nfs, lustre, gpfs, unknown)
     IOSS_NODISCARD std::string filename() const;  //!< Complete filename including path
     IOSS_NODISCARD std::string basename() const;  //!< strip path and extension
     IOSS_NODISCARD std::string tailname() const;  //!< basename() + extension()

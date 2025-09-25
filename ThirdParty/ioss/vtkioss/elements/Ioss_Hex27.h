@@ -13,7 +13,7 @@
 #include "Ioss_ElementTopology.h" // for ElementTopology
 
 namespace Ioss {
-  class IOSS_EXPORT Hex27 : public Ioss::ElementTopology
+  class IOSS_EXPORT Hex27 final : public Ioss::ElementTopology
   {
 
   public:

@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2020, 2022, 2024 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2020, 2022, 2024, 2025 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -16,7 +16,7 @@
 #include "Ioss_VariableType.h"
 
 namespace Ioss {
-  class IOSS_EXPORT NamedSuffixVariableType : public VariableType
+  class IOSS_EXPORT NamedSuffixVariableType final : public VariableType
   {
   public:
     //  'which' is 1-based

@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -108,10 +108,6 @@ namespace {
                               IOSS_MAYBE_UNUSED Ioss::FaceUnorderedSet &faces,
                               IOSS_MAYBE_UNUSED const std::vector<size_t> &hash_ids, INT /*dummy*/)
   {
-    IOSS_PAR_UNUSED(region);
-    IOSS_PAR_UNUSED(faces);
-    IOSS_PAR_UNUSED(hash_ids);
-
 #ifdef SEACAS_HAVE_MPI
     size_t proc_count = region.get_database()->util().parallel_size();
 

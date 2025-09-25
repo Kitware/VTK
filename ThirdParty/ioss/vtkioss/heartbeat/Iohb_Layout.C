@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2022, 2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2022, 2024, 2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -37,10 +37,12 @@ namespace Iohb {
     }
   }
 
+#ifndef DOXYGEN_SKIP_THIS
   template void Layout::add(const std::string &name, const std::string &value);
   template void Layout::add(const std::string &name, const int &value);
   template void Layout::add(const std::string &name, const int64_t &value);
   template void Layout::add(const std::string &name, const size_t &value);
+#endif
 
   // Ideally, this would be in the include file, but when building in Sierra, we
   // need to keep all `fmt` includes out of the include file due to some TPLs
@@ -72,9 +74,11 @@ namespace Iohb {
     }
   }
 
+#ifndef DOXYGEN_SKIP_THIS
   template void Layout::add(const std::string &name, const std::vector<int> &value);
   template void Layout::add(const std::string &name, const std::vector<int64_t> &value);
   template void Layout::add(const std::string &name, const std::vector<size_t> &value);
+#endif
 
   template <typename T> void Layout::add(const std::string &name, const std::vector<T> &value)
   {

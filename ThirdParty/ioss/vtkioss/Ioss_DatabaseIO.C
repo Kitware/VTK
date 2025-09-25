@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -144,9 +144,8 @@ namespace {
     }
   }
 
-  void calc_bounding_box(size_t ndim, size_t node_count, std::vector<double> &coordinates,
-                         double &xmin, double &ymin, double &zmin, double &xmax, double &ymax,
-                         double &zmax)
+  void calc_bounding_box(size_t ndim, std::vector<double> &coordinates, double &xmin, double &ymin,
+                         double &zmin, double &xmax, double &ymax, double &zmax)
   {
     xmin = DBL_MAX;
     ymin = DBL_MAX;
@@ -156,6 +155,7 @@ namespace {
     ymax = -DBL_MAX;
     zmax = -DBL_MAX;
 
+    size_t node_count = coordinates.size() / ndim;
     for (size_t i = 0; i < node_count; i++) {
       xmin = my_min(xmin, coordinates[ndim * i + 0]);
       xmax = my_max(xmax, coordinates[ndim * i + 0]);
@@ -347,7 +347,12 @@ namespace Ioss {
       }
     }
 
+    Utils::check_set_bool_property(properties, "LOWERCASE_VARIABLE_NAMES", lowerCaseVariableNames);
+    Utils::check_set_bool_property(properties, "LOWERCASE_DATABASE_NAMES", lowerCaseDatabaseNames);
+
+    // Not sure why I spelled it this way...
     Utils::check_set_bool_property(properties, "LOWER_CASE_VARIABLE_NAMES", lowerCaseVariableNames);
+    Utils::check_set_bool_property(properties, "LOWER_CASE_DATABASE_NAMES", lowerCaseDatabaseNames);
     Utils::check_set_bool_property(properties, "USE_GENERIC_CANONICAL_NAMES",
                                    useGenericCanonicalName);
     Utils::check_set_bool_property(properties, "IGNORE_DATABASE_NAMES", ignoreDatabaseNames);
@@ -654,7 +659,7 @@ namespace Ioss {
   bool DatabaseIO::begin_state(int state, double time)
   {
     IOSS_FUNC_ENTER(m_);
-    progress(__func__);
+    progress("DatabaseIO::begin_state(int state, double time)");
     if (m_timeStateInOut) {
       m_stateStart = std::chrono::steady_clock::now();
     }
@@ -668,7 +673,7 @@ namespace Ioss {
       auto finish = std::chrono::steady_clock::now();
       log_time(m_stateStart, finish, state, time, is_input(), singleProcOnly, util_);
     }
-    progress(__func__);
+    progress("DatabaseIO::end_state(int state, double time)");
     return res;
   }
 
@@ -1347,11 +1352,10 @@ namespace Ioss {
   {
     std::vector<double> coordinates;
     nb->get_field_data("mesh_model_coordinates", coordinates);
-    auto nnode = nb->entity_count();
-    auto ndim  = nb->get_property("component_degree").get_int();
+    auto ndim = nb->get_property("component_degree").get_int();
 
     double xmin, ymin, zmin, xmax, ymax, zmax;
-    calc_bounding_box(ndim, nnode, coordinates, xmin, ymin, zmin, xmax, ymax, zmax);
+    calc_bounding_box(ndim, coordinates, xmin, ymin, zmin, xmax, ymax, zmax);
 
     std::vector<double> minmax;
     minmax.reserve(6);
@@ -1371,30 +1375,28 @@ namespace Ioss {
 
   AxisAlignedBoundingBox DatabaseIO::get_bounding_box(const Ioss::StructuredBlock *sb) const
   {
+    std::vector<double> coordinates;
+    sb->get_field_data("mesh_model_coordinates", coordinates);
+
     auto ndim = sb->get_property("component_degree").get_int();
 
-    std::pair<double, double> xx;
-    std::pair<double, double> yy;
-    std::pair<double, double> zz;
+    double xmin, ymin, zmin, xmax, ymax, zmax;
+    calc_bounding_box(ndim, coordinates, xmin, ymin, zmin, xmax, ymax, zmax);
 
-    std::vector<double> coordinates;
-    sb->get_field_data("mesh_model_coordinates_x", coordinates);
-    auto x = std::minmax_element(coordinates.cbegin(), coordinates.cend());
-    xx     = std::make_pair(*(x.first), *(x.second));
+    std::vector<double> minmax;
+    minmax.reserve(6);
+    minmax.push_back(xmin);
+    minmax.push_back(ymin);
+    minmax.push_back(zmin);
+    minmax.push_back(-xmax);
+    minmax.push_back(-ymax);
+    minmax.push_back(-zmax);
 
-    if (ndim > 1) {
-      sb->get_field_data("mesh_model_coordinates_y", coordinates);
-      auto y = std::minmax_element(coordinates.cbegin(), coordinates.cend());
-      yy     = std::make_pair(*(y.first), *(y.second));
-    }
+    util().global_array_minmax(minmax, Ioss::ParallelUtils::DO_MIN);
 
-    if (ndim > 2) {
-      sb->get_field_data("mesh_model_coordinates_z", coordinates);
-      auto z = std::minmax_element(coordinates.cbegin(), coordinates.cend());
-      zz     = std::make_pair(*(z.first), *(z.second));
-    }
-
-    return {xx.first, yy.first, zz.first, xx.second, yy.second, zz.second};
+    AxisAlignedBoundingBox bbox(minmax[0], minmax[1], minmax[2], -minmax[3], -minmax[4],
+                                -minmax[5]);
+    return bbox;
   }
 
 #ifndef DOXYGEN_SKIP_THIS

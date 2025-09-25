@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -19,7 +19,7 @@
 #include <vtk_netcdf.h> // for NC_NOERR, nc_def_var, etc
 #if defined(_WIN32) && !defined(__MINGW32__)
 #include <string.h>
-#define strcasecmp _stricmp
+#define strcasecmp  _stricmp
 #define strncasecmp _strnicmp
 #else
 #include <strings.h>
@@ -117,9 +117,9 @@ namespace Ioex {
     int    rootid = static_cast<unsigned>(exodusFilePtr) & EX_FILE_ID_MASK;
     int    status = nc_get_att_double(rootid, NC_GLOBAL, "last_written_time", &tmp);
 
-    if (status == NC_NOERR && value > tmp) {
+    if (status == EX_NOERR && value > tmp) {
       status = nc_put_att_double(rootid, NC_GLOBAL, "last_written_time", NC_DOUBLE, 1, &value);
-      if (status != NC_NOERR) {
+      if (status != EX_NOERR) {
         ex_opts(EX_VERBOSE);
         auto errmsg = fmt::format(
             "Error: failed to define 'last_written_time' attribute to file id {}", exodusFilePtr);
@@ -346,7 +346,7 @@ namespace Ioex {
     }
   }
 
-  char **get_name_array(size_t count, int size)
+  char **get_name_array(size_t count, size_t size)
   {
     auto *names = new char *[count];
     for (size_t i = 0; i < count; i++) {
@@ -356,9 +356,9 @@ namespace Ioex {
     return names;
   }
 
-  void delete_name_array(char **names, int count)
+  void delete_name_array(char **names, size_t count)
   {
-    for (int i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; i++) {
       delete[] names[i];
     }
     delete[] names;
@@ -410,11 +410,11 @@ namespace Ioex {
     nc_type att_type = NC_NAT;
     size_t  att_len  = 0;
     int     status   = nc_inq_att(rootid, NC_GLOBAL, "last_written_time", &att_type, &att_len);
-    if (status == NC_NOERR && att_type == NC_DOUBLE) {
+    if (status == EX_NOERR && att_type == NC_DOUBLE) {
       // Attribute exists on this database, read it...
       double tmp = 0.0;
       status     = nc_get_att_double(rootid, NC_GLOBAL, "last_written_time", &tmp);
-      if (status == NC_NOERR) {
+      if (status == EX_NOERR) {
         *value = tmp;
         found  = true;
       }
@@ -446,12 +446,12 @@ namespace Ioex {
     nc_type att_type = NC_NAT;
     size_t  att_len  = 0;
     int     status   = nc_inq_att(exodusFilePtr, NC_GLOBAL, "processor_info", &att_type, &att_len);
-    if (status == NC_NOERR && att_type == NC_INT) {
+    if (status == EX_NOERR && att_type == NC_INT) {
       // Attribute exists on this database, read it and check that the information
       // matches the current processor count and processor id.
       int proc_info[2];
       status = nc_get_att_int(exodusFilePtr, NC_GLOBAL, "processor_info", proc_info);
-      if (status == NC_NOERR) {
+      if (status == EX_NOERR) {
         if (proc_info[0] != processor_count && proc_info[0] > 1) {
           fmt::print(Ioss::WarnOut(),
                      "Processor decomposition count in file ({}) does not match current "
@@ -495,44 +495,6 @@ namespace Ioex {
       }
     }
     return true;
-  }
-
-  void decode_surface_name(Ioex::SideSetMap &fs_map, Ioex::SideSetSet &fs_set,
-                           const std::string &name)
-  {
-    auto tokens = Ioss::tokenize(name, "_");
-    if (tokens.size() >= 4) {
-      // Name of form: "name_eltopo_sidetopo_id" or
-      // "name_block_id_sidetopo_id" "name" is typically "surface".
-      // The sideset containing this should then be called "name_id"
-
-      // Check whether the second-last token is a side topology and
-      // the third-last token is an element topology.
-      const Ioss::ElementTopology *side_topo =
-          Ioss::ElementTopology::factory(tokens[tokens.size() - 2], true);
-      if (side_topo != nullptr) {
-        const Ioss::ElementTopology *element_topo =
-            Ioss::ElementTopology::factory(tokens[tokens.size() - 3], true);
-        if (element_topo != nullptr || tokens[tokens.size() - 4] == "block") {
-          // The remainder of the tokens will be used to create
-          // a side set name and then this sideset will be
-          // a side block in that set.
-          std::string fs_name;
-          size_t      last_token = tokens.size() - 3;
-          if (element_topo == nullptr) {
-            last_token--;
-          }
-          for (size_t tok = 0; tok < last_token; tok++) {
-            fs_name += tokens[tok];
-          }
-          fs_name += "_";
-          fs_name += tokens[tokens.size() - 1]; // Add on the id.
-
-          fs_set.insert(fs_name);
-          fs_map.insert(Ioex::SideSetMap::value_type(name, fs_name));
-        }
-      }
-    }
   }
 
   bool set_id(const Ioss::GroupingEntity *entity, Ioex::EntityIdSet *idset)
@@ -697,7 +659,8 @@ namespace Ioex {
   }
 
   std::string get_entity_name(int exoid, ex_entity_type type, int64_t id,
-                              const std::string &basename, int length, bool &db_has_name)
+                              const std::string &basename, int length, bool lowercase_names,
+                              bool &db_has_name)
   {
     std::vector<char> buffer(length + 1);
     buffer[0] = '\0';
@@ -706,16 +669,18 @@ namespace Ioex {
       exodus_error(exoid, __LINE__, __func__, __FILE__);
     }
     if (buffer[0] != '\0') {
-      Ioss::Utils::fixup_name(Data(buffer));
+      std::string name{Data(buffer)};
+      if (lowercase_names) {
+        Ioss::Utils::fixup_name(name);
+      }
       // Filter out names of the form "basename_id" if the name
       // id doesn't match the id in the name...
-      size_t base_size = basename.size();
-      if (std::strncmp(basename.c_str(), Data(buffer), base_size) == 0) {
-        int64_t name_id = extract_id(Data(buffer));
+      if (Ioss::Utils::substr_equal(basename, name)) {
+        int64_t name_id = extract_id(name);
 
         // See if name is truly of form "basename_name_id" (e.g. "surface_{id}")
         std::string tmp_name = Ioss::Utils::encode_entity_name(basename, name_id);
-        if (tmp_name == Data(buffer)) {
+        if (tmp_name == name) {
           if (name_id > 0) {
             db_has_name = false;
             if (name_id != id) {
@@ -725,7 +690,7 @@ namespace Ioex {
                          "embedded id {}.\n"
                          "         This can cause issues later; the entity will be renamed to '{}' "
                          "(IOSS)\n\n",
-                         Data(buffer), id, name_id, new_name);
+                         name, id, name_id, new_name);
               return new_name;
             }
             return tmp_name;
@@ -733,7 +698,7 @@ namespace Ioex {
         }
       }
       db_has_name = true;
-      return {Data(buffer)};
+      return name;
     }
     db_has_name = false;
     return Ioss::Utils::encode_entity_name(basename, id);
@@ -762,7 +727,7 @@ namespace Ioex {
     fmt::print(errmsg, " Please report to gdsjaar@sandia.gov if you need help.");
 
     ex_err_fn(exoid, nullptr, nullptr, EX_PRTLASTMSG);
-    IOSS_ERROR(errmsg);
+    IOSS_ABORT(errmsg);
   }
 
   int add_map_fields(int exoid, Ioss::ElementBlock *block, int64_t my_element_count,
@@ -849,6 +814,44 @@ namespace Ioex {
     }
   }
 
+  std::vector<ex_assembly> get_exodus_assemblies(int exoid)
+  {
+    std::vector<ex_assembly> assemblies;
+    int                      nassem = ex_inquire_int(exoid, EX_INQ_ASSEMBLY);
+    if (nassem > 0) {
+      assemblies.resize(nassem);
+
+      int max_name_length = ex_inquire_int(exoid, EX_INQ_DB_MAX_USED_NAME_LENGTH);
+      for (auto &assembly : assemblies) {
+        assembly.name = new char[max_name_length + 1];
+      }
+
+      int ierr = ex_get_assemblies(exoid, Data(assemblies));
+      if (ierr < 0) {
+        Ioex::exodus_error(exoid, __LINE__, __func__, __FILE__);
+      }
+
+      // Now allocate space for member list and get assemblies again...
+      for (auto &assembly : assemblies) {
+        assembly.entity_list = new int64_t[assembly.entity_count];
+      }
+
+      ierr = ex_get_assemblies(exoid, Data(assemblies));
+      if (ierr < 0) {
+        Ioex::exodus_error(exoid, __LINE__, __func__, __FILE__);
+      }
+    }
+    return assemblies;
+  }
+
+  void cleanup_exodus_assembly_vector(std::vector<ex_assembly> &assemblies)
+  {
+    for (const auto &assembly : assemblies) {
+      delete[] assembly.entity_list;
+      delete[] assembly.name;
+    }
+  }
+
   bool filter_node_list(Ioss::Int64Vector                &nodes,
                         const std::vector<unsigned char> &node_connectivity_status)
   {
@@ -928,7 +931,7 @@ namespace Ioex {
       for (size_t iel = 0; iel < element.size(); iel++) {
         int64_t elem_id = element[iel];
         if (elem_id <= 0) {
-          IOSS_ERROR(fmt::format(
+          IOSS_ABORT(fmt::format(
               "ERROR: In sideset/surface '{}' an element with id {} is specified.  Element "
               "ids must be greater than zero. ({})",
               surface_name, elem_id, __func__));
@@ -949,7 +952,7 @@ namespace Ioex {
         if (common_ftopo == nullptr && sides[iel] != current_side) {
           current_side = sides[iel];
           if (current_side <= 0 || current_side > block->topology()->number_boundaries()) {
-            IOSS_ERROR(fmt::format(
+            IOSS_ABORT(fmt::format(
                 "ERROR: In sideset/surface '{}' for the element with id {} of topology '{}';\n\t"
                 "an invalid face index '{}' is specified.\n\tFace indices "
                 "must be between 1 and {}. ({})",

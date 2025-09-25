@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -315,8 +315,6 @@ namespace Ioss {
   void ParallelUtils::global_array_minmax(IOSS_MAYBE_UNUSED std::vector<T> &local_minmax,
                                           IOSS_MAYBE_UNUSED MinMax          which) const
   {
-    IOSS_PAR_UNUSED(local_minmax);
-    IOSS_PAR_UNUSED(which);
 #ifdef SEACAS_HAVE_MPI
     if (parallel_size() > 1 && !local_minmax.empty()) {
       if (Ioss::SerializeIO::isEnabled() && Ioss::SerializeIO::inBarrier()) {

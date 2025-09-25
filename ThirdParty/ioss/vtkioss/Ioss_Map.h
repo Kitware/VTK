@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020, 2022, 2023, 2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022, 2023, 2024, 2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -16,7 +16,7 @@
 #include "ioss_export.h"
 #include "vtk_ioss_mangle.h"
 
-#define MAP_USE_STD
+#define MAP_USE_SORTED_VECTOR
 #if defined MAP_USE_STD
 #include <unordered_map>
 #elif defined MAP_USE_HOPSCOTCH
@@ -65,7 +65,8 @@ namespace Ioss {
     // Determines whether the input map is sequential (m_map[i] == i)
     IOSS_NODISCARD bool is_sequential(bool check_all = false) const;
 
-    IOSS_NODISCARD int64_t global_to_local(int64_t global, bool must_exist = true) const;
+    IOSS_NODISCARD int64_t global_to_local(int64_t global, bool must_exist = true,
+                                           bool output_error = false) const;
 
     template <typename INT>
     bool set_map(INT *ids, size_t count, size_t offset, bool in_define_mode = true);
@@ -101,7 +102,8 @@ namespace Ioss {
     template <typename INT> void map_data(INT *data, size_t count) const;
     template <typename INT> void map_implicit_data(INT *data, size_t count, size_t offset) const;
 
-    int64_t global_to_local_nl(int64_t global, bool must_exist = true) const;
+    int64_t global_to_local_nl(int64_t global, bool must_exist = true,
+                               bool output_error = false) const;
     void    build_reorder_map_nl(int64_t start, int64_t count);
     void    build_reverse_map_nl(int64_t num_to_get, int64_t offset);
 #if defined MAP_USE_SORTED_VECTOR

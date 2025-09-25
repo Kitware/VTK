@@ -216,6 +216,7 @@ if (SEACAS_HAVE_EXONULL)
     exonull/Ioexnl_DatabaseIO
     exonull/Ioexnl_Internals
     exonull/Ioexnl_IOFactory
+    exonull/Ioexnl_SuperElement
     exonull/Ioexnl_Utils)
 endif ()
 
