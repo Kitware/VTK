@@ -14,7 +14,7 @@
 #include "Ioss_ElementTopology.h" // for ElementTopology
 
 namespace Ioss {
-  class IOSS_EXPORT Unknown : public Ioss::ElementTopology
+  class IOSS_EXPORT Unknown final : public Ioss::ElementTopology
   {
 
   public:

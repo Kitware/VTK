@@ -840,6 +840,7 @@ namespace Ioss::glob {
   template <class charT> class AstVisitor
   {
   public:
+    virtual ~AstVisitor() = default;
 // define all visitor methods for the nodes
 #define DECLARE_VIRTUAL_FUNC(type)                                                                 \
   virtual void Visit##type(type<charT> * /*node*/) {}

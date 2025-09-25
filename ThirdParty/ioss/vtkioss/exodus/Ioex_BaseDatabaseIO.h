@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -407,9 +407,11 @@ namespace Ioex {
     mutable std::map<std::string, Ioss::Int64Vector> activeNodeSetNodesIndex;
 
     time_t timeLastFlush{0};
+    time_t timeBeginStep{0};
     int    flushInterval{-1};
     int    m_timestepCount{0};
 
+    bool         timeFileOpenCloseFlush{false};
     mutable bool fileExists{false}; // False if file has never been opened/created
     mutable bool minimizeOpenFiles{false};
 

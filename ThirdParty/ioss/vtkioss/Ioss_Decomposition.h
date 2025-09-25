@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2024 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2025 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -185,6 +185,8 @@ namespace Ioss {
     Decomposition(Decomposition &&)                 = default;
     Decomposition &operator=(Decomposition const &) = default;
     Decomposition &operator=(Decomposition &&)      = default;
+
+    void set_block_omissions(const Ioss::NameList &omissions);
 
     IOSS_NODISCARD size_t global_node_count() const { return m_globalNodeCount; }
     IOSS_NODISCARD size_t global_elem_count() const { return m_globalElementCount; }
@@ -819,7 +821,9 @@ namespace Ioss {
     // The global element at index 'I' (0-based) is on block B in the
     // file decomposition.
     // if m_fileBlockIndex[B] <= I && m_fileBlockIndex[B+1] < I
-    std::vector<size_t> m_fileBlockIndex;
+    std::vector<size_t>      m_fileBlockIndex;
+    std::vector<int64_t>     m_omittedBlocks;
+    std::vector<std::string> m_omittedBlockNames;
 
   private:
     // This processor "manages" the elements on the exodus mesh file from

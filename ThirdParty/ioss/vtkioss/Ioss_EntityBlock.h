@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020, 2022, 2023, 2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022, 2023, 2024, 2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -55,7 +55,7 @@ namespace Ioss {
      */
     IOSS_NODISCARD bool contains(size_t local_id) const
     {
-      return idOffset < local_id && local_id <= idOffset + entityCount;
+      return idOffset < local_id && local_id <= idOffset + entity_count();
     }
     /** \brief Set the 'offset' for the block.
      *

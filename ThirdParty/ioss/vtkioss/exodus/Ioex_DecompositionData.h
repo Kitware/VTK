@@ -1,5 +1,5 @@
 /*
- * Copyright(C) 1999-2024 National Technology & Engineering Solutions
+ * Copyright(C) 1999-2025 National Technology & Engineering Solutions
  * of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
  * NTESS, the U.S. Government retains certain rights in this software.
  *
@@ -68,6 +68,8 @@ namespace Ioex {
 
     IOSS_NODISCARD virtual std::vector<double> &centroids() = 0;
     IOSS_NODISCARD virtual std::vector<float>  &weights()   = 0;
+
+    virtual void set_block_omissions(const Ioss::NameList &omissions) = 0;
 
     Ioss_MPI_Comm comm_;
 
@@ -139,6 +141,11 @@ namespace Ioex {
 
     IOSS_NODISCARD std::vector<double> &centroids() { return m_decomposition.m_centroids; }
     IOSS_NODISCARD std::vector<float> &weights() { return m_decomposition.m_weights; }
+
+    void set_block_omissions(const Ioss::NameList &omissions)
+    {
+      m_decomposition.set_block_omissions(omissions);
+    }
 
     template <typename T>
     void communicate_element_data(T *file_data, T *ioss_data, size_t comp_count) const
@@ -269,6 +276,7 @@ namespace Ioex {
     }
 
     void generate_adjacency_list(int filePtr, Ioss::Decomposition<INT> &decomposition);
+    void generate_omitted_block_weights(int filePtr, Ioss::Decomposition<INT> &decomposition);
 
     void get_common_set_data(int filePtr, ex_entity_type set_type,
                              std::vector<Ioss::SetDecompositionData> &sets,

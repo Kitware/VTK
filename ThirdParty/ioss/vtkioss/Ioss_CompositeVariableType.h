@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2020, 2022, 2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2020, 2022, 2024, 2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -14,7 +14,7 @@
 #include <string>              // for string
 
 namespace Ioss {
-  class IOSS_EXPORT CompositeVariableType : public VariableType
+  class IOSS_EXPORT CompositeVariableType final : public VariableType
   {
   public:
     IOSS_NODISCARD static std::string   composite_name(const std::string &base, int copies);

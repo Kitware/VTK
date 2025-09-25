@@ -294,7 +294,7 @@ vtkSmartPointer<vtkDataArray> GetData(const Ioss::GroupingEntity* entity,
   }
   if (transform)
   {
-    field.add_transform(transform);
+    field.add_transform(transform); // The raw pointer is stored as a shared pointer internally
     field.transform(array->GetVoidPointer(0));
   }
 
@@ -702,9 +702,9 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
     // for nodesets, we create a cell array with single cells.
 
     // ioss ids_raw is 1-indexed, let's make it 0-indexed for VTK.
-    auto transform = std::unique_ptr<Ioss::Transform>(Ioss::TransformFactory::create("offset"));
+    auto transform = Ioss::TransformFactory::create("offset");
     transform->set_property("offset", -1);
-    auto ids_raw = vtkIOSSUtilities::GetData(group_entity, "ids_raw", transform.get());
+    auto ids_raw = vtkIOSSUtilities::GetData(group_entity, "ids_raw", transform);
     ids_raw->SetNumberOfComponents(1);
 
     vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New();
@@ -722,11 +722,10 @@ vtkSmartPointer<vtkCellArray> GetConnectivity(
   vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New();
 
   // ioss connectivity_raw is 1-indexed, let's make it 0-indexed for VTK.
-  auto transform = std::unique_ptr<Ioss::Transform>(Ioss::TransformFactory::create("offset"));
+  auto transform = Ioss::TransformFactory::create("offset");
   transform->set_property("offset", -1);
 
-  auto connectivity_raw =
-    vtkIOSSUtilities::GetData(group_entity, "connectivity_raw", transform.get());
+  auto connectivity_raw = vtkIOSSUtilities::GetData(group_entity, "connectivity_raw", transform);
 
   auto vtk_cell_points =
     vtkIOSSUtilities::GetNumberOfPointsInCellType(vtk_topology_type, ioss_cell_points);

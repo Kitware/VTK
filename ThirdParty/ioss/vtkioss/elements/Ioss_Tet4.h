@@ -14,7 +14,7 @@
 #include "vtk_ioss_mangle.h"
 
 namespace Ioss {
-  class IOSS_EXPORT Tet4 : public Ioss::ElementTopology
+  class IOSS_EXPORT Tet4 final : public Ioss::ElementTopology
   {
 
   public:

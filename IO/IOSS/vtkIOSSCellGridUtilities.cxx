@@ -280,9 +280,9 @@ bool GetConnectivity(const Ioss::GroupingEntity* group_entity, vtkCellGrid* grid
   if (!sourceSpec.Connectivity)
   {
     std::vector<int> permutation;
-    auto transform = std::unique_ptr<Ioss::Transform>(Ioss::TransformFactory::create("offset"));
+    auto transform = Ioss::TransformFactory::create("offset");
     transform->set_property("offset", -1);
-    auto ids_raw = vtkIOSSUtilities::GetData(group_entity, "connectivity_raw", transform.get());
+    auto ids_raw = vtkIOSSUtilities::GetData(group_entity, "connectivity_raw", transform);
     if (spec_index < 0)
     {
       // Transfer ownership to a vtkDataSetAttributes instance:

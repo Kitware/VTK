@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -157,6 +157,7 @@ namespace Ioex {
 
     if (!m_decomposition.m_lineDecomp) {
       generate_adjacency_list(filePtr, m_decomposition);
+      generate_omitted_block_weights(filePtr, m_decomposition);
     }
 
 #if IOSS_DEBUG_OUTPUT
@@ -513,6 +514,101 @@ namespace Ioex {
       }
     }
     decomposition.m_pointer.push_back(decomposition.m_adjacency.size());
+  }
+
+  template <typename INT>
+  void
+  DecompositionData<INT>::generate_omitted_block_weights(int                       filePtr,
+                                                         Ioss::Decomposition<INT> &decomposition)
+  {
+    // This routine is assumed to be called *after* generate_adjacency...
+    if (decomposition.m_omittedBlocks.empty() && decomposition.m_omittedBlockNames.empty()) {
+      return;
+    }
+
+    size_t           block_count = el_blocks.size();
+    std::vector<INT> ids(block_count);
+    ex_get_ids(filePtr, EX_ELEM_BLOCK, Data(ids));
+
+    if (!decomposition.m_omittedBlockNames.empty()) {
+      // Need to determine the id of each block name in the list...
+      // Probably easiest to go through each id and get its name and
+      // see if it exists in `m_omittedBlockNames`
+      int max_name_length = ex_inquire_int(filePtr, EX_INQ_DB_MAX_USED_NAME_LENGTH);
+      max_name_length     = std::max(max_name_length, 32);
+      size_t num_found    = 0;
+      for (INT id : ids) {
+        std::vector<char> buffer(max_name_length + 1);
+        buffer[0] = '\0';
+        ex_get_name(filePtr, EX_ELEM_BLOCK, id, Data(buffer));
+        if (buffer[0] != '\0') {
+          std::string name(Data(buffer));
+          bool        found = std::find(decomposition.m_omittedBlockNames.begin(),
+                                        decomposition.m_omittedBlockNames.end(),
+                                        name) != decomposition.m_omittedBlockNames.end();
+          if (found) {
+#if IOSS_DEBUG_OUTPUT
+            if (m_processor == 0) {
+              fmt::print(stderr, "Found name {} with id {}\n", name, id);
+            }
+#endif
+            decomposition.m_omittedBlocks.push_back(id);
+            num_found++;
+            if (num_found == decomposition.m_omittedBlockNames.size()) {
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    m_decomposition.show_progress(__func__);
+    if (decomposition.m_fileBlockIndex.size() != block_count + 1) {
+      std::ostringstream errmsg;
+      fmt::print(errmsg, "ERROR: The `generate_adjacency` function was not called prior to calling "
+                         "`generate_omitted_block_weights`\n"
+                         "       Contact gdsjaar@sandia.gov for more details.\n");
+      IOSS_ERROR(errmsg);
+    }
+
+    // Get the global element block index list at this time also.
+    // The global element at index 'I' (0-based) is on block B
+    // if global_block_index[B] <= I && global_block_index[B+1] < I
+    std::vector<ex_block> ebs(block_count);
+    for (size_t b = 0; b < block_count; b++) {
+      el_blocks[b].id_ = ids[b];
+      ebs[b].id        = ids[b];
+      ebs[b].type      = EX_ELEM_BLOCK;
+      ex_get_block_param(filePtr, &ebs[b]);
+    }
+
+    // Now, populate the weight vector...
+    decomposition.m_weights.reserve(decomp_elem_count());
+
+    // Range of elements currently handled by this processor [)
+    size_t p_start = decomp_elem_offset();
+    size_t p_end   = p_start + decomp_elem_count();
+
+    size_t b_start = 0;
+    for (const auto &block : ebs) {
+      // Range of elements in element block b is [b_start,b_end)
+      size_t b_end = b_start + block.num_entry;
+
+      if (b_start < p_end && p_start < b_end) {
+        // Some of this blocks elements are on this processor...
+        size_t  overlap = std::min(b_end, p_end) - std::max(b_start, p_start);
+        int64_t id      = block.id;
+
+        bool omitted =
+            std::find(decomposition.m_omittedBlocks.begin(), decomposition.m_omittedBlocks.end(),
+                      id) != decomposition.m_omittedBlocks.end();
+        float weight = omitted ? 0.0f : 1.0f;
+        for (size_t elem = 0; elem < overlap; elem++) {
+          decomposition.m_weights.push_back(weight);
+        }
+      }
+      b_start = b_end;
+    }
   }
 
   template <typename INT>
@@ -1941,7 +2037,7 @@ namespace Ioex {
     // map for all locally-owned nodes and also determine how many
     // of my nodes are owned by which other processors.
 
-    global_implicit_map.resize(owning_proc.size());
+    global_implicit_map.resize(owning_proc.size(), -1);
 
     std::vector<int64_t> snd_count(m_processorCount);
     std::vector<int64_t> rcv_count(m_processorCount);
@@ -1970,7 +2066,9 @@ namespace Ioex {
     }
 
     for (auto &i : global_implicit_map) {
-      i += *processor_offset + 1;
+      if (i >= 0) {
+        i += *processor_offset + 1;
+      }
     }
 
     // Now, tell the other processors how many nodes I will be sending
@@ -2002,12 +2100,31 @@ namespace Ioex {
     m_decomposition.show_progress("\tCommunication 2 finished");
 
     // Iterate rcv_list and convert global ids to the global-implicit position...
+    int error_count = 0;
     for (auto &i : rcv_list) {
-      int64_t local_id     = node_map.global_to_local(i) - 1;
-      int64_t rcv_position = global_implicit_map[local_id];
-      i                    = rcv_position;
+      int64_t local_id = node_map.global_to_local(i, false, true) - 1;
+      if (local_id < 0) {
+        error_count++;
+      }
+      else {
+        SMART_ASSERT(local_id >= 0)(local_id)(i);
+        int64_t rcv_position = global_implicit_map[local_id];
+        SMART_ASSERT(rcv_position >= 0)(rcv_position)(local_id)(i);
+        i = rcv_position;
+      }
     }
-
+    {
+      Ioss::ParallelUtils pu(comm_);
+      int                 total_errors = pu.global_minmax(error_count, Ioss::ParallelUtils::DO_MAX);
+      if (total_errors > 0) {
+        std::ostringstream errmsg;
+        fmt::print(errmsg,
+                   "ERROR: Ioss Mapping routines detected at least one error mapping global ids.\n"
+                   "       This usually means the node ownership is incorrect for some reason. "
+                   "This should not happen, please report.\n");
+        IOSS_ERROR(errmsg);
+      }
+    }
     // Send the data back now...
     Ioss::MY_Alltoallv(rcv_list, rcv_count, rcv_offset, snd_list, snd_count, snd_offset, comm_);
     m_decomposition.show_progress("\tCommunication 3 finished");

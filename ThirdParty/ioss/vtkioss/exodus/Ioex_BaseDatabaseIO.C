@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -166,44 +166,6 @@ namespace {
     mutable std::vector<bool>       m_visitedAssemblies;
   };
 
-  std::vector<ex_assembly> get_exodus_assemblies(int exoid)
-  {
-    std::vector<ex_assembly> assemblies;
-    int                      nassem = ex_inquire_int(exoid, EX_INQ_ASSEMBLY);
-    if (nassem > 0) {
-      assemblies.resize(nassem);
-
-      int max_name_length = ex_inquire_int(exoid, EX_INQ_DB_MAX_USED_NAME_LENGTH);
-      for (auto &assembly : assemblies) {
-        assembly.name = new char[max_name_length + 1];
-      }
-
-      int ierr = ex_get_assemblies(exoid, Data(assemblies));
-      if (ierr < 0) {
-        Ioex::exodus_error(exoid, __LINE__, __func__, __FILE__);
-      }
-
-      // Now allocate space for member list and get assemblies again...
-      for (auto &assembly : assemblies) {
-        assembly.entity_list = new int64_t[assembly.entity_count];
-      }
-
-      ierr = ex_get_assemblies(exoid, Data(assemblies));
-      if (ierr < 0) {
-        Ioex::exodus_error(exoid, __LINE__, __func__, __FILE__);
-      }
-    }
-    return assemblies;
-  }
-
-  void cleanup_exodus_assembly_vector(std::vector<ex_assembly> &assemblies)
-  {
-    for (const auto &assembly : assemblies) {
-      delete[] assembly.entity_list;
-      delete[] assembly.name;
-    }
-  }
-
 } // namespace
 
 namespace Ioex {
@@ -267,6 +229,9 @@ namespace Ioex {
 
     // See if there are any properties that need to (or can) be
     // handled prior to opening/creating database...
+    Ioss::Utils::check_set_bool_property(properties, "IOSS_TIME_FILE_OPEN_CLOSE",
+                                         timeFileOpenCloseFlush);
+
     if (properties.exists("FILE_TYPE")) {
       std::string type = properties.get("FILE_TYPE").get_string();
       type             = Ioss::Utils::lowercase(type);
@@ -438,15 +403,11 @@ namespace Ioex {
   int BaseDatabaseIO::free_file_pointer() const
   {
     if (m_exodusFilePtr != -1) {
-      bool do_timer = false;
-      if (isParallel) {
-        Ioss::Utils::check_set_bool_property(properties, "IOSS_TIME_FILE_OPEN_CLOSE", do_timer);
-      }
-      double t_begin = (do_timer ? Ioss::Utils::timer() : 0);
+      double t_begin = (timeFileOpenCloseFlush ? Ioss::Utils::timer() : 0);
 
       ex_close(m_exodusFilePtr);
       close_dw();
-      if (do_timer && isParallel) {
+      if (timeFileOpenCloseFlush) {
         double t_end    = Ioss::Utils::timer();
         double duration = util().global_minmax(t_end - t_begin, Ioss::ParallelUtils::DO_MAX);
         if (myProcessor == 0) {
@@ -803,7 +764,7 @@ namespace Ioex {
     Ioss::SerializeIO serializeIO_(this);
 
     // Query number of assemblies...
-    auto assemblies = get_exodus_assemblies(get_file_pointer());
+    auto assemblies = Ioex::get_exodus_assemblies(get_file_pointer());
     if (!assemblies.empty()) {
       Ioss::NameList exclusions;
       Ioss::NameList inclusions;
@@ -831,7 +792,7 @@ namespace Ioex {
       exclusionFilter.update_assembly_filter_list(assemblyOmissions);
       inclusionFilter.update_assembly_filter_list(assemblyInclusions);
 
-      cleanup_exodus_assembly_vector(assemblies);
+      Ioex::cleanup_exodus_assembly_vector(assemblies);
 
       Ioss::Utils::insert_sort_and_unique(exclusions, blockOmissions);
       Ioss::Utils::insert_sort_and_unique(inclusions, blockInclusions);
@@ -842,7 +803,7 @@ namespace Ioex {
   {
     Ioss::SerializeIO serializeIO_(this);
 
-    auto assemblies = get_exodus_assemblies(get_file_pointer());
+    auto assemblies = Ioex::get_exodus_assemblies(get_file_pointer());
     if (!assemblies.empty()) {
       for (const auto &assembly : assemblies) {
         auto *assem = new Ioss::Assembly(get_region()->get_database(), assembly.name);
@@ -890,7 +851,7 @@ namespace Ioex {
           m_reductionValues[EX_ASSEMBLY][assembly.id].resize(size);
         }
       }
-      cleanup_exodus_assembly_vector(assemblies);
+      Ioex::cleanup_exodus_assembly_vector(assemblies);
 
       assert(assemblyOmissions.empty() || assemblyInclusions.empty()); // Only one can be non-empty
 
@@ -1557,19 +1518,20 @@ namespace Ioex {
     }
   }
 
-  bool BaseDatabaseIO::begin_state_nl(int state, double time)
+  bool BaseDatabaseIO::begin_state_nl(int state, double a_time)
   {
     Ioss::SerializeIO serializeIO_(this);
 
-    time /= timeScaleFactor;
+    a_time /= timeScaleFactor;
 
     if (!is_input()) {
+      timeBeginStep = time(nullptr);
       if (get_file_per_state()) {
         // Close current file; create new file and output transient metadata...
         open_state_file(state);
         write_results_metadata(false, open_create_behavior());
       }
-      int ierr = ex_put_time(get_file_pointer(), get_database_step(state), &time);
+      int ierr = ex_put_time(get_file_pointer(), get_database_step(state), &a_time);
       if (ierr < 0) {
         Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
       }
@@ -1591,14 +1553,14 @@ namespace Ioex {
   }
 
   // common
-  bool BaseDatabaseIO::end_state_nl(int state, double time)
+  bool BaseDatabaseIO::end_state_nl(int state, double a_time)
   {
     Ioss::SerializeIO serializeIO_(this);
 
     if (!is_input()) {
       write_reduction_fields();
-      time /= timeScaleFactor;
-      finalize_write(state, time);
+      a_time /= timeScaleFactor;
+      finalize_write(state, a_time);
       if (minimizeOpenFiles) {
         free_file_pointer();
       }
@@ -1699,12 +1661,25 @@ namespace Ioex {
                                                       Ioex::VariableNameMap &variables)
   {
     int nvar = 0;
+
     {
       Ioss::SerializeIO serializeIO_(this);
 
       int ierr = ex_get_variable_param(get_file_pointer(), type, &nvar);
       if (ierr < 0) {
         Ioex::exodus_error(get_file_pointer(), __LINE__, __func__, __FILE__);
+      }
+    }
+
+    // Synchronize among all processors....
+    if (isParallel) {
+      std::vector<int> var_count{nvar, -nvar};
+      util().global_array_minmax(var_count, Ioss::ParallelUtils::DO_MAX);
+
+      if (var_count[0] != -var_count[1]) {
+        IOSS_ABORT(fmt::format("ERROR: Inconsistent number of {} fields ({} to {}) on file '{}'.\n",
+                               Ioss::Utils::entity_type_to_string(Ioex::map_exodus_type(type)),
+                               -var_count[1], var_count[0], get_filename()));
       }
     }
 
@@ -1797,7 +1772,7 @@ namespace Ioex {
                                                       ex_entity_type type, Ioss::NameList &names)
   {
     std::vector<Ioss::Field> fields;
-    if (!entity->get_database()->get_field_recognition()) {
+    if (!using_parallel_io() || !entity->get_database()->get_field_recognition()) {
       return fields;
     }
     // See if this entity is using enhanced field attributes...
@@ -1901,6 +1876,9 @@ namespace Ioex {
                 }
               }
               names[j] = "";
+              if (i == 0) {
+                field.set_index(j);
+              }
               break;
             }
           }
@@ -2091,7 +2069,7 @@ namespace Ioex {
       }
 
       // Output field metadata
-      bool do_metadata = true;
+      bool do_metadata = false;
       Ioss::Utils::check_set_bool_property(properties, "OUTPUT_FIELD_METADATA", do_metadata);
       if (do_metadata) {
         output_field_metadata();
@@ -2572,8 +2550,16 @@ namespace Ioex {
   void BaseDatabaseIO::flush_database_nl() const
   {
     if (!is_input()) {
+      double t_begin = (timeFileOpenCloseFlush ? Ioss::Utils::timer() : 0);
       if (isParallel || myProcessor == 0) {
         ex_update(get_file_pointer());
+      }
+      if (timeFileOpenCloseFlush) {
+        double t_end    = Ioss::Utils::timer();
+        double duration = util().global_minmax(t_end - t_begin, Ioss::ParallelUtils::DO_MAX);
+        if (myProcessor == 0) {
+          fmt::print(Ioss::DebugOut(), "File Flush Time = {} ({})\n", duration, get_filename());
+        }
       }
     }
   }
@@ -2604,6 +2590,8 @@ namespace Ioex {
     //  flushInterval == 1 -- flush every step
     //
     //  flushInterval > 1 -- flush if step % flushInterval == 0
+    //
+    //  if time between begin_state and end_state is > 10 seconds,
 
     bool do_flush = true;
     if (flushInterval == 1) {
@@ -2633,6 +2621,24 @@ namespace Ioex {
       if (state % flushInterval == 0) {
         do_flush = true;
       }
+    }
+
+    if (flushInterval != 0 && !do_flush) {
+      // One last check -- if output took more than 10 seconds (arbitrary)
+      // then flush since the relative flush cost is outweighted by the time
+      // it took to do the output (Basically, we have a lot of data being output...)
+      time_t cur_time = time(nullptr);
+      if (cur_time - timeBeginStep >= 10) {
+        timeLastFlush = cur_time;
+        do_flush      = true;
+      }
+#ifdef SEACAS_HAVE_MPI
+      if (isParallel) {
+        int iflush = do_flush ? 1 : 0;
+        util().broadcast(iflush);
+        do_flush = iflush == 1;
+      }
+#endif
     }
 
     if (do_flush) {
@@ -3111,7 +3117,7 @@ namespace Ioex {
           df_count += block->get_property("distribution_factor_count").get_int();
         }
         auto *new_entity = const_cast<Ioss::SideSet *>(set);
-        new_entity->property_add(Ioss::Property("entity_count", entity_count));
+        new_entity->reset_entity_count(entity_count);
         new_entity->property_add(Ioss::Property("distribution_factor_count", df_count));
       }
       m_groupCount[EX_SIDE_SET] = ssets.size();
@@ -3608,10 +3614,6 @@ namespace {
                                   IOSS_MAYBE_UNUSED const std::string &filename,
                                   IOSS_MAYBE_UNUSED const Ioss::ParallelUtils &util)
   {
-    IOSS_PAR_UNUSED(exo_params);
-    IOSS_PAR_UNUSED(my_processor);
-    IOSS_PAR_UNUSED(filename);
-    IOSS_PAR_UNUSED(util);
 #ifdef SEACAS_HAVE_MPI
     const int        num_types = 10;
     std::vector<int> var_counts(num_types);

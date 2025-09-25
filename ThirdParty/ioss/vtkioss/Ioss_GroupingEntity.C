@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -34,11 +34,11 @@
  */
 Ioss::GroupingEntity::GroupingEntity(Ioss::DatabaseIO *io_database, const std::string &my_name,
                                      int64_t entity_cnt)
-    : entityCount(entity_cnt), entityName(my_name), database_(io_database),
+    : entityName(my_name), database_(io_database), entityCount(entity_cnt),
       hash_(Ioss::Utils::hash(my_name))
 {
-  properties.add(Ioss::Property("name", my_name));
-  properties.add(Ioss::Property("entity_count", entity_cnt));
+  properties.add(Ioss::Property(this, "name", Ioss::Property::STRING));
+  properties.add(Ioss::Property(this, "entity_count", Ioss::Property::INTEGER));
   properties.add(Ioss::Property(this, "attribute_count", Ioss::Property::INTEGER));
 
   if (my_name != "null_entity") {
@@ -51,8 +51,8 @@ Ioss::GroupingEntity::GroupingEntity(Ioss::DatabaseIO *io_database, const std::s
 }
 
 Ioss::GroupingEntity::GroupingEntity(const Ioss::GroupingEntity &other)
-    : properties(other.properties), fields(other.fields), entityCount(other.entityCount),
-      entityName(other.entityName), attributeCount(other.attributeCount),
+    : properties(other.properties), fields(other.fields), entityName(other.entityName),
+      entityCount(other.entityCount), attributeCount(other.attributeCount),
       entityState(other.entityState), hash_(other.hash_)
 {
 }
@@ -97,20 +97,6 @@ Ioss::DatabaseIO *Ioss::GroupingEntity::get_database() const
 {
   assert(database_ != nullptr);
   return database_;
-}
-
-/** \brief Get the file name associated with the database containing this entity.
- *
- *  \returns The file name.
- */
-std::string Ioss::GroupingEntity::get_filename() const
-{
-  // Ok for database_ to be nullptr at this point.
-  if (database_ == nullptr) {
-    return {};
-  }
-
-  return database_->get_filename();
 }
 
 void Ioss::GroupingEntity::set_database(Ioss::DatabaseIO *io_database)
@@ -158,6 +144,12 @@ Ioss::Property Ioss::GroupingEntity::get_implicit_property(const std::string &my
 {
   // Handle properties generic to all GroupingEntities.
   // These include:
+  if (my_name == "entity_count") {
+    return {my_name, entityCount};
+  }
+  if (my_name == "name") {
+    return {my_name, entityName};
+  }
   if (my_name == "attribute_count") {
     count_attributes();
     return {my_name, static_cast<int>(attributeCount)};

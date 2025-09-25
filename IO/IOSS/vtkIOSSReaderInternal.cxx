@@ -1266,11 +1266,10 @@ void vtkIOSSReaderInternal::GenerateElementAndSideIds(vtkDataSet* dataset, Ioss:
               << "[.\n";
 #endif
     // ioss element_side_raw is 1-indexed; make it 0-indexed for VTK.
-    auto transform = std::unique_ptr<Ioss::Transform>(Ioss::TransformFactory::create("offset"));
+    auto transform = Ioss::TransformFactory::create("offset");
     transform->set_property("offset", -1);
 
-    auto element_side_raw =
-      vtkIOSSUtilities::GetData(sideBlock, "element_side_raw", transform.get());
+    auto element_side_raw = vtkIOSSUtilities::GetData(sideBlock, "element_side_raw", transform);
     auto sideBlockType = sideBlock->topology()->base_topology_permutation_name();
     (void)element_side_raw;
     std::ostringstream sideElemName;
@@ -1813,6 +1812,13 @@ bool vtkIOSSReaderInternal::GetGeometry(
   extents[3] = extents[2] + static_cast<int>(sblock.get_property("nj").get_int());
   extents[4] = static_cast<int>(sblock.get_property("offset_k").get_int());
   extents[5] = extents[4] + static_cast<int>(sblock.get_property("nk").get_int());
+
+  // if extents are all 0, then the block has data, then you need to redo extents,
+  // so that extents 1, 3, and 5 are minus 1
+  if (std::all_of(extents, extents + 6, [](int e) { return e == 0; }))
+  {
+    extents[1] = extents[3] = extents[5] = -1;
+  }
 
   assert(
     sblock.get_property("node_count").get_int() == vtkStructuredData::GetNumberOfPoints(extents));

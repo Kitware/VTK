@@ -1,8 +1,11 @@
-// Copyright(C) 2021, 2022, 2023, 2024 National Technology & Engineering Solutions
+// Copyright(C) 2021, 2022, 2023, 2024, 2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
 // See packages/seacas/LICENSE for details
+
+#include <numeric>
+#include <random>
 
 #include "Ioss_CopyDatabase.h"
 #include "Ioss_DataPool.h"
@@ -259,7 +262,7 @@ void Ioss::copy_database(Ioss::Region &region, Ioss::Region &output_region,
   auto max_field = calculate_maximum_field_size(region);
   if (options.verbose && rank == 0) {
     std::string label = "MiB";
-    double      size  = (double)max_field.first / 1024 / 1024;
+    double      size  = static_cast<double>(max_field.first) / 1024.0 / 1024.0;
     if (size > 1024.0) {
       label = "GiB";
       size /= 1024.0;
@@ -310,7 +313,7 @@ void Ioss::copy_database(Ioss::Region &region, Ioss::Region &output_region,
   // to the output region based on values in `options`
   std::vector<int> selected_steps = get_selected_steps(region, options);
 
-  int step_count = (int)region.get_property("state_count").get_int();
+  int step_count = static_cast<int>(selected_steps.size() - 1);
 #ifdef SEACAS_HAVE_MPI
   int min_step_count = dbi->util().global_minmax(step_count, Ioss::ParallelUtils::DO_MIN);
   int max_step_count = dbi->util().global_minmax(step_count, Ioss::ParallelUtils::DO_MAX);
@@ -323,8 +326,8 @@ void Ioss::copy_database(Ioss::Region &region, Ioss::Region &output_region,
   }
 #endif
   for (int istep = 1; istep <= step_count; istep++) {
-    if (selected_steps[istep] == 1) {
-      transfer_step(region, output_region, data_pool, istep, options, rank);
+    if (selected_steps[istep] != 0) {
+      transfer_step(region, output_region, data_pool, selected_steps[istep], options, rank);
     }
   }
 
@@ -349,7 +352,7 @@ namespace {
     // This routine checks all steps of the input database and selects those which
     // meet the requirements specified in `options`.  The returned (1-based) vector will have a
     // value of `1` if the step is to be output and `0` if skipped.
-    int              step_count = (int)region.get_property("state_count").get_int();
+    int              step_count = static_cast<int>(region.get_property("state_count").get_int());
     std::vector<int> selected_steps(step_count + 1);
 
     // If user specified a list of times to transfer to output database,
@@ -368,7 +371,23 @@ namespace {
           }
         }
         if (selected_step > 0) {
-          selected_steps[selected_step] = 1;
+          selected_steps[selected_step] = selected_step;
+        }
+      }
+    }
+    else if (!options.selected_steps.empty()) {
+      for (const auto &step : options.selected_steps) {
+        if (step == 0 || abs(step) > step_count) {
+          fmt::print(std::cerr,
+                     "WARNING: Step {} is out of range. Must be non-zero and maximum of {}.\n",
+                     step, step_count);
+          continue;
+        }
+        if (step > 0) {
+          selected_steps[step] = step;
+        }
+        else {
+          selected_steps[step_count + 1 + step] = step_count + 1 + step;
         }
       }
     }
@@ -376,7 +395,7 @@ namespace {
       // User did not select specific times to be output...
       // Just select them all
       for (int i = 1; i <= step_count; i++) {
-        selected_steps[i] = 1;
+        selected_steps[i] = i;
       }
     }
 
@@ -390,6 +409,26 @@ namespace {
         selected_steps[istep] = 0;
       }
     }
+
+    if (options.shuffle_times) {
+      std::random_device rd;
+      std::mt19937       g(rd());
+      std::shuffle(selected_steps.begin() + 1, selected_steps.end(), g);
+    }
+
+    if (options.sort_times) {
+      std::vector<std::pair<double, size_t>> times;
+      for (size_t i = 1; i <= selected_steps.size() - 1; i++) {
+        times.emplace_back(region.get_state_time(i), selected_steps[i]);
+      }
+      std::sort(times.begin(), times.end(), [](auto &a, auto &b) { return a.first < b.first; });
+
+      size_t i = 1;
+      for (auto &[time, step] : times) {
+        selected_steps[i++] = step;
+      }
+    }
+
     return selected_steps;
   }
 
@@ -409,10 +448,10 @@ namespace {
     if (options.define_geometry && options.boundary_sideset) {
       Ioss::FaceGenerator face_generator(region);
       if (region.get_database()->int_byte_size_api() == 4) {
-        face_generator.generate_faces((int)0, false);
+        face_generator.generate_faces(static_cast<int>(0), false);
       }
       else {
-        face_generator.generate_faces((int64_t)0, false);
+        face_generator.generate_faces(static_cast<int64_t>(0), false);
       }
 
       // Get vector of all boundary faces which will be output as the skin...
@@ -671,10 +710,10 @@ namespace {
         if (ss != nullptr) {
           auto *sb = ss->get_side_block("boundary");
           if (output_region.get_database()->int_byte_size_api() == 4) {
-            output_boundary_sideset(sb, boundary, (int)0);
+            output_boundary_sideset(sb, boundary, static_cast<int>(0));
           }
           else {
-            output_boundary_sideset(sb, boundary, (int64_t)0);
+            output_boundary_sideset(sb, boundary, static_cast<int64_t>(0));
           }
         }
       }

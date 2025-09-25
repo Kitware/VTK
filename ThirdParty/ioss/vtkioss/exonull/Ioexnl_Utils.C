@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -82,9 +82,9 @@ namespace Ioexnl {
     int    rootid = static_cast<unsigned>(exodusFilePtr) & EX_FILE_ID_MASK;
     int    status = nc_get_att_double(rootid, NC_GLOBAL, "last_written_time", &tmp);
 
-    if (status == NC_NOERR && value > tmp) {
+    if (status == EX_NOERR && value > tmp) {
       status = nc_put_att_double(rootid, NC_GLOBAL, "last_written_time", NC_DOUBLE, 1, &value);
-      if (status != NC_NOERR) {
+      if (status != EX_NOERR) {
         ex_opts(EX_VERBOSE);
         auto errmsg = fmt::format(
             "Error: failed to define 'last_written_time' attribute to file id {}", exodusFilePtr);
@@ -144,11 +144,11 @@ namespace Ioexnl {
     nc_type att_type = NC_NAT;
     size_t  att_len  = 0;
     int     status   = nc_inq_att(rootid, NC_GLOBAL, "last_written_time", &att_type, &att_len);
-    if (status == NC_NOERR && att_type == NC_DOUBLE) {
+    if (status == EX_NOERR && att_type == NC_DOUBLE) {
       // Attribute exists on this database, read it...
       double tmp = 0.0;
       status     = nc_get_att_double(rootid, NC_GLOBAL, "last_written_time", &tmp);
-      if (status == NC_NOERR) {
+      if (status == EX_NOERR) {
         *value = tmp;
         found  = true;
       }
@@ -180,12 +180,12 @@ namespace Ioexnl {
     nc_type att_type = NC_NAT;
     size_t  att_len  = 0;
     int     status   = nc_inq_att(exodusFilePtr, NC_GLOBAL, "processor_info", &att_type, &att_len);
-    if (status == NC_NOERR && att_type == NC_INT) {
+    if (status == EX_NOERR && att_type == NC_INT) {
       // Attribute exists on this database, read it and check that the information
       // matches the current processor count and processor id.
       int proc_info[2];
       status = nc_get_att_int(exodusFilePtr, NC_GLOBAL, "processor_info", proc_info);
-      if (status == NC_NOERR) {
+      if (status == EX_NOERR) {
         if (proc_info[0] != processor_count && proc_info[0] > 1) {
           fmt::print(Ioss::WarnOut(),
                      "Processor decomposition count in file ({}) does not match current "
@@ -229,44 +229,6 @@ namespace Ioexnl {
       }
     }
     return true;
-  }
-
-  void decode_surface_name(Ioexnl::SideSetMap &fs_map, Ioexnl::SideSetSet &fs_set,
-                           const std::string &name)
-  {
-    auto tokens = Ioss::tokenize(name, "_");
-    if (tokens.size() >= 4) {
-      // Name of form: "name_eltopo_sidetopo_id" or
-      // "name_block_id_sidetopo_id" "name" is typically "surface".
-      // The sideset containing this should then be called "name_id"
-
-      // Check whether the second-last token is a side topology and
-      // the third-last token is an element topology.
-      const Ioss::ElementTopology *side_topo =
-          Ioss::ElementTopology::factory(tokens[tokens.size() - 2], true);
-      if (side_topo != nullptr) {
-        const Ioss::ElementTopology *element_topo =
-            Ioss::ElementTopology::factory(tokens[tokens.size() - 3], true);
-        if (element_topo != nullptr || tokens[tokens.size() - 4] == "block") {
-          // The remainder of the tokens will be used to create
-          // a side set name and then this sideset will be
-          // a side block in that set.
-          std::string fs_name;
-          size_t      last_token = tokens.size() - 3;
-          if (element_topo == nullptr) {
-            last_token--;
-          }
-          for (size_t tok = 0; tok < last_token; tok++) {
-            fs_name += tokens[tok];
-          }
-          fs_name += "_";
-          fs_name += tokens[tokens.size() - 1]; // Add on the id.
-
-          fs_set.insert(fs_name);
-          fs_map.insert(Ioexnl::SideSetMap::value_type(name, fs_name));
-        }
-      }
-    }
   }
 
   bool set_id(const Ioss::GroupingEntity *entity, Ioexnl::EntityIdSet *idset)

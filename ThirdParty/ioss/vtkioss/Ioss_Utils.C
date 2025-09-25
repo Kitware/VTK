@@ -1,4 +1,4 @@
-// Copyright(C) 1999-2024 National Technology & Engineering Solutions
+// Copyright(C) 1999-2025 National Technology & Engineering Solutions
 // of Sandia, LLC (NTESS).  Under the terms of Contract DE-NA0003525 with
 // NTESS, the U.S. Government retains certain rights in this software.
 //
@@ -162,13 +162,13 @@ std::ostream &Ioss::Utils::get_debug_stream() { return *m_debugStream; }
 void Ioss::Utils::time_and_date(char *time_string, char *date_string, size_t length)
 {
   std::time_t t    = std::time(nullptr);
-  std::string time = fmt::format("{:%H:%M:%S}", fmt::localtime(t));
+  std::string time = fmt::format("{:%H:%M:%S}", *std::localtime(&t));
   std::string date;
   if (length >= 10) {
-    date = fmt::format("{:%Y/%m/%d}", fmt::localtime(t));
+    date = fmt::format("{:%Y/%m/%d}", *std::localtime(&t));
   }
   else {
-    date = fmt::format("{:%y/%m/%d}", fmt::localtime(t));
+    date = fmt::format("{:%y/%m/%d}", *std::localtime(&t));
   }
   copy_string(time_string, time, 9);
   copy_string(date_string, date, length + 1);

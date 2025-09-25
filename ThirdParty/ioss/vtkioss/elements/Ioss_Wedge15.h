@@ -14,7 +14,7 @@
 #include "Ioss_ElementTopology.h" // for ElementTopology
 
 namespace Ioss {
-  class IOSS_EXPORT Wedge15 : public Ioss::ElementTopology
+  class IOSS_EXPORT Wedge15 final : public Ioss::ElementTopology
   {
 
   public:
