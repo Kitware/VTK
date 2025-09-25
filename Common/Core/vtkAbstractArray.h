@@ -666,7 +666,6 @@ public:
    */
   static vtkInformationDoubleVectorKey* DISCRETE_VALUE_SAMPLE_PARAMETERS();
 
-  // Deprecated.  Use vtkAbstractArray::MaxDiscreteValues instead.
   enum
   {
     MAX_DISCRETE_VALUES = 32
