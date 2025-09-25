@@ -383,9 +383,8 @@ public:
    * @param idx the intern index of the array, in vtkAlgorithm scope.
    * Useful for algorithm expecting different arrays to work.
    * @param port the algorithm input port of the data object where to look for the requested array.
-   * See @ref GetInputDataObject
    * @param connection the algorithm input connection of the data object where to look for the
-   * requested array. See @ref GetInputDataObject
+   * requested array.
    * @param fieldAssociation the field in the data object where the array is stored.
    * See vtkDataObject::FieldAssociations for detail.
    * @param name the name of the array to process
@@ -398,9 +397,8 @@ public:
    * @param idx the intern index of the array, in vtkAlgorithm scope.
    * Useful for algorithm expecting different arrays to work.
    * @param port the algorithm input port of the data object where to look for the requested array.
-   * See @ref GetInputDataObject
    * @param connection the algorithm input connection of the data object where to look for the
-   * requested array. See @ref GetInputDataObject
+   * requested array.
    * @param fieldAssociation the field in the data object where the array is stored.
    * See vtkDataObject::FieldAssociations for detail.
    * @param name the name of the array to process
@@ -419,9 +417,8 @@ public:
    * @param idx the intern index of the array, in vtkAlgorithm scope.
    * Useful for algorithm expecting different arrays to work.
    * @param port the algorithm input port of the data object where to look for the requested array.
-   * See @ref GetInputDataObject
    * @param connection the algorithm input connection of the data object where to look for the
-   * requested array. See @ref GetInputDataObject
+   * requested array.
    * @param fieldAssociation the field in the data object where the array is stored.
    * See vtkDataObject::FieldAssociations for detail.
    * @param fieldAttributeType the attribute type related to the array to use.
@@ -435,9 +432,8 @@ public:
    * @param idx the intern index of the array, in vtkAlgorithm scope.
    * Useful for algorithm expecting different arrays to work.
    * @param port the algorithm input port of the data object where to look for the requested array.
-   * See @ref GetInputDataObject
    * @param connection the algorithm input connection of the data object where to look for the
-   * requested array. See @ref GetInputDataObject
+   * requested array.
    * @param fieldAssociation the field in the data object where the array is stored.
    * See vtkDataObject::FieldAssociations for detail.
    * @param fieldAttributeType the attribute type related to the array to use.
@@ -452,7 +448,6 @@ public:
   /**
    * Set the input data arrays that this algorithm will process.
    * Alternative variant that copy information into relevant InputArrayInformation.
-   * See @ref GetInputArrayInformation
    */
   virtual void SetInputArrayToProcess(int idx, vtkInformation* info);
 
