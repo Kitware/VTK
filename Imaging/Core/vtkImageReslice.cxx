@@ -1833,8 +1833,7 @@ void vtkCopyBackgroundColor(const double dcolor[4], T* background, int numCompon
   }
 }
 
-void vtkAllocBackgroundPixel(
-  void** rval, double dcolor[4], int scalarType, int scalarSize, int numComponents)
+void* vtkAllocBackgroundPixel(double dcolor[4], int scalarType, int scalarSize, int numComponents)
 {
   int bytesPerPixel = numComponents * scalarSize;
 
@@ -1842,20 +1841,19 @@ void vtkAllocBackgroundPixel(
   // (this is probably more paranoid than necessary)
   int n = (bytesPerPixel + VTK_SIZEOF_DOUBLE - 1) / VTK_SIZEOF_DOUBLE;
   double* doublePtr = new double[n];
-  *rval = doublePtr;
 
   switch (scalarType)
   {
-    vtkTemplateAliasMacro(vtkCopyBackgroundColor(dcolor, (VTK_TT*)(*rval), numComponents));
+    vtkTemplateAliasMacro(vtkCopyBackgroundColor(dcolor, (VTK_TT*)doublePtr, numComponents));
   }
+
+  return (void*)doublePtr;
 }
 
-void vtkFreeBackgroundPixel(void** rval)
+void vtkFreeBackgroundPixel(void* rval)
 {
-  double* doublePtr = static_cast<double*>(*rval);
+  double* doublePtr = static_cast<double*>(rval);
   delete[] doublePtr;
-
-  *rval = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -1892,9 +1890,8 @@ void vtkImageResliceClearExecute(
   int numscalars = outData->GetNumberOfScalarComponents();
 
   // allocate a voxel to copy into the background (out-of-bounds) regions
-  void* background;
-  vtkAllocBackgroundPixel(
-    &background, self->GetBackgroundColor(), scalarType, scalarSize, numscalars);
+  void* background =
+    vtkAllocBackgroundPixel(self->GetBackgroundColor(), scalarType, scalarSize, numscalars);
   // get the appropriate function for pixel copying
   vtkGetSetPixelsFunc(&setpixels, scalarType, numscalars);
 
@@ -1906,7 +1903,7 @@ void vtkImageResliceClearExecute(
     setpixels(outPtr, background, numscalars, outExt[1] - outExt[0] + 1);
   }
 
-  vtkFreeBackgroundPixel(&background);
+  vtkFreeBackgroundPixel(background);
 }
 
 //------------------------------------------------------------------------------
@@ -2049,9 +2046,8 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
   }
 
   // set color for area outside of input volume extent
-  void* background;
-  vtkAllocBackgroundPixel(
-    &background, self->GetBackgroundColor(), scalarType, scalarSize, outComponents);
+  void* background =
+    vtkAllocBackgroundPixel(self->GetBackgroundColor(), scalarType, scalarSize, outComponents);
 
   // get various helper functions
   bool forceClamping = (interpolationMode > VTK_RESLICE_LINEAR ||
@@ -2322,7 +2318,7 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
     }
   }
 
-  vtkFreeBackgroundPixel(&background);
+  vtkFreeBackgroundPixel(background);
 
   if (!optimizeNearest)
   {
@@ -2822,9 +2818,8 @@ void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
   }
 
   // set color for area outside of input volume extent
-  void* background;
-  vtkAllocBackgroundPixel(
-    &background, self->GetBackgroundColor(), scalarType, scalarSize, outComponents);
+  void* background =
+    vtkAllocBackgroundPixel(self->GetBackgroundColor(), scalarType, scalarSize, outComponents);
 
   // generate the extent we will iterate over while painting output
   // voxels with input data (anything outside will be background color)
@@ -2997,7 +2992,7 @@ void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
     outPtr = static_cast<char*>(outPtr) + outIncZ * scalarSize;
   }
 
-  vtkFreeBackgroundPixel(&background);
+  vtkFreeBackgroundPixel(background);
 
   if (doConversion)
   {
