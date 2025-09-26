@@ -200,7 +200,11 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   const vtkIdType* pts = nullptr;
   double x[3];
   double newx[3];
-  vtkIdType* pointMap = nullptr; // used if no merging
+  vtkIdType* pointMap = new vtkIdType[numPts];
+  for (i = 0; i < numPts; ++i)
+  {
+    pointMap[i] = -1; // initialize unused
+  }
 
   vtkCellArray *inVerts = input->GetVerts(), *newVerts = nullptr;
   vtkCellArray *inLines = input->GetLines(), *newLines = nullptr;
@@ -232,11 +236,6 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
   {
     // Start with original number of points, shrink when done
     newPts->SetNumberOfPoints(numPts);
-    pointMap = new vtkIdType[numPts];
-    for (i = 0; i < numPts; ++i)
-    {
-      pointMap[i] = -1; // initialize unused
-    }
   }
 
   std::unordered_map<vtkIdType, vtkIdType> addedGlobalIdsMap;
@@ -289,23 +288,24 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
       {
         inPts->GetPoint(pts[i], x);
         this->OperateOnPoint(x, newx);
-        if (!this->PointMerging)
+        if ((ptId = pointMap[pts[i]]) == -1)
         {
-          if ((ptId = pointMap[pts[i]]) == -1)
+          if (!this->PointMerging)
           {
-            pointMap[pts[i]] = ptId = numUsedPts++;
+            ptId = numUsedPts++;
             newPts->SetPoint(ptId, newx);
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
-        }
-        else
-        {
-          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
-          if (this->IsPrimaryPoint(input, pts[i]) || !this->IsPointDataAlreadyCopied(ptId))
+          else
           {
-            this->CopiedPoints.insert(ptId);
-            outputPD->CopyData(inputPD, pts[i], ptId);
+            this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
+            if (this->IsPrimaryPoint(input, pts[i]) || !this->IsPointDataAlreadyCopied(ptId))
+            {
+              this->CopiedPoints.insert(ptId);
+              outputPD->CopyData(inputPD, pts[i], ptId);
+            }
           }
+          pointMap[pts[i]] = ptId;
         }
         updatedPts[numNewPts++] = ptId;
       } // for all points of vertex cell
@@ -347,23 +347,24 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
       {
         inPts->GetPoint(pts[i], x);
         this->OperateOnPoint(x, newx);
-        if (!this->PointMerging)
+        if ((ptId = pointMap[pts[i]]) == -1)
         {
-          if ((ptId = pointMap[pts[i]]) == -1)
+          if (!this->PointMerging)
           {
-            pointMap[pts[i]] = ptId = numUsedPts++;
+            ptId = numUsedPts++;
             newPts->SetPoint(ptId, newx);
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
-        }
-        else
-        {
-          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
-          if (this->IsPrimaryPoint(input, pts[i]) || !this->IsPointDataAlreadyCopied(ptId))
+          else
           {
-            this->CopiedPoints.insert(ptId);
-            outputPD->CopyData(inputPD, pts[i], ptId);
+            this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
+            if (this->IsPrimaryPoint(input, pts[i]) || !this->IsPointDataAlreadyCopied(ptId))
+            {
+              this->CopiedPoints.insert(ptId);
+              outputPD->CopyData(inputPD, pts[i], ptId);
+            }
           }
+          pointMap[pts[i]] = ptId;
         }
         if (i == 0 || ptId != updatedPts[numNewPts - 1])
         {
@@ -429,23 +430,24 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
       {
         inPts->GetPoint(pts[i], x);
         this->OperateOnPoint(x, newx);
-        if (!this->PointMerging)
+        if ((ptId = pointMap[pts[i]]) == -1)
         {
-          if ((ptId = pointMap[pts[i]]) == -1)
+          if (!this->PointMerging)
           {
-            pointMap[pts[i]] = ptId = numUsedPts++;
+            ptId = numUsedPts++;
             newPts->SetPoint(ptId, newx);
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
-        }
-        else
-        {
-          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
-          if (this->IsPrimaryPoint(input, pts[i]) || !this->IsPointDataAlreadyCopied(ptId))
+          else
           {
-            this->CopiedPoints.insert(ptId);
-            outputPD->CopyData(inputPD, pts[i], ptId);
+            this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
+            if (this->IsPrimaryPoint(input, pts[i]) || !this->IsPointDataAlreadyCopied(ptId))
+            {
+              this->CopiedPoints.insert(ptId);
+              outputPD->CopyData(inputPD, pts[i], ptId);
+            }
           }
+          pointMap[pts[i]] = ptId;
         }
         if (i == 0 || ptId != updatedPts[numNewPts - 1])
         {
@@ -532,23 +534,24 @@ int vtkCleanPolyData::RequestData(vtkInformation* vtkNotUsed(request),
       {
         inPts->GetPoint(pts[i], x);
         this->OperateOnPoint(x, newx);
-        if (!this->PointMerging)
+        if ((ptId = pointMap[pts[i]]) == -1)
         {
-          if ((ptId = pointMap[pts[i]]) == -1)
+          if (!this->PointMerging)
           {
-            pointMap[pts[i]] = ptId = numUsedPts++;
+            ptId = numUsedPts++;
             newPts->SetPoint(ptId, newx);
             outputPD->CopyData(inputPD, pts[i], ptId);
           }
-        }
-        else
-        {
-          this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
-          if (this->IsPrimaryPoint(input, pts[i]) || !this->IsPointDataAlreadyCopied(ptId))
+          else
           {
-            this->CopiedPoints.insert(ptId);
-            outputPD->CopyData(inputPD, pts[i], ptId);
+            this->InsertUniquePoint(globalIdsArray, pts[i], newPts, addedGlobalIdsMap, newx, ptId);
+            if (this->IsPrimaryPoint(input, pts[i]) || !this->IsPointDataAlreadyCopied(ptId))
+            {
+              this->CopiedPoints.insert(ptId);
+              outputPD->CopyData(inputPD, pts[i], ptId);
+            }
           }
+          pointMap[pts[i]] = ptId;
         }
         if (i == 0 || ptId != updatedPts[numNewPts - 1])
         {

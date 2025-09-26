@@ -148,8 +148,11 @@ public:
   ///@{
   /**
    * Determine whether point given by x[3] has been inserted into points list.
-   * Return id of previously inserted point if this is true, otherwise return
-   * -1. This method is thread safe.
+   * Return an id of a previously inserted point within tolerance if any
+   * otherwise return -1. If tolerance is 0, the returned id is the one returned
+   * at insertion. If tolerance > 0, it may not be the id of the closest point nor
+   * the same id returned at insertion.
+   * This method is thread safe.
    */
   vtkIdType IsInsertedPoint(double x, double y, double z) override
   {
@@ -177,6 +180,8 @@ public:
    * Given a position x, return the id of the point closest to it. This method
    * is used when performing incremental point insertion. Note that -1
    * indicates that no point was found.
+   * Note that the id may not be the same id returned at insertion of x when
+   * tolerance > 0.
    * This method is thread safe if BuildLocator() is directly or
    * indirectly called from a single thread first.
    */

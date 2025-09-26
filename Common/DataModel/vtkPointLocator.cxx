@@ -967,7 +967,7 @@ void vtkPointLocator::GetBucketNeighbors(
 
 //------------------------------------------------------------------------------
 // Internal method to find those buckets that are within distance specified
-// only those buckets outside of level radiuses of ijk are returned
+// only those buckets within level radiuses of ijk are returned
 void vtkPointLocator::GetOverlappingBuckets(
   vtkNeighborPoints* buckets, const double x[3], const int ijk[3], double dist, int level)
 {
@@ -1010,7 +1010,7 @@ void vtkPointLocator::GetOverlappingBuckets(
 
 //------------------------------------------------------------------------------
 // Internal method to find those buckets that are within distance specified
-// only those buckets outside of level radiuses of ijk are returned
+// only those buckets within level radiuses of ijk are returned
 void vtkPointLocator::GetOverlappingBuckets(vtkNeighborPoints* buckets, const double x[3],
   double dist, int prevMinLevel[3], int prevMaxLevel[3])
 {

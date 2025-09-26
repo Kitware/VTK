@@ -196,6 +196,40 @@ vtkSmartPointer<vtkPolyData> ConstructStrips()
   return polydata;
 }
 
+vtkSmartPointer<vtkPolyData> ConstructDome()
+{
+  vtkIdType ptIds[4];
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  points->InsertNextPoint(0.0, 0.0, 1.0);
+  points->InsertNextPoint(0.866025, 0.0, 0.5);
+  points->InsertNextPoint(5.30288e-17, 0.866025, 0.5);
+  points->InsertNextPoint(-0.866025, 1.06058e-16, 0.5);
+  points->InsertNextPoint(-1.59086e-16, -0.866025, 0.5);
+
+  vtkSmartPointer<vtkCellArray> polys = vtkSmartPointer<vtkCellArray>::New();
+
+  ptIds[0] = 1;
+  ptIds[1] = 2;
+  ptIds[2] = 0;
+  polys->InsertNextCell(3, ptIds);
+
+  ptIds[0] = 2;
+  ptIds[1] = 3;
+  ptIds[2] = 0;
+  polys->InsertNextCell(3, ptIds);
+
+  ptIds[0] = 3;
+  ptIds[1] = 4;
+  ptIds[2] = 0;
+  polys->InsertNextCell(3, ptIds);
+
+  vtkSmartPointer<vtkPolyData> polydata = vtkSmartPointer<vtkPolyData>::New();
+  polydata->SetPoints(points);
+  polydata->SetPolys(polys);
+
+  return polydata;
+}
+
 bool UpdateAndTestCleanPolyData(vtkSmartPointer<vtkCleanPolyData> clean, int numExpectedPoints,
   int numExpectedVertices, int numExpectedLines, int numExpectedPolys, int numExpectedStrips)
 {
@@ -338,6 +372,19 @@ int TestCleanPolyData2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   clean->SetInputData(strips);
   if (!UpdateAndTestCleanPolyData(clean, 4, 0, 0, 0, 1))
+  {
+    return EXIT_FAILURE;
+  }
+
+  // Now test large tolerance
+  auto dome = ConstructDome();
+  clean->ConvertLinesToPointsOn();
+  clean->ConvertPolysToLinesOn();
+  clean->ConvertStripsToPolysOn();
+  clean->ToleranceIsAbsoluteOn();
+  clean->SetAbsoluteTolerance(1.1);
+  clean->SetInputData(dome);
+  if (!UpdateAndTestCleanPolyData(clean, 4, 0, 2, 1, 0))
   {
     return EXIT_FAILURE;
   }
