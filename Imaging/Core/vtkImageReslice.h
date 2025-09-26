@@ -311,7 +311,7 @@ public:
 
   ///@{
   /**
-   * Set a value to add to all the output voxels.
+   * Set a value to add to all the output voxels. Default 0.0.
    * After a sample value has been interpolated from the input image, the
    * equation u = (v + ScalarShift)*ScalarScale will be applied to it before
    * it is written to the output image.  The result will always be clamped to
@@ -323,7 +323,7 @@ public:
 
   ///@{
   /**
-   * Set multiplication factor to apply to all the output voxels.
+   * Set multiplication factor to apply to all the output voxels. Default 1.0.
    * After a sample value has been interpolated from the input image, the
    * equation u = (v + ScalarShift)*ScalarScale will be applied to it before
    * it is written to the output image.  The result will always be clamped to
@@ -350,7 +350,10 @@ public:
 
   ///@{
   /**
-   * Set the background color (for multi-component images).
+   * Set the background values for multi-component images. Default (0,0,0,0).
+   * These values will be cast to the output type.  If the output is 8-bit
+   * RGB or RGBA, then use values from 0 to 255.  When there are more than
+   * four components, zero is used for components past the fourth component.
    */
   vtkSetVector4Macro(BackgroundColor, double);
   vtkGetVector4Macro(BackgroundColor, double);

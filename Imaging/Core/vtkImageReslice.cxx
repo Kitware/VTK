@@ -101,7 +101,7 @@ vtkImageReslice::vtkImageReslice()
   this->ScalarShift = 0.0;
   this->ScalarScale = 1.0;
 
-  // default black background
+  // default black background (see documentation for SetBackground)
   this->BackgroundColor[0] = 0;
   this->BackgroundColor[1] = 0;
   this->BackgroundColor[2] = 0;
@@ -1818,9 +1818,9 @@ void vtkGetSetPixelsFunc(void (**setpixels)(void*& out, const void* in, int nums
 }
 
 //------------------------------------------------------------------------------
-// Convert background color from double to appropriate type
+// Convert background color from double to appropriate (templated) type
 template <class T>
-void vtkCopyBackgroundColor(double dcolor[4], T* background, int numComponents)
+void vtkCopyBackgroundColor(const double dcolor[4], T* background, int numComponents)
 {
   int c = (numComponents < 4 ? numComponents : 4);
   for (int i = 0; i < c; ++i)
@@ -3221,7 +3221,7 @@ int vtkImageReslice::RequestData(
 }
 
 //------------------------------------------------------------------------------
-// This method is passed a input and output region, and executes the filter
+// This method is passed an input and output region, and executes the filter
 // algorithm to fill the output from the input.
 // It just executes a switch statement to call the correct function for
 // the regions data types.

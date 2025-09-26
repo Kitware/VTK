@@ -40,7 +40,8 @@ public:
    * VectorMode, and VectorComponents of the table to control
    * the mapping of the input data to colors.  If any output
    * voxel is transformed to a point outside the input volume,
-   * then that voxel will be set to the BackgroundColor.
+   * then that voxel will be set to the BackgroundColor
+   * (a property from the superclass).
    */
   virtual void SetLookupTable(vtkScalarsToColors* table);
   vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
