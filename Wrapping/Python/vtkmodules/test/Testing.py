@@ -3,15 +3,15 @@ unittests.  The module uses unittest for the test interface.  For more
 documentation on what unittests are and how to use them, please read
 these:
 
-   http://www.python.org/doc/current/lib/module-unittest.html
+   https://docs.python.org/3/library/unittest.html
 
-   http://www.diveintopython.org/roman_divein.html
+   https://diveintopython3.net/unit-testing.html
 
 
 This VTK-Python test module supports image based tests with multiple
 images per test suite and multiple images per individual test as well.
 It also prints information appropriate for CDash
-(http://open.kitware.com/).
+(https://www.cdash.org/).
 
 This module defines several useful classes and functions to make
 writing tests easy.  The most important of these are:
