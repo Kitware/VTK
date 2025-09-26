@@ -960,7 +960,7 @@ int vtkCanUseNearestNeighbor(vtkMatrix4x4* matrix, int outExt[6])
 //------------------------------------------------------------------------------
 // check a matrix to see whether it is the identity matrix
 
-int vtkIsIdentityMatrix(vtkMatrix4x4* matrix)
+bool vtkIsIdentityMatrix(vtkMatrix4x4* matrix)
 {
   static double identity[16] = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
   int i, j;
@@ -971,11 +971,11 @@ int vtkIsIdentityMatrix(vtkMatrix4x4* matrix)
     {
       if (matrix->GetElement(i, j) != identity[4 * i + j])
       {
-        return 0;
+        return false;
       }
     }
   }
-  return 1;
+  return true;
 }
 
 //------------------------------------------------------------------------------
@@ -3053,7 +3053,7 @@ vtkMatrix4x4* vtkImageReslice::GetIndexMatrix(vtkInformation* inInfo, vtkInforma
     this->IndexMatrix = vtkMatrix4x4::New();
   }
 
-  int isIdentity = 0;
+  bool isIdentity = false;
   double inDirection[9];
   double inInvDirection[9];
   double inOrigin[3];

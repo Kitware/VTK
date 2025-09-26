@@ -63,7 +63,7 @@ public:
    * values directly.  The output values will be float, rather
    * than the input data type.
    */
-  void SetBypass(int bypass);
+  void SetBypass(vtkTypeBool bypass);
   void BypassOn() { this->SetBypass(1); }
   void BypassOff() { this->SetBypass(0); }
   int GetBypass() { return this->Bypass; }
@@ -81,7 +81,7 @@ protected:
   vtkScalarsToColors* LookupTable;
   vtkScalarsToColors* DefaultLookupTable;
   int OutputFormat;
-  int Bypass;
+  vtkTypeBool Bypass;
 
   int ConvertScalarInfo(int& scalarType, int& numComponents) override;
 

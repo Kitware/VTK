@@ -455,7 +455,7 @@ public:
    * You should not use these methods if you use the SetInterpolationMode
    * methods.
    */
-  void SetInterpolate(int t)
+  void SetInterpolate(vtkTypeBool t)
   {
     if (t && !this->GetInterpolate())
     {
@@ -468,7 +468,7 @@ public:
   }
   void InterpolateOn() { this->SetInterpolate(1); }
   void InterpolateOff() { this->SetInterpolate(0); }
-  int GetInterpolate() { return (this->GetInterpolationMode() != VTK_RESLICE_NEAREST); }
+  vtkTypeBool GetInterpolate() { return (this->GetInterpolationMode() != VTK_RESLICE_NEAREST); }
   ///@}
 
   ///@{
@@ -531,12 +531,12 @@ protected:
   int OutputDimensionality;
   vtkTypeBool TransformInputSampling;
   vtkTypeBool AutoCropOutput;
-  int HitInputExtent;
-  int UsePermuteExecute;
-  int ComputeOutputSpacing;
+  vtkTypeBool HitInputExtent;
+  vtkTypeBool UsePermuteExecute;
+  vtkTypeBool ComputeOutputSpacing;
   bool PassDirectionToOutput;
-  int ComputeOutputOrigin;
-  int ComputeOutputExtent;
+  vtkTypeBool ComputeOutputOrigin;
+  vtkTypeBool ComputeOutputExtent;
   vtkTypeBool GenerateStencilOutput;
 
   vtkMatrix4x4* IndexMatrix;
