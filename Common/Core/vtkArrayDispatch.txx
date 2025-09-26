@@ -13,7 +13,7 @@
 #include <utility> // For std::forward
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkDataArray;
+class vtkAbstractArray;
 VTK_ABI_NAMESPACE_END
 
 namespace vtkArrayDispatch
@@ -93,10 +93,10 @@ struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
   static constexpr int GetCompactArrayIndex(int arrayIndex) { return CompactArrayMap[arrayIndex]; }
 
   template <typename Worker, typename... Params>
-  using DispatchFunction = bool (*)(vtkDataArray* inArray, Worker&& worker, Params&&... params);
+  using DispatchFunction = bool (*)(vtkAbstractArray* inArray, Worker&& worker, Params&&... params);
 
   template <typename TArrayList, typename Worker, typename... Params>
-  static bool ExecuteUnknown(vtkDataArray* inArray, Worker&& worker, Params&&... params)
+  static bool ExecuteUnknown(vtkAbstractArray* inArray, Worker&& worker, Params&&... params)
   {
     if constexpr (!std::is_same_v<TArrayList, vtkTypeList::NullType>)
     {
@@ -122,7 +122,7 @@ struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
   }
 
   template <typename TArrayType, typename Worker, typename... Params>
-  static constexpr bool ExecuteKnown(vtkDataArray* inArray, Worker&& worker, Params&&... params)
+  static constexpr bool ExecuteKnown(vtkAbstractArray* inArray, Worker&& worker, Params&&... params)
   {
     worker(static_cast<TArrayType*>(inArray), std::forward<Params>(params)...);
     return true;
@@ -157,7 +157,7 @@ struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
   }
 
   template <typename Worker, typename... Params>
-  static bool Execute(vtkDataArray* inArray, Worker&& worker, Params&&... params)
+  static bool Execute(vtkAbstractArray* inArray, Worker&& worker, Params&&... params)
   {
     // Check for null arrays
     if (VTK_UNLIKELY(!inArray))
@@ -215,11 +215,11 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Worker, typename... Params>
   using Dispatch2Function = bool (*)(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params);
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params);
 
   template <typename Array1Type, typename Array2List, typename Worker, typename... Params>
   static constexpr bool ExecuteUnknown2(
-    Array1Type* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    Array1Type* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     if constexpr (!std::is_same_v<Array2List, vtkTypeList::NullType>)
     {
@@ -246,7 +246,7 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Array1List, typename Array2List, typename Worker, typename... Params>
   static constexpr bool ExecuteUnknown1(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     if constexpr (!std::is_same_v<Array1List, vtkTypeList::NullType>)
     {
@@ -273,7 +273,7 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Array1List, typename Array2List, typename Worker, typename... Params>
   static bool ExecuteUnknown(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     return ExecuteUnknown1<Array1List, Array2List>(
       array1, array2, std::forward<Worker>(worker), std::forward<Params>(params)...);
@@ -281,7 +281,7 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Array1Type, typename Array2Type, typename Worker, typename... Params>
   static constexpr bool ExecuteKnown(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     worker(static_cast<Array1Type*>(array1), static_cast<Array2Type*>(array2),
       std::forward<Params>(params)...);
@@ -346,7 +346,7 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Worker, typename... Params>
   static bool Execute(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     // Check for null arrays
     if (VTK_UNLIKELY(!array1 || !array2))
@@ -408,11 +408,11 @@ struct Dispatch2Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Worker, typename... Params>
   using Dispatch2Function = bool (*)(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params);
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params);
 
   template <typename Array1Type, typename Array2List, typename Worker, typename... Params>
   static constexpr bool ExecuteUnknown2(
-    Array1Type* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    Array1Type* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     if constexpr (!std::is_same_v<Array2List, vtkTypeList::NullType>)
     {
@@ -439,7 +439,7 @@ struct Dispatch2Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Array1List, typename Array2List, typename Worker, typename... Params>
   static constexpr bool ExecuteUnknown1(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     if constexpr (!std::is_same_v<Array1List, vtkTypeList::NullType>)
     {
@@ -470,7 +470,7 @@ struct Dispatch2Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Array1List, typename Array2List, typename Worker, typename... Params>
   static bool ExecuteUnknown(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     return ExecuteUnknown1<Array1List, Array2List>(
       array1, array2, std::forward<Worker>(worker), std::forward<Params>(params)...);
@@ -478,7 +478,7 @@ struct Dispatch2Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Array1Type, typename Array2Type, typename Worker, typename... Params>
   static constexpr bool ExecuteKnown(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     static_assert(
       std::is_same_v<typename Array1Type::DataTypeTag, typename Array2Type::DataTypeTag>,
@@ -550,7 +550,7 @@ struct Dispatch2Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Worker, typename... Params>
   static bool Execute(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     // Check for null arrays and that both have same ValueType
     if (VTK_UNLIKELY(
@@ -623,14 +623,14 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   }
 
   template <typename Worker, typename... Params>
-  using Dispatch3Function = bool (*)(vtkDataArray* array1, vtkDataArray* array2,
-    vtkDataArray* array3, Worker&& worker, Params&&... params);
+  using Dispatch3Function = bool (*)(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    vtkAbstractArray* array3, Worker&& worker, Params&&... params);
 
   // Unknown execution: try types from Array3List for a fixed Array1Type and Array2Type
   template <typename Array1Type, typename Array2Type, typename Array3ListT, typename Worker,
     typename... Params>
   static constexpr bool ExecuteUnknown3(Array1Type* array1, Array2Type* array2,
-    vtkDataArray* array3, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array3, Worker&& worker, Params&&... params)
   {
     if constexpr (!std::is_same_v<Array3ListT, vtkTypeList::NullType>)
     {
@@ -658,8 +658,8 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   // Unknown execution: try types from Array2List for a fixed Array1Type
   template <typename Array1Type, typename Array2ListT, typename Array3ListT, typename Worker,
     typename... Params>
-  static constexpr bool ExecuteUnknown2(Array1Type* array1, vtkDataArray* array2,
-    vtkDataArray* array3, Worker&& worker, Params&&... params)
+  static constexpr bool ExecuteUnknown2(Array1Type* array1, vtkAbstractArray* array2,
+    vtkAbstractArray* array3, Worker&& worker, Params&&... params)
   {
     if constexpr (!std::is_same_v<Array2ListT, vtkTypeList::NullType>)
     {
@@ -687,8 +687,8 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   // Unknown execution: try types from Array1List
   template <typename Array1ListT, typename Array2ListT, typename Array3ListT, typename Worker,
     typename... Params>
-  static constexpr bool ExecuteUnknown1(vtkDataArray* array1, vtkDataArray* array2,
-    vtkDataArray* array3, Worker&& worker, Params&&... params)
+  static constexpr bool ExecuteUnknown1(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    vtkAbstractArray* array3, Worker&& worker, Params&&... params)
   {
     if constexpr (!std::is_same_v<Array1ListT, vtkTypeList::NullType>)
     {
@@ -715,8 +715,8 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Array1ListT, typename Array2ListT, typename Array3ListT, typename Worker,
     typename... Params>
-  static bool ExecuteUnknown(vtkDataArray* array1, vtkDataArray* array2, vtkDataArray* array3,
-    Worker&& worker, Params&&... params)
+  static bool ExecuteUnknown(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    vtkAbstractArray* array3, Worker&& worker, Params&&... params)
   {
     return ExecuteUnknown1<Array1ListT, Array2ListT, Array3ListT>(
       array1, array2, array3, std::forward<Worker>(worker), std::forward<Params>(params)...);
@@ -724,8 +724,8 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Array1Type, typename Array2Type, typename Array3Type, typename Worker,
     typename... Params>
-  static constexpr bool ExecuteKnown(vtkDataArray* array1, vtkDataArray* array2,
-    vtkDataArray* array3, Worker&& worker, Params&&... params)
+  static constexpr bool ExecuteKnown(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    vtkAbstractArray* array3, Worker&& worker, Params&&... params)
   {
     worker(static_cast<Array1Type*>(array1), static_cast<Array2Type*>(array2),
       static_cast<Array3Type*>(array3), std::forward<Params>(params)...);
@@ -813,7 +813,7 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   }
 
   template <typename Worker, typename... Params>
-  static bool Execute(vtkDataArray* array1, vtkDataArray* array2, vtkDataArray* array3,
+  static bool Execute(vtkAbstractArray* array1, vtkAbstractArray* array2, vtkAbstractArray* array3,
     Worker&& worker, Params&&... params)
   {
     // Check for null arrays
@@ -891,15 +891,15 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   }
 
   template <typename Worker, typename... Params>
-  using Dispatch3Function = bool (*)(vtkDataArray* array1, vtkDataArray* array2,
-    vtkDataArray* array3, Worker&& worker, Params&&... params);
+  using Dispatch3Function = bool (*)(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    vtkAbstractArray* array3, Worker&& worker, Params&&... params);
 
   // Unknown execution: try array3 types with fixed Array1Type and Array2Type,
   // but ensure same ValueType (filtering happens upstream).
   template <typename Array1Type, typename Array2Type, typename Array3ListT, typename Worker,
     typename... Params>
   static constexpr bool ExecuteUnknown3(Array1Type* array1, Array2Type* array2,
-    vtkDataArray* array3, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array3, Worker&& worker, Params&&... params)
   {
     if constexpr (!std::is_same_v<Array3ListT, vtkTypeList::NullType>)
     {
@@ -934,8 +934,8 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   // to same ValueType as Array1Type.
   template <typename Array1Type, typename Array2ListT, typename Array3ListT, typename Worker,
     typename... Params>
-  static constexpr bool ExecuteUnknown2(Array1Type* array1, vtkDataArray* array2,
-    vtkDataArray* array3, Worker&& worker, Params&&... params)
+  static constexpr bool ExecuteUnknown2(Array1Type* array1, vtkAbstractArray* array2,
+    vtkAbstractArray* array3, Worker&& worker, Params&&... params)
   {
     if constexpr (!std::is_same_v<Array2ListT, vtkTypeList::NullType>)
     {
@@ -968,8 +968,8 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   // and Array3List to matching ValueType.
   template <typename Array1ListT, typename Array2ListT, typename Array3ListT, typename Worker,
     typename... Params>
-  static constexpr bool ExecuteUnknown1(vtkDataArray* array1, vtkDataArray* array2,
-    vtkDataArray* array3, Worker&& worker, Params&&... params)
+  static constexpr bool ExecuteUnknown1(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    vtkAbstractArray* array3, Worker&& worker, Params&&... params)
   {
     if constexpr (!std::is_same_v<Array1ListT, vtkTypeList::NullType>)
     {
@@ -1001,8 +1001,8 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Array1ListT, typename Array2ListT, typename Array3ListT, typename Worker,
     typename... Params>
-  static bool ExecuteUnknown(vtkDataArray* array1, vtkDataArray* array2, vtkDataArray* array3,
-    Worker&& worker, Params&&... params)
+  static bool ExecuteUnknown(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    vtkAbstractArray* array3, Worker&& worker, Params&&... params)
   {
     return ExecuteUnknown1<Array1ListT, Array2ListT, Array3ListT>(
       array1, array2, array3, std::forward<Worker>(worker), std::forward<Params>(params)...);
@@ -1010,8 +1010,8 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
 
   template <typename Array1Type, typename Array2Type, typename Array3Type, typename Worker,
     typename... Params>
-  static constexpr bool ExecuteKnown(vtkDataArray* array1, vtkDataArray* array2,
-    vtkDataArray* array3, Worker&& worker, Params&&... params)
+  static constexpr bool ExecuteKnown(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    vtkAbstractArray* array3, Worker&& worker, Params&&... params)
   {
     static_assert(
       std::is_same_v<typename Array1Type::DataTypeTag, typename Array2Type::DataTypeTag>,
@@ -1118,7 +1118,7 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   }
 
   template <typename Worker, typename... Params>
-  static bool Execute(vtkDataArray* array1, vtkDataArray* array2, vtkDataArray* array3,
+  static bool Execute(vtkAbstractArray* array1, vtkAbstractArray* array2, vtkAbstractArray* array3,
     Worker&& worker, Params&&... params)
   {
     // Check for null arrays and that all have same ValueType
@@ -1255,7 +1255,7 @@ private:
 
 public:
   template <typename Worker, typename... Params>
-  static bool Execute(vtkDataArray* inArray, Worker&& worker, Params&&... params)
+  static bool Execute(vtkAbstractArray* inArray, Worker&& worker, Params&&... params)
   {
     return ArrayDispatcher::Execute(
       inArray, std::forward<Worker>(worker), std::forward<Params>(params)...);
@@ -1286,7 +1286,7 @@ private:
 
 public:
   template <typename Worker, typename... Params>
-  static bool Execute(vtkDataArray* inArray, Worker&& worker, Params&&... params)
+  static bool Execute(vtkAbstractArray* inArray, Worker&& worker, Params&&... params)
   {
     return ArrayDispatcher::Execute(
       inArray, std::forward<Worker>(worker), std::forward<Params>(params)...);
@@ -1324,7 +1324,7 @@ private:
 public:
   template <typename Worker, typename... Params>
   static bool Execute(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     return ArrayDispatcher::Execute(
       array1, array2, std::forward<Worker>(worker), std::forward<Params>(params)...);
@@ -1358,7 +1358,7 @@ private:
 public:
   template <typename Worker, typename... Params>
   static bool Execute(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     return ArrayDispatcher::Execute(
       array1, array2, std::forward<Worker>(worker), std::forward<Params>(params)...);
@@ -1397,7 +1397,7 @@ private:
 public:
   template <typename Worker, typename... Params>
   static bool Execute(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     return Dispatcher::Execute(
       array1, array2, std::forward<Worker>(worker), std::forward<Params>(params)...);
@@ -1436,7 +1436,7 @@ private:
 public:
   template <typename Worker, typename... Params>
   static bool Execute(
-    vtkDataArray* array1, vtkDataArray* array2, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
   {
     return Dispatcher::Execute(
       array1, array2, std::forward<Worker>(worker), std::forward<Params>(params)...);
@@ -1477,7 +1477,7 @@ private:
 
 public:
   template <typename Worker, typename... Params>
-  static bool Execute(vtkDataArray* array1, vtkDataArray* array2, vtkDataArray* array3,
+  static bool Execute(vtkAbstractArray* array1, vtkAbstractArray* array2, vtkAbstractArray* array3,
     Worker&& worker, Params&&... params)
   {
     return ArrayDispatcher::Execute(
@@ -1515,7 +1515,7 @@ private:
 
 public:
   template <typename Worker, typename... Params>
-  static bool Execute(vtkDataArray* array1, vtkDataArray* array2, vtkDataArray* array3,
+  static bool Execute(vtkAbstractArray* array1, vtkAbstractArray* array2, vtkAbstractArray* array3,
     Worker&& worker, Params&&... params)
   {
     return ArrayDispatcher::Execute(
@@ -1557,7 +1557,7 @@ private:
 
 public:
   template <typename Worker, typename... Params>
-  static bool Execute(vtkDataArray* array1, vtkDataArray* array2, vtkDataArray* array3,
+  static bool Execute(vtkAbstractArray* array1, vtkAbstractArray* array2, vtkAbstractArray* array3,
     Worker&& worker, Params&&... params)
   {
     return Dispatcher::Execute(
@@ -1598,7 +1598,7 @@ private:
 
 public:
   template <typename Worker, typename... Params>
-  static bool Execute(vtkDataArray* array1, vtkDataArray* array2, vtkDataArray* array3,
+  static bool Execute(vtkAbstractArray* array1, vtkAbstractArray* array2, vtkAbstractArray* array3,
     Worker&& worker, Params&&... params)
   {
     return Dispatcher::Execute(
