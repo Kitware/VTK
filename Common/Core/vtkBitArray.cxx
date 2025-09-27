@@ -90,7 +90,7 @@ void vtkBitArray::InitializeUnusedBitsInLastByte()
 }
 
 //------------------------------------------------------------------------------
-unsigned char* vtkBitArray::WritePointer(vtkIdType id, vtkIdType number)
+vtkBitArray::ValueType* vtkBitArray::WritePointer(vtkIdType id, vtkIdType number)
 {
   vtkIdType newSize = id + number;
   if (newSize > this->Size)
@@ -113,7 +113,7 @@ unsigned char* vtkBitArray::WritePointer(vtkIdType id, vtkIdType number)
 // from deleting the array when it cleans up or reallocates memory.
 // The class uses the actual array provided; it does not copy the data
 // from the supplied array.
-void vtkBitArray::SetArray(unsigned char* array, vtkIdType size, int save, int deleteMethod)
+void vtkBitArray::SetArray(ValueType* array, vtkIdType size, int save, int deleteMethod)
 {
   if ((this->Array) && (this->DeleteFunction))
   {
@@ -180,8 +180,10 @@ vtkTypeBool vtkBitArray::Allocate(vtkIdType sz, vtkIdType vtkNotUsed(ext))
       this->DeleteFunction(this->Array);
     }
     this->Size = (sz > 0 ? sz : 1);
-    if ((this->Array = new unsigned char[(this->Size + 7) / 8]) == nullptr)
+    this->Array = new ValueType[(this->Size + 7) / 8];
+    if (this->Array == nullptr)
     {
+      vtkErrorMacro(<< "Cannot allocate memory\n");
       return 0;
     }
     this->DeleteFunction = ::operator delete[];
@@ -245,9 +247,9 @@ void vtkBitArray::DeepCopy(vtkDataArray* ia)
     this->Size = ia->GetSize();
     this->DeleteFunction = ::operator delete[];
 
-    this->Array = new unsigned char[(this->Size + 7) / 8];
-    memcpy(this->Array, static_cast<unsigned char*>(ia->GetVoidPointer(0)),
-      static_cast<size_t>((this->Size + 7) / 8) * sizeof(unsigned char));
+    this->Array = new ValueType[(this->Size + 7) / 8];
+    memcpy(this->Array, static_cast<ValueType*>(ia->GetVoidPointer(0)),
+      static_cast<size_t>((this->Size + 7) / 8) * sizeof(ValueType));
   }
 }
 
@@ -269,9 +271,8 @@ void vtkBitArray::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 // Private function does "reallocate". Sz is the number of "bits", and we
 // can allocate only 8-bit bytes.
-unsigned char* vtkBitArray::ResizeAndExtend(vtkIdType sz)
+vtkBitArray::ValueType* vtkBitArray::ResizeAndExtend(vtkIdType sz)
 {
-  unsigned char* newArray;
   vtkIdType newSize;
 
   if (sz > this->Size)
@@ -293,7 +294,8 @@ unsigned char* vtkBitArray::ResizeAndExtend(vtkIdType sz)
     return nullptr;
   }
 
-  if ((newArray = new unsigned char[(newSize + 7) / 8]) == nullptr)
+  ValueType* newArray = new ValueType[(newSize + 7) / 8];
+  if (newArray == nullptr)
   {
     vtkErrorMacro(<< "Cannot allocate memory\n");
     return nullptr;
@@ -303,7 +305,7 @@ unsigned char* vtkBitArray::ResizeAndExtend(vtkIdType sz)
   {
     vtkIdType usedSize = (sz < this->Size) ? sz : this->Size;
 
-    memcpy(newArray, this->Array, static_cast<size_t>((usedSize + 7) / 8) * sizeof(unsigned char));
+    memcpy(newArray, this->Array, static_cast<size_t>((usedSize + 7) / 8) * sizeof(ValueType));
     if (this->DeleteFunction)
     {
       this->DeleteFunction(this->Array);
@@ -326,7 +328,6 @@ unsigned char* vtkBitArray::ResizeAndExtend(vtkIdType sz)
 //------------------------------------------------------------------------------
 vtkTypeBool vtkBitArray::Resize(vtkIdType sz)
 {
-  unsigned char* newArray;
   vtkIdType newSize = sz * this->NumberOfComponents;
 
   if (newSize == this->Size)
@@ -340,7 +341,8 @@ vtkTypeBool vtkBitArray::Resize(vtkIdType sz)
     return 1;
   }
 
-  if ((newArray = new unsigned char[(newSize + 7) / 8]) == nullptr)
+  ValueType* newArray = new ValueType[(newSize + 7) / 8];
+  if (newArray == nullptr)
   {
     vtkErrorMacro(<< "Cannot allocate memory\n");
     return 0;
@@ -350,7 +352,7 @@ vtkTypeBool vtkBitArray::Resize(vtkIdType sz)
   {
     vtkIdType usedSize = (newSize < this->Size) ? newSize : this->Size;
 
-    memcpy(newArray, this->Array, static_cast<size_t>((usedSize + 7) / 8) * sizeof(unsigned char));
+    memcpy(newArray, this->Array, static_cast<size_t>((usedSize + 7) / 8) * sizeof(ValueType));
     if (this->DeleteFunction)
     {
       this->DeleteFunction(this->Array);

@@ -15,7 +15,6 @@
 #include "vtkArrayIteratorTemplate.h"
 #include "vtkCharArray.h"
 #include "vtkIdList.h"
-#include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
 #include "vtkSortDataArray.h"
@@ -106,7 +105,7 @@ vtkStringArray* vtkStringArray::FastDownCast(vtkAbstractArray* source)
 //------------------------------------------------------------------------------
 vtkArrayIterator* vtkStringArray::NewIterator()
 {
-  vtkArrayIteratorTemplate<vtkStdString>* iter = vtkArrayIteratorTemplate<vtkStdString>::New();
+  vtkArrayIteratorTemplate<ValueType>* iter = vtkArrayIteratorTemplate<ValueType>::New();
   iter->Initialize(this);
   return iter;
 }
@@ -118,7 +117,7 @@ vtkArrayIterator* vtkStringArray::NewIterator()
 // from deleting the array when it cleans up or reallocates memory.
 // The class uses the actual array provided; it does not copy the data
 // from the suppled array.
-void vtkStringArray::SetArray(vtkStdString* array, vtkIdType size, int save, int deleteMethod)
+void vtkStringArray::SetArray(ValueType* array, vtkIdType size, int save, int deleteMethod)
 {
   if (this->Array && this->DeleteFunction)
   {
@@ -179,7 +178,7 @@ vtkTypeBool vtkStringArray::Allocate(vtkIdType sz, vtkIdType)
     }
 
     this->Size = (sz > 0 ? sz : 1);
-    this->Array = new vtkStdString[this->Size];
+    this->Array = new ValueType[this->Size];
     if (!this->Array)
     {
       return 0;
@@ -279,7 +278,7 @@ void vtkStringArray::DeepCopy(vtkAbstractArray* aa)
   this->MaxId = fa->GetMaxId();
   this->Size = fa->GetSize();
   this->DeleteFunction = DefaultDeleteFunction;
-  this->Array = new vtkStdString[this->Size];
+  this->Array = new ValueType[this->Size];
 
   for (int i = 0; i < this->Size; ++i)
   {
@@ -369,9 +368,9 @@ void vtkStringArray::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 // Protected function does "reallocate"
 
-vtkStdString* vtkStringArray::ResizeAndExtend(vtkIdType sz)
+vtkStringArray::ValueType* vtkStringArray::ResizeAndExtend(vtkIdType sz)
 {
-  vtkStdString* newArray;
+  ValueType* newArray;
   vtkIdType newSize;
 
   if (sz > this->Size)
@@ -399,7 +398,7 @@ vtkStdString* vtkStringArray::ResizeAndExtend(vtkIdType sz)
     return nullptr;
   }
 
-  newArray = new vtkStdString[newSize];
+  newArray = new ValueType[newSize];
   if (!newArray)
   {
     vtkErrorMacro("Cannot allocate memory\n");
@@ -435,7 +434,7 @@ vtkStdString* vtkStringArray::ResizeAndExtend(vtkIdType sz)
 //------------------------------------------------------------------------------
 vtkTypeBool vtkStringArray::Resize(vtkIdType sz)
 {
-  vtkStdString* newArray;
+  ValueType* newArray;
   vtkIdType newSize = sz * this->NumberOfComponents;
 
   if (newSize == this->Size)
@@ -449,7 +448,7 @@ vtkTypeBool vtkStringArray::Resize(vtkIdType sz)
     return 1;
   }
 
-  newArray = new vtkStdString[newSize];
+  newArray = new ValueType[newSize];
   if (!newArray)
   {
     vtkErrorMacro(<< "Cannot allocate memory\n");
@@ -484,7 +483,7 @@ vtkTypeBool vtkStringArray::Resize(vtkIdType sz)
 }
 
 //------------------------------------------------------------------------------
-vtkStdString* vtkStringArray::WritePointer(vtkIdType id, vtkIdType number)
+vtkStringArray::ValueType* vtkStringArray::WritePointer(vtkIdType id, vtkIdType number)
 {
   vtkIdType newSize = id + number;
   if (newSize > this->Size)
@@ -500,7 +499,7 @@ vtkStdString* vtkStringArray::WritePointer(vtkIdType id, vtkIdType number)
 }
 
 //------------------------------------------------------------------------------
-void vtkStringArray::InsertValue(vtkIdType id, vtkStdString f)
+void vtkStringArray::InsertValue(vtkIdType id, ValueType f)
 {
   if (id >= this->Size)
   {
@@ -515,7 +514,7 @@ void vtkStringArray::InsertValue(vtkIdType id, vtkStdString f)
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkStringArray::InsertNextValue(vtkStdString f)
+vtkIdType vtkStringArray::InsertNextValue(ValueType f)
 {
   this->InsertValue(++this->MaxId, f);
   this->DataElementChanged(this->MaxId);
@@ -525,7 +524,7 @@ vtkIdType vtkStringArray::InsertNextValue(vtkStdString f)
 //------------------------------------------------------------------------------
 int vtkStringArray::GetDataTypeSize() const
 {
-  return static_cast<int>(sizeof(vtkStdString));
+  return static_cast<int>(sizeof(ValueType));
 }
 
 //------------------------------------------------------------------------------
@@ -536,8 +535,8 @@ unsigned long vtkStringArray::GetActualMemorySize() const
 
   for (size_t i = 0; i < numPrims; ++i)
   {
-    totalSize += sizeof(vtkStdString);
-    totalSize += this->Array[i].size() * sizeof(vtkStdString::value_type);
+    totalSize += sizeof(ValueType);
+    totalSize += this->Array[i].size() * sizeof(ValueType::value_type);
   }
 
   return static_cast<unsigned long>(ceil(static_cast<double>(totalSize) / 1024.0)); // kibibytes
@@ -732,12 +731,12 @@ vtkIdType vtkStringArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source)
 }
 
 //------------------------------------------------------------------------------
-const vtkStdString& vtkStringArray::GetValue(vtkIdType id) const
+const vtkStringArray::ValueType& vtkStringArray::GetValue(vtkIdType id) const
 {
   return this->Array[id];
 }
 
-vtkStdString& vtkStringArray::GetValue(vtkIdType id)
+vtkStringArray::ValueType& vtkStringArray::GetValue(vtkIdType id)
 {
   return this->Array[id];
 }
@@ -809,7 +808,7 @@ void vtkStringArray::UpdateLookup()
     this->Lookup->SortedArray->SetNumberOfComponents(numComps);
     this->Lookup->SortedArray->SetNumberOfTuples(numTuples);
     this->Lookup->IndexArray->SetNumberOfIds(numComps * numTuples);
-    std::vector<std::pair<vtkStdString, vtkIdType>> v;
+    std::vector<std::pair<ValueType, vtkIdType>> v;
     v.reserve(numComps * numTuples);
     for (vtkIdType i = 0; i < numComps * numTuples; i++)
     {
@@ -839,7 +838,7 @@ void vtkStringArray::LookupValue(vtkVariant var, vtkIdList* ids)
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkStringArray::LookupValue(const vtkStdString& value)
+vtkIdType vtkStringArray::LookupValue(const ValueType& value)
 {
   this->UpdateLookup();
 
@@ -858,7 +857,7 @@ vtkIdType vtkStringArray::LookupValue(const vtkStdString& value)
     if (value == cached->first)
     {
       // Check that the value in the original array hasn't changed.
-      vtkStdString currentValue = this->GetValue(cached->second);
+      ValueType currentValue = this->GetValue(cached->second);
       if (value == currentValue)
       {
         return cached->second;
@@ -874,9 +873,9 @@ vtkIdType vtkStringArray::LookupValue(const vtkStdString& value)
 
   int numComps = this->Lookup->SortedArray->GetNumberOfComponents();
   vtkIdType numTuples = this->Lookup->SortedArray->GetNumberOfTuples();
-  vtkStdString* ptr = this->Lookup->SortedArray->GetPointer(0);
-  vtkStdString* ptrEnd = ptr + numComps * numTuples;
-  vtkStdString* found = std::lower_bound(ptr, ptrEnd, value);
+  ValueType* ptr = this->Lookup->SortedArray->GetPointer(0);
+  ValueType* ptrEnd = ptr + numComps * numTuples;
+  ValueType* found = std::lower_bound(ptr, ptrEnd, value);
 
   // Find an index with a matching value. Non-matching values might
   // show up here when the underlying value at that index has been
@@ -890,7 +889,7 @@ vtkIdType vtkStringArray::LookupValue(const vtkStdString& value)
     {
       // Check that the value in the original array hasn't changed.
       vtkIdType index = this->Lookup->IndexArray->GetId(offset);
-      vtkStdString currentValue = this->GetValue(index);
+      ValueType currentValue = this->GetValue(index);
       if (value == currentValue)
       {
         return index;
@@ -909,7 +908,7 @@ vtkIdType vtkStringArray::LookupValue(const vtkStdString& value)
 }
 
 //------------------------------------------------------------------------------
-void vtkStringArray::LookupValue(const vtkStdString& value, vtkIdList* ids)
+void vtkStringArray::LookupValue(const ValueType& value, vtkIdList* ids)
 {
   this->UpdateLookup();
   ids->Reset();
@@ -924,7 +923,7 @@ void vtkStringArray::LookupValue(const vtkStdString& value, vtkIdList* ids)
   while (cached.first != cached.second)
   {
     // Check that the value in the original array hasn't changed.
-    vtkStdString currentValue = this->GetValue(cached.first->second);
+    ValueType currentValue = this->GetValue(cached.first->second);
     if (cached.first->first == currentValue)
     {
       ids->InsertNextId(cached.first->second);
@@ -936,8 +935,8 @@ void vtkStringArray::LookupValue(const vtkStdString& value, vtkIdList* ids)
   // Perform a binary search of the sorted array using STL equal_range.
   int numComps = this->GetNumberOfComponents();
   vtkIdType numTuples = this->GetNumberOfTuples();
-  vtkStdString* ptr = this->Lookup->SortedArray->GetPointer(0);
-  std::pair<vtkStdString*, vtkStdString*> found =
+  ValueType* ptr = this->Lookup->SortedArray->GetPointer(0);
+  std::pair<ValueType*, ValueType*> found =
     std::equal_range(ptr, ptr + numComps * numTuples, value);
 
   // Add the indices of the found items to the ID list.
@@ -946,7 +945,7 @@ void vtkStringArray::LookupValue(const vtkStdString& value, vtkIdList* ids)
   {
     // Check that the value in the original array hasn't changed.
     vtkIdType index = this->Lookup->IndexArray->GetId(offset);
-    vtkStdString currentValue = this->GetValue(index);
+    ValueType currentValue = this->GetValue(index);
     if (*found.first == currentValue)
     {
       ids->InsertNextId(index);
@@ -985,7 +984,7 @@ void vtkStringArray::DataElementChanged(vtkIdType id)
     else
     {
       // Insert this change into the set of cached updates
-      std::pair<const vtkStdString, vtkIdType> value(this->GetValue(id), id);
+      std::pair<const ValueType, vtkIdType> value(this->GetValue(id), id);
       this->Lookup->CachedUpdates.insert(value);
     }
   }
@@ -1003,7 +1002,7 @@ void vtkStringArray::ClearLookup()
 //
 //
 // Below here are interface methods to allow values to be inserted as
-// const char * instead of vtkStdString.  Yes, they're trivial.  The
+// const char * instead of ValueType.  Yes, they're trivial.  The
 // wrapper code needs them.
 //
 //
@@ -1012,7 +1011,7 @@ void vtkStringArray::SetValue(vtkIdType id, const char* value)
 {
   if (value)
   {
-    this->SetValue(id, vtkStdString(value));
+    this->SetValue(id, ValueType(value));
   }
 }
 
@@ -1020,7 +1019,7 @@ void vtkStringArray::InsertValue(vtkIdType id, const char* value)
 {
   if (value)
   {
-    this->InsertValue(id, vtkStdString(value));
+    this->InsertValue(id, ValueType(value));
   }
 }
 
@@ -1038,7 +1037,7 @@ vtkIdType vtkStringArray::InsertNextValue(const char* value)
 {
   if (value)
   {
-    return this->InsertNextValue(vtkStdString(value));
+    return this->InsertNextValue(ValueType(value));
   }
   return this->MaxId;
 }
@@ -1047,7 +1046,7 @@ vtkIdType vtkStringArray::LookupValue(const char* value)
 {
   if (value)
   {
-    return this->LookupValue(vtkStdString(value));
+    return this->LookupValue(ValueType(value));
   }
   return -1;
 }
@@ -1056,7 +1055,7 @@ void vtkStringArray::LookupValue(const char* value, vtkIdList* ids)
 {
   if (value)
   {
-    this->LookupValue(vtkStdString(value), ids);
+    this->LookupValue(ValueType(value), ids);
     return;
   }
   ids->Reset();

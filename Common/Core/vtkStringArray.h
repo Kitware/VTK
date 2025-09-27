@@ -35,6 +35,7 @@ public:
   };
   using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::StringArray>;
   using DataTypeTag = std::integral_constant<int, VTK_STRING>;
+  using ValueType = vtkStdString;
 
   static vtkStringArray* New();
   static vtkStringArray* ExtendedNew();
@@ -177,19 +178,19 @@ public:
   /**
    * Read-access of string at a particular index.
    */
-  const vtkStdString& GetValue(vtkIdType id) const
+  const ValueType& GetValue(vtkIdType id) const
     VTK_EXPECTS(0 <= id && id < this->GetNumberOfValues());
 
   /**
    * Get the string at a particular index.
    */
-  vtkStdString& GetValue(vtkIdType id) VTK_EXPECTS(0 <= id && id < this->GetNumberOfValues());
+  ValueType& GetValue(vtkIdType id) VTK_EXPECTS(0 <= id && id < this->GetNumberOfValues());
 
   /**
    * Set the data at a particular index. Does not do range checking. Make sure
    * you use the method SetNumberOfValues() before inserting data.
    */
-  void SetValue(vtkIdType id, vtkStdString value)
+  void SetValue(vtkIdType id, ValueType value)
     VTK_EXPECTS(0 <= id && id < this->GetNumberOfValues())
   {
     this->Array[id] = value;
@@ -216,13 +217,13 @@ public:
   int GetNumberOfElementComponents() { return 0; }
   int GetElementComponentSize() const override
   {
-    return static_cast<int>(sizeof(vtkStdString::value_type));
+    return static_cast<int>(sizeof(ValueType::value_type));
   }
 
   /**
    * Insert data at a specified position in the array.
    */
-  void InsertValue(vtkIdType id, vtkStdString f) VTK_EXPECTS(0 <= id);
+  void InsertValue(vtkIdType id, ValueType f) VTK_EXPECTS(0 <= id);
   void InsertValue(vtkIdType id, const char* val) VTK_EXPECTS(0 <= id) VTK_EXPECTS(val != nullptr);
 
   /**
@@ -240,7 +241,7 @@ public:
   /**
    * Insert data at the end of the array. Return its location in the array.
    */
-  vtkIdType InsertNextValue(vtkStdString f);
+  vtkIdType InsertNextValue(ValueType f);
   vtkIdType InsertNextValue(const char* f) VTK_EXPECTS(f != nullptr);
 
   /**
@@ -248,13 +249,13 @@ public:
    * for the number of items requested. Set MaxId according to the number of
    * data values requested.
    */
-  vtkStdString* WritePointer(vtkIdType id, vtkIdType number);
+  ValueType* WritePointer(vtkIdType id, vtkIdType number);
 
   /**
    * Get the address of a particular data index. Performs no checks
    * to verify that the memory has been allocated etc.
    */
-  vtkStdString* GetPointer(vtkIdType id) { return this->Array + id; }
+  ValueType* GetPointer(vtkIdType id) { return this->Array + id; }
   void* GetVoidPointer(vtkIdType id) override { return this->GetPointer(id); }
 
   /**
@@ -276,14 +277,14 @@ public:
    * if no custom function is assigned we will default to delete[].
    */
   void SetArray(
-    vtkStdString* array, vtkIdType size, int save, int deleteMethod = VTK_DATA_ARRAY_DELETE);
+    ValueType* array, vtkIdType size, int save, int deleteMethod = VTK_DATA_ARRAY_DELETE);
   void SetVoidArray(void* array, vtkIdType size, int save) override
   {
-    this->SetArray(static_cast<vtkStdString*>(array), size, save);
+    this->SetArray(static_cast<ValueType*>(array), size, save);
   }
   void SetVoidArray(void* array, vtkIdType size, int save, int deleteMethod) override
   {
-    this->SetArray(static_cast<vtkStdString*>(array), size, save, deleteMethod);
+    this->SetArray(static_cast<ValueType*>(array), size, save, deleteMethod);
   }
 
   /**
@@ -327,8 +328,8 @@ public:
   void LookupValue(vtkVariant value, vtkIdList* ids) override;
   ///@}
 
-  vtkIdType LookupValue(const vtkStdString& value);
-  void LookupValue(const vtkStdString& value, vtkIdList* ids);
+  vtkIdType LookupValue(const ValueType& value);
+  void LookupValue(const ValueType& value, vtkIdList* ids);
 
   vtkIdType LookupValue(const char* value);
   void LookupValue(const char* value, vtkIdList* ids);
@@ -361,8 +362,8 @@ protected:
   vtkStringArray();
   ~vtkStringArray() override;
 
-  vtkStdString* Array;                         // pointer to data
-  vtkStdString* ResizeAndExtend(vtkIdType sz); // function to resize data
+  ValueType* Array;                         // pointer to data
+  ValueType* ResizeAndExtend(vtkIdType sz); // function to resize data
 
   void (*DeleteFunction)(void*);
 

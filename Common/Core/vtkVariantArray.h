@@ -48,6 +48,7 @@ public:
   };
   using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VariantArray>;
   using DataTypeTag = std::integral_constant<int, VTK_VARIANT>;
+  using ValueType = vtkVariant;
 
   static vtkVariantArray* New();
   static vtkVariantArray* ExtendedNew();
@@ -243,13 +244,13 @@ public:
   /**
    * Get the data at a particular index.
    */
-  vtkVariant& GetValue(vtkIdType id) const;
+  ValueType& GetValue(vtkIdType id) const;
 
   /**
    * Set the data at a particular index. Does not do range checking. Make sure
    * you use the method SetNumberOfValues() before inserting data.
    */
-  void SetValue(vtkIdType id, vtkVariant value)
+  void SetValue(vtkIdType id, ValueType value)
     VTK_EXPECTS(0 <= id && id < this->GetNumberOfValues());
 
   /**
@@ -257,23 +258,23 @@ public:
    * If id >= GetNumberOfValues(), expand the array size to id+1
    * and set the final value to the specified value.
    */
-  void InsertValue(vtkIdType id, vtkVariant value) VTK_EXPECTS(0 <= id);
+  void InsertValue(vtkIdType id, ValueType value) VTK_EXPECTS(0 <= id);
 
   /**
    * Insert a value into the array from a variant.
    */
-  void SetVariantValue(vtkIdType idx, vtkVariant value) override;
+  void SetVariantValue(vtkIdType idx, ValueType value) override;
 
   /**
    * Safely insert a value into the array from a variant.
    */
-  void InsertVariantValue(vtkIdType idx, vtkVariant value) override;
+  void InsertVariantValue(vtkIdType idx, ValueType value) override;
 
   /**
    * Expand the array by one and set the value at that location.
    * Return the array index of the inserted value.
    */
-  vtkIdType InsertNextValue(vtkVariant value);
+  vtkIdType InsertNextValue(ValueType value);
 
   /**
    * Return a pointer to the location in the internal array at the specified index.
@@ -283,8 +284,7 @@ public:
   /**
    * Set the internal array used by this object.
    */
-  void SetArray(
-    vtkVariant* arr, vtkIdType size, int save, int deleteMethod = VTK_DATA_ARRAY_DELETE);
+  void SetArray(ValueType* arr, vtkIdType size, int save, int deleteMethod = VTK_DATA_ARRAY_DELETE);
 
   /**
    * This method allows the user to specify a custom free function to be
@@ -303,8 +303,8 @@ public:
   /**
    * Return the indices where a specific value appears.
    */
-  vtkIdType LookupValue(vtkVariant value) override;
-  void LookupValue(vtkVariant value, vtkIdList* ids) override;
+  vtkIdType LookupValue(ValueType value) override;
+  void LookupValue(ValueType value, vtkIdList* ids) override;
   ///@}
 
   /**
@@ -343,10 +343,10 @@ protected:
 
   // Pointer to data
 
-  vtkVariant* Array;
+  ValueType* Array;
 
   // Function to resize data
-  vtkVariant* ResizeAndExtend(vtkIdType sz);
+  ValueType* ResizeAndExtend(vtkIdType sz);
 
   void (*DeleteFunction)(void*);
 
