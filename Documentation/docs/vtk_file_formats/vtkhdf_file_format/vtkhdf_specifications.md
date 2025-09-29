@@ -661,6 +661,13 @@ Writing incrementally to `VTKHDF` temporal datasets is relatively straightforwar
 appending functionality of `HDF5` chunked data sets
 ([Chunking in HDF5](https://davis.lbl.gov/Manuals/HDF5-1.8.7/Advanced/Chunking/index.html)).
 
+### Particularity regarding UnstructuredGrid and PolyData
+
+Adding data for a new time step works the same way as adding a data for a new partition: data is added
+at the end of existing datasets, and a new value is added to "count" elements for `NumberOfPoints`, `NumberOfCells`
+and `NumberOfConnectivityIds`. For instance, given an object of 2 partitions changing over 10 time steps,
+`NumberOf...` datasets would contain 20 total values.
+
 ### Particularity regarding ImageData
 
 A particularity of temporal `Image Data` in the format is that the reader expects an additional
