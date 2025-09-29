@@ -1,0 +1,11 @@
+NAME
+  VTK::x11
+LIBRARY_NAME
+  vtkx11
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::CommonCore
+EXCLUDE_WRAP
