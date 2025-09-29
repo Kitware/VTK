@@ -76,7 +76,7 @@ int vtkThresholdPoints::GetThresholdFunction()
     return THRESHOLD_UPPER;
   }
 
-  // Added to avoid warning. Should never be reached.
+  vtkErrorMacro(<< "vtkThresholdPoints has an unknown threshold function");
   return -1;
 }
 

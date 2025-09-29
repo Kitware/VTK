@@ -89,7 +89,9 @@ int AggregateDataSet(int argc, char* argv[])
   }
 
   vtkThresholdPoints* threshold = vtkThresholdPoints::New();
-  threshold->ThresholdBetween(0, 500);
+  threshold->SetLowerThreshold(0);
+  threshold->SetUpperThreshold(500);
+  threshold->SetThresholdFunction(vtkThresholdPoints::THRESHOLD_BETWEEN);
   threshold->SetInputConnection(wavelet->GetOutputPort());
   aggregate->SetInputConnection(threshold->GetOutputPort());
 

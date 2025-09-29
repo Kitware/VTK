@@ -80,7 +80,8 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   thresh->SetInputConnection(select->GetOutputPort());
   thresh->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "SelectedPoints");
-  thresh->ThresholdByUpper(0.9);
+  thresh->SetUpperThreshold(0.9);
+  thresh->SetThresholdFunction(vtkThresholdPoints::THRESHOLD_UPPER);
 
   vtkSphereSource* glyph = vtkSphereSource::New();
   vtkGlyph3D* glypher = vtkGlyph3D::New();
