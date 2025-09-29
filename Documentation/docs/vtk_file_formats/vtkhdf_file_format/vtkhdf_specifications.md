@@ -563,8 +563,8 @@ Each block should describe a valid VTKHDF root node for a supported data types. 
 The generic format for all `VTKHDF` temporal data is shown in Figure 7.
 The general idea is to take the static formats described above and use them
 as a base to append all the time dependent data. As such, a file holding static
-data has a very similar structure to a file holding dynamic data. An additional
-`Steps` subgroup is added to the `VTKHDF` main group holding offset information
+data has a very similar structure to a file holding dynamic data. For non composite dataset, an
+additional `Steps` subgroup is added to the `VTKHDF` main group holding offset information
 for each of the time steps as well as the time values. The choice to include offset
 information as HDF5 datasets was made to reduce the quantity of meta-data in the
 file to improve performance. This `Steps` group has one integer like attribute
@@ -731,6 +731,60 @@ digraph G {
 Figure 8. - Temporal OverlappingAMR VTKHDF File Format
 </div>
 
+### Particularity regarding composite dataset
+
+For temporal composite datasets, there is no top-level `/VTKHDF/Steps` group,
+but each block defines its time and offset values in its own `Steps` group,
+in `/VTKHDF/<BlockName>/Steps` (see Figure 9). Each block should have the same
+number of time steps, and the same time values.
+
+```{graphviz}
+digraph G {
+    rankdir=LR;
+    graph [bgcolor=transparent, fontname="Helvetica"];
+    node [style=filled, fillcolor=white, fontname="Helvetica"];
+    edge [color=gray, fontname="Helvetica"];
+
+    VTKHDF [label="VTKHDF\n Version, Type", shape=Mrecord, fillcolor=lightblue];
+
+    Assembly [label="Assembly", shape=Mrecord, fillcolor=lightblue];
+    Block0 [label="Block0", shape=Mrecord, fillcolor=lightblue];
+    BlockEtc [label="...", shape=Mrecord, fillcolor=lightblue];
+    BlockN [label="BlockN", shape=Mrecord, fillcolor=lightblue];
+
+    GroupNameEtc [label="...", shape=Mrecord, fillcolor=lightblue];
+    Steps0 [label="Steps", shape=Mrecord, fillcolor=lightblue];
+    StepsN [label="Steps", shape=Mrecord, fillcolor=lightblue];
+
+    Steps0Etc [label="...", shape=Mrecord, fillcolor=lightblue];
+    StepsNEtc [label="...", shape=Mrecord, fillcolor=lightblue];
+
+    VTKHDF -> Assembly;
+    VTKHDF -> Block0;
+    VTKHDF -> BlockEtc;
+    VTKHDF -> BlockN;
+    Assembly -> GroupNameEtc;
+    Block0 -> Steps0;
+    BlockN -> StepsN;
+    Steps0 -> Steps0Etc;
+    StepsN -> StepsNEtc;
+}
+
+```
+
+<div align="center">
+Figure 9. - Temporal Composite DataSet VTKHDF File Format
+</div>
+
+```{admonition} **Steps defined in multiple Block**
+:class: warning
+
+Having different value in the attribute `NSteps` of the group `Step` between Block is not supported.
+```
+
+:::{hint}
+Not all blocks need to define a `Steps`, if a block doesn't have it, a temporal data array will be considered to be a "partial" array.
+:::
 
 ## Limitations
 
