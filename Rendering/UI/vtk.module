@@ -12,6 +12,7 @@ SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 DEPENDS
   VTK::RenderingCore
+  VTK::x11
 ORDER_DEPENDS
   VTK::glad
 INCLUDE_MARSHAL

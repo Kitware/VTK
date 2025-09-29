@@ -105,13 +105,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     DESTINATION ${_vtk_build_LIBRARY_DESTINATION})
 endif ()
 
-if (VTK_USE_X)
-  vtk_module_find_package(
-    PACKAGE X11)
-  vtk_module_link(VTK::RenderingUI
-    PUBLIC
-      X11::X11)
-elseif (VTK_USE_COCOA)
+if (VTK_USE_COCOA)
   vtk_module_link(VTK::RenderingUI PUBLIC "-framework Cocoa")
 endif ()
 
