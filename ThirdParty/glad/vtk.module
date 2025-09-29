@@ -2,6 +2,8 @@ NAME
   VTK::glad
 LIBRARY_NAME
   vtkglad
+DEPENDS
+  VTK::x11
 TEST_DEPENDS
   VTK::TestingCore
 THIRD_PARTY

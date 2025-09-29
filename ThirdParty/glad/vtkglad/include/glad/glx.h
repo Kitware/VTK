@@ -35,9 +35,11 @@
 #define GLX_H 1
 
 
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
+// #include <X11/X.h>
+// #include <X11/Xlib.h>
+// #include <X11/Xutil.h>
+// XXX(Kitware): Use vtkX11Functions.h
+#include "vtkX11Functions.h"
 
 // #include <glad/gl.h>
 // XXX(Kitware): Use vtkglad
