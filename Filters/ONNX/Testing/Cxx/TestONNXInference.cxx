@@ -1,15 +1,17 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include "vtkMultiBlockDataSet.h"
 #include "vtkONNXInference.h"
 
 #include "vtkCellData.h"
 #include "vtkCellTypeSource.h"
 #include "vtkFloatArray.h"
+#include "vtkGroupDataSetsFilter.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
 #include "vtkMathUtilities.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
@@ -50,6 +52,56 @@ bool TestGaussianKernel(int argc, char* argv[])
 
   vtkFloatArray* prediction =
     vtkFloatArray::SafeDownCast(output->GetCellData()->GetArray("PredictedField"));
+  test &= ::Assert(prediction->GetNumberOfTuples() == 100, "CELL DATA, Wrong output shape.");
+  test &= ::Assert(
+    vtkMathUtilities::FuzzyCompare(prediction->GetTuple1(0), 0.8095716238021850585993750, 0.0001),
+    "CELL DATA, Wrong prediction value.");
+  test &= ::Assert(
+    vtkMathUtilities::FuzzyCompare(prediction->GetTuple1(62), 0.99739539623260498046875, 0.0001),
+    "CELL DATA, Wrong prediction value.");
+
+  return test;
+}
+
+bool TestCompositeData(int argc, char* argv[])
+{
+  bool test = true;
+  char* dataPath =
+    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ONNX/gaussian_kernel.onnx");
+
+  vtkNew<vtkCellTypeSource> source;
+  source->SetCellType(VTK_QUAD);
+  source->SetBlocksDimensions(10, 10, 1);
+  source->Update();
+
+  vtkNew<vtkCellTypeSource> source2;
+  source2->SetCellType(VTK_QUAD);
+  source2->SetBlocksDimensions(10, 10, 1);
+  source2->Update();
+
+  vtkNew<vtkGroupDataSetsFilter> group;
+  group->AddInputConnection(source->GetOutputPort());
+  group->AddInputConnection(source2->GetOutputPort());
+  group->Update();
+
+  vtkNew<vtkONNXInference> filter;
+  filter->SetInputConnection(group->GetOutputPort());
+  filter->SetNumberOfInputParameters(3);
+  filter->SetInputParameter(0, 0.25);
+  filter->SetInputParameter(1, 0.6);
+  filter->SetInputParameter(2, 1.0);
+  filter->SetOutputDimension(1);
+  filter->SetModelFile(dataPath);
+  filter->Update();
+
+  vtkPartitionedDataSetCollection* output =
+    vtkPartitionedDataSetCollection::SafeDownCast(filter->GetOutput());
+
+  vtkUnstructuredGrid* block0 =
+    vtkUnstructuredGrid::SafeDownCast(output->GetPartitionAsDataObject(0, 0));
+
+  vtkFloatArray* prediction =
+    vtkFloatArray::SafeDownCast(block0->GetCellData()->GetArray("PredictedField"));
   test &= ::Assert(prediction->GetNumberOfTuples() == 100, "CELL DATA, Wrong output shape.");
   test &= ::Assert(
     vtkMathUtilities::FuzzyCompare(prediction->GetTuple1(0), 0.8095716238021850585993750, 0.0001),
@@ -157,6 +209,7 @@ bool TestGaussianKernelWithTime(int argc, char* argv[])
 int TestONNXInference(int argc, char* argv[])
 {
   bool testVal = ::TestGaussianKernel(argc, argv);
+  testVal &= ::TestCompositeData(argc, argv);
   testVal &= ::TestGaussianKernelOnPoints(argc, argv);
   testVal &= ::TestGaussianKernelWithTime(argc, argv);
 

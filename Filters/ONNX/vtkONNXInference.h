@@ -6,7 +6,7 @@
  *
  * vtkONNXInference is a filter that can read the weights of an ONNX model and perform
  * inference based on user provided tabular parameters (list of float32 basically). The prediction
- * is appended to the data arrays of the vtkUnstructuredGrid input.
+ * is appended to the data arrays of the vtkDataObject input (@see SetArrayAssociation).
  *
  * Moreover, the filter handles time steps. Basically, this represents the inference of the model
  * with a varying parameters which happens to represent time. Note that this filter generates its
@@ -16,7 +16,7 @@
 #define vtkONNXInference_h
 
 #include "vtkFiltersONNXModule.h" // For export macro
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
 
 #include <memory> // For std::unique_ptr
 #include <vector> // For std::vector
@@ -29,10 +29,10 @@ class AllocatorWithDefaultOptions;
 class Value;
 }
 
-class VTKFILTERSONNX_EXPORT vtkONNXInference : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSONNX_EXPORT vtkONNXInference : public vtkPassInputTypeAlgorithm
 {
 public:
-  vtkTypeMacro(vtkONNXInference, vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkONNXInference, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkONNXInference* New();
@@ -120,6 +120,12 @@ protected:
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
+
+  /**
+   * Execute the inference and add the resulting array on the given data object.
+   * The input and output are expected to not be a CompositeDataSet subclass.
+   */
+  int ExecuteData(vtkDataObject* input, vtkDataObject* output, double timevalue);
 
 private:
   vtkONNXInference(const vtkONNXInference&) = delete;

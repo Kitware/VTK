@@ -3,13 +3,14 @@
 #include "vtkONNXInference.h"
 #include "Private/vtkONNXInferenceInternals.h"
 
-#include "vtkCellData.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeRange.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkPointData.h"
+#include "vtkLogger.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkUnstructuredGrid.h"
 
 #include <onnxruntime_cxx_api.h>
 
@@ -195,13 +196,63 @@ std::vector<Ort::Value> vtkONNXInference::RunModel(Ort::Value& inputTensor)
 int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkUnstructuredGrid* input = vtkUnstructuredGrid::GetData(inputVector[0], 0);
-  vtkUnstructuredGrid* output = vtkUnstructuredGrid::GetData(outputVector->GetInformationObject(0));
-  output->ShallowCopy(input);
-
   if (!this->Initialized)
   {
     this->InitializeSession();
+  }
+
+  // Time handling
+  float timeValue = static_cast<float>(outputVector->GetInformationObject(0)->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()));
+
+  vtkDataObjectTree* compositeInput = vtkDataObjectTree::GetData(inputVector[0], 0);
+  vtkDataObjectTree* compositeOutput = vtkDataObjectTree::GetData(outputVector, 0);
+  if (compositeInput && compositeOutput)
+  {
+    compositeOutput->CopyStructure(compositeInput);
+    compositeOutput->CompositeShallowCopy(compositeInput);
+    auto opts =
+      vtk::DataObjectTreeOptions::VisitOnlyLeaves | vtk::DataObjectTreeOptions::TraverseSubTree;
+    auto inputRange = vtk::Range(compositeInput, opts);
+    auto outputRange = vtk::Range(compositeOutput, opts);
+    auto inputBlock = inputRange.begin();
+    auto outputBlock = outputRange.begin();
+    while (inputBlock != inputRange.end() && outputBlock != outputRange.end())
+    {
+      int ret = this->ExecuteData(*inputBlock, *outputBlock, timeValue);
+      if (ret != 1)
+      {
+        return ret;
+      }
+      inputBlock++;
+      outputBlock++;
+    }
+    compositeOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timeValue);
+    return 1;
+  }
+
+  vtkDataObject* input = vtkDataObject::GetData(inputVector[0], 0);
+  if (input)
+  {
+    vtkDataObject* output = vtkDataObject::GetData(outputVector->GetInformationObject(0));
+    return this->ExecuteData(input, output, timeValue);
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkONNXInference::ExecuteData(vtkDataObject* input, vtkDataObject* output, double timeValue)
+{
+  output->ShallowCopy(input);
+
+  vtkDataSetAttributes* outAttributes = output->GetAttributes(this->ArrayAssociation);
+  if (!outAttributes)
+  {
+    vtkWarningMacro(
+      "input (" << vtkLogIdentifier(output) << ") do not have the requested attribute ("
+                << vtkDataObject::GetAssociationTypeAsString(this->ArrayAssociation) << ")");
+    return 1;
   }
 
   if (!this->Internals->Session)
@@ -209,10 +260,6 @@ int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro("No model loaded or session not initialized.");
     return 0;
   }
-
-  // Time handling
-  float timeValue = static_cast<float>(outputVector->GetInformationObject(0)->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()));
 
   // Prepare and run model
   std::vector<float> parameters = this->InputParameters;
@@ -265,7 +312,7 @@ int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
     outputArray->SetTuple(i, &outData[i * this->OutputDimension]);
   }
 
-  output->GetAttributes(this->ArrayAssociation)->AddArray(outputArray);
+  outAttributes->AddArray(outputArray);
   output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timeValue);
 
   return 1;
