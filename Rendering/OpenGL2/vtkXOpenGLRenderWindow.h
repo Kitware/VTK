@@ -16,7 +16,7 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkWrappingHints.h"          // For VTK_MARSHALAUTO
-#include <X11/Xlib.h>                  // Needed for X types used in the public interface
+#include "vtkX11Functions.h"           // Needed for X types used in the public interface
 #include <stack>                       // for ivar
 
 VTK_ABI_NAMESPACE_BEGIN
