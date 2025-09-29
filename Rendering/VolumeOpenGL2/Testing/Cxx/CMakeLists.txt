@@ -20,6 +20,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastUserShader.cxx
   TestGPURayCastUserShader2.cxx
   TestSurfaceProbeVolumeMapper.cxx
+  TestSurfaceProbeVolumeMapperColoring.cxx
   )
 
 # everyone gets these tests

@@ -7,7 +7,8 @@
  * PolyDataMapper that probes volume data at the points positions specified in its input data.
  * The rendered surface is colored using the scalar values that were probed in the source volume.
  * The mapper accepts three inputs: the Input, the Source and an optional ProbeInput.
- * The Source data defines the vtkImageData from which scalar values are interpolated.
+ * The Source data defines the vtkImageData from which scalar values are interpolated. Images with
+ * 1, 3 or 4 scalar components are supported.
  * The Input data defines the rendered surface.
  * The ProbeInput defines the geometry used to interpolate the source data.
  * If the ProbeInput is not specified, the Input is used both for probing and rendering.
@@ -18,6 +19,14 @@
  * The sampled scalar values can be computed with different blending strategy that use surface
  * normals to perform thick probing of the Source data.
  *
+ * This mapper does not create a default lookup table like its superclass. If a lookup table is
+ * provided, a texture map is used for coloring in order to map 1-component image through the
+ * lookup table when probing. The window/level values are used to rescale scalar values before
+ * mapping unless UseLookupTableScalarRange is enabled, in which case the table range will be used.
+ * If no lookup table is specified, scalar values are mapped directly with window/level values.
+ * Source images with 3 or 4 components are considered as RGB or RGBA images and the probed pixels
+ * are used to color the output directly.
+ *
  * @note The following features are not supported yet but should be considered in the future.
  *
  * - The volume texture is always uploaded using linear interpolation.
@@ -26,9 +35,7 @@
  * - If the source is rendered by a volume mapper, any transform applied to the volume
  *   is ignored as there is no interface to pass this information.
  *
- * - Only the first scalar component is used for rendering and rescaled with Window/Level.
- *   Consider supporting RGB volumes without W/L mapping, and independent component.
- *   Consider supporting Color and opacity transfer function to replace W/L mapping.
+ * - Consider supporting independent components to map multi-components image scalars.
  *
  * Passing a vtkVolumeProperty to this mapper should be considered to address the above points.
  *
@@ -81,13 +88,24 @@ public:
 
   ///@{
   /**
-   * Set/Get the current window and level values used for scalar coloring.
+   * Convienence methods to set the window and level values used for scalar coloring, which
+   * ultimately set the scalar range.
+   * Ignored when UseLookupTableScalarRange is enabled as the table range will be used instead.
+   * The getters compute values on the fly from the scalar range.
    */
-  vtkGetMacro(Window, double);
-  vtkSetMacro(Window, double);
+  double GetWindow() { return this->ScalarRange[1] - this->ScalarRange[0]; }
+  void SetWindow(double window)
+  {
+    double level = this->GetLevel();
+    this->SetScalarRange(level - 0.5 * window, level + 0.5 * window);
+  }
 
-  vtkGetMacro(Level, double);
-  vtkSetMacro(Level, double);
+  double GetLevel() { return 0.5 * (this->ScalarRange[0] + this->ScalarRange[1]); }
+  void SetLevel(double level)
+  {
+    double window = this->GetWindow();
+    this->SetScalarRange(level - 0.5 * window, level + 0.5 * window);
+  }
   ///@}
 
   ///@{
@@ -125,6 +143,28 @@ public:
 
   void UpdateShaders(vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* act) override;
 
+  using vtkMapper::MapScalars;
+  /**
+   * Map the scalars of the source through the lookup table if any.
+   * Always use a texture map for coloring. The scalars of the input are always ignored.
+   * Always returns nullptr.
+   */
+  vtkUnsignedCharArray* MapScalars(vtkDataSet* input, double alpha, int& cellFlag) override;
+
+  /**
+   * Determine whether this mapper should be invoked on a specific rendering pass.
+   * Return true if a lookup table defining translucent colors is provided.
+   * The scalars of the source are not mapped through the lookup table to check that scalars will
+   * be effectively mapped to translucent colors.
+   */
+  bool HasTranslucentPolygonalGeometry() override;
+
+  /**
+   * Defined as no-op to prevent the creation of a default lookup table in GetLookupTable.
+   * Without a lookup table, the mapper uses the Window/Level values to map 1-component scalars.
+   */
+  void CreateDefaultLookupTable() override{};
+
 protected:
   int FillInputPortInformation(int port, vtkInformation* info) override;
 
@@ -156,10 +196,6 @@ private:
     PROBE
   };
   PassTypes CurrentPass = PassTypes::DEFAULT;
-
-  // Window / level
-  double Window = 1.0;
-  double Level = 0.0;
 
   // Blend mode
   BlendModes BlendMode = BlendModes::NONE;
