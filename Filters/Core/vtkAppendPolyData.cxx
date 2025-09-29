@@ -109,26 +109,25 @@ void vtkAppendPolyData::SetInputConnectionByNumber(int num, vtkAlgorithmOutput* 
 
 namespace
 {
-struct AppendCellArray
+struct AppendCellArray : public vtkCellArray::DispatchUtilities
 {
-  template <typename CellStateT>
-  void operator()(CellStateT& state, vtkIdTypeArray* outputOffsets,
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdTypeArray* outputOffsets,
     vtkIdTypeArray* outputConnectivity, vtkIdType cellOffset, vtkIdType cellConnectivityOffset,
     vtkIdType pointOffset)
   {
-    using ValueType = typename CellStateT::ValueType;
-    auto inputOffsets = state.GetOffsets();
-    auto inputConnectivity = state.GetConnectivity();
-    auto numberOfCells = inputOffsets->GetNumberOfValues() - 1;
-    auto numberOfConnectivityIds = inputConnectivity->GetNumberOfValues();
+    using ValueType = GetAPIType<OffsetsT>;
+    auto inputOffsets = GetRange(offsets);
+    auto inputConnectivity = GetRange(conn);
+    auto numberOfCells = inputOffsets.size() - 1;
+    auto numberOfConnectivityIds = inputConnectivity.size();
 
     // Copy the offsets and transform them using the cellConnectivityOffset
-    std::transform(inputOffsets->GetPointer(0), inputOffsets->GetPointer(numberOfCells),
+    std::transform(inputOffsets.begin(), inputOffsets.begin() + numberOfCells,
       outputOffsets->GetPointer(cellOffset),
       [&](ValueType offset) { return static_cast<ValueType>(offset + cellConnectivityOffset); });
     // Copy the connectivity and transform them using the pointOffset
-    std::transform(inputConnectivity->GetPointer(0),
-      inputConnectivity->GetPointer(numberOfConnectivityIds),
+    std::transform(inputConnectivity.begin(), inputConnectivity.begin() + numberOfConnectivityIds,
       outputConnectivity->GetPointer(cellConnectivityOffset),
       [&](ValueType ptId) { return static_cast<vtkIdType>(ptId + pointOffset); });
   }
@@ -323,22 +322,22 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output, vtkPolyData* inputs[],
         auto stripConnectivityOffset = stripConnectivityOffsets[idx];
         if (dataset->GetNumberOfVerts() > 0)
         {
-          dataset->GetVerts()->Visit(AppendCellArray{}, vertsOffsetsArray, vertsConnectivityArray,
-            vertOffset, vertConnectivityOffset, pointOffset);
+          dataset->GetVerts()->Dispatch(AppendCellArray{}, vertsOffsetsArray,
+            vertsConnectivityArray, vertOffset, vertConnectivityOffset, pointOffset);
         }
         if (dataset->GetNumberOfLines() > 0)
         {
-          dataset->GetLines()->Visit(AppendCellArray{}, linesOffsetsArray, linesConnectivityArray,
-            lineOffset, lineConnectivityOffset, pointOffset);
+          dataset->GetLines()->Dispatch(AppendCellArray{}, linesOffsetsArray,
+            linesConnectivityArray, lineOffset, lineConnectivityOffset, pointOffset);
         }
         if (dataset->GetNumberOfPolys() > 0)
         {
-          dataset->GetPolys()->Visit(AppendCellArray{}, polysOffsetsArray, polysConnectivityArray,
-            polyOffset, polyConnectivityOffset, pointOffset);
+          dataset->GetPolys()->Dispatch(AppendCellArray{}, polysOffsetsArray,
+            polysConnectivityArray, polyOffset, polyConnectivityOffset, pointOffset);
         }
         if (dataset->GetNumberOfStrips() > 0)
         {
-          dataset->GetStrips()->Visit(AppendCellArray{}, stripsOffsetsArray,
+          dataset->GetStrips()->Dispatch(AppendCellArray{}, stripsOffsetsArray,
             stripsConnectivityArray, stripOffset, stripConnectivityOffset, pointOffset);
         }
       }

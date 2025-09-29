@@ -29,14 +29,19 @@ using PointUses = unsigned char;
 
 // Helper functions to mark points used by cells taking into account
 // the point merging information.
-template <typename UType>
-void MarkUses(vtkIdType numIds, UType* connArray, vtkIdType* mergeMap, PointUses* ptUses)
+struct MarkUses : public vtkCellArray::DispatchUtilities
 {
-  for (auto i = 0; i < numIds; ++i)
+  template <typename OffsetsT, typename ConnectivityT>
+  void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType numIds,
+    vtkIdType* mergeMap, PointUses* ptUses)
   {
-    ptUses[mergeMap[connArray->GetValue(i)]] = 1;
+    auto connRange = GetRange(conn);
+    for (vtkIdType i = 0; i < numIds; ++i)
+    {
+      ptUses[mergeMap[connRange[i]]] = 1;
+    }
   }
-}
+};
 
 //------------------------------------------------------------------------------
 // Fast, threaded method to copy new points and attribute data to the output.
@@ -281,41 +286,23 @@ struct AverageWorklet
 };
 
 //  Update the cell connectivity array.
-void UpdateCellArrayConnectivity(vtkCellArray* ca, vtkIdType* ptMap)
+struct UpdateCellArrayConnectivity : public vtkCellArray::DispatchUtilities
 {
-  vtkIdType numConn = ca->GetNumberOfConnectivityIds();
-
-  if (ca->IsStorage64Bit())
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* connectivity, vtkIdType* ptMap)
   {
-    vtkTypeInt64* c = ca->GetConnectivityArray64()->GetPointer(0);
+    vtkIdType numConn = connectivity->GetNumberOfValues();
     vtkSMPTools::For(0, numConn,
-      [&, c, ptMap](vtkIdType id, vtkIdType endId)
+      [&, ptMap](vtkIdType id, vtkIdType endId)
       {
+        auto connRange = GetRange(connectivity);
         for (; id < endId; ++id)
         {
-          c[id] = ptMap[c[id]];
+          connRange[id] = ptMap[connRange[id]];
         }
       }); // end lambda
-  }
-  else
-  {
-    vtkTypeInt32* c = ca->GetConnectivityArray32()->GetPointer(0);
-    vtkSMPTools::For(0, numConn,
-      [&, c, ptMap](vtkIdType id, vtkIdType endId)
-      {
-        for (; id < endId; ++id)
-        {
-          c[id] = ptMap[c[id]];
-        }
-      }); // end lambda
-  }
-}
-
-//  Update the polyhedra face connectivity array.
-void UpdatePolyhedraFaces(vtkCellArray* a, vtkIdType* ptMap)
-{
-  UpdateCellArrayConnectivity(a, ptMap);
-}
+  };
+};
 
 } // anonymous namespace
 
@@ -502,7 +489,7 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
   // could be made more efficient by a combination of shallow copies, and
   // creating and copying into a new connectivity array.
   outCells->DeepCopy(inCells);
-  UpdateCellArrayConnectivity(outCells, pmap);
+  outCells->Dispatch(UpdateCellArrayConnectivity{}, pmap);
 
   // If the unstructured grid contains polyhedra, the face connectivity needs
   // to be updated as well.
@@ -510,7 +497,7 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
   vtkCellArray* faces = input->GetPolyhedronFaces();
   if (faces != nullptr)
   {
-    UpdatePolyhedraFaces(faces, pmap);
+    faces->Dispatch(UpdateCellArrayConnectivity{}, pmap);
   }
 
   // Finally, assemble the filter output.
@@ -533,17 +520,7 @@ int vtkStaticCleanUnstructuredGrid::RequestData(vtkInformation* vtkNotUsed(reque
 void vtkStaticCleanUnstructuredGrid::MarkPointUses(
   vtkCellArray* ca, vtkIdType* mergeMap, PointUses* ptUses)
 {
-  vtkIdType numConn = ca->GetNumberOfConnectivityIds();
-  if (ca->IsStorage64Bit())
-  {
-    vtkTypeInt64Array* conn = ca->GetConnectivityArray64();
-    MarkUses<vtkTypeInt64Array>(numConn, conn, mergeMap, ptUses);
-  }
-  else
-  {
-    vtkTypeInt32Array* conn = ca->GetConnectivityArray32();
-    MarkUses<vtkTypeInt32Array>(numConn, conn, mergeMap, ptUses);
-  }
+  ca->Dispatch(MarkUses{}, ca->GetNumberOfConnectivityIds(), mergeMap, ptUses);
 }
 
 //------------------------------------------------------------------------------

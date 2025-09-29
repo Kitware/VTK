@@ -3,7 +3,6 @@
 #include "vtkExtractSurface.h"
 
 #include "vtkCellArray.h"
-#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -18,7 +17,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
-#include <cfloat>
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -185,19 +183,17 @@ public:
   void CountBoundaryYZInts(unsigned char loc, unsigned char* edgeCases, vtkIdType* eMD[4]);
 
   // Produce the output triangles for this voxel cell.
-  struct GenerateTrisImpl
+  struct GenerateTrisImpl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(
-      CellStateT& state, const unsigned char* edges, int numTris, vtkIdType* eIds, vtkIdType& triId)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(OffsetsT* offsets, ConnectivityT* conn, const unsigned char* edges, int numTris,
+      vtkIdType* eIds, vtkIdType& triId)
     {
-      using ValueType = typename CellStateT::ValueType;
-      auto* offsets = state.GetOffsets();
-      auto* conn = state.GetConnectivity();
+      using ValueType = GetAPIType<OffsetsT>;
 
-      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      auto offsetRange = GetRange(offsets);
       auto offsetIter = offsetRange.begin() + triId;
-      auto connRange = vtk::DataArrayValueRange<1>(conn);
+      auto connRange = GetRange(conn);
       auto connIter = connRange.begin() + (triId * 3);
 
       while (numTris-- > 0)
@@ -215,7 +211,7 @@ public:
   void GenerateTris(unsigned char eCase, unsigned char numTris, vtkIdType* eIds, vtkIdType& triId)
   {
     const unsigned char* edges = this->EdgeCases[eCase] + 1;
-    this->NewTris->Visit(GenerateTrisImpl{}, edges, numTris, eIds, triId);
+    this->NewTris->Dispatch(GenerateTrisImpl{}, edges, numTris, eIds, triId);
   }
 
   // Compute gradient on interior point.

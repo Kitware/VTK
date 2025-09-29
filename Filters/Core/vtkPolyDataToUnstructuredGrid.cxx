@@ -61,14 +61,14 @@ bool vtkPolyDataToUnstructuredGrid::CanBeProcessedFast(vtkPolyData* polyData)
 //------------------------------------------------------------------------------
 namespace
 {
-struct BuildCellTypesImpl
+struct BuildCellTypesImpl : public vtkCellArray::DispatchUtilities
 {
   // Given a polyData cell array and a size to type functor, it creates the cell types
-  template <typename CellStateT, typename SizeToTypeFunctor>
-  void operator()(
-    CellStateT& state, vtkUnsignedCharArray* cellTypes, SizeToTypeFunctor&& typer, vtkIdType offset)
+  template <typename OffsetsT, typename ConnectivityT, typename SizeToTypeFunctor>
+  void operator()(OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn),
+    vtkUnsignedCharArray* cellTypes, SizeToTypeFunctor&& typer, vtkIdType offset)
   {
-    const vtkIdType numCells = state.GetNumberOfCells();
+    const vtkIdType numCells = offsets->GetNumberOfValues() - 1;
     if (numCells == 0)
     {
       return;
@@ -80,40 +80,38 @@ struct BuildCellTypesImpl
         auto types = cellTypes->GetPointer(offset);
         for (vtkIdType cellId = begin; cellId < end; ++cellId)
         {
-          types[cellId] = static_cast<unsigned char>(typer(state.GetCellSize(cellId)));
+          types[cellId] = static_cast<unsigned char>(typer(GetCellSize(offsets, cellId)));
         }
       });
   }
 };
 
-struct BuildConnectivityImpl
+struct BuildConnectivityImpl : public vtkCellArray::DispatchUtilities
 {
-  template <typename CellStateT>
-  void operator()(CellStateT& state, vtkIdTypeArray* outOffSets, vtkIdTypeArray* outConnectivity,
-    vtkIdType offset, vtkIdType connectivityOffset)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdTypeArray* outOffSets,
+    vtkIdTypeArray* outConnectivity, vtkIdType offset, vtkIdType connectivityOffset)
   {
-    using IdType = typename CellStateT::ValueType;
-    const auto inOffsets = state.GetOffsets();
-    const auto inConnectivity = state.GetConnectivity();
-    const vtkIdType connectivitySize = inConnectivity->GetNumberOfValues();
-    const vtkIdType numCells = state.GetNumberOfCells();
+    using ValueType = GetAPIType<OffsetsT>;
+    const vtkIdType connectivitySize = conn->GetNumberOfValues();
+    const vtkIdType numCells = offsets->GetNumberOfValues() - 1;
 
     // copy connectivity values
     vtkSMPTools::For(0, connectivitySize,
       [&](vtkIdType begin, vtkIdType end)
       {
-        auto inConnPtr = inConnectivity->GetPointer(0);
+        auto inConnRange = GetRange(conn).GetSubRange(begin, end);
         auto outConnPtr = outConnectivity->GetPointer(connectivityOffset);
-        std::copy(inConnPtr + begin, inConnPtr + end, outConnPtr + begin);
+        std::copy(inConnRange.begin(), inConnRange.end(), outConnPtr + begin);
       });
     // transform offset values
     vtkSMPTools::For(0, numCells,
       [&](vtkIdType begin, vtkIdType end)
       {
-        auto inOffPtr = inOffsets->GetPointer(0);
+        auto inOffRange = GetRange(offsets).GetSubRange(begin, end);
         auto outOffPtr = outOffSets->GetPointer(offset);
-        std::transform(inOffPtr + begin, inOffPtr + end, outOffPtr + begin,
-          [&connectivityOffset](IdType val) -> vtkIdType { return val + connectivityOffset; });
+        std::transform(inOffRange.begin(), inOffRange.end(), outOffPtr + begin,
+          [&connectivityOffset](ValueType val) -> ValueType { return val + connectivityOffset; });
       });
   }
 };
@@ -168,7 +166,7 @@ int vtkPolyDataToUnstructuredGrid::RequestData(
   vtkIdType offset = 0;
   if (hasVerts)
   {
-    input->GetVerts()->Visit(
+    input->GetVerts()->Dispatch(
       BuildCellTypesImpl{}, cellTypes,
       [](vtkIdType size) -> VTKCellType { return size == 1 ? VTK_VERTEX : VTK_POLY_VERTEX; },
       offset);
@@ -176,14 +174,14 @@ int vtkPolyDataToUnstructuredGrid::RequestData(
   if (hasLines)
   {
     offset += numVerts;
-    input->GetLines()->Visit(
+    input->GetLines()->Dispatch(
       BuildCellTypesImpl{}, cellTypes,
       [](vtkIdType size) -> VTKCellType { return size == 2 ? VTK_LINE : VTK_POLY_LINE; }, offset);
   }
   if (hasPolys)
   {
     offset += numLines;
-    input->GetPolys()->Visit(
+    input->GetPolys()->Dispatch(
       BuildCellTypesImpl{}, cellTypes,
       [](vtkIdType size) -> VTKCellType
       {
@@ -202,7 +200,7 @@ int vtkPolyDataToUnstructuredGrid::RequestData(
   if (hasStrips)
   {
     offset += numPolys;
-    input->GetStrips()->Visit(
+    input->GetStrips()->Dispatch(
       BuildCellTypesImpl{}, cellTypes,
       [](vtkIdType vtkNotUsed(size)) -> VTKCellType { return VTK_TRIANGLE_STRIP; }, offset);
   }
@@ -252,28 +250,28 @@ int vtkPolyDataToUnstructuredGrid::RequestData(
     vtkIdType connectivityOffset = 0;
     if (hasVerts)
     {
-      input->GetVerts()->Visit(
+      input->GetVerts()->Dispatch(
         BuildConnectivityImpl{}, offsets, connectivity, offset, connectivityOffset);
     }
     if (hasLines)
     {
       offset += numVerts;
       connectivityOffset += input->GetVerts()->GetNumberOfConnectivityIds();
-      input->GetLines()->Visit(
+      input->GetLines()->Dispatch(
         BuildConnectivityImpl{}, offsets, connectivity, offset, connectivityOffset);
     }
     if (hasPolys)
     {
       offset += numLines;
       connectivityOffset += input->GetLines()->GetNumberOfConnectivityIds();
-      input->GetPolys()->Visit(
+      input->GetPolys()->Dispatch(
         BuildConnectivityImpl{}, offsets, connectivity, offset, connectivityOffset);
     }
     if (hasStrips)
     {
       offset += numPolys;
       connectivityOffset += input->GetPolys()->GetNumberOfConnectivityIds();
-      input->GetStrips()->Visit(
+      input->GetStrips()->Dispatch(
         BuildConnectivityImpl{}, offsets, connectivity, offset, connectivityOffset);
     }
     // set last offset

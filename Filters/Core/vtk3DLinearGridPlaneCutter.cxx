@@ -6,12 +6,10 @@
 #include "vtk3DLinearGridInternal.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
-#include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
@@ -22,17 +20,13 @@
 #include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkPyramid.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
-#include "vtkStaticCellLinksTemplate.h"
 #include "vtkStaticEdgeLocatorTemplate.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkTetra.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkWedge.h"
 
 #include <algorithm>
 #include <numeric>
@@ -474,21 +468,19 @@ struct ProduceTriangles
   {
   }
 
-  struct Impl
+  struct Impl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, vtkIdType triId, vtkIdType endTriId)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType triId, vtkIdType endTriId)
     {
-      using ValueType = typename CellStateT::ValueType;
-      auto* offsets = state.GetOffsets();
-      auto* conn = state.GetConnectivity();
+      using ValueType = GetAPIType<OffsetsT>;
 
-      auto offsetRange = vtk::DataArrayValueRange<1>(offsets, triId, endTriId + 1);
+      auto offsetRange = GetRange(offsets).GetSubRange(triId, endTriId + 1);
       ValueType offset = 3 * (triId - 1); // Incremented before first use
       std::generate(
         offsetRange.begin(), offsetRange.end(), [&]() -> ValueType { return offset += 3; });
 
-      auto connRange = vtk::DataArrayValueRange<1>(conn, 3 * triId, 3 * endTriId);
+      auto connRange = GetRange(conn).GetSubRange(3 * triId, 3 * endTriId);
       vtkIdType ptId = 3 * triId;
       std::iota(connRange.begin(), connRange.end(), ptId);
     }
@@ -496,7 +488,7 @@ struct ProduceTriangles
 
   void operator()(vtkIdType triId, vtkIdType endTriId)
   {
-    this->Tris->Visit(Impl{}, triId, endTriId);
+    this->Tris->Dispatch(Impl{}, triId, endTriId);
   }
 };
 
@@ -611,14 +603,15 @@ struct ProduceMergedTriangles
     // without this method Reduce() is not called
   }
 
-  struct Impl
+  struct Impl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, vtkIdType ptId, const vtkIdType endPtId,
-      const IDType* offsets, const MergeTupleType* mergeArray, vtk3DLinearGridPlaneCutter* filter)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType ptId,
+      const vtkIdType endPtId, const IDType* offsets, const MergeTupleType* mergeArray,
+      vtk3DLinearGridPlaneCutter* filter)
     {
-      using ValueType = typename CellStateT::ValueType;
-      auto* conn = state.GetConnectivity();
+      using ValueType = GetAPIType<OffsetsT>;
+      auto connRange = GetRange(conn);
       bool isFirst = vtkSMPTools::GetSingleThread();
       vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
@@ -639,7 +632,7 @@ struct ProduceMergedTriangles
         for (IDType i = 0; i < numPtsInGroup; ++i)
         {
           const IDType connIdx = mergeArray[offsets[ptId] + i].Data.EId;
-          conn->SetValue(connIdx, static_cast<ValueType>(ptId));
+          connRange[connIdx] = static_cast<ValueType>(ptId);
         } // for this group of coincident edges
       }   // for all merged points
     }
@@ -650,25 +643,26 @@ struct ProduceMergedTriangles
   // all edges in the group are updated to the current merged point id.
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    this->Tris->Visit(Impl{}, ptId, endPtId, this->Offsets, this->MergeArray, this->Filter);
+    this->Tris->Dispatch(Impl{}, ptId, endPtId, this->Offsets, this->MergeArray, this->Filter);
   }
 
-  struct ReduceImpl
+  struct ReduceImpl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, const vtkIdType numTris)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), const vtkIdType numTris)
     {
-      using ValueType = typename CellStateT::ValueType;
+      using ValueType = GetAPIType<OffsetsT>;
 
-      auto offsets = vtk::DataArrayValueRange<1>(state.GetOffsets(), 0, numTris + 1);
+      auto offsetsRange = GetRange(offsets).GetSubRange(0, numTris + 1);
       ValueType offset = -3; // +=3 on first access
-      std::generate(offsets.begin(), offsets.end(), [&]() -> ValueType { return offset += 3; });
+      std::generate(
+        offsetsRange.begin(), offsetsRange.end(), [&]() -> ValueType { return offset += 3; });
     }
   };
 
   // Update the triangle connectivity (numPts for each triangle. This could
   // be done in parallel but it's probably not faster.
-  void Reduce() { this->Tris->Visit(ReduceImpl{}, this->NumTris); }
+  void Reduce() { this->Tris->Dispatch(ReduceImpl{}, this->NumTris); }
 };
 
 // This method generates the output isosurface points. One point per

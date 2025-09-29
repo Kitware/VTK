@@ -4,13 +4,12 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkArrayDispatch.h"
-#include "vtkAssume.h"
+#include "vtkBatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkDataArrayRange.h"
 #include "vtkPoints.h"
-#include "vtkPolygon.h"
-#include "vtkProperty.h"
+#include "vtkSMPTools.h"
 #include "vtkUnsignedCharArray.h"
 
 #include "vtk_glad.h"
@@ -30,61 +29,90 @@ vtkOpenGLIndexBufferObject::~vtkOpenGLIndexBufferObject() = default;
 
 namespace
 {
+struct AppendTrianglesBatchData
+{
+  vtkIdType TrianglesOffset;
+
+  AppendTrianglesBatchData()
+    : TrianglesOffset(0)
+  {
+  }
+  ~AppendTrianglesBatchData() = default;
+  AppendTrianglesBatchData& operator+=(const AppendTrianglesBatchData& other)
+  {
+    this->TrianglesOffset += other.TrianglesOffset;
+    return *this;
+  }
+  AppendTrianglesBatchData operator+(const AppendTrianglesBatchData& other) const
+  {
+    AppendTrianglesBatchData result = *this;
+    result += other;
+    return result;
+  }
+};
+using AppendTrianglesBatch = vtkBatch<AppendTrianglesBatchData>;
+using AppendTrianglesBatches = vtkBatches<AppendTrianglesBatchData>;
+
 // A worker functor. The calculation is implemented in the function template
 // for operator().
-struct AppendTrianglesWorker
+template <typename TPointsArray, typename TOffsets, typename TConnectivity>
+struct AppendTrianglesFunctor
 {
-  std::vector<unsigned int>* indexArray;
-  std::vector<unsigned char>* edgeArray;
-  unsigned char* edgeFlags;
-  vtkCellArray* cells;
-  vtkIdType vOffset;
+  TPointsArray* Points;
+  TOffsets* Offsets;
+  TConnectivity* Connectivity;
+  std::vector<unsigned int>* IndexArray;
+  std::vector<unsigned char>* EdgeArray;
+  unsigned char* EdgeFlags;
+  vtkIdType VOffset;
 
-  // AoS fast path
-  template <typename ValueType>
-  void operator()(vtkAOSDataArrayTemplate<ValueType>* src)
+  AppendTrianglesBatches TriangleBatches;
+
+  AppendTrianglesFunctor(TPointsArray* points, TOffsets* offsets, TConnectivity* connectivity,
+    std::vector<unsigned int>* indexArray, std::vector<unsigned char>* edgeArray,
+    unsigned char* edgeFlags, vtkIdType vOffset)
+    : Points(points)
+    , Offsets(offsets)
+    , Connectivity(connectivity)
+    , IndexArray(indexArray)
+    , EdgeArray(edgeArray)
+    , EdgeFlags(edgeFlags)
+    , VOffset(vOffset)
   {
-    ValueType* points = src->Begin();
+    // initialize batches
+    this->TriangleBatches.Initialize(offsets->GetNumberOfValues() - 1, 1000);
+  }
 
-    auto cellIter = vtk::TakeSmartPointer(cells->NewIterator());
+  void Initialize() {}
 
-    for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
+  void operator()(vtkIdType beginBatchId, vtkIdType endBatchId)
+  {
+    auto points = vtk::DataArrayTupleRange<3>(this->Points);
+    auto offsets = vtk::DataArrayValueRange<1, vtkIdType>(this->Offsets);
+    auto connectivity = vtk::DataArrayValueRange<1, vtkIdType>(this->Connectivity);
+
+    for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
     {
-      vtkIdType cellSize;
-      const vtkIdType* cell;
-      cellIter->GetCurrentCell(cellSize, cell);
-
-      if (cellSize >= 3)
+      AppendTrianglesBatch& batch = this->TriangleBatches[batchId];
+      auto& batchNumberOfTriangles = batch.Data.TrianglesOffset;
+      for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; ++cellId)
       {
-        vtkIdType id1 = cell[0];
-        ValueType* p1 = points + id1 * 3;
-        for (int i = 1; i < cellSize - 1; i++)
+        const auto cellSize = offsets[cellId + 1] - offsets[cellId];
+        auto cell = connectivity.begin() + offsets[cellId];
+        if (cellSize >= 3)
         {
-          vtkIdType id2 = cell[i];
-          vtkIdType id3 = cell[i + 1];
-          ValueType* p2 = points + id2 * 3;
-          ValueType* p3 = points + id3 * 3;
-          if ((p1[0] != p2[0] || p1[1] != p2[1] || p1[2] != p2[2]) &&
-            (p3[0] != p2[0] || p3[1] != p2[1] || p3[2] != p2[2]) &&
-            (p3[0] != p1[0] || p3[1] != p1[1] || p3[2] != p1[2]))
+          const auto& id1 = cell[0];
+          for (int i = 1; i < cellSize - 1; i++)
           {
-            indexArray->push_back(static_cast<unsigned int>(id1 + vOffset));
-            indexArray->push_back(static_cast<unsigned int>(id2 + vOffset));
-            indexArray->push_back(static_cast<unsigned int>(id3 + vOffset));
-            if (edgeArray)
+            const auto& id2 = cell[i];
+            const auto& id3 = cell[i + 1];
+
+            const auto& pt1 = points[id1];
+            const auto& pt2 = points[id2];
+            const auto& pt3 = points[id3];
+            if (pt1 != pt2 && pt1 != pt3 && pt2 != pt3)
             {
-              // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
-              int val = cellSize == 3 ? 7 : i == 1 ? 3 : i == cellSize - 2 ? 6 : 2;
-              if (edgeFlags)
-              {
-                int mask = 0;
-                mask = edgeFlags[id1] + edgeFlags[id2] * 2 + edgeFlags[id3] * 4;
-                edgeArray->push_back(val & mask);
-              }
-              else
-              {
-                edgeArray->push_back(val);
-              }
+              ++batchNumberOfTriangles;
             }
           }
         }
@@ -92,45 +120,90 @@ struct AppendTrianglesWorker
     }
   }
 
-  // Generic API, on VS13 Rel this is about 80% slower than
-  // the AOS template above. (We should retest this now that it uses ranges).
-  template <typename PointArray>
-  void operator()(PointArray* pointArray)
+  void Reduce()
   {
-    const auto points = vtk::DataArrayTupleRange<3>(pointArray);
-
-    auto cellIter = vtk::TakeSmartPointer(cells->NewIterator());
-
-    for (cellIter->GoToFirstCell(); !cellIter->IsDoneWithTraversal(); cellIter->GoToNextCell())
+    const auto globalSum = this->TriangleBatches.BuildOffsetsAndGetGlobalSum();
+    vtkIdType totalNumTriangles = globalSum.TrianglesOffset;
+    const auto indexArraySize = this->IndexArray->size();
+    const auto edgeArraySize = this->EdgeArray ? this->EdgeArray->size() : 0;
+    this->IndexArray->resize(this->IndexArray->size() + totalNumTriangles * 3);
+    if (this->EdgeArray)
     {
-      vtkIdType cellSize;
-      const vtkIdType* cell;
-      cellIter->GetCurrentCell(cellSize, cell);
+      this->EdgeArray->resize(this->EdgeArray->size() + totalNumTriangles);
+    }
 
-      if (cellSize >= 3)
+    vtkSMPTools::For(0, this->TriangleBatches.GetNumberOfBatches(),
+      [&](vtkIdType beginBatchId, vtkIdType endBatchId)
       {
-        const vtkIdType id1 = cell[0];
-        for (int i = 1; i < cellSize - 1; i++)
+        auto points = vtk::DataArrayTupleRange<3>(this->Points);
+        auto offsets = vtk::DataArrayValueRange<1, vtkIdType>(this->Offsets);
+        auto connectivity = vtk::DataArrayValueRange<1, vtkIdType>(this->Connectivity);
+
+        for (vtkIdType batchId = beginBatchId; batchId < endBatchId; ++batchId)
         {
-          const vtkIdType id2 = cell[i];
-          const vtkIdType id3 = cell[i + 1];
-
-          const auto pt1 = points[id1];
-          const auto pt2 = points[id2];
-          const auto pt3 = points[id3];
-
-          if (pt1 != pt2 && pt1 != pt3 && pt2 != pt3)
+          AppendTrianglesBatch& batch = this->TriangleBatches[batchId];
+          auto trianglesOffset = batch.Data.TrianglesOffset;
+          auto indexArray = this->IndexArray->data() + indexArraySize + trianglesOffset * 3;
+          auto edgeArray =
+            this->EdgeArray ? this->EdgeArray->data() + edgeArraySize + trianglesOffset : nullptr;
+          for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; ++cellId)
           {
-            indexArray->push_back(static_cast<unsigned int>(id1 + vOffset));
-            indexArray->push_back(static_cast<unsigned int>(id2 + vOffset));
-            indexArray->push_back(static_cast<unsigned int>(id3 + vOffset));
+            const auto cellSize = offsets[cellId + 1] - offsets[cellId];
+            const auto cell = connectivity.begin() + offsets[cellId];
+            if (cellSize >= 3)
+            {
+              const auto& id1 = cell[0];
+              for (int i = 1; i < cellSize - 1; i++)
+              {
+                const auto& id2 = cell[i];
+                const auto& id3 = cell[i + 1];
+
+                const auto& pt1 = points[id1];
+                const auto& pt2 = points[id2];
+                const auto& pt3 = points[id3];
+                if (pt1 != pt2 && pt1 != pt3 && pt2 != pt3)
+                {
+                  *indexArray++ = static_cast<unsigned int>(id1 + this->VOffset);
+                  *indexArray++ = static_cast<unsigned int>(id2 + this->VOffset);
+                  *indexArray++ = static_cast<unsigned int>(id3 + this->VOffset);
+                  if (edgeArray)
+                  {
+                    // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+                    int val = cellSize == 3 ? 7 : i == 1 ? 3 : i == cellSize - 2 ? 6 : 2;
+                    if (this->EdgeFlags)
+                    {
+                      int mask = 0;
+                      mask =
+                        this->EdgeFlags[id1] + this->EdgeFlags[id2] * 2 + this->EdgeFlags[id3] * 4;
+                      *edgeArray++ = val & mask;
+                    }
+                    else
+                    {
+                      *edgeArray++ = val;
+                    }
+                  }
+                }
+              }
+            }
           }
         }
-      }
-    }
+      });
   }
 };
 
+struct AppendTrianglesWorker
+{
+
+  template <typename TPointsArray, typename TOffsets, typename TConnectivity>
+  void operator()(TPointsArray* points, TOffsets* offsets, TConnectivity* connectivity,
+    std::vector<unsigned int>* indexArray, std::vector<unsigned char>* edgeArray,
+    unsigned char* edgeFlags, vtkIdType vOffset)
+  {
+    AppendTrianglesFunctor<TPointsArray, TOffsets, TConnectivity> functor(
+      points, offsets, connectivity, indexArray, edgeArray, edgeFlags, vOffset);
+    vtkSMPTools::For(0, functor.TriangleBatches.GetNumberOfBatches(), functor);
+  }
+};
 } // end anon namespace
 
 // used to create an IBO for triangle primitives
@@ -138,48 +211,25 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(std::vector<unsigned 
   vtkCellArray* cells, vtkPoints* points, vtkIdType vOffset, std::vector<unsigned char>* edgeArray,
   vtkDataArray* edgeFlags)
 {
-  const bool hasOnlyTriangles =
-    cells->GetNumberOfConnectivityIds() == cells->GetNumberOfCells() * 3;
-  if (hasOnlyTriangles)
-  {
-    indexArray.reserve(cells->GetNumberOfConnectivityIds());
-  }
-
-  if (cells->GetNumberOfConnectivityIds() > cells->GetNumberOfCells() * 3)
-  {
-    size_t targetSize =
-      indexArray.size() + (cells->GetNumberOfConnectivityIds() - cells->GetNumberOfCells() * 2) * 3;
-    if (targetSize > indexArray.capacity())
-    {
-      targetSize = std::max<double>(targetSize, indexArray.capacity() * 1.5);
-      indexArray.reserve(targetSize);
-    }
-  }
-
   unsigned char* ucef = nullptr;
   if (edgeFlags)
   {
     ucef = vtkArrayDownCast<vtkUnsignedCharArray>(edgeFlags)->GetPointer(0);
   }
 
-  // Create our worker functor:
+  // Define our dispatcher
+  using FloatArrays = vtkArrayDispatch::FilterArraysByValueType<vtkArrayDispatch::AllArrays,
+    vtkArrayDispatch::Reals>::Result;
+  using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<FloatArrays, vtkCellArray::StorageArrayList,
+    vtkCellArray::StorageArrayList>;
   AppendTrianglesWorker worker;
-  worker.indexArray = &indexArray;
-  worker.edgeArray = edgeArray;
-  worker.edgeFlags = ucef;
-  worker.cells = cells;
-  worker.vOffset = vOffset;
-
-  // Define our dispatcher on float/double
-  typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals> Dispatcher;
-
   // Execute the dispatcher:
-  if (!Dispatcher::Execute(points->GetData(), worker))
+  if (!Dispatcher::Execute(points->GetData(), cells->GetOffsetsArray(),
+        cells->GetConnectivityArray(), worker, &indexArray, edgeArray, ucef, vOffset))
   {
-    // If Execute() fails, it means the dispatch failed due to an
-    // unsupported array type this falls back to using the
-    // vtkDataArray double API:
-    worker(points->GetData());
+    // Fallback to the generic implementation.
+    worker(points->GetData(), cells->GetOffsetsArray(), cells->GetConnectivityArray(), &indexArray,
+      edgeArray, ucef, vOffset);
   }
 }
 

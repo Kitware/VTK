@@ -3,7 +3,6 @@
 #include "vtkFlyingEdges2D.h"
 
 #include "vtkCellArray.h"
-#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkImageTransform.h"
@@ -132,19 +131,17 @@ public:
   }
 
   // Produce the line segments for this pixel cell.
-  struct GenerateLinesImpl
+  struct GenerateLinesImpl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, const unsigned char* edges, int numLines, vtkIdType* eIds,
-      vtkIdType& lineId)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(OffsetsT* offsets, ConnectivityT* conn, const unsigned char* edges,
+      int numLines, vtkIdType* eIds, vtkIdType& lineId)
     {
-      using ValueType = typename CellStateT::ValueType;
-      auto* offsets = state.GetOffsets();
-      auto* conn = state.GetConnectivity();
+      using ValueType = GetAPIType<OffsetsT>;
 
-      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      auto offsetRange = GetRange(offsets);
       auto offsetIter = offsetRange.begin() + lineId;
-      auto connRange = vtk::DataArrayValueRange<1>(conn);
+      auto connRange = GetRange(conn);
       auto connIter = connRange.begin() + (lineId * 2);
 
       for (int i = 0; i < numLines; ++i)
@@ -157,14 +154,13 @@ public:
   };
   // Finalize the lines cell array: after all the lines are inserted,
   // the last offset has to be added to complete the offsets array.
-  struct FinalizeLinesImpl
+  struct FinalizeLinesImpl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, vtkIdType numLines)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType numLines)
     {
-      using ValueType = typename CellStateT::ValueType;
-      auto* offsets = state.GetOffsets();
-      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      using ValueType = GetAPIType<OffsetsT>;
+      auto offsetRange = GetRange(offsets);
       auto offsetIter = offsetRange.begin() + numLines;
       *offsetIter = static_cast<ValueType>(2 * numLines);
     }
@@ -173,7 +169,7 @@ public:
     unsigned char eCase, unsigned char numLines, vtkIdType* eIds, vtkIdType& lineId)
   {
     const unsigned char* edges = this->EdgeCases[eCase] + 1;
-    this->NewLines->Visit(GenerateLinesImpl{}, edges, numLines, eIds, lineId);
+    this->NewLines->Dispatch(GenerateLinesImpl{}, edges, numLines, eIds, lineId);
   }
 
   // Interpolate along a pixel axes edge.
@@ -884,7 +880,7 @@ void vtkFlyingEdges2DAlgorithm<T>::ContourImage(vtkFlyingEdges2D* self, T* scala
       newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
       algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
       newLines->ResizeExact(numOutLines, 2 * numOutLines);
-      newLines->Visit(FinalizeLinesImpl{}, numOutLines);
+      newLines->Dispatch(FinalizeLinesImpl{}, numOutLines);
       algo.NewLines = newLines;
       if (newScalars)
       {

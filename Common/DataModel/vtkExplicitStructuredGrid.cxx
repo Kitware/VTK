@@ -130,15 +130,16 @@ void vtkExplicitStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 // Support GetCellBounds()
 namespace
 { // anonymous
-struct ComputeCellBoundsVisitor
+struct ComputeCellBoundsVisitor : public vtkCellArray::DispatchUtilities
 {
   // vtkCellArray::Visit entry point:
-  template <typename CellStateT>
-  void operator()(CellStateT& state, vtkPoints* points, vtkIdType cellId, double bounds[6]) const
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkPoints* points, vtkIdType cellId,
+    double bounds[6]) const
   {
-    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
+    const vtkIdType beginOffset = GetBeginOffset(offsets, cellId);
 
-    const auto pointIds = state.GetConnectivity()->GetPointer(beginOffset);
+    const auto pointIds = GetRange(conn).begin() + beginOffset;
     vtkBoundingBox::ComputeBounds(points, pointIds, 8, bounds);
   }
 };
@@ -154,7 +155,7 @@ void vtkExplicitStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6]
     vtkErrorMacro(<< "No data");
     return;
   }
-  this->Cells->Visit(ComputeCellBoundsVisitor{}, this->Points, cellId, bounds);
+  this->Cells->Dispatch(ComputeCellBoundsVisitor{}, this->Points, cellId, bounds);
 }
 
 //------------------------------------------------------------------------------

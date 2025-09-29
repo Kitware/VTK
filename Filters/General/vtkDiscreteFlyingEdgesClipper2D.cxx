@@ -121,21 +121,21 @@ public:
   unsigned char* GetVertUses(unsigned char dCase) { return this->VertUses[dCase]; }
 
   // Produce the primitives for this pixel cell.
-  struct GeneratePolysImpl
+  struct GeneratePolysImpl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, const unsigned char* verts, int numPolys,
-      const vtkIdType ptIds[9], vtkIdType& cellOffsetBegin, vtkIdType& cellConnBegin)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(OffsetsT* offsets, ConnectivityT* conn, const unsigned char* verts,
+      int numPolys, const vtkIdType ptIds[9], vtkIdType& cellOffsetBegin, vtkIdType& cellConnBegin)
     {
-      using ValueType = typename CellStateT::ValueType;
-      auto* offsets = state.GetOffsets();
-      auto* conn = state.GetConnectivity();
+      using ValueType = GetAPIType<OffsetsT>;
 
+      auto offsetsRange = GetRange(offsets);
+      auto connRange = GetRange(conn);
       size_t vid{ 0 };
       while (numPolys-- > 0)
       {
         int nPts = static_cast<int>(*verts++);
-        offsets->SetValue(cellOffsetBegin++, static_cast<ValueType>(cellConnBegin));
+        offsetsRange[cellOffsetBegin++] = static_cast<ValueType>(cellConnBegin);
         while (nPts-- > 0)
         {
           // Can't just do vtkCellArray::AppendLegacyFormat bc of this funky
@@ -143,21 +143,21 @@ public:
           vid = static_cast<size_t>(*verts++);
           // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
           vid = (vid <= 3 ? vid : (vid <= 13 ? (vid - 6) : 8));
-          conn->SetValue(cellConnBegin++, static_cast<ValueType>(ptIds[vid]));
+          connRange[cellConnBegin++] = static_cast<ValueType>(ptIds[vid]);
         }
       }
     }
   };
   // Finalize the polygons cell array: after all the polys are inserted,
   // the last offset has to be added to complete the offsets array.
-  struct FinalizePolysImpl
+  struct FinalizePolysImpl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, vtkIdType numPolys, vtkIdType connSize)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(
+      OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), vtkIdType numPolys, vtkIdType connSize)
     {
-      using ValueType = typename CellStateT::ValueType;
-      auto* offsets = state.GetOffsets();
-      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      using ValueType = GetAPIType<OffsetsT>;
+      auto offsetRange = GetRange(offsets);
       auto offsetIter = offsetRange.begin() + numPolys;
       *offsetIter = static_cast<ValueType>(connSize);
     }
@@ -166,7 +166,7 @@ public:
     vtkIdType& cellOffsetBegin, vtkIdType& cellConnBegin)
   {
     const unsigned char* verts = this->VertCases[dCase] + 3;
-    this->NewPolys->Visit(
+    this->NewPolys->Dispatch(
       GeneratePolysImpl{}, verts, numPolys, ptIds, cellOffsetBegin, cellConnBegin);
   }
 
@@ -1478,7 +1478,7 @@ void vtkDiscreteClipperAlgorithm<T>::ContourImage(vtkDiscreteFlyingEdgesClipper2
     newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
     algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
     newPolys->ResizeExact(numOutPolys, outConnLen - numOutPolys);
-    newPolys->Visit(FinalizePolysImpl{}, numOutPolys, outConnLen - numOutPolys);
+    newPolys->Dispatch(FinalizePolysImpl{}, numOutPolys, outConnLen - numOutPolys);
     algo.NewPolys = newPolys;
     if (newScalars)
     {

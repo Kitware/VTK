@@ -169,35 +169,32 @@ public:
   vtkIdType OutputConnOffset;
   vtkIdList* IdMap;
 
-  struct MapCellsImpl
+  struct MapCellsImpl : public vtkCellArray::DispatchUtilities
   {
     // Call this signature:
-    template <typename InCellStateT>
-    void operator()(InCellStateT& inState, vtkCellArray* outCells, vtkIdType inCellOffset,
-      vtkIdType inCellOffsetEnd, vtkIdType inConnOffset, vtkIdType inConnOffsetEnd,
-      vtkIdType outCellOffset, vtkIdType outConnOffset, vtkIdList* map)
+    template <class InOffsetsT, class InConnectivityT>
+    void operator()(InOffsetsT* inOffsets, InConnectivityT* inConnectivity, vtkCellArray* outCells,
+      vtkIdType inCellOffset, vtkIdType inCellOffsetEnd, vtkIdType inConnOffset,
+      vtkIdType inConnOffsetEnd, vtkIdType outCellOffset, vtkIdType outConnOffset, vtkIdList* map)
     {
-      outCells->Visit(*this, inState, inCellOffset, inCellOffsetEnd, inConnOffset, inConnOffsetEnd,
-        outCellOffset, outConnOffset, map);
+      outCells->Dispatch(*this, inOffsets, inConnectivity, inCellOffset, inCellOffsetEnd,
+        inConnOffset, inConnOffsetEnd, outCellOffset, outConnOffset, map);
     }
 
     // Internal signature:
-    template <typename InCellStateT, typename OutCellStateT>
-    void operator()(OutCellStateT& outState, InCellStateT& inState, vtkIdType inCellOffset,
+    template <class OutOffsetsT, class OutConnectivityT, class InOffsetsT, class InConnectivityT>
+    void operator()(OutOffsetsT* outOffsets, OutConnectivityT* outConnectivity,
+      InOffsetsT* inOffsets, InConnectivityT* inConnectivity, vtkIdType inCellOffset,
       vtkIdType inCellOffsetEnd, vtkIdType inConnOffset, vtkIdType inConnOffsetEnd,
       vtkIdType outCellOffset, vtkIdType outConnOffset, vtkIdList* map)
     {
-      using InIndexType = typename InCellStateT::ValueType;
-      using OutIndexType = typename OutCellStateT::ValueType;
+      using InIndexType = GetAPIType<InOffsetsT>;
+      using OutIndexType = GetAPIType<OutOffsetsT>;
 
-      const auto inCell =
-        vtk::DataArrayValueRange<1>(inState.GetOffsets(), inCellOffset, inCellOffsetEnd + 1);
-      const auto inConn =
-        vtk::DataArrayValueRange<1>(inState.GetConnectivity(), inConnOffset, inConnOffsetEnd);
-      auto outCell =
-        vtk::DataArrayValueRange<1>(outState.GetOffsets(), outCellOffset + inCellOffset);
-      auto outConn =
-        vtk::DataArrayValueRange<1>(outState.GetConnectivity(), outConnOffset + inConnOffset);
+      const auto inCell = GetRange(inOffsets).GetSubRange(inCellOffset, inCellOffsetEnd + 1);
+      const auto inConn = GetRange(inConnectivity).GetSubRange(inConnOffset, inConnOffsetEnd);
+      auto outCell = GetRange(outOffsets).GetSubRange(outCellOffset + inCellOffset);
+      auto outConn = GetRange(outConnectivity).GetSubRange(outConnOffset + inConnOffset);
 
       // Copy the offsets, adding outConnOffset to adjust for existing
       // connectivity entries:
@@ -245,7 +242,7 @@ public:
       vtkIdType cellOffset = cellOffsets->GetId(i);
       vtkIdType connOffset = connOffsets->GetId(i);
 
-      inCellArray->Visit(MapCellsImpl{}, outCellArray, cellOffset, nextCellOffset, connOffset,
+      inCellArray->Dispatch(MapCellsImpl{}, outCellArray, cellOffset, nextCellOffset, connOffset,
         nextConnOffset, outputCellOffset, outputConnOffset, map);
     }
   }
@@ -288,31 +285,34 @@ struct vtkMergeCellsData
   }
 };
 
-struct CopyCellArraysToFront
+struct CopyCellArraysToFront : public vtkCellArray::DispatchUtilities
 {
   // call this signature:
-  template <typename OutCellArraysT>
-  void operator()(OutCellArraysT& out, vtkCellArray* in)
+  template <class OutOffsetsT, class OutConnectivityT>
+  void operator()(OutOffsetsT* outOffsets, OutConnectivityT* outConnectivity, vtkCellArray* in)
   {
-    in->Visit(*this, out);
+    in->Dispatch(*this, outOffsets, outConnectivity);
   }
 
   // Internal signature:
-  template <typename InCellArraysT, typename OutCellArraysT>
-  void operator()(InCellArraysT& in, OutCellArraysT& out)
+  template <class InOffsetsT, class InConnectivityT, class OutOffsetsT, class OutConnectivityT>
+  void operator()(InOffsetsT* inOffsets, InConnectivityT* inConnectivity, OutOffsetsT* outOffsets,
+    OutConnectivityT* outConnectivity)
   {
-    using InIndexType = typename InCellArraysT::ValueType;
-    using OutIndexType = typename OutCellArraysT::ValueType;
+    using InIndexType = GetAPIType<InOffsetsT>;
+    using OutIndexType = GetAPIType<OutOffsetsT>;
 
-    const auto inCell = vtk::DataArrayValueRange<1>(in.GetOffsets());
-    const auto inConn = vtk::DataArrayValueRange<1>(in.GetConnectivity());
-    auto outCell = vtk::DataArrayValueRange<1>(out.GetOffsets());
-    auto outConn = vtk::DataArrayValueRange<1>(out.GetConnectivity());
+    const auto inCell = GetRange(inOffsets);
+    const auto inConn = GetRange(inConnectivity);
+    auto outCell = GetRange(outOffsets);
+    auto outConn = GetRange(outConnectivity);
 
-    auto cast = [](InIndexType i) -> OutIndexType { return static_cast<OutIndexType>(i); };
+    auto offsetsCast = [](InIndexType i) -> OutIndexType { return static_cast<OutIndexType>(i); };
+    auto connectivityCast = [](InIndexType i) -> OutIndexType
+    { return static_cast<OutIndexType>(i); };
 
-    std::transform(inCell.cbegin(), inCell.cend(), outCell.begin(), cast);
-    std::transform(inConn.cbegin(), inConn.cend(), outConn.begin(), cast);
+    std::transform(inCell.cbegin(), inCell.cend(), outCell.begin(), offsetsCast);
+    std::transform(inConn.cbegin(), inConn.cend(), outConn.begin(), connectivityCast);
   }
 };
 
@@ -336,7 +336,7 @@ void MergeCells(std::vector<vtkMergeCellsData>& data, const std::vector<vtkIdLis
 
   // Prepare output. Since there's no mapping here, do a simple copy in
   // serial:
-  outCells->Visit(CopyCellArraysToFront{}, firstCells);
+  outCells->Dispatch(CopyCellArraysToFront{}, firstCells);
 
   vtkParallelMergeCells mergeCells;
   mergeCells.OutCellArray = outCells;

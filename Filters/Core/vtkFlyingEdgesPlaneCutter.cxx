@@ -220,19 +220,17 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
   void CountBoundaryYZInts(unsigned char loc, unsigned char* edgeCases, vtkIdType* eMD[4]);
 
   // Produce the output triangles for this voxel cell.
-  struct GenerateTrisImpl
+  struct GenerateTrisImpl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(
-      CellStateT& state, const unsigned char* edges, int numTris, vtkIdType* eIds, vtkIdType& triId)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(OffsetsT* offsets, ConnectivityT* conn, const unsigned char* edges, int numTris,
+      vtkIdType* eIds, vtkIdType& triId)
     {
-      using ValueType = typename CellStateT::ValueType;
-      auto* offsets = state.GetOffsets();
-      auto* conn = state.GetConnectivity();
+      using ValueType = GetAPIType<OffsetsT>;
 
-      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      auto offsetRange = GetRange(offsets);
       auto offsetIter = offsetRange.begin() + triId;
-      auto connRange = vtk::DataArrayValueRange<1>(conn);
+      auto connRange = GetRange(conn);
       auto connIter = connRange.begin() + (triId * 3);
 
       for (int i = 0; i < numTris; ++i)
@@ -246,14 +244,13 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
   };
   // Finalize the triangle cell array: after all the tris are inserted,
   // the last offset has to be added to complete the offsets array.
-  struct FinalizeTrisImpl
+  struct FinalizeTrisImpl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, vtkIdType numTris)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdType numTris)
     {
-      using ValueType = typename CellStateT::ValueType;
-      auto* offsets = state.GetOffsets();
-      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      using ValueType = GetAPIType<OffsetsT>;
+      auto offsetRange = GetRange(offsets);
       auto offsetIter = offsetRange.begin() + numTris;
       *offsetIter = static_cast<ValueType>(3 * numTris);
     }
@@ -261,7 +258,7 @@ struct vtkFlyingEdgesPlaneCutterAlgorithm
   void GenerateTris(unsigned char eCase, unsigned char numTris, vtkIdType* eIds, vtkIdType& triId)
   {
     const unsigned char* edges = this->EdgeCases[eCase] + 1;
-    this->NewTris->Visit(GenerateTrisImpl{}, edges, numTris, eIds, triId);
+    this->NewTris->Dispatch(GenerateTrisImpl{}, edges, numTris, eIds, triId);
   }
 
   // Interpolate along a voxel axes edge.
@@ -1442,7 +1439,7 @@ void vtkFlyingEdgesPlaneCutterAlgorithm<T>::Contour(vtkFlyingEdgesPlaneCutter* s
     newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
     algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
     newTris->ResizeExact(numOutTris, 3 * numOutTris);
-    newTris->Visit(FinalizeTrisImpl{}, numOutTris);
+    newTris->Dispatch(FinalizeTrisImpl{}, numOutTris);
     algo.NewTris = newTris;
 
     if (newScalars)

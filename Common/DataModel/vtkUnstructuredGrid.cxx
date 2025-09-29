@@ -377,17 +377,19 @@ void vtkUnstructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 // Support GetCellBounds()
 namespace
 { // anonymous
-struct ComputeCellBoundsVisitor
+struct ComputeCellBoundsVisitor : public vtkCellArray::DispatchUtilities
 {
   // vtkCellArray::Visit entry point:
-  template <typename CellStateT>
-  void operator()(CellStateT& state, vtkPoints* points, vtkIdType cellId, double bounds[6]) const
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkPoints* points, vtkIdType cellId,
+    double bounds[6]) const
   {
-    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
-    const vtkIdType endOffset = state.GetEndOffset(cellId);
-    const vtkIdType numPts = endOffset - beginOffset;
+    auto offsetsRange = GetRange(offsets);
+    const auto& beginOffset = offsetsRange[cellId];
+    const auto& endOffset = offsetsRange[cellId + 1];
+    const vtkIdType numPts = static_cast<vtkIdType>(endOffset - beginOffset);
 
-    const auto pointIds = state.GetConnectivity()->GetPointer(beginOffset);
+    const auto pointIds = GetRange(conn).begin() + beginOffset;
     vtkBoundingBox::ComputeBounds(points, pointIds, numPts, bounds);
   }
 };
@@ -398,7 +400,7 @@ struct ComputeCellBoundsVisitor
 // constructing a cell.
 void vtkUnstructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
 {
-  this->Connectivity->Visit(ComputeCellBoundsVisitor{}, this->Points, cellId, bounds);
+  this->Connectivity->Dispatch(ComputeCellBoundsVisitor{}, this->Points, cellId, bounds);
 }
 
 //------------------------------------------------------------------------------
@@ -657,87 +659,91 @@ vtkMTimeType vtkUnstructuredGrid::GetMeshMTime()
 // Supporting functions for GetPolyhedronFaces()
 namespace
 {
-struct GetPolyhedronNPts
+struct GetPolyhedronNPts : public vtkCellArray::DispatchUtilities
 {
   // Insert full cell
-  template <typename CellStateT>
-  vtkIdType operator()(CellStateT& state, const vtkIdType cellId, const vtkCellArray* faces)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType cellId,
+    const vtkCellArray* faces, vtkIdType& npts)
   {
-    vtkIdType npts = 0;
+    auto offsetsRange = GetRange(offsets);
+    const auto& beginOffset = offsetsRange[cellId];
+    const auto& endOffset = offsetsRange[cellId + 1];
+    const vtkIdType NumberOfFaces = static_cast<vtkIdType>(endOffset - beginOffset);
+    const auto cellFaces = GetRange(conn).begin() + beginOffset;
 
-    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
-    const vtkIdType endOffset = state.GetEndOffset(cellId);
-    const vtkIdType NumberOfFaces = endOffset - beginOffset;
-    const auto cellFaces = state.GetConnectivity()->GetPointer(beginOffset);
-
+    npts = 0;
     for (vtkIdType faceNum = 0; faceNum < NumberOfFaces; ++faceNum)
     {
       npts += faces->GetCellSize(static_cast<vtkIdType>(cellFaces[faceNum]));
     }
-    return npts;
   }
 };
 
-template <typename PointType>
-struct InsertNextCellPoints
+template <typename PointTypeIter>
+struct InsertNextCellPoints : public vtkCellArray::DispatchUtilities
 {
   // Insert full cell
-  template <typename CellStateT>
-  vtkIdType operator()(CellStateT& state, const vtkIdType npts, const PointType pts[])
+  template <class OffsetsT, class ConnectivityT>
+  vtkIdType operator()(
+    OffsetsT* offsets, ConnectivityT* conn, const vtkIdType npts, const PointTypeIter pts)
   {
-    using ValueType = typename CellStateT::ValueType;
-    auto* conn = state.GetConnectivity();
-    auto* offsets = state.GetOffsets();
+    using ValueType = GetAPIType<OffsetsT>;
+    using AccessorType = vtkDataArrayAccessor<OffsetsT>;
+    AccessorType connAccessor(conn);
+    AccessorType offsetsAccessor(offsets);
 
     const vtkIdType cellId = offsets->GetNumberOfValues() - 1;
 
-    offsets->InsertNextValue(static_cast<ValueType>(conn->GetNumberOfValues() + npts));
+    offsetsAccessor.InsertNext(static_cast<ValueType>(conn->GetNumberOfValues() + npts));
 
     for (vtkIdType i = 0; i < npts; ++i)
     {
-      conn->InsertNextValue(static_cast<ValueType>(pts[i]));
+      connAccessor.InsertNext(static_cast<ValueType>(pts[i]));
     }
 
     return cellId;
   }
 };
 
-template <typename FaceIdType>
-struct CopyPolyhedronFaces
+template <typename FaceIdTypeIter>
+struct CopyPolyhedronFaces : public vtkCellArray::DispatchUtilities
 {
   // Insert full cell
-  template <typename CellStateT>
-  void operator()(CellStateT& state, const vtkIdType NumberOfFaces, const FaceIdType* cellFaces,
-    vtkCellArray* faces)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType NumberOfFaces,
+    const FaceIdTypeIter cellFaces, vtkCellArray* faces)
   {
-    using ValueType = typename CellStateT::ValueType;
-    using TInsertNextCellPoints = InsertNextCellPoints<ValueType>;
+    auto offsetsRange = GetRange(offsets);
+    auto connRange = GetRange(conn);
     for (vtkIdType faceNum = 0; faceNum < NumberOfFaces; ++faceNum)
     {
-      const vtkIdType beginOffset = state.GetBeginOffset(cellFaces[faceNum]);
-      const vtkIdType endOffset = state.GetEndOffset(cellFaces[faceNum]);
-      const vtkIdType NumberOfPoints = endOffset - beginOffset;
-      const auto cellPoints = state.GetConnectivity()->GetPointer(beginOffset);
+      const auto& beginOffset = offsetsRange[cellFaces[faceNum]];
+      const auto& endOffset = offsetsRange[cellFaces[faceNum] + 1];
+      const vtkIdType NumberOfPoints = static_cast<vtkIdType>(endOffset - beginOffset);
+      const auto cellPoints = connRange.begin() + beginOffset;
+      using TInsertNextCellPoints = InsertNextCellPoints<decltype(cellPoints)>;
 
-      faces->Visit(TInsertNextCellPoints{}, NumberOfPoints, cellPoints);
+      faces->Dispatch(TInsertNextCellPoints{}, NumberOfPoints, cellPoints);
     }
   }
 };
 
-struct CopyPolyhedronCell
+struct CopyPolyhedronCell : public vtkCellArray::DispatchUtilities
 {
   // Insert full cell
-  template <typename CellStateT>
-  void operator()(CellStateT& state, const vtkIdType cellId, vtkCellArray* src, vtkCellArray* tgt)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType cellId, vtkCellArray* src,
+    vtkCellArray* tgt)
   {
-    using ValueType = typename CellStateT::ValueType;
-    using TCopyPolyhedronFaces = CopyPolyhedronFaces<ValueType>;
-    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
-    const vtkIdType endOffset = state.GetEndOffset(cellId);
-    const vtkIdType NumberOfFaces = endOffset - beginOffset;
-    const auto cellFaces = state.GetConnectivity()->GetPointer(beginOffset);
+    auto offsetsRange = GetRange(offsets);
+    const auto& beginOffset = offsetsRange[cellId];
+    const auto& endOffset = offsetsRange[cellId + 1];
+    const vtkIdType NumberOfFaces = static_cast<vtkIdType>(endOffset - beginOffset);
+    const auto cellFaces = GetRange(conn).begin() + beginOffset;
+    using TCopyPolyhedronFaces = CopyPolyhedronFaces<decltype(cellFaces)>;
 
-    src->Visit(TCopyPolyhedronFaces{}, NumberOfFaces, cellFaces, tgt);
+    src->Dispatch(TCopyPolyhedronFaces{}, NumberOfFaces, cellFaces, tgt);
   }
 };
 
@@ -760,9 +766,9 @@ void vtkUnstructuredGrid::GetPolyhedronFaces(vtkIdType cellId, vtkCellArray* fac
   vtkIdType npts = 0;
 
   nfaces = this->FaceLocations->GetCellSize(cellId);
-  npts = this->FaceLocations->Visit(GetPolyhedronNPts{}, cellId, this->Faces);
+  this->FaceLocations->Dispatch(GetPolyhedronNPts{}, cellId, this->Faces, npts);
   faces->AllocateExact(nfaces, npts);
-  this->FaceLocations->Visit(CopyPolyhedronCell{}, cellId, this->Faces, faces);
+  this->FaceLocations->Dispatch(CopyPolyhedronCell{}, cellId, this->Faces, faces);
 }
 
 //------------------------------------------------------------------------------
@@ -1025,20 +1031,22 @@ vtkUnsignedCharArray* vtkUnstructuredGrid::GetCellTypesArray()
 // Supporting functions for GetFaceStream()
 namespace
 {
-template <typename FaceIdType>
-struct GetFaceStreamVisitor
+template <typename FaceIdTypeIter>
+struct GetFaceStreamVisitor : public vtkCellArray::DispatchUtilities
 {
   // Insert full cell
-  template <typename CellStateT>
-  void operator()(CellStateT& state, const vtkIdType NumberOfFaces, const FaceIdType* cellFaces,
-    vtkIdList* faceStream)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType NumberOfFaces,
+    const FaceIdTypeIter cellFaces, vtkIdList* faceStream)
   {
+    auto offsetsRange = GetRange(offsets);
+    auto connRange = GetRange(conn);
     for (vtkIdType faceNum = 0; faceNum < NumberOfFaces; ++faceNum)
     {
-      const vtkIdType beginOffset = state.GetBeginOffset(cellFaces[faceNum]);
-      const vtkIdType endOffset = state.GetEndOffset(cellFaces[faceNum]);
-      const vtkIdType NumberOfPoints = endOffset - beginOffset;
-      const auto cellPoints = state.GetConnectivity()->GetPointer(beginOffset);
+      const auto& beginOffset = offsetsRange[cellFaces[faceNum]];
+      const auto& endOffset = offsetsRange[cellFaces[faceNum] + 1];
+      const vtkIdType NumberOfPoints = static_cast<vtkIdType>(endOffset - beginOffset);
+      const auto cellPoints = connRange.begin() + beginOffset;
 
       faceStream->InsertNextId(NumberOfPoints);
       for (vtkIdType ptIdx = 0; ptIdx < NumberOfPoints; ++ptIdx)
@@ -1049,27 +1057,25 @@ struct GetFaceStreamVisitor
   }
 };
 
-struct GetPolyFaceStreamVisitor
+struct GetPolyFaceStreamVisitor : public vtkCellArray::DispatchUtilities
 {
   // Insert full cell
-  template <typename CellStateT>
-  void operator()(
-    CellStateT& state, const vtkIdType cellId, vtkCellArray* faceArray, vtkIdList* faceStream)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, const vtkIdType cellId,
+    vtkCellArray* faceArray, vtkIdList* faceStream)
   {
-
-    using ValueType = typename CellStateT::ValueType;
-    using TGetFaceStream = GetFaceStreamVisitor<ValueType>;
-
-    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
-    const vtkIdType endOffset = state.GetEndOffset(cellId);
-    const vtkIdType NumberOfFaces = endOffset - beginOffset;
+    auto offsetsRange = GetRange(offsets);
+    const auto& beginOffset = offsetsRange[cellId];
+    const auto& endOffset = offsetsRange[cellId + 1];
+    const vtkIdType NumberOfFaces = static_cast<vtkIdType>(endOffset - beginOffset);
 
     if (NumberOfFaces == 0)
     {
       return;
     }
-    const auto cellFaces = state.GetConnectivity()->GetPointer(beginOffset);
-    faceArray->Visit(TGetFaceStream{}, NumberOfFaces, cellFaces, faceStream);
+    const auto cellFaces = GetRange(conn).begin() + beginOffset;
+    using TGetFaceStream = GetFaceStreamVisitor<decltype(cellFaces)>;
+    faceArray->Dispatch(TGetFaceStream{}, NumberOfFaces, cellFaces, faceStream);
   }
 };
 }
@@ -1097,7 +1103,7 @@ void vtkUnstructuredGrid::GetFaceStream(vtkIdType cellId, vtkIdList* ptIds)
   }
   vtkIdType nfaces = this->FaceLocations->GetCellSize(cellId);
   ptIds->InsertNextId(nfaces);
-  this->FaceLocations->Visit(GetPolyFaceStreamVisitor{}, cellId, this->Faces, ptIds);
+  this->FaceLocations->Dispatch(GetPolyFaceStreamVisitor{}, cellId, this->Faces, ptIds);
 }
 
 //------------------------------------------------------------------------------
@@ -1480,14 +1486,14 @@ namespace
 // by only one cell), or whether the points define an interior entity (used
 // by more than one cell).
 template <class TLinks>
-struct IsCellBoundaryImpl
+struct IsCellBoundaryImpl : public vtkCellArray::DispatchUtilities
 {
   // vtkCellArray::Visit entry point:
-  template <typename CellStateT>
-  bool operator()(CellStateT& state, TLinks* links, vtkIdType cellId, vtkIdType nPts,
-    const vtkIdType* pts, vtkIdType& neighborCellId) const
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, TLinks* links, vtkIdType cellId,
+    vtkIdType nPts, const vtkIdType* pts, vtkIdType& neighborCellId, bool& result) const
   {
-    using ValueType = typename CellStateT::ValueType;
+    using ValueType = GetAPIType<OffsetsT>;
 
     neighborCellId = -1;
 
@@ -1509,8 +1515,8 @@ struct IsCellBoundaryImpl
 
     // Now for each cell, see if it contains all the face points
     // in the facePts list. If so, then this is not a boundary face.
-    const ValueType* connectivityPtr = state.GetConnectivity()->GetPointer(0);
-    const ValueType* offsetsPtr = state.GetOffsets()->GetPointer(0);
+    const auto connRange = GetRange(conn);
+    const auto offsetsRange = GetRange(offsets);
     bool match;
     vtkIdType j;
     ValueType k;
@@ -1520,8 +1526,8 @@ struct IsCellBoundaryImpl
       if (minCellId != cellId) // don't include current cell
       {
         // get cell points
-        const ValueType nCellPts = offsetsPtr[minCellId + 1] - offsetsPtr[minCellId];
-        const ValueType* cellPts = connectivityPtr + offsetsPtr[minCellId];
+        const ValueType nCellPts = offsetsRange[minCellId + 1] - offsetsRange[minCellId];
+        const auto cellPts = connRange.begin() + offsetsRange[minCellId];
         match = true;
         for (j = 0; j < nPts && match; ++j) // for all pts in input boundary entity
         {
@@ -1542,25 +1548,26 @@ struct IsCellBoundaryImpl
         if (match)
         {
           neighborCellId = minCellId;
-          return false;
+          result = false;
+          return;
         }
       } // if not the reference cell
     }   // for each cell in minimum linked list
-    return true;
+    result = true;
   }
 };
 
 // Identify the neighbors to the specified cell, where the neighbors
 // use all the points in the points list (pts).
 template <class TLinks>
-struct GetCellNeighborsImpl
+struct GetCellNeighborsImpl : public vtkCellArray::DispatchUtilities
 {
   // vtkCellArray::Visit entry point:
-  template <typename CellStateT>
-  void operator()(CellStateT& state, TLinks* links, vtkIdType cellId, vtkIdType nPts,
-    const vtkIdType* pts, vtkIdList* cellIds) const
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, TLinks* links, vtkIdType cellId,
+    vtkIdType nPts, const vtkIdType* pts, vtkIdList* cellIds) const
   {
-    using ValueType = typename CellStateT::ValueType;
+    using ValueType = GetAPIType<OffsetsT>;
 
     // Find the shortest linked list
     auto minPtId = pts[0];
@@ -1580,8 +1587,8 @@ struct GetCellNeighborsImpl
 
     // Now for each cell, see if it contains all the face points
     // in the facePts list. If so, then this is not a boundary face.
-    const ValueType* connectivityPtr = state.GetConnectivity()->GetPointer(0);
-    const ValueType* offsetsPtr = state.GetOffsets()->GetPointer(0);
+    const auto connRange = GetRange(conn);
+    const auto offsetsRange = GetRange(offsets);
     bool match;
     vtkIdType j;
     ValueType k;
@@ -1591,8 +1598,8 @@ struct GetCellNeighborsImpl
       if (minCellId != cellId) // don't include current cell
       {
         // get cell points
-        const ValueType nCellPts = offsetsPtr[minCellId + 1] - offsetsPtr[minCellId];
-        const ValueType* cellPts = connectivityPtr + offsetsPtr[minCellId];
+        const ValueType nCellPts = offsetsRange[minCellId + 1] - offsetsRange[minCellId];
+        const auto cellPts = connRange.begin() + offsetsRange[minCellId];
         match = true;
         for (j = 0; j < nPts && match; ++j) // for all pts in input boundary entity
         {
@@ -1643,14 +1650,20 @@ bool vtkUnstructuredGrid::IsCellBoundary(
     using CellLinksType = vtkStaticCellLinks;
     using TIsCellBoundary = IsCellBoundaryImpl<CellLinksType>;
     auto links = static_cast<CellLinksType*>(this->Links.Get());
-    return this->Connectivity->Visit(TIsCellBoundary{}, links, cellId, npts, pts, neighborCellId);
+    bool result;
+    this->Connectivity->Dispatch(
+      TIsCellBoundary{}, links, cellId, npts, pts, neighborCellId, result);
+    return result;
   }
   else
   {
     using CellLinksType = vtkCellLinks;
     using TIsCellBoundary = IsCellBoundaryImpl<CellLinksType>;
     auto links = static_cast<CellLinksType*>(this->Links.Get());
-    return this->Connectivity->Visit(TIsCellBoundary{}, links, cellId, npts, pts, neighborCellId);
+    bool result;
+    this->Connectivity->Dispatch(
+      TIsCellBoundary{}, links, cellId, npts, pts, neighborCellId, result);
+    return result;
   }
 }
 
@@ -1682,14 +1695,14 @@ void vtkUnstructuredGrid::GetCellNeighbors(
     using CellLinksType = vtkStaticCellLinks;
     using TGetCellNeighbors = GetCellNeighborsImpl<CellLinksType>;
     auto links = static_cast<CellLinksType*>(this->Links.Get());
-    this->Connectivity->Visit(TGetCellNeighbors{}, links, cellId, npts, pts, cellIds);
+    this->Connectivity->Dispatch(TGetCellNeighbors{}, links, cellId, npts, pts, cellIds);
   }
   else
   {
     using CellLinksType = vtkCellLinks;
     using TGetCellNeighbors = GetCellNeighborsImpl<CellLinksType>;
     auto links = static_cast<CellLinksType*>(this->Links.Get());
-    this->Connectivity->Visit(TGetCellNeighbors{}, links, cellId, npts, pts, cellIds);
+    this->Connectivity->Dispatch(TGetCellNeighbors{}, links, cellId, npts, pts, cellIds);
   }
 }
 
@@ -2116,19 +2129,19 @@ void vtkUnstructuredGrid::ConvertFaceStreamPointIds(
 // Helper
 namespace
 {
-struct ConvertVisitor
+struct ConvertVisitor : public vtkCellArray::DispatchUtilities
 {
   // Insert full cell
-  template <typename CellStateT>
-  void operator()(CellStateT& state, vtkIdType* idMap)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType* idMap)
   {
-    using ValueType = typename CellStateT::ValueType;
-    auto* conn = state.GetConnectivity();
-    const vtkIdType nids = conn->GetNumberOfValues();
+    using ValueType = GetAPIType<OffsetsT>;
+    auto connRange = GetRange(conn);
+    const vtkIdType nids = connRange.size();
     for (vtkIdType i = 0; i < nids; ++i)
     {
-      ValueType tmp = conn->GetValue(i);
-      conn->SetValue(i, idMap[tmp]);
+      ValueType tmp = connRange[i];
+      connRange[i] = idMap[tmp];
     }
   }
 };
@@ -2136,7 +2149,7 @@ struct ConvertVisitor
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::ConvertFaceStreamPointIds(vtkCellArray* faces, vtkIdType* idMap)
 {
-  faces->Visit(ConvertVisitor{}, idMap);
+  faces->Dispatch(ConvertVisitor{}, idMap);
 }
 
 //------------------------------------------------------------------------------

@@ -24,17 +24,19 @@
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
-struct build_type_array
+struct build_type_array : vtkCellArray::DispatchUtilities
 {
-  template <typename CellStateT>
-  void operator()(CellStateT& state, vtkUnsignedCharArray* types) const
+  template <typename OffsetsT, typename ConnectivityT>
+  void operator()(
+    OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), vtkUnsignedCharArray* types) const
   {
-    vtkSMPTools::For(0, state.GetNumberOfCells(),
+    vtkSMPTools::For(0, offsets->GetNumberOfValues() - 1,
       [&](vtkIdType begin, vtkIdType end)
       {
+        auto offsetsRange = GetRange(offsets);
         for (vtkIdType i = begin; i < end; ++i)
         {
-          auto cellSize = state.GetCellSize(i);
+          auto cellSize = offsetsRange[i + 1] - offsetsRange[i];
           unsigned char cellType;
           switch (cellSize)
           {
@@ -111,7 +113,7 @@ viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields, bool forc
       types->SetNumberOfComponents(1);
       types->SetNumberOfTuples(cells->GetNumberOfCells());
 
-      cells->Visit(build_type_array{}, types.GetPointer());
+      cells->Dispatch(build_type_array{}, types.GetPointer());
 
       auto dcells = Convert(types, cells, numPoints, forceViskores);
       dataset.SetCellSet(dcells);

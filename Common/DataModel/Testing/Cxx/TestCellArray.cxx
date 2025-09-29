@@ -409,20 +409,18 @@ void TestSetData(vtkSmartPointer<vtkCellArray> cellArray)
   TestSetDataImpl<vtkLongLongArray>(cellArray, false);
 }
 
-struct TestIsStorage64BitImpl
+struct TestIsStorage64BitImpl : public vtkCellArray::DispatchUtilities
 {
-  template <typename CellStateT>
-  void operator()(CellStateT&, bool expect64Bit) const
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT*, ConnectivityT*, bool expect64Bit) const
   {
     // Check the actual arrays, not the typedefs:
-    using OffsetsArrayType =
-      typename std::decay<decltype(*std::declval<CellStateT>().GetOffsets())>::type;
+    using OffsetsArrayType = typename std::decay_t<OffsetsT>;
 
-    using ConnArrayType =
-      typename std::decay<decltype(*std::declval<CellStateT>().GetConnectivity())>::type;
+    using ConnArrayType = typename std::decay_t<ConnectivityT>;
 
-    using OffsetsValueType = typename OffsetsArrayType::ValueType;
-    using ConnValueType = typename ConnArrayType::ValueType;
+    using OffsetsValueType = GetAPIType<OffsetsArrayType>;
+    using ConnValueType = GetAPIType<ConnArrayType>;
 
     constexpr bool connIs64Bit = sizeof(ConnValueType) == 8;
     constexpr bool offsetsIs64Bit = sizeof(OffsetsValueType) == 8;
@@ -436,7 +434,7 @@ void TestIsStorage64Bit(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  cellArray->Visit(TestIsStorage64BitImpl{}, cellArray->IsStorage64Bit());
+  cellArray->Dispatch(TestIsStorage64BitImpl{}, cellArray->IsStorage64Bit());
 }
 
 void TestUse32BitStorage(vtkSmartPointer<vtkCellArray> cellArray)

@@ -4,14 +4,12 @@
 #include "vtkXMLUnstructuredDataWriter.h"
 
 #include "vtkCellArray.h"
-#include "vtkCellData.h"
 #include "vtkCellIterator.h"
 #include "vtkDataArray.h"
 #include "vtkDataCompressor.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkErrorCode.h"
 #include "vtkGenericCell.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -980,24 +978,21 @@ struct ConvertCellsVisitor
   vtkSmartPointer<vtkDataArray> Offsets;
   vtkSmartPointer<vtkDataArray> Connectivity;
 
-  template <typename CellStateT>
-  void operator()(CellStateT& state)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsetsIn, ConnectivityT* connIn)
   {
-    using ArrayT = typename CellStateT::ArrayType;
-
-    vtkNew<ArrayT> offsets;
-    vtkNew<ArrayT> conn;
+    vtkNew<OffsetsT> offsets;
+    vtkNew<ConnectivityT> conn;
 
     // Shallow copy will let us change the name of the array to what the
     // writer expects without actually copying the array data:
-    conn->ShallowCopy(state.GetConnectivity());
+    conn->ShallowCopy(connIn);
     conn->SetName("connectivity");
     this->Connectivity = std::move(conn);
 
     // The file format for offsets always skips the first offset, because
     // it's always zero. Use SetArray and GetPointer to create a view
     // of the offsets array that starts at index=1:
-    auto* offsetsIn = state.GetOffsets();
     const vtkIdType numOffsets = offsetsIn->GetNumberOfValues();
     if (numOffsets >= 2)
     {
@@ -1017,7 +1012,7 @@ void vtkXMLUnstructuredDataWriter::ConvertCells(vtkCellArray* cells)
   ConvertCellsVisitor visitor;
   if (cells)
   {
-    cells->Visit(visitor);
+    cells->Dispatch(visitor);
   }
   this->CellPoints = visitor.Connectivity;
   this->CellOffsets = visitor.Offsets;
@@ -1029,7 +1024,7 @@ void vtkXMLUnstructuredDataWriter::ConvertPolyFaces(vtkCellArray* faces, vtkCell
   ConvertCellsVisitor faceVisitor, polyhedronVisitor;
   if (faces && faces->GetNumberOfCells() > 0)
   {
-    faces->Visit(faceVisitor);
+    faces->Dispatch(faceVisitor);
     faceVisitor.Connectivity->SetName("face_connectivity");
     faceVisitor.Offsets->SetName("face_offsets");
   }
@@ -1037,7 +1032,7 @@ void vtkXMLUnstructuredDataWriter::ConvertPolyFaces(vtkCellArray* faces, vtkCell
   this->FaceOffsets = faceVisitor.Offsets;
   if (faceOffsets && faceOffsets->GetNumberOfCells() > 0)
   {
-    faceOffsets->Visit(polyhedronVisitor);
+    faceOffsets->Dispatch(polyhedronVisitor);
     polyhedronVisitor.Connectivity->SetName("polyhedron_to_faces");
     polyhedronVisitor.Offsets->SetName("polyhedron_offsets");
   }
