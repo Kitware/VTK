@@ -10,6 +10,10 @@ to VTK data model and are outside of the scope of this specification.
 They can be useful to store meta-information that could be read and written
 by custom VTKHDF implementations.
 
+:::{hint}
+Unless specified otherwise, every mention of "dataset" in this doc refers to a [HDF5 dataset](https://support.hdfgroup.org/documentation/hdf5/latest/_h5_d__u_g.html) and not a VTK dataset.
+:::
+
 ### Versioning
 
 VTKHDF File format stores the version in the related attribute `Version`. It is an array of 2 integers `[X,Y]` where
@@ -204,6 +208,9 @@ Figure 2. - Unstructured Grid VTKHDF File Format
 To read the data for its rank a node reads the information about all
 partitions, compute the correct offset and then read data from that
 offset.
+
+In VTK, Unstructured Grids support a large variety of cell types. Most VTK cell types are supported, with the exception of `VTK_POLYHEDRON`.
+which is different from other cell types.
 
 ## Poly data
 
@@ -563,8 +570,8 @@ Each block should describe a valid VTKHDF root node for a supported data types. 
 The generic format for all `VTKHDF` temporal data is shown in Figure 7.
 The general idea is to take the static formats described above and use them
 as a base to append all the time dependent data. As such, a file holding static
-data has a very similar structure to a file holding dynamic data. For non composite dataset, an
-additional `Steps` subgroup is added to the `VTKHDF` main group holding offset information
+data has a very similar structure to a file holding dynamic data. For a non-composite dataset,
+an additional `Steps` subgroup is added to the `VTKHDF` main group holding offset information
 for each of the time steps as well as the time values. The choice to include offset
 information as HDF5 datasets was made to reduce the quantity of meta-data in the
 file to improve performance. This `Steps` group has one integer like attribute
@@ -790,7 +797,7 @@ Having different value in the attribute `NSteps` of the group `Step` between Blo
 ```
 
 :::{hint}
-Not all blocks need to define a `Steps`, if a block doesn't have it, a temporal data array will be considered to be a "partial" array.
+Not all blocks need to define a `Steps` group, if a block doesn't have it, a temporal data array will be considered to be a "partial" array.
 :::
 
 ## Limitations
