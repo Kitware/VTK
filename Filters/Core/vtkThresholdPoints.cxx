@@ -1,5 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// Hide VTK_DEPRECATED_IN_9_5_0() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkThresholdPoints.h"
 
 #include "vtkCellArray.h"
@@ -19,11 +23,6 @@ vtkStandardNewMacro(vtkThresholdPoints);
 // Construct with lower threshold=0, upper threshold=1, and threshold
 // function=upper.
 vtkThresholdPoints::vtkThresholdPoints()
-  : LowerThreshold(0.0)
-  , UpperThreshold(0.0)
-  , InputArrayComponent(0)
-  , OutputPointsPrecision(DEFAULT_PRECISION)
-  , ThresholdFunction(&vtkThresholdPoints::Upper)
 {
   // by default process active point scalars
   this->SetInputArrayToProcess(
@@ -31,9 +30,64 @@ vtkThresholdPoints::vtkThresholdPoints()
 }
 
 //------------------------------------------------------------------------------
+void vtkThresholdPoints::SetThresholdFunction(int function)
+{
+  if (this->GetThresholdFunction() != function)
+  {
+    switch (function)
+    {
+      case THRESHOLD_BETWEEN:
+        if (this->ThresholdFunction != &vtkThresholdPoints::Between)
+        {
+          this->ThresholdFunction = &vtkThresholdPoints::Between;
+        }
+        break;
+      case THRESHOLD_LOWER:
+        if (this->ThresholdFunction != &vtkThresholdPoints::Lower)
+        {
+          this->ThresholdFunction = &vtkThresholdPoints::Lower;
+        }
+        break;
+      case THRESHOLD_UPPER:
+        if (this->ThresholdFunction != &vtkThresholdPoints::Upper)
+        {
+          this->ThresholdFunction = &vtkThresholdPoints::Upper;
+        }
+        break;
+    }
+
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+int vtkThresholdPoints::GetThresholdFunction()
+{
+  if (this->ThresholdFunction == &vtkThresholdPoints::Between)
+  {
+    return THRESHOLD_BETWEEN;
+  }
+  else if (this->ThresholdFunction == &vtkThresholdPoints::Lower)
+  {
+    return THRESHOLD_LOWER;
+  }
+  else if (this->ThresholdFunction == &vtkThresholdPoints::Upper)
+  {
+    return THRESHOLD_UPPER;
+  }
+
+  // Added to avoid warning. Should never be reached.
+  return -1;
+}
+
+//------------------------------------------------------------------------------
 // Criterion is cells whose scalars are less than lower threshold.
 void vtkThresholdPoints::ThresholdByLower(double lower)
 {
+  vtkWarningMacro(
+    "vtkThresholdPoints::ThresholdByLower is deprecated and will be removed in a future release. "
+    "Use SetLowerThreshold(lower) followed by SetThresholdFunction(THRESHOLD_LOWER) instead.");
+
   int isModified = 0;
 
   if (this->ThresholdFunction != &vtkThresholdPoints::Lower)
@@ -58,6 +112,10 @@ void vtkThresholdPoints::ThresholdByLower(double lower)
 // Criterion is cells whose scalars are less than upper threshold.
 void vtkThresholdPoints::ThresholdByUpper(double upper)
 {
+  vtkWarningMacro(
+    "vtkThresholdPoints::ThresholdByUpper is deprecated and will be removed in a future release. "
+    "Use SetUpperThreshold(upper) followed by SetThresholdFunction(THRESHOLD_UPPER) instead.");
+
   int isModified = 0;
 
   if (this->ThresholdFunction != &vtkThresholdPoints::Upper)
@@ -82,6 +140,11 @@ void vtkThresholdPoints::ThresholdByUpper(double upper)
 // Criterion is cells whose scalars are between lower and upper thresholds.
 void vtkThresholdPoints::ThresholdBetween(double lower, double upper)
 {
+  vtkWarningMacro(
+    "vtkThresholdPoints::ThresholdBetween is deprecated and will be removed in a future release. "
+    "Use SetLowerThreshold(lower), SetUpperThreshold(upper), and then "
+    "SetThresholdFunction(THRESHOLD_BETWEEN) instead.");
+
   int isModified = 0;
 
   if (this->ThresholdFunction != &vtkThresholdPoints::Between)
