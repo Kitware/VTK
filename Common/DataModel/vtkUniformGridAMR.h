@@ -19,6 +19,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkUniformGridAMR : public vtkAMRDataObject
 public:
   static vtkUniformGridAMR* New();
   vtkTypeMacro(vtkUniformGridAMR, vtkAMRDataObject);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Return class name of data type (see vtkType.h for definitions).

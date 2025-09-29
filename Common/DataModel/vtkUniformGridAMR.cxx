@@ -17,6 +17,12 @@ vtkUniformGridAMR::vtkUniformGridAMR() = default;
 vtkUniformGridAMR::~vtkUniformGridAMR() = default;
 
 //------------------------------------------------------------------------------
+void vtkUniformGridAMR::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 vtkUniformGridAMR* vtkUniformGridAMR::GetData(vtkInformation* info)
 {
   return info ? vtkUniformGridAMR::SafeDownCast(info->Get(DATA_OBJECT())) : nullptr;
