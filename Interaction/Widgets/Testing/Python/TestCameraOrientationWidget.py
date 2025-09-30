@@ -220,6 +220,34 @@ class TestCameraOrientationWidget(vtkmodules.test.Testing.vtkTest):
                 self.assertAlmostEqual(
                     viewUp[j], requiredViewUp[i][j], places=4)
 
+        # test changing the widget colors
+        camRep = self.camOrientManipulator.GetRepresentation()
+
+        xColor = (0.870, 0.254, 0.188)
+        yColor = (0.952, 0.752, 0.090)
+        zColor = (0.654, 0.823, 0.549)
+        self.assertEqual(camRep.GetXAxisColor(), xColor)
+        self.assertEqual(camRep.GetYAxisColor(), yColor)
+        self.assertEqual(camRep.GetZAxisColor(), zColor)
+
+        xNewColor = [0.50, 1.00, 1.00]
+        yNewColor = [1.00, 0.50, 1.00]
+        zNewColor = [1.00, 0.75, 0.25]
+        camRep.SetXAxisColor(xNewColor)
+        camRep.SetYAxisColor(yNewColor)
+        camRep.SetZAxisColor(zNewColor)
+
+        # sanity check
+        queryColor = [0.0, 0.0, 0.0]
+        camRep.GetXAxisColor(queryColor)
+        self.assertEqual(queryColor, xNewColor)
+        camRep.GetYAxisColor(queryColor)
+        self.assertEqual(queryColor, yNewColor)
+        camRep.GetZAxisColor(queryColor)
+        self.assertEqual(queryColor, zNewColor)
+
+        self.renWin.Render()
+
         # Remove the observers so we can go interactive. Without this the "-I"
         # testing option fails.
         self.recorder.Off()
