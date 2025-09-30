@@ -326,8 +326,8 @@ void vtkBiDimensionalRepresentation2D::Point3WidgetInteraction(double e[2])
 
   // Start by getting the coordinates (P1,P2) defining Line1. Also get
   // characteristics of Line1 including its slope, etc.
-  this->GetPoint1WorldPosition(p1);
-  this->GetPoint2WorldPosition(p2);
+  this->GetPoint1DisplayPosition(p1);
+  this->GetPoint2DisplayPosition(p2);
   slope1[0] = p2[0] - p1[0];
   slope1[1] = p2[1] - p1[1];
   slope2[0] = -slope1[1];
@@ -337,25 +337,20 @@ void vtkBiDimensionalRepresentation2D::Point3WidgetInteraction(double e[2])
 
   // The current position of P3 is constrained to lie along Line1. Also,
   // P4 is placed on the opposite side of Line1.
-  double pw[4], t, closest[3];
-  if (this->Renderer)
-  {
-    this->Renderer->SetDisplayPoint(e[0], e[1], 0.0);
-    this->Renderer->DisplayToWorld();
-    this->Renderer->GetWorldPoint(pw);
-  }
+  double pw[3] = { e[0], e[1], 0.0 };
+  double t, closest[3];
   double dist = sqrt(vtkLine::DistanceToLine(pw, p1, p2, t, closest));
 
   // Set the positions of P3 and P4.
   p3[0] = closest[0] + dist * slope2[0];
   p3[1] = closest[1] + dist * slope2[1];
   p3[2] = pw[2];
-  this->SetPoint3WorldPosition(p3);
+  this->SetPoint3DisplayPosition(p3);
 
   p4[0] = closest[0] - dist * slope2[0];
   p4[1] = closest[1] - dist * slope2[1];
   p4[2] = pw[2];
-  this->SetPoint4WorldPosition(p4);
+  this->SetPoint4DisplayPosition(p4);
 }
 
 //------------------------------------------------------------------------------
@@ -401,62 +396,24 @@ void vtkBiDimensionalRepresentation2D::StartWidgetManipulation(double e[2])
 // bidimensional widget become zero. Basically the method prevents the arms
 // from getting too short.
 void vtkBiDimensionalRepresentation2D::ProjectOrthogonalPoint(
-  double x[4], double y[3], double x1[3], double x2[3], double x21[3], double dir, double xP[3])
+  const double x[4], const double y[3], const double x1[3], const double x2[3], double xP[3])
 {
-  double t, closest[3], slope[3], dist;
+  double t, closest[3];
 
   // determine the distance from the other (orthogonal) line
-  dist = dir * sqrt(vtkLine::DistanceToLine(x, x1, x2, t, closest));
+  double dist = sqrt(vtkLine::DistanceToLine(x, x1, x2, t, closest));
 
   // get the closest point on the other line, use its "mate" point to define the projection point,
   // this keeps everything orthogonal.
   vtkLine::DistanceToLine(y, x1, x2, t, closest);
 
-  // Project the point "dist" orthogonal to ray x21.
-  // Define an orthogonal line.
-  slope[0] = -x21[1];
-  slope[1] = x21[0];
-  slope[2] = 0.0;
-
-  // Project out the right distance along the calculated slope
-  vtkMath::Normalize(slope);
-  xP[0] = closest[0] + dist * slope[0];
-  xP[1] = closest[1] + dist * slope[1];
-  xP[2] = closest[2] + dist * slope[2];
-
-  // Check to see what side the projection is on, clamp if necessary. Note that closest is modified
-  // so that the arms don't end up with zero length.
-  if (((xP[0] - closest[0]) * (x[0] - closest[0]) + (xP[1] - closest[1]) * (x[1] - closest[1]) +
-        (xP[2] - closest[2]) * (x[2] - closest[2])) < 0.0)
-  {
-    // Convert closest point to display coordinates
-    double c1[3], c2[3], c21[3], cNew[3], xPNew[4];
-    this->Renderer->SetWorldPoint(closest[0], closest[1], closest[2], 1.0);
-    this->Renderer->WorldToDisplay();
-    this->Renderer->GetDisplayPoint(c1);
-    // Convert vector in world space to display space
-    this->Renderer->SetWorldPoint(
-      closest[0] + dir * slope[0], closest[1] + dir * slope[1], closest[2] + dir * slope[2], 1.0);
-    this->Renderer->WorldToDisplay();
-    this->Renderer->GetDisplayPoint(c2);
-    c21[0] = c2[0] - c1[0];
-    c21[1] = c2[1] - c1[1];
-    c21[2] = c2[2] - c1[2];
-    vtkMath::Normalize(c21);
-
-    // Perform vector addition in display space to get new point
-    cNew[0] = c1[0] + c21[0];
-    cNew[1] = c1[1] + c21[1];
-    cNew[2] = c1[2] + c21[2];
-
-    this->Renderer->SetDisplayPoint(cNew[0], cNew[1], cNew[2]);
-    this->Renderer->DisplayToWorld();
-    this->Renderer->GetWorldPoint(xPNew);
-
-    xP[0] = xPNew[0];
-    xP[1] = xPNew[1];
-    xP[2] = xPNew[2];
-  }
+  // User vector math to calculate xP
+  double movingAxis[3];
+  vtkMath::Subtract(closest, y, movingAxis);
+  vtkMath::Normalize(movingAxis);
+  xP[0] = closest[0] + dist * movingAxis[0];
+  xP[1] = closest[1] + dist * movingAxis[1];
+  xP[2] = closest[2] + dist * movingAxis[2];
 }
 
 //------------------------------------------------------------------------------
@@ -506,29 +463,19 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
       p3c[i] = this->P3World[i] - this->CenterWorld[i];
       p4c[i] = this->P4World[i] - this->CenterWorld[i];
     }
-    double theta = atan2(ec[1], ec[0]) - atan2(sc[1], sc[0]);
-    double r1 = vtkMath::Norm(p1c);
-    double r2 = vtkMath::Norm(p2c);
-    double r3 = vtkMath::Norm(p3c);
-    double r4 = vtkMath::Norm(p4c);
-    double theta1 = atan2(p1c[1], p1c[0]);
-    double theta2 = atan2(p2c[1], p2c[0]);
-    double theta3 = atan2(p3c[1], p3c[0]);
-    double theta4 = atan2(p4c[1], p4c[0]);
-
-    // rotate the four points
-    p1[0] = this->CenterWorld[0] + r1 * cos(theta + theta1);
-    p1[1] = this->CenterWorld[1] + r1 * sin(theta + theta1);
-    p2[0] = this->CenterWorld[0] + r2 * cos(theta + theta2);
-    p2[1] = this->CenterWorld[1] + r2 * sin(theta + theta2);
-    p3[0] = this->CenterWorld[0] + r3 * cos(theta + theta3);
-    p3[1] = this->CenterWorld[1] + r3 * sin(theta + theta3);
-    p4[0] = this->CenterWorld[0] + r4 * cos(theta + theta4);
-    p4[1] = this->CenterWorld[1] + r4 * sin(theta + theta4);
-    p1[2] = this->P1World[2];
-    p2[2] = this->P2World[2];
-    p3[2] = this->P3World[2];
-    p4[2] = this->P4World[2];
+    double theta = vtkMath::AngleBetweenVectors(sc, ec);
+    double axis[3];
+    vtkMath::Cross(sc, ec, axis);
+    vtkMath::Normalize(axis);
+    double wxyz[4] = { theta, axis[0], axis[1], axis[2] };
+    vtkMath::RotateVectorByWXYZ(p1c, wxyz, p1);
+    vtkMath::RotateVectorByWXYZ(p2c, wxyz, p2);
+    vtkMath::RotateVectorByWXYZ(p3c, wxyz, p3);
+    vtkMath::RotateVectorByWXYZ(p4c, wxyz, p4);
+    vtkMath::Add(this->CenterWorld, p1, p1);
+    vtkMath::Add(this->CenterWorld, p2, p2);
+    vtkMath::Add(this->CenterWorld, p3, p3);
+    vtkMath::Add(this->CenterWorld, p4, p4);
 
     this->SetPoint1WorldPosition(p1);
     this->SetPoint2WorldPosition(p2);
@@ -565,26 +512,22 @@ void vtkBiDimensionalRepresentation2D::WidgetInteraction(double e[2])
   }
   else if (this->InteractionState == NearP1)
   {
-    this->ProjectOrthogonalPoint(
-      pw, this->P2World, this->P3World, this->P4World, this->P43World, -1, p1);
+    this->ProjectOrthogonalPoint(pw, this->P2World, this->P3World, this->P4World, p1);
     this->SetPoint1WorldPosition(p1);
   }
   else if (this->InteractionState == NearP2)
   {
-    this->ProjectOrthogonalPoint(
-      pw, this->P1World, this->P3World, this->P4World, this->P43World, 1, p2);
+    this->ProjectOrthogonalPoint(pw, this->P1World, this->P3World, this->P4World, p2);
     this->SetPoint2WorldPosition(p2);
   }
   else if (this->InteractionState == NearP3)
   {
-    this->ProjectOrthogonalPoint(
-      pw, this->P4World, this->P1World, this->P2World, this->P21World, 1, p3);
+    this->ProjectOrthogonalPoint(pw, this->P4World, this->P1World, this->P2World, p3);
     this->SetPoint3WorldPosition(p3);
   }
   else if (this->InteractionState == NearP4)
   {
-    this->ProjectOrthogonalPoint(
-      pw, this->P3World, this->P1World, this->P2World, this->P21World, -1, p4);
+    this->ProjectOrthogonalPoint(pw, this->P3World, this->P1World, this->P2World, p4);
     this->SetPoint4WorldPosition(p4);
   } // near P4
 }

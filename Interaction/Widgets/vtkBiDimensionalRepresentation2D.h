@@ -148,7 +148,7 @@ protected:
 
   // Helper method
   void ProjectOrthogonalPoint(
-    double x[4], double y[3], double x1[3], double x2[3], double x21[3], double dir, double xP[3]);
+    const double x[4], const double y[3], const double x1[3], const double x2[3], double xP[3]);
 
 private:
   vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&) = delete;
