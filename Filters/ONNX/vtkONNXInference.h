@@ -138,6 +138,13 @@ private:
   void InitializeSession();
 
   /**
+   * Return true if the filter should generate time steps.
+   * In that case, RequestInformation will fill the appropriate pipeline key
+   * and the inference uses the pipeline time as one of its paremeter.
+   */
+  bool ShouldGenerateTimeSteps();
+
+  /**
    * Run the ONNX model with the provided input parameters. The ONNX session
    * must be initialized first.
    */

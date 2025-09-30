@@ -208,9 +208,23 @@ int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
     this->InitializeSession();
   }
 
-  // Time handling
-  float timeValue = static_cast<float>(outputVector->GetInformationObject(0)->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()));
+  // Time handling: snap requested time to one of available time.
+  double timeValue = outputVector->GetInformationObject(0)->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+
+  if (this->ShouldGenerateTimeSteps())
+  {
+    auto time =
+      std::lower_bound(this->TimeStepValues.begin(), this->TimeStepValues.end(), timeValue);
+    if (time != this->TimeStepValues.end())
+    {
+      timeValue = *time;
+    }
+    else
+    {
+      timeValue = this->TimeStepValues.back();
+    }
+  }
 
   vtkDataObjectTree* compositeInput = vtkDataObjectTree::GetData(inputVector[0], 0);
   vtkDataObjectTree* compositeOutput = vtkDataObjectTree::GetData(outputVector, 0);
@@ -324,4 +338,11 @@ int vtkONNXInference::ExecuteData(vtkDataObject* input, vtkDataObject* output, d
 
   return 1;
 }
+
+//------------------------------------------------------------------------------
+bool vtkONNXInference::ShouldGenerateTimeSteps()
+{
+  return !this->TimeStepValues.empty() && this->TimeStepIndex > -1;
+}
+
 VTK_ABI_NAMESPACE_END
