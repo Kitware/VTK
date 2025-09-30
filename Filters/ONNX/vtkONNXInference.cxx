@@ -82,6 +82,7 @@ void vtkONNXInference::InitializeSession()
 //------------------------------------------------------------------------------
 void vtkONNXInference::SetModelFile(const std::string& file)
 {
+  vtkDebugMacro("setting ModelFile to " << file);
   this->ModelFile = file;
   this->Initialized = false;
   this->Modified();
@@ -95,6 +96,7 @@ void vtkONNXInference::SetTimeStepValue(vtkIdType idx, double timeStepValue)
     vtkErrorMacro("Time step index is out of bounds.");
     return;
   }
+  vtkDebugMacro("setting TimeStepValues index " << idx << " to " << timeStepValue);
   this->TimeStepValues[idx] = timeStepValue;
   this->Modified();
 }
@@ -102,6 +104,7 @@ void vtkONNXInference::SetTimeStepValue(vtkIdType idx, double timeStepValue)
 //------------------------------------------------------------------------------
 void vtkONNXInference::SetNumberOfTimeStepValues(vtkIdType nb)
 {
+  vtkDebugMacro("setting NumberOfTimeStepValues to nb");
   this->TimeStepValues.resize(nb);
   this->Modified();
 }
@@ -109,6 +112,7 @@ void vtkONNXInference::SetNumberOfTimeStepValues(vtkIdType nb)
 //------------------------------------------------------------------------------
 void vtkONNXInference::ClearTimeStepValues()
 {
+  vtkDebugMacro("setting TimeStepValues to empty list");
   this->TimeStepValues.clear();
   this->Modified();
 }
@@ -121,6 +125,7 @@ void vtkONNXInference::SetInputParameter(vtkIdType idx, float inputParameter)
     vtkErrorMacro("Input parameter index is out of bounds.");
     return;
   }
+  vtkDebugMacro("setting InputParameters index " << idx << " to " << inputParameter);
   this->InputParameters[idx] = inputParameter;
   this->Modified();
 }
@@ -129,6 +134,7 @@ void vtkONNXInference::SetInputParameter(vtkIdType idx, float inputParameter)
 void vtkONNXInference::SetNumberOfInputParameters(vtkIdType nb)
 {
   this->InputParameters.resize(nb);
+  vtkDebugMacro("setting NumberOfInputParameters to " << nb);
   this->InputSize = nb;
   this->Modified();
 }
@@ -136,6 +142,7 @@ void vtkONNXInference::SetNumberOfInputParameters(vtkIdType nb)
 //------------------------------------------------------------------------------
 void vtkONNXInference::ClearInputParameters()
 {
+  vtkDebugMacro("setting InputParameters to empty list");
   this->InputParameters.clear();
   this->Modified();
 }
