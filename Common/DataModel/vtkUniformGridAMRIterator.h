@@ -23,6 +23,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkUniformGridAMRIterator : public vtkDataObject
 public:
   static vtkUniformGridAMRIterator* New();
   vtkTypeMacro(vtkUniformGridAMRIterator, vtkDataObjectTreeIterator);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
    * Move the iterator to the beginning of the AMR,

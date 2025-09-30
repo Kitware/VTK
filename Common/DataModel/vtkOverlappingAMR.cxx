@@ -29,6 +29,12 @@ vtkOverlappingAMR::vtkOverlappingAMR() = default;
 vtkOverlappingAMR::~vtkOverlappingAMR() = default;
 
 //------------------------------------------------------------------------------
+void vtkOverlappingAMR::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 void vtkOverlappingAMR::InstantiateMetaData()
 {
   this->SetAMRMetaData(vtkSmartPointer<vtkOverlappingAMRMetaData>::New());

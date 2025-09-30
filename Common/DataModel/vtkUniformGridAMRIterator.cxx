@@ -18,6 +18,12 @@ vtkUniformGridAMRIterator::vtkUniformGridAMRIterator() = default;
 vtkUniformGridAMRIterator::~vtkUniformGridAMRIterator() = default;
 
 //------------------------------------------------------------------------------
+void vtkUniformGridAMRIterator::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+}
+
+//------------------------------------------------------------------------------
 void vtkUniformGridAMRIterator::GoToFirstItem()
 {
   if (!this->IsValid())
