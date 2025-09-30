@@ -7,34 +7,56 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 
-#include <cstring>
 #include <map>
 
 namespace
 {
-// This list should contain the cell class names in
-// the same order as the enums in vtkCellType.h. Make sure
-// this list is nullptr terminated.
-const char* vtkCellTypesStrings[] = { "vtkEmptyCell", "vtkVertex", "vtkPolyVertex", "vtkLine",
-  "vtkPolyLine", "vtkTriangle", "vtkTriangleStrip", "vtkPolygon", "vtkPixel", "vtkQuad", "vtkTetra",
-  "vtkVoxel", "vtkHexahedron", "vtkWedge", "vtkPyramid", "vtkPentagonalPrism", "vtkHexagonalPrism",
-  "UnknownClass", "UnknownClass", "UnknownClass", "UnknownClass", "vtkQuadraticEdge",
-  "vtkQuadraticTriangle", "vtkQuadraticQuad", "vtkQuadraticTetra", "vtkQuadraticHexahedron",
-  "vtkQuadraticWedge", "vtkQuadraticPyramid", "vtkBiQuadraticQuad", "vtkTriQuadraticHexahedron",
-  "vtkQuadraticLinearQuad", "vtkQuadraticLinearWedge", "vtkBiQuadraticQuadraticWedge",
-  "vtkBiQuadraticQuadraticHexahedron", "vtkBiQuadraticTriangle", "vtkCubicLine",
-  "vtkQuadraticPolygon", "vtkTriQuadraticPyramid", "UnknownClass", "UnknownClass", "UnknownClass",
-  "vtkConvexPointSet", "vtkPolyhedron", "UnknownClass", "UnknownClass", "UnknownClass",
-  "UnknownClass", "UnknownClass", "UnknownClass", "UnknownClass", "UnknownClass",
-  "vtkParametricCurve", "vtkParametricSurface", "vtkParametricTriSurface",
-  "vtkParametricQuadSurface", "vtkParametricTetraRegion", "vtkParametricHexRegion", "UnknownClass",
-  "UnknownClass", "UnknownClass", "vtkHigherOrderEdge", "vtkHigherOrderTriangle",
-  "vtkHigherOrderQuad", "vtkHigherOrderPolygon", "vtkHigherOrderTetrahedron", "vtkHigherOrderWedge",
-  "vtkHigherOrderPyramid", "vtkHigherOrderHexahedron", "vtkLagrangeCurve",
-  "vtkLagrangeQuadrilateral", "vtkLagrangeTriangle", "vtkLagrangeTetra", "vtkLagrangeHexahedron",
-  "vtkLagrangeWedge", "vtkLagrangePyramid", "vtkBezierCurve", "vtkBezierQuadrilateral",
-  "vtkBezierTriangle", "vtkBezierTetra", "vtkBezierHexahedron", "vtkBezierWedge",
-  "vtkBezierPyramid", nullptr };
+std::map<int, std::string> CellTypesClasseName = { { VTK_EMPTY_CELL, "vtkEmptyCell" },
+  { VTK_VERTEX, "vtkVertex" }, { VTK_POLY_VERTEX, "vtkPolyVertex" }, { VTK_LINE, "vtkLine" },
+  { VTK_POLY_LINE, "vtkPolyLine" }, { VTK_TRIANGLE, "vtkTriangle" },
+  { VTK_TRIANGLE_STRIP, "vtkTriangleStrip" }, { VTK_POLYGON, "vtkPolygon" },
+  { VTK_PIXEL, "vtkPixel" }, { VTK_QUAD, "vtkQuad" }, { VTK_TETRA, "vtkTetra" },
+  { VTK_VOXEL, "vtkVoxel" }, { VTK_HEXAHEDRON, "vtkHexahedron" }, { VTK_WEDGE, "vtkWedge" },
+  { VTK_PYRAMID, "vtkPyramid" }, { VTK_PENTAGONAL_PRISM, "vtkPentagonalPrism" },
+  { VTK_HEXAGONAL_PRISM, "vtkHexagonalPrism" }, { VTK_QUADRATIC_EDGE, "vtkQuadraticEdge" },
+  { VTK_QUADRATIC_TRIANGLE, "vtkQuadraticTriangle" }, { VTK_QUADRATIC_QUAD, "vtkQuadraticQuad" },
+  { VTK_QUADRATIC_TETRA, "vtkQuadraticTetra" },
+  { VTK_QUADRATIC_HEXAHEDRON, "vtkQuadraticHexahedron" },
+  { VTK_QUADRATIC_WEDGE, "vtkQuadraticWedge" }, { VTK_QUADRATIC_PYRAMID, "vtkQuadraticPyramid" },
+  { VTK_BIQUADRATIC_QUAD, "vtkBiQuadraticQuad" },
+  { VTK_TRIQUADRATIC_HEXAHEDRON, "vtkTriQuadraticHexahedron" },
+  { VTK_QUADRATIC_LINEAR_QUAD, "vtkQuadraticLinearQuad" },
+  { VTK_QUADRATIC_LINEAR_WEDGE, "vtkQuadraticLinearWedge" },
+  { VTK_BIQUADRATIC_QUADRATIC_WEDGE, "vtkBiQuadraticQuadraticWedge" },
+  { VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, "vtkBiQuadraticQuadraticHexahedron" },
+  { VTK_BIQUADRATIC_TRIANGLE, "vtkBiQuadraticTriangle" }, { VTK_CUBIC_LINE, "vtkCubicLine" },
+  { VTK_QUADRATIC_POLYGON, "vtkQuadraticPolygon" },
+  { VTK_TRIQUADRATIC_PYRAMID, "vtkTriQuadraticPyramid" },
+  { VTK_CONVEX_POINT_SET, "vtkConvexPointSet" }, { VTK_POLYHEDRON, "vtkPolyhedron" },
+  { VTK_PARAMETRIC_CURVE, "vtkParametricCurve" },
+  { VTK_PARAMETRIC_SURFACE, "vtkParametricSurface" },
+  { VTK_PARAMETRIC_TRI_SURFACE, "vtkParametricTriSurface" },
+  { VTK_PARAMETRIC_QUAD_SURFACE, "vtkParametricQuadSurface" },
+  { VTK_PARAMETRIC_TETRA_REGION, "vtkParametricTetraRegion" },
+  { VTK_PARAMETRIC_HEX_REGION, "vtkParametricHexRegion" },
+  { VTK_HIGHER_ORDER_EDGE, "vtkHigherOrderEdge" },
+  { VTK_HIGHER_ORDER_TRIANGLE, "vtkHigherOrderTriangle" },
+  { VTK_HIGHER_ORDER_QUAD, "vtkHigherOrderQuad" },
+  { VTK_HIGHER_ORDER_POLYGON, "vtkHigherOrderPolygon" },
+  { VTK_HIGHER_ORDER_TETRAHEDRON, "vtkHigherOrderTetrahedron" },
+  { VTK_HIGHER_ORDER_WEDGE, "vtkHigherOrderWedge" },
+  { VTK_HIGHER_ORDER_PYRAMID, "vtkHigherOrderPyramid" },
+  { VTK_HIGHER_ORDER_HEXAHEDRON, "vtkHigherOrderHexahedron" },
+  { VTK_LAGRANGE_CURVE, "vtkLagrangeCurve" },
+  { VTK_LAGRANGE_QUADRILATERAL, "vtkLagrangeQuadrilateral" },
+  { VTK_LAGRANGE_TRIANGLE, "vtkLagrangeTriangle" },
+  { VTK_LAGRANGE_TETRAHEDRON, "vtkLagrangeTetra" },
+  { VTK_LAGRANGE_HEXAHEDRON, "vtkLagrangeHexahedron" }, { VTK_LAGRANGE_WEDGE, "vtkLagrangeWedge" },
+  { VTK_LAGRANGE_PYRAMID, "vtkLagrangePyramid" }, { VTK_BEZIER_CURVE, "vtkBezierCurve" },
+  { VTK_BEZIER_QUADRILATERAL, "vtkBezierQuadrilateral" },
+  { VTK_BEZIER_TRIANGLE, "vtkBezierTriangle" }, { VTK_BEZIER_TETRAHEDRON, "vtkBezierTetra" },
+  { VTK_BEZIER_HEXAHEDRON, "vtkBezierHexahedron" }, { VTK_BEZIER_WEDGE, "vtkBezierWedge" },
+  { VTK_BEZIER_PYRAMID, "vtkBezierPyramid" } };
 
 std::map<int, std::string> CellTypesName = { { VTK_VERTEX, "Vertex" },
   { VTK_POLY_VERTEX, "Polyvertex" }, { VTK_LINE, "Line" }, { VTK_POLY_LINE, "Polyline" },
@@ -106,25 +128,12 @@ int vtkCellTypeUtilities::GetTypeIdFromName(const std::string& name)
 //------------------------------------------------------------------------------
 const char* vtkCellTypeUtilities::GetClassNameFromTypeId(int type)
 {
-  static int numClasses = 0;
-
-  // find length of table
-  if (numClasses == 0)
+  if (::CellTypesClasseName.find(type) != ::CellTypesClasseName.end())
   {
-    while (vtkCellTypesStrings[numClasses] != nullptr)
-    {
-      numClasses++;
-    }
+    return ::CellTypesClasseName[type].c_str();
   }
 
-  if (type < numClasses)
-  {
-    return vtkCellTypesStrings[type];
-  }
-  else
-  {
-    return "UnknownClass";
-  }
+  return "UnknownClass";
 }
 
 //------------------------------------------------------------------------------
@@ -135,11 +144,11 @@ int vtkCellTypeUtilities::GetTypeIdFromClassName(const char* classname)
     return -1;
   }
 
-  for (int idx = 0; vtkCellTypesStrings[idx] != nullptr; idx++)
+  for (const auto& classStr : ::CellTypesClasseName)
   {
-    if (strcmp(vtkCellTypesStrings[idx], classname) == 0)
+    if (classStr.second == classname)
     {
-      return idx;
+      return classStr.first;
     }
   }
 
@@ -234,4 +243,12 @@ int vtkCellTypeUtilities::GetDimension(unsigned char type)
     }
   }
 }
+
+//------------------------------------------------------------------------------
+int vtkCellTypeUtilities::IsLinear(unsigned char type)
+{
+  return (
+    (type < VTK_HEXAGONAL_PRISM) || (type == VTK_CONVEX_POINT_SET) || (type == VTK_POLYHEDRON));
+}
+
 VTK_ABI_NAMESPACE_END

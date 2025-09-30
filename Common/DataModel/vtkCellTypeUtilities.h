@@ -1,9 +1,17 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+/**
+ * vtkCellTypeUtilities is a collection of methods for cell type lookup.
+ *
+ * It provides conversion between type id (as defined in vtkCellType.h),
+ * class name and display name, as long as other informations like the cell dimension.
+ *
+ * @note for backward compatibility some method use an `int` as the cell type,
+ * but it should be an unsigned char. See vtkCellType.h
+ */
 #ifndef vtkCellTypeUtilities_h
 #define vtkCellTypeUtilities_h
 
-#include "vtkCellType.h"              // For CellType enum
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
@@ -64,12 +72,6 @@ private:
   vtkCellTypeUtilities(const vtkCellTypeUtilities&) = delete;
   void operator=(const vtkCellTypeUtilities&) = delete;
 };
-
-inline int vtkCellTypeUtilities::IsLinear(unsigned char type)
-{
-  return (
-    (type < VTK_HEXAGONAL_PRISM) || (type == VTK_CONVEX_POINT_SET) || (type == VTK_POLYHEDRON));
-}
 
 VTK_ABI_NAMESPACE_END
 #endif
