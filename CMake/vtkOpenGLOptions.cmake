@@ -32,6 +32,9 @@ cmake_dependent_option(VTK_USE_WIN32_OPENGL "Use Win32 APIs for VTK render windo
   "WIN32" OFF)
 mark_as_advanced(VTK_USE_WIN32_OPENGL)
 
+cmake_dependent_option(VTK_USE_WIN32 "Use Win32 APIs for VTK render windows" ON
+  "WIN32 OR VTK_USE_WIN32_OPENGL" OFF)
+
 # For optional APIs that could be available for the OpenGL implementation
 # being used, we define VTK_OPENGL_HAS_<feature> options. These are not to be
 # treated as mutually exclusive.
