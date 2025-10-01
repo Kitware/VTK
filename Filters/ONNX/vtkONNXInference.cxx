@@ -174,12 +174,7 @@ int vtkONNXInference::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  if (this->TimeStepValues.empty())
-  {
-    outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
-  }
-  else
+  if (this->ShouldGenerateTimeSteps())
   {
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeStepValues.data(),
       static_cast<int>(this->TimeStepValues.size()));
