@@ -917,6 +917,15 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(wgpu::Texture& wgpuTexture,
   auto bufferMapCallback =
     [](wgpu::MapAsyncStatus status, wgpu::StringView message, InternalMapTextureAsyncData* mapData)
   {
+#ifdef Success
+    // Avoiding macro collision on Xlib systems where Success is defined as 0 with the definition
+    // wgpu::MapAsyncStatus::Success in dawn's webgpu_cpp.h.
+    // See X11/Xlib.h: #define Success 0
+    // We undefine preprocessor macro Success here and redefine it as a `constexpr auto` variable.
+    constexpr auto Success_ = Success;
+#undef Success
+    constexpr auto Success = Success_;
+#endif
     if (status == wgpu::MapAsyncStatus::Success)
     {
       const void* mappedRange = mapData->buffer.GetConstMappedRange(0, mapData->byteSize);
