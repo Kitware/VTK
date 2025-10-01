@@ -187,9 +187,14 @@ void vtkCollection::RemoveAllItems()
   this->Modified();
 }
 
+int vtkCollection::IndexOfFirstOccurence(vtkObject* a) VTK_FUTURE_CONST
+{
+  return this->IndexOfFirstOccurrence(a);
+}
+
 // Search for an object and return location in list. If location == -1,
 // object was not found.
-int vtkCollection::IndexOfFirstOccurence(vtkObject* a) VTK_FUTURE_CONST
+int vtkCollection::IndexOfFirstOccurrence(vtkObject* a) const
 {
   if (!this->Top || !a)
   {

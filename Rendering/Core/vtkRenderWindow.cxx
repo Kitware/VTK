@@ -562,7 +562,7 @@ void vtkRenderWindow::RemoveRenderer(vtkRenderer* ren)
 
 vtkTypeBool vtkRenderWindow::HasRenderer(vtkRenderer* ren)
 {
-  return (ren && this->Renderers->IndexOfFirstOccurence(ren) >= 0);
+  return (ren && this->Renderers->IndexOfFirstOccurrence(ren) >= 0);
 }
 
 //------------------------------------------------------------------------------

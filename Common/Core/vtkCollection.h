@@ -20,6 +20,7 @@
 #define vtkCollection_h
 
 #include "vtkCommonCoreModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkObject.h"
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
 
@@ -105,7 +106,16 @@ public:
    * at the returned (0-based) index.
    * If given object is nullptr, returns -1.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use correctly spelled IndexOfFirstOccurrence instead.")
   int IndexOfFirstOccurence(vtkObject* a) VTK_FUTURE_CONST;
+
+  /**
+   * Search for an object and return location in list. If the return value is
+   * -1, the object was not found. If the object was found, the location is
+   * at the returned (0-based) index.
+   * If given object is nullptr, returns -1.
+   */
+  int IndexOfFirstOccurrence(vtkObject* a) const;
 
   /**
    * Return the number of objects in the list.

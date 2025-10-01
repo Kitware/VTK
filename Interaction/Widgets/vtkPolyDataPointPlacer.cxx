@@ -54,7 +54,7 @@ void vtkPolyDataPointPlacer::RemoveAllProps()
 //------------------------------------------------------------------------------
 vtkTypeBool vtkPolyDataPointPlacer::HasProp(vtkProp* prop)
 {
-  int index = this->SurfaceProps->IndexOfFirstOccurence(prop);
+  int index = this->SurfaceProps->IndexOfFirstOccurrence(prop);
 
 #if defined(VTK_LEGACY_REMOVE)
   return (index >= 0);

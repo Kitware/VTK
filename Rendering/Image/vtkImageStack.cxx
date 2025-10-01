@@ -63,7 +63,7 @@ vtkImageSlice* vtkImageStack::GetActiveImage()
 //------------------------------------------------------------------------------
 void vtkImageStack::AddImage(vtkImageSlice* prop)
 {
-  if (this->Images->IndexOfFirstOccurence(prop) < 0 && !vtkImageStack::SafeDownCast(prop))
+  if (this->Images->IndexOfFirstOccurrence(prop) < 0 && !vtkImageStack::SafeDownCast(prop))
   {
     this->Images->AddItem(prop);
     prop->AddConsumer(this);
@@ -74,7 +74,7 @@ void vtkImageStack::AddImage(vtkImageSlice* prop)
 //------------------------------------------------------------------------------
 void vtkImageStack::RemoveImage(vtkImageSlice* prop)
 {
-  if (this->Images->IndexOfFirstOccurence(prop) >= 0)
+  if (this->Images->IndexOfFirstOccurrence(prop) >= 0)
   {
     prop->RemoveConsumer(this);
     this->Images->RemoveItem(prop);
@@ -85,7 +85,7 @@ void vtkImageStack::RemoveImage(vtkImageSlice* prop)
 //------------------------------------------------------------------------------
 vtkTypeBool vtkImageStack::HasImage(vtkImageSlice* prop)
 {
-  int index = this->Images->IndexOfFirstOccurence(prop);
+  int index = this->Images->IndexOfFirstOccurrence(prop);
 
   // VTK_DEPRECATED_IN_9_5_0()
   // Remove "#if" block and keep "#else" when removing 9.5.0 deprecations
