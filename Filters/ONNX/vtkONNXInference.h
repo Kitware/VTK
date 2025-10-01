@@ -46,6 +46,10 @@ public:
   ///@}
 
   /**
+   * Set the list of time step values
+   */
+  void SetTimeStepValues(const std::vector<double>& times);
+  /**
    * Set a time value at a given index.
    */
   void SetTimeStepValue(vtkIdType idx, double timeStepValue);
@@ -62,6 +66,10 @@ public:
    */
   void ClearTimeStepValues();
 
+  /**
+   * Set the input parameters that will be forwarded to the inference model.
+   */
+  void SetInputParameters(const std::vector<float>& params);
   /**
    * Set an input parameter at a given index.
    */

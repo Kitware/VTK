@@ -89,6 +89,17 @@ void vtkONNXInference::SetModelFile(const std::string& file)
 }
 
 //------------------------------------------------------------------------------
+void vtkONNXInference::SetTimeStepValues(const std::vector<double>& times)
+{
+  if (this->TimeStepValues != times)
+  {
+    vtkDebugMacro("setting TimeStepValues");
+    this->TimeStepValues = times;
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkONNXInference::SetTimeStepValue(vtkIdType idx, double timeStepValue)
 {
   if (idx < 0 || static_cast<size_t>(idx) > this->TimeStepValues.size())
@@ -115,6 +126,17 @@ void vtkONNXInference::ClearTimeStepValues()
   vtkDebugMacro("setting TimeStepValues to empty list");
   this->TimeStepValues.clear();
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::SetInputParameters(const std::vector<float>& inputParameters)
+{
+  if (this->InputParameters != inputParameters)
+  {
+    vtkDebugMacro("setting InputParameters");
+    this->InputParameters = inputParameters;
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
