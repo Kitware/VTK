@@ -104,10 +104,10 @@ public:
   ///@{
   /**
    * Set/Get whether the output values should be attached to the cells or the points.
-   * (default: true, meaning data are attached to the cells)
+   * (default: vtkDataObject::CELL)
    */
-  vtkSetMacro(OnCellData, bool);
-  vtkGetMacro(OnCellData, bool);
+  vtkSetMacro(ArrayAssociation, int);
+  vtkGetMacro(ArrayAssociation, int);
   ///@}
 
 protected:
@@ -146,7 +146,8 @@ private:
 
   // Output related parameters
   int OutputDimension = 1;
-  bool OnCellData = true;
+
+  int ArrayAssociation = vtkDataObject::CELL;
 
   bool Initialized = false;
   std::unique_ptr<vtkONNXInferenceInternals> Internals;

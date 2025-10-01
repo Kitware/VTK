@@ -40,9 +40,10 @@ vtkONNXInference::vtkONNXInference()
 void vtkONNXInference::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Path to ONNX model: " << ModelFile << endl;
-  os << indent << "OutputDimension: " << OutputDimension << endl;
-  os << indent << "OnCellData: " << OnCellData << endl;
+  os << indent << "Path to ONNX model: " << this->ModelFile << endl;
+  os << indent << "OutputDimension: " << this->OutputDimension << endl;
+  os << indent << "ArrayAssociation: " << this->ArrayAssociation << endl;
+  os << indent << "InputSize: " << this->InputSize << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -220,7 +221,7 @@ int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
     parameters[this->TimeStepIndex] = timeValue;
   }
 
-  int64_t numElements = this->OnCellData ? input->GetNumberOfCells() : input->GetNumberOfPoints();
+  int64_t numElements = input->GetNumberOfElements(this->ArrayAssociation);
   float* outData = nullptr;
 
   try
@@ -264,8 +265,8 @@ int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
     outputArray->SetTuple(i, &outData[i * this->OutputDimension]);
   }
 
-  output->GetAttributes(this->OnCellData ? vtkDataObject::CELL : vtkDataObject::POINT)
-    ->AddArray(outputArray);
+  output->GetAttributes(this->ArrayAssociation)->AddArray(outputArray);
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timeValue);
 
   return 1;
 }

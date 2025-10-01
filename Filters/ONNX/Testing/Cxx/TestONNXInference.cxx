@@ -79,7 +79,7 @@ bool TestGaussianKernelOnPoints(int argc, char* argv[])
   filter->SetInputParameter(1, 0.5);
   filter->SetInputParameter(2, 1.5);
   filter->SetOutputDimension(2);
-  filter->SetOnCellData(false);
+  filter->SetArrayAssociation(vtkDataObject::POINT);
   filter->SetModelFile(dataPath);
   filter->Update();
 
@@ -125,11 +125,7 @@ bool TestGaussianKernelWithTime(int argc, char* argv[])
   }
   filter->SetTimeStepIndex(2);
   filter->SetModelFile(dataPath);
-  filter->Update();
-
-  vtkInformation* outInfo = filter->GetOutputInformation(0);
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeValues[0]);
-  filter->Update();
+  filter->UpdateTimeStep(timeValues[0]);
 
   vtkSmartPointer<vtkUnstructuredGrid> output =
     vtkUnstructuredGrid::SafeDownCast(filter->GetOutput());
@@ -144,8 +140,7 @@ bool TestGaussianKernelWithTime(int argc, char* argv[])
     vtkMathUtilities::FuzzyCompare(prediction->GetTuple1(31), 0.735185921192169189453125, 0.0001),
     "TIME, Wrong prediction value.");
 
-  outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), timeValues[1]);
-  filter->Update();
+  filter->UpdateTimeStep(timeValues[1]);
 
   test &= ::Assert(prediction->GetNumberOfTuples() == 100, "TIME, Wrong output shape.");
   test &= ::Assert(
