@@ -8,15 +8,22 @@
  * inference based on user provided tabular parameters (list of float32 basically). The prediction
  * is appended to the data arrays of the vtkDataObject input (@see SetArrayAssociation).
  *
- * Moreover, the filter handles time steps. Basically, this represents the inference of the model
- * with a varying parameters which happens to represent time. Note that this filter generates its
- * own time steps and is thus not meant to be used with temporal data.
+ * One of the parameters can represent the time: the pipeline time step can be used instead
+ * of the provided one.
+ * To do that, set TimeStepIndex to the time index in the InputParameters list (@see
+ * SetInputParameters, SetTimeStepIndex), and provide a TimeStepValues list (@see
+ * SetTimeStepValues).
+ *
+ * In that case this filter generates its own time steps and is thus not meant to be used with
+ * temporal data.
  */
 #ifndef vtkONNXInference_h
 #define vtkONNXInference_h
 
 #include "vtkFiltersONNXModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
+
+#include "vtkDataObject.h" // for AttributeTypes
 
 #include <memory> // For std::unique_ptr
 #include <vector> // For std::vector
@@ -46,9 +53,20 @@ public:
   ///@}
 
   /**
+   * Time Steps.
+   *
+   * When the InputParamters list contains a time parameter, you can set TimeStepIndex to its index
+   * in the list.
+   * Then the time value will be set based on the pipeline time, overriding the value provided by
+   * SetInputParameter. In that case, the time step values list should be provided to inform
+   * downstream pipeline of available times.
+   */
+  ///@{
+  /**
    * Set the list of time step values
    */
   void SetTimeStepValues(const std::vector<double>& times);
+
   /**
    * Set a time value at a given index.
    */
@@ -67,11 +85,35 @@ public:
   void ClearTimeStepValues();
 
   /**
+   * Set the index of time value in the array of input parameters.
+   * (default: -1, meaning no input parameter correspond to time)
+   */
+  vtkSetMacro(TimeStepIndex, int);
+
+  /**
+   * Get the index of time value in the array of input parameters.
+   * (default: -1, meaning no input parameter correspond to time)
+   */
+  vtkGetMacro(TimeStepIndex, int);
+  ///@}
+
+  /**
+   * Input Parameters
+   *
+   * A list of parameters that will be forwarded to the inference model.
+   * If TimeStepIndex >= 0, this index in the list of parameters will be
+   * replaced by the current time value based on requested time and on TimeStepValues
+   * @see SetTimeStepValues
+   */
+  ///@{
+  /**
    * Set the input parameters that will be forwarded to the inference model.
    */
   void SetInputParameters(const std::vector<float>& params);
+
   /**
    * Set an input parameter at a given index.
+   * You should call SetNumberOfInputParameters before.
    */
   void SetInputParameter(vtkIdType idx, float InputParameter);
 
@@ -91,14 +133,6 @@ public:
    * internal state.
    */
   void ClearInputParameters();
-
-  ///@{
-  /**
-   * Set/Get the index of time value in the array of input parameters.
-   * (default: -1, meaning no input parameter correspond to time)
-   */
-  vtkSetMacro(TimeStepIndex, int);
-  vtkGetMacro(TimeStepIndex, int);
   ///@}
 
   ///@{
