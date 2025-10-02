@@ -34,10 +34,21 @@ public:
     VTK_DATA_ARRAY_ALIGNED_FREE = vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
     VTK_DATA_ARRAY_USER_DEFINED = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
   };
+  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::BitArray>;
+  using DataTypeTag = std::integral_constant<int, VTK_BIT>;
+  using ValueType = unsigned char;
 
   static vtkBitArray* New();
   vtkTypeMacro(vtkBitArray, vtkDataArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * Perform a fast, safe cast from a vtkAbstractArray to a vtkBitArray.
+   * This method checks if source->GetArrayType() returns BitArray,
+   * and performs a static_cast to return source as a vtkBitArray pointer.
+   * Otherwise, nullptr is returned.
+   */
+  static vtkBitArray* FastDownCast(vtkAbstractArray* source);
 
   /**
    * Allocate memory for this array. Delete old storage only if necessary.
@@ -51,7 +62,8 @@ public:
   void Initialize() override;
 
   // satisfy vtkDataArray API
-  int GetDataType() const override { return VTK_BIT; }
+  int GetArrayType() const override { return vtkBitArray::ArrayTypeTag::value; }
+  int GetDataType() const override { return vtkBitArray::DataTypeTag::value; }
   int GetDataTypeSize() const override { return 0; }
 
   /**
@@ -243,14 +255,14 @@ public:
   /**
    * Direct manipulation of the underlying data.
    */
-  unsigned char* GetPointer(vtkIdType id) { return this->Array + id / 8; }
+  ValueType* GetPointer(vtkIdType id) { return this->Array + id / 8; }
 
   /**
    * Get the address of a particular data index. Make sure data is allocated
    * for the number of items requested. Set MaxId according to the number of
    * data values requested.
    */
-  unsigned char* WritePointer(vtkIdType id, vtkIdType number);
+  ValueType* WritePointer(vtkIdType id, vtkIdType number);
 
   void* WriteVoidPointer(vtkIdType id, vtkIdType number) override
   {
@@ -279,15 +291,15 @@ public:
    */
 #ifndef __VTK_WRAP__
   void SetArray(
-    unsigned char* array, vtkIdType size, int save, int deleteMethod = VTK_DATA_ARRAY_DELETE);
+    ValueType* array, vtkIdType size, int save, int deleteMethod = VTK_DATA_ARRAY_DELETE);
 #endif
   void SetVoidArray(void* array, vtkIdType size, int save) override
   {
-    this->SetArray(static_cast<unsigned char*>(array), size, save);
+    this->SetArray(static_cast<ValueType*>(array), size, save);
   }
   void SetVoidArray(void* array, vtkIdType size, int save, int deleteMethod) override
   {
-    this->SetArray(static_cast<unsigned char*>(array), size, save, deleteMethod);
+    this->SetArray(static_cast<ValueType*>(array), size, save, deleteMethod);
   }
   ///@}
 
@@ -348,8 +360,8 @@ protected:
    */
   virtual void InitializeUnusedBitsInLastByte();
 
-  unsigned char* Array; // pointer to data
-  unsigned char* ResizeAndExtend(vtkIdType sz);
+  ValueType* Array; // pointer to data
+  ValueType* ResizeAndExtend(vtkIdType sz);
   // function to resize data
 
   int TupleSize; // used for data conversion
@@ -368,17 +380,20 @@ private:
   void UpdateLookup();
 };
 
+// Declare vtkArrayDownCast implementations for vtkBitArray:
+vtkArrayDownCast_FastCastMacro(vtkBitArray);
+
 inline void vtkBitArray::SetValue(vtkIdType id, int value)
 {
   const auto bitsetDiv = std::div(id, static_cast<vtkIdType>(8));
-  const vtkIdType &bitsetId = bitsetDiv.quot, bitId = bitsetDiv.rem;
-  unsigned char mask = 0x80 >> bitId; // NOLINT(clang-analyzer-core.BitwiseShift)
-  this->Array[bitsetId] = static_cast<unsigned char>(
+  const vtkIdType &bitsetId = bitsetDiv.quot, &bitId = bitsetDiv.rem;
+  ValueType mask = 0x80 >> bitId; // NOLINT(clang-analyzer-core.BitwiseShift)
+  this->Array[bitsetId] = static_cast<ValueType>(
     (value != 0) ? (this->Array[bitsetId] | mask) : (this->Array[bitsetId] & (~mask)));
   this->DataChanged();
 }
 
-inline void vtkBitArray::InsertValue(vtkIdType id, int i)
+inline void vtkBitArray::InsertValue(vtkIdType id, int value)
 {
   if (id >= this->Size)
   {
@@ -387,9 +402,7 @@ inline void vtkBitArray::InsertValue(vtkIdType id, int i)
       return;
     }
   }
-  this->Array[id / 8] =
-    static_cast<unsigned char>((i != 0) ? (this->Array[id / 8] | (0x80 >> id % 8))
-                                        : (this->Array[id / 8] & (~(0x80 >> id % 8))));
+  this->SetValue(id, value);
   if (id > this->MaxId)
   {
     this->MaxId = id;

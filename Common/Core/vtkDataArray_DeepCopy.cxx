@@ -111,10 +111,10 @@ struct DeepCopyWorker
 
   // These overloads are split so that the above specializations will be
   // used properly.
-  template <typename Array1DerivedT, typename Array1ValueT, typename Array2DerivedT,
-    typename Array2ValueT>
-  void operator()(vtkGenericDataArray<Array1DerivedT, Array1ValueT>* src,
-    vtkGenericDataArray<Array2DerivedT, Array2ValueT>* dst) const
+  template <typename Array1DerivedT, typename Array1ValueT, int Array1ArrayType,
+    typename Array2DerivedT, typename Array2ValueT, int Array2ArrayType>
+  void operator()(vtkGenericDataArray<Array1DerivedT, Array1ValueT, Array1ArrayType>* src,
+    vtkGenericDataArray<Array2DerivedT, Array2ValueT, Array2ArrayType>* dst) const
   {
     this->DoGenericCopy(src, dst);
   }

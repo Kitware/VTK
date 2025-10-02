@@ -184,7 +184,7 @@ int vtkElevationFilter::RequestData(
   Elevate worker; // Entry point to vtkElevationAlgorithm
 
   // Generate an optimized fast-path for float/double
-  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
     vtkArrayDispatch::Reals>;
   if (!Dispatcher::Execute(pointsArray, worker, this, diffVector, length2, scalars))
   { // fallback for unknown arrays and integral value types:

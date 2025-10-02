@@ -29,14 +29,18 @@
 VTK_ABI_NAMESPACE_BEGIN
 template <class ValueTypeT>
 class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate
-  : public vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>, ValueTypeT>
+  : public vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>, ValueTypeT,
+      vtkArrayTypes::SoADataArrayTemplate>
 {
-  typedef vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>, ValueTypeT> GenericDataArrayType;
+  using GenericDataArrayType = vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>, ValueTypeT,
+    vtkArrayTypes::SoADataArrayTemplate>;
 
 public:
-  typedef vtkSOADataArrayTemplate<ValueTypeT> SelfType;
+  using SelfType = vtkSOADataArrayTemplate<ValueTypeT>;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
-  typedef typename Superclass::ValueType ValueType;
+  using typename Superclass::ArrayTypeTag;
+  using typename Superclass::DataTypeTag;
+  using typename Superclass::ValueType;
 
   enum DeleteMethod
   {
@@ -197,19 +201,6 @@ public:
    */
   void ExportToVoidPointer(void* ptr) override;
 
-#ifndef __VTK_WRAP__
-  ///@{
-  /**
-   * Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
-   * This method checks if source->GetArrayType() returns DataArray
-   * or a more derived type, and performs a static_cast to return
-   * source as a vtkDataArray pointer. Otherwise, nullptr is returned.
-   */
-  static vtkSOADataArrayTemplate<ValueType>* FastDownCast(vtkAbstractArray* source);
-  ///@}
-#endif
-
-  int GetArrayType() const override { return vtkAbstractArray::SoADataArrayTemplate; }
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   void SetNumberOfComponents(int numComps) override;
   void ShallowCopy(vtkDataArray* other) override;
@@ -277,7 +268,7 @@ private:
     comp = valueIdx % this->NumberOfComponents;
   }
 
-  friend class vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>, ValueTypeT>;
+  friend class vtkGenericDataArray<SelfType, ValueType, ArrayTypeTag::value>;
 };
 
 // Declare vtkArrayDownCast implementations for SoA containers:

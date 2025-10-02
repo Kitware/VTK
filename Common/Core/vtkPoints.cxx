@@ -100,8 +100,8 @@ void vtkPoints::GetPoints(vtkIdList* ptIds, vtkPoints* outPoints)
   //    Points are 99% of the times floats or doubles, so we can avoid A LOT of failed FastDownCast
   //    operations, by utilizing this knowledge.
   // 4) The Worker isn't aware of the number of components of the tuple which slows down the access.
-  using Dispatcher = vtkArrayDispatch::Dispatch2ByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
-    vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+  using Dispatcher = vtkArrayDispatch::Dispatch2ByArrayAndValueType<vtkArrayDispatch::AllArrays,
+    vtkArrayDispatch::AllArrays, vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
   GetTuplesFromListWorker worker(ptIds);
   if (!Dispatcher::Execute(this->Data, outPoints->Data, worker))
   {

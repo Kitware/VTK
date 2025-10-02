@@ -368,11 +368,11 @@ int TestDispatch2ByArray()
 
   for (vtkDataArray* array1 : Arrays::allArrays)
   {
-    bool array1Valid = array1->GetArrayType() == vtkAbstractArray::SoADataArrayTemplate;
+    bool array1Valid = array1->GetArrayType() == vtkArrayTypes::SoADataArrayTemplate;
 
     for (vtkDataArray* array2 : Arrays::allArrays)
     {
-      bool array2Valid = array2->GetArrayType() == vtkAbstractArray::AoSDataArrayTemplate;
+      bool array2Valid = array2->GetArrayType() == vtkArrayTypes::AoSDataArrayTemplate;
 
       if (array1Valid && array2Valid)
       {
@@ -475,11 +475,11 @@ int TestDispatch2ByArrayWithSameValueType()
 
   for (vtkDataArray* array1 : Arrays::allArrays)
   {
-    bool array1Valid = array1->GetArrayType() == vtkAbstractArray::AoSDataArrayTemplate;
+    bool array1Valid = array1->GetArrayType() == vtkArrayTypes::AoSDataArrayTemplate;
 
     for (vtkDataArray* array2 : Arrays::allArrays)
     {
-      bool array2Valid = array2->GetArrayType() == vtkAbstractArray::SoADataArrayTemplate &&
+      bool array2Valid = array2->GetArrayType() == vtkArrayTypes::SoADataArrayTemplate &&
         vtkDataTypesCompare(array1->GetDataType(), array2->GetDataType());
 
       if (array1Valid && array2Valid)
@@ -584,11 +584,11 @@ int TestDispatch3ByArray()
 
   for (vtkDataArray* array1 : Arrays::allArrays)
   {
-    bool array1Valid = array1->GetArrayType() == vtkAbstractArray::SoADataArrayTemplate;
+    bool array1Valid = array1->GetArrayType() == vtkArrayTypes::SoADataArrayTemplate;
 
     for (vtkDataArray* array2 : Arrays::allArrays)
     {
-      bool array2Valid = array2->GetArrayType() == vtkAbstractArray::AoSDataArrayTemplate;
+      bool array2Valid = array2->GetArrayType() == vtkArrayTypes::AoSDataArrayTemplate;
 
       for (vtkDataArray* array3 : Arrays::allArrays)
       {
@@ -713,11 +713,11 @@ int TestDispatch3ByArrayWithSameValueType()
 
   for (vtkDataArray* array1 : Arrays::allArrays)
   {
-    bool array1Valid = array1->GetArrayType() == vtkAbstractArray::SoADataArrayTemplate;
+    bool array1Valid = array1->GetArrayType() == vtkArrayTypes::SoADataArrayTemplate;
 
     for (vtkDataArray* array2 : Arrays::allArrays)
     {
-      bool array2Valid = array2->GetArrayType() == vtkAbstractArray::AoSDataArrayTemplate &&
+      bool array2Valid = array2->GetArrayType() == vtkArrayTypes::AoSDataArrayTemplate &&
         vtkDataTypesCompare(array1->GetDataType(), array2->GetDataType());
 
       for (vtkDataArray* array3 : Arrays::allArrays)

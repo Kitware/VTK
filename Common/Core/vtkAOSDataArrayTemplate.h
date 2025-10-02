@@ -45,9 +45,11 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 template <class ValueTypeT>
 class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate
-  : public vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT>
+  : public vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT,
+      vtkArrayTypes::AoSDataArrayTemplate>
 {
-  typedef vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT> GenericDataArrayType;
+  using GenericDataArrayType = vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT,
+    vtkArrayTypes::AoSDataArrayTemplate>;
 
   // Friendship required by vtkDataArray(Value/Tuple)Range so that it can access the memory buffer
   // which is required to avoid accessing raw pointers that might no longer be valid.
@@ -58,9 +60,11 @@ class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate
   friend struct vtk::detail::ValueRange;
 
 public:
-  typedef vtkAOSDataArrayTemplate<ValueTypeT> SelfType;
+  using SelfType = vtkAOSDataArrayTemplate<ValueTypeT>;
   vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
-  typedef typename Superclass::ValueType ValueType;
+  using typename Superclass::ArrayTypeTag;
+  using typename Superclass::DataTypeTag;
+  using typename Superclass::ValueType;
 
   enum DeleteMethod
   {
@@ -293,18 +297,6 @@ public:
   Iterator Begin() { return Iterator(this->GetVoidPointer(0)); }
   Iterator End() { return Iterator(this->GetVoidPointer(this->MaxId + 1)); }
 
-  ///@{
-  /**
-   * Perform a fast, safe cast from a vtkAbstractArray to a
-   * vtkAOSDataArrayTemplate.
-   * This method checks if source->GetArrayType() returns AOSDataArrayTemplate
-   * or a more derived type, checks the data types, and performs a static_cast
-   * to return source as a vtkDataArray pointer. Otherwise, nullptr is returned.
-   */
-  static vtkAOSDataArrayTemplate<ValueType>* FastDownCast(vtkAbstractArray* source);
-  ///@}
-
-  int GetArrayType() const override { return vtkAbstractArray::AoSDataArrayTemplate; }
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   bool HasStandardMemoryLayout() const override { return true; }
   void ShallowCopy(vtkDataArray* other) override;
@@ -346,7 +338,7 @@ private:
   vtkAOSDataArrayTemplate(const vtkAOSDataArrayTemplate&) = delete;
   void operator=(const vtkAOSDataArrayTemplate&) = delete;
 
-  friend class vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT>;
+  friend class vtkGenericDataArray<SelfType, ValueType, ArrayTypeTag::value>;
 };
 
 // Declare vtkArrayDownCast implementations for AoS containers:

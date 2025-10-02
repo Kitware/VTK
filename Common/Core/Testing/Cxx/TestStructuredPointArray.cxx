@@ -72,7 +72,7 @@ int TestStructuredPointArrayExtent(int extent[6])
     }
   }
 #ifdef VTK_DISPATCH_STRUCTURED_POINT_ARRAYS
-  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
     vtkArrayDispatch::Reals>;
   DispatcherCheckerWorker<double> worker;
   if (!Dispatcher::Execute(implicitPointArray, worker))

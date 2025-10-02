@@ -28,12 +28,13 @@ class vtkPoints;
 class vtkStructuredCellArray;
 class vtkUnsignedCharArray;
 
-template <typename T>
+template <typename T, int ArrayType>
 class vtkImplicitArray;
 template <typename Type>
 struct vtkConstantImplicitBackend;
 template <typename Type>
-using vtkConstantArray = vtkImplicitArray<vtkConstantImplicitBackend<Type>>;
+using vtkConstantArray =
+  vtkImplicitArray<vtkConstantImplicitBackend<Type>, vtkArrayTypes::ConstantArray>;
 
 enum vtkStructuredDataType
 {

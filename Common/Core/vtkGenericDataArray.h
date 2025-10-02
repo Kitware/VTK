@@ -65,21 +65,27 @@
 #include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
-template <class DerivedT, class ValueTypeT>
+template <class DerivedT, class ValueTypeT, int ArrayType = vtkArrayTypes::DataArray>
 class vtkGenericDataArray : public vtkDataArray
 {
-  typedef vtkGenericDataArray<DerivedT, ValueTypeT> SelfType;
+  static_assert(
+    ArrayType >= vtkArrayTypes::AbstractArray && ArrayType < vtkArrayTypes::NumArrayTypes,
+    "ArrayType must be a valid vtkAbstractArray::ArrayType enum value");
 
 public:
-  typedef ValueTypeT ValueType;
+  using SelfType = vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>;
   vtkTemplateTypeMacro(SelfType, vtkDataArray);
+  using ArrayTypeTag = std::integral_constant<int, ArrayType>;
+  using DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueTypeT>::VTK_TYPE_ID>;
+  using ValueType = ValueTypeT;
 
   /**
    * Compile time access to the VTK type identifier.
    */
   enum
   {
-    VTK_DATA_TYPE = vtkTypeTraits<ValueType>::VTK_TYPE_ID
+    VTK_DATA_TYPE VTK_DEPRECATED_IN_9_6_0("Use DataTypeTag::value") =
+      vtkTypeTraits<ValueType>::VTK_TYPE_ID
   };
 
   /// @defgroup vtkGDAConceptMethods vtkGenericDataArray Concept Methods
@@ -267,6 +273,18 @@ public:
    */
   virtual void FillValue(ValueType value);
 
+#ifndef __VTK_WRAP__
+  ///@{
+  /**
+   * Perform a fast, safe cast from a vtkAbstractArray to a DerivedT.
+   * This method checks if source->GetArrayType() returns ArrayTypeTag::value
+   * or a more derived type, checks the data types, and performs a static_cast
+   * to return source as a vtkDataArray pointer. Otherwise, nullptr is returned.
+   */
+  static DerivedT* FastDownCast(vtkAbstractArray* source);
+  ///@}
+#endif
+  int GetArrayType() const override;
   int GetDataType() const override;
   int GetDataTypeSize() const override;
   bool HasStandardMemoryLayout() const override;
@@ -510,7 +528,7 @@ VTK_ABI_NAMESPACE_END
 protected:                                                                                         \
   vtkObjectBase* NewInstanceInternal() const override                                              \
   {                                                                                                \
-    if (vtkDataArray* da = vtkDataArray::CreateDataArray(thisClass::VTK_DATA_TYPE))                \
+    if (vtkDataArray* da = vtkDataArray::CreateDataArray(thisClass::DataTypeTag::value))           \
     {                                                                                              \
       return da;                                                                                   \
     }                                                                                              \

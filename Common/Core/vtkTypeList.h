@@ -62,6 +62,13 @@ struct TypeList
 
 //------------------------------------------------------------------------------
 /**
+ * Get the Size of the TypeList TList.
+ */
+template <typename TList>
+struct Size;
+
+//------------------------------------------------------------------------------
+/**
  * Sets Result to T if Exp is true, or F if Exp is false.
  */
 template <bool Exp, typename T, typename F>

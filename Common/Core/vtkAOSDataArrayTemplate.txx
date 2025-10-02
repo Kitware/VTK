@@ -23,26 +23,6 @@ vtkAOSDataArrayTemplate<ValueTypeT>* vtkAOSDataArrayTemplate<ValueTypeT>::New()
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
-vtkAOSDataArrayTemplate<typename vtkAOSDataArrayTemplate<ValueTypeT>::ValueType>*
-vtkAOSDataArrayTemplate<ValueTypeT>::FastDownCast(vtkAbstractArray* source)
-{
-  if (source)
-  {
-    switch (source->GetArrayType())
-    {
-      case vtkAbstractArray::AoSDataArrayTemplate:
-        if (vtkDataTypesCompare(source->GetDataType(), vtkTypeTraits<ValueType>::VTK_TYPE_ID))
-        {
-          return static_cast<vtkAOSDataArrayTemplate<ValueType>*>(source);
-        }
-        break;
-    }
-  }
-  return nullptr;
-}
-
-//-----------------------------------------------------------------------------
-template <class ValueTypeT>
 vtkAOSDataArrayTemplate<ValueTypeT>::vtkAOSDataArrayTemplate()
 {
   this->Buffer = vtkBuffer<ValueType>::New();

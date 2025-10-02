@@ -27,7 +27,8 @@
  */
 VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
-using vtkStructuredPointArray = vtkImplicitArray<vtkStructuredPointBackend<ValueType>>;
+using vtkStructuredPointArray =
+  vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::StructuredPointArray>;
 VTK_ABI_NAMESPACE_END
 
 namespace vtk
@@ -40,9 +41,10 @@ VTK_ABI_NAMESPACE_BEGIN
  * dirMatrix is the direction matrix of the dataset (if any, else provide a homogeneous matrix).
  */
 template <typename ValueType>
-vtkSmartPointer<vtkImplicitArray<vtkStructuredPointBackend<ValueType>>> CreateStructuredPointArray(
-  vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords, int extent[6],
-  int dataDescription, double dirMatrix[9]);
+vtkSmartPointer<
+  vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::StructuredPointArray>>
+CreateStructuredPointArray(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,
+  int extent[6], int dataDescription, double dirMatrix[9]);
 VTK_ABI_NAMESPACE_END
 }
 
@@ -53,24 +55,27 @@ VTK_ABI_NAMESPACE_END
 // which when Dispatching is enabled, it instantiates a class with a value type, before exporting it
 #define VTK_INSTANTIATE_STRUCTURED_POINT_ARRAY_EXPORT(ValueType)                                   \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template class VTKCOMMONCORE_EXPORT vtkImplicitArray<vtkStructuredPointBackend<ValueType>>;      \
+  template class VTKCOMMONCORE_EXPORT                                                              \
+    vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::StructuredPointArray>;   \
   VTK_ABI_NAMESPACE_END
 
 #define VTK_INSTANTIATE_STRUCTURED_POINT_ARRAY_FUNCTIONS(ValueType)                                \
   namespace vtk                                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template VTKCOMMONCORE_EXPORT                                                                    \
-    vtkSmartPointer<vtkImplicitArray<vtkStructuredPointBackend<ValueType>>>                        \
-    CreateStructuredPointArray(vtkDataArray* xCoords, vtkDataArray* yCoords,                       \
-      vtkDataArray* zCoords, int extent[6], int dataDescription, double dirMatrix[9]);             \
+  template VTKCOMMONCORE_EXPORT vtkSmartPointer<                                                   \
+    vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::StructuredPointArray>>   \
+  CreateStructuredPointArray(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,  \
+    int extent[6], int dataDescription, double dirMatrix[9]);                                      \
   VTK_ABI_NAMESPACE_END                                                                            \
   }                                                                                                \
   namespace vtkDataArrayPrivate                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
-    vtkImplicitArray<vtkStructuredPointBackend<ValueType>>, double)                                \
+    VTK_WRAP_TEMPLATE(vtkImplicitArray<vtkStructuredPointBackend<ValueType>,                       \
+      vtkArrayTypes::StructuredPointArray>),                                                       \
+    double)                                                                                        \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
 
@@ -84,8 +89,9 @@ VTK_ABI_NAMESPACE_END
 #pragma warning(disable : 4910) // extern and dllexport incompatible
 #endif
 VTK_ABI_NAMESPACE_BEGIN
-vtkExternSecondOrderTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkStructuredPointBackend);
+vtkExternSecondOrderWithParameterTemplateMacro(
+  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkStructuredPointBackend,
+  vtkArrayTypes::StructuredPointArray);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -116,8 +122,9 @@ VTK_ABI_NAMESPACE_END
 // Use an "extern explicit instantiation" to give the class a DLL
 // interface.  This is a compiler-specific extension.
 VTK_ABI_NAMESPACE_BEGIN
-vtkInstantiateSecondOrderTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkStructuredPointBackend);
+vtkInstantiateSecondOrderWithParameterTemplateMacro(
+  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkStructuredPointBackend,
+  vtkArrayTypes::StructuredPointArray);
 
 #pragma warning(pop)
 

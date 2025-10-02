@@ -36,7 +36,8 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
-using vtkStdFunctionArray = vtkImplicitArray<std::function<T(int)>>;
+using vtkStdFunctionArray =
+  vtkImplicitArray<std::function<T(int)>, vtkArrayTypes::StdFunctionArray>;
 VTK_ABI_NAMESPACE_END
 
 #endif // vtkStdFunctionArray_h
@@ -45,12 +46,16 @@ VTK_ABI_NAMESPACE_END
 
 #define VTK_INSTANTIATE_STD_FUNCTION_ARRAY(ValueType)                                              \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template class VTKCOMMONCORE_EXPORT vtkImplicitArray<std::function<ValueType(int)>>;             \
+  template class VTKCOMMONCORE_EXPORT                                                              \
+    vtkImplicitArray<std::function<ValueType(int)>, vtkArrayTypes::StdFunctionArray>;              \
   VTK_ABI_NAMESPACE_END                                                                            \
   namespace vtkDataArrayPrivate                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkImplicitArray<std::function<ValueType(int)>>, double)    \
+  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
+    VTK_WRAP_TEMPLATE(                                                                             \
+      vtkImplicitArray<std::function<ValueType(int)>, vtkArrayTypes::StdFunctionArray>),           \
+    double)                                                                                        \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
 #elif defined(VTK_USE_EXTERN_TEMPLATE)
@@ -63,8 +68,9 @@ VTK_ABI_NAMESPACE_END
 #pragma warning(disable : 4910) // extern and dllexport incompatible
 #endif
 VTK_ABI_NAMESPACE_BEGIN
-vtkExternStdFunctionTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, std::function, int);
+vtkExternStdFunctionWithParameterTemplateMacro(
+  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, std::function, int,
+  vtkArrayTypes::StdFunctionArray);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -95,8 +101,9 @@ VTK_ABI_NAMESPACE_END
 // Use an "extern explicit instantiation" to give the class a DLL
 // interface.  This is a compiler-specific extension.
 VTK_ABI_NAMESPACE_BEGIN
-vtkInstantiateStdFunctionTemplateMacro(
-  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, std::function, int);
+vtkInstantiateStdFunctionWithParameterTemplateMacro(
+  extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, std::function, int,
+  vtkArrayTypes::StdFunctionArray);
 
 #pragma warning(pop)
 

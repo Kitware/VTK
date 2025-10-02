@@ -356,7 +356,7 @@ int vtkExtractGeometry::RequestData(
   // call that to guarantee thread safety
   this->ImplicitFunction->EvaluateFunction(0, 0, 0);
   using PointsDispatcher =
-    vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+    vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
       vtkArrayDispatch::Reals>;
   auto points = input->GetPoints()->GetData();
   if (!this->ExtractBoundaryCells)

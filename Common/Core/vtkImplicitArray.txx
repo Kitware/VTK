@@ -11,54 +11,56 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 //-----------------------------------------------------------------------------
-template <class BackendT>
-struct vtkImplicitArray<BackendT>::vtkInternals
+template <class BackendT, int ArrayType>
+struct vtkImplicitArray<BackendT, ArrayType>::vtkInternals
 {
   vtkSmartPointer<vtkAOSDataArrayTemplate<ValueType>> Cache;
 };
 
 //-----------------------------------------------------------------------------
-template <class BackendT>
-vtkImplicitArray<BackendT>* vtkImplicitArray<BackendT>::New()
+template <class BackendT, int ArrayType>
+vtkImplicitArray<BackendT, ArrayType>* vtkImplicitArray<BackendT, ArrayType>::New()
 {
-  VTK_STANDARD_NEW_BODY(vtkImplicitArray<BackendT>);
+  using vtkImplicitArrayType = vtkImplicitArray<BackendT, ArrayType>;
+  VTK_STANDARD_NEW_BODY(vtkImplicitArrayType);
 }
 
 //-----------------------------------------------------------------------------
-template <class BackendT>
-vtkImplicitArray<BackendT>::vtkImplicitArray()
+template <class BackendT, int ArrayType>
+vtkImplicitArray<BackendT, ArrayType>::vtkImplicitArray()
   : Internals(new vtkInternals())
 {
   this->Initialize();
 }
 
 //-----------------------------------------------------------------------------
-template <class BackendT>
-vtkImplicitArray<BackendT>::~vtkImplicitArray() = default;
+template <class BackendT, int ArrayType>
+vtkImplicitArray<BackendT, ArrayType>::~vtkImplicitArray() = default;
 
 //-----------------------------------------------------------------------------
-template <class BackendT>
-void vtkImplicitArray<BackendT>::SetValue(vtkIdType vtkNotUsed(idx), ValueType vtkNotUsed(value))
+template <class BackendT, int ArrayType>
+void vtkImplicitArray<BackendT, ArrayType>::SetValue(
+  vtkIdType vtkNotUsed(idx), ValueType vtkNotUsed(value))
 {
 }
 
 //-----------------------------------------------------------------------------
-template <class BackendT>
-void vtkImplicitArray<BackendT>::SetTypedTuple(
+template <class BackendT, int ArrayType>
+void vtkImplicitArray<BackendT, ArrayType>::SetTypedTuple(
   vtkIdType vtkNotUsed(idx), const ValueType* vtkNotUsed(tuple))
 {
 }
 
 //-----------------------------------------------------------------------------
-template <class BackendT>
-void vtkImplicitArray<BackendT>::SetTypedComponent(
+template <class BackendT, int ArrayType>
+void vtkImplicitArray<BackendT, ArrayType>::SetTypedComponent(
   vtkIdType vtkNotUsed(idx), int vtkNotUsed(comp), ValueType vtkNotUsed(value))
 {
 }
 
 //-----------------------------------------------------------------------------
-template <class BackendT>
-void* vtkImplicitArray<BackendT>::GetVoidPointer(vtkIdType idx)
+template <class BackendT, int ArrayType>
+void* vtkImplicitArray<BackendT, ArrayType>::GetVoidPointer(vtkIdType idx)
 {
   if (!this->Internals->Cache)
   {
@@ -71,34 +73,38 @@ void* vtkImplicitArray<BackendT>::GetVoidPointer(vtkIdType idx)
 }
 
 //-----------------------------------------------------------------------------
-template <class BackendT>
-void vtkImplicitArray<BackendT>::Squeeze()
+template <class BackendT, int ArrayType>
+void vtkImplicitArray<BackendT, ArrayType>::Squeeze()
 {
   this->Internals->Cache = nullptr;
 }
 
 //-----------------------------------------------------------------------------
-template <class BackendT>
-vtkImplicitArray<BackendT>* vtkImplicitArray<BackendT>::FastDownCast(vtkAbstractArray* source)
+template <class BackendT, int ArrayType>
+vtkImplicitArray<BackendT, ArrayType>* vtkImplicitArray<BackendT, ArrayType>::FastDownCast(
+  vtkAbstractArray* source)
 {
   if (source)
   {
-    switch (source->GetArrayType())
+    if constexpr (vtkImplicitArray::ArrayTypeTag::value != vtkArrayTypes::ImplicitArray)
     {
-      case vtkAbstractArray::ImplicitArray:
-        if (vtkDataTypesCompare(source->GetDataType(), vtkTypeTraits<ValueType>::VTK_TYPE_ID))
-        {
-          // In a perfect world, this part should do something like
-          //
-          // return static_cast<vtkImplicitArray<BackendT>*>(source);
-          //
-          // The problem here is that we do not know what type of backend to use and any pointer to
-          // an implicit array will down cast to any other pointer to an implicit array. Barring
-          // something better to do here, we use the SafeDownCast mechanism to ensure safety at the
-          // cost of performance.
-          return vtkImplicitArray<BackendT>::SafeDownCast(source);
-        }
-        break;
+      return Superclass::FastDownCast(source);
+    }
+    else
+    {
+      switch (source->GetArrayType())
+      {
+        case vtkArrayTypes::ImplicitArray:
+          if (vtkDataTypesCompare(source->GetDataType(), vtkImplicitArray::DataTypeTag::value))
+          {
+            // The problem here is that we do not know what type of backend to use and any pointer
+            // to an implicit array will down cast to any other pointer to an implicit array.
+            // Barring something better to do here, we use the SafeDownCast mechanism to ensure
+            // safety at the cost of performance.
+            return vtkImplicitArray<BackendT, ArrayType>::SafeDownCast(source);
+          }
+          break;
+      }
     }
   }
   return nullptr;

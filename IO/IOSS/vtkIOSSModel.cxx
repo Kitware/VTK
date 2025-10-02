@@ -1101,7 +1101,7 @@ struct vtkNodeBlock : vtkGroupingEntity
     nodeBlock->put_field_data("ids", this->Ids);
 
     // add mesh coordinates
-    using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+    using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
       vtkArrayDispatch::Reals>;
     PutFieldWorker<double> worker(3, this->Ids.size(), false /* createAOS */);
     for (size_t dsIndex = 0; dsIndex < this->DataSets.size(); ++dsIndex)

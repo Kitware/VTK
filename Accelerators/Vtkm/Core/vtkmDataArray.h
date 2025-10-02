@@ -53,15 +53,18 @@ VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
-class vtkmDataArray : public vtkGenericDataArray<vtkmDataArray<T>, T>
+class vtkmDataArray : public vtkGenericDataArray<vtkmDataArray<T>, T, vtkArrayTypes::VTKmDataArray>
 {
   static_assert(std::is_arithmetic<T>::value, "T must be an integral or floating-point type");
 
-  using GenericDataArrayType = vtkGenericDataArray<vtkmDataArray<T>, T>;
-  using SelfType = vtkmDataArray<T>;
-  vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
+  using GenericDataArrayType =
+    vtkGenericDataArray<vtkmDataArray<T>, T, vtkArrayTypes::VTKmDataArray>;
 
 public:
+  using SelfType = vtkmDataArray<T>;
+  vtkTemplateTypeMacro(SelfType, GenericDataArrayType);
+  using typename Superclass::ArrayTypeTag;
+  using typename Superclass::DataTypeTag;
   using typename Superclass::ValueType;
 
   static vtkmDataArray* New();
@@ -114,7 +117,7 @@ protected:
 
 private:
   // To access concept methods
-  friend Superclass;
+  friend class vtkGenericDataArray<SelfType, ValueType, ArrayTypeTag::value>;
   friend fromvtkm::ArrayHandleHelperSwapper<T>;
 
   mutable std::unique_ptr<fromvtkm::ArrayHandleHelperBase<T>> Helper;
@@ -122,6 +125,9 @@ private:
   vtkmDataArray(const vtkmDataArray&) = delete;
   void operator=(const vtkmDataArray&) = delete;
 };
+
+// Declare vtkArrayDownCast implementations for vtkmDataArray:
+vtkArrayDownCast_TemplateFastCastMacro(vtkmDataArray);
 
 //=============================================================================
 template <typename T, typename S>

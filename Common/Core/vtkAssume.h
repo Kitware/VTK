@@ -44,10 +44,20 @@
     (void)c;      /* Prevents unused var warnings */                                               \
   } while (false) /* do-while prevents extra semicolon warnings */
 
+#ifdef __has_builtin
+#define VTK_HAS_BUILTIN(x) __has_builtin(x)
+#else
+#define VTK_HAS_BUILTIN(x) 0
+#endif
+
 // VTK_ASSUME_IMPL is compiler-specific:
 #if defined(VTK_COMPILER_MSVC) || defined(VTK_COMPILER_ICC)
 #define VTK_ASSUME_IMPL(cond) __assume(cond)
-#elif defined(VTK_COMPILER_GCC) || defined(VTK_COMPILER_CLANG)
+#elif VTK_HAS_BUILTIN(__builtin_assume) || defined(VTK_COMPILER_CLANG)
+#define VTK_ASSUME_IMPL(cond) __builtin_assume(cond)
+#elif defined(VTK_COMPILER_GCC) && VTK_COMPILER_GCC_VERSION >= 130000
+#define VTK_ASSUME_IMPL(cond) __attribute__((__assume__(cond)))
+#elif VTK_HAS_BUILTIN(__builtin_unreachable) || defined(VTK_COMPILER_GCC)
 #define VTK_ASSUME_IMPL(cond)                                                                      \
   if (!(cond))                                                                                     \
   __builtin_unreachable()
@@ -56,6 +66,17 @@
   do                                                                                               \
   {                                                                                                \
   } while (false) /* no-op */
+#endif
+
+// VTK_EXPECT & VTK_LIKELY & VTK_UNLIKELY
+#if VTK_HAS_BUILTIN(__builtin_expect) || defined(VTK_COMPILER_GCC) || defined(VTK_COMPILER_CLANG)
+#define VTK_EXPECT(cond, expected) __builtin_expect(cond, expected)
+#define VTK_LIKELY(cond) VTK_EXPECT(!!(cond), 1)
+#define VTK_UNLIKELY(cond) VTK_EXPECT(!!(cond), 0)
+#else
+#define VTK_EXPECT(cond, expected) (cond)
+#define VTK_LIKELY(cond) (cond)
+#define VTK_UNLIKELY(cond) (cond)
 #endif
 
 #endif // vtkAssume_h

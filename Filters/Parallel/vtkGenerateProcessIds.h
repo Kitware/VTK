@@ -21,12 +21,13 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkMultiProcessController;
-template <typename T>
+template <typename T, int ArrayType>
 class vtkImplicitArray;
 template <typename T>
 struct vtkConstantImplicitBackend;
 template <typename Type>
-using vtkConstantArray = vtkImplicitArray<vtkConstantImplicitBackend<Type>>;
+using vtkConstantArray =
+  vtkImplicitArray<vtkConstantImplicitBackend<Type>, vtkArrayTypes::ConstantArray>;
 
 class VTKFILTERSPARALLEL_EXPORT vtkGenerateProcessIds : public vtkDataSetAlgorithm
 {

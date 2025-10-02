@@ -1190,7 +1190,7 @@ struct BoundsPointIdsWorker
 void vtkBoundingBox::ComputeBounds(vtkPoints* pts, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
     vtkArrayDispatch::Reals>;
   BoundsWorker worker;
 
@@ -1204,7 +1204,7 @@ void vtkBoundingBox::ComputeBounds(vtkPoints* pts, double bounds[6])
 void vtkBoundingBox::ComputeBounds(vtkPoints* pts, const unsigned char* ptUses, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
     vtkArrayDispatch::Reals>;
   BoundsPointUsesWorker worker;
 
@@ -1219,7 +1219,7 @@ void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, const std::atomic<unsigned char>* ptUses, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
     vtkArrayDispatch::Reals>;
   BoundsPointUsesWorker worker;
 
@@ -1234,7 +1234,7 @@ void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, const long long* ptIds, long long numberOfPointsIds, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
     vtkArrayDispatch::Reals>;
   BoundsPointIdsWorker worker;
 
@@ -1249,7 +1249,7 @@ void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, const long* ptIds, long numberOfPointsIds, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
     vtkArrayDispatch::Reals>;
   BoundsPointIdsWorker worker;
 
@@ -1264,7 +1264,7 @@ void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, const int* ptIds, int numberOfPointsIds, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using Dispatcher = vtkArrayDispatch::DispatchByValueTypeUsingArrays<vtkArrayDispatch::AllArrays,
+  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
     vtkArrayDispatch::Reals>;
   BoundsPointIdsWorker worker;
 

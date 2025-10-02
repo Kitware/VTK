@@ -22,13 +22,19 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
-class vtkPeriodicDataArray : public vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar>
+class vtkPeriodicDataArray
+  : public vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar,
+      vtkArrayTypes::PeriodicDataArray>
 {
-  typedef vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar> GenericBase;
+  using GenericDataArrayType =
+    vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar, vtkArrayTypes::PeriodicDataArray>;
 
 public:
-  vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, GenericBase);
-  typedef typename Superclass::ValueType ValueType;
+  using SelfType = vtkPeriodicDataArray<Scalar>;
+  vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, GenericDataArrayType);
+  using typename Superclass::ArrayTypeTag;
+  using typename Superclass::DataTypeTag;
+  using typename Superclass::ValueType;
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -365,7 +371,7 @@ private:
   vtkPeriodicDataArray(const vtkPeriodicDataArray&) = delete;
   void operator=(const vtkPeriodicDataArray&) = delete;
 
-  friend class vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar>;
+  friend class vtkGenericDataArray<SelfType, ValueType, ArrayTypeTag::value>;
 
   Scalar* TempScalarArray;                // Temporary array used by GetTypedTuple methods
   double* TempDoubleArray;                // Temporary array used by GetTuple vethods
@@ -378,6 +384,9 @@ private:
   bool InvalidFiniteRange = true;
   double PeriodicFiniteRange[6]; // Transformed periodic finite range
 };
+
+// Declare vtkArrayDownCast implementations for scaled SoA containers:
+vtkArrayDownCast_TemplateFastCastMacro(vtkPeriodicDataArray);
 
 VTK_ABI_NAMESPACE_END
 #include "vtkPeriodicDataArray.txx"

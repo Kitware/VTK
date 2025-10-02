@@ -27,28 +27,6 @@ vtkSOADataArrayTemplate<ValueType>* vtkSOADataArrayTemplate<ValueType>::New()
 }
 
 //-----------------------------------------------------------------------------
-#ifndef __VTK_WRAP__
-template <class ValueTypeT>
-vtkSOADataArrayTemplate<typename vtkSOADataArrayTemplate<ValueTypeT>::ValueType>*
-vtkSOADataArrayTemplate<ValueTypeT>::FastDownCast(vtkAbstractArray* source)
-{
-  if (source)
-  {
-    switch (source->GetArrayType())
-    {
-      case vtkAbstractArray::SoADataArrayTemplate:
-        if (vtkDataTypesCompare(source->GetDataType(), vtkTypeTraits<ValueType>::VTK_TYPE_ID))
-        {
-          return static_cast<vtkSOADataArrayTemplate<ValueType>*>(source);
-        }
-        break;
-    }
-  }
-  return nullptr;
-}
-#endif
-
-//-----------------------------------------------------------------------------
 template <class ValueType>
 vtkSOADataArrayTemplate<ValueType>::vtkSOADataArrayTemplate()
   : AoSData(nullptr)

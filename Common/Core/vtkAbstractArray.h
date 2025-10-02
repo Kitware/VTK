@@ -82,6 +82,8 @@ class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkAbstractArray : public vtkObject
 public:
   vtkTypeMacro(vtkAbstractArray, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::AbstractArray>;
+  using DataTypeTag = std::integral_constant<int, VTK_OPAQUE>;
 
   /**
    * Print the array values to an `ostream` object.
@@ -107,7 +109,7 @@ public:
    * Return the underlying data type. An integer indicating data type is
    * returned as specified in vtkType.h.
    */
-  virtual int GetDataType() const = 0;
+  virtual int GetDataType() const { return vtkAbstractArray::DataTypeTag::value; };
 
   ///@{
   /**
@@ -666,7 +668,6 @@ public:
    */
   static vtkInformationDoubleVectorKey* DISCRETE_VALUE_SAMPLE_PARAMETERS();
 
-  // Deprecated.  Use vtkAbstractArray::MaxDiscreteValues instead.
   enum
   {
     MAX_DISCRETE_VALUES = 32
@@ -681,35 +682,44 @@ public:
   vtkSetMacro(MaxDiscreteValues, unsigned int);
   ///@}
 
-  // NOLINTNEXTLINE(readability-enum-initial-value)
-  enum
-  {
-    AbstractArray = 0,
-    DataArray,
-    AoSDataArrayTemplate,
-    SoADataArrayTemplate,
-    TypedDataArray VTK_DEPRECATED_IN_9_5_0("TypedDataArray has been deprecated"),
-    MappedDataArray VTK_DEPRECATED_IN_9_5_0("MappedDataArray has been deprecated"),
-    ScaledSoADataArrayTemplate,
-    ImplicitArray,
-
-    DataArrayTemplate VTK_DEPRECATED_IN_9_6_0("DataArrayTemplate has been deprecated") =
-      AoSDataArrayTemplate,
-    ScaleSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
-      "ScaleSoADataArrayTemplate has been renamed to ScaledSoADataArrayTemplate") =
-      ScaledSoADataArrayTemplate
-  };
+  static constexpr int AbstractArray VTK_DEPRECATED_IN_9_6_0(
+    "Use vtkArrayTypes::AbstractArray") = vtkArrayTypes::AbstractArray;
+  static constexpr int DataArray VTK_DEPRECATED_IN_9_6_0(
+    "Use vtkArrayTypes::DataArray") = vtkArrayTypes::DataArray;
+  static constexpr int AoSDataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
+    "Use vtkArrayTypes::AoSDataArrayTemplate") = vtkArrayTypes::AoSDataArrayTemplate;
+  static constexpr int SoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
+    "Use vtkArrayTypes::SoADataArrayTemplate") = vtkArrayTypes::SoADataArrayTemplate;
+  static constexpr int TypedDataArray VTK_DEPRECATED_IN_9_5_0(
+    "TypedDataArray has been deprecated") = vtkArrayTypes::NumArrayTypes;
+  static constexpr int MappedDataArray VTK_DEPRECATED_IN_9_5_0(
+    "MappedDataArray has been deprecated") = vtkArrayTypes::NumArrayTypes + 1;
+  static constexpr int ScaledSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
+    "Use vtkArrayTypes::ScaledSoADataArrayTemplate") = vtkArrayTypes::ScaledSoADataArrayTemplate;
+  static constexpr int ImplicitArray VTK_DEPRECATED_IN_9_6_0(
+    "Use vtkArrayTypes::ImplicitArray") = vtkArrayTypes::ImplicitArray;
+  static constexpr int DataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
+    "DataArrayTemplate has been deprecated") = vtkArrayTypes::AoSDataArrayTemplate;
+  static constexpr int ScaleSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
+    "ScaleSoADataArrayTemplate has been renamed to ScaledSoADataArrayTemplate") =
+    vtkArrayTypes::ScaledSoADataArrayTemplate;
 
   /**
    * Method for type-checking in FastDownCast implementations. See also
    * vtkArrayDownCast.
    */
-  virtual int GetArrayType() const { return AbstractArray; }
+  virtual int GetArrayType() const { return vtkAbstractArray::ArrayTypeTag::value; }
 
+  ///@{
   /**
    * Get the name for the array type as string
    */
-  const char* GetArrayTypeAsString() const;
+  static const char* GetArrayTypeAsString(int arrayType);
+  const char* GetArrayTypeAsString() const
+  {
+    return vtkAbstractArray::GetArrayTypeAsString(this->GetArrayType());
+  }
+  ///@}
 
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
@@ -827,6 +837,24 @@ VTK_ABI_NAMESPACE_END
     inline ArrayT<ValueT>* operator()(vtkAbstractArray* array)                                     \
     {                                                                                              \
       return ArrayT<ValueT>::FastDownCast(array);                                                  \
+    }                                                                                              \
+  }
+///@}
+
+///@{
+/**
+ * Same as vtkArrayDownCast_FastCastMacro, but treats ArrayT as a
+ * two-parameter template (the parameter is the value type and the array type). Defines a
+ * vtkArrayDownCast implementation that uses the specified array template class
+ * with any value type / array type.
+ */
+#define vtkArrayDownCast_Template2FastCastMacro(ArrayT)                                            \
+  template <typename ValueT, int ArrayType>                                                        \
+  struct vtkArrayDownCast_impl<ArrayT<ValueT, ArrayType>>                                          \
+  {                                                                                                \
+    inline ArrayT<ValueT, ArrayType>* operator()(vtkAbstractArray* array)                          \
+    {                                                                                              \
+      return ArrayT<ValueT, ArrayType>::FastDownCast(array);                                       \
     }                                                                                              \
   }
 ///@}
