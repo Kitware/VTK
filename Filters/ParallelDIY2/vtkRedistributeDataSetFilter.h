@@ -109,7 +109,10 @@ public:
    *
    * Default is `ASSIGN_TO_ONE_REGION`.
    */
-  vtkSetClampMacro(BoundaryMode, int, ASSIGN_TO_ONE_REGION, SPLIT_BOUNDARY_CELLS);
+  virtual void SetBoundaryMode(int mode);
+  virtual int GetBoundaryModeMinValue() { return ASSIGN_TO_ONE_REGION; }
+  virtual int GetBoundaryModeMaxValue() { return SPLIT_BOUNDARY_CELLS; }
+
   vtkGetMacro(BoundaryMode, int);
   void SetBoundaryModeToAssignToOneRegion() { this->SetBoundaryMode(ASSIGN_TO_ONE_REGION); }
   void SetBoundaryModeToAssignToAllIntersectingRegions()
