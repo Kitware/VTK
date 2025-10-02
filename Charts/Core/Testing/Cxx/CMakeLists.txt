@@ -47,6 +47,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestAxes2.cxx
   TestBagPlot.cxx,LOOSE_VALID
   TestBarGraph.cxx,LOOSE_VALID
+  TestBarGraphShiftScale.cxx,LOOSE_VALID
   TestBarGraphHorizontal.cxx,LOOSE_VALID
   TestBarGraphSelection.cxx,LOOSE_VALID
   TestBoxPlot.cxx,LOOSE_VALID
