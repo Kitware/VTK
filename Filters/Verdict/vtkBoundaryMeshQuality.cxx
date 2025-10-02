@@ -4,7 +4,6 @@
 
 #include "vtkCellCenters.h"
 #include "vtkCellData.h"
-#include "vtkCellTypes.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"

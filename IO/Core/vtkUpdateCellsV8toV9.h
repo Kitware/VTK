@@ -11,10 +11,8 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
-#include "vtkCellTypes.h"
 #include "vtkHigherOrderHexahedron.h"
 #include "vtkIdList.h"
-#include "vtkIdTypeArray.h"
 #include "vtkNew.h"
 #include "vtkUnstructuredGrid.h"
 

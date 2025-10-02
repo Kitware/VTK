@@ -13,7 +13,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
-#include "vtkCellTypes.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkGenericCell.h"
 #include "vtkHexagonalPrism.h"
 #include "vtkHexahedron.h"
@@ -1284,8 +1284,8 @@ int vtkUnstructuredGridGeometryFilter::RequestData(vtkInformation* vtkNotUsed(re
             break;
           }
           default:
-            vtkErrorMacro(<< "Cell type " << vtkCellTypes::GetClassNameFromTypeId(cellType) << "("
-                          << cellType << ")"
+            vtkErrorMacro(<< "Cell type " << vtkCellTypeUtilities::GetClassNameFromTypeId(cellType)
+                          << "(" << cellType << ")"
                           << " is not a 3D cell.");
         }
       }

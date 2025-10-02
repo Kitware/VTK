@@ -5,7 +5,7 @@
 #include "vtkMeshQuality.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
-#include "vtkCellTypes.h"
+#include "vtkCellType.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"

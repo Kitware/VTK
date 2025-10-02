@@ -4,7 +4,7 @@
 #include "vtkCPExodusIIElementBlock.h"
 
 #include "vtkCellType.h"
-#include "vtkCellTypes.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkGenericCell.h"
 #include "vtkIdTypeArray.h"
 #include "vtkObjectFactory.h"
@@ -22,7 +22,8 @@ void vtkCPExodusIIElementBlockImpl::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Elements: " << this->Elements << endl;
-  os << indent << "CellType: " << vtkCellTypes::GetClassNameFromTypeId(this->CellType) << endl;
+  os << indent << "CellType: " << vtkCellTypeUtilities::GetClassNameFromTypeId(this->CellType)
+     << endl;
   os << indent << "CellSize: " << this->CellSize << endl;
   os << indent << "NumberOfCells: " << this->NumberOfCells << endl;
 }

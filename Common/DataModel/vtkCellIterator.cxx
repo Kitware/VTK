@@ -3,7 +3,7 @@
 
 #include "vtkCellIterator.h"
 
-#include "vtkCellTypes.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkNew.h"
@@ -61,7 +61,7 @@ void vtkCellIterator::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 int vtkCellIterator::GetCellDimension()
 {
-  return vtkCellTypes::GetDimension(this->GetCellType());
+  return vtkCellTypeUtilities::GetDimension(this->GetCellType());
 }
 
 //------------------------------------------------------------------------------

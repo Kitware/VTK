@@ -4,6 +4,7 @@
 #include "vtkCellSizeFilter.h"
 #include "vtkCellType.h"
 #include "vtkCellTypeSource.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkDoubleArray.h"
 #include "vtkNew.h"
 #include "vtkTestUtilities.h"
@@ -38,7 +39,7 @@ int CellSizeFilter2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       filter->SetInputConnection(cellTypeSource->GetOutputPort());
       filter->ComputeSumOn();
       filter->Update();
-      const int cellDim = vtkCellTypes::GetDimension(cellType);
+      const int cellDim = vtkCellTypeUtilities::GetDimension(cellType);
       std::string sizeType;
       switch (cellDim)
       {
@@ -62,7 +63,7 @@ int CellSizeFilter2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
       if (fabs(size - 1.0) > .0001)
       {
         vtkGenericWarningMacro("Wrong " << sizeType << " dimension for the cell source type "
-                                        << vtkCellTypes::GetClassNameFromTypeId(cellType)
+                                        << vtkCellTypeUtilities::GetClassNameFromTypeId(cellType)
                                         << " supposed to be 1.0 whereas it is " << size);
         return EXIT_FAILURE;
       }

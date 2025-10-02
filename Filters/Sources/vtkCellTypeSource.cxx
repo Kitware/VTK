@@ -9,7 +9,7 @@
 #include "vtkBezierTriangle.h"
 #include "vtkBezierWedge.h"
 #include "vtkCellType.h"
-#include "vtkCellTypes.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkDataArray.h"
 #include "vtkExtentTranslator.h"
 #include "vtkInformation.h"
@@ -88,7 +88,7 @@ int vtkCellTypeSource::GetCellDimension()
 {
   if (SupportedCellTypes.find(this->CellType) != SupportedCellTypes.end())
   {
-    return vtkCellTypes::GetDimension(this->CellType);
+    return vtkCellTypeUtilities::GetDimension(this->CellType);
   }
   return -1;
 }

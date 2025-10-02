@@ -11,6 +11,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkCellTypes.h"
 #include "vtkDataSetCellIterator.h"
 #include "vtkDoubleArray.h"
@@ -487,7 +488,7 @@ int vtkDataSet::GetMaxSpatialDimension()
   int maxDim = 0;
   for (vtkIdType i = 0; i < cellTypes->GetNumberOfTypes(); ++i)
   {
-    maxDim = std::max(vtkCellTypes::GetDimension(cellTypes->GetCellType(i)), maxDim);
+    maxDim = std::max(vtkCellTypeUtilities::GetDimension(cellTypes->GetCellType(i)), maxDim);
   }
   return maxDim;
 }
@@ -500,7 +501,7 @@ int vtkDataSet::GetMinSpatialDimension()
   int minDim = 3;
   for (vtkIdType i = 0; i < cellTypes->GetNumberOfTypes(); ++i)
   {
-    minDim = std::min(vtkCellTypes::GetDimension(cellTypes->GetCellType(i)), minDim);
+    minDim = std::min(vtkCellTypeUtilities::GetDimension(cellTypes->GetCellType(i)), minDim);
   }
   return minDim;
 }

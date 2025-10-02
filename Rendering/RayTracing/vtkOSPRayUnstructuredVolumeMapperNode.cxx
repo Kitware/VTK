@@ -3,7 +3,7 @@
 #include "vtkOSPRayUnstructuredVolumeMapperNode.h"
 
 #include "vtkCell.h"
-#include "vtkCellTypes.h"
+#include "vtkCellType.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"

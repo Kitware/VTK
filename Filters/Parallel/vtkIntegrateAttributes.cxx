@@ -4,6 +4,7 @@
 
 #include "vtkCellData.h"
 #include "vtkCellType.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
@@ -191,7 +192,7 @@ public:
       // get cell type
       cellType = this->Input->GetCellType(cellId);
       // skip cells that have different(lower) dimension compared to the max spatial dimension
-      cellDim = vtkCellTypes::GetDimension(cellType);
+      cellDim = vtkCellTypeUtilities::GetDimension(cellType);
       if (cellDim == 0 || this->TotalIntegrationDimension != cellDim)
       {
         continue;

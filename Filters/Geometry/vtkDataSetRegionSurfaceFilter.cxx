@@ -6,7 +6,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
-#include "vtkCellTypes.h"
+#include "vtkCellTypeUtilities.h"
 #include "vtkCharArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
@@ -164,7 +164,7 @@ int vtkDataSetRegionSurfaceFilter::UnstructuredGridExecute(
     unsigned char* cellTypes = input->GetCellTypesArray()->GetPointer(0);
     for (vtkIdType i = 0; i < numCells; i++)
     {
-      if (!vtkCellTypes::IsLinear(cellTypes[i]))
+      if (!vtkCellTypeUtilities::IsLinear(cellTypes[i]))
       {
         handleSubdivision = true;
         break;

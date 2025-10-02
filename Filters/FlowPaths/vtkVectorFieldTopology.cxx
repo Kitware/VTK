@@ -8,7 +8,7 @@
 #include <vtkCellData.h>
 #include <vtkCellDataToPointData.h>
 #include <vtkCellLocator.h>
-#include <vtkCellTypes.h>
+#include <vtkCellType.h>
 #include <vtkCompositeDataIterator.h>
 #include <vtkContourFilter.h>
 #include <vtkDataSet.h>

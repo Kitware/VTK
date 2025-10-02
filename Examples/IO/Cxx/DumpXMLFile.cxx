@@ -8,7 +8,7 @@
 //         .vti
 //
 #include <vtkCellData.h>
-#include <vtkCellTypes.h>
+#include <vtkCellTypeUtilities.h>
 #include <vtkDataSet.h>
 #include <vtkDataSetReader.h>
 #include <vtkFieldData.h>
@@ -103,8 +103,8 @@ int main(int argc, char* argv[])
     CellContainer::const_iterator it = cellMap.begin();
     while (it != cellMap.end())
     {
-      std::cout << "\tCell type " << vtkCellTypes::GetClassNameFromTypeId(it->first) << " occurs "
-                << it->second << " times." << std::endl;
+      std::cout << "\tCell type " << vtkCellTypeUtilities::GetClassNameFromTypeId(it->first)
+                << " occurs " << it->second << " times." << std::endl;
       ++it;
     }
 
