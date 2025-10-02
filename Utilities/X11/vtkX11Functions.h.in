@@ -1,0 +1,292 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#ifndef vtkX11Functions_h
+#define vtkX11Functions_h
+
+/**
+ * @file  vtkX11Functions.h
+ * @brief Header for vtkX11Functions.cxx
+ *
+ * This header provides prototypes for X11 functions that are
+ * dynamically loaded at runtime from libX11.so.  This allows
+ * VTK to be built without a hard dependency on X11, which is
+ * useful for off-screen rendering configurations (EGL, OSMesa).
+ *
+ * Example:
+ * @code
+ *   // Instead of calling XOpenDisplay directly:
+ *   Display* display = XOpenDisplay(NULL);
+ *   // Use the function pointer provided by vtkX11Functions:
+ *   Display* display = vtkXOpenDisplay(NULL);
+ * @endcode
+ *
+ * Make sure to call vtkX11FunctionsInitialize() before
+ * using any of the function pointers to ensure they are
+ * properly loaded.
+ * Call vtkX11FunctionsFinalize() to clean up when done.
+ * The vtkXOpenGLRenderWindow and vtkXRenderWindowInteractor classes
+ * handle this initialization and finalization automatically by calling
+ * vtkX11FunctionsInitialize() in their constructors and vtkX11FunctionsFinalize()
+ * in their destructors.
+ *
+ * The vtkX11Functions.cxx file implements the dynamic loading
+ * of these functions and provides function pointers that can
+ * be used in place of direct X11 calls.
+ *
+ * @note that this header does not include all X11 functions,
+ * only those that are used by VTK.
+ */
+
+#include "vtkABINamespace.h" // For VTK_ABI_NAMESPACE_BEGIN/END
+#include "vtkx11Module.h"    // For export macro
+
+#cmakedefine VTK_USE_X
+#if defined(VTK_USE_X)
+#include <X11/X.h>
+#include <X11/Xatom.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/cursorfont.h>
+#if VTK_HAVE_XCURSOR
+#include <X11/Xcursor/Xcursor.h>
+#endif
+
+#define vtkXInternAtom VTK_ABI_NAMESPACE_MANGLE(vtkXInternAtom)
+#define vtkXQueryPointer VTK_ABI_NAMESPACE_MANGLE(vtkXQueryPointer)
+#define vtkXTranslateCoordinates VTK_ABI_NAMESPACE_MANGLE(vtkXTranslateCoordinates)
+#define vtkXKeysymToString VTK_ABI_NAMESPACE_MANGLE(vtkXKeysymToString)
+#define vtkXListExtensions VTK_ABI_NAMESPACE_MANGLE(vtkXListExtensions)
+#define vtkXCreateColormap VTK_ABI_NAMESPACE_MANGLE(vtkXCreateColormap)
+#define vtkXCreateFontCursor VTK_ABI_NAMESPACE_MANGLE(vtkXCreateFontCursor)
+#define vtkXCreatePixmapCursor VTK_ABI_NAMESPACE_MANGLE(vtkXCreatePixmapCursor)
+#define vtkXOpenDisplay VTK_ABI_NAMESPACE_MANGLE(vtkXOpenDisplay)
+#define vtkXCreateGC VTK_ABI_NAMESPACE_MANGLE(vtkXCreateGC)
+#define vtkXDefaultScreenOfDisplay VTK_ABI_NAMESPACE_MANGLE(vtkXDefaultScreenOfDisplay)
+#define vtkXChangeProperty VTK_ABI_NAMESPACE_MANGLE(vtkXChangeProperty)
+#define vtkXChangeWindowAttributes VTK_ABI_NAMESPACE_MANGLE(vtkXChangeWindowAttributes)
+#define vtkXCheckIfEvent VTK_ABI_NAMESPACE_MANGLE(vtkXCheckIfEvent)
+#define vtkXCheckTypedWindowEvent VTK_ABI_NAMESPACE_MANGLE(vtkXCheckTypedWindowEvent)
+#define vtkXCloseDisplay VTK_ABI_NAMESPACE_MANGLE(vtkXCloseDisplay)
+#define vtkXConvertSelection VTK_ABI_NAMESPACE_MANGLE(vtkXConvertSelection)
+#define vtkXDefaultScreen VTK_ABI_NAMESPACE_MANGLE(vtkXDefaultScreen)
+#define vtkXDefineCursor VTK_ABI_NAMESPACE_MANGLE(vtkXDefineCursor)
+#define vtkXDestroyWindow VTK_ABI_NAMESPACE_MANGLE(vtkXDestroyWindow)
+#define vtkXDisplayHeight VTK_ABI_NAMESPACE_MANGLE(vtkXDisplayHeight)
+#define vtkXDisplayWidth VTK_ABI_NAMESPACE_MANGLE(vtkXDisplayWidth)
+#define vtkXFlush VTK_ABI_NAMESPACE_MANGLE(vtkXFlush)
+#define vtkXFreeCursor VTK_ABI_NAMESPACE_MANGLE(vtkXFreeCursor)
+#define vtkXFreeExtensionList VTK_ABI_NAMESPACE_MANGLE(vtkXFreeExtensionList)
+#define vtkXFreePixmap VTK_ABI_NAMESPACE_MANGLE(vtkXFreePixmap)
+#define vtkXFree VTK_ABI_NAMESPACE_MANGLE(vtkXFree)
+#define vtkXGetWindowAttributes VTK_ABI_NAMESPACE_MANGLE(vtkXGetWindowAttributes)
+#define vtkXGetWindowProperty VTK_ABI_NAMESPACE_MANGLE(vtkXGetWindowProperty)
+#define vtkXGrabKeyboard VTK_ABI_NAMESPACE_MANGLE(vtkXGrabKeyboard)
+#define vtkXIfEvent VTK_ABI_NAMESPACE_MANGLE(vtkXIfEvent)
+#define vtkXLookupString VTK_ABI_NAMESPACE_MANGLE(vtkXLookupString)
+#define vtkXMapWindow VTK_ABI_NAMESPACE_MANGLE(vtkXMapWindow)
+#define vtkXMoveWindow VTK_ABI_NAMESPACE_MANGLE(vtkXMoveWindow)
+#define vtkXNextEvent VTK_ABI_NAMESPACE_MANGLE(vtkXNextEvent)
+#define vtkXPending VTK_ABI_NAMESPACE_MANGLE(vtkXPending)
+#define vtkXPutBackEvent VTK_ABI_NAMESPACE_MANGLE(vtkXPutBackEvent)
+#define vtkXResizeWindow VTK_ABI_NAMESPACE_MANGLE(vtkXResizeWindow)
+#define vtkXScreenNumberOfScreen VTK_ABI_NAMESPACE_MANGLE(vtkXScreenNumberOfScreen)
+#define vtkXSelectInput VTK_ABI_NAMESPACE_MANGLE(vtkXSelectInput)
+#define vtkXSendEvent VTK_ABI_NAMESPACE_MANGLE(vtkXSendEvent)
+#define vtkXSetClassHint VTK_ABI_NAMESPACE_MANGLE(vtkXSetClassHint)
+#define vtkXSetErrorHandler VTK_ABI_NAMESPACE_MANGLE(vtkXSetErrorHandler)
+#define vtkXSetInputFocus VTK_ABI_NAMESPACE_MANGLE(vtkXSetInputFocus)
+#define vtkXSetNormalHints VTK_ABI_NAMESPACE_MANGLE(vtkXSetNormalHints)
+#define vtkXSetWMIconName VTK_ABI_NAMESPACE_MANGLE(vtkXSetWMIconName)
+#define vtkXSetWMName VTK_ABI_NAMESPACE_MANGLE(vtkXSetWMName)
+#define vtkXSetWMProtocols VTK_ABI_NAMESPACE_MANGLE(vtkXSetWMProtocols)
+#define vtkXStoreName VTK_ABI_NAMESPACE_MANGLE(vtkXStoreName)
+#define vtkXStringListToTextProperty VTK_ABI_NAMESPACE_MANGLE(vtkXStringListToTextProperty)
+#define vtkXSync VTK_ABI_NAMESPACE_MANGLE(vtkXSync)
+#define vtkXUndefineCursor VTK_ABI_NAMESPACE_MANGLE(vtkXUndefineCursor)
+#define vtkXUnmapWindow VTK_ABI_NAMESPACE_MANGLE(vtkXUnmapWindow)
+#define vtkXCreateBitmapFromData VTK_ABI_NAMESPACE_MANGLE(vtkXCreateBitmapFromData)
+#define vtkXScreenOfDisplay VTK_ABI_NAMESPACE_MANGLE(vtkXScreenOfDisplay)
+#define vtkXVisualIDFromVisual VTK_ABI_NAMESPACE_MANGLE(vtkXVisualIDFromVisual)
+#define vtkXCreateWindow VTK_ABI_NAMESPACE_MANGLE(vtkXCreateWindow)
+#define vtkXRootWindowOfScreen VTK_ABI_NAMESPACE_MANGLE(vtkXRootWindowOfScreen)
+#define vtkXRootWindow VTK_ABI_NAMESPACE_MANGLE(vtkXRootWindow)
+#define vtkXGetVisualInfo VTK_ABI_NAMESPACE_MANGLE(vtkXGetVisualInfo)
+
+#if VTK_HAVE_XCURSOR
+#define vtkXcursorFilenameLoadCursor VTK_ABI_NAMESPACE_MANGLE(vtkXcursorFilenameLoadCursor)
+#endif // VTK_HAVE_XCURSOR
+#endif // defined(VTK_USE_X)
+
+#define vtkX11FunctionsInitialize VTK_ABI_NAMESPACE_MANGLE(vtkX11FunctionsInitialize)
+#define vtkX11FunctionsFinalize VTK_ABI_NAMESPACE_MANGLE(vtkX11FunctionsFinalize)
+
+// this header is designed to be includable from C or C++
+// we require C compatibility because this file is included in ThirdParty/glad/src/glx.c
+// which is compiled as C, not C++
+#ifdef __cplusplus
+extern "C"
+{
+#endif // __cplusplus
+#if defined(VTK_USE_X)
+  typedef Atom (*vtkXInternAtomType)(Display*, const char*, Bool);
+  typedef Bool (*vtkXQueryPointerType)(
+    Display*, Window, Window*, Window*, int*, int*, int*, int*, unsigned int*);
+  typedef Bool (*vtkXTranslateCoordinatesType)(
+    Display*, Window, Window, int, int, int*, int*, Window*);
+  typedef char* (*vtkXKeysymToStringType)(KeySym);
+  typedef char** (*vtkXListExtensionsType)(Display*, int*);
+  typedef Colormap (*vtkXCreateColormapType)(Display*, Window, Visual*, int);
+  typedef Cursor (*vtkXCreateFontCursorType)(Display*, unsigned int);
+  typedef Cursor (*vtkXCreatePixmapCursorType)(
+    Display*, Pixmap, Pixmap, XColor*, XColor*, unsigned int, unsigned int);
+  typedef Display* (*vtkXOpenDisplayType)(const char*);
+  typedef GC (*vtkXCreateGCType)(Display*, Drawable, unsigned long, XGCValues*);
+  typedef Screen* (*vtkXDefaultScreenOfDisplayType)(Display*);
+  typedef int (*vtkXChangePropertyType)(
+    Display*, Window, Atom, Atom, int, int, const unsigned char*, int);
+  typedef int (*vtkXChangeWindowAttributesType)(
+    Display*, Window, unsigned long, XSetWindowAttributes*);
+  typedef int (*vtkXCheckIfEventType)(
+    Display*, XEvent*, Bool (*)(Display*, XEvent*, XPointer), XPointer);
+  typedef int (*vtkXCheckTypedWindowEventType)(Display*, Window, int, XEvent*);
+  typedef int (*vtkXCloseDisplayType)(Display*);
+  typedef int (*vtkXConvertSelectionType)(Display*, Atom, Atom, Atom, Window, Time);
+  typedef int (*vtkXDefaultScreenType)(Display*);
+  typedef int (*vtkXDefineCursorType)(Display*, Window, Cursor);
+  typedef int (*vtkXDestroyWindowType)(Display*, Window);
+  typedef int (*vtkXDisplayHeightType)(Display*, int);
+  typedef int (*vtkXDisplayWidthType)(Display*, int);
+  typedef int (*vtkXFlushType)(Display*);
+  typedef int (*vtkXFreeCursorType)(Display*, Cursor);
+  typedef int (*vtkXFreeExtensionListType)(char**);
+  typedef int (*vtkXFreePixmapType)(Display*, Pixmap);
+  typedef int (*vtkXFreeType)(void*);
+  typedef int (*vtkXGetWindowAttributesType)(Display*, Window, XWindowAttributes*);
+  typedef int (*vtkXGetWindowPropertyType)(Display*, Window, Atom, long, long, Bool, Atom, Atom*,
+    int*, unsigned long*, unsigned long*, unsigned char**);
+  typedef int (*vtkXGrabKeyboardType)(Display*, Window, Bool, int, int, Time);
+  typedef int (*vtkXIfEventType)(
+    Display*, XEvent*, Bool (*)(Display*, XEvent*, XPointer), XPointer);
+  typedef int (*vtkXLookupStringType)(XKeyEvent*, char*, int, KeySym*, XComposeStatus*);
+  typedef int (*vtkXMapWindowType)(Display*, Window);
+  typedef int (*vtkXMoveWindowType)(Display*, Window, int, int);
+  typedef int (*vtkXNextEventType)(Display*, XEvent*);
+  typedef int (*vtkXPendingType)(Display*);
+  typedef int (*vtkXPutBackEventType)(Display*, XEvent*);
+  typedef int (*vtkXResizeWindowType)(Display*, Window, unsigned int, unsigned int);
+  typedef int (*vtkXScreenNumberOfScreenType)(Screen*);
+  typedef int (*vtkXSelectInputType)(Display*, Window, long);
+  typedef int (*vtkXSendEventType)(Display*, Window, Bool, long, XEvent*);
+  typedef int (*vtkXSetClassHintType)(Display*, Window, XClassHint*);
+  typedef XErrorHandler (*vtkXSetErrorHandlerType)(XErrorHandler);
+  typedef int (*vtkXSetInputFocusType)(Display*, Window, int, Time);
+  typedef int (*vtkXSetNormalHintsType)(Display*, Window, XSizeHints*);
+  typedef int (*vtkXSetWMIconNameType)(Display*, Window, XTextProperty*);
+  typedef int (*vtkXSetWMNameType)(Display*, Window, XTextProperty*);
+  typedef int (*vtkXSetWMProtocolsType)(Display*, Window, Atom*, int);
+  typedef int (*vtkXStoreNameType)(Display*, Window, const char*);
+  typedef int (*vtkXStringListToTextPropertyType)(char**, int, XTextProperty*);
+  typedef int (*vtkXSyncType)(Display*, Bool);
+  typedef int (*vtkXUndefineCursorType)(Display*, Window);
+  typedef int (*vtkXUnmapWindowType)(Display*, Window);
+  typedef Pixmap (*vtkXCreateBitmapFromDataType)(
+    Display*, Drawable, const char*, unsigned int, unsigned int);
+  typedef Screen* (*vtkXScreenOfDisplayType)(Display*, int);
+  typedef VisualID (*vtkXVisualIDFromVisualType)(Visual*);
+  typedef Window (*vtkXCreateWindowType)(Display*, Window, int, int, unsigned int, unsigned int,
+    unsigned int, int, unsigned int, Visual*, unsigned long, XSetWindowAttributes*);
+  typedef Window (*vtkXRootWindowOfScreenType)(Screen*);
+  typedef Window (*vtkXRootWindowType)(Display*, int);
+  typedef XVisualInfo* (*vtkXGetVisualInfoType)(Display*, long, XVisualInfo*, int*);
+  // Xcursor API
+#if VTK_HAVE_XCURSOR
+  typedef Cursor (*vtkXcursorFilenameLoadCursorType)(Display*, const char*);
+#endif
+  VTKX11_EXPORT extern vtkXInternAtomType vtkXInternAtom;
+  VTKX11_EXPORT extern vtkXQueryPointerType vtkXQueryPointer;
+  VTKX11_EXPORT extern vtkXTranslateCoordinatesType vtkXTranslateCoordinates;
+  VTKX11_EXPORT extern vtkXKeysymToStringType vtkXKeysymToString;
+  VTKX11_EXPORT extern vtkXListExtensionsType vtkXListExtensions;
+  VTKX11_EXPORT extern vtkXCreateColormapType vtkXCreateColormap;
+  VTKX11_EXPORT extern vtkXCreateFontCursorType vtkXCreateFontCursor;
+  VTKX11_EXPORT extern vtkXCreatePixmapCursorType vtkXCreatePixmapCursor;
+  VTKX11_EXPORT extern vtkXOpenDisplayType vtkXOpenDisplay;
+  VTKX11_EXPORT extern vtkXCreateGCType vtkXCreateGC;
+  VTKX11_EXPORT extern vtkXDefaultScreenOfDisplayType vtkXDefaultScreenOfDisplay;
+  VTKX11_EXPORT extern vtkXChangePropertyType vtkXChangeProperty;
+  VTKX11_EXPORT extern vtkXChangeWindowAttributesType vtkXChangeWindowAttributes;
+  VTKX11_EXPORT extern vtkXCheckIfEventType vtkXCheckIfEvent;
+  VTKX11_EXPORT extern vtkXCheckTypedWindowEventType vtkXCheckTypedWindowEvent;
+  VTKX11_EXPORT extern vtkXCloseDisplayType vtkXCloseDisplay;
+  VTKX11_EXPORT extern vtkXConvertSelectionType vtkXConvertSelection;
+  VTKX11_EXPORT extern vtkXDefaultScreenType vtkXDefaultScreen;
+  VTKX11_EXPORT extern vtkXDefineCursorType vtkXDefineCursor;
+  VTKX11_EXPORT extern vtkXDestroyWindowType vtkXDestroyWindow;
+  VTKX11_EXPORT extern vtkXDisplayHeightType vtkXDisplayHeight;
+  VTKX11_EXPORT extern vtkXDisplayWidthType vtkXDisplayWidth;
+  VTKX11_EXPORT extern vtkXFlushType vtkXFlush;
+  VTKX11_EXPORT extern vtkXFreeCursorType vtkXFreeCursor;
+  VTKX11_EXPORT extern vtkXFreeExtensionListType vtkXFreeExtensionList;
+  VTKX11_EXPORT extern vtkXFreePixmapType vtkXFreePixmap;
+  VTKX11_EXPORT extern vtkXFreeType vtkXFree;
+  VTKX11_EXPORT extern vtkXGetWindowAttributesType vtkXGetWindowAttributes;
+  VTKX11_EXPORT extern vtkXGetWindowAttributesType vtkXGetWindowAttributes;
+  VTKX11_EXPORT extern vtkXGetWindowPropertyType vtkXGetWindowProperty;
+  VTKX11_EXPORT extern vtkXGrabKeyboardType vtkXGrabKeyboard;
+  VTKX11_EXPORT extern vtkXIfEventType vtkXIfEvent;
+  VTKX11_EXPORT extern vtkXLookupStringType vtkXLookupString;
+  VTKX11_EXPORT extern vtkXMapWindowType vtkXMapWindow;
+  VTKX11_EXPORT extern vtkXMoveWindowType vtkXMoveWindow;
+  VTKX11_EXPORT extern vtkXNextEventType vtkXNextEvent;
+  VTKX11_EXPORT extern vtkXPendingType vtkXPending;
+  VTKX11_EXPORT extern vtkXPutBackEventType vtkXPutBackEvent;
+  VTKX11_EXPORT extern vtkXResizeWindowType vtkXResizeWindow;
+  VTKX11_EXPORT extern vtkXScreenNumberOfScreenType vtkXScreenNumberOfScreen;
+  VTKX11_EXPORT extern vtkXSelectInputType vtkXSelectInput;
+  VTKX11_EXPORT extern vtkXSendEventType vtkXSendEvent;
+  VTKX11_EXPORT extern vtkXSetClassHintType vtkXSetClassHint;
+  VTKX11_EXPORT extern vtkXSetErrorHandlerType vtkXSetErrorHandler;
+  VTKX11_EXPORT extern vtkXSetInputFocusType vtkXSetInputFocus;
+  VTKX11_EXPORT extern vtkXSetNormalHintsType vtkXSetNormalHints;
+  VTKX11_EXPORT extern vtkXSetWMIconNameType vtkXSetWMIconName;
+  VTKX11_EXPORT extern vtkXSetWMNameType vtkXSetWMName;
+  VTKX11_EXPORT extern vtkXSetWMProtocolsType vtkXSetWMProtocols;
+  VTKX11_EXPORT extern vtkXStoreNameType vtkXStoreName;
+  VTKX11_EXPORT extern vtkXStringListToTextPropertyType vtkXStringListToTextProperty;
+  VTKX11_EXPORT extern vtkXSyncType vtkXSync;
+  VTKX11_EXPORT extern vtkXUndefineCursorType vtkXUndefineCursor;
+  VTKX11_EXPORT extern vtkXUnmapWindowType vtkXUnmapWindow;
+  VTKX11_EXPORT extern vtkXCreateBitmapFromDataType vtkXCreateBitmapFromData;
+  VTKX11_EXPORT extern vtkXScreenOfDisplayType vtkXScreenOfDisplay;
+  VTKX11_EXPORT extern vtkXVisualIDFromVisualType vtkXVisualIDFromVisual;
+  VTKX11_EXPORT extern vtkXCreateWindowType vtkXCreateWindow;
+  VTKX11_EXPORT extern vtkXRootWindowOfScreenType vtkXRootWindowOfScreen;
+  VTKX11_EXPORT extern vtkXRootWindowType vtkXRootWindow;
+  VTKX11_EXPORT extern vtkXGetVisualInfoType vtkXGetVisualInfo;
+  // Xcursor API
+#if VTK_HAVE_XCURSOR
+  VTKX11_EXPORT extern vtkXcursorFilenameLoadCursorType vtkXcursorFilenameLoadCursor;
+#endif
+#endif // defined(VTK_USE_X)
+  /**
+   * Initialize the X11 function pointers by dynamically loading them from libX11.so.
+   * Must be called before using any of the function pointers.
+   * Safe to call multiple times; subsequent calls have no effect.
+   */
+  VTKX11_EXPORT void vtkX11FunctionsInitialize();
+  /**
+   * Finalize the X11 function pointers, releasing any resources.
+   * Should be called when done using the function pointers.
+   * Safe to call multiple times; subsequent calls have no effect.
+   * Ideally, you would pair calls to vtkX11FunctionsInitialize()
+   * and vtkX11FunctionsFinalize() in your application for example, in a constructor and destructor.
+   * If you need access to an X function in your main() function, you may call
+   * vtkX11FunctionsInitialize() at the start of main() and vtkX11FunctionsFinalize()
+   * at the end of main().
+   */
+  VTKX11_EXPORT void vtkX11FunctionsFinalize();
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+#endif // vtkX11Functions_h
+// VTK-HeaderTest-Exclude: vtkX11Functions.h

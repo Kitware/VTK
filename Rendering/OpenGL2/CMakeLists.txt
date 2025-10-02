@@ -449,19 +449,7 @@ if (VTK_USE_WAYLAND_OPENGL)
   vtk_module_definitions(VTK::RenderingOpenGL2 PRIVATE USE_WAYLAND)
 endif()
 
-if (VTK_USE_X)
-  vtk_module_find_package(PACKAGE X11)
-  vtk_module_link(VTK::RenderingOpenGL2 PUBLIC X11::X11)
-  if (TARGET X11::Xcursor)
-    vtk_module_link(VTK::RenderingOpenGL2 PRIVATE X11::Xcursor)
-  else()
-    message(WARNING "X11::Xcursor not found; custom cursors will be ignored.")
-  endif()
-  set_property(SOURCE vtkXOpenGLRenderWindow.cxx APPEND
-    PROPERTY
-      COMPILE_DEFINITIONS "VTK_HAVE_XCURSOR=$<TARGET_EXISTS:X11::Xcursor>"
-  )
-elseif (VTK_USE_COCOA)
+if (VTK_USE_COCOA)
   vtk_module_link(VTK::RenderingOpenGL2 PUBLIC "-framework Cocoa")
 elseif (VTK_USE_WIN32_OPENGL)
   # vtkWin32OpenGLDXRenderWindow requires D3D.

@@ -47,12 +47,6 @@ if (BUILD_SHARED_LIBS)
       DEFINE_SYMBOL "GLAD_API_CALL_EXPORT_BUILD")
 endif ()
 
-if (VTK_USE_X)
-  find_package(X11 REQUIRED)
-  vtk_module_find_package(PACKAGE X11)
-  vtk_module_link(VTK::glad PRIVATE X11::X11) # needed for `XOpenDisplay` in glx.c
-endif ()
-
 if (APPLE)
   vtk_module_definitions(VTK::glad
     INTERFACE

@@ -22,6 +22,7 @@ DEPENDS
   VTK::RenderingHyperTreeGrid
   VTK::RenderingUI
   VTK::glad
+  VTK::x11
 PRIVATE_DEPENDS
   VTK::CommonColor
   VTK::CommonExecutionModel

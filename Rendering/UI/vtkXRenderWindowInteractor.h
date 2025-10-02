@@ -23,7 +23,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderingUIModule.h" // For export macro
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
-#include <X11/Xlib.h>             // Needed for X types in the public interface
+#include "vtkX11Functions.h"      // Needed for X types in the public interface
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCallbackCommand;

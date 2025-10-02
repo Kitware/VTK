@@ -20,11 +20,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
 #include "vtkStringArray.h"
-
-#include <X11/X.h>
-#include <X11/Xatom.h>
-#include <X11/Xutil.h>
-#include <X11/keysym.h>
+#include "vtkX11Functions.h"
 
 #include <climits>
 #include <cmath>
@@ -62,8 +58,9 @@ public:
   {
     this->DisplayConnection = -1;
     this->TimerIdCount = 1;
+    vtkX11FunctionsInitialize();
   }
-  ~vtkXRenderWindowInteractorInternals() = default;
+  ~vtkXRenderWindowInteractorInternals() { vtkX11FunctionsFinalize(); }
 
   // duration is in milliseconds
   int CreateLocalTimer(unsigned long duration)
@@ -219,12 +216,13 @@ void vtkXRenderWindowInteractor::TerminateApp()
   // client.send_event; //leave zeroed
   client.display = this->DisplayId;
   client.window = this->WindowId;
-  client.message_type = XInternAtom(this->DisplayId, "VTK_BreakXtLoop", False);
+  client.message_type = vtkXInternAtom(this->DisplayId, "VTK_BreakXtLoop", False);
   client.format = 32; // indicates size of data chunks: 8, 16 or 32 bits...
   // client.data; //leave zeroed
 
-  XSendEvent(client.display, client.window, True, NoEventMask, reinterpret_cast<XEvent*>(&client));
-  XFlush(client.display);
+  vtkXSendEvent(
+    client.display, client.window, True, NoEventMask, reinterpret_cast<XEvent*>(&client));
+  vtkXFlush(client.display);
 }
 
 void vtkXRenderWindowInteractor::ProcessEvents()
@@ -253,10 +251,10 @@ void vtkXRenderWindowInteractor::ProcessEvents()
   for (Display* dpy : dpys)
   {
     XEvent event;
-    while (this->CheckDisplayId(dpy) && XPending(dpy) != 0)
+    while (this->CheckDisplayId(dpy) && vtkXPending(dpy) != 0)
     {
       // If events are pending, dispatch them to the right RenderWindowInteractor
-      XNextEvent(dpy, &event);
+      vtkXNextEvent(dpy, &event);
       Window w = event.xany.window;
       auto iter = windowmap.find(w);
       if (iter != windowmap.end() && !iter->second->Done)
@@ -402,7 +400,7 @@ void vtkXRenderWindowInteractor::Initialize()
   if (this->DisplayId)
   {
     this->Internal->DisplayConnection = ConnectionNumber(this->DisplayId);
-    XSync(this->DisplayId, False);
+    vtkXSync(this->DisplayId, False);
   }
 
   ren->Start();
@@ -414,8 +412,8 @@ void vtkXRenderWindowInteractor::Initialize()
   {
     XWindowAttributes attribs;
     //  Find the current window size
-    auto* previousHandler = XSetErrorHandler([](Display*, XErrorEvent*) { return 0; });
-    if (XGetWindowAttributes(this->DisplayId, this->WindowId, &attribs))
+    auto* previousHandler = vtkXSetErrorHandler([](Display*, XErrorEvent*) { return 0; });
+    if (vtkXGetWindowAttributes(this->DisplayId, this->WindowId, &attribs))
     {
       size[0] = attribs.width;
       size[1] = attribs.height;
@@ -425,7 +423,7 @@ void vtkXRenderWindowInteractor::Initialize()
       // window does not exist. `ren` is not an X11 render window.
       this->WindowId = 0;
     }
-    XSetErrorHandler(previousHandler);
+    vtkXSetErrorHandler(previousHandler);
   }
   ren->SetSize(size[0], size[1]);
 
@@ -497,27 +495,27 @@ void vtkXRenderWindowInteractor::Enable()
   // to work properly, both the callback function AND the client data
   // passed to XtAddEventHandler and XtRemoveEventHandler must MATCH
   // PERFECTLY
-  XSelectInput(this->DisplayId, this->WindowId,
+  vtkXSelectInput(this->DisplayId, this->WindowId,
     KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | ExposureMask |
       StructureNotifyMask | EnterWindowMask | LeaveWindowMask | PointerMotionHintMask |
       PointerMotionMask);
 
   // Setup for capturing the window deletion
-  this->KillAtom = XInternAtom(this->DisplayId, "WM_DELETE_WINDOW", False);
-  XSetWMProtocols(this->DisplayId, this->WindowId, &this->KillAtom, 1);
+  this->KillAtom = vtkXInternAtom(this->DisplayId, "WM_DELETE_WINDOW", False);
+  vtkXSetWMProtocols(this->DisplayId, this->WindowId, &this->KillAtom, 1);
 
   // Enable drag and drop
-  Atom xdndAwareAtom = XInternAtom(this->DisplayId, "XdndAware", False);
-  XChangeProperty(
+  Atom xdndAwareAtom = vtkXInternAtom(this->DisplayId, "XdndAware", False);
+  vtkXChangeProperty(
     this->DisplayId, this->WindowId, xdndAwareAtom, XA_ATOM, 32, PropModeReplace, &XDND_VERSION, 1);
-  this->XdndURIListAtom = XInternAtom(this->DisplayId, "text/uri-list", False);
-  this->XdndTypeListAtom = XInternAtom(this->DisplayId, "XdndTypeList", False);
-  this->XdndEnterAtom = XInternAtom(this->DisplayId, "XdndEnter", False);
-  this->XdndPositionAtom = XInternAtom(this->DisplayId, "XdndPosition", False);
-  this->XdndDropAtom = XInternAtom(this->DisplayId, "XdndDrop", False);
-  this->XdndActionCopyAtom = XInternAtom(this->DisplayId, "XdndActionCopy", False);
-  this->XdndStatusAtom = XInternAtom(this->DisplayId, "XdndStatus", False);
-  this->XdndFinishedAtom = XInternAtom(this->DisplayId, "XdndFinished", False);
+  this->XdndURIListAtom = vtkXInternAtom(this->DisplayId, "text/uri-list", False);
+  this->XdndTypeListAtom = vtkXInternAtom(this->DisplayId, "XdndTypeList", False);
+  this->XdndEnterAtom = vtkXInternAtom(this->DisplayId, "XdndEnter", False);
+  this->XdndPositionAtom = vtkXInternAtom(this->DisplayId, "XdndPosition", False);
+  this->XdndDropAtom = vtkXInternAtom(this->DisplayId, "XdndDrop", False);
+  this->XdndActionCopyAtom = vtkXInternAtom(this->DisplayId, "XdndActionCopy", False);
+  this->XdndStatusAtom = vtkXInternAtom(this->DisplayId, "XdndStatus", False);
+  this->XdndFinishedAtom = vtkXInternAtom(this->DisplayId, "XdndFinished", False);
 
   this->Enabled = 1;
 
@@ -608,7 +606,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         return;
       }
       XEvent result;
-      while (XCheckTypedWindowEvent(this->DisplayId, this->WindowId, Expose, &result))
+      while (vtkXCheckTypedWindowEvent(this->DisplayId, this->WindowId, Expose, &result))
       {
         // just getting the expose configure event
         event = &result;
@@ -642,7 +640,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
     case ConfigureNotify:
     {
       XEvent result;
-      while (XCheckTypedWindowEvent(this->DisplayId, this->WindowId, ConfigureNotify, &result))
+      while (vtkXCheckTypedWindowEvent(this->DisplayId, this->WindowId, ConfigureNotify, &result))
       {
         // just getting the last configure event
         event = &result;
@@ -762,7 +760,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
     case EnterNotify:
     {
       // Force the keyboard focus to be this render window
-      XSetInputFocus(this->DisplayId, this->WindowId, RevertToPointerRoot, CurrentTime);
+      vtkXSetInputFocus(this->DisplayId, this->WindowId, RevertToPointerRoot, CurrentTime);
       if (this->Enabled)
       {
         XEnterWindowEvent* e = reinterpret_cast<XEnterWindowEvent*>(event);
@@ -802,11 +800,11 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       // unicode blocks. We care only for the first char of the keycode.
       char keyCode;
       vtkKeySym keySym;
-      XLookupString(keyEvent, &keyCode, 1, &keySym, nullptr);
+      vtkXLookupString(keyEvent, &keyCode, 1, &keySym, nullptr);
 
       xp = keyEvent->x;
       yp = keyEvent->y;
-      this->SetEventInformationFlipY(xp, yp, ctrl, shift, keyCode, 1, XKeysymToString(keySym));
+      this->SetEventInformationFlipY(xp, yp, ctrl, shift, keyCode, 1, vtkXKeysymToString(keySym));
       this->SetAltKey(alt);
       this->InvokeEvent(vtkCommand::KeyPressEvent, nullptr);
       this->InvokeEvent(vtkCommand::CharEvent, nullptr);
@@ -828,11 +826,11 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       // unicode blocks. We care only for the first char of the keycode.
       char keyCode;
       vtkKeySym keySym;
-      XLookupString(keyEvent, &keyCode, 1, &keySym, nullptr);
+      vtkXLookupString(keyEvent, &keyCode, 1, &keySym, nullptr);
 
       xp = keyEvent->x;
       yp = keyEvent->y;
-      this->SetEventInformationFlipY(xp, yp, ctrl, shift, keyCode, 1, XKeysymToString(keySym));
+      this->SetEventInformationFlipY(xp, yp, ctrl, shift, keyCode, 1, vtkXKeysymToString(keySym));
       this->SetAltKey(alt);
       this->InvokeEvent(vtkCommand::KeyReleaseEvent, nullptr);
     }
@@ -873,9 +871,9 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
       Atom actualType;
       int actualFormat;
       unsigned long itemCount, bytesAfter;
-      XGetWindowProperty(this->DisplayId, event->xselection.requestor, event->xselection.property,
-        0, LONG_MAX, False, event->xselection.target, &actualType, &actualFormat, &itemCount,
-        &bytesAfter, reinterpret_cast<unsigned char**>(&data));
+      vtkXGetWindowProperty(this->DisplayId, event->xselection.requestor,
+        event->xselection.property, 0, LONG_MAX, False, event->xselection.target, &actualType,
+        &actualFormat, &itemCount, &bytesAfter, reinterpret_cast<unsigned char**>(&data));
 
       // Conversion checks
       if ((event->xselection.target != AnyPropertyType && actualType != event->xselection.target) ||
@@ -910,7 +908,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         }
       }
       this->InvokeEvent(vtkCommand::DropFilesEvent, filePaths);
-      XFree(data);
+      vtkXFree(data);
 
       // Inform the source the the drag and drop operation was successful
       XEvent reply;
@@ -928,8 +926,8 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         reply.xclient.data.l[2] = this->XdndActionCopyAtom;
       }
 
-      XSendEvent(this->DisplayId, this->XdndSource, False, NoEventMask, &reply);
-      XFlush(this->DisplayId);
+      vtkXSendEvent(this->DisplayId, this->XdndSource, False, NoEventMask, &reply);
+      vtkXFlush(this->DisplayId);
       this->XdndSource = 0;
     }
     break;
@@ -957,8 +955,8 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
           Atom actualType;
           int actualFormat;
           unsigned long bytesAfter;
-          XGetWindowProperty(this->DisplayId, this->XdndSource, this->XdndTypeListAtom, 0, LONG_MAX,
-            False, XA_ATOM, &actualType, &actualFormat, &count, &bytesAfter,
+          vtkXGetWindowProperty(this->DisplayId, this->XdndSource, this->XdndTypeListAtom, 0,
+            LONG_MAX, False, XA_ATOM, &actualType, &actualFormat, &count, &bytesAfter,
             reinterpret_cast<unsigned char**>(&formats));
         }
         else
@@ -981,7 +979,7 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         // Free the allocated formats
         if (list && formats)
         {
-          XFree(formats);
+          vtkXFree(formats);
         }
       }
       if (event->xclient.message_type == this->XdndPositionAtom)
@@ -1018,8 +1016,8 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         reply.xclient.data.l[3] = 0;
         reply.xclient.data.l[4] = this->XdndActionCopyAtom;
 
-        XSendEvent(this->DisplayId, this->XdndSource, False, NoEventMask, &reply);
-        XFlush(this->DisplayId);
+        vtkXSendEvent(this->DisplayId, this->XdndSource, False, NoEventMask, &reply);
+        vtkXFlush(this->DisplayId);
       }
       else if (event->xclient.message_type == this->XdndDropAtom)
       {
@@ -1033,8 +1031,8 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
         if (this->XdndFormatAtom)
         {
           // Ask for a conversion of the selection. This will trigger a SelectionNotify event later.
-          Atom xdndSelectionAtom = XInternAtom(this->DisplayId, "XdndSelection", False);
-          XConvertSelection(this->DisplayId, xdndSelectionAtom, this->XdndFormatAtom,
+          Atom xdndSelectionAtom = vtkXInternAtom(this->DisplayId, "XdndSelection", False);
+          vtkXConvertSelection(this->DisplayId, xdndSelectionAtom, this->XdndFormatAtom,
             xdndSelectionAtom, this->WindowId, CurrentTime);
         }
         else if (this->XdndSourceVersion >= 2)
@@ -1050,8 +1048,8 @@ void vtkXRenderWindowInteractor::DispatchEvent(XEvent* event)
           reply.xclient.data.l[1] = 0; // The drag was rejected
           reply.xclient.data.l[2] = None;
 
-          XSendEvent(this->DisplayId, this->XdndSource, False, NoEventMask, &reply);
-          XFlush(this->DisplayId);
+          vtkXSendEvent(this->DisplayId, this->XdndSource, False, NoEventMask, &reply);
+          vtkXFlush(this->DisplayId);
         }
       }
       else if (static_cast<Atom>(event->xclient.data.l[0]) == this->KillAtom)
@@ -1076,7 +1074,7 @@ void vtkXRenderWindowInteractor::GetMousePositionAndModifierKeysState(
 {
   Window root, child;
   int root_x, root_y;
-  XQueryPointer(this->DisplayId, this->WindowId, &root, &child, &root_x, &root_y, x, y, keys);
+  vtkXQueryPointer(this->DisplayId, this->WindowId, &root, &child, &root_x, &root_y, x, y, keys);
   *y = this->Size[1] - *y - 1;
 }
 

@@ -17,6 +17,9 @@
 #endif
 #include "tkInt.h"
 #else
+#if !defined(Status)
+#define Status int
+#endif
 #include "vtkXOpenGLRenderWindow.h"
 #endif
 #endif
