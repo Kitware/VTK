@@ -4,14 +4,12 @@
 #include "vtkXMLUnstructuredDataWriter.h"
 
 #include "vtkCellArray.h"
-#include "vtkCellData.h"
 #include "vtkCellIterator.h"
 #include "vtkDataArray.h"
 #include "vtkDataCompressor.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkErrorCode.h"
 #include "vtkGenericCell.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -163,7 +161,7 @@ vtkTypeBool vtkXMLUnstructuredDataWriter::ProcessRequest(
           else
           {
             vtkNew<vtkCellTypes> cellTypes;
-            dataSet->GetCellTypes(cellTypes);
+            dataSet->GetDistinctCellTypes(cellTypes);
             cellTypesArray->ShallowCopy(cellTypes->GetCellTypesArray());
           }
           if (vtkNeedsNewFileVersionV8toV9(cellTypesArray))
@@ -975,37 +973,48 @@ void vtkXMLUnstructuredDataWriter::ConvertCells(
 namespace
 {
 
-struct ConvertCellsVisitor
+struct ConvertCellsVisitor : public vtkCellArray::DispatchUtilities
 {
   vtkSmartPointer<vtkDataArray> Offsets;
   vtkSmartPointer<vtkDataArray> Connectivity;
 
-  template <typename CellStateT>
-  void operator()(CellStateT& state)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsetsIn, ConnectivityT* connIn)
   {
-    using ArrayT = typename CellStateT::ArrayType;
-
-    vtkNew<ArrayT> offsets;
-    vtkNew<ArrayT> conn;
-
+    using ValueType = GetAPIType<OffsetsT>;
     // Shallow copy will let us change the name of the array to what the
     // writer expects without actually copying the array data:
-    conn->ShallowCopy(state.GetConnectivity());
-    conn->SetName("connectivity");
-    this->Connectivity = std::move(conn);
+    this->Connectivity.TakeReference(connIn->NewInstance());
+    this->Connectivity->ShallowCopy(connIn);
+    this->Connectivity->SetName("connectivity");
 
     // The file format for offsets always skips the first offset, because
     // it's always zero. Use SetArray and GetPointer to create a view
     // of the offsets array that starts at index=1:
-    auto* offsetsIn = state.GetOffsets();
+    this->Offsets.TakeReference(offsetsIn->NewInstance());
     const vtkIdType numOffsets = offsetsIn->GetNumberOfValues();
     if (numOffsets >= 2)
     {
-      offsets->SetArray(offsetsIn->GetPointer(1), numOffsets - 1, 1 /*save*/);
+      if (auto aosArray = vtkAOSDataArrayTemplate<ValueType>::FastDownCast(offsetsIn))
+      {
+        auto aosArrayTrimmed = vtkSmartPointer<vtkAOSDataArrayTemplate<ValueType>>::New();
+        aosArrayTrimmed->SetArray(aosArray->GetPointer(1), numOffsets - 1, 1 /*save*/);
+        this->Offsets = aosArrayTrimmed;
+      }
+      else if (auto affineArray = vtkAffineArray<ValueType>::FastDownCast(offsetsIn))
+      {
+        auto affineArrayTrimmed = vtkSmartPointer<vtkAffineArray<ValueType>>::New();
+        affineArrayTrimmed->ConstructBackend(
+          affineArray->GetBackend()->Slope, affineArray->GetBackend()->Slope);
+        affineArrayTrimmed->SetNumberOfValues(numOffsets - 1);
+        this->Offsets = affineArrayTrimmed;
+      }
+      else
+      {
+        this->Offsets->InsertTuples(0, numOffsets - 1, 1, offsetsIn);
+      }
     }
-    offsets->SetName("offsets");
-
-    this->Offsets = std::move(offsets);
+    this->Offsets->SetName("offsets");
   }
 };
 
@@ -1017,7 +1026,7 @@ void vtkXMLUnstructuredDataWriter::ConvertCells(vtkCellArray* cells)
   ConvertCellsVisitor visitor;
   if (cells)
   {
-    cells->Visit(visitor);
+    cells->Dispatch(visitor);
   }
   this->CellPoints = visitor.Connectivity;
   this->CellOffsets = visitor.Offsets;
@@ -1029,7 +1038,7 @@ void vtkXMLUnstructuredDataWriter::ConvertPolyFaces(vtkCellArray* faces, vtkCell
   ConvertCellsVisitor faceVisitor, polyhedronVisitor;
   if (faces && faces->GetNumberOfCells() > 0)
   {
-    faces->Visit(faceVisitor);
+    faces->Dispatch(faceVisitor);
     faceVisitor.Connectivity->SetName("face_connectivity");
     faceVisitor.Offsets->SetName("face_offsets");
   }
@@ -1037,7 +1046,7 @@ void vtkXMLUnstructuredDataWriter::ConvertPolyFaces(vtkCellArray* faces, vtkCell
   this->FaceOffsets = faceVisitor.Offsets;
   if (faceOffsets && faceOffsets->GetNumberOfCells() > 0)
   {
-    faceOffsets->Visit(polyhedronVisitor);
+    faceOffsets->Dispatch(polyhedronVisitor);
     polyhedronVisitor.Connectivity->SetName("polyhedron_to_faces");
     polyhedronVisitor.Offsets->SetName("polyhedron_offsets");
   }

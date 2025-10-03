@@ -168,19 +168,19 @@ namespace vtkSCLT_detail
 {
 VTK_ABI_NAMESPACE_BEGIN
 
-struct CountPoints
+struct CountPoints : public vtkCellArray::DispatchUtilities
 {
-  template <typename CellStateT, typename TIds>
-  void operator()(
-    CellStateT& state, std::atomic<TIds>* counts, vtkIdType beginCellId, vtkIdType endCellId)
+  template <class OffsetsT, class ConnectivityT, typename TIds>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, std::atomic<TIds>* counts,
+    vtkIdType beginCellId, vtkIdType endCellId)
   {
-    using ValueType = typename CellStateT::ValueType;
-    const vtkIdType connBeginId = state.GetBeginOffset(beginCellId);
-    const vtkIdType connEndId = state.GetEndOffset(endCellId - 1);
-    auto connRange = vtk::DataArrayValueRange<1>(state.GetConnectivity(), connBeginId, connEndId);
+    auto offsetsRange = GetRange(offsets);
+    const auto& connBeginId = offsetsRange[beginCellId];
+    const auto& connEndId = offsetsRange[endCellId];
+    auto connRange = GetRange(conn).GetSubRange(connBeginId, connEndId);
 
     // Count number of point uses
-    for (const ValueType ptId : connRange)
+    for (const auto ptId : connRange)
     {
       // memory_order_relaxed is safe here, since we're not using the atomics for synchronization.
       counts[ptId].fetch_add(1, std::memory_order_relaxed);
@@ -188,16 +188,17 @@ struct CountPoints
   }
 };
 
-struct BuildLinks
+struct BuildLinks : public vtkCellArray::DispatchUtilities
 {
-  template <typename CellStateT, typename TIds>
-  void operator()(CellStateT& state, const TIds* offsets, std::atomic<TIds>* counts, TIds* links,
-    vtkIdType beginCellId, vtkIdType endCellId, const TIds idOffset = 0)
+  template <class OffsetsT, class ConnectivityT, typename TIds>
+  void operator()(OffsetsT* cellOffsets, ConnectivityT* cellConn, const TIds* offsets,
+    std::atomic<TIds>* counts, TIds* links, vtkIdType beginCellId, vtkIdType endCellId,
+    const TIds idOffset = 0)
   {
-    using ValueType = typename CellStateT::ValueType;
+    using ValueType = GetAPIType<OffsetsT>;
 
-    const auto cellConnectivity = vtk::DataArrayValueRange<1>(state.GetConnectivity());
-    const auto cellOffsets = vtk::DataArrayValueRange<1>(state.GetOffsets());
+    const auto cellConnRange = GetRange(cellConn);
+    const auto cellOffsetsRange = GetRange(cellOffsets);
     // Now build the links. The summation from the prefix sum indicates where
     // the cells are to be inserted. Each time a cell is inserted, the offset
     // is decremented. In the end, the offset array is also constructed as it
@@ -207,9 +208,10 @@ struct BuildLinks
     TIds offset;
     for (vtkIdType cellId = beginCellId; cellId < endCellId; ++cellId)
     {
-      for (ptIdOffset = cellOffsets[cellId]; ptIdOffset < cellOffsets[cellId + 1]; ++ptIdOffset)
+      for (ptIdOffset = cellOffsetsRange[cellId]; ptIdOffset < cellOffsetsRange[cellId + 1];
+           ++ptIdOffset)
       {
-        ptId = static_cast<size_t>(cellConnectivity[ptIdOffset]);
+        ptId = static_cast<size_t>(cellConnRange[ptIdOffset]);
         // memory_order_relaxed is safe here, since we're not using the atomics for synchronization.
         offset = offsets[ptId + 1] - counts[ptId].fetch_sub(1, std::memory_order_relaxed);
         links[offset] = idOffset + cellId;
@@ -241,7 +243,7 @@ struct CountUses
 
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
-    this->CellArray->Visit(vtkSCLT_detail::CountPoints{}, this->Counts, cellId, endCellId);
+    this->CellArray->Dispatch(vtkSCLT_detail::CountPoints{}, this->Counts, cellId, endCellId);
   }
 };
 
@@ -266,8 +268,8 @@ struct InsertLinks
 
   void operator()(vtkIdType cellId, vtkIdType endCellId)
   {
-    this->CellArray->Visit(vtkSCLT_detail::BuildLinks{}, this->Offsets, this->Counts, this->Links,
-      cellId, endCellId, this->IdOffset);
+    this->CellArray->Dispatch(vtkSCLT_detail::BuildLinks{}, this->Offsets, this->Counts,
+      this->Links, cellId, endCellId, this->IdOffset);
   }
 };
 
@@ -404,14 +406,14 @@ void vtkStaticCellLinksTemplate<TIds>::BuildLinks(vtkPolyData* pd)
 //----------------------------------------------------------------------------
 // Indicate whether the point ids provided form part of at least one cell.
 template <typename TIds>
-template <typename TGivenIds>
-bool vtkStaticCellLinksTemplate<TIds>::MatchesCell(TGivenIds npts, const TGivenIds* pts)
+template <typename TNumIds, typename TConnectivityIter>
+bool vtkStaticCellLinksTemplate<TIds>::MatchesCell(TNumIds npts, const TConnectivityIter pts)
 {
   // Find the shortest cell links list.
-  int minList = 0;
+  TNumIds minList = 0;
   vtkIdType minNumCells = VTK_INT_MAX;
   TIds numCells;
-  for (auto i = 0; i < npts; ++i)
+  for (TNumIds i = 0; i < npts; ++i)
   {
     numCells = this->GetNcells(pts[i]);
     if (numCells < minNumCells)
@@ -428,7 +430,7 @@ bool vtkStaticCellLinksTemplate<TIds>::MatchesCell(TGivenIds npts, const TGivenI
     bool foundCell = true;
     auto cellId = shortCells[j];
     // Loop over all cell lists looking for this cellId
-    for (auto i = 0; i < npts && foundCell; ++i)
+    for (TNumIds i = 0; i < npts && foundCell; ++i)
     {
       if (i != minList)
       {

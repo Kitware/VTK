@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkStaticFaceHashLinksTemplate.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkBatch.h"
 #include "vtkGenericCell.h"
 #include "vtkHexagonalPrism.h"
@@ -133,16 +134,15 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
 
   void Initialize() {}
 
-  struct FaceInformationOperator
+  struct FaceInformationOperator : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(
-      CellStateT& state, CreateFacesInformation* This, vtkIdType beginBatchId, vtkIdType endBatchId)
+    template <class OffsetsT, class ConnectivityT, class CellTypesT>
+    void operator()(OffsetsT* offsets, ConnectivityT* conn, CellTypesT* cellTypes,
+      CreateFacesInformation* This, vtkIdType beginBatchId, vtkIdType endBatchId)
     {
-      using ValueType = typename CellStateT::ValueType;
-      const ValueType* connectivityPtr = state.GetConnectivity()->GetPointer(0);
-      const ValueType* offsetsPtr = state.GetOffsets()->GetPointer(0);
-      const unsigned char* cellTypes = This->Input->GetCellTypesArray()->GetPointer(0);
+      const auto connectivityRange = GetRange(conn);
+      const auto offsetsRange = GetRange(offsets);
+      const auto cellTypesRange = vtk::DataArrayValueRange<1, unsigned char>(cellTypes);
 
       auto cell = This->TLCell.Local();
       auto faceIdsList = This->TLFaceIds.Local();
@@ -161,9 +161,9 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
         auto facesOffset = batch.Data.FacesOffset;
         for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; ++cellId)
         {
-          const unsigned char& cellType = cellTypes[cellId];
+          const unsigned char& cellType = cellTypesRange[cellId];
           // get cell points by just accessing the connectivity/offsets array
-          const ValueType* pts = connectivityPtr + offsetsPtr[cellId];
+          const auto pts = connectivityRange.GetSubRange(offsetsRange[cellId]);
 
           // the hash value of a face from a 3d cell is the minimum point id
           // the hash value of a face from a 0-1-2d cell is this->NumberOfPoints
@@ -339,7 +339,15 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
 
   void operator()(vtkIdType beginBatchId, vtkIdType endBatchId)
   {
-    this->Input->GetCells()->Visit(FaceInformationOperator{}, this, beginBatchId, endBatchId);
+    using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkCellArray::StorageOffsetsArrays,
+      vtkCellArray::StorageConnectivityArrays, vtkUnstructuredGrid::CellTypesArrays>;
+    auto cells = this->Input->GetCells();
+    if (!Dispatcher::Execute(cells->GetOffsetsArray(), cells->GetConnectivityArray(),
+          this->Input->GetCellTypes(), FaceInformationOperator{}, this, beginBatchId, endBatchId))
+    {
+      FaceInformationOperator{}(cells->GetOffsetsArray(), cells->GetConnectivityArray(),
+        this->Input->GetCellTypes(), this, beginBatchId, endBatchId);
+    }
   }
 
   void Reduce()

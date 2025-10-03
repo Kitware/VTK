@@ -80,6 +80,7 @@ int vtkImageDataToExplicitStructuredGrid::RequestData(
 
   // Build hexahedrons cells from input voxels
   vtkNew<vtkCellArray> cells;
+  cells->UseFixedSize64BitStorage(8);
   cells->AllocateEstimate(nbCells, 8);
   vtkNew<vtkIdList> ptIds;
   checkAbortInterval = std::min(nbCells / 10 + 1, (vtkIdType)1000);

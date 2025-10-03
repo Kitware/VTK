@@ -319,19 +319,18 @@ void Normal(vtkCell* twoDimensionalCell, double* normal)
   vtkPolygon::ComputeNormal(twoDimensionalCell->GetPoints(), normal);
 }
 
-struct MappingFunctor
+struct MappingFunctor : public vtkCellArray::DispatchUtilities
 {
-  template <typename CellStateT>
-  void operator()(CellStateT& state, std::unordered_map<int, int>& node_mapping)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(
+    OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, std::unordered_map<int, int>& node_mapping)
   {
-
-    using ValueType = typename CellStateT::ValueType;
-    auto* conn = state.GetConnectivity();
-    const vtkIdType nids = conn->GetNumberOfValues();
+    auto connRange = GetRange(conn);
+    const vtkIdType nids = connRange.size();
     for (vtkIdType i = 0; i < nids; ++i)
     {
-      ValueType tmp = conn->GetValue(i);
-      conn->SetValue(i, node_mapping.at(tmp));
+      const auto& tmp = connRange[i];
+      connRange[i] = node_mapping.at(tmp);
     }
   }
 };
@@ -394,7 +393,7 @@ vtkCellValidator::State vtkCellValidator::Convex(vtkCell* cell, double tolerance
         }
 
         // update the face ids
-        polyhedronFaces->Visit(MappingFunctor{}, node_mapping);
+        polyhedronFaces->Dispatch(MappingFunctor{}, node_mapping);
 
         vtkNew<vtkUnstructuredGrid> ugrid;
         ugrid->SetPoints(cell->GetPoints());

@@ -115,7 +115,7 @@ struct vtkVtkJSSceneGraphSerializer::Internal
   std::unordered_map<void*, Json::ArrayIndex> UniqueIds;
   std::size_t UniqueIdCount;
   std::vector<std::pair<Json::ArrayIndex, vtkDataObject*>> DataObjects;
-  std::vector<std::pair<std::string, vtkDataArray*>> DataArrays;
+  std::vector<std::pair<std::string, vtkSmartPointer<vtkDataArray>>> DataArrays;
 
   Json::Value* entry(const std::string& index, Json::Value* node);
   Json::Value* entry(const Json::ArrayIndex index) { return entry(vtk::to_string(index), &Root); }
@@ -606,27 +606,35 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(
     properties["points"]["vtkClass"] = "vtkPoints";
   }
 
-  if (polyData->GetVerts() && polyData->GetVerts()->GetData()->GetNumberOfTuples() > 0)
+  if (polyData->GetVerts() && polyData->GetVerts()->GetNumberOfCells() > 0)
   {
-    properties["verts"] = this->ToJson(polyData->GetVerts()->GetData());
+    vtkNew<vtkIdTypeArray> legacyData;
+    polyData->GetVerts()->ExportLegacyFormat(legacyData);
+    properties["verts"] = this->ToJson(legacyData);
     properties["verts"]["vtkClass"] = "vtkCellArray";
   }
 
-  if (polyData->GetLines() && polyData->GetLines()->GetData()->GetNumberOfTuples() > 0)
+  if (polyData->GetLines() && polyData->GetLines()->GetNumberOfCells() > 0)
   {
-    properties["lines"] = this->ToJson(polyData->GetLines()->GetData());
+    vtkNew<vtkIdTypeArray> legacyData;
+    polyData->GetLines()->ExportLegacyFormat(legacyData);
+    properties["lines"] = this->ToJson(legacyData);
     properties["lines"]["vtkClass"] = "vtkCellArray";
   }
 
-  if (polyData->GetPolys() && polyData->GetPolys()->GetData()->GetNumberOfTuples() > 0)
+  if (polyData->GetPolys() && polyData->GetPolys()->GetNumberOfCells() > 0)
   {
-    properties["polys"] = this->ToJson(polyData->GetPolys()->GetData());
+    vtkNew<vtkIdTypeArray> legacyData;
+    polyData->GetPolys()->ExportLegacyFormat(legacyData);
+    properties["polys"] = this->ToJson(legacyData);
     properties["polys"]["vtkClass"] = "vtkCellArray";
   }
 
-  if (polyData->GetStrips() && polyData->GetStrips()->GetData()->GetNumberOfTuples() > 0)
+  if (polyData->GetStrips() && polyData->GetStrips()->GetNumberOfCells() > 0)
   {
-    properties["strips"] = this->ToJson(polyData->GetStrips()->GetData());
+    vtkNew<vtkIdTypeArray> legacyData;
+    polyData->GetStrips()->ExportLegacyFormat(legacyData);
+    properties["strips"] = this->ToJson(legacyData);
     properties["strips"]["vtkClass"] = "vtkCellArray";
   }
 

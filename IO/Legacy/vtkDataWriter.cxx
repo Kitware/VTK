@@ -2189,7 +2189,7 @@ int vtkDataWriter::WriteCellsLegacy(ostream* fp, vtkCellArray* cells, const char
   }
 
   int ncells = cells->GetNumberOfCells();
-  int size = cells->GetNumberOfConnectivityEntries();
+  int size = cells->GetNumberOfConnectivityIds() + cells->GetNumberOfCells();
 
   if (ncells < 1)
   {
@@ -2222,7 +2222,7 @@ int vtkDataWriter::WriteCellsLegacy(ostream* fp, vtkCellArray* cells, const char
   {
     // swap the bytes if necessary
     // currently writing vtkIdType as int
-    int arraySize = cells->GetNumberOfConnectivityEntries();
+    int arraySize = cells->GetNumberOfConnectivityIds() + cells->GetNumberOfCells();
     int* intArray = new int[arraySize];
 
     int* intArrayPtr = intArray;
@@ -2268,15 +2268,13 @@ int vtkDataWriter::WriteCells(ostream* fp, vtkCellArray* cells, const char* labe
   }
 
   vtkIdType offsetsSize = cells->GetNumberOfOffsets();
+  int offsetType = cells->GetOffsetsArray()->GetDataType();
   vtkIdType connSize = cells->GetNumberOfConnectivityIds();
-  bool is64Bit = cells->IsStorage64Bit();
-
-  int type = is64Bit ? VTK_TYPE_INT64 : VTK_TYPE_INT32;
-
+  int connType = cells->GetConnectivityArray()->GetDataType();
   *fp << label << " " << offsetsSize << " " << connSize << "\n";
 
-  this->WriteArray(fp, type, cells->GetOffsetsArray(), "OFFSETS {:s}\n", offsetsSize, 1);
-  this->WriteArray(fp, type, cells->GetConnectivityArray(), "CONNECTIVITY {:s}\n", connSize, 1);
+  this->WriteArray(fp, offsetType, cells->GetOffsetsArray(), "OFFSETS {:s}\n", offsetsSize, 1);
+  this->WriteArray(fp, connType, cells->GetConnectivityArray(), "CONNECTIVITY {:s}\n", connSize, 1);
 
   fp->flush();
   if (fp->fail())

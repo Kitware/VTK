@@ -29,6 +29,7 @@ vtkCxxSetObjectMacro(vtkmPointTransform, Transform, vtkHomogeneousTransform);
 //------------------------------------------------------------------------------
 vtkmPointTransform::vtkmPointTransform()
 {
+  this->ForceVTKm = true; // Because it's NOT VTKm a implementation of  VTK filter.
   this->Transform = nullptr;
 }
 
@@ -108,7 +109,8 @@ int vtkmPointTransform::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    viskores::cont::DataSet in =
+      tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells, this->ForceVTKm);
     vtkMatrix4x4* matrix = this->Transform->GetMatrix();
     viskores::Matrix<viskores::FloatDefault, 4, 4> vtkmMatrix;
     for (int i = 0; i < 4; i++)

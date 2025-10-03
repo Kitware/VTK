@@ -16,13 +16,21 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkCutter.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkCutter vtkmAlgorithm<vtkCutter>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmSlice : public vtkCutter
 {
 public:
   vtkTypeMacro(vtkmSlice, vtkCutter);
+#ifndef __VTK_WRAP__
+#undef vtkCutter
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmSlice* New();
 

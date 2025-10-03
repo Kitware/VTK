@@ -52,7 +52,7 @@ int vtkmTriangleMeshPointNormals::RequestData(
   try
   {
     // convert the input dataset to a viskores::cont::DataSet
-    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
+    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::None, this->ForceVTKm);
 
     viskores::filter::vector_analysis::SurfaceNormals filter;
     filter.SetGenerateCellNormals(false);
@@ -61,7 +61,7 @@ int vtkmTriangleMeshPointNormals::RequestData(
     filter.SetPointNormalsName("Normals");
     auto result = filter.Execute(in);
 
-    if (!fromvtkm::Convert(result, output, input))
+    if (!fromvtkm::Convert(result, output, input, this->ForceVTKm))
     {
       vtkErrorMacro(<< "Unable to convert Viskores DataSet back to VTK");
       return 0;

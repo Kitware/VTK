@@ -12,7 +12,6 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
-#include "vtkmlib/PolyDataConverter.h"
 
 #include <viskores/filter/connected_components/ImageConnectivity.h>
 
@@ -28,6 +27,7 @@ vtkmImageConnectivity::~vtkmImageConnectivity() = default;
 //------------------------------------------------------------------------------
 void vtkmImageConnectivity::PrintSelf(ostream& os, vtkIndent indent)
 {
+  this->ForceVTKm = true; // Because it's NOT VTKm a implementation of  VTK filter.
   this->Superclass::PrintSelf(os, indent);
 }
 
@@ -59,7 +59,7 @@ int vtkmImageConnectivity::RequestData(
     filter.SetOutputFieldName("RegionId");
 
     // explicitly convert just the field we need
-    auto inData = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
+    auto inData = tovtkm::Convert(input, tovtkm::FieldsFlag::None, this->ForceVTKm);
     auto inField = tovtkm::Convert(inputArray, association);
     inData.AddField(inField);
 

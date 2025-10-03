@@ -25,6 +25,7 @@ vtkStandardNewMacro(vtkmCleanGrid);
 vtkmCleanGrid::vtkmCleanGrid()
   : CompactPoints(false)
 {
+  this->ForceVTKm = true; // Because it's NOT VTKm a implementation of  VTK filter.
 }
 
 //------------------------------------------------------------------------------
@@ -59,7 +60,7 @@ int vtkmCleanGrid::RequestData(vtkInformation* vtkNotUsed(request),
   {
     // convert the input dataset to a viskores::cont::DataSet
     auto fieldsFlag = this->CompactPoints ? tovtkm::FieldsFlag::Points : tovtkm::FieldsFlag::None;
-    viskores::cont::DataSet in = tovtkm::Convert(input, fieldsFlag);
+    viskores::cont::DataSet in = tovtkm::Convert(input, fieldsFlag, this->ForceVTKm);
 
     // apply the filter
     viskores::filter::clean_grid::CleanGrid filter;
@@ -67,7 +68,7 @@ int vtkmCleanGrid::RequestData(vtkInformation* vtkNotUsed(request),
     auto result = filter.Execute(in);
 
     // convert back to vtkDataSet (vtkUnstructuredGrid)
-    if (!fromvtkm::Convert(result, output, input))
+    if (!fromvtkm::Convert(result, output, input, this->ForceVTKm))
     {
       vtkErrorMacro(<< "Unable to convert Viskores DataSet back to VTK");
       return 0;

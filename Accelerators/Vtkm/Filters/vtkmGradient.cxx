@@ -15,7 +15,6 @@
 
 #include "vtkmlib/ArrayConverters.h"
 #include "vtkmlib/DataSetConverters.h"
-#include "vtkmlib/PolyDataConverter.h"
 
 #include <viskores/cont/Algorithm.h>
 #include <viskores/cont/ArrayHandleTransform.h>
@@ -159,7 +158,7 @@ int vtkmGradient::RequestData(
     // convert the input dataset to a viskores::cont::DataSet. We explicitly drop
     // all arrays from the conversion as this algorithm doesn't change topology
     // and therefore doesn't need input fields converted through the Viskores filter
-    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::None);
+    auto in = tovtkm::Convert(input, tovtkm::FieldsFlag::None, this->ForceVTKm);
     viskores::cont::Field field = tovtkm::Convert(inputArray, association);
     in.AddField(field);
 

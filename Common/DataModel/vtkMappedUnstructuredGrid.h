@@ -63,9 +63,8 @@
  * Adapting a filter or algorithm to safely traverse the
  * vtkMappedUnstructuredGrid's topology requires removing calls the following
  * implementation-dependent vtkUnstructuredGrid methods:
- * - vtkUnstructuredGrid::GetCellTypesArray()
- * - vtkUnstructuredGrid::GetCellLocationsArray()
- * - vtkUnstructuredGrid::GetCellLinks()
+ * - vtkUnstructuredGrid::GetCellTypes()
+ * - vtkUnstructuredGrid::GetLinks()
  * - vtkUnstructuredGrid::GetCells()
  * Access to the values returned by these methods should be replaced by the
  * equivalent random-access lookup methods in the vtkUnstructuredGridBase API,

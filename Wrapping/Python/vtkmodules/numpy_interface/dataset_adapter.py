@@ -1413,10 +1413,10 @@ class UnstructuredGrid(PointSet):
 
     def GetCellTypes(self):
         """Returns the cell types as a VTKArray instance."""
-        if not self.VTKObject.GetCellTypesArray():
+        if not self.VTKObject.GetCellTypes():
             return None
         return vtkDataArrayToVTKArray(
-            self.VTKObject.GetCellTypesArray(), self)
+            self.VTKObject.GetCellTypes(), self)
 
     def GetCellLocations(self):
         """Returns the cell locations as a VTKArray instance."""

@@ -102,7 +102,7 @@ int TestEmpty(ostream& strm)
 
   strm << "GetCellTypes() start" << endl;
   vtkCellTypes* types = vtkCellTypes::New();
-  ds->GetCellTypes(types);
+  ds->GetDistinctCellTypes(types);
   MacroTest(strm, indent, "cell types", types->GetNumberOfTypes() == 0);
   types->Delete();
   strm << "GetCellTypes() end" << endl;
@@ -290,7 +290,7 @@ int TestWithPoints(ostream& strm)
 
   strm << "GetCellTypes() start" << endl;
   vtkCellTypes* types = vtkCellTypes::New();
-  ds->GetCellTypes(types);
+  ds->GetDistinctCellTypes(types);
   MacroTest(strm, indent, "cell types", types->GetNumberOfTypes() == 0);
   types->Delete();
   strm << "GetCellTypes() end" << endl;
@@ -581,7 +581,7 @@ int TestWithPointsAndCells(ostream& strm)
 
   strm << "GetCellTypes() start" << endl;
   vtkCellTypes* types = vtkCellTypes::New();
-  ds->GetCellTypes(types);
+  ds->GetDistinctCellTypes(types);
   MacroTest(strm, indent, "cell types", types->GetNumberOfTypes() == 4);
   types->Delete();
   strm << "GetCellTypes() end" << endl;
@@ -1111,7 +1111,7 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
 
   strm << "GetCellTypes() start" << endl;
   vtkCellTypes* types = vtkCellTypes::New();
-  ds->GetCellTypes(types);
+  ds->GetDistinctCellTypes(types);
   MacroTest(strm, indent, "cell types", types->GetNumberOfTypes() == 4);
   types->Delete();
   strm << "GetCellTypes() end" << endl;

@@ -505,7 +505,7 @@ class UnstructuredGrid(PointSet, vtkUnstructuredGrid):
         ca = self.GetCells()
         conn_vtk = ca.GetConnectivityArray()
         offsets_vtk = ca.GetOffsetsArray()
-        ct_vtk = self.GetCellTypesArray()
+        ct_vtk = self.GetCellTypes()
 
         if not NUMPY_AVAILABLE:
             return {

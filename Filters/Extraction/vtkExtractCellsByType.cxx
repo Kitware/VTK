@@ -324,25 +324,24 @@ void vtkExtractCellsByType::ExtractPolyDataCells(
 // Helper
 namespace
 {
-struct ExtractPolyVisitor
+struct ExtractPolyVisitor : public vtkCellArray::DispatchUtilities
 {
   // Insert full cell
-  template <typename CellStateT>
-  vtkIdType operator()(CellStateT& state, vtkIdType* ptMap, vtkIdType numNewPts)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(
+    OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType* ptMap, vtkIdType& numNewPts)
   {
-    using ValueType = typename CellStateT::ValueType;
-    auto* conn = state.GetConnectivity();
-    const vtkIdType nids = conn->GetNumberOfValues();
+    auto connRange = GetRange(conn);
+    const vtkIdType nids = connRange.size();
     for (vtkIdType i = 0; i < nids; ++i)
     {
-      ValueType ptId = conn->GetValue(i);
+      const auto& ptId = connRange[i];
       if (ptMap[ptId] < 0)
       {
         ptMap[ptId] = numNewPts++;
       }
-      conn->SetValue(i, ptMap[ptId]);
+      connRange[i] = ptMap[ptId];
     }
-    return numNewPts;
   }
 };
 }
@@ -396,7 +395,7 @@ void vtkExtractCellsByType::ExtractUnstructuredGridCells(
       {
         faces->Reset();
         input->GetPolyhedronFaces(cellId, faces);
-        numNewPts = faces->Visit(ExtractPolyVisitor{}, ptMap, numNewPts);
+        faces->Dispatch(ExtractPolyVisitor{}, ptMap, numNewPts);
         input->GetCellPoints(cellId, ptIds);
         npts = ptIds->GetNumberOfIds();
         for (i = 0; i < npts; ++i)

@@ -3,7 +3,6 @@
 #include "vtkExtractSurface.h"
 
 #include "vtkCellArray.h"
-#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -18,7 +17,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
-#include <cfloat>
 #include <cmath>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -185,37 +183,28 @@ public:
   void CountBoundaryYZInts(unsigned char loc, unsigned char* edgeCases, vtkIdType* eMD[4]);
 
   // Produce the output triangles for this voxel cell.
-  struct GenerateTrisImpl
+  struct GenerateTrisImpl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(
-      CellStateT& state, const unsigned char* edges, int numTris, vtkIdType* eIds, vtkIdType& triId)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, const unsigned char* edges,
+      int numTris, vtkIdType* eIds, vtkIdType& triId)
     {
-      using ValueType = typename CellStateT::ValueType;
-      auto* offsets = state.GetOffsets();
-      auto* conn = state.GetConnectivity();
-
-      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
-      auto offsetIter = offsetRange.begin() + triId;
-      auto connRange = vtk::DataArrayValueRange<1>(conn);
+      auto connRange = GetRange(conn);
       auto connIter = connRange.begin() + (triId * 3);
 
       while (numTris-- > 0)
       {
-        *offsetIter++ = static_cast<ValueType>(3 * triId++);
+        ++triId;
         *connIter++ = eIds[*edges++];
         *connIter++ = eIds[*edges++];
         *connIter++ = eIds[*edges++];
       }
-
-      // Write the last offset:
-      *offsetIter = static_cast<ValueType>(3 * triId);
     }
   };
   void GenerateTris(unsigned char eCase, unsigned char numTris, vtkIdType* eIds, vtkIdType& triId)
   {
     const unsigned char* edges = this->EdgeCases[eCase] + 1;
-    this->NewTris->Visit(GenerateTrisImpl{}, edges, numTris, eIds, triId);
+    this->NewTris->Dispatch(GenerateTrisImpl{}, edges, numTris, eIds, triId);
   }
 
   // Compute gradient on interior point.
@@ -1369,6 +1358,7 @@ int vtkExtractSurface::RequestData(
   // Create necessary objects to hold output. We will defer the
   // actual allocation to a later point.
   vtkCellArray* newTris = vtkCellArray::New();
+  newTris->UseFixedSizeDefaultStorage(3);
   vtkPoints* newPts = vtkPoints::New();
   newPts->SetDataTypeToFloat();
   vtkFloatArray* newNormals = nullptr;

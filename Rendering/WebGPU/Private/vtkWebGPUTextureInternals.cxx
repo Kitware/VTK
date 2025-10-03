@@ -56,11 +56,11 @@ void vtkWebGPUTextureInternals::UploadFromDataArray(
   vtkSmartPointer<vtkWebGPUConfiguration> wgpuConfiguration, wgpu::Texture texture,
   uint32_t bytesPerRow, vtkDataArray* dataArray, const char* description /*=nullptr*/)
 {
-  using DispatchAllTypes = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
 
   DispatchDataWriter dispatchDataWriter(wgpuConfiguration, texture);
 
-  if (!DispatchAllTypes::Execute(dataArray, dispatchDataWriter, bytesPerRow, description))
+  if (!Dispatcher::Execute(dataArray, dispatchDataWriter, bytesPerRow, description))
   {
     dispatchDataWriter(dataArray, bytesPerRow, description);
   }

@@ -286,66 +286,44 @@ struct SurfaceNets
   }
 
   // Produce the output lines for this square.
-  struct GenerateLinesImpl
+  struct GenerateLinesImpl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, unsigned char sqCase, vtkIdType* pIds, vtkIdType& lineId)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, unsigned char sqCase,
+      vtkIdType* pIds, vtkIdType& lineId)
     {
-      using ValueType = typename CellStateT::ValueType;
-      auto* offsets = state.GetOffsets();
-      auto* conn = state.GetConnectivity();
-
-      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
-      auto offsetIter = offsetRange.begin() + lineId;
-      auto connRange = vtk::DataArrayValueRange<1>(conn);
+      auto connRange = GetRange(conn);
       auto connIter = connRange.begin() + (lineId * 2);
 
       if (SurfaceNets::GenerateXLine(sqCase))
       {
-        *offsetIter++ = static_cast<ValueType>(2 * lineId++);
+        lineId++;
         *connIter++ = pIds[1];
         *connIter++ = pIds[1] + 1; // in the +x direction
       }
 
       if (SurfaceNets::GenerateYLine(sqCase))
       {
-        *offsetIter++ = static_cast<ValueType>(2 * lineId++);
+        lineId++;
         *connIter++ = pIds[1];
         *connIter++ = pIds[2]; // in the +y direction
       }
     } // operator()
   };  // GenerateLinesImpl
 
-  // Finalize the lines array: after all the lines are inserted,
-  // the last offset has to be added to complete the offsets array.
-  struct FinalizeLinesOffsetsImpl
-  {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, vtkIdType numLines)
-    {
-      using ValueType = typename CellStateT::ValueType;
-      auto* offsets = state.GetOffsets();
-      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
-      auto offsetIter = offsetRange.begin() + numLines;
-      *offsetIter = static_cast<ValueType>(2 * numLines);
-    }
-  };
-
   // Produce the smoothing stencils for this square.
-  struct GenerateStencilImpl
+  struct GenerateStencilImpl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, unsigned char sqCase, vtkIdType* pIds, vtkIdType& sOffset)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(OffsetsT* offsets, ConnectivityT* conn, unsigned char sqCase, vtkIdType* pIds,
+      vtkIdType& sOffset)
     {
       // The point on which the stencil operates
       vtkIdType pId = pIds[1];
 
-      auto* offsets = state.GetOffsets();
-      auto* conn = state.GetConnectivity();
-
-      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      auto offsetRange = GetRange(offsets);
       auto offsetIter = offsetRange.begin() + pId;
-      auto connRange = vtk::DataArrayValueRange<1>(conn);
+      auto connRange = GetRange(conn);
       auto connIter = connRange.begin() + sOffset;
 
       // Create the stencil. Note that for stencils with just one connection
@@ -393,14 +371,14 @@ struct SurfaceNets
 
   // Finalize the stencils array: after all the stencils are inserted, the
   // last offset has to be added to complete the offsets array.
-  struct FinalizeStencilsOffsetsImpl
+  struct FinalizeStencilsOffsetsImpl : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, vtkIdType numPts, vtkIdType numSEdges)
+    template <class OffsetsT, class ConnectivityT>
+    void operator()(
+      OffsetsT* offsets, ConnectivityT* vtkNotUsed(conn), vtkIdType numPts, vtkIdType numSEdges)
     {
-      using ValueType = typename CellStateT::ValueType;
-      auto* offsets = state.GetOffsets();
-      auto offsetRange = vtk::DataArrayValueRange<1>(offsets);
+      using ValueType = GetAPIType<OffsetsT>;
+      auto offsetRange = GetRange(offsets);
       auto offsetIter = offsetRange.begin() + numPts;
       *offsetIter = static_cast<ValueType>(numSEdges);
     }
@@ -795,8 +773,8 @@ void SurfaceNets<T>::ConfigureOutput(
     this->NewPts = fPts->GetPointer(0);
 
     // Boundaries, a set of lines contained in vtkCellArray
+    newLines->UseFixedSizeDefaultStorage(2);
     newLines->ResizeExact(numOutLines, 2 * numOutLines);
-    newLines->Visit(FinalizeLinesOffsetsImpl{}, numOutLines);
     this->NewLines = newLines;
 
     // Scalars, which are of type T and 2-components
@@ -815,7 +793,7 @@ void SurfaceNets<T>::ConfigureOutput(
 
     // Smoothing stencils, which are represented by a vtkCellArray
     stencils->ResizeExact(numOutPts, numOutSEdges);
-    stencils->Visit(FinalizeStencilsOffsetsImpl{}, numOutPts, numOutSEdges);
+    stencils->Dispatch(FinalizeStencilsOffsetsImpl{}, numOutPts, numOutSEdges);
     this->NewStencils = stencils;
   }
 } // ConfigureOutput
@@ -906,7 +884,7 @@ void SurfaceNets<T>::GenerateOutput(vtkIdType row)
       // as well.
       if (this->GetNumberOfLines(squareCase) > 0)
       {
-        this->NewLines->Visit(GenerateLinesImpl{}, squareCase, pIds, lineId);
+        this->NewLines->Dispatch(GenerateLinesImpl{}, squareCase, pIds, lineId);
         if (genScalars)
         {
           rDyadAbove = *(dPtrAbove + i + 1);
@@ -915,7 +893,7 @@ void SurfaceNets<T>::GenerateOutput(vtkIdType row)
       }
 
       // Smoothing stencil (i.e., how generated points are connected to other points)
-      this->NewStencils->Visit(GenerateStencilImpl{}, squareCase, pIds, sOffset);
+      this->NewStencils->Dispatch(GenerateStencilImpl{}, squareCase, pIds, sOffset);
 
     } // if generate a point
 

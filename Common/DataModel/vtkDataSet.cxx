@@ -456,7 +456,7 @@ public:
 }
 
 //------------------------------------------------------------------------------
-void vtkDataSet::GetCellTypes(vtkCellTypes* types)
+void vtkDataSet::GetDistinctCellTypes(vtkCellTypes* types)
 {
   DistinctCellTypesWorker worker(this);
   vtkSMPTools::For(0, this->GetNumberOfCells(), worker);
@@ -484,7 +484,7 @@ void vtkDataSet::GetCellPoints(
 int vtkDataSet::GetMaxSpatialDimension()
 {
   vtkNew<vtkCellTypes> cellTypes;
-  this->GetCellTypes(cellTypes);
+  this->GetDistinctCellTypes(cellTypes);
   int maxDim = 0;
   for (vtkIdType i = 0; i < cellTypes->GetNumberOfTypes(); ++i)
   {
@@ -497,7 +497,7 @@ int vtkDataSet::GetMaxSpatialDimension()
 int vtkDataSet::GetMinSpatialDimension()
 {
   vtkNew<vtkCellTypes> cellTypes;
-  this->GetCellTypes(cellTypes);
+  this->GetDistinctCellTypes(cellTypes);
   int minDim = 3;
   for (vtkIdType i = 0; i < cellTypes->GetNumberOfTypes(); ++i)
   {

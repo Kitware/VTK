@@ -54,6 +54,7 @@ vtkStandardNewMacro(vtkExplicitStructuredGrid);
 vtkExplicitStructuredGrid::vtkExplicitStructuredGrid()
 {
   this->Cells = vtkSmartPointer<vtkCellArray>::New();
+  this->Cells->UseFixedSizeDefaultStorage(8);
 
   this->FacesConnectivityFlagsArrayName = nullptr;
 
@@ -130,15 +131,16 @@ void vtkExplicitStructuredGrid::GetCell(vtkIdType cellId, vtkGenericCell* cell)
 // Support GetCellBounds()
 namespace
 { // anonymous
-struct ComputeCellBoundsVisitor
+struct ComputeCellBoundsVisitor : public vtkCellArray::DispatchUtilities
 {
   // vtkCellArray::Visit entry point:
-  template <typename CellStateT>
-  void operator()(CellStateT& state, vtkPoints* points, vtkIdType cellId, double bounds[6]) const
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkPoints* points, vtkIdType cellId,
+    double bounds[6]) const
   {
-    const vtkIdType beginOffset = state.GetBeginOffset(cellId);
+    const vtkIdType beginOffset = GetBeginOffset(offsets, cellId);
 
-    const auto pointIds = state.GetConnectivity()->GetPointer(beginOffset);
+    const auto pointIds = GetRange(conn).begin() + beginOffset;
     vtkBoundingBox::ComputeBounds(points, pointIds, 8, bounds);
   }
 };
@@ -154,7 +156,7 @@ void vtkExplicitStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6]
     vtkErrorMacro(<< "No data");
     return;
   }
-  this->Cells->Visit(ComputeCellBoundsVisitor{}, this->Points, cellId, bounds);
+  this->Cells->Dispatch(ComputeCellBoundsVisitor{}, this->Points, cellId, bounds);
 }
 
 //------------------------------------------------------------------------------
@@ -451,6 +453,7 @@ void vtkExplicitStructuredGrid::SetExtent(int x0, int x1, int y0, int y1, int z0
     (this->Extent[3] - this->Extent[2]) * (this->Extent[5] - this->Extent[4]);
 
   vtkNew<vtkCellArray> cells;
+  cells->UseFixedSize64BitStorage(8);
   this->SetCells(cells);
 
   // Initialize the cell array
@@ -785,6 +788,7 @@ void vtkExplicitStructuredGrid::Crop(
     outCD->CopyAllocate(inCD, outSize, outSize);
 
     vtkNew<vtkCellArray> cells;
+    cells->UseFixedSize64BitStorage(8);
     cells->AllocateEstimate(outSize, 8);
 
     // CellArray which links the new cells ids with the old ones

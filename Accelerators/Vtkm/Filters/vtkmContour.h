@@ -24,13 +24,21 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkContourFilter.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkContourFilter vtkmAlgorithm<vtkContourFilter>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmContour : public vtkContourFilter
 {
 public:
   vtkTypeMacro(vtkmContour, vtkContourFilter);
+#ifndef __VTK_WRAP__
+#undef vtkContourFilter
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmContour* New();
 

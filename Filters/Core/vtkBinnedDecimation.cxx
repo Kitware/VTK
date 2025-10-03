@@ -1621,9 +1621,9 @@ int vtkBinnedDecimation::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Do a quick check as to whether triangles are available.
   vtkCellArray* inTris = input->GetPolys();
-  vtkIdType numTris, triSize;
+  vtkIdType numTris;
   if (inTris == nullptr || (numTris = inTris->GetNumberOfCells()) < 1 ||
-    (triSize = inTris->GetNumberOfConnectivityEntries()) != numTris * 4)
+    inTris->GetNumberOfConnectivityIds() != numTris * 3)
   {
     vtkLog(TRACE, "Empty input, or non-triangles in input.");
     return 1;

@@ -4,7 +4,7 @@
 #include "vtkStructuredGrid.h"
 
 #include "vtkCellData.h"
-#include "vtkConstantArray.h"
+#include "vtkConstantUnsignedCharArray.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -80,7 +80,7 @@ void vtkStructuredGrid::BuildCells()
 //------------------------------------------------------------------------------
 void vtkStructuredGrid::BuildCellTypes()
 {
-  this->StructuredCellTypes = vtkStructuredData::GetCellTypesArray(this->Extent, false);
+  this->StructuredCellTypes = vtkStructuredData::GetCellTypes(this->Extent, false);
 }
 
 //------------------------------------------------------------------------------
@@ -141,7 +141,8 @@ void vtkStructuredGrid::GetCellBounds(vtkIdType cellId, double bounds[6])
 int vtkStructuredGrid::GetCellType(vtkIdType cellId)
 {
   // see whether the cell is blanked
-  return this->IsCellVisible(cellId) ? this->StructuredCellTypes->GetValue(cellId) : VTK_EMPTY_CELL;
+  return this->IsCellVisible(cellId) ? static_cast<int>(this->StructuredCellTypes->GetValue(cellId))
+                                     : VTK_EMPTY_CELL;
 }
 
 //------------------------------------------------------------------------------
@@ -252,9 +253,24 @@ vtkStructuredCellArray* vtkStructuredGrid::GetCells()
 }
 
 //------------------------------------------------------------------------------
-vtkConstantArray<int>* vtkStructuredGrid::GetCellTypesArray()
+vtkConstantUnsignedCharArray* vtkStructuredGrid::GetCellTypes()
 {
   return this->StructuredCellTypes;
+}
+
+//------------------------------------------------------------------------------
+vtkConstantArray<int>* vtkStructuredGrid::GetCellTypesArray()
+{
+  if (!this->LegacyStructuredCellTypes)
+  {
+    this->LegacyStructuredCellTypes = vtkSmartPointer<vtkConstantArray<int>>::New();
+    this->LegacyStructuredCellTypes->ConstructBackend(
+      static_cast<int>(this->StructuredCellTypes->GetBackend()->Value));
+    this->LegacyStructuredCellTypes->SetNumberOfComponents(1);
+    this->LegacyStructuredCellTypes->SetNumberOfTuples(
+      this->StructuredCellTypes->GetNumberOfTuples());
+  }
+  return this->LegacyStructuredCellTypes;
 }
 
 //------------------------------------------------------------------------------

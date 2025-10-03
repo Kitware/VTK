@@ -59,7 +59,7 @@ bool IsMixedShape(vtkPolyData* grid)
 {
   // WARNING: This is inefficient
   vtkNew<vtkCellTypes> cell_types;
-  grid->GetCellTypes(cell_types);
+  grid->GetDistinctCellTypes(cell_types);
   return cell_types->GetNumberOfTypes() > 1;
 }
 
@@ -282,7 +282,7 @@ bool FillMixedShape(vtkUnstructuredGrid* dataset, conduit_cpp::Node& topologies_
   shape_map["polygonal"] = VTK_POLYGON;
 
   auto offsets = dataset->GetCells()->GetOffsetsArray();
-  auto shapes = dataset->GetCellTypesArray();
+  auto shapes = dataset->GetCellTypes<vtkUnsignedCharArray>();
 
   vtkNew<vtkIdTypeArray> sizes;
   sizes->SetName("vtkCellSizes");

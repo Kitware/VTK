@@ -24,6 +24,12 @@ VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkmHistogramSampling);
 
 //------------------------------------------------------------------------------
+vtkmHistogramSampling::vtkmHistogramSampling()
+{
+  this->ForceVTKm = true; // Because it's NOT VTKm a implementation of  VTK filter.
+}
+
+//------------------------------------------------------------------------------
 int vtkmHistogramSampling::RequestDataObject(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -76,7 +82,7 @@ int vtkmHistogramSampling::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    viskores::cont::DataSet in = tovtkm::Convert(input);
+    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::None, this->ForceVTKm);
     auto field = tovtkm::Convert(fieldArray, association);
     in.AddField(field);
 

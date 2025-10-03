@@ -16,10 +16,14 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // For export macro
 #include "vtkTableBasedClipDataSet.h"
-
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
 
 #include <memory> // For std::unique_ptr
+
+#ifndef __VTK_WRAP__
+#define vtkTableBasedClipDataSet vtkmAlgorithm<vtkTableBasedClipDataSet>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkImplicitFunction;
@@ -29,6 +33,9 @@ class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmClip : public vtkTableBasedClipDataS
 public:
   static vtkmClip* New();
   vtkTypeMacro(vtkmClip, vtkTableBasedClipDataSet);
+#ifndef __VTK_WRAP__
+#undef vtkTableBasedClipDataSet
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
@@ -39,25 +46,12 @@ public:
   vtkSetMacro(ComputeScalars, bool);
   vtkBooleanMacro(ComputeScalars, bool);
 
-  ///@{
-  /**
-   * When this flag is off (the default), then the computation will fall back
-   * to the serial VTK version if Viskores fails to run. When the flag is on,
-   * the filter will generate an error if Viskores fails to run. This is mostly
-   * useful in testing to make sure the expected algorithm is run.
-   */
-  vtkGetMacro(ForceVTKm, vtkTypeBool);
-  vtkSetMacro(ForceVTKm, vtkTypeBool);
-  vtkBooleanMacro(ForceVTKm, vtkTypeBool);
-  ///@}
-
 protected:
   vtkmClip();
   ~vtkmClip() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  vtkTypeBool ForceVTKm = false;
   bool ComputeScalars = true;
 
   struct internals;

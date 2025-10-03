@@ -96,7 +96,7 @@ void vtkCellGridToUnstructuredGrid::Query::StartPass()
     case PassType::GenerateConnectivity:
     {
       // Allocate storage for cells.
-      auto* cellTypes = this->Output->GetCellTypesArray();
+      auto* cellTypes = this->Output->GetCellTypes<vtkUnsignedCharArray>();
       auto* cellArray = this->Output->GetCells();
       vtkIdType totalCellCount = 0;
       vtkIdType totalConnCount = 0;

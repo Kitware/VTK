@@ -98,15 +98,14 @@ void vtkXMLUnstructuredGridWriter::WriteInlinePiece(vtkIndent indent)
   if (vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(input))
   {
     // This is a bit more efficient and avoids iteration over all cells.
-    this->WritePolyCellsInline("Cells", grid->GetCells(), grid->GetCellTypesArray(),
+    this->WritePolyCellsInline("Cells", grid->GetCells(), grid->GetCellTypes(),
       grid->GetPolyhedronFaces(), grid->GetPolyhedronFaceLocations(), indent);
   }
   else
   {
-    vtkCellIterator* cellIter = input->NewCellIterator();
+    auto cellIter = vtk::TakeSmartPointer(input->NewCellIterator());
     this->WriteCellsInline(
       "Cells", cellIter, input->GetNumberOfCells(), input->GetMaxCellSize(), indent);
-    cellIter->Delete();
   }
 }
 
@@ -153,7 +152,7 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPiece(int index, vtkIndent inden
   if (vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(input))
   {
     this->ConvertCells(grid->GetCells());
-    this->WritePolyCellsAppended("Cells", grid->GetCellTypesArray(), grid->GetPolyhedronFaces(),
+    this->WritePolyCellsAppended("Cells", grid->GetCellTypes(), grid->GetPolyhedronFaces(),
       grid->GetPolyhedronFaceLocations(), indent, &this->CellsOM->GetPiece(index));
   }
   else
@@ -203,7 +202,7 @@ void vtkXMLUnstructuredGridWriter::WriteAppendedPieceData(int index)
   // Write the cell specification arrays.
   if (vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(input))
   {
-    this->WritePolyCellsAppendedData(grid->GetCells(), grid->GetCellTypesArray(),
+    this->WritePolyCellsAppendedData(grid->GetCells(), grid->GetCellTypes(),
       grid->GetPolyhedronFaces(), grid->GetPolyhedronFaceLocations(), this->CurrentTimeIndex,
       &this->CellsOM->GetPiece(index));
   }

@@ -6,14 +6,12 @@
 #include "DataSetConverters.h"
 
 #include "ArrayConverters.h"
-#include "CellSetConverters.h"
 #include "ImageDataConverter.h"
 #include "PolyDataConverter.h"
 #include "UnstructuredGridConverter.h"
 
 #include "vtkmDataArray.h"
 
-#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataObject.h"
 #include "vtkDataObjectTypes.h"
@@ -29,7 +27,6 @@
 
 #include <viskores/cont/ArrayHandle.h>
 #include <viskores/cont/ArrayHandleCartesianProduct.h>
-#include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
 #include <viskores/cont/CellSetStructured.h>
 #include <viskores/cont/Field.h>
 
@@ -247,20 +244,20 @@ viskores::cont::DataSet Convert(vtkRectilinearGrid* input, FieldsFlag fields)
 
 //------------------------------------------------------------------------------
 // determine the type and call the proper Convert routine
-viskores::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields)
+viskores::cont::DataSet Convert(vtkDataSet* input, FieldsFlag fields, bool forceViskores)
 {
   auto typeId = input->GetDataObjectType();
   switch (typeId)
   {
     case VTK_UNSTRUCTURED_GRID:
-      return Convert(vtkUnstructuredGrid::SafeDownCast(input), fields);
+      return Convert(vtkUnstructuredGrid::SafeDownCast(input), fields, forceViskores);
     case VTK_STRUCTURED_GRID:
       return Convert(vtkStructuredGrid::SafeDownCast(input), fields);
     case VTK_UNIFORM_GRID:
     case VTK_IMAGE_DATA:
       return Convert(vtkImageData::SafeDownCast(input), fields);
     case VTK_POLY_DATA:
-      return Convert(vtkPolyData::SafeDownCast(input), fields);
+      return Convert(vtkPolyData::SafeDownCast(input), fields, forceViskores);
     case VTK_RECTILINEAR_GRID:
       return Convert(vtkRectilinearGrid::SafeDownCast(input), fields);
 

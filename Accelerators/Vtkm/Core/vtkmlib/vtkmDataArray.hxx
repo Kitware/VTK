@@ -39,22 +39,6 @@ struct NotMaskValue
 
 //-----------------------------------------------------------------------------
 template <typename T>
-struct ArrayHandleHelperSwapper
-{
-  static void SwapHelper(
-    const vtkmDataArray<T>* array, std::unique_ptr<fromvtkm::ArrayHandleHelperBase<T>>& helper)
-  {
-    array->Helper.swap(helper);
-  }
-
-  static ArrayHandleHelperBase<T>* GetHelper(const vtkmDataArray<T>* array)
-  {
-    return array->Helper.get();
-  }
-};
-
-//-----------------------------------------------------------------------------
-template <typename T>
 class ArrayHandleHelperBase
 {
 public:
@@ -67,6 +51,14 @@ public:
   }
 
   virtual ~ArrayHandleHelperBase() = default;
+
+  enum class HelperType
+  {
+    Unknown,
+    Read,
+    Write
+  };
+  virtual HelperType GetHelperType() const = 0;
 
   viskores::IdComponent GetNumberOfComponents() const
   {
@@ -112,6 +104,9 @@ public:
     : ArrayHandleHelperBase<T>(array)
   {
   }
+  using typename ArrayHandleHelperBase<T>::HelperType;
+
+  HelperType GetHelperType() const override { return HelperType::Unknown; }
 
   void GetTuple(const vtkmDataArray<T>* self, viskores::Id valIdx, T* values) const override;
   void SetTuple(const vtkmDataArray<T>* self, viskores::Id valIdx, const T* values) override;
@@ -140,6 +135,10 @@ class ArrayHandleHelperWrite
 
 public:
   ArrayHandleHelperWrite(const viskores::cont::UnknownArrayHandle& array);
+
+  using typename ArrayHandleHelperBase<T>::HelperType;
+
+  HelperType GetHelperType() const override { return HelperType::Write; }
 
   void GetTuple(const vtkmDataArray<T>* self, viskores::Id valIdx, T* values) const override;
   void SetTuple(const vtkmDataArray<T>* self, viskores::Id valIdx, const T* values) override;
@@ -170,6 +169,10 @@ class ArrayHandleHelperRead
 
 public:
   ArrayHandleHelperRead(const viskores::cont::UnknownArrayHandle& array);
+
+  using typename ArrayHandleHelperBase<T>::HelperType;
+
+  HelperType GetHelperType() const override { return HelperType::Read; }
 
   void GetTuple(const vtkmDataArray<T>* self, viskores::Id valIdx, T* values) const override;
   void SetTuple(const vtkmDataArray<T>* self, viskores::Id valIdx, const T* values) override;
@@ -277,7 +280,7 @@ template <typename T>
 void ArrayHandleHelperBase<T>::ResetHelper(const vtkmDataArray<T>* self)
 {
   auto newHelper = MakeArrayHandleHelperUnknown<T>(this->VtkmArray);
-  ArrayHandleHelperSwapper<T>::SwapHelper(self, newHelper);
+  self->Helper.swap(newHelper);
 }
 
 //-----------------------------------------------------------------------------
@@ -285,28 +288,54 @@ template <typename T>
 void ArrayHandleHelperUnknown<T>::GetTuple(
   const vtkmDataArray<T>* self, viskores::Id valIdx, T* values) const
 {
-  this->SwapReadHelper(self)->GetTuple(self, valIdx, values);
+  std::lock_guard<std::mutex> lock(self->Mutex);
+  // Check if we already have a suitable helper for reading
+  if (self->Helper->GetHelperType() != HelperType::Read &&
+    self->Helper->GetHelperType() != HelperType::Write)
+  {
+    this->SwapReadHelper(self);
+  }
+  self->Helper->GetTuple(self, valIdx, values);
 }
 
 template <typename T>
 void ArrayHandleHelperUnknown<T>::SetTuple(
   const vtkmDataArray<T>* self, viskores::Id valIdx, const T* values)
 {
-  this->SwapWriteHelper(self)->SetTuple(self, valIdx, values);
+  std::lock_guard<std::mutex> lock(self->Mutex);
+  // Check if we already have a suitable helper for writing
+  if (self->Helper->GetHelperType() != HelperType::Write)
+  {
+    this->SwapWriteHelper(self);
+  }
+  self->Helper->SetTuple(self, valIdx, values);
 }
 
 template <typename T>
 T ArrayHandleHelperUnknown<T>::GetComponent(
   const vtkmDataArray<T>* self, viskores::Id valIdx, viskores::IdComponent compIdx) const
 {
-  return this->SwapReadHelper(self)->GetComponent(self, valIdx, compIdx);
+  std::lock_guard<std::mutex> lock(self->Mutex);
+  // Check if we already have a suitable helper for reading
+  if (self->Helper->GetHelperType() != HelperType::Read &&
+    self->Helper->GetHelperType() != HelperType::Write)
+  {
+    this->SwapReadHelper(self);
+  }
+  return self->Helper->GetComponent(self, valIdx, compIdx);
 }
 
 template <typename T>
 void ArrayHandleHelperUnknown<T>::SetComponent(
   const vtkmDataArray<T>* self, viskores::Id valIdx, viskores::IdComponent compIdx, const T& value)
 {
-  this->SwapWriteHelper(self)->SetComponent(self, valIdx, compIdx, value);
+  std::lock_guard<std::mutex> lock(self->Mutex);
+  // Check if we already have a suitable helper for writing
+  if (self->Helper->GetHelperType() != HelperType::Write)
+  {
+    this->SwapWriteHelper(self);
+  }
+  self->Helper->SetComponent(self, valIdx, compIdx, value);
 }
 
 template <typename T>
@@ -323,8 +352,8 @@ ArrayHandleHelperBase<T>* ArrayHandleHelperUnknown<T>::SwapReadHelper(
   {
     newHelper = MakeArrayHandleHelperRead(this->VtkmArray.template ExtractArrayFromComponents<T>());
   }
-  ArrayHandleHelperSwapper<T>::SwapHelper(self, newHelper);
-  return ArrayHandleHelperSwapper<T>::GetHelper(self);
+  self->Helper.swap(newHelper);
+  return self->Helper.get();
 }
 
 template <typename T>
@@ -342,8 +371,8 @@ ArrayHandleHelperBase<T>* ArrayHandleHelperUnknown<T>::SwapWriteHelper(
     newHelper =
       MakeArrayHandleHelperWrite(this->VtkmArray.template ExtractArrayFromComponents<T>());
   }
-  ArrayHandleHelperSwapper<T>::SwapHelper(self, newHelper);
-  return ArrayHandleHelperSwapper<T>::GetHelper(self);
+  self->Helper.swap(newHelper);
+  return self->Helper.get();
 }
 
 //-----------------------------------------------------------------------------
@@ -393,6 +422,9 @@ template <typename ArrayHandleType>
 void ArrayHandleHelperWrite<ArrayHandleType>::SetComponent(const vtkmDataArray<T>* vtkNotUsed(self),
   viskores::Id valIdx, viskores::IdComponent compIdx, const T& value)
 {
+  // It's a little weird to get a value to set it, but these arrays with variable length Vecs
+  // actually return a reference back to the array, so you are actually just setting values
+  // into the array.
   auto tuple = this->WritePortal.Get(valIdx);
   tuple[compIdx] = value;
   this->WritePortal.Set(valIdx, tuple);
@@ -426,9 +458,14 @@ template <typename ArrayHandleType>
 void ArrayHandleHelperRead<ArrayHandleType>::SetTuple(
   const vtkmDataArray<T>* self, viskores::Id valIdx, const T* values)
 {
-  auto helper = MakeArrayHandleHelperWrite(this->TypedArray);
-  ArrayHandleHelperSwapper<T>::SwapHelper(self, helper);
-  ArrayHandleHelperSwapper<T>::GetHelper(self)->SetTuple(self, valIdx, values);
+  std::lock_guard<std::mutex> lock(self->Mutex);
+  // Check if we already have a suitable helper for writing
+  if (self->Helper->GetHelperType() != HelperType::Write)
+  {
+    auto helper = MakeArrayHandleHelperWrite(this->TypedArray);
+    self->Helper.swap(helper);
+  }
+  self->Helper->SetTuple(self, valIdx, values);
 }
 
 template <typename ArrayHandleType>
@@ -442,9 +479,14 @@ template <typename ArrayHandleType>
 void ArrayHandleHelperRead<ArrayHandleType>::SetComponent(
   const vtkmDataArray<T>* self, viskores::Id valIdx, viskores::IdComponent compIdx, const T& value)
 {
-  auto helper = MakeArrayHandleHelperWrite(this->TypedArray);
-  ArrayHandleHelperSwapper<T>::SwapHelper(self, helper);
-  ArrayHandleHelperSwapper<T>::GetHelper(self)->SetComponent(self, valIdx, compIdx, value);
+  std::lock_guard<std::mutex> lock(self->Mutex);
+  // Check if we already have a suitable helper for writing
+  if (self->Helper->GetHelperType() != HelperType::Write)
+  {
+    auto helper = MakeArrayHandleHelperWrite(this->TypedArray);
+    self->Helper.swap(helper);
+  }
+  self->Helper->SetComponent(self, valIdx, compIdx, value);
 }
 
 VTK_ABI_NAMESPACE_END

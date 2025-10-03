@@ -17,6 +17,7 @@ int TestVTKMAbort(int, char*[])
   vtkNew<vtkRTAnalyticSource> wavelet;
   vtkNew<vtkShrinkFilter> shrink;
   vtkNew<vtkmContour> contour;
+  contour->ForceVTKmOn();
   vtkNew<vtkmClip> clip;
 
   wavelet->SetWholeExtent(0, 10, 0, 10, 0, 10);

@@ -401,20 +401,37 @@ void vtkPolyhedron::GenerateFaces()
   this->Faces->DeepCopy(this->GlobalFaces);
   vtkIdType numConn = this->Faces->GetNumberOfConnectivityIds();
 
-  if (this->Faces->IsStorage64Bit())
+  switch (this->Faces->GetStorageType())
   {
-    vtkTypeInt64* c = this->Faces->GetConnectivityArray64()->GetPointer(0);
-    for (vtkIdType id = 0; id < numConn; ++id)
+    case vtkCellArray::Int64:
+    case vtkCellArray::FixedSizeInt64:
     {
-      c[id] = this->PointIdMap[c[id]];
+      vtkTypeInt64* c = this->Faces->GetConnectivityArray64()->GetPointer(0);
+      for (vtkIdType id = 0; id < numConn; ++id)
+      {
+        c[id] = this->PointIdMap[c[id]];
+      }
+      break;
     }
-  }
-  else
-  {
-    vtkTypeInt32* c = this->Faces->GetConnectivityArray32()->GetPointer(0);
-    for (vtkIdType id = 0; id < numConn; ++id)
+    case vtkCellArray::Int32:
+    case vtkCellArray::FixedSizeInt32:
     {
-      c[id] = this->PointIdMap[c[id]];
+      vtkTypeInt32* c = this->Faces->GetConnectivityArray32()->GetPointer(0);
+      for (vtkIdType id = 0; id < numConn; ++id)
+      {
+        c[id] = this->PointIdMap[c[id]];
+      }
+      break;
+    }
+    case vtkCellArray::Generic:
+    default:
+    {
+      auto c = vtk::DataArrayValueRange<1, vtkIdType>(this->Faces->GetConnectivityArray());
+      for (vtkIdType id = 0; id < numConn; ++id)
+      {
+        c[id] = this->PointIdMap[c[id]];
+      }
+      break;
     }
   }
   // Okay we've done the deed
@@ -463,7 +480,7 @@ void vtkPolyhedron::SetFaces(vtkIdType* faces)
   }
 
   vtkIdType nfaces = faces[0];
-  this->GlobalFaces->Allocate(nfaces);
+  this->GlobalFaces->AllocateEstimate(nfaces, nfaces);
   vtkIdType* face = faces + 1;
   vtkIdType faceLoc = 1;
   vtkIdType fid;

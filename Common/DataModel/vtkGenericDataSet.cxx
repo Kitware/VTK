@@ -80,7 +80,7 @@ void vtkGenericDataSet::PrintSelf(ostream& os, vtkIndent indent)
 // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
 // THE DATASET IS NOT MODIFIED
 // \pre types_exist: types!=0
-void vtkGenericDataSet::GetCellTypes(vtkCellTypes* types)
+void vtkGenericDataSet::GetDistinctCellTypes(vtkCellTypes* types)
 {
   assert("pre: types_exist" && types != nullptr);
 

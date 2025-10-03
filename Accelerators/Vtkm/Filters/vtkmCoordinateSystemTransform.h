@@ -16,7 +16,12 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // required for correct export
 #include "vtkPointSetAlgorithm.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkPointSetAlgorithm vtkmAlgorithm<vtkPointSetAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmCoordinateSystemTransform : public vtkPointSetAlgorithm
@@ -32,8 +37,10 @@ class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmCoordinateSystemTransform : public v
 
 public:
   vtkTypeMacro(vtkmCoordinateSystemTransform, vtkPointSetAlgorithm);
+#ifndef __VTK_WRAP__
+#undef vtkPointSetAlgorithm
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
   static vtkmCoordinateSystemTransform* New();
 
   void SetCartesianToCylindrical();

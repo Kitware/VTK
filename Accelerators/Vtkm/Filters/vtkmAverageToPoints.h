@@ -18,13 +18,21 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkCellDataToPointData.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkCellDataToPointData vtkmAlgorithm<vtkCellDataToPointData>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmAverageToPoints : public vtkCellDataToPointData
 {
 public:
   vtkTypeMacro(vtkmAverageToPoints, vtkCellDataToPointData);
+#ifndef __VTK_WRAP__
+#undef vtkCellDataToPointData
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmAverageToPoints* New();
 

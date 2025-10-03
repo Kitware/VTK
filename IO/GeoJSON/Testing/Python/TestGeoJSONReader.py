@@ -91,7 +91,7 @@ if __name__ == '__main__'  :
   else:
     # Check number of points in the (first) polyline
     id_list = vtkIdList()
-    polydata.GetLines().GetCell(0, id_list)
+    polydata.GetLines().GetCellAtId(0, id_list)
     if id_list.GetNumberOfIds() != 4:
       print('Wrong number of points in line 0: returned %s, should be %s' % \
             (id_list.GetNumberOfIds(), 4))
@@ -105,7 +105,7 @@ if __name__ == '__main__'  :
   else:
     # Check number of points in the (first) polygon
     id_list = vtkIdList()
-    polydata.GetPolys().GetCell(0, id_list)
+    polydata.GetPolys().GetCellAtId(0, id_list)
     if id_list.GetNumberOfIds() != 4:
       print('Wrong number of points in poly 0: returned %s, should be %s' % \
             (id_list.GetNumberOfIds(), 4))

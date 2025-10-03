@@ -10,6 +10,7 @@
 #include "vtkIOSSUtilities.h"
 
 #include "vtkCellData.h"
+#include "vtkConstantUnsignedCharArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataSet.h"
@@ -1716,7 +1717,7 @@ std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>> vtkIOSSReaderInternal
   return blocks;
 }
 
-std::pair<vtkSmartPointer<vtkUnsignedCharArray>, vtkSmartPointer<vtkCellArray>>
+std::pair<vtkSmartPointer<vtkDataArray>, vtkSmartPointer<vtkCellArray>>
 vtkIOSSReaderInternal::CombineTopologies(
   const std::vector<std::pair<int, vtkSmartPointer<vtkCellArray>>>& topologicalBlocks)
 {
@@ -1728,35 +1729,67 @@ vtkIOSSReaderInternal::CombineTopologies(
   {
     const int cell_type = topologicalBlocks[0].first;
     const auto cellarray = topologicalBlocks[0].second;
-    auto cellTypes = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    cellTypes->SetNumberOfTuples(cellarray->GetNumberOfCells());
-    cellTypes->FillValue(cell_type);
+    vtkNew<vtkConstantUnsignedCharArray> cellTypes;
+    cellTypes->ConstructBackend(static_cast<unsigned char>(cell_type));
+    cellTypes->SetNumberOfValues(cellarray->GetNumberOfCells());
     return { cellTypes, cellarray };
   }
   else
   {
     vtkIdType numCells = 0, connectivitySize = 0;
+    std::set<unsigned char> cellTypes;
     for (const auto& block : topologicalBlocks)
     {
+      cellTypes.insert(static_cast<unsigned char>(block.first));
       const auto cellarray = block.second;
       numCells += cellarray->GetNumberOfCells();
-      connectivitySize += cellarray->GetNumberOfConnectivityEntries();
+      connectivitySize += cellarray->GetNumberOfConnectivityIds();
     }
-    // this happens when side block has mixed topological elements.
-    vtkNew<vtkCellArray> appendedCellArray;
-    appendedCellArray->AllocateExact(numCells, connectivitySize);
-    vtkNew<vtkUnsignedCharArray> cellTypesArray;
-    cellTypesArray->SetNumberOfTuples(numCells);
-    auto ptr = cellTypesArray->GetPointer(0);
-    for (auto& block : topologicalBlocks)
+    if (cellTypes.size() != 1)
     {
-      const int cell_type = block.first;
-      const auto cellarray = block.second;
-      appendedCellArray->Append(cellarray);
-      ptr =
-        std::fill_n(ptr, block.second->GetNumberOfCells(), static_cast<unsigned char>(cell_type));
+      // this happens when side block has mixed topological elements.
+      vtkNew<vtkCellArray> appendedCellArray;
+      appendedCellArray->AllocateExact(numCells, connectivitySize);
+      vtkNew<vtkUnsignedCharArray> cellTypesArray;
+      cellTypesArray->SetNumberOfValues(numCells);
+      auto ptr = cellTypesArray->GetPointer(0);
+      for (auto& block : topologicalBlocks)
+      {
+        const int cell_type = block.first;
+        const auto cellarray = block.second;
+        appendedCellArray->Append(cellarray);
+        ptr =
+          std::fill_n(ptr, block.second->GetNumberOfCells(), static_cast<unsigned char>(cell_type));
+        ptr += block.second->GetNumberOfCells();
+      }
+      return { cellTypesArray, appendedCellArray };
     }
-    return { cellTypesArray, appendedCellArray };
+    else
+    {
+      // all blocks have same cell type.
+      vtkNew<vtkCellArray> appendedCellArray;
+      auto& firstBlock = topologicalBlocks[0];
+      auto firstCellArray = firstBlock.second;
+      if (firstCellArray->IsStorageFixedSize64Bit())
+      {
+        appendedCellArray->UseFixedSize64BitStorage(firstCellArray->GetCellSize(0));
+      }
+      else
+      {
+        assert(firstCellArray->IsStorageFixedSize32Bit());
+        appendedCellArray->UseFixedSize32BitStorage(firstCellArray->GetCellSize(0));
+      }
+      appendedCellArray->AllocateExact(numCells, connectivitySize);
+      for (auto& block : topologicalBlocks)
+      {
+        const auto cellarray = block.second;
+        appendedCellArray->Append(cellarray);
+      }
+      vtkNew<vtkConstantUnsignedCharArray> cellTypesArray;
+      cellTypesArray->ConstructBackend(static_cast<unsigned char>(firstBlock.first));
+      cellTypesArray->SetNumberOfValues(numCells);
+      return { cellTypesArray, appendedCellArray };
+    }
   }
 }
 

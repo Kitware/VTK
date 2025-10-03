@@ -237,9 +237,9 @@ bool TestTransformPolyData(int argc, char* argv[])
     Assert(polyDataOut->GetPoint(10)[0] == 0.16154038906097412109, "vtkPolyData, Incorrect points");
 
   vtkNew<vtkIdList> cellPtsIn;
-  polyDataIn->GetPolys()->GetCell(0, cellPtsIn);
+  polyDataIn->GetPolys()->GetCellAtId(0, cellPtsIn);
   vtkNew<vtkIdList> cellPtsOut;
-  polyDataOut->GetPolys()->GetCell(0, cellPtsOut);
+  polyDataOut->GetPolys()->GetCellAtId(0, cellPtsOut);
 
   test &= Assert(cellPtsIn->GetId(1) == cellPtsOut->GetId(1) && cellPtsOut->GetId(3) == 252,
     "vtkPolyData, Incorrect cells");

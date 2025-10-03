@@ -33,8 +33,8 @@ vtkmWarpScalar::vtkmWarpScalar() = default;
 vtkmWarpScalar::~vtkmWarpScalar() = default;
 
 //------------------------------------------------------------------------------
-int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
-  vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+int vtkmWarpScalar::RequestData(
+  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
   vtkSmartPointer<vtkPointSet> input = vtkPointSet::GetData(inputVector[0]);
   vtkSmartPointer<vtkPointSet> output = vtkPointSet::GetData(outputVector);
@@ -88,7 +88,8 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells);
+    viskores::cont::DataSet in =
+      tovtkm::Convert(input, tovtkm::FieldsFlag::PointsAndCells, this->ForceVTKm);
     if (inScalars)
     {
       auto scalarFactor = tovtkm::Convert(inScalars, inScalarsAssociation);
@@ -158,8 +159,17 @@ int vtkmWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   }
   catch (const viskores::cont::Error& e)
   {
-    vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
-    return 0;
+    if (this->ForceVTKm)
+    {
+      vtkErrorMacro(<< "Viskores error: " << e.GetMessage());
+      return 0;
+    }
+    else
+    {
+      vtkWarningMacro(<< "Viskores failed with message: " << e.GetMessage() << "\n"
+                      << "Falling back to the default VTK implementation.");
+      return this->Superclass::RequestData(request, inputVector, outputVector);
+    }
   }
 
   // Update ourselves and release memory

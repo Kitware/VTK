@@ -1375,7 +1375,7 @@ void vtkPDFContextDevice2D::DrawPolyData(
 {
   // Do nothing if the supported cell types do not exist in the dataset:
   vtkNew<vtkCellTypes> types;
-  polyData->GetCellTypes(types);
+  polyData->GetDistinctCellTypes(types);
   if (!types->IsType(VTK_LINE) && !types->IsType(VTK_POLY_LINE) && !types->IsType(VTK_TRIANGLE) &&
     !types->IsType(VTK_QUAD) && !types->IsType(VTK_POLYGON))
   {

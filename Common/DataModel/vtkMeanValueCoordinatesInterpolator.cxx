@@ -539,7 +539,7 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
 #ifdef VTK_USE_64BIT_IDS
     cells->IsStorage64Bit();
 #else  // VTK_USE_64BIT_IDS
-    !cells->IsStorage64Bit();
+    cells->IsStorage32Bit();
 #endif // VTK_USE_64BIT_IDS
 
   // check if input is a triangle mesh

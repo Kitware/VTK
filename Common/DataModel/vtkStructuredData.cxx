@@ -3,7 +3,7 @@
 #include "vtkStructuredData.h"
 
 #include "vtkCellType.h"
-#include "vtkConstantArray.h"
+#include "vtkConstantUnsignedCharArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
@@ -341,7 +341,7 @@ vtkSmartPointer<vtkStructuredCellArray> vtkStructuredData::GetCellArray(
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkConstantArray<int>> vtkStructuredData::GetCellTypesArray(
+vtkSmartPointer<vtkConstantUnsignedCharArray> vtkStructuredData::GetCellTypes(
   int extent[6], bool usePixelVoxelOrientation)
 {
   const int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(extent);
@@ -355,11 +355,23 @@ vtkSmartPointer<vtkConstantArray<int>> vtkStructuredData::GetCellTypesArray(
     // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     : dimension == 0 && dataDescription == VTK_STRUCTURED_SINGLE_POINT ? VTK_VERTEX
                                                                        : VTK_EMPTY_CELL;
-  auto cellTypesArray = vtkSmartPointer<vtkConstantArray<int>>::New();
+  auto cellTypesArray = vtkSmartPointer<vtkConstantUnsignedCharArray>::New();
   cellTypesArray->ConstructBackend(cellType);
   cellTypesArray->SetNumberOfComponents(1);
   cellTypesArray->SetNumberOfTuples(vtkStructuredData::GetNumberOfCells(extent));
   return cellTypesArray;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkConstantArray<int>> vtkStructuredData::GetCellTypesArray(
+  int extent[6], bool usePixelVoxelOrientation)
+{
+  auto resultUC = vtkStructuredData::GetCellTypes(extent, usePixelVoxelOrientation);
+  auto resultInt = vtkSmartPointer<vtkConstantArray<int>>::New();
+  resultInt->ConstructBackend(static_cast<int>(resultUC->GetBackend()->Value));
+  resultInt->SetNumberOfComponents(1);
+  resultInt->SetNumberOfTuples(resultUC->GetNumberOfTuples());
+  return resultInt;
 }
 
 //------------------------------------------------------------------------------

@@ -322,15 +322,14 @@ struct ExtractLines
   vtkIdType NumCells;
   const std::vector<unsigned char>& CellMap;
   vtkIdType* LineConn;
-  vtkIdType* LineOffsets;
   std::vector<EdgeTupleType>& Edges;
   ArrayList* Arrays;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
   vtkPolyDataPlaneCutter* Filter;
 
   ExtractLines(EvaluateCells& ec, const std::vector<unsigned char>& ptMap, vtkCellArray* cells,
-    std::vector<unsigned char>& cellMap, vtkIdTypeArray* lineConn, vtkIdTypeArray* lineOffsets,
-    std::vector<EdgeTupleType>& e, ArrayList* arrays, vtkPolyDataPlaneCutter* filter)
+    std::vector<unsigned char>& cellMap, vtkIdTypeArray* lineConn, std::vector<EdgeTupleType>& e,
+    ArrayList* arrays, vtkPolyDataPlaneCutter* filter)
     : EC(ec)
     , PtMap(ptMap)
     , Cells(cells)
@@ -341,7 +340,6 @@ struct ExtractLines
   {
     this->NumCells = this->Cells->GetNumberOfCells();
     this->LineConn = lineConn->GetPointer(0);
-    this->LineOffsets = lineOffsets->GetPointer(0);
   }
 
   void Initialize() { this->CellIterator.Local().TakeReference(this->Cells->NewIterator()); }
@@ -377,8 +375,6 @@ struct ExtractLines
       // the output point ids.
       vtkIdType lineNum = batch.Data.LinesOffset;
       vtkIdType lineConnIdx = 2 * lineNum;
-      vtkIdType* lineOffsets = this->LineOffsets + lineNum;
-      vtkIdType lineOffset = 2 * lineNum;
 
       // For all cells in this batch
       for (vtkIdType cellId = batch.BeginId; cellId < batch.EndId; ++cellId)
@@ -402,9 +398,7 @@ struct ExtractLines
               edge.Data.LIdx = lineConnIdx++;
             } // if edge cut
 
-          } // over all cell edges, with no more than 2 cuts
-          *lineOffsets++ = lineOffset;
-          lineOffset += 2;
+          }           // over all cell edges, with no more than 2 cuts
           if (arrays) // generate cell data if requested
           {
             arrays->Copy(cellId, lineNum);
@@ -642,8 +636,6 @@ int vtkPolyDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   std::vector<EdgeTupleType> mergeEdges(2 * numLines);
   vtkNew<vtkIdTypeArray> lineConn;
   lineConn->SetNumberOfTuples(2 * numLines);
-  vtkNew<vtkIdTypeArray> lineOffsets;
-  lineOffsets->SetNumberOfTuples(numLines + 1);
 
   // If requested, each line segment has cell data copied from the
   // intersected cell.
@@ -656,10 +648,9 @@ int vtkPolyDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Extract the line segments.
-  ExtractLines extLines(evalCells, ptMap, cells, evalCells.CellMap, lineConn, lineOffsets,
-    mergeEdges, (this->InterpolateAttributes ? &cellArrays : nullptr), this);
+  ExtractLines extLines(evalCells, ptMap, cells, evalCells.CellMap, lineConn, mergeEdges,
+    (this->InterpolateAttributes ? &cellArrays : nullptr), this);
   extLines.Execute();
-  lineOffsets->SetComponent(numLines, 0, 2 * numLines);
 
   // New points are generated from groups of duplicate edges. The groups are
   // formed via sorting. The number of points in a group represents the number
@@ -675,7 +666,7 @@ int vtkPolyDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkNew<vtkCellArray> outLines;
   OutputLines ol(numOutPts, mergeEdges.data(), mergeOffsets, lineConn, this);
   ol.Execute();
-  outLines->SetData(lineOffsets, lineConn);
+  outLines->SetData(2, lineConn);
 
   // Now output the cut lines.
   output->SetLines(outLines);

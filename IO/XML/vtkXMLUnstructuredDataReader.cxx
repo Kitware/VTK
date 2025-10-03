@@ -758,7 +758,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
 
   // Validate the offsets
   ValidateOffsets offsetValidator;
-  using SupportedArrays = vtkCellArray::InputArrayList;
+  using SupportedArrays = vtkCellArray::InputOffsetsArrays;
 
   // Convert array to supported type if necessary
   using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
@@ -998,7 +998,7 @@ int vtkXMLUnstructuredDataReader::ReadPolyhedronCellArray(vtkIdType numberOfCell
 
   // Validate the offsets
   ValidateOffsets offsetValidator;
-  using SupportedArrays = vtkCellArray::InputArrayList;
+  using SupportedArrays = vtkCellArray::InputOffsetsArrays;
 
   // Convert array to supported type if necessary
   using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;

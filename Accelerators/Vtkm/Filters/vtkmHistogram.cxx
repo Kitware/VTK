@@ -26,6 +26,7 @@ vtkStandardNewMacro(vtkmHistogram);
 //------------------------------------------------------------------------------
 vtkmHistogram::vtkmHistogram()
 {
+  this->ForceVTKm = true; // Because it's NOT VTKm a implementation of  VTK filter.
   this->CustomBinRange[0] = 0;
   this->CustomBinRange[0] = 100;
   this->UseCustomBinRanges = false;
@@ -77,7 +78,7 @@ int vtkmHistogram::RequestData(vtkInformation* vtkNotUsed(request),
 
   try
   {
-    viskores::cont::DataSet in = tovtkm::Convert(input);
+    viskores::cont::DataSet in = tovtkm::Convert(input, tovtkm::FieldsFlag::None, this->ForceVTKm);
     auto field = tovtkm::Convert(fieldArray, association);
     in.AddField(field);
 

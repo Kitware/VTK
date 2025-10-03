@@ -8,6 +8,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellTypeUtilities.h"
+#include "vtkConstantUnsignedCharArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGenericCell.h"
@@ -664,8 +665,8 @@ public:
   vtkIdType GetNumberOfCells() { return static_cast<vtkIdType>(this->OrigCellIds.size()); }
   vtkIdType GetNumberOfConnEntries() { return static_cast<vtkIdType>(this->Cells.size()); }
 
-  template <typename TGivenIds, typename TCellIdType>
-  void InsertNextCell(TGivenIds npts, const TGivenIds* pts, TCellIdType cellId)
+  template <typename T1, typename TConnectivityIter, typename TCellIdType>
+  void InsertNextCell(T1 npts, const TConnectivityIter pts, TCellIdType cellId)
   {
     // Only insert the face cell if it's not excluded
     if (this->ExcFaces && this->ExcFaces->MatchesCell(npts, pts))
@@ -674,7 +675,7 @@ public:
     }
     else if (this->PointGhost)
     {
-      for (TGivenIds i = 0; i < npts; ++i)
+      for (T1 i = 0; i < npts; ++i)
       {
         if (this->PointGhost[pts[i]] & MASKED_POINT_VALUE)
         {
@@ -687,14 +688,14 @@ public:
     this->Cells.emplace_back(npts);
     if (!this->PointMap)
     {
-      for (TGivenIds i = 0; i < npts; ++i)
+      for (T1 i = 0; i < npts; ++i)
       {
         this->Cells.emplace_back(static_cast<TInputIdType>(pts[i]));
       }
     }
     else
     {
-      for (TGivenIds i = 0; i < npts; ++i)
+      for (T1 i = 0; i < npts; ++i)
       {
         this->Cells.emplace_back(static_cast<TInputIdType>(pts[i]));
         this->PointMap[pts[i]] = 1;
@@ -776,7 +777,7 @@ public:
     {
       if (!currentFace->IsGhost)
       {
-        polys->template InsertNextCell<TInputIdType>(
+        polys->template InsertNextCell<TInputIdType, TInputIdType*>(
           currentFace->NumberOfPoints, currentFace->PointIds, currentFace->OriginalCellId);
       }
     }
@@ -1034,9 +1035,9 @@ inline void InsertAFace(FaceForwardList<TInputIdType>& faceList, const vtkIdType
 // Given a cell and a bunch of supporting objects (to support computing and
 // minimize allocation/deallocation), extract boundary features from the cell.
 // This method works with unstructured grids.
-template <typename TInputIdType, typename TCellArrayValueType>
+template <typename TInputIdType, typename TOffsetsValueType, typename TConnectivityIter>
 void ExtractCellGeometry(vtkUnstructuredGrid* input, vtkIdType cellId, int cellType,
-  TCellArrayValueType npts, const TCellArrayValueType* pts, int faceId,
+  TOffsetsValueType npts, const TConnectivityIter pts, int faceId,
   LocalDataType<TInputIdType>* localData, const bool& isGhost)
 {
   using Triangle = StaticFace<3, TInputIdType>;
@@ -1372,20 +1373,21 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
     this->LocalData.Local().FaceList.Initialize();
   }
 
-  struct FaceOperator
+  struct FaceOperator : public vtkCellArray::DispatchUtilities
   {
-    template <typename CellStateT>
-    void operator()(CellStateT& state, ExtractUG* This, vtkIdType beginHash, vtkIdType endHash)
+    template <class OffsetsT, class ConnectivityT, class CellTypesT>
+    void operator()(OffsetsT* offsets, ConnectivityT* conn, CellTypesT* cellTypes, ExtractUG* This,
+      vtkIdType beginHash, vtkIdType endHash)
     {
       auto& localData = This->LocalData.Local();
       auto& faceHashLinks = This->FaceHashLinks;
       auto& faceList = localData.FaceList;
       auto& polys = localData.Polys;
 
-      using ValueType = typename CellStateT::ValueType;
-      const ValueType* connectivityPtr = state.GetConnectivity()->GetPointer(0);
-      const ValueType* offsetsPtr = state.GetOffsets()->GetPointer(0);
-      const unsigned char* cellTypes = This->Grid->GetCellTypesArray()->GetPointer(0);
+      using ValueType = GetAPIType<OffsetsT>;
+      const auto connectivityPtr = GetRange(conn).begin();
+      const auto offsetsRange = GetRange(offsets);
+      const auto cellTypesRange = vtk::DataArrayValueRange<1, unsigned char>(cellTypes);
 
       vtkIdType localFaceId;
       bool isGhost;
@@ -1432,7 +1434,7 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
           // 2) When RemoveGhostInterfaces is off, we want to keep only the duplicate ghosts.
           // Since isGhost is always false for duplicates, the duplicate cells will be kept and the
           // the rest will be skipped.
-          const unsigned char& type = cellTypes[cellId];
+          const unsigned char& type = cellTypesRange[cellId];
           isGhost = This->CellGhosts && This->CellGhosts[cellId] & This->MASKED_CELL;
           if (isGhost &&
             (vtkCellTypeUtilities::GetDimension(type) < 3 || !This->RemoveGhostInterfaces))
@@ -1443,8 +1445,8 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
           if (!This->CellVis || This->CellVis[cellId])
           {
             // get cell points by just accessing the connectivity/offsets array
-            const ValueType npts = offsetsPtr[cellId + 1] - offsetsPtr[cellId];
-            const ValueType* pts = connectivityPtr + offsetsPtr[cellId];
+            const ValueType npts = offsetsRange[cellId + 1] - offsetsRange[cellId];
+            const auto pts = connectivityPtr + offsetsRange[cellId];
             ExtractCellGeometry(This->Grid, cellId, type, npts, pts, faceId, &localData, isGhost);
           } // if cell visible
         }   // for all cells in this hash
@@ -1463,7 +1465,15 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
 
   void operator()(vtkIdType beginHash, vtkIdType endHash)
   {
-    this->Grid->GetCells()->Visit(FaceOperator{}, this, beginHash, endHash);
+    using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkCellArray::StorageOffsetsArrays,
+      vtkCellArray::StorageConnectivityArrays, vtkUnstructuredGrid::CellTypesArrays>;
+    auto cells = this->Grid->GetCells();
+    if (!Dispatcher::Execute(cells->GetOffsetsArray(), cells->GetConnectivityArray(),
+          this->Grid->GetCellTypes(), FaceOperator{}, this, beginHash, endHash))
+    {
+      FaceOperator{}(cells->GetOffsetsArray(), cells->GetConnectivityArray(),
+        this->Grid->GetCellTypes(), this, beginHash, endHash);
+    }
   }
 
   // Composite local thread data
@@ -1641,7 +1651,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
       if (!this->ForceSimpleVisibilityCheck || this->Input->IsCellVisible(cellId))
       {
         const auto face = this->GetFace(ijk, this->MinFace, FaceMode::WHOLE_FACE);
-        polys.template InsertNextCell<TInputIdType>(4, face.data(), cellId);
+        polys.template InsertNextCell<TInputIdType, decltype(face.data())>(4, face.data(), cellId);
       }
     }
   }
@@ -1713,7 +1723,8 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
           const auto face = this->GetFace(ijk, minFace, FaceMode::SHRINKING_FACES);
           cellId =
             static_cast<TInputIdType>(vtkStructuredData::ComputeCellIdForExtent(extent, ijk));
-          polys.template InsertNextCell<TInputIdType>(4, face.data(), cellId);
+          polys.template InsertNextCell<TInputIdType, decltype(face.data())>(
+            4, face.data(), cellId);
           if (this->FastMode)
           {
             // in fast mode, we immediately start iterating from the other
@@ -1729,7 +1740,8 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
               if (this->Input->IsCellVisible(reverseCellId))
               {
                 const auto face2 = this->GetFace(ijk, /*minFace=*/false, FaceMode::SHRINKING_FACES);
-                polys.template InsertNextCell<TInputIdType>(4, face2.data(), reverseCellId);
+                polys.template InsertNextCell<TInputIdType, decltype(face2.data())>(
+                  4, face2.data(), reverseCellId);
                 break;
               }
             }
@@ -1745,7 +1757,7 @@ struct ExtractStructured : public ExtractCellBoundaries<TInputIdType>
         cellId = static_cast<TInputIdType>(vtkStructuredData::ComputeCellIdForExtent(extent, ijk));
         ijk[axis] = extent[axis2 + 1] - 1;
         const auto face = this->GetFace(ijk, /*minFace=*/false, FaceMode::SHRINKING_FACES);
-        polys.template InsertNextCell<TInputIdType>(4, face.data(), cellId);
+        polys.template InsertNextCell<TInputIdType, decltype(face.data())>(4, face.data(), cellId);
       }
     }
   }

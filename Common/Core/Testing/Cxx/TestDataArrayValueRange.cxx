@@ -8,7 +8,6 @@
 #include "vtkFloatArray.h"
 #include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
-#include "vtkTypeInt32Array.h"
 #ifdef VTK_USE_SCALED_SOA_ARRAYS
 #include "vtkScaledSOADataArrayTemplate.h"
 #endif
@@ -263,8 +262,6 @@ struct UnitTestValueRangeAPI
     CHECK_EQUAL(range.cend() - range.cbegin(), range.size());
     CHECK_EQUAL_NODUMP(*range.begin(), range[0]);
     CHECK_EQUAL_NODUMP(*(range.begin() + 1), range[1]);
-    CHECK_EQUAL_NODUMP(reinterpret_cast<std::intptr_t>(range.data()),
-      reinterpret_cast<std::intptr_t>(array->GetVoidPointer(0)));
 
     TestIota(range);
   }
@@ -292,8 +289,6 @@ struct UnitTestValueRangeAPI
     CHECK_TYPEDEF(typename Range::ArrayType, decltype(*range.GetArray()));
     CHECK_TYPEDEF(vtk::ValueIdType, decltype(range.GetBeginValueId()));
     CHECK_TYPEDEF(vtk::ValueIdType, decltype(range.GetEndValueId()));
-    CHECK_TYPEDEF(
-      typename Range::ValueType, typename vtk::detail::StripPointers<decltype(range.data())>::type);
 
     static_assert(Range::TupleSizeTag == RangeTupleSize, "Range::TupleSizeTag incorrect.");
   }

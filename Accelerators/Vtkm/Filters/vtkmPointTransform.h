@@ -14,7 +14,12 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // For export macro
 #include "vtkPointSetAlgorithm.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkPointSetAlgorithm vtkmAlgorithm<vtkPointSetAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkHomogeneousTransform;
@@ -24,7 +29,9 @@ class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmPointTransform : public vtkPointSetA
 public:
   vtkTypeMacro(vtkmPointTransform, vtkPointSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
+#ifndef __VTK_WRAP__
+#undef vtkPointSetAlgorithm
+#endif
   static vtkmPointTransform* New();
 
   ///@{

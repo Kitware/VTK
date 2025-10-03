@@ -56,7 +56,7 @@ void AllocatePointAttributes(vtkPointData* inPD, vtkPointData* outPD, vtkIdType 
 unsigned char GetTopologicalDimension(vtkDataSet* ds)
 {
   vtkNew<vtkCellTypes> cTypes;
-  ds->GetCellTypes(cTypes);
+  ds->GetDistinctCellTypes(cTypes);
   unsigned char topoDim = 0;
   for (vtkIdType iC = 0; iC < cTypes->GetNumberOfTypes(); ++iC)
   {

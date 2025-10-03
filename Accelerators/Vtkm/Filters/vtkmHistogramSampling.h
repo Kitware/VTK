@@ -17,13 +17,21 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkDataSetAlgorithm.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkDataSetAlgorithm vtkmAlgorithm<vtkDataSetAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmHistogramSampling : public vtkDataSetAlgorithm
 {
 public:
   vtkTypeMacro(vtkmHistogramSampling, vtkDataSetAlgorithm);
+#ifndef __VTK_WRAP__
+#undef vtkDataSetAlgorithm
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmHistogramSampling* New();
 
@@ -44,7 +52,7 @@ public:
   ///@}
 
 protected:
-  vtkmHistogramSampling(){};
+  vtkmHistogramSampling();
   ~vtkmHistogramSampling() override = default;
   int RequestDataObject(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

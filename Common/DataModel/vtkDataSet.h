@@ -30,6 +30,7 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
+#include "vtkDeprecation.h"   // For VTK_DEPRECATED_IN_9_6_0()
 #include "vtkNew.h"           // For vtkNew
 #include "vtkSmartPointer.h"  // For vtkSmartPointer
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
@@ -167,6 +168,7 @@ public:
    */
   virtual vtkIdType GetCellSize(vtkIdType cellId);
 
+  ///@{
   /**
    * Get a list of types of cells in a dataset. The list consists of an array
    * of types (not necessarily in any order), with a single entry per type.
@@ -176,7 +178,10 @@ public:
    * THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
    * THE DATASET IS NOT MODIFIED
    */
-  virtual void GetCellTypes(vtkCellTypes* types);
+  virtual void GetDistinctCellTypes(vtkCellTypes* types);
+  VTK_DEPRECATED_IN_9_6_0("Use GetDistinctCellTypes(vtkCellTypes* types) instead.")
+  virtual void GetCellTypes(vtkCellTypes* types) { this->GetDistinctCellTypes(types); }
+  ///@}
 
   /**
    * Topological inquiry to get points defining cell.

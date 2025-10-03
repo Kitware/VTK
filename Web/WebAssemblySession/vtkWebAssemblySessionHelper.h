@@ -81,9 +81,10 @@ struct CopyJSArrayToVTKDataArray
   template <typename ArrayT>
   void operator()(ArrayT* dataArray, const emscripten::val& jsArray)
   {
+    using ValueType = vtk::GetAPIType<ArrayT>;
     const auto length = jsArray["length"].as<std::size_t>();
-    auto range = vtk::DataArrayValueRange(dataArray);
-    auto memoryView = emscripten::val{ typed_memory_view(length, range.data()) };
+    auto pointer = reinterpret_cast<ValueType*>(dataArray->GetVoidPointer(0));
+    auto memoryView = emscripten::val{ typed_memory_view(length, pointer) };
     memoryView.call<void>("set", jsArray);
   }
 };

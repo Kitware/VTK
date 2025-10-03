@@ -29,6 +29,9 @@ set(classes
   vtkmWarpVector
   )
 
+set(nowrap_headers
+    vtkmAlgorithm.h)
+
 set(sources
   vtkmClipInstantiationsWithField.cxx
   vtkmClipInstantiationsWithImplicitFunction.cxx)
@@ -97,6 +100,7 @@ list (APPEND sources "${CMAKE_CURRENT_BINARY_DIR}/vtkmFilterOverrides.cxx")
 vtk_module_add_module(VTK::AcceleratorsVTKmFilters
   SOURCES ${sources}
   HEADERS ${headers}
+  NOWRAP_HEADERS ${nowrap_headers}
   CLASSES ${classes})
 vtk_module_set_property(VTK::AcceleratorsVTKmFilters
   PROPERTY  JOB_POOL_COMPILE

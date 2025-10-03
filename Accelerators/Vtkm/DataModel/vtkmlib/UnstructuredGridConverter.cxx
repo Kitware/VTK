@@ -13,19 +13,12 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataObject.h"
-#include "vtkDataObjectTypes.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
-#include "vtkPolyData.h"
-#include "vtkStructuredGrid.h"
-#include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <viskores/cont/ArrayHandle.h>
 #include <viskores/cont/DataSetBuilderUniform.h>
-#include <viskores/cont/Field.h>
 
 namespace tovtkm
 {
@@ -33,7 +26,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // convert an unstructured grid type
-viskores::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields)
+viskores::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields, bool forceViskores)
 {
   // This will need to use the custom storage and portals so that
   // we can efficiently map between VTK and Viskores
@@ -46,15 +39,15 @@ viskores::cont::DataSet Convert(vtkUnstructuredGrid* input, FieldsFlag fields)
 
   // Use our custom explicit cell set to do the conversion
   const vtkIdType numPoints = input->GetNumberOfPoints();
-  if (input->IsHomogeneous())
+  if (IsHomogeneous(input))
   {
     int cellType = input->GetCellType(0); // get the celltype
-    auto cells = ConvertSingleType(input->GetCells(), cellType, numPoints);
+    auto cells = ConvertSingleType(input->GetCells(), cellType, numPoints, forceViskores);
     dataset.SetCellSet(cells);
   }
   else
   {
-    auto cells = Convert(input->GetCellTypesArray(), input->GetCells(), numPoints);
+    auto cells = Convert(input->GetCellTypes(), input->GetCells(), numPoints, forceViskores);
     dataset.SetCellSet(cells);
   }
 
@@ -71,7 +64,8 @@ namespace fromvtkm
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
-bool Convert(const viskores::cont::DataSet& voutput, vtkUnstructuredGrid* output, vtkDataSet* input)
+bool Convert(const viskores::cont::DataSet& voutput, vtkUnstructuredGrid* output, vtkDataSet* input,
+  bool forceViskores)
 {
   vtkPoints* points = fromvtkm::Convert(voutput.GetCoordinateSystem());
   // If this fails, it's likely a missing entry in tovtkm::PointListOutVTK:
@@ -85,10 +79,10 @@ bool Convert(const viskores::cont::DataSet& voutput, vtkUnstructuredGrid* output
   // With unstructured grids we need to actually convert 3 arrays from
   // viskores to vtk
   vtkNew<vtkCellArray> cells;
-  vtkNew<vtkUnsignedCharArray> types;
+  vtkSmartPointer<vtkDataArray> types = vtk::TakeSmartPointer(vtkUnsignedCharArray::New());
   auto const& outCells = voutput.GetCellSet();
 
-  const bool cellsConverted = fromvtkm::Convert(outCells, cells.GetPointer(), types.GetPointer());
+  const bool cellsConverted = fromvtkm::Convert(outCells, cells.GetPointer(), types, forceViskores);
 
   if (!cellsConverted)
   {

@@ -620,7 +620,7 @@ void vtkStructuredCellArray::SetData(int extent[6], bool usePixelVoxelOrientatio
 }
 
 //------------------------------------------------------------------------------
-vtkIdType vtkStructuredCellArray::IsHomogeneous()
+vtkIdType vtkStructuredCellArray::IsHomogeneous() const
 {
   return this->Connectivity ? this->Connectivity->GetNumberOfComponents() : 0;
 }

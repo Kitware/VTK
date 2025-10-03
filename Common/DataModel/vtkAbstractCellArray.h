@@ -54,9 +54,6 @@ public:
 
   /**
    * Get the size of the connectivity array that stores the point ids.
-   * @note Do not confuse this with the deprecated
-   * GetNumberOfConnectivityEntries(), which refers to the legacy memory
-   * layout.
    */
   virtual vtkIdType GetNumberOfConnectivityIds() const = 0;
 
@@ -76,7 +73,7 @@ public:
    * * 0 = Cell array empty
    * * n (positive integer) = homogeneous array of cell size n
    */
-  virtual vtkIdType IsHomogeneous() = 0;
+  virtual vtkIdType IsHomogeneous() const = 0;
 
   /**
    * Return the point ids for the cell at @a cellId.

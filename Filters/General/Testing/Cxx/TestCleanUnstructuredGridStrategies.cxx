@@ -66,20 +66,12 @@ vtkSmartPointer<vtkUnstructuredGrid> MakeTestGrid()
   points->SetData(pointArray);
 
   // connectivity
-  vtkNew<vtkIdTypeArray> offsets;
-  offsets->SetNumberOfComponents(1);
-  offsets->SetNumberOfTuples(NUM_CELLS + 1);
-  for (vtkIdType iC = 0; iC < NUM_CELLS + 1; ++iC)
-  {
-    offsets->SetValue(iC, iC * 4);
-  }
   vtkNew<vtkIdTypeArray> connectivity;
-  connectivity->SetNumberOfComponents(1);
   connectivity->SetNumberOfTuples(NUM_CELLS * 4);
   auto cRange = vtk::DataArrayValueRange<1>(connectivity);
   std::iota(cRange.begin(), cRange.end(), 0);
   vtkNew<vtkCellArray> cellArr;
-  cellArr->SetData(offsets, connectivity);
+  cellArr->SetData(4, connectivity);
 
   // cell types
   vtkNew<vtkUnsignedCharArray> cellTypes;
@@ -93,7 +85,7 @@ vtkSmartPointer<vtkUnstructuredGrid> MakeTestGrid()
   // grid
   vtkSmartPointer<vtkUnstructuredGrid> grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
   grid->SetPoints(points);
-  grid->SetCells(cellTypes, cellArr);
+  grid->SetCells(VTK_TETRA, cellArr);
 
   // point data
   vtkNew<vtkDoubleArray> dArr;

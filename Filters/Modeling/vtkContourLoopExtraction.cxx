@@ -2,20 +2,17 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkContourLoopExtraction.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkExecutive.h"
 #include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkLine.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkPolygon.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <cfloat>
 #include <vector>
@@ -201,54 +198,45 @@ void OutputPolygon(LoopPointType& sortedPoints, vtkPoints* inPts, vtkCellArray* 
 
 using PointMap = std::vector<vtkIdType>;
 
-// Helper functions to clean output data
-template <typename SType>
-void MarkUses(vtkIdType numIds, SType* connArray, PointMap& ptMap)
+struct MarkUses : public vtkCellArray::DispatchUtilities
 {
-  for (auto i = 0; i < numIds; ++i)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(
+    OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType numIds, PointMap& ptMap)
   {
-    ptMap[connArray->GetValue(i)] = 1;
+    auto connRange = GetRange(conn);
+    for (vtkIdType i = 0; i < numIds; ++i)
+    {
+      ptMap[connRange[i]] = 1;
+    }
   }
-}
+};
 
 // Helper function to in place mark point usage
 void MarkPointUses(vtkCellArray* ca, vtkIdType numConn, PointMap& ptMap)
 {
-  if (ca->IsStorage64Bit())
-  {
-    vtkTypeInt64Array* conn = ca->GetConnectivityArray64();
-    MarkUses<vtkTypeInt64Array>(numConn, conn, ptMap);
-  }
-  else
-  {
-    vtkTypeInt32Array* conn = ca->GetConnectivityArray32();
-    MarkUses<vtkTypeInt32Array>(numConn, conn, ptMap);
-  }
+  ca->Dispatch(MarkUses{}, numConn, ptMap);
 }
 
 // Helper functions to clean output data
-template <typename SType>
-void UpdateUses(vtkIdType numIds, SType* connArray, PointMap& ptMap)
+struct UpdateUses : public vtkCellArray::DispatchUtilities
 {
-  for (auto i = 0; i < numIds; ++i)
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(
+    OffsetsT* vtkNotUsed(offsets), ConnectivityT* conn, vtkIdType numIds, PointMap& ptMap)
   {
-    connArray->SetValue(i, ptMap[connArray->GetValue(i)]);
+    auto connRange = GetRange(conn);
+    for (vtkIdType i = 0; i < numIds; ++i)
+    {
+      connRange[i] = ptMap[connRange[i]];
+    }
   }
-}
+};
 
 // Helper function to in place update point numbering
 void UpdatePointUses(vtkCellArray* ca, vtkIdType numConn, PointMap& ptMap)
 {
-  if (ca->IsStorage64Bit())
-  {
-    vtkTypeInt64Array* conn = ca->GetConnectivityArray64();
-    UpdateUses<vtkTypeInt64Array>(numConn, conn, ptMap);
-  }
-  else
-  {
-    vtkTypeInt32Array* conn = ca->GetConnectivityArray32();
-    UpdateUses<vtkTypeInt32Array>(numConn, conn, ptMap);
-  }
+  ca->Dispatch(UpdateUses{}, numConn, ptMap);
 }
 
 // Discard unused points; renumber output polylines and polygons.

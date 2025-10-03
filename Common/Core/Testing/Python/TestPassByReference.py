@@ -4,7 +4,7 @@ Created on Sept 19, 2010 by David Gobbi
 """
 
 import sys
-from vtkmodules.vtkCommonCore import reference
+from vtkmodules.vtkCommonCore import reference, vtkIdList
 from vtkmodules.vtkCommonDataModel import (
     vtkCellArray,
     vtkPlane,
@@ -75,8 +75,9 @@ class TestPassByReference(Testing.vtkTest):
         n = reference(0)
         t = reference((0,))
         ca = vtkCellArray()
+        idList = vtkIdList()
         ca.InsertNextCell(3, (1, 3, 0))
-        ca.GetCell(0, n, t)
+        ca.GetCellAtId(0, n, t, idList)
         self.assertEqual(n, 3)
         self.assertEqual(tuple(t), (1, 3, 0))
 

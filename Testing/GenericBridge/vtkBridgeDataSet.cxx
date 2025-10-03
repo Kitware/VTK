@@ -293,7 +293,7 @@ int vtkBridgeDataSet::GetCellDimension()
 // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
 // THE DATASET IS NOT MODIFIED
 // \pre types_exist: types!=0
-void vtkBridgeDataSet::GetCellTypes(vtkCellTypes* types)
+void vtkBridgeDataSet::GetDistinctCellTypes(vtkCellTypes* types)
 {
   assert("pre: types_exist" && types != nullptr);
 

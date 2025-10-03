@@ -399,7 +399,6 @@ struct ExtractCells
   vtkIdType* CellConn;
   vtkIdType* CellOffsets;
   vtkIdType* LineConn;
-  vtkIdType* LineOffsets;
   EdgeTupleType* Edges;
   ArrayList* Arrays;
   vtkSMPThreadLocal<vtkSmartPointer<vtkCellArrayIterator>> CellIterator;
@@ -407,8 +406,7 @@ struct ExtractCells
 
   ExtractCells(const PolyClipperBatches& batches, const vtkIdType* ptMap, vtkCellArray* cells,
     vtkIdType* cellMap, vtkIdTypeArray* cellConn, vtkIdTypeArray* cellOffsets,
-    vtkIdTypeArray* lineConn, vtkIdTypeArray* lineOffsets, EdgeTupleType* e, ArrayList* arrays,
-    vtkPolyDataPlaneClipper* filter)
+    vtkIdTypeArray* lineConn, EdgeTupleType* e, ArrayList* arrays, vtkPolyDataPlaneClipper* filter)
     : Batches(batches)
     , PtMap(ptMap)
     , Cells(cells)
@@ -421,7 +419,6 @@ struct ExtractCells
     this->CellConn = cellConn->GetPointer(0);
     this->CellOffsets = cellOffsets->GetPointer(0);
     this->LineConn = lineConn->GetPointer(0);
-    this->LineOffsets = lineOffsets->GetPointer(0);
   }
 
   void Initialize() { this->CellIterator.Local().TakeReference(this->Cells->NewIterator()); }
@@ -452,8 +449,6 @@ struct ExtractCells
       vtkIdType newCellId = batch.Data.CellsOffset;
       vtkIdType cellOffset = batch.Data.CellsConnectivityOffset;
       vtkIdType lineConnIdx = batch.Data.LinesConnOffset;
-      vtkIdType* lineOffsets = this->LineOffsets + batch.Data.LinesOffset;
-      vtkIdType lineOffset = batch.Data.LinesConnOffset;
       EdgeTupleType* edge = this->Edges + batch.Data.LinesConnOffset;
       ArrayList* arrays = this->Arrays;
 
@@ -496,12 +491,6 @@ struct ExtractCells
             } // if clipped edge
           }   // for all cell points and edges
 
-          // Update the cell array offsets
-          if (*cellMap < 0) // i.e. the cell has been clipped
-          {
-            *lineOffsets++ = lineOffset;
-            lineOffset += 2;
-          }
           *cellOffsets++ = cellOffset;
           cellOffset += numCellPts;
           *cellMap = newCellId;
@@ -730,7 +719,6 @@ void GenerateCap(vtkCellArray* lines, vtkPolyData* pd)
   // unvisited line is part of a new loop.
   vtkIdType totTris = 0;
   vtkNew<vtkIdTypeArray> outConn; // collect the output triangles
-  vtkNew<vtkIdTypeArray> outOffsets;
   for (lineId = 0; lineId < numLines; ++lineId)
   {
     if (!visited[lineId]) // start next loop
@@ -779,13 +767,10 @@ void GenerateCap(vtkCellArray* lines, vtkPolyData* pd)
           vtkIdType* outTrisPtr = outTris->GetPointer(0);
 
           outConn->WritePointer(0, 3 * (numTris + totTris));
-          outOffsets->WritePointer(0, totTris + numTris + 1);
           vtkIdType* outConnPtr = outConn->GetPointer(0);
-          vtkIdType* outOffsetsPtr = outOffsets->GetPointer(0);
 
           vtkSMPTools::For(0, numTris,
-            [&, totTris, ids, outTrisPtr, outConnPtr, outOffsetsPtr](
-              vtkIdType triId, vtkIdType endTriId)
+            [&, totTris, ids, outTrisPtr, outConnPtr](vtkIdType triId, vtkIdType endTriId)
             {
               for (; triId < endTriId; ++triId)
               {
@@ -795,7 +780,6 @@ void GenerateCap(vtkCellArray* lines, vtkPolyData* pd)
                 triOut[0] = ids[triIn[0]];
                 triOut[1] = ids[triIn[1]];
                 triOut[2] = ids[triIn[2]];
-                outOffsetsPtr[tID] = 3 * tID;
               }
             });
           totTris += numTris;
@@ -807,8 +791,7 @@ void GenerateCap(vtkCellArray* lines, vtkPolyData* pd)
   // If some triangles were produced, send them to the output
   if (totTris > 0)
   {
-    outOffsets->SetComponent(totTris, 0, 3 * totTris);
-    polys->SetData(outOffsets, outConn);
+    polys->SetData(3, outConn);
     pd->SetPolys(polys);
   }
 
@@ -890,18 +873,15 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   cellOffsets->SetNumberOfTuples(numOutCells + 1);
   vtkNew<vtkIdTypeArray> lineConn;
   lineConn->SetNumberOfTuples(2 * numEdges);
-  vtkNew<vtkIdTypeArray> lineOffsets;
-  lineOffsets->SetNumberOfTuples(numEdges + 1);
 
   ArrayList cellArrays;
   output->GetCellData()->InterpolateAllocate(input->GetCellData(), numOutCells);
   cellArrays.AddArrays(numOutCells, input->GetCellData(), output->GetCellData());
 
   ExtractCells ext(batchInfo, ec.PtMap, cells, ec.CellMap, cellConn, cellOffsets, lineConn,
-    lineOffsets, mergeEdges, &cellArrays, this);
+    mergeEdges, &cellArrays, this);
   ext.Execute();
   cellOffsets->SetComponent(numOutCells, 0, ec.CellsConnSize);
-  lineOffsets->SetComponent(ec.NumberOfClippedCells, 0, 2 * numEdges);
 
   // New points are generated from groups of duplicate edges. The groups are
   // formed via sorting.
@@ -916,7 +896,7 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   OutputCells oc(numKeptPts, numNewPts, mergeEdges, mergeOffsets, cellConn, lineConn, this);
   oc.Execute();
   outCells->SetData(cellOffsets, cellConn);
-  outLines->SetData(lineOffsets, lineConn);
+  outLines->SetData(2, lineConn);
 
   // Now output the points. There is a combination of kept points from
   // the input, plus new points generated from the clipping operation.

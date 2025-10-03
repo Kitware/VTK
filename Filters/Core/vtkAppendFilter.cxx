@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkAppendFilter.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataSetCollection.h"
 #include "vtkIdTypeArray.h"
@@ -101,36 +102,34 @@ vtkDataSetCollection* vtkAppendFilter::GetInputList()
 
 namespace
 {
-struct AppendCellArray
+struct AppendCellArray : public vtkCellArray::DispatchUtilities
 {
-  template <typename CellStateT>
-  void operator()(CellStateT& state, vtkIdTypeArray* outputOffsets,
+  template <class OffsetsT, class ConnectivityT>
+  void operator()(OffsetsT* offsets, ConnectivityT* conn, vtkIdTypeArray* outputOffsets,
     vtkIdTypeArray* outputConnectivity, vtkIdType cellOffset, vtkIdType cellConnectivityOffset,
     std::vector<vtkIdType>& globalIndices, vtkIdType pointOffset)
   {
-    using ValueType = typename CellStateT::ValueType;
-    auto inputOffsets = state.GetOffsets();
-    auto inputConnectivity = state.GetConnectivity();
-    auto numberOfCells = inputOffsets->GetNumberOfValues() - 1;
-    auto numberOfConnectivityIds = inputConnectivity->GetNumberOfValues();
+    using ValueType = GetAPIType<OffsetsT>;
+    auto inputOffsets = GetRange(offsets);
+    auto inputConnectivity = GetRange(conn);
+    auto numberOfCells = inputOffsets.size() - 1;
+    auto numberOfConnectivityIds = inputConnectivity.size();
 
     // Copy the offsets and transform them using the cellConnectivityOffset
-    std::transform(inputOffsets->GetPointer(0), inputOffsets->GetPointer(numberOfCells),
+    std::transform(inputOffsets.begin(), inputOffsets.begin() + numberOfCells,
       outputOffsets->GetPointer(cellOffset),
       [&](ValueType offset) { return static_cast<ValueType>(offset + cellConnectivityOffset); });
     if (!globalIndices.empty())
     {
       // Copy the connectivity and transform them using the pointOffset and globalIndices
-      std::transform(inputConnectivity->GetPointer(0),
-        inputConnectivity->GetPointer(numberOfConnectivityIds),
+      std::transform(inputConnectivity.begin(), inputConnectivity.begin() + numberOfConnectivityIds,
         outputConnectivity->GetPointer(cellConnectivityOffset),
         [&](ValueType ptId) { return static_cast<vtkIdType>(globalIndices[ptId + pointOffset]); });
     }
     else
     {
       // Copy the connectivity and transform them using the pointOffset
-      std::transform(inputConnectivity->GetPointer(0),
-        inputConnectivity->GetPointer(numberOfConnectivityIds),
+      std::transform(inputConnectivity.begin(), inputConnectivity.begin() + numberOfConnectivityIds,
         outputConnectivity->GetPointer(cellConnectivityOffset),
         [&](ValueType ptId) { return static_cast<vtkIdType>(ptId + pointOffset); });
     }
@@ -493,24 +492,24 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
         if (auto ug = vtkUnstructuredGrid::SafeDownCast(dataset)) // vtkUnstructuredGrid
         {
           // copy cell types
-          auto cellTypes = ug->GetCellTypesArray();
-          std::copy_n(
-            cellTypes->GetPointer(0), numberOfCells, cellTypesArray->GetPointer(cellOffset));
+          auto cellTypes = ug->GetCellTypes();
+          cellTypesArray->InsertTuples(cellOffset, cellTypes->GetNumberOfTuples(), 0, cellTypes);
           // copy cells
-          ug->GetCells()->Visit(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
+          ug->GetCells()->Dispatch(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
             cellConnectivityOffset, globalIndices, pointOffset);
           if (havePolyhedronFaces)
           {
             if (ug->GetPolyhedronFaces() && ug->GetPolyhedronFaceLocations()) // handle polyhedrons
             {
               // copy polyhedron faces
-              ug->GetPolyhedronFaces()->Visit(AppendCellArray{}, faceOffsetsArray,
+              ug->GetPolyhedronFaces()->Dispatch(AppendCellArray{}, faceOffsetsArray,
                 faceConnectivityArray, faceOffset, faceConnectivityOffset, globalIndices,
                 pointOffset);
               // copy polyhedron face locations
               std::vector<vtkIdType> dummy;
-              ug->GetPolyhedronFaceLocations()->Visit(AppendCellArray{}, faceLocationsOffsetsArray,
-                faceLocationsConnectivityArray, cellOffset, faceOffset, dummy, faceOffset);
+              ug->GetPolyhedronFaceLocations()->Dispatch(AppendCellArray{},
+                faceLocationsOffsetsArray, faceLocationsConnectivityArray, cellOffset, faceOffset,
+                dummy, faceOffset);
             }
             else
             {
@@ -537,29 +536,29 @@ int vtkAppendFilter::RequestData(vtkInformation* vtkNotUsed(request),
           // copy cells
           if (auto numVerts = pd->GetVerts()->GetNumberOfCells())
           {
-            pd->GetVerts()->Visit(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
+            pd->GetVerts()->Dispatch(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
               cellConnectivityOffset, globalIndices, pointOffset);
             cellOffset += numVerts;
             cellConnectivityOffset += pd->GetVerts()->GetNumberOfConnectivityIds();
           }
           if (auto numLines = pd->GetLines()->GetNumberOfCells())
           {
-            pd->GetLines()->Visit(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
+            pd->GetLines()->Dispatch(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
               cellConnectivityOffset, globalIndices, pointOffset);
             cellOffset += numLines;
             cellConnectivityOffset += pd->GetLines()->GetNumberOfConnectivityIds();
           }
           if (auto numPolys = pd->GetPolys()->GetNumberOfCells())
           {
-            pd->GetPolys()->Visit(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
+            pd->GetPolys()->Dispatch(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
               cellConnectivityOffset, globalIndices, pointOffset);
             cellOffset += numPolys;
             cellConnectivityOffset += pd->GetPolys()->GetNumberOfConnectivityIds();
           }
           if (auto numStrips = pd->GetStrips()->GetNumberOfCells())
           {
-            pd->GetStrips()->Visit(AppendCellArray{}, offsetsArray, connectivityArray, cellOffset,
-              cellConnectivityOffset, globalIndices, pointOffset);
+            pd->GetStrips()->Dispatch(AppendCellArray{}, offsetsArray, connectivityArray,
+              cellOffset, cellConnectivityOffset, globalIndices, pointOffset);
             cellOffset += numStrips;
             cellConnectivityOffset += pd->GetStrips()->GetNumberOfConnectivityIds();
           }

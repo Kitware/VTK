@@ -28,13 +28,21 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkImageAlgorithm.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkImageAlgorithm vtkmAlgorithm<vtkImageAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmImageConnectivity : public vtkImageAlgorithm
 {
 public:
   vtkTypeMacro(vtkmImageConnectivity, vtkImageAlgorithm);
+#ifndef __VTK_WRAP__
+#undef vtkImageAlgorithm
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmImageConnectivity* New();
 

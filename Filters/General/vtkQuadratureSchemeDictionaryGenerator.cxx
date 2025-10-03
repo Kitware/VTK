@@ -163,7 +163,7 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkDataSet* usgOut)
 
   // Get the cell types used by the data set.
   vtkNew<vtkCellTypes> cellTypes;
-  usgOut->GetCellTypes(cellTypes);
+  usgOut->GetDistinctCellTypes(cellTypes);
   // add a definition to the dictionary for each cell type.
   int nCellTypes = cellTypes ? cellTypes->GetNumberOfTypes() : 0;
 

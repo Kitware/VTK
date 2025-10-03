@@ -1392,8 +1392,8 @@ void AddCellMetaDataToCellDataImpl(
 void AddCellMetaDataToCellDataImpl(vtkUnstructuredGrid* out1, vtkUnstructuredGrid* out2)
 {
   // We only need to shallow copy CellTypes
-  AddArrayCopyWithUniqueNameToFieldData("cell_types_", out1->GetCellTypesArray(),
-    out2->GetCellTypesArray(), out1->GetCellData(), out2->GetCellData());
+  AddArrayCopyWithUniqueNameToFieldData("cell_types_", out1->GetCellTypes(), out2->GetCellTypes(),
+    out1->GetCellData(), out2->GetCellData());
 }
 
 //----------------------------------------------------------------------------

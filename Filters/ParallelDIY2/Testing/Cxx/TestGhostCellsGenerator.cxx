@@ -3245,18 +3245,9 @@ bool TestPointPrecision(vtkMultiProcessController* controller, int myrank)
   connectivity->SetValue(0, 0);
   connectivity->SetValue(1, 1);
 
-  vtkNew<vtkIdTypeArray> offsets;
-  offsets->SetNumberOfValues(2);
-  offsets->SetValue(0, 0);
-  offsets->SetValue(1, 2);
-
-  vtkNew<vtkUnsignedCharArray> types;
-  types->SetNumberOfValues(1);
-  types->SetValue(0, VTK_LINE);
-
   vtkNew<vtkCellArray> cells;
-  cells->SetData(offsets, connectivity);
-  ug->SetCells(types, cells);
+  cells->SetData(2, connectivity);
+  ug->SetCells(VTK_LINE, cells);
 
   // Checking point precision
   if (myrank == 0)

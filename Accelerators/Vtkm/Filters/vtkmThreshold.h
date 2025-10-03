@@ -22,36 +22,29 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkThreshold.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkThreshold vtkmAlgorithm<vtkThreshold>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmThreshold : public vtkThreshold
 {
 public:
   vtkTypeMacro(vtkmThreshold, vtkThreshold);
+#ifndef __VTK_WRAP__
+#undef vtkThreshold
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
   static vtkmThreshold* New();
-
-  ///@{
-  /**
-   * When this flag is off (the default), then the computation will fall back
-   * to the serial VTK version if Viskores fails to run. When the flag is on,
-   * the filter will generate an error if Viskores fails to run. This is mostly
-   * useful in testing to make sure the expected algorithm is run.
-   */
-  vtkGetMacro(ForceVTKm, vtkTypeBool);
-  vtkSetMacro(ForceVTKm, vtkTypeBool);
-  vtkBooleanMacro(ForceVTKm, vtkTypeBool);
-  ///@}
 
 protected:
   vtkmThreshold();
   ~vtkmThreshold() override;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
-  vtkTypeBool ForceVTKm = false;
 
 private:
   vtkmThreshold(const vtkmThreshold&) = delete;

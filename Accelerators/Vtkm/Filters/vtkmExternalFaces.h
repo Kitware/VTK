@@ -19,7 +19,12 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" //required for correct implementation
 #include "vtkAlgorithm.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkAlgorithm vtkmAlgorithm<vtkAlgorithm>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkUnstructuredGrid;
@@ -28,6 +33,9 @@ class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmExternalFaces : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkmExternalFaces, vtkAlgorithm);
+#ifndef __VTK_WRAP__
+#undef vtkAlgorithm
+#endif
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkmExternalFaces* New();
 

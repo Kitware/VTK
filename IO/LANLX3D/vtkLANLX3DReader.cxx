@@ -332,7 +332,8 @@ int vtkLANLX3DReader::RequestData(
         }
 
         // set cells
-        cell_list->SetCells(n_cells, id_array);
+        cell_list->AllocateExact(n_cells, id_array->GetNumberOfValues() - n_cells);
+        cell_list->ImportLegacyFormat(id_array);
         ug->SetCells(VTK_POLYGON, cell_list);
         id_array->Delete();
         cell_list->Delete();
@@ -387,7 +388,8 @@ int vtkLANLX3DReader::RequestData(
         }
 
         // set cells
-        cell_list->SetCells(n_cells, id_array);
+        cell_list->AllocateExact(n_cells, id_array->GetNumberOfValues() - n_cells);
+        cell_list->ImportLegacyFormat(id_array);
         ug->SetCells(VTK_POLYHEDRON, cell_list);
         id_array->Delete();
         cell_list->Delete();

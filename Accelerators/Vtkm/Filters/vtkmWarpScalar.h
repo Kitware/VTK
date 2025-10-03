@@ -31,7 +31,12 @@
 
 #include "vtkAcceleratorsVTKmFiltersModule.h" // required for correct export
 #include "vtkWarpScalar.h"
+#include "vtkmAlgorithm.h"           // For vtkmAlgorithm
 #include "vtkmlib/vtkmInitializer.h" // Need for initializing viskores
+
+#ifndef __VTK_WRAP__
+#define vtkWarpScalar vtkmAlgorithm<vtkWarpScalar>
+#endif
 
 VTK_ABI_NAMESPACE_BEGIN
 class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmWarpScalar : public vtkWarpScalar
@@ -39,7 +44,9 @@ class VTKACCELERATORSVTKMFILTERS_EXPORT vtkmWarpScalar : public vtkWarpScalar
 public:
   vtkTypeMacro(vtkmWarpScalar, vtkWarpScalar);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
+#ifndef __VTK_WRAP__
+#undef vtkWarpScalar
+#endif
   static vtkmWarpScalar* New();
 
 protected:

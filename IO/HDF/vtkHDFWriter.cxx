@@ -1002,7 +1002,7 @@ bool vtkHDFWriter::AppendNumberOfConnectivityIds(hid_t group, vtkCellArray* inpu
 //------------------------------------------------------------------------------
 bool vtkHDFWriter::AppendCellTypes(hid_t group, vtkUnstructuredGrid* input)
 {
-  if (!this->Impl->AddOrCreateDataset(group, "Types", H5T_STD_U8LE, input->GetCellTypesArray()))
+  if (!this->Impl->AddOrCreateDataset(group, "Types", H5T_STD_U8LE, input->GetCellTypes()))
   {
     vtkErrorMacro(<< "Can not create Types dataset when creating: " << this->FileName);
     return false;

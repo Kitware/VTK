@@ -13,50 +13,18 @@
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkDataObject.h"
-#include "vtkDataObjectTypes.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkStructuredGrid.h"
-#include "vtkUniformGrid.h"
-#include "vtkUnstructuredGrid.h"
+#include "vtkSMPTools.h"
 
-#include <viskores/cont/ArrayHandle.h>
-#include <viskores/cont/DataSetBuilderUniform.h>
 #include <viskores/cont/ErrorBadType.h>
-#include <viskores/cont/Field.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
-struct build_type_array
-{
-  template <typename CellStateT>
-  void operator()(CellStateT& state, vtkUnsignedCharArray* types) const
-  {
-    const vtkIdType size = state.GetNumberOfCells();
-    for (vtkIdType i = 0; i < size; ++i)
-    {
-      auto cellSize = state.GetCellSize(i);
-      unsigned char cellType;
-      switch (cellSize)
-      {
-        case 3:
-          cellType = VTK_TRIANGLE;
-          break;
-        case 4:
-          cellType = VTK_QUAD;
-          break;
-        default:
-          cellType = VTK_POLYGON;
-          break;
-      }
-      types->SetValue(i, cellType);
-    }
-  }
-};
+
 }
 VTK_ABI_NAMESPACE_END
 namespace tovtkm
@@ -65,7 +33,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 // convert an polydata type
-viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
+viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields, bool forceViskores)
 {
   // the poly data is an interesting issue with the fact that the
   // vtk datastructure can contain multiple types.
@@ -91,18 +59,18 @@ viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
   if (onlyPolys)
   {
     vtkCellArray* cells = input->GetPolys();
-    const vtkIdType homoSize = cells->IsHomogeneous();
+    const vtkIdType homoSize = IsHomogeneous(cells);
     if (homoSize == 3)
     {
       // We are all triangles
-      auto dcells = ConvertSingleType(cells, VTK_TRIANGLE, numPoints);
+      auto dcells = ConvertSingleType(cells, VTK_TRIANGLE, numPoints, forceViskores);
       dataset.SetCellSet(dcells);
       filled = true;
     }
     else if (homoSize == 4)
     {
       // We are all quads
-      auto dcells = ConvertSingleType(cells, VTK_QUAD, numPoints);
+      auto dcells = ConvertSingleType(cells, VTK_QUAD, numPoints, forceViskores);
       dataset.SetCellSet(dcells);
       filled = true;
     }
@@ -111,13 +79,9 @@ viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
       // need to construct a vtkUnsignedCharArray* types mapping for our zoo data
       // we can do this by mapping number of points per cell to the type
       // 3 == tri, 4 == quad, else polygon
-      vtkNew<vtkUnsignedCharArray> types;
-      types->SetNumberOfComponents(1);
-      types->SetNumberOfTuples(cells->GetNumberOfCells());
+      vtkSmartPointer<vtkDataArray> types = CreatePolygonalCellTypes(cells);
 
-      cells->Visit(build_type_array{}, types.GetPointer());
-
-      auto dcells = Convert(types, cells, numPoints);
+      auto dcells = Convert(types, cells, numPoints, forceViskores);
       dataset.SetCellSet(dcells);
       filled = true;
     }
@@ -125,11 +89,11 @@ viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
   else if (onlyLines)
   {
     vtkCellArray* cells = input->GetLines();
-    const vtkIdType homoSize = cells->IsHomogeneous();
+    const vtkIdType homoSize = IsHomogeneous(cells);
     if (homoSize == 2)
     {
       // We are all lines
-      auto dcells = ConvertSingleType(cells, VTK_LINE, numPoints);
+      auto dcells = ConvertSingleType(cells, VTK_LINE, numPoints, forceViskores);
       dataset.SetCellSet(dcells);
       filled = true;
     }
@@ -141,11 +105,11 @@ viskores::cont::DataSet Convert(vtkPolyData* input, FieldsFlag fields)
   else if (onlyVerts)
   {
     vtkCellArray* cells = input->GetVerts();
-    const vtkIdType homoSize = cells->IsHomogeneous();
+    const vtkIdType homoSize = IsHomogeneous(cells);
     if (homoSize == 1)
     {
       // We are all single vertex
-      auto dcells = ConvertSingleType(cells, VTK_VERTEX, numPoints);
+      auto dcells = ConvertSingleType(cells, VTK_VERTEX, numPoints, forceViskores);
       dataset.SetCellSet(dcells);
       filled = true;
     }
@@ -178,7 +142,8 @@ namespace fromvtkm
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
-bool Convert(const viskores::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet* input)
+bool Convert(const viskores::cont::DataSet& voutput, vtkPolyData* output, vtkDataSet* input,
+  bool forceViskores)
 {
   vtkPoints* points = fromvtkm::Convert(voutput.GetCoordinateSystem());
   output->SetPoints(points);
@@ -189,7 +154,7 @@ bool Convert(const viskores::cont::DataSet& voutput, vtkPolyData* output, vtkDat
   // into a new array
   auto const& outCells = voutput.GetCellSet();
   vtkNew<vtkCellArray> cells;
-  const bool cellsConverted = fromvtkm::Convert(outCells, cells.GetPointer());
+  const bool cellsConverted = fromvtkm::Convert(outCells, cells.GetPointer(), forceViskores);
   if (!cellsConverted)
   {
     return false;

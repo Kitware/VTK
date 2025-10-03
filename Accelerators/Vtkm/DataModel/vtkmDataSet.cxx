@@ -4,6 +4,8 @@
 // SPDX-FileCopyrightText: Copyright 2015 UT-Battelle, LLC.
 // SPDX-FileCopyrightText: Copyright 2015 Los Alamos National Security.
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-LANL-USGov
+// VTK_DEPRECATED_IN_9_6_0()
+#define VTK_DEPRECATION_LEVEL 0
 #include "vtkmDataSet.h"
 
 #include "vtkmDataArray.h"
