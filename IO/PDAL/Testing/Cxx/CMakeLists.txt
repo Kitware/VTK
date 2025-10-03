@@ -16,4 +16,10 @@ add_vtk_pdal_reader_test(test_2.las -90)
 vtk_add_test_cxx(vtkIOPDALCxxTests tests
   ${VTK_PDAL_READER_TESTS}
   )
+
+vtk_add_test_cxx(vtkIOPDALCxxTests tests
+  NO_VALID NO_OUTPUT
+  TestPDALReaderWithOffset.cxx
+)
+
 vtk_test_cxx_executable(vtkIOPDALCxxTests tests)

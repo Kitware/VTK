@@ -35,6 +35,7 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include <pdal/Metadata.hpp>
 #include <pdal/Options.hpp>
 #include <pdal/PointTable.hpp>
 #include <pdal/PointView.hpp>
@@ -46,8 +47,6 @@ vtkStandardNewMacro(vtkPDALReader);
 //------------------------------------------------------------------------------
 vtkPDALReader::vtkPDALReader()
 {
-  this->FileName = nullptr;
-
   this->SetNumberOfInputPorts(0);
   this->SetNumberOfOutputPorts(1);
 }
@@ -59,6 +58,53 @@ vtkPDALReader::~vtkPDALReader()
 }
 
 //------------------------------------------------------------------------------
+int vtkPDALReader::RequestInformation(
+  vtkInformation*, vtkInformationVector**, vtkInformationVector*)
+{
+  this->OffsetAsString.clear();
+  this->HasOffset = false;
+
+  try
+  {
+    pdal::StageFactory factory;
+
+    std::string driverName = pdal::StageFactory::inferReaderDriver(this->FileName);
+
+    pdal::Stage* reader = factory.createStage(driverName);
+    if (!reader)
+    {
+      vtkErrorMacro("CreateStage failed");
+      return 1;
+    }
+
+    pdal::Options opts;
+    opts.add(pdal::Option("filename", this->FileName));
+    reader->setOptions(opts);
+
+    pdal::PointTable table;
+    reader->prepare(table);
+
+    auto offsets = this->GetLasOffsets(reader);
+
+    if (!(offsets[0] == 0.0 && offsets[1] == 0.0 && offsets[2] == 0.0))
+    {
+      std::ostringstream ss;
+      ss.setf(std::ios::fixed);
+      ss.precision(3);
+      ss << "(" << offsets[0] << ", " << offsets[1] << ", " << offsets[2] << ")\r\n";
+
+      this->HasOffset = true;
+      this->OffsetAsString = ss.str();
+    }
+  }
+  catch (const pdal::pdal_error& e)
+  {
+    vtkErrorMacro(<< "PDAL error: " << e.what());
+  }
+
+  return 1;
+}
+
 int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(request), vtkInformationVector* outputVector)
 {
@@ -99,13 +145,9 @@ int vtkPDALReader::RequestData(vtkInformation* vtkNotUsed(request),
     output->ShallowCopy(vertexFilter->GetOutput());
     return VTK_OK;
   }
-  catch (const std::exception& e)
+  catch (const pdal::pdal_error& e)
   {
-    vtkErrorMacro("exception: " << e.what());
-  }
-  catch (...)
-  {
-    vtkErrorMacro("Unknown exception");
+    vtkErrorMacro(<< "PDAL error: " << e.what());
   }
   return 0;
 }
@@ -119,6 +161,17 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage& reader, vtkPolyData* points
   pdal::PointTable table;
   reader.prepare(table);
   pdal::PointViewSet pointViewSet = reader.execute(table);
+
+  // If ApplyOffset is true, try to read LAS header offsets from PDAL metadata
+  double ox = 0.0, oy = 0.0, oz = 0.0;
+  if (this->ApplyOffset)
+  {
+    auto offsets = this->GetLasOffsets(&reader);
+    ox = offsets[0];
+    oy = offsets[1];
+    oz = offsets[2];
+  }
+
   pdal::PointViewPtr pointView = *pointViewSet.begin();
   points->SetNumberOfPoints(pointView->size());
   pdal::Dimension::IdList dims = pointView->dims();
@@ -291,9 +344,9 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage& reader, vtkPolyData* points
   }
   for (pdal::PointId pointId = 0; pointId < pointView->size(); ++pointId)
   {
-    double point[3] = { pointView->getFieldAs<double>(pdal::Dimension::Id::X, pointId),
-      pointView->getFieldAs<double>(pdal::Dimension::Id::Y, pointId),
-      pointView->getFieldAs<double>(pdal::Dimension::Id::Z, pointId) };
+    double point[3] = { pointView->getFieldAs<double>(pdal::Dimension::Id::X, pointId) + ox,
+      pointView->getFieldAs<double>(pdal::Dimension::Id::Y, pointId) + oy,
+      pointView->getFieldAs<double>(pdal::Dimension::Id::Z, pointId) + oz };
     points->SetPoint(pointId, point);
     if (hasColor)
     {
@@ -395,6 +448,30 @@ void vtkPDALReader::ReadPointRecordData(pdal::Stage& reader, vtkPolyData* points
       }
     }
   }
+}
+
+//------------------------------------------------------------------------------
+std::array<double, 3> vtkPDALReader::GetLasOffsets(pdal::Stage* reader)
+{
+  pdal::MetadataNode md = reader->getMetadata();
+
+  double ox = 0.0, oy = 0.0, oz = 0.0;
+  if (auto cx = md.findChild("offset_x"); cx.valid())
+  {
+    ox = cx.value<double>();
+  }
+
+  if (auto cy = md.findChild("offset_y"); cy.valid())
+  {
+    oy = cy.value<double>();
+  }
+
+  if (auto cz = md.findChild("offset_z"); cz.valid())
+  {
+    oz = cz.value<double>();
+  }
+
+  return { ox, oy, oz };
 }
 
 //------------------------------------------------------------------------------
