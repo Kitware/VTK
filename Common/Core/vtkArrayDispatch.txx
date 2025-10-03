@@ -74,10 +74,22 @@ struct ArrayListIndexMap
 template <typename ArrayList>
 struct Dispatch;
 
-using UnknownArrayTypeTagList =
-  vtkTypeList::Create<std::integral_constant<int, vtkArrayTypes::AbstractArray>,
-    std::integral_constant<int, vtkArrayTypes::DataArray>,
-    std::integral_constant<int, vtkArrayTypes::ImplicitArray>>;
+using KnownArrayTypeTagList =
+  vtkTypeList::Create<std::integral_constant<int, vtkArrayTypes::StringArray>,
+    std::integral_constant<int, vtkArrayTypes::VariantArray>,
+    std::integral_constant<int, vtkArrayTypes::BitArray>,
+    std::integral_constant<int, vtkArrayTypes::AoSDataArrayTemplate>,
+    std::integral_constant<int, vtkArrayTypes::SoADataArrayTemplate>,
+    std::integral_constant<int, vtkArrayTypes::ScaledSoADataArrayTemplate>,
+    std::integral_constant<int, vtkArrayTypes::VTKmDataArray>,
+    std::integral_constant<int, vtkArrayTypes::PeriodicDataArray>,
+    std::integral_constant<int, vtkArrayTypes::AffineArray>,
+    std::integral_constant<int, vtkArrayTypes::CompositeArray>,
+    std::integral_constant<int, vtkArrayTypes::ConstantArray>,
+    std::integral_constant<int, vtkArrayTypes::IndexedArray>,
+    std::integral_constant<int, vtkArrayTypes::StdFunctionArray>,
+    std::integral_constant<int, vtkArrayTypes::StridedArray>,
+    std::integral_constant<int, vtkArrayTypes::StructuredPointArray>>;
 
 // Recursive case:
 template <typename ArrayHead, typename ArrayTail>
@@ -86,7 +98,7 @@ struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
   using ArrayList = vtkTypeList::TypeList<ArrayHead, ArrayTail>;
 
   using KnownArrayList =
-    typename FilterArraysByArrayTypeTag<ArrayList, UnknownArrayTypeTagList>::Result;
+    typename FilterArraysByArrayTypeTag<ArrayList, KnownArrayTypeTagList>::Result;
 
   static constexpr int NumKnownArrays = vtkTypeList::Size<KnownArrayList>::Result;
   static constexpr auto CompactArrayMap = ArrayListIndexMap::GetCompactArrayMap<KnownArrayList>();
@@ -152,7 +164,10 @@ struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
   GetArrayHandlers()
   {
     std::array<DispatchFunction<Worker, Params...>, NumKnownArrays> arr{};
-    FillKnownArrayHandlers<TKnownArrayList, Worker, Params...>(arr);
+    if constexpr (NumKnownArrays > 0)
+    {
+      FillKnownArrayHandlers<TKnownArrayList, Worker, Params...>(arr);
+    }
     return arr;
   }
 
@@ -192,10 +207,8 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   using Array1List = vtkTypeList::TypeList<Array1Head, Array1Tail>;
   using Array2List = vtkTypeList::TypeList<Array2Head, Array2Tail>;
 
-  using Known1List =
-    typename FilterArraysByArrayTypeTag<Array1List, UnknownArrayTypeTagList>::Result;
-  using Known2List =
-    typename FilterArraysByArrayTypeTag<Array2List, UnknownArrayTypeTagList>::Result;
+  using Known1List = typename FilterArraysByArrayTypeTag<Array1List, KnownArrayTypeTagList>::Result;
+  using Known2List = typename FilterArraysByArrayTypeTag<Array2List, KnownArrayTypeTagList>::Result;
 
   static constexpr int NumKnownArrays1 = vtkTypeList::Size<Known1List>::Result;
   static constexpr int NumKnownArrays2 = vtkTypeList::Size<Known2List>::Result;
@@ -340,7 +353,10 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   GetArrayPairHandlers()
   {
     std::array<Dispatch2Function<Worker, Params...>, NumKnownArrayPairs> arr{};
-    FillKnownArrayPairHandlers<Known1List, Known2List, Worker, Params...>(arr);
+    if constexpr (NumKnownArrayPairs > 0)
+    {
+      FillKnownArrayPairHandlers<Known1List, Known2List, Worker, Params...>(arr);
+    }
     return arr;
   }
 
@@ -385,10 +401,8 @@ struct Dispatch2Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   using Array1List = vtkTypeList::TypeList<Array1Head, Array1Tail>;
   using Array2List = vtkTypeList::TypeList<Array2Head, Array2Tail>;
 
-  using Known1List =
-    typename FilterArraysByArrayTypeTag<Array1List, UnknownArrayTypeTagList>::Result;
-  using Known2List =
-    typename FilterArraysByArrayTypeTag<Array2List, UnknownArrayTypeTagList>::Result;
+  using Known1List = typename FilterArraysByArrayTypeTag<Array1List, KnownArrayTypeTagList>::Result;
+  using Known2List = typename FilterArraysByArrayTypeTag<Array2List, KnownArrayTypeTagList>::Result;
 
   static constexpr int NumKnownArrays1 = vtkTypeList::Size<Known1List>::Result;
   static constexpr int NumKnownArrays2 = vtkTypeList::Size<Known2List>::Result;
@@ -544,7 +558,10 @@ struct Dispatch2Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   GetArrayPairHandlers()
   {
     std::array<Dispatch2Function<Worker, Params...>, NumKnownArrayPairs> arr{};
-    FillKnownArrayPairHandlers<Known1List, Known2List, Worker, Params...>(arr);
+    if constexpr (NumKnownArrayPairs > 0)
+    {
+      FillKnownArrayPairHandlers<Known1List, Known2List, Worker, Params...>(arr);
+    }
     return arr;
   }
 
@@ -592,12 +609,9 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   using Array2List = vtkTypeList::TypeList<Array2Head, Array2Tail>;
   using Array3List = vtkTypeList::TypeList<Array3Head, Array3Tail>;
 
-  using Known1List =
-    typename FilterArraysByArrayTypeTag<Array1List, UnknownArrayTypeTagList>::Result;
-  using Known2List =
-    typename FilterArraysByArrayTypeTag<Array2List, UnknownArrayTypeTagList>::Result;
-  using Known3List =
-    typename FilterArraysByArrayTypeTag<Array3List, UnknownArrayTypeTagList>::Result;
+  using Known1List = typename FilterArraysByArrayTypeTag<Array1List, KnownArrayTypeTagList>::Result;
+  using Known2List = typename FilterArraysByArrayTypeTag<Array2List, KnownArrayTypeTagList>::Result;
+  using Known3List = typename FilterArraysByArrayTypeTag<Array3List, KnownArrayTypeTagList>::Result;
 
   static constexpr int NumKnownArrays1 = vtkTypeList::Size<Known1List>::Result;
   static constexpr int NumKnownArrays2 = vtkTypeList::Size<Known2List>::Result;
@@ -808,7 +822,10 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   GetArrayTripleHandlers()
   {
     std::array<Dispatch3Function<Worker, Params...>, NumKnownArrayTriples> arr{};
-    FillArray1<Known1ListT, Known2ListT, Known3ListT, Worker, Params...>(arr);
+    if constexpr (NumKnownArrayTriples > 0)
+    {
+      FillArray1<Known1ListT, Known2ListT, Known3ListT, Worker, Params...>(arr);
+    }
     return arr;
   }
 
@@ -860,12 +877,9 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   using Array2List = vtkTypeList::TypeList<Array2Head, Array2Tail>;
   using Array3List = vtkTypeList::TypeList<Array3Head, Array3Tail>;
 
-  using Known1List =
-    typename FilterArraysByArrayTypeTag<Array1List, UnknownArrayTypeTagList>::Result;
-  using Known2List =
-    typename FilterArraysByArrayTypeTag<Array2List, UnknownArrayTypeTagList>::Result;
-  using Known3List =
-    typename FilterArraysByArrayTypeTag<Array3List, UnknownArrayTypeTagList>::Result;
+  using Known1List = typename FilterArraysByArrayTypeTag<Array1List, KnownArrayTypeTagList>::Result;
+  using Known2List = typename FilterArraysByArrayTypeTag<Array2List, KnownArrayTypeTagList>::Result;
+  using Known3List = typename FilterArraysByArrayTypeTag<Array3List, KnownArrayTypeTagList>::Result;
 
   static constexpr int NumKnownArrays1 = vtkTypeList::Size<Known1List>::Result;
   static constexpr int NumKnownArrays2 = vtkTypeList::Size<Known2List>::Result;
@@ -1113,7 +1127,10 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   GetArrayTripleHandlers()
   {
     std::array<Dispatch3Function<Worker, Params...>, NumKnownArrayTriples> arr{};
-    FillArray1<Known1ListT, Known2ListT, Known3ListT, Worker, Params...>(arr);
+    if constexpr (NumKnownArrayTriples > 0)
+    {
+      FillArray1<Known1ListT, Known2ListT, Known3ListT, Worker, Params...>(arr);
+    }
     return arr;
   }
 
