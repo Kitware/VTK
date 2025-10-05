@@ -8,6 +8,7 @@
  * vtkSLCReader reads an SLC file and creates a structured point dataset.
  * The size of the volume and the data spacing is set from the SLC file
  * header.
+ * This reader doesn't support reading from memory.
  */
 
 #ifndef vtkSLCReader_h

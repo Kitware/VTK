@@ -7,7 +7,7 @@
  * @brief   Read nrrd files file system
  *
  *
- *
+ * This reader doesn't support reading from memory.
  *
  * @bug
  * There are several limitations on what type of nrrd files we can read.  This

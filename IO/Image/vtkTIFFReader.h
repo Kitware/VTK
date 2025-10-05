@@ -6,6 +6,7 @@
  *
  * vtkTIFFReader is a source object that reads TIFF files.
  * It should be able to read almost any TIFF file
+ * This reader doesn't support reading from memory.
  *
  * @sa
  * vtkTIFFWriter

@@ -91,6 +91,7 @@ public:
    * Specify the in memory image buffer.
    * May be used by a reader to allow the reading
    * of an image from memory instead of from file.
+   * This should be reworked to use vtkResourceStream instead
    */
   virtual void SetMemoryBuffer(const void*);
   virtual const void* GetMemoryBuffer() { return this->MemoryBuffer; }

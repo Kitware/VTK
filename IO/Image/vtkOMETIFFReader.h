@@ -23,6 +23,8 @@
  * up into channels, timesteps, and z-planes. The parts are then cached
  * internally so that subsequent timestep requests can be served without
  * re-reading the file.
+ *
+ * This reader doesn't support reading from memory.
  */
 
 #ifndef vtkOMETIFFReader_h

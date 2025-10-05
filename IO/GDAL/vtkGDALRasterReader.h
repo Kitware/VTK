@@ -13,6 +13,8 @@
  * GCPs are not supported. See GDAL Data Model for more information
  * https://www.gdal.org/gdal_datamodel.html
  *
+ * This reader doesn't support reading from memory.
+ *
  *
  *
  * @sa

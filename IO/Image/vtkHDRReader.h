@@ -6,6 +6,7 @@
  *
  * vtkHDRReader is a source object that reads Radiance HDR files.
  * HDR files are converted into 32 bit images.
+ * This reader doesn't support reading from memory.
  */
 
 #ifndef vtkHDRReader_h
