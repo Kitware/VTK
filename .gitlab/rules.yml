@@ -1,92 +1,111 @@
 # Rules for where jobs can run
 
-.run_on_code_change:
-  # The following rules are intended to include all files and directories
-  # except the `Documentation` directory.
-  rules:
-      changes: &code_change
+###
+## Job variables:
+##   VTK_CI_RUN_ALWAYS
+##     Set to "true" if the job should always run.
+##   VTK_CI_RUN_MANUALLY
+##     Set to "true" if the job should be manually triggered in MRs. These jobs
+##     will also be delayed for branch update pipelines
+##   VTK_CI_MERGED_ONLY
+##     Set to "true" to make the job only run for merged pipelines.
+##   VTK_CI_NIGHTLY_ONLY
+##     Set to "true" if the job should only run for nightly pipelines.
+##   VTK_CI_RELEASE_ONLY
+##     Set to "true" if the job should only run for release pipelines.
+##   VTK_CI_DOCUMENTATION_UPLOAD
+##     Set to "true" if the job uploads documentation.
+##   VTK_CI_WEEKLY_UPLOAD
+##     Set to "true" if the job performs a weekly upload.
+## Pipeline variables:
+##   ENABLE_DOCUMENTATION_UPLOAD
+##     Set to "true" when documentation upload jobs should be performed.
+##   ENABLE_WEEKLY_UPLOAD
+##     Set to "true" when weekly upload jobs should be performed.
+####
+
+# When to even consider running a pipeline.
+workflow:
+    rules:
+        # Run for merge requests.
+        - if: '$CI_MERGE_REQUEST_ID'
+          when: always
+          auto_cancel:
+              # Cancel all pipeline jobs if a new commit comes in on the branch/tag.
+              on_new_commit: interruptible
+        # If this is not a MR, do not run for other projects.
+        - if: '$CI_PROJECT_PATH != "vtk/vtk"'
+          when: never
+        # Run for schedules.
+        - if: '$CI_PIPELINE_SOURCE == "schedule"'
+          when: always
+          auto_cancel:
+              # Never cancel scheduled pipelines because of new commits.
+              on_new_commit: none
+        # Run for protected branches.
+        - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+          when: always
+          auto_cancel:
+              # Cancel all pipeline jobs if a new commit comes in on the branch.
+              on_new_commit: interruptible
+        # Run for tags.
+        - if: '$CI_COMMIT_TAG'
+          when: always
+        # Skip pipelines in all other cases.
+        - when: never
+
+# Discover code changes
+.changes: &code_change
+    paths:
+        # Ignore the documentation directory.
         - '!Documentation/**/*'
         - '**/*'
         - '.*'                # any hidden file is touched
         - '.*/**/*'           # any file within a hidden directory
-      when: on_success
 
-
-.run_automatically:
+.rules:
     rules:
-        - if: '$CI_MERGE_REQUEST_ID'
-          changes: *code_change
-          when: on_success
-        - if: '$CI_PROJECT_PATH == "vtk/vtk"'
-          changes: *code_change
-          when: on_success
-        - when: never
-
-.scheduled_only:
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
+        # Some jobs always run.
+        - if: '$VTK_CI_RUN_ALWAYS == "true"'
+          when: always
+        # Release-only jobs never run on MRs.
+        - if: '$CI_MERGE_REQUEST_ID && $VTK_CI_RELEASE_ONLY == "true"'
           when: never
-        - if: '$CI_COMMIT_TAG && $CI_PROJECT_PATH == "vtk/vtk"'
-          changes: *code_change
-          when: on_success
-        - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_PROJECT_PATH == "vtk/vtk"'
-          changes: *code_change
-          when: on_success
-        - when: never
-
-.run_manually:
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
+        # Merged-only jobs never run on MRs.
+        - if: '$CI_MERGE_REQUEST_ID && $VTK_CI_MERGED_ONLY == "true"'
+          when: never
+        # MRs use manual triggers, but only if there are code chagens.
+        - if: '$CI_MERGE_REQUEST_ID && $VTK_CI_RUN_MANUALLY == "true"'
           changes: *code_change
           when: manual
-        - if: '$CI_PROJECT_PATH == "vtk/vtk" && $CI_PIPELINE_SOURCE == "schedule"'
+        # Normal jobs run automatically, but only if there are code changes.
+        - if: '$CI_MERGE_REQUEST_ID'
           changes: *code_change
           when: on_success
-        - if: '$CI_PROJECT_PATH == "vtk/vtk"'
-          changes: *code_change
+        # Any other jobs on a MR do not run.
+        - if: '$CI_MERGE_REQUEST_ID'
+          when: never
+        # Jobs on a tag run right away.
+        - if: '$CI_COMMIT_TAG'
+          when: on_success
+        # Any release-only jobs do not run without a tag.
+        - if: '$VTK_CI_RELEASE_ONLY == "true"'
+          when: never
+        # Skip schedule jobs without a schedule.
+        - if: '$CI_PIPELINE_SOURCE != "schedule" && $VTK_CI_NIGHTLY_ONLY == "true"'
+          when: never
+        # Documentation upload jobs require an enable flag.
+        - if: '$VTK_CI_DOCUMENTATION_UPLOAD == "true" && $ENABLE_DOCUMENTATION_UPLOAD != "true"'
+          when: never
+        # Weekly upload jobs require an enable flag.
+        - if: '$VTK_CI_WEEKLY_UPLOAD == "true" && $ENABLE_WEEKLY_UPLOAD != "true"'
+          when: never
+        # Scheduled jobs run automatically.
+        - if: '$CI_PIPELINE_SOURCE == "schedule"'
+          when: on_success
+        # Manual jobs run delayed (e.g., merges to branches)
+        - if: '$VTK_CI_RUN_MANUALLY == "true"'
           when: delayed
           start_in: 4 hours
-        - when: never
-
-.merged_only:
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
-          when: never
-        - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_PROJECT_PATH == "vtk/vtk"'
-          changes: *code_change
-          when: on_success
-        - if: '$CI_PROJECT_PATH == "vtk/vtk"'
-          changes: *code_change
-          when: delayed
-          start_in: 4 hours
-        - when: never
-
-.release_only:
-    rules:
-      - if: '$CI_COMMIT_TAG && $CI_PROJECT_PATH == "vtk/vtk"'
-        when: on_success
-      - when: never
-
-.upload_only:
-    rules:
-      - if: '$RSYNC_UPLOAD_ENABLE == "true"'
-        when: on_success
-      - when: never
-
-.weekly_upload_only:
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
-          when: never
-        - if: '$CI_PROJECT_PATH == "vtk/vtk" && $CI_COMMIT_TAG'
-          when: on_success
-        - if: '$PYPI_WEEKLY_UPLOAD == "true"'
-          when: on_success
-        - when: never
-
-.tag_only:
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
-          when: never
-        - if: '$CI_PROJECT_PATH == "vtk/vtk" && $CI_COMMIT_TAG'
-          when: on_success
-        - when: never
+        # Normal jobs on the project run automatically.
+        - when: on_success

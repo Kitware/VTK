@@ -29,7 +29,9 @@ stages:
 #   - a build script
 #   - tags for the jobs
 #     - already provided for upload and CI update jobs
-#   - rules for when to run the job
+#   - the `.rules` block
+#     - see `.gitlab/rules.yml` for variables jobs may set to control when the
+#       job is executed
 #
 # Additionally, jobs may also contain:
 #
@@ -50,16 +52,13 @@ dummy:build:
         - build
         - docker
         - linux-x86_64
-    rules:
-        - if: '$CI_MERGE_REQUEST_ID'
-          when: on_success
-        - if: '$CI_PROJECT_PATH == "vtk/vtk"'
-          when: on_success
-        - when: never
+    extends:
+        - .rules
     script:
         - echo "dummy"
     variables:
         GIT_STRATEGY: none
+        VTK_CI_RUN_ALWAYS: "true"
     needs: []
 
 ## readthedocs documentation build
@@ -70,7 +69,7 @@ readthedocs:build:
         - .linux_x86_64_builder_tags
         - .make_sphinx_docs
         - .sphinx_artifacts
-        - .run_automatically
+        - .rules
     needs: []
     timeout: 15 minutes
 
@@ -82,7 +81,9 @@ el7-x86_64-mindeps-debug-python-qt5:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     stage: quick
 
 # Disable testing for now. Even with a modern Mesa and the llvmpipe backend,
@@ -94,7 +95,7 @@ el7-x86_64-mindeps-debug-python-qt5:build:
 #         - .cmake_test_linux
 #         - .linux_x86_64_tester_tags
 #         - .cmake_test_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - el7-x86_64-mindeps-python-qt5:build
 
@@ -104,7 +105,9 @@ el8-x86_64-python:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 el8-x86_64-python:test:
@@ -113,7 +116,7 @@ el8-x86_64-python:test:
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - el8-x86_64-python:build
 
@@ -123,7 +126,9 @@ fedora41-aarch64-mpi-python:build:
         - .cmake_build_linux
         - .linux_aarch64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 fedora41-aarch64-mpi-python:test:
@@ -132,7 +137,7 @@ fedora41-aarch64-mpi-python:test:
         - .cmake_test_linux
         - .linux_aarch64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora41-aarch64-mpi-python:build
 
@@ -142,7 +147,9 @@ fedora39-x86_64-mpi-renderless:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 fedora39-x86_64-mpi-renderless:test:
@@ -151,7 +158,7 @@ fedora39-x86_64-mpi-renderless:test:
         - .cmake_test_linux
         - .linux_x86_64_builder_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-renderless:build
 
@@ -161,7 +168,7 @@ vtk:fedora39-x86_64-mpi-renderless:test-ext:
         - .cmake_test_external_linux
         - .linux_x86_64_builder_tags
         - .cmake_junit_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-renderless:test
 
@@ -171,8 +178,9 @@ fedora39-x86_64-cuda-mpi:build:
         - .cmake_build_linux
         - .cmake_build_artifacts
         - .linux_x86_64_builder_tags
-        - .run_manually
+        - .rules
     variables:
+        VTK_CI_RUN_MANUALLY: "true"
         CTEST_MAX_PARALLELISM: 4
     timeout: 8 hours
     needs: []
@@ -183,7 +191,7 @@ fedora39-x86_64-cuda-mpi:test:
         - .cmake_test_linux
         - .cmake_test_artifacts
         - .linux_x86_64_cuda_tester_tags
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-cuda-mpi:build
     variables:
@@ -196,7 +204,7 @@ vtk:fedora39-x86_64-cuda-mpi:test-ext:
         - .cmake_test_external_linux
         - .cmake_tidy_artifacts
         - .linux_x86_64_cuda_tester_tags
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-cuda-mpi:test
     variables:
@@ -209,7 +217,9 @@ fedora39-x86_64-helide-mpi-python-qt-tbb:build:
         - .cmake_build_linux
         - .linux_x86_64_fast_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     stage: quick
 
@@ -219,7 +229,7 @@ fedora39-x86_64-helide-mpi-python-qt-tbb:test:
         - .cmake_test_linux
         - .linux_x86_64_fast_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-helide-mpi-python-qt-tbb:build
 
@@ -229,7 +239,7 @@ fedora39-x86_64-mpi-offscreen-osmesa-python:test:
         - .cmake_test_linux
         - .linux_x86_64_builder_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-python-qt-tbb:build
 
@@ -239,7 +249,7 @@ vtk:fedora39-x86_64-mpi-offscreen-osmesa-python:test-ext:
         - .cmake_test_external_linux
         - .linux_x86_64_builder_tags
         - .cmake_junit_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-offscreen-osmesa-python:test
     timeout: 90 minutes
@@ -250,7 +260,9 @@ fedora39-x86_64-mpi-ospray-python-qt-tbb:build:
         - .cmake_build_linux
         - .linux_x86_64_fast_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     stage: quick
 
@@ -260,7 +272,7 @@ fedora39-x86_64-mpi-ospray-python-qt-tbb:test:
         - .cmake_test_linux
         - .linux_x86_64_fast_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-ospray-python-qt-tbb:build
 
@@ -270,10 +282,13 @@ fedora39-x86_64-java8:build:
         - .cmake_build_java_linux
         - .linux_x86_64_builder_tags
         - .cmake_maven_artifacts
-        - .weekly_upload_only
-    timeout: 2 hours
+        - .rules
     variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 8
+    timeout: 2 hours
     needs: []
 
 fedora39-x86_64-java11:build:
@@ -282,10 +297,11 @@ fedora39-x86_64-java11:build:
         - .cmake_build_java_linux
         - .linux_x86_64_builder_tags
         - .cmake_maven_artifacts
-        - .run_manually
-    timeout: 2 hours
+        - .rules
     variables:
+        VTK_CI_RUN_MANUALLY: "true"
         VTK_JAVA_VERSION: 11
+    timeout: 2 hours
     needs: []
 
 fedora39-x86_64-mpi-python-qt-tbb:build:
@@ -294,7 +310,9 @@ fedora39-x86_64-mpi-python-qt-tbb:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -304,7 +322,7 @@ fedora39-x86_64-mpi-python-qt-tbb:test:
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-python-qt-tbb:build
 
@@ -314,7 +332,7 @@ vtk:fedora39-x86_64-mpi-python-qt-tbb:test-ext:
         - .cmake_test_external_linux
         - .linux_x86_64_tester_tags
         - .cmake_junit_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-python-qt-tbb:test
 
@@ -326,7 +344,7 @@ fedora39-x86_64-mpi-python-qt-stdthread:test:
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-python-qt-tbb:build
 
@@ -336,7 +354,9 @@ fedora39-x86_64-mangling:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     stage: quick
 
@@ -346,7 +366,7 @@ fedora39-x86_64-mangling:test:
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mangling:build
 
@@ -356,7 +376,9 @@ fedora39-x86_64-mpi-python-viskoresoverride:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -366,7 +388,7 @@ fedora39-x86_64-mpi-python-viskoresoverride:test:
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - fedora39-x86_64-mpi-python-viskoresoverride:build
 
@@ -377,7 +399,9 @@ fedora39-x86_64-webgpu:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -387,7 +411,7 @@ fedora39-x86_64-webgpu:test:
         - .cmake_test_linux
         - .linux_x86_64_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     timeout: 90 minutes
     needs:
         - fedora39-x86_64-webgpu:build
@@ -399,7 +423,9 @@ wasm32-emscripten-linux:build:
         - .cmake_build_wasm_emscripten_linux
         - .linux_x86_64_builder_tags
         - .cmake_wasm_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
     stage: quick
 
@@ -409,7 +435,7 @@ wasm32-emscripten:package:
         - .cmake_package_wasm_emscripten_linux
         - .linux_x86_64_packager_tags
         - .cmake_webassembly_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - wasm32-emscripten-linux:build
 
@@ -417,7 +443,10 @@ wasm32-emscripten:vtk:upload:
     extends:
         - .wasm32_emscripten_linux
         - .generic_vtk_wasm_emscripten_linux_upload
-        - .weekly_upload_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wasm32-emscripten:package
 
@@ -428,7 +457,9 @@ wasm64-emscripten-linux:build:
         - .cmake_build_wasm_emscripten_linux
         - .linux_x86_64_builder_tags
         - .cmake_wasm_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 # Memory64 in NodeJS requires v24.0.0, set to release by April 2025
@@ -438,7 +469,7 @@ wasm64-emscripten-linux:build:
 #         - .cmake_package_wasm_emscripten_linux
 #         - .linux_packager_tags
 #         - .cmake_webassembly_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - wasm64-emscripten-linux:build
 
@@ -446,7 +477,10 @@ wasm64-emscripten-linux:build:
 #     extends:
 #         - .wasm64_emscripten_linux
 #         - .generic_vtk_wasm_emscripten_linux_upload
-#         - .weekly_upload_only
+#         - .rules
+#     variables:
+#         VTK_CI_MERGED_ONLY: "true"
+#         VTK_CI_WEEKLY_UPLOAD: "true"
 #     needs:
 #         - wasm64-emscripten:package
 
@@ -457,7 +491,7 @@ wasm32-emscripten-windows-chrome:test-ext:
         - .cmake_test_wasm_emscripten_windows_ext
         - .windows_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - wasm32-emscripten-linux:build
 
@@ -468,7 +502,7 @@ wasm64-emscripten-windows-chrome:test-ext:
         - .cmake_test_wasm_emscripten_windows_ext
         - .windows_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - wasm64-emscripten-linux:build
 
@@ -480,7 +514,11 @@ wheel-linux-python38-x86_64:build:
         - .cmake_build_wheel_linux
         - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-linux-python38-x86_64:test:
@@ -488,8 +526,11 @@ wheel-linux-python38-x86_64:test:
         - .wheel_linux38_x86_64
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python38-x86_64:build
 
@@ -498,8 +539,11 @@ wheel-linux-python38-x86_64:test-x11:
         - .wheel_linux38_x86_64
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python38-x86_64:build
 
@@ -508,8 +552,11 @@ wheel-linux-python38-x86_64-osmesa:test:
         - .wheel_linux38_x86_64_osmesa
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python38-x86_64:build
 
@@ -518,8 +565,11 @@ wheel-linux-python38-x86_64-osmesa:test-x11:
         - .wheel_linux38_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python38-x86_64:build
 
@@ -528,8 +578,11 @@ wheel-linux-python38-x86_64-egl:test:
         - .wheel_linux38_x86_64_egl
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python38-x86_64:build
 
@@ -538,8 +591,11 @@ wheel-linux-python38-x86_64-egl:test-x11:
         - .wheel_linux38_x86_64_egl
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python38-x86_64:build
 
@@ -549,7 +605,11 @@ wheel-linux-python39-x86_64:build:
         - .cmake_build_wheel_linux
         - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-linux-python39-x86_64:test:
@@ -557,8 +617,11 @@ wheel-linux-python39-x86_64:test:
         - .wheel_linux39_x86_64
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python39-x86_64:build
 
@@ -567,8 +630,11 @@ wheel-linux-python39-x86_64:test-x11:
         - .wheel_linux39_x86_64
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python39-x86_64:build
 
@@ -577,8 +643,11 @@ wheel-linux-python39-x86_64-osmesa:test:
         - .wheel_linux39_x86_64_osmesa
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python39-x86_64:build
 
@@ -587,8 +656,11 @@ wheel-linux-python39-x86_64-osmesa:test-x11:
         - .wheel_linux39_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python39-x86_64:build
 
@@ -597,8 +669,11 @@ wheel-linux-python39-x86_64-egl:test:
         - .wheel_linux39_x86_64_egl
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python39-x86_64:build
 
@@ -607,8 +682,11 @@ wheel-linux-python39-x86_64-egl:test-x11:
         - .wheel_linux39_x86_64_egl
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python39-x86_64:build
 
@@ -618,7 +696,11 @@ wheel-linux-python310-x86_64:build:
         - .cmake_build_wheel_linux
         - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-linux-python310-x86_64:test:
@@ -626,8 +708,11 @@ wheel-linux-python310-x86_64:test:
         - .wheel_linux310_x86_64
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python310-x86_64:build
 
@@ -636,8 +721,11 @@ wheel-linux-python310-x86_64:test-x11:
         - .wheel_linux310_x86_64
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python310-x86_64:build
 
@@ -646,8 +734,11 @@ wheel-linux-python310-x86_64-osmesa:test:
         - .wheel_linux310_x86_64_osmesa
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python310-x86_64:build
 
@@ -656,8 +747,11 @@ wheel-linux-python310-x86_64-osmesa:test-x11:
         - .wheel_linux310_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python310-x86_64:build
 
@@ -666,8 +760,11 @@ wheel-linux-python310-x86_64-egl:test:
         - .wheel_linux310_x86_64_egl
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python310-x86_64:build
 
@@ -676,8 +773,11 @@ wheel-linux-python310-x86_64-egl:test-x11:
         - .wheel_linux310_x86_64_egl
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python310-x86_64:build
 
@@ -687,7 +787,11 @@ wheel-linux-python311-x86_64:build:
         - .cmake_build_wheel_linux
         - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-linux-python311-x86_64:test:
@@ -695,8 +799,11 @@ wheel-linux-python311-x86_64:test:
         - .wheel_linux311_x86_64
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python311-x86_64:build
 
@@ -705,8 +812,11 @@ wheel-linux-python311-x86_64:test-x11:
         - .wheel_linux311_x86_64
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python311-x86_64:build
 
@@ -715,8 +825,11 @@ wheel-linux-python311-x86_64-osmesa:test:
         - .wheel_linux311_x86_64_osmesa
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python311-x86_64:build
 
@@ -725,8 +838,11 @@ wheel-linux-python311-x86_64-osmesa:test-x11:
         - .wheel_linux311_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python311-x86_64:build
 
@@ -735,8 +851,11 @@ wheel-linux-python311-x86_64-egl:test:
         - .wheel_linux311_x86_64_egl
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python311-x86_64:build
 
@@ -745,8 +864,11 @@ wheel-linux-python311-x86_64-egl:test-x11:
         - .wheel_linux311_x86_64_egl
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-linux-python311-x86_64:build
 
@@ -756,7 +878,10 @@ wheel-linux-python312-x86_64:build:
         - .cmake_build_wheel_linux
         - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
-        - .merged_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-linux-python312-x86_64:test:
@@ -764,8 +889,10 @@ wheel-linux-python312-x86_64:test:
         - .wheel_linux312_x86_64
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .merged_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
     needs:
         - wheel-linux-python312-x86_64:build
 
@@ -774,8 +901,10 @@ wheel-linux-python312-x86_64:test-x11:
         - .wheel_linux312_x86_64
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .merged_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
     needs:
         - wheel-linux-python312-x86_64:build
 
@@ -784,8 +913,10 @@ wheel-linux-python312-x86_64-osmesa:test:
         - .wheel_linux312_x86_64_osmesa
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .merged_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
     needs:
         - wheel-linux-python312-x86_64:build
 
@@ -794,8 +925,10 @@ wheel-linux-python312-x86_64-osmesa:test-x11:
         - .wheel_linux312_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_builder_tags
-        - .merged_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
     needs:
         - wheel-linux-python312-x86_64:build
 
@@ -804,8 +937,10 @@ wheel-linux-python312-x86_64-egl:test:
         - .wheel_linux312_x86_64_egl
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .merged_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
     needs:
         - wheel-linux-python312-x86_64:build
 
@@ -814,8 +949,10 @@ wheel-linux-python312-x86_64-egl:test-x11:
         - .wheel_linux312_x86_64_egl
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .merged_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
     needs:
         - wheel-linux-python312-x86_64:build
 
@@ -825,7 +962,9 @@ wheel-linux-python313-x86_64:build:
         - .cmake_build_wheel_linux
         - .linux_x86_64_builder_tags
         - .cmake_wheel_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-linux-python313-x86_64:test:
@@ -833,7 +972,7 @@ wheel-linux-python313-x86_64:test:
         - .wheel_linux313_x86_64
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-x86_64:build
@@ -843,7 +982,7 @@ wheel-linux-python313-x86_64:test-x11:
         - .wheel_linux313_x86_64
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-x86_64:build
@@ -853,7 +992,7 @@ wheel-linux-python313-x86_64-osmesa:test:
         - .wheel_linux313_x86_64_osmesa
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-x86_64:build
@@ -863,7 +1002,7 @@ wheel-linux-python313-x86_64-osmesa:test-x11:
         - .wheel_linux313_x86_64_osmesa
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-x86_64:build
@@ -873,7 +1012,7 @@ wheel-linux-python313-x86_64-egl:test:
         - .wheel_linux313_x86_64_egl
         - .cmake_test_wheel_linux
         - .linux_x86_64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-x86_64:build
@@ -883,7 +1022,7 @@ wheel-linux-python313-x86_64-egl:test-x11:
         - .wheel_linux313_x86_64_egl
         - .cmake_test_wheel_linux_x11
         - .linux_x86_64_tester_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-x86_64:build
@@ -896,7 +1035,11 @@ wheel-linux-python38-aarch64:build:
         - .cmake_build_wheel_linux
         - .linux_aarch64_builder_tags
         - .cmake_wheel_artifacts
-        - .weekly_upload_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs: []
 
 wheel-linux-python38-aarch64:test:
@@ -904,8 +1047,11 @@ wheel-linux-python38-aarch64:test:
         - .wheel_linux38_aarch64
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python38-aarch64:build
 
@@ -914,8 +1060,11 @@ wheel-linux-python38-aarch64:test-x11:
         - .wheel_linux38_aarch64
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python38-aarch64:build
 
@@ -924,8 +1073,11 @@ wheel-linux-python38-aarch64-osmesa:test:
         - .wheel_linux38_aarch64_osmesa
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python38-aarch64:build
 
@@ -934,8 +1086,11 @@ wheel-linux-python38-aarch64-osmesa:test-x11:
         - .wheel_linux38_aarch64_osmesa
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python38-aarch64:build
 
@@ -944,8 +1099,11 @@ wheel-linux-python38-aarch64-egl:test:
         - .wheel_linux38_aarch64_egl
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python38-aarch64:build
 
@@ -954,8 +1112,11 @@ wheel-linux-python38-aarch64-egl:test-x11:
         - .wheel_linux38_aarch64_egl
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python38-aarch64:build
 
@@ -965,7 +1126,11 @@ wheel-linux-python39-aarch64:build:
         - .cmake_build_wheel_linux
         - .linux_aarch64_builder_tags
         - .cmake_wheel_artifacts
-        - .weekly_upload_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs: []
 
 wheel-linux-python39-aarch64:test:
@@ -973,8 +1138,11 @@ wheel-linux-python39-aarch64:test:
         - .wheel_linux39_aarch64
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python39-aarch64:build
 
@@ -983,8 +1151,11 @@ wheel-linux-python39-aarch64:test-x11:
         - .wheel_linux39_aarch64
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python39-aarch64:build
 
@@ -993,8 +1164,11 @@ wheel-linux-python39-aarch64-osmesa:test:
         - .wheel_linux39_aarch64_osmesa
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python39-aarch64:build
 
@@ -1003,8 +1177,11 @@ wheel-linux-python39-aarch64-osmesa:test-x11:
         - .wheel_linux39_aarch64_osmesa
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python39-aarch64:build
 
@@ -1013,8 +1190,11 @@ wheel-linux-python39-aarch64-egl:test:
         - .wheel_linux39_aarch64_egl
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python39-aarch64:build
 
@@ -1023,8 +1203,11 @@ wheel-linux-python39-aarch64-egl:test-x11:
         - .wheel_linux39_aarch64_egl
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python39-aarch64:build
 
@@ -1034,7 +1217,11 @@ wheel-linux-python310-aarch64:build:
         - .cmake_build_wheel_linux
         - .linux_aarch64_builder_tags
         - .cmake_wheel_artifacts
-        - .weekly_upload_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs: []
 
 wheel-linux-python310-aarch64:test:
@@ -1042,8 +1229,11 @@ wheel-linux-python310-aarch64:test:
         - .wheel_linux310_aarch64
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python310-aarch64:build
 
@@ -1052,8 +1242,11 @@ wheel-linux-python310-aarch64:test-x11:
         - .wheel_linux310_aarch64
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python310-aarch64:build
 
@@ -1062,8 +1255,11 @@ wheel-linux-python310-aarch64-osmesa:test:
         - .wheel_linux310_aarch64_osmesa
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python310-aarch64:build
 
@@ -1072,8 +1268,11 @@ wheel-linux-python310-aarch64-osmesa:test-x11:
         - .wheel_linux310_aarch64_osmesa
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python310-aarch64:build
 
@@ -1082,8 +1281,11 @@ wheel-linux-python310-aarch64-egl:test:
         - .wheel_linux310_aarch64_egl
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python310-aarch64:build
 
@@ -1092,8 +1294,11 @@ wheel-linux-python310-aarch64-egl:test-x11:
         - .wheel_linux310_aarch64_egl
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python310-aarch64:build
 
@@ -1103,7 +1308,11 @@ wheel-linux-python311-aarch64:build:
         - .cmake_build_wheel_linux
         - .linux_aarch64_builder_tags
         - .cmake_wheel_artifacts
-        - .weekly_upload_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs: []
 
 wheel-linux-python311-aarch64:test:
@@ -1111,8 +1320,11 @@ wheel-linux-python311-aarch64:test:
         - .wheel_linux311_aarch64
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python311-aarch64:build
 
@@ -1121,8 +1333,11 @@ wheel-linux-python311-aarch64:test-x11:
         - .wheel_linux311_aarch64
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python311-aarch64:build
 
@@ -1131,8 +1346,11 @@ wheel-linux-python311-aarch64-osmesa:test:
         - .wheel_linux311_aarch64_osmesa
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python311-aarch64:build
 
@@ -1141,8 +1359,11 @@ wheel-linux-python311-aarch64-osmesa:test-x11:
         - .wheel_linux311_aarch64_osmesa
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python311-aarch64:build
 
@@ -1151,8 +1372,11 @@ wheel-linux-python311-aarch64-egl:test:
         - .wheel_linux311_aarch64_egl
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python311-aarch64:build
 
@@ -1161,8 +1385,11 @@ wheel-linux-python311-aarch64-egl:test-x11:
         - .wheel_linux311_aarch64_egl
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python311-aarch64:build
 
@@ -1172,7 +1399,11 @@ wheel-linux-python312-aarch64:build:
         - .cmake_build_wheel_linux
         - .linux_aarch64_builder_tags
         - .cmake_wheel_artifacts
-        - .weekly_upload_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs: []
 
 wheel-linux-python312-aarch64:test:
@@ -1180,8 +1411,11 @@ wheel-linux-python312-aarch64:test:
         - .wheel_linux312_aarch64
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python312-aarch64:build
 
@@ -1190,8 +1424,11 @@ wheel-linux-python312-aarch64:test-x11:
         - .wheel_linux312_aarch64
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python312-aarch64:build
 
@@ -1200,8 +1437,11 @@ wheel-linux-python312-aarch64-osmesa:test:
         - .wheel_linux312_aarch64_osmesa
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python312-aarch64:build
 
@@ -1210,8 +1450,11 @@ wheel-linux-python312-aarch64-osmesa:test-x11:
         - .wheel_linux312_aarch64_osmesa
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python312-aarch64:build
 
@@ -1220,8 +1463,11 @@ wheel-linux-python312-aarch64-egl:test:
         - .wheel_linux312_aarch64_egl
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python312-aarch64:build
 
@@ -1230,8 +1476,11 @@ wheel-linux-python312-aarch64-egl:test-x11:
         - .wheel_linux312_aarch64_egl
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .weekly_upload_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python312-aarch64:build
 
@@ -1241,7 +1490,9 @@ wheel-linux-python313-aarch64:build:
         - .cmake_build_wheel_linux
         - .linux_aarch64_builder_tags
         - .cmake_wheel_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-linux-python313-aarch64:test:
@@ -1249,7 +1500,7 @@ wheel-linux-python313-aarch64:test:
         - .wheel_linux313_aarch64
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
@@ -1259,7 +1510,7 @@ wheel-linux-python313-aarch64:test-x11:
         - .wheel_linux313_aarch64
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
@@ -1269,7 +1520,7 @@ wheel-linux-python313-aarch64-osmesa:test:
         - .wheel_linux313_aarch64_osmesa
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
@@ -1279,7 +1530,7 @@ wheel-linux-python313-aarch64-osmesa:test-x11:
         - .wheel_linux313_aarch64_osmesa
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
@@ -1289,7 +1540,7 @@ wheel-linux-python313-aarch64-egl:test:
         - .wheel_linux313_aarch64_egl
         - .cmake_test_wheel_linux
         - .linux_aarch64_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
@@ -1299,7 +1550,7 @@ wheel-linux-python313-aarch64-egl:test-x11:
         - .wheel_linux313_aarch64_egl
         - .cmake_test_wheel_linux_x11_aarch64
         - .linux_aarch64_tester_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
@@ -1307,7 +1558,9 @@ wheel-linux-python313-aarch64-egl:test-x11:
 wheel:pypi:upload:
     extends:
         - .pypi_upload
-        - .tag_only
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
     needs:
         - wheel-linux-python38-x86_64:build
         - job: wheel-linux-python38-x86_64:test
@@ -1424,7 +1677,10 @@ wheel:pypi:upload:
 wheel:vtk:upload:
     extends:
         - .pypi_vtk_upload
-        - .weekly_upload_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - wheel-linux-python38-x86_64:build
         - job: wheel-linux-python38-x86_64:test
@@ -1601,7 +1857,12 @@ wheel:vtk:upload:
 wheel-sdk:upload:
     extends:
         - .rsync_upload_wheel_sdk
-        - .weekly_upload_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        RSYNC_SOURCE: build/*-wheel-sdk-*.tar.xz
+        RSYNC_DESTINATION: wheel-sdks/
     needs:
         - wheel-linux-python38-x86_64:build
         - job: wheel-linux-python38-x86_64:test
@@ -1774,9 +2035,6 @@ wheel-sdk:upload:
           artifacts: false
         - job: wheel-windows-python313-x86_64-osmesa:test
           artifacts: false
-    variables:
-        RSYNC_SOURCE: build/*-wheel-sdk-*.tar.xz
-        RSYNC_DESTINATION: wheel-sdks/
 
 ## Static analysis builds
 
@@ -1786,7 +2044,9 @@ fedora39-x86_64-tidy:build:
         - .cmake_build_linux
         - .linux_x86_64_fast_builder_tags
         - .cmake_tidy_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     # Use fast builder tag as tidy can takes a very long time on slow machine
     # Move it to the test stage so that the build stage can be required to be
     # green. `clang-tidy` just takes too long to require for every MR prior to
@@ -1806,7 +2066,9 @@ fedora39-x86_64-tidy:build:
 #         - .cmake_build_linux
 #         - .linux_x86_64_builder_tags
 #         - .cmake_build_artifacts
-#         - .run_manually
+#         - .rules
+#     variables:
+#         VTK_CI_RUN_MANUALLY: "true"
 #     needs: []
 #
 # fedora39-x86_64-asan:test:
@@ -1815,7 +2077,7 @@ fedora39-x86_64-tidy:build:
 #         - .cmake_memcheck_linux
 #         - .linux_x86_64_tester_priv_tags
 #         - .cmake_test_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - fedora39-x86_64-asan:build
 #
@@ -1825,7 +2087,9 @@ fedora39-x86_64-tidy:build:
 #         - .cmake_build_linux
 #         - .linux_x86_64_builder_tags
 #         - .cmake_build_artifacts
-#         - .run_manually
+#         - .rules
+#     variables:
+#         VTK_CI_RUN_MANUALLY: "true"
 #     needs: []
 #
 # fedora39-x86_64-tsan:test:
@@ -1834,7 +2098,7 @@ fedora39-x86_64-tidy:build:
 #         - .cmake_memcheck_linux
 #         - .linux_x86_64_tester_priv_tags
 #         - .cmake_test_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - fedora39-x86_64-tsan:build
 #
@@ -1844,7 +2108,9 @@ fedora39-x86_64-tidy:build:
 #         - .cmake_build_linux
 #         - .linux_x86_64_builder_tags
 #         - .cmake_build_artifacts
-#         - .run_manually
+#         - .rules
+#     variables:
+#         VTK_CI_RUN_MANUALLY: "true"
 #     needs: []
 #
 # fedora39-x86_64-ubsan:test:
@@ -1853,7 +2119,7 @@ fedora39-x86_64-tidy:build:
 #         - .cmake_memcheck_linux
 #         - .linux_x86_64_tester_priv_tags
 #         - .cmake_test_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - fedora39-x86_64-ubsan:build
 
@@ -1865,16 +2131,20 @@ documentation:build:
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_doxygen_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 documentation:upload:
     extends:
         - .rsync_upload_docs
-        - .upload_only
+        - .rules
     needs:
         - documentation:build
     variables:
+        VTK_CI_DOCUMENTATION_UPLOAD: "true"
+        VTK_CI_MERGED_ONLY: "true"
         RSYNC_SOURCE: build/install/usr/share/doc/vtk/doxygen/html/
         RSYNC_DESTINATION: VTKDoxygen/html
 
@@ -1882,20 +2152,27 @@ source:build:
     extends:
         - .cmake_source_tarballs
         - .cmake_release_artifacts
-        - .tag_only
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
 
 documentation:release-prep:
     extends:
         - .cmake_doc_tarball
         - .cmake_release_artifacts
-        - .tag_only
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
     needs:
         - documentation:build
 
 release-artifacts:upload:
     extends:
         - .rsync_upload_release_artifacts
-        - .release_only
+        - .rules
+    variables:
+        VTK_CI_RELEASE_ONLY: "true"
+        RSYNC_SOURCE: release/
     needs:
         - source:build
         - documentation:release-prep
@@ -2118,8 +2395,6 @@ release-artifacts:upload:
           artifacts: false
         - job: wheel-windows-python313-x86_64-osmesa:test
           artifacts: false
-    variables:
-        RSYNC_SOURCE: release/
 
 # macOS
 
@@ -2129,7 +2404,9 @@ macos-arm64-kits-python-qt:build:
         - .cmake_build_macos
         - .macos_arm64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     stage: quick
 
 macos-arm64-kits-python-qt:test:
@@ -2138,7 +2415,7 @@ macos-arm64-kits-python-qt:test:
         - .cmake_test_macos
         - .macos_arm64_builder_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - macos-arm64-kits-python-qt:build
 
@@ -2148,7 +2425,9 @@ macos-x86_64-kits-python-qt:build:
         - .cmake_build_macos
         - .macos_x86_64_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     # Some of the macOS runners are not very powerful.
     timeout: 150 minutes
     needs: []
@@ -2159,7 +2438,7 @@ macos-x86_64-kits-python-qt:test:
         - .cmake_test_macos
         - .macos_x86_64_builder_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - macos-x86_64-kits-python-qt:build
     timeout: 2 hours
@@ -2172,7 +2451,7 @@ macos-x86_64-kits-python-qt-stdthread:test:
         - .cmake_test_macos
         - .macos_x86_64_builder_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - macos-x86_64-kits-python-qt:build
     timeout: 2 hours
@@ -2191,7 +2470,7 @@ macos-x86_64-kits-python-qt-stdthread:test:
 #         - .cmake_test_external_macos
 #         - .macos_ext_builder_tags
 #         - .cmake_junit_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - macos-x86_64-kits-python-qt:test
 
@@ -2203,7 +2482,11 @@ wheel-macos-python38-x86_64:build:
         - .cmake_build_wheel_macos
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -2212,8 +2495,11 @@ wheel-macos-python38-x86_64:test:
         - .wheel_macos38_x86_64
         - .cmake_test_wheel_macos
         - .macos_x86_64_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python38-x86_64:build
 
@@ -2223,7 +2509,11 @@ wheel-macos-python39-arm64:build:
         - .cmake_build_wheel_macos
         - .macos_arm64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-macos-python39-arm64:test:
@@ -2231,8 +2521,11 @@ wheel-macos-python39-arm64:test:
         - .wheel_macos39_arm64
         - .cmake_test_wheel_macos
         - .macos_arm64_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python39-arm64:build
 
@@ -2242,7 +2535,11 @@ wheel-macos-python39-x86_64:build:
         - .cmake_build_wheel_macos
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -2251,8 +2548,11 @@ wheel-macos-python39-x86_64:test:
         - .wheel_macos39_x86_64
         - .cmake_test_wheel_macos
         - .macos_x86_64_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python39-x86_64:build
 
@@ -2262,7 +2562,11 @@ wheel-macos-python310-arm64:build:
         - .cmake_build_wheel_macos
         - .macos_arm64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-macos-python310-arm64:test:
@@ -2270,8 +2574,11 @@ wheel-macos-python310-arm64:test:
         - .wheel_macos310_arm64
         - .cmake_test_wheel_macos
         - .macos_arm64_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python310-arm64:build
 
@@ -2281,7 +2588,11 @@ wheel-macos-python310-x86_64:build:
         - .cmake_build_wheel_macos
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -2290,8 +2601,11 @@ wheel-macos-python310-x86_64:test:
         - .wheel_macos310_x86_64
         - .cmake_test_wheel_macos
         - .macos_x86_64_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python310-x86_64:build
 
@@ -2301,7 +2615,11 @@ wheel-macos-python311-arm64:build:
         - .cmake_build_wheel_macos
         - .macos_arm64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-macos-python311-arm64:test:
@@ -2309,8 +2627,11 @@ wheel-macos-python311-arm64:test:
         - .wheel_macos311_arm64
         - .cmake_test_wheel_macos
         - .macos_arm64_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python311-arm64:build
 
@@ -2320,7 +2641,11 @@ wheel-macos-python311-x86_64:build:
         - .cmake_build_wheel_macos
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -2329,8 +2654,11 @@ wheel-macos-python311-x86_64:test:
         - .wheel_macos311_x86_64
         - .cmake_test_wheel_macos
         - .macos_x86_64_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-macos-python311-x86_64:build
 
@@ -2340,7 +2668,10 @@ wheel-macos-python312-arm64:build:
         - .cmake_build_wheel_macos
         - .macos_arm64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .merged_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-macos-python312-arm64:test:
@@ -2348,8 +2679,10 @@ wheel-macos-python312-arm64:test:
         - .wheel_macos312_arm64
         - .cmake_test_wheel_macos
         - .macos_arm64_wheel_builder_tags
-        - .merged_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
     needs:
         - wheel-macos-python312-arm64:build
 
@@ -2359,7 +2692,10 @@ wheel-macos-python312-x86_64:build:
         - .cmake_build_wheel_macos
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .merged_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -2368,8 +2704,10 @@ wheel-macos-python312-x86_64:test:
         - .wheel_macos312_x86_64
         - .cmake_test_wheel_macos
         - .macos_x86_64_wheel_builder_tags
-        - .merged_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
     needs:
         - wheel-macos-python312-x86_64:build
 
@@ -2379,7 +2717,9 @@ wheel-macos-python313-arm64:build:
         - .cmake_build_wheel_macos
         - .macos_arm64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-macos-python313-arm64:test:
@@ -2387,7 +2727,7 @@ wheel-macos-python313-arm64:test:
         - .wheel_macos313_arm64
         - .cmake_test_wheel_macos
         - .macos_arm64_wheel_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-macos-python313-arm64:build
@@ -2398,7 +2738,9 @@ wheel-macos-python313-x86_64:build:
         - .cmake_build_wheel_macos
         - .macos_x86_64_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 90 minutes
     needs: []
 
@@ -2407,7 +2749,7 @@ wheel-macos-python313-x86_64:test:
         - .wheel_macos313_x86_64
         - .cmake_test_wheel_macos
         - .macos_x86_64_wheel_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-macos-python313-x86_64:build
@@ -2423,7 +2765,9 @@ windows-vs2022-debug-mpi-qt:build:
         - .windows_builder_tags
         # - .cmake_build_artifacts
         - .cmake_tidy_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 180 minutes
     needs: []
 
@@ -2433,7 +2777,7 @@ windows-vs2022-debug-mpi-qt:build:
 #         - .cmake_test_windows
 #         - .windows_tester_tags
 #         - .cmake_test_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - windows-vs2022-debug-mpi-qt:build
 
@@ -2443,7 +2787,9 @@ windows-vs2022-kits-mpi-python-qt:build:
         - .cmake_build_windows
         - .windows_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 180 minutes
     stage: quick
 
@@ -2453,7 +2799,7 @@ windows-vs2022-kits-mpi-python-qt:test:
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - windows-vs2022-kits-mpi-python-qt:build
@@ -2466,7 +2812,7 @@ windows-vs2022-kits-mpi-python-qt-stdthread:test:
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - windows-vs2022-kits-mpi-python-qt:build
 
@@ -2485,7 +2831,7 @@ windows-vs2022-kits-mpi-python-qt-stdthread:test:
 #         - .cmake_test_external_windows
 #         - .windows_ext_builder_tags
 #         - .cmake_junit_artifacts
-#         - .run_automatically
+#         - .rules
 #     needs:
 #         - windows-vs2022-kits-mpi-python-qt:test
 
@@ -2495,7 +2841,9 @@ windows-vs2022-mpi-python-qt:build:
         - .cmake_build_windows
         - .windows_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 180 minutes
     needs: []
 
@@ -2505,7 +2853,7 @@ windows-vs2022-mpi-python-qt:test:
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - windows-vs2022-mpi-python-qt:build
 
@@ -2515,7 +2863,9 @@ windows-vs2022-mpi-python-qt-static:build:
         - .cmake_build_windows
         - .windows_builder_tags
         - .cmake_build_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     timeout: 180 minutes
     needs: []
 
@@ -2525,7 +2875,7 @@ windows-vs2022-mpi-python-qt-static:test:
         - .cmake_test_windows
         - .windows_tester_tags
         - .cmake_test_artifacts
-        - .run_automatically
+        - .rules
     needs:
         - windows-vs2022-mpi-python-qt-static:build
 
@@ -2537,7 +2887,11 @@ wheel-windows-python38-x86_64:build:
         - .cmake_build_wheel_windows
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-windows-python38-x86_64:test:
@@ -2545,8 +2899,11 @@ wheel-windows-python38-x86_64:test:
         - .wheel_windows38_x86_64
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-windows-python38-x86_64:build
 
@@ -2555,8 +2912,11 @@ wheel-windows-python38-x86_64-osmesa:test:
         - .wheel_windows38_x86_64_osmesa
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-windows-python38-x86_64:build
 
@@ -2566,7 +2926,11 @@ wheel-windows-python39-x86_64:build:
         - .cmake_build_wheel_windows
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-windows-python39-x86_64:test:
@@ -2574,8 +2938,11 @@ wheel-windows-python39-x86_64:test:
         - .wheel_windows39_x86_64
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-windows-python39-x86_64:build
 
@@ -2584,8 +2951,11 @@ wheel-windows-python39-x86_64-osmesa:test:
         - .wheel_windows39_x86_64_osmesa
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-windows-python39-x86_64:build
 
@@ -2595,7 +2965,11 @@ wheel-windows-python310-x86_64:build:
         - .cmake_build_wheel_windows
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-windows-python310-x86_64:test:
@@ -2603,8 +2977,11 @@ wheel-windows-python310-x86_64:test:
         - .wheel_windows310_x86_64
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-windows-python310-x86_64:build
 
@@ -2613,8 +2990,11 @@ wheel-windows-python310-x86_64-osmesa:test:
         - .wheel_windows310_x86_64_osmesa
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-windows-python310-x86_64:build
 
@@ -2624,7 +3004,11 @@ wheel-windows-python311-x86_64:build:
         - .cmake_build_wheel_windows
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .scheduled_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-windows-python311-x86_64:test:
@@ -2632,8 +3016,11 @@ wheel-windows-python311-x86_64:test:
         - .wheel_windows311_x86_64
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-windows-python311-x86_64:build
 
@@ -2642,8 +3029,11 @@ wheel-windows-python311-x86_64-osmesa:test:
         - .wheel_windows311_x86_64_osmesa
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .scheduled_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
     needs:
         - wheel-windows-python311-x86_64:build
 
@@ -2653,7 +3043,10 @@ wheel-windows-python312-x86_64:build:
         - .cmake_build_wheel_windows
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .merged_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-windows-python312-x86_64:test:
@@ -2661,8 +3054,10 @@ wheel-windows-python312-x86_64:test:
         - .wheel_windows312_x86_64
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .merged_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
     needs:
         - wheel-windows-python312-x86_64:build
 
@@ -2671,8 +3066,10 @@ wheel-windows-python312-x86_64-osmesa:test:
         - .wheel_windows312_x86_64_osmesa
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .merged_only
         - .cdash_annotations_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
     needs:
         - wheel-windows-python312-x86_64:build
 
@@ -2682,7 +3079,9 @@ wheel-windows-python313-x86_64:build:
         - .cmake_build_wheel_windows
         - .windows_wheel_builder_tags
         - .cmake_wheel_artifacts
-        - .run_manually
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
     needs: []
 
 wheel-windows-python313-x86_64:test:
@@ -2690,7 +3089,7 @@ wheel-windows-python313-x86_64:test:
         - .wheel_windows313_x86_64
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-windows-python313-x86_64:build
@@ -2700,7 +3099,7 @@ wheel-windows-python313-x86_64-osmesa:test:
         - .wheel_windows313_x86_64_osmesa
         - .cmake_test_wheel_windows
         - .windows_wheel_builder_tags
-        - .run_automatically
+        - .rules
         - .cdash_annotations_artifacts
     needs:
         - wheel-windows-python313-x86_64:build
@@ -2711,8 +3110,11 @@ macos-x86_64-java8:build:
         - .cmake_build_java_macos
         - .macos_x86_64_builder_tags
         - .cmake_maven_artifacts
-        - .weekly_upload_only
+        - .rules
     variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 8
     timeout: 4 hours
     needs: []
@@ -2723,8 +3125,11 @@ macos-x86_64-java11:build:
         - .cmake_build_java_macos
         - .macos_x86_64_builder_tags
         - .cmake_maven_artifacts
-        - .weekly_upload_only
+        - .rules
     variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 11
     timeout: 4 hours
     needs: []
@@ -2735,8 +3140,11 @@ macos-arm64-java8:build:
         - .cmake_build_java_macos
         - .macos_arm64_builder_tags
         - .cmake_maven_artifacts
-        - .weekly_upload_only
+        - .rules
     variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 8
     timeout: 4 hours
     needs: []
@@ -2747,8 +3155,11 @@ macos-arm64-java11:build:
         - .cmake_build_java_macos
         - .macos_arm64_builder_tags
         - .cmake_maven_artifacts
-        - .weekly_upload_only
+        - .rules
     variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 11
     timeout: 4 hours
     needs: []
@@ -2759,8 +3170,11 @@ windows-x86_64-java8:build:
         - .cmake_build_java_windows
         - .windows_builder_tags
         - .cmake_maven_artifacts
-        - .weekly_upload_only
+        - .rules
     variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 8
     timeout: 4 hours
     needs: []
@@ -2771,8 +3185,11 @@ windows-x86_64-java11:build:
         - .cmake_build_java_windows
         - .windows_builder_tags
         - .cmake_maven_artifacts
-        - .weekly_upload_only
+        - .rules
     variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
         VTK_JAVA_VERSION: 11
     timeout: 4 hours
     needs: []
@@ -2782,7 +3199,10 @@ java8:upload:
         - .fedora39_x86_64_java
         - .java_upload_linux
         - .linux_x86_64_builder_tags
-        - .weekly_upload_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - macos-x86_64-java8:build
         - macos-arm64-java8:build
@@ -2794,7 +3214,10 @@ java11:upload:
         - .fedora39_x86_64_java
         - .java_upload_linux
         - .linux_x86_64_builder_tags
-        - .weekly_upload_only
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - macos-x86_64-java11:build
         - macos-arm64-java11:build
