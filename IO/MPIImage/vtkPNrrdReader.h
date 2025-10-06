@@ -12,6 +12,7 @@
  * header information of the image before reading the data.  This means that the
  * reader will automatically set information like file dimensions.
  *
+ * This reader doesn't support reading from memory.
  *
  * @bug
  * There are several limitations on what type of nrrd files we can read.  This

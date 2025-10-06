@@ -22,6 +22,8 @@
  * The default behavior is to read a single file. In this case, the form
  * of the file is simply "FileName" (e.g., foo.bmp).
  *
+ * This reader doesn't support reading from memory.
+ *
  * @sa
  * vtkBMPWriter
  */

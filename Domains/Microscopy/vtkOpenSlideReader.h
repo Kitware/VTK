@@ -9,6 +9,8 @@
  * read multiple supported image formats used for whole slide images in
  * microscopy community.
  *
+ * This reader doesn't support reading from memory.
+ *
  * @sa
  * vtkPTIFWriter
  */

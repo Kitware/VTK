@@ -17,6 +17,9 @@
  * can be used to specify a time step to read.
  * All of the original header information can be accessed though the
  * GetImageAttributes() method.
+ *
+ * This reader doesn't support reading from memory.
+ *
  * @sa
  * vtkMINCImageWriter vtkMINCImageAttributes
  * @par Thanks:

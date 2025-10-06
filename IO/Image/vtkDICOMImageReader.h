@@ -18,6 +18,8 @@
  * contiguous): 0018,0050. Which means this is only valid for some rare
  * MR Image Storage
  *
+ * This reader doesn't support reading from memory.
+ *
  * @sa
  * vtkBMPReader vtkPNMReader vtkTIFFReader
  */

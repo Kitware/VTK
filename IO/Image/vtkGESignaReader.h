@@ -12,6 +12,8 @@
  * right now. To use it you just need to specify a filename or a file prefix
  * and pattern.
  *
+ * This reader doesn't support reading from memory.
+ *
  *
  * @sa
  * vtkImageReader2

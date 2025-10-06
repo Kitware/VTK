@@ -41,8 +41,7 @@
  * image into your ITK based application using the itk::FileIOToImageFilter
  * class.
  *
- *
- *
+ * This reader doesn't support reading from memory.
  */
 
 #ifndef vtkMetaImageReader_h

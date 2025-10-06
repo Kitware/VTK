@@ -24,6 +24,8 @@
  * use this class in applications that may or may not be compiled with MPI (or
  * may or may not actually be run with MPI).
  *
+ * This reader doesn't support reading from memory.
+ *
  * @sa
  * vtkMultiProcessController, vtkImageReader, vtkImageReader2
  *

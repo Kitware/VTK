@@ -7,6 +7,8 @@
  * vtkPNGReader is a source object that reads PNG files.
  * It should be able to read most any PNG file
  *
+ * This reader supports reading from memory.
+ *
  * @sa
  * vtkPNGWriter
  */

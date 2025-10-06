@@ -16,6 +16,7 @@
  * @par Thanks:
  * This class was contributed to VTK by the Calgary Image Processing and
  * Analysis Centre (CIPAC).
+ * This reader doesn't support reading from memory.
  * @sa
  * vtkNIFTIImageWriter, vtkNIFTIImageHeader
  */
