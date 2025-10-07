@@ -6,17 +6,24 @@
  *
  * vtkONNXInference is a filter that can read the weights of an ONNX model and perform
  * inference based on user provided tabular parameters (list of float32 basically). The prediction
- * is appended to the data arrays of the vtkUnstructuredGrid input.
+ * is appended to the data arrays of the vtkDataObject input (@see SetArrayAssociation).
  *
- * Moreover, the filter handles time steps. Basically, this represents the inference of the model
- * with a varying parameters which happens to represent time. Note that this filter generates its
- * own time steps and is thus not meant to be used with temporal data.
+ * One of the parameters can represent the time: the pipeline time step can be used instead
+ * of the provided one.
+ * To do that, set TimeStepIndex to the time index in the InputParameters list (@see
+ * SetInputParameters, SetTimeStepIndex), and provide a TimeStepValues list (@see
+ * SetTimeStepValues).
+ *
+ * In that case this filter generates its own time steps and is thus not meant to be used with
+ * temporal data.
  */
 #ifndef vtkONNXInference_h
 #define vtkONNXInference_h
 
 #include "vtkFiltersONNXModule.h" // For export macro
-#include "vtkUnstructuredGridAlgorithm.h"
+#include "vtkPassInputTypeAlgorithm.h"
+
+#include "vtkDataObject.h" // for AttributeTypes
 
 #include <memory> // For std::unique_ptr
 #include <vector> // For std::vector
@@ -29,10 +36,10 @@ class AllocatorWithDefaultOptions;
 class Value;
 }
 
-class VTKFILTERSONNX_EXPORT vtkONNXInference : public vtkUnstructuredGridAlgorithm
+class VTKFILTERSONNX_EXPORT vtkONNXInference : public vtkPassInputTypeAlgorithm
 {
 public:
-  vtkTypeMacro(vtkONNXInference, vtkUnstructuredGridAlgorithm);
+  vtkTypeMacro(vtkONNXInference, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   static vtkONNXInference* New();
@@ -44,6 +51,21 @@ public:
   void SetModelFile(const std::string& file);
   vtkGetMacro(ModelFile, std::string);
   ///@}
+
+  /**
+   * Time Steps.
+   *
+   * When the InputParamters list contains a time parameter, you can set TimeStepIndex to its index
+   * in the list.
+   * Then the time value will be set based on the pipeline time, overriding the value provided by
+   * SetInputParameter. In that case, the time step values list should be provided to inform
+   * downstream pipeline of available times.
+   */
+  ///@{
+  /**
+   * Set the list of time step values
+   */
+  void SetTimeStepValues(const std::vector<double>& times);
 
   /**
    * Set a time value at a given index.
@@ -63,7 +85,35 @@ public:
   void ClearTimeStepValues();
 
   /**
+   * Set the index of time value in the array of input parameters.
+   * (default: -1, meaning no input parameter correspond to time)
+   */
+  vtkSetMacro(TimeStepIndex, int);
+
+  /**
+   * Get the index of time value in the array of input parameters.
+   * (default: -1, meaning no input parameter correspond to time)
+   */
+  vtkGetMacro(TimeStepIndex, int);
+  ///@}
+
+  /**
+   * Input Parameters
+   *
+   * A list of parameters that will be forwarded to the inference model.
+   * If TimeStepIndex >= 0, this index in the list of parameters will be
+   * replaced by the current time value based on requested time and on TimeStepValues
+   * @see SetTimeStepValues
+   */
+  ///@{
+  /**
+   * Set the input parameters that will be forwarded to the inference model.
+   */
+  void SetInputParameters(const std::vector<float>& params);
+
+  /**
    * Set an input parameter at a given index.
+   * You should call SetNumberOfInputParameters before.
    */
   void SetInputParameter(vtkIdType idx, float InputParameter);
 
@@ -83,14 +133,6 @@ public:
    * internal state.
    */
   void ClearInputParameters();
-
-  ///@{
-  /**
-   * Set/Get the index of time value in the array of input parameters.
-   * (default: -1, meaning no input parameter correspond to time)
-   */
-  vtkSetMacro(TimeStepIndex, int);
-  vtkGetMacro(TimeStepIndex, int);
   ///@}
 
   ///@{
@@ -104,10 +146,10 @@ public:
   ///@{
   /**
    * Set/Get whether the output values should be attached to the cells or the points.
-   * (default: true, meaning data are attached to the cells)
+   * (default: vtkDataObject::CELL)
    */
-  vtkSetMacro(OnCellData, bool);
-  vtkGetMacro(OnCellData, bool);
+  vtkSetMacro(ArrayAssociation, int);
+  vtkGetMacro(ArrayAssociation, int);
   ///@}
 
 protected:
@@ -121,6 +163,12 @@ protected:
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
+  /**
+   * Execute the inference and add the resulting array on the given data object.
+   * The input and output are expected to not be a CompositeDataSet subclass.
+   */
+  int ExecuteData(vtkDataObject* input, vtkDataObject* output, double timevalue);
+
 private:
   vtkONNXInference(const vtkONNXInference&) = delete;
   void operator=(const vtkONNXInference&) = delete;
@@ -130,6 +178,13 @@ private:
    * by this->ModelFile.
    */
   void InitializeSession();
+
+  /**
+   * Return true if the filter should generate time steps.
+   * In that case, RequestInformation will fill the appropriate pipeline key
+   * and the inference uses the pipeline time as one of its paremeter.
+   */
+  bool ShouldGenerateTimeSteps();
 
   /**
    * Run the ONNX model with the provided input parameters. The ONNX session
@@ -146,7 +201,8 @@ private:
 
   // Output related parameters
   int OutputDimension = 1;
-  bool OnCellData = true;
+
+  int ArrayAssociation = vtkDataObject::CELL;
 
   bool Initialized = false;
   std::unique_ptr<vtkONNXInferenceInternals> Internals;

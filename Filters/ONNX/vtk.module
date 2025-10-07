@@ -16,4 +16,5 @@ DEPENDS
   VTK::CommonExecutionModel
 TEST_DEPENDS
   VTK::FiltersSources
+  VTK::FiltersGeneral
   VTK::TestingCore

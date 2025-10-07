@@ -3,13 +3,14 @@
 #include "vtkONNXInference.h"
 #include "Private/vtkONNXInferenceInternals.h"
 
-#include "vtkCellData.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeRange.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkPointData.h"
+#include "vtkLogger.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkUnstructuredGrid.h"
 
 #include <onnxruntime_cxx_api.h>
 
@@ -40,9 +41,10 @@ vtkONNXInference::vtkONNXInference()
 void vtkONNXInference::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Path to ONNX model: " << ModelFile << endl;
-  os << indent << "OutputDimension: " << OutputDimension << endl;
-  os << indent << "OnCellData: " << OnCellData << endl;
+  os << indent << "Path to ONNX model: " << this->ModelFile << endl;
+  os << indent << "OutputDimension: " << this->OutputDimension << endl;
+  os << indent << "ArrayAssociation: " << this->ArrayAssociation << endl;
+  os << indent << "InputSize: " << this->InputSize << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -80,9 +82,21 @@ void vtkONNXInference::InitializeSession()
 //------------------------------------------------------------------------------
 void vtkONNXInference::SetModelFile(const std::string& file)
 {
+  vtkDebugMacro("setting ModelFile to " << file);
   this->ModelFile = file;
   this->Initialized = false;
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::SetTimeStepValues(const std::vector<double>& times)
+{
+  if (this->TimeStepValues != times)
+  {
+    vtkDebugMacro("setting TimeStepValues");
+    this->TimeStepValues = times;
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -93,6 +107,7 @@ void vtkONNXInference::SetTimeStepValue(vtkIdType idx, double timeStepValue)
     vtkErrorMacro("Time step index is out of bounds.");
     return;
   }
+  vtkDebugMacro("setting TimeStepValues index " << idx << " to " << timeStepValue);
   this->TimeStepValues[idx] = timeStepValue;
   this->Modified();
 }
@@ -100,6 +115,7 @@ void vtkONNXInference::SetTimeStepValue(vtkIdType idx, double timeStepValue)
 //------------------------------------------------------------------------------
 void vtkONNXInference::SetNumberOfTimeStepValues(vtkIdType nb)
 {
+  vtkDebugMacro("setting NumberOfTimeStepValues to nb");
   this->TimeStepValues.resize(nb);
   this->Modified();
 }
@@ -107,8 +123,20 @@ void vtkONNXInference::SetNumberOfTimeStepValues(vtkIdType nb)
 //------------------------------------------------------------------------------
 void vtkONNXInference::ClearTimeStepValues()
 {
+  vtkDebugMacro("setting TimeStepValues to empty list");
   this->TimeStepValues.clear();
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkONNXInference::SetInputParameters(const std::vector<float>& inputParameters)
+{
+  if (this->InputParameters != inputParameters)
+  {
+    vtkDebugMacro("setting InputParameters");
+    this->InputParameters = inputParameters;
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -119,6 +147,7 @@ void vtkONNXInference::SetInputParameter(vtkIdType idx, float inputParameter)
     vtkErrorMacro("Input parameter index is out of bounds.");
     return;
   }
+  vtkDebugMacro("setting InputParameters index " << idx << " to " << inputParameter);
   this->InputParameters[idx] = inputParameter;
   this->Modified();
 }
@@ -127,6 +156,7 @@ void vtkONNXInference::SetInputParameter(vtkIdType idx, float inputParameter)
 void vtkONNXInference::SetNumberOfInputParameters(vtkIdType nb)
 {
   this->InputParameters.resize(nb);
+  vtkDebugMacro("setting NumberOfInputParameters to " << nb);
   this->InputSize = nb;
   this->Modified();
 }
@@ -134,6 +164,7 @@ void vtkONNXInference::SetNumberOfInputParameters(vtkIdType nb)
 //------------------------------------------------------------------------------
 void vtkONNXInference::ClearInputParameters()
 {
+  vtkDebugMacro("setting InputParameters to empty list");
   this->InputParameters.clear();
   this->Modified();
 }
@@ -143,12 +174,7 @@ int vtkONNXInference::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
-  if (this->TimeStepValues.empty())
-  {
-    outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-    outInfo->Remove(vtkStreamingDemandDrivenPipeline::TIME_RANGE());
-  }
-  else
+  if (this->ShouldGenerateTimeSteps())
   {
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), this->TimeStepValues.data(),
       static_cast<int>(this->TimeStepValues.size()));
@@ -194,13 +220,77 @@ std::vector<Ort::Value> vtkONNXInference::RunModel(Ort::Value& inputTensor)
 int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  vtkUnstructuredGrid* input = vtkUnstructuredGrid::GetData(inputVector[0], 0);
-  vtkUnstructuredGrid* output = vtkUnstructuredGrid::GetData(outputVector->GetInformationObject(0));
-  output->ShallowCopy(input);
-
   if (!this->Initialized)
   {
     this->InitializeSession();
+  }
+
+  // Time handling: snap requested time to one of available time.
+  double timeValue = outputVector->GetInformationObject(0)->Get(
+    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
+
+  if (this->ShouldGenerateTimeSteps())
+  {
+    auto time =
+      std::lower_bound(this->TimeStepValues.begin(), this->TimeStepValues.end(), timeValue);
+    if (time != this->TimeStepValues.end())
+    {
+      timeValue = *time;
+    }
+    else
+    {
+      timeValue = this->TimeStepValues.back();
+    }
+  }
+
+  vtkDataObjectTree* compositeInput = vtkDataObjectTree::GetData(inputVector[0], 0);
+  vtkDataObjectTree* compositeOutput = vtkDataObjectTree::GetData(outputVector, 0);
+  if (compositeInput && compositeOutput)
+  {
+    compositeOutput->CopyStructure(compositeInput);
+    compositeOutput->CompositeShallowCopy(compositeInput);
+    auto opts =
+      vtk::DataObjectTreeOptions::VisitOnlyLeaves | vtk::DataObjectTreeOptions::TraverseSubTree;
+    auto inputRange = vtk::Range(compositeInput, opts);
+    auto outputRange = vtk::Range(compositeOutput, opts);
+    auto inputBlock = inputRange.begin();
+    auto outputBlock = outputRange.begin();
+    while (inputBlock != inputRange.end() && outputBlock != outputRange.end())
+    {
+      int ret = this->ExecuteData(*inputBlock, *outputBlock, timeValue);
+      if (ret != 1)
+      {
+        return ret;
+      }
+      inputBlock++;
+      outputBlock++;
+    }
+    compositeOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timeValue);
+    return 1;
+  }
+
+  vtkDataObject* input = vtkDataObject::GetData(inputVector[0], 0);
+  if (input)
+  {
+    vtkDataObject* output = vtkDataObject::GetData(outputVector->GetInformationObject(0));
+    return this->ExecuteData(input, output, timeValue);
+  }
+
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+int vtkONNXInference::ExecuteData(vtkDataObject* input, vtkDataObject* output, double timeValue)
+{
+  output->ShallowCopy(input);
+
+  vtkDataSetAttributes* outAttributes = output->GetAttributes(this->ArrayAssociation);
+  if (!outAttributes)
+  {
+    vtkWarningMacro(
+      "input (" << vtkLogIdentifier(output) << ") do not have the requested attribute ("
+                << vtkDataObject::GetAssociationTypeAsString(this->ArrayAssociation) << ")");
+    return 1;
   }
 
   if (!this->Internals->Session)
@@ -209,10 +299,6 @@ int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  // Time handling
-  float timeValue = static_cast<float>(outputVector->GetInformationObject(0)->Get(
-    vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()));
-
   // Prepare and run model
   std::vector<float> parameters = this->InputParameters;
   if (this->TimeStepIndex >= 0 && this->TimeStepIndex < this->InputSize)
@@ -220,7 +306,7 @@ int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
     parameters[this->TimeStepIndex] = timeValue;
   }
 
-  int64_t numElements = this->OnCellData ? input->GetNumberOfCells() : input->GetNumberOfPoints();
+  int64_t numElements = input->GetNumberOfElements(this->ArrayAssociation);
   float* outData = nullptr;
 
   try
@@ -264,9 +350,16 @@ int vtkONNXInference::RequestData(vtkInformation* vtkNotUsed(request),
     outputArray->SetTuple(i, &outData[i * this->OutputDimension]);
   }
 
-  output->GetAttributes(this->OnCellData ? vtkDataObject::CELL : vtkDataObject::POINT)
-    ->AddArray(outputArray);
+  outAttributes->AddArray(outputArray);
+  output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timeValue);
 
   return 1;
 }
+
+//------------------------------------------------------------------------------
+bool vtkONNXInference::ShouldGenerateTimeSteps()
+{
+  return !this->TimeStepValues.empty() && this->TimeStepIndex > -1;
+}
+
 VTK_ABI_NAMESPACE_END
