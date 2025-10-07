@@ -105,7 +105,7 @@ extern "C"
       vtkLog(TRACE, "Loading X11 function pointers");
       for (const char** libName = X11_LIBRARY_NAMES; *libName != nullptr; ++libName)
       {
-        libX11 = dlopen(*libName, RTLD_LAZY | RTLD_GLOBAL);
+        libX11 = dlopen(*libName, RTLD_LAZY | RTLD_LOCAL);
         if (libX11 != nullptr)
         {
           vtkLog(TRACE, "Successfully loaded " << *libName);
@@ -180,7 +180,7 @@ extern "C"
 #if VTK_HAVE_XCURSOR
       for (const char** libName = XCURSOR_LIBRARY_NAMES; *libName != nullptr; ++libName)
       {
-        libXcursor = dlopen(*libName, RTLD_LAZY | RTLD_GLOBAL);
+        libXcursor = dlopen(*libName, RTLD_LAZY | RTLD_LOCAL);
         if (libXcursor != nullptr)
         {
           vtkLog(TRACE, "Successfully loaded " << *libName);
