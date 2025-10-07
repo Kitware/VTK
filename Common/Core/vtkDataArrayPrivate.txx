@@ -562,7 +562,7 @@ bool GenericComputeVectorRange(ArrayT* array, RangeValueType* ranges, FiniteValu
 
 //----------------------------------------------------------------------------
 template <typename ArrayT, typename RangeValueType, typename ValueType>
-bool DoComputeScalarRange(ArrayT* array, RangeValueType* ranges, ValueType tag,
+bool DoComputeScalarRange(ArrayT* array, RangeValueType* ranges, ValueType,
   const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   const int numComp = array->GetNumberOfComponents();
@@ -582,28 +582,88 @@ bool DoComputeScalarRange(ArrayT* array, RangeValueType* ranges, ValueType tag,
 
   // Special case for single value scalar range. This is done to help the
   // compiler detect it can perform loop optimizations.
+  auto tag0 = AllValues{};
+  bool result;
   switch (numComp)
   {
     case 1:
-      return ComputeScalarRange<1>()(array, ranges, tag, ghosts, ghostsToSkip);
+      result = ComputeScalarRange<1>()(array, ranges, tag0, ghosts, ghostsToSkip);
+      break;
     case 2:
-      return ComputeScalarRange<2>()(array, ranges, tag, ghosts, ghostsToSkip);
+      result = ComputeScalarRange<2>()(array, ranges, tag0, ghosts, ghostsToSkip);
+      break;
     case 3:
-      return ComputeScalarRange<3>()(array, ranges, tag, ghosts, ghostsToSkip);
+      result = ComputeScalarRange<3>()(array, ranges, tag0, ghosts, ghostsToSkip);
+      break;
     case 4:
-      return ComputeScalarRange<4>()(array, ranges, tag, ghosts, ghostsToSkip);
+      result = ComputeScalarRange<4>()(array, ranges, tag0, ghosts, ghostsToSkip);
+      break;
     case 5:
-      return ComputeScalarRange<5>()(array, ranges, tag, ghosts, ghostsToSkip);
+      result = ComputeScalarRange<5>()(array, ranges, tag0, ghosts, ghostsToSkip);
+      break;
     case 6:
-      return ComputeScalarRange<6>()(array, ranges, tag, ghosts, ghostsToSkip);
+      result = ComputeScalarRange<6>()(array, ranges, tag0, ghosts, ghostsToSkip);
+      break;
     case 7:
-      return ComputeScalarRange<7>()(array, ranges, tag, ghosts, ghostsToSkip);
+      result = ComputeScalarRange<7>()(array, ranges, tag0, ghosts, ghostsToSkip);
+      break;
     case 8:
-      return ComputeScalarRange<8>()(array, ranges, tag, ghosts, ghostsToSkip);
+      result = ComputeScalarRange<8>()(array, ranges, tag0, ghosts, ghostsToSkip);
+      break;
     case 9:
-      return ComputeScalarRange<9>()(array, ranges, tag, ghosts, ghostsToSkip);
+      result = ComputeScalarRange<9>()(array, ranges, tag0, ghosts, ghostsToSkip);
+      break;
     default:
-      return GenericComputeScalarRange(array, ranges, tag, ghosts, ghostsToSkip);
+      result = GenericComputeScalarRange(array, ranges, tag0, ghosts, ghostsToSkip);
+      break;
+  }
+  // Attempt to use all values range, if it is valid, because it avoids std::isinf calls
+  // and therefore is faster.
+  if constexpr (std::is_floating_point_v<RangeValueType> && std::is_same_v<ValueType, FiniteValues>)
+  {
+    bool allFinite = true;
+    for (int i = 0, j = 0; i < numComp; ++i, j += 2)
+    {
+      if (std::isinf(ranges[j]) || std::isinf(ranges[j + 1]))
+      {
+        allFinite = false;
+        break;
+      }
+    }
+    if (allFinite)
+    {
+      return result;
+    }
+    // Special case for single value scalar range. This is done to help the
+    // compiler detect it can perform loop optimizations.
+    auto tag = FiniteValues{};
+    switch (numComp)
+    {
+      case 1:
+        return ComputeScalarRange<1>()(array, ranges, tag, ghosts, ghostsToSkip);
+      case 2:
+        return ComputeScalarRange<2>()(array, ranges, tag, ghosts, ghostsToSkip);
+      case 3:
+        return ComputeScalarRange<3>()(array, ranges, tag, ghosts, ghostsToSkip);
+      case 4:
+        return ComputeScalarRange<4>()(array, ranges, tag, ghosts, ghostsToSkip);
+      case 5:
+        return ComputeScalarRange<5>()(array, ranges, tag, ghosts, ghostsToSkip);
+      case 6:
+        return ComputeScalarRange<6>()(array, ranges, tag, ghosts, ghostsToSkip);
+      case 7:
+        return ComputeScalarRange<7>()(array, ranges, tag, ghosts, ghostsToSkip);
+      case 8:
+        return ComputeScalarRange<8>()(array, ranges, tag, ghosts, ghostsToSkip);
+      case 9:
+        return ComputeScalarRange<9>()(array, ranges, tag, ghosts, ghostsToSkip);
+      default:
+        return GenericComputeScalarRange(array, ranges, tag, ghosts, ghostsToSkip);
+    }
+  }
+  else
+  {
+    return result;
   }
 }
 
@@ -667,32 +727,47 @@ bool DoComputeVectorRange(ArrayT* array, RangeValueType range[2], FiniteValues,
     return false;
   }
 
-  // Special case for vector range. This is done to help the
-  // compiler detect it can perform loop optimizations.
-  auto tag = FiniteValues{};
-  const int numComp = array->GetNumberOfComponents();
-  switch (numComp)
+  auto allValuesTag = AllValues{};
+  const bool result = DoComputeVectorRange(array, range, allValuesTag, ghosts, ghostsToSkip);
+  // Attempt to use all values range, if it is valid, because it avoids std::isinf calls
+  // and therefore is faster.
+  if constexpr (std::is_floating_point_v<RangeValueType>)
   {
-    case 1:
-      return ComputeVectorRange<1>()(array, range, tag, ghosts, ghostsToSkip);
-    case 2:
-      return ComputeVectorRange<2>()(array, range, tag, ghosts, ghostsToSkip);
-    case 3:
-      return ComputeVectorRange<3>()(array, range, tag, ghosts, ghostsToSkip);
-    case 4:
-      return ComputeVectorRange<4>()(array, range, tag, ghosts, ghostsToSkip);
-    case 5:
-      return ComputeVectorRange<5>()(array, range, tag, ghosts, ghostsToSkip);
-    case 6:
-      return ComputeVectorRange<6>()(array, range, tag, ghosts, ghostsToSkip);
-    case 7:
-      return ComputeVectorRange<7>()(array, range, tag, ghosts, ghostsToSkip);
-    case 8:
-      return ComputeVectorRange<8>()(array, range, tag, ghosts, ghostsToSkip);
-    case 9:
-      return ComputeVectorRange<9>()(array, range, tag, ghosts, ghostsToSkip);
-    default:
-      return GenericComputeVectorRange(array, range, tag, ghosts, ghostsToSkip);
+    if (!std::isinf(range[0]) && !std::isinf(range[1]))
+    {
+      return result;
+    }
+    // Special case for vector range. This is done to help the
+    // compiler detect it can perform loop optimizations.
+    auto tag = FiniteValues{};
+    const int numComp = array->GetNumberOfComponents();
+    switch (numComp)
+    {
+      case 1:
+        return ComputeVectorRange<1>()(array, range, tag, ghosts, ghostsToSkip);
+      case 2:
+        return ComputeVectorRange<2>()(array, range, tag, ghosts, ghostsToSkip);
+      case 3:
+        return ComputeVectorRange<3>()(array, range, tag, ghosts, ghostsToSkip);
+      case 4:
+        return ComputeVectorRange<4>()(array, range, tag, ghosts, ghostsToSkip);
+      case 5:
+        return ComputeVectorRange<5>()(array, range, tag, ghosts, ghostsToSkip);
+      case 6:
+        return ComputeVectorRange<6>()(array, range, tag, ghosts, ghostsToSkip);
+      case 7:
+        return ComputeVectorRange<7>()(array, range, tag, ghosts, ghostsToSkip);
+      case 8:
+        return ComputeVectorRange<8>()(array, range, tag, ghosts, ghostsToSkip);
+      case 9:
+        return ComputeVectorRange<9>()(array, range, tag, ghosts, ghostsToSkip);
+      default:
+        return GenericComputeVectorRange(array, range, tag, ghosts, ghostsToSkip);
+    }
+  }
+  else
+  {
+    return result;
   }
 }
 
