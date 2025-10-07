@@ -94,6 +94,10 @@ vtk_add_test_cxx(vtkIOImageCxxTests tests
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/vtk.png}")
 
 vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestPNGReaderReadFromStream.cxx,NO_OUTPUT
+    "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/vtk.png}")
+
+vtk_add_test_cxx(vtkIOImageCxxTests tests
   TestWriteToUnicodeFileBMP,TestWriteToUnicodeFile.cxx,NO_VALID
     "image.bmp")
 

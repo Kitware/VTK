@@ -50,6 +50,29 @@ struct MemoryBufferStream
 };
 
 // To be used by libpng instead of fread when reading data from memory.
+void PNGReadCallbackStream(png_structp pngPtr, png_bytep output, png_size_t length)
+{
+  if (output == nullptr)
+  {
+    png_error(pngPtr, "Invalid output buffer");
+  }
+  // Get pointer to input buffer
+  png_voidp inputVoidP = png_get_io_ptr(pngPtr);
+  if (inputVoidP == nullptr)
+  {
+    png_error(pngPtr, "Invalid input stream");
+  }
+
+  // Cast it to vtkResourceStream
+  vtkResourceStream* stream = static_cast<vtkResourceStream*>(inputVoidP);
+
+  // Read the data
+  if (stream->Read(output, length) != length)
+  {
+    png_error(pngPtr, "Attempt to read out of buffer");
+  }
+}
+// To be used by libpng instead of fread when reading data from memory.
 void PNGReadCallback(png_structp pngPtr, png_bytep output, png_size_t length)
 {
   if (output == nullptr)
@@ -150,6 +173,18 @@ public:
   }
 
   // Returns true if the buffer's header is valid
+  bool CheckBufferHeaderStream(vtkResourceStream* stream)
+  {
+    unsigned char header[8];
+    if (stream->Read(header, 8) != 8)
+    {
+      vtkErrorWithObjectMacro(this->PNGReader, "Stream is too short, could not read the header");
+      return false;
+    }
+    stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+    return this->IsHeaderValid(header);
+  }
+
   bool CheckBufferHeader(const unsigned char* buffer, vtkIdType length)
   {
     unsigned char header[8];
@@ -191,7 +226,14 @@ public:
   void InitLibPngInput(vtkPNGReader* self, png_structp pngPtr, MemoryBufferStream* stream, FILE* fp)
   {
     // Initialize libpng input
-    if (self->GetMemoryBuffer())
+    if (self->GetStream())
+    {
+      // We pass a void pointer to our input object and a pointer to our read callback.
+      // Reading starts from 0, so png_set_sig_bytes is not needed.
+      png_set_read_fn(pngPtr, static_cast<png_voidp>(self->GetStream()),
+        reinterpret_cast<png_rw_ptr>(PNGReadCallbackStream));
+    }
+    else if (self->GetMemoryBuffer())
     {
       // Tell libpng to read from memory.
       // Initialize our input object.
@@ -242,7 +284,20 @@ void vtkPNGReader::ExecuteInformation()
   FILE* fp = nullptr;
   MemoryBufferStream stream;
 
-  if (this->GetMemoryBuffer())
+  if (this->GetStream())
+  {
+    // Reset stream to the beginning
+    this->GetStream()->Seek(0, vtkResourceStream::SeekDirection::Begin);
+
+    // Read the header from MemoryBuffer
+    if (!impl->CheckBufferHeaderStream(this->GetStream()))
+    {
+      vtkErrorMacro("Invalid MemoryBuffer header: not a PNG file");
+      this->SetErrorCode(vtkErrorCode::UnrecognizedFileTypeError);
+      return;
+    }
+  }
+  else if (this->GetMemoryBuffer())
   {
     // Read the header from MemoryBuffer
     const unsigned char* memBuffer = static_cast<const unsigned char*>(this->GetMemoryBuffer());
@@ -376,7 +431,20 @@ void vtkPNGReader::vtkPNGReaderUpdate2(OT* outPtr, int* outExt, vtkIdType* outIn
   FILE* fp = nullptr;
   MemoryBufferStream stream;
 
-  if (this->GetMemoryBuffer())
+  if (this->GetStream())
+  {
+    // Reset stream to the beginning
+    this->GetStream()->Seek(0, vtkResourceStream::SeekDirection::Begin);
+
+    // Read the header from MemoryBuffer
+    if (!impl->CheckBufferHeaderStream(this->GetStream()))
+    {
+      vtkErrorMacro("Invalid MemoryBuffer header: not a PNG file");
+      this->SetErrorCode(vtkErrorCode::UnrecognizedFileTypeError);
+      return;
+    }
+  }
+  else if (this->GetMemoryBuffer())
   {
     // Read the header from MemoryBuffer
     const unsigned char* memBuffer = static_cast<const unsigned char*>(this->GetMemoryBuffer());
@@ -529,9 +597,9 @@ void vtkPNGReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
 {
   vtkImageData* data = this->AllocateOutputData(output, outInfo);
 
-  if (!this->GetMemoryBuffer() && this->InternalFileName == nullptr)
+  if (!this->GetStream() && !this->GetMemoryBuffer() && this->InternalFileName == nullptr)
   {
-    vtkErrorMacro(<< "Either a FileName, FilePrefix or MemoryBuffer must be specified.");
+    vtkErrorMacro(<< "Either a Stream, FileName, FilePrefix or MemoryBuffer must be specified.");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
   }
