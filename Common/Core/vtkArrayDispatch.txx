@@ -10,7 +10,8 @@
 
 #include <array>
 #include <cstddef>
-#include <utility> // For std::forward
+#include <tuple>   // For std::tuple, std::apply (C++17)
+#include <utility> // For std::forward, std::move, std::apply
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
@@ -74,10 +75,22 @@ struct ArrayListIndexMap
 template <typename ArrayList>
 struct Dispatch;
 
-using UnknownArrayTypeTagList =
-  vtkTypeList::Create<std::integral_constant<int, vtkArrayTypes::AbstractArray>,
-    std::integral_constant<int, vtkArrayTypes::DataArray>,
-    std::integral_constant<int, vtkArrayTypes::ImplicitArray>>;
+using KnownArrayTypeTagList =
+  vtkTypeList::Create<std::integral_constant<int, vtkArrayTypes::StringArray>,
+    std::integral_constant<int, vtkArrayTypes::VariantArray>,
+    std::integral_constant<int, vtkArrayTypes::BitArray>,
+    std::integral_constant<int, vtkArrayTypes::AoSDataArrayTemplate>,
+    std::integral_constant<int, vtkArrayTypes::SoADataArrayTemplate>,
+    std::integral_constant<int, vtkArrayTypes::ScaledSoADataArrayTemplate>,
+    std::integral_constant<int, vtkArrayTypes::VTKmDataArray>,
+    std::integral_constant<int, vtkArrayTypes::PeriodicDataArray>,
+    std::integral_constant<int, vtkArrayTypes::AffineArray>,
+    std::integral_constant<int, vtkArrayTypes::CompositeArray>,
+    std::integral_constant<int, vtkArrayTypes::ConstantArray>,
+    std::integral_constant<int, vtkArrayTypes::IndexedArray>,
+    std::integral_constant<int, vtkArrayTypes::StdFunctionArray>,
+    std::integral_constant<int, vtkArrayTypes::StridedArray>,
+    std::integral_constant<int, vtkArrayTypes::StructuredPointArray>>;
 
 // Recursive case:
 template <typename ArrayHead, typename ArrayTail>
@@ -86,14 +99,18 @@ struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
   using ArrayList = vtkTypeList::TypeList<ArrayHead, ArrayTail>;
 
   using KnownArrayList =
-    typename FilterArraysByArrayTypeTag<ArrayList, UnknownArrayTypeTagList>::Result;
+    typename FilterArraysByArrayTypeTag<ArrayList, KnownArrayTypeTagList>::Result;
 
   static constexpr int NumKnownArrays = vtkTypeList::Size<KnownArrayList>::Result;
   static constexpr auto CompactArrayMap = ArrayListIndexMap::GetCompactArrayMap<KnownArrayList>();
   static constexpr int GetCompactArrayIndex(int arrayIndex) { return CompactArrayMap[arrayIndex]; }
 
+  template <typename... Params>
+  using ParamsTuple = std::tuple<Params...>;
+
   template <typename Worker, typename... Params>
-  using DispatchFunction = bool (*)(vtkAbstractArray* inArray, Worker&& worker, Params&&... params);
+  using DispatchFunction = bool (*)(
+    vtkAbstractArray* inArray, Worker&& worker, ParamsTuple<Params...> paramsTuple);
 
   template <typename TArrayList, typename Worker, typename... Params>
   static bool ExecuteUnknown(vtkAbstractArray* inArray, Worker&& worker, Params&&... params)
@@ -122,9 +139,13 @@ struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
   }
 
   template <typename TArrayType, typename Worker, typename... Params>
-  static constexpr bool ExecuteKnown(vtkAbstractArray* inArray, Worker&& worker, Params&&... params)
+  static constexpr bool ExecuteKnown(
+    vtkAbstractArray* inArray, Worker&& worker, ParamsTuple<Params...> paramsTuple)
   {
-    worker(static_cast<TArrayType*>(inArray), std::forward<Params>(params)...);
+    std::apply(
+      [&worker, typedArray = static_cast<TArrayType*>(inArray)](Params&&... forwardedParams)
+      { worker(typedArray, std::forward<Params>(forwardedParams)...); },
+      std::move(paramsTuple));
     return true;
   }
 
@@ -152,7 +173,10 @@ struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
   GetArrayHandlers()
   {
     std::array<DispatchFunction<Worker, Params...>, NumKnownArrays> arr{};
-    FillKnownArrayHandlers<TKnownArrayList, Worker, Params...>(arr);
+    if constexpr (NumKnownArrays > 0)
+    {
+      FillKnownArrayHandlers<TKnownArrayList, Worker, Params...>(arr);
+    }
     return arr;
   }
 
@@ -169,8 +193,9 @@ struct Dispatch<vtkTypeList::TypeList<ArrayHead, ArrayTail>>
     const auto compactArrayIndex = GetCompactArrayIndex(arrayIndex);
     if (compactArrayIndex < NumKnownArrays)
     {
+      ParamsTuple<Params...> paramsTuple{ std::forward<Params>(params)... };
       return arrayHandlers[compactArrayIndex](
-        inArray, std::forward<Worker>(worker), std::forward<Params>(params)...);
+        inArray, std::forward<Worker>(worker), std::move(paramsTuple));
     }
     // Fallback if unknown array types are present in ArrayList
     return ExecuteUnknown<ArrayList>(
@@ -192,10 +217,8 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   using Array1List = vtkTypeList::TypeList<Array1Head, Array1Tail>;
   using Array2List = vtkTypeList::TypeList<Array2Head, Array2Tail>;
 
-  using Known1List =
-    typename FilterArraysByArrayTypeTag<Array1List, UnknownArrayTypeTagList>::Result;
-  using Known2List =
-    typename FilterArraysByArrayTypeTag<Array2List, UnknownArrayTypeTagList>::Result;
+  using Known1List = typename FilterArraysByArrayTypeTag<Array1List, KnownArrayTypeTagList>::Result;
+  using Known2List = typename FilterArraysByArrayTypeTag<Array2List, KnownArrayTypeTagList>::Result;
 
   static constexpr int NumKnownArrays1 = vtkTypeList::Size<Known1List>::Result;
   static constexpr int NumKnownArrays2 = vtkTypeList::Size<Known2List>::Result;
@@ -213,9 +236,12 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>,
     return CompactArray2Map[arrayIndex];
   }
 
+  template <typename... Params>
+  using ParamsTuple = std::tuple<Params...>;
+
   template <typename Worker, typename... Params>
-  using Dispatch2Function = bool (*)(
-    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params);
+  using Dispatch2Function = bool (*)(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    Worker&& worker, ParamsTuple<Params...> paramsTuple);
 
   template <typename Array1Type, typename Array2List, typename Worker, typename... Params>
   static constexpr bool ExecuteUnknown2(
@@ -280,11 +306,13 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   }
 
   template <typename Array1Type, typename Array2Type, typename Worker, typename... Params>
-  static constexpr bool ExecuteKnown(
-    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
+  static constexpr bool ExecuteKnown(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    Worker&& worker, ParamsTuple<Params...> paramsTuple)
   {
-    worker(static_cast<Array1Type*>(array1), static_cast<Array2Type*>(array2),
-      std::forward<Params>(params)...);
+    std::apply([&worker, typedArray1 = static_cast<Array1Type*>(array1),
+                 typedArray2 = static_cast<Array2Type*>(array2)](Params&&... forwardedParams)
+      { worker(typedArray1, typedArray2, std::forward<Params>(forwardedParams)...); },
+      std::move(paramsTuple));
     return true;
   }
 
@@ -340,7 +368,10 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   GetArrayPairHandlers()
   {
     std::array<Dispatch2Function<Worker, Params...>, NumKnownArrayPairs> arr{};
-    FillKnownArrayPairHandlers<Known1List, Known2List, Worker, Params...>(arr);
+    if constexpr (NumKnownArrayPairs > 0)
+    {
+      FillKnownArrayPairHandlers<Known1List, Known2List, Worker, Params...>(arr);
+    }
     return arr;
   }
 
@@ -361,9 +392,10 @@ struct Dispatch2<vtkTypeList::TypeList<Array1Head, Array1Tail>,
     const auto compactArray2Index = GetCompactArray2Index(array2Index);
     if (compactArray1Index < NumKnownArrays1 && compactArray2Index < NumKnownArrays2)
     {
+      ParamsTuple<Params...> paramsTuple{ std::forward<Params>(params)... };
       auto compactPairIndex = compactArray1Index * NumKnownArrays2 + compactArray2Index;
       return arrayPairHandlers[compactPairIndex](
-        array1, array2, std::forward<Worker>(worker), std::forward<Params>(params)...);
+        array1, array2, std::forward<Worker>(worker), std::move(paramsTuple));
     }
     // Fallback if unknown array types are present in Array1List or Array2List
     return ExecuteUnknown<Array1List, Array2List>(
@@ -385,10 +417,8 @@ struct Dispatch2Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   using Array1List = vtkTypeList::TypeList<Array1Head, Array1Tail>;
   using Array2List = vtkTypeList::TypeList<Array2Head, Array2Tail>;
 
-  using Known1List =
-    typename FilterArraysByArrayTypeTag<Array1List, UnknownArrayTypeTagList>::Result;
-  using Known2List =
-    typename FilterArraysByArrayTypeTag<Array2List, UnknownArrayTypeTagList>::Result;
+  using Known1List = typename FilterArraysByArrayTypeTag<Array1List, KnownArrayTypeTagList>::Result;
+  using Known2List = typename FilterArraysByArrayTypeTag<Array2List, KnownArrayTypeTagList>::Result;
 
   static constexpr int NumKnownArrays1 = vtkTypeList::Size<Known1List>::Result;
   static constexpr int NumKnownArrays2 = vtkTypeList::Size<Known2List>::Result;
@@ -406,9 +436,12 @@ struct Dispatch2Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
     return CompactArray2Map[arrayIndex];
   }
 
+  template <typename... Params>
+  using ParamsTuple = std::tuple<Params...>;
+
   template <typename Worker, typename... Params>
-  using Dispatch2Function = bool (*)(
-    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params);
+  using Dispatch2Function = bool (*)(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    Worker&& worker, ParamsTuple<Params...> paramsTuple);
 
   template <typename Array1Type, typename Array2List, typename Worker, typename... Params>
   static constexpr bool ExecuteUnknown2(
@@ -477,14 +510,17 @@ struct Dispatch2Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   }
 
   template <typename Array1Type, typename Array2Type, typename Worker, typename... Params>
-  static constexpr bool ExecuteKnown(
-    vtkAbstractArray* array1, vtkAbstractArray* array2, Worker&& worker, Params&&... params)
+  static constexpr bool ExecuteKnown(vtkAbstractArray* array1, vtkAbstractArray* array2,
+    Worker&& worker, ParamsTuple<Params...> paramsTuple)
   {
     static_assert(
       std::is_same_v<typename Array1Type::DataTypeTag, typename Array2Type::DataTypeTag>,
       "Array types must have the same DataTypeTag for Dispatch2Same");
-    worker(static_cast<Array1Type*>(array1), static_cast<Array2Type*>(array2),
-      std::forward<Params>(params)...);
+
+    std::apply([&worker, typedArray1 = static_cast<Array1Type*>(array1),
+                 typedArray2 = static_cast<Array2Type*>(array2)](Params&&... forwardedParams)
+      { worker(typedArray1, typedArray2, std::forward<Params>(forwardedParams)...); },
+      std::move(paramsTuple));
     return true;
   }
 
@@ -544,7 +580,10 @@ struct Dispatch2Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   GetArrayPairHandlers()
   {
     std::array<Dispatch2Function<Worker, Params...>, NumKnownArrayPairs> arr{};
-    FillKnownArrayPairHandlers<Known1List, Known2List, Worker, Params...>(arr);
+    if constexpr (NumKnownArrayPairs > 0)
+    {
+      FillKnownArrayPairHandlers<Known1List, Known2List, Worker, Params...>(arr);
+    }
     return arr;
   }
 
@@ -566,9 +605,10 @@ struct Dispatch2Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
     const auto compactArray2Index = GetCompactArray2Index(array2Index);
     if (compactArray1Index < NumKnownArrays1 && compactArray2Index < NumKnownArrays2)
     {
+      ParamsTuple<Params...> paramsTuple{ std::forward<Params>(params)... };
       auto compactPairIndex = compactArray1Index * NumKnownArrays2 + compactArray2Index;
       return arrayPairHandlers[compactPairIndex](
-        array1, array2, std::forward<Worker>(worker), std::forward<Params>(params)...);
+        array1, array2, std::forward<Worker>(worker), std::move(paramsTuple));
     }
     // Fallback if unknown array types are present in Array1List or Array2List
     return ExecuteUnknown<Array1List, Array2List>(
@@ -592,12 +632,9 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   using Array2List = vtkTypeList::TypeList<Array2Head, Array2Tail>;
   using Array3List = vtkTypeList::TypeList<Array3Head, Array3Tail>;
 
-  using Known1List =
-    typename FilterArraysByArrayTypeTag<Array1List, UnknownArrayTypeTagList>::Result;
-  using Known2List =
-    typename FilterArraysByArrayTypeTag<Array2List, UnknownArrayTypeTagList>::Result;
-  using Known3List =
-    typename FilterArraysByArrayTypeTag<Array3List, UnknownArrayTypeTagList>::Result;
+  using Known1List = typename FilterArraysByArrayTypeTag<Array1List, KnownArrayTypeTagList>::Result;
+  using Known2List = typename FilterArraysByArrayTypeTag<Array2List, KnownArrayTypeTagList>::Result;
+  using Known3List = typename FilterArraysByArrayTypeTag<Array3List, KnownArrayTypeTagList>::Result;
 
   static constexpr int NumKnownArrays1 = vtkTypeList::Size<Known1List>::Result;
   static constexpr int NumKnownArrays2 = vtkTypeList::Size<Known2List>::Result;
@@ -622,9 +659,12 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
     return CompactArray3Map[arrayIndex];
   }
 
+  template <typename... Params>
+  using ParamsTuple = std::tuple<Params...>;
+
   template <typename Worker, typename... Params>
   using Dispatch3Function = bool (*)(vtkAbstractArray* array1, vtkAbstractArray* array2,
-    vtkAbstractArray* array3, Worker&& worker, Params&&... params);
+    vtkAbstractArray* array3, Worker&& worker, ParamsTuple<Params...> paramsTuple);
 
   // Unknown execution: try types from Array3List for a fixed Array1Type and Array2Type
   template <typename Array1Type, typename Array2Type, typename Array3ListT, typename Worker,
@@ -725,10 +765,13 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   template <typename Array1Type, typename Array2Type, typename Array3Type, typename Worker,
     typename... Params>
   static constexpr bool ExecuteKnown(vtkAbstractArray* array1, vtkAbstractArray* array2,
-    vtkAbstractArray* array3, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array3, Worker&& worker, ParamsTuple<Params...> paramsTuple)
   {
-    worker(static_cast<Array1Type*>(array1), static_cast<Array2Type*>(array2),
-      static_cast<Array3Type*>(array3), std::forward<Params>(params)...);
+    std::apply([&worker, typedArray1 = static_cast<Array1Type*>(array1),
+                 typedArray2 = static_cast<Array2Type*>(array2),
+                 typedArray3 = static_cast<Array3Type*>(array3)](Params&&... forwardedParams)
+      { worker(typedArray1, typedArray2, typedArray3, std::forward<Params>(forwardedParams)...); },
+      std::move(paramsTuple));
     return true;
   }
 
@@ -802,13 +845,24 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
     }
   }
 
-  template <typename Known1ListT, typename Known2ListT, typename Known3ListT, typename Worker,
+  template <typename Array1ListT, typename Array2ListT, typename Array3ListT, typename Worker,
+    typename... Params>
+  static constexpr void FillKnownArrayTripleHandlers(
+    std::array<Dispatch3Function<Worker, Params...>, NumKnownArrayTriples>& arr)
+  {
+    FillArray1<Array1ListT, Array2ListT, Array3ListT, Worker, Params...>(arr);
+  }
+
+  template <typename Known1List, typename Known2List, typename Known3List, typename Worker,
     typename... Params>
   static constexpr std::array<Dispatch3Function<Worker, Params...>, NumKnownArrayTriples>
   GetArrayTripleHandlers()
   {
     std::array<Dispatch3Function<Worker, Params...>, NumKnownArrayTriples> arr{};
-    FillArray1<Known1ListT, Known2ListT, Known3ListT, Worker, Params...>(arr);
+    if constexpr (NumKnownArrayTriples > 0)
+    {
+      FillKnownArrayTripleHandlers<Known1List, Known2List, Known3List, Worker, Params...>(arr);
+    }
     return arr;
   }
 
@@ -832,11 +886,12 @@ struct Dispatch3<vtkTypeList::TypeList<Array1Head, Array1Tail>,
     if (compactArray1Index < NumKnownArrays1 && compactArray2Index < NumKnownArrays2 &&
       compactArray3Index < NumKnownArrays3)
     {
+      ParamsTuple<Params...> paramsTuple{ std::forward<Params>(params)... };
       auto compactTripleIndex =
         (compactArray1Index * NumKnownArrays2 + compactArray2Index) * NumKnownArrays3 +
         compactArray3Index;
       return arrayTripleHandlers[compactTripleIndex](
-        array1, array2, array3, std::forward<Worker>(worker), std::forward<Params>(params)...);
+        array1, array2, array3, std::forward<Worker>(worker), std::move(paramsTuple));
     }
     // Fallback if unknown array types are present in Array1List, Array2List, or Array3List
     return ExecuteUnknown<Array1List, Array2List, Array3List>(
@@ -860,12 +915,9 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   using Array2List = vtkTypeList::TypeList<Array2Head, Array2Tail>;
   using Array3List = vtkTypeList::TypeList<Array3Head, Array3Tail>;
 
-  using Known1List =
-    typename FilterArraysByArrayTypeTag<Array1List, UnknownArrayTypeTagList>::Result;
-  using Known2List =
-    typename FilterArraysByArrayTypeTag<Array2List, UnknownArrayTypeTagList>::Result;
-  using Known3List =
-    typename FilterArraysByArrayTypeTag<Array3List, UnknownArrayTypeTagList>::Result;
+  using Known1List = typename FilterArraysByArrayTypeTag<Array1List, KnownArrayTypeTagList>::Result;
+  using Known2List = typename FilterArraysByArrayTypeTag<Array2List, KnownArrayTypeTagList>::Result;
+  using Known3List = typename FilterArraysByArrayTypeTag<Array3List, KnownArrayTypeTagList>::Result;
 
   static constexpr int NumKnownArrays1 = vtkTypeList::Size<Known1List>::Result;
   static constexpr int NumKnownArrays2 = vtkTypeList::Size<Known2List>::Result;
@@ -890,9 +942,12 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
     return CompactArray3Map[arrayIndex];
   }
 
+  template <typename... Params>
+  using ParamsTuple = std::tuple<Params...>;
+
   template <typename Worker, typename... Params>
   using Dispatch3Function = bool (*)(vtkAbstractArray* array1, vtkAbstractArray* array2,
-    vtkAbstractArray* array3, Worker&& worker, Params&&... params);
+    vtkAbstractArray* array3, Worker&& worker, ParamsTuple<Params...> paramsTuple);
 
   // Unknown execution: try array3 types with fixed Array1Type and Array2Type,
   // but ensure same ValueType (filtering happens upstream).
@@ -1011,7 +1066,7 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   template <typename Array1Type, typename Array2Type, typename Array3Type, typename Worker,
     typename... Params>
   static constexpr bool ExecuteKnown(vtkAbstractArray* array1, vtkAbstractArray* array2,
-    vtkAbstractArray* array3, Worker&& worker, Params&&... params)
+    vtkAbstractArray* array3, Worker&& worker, ParamsTuple<Params...> paramsTuple)
   {
     static_assert(
       std::is_same_v<typename Array1Type::DataTypeTag, typename Array2Type::DataTypeTag>,
@@ -1019,8 +1074,12 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
     static_assert(
       std::is_same_v<typename Array1Type::DataTypeTag, typename Array3Type::DataTypeTag>,
       "Array types must have the same DataTypeTag for Dispatch3Same");
-    worker(static_cast<Array1Type*>(array1), static_cast<Array2Type*>(array2),
-      static_cast<Array3Type*>(array3), std::forward<Params>(params)...);
+
+    std::apply([&worker, typedArray1 = static_cast<Array1Type*>(array1),
+                 typedArray2 = static_cast<Array2Type*>(array2),
+                 typedArray3 = static_cast<Array3Type*>(array3)](Params&&... forwardedParams)
+      { worker(typedArray1, typedArray2, typedArray3, std::forward<Params>(forwardedParams)...); },
+      std::move(paramsTuple));
     return true;
   }
 
@@ -1107,13 +1166,24 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
     }
   }
 
-  template <typename Known1ListT, typename Known2ListT, typename Known3ListT, typename Worker,
+  template <typename Array1ListT, typename Array2ListT, typename Array3ListT, typename Worker,
+    typename... Params>
+  static constexpr void FillKnownArrayTripleHandlers(
+    std::array<Dispatch3Function<Worker, Params...>, NumKnownArrayTriples>& arr)
+  {
+    FillArray1<Array1ListT, Array2ListT, Array3ListT, Worker, Params...>(arr);
+  }
+
+  template <typename Known1List, typename Known2List, typename Known3List, typename Worker,
     typename... Params>
   static constexpr std::array<Dispatch3Function<Worker, Params...>, NumKnownArrayTriples>
   GetArrayTripleHandlers()
   {
     std::array<Dispatch3Function<Worker, Params...>, NumKnownArrayTriples> arr{};
-    FillArray1<Known1ListT, Known2ListT, Known3ListT, Worker, Params...>(arr);
+    if constexpr (NumKnownArrayTriples > 0)
+    {
+      FillKnownArrayTripleHandlers<Known1List, Known2List, Known3List, Worker, Params...>(arr);
+    }
     return arr;
   }
 
@@ -1121,7 +1191,7 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
   static bool Execute(vtkAbstractArray* array1, vtkAbstractArray* array2, vtkAbstractArray* array3,
     Worker&& worker, Params&&... params)
   {
-    // Check for null arrays and that all have same ValueType
+    // Check for null arrays and that all have the same ValueType
     if (VTK_UNLIKELY(!array1 || !array2 || !array3 ||
           !vtkDataTypesCompare(array1->GetDataType(), array2->GetDataType()) ||
           !vtkDataTypesCompare(array1->GetDataType(), array3->GetDataType())))
@@ -1139,13 +1209,13 @@ struct Dispatch3Same<vtkTypeList::TypeList<Array1Head, Array1Tail>,
     if (compactArray1Index < NumKnownArrays1 && compactArray2Index < NumKnownArrays2 &&
       compactArray3Index < NumKnownArrays3)
     {
+      ParamsTuple<Params...> paramsTuple{ std::forward<Params>(params)... };
       auto compactTripleIndex =
         (compactArray1Index * NumKnownArrays2 + compactArray2Index) * NumKnownArrays3 +
         compactArray3Index;
       return arrayTripleHandlers[compactTripleIndex](
-        array1, array2, array3, std::forward<Worker>(worker), std::forward<Params>(params)...);
+        array1, array2, array3, std::forward<Worker>(worker), std::move(paramsTuple));
     }
-
     // Fallback if unknown array types are present in Array1List, Array2List, or Array3List
     return ExecuteUnknown<Array1List, Array2List, Array3List>(
       array1, array2, array3, std::forward<Worker>(worker), std::forward<Params>(params)...);
