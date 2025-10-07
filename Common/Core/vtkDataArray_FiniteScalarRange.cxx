@@ -47,7 +47,7 @@ bool vtkDataArray::ComputeFiniteScalarRange(
   double* ranges, const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   FiniteScalarRangeDispatchWrapper worker(ranges, ghosts, ghostsToSkip);
-  if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>::Execute(this, worker))
   {
     worker(this);
   }
