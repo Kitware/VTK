@@ -81,6 +81,15 @@ void vtkOpenGLLowMemoryCellTypeAgent::PreDraw(
       (!isTrisOrStrips && actor->GetProperty()->GetInterpolation() != VTK_FLAT &&
         mapper->HasPointNormals));
   }
+  if (actor->GetProperty()->GetRenderLinesAsTubes() && actor->GetProperty()->GetLineWidth() > 1.0)
+  {
+    needLighting = true;
+  }
+  if (actor->GetProperty()->GetRenderPointsAsSpheres() &&
+    mapper->ElementType == vtkDrawTexturedElements::ElementShape::Point)
+  {
+    needLighting = true;
+  }
   mapper->ShaderProgram->SetUniformi("enable_lights", needLighting);
   mapper->ShaderProgram->SetUniformi("vertex_pass", this->InVertexVisibilityPass);
   switch (mapper->ElementType)
