@@ -74,7 +74,7 @@ workflow:
         # Merged-only jobs never run on MRs.
         - if: '$CI_MERGE_REQUEST_ID && $VTK_CI_MERGED_ONLY == "true"'
           when: never
-        # MRs use manual triggers, but only if there are code chagens.
+        # MRs use manual triggers, but only if there are code changes.
         - if: '$CI_MERGE_REQUEST_ID && $VTK_CI_RUN_MANUALLY == "true"'
           changes: *code_change
           when: manual
