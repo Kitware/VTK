@@ -665,7 +665,7 @@ bool vtkmDataArray<T>::ReallocateTuples(vtkIdType numberOfTuples)
       return false;
     }
   }
-  return false;
+  return this->AllocateTuples(numberOfTuples);
 }
 
 VTK_ABI_NAMESPACE_END
