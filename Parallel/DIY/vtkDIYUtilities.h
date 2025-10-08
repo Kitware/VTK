@@ -82,6 +82,8 @@ public:
   ///@{
   /**
    * Load/Save a vtkDataArray in a diy::BinaryBuffer.
+   * Arrays without a set name will be given a temporary name for transfer,
+   * namely `_vtkArrayNoName`. This name is reserved for that purpose.
    */
   static void Save(diy::BinaryBuffer& bb, vtkDataArray*);
   static void Load(diy::BinaryBuffer& bb, vtkDataArray*&);
