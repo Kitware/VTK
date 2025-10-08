@@ -993,6 +993,7 @@ public:
         functor(static_cast<AffineArrayType64*>(this->Offsets.Get()),
           static_cast<ArrayType64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
         break;
+      case StorageTypes::Generic:
       default:
         functor(this->Offsets.Get(), this->Connectivity.Get(), std::forward<Args>(args)...);
         break;
@@ -1019,6 +1020,7 @@ public:
         functor(static_cast<AffineArrayType64*>(this->Offsets.Get()),
           static_cast<ArrayType64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
         break;
+      case StorageTypes::Generic:
       default:
         functor(this->Offsets.Get(), this->Connectivity.Get(), std::forward<Args>(args)...);
         break;
@@ -1212,6 +1214,9 @@ public:
         functor(state, std::forward<Args>(args)...);
         break;
       }
+      case StorageTypes::FixedSizeInt32:
+      case StorageTypes::FixedSizeInt64:
+      case StorageTypes::Generic:
       default:
       {
         vtkWarningMacro("Use Dispatch");
@@ -1243,6 +1248,9 @@ public:
         functor(state, std::forward<Args>(args)...);
         break;
       }
+      case StorageTypes::FixedSizeInt32:
+      case StorageTypes::FixedSizeInt64:
+      case StorageTypes::Generic:
       default:
       {
         vtkWarningMacro("Use Dispatch");
@@ -1272,6 +1280,9 @@ public:
         state.Connectivity = ArrayType64::FastDownCast(this->Connectivity);
         return functor(state, std::forward<Args>(args)...);
       }
+      case StorageTypes::FixedSizeInt32:
+      case StorageTypes::FixedSizeInt64:
+      case StorageTypes::Generic:
       default:
       {
         vtkWarningMacro("Use Dispatch");
@@ -1300,6 +1311,9 @@ public:
         state.Connectivity = ArrayType64::FastDownCast(this->Connectivity);
         return functor(state, std::forward<Args>(args)...);
       }
+      case StorageTypes::FixedSizeInt32:
+      case StorageTypes::FixedSizeInt64:
+      case StorageTypes::Generic:
       default:
       {
         vtkWarningMacro("Use Dispatch");
