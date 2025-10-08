@@ -307,7 +307,7 @@ void vtkFidesWriter::WriteData()
 
   for (unsigned int pdsIdx = 0; pdsIdx < inputPDC->GetNumberOfPartitionedDataSets(); ++pdsIdx)
   {
-    vtkLogScopeF(TRACE, "pdsIdx %d", pdsIdx);
+    vtkLogScopeF(TRACE, "pdsIdx %u", pdsIdx);
     // process PDS
     auto inputPDS = inputPDC->GetPartitionedDataSet(pdsIdx);
     assert(inputPDS != nullptr);
@@ -316,7 +316,7 @@ void vtkFidesWriter::WriteData()
     std::vector<std::string> fieldsToWrite;
     for (unsigned int partIdx = 0; partIdx < inputPDS->GetNumberOfPartitions(); ++partIdx)
     {
-      vtkLogScopeF(TRACE, "partIdx %d", partIdx);
+      vtkLogScopeF(TRACE, "partIdx %u", partIdx);
       auto partition = inputPDS->GetPartition(partIdx);
 
       if (partIdx == 0)

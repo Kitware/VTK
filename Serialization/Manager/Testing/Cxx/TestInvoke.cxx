@@ -137,7 +137,7 @@ int TestInvoke(int argc, char* argv[])
       vtkSerDesMockObject::SafeDownCast(manager->GetObjectAtId(result["Id"]))->GetTag();
     if (tag != 5678)
     {
-      vtkLogF(ERROR, "Tag '%u' is invalid. Expected '%u'", tag, 5678);
+      vtkLogF(ERROR, "Tag '%u' is invalid. Expected '%d'", tag, 5678);
       return EXIT_FAILURE;
     }
   }
