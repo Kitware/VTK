@@ -19,6 +19,10 @@ vtk_add_test_cxx(vtkIOImageCxxTests tests
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/beach.jpg}")
 
 vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestJPEGReaderReadFromStream.cxx,NO_OUTPUT
+    "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/beach.jpg}")
+
+vtk_add_test_cxx(vtkIOImageCxxTests tests
   TestDICOMImageReader.cxx,NO_OUTPUT
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/dicom/prostate.IMG}")
 
