@@ -24,20 +24,28 @@ An overview of the file format is shown in Figure 1:
 </table>
 Key:
 <table style="border-collapse: collapse; margin-left: 40px; margin-right: auto;">
-        <tr><td style="width: 1px; white-space: nowrap;"><b>Part 1:</b> Header</td><td><b>Part 4:</b> Geometry/Topology. <b><i>Type</i></b> is one of
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRUCTURED_POINTS
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRUCTURED_GRID
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNSTRUCTURED_GRID
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POLYDATA
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RECTILINEAR_GRID
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIELD</td></tr>
-        <tr><td style="width: 1px; white-space: nowrap;"><b>Part 2:</b>Title (256 characters
-            <br> maximum, terminated with
-            <br> newline \n character)</td><td><b>Part 5:</b> Dataset attributes. The number of data
-            <br>items n of each type must match the number
-            <br>of points or cells in the dataset. (If <i>type</i> is
-            <br>FIELD, point and cell data should be omitted.</td></tr>
-        <tr><td style="width: 1px; white-space: nowrap;"><b>Part 3:</b>Data type, either<br> ASCII or BINARY</td><td><b></b></td></tr>
+  <tr>
+    <td style="width: 1px; white-space: nowrap; vertical-align: top;"><b>Part 1:</b> File version and identifier</td>
+    <td rowspan="2" style="width:1 px;white-space:nowrap; vertical-align: top;"><b>Part 4:</b> Dataset structure: Geometry/Topology.<br>
+      <b><i>type</i></b> is one of:
+      <ul style="list-style-type: none;">
+        <li>STRUCTURED_POINTS
+        <li>STRUCTURED_GRID
+        <li>UNSTRUCTURED_GRID
+        <li>POLYDATA
+        <li>RECTILINEAR_GRID
+        <li>FIELD
+        </ul>
+    </td>
+  </tr>
+  <tr>
+    <td style="width: 1px; vertical-align: top;"><b>Part 2:</b>Header (256 characters maximum, terminated with the newline \n character)</td>
+  </tr>
+  <tr>
+    <td style="width: 1px; vertical-align: top;"><b>Part 3:</b> File format, either ASCII or BINARY</td>
+    <td style="width: 1px; vertical-align: top;"><b>Part 5:</b> Dataset attributes. The number of data items <i>n</i> of each type must match the number
+        of points or cells in the dataset. (If <i>type</i> is FIELD, point and cell data should be omitted.)</td>
+  </tr>
 </table>
 
 <a name="Figure1">**Figure 1:**</a> **Overview of five parts of VTK data file format.**
