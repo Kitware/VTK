@@ -83,7 +83,7 @@ The *Visualization Toolkit* supports five different dataset formats: structured 
 <br><br>DATASET STRUCTURED_POINTS<br>
 DIMENSIONS <b><i>n<sub>x</sub> n<sub>y</sub> n<sub>z</sub></i></b><br>
 ORIGIN <b><i>x y z</i></b><br>
-SPACING <b><i>s<sub>x</sub> s<sub>y</sub> y<sub>z</i></b></sub>
+SPACING <b><i>s<sub>x</sub> s<sub>y</sub> s<sub>z</i></b></sub>
 
 * **Structured Grid**. The file format supports 1D, 2D, and 3D structured grid datasets. The dimensions nx, ny, nz must be greater than or equal to 1. The point coordinates are defined by the data in the _POINTS_ section. This consists of x-y-z data values for each point.
 <br><br>DATASET STRUCTURED_GRID<br>
