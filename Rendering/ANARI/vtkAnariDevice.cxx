@@ -121,8 +121,9 @@ bool vtkAnariDeviceInternals::InitAnari(
   if (!this->AnariLibrary)
   {
     this->CleanupAnariObjects();
-    vtkErrorMacro(<< "[ANARI::" << libraryName << "] Could not load " << libraryName
-                  << " library.\n");
+    vtkErrorMacro(
+      << "[ANARI::" << libraryName << "] Could not load " << libraryName
+      << " library. Make sure to set ANARI_LIBRARY and expose it to your LIBRARY_PATH.\n");
     return false;
   }
 
