@@ -129,11 +129,7 @@ bool vtkReadMetaData(vtkXMLDataElement* ePrimary, std::vector<unsigned int>& blo
 
 vtkStandardNewMacro(vtkXMLUniformGridAMRReader);
 //------------------------------------------------------------------------------
-vtkXMLUniformGridAMRReader::vtkXMLUniformGridAMRReader()
-{
-  this->OutputDataType = nullptr;
-  this->MaximumLevelsToReadByDefault = 1;
-}
+vtkXMLUniformGridAMRReader::vtkXMLUniformGridAMRReader() = default;
 
 //------------------------------------------------------------------------------
 vtkXMLUniformGridAMRReader::~vtkXMLUniformGridAMRReader()
