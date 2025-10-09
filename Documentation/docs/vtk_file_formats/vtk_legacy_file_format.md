@@ -8,7 +8,7 @@ The legacy VTK file formats consist of five basic parts.
 
 3. The next part is the file format. The file format describes the type of file, either ASCII or binary. On this line the single word ASCII or BINARY must appear.
 
-4. The fourth part is the dataset structure. The geometry part describes the geometry and topology of the dataset. This part begins with a line containing the keyword _DATASET_ followed by a keyword describing the type of dataset.Then, depending upon the type of dataset, other keyword/data combinations define the actual data.
+4. The fourth part is the dataset structure. The geometry part describes the geometry and topology of the dataset. This part begins with a line containing the keyword _DATASET_ followed by a keyword describing the type of dataset. Then, depending upon the type of dataset, other keyword/data combinations define the actual data.
 
 5. The final part describes the dataset attributes. This part begins with the keywords _POINT_DATA_ or _CELL_DATA_, followed by an integer number specifying the number of points or cells, respectively. (It doesn’t matter whether _POINT_DATA_ or _CELL_DATA_ comes first.) Other keyword/data combinations then define the actual dataset attribute values (i.e., scalars, vectors, tensors, normals, texture coordinates, or field data).
 
@@ -156,7 +156,7 @@ type<sub>2</sub><br>
 ...<br>
 type<sub>n-1</sub></i></b><br>
 
-* **Field**. Field data is a general format without topological and geometric structure, and without a particular dimensionality. Typically field data is associated with the points or cells of a dataset. However, if the FIELD type is specified as the dataset type (see Figure1), then a general VTK data object is defined. Use the format described in the next section to define a field. Also see "Working With Field Data" on [page 249](https://www.kitware.com/products/books/VTKUsersGuide.pdf#page=263) and the fourth example in this chapter [Legacy File Examples](#legacy-file-examples).
+* **Field**. Field data is a general format without topological and geometric structure, and without a particular dimensionality. Typically field data is associated with the points or cells of a dataset. However, if the FIELD type is specified as the dataset type (see Figure 1), then a general VTK data object is defined. Use the format described in the next section to define a field. Also see "Working With Field Data" on [page 249](https://www.kitware.com/products/books/VTKUsersGuide.pdf#page=263) and the fourth example in this chapter [Legacy File Examples](#legacy-file-examples).
 
 ## Dataset Attribute Format
 
@@ -334,7 +334,7 @@ The third example is an unstructured grid containing twelve of the nineteen VTK 
 Figure 2 shows all 16 of the linear cell types and was generated with the [LinearCellDemo](https://kitware.github.io/vtk-examples/site/Cxx/GeometricObjects/LinearCellDemo).
 <figure>
   <img src="https://github.com/Kitware/vtk-examples/blob/gh-pages/src/Testing/Baseline/Cxx/GeometricObjects/TestLinearCellDemo.png?raw=true" width="640" alt="LinearCellDemo">
-  <figcaption>Figure 2. - Linear cell types found in VTK. Use the include file ?vtkCellType?.h to manipulate cell types..</figcaption>
+  <figcaption>Figure 2. - Linear cell types found in VTK. Use the include file vtkCellType.h to manipulate cell types..</figcaption>
 </figure>
 
 Figure 3 shows 16 of the non-linear cells and was generated with the [IsoparametricCellsDemo](https://kitware.github.io/vtk-examples/site/Cxx/GeometricObjects/IsoparametricCellsDemo).
