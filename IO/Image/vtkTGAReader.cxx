@@ -29,7 +29,13 @@ void vtkTGAReader::ExecuteInformation()
 {
   char header[::HeaderSize];
 
-  if (this->GetMemoryBuffer())
+  if (this->GetStream())
+  {
+    vtkResourceStream* stream = this->GetStream();
+    stream->Read(header, ::HeaderSize);
+    stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  }
+  else if (this->GetMemoryBuffer())
   {
     const char* memBuffer = static_cast<const char*>(this->GetMemoryBuffer());
     std::copy(memBuffer, memBuffer + ::HeaderSize, header);
@@ -79,7 +85,16 @@ void vtkTGAReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
 
   std::vector<unsigned char> content;
 
-  if (this->GetMemoryBuffer())
+  if (this->GetStream())
+  {
+    vtkResourceStream* stream = this->GetStream();
+    stream->Seek(0, vtkResourceStream::SeekDirection::End);
+    std::size_t size = stream->Tell();
+    content.resize(size);
+    stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+    stream->Read(content.data(), size);
+  }
+  else if (this->GetMemoryBuffer())
   {
     const unsigned char* uBuffer = reinterpret_cast<const unsigned char*>(this->GetMemoryBuffer());
     content.assign(uBuffer, uBuffer + this->GetMemoryBufferLength());
