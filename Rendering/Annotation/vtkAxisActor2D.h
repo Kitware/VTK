@@ -148,7 +148,8 @@ public:
 
   enum LabelMax
   {
-    VTK_MAX_LABELS = 25
+    VTK_MAX_LABELS VTK_DEPRECATED_IN_9_6_0(
+      "VTK_MAX_LABELS has been removed. Labels are now dynamically allocated. Do not use.") = 25
   };
 
   ///@{
@@ -157,7 +158,7 @@ public:
    * number of major ticks shown. Note that this ivar only holds meaning if
    * the RulerMode is off.
    */
-  vtkSetClampMacro(NumberOfLabels, int, 2, VTK_MAX_LABELS);
+  vtkSetMacro(NumberOfLabels, int);
   vtkGetMacro(NumberOfLabels, int);
   ///@}
 
@@ -552,8 +553,8 @@ protected:
   vtkTextMapper* TitleMapper;
   vtkActor2D* TitleActor;
 
-  vtkTextMapper** LabelMappers;
-  vtkActor2D** LabelActors;
+  std::vector<vtkSmartPointer<vtkTextMapper>> LabelMappers;
+  std::vector<vtkSmartPointer<vtkActor2D>> LabelActors;
 
   vtkNew<vtkPolyData> Axis;
   vtkNew<vtkPolyDataMapper2D> AxisMapper;
