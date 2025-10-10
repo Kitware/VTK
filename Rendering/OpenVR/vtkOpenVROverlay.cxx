@@ -5,6 +5,7 @@
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkJPEGReader.h"
+#include "vtkMemoryResourceStream.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenVROverlayInternal.h"
 #include "vtkOpenVRRenderWindow.h"
@@ -225,8 +226,9 @@ void vtkOpenVROverlay::Hide()
 
 void vtkOpenVROverlay::SetDashboardImageData(vtkJPEGReader* imgReader)
 {
-  imgReader->SetMemoryBuffer(OpenVRDashboard);
-  imgReader->SetMemoryBufferLength(sizeof(OpenVRDashboard));
+  vtkNew<vtkMemoryResourceStream> stream;
+  stream->SetBuffer(OpenVRDashboard, sizeof(OpenVRDashboard));
+  imgReader->SetStream(stream);
   imgReader->Update();
 }
 

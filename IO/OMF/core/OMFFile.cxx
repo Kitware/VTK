@@ -8,6 +8,7 @@
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
+#include "vtkMemoryResourceStream.h"
 #include "vtkPNGReader.h"
 #include "vtkTypeInt64Array.h"
 #include "vtkUnsignedCharArray.h"
@@ -345,8 +346,9 @@ vtkSmartPointer<vtkImageData> OMFFile::ReadPNGFromStream(const Json::Value& json
   }
 
   vtkNew<vtkPNGReader> reader;
-  reader->SetMemoryBuffer(array->GetVoidPointer(0));
-  reader->SetMemoryBufferLength(array->GetDataSize());
+  vtkNew<vtkMemoryResourceStream> stream;
+  stream->SetBuffer(array->GetVoidPointer(0), array->GetDataSize());
+  reader->SetStream(stream);
   reader->Update();
   vtkNew<vtkImageData> data;
   data->ShallowCopy(reader->GetOutput());

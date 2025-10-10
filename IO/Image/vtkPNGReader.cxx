@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkPNGReader.h"
 
 #include "vtkDataArray.h"
@@ -41,6 +43,7 @@ public:
  * When reading an image from memory, libpng needs to be passed a pointer to a custom
  * read callback function, as well as a pointer to its input data.
  * This callback function has to behave like fread(), so we use a custom stream object as input.
+ * VTK_DEPRECATED_IN_9_6_0
  */
 struct MemoryBufferStream
 {
@@ -73,6 +76,7 @@ void PNGReadCallbackStream(png_structp pngPtr, png_bytep output, png_size_t leng
   }
 }
 // To be used by libpng instead of fread when reading data from memory.
+// VTK_DEPRECATED_IN_9_6_0
 void PNGReadCallback(png_structp pngPtr, png_bytep output, png_size_t length)
 {
   if (output == nullptr)
@@ -185,6 +189,7 @@ public:
     return this->IsHeaderValid(header);
   }
 
+  // VTK_DEPRECATED_IN_9_6_0
   bool CheckBufferHeader(const unsigned char* buffer, vtkIdType length)
   {
     unsigned char header[8];
@@ -235,6 +240,7 @@ public:
     }
     else if (self->GetMemoryBuffer())
     {
+      // VTK_DEPRECATED_IN_9_6_0
       // Tell libpng to read from memory.
       // Initialize our input object.
       stream->buffer = static_cast<const unsigned char*>(self->GetMemoryBuffer());
@@ -299,6 +305,7 @@ void vtkPNGReader::ExecuteInformation()
   }
   else if (this->GetMemoryBuffer())
   {
+    // VTK_DEPRECATED_IN_9_6_0
     // Read the header from MemoryBuffer
     const unsigned char* memBuffer = static_cast<const unsigned char*>(this->GetMemoryBuffer());
     if (!impl->CheckBufferHeader(memBuffer, this->GetMemoryBufferLength()))
@@ -446,6 +453,7 @@ void vtkPNGReader::vtkPNGReaderUpdate2(OT* outPtr, int* outExt, vtkIdType* outIn
   }
   else if (this->GetMemoryBuffer())
   {
+    // VTK_DEPRECATED_IN_9_6_0
     // Read the header from MemoryBuffer
     const unsigned char* memBuffer = static_cast<const unsigned char*>(this->GetMemoryBuffer());
     if (!impl->CheckBufferHeader(memBuffer, this->GetMemoryBufferLength()))

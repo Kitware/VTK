@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkTGAReader.h"
 
 #include "vtkDataArray.h"
@@ -37,6 +39,7 @@ void vtkTGAReader::ExecuteInformation()
   }
   else if (this->GetMemoryBuffer())
   {
+    // VTK_DEPRECATED_IN_9_6_0
     const char* memBuffer = static_cast<const char*>(this->GetMemoryBuffer());
     std::copy(memBuffer, memBuffer + ::HeaderSize, header);
   }
@@ -96,6 +99,7 @@ void vtkTGAReader::ExecuteDataWithInformation(vtkDataObject* output, vtkInformat
   }
   else if (this->GetMemoryBuffer())
   {
+    // VTK_DEPRECATED_IN_9_6_0
     const unsigned char* uBuffer = reinterpret_cast<const unsigned char*>(this->GetMemoryBuffer());
     content.assign(uBuffer, uBuffer + this->GetMemoryBufferLength());
   }

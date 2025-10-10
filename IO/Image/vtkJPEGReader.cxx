@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkJPEGReader.h"
 
 #include "vtkDataArray.h"
@@ -151,6 +153,7 @@ void vtkJPEGReader::ExecuteInformation()
   }
   else if (this->MemoryBuffer)
   {
+    // VTK_DEPRECATED_IN_9_6_0
     if (this->MemoryBufferLength == 0)
     {
       vtkErrorWithObjectMacro(this,
@@ -202,6 +205,7 @@ void vtkJPEGReader::ExecuteInformation()
   }
   else if (this->GetMemoryBuffer())
   {
+    // VTK_DEPRECATED_IN_9_6_0
 #if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
     jMemSrc(&cinfo, this->MemoryBuffer, this->MemoryBufferLength);
 #else
@@ -249,7 +253,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType
   jerr.JPEGReader = self;
   jerr.fp = nullptr;
 
-  if (!self->GetMemoryBuffer())
+  if (!self->GetMemoryBuffer() && !self->GetStream())
   {
     jerr.fp = vtksys::SystemTools::Fopen(self->GetInternalFileName(), "rb");
     if (!jerr.fp)
@@ -301,6 +305,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType
   }
   else if (self->GetMemoryBuffer())
   {
+    // VTK_DEPRECATED_IN_9_6_0
 #if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
     jMemSrc(&cinfo, self->GetMemoryBuffer(), self->GetMemoryBufferLength());
 #else

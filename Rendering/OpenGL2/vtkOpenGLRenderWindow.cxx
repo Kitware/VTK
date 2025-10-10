@@ -9,6 +9,7 @@
 #include "vtkImageData.h"
 #include "vtkJPEGReader.h"
 #include "vtkLogger.h"
+#include "vtkMemoryResourceStream.h"
 #include "vtkNew.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLCamera.h"
@@ -3046,8 +3047,9 @@ int vtkOpenGLRenderWindow::GetNoiseTextureUnit()
   {
     vtkNew<vtkJPEGReader> imgReader;
 
-    imgReader->SetMemoryBuffer(BlueNoiseTexture64x64);
-    imgReader->SetMemoryBufferLength(sizeof(BlueNoiseTexture64x64));
+    vtkNew<vtkMemoryResourceStream> stream;
+    stream->SetBuffer(BlueNoiseTexture64x64, sizeof(BlueNoiseTexture64x64));
+    imgReader->SetStream(stream);
     imgReader->Update();
     vtkImageData* textureReader = imgReader->GetOutput();
 

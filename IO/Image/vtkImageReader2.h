@@ -29,6 +29,7 @@
 #ifndef vtkImageReader2_h
 #define vtkImageReader2_h
 
+#include "vtkDeprecation.h"   // For VTK_DEPRECATED_IN_9_5_0
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 #include "vtkResourceStream.h" // For stream
@@ -100,20 +101,28 @@ public:
   vtkGetSmartPointerMacro(Stream, vtkResourceStream);
   ///@}
 
+  ///@{
   /**
    * Specify the in memory image buffer.
    * May be used by a reader to allow the reading
    * of an image from memory instead of from file.
    * This should be reworked to use vtkResourceStream instead
    */
+  VTK_DEPRECATED_IN_9_6_0("Use SetStream instead")
   virtual void SetMemoryBuffer(const void*);
-  virtual const void* GetMemoryBuffer() { return this->MemoryBuffer; }
+  VTK_DEPRECATED_IN_9_6_0("Use GetStream instead")
+  virtual const void* GetMemoryBuffer();
+  ///@}
 
+  ///@{
   /**
    * Specify the in memory image buffer length.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use SetStream instead")
   virtual void SetMemoryBufferLength(vtkIdType buflen);
-  vtkIdType GetMemoryBufferLength() { return this->MemoryBufferLength; }
+  VTK_DEPRECATED_IN_9_6_0("Use GetStream instead")
+  vtkIdType GetMemoryBufferLength();
+  ///@}
 
   /**
    * Set the data type of pixels in the file.
@@ -312,7 +321,10 @@ protected:
   int NumberOfScalarComponents;
   vtkTypeBool FileLowerLeft;
 
+  VTK_DEPRECATED_IN_9_6_0("Use GetStream instead")
   const void* MemoryBuffer;
+
+  VTK_DEPRECATED_IN_9_6_0("Use GetStream instead")
   vtkIdType MemoryBufferLength;
 
   istream* File;
