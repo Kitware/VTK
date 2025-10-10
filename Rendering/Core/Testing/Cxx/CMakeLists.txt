@@ -40,6 +40,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestCompositeDataDisplayAttributes.cxx,NO_VALID
   TestCompositePolyDataMapper.cxx,NO_DATA
   TestCompositePolyDataMapperBlockOpacities.cxx,NO_DATA
+  TestCompositePolyDataMapperBlockTextures.cxx,NO_DATA
   TestCompositePolyDataMapperCameraShiftScale.cxx,NO_DATA
   TestCompositePolyDataMapperCellScalars.cxx,NO_DATA
   TestCompositePolyDataMapperCustomShader.cxx,NO_DATA
