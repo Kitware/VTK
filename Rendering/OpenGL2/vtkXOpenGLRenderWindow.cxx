@@ -1924,13 +1924,27 @@ void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
       break;
     case VTK_CURSOR_CUSTOM:
 #if VTK_HAVE_XCURSOR
-      this->XCCustom = vtkXcursorFilenameLoadCursor(this->DisplayId, this->GetCursorFileName());
-      if (!this->XCCustom)
+      if (vtkXcursorFilenameLoadCursor)
       {
-        vtkErrorMacro(<< "Failed to load cursor from Xcursor file: " << this->GetCursorFileName());
-        break;
+        this->XCCustom = vtkXcursorFilenameLoadCursor(this->DisplayId, this->GetCursorFileName());
+        if (!this->XCCustom)
+        {
+          vtkErrorMacro(<< "Failed to load cursor from Xcursor file: "
+                        << this->GetCursorFileName());
+          break;
+        }
+        vtkXDefineCursor(this->DisplayId, this->WindowId, this->XCCustom);
       }
-      vtkXDefineCursor(this->DisplayId, this->WindowId, this->XCCustom);
+      else
+      {
+        static bool once = false;
+        if (!once)
+        {
+          once = true;
+          vtkWarningMacro(
+            "VTK is running without Xcursor support; ignoring requests for custom cursors.");
+        }
+      }
 #else
     {
       static bool once = false;
