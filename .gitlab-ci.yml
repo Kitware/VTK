@@ -1998,6 +1998,181 @@ wheel-sdk:upload:
         - job: wheel-windows-python313-x86_64-osmesa:test
           artifacts: false
 
+# Use a different job to upload vtk-sdk wheels because we want to push then in a different location: vtk-sdk subfolder.
+wheel-vtk-sdk:upload:
+    extends:
+        - .rsync_upload_wheel_sdk
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        # The wheel location is the name of the PIP package. It is important that the last component is the same as the package name.
+        # as `pip install vtk-sdk -f vtk.org/files/wheel-sdks` will look into `vtk.org/files/wheel-sdks/vtk-sdk`.
+        RSYNC_SOURCE: build/wheel_sdks/*.whl
+        RSYNC_DESTINATION: wheel-sdks/vtk-sdk
+    needs:
+        - wheel-linux-python39-x86_64:build
+        - job: wheel-linux-python39-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python39-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python39-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python39-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python39-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python39-x86_64-egl:test-x11
+          artifacts: false
+        - wheel-linux-python310-x86_64:build
+        - job: wheel-linux-python310-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python310-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python310-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python310-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python310-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python310-x86_64-egl:test-x11
+          artifacts: false
+        - wheel-linux-python311-x86_64:build
+        - job: wheel-linux-python311-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python311-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python311-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python311-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python311-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python311-x86_64-egl:test-x11
+          artifacts: false
+        - wheel-linux-python312-x86_64:build
+        - job: wheel-linux-python312-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python312-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python312-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python312-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python312-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python312-x86_64-egl:test-x11
+          artifacts: false
+        - wheel-linux-python313-x86_64:build
+        - job: wheel-linux-python313-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python313-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python313-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python313-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python313-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python313-x86_64-egl:test-x11
+          artifacts: false
+        - wheel-linux-python39-aarch64:build
+        - job: wheel-linux-python39-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python39-aarch64:test-x11
+          artifacts: false
+        - wheel-linux-python310-aarch64:build
+        - job: wheel-linux-python310-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python310-aarch64:test-x11
+          artifacts: false
+        - wheel-linux-python311-aarch64:build
+        - job: wheel-linux-python311-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python311-aarch64:test-x11
+          artifacts: false
+        - wheel-linux-python312-aarch64:build
+        - job: wheel-linux-python312-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python312-aarch64:test-x11
+          artifacts: false
+        - wheel-linux-python313-aarch64:build
+        - job: wheel-linux-python313-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python313-aarch64:test-x11
+          artifacts: false
+        - wheel-linux-python314-aarch64:build
+        - job: wheel-linux-python314-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python314-aarch64:test-x11
+          artifacts: false
+        - wheel-linux-python314t-aarch64:build
+        - job: wheel-linux-python314t-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python314t-aarch64:test-x11
+          artifacts: false
+#        - wheel-macos-python39-arm64:build
+#        - job: wheel-macos-python39-arm64:test
+#          artifacts: false
+        - wheel-macos-python39-x86_64:build
+        - job: wheel-macos-python39-x86_64:test
+          artifacts: false
+#        - wheel-macos-python310-arm64:build
+#        - job: wheel-macos-python310-arm64:test
+          artifacts: false
+        - wheel-macos-python310-x86_64:build
+        - job: wheel-macos-python310-x86_64:test
+          artifacts: false
+#        - wheel-macos-python311-arm64:build
+#        - job: wheel-macos-python311-arm64:test
+#          artifacts: false
+        - wheel-macos-python311-x86_64:build
+        - job: wheel-macos-python311-x86_64:test
+          artifacts: false
+#        - wheel-macos-python312-arm64:build
+#        - job: wheel-macos-python312-arm64:test
+#          artifacts: false
+        - wheel-macos-python312-x86_64:build
+        - job: wheel-macos-python312-x86_64:test
+          artifacts: false
+#        - wheel-macos-python313-arm64:build
+#        - job: wheel-macos-python313-arm64:test
+#          artifacts: false
+        - wheel-macos-python313-x86_64:build
+        - job: wheel-macos-python313-x86_64:test
+          artifacts: false
+#        - wheel-macos-python314-arm64:build
+#        - job: wheel-macos-python314-arm64:test
+#          artifacts: false
+        - wheel-macos-python314-x86_64:build
+        - job: wheel-macos-python314-x86_64:test
+          artifacts: false
+        - wheel-windows-python39-x86_64:build
+        - job: wheel-windows-python39-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python39-x86_64-osmesa:test
+          artifacts: false
+        - wheel-windows-python310-x86_64:build
+        - job: wheel-windows-python310-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python310-x86_64-osmesa:test
+          artifacts: false
+        - wheel-windows-python311-x86_64:build
+        - job: wheel-windows-python311-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python311-x86_64-osmesa:test
+          artifacts: false
+        - wheel-windows-python312-x86_64:build
+        - job: wheel-windows-python312-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python312-x86_64-osmesa:test
+          artifacts: false
+        - wheel-windows-python313-x86_64:build
+        - job: wheel-windows-python313-x86_64:test
+          artifacts: false
+        - job: wheel-windows-python313-x86_64-osmesa:test
+          artifacts: false
+
 ## Static analysis builds
 
 fedora42-x86_64-tidy:build:

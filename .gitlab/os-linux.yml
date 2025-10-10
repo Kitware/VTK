@@ -861,7 +861,9 @@
         - mv -v dist/ dist-orig/
         - mv -v wheelhouse/ dist/
         - "$PYTHON_PREFIX/bin/python $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py"
-        - cd ..
+        - cd wheel_sdks
+        - "$PYTHON_PREFIX/bin/python -m pip wheel ."
+        - cd ../..
         - exec .gitlab/ci/check_warnings.sh .
 
     interruptible: true
@@ -878,6 +880,11 @@
         - pip install build/dist/*.whl
         - python -c "import vtk"
         - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
+        # Run vtk-sdk tests
+        - cd build/wheel_sdks
+        - pip install --find-links . vtk-sdk virtualenv pytest
+        - python -m pytest -ra
+        - cd ../..
         # Pull from `.cmake_test_wheel_linux_x11` when merging happens.
     interruptible: true
 

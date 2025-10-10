@@ -176,6 +176,10 @@
             - build/*-wheel-sdk-*.tar.xz
             - build/cdash-build-id
 
+            # VTK SDK wheel
+            - build/wheel_sdks/*.whl
+            - build/wheel_sdks/tests/
+
 .cmake_webassembly_artifacts:
     artifacts:
         expire_in: 1d

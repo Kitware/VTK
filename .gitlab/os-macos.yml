@@ -314,6 +314,9 @@
         - venv/bin/python3 setup.py bdist_wheel
         - '[ -f dist/*_universal2.whl ] && exit 1 # universal2 wheels are not made; platform detection requires an override'
         - venv/bin/python3 $GIT_CLONE_PATH/.gitlab/ci/create_wheel_sdk_archive.py
+        - cd wheel_sdks
+        - ../venv/bin/python3 -m pip wheel .
+        - cd ..
         # XXX: `delocate` can't handle `@loader_path` or do recursive
         # dependency scanning. Ignore it and just do it manually because
         # apparently VTK is the most complicated wheel in the world.
@@ -342,6 +345,11 @@
         - python -c "import vtk"
         - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
         - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
+        # Run vtk-sdk tests
+        - cd build/wheel_sdks
+        - pip install  --find-links . vtk-sdk virtualenv pytest
+        - ../../venv/bin/python3 -m pytest -ra
+        - cd ../..
         - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWheel
     interruptible: true
 

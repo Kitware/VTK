@@ -50,3 +50,10 @@ the package.
 ```cmake
 set(VTK_VERSION_SUFFIX "dev0" CACHE STRING "")
 ```
+
+## Generating the wheel SDK
+
+This is an optional step that may be useful if you need to build python extensions against the generated Python wheel.
+
+Once VTK is built, go to the `${CMAKE_BUILD_DIR}/wheel_sdks`. Then run the following command `python -m pip wheel .`.
+A `vtk_sdk` wheel will be generated in the `${CMAKE_BUILD_DIR}/wheel_sdks` folder.

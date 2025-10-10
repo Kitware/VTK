@@ -1,0 +1,16 @@
+# Build system depends on the "vtk-sdk" package
+# This package will only be used during the build process.
+# Once the "vtk-pyext" package is generated, it will itself only depends on the "vtk" python wheel.
+[build-system]
+requires = [
+    "scikit-build-core",
+    # Version of "vtk-sdk" should always be specified using "==X.Y.Z" and match the one associated with the "vtk" dependency below.
+    "vtk-sdk==9.6.0"
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "vtk-pyext"
+version = "1.0.0"
+# Version of "vtk" should always be specified using "==X.Y.Z" and match the one associated with the "vtk-sdk" build dependency above.
+dependencies = ["vtk==9.6.0"]
