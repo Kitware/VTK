@@ -21,7 +21,19 @@ vtk_module_add_module(VTK::x11
 
 # Add X11 include dirs.
 if (VTK_USE_X)
-  # Propagate X11 include dirs to dependents so that they can access X11 structs and definitions.
-  vtk_module_include(VTK::x11
-    INTERFACE ${X11_INCLUDE_DIR})
+  # XXX(cmake-3.27): $<COMPILE_ONLY>
+  if (CMAKE_VERSION VERSION_LESS "3.27")
+    if (VTK_RELOCATABLE_INSTALL)
+      message(WARNING
+        "CMake 3.27+ is required to make a relocatable build with deferred "
+        "loading of X11 libraries")
+    endif ()
+    # Use include paths.
+    vtk_module_include(VTK::x11
+      PUBLIC ${X11_INCLUDE_DIR})
+  else ()
+    # Propagate X11 compilation requirements.
+    vtk_module_link(VTK::x11
+      PUBLIC "$<COMPILE_ONLY:X11::X11>")
+  endif ()
 endif ()
