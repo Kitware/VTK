@@ -16,34 +16,34 @@ An overview of the file format is shown in Figure 1:
 
 
 <table style="border-collapse: collapse; margin-left: 40px; margin-right: auto;">
-    <tr><td width="1px">#&nbsp;vtk&nbsp;DataFile&nbsp;Version&nbsp;2.0</td><td>(1)</td></tr>
-    <tr><td width="1px">Really cool data</td><td>(2)</td></tr>
-    <tr><td width="1px">ASCII | BINARY</td><td>(3)</td></tr>
-    <tr><td width="1px">DATASET <b><i>type</i></b><br>...</td><td>(4)</td></tr>
-    <tr><td width="1px">POINT_DATA <b><i>type</i></b><br>...<br>CELL_DATA <b><i>type</i></b><br>...</td><td>(5)</td></tr>
+    <tr><td style="white-space: nowrap; font-family: monospace">vtk DataFile Version 2.0</td><td>(1)</td></tr>
+    <tr><td style="white-space: nowrap; font-family: monospace">Really cool data</td><td>(2)</td></tr>
+    <tr><td style="white-space: nowrap; font-family: monospace">ASCII | BINARY</td><td>(3)</td></tr>
+    <tr><td style="white-space: nowrap; font-family: monospace">DATASET <b><i>type</i></b><br>...</td><td>(4)</td></tr>
+    <tr><td style="white-space: nowrap; font-family: monospace">POINT_DATA <b><i>type</i></b><br>...<br>CELL_DATA <b><i>type</i></b><br>...</td><td>(5)</td></tr>
 </table>
 Key:
 <table style="border-collapse: collapse; margin-left: 40px; margin-right: auto;">
   <tr>
-    <td style="width: 1px; white-space: nowrap; vertical-align: top;"><b>Part 1:</b> File version and identifier</td>
-    <td rowspan="2" style="width:1 px;white-space:nowrap; vertical-align: top;"><b>Part 4:</b> Dataset structure: Geometry/Topology.<br>
+    <td style="white-space: nowrap; vertical-align: top;"><b>Part 1:</b> File version and identifier</td>
+    <td rowspan="2" style="white-space:nowrap; vertical-align: top;"><b>Part 4:</b> Dataset structure: Geometry/Topology.<br>
       <b><i>type</i></b> is one of:
       <ul style="list-style-type: none;">
-        <li>STRUCTURED_POINTS
-        <li>STRUCTURED_GRID
-        <li>UNSTRUCTURED_GRID
-        <li>POLYDATA
-        <li>RECTILINEAR_GRID
-        <li>FIELD
-        </ul>
+        <li>STRUCTURED_POINTS</li>
+        <li>STRUCTURED_GRID</li>
+        <li>UNSTRUCTURED_GRID</li>
+        <li>POLYDATA</li>
+        <li>RECTILINEAR_GRID</li>
+        <li>FIELD</li>
+      </ul>
     </td>
   </tr>
   <tr>
-    <td style="width: 1px; vertical-align: top;"><b>Part 2:</b>Header (256 characters maximum, terminated with the newline \n character)</td>
+    <td style="vertical-align: top;"><b>Part 2:</b> Header (256 characters maximum, terminated with the newline \n character)</td>
   </tr>
   <tr>
-    <td style="width: 1px; vertical-align: top;"><b>Part 3:</b> File format, either ASCII or BINARY</td>
-    <td style="width: 1px; vertical-align: top;"><b>Part 5:</b> Dataset attributes. The number of data items <i>n</i> of each type must match the number
+    <td style="vertical-align: top;"><b>Part 3:</b> File format, either ASCII or BINARY</td>
+    <td style="vertical-align: top;"><b>Part 5:</b> Dataset attributes. The number of data items <i>n</i> of each type must match the number
         of points or cells in the dataset. (If <i>type</i> is FIELD, point and cell data should be omitted.)</td>
   </tr>
 </table>
