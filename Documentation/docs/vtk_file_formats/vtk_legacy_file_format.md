@@ -372,7 +372,7 @@ The third example is an unstructured grid containing twelve of the nineteen VTK 
 Figure 2 shows all 16 of the linear cell types and was generated with the [LinearCellDemo](https://kitware.github.io/vtk-examples/site/Cxx/GeometricObjects/LinearCellDemo).
 <figure>
   <img src="https://github.com/Kitware/vtk-examples/blob/gh-pages/src/Testing/Baseline/Cxx/GeometricObjects/TestLinearCellDemo.png?raw=true" width="640" alt="LinearCellDemo">
-  <figcaption>Figure 2. - Linear cell types found in VTK. Use the include file vtkCellType.h to manipulate cell types..</figcaption>
+  <figcaption>Figure 2. - Linear cell types found in VTK. Use the include file vtkCellType.h to manipulate cell types.</figcaption>
 </figure>
 
 Figure 3 shows 16 of the non-linear cells and was generated with the [IsoparametricCellsDemo](https://kitware.github.io/vtk-examples/site/Cxx/GeometricObjects/IsoparametricCellsDemo).
