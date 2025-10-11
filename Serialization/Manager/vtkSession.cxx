@@ -284,10 +284,14 @@ extern "C"
         vtkLog(ERROR, << objectImpl << " does not have an interactor!");
       }
     }
+    else if (objectImpl != nullptr)
+    {
+      vtkLog(ERROR, << "Object " << objectImpl->GetObjectDescription() << " at id=" << object
+                    << " is not a vtkRenderWindow!");
+    }
     else
     {
-      vtkLog(ERROR, << "Object " << (objectImpl ? objectImpl->GetObjectDescription() : "null")
-                    << " at id=" << object << "is not a vtkRenderWindow!");
+      vtkLog(TRACE, << "Object at id=" << object << " is null");
     }
     return vtkSessionResultFailure;
 #else
@@ -308,6 +312,15 @@ extern "C"
       renderWindow->Render();
       return vtkSessionResultSuccess;
     }
+    else if (objectImpl != nullptr)
+    {
+      vtkLog(ERROR, << "Object " << objectImpl->GetObjectDescription() << " at id=" << object
+                    << " is not a vtkRenderWindow!");
+    }
+    else
+    {
+      vtkLog(TRACE, << "Object at id=" << object << " is null");
+    }
     return vtkSessionResultFailure;
 #else
     (void)objectImpl;
@@ -326,10 +339,14 @@ extern "C"
       renderer->ResetCamera();
       return vtkSessionResultSuccess;
     }
+    else if (objectImpl != nullptr)
+    {
+      vtkLog(ERROR, << "Object " << objectImpl->GetObjectDescription() << " at id=" << object
+                    << " is not a vtkRenderer!");
+    }
     else
     {
-      vtkLog(ERROR, << "Object " << (objectImpl ? objectImpl->GetObjectDescription() : "null")
-                    << " at id=" << object << "is not a vtkRenderer!");
+      vtkLog(TRACE, << "Object at id=" << object << " is null");
     }
     return vtkSessionResultFailure;
 #else
@@ -359,10 +376,14 @@ extern "C"
         vtkLog(ERROR, << objectImpl << " does not have an interactor!");
       }
     }
+    else if (objectImpl != nullptr)
+    {
+      vtkLog(ERROR, << "Object " << objectImpl->GetObjectDescription() << " at id=" << object
+                    << "is not a vtkRenderWindow!");
+    }
     else
     {
-      vtkLog(ERROR, << "Object " << (objectImpl ? objectImpl->GetObjectDescription() : "null")
-                    << " at id=" << object << "is not a vtkRenderWindow!");
+      vtkLog(TRACE, << "Object at id=" << object << " is null");
     }
     return vtkSessionResultFailure;
 #else
@@ -392,10 +413,14 @@ extern "C"
         vtkLog(ERROR, << objectImpl << " does not have an interactor!");
       }
     }
+    else if (objectImpl != nullptr)
+    {
+      vtkLog(ERROR, << "Object " << objectImpl->GetObjectDescription() << " at id=" << object
+                    << " is not a vtkRenderWindow!");
+    }
     else
     {
-      vtkLog(ERROR, << "Object " << (objectImpl ? objectImpl->GetObjectDescription() : "null")
-                    << " at id=" << object << "is not a vtkRenderWindow!");
+      vtkLog(TRACE, << "Object at id=" << object << " is null");
     }
     return vtkSessionResultFailure;
 #else
