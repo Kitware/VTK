@@ -1061,6 +1061,40 @@ also find the cmake documentation on VTK modules to be useful.
 
 [external-wrapping]: https://gitlab.kitware.com/vtk/vtk/-/blob/release/Examples/Modules/Wrapping
 
+### Runtime C++ object wrapping
+
+VTK allows to declare an object in C++ and to use it in Python. To do so, you
+can simply call `vtkPythonUtil::GetObjectFromPointer` which will create your
+Python object from the pointer to a C++ VTK object. Here is a minimal example:
+
+``` C++
+  #include <vtkPythonInterpreter.h>
+  #include <vtkPythonUtil.h>
+  #include <vtkSmartPyObject.h>
+
+  ...
+
+  // Create a C++ object
+  vtkNew<vtkPolyData> data;
+
+  // Import vtk in Python
+  vtkPythonInterpreter::RunSimpleString("import vtkmodules.vtkCommonCore");
+
+  // Create the python object from the C++ object
+  vtkSmartPyObject pyDataFromCpp;
+  pyDataFromCpp.TakeReference(vtkPythonUtil::GetObjectFromPointer(data.GetPointer()));
+
+  // Make it visible from python
+  PyObject* mainModule = PyImport_AddModule("__main__");
+  PyObject* mainDict = PyModule_GetDict(mainModule);
+  PyDict_SetItemString(mainDict, "pyDataFromPython", pyDataFromCpp)
+
+  // Run Python script
+  std::string script;
+  script += "print(type(pyDataFromPython))\n"; // available with the name set above
+  vtkPythonInterpreter::RunSimpleString(script.c_str());
+```
+
 ## Experimental Features
 
 ### Python Class Overrides
