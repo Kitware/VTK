@@ -47,7 +47,7 @@ bool vtkDataArray::ComputeScalarRange(
   double* ranges, const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   ScalarRangeDispatchWrapper worker(ranges, ghosts, ghostsToSkip);
-  if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>::Execute(this, worker))
   {
     worker(this);
   }

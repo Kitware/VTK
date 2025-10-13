@@ -47,7 +47,7 @@ bool vtkDataArray::ComputeFiniteVectorRange(
   double range[2], const unsigned char* ghosts, unsigned char ghostsToSkip)
 {
   FiniteVectorRangeDispatchWrapper worker(range, ghosts, ghostsToSkip);
-  if (!vtkArrayDispatch::Dispatch::Execute(this, worker))
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>::Execute(this, worker))
   {
     worker(this);
   }
