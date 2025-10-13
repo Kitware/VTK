@@ -23,8 +23,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAxisActor2D);
 
-vtkCxxSetObjectMacro(vtkAxisActor2D, LabelTextProperty, vtkTextProperty);
-vtkCxxSetObjectMacro(vtkAxisActor2D, TitleTextProperty, vtkTextProperty);
+vtkCxxSetSmartPointerMacro(vtkAxisActor2D, LabelTextProperty, vtkTextProperty);
+vtkCxxSetSmartPointerMacro(vtkAxisActor2D, TitleTextProperty, vtkTextProperty);
 
 namespace legacy
 {
@@ -312,13 +312,13 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->Position2Coordinate->SetReferenceCoordinate(nullptr);
 
   this->Title = nullptr;
-  this->LabelTextProperty = vtkTextProperty::New();
+  this->LabelTextProperty = vtkSmartPointer<vtkTextProperty>::New();
   this->LabelTextProperty->SetBold(1);
   this->LabelTextProperty->SetItalic(1);
   this->LabelTextProperty->SetShadow(1);
   this->LabelTextProperty->SetFontFamilyToArial();
 
-  this->TitleTextProperty = vtkTextProperty::New();
+  this->TitleTextProperty = vtkSmartPointer<vtkTextProperty>::New();
   this->TitleTextProperty->ShallowCopy(this->LabelTextProperty);
 
   this->LabelFormat = new char[10];
@@ -356,9 +356,18 @@ vtkAxisActor2D::~vtkAxisActor2D()
 
   delete[] this->Title;
   this->Title = nullptr;
+}
 
-  this->vtkAxisActor2D::SetLabelTextProperty(nullptr);
-  this->vtkAxisActor2D::SetTitleTextProperty(nullptr);
+//------------------------------------------------------------------------------
+vtkTextProperty* vtkAxisActor2D::GetTitleTextProperty()
+{
+  return this->TitleTextProperty;
+}
+
+//------------------------------------------------------------------------------
+vtkTextProperty* vtkAxisActor2D::GetLabelTextProperty()
+{
+  return this->LabelTextProperty;
 }
 
 //------------------------------------------------------------------------------
