@@ -5,9 +5,10 @@
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkConvertToPartitionedDataSetCollection.h"
 #include "vtkDataArray.h"
 #include "vtkDataAssembly.h"
-#include "vtkDataObjectTreeIterator.h"
+#include "vtkDataAssemblyUtilities.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkExplicitStructuredGrid.h"
@@ -38,14 +39,6 @@ vtkObjectFactoryNewMacro(vtkAxisAlignedReflectionFilter);
 
 namespace
 {
-//------------------------------------------------------------------------------
-vtkSmartPointer<vtkPartitionedDataSet> CreatePartitionedDataSet(vtkDataObject* dataObject)
-{
-  vtkNew<vtkPartitionedDataSet> parts;
-  parts->SetNumberOfPartitions(1);
-  parts->SetPartition(0, dataObject);
-  return parts;
-}
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -65,142 +58,124 @@ void vtkAxisAlignedReflectionFilter::ComputeBounds(vtkDataObject* input, double 
 }
 
 //------------------------------------------------------------------------------
-void vtkAxisAlignedReflectionFilter::AddPartitionedDataSet(
-  vtkPartitionedDataSetCollection* outputPDSC, vtkDataObject* dObj, vtkInformation* inputMetadata,
-  const int nodeId, const bool isParentMultiblock, const bool isInputCopy)
+bool vtkAxisAlignedReflectionFilter::ProcessPDC(vtkPartitionedDataSetCollection* inputPDC,
+  vtkPartitionedDataSetCollection* outputPDC, double bounds[6])
 {
-  vtkDataAssembly* outputHierarchy = outputPDSC->GetDataAssembly();
-  outputPDSC->SetPartitionedDataSet(this->PartitionIndex, ::CreatePartitionedDataSet(dObj));
-  std::string nodeName;
-  int& count = isInputCopy ? this->InputCount : this->ReflectionCount;
-  const std::string nodeNamePrefix = isInputCopy ? "Input_" : "Reflection_";
-  const std::string nodeNamePrefixMeta = isInputCopy ? "" : "Reflection_";
-  if (inputMetadata && inputMetadata->Has(vtkCompositeDataSet::NAME()))
+  // get the input data assembly or generate one if not present.
+  vtkNew<vtkDataAssembly> inputAssembly;
+  if (inputPDC->GetDataAssembly())
   {
-    nodeName = nodeNamePrefixMeta +
-      outputHierarchy->MakeValidNodeName(inputMetadata->Get(vtkCompositeDataSet::NAME()));
+    inputAssembly->DeepCopy(inputPDC->GetDataAssembly());
   }
   else
   {
-    nodeName = nodeNamePrefix + vtk::to_string(count++);
+    vtkNew<vtkPartitionedDataSetCollection> tempPDC;
+    if (!vtkDataAssemblyUtilities::GenerateHierarchy(inputPDC, inputAssembly, tempPDC))
+    {
+      vtkErrorMacro("Failed to generate hierarchy for input partitioned dataset collection.");
+      return false;
+    }
+    inputAssembly->DeepCopy(tempPDC->GetDataAssembly());
   }
-
-  outputPDSC->GetMetaData(this->PartitionIndex)->Set(vtkCompositeDataSet::NAME(), nodeName.c_str());
-  if (isParentMultiblock)
+  inputAssembly->SetRootNodeName("Input");
+  inputAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", "Input");
+  // create a reflection assembly
+  vtkNew<vtkDataAssembly> reflectionAssembly;
+  reflectionAssembly->DeepCopy(inputAssembly);
+  reflectionAssembly->SetRootNodeName("Reflection");
+  reflectionAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", "Reflection");
+  // create the output data assembly using the input assembly optionally and reflection assembly.
+  auto outputAssembly = outputPDC->GetDataAssembly();
+  outputAssembly->SetRootNodeName("Root");
+  outputAssembly->SetAttribute(vtkDataAssembly::GetRootNode(), "label", "Root");
+  // append input assembly to output assembly if requested.
+  if (this->CopyInput)
   {
-    int dsNodeId = outputHierarchy->AddNode(nodeName.c_str(), nodeId);
-    outputHierarchy->AddDataSetIndex(dsNodeId, this->PartitionIndex);
+    outputAssembly->AddSubtree(vtkDataAssembly::GetRootNode(), inputAssembly);
+    // shallow copy input to output.
+    outputPDC->vtkDataObjectTree::ShallowCopy(inputPDC);
   }
-  else
-  {
-    outputHierarchy->AddDataSetIndex(nodeId, this->PartitionIndex);
-  }
-  this->PartitionIndex++;
-}
+  outputAssembly->AddSubtree(vtkDataAssembly::GetRootNode(), reflectionAssembly);
 
-//------------------------------------------------------------------------------
-bool vtkAxisAlignedReflectionFilter::ProcessComposite(vtkPartitionedDataSetCollection* outputPDSC,
-  vtkCompositeDataSet* inputCD, double bounds[6], int inputNodeId, int reflectionNodeId)
-{
-
-  vtkDataObjectTree* inputTree = vtkDataObjectTree::SafeDownCast(inputCD);
-  if (!inputTree)
-  {
-    vtkErrorMacro("Failed convert composite to data object tree.");
-    return false;
-  }
-
-  vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::SafeDownCast(inputCD);
-
-  vtkSmartPointer<vtkDataObjectTreeIterator> iter;
-  iter.TakeReference(inputTree->NewTreeIterator());
-  iter->SetVisitOnlyLeaves(false);
-  iter->SetTraverseSubTree(false);
-  iter->SetSkipEmptyNodes(false);
-
-  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+  // traverse input PDC and process each partitioned dataset.
+  for (unsigned int i = 0, index = outputPDC->GetNumberOfPartitionedDataSets();
+       i < inputPDC->GetNumberOfPartitionedDataSets(); ++i, ++index)
   {
     if (this->CheckAbort())
     {
       break;
     }
-
-    vtkInformation* inputMetadata =
-      inputTree->HasMetaData(iter) ? inputTree->GetMetaData(iter) : nullptr;
-
-    vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (cds)
+    // reflect each partition in the partitioned dataset.
+    vtkNew<vtkPartitionedDataSet> outputPDS;
+    for (unsigned int p = 0; p < inputPDC->GetNumberOfPartitions(i); ++p)
     {
-      vtkDataAssembly* outputHierarchy = outputPDSC->GetDataAssembly();
-      std::string compositeNodeName = "Composite";
-      if (inputMetadata && inputMetadata->Has(vtkCompositeDataSet::NAME()))
+      auto dObj = inputPDC->GetPartitionAsDataObject(i, p);
+      if (!dObj)
       {
-        compositeNodeName =
-          outputHierarchy->MakeValidNodeName(inputMetadata->Get(vtkCompositeDataSet::NAME()));
+        outputPDS->SetPartition(p, nullptr);
+        continue;
       }
-
-      int compositeInputNodeId = -1;
-      if (this->CopyInput)
+      auto outputObj = vtk::TakeSmartPointer(dObj->NewInstance());
+      if (!this->ProcessLeaf(dObj, outputObj, bounds))
       {
-        compositeInputNodeId = outputHierarchy->AddNode(compositeNodeName.c_str(), inputNodeId);
-      }
-      int compositeReflectionNodeId =
-        outputHierarchy->AddNode(compositeNodeName.c_str(), reflectionNodeId);
-
-      if (!ProcessComposite(
-            outputPDSC, cds, bounds, compositeInputNodeId, compositeReflectionNodeId))
-      {
-        vtkErrorMacro("Failed to process composite dataset " << cds->GetClassName());
+        vtkErrorMacro("Failed to process data object " << dObj->GetClassName());
         return false;
       }
-      continue;
+      outputPDS->SetPartition(p, outputObj);
     }
+    outputPDC->SetPartitionedDataSet(index, outputPDS);
 
-    // Handle empty nodes
-    if (iter->GetCurrentDataObject() == nullptr)
-    {
-      if (this->CopyInput)
-      {
-        this->AddPartitionedDataSet(
-          outputPDSC, nullptr, inputMetadata, inputNodeId, mb != nullptr, true);
-      }
-      this->AddPartitionedDataSet(
-        outputPDSC, nullptr, inputMetadata, reflectionNodeId, mb != nullptr, false);
-      continue;
-    }
-
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(iter->GetCurrentDataObject());
-    if (!ds && !htg)
-    {
-      vtkErrorMacro("Unhandled data type.");
-      return false;
-    }
-
-    vtkDataObject* dObj = vtkDataObject::SafeDownCast(iter->GetCurrentDataObject());
-    vtkSmartPointer<vtkDataObject> outputObj = dObj->NewInstance();
-
+    vtkInformation* inputMetadata = inputPDC->HasMetaData(i) ? inputPDC->GetMetaData(i) : nullptr;
+    auto name = inputMetadata && inputMetadata->Has(vtkCompositeDataSet::NAME())
+      ? inputMetadata->Get(vtkCompositeDataSet::NAME())
+      : ("Block_" + vtk::to_string(i));
+    // change vtkCompositeDataSet::NAME() to indicate that this is the input/reflection
     if (this->CopyInput)
     {
-      vtkSmartPointer<vtkDataObject> inputCopy = dObj->NewInstance();
-      inputCopy->ShallowCopy(dObj);
-      this->AddPartitionedDataSet(
-        outputPDSC, inputCopy, inputMetadata, inputNodeId, mb != nullptr, true);
-      inputCopy->Delete();
+      auto inputName = "Input_" + name;
+      outputPDC->GetMetaData(i)->Set(vtkCompositeDataSet::NAME(), inputName);
     }
-
-    if (!this->ProcessLeaf(dObj, outputObj, bounds))
-    {
-      outputObj->Delete();
-      vtkErrorMacro("Failed to process data object " << dObj->GetClassName());
-      return false;
-    }
-
-    this->AddPartitionedDataSet(
-      outputPDSC, outputObj, inputMetadata, reflectionNodeId, mb != nullptr, false);
-    outputObj->Delete();
+    auto reflectionName = "Reflection_" + name;
+    outputPDC->GetMetaData(index)->Set(vtkCompositeDataSet::NAME(), reflectionName.c_str());
   }
   return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkAxisAlignedReflectionFilter::ProcessMB(
+  vtkMultiBlockDataSet* inputMB, vtkPartitionedDataSetCollection* outputPDC, double bounds[6])
+{
+  vtkNew<vtkConvertToPartitionedDataSetCollection> converter;
+  converter->SetInputDataObject(inputMB);
+  converter->Update();
+  auto inputPDC = converter->GetOutput();
+  if (!inputPDC)
+  {
+    vtkErrorMacro("Failed to convert input multiblock dataset to partitioned dataset collection.");
+    return false;
+  }
+  return this->ProcessPDC(inputPDC, outputPDC, bounds);
+}
+
+//------------------------------------------------------------------------------
+bool vtkAxisAlignedReflectionFilter::ProcessPDS(
+  vtkPartitionedDataSet* inputPDS, vtkPartitionedDataSetCollection* outputPDC, double bounds[6])
+{
+  vtkNew<vtkPartitionedDataSetCollection> inputPDC;
+  inputPDC->SetPartitionedDataSet(0, inputPDS);
+  vtkNew<vtkDataAssembly> assembly;
+  assembly->AddDataSetIndex(assembly->GetRootNode(), 0);
+  inputPDC->SetDataAssembly(assembly);
+  return this->ProcessPDC(inputPDC, outputPDC, bounds);
+}
+
+//------------------------------------------------------------------------------
+bool vtkAxisAlignedReflectionFilter::ProcessDO(
+  vtkDataObject* inputDO, vtkPartitionedDataSetCollection* outputPDC, double bounds[6])
+{
+  vtkNew<vtkPartitionedDataSet> inputPDS;
+  inputPDS->SetPartition(0, inputDO);
+  return this->ProcessPDS(inputPDS, outputPDC, bounds);
 }
 
 //------------------------------------------------------------------------------
@@ -225,27 +200,7 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
 
   vtkNew<vtkDataAssembly> outputHierarchy;
   outputPDSC->SetDataAssembly(outputHierarchy);
-  int rootId = outputHierarchy->GetRootNode();
-
   outputHierarchy->SetRootNodeName("Root");
-
-  int inputNodeId = -1;
-  if (this->CopyInput)
-  {
-    inputNodeId = outputHierarchy->AddNode("Input", rootId);
-    if (inputNodeId == -1)
-    {
-      vtkErrorMacro("Unable to a add new child node for node " + vtk::to_string(rootId));
-      return 0;
-    }
-  }
-
-  int reflectionNodeId = outputHierarchy->AddNode("Reflection", rootId);
-  if (reflectionNodeId == -1)
-  {
-    vtkErrorMacro("Unable to a add new child node for node " + vtk::to_string(rootId));
-    return 0;
-  }
 
   vtkDataSet* inputDS = vtkDataSet::GetData(inputVector[0], 0);
   vtkHyperTreeGrid* inputHtg = vtkHyperTreeGrid::GetData(inputVector[0], 0);
@@ -254,31 +209,10 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
   if (inputDS || inputHtg)
   {
     vtkDataObject* inputDO = vtkDataObject::GetData(inputVector[0], 0);
-    if (this->CopyInput)
-    {
-      vtkSmartPointer<vtkDataObject> inputCopy = inputDO->NewInstance();
-      inputCopy->ShallowCopy(inputDO);
-      outputPDSC->SetPartitionedDataSet(
-        this->PartitionIndex, ::CreatePartitionedDataSet(inputCopy));
-      outputPDSC->GetMetaData(this->PartitionIndex)->Set(vtkCompositeDataSet::NAME(), "Input");
-      outputHierarchy->AddDataSetIndex(inputNodeId, this->PartitionIndex);
-      inputCopy->Delete();
-      this->PartitionIndex++;
-    }
-
     double bounds[6];
     this->ComputeBounds(inputDO, bounds);
-    vtkSmartPointer<vtkDataObject> outputDO = inputDO->NewInstance();
-    if (this->ProcessLeaf(inputDO, outputDO, bounds))
+    if (!this->ProcessDO(inputDO, outputPDSC, bounds))
     {
-      outputPDSC->SetPartitionedDataSet(this->PartitionIndex, ::CreatePartitionedDataSet(outputDO));
-      outputPDSC->GetMetaData(this->PartitionIndex)->Set(vtkCompositeDataSet::NAME(), "Reflection");
-      outputHierarchy->AddDataSetIndex(reflectionNodeId, this->PartitionIndex);
-      outputDO->Delete();
-    }
-    else
-    {
-      outputDO->Delete();
       vtkErrorMacro("Failed to process data object " << inputDO->GetClassName());
       return 0;
     }
@@ -287,10 +221,33 @@ int vtkAxisAlignedReflectionFilter::RequestData(vtkInformation* vtkNotUsed(reque
   {
     double bounds[6];
     this->ComputeBounds(inputCD, bounds);
-
-    if (!ProcessComposite(outputPDSC, inputCD, bounds, inputNodeId, reflectionNodeId))
+    if (auto inputPDC = vtkPartitionedDataSetCollection::SafeDownCast(inputCD))
     {
-      vtkErrorMacro("Failed to process composite dataset " << inputCD->GetClassName());
+      if (!this->ProcessPDC(inputPDC, outputPDSC, bounds))
+      {
+        vtkErrorMacro("Failed to process partitioned dataset collection.");
+        return 0;
+      }
+    }
+    else if (auto inputMB = vtkMultiBlockDataSet::SafeDownCast(inputCD))
+    {
+      if (!this->ProcessMB(inputMB, outputPDSC, bounds))
+      {
+        vtkErrorMacro("Failed to process multiblock dataset.");
+        return 0;
+      }
+    }
+    else if (auto inputPDS = vtkPartitionedDataSet::SafeDownCast(inputCD))
+    {
+      if (!this->ProcessPDS(inputPDS, outputPDSC, bounds))
+      {
+        vtkErrorMacro("Failed to process partitioned dataset.");
+        return 0;
+      }
+    }
+    else
+    {
+      vtkErrorMacro("Unhandled composite dataset: " << inputCD->GetClassName());
       return 0;
     }
   }
