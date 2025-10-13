@@ -39,6 +39,25 @@ vtkObjectFactoryNewMacro(vtkAxisAlignedReflectionFilter);
 
 namespace
 {
+//------------------------------------------------------------------------------
+void RemoveGlobalIds(vtkDataObject* dataObj)
+{
+  auto dataset = vtkDataSet::SafeDownCast(dataObj);
+  if (!dataset)
+  {
+    return;
+  }
+  vtkPointData* pd = dataset->GetPointData();
+  if (pd && pd->GetGlobalIds() && pd->GetGlobalIds()->GetName())
+  {
+    pd->RemoveArray(pd->GetGlobalIds()->GetName());
+  }
+  vtkCellData* cd = dataset->GetCellData();
+  if (cd && cd->GetGlobalIds() && cd->GetGlobalIds()->GetName())
+  {
+    cd->RemoveArray(cd->GetGlobalIds()->GetName());
+  }
+}
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -120,6 +139,10 @@ bool vtkAxisAlignedReflectionFilter::ProcessPDC(vtkPartitionedDataSetCollection*
       {
         vtkErrorMacro("Failed to process data object " << dObj->GetClassName());
         return false;
+      }
+      if (this->CopyInput)
+      {
+        ::RemoveGlobalIds(outputPDC->GetPartitionAsDataObject(i, p));
       }
       outputPDS->SetPartition(p, outputObj);
     }

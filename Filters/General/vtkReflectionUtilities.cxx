@@ -314,7 +314,9 @@ void vtkReflectionUtilities::ProcessUnstructuredGrid(vtkDataSet* input, vtkUnstr
     output->Allocate(numCells);
   }
   outPD->CopyAllOn();
+  outPD->CopyGlobalIdsOff();
   outCD->CopyAllOn();
+  outCD->CopyGlobalIdsOff();
   outPD->CopyAllocate(inPD);
   outCD->CopyAllocate(inCD);
 
