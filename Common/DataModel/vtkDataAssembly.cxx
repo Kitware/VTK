@@ -78,7 +78,7 @@ bool IsAssemblyNode(const pugi::xml_node& node)
 //------------------------------------------------------------------------------
 bool IsDataSetNode(const pugi::xml_node& node)
 {
-  return strcmp(node.name(), DATASET_NODE_NAME) == 0;
+  return vtkDataAssembly::IsNodeNameReserved(node.name());
 }
 
 //------------------------------------------------------------------------------
@@ -425,7 +425,16 @@ std::string vtkDataAssembly::MakeValidNodeName(const char* name)
 //------------------------------------------------------------------------------
 bool vtkDataAssembly::IsNodeNameReserved(const char* name)
 {
-  return name ? strcmp(name, DATASET_NODE_NAME) == 0 : false;
+  if (name                                        // name is not null
+    && name[0] && name[0] == DATASET_NODE_NAME[0] // strlen(name) > 0 and check first character
+    && name[1] && name[1] == DATASET_NODE_NAME[1] // strlen(name) > 1 and check second character
+    && name[2]                                    // strlen(name) > 2
+  )
+  {
+    // fall back to strcmp, starting from third character.
+    return strcmp(name + 2, DATASET_NODE_NAME + 2) == 0;
+  }
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -769,7 +778,7 @@ bool vtkDataAssembly::RemoveAllDataSetIndices(int id, bool traverse_subtree /*=t
     std::vector<pugi::xml_node>* ToRemove = nullptr;
     bool for_each(pugi::xml_node& nnode) override
     {
-      if (strcmp(nnode.name(), DATASET_NODE_NAME) == 0)
+      if (IsNodeNameReserved(nnode.name()))
       {
         this->ToRemove->push_back(nnode);
       }
