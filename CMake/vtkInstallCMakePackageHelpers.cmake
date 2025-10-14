@@ -47,6 +47,10 @@ set(Python3_find_package_vars
   Python3_LIBRARY)
 set(OpenXRRemoting_find_package_vars
   OpenXRRemoting_BIN_DIR)
+set(PNG_find_package_vars
+  PNG_LIBRARY_DEBUG
+  PNG_LIBRARY_RELEASE
+  PNG_PNG_INCLUDE_DIR)
 
 if ("ospray" IN_LIST _vtk_packages)
   # FIXME: ospray depends on embree, but does not help finders at all.
