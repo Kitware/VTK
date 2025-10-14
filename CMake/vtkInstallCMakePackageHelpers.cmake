@@ -44,10 +44,6 @@ set(OpenVR_find_package_vars
 set(OSMesa_find_package_vars
   OSMESA_INCLUDE_DIR
   OSMESA_LIBRARY)
-set(Python2_find_package_vars
-  Python2_EXECUTABLE
-  Python2_INCLUDE_DIR
-  Python2_LIBRARY)
 set(Python3_find_package_vars
   Python3_EXECUTABLE
   Python3_INCLUDE_DIR
