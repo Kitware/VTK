@@ -56,10 +56,13 @@ set(SQLite_find_package_vars
   SQLite3_LIBRARY)
 
 if ("ospray" IN_LIST _vtk_packages)
-  # FIXME: ospray depends on embree, but does not help finders at all.
+  # FIXME: ospray depends on embree, rkcommon, and openvkl,
+  # but does not help finders at all.
   # https://github.com/ospray/ospray/issues/352
   list(APPEND _vtk_packages
-    embree)
+    embree
+    rkcommon
+    openvkl)
 endif ()
 
 set(vtk_find_package_code)
