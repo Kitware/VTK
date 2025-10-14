@@ -51,6 +51,9 @@ set(PNG_find_package_vars
   PNG_LIBRARY_DEBUG
   PNG_LIBRARY_RELEASE
   PNG_PNG_INCLUDE_DIR)
+set(SQLite_find_package_vars
+  SQLite3_INCLUDE_DIR
+  SQLite3_LIBRARY)
 
 if ("ospray" IN_LIST _vtk_packages)
   # FIXME: ospray depends on embree, but does not help finders at all.
