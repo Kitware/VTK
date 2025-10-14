@@ -41,9 +41,6 @@ set(MPI_find_package_vars
 set(OpenVR_find_package_vars
   OpenVR_INCLUDE_DIR
   OpenVR_LIBRARY)
-set(OSMesa_find_package_vars
-  OSMESA_INCLUDE_DIR
-  OSMESA_LIBRARY)
 set(Python3_find_package_vars
   Python3_EXECUTABLE
   Python3_INCLUDE_DIR
