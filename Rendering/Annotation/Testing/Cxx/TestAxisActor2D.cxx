@@ -236,10 +236,23 @@ bool TestRulerMode()
   {
     expectedPoints->InsertNextPoint(START_POINT + i * spacing, START_POINT + i * spacing, 0);
   }
-  status = CompareTicksPosition(axis, window, expectedPoints);
+  status = CompareTicksPosition(axis, window, expectedPoints) && status;
 
   expectedLabels = { "42.00", "42.37", "42.74" };
   status = axis->CompareLabelMapperString(expectedLabels) && status;
+
+  axis->SetRange(0, 50);
+  axis->SetRulerDistance(0.04);
+  axis->SetNumberOfMinorTicks(0);
+
+  expectedPoints->Initialize();
+  spacing = 8.4853;
+  nbOfTicks = 29;
+  for (int i = 0; i < nbOfTicks; i++)
+  {
+    expectedPoints->InsertNextPoint(START_POINT + i * spacing, START_POINT + i * spacing, 0);
+  }
+  status = CompareTicksPosition(axis, window, expectedPoints) && status;
 
   return status;
 }

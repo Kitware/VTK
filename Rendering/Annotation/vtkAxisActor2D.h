@@ -68,7 +68,8 @@
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkWrappingHints.h"             // For VTK_MARSHALAUTO
 
-#include "vtkNew.h" // for vtkNew
+#include "vtkNew.h"          // for vtkNew
+#include "vtkSmartPointer.h" // for vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
@@ -148,7 +149,8 @@ public:
 
   enum LabelMax
   {
-    VTK_MAX_LABELS = 25
+    VTK_MAX_LABELS VTK_DEPRECATED_IN_9_6_0(
+      "VTK_MAX_LABELS has been removed. Labels are now dynamically allocated. Do not use.") = 25
   };
 
   ///@{
@@ -157,7 +159,7 @@ public:
    * number of major ticks shown. Note that this ivar only holds meaning if
    * the RulerMode is off.
    */
-  vtkSetClampMacro(NumberOfLabels, int, 2, VTK_MAX_LABELS);
+  vtkSetMacro(NumberOfLabels, int);
   vtkGetMacro(NumberOfLabels, int);
   ///@}
 
@@ -289,16 +291,16 @@ public:
   /**
    * Set/Get the title text property.
    */
-  virtual void SetTitleTextProperty(vtkTextProperty* p);
-  vtkGetObjectMacro(TitleTextProperty, vtkTextProperty);
+  virtual void SetTitleTextProperty(vtkTextProperty*);
+  virtual vtkTextProperty* GetTitleTextProperty();
   ///@}
 
   ///@{
   /**
    * Set/Get the labels text property.
    */
-  virtual void SetLabelTextProperty(vtkTextProperty* p);
-  vtkGetObjectMacro(LabelTextProperty, vtkTextProperty);
+  virtual void SetLabelTextProperty(vtkTextProperty*);
+  virtual vtkTextProperty* GetLabelTextProperty();
   ///@}
 
   ///@{
@@ -403,6 +405,14 @@ public:
   ///@}
 
   /**
+   * Get the label mappers.
+   */
+  virtual std::vector<vtkSmartPointer<vtkTextMapper>> GetLabelMappers()
+  {
+    return this->LabelMappers;
+  }
+
+  /**
    * Rebuild the geometry using the provided viewport,
    * and trigger opaque geometry render only if `render` parameter is true.
    * This is used when we need a geometry update (e.g. to draw the grid using tick positions),
@@ -488,9 +498,6 @@ protected:
   vtkAxisActor2D();
   ~vtkAxisActor2D() override;
 
-  vtkTextProperty* TitleTextProperty;
-  vtkTextProperty* LabelTextProperty;
-
   char* Title;
   char* LabelFormat;
   double Range[2] = { 0., 1. };
@@ -551,9 +558,6 @@ protected:
 
   vtkTextMapper* TitleMapper;
   vtkActor2D* TitleActor;
-
-  vtkTextMapper** LabelMappers;
-  vtkActor2D** LabelActors;
 
   vtkNew<vtkPolyData> Axis;
   vtkNew<vtkPolyDataMapper2D> AxisMapper;
@@ -633,6 +637,12 @@ private:
   bool SnapLabelsToGrid = false;
 
   bool SkipFirstTick = false;
+
+  std::vector<vtkSmartPointer<vtkTextMapper>> LabelMappers;
+  std::vector<vtkSmartPointer<vtkActor2D>> LabelActors;
+
+  vtkSmartPointer<vtkTextProperty> TitleTextProperty;
+  vtkSmartPointer<vtkTextProperty> LabelTextProperty;
 };
 
 VTK_ABI_NAMESPACE_END

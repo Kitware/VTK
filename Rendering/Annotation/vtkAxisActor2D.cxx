@@ -23,8 +23,8 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAxisActor2D);
 
-vtkCxxSetObjectMacro(vtkAxisActor2D, LabelTextProperty, vtkTextProperty);
-vtkCxxSetObjectMacro(vtkAxisActor2D, TitleTextProperty, vtkTextProperty);
+vtkCxxSetSmartPointerMacro(vtkAxisActor2D, LabelTextProperty, vtkTextProperty);
+vtkCxxSetSmartPointerMacro(vtkAxisActor2D, TitleTextProperty, vtkTextProperty);
 
 namespace legacy
 {
@@ -312,13 +312,13 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->Position2Coordinate->SetReferenceCoordinate(nullptr);
 
   this->Title = nullptr;
-  this->LabelTextProperty = vtkTextProperty::New();
+  this->LabelTextProperty = vtkSmartPointer<vtkTextProperty>::New();
   this->LabelTextProperty->SetBold(1);
   this->LabelTextProperty->SetItalic(1);
   this->LabelTextProperty->SetShadow(1);
   this->LabelTextProperty->SetFontFamilyToArial();
 
-  this->TitleTextProperty = vtkTextProperty::New();
+  this->TitleTextProperty = vtkSmartPointer<vtkTextProperty>::New();
   this->TitleTextProperty->ShallowCopy(this->LabelTextProperty);
 
   this->LabelFormat = new char[10];
@@ -329,14 +329,16 @@ vtkAxisActor2D::vtkAxisActor2D()
   this->TitleActor = vtkActor2D::New();
   this->TitleActor->SetMapper(this->TitleMapper);
 
-  // To avoid deleting/rebuilding create once up front
-  this->LabelMappers = new vtkTextMapper*[VTK_MAX_LABELS];
-  this->LabelActors = new vtkActor2D*[VTK_MAX_LABELS];
-  for (int i = 0; i < VTK_MAX_LABELS; i++)
+  this->LabelMappers.reserve(this->NumberOfLabels);
+  this->LabelActors.reserve(this->NumberOfLabels);
+
+  for (int i = 0; i < this->NumberOfLabels; ++i)
   {
-    this->LabelMappers[i] = vtkTextMapper::New();
-    this->LabelActors[i] = vtkActor2D::New();
-    this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
+    vtkNew<vtkTextMapper> mapper;
+    vtkNew<vtkActor2D> actor;
+    actor->SetMapper(mapper);
+    this->LabelMappers.emplace_back(mapper);
+    this->LabelActors.emplace_back(actor);
   }
 
   this->AxisMapper->SetInputData(this->Axis);
@@ -354,20 +356,18 @@ vtkAxisActor2D::~vtkAxisActor2D()
 
   delete[] this->Title;
   this->Title = nullptr;
+}
 
-  if (this->LabelMappers != nullptr)
-  {
-    for (int i = 0; i < VTK_MAX_LABELS; i++)
-    {
-      this->LabelMappers[i]->Delete();
-      this->LabelActors[i]->Delete();
-    }
-    delete[] this->LabelMappers;
-    delete[] this->LabelActors;
-  }
+//------------------------------------------------------------------------------
+vtkTextProperty* vtkAxisActor2D::GetTitleTextProperty()
+{
+  return this->TitleTextProperty;
+}
 
-  this->SetLabelTextProperty(nullptr);
-  this->SetTitleTextProperty(nullptr);
+//------------------------------------------------------------------------------
+vtkTextProperty* vtkAxisActor2D::GetLabelTextProperty()
+{
+  return this->LabelTextProperty;
 }
 
 //------------------------------------------------------------------------------
@@ -401,7 +401,7 @@ int vtkAxisActor2D::UpdateGeometryAndRenderOpaqueGeometry(vtkViewport* viewport,
 
 int vtkAxisActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 {
-  int i, renderedSomething = 0;
+  int renderedSomething = 0;
 
   this->BuildAxis(viewport);
 
@@ -418,7 +418,7 @@ int vtkAxisActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 
   if (this->LabelVisibility)
   {
-    for (i = 0; i < this->NumberOfLabelsBuilt; i++)
+    for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
       renderedSomething += this->LabelActors[i]->RenderOpaqueGeometry(viewport);
     }
@@ -432,7 +432,7 @@ int vtkAxisActor2D::RenderOpaqueGeometry(vtkViewport* viewport)
 
 int vtkAxisActor2D::RenderOverlay(vtkViewport* viewport)
 {
-  int i, renderedSomething = 0;
+  int renderedSomething = 0;
 
   this->BuildAxis(viewport);
 
@@ -449,7 +449,7 @@ int vtkAxisActor2D::RenderOverlay(vtkViewport* viewport)
 
   if (this->LabelVisibility)
   {
-    for (i = 0; i < this->NumberOfLabelsBuilt; i++)
+    for (int i = 0; i < this->NumberOfLabelsBuilt; i++)
     {
       renderedSomething += this->LabelActors[i]->RenderOverlay(viewport);
     }
@@ -473,9 +473,9 @@ vtkTypeBool vtkAxisActor2D::HasTranslucentPolygonalGeometry()
 void vtkAxisActor2D::ReleaseGraphicsResources(vtkWindow* win)
 {
   this->TitleActor->ReleaseGraphicsResources(win);
-  for (int i = 0; i < VTK_MAX_LABELS; i++)
+  for (auto& actor : this->LabelActors)
   {
-    this->LabelActors[i]->ReleaseGraphicsResources(win);
+    actor->ReleaseGraphicsResources(win);
   }
   this->AxisActor->ReleaseGraphicsResources(win);
 }
@@ -859,8 +859,15 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
     {
       if (!this->SizeFontRelativeToAxis)
       {
-        vtkTextMapper::SetMultipleRelativeFontSize(viewport, this->LabelMappers,
-          this->NumberOfLabelsBuilt, size, this->LastMaxLabelSize,
+        std::vector<vtkTextMapper*> rawMappers;
+        rawMappers.reserve(this->LabelMappers.size());
+        for (auto& m : this->LabelMappers)
+        {
+          rawMappers.push_back(m);
+        }
+
+        vtkTextMapper::SetMultipleRelativeFontSize(viewport, rawMappers.data(),
+          static_cast<int>(rawMappers.size()), size, this->LastMaxLabelSize,
           0.015 * this->FontFactor * this->LabelFactor);
       }
       else
@@ -1040,6 +1047,27 @@ void vtkAxisActor2D::BuildAxis(vtkViewport* viewport)
 
   this->UpdateTicksValueAndPosition(viewport);
 
+  int nLabels = this->NumberOfLabelsBuilt;
+
+  if (this->LabelActors.size() < static_cast<size_t>(nLabels))
+  {
+    size_t oldSize = this->LabelActors.size();
+    this->LabelActors.resize(nLabels);
+    this->LabelMappers.resize(nLabels);
+
+    for (size_t i = oldSize; i < static_cast<size_t>(nLabels); ++i)
+    {
+      this->LabelMappers[i] = vtkSmartPointer<vtkTextMapper>::New();
+      this->LabelActors[i] = vtkSmartPointer<vtkActor2D>::New();
+      this->LabelActors[i]->SetMapper(this->LabelMappers[i]);
+    }
+  }
+  else if (this->LabelActors.size() > static_cast<size_t>(nLabels))
+  {
+    this->LabelActors.resize(nLabels);
+    this->LabelMappers.resize(nLabels);
+  }
+
   this->BuildTicksPolyData(viewport);
 
   if (this->LabelVisibility)
@@ -1121,8 +1149,6 @@ void vtkAxisActor2D::UpdateAdjustedRange()
       << this->AdjustedNumberOfLabels);
     this->AdjustedNumberOfLabels = 1;
   }
-
-  this->AdjustedNumberOfLabels = std::min<int>(this->AdjustedNumberOfLabels, VTK_MAX_LABELS);
 
   this->AdjustedRangeBuildTime.Modified();
 }
