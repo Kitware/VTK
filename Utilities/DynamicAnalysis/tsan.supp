@@ -56,13 +56,6 @@ race:ContourCellsBase<vtkAOSDataArrayTemplate<float>, vtkAOSDataArrayTemplate<fl
 # test: FiltersCorePython-Test3DLinearGridCrinkleExtractor
 race:ExtractPointsAndCells::operator()
 
-# test: FiltersCorePython-TestSurfaceNets2D2
-race:SurfaceNets<short>::ClassifyYEdges
-race:SurfaceNets<float>::ClassifyYZEdges
-
-# test: FiltersCorePython-TestSurfaceNets3D
-race:SurfaceNets<short>::ClassifyYZEdges
-
 # test: FiltersCorePython-TestOrientedFlyingEdgesPlaneCutter
 race:vtkFlyingEdgesPlaneCutterAlgorithm<float>::ProcessYZEdges
 

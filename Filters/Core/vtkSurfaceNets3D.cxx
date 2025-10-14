@@ -1570,32 +1570,49 @@ struct NetsWorker
   }; // Pass1 dispatch
 
   // PASS 2: Process all voxels on the given x-rows to classify triad y-z-axes,
-  // and classify voxels. Interface to vtkSMPTools::For(). Note that triad row "i"
-  // corresponds to image row (i-1) (i.e., the triads pad out the volume).
+  // and classify voxels. To avoid race conditions when reading edge metadata from
+  // neighboring slices (eMDZ), Pass 2 is executed in two phases: first processing
+  // odd slices (1, 3, 5, ...), then even slices (2, 4, 6, ...). Since each slice
+  // reads from its next neighbor (slice k reads from slice k+1), and odd/even
+  // neighbors are in different sets, processing one complete set before the other
+  // eliminates simultaneous read/write conflicts. Note that even slices (k) read
+  // eMDZ values from their odd neighbor (k+1), which has already been written by
+  // the odd phase; this is intentional and safe because the odd phase completes
+  // entirely before the even phase begins. Interface to vtkSMPTools::For().
+  // Note that triad row "i" corresponds to image row (i-1) (i.e., the triads pad
+  // out the volume).
   template <typename TArray>
   struct Pass2
   {
     using TInPtr = typename vtk::detail::ValueRange<TArray, 1>::iterator;
-    using T = vtk::GetAPIType<TArray>;
     SurfaceNets<TArray>* Algo;
-    Pass2(SurfaceNets<TArray>* algo) { this->Algo = algo; }
-    void operator()(vtkIdType slice, vtkIdType endSlice)
-    {
-      TInPtr rowPtr, slicePtr = this->Algo->Scalars + (slice - 1) * this->Algo->Inc[Z];
+    vtkNew<vtkAffineArray<vtkIdType>> Slices;
 
-      // Process slice-by-slice. Note that the bottom and top slices are not
-      // processed (they have been 0-initialized).
-      for (; slice < endSlice; ++slice)
+    // Constructor creates an affine array containing either odd or even slice indices.
+    // The affine array generates the sequence with stride=2, starting at 1 (odd) or 2 (even).
+    Pass2(SurfaceNets<TArray>* algo, bool odd, vtkIdType numTotalSlices)
+    {
+      this->Algo = algo;
+      vtkIdType numSlices = odd ? (numTotalSlices / 2) : ((numTotalSlices + 1) / 2);
+      this->Slices->SetNumberOfValues(numSlices);
+      this->Slices->ConstructBackend(2, odd ? 1 : 2); // stride=2, start=1 or 2
+    }
+
+    void operator()(vtkIdType beginSliceId, vtkIdType endSliceId)
+    {
+      // Process slice-by-slice using the affine array of odd or even slices.
+      // Note that the bottom and top slices are not processed (they have been 0-initialized).
+      for (vtkIdType sliceId = beginSliceId; sliceId < endSliceId; ++sliceId)
       {
+        const vtkIdType slice = this->Slices->GetValue(sliceId);
         // Process only triads associated with voxels (i.e., no padded voxels).
-        rowPtr = slicePtr;
+        TInPtr rowPtr = this->Algo->Scalars + (slice - 1) * this->Algo->Inc[Z];
         for (vtkIdType row = 1, rowEnd = this->Algo->TriadDims[Y] - 1; row < rowEnd; ++row)
         {
           this->Algo->ClassifyYZEdges(rowPtr, row, slice);
           rowPtr += this->Algo->Inc[Y];
         } // for all rows in this slice
-        slicePtr += this->Algo->Inc[Z];
-      } // for all slices in this batch
+      }   // for all slices in this batch
     }
   }; // Pass2 dispatch
 
@@ -1741,9 +1758,14 @@ struct NetsWorker
     vtkSMPTools::For(1, algo.TriadDims[Z] - 1, pass1);
 
     // Classify the triad y-z-edges; finalize the triad classification.
-    // Note that the last padded z-slice of triads is not processed.
-    Pass2<TArray> pass2(&algo);
-    vtkSMPTools::For(1, algo.TriadDims[Z] - 1, pass2);
+    // Process in two passes (odd slices, then even slices) to avoid race conditions.
+    // Since each slice reads from the next slice (eMDZ), and odd/even neighbors are
+    // in different sets, processing one complete set before the other eliminates races.
+    Pass2<TArray> pass2Odd(&algo, true, algo.TriadDims[Z] - 2);
+    vtkSMPTools::For(0, pass2Odd.Slices->GetNumberOfValues(), pass2Odd);
+
+    Pass2<TArray> pass2Even(&algo, false, algo.TriadDims[Z] - 2);
+    vtkSMPTools::For(0, pass2Even.Slices->GetNumberOfValues(), pass2Even);
 
     // Prefix sum to determine the size and character of the output, and
     // then allocate it.

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkSurfaceNets2D.h"
 
+#include "vtkAffineArray.h"
 #include "vtkArrayComponents.h"
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
@@ -959,23 +960,39 @@ struct NetsWorker
   }; // Pass1 dispatch
 
   // PASS 2: Process all squares on the given x-rows to classify dyad y-axis,
-  // and classify squares. Interface to vtkSMPTools::For(). Note that dyad row i
-  // corresponds to image row (i-1).
+  // and classify squares. To avoid race conditions when reading dyad cases from
+  // neighboring rows (dPtrAbove), Pass 2 is executed in two phases: first processing
+  // odd rows (1, 3, 5, ...), then even rows (0, 2, 4, ...). Since each row reads
+  // from the row above it (row k reads row k+1), and odd/even neighbors are in
+  // different sets, processing one complete set before the other eliminates
+  // simultaneous read/write conflicts. Interface to vtkSMPTools::For(). Note that
+  // dyad row i corresponds to image row (i-1).
   template <typename TArray>
   struct Pass2
   {
     using TInPtr = typename vtk::detail::ValueRange<TArray, 1>::iterator;
-    using T = vtk::GetAPIType<TArray>;
-
     SurfaceNets<TArray>* Algo;
-    Pass2(SurfaceNets<TArray>* algo) { this->Algo = algo; }
-    void operator()(vtkIdType row, vtkIdType end)
+    vtkNew<vtkAffineArray<vtkIdType>> Rows;
+
+    // Constructor creates an affine array containing either odd or even row indices.
+    // The affine array generates the sequence with stride=2, starting at 1 (odd) or 0 (even).
+    Pass2(SurfaceNets<TArray>* algo, bool odd, vtkIdType numTotalRows)
     {
-      TInPtr rowPtr = this->Algo->Scalars + (row - 1) * this->Algo->Inc1;
-      for (; row < end; ++row)
+      this->Algo = algo;
+      vtkIdType numRows = odd ? (numTotalRows / 2) : ((numTotalRows + 1) / 2);
+      this->Rows->SetNumberOfValues(numRows);
+      this->Rows->ConstructBackend(2, odd ? 1 : 0); // stride=2, start=1 (odd) or 0 (even)
+    }
+
+    void operator()(vtkIdType beginRowId, vtkIdType endRowId)
+    {
+      // Process row-by-row using the affine array of odd or even rows.
+      // Note that the bottom and top rows are not processed (they return early).
+      for (vtkIdType rowId = beginRowId; rowId < endRowId; ++rowId)
       {
+        const vtkIdType row = this->Rows->GetValue(rowId);
+        TInPtr rowPtr = this->Algo->Scalars + (row - 1) * this->Algo->Inc1;
         this->Algo->ClassifyYEdges(rowPtr, row);
-        rowPtr += this->Algo->Inc1;
       } // for all rows in this batch
     }
   }; // Pass2 dispatch
@@ -1114,8 +1131,14 @@ struct NetsWorker
     vtkSMPTools::For(1, algo.DyadDims[1] - 1, pass1);
 
     // Classify the dyad y-edges; finalize the dyad classification.
-    Pass2<TArray> pass2(&algo);
-    vtkSMPTools::For(0, algo.DyadDims[1] - 1, pass2);
+    // Process in two passes (odd rows, then even rows) to avoid race conditions.
+    // Since each row reads from the row above (dPtrAbove), and odd/even neighbors
+    // are in different sets, processing one complete set before the other eliminates races.
+    Pass2<TArray> pass2Odd(&algo, true, algo.DyadDims[1] - 1);
+    vtkSMPTools::For(0, pass2Odd.Rows->GetNumberOfValues(), pass2Odd);
+
+    Pass2<TArray> pass2Even(&algo, false, algo.DyadDims[1] - 1);
+    vtkSMPTools::For(0, pass2Even.Rows->GetNumberOfValues(), pass2Even);
 
     // Prefix sum to determine the size and character of the output, and
     // then allocate it.
