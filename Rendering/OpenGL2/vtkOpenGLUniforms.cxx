@@ -342,20 +342,23 @@ public:
     {
       delete (*it).second;
       this->Uniforms.erase(it);
+      this->UniformListMTime.Modified();
+      this->Parent->Modified();
     }
-    this->UniformListMTime.Modified();
-    this->Parent->Modified();
   }
 
   void RemoveAllUniforms()
   {
-    for (auto& uni : this->Uniforms)
+    if (!this->Uniforms.empty())
     {
-      delete uni.second;
+      for (auto& uni : this->Uniforms)
+      {
+        delete uni.second;
+      }
+      this->Uniforms.clear();
+      this->UniformListMTime.Modified();
+      this->Parent->Modified();
     }
-    this->Uniforms.clear();
-    this->UniformListMTime.Modified();
-    this->Parent->Modified();
   }
 
   template <class dataT, class uniformT>
