@@ -1375,7 +1375,16 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkTableBasedClipDataSet::ClipTDataSet(
 
   // create outputClippedCells
   auto outputClippedCells = vtkSmartPointer<vtkUnstructuredGrid>::New();
-  outputClippedCells->SetPoints(outputPoints);
+  // if the input had no cells or it had cells but they were not all discarded, set points
+  if (input->GetNumberOfCells() == 0 || outputCellArray->GetNumberOfCells() != 0)
+  {
+    outputClippedCells->SetPoints(outputPoints);
+    if (!unsupportedCells.empty())
+    {
+      vtkWarningMacro("Output points used by cells not supported by vtkTableBasedClipDataSet will "
+                      "appear twice. To avoid this, consider using vtkClipDataSet directly");
+    }
+  }
   outputClippedCells->GetPointData()->ShallowCopy(outputPointData);
   outputClippedCells->SetPolyhedralCells(outputCellTypes, outputCellArray, nullptr, nullptr);
   outputClippedCells->GetCellData()->ShallowCopy(outputCellData);
