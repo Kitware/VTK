@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#define VTK_DEPRECATION_LEVEL 0
 
+#include "vtkFileResourceStream.h"
 #include "vtkImageData.h"
 #include "vtkImageViewer.h"
 #include "vtkPNGReader.h"
@@ -9,13 +9,11 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtksys/FStream.hxx"
-#include "vtksys/SystemTools.hxx"
 
 #include <fstream>
 #include <vector>
 
-int TestPNGReaderReadFromMemory(int argc, char* argv[])
+int TestPNGReaderReadFromStream(int argc, char* argv[])
 {
 
   if (argc <= 1)
@@ -27,21 +25,15 @@ int TestPNGReaderReadFromMemory(int argc, char* argv[])
   std::string filename = argv[1];
 
   // Open the file
-  vtksys::ifstream stream(filename.c_str(), std::ios::in | std::ios::binary);
-  if (!stream.is_open())
+  vtkNew<vtkFileResourceStream> stream;
+  if (!stream->Open(filename.c_str()))
   {
     std::cerr << "Could not open file " << filename << std::endl;
   }
-  // Get file size
-  unsigned long len = vtksys::SystemTools::FileLength(filename);
-
-  // Load the file into a buffer
-  std::vector<char> buffer = std::vector<char>(std::istreambuf_iterator<char>(stream), {});
 
   // Initialize reader
   vtkNew<vtkPNGReader> pngReader;
-  pngReader->SetMemoryBuffer(buffer.data());
-  pngReader->SetMemoryBufferLength(len);
+  pngReader->SetStream(stream);
 
   // Visualize
   vtkNew<vtkImageViewer> imageViewer;

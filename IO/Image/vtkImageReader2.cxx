@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkImageReader2.h"
 
 #include "vtkByteSwap.h"
@@ -715,6 +717,7 @@ void vtkImageReader2::ExecuteDataWithInformation(vtkDataObject* output, vtkInfor
 }
 
 //------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_6_0
 void vtkImageReader2::SetMemoryBuffer(const void* membuf)
 {
   if (this->MemoryBuffer != membuf)
@@ -725,6 +728,14 @@ void vtkImageReader2::SetMemoryBuffer(const void* membuf)
 }
 
 //------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_6_0
+const void* vtkImageReader2::GetMemoryBuffer()
+{
+  return this->MemoryBuffer;
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_6_0
 void vtkImageReader2::SetMemoryBufferLength(vtkIdType buflen)
 {
   if (this->MemoryBufferLength != buflen)
@@ -732,6 +743,13 @@ void vtkImageReader2::SetMemoryBufferLength(vtkIdType buflen)
     this->MemoryBufferLength = buflen;
     this->Modified();
   }
+}
+
+//------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_6_0
+vtkIdType vtkImageReader2::GetMemoryBufferLength()
+{
+  return this->MemoryBufferLength;
 }
 
 //------------------------------------------------------------------------------

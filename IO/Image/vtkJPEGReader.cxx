@@ -1,9 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkJPEGReader.h"
 
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
+#include "vtkMemoryResourceStream.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include <vtksys/SystemTools.hxx>
@@ -98,6 +101,19 @@ void jpeg_mem_src(j_decompress_ptr cinfo, const void* buffer, long nbytes)
   cinfo->src->bytes_in_buffer = nbytes;
   cinfo->src->next_input_byte = (const JOCTET*)buffer;
 }
+
+vtkSmartPointer<vtkMemoryResourceStream> ToMemoryStream(vtkResourceStream* stream)
+{
+  vtkNew<vtkMemoryResourceStream> output;
+  stream->Seek(0, vtkResourceStream::SeekDirection::End);
+  std::size_t size = stream->Tell();
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+  std::vector<std::byte> tempBuffer;
+  tempBuffer.resize(size);
+  stream->Read(tempBuffer.data(), size);
+  output->SetBuffer(std::move(tempBuffer));
+  return output;
+}
 }
 
 #ifdef _MSC_VER
@@ -117,7 +133,8 @@ void vtkJPEGReader::ExecuteInformation()
   jerr.fp = nullptr;
 
   this->ComputeInternalFileName(this->DataExtent[4]);
-  if (this->InternalFileName == nullptr && this->MemoryBuffer == nullptr)
+  if (this->InternalFileName == nullptr && this->MemoryBuffer == nullptr &&
+    this->GetStream() == nullptr)
   {
     return;
   }
@@ -125,7 +142,7 @@ void vtkJPEGReader::ExecuteInformation()
   // reset the error code before reading
   this->ErrorCode = 0;
 
-  if (!this->MemoryBuffer)
+  if (!this->MemoryBuffer && !this->GetStream())
   {
     jerr.fp = vtksys::SystemTools::Fopen(this->InternalFileName, "rb");
     if (!jerr.fp)
@@ -134,8 +151,9 @@ void vtkJPEGReader::ExecuteInformation()
       return;
     }
   }
-  else
+  else if (this->MemoryBuffer)
   {
+    // VTK_DEPRECATED_IN_9_6_0
     if (this->MemoryBufferLength == 0)
     {
       vtkErrorWithObjectMacro(this,
@@ -162,30 +180,41 @@ void vtkJPEGReader::ExecuteInformation()
     {
       fclose(jerr.fp);
       // this is not a valid jpeg file
-      vtkErrorWithObjectMacro(this, "libjpeg could not read file: " << this->InternalFileName);
-    }
-    else
-    {
-      vtkErrorWithObjectMacro(this,
-        "libjpeg could not read file from memory buffer: " << (this->MemoryBuffer ? "<ptr>"
-                                                                                  : "(null)"));
+      vtkErrorMacro("libjpeg could not read file: " << this->InternalFileName);
     }
     return;
   }
   jpeg_create_decompress(&cinfo);
 
-  // set the source file
-  if (jerr.fp)
+  vtkSmartPointer<vtkMemoryResourceStream> tempMemStream;
+  std::vector<std::byte> tempBuffer;
+
+  if (this->GetStream())
   {
-    jpeg_stdio_src(&cinfo, jerr.fp);
+    vtkMemoryResourceStream* memStream = vtkMemoryResourceStream::SafeDownCast(this->GetStream());
+    if (!memStream)
+    {
+      tempMemStream = ToMemoryStream(this->GetStream());
+      memStream = tempMemStream.GetPointer();
+    }
+#if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
+    jMemSrc(&cinfo, memStream->GetBuffer(), static_cast<unsigned long>(memStream->GetSize()));
+#else
+    jpeg_mem_src(&cinfo, memStream->GetBuffer(), static_cast<unsigned long>(memStream->GetSize()));
+#endif
   }
-  else
+  else if (this->GetMemoryBuffer())
   {
+    // VTK_DEPRECATED_IN_9_6_0
 #if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
     jMemSrc(&cinfo, this->MemoryBuffer, this->MemoryBufferLength);
 #else
     jpeg_mem_src(&cinfo, this->MemoryBuffer, this->MemoryBufferLength);
 #endif
+  }
+  else // if (jerr.fp)
+  {
+    jpeg_stdio_src(&cinfo, jerr.fp);
   }
 
   // read the header
@@ -224,7 +253,7 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType
   jerr.JPEGReader = self;
   jerr.fp = nullptr;
 
-  if (!self->GetMemoryBuffer())
+  if (!self->GetMemoryBuffer() && !self->GetStream())
   {
     jerr.fp = vtksys::SystemTools::Fopen(self->GetInternalFileName(), "rb");
     if (!jerr.fp)
@@ -256,18 +285,36 @@ int vtkJPEGReaderUpdate2(vtkJPEGReader* self, OT* outPtr, int* outExt, vtkIdType
   }
   jpeg_create_decompress(&cinfo);
 
-  // set the source file
-  if (jerr.fp)
+  vtkSmartPointer<vtkMemoryResourceStream> tempMemStream;
+  std::vector<std::byte> tempBuffer;
+
+  if (self->GetStream())
   {
-    jpeg_stdio_src(&cinfo, jerr.fp);
+    vtkMemoryResourceStream* memStream = vtkMemoryResourceStream::SafeDownCast(self->GetStream());
+
+    if (!memStream)
+    {
+      tempMemStream = ToMemoryStream(self->GetStream());
+      memStream = tempMemStream.GetPointer();
+    }
+#if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
+    jMemSrc(&cinfo, memStream->GetBuffer(), static_cast<unsigned long>(memStream->GetSize()));
+#else
+    jpeg_mem_src(&cinfo, memStream->GetBuffer(), static_cast<unsigned long>(memStream->GetSize()));
+#endif
   }
-  else
+  else if (self->GetMemoryBuffer())
   {
+    // VTK_DEPRECATED_IN_9_6_0
 #if JPEG_LIB_VERSION >= 80 || defined(MEM_SRCDST_SUPPORTED)
     jMemSrc(&cinfo, self->GetMemoryBuffer(), self->GetMemoryBufferLength());
 #else
     jpeg_mem_src(&cinfo, self->GetMemoryBuffer(), self->GetMemoryBufferLength());
 #endif
+  }
+  else // if (jerr.fp)
+  {
+    jpeg_stdio_src(&cinfo, jerr.fp);
   }
 
   // read the header
