@@ -234,10 +234,8 @@ int vtkIOSSCellGridReader::ReadMesh(
     // Read global data. Since global data is expected to be identical on all
     // files in a partitioned collection, we can read it from the first
     // dbaseHandle alone.
-    if (this->GetReadGlobalFields())
-    {
-      internals.GetGlobalFields(collection->GetFieldData(), dbaseHandles[0], timestep);
-    }
+    internals.GetGlobalFields(
+      this->GetGlobalFieldSelection(), collection->GetFieldData(), dbaseHandles[0], timestep);
 
     if (this->GetReadQAAndInformationRecords())
     {

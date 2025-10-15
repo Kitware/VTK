@@ -482,6 +482,7 @@ bool vtkIOSSReaderInternal::UpdateEntityAndFieldSelections(vtkIOSSReader* self)
   std::array<std::set<vtkIOSSUtilities::EntityNameType>, vtkIOSSReader::NUMBER_OF_ENTITY_TYPES>
     entity_names;
   std::array<std::set<std::string>, vtkIOSSReader::NUMBER_OF_ENTITY_TYPES> field_names;
+  std::set<std::string> global_field_names;
   std::set<vtkIOSSUtilities::EntityNameType> bc_names;
 
   // format should have been set (and synced) across all ranks by now.
@@ -530,6 +531,8 @@ bool vtkIOSSReaderInternal::UpdateEntityAndFieldSelections(vtkIOSSReader* self)
         vtkIOSSUtilities::GetEntityAndFieldNames(region, region->get_sidesets(),
           entity_names[vtkIOSSReader::SIDESET], field_names[vtkIOSSReader::SIDESET]);
 
+        vtkIOSSUtilities::GetGlobalFieldNames(region, global_field_names);
+
         // note: for CGNS, the structuredblock elements have nested BC patches. These patches
         // are named as well. Let's collect those names too.
         for (const auto& sb : region->get_structured_blocks())
@@ -565,6 +568,7 @@ bool vtkIOSSReaderInternal::UpdateEntityAndFieldSelections(vtkIOSSReader* self)
     // sync selections across all ranks.
     ::Synchronize(controller, entity_names, entity_names);
     ::Synchronize(controller, field_names, field_names);
+    ::Synchronize(controller, global_field_names, global_field_names);
 
     // Sync format. Needed since all ranks may not have read entity information
     // thus may not have format setup correctly.
@@ -593,6 +597,12 @@ bool vtkIOSSReaderInternal::UpdateEntityAndFieldSelections(vtkIOSSReader* self)
     {
       fieldSelection->AddArray(name.c_str(), vtkIOSSReader::GetEntityTypeIsBlock(cc));
     }
+  }
+  // add global fields.
+  auto fieldSelection = self->GetGlobalFieldSelection();
+  for (auto& name : global_field_names)
+  {
+    fieldSelection->AddArray(name.c_str(), true);
   }
 
   // Populate DatasetIndexMap.
@@ -2295,7 +2305,7 @@ bool vtkIOSSReaderInternal::GetQAAndInformationRecords(
   return true;
 }
 
-bool vtkIOSSReaderInternal::GetGlobalFields(
+bool vtkIOSSReaderInternal::GetGlobalFields(vtkDataArraySelection* globalFieldSelection,
   vtkFieldData* fd, const DatabaseHandle& handle, int timestep)
 {
   auto region = this->GetRegion(handle);
@@ -2312,9 +2322,12 @@ bool vtkIOSSReaderInternal::GetGlobalFields(
     {
       case Ioss::Field::ATTRIBUTE:
       case Ioss::Field::REDUCTION:
-        if (auto array = this->GetField(name, region, region, handle, timestep))
+        if (globalFieldSelection->ArrayIsEnabled(name.c_str()))
         {
-          fd->AddArray(array);
+          if (auto array = this->GetField(name, region, region, handle, timestep))
+          {
+            fd->AddArray(array);
+          }
         }
         break;
       default:

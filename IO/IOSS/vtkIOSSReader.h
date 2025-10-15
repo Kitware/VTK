@@ -159,6 +159,7 @@
  * vtkIOSSWriter, vtkExodusIIReader, vtkCGNSReader
  */
 
+#include "vtkDeprecation.h"  // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkIOIOSSModule.h" // for export macros
 #include "vtkNew.h"          // for vtkNew
 #include "vtkReaderAlgorithm.h"
@@ -353,9 +354,14 @@ public:
   /**
    * When set to true (default), the reader will read global fields.
    */
-  vtkSetMacro(ReadGlobalFields, bool);
-  vtkGetMacro(ReadGlobalFields, bool);
-  vtkBooleanMacro(ReadGlobalFields, bool);
+  VTK_DEPRECATED_IN_9_6_0("Use vtkDataArraySelection* GetGlobalFieldSelection() instead")
+  virtual void SetReadGlobalFields(bool value);
+  VTK_DEPRECATED_IN_9_6_0("Use vtkDataArraySelection* GetGlobalFieldSelection() instead")
+  virtual bool GetReadGlobalFields();
+  VTK_DEPRECATED_IN_9_6_0("Use vtkDataArraySelection* GetGlobalFieldSelection() instead")
+  virtual void ReadGlobalFieldsOn();
+  VTK_DEPRECATED_IN_9_6_0("Use vtkDataArraySelection* GetGlobalFieldSelection() instead")
+  virtual void ReadGlobalFieldsOff();
   ///@}
 
   ///@{
@@ -480,6 +486,7 @@ public:
     return this->GetFieldSelection(ELEMENTSET);
   }
   vtkDataArraySelection* GetSideSetFieldSelection() { return this->GetFieldSelection(SIDESET); }
+  vtkDataArraySelection* GetGlobalFieldSelection();
 
   void RemoveAllEntitySelections();
   void RemoveAllFieldSelections();
@@ -666,6 +673,7 @@ private:
   void operator=(const vtkIOSSReader&) = delete;
   vtkNew<vtkDataArraySelection> EntitySelection[NUMBER_OF_ENTITY_TYPES];
   vtkNew<vtkDataArraySelection> EntityFieldSelection[NUMBER_OF_ENTITY_TYPES];
+  vtkNew<vtkDataArraySelection> GlobalFieldSelection;
   std::map<std::string, vtkTypeInt64> EntityIdMap[NUMBER_OF_ENTITY_TYPES + 1];
   vtkNew<vtkStringArray> EntityIdMapStrings[NUMBER_OF_ENTITY_TYPES + 1];
 
@@ -679,7 +687,6 @@ private:
   bool RemoveUnusedPoints;
   bool ApplyDisplacements;
   bool ReadAllFilesToDetermineStructure;
-  bool ReadGlobalFields;
   bool ReadQAAndInformationRecords;
   char* DatabaseTypeOverride;
   int FileRange[2];
