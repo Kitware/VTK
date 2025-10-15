@@ -15,6 +15,7 @@ set(datasets
   Data/Exodus/ExRestarts/blow.e
   Data/Exodus/ExRestarts/blow.e-s.001
   Data/Exodus/ExRestarts/blow.ex-timeseries
+  Data/Exodus/Flow1D.e
   Data/Exodus/ghost.ex2
   Data/Exodus/hello_world_fix-d_frf.frq
   Data/Exodus/RubiksCubeWithRotations_gold.g

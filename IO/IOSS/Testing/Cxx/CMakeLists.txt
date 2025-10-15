@@ -13,6 +13,7 @@ vtk_add_test_cxx(vtkIOIOSSCxxTests tests
   TestIOSSExodusWriterClip.cxx
   TestIOSSExodusWriter.cxx
   TestIOSSFilePatternMatching.cxx,NO_VALID
+  TestIOSSGroupAlphabeticVectorFieldComponents.cxx,NO_VALID,NO_OUTPUT
   TestIOSSNoElementBlocks.cxx,NO_VALID
   TestIOSSReadAllFilesToDetermineStructure.cxx,NO_VALID
   TestIOSSTri6.cxx
