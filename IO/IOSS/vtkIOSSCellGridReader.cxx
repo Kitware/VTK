@@ -154,18 +154,55 @@ int vtkIOSSCellGridReader::ReadMesh(
   auto& internals = *dynamic_cast<vtkIOSSCellGridReaderInternal*>(this->Internals);
   vtkIOSSUtilities::CaptureNonErrorMessages captureMessagesRAII;
 
+  auto controller = this->GetController();
+  const auto rank = controller ? controller->GetLocalProcessId() : 0;
+  const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
+
   if (!internals.UpdateDatabaseNames(this))
   {
-    // This should not be necessary. ReadMetaData returns false when
+    // this should not be necessary. ReadMetaData returns false when
     // `UpdateDatabaseNames` fails. At which point vtkReaderAlgorithm should
     // never call `RequestData` leading to a call to this method. However, it
-    // does, for some reason. Hence adding this check here.
+    // does, for some reason. Hence, adding this check here.
     // ref: paraview/paraview#19951.
     return 0;
   }
 
+  // dbaseHandles are handles for individual files this instance will read to
+  // satisfy the request. Can be >= 0.
+  const auto dbaseHandles = internals.GetDatabaseHandles(piece, npieces, timestep);
+  // if we have restart files, and the previously read regions are no longer needed.
+  if (internals.HaveRestartFiles() && !internals.HaveCreatedRegions(dbaseHandles))
+  {
+    // then we need to release them and, if requested, clear their cached information
+    internals.ReleaseRegions();
+    if (!this->GetCaching())
+    {
+      internals.ClearCache();
+    }
+  }
+
+  if (!this->GetReadAllFilesToDetermineStructure())
+  {
+    // check if the structure is the same across all ranks and compared to the previous timestep.
+    int needToUpdate = internals.NeedToUpdateEntityAndFieldSelections(this, dbaseHandles);
+    if (controller && numRanks > 1)
+    {
+      int globalNeedToUpdate = needToUpdate;
+      controller->Reduce(&needToUpdate, &globalNeedToUpdate, 1, vtkCommunicator::MAX_OP, 0);
+      needToUpdate = globalNeedToUpdate;
+    }
+    if (needToUpdate && rank == 0)
+    {
+      vtkWarningMacro(
+        "Dataset's Structure is not consistent from rank to rank or timestep to timestep."
+        "Please enable 'ReadAllFilesToDetermineStructure' to read all files to determine "
+        "the structure.");
+    }
+  }
+
   // This is the first method that gets called when generating data.
-  // Reset internal cache counters so we can flush fields not accessed.
+  // Reset internal cache counters, so we can flush fields not accessed.
   internals.ResetCacheAccessCounts();
 
   auto collection = vtkPartitionedDataSetCollection::SafeDownCast(output);
@@ -189,46 +226,26 @@ int vtkIOSSCellGridReader::ReadMesh(
     selectedAssemblyIndices.insert(dsindices.begin(), dsindices.end());
   }
 
-  // dbaseHandles are handles for individual files this instance will to read to
-  // satisfy the request. Can be >= 0.
-  const auto dbaseHandles = internals.GetDatabaseHandles(piece, npieces, timestep);
-  // If we have restart files, and the previously read regions are no longer needed.
-  if (internals.HaveRestartFiles() && !internals.HaveCreatedRegions(dbaseHandles))
-  {
-    // … then we need to release them and, if requested, clear their cached information
-    internals.ReleaseRegions();
-    if (!this->GetCaching())
-    {
-      internals.ClearCache();
-    }
-  }
-
   // Read global data. Since this should be same on all ranks, we only read on
   // root node and broadcast it to all. This helps us easily handle the case
   // where the number of reading-ranks is more than writing-ranks.
-  auto controller = this->GetController();
-  const auto rank = controller ? controller->GetLocalProcessId() : 0;
-  const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
-  if (rank == 0)
+  if (!dbaseHandles.empty() && rank == 0)
   {
-    if (!dbaseHandles.empty())
+    // Read global data. Since global data is expected to be identical on all
+    // files in a partitioned collection, we can read it from the first
+    // dbaseHandle alone.
+    if (this->GetReadGlobalFields())
     {
-      // Read global data. Since global data is expected to be identical on all
-      // files in a partitioned collection, we can read it from the first
-      // dbaseHandle alone.
-      if (this->GetReadGlobalFields())
-      {
-        internals.GetGlobalFields(collection->GetFieldData(), dbaseHandles[0], timestep);
-      }
-
-      if (this->GetReadQAAndInformationRecords())
-      {
-        internals.GetQAAndInformationRecords(collection->GetFieldData(), dbaseHandles[0]);
-      }
-
-      // Handle assemblies.
-      internals.ReadAssemblies(collection, dbaseHandles[0]);
+      internals.GetGlobalFields(collection->GetFieldData(), dbaseHandles[0], timestep);
     }
+
+    if (this->GetReadQAAndInformationRecords())
+    {
+      internals.GetQAAndInformationRecords(collection->GetFieldData(), dbaseHandles[0]);
+    }
+
+    // Handle assemblies.
+    internals.ReadAssemblies(collection, dbaseHandles[0]);
   }
   // Transmit assembly and QA records to all ranks.
   if (numRanks > 1)
