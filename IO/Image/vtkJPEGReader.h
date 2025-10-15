@@ -8,7 +8,7 @@
  * see vtkImageReader2::MemoryBuffer.
  * It should be able to read most any JPEG file.
  *
- * This reader supports the stream API but only with vtkMemoryResourceStream
+ * This reader supports the stream API but is more efficient with vtkMemoryResourceStream
  *
  * @sa
  * vtkJPEGWriter

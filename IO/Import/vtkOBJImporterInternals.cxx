@@ -8,6 +8,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkResourceStream.h"
 #include "vtkSmartPointer.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
@@ -240,29 +241,26 @@ VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 std::vector<vtkOBJImportedMaterial*> vtkOBJPolyDataProcessor::ParseOBJandMTL(
-  std::string Filename, int& result_code)
+  vtkResourceStream* mtlStream, int& result_code)
 {
   std::vector<vtkOBJImportedMaterial*> listOfMaterials;
   result_code = 0;
 
-  if (Filename.empty())
-  {
-    return listOfMaterials;
-  }
-
-  vtksys::ifstream in(Filename.c_str(), std::ios::in | std::ios::binary);
-  if (!in)
+  if (!mtlStream)
   {
     return listOfMaterials;
   }
 
   std::vector<Token> tokens;
   std::string contents;
-  in.seekg(0, std::ios::end);
-  contents.resize(in.tellg());
-  in.seekg(0, std::ios::beg);
-  in.read(contents.data(), contents.size());
-  in.close();
+
+  // Recover length of stream
+  mtlStream->Seek(0, vtkResourceStream::SeekDirection::End);
+  contents.resize(mtlStream->Tell());
+  mtlStream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+
+  // Read the mtl file
+  mtlStream->Read(contents.data(), contents.size());
 
   // watch for UTF-8 BOM
   if (std::string_view(contents.data(), 3) == "\xef\xbb\xbf")
@@ -415,7 +413,23 @@ bool bindTexturedPolydataToRenderWindow(vtkRenderWindow* renderWindow, vtkRender
         }
         else
         {
-          imgReader->SetFileName(textureFilename.c_str());
+          auto& streams = reader->GetTextureStreams();
+          if (streams.empty())
+          {
+            imgReader->SetFileName(textureFilename.c_str());
+          }
+          else
+          {
+            if (auto search = streams.find(textureFilename); search != streams.end())
+            {
+              imgReader->SetStream(search->second);
+            }
+            else
+            {
+              vtkErrorWithObjectMacro(
+                reader, "Texture stream not provided for: " << textureFilename);
+            }
+          }
 
           vtkSmartPointer<vtkTexture> vTexture = vtkSmartPointer<vtkTexture>::New();
           vTexture->SetInputConnection(imgReader->GetOutputPort());

@@ -12,6 +12,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkActor;
 class vtkActorCollection;
+class vtkResourceStream;
 
 struct VTKIOIMPORT_EXPORT vtkOBJImportedMaterial
 {
@@ -46,7 +47,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
-  // Specify file name of Wavefront .obj file.
+  // Specify filenames / streams to read  of Wavefront .obj file.
+  void SetStream(vtkResourceStream* stream) { this->Stream = stream; }
   void SetFileName(const char* arg)
   {
     if (arg == nullptr)
@@ -59,6 +61,7 @@ public:
     }
     this->FileName = std::string(arg);
   }
+  void SetMTLStream(vtkResourceStream* mtlStream) { this->MTLStream = mtlStream; }
   void SetMTLfileName(const char* arg)
   {
     if (arg == nullptr)
@@ -71,6 +74,10 @@ public:
     }
     this->MTLFileName = std::string(arg);
     this->DefaultMTLFileName = false;
+  }
+  void SetTextureStreams(std::map<std::string, vtkResourceStream*> streamMap)
+  {
+    this->TextureStreams = streamMap;
   }
   void SetTexturePath(const char* arg)
   {
@@ -91,6 +98,10 @@ public:
     this->DefaultTexturePath = false;
   }
   const std::string& GetTexturePath() const { return this->TexturePath; }
+  const std::map<std::string, vtkResourceStream*>& GetTextureStreams() const
+  {
+    return this->TextureStreams;
+  }
 
   const std::string& GetFileName() const { return this->FileName; }
 
@@ -122,7 +133,8 @@ public:
   std::vector<vtkSmartPointer<vtkActor>> actor_list;
   /////////////////////
 
-  std::vector<vtkOBJImportedMaterial*> ParseOBJandMTL(std::string filename, int& result_code);
+  std::vector<vtkOBJImportedMaterial*> ParseOBJandMTL(
+    vtkResourceStream* mtlStream, int& result_code);
 
   void ReadVertices(bool gotFirstUseMaterialTag, char* pLine, float xyz, int lineNr, double v_scale,
     bool everything_ok, vtkPoints* points, bool use_scale);
@@ -135,11 +147,17 @@ protected:
 
   vtkSetMacro(SuccessParsingFiles, int);
 
-  std::string FileName;    // filename (.obj) being read
-  std::string MTLFileName; // associated .mtl to *.obj, typically it is *.obj.mtl
-  bool DefaultMTLFileName; // tells whether default MTL should be used
-  std::string TexturePath;
+  vtkResourceStream* Stream = nullptr; // Stream of obj being read
+  std::string FileName;                // filename (.obj) being read
+
+  bool DefaultMTLFileName;                // tells whether default MTL should be used
+  std::string MTLFileName;                // associated .mtl to *.obj, typically it is *.obj.mtl
+  vtkResourceStream* MTLStream = nullptr; // Stream of associated MTL file
+
   bool DefaultTexturePath; // tells whether default texture path should be used
+  std::string TexturePath; // Texture path to read
+  std::map<std::string, vtkResourceStream*> TextureStreams;
+
   int SuccessParsingFiles;
 
 private:
