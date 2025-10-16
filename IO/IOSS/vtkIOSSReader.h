@@ -224,6 +224,20 @@ public:
    */
   void SetGroupNumericVectorFieldComponents(bool value);
   bool GetGroupNumericVectorFieldComponents();
+  vtkBooleanMacro(GroupNumericVectorFieldComponents, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set whether the reader should recognize fields with suffixes such as X, Y, Z
+   * or x, y, z as vector components. By default, this property is on.
+   * Example: vel_x, vel_y, vel_z would be recognized as a 3-component vector field named vel.
+   *
+   * Default is true.
+   */
+  void SetGroupAlphabeticVectorFieldComponents(bool value);
+  bool GetGroupAlphabeticVectorFieldComponents();
+  vtkBooleanMacro(GroupAlphabeticVectorFieldComponents, bool);
   ///@}
 
   ///@{

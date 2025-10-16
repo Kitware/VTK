@@ -121,6 +121,20 @@ bool vtkIOSSReader::GetGroupNumericVectorFieldComponents()
 }
 
 //----------------------------------------------------------------------------
+void vtkIOSSReader::SetGroupAlphabeticVectorFieldComponents(bool value)
+{
+  // enable implies recognizing fields with suffixes such as X, Y, Z
+  // disable implies not recognizing those fields.
+  this->AddProperty("ENABLE_FIELD_RECOGNITION", value ? "on" : "off");
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSReader::GetGroupAlphabeticVectorFieldComponents()
+{
+  return this->Internals->DatabaseProperties.get("ENABLE_FIELD_RECOGNITION").get_string() == "on";
+}
+
+//----------------------------------------------------------------------------
 void vtkIOSSReader::SetFieldSuffixSeparator(const char* value)
 {
   vtkDebugMacro("Setting FIELD_SUFFIX_SEPARATOR " << (value ? "on" : "off"));
