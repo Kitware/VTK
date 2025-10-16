@@ -270,6 +270,11 @@ void vtkImageMedian3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
   vtkDataArray* inArray = this->GetInputArrayToProcess(0, inputVector);
+  if (!inArray)
+  {
+    vtkErrorMacro("Array to compute median on has not been set, aborting");
+    return;
+  }
   if (id == 0)
   {
     outData[0]->GetPointData()->GetScalars()->SetName(inArray->GetName());
