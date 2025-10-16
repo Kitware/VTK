@@ -86,7 +86,11 @@ struct LoadArrayWorker
 
     array->SetNumberOfComponents(numberOfComponents);
     array->SetNumberOfTuples(numberOfTuples);
-    array->SetName(name.c_str());
+
+    if (name != "_vtkArrayNoName")
+    {
+      array->SetName(name.c_str());
+    }
 
     ValueType* data(nullptr);
     if (array->HasStandardMemoryLayout())
@@ -100,7 +104,10 @@ struct LoadArrayWorker
       data = new ValueType[numberOfComponents * numberOfTuples];
     }
 
-    diy::load(this->BB, data, array->GetNumberOfValues());
+    if (array->GetNumberOfValues())
+    {
+      diy::load(this->BB, data, array->GetNumberOfValues());
+    }
 
     if (!array->HasStandardMemoryLayout())
     {
@@ -231,13 +238,16 @@ void vtkDIYUtilities::Save(diy::BinaryBuffer& bb, vtkDataArray* array)
     }
     else
     {
-      diy::save(bb, std::string(""));
+      diy::save(bb, std::string("_vtkArrayNoName"));
     }
 
     SaveArrayWorker worker(bb);
-    if (!vtkArrayDispatch::Dispatch::Execute(array, worker))
+    if (array->GetNumberOfTuples() > 0)
     {
-      worker(array);
+      if (!vtkArrayDispatch::Dispatch::Execute(array, worker))
+      {
+        worker(array);
+      }
     }
   }
 }
@@ -260,7 +270,7 @@ void vtkDIYUtilities::Save(diy::BinaryBuffer& bb, vtkStringArray* array)
     }
     else
     {
-      diy::save(bb, std::string(""));
+      diy::save(bb, std::string("_vtkArrayNoName"));
     }
 
     for (vtkIdType id = 0; id < array->GetNumberOfValues(); ++id)
@@ -386,7 +396,11 @@ void vtkDIYUtilities::Load(diy::BinaryBuffer& bb, vtkStringArray*& array)
 
     array->SetNumberOfComponents(numberOfComponents);
     array->SetNumberOfTuples(numberOfTuples);
-    array->SetName(name.c_str());
+
+    if (name != "_vtkArrayNoName")
+    {
+      array->SetName(name.c_str());
+    }
 
     vtkIdType numberOfValues = numberOfComponents * numberOfTuples;
 

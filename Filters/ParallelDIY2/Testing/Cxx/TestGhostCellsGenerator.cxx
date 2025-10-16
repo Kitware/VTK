@@ -26,6 +26,7 @@
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
+#include "vtkLongLongArray.h"
 #include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
@@ -3430,6 +3431,69 @@ bool TestStaticMeshCache()
 
   return true;
 }
+
+bool TestArraySerialization(vtkMultiProcessController* contr, int myrank)
+{
+  /*
+  Check that:
+   - GCG can use something other than vtkIdTypeArray as globalIds
+   - DIY can properly transfer arrays without a name.
+  */
+
+  vtkNew<vtkUnstructuredGrid> source;
+  vtkNew<vtkCellArray> cells;
+  vtkNew<vtkPoints> points;
+  vtkNew<vtkDoubleArray> pointsArray;
+  pointsArray->SetNumberOfComponents(3);
+  pointsArray->InsertNextTuple3(2.0, 0.0, 0.0);
+  pointsArray->InsertNextTuple3(0.0, 0.0, 0.0);
+  pointsArray->InsertNextTuple3(1.0, 1.0, 0.0);
+  pointsArray->InsertNextTuple3(3.0, 1.0, 0.0);
+  pointsArray->InsertNextTuple3(4.0, 0.0, 0.0);
+
+  vtkNew<vtkLongLongArray> globalIds;
+  globalIds->InsertNextTuple1(0);
+  globalIds->InsertNextTuple1(1);
+  globalIds->InsertNextTuple1(2);
+  globalIds->InsertNextTuple1(3);
+  globalIds->InsertNextTuple1(4);
+
+  vtkNew<vtkUnsignedCharArray> data;
+  data->InsertNextTuple1(1);
+  data->InsertNextTuple1(2);
+  data->InsertNextTuple1(5);
+  data->InsertNextTuple1(124);
+  data->InsertNextTuple1(6);
+
+  points->SetData(pointsArray);
+  if (myrank == 0)
+  {
+    cells->InsertNextCell(3, std::vector<vtkIdType>{ 0, 1, 2 }.data());
+    cells->InsertNextCell(3, std::vector<vtkIdType>{ 0, 2, 3 }.data());
+  }
+  else
+  {
+    cells->InsertNextCell(3, std::vector<vtkIdType>{ 0, 3, 4 }.data());
+  }
+
+  source->SetPoints(points);
+  source->SetCells(VTK_TRIANGLE, cells);
+  source->GetPointData()->SetGlobalIds(globalIds);
+  source->GetPointData()->AddArray(data);
+
+  vtkNew<vtkGhostCellsGenerator> gcg;
+  gcg->SetNumberOfGhostLayers(1);
+  gcg->SetInputData(source);
+  gcg->UpdatePiece(contr->GetLocalProcessId(), contr->GetNumberOfProcesses(), 1);
+  auto output = vtkUnstructuredGrid::SafeDownCast(gcg->GetOutputDataObject(0));
+
+  if (output->GetNumberOfCells() != 3)
+  {
+    vtkLog(ERROR, "Expected 3 cells but got " << output->GetNumberOfCells());
+  }
+
+  return true;
+}
 } // anonymous namespace
 
 //----------------------------------------------------------------------------
@@ -3483,6 +3547,11 @@ int TestGhostCellsGenerator(int argc, char* argv[])
   }
 
   if (!TestStaticMeshCache())
+  {
+    retVal = EXIT_FAILURE;
+  }
+
+  if (!::TestArraySerialization(contr, myrank))
   {
     retVal = EXIT_FAILURE;
   }

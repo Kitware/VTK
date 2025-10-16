@@ -4183,12 +4183,10 @@ void EnqueueGhostsForUnstructuredData(const diy::Master::ProxyWithLink& cp,
   ::EnqueueCellData(cp, blockId, input, blockStructure.CellIdsToSend);
   ::EnqueueCellsForUnstructuredData<DataSetT>(cp, blockId, blockStructure.SendBuffer);
 
-  auto globalPointIds = vtkArrayDownCast<vtkIdTypeArray>(input->GetPointData()->GetGlobalIds());
-
   vtkIdList* pointIds = blockStructure.PointIdsToSend;
   ::EnqueuePointData(cp, blockId, input, pointIds);
   ::EnqueuePoints(cp, blockId, input, pointIds);
-  ::EnqueueDataArray(cp, blockId, globalPointIds, pointIds);
+  ::EnqueueDataArray(cp, blockId, input->GetPointData()->GetGlobalIds(), pointIds);
 
   // We enqueue interfacing points to blocks of lower id than us.
   // This sets point ownership.
