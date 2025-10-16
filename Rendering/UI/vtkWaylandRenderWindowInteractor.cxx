@@ -41,6 +41,7 @@ public:
   }
   ~vtkWaylandRenderWindowInteractorInternals() = default;
 
+  //-----------------------------------------------------------------------------------------------
   int CreateLocalTimer(unsigned long duration)
   {
     int id = this->TimerIdCount++;
@@ -52,6 +53,7 @@ public:
   //-----------------------------------------------------------------------------------------------
   void DestroyLocalTimer(int id) { this->LocalToTimer.erase(id); }
 
+  //-----------------------------------------------------------------------------------------------
   bool GetTimeToNextTimer(int& timeout)
   {
     bool useTimeout = false;
@@ -743,6 +745,21 @@ int vtkWaylandRenderWindowInteractor::InternalDestroyTimer(int platformTimerId)
 {
   this->Internal->DestroyLocalTimer(platformTimerId);
   return 1;
+}
+
+//-------------------------------------------------------------------------------------------------
+void vtkWaylandRenderWindowInteractor::Render()
+{
+  // Instead of rendering immediately, we ask the hardware window to schedule
+  // a render for the next frame callback.
+  if (this->HardwareWindow)
+  {
+    vtkWaylandHardwareWindow* hw_win = vtkWaylandHardwareWindow::SafeDownCast(this->HardwareWindow);
+    if (hw_win)
+    {
+      hw_win->ScheduleRedraw();
+    }
+  }
 }
 
 //-------------------------------------------------------------------------------------------------

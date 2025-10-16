@@ -16,6 +16,7 @@
 
 #include "vtkCommand.h"
 #include "vtkObjectFactory.h"
+#include "vtkRenderWindow.h"
 
 // Wayland specific headers
 #include <wayland-client-protocol.h>
@@ -32,9 +33,9 @@ VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkWaylandHardwareWindow);
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 // Static Wayland listener callbacks
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 
 // Listener for the wl_registry
 void vtkWaylandHardwareWindow::RegistryHandleGlobal(
@@ -67,6 +68,7 @@ void vtkWaylandHardwareWindow::RegistryHandleGlobal(
   }
 }
 
+//------------------------------------------------------------------------------------------------
 void vtkWaylandHardwareWindow::RegistryHandleGlobalRemove(
   void* data, wl_registry* registry, uint32_t name)
 {
@@ -77,11 +79,13 @@ void vtkWaylandHardwareWindow::RegistryHandleGlobalRemove(
   (void)name;
 }
 
+//------------------------------------------------------------------------------------------------
 static const wl_registry_listener registry_listener = {
   .global = vtkWaylandHardwareWindow::RegistryHandleGlobal,
   .global_remove = vtkWaylandHardwareWindow::RegistryHandleGlobalRemove,
 };
 
+//------------------------------------------------------------------------------------------------
 // Listener for xdg_wm_base (the window manager)
 void vtkWaylandHardwareWindow::XdgWmBaseHandlePing(
   void* data, xdg_wm_base* xdg_wm_base, uint32_t serial)
@@ -89,10 +93,12 @@ void vtkWaylandHardwareWindow::XdgWmBaseHandlePing(
   xdg_wm_base_pong(xdg_wm_base, serial);
 }
 
+//------------------------------------------------------------------------------------------------
 static const xdg_wm_base_listener xdg_wm_base_listener = {
   .ping = vtkWaylandHardwareWindow::XdgWmBaseHandlePing,
 };
 
+//------------------------------------------------------------------------------------------------
 // Add a listener for the decoration object.
 // The compositor uses this to tell us which decoration mode is active.
 static void decoration_handle_configure(
@@ -102,10 +108,12 @@ static void decoration_handle_configure(
   // A full CSD implementation would check the mode here and draw decorations if needed.
 }
 
+//------------------------------------------------------------------------------------------------
 static const struct zxdg_toplevel_decoration_v1_listener decoration_listener = {
   .configure = decoration_handle_configure,
 };
 
+//------------------------------------------------------------------------------------------------
 // Listener for xdg_surface (the window surface itself)
 void vtkWaylandHardwareWindow::XdgSurfaceHandleConfigure(
   void* data, xdg_surface* xdg_surface, uint32_t serial)
@@ -120,8 +128,14 @@ void vtkWaylandHardwareWindow::XdgSurfaceHandleConfigure(
   }
 }
 
+//------------------------------------------------------------------------------------------------
 static const xdg_surface_listener xdg_surface_listener = {
   .configure = vtkWaylandHardwareWindow::XdgSurfaceHandleConfigure,
+};
+
+//------------------------------------------------------------------------------------------------
+static const struct wl_callback_listener frame_listener = {
+  .done = vtkWaylandHardwareWindow::FrameHandleDone,
 };
 
 // Listener for xdg_toplevel (the main window properties)
@@ -142,6 +156,7 @@ void vtkWaylandHardwareWindow::XdgToplevelHandleConfigure(
   }
 }
 
+//------------------------------------------------------------------------------------------------
 void vtkWaylandHardwareWindow::XdgToplevelHandleClose(void* data, xdg_toplevel* xdg_toplevel)
 {
   vtkWaylandHardwareWindow* self = static_cast<vtkWaylandHardwareWindow*>(data);
@@ -154,9 +169,9 @@ static const xdg_toplevel_listener xdg_toplevel_listener = {
   .close = vtkWaylandHardwareWindow::XdgToplevelHandleClose,
 };
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 // vtkWaylandHardwareWindow class implementation
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 vtkWaylandHardwareWindow::vtkWaylandHardwareWindow()
 {
   // Default values
@@ -166,13 +181,13 @@ vtkWaylandHardwareWindow::vtkWaylandHardwareWindow()
   this->IsConfigured = false;
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 vtkWaylandHardwareWindow::~vtkWaylandHardwareWindow()
 {
   this->Destroy();
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 void vtkWaylandHardwareWindow::Create()
 {
   // Step 1: Connect to the Wayland display
@@ -218,6 +233,8 @@ void vtkWaylandHardwareWindow::Create()
     this->Destroy();
     return;
   }
+  // Schedule an initial draw
+  this->ScheduleRedraw();
 
   // Step 4: Create the xdg_surface and toplevel window
   this->XdgSurface = xdg_wm_base_get_xdg_surface(this->XdgWmBase, this->Surface);
@@ -254,9 +271,14 @@ void vtkWaylandHardwareWindow::Create()
   this->Mapped = true;
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 void vtkWaylandHardwareWindow::Destroy()
 {
+  if (this->FrameCallback)
+  {
+    wl_callback_destroy(this->FrameCallback);
+    this->FrameCallback = nullptr;
+  }
   if (this->XdgToplevel)
   {
     xdg_toplevel_destroy(this->XdgToplevel);
@@ -307,7 +329,7 @@ void vtkWaylandHardwareWindow::Destroy()
   this->Mapped = false;
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 void vtkWaylandHardwareWindow::SetSize(int width, int height)
 {
   if (this->Size[0] != width || this->Size[1] != height)
@@ -327,7 +349,7 @@ void vtkWaylandHardwareWindow::SetSize(int width, int height)
   }
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 void vtkWaylandHardwareWindow::SetPosition(int x, int y)
 {
   // Wayland does not allow clients to set their absolute position.
@@ -336,7 +358,7 @@ void vtkWaylandHardwareWindow::SetPosition(int x, int y)
   this->Superclass::SetPosition(x, y);
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 void vtkWaylandHardwareWindow::SetWindowName(const char* name)
 {
   this->Superclass::SetWindowName(name);
@@ -346,7 +368,7 @@ void vtkWaylandHardwareWindow::SetWindowName(const char* name)
   }
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 void vtkWaylandHardwareWindow::HideCursor()
 {
   this->CursorHidden = true;
@@ -357,7 +379,7 @@ void vtkWaylandHardwareWindow::HideCursor()
   // 3. Calling wl_pointer_set_cursor with the transparent buffer.
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 void vtkWaylandHardwareWindow::ShowCursor()
 {
   this->CursorHidden = false;
@@ -365,7 +387,7 @@ void vtkWaylandHardwareWindow::ShowCursor()
   // A full implementation would unset the custom cursor.
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 void vtkWaylandHardwareWindow::SetCurrentCursor(int shape)
 {
   this->Superclass::SetCurrentCursor(shape);
@@ -374,31 +396,63 @@ void vtkWaylandHardwareWindow::SetCurrentCursor(int shape)
   // to create custom cursor surfaces.
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 wl_display* vtkWaylandHardwareWindow::GetDisplayId()
 {
   return this->DisplayId;
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 wl_surface* vtkWaylandHardwareWindow::GetWindowId()
 {
   return this->Surface;
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 void* vtkWaylandHardwareWindow::GetGenericDisplayId()
 {
   return reinterpret_cast<void*>(this->DisplayId);
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
 void* vtkWaylandHardwareWindow::GetGenericWindowId()
 {
   return reinterpret_cast<void*>(this->Surface);
 }
 
-//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------
+void vtkWaylandHardwareWindow::FrameHandleDone(void* data, wl_callback* callback, uint32_t time)
+{
+  vtkWaylandHardwareWindow* self = static_cast<vtkWaylandHardwareWindow*>(data);
+
+  // The previous frame callback is now invalid, destroy it.
+  if (callback)
+  {
+    wl_callback_destroy(callback);
+  }
+  self->FrameCallback = nullptr;
+  self->RedrawPending = false;
+
+  // The compositor is ready for a new frame, so render it now.
+  if (self->Interactor && self->Interactor->GetRenderWindow())
+  {
+    self->Interactor->GetRenderWindow()->Render();
+  }
+}
+
+//------------------------------------------------------------------------------------------------
+void vtkWaylandHardwareWindow::ScheduleRedraw()
+{
+  // If a redraw isn't already pending, request one.
+  if (!this->RedrawPending && this->Surface)
+  {
+    this->FrameCallback = wl_surface_frame(this->Surface);
+    wl_callback_add_listener(this->FrameCallback, &frame_listener, this);
+    this->RedrawPending = true;
+    wl_surface_commit(this->Surface);
+  }
+}
+//------------------------------------------------------------------------------------------------
 void vtkWaylandHardwareWindow::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);

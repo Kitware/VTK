@@ -125,6 +125,12 @@ protected:
    */
   void Finalize();
 
+  /**
+   * Request a render.
+   * Overridden to schedule a render for the hardware window
+   */
+  void Render() override;
+
   friend class vtkWaylandRenderWindowInteractorInternals;
 
 private:

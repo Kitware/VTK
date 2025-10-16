@@ -30,6 +30,7 @@
 // Forward declarations for Wayland types to keep the header clean.
 // The actual headers will be included in the .cxx file.
 struct wl_array;
+struct wl_callback;
 struct wl_display;
 struct wl_compositor;
 struct wl_surface;
@@ -119,6 +120,11 @@ public:
     void* data, xdg_toplevel* xdg_toplevel, int32_t width, int32_t height, wl_array* states);
   static void XdgToplevelHandleClose(void* data, xdg_toplevel* xdg_toplevel);
 
+  static void FrameHandleDone(void* data, wl_callback* callback, uint32_t time);
+
+  // Request a redraw for the next frame.
+  void ScheduleRedraw();
+
 protected:
   vtkWaylandHardwareWindow();
   ~vtkWaylandHardwareWindow() override;
@@ -138,6 +144,9 @@ protected:
 
   bool OwnDisplay = false;
   bool CursorHidden = false;
+
+  wl_callback* FrameCallback = nullptr;
+  bool RedrawPending = false;
 
 private:
   vtkWaylandHardwareWindow(const vtkWaylandHardwareWindow&) = delete;
