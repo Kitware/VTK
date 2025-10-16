@@ -100,16 +100,25 @@ inline void vtkColorTransferFunctionMshToLab(const double msh[3], double lab[3])
 }
 
 // Given two angular orientations, returns the smallest angle between the two.
-inline double vtkColorTransferFunctionAngleDiff(double a1, double a2)
+inline double vtkColorTransferFunctionSignedAngleDiff(double a1, double a2)
 {
   double adiff = a1 - a2;
-  if (adiff < 0.0)
-    adiff = -adiff;
-  while (adiff >= 2.0 * vtkMath::Pi())
-    adiff -= (2.0 * vtkMath::Pi());
-  if (adiff > vtkMath::Pi())
-    adiff = (2.0 * vtkMath::Pi()) - adiff;
-  return adiff;
+  if (adiff >= 0.0)
+  {
+    while (adiff >= 2.0 * vtkMath::Pi())
+      adiff -= (2.0 * vtkMath::Pi());
+    if (adiff > vtkMath::Pi())
+      adiff = (2.0 * vtkMath::Pi()) - adiff;
+  }
+  else
+  {
+    while (adiff <= -2.0 * vtkMath::Pi())
+      adiff += 2.0 * vtkMath::Pi();
+    if (adiff < -vtkMath::Pi())
+      adiff = adiff + 2.0 * vtkMath::Pi();
+  }
+
+  return adiff; // in [-π, π], signed
 }
 
 // For the case when interpolating from a saturated color to an unsaturated
@@ -153,7 +162,7 @@ inline void vtkColorTransferFunctionInterpolateDiverging(
   // If the endpoints are distinct saturated colors, then place white in between
   // them.
   if ((msh1[1] > 0.05) && (msh2[1] > 0.05) &&
-    (vtkColorTransferFunctionAngleDiff(msh1[2], msh2[2]) > 0.33 * vtkMath::Pi()))
+    (std::abs(vtkColorTransferFunctionSignedAngleDiff(msh1[2], msh2[2])) > 0.33 * vtkMath::Pi()))
   {
     // Insert the white midpoint by setting one end to white and adjusting the
     // scalar value.
@@ -190,7 +199,7 @@ inline void vtkColorTransferFunctionInterpolateDiverging(
   double mshTmp[3];
   mshTmp[0] = (1 - s) * msh1[0] + s * msh2[0];
   mshTmp[1] = (1 - s) * msh1[1] + s * msh2[1];
-  mshTmp[2] = (1 - s) * msh1[2] + s * msh2[2];
+  mshTmp[2] = msh1[2] + s * vtkColorTransferFunctionSignedAngleDiff(msh2[2], msh1[2]);
 
   // Now convert back to RGB
   double labTmp[3];
