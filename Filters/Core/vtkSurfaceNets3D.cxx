@@ -19,6 +19,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangle.h"
 
+#include <cstdint>
 #include <memory>
 
 VTK_ABI_NAMESPACE_BEGIN
