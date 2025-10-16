@@ -808,7 +808,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CaptureDepthTexture(vtkRender
     }
     else
     {
+#ifdef GL_ES_VERSION_3_0
+      this->DepthTextureObject->AllocateDepth(this->WindowSize[0], this->WindowSize[1], 3);
+#else
       this->DepthTextureObject->AllocateDepth(this->WindowSize[0], this->WindowSize[1], 4);
+#endif
     }
   }
 
