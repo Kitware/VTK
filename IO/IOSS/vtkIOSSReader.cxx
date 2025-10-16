@@ -1,5 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkIOSSReader.h"
 #include "vtkIOSSFilesScanner.h"
 #include "vtkIOSSReaderCommunication.h"
@@ -27,7 +29,6 @@
 // clang-format off
 #include VTK_IOSS(Ionit_Initializer.h)
 #include VTK_IOSS(Ioss_Assembly.h)
-#include VTK_IOSS(Ioss_DatabaseIO.h)
 #include VTK_IOSS(Ioss_IOFactory.h)
 #include VTK_IOSS(Ioss_Region.h)
 // clang-format on
@@ -62,7 +63,6 @@ vtkIOSSReader::vtkIOSSReader()
   , RemoveUnusedPoints(true)
   , ApplyDisplacements(true)
   , ReadAllFilesToDetermineStructure(false)
-  , ReadGlobalFields(true)
   , ReadQAAndInformationRecords(true)
   , DatabaseTypeOverride(nullptr)
   , FileRange{ 0, -1 }
@@ -409,10 +409,8 @@ int vtkIOSSReader::ReadMesh(
     // Read global data. Since global data is expected to be identical on all
     // files in a partitioned collection, we can read it from the first
     // dbaseHandle alone.
-    if (this->ReadGlobalFields)
-    {
-      internals.GetGlobalFields(collection->GetFieldData(), dbaseHandles[0], timestep);
-    }
+    internals.GetGlobalFields(
+      this->GetGlobalFieldSelection(), collection->GetFieldData(), dbaseHandles[0], timestep);
 
     if (this->ReadQAAndInformationRecords)
     {
@@ -566,6 +564,44 @@ vtkDataArraySelection* vtkIOSSReader::GetEntitySelection(int type)
 }
 
 //----------------------------------------------------------------------------
+vtkDataArraySelection* vtkIOSSReader::GetGlobalFieldSelection()
+{
+  return this->GlobalFieldSelection;
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSReader::SetReadGlobalFields(bool value)
+{
+  if (value)
+  {
+    this->GlobalFieldSelection->EnableAllArrays();
+  }
+  else
+  {
+    this->GlobalFieldSelection->DisableAllArrays();
+  }
+}
+
+//----------------------------------------------------------------------------
+bool vtkIOSSReader::GetReadGlobalFields()
+{
+  return this->GlobalFieldSelection->GetNumberOfArrays() ==
+    this->GlobalFieldSelection->GetNumberOfArraysEnabled();
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSReader::ReadGlobalFieldsOn()
+{
+  this->SetReadGlobalFields(true);
+}
+
+//----------------------------------------------------------------------------
+void vtkIOSSReader::ReadGlobalFieldsOff()
+{
+  this->SetReadGlobalFields(false);
+}
+
+//----------------------------------------------------------------------------
 vtkDataArraySelection* vtkIOSSReader::GetFieldSelection(int type)
 {
   if (type < 0 || type >= NUMBER_OF_ENTITY_TYPES)
@@ -643,6 +679,7 @@ vtkMTimeType vtkIOSSReader::GetMTime()
     mtime = std::max(mtime, this->EntitySelection[cc]->GetMTime());
     mtime = std::max(mtime, this->EntityFieldSelection[cc]->GetMTime());
   }
+  mtime = std::max(mtime, this->GlobalFieldSelection->GetMTime());
   return mtime;
 }
 
@@ -662,6 +699,7 @@ void vtkIOSSReader::RemoveAllFieldSelections()
   {
     this->GetFieldSelection(cc)->RemoveAllArrays();
   }
+  this->GetGlobalFieldSelection()->RemoveAllArrays();
 }
 
 //----------------------------------------------------------------------------
@@ -929,7 +967,6 @@ void vtkIOSSReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "RemoveUnusedPoints: " << this->RemoveUnusedPoints << endl;
   os << indent << "ApplyDisplacements: " << this->ApplyDisplacements << endl;
   os << indent << "DisplacementMagnitude: " << this->Internals->GetDisplacementMagnitude() << endl;
-  os << indent << "ReadGlobalFields: " << this->ReadGlobalFields << endl;
   os << indent << "ReadQAAndInformationRecords: " << this->ReadQAAndInformationRecords << endl;
   os << indent << "DatabaseTypeOverride: "
      << (this->DatabaseTypeOverride ? this->DatabaseTypeOverride : "(nullptr)") << endl;
@@ -959,5 +996,7 @@ void vtkIOSSReader::PrintSelf(ostream& os, vtkIndent indent)
   this->GetStructuredBlockFieldSelection()->PrintSelf(os, indent.GetNextIndent());
   os << indent << "NodeSetFieldSelection: " << endl;
   this->GetNodeSetFieldSelection()->PrintSelf(os, indent.GetNextIndent());
+  os << indent << "GlobalFieldSelection: " << endl;
+  this->GetGlobalFieldSelection()->PrintSelf(os, indent.GetNextIndent());
 }
 VTK_ABI_NAMESPACE_END

@@ -1,9 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
 #include <vtkCamera.h>
 #include <vtkCompositePolyDataMapper.h>
+#include <vtkDataArraySelection.h>
 #include <vtkDataObject.h>
 #include <vtkDataSetSurfaceFilter.h>
+#include <vtkFieldData.h>
 #include <vtkIOSSReader.h>
 #include <vtkLogger.h>
 #include <vtkNew.h>
@@ -26,6 +29,8 @@ int TestIOSSExodus(int argc, char* argv[])
   vtkNew<vtkIOSSReader> reader;
   auto fname = GetFileName(argc, argv, std::string("Data/Exodus/can.e.4/can.e.4.0"));
   reader->AddFileName(fname.c_str());
+  reader->UpdateInformation();
+  reader->GetGlobalFieldSelection()->DisableArray("KE");
 
   vtkNew<vtkDataSetSurfaceFilter> surface;
   vtkNew<vtkCompositePolyDataMapper> mapper;
@@ -57,6 +62,11 @@ int TestIOSSExodus(int argc, char* argv[])
     sideSetMap.at("surface_4") != 4)
   {
     vtkLogF(ERROR, "id map mismatch!");
+  }
+  if (reader->GetOutputDataObject(0)->GetFieldData()->HasArray("KE"))
+  {
+    vtkLogF(ERROR, "Global field selection failed!");
+    return EXIT_FAILURE;
   }
 
   int retVal = vtkRegressionTestImage(renWin);

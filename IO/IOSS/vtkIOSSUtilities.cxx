@@ -1164,5 +1164,28 @@ void GetEntityAndFieldNames<Ioss::SideSet>(const Ioss::Region* region,
   }
 }
 
+//----------------------------------------------------------------------------
+void GetGlobalFieldNames(const Ioss::Region* region, std::set<std::string>& field_names)
+{
+  if (!region)
+  {
+    return;
+  }
+  Ioss::NameList fieldNames;
+  region->field_describe(&fieldNames);
+  for (const auto& name : fieldNames)
+  {
+    switch (region->get_fieldref(name).get_role())
+    {
+      case Ioss::Field::ATTRIBUTE:
+      case Ioss::Field::REDUCTION:
+        field_names.insert(name);
+        break;
+      default:
+        break;
+    }
+  }
+}
+
 VTK_ABI_NAMESPACE_END
 } // end of namespace.
