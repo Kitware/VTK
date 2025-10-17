@@ -398,7 +398,7 @@ void vtkSubjectHelper::RemoveObserver(unsigned long tag)
     }
   }
 
-  ListModified.assign(this->ListModified.size(), true);
+  this->ListModified.assign(this->ListModified.size(), true);
 }
 
 //------------------------------------------------------------------------------
