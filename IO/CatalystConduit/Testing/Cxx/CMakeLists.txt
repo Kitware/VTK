@@ -1,7 +1,8 @@
 vtk_add_test_cxx(vtkConduitCxxTests tests
   NO_VALID NO_OUTPUT
   TestDataObjectToConduit.cxx
-  TestConduitSource.cxx)
+  TestConduitSource.cxx
+  TestConduitSourceSameAttributeTypes.cxx)
 
 if (TARGET VTK::AcceleratorsVTKmDataModel)
   vtk_add_test_cxx(vtkConduitCxxTests tests
