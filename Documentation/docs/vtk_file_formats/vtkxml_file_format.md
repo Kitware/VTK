@@ -4,7 +4,7 @@ VTK provides an additional set of data formats using XML syntax. While these for
 
 There are two types of VTK XML data files: serial and parallel, described below.
 
-* **Serial**. File types designed for reading and writing by single-process applications. All of the data in contained
+* **Serial**. File types designed for reading and writing by single-process applications. All of the data is contained
 within a single file.
 
 * **Parallel**. File types designed for reading and writing by applications with multiple processes executing in parallel. The dataset is broken into pieces. Each process is assigned a piece or set of pieces to read or write. An individual piece is stored in a corresponding serial file type. The parallel file type does not actually contain any data, but instead describes structural information and then references other serial files containing the data for each piece.
