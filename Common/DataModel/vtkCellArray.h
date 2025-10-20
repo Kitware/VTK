@@ -389,6 +389,10 @@ public:
    *
    * If invalid arrays are passed in, an error is logged and the function
    * will return false.
+   *
+   * @note This method will create a vtkAffineArray for the offsets internally to
+   * save memory. Therefore, if extracted via GetOffsetsArray(), it should NOT be assumed
+   * that it is an vtkAOSDataArrayTemplate.
    */
   bool SetData(vtkIdType cellSize, vtkDataArray* connectivity);
 
