@@ -242,12 +242,12 @@ bool vtkSTLReader::ReadBinarySTL(
   constexpr int headerSize = 80;                         // fixed in STL file format
   this->BinaryHeader->SetNumberOfValues(headerSize + 1); // allocate +1 byte for zero termination
   this->BinaryHeader->FillValue(0);
-  if (stream->Read(this->BinaryHeader->GetVoidPointer(0), headerSize) != headerSize)
+  if (stream->Read(this->BinaryHeader->GetPointer(0), headerSize) != headerSize)
   {
     vtkErrorMacro("STLReader error reading file. Premature EOF while reading header.");
     return false;
   }
-  this->SetHeader(static_cast<char*>(this->BinaryHeader->GetVoidPointer(0)));
+  this->SetHeader(reinterpret_cast<char*>(this->BinaryHeader->GetPointer(0)));
   // Remove extra zero termination from binary header
   this->BinaryHeader->Resize(headerSize);
 

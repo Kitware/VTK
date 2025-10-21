@@ -150,40 +150,49 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
     switch (array->GetNumberType())
     {
       case XDMF_INT8_TYPE:
-        array->GetValues(
-          0, (XDMF_8_INT*)this->vtkArray->GetVoidPointer(0), array->GetNumberOfElements());
+        array->GetValues(0,
+          vtkAOSDataArrayTemplate<XDMF_8_INT>::FastDownCast(this->vtkArray)->GetPointer(0),
+          array->GetNumberOfElements());
         break;
       case XDMF_UINT8_TYPE:
-        array->GetValues(
-          0, (XDMF_8_U_INT*)this->vtkArray->GetVoidPointer(0), array->GetNumberOfElements());
+        array->GetValues(0,
+          vtkAOSDataArrayTemplate<XDMF_8_U_INT>::FastDownCast(this->vtkArray)->GetPointer(0),
+          array->GetNumberOfElements());
         break;
       case XDMF_INT16_TYPE:
-        array->GetValues(
-          0, (XDMF_16_INT*)this->vtkArray->GetVoidPointer(0), array->GetNumberOfElements());
+        array->GetValues(0,
+          vtkAOSDataArrayTemplate<XDMF_16_INT>::FastDownCast(this->vtkArray)->GetPointer(0),
+          array->GetNumberOfElements());
         break;
       case XDMF_UINT16_TYPE:
-        array->GetValues(
-          0, (XDMF_16_U_INT*)this->vtkArray->GetVoidPointer(0), array->GetNumberOfElements());
+        array->GetValues(0,
+          vtkAOSDataArrayTemplate<XDMF_16_U_INT>::FastDownCast(this->vtkArray)->GetPointer(0),
+          array->GetNumberOfElements());
         break;
       case XDMF_INT32_TYPE:
-        array->GetValues(
-          0, (XDMF_32_INT*)this->vtkArray->GetVoidPointer(0), array->GetNumberOfElements());
+        array->GetValues(0,
+          vtkAOSDataArrayTemplate<XDMF_32_INT>::FastDownCast(this->vtkArray)->GetPointer(0),
+          array->GetNumberOfElements());
         break;
       case XDMF_UINT32_TYPE:
-        array->GetValues(
-          0, (XDMF_32_U_INT*)this->vtkArray->GetVoidPointer(0), array->GetNumberOfElements());
+        array->GetValues(0,
+          vtkAOSDataArrayTemplate<XDMF_32_U_INT>::FastDownCast(this->vtkArray)->GetPointer(0),
+          array->GetNumberOfElements());
         break;
       case XDMF_INT64_TYPE:
-        array->GetValues(
-          0, (XDMF_64_INT*)this->vtkArray->GetVoidPointer(0), array->GetNumberOfElements());
+        array->GetValues(0,
+          vtkAOSDataArrayTemplate<XDMF_64_INT>::FastDownCast(this->vtkArray)->GetPointer(0),
+          array->GetNumberOfElements());
         break;
       case XDMF_FLOAT32_TYPE:
-        array->GetValues(
-          0, (float*)this->vtkArray->GetVoidPointer(0), array->GetNumberOfElements());
+        array->GetValues(0,
+          vtkAOSDataArrayTemplate<float>::FastDownCast(this->vtkArray)->GetPointer(0),
+          array->GetNumberOfElements());
         break;
       case XDMF_FLOAT64_TYPE:
-        array->GetValues(
-          0, (double*)this->vtkArray->GetVoidPointer(0), array->GetNumberOfElements());
+        array->GetValues(0,
+          vtkAOSDataArrayTemplate<double>::FastDownCast(this->vtkArray)->GetPointer(0),
+          array->GetNumberOfElements());
         break;
       default:
         if (array->GetNumberOfElements() > 0)

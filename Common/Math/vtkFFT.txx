@@ -108,13 +108,13 @@ vtkFFT::ComplexNumber* vtkFFT::OverlappingFft(vtkFFT::vtkScalarNumberArray* sign
         if (signal->GetNumberOfComponents() == 1)
         {
           auto* beginSegment =
-            reinterpret_cast<ScalarNumber*>(signal->GetVoidPointer(i * segmentOffset));
+            reinterpret_cast<ScalarNumber*>(signal->GetPointer(i * segmentOffset));
           PreprocessAndDispatchFft(beginSegment, window, detrend, onesided, result + i * nfft);
         }
         else //: signal->GetNumberOfComponents() == 2
         {
           auto* beginSegment =
-            reinterpret_cast<ComplexNumber*>(signal->GetVoidPointer(i * segmentOffset * 2));
+            reinterpret_cast<ComplexNumber*>(signal->GetPointer(i * segmentOffset * 2));
           PreprocessAndDispatchFft(beginSegment, window, detrend, onesided, result + i * nfft);
         }
       }

@@ -196,7 +196,7 @@ int vtkPCACurvatureEstimation::RequestData(vtkInformation* vtkNotUsed(request),
   curvature->SetNumberOfComponents(3);
   curvature->SetNumberOfTuples(numPts);
   curvature->SetName("PCACurvature");
-  float* c = static_cast<float*>(curvature->GetVoidPointer(0));
+  float* c = curvature->GetPointer(0);
 
   void* inPtr = input->GetPoints()->GetVoidPointer(0);
   switch (input->GetPoints()->GetDataType())

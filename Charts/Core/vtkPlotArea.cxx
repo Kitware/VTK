@@ -384,7 +384,8 @@ public:
     vtkIdType numTuples = this->InputArrays[1]->GetNumberOfTuples();
     assert(this->Points->GetNumberOfPoints() == 2 * numTuples);
 
-    float* data = reinterpret_cast<float*>(this->Points->GetVoidPointer(0));
+    float* data =
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
     if (this->InputArrays[0])
     {
       vtkDataArray* array = this->InputArrays[0];
@@ -426,7 +427,7 @@ public:
     }
 
     // Set the bad-points mask.
-    vtkVector2f* vec2f = reinterpret_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    vtkVector2f* vec2f = reinterpret_cast<vtkVector2f*>(data);
     for (vtkIdType cc = 0; cc < numTuples; cc++)
     {
       bool is_bad = (this->ValidPointMask && this->ValidPointMask->GetValue(cc) == 0);
@@ -455,7 +456,8 @@ public:
 
     if (this->SortedPoints.empty())
     {
-      float* data = reinterpret_cast<float*>(this->Points->GetVoidPointer(0));
+      float* data =
+        vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
       this->SortedPoints.Initialize(
         reinterpret_cast<vtkVector2f*>(data), this->Points->GetNumberOfPoints());
       std::sort(
@@ -547,15 +549,17 @@ bool vtkPlotArea::Paint(vtkContext2D* painter)
     vtkIdType end = *iter;
     if ((end - start) >= 2)
     {
-      painter->DrawQuadStrip(
-        reinterpret_cast<float*>(cache.Points->GetVoidPointer(2 * 2 * start)), (end - start) * 2);
+      float* data = vtkAOSDataArrayTemplate<float>::FastDownCast(cache.Points->GetData())
+                      ->GetPointer(2 * 2 * start);
+      painter->DrawQuadStrip(data, (end - start) * 2);
     }
     start = end;
   }
   if (cache.Points->GetNumberOfPoints() - (2 * start) > 4)
   {
-    painter->DrawQuadStrip(reinterpret_cast<float*>(cache.Points->GetVoidPointer(2 * 2 * start)),
-      cache.Points->GetNumberOfPoints() - (2 * start));
+    float* data = vtkAOSDataArrayTemplate<float>::FastDownCast(cache.Points->GetData())
+                    ->GetPointer(2 * 2 * start);
+    painter->DrawQuadStrip(data, cache.Points->GetNumberOfPoints() - (2 * start));
   }
   return true;
 }
@@ -592,7 +596,8 @@ vtkStdString vtkPlotArea::GetTooltipLabel(
   vtkIdType idx = (seriesIndex / 2) * 2;
 
   vtkTableCache& cache = (*this->TableCache);
-  const vtkVector2f* data = reinterpret_cast<vtkVector2f*>(cache.Points->GetVoidPointer(0));
+  const vtkVector2f* data = reinterpret_cast<vtkVector2f*>(
+    vtkAOSDataArrayTemplate<float>::FastDownCast(cache.Points->GetData())->GetPointer(0));
 
   // Parse TooltipLabelFormat and build tooltipLabel
   bool escapeNext = false;

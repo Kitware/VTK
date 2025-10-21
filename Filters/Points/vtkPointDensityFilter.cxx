@@ -590,7 +590,7 @@ int vtkPointDensityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     gradients->SetNumberOfTuples(num);
     gradients->SetName("Gradient");
     output->GetPointData()->AddArray(gradients);
-    float* grad = static_cast<float*>(gradients->GetVoidPointer(0));
+    float* grad = gradients->GetPointer(0);
     gradients->Delete();
 
     vtkFloatArray* magnitude = vtkFloatArray::New();
@@ -598,7 +598,7 @@ int vtkPointDensityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     magnitude->SetNumberOfTuples(num);
     magnitude->SetName("Gradient Magnitude");
     output->GetPointData()->AddArray(magnitude);
-    float* mag = static_cast<float*>(magnitude->GetVoidPointer(0));
+    float* mag = magnitude->GetPointer(0);
     magnitude->Delete();
 
     vtkUnsignedCharArray* fclassification = vtkUnsignedCharArray::New();
@@ -606,7 +606,7 @@ int vtkPointDensityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     fclassification->SetNumberOfTuples(num);
     fclassification->SetName("Classification");
     output->GetPointData()->AddArray(fclassification);
-    unsigned char* fclass = static_cast<unsigned char*>(fclassification->GetVoidPointer(0));
+    unsigned char* fclass = fclassification->GetPointer(0);
     fclassification->Delete();
 
     // Thread the computation over slices

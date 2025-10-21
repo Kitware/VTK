@@ -3,7 +3,6 @@
 
 #include "vtkPConnectivityFilter.h"
 
-#include "vtkAOSDataArrayTemplate.h"
 #include "vtkArrayDispatch.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellData.h"
@@ -35,11 +34,9 @@
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
-
-typedef vtkTypeList::Unique<
-  vtkTypeList::Create<vtkAOSDataArrayTemplate<int>, vtkAOSDataArrayTemplate<unsigned long>,
-    vtkAOSDataArrayTemplate<char>, vtkAOSDataArrayTemplate<unsigned char>,
-    vtkAOSDataArrayTemplate<float>, vtkAOSDataArrayTemplate<double>>>::Result PointArrayTypes;
+using PointArrayDispatcher =
+  vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AOSArrays,
+    vtkMPIController::ValueTypes>;
 
 struct WorkerBase
 {
@@ -69,8 +66,7 @@ struct ExchangeBoundsWorker : public WorkerBase
   {
     memcpy(this->Bounds, bounds, 6 * sizeof(double));
 
-    using Dispatcher = vtkArrayDispatch::DispatchByArray<PointArrayTypes>;
-    return Dispatcher::Execute(allBoundsArray, *this);
+    return PointArrayDispatcher::Execute(allBoundsArray, *this);
   }
 
   template <class TArray>
@@ -90,8 +86,7 @@ struct ExchangeBoundsWorker : public WorkerBase
 
     allBounds->SetNumberOfComponents(6);
     allBounds->SetNumberOfTuples(this->SubController->GetNumberOfProcesses());
-    this->SubController->AllGather(
-      typedBounds, reinterpret_cast<typename TArray::ValueType*>(allBounds->GetVoidPointer(0)), 6);
+    this->SubController->AllGather(typedBounds, allBounds->GetPointer(0), 6);
   }
 
 protected:
@@ -190,8 +185,7 @@ struct AssemblePointsAndRegionIdsWorker : public WorkerBase
     this->PointsForMyNeighbors = &pointsForMyNeighbors;
     this->RegionIdsForMyNeighbors = &regionIdsForMyNeighbors;
 
-    using Dispatcher = vtkArrayDispatch::DispatchByArray<PointArrayTypes>;
-    return Dispatcher::Execute(allBoundsArray, *this);
+    return PointArrayDispatcher::Execute(allBoundsArray, *this);
   }
 
   template <class TArray>
@@ -286,8 +280,7 @@ struct SendReceivePointsWorker : public WorkerBase
     this->PointsFromMyNeighbors = &pointsFromMyNeighbors;
     this->RegionIdsFromMyNeighbors = &regionIdsFromMyNeighbors;
 
-    using Dispatcher = vtkArrayDispatch::DispatchByArray<PointArrayTypes>;
-    return Dispatcher::Execute(allBoundsArray, *this);
+    return PointArrayDispatcher::Execute(allBoundsArray, *this);
   }
 
   template <class TArray>

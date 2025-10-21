@@ -237,14 +237,16 @@ void vtkSignedDistance::Append(vtkPolyData* input)
   // Make sure that there are normals and output scalars
   vtkPoints* pts = input->GetPoints();
   float* scalars =
-    static_cast<float*>(this->GetOutput()->GetPointData()->GetScalars()->GetVoidPointer(0));
-  vtkDataArray* normalArray = input->GetPointData()->GetNormals();
-  if (!normalArray || normalArray->GetDataType() != VTK_FLOAT)
+    vtkAOSDataArrayTemplate<float>::FastDownCast(this->GetOutput()->GetPointData()->GetScalars())
+      ->GetPointer(0);
+  auto normalArray =
+    vtkAOSDataArrayTemplate<float>::FastDownCast(input->GetPointData()->GetNormals());
+  if (!normalArray)
   {
     vtkErrorMacro(<< "Float normals required!");
     return;
   }
-  float* normals = static_cast<float*>(normalArray->GetVoidPointer(0));
+  float* normals = normalArray->GetPointer(0);
 
   // Build the locator
   if (!this->Locator)

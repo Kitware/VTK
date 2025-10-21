@@ -2062,7 +2062,16 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
           {
             // We create a dummy array to use with ReadValues
             vtkDataArray* dummyArray = properties->NewInstance();
-            dummyArray->SetVoidArray(properties->GetVoidPointer(4), 3, 1);
+            if (this->Internal->Settings.Precision == 4)
+            {
+              dummyArray->SetVoidArray(
+                vtkAOSDataArrayTemplate<float>::FastDownCast(properties)->GetPointer(4), 3, 1);
+            }
+            else
+            {
+              dummyArray->SetVoidArray(
+                vtkAOSDataArrayTemplate<double>::FastDownCast(properties)->GetPointer(4), 3, 1);
+            }
 
             // Read GAMINF, BETA, TINF
             if (this->ReadValues(qFp, 3, dummyArray) != 3)
@@ -2080,7 +2089,16 @@ int vtkMultiBlockPLOT3DReader::ReadArrays(
             this->ReadIntBlock(qFp, 1, &igam);
             properties->SetTuple1(7, igam);
 
-            dummyArray->SetVoidArray(properties->GetVoidPointer(8), 3, 1);
+            if (this->Internal->Settings.Precision == 4)
+            {
+              dummyArray->SetVoidArray(
+                vtkAOSDataArrayTemplate<float>::FastDownCast(properties)->GetPointer(8), 3, 1);
+            }
+            else
+            {
+              dummyArray->SetVoidArray(
+                vtkAOSDataArrayTemplate<double>::FastDownCast(properties)->GetPointer(8), 3, 1);
+            }
             // Read the rest of properties
             if (this->ReadValues(qFp, numProperties - 8, dummyArray) != numProperties - 8)
             {

@@ -19,7 +19,7 @@ class TestSwigPointer(Testing.vtkTest):
         b = vtkIntArray()
         b.SetNumberOfTuples(1)
         b.SetValue(0, 2)
-        ptr = a.GetVoidPointer(0)
+        ptr = a.GetPointer(0)
         # check the format _0123456789abcdef_p_void
         self.assertEqual(ptr[0:1], "_")
         self.assertEqual(ptr[-7:], "_p_void")

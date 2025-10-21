@@ -70,8 +70,8 @@ class TestCellGridCopy(Testing.vtkTest):
             for role in roles:
                 sourceArr = sourceAtt.GetArrayForCellTypeAndRole(cellType, role)
                 targetArr = targetAtt.GetArrayForCellTypeAndRole(cellType, role)
-                sourcePtr = sourceArr.GetVoidPointer(0)
-                targetPtr = targetArr.GetVoidPointer(0) if targetArr != None else None
+                sourcePtr = sourceArr.GetPointer(0)
+                targetPtr = targetArr.GetPointer(0) if targetArr != None else None
                 if not query.GetCopyArrays():
                     # Even when not copying arrays, we do copy the connectivity
                     accept = targetPtr == None or (query.GetCopyCells() and role.Data() == 'connectivity')

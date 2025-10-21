@@ -142,7 +142,8 @@ public:
 
     // Nothing works if we're not sorted on the X access
     vtkIdType n = this->Points->GetNumberOfPoints();
-    vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    vtkVector2f* data = reinterpret_cast<vtkVector2f*>(
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0));
     std::vector<vtkVector2f> v(data, data + n);
     std::sort(v.begin(), v.end(), compVector2fX);
 
@@ -163,7 +164,8 @@ public:
     bool logX = xAxis->GetLogScaleActive();
     bool logY = yAxis->GetLogScaleActive();
 
-    float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
+    float* data =
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
 
     vtkIdType n = this->Points->GetNumberOfPoints();
     if (logX)
@@ -185,7 +187,8 @@ public:
   void FindBadPoints()
   {
     // This should be run after CalculateLogSeries as a final step.
-    float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
+    float* data =
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
     vtkIdType n = this->Points->GetNumberOfPoints();
     if (!this->BadPoints)
     {
@@ -262,7 +265,8 @@ public:
     {
       end = nPoints;
     }
-    vtkVector2f* pts = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    vtkVector2f* pts = reinterpret_cast<vtkVector2f*>(
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0));
 
     // Initialize our min/max
     bounds[0] = bounds[1] = pts[start].GetX();
@@ -366,7 +370,8 @@ public:
     std::vector<vtkVector2f>::iterator low;
     vtkVector2f lowPoint(point.GetX() - tol.GetX(), 0.0f);
 
-    vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    vtkVector2f* data = reinterpret_cast<vtkVector2f*>(
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0));
     std::vector<vtkVector2f> v(data, data + n);
 
     low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
@@ -402,7 +407,8 @@ public:
     }
 
     // Iterate through all points and check whether any are in range
-    vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    vtkVector2f* data = reinterpret_cast<vtkVector2f*>(
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0));
     vtkIdType n = this->Points->GetNumberOfPoints();
 
     for (vtkIdType i = 0; i < n; ++i)

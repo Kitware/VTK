@@ -689,8 +689,8 @@ void vtkTecplotReader::GetArraysFromPointPackingZone(
   // geometry: 3D point coordinates (note that this array must be initialized
   // since only 2D coordinates might be provided by a Tecplot file)
   theNodes->SetNumberOfPoints(numNodes);
-  float* cordsPtr = static_cast<float*>(theNodes->GetVoidPointer(0));
-  memset(cordsPtr, 0, sizeof(float) * 3 * numNodes);
+  auto cords = vtkAOSDataArrayTemplate<float>::FastDownCast(theNodes->GetData());
+  cords->FillValue(0);
 
   // three arrays used to determine the role of each variable (including
   // the coordinate arrays)
@@ -714,7 +714,7 @@ void vtkTecplotReader::GetArraysFromPointPackingZone(
       theArray->SetNumberOfTuples(numNodes);
       theArray->SetName(this->Variables[v].c_str());
       zoneData.push_back(theArray);
-      float* arrayPtr = static_cast<float*>(theArray->GetVoidPointer(0));
+      float* arrayPtr = theArray->GetPointer(0);
       pointers.push_back(arrayPtr);
       arrayPtr = nullptr;
       theArray = nullptr;
@@ -740,7 +740,7 @@ void vtkTecplotReader::GetArraysFromPointPackingZone(
         // collect the coordinate
         if (anyCoord[v])
         {
-          cordsPtr[cordBase + coordIdx[v]] = theValue;
+          cords->SetValue(cordBase + coordIdx[v], theValue);
         }
       }
       else
@@ -750,7 +750,6 @@ void vtkTecplotReader::GetArraysFromPointPackingZone(
       }
     }
   }
-  cordsPtr = nullptr;
 
   // attach the node-based data attributes to the grid
   zArrayId = 0;
@@ -807,8 +806,8 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone(
   // geometry: 3D point coordinates (note that this array must be initialized
   // since only 2D coordinates might be provided by a Tecplot file)
   theNodes->SetNumberOfPoints(numNodes);
-  float* cordsPtr = static_cast<float*>(theNodes->GetVoidPointer(0));
-  memset(cordsPtr, 0, sizeof(float) * 3 * numNodes);
+  auto cords = vtkAOSDataArrayTemplate<float>::FastDownCast(theNodes->GetData());
+  cords->FillValue(0);
 
   // two arrays used to determine the role of each variable (including
   // the coordinate arrays)
@@ -840,7 +839,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone(
       theArray->SetName(this->Variables[v].c_str());
       zoneData.push_back(theArray);
 
-      float* arrayPtr = static_cast<float*>(theArray->GetVoidPointer(0));
+      float* arrayPtr = theArray->GetPointer(0);
       for (int i = 0; i < arraySiz; i++)
       {
         VTK_FROM_CHARS_IF_ERROR_RETURN(this->Internal->GetNextToken(), arrayPtr[i], );
@@ -850,7 +849,7 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone(
       // three special arrays are 'combined' to fill the 3D coord array
       if (anyCoord[v])
       {
-        float* coordPtr = cordsPtr + isYcoord + (isZcoord << 1);
+        float* coordPtr = cords->GetPointer(isYcoord + (isZcoord << 1));
         for (int i = 0; i < arraySiz; i++, coordPtr += 3)
         {
           *coordPtr = arrayPtr[i];
@@ -870,7 +869,6 @@ void vtkTecplotReader::GetArraysFromBlockPackingZone(
       }
     }
   }
-  cordsPtr = nullptr;
 
   // attach the dataset attributes (node-based and cell-based) to the grid
   // NOTE: zoneData[] and this->Variables (and this->CellBased) may differ

@@ -229,15 +229,16 @@ void vtkPointInterpolator2D::Probe(vtkDataSet* input, vtkDataSet* source, vtkDat
     zScalars = vtkDoubleArray::New();
     zScalars->SetName(this->GetZArrayName().c_str());
     zScalars->SetNumberOfTuples(numSourcePts);
-    ProjectPointsWithScalars project(source, static_cast<double*>(projPoints->GetVoidPointer(0)),
-      static_cast<double*>(zScalars->GetVoidPointer(0)));
+    ProjectPointsWithScalars project(source,
+      vtkDoubleArray::FastDownCast(projPoints->GetData())->GetPointer(0), zScalars->GetPointer(0));
     vtkSMPTools::For(0, numSourcePts, project);
     projSource->GetPointData()->AddArray(zScalars);
     zScalars->UnRegister(this);
   }
   else
   {
-    ProjectPoints project(source, static_cast<double*>(projPoints->GetVoidPointer(0)));
+    ProjectPoints project(
+      source, vtkDoubleArray::FastDownCast(projPoints->GetData())->GetPointer(0));
     vtkSMPTools::For(0, numSourcePts, project);
   }
 

@@ -237,7 +237,9 @@ int vtkEnSight6BinaryReader::ReadGeometryFile(
     delete[] pointIds;
   }
 
-  coordinateArray = (float*)(this->UnstructuredPoints->GetVoidPointer(0));
+  coordinateArray =
+    vtkAOSDataArrayTemplate<float>::FastDownCast(this->UnstructuredPoints->GetData())
+      ->GetPointer(0);
   this->ReadFloatArray(coordinateArray, this->NumberOfUnstructuredPoints * 3);
 
   lineRead = this->ReadLine(line); // "part"

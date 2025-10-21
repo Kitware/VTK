@@ -54,9 +54,7 @@ void vtkCompositeImagePair(
   float* pEnd;
   int numComp = localP->GetNumberOfComponents();
   float* remoteZdata = remoteZ->GetPointer(0);
-  float* remotePdata = reinterpret_cast<float*>(remoteP->GetVoidPointer(0));
   float* localZdata = localZ->GetPointer(0);
-  float* localPdata = reinterpret_cast<float*>(localP->GetVoidPointer(0));
 
   int total_pixels = localZ->GetNumberOfTuples();
   int useCharFlag = 0;
@@ -68,6 +66,11 @@ void vtkCompositeImagePair(
 
   if (useCharFlag)
   {
+    float* remotePdata =
+      reinterpret_cast<float*>(vtkUnsignedCharArray::FastDownCast(remoteP)->GetPointer(0));
+    float* localPdata =
+      reinterpret_cast<float*>(vtkUnsignedCharArray::FastDownCast(localP)->GetPointer(0));
+
     pEnd = remoteZdata + total_pixels;
     if (numComp == 4)
     {
@@ -112,6 +115,9 @@ void vtkCompositeImagePair(
   }
   else
   {
+    float* remotePdata = vtkFloatArray::FastDownCast(remoteP)->GetPointer(0);
+    float* localPdata = vtkFloatArray::FastDownCast(localP)->GetPointer(0);
+
     pixel_data_size = numComp;
     for (i = 0; i < total_pixels; i++)
     {
@@ -184,15 +190,18 @@ void vtkTreeCompositer::CompositeBuffer(
         if (id < numProcs)
         {
           this->Controller->Receive(zTmp->GetPointer(0), zSize, id, 99);
-          if (pTmp->GetDataType() == VTK_UNSIGNED_CHAR)
+          if (auto pTmpUC = vtkUnsignedCharArray::FastDownCast(pTmp))
           {
-            this->Controller->Receive(
-              reinterpret_cast<unsigned char*>(pTmp->GetVoidPointer(0)), pSize, id, 99);
+            this->Controller->Receive(pTmpUC->GetPointer(0), pSize, id, 99);
+          }
+          else if (auto pTmpF = vtkFloatArray::FastDownCast(pTmp))
+          {
+            this->Controller->Receive(pTmpF->GetPointer(0), pSize, id, 99);
           }
           else
           {
-            this->Controller->Receive(
-              reinterpret_cast<float*>(pTmp->GetVoidPointer(0)), pSize, id, 99);
+            vtkErrorMacro("Unexpected pixel array type " << pBuf->GetClassName());
+            return;
           }
 
           // notice the result is stored as the local data
@@ -205,15 +214,18 @@ void vtkTreeCompositer::CompositeBuffer(
         if (id < numProcs)
         {
           this->Controller->Send(zBuf->GetPointer(0), zSize, id, 99);
-          if (pBuf->GetDataType() == VTK_UNSIGNED_CHAR)
+          if (auto pBufUC = vtkUnsignedCharArray::FastDownCast(pBuf))
           {
-            this->Controller->Send(
-              reinterpret_cast<unsigned char*>(pBuf->GetVoidPointer(0)), pSize, id, 99);
+            this->Controller->Send(pBufUC->GetPointer(0), pSize, id, 99);
+          }
+          else if (auto pBufF = vtkFloatArray::FastDownCast(pBuf))
+          {
+            this->Controller->Send(pBufF->GetPointer(0), pSize, id, 99);
           }
           else
           {
-            this->Controller->Send(
-              reinterpret_cast<float*>(pBuf->GetVoidPointer(0)), pSize, id, 99);
+            vtkErrorMacro("Unexpected pixel array type " << pBuf->GetClassName());
+            return;
           }
         }
       }

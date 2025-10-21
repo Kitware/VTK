@@ -3,17 +3,17 @@
 
 #include "vtkPlotPie.h"
 
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkBrush.h"
 #include "vtkColorSeries.h"
 #include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkPoints2D.h"
 #include "vtkRect.h"
 #include "vtkTable.h"
-
-#include "vtkObjectFactory.h"
 
 #include <algorithm>
 
@@ -38,7 +38,7 @@ void CopyToPoints(vtkPoints2D* points, A* a, int n)
   points->SetNumberOfPoints(n);
 
   A sum = SumData(a, n);
-  float* data = static_cast<float*>(points->GetVoidPointer(0));
+  float* data = vtkAOSDataArrayTemplate<float>::FastDownCast(points->GetData())->GetPointer(0);
   float startAngle = 0.0;
 
   for (int i = 0; i < n; ++i)
@@ -92,7 +92,8 @@ vtkPlotPie::~vtkPlotPie()
 //------------------------------------------------------------------------------
 bool vtkPlotPie::Paint(vtkContext2D* painter)
 {
-  float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
+  float* data =
+    vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
   vtkNew<vtkBrush> brush;
   painter->ApplyBrush(brush);
 
@@ -175,7 +176,8 @@ vtkIdType vtkPlotPie::GetNearestPoint(const vtkVector2f& point,
 
   if (sqrt((x * x) + (y * y)) <= this->Private->Radius)
   {
-    float* angles = static_cast<float*>(this->Points->GetVoidPointer(0));
+    float* angles =
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
     float pointAngle = vtkMath::DegreesFromRadians(atan2(y, x));
     if (pointAngle < 0)
     {

@@ -983,12 +983,15 @@ vtkPoints* vtkXdmfHeavyData::ReadPoints(
     switch (points->GetData()->GetDataType())
     {
       case VTK_DOUBLE:
-        xmfPoints->GetValues(
-          0, reinterpret_cast<double*>(points->GetVoidPointer(0)), numPoints * 3);
+        xmfPoints->GetValues(0,
+          vtkAOSDataArrayTemplate<XDMF_64_FLOAT>::FastDownCast(points->GetData())->GetPointer(0),
+          numPoints * 3);
         break;
 
       case VTK_FLOAT:
-        xmfPoints->GetValues(0, reinterpret_cast<float*>(points->GetVoidPointer(0)), numPoints * 3);
+        xmfPoints->GetValues(0,
+          vtkAOSDataArrayTemplate<XDMF_32_FLOAT>::FastDownCast(points->GetData())->GetPointer(0),
+          numPoints * 3);
         break;
 
       default:

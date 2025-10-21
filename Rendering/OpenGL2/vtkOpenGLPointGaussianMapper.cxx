@@ -334,7 +334,7 @@ void vtkOpenGLPointGaussianMapperHelperColors(vtkUnsignedCharArray* outColors, v
   unsigned char* colors, int colorComponents, vtkDataArray* opacities, int opacitiesComponent,
   vtkOpenGLPointGaussianMapperHelper* self)
 {
-  unsigned char* vPtr = static_cast<unsigned char*>(outColors->GetVoidPointer(0));
+  unsigned char* vPtr = outColors->GetPointer(0);
 
   for (vtkIdType i = 0; i < numPts; i++)
   {
@@ -373,7 +373,7 @@ template <typename PointDataType>
 void vtkOpenGLPointGaussianMapperHelperSizes(vtkFloatArray* scales, PointDataType* sizes,
   int nComponent, int component, vtkIdType numPts, vtkOpenGLPointGaussianMapperHelper* self)
 {
-  float* it = static_cast<float*>(scales->GetVoidPointer(0));
+  float* it = scales->GetPointer(0);
 
   for (vtkIdType i = 0; i < numPts; i++)
   {
@@ -490,7 +490,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
     clrs->SetNumberOfTuples(splatCount);
 
     vtkOpenGLPointGaussianMapperHelperColors(clrs, poly->GetPoints()->GetNumberOfPoints(),
-      this->Colors ? (unsigned char*)this->Colors->GetVoidPointer(0) : nullptr,
+      this->Colors ? this->Colors->GetPointer(0) : nullptr,
       this->Colors ? this->Colors->GetNumberOfComponents() : 0,
       hasOpacityArray ? poly->GetPointData()->GetArray(this->Owner->GetOpacityArray()) : nullptr,
       this->Owner->GetOpacityArrayComponent(), this);

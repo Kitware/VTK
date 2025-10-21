@@ -294,8 +294,8 @@ public:
    * TODO Deprecate?
    */
   typedef ValueType* Iterator;
-  Iterator Begin() { return Iterator(this->GetVoidPointer(0)); }
-  Iterator End() { return Iterator(this->GetVoidPointer(this->MaxId + 1)); }
+  Iterator Begin() { return Iterator(this->GetPointer(0)); }
+  Iterator End() { return Iterator(this->GetPointer(this->MaxId + 1)); }
 
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   bool HasStandardMemoryLayout() const override { return true; }

@@ -124,7 +124,8 @@ bool vtkPlotPoints::Paint(vtkContext2D* painter)
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
 
-    float* points = static_cast<float*>(this->Points->GetVoidPointer(0));
+    float* points =
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
     unsigned char* colors = nullptr;
     int nColorComponents = 0;
     if (this->ScalarVisibility && this->Colors)
@@ -258,7 +259,8 @@ void vtkPlotPoints::CreateSortedPoints()
   if (!this->Sorted)
   {
     vtkIdType n = this->Points->GetNumberOfPoints();
-    vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    vtkVector2f* data = reinterpret_cast<vtkVector2f*>(
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0));
     this->Sorted = new VectorPIMPL(data, n);
     std::sort(this->Sorted->begin(), this->Sorted->end(), compVector3fX);
   }
@@ -348,7 +350,7 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
     ++low;
   }
   this->Selection->SetNumberOfTuples(static_cast<vtkIdType>(selected.size()));
-  vtkIdType* ptr = static_cast<vtkIdType*>(this->Selection->GetVoidPointer(0));
+  vtkIdType* ptr = this->Selection->GetPointer(0);
   for (size_t i = 0; i < selected.size(); ++i)
   {
     ptr[i] = selected[i];
@@ -724,7 +726,8 @@ void vtkPlotPoints::CalculateLogSeries()
   }
   this->LogX = this->XAxis->GetLogScaleActive();
   this->LogY = this->YAxis->GetLogScaleActive();
-  float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
+  float* data =
+    vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
   vtkIdType n = this->Points->GetNumberOfPoints();
   if (this->LogX)
   {

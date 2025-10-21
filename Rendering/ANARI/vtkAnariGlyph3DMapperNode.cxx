@@ -20,6 +20,7 @@
 
 #include "vtkAnariGlyph3DMapperNode.h"
 
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkActor.h"
 #include "vtkAlgorithmOutput.h"
 #include "vtkAnariPolyDataMapperInheritInterface.h"
@@ -394,9 +395,9 @@ anari::Geometry vtkAnariGlyph3DMapperInheritInterface::InitializeSpheres(vtkPoly
         if (orientMode == vtkGlyph3DMapper::DIRECTION && orientArray->GetNumberOfComponents() == 3)
         {
           auto dirToQuaternionF = vtkAnariMath::DirectionToQuaternionX;
-          if (orientArray->GetDataType() == VTK_FLOAT)
+          if (auto floatArray = vtkAOSDataArrayTemplate<float>::FastDownCast(orientArray))
           {
-            float* dirIn = reinterpret_cast<float*>(orientArray->GetVoidPointer(0));
+            float* dirIn = floatArray->GetPointer(0);
             for (uint64_t ptIdx = 0; ptIdx < numPoints; ++ptIdx, dirIn += 3)
             {
               float dirLength = vtkMath::Norm(dirIn);
@@ -419,9 +420,9 @@ anari::Geometry vtkAnariGlyph3DMapperInheritInterface::InitializeSpheres(vtkPoly
         else if (orientMode == vtkGlyph3DMapper::ROTATION &&
           orientArray->GetNumberOfComponents() == 3)
         {
-          if (orientArray->GetDataType() == VTK_FLOAT)
+          if (auto floatArray = vtkAOSDataArrayTemplate<float>::FastDownCast(orientArray))
           {
-            float* rotIn = reinterpret_cast<float*>(orientArray->GetVoidPointer(0));
+            float* rotIn = floatArray->GetPointer(0);
             for (uint64_t ptIdx = 0; ptIdx < numPoints; ++ptIdx, rotIn += 3)
             {
               vtkAnariMath::RotationToQuaternion(rotIn, quatOut + ptIdx * 4);
@@ -442,10 +443,9 @@ anari::Geometry vtkAnariGlyph3DMapperInheritInterface::InitializeSpheres(vtkPoly
         else if (orientMode == vtkGlyph3DMapper::QUATERNION &&
           orientArray->GetNumberOfComponents() == 4)
         {
-          if (orientArray->GetDataType() == VTK_FLOAT)
+          if (auto floatArray = vtkAOSDataArrayTemplate<float>::FastDownCast(orientArray))
           {
-            memcpy(quatOut, reinterpret_cast<float*>(orientArray->GetVoidPointer(0)),
-              numPoints * 4 * sizeof(float));
+            std::copy_n(floatArray->GetPointer(0), numPoints * 4, quatOut);
           }
           else
           {

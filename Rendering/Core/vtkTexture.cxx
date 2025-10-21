@@ -274,9 +274,7 @@ unsigned char* vtkTexture::MapScalarsToColors(vtkDataArray* scalars)
   // map the scalars to colors
   this->MappedScalars = this->LookupTable->MapScalars(scalars, this->ColorMode, -1);
 
-  return this->MappedScalars
-    ? reinterpret_cast<unsigned char*>(this->MappedScalars->GetVoidPointer(0))
-    : nullptr;
+  return this->MappedScalars ? this->MappedScalars->GetPointer(0) : nullptr;
 }
 
 //------------------------------------------------------------------------------

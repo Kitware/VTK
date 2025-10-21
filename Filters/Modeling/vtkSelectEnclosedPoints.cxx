@@ -211,7 +211,7 @@ int vtkSelectEnclosedPoints::RequestData(vtkInformation* vtkNotUsed(request),
   // Loop over all input points determining inside/outside
   vtkIdType numPts = input->GetNumberOfPoints();
   hits->SetNumberOfValues(numPts);
-  unsigned char* hitsPtr = static_cast<unsigned char*>(hits->GetVoidPointer(0));
+  unsigned char* hitsPtr = hits->GetPointer(0);
 
   // Process the points in parallel
   SelectInOutCheck::Execute(

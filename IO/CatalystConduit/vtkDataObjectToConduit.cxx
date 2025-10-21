@@ -45,13 +45,14 @@
 
 #define conduit_set_array(node, arr, type, native_type, num_elem, offset, stride, external)        \
   {                                                                                                \
-    auto arraySOA = vtkSOADataArrayTemplate<native_type>::FastDownCast(dataArray);                 \
+    auto arraySOA = vtkSOADataArrayTemplate<native_type>::FastDownCast(arr);                       \
     if (arraySOA && arraySOA->GetStorageType() == arraySOA->StorageTypeEnum::SOA)                  \
     {                                                                                              \
       if (external)                                                                                \
       {                                                                                            \
-        node.set_##type##_ptr((conduit_##type*)arraySOA->GetComponentArrayPointer(offset),         \
-          num_elem, 0, sizeof(conduit_##type));                                                    \
+        node.set_external_##type##_ptr(                                                            \
+          (conduit_##type*)arraySOA->GetComponentArrayPointer(offset), num_elem, 0,                \
+          sizeof(conduit_##type));                                                                 \
       }                                                                                            \
       else                                                                                         \
       {                                                                                            \
@@ -59,18 +60,22 @@
           num_elem, 0, sizeof(conduit_##type));                                                    \
       }                                                                                            \
     }                                                                                              \
-    else                                                                                           \
+    else if (auto arrayAOS = vtkAOSDataArrayTemplate<native_type>::FastDownCast(arr))              \
     {                                                                                              \
       if (external)                                                                                \
       {                                                                                            \
-        node.set_external_##type##_ptr((conduit_##type*)arr->GetVoidPointer(0), num_elem,          \
+        node.set_external_##type##_ptr((conduit_##type*)arrayAOS->GetPointer(0), num_elem,         \
           offset * sizeof(conduit_##type), stride * sizeof(conduit_##type));                       \
       }                                                                                            \
       else                                                                                         \
       {                                                                                            \
-        node.set_##type##_ptr((conduit_##type*)arr->GetVoidPointer(0), num_elem,                   \
+        node.set_##type##_ptr((conduit_##type*)arrayAOS->GetPointer(0), num_elem,                  \
           offset * sizeof(conduit_##type), stride * sizeof(conduit_##type));                       \
       }                                                                                            \
+    }                                                                                              \
+    else                                                                                           \
+    {                                                                                              \
+      vtkGenericWarningMacro(<< arr->GetClassName() << " is not supported.");                      \
     }                                                                                              \
   }
 
@@ -255,58 +260,62 @@ bool ConvertDataArrayToMCArray(vtkDataArray* dataArray, int offset, int stride,
   bool is_supported = true;
   if (::IsSignedIntegralType(dataType))
   {
-    switch (dataTypeSize)
+    switch (dataType)
     {
-      case 1:
-        conduit_set_array(
-          conduitNode, dataArray, int8, int8_t, numberOfElements, offset, stride, external);
-        break;
+      vtkTemplateMacro(switch (dataTypeSize) {
+        case 1:
+          conduit_set_array(
+            conduitNode, dataArray, int8, VTK_TT, numberOfElements, offset, stride, external);
+          break;
 
-      case 2:
-        conduit_set_array(
-          conduitNode, dataArray, int16, int16_t, numberOfElements, offset, stride, external);
-        break;
+        case 2:
+          conduit_set_array(
+            conduitNode, dataArray, int16, VTK_TT, numberOfElements, offset, stride, external);
+          break;
 
-      case 4:
-        conduit_set_array(
-          conduitNode, dataArray, int32, int32_t, numberOfElements, offset, stride, external);
-        break;
+        case 4:
+          conduit_set_array(
+            conduitNode, dataArray, int32, VTK_TT, numberOfElements, offset, stride, external);
+          break;
 
-      case 8:
-        conduit_set_array(
-          conduitNode, dataArray, int64, int64_t, numberOfElements, offset, stride, external);
-        break;
+        case 8:
+          conduit_set_array(
+            conduitNode, dataArray, int64, VTK_TT, numberOfElements, offset, stride, external);
+          break;
 
-      default:
-        is_supported = false;
+        default:
+          is_supported = false;
+      });
     }
   }
   else if (::IsUnsignedIntegralType(dataType))
   {
-    switch (dataTypeSize)
+    switch (dataType)
     {
-      case 1:
-        conduit_set_array(
-          conduitNode, dataArray, uint8, uint8_t, numberOfElements, offset, stride, external);
-        break;
+      vtkTemplateMacro(switch (dataTypeSize) {
+        case 1:
+          conduit_set_array(
+            conduitNode, dataArray, uint8, VTK_TT, numberOfElements, offset, stride, external);
+          break;
 
-      case 2:
-        conduit_set_array(
-          conduitNode, dataArray, uint16, uint16_t, numberOfElements, offset, stride, external);
-        break;
+        case 2:
+          conduit_set_array(
+            conduitNode, dataArray, uint16, VTK_TT, numberOfElements, offset, stride, external);
+          break;
 
-      case 4:
-        conduit_set_array(
-          conduitNode, dataArray, int32, uint32_t, numberOfElements, offset, stride, external);
-        break;
+        case 4:
+          conduit_set_array(
+            conduitNode, dataArray, uint32, VTK_TT, numberOfElements, offset, stride, external);
+          break;
 
-      case 8:
-        conduit_set_array(
-          conduitNode, dataArray, int64, uint64_t, numberOfElements, offset, stride, external);
-        break;
+        case 8:
+          conduit_set_array(
+            conduitNode, dataArray, uint64, VTK_TT, numberOfElements, offset, stride, external);
+          break;
 
-      default:
-        is_supported = false;
+        default:
+          is_supported = false;
+      });
     }
   }
   else if (::IsFloatType(dataType))

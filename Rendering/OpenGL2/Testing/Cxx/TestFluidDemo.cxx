@@ -136,7 +136,7 @@ void updateFunc(vtkObject* caller, unsigned long vtkNotUsed(eventId), void* clie
 
   // Shift particles to the right (positive x)
   auto pointsToMove = g_Points->GetNumberOfPoints() - oldLayerSize;
-  float* pptr = static_cast<float*>(g_Points->GetVoidPointer(0));
+  float* pptr = vtkFloatArray::FastDownCast(g_Points->GetData())->GetPointer(0);
   auto lpptr = pptr + pointsToMove * 3;
   for (auto i = 0; i < pointsToMove; ++i)
   {
@@ -146,7 +146,7 @@ void updateFunc(vtkObject* caller, unsigned long vtkNotUsed(eventId), void* clie
   }
 
 #ifdef VERTEX_COLOR
-  float* cptr = static_cast<float*>(g_Colors->GetVoidPointer(0));
+  float* cptr = g_Colors->GetPointer(0);
   auto lcptr = cptr + pointsToMove * 3;
   if (oldLayerSize)
   {
@@ -245,7 +245,7 @@ void setupInteractiveDemo(vtkRenderWindow* renderWindow, vtkRenderer* renderer,
 #ifdef VERTEX_COLOR
   g_Colors->SetNumberOfComponents(3);
   pointData->GetPointData()->SetScalars(g_Colors);
-  g_FluidMapper->ScalarVisibilityOn();
+  fluidMapper->ScalarVisibilityOn();
 #endif
 
   renderWindow->SetSize(1920, 1080);

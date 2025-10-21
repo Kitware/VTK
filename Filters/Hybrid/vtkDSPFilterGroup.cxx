@@ -331,7 +331,7 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
     l_useThisTimestep = std::max(l_useThisTimestep, 0);
 
     vtkFloatArray* l_input = this->GetCachedInput(a_whichFilter, l_useThisTimestep);
-    float* l_outPtr = (float*)l_output->GetVoidPointer(0);
+    float* l_outPtr = l_output->GetPointer(0);
 
     if (!i)
     {
@@ -341,7 +341,7 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
 
     if (l_input)
     {
-      float* l_inPtr = (float*)l_input->GetVoidPointer(0);
+      float* l_inPtr = l_input->GetPointer(0);
       for (j = 0; j < l_numEntries; j++)
       {
         for (k = 0; k < l_numComponents; k++)
@@ -369,11 +369,11 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
     vtkFloatArray* l_input =
       this->GetOutput(a_whichFilter, a_whichTimestep - i, a_instancesCalculated);
 
-    float* l_outPtr = (float*)l_output->GetVoidPointer(0);
+    float* l_outPtr = l_output->GetPointer(0);
 
     if (l_input)
     {
-      float* l_inPtr = (float*)l_input->GetVoidPointer(0);
+      float* l_inPtr = l_input->GetPointer(0);
       for (j = 0; j < l_numEntries; j++)
       {
         for (k = 0; k < l_numComponents; k++)
@@ -393,7 +393,7 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
     double l_weight =
       this->FilterDefinitions->m_vector[a_whichFilter]->GetForwardNumeratorWeight(i) / l_a1;
 
-    float* l_outPtr = (float*)l_output->GetVoidPointer(0);
+    float* l_outPtr = l_output->GetPointer(0);
 
     vtkFloatArray* l_input = this->GetCachedInput(a_whichFilter, l_useThisTimestep);
 
@@ -407,7 +407,7 @@ vtkFloatArray* vtkDSPFilterGroup::GetOutput(
 
     if (l_input)
     {
-      float* l_inPtr = (float*)l_input->GetVoidPointer(0);
+      float* l_inPtr = l_input->GetPointer(0);
       for (j = 0; j < l_numEntries; j++)
       {
         for (k = 0; k < l_numComponents; k++)

@@ -1242,19 +1242,19 @@ void vtkExtractSurfaceAlgorithm<T>::Contour(vtkExtractSurface* self, vtkImageDat
     if (totalPts > 0)
     {
       newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
-      algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
+      algo.NewPoints = vtkFloatArray::FastDownCast(newPts->GetData())->GetPointer(0);
       newTris->ResizeExact(numOutTris, 3 * numOutTris);
       algo.NewTris = newTris;
 
       if (newGradients)
       {
         newGradients->WriteVoidPointer(0, 3 * totalPts);
-        algo.NewGradients = static_cast<float*>(newGradients->GetVoidPointer(0));
+        algo.NewGradients = vtkFloatArray::FastDownCast(newGradients)->GetPointer(0);
       }
       if (newNormals)
       {
         newNormals->WriteVoidPointer(0, 3 * totalPts);
-        algo.NewNormals = static_cast<float*>(newNormals->GetVoidPointer(0));
+        algo.NewNormals = vtkFloatArray::FastDownCast(newNormals)->GetPointer(0);
       }
       algo.NeedGradients = (algo.NewGradients || algo.NewNormals);
 

@@ -419,7 +419,17 @@ vtkSmartPointer<vtkDataArray> ReadSliceFile(const std::string& fileName,
   }
   result->SetNumberOfComponents(nComponents);
   result->SetNumberOfTuples(nTuples);
-  std::size_t readBytes = parser->Read(reinterpret_cast<char*>(result->GetVoidPointer(0)), size);
+  std::size_t readBytes;
+  if (size == nBytesFloat)
+  {
+    readBytes = parser->Read(
+      reinterpret_cast<char*>(vtkFloatArray::FastDownCast(result)->GetPointer(0)), size);
+  }
+  else
+  {
+    readBytes = parser->Read(
+      reinterpret_cast<char*>(vtkDoubleArray::FastDownCast(result)->GetPointer(0)), size);
+  }
   if (readBytes != size)
   {
     vtkErrorWithObjectMacro(nullptr,
@@ -585,7 +595,17 @@ vtkSmartPointer<vtkDataArray> ReadBoundaryFile(const std::string& fileName,
   }
   result->SetNumberOfComponents(nComponents);
   result->SetNumberOfTuples(nTuples);
-  std::size_t readBytes = parser->Read(reinterpret_cast<char*>(result->GetVoidPointer(0)), size);
+  std::size_t readBytes;
+  if (size == nBytesFloat)
+  {
+    readBytes = parser->Read(
+      reinterpret_cast<char*>(vtkFloatArray::FastDownCast(result)->GetPointer(0)), size);
+  }
+  else
+  {
+    readBytes = parser->Read(
+      reinterpret_cast<char*>(vtkDoubleArray::FastDownCast(result)->GetPointer(0)), size);
+  }
   if (readBytes != size)
   {
     vtkErrorWithObjectMacro(nullptr,

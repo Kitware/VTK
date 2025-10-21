@@ -468,7 +468,7 @@ void TestNewIterator(vtkSmartPointer<vtkCellArray> cellArray)
 }
 
 template <typename OffsetsArrayType, typename ConnectivityArrayType>
-void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray, bool checkNoCopy)
+void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
   using OffsetsValueType = typename OffsetsArrayType::ValueType;
@@ -497,6 +497,7 @@ void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray, bool checkNoCopy)
   auto connMTtime = conn->GetMTime();
   test->SetData(offsets, conn);
 
+  // checkNoCopy and MTime
   TEST_ASSERT(test->GetOffsetsArray() == offsets && offsets->GetMTime() == offsetsMTtime);
   TEST_ASSERT(test->GetConnectivityArray() == conn && conn->GetMTime() == connMTtime);
 
@@ -567,15 +568,6 @@ void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray, bool checkNoCopy)
     TEST_ASSERT(test->IsStorageGeneric());
   }
 
-  if (checkNoCopy)
-  {
-    TEST_ASSERT(test->GetConnectivityArray()->GetVoidPointer(0) == conn->GetPointer(0));
-    if (!std::is_base_of_v<vtkAffineArray<OffsetsValueType>, OffsetsArrayType>)
-    {
-      TEST_ASSERT(test->GetOffsetsArray()->GetVoidPointer(0) == offsets->GetPointer(0));
-    }
-  }
-
   TEST_ASSERT(test->GetNumberOfCells() == 3);
   TEST_ASSERT(test->GetNumberOfConnectivityIds() == (FixedSize ? 9 : 14));
   TEST_ASSERT(test->GetNumberOfOffsets() == 4);
@@ -588,77 +580,75 @@ void TestSetData(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  // These are documented to not shallow copy or deep copy the input arrays.
-  TestSetDataImpl<vtkCellArray::AOSArray32, vtkCellArray::AOSArray32>(cellArray, true);
-  TestSetDataImpl<vtkCellArray::AOSArray64, vtkCellArray::AOSArray64>(cellArray, true);
-  TestSetDataImpl<vtkIdTypeArray, vtkIdTypeArray>(cellArray, true);
-  TestSetDataImpl<vtkCellArray::AffineArray32, vtkCellArray::AOSArray32>(cellArray, true);
-  TestSetDataImpl<vtkCellArray::AffineArray64, vtkCellArray::AOSArray64>(cellArray, true);
-  TestSetDataImpl<vtkAffineArray<vtkIdType>, vtkIdTypeArray>(cellArray, true);
-  TestSetDataImpl<vtkTypeInt32Array, vtkTypeInt32Array>(cellArray, false);
-  TestSetDataImpl<vtkTypeInt64Array, vtkTypeInt64Array>(cellArray, false);
-  TestSetDataImpl<vtkIntArray, vtkIntArray>(cellArray, false);
-  TestSetDataImpl<vtkLongArray, vtkLongArray>(cellArray, false);
-  TestSetDataImpl<vtkLongLongArray, vtkLongLongArray>(cellArray, false);
-  TestSetDataImpl<vtkAffineArray<vtkTypeInt32>, vtkTypeInt32Array>(cellArray, false);
-  TestSetDataImpl<vtkAffineArray<vtkTypeInt64>, vtkTypeInt64Array>(cellArray, false);
-  TestSetDataImpl<vtkAffineArray<int>, vtkIntArray>(cellArray, false);
-  TestSetDataImpl<vtkAffineArray<long>, vtkLongArray>(cellArray, false);
-  TestSetDataImpl<vtkAffineArray<long long>, vtkLongLongArray>(cellArray, false);
+  TestSetDataImpl<vtkCellArray::AOSArray32, vtkCellArray::AOSArray32>(cellArray);
+  TestSetDataImpl<vtkCellArray::AOSArray64, vtkCellArray::AOSArray64>(cellArray);
+  TestSetDataImpl<vtkIdTypeArray, vtkIdTypeArray>(cellArray);
+  TestSetDataImpl<vtkCellArray::AffineArray32, vtkCellArray::AOSArray32>(cellArray);
+  TestSetDataImpl<vtkCellArray::AffineArray64, vtkCellArray::AOSArray64>(cellArray);
+  TestSetDataImpl<vtkAffineArray<vtkIdType>, vtkIdTypeArray>(cellArray);
+  TestSetDataImpl<vtkTypeInt32Array, vtkTypeInt32Array>(cellArray);
+  TestSetDataImpl<vtkTypeInt64Array, vtkTypeInt64Array>(cellArray);
+  TestSetDataImpl<vtkIntArray, vtkIntArray>(cellArray);
+  TestSetDataImpl<vtkLongArray, vtkLongArray>(cellArray);
+  TestSetDataImpl<vtkLongLongArray, vtkLongLongArray>(cellArray);
+  TestSetDataImpl<vtkAffineArray<vtkTypeInt32>, vtkTypeInt32Array>(cellArray);
+  TestSetDataImpl<vtkAffineArray<vtkTypeInt64>, vtkTypeInt64Array>(cellArray);
+  TestSetDataImpl<vtkAffineArray<int>, vtkIntArray>(cellArray);
+  TestSetDataImpl<vtkAffineArray<long>, vtkLongArray>(cellArray);
+  TestSetDataImpl<vtkAffineArray<long long>, vtkLongLongArray>(cellArray);
 
-  // These are documented to not deep copy the input arrays.
-  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeUInt8>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeUInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeUInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeUInt64>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeUInt8>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeUInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeUInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeUInt64>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeUInt8>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeUInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeUInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeUInt64>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeUInt8>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeUInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeUInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeUInt64>>(cellArray, true);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeUInt8>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeUInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeUInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeUInt64>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeUInt8>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeUInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeUInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeUInt64>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeUInt8>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeUInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeUInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeUInt64>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeUInt8>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeUInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeUInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeUInt64>>(cellArray);
 
-  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeUInt8>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeUInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeUInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeUInt64>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeUInt8>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeUInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeUInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeUInt64>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeUInt8>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeUInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeUInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeUInt64>>(cellArray, true);
+  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeUInt8>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeUInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeUInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeUInt64>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeUInt8>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeUInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeUInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeUInt64>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeUInt8>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeUInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeUInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeUInt64>>(cellArray);
 
-  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeInt64>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeInt64>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeInt64>>(cellArray, true);
+  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt16>, MockDataArray<vtkTypeInt64>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt32>, MockDataArray<vtkTypeInt64>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeInt64>, MockDataArray<vtkTypeInt64>>(cellArray);
 
-  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeInt64>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeInt64>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeInt64>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeInt16>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeInt32>>(cellArray, true);
-  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeInt64>>(cellArray, true);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt8>, MockDataArray<vtkTypeInt64>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt16>, MockDataArray<vtkTypeInt64>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt32>, MockDataArray<vtkTypeInt64>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeInt16>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeInt32>>(cellArray);
+  TestSetDataImpl<MockDataArray<vtkTypeUInt64>, MockDataArray<vtkTypeInt64>>(cellArray);
 }
 
 struct TestIsStorage64BitImpl : public vtkCellArray::DispatchUtilities

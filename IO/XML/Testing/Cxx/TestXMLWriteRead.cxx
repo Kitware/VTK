@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkPointSource.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLPolyDataWriter.h"
@@ -79,10 +80,9 @@ int TestConvertType(const std::string& type, const std::string& fileName)
   unsigned int numberOfMismatches = 0;
   for (auto i = 0; i < originalPoints->GetNumberOfPoints(); ++i)
   {
-    T* original;
-    original = static_cast<T*>(originalPoints->GetVoidPointer(i * 3));
-    T* read;
-    read = static_cast<T*>(readPoints->GetVoidPointer(i * 3));
+    T* original =
+      vtkAOSDataArrayTemplate<T>::FastDownCast(originalPoints->GetData())->GetPointer(i * 3);
+    T* read = vtkAOSDataArrayTemplate<T>::FastDownCast(readPoints->GetData())->GetPointer(i * 3);
     for (auto j = 0; j < 3; ++j)
     {
       if (original[j] != read[j])

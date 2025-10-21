@@ -41,7 +41,7 @@ vtkIntArray* GetSampleIntArray(const int numTuples, const int numComp)
   oss << "SampleIntArray-" << numComp;
   array->SetName(oss.str().c_str());
 
-  int* ptr = static_cast<int*>(array->GetVoidPointer(0));
+  int* ptr = array->GetPointer(0);
   int idx = 0;
   for (int i = 0; i < numTuples; ++i)
   {
@@ -69,7 +69,7 @@ vtkDoubleArray* GetSampleDoubleArray(const int numTuples, const int numComp)
   oss << "SampleDoubleArray-" << numComp;
   array->SetName(oss.str().c_str());
 
-  double* ptr = static_cast<double*>(array->GetVoidPointer(0));
+  double* ptr = array->GetPointer(0);
   double val = 0.5;
   for (int i = 0; i < numTuples; ++i)
   {
@@ -97,7 +97,7 @@ vtkFloatArray* GetSampleFloatArray(const int numTuples, const int numComp)
   oss << "SampleFloatArray-" << numComp;
   array->SetName(oss.str().c_str());
 
-  float* ptr = static_cast<float*>(array->GetVoidPointer(0));
+  float* ptr = array->GetPointer(0);
   float val = 0.5;
   for (int i = 0; i < numTuples; ++i)
   {
@@ -293,9 +293,9 @@ int TestFieldDataMetaData()
     bytestream, namesArray, datatypesArray, dimensionsArray);
 
   vtkIdType NumberOfArrays = namesArray->GetNumberOfValues();
-  std::string* names = static_cast<std::string*>(namesArray->GetVoidPointer(0));
-  int* datatypes = static_cast<int*>(datatypesArray->GetVoidPointer(0));
-  int* dimensions = static_cast<int*>(dimensionsArray->GetVoidPointer(0));
+  std::string* names = static_cast<std::string*>(namesArray->GetPointer(0));
+  int* datatypes = datatypesArray->GetPointer(0);
+  int* dimensions = dimensionsArray->GetPointer(0);
 
   // STEP 3: Check deserialized data with expected values
   if (NumberOfArrays != field->GetNumberOfArrays())

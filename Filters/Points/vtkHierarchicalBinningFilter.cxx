@@ -309,16 +309,9 @@ struct BinTree : public vtkBinTree
     // one extra allocation to simplify traversal
     this->Map = new BinTuple<TIds>[this->NumPts + 1];
     this->Map[this->NumPts].Bin = this->NumBins;
-    if (offsetsType == VTK_INT)
-    {
-      this->OffsetsArray = vtkIntArray::New();
-    }
-    else
-    {
-      this->OffsetsArray = vtkIdTypeArray::New();
-    }
+    this->OffsetsArray = vtkAOSDataArrayTemplate<TIds>::New();
     this->OffsetsArray->SetNumberOfTuples(this->NumBins + 1);
-    this->Offsets = static_cast<TIds*>(this->OffsetsArray->GetVoidPointer(0));
+    this->Offsets = vtkAOSDataArrayTemplate<TIds>::FastDownCast(this->OffsetsArray)->GetPointer(0);
     this->Offsets[this->NumBins] = this->NumPts;
   }
 

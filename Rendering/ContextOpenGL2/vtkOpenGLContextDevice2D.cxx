@@ -2756,7 +2756,7 @@ void vtkOpenGLContextDevice2D::DrawImageGL2PS(float p[2], vtkImageData* input)
   image->ShallowCopy(input);
   vtkDataArray* s = image->GetPointData()->GetScalars();
   size_t numVals = (s->GetNumberOfComponents() * s->GetNumberOfTuples());
-  unsigned char* vals = static_cast<unsigned char*>(s->GetVoidPointer(0));
+  unsigned char* vals = vtkAOSDataArrayTemplate<unsigned char>::FastDownCast(s)->GetPointer(0);
   vtkNew<vtkFloatArray> scalars;
   scalars->SetNumberOfComponents(s->GetNumberOfComponents());
   scalars->SetNumberOfTuples(s->GetNumberOfTuples());

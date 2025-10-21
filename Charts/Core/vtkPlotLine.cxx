@@ -42,7 +42,8 @@ bool vtkPlotLine::Paint(vtkContext2D* painter)
   if (this->BadPoints && this->BadPoints->GetNumberOfTuples() > 0)
   {
     // draw lines skipping bad points
-    float* points = static_cast<float*>(this->Points->GetVoidPointer(0));
+    float* points =
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
     constexpr int pointSize = 2;
     vtkIdType lastGood = 0;
     vtkIdType bpIdx = 0;

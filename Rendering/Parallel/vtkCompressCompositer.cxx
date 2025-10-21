@@ -572,15 +572,18 @@ void vtkCompressCompositer::CompositeBuffer(
           this->Controller->Receive(&bufSize, 1, id, 98);
           this->Controller->Receive(zBuf->GetPointer(0), bufSize, id, 99);
           this->Controller->Receive(&bufSize, 1, id, 98);
-          if (pTmp->GetDataType() == VTK_UNSIGNED_CHAR)
+          if (auto pBufUC = vtkUnsignedCharArray::FastDownCast(pBuf))
           {
-            this->Controller->Receive(
-              reinterpret_cast<unsigned char*>(pBuf->GetVoidPointer(0)), bufSize, id, 99);
+            this->Controller->Receive(pBufUC->GetPointer(0), bufSize, id, 99);
+          }
+          else if (auto pBufF = vtkFloatArray::FastDownCast(pBuf))
+          {
+            this->Controller->Receive(pBufF->GetPointer(0), bufSize, id, 99);
           }
           else
           {
-            this->Controller->Receive(
-              reinterpret_cast<float*>(pBuf->GetVoidPointer(0)), bufSize, id, 99);
+            vtkErrorMacro("Unexpected pixel array type " << pTmp->GetClassName());
+            return;
           }
 
           // notice the result is stored as the local data
@@ -604,15 +607,18 @@ void vtkCompressCompositer::CompositeBuffer(
           this->Controller->Send(z1->GetPointer(0), bufSize, id, 99);
           bufSize = p1->GetNumberOfTuples() * numComps;
           this->Controller->Send(&bufSize, 1, id, 98);
-          if (p1->GetDataType() == VTK_UNSIGNED_CHAR)
+          if (auto p1UC = vtkUnsignedCharArray::FastDownCast(p1))
           {
-            this->Controller->Send(
-              reinterpret_cast<unsigned char*>(p1->GetVoidPointer(0)), bufSize, id, 99);
+            this->Controller->Send(p1UC->GetPointer(0), bufSize, id, 99);
+          }
+          else if (auto p1F = vtkFloatArray::FastDownCast(p1))
+          {
+            this->Controller->Send(p1F->GetPointer(0), bufSize, id, 99);
           }
           else
           {
-            this->Controller->Send(
-              reinterpret_cast<float*>(p1->GetVoidPointer(0)), bufSize, id, 99);
+            vtkErrorMacro("Unexpected pixel array type " << p1->GetClassName());
+            return;
           }
         }
       }

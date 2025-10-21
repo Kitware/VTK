@@ -149,8 +149,9 @@ void VTXvtkVTU::ReadPiece(size_t step, size_t pieceID)
     types::DataArray& connectivity = itConnectivity->second;
     if (connectivity.IsUpdated)
     {
-      vtkIdTypeArray* iconnectivity = vtkIdTypeArray::SafeDownCast(connectivity.Data.GetPointer());
-      vtkIdType* pconn = iconnectivity->GetPointer(0);
+      vtkNew<vtkIdTypeArray> iconnectivity;
+      iconnectivity->ShallowCopy(connectivity.Data); // this may deep copy if different
+      auto pconn = iconnectivity->GetPointer(0);
 
       // increase the connectivity offsets to match the local block point id
       vtkIdType blockOffset = 0;

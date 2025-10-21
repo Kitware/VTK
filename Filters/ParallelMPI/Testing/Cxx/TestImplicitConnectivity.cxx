@@ -386,7 +386,7 @@ int CheckGrid(vtkDataSet* grid)
   }
 
   double pnt[3];
-  double* dataPtr = static_cast<double*>(array->GetVoidPointer(0));
+  double* dataPtr = array->GetPointer(0);
 
   vtkIdType N = grid->GetNumberOfPoints();
   for (vtkIdType idx = 0; idx < N; ++idx)

@@ -582,51 +582,6 @@ int vtkExodusIIReaderPrivate::AssembleOutputPointArrays(
 }
 
 //------------------------------------------------------------------------------
-#if 0
-// Copy tuples from one array to another, possibly with a different number of components per tuple.
-static void vtkEmbedTuplesInLargerArray(
-  vtkDataSetAttributes* attr, vtkDataArray* dst, vtkDataArray* src, vtkIdType numTuples, vtkIdType offset )
-{
-  vtkIdType i;
-  int srcNumComp = src->GetNumberOfComponents();
-  int dstNumComp = dst->GetNumberOfComponents();
-  if ( dstNumComp != srcNumComp )
-  { // We've promoted the array from 2-D to 3-D... can't use CopyTuple
-    if ( dst->GetDataType() != src->GetDataType() )
-    {
-      return;
-    }
-    vtkIdType sid = 0;
-    vtkIdType did = offset * dstNumComp;
-    int minNumComp = dstNumComp < srcNumComp ? dstNumComp : srcNumComp;
-    switch( dst->GetDataType() )
-    {
-      vtkTemplateMacro(
-      {
-        VTK_TT* srcTuple = (VTK_TT*) src->GetVoidPointer( sid );
-        VTK_TT* dstTuple = (VTK_TT*) dst->GetVoidPointer( did );
-        for ( i = 0; i < numTuples; ++i, srcTuple += srcNumComp, dstTuple += dstNumComp )
-        {
-          for ( int j = 0; j < minNumComp; ++j )
-          {
-            dstTuple[j] = srcTuple[j];
-          }
-        }
-      }
-      );
-    }
-  }
-  else
-  {
-    for ( i = 0; i < numTuples; ++i )
-    {
-      attr->CopyTuple( src, dst, i, i + offset );
-    }
-  }
-}
-#endif // 0
-
-//------------------------------------------------------------------------------
 int vtkExodusIIReaderPrivate::AssembleOutputCellArrays(
   vtkIdType timeStep, int otyp, int obj, BlockSetInfoType* bsinfop, vtkUnstructuredGrid* output)
 {
@@ -1048,8 +1003,8 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellMaps(vtkIdType vtkNotUsed(timeSt
         arr->SetName(mi->Name.c_str());
         arr->SetNumberOfComponents(1);
         arr->SetNumberOfTuples(bsinfop->Size);
-        memcpy(arr->GetVoidPointer(0), src->GetVoidPointer(bsinfop->FileOffset - 1),
-          bsinfop->Size * sizeof(vtkIdType));
+        std::copy_n(vtkIdTypeArray::FastDownCast(src)->GetPointer(bsinfop->FileOffset - 1),
+          bsinfop->Size, arr->GetPointer(0));
         cd->AddArray(arr);
         arr->FastDelete();
       }
@@ -1597,13 +1552,15 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     // pay attention to SqueezePoints
 
     // ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::GLOBAL][key.ArrayId];
-    arr = vtkDataArray::CreateDataArray(VTK_DOUBLE);
+    auto doubleArray = vtkDoubleArray::New();
+    arr = doubleArray;
     arr->SetName(vtkExodusIIReaderPrivate::GetGlobalVariableValuesArrayName());
     arr->SetNumberOfComponents(1);
     arr->SetNumberOfTuples(
       static_cast<vtkIdType>(this->ArrayInfo[vtkExodusIIReader::GLOBAL].size()));
 
-    if (ex_get_glob_vars(exoid, key.Time + 1, arr->GetNumberOfTuples(), arr->GetVoidPointer(0)) < 0)
+    if (ex_get_glob_vars(
+          exoid, key.Time + 1, arr->GetNumberOfTuples(), doubleArray->GetPointer(0)) < 0)
     {
       vtkErrorMacro(
         "Could not read global variable " << this->GetGlobalVariableValuesArrayName() << ".");
@@ -1949,7 +1906,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
         break;
     }
     if (ex_get_num_map(exoid, static_cast<ex_entity_type>(key.ObjectType), minfop->Id,
-          (vtkIdType*)arr->GetVoidPointer(0)) < 0)
+          vtkIdTypeArray::FastDownCast(arr)->GetPointer(0)) < 0)
     {
       vtkErrorMacro("Could not read nodal map variable " << minfop->Name << ".");
       arr->Delete();
@@ -2741,7 +2698,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     darr->SetNumberOfComponents(1);
     darr->SetNumberOfTuples(binfop->Size);
     if (ex_get_one_attr(exoid, static_cast<ex_entity_type>(blkType), binfop->Id, key.ArrayId + 1,
-          darr->GetVoidPointer(0)) < 0)
+          darr->GetPointer(0)) < 0)
     { // NB: The error message references the file-order object id, not the numerically sorted index
       // presented to users.
       vtkErrorMacro("Unable to read attribute " << key.ArrayId << " for object " << key.ObjectId

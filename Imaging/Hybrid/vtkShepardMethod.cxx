@@ -347,7 +347,7 @@ int vtkShepardMethod::RequestData(vtkInformation* vtkNotUsed(request),
     vtkErrorMacro(<< "Scalars must be defined!");
     return 1;
   }
-  float* newS = static_cast<float*>(newScalars->GetVoidPointer(0));
+  float* newS = newScalars->GetPointer(0);
 
   newScalars->SetName(inScalars->GetName());
 

@@ -65,8 +65,7 @@ struct CopyToPoints2Worker
         auto prev = previousPoints->GetPoint(i)[1];
         tmpB = tmpB + prev;
       }
-      points->SetPoint(i, static_cast<float>((logScale & 1) ? log10(tmpA) : tmpA),
-        static_cast<float>((logScale & 2) ? log10(tmpB) : tmpB));
+      points->SetPoint(i, logScale & 1 ? log10(tmpA) : tmpA, logScale & 2 ? log10(tmpB) : tmpB);
     }
   }
 };
@@ -327,7 +326,8 @@ public:
     if (!this->Sorted)
     {
       vtkIdType n = this->Points->GetNumberOfPoints();
-      vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+      vtkVector2f* data = reinterpret_cast<vtkVector2f*>(
+        vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0));
       this->Sorted = new VectorPIMPL(data, n);
       std::sort(this->Sorted->begin(), this->Sorted->end());
     }
@@ -398,7 +398,7 @@ public:
     else
     {
       this->Bar->GetSelection()->SetNumberOfTuples(static_cast<vtkIdType>(selected.size()));
-      vtkIdType* ptr = static_cast<vtkIdType*>(this->Bar->GetSelection()->GetVoidPointer(0));
+      vtkIdType* ptr = this->Bar->GetSelection()->GetPointer(0);
       for (size_t i = 0; i < selected.size(); ++i)
       {
         ptr[i] = selected[i];
