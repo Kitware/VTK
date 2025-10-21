@@ -1337,6 +1337,7 @@ vtkSmartPointer<vtkDataArray> vtkSLACReader::ReadPointDataArray(int ncFD, int va
     return nullptr;
   vtkSmartPointer<vtkDataArray> dataArray;
   dataArray.TakeReference(vtkDataArray::CreateDataArray(vtkType));
+  assert(dataArray->HasStandardMemoryLayout() && "Array must have standard memory layout");
   dataArray->SetNumberOfComponents(static_cast<int>(numComponents));
   dataArray->SetNumberOfTuples(static_cast<vtkIdType>(numCoords));
 
@@ -1344,7 +1345,7 @@ vtkSmartPointer<vtkDataArray> vtkSLACReader::ReadPointDataArray(int ncFD, int va
   size_t start[2], count[2];
   start[0] = start[1] = 0;
   count[0] = numCoords;
-  count[1] = numComponents;
+  count[1] = numComponents; // NOLINTNEXTLINE(bugprone-unsafe-functions)
   CALL_NETCDF_PTR(nc_get_vars(ncFD, varId, start, count, nullptr, dataArray->GetVoidPointer(0)));
 
   return dataArray;

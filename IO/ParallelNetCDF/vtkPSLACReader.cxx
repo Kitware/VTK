@@ -847,6 +847,7 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD, int v
     return nullptr;
   }
   auto dataArray = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(vtkType));
+  assert(dataArray->HasStandardMemoryLayout() && "Array must have standard memory layout");
 
   // Read the data from the file.
   size_t start[2], count[2];
@@ -856,15 +857,18 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD, int v
   count[1] = numComponents;
   dataArray->SetNumberOfComponents(static_cast<int>(count[1]));
   dataArray->SetNumberOfTuples(static_cast<vtkIdType>(count[0]));
+  // NOLINTNEXTLINE(bugprone-unsafe-functions)
   CALL_NETCDF_PTR(nc_get_vars(ncFD, varId, start, count, nullptr, dataArray->GetVoidPointer(0)));
 
   // We now need to redistribute the data.  Allocate an array to store the final
   // point data and a buffer to send data to the rest of the processes.
   auto finalDataArray = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(vtkType));
+  assert(finalDataArray->HasStandardMemoryLayout() && "Array must have standard memory layout");
   finalDataArray->SetNumberOfComponents(static_cast<int>(numComponents));
   finalDataArray->SetNumberOfTuples(this->PInternal->LocalToGlobalIds->GetNumberOfTuples());
 
   auto sendBuffer = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(vtkType));
+  assert(sendBuffer->HasStandardMemoryLayout() && "Array must have standard memory layout");
   sendBuffer->SetNumberOfComponents(static_cast<int>(numComponents));
   sendBuffer->SetNumberOfTuples(this->PInternal->PointsToSendToProcesses->GetNumberOfTuples());
   vtkPSLACReaderMapValues functor;
@@ -902,9 +906,10 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD, int v
       numComponents * this->PInternal->PointsExpectedFromProcessesLengths->GetValue(proc));
     vtkIdType destOffset = static_cast<vtkIdType>(
       numComponents * this->PInternal->PointsExpectedFromProcessesOffsets->GetValue(proc));
-    this->Controller->GetCommunicator()->ScatterVVoidArray(sendBuffer->GetVoidPointer(0),
-      finalDataArray->GetVoidPointer(destOffset), sendLengths->GetPointer(0),
-      sendOffsets->GetPointer(0), destLength, vtkType, proc);
+    this->Controller->GetCommunicator()
+      ->ScatterVVoidArray( // NOLINTNEXTLINE(bugprone-unsafe-functions)
+        sendBuffer->GetVoidPointer(0), finalDataArray->GetVoidPointer(destOffset),
+        sendLengths->GetPointer(0), sendOffsets->GetPointer(0), destLength, vtkType, proc);
   }
 
   return finalDataArray;

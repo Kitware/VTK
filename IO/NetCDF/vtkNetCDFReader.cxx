@@ -874,6 +874,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char* varName, double time, vt
   if (vtkType < 1)
     return 0;
   auto dataArray = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(vtkType));
+  assert(dataArray->HasStandardMemoryLayout() && "Array must have standard memory layout");
   // Read the array from the file.
   CALL_NETCDF_INT(
     this->Accessor->get_vars(ncFD, varId, start, count, nullptr, vtkType, 1, arraySize, dataArray));

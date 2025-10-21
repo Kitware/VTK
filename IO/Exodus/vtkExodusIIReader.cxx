@@ -1578,6 +1578,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     int ncomps =
       (this->ModelParameters.num_dim == 2 && ainfop->Components == 2) ? 3 : ainfop->Components;
     arr = vtkDataArray::CreateDataArray(ainfop->StorageType);
+    assert(arr->HasStandardMemoryLayout() && "Array must have standard memory layout");
     arr->SetName(ainfop->Name.c_str());
     arr->SetNumberOfComponents(ncomps);
     arr->SetNumberOfTuples(this->ModelParameters.num_nodes);
@@ -1588,6 +1589,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     if (ncomps == 1)
     {
       if (ex_get_var(exoid, key.Time + 1, static_cast<ex_entity_type>(key.ObjectType),
+            // NOLINTNEXTLINE(bugprone-unsafe-functions)
             ainfop->OriginalIndices[0], 0, arr->GetNumberOfTuples(), arr->GetVoidPointer(0)) < 0)
       {
         vtkErrorMacro("Could not read nodal result variable " << ainfop->Name << ".");
@@ -1652,6 +1654,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     // read temporal nodal array
     ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::GLOBAL][key.ArrayId];
     arr = vtkDataArray::CreateDataArray(ainfop->StorageType);
+    assert(arr->HasStandardMemoryLayout() && "Array must have standard memory layout");
     // std::string newArrayName = ainfop->Name + "OverTime";
     arr->SetName(ainfop->Name.c_str());
     arr->SetNumberOfComponents(ainfop->Components);
@@ -1690,6 +1693,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
       }
     }
     else if (ex_get_var_time(exoid, EX_GLOBAL, ainfop->OriginalIndices[0], key.ObjectId, 1,
+               // NOLINTNEXTLINE(bugprone-unsafe-functions)
                this->GetNumberOfTimeSteps(), arr->GetVoidPointer(0)) < 0)
     {
       vtkErrorMacro("Could not read global result variable " << ainfop->Name << ".");
@@ -1705,6 +1709,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     // read temporal nodal array
     ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::NODAL][key.ArrayId];
     arr = vtkDataArray::CreateDataArray(ainfop->StorageType);
+    assert(arr->HasStandardMemoryLayout() && "Array must have standard memory layout");
     std::string newArrayName = ainfop->Name + "OverTime";
     arr->SetName(newArrayName.c_str());
     arr->SetNumberOfComponents(ainfop->Components);
@@ -1712,6 +1717,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     if (ainfop->Components == 1)
     {
       if (ex_get_var_time(exoid, EX_NODAL, ainfop->OriginalIndices[0], key.ObjectId, 1,
+            // NOLINTNEXTLINE(bugprone-unsafe-functions)
             this->GetNumberOfTimeSteps(), arr->GetVoidPointer(0)) < 0)
       {
         vtkErrorMacro("Could not read nodal result variable " << ainfop->Name << ".");
@@ -1758,6 +1764,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     // read temporal element array
     ArrayInfoType* ainfop = &this->ArrayInfo[vtkExodusIIReader::ELEM_BLOCK][key.ArrayId];
     arr = vtkDataArray::CreateDataArray(ainfop->StorageType);
+    assert(arr->HasStandardMemoryLayout() && "Array must have standard memory layout");
     std::string newArrayName = ainfop->Name + "OverTime";
     arr->SetName(newArrayName.c_str());
     arr->SetNumberOfComponents(ainfop->Components);
@@ -1765,6 +1772,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     if (ainfop->Components == 1)
     {
       if (ex_get_var_time(exoid, EX_ELEM_BLOCK, ainfop->OriginalIndices[0], key.ObjectId, 1,
+            // NOLINTNEXTLINE(bugprone-unsafe-functions)
             this->GetNumberOfTimeSteps(), arr->GetVoidPointer(0)) < 0)
       {
         vtkErrorMacro("Could not read element result variable " << ainfop->Name << ".");
@@ -1819,6 +1827,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     ObjectInfoType* oinfop = this->GetObjectInfo(otypidx, key.ObjectId);
 
     arr = vtkDataArray::CreateDataArray(ainfop->StorageType);
+    assert(arr->HasStandardMemoryLayout() && "Array must have standard memory layout");
     arr->SetName(ainfop->Name.c_str());
     if (ainfop->Components == 2 && this->ModelParameters.num_dim == 2)
     {
@@ -1834,7 +1843,7 @@ vtkDataArray* vtkExodusIIReaderPrivate::GetCacheOrRead(vtkExodusIICacheKey key)
     {
       if (ex_get_var(exoid, key.Time + 1, static_cast<ex_entity_type>(key.ObjectType),
             ainfop->OriginalIndices[0], oinfop->Id, arr->GetNumberOfTuples(),
-            arr->GetVoidPointer(0)) < 0)
+            arr->GetVoidPointer(0)) < 0) // NOLINT(bugprone-unsafe-functions)
       {
         vtkErrorMacro("Could not read result variable "
           << ainfop->Name << " for " << objtype_names[otypidx] << " " << oinfop->Id << ".");
