@@ -171,13 +171,9 @@ void vtkSignedDistance::StartAppend()
 
   vtkDebugMacro(<< "Initializing data");
   this->AllocateOutputData(this->GetOutput(), this->GetOutputInformation(0));
-  vtkIdType numPts = static_cast<vtkIdType>(this->Dimensions[0]) *
-    static_cast<vtkIdType>(this->Dimensions[1]) * static_cast<vtkIdType>(this->Dimensions[2]);
 
   // initialize output to initial empty value at each location
-  float* newScalars =
-    static_cast<float*>(this->GetOutput()->GetPointData()->GetScalars()->GetVoidPointer(0));
-  std::fill_n(newScalars, numPts, -(this->Radius));
+  this->GetOutput()->GetPointData()->GetScalars()->Fill(-(this->Radius));
 
   // Compute the initial bounds
   double bounds[6];
