@@ -134,11 +134,7 @@ int vtkAddMembershipArray::RequestData(
     {
       for (vtkIdType i = 0; i < inputArray->GetNumberOfTuples(); ++i)
       {
-        vtkVariant v(0);
-        switch (inputArray->GetDataType())
-        {
-          vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(inputArray->GetVoidPointer(i)));
-        }
+        vtkVariant v = inputArray->GetVariantValue(i);
         if (this->InputValues->LookupValue(v) >= 0)
         {
           vals->SetValue(i, 1);
@@ -251,12 +247,7 @@ void vtkAddMembershipArray::PrintSelf(ostream& os, vtkIndent indent)
     int num = this->InputValues->GetNumberOfTuples();
     for (int idx = 0; idx < num; ++idx)
     {
-      vtkVariant v(0);
-      switch (this->InputValues->GetDataType())
-      {
-        vtkExtraExtendedTemplateMacro(
-          v = *static_cast<VTK_TT*>(this->InputValues->GetVoidPointer(idx)));
-      }
+      vtkVariant v = this->InputValues->GetVariantValue(idx);
       os << v.ToString() << endl;
     }
   }

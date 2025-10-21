@@ -44,25 +44,6 @@ public:
   }
 };
 
-//------------------------------------------------------------------------------
-template <typename T>
-vtkVariant vtkGroupLeafVerticesGetValue(T* arr, vtkIdType index)
-{
-  return vtkVariant(arr[index]);
-}
-
-//------------------------------------------------------------------------------
-static vtkVariant vtkGroupLeafVerticesGetVariant(vtkAbstractArray* arr, vtkIdType i)
-{
-  vtkVariant val;
-  switch (arr->GetDataType())
-  {
-    vtkExtraExtendedTemplateMacro(
-      val = vtkGroupLeafVerticesGetValue(static_cast<VTK_TT*>(arr->GetVoidPointer(0)), i));
-  }
-  return val;
-}
-
 vtkGroupLeafVertices::vtkGroupLeafVertices()
 {
   this->GroupDomain = nullptr;
@@ -251,7 +232,7 @@ int vtkGroupLeafVertices::RequestData(
         // If it is a leaf, it should be grouped.
         // Look for a group vertex.  If there isn't one already, make one.
         vtkIdType group_vertex = -1;
-        vtkVariant groupVal = vtkGroupLeafVerticesGetVariant(arr, tree_child);
+        vtkVariant groupVal = arr->GetVariantValue(tree_child);
         if (group_vertices.count(std::make_pair(v, groupVal)) > 0)
         {
           group_vertex = group_vertices[std::make_pair(v, groupVal)];
