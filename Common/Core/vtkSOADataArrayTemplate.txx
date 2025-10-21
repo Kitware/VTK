@@ -476,9 +476,13 @@ void vtkSOADataArrayTemplate<ValueType>::CopyData(vtkSOADataArrayTemplate<ValueT
   vtkIdType numberOfTuples = this->GetNumberOfTuples();
   if (numberOfComponents == 1)
   { // first optimization is if we have contiguous memory for both src and this
-    ValueType* srcBegin = static_cast<ValueType*>(src->GetVoidPointer(0));
+    ValueType* srcBegin = src->StorageType == StorageTypeEnum::SOA
+      ? src->GetComponentArrayPointer(0)
+      : src->AoSData->GetBuffer();
     ValueType* srcEnd = srcBegin + numberOfTuples;
-    ValueType* dstBegin = static_cast<ValueType*>(this->GetVoidPointer(0));
+    ValueType* dstBegin = this->StorageType == StorageTypeEnum::SOA
+      ? this->GetComponentArrayPointer(0)
+      : this->AoSData->GetBuffer();
 
     std::copy(srcBegin, srcEnd, dstBegin);
   }
