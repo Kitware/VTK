@@ -207,37 +207,29 @@ void vtkXMLPPolyDataReader::CopyArrayForCells(vtkAbstractArray* inArray, vtkAbst
     return;
   }
 
-  vtkIdType components = outArray->GetNumberOfComponents();
-  vtkIdType tupleSize = inArray->GetDataTypeSize() * components;
-
   // Copy the cell data for the Verts in the piece.
   vtkIdType inStartCell = 0;
   vtkIdType outStartCell = this->StartVert;
   vtkIdType numCells = this->GetNumberOfVertsInPiece(this->Piece);
-  memcpy(outArray->GetVoidPointer(outStartCell * components),
-    inArray->GetVoidPointer(inStartCell * components), numCells * tupleSize);
+  outArray->InsertTuples(outStartCell, numCells, inStartCell, inArray);
 
   // Copy the cell data for the Lines in the piece.
   inStartCell += numCells;
   outStartCell = this->TotalNumberOfVerts + this->StartLine;
   numCells = this->GetNumberOfLinesInPiece(this->Piece);
-  memcpy(outArray->GetVoidPointer(outStartCell * components),
-    inArray->GetVoidPointer(inStartCell * components), numCells * tupleSize);
+  outArray->InsertTuples(outStartCell, numCells, inStartCell, inArray);
 
   // Copy the cell data for the Strips in the piece.
   inStartCell += numCells;
   outStartCell = (this->TotalNumberOfVerts + this->TotalNumberOfLines + this->StartStrip);
   numCells = this->GetNumberOfStripsInPiece(this->Piece);
-  memcpy(outArray->GetVoidPointer(outStartCell * components),
-    inArray->GetVoidPointer(inStartCell * components), numCells * tupleSize);
-
+  outArray->InsertTuples(outStartCell, numCells, inStartCell, inArray);
   // Copy the cell data for the Polys in the piece.
   inStartCell += numCells;
   outStartCell = (this->TotalNumberOfVerts + this->TotalNumberOfLines + this->TotalNumberOfStrips +
     this->StartPoly);
   numCells = this->GetNumberOfPolysInPiece(this->Piece);
-  memcpy(outArray->GetVoidPointer(outStartCell * components),
-    inArray->GetVoidPointer(inStartCell * components), numCells * tupleSize);
+  outArray->InsertTuples(outStartCell, numCells, inStartCell, inArray);
 }
 
 //------------------------------------------------------------------------------

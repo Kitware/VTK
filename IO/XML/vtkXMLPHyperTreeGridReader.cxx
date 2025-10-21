@@ -160,23 +160,6 @@ void vtkXMLPHyperTreeGridReader::PieceProgressCallback()
 //------------------------------------------------------------------------------
 void vtkXMLPHyperTreeGridReader::SetupNextPiece() {}
 
-namespace
-{
-//------------------------------------------------------------------------------
-// This templated function executes the filter for any type of data.
-template <class T>
-void vtkXMLPHyperTreeGridAppendExecute(T* inPtr, T* outPtr, vtkIdType numTuple, vtkIdType numComp)
-{
-  for (vtkIdType nt = 0; nt < numTuple; nt++)
-  {
-    for (vtkIdType nc = 0; nc < numComp; nc++)
-    {
-      outPtr[nt * numComp + nc] = inPtr[nt * numComp + nc];
-    }
-  }
-}
-}
-
 //------------------------------------------------------------------------------
 int vtkXMLPHyperTreeGridReader::ReadPieceData()
 {
@@ -285,21 +268,7 @@ int vtkXMLPHyperTreeGridReader::ReadPieceData()
                     << "), must match output Name (" << outArray->GetName() << ")");
       return 0;
     }
-
-    // Copy all scalar data from input piece to the correct offset in outputpiece
-    // All hypertrees from this piece were built in order so copy is in order
-    void* inPtr = inArray->GetVoidPointer(0);
-    void* outPtr = outArray->GetVoidPointer(this->PieceStartIndex);
-
-    // Copies the data from piece to parallel output
-    switch (inArray->GetDataType())
-    {
-      vtkTemplateMacro(vtkXMLPHyperTreeGridAppendExecute(
-        static_cast<VTK_TT*>(inPtr), static_cast<VTK_TT*>(outPtr), numTuple, numComp));
-      default:
-        vtkErrorMacro(<< "Execute: Unknown ScalarType");
-        return 0;
-    }
+    outArray->InsertTuples(this->PieceStartIndex, numTuple, 0, inArray);
   }
 
   this->PieceStartIndex = currentOffset;

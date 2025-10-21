@@ -483,22 +483,6 @@ VTK_THREAD_RETURN_TYPE UnstructuredGridVolumeRayCastMapper_CastRays(void* arg)
   return VTK_THREAD_RETURN_VALUE;
 }
 
-template <class T>
-inline void vtkUGVRCMLookupCopy(
-  const T* src, T* dest, vtkIdType* lookup, int numcomponents, int numtuples)
-{
-  for (vtkIdType i = 0; i < numtuples; i++)
-  {
-    const T* srctuple = src + lookup[i] * numcomponents;
-    for (int j = 0; j < numcomponents; j++)
-    {
-      *dest = *srctuple;
-      dest++;
-      srctuple++;
-    }
-  }
-}
-
 void vtkUnstructuredGridVolumeRayCastMapper::CastRays(int threadID, int threadCount)
 {
   int i, j;
@@ -559,12 +543,7 @@ void vtkUnstructuredGridVolumeRayCastMapper::CastRays(int threadID, int threadCo
             intersectedCells, intersectionLengths, nullptr, nullptr, nullptr);
           nearIntersections->SetNumberOfComponents(this->Scalars->GetNumberOfComponents());
           nearIntersections->SetNumberOfTuples(numIntersections);
-          switch (this->Scalars->GetDataType())
-          {
-            vtkTemplateMacro(vtkUGVRCMLookupCopy((const VTK_TT*)this->Scalars->GetVoidPointer(0),
-              (VTK_TT*)nearIntersections->GetVoidPointer(0), intersectedCells->GetPointer(0),
-              this->Scalars->GetNumberOfComponents(), numIntersections));
-          }
+          nearIntersections->InsertTuplesStartingAt(0, intersectedCells, this->Scalars);
         }
         else
         {

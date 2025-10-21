@@ -321,17 +321,14 @@ void vtkXMLPStructuredDataReader ::CopySubExtent(int* inExtent, int* inDimension
   vtkIdType* inIncrements, int* outExtent, int* outDimensions, vtkIdType* outIncrements,
   int* subExtent, int* subDimensions, vtkAbstractArray* inArray, vtkAbstractArray* outArray)
 {
-  unsigned int components = inArray->GetNumberOfComponents();
-  unsigned int tupleSize = inArray->GetDataTypeSize() * components;
-
   if ((inDimensions[0] == outDimensions[0]) && (inDimensions[1] == outDimensions[1]))
   {
     if (inDimensions[2] == outDimensions[2])
     {
       // Copy the whole volume at once.
-      vtkIdType volumeTuples = (static_cast<vtkIdType>(inDimensions[0]) *
+      const vtkIdType volumeTuples = (static_cast<vtkIdType>(inDimensions[0]) *
         static_cast<vtkIdType>(inDimensions[1]) * static_cast<vtkIdType>(inDimensions[2]));
-      memcpy(outArray->GetVoidPointer(0), inArray->GetVoidPointer(0), volumeTuples * tupleSize);
+      outArray->InsertTuples(0, volumeTuples, 0, inArray);
     }
     else
     {
@@ -345,8 +342,7 @@ void vtkXMLPStructuredDataReader ::CopySubExtent(int* inExtent, int* inDimension
           this->GetStartTuple(inExtent, inIncrements, subExtent[0], subExtent[2], subExtent[4] + k);
         vtkIdType destTuple = this->GetStartTuple(
           outExtent, outIncrements, subExtent[0], subExtent[2], subExtent[4] + k);
-        memcpy(outArray->GetVoidPointer(destTuple * components),
-          inArray->GetVoidPointer(sourceTuple * components), sliceTuples * tupleSize);
+        outArray->InsertTuples(destTuple, sliceTuples, sourceTuple, inArray);
       }
     }
   }
@@ -363,8 +359,7 @@ void vtkXMLPStructuredDataReader ::CopySubExtent(int* inExtent, int* inDimension
           inExtent, inIncrements, subExtent[0], subExtent[2] + j, subExtent[4] + k);
         vtkIdType destTuple = this->GetStartTuple(
           outExtent, outIncrements, subExtent[0], subExtent[2] + j, subExtent[4] + k);
-        memcpy(outArray->GetVoidPointer(destTuple * components),
-          inArray->GetVoidPointer(sourceTuple * components), rowTuples * tupleSize);
+        outArray->InsertTuples(destTuple, rowTuples, sourceTuple, inArray);
       }
     }
   }

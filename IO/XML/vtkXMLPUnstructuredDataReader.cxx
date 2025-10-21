@@ -350,17 +350,7 @@ void vtkXMLPUnstructuredDataReader::CopyArrayForPoints(
   }
 
   vtkIdType numPoints = this->PieceReaders[this->Piece]->GetNumberOfPoints();
-  vtkIdType components = outArray->GetNumberOfComponents();
-  vtkIdType tupleSize = inArray->GetDataTypeSize() * components;
-  if (auto outStringArray = vtkArrayDownCast<vtkStringArray>(outArray))
-  {
-    outStringArray->InsertTuples(this->StartPoint, numPoints, 0, inArray);
-  }
-  else
-  {
-    memcpy(outArray->GetVoidPointer(this->StartPoint * components), inArray->GetVoidPointer(0),
-      numPoints * tupleSize);
-  }
+  outArray->InsertTuples(this->StartPoint, numPoints, 0, inArray);
 }
 
 //------------------------------------------------------------------------------
