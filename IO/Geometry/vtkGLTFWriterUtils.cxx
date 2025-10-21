@@ -3,6 +3,7 @@
 
 #include "vtkGLTFWriterUtils.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkBase64OutputStream.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
@@ -15,16 +16,41 @@
 #include <string>
 
 VTK_ABI_NAMESPACE_BEGIN
+
+struct WriteValuesFunctor
+{
+  template <typename ValueType>
+  void operator()(vtkAOSDataArrayTemplate<ValueType>* da, ostream& myFile)
+  {
+    myFile.write(reinterpret_cast<char*>(da->GetPointer(0)),
+      da->GetNumberOfTuples() * da->GetNumberOfComponents() * da->GetElementComponentSize());
+  }
+  template <typename ValueType>
+  void operator()(vtkAOSDataArrayTemplate<ValueType>* da, vtkBase64OutputStream* ostr)
+  {
+    ostr->Write(reinterpret_cast<char*>(da->GetPointer(0)),
+      da->GetNumberOfTuples() * da->GetNumberOfComponents() * da->GetElementComponentSize());
+  }
+};
+
 void vtkGLTFWriterUtils::WriteValues(vtkDataArray* ca, ostream& myFile)
 {
-  myFile.write(reinterpret_cast<char*>(ca->GetVoidPointer(0)),
-    ca->GetNumberOfTuples() * ca->GetNumberOfComponents() * ca->GetElementComponentSize());
+  auto aos = ca->ToAOSDataArray();
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(
+        aos, WriteValuesFunctor{}, myFile))
+  {
+    vtkGenericWarningMacro("Failed to write data array of type " << ca->GetClassName());
+  }
 }
 
 void vtkGLTFWriterUtils::WriteValues(vtkDataArray* ca, vtkBase64OutputStream* ostr)
 {
-  ostr->Write(reinterpret_cast<char*>(ca->GetVoidPointer(0)),
-    ca->GetNumberOfTuples() * ca->GetNumberOfComponents() * ca->GetElementComponentSize());
+  auto aos = ca->ToAOSDataArray();
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(
+        aos, WriteValuesFunctor{}, ostr))
+  {
+    vtkGenericWarningMacro("Failed to write data array of type " << ca->GetClassName());
+  }
 }
 
 void vtkGLTFWriterUtils::WriteBufferAndView(vtkDataArray* inda, const char* fileName,

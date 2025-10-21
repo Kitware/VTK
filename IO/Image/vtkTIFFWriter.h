@@ -19,6 +19,8 @@
 #include "vtkImageWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
+struct vtkTIFFWriterWriteVolumeFunctor;
+
 class VTKIOIMAGE_EXPORT vtkTIFFWriter : public vtkImageWriter
 {
 public:
@@ -74,8 +76,7 @@ private:
   vtkTIFFWriter(const vtkTIFFWriter&) = delete;
   void operator=(const vtkTIFFWriter&) = delete;
 
-  template <typename T>
-  void WriteVolume(T* buffer);
+  friend struct vtkTIFFWriterWriteVolumeFunctor;
 };
 
 VTK_ABI_NAMESPACE_END

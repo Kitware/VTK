@@ -105,7 +105,14 @@ vtkDataArray* vtkXdmf3DataSet::XdmfToVTKArray(XdmfArray* xArray,
   }
   else if (arrayType == XdmfArrayType::Int64())
   {
-    vtk_type = VTK_LONG;
+    if constexpr (VTK_SIZEOF_LONG == 8)
+    {
+      vtk_type = VTK_LONG;
+    }
+    else
+    {
+      vtk_type = VTK_LONG_LONG;
+    }
   }
   else if (arrayType == XdmfArrayType::Float32())
   {
@@ -129,7 +136,14 @@ vtkDataArray* vtkXdmf3DataSet::XdmfToVTKArray(XdmfArray* xArray,
   }
   else if (arrayType == XdmfArrayType::UInt64())
   {
-    vtk_type = VTK_UNSIGNED_LONG;
+    if constexpr (VTK_SIZEOF_LONG == 8)
+    {
+      vtk_type = VTK_UNSIGNED_LONG;
+    }
+    else
+    {
+      vtk_type = VTK_UNSIGNED_LONG_LONG;
+    }
   }
   else if (arrayType == XdmfArrayType::String())
   {
@@ -165,10 +179,11 @@ vtkDataArray* vtkXdmf3DataSet::XdmfToVTKArray(XdmfArray* xArray,
 #define DO_DEEPREAD 0
 #if DO_DEEPREAD
     // deepcopy
+    auto aos = vArray->ToAOSDataArray();
     switch (vArray->GetDataType())
     {
-      vtkTemplateMacro(
-        xArray->getValues(0, static_cast<VTK_TT*>(vArray->GetVoidPointer(0)), ntuples * ncomp););
+      vtkTemplateMacro(xArray->getValues(
+        0, vtkAOSDataArrayTemplate<VTK_TT>::FastDownCast(aos)->GetPointer(0), ntuples * ncomp););
       default:
         std::cerr << "UNKNOWN" << endl;
     }
@@ -181,12 +196,6 @@ vtkDataArray* vtkXdmf3DataSet::XdmfToVTKArray(XdmfArray* xArray,
     }
 #endif
 
-    /*
-        std::cerr
-          << xArray << " " << xArray->getValuesInternal() << " "
-          << vArray->GetVoidPointer(0) << " " << ntuples << " "
-          << vArray << " " << vArray->GetName() << endl;
-    */
     vtkXdmf3DataSet_ReleaseIfNeeded(xArray, freeMe);
   }
   return vArray;
@@ -221,14 +230,18 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
     xArray->setName(vArray->GetName());
   }
 
+  auto aos = vArray->ToAOSDataArray();
 #define DO_DEEPWRITE 1
 #if DO_DEEPWRITE
-#define XDMF_ARRAY_COPY(type, xdmfarr, vtkarr)                                                     \
-  xdmfarr->insert(0, static_cast<type*>(vtkarr->GetVoidPointer(0)), vtkarr->GetDataSize())
+#define XDMF_ARRAY_COPY(type, nativeType, xdmfarr, vtkarr)                                         \
+  xdmfarr->insert(0,                                                                               \
+    reinterpret_cast<type*>(                                                                       \
+      vtkAOSDataArrayTemplate<nativeType>::FastDownCast(vtkarr)->GetPointer(0)),                   \
+    vtkarr->GetDataSize())
 #else
 #define XDMF_ARRAY_COPY(type, xdmfarr, vtkarr)                                                     \
-  xdmfarr->setValuesInternal(                                                                      \
-    static_cast<type*>(vtkarr->GetVoidPointer(0)), vtkarr->GetDataSize(), false)
+  xdmfarr->setValuesInternal(vtkAOSDataArrayTemplate<type>::FastDownCast(vtkarr)->GetPointer(0),   \
+    vtkarr->GetDataSize(), false)
 #endif
 
   // TODO: verify the 32/64 choices are correct in all configurations
@@ -239,70 +252,88 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
     case VTK_BIT:
       return false;
     case VTK_CHAR:
+      xArray->initialize(XdmfArrayType::Int8(), xdims);
+      XDMF_ARRAY_COPY(char, char, xArray, aos);
+      break;
     case VTK_SIGNED_CHAR:
       xArray->initialize(XdmfArrayType::Int8(), xdims);
-      XDMF_ARRAY_COPY(char, xArray, vArray);
+      XDMF_ARRAY_COPY(char, signed char, xArray, aos);
       break;
     case VTK_UNSIGNED_CHAR:
       xArray->initialize(XdmfArrayType::UInt8(), xdims);
-      XDMF_ARRAY_COPY(unsigned char, xArray, vArray);
+      XDMF_ARRAY_COPY(uint8_t, unsigned char, xArray, aos);
       break;
     case VTK_SHORT:
       xArray->initialize(XdmfArrayType::Int16(), xdims);
-      XDMF_ARRAY_COPY(short, xArray, vArray);
+      XDMF_ARRAY_COPY(int16_t, short, xArray, aos);
       break;
     case VTK_UNSIGNED_SHORT:
       xArray->initialize(XdmfArrayType::UInt16(), xdims);
-      XDMF_ARRAY_COPY(unsigned short, xArray, vArray);
+      XDMF_ARRAY_COPY(uint16_t, unsigned short, xArray, aos);
       break;
     case VTK_INT:
       xArray->initialize(XdmfArrayType::Int32(), xdims);
-      XDMF_ARRAY_COPY(int, xArray, vArray);
+      XDMF_ARRAY_COPY(int32_t, int, xArray, aos);
       break;
     case VTK_UNSIGNED_INT:
       xArray->initialize(XdmfArrayType::UInt32(), xdims);
-      XDMF_ARRAY_COPY(unsigned int, xArray, vArray);
+      XDMF_ARRAY_COPY(uint32_t, unsigned int, xArray, aos);
       break;
     case VTK_LONG:
-      xArray->initialize(XdmfArrayType::Int64(), xdims);
-      XDMF_ARRAY_COPY(long, xArray, vArray);
+      if constexpr (VTK_SIZEOF_LONG == 8)
+      {
+        xArray->initialize(XdmfArrayType::Int64(), xdims);
+        XDMF_ARRAY_COPY(int64_t, long, xArray, aos);
+      }
+      else
+      {
+        xArray->initialize(XdmfArrayType::Int32(), xdims);
+        XDMF_ARRAY_COPY(int32_t, long, xArray, aos);
+      }
       break;
     case VTK_UNSIGNED_LONG:
+      if constexpr (VTK_SIZEOF_LONG == 8)
+      {
+        xArray->initialize(XdmfArrayType::UInt64(), xdims);
+        XDMF_ARRAY_COPY(uint64_t, unsigned long, xArray, aos);
+      }
+      else
+      {
+        xArray->initialize(XdmfArrayType::UInt32(), xdims);
+        XDMF_ARRAY_COPY(uint32_t, unsigned long, xArray, aos);
+      }
+      break;
+    case VTK_LONG_LONG:
+      xArray->initialize(XdmfArrayType::Int64(), xdims);
+      XDMF_ARRAY_COPY(int64_t, long long, xArray, aos);
+      break;
+    case VTK_UNSIGNED_LONG_LONG:
       xArray->initialize(XdmfArrayType::UInt64(), xdims);
-      XDMF_ARRAY_COPY(unsigned long, xArray, vArray);
-      return false;
+      XDMF_ARRAY_COPY(uint64_t, unsigned long long, xArray, aos);
+      break;
     case VTK_FLOAT:
       xArray->initialize(XdmfArrayType::Float32(), xdims);
-      XDMF_ARRAY_COPY(float, xArray, vArray);
+      XDMF_ARRAY_COPY(float, float, xArray, aos);
       break;
     case VTK_DOUBLE:
       xArray->initialize(XdmfArrayType::Float64(), xdims);
-      XDMF_ARRAY_COPY(double, xArray, vArray);
+      XDMF_ARRAY_COPY(double, double, xArray, aos);
       break;
     case VTK_ID_TYPE:
       if (VTK_SIZEOF_ID_TYPE == XdmfArrayType::Int64()->getElementSize())
       {
         xArray->initialize(XdmfArrayType::Int64(), xdims);
-        XDMF_ARRAY_COPY(long, xArray, vArray);
+        XDMF_ARRAY_COPY(int64_t, vtkIdType, xArray, aos);
       }
       else
       {
         xArray->initialize(XdmfArrayType::Int32(), xdims);
-        XDMF_ARRAY_COPY(int, xArray, vArray);
+        XDMF_ARRAY_COPY(int32_t, vtkIdType, xArray, aos);
       }
       break;
     case VTK_STRING:
       return false;
-      // TODO: what is correct syntax here?
-      // xArray->initialize(XdmfArrayType::String(), xdims);
-      // xArray->setValuesInternal(
-      //  static_cast<std::string>(vArray->GetVoidPointer(0)),
-      //  vArray->GetDataSize(),
-      //  false);
-      // break;
     case VTK_OPAQUE:
-    case VTK_LONG_LONG:
-    case VTK_UNSIGNED_LONG_LONG:
     case VTK_VARIANT:
     case VTK_OBJECT:
       return false;

@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkTIFFWriter.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkErrorCode.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
@@ -268,6 +270,12 @@ void vtkTIFFWriter::WriteFileHeader(ostream*, vtkImageData* data, int wExt[6])
   }
 }
 
+struct vtkTIFFWriterWriteVolumeFunctor
+{
+  template <typename TArray>
+  void operator()(TArray* array, vtkTIFFWriter* self);
+};
+
 //------------------------------------------------------------------------------
 void vtkTIFFWriter::WriteFile(ostream*, vtkImageData* data, int extent[6], int*)
 {
@@ -298,14 +306,14 @@ void vtkTIFFWriter::WriteFile(ostream*, vtkImageData* data, int extent[6], int*)
 
   if (this->Pages > 1)
   {
-    // Call the correct templated function for the input
-    void* inPtr = scalarArray->GetVoidPointer(0);
-
-    switch (dataType)
+    auto aos = scalarArray->ToAOSDataArray();
+    vtkTIFFWriterWriteVolumeFunctor functor;
+    if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(
+          aos, functor, this))
     {
-      vtkTemplateMacro(this->WriteVolume((VTK_TT*)(inPtr)));
-      default:
-        vtkErrorMacro("UpdateFromFile: Unknown data type");
+      vtkErrorMacro(<< "UpdateFromFile: Array " << scalarArray->GetClassName()
+                    << " not supported.");
+      this->SetErrorCode(vtkErrorCode::UserError);
     }
   }
   else
@@ -330,27 +338,29 @@ void vtkTIFFWriter::WriteFile(ostream*, vtkImageData* data, int extent[6], int*)
 }
 
 //------------------------------------------------------------------------------
-template <typename T>
-void vtkTIFFWriter::WriteVolume(T* buffer)
+template <typename TArray>
+void vtkTIFFWriterWriteVolumeFunctor::operator()(TArray* array, vtkTIFFWriter* self)
 {
-  TIFF* tif = reinterpret_cast<TIFF*>(this->TIFFPtr);
+  using T = typename TArray::ValueType;
+  TIFF* tif = reinterpret_cast<TIFF*>(self->TIFFPtr);
   if (!tif)
   {
-    vtkErrorMacro("Problem writing volume.");
-    this->SetErrorCode(vtkErrorCode::FileFormatError);
+    vtkErrorWithObjectMacro(self, "Problem writing volume.");
+    self->SetErrorCode(vtkErrorCode::FileFormatError);
     return;
   }
-  int width = this->Width;
-  int height = this->Height;
-  int pages = this->Pages;
+  int width = self->Width;
+  int height = self->Height;
+  int pages = self->Pages;
 
   uint32_t w = width;
   uint32_t h = height;
   int bitsPerSample = sizeof(T) * 8;
 
+  auto buffer = array->GetPointer(0);
   for (int page = 0; page < pages; ++page)
   {
-    this->UpdateProgress(static_cast<double>(page + 1) / pages);
+    self->UpdateProgress(static_cast<double>(page + 1) / pages);
 
     // TIFF directory set up/tags.
     TIFFSetField(tif, TIFFTAG_IMAGEWIDTH, w);
@@ -361,7 +371,7 @@ void vtkTIFFWriter::WriteVolume(T* buffer)
     TIFFSetField(tif, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
 
     int compression;
-    switch (this->Compression)
+    switch (self->Compression)
     {
       case vtkTIFFWriter::PackBits:
         compression = COMPRESSION_PACKBITS;
@@ -382,7 +392,7 @@ void vtkTIFFWriter::WriteVolume(T* buffer)
     if (compression == COMPRESSION_LZW)
     {
       TIFFSetField(tif, TIFFTAG_PREDICTOR, 2);
-      vtkErrorMacro("LZW compression is patented outside US so it is disabled");
+      vtkErrorWithObjectMacro(self, "LZW compression is patented outside US so it is disabled");
     }
     else if (compression == COMPRESSION_DEFLATE)
     {
@@ -397,10 +407,10 @@ void vtkTIFFWriter::WriteVolume(T* buffer)
     TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_MINISBLACK);
     uint32_t rowsperstrip = (uint32_t)-1;
     TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tif, rowsperstrip));
-    if (this->XResolution > 0.0 && this->YResolution > 0.0)
+    if (self->XResolution > 0.0 && self->YResolution > 0.0)
     {
-      TIFFSetField(tif, TIFFTAG_XRESOLUTION, this->XResolution);
-      TIFFSetField(tif, TIFFTAG_YRESOLUTION, this->YResolution);
+      TIFFSetField(tif, TIFFTAG_XRESOLUTION, self->XResolution);
+      TIFFSetField(tif, TIFFTAG_YRESOLUTION, self->YResolution);
       TIFFSetField(tif, TIFFTAG_RESOLUTIONUNIT, RESUNIT_CENTIMETER);
     }
 
@@ -415,13 +425,13 @@ void vtkTIFFWriter::WriteVolume(T* buffer)
       T* tmp = volume + i * width;
       if (TIFFWriteScanline(tif, reinterpret_cast<char*>(tmp), i, 0) < 0)
       {
-        this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+        self->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
         return;
       }
     }
     if (!TIFFWriteDirectory(tif))
     {
-      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      self->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return;
     }
   }

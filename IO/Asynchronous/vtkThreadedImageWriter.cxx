@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkThreadedImageWriter.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkBMPWriter.h"
 #include "vtkCommand.h"
-#include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkJPEGWriter.h"
 #include "vtkLogger.h"
@@ -30,6 +30,30 @@
 //****************************************************************************
 namespace
 {
+struct vtkThreadedImageWriterFunctor
+{
+  template <class TArray>
+  void operator()(TArray* array, const std::string& fileName, bool zLibCompression)
+  {
+    auto* buffer = array->GetPointer(0);
+    const size_t bufferSize = array->GetNumberOfValues() * array->GetDataTypeSize();
+    vtksys::ofstream fileHandler(fileName.c_str(), ios::out | ios::binary);
+    if (zLibCompression)
+    {
+      vtkNew<vtkZLibDataCompressor> zLib;
+      unsigned char* cBuffer = new unsigned char[bufferSize];
+      size_t compressSize =
+        zLib->Compress(reinterpret_cast<unsigned char*>(buffer), bufferSize, cBuffer, bufferSize);
+      fileHandler.write(reinterpret_cast<const char*>(cBuffer), compressSize);
+      delete[] cBuffer;
+    }
+    else
+    {
+      fileHandler.write(reinterpret_cast<const char*>(buffer), bufferSize);
+    }
+  }
+};
+
 void EncodeAndWrite(const vtkSmartPointer<vtkImageData>& image, const std::string& fileName)
 {
   vtkLogF(TRACE, "encoding: %s", fileName.c_str());
@@ -40,14 +64,14 @@ void EncodeAndWrite(const vtkSmartPointer<vtkImageData>& image, const std::strin
 
   if (extension == "Z")
   {
-    vtkNew<vtkZLibDataCompressor> zLib;
-    float* zBuf = static_cast<vtkFloatArray*>(image->GetPointData()->GetScalars())->GetPointer(0);
-    size_t bufSize = image->GetNumberOfPoints() * sizeof(float);
-    unsigned char* cBuffer = new unsigned char[bufSize];
-    size_t compressSize = zLib->Compress((unsigned char*)zBuf, bufSize, cBuffer, bufSize);
-    vtksys::ofstream fileHandler(fileName.c_str(), ios::out | ios::binary);
-    fileHandler.write((const char*)cBuffer, compressSize);
-    delete[] cBuffer;
+    auto scalars = image->GetPointData()->GetScalars()->ToAOSDataArray();
+    if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(
+          scalars, vtkThreadedImageWriterFunctor{}, fileName, true))
+    {
+      vtkErrorWithObjectMacro(nullptr,
+        "EncodeAndWrite: Array " << image->GetPointData()->GetScalars()->GetClassName()
+                                 << " not supported.");
+    }
   }
 
   else if (extension == "png")
@@ -100,12 +124,14 @@ void EncodeAndWrite(const vtkSmartPointer<vtkImageData>& image, const std::strin
 
   else
   {
-    vtkDataArray* scalars = image->GetPointData()->GetScalars();
-    int scalarSize = scalars->GetDataTypeSize();
-    const char* scalarPtr = static_cast<const char*>(scalars->GetVoidPointer(0));
-    size_t numberOfScalars = image->GetNumberOfPoints();
-    vtksys::ofstream fileHandler(fileName.c_str(), ios::out | ios::binary);
-    fileHandler.write(scalarPtr, numberOfScalars * scalarSize);
+    if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(
+          image->GetPointData()->GetScalars()->ToAOSDataArray(), vtkThreadedImageWriterFunctor{},
+          fileName, false))
+    {
+      vtkErrorWithObjectMacro(nullptr,
+        "EncodeAndWrite: Array " << image->GetPointData()->GetScalars()->GetClassName()
+                                 << " not supported.");
+    }
   }
 }
 }

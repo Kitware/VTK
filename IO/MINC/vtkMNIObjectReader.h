@@ -31,6 +31,7 @@ class vtkFloatArray;
 class vtkIntArray;
 class vtkPoints;
 class vtkCellArray;
+struct vtkMNIObjectReaderFunctor;
 
 class VTKIOMINC_EXPORT vtkMNIObjectReader : public vtkPolyDataAlgorithm
 {
@@ -106,6 +107,8 @@ protected:
 private:
   vtkMNIObjectReader(const vtkMNIObjectReader&) = delete;
   void operator=(const vtkMNIObjectReader&) = delete;
+
+  friend struct vtkMNIObjectReaderFunctor;
 };
 
 VTK_ABI_NAMESPACE_END

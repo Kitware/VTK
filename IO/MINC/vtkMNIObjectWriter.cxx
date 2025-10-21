@@ -6,8 +6,10 @@
 
 #include "vtkObjectFactory.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkErrorCode.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
@@ -101,152 +103,160 @@ int vtkMNIObjectWriter::WriteObjectType(int objType)
 
 //------------------------------------------------------------------------------
 // Write floating-point values into a vtkFloatArray.
-int vtkMNIObjectWriter::WriteValues(vtkDataArray* array)
+struct vtkMNIObjectWriterFunctor
 {
-  int dataType = array->GetDataType();
-  void* data = array->GetVoidPointer(0);
-
-  vtkIdType numTuples = array->GetNumberOfTuples();
-  vtkIdType numComponents = array->GetNumberOfComponents();
-  vtkIdType n = numTuples * numComponents;
-
-  if (this->FileType == VTK_ASCII && dataType == VTK_UNSIGNED_CHAR)
+  int Result;
+  template <template <typename> class TArray>
+  void operator()(TArray<unsigned char>* array, vtkMNIObjectWriter* self)
   {
-    vtkIdType m = numComponents;
-    for (vtkIdType i = 0; i < n; i += m)
+    const vtkIdType numComponents = array->GetNumberOfComponents();
+    const vtkIdType n = array->GetNumberOfTuples() * numComponents;
+    ostream& os = *self->OutputStream;
+    if (self->FileType == VTK_ASCII)
     {
-      unsigned char* cdata = static_cast<unsigned char*>(data) + i;
-      ostream& os = *this->OutputStream;
-
-      double r = cdata[0] / 255.0;
-      double g = r;
-      double b = r;
-      double a = 1.0;
-
-      if (m > 2)
+      vtkIdType m = numComponents;
+      auto data = vtk::DataArrayValueRange(array).begin();
+      for (vtkIdType i = 0; i < n; i += m)
       {
-        g = cdata[1] / 255.0;
-        b = cdata[2] / 255.0;
-      }
-      if (m == 2 || m == 4)
-      {
-        a = cdata[m - 1] / 255.0;
-      }
-
-      os << " " << r << " " << g << " " << b << " " << a;
-
-      if (this->WriteNewline() == 0)
-      {
-        return 0;
+        double r = data[0] / 255.0;
+        double g = r;
+        double b = r;
+        double a = 1.0;
+        if (m > 2)
+        {
+          g = data[1] / 255.0;
+          b = data[2] / 255.0;
+        }
+        if (m == 2 || m == 4)
+        {
+          a = data[m - 1] / 255.0;
+        }
+        os << " " << r << " " << g << " " << b << " " << a;
+        data += m;
+        if (self->WriteNewline() == 0)
+        {
+          this->Result = 0;
+          return;
+        }
       }
     }
+    else
+    {
+      // colors need to be swapped to ABGR order for binary
+      auto data = vtk::DataArrayValueRange(array).begin();
+      vtkIdType m = numComponents;
+      for (vtkIdType i = 0; i < n && self->OutputStream->good(); i += m)
+      {
+        unsigned char cdata[4];
+        if (m > 2)
+        {
+          cdata[3] = data[0];
+          cdata[2] = data[1];
+          cdata[1] = data[2];
+        }
+        else
+        {
+          cdata[3] = data[0];
+          cdata[2] = data[0];
+          cdata[1] = data[0];
+        }
+        if (m == 2 || m == 4)
+        {
+          cdata[0] = data[m - 1];
+        }
+        else
+        {
+          cdata[0] = static_cast<unsigned char>(255);
+        }
+
+        self->OutputStream->write(reinterpret_cast<char*>(cdata), 4);
+
+        data += m;
+      }
+    }
+    if (self->OutputStream->fail())
+    {
+      self->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      this->Result = 0;
+      return;
+    }
+    this->Result = 1;
   }
-  else if (this->FileType == VTK_ASCII)
+  template <template <typename> class TArray, typename ValueType>
+  void operator()(TArray<ValueType>* array, vtkMNIObjectWriter* self)
   {
+    const vtkIdType numComponents = array->GetNumberOfComponents();
+    const vtkIdType n = array->GetNumberOfTuples() * numComponents;
+    ostream& os = *self->OutputStream;
     vtkIdType valuesPerLine = 8;
     if (numComponents > 1 && numComponents < 8)
     {
       valuesPerLine = numComponents;
     }
-
-    vtkIdType i = 0;
-    while (i < n)
+    if (self->FileType == VTK_ASCII)
     {
-      for (vtkIdType j = 0; j < valuesPerLine && i < n; i++, j++)
+      auto data = vtk::DataArrayValueRange(array);
+      vtkIdType i = 0;
+      while (i < n)
       {
-        ostream& os = *this->OutputStream;
-
-        switch (dataType)
+        for (vtkIdType j = 0; j < valuesPerLine && i < n; i++, j++)
         {
-          case VTK_FLOAT:
-          {
-            float* fdata = static_cast<float*>(data);
-            double val = fdata[i];
-            os << " " << val;
-          }
-          break;
-          case VTK_DOUBLE:
-          {
-            double* ddata = static_cast<double*>(data);
-            double val = ddata[i];
-            os << " " << val;
-          }
-          break;
-          case VTK_INT:
-          {
-            int* idata = static_cast<int*>(data);
-            int val = idata[i];
-            os << " " << val;
-          }
-          break;
+          os << " " << data[i];
         }
-      }
-      if (this->WriteNewline() == 0)
-      {
-        return 0;
-      }
-    }
-  }
-  else
-  {
-    // machine-order endianness and data size
-    if (dataType == VTK_UNSIGNED_CHAR)
-    {
-      // colors need to be swapped to ABGR order for binary
-      char* odata = static_cast<char*>(data);
-      vtkIdType m = numComponents;
-      for (vtkIdType i = 0; i < n && this->OutputStream->good(); i += m)
-      {
-        char cdata[4];
-        if (m > 2)
+        if (self->WriteNewline() == 0)
         {
-          cdata[3] = odata[0];
-          cdata[2] = odata[1];
-          cdata[1] = odata[2];
+          this->Result = 0;
+          return;
         }
-        else
-        {
-          cdata[3] = odata[0];
-          cdata[2] = odata[0];
-          cdata[1] = odata[0];
-        }
-        if (m == 2 || m == 4)
-        {
-          cdata[0] = odata[m - 1];
-        }
-        else
-        {
-          cdata[0] = static_cast<char>(255);
-        }
-
-        this->OutputStream->write(cdata, 4);
-
-        odata += m;
-      }
-    }
-    else if (dataType == VTK_DOUBLE)
-    {
-      // doubles must be converted to float
-      double* ddata = (double*)(data);
-      for (vtkIdType i = 0; i < n && this->OutputStream->good(); i++)
-      {
-        float fval = ddata[i];
-        this->OutputStream->write((char*)(&fval), sizeof(float));
       }
     }
     else
     {
-      this->OutputStream->write((char*)(data), n * array->GetDataTypeSize());
+      // doubles must be converted to float
+      if (std::is_same_v<ValueType, double>)
+      {
+        auto data = vtk::DataArrayValueRange(array);
+        for (vtkIdType i = 0; i < n && self->OutputStream->good(); i++)
+        {
+          float fval = data[i];
+          self->OutputStream->write(reinterpret_cast<char*>(&fval), sizeof(float));
+        }
+      }
+      else if (array->HasStandardMemoryLayout())
+      {
+        self->OutputStream->write(
+          reinterpret_cast<char*>(array->GetPointer(0)), n * array->GetDataTypeSize());
+      }
+      else
+      {
+        auto data = vtk::DataArrayValueRange(array);
+        for (vtkIdType i = 0; i < n && self->OutputStream->good(); i++)
+        {
+          ValueType val = data[i];
+          self->OutputStream->write(reinterpret_cast<char*>(&val), sizeof(ValueType));
+        }
+      }
     }
-
-    if (this->OutputStream->fail())
+    if (self->OutputStream->fail())
     {
-      this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
-      return 0;
+      self->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
+      this->Result = 0;
+      return;
     }
+    this->Result = 1;
   }
+};
 
-  return 1;
+int vtkMNIObjectWriter::WriteValues(vtkDataArray* array)
+{
+  auto aos = array->ToAOSDataArray();
+  vtkMNIObjectWriterFunctor functor;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(aos, functor, this))
+  {
+    vtkErrorMacro(<< "WriteValues: Array " << array->GetClassName() << " not supported.");
+    return 0;
+  }
+  return functor.Result;
 }
 
 //------------------------------------------------------------------------------
