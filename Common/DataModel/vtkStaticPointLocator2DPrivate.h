@@ -13,14 +13,14 @@
 #ifndef vtkStaticPointLocator2DPrivate_h
 #define vtkStaticPointLocator2DPrivate_h
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
-#include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkPolyData.h"
-#include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticPointLocator2D.h"
@@ -307,14 +307,13 @@ struct BucketList2D : public vtkBucketList2D
     }
   };
 
-  // Explicit point representation (e.g., vtkPointSet), faster path
-  template <typename T, typename TPts>
+  template <typename T, typename TPointsArray>
   struct MapPointsArray
   {
     BucketList2D<T>* BList;
-    const TPts* Points;
+    TPointsArray* Points;
 
-    MapPointsArray(BucketList2D<T>* blist, const TPts* pts)
+    MapPointsArray(BucketList2D<T>* blist, TPointsArray* pts)
       : BList(blist)
       , Points(pts)
     {
@@ -323,15 +322,24 @@ struct BucketList2D : public vtkBucketList2D
     void operator()(vtkIdType ptId, vtkIdType end)
     {
       double p[3];
-      const TPts* x = this->Points + 3 * ptId;
+      auto x = vtk::DataArrayTupleRange<3>(this->Points, ptId, end).begin();
       vtkLocatorTuple<T>* t = this->BList->Map + ptId;
-      for (; ptId < end; ++ptId, x += 3, ++t)
+      for (; ptId < end; ++ptId, ++x, ++t)
       {
-        p[0] = static_cast<double>(x[0]);
-        p[1] = static_cast<double>(x[1]);
+        x->GetTuple(p);
         t->PtId = ptId;
         t->Bucket = this->BList->GetBucketIndex(p);
       } // for all points in this batch
+    }
+  };
+
+  struct MapPointsArrayWorker
+  {
+    template <typename TPointsArray>
+    void operator()(TPointsArray* points, BucketList2D* blist)
+    {
+      MapPointsArray<TIds, TPointsArray> mapper(blist, points);
+      vtkSMPTools::For(0, blist->NumPts, mapper);
     }
   };
 
@@ -521,29 +529,12 @@ struct BucketList2D : public vtkBucketList2D
   void BuildLocator() override
   {
     // Place each point in a bucket
-    //
-    vtkPointSet* ps = static_cast<vtkPointSet*>(this->DataSet);
-    if (ps)
-    { // map points array: explicit points representation
-      int dataType = ps->GetPoints()->GetDataType();
-      void* pts = ps->GetPoints()->GetVoidPointer(0);
-      if (dataType == VTK_FLOAT)
-      {
-        MapPointsArray<TIds, float> mapper(this, static_cast<float*>(pts));
-        vtkSMPTools::For(0, this->NumPts, mapper);
-      }
-      else if (dataType == VTK_DOUBLE)
-      {
-        this->FastPoints = static_cast<double*>(pts);
-        MapPointsArray<TIds, double> mapper(this, static_cast<double*>(pts));
-        vtkSMPTools::For(0, this->NumPts, mapper);
-      }
-    }
-
-    else // if (!mapped)
-    {    // map dataset points: non-float points or implicit points representation
-      MapDataSet<TIds> mapper(this, this->DataSet);
-      vtkSMPTools::For(0, this->NumPts, mapper);
+    auto points = this->DataSet->GetPoints()->GetData();
+    MapPointsArrayWorker worker;
+    if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllPointArrays>::Execute(
+          points, worker, this))
+    {
+      worker(points, this);
     }
 
     // Now gather the points into contiguous runs in buckets

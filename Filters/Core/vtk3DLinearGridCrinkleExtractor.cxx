@@ -4,12 +4,15 @@
 #include "vtk3DLinearGridCrinkleExtractor.h"
 
 #include "vtk3DLinearGridInternal.h"
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataSet.h"
+#include "vtkDataArrayRange.h"
 #include "vtkImplicitFunction.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -20,12 +23,9 @@
 #include "vtkPointData.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
-#include "vtkStaticCellLinksTemplate.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
-#include <atomic>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -75,8 +75,7 @@ namespace
 // implicit function (i.e. above the function(=2), below the function(=1), on
 // the function(=0)).  InOutArray is allocated here and should be deleted by
 // the invoking code. InOutArray is an unsigned char array to simplify bit
-// fiddling later on (i.e., Intersects() method). A fast path is available
-// for vtkPlane implicit functions.
+// fiddling later on (i.e., Intersects() method).
 //
 // The reason we compute this unsigned char array as compared to an array of
 // function values is to reduce the amount of memory used, and writing to
@@ -84,112 +83,34 @@ namespace
 
 // Templated for explicit point representations of real type
 template <typename TP>
-struct PlaneClassifyPoints;
-template <typename TP>
 struct FunctionClassifyPoints;
 
 // General classification capability
-struct Classify
+template <typename TPointArray, typename TImplicitFunction>
+struct ClassifyPointsFunctor
 {
-  unsigned char* InOutArray;
-
-  Classify(vtkPoints* pts) { this->InOutArray = new unsigned char[pts->GetNumberOfPoints()]; }
-
-  // Check if a list of points intersects the plane
-  static bool Intersects(const unsigned char* inout, vtkIdType npts, const vtkIdType* pts)
-  {
-    unsigned char onOneSideOfPlane = inout[pts[0]];
-    for (vtkIdType i = 1; onOneSideOfPlane && i < npts; ++i)
-    {
-      onOneSideOfPlane &= inout[pts[i]];
-    }
-    return (!onOneSideOfPlane);
-  }
-};
-
-// Faster path for vtkPlane
-template <typename TP>
-struct PlaneClassifyPoints : public Classify
-{
-  TP* Points;
-  vtk3DLinearGridCrinkleExtractor* Filter;
-  double Origin[3];
-  double Normal[3];
-
-  PlaneClassifyPoints(vtkPoints* pts, vtkPlane* plane, vtk3DLinearGridCrinkleExtractor* filter)
-    : Classify(pts)
-  {
-    this->Filter = filter;
-    this->Points = static_cast<TP*>(pts->GetVoidPointer(0));
-    plane->GetOrigin(this->Origin);
-    plane->GetNormal(this->Normal);
-  }
-
-  void operator()(vtkIdType ptId, vtkIdType endPtId)
-  {
-    double p[3], zero = double(0), eval;
-    double *n = this->Normal, *o = this->Origin;
-    TP* pts = this->Points + 3 * ptId;
-    unsigned char* ioa = this->InOutArray + ptId;
-    bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-    for (; ptId < endPtId; ++ptId)
-    {
-      if (ptId % checkAbortInterval == 0)
-      {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
-      }
-      // Access each point
-      p[0] = static_cast<double>(*pts);
-      ++pts;
-      p[1] = static_cast<double>(*pts);
-      ++pts;
-      p[2] = static_cast<double>(*pts);
-      ++pts;
-
-      // Evaluate position of the point with the plane. Invoke inline,
-      // non-virtual version of evaluate method.
-      eval = vtkPlane::Evaluate(n, o, p);
-
-      // Point is either above(=2), below(=1), or on(=0) the plane.
-      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
-      *ioa++ = (eval > zero ? 2 : (eval < zero ? 1 : 0));
-    }
-  }
-};
-
-// General path for vtkImplicitFunction
-template <typename TP>
-struct FunctionClassifyPoints : public Classify
-{
-  TP* Points;
-  vtkImplicitFunction* Function;
+  TPointArray* Points;
+  TImplicitFunction* ImplicitFunction;
+  vtkAOSDataArrayTemplate<unsigned char>* InOutArray;
   vtk3DLinearGridCrinkleExtractor* Filter;
 
-  FunctionClassifyPoints(
-    vtkPoints* pts, vtkImplicitFunction* f, vtk3DLinearGridCrinkleExtractor* filter)
-    : Classify(pts)
-    , Function(f)
+  ClassifyPointsFunctor(TPointArray* points, TImplicitFunction* implicitFunction,
+    vtkAOSDataArrayTemplate<unsigned char>* inoutArray, vtk3DLinearGridCrinkleExtractor* filter)
+    : Points(points)
+    , ImplicitFunction(implicitFunction)
+    , InOutArray(inoutArray)
     , Filter(filter)
   {
-    this->Points = static_cast<TP*>(pts->GetVoidPointer(0));
   }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
     double p[3], zero = double(0), eval;
-    TP* pts = this->Points + 3 * ptId;
-    unsigned char* ioa = this->InOutArray + ptId;
+    auto pts = vtk::DataArrayTupleRange<3>(this->Points, ptId, endPtId).begin();
+    unsigned char* ioa = this->InOutArray->GetPointer(ptId);
     bool isFirst = vtkSMPTools::GetSingleThread();
     vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
-    for (; ptId < endPtId; ++ptId)
+    for (; ptId < endPtId; ++ptId, ++pts)
     {
       if (ptId % checkAbortInterval == 0)
       {
@@ -203,21 +124,27 @@ struct FunctionClassifyPoints : public Classify
         }
       }
       // Access each point
-      p[0] = static_cast<double>(*pts);
-      ++pts;
-      p[1] = static_cast<double>(*pts);
-      ++pts;
-      p[2] = static_cast<double>(*pts);
-      ++pts;
+      pts->GetTuple(p);
 
-      // Evaluate position of the point wrt the implicit function. This
-      // call better be thread safe.
-      eval = this->Function->FunctionValue(p);
+      eval = this->ImplicitFunction->EvaluateFunction(p);
 
       // Point is either above(=2), below(=1), or on(=0) the plane.
       // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
       *ioa++ = (eval > zero ? 2 : (eval < zero ? 1 : 0));
     }
+  }
+};
+
+template <typename TImplicitFunction>
+struct ClassifyPointsWorker
+{
+  template <typename TPointArray>
+  void operator()(TPointArray* points, TImplicitFunction* implicitFunction,
+    vtkAOSDataArrayTemplate<unsigned char>* inoutArray, vtk3DLinearGridCrinkleExtractor* filter)
+  {
+    ClassifyPointsFunctor<TPointArray, TImplicitFunction> functor(
+      points, implicitFunction, inoutArray, filter);
+    EXECUTE_SMPFOR(filter->GetSequentialProcessing(), points->GetNumberOfTuples(), functor);
   }
 };
 
@@ -262,8 +189,7 @@ struct ExtractCellsBase
   vtk3DLinearGridCrinkleExtractor* Filter;
 
   ExtractCellsBase(vtkIdType inNumPts, CellIter* c, unsigned char* inout, vtkUnstructuredGrid* grid,
-    vtkCellArray* cells, bool copyPtData, bool copyCellData,
-    vtk3DLinearGridCrinkleExtractor* filter)
+    vtkCellArray* cells, vtk3DLinearGridCrinkleExtractor* filter)
     : InOut(inout)
     , Iter(c)
     , InputNumPts(inNumPts)
@@ -272,13 +198,24 @@ struct ExtractCellsBase
     , TotalSize(0)
     , Grid(grid)
     , Cells(cells)
-    , CopyPointData(copyPtData)
-    , CopyCellData(copyCellData)
+    , CopyPointData(filter->GetCopyPointData())
+    , CopyCellData(filter->GetCopyCellData())
     , PointMap(nullptr)
     , CellMap(nullptr)
     , NumThreadsUsed(0)
     , Filter(filter)
   {
+  }
+
+  // Check if a list of points intersects the plane
+  static bool Intersects(const unsigned char* inout, vtkIdType npts, const vtkIdType* pts)
+  {
+    unsigned char onOneSideOfPlane = inout[pts[0]];
+    for (vtkIdType i = 1; onOneSideOfPlane && i < npts; ++i)
+    {
+      onOneSideOfPlane &= inout[pts[i]];
+    }
+    return (!onOneSideOfPlane);
   }
 
   // Set up the iteration process
@@ -294,9 +231,8 @@ struct ExtractCellsBase
 struct ExtractCells : public ExtractCellsBase
 {
   ExtractCells(vtkIdType inNumPts, CellIter* c, unsigned char* inout, vtkUnstructuredGrid* grid,
-    vtkCellArray* cells, bool copyPtData, bool copyCellData,
-    vtk3DLinearGridCrinkleExtractor* filter)
-    : ExtractCellsBase(inNumPts, c, inout, grid, cells, copyPtData, copyCellData, filter)
+    vtkCellArray* cells, vtk3DLinearGridCrinkleExtractor* filter)
+    : ExtractCellsBase(inNumPts, c, inout, grid, cells, filter)
   {
   }
 
@@ -333,7 +269,7 @@ struct ExtractCells : public ExtractCellsBase
       }
       // Does the implicit function cut this cell?
       npts = cellIter->NumVerts;
-      if (Classify::Intersects(inout, npts, c))
+      if (ExtractCellsBase::Intersects(inout, npts, c))
       {
         ++lNumCells;
         lTypes.emplace_back(cellIter->GetCellType(cellId));
@@ -407,9 +343,8 @@ struct ExtractCells : public ExtractCellsBase
 struct ExtractPointsAndCells : public ExtractCellsBase
 {
   ExtractPointsAndCells(vtkIdType inNumPts, CellIter* c, unsigned char* inout,
-    vtkUnstructuredGrid* grid, vtkCellArray* cells, bool copyPtData, bool copyCellData,
-    vtk3DLinearGridCrinkleExtractor* filter)
-    : ExtractCellsBase(inNumPts, c, inout, grid, cells, copyPtData, copyCellData, filter)
+    vtkUnstructuredGrid* grid, vtkCellArray* cells, vtk3DLinearGridCrinkleExtractor* filter)
+    : ExtractCellsBase(inNumPts, c, inout, grid, cells, filter)
   {
     this->PointMap = new vtkIdType[inNumPts];
     std::fill_n(this->PointMap, inNumPts, (-1));
@@ -449,7 +384,7 @@ struct ExtractPointsAndCells : public ExtractCellsBase
       }
       // Does the implicit function cut this cell?
       npts = cellIter->NumVerts;
-      if (Classify::Intersects(inout, npts, c))
+      if (ExtractCellsBase::Intersects(inout, npts, c))
       {
         ++lNumCells;
         lTypes.emplace_back(cellIter->GetCellType(cellId));
@@ -578,32 +513,34 @@ struct CopyCellAttributes
 };
 
 // Generate point coordinates
-template <typename TPIn, typename TPOut>
-struct GeneratePoints
+template <typename TPArrayIn, typename TPArrayOut>
+struct GeneratePointsFunctor
 {
-  const TPIn* InPts;
+  TPArrayIn* InPts;
+  TPArrayOut* OutPts;
   const vtkIdType* PointMap;
-  TPOut* OutPts;
   vtk3DLinearGridCrinkleExtractor* Filter;
+  using TPIn = vtk::GetAPIType<TPArrayIn>;
+  using TPOut = vtk::GetAPIType<TPArrayOut>;
 
-  GeneratePoints(
-    TPIn* inPts, vtkIdType* ptMap, TPOut* outPts, vtk3DLinearGridCrinkleExtractor* filter)
+  GeneratePointsFunctor(
+    TPArrayIn* inPts, TPArrayOut* outPts, vtkIdType* ptMap, vtk3DLinearGridCrinkleExtractor* filter)
     : InPts(inPts)
-    , PointMap(ptMap)
     , OutPts(outPts)
+    , PointMap(ptMap)
     , Filter(filter)
   {
   }
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const TPIn* p = this->InPts + 3 * ptId;
+    auto p = vtk::DataArrayTupleRange<3>(this->InPts, ptId, endPtId).begin();
+    auto outPts = vtk::DataArrayTupleRange<3>(this->OutPts);
     const vtkIdType* ptMap = this->PointMap;
-    TPOut *outPts = this->OutPts, *x;
     bool isFirst = vtkSMPTools::GetSingleThread();
     vtkIdType checkAbortInterval = std::min((endPtId - ptId) / 10 + 1, (vtkIdType)1000);
 
-    for (; ptId < endPtId; ++ptId, p += 3)
+    for (; ptId < endPtId; ++ptId, ++p)
     {
       if (ptId % checkAbortInterval == 0)
       {
@@ -619,12 +556,23 @@ struct GeneratePoints
 
       if (ptMap[ptId] >= 0)
       {
-        x = outPts + 3 * ptMap[ptId];
-        *x++ = static_cast<TPOut>(p[0]);
-        *x++ = static_cast<TPOut>(p[1]);
-        *x = static_cast<TPOut>(p[2]);
+        auto x = outPts[ptMap[ptId]];
+        x[0] = static_cast<TPOut>((*p)[0]);
+        x[1] = static_cast<TPOut>((*p)[1]);
+        x[2] = static_cast<TPOut>((*p)[2]);
       }
     }
+  }
+};
+
+struct GeneratePointsWorker
+{
+  template <typename TPArrayIn, typename TPArrayOut>
+  void operator()(
+    TPArrayIn* inPts, TPArrayOut* outPts, vtkIdType* ptMap, vtk3DLinearGridCrinkleExtractor* filter)
+  {
+    GeneratePointsFunctor<TPArrayIn, TPArrayOut> functor(inPts, outPts, ptMap, filter);
+    EXECUTE_SMPFOR(filter->GetSequentialProcessing(), inPts->GetNumberOfTuples(), functor);
   }
 };
 
@@ -749,45 +697,33 @@ int vtk3DLinearGridCrinkleExtractor::ProcessPiece(
   }
 
   // Output cells go here.
-  vtkCellArray* newCells = vtkCellArray::New();
+  vtkNew<vtkCellArray> newCells;
 
   // Set up the cells for processing. A specialized iterator is used to traverse the cells.
   CellIter* cellIter = new CellIter(numCells, input->GetCellTypes(), cells);
 
-  // Classify the cell points based on the specified implicit function. A
-  // fast path is available for planes.
-  unsigned char* inout = nullptr;
-  int ptsType = inPts->GetDataType();
-  if (vtkPlane::SafeDownCast(f) != nullptr)
-  { // plane fast path
-    if (ptsType == VTK_FLOAT)
+  // Classify the cell points based on the specified implicit function.
+  vtkNew<vtkAOSDataArrayTemplate<unsigned char>> inoutArray;
+  inoutArray->SetNumberOfValues(numPts);
+  if (auto plane = vtkPlane::SafeDownCast(f))
+  {
+    ClassifyPointsWorker<vtkPlane> worker;
+    if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
+          inPts->GetData(), worker, plane, inoutArray, this))
     {
-      PlaneClassifyPoints<float> classify(inPts, static_cast<vtkPlane*>(f), this);
-      EXECUTE_SMPFOR(this->SequentialProcessing, numPts, classify);
-      inout = classify.InOutArray;
-    }
-    else if (ptsType == VTK_DOUBLE)
-    {
-      PlaneClassifyPoints<double> classify(inPts, static_cast<vtkPlane*>(f), this);
-      EXECUTE_SMPFOR(this->SequentialProcessing, numPts, classify);
-      inout = classify.InOutArray;
+      worker(inPts->GetData(), plane, inoutArray, this);
     }
   }
   else
   { // general implicit function fast path
-    if (ptsType == VTK_FLOAT)
+    ClassifyPointsWorker<vtkImplicitFunction> worker;
+    if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
+          inPts->GetData(), worker, f, inoutArray, this))
     {
-      FunctionClassifyPoints<float> classify(inPts, f, this);
-      EXECUTE_SMPFOR(this->SequentialProcessing, numPts, classify);
-      inout = classify.InOutArray;
-    }
-    else if (ptsType == VTK_DOUBLE)
-    {
-      FunctionClassifyPoints<double> classify(inPts, f, this);
-      EXECUTE_SMPFOR(this->SequentialProcessing, numPts, classify);
-      inout = classify.InOutArray;
+      worker(inPts->GetData(), f, inoutArray, this);
     }
   }
+  unsigned char* inout = inoutArray->GetPointer(0);
 
   // Depending on whether we are going to eliminate unused points, use
   // different extraction techniques. There is a large performance
@@ -800,8 +736,7 @@ int vtk3DLinearGridCrinkleExtractor::ProcessPiece(
   vtkCellData* inCD = input->GetCellData();
   if (!this->RemoveUnusedPoints)
   {
-    ExtractCells extract(
-      numPts, cellIter, inout, grid, newCells, this->CopyPointData, this->CopyCellData, this);
+    ExtractCells extract(numPts, cellIter, inout, grid, newCells, this);
     EXECUTE_REDUCED_SMPFOR(
       this->SequentialProcessing, numCells, extract, this->NumberOfThreadsUsed);
 
@@ -818,8 +753,7 @@ int vtk3DLinearGridCrinkleExtractor::ProcessPiece(
 
   else
   {
-    ExtractPointsAndCells extract(
-      numPts, cellIter, inout, grid, newCells, this->CopyPointData, this->CopyCellData, this);
+    ExtractPointsAndCells extract(numPts, cellIter, inout, grid, newCells, this);
     EXECUTE_REDUCED_SMPFOR(
       this->SequentialProcessing, numCells, extract, this->NumberOfThreadsUsed);
 
@@ -847,8 +781,7 @@ int vtk3DLinearGridCrinkleExtractor::ProcessPiece(
     // Create the output points if not passing through. Only real types are
     // supported. Use the point map to create them.
     int inType = inPts->GetDataType(), outType;
-    void *inPtr, *outPtr;
-    vtkPoints* outPts = vtkPoints::New();
+    vtkNew<vtkPoints> outPts;
     if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
     {
       outType = inType;
@@ -865,30 +798,14 @@ int vtk3DLinearGridCrinkleExtractor::ProcessPiece(
     outPts->SetNumberOfPoints(outNumPts);
 
     // Generate points using the point map
-    inPtr = inPts->GetData()->GetVoidPointer(0);
-    outPtr = outPts->GetData()->GetVoidPointer(0);
-    if (inType == VTK_DOUBLE && outType == VTK_DOUBLE)
+    using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
+      vtkArrayDispatch::AOSPointArrays>;
+    GeneratePointsWorker worker;
+    if (!Dispatcher::Execute(inPts->GetData(), outPts->GetData(), worker, ptMap, this))
     {
-      GeneratePoints<double, double> generatePts((double*)inPtr, ptMap, (double*)outPtr, this);
-      EXECUTE_SMPFOR(this->SequentialProcessing, numPts, generatePts);
-    }
-    else if (inType == VTK_FLOAT && outType == VTK_FLOAT)
-    {
-      GeneratePoints<float, float> generatePts((float*)inPtr, ptMap, (float*)outPtr, this);
-      EXECUTE_SMPFOR(this->SequentialProcessing, numPts, generatePts);
-    }
-    else if (inType == VTK_DOUBLE && outType == VTK_FLOAT)
-    {
-      GeneratePoints<double, float> generatePts((double*)inPtr, ptMap, (float*)outPtr, this);
-      EXECUTE_SMPFOR(this->SequentialProcessing, numPts, generatePts);
-    }
-    else // if ( inType == VTK_FLOAT && outType == VTK_DOUBLE )
-    {
-      GeneratePoints<float, double> generatePts((float*)inPtr, ptMap, (double*)outPtr, this);
-      EXECUTE_SMPFOR(this->SequentialProcessing, numPts, generatePts);
+      worker(inPts->GetData(), outPts->GetData(), ptMap, this);
     }
     grid->SetPoints(outPts);
-    outPts->Delete();
 
     // Use the point map to copy point data if desired
     if (this->CopyPointData)
@@ -909,9 +826,7 @@ int vtk3DLinearGridCrinkleExtractor::ProcessPiece(
                   << " cells");
 
   // Clean up
-  delete[] inout;
   delete cellIter;
-  newCells->Delete();
 
   return 1;
 }

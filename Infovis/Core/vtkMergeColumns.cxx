@@ -4,6 +4,8 @@
 
 #include "vtkMergeColumns.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkDataArrayRange.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -23,14 +25,20 @@ vtkMergeColumns::~vtkMergeColumns()
   this->SetMergedColumnName(nullptr);
 }
 
-template <typename T>
-void vtkMergeColumnsCombine(T* col1, T* col2, T* merged, vtkIdType size)
+struct vtkMergeColumnsCombineFunctor
 {
-  for (vtkIdType i = 0; i < size; i++)
+  template <typename TArray1, typename TArray2>
+  void operator()(TArray1* col1Array, TArray2* col2Array, vtkDataArray* mergedDA)
   {
-    merged[i] = col1[i] + col2[i];
+    auto col1 = vtk::DataArrayValueRange(col1Array);
+    auto col2 = vtk::DataArrayValueRange(col2Array);
+    auto merged = vtk::DataArrayValueRange(TArray1::FastDownCast(mergedDA));
+    for (vtkIdType i = 0; i < mergedDA->GetNumberOfTuples(); i++)
+    {
+      merged[i] = col1[i] + col2[i];
+    }
   }
-}
+};
 
 int vtkMergeColumns::RequestData(
   vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -89,10 +97,23 @@ int vtkMergeColumns::RequestData(
       }
       break;
     }
-
-      vtkTemplateMacro(vtkMergeColumnsCombine(static_cast<VTK_TT*>(col1->GetVoidPointer(0)),
-        static_cast<VTK_TT*>(col2->GetVoidPointer(0)),
-        static_cast<VTK_TT*>(merged->GetVoidPointer(0)), merged->GetNumberOfTuples()));
+    default:
+    {
+      auto col1DA = vtkDataArray::SafeDownCast(col1);
+      auto col2DA = vtkDataArray::SafeDownCast(col2);
+      auto mergedDA = vtkDataArray::SafeDownCast(merged);
+      if (!col1DA || !col2DA || !mergedDA)
+      {
+        vtkErrorMacro("Columns must be vtkDataArray subclasses.");
+        merged->Delete();
+        return 0;
+      }
+      vtkMergeColumnsCombineFunctor functor;
+      if (!vtkArrayDispatch::Dispatch2::Execute(col1DA, col2DA, functor, mergedDA))
+      {
+        functor(col1DA, col2DA, mergedDA);
+      }
+    }
   }
 
   output->AddColumn(merged);

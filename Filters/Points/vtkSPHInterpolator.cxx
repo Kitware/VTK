@@ -3,10 +3,12 @@
 #include "vtkSPHInterpolator.h"
 
 #include "vtkAbstractPointLocator.h"
+#include "vtkArrayDispatch.h"
 #include "vtkArrayListTemplate.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -14,7 +16,6 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -174,16 +175,14 @@ struct ProbePoints
 }; // ProbePoints
 
 // Used when normalizing arrays by the Shepard coefficient
-template <typename T>
-struct NormalizeArray
+template <typename TArray>
+struct NormalizeArrayFunctor
 {
-  T* Array;
-  int NumComp;
+  TArray* Array;
   float* ShepardSumArray;
 
-  NormalizeArray(T* array, int numComp, float* ssa)
+  NormalizeArrayFunctor(TArray* array, float* ssa)
     : Array(array)
-    , NumComp(numComp)
     , ShepardSumArray(ssa)
   {
   }
@@ -192,40 +191,44 @@ struct NormalizeArray
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    int i, numComp = this->NumComp;
-    T* array = this->Array + ptId * numComp;
-    T val;
+    using T = vtk::GetAPIType<TArray>;
+    const int numComp = this->Array->GetNumberOfComponents();
+    auto array = vtk::DataArrayTupleRange(this->Array, ptId).begin();
     const float* ssa = this->ShepardSumArray + ptId;
 
     // If Shepard coefficient ==0.0 then set values to zero
-    for (; ptId < endPtId; ++ptId, ++ssa)
+    for (; ptId < endPtId; ++ptId, ++ssa, ++array)
     {
       if (*ssa == 0.0)
       {
-        for (i = 0; i < numComp; ++i)
+        for (int i = 0; i < numComp; ++i)
         {
-          *array++ = static_cast<T>(0.0);
+          (*array)[i] = static_cast<T>(0.0);
         }
       }
       else
       {
-        for (i = 0; i < numComp; ++i)
+        for (int i = 0; i < numComp; ++i)
         {
-          val = static_cast<T>(static_cast<double>(*array) / static_cast<double>(*ssa));
-          *array++ = val;
+          (*array)[i] =
+            static_cast<T>(static_cast<double>((*array)[i]) / static_cast<double>(*ssa));
         }
       }
     } // for points in this range
   }
 
   void Reduce() {}
+}; // NormalizeArrayFunctor
 
-  static void Execute(vtkIdType numPts, T* ptr, int numComp, float* ssa)
+struct NormalizeArrayWorker
+{
+  template <typename TArray>
+  void operator()(TArray* array, float* shepardArray)
   {
-    NormalizeArray normalize(ptr, numComp, ssa);
-    vtkSMPTools::For(0, numPts, normalize);
+    NormalizeArrayFunctor<TArray> functor(array, shepardArray);
+    vtkSMPTools::For(0, array->GetNumberOfTuples(), functor);
   }
-}; // NormalizeArray
+};
 
 } // anonymous namespace
 
@@ -369,11 +372,11 @@ void vtkSPHInterpolator::Probe(vtkDataSet* input, vtkDataSet* source, vtkDataSet
       da = outPD->GetArray(i);
       if (da != nullptr && da != this->Kernel->GetDensityArray())
       {
-        void* ptr = da->GetVoidPointer(0);
-        switch (da->GetDataType())
+        NormalizeArrayWorker worker;
+        if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+              da, worker, shepardArray))
         {
-          vtkTemplateMacro(NormalizeArray<VTK_TT>::Execute(
-            numPts, (VTK_TT*)ptr, da->GetNumberOfComponents(), shepardArray));
+          worker(da, shepardArray);
         }
       } // not density array
     }   // for all arrays

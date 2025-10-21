@@ -8,7 +8,6 @@
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdList.h"
-#include "vtkIntArray.h"
 #include "vtkLine.h"
 #include "vtkLocatorInterface.h"
 #include "vtkMath.h"
@@ -16,7 +15,6 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSMPThreadLocal.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStructuredData.h"
 

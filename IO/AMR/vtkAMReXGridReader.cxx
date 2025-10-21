@@ -17,7 +17,6 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkSOADataArrayTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUniformGrid.h"
 #include "vtksys/SystemTools.hxx"

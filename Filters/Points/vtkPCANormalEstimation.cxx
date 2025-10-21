@@ -4,6 +4,9 @@
 #include "vtkPCANormalEstimation.h"
 
 #include "vtkAbstractPointLocator.h"
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
+#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkInformation.h"
@@ -37,8 +40,8 @@ namespace Utils
  * code checks if at least SampleSize (K) points have been selected.
  * Otherwise, SampleSize (K) points are reselected.
  */
-template <typename T>
-void FindPoints(vtkAbstractPointLocator* locator, T* inPts, double x[3], int searchMode,
+template <typename TPointsRange>
+void FindPoints(vtkAbstractPointLocator* locator, TPointsRange& inPts, double x[3], int searchMode,
   int sampleSize, double radius, vtkIdList* ids)
 {
   switch (searchMode)
@@ -58,11 +61,8 @@ void FindPoints(vtkAbstractPointLocator* locator, T* inPts, double x[3], int sea
       locator->FindClosestNPoints(sampleSize, x, ids);
       // Retrieve the farthest point found
       double farthestPoint[3];
-      const T* point = inPts + 3 * ids->GetId(ids->GetNumberOfIds() - 1);
-      for (int i = 0; i < 3; ++i)
-      {
-        farthestPoint[i] = static_cast<double>(*point++);
-      }
+      auto point = inPts[ids->GetId(ids->GetNumberOfIds() - 1)];
+      point.GetTuple(farthestPoint);
 
       double squaredDistance = vtkMath::Distance2BetweenPoints(x, farthestPoint);
       // If the points found are too densely packed, then use radius search
@@ -78,10 +78,10 @@ void FindPoints(vtkAbstractPointLocator* locator, T* inPts, double x[3], int sea
 
 //------------------------------------------------------------------------------
 // The threaded core of the algorithm.
-template <typename T>
-struct GenerateNormals
+template <typename TArray>
+struct vtkGenerateNormalsFunctor
 {
-  const T* Points;
+  TArray* Points;
   vtkAbstractPointLocator* Locator;
   int SampleSize;
   float Radius;
@@ -95,7 +95,7 @@ struct GenerateNormals
   // storage lots of new/delete.
   vtkSMPThreadLocalObject<vtkIdList> PIds;
 
-  GenerateNormals(T* points, vtkAbstractPointLocator* loc, int sample, double radius,
+  vtkGenerateNormalsFunctor(TArray* points, vtkAbstractPointLocator* loc, int sample, double radius,
     float* normals, int searchMode, int orient, double opoint[3], bool flip)
     : Points(points)
     , Locator(loc)
@@ -120,10 +120,10 @@ struct GenerateNormals
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const T* px = this->Points + 3 * ptId;
-    const T* py;
+    auto points = vtk::DataArrayTupleRange<3>(this->Points);
+    auto px = points.begin() + ptId;
     float* n = this->Normals + 3 * ptId;
-    double x[3], mean[3], o[3];
+    double x[3], y[3], mean[3], o[3];
     vtkIdList*& pIds = this->PIds.Local();
     vtkIdType numPts, nei;
     int sample, i;
@@ -138,15 +138,13 @@ struct GenerateNormals
     double eVecMin[3], eVal[3];
     float flipVal = (this->Flip ? -1.0 : 1.0);
 
-    for (; ptId < endPtId; ++ptId)
+    for (; ptId < endPtId; ++ptId, ++px)
     {
-      x[0] = static_cast<double>(*px++);
-      x[1] = static_cast<double>(*px++);
-      x[2] = static_cast<double>(*px++);
+      px->GetTuple(x);
 
       // Retrieve the local neighborhood
       Utils::FindPoints(
-        this->Locator, this->Points, x, this->SearchMode, this->SampleSize, this->Radius, pIds);
+        this->Locator, points, x, this->SearchMode, this->SampleSize, this->Radius, pIds);
 
       numPts = pIds->GetNumberOfIds();
 
@@ -155,10 +153,10 @@ struct GenerateNormals
       for (sample = 0; sample < numPts; ++sample)
       {
         nei = pIds->GetId(sample);
-        py = this->Points + 3 * nei;
-        mean[0] += static_cast<double>(*py++);
-        mean[1] += static_cast<double>(*py++);
-        mean[2] += static_cast<double>(*py);
+        points.GetTuple(nei, y);
+        mean[0] += y[0];
+        mean[1] += y[1];
+        mean[2] += y[2];
       }
       mean[0] /= static_cast<double>(numPts);
       mean[1] /= static_cast<double>(numPts);
@@ -171,10 +169,10 @@ struct GenerateNormals
       for (sample = 0; sample < numPts; ++sample)
       {
         nei = pIds->GetId(sample);
-        py = this->Points + 3 * nei;
-        xp[0] = static_cast<double>(*py++) - mean[0];
-        xp[1] = static_cast<double>(*py++) - mean[1];
-        xp[2] = static_cast<double>(*py) - mean[2];
+        points.GetTuple(nei, y);
+        xp[0] = y[0] - mean[0];
+        xp[1] = y[1] - mean[1];
+        xp[2] = y[2] - mean[2];
         for (i = 0; i < 3; i++)
         {
           a0[i] += xp[0] * xp[i];
@@ -220,16 +218,46 @@ struct GenerateNormals
   }
 
   void Reduce() {}
+}; // GenerateNormalsFunctor
 
-  static void Execute(vtkPCANormalEstimation* self, vtkIdType numPts, T* points, float* normals,
-    int searchMode, int orient, double opoint[3], bool flip)
+struct vtkGenerateNormalsWorker
+{
+  template <typename TArray>
+  void operator()(TArray* inPts, vtkPCANormalEstimation* self, float* normals)
   {
-    GenerateNormals gen(points, self->GetLocator(), self->GetSampleSize(), self->GetRadius(),
-      normals, searchMode, orient, opoint, flip);
-    vtkSMPTools::For(0, numPts, gen);
+    vtkGenerateNormalsFunctor<TArray> functor(inPts, self->GetLocator(), self->GetSampleSize(),
+      self->GetRadius(), normals, self->GetSearchMode(), self->GetNormalOrientation(),
+      self->GetOrientationPoint(), self->GetFlipNormals());
+    vtkSMPTools::For(0, inPts->GetNumberOfTuples(), functor);
   }
-}; // GenerateNormals
+};
 } // anonymous namespace
+
+struct vtkOrientNormalsWorker
+{
+  template <class TArray>
+  void operator()(TArray* inPts, vtkPCANormalEstimation* self, float* n)
+  {
+    auto points = vtk::DataArrayTupleRange<3>(inPts);
+    vtkIdType numPts = inPts->GetNumberOfTuples();
+    std::vector<char> pointMap(numPts, 0);
+    vtkNew<vtkIdList> wave;
+    wave->Allocate(numPts / 4 + 1, numPts);
+    vtkNew<vtkIdList> wave2;
+    wave2->Allocate(numPts / 4 + 1, numPts);
+    for (vtkIdType ptId = 0; ptId < numPts; ptId++)
+    {
+      if (pointMap[ptId] == 0)
+      {
+        wave->InsertNextId(ptId); // begin next connected wave
+        pointMap[ptId] = 1;
+        self->TraverseAndFlip(points, n, pointMap.data(), wave, wave2);
+        wave->Reset();
+        wave2->Reset();
+      }
+    } // for all points
+  }
+};
 
 //================= Begin VTK class proper =======================================
 //------------------------------------------------------------------------------
@@ -278,39 +306,23 @@ int vtkPCANormalEstimation::RequestData(vtkInformation* vtkNotUsed(request),
   normals->SetName("PCANormals");
   float* n = normals->GetPointer(0);
 
-  void* inPtr = input->GetPoints()->GetVoidPointer(0);
-  switch (input->GetPoints()->GetDataType())
+  vtkGenerateNormalsWorker generateWorker;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
+        input->GetPoints()->GetData(), generateWorker, this, n))
   {
-    vtkTemplateMacro(GenerateNormals<VTK_TT>::Execute(this, numPts, (VTK_TT*)inPtr, n,
-      this->SearchMode, this->NormalOrientation, this->OrientationPoint, this->FlipNormals));
+    generateWorker(input->GetPoints()->GetData(), this, n);
   }
 
   // Orient the normals in a consistent fashion (if requested). This requires a traversal
   // across the point cloud, traversing neighbors that are in close proximity.
   if (this->NormalOrientation == vtkPCANormalEstimation::GRAPH_TRAVERSAL)
   {
-    vtkIdType ptId;
-    char* pointMap = new char[numPts];
-    std::fill_n(pointMap, numPts, static_cast<char>(0));
-    vtkIdList* wave = vtkIdList::New();
-    wave->Allocate(numPts / 4 + 1, numPts);
-    vtkIdList* wave2 = vtkIdList::New();
-    wave2->Allocate(numPts / 4 + 1, numPts);
-
-    for (ptId = 0; ptId < numPts; ptId++)
+    vtkOrientNormalsWorker orientWorker;
+    if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
+          input->GetPoints()->GetData(), orientWorker, this, n))
     {
-      if (pointMap[ptId] == 0)
-      {
-        wave->InsertNextId(ptId); // begin next connected wave
-        pointMap[ptId] = 1;
-        this->TraverseAndFlip(input->GetPoints(), n, pointMap, wave, wave2);
-        wave->Reset();
-        wave2->Reset();
-      }
-    } // for all points
-    delete[] pointMap;
-    wave->Delete();
-    wave2->Delete();
+      orientWorker(input->GetPoints()->GetData(), this, n);
+    }
   } // if graph traversal required
 
   // Now send the normals to the output and clean up
@@ -333,14 +345,15 @@ int vtkPCANormalEstimation::RequestData(vtkInformation* vtkNotUsed(request),
 // Mark current point as visited and assign cluster number.  Note:
 // traversal occurs across proximally located points.
 //
+template <typename TPointsRange>
 void vtkPCANormalEstimation::TraverseAndFlip(
-  vtkPoints* inPts, float* normals, char* pointMap, vtkIdList* wave, vtkIdList* wave2)
+  TPointsRange& points, float* normals, char* pointMap, vtkIdList* wave, vtkIdList* wave2)
 {
   vtkIdType i, j, numPts, numIds, ptId;
   vtkIdList* tmpWave;
   double x[3];
   float *n, *n2;
-  vtkIdList* neighborPointIds = vtkIdList::New();
+  vtkNew<vtkIdList> neighborPointIds;
 
   while ((numIds = wave->GetNumberOfIds()) > 0)
   {
@@ -348,21 +361,10 @@ void vtkPCANormalEstimation::TraverseAndFlip(
     {
       ptId = wave->GetId(i);
 
-      void* inPtr = inPts->GetVoidPointer(0);
-      switch (inPts->GetDataType())
-      {
-        // Use template macro to use raw data of the points for all data types
-        vtkTemplateMacro({
-          const VTK_TT* points = (VTK_TT*)inPtr;
-          for (int l = 0; l < 3; ++l)
-          {
-            x[l] = static_cast<double>(points[3 * ptId + l]);
-          }
-          // Select neighboring points according to the SearchMode
-          ::Utils::FindPoints(this->Locator, points, x, this->SearchMode, this->SampleSize,
-            this->Radius, neighborPointIds);
-        });
-      }
+      points.GetTuple(ptId, x);
+      // Select neighboring points according to the SearchMode
+      ::Utils::FindPoints(this->Locator, points, x, this->SearchMode, this->SampleSize,
+        this->Radius, neighborPointIds);
 
       n = normals + 3 * ptId;
 
@@ -390,8 +392,6 @@ void vtkPCANormalEstimation::TraverseAndFlip(
     wave2 = tmpWave;
     tmpWave->Reset();
   } // while wave is not empty
-
-  neighborPointIds->Delete();
 }
 
 //------------------------------------------------------------------------------

@@ -3,6 +3,8 @@
 #include "vtkPCACurvatureEstimation.h"
 
 #include "vtkAbstractPointLocator.h"
+#include "vtkArrayDispatch.h"
+#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -24,10 +26,10 @@ namespace
 
 //------------------------------------------------------------------------------
 // The threaded core of the algorithm.
-template <typename T>
-struct GenerateCurvature
+template <typename TArray>
+struct GenerateCurvatureFunctor
 {
-  const T* Points;
+  TArray* Points;
   vtkAbstractPointLocator* Locator;
   int SampleSize;
   float* Curvature;
@@ -36,7 +38,7 @@ struct GenerateCurvature
   // storage lots of new/delete.
   vtkSMPThreadLocalObject<vtkIdList> PIds;
 
-  GenerateCurvature(T* points, vtkAbstractPointLocator* loc, int sample, float* curve)
+  GenerateCurvatureFunctor(TArray* points, vtkAbstractPointLocator* loc, int sample, float* curve)
     : Points(points)
     , Locator(loc)
     , SampleSize(sample)
@@ -53,10 +55,10 @@ struct GenerateCurvature
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const T* px = this->Points + 3 * ptId;
-    const T* py;
+    auto points = vtk::DataArrayTupleRange<3>(this->Points);
+    auto px = points.begin() + ptId;
     float* c = this->Curvature + 3 * ptId;
-    double x[3], mean[3], den;
+    double x[3], y[3], mean[3], den;
     vtkIdList*& pIds = this->PIds.Local();
     vtkIdType numPts, nei;
     int sample, i;
@@ -70,11 +72,9 @@ struct GenerateCurvature
     v[2] = v2;
     double eVal[3];
 
-    for (; ptId < endPtId; ++ptId)
+    for (; ptId < endPtId; ++ptId, ++px)
     {
-      x[0] = static_cast<double>(*px++);
-      x[1] = static_cast<double>(*px++);
-      x[2] = static_cast<double>(*px++);
+      px->GetTuple(x);
 
       // Retrieve the local neighborhood
       this->Locator->FindClosestNPoints(this->SampleSize, x, pIds);
@@ -85,10 +85,11 @@ struct GenerateCurvature
       for (sample = 0; sample < numPts; ++sample)
       {
         nei = pIds->GetId(sample);
-        py = this->Points + 3 * nei;
-        mean[0] += static_cast<double>(*py++);
-        mean[1] += static_cast<double>(*py++);
-        mean[2] += static_cast<double>(*py);
+        auto py = points[nei];
+        py.GetTuple(y);
+        mean[0] += y[0];
+        mean[1] += y[1];
+        mean[2] += y[2];
       }
       mean[0] /= static_cast<double>(numPts);
       mean[1] /= static_cast<double>(numPts);
@@ -101,10 +102,11 @@ struct GenerateCurvature
       for (sample = 0; sample < numPts; ++sample)
       {
         nei = pIds->GetId(sample);
-        py = this->Points + 3 * nei;
-        xp[0] = static_cast<double>(*py++) - mean[0];
-        xp[1] = static_cast<double>(*py++) - mean[1];
-        xp[2] = static_cast<double>(*py) - mean[2];
+        auto py = points[nei];
+        py.GetTuple(y);
+        xp[0] = y[0] - mean[0];
+        xp[1] = y[1] - mean[1];
+        xp[2] = y[2] - mean[2];
         for (i = 0; i < 3; i++)
         {
           a0[i] += xp[0] * xp[i];
@@ -132,15 +134,18 @@ struct GenerateCurvature
   }
 
   void Reduce() {}
-
-  static void Execute(
-    vtkPCACurvatureEstimation* self, vtkIdType numPts, T* points, float* curvature)
-  {
-    GenerateCurvature gen(points, self->GetLocator(), self->GetSampleSize(), curvature);
-    vtkSMPTools::For(0, numPts, gen);
-  }
 }; // GenerateCurvature
 
+struct GenerateCurvatureWorker
+{
+  template <typename TArray>
+  void operator()(TArray* inPts, vtkPCACurvatureEstimation* self, float* curvature)
+  {
+    GenerateCurvatureFunctor<TArray> functor(
+      inPts, self->GetLocator(), self->GetSampleSize(), curvature);
+    vtkSMPTools::For(0, inPts->GetNumberOfTuples(), functor);
+  }
+};
 } // anonymous namespace
 
 //================= Begin VTK class proper =======================================
@@ -198,12 +203,11 @@ int vtkPCACurvatureEstimation::RequestData(vtkInformation* vtkNotUsed(request),
   curvature->SetName("PCACurvature");
   float* c = curvature->GetPointer(0);
 
-  void* inPtr = input->GetPoints()->GetVoidPointer(0);
-  switch (input->GetPoints()->GetDataType())
+  GenerateCurvatureWorker worker;
+  if (!vtkArrayDispatch::Dispatch::Execute(input->GetPoints()->GetData(), worker, this, c))
   {
-    vtkTemplateMacro(GenerateCurvature<VTK_TT>::Execute(this, numPts, (VTK_TT*)inPtr, c));
+    worker(input->GetPoints()->GetData(), this, c);
   }
-
   // Now send the curvatures to the output and clean up
   output->SetPoints(input->GetPoints());
   output->GetPointData()->PassData(input->GetPointData());

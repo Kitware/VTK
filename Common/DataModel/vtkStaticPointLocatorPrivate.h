@@ -13,13 +13,14 @@
 #ifndef vtkStaticPointLocatorPrivate_h
 #define vtkStaticPointLocatorPrivate_h
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
-#include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkPolyData.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
@@ -281,14 +282,13 @@ struct BucketList : public vtkBucketList
     }
   };
 
-  // Explicit point representation (e.g., vtkPointSet), faster path
-  template <typename T, typename TPts>
+  template <typename T, typename TPointsArray>
   struct MapPointsArray
   {
     BucketList<T>* BList;
-    const TPts* Points;
+    TPointsArray* Points;
 
-    MapPointsArray(BucketList<T>* blist, const TPts* pts)
+    MapPointsArray(BucketList<T>* blist, TPointsArray* pts)
       : BList(blist)
       , Points(pts)
     {
@@ -297,17 +297,25 @@ struct BucketList : public vtkBucketList
     void operator()(vtkIdType ptId, vtkIdType end)
     {
       double p[3];
-      const TPts* x = this->Points + 3 * ptId;
+      auto x = vtk::DataArrayTupleRange<3>(this->Points, ptId, end).begin();
       vtkLocatorTuple<T>* t = this->BList->Map + ptId;
 
-      for (; ptId < end; ++ptId, x += 3, ++t)
+      for (; ptId < end; ++ptId, ++x, ++t)
       {
-        p[0] = static_cast<double>(x[0]);
-        p[1] = static_cast<double>(x[1]);
-        p[2] = static_cast<double>(x[2]);
+        x->GetTuple(p);
         t->Bucket = this->BList->GetBucketIndex(p);
         t->PtId = ptId;
       } // for all points in this batch
+    }
+  };
+
+  struct MapPointsArrayWorker
+  {
+    template <typename TPointsArray>
+    void operator()(TPointsArray* points, BucketList* blist)
+    {
+      MapPointsArray<TIds, TPointsArray> mapper(blist, points);
+      vtkSMPTools::For(0, blist->NumPts, mapper);
     }
   };
 
@@ -750,28 +758,12 @@ struct BucketList : public vtkBucketList
   void BuildLocator() override
   {
     // Place each point in a bucket
-    //
-    vtkPointSet* ps = vtkPointSet::SafeDownCast(this->DataSet);
-    if (ps)
-    { // map points array: explicit points representation of float or double
-      int dataType = ps->GetPoints()->GetDataType();
-      void* pts = ps->GetPoints()->GetVoidPointer(0);
-      if (dataType == VTK_FLOAT)
-      {
-        MapPointsArray<TIds, float> mapper(this, static_cast<float*>(pts));
-        vtkSMPTools::For(0, this->NumPts, mapper);
-      }
-      else if (dataType == VTK_DOUBLE)
-      {
-        this->FastPoints = static_cast<double*>(pts);
-        MapPointsArray<TIds, double> mapper(this, this->FastPoints);
-        vtkSMPTools::For(0, this->NumPts, mapper);
-      }
-    }
-    else // if (!mapped)
-    {    // map dataset points: non-float points or implicit points representation
-      MapDataSet<TIds> mapper(this, this->DataSet);
-      vtkSMPTools::For(0, this->NumPts, mapper);
+    auto points = this->DataSet->GetPoints()->GetData();
+    MapPointsArrayWorker worker;
+    if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllPointArrays>::Execute(
+          points, worker, this))
+    {
+      worker(points, this);
     }
 
     // Now group the points into contiguous runs within buckets (recall that
@@ -786,7 +778,7 @@ struct BucketList : public vtkBucketList
     MapOffsets<TIds> offMapper(this);
     vtkSMPTools::For(0, numBatches, offMapper);
   }
-}; // BucketList
+};
 
 VTK_ABI_NAMESPACE_END
 #endif // vtkStaticPointLocatorPrivate_h

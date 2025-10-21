@@ -7,7 +7,6 @@
 #include "vtkCellArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdList.h"
-#include "vtkIntArray.h"
 #include "vtkLine.h"
 #include "vtkLocatorInterface.h"
 #include "vtkMath.h"
@@ -15,7 +14,6 @@
 #include "vtkPlane.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 
 //------------------------------------------------------------------------------

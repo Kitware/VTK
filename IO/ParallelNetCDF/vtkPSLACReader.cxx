@@ -4,9 +4,11 @@
 
 #include "vtkPSLACReader.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCompositeDataIterator.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkDummyController.h"
 #include "vtkIdTypeArray.h"
@@ -23,7 +25,6 @@
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkSmartPointer.h"
-#define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #include "vtk_netcdf.h"
 
@@ -127,37 +128,25 @@ static int NetCDFTypeToVTKType(nc_type type)
 //=============================================================================
 // In this version, indexMap points from outArray to inArray.  All the values
 // of outArray get filled.
-template <class T>
-void vtkPSLACReaderMapValues1(
-  const T* inArray, T* outArray, int numComponents, vtkIdTypeArray* indexMap, vtkIdType offset = 0)
+struct vtkPSLACReaderMapValues
 {
-  vtkIdType numVals = indexMap->GetNumberOfTuples();
-  for (vtkIdType i = 0; i < numVals; i++)
+  template <class TInArray, class TOutArray>
+  void operator()(TInArray* inArray, TOutArray* outArray, int numComponents,
+    vtkIdTypeArray* indexMap, vtkIdType offset = 0)
   {
-    vtkIdType j = indexMap->GetValue(i) - offset;
-    for (int c = 0; c < numComponents; c++)
+    auto in = vtk::DataArrayTupleRange(inArray);
+    auto out = vtk::DataArrayTupleRange(outArray);
+    auto indices = vtk::DataArrayValueRange<1>(indexMap);
+    for (vtkIdType i = 0, numVals = indexMap->GetNumberOfTuples(); i < numVals; i++)
     {
-      outArray[numComponents * i + c] = inArray[numComponents * j + c];
+      const vtkIdType j = indices[i] - offset;
+      for (int c = 0; c < numComponents; c++)
+      {
+        out[i][c] = in[j][c];
+      }
     }
   }
-}
-
-// // In this version, indexMap points from inArray to outArray.  All the values
-// // of inArray get copied.
-// template<class T>
-// void vtkPSLACReaderMapValues2(const T *inArray, T *outArray, int numComponents,
-//                               vtkIdTypeArray *indexMap)
-// {
-//   vtkIdType numVals = indexMap->GetNumberOfTuples();
-//   for (vtkIdType i = 0; i < numVals; i++)
-//     {
-//     vtkIdType j = indexMap->GetValue(i);
-//     for (int c = 0; c < numComponents; c++)
-//       {
-//       outArray[numComponents*j+c] = inArray[numComponents*i+c];
-//       }
-//     }
-// }
+};
 
 //=============================================================================
 // Make sure that each process has the same number of blocks in the same
@@ -185,7 +174,7 @@ static void SynchronizeBlocks(vtkMultiBlockDataSet* blocks, vtkMultiProcessContr
     controller->AllReduce(&localBlockExists, &globalBlockExists, 1, vtkCommunicator::LOGICAL_OR_OP);
     if (!localBlockExists && globalBlockExists)
     {
-      VTK_CREATE(vtkUnstructuredGrid, grid);
+      vtkNew<vtkUnstructuredGrid> grid;
       blocks->SetBlock(blockId, grid);
       blocks->GetMetaData(blockId)->Set(typeKey, 1);
     }
@@ -547,7 +536,7 @@ int vtkPSLACReader::ReadConnectivity(
   //---------------------------------
   // This multiblock that contains both outputs provides an easy way to iterate
   // over all cells in both output.
-  VTK_CREATE(vtkMultiBlockDataSet, compositeOutput);
+  vtkNew<vtkMultiBlockDataSet> compositeOutput;
   compositeOutput->SetNumberOfBlocks(2);
   compositeOutput->SetBlock(SURFACE_OUTPUT, surfaceOutput);
   compositeOutput->SetBlock(VOLUME_OUTPUT, volumeOutput);
@@ -659,7 +648,7 @@ int vtkPSLACReader::ReadConnectivity(
   std::vector<vtkIdType> localOffsets(this->NumberOfPieces + 1);
   for (int process = 0; process < this->NumberOfPieces; process++)
   {
-    VTK_CREATE(vtkIdTypeArray, pointList);
+    vtkNew<vtkIdTypeArray> pointList;
     pointList->Allocate(this->NumberOfGlobalPoints / this->NumberOfPieces,
       this->NumberOfGlobalPoints / this->NumberOfPieces);
     vtkIdType lastId = this->EndPointRead(process);
@@ -854,9 +843,10 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD, int v
   CALL_NETCDF_PTR(nc_inq_vartype(ncFD, varId, &ncType));
   int vtkType = NetCDFTypeToVTKType(ncType);
   if (vtkType < 1)
+  {
     return nullptr;
-  vtkSmartPointer<vtkDataArray> dataArray;
-  dataArray.TakeReference(vtkDataArray::CreateDataArray(vtkType));
+  }
+  auto dataArray = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(vtkType));
 
   // Read the data from the file.
   size_t start[2], count[2];
@@ -870,27 +860,27 @@ vtkSmartPointer<vtkDataArray> vtkPSLACReader::ReadPointDataArray(int ncFD, int v
 
   // We now need to redistribute the data.  Allocate an array to store the final
   // point data and a buffer to send data to the rest of the processes.
-  vtkSmartPointer<vtkDataArray> finalDataArray;
-  finalDataArray.TakeReference(vtkDataArray::CreateDataArray(vtkType));
+  auto finalDataArray = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(vtkType));
   finalDataArray->SetNumberOfComponents(static_cast<int>(numComponents));
   finalDataArray->SetNumberOfTuples(this->PInternal->LocalToGlobalIds->GetNumberOfTuples());
 
-  vtkSmartPointer<vtkDataArray> sendBuffer;
-  sendBuffer.TakeReference(vtkDataArray::CreateDataArray(vtkType));
+  auto sendBuffer = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(vtkType));
   sendBuffer->SetNumberOfComponents(static_cast<int>(numComponents));
   sendBuffer->SetNumberOfTuples(this->PInternal->PointsToSendToProcesses->GetNumberOfTuples());
-  switch (vtkType)
+  vtkPSLACReaderMapValues functor;
+  if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(dataArray.Get(), sendBuffer.Get(), functor,
+        static_cast<int>(numComponents), this->PInternal->PointsToSendToProcesses,
+        this->StartPointRead(this->RequestedPiece)))
   {
-    vtkTemplateMacro(vtkPSLACReaderMapValues1((VTK_TT*)dataArray->GetVoidPointer(0),
-      (VTK_TT*)sendBuffer->GetVoidPointer(0), static_cast<int>(numComponents),
-      this->PInternal->PointsToSendToProcesses, this->StartPointRead(this->RequestedPiece)));
+    functor(dataArray.Get(), sendBuffer.Get(), static_cast<int>(numComponents),
+      this->PInternal->PointsToSendToProcesses, this->StartPointRead(this->RequestedPiece));
   }
 
   // Scatter expects identifiers per value, not per tuple.  Thus, we (may)
   // need to adjust the lengths and offsets of what we send.
-  VTK_CREATE(vtkIdTypeArray, sendLengths);
+  vtkNew<vtkIdTypeArray> sendLengths;
   sendLengths->SetNumberOfTuples(this->NumberOfPieces);
-  VTK_CREATE(vtkIdTypeArray, sendOffsets);
+  vtkNew<vtkIdTypeArray> sendOffsets;
   sendOffsets->SetNumberOfTuples(this->NumberOfPieces);
   for (int i = 0; i < this->NumberOfPieces; i++)
   {
@@ -972,7 +962,7 @@ int vtkPSLACReader::ReadMidpointCoordinates(
   starts[1] = 0;
   counts[1] = 5;
 
-  VTK_CREATE(vtkDoubleArray, midpointData);
+  vtkNew<vtkDoubleArray> midpointData;
   midpointData->SetNumberOfComponents(static_cast<int>(counts[1]));
   midpointData->SetNumberOfTuples(static_cast<vtkIdType>(counts[0]));
   CALL_NETCDF_INT(

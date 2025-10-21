@@ -474,7 +474,7 @@ void vtkTemporalPathLineFilter::AccumulateTrails(vtkDataSet* input, vtkDataSet* 
   {
     using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Integrals,
       vtkArrayDispatch::Integrals>;
-    if (Dispatcher::Execute(selectionIds, ids, worker, input, this->MaskPoints, processTrail))
+    if (!Dispatcher::Execute(selectionIds, ids, worker, input, this->MaskPoints, processTrail))
     {
       worker(selectionIds, ids, input, this->MaskPoints, processTrail);
     }
@@ -482,7 +482,7 @@ void vtkTemporalPathLineFilter::AccumulateTrails(vtkDataSet* input, vtkDataSet* 
   else if (ids)
   {
     using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Integrals>;
-    if (Dispatcher::Execute(ids, worker, input, this->MaskPoints, processTrail))
+    if (!Dispatcher::Execute(ids, worker, input, this->MaskPoints, processTrail))
     {
       worker(ids, input, this->MaskPoints, processTrail);
     }

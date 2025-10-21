@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDepthImageToPointCloud.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
 #include "vtkCommand.h"
 #include "vtkCoordinate.h"
+#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -28,28 +31,31 @@ vtkCxxSetObjectMacro(vtkDepthImageToPointCloud, Camera, vtkCamera);
 // Helper classes to support efficient computing, and threaded execution.
 namespace
 {
-
-// Map input point id to output point id. This map is needed because of the
-// optionally capability to cull near and far points.
-template <typename T>
-void MapPoints(
-  vtkIdType numPts, T* depths, bool cullNear, bool cullFar, vtkIdType* map, vtkIdType& numOutPts)
+struct MapPointsFunctor
 {
-  numOutPts = 0;
-  float d;
-  for (vtkIdType ptId = 0; ptId < numPts; ++depths, ++map, ++ptId)
+  // Map input point id to output point id. This map is needed because of the
+  // optionally capability to cull near and far points.
+  template <typename TArray>
+  void operator()(TArray* depthsArray, vtkIdType numPts, bool cullNear, bool cullFar,
+    vtkIdType* map, vtkIdType& numOutPts)
   {
-    d = static_cast<float>(*depths);
-    if ((cullNear && d <= 0.0) || (cullFar && d >= 1.0))
+    auto depths = vtk::DataArrayValueRange<1>(depthsArray).begin();
+    numOutPts = 0;
+    float d;
+    for (vtkIdType ptId = 0; ptId < numPts; ++depths, ++map, ++ptId)
     {
-      *map = (-1);
-    }
-    else
-    {
-      *map = numOutPts++;
+      d = static_cast<float>(*depths);
+      if ((cullNear && d <= 0.0) || (cullFar && d >= 1.0))
+      {
+        *map = (-1);
+      }
+      else
+      {
+        *map = numOutPts++;
+      }
     }
   }
-}
+};
 
 // This class performs point by point transformation. The view matrix is
 // used to transform each pixel. IMPORTANT NOTE: The transformation occurs
@@ -62,16 +68,16 @@ void MapPoints(
 // well). This half pixel difference can cause transformation issues. Here
 // we've played around with the scaling below to produce the best results
 // in the current version of VTK.
-template <typename TD, typename TP>
+template <typename TDepthsArray, typename TPointsArray>
 struct MapDepthImage
 {
-  const TD* Depths;
-  TP* Pts;
+  TDepthsArray* Depths;
+  TPointsArray* Pts;
   const int* Dims;
   const double* Matrix;
   const vtkIdType* PtMap;
 
-  MapDepthImage(TD* depths, TP* pts, int dims[2], double* m, vtkIdType* ptMap)
+  MapDepthImage(TDepthsArray* depths, TPointsArray* pts, int dims[2], double* m, vtkIdType* ptMap)
     : Depths(depths)
     , Pts(pts)
     , Dims(dims)
@@ -84,9 +90,9 @@ struct MapDepthImage
   {
     double drow, result[4];
     vtkIdType offset = row * this->Dims[0];
-    const TD* dptr = this->Depths + offset;
+    auto dptr = vtk::DataArrayValueRange<1>(this->Depths, offset).begin();
     const vtkIdType* mptr = this->PtMap + offset;
-    TP* pptr;
+    auto points = vtk::DataArrayTupleRange<3>(this->Pts);
     for (; row < end; ++row)
     {
       drow = -1.0 + (2.0 * static_cast<double>(row) / static_cast<double>(this->Dims[1] - 1));
@@ -97,7 +103,7 @@ struct MapDepthImage
       {
         if (*mptr > (-1)) // if not masked
         {
-          pptr = this->Pts + *mptr * 3;
+          auto point = points[*mptr];
           result[0] = -1.0 + 2.0 * static_cast<double>(i) / static_cast<double>(this->Dims[0] - 1);
           // if pixel origin is pixel center use the two lines below
           // result[0] = -1.0 + 2.0*((static_cast<double>(i)+0.5) /
@@ -106,10 +112,10 @@ struct MapDepthImage
           result[2] = *dptr;
           result[3] = 1.0;
           vtkMatrix4x4::MultiplyPoint(this->Matrix, result, result);
-          *pptr++ = result[0] / result[3]; // x
-          *pptr++ = result[1] / result[3]; // y
-          *pptr = result[2] / result[3];   // z
-        }                                  // transform this point
+          point[0] = result[0] / result[3]; // x
+          point[1] = result[1] / result[3]; // y
+          point[2] = result[2] / result[3]; // z
+        }                                   // transform this point
       }
     }
   }
@@ -117,16 +123,20 @@ struct MapDepthImage
 
 // Interface to vtkSMPTools. Threading over image rows. Also perform
 // one time calculation/initialization for more efficient processing.
-template <typename TD, typename TP>
-void XFormPoints(TD* depths, vtkIdType* ptMap, TP* pts, int dims[2], vtkCamera* cam)
+struct XFormPointsFunctor
 {
-  double m[16], aspect = static_cast<double>(dims[0]) / static_cast<double>(dims[1]);
-  vtkMatrix4x4* matrix = cam->GetCompositeProjectionTransformMatrix(aspect, 0, 1);
-  vtkMatrix4x4::Invert(*matrix->Element, m);
+  template <typename TDepthsArray, typename TPointsArray>
+  void operator()(TDepthsArray* depthsArray, TPointsArray* ptsArray, vtkIdType* ptMap, int dims[2],
+    vtkCamera* cam)
+  {
+    double m[16], aspect = static_cast<double>(dims[0]) / static_cast<double>(dims[1]);
+    vtkMatrix4x4* matrix = cam->GetCompositeProjectionTransformMatrix(aspect, 0, 1);
+    vtkMatrix4x4::Invert(*matrix->Element, m);
 
-  MapDepthImage<TD, TP> mapDepths(depths, pts, dims, m, ptMap);
-  vtkSMPTools::For(0, dims[1], mapDepths);
-}
+    MapDepthImage<TDepthsArray, TPointsArray> mapDepths(depthsArray, ptsArray, dims, m, ptMap);
+    vtkSMPTools::For(0, dims[1], mapDepths);
+  }
+};
 
 // Process the color scalars. It would be pretty easy to process all
 // attribute types if this was ever desired.
@@ -336,11 +346,13 @@ int vtkDepthImageToPointCloud::RequestData(
   // so a point mask is created.
   vtkIdType numOutPts = 0;
   vtkIdType* ptMap = new vtkIdType[numPts];
-  void* depthPtr = depths->GetVoidPointer(0);
-  switch (depths->GetDataType())
+  using FloatArrays = vtkArrayDispatch::FilterArraysByValueType<vtkArrayDispatch::Arrays,
+    vtkArrayDispatch::Reals>::Result;
+  MapPointsFunctor mapfunctor;
+  if (!vtkArrayDispatch::DispatchByArray<FloatArrays>::Execute(
+        depths, mapfunctor, numPts, this->CullNearPoints, this->CullFarPoints, ptMap, numOutPts))
   {
-    vtkTemplateMacro(MapPoints(
-      numPts, (VTK_TT*)depthPtr, this->CullNearPoints, this->CullFarPoints, ptMap, numOutPts));
+    mapfunctor(depths, numPts, this->CullNearPoints, this->CullFarPoints, ptMap, numOutPts);
   }
 
   // Manage the requested output point precision
@@ -359,23 +371,12 @@ int vtkDepthImageToPointCloud::RequestData(
   // Threaded over x-edges (rows). Each depth value is transformed into a
   // world point. Below there is a double allocation based on the depth type
   // and output point type.
-  if (pointsType == VTK_FLOAT)
+  using Dispatcher =
+    vtkArrayDispatch::Dispatch2ByArray<FloatArrays, vtkArrayDispatch::AOSPointArrays>;
+  XFormPointsFunctor formFunctor;
+  if (!Dispatcher::Execute(depths, points->GetData(), formFunctor, ptMap, dims, cam))
   {
-    float* ptsPtr = static_cast<float*>(points->GetVoidPointer(0));
-    switch (depths->GetDataType())
-    {
-      vtkTemplateMacro(
-        XFormPoints((VTK_TT*)depthPtr, ptMap, static_cast<float*>(ptsPtr), dims, cam));
-    }
-  }
-  else
-  {
-    double* ptsPtr = static_cast<double*>(points->GetVoidPointer(0));
-    switch (depths->GetDataType())
-    {
-      vtkTemplateMacro(
-        XFormPoints((VTK_TT*)depthPtr, ptMap, static_cast<double*>(ptsPtr), dims, cam));
-    }
+    formFunctor(depths, points->GetData(), ptMap, dims, cam);
   }
 
   // Produce the output colors if requested. Another templated, threaded loop.

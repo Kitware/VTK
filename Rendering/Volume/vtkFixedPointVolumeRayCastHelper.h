@@ -968,12 +968,12 @@
 
 #define VTKKWRCHelper_InitializeMIPOneNN                                                           \
   mapper->ShiftVectorDown(pos, spos);                                                              \
-  T* dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];                         \
+  decltype(data) dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];             \
   T maxValue = *(dptr);
 
 #define VTKKWRCHelper_InitializeMIPMultiNN                                                         \
   mapper->ShiftVectorDown(pos, spos);                                                              \
-  T* dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];                         \
+  decltype(data) dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];             \
   T maxValue[4] = {};                                                                              \
   for (c = 0; c < components; c++)                                                                 \
   {                                                                                                \
@@ -981,7 +981,7 @@
   }
 
 #define VTKKWRCHelper_InitializeMIPOneTrilin                                                       \
-  T* dptr;                                                                                         \
+  decltype(data) dptr;                                                                             \
   unsigned int oldSPos[3];                                                                         \
                                                                                                    \
   oldSPos[0] = (pos[0] >> VTKKW_FP_SHIFT) + 1;                                                     \
@@ -997,7 +997,7 @@
   unsigned int A = 0, B = 0, C = 0, D = 0, E = 0, F = 0, G = 0, H = 0;
 
 #define VTKKWRCHelper_InitializeMIPMultiTrilin                                                     \
-  T* dptr;                                                                                         \
+  decltype(data) dptr;                                                                             \
   unsigned int oldSPos[3];                                                                         \
                                                                                                    \
   oldSPos[0] = (pos[0] >> VTKKW_FP_SHIFT) + 1;                                                     \
@@ -1021,21 +1021,21 @@
 
 #define VTKKWRCHelper_InitializeCompositeOneNN                                                     \
   mapper->ShiftVectorDown(pos, spos);                                                              \
-  T* dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];                         \
+  decltype(data) dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];             \
   unsigned int color[3] = { 0, 0, 0 };                                                             \
   unsigned short remainingOpacity = 0x7fff;                                                        \
   unsigned short tmp[4];
 
 #define VTKKWRCHelper_InitializeCompositeMultiNN                                                   \
   mapper->ShiftVectorDown(pos, spos);                                                              \
-  T* dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];                         \
+  decltype(data) dptr = data + spos[0] * inc[0] + spos[1] * inc[1] + spos[2] * inc[2];             \
   unsigned int color[3] = { 0, 0, 0 };                                                             \
   unsigned int remainingOpacity = 0x7fff;                                                          \
   unsigned short tmp[4] = {};                                                                      \
   unsigned short val[4] = {};
 
 #define VTKKWRCHelper_InitializeCompositeOneTrilin                                                 \
-  T* dptr;                                                                                         \
+  decltype(data) dptr;                                                                             \
   unsigned int oldSPos[3];                                                                         \
                                                                                                    \
   oldSPos[0] = (pos[0] >> VTKKW_FP_SHIFT) + 1;                                                     \
@@ -1064,7 +1064,7 @@
   unsigned int normalE = 0, normalF = 0, normalG = 0, normalH = 0;
 
 #define VTKKWRCHelper_InitializeCompositeMultiTrilin                                               \
-  T* dptr;                                                                                         \
+  decltype(data) dptr;                                                                             \
   unsigned int oldSPos[3];                                                                         \
                                                                                                    \
   oldSPos[0] = (pos[0] >> VTKKW_FP_SHIFT) + 1;                                                     \

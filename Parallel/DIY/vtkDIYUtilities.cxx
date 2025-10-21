@@ -17,7 +17,6 @@
 #include "vtkNew.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridToPointSet.h"
-#include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkUnstructuredGrid.h"

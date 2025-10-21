@@ -2,22 +2,20 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkVolumeRayCastSpaceLeapingImageFilter.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include <fstream>
 #include <iostream>
-#include <sstream>
 
 #ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
 #include "vtkMetaImageWriter.h"
 #endif
-
-#include <cmath>
 
 // Space leaping block size
 #define VTK_SL_BLK 4
@@ -178,128 +176,129 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ComputeInputExtentsForOutput(
 
 //------------------------------------------------------------------------------
 // Fill in the min-max space leaping information.
-template <class T>
-void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
-  vtkVolumeRayCastSpaceLeapingImageFilter* self, vtkImageData* inData, vtkImageData* outData,
-  int outExt[6], T)
+struct vtkVolumeRayCastSpaceLeapingImageFilterMinMaxFunctor
 {
-
-  // the number of independent components for which we need to keep track of
-  // min/max
-  vtkDataArray* scalars = self->GetCurrentScalars();
-  const int components = scalars->GetNumberOfComponents();
-  const int independent = self->GetIndependentComponents();
-  const int nComponents = (independent) ? components : 1;
-
-  // B. Now fill in the max-min-gradient volume structure
-
-  // B.1 First compute the extents of the input that contribute to this structure
-
-  int inExt[6], inWholeExt[6];
-  int inDim[3];
-  int outWholeDim[3];
-  vtkVolumeRayCastSpaceLeapingImageFilter::ComputeInputExtentsForOutput(
-    inExt, inDim, outExt, inData);
-  inData->GetExtent(inWholeExt);
-  outData->GetDimensions(outWholeDim);
-
-  float shift[4], scale[4];
-  self->GetTableShift(shift);
-  self->GetTableScale(scale);
-
-  // B.2 Get increments to march through the input extents
-
-  vtkIdType inInc0, inInc1, inInc2;
-  inData->GetContinuousIncrements(scalars, inExt, inInc0, inInc1, inInc2);
-
-  // Get increments to march through the output extents
-
-  const vtkIdType outInc0 = 3 * nComponents;
-  const vtkIdType outInc1 = outInc0 * outWholeDim[0];
-  const vtkIdType outInc2 = outInc1 * outWholeDim[1];
-
-  // B.3 Now fill in the min-max volume.
-
-  int i, j, k;
-  int c;
-  int sx1, sx2, sy1, sy2, sz1, sz2;
-  int x, y, z;
-
-  T* dptr = static_cast<T*>(scalars->GetVoidPointer(0));
-  unsigned short val;
-  unsigned short* outBasePtr = static_cast<unsigned short*>(outData->GetScalarPointer());
-
-  // Initialize pointer to the starting extents given by inExt.
-  dptr += self->ComputeOffset(inExt, inWholeExt, nComponents);
-
-  // The pointer into the space-leaping output volume.
-  unsigned short *tmpPtr, *tmpPtrK, *tmpPtrJ, *tmpPtrI;
-
-  for (k = 0; k < inDim[2]; k++, dptr += inInc2)
+  template <class TArray>
+  void operator()(TArray* scalars, vtkVolumeRayCastSpaceLeapingImageFilter* self,
+    vtkImageData* inData, vtkImageData* outData, int outExt[6])
   {
-    sz1 = (k < 1) ? (0) : ((k - 1) / 4);
-    sz2 = ((k) / 4);
-    sz2 = (k == inDim[2] - 1) ? (sz1) : (sz2);
 
-    sz1 += outExt[4];
-    sz2 += outExt[4];
+    // the number of independent components for which we need to keep track of
+    // min/max
+    const int components = scalars->GetNumberOfComponents();
+    const int independent = self->GetIndependentComponents();
+    const int nComponents = (independent) ? components : 1;
 
-    // Bounds check
-    sz2 = std::min(sz2, outExt[5]);
+    // B. Now fill in the max-min-gradient volume structure
 
-    tmpPtrK = outBasePtr + sz1 * outInc2;
+    // B.1 First compute the extents of the input that contribute to this structure
 
-    for (j = 0; j < inDim[1]; j++, dptr += inInc1)
+    int inExt[6], inWholeExt[6];
+    int inDim[3];
+    int outWholeDim[3];
+    vtkVolumeRayCastSpaceLeapingImageFilter::ComputeInputExtentsForOutput(
+      inExt, inDim, outExt, inData);
+    inData->GetExtent(inWholeExt);
+    outData->GetDimensions(outWholeDim);
+
+    float shift[4], scale[4];
+    self->GetTableShift(shift);
+    self->GetTableScale(scale);
+
+    // B.2 Get increments to march through the input extents
+
+    vtkIdType inInc0, inInc1, inInc2;
+    inData->GetContinuousIncrements(scalars, inExt, inInc0, inInc1, inInc2);
+
+    // Get increments to march through the output extents
+
+    const vtkIdType outInc0 = 3 * nComponents;
+    const vtkIdType outInc1 = outInc0 * outWholeDim[0];
+    const vtkIdType outInc2 = outInc1 * outWholeDim[1];
+
+    // B.3 Now fill in the min-max volume.
+
+    int i, j, k;
+    int c;
+    int sx1, sx2, sy1, sy2, sz1, sz2;
+    int x, y, z;
+
+    auto dptr = vtk::DataArrayValueRange(scalars).begin();
+    unsigned short val;
+    unsigned short* outBasePtr = static_cast<unsigned short*>(outData->GetScalarPointer());
+
+    // Initialize pointer to the starting extents given by inExt.
+    dptr += self->ComputeOffset(inExt, inWholeExt, nComponents);
+
+    // The pointer into the space-leaping output volume.
+    unsigned short *tmpPtr, *tmpPtrK, *tmpPtrJ, *tmpPtrI;
+
+    for (k = 0; k < inDim[2]; k++, dptr += inInc2)
     {
-      sy1 = (j < 1) ? (0) : ((j - 1) / 4);
-      sy2 = ((j) / 4);
-      sy2 = (j == inDim[1] - 1) ? (sy1) : (sy2);
+      sz1 = (k < 1) ? (0) : ((k - 1) / 4);
+      sz2 = ((k) / 4);
+      sz2 = (k == inDim[2] - 1) ? (sz1) : (sz2);
 
-      sy1 += outExt[2];
-      sy2 += outExt[2];
+      sz1 += outExt[4];
+      sz2 += outExt[4];
 
       // Bounds check
-      sy2 = std::min(sy2, outExt[3]);
+      sz2 = std::min(sz2, outExt[5]);
 
-      tmpPtrJ = tmpPtrK + sy1 * outInc1;
+      tmpPtrK = outBasePtr + sz1 * outInc2;
 
-      for (i = 0; i < inDim[0]; i++)
+      for (j = 0; j < inDim[1]; j++, dptr += inInc1)
       {
-        sx1 = (i < 1) ? (0) : ((i - 1) / 4);
-        sx2 = ((i) / 4);
-        sx2 = (i == inDim[0] - 1) ? (sx1) : (sx2);
+        sy1 = (j < 1) ? (0) : ((j - 1) / 4);
+        sy2 = ((j) / 4);
+        sy2 = (j == inDim[1] - 1) ? (sy1) : (sy2);
 
-        sx1 += outExt[0];
-        sx2 += outExt[0];
+        sy1 += outExt[2];
+        sy2 += outExt[2];
 
         // Bounds check
-        sx2 = std::min(sx2, outExt[1]);
+        sy2 = std::min(sy2, outExt[3]);
 
-        tmpPtrI = tmpPtrJ + sx1 * outInc0;
+        tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
-        for (c = 0; c < nComponents; c++, tmpPtrI += 3)
+        for (i = 0; i < inDim[0]; i++)
         {
-          if (independent)
-          {
-            val = static_cast<unsigned short>((*dptr + shift[c]) * scale[c]);
-            ++dptr;
-          }
-          else
-          {
-            val = static_cast<unsigned short>(
-              (*(dptr + components - 1) + shift[components - 1]) * scale[components - 1]);
-            dptr += components;
-          }
+          sx1 = (i < 1) ? (0) : ((i - 1) / 4);
+          sx2 = ((i) / 4);
+          sx2 = (i == inDim[0] - 1) ? (sx1) : (sx2);
 
-          for (z = sz1; z <= sz2; z++)
+          sx1 += outExt[0];
+          sx2 += outExt[0];
+
+          // Bounds check
+          sx2 = std::min(sx2, outExt[1]);
+
+          tmpPtrI = tmpPtrJ + sx1 * outInc0;
+
+          for (c = 0; c < nComponents; c++, tmpPtrI += 3)
           {
-            for (y = sy1; y <= sy2; y++)
+            if (independent)
             {
-              tmpPtr = tmpPtrI + (z - sz1) * outInc2 + (y - sy1) * outInc1;
-              for (x = sx1; x <= sx2; x++, tmpPtr += outInc0)
+              val = static_cast<unsigned short>((*dptr + shift[c]) * scale[c]);
+              ++dptr;
+            }
+            else
+            {
+              val = static_cast<unsigned short>(
+                (*(dptr + components - 1) + shift[components - 1]) * scale[components - 1]);
+              dptr += components;
+            }
+
+            for (z = sz1; z <= sz2; z++)
+            {
+              for (y = sy1; y <= sy2; y++)
               {
-                tmpPtr[0] = std::min(val, tmpPtr[0]);
-                tmpPtr[1] = std::max(val, tmpPtr[1]);
+                tmpPtr = tmpPtrI + (z - sz1) * outInc2 + (y - sy1) * outInc1;
+                for (x = sx1; x <= sx2; x++, tmpPtr += outInc0)
+                {
+                  tmpPtr[0] = std::min(val, tmpPtr[0]);
+                  tmpPtr[1] = std::max(val, tmpPtr[1]);
+                }
               }
             }
           }
@@ -307,7 +306,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
       }
     }
   }
-}
+};
 
 //------------------------------------------------------------------------------
 // Fill in the maximum gradient magnitude space leaping information.
@@ -443,138 +442,138 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMaxGradientMagnitudeExecute(
 // Optimized method that does both the following in one pass
 // - Fill in the min-max space leaping information.
 // - Fill in the maximum gradient magnitude space leaping information.
-template <class T>
-void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
-  vtkVolumeRayCastSpaceLeapingImageFilter* self, vtkImageData* inData, vtkImageData* outData,
-  int outExt[6], T)
+struct vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeFunctor
 {
-  // the number of independent components for which we need to keep track of
-  // min/max
-  vtkDataArray* scalars = self->GetCurrentScalars();
-  const int components = scalars->GetNumberOfComponents();
-  const int independent = self->GetIndependentComponents();
-  const int nComponents = (independent) ? components : 1;
-
-  // B.1 First compute the extents of the input that contribute to this structure
-
-  int inExt[6], inWholeExt[6];
-  int inDim[3];
-  int outWholeDim[3];
-  vtkVolumeRayCastSpaceLeapingImageFilter::ComputeInputExtentsForOutput(
-    inExt, inDim, outExt, inData);
-  inData->GetExtent(inWholeExt);
-  outData->GetDimensions(outWholeDim);
-
-  float shift[4], scale[4];
-  self->GetTableShift(shift);
-  self->GetTableScale(scale);
-
-  // B.2 Get increments to march through the input extents
-
-  vtkIdType inInc0, inInc1, inInc2;
-  inData->GetContinuousIncrements(scalars, inExt, inInc0, inInc1, inInc2);
-
-  // Get increments to march through the output extents
-
-  const vtkIdType outInc0 = 3 * nComponents;
-  const vtkIdType outInc1 = outInc0 * outWholeDim[0];
-  const vtkIdType outInc2 = outInc1 * outWholeDim[1];
-
-  // B.3 Now fill in the min-max and gradient max structure
-
-  int i, j, k;
-  int c;
-  int sx1, sx2, sy1, sy2, sz1, sz2;
-  int x, y, z;
-
-  T* dptr = static_cast<T*>(scalars->GetVoidPointer(0));
-  unsigned char val;
-  unsigned short minMaxVal;
-  unsigned short* outBasePtr = static_cast<unsigned short*>(outData->GetScalarPointer());
-
-  // pointer to the slice of the gradient magnitude
-  unsigned char** gsptr = self->GetGradientMagnitude();
-
-  // Initialize pointers to the starting extents given by inExt.
-  gsptr += (inExt[4] - inWholeExt[4]); // pointer to slice gradient
-  dptr += self->ComputeOffset(inExt, inWholeExt, nComponents);
-
-  // The pointer into the space-leaping output volume.
-  unsigned short *tmpPtr, *tmpPtrK, *tmpPtrJ, *tmpPtrI;
-
-  for (k = 0; k < inDim[2]; k++, dptr += inInc2, ++gsptr)
+  template <class TArray>
+  void operator()(TArray* scalars, vtkVolumeRayCastSpaceLeapingImageFilter* self,
+    vtkImageData* inData, vtkImageData* outData, int outExt[6])
   {
-    sz1 = (k < 1) ? (0) : ((k - 1) / 4);
-    sz2 = ((k) / 4);
-    sz2 = (k == inDim[2] - 1) ? (sz1) : (sz2);
+    // the number of independent components for which we need to keep track of
+    // min/max
+    const int components = scalars->GetNumberOfComponents();
+    const int independent = self->GetIndependentComponents();
+    const int nComponents = (independent) ? components : 1;
 
-    sz1 += outExt[4];
-    sz2 += outExt[4];
+    // B.1 First compute the extents of the input that contribute to this structure
 
-    // Bounds check
-    sz2 = std::min(sz2, outExt[5]);
+    int inExt[6], inWholeExt[6];
+    int inDim[3];
+    int outWholeDim[3];
+    vtkVolumeRayCastSpaceLeapingImageFilter::ComputeInputExtentsForOutput(
+      inExt, inDim, outExt, inData);
+    inData->GetExtent(inWholeExt);
+    outData->GetDimensions(outWholeDim);
 
-    tmpPtrK = outBasePtr + sz1 * outInc2;
+    float shift[4], scale[4];
+    self->GetTableShift(shift);
+    self->GetTableScale(scale);
 
-    unsigned char* gptr = *gsptr;
+    // B.2 Get increments to march through the input extents
 
-    for (j = 0; j < inDim[1]; j++, dptr += inInc1, gptr += inInc1)
+    vtkIdType inInc0, inInc1, inInc2;
+    inData->GetContinuousIncrements(scalars, inExt, inInc0, inInc1, inInc2);
+
+    // Get increments to march through the output extents
+
+    const vtkIdType outInc0 = 3 * nComponents;
+    const vtkIdType outInc1 = outInc0 * outWholeDim[0];
+    const vtkIdType outInc2 = outInc1 * outWholeDim[1];
+
+    // B.3 Now fill in the min-max and gradient max structure
+
+    int i, j, k;
+    int c;
+    int sx1, sx2, sy1, sy2, sz1, sz2;
+    int x, y, z;
+
+    auto dptr = vtk::DataArrayValueRange(scalars).begin();
+    unsigned char val;
+    unsigned short minMaxVal;
+    unsigned short* outBasePtr = static_cast<unsigned short*>(outData->GetScalarPointer());
+
+    // pointer to the slice of the gradient magnitude
+    unsigned char** gsptr = self->GetGradientMagnitude();
+
+    // Initialize pointers to the starting extents given by inExt.
+    gsptr += (inExt[4] - inWholeExt[4]); // pointer to slice gradient
+    dptr += self->ComputeOffset(inExt, inWholeExt, nComponents);
+
+    // The pointer into the space-leaping output volume.
+    unsigned short *tmpPtr, *tmpPtrK, *tmpPtrJ, *tmpPtrI;
+
+    for (k = 0; k < inDim[2]; k++, dptr += inInc2, ++gsptr)
     {
-      sy1 = (j < 1) ? (0) : ((j - 1) / 4);
-      sy2 = ((j) / 4);
-      sy2 = (j == inDim[1] - 1) ? (sy1) : (sy2);
+      sz1 = (k < 1) ? (0) : ((k - 1) / 4);
+      sz2 = ((k) / 4);
+      sz2 = (k == inDim[2] - 1) ? (sz1) : (sz2);
 
-      sy1 += outExt[2];
-      sy2 += outExt[2];
+      sz1 += outExt[4];
+      sz2 += outExt[4];
 
       // Bounds check
-      sy2 = std::min(sy2, outExt[3]);
+      sz2 = std::min(sz2, outExt[5]);
 
-      tmpPtrJ = tmpPtrK + sy1 * outInc1;
+      tmpPtrK = outBasePtr + sz1 * outInc2;
 
-      for (i = 0; i < inDim[0]; i++)
+      unsigned char* gptr = *gsptr;
+
+      for (j = 0; j < inDim[1]; j++, dptr += inInc1, gptr += inInc1)
       {
-        sx1 = (i < 1) ? (0) : ((i - 1) / 4);
-        sx2 = ((i) / 4);
-        sx2 = (i == inDim[0] - 1) ? (sx1) : (sx2);
+        sy1 = (j < 1) ? (0) : ((j - 1) / 4);
+        sy2 = ((j) / 4);
+        sy2 = (j == inDim[1] - 1) ? (sy1) : (sy2);
 
-        sx1 += outExt[0];
-        sx2 += outExt[0];
+        sy1 += outExt[2];
+        sy2 += outExt[2];
 
         // Bounds check
-        sx2 = std::min(sx2, outExt[1]);
+        sy2 = std::min(sy2, outExt[3]);
 
-        tmpPtrI = tmpPtrJ + sx1 * outInc0;
+        tmpPtrJ = tmpPtrK + sy1 * outInc1;
 
-        for (c = 0; c < nComponents; c++, tmpPtrI += 3)
+        for (i = 0; i < inDim[0]; i++)
         {
-          val = *gptr;
-          ++gptr;
+          sx1 = (i < 1) ? (0) : ((i - 1) / 4);
+          sx2 = ((i) / 4);
+          sx2 = (i == inDim[0] - 1) ? (sx1) : (sx2);
 
-          if (independent)
-          {
-            minMaxVal = static_cast<unsigned short>((*dptr + shift[c]) * scale[c]);
-            ++dptr;
-          }
-          else
-          {
-            minMaxVal = static_cast<unsigned short>(
-              (*(dptr + components - 1) + shift[components - 1]) * scale[components - 1]);
-            dptr += components;
-          }
+          sx1 += outExt[0];
+          sx2 += outExt[0];
 
-          for (z = sz1; z <= sz2; z++)
+          // Bounds check
+          sx2 = std::min(sx2, outExt[1]);
+
+          tmpPtrI = tmpPtrJ + sx1 * outInc0;
+
+          for (c = 0; c < nComponents; c++, tmpPtrI += 3)
           {
-            for (y = sy1; y <= sy2; y++)
+            val = *gptr;
+            ++gptr;
+
+            if (independent)
             {
+              minMaxVal = static_cast<unsigned short>((*dptr + shift[c]) * scale[c]);
+              ++dptr;
+            }
+            else
+            {
+              minMaxVal = static_cast<unsigned short>(
+                (*(dptr + components - 1) + shift[components - 1]) * scale[components - 1]);
+              dptr += components;
+            }
 
-              tmpPtr = tmpPtrI + (z - sz1) * outInc2 + (y - sy1) * outInc1;
-              for (x = sx1; x <= sx2; x++, tmpPtr += outInc0)
+            for (z = sz1; z <= sz2; z++)
+            {
+              for (y = sy1; y <= sy2; y++)
               {
 
-                tmpPtr[0] = std::min(minMaxVal, tmpPtr[0]);
-                tmpPtr[1] = std::max(minMaxVal, tmpPtr[1]);
-                tmpPtr[2] = std::max<unsigned short>(val << 8, tmpPtr[2]);
+                tmpPtr = tmpPtrI + (z - sz1) * outInc2 + (y - sy1) * outInc1;
+                for (x = sx1; x <= sx2; x++, tmpPtr += outInc0)
+                {
+                  tmpPtr[0] = std::min(minMaxVal, tmpPtr[0]);
+                  tmpPtr[1] = std::max(minMaxVal, tmpPtr[1]);
+                  tmpPtr[2] = std::max<unsigned short>(val << 8, tmpPtr[2]);
+                }
               }
             }
           }
@@ -582,7 +581,7 @@ void vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute
       }
     }
   }
-}
+};
 
 //------------------------------------------------------------------------------
 void vtkVolumeRayCastSpaceLeapingImageFilter ::FillScalarAndGradientOpacityFlags(
@@ -778,14 +777,11 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
 
   if (this->ComputeMinMax && !this->ComputeGradientOpacity)
   {
-    int scalarType = this->CurrentScalars->GetDataType();
-    switch (scalarType)
+    vtkVolumeRayCastSpaceLeapingImageFilterMinMaxFunctor functor;
+    if (!vtkArrayDispatch::Dispatch::Execute(
+          this->CurrentScalars, functor, this, inData[0][0], outData[0], outExt))
     {
-      vtkTemplateMacro(vtkVolumeRayCastSpaceLeapingImageFilterMinMaxExecute(
-        this, inData[0][0], outData[0], outExt, static_cast<VTK_TT>(0)));
-      default:
-        vtkErrorMacro("Unknown scalar type");
-        return;
+      functor(this->CurrentScalars, this, inData[0][0], outData[0], outExt);
     }
   }
 
@@ -809,14 +805,11 @@ void vtkVolumeRayCastSpaceLeapingImageFilter::ThreadedRequestData(
 
   else if (this->ComputeGradientOpacity && this->ComputeMinMax)
   {
-    int scalarType = this->CurrentScalars->GetDataType();
-    switch (scalarType)
+    vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeFunctor functor;
+    if (!vtkArrayDispatch::Dispatch::Execute(
+          this->CurrentScalars, functor, this, inData[0][0], outData[0], outExt))
     {
-      vtkTemplateMacro(vtkVolumeRayCastSpaceLeapingImageFilterMinMaxAndMaxGradientMagnitudeExecute(
-        this, inData[0][0], outData[0], outExt, static_cast<VTK_TT>(0)));
-      default:
-        vtkErrorMacro("Unknown scalar type");
-        return;
+      functor(this->CurrentScalars, this, inData[0][0], outData[0], outExt);
     }
   }
 

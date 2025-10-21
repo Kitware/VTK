@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkXdmfHeavyData.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
@@ -1140,24 +1141,30 @@ bool vtkXdmfHeavyData::ReadAttributes(vtkDataSet* dataSet, XdmfGrid* xmfGrid, in
 }
 
 // used to convert a symmetric tensor to a regular tensor.
-template <class T>
-void vtkConvertTensor6(T* source, T* dest, vtkIdType numTensors)
+struct vtkConvertTensor6
 {
-  for (vtkIdType cc = 0; cc < numTensors; cc++)
+  template <typename TSourceArray, typename TDestArray>
+  void operator()(TSourceArray* sourceArray, TDestArray* destArray)
   {
-    dest[cc * 9 + 0] = source[cc * 6 + 0];
-    dest[cc * 9 + 1] = source[cc * 6 + 1];
-    dest[cc * 9 + 2] = source[cc * 6 + 2];
+    const vtkIdType numTensors = destArray->GetNumberOfTuples();
+    auto source = vtk::DataArrayTupleRange<6>(sourceArray);
+    auto dest = vtk::DataArrayTupleRange<9>(destArray);
+    for (vtkIdType cc = 0; cc < numTensors; cc++)
+    {
+      dest[cc][0] = source[cc][0];
+      dest[cc][1] = source[cc][1];
+      dest[cc][2] = source[cc][2];
 
-    dest[cc * 9 + 3] = source[cc * 6 + 1];
-    dest[cc * 9 + 4] = source[cc * 6 + 3];
-    dest[cc * 9 + 5] = source[cc * 6 + 4];
+      dest[cc][3] = source[cc][1];
+      dest[cc][4] = source[cc][3];
+      dest[cc][5] = source[cc][4];
 
-    dest[cc * 9 + 6] = source[cc * 6 + 2];
-    dest[cc * 9 + 7] = source[cc * 6 + 4];
-    dest[cc * 9 + 8] = source[cc * 6 + 5];
+      dest[cc][6] = source[cc][2];
+      dest[cc][7] = source[cc][4];
+      dest[cc][8] = source[cc][5];
+    }
   }
-}
+};
 
 //------------------------------------------------------------------------------
 vtkDataArray* vtkXdmfHeavyData::ReadAttribute(
@@ -1265,13 +1272,9 @@ vtkDataArray* vtkXdmfHeavyData::ReadAttribute(
     tensor->SetNumberOfComponents(9);
     tensor->SetNumberOfTuples(numTensors);
 
-    // Copy Symmetrical Tensor Values to Correct Positions in 3x3 matrix
-    void* source = dataArray->GetVoidPointer(0);
-    void* dest = tensor->GetVoidPointer(0);
-    switch (tensor->GetDataType())
+    if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(dataArray, tensor, vtkConvertTensor6{}))
     {
-      vtkTemplateMacro(vtkConvertTensor6(
-        reinterpret_cast<VTK_TT*>(source), reinterpret_cast<VTK_TT*>(dest), numTensors));
+      vtkConvertTensor6{}(dataArray, tensor);
     }
     dataArray->Delete();
     return tensor;

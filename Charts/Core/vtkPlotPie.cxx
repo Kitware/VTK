@@ -4,10 +4,12 @@
 #include "vtkPlotPie.h"
 
 #include "vtkAOSDataArrayTemplate.h"
+#include "vtkArrayDispatch.h"
 #include "vtkBrush.h"
 #include "vtkColorSeries.h"
 #include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
+#include "vtkDataArrayRange.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
@@ -20,34 +22,31 @@
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 {
-
-template <class A>
-A SumData(A* a, int n)
+struct CopyPointsFunctor
 {
-  A sum = 0;
-  for (int i = 0; i < n; ++i)
+  template <class TArray>
+  void operator()(TArray* array, vtkPoints2D* points)
   {
-    sum += a[i];
+    vtkIdType n = array->GetNumberOfTuples();
+    points->SetNumberOfPoints(n);
+    auto a = vtk::DataArrayValueRange<1>(array);
+    using ValueType = vtk::GetAPIType<TArray>;
+    ValueType sum = 0;
+    for (int i = 0; i < n; ++i)
+    {
+      sum += a[i];
+    }
+    float* data = vtkAOSDataArrayTemplate<float>::FastDownCast(points->GetData())->GetPointer(0);
+    float startAngle = 0.0;
+
+    for (int i = 0; i < n; ++i)
+    {
+      data[2 * i] = startAngle;
+      data[2 * i + 1] = startAngle + ((static_cast<float>(a[i]) / sum) * 360.0);
+      startAngle = data[2 * i + 1];
+    }
   }
-  return sum;
-}
-
-template <class A>
-void CopyToPoints(vtkPoints2D* points, A* a, int n)
-{
-  points->SetNumberOfPoints(n);
-
-  A sum = SumData(a, n);
-  float* data = vtkAOSDataArrayTemplate<float>::FastDownCast(points->GetData())->GetPointer(0);
-  float startAngle = 0.0;
-
-  for (int i = 0; i < n; ++i)
-  {
-    data[2 * i] = startAngle;
-    data[2 * i + 1] = startAngle + ((static_cast<float>(a[i]) / sum) * 360.0);
-    startAngle = data[2 * i + 1];
-  }
-}
+};
 }
 
 class vtkPlotPiePrivate
@@ -230,10 +229,10 @@ bool vtkPlotPie::UpdateCache()
     this->Points = vtkPoints2D::New();
   }
 
-  switch (data->GetDataType())
+  CopyPointsFunctor functor;
+  if (!vtkArrayDispatch::Dispatch::Execute(data, functor, this->Points))
   {
-    vtkTemplateMacro(CopyToPoints(
-      this->Points, static_cast<VTK_TT*>(data->GetVoidPointer(0)), data->GetNumberOfTuples()));
+    functor(data, this->Points);
   }
 
   this->BuildTime.Modified();

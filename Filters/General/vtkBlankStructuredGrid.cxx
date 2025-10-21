@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkBlankStructuredGrid.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
@@ -29,28 +31,31 @@ vtkBlankStructuredGrid::~vtkBlankStructuredGrid()
   this->ArrayName = nullptr;
 }
 
-template <class T>
-void vtkBlankStructuredGridExecute(vtkBlankStructuredGrid* self, T* dptr, int numPts, int numComp,
-  int comp, double min, double max, vtkUnsignedCharArray* ghosts)
+struct vtkBlankStructuredGridFunctor
 {
-  T compValue;
-  dptr += comp;
-
-  for (int ptId = 0; ptId < numPts; ptId++, dptr += numComp)
+  template <class TArray>
+  void operator()(TArray* dataArray, vtkBlankStructuredGrid* self, int numPts, int numComp,
+    int comp, double min, double max, vtkUnsignedCharArray* ghosts)
   {
-    if (self->CheckAbort())
+    vtk::GetAPIType<TArray> compValue;
+    auto dptr = vtk::DataArrayValueRange(dataArray).begin() + comp;
+
+    for (int ptId = 0; ptId < numPts; ptId++, dptr += numComp)
     {
-      break;
+      if (self->CheckAbort())
+      {
+        break;
+      }
+      compValue = *dptr;
+      unsigned char value = 0;
+      if (compValue >= min && compValue <= max)
+      {
+        value |= vtkDataSetAttributes::HIDDENPOINT;
+      }
+      ghosts->SetValue(ptId, value);
     }
-    compValue = *dptr;
-    unsigned char value = 0;
-    if (compValue >= min && compValue <= max)
-    {
-      value |= vtkDataSetAttributes::HIDDENPOINT;
-    }
-    ghosts->SetValue(ptId, value);
   }
-}
+};
 
 int vtkBlankStructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -97,25 +102,21 @@ int vtkBlankStructuredGrid::RequestData(vtkInformation* vtkNotUsed(request),
     vtkWarningMacro(<< "Data array not found");
     return 1;
   }
-  void* dptr = dataArray->GetVoidPointer(0);
 
   // Loop over the data array setting anything within the data range specified
   // to be blanked.
   //
-  vtkUnsignedCharArray* ghosts = vtkUnsignedCharArray::New();
+  vtkNew<vtkUnsignedCharArray> ghosts;
   ghosts->SetNumberOfValues(numPts);
   ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
-  switch (dataArray->GetDataType())
+  vtkBlankStructuredGridFunctor functor;
+  if (!vtkArrayDispatch::Dispatch::Execute(dataArray, functor, this, numPts, numComp,
+        this->Component, this->MinBlankingValue, this->MaxBlankingValue, ghosts))
   {
-    vtkTemplateMacro(vtkBlankStructuredGridExecute(this, static_cast<VTK_TT*>(dptr), numPts,
-      numComp, this->Component, this->MinBlankingValue, this->MaxBlankingValue, ghosts));
-    default:
-      break;
+    functor(dataArray, this, numPts, numComp, this->Component, this->MinBlankingValue,
+      this->MaxBlankingValue, ghosts);
   }
   output->GetPointData()->AddArray(ghosts);
-  ghosts->Delete();
-
-  this->CheckAbort();
 
   return 1;
 }

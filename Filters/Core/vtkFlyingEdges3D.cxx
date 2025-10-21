@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkFlyingEdges3D.h"
 
+#include "vtkArrayComponents.h"
+#include "vtkArrayDispatch.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -20,8 +22,6 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <cmath>
-
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFlyingEdges3D);
 
@@ -31,7 +31,7 @@ namespace
 // This templated class implements the heart of the algorithm.
 // vtkFlyingEdges3D populates the information in this class and
 // then invokes Contour() to actually initiate execution.
-template <class T>
+template <class TArray>
 class vtkFlyingEdges3DAlgorithm
 {
 public:
@@ -97,7 +97,9 @@ public:
 
   // Internal variables used by the various algorithm methods. Interfaces VTK
   // image data in a form more convenient to the algorithm.
-  T* Scalars;
+  using TPtr = typename vtk::detail::ValueRange<TArray, 1>::iterator;
+  using T = vtk::GetAPIType<TArray>;
+  TPtr Scalars;
   vtkIdType Dims[3];
   vtkIdType NumberOfEdges;
   vtkIdType SliceOffset;
@@ -112,7 +114,7 @@ public:
   int Inc2;
 
   // Output data. Threads write to partitioned memory.
-  T* NewScalars;
+  TPtr NewScalars;
   vtkCellArray* NewTris;
   float* NewPoints;
   float* NewGradients;
@@ -125,9 +127,9 @@ public:
   vtkFlyingEdges3DAlgorithm();
 
   // The three main passes of the algorithm.
-  void ProcessXEdge(double value, T const* inPtr, vtkIdType row, vtkIdType slice); // PASS 1
-  void ProcessYZEdges(vtkIdType row, vtkIdType slice);                             // PASS 2
-  void GenerateOutput(double value, T* inPtr, vtkIdType row, vtkIdType slice);     // PASS 4
+  void ProcessXEdge(double value, TPtr inPtr, vtkIdType row, vtkIdType slice);   // PASS 1
+  void ProcessYZEdges(vtkIdType row, vtkIdType slice);                           // PASS 2
+  void GenerateOutput(double value, TPtr inPtr, vtkIdType row, vtkIdType slice); // PASS 4
 
   // Optional copying of cell data
   void InterpolateCellData(ArrayList* cellArrays, vtkIdType row, vtkIdType slice);
@@ -180,9 +182,8 @@ public:
   }
 
   // Compute gradient on interior point.
-  void ComputeGradient(unsigned char loc, vtkIdType ijk[3], T const* const s0_start,
-    T const* const s0_end, T const* const s1_start, T const* const s1_end, T const* const s2_start,
-    T const* const s2_end, float g[3])
+  void ComputeGradient(unsigned char loc, vtkIdType ijk[3], const TPtr s0_start, const TPtr s0_end,
+    const TPtr s1_start, const TPtr s1_end, const TPtr s2_start, const TPtr s2_end, float g[3])
   {
     if (loc == Interior)
     {
@@ -197,7 +198,7 @@ public:
   }
 
   // Interpolate along a voxel axes edge.
-  void InterpolateAxesEdge(double t, unsigned char loc, T const* const s, const int incs[3],
+  void InterpolateAxesEdge(double t, unsigned char loc, const TPtr s, const int incs[3],
     vtkIdType vId, vtkIdType ijk0[3], vtkIdType ijk1[3], float g0[3])
   {
     float* x = this->NewPoints + 3 * vId;
@@ -241,17 +242,17 @@ public:
   }
 
   // Compute the gradient on a point which may be on the boundary of the volume.
-  void ComputeBoundaryGradient(vtkIdType ijk[3], T const* s0_start, T const* s0_end,
-    T const* s1_start, T const* s1_end, T const* s2_start, T const* s2_end, float g[3]);
+  void ComputeBoundaryGradient(vtkIdType ijk[3], TPtr s0_start, TPtr s0_end, TPtr s1_start,
+    TPtr s1_end, TPtr s2_start, TPtr s2_end, float g[3]);
 
   // Interpolate along an arbitrary edge, typically one that may be on the
   // volume boundary. This means careful computation of stuff requiring
   // neighborhood information (e.g., gradients).
-  void InterpolateEdge(double value, vtkIdType ijk[3], T const* s, const int incs[3],
+  void InterpolateEdge(double value, vtkIdType ijk[3], TPtr s, const int incs[3],
     unsigned char edgeNum, unsigned char const* edgeUses, vtkIdType* eIds);
 
   // Produce the output points on the voxel axes for this voxel cell.
-  void GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3], T const* sPtr,
+  void GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3], TPtr sPtr,
     const int incs[3], unsigned char const* edgeUses, vtkIdType* eIds);
 
   // Helper function to set up the point ids on voxel edges.
@@ -291,14 +292,13 @@ public:
   }
 
   // Threading integration via SMPTools
-  template <class TT>
   class Pass1
   {
   public:
-    vtkFlyingEdges3DAlgorithm<TT>* Algo;
+    vtkFlyingEdges3DAlgorithm* Algo;
     double Value;
     vtkFlyingEdges3D* Filter;
-    Pass1(vtkFlyingEdges3DAlgorithm<TT>* algo, double value, vtkFlyingEdges3D* filter)
+    Pass1(vtkFlyingEdges3DAlgorithm* algo, double value, vtkFlyingEdges3D* filter)
       : Filter(filter)
     {
       this->Algo = algo;
@@ -307,7 +307,7 @@ public:
     void operator()(vtkIdType slice, vtkIdType end)
     {
       vtkIdType row;
-      TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
+      TPtr rowPtr, slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       bool isFirst = vtkSMPTools::GetSingleThread();
       vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
       for (; slice < end; ++slice)
@@ -333,16 +333,15 @@ public:
       } // for all slices in this batch
     }
   };
-  template <class TT>
   class Pass2
   {
   public:
-    Pass2(vtkFlyingEdges3DAlgorithm<TT>* algo, vtkFlyingEdges3D* filter)
+    Pass2(vtkFlyingEdges3DAlgorithm* algo, vtkFlyingEdges3D* filter)
       : Filter(filter)
     {
       this->Algo = algo;
     }
-    vtkFlyingEdges3DAlgorithm<TT>* Algo;
+    vtkFlyingEdges3DAlgorithm* Algo;
     vtkFlyingEdges3D* Filter;
     void operator()(vtkIdType slice, vtkIdType end)
     {
@@ -368,17 +367,16 @@ public:
       }   // for all slices in this batch
     }
   };
-  template <class TT>
   class Pass4
   {
   public:
-    Pass4(vtkFlyingEdges3DAlgorithm<TT>* algo, double value, vtkFlyingEdges3D* filter)
+    Pass4(vtkFlyingEdges3DAlgorithm* algo, double value, vtkFlyingEdges3D* filter)
       : Filter(filter)
     {
       this->Algo = algo;
       this->Value = value;
     }
-    vtkFlyingEdges3DAlgorithm<TT>* Algo;
+    vtkFlyingEdges3DAlgorithm* Algo;
     vtkFlyingEdges3D* Filter;
     double Value;
     void operator()(vtkIdType slice, vtkIdType end)
@@ -386,7 +384,7 @@ public:
       vtkIdType row;
       vtkIdType* eMD0 = this->Algo->EdgeMetaData + slice * 6 * this->Algo->Dims[1];
       vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
-      TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
+      TPtr rowPtr, slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       bool isFirst = vtkSMPTools::GetSingleThread();
       vtkIdType checkAbortInterval = std::min((end - slice) / 10 + 1, (vtkIdType)1000);
       for (; slice < end; ++slice)
@@ -418,24 +416,23 @@ public:
     }
   };
 
-  template <class TT>
   struct ProcessCD
   {
     ArrayList CellArrays;
-    ProcessCD(vtkFlyingEdges3DAlgorithm<TT>* algo, vtkIdType numCells, vtkCellData* inCD,
-      vtkCellData* outCD)
+    ProcessCD(
+      vtkFlyingEdges3DAlgorithm* algo, vtkIdType numCells, vtkCellData* inCD, vtkCellData* outCD)
     {
       this->Algo = algo;
       outCD->CopyAllocate(inCD, numCells);
       this->CellArrays.AddArrays(numCells, inCD, outCD, /*nullValue*/ 0.0, /*promote*/ false);
     }
-    vtkFlyingEdges3DAlgorithm<TT>* Algo;
+    vtkFlyingEdges3DAlgorithm* Algo;
     void operator()(vtkIdType slice, vtkIdType end)
     {
       vtkIdType row;
       vtkIdType* eMD0 = this->Algo->EdgeMetaData + slice * 6 * this->Algo->Dims[1];
       vtkIdType* eMD1 = eMD0 + 6 * this->Algo->Dims[1];
-      TT *rowPtr, *slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
+      TPtr rowPtr, slicePtr = this->Algo->Scalars + slice * this->Algo->Inc2;
       for (; slice < end; ++slice)
       {
         // It's possible to skip entire slices if there is no data to copy
@@ -455,22 +452,21 @@ public:
   };
 
   // Interface between VTK and templated functions
-  static void Contour(vtkFlyingEdges3D* self, vtkImageData* input, vtkDataArray* inScalars,
-    int extent[6], vtkIdType* incs, T* scalars, vtkPolyData* output, vtkPoints* newPts,
-    vtkCellArray* newTris, vtkDataArray* newScalars, vtkFloatArray* newNormals,
-    vtkFloatArray* newGradients);
+  static void Contour(vtkFlyingEdges3D* self, vtkImageData* input, TArray* inScalars, int extent[6],
+    vtkIdType* incs, vtkPolyData* output, vtkPoints* newPts, vtkCellArray* newTris,
+    vtkDataArray* newScalars, vtkFloatArray* newNormals, vtkFloatArray* newGradients);
 };
 
 //------------------------------------------------------------------------------
 // Map MC edges numbering to use the saner FlyingEdges edge numbering scheme.
-template <class T>
-const unsigned char vtkFlyingEdges3DAlgorithm<T>::EdgeMap[12] = { 0, 5, 1, 4, 2, 7, 3, 6, 8, 9, 10,
-  11 };
+template <class TArray>
+const unsigned char vtkFlyingEdges3DAlgorithm<TArray>::EdgeMap[12] = { 0, 5, 1, 4, 2, 7, 3, 6, 8, 9,
+  10, 11 };
 
 //------------------------------------------------------------------------------
 // Map MC edges numbering to use the saner FlyingEdges edge numbering scheme.
-template <class T>
-const unsigned char vtkFlyingEdges3DAlgorithm<T>::VertMap[12][2] = {
+template <class TArray>
+const unsigned char vtkFlyingEdges3DAlgorithm<TArray>::VertMap[12][2] = {
   { 0, 1 },
   { 2, 3 },
   { 4, 5 },
@@ -487,8 +483,8 @@ const unsigned char vtkFlyingEdges3DAlgorithm<T>::VertMap[12][2] = {
 
 //------------------------------------------------------------------------------
 // The offsets of each vertex (in index space) from the voxel axes origin.
-template <class T>
-const unsigned char vtkFlyingEdges3DAlgorithm<T>::VertOffsets[8][3] = {
+template <class TArray>
+const unsigned char vtkFlyingEdges3DAlgorithm<TArray>::VertOffsets[8][3] = {
   { 0, 0, 0 },
   { 1, 0, 0 },
   { 0, 1, 0 },
@@ -504,11 +500,10 @@ const unsigned char vtkFlyingEdges3DAlgorithm<T>::VertOffsets[8][3] = {
 // edge-based case table, and associated acceleration structures, from the
 // marching cubes case table. Some of this code is borrowed shamelessly from
 // vtkVoxel::Contour() method.
-template <class T>
-vtkFlyingEdges3DAlgorithm<T>::vtkFlyingEdges3DAlgorithm()
+template <class TArray>
+vtkFlyingEdges3DAlgorithm<TArray>::vtkFlyingEdges3DAlgorithm()
   : XCases(nullptr)
   , EdgeMetaData(nullptr)
-  , NewScalars(nullptr)
   , NewTris(nullptr)
   , NewPoints(nullptr)
   , NewGradients(nullptr)
@@ -608,8 +603,8 @@ vtkFlyingEdges3DAlgorithm<T>::vtkFlyingEdges3DAlgorithm()
 // x-edges, the voxel axes on the boundary may be undefined near boundaries
 // (because there are no fully-formed cells). Thus the voxel axes on the
 // boundary are treated specially.
-template <class T>
-void vtkFlyingEdges3DAlgorithm<T>::CountBoundaryYZInts(
+template <class TArray>
+void vtkFlyingEdges3DAlgorithm<TArray>::CountBoundaryYZInts(
   unsigned char loc, unsigned char* edgeUses, vtkIdType* eMD[4])
 {
   switch (loc)
@@ -656,12 +651,12 @@ void vtkFlyingEdges3DAlgorithm<T>::CountBoundaryYZInts(
 //------------------------------------------------------------------------------
 // Compute the gradient when the point may be near the boundary of the
 // volume.
-template <class T>
-void vtkFlyingEdges3DAlgorithm<T>::ComputeBoundaryGradient(vtkIdType ijk[3],
-  T const* const s0_start, T const* const s0_end, T const* const s1_start, T const* const s1_end,
-  T const* const s2_start, T const* const s2_end, float g[3])
+template <class TArray>
+void vtkFlyingEdges3DAlgorithm<TArray>::ComputeBoundaryGradient(vtkIdType ijk[3],
+  const TPtr s0_start, const TPtr s0_end, const TPtr s1_start, const TPtr s1_end,
+  const TPtr s2_start, const TPtr s2_end, float g[3])
 {
-  const T* s = s0_start - this->Inc0;
+  const TPtr s = s0_start - this->Inc0;
 
   if (ijk[0] == 0)
   {
@@ -706,9 +701,10 @@ void vtkFlyingEdges3DAlgorithm<T>::ComputeBoundaryGradient(vtkIdType ijk[3],
 //------------------------------------------------------------------------------
 // Interpolate a new point along a boundary edge. Make sure to consider
 // proximity to the boundary when computing gradients, etc.
-template <class T>
-void vtkFlyingEdges3DAlgorithm<T>::InterpolateEdge(double value, vtkIdType ijk[3], T const* const s,
-  const int incs[3], unsigned char edgeNum, unsigned char const* const edgeUses, vtkIdType* eIds)
+template <class TArray>
+void vtkFlyingEdges3DAlgorithm<TArray>::InterpolateEdge(double value, vtkIdType ijk[3],
+  const TPtr s, const int incs[3], unsigned char edgeNum, unsigned char const* const edgeUses,
+  vtkIdType* eIds)
 {
   // if this edge is not used then get out
   if (!edgeUses[edgeNum])
@@ -722,13 +718,13 @@ void vtkFlyingEdges3DAlgorithm<T>::InterpolateEdge(double value, vtkIdType ijk[3
   vtkIdType ijk0[3], ijk1[3], vId = eIds[edgeNum];
 
   const unsigned char* offsets = this->VertOffsets[vertMap[0]];
-  T const* const s0 = s + offsets[0] * incs[0] + offsets[1] * incs[1] + offsets[2] * incs[2];
+  const TPtr s0 = s + offsets[0] * incs[0] + offsets[1] * incs[1] + offsets[2] * incs[2];
   ijk0[0] = ijk[0] + offsets[0];
   ijk0[1] = ijk[1] + offsets[1];
   ijk0[2] = ijk[2] + offsets[2];
 
   offsets = this->VertOffsets[vertMap[1]];
-  T const* const s1 = s + offsets[0] * incs[0] + offsets[1] * incs[1] + offsets[2] * incs[2];
+  const TPtr s1 = s + offsets[0] * incs[0] + offsets[1] * incs[1] + offsets[2] * incs[2];
   ijk1[0] = ijk[0] + offsets[0];
   ijk1[1] = ijk[1] + offsets[1];
   ijk1[2] = ijk[2] + offsets[2];
@@ -781,9 +777,10 @@ void vtkFlyingEdges3DAlgorithm<T>::InterpolateEdge(double value, vtkIdType ijk[3
 //------------------------------------------------------------------------------
 // Generate the output points and optionally normals, gradients and
 // interpolate attributes.
-template <class T>
-void vtkFlyingEdges3DAlgorithm<T>::GeneratePoints(double value, unsigned char loc, vtkIdType ijk[3],
-  T const* const sPtr, const int incs[3], unsigned char const* const edgeUses, vtkIdType* eIds)
+template <class TArray>
+void vtkFlyingEdges3DAlgorithm<TArray>::GeneratePoints(double value, unsigned char loc,
+  vtkIdType ijk[3], const TPtr sPtr, const int incs[3], unsigned char const* const edgeUses,
+  vtkIdType* eIds)
 {
   // Create a slightly faster path for voxel axes interior to the volume.
   float g0[3];
@@ -805,7 +802,7 @@ void vtkFlyingEdges3DAlgorithm<T>::GeneratePoints(double value, unsigned char lo
       vtkIdType ijk1[3] = { ijk[0], ijk[1], ijk[2] };
       ++ijk1[i];
 
-      T const* const sPtr2 = (sPtr + incs[i]);
+      const TPtr sPtr2 = (sPtr + incs[i]);
       double t = (value - *sPtr) / (*sPtr2 - *sPtr);
       this->InterpolateAxesEdge(t, loc, sPtr2, incs, eIds[i * 4], ijk, ijk1, g0);
     }
@@ -950,9 +947,9 @@ void vtkFlyingEdges3DAlgorithm<T>::GeneratePoints(double value, unsigned char lo
 // number of x-edge intersections, and figure out where intersections along
 // the x-row begins and ends (i.e., gather information for computational
 // trimming).
-template <class T>
-void vtkFlyingEdges3DAlgorithm<T>::ProcessXEdge(
-  double value, T const* const inPtr, vtkIdType row, vtkIdType slice)
+template <class TArray>
+void vtkFlyingEdges3DAlgorithm<TArray>::ProcessXEdge(
+  double value, const TPtr inPtr, vtkIdType row, vtkIdType slice)
 {
   vtkIdType nxcells = this->Dims[0] - 1;
   vtkIdType minInt = nxcells, maxInt = 0;
@@ -1013,8 +1010,8 @@ void vtkFlyingEdges3DAlgorithm<T>::ProcessXEdge(
 // computational trimming to reduce work. Note *ePtr[4] is four pointers to
 // four x-edge rows that bound the voxel x-row and which contain edge case
 // information.
-template <class T>
-void vtkFlyingEdges3DAlgorithm<T>::ProcessYZEdges(vtkIdType row, vtkIdType slice)
+template <class TArray>
+void vtkFlyingEdges3DAlgorithm<TArray>::ProcessYZEdges(vtkIdType row, vtkIdType slice)
 {
   // Grab the four edge cases bounding this voxel x-row.
   unsigned char *ePtr[4], ec0, ec1, ec2, ec3, xInts = 1;
@@ -1139,9 +1136,9 @@ void vtkFlyingEdges3DAlgorithm<T>::ProcessYZEdges(vtkIdType row, vtkIdType slice
 // PASS 4: Process the x-row cells to generate output primitives, including
 // point coordinates and triangles. This is the fourth and final pass of the
 // algorithm.
-template <class T>
-void vtkFlyingEdges3DAlgorithm<T>::GenerateOutput(
-  double value, T* rowPtr, vtkIdType row, vtkIdType slice)
+template <class TArray>
+void vtkFlyingEdges3DAlgorithm<TArray>::GenerateOutput(
+  double value, TPtr rowPtr, vtkIdType row, vtkIdType slice)
 {
   // Grab the edge meta data surrounding the voxel row.
   vtkIdType* eMD[4];
@@ -1206,7 +1203,7 @@ void vtkFlyingEdges3DAlgorithm<T>::GenerateOutput(
 
   // load the inc0/inc1/inc2 into local memory
   const int incs[3] = { this->Inc0, this->Inc1, this->Inc2 };
-  const T* sPtr = rowPtr + xL * incs[0];
+  TPtr sPtr = rowPtr + xL * incs[0];
   const vtkIdType dim0Wall = this->Dims[0] - 2;
   const vtkIdType endVoxel = xR - 1;
 
@@ -1251,8 +1248,8 @@ void vtkFlyingEdges3DAlgorithm<T>::GenerateOutput(
 
 //------------------------------------------------------------------------------
 // Copy cell data from input to output
-template <class T>
-void vtkFlyingEdges3DAlgorithm<T>::InterpolateCellData(
+template <class TArray>
+void vtkFlyingEdges3DAlgorithm<TArray>::InterpolateCellData(
   ArrayList* arrays, vtkIdType row, vtkIdType slice)
 {
   // Grab the edge meta data surrounding the voxel row.
@@ -1323,10 +1320,10 @@ void vtkFlyingEdges3DAlgorithm<T>::InterpolateCellData(
 // Contouring filter specialized for 3D volumes. This templated function
 // interfaces the vtkFlyingEdges3D class with the templated algorithm
 // class. It also invokes the three passes of the Flying Edges algorithm.
-template <class T>
-void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData* input,
-  vtkDataArray* inScalars, int extent[6], vtkIdType* incs, T* scalars, vtkPolyData* output,
-  vtkPoints* newPts, vtkCellArray* newTris, vtkDataArray* newScalars, vtkFloatArray* newNormals,
+template <class TArray>
+void vtkFlyingEdges3DAlgorithm<TArray>::Contour(vtkFlyingEdges3D* self, vtkImageData* input,
+  TArray* inScalars, int updateExt[6], vtkIdType* incs, vtkPolyData* output, vtkPoints* newPts,
+  vtkCellArray* newTris, vtkDataArray* newScalars, vtkFloatArray* newNormals,
   vtkFloatArray* newGradients)
 {
   double value, *values = self->GetValues();
@@ -1339,16 +1336,17 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
 
   // This may be subvolume of the total 3D image. Capture information for
   // subsequent processing.
-  vtkFlyingEdges3DAlgorithm<T> algo;
-  algo.Scalars = scalars;
-  algo.Min0 = extent[0];
-  algo.Max0 = extent[1];
+  vtkFlyingEdges3DAlgorithm<TArray> algo;
+  algo.Scalars = vtk::DataArrayValueRange<1>(inScalars).begin() +
+    input->GetValueIndexForExtent(inScalars, updateExt);
+  algo.Min0 = updateExt[0];
+  algo.Max0 = updateExt[1];
   algo.Inc0 = incs[0];
-  algo.Min1 = extent[2];
-  algo.Max1 = extent[3];
+  algo.Min1 = updateExt[2];
+  algo.Max1 = updateExt[3];
   algo.Inc1 = incs[1];
-  algo.Min2 = extent[4];
-  algo.Max2 = extent[5];
+  algo.Min2 = updateExt[4];
+  algo.Max2 = updateExt[5];
   algo.Inc2 = incs[2];
 
   // Now allocate working arrays. The XCases array tracks x-edge cases.
@@ -1387,13 +1385,13 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
     // intersections (i.e., accumulate information necessary for later output
     // memory allocation, e.g., the number of output points along the x-rows
     // are counted).
-    Pass1<T> pass1(&algo, value, self);
+    Pass1 pass1(&algo, value, self);
     vtkSMPTools::For(0, algo.Dims[2], pass1);
 
     // PASS 2: Traverse all voxel x-rows and process voxel y&z edges.  The
     // result is a count of the number of y- and z-intersections, as well as
     // the number of triangles generated along these voxel rows.
-    Pass2<T> pass2(&algo, self);
+    Pass2 pass2(&algo, self);
     vtkSMPTools::For(0, algo.Dims[2] - 1, pass2);
 
     // PASS 3: Now allocate and generate output. First we have to update the
@@ -1434,10 +1432,14 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
 
     // Output can now be allocated.
     vtkIdType totalPts = numOutXPts + numOutYPts + numOutZPts;
+    vtkGenericWarningMacro(
+      "Contour Value: " << value << " # Tris: " << (numOutTris - startTris)
+                        << " # Pts: " << (totalPts - (startXPts + startYPts + startZPts)));
     if (totalPts > 0)
     {
       newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
-      algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
+      algo.NewPoints =
+        vtkAOSDataArrayTemplate<float>::FastDownCast(newPts->GetData())->GetPointer(0);
       newTris->ResizeExact(numOutTris, 3 * numOutTris);
       algo.NewTris = newTris;
       if (newScalars)
@@ -1445,19 +1447,19 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
         vtkIdType numPrevPts = newScalars->GetNumberOfTuples();
         vtkIdType numNewPts = totalPts - numPrevPts;
         newScalars->WriteVoidPointer(0, totalPts);
-        algo.NewScalars = static_cast<T*>(newScalars->GetVoidPointer(0));
+        algo.NewScalars = vtk::DataArrayValueRange<1>(TArray::FastDownCast(newScalars)).begin();
         T TValue = static_cast<T>(value);
         std::fill_n(algo.NewScalars + numPrevPts, numNewPts, TValue);
       }
       if (newGradients)
       {
         newGradients->WriteVoidPointer(0, 3 * totalPts);
-        algo.NewGradients = static_cast<float*>(newGradients->GetVoidPointer(0));
+        algo.NewGradients = newGradients->GetPointer(0);
       }
       if (newNormals)
       {
         newNormals->WriteVoidPointer(0, 3 * totalPts);
-        algo.NewNormals = static_cast<float*>(newNormals->GetVoidPointer(0));
+        algo.NewNormals = newNormals->GetPointer(0);
       }
       if (algo.InterpolateAttributes)
       {
@@ -1480,7 +1482,7 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
       // Note that we are simultaneously generating triangles and interpolating
       // points. These could be split into separate, parallel operations for
       // maximum performance.
-      Pass4<T> pass4(&algo, value, self);
+      Pass4 pass4(&algo, value, self);
       vtkSMPTools::For(0, algo.Dims[2] - 1, pass4);
     } // if anything generated
 
@@ -1495,7 +1497,7 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
     // cell data is present, and attribute interpolation is enabled.
     if (self->GetInterpolateAttributes() && input->GetCellData()->GetNumberOfArrays() > 0)
     {
-      ProcessCD<T> processCD(&algo, numOutTris, input->GetCellData(), output->GetCellData());
+      ProcessCD processCD(&algo, numOutTris, input->GetCellData(), output->GetCellData());
       vtkSMPTools::For(0, algo.Dims[2] - 1, processCD);
     }
   } // for all contour values
@@ -1504,7 +1506,17 @@ void vtkFlyingEdges3DAlgorithm<T>::Contour(vtkFlyingEdges3D* self, vtkImageData*
   delete[] algo.XCases;
   delete[] algo.EdgeMetaData;
 }
-
+struct vtkFlyingEdges3DWorker
+{
+  template <class TArray>
+  void operator()(TArray* inScalars, vtkFlyingEdges3D* self, vtkImageData* input, int extent[6],
+    vtkIdType* incs, vtkPolyData* output, vtkPoints* newPts, vtkCellArray* newTris,
+    vtkDataArray* newScalars, vtkFloatArray* newNormals, vtkFloatArray* newGradients)
+  {
+    vtkFlyingEdges3DAlgorithm<TArray>::Contour(self, input, inScalars, extent, incs, output, newPts,
+      newTris, newScalars, newNormals, newGradients);
+  };
+};
 } // anonymous namespace
 
 //------------------------------------------------------------------------------
@@ -1574,7 +1586,7 @@ int vtkFlyingEdges3D::RequestData(
 
   // to be safe recompute the update extent
   this->RequestUpdateExtent(request, inputVector, outputVector);
-  vtkDataArray* inScalars = this->GetInputArrayToProcess(0, inputVector);
+  vtkSmartPointer<vtkDataArray> inScalars = this->GetInputArrayToProcess(0, inputVector);
 
   // Determine extent
   int* inExt = input->GetExtent();
@@ -1608,6 +1620,10 @@ int vtkFlyingEdges3D::RequestData(
                                   << numComps);
     return 0;
   }
+  if (numComps > 1)
+  {
+    inScalars = vtk::ComponentOrNormAsDataArray(inScalars, this->ArrayComponent);
+  }
 
   // Create necessary objects to hold output. We will defer the
   // actual allocation to a later point.
@@ -1638,13 +1654,14 @@ int vtkFlyingEdges3D::RequestData(
     newGradients->SetName("Gradients");
   }
 
-  void* ptr = input->GetArrayPointerForExtent(inScalars, exExt);
   vtkIdType incs[3];
   input->GetIncrements(inScalars, incs);
-  switch (inScalars->GetDataType())
+  vtkFlyingEdges3DWorker worker;
+  if (!vtkArrayDispatch::Dispatch::Execute(inScalars.Get(), worker, this, input, exExt, incs,
+        output, newPts, newTris, newScalars, newNormals, newGradients))
   {
-    vtkTemplateMacro(vtkFlyingEdges3DAlgorithm<VTK_TT>::Contour(this, input, inScalars, exExt, incs,
-      (VTK_TT*)ptr, output, newPts, newTris, newScalars, newNormals, newGradients));
+    worker(inScalars.Get(), this, input, exExt, incs, output, newPts, newTris, newScalars,
+      newNormals, newGradients);
   }
 
   vtkDebugMacro(<< "Created: " << newPts->GetNumberOfPoints() << " points, "

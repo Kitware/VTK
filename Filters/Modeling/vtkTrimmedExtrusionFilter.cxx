@@ -3,9 +3,12 @@
 #include "vtkTrimmedExtrusionFilter.h"
 
 #include "vtkAbstractCellLocator.h"
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkExecutive.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
@@ -30,12 +33,11 @@ namespace
 
 //------------------------------------------------------------------------------
 // The threaded core of the algorithm.
-template <typename T>
-struct ExtrudePoints
+template <typename TPArrayIn, typename TPArrayOut>
+struct ExtrudePointsFunctor
 {
-  vtkIdType NPts;
-  T* InPoints;
-  T* Points;
+  TPArrayIn* InPoints;
+  TPArrayOut* OutPoints;
   unsigned char* Hits;
   vtkAbstractCellLocator* Locator;
   double ExtrusionDirection[3];
@@ -44,15 +46,16 @@ struct ExtrudePoints
   double Tol;
   vtkTrimmedExtrusionFilter* Filter;
 
+  using T = vtk::GetAPIType<TPArrayOut>;
+
   // Don't want to allocate working arrays on every thread invocation. Thread local
   // storage eliminates lots of new/delete.
   vtkSMPThreadLocalObject<vtkGenericCell> Cell;
 
-  ExtrudePoints(vtkIdType npts, T* inPts, T* points, unsigned char* hits,
+  ExtrudePointsFunctor(TPArrayIn* inPts, TPArrayOut* outPts, unsigned char* hits,
     vtkAbstractCellLocator* loc, double ed[3], double bds[6], vtkTrimmedExtrusionFilter* filter)
-    : NPts(npts)
-    , InPoints(inPts)
-    , Points(points)
+    : InPoints(inPts)
+    , OutPoints(outPts)
     , Hits(hits)
     , Locator(loc)
     , Filter(filter)
@@ -76,9 +79,11 @@ struct ExtrudePoints
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const T* xi = this->InPoints + 3 * ptId;
-    T* x = this->Points + 3 * ptId;
-    T* xo = this->Points + 3 * (this->NPts + ptId);
+    auto xi = vtk::DataArrayValueRange<3>(this->InPoints, 3 * ptId).begin();
+    auto x = vtk::DataArrayValueRange<3>(this->OutPoints, 3 * ptId).begin();
+    auto xo =
+      vtk::DataArrayValueRange<3>(this->OutPoints, 3 * (this->InPoints->GetNumberOfTuples() + ptId))
+        .begin();
     double len, p0[3], p1[3];
     const double* ed = this->ExtrusionDirection;
     double t, pc[3], xint[3];
@@ -134,14 +139,18 @@ struct ExtrudePoints
   }
 
   void Reduce() {}
+}; // ExtrudePoints
 
-  static void Execute(vtkIdType numPts, T* inPts, T* points, unsigned char* hits,
+struct ExtrudePointsWorker
+{
+  template <typename TPArrayIn, typename TPArrayOut>
+  void operator()(TPArrayIn* inPts, TPArrayOut* outPts, unsigned char* hits,
     vtkAbstractCellLocator* loc, double ed[3], double bds[6], vtkTrimmedExtrusionFilter* filter)
   {
-    ExtrudePoints extrude(numPts, inPts, points, hits, loc, ed, bds, filter);
-    vtkSMPTools::For(0, numPts, extrude);
+    ExtrudePointsFunctor<TPArrayIn, TPArrayOut> functor(inPts, outPts, hits, loc, ed, bds, filter);
+    vtkSMPTools::For(0, inPts->GetNumberOfTuples(), functor);
   }
-}; // ExtrudePoints
+};
 
 } // anonymous namespace
 
@@ -256,13 +265,15 @@ int vtkTrimmedExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // of the intersection point is used and hit[i] set to 1. If not, the xyz
   // is set to the xyz of the generating point and hit[i] remains 0. Later we
   // can use hit value to control the extrusion.
-  unsigned char* hits = new unsigned char[numPts];
-  void* inPtr = input->GetPoints()->GetVoidPointer(0);
-  void* outPtr = newPts->GetVoidPointer(0);
-  switch (newPts->GetDataType())
+  vtkNew<vtkAOSDataArrayTemplate<unsigned char>> hitArray;
+  hitArray->SetNumberOfValues(numPts);
+  ExtrudePointsWorker worker;
+  if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::PointArrays,
+        vtkArrayDispatch::AOSPointArrays>::Execute(input->GetPoints()->GetData(), newPts->GetData(),
+        worker, hitArray->GetPointer(0), this->Locator, this->ExtrusionDirection, surfaceBds, this))
   {
-    vtkTemplateMacro(ExtrudePoints<VTK_TT>::Execute(numPts, (VTK_TT*)inPtr, (VTK_TT*)outPtr, hits,
-      this->Locator, this->ExtrusionDirection, surfaceBds, this));
+    worker(input->GetPoints()->GetData(), newPts->GetData(), hitArray->GetPointer(0), this->Locator,
+      this->ExtrusionDirection, surfaceBds, this);
   }
 
   // Prepare to generate the topology. Different topolgy is built depending
@@ -280,9 +291,8 @@ int vtkTrimmedExtrusionFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // done on a cell-by-cell basis. The adjustment is done in place.
   if (this->CappingStrategy != vtkTrimmedExtrusionFilter::INTERSECTION)
   {
-    this->AdjustPoints(input, numPts, numCells, hits, newPts);
+    this->AdjustPoints(input, numPts, numCells, hitArray->GetPointer(0), newPts);
   }
-  delete[] hits;
 
   // Now generate the topology.
   this->ExtrudeEdges(input, output, numPts, numCells);

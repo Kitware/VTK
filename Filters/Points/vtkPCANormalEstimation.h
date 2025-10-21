@@ -71,6 +71,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractPointLocator;
 class vtkIdList;
+struct vtkOrientNormalsWorker;
 
 class VTKFILTERSPOINTS_EXPORT vtkPCANormalEstimation : public vtkPolyDataAlgorithm
 {
@@ -227,8 +228,9 @@ protected:
   int CellGenerationMode = vtkConvertToPointCloud::NO_CELLS;
 
   // Methods used to produce consistent normal orientations
+  template <typename TPointsRange>
   void TraverseAndFlip(
-    vtkPoints* inPts, float* normals, char* pointMap, vtkIdList* wave, vtkIdList* wave2);
+    TPointsRange& inPts, float* normals, char* pointMap, vtkIdList* wave, vtkIdList* wave2);
 
   // Pipeline management
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
@@ -237,6 +239,8 @@ protected:
 private:
   vtkPCANormalEstimation(const vtkPCANormalEstimation&) = delete;
   void operator=(const vtkPCANormalEstimation&) = delete;
+
+  friend struct vtkOrientNormalsWorker;
 };
 
 VTK_ABI_NAMESPACE_END

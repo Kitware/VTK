@@ -5,16 +5,16 @@
 #include "vtkUnsignedDistance.h"
 
 #include "vtkAbstractPointLocator.h"
+#include "vtkArrayDispatch.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -29,18 +29,18 @@ namespace
 {
 
 // The threaded core of the algorithm
-template <typename TS>
-struct UnsignedDistance
+template <typename TSArray>
+struct UnsignedDistanceFunctor
 {
   vtkIdType Dims[3];
   double Origin[3];
   double Spacing[3];
   double Radius;
   vtkAbstractPointLocator* Locator;
-  TS* Scalars;
+  TSArray* Scalars;
 
-  UnsignedDistance(int dims[3], double origin[3], double spacing[3], double radius,
-    vtkAbstractPointLocator* loc, TS* scalars)
+  UnsignedDistanceFunctor(int dims[3], double origin[3], double spacing[3], double radius,
+    vtkAbstractPointLocator* loc, TSArray* scalars)
     : Radius(radius)
     , Locator(loc)
     , Scalars(scalars)
@@ -56,6 +56,7 @@ struct UnsignedDistance
   // Threaded interpolation method
   void operator()(vtkIdType slice, vtkIdType sliceEnd)
   {
+    auto scalars = vtk::DataArrayValueRange<1>(this->Scalars);
     double x[3], dist2;
     const double radius = this->Radius;
     double* origin = this->Origin;
@@ -82,21 +83,25 @@ struct UnsignedDistance
           closest = this->Locator->FindClosestPointWithinRadius(radius, x, dist2);
           if (closest >= 0)
           {
-            this->Scalars[ptId] = sqrt(dist2);
+            scalars[ptId] = sqrt(dist2);
           } // if nearby points
         }   // over i
       }     // over j
     }       // over slices
   }
+}; // UnsignedDistanceFunctor
 
-  static void Execute(
-    vtkUnsignedDistance* self, int dims[3], double origin[3], double spacing[3], TS* scalars)
+struct UnsignedDistanceWorker
+{
+  template <typename TArray>
+  void operator()(
+    TArray* scalars, vtkUnsignedDistance* self, int dims[3], double origin[3], double spacing[3])
   {
-    UnsignedDistance dist(dims, origin, spacing, self->GetRadius(), self->GetLocator(), scalars);
-    vtkSMPTools::For(0, dims[2], dist);
+    UnsignedDistanceFunctor<TArray> uDist(
+      dims, origin, spacing, self->GetRadius(), self->GetLocator(), scalars);
+    vtkSMPTools::For(0, dims[2], uDist);
   }
-
-}; // UnsignedDistance
+};
 
 // Compute ModelBounds from input geometry. Return if the model bounds is
 // already set.
@@ -141,64 +146,68 @@ void ComputeModelBounds(vtkPolyData* input, int dims[3], int adjustBounds, doubl
 }
 
 // If requested, cap the outer values of the volume
-template <typename T>
-void Cap(int dims[3], T* s, double capValue)
+struct CupWorker
 {
-  int i, j, k;
-  int idx;
-  int d01 = dims[0] * dims[1];
+  template <typename TArray>
+  void operator()(TArray* scalarArray, int dims[3], double capValue)
+  {
+    int i, j, k;
+    int idx;
+    int d01 = dims[0] * dims[1];
+    auto s = vtk::DataArrayValueRange<1>(scalarArray);
 
-  // i-j planes
-  for (j = 0; j < dims[1]; j++)
-  {
-    for (i = 0; i < dims[0]; i++)
-    {
-      s[i + j * dims[0]] = capValue;
-    }
-  }
-  k = dims[2] - 1;
-  idx = k * d01;
-  for (j = 0; j < dims[1]; j++)
-  {
-    for (i = 0; i < dims[0]; i++)
-    {
-      s[idx + i + j * dims[0]] = capValue;
-    }
-  }
-  // j-k planes
-  for (k = 0; k < dims[2]; k++)
-  {
+    // i-j planes
     for (j = 0; j < dims[1]; j++)
     {
-      s[j * dims[0] + k * d01] = capValue;
+      for (i = 0; i < dims[0]; i++)
+      {
+        s[i + j * dims[0]] = capValue;
+      }
     }
-  }
-  i = dims[0] - 1;
-  for (k = 0; k < dims[2]; k++)
-  {
+    k = dims[2] - 1;
+    idx = k * d01;
     for (j = 0; j < dims[1]; j++)
     {
-      s[i + j * dims[0] + k * d01] = capValue;
+      for (i = 0; i < dims[0]; i++)
+      {
+        s[idx + i + j * dims[0]] = capValue;
+      }
     }
-  }
-  // i-k planes
-  for (k = 0; k < dims[2]; k++)
-  {
-    for (i = 0; i < dims[0]; i++)
+    // j-k planes
+    for (k = 0; k < dims[2]; k++)
     {
-      s[i + k * d01] = capValue;
+      for (j = 0; j < dims[1]; j++)
+      {
+        s[j * dims[0] + k * d01] = capValue;
+      }
     }
-  }
-  j = dims[1] - 1;
-  idx = j * dims[0];
-  for (k = 0; k < dims[2]; k++)
-  {
-    for (i = 0; i < dims[0]; i++)
+    i = dims[0] - 1;
+    for (k = 0; k < dims[2]; k++)
     {
-      s[idx + i + k * d01] = capValue;
+      for (j = 0; j < dims[1]; j++)
+      {
+        s[i + j * dims[0] + k * d01] = capValue;
+      }
+    }
+    // i-k planes
+    for (k = 0; k < dims[2]; k++)
+    {
+      for (i = 0; i < dims[0]; i++)
+      {
+        s[i + k * d01] = capValue;
+      }
+    }
+    j = dims[1] - 1;
+    idx = j * dims[0];
+    for (k = 0; k < dims[2]; k++)
+    {
+      for (i = 0; i < dims[0]; i++)
+      {
+        s[idx + i + k * d01] = capValue;
+      }
     }
   }
-}
+};
 
 } // anonymous namespace
 
@@ -251,22 +260,9 @@ void vtkUnsignedDistance::StartAppend()
 
   vtkDebugMacro(<< "Initializing data");
   this->AllocateOutputData(this->GetOutput(), this->GetOutputInformation(0));
-  vtkIdType numPts = static_cast<vtkIdType>(this->Dimensions[0]) *
-    static_cast<vtkIdType>(this->Dimensions[1]) * static_cast<vtkIdType>(this->Dimensions[2]);
 
   // initialize output to initial unseen value at each location
-  if (this->OutputScalarType == VTK_DOUBLE)
-  {
-    double* newScalars =
-      static_cast<double*>(this->GetOutput()->GetPointData()->GetScalars()->GetVoidPointer(0));
-    std::fill_n(newScalars, numPts, this->CapValue);
-  }
-  else
-  {
-    float* newScalars =
-      static_cast<float*>(this->GetOutput()->GetPointData()->GetScalars()->GetVoidPointer(0));
-    std::fill_n(newScalars, numPts, static_cast<float>(this->CapValue));
-  }
+  this->GetOutput()->GetPointData()->GetScalars()->Fill(this->CapValue);
 
   // Compute the initial bounds if required
   double origin[3], spacing[3];
@@ -310,7 +306,6 @@ void vtkUnsignedDistance::Append(vtkPolyData* input)
 
   // Set up for processing
   vtkDataArray* image = this->GetOutput()->GetPointData()->GetScalars();
-  void* scalars = image->GetVoidPointer(0);
 
   // Build the locator
   if (!this->Locator)
@@ -323,10 +318,11 @@ void vtkUnsignedDistance::Append(vtkPolyData* input)
 
   // Finally: compute the signed distance function
   vtkImageData* output = this->GetOutput();
-  switch (image->GetDataType())
+  UnsignedDistanceWorker worker;
+  if (!vtkArrayDispatch::Dispatch::Execute(
+        image, worker, this, this->Dimensions, output->GetOrigin(), output->GetSpacing()))
   {
-    vtkTemplateMacro(UnsignedDistance<VTK_TT>::Execute(
-      this, this->Dimensions, output->GetOrigin(), output->GetSpacing(), (VTK_TT*)scalars));
+    worker(image, this, this->Dimensions, output->GetOrigin(), output->GetSpacing());
   }
 }
 
@@ -346,12 +342,10 @@ void vtkUnsignedDistance::EndAppend()
   // Cap volume if requested
   if (this->Capping)
   {
-    void* scalars = image->GetVoidPointer(0);
-
-    // Finally: compute the signed distance function
-    switch (image->GetDataType())
+    CupWorker worker;
+    if (!vtkArrayDispatch::Dispatch::Execute(image, worker, this->Dimensions, this->CapValue))
     {
-      vtkTemplateMacro(Cap<VTK_TT>(this->Dimensions, (VTK_TT*)scalars, this->CapValue));
+      worker(image, this->Dimensions, this->CapValue);
     }
   }
 }

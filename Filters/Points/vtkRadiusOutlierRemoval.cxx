@@ -3,6 +3,9 @@
 #include "vtkRadiusOutlierRemoval.h"
 
 #include "vtkAbstractPointLocator.h"
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
+#include "vtkDataArrayRange.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
@@ -22,10 +25,10 @@ namespace
 
 //------------------------------------------------------------------------------
 // The threaded core of the algorithm (first pass)
-template <typename T>
-struct RemoveOutliers
+template <typename TArray>
+struct RemoveOutliersFunctor
 {
-  const T* Points;
+  TArray* Points;
   vtkAbstractPointLocator* Locator;
   double Radius;
   int NumNeighbors;
@@ -35,7 +38,8 @@ struct RemoveOutliers
   // storage lots of new/delete.
   vtkSMPThreadLocalObject<vtkIdList> PIds;
 
-  RemoveOutliers(T* points, vtkAbstractPointLocator* loc, double radius, int numNei, vtkIdType* map)
+  RemoveOutliersFunctor(
+    TArray* points, vtkAbstractPointLocator* loc, double radius, int numNei, vtkIdType* map)
     : Points(points)
     , Locator(loc)
     , Radius(radius)
@@ -53,16 +57,14 @@ struct RemoveOutliers
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const T* p = this->Points + 3 * ptId;
+    auto p = vtk::DataArrayTupleRange<3>(this->Points, ptId, endPtId).begin();
     vtkIdType* map = this->PointMap + ptId;
     double x[3];
     vtkIdList*& pIds = this->PIds.Local();
 
-    for (; ptId < endPtId; ++ptId)
+    for (; ptId < endPtId; ++ptId, ++p)
     {
-      x[0] = static_cast<double>(*p++);
-      x[1] = static_cast<double>(*p++);
-      x[2] = static_cast<double>(*p++);
+      p->GetTuple(x);
 
       this->Locator->FindPointsWithinRadius(this->Radius, x, pIds);
       vtkIdType numPts = pIds->GetNumberOfIds();
@@ -74,16 +76,18 @@ struct RemoveOutliers
   }
 
   void Reduce() {}
+}; // RemoveOutliersFunctor
 
-  static void Execute(vtkRadiusOutlierRemoval* self, vtkIdType numPts, T* points, vtkIdType* map)
+struct RemoveOutliersWorker
+{
+  template <typename TArray>
+  void operator()(TArray* inPts, vtkRadiusOutlierRemoval* self, vtkIdType numPts, vtkIdType* map)
   {
-    RemoveOutliers remove(
-      points, self->GetLocator(), self->GetRadius(), self->GetNumberOfNeighbors(), map);
-    vtkSMPTools::For(0, numPts, remove);
+    RemoveOutliersFunctor<TArray> func(
+      inPts, self->GetLocator(), self->GetRadius(), self->GetNumberOfNeighbors(), map);
+    vtkSMPTools::For(0, numPts, func);
   }
-
-}; // RemoveOutliers
-
+};
 } // anonymous namespace
 
 //================= Begin class proper =======================================
@@ -120,10 +124,11 @@ int vtkRadiusOutlierRemoval::FilterPoints(vtkPointSet* input)
   // Determine which points, if any, should be removed. We create a map
   // to keep track. The bulk of the algorithmic work is done in this pass.
   vtkIdType numPts = input->GetNumberOfPoints();
-  void* inPtr = input->GetPoints()->GetVoidPointer(0);
-  switch (input->GetPoints()->GetDataType())
+  RemoveOutliersWorker worker;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
+        input->GetPoints()->GetData(), worker, this, numPts, this->PointMap))
   {
-    vtkTemplateMacro(RemoveOutliers<VTK_TT>::Execute(this, numPts, (VTK_TT*)inPtr, this->PointMap));
+    worker(input->GetPoints()->GetData(), this, numPts, this->PointMap);
   }
 
   return 1;

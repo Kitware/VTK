@@ -3,10 +3,12 @@
 
 #include "vtkCellGridReader.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellAttribute.h"
 #include "vtkCellGridIOQuery.h"
 #include "vtkCellMetadata.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkFiltersCellGrid.h"
 #include "vtkIOCellGrid.h"
@@ -70,17 +72,20 @@ int ArrayTypeToEnum(const std::string& arrayType)
   return result;
 }
 
-template <typename T>
-void AppendArrayData(T* data, const nlohmann::json& values)
+struct AppendArrayData
 {
-  auto valueVector = values.get<std::vector<T>>();
-  vtkIdType ii = 0;
-  for (const auto& value : valueVector)
+  template <typename TArray>
+  void operator()(TArray* array, const nlohmann::json& values)
   {
-    data[ii] = value;
-    ++ii;
+    using ValueType = typename TArray::ValueType;
+    auto valueVector = values.get<std::vector<ValueType>>();
+    auto data = vtk::DataArrayValueRange<1>(array).begin();
+    for (const auto& value : valueVector)
+    {
+      *(data++) = value;
+    }
   }
-}
+};
 
 void addCachedRange(vtkCellGridRangeQuery::CacheMap& rangeCache, vtkCellAttribute* attribute,
   const nlohmann::json& rangeInfo)
@@ -268,10 +273,12 @@ bool vtkCellGridReader::FromJSON(const nlohmann::json& jj, vtkCellGrid* output)
       array->SetNumberOfComponents(arrayComps);
       array->SetNumberOfTuples(arrayTuples);
       array->SetName(arrayName.c_str());
-      switch (array->GetDataType())
+      if (!vtkArrayDispatch::Dispatch::Execute(
+            array, AppendArrayData{}, jArrayEntry.value()["data"]))
       {
-        vtkTemplateMacro(AppendArrayData(
-          static_cast<VTK_TT*>(array->GetVoidPointer(0)), jArrayEntry.value()["data"]));
+        vtkErrorMacro("Failed to populate array " << arrayName << ".");
+        array->Delete();
+        continue;
       }
       arrayGroup->AddArray(array);
       array->FastDelete();

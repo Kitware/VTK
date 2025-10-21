@@ -2,26 +2,19 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkSynchronizedTemplates2D.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkCharArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
-#include "vtkLongArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkShortArray.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStructuredData.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedShortArray.h"
 
 #include <algorithm>
 #include <cmath>
@@ -66,270 +59,261 @@ vtkMTimeType vtkSynchronizedTemplates2D::GetMTime()
 //
 // Contouring filter specialized for images
 //
-template <class T>
-void vtkContourImage(vtkSynchronizedTemplates2D* self, T* scalars, vtkPoints* newPts,
-  vtkDataArray* newScalars, vtkCellArray* lines, vtkImageData* input, int* updateExt,
-  vtkIdType increments[3])
+struct vtkContourImageFunctor
 {
-  double* values = self->GetValues();
-  vtkIdType numContours = self->GetNumberOfContours();
-  T *inPtr, *rowPtr;
-  double x[3];
-  double* origin = input->GetOrigin();
-  double* spacing = input->GetSpacing();
-  double y, t;
-  int *isect1Ptr, *isect2Ptr;
-  vtkIdType ptIds[2];
-  int* tablePtr;
-  int v0, v1 = 0, v2;
-  int idx, vidx;
-  double s0, s1, s2, value;
-  int i, j;
-  int lineCases[64];
-
-  // The update extent may be different than the extent of the image.
-  // The only problem with using the update extent is that one or two
-  // sources enlarge the update extent.  This behavior is slated to be
-  // eliminated.
-  int* ext = input->GetExtent();
-  int axis0, axis1;
-  int min0, max0, dim0;
-  int min1, max1;
-  int inc0, inc1;
-
-  // Figure out which plane the image lies in.
-  if (updateExt[4] == updateExt[5])
-  { // z collapsed
-    axis0 = 0;
-    min0 = updateExt[0];
-    max0 = updateExt[1];
-    inc0 = increments[0];
-    axis1 = 1;
-    min1 = updateExt[2];
-    max1 = updateExt[3];
-    inc1 = increments[1];
-    x[2] = origin[2] + (updateExt[4] * spacing[2]);
-  }
-  else if (updateExt[2] == updateExt[3])
-  { // y collapsed
-    axis0 = 0;
-    min0 = updateExt[0];
-    max0 = updateExt[1];
-    inc0 = increments[0];
-    axis1 = 2;
-    min1 = updateExt[4];
-    max1 = updateExt[5];
-    inc1 = increments[2];
-    x[1] = origin[1] + (updateExt[2] * spacing[1]);
-  }
-  else if (updateExt[0] == updateExt[1])
-  { // x collapsed
-    axis0 = 1;
-    min0 = updateExt[2];
-    max0 = updateExt[3];
-    inc0 = increments[1];
-    axis1 = 2;
-    min1 = updateExt[4];
-    max1 = updateExt[5];
-    inc1 = increments[2];
-    x[0] = origin[0] + (updateExt[0] * spacing[0]);
-  }
-  else
+  template <class TArray>
+  void operator()(TArray* scalarArray, vtkDataArray* newScalarArray,
+    vtkSynchronizedTemplates2D* self, vtkPoints* newPts, vtkCellArray* lines, vtkImageData* input,
+    int* updateExt, vtkIdType increments[3])
   {
-    vtkGenericWarningMacro("Expecting 2D data.");
-    return;
-  }
-  dim0 = max0 - min0 + 1;
+    double* values = self->GetValues();
+    vtkIdType numContours = self->GetNumberOfContours();
+    double x[3];
+    double* origin = input->GetOrigin();
+    double* spacing = input->GetSpacing();
+    double y, t;
+    int *isect1Ptr, *isect2Ptr;
+    vtkIdType ptIds[2];
+    int* tablePtr;
+    int v0, v1 = 0, v2;
+    int idx, vidx;
+    double s0, s1, s2, value;
+    int i, j;
+    int lineCases[64];
+    auto scalars = vtk::DataArrayValueRange(scalarArray).begin();
 
-  // setup the table entries
-  for (i = 0; i < 64; i++)
-  {
-    lineCases[i] = -1;
-  }
+    // The update extent may be different from the extent of the image.
+    // The only problem with using the update extent is that one or two
+    // sources enlarge the update extent.  This behavior is slated to be
+    // eliminated.
+    int* ext = input->GetExtent();
+    int axis0, axis1;
+    int min0, max0, dim0;
+    int min1, max1;
+    int inc0, inc1;
 
-  lineCases[12] = 3;
-  lineCases[13] = dim0 * 2;
-
-  lineCases[20] = 1;
-  lineCases[21] = dim0 * 2;
-
-  lineCases[24] = 1;
-  lineCases[25] = 3;
-
-  lineCases[36] = 0;
-  lineCases[37] = dim0 * 2;
-
-  lineCases[40] = 0;
-  lineCases[41] = 3;
-
-  lineCases[48] = 0;
-  lineCases[49] = 1;
-
-  lineCases[60] = 0;
-  lineCases[61] = 1;
-  lineCases[62] = 3;
-  lineCases[63] = dim0 * 2;
-
-  // allocate storage arrays
-  int* isect1 = new int[dim0 * 4];
-  isect1[dim0 * 2 - 2] = -1;
-  isect1[dim0 * 2 - 1] = -1;
-  isect1[dim0 * 4 - 2] = -1;
-  isect1[dim0 * 4 - 1] = -1;
-
-  // Compute the staring location.  We may be operating
-  // on a part of the image.
-  scalars += increments[0] * (updateExt[0] - ext[0]) + increments[1] * (updateExt[2] - ext[2]) +
-    increments[2] * (updateExt[4] - ext[4]) + self->GetArrayComponent();
-
-  int checkAbortInterval = std::min(numContours / 10 + 1, (vtkIdType)1000);
-
-  // for each contour
-  for (vidx = 0; vidx < numContours; vidx++)
-  {
-    if (vidx % checkAbortInterval == 0 && self->CheckAbort())
-    {
-      break;
+    // Figure out which plane the image lies in.
+    if (updateExt[4] == updateExt[5])
+    { // z collapsed
+      axis0 = 0;
+      min0 = updateExt[0];
+      max0 = updateExt[1];
+      inc0 = increments[0];
+      axis1 = 1;
+      min1 = updateExt[2];
+      max1 = updateExt[3];
+      inc1 = increments[1];
+      x[2] = origin[2] + (updateExt[4] * spacing[2]);
     }
-    rowPtr = scalars;
+    else if (updateExt[2] == updateExt[3])
+    { // y collapsed
+      axis0 = 0;
+      min0 = updateExt[0];
+      max0 = updateExt[1];
+      inc0 = increments[0];
+      axis1 = 2;
+      min1 = updateExt[4];
+      max1 = updateExt[5];
+      inc1 = increments[2];
+      x[1] = origin[1] + (updateExt[2] * spacing[1]);
+    }
+    else if (updateExt[0] == updateExt[1])
+    { // x collapsed
+      axis0 = 1;
+      min0 = updateExt[2];
+      max0 = updateExt[3];
+      inc0 = increments[1];
+      axis1 = 2;
+      min1 = updateExt[4];
+      max1 = updateExt[5];
+      inc1 = increments[2];
+      x[0] = origin[0] + (updateExt[0] * spacing[0]);
+    }
+    else
+    {
+      vtkGenericWarningMacro("Expecting 2D data.");
+      return;
+    }
+    dim0 = max0 - min0 + 1;
 
+    // setup the table entries
+    for (i = 0; i < 64; i++)
+    {
+      lineCases[i] = -1;
+    }
+
+    lineCases[12] = 3;
     lineCases[13] = dim0 * 2;
+
+    lineCases[20] = 1;
     lineCases[21] = dim0 * 2;
+
+    lineCases[24] = 1;
+    lineCases[25] = 3;
+
+    lineCases[36] = 0;
     lineCases[37] = dim0 * 2;
+
+    lineCases[40] = 0;
+    lineCases[41] = 3;
+
+    lineCases[48] = 0;
+    lineCases[49] = 1;
+
+    lineCases[60] = 0;
+    lineCases[61] = 1;
+    lineCases[62] = 3;
     lineCases[63] = dim0 * 2;
 
-    value = values[vidx];
+    // allocate storage arrays
+    int* isect1 = new int[dim0 * 4];
+    isect1[dim0 * 2 - 2] = -1;
+    isect1[dim0 * 2 - 1] = -1;
+    isect1[dim0 * 4 - 2] = -1;
+    isect1[dim0 * 4 - 1] = -1;
 
-    // Traverse all pixel cells, generating line segments using templates
-    for (j = min1; j <= max1; j++)
+    // Compute the staring location.  We may be operating
+    // on a part of the image.
+    scalars += increments[0] * (updateExt[0] - ext[0]) + increments[1] * (updateExt[2] - ext[2]) +
+      increments[2] * (updateExt[4] - ext[4]) + self->GetArrayComponent();
+
+    int checkAbortInterval = std::min(numContours / 10 + 1, (vtkIdType)1000);
+
+    // for each contour
+    for (vidx = 0; vidx < numContours; vidx++)
     {
-      inPtr = rowPtr;
-      rowPtr += inc1;
-
-      // set the y coordinate
-      y = origin[axis1] + j * spacing[axis1];
-      // first compute the intersections
-      s1 = *inPtr;
-
-      // swap the buffers
-      if (j % 2)
+      if (vidx % checkAbortInterval == 0 && self->CheckAbort())
       {
-        lineCases[13] = dim0 * 2;
-        lineCases[21] = dim0 * 2;
-        lineCases[37] = dim0 * 2;
-        lineCases[63] = dim0 * 2;
-        isect1Ptr = isect1;
-        isect2Ptr = isect1 + dim0 * 2;
+        break;
       }
-      else
-      {
-        lineCases[13] = -dim0 * 2;
-        lineCases[21] = -dim0 * 2;
-        lineCases[37] = -dim0 * 2;
-        lineCases[63] = -dim0 * 2;
-        isect1Ptr = isect1 + dim0 * 2;
-        isect2Ptr = isect1;
-      }
+      auto rowPtr = scalars;
 
-      for (i = min0; i < max0; i++)
+      lineCases[13] = dim0 * 2;
+      lineCases[21] = dim0 * 2;
+      lineCases[37] = dim0 * 2;
+      lineCases[63] = dim0 * 2;
+
+      value = values[vidx];
+
+      // Traverse all pixel cells, generating line segments using templates
+      for (j = min1; j <= max1; j++)
       {
-        s0 = s1;
-        s1 = *(inPtr + inc0);
-        // compute in/out for verts
-        v0 = (s0 < value ? 0 : 1);
-        v1 = (s1 < value ? 0 : 1);
-        // if we have an intersection
-        *isect2Ptr = -1;
-        *(isect2Ptr + 1) = -1;
-        if (v0 ^ v1)
+        auto inPtr = rowPtr;
+        rowPtr += inc1;
+
+        // set the y coordinate
+        y = origin[axis1] + j * spacing[axis1];
+        // first compute the intersections
+        s1 = *inPtr;
+
+        // swap the buffers
+        if (j % 2)
         {
-          // watch for degenerate points
-          if (s0 == value)
-          {
-            if (i > min0 && *(isect2Ptr - 2) > -1)
-            {
-              *isect2Ptr = *(isect2Ptr - 2);
-            }
-            else if (j > min1 && *(isect1Ptr + 1) > -1)
-            {
-              *isect2Ptr = *(isect1Ptr + 1);
-            }
-          }
-          else if (s1 == value && j > min1 && *(isect1Ptr + 3) > -1)
-          {
-            *isect2Ptr = *(isect1Ptr + 3);
-          }
-          // if the edge has not been set yet then it is a new point
-          if (*isect2Ptr == -1)
-          {
-            t = (value - s0) / (s1 - s0);
-            x[axis0] = origin[axis0] + spacing[axis0] * (i + t);
-            x[axis1] = y;
-            *isect2Ptr = newPts->InsertNextPoint(x);
-            if (newScalars)
-            {
-              newScalars->InsertNextTuple(&value);
-            }
-          }
+          lineCases[13] = dim0 * 2;
+          lineCases[21] = dim0 * 2;
+          lineCases[37] = dim0 * 2;
+          lineCases[63] = dim0 * 2;
+          isect1Ptr = isect1;
+          isect2Ptr = isect1 + dim0 * 2;
         }
-        if (j < max1)
+        else
         {
-          s2 = *(inPtr + inc1);
-          v2 = (s2 < value ? 0 : 1);
-          if (v0 ^ v2)
+          lineCases[13] = -dim0 * 2;
+          lineCases[21] = -dim0 * 2;
+          lineCases[37] = -dim0 * 2;
+          lineCases[63] = -dim0 * 2;
+          isect1Ptr = isect1 + dim0 * 2;
+          isect2Ptr = isect1;
+        }
+
+        for (i = min0; i < max0; i++)
+        {
+          s0 = s1;
+          s1 = *(inPtr + inc0);
+          // compute in/out for verts
+          v0 = (s0 < value ? 0 : 1);
+          v1 = (s1 < value ? 0 : 1);
+          // if we have an intersection
+          *isect2Ptr = -1;
+          *(isect2Ptr + 1) = -1;
+          if (v0 ^ v1)
           {
+            // watch for degenerate points
             if (s0 == value)
             {
-              if (*isect2Ptr > -1)
+              if (i > min0 && *(isect2Ptr - 2) > -1)
               {
-                *(isect2Ptr + 1) = *isect2Ptr;
+                *isect2Ptr = *(isect2Ptr - 2);
               }
               else if (j > min1 && *(isect1Ptr + 1) > -1)
               {
-                *(isect2Ptr + 1) = *(isect1Ptr + 1);
-              }
-              else if (i > min0 && *(isect2Ptr - 2) > -1)
-              {
-                *(isect2Ptr + 1) = *(isect2Ptr - 2);
+                *isect2Ptr = *(isect1Ptr + 1);
               }
             }
-            // if the edge has not been set yet then it is a new point
-            if (*(isect2Ptr + 1) == -1)
+            else if (s1 == value && j > min1 && *(isect1Ptr + 3) > -1)
             {
-              t = (value - s0) / (s2 - s0);
-              x[axis0] = origin[axis0] + spacing[axis0] * i;
-              x[axis1] = y + spacing[axis1] * t;
-              *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
-              if (newScalars)
+              *isect2Ptr = *(isect1Ptr + 3);
+            }
+            // if the edge has not been set yet then it is a new point
+            if (*isect2Ptr == -1)
+            {
+              t = (value - s0) / (s1 - s0);
+              x[axis0] = origin[axis0] + spacing[axis0] * (i + t);
+              x[axis1] = y;
+              *isect2Ptr = newPts->InsertNextPoint(x);
+              if (newScalarArray)
               {
-                newScalars->InsertNextTuple(&value);
+                newScalarArray->InsertNextTuple(&value);
               }
             }
           }
-        }
-
-        if (j > min1)
-        {
-          // now add any lines that need to be added
-          // basically look at the isect values,
-          // form an index and lookup the lines
-          idx = (*isect1Ptr > -1 ? 8 : 0);
-          idx = idx + (*(isect1Ptr + 1) > -1 ? 4 : 0);
-          idx = idx + (*(isect1Ptr + 3) > -1 ? 2 : 0);
-          idx = idx + (*isect2Ptr > -1 ? 1 : 0);
-          tablePtr = lineCases + idx * 4;
-
-          if (*tablePtr != -1)
+          if (j < max1)
           {
-            ptIds[0] = *(isect1Ptr + *tablePtr);
-            tablePtr++;
-            ptIds[1] = *(isect1Ptr + *tablePtr);
-            if (ptIds[0] != ptIds[1])
+            s2 = *(inPtr + inc1);
+            v2 = (s2 < value ? 0 : 1);
+            if (v0 ^ v2)
             {
-              // insert non-degenerate lines
-              lines->InsertNextCell(2, ptIds);
+              if (s0 == value)
+              {
+                if (*isect2Ptr > -1)
+                {
+                  *(isect2Ptr + 1) = *isect2Ptr;
+                }
+                else if (j > min1 && *(isect1Ptr + 1) > -1)
+                {
+                  *(isect2Ptr + 1) = *(isect1Ptr + 1);
+                }
+                else if (i > min0 && *(isect2Ptr - 2) > -1)
+                {
+                  *(isect2Ptr + 1) = *(isect2Ptr - 2);
+                }
+              }
+              // if the edge has not been set yet then it is a new point
+              if (*(isect2Ptr + 1) == -1)
+              {
+                t = (value - s0) / (s2 - s0);
+                x[axis0] = origin[axis0] + spacing[axis0] * i;
+                x[axis1] = y + spacing[axis1] * t;
+                *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
+                if (newScalarArray)
+                {
+                  newScalarArray->InsertNextTuple(&value);
+                }
+              }
             }
-            tablePtr++;
+          }
+
+          if (j > min1)
+          {
+            // now add any lines that need to be added
+            // basically look at the isect values,
+            // form an index and lookup the lines
+            idx = (*isect1Ptr > -1 ? 8 : 0);
+            idx = idx + (*(isect1Ptr + 1) > -1 ? 4 : 0);
+            idx = idx + (*(isect1Ptr + 3) > -1 ? 2 : 0);
+            idx = idx + (*isect2Ptr > -1 ? 1 : 0);
+            tablePtr = lineCases + idx * 4;
+
             if (*tablePtr != -1)
             {
               ptIds[0] = *(isect1Ptr + *tablePtr);
@@ -337,49 +321,61 @@ void vtkContourImage(vtkSynchronizedTemplates2D* self, T* scalars, vtkPoints* ne
               ptIds[1] = *(isect1Ptr + *tablePtr);
               if (ptIds[0] != ptIds[1])
               {
+                // insert non-degenerate lines
                 lines->InsertNextCell(2, ptIds);
+              }
+              tablePtr++;
+              if (*tablePtr != -1)
+              {
+                ptIds[0] = *(isect1Ptr + *tablePtr);
+                tablePtr++;
+                ptIds[1] = *(isect1Ptr + *tablePtr);
+                if (ptIds[0] != ptIds[1])
+                {
+                  lines->InsertNextCell(2, ptIds);
+                }
               }
             }
           }
+          inPtr += inc0;
+          isect2Ptr += 2;
+          isect1Ptr += 2;
         }
-        inPtr += inc0;
-        isect2Ptr += 2;
-        isect1Ptr += 2;
-      }
-      // now compute the last column, use s2 since it is around
-      if (j < max1)
-      {
-        s2 = *(inPtr + inc1);
-        v2 = (s2 < value ? 0 : 1);
-        *(isect2Ptr + 1) = -1;
-        if (v1 ^ v2)
+        // now compute the last column, use s2 since it is around
+        if (j < max1)
         {
-          if (s1 == value && *(isect2Ptr - 2) > -1)
+          s2 = *(inPtr + inc1);
+          v2 = (s2 < value ? 0 : 1);
+          *(isect2Ptr + 1) = -1;
+          if (v1 ^ v2)
           {
-            *(isect2Ptr + 1) = *(isect2Ptr - 2);
-          }
-          else if (s1 == value && *(isect1Ptr + 1) > -1)
-          {
-            *(isect2Ptr + 1) = *(isect1Ptr + 1);
-          }
-          else
-          {
-            t = (value - s1) / (s2 - s1);
-            x[axis0] = origin[axis0] + spacing[axis0] * max0;
-            x[axis1] = y + spacing[axis1] * t;
-            *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
-            if (newScalars)
+            if (s1 == value && *(isect2Ptr - 2) > -1)
             {
-              newScalars->InsertNextTuple(&value);
+              *(isect2Ptr + 1) = *(isect2Ptr - 2);
+            }
+            else if (s1 == value && *(isect1Ptr + 1) > -1)
+            {
+              *(isect2Ptr + 1) = *(isect1Ptr + 1);
+            }
+            else
+            {
+              t = (value - s1) / (s2 - s1);
+              x[axis0] = origin[axis0] + spacing[axis0] * max0;
+              x[axis1] = y + spacing[axis1] * t;
+              *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
+              if (newScalarArray)
+              {
+                newScalarArray->InsertNextTuple(&value);
+              }
             }
           }
         }
       }
     }
-  }
 
-  delete[] isect1;
-}
+    delete[] isect1;
+  }
+};
 
 //------------------------------------------------------------------------------
 //
@@ -459,7 +455,6 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
   // Check data type and execute appropriate function
   //
 
-  void* scalars = inScalars->GetVoidPointer(0);
   if (this->ComputeScalars)
   {
     newScalars = inScalars->NewInstance();
@@ -473,10 +468,11 @@ int vtkSynchronizedTemplates2D::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (dataSize > 0)
   {
-    switch (inScalars->GetDataType())
+    vtkContourImageFunctor functor;
+    if (!vtkArrayDispatch::Dispatch::Execute(
+          inScalars, functor, newScalars, this, newPts, newLines, input, ext, incs))
     {
-      vtkTemplateMacro(
-        vtkContourImage(this, (VTK_TT*)scalars, newPts, newScalars, newLines, input, ext, incs));
+      functor(inScalars, newScalars, this, newPts, newLines, input, ext, incs);
     }
   }
 

@@ -15,7 +15,6 @@
 #include "vtkInformationVector.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
-#include "vtkSOADataArrayTemplate.h" // For fast paths
 #include "vtkTypeTraits.h"
 
 #include <algorithm> // for min(), max()

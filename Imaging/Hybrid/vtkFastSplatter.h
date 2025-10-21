@@ -149,6 +149,7 @@ private:
 //-----------------------------------------------------------------------------
 
 template <class T>
+VTK_DEPRECATED_IN_9_6_0("Use vtkArrayDispatch and vtkFastSplatterClampWorker instead")
 void vtkFastSplatterClamp(T* array, vtkIdType arraySize, T minValue, T maxValue)
 {
   for (vtkIdType i = 0; i < arraySize; i++)
@@ -163,6 +164,7 @@ void vtkFastSplatterClamp(T* array, vtkIdType arraySize, T minValue, T maxValue)
 //-----------------------------------------------------------------------------
 
 template <class T>
+VTK_DEPRECATED_IN_9_6_0("Use vtkArrayDispatch and vtkFastSplatterScaleWorker instead")
 void vtkFastSplatterScale(T* array, int numComponents, vtkIdType numTuples, T minValue, T maxValue,
   double* dataMinValue, double* dataMaxValue)
 {
@@ -222,6 +224,7 @@ void vtkFastSplatterScale(T* array, int numComponents, vtkIdType numTuples, T mi
 //-----------------------------------------------------------------------------
 
 template <class T>
+VTK_DEPRECATED_IN_9_6_0("Use vtkArrayDispatch and vtkFastSplatterFrozenScaleWorker instead")
 void vtkFastSplatterFrozenScale(
   T* array, int numComponents, vtkIdType numTuples, T minValue, T maxValue, double min, double max)
 {
