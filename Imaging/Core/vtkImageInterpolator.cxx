@@ -100,7 +100,7 @@ void vtkImageInterpolator::ComputeSupportSize(const double matrix[16], int size[
   for (int i = 0; i < 3; i++)
   {
     int integerRow = 1;
-    for (int j = 0; j < 3; j++)
+    for (int j = 0; j < 4; j++)
     {
       // verify that the element is an integer
       double x = matrix[4 * i + j];

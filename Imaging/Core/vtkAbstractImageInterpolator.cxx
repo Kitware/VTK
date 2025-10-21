@@ -17,6 +17,8 @@
 #undef VTK_USE_UINT64
 #define VTK_USE_UINT64 0
 
+#include <algorithm> // for std::min, std::max
+
 //------------------------------------------------------------------------------
 // default do-nothing interpolation functions
 VTK_ABI_NAMESPACE_BEGIN
@@ -71,7 +73,8 @@ vtkAbstractImageInterpolator::vtkAbstractImageInterpolator()
   }
 
   this->OutValue = 0.0;
-  this->Tolerance = 7.62939453125e-06;
+  // VTK_INTERPOLATE_FLOOR_TOL is defined in vtkImageInterpolatorInternals.h
+  this->Tolerance = VTK_INTERPOLATE_FLOOR_TOL;
   this->ComponentOffset = 0;
   this->ComponentCount = -1;
 
@@ -756,15 +759,18 @@ void vtkAbstractImageInterpolator::Update()
 
   for (int i = 0; i < 3; i++)
   {
-    // use min tolerance of 0.5 if just one slice thick
-    double newtol = 0.5 * (extent[2 * i] == extent[2 * i + 1]);
-    newtol = ((newtol > tol) ? newtol : tol);
-
+    double newtol = tol; // tolerance for this dimension
+    if (extent[2 * i] == extent[2 * i + 1])
+    {
+      // if there is only one slice, use minimum tolerance of 0.5,
+      // plus a bit of extra tolerance for rounding error
+      newtol = std::max(newtol, 0.5 + VTK_INTERPOLATE_FLOOR_TOL);
+    }
     double bound = extent[2 * i] - newtol;
-    bound = ((bound > minbound) ? bound : minbound);
+    bound = std::max(bound, minbound);
     fbounds[2 * i] = bounds[2 * i] = bound;
     bound = extent[2 * i + 1] + newtol;
-    bound = ((bound < maxbound) ? bound : maxbound);
+    bound = std::min(bound, maxbound);
     fbounds[2 * i + 1] = bounds[2 * i + 1] = bound;
   }
 
