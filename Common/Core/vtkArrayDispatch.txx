@@ -1613,11 +1613,11 @@ struct Dispatch3ByValueTypeUsingArrays
 };
 
 //------------------------------------------------------------------------------
-// Dispatch3ByArraySameValue implementation:
+// Dispatch3ByArraySameValueType implementation:
 //------------------------------------------------------------------------------
 // Preprocess and pass off to impl::Dispatch3Same
 template <typename ArrayList, typename ValueTypeList>
-struct Dispatch3ByArraySameValue
+struct Dispatch3ByArraySameValueType
 {
 private:
   using FilteredArrayList = typename FilterArraysByValueType<ArrayList, ValueTypeList>::Result;
@@ -1638,14 +1638,15 @@ public:
 // Dispatch3BySameValueType implementation:
 //------------------------------------------------------------------------------
 template <typename ValueTypeList>
-struct Dispatch3BySameValueType : public Dispatch3ByArraySameValue<Arrays, ValueTypeList>
+struct Dispatch3BySameValueType : public Dispatch3ByArraySameValueType<Arrays, ValueTypeList>
 {
 };
 //------------------------------------------------------------------------------
 // Dispatch3BySameValueTypeUsingArrays implementation:
 //------------------------------------------------------------------------------
 template <typename ArrayList, typename ValueTypeList>
-struct Dispatch3BySameValueTypeUsingArrays : public Dispatch3ByArraySameValue<Arrays, ValueTypeList>
+struct Dispatch3BySameValueTypeUsingArrays
+  : public Dispatch3ByArraySameValueType<Arrays, ValueTypeList>
 {
 };
 
