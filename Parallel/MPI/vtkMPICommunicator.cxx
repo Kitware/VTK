@@ -918,23 +918,13 @@ void vtkMPICommunicator::Duplicate(vtkMPICommunicator* source)
 //------------------------------------------------------------------------------
 char* vtkMPICommunicator::Allocate(size_t size)
 {
-#ifdef MPIPROALLOC
-  char* ptr;
-  MPI_Alloc_mem(size, nullptr, &ptr);
-  return ptr;
-#else
   return new char[size];
-#endif
 }
 
 //------------------------------------------------------------------------------
 void vtkMPICommunicator::Free(char* ptr)
 {
-#ifdef MPIPROALLOC
-  MPI_Free_mem(ptr);
-#else
   delete[] ptr;
-#endif
 }
 
 //------------------------------------------------------------------------------

@@ -569,9 +569,6 @@ void vtkCompressCompositer::CompositeBuffer(
     logProcs++;
   }
 
-#ifdef MPIPROALLOC
-  vtkCommunicator::SetUseCopy(0);
-#endif
   for (i = 0; i < logProcs; i++)
   {
     if ((myId % (int)vtkTCPow2(i)) == 0)
@@ -640,10 +637,6 @@ void vtkCompressCompositer::CompositeBuffer(
       }
     }
   }
-
-#ifdef MPIPROALLOC
-  vtkCommunicator::SetUseCopy(1);
-#endif
 
   if (myId == 0)
   {

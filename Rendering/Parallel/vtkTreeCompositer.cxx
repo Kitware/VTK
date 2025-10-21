@@ -173,9 +173,6 @@ void vtkTreeCompositer::CompositeBuffer(
   zSize = totalPixels;
   pSize = numComp * totalPixels;
 
-#ifdef MPIPROALLOC
-  vtkCommunicator::SetUseCopy(0);
-#endif
   for (i = 0; i < logProcs; i++)
   {
     if ((myId % (int)vtkTCPow2(i)) == 0)
@@ -231,10 +228,6 @@ void vtkTreeCompositer::CompositeBuffer(
       }
     }
   }
-
-#ifdef MPIPROALLOC
-  vtkCommunicator::SetUseCopy(1);
-#endif
 }
 
 void vtkTreeCompositer::PrintSelf(ostream& os, vtkIndent indent)
