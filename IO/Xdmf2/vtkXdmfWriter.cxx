@@ -1342,10 +1342,11 @@ void vtkXdmfWriter::ConvertVToXArray(vtkDataArray* vda, XdmfArray* xda, vtkIdTyp
   {
     // Unfortunately data doesn't stick around with temporal updates, which is exactly when you want
     // it most.
+    auto aos = vda->ToAOSDataArray();
     xda->SetAllowAllocate(1);
     xda->SetShape(lRank, lDims.data());
-    memcpy(xda->GetDataPointer(), vda->GetVoidPointer(0),
-      vda->GetNumberOfTuples() * vda->GetNumberOfComponents() * vda->GetElementComponentSize());
+    memcpy(xda->GetDataPointer(), aos->GetVoidPointer(0), // NOLINT(bugprone-unsafe-functions)
+      aos->GetNumberOfTuples() * aos->GetNumberOfComponents() * aos->GetElementComponentSize());
   }
 }
 VTK_ABI_NAMESPACE_END

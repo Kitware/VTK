@@ -156,7 +156,8 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
         sa = componentArray;
       }
       int ScalarDataType = sa->GetDataType();
-      void* ScalarDataPointer = sa->GetVoidPointer(0);
+      auto aos = sa->ToAOSDataArray();
+      void* ScalarDataPointer = aos->GetVoidPointer(0); // NOLINT(bugprone-unsafe-functions)
       int dim[3];
       data->GetDimensions(dim);
       if (fieldAssociation == vtkDataObject::FIELD_ASSOCIATION_CELLS)
