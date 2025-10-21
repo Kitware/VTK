@@ -73,15 +73,6 @@ vtkSmartPointer<vtkUnstructuredGrid> MakeTestGrid()
   vtkNew<vtkCellArray> cellArr;
   cellArr->SetData(4, connectivity);
 
-  // cell types
-  vtkNew<vtkUnsignedCharArray> cellTypes;
-  cellTypes->SetNumberOfComponents(1);
-  cellTypes->SetNumberOfTuples(NUM_CELLS);
-  for (vtkIdType iC = 0; iC < NUM_CELLS; ++iC)
-  {
-    cellTypes->SetValue(iC, VTK_TETRA);
-  }
-
   // grid
   vtkSmartPointer<vtkUnstructuredGrid> grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
   grid->SetPoints(points);
