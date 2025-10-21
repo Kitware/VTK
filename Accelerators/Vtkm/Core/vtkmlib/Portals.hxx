@@ -104,7 +104,7 @@ VISKORES_EXEC_CONT vtkPointsPortal<Type>::vtkPointsPortal()
 template <typename Type>
 VISKORES_CONT vtkPointsPortal<Type>::vtkPointsPortal(vtkPoints* points, viskores::Id size)
   : Points(points)
-  , Array(static_cast<ComponentType*>(points->GetVoidPointer(0)))
+  , Array(static_cast<ComponentType*>(points->GetData()->GetVoidPointer(0)))
   , Size(size)
 {
   VISKORES_ASSERT(this->GetNumberOfValues() >= 0);
