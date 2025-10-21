@@ -8,7 +8,7 @@ from vtkmodules.vtkFiltersCore import (
     vtkExecutionTimer,
 )
 from vtkmodules.vtkFiltersModeling import vtkOutlineFilter
-from vtkmodules.vtkFiltersSMP import vtkSMPContourGrid
+from vtkmodules.vtkFiltersCore import vtkContourFilter
 from vtkmodules.vtkIOExodus import vtkExodusIIReader
 from vtkmodules.vtkRenderingCore import (
     vtkActor,
@@ -73,17 +73,13 @@ outlineMapper.SetInputConnection(outline.GetOutputPort())
 outlineActor = vtkActor()
 outlineActor.SetMapper(outlineMapper)
 
-# Now create the threaded version. Note that as of the
-# writing of this test, vtkSMPContourGrid does not merge
-# pieces properly hence MergePieces is disabled. Also
-# vtkSMPContourGrid only outputs triangles.
-cfT = vtkSMPContourGrid()
+# Now create the threaded version.
+cfT = vtkContourFilter()
 cfT.SetInputData(input)
 cfT.UseScalarTreeOn()
 cfT.SetValue(0,350)
-cfT.SetInputArrayToProcess(0, 0, 0, 0, "Temp");
+cfT.SetInputArrayToProcess(0, 0, 0, 0, "Temp")
 cfT.GenerateTrianglesOff()
-cfT.MergePiecesOff()
 
 # Note: Since MergePieces is off, we have to use a
 # vtkCompositePolyDataMapper.

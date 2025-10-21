@@ -12,10 +12,13 @@
 #define vtkSMPContourGrid_h
 
 #include "vtkContourGrid.h"
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_7_0
 #include "vtkFiltersSMPModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
-class VTKFILTERSSMP_EXPORT vtkSMPContourGrid : public vtkContourGrid
+class VTK_DEPRECATED_IN_9_7_0(
+  "Please use `vtkContourFilter` instead.") VTKFILTERSSMP_EXPORT vtkSMPContourGrid
+  : public vtkContourGrid
 {
 public:
   vtkTypeMacro(vtkSMPContourGrid, vtkContourGrid);
