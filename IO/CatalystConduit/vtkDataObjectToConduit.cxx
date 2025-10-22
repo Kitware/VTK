@@ -451,7 +451,7 @@ bool FillMixedShape(vtkUnstructuredGrid* dataset, conduit_cpp::Node& topologies_
 
   auto offsets = dataset->GetCells()->GetOffsetsArray();
   auto connectivity = dataset->GetCells()->GetConnectivityArray();
-  auto shapes = dataset->GetCellTypes<vtkUnsignedCharArray>();
+  auto shapes = vtkUnsignedCharArray::FastDownCast(dataset->GetCellTypes());
 
   vtkNew<vtkIdTypeArray> sizes;
   sizes->SetNumberOfTuples(number_of_cells);

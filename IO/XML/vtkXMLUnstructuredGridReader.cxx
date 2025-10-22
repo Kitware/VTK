@@ -297,7 +297,7 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
 
     // Copy the cell type data.
     std::copy_n(cellTypes->GetPointer(0), numberOfCells,
-      output->GetCellTypes<vtkUnsignedCharArray>()->GetPointer(this->StartCell));
+      vtkUnsignedCharArray::FastDownCast(output->GetCellTypes())->GetPointer(this->StartCell));
 
     // Permute node numbering on higher order hexahedra for legacy files (see
     // https://gitlab.kitware.com/vtk/vtk/-/merge_requests/6678 )

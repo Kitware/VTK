@@ -477,7 +477,7 @@ void vtkProjectSphereFilter::SplitCell(vtkPointSet* input, vtkPointSet* output,
 void vtkProjectSphereFilter::SetCellInformation(
   vtkUnstructuredGrid* output, vtkCell* cell, vtkIdType numberOfNewCells)
 {
-  auto cellTypes = output->GetCellTypes<vtkUnsignedCharArray>();
+  auto cellTypes = vtkUnsignedCharArray::FastDownCast(output->GetCellTypes());
   for (vtkIdType i = 0; i < numberOfNewCells; i++)
   {
     vtkIdType prevCellId = output->GetNumberOfCells() + i - numberOfNewCells - 1;

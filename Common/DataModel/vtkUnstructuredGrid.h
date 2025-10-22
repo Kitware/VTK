@@ -207,15 +207,11 @@ public:
    * Get the array of all cell types in the grid. Each single-component
    * tuple in the array at an index that corresponds to the type of the cell
    * with the same index. To get an array of only the distinct cell types in
-   * the dataset, use GetCellTypes().
+   * the dataset, use GetDistinctCellTypes().
    */
-  template <class TCellTypesArray = vtkDataArray>
-  TCellTypesArray* GetCellTypes()
-  {
-    return TCellTypesArray::FastDownCast(this->Types);
-  }
+  vtkDataArray* GetCellTypes() { return this->Types; }
   VTK_DEPRECATED_IN_9_6_0("Use GetCellTypes() instead")
-  vtkUnsignedCharArray* GetCellTypesArray() { return this->GetCellTypes<vtkUnsignedCharArray>(); }
+  vtkUnsignedCharArray* GetCellTypesArray();
   ///@}
 
   /**
