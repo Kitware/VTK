@@ -443,9 +443,6 @@ std::string vtkDataAssembly::MakeValidNodeName(const char* name)
 //------------------------------------------------------------------------------
 bool vtkDataAssembly::IsNodeNameReserved(const char* name)
 {
-  // NOTE All usages of this must either pre-check that name is not null, or
-  // acquire the name directly from `pugi::xml_node::name` which never returns
-  // null (it returns "" instead).
   assert(name);
 
   if (name[0] == DATASET_NODE_NAME[0]  //
@@ -800,7 +797,7 @@ bool vtkDataAssembly::RemoveAllDataSetIndices(int id, bool traverse_subtree /*=t
     std::vector<pugi::xml_node>* ToRemove = nullptr;
     bool for_each(pugi::xml_node& nnode) override
     {
-      if (IsNodeNameReserved(nnode.name()))
+      if (vtkDataAssembly::IsNodeNameReserved(nnode.name()))
       {
         this->ToRemove->push_back(nnode);
       }

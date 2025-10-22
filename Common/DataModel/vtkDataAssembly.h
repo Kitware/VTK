@@ -451,6 +451,10 @@ public:
 
   /**
    * Returns true for node names that are reserved.
+   *
+   * Name **MUST** not be null: all usages must either check that name is valid, or
+   * acquire the name directly from `pugi::xml_node::name` which never returns null
+   * (it returns "" for missing values).
    */
   static bool IsNodeNameReserved(const char* name);
 
