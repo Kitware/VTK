@@ -210,16 +210,7 @@ bool vtkGroupTimeStepsFilter::AddTimeStep(
     node, idx, static_cast<int>(data->GetNumberOfPartitionedDataSets()));
   if (auto inputAssembly = data->GetDataAssembly())
   {
-    vtkNew<vtkDataAssembly> clone;
-    clone->DeepCopy(inputAssembly);
-    auto dsIndices = clone->GetDataSetIndices(vtkDataAssembly::GetRootNode());
-    std::map<unsigned int, unsigned int> remap;
-    for (const auto& val : dsIndices)
-    {
-      remap[val] = val + idx;
-    }
-    clone->RemapDataSetIndices(remap, /*remove_unmapped*/ true);
-    assembly->AddSubtree(node, clone);
+    assembly->AddSubtree(node, inputAssembly);
   }
   return true;
 }
