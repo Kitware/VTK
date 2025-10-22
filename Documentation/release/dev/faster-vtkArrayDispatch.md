@@ -19,73 +19,73 @@ given arrays. This was accomplished by adding 2 compile time known tags to each 
 `DataTypeTag`, and ensuring that all concrete `vtkAbstractArray` subclasses have a `ValueType` typedef too.
 
 1. `vtkAbstractArray`:
-   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::AbstractArray>`,
+   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_ABSTRACT_ARRAY>`,
    2. `DataTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_OPAQUE>`
 2. `vtkStringArray`:
-   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::StringArray>`,
+   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_STRING_ARRAY>`,
    2. `DataTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_STRING>`
    3. `ValueType = vtkStdString`
 3. `vtkVariantArray`:
-   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VariantArray>`,
+   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_VARIANT_ARRAY>`,
    2. `DataTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_VARIANT>`
    3. `ValueType = vtkVariant`
 4. `vtkDataArray`:
-   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::DataArray>`,
+   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_DATA_ARRAY>`,
    2. `DataTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_OPAQUE>`
 5. `vtkBitArray`:
-   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::BitArray>`,
+   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_BIT_ARRAY>`,
    2. `DataTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_BIT>`\
    3. `ValueType = unsigned char`
 6. `vtkAOSDataArrayTemplate`:
-   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::AOSDataArrayTemplate>`,
+   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_AOS_DATA_ARRAY>`,
    2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
    3. `ValueType` is the template parameter of `vtkAOSDataArrayTemplate`
 7. `vtkSOADataArrayTemplate`:
-   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::SOADataArrayTemplate>`,
+   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_SOA_DATA_ARRAY>`,
    2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
    3. `ValueType` is the template parameter of `vtkSOADataArrayTemplate`
 8. `vtkScaledSoADataArrayTemplate`:
-   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::ScaledSOADataArrayTemplate>`,
+   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY>`,
    2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
    3. `ValueType` is the template parameter of `vtkScaledSoADataArrayTemplate`
 9. `vtkmDataArray`:
-   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTKmDataArray>`,
+   1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTKM_DATA_ARRAY>`,
    2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
    3. `ValueType` is the template parameter of `vtkmDataArray`
 10. `vtkPeriodicDataArray`:
-    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::PeriodicDataArray>`,
+    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY>`,
     2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
     3. `ValueType` is the template parameter of `vtkPeriodicDataArray`
 11. `vtkImplicitArray`:
-    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::ImplicitArray>`,
+    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_IMPLICIT_ARRAY>`,
     2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
     3. `ValueType` is the template parameter of `vtkImplicitArray`
 12. `vtkAffineArray`:
-    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::AffineArray>`,
+    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_AFFINE_ARRAY>`,
     2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
     3. `ValueType` is the template parameter of `vtkAffineArray`
 13. `vtkCompositeArray`:
-    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::CompositeArray>`,
+    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_COMPOSITE_ARRAY>`,
     2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
     3. `ValueType` is the template parameter of `vtkCompositeArray`
 14. `vtkConstantArray`:
-    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::ConstantArray>`,
+    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_CONSTANT_ARRAY>`,
     2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
     3. `ValueType` is the template parameter of `vtkConstantArray`
 15. `vtkIndexedArray`:
-    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::IndexedArray>`,
+    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_INDEXED_ARRAY>`,
     2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
     3. `ValueType` is the template parameter of `vtkIndexedArray`
 16. `vtkStdFunctionArray`:
-    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::StdFunctionArray>`,
+    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>`,
     2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
     3. `ValueType` is the template parameter of `vtkStdFunctionArray`
 17. `vtkStridedArray`:
-    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::StridedArray>`,
+    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_STRIDED_ARRAY>`,
     2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
     3. `ValueType` is the template parameter of `vtkStridedArray`
 18. `vtkStructuredPointArray`:
-    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::StructuredPointArray>`,
+    1. `ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>`,
     2. `DataTypeTag = std::integral_constant<int, vtkTypeTraits<ValueType>::VTK_TYPE_ID>>`
     3. `ValueType` is the template parameter of `vtkStructuredPointArray`
 

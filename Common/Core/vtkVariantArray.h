@@ -46,7 +46,7 @@ public:
     VTK_DATA_ARRAY_ALIGNED_FREE = vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
     VTK_DATA_ARRAY_USER_DEFINED = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
   };
-  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VariantArray>;
+  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_VARIANT_ARRAY>;
   using DataTypeTag = std::integral_constant<int, VTK_VARIANT>;
   using ValueType = vtkVariant;
 

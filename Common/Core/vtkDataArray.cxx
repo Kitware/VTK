@@ -83,26 +83,26 @@ vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray* source)
   {
     switch (source->GetArrayType())
     {
-      case vtkArrayTypes::DataArray:
+      case vtkArrayTypes::VTK_DATA_ARRAY:
       // DataArray subclasses
-      case vtkArrayTypes::BitArray:
+      case vtkArrayTypes::VTK_BIT_ARRAY:
       // GenericDataArray subclasses
-      case vtkArrayTypes::AoSDataArrayTemplate:
-      case vtkArrayTypes::SoADataArrayTemplate:
+      case vtkArrayTypes::VTK_AOS_DATA_ARRAY:
+      case vtkArrayTypes::VTK_SOA_DATA_ARRAY:
       case vtkAbstractArray::TypedDataArray:
       case vtkAbstractArray::MappedDataArray:
-      case vtkArrayTypes::ScaledSoADataArrayTemplate:
-      case vtkArrayTypes::VTKmDataArray:
-      case vtkArrayTypes::PeriodicDataArray:
-      case vtkArrayTypes::ImplicitArray:
+      case vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY:
+      case vtkArrayTypes::VTKM_DATA_ARRAY:
+      case vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY:
+      case vtkArrayTypes::VTK_IMPLICIT_ARRAY:
       // ImplicitArray subclasses/typedefs
-      case vtkArrayTypes::AffineArray:
-      case vtkArrayTypes::CompositeArray:
-      case vtkArrayTypes::ConstantArray:
-      case vtkArrayTypes::IndexedArray:
-      case vtkArrayTypes::StdFunctionArray:
-      case vtkArrayTypes::StridedArray:
-      case vtkArrayTypes::StructuredPointArray:
+      case vtkArrayTypes::VTK_AFFINE_ARRAY:
+      case vtkArrayTypes::VTK_COMPOSITE_ARRAY:
+      case vtkArrayTypes::VTK_CONSTANT_ARRAY:
+      case vtkArrayTypes::VTK_INDEXED_ARRAY:
+      case vtkArrayTypes::VTK_STD_FUNCTION_ARRAY:
+      case vtkArrayTypes::VTK_STRIDED_ARRAY:
+      case vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY:
         return static_cast<vtkDataArray*>(source);
       default:
         break;

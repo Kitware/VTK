@@ -46,10 +46,10 @@ VTK_ABI_NAMESPACE_BEGIN
 template <class ValueTypeT>
 class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate
   : public vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT,
-      vtkArrayTypes::AoSDataArrayTemplate>
+      vtkArrayTypes::VTK_AOS_DATA_ARRAY>
 {
   using GenericDataArrayType = vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>, ValueTypeT,
-    vtkArrayTypes::AoSDataArrayTemplate>;
+    vtkArrayTypes::VTK_AOS_DATA_ARRAY>;
 
   // Friendship required by vtkDataArray(Value/Tuple)Range so that it can access the memory buffer
   // which is required to avoid accessing raw pointers that might no longer be valid.

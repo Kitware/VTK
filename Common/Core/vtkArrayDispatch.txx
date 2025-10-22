@@ -24,7 +24,7 @@ namespace impl
 VTK_ABI_NAMESPACE_BEGIN
 
 static constexpr int NumValueTypes = VTK_OBJECT + 1;
-static constexpr int NumArrayTypes = vtkArrayTypes::NumArrayTypes;
+static constexpr int NumArrayTypes = vtkArrayTypes::VTK_NUM_ARRAY_TYPES;
 static constexpr int NumArrays = NumValueTypes * NumArrayTypes;
 
 struct ArrayListIndexMap
@@ -76,21 +76,21 @@ template <typename ArrayList>
 struct Dispatch;
 
 using KnownArrayTypeTagList =
-  vtkTypeList::Create<std::integral_constant<int, vtkArrayTypes::StringArray>,
-    std::integral_constant<int, vtkArrayTypes::VariantArray>,
-    std::integral_constant<int, vtkArrayTypes::BitArray>,
-    std::integral_constant<int, vtkArrayTypes::AoSDataArrayTemplate>,
-    std::integral_constant<int, vtkArrayTypes::SoADataArrayTemplate>,
-    std::integral_constant<int, vtkArrayTypes::ScaledSoADataArrayTemplate>,
-    std::integral_constant<int, vtkArrayTypes::VTKmDataArray>,
-    std::integral_constant<int, vtkArrayTypes::PeriodicDataArray>,
-    std::integral_constant<int, vtkArrayTypes::AffineArray>,
-    std::integral_constant<int, vtkArrayTypes::CompositeArray>,
-    std::integral_constant<int, vtkArrayTypes::ConstantArray>,
-    std::integral_constant<int, vtkArrayTypes::IndexedArray>,
-    std::integral_constant<int, vtkArrayTypes::StdFunctionArray>,
-    std::integral_constant<int, vtkArrayTypes::StridedArray>,
-    std::integral_constant<int, vtkArrayTypes::StructuredPointArray>>;
+  vtkTypeList::Create<std::integral_constant<int, vtkArrayTypes::VTK_STRING_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_VARIANT_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_BIT_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_AOS_DATA_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_SOA_DATA_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTKM_DATA_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_AFFINE_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_COMPOSITE_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_CONSTANT_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_INDEXED_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_STRIDED_ARRAY>,
+    std::integral_constant<int, vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>>;
 
 // Recursive case:
 template <typename ArrayHead, typename ArrayTail>

@@ -31,7 +31,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 using vtkConstantArray =
-  vtkImplicitArray<vtkConstantImplicitBackend<T>, vtkArrayTypes::ConstantArray>;
+  vtkImplicitArray<vtkConstantImplicitBackend<T>, vtkArrayTypes::VTK_CONSTANT_ARRAY>;
 VTK_ABI_NAMESPACE_END
 
 #endif // vtkConstantArray_h
@@ -41,14 +41,14 @@ VTK_ABI_NAMESPACE_END
 #define VTK_INSTANTIATE_CONSTANT_ARRAY(ValueType)                                                  \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template class VTKCOMMONCORE_EXPORT                                                              \
-    vtkImplicitArray<vtkConstantImplicitBackend<ValueType>, vtkArrayTypes::ConstantArray>;         \
+    vtkImplicitArray<vtkConstantImplicitBackend<ValueType>, vtkArrayTypes::VTK_CONSTANT_ARRAY>;    \
   VTK_ABI_NAMESPACE_END                                                                            \
   namespace vtkDataArrayPrivate                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
     VTK_WRAP_TEMPLATE(                                                                             \
-      vtkImplicitArray<vtkConstantImplicitBackend<ValueType>, vtkArrayTypes::ConstantArray>),      \
+      vtkImplicitArray<vtkConstantImplicitBackend<ValueType>, vtkArrayTypes::VTK_CONSTANT_ARRAY>), \
     double)                                                                                        \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
@@ -64,7 +64,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkExternSecondOrderWithParameterTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkConstantImplicitBackend,
-  vtkArrayTypes::ConstantArray);
+  vtkArrayTypes::VTK_CONSTANT_ARRAY);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -97,7 +97,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkInstantiateSecondOrderWithParameterTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkConstantImplicitBackend,
-  vtkArrayTypes::ConstantArray);
+  vtkArrayTypes::VTK_CONSTANT_ARRAY);
 
 #pragma warning(pop)
 

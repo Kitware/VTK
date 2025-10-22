@@ -577,46 +577,46 @@ const char* vtkAbstractArray::GetArrayTypeAsString(int arrayType)
 {
   switch (arrayType)
   {
-    case vtkArrayTypes::AbstractArray:
-      return "AbstractArray";
-    case vtkArrayTypes::DataArray:
-      return "DataArray";
-    case vtkArrayTypes::StringArray:
-      return "StringArray";
-    case vtkArrayTypes::VariantArray:
-      return "VariantArray";
-    case vtkArrayTypes::BitArray:
-      return "BitArray";
-    case vtkArrayTypes::AoSDataArrayTemplate:
-      return "AoSDataArrayTemplate";
-    case vtkArrayTypes::SoADataArrayTemplate:
-      return "SoADataArrayTemplate";
+    case vtkArrayTypes::VTK_ABSTRACT_ARRAY:
+      return "VTK_ABSTRACT_ARRAY";
+    case vtkArrayTypes::VTK_DATA_ARRAY:
+      return "VTK_DATA_ARRAY";
+    case vtkArrayTypes::VTK_STRING_ARRAY:
+      return "VTK_STRING_ARRAY";
+    case vtkArrayTypes::VTK_VARIANT_ARRAY:
+      return "VTK_VARIANT_ARRAY";
+    case vtkArrayTypes::VTK_BIT_ARRAY:
+      return "VTK_BIT_ARRAY";
+    case vtkArrayTypes::VTK_AOS_DATA_ARRAY:
+      return "VTK_AOS_DATA_ARRAY";
+    case vtkArrayTypes::VTK_SOA_DATA_ARRAY:
+      return "VTK_SOA_DATA_ARRAY";
     case vtkAbstractArray::TypedDataArray:
       return "TypedDataArray";
     case vtkAbstractArray::MappedDataArray:
       return "MappedDataArray";
-    case vtkArrayTypes::ScaledSoADataArrayTemplate:
-      return "ScaleSoADataArrayTemplate";
-    case vtkArrayTypes::VTKmDataArray:
-      return "VTKmDataArray";
-    case vtkArrayTypes::PeriodicDataArray:
-      return "PeriodicDataArray";
-    case vtkArrayTypes::ImplicitArray:
-      return "ImplicitArray";
-    case vtkArrayTypes::AffineArray:
-      return "AffineArray";
-    case vtkArrayTypes::CompositeArray:
-      return "CompositeArray";
-    case vtkArrayTypes::ConstantArray:
-      return "ConstantArray";
-    case vtkArrayTypes::IndexedArray:
-      return "IndexedArray";
-    case vtkArrayTypes::StdFunctionArray:
-      return "StdFunctionArray";
-    case vtkArrayTypes::StridedArray:
-      return "StridedArray";
-    case vtkArrayTypes::StructuredPointArray:
-      return "StructuredPointArray";
+    case vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY:
+      return "VTK_SCALED_SOA_DATA_ARRAY";
+    case vtkArrayTypes::VTKM_DATA_ARRAY:
+      return "VTKM_DATA_ARRAY";
+    case vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY:
+      return "VTK_PERIODIC_DATA_ARRAY";
+    case vtkArrayTypes::VTK_IMPLICIT_ARRAY:
+      return "VTK_IMPLICIT_ARRAY";
+    case vtkArrayTypes::VTK_AFFINE_ARRAY:
+      return "VTK_AFFINE_ARRAY";
+    case vtkArrayTypes::VTK_COMPOSITE_ARRAY:
+      return "VTK_COMPOSITE_ARRAY";
+    case vtkArrayTypes::VTK_CONSTANT_ARRAY:
+      return "VTK_CONSTANT_ARRAY";
+    case vtkArrayTypes::VTK_INDEXED_ARRAY:
+      return "VTK_INDEXED_ARRAY";
+    case vtkArrayTypes::VTK_STD_FUNCTION_ARRAY:
+      return "VTK_STD_FUNCTION_ARRAY";
+    case vtkArrayTypes::VTK_STRIDED_ARRAY:
+      return "VTK_STRIDED_ARRAY";
+    case vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY:
+      return "VTK_STRUCTURED_POINT_ARRAY";
   }
   return "Unknown";
 }

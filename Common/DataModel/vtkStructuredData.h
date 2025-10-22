@@ -36,7 +36,7 @@ template <typename Type>
 struct vtkConstantImplicitBackend;
 template <typename Type>
 using vtkConstantArray =
-  vtkImplicitArray<vtkConstantImplicitBackend<Type>, vtkArrayTypes::ConstantArray>;
+  vtkImplicitArray<vtkConstantImplicitBackend<Type>, vtkArrayTypes::VTK_CONSTANT_ARRAY>;
 
 enum vtkStructuredDataType
 {

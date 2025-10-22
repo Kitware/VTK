@@ -65,11 +65,11 @@
 #include <cassert>
 
 VTK_ABI_NAMESPACE_BEGIN
-template <class DerivedT, class ValueTypeT, int ArrayType = vtkArrayTypes::DataArray>
+template <class DerivedT, class ValueTypeT, int ArrayType = vtkArrayTypes::VTK_DATA_ARRAY>
 class vtkGenericDataArray : public vtkDataArray
 {
-  static_assert(
-    ArrayType >= vtkArrayTypes::AbstractArray && ArrayType < vtkArrayTypes::NumArrayTypes,
+  static_assert(ArrayType >= vtkArrayTypes::VTK_ABSTRACT_ARRAY &&
+      ArrayType < vtkArrayTypes::VTK_NUM_ARRAY_TYPES,
     "ArrayType must be a valid vtkAbstractArray::ArrayType enum value");
 
 public:

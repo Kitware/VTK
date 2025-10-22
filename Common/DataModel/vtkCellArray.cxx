@@ -142,7 +142,7 @@ struct InitializeImpl : public vtkCellArray::DispatchUtilities
     using ValueType = GetAPIType<OffsetsT>;
     using AccessorType = vtkDataArrayAccessor<OffsetsT>;
     conn->Initialize();
-    if (offsets->GetArrayType() == vtkArrayTypes::AffineArray)
+    if (offsets->GetArrayType() == vtkArrayTypes::VTK_AFFINE_ARRAY)
     {
       // AffineArray's Initialize destroys the backend of the offsets array,
       // so we only set the number of values to 0 to preserve the backend.

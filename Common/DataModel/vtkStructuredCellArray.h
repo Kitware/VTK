@@ -163,7 +163,7 @@ protected:
   struct vtkStructuredCellBackend;
   template <int DataDescription, bool UsePixelVoxelOrientation>
   struct vtkStructuredTCellBackend;
-  vtkSmartPointer<vtkImplicitArray<vtkStructuredCellBackend, vtkArrayTypes::ImplicitArray>>
+  vtkSmartPointer<vtkImplicitArray<vtkStructuredCellBackend, vtkArrayTypes::VTK_IMPLICIT_ARRAY>>
     Connectivity;
 
 private:

@@ -37,7 +37,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
 using vtkStdFunctionArray =
-  vtkImplicitArray<std::function<T(int)>, vtkArrayTypes::StdFunctionArray>;
+  vtkImplicitArray<std::function<T(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>;
 VTK_ABI_NAMESPACE_END
 
 #endif // vtkStdFunctionArray_h
@@ -47,14 +47,14 @@ VTK_ABI_NAMESPACE_END
 #define VTK_INSTANTIATE_STD_FUNCTION_ARRAY(ValueType)                                              \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template class VTKCOMMONCORE_EXPORT                                                              \
-    vtkImplicitArray<std::function<ValueType(int)>, vtkArrayTypes::StdFunctionArray>;              \
+    vtkImplicitArray<std::function<ValueType(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>;        \
   VTK_ABI_NAMESPACE_END                                                                            \
   namespace vtkDataArrayPrivate                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
     VTK_WRAP_TEMPLATE(                                                                             \
-      vtkImplicitArray<std::function<ValueType(int)>, vtkArrayTypes::StdFunctionArray>),           \
+      vtkImplicitArray<std::function<ValueType(int)>, vtkArrayTypes::VTK_STD_FUNCTION_ARRAY>),     \
     double)                                                                                        \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
@@ -70,7 +70,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkExternStdFunctionWithParameterTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, std::function, int,
-  vtkArrayTypes::StdFunctionArray);
+  vtkArrayTypes::VTK_STD_FUNCTION_ARRAY);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -103,7 +103,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkInstantiateStdFunctionWithParameterTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, std::function, int,
-  vtkArrayTypes::StdFunctionArray);
+  vtkArrayTypes::VTK_STD_FUNCTION_ARRAY);
 
 #pragma warning(pop)
 

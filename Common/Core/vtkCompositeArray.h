@@ -51,7 +51,7 @@ VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArray;
 template <typename T>
 using vtkCompositeArray =
-  vtkImplicitArray<vtkCompositeImplicitBackend<T>, vtkArrayTypes::CompositeArray>;
+  vtkImplicitArray<vtkCompositeImplicitBackend<T>, vtkArrayTypes::VTK_COMPOSITE_ARRAY>;
 VTK_ABI_NAMESPACE_END
 
 namespace vtk
@@ -79,14 +79,14 @@ VTK_ABI_NAMESPACE_END
 #define VTK_INSTANTIATE_COMPOSITE_ARRAY(ValueType)                                                 \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template class VTKCOMMONCORE_EXPORT                                                              \
-    vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>, vtkArrayTypes::CompositeArray>;       \
+    vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>, vtkArrayTypes::VTK_COMPOSITE_ARRAY>;  \
   VTK_ABI_NAMESPACE_END                                                                            \
   namespace vtkDataArrayPrivate                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
-    VTK_WRAP_TEMPLATE(                                                                             \
-      vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>, vtkArrayTypes::CompositeArray>),    \
+    VTK_WRAP_TEMPLATE(vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>,                     \
+      vtkArrayTypes::VTK_COMPOSITE_ARRAY>),                                                        \
     double)                                                                                        \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
@@ -95,7 +95,7 @@ VTK_ABI_NAMESPACE_END
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template VTKCOMMONCORE_EXPORT vtkSmartPointer<                                                   \
-    vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>, vtkArrayTypes::CompositeArray>>       \
+    vtkImplicitArray<vtkCompositeImplicitBackend<ValueType>, vtkArrayTypes::VTK_COMPOSITE_ARRAY>>  \
   ConcatenateDataArrays(const std::vector<vtkDataArray*>& arrays);                                 \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
@@ -112,7 +112,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkExternSecondOrderWithParameterTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkCompositeImplicitBackend,
-  vtkArrayTypes::CompositeArray);
+  vtkArrayTypes::VTK_COMPOSITE_ARRAY);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -145,7 +145,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkInstantiateSecondOrderWithParameterTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkCompositeImplicitBackend,
-  vtkArrayTypes::CompositeArray);
+  vtkArrayTypes::VTK_COMPOSITE_ARRAY);
 
 #pragma warning(pop)
 
