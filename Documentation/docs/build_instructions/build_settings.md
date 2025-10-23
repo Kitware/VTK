@@ -292,6 +292,8 @@ currently exist for use with the VTK dispatch mechanism:
     `vtkConstantArray` as part of the implicit array framework
   * `VTK_DISPATCH_STD_FUNCTION_ARRAYS` (default `OFF`): includes dispatching for arrays with
     an `std::function` backend `vtkStdFunctionArray` as part of the implicit array framework
+  * `VTK_DISPATCH_STRIDED_ARRAYS` (default `OFF`): includes dispatching for strided arrays
+    `vtkStridedArray` as part of the implicit array framework
   * `VTK_DISPATCH_STRUCTURED_POINT_ARRAYS` (default `OFF`): includes dispatching for structured point arrays
     `vtkStructuredPointArray` as part of the implicit array framework
 

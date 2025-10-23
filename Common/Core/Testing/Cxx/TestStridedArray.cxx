@@ -6,6 +6,20 @@
 #include "vtkStridedArray.h"
 #include "vtkTestUtilities.h"
 
+#ifdef VTK_DISPATCH_STRIDED_ARRAYS
+#include "vtkArrayDispatch.h"
+namespace
+{
+struct DispatcherCheckerWorker
+{
+  template <typename Array>
+  void operator()(Array* vtkNotUsed(array))
+  {
+  }
+};
+}
+#endif // VTK_DISPATCH_STRIDED_ARRAYS
+
 #include <cstdlib>
 #include <vector>
 
@@ -288,6 +302,20 @@ int TestStridedArray(int, char*[])
     std::cerr << "Error with copy\n";
     return EXIT_FAILURE;
   }
+#ifdef VTK_DISPATCH_STRIDED_ARRAYS
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
+  DispatcherCheckerWorker worker;
+  vtkNew<vtkStridedArray<float>> stridedArrayFloat;
+  if (!Dispatcher::Execute(stridedArrayFloat, worker))
+  {
+    return EXIT_FAILURE;
+  }
+  vtkNew<vtkStridedArray<double>> stridedArrayDouble;
+  if (!Dispatcher::Execute(stridedArrayDouble, worker))
+  {
+    return EXIT_FAILURE;
+  }
+#endif // VTK_DISPATCH_IMPLICIT_POINT_ARRAYS
 
   return EXIT_SUCCESS;
 }
