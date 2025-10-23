@@ -3,13 +3,12 @@
 #include "vtkPolygon.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayRange.h"
 #include "vtkBoundingBox.h"
 #include "vtkBox.h"
 #include "vtkCellArray.h"
-#include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkIncrementalPointLocator.h"
 #include "vtkLine.h"
 #include "vtkLogger.h"
 #include "vtkMath.h"
@@ -176,7 +175,7 @@ struct NormalWorker
 template <bool PointIdRedirection>
 void ComputeNormal(vtkPoints* p, int numPts, const vtkIdType* pts, double* n)
 {
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   ::NormalWorker<PointIdRedirection> worker;
   if (!Dispatcher::Execute(p->GetData(), worker, numPts, pts, n))
   {

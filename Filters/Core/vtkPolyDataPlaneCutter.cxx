@@ -3,6 +3,7 @@
 #include "vtkPolyDataPlaneCutter.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkBatch.h"
 #include "vtkCellArray.h"
@@ -24,7 +25,6 @@
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
 #include "vtkStaticEdgeLocatorTemplate.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkPolyDataPlaneCutter);
@@ -608,7 +608,7 @@ int vtkPolyDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Evaluate the plane equation across all points.
   vtkPoints* inPts = input->GetPoints();
-  using EvaluatePointsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+  using EvaluatePointsDispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   EvaluatePointsWorker epWorker;
   std::vector<unsigned char> ptMap(numPts);
   if (!EvaluatePointsDispatch::Execute(inPts->GetData(), epWorker, this->Plane, ptMap, this))
@@ -698,8 +698,8 @@ int vtkPolyDataPlaneCutter::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Generate the new points coordinates, and interpolate point data.
-  using OutputPointsDispatch =
-    vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+  using OutputPointsDispatch = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
+    vtkArrayDispatch::AOSPointArrays>;
   OutputPointsWorker opWorker;
   if (!OutputPointsDispatch::Execute(inPts->GetData(), outPts->GetData(), opWorker, numOutPts,
         mergeEdges.data(), mergeOffsets, this->Plane,

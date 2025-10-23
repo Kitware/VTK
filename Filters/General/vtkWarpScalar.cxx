@@ -3,6 +3,7 @@
 #include "vtkWarpScalar.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
@@ -305,8 +306,10 @@ int vtkWarpScalar::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Dispatch over point and scalar types
-  using vtkArrayDispatch::Reals;
-  using ScaleDispatch = vtkArrayDispatch::Dispatch3ByValueType<Reals, Reals, Reals>;
+  using FloatArrays = vtkArrayDispatch::FilterArraysByValueType<vtkArrayDispatch::Arrays,
+    vtkArrayDispatch::Reals>::Result;
+  using ScaleDispatch = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::PointArrays,
+    vtkArrayDispatch::AOSPointArrays, FloatArrays>;
   ScaleWorker scaleWorker;
   if (!ScaleDispatch::Execute(inPts->GetData(), newPts->GetData(), inScalars, scaleWorker, this,
         this->ScaleFactor, this->XYPlane, inNormals, normal))

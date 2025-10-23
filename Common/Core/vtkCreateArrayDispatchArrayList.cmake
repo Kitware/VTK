@@ -166,11 +166,7 @@ macro(vtkArrayDispatch_default_array_setup)
   _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_AFFINE_ARRAYS "vtkAffineArray" "${vtk_numeric_types}")
   _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_CONSTANT_ARRAYS "vtkConstantArray" "${vtk_numeric_types}")
   _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_STD_FUNCTION_ARRAYS "vtkStdFunctionArray" "${vtk_numeric_types}")
-
-  # we only need to dispatch on double for implicit point arrays
-  set(vtkArrayDispatchImplicit_structured_point_types "double")
-  _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_STRUCTURED_POINT_ARRAYS "vtkStructuredPointArray"
-    "${vtkArrayDispatchImplicit_structured_point_types}")
+  _vtkCreateArrayDispatchImplicit(VTK_DISPATCH_STRUCTURED_POINT_ARRAYS "vtkStructuredPointArray" "${vtk_numeric_types}")
 
 endmacro()
 

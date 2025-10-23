@@ -3,6 +3,7 @@
 #include "vtkMaskPointsFilter.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkDataArrayRange.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -153,8 +154,7 @@ int vtkMaskPointsFilter::FilterPoints(vtkPointSet* input)
   vtkDataArray* ptArray = input->GetPoints()->GetData();
 
   // Use a fast path for double/float points:
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   ExtractPoints worker;
   if (!Dispatcher::Execute(ptArray, worker, m, ev, dims, origin, spacing, this->PointMap))
   { // fallback for weird types

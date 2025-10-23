@@ -13,7 +13,6 @@
 
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkPoints.h"
 #include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
 #include "vtkVRML.h"

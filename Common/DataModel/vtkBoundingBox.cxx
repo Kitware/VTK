@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkBoundingBox.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkDataArrayRange.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
@@ -1190,10 +1191,8 @@ struct BoundsPointIdsWorker
 void vtkBoundingBox::ComputeBounds(vtkPoints* pts, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
-    vtkArrayDispatch::Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   BoundsWorker worker;
-
   if (!Dispatcher::Execute(pts->GetData(), worker, bounds))
   { // Fallback to slowpath for other point types
     worker(pts->GetData(), bounds);
@@ -1204,8 +1203,7 @@ void vtkBoundingBox::ComputeBounds(vtkPoints* pts, double bounds[6])
 void vtkBoundingBox::ComputeBounds(vtkPoints* pts, const unsigned char* ptUses, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
-    vtkArrayDispatch::Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   BoundsPointUsesWorker worker;
 
   if (!Dispatcher::Execute(pts->GetData(), worker, ptUses, bounds))
@@ -1219,8 +1217,7 @@ void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, const std::atomic<unsigned char>* ptUses, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
-    vtkArrayDispatch::Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   BoundsPointUsesWorker worker;
 
   if (!Dispatcher::Execute(pts->GetData(), worker, ptUses, bounds))
@@ -1235,8 +1232,7 @@ void vtkBoundingBox::ComputeBounds(
   vtkPoints* pts, const TIter ptIds, vtkIdType numberOfPointsIds, double bounds[6])
 {
   // Compute bounds: dispatch to real types, fallback for other types.
-  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
-    vtkArrayDispatch::Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   BoundsPointIdsWorker worker;
 
   if (!Dispatcher::Execute(pts->GetData(), worker, ptIds, numberOfPointsIds, bounds))

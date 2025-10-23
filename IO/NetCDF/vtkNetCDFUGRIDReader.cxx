@@ -3,6 +3,7 @@
 #include "vtkNetCDFUGRIDReader.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkDataArraySelection.h"
@@ -13,7 +14,6 @@
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -22,7 +22,6 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -598,7 +597,7 @@ bool vtkNetCDFUGRIDReader::FillPoints(vtkUnstructuredGrid* output)
   points->SetNumberOfPoints(this->NodeCount);
 
   PointsExtractor worker{};
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSPointArrays>;
   int result{ NC_NOERR };
   Dispatcher::Execute(
     points->GetData(), worker, this->NcId, this->NodeXVarId, this->NodeYVarId, result);

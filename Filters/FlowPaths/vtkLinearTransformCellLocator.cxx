@@ -3,19 +3,17 @@
 #include "vtkLinearTransformCellLocator.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
-#include "vtkImageData.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
-#include "vtkRectilinearGrid.h"
 #include "vtkSMPTools.h"
 #include "vtkTransform.h"
 
@@ -274,7 +272,9 @@ bool vtkLinearTransformCellLocator::ComputeTransformation()
   }
   else
   {
-    using Dispatcher = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
+    using Dispatcher =
+      vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::AOSPointArrays,
+        vtkArrayDispatch::AOSPointArrays>;
     if (!Dispatcher::Execute(
           initialPointsSampleData, newPointsSampleData, worker, validTransformation))
     {

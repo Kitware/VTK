@@ -7,13 +7,12 @@
 
 #include "vtkActor.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkConnectivityFilter.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
-#include "vtkLogger.h"
-#include "vtkPNGReader.h"
 #include "vtkPNGWriter.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -87,7 +86,7 @@ bool setPoints(std::shared_ptr<OMFFile>& file, const Json::Value& geometry,
   if (globalOrigin[0] != 0 || globalOrigin[1] != 0 || globalOrigin[2] != 0)
   {
     AddOriginToArrayWorker worker;
-    typedef vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals> Dispatcher;
+    typedef vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllPointArrays> Dispatcher;
     if (!Dispatcher::Execute(vertices, worker, globalOrigin))
     {
       worker(vertices.GetPointer(), globalOrigin);

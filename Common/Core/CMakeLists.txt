@@ -144,7 +144,7 @@ option(VTK_DISPATCH_SCALED_SOA_ARRAYS "Include scaled struct-of-arrays vtkDataAr
 option(VTK_DISPATCH_AFFINE_ARRAYS "Include implicit vtkDataArray subclasses based on an affine function backend in dispatcher" OFF)
 option(VTK_DISPATCH_CONSTANT_ARRAYS "Include implicit vtkDataArray subclasses based on a constant backend in dispatcher" OFF)
 option(VTK_DISPATCH_STD_FUNCTION_ARRAYS "Include implicit vtkDataArray subclasses based on std::function in dispatcher" OFF)
-option(VTK_DISPATCH_STRUCTURED_POINT_ARRAYS "Include implicit vtkDataArray subclasses based on structured point backend dispatcher" ON)
+option(VTK_DISPATCH_STRUCTURED_POINT_ARRAYS "Include implicit vtkDataArray subclasses based on structured point backend dispatcher" OFF)
 
 option(VTK_WARN_ON_DISPATCH_FAILURE "If enabled, vtkArrayDispatch will print a warning when a dispatch fails." OFF)
 
@@ -458,6 +458,7 @@ configure_file(
 
 set(headers
   vtkABI.h
+  vtkArrayDispatchDataSetArrayList.h
   vtkArrayIteratorIncludes.h
   vtkAssume.h
   vtkAutoInit.h

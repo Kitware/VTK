@@ -3,6 +3,7 @@
 #include "vtkConstrainedSmoothingFilter.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellLocator.h"
@@ -18,7 +19,6 @@
 #include "vtkPointSet.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkStaticCellLinksTemplate.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkConstrainedSmoothingFilter);
@@ -547,8 +547,7 @@ int vtkConstrainedSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(reques
   double relax = this->RelaxationFactor;
 
   // Now smooth the points.
-  using vtkArrayDispatch::Reals;
-  using SmoothingDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using SmoothingDispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   SmoothWorker smoothWorker;
   if (!SmoothingDispatch::Execute(inPts->GetData(), smoothWorker, newPts, tmpPts, stencils,
         converge, numIter, relax, cDist, cBox, cArray))
@@ -560,7 +559,7 @@ int vtkConstrainedSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(reques
   // If error scalars or vectors are requested, compute these.
   if (this->GenerateErrorScalars || this->GenerateErrorVectors)
   {
-    using AttrDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
+    using AttrDispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
     AttrWorker attrWorker;
     if (!AttrDispatch::Execute(inPts->GetData(), attrWorker, newPts, output,
           this->GenerateErrorScalars, this->GenerateErrorVectors))

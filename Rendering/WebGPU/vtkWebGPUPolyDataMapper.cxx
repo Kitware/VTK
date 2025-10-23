@@ -1,7 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkWebGPUPolyDataMapper.h"
+
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
@@ -16,6 +18,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPlaneCollection.h"
 #include "vtkPointData.h"
+#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -1439,7 +1442,7 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
   vtkDataArray* pointTangents = pointData->GetTangents();
   vtkDataArray* pointUvs = pointData->GetTCoords();
 
-  using DispatchT = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
+  using DispatchT = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
 
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
 

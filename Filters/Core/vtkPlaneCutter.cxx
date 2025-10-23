@@ -5,9 +5,9 @@
 #include "vtk3DLinearGridPlaneCutter.h"
 #include "vtkAppendDataSets.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkConvertToMultiBlockDataSet.h"
 #include "vtkDataObjectTreeRange.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
@@ -800,7 +800,7 @@ int vtkPlaneCutter::ExecuteDataSet(vtkDataSet* input, vtkPolyData* output)
 
   auto tempOutputMP = vtkSmartPointer<vtkMultiPieceDataSet>::New();
   // Threaded execute
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   if (auto inputPolyData = vtkPolyData::SafeDownCast(input))
   {
     UnstructuredDataWorker<vtkPolyData> worker;

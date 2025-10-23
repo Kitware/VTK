@@ -6,6 +6,7 @@
 #include "vtkAbstractArray.h"
 #include "vtkAbstractPointLocator.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkBitArray.h"
 #include "vtkCellArray.h"
 #include "vtkCellCenters.h"
@@ -972,7 +973,7 @@ struct DataSetPointMapper<vtkPointSet>
       locator->BuildLocator();
       vtkDataArray* points = query->GetPoints()->GetData();
 
-      using PointDispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+      using PointDispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
       PointMatchingDispatcher pointWorker(this->PointIdMap, mapPoints);
       if (!PointDispatcher::Execute(points, pointWorker, query, target, locator, toleranceFactor))
       {
@@ -1122,7 +1123,9 @@ struct DataSetPointMapper<RectilinearGridT,
       return;
     }
 
-    using DataArrayDispatcher = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
+    using DataArrayDispatcher =
+      vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::AOSPointArrays,
+        vtkArrayDispatch::AOSPointArrays>;
 
     vtkIdType errorId;
     auto decider = [&errorId, this](bool equals, vtkIdType id, vtkIdType)

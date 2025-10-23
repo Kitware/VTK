@@ -4,6 +4,7 @@
 
 #include "vtkAbstractTransform.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h"
 #include "vtkBatch.h"
 #include "vtkCellData.h"
@@ -790,7 +791,7 @@ vtkSmartPointer<vtkPolyData> SliceStructuredData(TGrid* inputGrid, vtkDataArray*
   const unsigned char* selected = nullptr;
   const unsigned char* inOut = nullptr;
   const double* slice = nullptr;
-  using DispatcherPoints = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+  using DispatcherPoints = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllPointArrays>;
   EvaluatePointsWithPlaneWorker evaluatePointsWorker;
   if (tree)
   {
@@ -901,8 +902,8 @@ vtkSmartPointer<vtkPolyData> SliceStructuredData(TGrid* inputGrid, vtkDataArray*
 
   // Extract points and calculate outputPoints and outputPointData.
   ExtractPointsWorker<TInputIdType> extractPointsWorker;
-  using ExtractPointsDispatch =
-    vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+  using ExtractPointsDispatch = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::AllPointArrays,
+    vtkArrayDispatch::AOSPointArrays>;
   if (!ExtractPointsDispatch::Execute(pointsArray, outputPoints->GetData(), extractPointsWorker,
         interpolate, pointDataArrays, edges, numberOfEdges, filter))
   {

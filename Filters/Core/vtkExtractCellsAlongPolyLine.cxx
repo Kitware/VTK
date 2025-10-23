@@ -3,6 +3,7 @@
 #include "vtkExtractCellsAlongPolyLine.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkConstantArray.h"
@@ -347,50 +348,6 @@ struct InputUnstructuredGridCellArrayWorker
 };
 
 //==============================================================================
-struct DataSetPointsCopyWorker
-{
-  DataSetPointsCopyWorker(vtkDataSet* input, vtkPoints* outputPoints, vtkIdList* pointIds,
-    vtkExtractCellsAlongPolyLine* filter)
-    : Input(input)
-    , OutputPoints(outputPoints)
-    , PointIds(pointIds)
-    , Filter(filter)
-  {
-  }
-
-  void operator()(vtkIdType startId, vtkIdType endId)
-  {
-    double p[3];
-    bool isFirst = vtkSMPTools::GetSingleThread();
-    vtkIdType checkAbortInterval = std::min((endId - startId) / 10 + 1, (vtkIdType)1000);
-
-    for (vtkIdType pointId = startId; pointId < endId; ++pointId)
-    {
-      if (pointId % checkAbortInterval == 0)
-      {
-        if (isFirst)
-        {
-          this->Filter->CheckAbort();
-        }
-
-        if (this->Filter->GetAbortOutput())
-        {
-          break;
-        }
-      }
-
-      this->Input->GetPoint(this->PointIds->GetId(pointId), p);
-      this->OutputPoints->SetPoint(pointId, p);
-    }
-  }
-
-  vtkDataSet* Input;
-  vtkPoints* OutputPoints;
-  vtkIdList* PointIds;
-  vtkExtractCellsAlongPolyLine* Filter;
-};
-
-//==============================================================================
 struct PointSetPointsCopyDispatcher
 {
   vtkExtractCellsAlongPolyLine* Filter;
@@ -445,7 +402,9 @@ struct PointSetPointsCopyWorker
 
   void operator()(vtkIdType startId, vtkIdType endId)
   {
-    using Dispatcher = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
+    using Dispatcher =
+      vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::AllPointArrays,
+        vtkArrayDispatch::AOSPointArrays>;
 
     ::PointSetPointsCopyDispatcher dispatcher(this->Filter);
     vtkDataArray* inputData = this->Input->GetData();
@@ -685,12 +644,11 @@ int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPoint
     inputToOutputPointIdMap.insert({ sortedIntersectedCellPointIds->GetId(pointId), pointId });
   }
 
-  auto inputPS = vtkPointSet::SafeDownCast(input);
-  vtkPoints* inputPoints = inputPS ? inputPS->GetPoints() : nullptr;
+  vtkPoints* inputPoints = input->GetPoints();
 
   // Handling of output points precision
   vtkNew<vtkPoints> points;
-  if (inputPoints)
+  if (vtkPointSet::SafeDownCast(input))
   {
     points->SetDataType(inputPoints->GetDataType());
   }
@@ -717,16 +675,8 @@ int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPoint
   points->SetNumberOfPoints(numberOfPoints);
   output->SetPoints(points);
 
-  if (inputPoints)
-  {
-    ::PointSetPointsCopyWorker worker(inputPoints, points, sortedIntersectedCellPointIds, self);
-    vtkSMPTools::For(0, numberOfPoints, worker);
-  }
-  else
-  {
-    ::DataSetPointsCopyWorker worker(input, points, sortedIntersectedCellPointIds, self);
-    vtkSMPTools::For(0, numberOfPoints, worker);
-  }
+  ::PointSetPointsCopyWorker worker(inputPoints, points, sortedIntersectedCellPointIds, self);
+  vtkSMPTools::For(0, numberOfPoints, worker);
 
   vtkNew<vtkCellArray> outputCells;
   vtkNew<vtkUnsignedCharArray> outputCellTypes;

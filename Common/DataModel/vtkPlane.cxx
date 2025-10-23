@@ -5,6 +5,7 @@
 #include <vtkPoints.h>
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkDataArrayRange.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -392,8 +393,8 @@ struct CutFunctionWorker
 void vtkPlane::EvaluateFunction(vtkDataArray* input, vtkDataArray* output)
 {
   CutFunctionWorker worker(this->InternalNormal, this->InternalOrigin);
-  using Dispatcher = vtkArrayDispatch::Dispatch2ByArrayAndValueType<vtkArrayDispatch::AllArrays,
-    vtkArrayDispatch::Arrays, vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+  using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::AllPointArrays,
+    vtkArrayDispatch::AOSPointArrays>;
   if (!Dispatcher::Execute(input, output, worker))
   {
     worker(input, output); // Use vtkDataArray API if dispatch fails.

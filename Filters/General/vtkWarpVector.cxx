@@ -3,6 +3,7 @@
 #include "vtkWarpVector.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
@@ -200,8 +201,10 @@ int vtkWarpVector::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Dispatch over point and scalar types. Fastpath for real types, fallback to slower
   // path for non-real types.
-  using vtkArrayDispatch::Reals;
-  using WarpDispatch = vtkArrayDispatch::Dispatch3ByValueType<Reals, Reals, Reals>;
+  using FloatArrays = vtkArrayDispatch::FilterArraysByValueType<vtkArrayDispatch::Arrays,
+    vtkArrayDispatch::Reals>::Result;
+  using WarpDispatch = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::PointArrays,
+    vtkArrayDispatch::AOSPointArrays, FloatArrays>;
   WarpWorker warpWorker;
 
   if (!WarpDispatch::Execute(

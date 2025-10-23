@@ -4,6 +4,7 @@
 #include "vtkGeometryFilter.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -3100,8 +3101,8 @@ int ExecuteUnstructuredGrid(vtkGeometryFilter* self, vtkDataSet* dataSetInput, v
   TInputIdType* ptMap = extract->PointMap;
   if (self->GetMerging())
   {
-    using vtkArrayDispatch::Reals;
-    using ExpPtsDispatch = vtkArrayDispatch::Dispatch2ByValueType<Reals, Reals>;
+    using ExpPtsDispatch = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
+      vtkArrayDispatch::AOSPointArrays>;
     ExpPtsWorker<TInputIdType> compWorker(self);
     if (!ExpPtsDispatch::Execute(
           inPts->GetData(), outPts->GetData(), compWorker, numInputPts, inPD, outPD, extract))
@@ -3327,8 +3328,8 @@ int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* o
 
   if (mergePts && inPts != nullptr) // are these explicit points with merging on?
   {
-    using vtkArrayDispatch::Reals;
-    using ExpPtsDispatch = vtkArrayDispatch::Dispatch2ByValueType<Reals, Reals>;
+    using ExpPtsDispatch = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
+      vtkArrayDispatch::AOSPointArrays>;
     ExpPtsWorker<TInputIdType> compWorker(self);
     if (!ExpPtsDispatch::Execute(
           inPts->GetData(), outPts->GetData(), compWorker, numInputPts, inPD, outPD, extStr))
@@ -3341,8 +3342,7 @@ int ExecuteStructured(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* o
   {
     // Some of these datasets have explicit point representations, we'll generate
     // the geometry (i.e., points) now.
-    using vtkArrayDispatch::Reals;
-    using ImpPtsDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
+    using ImpPtsDispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSPointArrays>;
     ImpPtsWorker<TInputIdType> compWorker(self);
     if (!ImpPtsDispatch::Execute(
           outPts->GetData(), compWorker, input, numInputPts, inPD, outPD, extStr))
@@ -3621,8 +3621,7 @@ int ExecuteDataSet(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* outp
   vtkIdType numInputPts = input->GetNumberOfPoints(), numOutputPts;
 
   // Generate the new points
-  using vtkArrayDispatch::Reals;
-  using ImpPtsDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using ImpPtsDispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSPointArrays>;
   ImpPtsWorker<TInputIdType> compWorker(self);
   if (!ImpPtsDispatch::Execute(
         outPts->GetData(), compWorker, input, numInputPts, inPD, outPD, &extract))

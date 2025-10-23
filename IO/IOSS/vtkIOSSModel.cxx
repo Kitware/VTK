@@ -3,6 +3,7 @@
 #include "vtkIOSSModel.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataArraySelection.h"
@@ -1101,8 +1102,7 @@ struct vtkNodeBlock : vtkGroupingEntity
     nodeBlock->put_field_data("ids", this->Ids);
 
     // add mesh coordinates
-    using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
-      vtkArrayDispatch::Reals>;
+    using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllPointArrays>;
     PutFieldWorker<double> worker(3, this->Ids.size(), false /* createAOS */);
     for (size_t dsIndex = 0; dsIndex < this->DataSets.size(); ++dsIndex)
     {

@@ -3,6 +3,7 @@
 #include "vtkAnimateModes.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkAssume.h"
 #include "vtkDataArrayAccessor.h"
 #include "vtkDataObjectTree.h"
@@ -166,8 +167,8 @@ int vtkAnimateModes::RequestData(
     auto newPoints = vtkPoints::New(points->GetDataType());
     newPoints->SetNumberOfPoints(points->GetNumberOfPoints());
 
-    using PointTypes = vtkArrayDispatch::Reals;
-    using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<PointTypes, PointTypes>;
+    using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
+      vtkArrayDispatch::AOSPointArrays>;
 
     vtkAnimateModesWorker worker;
     if (!Dispatcher::Execute(

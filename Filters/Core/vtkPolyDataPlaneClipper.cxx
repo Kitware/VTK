@@ -3,6 +3,7 @@
 #include "vtkPolyDataPlaneClipper.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkBatch.h"
 #include "vtkCellArray.h"
@@ -829,7 +830,7 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Evaluate the plane equation across all points.
   vtkPoints* inPts = input->GetPoints();
-  using EvaluatePointsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+  using EvaluatePointsDispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   EvaluatePointsWorker epWorker(this);
   if (!EvaluatePointsDispatch::Execute(inPts->GetData(), epWorker, this->Plane))
   {
@@ -927,8 +928,8 @@ int vtkPolyDataPlaneClipper::RequestData(vtkInformation* vtkNotUsed(request),
   ptArrays.AddArrays(numOutPts, input->GetPointData(), output->GetPointData());
 
   // Generate new points, a combination of kept points and interpolated points.
-  using OutputPointsDispatch =
-    vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+  using OutputPointsDispatch = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
+    vtkArrayDispatch::AOSPointArrays>;
   OutputPointsWorker opWorker;
   if (!OutputPointsDispatch::Execute(inPts->GetData(), outPts->GetData(), opWorker,
         epWorker.KeptPtMap, numNewPts, mergeEdges, mergeOffsets, this->Plane, &ptArrays, this))

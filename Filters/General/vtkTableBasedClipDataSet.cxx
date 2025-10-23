@@ -6,6 +6,7 @@
 
 #include "vtkAppendFilter.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h"
 #include "vtkBatch.h"
 #include "vtkCallbackCommand.h"
@@ -1362,8 +1363,8 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkTableBasedClipDataSet::ClipTDataSet(
   // Extract points and calculate outputPoints and outputPointData.
   ExtractPointsWorker<TInputIdType> extractPointsWorker;
   using ExtractPointsDispatcher =
-    vtkArrayDispatch::Dispatch2ByArrayAndValueType<vtkArrayDispatch::AllArrays,
-      vtkArrayDispatch::Arrays, vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+    vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::AllPointArrays,
+      vtkArrayDispatch::AOSPointArrays>;
   if (!ExtractPointsDispatcher::Execute(inputPoints->GetData(), outputPoints->GetData(),
         extractPointsWorker, pointBatches, pointsMap.Get(), pointDataArrays, edges, centroids,
         numberOfKeptPoints, numberOfEdges, numberOfCentroids, this))

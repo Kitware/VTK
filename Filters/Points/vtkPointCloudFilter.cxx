@@ -2,22 +2,18 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPointCloudFilter.h"
 
-#include "vtkAbstractPointLocator.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 
 //------------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
@@ -199,8 +195,9 @@ int vtkPointCloudFilter::RequestData(vtkInformation* vtkNotUsed(request),
   output->SetPoints(points);
 
   // Use fast path for float/double points:
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::Dispatch2BySameValueType<Reals>;
+  using Dispatcher =
+    vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::PointArrays,
+      vtkArrayDispatch::AOSPointArrays>;
   MapPoints worker;
   vtkDataArray* inPtArray = input->GetPoints()->GetData();
   vtkDataArray* outPtArray = output->GetPoints()->GetData();
