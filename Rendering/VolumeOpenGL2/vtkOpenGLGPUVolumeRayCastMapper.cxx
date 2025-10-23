@@ -808,7 +808,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::CaptureDepthTexture(vtkRender
     }
     else
     {
+      // For now, the format is set by default to GL_DEPTH_COMPONENT24.
+      // This should be configurable in the future
+      // See https://gitlab.kitware.com/vtk/vtk/-/issues/19823
+#ifdef GL_ES_VERSION_3_0
+      this->DepthTextureObject->AllocateDepth(this->WindowSize[0], this->WindowSize[1], 3);
+#else
       this->DepthTextureObject->AllocateDepth(this->WindowSize[0], this->WindowSize[1], 4);
+#endif
     }
   }
 
