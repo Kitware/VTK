@@ -82,7 +82,7 @@ class VTKCOMMONCORE_EXPORT VTK_MARSHALAUTO vtkAbstractArray : public vtkObject
 public:
   vtkTypeMacro(vtkAbstractArray, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::AbstractArray>;
+  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_ABSTRACT_ARRAY>;
   using DataTypeTag = std::integral_constant<int, VTK_OPAQUE>;
 
   /**
@@ -683,26 +683,26 @@ public:
   ///@}
 
   static constexpr int AbstractArray VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::AbstractArray") = vtkArrayTypes::AbstractArray;
+    "Use vtkArrayTypes::VTK_ABSTRACT_ARRAY") = vtkArrayTypes::VTK_ABSTRACT_ARRAY;
   static constexpr int DataArray VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::DataArray") = vtkArrayTypes::DataArray;
+    "Use vtkArrayTypes::VTK_DATA_ARRAY") = vtkArrayTypes::VTK_DATA_ARRAY;
   static constexpr int AoSDataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::AoSDataArrayTemplate") = vtkArrayTypes::AoSDataArrayTemplate;
+    "Use vtkArrayTypes::VTK_AOS_DATA_ARRAY") = vtkArrayTypes::VTK_AOS_DATA_ARRAY;
   static constexpr int SoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::SoADataArrayTemplate") = vtkArrayTypes::SoADataArrayTemplate;
+    "Use vtkArrayTypes::VTK_SOA_DATA_ARRAY") = vtkArrayTypes::VTK_SOA_DATA_ARRAY;
   static constexpr int TypedDataArray VTK_DEPRECATED_IN_9_5_0(
-    "TypedDataArray has been deprecated") = vtkArrayTypes::NumArrayTypes;
+    "TypedDataArray has been deprecated") = vtkArrayTypes::VTK_NUM_ARRAY_TYPES;
   static constexpr int MappedDataArray VTK_DEPRECATED_IN_9_5_0(
-    "MappedDataArray has been deprecated") = vtkArrayTypes::NumArrayTypes + 1;
+    "MappedDataArray has been deprecated") = vtkArrayTypes::VTK_NUM_ARRAY_TYPES + 1;
   static constexpr int ScaledSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::ScaledSoADataArrayTemplate") = vtkArrayTypes::ScaledSoADataArrayTemplate;
+    "Use vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY") = vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY;
   static constexpr int ImplicitArray VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayTypes::ImplicitArray") = vtkArrayTypes::ImplicitArray;
+    "Use vtkArrayTypes::VTK_IMPLICIT_ARRAY") = vtkArrayTypes::VTK_IMPLICIT_ARRAY;
   static constexpr int DataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
-    "DataArrayTemplate has been deprecated") = vtkArrayTypes::AoSDataArrayTemplate;
+    "DataArrayTemplate has been deprecated") = vtkArrayTypes::VTK_AOS_DATA_ARRAY;
   static constexpr int ScaleSoADataArrayTemplate VTK_DEPRECATED_IN_9_6_0(
     "ScaleSoADataArrayTemplate has been renamed to ScaledSoADataArrayTemplate") =
-    vtkArrayTypes::ScaledSoADataArrayTemplate;
+    vtkArrayTypes::VTK_SCALED_SOA_DATA_ARRAY;
 
   /**
    * Method for type-checking in FastDownCast implementations. See also

@@ -70,7 +70,8 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
-using vtkStridedArray = vtkImplicitArray<vtkStridedImplicitBackend<T>, vtkArrayTypes::StridedArray>;
+using vtkStridedArray =
+  vtkImplicitArray<vtkStridedImplicitBackend<T>, vtkArrayTypes::VTK_STRIDED_ARRAY>;
 VTK_ABI_NAMESPACE_END
 
 #endif // vtkStridedArray_h
@@ -80,14 +81,14 @@ VTK_ABI_NAMESPACE_END
 #define VTK_INSTANTIATE_STRIDED_ARRAY(ValueType)                                                   \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template class VTKCOMMONCORE_EXPORT                                                              \
-    vtkImplicitArray<vtkStridedImplicitBackend<ValueType>, vtkArrayTypes::StridedArray>;           \
+    vtkImplicitArray<vtkStridedImplicitBackend<ValueType>, vtkArrayTypes::VTK_STRIDED_ARRAY>;      \
   VTK_ABI_NAMESPACE_END                                                                            \
   namespace vtkDataArrayPrivate                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
     VTK_WRAP_TEMPLATE(                                                                             \
-      vtkImplicitArray<vtkStridedImplicitBackend<ValueType>, vtkArrayTypes::StridedArray>),        \
+      vtkImplicitArray<vtkStridedImplicitBackend<ValueType>, vtkArrayTypes::VTK_STRIDED_ARRAY>),   \
     double)                                                                                        \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
@@ -104,7 +105,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkExternSecondOrderWithParameterTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkStridedImplicitBackend,
-  vtkArrayTypes::StridedArray);
+  vtkArrayTypes::VTK_STRIDED_ARRAY);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -137,7 +138,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkInstantiateSecondOrderWithParameterTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkStridedImplicitBackend,
-  vtkArrayTypes::StridedArray);
+  vtkArrayTypes::VTK_STRIDED_ARRAY);
 
 #pragma warning(pop)
 

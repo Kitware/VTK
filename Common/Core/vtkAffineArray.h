@@ -30,7 +30,8 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
-using vtkAffineArray = vtkImplicitArray<vtkAffineImplicitBackend<T>, vtkArrayTypes::AffineArray>;
+using vtkAffineArray =
+  vtkImplicitArray<vtkAffineImplicitBackend<T>, vtkArrayTypes::VTK_AFFINE_ARRAY>;
 VTK_ABI_NAMESPACE_END
 
 #endif // vtkAffineArray_h
@@ -40,14 +41,14 @@ VTK_ABI_NAMESPACE_END
 #define VTK_INSTANTIATE_AFFINE_ARRAY(ValueType)                                                    \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   template class VTKCOMMONCORE_EXPORT                                                              \
-    vtkImplicitArray<vtkAffineImplicitBackend<ValueType>, vtkArrayTypes::AffineArray>;             \
+    vtkImplicitArray<vtkAffineImplicitBackend<ValueType>, vtkArrayTypes::VTK_AFFINE_ARRAY>;        \
   VTK_ABI_NAMESPACE_END                                                                            \
   namespace vtkDataArrayPrivate                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
     VTK_WRAP_TEMPLATE(                                                                             \
-      vtkImplicitArray<vtkAffineImplicitBackend<ValueType>, vtkArrayTypes::AffineArray>),          \
+      vtkImplicitArray<vtkAffineImplicitBackend<ValueType>, vtkArrayTypes::VTK_AFFINE_ARRAY>),     \
     double)                                                                                        \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
@@ -63,7 +64,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkExternSecondOrderWithParameterTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkAffineImplicitBackend,
-  vtkArrayTypes::AffineArray);
+  vtkArrayTypes::VTK_AFFINE_ARRAY);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -96,7 +97,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkInstantiateSecondOrderWithParameterTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkAffineImplicitBackend,
-  vtkArrayTypes::AffineArray);
+  vtkArrayTypes::VTK_AFFINE_ARRAY);
 
 #pragma warning(pop)
 

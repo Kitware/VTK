@@ -30,10 +30,10 @@ VTK_ABI_NAMESPACE_BEGIN
 template <class ValueTypeT>
 class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate
   : public vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>, ValueTypeT,
-      vtkArrayTypes::SoADataArrayTemplate>
+      vtkArrayTypes::VTK_SOA_DATA_ARRAY>
 {
   using GenericDataArrayType = vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>, ValueTypeT,
-    vtkArrayTypes::SoADataArrayTemplate>;
+    vtkArrayTypes::VTK_SOA_DATA_ARRAY>;
 
 public:
   using SelfType = vtkSOADataArrayTemplate<ValueTypeT>;

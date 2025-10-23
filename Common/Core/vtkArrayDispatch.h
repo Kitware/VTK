@@ -482,14 +482,14 @@ struct Dispatch3BySameValueType;
  * If all types are to be considered, use vtkArrayDispatch::AllTypes for the
  * first three template parameters.
  * The entry point is:
- * bool Dispatch3ByArraySameValue<...>::Execute(
+ * bool Dispatch3ByArraySameValueType<...>::Execute(
  * vtkDataArray *a1, vtkDataArray *a2, vtkDataArray *a3, Worker &worker).
  */
 template <typename ArrayList, typename ValueTypeList>
-struct Dispatch3ByArraySameValue;
+struct Dispatch3ByArraySameValueType;
 template <typename ArrayList, typename ValueTypeList>
 struct VTK_DEPRECATED_IN_9_6_0(
-  "Use Dispatch3ByArraySameValue instead.") Dispatch3BySameValueTypeUsingArrays;
+  "Use Dispatch3ByArraySameValueType instead.") Dispatch3BySameValueTypeUsingArrays;
 
 //----------------------------------------------------------------------------
 /**

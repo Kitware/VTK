@@ -8,8 +8,10 @@
 #include "vtkBase64OutputStream.h"
 #include "vtkBitArray.h"
 #include "vtkByteSwap.h"
+#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
+#include "vtkConstantUnsignedCharArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
@@ -1133,8 +1135,11 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
   else if (vtkDataArray* da = vtkArrayDownCast<vtkDataArray>(a))
   {
     // Create a dispatcher that also handles vtkBitArray:
-    using vtkArrayDispatch::AllArrays;
-    using XMLArrays = vtkTypeList::Append<AllArrays, vtkBitArray>::Result;
+    using XMLExplicitArrays = vtkTypeList::Append<vtkArrayDispatch::AllArrays, vtkBitArray>::Result;
+    using XMLImplicitArrays =
+      vtkTypeList::Append<vtkCellArray::StorageOffsetsArrays, vtkConstantUnsignedCharArray>::Result;
+    using XMLArrays = vtkTypeList::Unique<
+      vtkTypeList::Append<XMLExplicitArrays, XMLImplicitArrays>::Result>::Result;
     using Dispatcher = vtkArrayDispatch::DispatchByArray<XMLArrays>;
 
     WriteBinaryDataBlockWorker worker(this, wordType, memWordSize, outWordSize, numValues);

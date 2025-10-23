@@ -27,7 +27,7 @@ template <typename T>
 struct vtkConstantImplicitBackend;
 template <typename Type>
 using vtkConstantArray =
-  vtkImplicitArray<vtkConstantImplicitBackend<Type>, vtkArrayTypes::ConstantArray>;
+  vtkImplicitArray<vtkConstantImplicitBackend<Type>, vtkArrayTypes::VTK_CONSTANT_ARRAY>;
 
 class VTKFILTERSPARALLEL_EXPORT vtkGenerateProcessIds : public vtkDataSetAlgorithm
 {

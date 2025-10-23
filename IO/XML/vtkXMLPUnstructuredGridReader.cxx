@@ -165,8 +165,8 @@ int vtkXMLPUnstructuredGridReader::ReadPieceData()
   }
 
   // Copy the corresponding cell types.
-  vtkUnsignedCharArray* inTypes = input->GetCellTypes<vtkUnsignedCharArray>();
-  vtkUnsignedCharArray* outTypes = output->GetCellTypes<vtkUnsignedCharArray>();
+  vtkUnsignedCharArray* inTypes = vtkUnsignedCharArray::FastDownCast(input->GetCellTypes());
+  vtkUnsignedCharArray* outTypes = vtkUnsignedCharArray::FastDownCast(output->GetCellTypes());
   std::copy_n(inTypes->GetPointer(0),
     inTypes->GetNumberOfTuples() * inTypes->GetNumberOfComponents(),
     outTypes->GetPointer(this->StartCell * inTypes->GetNumberOfComponents()));

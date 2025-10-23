@@ -41,7 +41,7 @@ class VTKCOMMONCORE_EXPORT VTK_MARSHALMANUAL vtkDataArray : public vtkAbstractAr
 public:
   vtkTypeMacro(vtkDataArray, vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::DataArray>;
+  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_DATA_ARRAY>;
   using typename vtkAbstractArray::DataTypeTag;
 
   /**

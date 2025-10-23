@@ -14,7 +14,7 @@ struct StructuredPointsWorker
   template <typename ArrayTypeX, typename ArrayTypeY, typename ArrayTypeZ>
   void operator()(ArrayTypeX* arrayX, ArrayTypeY* arrayY, ArrayTypeZ* arrayZ,
     vtkSmartPointer<vtkImplicitArray<vtkStructuredPointBackend<ValueType>,
-      vtkArrayTypes::StructuredPointArray>>& structuredPointArray,
+      vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>>& structuredPointArray,
     int extent[6], int dataDescription, double dirMatrix[9])
   {
     // Using a raw pointer to the base class here is important so we don't instantiate
@@ -105,7 +105,7 @@ namespace vtk
 VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
 vtkSmartPointer<
-  vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::StructuredPointArray>>
+  vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>>
 CreateStructuredPointArray(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,
   int extent[6], int dataDescription, double dirMatrix[9])
 {
@@ -115,7 +115,7 @@ CreateStructuredPointArray(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkData
     dirMatrix[6] == 0.0 && dirMatrix[7] == 0.0);
   int dim[3] = { extent[1] - extent[0] + 1, extent[3] - extent[2] + 1, extent[5] - extent[4] + 1 };
   auto structuredPointArray = vtkSmartPointer<vtkImplicitArray<vtkStructuredPointBackend<ValueType>,
-    vtkArrayTypes::StructuredPointArray>>::New();
+    vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>>::New();
   structuredPointArray->SetNumberOfComponents(3);
   const auto numPoints = static_cast<vtkIdType>(dim[0]) * dim[1] * dim[2];
   structuredPointArray->SetNumberOfTuples(numPoints);

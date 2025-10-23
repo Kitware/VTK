@@ -86,7 +86,7 @@ vtkImplicitArray<BackendT, ArrayType>* vtkImplicitArray<BackendT, ArrayType>::Fa
 {
   if (source)
   {
-    if constexpr (vtkImplicitArray::ArrayTypeTag::value != vtkArrayTypes::ImplicitArray)
+    if constexpr (vtkImplicitArray::ArrayTypeTag::value != vtkArrayTypes::VTK_IMPLICIT_ARRAY)
     {
       return Superclass::FastDownCast(source);
     }
@@ -94,7 +94,7 @@ vtkImplicitArray<BackendT, ArrayType>* vtkImplicitArray<BackendT, ArrayType>::Fa
     {
       switch (source->GetArrayType())
       {
-        case vtkArrayTypes::ImplicitArray:
+        case vtkArrayTypes::VTK_IMPLICIT_ARRAY:
           if (vtkDataTypesCompare(source->GetDataType(), vtkImplicitArray::DataTypeTag::value))
           {
             // The problem here is that we do not know what type of backend to use and any pointer

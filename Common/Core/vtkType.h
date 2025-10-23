@@ -69,34 +69,34 @@
 // NOLINTNEXTLINE(readability-enum-initial-value)
 enum vtkArrayTypes
 {
-  AbstractArray = 0,
+  VTK_ABSTRACT_ARRAY = 0,
 
   // AbstractArray subclasses
-  DataArray,
-  StringArray,
-  VariantArray,
+  VTK_DATA_ARRAY,
+  VTK_STRING_ARRAY,
+  VTK_VARIANT_ARRAY,
 
   // DataArray subclasses
-  BitArray,
+  VTK_BIT_ARRAY,
 
   // GenericDataArray subclasses
-  AoSDataArrayTemplate,
-  SoADataArrayTemplate,
-  ScaledSoADataArrayTemplate,
-  VTKmDataArray,
-  PeriodicDataArray,
-  ImplicitArray,
+  VTK_AOS_DATA_ARRAY,
+  VTK_SOA_DATA_ARRAY,
+  VTK_SCALED_SOA_DATA_ARRAY,
+  VTKM_DATA_ARRAY,
+  VTK_PERIODIC_DATA_ARRAY,
+  VTK_IMPLICIT_ARRAY,
 
   // ImplicitArray subclasses/typedefs
-  AffineArray,
-  CompositeArray,
-  ConstantArray,
-  IndexedArray,
-  StdFunctionArray,
-  StridedArray,
-  StructuredPointArray,
+  VTK_AFFINE_ARRAY,
+  VTK_COMPOSITE_ARRAY,
+  VTK_CONSTANT_ARRAY,
+  VTK_INDEXED_ARRAY,
+  VTK_STD_FUNCTION_ARRAY,
+  VTK_STRIDED_ARRAY,
+  VTK_STRUCTURED_POINT_ARRAY,
 
-  NumArrayTypes,
+  VTK_NUM_ARRAY_TYPES,
 };
 
 /*--------------------------------------------------------------------------*/

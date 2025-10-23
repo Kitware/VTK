@@ -34,7 +34,7 @@ public:
     VTK_DATA_ARRAY_ALIGNED_FREE = vtkAbstractArray::VTK_DATA_ARRAY_ALIGNED_FREE,
     VTK_DATA_ARRAY_USER_DEFINED = vtkAbstractArray::VTK_DATA_ARRAY_USER_DEFINED
   };
-  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::BitArray>;
+  using ArrayTypeTag = std::integral_constant<int, vtkArrayTypes::VTK_BIT_ARRAY>;
   using DataTypeTag = std::integral_constant<int, VTK_BIT>;
   using ValueType = unsigned char;
 

@@ -60,12 +60,13 @@ VTK_ABI_NAMESPACE_END
 
 VTK_ABI_NAMESPACE_BEGIN
 template <typename T>
-class vtkmDataArray : public vtkGenericDataArray<vtkmDataArray<T>, T, vtkArrayTypes::VTKmDataArray>
+class vtkmDataArray
+  : public vtkGenericDataArray<vtkmDataArray<T>, T, vtkArrayTypes::VTKM_DATA_ARRAY>
 {
   static_assert(std::is_arithmetic<T>::value, "T must be an integral or floating-point type");
 
   using GenericDataArrayType =
-    vtkGenericDataArray<vtkmDataArray<T>, T, vtkArrayTypes::VTKmDataArray>;
+    vtkGenericDataArray<vtkmDataArray<T>, T, vtkArrayTypes::VTKM_DATA_ARRAY>;
 
 public:
   using SelfType = vtkmDataArray<T>;
