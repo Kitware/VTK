@@ -137,18 +137,27 @@ private:
     vtkHyperTreeGrid* outputHTG, vtkHyperTreeGrid* input, vtkDataObject::AttributeTypes type);
 
   /**
+   * Initialize the Fields map and strategies internal states.
+   */
+  void InitializeFields();
+
+  /**
    * Process a single tree, recursively descending into the tree, down to leaves
    */
   void ProcessNode(vtkHyperTreeGridNonOrientedGeometryCursor* cursor,
     vtkDataObject::AttributeTypes type, vtkCellData* outputCellData);
 
-  // Cell Data
-  std::string DefaultCellSizeArrayName = "CellSize";
-  std::string DefaultValidCellArrayName = "ValidCell";
-  std::string DefaultCellCenterArrayName = "CellCenter";
+  // Cell Data and field data names
+  std::string CellSizeArrayName = "CellSize";
+  std::string ValidCellArrayName = "ValidCell";
+  std::string CellCenterArrayName = "CellCenter";
+  std::string TotalVisibleVolumeArrayName = "TotalVisibleVolume";
 
-  // Field Data
-  std::string DefaultTotalVisibleVolumeArrayName = "TotalVisibleVolume";
+  // Cell Data and field data switches
+  bool ComputeCellSizeArray = true;
+  bool ComputeValidCellArray = true;
+  bool ComputeCellCenterArray = true;
+  bool ComputeTotalVisibleVolumeArray = true;
 
   std::unordered_map<std::string, vtkHyperTreeGridGenerateFieldStrategy::Field> Fields;
 };
