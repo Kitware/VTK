@@ -11,6 +11,9 @@
 # - VTK_DISPATCH_SOA_ARRAYS (default: OFF)
 #   Include vtkSOADataArrayTemplate<ValueType> for the basic types supported
 #   by VTK.
+# - VTK_DISPATCH_SCALED_SOA_ARRAYS (default: OFF)
+#   Include vtkScaledSOADataArrayTemplate<ValueType> for the basic types supported
+#   by VTK.
 #
 # - VTK_DISPATCH_AFFINE_ARRAYS (default: OFF)
 #   Include vtkAffineArray<ValueType> for the basic types supported
@@ -145,16 +148,10 @@ macro(vtkArrayDispatch_default_array_setup)
     endif ()
   endmacro()
 
-  if (VTK_DISPATCH_SOA_ARRAYS AND VTK_BUILD_SCALED_SOA_ARRAYS)
-    set(_dispatch_scaled_soa_arrays "ON")
-  else ()
-    set(_dispatch_scaled_soa_arrays "OFF")
-  endif ()
-
   # Set up regular arrays
   _vtkCreateArrayDispatch(VTK_DISPATCH_AOS_ARRAYS "vtkAOSDataArrayTemplate" "${vtk_numeric_types}")
   _vtkCreateArrayDispatch(VTK_DISPATCH_SOA_ARRAYS "vtkSOADataArrayTemplate" "${vtk_numeric_types}")
-  _vtkCreateArrayDispatch(_dispatch_scaled_soa_arrays "vtkScaledSOADataArrayTemplate" "${vtk_numeric_types}")
+  _vtkCreateArrayDispatch(VTK_DISPATCH_SCALED_SOA_ARRAYS "vtkScaledSOADataArrayTemplate" "${vtk_numeric_types}")
 
   # Helper macro for implicit arrays
   macro(_vtkCreateArrayDispatchImplicit var class types)

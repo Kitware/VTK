@@ -1058,11 +1058,8 @@ template <typename ValueType>
 class vtkAOSDataArrayTemplate;
 template <typename ValueType>
 class vtkSOADataArrayTemplate;
-
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
 template <typename ValueType>
 class vtkScaledSOADataArrayTemplate;
-#endif
 VTK_ABI_NAMESPACE_END
 
 namespace vtk_GDA_detail
@@ -1086,12 +1083,10 @@ struct ATIsSupported<vtkSOADataArrayTemplate<ValueType>> : public std::true_type
 {
 };
 
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
 template <typename ValueType>
 struct ATIsSupported<vtkScaledSOADataArrayTemplate<ValueType>> : public std::true_type
 {
 };
-#endif
 
 // ValueTypes with compiled-in support for value ranges in
 // vtkGenericDataArray.cxx

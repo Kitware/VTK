@@ -139,6 +139,7 @@ configure_file(vtkTypeListMacros.h.in vtkTypeListMacros.h)
 # And the ArrayDispatch array list header:
 option(VTK_DISPATCH_AOS_ARRAYS "Include array-of-structs vtkDataArray subclasses in dispatcher." ON)
 option(VTK_DISPATCH_SOA_ARRAYS "Include struct-of-arrays vtkDataArray subclasses in dispatcher." OFF)
+option(VTK_DISPATCH_SCALED_SOA_ARRAYS "Include scaled struct-of-arrays vtkDataArray subclasses in dispatcher." OFF)
 
 option(VTK_DISPATCH_AFFINE_ARRAYS "Include implicit vtkDataArray subclasses based on an affine function backend in dispatcher" OFF)
 option(VTK_DISPATCH_CONSTANT_ARRAYS "Include implicit vtkDataArray subclasses based on a constant backend in dispatcher" OFF)
@@ -150,6 +151,7 @@ option(VTK_WARN_ON_DISPATCH_FAILURE "If enabled, vtkArrayDispatch will print a w
 mark_as_advanced(
   VTK_DISPATCH_AOS_ARRAYS
   VTK_DISPATCH_SOA_ARRAYS
+  VTK_DISPATCH_SCALED_SOA_ARRAYS
 
   VTK_DISPATCH_AFFINE_ARRAYS
   VTK_DISPATCH_CONSTANT_ARRAYS
@@ -217,15 +219,13 @@ foreach (INSTANTIATION_VALUE_TYPE IN LISTS vtk_numeric_types)
     vtkCompositeArrayInstantiate
     vtkConstantArrayInstantiate
     vtkIndexedArrayInstantiate
+    vtkScaledSOADataArrayTemplateInstantiate
     vtkStridedArrayInstantiate
     vtkSOADataArrayTemplateInstantiate
     vtkStdFunctionArrayInstantiate
     vtkStructuredPointArrayInstantiate
     vtkTypedDataArrayInstantiate
     vtkTypeArrayInstantiate)
-  if (VTK_BUILD_SCALED_SOA_ARRAYS)
-    list(APPEND _list "vtkScaledSOADataArrayTemplateInstantiate")
-  endif ()
 
   # see comments in vtkGenericDataArray.h for explanation
   if (INSTANTIATION_VALUE_TYPE MATCHES "(^| )long( |$)")
@@ -379,6 +379,7 @@ set(template_classes
   vtkDenseArray
   vtkGenericDataArray
   vtkMappedDataArray
+  vtkScaledSOADataArrayTemplate
   vtkSOADataArrayTemplate
   vtkSparseArray
   vtkThreadedTaskQueue
@@ -432,14 +433,6 @@ set(sources
   ${serialization_helper_sources}
   ${instantiation_sources}
   ${vtk_smp_sources})
-
-if (VTK_BUILD_SCALED_SOA_ARRAYS)
-  list (APPEND template_classes vtkScaledSOADataArrayTemplate)
-  set(VTK_USE_SCALED_SOA_ARRAYS 1)
-endif ()
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
 
 include(CheckCXXSourceCompiles)
 
@@ -512,8 +505,7 @@ set(headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayDispatchArrayList.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkCharConvCompatibility.h"
   "${CMAKE_CURRENT_BINARY_DIR}/vtkMathConfigure.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h"
-  "${CMAKE_CURRENT_BINARY_DIR}/vtkVTK_USE_SCALED_SOA_ARRAYS.h")
+  "${CMAKE_CURRENT_BINARY_DIR}/vtkTypeListMacros.h")
 
 set(private_headers
   "${CMAKE_CURRENT_BINARY_DIR}/vtkFloatingPointExceptionsConfigure.h")

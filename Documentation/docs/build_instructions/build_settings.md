@@ -284,16 +284,14 @@ currently exist for use with the VTK dispatch mechanism:
     "array-of-structure" ordered arrays derived from `vtkAOSDataArrayTemplate`
   * `VTK_DISPATCH_SOA_ARRAYS` (default `OFF`): includes dispatching for "structure-of-array"
     ordered arrays derived from `vtkSOADataArrayTemplate`
+  * `VTK_DISPATCH_SCALED_SOA_ARRAYS` (default `OFF`): includes dispatching for scaled "structure-of-array"
+     ordered arrays derived from `vtkScaledSOADataArrayTemplate`
   * `VTK_DISPATCH_AFFINE_ARRAYS` (default `OFF`): includes dispatching for linearly varying
     `vtkAffineArray`s as part of the implicit array framework
   * `VTK_DISPATCH_CONSTANT_ARRAYS` (default `OFF`): includes dispatching for constant arrays
     `vtkConstantArray` as part of the implicit array framework
   * `VTK_DISPATCH_STD_FUNCTION_ARRAYS` (default `OFF`): includes dispatching for arrays with
     an `std::function` backend `vtkStdFunctionArray` as part of the implicit array framework
-
-The outlier in terms of dispatch support is the family of arrays derived from
-`vtkScaledSOADataArrayTemplate` which are automatically included in dispatch when built setting
-the `VTK_BUILD_SCALED_SOA_ARRAYS`.
 
 ```{warning}
 Adding increasing numbers of arrays in the dispatch mechanism can greatly slow down compile times.

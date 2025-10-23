@@ -24,9 +24,8 @@
 #define vtkDataArray_h
 
 #include "vtkAbstractArray.h"
-#include "vtkCommonCoreModule.h"          // For export macro
-#include "vtkVTK_USE_SCALED_SOA_ARRAYS.h" // For #define of VTK_USE_SCALED_SOA_ARRAYS
-#include "vtkWrappingHints.h"             // For VTK_MARSHALMANUAL
+#include "vtkCommonCoreModule.h" // For export macro
+#include "vtkWrappingHints.h"    // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDoubleArray;

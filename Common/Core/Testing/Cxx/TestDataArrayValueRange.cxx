@@ -7,10 +7,8 @@
 #include "vtkDataArray.h"
 #include "vtkFloatArray.h"
 #include "vtkSOADataArrayTemplate.h"
-#include "vtkSmartPointer.h"
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
 #include "vtkScaledSOADataArrayTemplate.h"
-#endif
+#include "vtkSmartPointer.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -1352,7 +1350,6 @@ struct UnitTestEdgeCases
     std::cerr << "AOS<float> <--> SOA<int>\n";
     DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkSOADataArrayTemplate<int>>();
 
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
     std::cerr << "ScaleSOA<float> <--> AOS<float>\n";
     DispatchValueCompat<vtkScaledSOADataArrayTemplate<float>, vtkAOSDataArrayTemplate<float>>();
 
@@ -1370,7 +1367,6 @@ struct UnitTestEdgeCases
 
     std::cerr << "AOS<float> <--> ScaleSOA<int>\n";
     DispatchValueCompat<vtkAOSDataArrayTemplate<float>, vtkScaledSOADataArrayTemplate<int>>();
-#endif
   }
 
   static void TestSpecializations()
@@ -1807,10 +1803,8 @@ int TestDataArrayValueRange(int, char*[])
   RunTestsForArray<vtkAOSDataArrayTemplate<float>>();
   std::cerr << "SOA:\n";
   RunTestsForArray<vtkSOADataArrayTemplate<float>>();
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
   std::cerr << "ScaleSOA:\n";
   RunTestsForArray<vtkScaledSOADataArrayTemplate<float>>();
-#endif
   std::cerr << "vtkFloatArray:\n";
   RunTestsForArray<vtkFloatArray>();
   std::cerr << "MockDataArray<vtkTypeInt32>:\n";

@@ -37,10 +37,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
-#include "vtkScaledSOADataArrayTemplate.h"
-#endif
 #include "vtkSOADataArrayTemplate.h"
+#include "vtkScaledSOADataArrayTemplate.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkStringArray.h"

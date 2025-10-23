@@ -226,9 +226,7 @@ static void vtkWrapPython_GenerateSpecialHeaders(
     fprintf(fp,
       "#include \"vtkSOADataArrayTemplate.h\"\n"
       "#include \"vtkAOSDataArrayTemplate.h\"\n"
-      "#ifdef VTK_USE_SCALED_SOA_ARRAYS\n"
-      "#include \"vtkScaledSOADataArrayTemplate.h\"\n"
-      "#endif\n");
+      "#include \"vtkScaledSOADataArrayTemplate.h\"\n");
   }
   /* special case for the way vtkGenericDataArray template is used */
   if (data && strcmp(data->Name, "vtkAlgorithm") == 0)
