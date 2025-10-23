@@ -97,7 +97,7 @@ It should be noted that because of this optimization, and the fact that all conc
 have a `ValueType`, all of the `vtkArrayDispatch::Dispatch*` functions now accept any `vtkAbstractArray` arrays,
 e.g. `vtkStringArray` and `vtkVariantArray`, and not just `vtkDataArray` subclasses as before.
 
-Finally, the following list of dispatch function have deprecated:
+Moreover, the following list of dispatch function have deprecated:
 
 1. `DispatchByValueTypeUsingArrays`: Use `DispatchByArrayAndValueType` instead.
 2. `Dispatch2ByValueTypeUsingArrays`: Use `Dispatch2ByArrayAndValueType` instead.
@@ -106,3 +106,35 @@ Finally, the following list of dispatch function have deprecated:
 5. `Dispatch3ByValueTypeUsingArrays`: Use `Dispatch3ByArrayAndValueType` instead.
 6. `Dispatch3SameValueTypeUsingArrays`: Use `Dispatch3ByArrayWithSameValueType` instead.
 7. `Dispatch3BySameValueTypeUsingArrays`: Use `Dispatch3ByArraySameValue` instead.
+
+Finally, the following `vtkArrayDispatch` related updates have been made:
+
+1. `VTK_DISPATCH_TYPED_ARRAYS` CMake option has been removed.
+2. `VTK_BUILD_SCALED_SOA_ARRAYS` CMake option has been removed, and scaled SOA arrays are now always built.
+3. `VTK_DISPATCH_SCALED_SOA_ARRAYS` CMake option has been added to enable dispatching of scaled SOA arrays.
+4. `VTK_DISPATCH_STRIDED_ARRAYS` CMake option has been added to enable dispatching of strided arrays.
+5. `VTK_DISPATCH_STRUCTURED_POINT_ARRAYS` CMake option has been disabled by default.
+6. `vtkArrayDispatch` has the following lists that are either filled or empty based on the respective dispatch flag:
+   1. `vtkArrayDispatch::AOSArrays` (part of `vtkArrayDispatch::Arrays`)
+   2. `vtkArrayDispatch::SOAArrays` (part of `vtkArrayDispatch::Arrays`)
+   3. `vtkArrayDispatch::ScaledSOAArrays` (part of `vtkArrayDispatch::Arrays`)
+   4. `vtkArrayDispatch::ExtraArrays` (part of `vtkArrayDispatch::Arrays`)
+   5. `vtkArrayDispatch::AffineArrays` (part of `vtkArrayDispatch::ReadOnlyArrays`)
+   6. `vtkArrayDispatch::ConstantArrays` (part of `vtkArrayDispatch::ReadOnlyArrays`)
+   7. `vtkArrayDispatch::StdFunctionArrays` (part of `vtkArrayDispatch::ReadOnlyArrays`)
+   8. `vtkArrayDispatch::StridedArrays` (part of `vtkArrayDispatch::ReadOnlyArrays`)
+   9. `vtkArrayDispatch::StructuredPointArrays` (part of `vtkArrayDispatch::ReadOnlyArrays`)
+   10. `vtkArrayDispatch::ImplicitExtraArrays` (part of `vtkArrayDispatch::ReadOnlyArrays`)
+7. `vtkArrayDispatchDataSetArrayList.h` has been added to provide common dataset related array lists:
+   1. `vtkArrayDispatch::AOSPointArrays`: Includes AOS real arrays. Should be used when creating array for output points
+      based on a data type.
+   2. `vtkArrayDispatch::PointArrays`: Includes AOS & SOA real arrays. Should be used when processing explicit point
+      arrays. It should be sufficient for most input points.
+   3. `vtkArrayDispatch::AllPointArrays`: Includes AOS, SOA, structured point arrays real arrays. Should be used when
+      processing `vtkDataSet::GetPoints()`.
+   4. `vtkArrayDispatch::CellTypesArrays` has been added to enable dispatching of `vtkUnstructuredGrid`s cell types
+      arrays.
+   5. `vtkArrayDispatch::InputOffsetsArrays|InputConnectivityArrays` have been added to enable dispatching of
+      `vtkCellArray`'s input offsets and connectivity arrays.
+   6. `vtkArrayDispatch::StorageConnectivityArrays|StorageOffsetsArrays` have been added to enable dispatching of
+      `vtkCellArray`'s storage offsets and connectivity arrays.
