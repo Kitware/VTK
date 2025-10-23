@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <numeric>
 
 VTK_ABI_NAMESPACE_BEGIN
 

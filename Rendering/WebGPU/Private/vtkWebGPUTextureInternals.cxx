@@ -3,6 +3,7 @@
 
 #include "Private/vtkWebGPUTextureInternals.h"
 #include "vtkArrayDispatch.h"
+#include "vtkDataArrayRange.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 

@@ -194,19 +194,18 @@ VTK_ABI_NAMESPACE_BEGIN
 /**
  * A TypeList containing all real ValueTypes.
  */
-typedef vtkTypeList::Create<double, float> Reals;
+using Reals = vtkTypeList::Create<double, float>;
 
 /**
  * A Typelist containing all integral ValueTypes.
  */
-typedef vtkTypeList::Unique<
-  vtkTypeList::Create<char, int, long, long long, short, signed char, unsigned char, unsigned int,
-    unsigned long, unsigned long long, unsigned short, vtkIdType>>::Result Integrals;
+using Integrals = vtkTypeList::Create<char, int, long, long long, short, signed char, unsigned char,
+  unsigned int, unsigned long, unsigned long long, unsigned short>;
 
 /**
  * A Typelist containing all standard VTK array ValueTypes.
  */
-typedef vtkTypeList::Append<Reals, Integrals>::Result AllTypes;
+using AllTypes = vtkTypeList::Append<Reals, Integrals>::Result;
 
 //------------------------------------------------------------------------------
 /**

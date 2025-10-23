@@ -22,6 +22,8 @@
 
 #include <anari/anari_cpp.hpp>
 #include <anari/anari_cpp/ext/std.h>
+
+#include <memory>
 #include <vector>
 
 using vec3 = anari::std_types::vec3;

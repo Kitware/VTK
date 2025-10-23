@@ -4,6 +4,7 @@
 
 #include "vtkArrayDispatch.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericDataArray.h"
 #include "vtkSMPTools.h"
