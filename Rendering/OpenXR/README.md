@@ -24,8 +24,9 @@ Supported input devices and mechanisms include the following:
 - HP Mixed Reality Controller [json](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenXR/vtk_openxr_binding_hp_mixed_reality.json)
 - HTC Vive Controller [json](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenXR/vtk_openxr_binding_htc_vive_controller.json)
 - KHR Simple Controller [json](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenXR/vtk_openxr_binding_khr_simple_controller.json)
-- Valve Knuckles [json](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenXR/vtk_openxr_binding_knuckles.json)
 - Microsoft Hand Interaction [json](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenXR/vtk_openxr_binding_microsoft_hand_interaction.json)
+- Oculus Touch [json](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenXR/vtk_openxr_binding_oculus_touch_controller.json)
+- Valve Knuckles [json](https://gitlab.kitware.com/vtk/vtk/-/blob/master/Rendering/OpenXR/vtk_openxr_binding_knuckles.json)
 
 The `OpenXR` module is commonly tested with the Valve Index and HTC Vive
 virtual reality headsets.
