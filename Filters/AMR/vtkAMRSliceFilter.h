@@ -28,7 +28,7 @@ class vtkOverlappingAMR;
 class vtkMultiProcessController;
 class vtkPlane;
 class vtkAMRBox;
-class vtkUniformGrid;
+class vtkImageData;
 
 class VTKFILTERSAMR_EXPORT vtkAMRSliceFilter : public vtkOverlappingAMRAlgorithm
 {
@@ -108,35 +108,35 @@ protected:
    * Returns the cell index w.r.t. the given input grid which contains
    * the query point x. A -1 is returned if the point is not found.
    */
-  int GetDonorCellIdx(double x[3], vtkUniformGrid* ug);
+  int GetDonorCellIdx(double x[3], vtkImageData* imageData);
 
   /**
    * Returns the point index w.r.t. the given input grid which contains the
    * query point x. A -1 is returned if the point is not found.
    */
-  int GetDonorPointIdx(double x[3], vtkUniformGrid* ug);
+  int GetDonorPointIdx(double x[3], vtkImageData* imageData);
 
   /**
    * Computes the cell center of the cell corresponding to the supplied
    * cell index w.r.t. the input uniform grid.
    */
-  void ComputeCellCenter(vtkUniformGrid* ug, int cellIdx, double centroid[3]);
+  void ComputeCellCenter(vtkImageData* imageData, int cellIdx, double centroid[3]);
 
   /**
    * Gets the slice from the given grid given the plane origin & the
    * user-supplied normal associated with this class instance.
    */
-  vtkUniformGrid* GetSlice(double origin[3], int* dims, double* gorigin, double* spacing);
+  vtkImageData* GetSlice(double origin[3], int* dims, double* gorigin, double* spacing);
 
   /**
    * Copies the cell data for the cells in the slice from the 3-D grid.
    */
-  void GetSliceCellData(vtkUniformGrid* slice, vtkUniformGrid* grid3D);
+  void GetSliceCellData(vtkImageData* slice, vtkImageData* grid3D);
 
   /**
    * Copies the point data for the cells in the slice from the 3-D grid.
    */
-  void GetSlicePointData(vtkUniformGrid* slice, vtkUniformGrid* grid3D);
+  void GetSlicePointData(vtkImageData* slice, vtkImageData* grid3D);
 
   /**
    * Determines if a plane intersects with an AMR box
