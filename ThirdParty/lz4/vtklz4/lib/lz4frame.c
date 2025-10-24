@@ -539,9 +539,16 @@ LZ4F_CDict*
 LZ4F_createCDict_advanced(LZ4F_CustomMem cmem, const void* dictBuffer, size_t dictSize)
 {
     const char* dictStart = (const char*)dictBuffer;
-    LZ4F_CDict* const cdict = (LZ4F_CDict*)LZ4F_malloc(sizeof(*cdict), cmem);
+    LZ4F_CDict* cdict = NULL;
+
     DEBUGLOG(4, "LZ4F_createCDict_advanced");
-    if (!cdict) return NULL;
+
+    if (!dictStart)
+        return NULL;
+    cdict = (LZ4F_CDict*)LZ4F_malloc(sizeof(*cdict), cmem);
+    if (!cdict)
+        return NULL;
+
     cdict->cmem = cmem;
     if (dictSize > 64 KB) {
         dictStart += dictSize - 64 KB;
@@ -1486,6 +1493,10 @@ LZ4F_errorCode_t LZ4F_getFrameInfo(LZ4F_dctx* dctx,
                                    LZ4F_frameInfo_t* frameInfoPtr,
                              const void* srcBuffer, size_t* srcSizePtr)
 {
+    assert(dctx != NULL);
+    RETURN_ERROR_IF(frameInfoPtr == NULL, parameter_null);
+    RETURN_ERROR_IF(srcSizePtr == NULL, parameter_null);
+
     LZ4F_STATIC_ASSERT(dstage_getFrameHeader < dstage_storeFrameHeader);
     if (dctx->dStage > dstage_storeFrameHeader) {
         /* frameInfo already decoded */
