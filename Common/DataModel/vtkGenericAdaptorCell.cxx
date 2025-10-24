@@ -450,7 +450,7 @@ void vtkGenericAdaptorCell::Contour(vtkContourValues* contourValues, vtkImplicit
 
 //------------------------------------------------------------------------------
 void vtkGenericAdaptorCell::Clip(double value, vtkImplicitFunction* f,
-  vtkGenericAttributeCollection* attributes, vtkGenericCellTessellator* tess, int insideOut,
+  vtkGenericAttributeCollection* attributes, vtkGenericCellTessellator* tess, vtkTypeBool insideOut,
   vtkIncrementalPointLocator* locator, vtkCellArray* connectivity, vtkPointData* outPd,
   vtkCellData* outCd, vtkPointData* internalPd, vtkPointData* secondaryPd, vtkCellData* secondaryCd)
 {

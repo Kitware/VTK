@@ -631,7 +631,8 @@ void vtkQuadraticTetra::Derivatives(
 // except that it cuts the tetra to produce other tetra.
 void vtkQuadraticTetra::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* tetras, vtkPointData* inPd,
-  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd,
+  vtkTypeBool insideOut)
 {
   // Determine how to tessellate. This will depend on the scalars (to try and minimize
   // artifacts).
@@ -657,7 +658,8 @@ void vtkQuadraticTetra::Clip(double value, vtkDataArray* cellScalars,
 //------------------------------------------------------------------------------
 bool vtkQuadraticTetra::StableClip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* tetras, vtkPointData* inPd,
-  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd,
+  vtkTypeBool insideOut)
 {
   // Determine how to tessellate. This will depend on the scalars (to try and minimize
   // artifacts).

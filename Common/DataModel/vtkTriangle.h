@@ -73,7 +73,7 @@ public:
    */
   void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+    vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut) override;
 
   static void InterpolationFunctions(const double pcoords[3], double sf[3]);
   static void InterpolationDerivs(const double pcoords[3], double derivs[6]);

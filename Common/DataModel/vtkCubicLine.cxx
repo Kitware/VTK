@@ -367,7 +367,7 @@ void vtkCubicLine::Derivatives(
 // that it cuts the line to produce other lines.
 void vtkCubicLine::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* lines, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   for (int i = 0; i < 3; i++) // for each subdivided line
   {

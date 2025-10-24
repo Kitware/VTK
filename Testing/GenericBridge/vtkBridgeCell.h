@@ -305,7 +305,7 @@ public:
                     vtkImplicitFunction *f,
                     vtkGenericAttributeCollection *attributes,
                     vtkGenericCellTessellator *tess,
-                    int insideOut,
+                    vtkTypeBool insideOut,
                     vtkPointLocator *locator,
                     vtkCellArray *connectivity,
                     vtkPointData *outPd,

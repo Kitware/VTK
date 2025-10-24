@@ -531,7 +531,7 @@ int* vtkVoxel::GetTriangleCases(int caseId)
 //------------------------------------------------------------------------------
 void vtkVoxel::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
   vtkCellArray* connectivity, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-  vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   vtkIdType pts[8];
   double coords[8][3];

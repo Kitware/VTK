@@ -259,7 +259,7 @@ public:
    */
   void Clip(double value, vtkDataArray* scalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* connectivity, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-    vtkIdType cellId, vtkCellData* outCd, int insideOut) override;
+    vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut) override;
 
   /**
    * Clip this polyhedron and write faces directly into outFaces and
@@ -270,7 +270,7 @@ public:
    */
   void ClipWithContext(double value, vtkDataArray* scalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* connectivity, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-    vtkIdType cellId, vtkCellData* outCd, int insideOut, vtkCellArray* outFaces,
+    vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut, vtkCellArray* outFaces,
     vtkCellArray* outFaceLocs);
 
   /**
@@ -279,7 +279,7 @@ public:
    */
   void ClipWithContext(double value, vtkDataArray* scalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* connectivity, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-    vtkIdType cellId, vtkCellData* outCd, int insideOut, vtkUnstructuredGrid* outUG);
+    vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut, vtkUnstructuredGrid* outUG);
 
   /**
    * Satisfy the vtkCell API. The subId is ignored and zero is always

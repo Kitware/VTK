@@ -240,7 +240,7 @@ public:
    */
   virtual void Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
     vtkCellArray* connectivity, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd,
-    vtkIdType cellId, vtkCellData* outCd, int insideOut) = 0;
+    vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut) = 0;
 
   /**
    * Inflates the cell. Each edge is displaced following its normal by a

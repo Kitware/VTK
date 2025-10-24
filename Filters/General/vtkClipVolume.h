@@ -195,7 +195,7 @@ protected:
   void ClipTets(double value, vtkTetra* clipTetra, vtkDataArray* clipScalars,
     vtkDataArray* cellScalars, vtkIdList* tetraIds, vtkPoints* tetraPts, vtkPointData* inPD,
     vtkPointData* outPD, vtkCellData* inCD, vtkIdType cellId, vtkCellData* outCD,
-    vtkCellData* clippedCD, int insideOut);
+    vtkCellData* clippedCD, vtkTypeBool insideOut);
   void ClipVoxel(double value, vtkDataArray* cellScalars, int flip, double origin[3],
     double spacing[3], vtkIdList* cellIds, vtkPoints* cellPts, vtkPointData* inPD,
     vtkPointData* outPD, vtkCellData* inCD, vtkIdType cellId, vtkCellData* outCD,

@@ -803,7 +803,7 @@ int vtkTriangle::ProjectTo2D(const double x1[3], const double x2[3], const doubl
 // that it cuts the triangle to produce triangle/quad.
 void vtkTriangle::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
   vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId,
-  vtkCellData* outCd, int insideOut)
+  vtkCellData* outCd, vtkTypeBool insideOut)
 {
   vtkIdType pts[4];
   double grdDiffs[3];

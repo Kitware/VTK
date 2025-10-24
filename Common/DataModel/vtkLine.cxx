@@ -690,7 +690,7 @@ void vtkLine::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(pcoords
 // that it cuts the line to produce other lines.
 void vtkLine::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
   vtkCellArray* lines, vtkPointData* inPd, vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId,
-  vtkCellData* outCd, int insideOut)
+  vtkCellData* outCd, vtkTypeBool insideOut)
 {
   vtkIdType pts[2];
   double grdDiffs[2];

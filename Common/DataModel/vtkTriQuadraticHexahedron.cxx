@@ -630,7 +630,7 @@ void vtkTriQuadraticHexahedron::Contour(double value, vtkDataArray* cellScalars,
 // except that it cuts the hex to produce tetrahedra.
 void vtkTriQuadraticHexahedron::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* tets, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   // clip each linear hex separately
   for (int i = 0; i < 8; i++)

@@ -186,7 +186,7 @@ void vtkPolyVertex::Derivatives(int vtkNotUsed(subId), const double vtkNotUsed(p
 //------------------------------------------------------------------------------
 void vtkPolyVertex::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* verts, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   double x[3];
   int numPts = this->Points->GetNumberOfPoints();

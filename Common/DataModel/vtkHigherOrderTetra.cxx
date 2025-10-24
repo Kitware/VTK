@@ -599,7 +599,7 @@ void vtkHigherOrderTetra::Contour(double value, vtkDataArray* cellScalars,
 //------------------------------------------------------------------------------
 void vtkHigherOrderTetra::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* polys, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   vtkIdType bindices[4][4];
   vtkIdType numberOfSubtetras = this->GetNumberOfSubtetras();

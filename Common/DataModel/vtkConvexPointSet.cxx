@@ -154,7 +154,7 @@ void vtkConvexPointSet::Contour(double value, vtkDataArray* cellScalars,
 //------------------------------------------------------------------------------
 void vtkConvexPointSet::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* tets, vtkPointData* inPD, vtkPointData* outPD,
-  vtkCellData* inCD, vtkIdType cellId, vtkCellData* outCD, int insideOut)
+  vtkCellData* inCD, vtkIdType cellId, vtkCellData* outCD, vtkTypeBool insideOut)
 {
   // For each tetra, contour it
   int numTets = this->TetraIds->GetNumberOfIds() / 4;

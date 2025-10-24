@@ -2147,7 +2147,7 @@ void ExtractBoundaryLoops(vtkCellArray* cells, std::vector<std::vector<vtkIdType
 //------------------------------------------------------------------------------
 bool vtkPolygon::ClipIfTrivial(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* tris, vtkPointData* inPD, vtkPointData* outPD,
-  vtkCellData* inCD, vtkIdType cellId, vtkCellData* outCD, int insideOut)
+  vtkCellData* inCD, vtkIdType cellId, vtkCellData* outCD, vtkTypeBool insideOut)
 {
   const vtkIdType numPts = this->Points->GetNumberOfPoints();
   if (numPts < 3)
@@ -2198,7 +2198,7 @@ bool vtkPolygon::ClipIfTrivial(double value, vtkDataArray* cellScalars,
 //------------------------------------------------------------------------------
 void vtkPolygon::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPointLocator* locator,
   vtkCellArray* tris, vtkPointData* inPD, vtkPointData* outPD, vtkCellData* inCD, vtkIdType cellId,
-  vtkCellData* outCD, int insideOut)
+  vtkCellData* outCD, vtkTypeBool insideOut)
 {
   if (this->ClipIfTrivial(
         value, cellScalars, locator, tris, inPD, outPD, inCD, cellId, outCD, insideOut))

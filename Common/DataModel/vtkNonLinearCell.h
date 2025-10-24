@@ -60,7 +60,8 @@ public:
    */
   virtual bool StableClip(double value, vtkDataArray* cellScalars,
     vtkIncrementalPointLocator* locator, vtkCellArray* connectivity, vtkPointData* inPd,
-    vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+    vtkPointData* outPd, vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd,
+    vtkTypeBool insideOut)
   {
     this->Clip(
       value, cellScalars, locator, connectivity, inPd, outPd, inCd, cellId, outCd, insideOut);

@@ -787,7 +787,7 @@ void vtkQuadraticHexahedron::Derivatives(
 // except that it cuts the hex to produce tetrahedra.
 void vtkQuadraticHexahedron::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* tets, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   // create eight linear hexes
   this->Subdivide(inPd, inCd, cellId, cellScalars);

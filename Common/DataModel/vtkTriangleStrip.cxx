@@ -281,7 +281,7 @@ void vtkTriangleStrip::DecomposeStrip(int npts, const vtkIdType* pts, vtkCellArr
 //------------------------------------------------------------------------------
 void vtkTriangleStrip::Clip(double value, vtkDataArray* cellScalars,
   vtkIncrementalPointLocator* locator, vtkCellArray* tris, vtkPointData* inPd, vtkPointData* outPd,
-  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, int insideOut)
+  vtkCellData* inCd, vtkIdType cellId, vtkCellData* outCd, vtkTypeBool insideOut)
 {
   int numTris = this->Points->GetNumberOfPoints() - 2;
   int id1, id2, id3;
