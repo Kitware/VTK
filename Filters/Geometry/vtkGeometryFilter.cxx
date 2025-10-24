@@ -9,7 +9,6 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellTypeUtilities.h"
-#include "vtkConstantArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGenericCell.h"
@@ -1467,7 +1466,7 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
   void operator()(vtkIdType beginHash, vtkIdType endHash)
   {
     using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::StorageOffsetsArrays,
-      vtkArrayDispatch::StorageConnectivityArrays, vtkUnstructuredGrid::CellTypesArrays>;
+      vtkArrayDispatch::StorageConnectivityArrays, vtkArrayDispatch::CellTypesArrays>;
     auto cells = this->Grid->GetCells();
     if (!Dispatcher::Execute(cells->GetOffsetsArray(), cells->GetConnectivityArray(),
           this->Grid->GetCellTypes(), FaceOperator{}, this, beginHash, endHash))

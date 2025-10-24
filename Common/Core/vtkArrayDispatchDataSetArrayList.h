@@ -7,6 +7,7 @@
 #include "vtkAOSDataArrayTemplate.h" // For vtkAOSDataArrayTemplate
 #include "vtkAffineTypeInt32Array.h" // For vtkAffineTypeInt32Array
 #include "vtkAffineTypeInt64Array.h" // For vtkAffineTypeInt64Array
+#include "vtkConstantArray.h"        // For vtkConstantArray
 #include "vtkSOADataArrayTemplate.h" // For vtkSOADataArrayTemplate
 #include "vtkStructuredPointArray.h" // For vtkStructuredPointArray
 #include "vtkTypeInt32Array.h"       // For vtkTypeInt32Array
@@ -65,6 +66,12 @@ using InputConnectivityArrays =
   vtkTypeList::Unique<vtkTypeList::Create<vtkAOSDataArrayTemplate<int>,
     vtkAOSDataArrayTemplate<long>, vtkAOSDataArrayTemplate<long long>>>::Result;
 ///@}
+
+/**
+ * List of possible array types to use for vtkUnstructuredGrid's cell types array.
+ */
+using CellTypesArrays =
+  vtkTypeList::Create<vtkAOSDataArrayTemplate<unsigned char>, vtkConstantArray<unsigned char>>;
 
 VTK_ABI_NAMESPACE_END
 }

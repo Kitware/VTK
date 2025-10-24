@@ -341,7 +341,7 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
   void operator()(vtkIdType beginBatchId, vtkIdType endBatchId)
   {
     using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::StorageOffsetsArrays,
-      vtkArrayDispatch::StorageConnectivityArrays, vtkUnstructuredGrid::CellTypesArrays>;
+      vtkArrayDispatch::StorageConnectivityArrays, vtkArrayDispatch::CellTypesArrays>;
     auto cells = this->Input->GetCells();
     if (!Dispatcher::Execute(cells->GetOffsetsArray(), cells->GetConnectivityArray(),
           this->Input->GetCellTypes(), FaceInformationOperator{}, this, beginBatchId, endBatchId))

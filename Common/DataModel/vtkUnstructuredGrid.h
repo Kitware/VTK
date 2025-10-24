@@ -196,11 +196,6 @@ public:
     VTK_SIZEHINT(cells, ncells);
   ///@}
 
-  /**
-   * The possible types of arrays to use for the cell types array.
-   */
-  using CellTypesArrays = vtkTypeList::Create<vtkUnsignedCharArray, vtkConstantUnsignedCharArray>;
-
   ///@{
   /**
    * Get the array of all cell types in the grid. Each single-component

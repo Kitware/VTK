@@ -12,7 +12,6 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
-#include "vtkConstantArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
@@ -1136,11 +1135,11 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
   else if (vtkDataArray* da = vtkArrayDownCast<vtkDataArray>(a))
   {
     // Create a dispatcher that also handles vtkBitArray:
-    using XMLExplicitArrays = vtkTypeList::Append<vtkArrayDispatch::AllArrays, vtkBitArray>::Result;
-    using XMLImplicitArrays = vtkTypeList::Append<vtkArrayDispatch::StorageOffsetsArrays,
-      vtkConstantUnsignedCharArray>::Result;
-    using XMLArrays = vtkTypeList::Unique<
-      vtkTypeList::Append<XMLExplicitArrays, XMLImplicitArrays>::Result>::Result;
+    using AllArrays = vtkTypeList::Append<vtkArrayDispatch::AllArrays, vtkBitArray>::Result;
+    using PointCellArrays = vtkTypeList::Append<vtkArrayDispatch::AllPointArrays,
+      vtkArrayDispatch::StorageOffsetsArrays, vtkArrayDispatch::CellTypesArrays>::Result;
+    using XMLArrays =
+      vtkTypeList::Unique<vtkTypeList::Append<AllArrays, PointCellArrays>::Result>::Result;
     using Dispatcher = vtkArrayDispatch::DispatchByArray<XMLArrays>;
 
     WriteBinaryDataBlockWorker worker(this, wordType, memWordSize, outWordSize, numValues);

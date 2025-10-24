@@ -6,7 +6,6 @@
 #include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkConstantArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"
@@ -599,7 +598,7 @@ int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPoint
     {
       ::InputUnstructuredGridCellArrayWorker<LineCellArrayT> dispatcher;
       if (!vtkArrayDispatch::Dispatch2ByArray<CellArrayTypes,
-            vtkUnstructuredGrid::CellTypesArrays>::Execute(cells->GetConnectivityArray(),
+            vtkArrayDispatch::CellTypesArrays>::Execute(cells->GetConnectivityArray(),
             lineCellTypes, dispatcher, inputUG, lineCells, linePoints, locator, connectivitySize,
             intersectedCellIds, intersectedCellPointIds, self))
       {
