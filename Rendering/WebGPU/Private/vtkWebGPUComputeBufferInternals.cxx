@@ -3,6 +3,7 @@
 
 #include "Private/vtkWebGPUComputeBufferInternals.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkDataArrayRange.h"
 
@@ -57,7 +58,7 @@ void vtkWebGPUComputeBufferInternals::UploadFromDataArray(
   vtkIdType byteOffset, vtkDataArray* dataArray, const char* description /*=nullptr*/)
 {
   using ArrayTypes = vtkTypeList::Unique<vtkTypeList::Append<vtkArrayDispatch::AllArrays,
-    vtkCellArray::StorageOffsetsArrays>::Result>::Result;
+    vtkArrayDispatch::StorageOffsetsArrays>::Result>::Result;
   using Dispatcher = vtkArrayDispatch::DispatchByArray<ArrayTypes>;
 
   DispatchDataWriter dispatchDataWriter(wgpuConfiguration, buffer, byteOffset);

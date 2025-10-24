@@ -4,6 +4,7 @@
 
 #include "vtkAOSDataArrayTemplate.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayIteratorIncludes.h"
 #include "vtkBase64OutputStream.h"
 #include "vtkBitArray.h"
@@ -1136,8 +1137,8 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
   {
     // Create a dispatcher that also handles vtkBitArray:
     using XMLExplicitArrays = vtkTypeList::Append<vtkArrayDispatch::AllArrays, vtkBitArray>::Result;
-    using XMLImplicitArrays =
-      vtkTypeList::Append<vtkCellArray::StorageOffsetsArrays, vtkConstantUnsignedCharArray>::Result;
+    using XMLImplicitArrays = vtkTypeList::Append<vtkArrayDispatch::StorageOffsetsArrays,
+      vtkConstantUnsignedCharArray>::Result;
     using XMLArrays = vtkTypeList::Unique<
       vtkTypeList::Append<XMLExplicitArrays, XMLImplicitArrays>::Result>::Result;
     using Dispatcher = vtkArrayDispatch::DispatchByArray<XMLArrays>;

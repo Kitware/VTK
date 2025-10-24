@@ -5,6 +5,7 @@
 #define vtkXMLUnstructuredPolyReader_txx
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
@@ -126,7 +127,7 @@ struct FaceIdRangeDispatchWrapper
 
 bool FindPolyFaceRange(vtkIdType* ranges, vtkDataArray* polyhedron_faces)
 {
-  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageConnectivityArrays>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::StorageConnectivityArrays>;
 
   FaceIdRangeDispatchWrapper worker(ranges);
 
@@ -229,7 +230,7 @@ vtk::GetAPIType<vtkDataArray> OffsettingWrapper::InitOffsetWithFirstValue(vtkDat
 
 bool RebaseOffset(vtkDataArray* arr)
 {
-  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageConnectivityArrays>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::StorageConnectivityArrays>;
 
   OffsettingWrapper worker(0);
   worker.UseStartValue = true;
@@ -248,7 +249,7 @@ bool RebaseOffset(vtkDataArray* arr)
 
 bool RebasePolyFaces(vtkDataArray* arr, vtkIdType offset)
 {
-  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageConnectivityArrays>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::StorageConnectivityArrays>;
 
   OffsettingWrapper worker(offset);
   worker.UseStartValue = false;

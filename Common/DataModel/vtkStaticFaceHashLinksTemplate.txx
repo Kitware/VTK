@@ -3,6 +3,7 @@
 #include "vtkStaticFaceHashLinksTemplate.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkBatch.h"
 #include "vtkGenericCell.h"
 #include "vtkHexagonalPrism.h"
@@ -339,8 +340,8 @@ struct vtkStaticFaceHashLinksTemplate<TInputIdType, TFaceIdType>::CreateFacesInf
 
   void operator()(vtkIdType beginBatchId, vtkIdType endBatchId)
   {
-    using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkCellArray::StorageOffsetsArrays,
-      vtkCellArray::StorageConnectivityArrays, vtkUnstructuredGrid::CellTypesArrays>;
+    using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::StorageOffsetsArrays,
+      vtkArrayDispatch::StorageConnectivityArrays, vtkUnstructuredGrid::CellTypesArrays>;
     auto cells = this->Input->GetCells();
     if (!Dispatcher::Execute(cells->GetOffsetsArray(), cells->GetConnectivityArray(),
           this->Input->GetCellTypes(), FaceInformationOperator{}, this, beginBatchId, endBatchId))

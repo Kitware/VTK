@@ -219,7 +219,7 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(std::vector<unsigned 
 
   // Define our dispatcher
   using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::PointArrays,
-    vtkCellArray::StorageOffsetsArrays, vtkCellArray::StorageConnectivityArrays>;
+    vtkArrayDispatch::StorageOffsetsArrays, vtkArrayDispatch::StorageConnectivityArrays>;
   AppendTrianglesWorker worker;
   // Execute the dispatcher:
   if (!Dispatcher::Execute(points->GetData(), cells->GetOffsetsArray(),

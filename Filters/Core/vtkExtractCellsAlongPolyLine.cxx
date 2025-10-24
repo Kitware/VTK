@@ -563,7 +563,7 @@ template <class LineCellArrayT>
 int ExtractCells(vtkExtractCellsAlongPolyLine* self, vtkDataSet* input, vtkPointSet* lines,
   vtkUnstructuredGrid* output)
 {
-  using CellArrayTypes = vtkCellArray::StorageConnectivityArrays;
+  using CellArrayTypes = vtkArrayDispatch::StorageConnectivityArrays;
 
   vtkNew<vtkStaticCellLocator> locator;
   locator->SetDataSet(input);
@@ -818,7 +818,8 @@ int vtkExtractCellsAlongPolyLine::RequestData(
 
   if (cells && cells->GetNumberOfCells())
   {
-    using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageConnectivityArrays>;
+    using Dispatcher =
+      vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::StorageConnectivityArrays>;
     ::ExtractCellsDispatcher dispatcher;
 
     if (!Dispatcher::Execute(

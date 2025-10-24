@@ -4,6 +4,7 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
 #include "vtkDIYExplicitAssigner.h"
 #include "vtkDataArray.h"
@@ -1966,7 +1967,7 @@ void InitializeInformationIdsForUnstructuredData(vtkPolyData* input, ::PolyDataI
         continue;
       }
       ComputeConnectivitySizeWorker worker;
-      if (!vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageOffsetsArrays>::Execute(
+      if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::StorageOffsetsArrays>::Execute(
             cellArrays[i]->GetOffsetsArray(), worker, input->GetCellGhostArray(),
             beginNumberOfCells, connectivitySizes[i]))
       {
@@ -2033,7 +2034,7 @@ void InitializeInformationIdsForUnstructuredData(
     vtkIdType numberOfCells = input->GetNumberOfCells();
 
     ComputeConnectivitySizeWorker worker;
-    if (!vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageOffsetsArrays>::Execute(
+    if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::StorageOffsetsArrays>::Execute(
           cells->GetOffsetsArray(), worker, input->GetCellGhostArray(), 0,
           info.InputConnectivitySize))
     {
@@ -2444,8 +2445,8 @@ struct FillUnstructuredDataTopologyBufferFunctor<vtkUnstructuredGrid>
     vtkIdType currentFacesId = 0;
 
     FillConnectivityAndOffsetsArrays worker;
-    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
-          vtkCellArray::StorageConnectivityArrays>::Execute(inputCellArray->GetOffsetsArray(),
+    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
+          vtkArrayDispatch::StorageConnectivityArrays>::Execute(inputCellArray->GetOffsetsArray(),
           inputCellArray->GetConnectivityArray(), worker, offsets, connectivity,
           seedPointIdsToSendWithIndex, pointIdsToSendWithIndex, cellIdsToSend))
     {
@@ -2521,8 +2522,8 @@ struct FillUnstructuredDataTopologyBufferFunctor<vtkPolyData>
     offsets->SetNumberOfValues(numberOfCellsToSend ? numberOfCellsToSend + 1 : 0);
 
     ::FillConnectivityAndOffsetsArrays worker;
-    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
-          vtkCellArray::StorageConnectivityArrays>::Execute(inputCells->GetOffsetsArray(),
+    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
+          vtkArrayDispatch::StorageConnectivityArrays>::Execute(inputCells->GetOffsetsArray(),
           inputCells->GetConnectivityArray(), worker, offsets, connectivity,
           seedPointIdsToSendWithIndex, pointIdsToSendWithIndex, cellIdsToSend))
     {
@@ -2696,8 +2697,8 @@ void FillUnstructuredDataTopologyBuffer(const std::map<vtkIdType, vtkIdType>& se
 #endif
 
   FillUnstructuredDataTopologyBufferFunctor<vtkUnstructuredGrid> functor;
-  if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
-        vtkCellArray::StorageConnectivityArrays>::Execute(cellArray->GetOffsetsArray(),
+  if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
+        vtkArrayDispatch::StorageConnectivityArrays>::Execute(cellArray->GetOffsetsArray(),
         cellArray->GetConnectivityArray(), functor, seedPointIdsWithIndex, pointIdsToSendWithIndex,
         blockStructure, input))
   {
@@ -2741,8 +2742,8 @@ void FillUnstructuredDataTopologyBuffer(const std::map<vtkIdType, vtkIdType>& se
 #endif
 
     FillUnstructuredDataTopologyBufferFunctor<vtkPolyData> functor;
-    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
-          vtkCellArray::StorageConnectivityArrays>::Execute(cells->GetOffsetsArray(),
+    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
+          vtkArrayDispatch::StorageConnectivityArrays>::Execute(cells->GetOffsetsArray(),
           cells->GetConnectivityArray(), functor, seedPointIdsWithIndex, pointIdsToSendWithIndex,
           inputCells, cellIdsToSend[i], connectivitySize[i]))
     {
@@ -3646,8 +3647,8 @@ struct DeepCopyCellsWorker
     vtkDataArray* outputOffsets, vtkDataArray* outputConnectivity, vtkIdList* cellRedirectionMap,
     vtkIdList* pointRedirectionMap)
   {
-    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
-          vtkCellArray::StorageConnectivityArrays>::Execute(outputOffsets, outputConnectivity,
+    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
+          vtkArrayDispatch::StorageConnectivityArrays>::Execute(outputOffsets, outputConnectivity,
           *this, inputOffsets, inputConnectivity, cellRedirectionMap, pointRedirectionMap))
     {
       this->operator()<vtkDataArray, vtkDataArray>(outputOffsets, outputConnectivity, inputOffsets,
@@ -3661,8 +3662,8 @@ void DeepCopyCells(vtkCellArray* inputCells, vtkCellArray* outputCells,
   vtkIdList* cellRedirectionMap, vtkIdList* pointRedirectionMap)
 {
   DeepCopyCellsWorker worker;
-  if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
-        vtkCellArray::StorageConnectivityArrays>::Execute(inputCells->GetOffsetsArray(),
+  if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
+        vtkArrayDispatch::StorageConnectivityArrays>::Execute(inputCells->GetOffsetsArray(),
         inputCells->GetConnectivityArray(), worker, outputCells->GetOffsetsArray(),
         outputCells->GetConnectivityArray(), cellRedirectionMap, pointRedirectionMap))
   {
@@ -3747,8 +3748,8 @@ struct DeepCopyPolyhedronWorker
     vtkDataArray* outputConnectivityFaces, vtkIdList* cellRedirectionMap,
     vtkIdList* pointRedirectionMap)
   {
-    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
-          vtkCellArray::StorageConnectivityArrays>::Execute(outputOffsetsFaceLocations,
+    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
+          vtkArrayDispatch::StorageConnectivityArrays>::Execute(outputOffsetsFaceLocations,
           outputConnectivityFaceLocations, *this, outputOffsetsFaces, outputConnectivityFaces,
           inputOffsetsFaceLocations, inputConnectivityFaceLocations, inputOffsetsFaces,
           inputConnectivityFaces, cellRedirectionMap, pointRedirectionMap))
@@ -3786,8 +3787,8 @@ void DeepCopyPolyhedrons(
   }
 
   DeepCopyPolyhedronWorker worker;
-  if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
-        vtkCellArray::StorageConnectivityArrays>::Execute(ugFaceLocations->GetOffsetsArray(),
+  if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
+        vtkArrayDispatch::StorageConnectivityArrays>::Execute(ugFaceLocations->GetOffsetsArray(),
         ugFaceLocations->GetConnectivityArray(), worker, ugFaces->GetOffsetsArray(),
         ugFaces->GetConnectivityArray(), cloneFaceLocations->GetOffsetsArray(),
         cloneFaceLocations->GetConnectivityArray(), cloneFaces->GetOffsetsArray(),
@@ -4522,8 +4523,8 @@ void InsertCells(vtkCellArray* srcCells, vtkCellArray* dstCells,
   }
 
   InsertCellsWorker worker;
-  if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
-        vtkCellArray::StorageConnectivityArrays>::Execute(srcCells->GetOffsetsArray(),
+  if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
+        vtkArrayDispatch::StorageConnectivityArrays>::Execute(srcCells->GetOffsetsArray(),
         srcCells->GetConnectivityArray(), worker, dstCells->GetOffsetsArray(),
         dstCells->GetConnectivityArray(), matchingReceivedPointIds,
         redirectionMapForDuplicatePointIds, pointIdOffsetIntervals, numberOfPointsInDest,
@@ -5556,8 +5557,8 @@ void FillReceivedGhosts(::UnstructuredGridBlock* block, int myGid, int gid,
       return;
     }
     PolyhedronsInserterWorker worker;
-    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
-          vtkCellArray::StorageConnectivityArrays>::Execute(faceLocations->GetOffsetsArray(),
+    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
+          vtkArrayDispatch::StorageConnectivityArrays>::Execute(faceLocations->GetOffsetsArray(),
           faceLocations->GetConnectivityArray(), worker, buffer.Faces->GetOffsetsArray(),
           buffer.Faces->GetConnectivityArray(), outputFaceLocations->GetOffsetsArray(),
           outputFaceLocations->GetConnectivityArray(), outputFaces->GetOffsetsArray(),

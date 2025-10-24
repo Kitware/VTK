@@ -1466,8 +1466,8 @@ struct ExtractUG : public ExtractCellBoundaries<TInputIdType>
 
   void operator()(vtkIdType beginHash, vtkIdType endHash)
   {
-    using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkCellArray::StorageOffsetsArrays,
-      vtkCellArray::StorageConnectivityArrays, vtkUnstructuredGrid::CellTypesArrays>;
+    using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::StorageOffsetsArrays,
+      vtkArrayDispatch::StorageConnectivityArrays, vtkUnstructuredGrid::CellTypesArrays>;
     auto cells = this->Grid->GetCells();
     if (!Dispatcher::Execute(cells->GetOffsetsArray(), cells->GetConnectivityArray(),
           this->Grid->GetCellTypes(), FaceOperator{}, this, beginHash, endHash))

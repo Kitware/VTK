@@ -3,6 +3,7 @@
 #include "vtkXMLUnstructuredDataReader.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
@@ -758,7 +759,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
 
   // Validate the offsets
   ValidateOffsets offsetValidator;
-  using SupportedArrays = vtkCellArray::InputOffsetsArrays;
+  using SupportedArrays = vtkArrayDispatch::InputOffsetsArrays;
 
   // Convert array to supported type if necessary
   using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
@@ -998,7 +999,7 @@ int vtkXMLUnstructuredDataReader::ReadPolyhedronCellArray(vtkIdType numberOfCell
 
   // Validate the offsets
   ValidateOffsets offsetValidator;
-  using SupportedArrays = vtkCellArray::InputOffsetsArrays;
+  using SupportedArrays = vtkArrayDispatch::InputOffsetsArrays;
 
   // Convert array to supported type if necessary
   using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;

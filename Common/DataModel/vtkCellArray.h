@@ -113,7 +113,7 @@
  * There is no method to explicitly use generic storage mode.
  * vtkCellArray will automatically switch over to using generic
  * storage when any overload of vtkCellArray::SetData is invoked with array types that
- * are NOT in vtkCellArray::InputConnectivityArrays.
+ * are NOT in vtkArrayDispatch::InputConnectivityArrays.
  *
  * @sa vtkAbstractCellArray vtkStructuredCellArray vtkCellTypes vtkCellLinks
  */
@@ -173,11 +173,9 @@ public:
    *
    * @sa vtkCellArray::Dispatch() for a simpler mechanism.
    */
-  using StorageOffsetsArrays =
-    vtkTypeList::Create<ArrayType32, ArrayType64, AffineArrayType32, AffineArrayType64>;
-  using StorageConnectivityArrays = vtkTypeList::Create<ArrayType32, ArrayType64>;
   using StorageArrayList VTK_DEPRECATED_IN_9_6_0(
-    "Use StorageOffsetsArrays/StorageConnectivityArrays instead.") = StorageConnectivityArrays;
+    "Use vtkArrayDispatch::StorageOffsetsArrays/StorageConnectivityArrays instead.") =
+    vtkTypeList::Create<ArrayType32, ArrayType64>;
   ///@}
 
   ///@{
@@ -189,15 +187,10 @@ public:
    * This can be used with vtkArrayDispatch::DispatchByArray, etc to
    * check input arrays before assigning them to a cell array.
    */
-  using InputOffsetsArrays =
-    typename vtkTypeList::Unique<vtkTypeList::Create<vtkAOSDataArrayTemplate<int>,
-      vtkAOSDataArrayTemplate<long>, vtkAOSDataArrayTemplate<long long>, vtkAffineArray<int>,
-      vtkAffineArray<long>, vtkAffineArray<long long>>>::Result;
-  using InputConnectivityArrays =
-    typename vtkTypeList::Unique<vtkTypeList::Create<vtkAOSDataArrayTemplate<int>,
-      vtkAOSDataArrayTemplate<long>, vtkAOSDataArrayTemplate<long long>>>::Result;
   using InputArrayList VTK_DEPRECATED_IN_9_6_0(
-    "Use InputOffsetsArrays/InputConnectivityArrays instead.") = InputConnectivityArrays;
+    "Use vtkArrayDispatch::InputOffsetsArrays/InputConnectivityArrays instead.") =
+    vtkTypeList::Unique<vtkTypeList::Create<vtkAOSDataArrayTemplate<int>,
+      vtkAOSDataArrayTemplate<long>, vtkAOSDataArrayTemplate<long long>>>::Result;
   ///@}
 
   /**
