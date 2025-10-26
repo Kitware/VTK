@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include <vtkActor.h>
 #include <vtkCellData.h>
+#include <vtkFileResourceStream.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRegressionTestImage.h>
@@ -13,7 +14,7 @@
 
 #include <string>
 
-int TestSTLReader(int argc, char* argv[])
+int TestSTLReaderStream(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -23,8 +24,11 @@ int TestSTLReader(int argc, char* argv[])
 
   std::string inputFilename = argv[1];
 
+  vtkNew<vtkFileResourceStream> stream;
+  stream->Open(inputFilename.c_str());
+
   vtkNew<vtkSTLReader> reader;
-  reader->SetFileName(inputFilename.c_str());
+  reader->SetStream(stream);
   reader->Update();
 
   // Check if header and solids match for ASCII STL

@@ -91,6 +91,14 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestSTLReaderStreamSinglePatch,TestSTLReaderStream.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/42400-IDGH.stl}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestSTLReaderStreamMultiplePatches,TestSTLReaderStream.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/multiple_patches.stl}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestPTSReader,TestPTSReader.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/samplePTS.pts}
 )
 

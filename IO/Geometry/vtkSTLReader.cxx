@@ -6,6 +6,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkErrorCode.h"
+#include "vtkFileResourceStream.h"
 #include "vtkFloatArray.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
@@ -14,6 +15,8 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
+#include "vtkResourceParser.h"
+#include "vtkResourceStream.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringScanner.h"
@@ -27,9 +30,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSTLReader);
-
-#define VTK_ASCII 0
-#define VTK_BINARY 1
 
 vtkCxxSetObjectMacro(vtkSTLReader, Locator, vtkIncrementalPointLocator);
 vtkCxxSetObjectMacro(vtkSTLReader, BinaryHeader, vtkUnsignedCharArray);
@@ -82,29 +82,43 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  if (!this->FileName || *this->FileName == 0)
+  if (!this->Stream && (!this->FileName || *this->FileName == 0))
   {
-    vtkErrorMacro(<< "A FileName must be specified.");
+    vtkErrorMacro(<< "A FileName or stream must be specified.");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return 0;
   }
 
-  // Initialize
-  FILE* fp = vtksys::SystemTools::Fopen(this->FileName, "r");
-  if (fp == nullptr)
+  vtkResourceStream* stream = this->Stream;
+  vtkNew<vtkFileResourceStream> fileStream;
+  if (stream)
   {
-    vtkErrorMacro(<< "File " << this->FileName << " not found");
-    this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
-    return 0;
+    stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
   }
+  else
+  {
+    if (!fileStream->Open(this->FileName))
+    {
+      vtkErrorMacro("Unable to open " << this->FileName << " . Aborting.");
+      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
+      return 0;
+    }
+    stream = fileStream;
+  }
+
+  std::string solid;
+  vtkNew<vtkResourceParser> asciiTester;
+  asciiTester->SetStream(stream);
+  asciiTester->ReadLine(solid, 5);
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
 
   vtkNew<vtkPoints> newPts;
   vtkNew<vtkCellArray> newPolys;
   vtkSmartPointer<vtkFloatArray> newScalars;
 
-  // Depending upon file type, read differently
-  if (this->GetSTLFileType(this->FileName) == VTK_ASCII)
+  if (solid == "solid")
   {
+    // First word is "solid", which means the data is ASCII
     newPts->Allocate(5000);
     newPolys->AllocateEstimate(10000, 1);
     if (this->ScalarTags)
@@ -112,35 +126,26 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
       newScalars = vtkSmartPointer<vtkFloatArray>::New();
       newScalars->Allocate(5000);
     }
-    if (!this->ReadASCIISTL(fp, newPts.Get(), newPolys.Get(), newScalars))
+
+    vtkNew<vtkResourceParser> parser;
+    parser->SetStream(stream);
+    if (!this->ReadASCIISTL(parser, newPts.Get(), newPolys.Get(), newScalars))
     {
-      fclose(fp);
+      vtkErrorMacro("Error reading a ASCII STL. Aborting.");
       return 0;
     }
   }
   else
   {
-    // Close file and reopen in binary mode.
-    fclose(fp);
-    fp = vtksys::SystemTools::Fopen(this->FileName, "rb");
-    if (fp == nullptr)
+    if (!this->ReadBinarySTL(stream, newPts.Get(), newPolys.Get()))
     {
-      vtkErrorMacro(<< "File " << this->FileName << " not found");
-      this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
-      return 0;
-    }
-
-    if (!this->ReadBinarySTL(fp, newPts.Get(), newPolys.Get()))
-    {
-      fclose(fp);
+      vtkErrorMacro("Error reading a binary STL. Aborting.");
       return 0;
     }
   }
 
   vtkDebugMacro(<< "Read: " << newPts->GetNumberOfPoints() << " points, "
                 << newPolys->GetNumberOfCells() << " triangles");
-
-  fclose(fp);
 
   // If merging is on, create hash table and merge points/triangles.
   vtkSmartPointer<vtkPoints> mergedPts = newPts;
@@ -213,7 +218,8 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
-bool vtkSTLReader::ReadBinarySTL(FILE* fp, vtkPoints* newPts, vtkCellArray* newPolys)
+bool vtkSTLReader::ReadBinarySTL(
+  vtkResourceStream* stream, vtkPoints* newPts, vtkCellArray* newPolys)
 {
   struct facet_t_t
   {
@@ -234,10 +240,9 @@ bool vtkSTLReader::ReadBinarySTL(FILE* fp, vtkPoints* newPts, vtkCellArray* newP
   constexpr int headerSize = 80;                         // fixed in STL file format
   this->BinaryHeader->SetNumberOfValues(headerSize + 1); // allocate +1 byte for zero termination)
   this->BinaryHeader->FillValue(0);
-  if (fread(this->BinaryHeader->GetVoidPointer(0), 1, headerSize, fp) != headerSize)
+  if (stream->Read(this->BinaryHeader->GetVoidPointer(0), headerSize) != headerSize)
   {
-    vtkErrorMacro(
-      "STLReader error reading file: " << this->FileName << " Premature EOF while reading header.");
+    vtkErrorMacro("STLReader error reading file. Premature EOF while reading header.");
     return false;
   }
   this->SetHeader(static_cast<char*>(this->BinaryHeader->GetVoidPointer(0)));
@@ -245,10 +250,9 @@ bool vtkSTLReader::ReadBinarySTL(FILE* fp, vtkPoints* newPts, vtkCellArray* newP
   this->BinaryHeader->Resize(headerSize);
 
   unsigned long ulint;
-  if (fread(&ulint, 1, 4, fp) != 4)
+  if (stream->Read(&ulint, 4) != 4)
   {
-    vtkErrorMacro(
-      "STLReader error reading file: " << this->FileName << " Premature EOF while reading header.");
+    vtkErrorMacro("STLReader error reading file. Premature EOF while reading header.");
     return false;
   }
   vtkByteSwap::Swap4LE(&ulint);
@@ -263,7 +267,9 @@ bool vtkSTLReader::ReadBinarySTL(FILE* fp, vtkPoints* newPts, vtkCellArray* newP
   }
 
   // Verify the numTris with the length of the file
-  unsigned long ulFileLength = vtksys::SystemTools::FileLength(this->FileName);
+  vtkTypeInt64 current = stream->Tell();
+  vtkTypeInt64 ulFileLength = stream->Seek(0, vtkResourceStream::SeekDirection::End);
+  stream->Seek(current, vtkResourceStream::SeekDirection::Begin);
   ulFileLength -= (80 + 4); // 80 byte - header, 4 byte - tringle count
   ulFileLength /=
     50; // 50 byte - twelve 32-bit-floating point numbers + 2 byte for attribute byte count
@@ -275,7 +281,7 @@ bool vtkSTLReader::ReadBinarySTL(FILE* fp, vtkPoints* newPts, vtkCellArray* newP
   newPolys->AllocateEstimate(numTris, 3);
 
   facet_t facet;
-  for (int i = 0; fread(&facet, 50, 1, fp) > 0; i++)
+  for (int i = 0; stream->Read(&facet, 50) > 0; i++)
   {
     vtkByteSwap::Swap4LE(facet.n);
     vtkByteSwap::Swap4LE(facet.n + 1);
@@ -371,7 +377,7 @@ bool stlReadVertex(char* buf, float vertCoord[3])
 // endsolid [name]
 
 bool vtkSTLReader::ReadASCIISTL(
-  FILE* fp, vtkPoints* newPts, vtkCellArray* newPolys, vtkFloatArray* scalars)
+  vtkResourceParser* parser, vtkPoints* newPts, vtkCellArray* newPolys, vtkFloatArray* scalars)
 {
   vtkDebugMacro(<< "Reading ASCII STL file");
 
@@ -379,7 +385,7 @@ bool vtkSTLReader::ReadASCIISTL(
   this->SetBinaryHeader(nullptr);
   std::string header;
 
-  char line[256];     // line buffer
+  std::string line;   // line buffer
   float vertCoord[3]; // scratch space when parsing "vertex %f %f %f"
   vtkIdType pts[3];   // point ids for building triangles
   int vertOff = 0;
@@ -402,11 +408,10 @@ bool vtkSTLReader::ReadASCIISTL(
 
   for (StlAsciiScanState state = scanSolid; errorMessage.empty(); /*nil*/)
   {
-    char* cmd = fgets(line, 255, fp);
-
-    if (!cmd)
+    vtkParseResult res = parser->ReadLine(line);
+    char* cmd = line.data();
+    if (res == vtkParseResult::EndOfStream)
     {
-      // fgets() failed (eg EOF).
       // If scanning for the next "solid" this is a valid way to exit,
       // but is an error if scanning for the initial "solid" or any other token
 
@@ -640,31 +645,11 @@ bool vtkSTLReader::ReadASCIISTL(
 
   if (!errorMessage.empty())
   {
-    vtkErrorMacro("STLReader: error while reading file " << this->FileName << " at line " << lineNum
-                                                         << ": " << errorMessage);
+    vtkErrorMacro("STLReader: error while reading at line " << lineNum << ": " << errorMessage);
     return false;
   }
 
   return true;
-}
-
-//------------------------------------------------------------------------------
-int vtkSTLReader::GetSTLFileType(const char* filename)
-{
-  vtksys::SystemTools::FileTypeEnum ft = vtksys::SystemTools::DetectFileType(filename);
-  switch (ft)
-  {
-    case vtksys::SystemTools::FileTypeBinary:
-      return VTK_BINARY;
-    case vtksys::SystemTools::FileTypeText:
-      return VTK_ASCII;
-    case vtksys::SystemTools::FileTypeUnknown:
-      vtkWarningMacro("File type not recognized; attempting binary");
-      return VTK_BINARY;
-    default:
-      vtkErrorMacro("Case not handled, file type is " << static_cast<int>(ft));
-      return VTK_BINARY; // should not happen
-  }
 }
 
 //------------------------------------------------------------------------------
