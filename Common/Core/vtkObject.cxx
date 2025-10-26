@@ -3,15 +3,16 @@
 #include "vtkObject.h"
 
 #include "vtkCommand.h"
-#include "vtkDebugLeaks.h"
 #include "vtkDeprecation.h"
-#include "vtkGarbageCollector.h"
 #include "vtkObjectFactory.h"
 #include "vtkTimeStamp.h"
 #include "vtkWeakPointer.h"
 
 #include <algorithm>
+#include <map>
+#include <set>
 #include <sstream>
+#include <unordered_map>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -48,57 +49,96 @@ vtkTypeBool vtkObject::GetGlobalWarningDisplay()
 
 //----------------------------------Command/Observer stuff-------------------
 // The Command/Observer design pattern is used to invoke and dispatch events.
-// The class vtkSubjectHelper keeps a list of observers (which in turn keep
-// an instance of vtkCommand) which respond to registered events.
 //
-class vtkObserver
+// The class vtkSubjectHelper keeps a std::map of observers:
+//
+//    vtkObserverKey{Priority, Tag} -> vtkObserver{Command, Event}.
+//
+// This implicitly sorts the observers by Priority and Tag, allowing O(log n)
+// mutations. Uses std::map::emplace_hint for amortized O(1) insertion in the
+// typical case that default priorities are used.
+//
+// Note that InvokeEvent may indirectly recursively call InvokeEvent or mutate
+// the mapping. The `ListModified` mechanism supports this.
+//
+// For legacy compatibility reasons, the `Priority` additionally has a
+// `Generation` value, which maintains the ordering behavior from before
+// rewriting
+// with std::map. If an observer would go on the end of the list and has equal
+// priority to the observer currently on the end of the list, it is instead
+// added in the second-to-last position. (i.e. the first observer to be added
+// is "pinned" to the end of the list.) If an observer with lower priority is
+// added, it is indeed added to the end.
+//
+// The `Generation` value achieves this in std::map by sorting first by
+// priority, then by generation, then by tag. Whenever a new observer should
+// truly be added to the end of the list (i.e. it has lower priority) then
+// the `Generation` counter is incremented, and future observers may be
+// placed after the prior "pinned" observer.
+//
+
+struct vtkPriority
 {
-public:
-  vtkObserver()
-    : Command(nullptr)
-    , Event(0)
-    , Tag(0)
-    , Next(nullptr)
-    , Priority(0.0)
+  float Value;
+  unsigned long Generation;
+};
+
+struct vtkObserverKey
+{
+  vtkPriority Priority;
+  unsigned long Tag;
+};
+
+bool operator<(const vtkObserverKey& lhs, const vtkObserverKey& rhs)
+{
+  if (lhs.Priority.Value != rhs.Priority.Value)
   {
+    return lhs.Priority.Value > rhs.Priority.Value; // Higher priorities go first.
   }
+
+  if (lhs.Priority.Generation != rhs.Priority.Generation)
+  {
+    return lhs.Priority.Generation < rhs.Priority.Generation; // Later generations go last.
+  }
+
+  return lhs.Tag < rhs.Tag; // Otherwise go in tag order.
+}
+
+struct vtkObserver
+{
+  vtkObserver(vtkCommand* command, unsigned long event);
+
+  // No-copy to ensure Command->Register and Command->UnRegister are called
+  // appropriately.
+  vtkObserver(const vtkObserver& other) = delete;
+  vtkObserver& operator=(const vtkObserver& other) = delete;
+
+  vtkObserver(vtkObserver&& other) noexcept;
+  vtkObserver& operator=(vtkObserver&& other) noexcept;
+
   ~vtkObserver();
-  void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkCommand* Command;
   unsigned long Event;
-  unsigned long Tag;
-  vtkObserver* Next;
-  float Priority;
 };
-
-void vtkObserver::PrintSelf(ostream& os, vtkIndent indent)
-{
-  os << indent << "vtkObserver (" << this << ")\n";
-  indent = indent.GetNextIndent();
-  os << indent << "Event: " << this->Event << "\n";
-  os << indent << "EventName: " << vtkCommand::GetStringFromEventId(this->Event) << "\n";
-  os << indent << "Command: " << this->Command << "\n";
-  os << indent << "Priority: " << this->Priority << "\n";
-  os << indent << "Tag: " << this->Tag << "\n";
-}
 
 //------------------------------------------------------------------------------
 // The vtkSubjectHelper keeps a list of observers and dispatches events to them.
-// It also invokes the vtkCommands associated with the observers. Currently
-// vtkSubjectHelper is an internal class to vtkObject. However, due to requirements
-// from the VTK widgets it may be necessary to break out the vtkSubjectHelper at
-// some point (for reasons of event management, etc.)
+// Currently vtkSubjectHelper is an internal class to vtkObject. However, due to
+// requirements from the VTK widgets it may be necessary to break out the
+// vtkSubjectHelper at some point (for reasons of event management, etc.)
+//
 class vtkSubjectHelper
 {
 public:
   vtkSubjectHelper()
     : Focus1(nullptr)
     , Focus2(nullptr)
-    , Start(nullptr)
-    , Count(1)
+    , NextTag(1)
+    , Generation(1)
   {
   }
+
   ~vtkSubjectHelper();
 
   unsigned long AddObserver(unsigned long event, vtkCommand* cmd, float p);
@@ -111,37 +151,49 @@ public:
   unsigned long GetTag(vtkCommand*);
   vtkTypeBool HasObserver(unsigned long event);
   vtkTypeBool HasObserver(unsigned long event, vtkCommand* cmd);
+
   void GrabFocus(vtkCommand* c1, vtkCommand* c2)
   {
     this->Focus1 = c1;
     this->Focus2 = c2;
   }
+
   void ReleaseFocus()
   {
     this->Focus1 = nullptr;
     this->Focus2 = nullptr;
   }
+
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // the InvokeEvent method iterates over a list of observers and invokes
-  // callbacks which can invalidate the current or next observer. To handle
-  // this we keep track of if something has modified the list of observers.
-  // As a observer callback can inturn invoke other callbacks we may end up
-  // with multiple depths of recursion and we need to know if the
-  // "iterators" being used need to be invalidated. So we keep a stack (a
-  // vector) of indicators if the list has been modified. When something
-  // modifies the list the entire vector is marked as true (modified). Each
-  // depth of recursion then resets its entry in LostModified to false as it
-  // resets its iteration.
+  // `InvokeEvent` iterates over `Observers` and invokes callbacks that might
+  // mutate `Observers` and invalidate iterators. To handle this, keep a flag
+  // for each invocation of `InvokeEvent` to indicate that iterators are
+  // invalidated.
+  //
+  // `ListModified` is a stack of flags with one entry for each level of
+  // `InvokeEvent` recursion. Whenever `Observers` is modified, iterators are
+  // invalidated, so all entries in `ListModified` are set.
+  //
+  // After each callback in `InvokeEvent`, check the top (current) flag. If not
+  // set, iterators are still valid so use `++it`. If set, iterators are invalid
+  // so find a new one by `std::map::upper_bound`.
   std::vector<bool> ListModified;
 
   // This is to support the GrabFocus() methods found in vtkInteractorObserver.
+  // If one of these commands can handle an event, then ***only*** that command
+  // may handle the event. (Except for passive commands, which are always
+  // invoked first and ignore focus.)
   vtkCommand* Focus1;
   vtkCommand* Focus2;
 
 protected:
-  vtkObserver* Start;
-  unsigned long Count;
+  unsigned long NextTag;
+  unsigned long Generation;
+  std::map<vtkObserverKey, vtkObserver> Observers;
+
+  // For fast RemoveObserver, GetCommand.
+  std::unordered_map<unsigned long, vtkPriority> Priorities;
 };
 
 // ------------------------------------vtkObject----------------------
@@ -160,7 +212,7 @@ vtkObject::vtkObject()
 {
   this->Debug = false;
   this->SubjectHelper = nullptr;
-  this->Modified(); // Insures modified time > than any other time
+  this->Modified(); // Ensures modified time > than any other time
   // initial reference count = 1 and reference counting on.
 }
 
@@ -243,24 +295,45 @@ void vtkObject::BreakOnError() {}
 //----------------------------------Command/Observer stuff-------------------
 //
 
-//------------------------------------------------------------------------------
+vtkObserver::vtkObserver(vtkCommand* command, unsigned long event)
+  : Command(command)
+  , Event(event)
+{
+  this->Command->Register(nullptr);
+}
+
+vtkObserver::vtkObserver(vtkObserver&& other) noexcept
+  : Command(std::exchange(other.Command, nullptr))
+  , Event(other.Event)
+{
+}
+
+vtkObserver& vtkObserver::operator=(vtkObserver&& other) noexcept
+{
+  if (this == &other)
+  {
+    return *this;
+  }
+  if (this->Command != nullptr)
+  {
+    this->Command->UnRegister(nullptr);
+  }
+  this->Command = std::exchange(other.Command, nullptr);
+  this->Event = other.Event;
+  return *this;
+}
+
 vtkObserver::~vtkObserver()
 {
-  this->Command->UnRegister(nullptr);
+  if (this->Command != nullptr)
+  {
+    this->Command->UnRegister(nullptr);
+  }
 }
 
 //------------------------------------------------------------------------------
 vtkSubjectHelper::~vtkSubjectHelper()
 {
-  vtkObserver* elem = this->Start;
-  vtkObserver* next;
-  while (elem)
-  {
-    next = elem->Next;
-    delete elem;
-    elem = next;
-  }
-  this->Start = nullptr;
   this->Focus1 = nullptr;
   this->Focus2 = nullptr;
 }
@@ -268,130 +341,103 @@ vtkSubjectHelper::~vtkSubjectHelper()
 //------------------------------------------------------------------------------
 unsigned long vtkSubjectHelper::AddObserver(unsigned long event, vtkCommand* cmd, float p)
 {
-  vtkObserver* elem;
+  const unsigned long tag = this->NextTag++;
 
-  // initialize the new observer element
-  elem = new vtkObserver;
-  elem->Priority = p;
-  elem->Next = nullptr;
-  elem->Event = event;
-  elem->Command = cmd;
-  cmd->Register(nullptr);
-  elem->Tag = this->Count;
-  this->Count++;
+  // TODO: If there is no observer with this priority, add with priority {p, true}
+  //       If there is, add one with priority {p, false}
 
-  // now insert into the list
-  // if no other elements in the list then this is Start
-  if (!this->Start)
+  auto it = this->Observers.lower_bound(vtkObserverKey{ { p, this->Generation + 1 }, 0 });
+  auto next_it = this->Observers.upper_bound(vtkObserverKey{ { p, this->Generation + 1 }, 0 });
+
+  vtkPriority priority{};
+
+  if (next_it == this->Observers.end())
   {
-    this->Start = elem;
+    this->Generation++;
+    priority = { p, this->Generation + 1 };
   }
   else
   {
-    // insert high priority first
-    vtkObserver* prev = nullptr;
-    vtkObserver* pos = this->Start;
-    while (pos->Priority >= elem->Priority && pos->Next)
-    {
-      prev = pos;
-      pos = pos->Next;
-    }
-    // pos is Start and elem should not be start
-    if (pos->Priority > elem->Priority)
-    {
-      pos->Next = elem;
-    }
-    else
-    {
-      if (prev)
-      {
-        prev->Next = elem;
-      }
-      elem->Next = pos;
-      // check to see if the new element is the start
-      if (pos == this->Start)
-      {
-        this->Start = elem;
-      }
-    }
+    priority = { p, this->Generation };
   }
-  return elem->Tag;
+
+  this->Observers.emplace_hint(it, vtkObserverKey{ priority, tag }, vtkObserver{ cmd, event });
+  this->Priorities.emplace(tag, priority);
+  this->ListModified.assign(this->ListModified.size(), true);
+  return tag;
 }
 
 //------------------------------------------------------------------------------
 void vtkSubjectHelper::RemoveObserver(unsigned long tag)
 {
-  vtkObserver* elem;
-  vtkObserver* prev;
-  vtkObserver* next;
+  const auto it_p = this->Priorities.find(tag);
+  if (it_p == this->Priorities.end())
+    return;
 
-  elem = this->Start;
-  prev = nullptr;
-  while (elem)
+  const auto p = it_p->second;
+  this->Priorities.erase(it_p);
+
+  const auto it = this->Observers.find(vtkObserverKey{ p, tag });
+  if (it == this->Observers.end())
+    return;
+
+  this->Observers.erase(it);
+
+  if (!this->Observers.empty())
   {
-    if (elem->Tag == tag)
+    auto back = this->Observers.end();
+    --back;
+    if (back->first.Priority.Generation != this->Generation + 1)
     {
-      if (prev)
-      {
-        prev->Next = elem->Next;
-        next = prev->Next;
-      }
-      else
-      {
-        this->Start = elem->Next;
-        next = this->Start;
-      }
-      delete elem;
-      elem = next;
-    }
-    else
-    {
-      prev = elem;
-      elem = elem->Next;
+      vtkObserverKey key = back->first;
+      key.Priority.Generation = this->Generation + 1;
+      vtkObserver obs = std::move(back->second);
+      this->Observers.erase(back);
+      this->Observers.emplace_hint(this->Observers.end(), key, std::move(obs));
+      this->Priorities.insert_or_assign(key.Tag, key.Priority);
     }
   }
 
-  if (!this->ListModified.empty())
-  {
-    this->ListModified.assign(this->ListModified.size(), true);
-  }
+  this->ListModified.assign(this->ListModified.size(), true);
 }
 
 //------------------------------------------------------------------------------
 void vtkSubjectHelper::RemoveObservers(unsigned long event)
 {
-  vtkObserver* elem;
-  vtkObserver* prev;
-  vtkObserver* next;
+  bool modified = false;
 
-  elem = this->Start;
-  prev = nullptr;
-  while (elem)
+  for (auto it = this->Observers.begin(); it != this->Observers.end();)
   {
-    if (elem->Event == event)
+    auto& [key, obs] = *it;
+    if (obs.Event == event)
     {
-      if (prev)
-      {
-        prev->Next = elem->Next;
-        next = prev->Next;
-      }
-      else
-      {
-        this->Start = elem->Next;
-        next = this->Start;
-      }
-      delete elem;
-      elem = next;
+      this->Priorities.erase(this->Priorities.find(key.Tag));
+      it = this->Observers.erase(it);
+      modified = true;
     }
     else
     {
-      prev = elem;
-      elem = elem->Next;
+      ++it;
     }
   }
 
-  if (!this->ListModified.empty())
+  if (modified)
   {
+    if (!this->Observers.empty())
+    {
+      auto back = this->Observers.end();
+      --back;
+      if (back->first.Priority.Generation != this->Generation + 1)
+      {
+        vtkObserverKey key = back->first;
+        key.Priority.Generation = this->Generation + 1;
+        vtkObserver obs = std::move(back->second);
+        this->Observers.erase(back);
+        this->Observers.emplace_hint(this->Observers.end(), key, std::move(obs));
+        this->Priorities.insert_or_assign(key.Tag, key.Priority);
+      }
+    }
+
     this->ListModified.assign(this->ListModified.size(), true);
   }
 }
@@ -399,38 +445,40 @@ void vtkSubjectHelper::RemoveObservers(unsigned long event)
 //------------------------------------------------------------------------------
 void vtkSubjectHelper::RemoveObservers(unsigned long event, vtkCommand* cmd)
 {
-  vtkObserver* elem;
-  vtkObserver* prev;
-  vtkObserver* next;
+  bool modified = false;
 
-  elem = this->Start;
-  prev = nullptr;
-  while (elem)
+  for (auto it = this->Observers.begin(); it != this->Observers.end();)
   {
-    if (elem->Event == event && elem->Command == cmd)
+    auto& [key, obs] = *it;
+    if (obs.Event == event && obs.Command == cmd)
     {
-      if (prev)
-      {
-        prev->Next = elem->Next;
-        next = prev->Next;
-      }
-      else
-      {
-        this->Start = elem->Next;
-        next = this->Start;
-      }
-      delete elem;
-      elem = next;
+      this->Priorities.erase(this->Priorities.find(key.Tag));
+      it = this->Observers.erase(it);
+      modified = true;
     }
     else
     {
-      prev = elem;
-      elem = elem->Next;
+      ++it;
     }
   }
 
-  if (!this->ListModified.empty())
+  if (modified)
   {
+    if (!this->Observers.empty())
+    {
+      auto back = this->Observers.end();
+      --back;
+      if (back->first.Priority.Generation != this->Generation + 1)
+      {
+        vtkObserverKey key = back->first;
+        key.Priority.Generation = this->Generation + 1;
+        vtkObserver obs = std::move(back->second);
+        this->Observers.erase(back);
+        this->Observers.emplace_hint(this->Observers.end(), key, std::move(obs));
+        this->Priorities.insert_or_assign(key.Tag, key.Priority);
+      }
+    }
+
     this->ListModified.assign(this->ListModified.size(), true);
   }
 }
@@ -438,33 +486,25 @@ void vtkSubjectHelper::RemoveObservers(unsigned long event, vtkCommand* cmd)
 //------------------------------------------------------------------------------
 void vtkSubjectHelper::RemoveAllObservers()
 {
-  vtkObserver* elem = this->Start;
-  vtkObserver* next;
-  while (elem)
+  if (this->Observers.empty())
   {
-    next = elem->Next;
-    delete elem;
-    elem = next;
+    return;
   }
-  this->Start = nullptr;
 
-  if (!this->ListModified.empty())
-  {
-    this->ListModified.assign(this->ListModified.size(), true);
-  }
+  this->Priorities.clear();
+  this->Observers.clear();
+  this->ListModified.assign(this->ListModified.size(), true);
 }
 
 //------------------------------------------------------------------------------
 vtkTypeBool vtkSubjectHelper::HasObserver(unsigned long event)
 {
-  vtkObserver* elem = this->Start;
-  while (elem)
+  for (auto& [key, obs] : this->Observers)
   {
-    if (elem->Event == event || elem->Event == vtkCommand::AnyEvent)
+    if (obs.Event == event || obs.Event == vtkCommand::AnyEvent)
     {
       return 1;
     }
-    elem = elem->Next;
   }
   return 0;
 }
@@ -472,14 +512,12 @@ vtkTypeBool vtkSubjectHelper::HasObserver(unsigned long event)
 //------------------------------------------------------------------------------
 vtkTypeBool vtkSubjectHelper::HasObserver(unsigned long event, vtkCommand* cmd)
 {
-  vtkObserver* elem = this->Start;
-  while (elem)
+  for (auto& [key, obs] : this->Observers)
   {
-    if ((elem->Event == event || elem->Event == vtkCommand::AnyEvent) && elem->Command == cmd)
+    if ((obs.Event == event || obs.Event == vtkCommand::AnyEvent) && obs.Command == cmd)
     {
       return 1;
     }
-    elem = elem->Next;
   }
   return 0;
 }
@@ -499,17 +537,10 @@ vtkTypeBool vtkSubjectHelper::InvokeEvent(unsigned long event, void* callData, v
   // pop before returning.
   this->ListModified.push_back(false);
 
-  // We also need to save what observers we have called on the stack (lest it
-  // get overridden in the event invocation).  Also make sure that we do not
-  // invoke any new observers that were added during another observer's
-  // invocation.
-  typedef std::vector<unsigned long> VisitedListType;
-  VisitedListType visited;
-  vtkObserver* elem = this->Start;
   // If an element with a tag greater than maxTag is found, that means it has
   // been added after InvokeEvent is called (as a side effect of calling an
   // element command. In that case, the element is discarded and not executed.
-  const unsigned long maxTag = this->Count;
+  const unsigned long maxTag = this->NextTag;
 
   // Loop two or three times, giving preference to passive observers
   // and focus holders, if any.
@@ -531,37 +562,30 @@ vtkTypeBool vtkSubjectHelper::InvokeEvent(unsigned long event, void* callData, v
 
   // 0. Passive observer loop
   //
-  vtkObserver* next;
-  while (elem)
+  for (auto it = this->Observers.begin(); it != this->Observers.end();)
   {
-    // store the next pointer because elem could disappear due to Command
-    next = elem->Next;
-    if (elem->Command->GetPassiveObserver() &&
-      (elem->Event == event || elem->Event == vtkCommand::AnyEvent) && elem->Tag < maxTag)
+    auto& obs = it->second;
+    auto key = it->first; // Make a copy because it may be invalidated
+
+    if (obs.Command->GetPassiveObserver()                          //
+      && (obs.Event == event || obs.Event == vtkCommand::AnyEvent) //
+      && key.Tag < maxTag)
     {
-      VisitedListType::iterator vIter = std::lower_bound(visited.begin(), visited.end(), elem->Tag);
-      if (vIter == visited.end() || *vIter != elem->Tag)
-      {
-        // Sorted insertion by tag to speed-up future searches at limited
-        // insertion cost because it reuses the search iterator already at the
-        // correct location
-        visited.insert(vIter, elem->Tag);
-        vtkCommand* command = elem->Command;
-        command->Register(command);
-        elem->Command->Execute(self, event, callData);
-        command->UnRegister();
-      }
+      vtkCommand* cmd = obs.Command;
+      cmd->Register(cmd);
+      cmd->Execute(self, event, callData);
+      cmd->UnRegister();
     }
     if (this->ListModified.back())
     {
       vtkGenericWarningMacro(
         << "Passive observer should not call AddObserver or RemoveObserver in callback.");
-      elem = this->Start;
+      it = this->Observers.upper_bound(key);
       this->ListModified.back() = false;
     }
     else
     {
-      elem = next;
+      ++it;
     }
   }
 
@@ -569,47 +593,39 @@ vtkTypeBool vtkSubjectHelper::InvokeEvent(unsigned long event, void* callData, v
   //
   if (this->Focus1 || this->Focus2)
   {
-    elem = this->Start;
-    while (elem)
+    for (auto it = this->Observers.begin(); it != this->Observers.end();)
     {
-      // store the next pointer because elem could disappear due to Command
-      next = elem->Next;
-      if (((this->Focus1 == elem->Command) || (this->Focus2 == elem->Command)) &&
-        (elem->Event == event || elem->Event == vtkCommand::AnyEvent) && elem->Tag < maxTag)
+      auto& obs = it->second;
+      auto key = it->first; // Make a copy because it may be invalidated
+
+      if (!obs.Command->GetPassiveObserver()                         //
+        && (obs.Command == Focus1 || obs.Command == Focus2)          //
+        && (obs.Event == event || obs.Event == vtkCommand::AnyEvent) //
+        && key.Tag < maxTag)
       {
-        VisitedListType::iterator vIter =
-          std::lower_bound(visited.begin(), visited.end(), elem->Tag);
-        if (vIter == visited.end() || *vIter != elem->Tag)
+        focusHandled = true;
+        vtkCommand* cmd = obs.Command;
+        cmd->Register(cmd);
+        cmd->SetAbortFlag(0);
+        cmd->Execute(self, event, callData);
+        // if the command set the abort flag, then stop firing events
+        // and return
+        if (cmd->GetAbortFlag())
         {
-          // Don't execute the remainder loop
-          focusHandled = true;
-          // Sorted insertion by tag to speed-up future searches at limited
-          // insertion cost because it reuses the search iterator already at the
-          // correct location
-          visited.insert(vIter, elem->Tag);
-          vtkCommand* command = elem->Command;
-          command->Register(command);
-          command->SetAbortFlag(0);
-          elem->Command->Execute(self, event, callData);
-          // if the command set the abort flag, then stop firing events
-          // and return
-          if (command->GetAbortFlag())
-          {
-            command->UnRegister();
-            this->ListModified.pop_back();
-            return 1;
-          }
-          command->UnRegister();
+          cmd->UnRegister();
+          this->ListModified.pop_back();
+          return 1;
         }
+        cmd->UnRegister();
       }
       if (this->ListModified.back())
       {
-        elem = this->Start;
+        it = this->Observers.upper_bound(key);
         this->ListModified.back() = false;
       }
       else
       {
-        elem = next;
+        ++it;
       }
     }
   }
@@ -618,44 +634,37 @@ vtkTypeBool vtkSubjectHelper::InvokeEvent(unsigned long event, void* callData, v
   //
   if (!focusHandled)
   {
-    elem = this->Start;
-    while (elem)
+    for (auto it = this->Observers.begin(); it != this->Observers.end();)
     {
-      // store the next pointer because elem could disappear due to Command
-      next = elem->Next;
-      if ((elem->Event == event || elem->Event == vtkCommand::AnyEvent) && elem->Tag < maxTag)
+      auto& obs = it->second;
+      auto key = it->first; // Make a copy because it may be invalidated
+
+      if (!obs.Command->GetPassiveObserver()                         //
+        && (obs.Event == event || obs.Event == vtkCommand::AnyEvent) //
+        && key.Tag < maxTag)
       {
-        VisitedListType::iterator vIter =
-          std::lower_bound(visited.begin(), visited.end(), elem->Tag);
-        if (vIter == visited.end() || *vIter != elem->Tag)
+        vtkCommand* cmd = obs.Command;
+        cmd->Register(cmd);
+        cmd->SetAbortFlag(0);
+        cmd->Execute(self, event, callData);
+        // if the command set the abort flag, then stop firing events
+        // and return
+        if (cmd->GetAbortFlag())
         {
-          // Sorted insertion by tag to speed-up future searches at limited
-          // insertion cost because it reuses the search iterator already at the
-          // correct location
-          visited.insert(vIter, elem->Tag);
-          vtkCommand* command = elem->Command;
-          command->Register(command);
-          command->SetAbortFlag(0);
-          elem->Command->Execute(self, event, callData);
-          // if the command set the abort flag, then stop firing events
-          // and return
-          if (command->GetAbortFlag())
-          {
-            command->UnRegister();
-            this->ListModified.pop_back();
-            return 1;
-          }
-          command->UnRegister();
+          cmd->UnRegister();
+          this->ListModified.pop_back();
+          return 1;
         }
+        cmd->UnRegister();
       }
       if (this->ListModified.back())
       {
-        elem = this->Start;
+        it = this->Observers.upper_bound(key);
         this->ListModified.back() = false;
       }
       else
       {
-        elem = next;
+        ++it;
       }
     }
   }
@@ -667,14 +676,12 @@ vtkTypeBool vtkSubjectHelper::InvokeEvent(unsigned long event, void* callData, v
 //------------------------------------------------------------------------------
 unsigned long vtkSubjectHelper::GetTag(vtkCommand* cmd)
 {
-  vtkObserver* elem = this->Start;
-  while (elem)
+  for (auto& [key, obs] : this->Observers)
   {
-    if (elem->Command == cmd)
+    if (obs.Command == cmd)
     {
-      return elem->Tag;
+      return key.Tag;
     }
-    elem = elem->Next;
   }
   return 0;
 }
@@ -682,33 +689,45 @@ unsigned long vtkSubjectHelper::GetTag(vtkCommand* cmd)
 //------------------------------------------------------------------------------
 vtkCommand* vtkSubjectHelper::GetCommand(unsigned long tag)
 {
-  vtkObserver* elem = this->Start;
-  while (elem)
+  const auto it_p = this->Priorities.find(tag);
+  if (it_p == this->Priorities.end())
   {
-    if (elem->Tag == tag)
-    {
-      return elem->Command;
-    }
-    elem = elem->Next;
+    return nullptr;
   }
-  return nullptr;
+  const auto p = it_p->second;
+
+  const auto it = this->Observers.find(vtkObserverKey{ p, tag });
+  if (it == this->Observers.end())
+  {
+    this->Priorities.erase(it_p);
+    return nullptr;
+  }
+  return it->second.Command;
 }
 
 //------------------------------------------------------------------------------
 void vtkSubjectHelper::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Registered Observers:\n";
-  indent = indent.GetNextIndent();
-  vtkObserver* elem = this->Start;
-  if (!elem)
-  {
-    os << indent << "(none)\n";
-    return;
-  }
+  vtkIndent outer = indent.GetNextIndent();
+  vtkIndent inner = outer.GetNextIndent();
 
-  for (; elem; elem = elem->Next)
+  if (this->Observers.empty())
   {
-    elem->PrintSelf(os, indent);
+    os << outer << "(none)\n";
+  }
+  else
+  {
+    for (auto& [key, obs] : this->Observers)
+    {
+      os << outer << "vtkObserver (" << this << ")\n";
+      os << inner << "Event: " << obs.Event << "\n";
+      os << inner << "EventName: " << vtkCommand::GetStringFromEventId(obs.Event) << "\n";
+      os << inner << "Command: " << obs.Command << "\n";
+      os << inner << "Priority: " << key.Priority.Value << "\n";
+      os << inner << "Generation: " << key.Priority.Generation << "\n";
+      os << inner << "Tag: " << key.Tag << "\n";
+    }
   }
 }
 
@@ -948,6 +967,7 @@ public:
   static vtkObjectCommandInternal* New() { return new vtkObjectCommandInternal(); }
 
   vtkTypeMacro(vtkObjectCommandInternal, vtkCommand);
+
   void Execute(vtkObject* caller, unsigned long eventId, void* callData) override
   {
     if (this->Callable)
@@ -1009,4 +1029,5 @@ std::string vtkObject::GetObjectDescription() const
   }
   return s.str();
 }
+
 VTK_ABI_NAMESPACE_END

@@ -13,6 +13,10 @@
 namespace
 {
 std::atomic<std::size_t> RequestId = 0;
+const char* X11_LIBRARY_NAMES[] = { "libX11.so.6", "libX11.so", nullptr };
+#if VTK_HAVE_XCURSOR
+const char* XCURSOR_LIBRARY_NAMES[] = { "libXcursor.so.1", "libXcursor.so", nullptr };
+#endif
 }
 
 #define NULLIFY_POINTER_TO_FUNCTION(name) name = nullptr
@@ -101,10 +105,18 @@ extern "C"
     if (++RequestId == 1)
     {
       vtkLog(TRACE, "Loading X11 function pointers");
-      libX11 = dlopen("libX11.so", RTLD_LAZY | RTLD_GLOBAL);
+      for (const char** libName = X11_LIBRARY_NAMES; *libName != nullptr; ++libName)
+      {
+        libX11 = dlopen(*libName, RTLD_LAZY | RTLD_LOCAL);
+        if (libX11 != nullptr)
+        {
+          vtkLog(TRACE, "Successfully loaded " << *libName);
+          break;
+        }
+      }
       if (libX11 == nullptr)
       {
-        vtkLog(WARNING, "Failed to load libX11.so");
+        vtkLog(WARNING, "Failed to load an X11 library");
         return;
       }
       LOAD_POINTER_TO_FUNCTION(libX11, XInternAtom, vtkXInternAtom);
@@ -168,10 +180,18 @@ extern "C"
       LOAD_POINTER_TO_FUNCTION(libX11, XRootWindow, vtkXRootWindow);
       LOAD_POINTER_TO_FUNCTION(libX11, XGetVisualInfo, vtkXGetVisualInfo);
 #if VTK_HAVE_XCURSOR
-      libXcursor = dlopen("libXcursor.so", RTLD_LAZY | RTLD_GLOBAL);
+      for (const char** libName = XCURSOR_LIBRARY_NAMES; *libName != nullptr; ++libName)
+      {
+        libXcursor = dlopen(*libName, RTLD_LAZY | RTLD_LOCAL);
+        if (libXcursor != nullptr)
+        {
+          vtkLog(TRACE, "Successfully loaded " << *libName);
+          break;
+        }
+      }
       if (libXcursor == nullptr)
       {
-        vtkLog(WARNING, "Failed to load libXcursor.so.1");
+        vtkLog(WARNING, "Failed to load Xcursor library");
         return;
       }
       LOAD_POINTER_TO_FUNCTION(libXcursor, XcursorFilenameLoadCursor, vtkXcursorFilenameLoadCursor);
@@ -255,11 +275,13 @@ extern "C"
         dlclose(libX11);
         libX11 = nullptr;
       }
+#if VTK_HAVE_XCURSOR
       if (libXcursor)
       {
         dlclose(libXcursor);
         libXcursor = nullptr;
       }
+#endif
     }
   }
 }

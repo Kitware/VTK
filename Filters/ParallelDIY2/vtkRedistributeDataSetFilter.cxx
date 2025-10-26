@@ -216,6 +216,27 @@ void vtkRedistributeDataSetFilter::SetExplicitCuts(const std::vector<vtkBounding
 }
 
 //------------------------------------------------------------------------------
+void vtkRedistributeDataSetFilter::SetBoundaryMode(int mode)
+{
+  if (mode < this->GetBoundaryModeMinValue() || mode > this->GetBoundaryModeMaxValue())
+  {
+    // silently ignore invalid values
+    return;
+  }
+
+  this->BoundaryMode = mode;
+  if (!::CheckNativeStrategy(this->Strategy))
+  {
+    return;
+  }
+  auto native = vtkNativePartitioningStrategy::SafeDownCast(this->Strategy);
+  bool isAssignToOneRegion =
+    (this->BoundaryMode == vtkRedistributeDataSetFilter::ASSIGN_TO_ONE_REGION);
+  native->SetAssignBoundaryCellsToSmallestRegionId(isAssignToOneRegion);
+  this->Modified();
+}
+
+//------------------------------------------------------------------------------
 void vtkRedistributeDataSetFilter::RemoveAllExplicitCuts()
 {
   if (!::CheckNativeStrategy(this->Strategy))

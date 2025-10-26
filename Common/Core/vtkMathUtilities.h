@@ -16,7 +16,9 @@
 #define vtkMathUtilities_h
 
 #include "vtkABINamespace.h"
+#include "vtkAssume.h"
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <tuple>
@@ -98,35 +100,51 @@ bool NearlyEqual(A a, A b, A tol = std::numeric_limits<A>::epsilon())
  *   UpdateRange(-100, 100, NaN) -> (-100, 100)
  */
 template <class A>
-void UpdateRangeImpl(A& min0, A& max0, const A& value)
+inline void UpdateRange(A& min, A& max, const A& value)
 {
-  // need temporaries to handle const/non const ref mismatch
-  if (value < min0)
+  if constexpr (std::is_floating_point_v<A>)
   {
-    min0 = value;
-    max0 = max0 < value ? value : max0;
+    if (VTK_UNLIKELY(std::isnan(value)))
+    {
+      return;
+    }
   }
-  else if (value > max0)
+  if (value < min)
   {
-    min0 = min0 > value ? value : min0;
-    max0 = value;
+    min = value;
+    max = std::max(max, value);
+  }
+  else if (value > max)
+  {
+    min = std::min(min, value);
+    max = value;
   }
 }
 
-template <class A> // Non floating point implementation not caring about NaN
-void UpdateRange(A& min0, A& max0, const A& value,
-  typename std::enable_if<!std::is_floating_point<A>::value>::type* = nullptr)
+/**
+ * Update an existing min - max range with a new prospective value.  If the
+ * value is finite (not NaN or Inf) then the appropriate range comparisons are
+ * made and updated, otherwise the original min - max values are set.
+ */
+template <class A>
+inline void UpdateRangeFinite(A& min, A& max, const A& value)
 {
-  UpdateRangeImpl<A>(min0, max0, value);
-}
-
-template <class A> // Floating point implementation specifically considering NaN
-void UpdateRange(A& min0, A& max0, const A& value,
-  typename std::enable_if<std::is_floating_point<A>::value>::type* = nullptr)
-{
-  if (!std::isnan(value))
+  if constexpr (std::is_floating_point_v<A>)
   {
-    UpdateRangeImpl<A>(min0, max0, value);
+    if (VTK_UNLIKELY(std::isinf(value) || std::isnan(value)))
+    {
+      return;
+    }
+  }
+  if (value < min)
+  {
+    min = value;
+    max = std::max(max, value);
+  }
+  else if (value > max)
+  {
+    min = std::min(min, value);
+    max = value;
   }
 }
 

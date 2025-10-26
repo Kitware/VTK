@@ -19,6 +19,7 @@ vtk_add_test_cxx(vtkImagingCoreCxxTests tests
   ImageResizeCropping.cxx
   ImageReslice.cxx
   ImageResliceDirection.cxx
+  ImageResliceGap.cxx
   ImageResliceOriented.cxx
   ImageWeightedSum.cxx,NO_VALID
   ImportExport.cxx,NO_VALID

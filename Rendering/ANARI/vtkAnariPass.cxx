@@ -224,7 +224,10 @@ void vtkAnariPass::Render(const vtkRenderState* s)
 
   if (!ad->AnariInitialized())
   {
-    ad->SetupAnariDeviceFromLibrary("environment", "default", false);
+    if (!ad->SetupAnariDeviceFromLibrary("environment", "default", false))
+    {
+      return;
+    }
   }
 
   anari::Device device = ad->GetHandle();

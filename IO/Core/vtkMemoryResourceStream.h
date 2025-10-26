@@ -104,6 +104,16 @@ public:
   void SetBuffer(const void* buffer, std::size_t size, bool copy = false);
 
   /**
+   * Get a pointer to the internal buffer
+   */
+  vtkGetMacro(Buffer, const void*);
+
+  /**
+   * Get a pointer to the size of the internal buffer set in SetBuffer
+   */
+  vtkGetMacro(Size, std::size_t);
+
+  /**
    * @brief Set buffer to stream
    *
    * `this` will keep an owning reference to `buffer` (`buffer` reference count will be increased).

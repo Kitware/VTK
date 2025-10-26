@@ -34,6 +34,8 @@ class vtkDataSetAttributes;
 class vtkExplicitStructuredGrid;
 class vtkHyperTreeGrid;
 class vtkImageData;
+class vtkMultiBlockDataSet;
+class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
 class vtkPolyData;
 class vtkRectilinearGrid;
@@ -151,25 +153,33 @@ private:
     int mirrorSymmetricTensorDir[6], int mirrorTensorDir[9]);
 
   /**
-   * Add `dObj` as a new partitioned dataset of `outputPDSC` and update the assembly.
+   * Process vtkPartitionedDataSetCollection inputs.
    */
-  void AddPartitionedDataSet(vtkPartitionedDataSetCollection* outputPDSC, vtkDataObject* dObj,
-    vtkInformation* inputMetadata, int nodeId, bool isParentMultiblock, bool isInputCopy);
+  bool ProcessPDC(vtkPartitionedDataSetCollection* inputPDC,
+    vtkPartitionedDataSetCollection* outputPDC, double bounds[6]);
 
   /**
-   * Process composite inputs.
-   * A "Composite" node is added as child of reflectionNodeId, and for each child of the composite
-   * input, a node with the same name is added to the "Composite" node. If CopyInput is on, the same
-   * process is applied as child of inputNodeId, and the prefix "Input_" is added to each child's
-   * name.
+   * Process vtkMultiBlockDataSet inputs.
    */
-  bool ProcessComposite(vtkPartitionedDataSetCollection* outputPDSC, vtkCompositeDataSet* inputCD,
-    double bounds[6], int inputNodeId, int reflectionNodeId);
+  bool ProcessMB(
+    vtkMultiBlockDataSet* inputMB, vtkPartitionedDataSetCollection* outputMB, double bounds[6]);
+
+  /**
+   * Process vtkPartitionedDataSet inputs.
+   */
+  bool ProcessPDS(
+    vtkPartitionedDataSet* inputPDS, vtkPartitionedDataSetCollection* outputPDC, double bounds[6]);
+
+  /**
+   * Process vtkDataObject (vtkDataSet, vtkHyperTreeGrid) inputs.
+   */
+  bool ProcessDO(
+    vtkDataObject* inputDObj, vtkPartitionedDataSetCollection* outputPDC, double bounds[6]);
+
   /**
    * Process non-composite inputs (datasets and hyper tree grids).
    */
-  bool ProcessLeaf(
-    vtkDataObject* inputDataObject, vtkDataObject* outputDataObject, double bounds[6]);
+  bool ProcessLeaf(vtkDataObject* inputDO, vtkDataObject* outputDO, double bounds[6]);
 
   ///@{
   /**
@@ -197,12 +207,6 @@ private:
 
   PlaneAxis PlaneAxisInternal = X_PLANE;
   double PlaneOriginInternal[3] = { 0.0, 0.0, 0.0 };
-
-  // For naming purposes
-  int InputCount = 0;
-  int ReflectionCount = 0;
-
-  int PartitionIndex = 0;
 };
 
 VTK_ABI_NAMESPACE_END

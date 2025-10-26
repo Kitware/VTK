@@ -225,7 +225,8 @@ public:
   /**
    * Read global fields.
    */
-  bool GetGlobalFields(vtkFieldData* fd, const DatabaseHandle& handle, int timestep);
+  bool GetGlobalFields(vtkDataArraySelection* globalFieldSelection, vtkFieldData* fd,
+    const DatabaseHandle& handle, int timestep);
 
   /**
    * Get if there are restart files available.

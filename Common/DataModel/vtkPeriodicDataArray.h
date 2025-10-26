@@ -24,10 +24,10 @@ VTK_ABI_NAMESPACE_BEGIN
 template <class Scalar>
 class vtkPeriodicDataArray
   : public vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar,
-      vtkArrayTypes::PeriodicDataArray>
+      vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY>
 {
-  using GenericDataArrayType =
-    vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar, vtkArrayTypes::PeriodicDataArray>;
+  using GenericDataArrayType = vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar,
+    vtkArrayTypes::VTK_PERIODIC_DATA_ARRAY>;
 
 public:
   using SelfType = vtkPeriodicDataArray<Scalar>;

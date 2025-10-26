@@ -6,7 +6,7 @@
  *
  * vtkTGAReader is a source object that reads Targa files.
  * It supports uncompressed 24 and 32 bits formats.
- * This reader supports reading from memory.
+ * This reader supports the stream API.
  *
  * @sa
  * vtkImageReader2

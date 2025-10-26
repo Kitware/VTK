@@ -138,7 +138,8 @@ Sphere.SetThetaResolution(20)
 
 ThresholdIn = vtkThresholdPoints()
 ThresholdIn.SetInputData(grid)
-ThresholdIn.ThresholdByUpper(.5)
+ThresholdIn.SetUpperThreshold(0.5)
+ThresholdIn.SetThresholdFunction(vtkThresholdPoints.THRESHOLD_UPPER)
 
 Vertices = vtkGlyph3D()
 Vertices.SetInputConnection(ThresholdIn.GetOutputPort())

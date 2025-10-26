@@ -551,7 +551,7 @@ std::vector<std::string> TestDataSetFailures(vtkUnstructuredGrid* ug, std::ostri
 
   vtkNew<vtkUnstructuredGrid> other;
   other->DeepCopy(ug);
-  other->GetCellTypes<vtkUnsignedCharArray>()->SetValue(0, VTK_HEXAHEDRON);
+  vtkUnsignedCharArray::FastDownCast(other->GetCellTypes())->SetValue(0, VTK_HEXAHEDRON);
 
   CheckErrorMessage<vtkUnstructuredGrid>(vtkTestUtilities::CompareDataObjects(ug, other), logStream,
     "Cells of input of type vtkUnstructuredGrid do not match.", retLog, "Cell Types");

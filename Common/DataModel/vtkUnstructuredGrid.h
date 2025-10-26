@@ -207,15 +207,11 @@ public:
    * Get the array of all cell types in the grid. Each single-component
    * tuple in the array at an index that corresponds to the type of the cell
    * with the same index. To get an array of only the distinct cell types in
-   * the dataset, use GetCellTypes().
+   * the dataset, use GetDistinctCellTypes().
    */
-  template <class TCellTypesArray = vtkDataArray>
-  TCellTypesArray* GetCellTypes()
-  {
-    return TCellTypesArray::FastDownCast(this->Types);
-  }
+  vtkDataArray* GetCellTypes() { return this->Types; }
   VTK_DEPRECATED_IN_9_6_0("Use GetCellTypes() instead")
-  vtkUnsignedCharArray* GetCellTypesArray() { return this->GetCellTypes<vtkUnsignedCharArray>(); }
+  vtkUnsignedCharArray* GetCellTypesArray();
   ///@}
 
   /**
@@ -265,6 +261,15 @@ public:
    */
   void GetFaceStream(vtkIdType cellId, vtkIdList* ptIds);
 
+  /**
+   * Provide cell information to define the dataset with a single type.
+   *
+   * @note This method will create a vtkConstantUnsignedCharArray for the cell types internally to
+   * save memory. Therefore, if extracted via GetCellTypes(), it should NOT be assumed
+   * that it is a vtkUnsignedCharArray.
+   */
+  void SetCells(int type, vtkCellArray* cells);
+
   ///@{
   /**
    * Provide cell information to define the dataset.
@@ -276,13 +281,10 @@ public:
    * SetPolyhedralCells also requires a faceLocations vtkCellArray to fully describe a polyhedron
    * cell The faceLocations is a collection of face ids pointing to the faces vtkCellArray.
    */
-  void SetCells(int type, vtkCellArray* cells);
   void SetCells(int* types, vtkCellArray* cells);
   void SetCells(vtkDataArray* cellTypes, vtkCellArray* cells);
   void SetPolyhedralCells(
     vtkDataArray* cellTypes, vtkCellArray* cells, vtkCellArray* faceLocations, vtkCellArray* faces);
-
-  // This was incorrectly deprecated in v9.4, so it should only been fully removed when removing
   // VTK_DEPRECATED_IN_9_6_0
   VTK_DEPRECATED_IN_9_5_0("This function is deprecated, use SetPolyhedralCells")
   void SetCells(vtkUnsignedCharArray* cellTypes, vtkCellArray* cells, vtkIdTypeArray* faceLocations,

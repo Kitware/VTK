@@ -44,7 +44,7 @@ public:
     }
     for (int index = 0; index < nbOfLabels; index++)
     {
-      vtkTextMapper* mapper = this->LabelMappers[index];
+      vtkTextMapper* mapper = this->GetLabelMappers()[index];
       std::string label = mapper->GetInput();
       if (label != strings[index])
       {

@@ -22,6 +22,7 @@
 #include "vtkIntArray.h"
 #include "vtkJPEGReader.h"
 #include "vtkMath.h"
+#include "vtkMemoryResourceStream.h"
 #include "vtkPNGReader.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -30,7 +31,6 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedShortArray.h"
 
-#include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
@@ -841,6 +841,7 @@ bool vtkGLTFDocumentLoader::LoadImageData()
     vtkSmartPointer<vtkImageReader2> reader = nullptr;
     image.ImageData = vtkSmartPointer<vtkImageData>::New();
     std::vector<std::uint8_t> buffer;
+    vtkNew<vtkMemoryResourceStream> imgStream;
 
     // If image is defined via bufferview index
     if (image.BufferView >= 0 &&
@@ -873,10 +874,8 @@ bool vtkGLTFDocumentLoader::LoadImageData()
         vtkErrorMacro("Invalid bufferView.buffer value for bufferView " << bufferView.Name);
         return false;
       }
-      reader->SetMemoryBufferLength(
-        static_cast<vtkIdType>(this->InternalModel->Buffers[bufferId].size()));
-      reader->SetMemoryBuffer(
-        this->InternalModel->Buffers[bufferId].data() + bufferView.ByteOffset);
+      imgStream->SetBuffer(this->InternalModel->Buffers[bufferId].data() + bufferView.ByteOffset,
+        this->InternalModel->Buffers[bufferId].size());
     }
     else // If image is defined via uri
     {
@@ -926,10 +925,10 @@ bool vtkGLTFDocumentLoader::LoadImageData()
         return false;
       }
 
-      reader->SetMemoryBufferLength(buffer.size());
-      reader->SetMemoryBuffer(buffer.data());
+      imgStream->SetBuffer(buffer.data(), buffer.size());
     }
 
+    reader->SetStream(imgStream);
     bool status = reader->GetExecutive()->Update();
     image.ImageData = reader->GetOutput();
 

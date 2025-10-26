@@ -108,6 +108,8 @@ bool TestMemoryResource()
   const std::string str{ "Hello world!" };
   vtkNew<vtkMemoryResourceStream> memory;
   memory->SetBuffer(str.data(), str.size());
+  Check(memory->GetBuffer() == str.data(), "GetBuffer failed");
+  Check(memory->GetSize() == str.size(), "GetSize failed");
 
   return TestStream(memory);
 }

@@ -63,7 +63,8 @@ int TestImageDataOrientation2(int argc, char* argv[])
   thresh->SetInputConnection(select->GetOutputPort());
   thresh->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "SelectedPoints");
-  thresh->ThresholdByUpper(0.5);
+  thresh->SetUpperThreshold(0.5);
+  thresh->SetThresholdFunction(vtkThresholdPoints::THRESHOLD_UPPER);
 
   // Show points as glyphs
   vtkNew<vtkSphereSource> glyph;

@@ -451,6 +451,7 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
   if (node.has_path("state/metadata/vtk_fields"))
   {
     auto fieldsMetadata = node["state/metadata/vtk_fields"];
+    std::set<std::string> assignedAttributeTypes;
     for (conduit_index_t i = 0, nchildren = fieldsMetadata.number_of_children(); i < nchildren; ++i)
     {
       auto fieldMetadataNode = fieldsMetadata.child(i);
@@ -489,18 +490,28 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
         {
           const std::string& attributeType = fieldMetadataNode["attribute_type"].as_string();
           // check if the attribute type is valid
-          if (FieldMetadata::GetDataSetAttributeType(attributeType) !=
+          bool validAttributeType = FieldMetadata::GetDataSetAttributeType(attributeType) !=
               vtkDataSetAttributes::AttributeTypes::NUM_ATTRIBUTES ||
-            FieldMetadata::IsGhostsAttributeType(attributeType))
-          {
-            fieldMetadata[name].AttributeType = attributeType;
-          }
-          else
+            FieldMetadata::IsGhostsAttributeType(attributeType);
+          bool attributeAlreadyAssigned =
+            assignedAttributeTypes.find(attributeType) != assignedAttributeTypes.end();
+
+          if (!validAttributeType)
           {
             vtkLogF(
               ERROR, "invalid attribute type '%s' for '%s'.", attributeType.c_str(), name.c_str());
             return false;
           }
+          if (attributeAlreadyAssigned)
+          {
+            vtkLogF(WARNING,
+              "%s has attribute type %s, but this type is already assigned to another field.",
+              name.c_str(), attributeType.c_str());
+            continue;
+          }
+
+          fieldMetadata[name].AttributeType = attributeType;
+          assignedAttributeTypes.insert(attributeType);
         }
       }
       catch (std::exception& e)

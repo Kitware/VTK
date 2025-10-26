@@ -8,9 +8,10 @@
 GetCellTypes()`.
 
 `vtkUnstructuredGrid`'s method `vtkUnsignedCharArray* GetCellTypesArray()` has been deprecated in favor of
-`vtkDataArray* GetCellTypes()`, which is templated to allow returning other arrays, such as
-`vtkUnsignedCharArray* GetCellTypes<vtkUnsignedCharArray>()` or
-`vtkConstantUnsignedCharArray* GetCellTypes<vtkConstantUnsignedCharArray>()`.
+`vtkDataArray* GetCellTypes()`, which can be used to get the correct type as follows:
+
+1. `auto cellTypes = vtkConstantUnsignedCharArray::FastDownCast(input->GetCellTypes())`
+2. `auto cellTypes = vtkUnsignedCharArray::FastDownCast(input->GetCellTypes())`
 
 This was done to enable storing the cell types of meshes with only 1 cell type as `vtkConstantUnsignedCharArray` instead
 of `vtkUnsignedCharArray`, which saves memory.

@@ -472,18 +472,15 @@ int TestMultiBlockMultiPiece(int argc, char* argv[])
   AssertMacro(strcmp(assembly->GetNodeName(reflectionId), "Reflection") == 0,
     output->GetClassName(), "Incorrect assembly");
 
-  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(inputId, 0)), "Composite") == 0,
-    output->GetClassName(), "Incorrect assembly");
-  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(inputId, 1)), "Composite") == 0,
-    output->GetClassName(), "Incorrect assembly");
-  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(inputId, 2)), "Composite") == 0,
-    output->GetClassName(), "Incorrect assembly");
-  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, 0)), "Composite") == 0,
-    output->GetClassName(), "Incorrect assembly");
-  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, 1)), "Composite") == 0,
-    output->GetClassName(), "Incorrect assembly");
-  AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, 2)), "Composite") == 0,
-    output->GetClassName(), "Incorrect assembly");
+  for (int i = 0; i < 3; i++)
+  {
+    std::string correct = "Block" + vtk::to_string(i);
+    AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(inputId, i)), correct.c_str()) == 0,
+      output->GetClassName(), "Incorrect assembly");
+    AssertMacro(
+      strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, i)), correct.c_str()) == 0,
+      output->GetClassName(), "Incorrect assembly");
+  }
 
   return EXIT_SUCCESS;
 }
@@ -509,13 +506,11 @@ int TestMultiBlockOnlyDataSets(int argc, char* argv[])
 
   for (int i = 0; i < 10; i++)
   {
-    std::string inputCorrect = "Input_" + vtk::to_string(i);
-    AssertMacro(
-      strcmp(assembly->GetNodeName(assembly->GetChild(inputId, i)), inputCorrect.c_str()) == 0,
+    std::string correct = "Block" + vtk::to_string(i);
+    AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(inputId, i)), correct.c_str()) == 0,
       output->GetClassName(), "Incorrect assembly");
-    std::string reflectionCorrect = "Reflection_" + vtk::to_string(i);
-    AssertMacro(strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, i)),
-                  reflectionCorrect.c_str()) == 0,
+    AssertMacro(
+      strcmp(assembly->GetNodeName(assembly->GetChild(reflectionId, i)), correct.c_str()) == 0,
       output->GetClassName(), "Incorrect assembly");
   }
 

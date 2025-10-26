@@ -41,25 +41,28 @@ set(MPI_find_package_vars
 set(OpenVR_find_package_vars
   OpenVR_INCLUDE_DIR
   OpenVR_LIBRARY)
-set(OSMesa_find_package_vars
-  OSMESA_INCLUDE_DIR
-  OSMESA_LIBRARY)
-set(Python2_find_package_vars
-  Python2_EXECUTABLE
-  Python2_INCLUDE_DIR
-  Python2_LIBRARY)
 set(Python3_find_package_vars
   Python3_EXECUTABLE
   Python3_INCLUDE_DIR
   Python3_LIBRARY)
 set(OpenXRRemoting_find_package_vars
   OpenXRRemoting_BIN_DIR)
+set(PNG_find_package_vars
+  PNG_LIBRARY_DEBUG
+  PNG_LIBRARY_RELEASE
+  PNG_PNG_INCLUDE_DIR)
+set(SQLite_find_package_vars
+  SQLite3_INCLUDE_DIR
+  SQLite3_LIBRARY)
 
 if ("ospray" IN_LIST _vtk_packages)
-  # FIXME: ospray depends on embree, but does not help finders at all.
+  # FIXME: ospray depends on embree, rkcommon, and openvkl,
+  # but does not help finders at all.
   # https://github.com/ospray/ospray/issues/352
   list(APPEND _vtk_packages
-    embree)
+    embree
+    rkcommon
+    openvkl)
 endif ()
 
 set(vtk_find_package_code)

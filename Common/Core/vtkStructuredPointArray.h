@@ -28,7 +28,7 @@
 VTK_ABI_NAMESPACE_BEGIN
 template <typename ValueType>
 using vtkStructuredPointArray =
-  vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::StructuredPointArray>;
+  vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>;
 VTK_ABI_NAMESPACE_END
 
 namespace vtk
@@ -42,7 +42,7 @@ VTK_ABI_NAMESPACE_BEGIN
  */
 template <typename ValueType>
 vtkSmartPointer<
-  vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::StructuredPointArray>>
+  vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>>
 CreateStructuredPointArray(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,
   int extent[6], int dataDescription, double dirMatrix[9]);
 VTK_ABI_NAMESPACE_END
@@ -55,16 +55,16 @@ VTK_ABI_NAMESPACE_END
 // which when Dispatching is enabled, it instantiates a class with a value type, before exporting it
 #define VTK_INSTANTIATE_STRUCTURED_POINT_ARRAY_EXPORT(ValueType)                                   \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template class VTKCOMMONCORE_EXPORT                                                              \
-    vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::StructuredPointArray>;   \
+  template class VTKCOMMONCORE_EXPORT vtkImplicitArray<vtkStructuredPointBackend<ValueType>,       \
+    vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>;                                                    \
   VTK_ABI_NAMESPACE_END
 
 #define VTK_INSTANTIATE_STRUCTURED_POINT_ARRAY_FUNCTIONS(ValueType)                                \
   namespace vtk                                                                                    \
   {                                                                                                \
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
-  template VTKCOMMONCORE_EXPORT vtkSmartPointer<                                                   \
-    vtkImplicitArray<vtkStructuredPointBackend<ValueType>, vtkArrayTypes::StructuredPointArray>>   \
+  template VTKCOMMONCORE_EXPORT vtkSmartPointer<vtkImplicitArray<                                  \
+    vtkStructuredPointBackend<ValueType>, vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>>              \
   CreateStructuredPointArray(vtkDataArray* xCoords, vtkDataArray* yCoords, vtkDataArray* zCoords,  \
     int extent[6], int dataDescription, double dirMatrix[9]);                                      \
   VTK_ABI_NAMESPACE_END                                                                            \
@@ -74,7 +74,7 @@ VTK_ABI_NAMESPACE_END
   VTK_ABI_NAMESPACE_BEGIN                                                                          \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(                                                            \
     VTK_WRAP_TEMPLATE(vtkImplicitArray<vtkStructuredPointBackend<ValueType>,                       \
-      vtkArrayTypes::StructuredPointArray>),                                                       \
+      vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY>),                                                 \
     double)                                                                                        \
   VTK_ABI_NAMESPACE_END                                                                            \
   }
@@ -91,7 +91,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkExternSecondOrderWithParameterTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkStructuredPointBackend,
-  vtkArrayTypes::StructuredPointArray);
+  vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -124,7 +124,7 @@ VTK_ABI_NAMESPACE_END
 VTK_ABI_NAMESPACE_BEGIN
 vtkInstantiateSecondOrderWithParameterTemplateMacro(
   extern template class VTKCOMMONCORE_EXPORT vtkImplicitArray, vtkStructuredPointBackend,
-  vtkArrayTypes::StructuredPointArray);
+  vtkArrayTypes::VTK_STRUCTURED_POINT_ARRAY);
 
 #pragma warning(pop)
 

@@ -4,61 +4,67 @@ The legacy VTK file formats consist of five basic parts.
 
 1. The first part is the file version and identifier. This part contains the single line: ```vtk DataFile Version x.x.``` This line must be exactly as shown with the exception of the version number x.x, which will vary with different releases of VTK. (Note: the current version number is 3.0. Version 1.0 and 2.0 files are compatible with version 3.0 files.)
 
-2. The second part is the header. The header consists of a character string terminated by end-of-line character \n. The header is 256 characters maximum. The header can be used to describe the data and include any other pertinent information.
+2. The second part is the header. The header consists of a character string terminated by the newline character \n. The header has a maximum length of 256 characters. The header can be used to describe the data and include any other pertinent information.
 
-3. The next part is the file format. The file format describes the type of file, either ASCII or binary. On this line the single word ASCII or BINARY must appear.
+3. The next part is the file format. The file format describes the type of file, either ASCII or binary. On this line, the single word ASCII or BINARY must appear.
 
-4. The fourth part is the dataset structure. The geometry part describes the geometry and topology of the dataset. This part begins with a line containing the keyword _DATASET_ followed by a keyword describing the type of dataset.Then, depending upon the type of dataset, other keyword/data combinations define the actual data.
+4. The fourth part is the dataset structure, which describes the geometry and topology of the dataset. This part begins with a line containing the keyword _DATASET_ followed by a keyword describing the type of dataset. Then, depending upon the type of dataset, other keyword/data combinations define the actual data.
 
-5. The final part describes the dataset attributes. This part begins with the keywords _POINT_DATA_ or _CELL_DATA_, followed by an integer number specifying the number of points or cells, respectively. (It doesn’t matter whether _POINT_DATA_ or _CELL_DATA_ comes first.) Other keyword/data combinations then define the actual dataset attribute values (i.e., scalars, vectors, tensors, normals, texture coordinates, or field data).
+5. The final part describes the dataset attributes. This part begins with the keywords _POINT_DATA_ or _CELL_DATA_, followed by an integer number specifying the number of points or cells, respectively. (It does not matter whether _POINT_DATA_ or _CELL_DATA_ comes first.) Other keyword/data combinations then define the actual dataset attribute values (i.e., scalars, vectors, tensors, normals, texture coordinates, or field data).
 
 An overview of the file format is shown in Figure 1:
 
 
 <table style="border-collapse: collapse; margin-left: 40px; margin-right: auto;">
-    <tr><td width="1px">#&nbsp;vtk&nbsp;DataFile&nbsp;Version&nbsp;2.0</td><td>(1)</td></tr>
-    <tr><td width="1px">Really cool data</td><td>(2)</td></tr>
-    <tr><td width="1px">ASCII | BINARY</td><td>(3)</td></tr>
-    <tr><td width="1px">DATASET <b><i>type</i></b><br>...</td><td>(4)</td></tr>
-    <tr><td width="1px">POINT_DATA <b><i>type</i></b><br>...<br>CELL_DATA <b><i>type</i></b><br>...</td><td>(5)</td></tr>
+    <tr><td style="white-space: nowrap; font-family: monospace">vtk DataFile Version 2.0</td><td>(1)</td></tr>
+    <tr><td style="white-space: nowrap; font-family: monospace">Really cool data</td><td>(2)</td></tr>
+    <tr><td style="white-space: nowrap; font-family: monospace">ASCII | BINARY</td><td>(3)</td></tr>
+    <tr><td style="white-space: nowrap; font-family: monospace">DATASET <b><i>type</i></b><br>...</td><td>(4)</td></tr>
+    <tr><td style="white-space: nowrap; font-family: monospace">POINT_DATA <b><i>type</i></b><br>...<br>CELL_DATA <b><i>type</i></b><br>...</td><td>(5)</td></tr>
 </table>
 Key:
 <table style="border-collapse: collapse; margin-left: 40px; margin-right: auto;">
-        <tr><td style="width: 1px; white-space: nowrap;"><b>Part 1:</b> Header</td><td><b>Part 4:</b> Geometry/Topology. <b><i>Type</i></b> is one of
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRUCTURED_POINTS
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRUCTURED_GRID
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNSTRUCTURED_GRID
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;POLYDATA
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;STRUCTURED_POINTS
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RECTILINEAR_GRID
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FIELD</td></tr>
-        <tr><td style="width: 1px; white-space: nowrap;"><b>Part 2:</b>Title (256 characters
-            <br> maximum, terminated with
-            <br> newline \n character)</td><td><b>Part 5:</b> Dataset attributes. The number of data
-            <br>items n of each type must match the number
-            <br>of points or cells in the dataset. (If <i>type</i> is
-            <br>FIELD, point and cell data should be omitted.</td></tr>
-        <tr><td style="width: 1px; white-space: nowrap;"><b>Part 3:</b>Data type, either<br> ASCII or BINARY</td><td><b></b></td></tr>
+  <tr>
+    <td style="white-space: nowrap; vertical-align: top;"><b>Part 1:</b> File version and identifier</td>
+    <td rowspan="2" style="white-space:nowrap; vertical-align: top;"><b>Part 4:</b> Dataset structure: Geometry/Topology.<br>
+      <b><i>type</i></b> is one of:
+      <ul style="list-style-type: none;">
+        <li>STRUCTURED_POINTS</li>
+        <li>STRUCTURED_GRID</li>
+        <li>UNSTRUCTURED_GRID</li>
+        <li>POLYDATA</li>
+        <li>RECTILINEAR_GRID</li>
+        <li>FIELD</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td style="vertical-align: top;"><b>Part 2:</b> Header (256 characters maximum, terminated with the newline \n character)</td>
+  </tr>
+  <tr>
+    <td style="vertical-align: top;"><b>Part 3:</b> File format, either ASCII or BINARY</td>
+    <td style="vertical-align: top;"><b>Part 5:</b> Dataset attributes. The number of data items <i>n</i> of each type must match the number
+        of points or cells in the dataset. (If <i>type</i> is FIELD, point and cell data should be omitted.)</td>
+  </tr>
 </table>
 
 <a name="Figure1">**Figure 1:**</a> **Overview of five parts of VTK data file format.**
 
 
 
- The first three parts are mandatory, but the other two are optional. Thus you have the flexibility of mixing and matching dataset attributes and geometry, either by operating system file
-manipulation or using VTK filters to merge data. Keywords are case insensitive, and may be separated by whitespace. Before describing the data file formats please note the following.
+The first three parts are mandatory, but the other two are optional. Thus you have the flexibility of mixing and matching dataset attributes and geometry, either by operating system file manipulation or using VTK filters to merge data. Keywords are case insensitive, and may be separated by whitespace. Before describing the data file formats, please note the following:
 
-* _dataType_ is one of the types _bit_, _unsigned_char_, _char_, _unsigned_short_, _short_, _unsigned_int_, _int_, _unsigned_long_, _long_, _float_, or _double_. These keywords are used to describe the form of the data, both for reading from file, as well as constructing the appropriate internal objects. Not all data types are supported for all classes.
+* _dataType_ is one of the types _bit_, _unsigned_char_, _char_, _unsigned_short_, _short_, _unsigned_int_, _int_, _unsigned_long_, _long_, _float_, or _double_. These keywords are used to describe the form of the data, both for reading from the file, as well as constructing the appropriate internal objects. Not all data types are supported for all classes.
 
 * All keyword phrases are written in ASCII form whether the file is binary or ASCII. The binary section of the file (if in binary form) is the data proper; i.e., the numbers that define points coordinates, scalars, cell indices, and so forth.
 
-* Indices are 0-offset. Thus the first point is point id 0.
+* Indices are zero-based. Thus, the first point has index 0.
 
 * If both the data attribute and geometry/topology part are present in the file, then the number of data values defined in the data attribute part must exactly match the number of points or cells defined in the geometry/topology part.
 
 * Cell types and indices are of type _int_.
 
-* Binary data must be placed into the file immediately after the "newline" _(\n)_ character from the previous ASCII keyword and parameter sequence.
+* Binary data must immediately follow the newline character _(\n)_ from the previous ASCII keyword and parameter sequence.
 
 * The geometry/topology description must occur prior to the data attribute description.
 
@@ -68,179 +74,210 @@ Binary files in VTK are portable across different computer systems as long as yo
 
 Most of the time VTK manages the byte ordering of binary files for you. When you write a binary file on one computer and read it in from another computer, the bytes representing the data will be automatically swapped as necessary. For example, binary files written on a Sun are stored in big endian order, while those on a PC are stored in little endian order. As a result, files written on a Sun workstation require byte swapping when read on a PC. (See the class vtkByteSwap for implementation details.) The VTK data files described here are written in big endian form.
 
-Some file formats, however, do not explicitly define a byte ordering form. You will find that data read or written by external programs, or the classes vtkVolume16Reader, vtkMCubesReader, and vtkMCubesWriter may have a different byte order depending on the system of origin. In such cases, VTK allows you to specify the byte order by using the methods
+Some file formats, however, do not explicitly define a byte ordering form. You will find that data read or written by external programs, or the classes vtkVolume16Reader, vtkMCubesReader, and vtkMCubesWriter may have a different byte order depending on the system of origin. In such cases, VTK allows you to specify the byte order by using these methods:
 
 ```
 SetDataByteOrderToBigEndian()
 SetDataByteOrderToLittleEndian()
 ```
 
-Another problem with binary files is that systems may use a different number of bytes to represent an integer or other native type. For example, some 64-bit systems will represent an integer with 8-bytes, while others represent an integer with 4-bytes. Currently, the *Visualization Toolkit* cannot handle transporting binary files across systems with incompatible data length. In this case, use ASCII file formats instead.
+Another problem with binary files is that systems may use a different number of bytes to represent an integer or other native type. For example, some 64-bit systems will represent an integer with 8 bytes, while others represent an integer with 4 bytes. Currently, the *Visualization Toolkit* cannot handle transporting binary files across systems with incompatible data length. In this case, use ASCII file formats instead.
 
 ## Dataset Format
 The *Visualization Toolkit* supports five different dataset formats: structured points, structured grid, rectilinear grid, unstructured grid, and polygonal data. Data with implicit topology (structured data such as vtkImageData and vtkStructuredGrid) are ordered with x increasing fastest, then y, then z. These formats are as follows.
 
 * **Structured Points**. The file format supports 1D, 2D, and 3D structured point datasets. The dimensions nx, ny, nz must be greater than or equal to 1. The data spacing sx, sy, sz must be greater than 0. (Note: in the version 1.0 data file, spacing was referred to as "aspect ratio". ASPECT_RATIO can still be used in version 2.0 data files, but is discouraged.)
-<br><br>DATASET STRUCTURED_POINTS<br>
-DIMENSIONS <b><i>n<sub>x</sub> n<sub>y</sub> n<sub>z</sub></i></b><br>
-ORIGIN <b><i>x y z</i></b><br>
-SPACING <b><i>s<sub>x</sub> s<sub>y</sub> y<sub>z</i></b></sub>
+    <pre style="white-space:pre">
+    DATASET STRUCTURED_POINTS
+    DIMENSIONS <strong><em>n<sub>x</sub> n<sub>y</sub> n<sub>z</sub></em></strong>
+    ORIGIN <strong><em>x y z</em></strong>
+    SPACING <strong><em>s<sub>x</sub> s<sub>y</sub> s<sub>z</sub></em></strong>
+    </pre>
 
 * **Structured Grid**. The file format supports 1D, 2D, and 3D structured grid datasets. The dimensions nx, ny, nz must be greater than or equal to 1. The point coordinates are defined by the data in the _POINTS_ section. This consists of x-y-z data values for each point.
-<br><br>DATASET STRUCTURED_GRID<br>
-DIMENSIONS <b><i>n<sub>x</sub> n<sub>y</sub> n<sub>z</sub></i></b><br>
-POINTS <b><i>n dataType<br>
-p<sub>0x</sub> p<sub>0y</sub> p<sub>0z</sub><br>
-p<sub>1x</sub> p<sub>1y</sub> p<sub>1z</sub><br>
-...<br>
-p<sub>(n-1)x</sub> p<sub>(n-1)y</sub> p<sub>(n-1)z</sub></i></b><br>
+    <pre style="white-space:pre">
+    DATASET STRUCTURED_GRID
+    DIMENSIONS <strong><em>n<sub>x</sub> n<sub>y</sub> n<sub>z</sub></em></strong>
+    POINTS <strong><em>n dataType
+    p<sub>0x</sub> p<sub>0y</sub> p<sub>0z</sub>
+    p<sub>1x</sub> p<sub>1y</sub> p<sub>1z</sub>
+    ...
+    p<sub>(n-1)x</sub> p<sub>(n-1)y</sub> p<sub>(n-1)z</sub></em></strong>
+    </pre>
 
 
 * **Rectilinear Grid**. A rectilinear grid defines a dataset with regular topology, and semi-regular geometry aligned along the x-y-z coordinate axes. The geometry is defined by three lists of monotonically increasing coordinate values, one list for each of the x-y-z coordinate axes. The topology is defined by specifying the grid dimensions, which must be greater than or equal to 1.
-<br><br>DATASET RECTILINEAR_GRID<br>
-DIMENSIONS <b><i>n<sub>x</sub> n<sub>y</sub> n<sub>z</sub></i></b><br>
-X_COORDINATES <b><i>n<sub>x</sub> dataType</i></b><br>
-<b><i>x<sub>0</sub> x<sub>1</sub> ... x<sub>(nx-1)</sub></i></b><br>
-Y_COORDINATES <b><i>n<sub>y</sub> dataType</i></b><br>
-<b><i>y<sub>0</sub> y<sub>1</sub> ... y<sub>(ny-1)</sub></i></b><br>
-Z_COORDINATES <b><i>n<sub>z</sub> dataType</i></b><br>
-<b><i>z<sub>0</sub> z<sub>1</sub> ... z<sub>(nz-1)</sub></i></b><br>
+    <pre style="white-space:pre">
+    DATASET RECTILINEAR_GRID
+    DIMENSIONS <strong><em>n<sub>x</sub> n<sub>y</sub> n<sub>z</sub></em></strong>
+    X_COORDINATES <strong><em>n<sub>x</sub> dataType</em></strong>
+    <strong><em>x<sub>0</sub> x<sub>1</sub> ... x<sub>(nx-1)</sub></em></strong>
+    Y_COORDINATES <strong><em>n<sub>y</sub> dataType</em></strong>
+    <strong><em>y<sub>0</sub> y<sub>1</sub> ... y<sub>(ny-1)</sub></em></strong>
+    Z_COORDINATES <strong><em>n<sub>z</sub> dataType</em></strong>
+    <strong><em>z<sub>0</sub> z<sub>1</sub> ... z<sub>(nz-1)</sub></em></strong>
+    </pre>
 
 
-* **Polygonal Data**. The polygonal dataset consists of arbitrary combinations of surface graphics primitives vertices (and polyvertices), lines (and polylines), polygons (of various types), and triangle strips. Polygonal data is defined by the _POINTS_, _VERTICES_, _LINES_, _POLYGONS_, or _TRIANGLE_STRIPS_ sections. The _POINTS_ definition is the same as we saw for structured grid datasets. The _VERTICES_, _LINES_, _POLYGONS_, or _TRIANGLE_STRIPS_ keywords define the polygonal dataset topology. Each of these keywords requires two parameters: the number of cells n and the size of the cell list size. The cell list size is the total number of integer values required to represent the list (i.e., sum of numPoints and connectivity indices over each cell). None of the keywords _VERTICES_, _LINES_, _POLYGONS_, or _TRIANGLE_STRIPS_ is required.
-<br><br>DATASET POLYDATA<br>
-POINTS <b><i>n dataType<br>
-p<sub>0x</sub> p<sub>0y</sub> p<sub>0z</sub><br>
-p<sub>1x</sub> p<sub>1y</sub> p<sub>1z</sub><br>
-...<br>
-p<sub>(n-1)x</sub> p<sub>(n-1)y</sub> p<sub>(n-1)z</sub></i></b><br>
-<br>VERTICES <b><i>n size<br>
-numPoints<sub>0</sub>, i<sub>0</sub>, j<sub>0</sub>, k<sub>0</sub>, ...<br>
-numPoints<sub>1</sub>, i<sub>1</sub>, j<sub>1</sub>, k<sub>1</sub>, ...<br>
-...<br>
-numPoints<sub>n-1</sub>, i<sub>n-1</sub>, j<sub>n-1</sub>, k<sub>n-1</sub>, ...</i></b><br>
-<br>LINES <b><i>n size<br>
-numPoints<sub>0</sub>, i<sub>0</sub>, j<sub>0</sub>, k<sub>0</sub>, ...<br>
-numPoints<sub>1</sub>, i<sub>1</sub>, j<sub>1</sub>, k<sub>1</sub>, ...<br>
-...<br>
-numPoints<sub>n-1</sub>, i<sub>n-1</sub>, j<sub>n-1</sub>, k<sub>n-1</sub>, ...</i></b><br>
-<br>POLYGONS <b><i>n size<br>
-numPoints<sub>0</sub>, i<sub>0</sub>, j<sub>0</sub>, k<sub>0</sub>, ...<br>
-numPoints<sub>1</sub>, i<sub>1</sub>, j<sub>1</sub>, k<sub>1</sub>, ...<br>
-...<br>
-numPoints<sub>n-1</sub>, i<sub>n-1</sub>, j<sub>n-1</sub>, k<sub>n-1</sub>, ...</i></b><br>
-<br>TRIANGLE_STRIPS <b><i>n size<br>
-numPoints<sub>0</sub>, i<sub>0</sub>, j<sub>0</sub>, k<sub>0</sub>, ...<br>
-numPoints<sub>1</sub>, i<sub>1</sub>, j<sub>1</sub>, k<sub>1</sub>, ...<br>
-...<br>
-numPoints<sub>n-1</sub>, i<sub>n-1</sub>, j<sub>n-1</sub>, k<sub>n-1</sub>, ...</i></b><br>
+* **Polygonal Data**. The polygonal dataset consists of arbitrary combinations of surface graphics primitives vertices (and polyvertices), lines (and polylines), polygons (of various types), and triangle strips. Polygonal data is defined by the _POINTS_, _VERTICES_, _LINES_, _POLYGONS_, or _TRIANGLE_STRIPS_ sections. The _POINTS_ definition is the same as that for structured grid datasets. The _VERTICES_, _LINES_, _POLYGONS_, or _TRIANGLE_STRIPS_ keywords define the polygonal dataset topology. Each of these keywords requires two parameters: the number of cells n and the size of the cell list. The cell list size is the total number of integer values required to represent the list (i.e., sum of numPoints and connectivity indices over each cell). None of the keywords _VERTICES_, _LINES_, _POLYGONS_, or _TRIANGLE_STRIPS_ is required.
+    <pre style="white-space:pre">
+    DATASET POLYDATA
+    POINTS <strong><em>n dataType
+    p<sub>0x</sub> p<sub>0y</sub> p<sub>0z</sub>
+    p<sub>1x</sub> p<sub>1y</sub> p<sub>1z</sub>
+    ...
+    p<sub>(n-1)x</sub> p<sub>(n-1)y</sub> p<sub>(n-1)z</em></strong>
+    VERTICES <strong><em>n size
+    numPoints<sub>0</sub>, i<sub>0</sub>, j<sub>0</sub>, k<sub>0</sub>, ...
+    numPoints<sub>1</sub>, i<sub>1</sub>, j<sub>1</sub>, k<sub>1</sub>, ...
+    ...
+    numPoints<sub>n-1</sub>, i<sub>n-1</sub>, j<sub>n-1</sub>, k<sub>n-1</sub>, ...</em></strong>
+    &nbsp;
+    LINES <strong><em>n size
+    numPoints<sub>0</sub>, i<sub>0</sub>, j<sub>0</sub>, k<sub>0</sub>, ...
+    numPoints<sub>1</sub>, i<sub>1</sub>, j<sub>1</sub>, k<sub>1</sub>, ...
+    ...
+    numPoints<sub>n-1</sub>, i<sub>n-1</sub>, j<sub>n-1</sub>, k<sub>n-1</sub>, ...</em></strong>
+    &nbsp;
+    POLYGONS <strong><em>n size
+    numPoints<sub>0</sub>, i<sub>0</sub>, j<sub>0</sub>, k<sub>0</sub>, ...
+    numPoints<sub>1</sub>, i<sub>1</sub>, j<sub>1</sub>, k<sub>1</sub>, ...
+    ...
+    numPoints<sub>n-1</sub>, i<sub>n-1</sub>, j<sub>n-1</sub>, k<sub>n-1</sub>, ...</em></strong>
+    &nbsp;
+    TRIANGLE_STRIPS <strong><em>n size
+    numPoints<sub>0</sub>, i<sub>0</sub>, j<sub>0</sub>, k<sub>0</sub>, ...
+    numPoints<sub>1</sub>, i<sub>1</sub>, j<sub>1</sub>, k<sub>1</sub>, ...
+    ...
+    numPoints<sub>n-1</sub>, i<sub>n-1</sub>, j<sub>n-1</sub>, k<sub>n-1</sub>, ...</em></strong>
+    </pre>
 
 
-* **Unstructured Grid**. The unstructured grid dataset consists of arbitrary combinations of any possible cell type. Unstructured grids are defined by points, cells, and cell types. The CELLS keyword requires two parameters: the number of cells n and the size of the cell list size. The cell list size is the total number of integer values required to represent the list (i.e., sum of numPoints and connectivity indices over each cell). The CELL_TYPES keyword requires a single parameter: the number of cells n. This value should match the value specified by the CELLS keyword. The cell types data is a single integer value per cell that specified cell type (see vtkCell.h or Figure 2).
-<br><br>DATASET UNSTRUCTURED_GRID<br>
-POINTS <b><i>n dataType<br>
-p<sub>0x</sub> p<sub>0y</sub> p<sub>0z</sub><br>
-p<sub>1x</sub> p<sub>1y</sub> p<sub>1z</sub><br>
-...<br>
-p<sub>(n-1)x</sub> p<sub>(n-1)y</sub> p<sub>(n-1)z</sub></i></b><br>
-<br>CELLS <b><i>n size<br>
-numPoints<sub>0</sub>, i<sub>0</sub>, j<sub>0</sub>, k<sub>0</sub>, ...<br>
-numPoints<sub>1</sub>, i<sub>1</sub>, j<sub>1</sub>, k<sub>1</sub>, ...<br>
-numPoints<sub>2</sub>, i<sub>2</sub>, j<sub>2</sub>, k<sub>2</sub>, ...<br>
-...<br>
-numPoints<sub>n-1</sub>, i<sub>n-1</sub>, j<sub>n-1</sub>, k<sub>n-1</sub>, ...</i></b><br>
-<br>CELL_TYPES <b><i>n<br>
-type<sub>0</sub><br>
-type<sub>1</sub><br>
-type<sub>2</sub><br>
-...<br>
-type<sub>n-1</sub></i></b><br>
+* **Unstructured Grid**. The unstructured grid dataset consists of arbitrary combinations of any possible cell type. Unstructured grids are defined by points, cells, and cell types. The CELLS keyword requires two parameters: the number of cells n and the size of the cell list. The cell list size is the total number of integer values required to represent the list (i.e., sum of numPoints and connectivity indices over each cell). The CELL_TYPES keyword requires a single parameter: the number of cells n. This value should match the value specified by the CELLS keyword. The cell types data consists of a single integer value per cell that specifies the cell type (see vtkCell.h or Figure 2).
+    <pre style="white-space:pre">
+    DATASET UNSTRUCTURED_GRID
+    POINTS <strong><em>n dataType
+    p<sub>0x</sub> p<sub>0y</sub> p<sub>0z</sub>
+    p<sub>1x</sub> p<sub>1y</sub> p<sub>1z</sub>
+    ...
+    p<sub>(n-1)x</sub> p<sub>(n-1)y</sub> p<sub>(n-1)z</sub></em></strong>
+    &nbsp;
+    CELLS <strong><em>n size
+    numPoints<sub>0</sub>, i<sub>0</sub>, j<sub>0</sub>, k<sub>0</sub>, ...
+    numPoints<sub>1</sub>, i<sub>1</sub>, j<sub>1</sub>, k<sub>1</sub>, ...
+    numPoints<sub>2</sub>, i<sub>2</sub>, j<sub>2</sub>, k<sub>2</sub>, ...
+    ...
+    numPoints<sub>n-1</sub>, i<sub>n-1</sub>, j<sub>n-1</sub>, k<sub>n-1</sub>, ...</em></strong>
+    &nbsp;
+    CELL_TYPES <strong><em>n
+    type<sub>0</sub>
+    type<sub>1</sub>
+    type<sub>2</sub>
+    ...
+    type<sub>n-1</sub></em></strong>
+    </pre>
 
-* **Field**. Field data is a general format without topological and geometric structure, and without a particular dimensionality. Typically field data is associated with the points or cells of a dataset. However, if the FIELD type is specified as the dataset type (see Figure1), then a general VTK data object is defined. Use the format described in the next section to define a field. Also see "Working With Field Data" on [page 249](https://www.kitware.com/products/books/VTKUsersGuide.pdf#page=263) and the fourth example in this chapter [Legacy File Examples](#legacy-file-examples).
+* **Field**. Field data is a general format without topological and geometric structure, and without a particular dimensionality. Typically field data is associated with the points or cells of a dataset. However, if the FIELD type is specified as the dataset type (see Figure 1), then a general VTK data object is defined. Use the format described in the next section to define a field. Also see "Working With Field Data" on [page 249](https://www.kitware.com/products/books/VTKUsersGuide.pdf#page=263) and the fourth example in this chapter [Legacy File Examples](#legacy-file-examples).
 
 ## Dataset Attribute Format
 
 The *Visualization Toolkit* supports the following dataset attributes: scalars (one to four components), vectors, normals, texture coordinates (1D, 2D, and 3D), tensors, and field data. In addition, a lookup table using the RGBA color specification, associated with the scalar data, can be defined as well. Dataset attributes are supported for both points and cells.
 
-Each type of attribute data has a dataName associated with it. This is a character string (without embedded whitespace) used to identify a particular data. The dataName is used by the VTK readers to extract data. As a result, more than one attribute data of the same type can be included in a file. For example, two different scalar fields defined on the dataset points, pressure and temperature, can be contained in the same file. (If the appropriate dataName is not specified in the VTK reader, then the first data of that type is extracted from the file.)
+Each type of attribute data has a dataName associated with it. This is a character string (without embedded whitespace) used to identify the specific dataset attribute. The dataName is used by the VTK readers to extract data. As a result, more than one attribute data of the same type can be included in a file. For example, two different scalar fields defined on the dataset points, pressure and temperature, can be contained in the same file. (If the appropriate dataName is not specified in the VTK reader, then the first dataset attribute of that type is extracted from the file.)
 
 * **Scalars**. Scalar definition includes specification of a lookup table. The definition of a lookup table is optional. If not specified, the default VTK table will be used (and tableName should be "default"). Also note that the numComp variable is optional—by default the number of components is equal to one. (The parameter numComp must range between 1 and 4 inclusive; in versions of VTK prior to 2.3 this parameter was not supported.)
-<br><br>SCALARS <b><i>dataName dataType numComp</i></b><br>
-LOOKUP_TABLE <b><i>tableName<br>
-s<sub>0</sub><br>
-s<sub>1</sub><br>
-...<br>
-s<sub>n-1</sub></i></b><br>
-<br>The definition of color scalars (i.e., unsigned char values directly mapped to color) varies depending upon the number of values (nValues) per scalar. If the file format is ASCII, the color scalars are defined using nValues float values between (0,1). If the file format is BINARY, the stream of data consists of nValues unsigned char values per scalar value.
-<br><br>COLOR_SCALARS <b><i>dataName nValues<br>
-c<sub>00</sub> c<sub>01</sub> ... c<sub>0(nValues-1)</sub><br>
-c<sub>10</sub> c<sub>11</sub> ... c<sub>1(nValues-1)</sub><br>
-...<br>
-c<sub>(n-1)0</sub> c<sub>(n-1)1</sub> ... c<sub>(n-1)(nValues-1)</sub></i></b>
+    <pre style="white-space:pre">
+    SCALARS <strong><em>dataName dataType numComp</em></strong>
+    LOOKUP_TABLE <strong><em>tableName
+    s<sub>0</sub>
+    s<sub>1</sub>
+    ...
+    s<sub>n-1</sub></em></strong>
+    </pre>
+    The definition of color scalars (i.e., unsigned char values directly mapped to color) varies depending upon the number of values (nValues) per scalar. If the file format is ASCII, the color scalars are defined using nValues float values between 0 and 1. If the file format is BINARY, the stream of data consists of nValues unsigned char values per scalar value.
+    <pre style="white-space:pre">
+    COLOR_SCALARS <strong><em>dataName nValues
+    c<sub>00</sub> c<sub>01</sub> ... c<sub>0(nValues-1)</sub>
+    c<sub>10</sub> c<sub>11</sub> ... c<sub>1(nValues-1)</sub>
+    ...
+    c<sub>(n-1)0</sub> c<sub>(n-1)1</sub> ... c<sub>(n-1)(nValues-1)</sub></em></strong>
+    </pre>
 
-* **Lookup Table**. The *tableName* field is a character string (without embedded white space) used to identify the lookup table. This label is used by the VTK reader to extract a specific table.
-Each entry in the lookup table is a rgba[4] (red-green-blue-alpha) array (alpha is opacity where alpha=0 is transparent). If the file format is ASCII, the lookup table values must be float values between (0,1). If the file format is BINARY, the stream of data must be four unsigned char values per table entry.
-<br><br>LOOKUP_TABLE <b><i>tableName size<br>
-r<sub>0</sub> g<sub>0</sub> b<sub>0</sub> a<sub>0</sub><br>
-r<sub>1</sub> g<sub>1</sub> b<sub>1</sub> a<sub>1</sub><br>
-...<br>
-r<sub>size-1</sub> g<sub>size-1</sub> b<sub>size-1</sub> a<sub>size-1</sub></i></b>
+* **Lookup Table**. The *tableName* field is a character string (without embedded whitespace) used to identify the lookup table. This label is used by the VTK reader to extract a specific table.
+Each entry in the lookup table is a rgba[4] (red-green-blue-alpha) array (alpha is opacity where alpha=0 is transparent). If the file format is ASCII, the lookup table values must be float values between 0 and 1. If the file format is BINARY, the stream of data must be four unsigned char values per table entry.
+    <pre style="white-space:pre">
+    LOOKUP_TABLE <strong><em>tableName size
+    r<sub>0</sub> g<sub>0</sub> b<sub>0</sub> a<sub>0</sub>
+    r<sub>1</sub> g<sub>1</sub> b<sub>1</sub> a<sub>1</sub>
+    ...
+    r<sub>size-1</sub> g<sub>size-1</sub> b<sub>size-1</sub> a<sub>size-1</sub></em></strong>
+    </pre>
 
 * **Vectors**.
-<br><br>VECTORS <b><i>dataName dataType<br>
-v<sub>0x</sub> v<sub>0y</sub> v<sub>0z</sub><br>
-v<sub>1x</sub> v<sub>1y</sub> v<sub>1z</sub><br>
-...<br>
-v<sub>(n-1)x</sub> v<sub>(n-1)y</sub> v<sub>(n-1)z</sub></i></b>
+    <pre style="white-space:pre">
+    VECTORS <strong><em>dataName dataType
+    v<sub>0x</sub> v<sub>0y</sub> v<sub>0z</sub>
+    v<sub>1x</sub> v<sub>1y</sub> v<sub>1z</sub>
+    ...
+    v<sub>(n-1)x</sub> v<sub>(n-1)y</sub> v<sub>(n-1)z</sub></em></strong>
+    </pre>
 
-* **Normals**. Normals are assumed normalized &#124;n&#124; = 1.
-<br><br>NORMALS <b><i>dataName dataType<br>
-n<sub>0x</sub> n<sub>0y</sub> n<sub>0z</sub><br>
-n<sub>1x</sub> n<sub>1y</sub> n<sub>1z</sub><br>
-...<br>
-n<sub>(n-1)x</sub> n<sub>(n-1)y</sub> n<sub>(n-1)z</sub></i></b>
+* **Normals**. Normals are assumed to be normalized (&#124;n&#124; = 1).
+    <pre style="white-space:pre">
+    NORMALS <strong><em>dataName dataType
+    n<sub>0x</sub> n<sub>0y</sub> n<sub>0z</sub>
+    n<sub>1x</sub> n<sub>1y</sub> n<sub>1z</sub>
+    ...
+    n<sub>(n-1)x</sub> n<sub>(n-1)y</sub> n<sub>(n-1)z</sub></em></strong>
+    </pre>
 
 
 * **Texture Coordinates**. Texture coordinates of 1, 2, and 3 dimensions are supported.
-<br><br>TEXTURE_COORDINATES <b><i>dataName dim dataType<br>
-t<sub>00</sub> t<sub>01</sub> ... t<sub>0(dim-1)</sub><br>
-t<sub>10</sub> t<sub>11</sub> ... t<sub>1(dim-1)</sub><br>
-...<br>
-t<sub>(n-1)0</sub> t<sub>(n-1)1</sub> ... t<sub>(n-1)(dim-1)</sub></i></b>
+    <pre style="white-space:pre">
+    TEXTURE_COORDINATES <strong><em>dataName dim dataType
+    t<sub>00</sub> t<sub>01</sub> ... t<sub>0(dim-1)</sub>
+    t<sub>10</sub> t<sub>11</sub> ... t<sub>1(dim-1)</sub>
+    ...
+    t<sub>(n-1)0</sub> t<sub>(n-1)1</sub> ... t<sub>(n-1)(dim-1)</sub></em></strong>
+    </pre>
 
 * **Tensors**. Currently only real-valued, symmetric tensors are supported.
-<br><br>TENSORS <b><i>dataName dataType<br>
-t<sup>0</sup><sub>00</sub> t<sup>0</sup><sub>01</sub> t<sup>0</sup><sub>02</sub><br>
-t<sup>0</sup><sub>10</sub> t<sup>0</sup><sub>11</sub> t<sup>0</sup><sub>12</sub><br>
-t<sup>0</sup><sub>20</sub> t<sup>0</sup><sub>21</sub> t<sup>0</sup><sub>22</sub><br>
-<br>
-t<sup>1</sup><sub>00</sub> t<sup>1</sup><sub>01</sub> t<sup>1</sup><sub>02</sub><br>
-t<sup>1</sup><sub>10</sub> t<sup>1</sup><sub>11</sub> t<sup>1</sup><sub>12</sub><br>
-t<sup>1</sup><sub>20</sub> t<sup>1</sup><sub>21</sub> t<sup>1</sup><sub>22</sub><br>
-...
-<br>
-t<sup>n - 1</sup><sub>00</sub> t<sup>n - 1</sup><sub>01</sub> t<sup>n - 1</sup><sub>02</sub><br>
-t<sup>n - 1</sup><sub>10</sub> t<sup>n - 1</sup><sub>11</sub> t<sup>n - 1</sup><sub>12</sub><br>
-t<sup>n - 1</sup><sub>20</sub> t<sup>n - 1</sup><sub>21</sub> t<sup>n - 1</sup><sub>22</sub></i></b>
+    <pre style="white-space:pre">
+    TENSORS <strong><em>dataName dataType
+    t<sup>0</sup><sub>00</sub> t<sup>0</sup><sub>01</sub> t<sup>0</sup><sub>02</sub>
+    t<sup>0</sup><sub>10</sub> t<sup>0</sup><sub>11</sub> t<sup>0</sup><sub>12</sub>
+    t<sup>0</sup><sub>20</sub> t<sup>0</sup><sub>21</sub> t<sup>0</sup><sub>22</sub>
+    &nbsp;
+    t<sup>1</sup><sub>00</sub> t<sup>1</sup><sub>01</sub> t<sup>1</sup><sub>02</sub>
+    t<sup>1</sup><sub>10</sub> t<sup>1</sup><sub>11</sub> t<sup>1</sup><sub>12</sub>
+    t<sup>1</sup><sub>20</sub> t<sup>1</sup><sub>21</sub> t<sup>1</sup><sub>22</sub>
+    ...
+    &nbsp;
+    t<sup>n-1</sup><sub>00</sub> t<sup>n-1</sup><sub>01</sub> t<sup>n-1</sup><sub>02</sub>
+    t<sup>n-1</sup><sub>10</sub> t<sup>n-1</sup><sub>11</sub> t<sup>n-1</sup><sub>12</sub>
+    t<sup>n-1</sup><sub>20</sub> t<sup>n-1</sup><sub>21</sub> t<sup>n-1</sup><sub>22</sub></em></strong>
+    </pre>
 
-* **Field Data**. Field data is essentially an array of data arrays. Defining field data means giving a name to the field and specifying the number of arrays it contains. Then, for each array, the name of the array arrayName(i), the number of components of the array, numComponents, the number of tuples in the array, numTuples, and the data type, dataType, are defined.
-<br><br>FIELD <b><i>dataName numArrays<br>
-arrayName0 numComponents numTuples dataType<br>
-f<sub>00</sub> f<sub>01</sub> ... f<sub>0(numComponents-1)</sub><br>
-f<sub>10</sub> f<sub>11</sub> ... f<sub>1(numComponents-1)</sub><br>
-...<br>
-f<sub>(numTuples-1)0</sub> f<sub>(numTuples-1)1</sub> ... f<sub>(numTuples-1)(numComponents-1)</sub><br>
-arrayName1 numComponents numTuples dataType<br>
-f<sub>00</sub> f<sub>01</sub> ... f<sub>0(numComponents-1)</sub><br>
-f<sub>10</sub> f<sub>11</sub> ... f<sub>1(numComponents-1)</sub><br>
-...<br>
-f<sub>(numTuples-1)0</sub> f<sub>(numTuples-1)1</sub> ... f<sub>(numTuples-1)(numComponents-1)</sub><br>
-...<br>
-arrayName(numArrays-1) numComponents numTuples dataType<br>
-f<sub>00</sub> f<sub>01</sub> ... f<sub>0(numComponents-1)</sub><br>
-f<sub>10</sub> f<sub>11</sub> ... f<sub>1(numComponents-1)</sub><br>
-...<br>
-f<sub>(numTuples-1)0</sub> f<sub>(numTuples-1)1</sub> ... f<sub>(numTuples-1)(numComponents-1)</sub></i></b>
+* **Field Data**. Field data is essentially an array of data arrays. Defining field data means giving a name to the field and specifying the number of arrays it contains. For each array, define its name (arrayName(i)), the number of components (numComponents), the number of tuples (numTuples), and the data type (dataType).
+    <pre style="white-space:pre">
+    FIELD <strong><em>dataName numArrays
+    arrayName0 numComponents numTuples dataType
+    f<sub>00</sub> f<sub>01</sub> ... f<sub>0(numComponents-1)</sub>
+    f<sub>10</sub> f<sub>11</sub> ... f<sub>1(numComponents-1)</sub>
+    ...
+    f<sub>(numTuples-1)0</sub> f<sub>(numTuples-1)1</sub> ... f<sub>(numTuples-1)(numComponents-1)</sub>
+    arrayName1 numComponents numTuples dataType
+    f<sub>00</sub> f<sub>01</sub> ... f<sub>0(numComponents-1)</sub>
+    f<sub>10</sub> f<sub>11</sub> ... f<sub>1(numComponents-1)</sub>
+    ...
+    f<sub>(numTuples-1)0</sub> f<sub>(numTuples-1)1</sub> ... f<sub>(numTuples-1)(numComponents-1)</sub>
+    ...
+    arrayName(numArrays-1) numComponents numTuples dataType
+    f<sub>00</sub> f<sub>01</sub> ... f<sub>0(numComponents-1)</sub>
+    f<sub>10</sub> f<sub>11</sub> ... f<sub>1(numComponents-1)</sub>
+    ...
+    f<sub>(numTuples-1)0</sub> f<sub>(numTuples-1)1</sub> ... f<sub>(numTuples-1)(numComponents-1)</sub></em></strong>
+    </pre>
 
 ## Legacy File Examples
 The first example is a cube represented by six polygonal faces. We define a single-component scalar, normals, and field data on the six faces. There are scalar data associated with the eight vertices. A lookup table of eight colors, associated with the point scalars, is also defined.
@@ -309,7 +346,7 @@ LOOKUP_TABLE my_table 8
 1.0 1.0 1.0 1.0
 ```
 
-The next example is a volume of dimension 3 by 4 by 6. Since no lookup table is defined, either the user must create one in VTK, or the default lookup table will be used.
+The next example is a volume of dimension 3 by 4 by 6. Since no lookup table is defined, either the user must create one in VTK or the default lookup table will be used.
 
 ```
 # vtk DataFile Version 2.0
@@ -334,7 +371,7 @@ The third example is an unstructured grid containing twelve of the nineteen VTK 
 Figure 2 shows all 16 of the linear cell types and was generated with the [LinearCellDemo](https://kitware.github.io/vtk-examples/site/Cxx/GeometricObjects/LinearCellDemo).
 <figure>
   <img src="https://github.com/Kitware/vtk-examples/blob/gh-pages/src/Testing/Baseline/Cxx/GeometricObjects/TestLinearCellDemo.png?raw=true" width="640" alt="LinearCellDemo">
-  <figcaption>Figure 2. - Linear cell types found in VTK. Use the include file ?vtkCellType?.h to manipulate cell types..</figcaption>
+  <figcaption>Figure 2. - Linear cell types found in VTK. Use the include file vtkCellType.h to manipulate cell types.</figcaption>
 </figure>
 
 Figure 3 shows 16 of the non-linear cells and was generated with the [IsoparametricCellsDemo](https://kitware.github.io/vtk-examples/site/Cxx/GeometricObjects/IsoparametricCellsDemo).
@@ -445,7 +482,7 @@ TIME_LATE 1 3188 float
 MONTHLY_PAYMENT 1 3188 float
 7.26 5.27 8.01 16.84 8.21 15.75 10.62 15.47
 ...(more stuff)...
-UNPAID_PRINCIPLE 1 3188 float
+UNPAID_PRINCIPAL 1 3188 float
 430.70 380.88 516.22 1351.23 629.66 1181.97 888.91 1437.83
 ...(more stuff)...
 LOAN_AMOUNT 1 3188 float

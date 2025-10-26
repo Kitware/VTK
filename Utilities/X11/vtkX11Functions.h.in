@@ -41,6 +41,7 @@
 #include "vtkx11Module.h"    // For export macro
 
 #cmakedefine VTK_USE_X
+#cmakedefine01 VTK_HAVE_XCURSOR
 #if defined(VTK_USE_X)
 #include <X11/X.h>
 #include <X11/Xatom.h>

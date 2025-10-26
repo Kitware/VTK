@@ -1031,7 +1031,7 @@ vtkUnsignedCharArray* vtkUnstructuredGrid::GetDistinctCellTypesArray()
       this->DistinctCellTypes->Register(this);
       this->DistinctCellTypes->Delete();
     }
-    if (auto constantTypes = this->GetCellTypes<vtkConstantUnsignedCharArray>())
+    if (auto constantTypes = vtkConstantUnsignedCharArray::FastDownCast(this->GetCellTypes()))
     {
       this->DistinctCellTypes->Reset();
       this->DistinctCellTypes->InsertNextType(constantTypes->GetValue(0));
@@ -1047,13 +1047,11 @@ vtkUnsignedCharArray* vtkUnstructuredGrid::GetDistinctCellTypesArray()
   return this->DistinctCellTypes->GetCellTypesArray();
 }
 
-//----------------------------------------------------------------------------
-template vtkUnsignedCharArray* vtkUnstructuredGrid::GetCellTypes<vtkUnsignedCharArray>();
-//----------------------------------------------------------------------------
-template vtkConstantUnsignedCharArray*
-vtkUnstructuredGrid::GetCellTypes<vtkConstantUnsignedCharArray>();
-//----------------------------------------------------------------------------
-template vtkDataArray* vtkUnstructuredGrid::GetCellTypes<vtkDataArray>();
+//------------------------------------------------------------------------------
+vtkUnsignedCharArray* vtkUnstructuredGrid::GetCellTypesArray()
+{
+  return vtkUnsignedCharArray::FastDownCast(this->Types);
+}
 
 //----------------------------------------------------------------------------
 // Supporting functions for GetFaceStream()
@@ -1828,7 +1826,7 @@ int vtkUnstructuredGrid::IsHomogeneous()
 {
   if (this->Types && this->Types->GetMaxId() >= 0)
   {
-    if (this->GetCellTypes<vtkConstantUnsignedCharArray>())
+    if (vtkConstantUnsignedCharArray::FastDownCast(this->GetCellTypes()))
     {
       return 1;
     }

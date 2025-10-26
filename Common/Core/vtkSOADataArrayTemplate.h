@@ -30,10 +30,10 @@ VTK_ABI_NAMESPACE_BEGIN
 template <class ValueTypeT>
 class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate
   : public vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>, ValueTypeT,
-      vtkArrayTypes::SoADataArrayTemplate>
+      vtkArrayTypes::VTK_SOA_DATA_ARRAY>
 {
   using GenericDataArrayType = vtkGenericDataArray<vtkSOADataArrayTemplate<ValueTypeT>, ValueTypeT,
-    vtkArrayTypes::SoADataArrayTemplate>;
+    vtkArrayTypes::VTK_SOA_DATA_ARRAY>;
 
 public:
   using SelfType = vtkSOADataArrayTemplate<ValueTypeT>;
@@ -201,6 +201,18 @@ public:
    */
   void ExportToVoidPointer(void* ptr) override;
 
+  /**
+   * Because we still need to support GetVoidPointer() for both reading from and writing
+   * to memory we may have the actual data stored in either this->Data or this->AoSData.
+   * This enum lets us know where our actual data buffer is stored.
+   */
+  enum StorageTypeEnum
+  {
+    AOS,
+    SOA
+  };
+  StorageTypeEnum GetStorageType() { return this->StorageType; }
+
   VTK_NEWINSTANCE vtkArrayIterator* NewIterator() override;
   void SetNumberOfComponents(int numComps) override;
   void ShallowCopy(vtkDataArray* other) override;
@@ -244,16 +256,6 @@ protected:
   std::vector<vtkBuffer<ValueType>*> Data;
   vtkBuffer<ValueType>* AoSData;
 
-  /**
-   * Because we still need to support GetVoidPointer() for both reading from and writing
-   * to memory we may have the actual data stored in either this->Data or this->AoSData.
-   * This enum lets us know where our actual data buffer is stored.
-   */
-  enum StorageTypeEnum
-  {
-    AOS,
-    SOA
-  };
   StorageTypeEnum StorageType;
 
   void ClearSOAData();
