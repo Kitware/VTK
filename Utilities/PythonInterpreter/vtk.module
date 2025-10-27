@@ -13,4 +13,7 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::CommonMisc
   VTK::WrappingPythonCore
+TEST_DEPENDS
+  VTK::TestingCore
+  VTK::WrappingPythonCore
 EXCLUDE_WRAP

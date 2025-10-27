@@ -19,3 +19,5 @@ if (Python3_VERSION VERSION_LESS "3.7" AND NOT CMAKE_VERSION VERSION_LESS "3.19"
         "${old_python_ignore_warning_flag}")
   endif ()
 endif ()
+
+vtk_add_test_mangling(VTK::PythonInterpreter)
