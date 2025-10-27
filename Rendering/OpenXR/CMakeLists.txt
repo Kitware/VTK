@@ -40,11 +40,12 @@ vtk_module_link(VTK::RenderingOpenXR
 
 set(openxr_input_files
   vtk_openxr_actions.json
+  vtk_openxr_binding_hp_mixed_reality.json
   vtk_openxr_binding_htc_vive_controller.json
   vtk_openxr_binding_khr_simple_controller.json
-  vtk_openxr_binding_hp_mixed_reality.json
   vtk_openxr_binding_knuckles.json
   vtk_openxr_binding_microsoft_hand_interaction.json
+  vtk_openxr_binding_oculus_touch_controller.json
 )
 
 foreach(inputfile ${openxr_input_files})

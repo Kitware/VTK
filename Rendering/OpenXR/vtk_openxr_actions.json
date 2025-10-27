@@ -69,6 +69,10 @@
     {
       "binding_url": "vtk_openxr_binding_microsoft_hand_interaction.json",
       "controller_type": "microsoft_hand_interaction"
+    },
+    {
+      "binding_url": "vtk_openxr_binding_oculus_touch_controller.json",
+      "controller_type": "oculus_touch"
     }
   ],
   "action_sets": [
