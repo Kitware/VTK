@@ -1465,6 +1465,7 @@ vec3 normalVCVSOutput = vertexNormalVCVS;
   {
     depthImpl = R"(
 computedNormalVCVS = normalVCVSInput;
+gl_FragDepth = gl_FragCoord.z;
 if (renderPointsAsSpheres == 1 && primitiveSize == 1)
 {
   if (pointPicking == 1)
@@ -1522,13 +1523,14 @@ else
   {
     computedNormalVCVS = -computedNormalVCVS;
   }
-}
+  }
 )";
   }
   else
   {
     depthImpl = R"(
 computedNormalVCVS = vec3(0.0, 0.0, 1.0);
+gl_FragDepth = gl_FragCoord.z;
 if (renderPointsAsSpheres == 1 && primitiveSize == 1)
 {
   vec3 sphereNormal = vec3(0.0, 0.0, 1.0);
