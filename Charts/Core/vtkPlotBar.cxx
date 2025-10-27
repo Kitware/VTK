@@ -10,10 +10,8 @@
 #include "vtkContextDevice2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPen.h"
@@ -28,7 +26,6 @@
 
 #include <algorithm>
 #include <map>
-#include <set>
 #include <vector>
 
 //------------------------------------------------------------------------------
