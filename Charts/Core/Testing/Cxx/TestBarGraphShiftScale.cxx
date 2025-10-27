@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkChartXY.h"
+#include "vtkContextActor.h"
 #include "vtkContextScene.h"
 #include "vtkContextView.h"
 #include "vtkDoubleArray.h"
 #include "vtkIntArray.h"
 #include "vtkNew.h"
 #include "vtkPlot.h"
+#include "vtkPlotBar.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -24,12 +26,35 @@ static int data_2010[] = { 9058, 10941, 9979, 10270, 8900, 11228, 14688, 12231, 
 //------------------------------------------------------------------------------
 int TestBarGraphShiftScale(int, char*[])
 {
+  vtkNew<vtkRenderWindow> renWin;
+  renWin->SetSize(600, 300);
+  vtkNew<vtkRenderer> lRen;
+  ;
+  renWin->AddRenderer(lRen);
+  lRen->SetViewport(0.0, 0.0, 0.5, 1.0);
+  lRen->SetBackground(1.0, 1.0, 1.0);
+  vtkNew<vtkRenderer> rRen;
+  ;
+  renWin->AddRenderer(rRen);
+  rRen->SetViewport(0.5, 0.0, 1.0, 1.0);
+  rRen->SetBackground(1.0, 1.0, 1.0);
+  // Set up a 2D scene on the left, add an XY chart to it
+  vtkNew<vtkContextScene> lScene;
+  lScene->SetRenderer(lRen);
+  vtkNew<vtkChartXY> lChart;
+  lScene->AddItem(lChart);
+  vtkNew<vtkContextActor> lChartActor;
+  lChartActor->SetScene(lScene);
+  lRen->AddActor(lChartActor);
+
   // Set up a 2D scene, add an XY chart to it
-  vtkNew<vtkContextView> view;
-  view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
-  view->GetRenderWindow()->SetSize(400, 300);
-  vtkNew<vtkChartXY> chart;
-  view->GetScene()->AddItem(chart);
+  vtkNew<vtkContextScene> rScene;
+  rScene->SetRenderer(rRen);
+  vtkNew<vtkChartXY> rChart;
+  rScene->AddItem(rChart);
+  vtkNew<vtkContextActor> rChartActor;
+  rChartActor->SetScene(rScene);
+  rRen->AddActor(rChartActor);
 
   // Create a table with some points in it...
   vtkNew<vtkTable> table;
@@ -50,38 +75,56 @@ int TestBarGraphShiftScale(int, char*[])
   arr2010->SetName("2010");
   table->AddColumn(arr2010);
 
-  table->SetNumberOfRows(12);
-  for (int i = 0; i < 12; i++)
+  table->SetNumberOfRows(2);
+  for (int i = 0; i < 2; i++)
   {
-    table->SetValue(i, 0, (i + 1) * 1e25);
-    table->SetValue(i, 1, data_2008[i]);
-    table->SetValue(i, 2, data_2009[i]);
-    table->SetValue(i, 3, data_2010[i]);
+    table->SetValue(i, 0, (i + 3) * 1e20 + 1e19);
+    table->SetValue(i, 1, data_2008[i] + 2e10);
+    table->SetValue(i, 2, data_2009[i] + 1e9);
+    table->SetValue(i, 3, data_2010[i] + 3e10);
   }
 
   // Add multiple bar plots, setting the colors etc
   vtkPlot* plot = nullptr;
+  vtkPlotBar* barPlot = nullptr;
 
-  plot = chart->AddPlot(vtkChart::BAR);
+  plot = lChart->AddPlot(vtkChart::BAR);
   plot->SetInputData(table, 0, 1);
   plot->SetColor(0, 255, 0, 255);
 
-  plot = chart->AddPlot(vtkChart::BAR);
+  plot = lChart->AddPlot(vtkChart::BAR);
   plot->SetInputData(table, 0, 2);
   plot->SetColor(255, 0, 0, 255);
 
-  plot = chart->AddPlot(vtkChart::BAR);
+  plot = lChart->AddPlot(vtkChart::BAR);
   plot->SetInputData(table, 0, 3);
   plot->SetColor(0, 0, 255, 255);
 
-  plot = chart->AddPlot(vtkChart::LINE);
+  plot = rChart->AddPlot(vtkChart::BAR);
+  barPlot = vtkPlotBar::SafeDownCast(plot);
+  barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
+  plot->SetInputData(table, 0, 1);
+  plot->SetColor(0, 255, 0, 255);
+
+  plot = rChart->AddPlot(vtkChart::BAR);
+  barPlot = vtkPlotBar::SafeDownCast(plot);
+  barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
+  plot->SetInputData(table, 0, 2);
+  plot->SetColor(255, 0, 0, 255);
+
+  plot = rChart->AddPlot(vtkChart::BAR);
+  barPlot = vtkPlotBar::SafeDownCast(plot);
+  barPlot->SetOrientation(vtkPlotBar::HORIZONTAL);
   plot->SetInputData(table, 0, 3);
-  plot->SetColor(0, 128, 240, 255);
+  plot->SetColor(0, 0, 255, 255);
 
   // Finally render the scene and compare the image to a reference image
-  view->GetRenderWindow()->SetMultiSamples(0);
-  view->GetInteractor()->Initialize();
-  view->GetInteractor()->Start();
+  renWin->SetMultiSamples(0);
+  vtkNew<vtkRenderWindowInteractor> iren;
+  iren->SetRenderWindow(renWin);
+  renWin->Render();
+  iren->Initialize();
+  iren->Start();
 
   return EXIT_SUCCESS;
 }
