@@ -52,13 +52,13 @@ struct CopyToPoints2Worker
       float tmpB = static_cast<float>(0.0);
       if (orientation == vtkPlotBar::VERTICAL)
       {
-        tmpA = (ad[i] * ss[2] + ss[0]);
-        tmpB = (bd[i] * ss[3] + ss[1]);
+        tmpA = ((ad[i] + ss[0]) * ss[2]);
+        tmpB = ((bd[i] + ss[1]) * ss[3]);
       }
       else
       {
-        tmpA = (ad[i] * ss[3] + ss[1]);
-        tmpB = (bd[i] * ss[2] + ss[0]);
+        tmpA = ((ad[i] + ss[1]) * ss[3]);
+        tmpB = ((bd[i] + ss[0]) * ss[2]);
       }
       if (previousPoints && static_cast<int>(previousPoints->GetNumberOfPoints()) == n)
       {
@@ -85,11 +85,11 @@ struct CopyToPointsWorker
       float tmpA = static_cast<float>(0.0);
       if (orientation == vtkPlotBar::VERTICAL)
       {
-        tmpA = ad[i] * ss[3] + ss[1];
+        tmpA = (ad[i] + ss[1]) * ss[3];
       }
       else
       {
-        tmpA = ad[i] * ss[2] + ss[0];
+        tmpA = (ad[i] + ss[0]) * ss[2];
       }
       if (previousPoints && static_cast<int>(previousPoints->GetNumberOfPoints()) == n)
       {
