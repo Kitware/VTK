@@ -548,8 +548,18 @@ void vtkChartXY::CalculateBarPlots()
         const vtkRectd ss = bar->GetShiftScale();
         if (x && x->GetNumberOfTuples() > 1)
         {
-          double x0 = x->GetTuple1(0) * ss[2] + ss[0];
-          double x1 = x->GetTuple1(1) * ss[2] + ss[0];
+          double x0 = 0;
+          double x1 = 0;
+          if (bar->GetOrientation() == vtkPlotBar::VERTICAL)
+          {
+            x0 = x->GetTuple1(0) * ss[2] + ss[0];
+            x1 = x->GetTuple1(1) * ss[2] + ss[0];
+          }
+          else
+          {
+            x0 = x->GetTuple1(0) * ss[3] + ss[3];
+            x1 = x->GetTuple1(1) * ss[3] + ss[3];
+          }
           float width = static_cast<float>(fabs(x1 - x0) * this->BarWidthFraction);
           barWidth = width / bars.size();
         }
