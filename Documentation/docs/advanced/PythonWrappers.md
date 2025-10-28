@@ -1077,6 +1077,10 @@ Python object from the pointer to a C++ VTK object. Here is a minimal example:
   // Create a C++ object
   vtkNew<vtkPolyData> data;
 
+  // Initialize interpreter and GIL
+  vtkPythonInterpreter::Initialize();
+  vtkPythonScopeGilEnsurer gilEnsurer(true, true);
+
   // Import vtk in Python
   vtkPythonInterpreter::RunSimpleString("import vtkmodules.vtkCommonCore");
 
