@@ -79,9 +79,9 @@ int TestBarGraphShiftScale(int, char*[])
   for (int i = 0; i < 2; i++)
   {
     table->SetValue(i, 0, (i + 3) * 1e20 + 1e19);
-    table->SetValue(i, 1, data_2008[i] + 2e10);
-    table->SetValue(i, 2, data_2009[i] + 1e9);
-    table->SetValue(i, 3, data_2010[i] + 3e10);
+    table->SetValue(i, 1, data_2008[i] + 2e6);
+    table->SetValue(i, 2, data_2009[i] * 1e2);
+    table->SetValue(i, 3, data_2010[i] + 3e6);
   }
 
   // Add multiple bar plots, setting the colors etc
