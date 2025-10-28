@@ -3,7 +3,7 @@
 #include "vtkStructuredData.h"
 
 #include "vtkCellType.h"
-#include "vtkConstantUnsignedCharArray.h"
+#include "vtkConstantArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
@@ -341,7 +341,7 @@ vtkSmartPointer<vtkStructuredCellArray> vtkStructuredData::GetCellArray(
 }
 
 //------------------------------------------------------------------------------
-vtkSmartPointer<vtkConstantUnsignedCharArray> vtkStructuredData::GetCellTypes(
+vtkSmartPointer<vtkConstantArray<unsigned char>> vtkStructuredData::GetCellTypes(
   int extent[6], bool usePixelVoxelOrientation)
 {
   const int dataDescription = vtkStructuredData::GetDataDescriptionFromExtent(extent);
@@ -355,7 +355,7 @@ vtkSmartPointer<vtkConstantUnsignedCharArray> vtkStructuredData::GetCellTypes(
     // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
     : dimension == 0 && dataDescription == VTK_STRUCTURED_SINGLE_POINT ? VTK_VERTEX
                                                                        : VTK_EMPTY_CELL;
-  auto cellTypesArray = vtkSmartPointer<vtkConstantUnsignedCharArray>::New();
+  auto cellTypesArray = vtkSmartPointer<vtkConstantArray<unsigned char>>::New();
   cellTypesArray->ConstructBackend(cellType);
   cellTypesArray->SetNumberOfComponents(1);
   cellTypesArray->SetNumberOfTuples(vtkStructuredData::GetNumberOfCells(extent));

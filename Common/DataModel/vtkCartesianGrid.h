@@ -124,8 +124,8 @@ public:
    * NOTE: the returned object should not be modified.
    */
   using vtkDataSet::GetCellTypes; // VTK_DEPRECATED_IN_9_6_0
-  vtkConstantUnsignedCharArray* GetCellTypes();
-  VTK_DEPRECATED_IN_9_6_0("Use vtkConstantUnsignedCharArray* GetCellTypes() instead")
+  vtkConstantArray<unsigned char>* GetCellTypes();
+  VTK_DEPRECATED_IN_9_6_0("Use vtkConstantArray<unsigned char>* GetCellTypes() instead")
   vtkConstantArray<int>* GetCellTypesArray();
   ///@}
 
@@ -290,7 +290,7 @@ private:
   // Internals fields
   vtkSmartPointer<vtkPoints> StructuredPoints;
   vtkSmartPointer<vtkStructuredCellArray> StructuredCells;
-  vtkSmartPointer<vtkConstantUnsignedCharArray> StructuredCellTypes;
+  vtkSmartPointer<vtkConstantArray<unsigned char>> StructuredCellTypes;
   vtkSmartPointer<vtkConstantArray<int>> LegacyStructuredCellTypes; // VTK_DEPRECATED_IN_9_6_0
 };
 

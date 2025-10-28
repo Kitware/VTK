@@ -4,7 +4,7 @@
 #include "vtkStructuredGrid.h"
 
 #include "vtkCellData.h"
-#include "vtkConstantUnsignedCharArray.h"
+#include "vtkConstantArray.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -253,7 +253,7 @@ vtkStructuredCellArray* vtkStructuredGrid::GetCells()
 }
 
 //------------------------------------------------------------------------------
-vtkConstantUnsignedCharArray* vtkStructuredGrid::GetCellTypes()
+vtkConstantArray<unsigned char>* vtkStructuredGrid::GetCellTypes()
 {
   return this->StructuredCellTypes;
 }

@@ -25,7 +25,6 @@
 #include "vtkWrappingHints.h" // For VTK_MARSHALMANUAL
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkConstantUnsignedCharArray;
 class vtkIdList;
 class vtkIdTypeArray;
 class vtkUnsignedCharArray;
@@ -264,9 +263,9 @@ public:
   /**
    * Provide cell information to define the dataset with a single type.
    *
-   * @note This method will create a vtkConstantUnsignedCharArray for the cell types internally to
-   * save memory. Therefore, if extracted via GetCellTypes(), it should NOT be assumed
-   * that it is a vtkUnsignedCharArray.
+   * @note This method will create a vtkConstantArray<unsigned char> for the cell types internally
+   * to save memory. Therefore, if extracted via GetCellTypes(), it should NOT be assumed that it is
+   * a vtkUnsignedCharArray.
    */
   void SetCells(int type, vtkCellArray* cells);
 

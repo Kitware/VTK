@@ -654,8 +654,6 @@ endforeach ()
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkTypeArrays.cmake")
 
-include("${CMAKE_CURRENT_SOURCE_DIR}/vtkImplicitArrays.cmake")
-
 foreach (type IN LISTS vtk_numeric_types)
   # Referenced in vtkArrayBulkInstantiate.cxx.in
   string(REPLACE " " "_" _suffix "${type}")

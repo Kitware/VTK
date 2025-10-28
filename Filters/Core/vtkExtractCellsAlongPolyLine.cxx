@@ -5,7 +5,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
-#include "vtkConstantUnsignedCharArray.h"
+#include "vtkConstantArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkIdList.h"

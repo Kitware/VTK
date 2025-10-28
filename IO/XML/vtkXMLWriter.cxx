@@ -11,7 +11,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
-#include "vtkConstantUnsignedCharArray.h"
+#include "vtkConstantArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"

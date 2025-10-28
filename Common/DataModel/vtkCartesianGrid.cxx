@@ -6,7 +6,7 @@
 #include "vtkCell.h"
 #include "vtkCellData.h"
 #include "vtkCellType.h"
-#include "vtkConstantUnsignedCharArray.h"
+#include "vtkConstantArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"
@@ -253,7 +253,7 @@ vtkStructuredCellArray* vtkCartesianGrid::GetCells()
 }
 
 //------------------------------------------------------------------------------
-vtkConstantUnsignedCharArray* vtkCartesianGrid::GetCellTypes()
+vtkConstantArray<unsigned char>* vtkCartesianGrid::GetCellTypes()
 {
   return this->StructuredCellTypes;
 }

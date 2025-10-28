@@ -8,7 +8,7 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellTypeUtilities.h"
-#include "vtkConstantUnsignedCharArray.h"
+#include "vtkConstantArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGenericCell.h"
