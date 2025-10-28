@@ -1683,7 +1683,7 @@ bool vtkOpenGLRenderWindow::ResolveFlipRenderFramebuffer()
       auto str = std::string_view(useMSAAEnv);
       if (!str.empty())
       {
-        int useTextureInt;
+        int useTextureInt = 0;
         VTK_FROM_CHARS_IF_ERROR_BREAK(useMSAAEnv, useTextureInt);
         useTexture = useTextureInt == 1;
       }

@@ -559,7 +559,7 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet* ds, xdmf2::XdmfGrid* grid, vtkIdTy
       XdmfConstString topologyType = staticnode->DOM->Get(staticTopo, "TopologyType");
       //
       t->SetTopologyTypeFromString(topologyType);
-      int dim;
+      int dim = 0;
       VTK_FROM_CHARS_IF_ERROR_BREAK(dimensions, dim);
       t->SetNumberOfElements(dim);
       t->SetDataXml(xmltext);

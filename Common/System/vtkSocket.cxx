@@ -179,7 +179,7 @@ int vtkSocket::BindSocket(int socketdescriptor, int port, const std::string& bin
       {
         nextDot = bindAddr.size();
       }
-      int byte;
+      int byte = 0;
       VTK_FROM_CHARS_IF_ERROR_BREAK(bindAddr.substr(lastDot, nextDot - lastDot), byte);
       if (byte < 0 || byte > 255)
       {

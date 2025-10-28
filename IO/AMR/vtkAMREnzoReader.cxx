@@ -83,7 +83,7 @@ int vtkAMREnzoReader::GetIndexFromArrayName(std::string arrayName)
   char stringIdx[2];
   stringIdx[0] = arrayName.at(arrayName.size() - 2);
   stringIdx[1] = '\0';
-  int value;
+  int value = 0;
   vtk::from_chars(stringIdx, stringIdx + 2, value);
   return value;
 }

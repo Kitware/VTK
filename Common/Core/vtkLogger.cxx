@@ -478,7 +478,7 @@ vtkLogger::Verbosity vtkLogger::ConvertToVerbosity(const char* text)
 {
   if (text != nullptr && *text)
   {
-    int ivalue;
+    int ivalue = 0;
     auto result = vtk::from_chars(text, ivalue);
     if (!*result.ptr)
     {

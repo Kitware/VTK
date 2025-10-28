@@ -50,7 +50,7 @@ vtkEGLRenderWindow::vtkEGLRenderWindow()
   char* EGLDeviceIndexEnv = std::getenv("VTK_EGL_DEVICE_INDEX");
   if (EGLDeviceIndexEnv)
   {
-    int index;
+    int index = 0;
     VTK_FROM_CHARS_IF_ERROR_BREAK(EGLDeviceIndexEnv, index);
     if (index >= 0)
     {
