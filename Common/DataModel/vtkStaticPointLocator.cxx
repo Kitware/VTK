@@ -1546,9 +1546,9 @@ int BucketList<TIds>::IntersectWithLine(double a0[3], double a1[3], double tol, 
                 {
                   pId = ptIds[ii].PtId;
                   this->DataSet->GetPoint(pId, x);
-                  if (vtkLine::DistanceToLine(x, a0, a1, tHit, xl) <= tol2 && t < tMin)
+                  if (vtkLine::DistanceToLine(x, a0, a1, tHit, xl) <= tol2 && tHit < tMin)
                   {
-                    tMin = t;
+                    tMin = tHit;
                     bestPtId = pId;
                   } // point is within tolerance and closer
                 }   // over all points in bin
