@@ -586,6 +586,15 @@
     variables:
         CMAKE_CONFIGURATION: fedora42_x86_64_mpi_python_qt_stdthread
 
+.fedora42_x86_64_mpi_python_qt_tbb_serialization:
+    extends:
+        - .fedora42_x86_64
+        - .fedora_mpich_x86_64_addon
+
+    variables:
+        CMAKE_CONFIGURATION: fedora42_x86_64_mpi_python_qt_tbb_serialization
+        VTK_SERIALIZATION_TESTING: ONLY
+
 .fedora42_x86_64_mpi_python_viskoresoverride:
     extends:
         - .fedora42_x86_64

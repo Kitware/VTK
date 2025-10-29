@@ -179,6 +179,14 @@
     variables:
         CMAKE_CONFIGURATION: windows_vs2022_mpi_python_qt
 
+.windows_vs2022_mpi_python_qt_serialization:
+    extends:
+        - .windows_vs2022
+
+    variables:
+        CMAKE_CONFIGURATION: windows_vs2022_mpi_python_qt_serialization
+        VTK_SERIALIZATION_TESTING: ONLY
+
 .windows_vs2022_mpi_python_qt_static:
     extends:
         - .windows_vs2022

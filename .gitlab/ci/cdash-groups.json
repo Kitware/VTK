@@ -14,13 +14,16 @@
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora42_x86_64_mpi_python_qt_tbb]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora42_x86_64_mpi_python_qt_tbb_ext_vtk]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora42_x86_64_mpi_python_qt_tbb_mangling]" },
+        { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora42_x86_64_mpi_python_qt_tbb_serialization]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora42_x86_64_mpi_python_qt_tbb_tidy]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora42_x86_64_mpi_python_viskoresoverride]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora42_x86_64_mpi_renderless]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora42_x86_64_mpi_renderless_ext_vtk]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[fedora42_x86_64_webgpu]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_arm64_kits_python_qt]" },
+        { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_arm64_kits_python_qt_serialization]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_x86_64_kits_python_qt]" },
+        { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_x86_64_kits_python_qt_serialization]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[macos_x86_64_kits_python_qt_stdthread]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[wasm32_emscripten_linux]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[wasm32_emscripten_windows_chrome_ext_vtk]" },
@@ -171,6 +174,7 @@
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[windows_vs2022_kits_mpi_python_qt_ext_vtk]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[windows_vs2022_kits_mpi_python_qt_stdthread]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[windows_vs2022_mpi_python_qt]" },
+        { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[windows_vs2022_mpi_python_qt_serialization]" },
         { "group": "master", "site": "gitlab-ci", "buildname": "vtk-branch-master-[windows_vs2022_mpi_python_qt_static]" }
     ]
 }
