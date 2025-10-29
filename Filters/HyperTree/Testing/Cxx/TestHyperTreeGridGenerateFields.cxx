@@ -6,12 +6,14 @@
 #include "vtkBitArray.h"
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
+#include "vtkGroupDataSetsFilter.h"
 #include "vtkHyperTree.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridGenerateFields.h"
 #include "vtkHyperTreeGridNonOrientedGeometryCursor.h"
 #include "vtkHyperTreeGridOrientedCursor.h"
 #include "vtkHyperTreeGridSource.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkTestUtilities.h"
@@ -421,6 +423,58 @@ bool TestArrayDisabling()
   return true;
 }
 
+// Verify behavior is correct and does not crash on Multi-block Dataset of HTGs
+bool TestMultiBlockHTG()
+{
+  // Random HTG sources
+  vtkNew<vtkRandomHyperTreeGridSource> block1;
+  block1->SetDimensions(3, 3, 1);
+  block1->SetOutputBounds(-10, 10, -10, 10, -10, 10);
+  block1->SetSplitFraction(0.5);
+  block1->SetMaskedFraction(0);
+  block1->SetSeed(0);
+  block1->Update();
+  vtkNew<vtkRandomHyperTreeGridSource> block2;
+  block2->SetDimensions(3, 2, 1);
+  block2->SetOutputBounds(-10, 10, -10, 10, -10, 10);
+  block2->SetSplitFraction(0.5);
+  block2->SetMaskedFraction(0);
+  block2->SetSeed(0);
+  block2->Update();
+
+  // Group and generate fields
+  vtkNew<vtkGroupDataSetsFilter> group;
+  group->SetOutputTypeToMultiBlockDataSet();
+  group->AddInputConnection(block1->GetOutputPort());
+  group->AddInputConnection(block2->GetOutputPort());
+  group->Update();
+  vtkNew<vtkHyperTreeGridGenerateFields> generateFields;
+  generateFields->SetInputConnection(group->GetOutputPort());
+  generateFields->Update();
+
+  vtkMultiBlockDataSet* outputMB =
+    vtkMultiBlockDataSet::SafeDownCast(generateFields->GetOutputDataObject(0));
+  vtkHyperTreeGrid* outputHTG = vtkHyperTreeGrid::SafeDownCast(outputMB->GetBlock(1));
+
+  vtkBitArray* validCellArray =
+    vtkBitArray::SafeDownCast(outputHTG->GetCellData()->GetAbstractArray("ValidCell"));
+
+  if (outputHTG->GetNumberOfCells() != validCellArray->GetNumberOfTuples())
+  {
+    vtkLogF(
+      ERROR, "The number of cells in the HTG should match the number of tuples in its own array.");
+    return false;
+  }
+
+  if (validCellArray->GetTuple1(2) == 0)
+  {
+    vtkLogF(ERROR, "Unmasked leaf should be valid");
+    return false;
+  }
+
+  return true;
+}
+
 }
 
 int TestHyperTreeGridGenerateFields(int argc, char* argv[])
@@ -432,6 +486,7 @@ int TestHyperTreeGridGenerateFields(int argc, char* argv[])
   result &= ::TestCellCenter();
   result &= ::TestArrayDisabling();
   result &= ::TestValidCell();
+  result &= ::TestMultiBlockHTG();
 
   return result ? EXIT_SUCCESS : EXIT_FAILURE;
 }
