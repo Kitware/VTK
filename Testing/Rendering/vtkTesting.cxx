@@ -23,7 +23,9 @@
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#if VTK_MODULE_ENABLE_VTK_SerializationManager
 #include "vtkObjectManager.h"
+#endif
 #include "vtkPNGReader.h"
 #include "vtkPNGWriter.h"
 #include "vtkPointData.h"
@@ -45,6 +47,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTesting);
@@ -1098,45 +1101,90 @@ int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
   {
     testing->SetRenderWindow(rw);
 
+#if VTK_MODULE_ENABLE_VTK_SerializationManager
+    const char* serdesKey = "VTK_SERIALIZATION_TESTING";
+    bool doSerDesTest = false;
+    if (vtksys::SystemTools::HasEnv(serdesKey))
+    {
+      const char* serdesTestingStr = vtksys::SystemTools::GetEnv(serdesKey);
+
+      if (!strcmp(serdesTestingStr, "ONLY"))
+      {
+        if (!testing->IsFlagSpecified("--serdes"))
+        {
+          return PASSED;
+        }
+        return testing->SerDesTest(thresh);
+      }
+      doSerDesTest = !strcmp(serdesTestingStr, "ON");
+    }
+#endif
+
     int res = testing->RegressionTest(thresh, std::cout);
 
-    if (res == PASSED && testing->IsFlagSpecified("--serdes"))
+#if VTK_MODULE_ENABLE_VTK_SerializationManager
+    if (res == PASSED && doSerDesTest && testing->IsFlagSpecified("--serdes"))
     {
-      vtkNew<vtkObjectManager> serManager;
-      serManager->Initialize();
-
-      vtkSmartPointer<vtkRenderWindowInteractor> interactor = rw->GetInteractor();
-      if (interactor && interactor->IsA("vtkTestingInteractor"))
-      {
-        rw->SetInteractor(nullptr);
-      }
-
-      vtkTypeUInt32 rwId = serManager->RegisterObject(rw);
-      serManager->UpdateStatesFromObjects();
-
-      vtkNew<vtkObjectManager> desManager;
-      desManager->Initialize();
-
-      vector<vtkTypeUInt32> ids = serManager->GetAllDependencies(0);
-      for (vtkTypeUInt32 id : ids)
-      {
-        desManager->RegisterState(serManager->GetState(id));
-      }
-      for (const string& hash : serManager->GetBlobHashes(ids))
-      {
-        desManager->RegisterBlob(hash, serManager->GetBlob(hash));
-      }
-
-      desManager->UpdateObjectsFromStates();
-      testing->SetRenderWindow(vtkRenderWindow::SafeDownCast(desManager->GetObjectAtId(rwId)));
-      res = testing->RegressionTest(thresh, std::cout);
-
-      rw->SetInteractor(interactor);
+      res = testing->SerDesTest(thresh);
     }
+#endif
     return res;
   }
   return NOT_RUN;
 }
+
+//------------------------------------------------------------------------------
+int vtkTesting::SerDesTest(double thresh)
+{
+#if VTK_MODULE_ENABLE_VTK_SerializationManager
+  vtkNew<vtkObjectManager> serManager;
+  serManager->Initialize();
+
+  vtkSmartPointer<vtkRenderWindow> rw = this->RenderWindow;
+  vtkSmartPointer<vtkRenderWindowInteractor> interactor = rw->GetInteractor();
+  if (interactor && interactor->IsA("vtkTestingInteractor"))
+  {
+    rw->SetInteractor(nullptr);
+  }
+
+  vtkTypeUInt32 rwId = serManager->RegisterObject(rw);
+  serManager->UpdateStatesFromObjects();
+
+  vtkNew<vtkObjectManager> desManager;
+  desManager->Initialize();
+
+  const std::vector<vtkTypeUInt32> ids = serManager->GetAllDependencies(0);
+  for (const auto& id : ids)
+  {
+    desManager->RegisterState(serManager->GetState(id));
+  }
+  for (const auto& hash : serManager->GetBlobHashes(ids))
+  {
+    desManager->RegisterBlob(hash, serManager->GetBlob(hash));
+  }
+
+  desManager->UpdateObjectsFromStates();
+  this->SetRenderWindow(vtkRenderWindow::SafeDownCast(desManager->GetObjectAtId(rwId)));
+  int res = this->RegressionTest(thresh, std::cout);
+
+  // Dump JSON states and blobs when the serdes test fails
+  if (res == FAILED)
+  {
+    const std::string testname =
+      vtksys::SystemTools::GetFilenameWithoutExtension(this->ValidImageFileName);
+    const std::string filename = vtksys::SystemTools::JoinPath({ this->TempDirectory, testname });
+    serManager->Export(filename);
+    vtkLog(INFO, "Wrote object manager state to " << filename << ".states.json\n");
+  }
+
+  rw->SetInteractor(interactor);
+  return res;
+#else
+  (void)thresh;
+  return NOT_RUN;
+#endif
+}
+
 //------------------------------------------------------------------------------
 int vtkTesting::CompareAverageOfL2Norm(vtkDataArray* daA, vtkDataArray* daB, double tol)
 {

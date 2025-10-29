@@ -144,3 +144,9 @@ your custom `RegisterHandlers_vtkClassNameSerDesHelper`.
 - When the `-u, --update` argument is used, headers are in-place edited to use the `VTK_MARSHAL(AUTO|MANUAL)` wrapping hint. Files that already have this hint are untouched.
 
 - When the `-t, --test` argument is used, the source tree is checked for inconsistent use of marshal macros.
+
+## Testing serialization code
+
+Serialization testing can be run on top of regular VTK C++ regression tests by performing an image comparison test after serializing and deserializing the test's render window.
+It is enabled via the environment varaible `VTK_SERIALIZATION_TESTING`. Setting `VTK_SERIALIZATION_TESTING=ON` will run the serialization/deserialization testing in addition to the normal regression test,
+while a value of `ONLY` will skip the original regression test so that only one regression is performed.
