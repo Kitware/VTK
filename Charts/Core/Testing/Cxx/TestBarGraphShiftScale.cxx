@@ -78,7 +78,7 @@ int TestBarGraphShiftScale(int, char*[])
   table->SetNumberOfRows(2);
   for (int i = 0; i < 2; i++)
   {
-    table->SetValue(i, 0, (i + 3) * 1e20 + 1e19);
+    table->SetValue(i, 0, (i + 3) * 1e20 + 1e24);
     table->SetValue(i, 1, data_2008[i] + 2e6);
     table->SetValue(i, 2, data_2009[i] * 1e2);
     table->SetValue(i, 3, data_2010[i] + 3e6);
