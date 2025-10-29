@@ -53,20 +53,20 @@ public:
   /**
    * Criterion is cells whose scalars are less or equal to lower threshold.
    */
-  VTK_DEPRECATED_IN_9_5_0("Use 'SetLowerThreshold' and 'SetThresholdFunction' instead.")
+  VTK_DEPRECATED_IN_9_6_0("Use 'SetLowerThreshold' and 'SetThresholdFunction' instead.")
   void ThresholdByLower(double lower);
 
   /**
    * Criterion is cells whose scalars are greater or equal to upper threshold.
    */
-  VTK_DEPRECATED_IN_9_5_0("Use 'SetUpperThreshold' and 'SetThresholdFunction' instead.")
+  VTK_DEPRECATED_IN_9_6_0("Use 'SetUpperThreshold' and 'SetThresholdFunction' instead.")
   void ThresholdByUpper(double upper);
 
   /**
    * Criterion is cells whose scalars are between lower and upper thresholds
    * (inclusive of the end values).
    */
-  VTK_DEPRECATED_IN_9_5_0(
+  VTK_DEPRECATED_IN_9_6_0(
     "Use 'SetLowerThreshold', 'SetUpperThreshold' and 'SetThresholdFunction' instead.")
   void ThresholdBetween(double lower, double upper);
 
