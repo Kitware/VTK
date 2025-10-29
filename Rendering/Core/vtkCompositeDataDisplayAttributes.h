@@ -32,6 +32,7 @@ class vtkDataObject;
 class vtkDeserializer;
 class vtkScalarsToColors;
 class vtkSerializer;
+class vtkTexture;
 
 class VTKRENDERINGCORE_EXPORT VTK_MARSHALMANUAL vtkCompositeDataDisplayAttributes : public vtkObject
 {
@@ -330,6 +331,19 @@ public:
   void RemoveBlockLookupTables();
   ///@}
 
+  ///@{
+  /**
+   * Functions to Get/Set/Remove a texture image for a specific data object block given by the
+   * `dataObject` handle.
+   */
+  void SetBlockTexture(vtkDataObject* dataObject, vtkSmartPointer<vtkTexture> texture);
+  vtkSmartPointer<vtkTexture> GetBlockTexture(vtkDataObject* dataObject) const;
+  bool HasBlockTexture(vtkDataObject* dataObject) const;
+  bool HasBlockTextures() const;
+  void RemoveBlockTexture(vtkDataObject* dataObject);
+  void RemoveBlockTextures();
+  ///@}
+
   /**
    * If the input \a dobj is a vtkCompositeDataSet, we will loop over the
    * hierarchy recursively starting from initial index 0 and use only visible
@@ -384,6 +398,7 @@ private:
   using RangeMap = std::unordered_map<vtkDataObject*, vtkVector2d>;
   using StringMap = std::unordered_map<vtkDataObject*, std::string>;
   using LookupTableMap = std::unordered_map<vtkDataObject*, vtkSmartPointer<vtkScalarsToColors>>;
+  using TextureMap = std::unordered_map<vtkDataObject*, vtkSmartPointer<vtkTexture>>;
 
   BoolMap BlockVisibilities;
   ColorMap BlockColors;
@@ -402,6 +417,7 @@ private:
   StringMap BlockArrayNames;
   LookupTableMap BlockLookupTables;
   VtkIdTypeMap BlockFieldDataTupleIds;
+  TextureMap BlockTextures;
 
   friend class vtkCompositeDataDisplayAttributesSerDesHelper;
 };

@@ -29,7 +29,7 @@ class vtkCompositePolyDataMapper;
 class vtkPolyData;
 class vtkPolyDataMapper;
 class vtkScalarsToColors;
-class vtkImageData;
+class vtkTexture;
 
 class VTKRENDERINGCORE_EXPORT vtkCompositePolyDataMapperDelegator : public vtkObject
 {
@@ -77,6 +77,8 @@ public:
     double Opacity;
     double SelectionOpacity;
     vtkVector2d ScalarRange;
+
+    vtkSmartPointer<vtkTexture> Texture;
 
     std::string ArrayName;
     vtkScalarsToColors* LookupTable = nullptr;

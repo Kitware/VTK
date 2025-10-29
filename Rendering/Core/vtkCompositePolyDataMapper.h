@@ -35,6 +35,7 @@ class vtkDataObjectTreeIterator;
 class vtkInformation;
 class vtkPolyData;
 class vtkRenderer;
+class vtkTexture;
 
 class VTKRENDERINGCORE_EXPORT VTK_MARSHALAUTO vtkCompositePolyDataMapper : public vtkPolyDataMapper
 {
@@ -178,6 +179,20 @@ public:
   vtkIdType GetBlockFieldDataTupleId(unsigned int index);
   void RemoveBlockFieldDataTupleId(unsigned int index);
   void RemoveBlockFieldDataTupleIds();
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get/Remove the texture for a specific block in the rendered composite data given the
+   * flat index. The texture can be provided as a `vtkImageData` or a `vtkTexture`.
+   * For `SetBlockTextureImage`, the image data is internally converted and stored as a
+   * `vtkTexture`.
+   */
+  void SetBlockTextureImage(unsigned int index, vtkSmartPointer<vtkImageData> textureImage);
+  void SetBlockTexture(unsigned int index, vtkSmartPointer<vtkTexture> texture);
+  vtkSmartPointer<vtkTexture> GetBlockTexture(unsigned int index);
+  void RemoveBlockTexture(unsigned int index);
+  void RemoveBlockTextures();
   ///@}
 
   ///@{

@@ -339,17 +339,20 @@ protected:
   virtual bool HaveWideLines(vtkRenderer*, vtkActor*);
 
   // do we have textures that require special handling
-  virtual bool HaveTextures(vtkActor* actor);
+  bool HaveTextures(vtkActor* actor);
 
   // how many textures do we have
-  virtual unsigned int GetNumberOfTextures(vtkActor* actor);
+  unsigned int GetNumberOfTextures(vtkActor* actor);
 
-  // populate a vector with the textures we have
-  // the order is always
-  //  ColorInternalTexture
-  //  Actors texture
-  //  Properties textures
   typedef std::pair<vtkTexture*, std::string> texinfo;
+  /**
+   * Recover current texture informations on the provided actor into a vector.
+   * This helps building the shader with the right texture code.
+   * The order is always:
+   *  - ColorInternalTexture
+   *  - Actors texture
+   *  - Properties textures
+   */
   virtual std::vector<texinfo> GetTextures(vtkActor* actor);
 
   // do we have textures coordinates that require special handling

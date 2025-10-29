@@ -19,6 +19,7 @@
 #include "vtkDataObjectTreeRange.h"
 #include "vtkExecutive.h"
 #include "vtkGarbageCollector.h"
+#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkMapper.h"
 #include "vtkMath.h"
@@ -64,6 +65,7 @@ public:
     std::stack<vtkIdType> FieldDataTupleId;
     std::stack<vtkVector2d> ScalarRange;
     std::stack<vtkSmartPointer<vtkScalarsToColors>> LookupTable;
+    std::stack<vtkSmartPointer<vtkTexture>> Texture;
   };
   RenderBlockState BlockState;
 
@@ -381,6 +383,7 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
     internals.BlockState.ColorMode.push(this->ColorMode);
     internals.BlockState.ScalarRange.emplace(this->ScalarRange[0], this->ScalarRange[1]);
     internals.BlockState.LookupTable.emplace(this->GetLookupTable());
+    internals.BlockState.Texture.emplace(nullptr);
 
     {
       unsigned int flatIndex = 0;
@@ -408,6 +411,7 @@ void vtkCompositePolyDataMapper::Render(vtkRenderer* renderer, vtkActor* actor)
     internals.BlockState.ColorMode.pop();
     internals.BlockState.ScalarRange.pop();
     internals.BlockState.LookupTable.pop();
+    internals.BlockState.Texture.pop();
 
     // delete unused old helpers/data
     for (auto iter = internals.BatchedDelegators.begin();
@@ -600,6 +604,12 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
     internals.BlockState.LookupTable.push(cda->GetBlockLookupTable(dobj));
   }
 
+  bool overridesTexture = (cda && cda->HasBlockTexture(dobj));
+  if (overridesTexture)
+  {
+    internals.BlockState.Texture.push(cda->GetBlockTexture(dobj));
+  }
+
   // Advance flat-index. After this point, flatIndex no longer points to this
   // block.
   const auto originalFlatIndex = flatIndex;
@@ -680,6 +690,7 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
       inputItem->ScalarRange.Set(
         internals.BlockState.ScalarRange.top()[0], internals.BlockState.ScalarRange.top()[1]);
       inputItem->LookupTable = internals.BlockState.LookupTable.top();
+      inputItem->Texture = internals.BlockState.Texture.top();
 
       int cellFlag;
       vtkDataArray* scalars =
@@ -816,6 +827,10 @@ void vtkCompositePolyDataMapper::BuildRenderValues(
   if (overrides_lookup_table)
   {
     internals.BlockState.LookupTable.pop();
+  }
+  if (overridesTexture)
+  {
+    internals.BlockState.Texture.pop();
   }
 }
 
@@ -1498,6 +1513,87 @@ void vtkCompositePolyDataMapper::RemoveBlockFieldDataTupleIds()
   }
   this->CompositeAttributes->RemoveBlockFieldDataTupleIds();
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::SetBlockTextureImage(
+  unsigned int index, vtkSmartPointer<vtkImageData> textureImage)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+
+  vtkNew<vtkTexture> texture;
+  texture->SetInputData(textureImage);
+  texture->Update();
+
+  this->SetBlockTexture(index, texture);
+}
+
+//------------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::SetBlockTexture(
+  unsigned int index, vtkSmartPointer<vtkTexture> texture)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+
+  if (vtkDataObject* dataObject = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0)))
+  {
+    this->CompositeAttributes->SetBlockTexture(dataObject, texture);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkTexture> vtkCompositePolyDataMapper::GetBlockTexture(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return nullptr;
+  }
+
+  if (vtkDataObject* dataObject = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0)))
+  {
+    return this->CompositeAttributes->GetBlockTexture(dataObject);
+  }
+
+  return nullptr;
+}
+
+//------------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockTexture(unsigned int index)
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+
+  if (vtkDataObject* dataObject = vtkCompositeDataDisplayAttributes::DataObjectFromIndex(
+        index, this->GetInputDataObject(0, 0)))
+  {
+    this->CompositeAttributes->RemoveBlockTexture(dataObject);
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkCompositePolyDataMapper::RemoveBlockTextures()
+{
+  if (!this->CompositeAttributes)
+  {
+    return;
+  }
+
+  if (this->CompositeAttributes->HasBlockTextures())
+  {
+    this->CompositeAttributes->RemoveBlockTextures();
+    this->Modified();
+  }
 }
 
 //------------------------------------------------------------------------------

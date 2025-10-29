@@ -474,17 +474,7 @@ typedef std::pair<vtkTexture*, std::string> texinfo;
 //------------------------------------------------------------------------------
 unsigned int vtkOpenGLPolyDataMapper::GetNumberOfTextures(vtkActor* actor)
 {
-  unsigned int res = 0;
-  if (this->ColorTextureMap)
-  {
-    res++;
-  }
-  if (actor->GetTexture())
-  {
-    res++;
-  }
-  res += actor->GetProperty()->GetNumberOfTextures();
-  return res;
+  return static_cast<unsigned int>(this->GetTextures(actor).size());
 }
 
 //------------------------------------------------------------------------------

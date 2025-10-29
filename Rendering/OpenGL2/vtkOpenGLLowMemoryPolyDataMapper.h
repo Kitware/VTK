@@ -211,7 +211,7 @@ protected:
   using TextureInfo = std::pair<vtkTexture*, std::string>;
   bool HaveTextures(vtkActor* actor);
   unsigned int GetNumberOfTextures(vtkActor* actor);
-  std::vector<TextureInfo> GetTextures(vtkActor* actor);
+  virtual std::vector<TextureInfo> GetTextures(vtkActor* actor);
   std::pair<std::string, std::string> GetTextureCoordinateAndSamplerBufferNames(const char* tname);
 
   void UpdatePBRStateCache(vtkRenderer* renderer, vtkActor* actor);
