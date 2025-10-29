@@ -1,0 +1,42 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#include "vtkStrided@VTK_TYPE_NAME@Array.h"
+
+#include "vtkObjectFactory.h"
+
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkStrided@VTK_TYPE_NAME@Array);
+vtkStandardExtendedNewMacro(vtkStrided@VTK_TYPE_NAME@Array);
+
+//------------------------------------------------------------------------------
+vtkStrided@VTK_TYPE_NAME@Array::vtkStrided@VTK_TYPE_NAME@Array() = default;
+
+//------------------------------------------------------------------------------
+vtkStrided@VTK_TYPE_NAME@Array::~vtkStrided@VTK_TYPE_NAME@Array() = default;
+
+//------------------------------------------------------------------------------
+void vtkStrided@VTK_TYPE_NAME@Array::ConstructBackend(
+  const @CONCRETE_TYPE@* buffer, vtkIdType stride, int components, vtkIdType offset)
+{
+  this->RealSuperclass::ConstructBackend(buffer, stride, components, offset);
+}
+
+//------------------------------------------------------------------------------
+void vtkStrided@VTK_TYPE_NAME@Array::ConstructBackend(const @CONCRETE_TYPE@* buffer, vtkIdType stride, int components)
+{
+  this->RealSuperclass::ConstructBackend(buffer, stride, components);
+}
+
+//------------------------------------------------------------------------------
+void vtkStrided@VTK_TYPE_NAME@Array::ConstructBackend(const @CONCRETE_TYPE@* buffer, vtkIdType stride)
+{
+  this->RealSuperclass::ConstructBackend(buffer, stride);
+}
+
+//------------------------------------------------------------------------------
+void vtkStrided@VTK_TYPE_NAME@Array::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->RealSuperclass::PrintSelf(os, indent);
+}
+VTK_ABI_NAMESPACE_END

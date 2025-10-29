@@ -26,6 +26,19 @@ set(vtk_numeric_types
   "vtkIdType"
 )
 
+set(vtk_fixed_size_numeric_types
+  "vtkTypeFloat32"
+  "vtkTypeFloat64"
+  "vtkTypeInt8"
+  "vtkTypeInt16"
+  "vtkTypeInt32"
+  "vtkTypeInt64"
+  "vtkTypeUInt8"
+  "vtkTypeUInt16"
+  "vtkTypeUInt32"
+  "vtkTypeUInt64"
+)
+
 #[==[.md
 # vtk_type_to_camel_case
 This is a function to generate the CamelCase version of the c++ type name.
@@ -49,4 +62,11 @@ function(vtk_type_to_camel_case type output)
   endforeach()
 
   set("${output}" "${_cased_type}" PARENT_SCOPE )
+endfunction()
+
+function(vtk_fixed_size_type_to_without_prefix type prefix output)
+  # Remove the prefix from the input type
+  string(REPLACE "${prefix}" "" _result "${type}")
+  # Export the result to the parent scope
+  set(${output} "${_result}" PARENT_SCOPE)
 endfunction()

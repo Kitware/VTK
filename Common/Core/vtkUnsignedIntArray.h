@@ -51,16 +51,6 @@ public:
     return static_cast<vtkUnsignedIntArray*>(Superclass::FastDownCast(source));
   }
 
-  /**
-   * Get the minimum data value in its native type.
-   */
-  static unsigned int GetDataTypeValueMin() { return VTK_UNSIGNED_INT_MIN; }
-
-  /**
-   * Get the maximum data value in its native type.
-   */
-  static unsigned int GetDataTypeValueMax() { return VTK_UNSIGNED_INT_MAX; }
-
 protected:
   vtkUnsignedIntArray();
   ~vtkUnsignedIntArray() override;

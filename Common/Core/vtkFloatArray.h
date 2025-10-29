@@ -48,16 +48,6 @@ public:
     return static_cast<vtkFloatArray*>(Superclass::FastDownCast(source));
   }
 
-  /**
-   * Get the minimum data value in its native type.
-   */
-  static float GetDataTypeValueMin() { return VTK_FLOAT_MIN; }
-
-  /**
-   * Get the maximum data value in its native type.
-   */
-  static float GetDataTypeValueMax() { return VTK_FLOAT_MAX; }
-
 protected:
   vtkFloatArray();
   ~vtkFloatArray() override;

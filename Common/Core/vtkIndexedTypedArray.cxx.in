@@ -1,8 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-// Instantiate superclass first to give the template a DLL interface.
-#define VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATING
-
 #include "vtkIndexed@VTK_TYPE_NAME@Array.h"
 
 #include "vtkObjectFactory.h"

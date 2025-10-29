@@ -1,5 +1,5 @@
 # This file generates arrays specialization subclasses for fixed types,
-# like `vtkConstantFloatArray` or `vtkAffineTypeLongLongArray`.
+# like `vtkConstantTypeFloat32Array` or `vtkAffineTypeInt64Array`.
 #
 # Generated classes are not templated thus they can be wrapped.
 
@@ -49,6 +49,13 @@ foreach (array_prefix IN ITEMS Affine Composite Constant Indexed)
   foreach (type IN LISTS vtk_numeric_types)
     vtk_type_to_camel_case("${type}" cased_type)
     _generate_array_specialization("${array_prefix}" "${cased_type}" "${type}" 1)
+  endforeach ()
+endforeach ()
+
+foreach (array_prefix IN ITEMS Affine Composite Constant Indexed ScaledSOA SOA StdFunction Strided)
+  foreach (type IN LISTS vtk_fixed_size_numeric_types)
+    vtk_fixed_size_type_to_without_prefix("${type}" "vtk" without_vtk_prefix)
+    _generate_array_specialization("${array_prefix}" "${without_vtk_prefix}" "${type}" 0)
   endforeach ()
 endforeach ()
 
@@ -104,21 +111,25 @@ vtk_type_native_choice(UInt64 UNSIGNED_LONG vtkUnsignedLong UNSIGNED_LONG_LONG v
 vtk_type_native(Float32 FLOAT vtkFloat)
 vtk_type_native(Float64 DOUBLE vtkDouble)
 
-foreach (vtk_type IN ITEMS Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32 UInt64 Float32 Float64)
+foreach (type IN LISTS vtk_fixed_size_numeric_types)
+  vtk_fixed_size_type_to_without_prefix("${type}" "vtkType" vtk_type)
   set(VTK_TYPE_NAME "${vtk_type}")
   set(VTK_TYPE_NATIVE "${vtk_type_native_${vtk_type}}")
   if (VTK_TYPE_NATIVE)
     configure_file(
-      "${CMAKE_CURRENT_SOURCE_DIR}/vtkTypedArray.h.in"
-      "${CMAKE_CURRENT_BINARY_DIR}/vtkType${vtk_type}Array.h"
+      "${CMAKE_CURRENT_SOURCE_DIR}/vtkAOSTypedArray.h.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/${type}Array.h"
       @ONLY)
     configure_file(
-      "${CMAKE_CURRENT_SOURCE_DIR}/vtkTypedArray.cxx.in"
-      "${CMAKE_CURRENT_BINARY_DIR}/vtkType${vtk_type}Array.cxx"
+      "${CMAKE_CURRENT_SOURCE_DIR}/vtkAOSTypedArray.cxx.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/${type}Array.cxx"
       @ONLY)
-    list(APPEND sources
-      "${CMAKE_CURRENT_BINARY_DIR}/vtkType${vtk_type}Array.cxx")
+    # append generated header to current module headers
     list(APPEND headers
-      "${CMAKE_CURRENT_BINARY_DIR}/vtkType${vtk_type}Array.h")
+      "${CMAKE_CURRENT_BINARY_DIR}/${type}Array.h")
+    # append generated source to the bulk instantiation of concrete_type
+    string(REPLACE " " "_" _suffix "${type}")
+    list(APPEND "bulk_instantiation_sources_${_suffix}"
+      "#include \"${type}Array.cxx\"")
   endif ()
 endforeach ()

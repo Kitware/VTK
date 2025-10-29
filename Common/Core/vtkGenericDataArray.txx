@@ -267,6 +267,20 @@ int vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetDataType() const
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT, int ArrayType>
+ValueTypeT vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetDataTypeValueMin() const
+{
+  return vtkTypeTraits<ValueTypeT>::Min();
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT, int ArrayType>
+ValueTypeT vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetDataTypeValueMax() const
+{
+  return vtkTypeTraits<ValueTypeT>::Max();
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT, int ArrayType>
 int vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetDataTypeSize() const
 {
   return static_cast<int>(sizeof(ValueType));

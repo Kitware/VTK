@@ -1,0 +1,23 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+#include "vtkSOA@VTK_TYPE_NAME@Array.h"
+
+#include "vtkObjectFactory.h"
+
+//------------------------------------------------------------------------------
+VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkSOA@VTK_TYPE_NAME@Array);
+vtkStandardExtendedNewMacro(vtkSOA@VTK_TYPE_NAME@Array);
+
+//------------------------------------------------------------------------------
+vtkSOA@VTK_TYPE_NAME@Array::vtkSOA@VTK_TYPE_NAME@Array() = default;
+
+//------------------------------------------------------------------------------
+vtkSOA@VTK_TYPE_NAME@Array::~vtkSOA@VTK_TYPE_NAME@Array() = default;
+
+//------------------------------------------------------------------------------
+void vtkSOA@VTK_TYPE_NAME@Array::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->RealSuperclass::PrintSelf(os, indent);
+}
+VTK_ABI_NAMESPACE_END

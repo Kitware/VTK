@@ -286,6 +286,8 @@ public:
 #endif
   int GetArrayType() const override;
   int GetDataType() const override;
+  ValueType GetDataTypeValueMin() const;
+  ValueType GetDataTypeValueMax() const;
   int GetDataTypeSize() const override;
   bool HasStandardMemoryLayout() const override;
   vtkTypeBool Allocate(vtkIdType size, vtkIdType ext = 1000) override;

@@ -51,16 +51,6 @@ public:
     return static_cast<vtkShortArray*>(Superclass::FastDownCast(source));
   }
 
-  /**
-   * Get the minimum data value in its native type.
-   */
-  static short GetDataTypeValueMin() { return VTK_SHORT_MIN; }
-
-  /**
-   * Get the maximum data value in its native type.
-   */
-  static short GetDataTypeValueMax() { return VTK_SHORT_MAX; }
-
 protected:
   vtkShortArray();
   ~vtkShortArray() override;

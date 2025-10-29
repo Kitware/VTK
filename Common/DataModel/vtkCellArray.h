@@ -125,15 +125,16 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkWrappingHints.h"         // For VTK_MARSHALMANUAL
 
-#include "vtkAffineArray.h"    // Needed for inline methods
-#include "vtkCell.h"           // Needed for inline methods
-#include "vtkDataArrayRange.h" // Needed for inline methods
-#include "vtkDeprecation.h"    // For VTK_DEPRECATED_IN_9_6_0
-#include "vtkFeatures.h"       // for VTK_USE_MEMKIND
-#include "vtkSmartPointer.h"   // For vtkSmartPointer
-#include "vtkTypeInt32Array.h" // Needed for inline methods
-#include "vtkTypeInt64Array.h" // Needed for inline methods
-#include "vtkTypeList.h"       // Needed for ArrayList definition
+#include "vtkAffineTypeInt32Array.h" // Needed for inline methods
+#include "vtkAffineTypeInt64Array.h" // Needed for inline methods
+#include "vtkCell.h"                 // Needed for inline methods
+#include "vtkDataArrayRange.h"       // Needed for inline methods
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_6_0
+#include "vtkFeatures.h"             // for VTK_USE_MEMKIND
+#include "vtkSmartPointer.h"         // For vtkSmartPointer
+#include "vtkTypeInt32Array.h"       // Needed for inline methods
+#include "vtkTypeInt64Array.h"       // Needed for inline methods
+#include "vtkTypeList.h"             // Needed for ArrayList definition
 
 #include <cassert>          // Needed for assert
 #include <initializer_list> // Needed for API
@@ -149,8 +150,8 @@ class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALMANUAL vtkCellArray : public vtkAbstr
 public:
   using ArrayType32 = vtkTypeInt32Array;
   using ArrayType64 = vtkTypeInt64Array;
-  using AffineArrayType32 = vtkAffineArray<vtkTypeInt32>;
-  using AffineArrayType64 = vtkAffineArray<vtkTypeInt64>;
+  using AffineArrayType32 = vtkAffineTypeInt32Array;
+  using AffineArrayType64 = vtkAffineTypeInt64Array;
 
   ///@{
   /**
@@ -358,8 +359,8 @@ public:
   void SetData(vtkAffineArray<long>* offsets, vtkAOSDataArrayTemplate<long>* connectivity);
   void SetData(
     vtkAffineArray<long long>* offsets, vtkAOSDataArrayTemplate<long long>* connectivity);
-  void SetData(vtkAffineArray<vtkTypeInt32>* offsets, vtkTypeInt32Array* connectivity);
-  void SetData(vtkAffineArray<vtkTypeInt64>* offsets, vtkTypeInt64Array* connectivity);
+  void SetData(vtkAffineTypeInt32Array* offsets, vtkTypeInt32Array* connectivity);
+  void SetData(vtkAffineTypeInt64Array* offsets, vtkTypeInt64Array* connectivity);
   ///@}
 
   /**

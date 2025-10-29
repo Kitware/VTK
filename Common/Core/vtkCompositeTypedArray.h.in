@@ -13,8 +13,8 @@
 #ifndef vtkComposite@VTK_TYPE_NAME@Array_h
 #define vtkComposite@VTK_TYPE_NAME@Array_h
 
-#include "vtkCompositeArray.h" // Real Superclass
-#include "vtkCommonCoreModule.h"     // For export macro
+#include "vtkCompositeArray.h"   // Real Superclass
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 
 // Fake the superclass for the wrappers.

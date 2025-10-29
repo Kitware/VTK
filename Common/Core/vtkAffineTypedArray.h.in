@@ -13,8 +13,8 @@
 #ifndef vtkAffine@VTK_TYPE_NAME@Array_h
 #define vtkAffine@VTK_TYPE_NAME@Array_h
 
-#include "vtkAffineArray.h" // Real Superclass
-#include "vtkCommonCoreModule.h"     // For export macro
+#include "vtkAffineArray.h"      // Real Superclass
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 
 // Fake the superclass for the wrappers.

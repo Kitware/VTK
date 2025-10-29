@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkAffineIntArray.h"
-#include "vtkCompositeIntArray.h"
-#include "vtkConstantIntArray.h"
-#include "vtkIndexedIntArray.h"
+#include "vtkAffineTypeInt32Array.h"
+#include "vtkCompositeTypeInt32Array.h"
+#include "vtkConstantTypeInt32Array.h"
+#include "vtkIndexedTypeInt32Array.h"
 
 #include "vtkNew.h"
 
@@ -34,34 +34,34 @@ bool CheckNewInstance(vtkDataArray* sourceArray, int arrayType)
 //-------------------------------------------------------------------------------------------------
 int TestImplicitTypedArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  vtkNew<vtkConstantIntArray> constInt;
+  vtkNew<vtkConstantTypeInt32Array> constInt;
   constInt->SetNumberOfTuples(100);
   constInt->ConstructBackend(42);
 
-  if (!CheckNewInstance(constInt, vtkConstantIntArray::ArrayTypeTag::value))
+  if (!CheckNewInstance(constInt, vtkConstantTypeInt32Array::ArrayTypeTag::value))
   {
-    std::cout << "Failed with vtkConstantIntArray\n";
+    std::cout << "Failed with vtkConstantTypeInt32Array\n";
     return EXIT_FAILURE;
   }
 
-  vtkNew<vtkAffineIntArray> affine;
-  if (!CheckNewInstance(affine, vtkAffineIntArray::ArrayTypeTag::value))
+  vtkNew<vtkAffineTypeInt32Array> affine;
+  if (!CheckNewInstance(affine, vtkAffineTypeInt32Array::ArrayTypeTag::value))
   {
-    std::cout << "Failed with vtkAffineIntArray\n";
+    std::cout << "Failed with vtkAffineTypeInt32Array\n";
     return EXIT_FAILURE;
   }
 
-  vtkNew<vtkCompositeIntArray> composite;
-  if (!CheckNewInstance(composite, vtkCompositeIntArray::ArrayTypeTag::value))
+  vtkNew<vtkCompositeTypeInt32Array> composite;
+  if (!CheckNewInstance(composite, vtkCompositeTypeInt32Array::ArrayTypeTag::value))
   {
-    std::cout << "Failed with vtkCompositeIntArray\n";
+    std::cout << "Failed with vtkCompositeTypeInt32Array\n";
     return EXIT_FAILURE;
   }
 
-  vtkNew<vtkIndexedIntArray> indexed;
-  if (!CheckNewInstance(indexed, vtkIndexedIntArray::ArrayTypeTag::value))
+  vtkNew<vtkIndexedTypeInt32Array> indexed;
+  if (!CheckNewInstance(indexed, vtkIndexedTypeInt32Array::ArrayTypeTag::value))
   {
-    std::cout << "Failed with vtkIndexedIntArray\n";
+    std::cout << "Failed with vtkIndexedTypeInt32Array\n";
     return EXIT_FAILURE;
   }
 

@@ -13,8 +13,8 @@
 #ifndef vtkIndexed@VTK_TYPE_NAME@Array_h
 #define vtkIndexed@VTK_TYPE_NAME@Array_h
 
-#include "vtkIndexedArray.h" // Real Superclass
-#include "vtkCommonCoreModule.h"     // For export macro
+#include "vtkIndexedArray.h"     // Real Superclass
+#include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
 
 // Fake the superclass for the wrappers.

@@ -1,28 +1,28 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkAffine@VTK_TYPE_NAME@Array.h"
+#include "vtkStdFunction@VTK_TYPE_NAME@Array.h"
 
 #include "vtkObjectFactory.h"
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkAffine@VTK_TYPE_NAME@Array);
-vtkStandardExtendedNewMacro(vtkAffine@VTK_TYPE_NAME@Array);
+vtkStandardNewMacro(vtkStdFunction@VTK_TYPE_NAME@Array);
+vtkStandardExtendedNewMacro(vtkStdFunction@VTK_TYPE_NAME@Array);
 
 //------------------------------------------------------------------------------
-vtkAffine@VTK_TYPE_NAME@Array::vtkAffine@VTK_TYPE_NAME@Array() = default;
+vtkStdFunction@VTK_TYPE_NAME@Array::vtkStdFunction@VTK_TYPE_NAME@Array() = default;
 
 //------------------------------------------------------------------------------
-vtkAffine@VTK_TYPE_NAME@Array::~vtkAffine@VTK_TYPE_NAME@Array() = default;
+vtkStdFunction@VTK_TYPE_NAME@Array::~vtkStdFunction@VTK_TYPE_NAME@Array() = default;
 
 //------------------------------------------------------------------------------
-void vtkAffine@VTK_TYPE_NAME@Array::ConstructBackend(@CONCRETE_TYPE@ slope, @CONCRETE_TYPE@ intercept)
+void vtkStdFunction@VTK_TYPE_NAME@Array::ConstructBackend(std::function<@CONCRETE_TYPE@(int)> func)
 {
-  this->RealSuperclass::ConstructBackend(slope, intercept);
+  this->RealSuperclass::ConstructBackend(func);
 }
 
 //------------------------------------------------------------------------------
-void vtkAffine@VTK_TYPE_NAME@Array::PrintSelf(ostream& os, vtkIndent indent)
+void vtkStdFunction@VTK_TYPE_NAME@Array::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->RealSuperclass::PrintSelf(os, indent);
 }
