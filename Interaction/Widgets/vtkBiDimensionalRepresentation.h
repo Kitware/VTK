@@ -142,11 +142,11 @@ public:
 
   ///@{
   /**
-   * Specify the std::format style format to use for labelling the distance. Note that an empty
-   * string results in no label, or a format string without a "{}" character
-   * will not print the distance value.
+   * Specify the std::format or printf style format to use for labelling the distance. Note that an
+   * empty string results in no label, or a format string without a "{}" character will not print
+   * the distance value.
    */
-  void SetLabelFormat(const char* format);
+  vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
   ///@}
 

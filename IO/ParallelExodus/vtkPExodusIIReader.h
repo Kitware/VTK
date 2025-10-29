@@ -54,7 +54,8 @@ public:
   /**
    * These methods tell the reader that the data is distributed across
    * multiple files. This is for distributed execution. It this case,
-   * pieces are mapped to files. The pattern should have one %d to
+   * pieces are mapped to files. The pattern should have one %d (in
+   * printf style) or {:d} (in std::format style) to
    * format the file number. FileNumberRange is used to generate file
    * numbers. I was thinking of having an arbitrary list of file
    * numbers. This may happen in the future. (That is why there is no
@@ -149,6 +150,7 @@ protected:
   vtkIdType ProcRank;
   vtkIdType ProcSize;
   char* FilePattern;
+  std::string FilePatternStdFormat;
   char* CurrentFilePattern;
   char* FilePrefix;
   char* CurrentFilePrefix;

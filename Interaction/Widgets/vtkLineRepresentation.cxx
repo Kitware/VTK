@@ -191,18 +191,6 @@ vtkLineRepresentation::~vtkLineRepresentation()
 }
 
 //------------------------------------------------------------------------------
-void vtkLineRepresentation::SetDistanceAnnotationFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(DistanceAnnotationFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
 void vtkLineRepresentation::SetDirectionalLine(bool val)
 {
   if (this->DirectionalLine == val)
@@ -768,7 +756,9 @@ void vtkLineRepresentation::BuildRepresentation()
 
     // Place the DistanceAnnotation right in between the two points.
     double x[3] = { (x1[0] + x2[0]) / 2.0, (x1[1] + x2[1]) / 2.0, (x1[2] + x2[2]) / 2.0 };
-    auto string = vtk::format(this->DistanceAnnotationFormat, this->Distance);
+    std::string distanceAnnotationFormat =
+      this->DistanceAnnotationFormat ? vtk::to_std_format(this->DistanceAnnotationFormat) : "";
+    auto string = vtk::format(distanceAnnotationFormat, this->Distance);
     this->TextInput->SetText(string.c_str());
     this->TextActor->SetPosition(x);
     if (this->Renderer)

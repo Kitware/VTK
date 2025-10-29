@@ -58,18 +58,6 @@ vtkDistanceRepresentation::~vtkDistanceRepresentation()
 }
 
 //------------------------------------------------------------------------------
-void vtkDistanceRepresentation::SetLabelFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(LabelFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
 void vtkDistanceRepresentation::InstantiateHandleRepresentation()
 {
   if (!this->Point1Representation)

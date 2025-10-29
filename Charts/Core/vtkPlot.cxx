@@ -124,12 +124,39 @@ vtkIdType vtkPlot::GetNearestPoint(const vtkVector2f& vtkNotUsed(point),
   return -1;
 }
 
+namespace
+{
+//------------------------------------------------------------------------------
+bool is_old_tooltip_label_format(const std::string& format)
+{
+  return format.find("%x") != std::string::npos || format.find("%y") != std::string::npos ||
+    format.find("%l") != std::string::npos || format.find("%i") != std::string::npos ||
+    format.find("%s") != std::string::npos;
+}
+
+//------------------------------------------------------------------------------
+std::string old_to_new_tooltip_label_format(const std::string& format)
+{
+  auto newFormat = format;
+  vtksys::SystemTools::ReplaceString(newFormat, "%x", "{x}");
+  vtksys::SystemTools::ReplaceString(newFormat, "%y", "{y}");
+  vtksys::SystemTools::ReplaceString(newFormat, "%l", "{l}");
+  vtksys::SystemTools::ReplaceString(newFormat, "%i", "{i}");
+  vtksys::SystemTools::ReplaceString(newFormat, "%s", "{s}");
+  return newFormat;
+}
+}
+
 //------------------------------------------------------------------------------
 vtkStdString vtkPlot::GetTooltipLabel(
   const vtkVector2d& plotPos, vtkIdType seriesIndex, vtkIdType segmentIndex)
 {
-  const std::string& format =
+  std::string format =
     this->TooltipLabelFormat.empty() ? this->TooltipDefaultLabelFormat : this->TooltipLabelFormat;
+  if (::is_old_tooltip_label_format(format))
+  {
+    format = ::old_to_new_tooltip_label_format(format);
+  }
   // find all the format tags by parsing it once
   fmt::dynamic_format_arg_store<fmt::format_context> args;
   for (std::size_t cc = 0; cc + 2 < format.size(); ++cc)
@@ -427,29 +454,6 @@ vtkContextMapper2D* vtkPlot::GetData()
   return this->Data;
 }
 
-namespace
-{
-//------------------------------------------------------------------------------
-bool is_old_tooltip_label_format(const std::string& format)
-{
-  return format.find("%x") != std::string::npos || format.find("%y") != std::string::npos ||
-    format.find("%l") != std::string::npos || format.find("%i") != std::string::npos ||
-    format.find("%s") != std::string::npos;
-}
-
-//------------------------------------------------------------------------------
-std::string old_to_new_tooltip_label_format(const std::string& format)
-{
-  auto newFormat = format;
-  vtksys::SystemTools::ReplaceString(newFormat, "%x", "{x}");
-  vtksys::SystemTools::ReplaceString(newFormat, "%y", "{y}");
-  vtksys::SystemTools::ReplaceString(newFormat, "%l", "{l}");
-  vtksys::SystemTools::ReplaceString(newFormat, "%i", "{i}");
-  vtksys::SystemTools::ReplaceString(newFormat, "%s", "{s}");
-  return newFormat;
-}
-}
-
 //------------------------------------------------------------------------------
 void vtkPlot::SetTooltipLabelFormat(const vtkStdString& labelFormat)
 {
@@ -457,13 +461,8 @@ void vtkPlot::SetTooltipLabelFormat(const vtkStdString& labelFormat)
   {
     return;
   }
-  auto tooltipLabelFormat = labelFormat;
-  if (::is_old_tooltip_label_format(labelFormat))
-  {
-    tooltipLabelFormat = ::old_to_new_tooltip_label_format(labelFormat);
-  }
 
-  this->TooltipLabelFormat = tooltipLabelFormat;
+  this->TooltipLabelFormat = labelFormat;
   this->Modified();
 }
 

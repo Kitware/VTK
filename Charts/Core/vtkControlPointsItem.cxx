@@ -147,18 +147,6 @@ void vtkControlPointsItem::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkControlPointsItem::SetLabelFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(LabelFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
 void vtkControlPointsItem::GetBounds(double bounds[4])
 {
   // valid user bounds ? use them
@@ -1727,7 +1715,8 @@ std::string vtkControlPointsItem::GetControlPointLabel(vtkIdType pointId)
   {
     double point[4];
     this->GetControlPoint(pointId, point);
-    result = vtk::format(this->LabelFormat, point[0], point[1], point[2], point[3]);
+    std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
+    result = vtk::format(labelFormat, point[0], point[1], point[2], point[3]);
   }
   return result;
 }

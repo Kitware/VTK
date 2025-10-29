@@ -42,18 +42,6 @@ vtkSliderRepresentation::~vtkSliderRepresentation()
 }
 
 //------------------------------------------------------------------------------
-void vtkSliderRepresentation::SetLabelFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(LabelFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
 void vtkSliderRepresentation::SetMinimumValue(double minValue)
 {
   if (minValue == this->MinimumValue)

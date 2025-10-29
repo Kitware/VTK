@@ -476,11 +476,7 @@ void vtkFastLabeledDataMapper::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkFastLabeledDataMapper::SetLabelFormat(const char* formatArg)
 {
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
+  std::string format = formatArg ? vtk::to_std_format(formatArg) : "";
   const char* formatStr = format.c_str();
   vtkSetStringBodyMacro(LabelFormat, formatStr);
 }
@@ -1138,7 +1134,7 @@ void vtkFastLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   {
     // The user has specified a format string.
     vtkDebugMacro(<< "Using user-specified format string " << this->LabelFormat);
-    formatString = this->LabelFormat;
+    formatString = vtk::to_std_format(this->LabelFormat);
   }
   else
   {

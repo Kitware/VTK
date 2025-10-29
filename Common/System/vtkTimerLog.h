@@ -113,11 +113,7 @@ public:
     {
       return;
     }
-    std::string format = formatArg ? formatArg : "";
-    if (vtk::is_printf_format(format))
-    {
-      format = vtk::printf_to_std_format(format);
-    }
+    std::string format = formatArg ? vtk::to_std_format(formatArg) : "";
     static char event[4096];
     auto result = vtk::format_to_n(event, sizeof(event), format, std::forward<T>(args)...);
     *result.out = '\0';

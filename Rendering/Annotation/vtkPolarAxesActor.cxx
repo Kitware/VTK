@@ -299,30 +299,6 @@ vtkPolarAxesActor::~vtkPolarAxesActor()
 }
 
 //------------------------------------------------------------------------------
-void vtkPolarAxesActor::SetPolarLabelFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(PolarLabelFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
-void vtkPolarAxesActor::SetRadialAngleFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(RadialAngleFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
 void vtkPolarAxesActor::GetRendered3DProps(vtkPropCollection* collection, bool translucent)
 {
   if (this->PolarAxisVisibility)
@@ -1183,8 +1159,10 @@ void vtkPolarAxesActor::BuildRadialAxes(vtkViewport* viewport)
       axis->SetTitleVisibility(this->RadialTitleVisibility);
       std::ostringstream title;
       title.setf(std::ios::fixed, std::ios::floatfield);
+      std::string radialAngleFormat =
+        this->RadialAngleFormat ? vtk::to_std_format(this->RadialAngleFormat) : "";
       auto result =
-        vtk::format_to_n(titleValue, sizeof(titleValue), this->RadialAngleFormat, actualAngle);
+        vtk::format_to_n(titleValue, sizeof(titleValue), radialAngleFormat, actualAngle);
       *result.out = '\0';
       title << titleValue << (this->RadialUnits ? " deg" : "");
       axis->SetTitle(title.str());
@@ -1612,10 +1590,12 @@ void vtkPolarAxesActor::BuildPolarAxisLabelsArcs()
 
     std::list<double>::iterator itList;
     vtkIdType i = 0;
+    std::string polarLabelFormat =
+      this->PolarLabelFormat ? vtk::to_std_format(this->PolarLabelFormat) : "";
     for (itList = labelValList.begin(); itList != labelValList.end(); ++i, ++itList)
     {
       char label[64];
-      auto result = vtk::format_to_n(label, sizeof(label), this->PolarLabelFormat, *itList);
+      auto result = vtk::format_to_n(label, sizeof(label), polarLabelFormat, *itList);
       *result.out = '\0';
       labels->SetValue(i, label);
     }

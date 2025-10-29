@@ -68,7 +68,8 @@ public:
   ///@{
   /**
    * This file pattern uses the file name and piece number
-   * to construct a file name for the piece file.
+   * to construct a file name for the piece file. std::format
+   * and printf style formatting strings are supported.
    */
   virtual void SetFilePattern(VTK_FILEPATH const char*);
   vtkGetFilePathMacro(FilePattern);
@@ -117,6 +118,7 @@ protected:
   vtkTypeBool UseRelativeFileNames;
 
   char* FilePattern;
+  std::string FilePatternStdFormat;
 
   void DeleteFiles();
 

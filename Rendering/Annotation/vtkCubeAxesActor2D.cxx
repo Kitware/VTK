@@ -116,11 +116,7 @@ vtkCubeAxesActor2D::vtkCubeAxesActor2D()
 //------------------------------------------------------------------------------
 void vtkCubeAxesActor2D::SetLabelFormat(const char* formatArg)
 {
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
+  std::string format = formatArg ? vtk::to_std_format(formatArg) : "";
   const char* formatStr = format.c_str();
   vtkSetStringBodyMacro(LabelFormat, formatStr);
 }

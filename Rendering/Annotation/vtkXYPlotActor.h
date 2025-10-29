@@ -572,8 +572,8 @@ public:
 
   ///@{
   /**
-   * Set/Get the format with which to print the labels . This sets both X
-   * and Y label formats. GetLabelFormat() returns X label format.
+   * Set/Get the std::format or printf style format with which to print the labels . This sets both
+   * X and Y label formats. GetLabelFormat() returns X label format.
    */
   virtual void SetLabelFormat(const char*);
   const char* GetLabelFormat() { return this->GetXLabelFormat(); }
@@ -581,7 +581,7 @@ public:
 
   ///@{
   /**
-   * Set/Get the format with which to print the X label.
+   * Set/Get the std::format or printf style format with which to print the X label.
    */
   virtual void SetXLabelFormat(const char*);
   vtkGetStringMacro(XLabelFormat);
@@ -589,7 +589,7 @@ public:
 
   ///@{
   /**
-   * Set/Get the format with which to print the Y label.
+   * Set/Get the std::format or printf style format with which to print the Y label.
    */
   virtual void SetYLabelFormat(const char*);
   vtkGetStringMacro(YLabelFormat);

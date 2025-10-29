@@ -36,18 +36,6 @@ bool is_not_strftime_format(const std::string& format)
 }
 
 //------------------------------------------------------------------------------
-void vtkDateToNumeric::SetDateFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (!::is_not_strftime_format(format))
-  {
-    format = "{:" + format + '}';
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(DateFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
 int vtkDateToNumeric::FillInputPortInformation(int, vtkInformation* info)
 {
   // Skip composite data sets so that executives will treat this as a simple filter
@@ -71,7 +59,12 @@ int vtkDateToNumeric::RequestData(
   std::vector<std::string> formats;
   if (this->DateFormat)
   {
-    formats.emplace_back(this->DateFormat);
+    std::string dateFormat(this->DateFormat);
+    if (!::is_not_strftime_format(dateFormat))
+    {
+      dateFormat = "{:" + dateFormat + '}';
+    }
+    formats.emplace_back(dateFormat);
   }
   // default formats
   formats.emplace_back("{:%Y-%m-%d %H:%M:%S}");

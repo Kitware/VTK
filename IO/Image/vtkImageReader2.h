@@ -84,7 +84,7 @@ public:
 
   ///@{
   /**
-   * The std::format style format string used to build filename from
+   * The std::format or printf style format string used to build filename from
    * FilePrefix and slice number.
    */
   virtual void SetFilePattern(VTK_FILEPATH const char*);

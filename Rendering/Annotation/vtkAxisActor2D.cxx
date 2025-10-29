@@ -371,18 +371,6 @@ vtkTextProperty* vtkAxisActor2D::GetLabelTextProperty()
 }
 
 //------------------------------------------------------------------------------
-void vtkAxisActor2D::SetLabelFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(LabelFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
 int vtkAxisActor2D::UpdateGeometryAndRenderOpaqueGeometry(vtkViewport* viewport, bool render)
 {
   this->BuildAxis(viewport);
@@ -799,8 +787,9 @@ void vtkAxisActor2D::BuildLabels(vtkViewport* viewport)
       {
         // Use default legend notation : don't use vtkNumberToString
         // for the default setting in order to ensure retrocompatibility
+        std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
         char string[512];
-        auto result = vtk::format_to_n(string, sizeof(string), this->LabelFormat, val);
+        auto result = vtk::format_to_n(string, sizeof(string), labelFormat, val);
         *result.out = '\0';
         this->LabelMappers[i]->SetInput(string);
       }

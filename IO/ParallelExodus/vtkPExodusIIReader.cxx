@@ -152,13 +152,8 @@ vtkPExodusIIReader::~vtkPExodusIIReader()
 //------------------------------------------------------------------------------
 void vtkPExodusIIReader::SetFilePattern(const char* formatArg)
 {
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(FilePattern, formatStr);
+  vtkSetStringBodyMacro(FilePattern, formatArg);
+  this->FilePatternStdFormat = formatArg ? vtk::to_std_format(formatArg) : "";
 }
 
 //------------------------------------------------------------------------------
@@ -190,21 +185,22 @@ int vtkPExodusIIReader::RequestInformation(
   if (this->ProcRank == 0)
   {
     bool newName = this->GetMetadataMTime() < this->FileNameMTime;
-    bool newPattern =
-      ((this->FilePattern &&
-         (!this->CurrentFilePattern ||
-           !vtksys::SystemTools::ComparePath(this->FilePattern, this->CurrentFilePattern) ||
-           ((this->FileRange[0] != this->CurrentFileRange[0]) ||
-             (this->FileRange[1] != this->CurrentFileRange[1])))) ||
-        (this->FilePrefix &&
-          !vtksys::SystemTools::ComparePath(this->FilePrefix, this->CurrentFilePrefix)));
+    bool newPattern = ((!this->FilePatternStdFormat.empty() &&
+                         (!this->CurrentFilePattern ||
+                           !vtksys::SystemTools::ComparePath(
+                             this->FilePatternStdFormat, this->CurrentFilePattern) ||
+                           ((this->FileRange[0] != this->CurrentFileRange[0]) ||
+                             (this->FileRange[1] != this->CurrentFileRange[1])))) ||
+      (this->FilePrefix &&
+        !vtksys::SystemTools::ComparePath(this->FilePrefix, this->CurrentFilePrefix)));
 
     // setting filename for the first time builds the prefix/pattern
     // if one clears the prefix/pattern, but the filename stays the same,
     // we should rebuild the prefix/pattern
-    bool rebuildPattern = newPattern && this->FilePattern[0] == '\0' && this->FilePrefix[0] == '\0';
+    bool rebuildPattern =
+      newPattern && this->FilePatternStdFormat[0] == '\0' && this->FilePrefix[0] == '\0';
 
-    bool sanity = ((this->FilePattern && this->FilePrefix) || this->FileName);
+    bool sanity = ((!this->FilePatternStdFormat.empty() && this->FilePrefix) || this->FileName);
 
     if (!sanity)
     {
@@ -215,10 +211,10 @@ int vtkPExodusIIReader::RequestInformation(
 
     if (newPattern && !rebuildPattern)
     {
-      size_t nmSize = strlen(this->FilePattern) + strlen(this->FilePrefix) + 20;
+      size_t nmSize = this->FilePatternStdFormat.size() + strlen(this->FilePrefix) + 20;
       char* nm = new char[nmSize];
-      auto result =
-        vtk::format_to_n(nm, nmSize, this->FilePattern, this->FilePrefix, this->FileRange[0]);
+      auto result = vtk::format_to_n(
+        nm, nmSize, this->FilePatternStdFormat, this->FilePrefix, this->FileRange[0]);
       *result.out = '\0';
       delete[] this->FileName;
       this->FileName = nm;
@@ -249,10 +245,10 @@ int vtkPExodusIIReader::RequestInformation(
         vtkPExodusIIReader::DetermineFileId(this->FileNames[0]);
       }
     }
-    else if (this->FilePattern)
+    else if (!this->FilePatternStdFormat.empty())
     {
-      auto result = vtk::format_to_n(
-        this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN, this->FilePattern, this->FilePrefix, 0);
+      auto result = vtk::format_to_n(this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN,
+        this->FilePatternStdFormat, this->FilePrefix, 0);
       *result.out = '\0';
     }
     delete[] this->FileName;
@@ -311,7 +307,8 @@ int vtkPExodusIIReader::RequestInformation(
   if (this->FilePrefix)
   {
     this->CurrentFilePrefix = vtksys::SystemTools::DuplicateString(this->FilePrefix);
-    this->CurrentFilePattern = vtksys::SystemTools::DuplicateString(this->FilePattern);
+    this->CurrentFilePattern =
+      vtksys::SystemTools::DuplicateString(this->FilePatternStdFormat.c_str());
     this->CurrentFileRange[0] = this->FileRange[0];
     this->CurrentFileRange[1] = this->FileRange[1];
   }
@@ -463,10 +460,10 @@ int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
         fileId = vtkPExodusIIReader::DetermineFileId(this->FileNames[fileIndex]);
       }
     }
-    else if (this->FilePattern)
+    else if (!this->FilePatternStdFormat.empty())
     {
       auto result = vtk::format_to_n(this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN,
-        this->FilePattern, this->FilePrefix, fileIndex);
+        this->FilePatternStdFormat, this->FilePrefix, fileIndex);
       *result.out = '\0';
       if (this->GetGenerateFileIdArray())
       {
@@ -813,6 +810,7 @@ int vtkPExodusIIReader::DeterminePattern(const char* file)
     delete[] this->FilePattern;
     delete[] this->FilePrefix;
     this->FilePattern = vtksys::SystemTools::DuplicateString(pattern);
+    this->FilePatternStdFormat = this->FilePattern; // defined to be std::format string
     this->FilePrefix = vtksys::SystemTools::DuplicateString(file);
     this->FileRange[0] = min;
     this->FileRange[1] = max;
@@ -905,6 +903,7 @@ int vtkPExodusIIReader::DeterminePattern(const char* file)
   delete[] this->FilePattern;
   delete[] this->FilePrefix;
   this->FilePattern = vtksys::SystemTools::DuplicateString(pattern);
+  this->FilePatternStdFormat = pattern; // defined to be std::format string
   this->FilePrefix = vtksys::SystemTools::DuplicateString(prefix.c_str());
 
   return VTK_OK;
@@ -924,7 +923,7 @@ void vtkPExodusIIReader::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "FilePattern: nullptr\n";
   }
 
-  if (this->FilePattern)
+  if (this->FilePrefix)
   {
     os << indent << "FilePrefix: " << this->FilePrefix << endl;
   }
@@ -1467,6 +1466,7 @@ void vtkPExodusIIReader::Broadcast(vtkMultiProcessController* ctrl)
       // this->SetFilePrefix(  BroadcastRecvString( ctrl, tmp ) ? tmp.data() : nullptr );
       this->FilePattern =
         BroadcastRecvString(ctrl, tmp) ? vtksys::SystemTools::DuplicateString(tmp.data()) : nullptr;
+      this->FilePatternStdFormat = this->FilePattern ? this->FilePattern : "";
       this->FilePrefix =
         BroadcastRecvString(ctrl, tmp) ? vtksys::SystemTools::DuplicateString(tmp.data()) : nullptr;
     }

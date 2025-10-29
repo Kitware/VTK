@@ -168,42 +168,6 @@ vtkCubeAxesActor::vtkCubeAxesActor()
 }
 
 //------------------------------------------------------------------------------
-void vtkCubeAxesActor::SetXLabelFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(XLabelFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
-void vtkCubeAxesActor::SetYLabelFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(YLabelFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
-void vtkCubeAxesActor::SetZLabelFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(ZLabelFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
 void vtkCubeAxesActor::SetUseTextActor3D(bool enable)
 {
   for (int i = 0; i < NUMBER_OF_ALIGNED_AXIS; ++i)
@@ -1902,7 +1866,7 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor* axes[NUMBER_OF_ALIGNED_AXIS])
   vtkStringArray* customizedLabels = nullptr;
 
   vtkStringArray* labels = vtkStringArray::New();
-  const char* format = "{:s}";
+  std::string format("{:s}");
   switch (axes[0]->GetAxisType())
   {
     case vtkAxisActor::VTK_AXIS_TYPE_X:
@@ -1924,6 +1888,7 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor* axes[NUMBER_OF_ALIGNED_AXIS])
       lastPow = this->LastZPow;
       break;
   }
+  format = vtk::to_std_format(format);
   customizedLabels = this->AxisLabels[axisIndex];
   // figure out how many labels we need:
   if (extents == 0)

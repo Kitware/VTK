@@ -96,11 +96,11 @@ public:
 
   ///@{
   /**
-   * Specify the std::format style format to use for labeling the angle. Note that an empty
-   * string results in no label, or a format string without a "{}" character
-   * will not print the angle value.
+   * Specify the std::format or printf style format to use for labeling the angle. Note that an
+   * empty string results in no label, or a format string without a "{}" character will not print
+   * the angle value.
    */
-  void SetLabelFormat(const char* format);
+  vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
   ///@}
 

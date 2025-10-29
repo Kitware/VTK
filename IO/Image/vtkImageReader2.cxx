@@ -126,19 +126,20 @@ void vtkImageReader2::ComputeInternalFileName(int slice)
   else
   {
     int slicenum = slice * this->FileNameSliceSpacing + this->FileNameSliceOffset;
-    if (this->FilePrefix && this->FilePattern)
+    std::string filePattern = this->FilePattern ? vtk::to_std_format(this->FilePattern) : "";
+    if (this->FilePrefix && !filePattern.empty())
     {
-      size_t size = strlen(this->FilePrefix) + strlen(this->FilePattern) + 10;
+      size_t size = strlen(this->FilePrefix) + filePattern.size() + 10;
       this->InternalFileName = new char[size];
-      auto result = vtk::format_to_n(
-        this->InternalFileName, size, this->FilePattern, this->FilePrefix, slicenum);
+      auto result =
+        vtk::format_to_n(this->InternalFileName, size, filePattern, this->FilePrefix, slicenum);
       *result.out = '\0';
     }
-    else if (this->FilePattern)
+    else if (!filePattern.empty())
     {
-      size_t size = strlen(this->FilePattern) + 10;
+      size_t size = filePattern.size() + 10;
       this->InternalFileName = new char[size];
-      auto result = vtk::format_to_n(this->InternalFileName, size, this->FilePattern, "", slicenum);
+      auto result = vtk::format_to_n(this->InternalFileName, size, filePattern, "", slicenum);
       *result.out = '\0';
     }
     else
@@ -217,13 +218,7 @@ void vtkImageReader2::SetFileNames(vtkStringArray* filenames)
 // pattern of a series: image.001, image.002 ...
 void vtkImageReader2::SetFilePattern(const char* formatArg)
 {
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(FilePattern, formatStr);
+  vtkSetStringBodyMacro(FilePattern, formatArg);
 }
 
 //------------------------------------------------------------------------------

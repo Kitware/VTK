@@ -266,18 +266,6 @@ vtkScalarBarActor::vtkScalarBarActor()
 }
 
 //------------------------------------------------------------------------------
-void vtkScalarBarActor::SetLabelFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(LabelFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
 // Release any graphics resources that are being consumed by this actor.
 // The parameter window could be used to determine which graphic
 // resources to release.
@@ -1367,7 +1355,8 @@ void vtkScalarBarActor::LayoutTicks()
       }
     }
 
-    auto result = vtk::format_to_n(string, 512, this->LabelFormat, val);
+    std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
+    auto result = vtk::format_to_n(string, 512, labelFormat, val);
     *result.out = '\0'; // null terminate the string
     this->P->TextActors[i]->SetInput(string);
 
