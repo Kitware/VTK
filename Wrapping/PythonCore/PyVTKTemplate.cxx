@@ -610,7 +610,7 @@ PyObject* PyVTKTemplate_KeyFromName(PyObject* self, PyObject* arg)
         sign = -1;
         cp++;
       }
-      long number;
+      long number = 0;
       VTK_FROM_CHARS_IF_ERROR_BREAK(cp, number);
       keys[i] = PyLong_FromLong(sign * number);
       while (*cp != 'E' && *cp != '\0')
