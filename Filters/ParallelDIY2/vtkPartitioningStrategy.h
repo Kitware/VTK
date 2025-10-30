@@ -4,7 +4,7 @@
  * @class vtkPartitioningStrategy
  * @brief A strategy interface for partitioning meshes
  *
- * This abstract class is meant to act as an interface for homogeneizing the use of different
+ * This abstract class is meant to act as an interface for homogenizing the use of different
  * partitioning algorithms in the vtkRedistributeDataSetFilter.
  *
  * This class offers two main architectural contributions:

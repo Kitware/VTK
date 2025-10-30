@@ -85,10 +85,13 @@ struct ValidationAndInitializationWalker : public pugi::xml_tree_walker
 {
   std::unordered_map<int, pugi::xml_node>& NodeMap;
   int& MaxUniqueId;
+  int& MaxUniqueDataSetId;
 
-  ValidationAndInitializationWalker(std::unordered_map<int, pugi::xml_node>& map, int& id)
+  ValidationAndInitializationWalker(
+    std::unordered_map<int, pugi::xml_node>& map, int& id, int& dsid)
     : NodeMap(map)
     , MaxUniqueId(id)
+    , MaxUniqueDataSetId(dsid)
   {
   }
   bool for_each(pugi::xml_node& node) override
@@ -125,6 +128,7 @@ struct ValidationAndInitializationWalker : public pugi::xml_tree_walker
           vtkLogF(ERROR, "Invalid required attribute, id='%s'", attr.value());
           return false;
         }
+        this->MaxUniqueDataSetId = std::max(this->MaxUniqueDataSetId, static_cast<int>(id));
       }
       else
       {
@@ -146,8 +150,10 @@ struct ValidationAndInitializationWalker : public pugi::xml_tree_walker
 struct OffsetIdWalker : public pugi::xml_tree_walker
 {
   int Offset;
-  OffsetIdWalker(int offset)
+  int DataSetOffset;
+  OffsetIdWalker(int offset, int dsoffset)
     : Offset(offset)
+    , DataSetOffset(dsoffset)
   {
   }
 
@@ -160,6 +166,15 @@ struct OffsetIdWalker : public pugi::xml_tree_walker
       if (id != VTK_UNSIGNED_INT_MAX)
       {
         attr.set_value(id + this->Offset);
+      }
+    }
+    else if (IsDataSetNode(node))
+    {
+      auto attr = node.attribute("id");
+      auto id = attr.as_uint(VTK_UNSIGNED_INT_MAX);
+      if (id != VTK_UNSIGNED_INT_MAX)
+      {
+        attr.set_value(id + this->DataSetOffset);
       }
     }
   }
@@ -302,6 +317,7 @@ public:
   pugi::xml_document Document;
   std::unordered_map<int, pugi::xml_node> NodeMap;
   int MaxUniqueId = 0;
+  int MaxUniqueDataSetId = -1; // It's possible that it has no datasets that's why default is -1
   bool Parse(const char* xmlcontents, vtkDataAssembly* self);
 
   bool ParseDocument(vtkDataAssembly* self)
@@ -309,8 +325,10 @@ public:
     auto& doc = this->Document;
     this->NodeMap.clear();
     this->MaxUniqueId = 0;
+    this->MaxUniqueDataSetId = -1;
 
-    ValidationAndInitializationWalker walker{ this->NodeMap, this->MaxUniqueId };
+    ValidationAndInitializationWalker walker{ this->NodeMap, this->MaxUniqueId,
+      this->MaxUniqueDataSetId };
     auto root = doc.first_child();
     if (::IsAssemblyNode(root) && root.attribute("version").as_float() == 1.0f &&
       root.attribute("id").as_int(-1) == 0 &&
@@ -515,7 +533,7 @@ int vtkDataAssembly::AddSubtree(int parent, vtkDataAssembly* other, int otherPar
   }
 
   // now update node ids on the copied subtree.
-  OffsetIdWalker walker(internals.MaxUniqueId + 1);
+  OffsetIdWalker walker(internals.MaxUniqueId + 1, internals.MaxUniqueDataSetId + 1);
   subtree.traverse(walker);
 
   // reset internal datastructure (and also validate it)

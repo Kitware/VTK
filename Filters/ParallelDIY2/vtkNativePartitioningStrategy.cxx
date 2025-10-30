@@ -15,6 +15,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPartitioningStrategy.h"
+#include "vtkPoints.h"
 #include "vtkRedistributeDataSetFilter.h"
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPThreadLocalObject.h"
@@ -40,6 +41,8 @@ struct PartitionDistributionWorklet
   const int MaxCellSize;
   const std::vector<vtkBoundingBox>* Cuts;
   const std::vector<std::vector<int>>* Regions;
+  bool AssignBoundaryCellsToSmallestRegionId = false;
+
   struct LocalDataT
   {
     vtkSmartPointer<vtkGenericCell> GenCell;
@@ -49,12 +52,13 @@ struct PartitionDistributionWorklet
 
   PartitionDistributionWorklet(vtkPartitioningStrategy::PartitionInformation* res,
     vtkDataSet* dataset, const std::vector<vtkBoundingBox>* cuts,
-    const std::vector<std::vector<int>>* regions)
+    const std::vector<std::vector<int>>* regions, bool assignBoundaryCellsToSmallestRegionId)
     : Res(res)
     , DS(dataset)
     , MaxCellSize(dataset->GetMaxCellSize())
     , Cuts(cuts)
     , Regions(regions)
+    , AssignBoundaryCellsToSmallestRegionId(assignBoundaryCellsToSmallestRegionId)
   {
     this->Res->TargetEntity = vtkPartitioningStrategy::CELLS;
     this->Res->NumberOfPartitions = this->Cuts->size();
@@ -86,7 +90,7 @@ struct PartitionDistributionWorklet
         for (int cutId = 0; cutId < static_cast<int>(itC->size()); ++cutId)
         {
           const auto& bbox = this->Cuts->at(itC->at(cutId));
-          if (bbox.ContainsPoint(center))
+          if (this->AssignBoundaryCellsToSmallestRegionId || bbox.ContainsPoint(center))
           {
             this->Res->TargetPartitions->SetValue(cellId, itC->at(cutId));
           }
@@ -126,8 +130,8 @@ struct PartitionDistributionWorklet
 /*
  * Fill the partition information from the cuts information
  */
-vtkPartitioningStrategy::PartitionInformation CutsToPartition(
-  vtkDataSet* dataset, const std::vector<vtkBoundingBox>& cuts)
+vtkPartitioningStrategy::PartitionInformation CutsToPartition(vtkDataSet* dataset,
+  const std::vector<vtkBoundingBox>& cuts, bool assignBoundaryCellsToSmallestRegionId)
 {
   if (!dataset || cuts.empty() || dataset->GetNumberOfCells() == 0)
   {
@@ -193,7 +197,8 @@ vtkPartitioningStrategy::PartitionInformation CutsToPartition(
     });
 
   vtkPartitioningStrategy::PartitionInformation res;
-  ::PartitionDistributionWorklet worker(&res, dataset, &cuts, &cellRegions);
+  ::PartitionDistributionWorklet worker(
+    &res, dataset, &cuts, &cellRegions, assignBoundaryCellsToSmallestRegionId);
   vtkSMPTools::For(0, numCells, worker);
   return res;
 }
@@ -319,7 +324,8 @@ vtkNativePartitioningStrategy::ComputePartition(vtkPartitionedDataSetCollection*
       auto ds = inputPTD->GetPartition(cc);
       if (ds && (ds->GetNumberOfPoints() > 0 || ds->GetNumberOfCells() > 0))
       {
-        res.emplace_back(::CutsToPartition(ds, this->Cuts));
+        res.emplace_back(
+          ::CutsToPartition(ds, this->Cuts, this->AssignBoundaryCellsToSmallestRegionId));
       }
       else
       {

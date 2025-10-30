@@ -10,6 +10,7 @@
 #include "vtkInformationVector.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
@@ -253,9 +254,20 @@ int vtkConduitSource::RequestData(
     dataGenerated = this->GeneratePartitionedDataSet(real_output);
   }
 
-  if (!dataGenerated)
+  // Check wether all ranks successfully generated the data. If at least one rank failed, we need to
+  // return 0 on every nodes to prevent code hanging in the pipeline.
+  vtkMultiProcessController* controller = vtkMultiProcessController::GetGlobalController();
+  std::vector<int> allDataGenerationResults(controller->GetNumberOfProcesses());
+  int dataGenerationLocalResult = dataGenerated;
+  controller->AllGather(&dataGenerationLocalResult, allDataGenerationResults.data(), 1);
+
+  for (size_t nodeIdx = 0; nodeIdx < allDataGenerationResults.size(); nodeIdx++)
   {
-    return 0;
+    if (!allDataGenerationResults[nodeIdx])
+    {
+      vtkLogF(ERROR, "Data generation failure on process %lu", nodeIdx);
+      return 0;
+    }
   }
 
   if (this->OutputMultiBlock)
