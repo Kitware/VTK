@@ -322,8 +322,15 @@ void vtkWebGPURenderWindow::InitializeRendererComputePipelines()
 {
   for (auto renderer : vtk::Range(this->Renderers))
   {
-    vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
-    wgpuRenderer->ConfigureComputePipelines();
+    if (vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
+    {
+      wgpuRenderer->ConfigureComputePipelines();
+    }
+    else
+    {
+      vtkWarningMacro(<< "Renderer is not a vtkWebGPURenderer. Cannot initialize compute "
+                         "pipelines. Please ensure VTK_GRAPHICS_BACKEND is set to 'WEBGPU' ");
+    }
   }
 }
 
