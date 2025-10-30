@@ -1001,8 +1001,9 @@ double* vtkRenderer::ComputeVisiblePropBounds()
 // The camera will reposition itself to view the center point of the actors,
 // and move along its initial view plane normal (i.e., vector defined from
 // camera position to focal point) so that all of the actors can be seen.
-void vtkRenderer::ResetCamera()
+bool vtkRenderer::ResetCamera()
 {
+  bool areBoundsInitialized = false;
   double allBounds[6];
 
   this->ComputeVisiblePropBounds(allBounds);
@@ -1014,11 +1015,13 @@ void vtkRenderer::ResetCamera()
   else
   {
     this->ResetCamera(allBounds);
+    areBoundsInitialized = true;
   }
 
   // Here to let parallel/distributed compositing intercept
   // and do the right thing.
   this->InvokeEvent(vtkCommand::ResetCameraEvent, this);
+  return areBoundsInitialized;
 }
 
 // Automatically set the clipping range of the camera based on the
@@ -1300,8 +1303,9 @@ void vtkRenderer::ResetCameraClippingRange(
 
 // Automatically set up the camera based on the visible actors.
 // Use a screen space bounding box to zoom closer to the data.
-void vtkRenderer::ResetCameraScreenSpace(const double offsetRatio)
+bool vtkRenderer::ResetCameraScreenSpace(const double offsetRatio)
 {
+  bool areBoundsInitialized = false;
   double allBounds[6];
 
   this->ComputeVisiblePropBounds(allBounds);
@@ -1313,11 +1317,13 @@ void vtkRenderer::ResetCameraScreenSpace(const double offsetRatio)
   else
   {
     this->ResetCameraScreenSpace(allBounds, offsetRatio);
+    areBoundsInitialized = true;
   }
 
   // Here to let parallel/distributed compositing intercept
   // and do the right thing.
   this->InvokeEvent(vtkCommand::ResetCameraEvent, this);
+  return areBoundsInitialized;
 }
 
 // Alternative version of ResetCameraScreenSpace(bounds[6]);

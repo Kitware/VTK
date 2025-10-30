@@ -44,7 +44,7 @@ int TestResetCameraVerticalAspectRatio(int argc, char* argv[])
   renWin->SetSize(128, 400);
 
   // ren1->GetActiveCamera()->SetUseHorizontalViewAngle(1);
-  ren1->ResetCamera();
+  bool resetStatus = ren1->ResetCamera();
 
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
@@ -59,5 +59,5 @@ int TestResetCameraVerticalAspectRatio(int argc, char* argv[])
   renWin->Delete();
   iren->Delete();
 
-  return !retVal;
+  return !retVal || !resetStatus;
 }

@@ -388,8 +388,9 @@ public:
    * The camera will reposition itself to view the center point of the actors,
    * and move along its initial view plane normal (i.e., vector defined from
    * camera position to focal point) so that all of the actors can be seen.
+   * Returns true if camera position was actually reset in the process.
    */
-  virtual void ResetCamera();
+  virtual bool ResetCamera();
 
   /**
    * Automatically set up the camera based on a specified bounding box
@@ -414,8 +415,9 @@ public:
    *
    * OffsetRatio can be used to add a zoom offset.
    * Default value is 0.9, which means that the camera will be 10% further from the data
+   * Returns true if camera position was actually reset in the process.
    */
-  virtual void ResetCameraScreenSpace(double offsetRatio = 0.9);
+  virtual bool ResetCameraScreenSpace(double offsetRatio = 0.9);
 
   /**
    * Automatically set up the camera based on a specified bounding box

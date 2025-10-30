@@ -40,7 +40,7 @@ int TestResetCameraScreenSpace(int argc, char* argv[])
   renWin->SetSize(200, 300);
 
   ren1->GetActiveCamera()->SetUseHorizontalViewAngle(true);
-  ren1->ResetCameraScreenSpace();
+  bool resetStatus = ren1->ResetCameraScreenSpace();
 
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
@@ -55,5 +55,5 @@ int TestResetCameraScreenSpace(int argc, char* argv[])
   renWin->Delete();
   iren->Delete();
 
-  return !retVal;
+  return !retVal || !resetStatus;
 }
