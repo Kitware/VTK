@@ -3,6 +3,7 @@
 #include "vtkProjectPointsToPlane.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
@@ -24,8 +25,8 @@ namespace
 { // anonymous
 
 // Dispatching real types; use a slow path otherwise
-using Reals = vtkArrayDispatch::Reals;
-using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<Reals, Reals>;
+using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
+  vtkArrayDispatch::AOSPointArrays>;
 
 // Project onto a coordinate plane. Coordinate plane defined by xi[idx[2]] = pc.
 // (idx[0], idx[1]) refer to in-plane coordinates; idx[2] refers to the fixed

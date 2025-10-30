@@ -519,6 +519,15 @@ VTK_ABI_NAMESPACE_END
 
 #include "vtkImplicitArray.txx"
 
+#define vtkCreateReadOnlyWrappedArrayInterface(T)                                                  \
+  int GetDataType() const override;                                                                \
+  T GetDataTypeValueMin() const;                                                                   \
+  T GetDataTypeValueMax() const;                                                                   \
+  void GetTypedTuple(vtkIdType i, T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());        \
+  T GetValue(vtkIdType id) const VTK_EXPECTS(0 <= id && id < GetNumberOfValues());                 \
+  T* GetValueRange(int comp) VTK_SIZEHINT(2);                                                      \
+  T* GetValueRange() VTK_SIZEHINT(2);
+
 #endif // vtkImplicitArray_h
 
 #define VTK_WRAP_TEMPLATE(...) __VA_ARGS__

@@ -51,16 +51,6 @@ public:
     return static_cast<vtkLongLongArray*>(Superclass::FastDownCast(source));
   }
 
-  /**
-   * Get the minimum data value in its native type.
-   */
-  static long long GetDataTypeValueMin() { return VTK_LONG_LONG_MIN; }
-
-  /**
-   * Get the maximum data value in its native type.
-   */
-  static long long GetDataTypeValueMax() { return VTK_LONG_LONG_MAX; }
-
 protected:
   vtkLongLongArray();
   ~vtkLongLongArray() override;

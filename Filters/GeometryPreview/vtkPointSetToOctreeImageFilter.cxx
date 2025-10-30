@@ -3,6 +3,7 @@
 #include "vtkPointSetToOctreeImageFilter.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkAtomicMutex.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
@@ -403,7 +404,7 @@ int vtkPointSetToOctreeImageFilter::RequestData(
   // fill octree and field arrays
   auto inPointsArray = input->GetPoints()->GetData();
   PointSetToImageWorker worker;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   if (!Dispatcher::Execute(
         inPointsArray, worker, octree, input, output, inField, outField.Get(), functions))
   {

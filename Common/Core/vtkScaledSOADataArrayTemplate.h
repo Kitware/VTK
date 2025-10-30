@@ -81,7 +81,8 @@ public:
   /**
    * Get the value at @a valueIdx. @a valueIdx assumes AOS ordering.
    */
-  inline ValueType GetValue(vtkIdType valueIdx) const
+  ValueType GetValue(vtkIdType valueIdx) const
+    VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues())
   {
     vtkIdType tupleIdx;
     int comp;
@@ -94,7 +95,8 @@ public:
   /**
    * Set the value at @a valueIdx to @a value. @a valueIdx assumes AOS ordering.
    */
-  inline void SetValue(vtkIdType valueIdx, ValueType value)
+  void SetValue(vtkIdType valueIdx, ValueType value)
+    VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues())
   {
     vtkIdType tupleIdx;
     int comp;
@@ -106,7 +108,8 @@ public:
   /**
    * Copy the tuple at @a tupleIdx into @a tuple.
    */
-  inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+  void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
   {
     for (size_t cc = 0; cc < this->Data.size(); cc++)
     {
@@ -117,7 +120,8 @@ public:
   /**
    * Set this array's tuple at @a tupleIdx to the values in @a tuple.
    */
-  inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+  void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
   {
     for (size_t cc = 0; cc < this->Data.size(); ++cc)
     {
@@ -128,7 +132,9 @@ public:
   /**
    * Get component @a comp of the tuple at @a tupleIdx.
    */
-  inline ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
+  ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
+    VTK_EXPECTS(0 <= tupleIdx && GetNumberOfComponents() * tupleIdx + comp < GetNumberOfValues())
+      VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents())
   {
     return this->Data[comp]->GetBuffer()[tupleIdx] * this->Scale;
   }
@@ -136,7 +142,9 @@ public:
   /**
    * Set component @a comp of the tuple at @a tupleIdx to @a value.
    */
-  inline void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
+  void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
+    VTK_EXPECTS(0 <= tupleIdx && GetNumberOfComponents() * tupleIdx + comp < GetNumberOfValues())
+      VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents())
   {
     this->Data[comp]->GetBuffer()[tupleIdx] = value / this->Scale;
   }
@@ -240,7 +248,7 @@ private:
   vtkScaledSOADataArrayTemplate(const vtkScaledSOADataArrayTemplate&) = delete;
   void operator=(const vtkScaledSOADataArrayTemplate&) = delete;
 
-  inline void GetTupleIndexFromValueIndex(vtkIdType valueIdx, vtkIdType& tupleIdx, int& comp) const
+  void GetTupleIndexFromValueIndex(vtkIdType valueIdx, vtkIdType& tupleIdx, int& comp) const
   {
     tupleIdx = valueIdx / this->NumberOfComponents;
     comp = valueIdx % this->NumberOfComponents;
@@ -257,6 +265,29 @@ private:
 vtkArrayDownCast_TemplateFastCastMacro(vtkScaledSOADataArrayTemplate);
 
 VTK_ABI_NAMESPACE_END
+
+// This macro is used by the subclasses to create dummy
+// declarations for these functions such that the wrapper
+// can see them. The wrappers ignore vtkScaledSOADataArrayTemplate.
+#define vtkCreateScaledSOAWrappedArrayInterface(T)                                                 \
+  int GetDataType() const override;                                                                \
+  T GetDataTypeValueMin() const;                                                                   \
+  T GetDataTypeValueMax() const;                                                                   \
+  void GetTypedTuple(vtkIdType i, T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());        \
+  T GetValue(vtkIdType id) const VTK_EXPECTS(0 <= id && id < GetNumberOfValues());                 \
+  T* GetValueRange(int comp) VTK_SIZEHINT(2);                                                      \
+  T* GetValueRange() VTK_SIZEHINT(2);                                                              \
+  void SetTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());  \
+  void InsertTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i);                          \
+  vtkIdType InsertNextTypedTuple(const T* tuple);                                                  \
+  void SetValue(vtkIdType id, T value) VTK_EXPECTS(0 <= id && id < GetNumberOfValues());           \
+  bool SetNumberOfValues(vtkIdType number) override;                                               \
+  void InsertValue(vtkIdType id, T f) VTK_EXPECTS(0 <= id);                                        \
+  vtkIdType InsertNextValue(T f);                                                                  \
+  T* GetComponentArrayPointer(int id);                                                             \
+  void SetArray(int comp, VTK_ZEROCOPY T* array, vtkIdType size, bool updateMaxId, bool save,      \
+    int deleteMethod);
+
 #endif // header guard
 
 // This portion must be OUTSIDE the include blockers. This is used to tell

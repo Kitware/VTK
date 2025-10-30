@@ -36,7 +36,7 @@ void RunTest(vtkCellArray::StorageTypes storageType)
     default:
     {
       cout << "\n=== Test performance of new vtkCellArray: generic storage ===\n";
-      // By passing array types which are NOT in vtkCellArray::InputConnectivityArrays,
+      // By passing array types which are NOT in vtkArrayDispatch::InputConnectivityArrays,
       // vtkCellArray can be put into the "Generic" storage mode.
       vtkNew<vtkTypeUInt8Array> placeholderConn;
       vtkNew<vtkAffineArray<vtkIdType>> offsets;

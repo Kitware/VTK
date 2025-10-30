@@ -47,16 +47,6 @@ public:
     return static_cast<vtkDoubleArray*>(Superclass::FastDownCast(source));
   }
 
-  /**
-   * Get the minimum data value in its native type.
-   */
-  static double GetDataTypeValueMin() { return VTK_DOUBLE_MIN; }
-
-  /**
-   * Get the maximum data value in its native type.
-   */
-  static double GetDataTypeValueMax() { return VTK_DOUBLE_MAX; }
-
 protected:
   vtkDoubleArray();
   ~vtkDoubleArray() override;

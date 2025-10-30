@@ -286,6 +286,8 @@ public:
 #endif
   int GetArrayType() const override;
   int GetDataType() const override;
+  ValueType GetDataTypeValueMin() const;
+  ValueType GetDataTypeValueMax() const;
   int GetDataTypeSize() const override;
   bool HasStandardMemoryLayout() const override;
   vtkTypeBool Allocate(vtkIdType size, vtkIdType ext = 1000) override;
@@ -444,11 +446,8 @@ template <typename ValueType>
 class vtkAOSDataArrayTemplate;
 template <typename ValueType>
 class vtkSOADataArrayTemplate;
-
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
 template <typename ValueType>
 class vtkScaledSOADataArrayTemplate;
-#endif
 VTK_ABI_NAMESPACE_END
 
 #define VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(ArrayType, ValueType)                                 \
@@ -461,20 +460,10 @@ VTK_ABI_NAMESPACE_END
   template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],                \
     vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);
 
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
-
 #define VTK_INSTANTIATE_VALUERANGE_VALUETYPE(ValueType)                                            \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<ValueType>, ValueType)              \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)              \
   VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<ValueType>, ValueType)
-
-#else // VTK_USE_SCALED_SOA_ARRAYS
-
-#define VTK_INSTANTIATE_VALUERANGE_VALUETYPE(ValueType)                                            \
-  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<ValueType>, ValueType)              \
-  VTK_INSTANTIATE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)
-
-#endif
 
 namespace vtkDataArrayPrivate
 {
@@ -501,20 +490,10 @@ VTK_ABI_NAMESPACE_END
   extern template VTKCOMMONCORE_EXPORT bool DoComputeVectorRange(ArrayType*, ValueType[2],         \
     vtkDataArrayPrivate::FiniteValues, const unsigned char*, unsigned char);
 
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
-
 #define VTK_DECLARE_VALUERANGE_VALUETYPE(ValueType)                                                \
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<ValueType>, ValueType)                  \
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)                  \
   VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkScaledSOADataArrayTemplate<ValueType>, ValueType)
-
-#else // VTK_USE_SCALED_SOA_ARRAYS
-
-#define VTK_DECLARE_VALUERANGE_VALUETYPE(ValueType)                                                \
-  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkAOSDataArrayTemplate<ValueType>, ValueType)                  \
-  VTK_DECLARE_VALUERANGE_ARRAYTYPE(vtkSOADataArrayTemplate<ValueType>, ValueType)
-
-#endif
 
 #include "vtkGenericDataArray.txx"
 
@@ -564,11 +543,8 @@ template <typename ValueType>
 class vtkAOSDataArrayTemplate;
 template <typename ValueType>
 class vtkSOADataArrayTemplate;
-
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
 template <typename ValueType>
 class vtkScaledSOADataArrayTemplate;
-#endif
 
 VTK_ABI_NAMESPACE_END
 

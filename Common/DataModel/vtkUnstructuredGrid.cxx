@@ -7,13 +7,14 @@
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
 #include "vtkCellLinks.h"
 #include "vtkCellTypeUtilities.h"
 #include "vtkCellTypes.h"
-#include "vtkConstantUnsignedCharArray.h"
+#include "vtkConstantArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkGarbageCollector.h"
@@ -808,7 +809,7 @@ vtkCellArray* vtkUnstructuredGrid::GetPolyhedronFaceLocations()
 //------------------------------------------------------------------------------
 void vtkUnstructuredGrid::SetCells(int type, vtkCellArray* cells)
 {
-  vtkNew<vtkConstantUnsignedCharArray> types;
+  vtkNew<vtkConstantArray<unsigned char>> types;
   types->ConstructBackend(static_cast<unsigned char>(type));
   types->SetNumberOfValues(cells->GetNumberOfCells());
 
@@ -1031,7 +1032,7 @@ vtkUnsignedCharArray* vtkUnstructuredGrid::GetDistinctCellTypesArray()
       this->DistinctCellTypes->Register(this);
       this->DistinctCellTypes->Delete();
     }
-    if (auto constantTypes = vtkConstantUnsignedCharArray::FastDownCast(this->GetCellTypes()))
+    if (auto constantTypes = vtkConstantArray<unsigned char>::FastDownCast(this->GetCellTypes()))
     {
       this->DistinctCellTypes->Reset();
       this->DistinctCellTypes->InsertNextType(constantTypes->GetValue(0));
@@ -1826,7 +1827,7 @@ int vtkUnstructuredGrid::IsHomogeneous()
 {
   if (this->Types && this->Types->GetMaxId() >= 0)
   {
-    if (vtkConstantUnsignedCharArray::FastDownCast(this->GetCellTypes()))
+    if (vtkConstantArray<unsigned char>::FastDownCast(this->GetCellTypes()))
     {
       return 1;
     }
@@ -1891,8 +1892,8 @@ void vtkUnstructuredGrid::RemoveGhostCells()
   vtkNew<vtkCellArray> newCells;
   this->Connectivity->IsStorage64Bit() ? newCells->Use64BitStorage() : newCells->Use32BitStorage();
 
-  using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkCellArray::StorageOffsetsArrays,
-    vtkCellArray::StorageOffsetsArrays, vtkCellArray::StorageOffsetsArrays>;
+  using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::StorageOffsetsArrays,
+    vtkArrayDispatch::StorageOffsetsArrays, vtkArrayDispatch::StorageOffsetsArrays>;
   ::RemoveGhostCellsWorker worker;
 
   if (!Dispatcher::Execute(this->Connectivity->GetOffsetsArray(), FacesOffset.Get(),

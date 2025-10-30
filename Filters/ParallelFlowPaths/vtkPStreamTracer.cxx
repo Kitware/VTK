@@ -19,7 +19,6 @@
 #include "vtkMPIController.h"
 #include "vtkMath.h"
 #include "vtkMultiProcessController.h"
-#include "vtkMultiProcessStream.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"

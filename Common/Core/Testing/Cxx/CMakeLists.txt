@@ -61,18 +61,11 @@ foreach(value_type ${value_types})
     "${value_type}"
     "vtkSOADataArrayTemplate<${value_type}>")
 
-  if(VTK_BUILD_SCALED_SOA_ARRAYS)
-    add_data_array_test(
-      "ScaleAoS_${pretty_value_type}"
-      vtkScaleAOSDataArrayTemplate.h
-      "${value_type}"
-      "vtkScaleAOSDataArrayTemplate<${value_type}>")
-    add_data_array_test(
-      "ScaleSoA_${pretty_value_type}"
-      vtkScaledSOADataArrayTemplate.h
-      "${value_type}"
-      "vtkScaledSOADataArrayTemplate<${value_type}>")
-  endif()
+  add_data_array_test(
+    "ScaleSoA_${pretty_value_type}"
+    vtkScaledSOADataArrayTemplate.h
+    "${value_type}"
+    "vtkScaledSOADataArrayTemplate<${value_type}>")
 endforeach()
 
 # Tell TestSystemInformation where to find the build trees.
@@ -88,11 +81,6 @@ set(TestSMP_ARGS
   --STDThread=$<BOOL:${VTK_SMP_ENABLE_STDTHREAD}>
   --TBB=$<OR:$<BOOL:${VTK_SMP_ENABLE_TBB}>,$<STREQUAL:"${VTK_SMP_IMPLEMENTATION_TYPE}","TBB">>
   --OpenMP=$<OR:$<BOOL:${VTK_SMP_ENABLE_OPENMP}>,$<STREQUAL:"${VTK_SMP_IMPLEMENTATION_TYPE}","OpenMP">>)
-
-if (VTK_BUILD_SCALED_SOA_ARRAYS)
-  set(scale_soa_test TestScaledSOADataArrayTemplate.cxx)
-endif ()
-
 
 vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   NO_DATA NO_VALID NO_OUTPUT
@@ -153,6 +141,7 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   TestSCN.cxx
   TestSMP.cxx
   TestSmartPointer.cxx
+  TestScaledSOADataArrayTemplate.cxx
   TestSOADataArray.cxx
   TestSortDataArray.cxx
   TestSparseArrayValidation.cxx
@@ -176,8 +165,6 @@ vtk_add_test_cxx(vtkCommonCoreCxxTests tests
   otherStringArray.cxx
 
   ${data_array_tests}
-
-  ${scale_soa_test}
 
   TestAffineArray.cxx
   TestCompositeArray.cxx

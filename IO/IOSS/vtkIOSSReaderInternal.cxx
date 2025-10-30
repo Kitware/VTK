@@ -10,7 +10,7 @@
 #include "vtkIOSSUtilities.h"
 
 #include "vtkCellData.h"
-#include "vtkConstantUnsignedCharArray.h"
+#include "vtkConstantArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
 #include "vtkDataSet.h"
@@ -1739,7 +1739,7 @@ vtkIOSSReaderInternal::CombineTopologies(
   {
     const int cell_type = topologicalBlocks[0].first;
     const auto cellarray = topologicalBlocks[0].second;
-    vtkNew<vtkConstantUnsignedCharArray> cellTypes;
+    vtkNew<vtkConstantArray<unsigned char>> cellTypes;
     cellTypes->ConstructBackend(static_cast<unsigned char>(cell_type));
     cellTypes->SetNumberOfValues(cellarray->GetNumberOfCells());
     return { cellTypes, cellarray };
@@ -1795,7 +1795,7 @@ vtkIOSSReaderInternal::CombineTopologies(
         const auto cellarray = block.second;
         appendedCellArray->Append(cellarray);
       }
-      vtkNew<vtkConstantUnsignedCharArray> cellTypesArray;
+      vtkNew<vtkConstantArray<unsigned char>> cellTypesArray;
       cellTypesArray->ConstructBackend(static_cast<unsigned char>(firstBlock.first));
       cellTypesArray->SetNumberOfValues(numCells);
       return { cellTypesArray, appendedCellArray };

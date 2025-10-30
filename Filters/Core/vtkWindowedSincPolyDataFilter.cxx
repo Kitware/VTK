@@ -3,6 +3,7 @@
 #include "vtkWindowedSincPolyDataFilter.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
@@ -907,8 +908,7 @@ void AnalyzePointTopology(PointConnectivityBase* ptConnBase, vtkWindowedSincPoly
   vtkPoints* pts = ptConn->Input->GetPoints();
 
   // Need to dispatch on the type of points
-  using vtkArrayDispatch::Reals;
-  using AnalyzeDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+  using AnalyzeDispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   AnalyzeWorker ppWorker;
   if (!AnalyzeDispatch::Execute(pts->GetData(), ppWorker, ptConn, filter))
   { // Fallback to slowpath for other point types
@@ -1010,9 +1010,9 @@ vtkSmartPointer<vtkPoints> InitializePoints(int normalize, vtkPolyData* input, d
     input->GetCenter(center);
   }
 
-  using vtkArrayDispatch::Reals;
   using InitializePointsDispatch =
-    vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
+    vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::PointArrays,
+      vtkArrayDispatch::AOSPointArrays>;
   InitializePointsWorker initPtsWorker;
   if (!InitializePointsDispatch::Execute(inPts->GetData(), newPts->GetData(), initPtsWorker, numPts,
         normalize, length, center, filter))
@@ -1332,8 +1332,7 @@ vtkSmartPointer<vtkPoints> SmoothMesh(
   vtkIdType numPts = ptConn->NumPts;
   int numIters = ptConn->NumberOfIterations;
 
-  using vtkArrayDispatch::Reals;
-  using SmoothingDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using SmoothingDispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
 
   // COMPUTE SMOOTHING COEFFICIENTS============================================
 
@@ -1448,8 +1447,8 @@ void UnnormalizePoints(
 {
   vtkIdType numPts = inPts->GetNumberOfPoints();
 
-  using vtkArrayDispatch::Reals;
-  using UnnormalizePointsDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using UnnormalizePointsDispatch =
+    vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   UnnormalizePointsWorker unnWorker;
   if (!UnnormalizePointsDispatch::Execute(
         inPts->GetData(), unnWorker, numPts, length, center, filter))
@@ -1509,8 +1508,9 @@ vtkSmartPointer<vtkFloatArray> ProduceErrorScalars(
   errorScalars->SetNumberOfComponents(1);
   errorScalars->SetNumberOfTuples(numPts);
 
-  using vtkArrayDispatch::Reals;
-  using ErrorScalarsDispatch = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
+  using ErrorScalarsDispatch =
+    vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::PointArrays,
+      vtkArrayDispatch::AOSPointArrays>;
   ErrorScalarsWorker esWorker;
   if (!ErrorScalarsDispatch::Execute(
         inPts->GetData(), outPts->GetData(), esWorker, numPts, errorScalars, filter))
@@ -1570,8 +1570,9 @@ vtkSmartPointer<vtkFloatArray> ProduceErrorVectors(
   errorVectors->SetNumberOfComponents(3);
   errorVectors->SetNumberOfTuples(numPts);
 
-  using vtkArrayDispatch::Reals;
-  using ErrorVectorsDispatch = vtkArrayDispatch::Dispatch2BySameValueType<vtkArrayDispatch::Reals>;
+  using ErrorVectorsDispatch =
+    vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::PointArrays,
+      vtkArrayDispatch::PointArrays>;
   ErrorVectorsWorker evWorker;
   if (!ErrorVectorsDispatch::Execute(
         inPts->GetData(), outPts->GetData(), evWorker, numPts, errorVectors, filter))

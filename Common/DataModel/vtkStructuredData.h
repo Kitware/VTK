@@ -23,7 +23,6 @@
 #include "vtkSmartPointer.h" // For vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkConstantUnsignedCharArray;
 class vtkDataArray;
 class vtkIdList;
 class vtkPoints;
@@ -300,10 +299,11 @@ public:
   /**
    * Get the implicit cell array types for structured data.
    */
-  VTK_WRAPEXCLUDE static vtkSmartPointer<vtkConstantUnsignedCharArray> GetCellTypes(
+  VTK_WRAPEXCLUDE static vtkSmartPointer<vtkConstantArray<unsigned char>> GetCellTypes(
     int extent[6], bool usePixelVoxelOrientation);
-  VTK_DEPRECATED_IN_9_6_0("Use vtkSmartPointer<vtkConstantUnsignedCharArray> GetCellTypes(extent, "
-                          "usePixelVoxelOrientation) instead")
+  VTK_DEPRECATED_IN_9_6_0(
+    "Use vtkSmartPointer<vtkConstantArray<unsigned char>> GetCellTypes(extent, "
+    "usePixelVoxelOrientation) instead")
   VTK_WRAPEXCLUDE static vtkSmartPointer<vtkConstantArray<int>> GetCellTypesArray(
     int extent[6], bool usePixelVoxelOrientation);
   ///@}

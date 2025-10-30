@@ -12,7 +12,7 @@ vtk_add_test_python(
   TestExpects.py
   TestFilePath.py
   TestGhost.py
-  TestImplicitArrayInstanciation.py
+  TestImplicitArrayInstantiation.py
   TestInvokeEvent.py
   TestIterateCollection.py
   TestNumpyInterface.py

@@ -60,16 +60,6 @@ public:
     return static_cast<vtkCharArray*>(Superclass::FastDownCast(source));
   }
 
-  /**
-   * Get the minimum data value in its native type.
-   */
-  static char GetDataTypeValueMin() { return VTK_CHAR_MIN; }
-
-  /**
-   * Get the maximum data value in its native type.
-   */
-  static char GetDataTypeValueMax() { return VTK_CHAR_MAX; }
-
 protected:
   vtkCharArray();
   ~vtkCharArray() override;

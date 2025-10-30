@@ -267,6 +267,20 @@ int vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetDataType() const
 
 //-----------------------------------------------------------------------------
 template <class DerivedT, class ValueTypeT, int ArrayType>
+ValueTypeT vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetDataTypeValueMin() const
+{
+  return vtkTypeTraits<ValueTypeT>::Min();
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT, int ArrayType>
+ValueTypeT vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetDataTypeValueMax() const
+{
+  return vtkTypeTraits<ValueTypeT>::Max();
+}
+
+//-----------------------------------------------------------------------------
+template <class DerivedT, class ValueTypeT, int ArrayType>
 int vtkGenericDataArray<DerivedT, ValueTypeT, ArrayType>::GetDataTypeSize() const
 {
   return static_cast<int>(sizeof(ValueType));
@@ -1058,11 +1072,8 @@ template <typename ValueType>
 class vtkAOSDataArrayTemplate;
 template <typename ValueType>
 class vtkSOADataArrayTemplate;
-
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
 template <typename ValueType>
 class vtkScaledSOADataArrayTemplate;
-#endif
 VTK_ABI_NAMESPACE_END
 
 namespace vtk_GDA_detail
@@ -1086,12 +1097,10 @@ struct ATIsSupported<vtkSOADataArrayTemplate<ValueType>> : public std::true_type
 {
 };
 
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
 template <typename ValueType>
 struct ATIsSupported<vtkScaledSOADataArrayTemplate<ValueType>> : public std::true_type
 {
 };
-#endif
 
 // ValueTypes with compiled-in support for value ranges in
 // vtkGenericDataArray.cxx

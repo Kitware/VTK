@@ -8,9 +8,7 @@
 #include "vtkFloatArray.h"
 #include "vtkNew.h"
 #include "vtkSOADataArrayTemplate.h"
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
 #include "vtkScaledSOADataArrayTemplate.h"
-#endif
 #include "vtkStringArray.h"
 
 #include <cstdint>
@@ -118,7 +116,6 @@ int assign_void_array(
     is_soa->SetArray(0, reinterpret_cast<double*>(ptr), static_cast<vtkIdType>(size), false,
       !vtkShouldFree, FreeType::value);
   }
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
   else if (vtkScaledSOADataArrayTemplate<double>* is_scale_soa =
              vtkArrayDownCast<vtkScaledSOADataArrayTemplate<double>>(array))
   {
@@ -126,7 +123,6 @@ int assign_void_array(
     is_scale_soa->SetArray(0, reinterpret_cast<double*>(ptr), static_cast<vtkIdType>(size), false,
       !vtkShouldFree, FreeType::value);
   }
-#endif
   else
   {
     const int save = vtkShouldFree ? 0 : 1;
@@ -150,9 +146,7 @@ int ExerciseDelete(FreeType f)
   arrays.push_back(vtkFloatArray::New());
   arrays.push_back(vtkAOSDataArrayTemplate<double>::New());
   arrays.push_back(vtkSOADataArrayTemplate<double>::New());
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
   arrays.push_back(vtkScaledSOADataArrayTemplate<double>::New());
-#endif
   constexpr std::size_t size = 5000;
   for (auto it = arrays.begin(); it != arrays.end(); ++it)
   {

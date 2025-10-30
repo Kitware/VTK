@@ -5,6 +5,7 @@
 
 #include "MockDataArray.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkDataArrayRange.h"
 #include "vtkIdList.h"
@@ -130,8 +131,8 @@ struct CellArrayFactory<vtkCellArray::StorageTypes::Generic, ConnectivityArrayT,
     cellArray->SetData(placeholderOffsets, placeholderConn);
     DummyWorker worker;
     using Dispatcher =
-      vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
-        vtkCellArray::StorageConnectivityArrays>;
+      vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
+        vtkArrayDispatch::StorageConnectivityArrays>;
     // Ensure that the arrays are indeed not in the InputArrayList
     if (!Dispatcher::Execute(
           cellArray->GetOffsetsArray(), cellArray->GetConnectivityArray(), worker))

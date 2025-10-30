@@ -3,6 +3,7 @@
 #include "vtkExtractEnclosedPoints.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
@@ -11,7 +12,6 @@
 #include "vtkGarbageCollector.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntersectionCounter.h"
@@ -25,7 +25,6 @@
 #include "vtkSMPTools.h"
 #include "vtkSelectEnclosedPoints.h"
 #include "vtkStaticCellLocator.h"
-#include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
 
@@ -194,8 +193,7 @@ int vtkExtractEnclosedPoints::FilterPoints(vtkPointSet* input)
 
   // Loop over all input points determining inside/outside
   // Use fast path for float/double points:
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   ExtractLauncher worker;
   vtkDataArray* ptArray = input->GetPoints()->GetData();
   if (!Dispatcher::Execute(ptArray, worker, surface, bds, this->Tolerance, locator, this->PointMap))

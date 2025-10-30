@@ -12,7 +12,7 @@
  * so use of this type directly is discouraged.  If an array of 32 bit
  * unsigned integers is needed, prefer vtkTypeUInt32Array to this class.
  * If an array of 64 bit unsigned integers is needed, prefer
- * vtkUTypeInt64Array to this class.
+ * vtkTypeUInt64Array to this class.
  */
 
 #ifndef vtkUnsignedLongArray_h
@@ -52,16 +52,6 @@ public:
   {
     return static_cast<vtkUnsignedLongArray*>(Superclass::FastDownCast(source));
   }
-
-  /**
-   * Get the minimum data value in its native type.
-   */
-  static unsigned long GetDataTypeValueMin() { return VTK_UNSIGNED_LONG_MIN; }
-
-  /**
-   * Get the maximum data value in its native type.
-   */
-  static unsigned long GetDataTypeValueMax() { return VTK_UNSIGNED_LONG_MAX; }
 
 protected:
   vtkUnsignedLongArray();

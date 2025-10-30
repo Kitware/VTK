@@ -3,6 +3,7 @@
 #include "vtkTriangleMeshPointNormals.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkCellData.h"
@@ -10,7 +11,6 @@
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -159,8 +159,7 @@ int vtkTriangleMeshPointNormals::RequestData(vtkInformation* vtkNotUsed(request)
   this->UpdateProgress(0.1);
 
   // Fast-path for float/double points:
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   ComputeNormalsDirection worker;
 
   vtkDataArray* points = output->GetPoints()->GetData();

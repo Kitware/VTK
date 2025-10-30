@@ -55,11 +55,30 @@ struct ArrayTypeInfo
   std::function<vtkObjectBase*()> New;
   const std::type_info& TypeInfo;
 };
+#define TYPE_INFO_MACRO(className)                                                                 \
+  {                                                                                                \
+    #className, className::New, typeid(className)                                                  \
+  }
+#define TTYPE_INFO_MACRO(className)                                                                \
+  {                                                                                                \
+    typeid(className).name(), className::New, typeid(className)                                    \
+  }
 // clang-format off
-#define TYPE_INFO_MACRO(className) \
-  { #className, className::New, typeid(className) }
 std::vector<ArrayTypeInfo> ArrayTypes = {
   TYPE_INFO_MACRO(vtkBitArray),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<char>),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<double>),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<float>),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<int>),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<long>),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<long long>),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<short>),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<signed char>),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<unsigned char>),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<unsigned int>),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<unsigned long>),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<unsigned long long>),
+  TTYPE_INFO_MACRO(vtkAOSDataArrayTemplate<unsigned short>),
   TYPE_INFO_MACRO(vtkCharArray),
   TYPE_INFO_MACRO(vtkDoubleArray),
   TYPE_INFO_MACRO(vtkFloatArray),

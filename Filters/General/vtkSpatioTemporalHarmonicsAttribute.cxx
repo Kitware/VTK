@@ -3,6 +3,7 @@
 #include "vtkSpatioTemporalHarmonicsAttribute.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
@@ -208,49 +209,15 @@ int vtkSpatioTemporalHarmonicsAttribute::RequestData(
   double timeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
 
   // Create an optimized path for point set input
-  vtkPointSet* ps = vtkPointSet::SafeDownCast(input);
-  if (ps)
-  {
-    vtkPoints* points = ps->GetPoints();
-    vtkDataArray* pointsArray = points->GetData();
+  vtkPoints* points = input->GetPoints();
+  vtkDataArray* pointsArray = points->GetData();
 
-    SpatioTemporalHarmonicsWorker worker; // Entry point to vtkSpatioTemporalHarmonicsAlgorithm
+  SpatioTemporalHarmonicsWorker worker; // Entry point to vtkSpatioTemporalHarmonicsAlgorithm
 
-    using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
-    if (!Dispatcher::Execute(pointsArray, worker, newScalars, timeValue, this))
-    { // fallback for unknown arrays and integral value types:
-      worker(pointsArray, newScalars, timeValue, this);
-    }
-  }
-  else
-  {
-    vtkSMPTools::For(0, nbPts,
-      [&](vtkIdType begin, vtkIdType end)
-      {
-        auto outputRange = vtk::DataArrayValueRange<1>(newScalars);
-        bool isFirst = vtkSMPTools::GetSingleThread();
-        vtkIdType checkAbortInterval = std::min((end - begin) / 10 + 1, (vtkIdType)1000);
-
-        for (vtkIdType pointId = begin; pointId < end; ++pointId)
-        {
-          if (pointId % checkAbortInterval == 0)
-          {
-            if (isFirst)
-            {
-              this->CheckAbort();
-            }
-            if (this->GetAbortOutput())
-            {
-              break;
-            }
-          }
-
-          double coords[3];
-          input->GetPoint(pointId, coords);
-
-          outputRange[pointId] = this->ComputeValue(coords, timeValue);
-        }
-      });
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllPointArrays>;
+  if (!Dispatcher::Execute(pointsArray, worker, newScalars, timeValue, this))
+  { // fallback for unknown arrays and integral value types:
+    worker(pointsArray, newScalars, timeValue, this);
   }
 
   return 1;

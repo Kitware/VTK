@@ -1,4 +1,65 @@
-function (vtk_type_native type ctype class)
+# This file generates arrays specialization subclasses for fixed types,
+# like `vtkConstantTypeFloat32Array` or `vtkAffineTypeInt64Array`.
+#
+# Generated classes are not templated thus they can be wrapped.
+
+# Configure `.in` class files depending on the requested backend
+# and the concrete c++ type.
+macro(_generate_array_specialization array_prefix vtk_type concrete_type deprecated)
+  # used inside .in files
+  set(VTK_TYPE_NAME "${vtk_type}")
+  set(CONCRETE_TYPE "${concrete_type}")
+  if ("${deprecated}")
+    set(VTK_DEPRECATION "VTK_DEPRECATED_IN_9_6_0(\"Use vtk${array_prefix}Type*Array instead\")")
+  else ()
+    set(VTK_DEPRECATION "")
+  endif ()
+
+  set(_className "vtk${array_prefix}${VTK_TYPE_NAME}Array")
+
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/vtk${array_prefix}TypedArray.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${_className}.h"
+    @ONLY)
+
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/vtk${array_prefix}TypedArray.cxx.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/${_className}.cxx"
+    @ONLY)
+
+  # append generated header to current module headers
+  list(APPEND headers
+    "${CMAKE_CURRENT_BINARY_DIR}/${_className}.h")
+
+  # append generated source to the bulk instantiation of concrete_type
+  string(REPLACE " " "_" _suffix "${concrete_type}")
+  list(APPEND "bulk_instantiation_sources_${_suffix}"
+    "#include \"${_className}.cxx\"")
+
+  unset(VTK_DEPRECATION)
+  unset(VTK_TYPE_NAME)
+  unset(CONCRETE_TYPE)
+  unset(_className)
+endmacro()
+
+include(vtkTypeLists)
+
+# VTK_DEPRECATED_IN_9_6_0 to be removed later
+foreach (array_prefix IN ITEMS Affine Composite Constant Indexed)
+  foreach (type IN LISTS vtk_numeric_types)
+    vtk_type_to_camel_case("${type}" cased_type)
+    _generate_array_specialization("${array_prefix}" "${cased_type}" "${type}" 1)
+  endforeach ()
+endforeach ()
+
+foreach (array_prefix IN ITEMS Affine Composite Constant Indexed ScaledSOA SOA StdFunction Strided)
+  foreach (type IN LISTS vtk_fixed_size_numeric_types)
+    vtk_fixed_size_type_to_without_prefix("${type}" "vtk" without_vtk_prefix)
+    _generate_array_specialization("${array_prefix}" "${without_vtk_prefix}" "${type}" 0)
+  endforeach ()
+endforeach ()
+
+function(vtk_type_native type ctype class)
   string(TOUPPER "${type}" type_upper)
   set("vtk_type_native_${type}" "
 #if VTK_TYPE_${type_upper} == VTK_${ctype}
@@ -7,9 +68,9 @@ function (vtk_type_native type ctype class)
 #endif
 "
     PARENT_SCOPE)
-endfunction ()
+endfunction()
 
-function (vtk_type_native_fallback type preferred_ctype preferred_class fallback_class)
+function(vtk_type_native_fallback type preferred_ctype preferred_class fallback_class)
   string(TOUPPER "${type}" type_upper)
   set("vtk_type_native_${type}" "
 #if VTK_TYPE_${type_upper} == VTK_${preferred_ctype}
@@ -21,9 +82,9 @@ function (vtk_type_native_fallback type preferred_ctype preferred_class fallback
 #endif
 "
     PARENT_SCOPE)
-endfunction ()
+endfunction()
 
-function (vtk_type_native_choice type preferred_ctype preferred_class fallback_ctype fallback_class)
+function(vtk_type_native_choice type preferred_ctype preferred_class fallback_ctype fallback_class)
   string(TOUPPER "${type}" type_upper)
   set("vtk_type_native_${type}" "
 #if VTK_TYPE_${type_upper} == VTK_${preferred_ctype}
@@ -35,7 +96,7 @@ function (vtk_type_native_choice type preferred_ctype preferred_class fallback_c
 #endif
 "
     PARENT_SCOPE)
-endfunction ()
+endfunction()
 
 # Configure data arrays for platform-independent fixed-size types.
 # Match the type selection here to that in vtkType.h.
@@ -50,21 +111,25 @@ vtk_type_native_choice(UInt64 UNSIGNED_LONG vtkUnsignedLong UNSIGNED_LONG_LONG v
 vtk_type_native(Float32 FLOAT vtkFloat)
 vtk_type_native(Float64 DOUBLE vtkDouble)
 
-foreach(vtk_type IN ITEMS Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32 UInt64 Float32 Float64)
-  set(VTK_TYPE_NAME ${vtk_type})
+foreach (type IN LISTS vtk_fixed_size_numeric_types)
+  vtk_fixed_size_type_to_without_prefix("${type}" "vtkType" vtk_type)
+  set(VTK_TYPE_NAME "${vtk_type}")
   set(VTK_TYPE_NATIVE "${vtk_type_native_${vtk_type}}")
-  if(VTK_TYPE_NATIVE)
+  if (VTK_TYPE_NATIVE)
     configure_file(
-      "${CMAKE_CURRENT_SOURCE_DIR}/vtkTypedArray.h.in"
-      "${CMAKE_CURRENT_BINARY_DIR}/vtkType${vtk_type}Array.h"
+      "${CMAKE_CURRENT_SOURCE_DIR}/vtkAOSTypedArray.h.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/${type}Array.h"
       @ONLY)
     configure_file(
-      "${CMAKE_CURRENT_SOURCE_DIR}/vtkTypedArray.cxx.in"
-      "${CMAKE_CURRENT_BINARY_DIR}/vtkType${vtk_type}Array.cxx"
+      "${CMAKE_CURRENT_SOURCE_DIR}/vtkAOSTypedArray.cxx.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/${type}Array.cxx"
       @ONLY)
-    list(APPEND sources
-      "${CMAKE_CURRENT_BINARY_DIR}/vtkType${vtk_type}Array.cxx")
+    # append generated header to current module headers
     list(APPEND headers
-      "${CMAKE_CURRENT_BINARY_DIR}/vtkType${vtk_type}Array.h")
-  endif()
-endforeach()
+      "${CMAKE_CURRENT_BINARY_DIR}/${type}Array.h")
+    # append generated source to the bulk instantiation of concrete_type
+    string(REPLACE " " "_" _suffix "${type}")
+    list(APPEND "bulk_instantiation_sources_${_suffix}"
+      "#include \"${type}Array.cxx\"")
+  endif ()
+endforeach ()

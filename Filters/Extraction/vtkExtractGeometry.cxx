@@ -4,6 +4,7 @@
 
 #include "vtk3DLinearGridCrinkleExtractor.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkDoubleArray.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkExtractCells.h"
@@ -355,9 +356,7 @@ int vtkExtractGeometry::RequestData(
   vtkNew<vtkDoubleArray> scalarArray;
   // call that to guarantee thread safety
   this->ImplicitFunction->EvaluateFunction(0, 0, 0);
-  using PointsDispatcher =
-    vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
-      vtkArrayDispatch::Reals>;
+  using PointsDispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllPointArrays>;
   auto points = input->GetPoints()->GetData();
   if (!this->ExtractBoundaryCells)
   {

@@ -3,6 +3,7 @@
 #include "vtkImprintFilter.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkAtomicMutex.h"
 #include "vtkBoundingBox.h"
 #include "vtkCellArray.h"
@@ -3039,7 +3040,7 @@ int vtkImprintFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // all projected imprint points are placed in the vtkPointList; later the
   // output vtkPoints points array will grow as the edge intersection points
   // are computed and inserted.
-  using ProjPointsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+  using ProjPointsDispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   ProjPointsWorker ppWorker;
   if (!ProjPointsDispatch::Execute(imprintPts->GetData(), ppWorker, candidateOutput,
         candidateCellLocator, &pList, projTol, mergeTol, &tpc, this))

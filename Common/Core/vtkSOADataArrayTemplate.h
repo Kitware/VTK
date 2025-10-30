@@ -57,6 +57,7 @@ public:
    * Get the value at @a valueIdx. @a valueIdx assumes AOS ordering.
    */
   ValueType GetValue(vtkIdType valueIdx) const
+    VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues())
   {
     vtkIdType tupleIdx;
     int comp;
@@ -70,6 +71,7 @@ public:
    * Set the value at @a valueIdx to @a value. @a valueIdx assumes AOS ordering.
    */
   void SetValue(vtkIdType valueIdx, ValueType value)
+    VTK_EXPECTS(0 <= valueIdx && valueIdx < GetNumberOfValues())
   {
     vtkIdType tupleIdx;
     int comp;
@@ -82,6 +84,7 @@ public:
    * Copy the tuple at @a tupleIdx into @a tuple.
    */
   void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
   {
     if (this->StorageType == StorageTypeEnum::SOA)
     {
@@ -102,6 +105,7 @@ public:
    * Set this array's tuple at @a tupleIdx to the values in @a tuple.
    */
   void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
   {
     if (this->StorageType == StorageTypeEnum::SOA)
     {
@@ -122,6 +126,8 @@ public:
    * Get component @a comp of the tuple at @a tupleIdx.
    */
   ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
+    VTK_EXPECTS(0 <= tupleIdx && GetNumberOfComponents() * tupleIdx + comp < GetNumberOfValues())
+      VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents())
   {
     if (this->StorageType == StorageTypeEnum::SOA)
     {
@@ -134,6 +140,8 @@ public:
    * Set component @a comp of the tuple at @a tupleIdx to @a value.
    */
   void SetTypedComponent(vtkIdType tupleIdx, int comp, ValueType value)
+    VTK_EXPECTS(0 <= tupleIdx && GetNumberOfComponents() * tupleIdx + comp < GetNumberOfValues())
+      VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents())
   {
     if (this->StorageType == StorageTypeEnum::SOA)
     {
@@ -277,6 +285,29 @@ private:
 vtkArrayDownCast_TemplateFastCastMacro(vtkSOADataArrayTemplate);
 
 VTK_ABI_NAMESPACE_END
+
+// This macro is used by the subclasses to create dummy
+// declarations for these functions such that the wrapper
+// can see them. The wrappers ignore vtkSOADataArrayTemplate.
+#define vtkCreateSOAWrappedArrayInterface(T)                                                       \
+  int GetDataType() const override;                                                                \
+  T GetDataTypeValueMin() const;                                                                   \
+  T GetDataTypeValueMax() const;                                                                   \
+  void GetTypedTuple(vtkIdType i, T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());        \
+  T GetValue(vtkIdType id) const VTK_EXPECTS(0 <= id && id < GetNumberOfValues());                 \
+  T* GetValueRange(int comp) VTK_SIZEHINT(2);                                                      \
+  T* GetValueRange() VTK_SIZEHINT(2);                                                              \
+  void SetTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i && i < GetNumberOfTuples());  \
+  void InsertTypedTuple(vtkIdType i, const T* tuple) VTK_EXPECTS(0 <= i);                          \
+  vtkIdType InsertNextTypedTuple(const T* tuple);                                                  \
+  void SetValue(vtkIdType id, T value) VTK_EXPECTS(0 <= id && id < GetNumberOfValues());           \
+  bool SetNumberOfValues(vtkIdType number) override;                                               \
+  void InsertValue(vtkIdType id, T f) VTK_EXPECTS(0 <= id);                                        \
+  vtkIdType InsertNextValue(T f);                                                                  \
+  T* GetComponentArrayPointer(int id);                                                             \
+  void SetArray(int comp, VTK_ZEROCOPY T* array, vtkIdType size, bool updateMaxId, bool save,      \
+    int deleteMethod);
+
 #endif // header guard
 
 // This portion must be OUTSIDE the include blockers. This is used to tell

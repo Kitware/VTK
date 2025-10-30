@@ -3,6 +3,7 @@
 #include "vtkPointSmoothingFilter.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkDataArray.h"
@@ -183,8 +184,7 @@ vtkDataArray* PadFrameField(vtkDataArray* tensors)
   }
   else
   {
-    using vtkArrayDispatch::Reals;
-    using PadFrameFieldDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
+    using PadFrameFieldDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
     FrameFieldWorker padWorker;
     if (!PadFrameFieldDispatch::Execute(tensors, padWorker))
     { // Fallback to slowpath for other point types
@@ -215,8 +215,7 @@ struct EigenWorker
 // Centralize the dispatch to avoid duplication
 vtkDataArray* ComputeEigenvalues(vtkDataArray* tensors)
 {
-  using vtkArrayDispatch::Reals;
-  using EigenDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using EigenDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
   EigenWorker eigenWorker;
   if (!EigenDispatch::Execute(tensors, eigenWorker))
   { // Fallback to slowpath for other point types
@@ -322,8 +321,7 @@ struct TensorWorker
 // Centralize the dispatch to avoid duplication
 void CharacterizeTensor(vtkDataArray* tensors, vtkIdType numPts, double detRange[2])
 {
-  using vtkArrayDispatch::Reals;
-  using TensorDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using TensorDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
   TensorWorker tensorWorker;
   if (!TensorDispatch::Execute(tensors, tensorWorker, numPts))
   { // Fallback to slowpath for other point types
@@ -704,8 +702,7 @@ struct ConnectivityWorker
 void UpdateConnectivity(
   vtkDataArray* pts, vtkIdType numPts, int neiSize, vtkAbstractPointLocator* loc, vtkIdType* conn)
 {
-  using vtkArrayDispatch::Reals;
-  using ConnDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using ConnDispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
   ConnectivityWorker connWorker;
   if (!ConnDispatch::Execute(pts, connWorker, numPts, neiSize, loc, conn))
   { // Fallback to slowpath for other point types
@@ -1232,7 +1229,6 @@ int vtkPointSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(request),
   // this enables the appropriate computation of the smoothing forces on the
   // points. Also classify the points as to on boundary or on edge etc. This
   // calculation is only done if not manually overridden.
-  using vtkArrayDispatch::Reals;
   double radius = this->PackingRadius;
   PointConstraints* constraints = nullptr;
   if (this->EnableConstraints || this->ComputePackingRadius)
@@ -1241,7 +1237,7 @@ int vtkPointSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(request),
     {
       constraints = new PointConstraints(numPts, this->FixedAngle, this->BoundaryAngle);
     }
-    using MeshDispatch = vtkArrayDispatch::DispatchByValueType<Reals>;
+    using MeshDispatch = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
     MeshWorker meshWorker;
     if (!MeshDispatch::Execute(pts, meshWorker, numPts, neiSize, conn, constraints))
     { // Fallback to slowpath for other point types
@@ -1305,7 +1301,8 @@ int vtkPointSmoothingFilter::RequestData(vtkInformation* vtkNotUsed(request),
   tmpLocator->SetDataSet(tmpPolyData);
 
   // Begin looping. We dispatch to various workers depending on points type.
-  using SmoothDispatch = vtkArrayDispatch::Dispatch2ByValueType<Reals, Reals>;
+  using SmoothDispatch = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
+    vtkArrayDispatch::AOSPointArrays>;
   SmoothWorker sworker;
   bool converged = false;
   for (int iterNum = 0; iterNum < this->NumberOfIterations && !converged; ++iterNum)

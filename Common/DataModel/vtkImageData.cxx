@@ -4,7 +4,7 @@
 #include "vtkImageData.h"
 
 #include "vtkCellData.h"
-#include "vtkConstantUnsignedCharArray.h"
+#include "vtkConstantArray.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"

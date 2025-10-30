@@ -206,8 +206,8 @@ int vtkVectorDot::RequestData(vtkInformation* vtkNotUsed(request),
   // three are optional.
 
   // Compute dot product. Use a fast path for double/float:
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<Reals, Reals>;
+  using Dispatcher =
+    vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
   LaunchDotWorker dotWorker;
 
   float aRange[2];

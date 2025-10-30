@@ -9,6 +9,7 @@
 #include "vtkGenericDataArray.h"
 #include "vtkLookupTable.h"
 #include "vtkSMPTools.h"
+#include "vtkScaledSOADataArrayTemplate.h"
 
 namespace
 {
@@ -67,7 +68,6 @@ struct DeepCopyWorker
     dst->CopyData(src);
   }
 
-#ifdef VTK_USE_SCALED_SOA_ARRAYS
   // ScaleSoA --> ScaleSoA same-type specialization:
   template <typename ValueType>
   void operator()(
@@ -84,7 +84,6 @@ struct DeepCopyWorker
     }
     dst->SetScale(src->GetScale());
   }
-#endif
 
 // Undo warning suppression.
 #if defined(__clang__) && defined(__has_warning)

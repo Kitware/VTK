@@ -4,6 +4,7 @@
 #include "vtkCellArray.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkDataArrayRange.h"
 #include "vtkIdTypeArray.h"
@@ -900,14 +901,8 @@ void vtkCellArray::SetData(
   o->ShallowCopy(offsets);
   c->ShallowCopy(connectivity);
   this->SetData(o, c);
-#elif VTK_SIZEOF_INT == 8
-  vtkNew<vtkTypeInt64Array> o;
-  vtkNew<vtkTypeInt64Array> c;
-  o->ShallowCopy(offsets);
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
 #else
-  vtkErrorMacro("`int` type is neither 32 nor 64 bits.");
+  vtkErrorMacro("`int` type is not 32 bits.");
 #endif
 }
 
@@ -936,25 +931,19 @@ void vtkCellArray::SetData(
 void vtkCellArray::SetData(
   vtkAOSDataArrayTemplate<long long>* offsets, vtkAOSDataArrayTemplate<long long>* connectivity)
 {
-#if VTK_SIZEOF_LONG_LONG == 4
-  vtkNew<vtkTypeInt32Array> o;
-  vtkNew<vtkTypeInt32Array> c;
-  o->ShallowCopy(offsets);
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#elif VTK_SIZEOF_LONG_LONG == 8
+#if VTK_SIZEOF_LONG_LONG == 8
   vtkNew<vtkTypeInt64Array> o;
   vtkNew<vtkTypeInt64Array> c;
   o->ShallowCopy(offsets);
   c->ShallowCopy(connectivity);
   this->SetData(o, c);
 #else
-  vtkErrorMacro("`long long` type is neither 32 nor 64 bits.");
+  vtkErrorMacro("`long long` type is not 64 bits.");
 #endif
 }
 
 //------------------------------------------------------------------------------
-void vtkCellArray::SetData(vtkAffineArray<vtkTypeInt32>* offsets, vtkTypeInt32Array* connectivity)
+void vtkCellArray::SetData(vtkAffineTypeInt32Array* offsets, vtkTypeInt32Array* connectivity)
 {
   if (offsets->GetNumberOfComponents() != 1 || connectivity->GetNumberOfComponents() != 1)
   {
@@ -977,7 +966,7 @@ void vtkCellArray::SetData(vtkAffineArray<vtkTypeInt32>* offsets, vtkTypeInt32Ar
 }
 
 //------------------------------------------------------------------------------
-void vtkCellArray::SetData(vtkAffineArray<vtkTypeInt64>* offsets, vtkTypeInt64Array* connectivity)
+void vtkCellArray::SetData(vtkAffineTypeInt64Array* offsets, vtkTypeInt64Array* connectivity)
 {
   if (offsets->GetNumberOfComponents() != 1 || connectivity->GetNumberOfComponents() != 1)
   {
@@ -1003,14 +992,14 @@ void vtkCellArray::SetData(vtkAffineArray<vtkTypeInt64>* offsets, vtkTypeInt64Ar
 void vtkCellArray::SetData(vtkAffineArray<vtkIdType>* offsets, vtkIdTypeArray* connectivity)
 {
 #ifdef VTK_USE_64BIT_IDS
-  vtkNew<vtkAffineArray<vtkTypeInt64>> o;
+  vtkNew<vtkAffineTypeInt64Array> o;
   vtkNew<vtkTypeInt64Array> c;
   o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
   o->SetNumberOfValues(offsets->GetNumberOfValues());
   c->ShallowCopy(connectivity);
   this->SetData(o, c);
 #else  // VTK_USE_64BIT_IDS
-  vtkNew<vtkAffineArray<vtkTypeInt32>> o;
+  vtkNew<vtkAffineTypeInt32Array> o;
   vtkNew<vtkTypeInt32Array> c;
   o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
   o->SetNumberOfValues(offsets->GetNumberOfValues());
@@ -1023,21 +1012,14 @@ void vtkCellArray::SetData(vtkAffineArray<vtkIdType>* offsets, vtkIdTypeArray* c
 void vtkCellArray::SetData(vtkAffineArray<int>* offsets, vtkAOSDataArrayTemplate<int>* connectivity)
 {
 #if VTK_SIZEOF_INT == 4
-  vtkNew<vtkAffineArray<vtkTypeInt32>> o;
+  vtkNew<vtkAffineTypeInt32Array> o;
   vtkNew<vtkTypeInt32Array> c;
   o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
   o->SetNumberOfValues(offsets->GetNumberOfValues());
   c->ShallowCopy(connectivity);
   this->SetData(o, c);
-#elif VTK_SIZEOF_INT == 8
-  vtkNew<vtkAffineArray<vtkTypeInt64>> o;
-  vtkNew<vtkTypeInt64Array> c;
-  o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
-  o->SetNumberOfValues(offsets->GetNumberOfValues());
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
 #else
-  vtkErrorMacro("`int` type is neither 32 nor 64 bits.");
+  vtkErrorMacro("`int` type is not 32 bits.");
 #endif
 }
 
@@ -1046,14 +1028,14 @@ void vtkCellArray::SetData(
   vtkAffineArray<long>* offsets, vtkAOSDataArrayTemplate<long>* connectivity)
 {
 #if VTK_SIZEOF_LONG == 4
-  vtkNew<vtkAffineArray<vtkTypeInt32>> o;
+  vtkNew<vtkAffineTypeInt32Array> o;
   vtkNew<vtkTypeInt32Array> c;
   o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
   o->SetNumberOfValues(offsets->GetNumberOfValues());
   c->ShallowCopy(connectivity);
   this->SetData(o, c);
 #elif VTK_SIZEOF_LONG == 8
-  vtkNew<vtkAffineArray<vtkTypeInt64>> o;
+  vtkNew<vtkAffineTypeInt64Array> o;
   vtkNew<vtkTypeInt64Array> c;
   o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
   o->SetNumberOfValues(offsets->GetNumberOfValues());
@@ -1068,22 +1050,15 @@ void vtkCellArray::SetData(
 void vtkCellArray::SetData(
   vtkAffineArray<long long>* offsets, vtkAOSDataArrayTemplate<long long>* connectivity)
 {
-#if VTK_SIZEOF_LONG_LONG == 4
-  vtkNew<vtkAffineArray<vtkTypeInt32>> o;
-  vtkNew<vtkTypeInt32Array> c;
-  o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
-  o->SetNumberOfValues(offsets->GetNumberOfValues());
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#elif VTK_SIZEOF_LONG_LONG == 8
-  vtkNew<vtkAffineArray<vtkTypeInt64>> o;
+#if VTK_SIZEOF_LONG_LONG == 8
+  vtkNew<vtkAffineTypeInt64Array> o;
   vtkNew<vtkTypeInt64Array> c;
   o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
   o->SetNumberOfValues(offsets->GetNumberOfValues());
   c->ShallowCopy(connectivity);
   this->SetData(o, c);
 #else
-  vtkErrorMacro("`long long` type is neither 32 nor 64 bits.");
+  vtkErrorMacro("`long long` type is not 64 bits.");
 #endif
 }
 
@@ -1119,8 +1094,8 @@ bool vtkCellArray::SetData(vtkDataArray* offsets, vtkDataArray* connectivity)
   }
   SetDataGenericImpl worker{ this };
   using Dispatcher =
-    vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::InputOffsetsArrays,
-      vtkCellArray::InputConnectivityArrays>;
+    vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::InputOffsetsArrays,
+      vtkArrayDispatch::InputConnectivityArrays>;
   if (!Dispatcher::Execute(offsets, connectivity, worker))
   {
     if (this->Offsets.Get() != offsets)
@@ -1170,6 +1145,9 @@ bool vtkCellArray::SetData(vtkIdType cellSize, vtkDataArray* connectivity)
   switch (connectivity->GetDataType())
   {
     vtkTemplateMacro(SetDataFixedCellSizeImpl<VTK_TT>(this, cellSize, connectivity, success));
+    default:
+      vtkErrorMacro("Unsupported connectivity array type: " << connectivity->GetDataType());
+      break;
   }
   return success;
 }

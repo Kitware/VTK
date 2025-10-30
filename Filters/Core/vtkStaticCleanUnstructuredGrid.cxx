@@ -3,6 +3,7 @@
 #include "vtkStaticCleanUnstructuredGrid.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -115,8 +116,8 @@ struct CopyPointsWorklet
   }
 };
 
-using FastValueTypes = vtkArrayDispatch::Reals;
-using Dispatcher = vtkArrayDispatch::Dispatch2ByValueType<FastValueTypes, FastValueTypes>;
+using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
+  vtkArrayDispatch::AOSPointArrays>;
 
 //------------------------------------------------------------------------------
 // Fast, threaded method to average the point coordinates and point attribute

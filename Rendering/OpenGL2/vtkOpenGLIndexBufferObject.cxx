@@ -4,9 +4,9 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkBatch.h"
 #include "vtkCellArray.h"
-#include "vtkCellArrayIterator.h"
 #include "vtkDataArrayRange.h"
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
@@ -218,10 +218,8 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(std::vector<unsigned 
   }
 
   // Define our dispatcher
-  using FloatArrays = vtkArrayDispatch::FilterArraysByValueType<vtkArrayDispatch::AllArrays,
-    vtkArrayDispatch::Reals>::Result;
-  using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<FloatArrays,
-    vtkCellArray::StorageOffsetsArrays, vtkCellArray::StorageConnectivityArrays>;
+  using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::PointArrays,
+    vtkArrayDispatch::StorageOffsetsArrays, vtkArrayDispatch::StorageConnectivityArrays>;
   AppendTrianglesWorker worker;
   // Execute the dispatcher:
   if (!Dispatcher::Execute(points->GetData(), cells->GetOffsetsArray(),

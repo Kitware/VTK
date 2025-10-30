@@ -3,6 +3,7 @@
 #include "vtkRemoveUnusedPoints.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
@@ -11,8 +12,6 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkSMPTools.h"
-#include "vtkTypeInt32Array.h"
-#include "vtkTypeInt64Array.h"
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
@@ -108,7 +107,7 @@ bool CopyConnectivity(vtkUnstructuredGrid* input, vtkUnstructuredGrid* output,
   outConnectivity->SetNumberOfTuples(inConnectivity->GetNumberOfTuples());
 
   RemapPointIdsWorker worker;
-  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkCellArray::StorageConnectivityArrays>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::StorageConnectivityArrays>;
   if (!Dispatcher::Execute(inConnectivity, worker, outConnectivity, pointMap, filter))
   {
     return false;

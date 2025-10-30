@@ -4,11 +4,10 @@
 #include "vtkObjectFactory.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellArray.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkDataArrayRange.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
 #include "vtkPoints.h"
@@ -589,8 +588,7 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeightsForTriangle
   }
 
   // float/double points get fast path, everything else goes slow.
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
 
   ComputeWeightsForTriangleMesh worker;
   if (!Dispatcher::Execute(pts->GetData(), worker, x, iter, weights))
@@ -618,8 +616,7 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeightsForPolygonM
   }
 
   // float/double points get fast path, everything else goes slow.
-  using vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
 
   ComputeWeightsForPolygonMesh worker;
   if (!Dispatcher::Execute(pts->GetData(), worker, x, iter, weights))

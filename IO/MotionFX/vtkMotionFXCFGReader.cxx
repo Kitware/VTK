@@ -5,6 +5,7 @@
 #include "vtkMotionFXCFGGrammar.h" // grammar
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkAssume.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
@@ -258,7 +259,7 @@ struct ImposeVelMotion : public Motion
       ApplyDisplacement worker(s);
 
       // displace points.
-      if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+      if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
             pts->GetData(), worker))
       {
         worker(pts->GetData());
@@ -368,7 +369,7 @@ struct RotateAxisMotion : public Motion
 
       ApplyTransform worker(transform);
       // transform points.
-      if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+      if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
             pts->GetData(), worker))
       {
         worker(pts->GetData());
@@ -435,7 +436,7 @@ struct RotateMotion : public Motion
 
       ApplyTransform worker(transform);
       // transform points.
-      if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+      if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
             pts->GetData(), worker))
       {
         worker(pts->GetData());
@@ -561,7 +562,7 @@ struct PlanetaryMotion : public Motion
 
       ApplyTransform worker(transform);
       // transform points.
-      if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+      if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
             pts->GetData(), worker))
       {
         worker(pts->GetData());
@@ -728,7 +729,7 @@ struct PositionFileMotion : public Motion
 
     ApplyTransform worker(transform);
     // transform points.
-    if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+    if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
           pts->GetData(), worker))
     {
       worker(pts->GetData());
@@ -882,7 +883,7 @@ struct UniversalTransformMotion : public Motion
 
     ApplyTransform worker(transform);
     // transform points.
-    if (!vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>::Execute(
+    if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
           pts->GetData(), worker))
     {
       worker(pts->GetData());

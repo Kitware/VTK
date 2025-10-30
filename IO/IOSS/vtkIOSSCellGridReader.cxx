@@ -14,62 +14,35 @@
 #include "vtkDataSet.h"
 #include "vtkExtractGrid.h"
 #include "vtkFiltersCellGrid.h"
-#include "vtkHexahedron.h"
-#include "vtkIdList.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
-#include "vtkInformationVector.h"
-#include "vtkIntArray.h"
 #include "vtkLagrangeHexahedron.h"
-#include "vtkLagrangeInterpolation.h"
-#include "vtkLagrangeQuadrilateral.h"
 #include "vtkLogger.h"
 #include "vtkMultiProcessController.h"
 #include "vtkMultiProcessStream.h"
-#include "vtkMultiProcessStreamSerialization.h"
 #include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkQuad.h"
-#include "vtkRemoveUnusedPoints.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkStringArray.h"
-#include "vtkStructuredGrid.h"
-#include "vtkTriangle.h"
-#include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
-#include "vtksys/RegularExpression.hxx"
 #include "vtksys/SystemTools.hxx"
 
 // Ioss includes
 #include <vtk_ioss.h>
 // clang-format off
-#include VTK_IOSS(Ionit_Initializer.h)
 #include VTK_IOSS(Ioss_Assembly.h)
-#include VTK_IOSS(Ioss_DatabaseIO.h)
-#include VTK_IOSS(Ioss_EdgeBlock.h)
-#include VTK_IOSS(Ioss_EdgeSet.h)
 #include VTK_IOSS(Ioss_ElementBlock.h)
-#include VTK_IOSS(Ioss_ElementSet.h)
-#include VTK_IOSS(Ioss_ElementTopology.h)
-#include VTK_IOSS(Ioss_FaceBlock.h)
-#include VTK_IOSS(Ioss_FaceSet.h)
-#include VTK_IOSS(Ioss_IOFactory.h)
-#include VTK_IOSS(Ioss_NodeBlock.h)
-#include VTK_IOSS(Ioss_NodeSet.h)
 #include VTK_IOSS(Ioss_Region.h)
-#include VTK_IOSS(Ioss_SideBlock.h)
-#include VTK_IOSS(Ioss_SideSet.h)
 #include VTK_IOSS(Ioss_StructuredBlock.h)
 // clang-format on
 
 #include <array>
 #include <cassert>
 #include <iterator>
-#include <map>
 #include <memory>
 #include <set>
 #include <string>

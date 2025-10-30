@@ -12,8 +12,8 @@ storing any user given array without worrying whether VTK will deep copy the dat
 
 1. `Int64` (Old): Offsets `vtkTypeInt64Array`, Connectivity `vtkTypeInt64Array`
 2. `Int32` (Old): Offsets `vtkTypeInt32Array`, Connectivity `vtkTypeInt32Array`
-3. `FixedSizeInt32` (New): Offsets `vtkAffineArray<vtkTypeInt32>`, Connectivity `vtkTypeInt32Array`
-4. `FixedSizeInt64` (New): Offsets `vtkAffineArray<vtkTypeInt64>`, Connectivity `vtkTypeInt64Array`
+3. `FixedSizeInt32` (New): Offsets `vtkAffineTypeInt32Array`, Connectivity `vtkTypeInt32Array`
+4. `FixedSizeInt64` (New): Offsets `vtkAffineTypeInt64Array`, Connectivity `vtkTypeInt64Array`
 5. `Generic` (New): Offsets `vtkDataArray`, Connectivity `vtkDataArray`
 
 `vtkAffineArray` has become a first class citizen in `vtkCellArray` to support creating a cell array with cells
@@ -46,8 +46,8 @@ The following functions can be used to interact with the new storage types:
 23. `bool ConvertToStorageType(int type)`
 24. `vtkTypeInt64Array* GetOffsetsArray64()`
 25. `vtkTypeInt32Array* GetOffsetsArray32()`
-26. `vtkAffineArray<vtkTypeInt32>* GetOffsetsAffineArray32()`
-27. `vtkAffineArray<vtkTypeInt64>* GetOffsetsAffineArray64()`
+26. `vtkAffineTypeInt32Array* GetOffsetsAffineArray32()`
+27. `vtkAffineTypeInt64Array* GetOffsetsAffineArray64()`
 28. `vtkDataArray* GetOffsetsArray()`
 29. `vtkTypeInt64Array* GetConnectivityArray64()`
 30. `vtkTypeInt32Array* GetConnectivityArray32()`

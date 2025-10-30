@@ -3,6 +3,7 @@
 #include "vtkSimpleElevationFilter.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
@@ -111,9 +112,8 @@ int vtkSimpleElevationFilter::RequestData(vtkInformation* vtkNotUsed(request),
   vtkDataSet* input = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet* output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkIdType i, numPts;
+  vtkIdType numPts;
   vtkFloatArray* newScalars;
-  double s, x[3];
 
   // Initialize
   //
@@ -144,43 +144,17 @@ int vtkSimpleElevationFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Create a fast path for point set input
   //
-  vtkPointSet* ps = vtkPointSet::SafeDownCast(input);
-  if (ps)
-  {
-    float* scalars = newScalars->GetPointer(0);
-    vtkPoints* points = ps->GetPoints();
-    vtkDataArray* pointsArray = points->GetData();
+  float* scalars = newScalars->GetPointer(0);
+  vtkPoints* points = input->GetPoints();
+  vtkDataArray* pointsArray = points->GetData();
 
-    Elevate worker; // Entry point to vtkSimpleElevationAlgorithm
+  Elevate worker; // Entry point to vtkSimpleElevationAlgorithm
 
-    // Generate an optimized fast-path for float/double
-    using FastValueTypes = vtkArrayDispatch::Reals;
-    using Dispatcher = vtkArrayDispatch::DispatchByValueType<FastValueTypes>;
-    if (!Dispatcher::Execute(pointsArray, worker, this, scalars))
-    { // fallback for unknown arrays and integral value types:
-      worker(pointsArray, this, scalars);
-    }
-  } // fast path
-
-  else
-  {
-    // Too bad, got to take the scenic route.
-    // Compute dot product.
-    //
-    int abort = 0;
-    vtkIdType progressInterval = numPts / 20 + 1;
-    for (i = 0; i < numPts && !abort; i++)
-    {
-      if (!(i % progressInterval))
-      {
-        this->UpdateProgress((double)i / numPts);
-        abort = this->CheckAbort();
-      }
-
-      input->GetPoint(i, x);
-      s = vtkMath::Dot(this->Vector, x);
-      newScalars->SetComponent(i, 0, s);
-    }
+  // Generate an optimized fast-path for float/double
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllPointArrays>;
+  if (!Dispatcher::Execute(pointsArray, worker, this, scalars))
+  { // fallback for unknown arrays:
+    worker(pointsArray, this, scalars);
   }
 
   // Update self

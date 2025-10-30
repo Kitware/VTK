@@ -3,6 +3,7 @@
 #include "vtkCellArray.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCallbackCommand.h"
 #include "vtkDataArray.h"
 #include "vtkDeserializer.h"
@@ -109,8 +110,8 @@ static void Deserialize_vtkCellArray(
       // the internal shallow copy which would change the MTime of the cellArray.
       SetDataGenericImpl worker{ cellArray };
       using Dispatcher =
-        vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkCellArray::StorageOffsetsArrays,
-          vtkCellArray::StorageConnectivityArrays>;
+        vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
+          vtkArrayDispatch::StorageConnectivityArrays>;
       if (!Dispatcher::Execute(offsets, connectivity, worker))
       {
         // Fallback to generic storage

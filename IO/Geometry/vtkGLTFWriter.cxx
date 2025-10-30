@@ -13,6 +13,7 @@
 #include VTK_NLOHMANN_JSON(json.hpp)
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkBase64OutputStream.h"
 #include "vtkByteSwap.h"
 #include "vtkCamera.h"
@@ -138,8 +139,7 @@ void FlipYTCoords(vtkDataArray* inOutArray)
 {
   // Create an alias for a dispatcher that handles three arrays and only
   // generates code for cases where all three arrays use float or double:
-  using FastPathTypes = vtkArrayDispatch::Reals;
-  using Dispatcher = vtkArrayDispatch::DispatchByValueType<FastPathTypes>;
+  using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
 
   // Create the functor:
   FlipYTCoordsWorker worker;

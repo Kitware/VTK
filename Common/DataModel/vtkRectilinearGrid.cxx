@@ -6,7 +6,7 @@
 #include "vtkRectilinearGrid.h"
 
 #include "vtkCellData.h"
-#include "vtkConstantUnsignedCharArray.h"
+#include "vtkConstantArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkInformation.h"

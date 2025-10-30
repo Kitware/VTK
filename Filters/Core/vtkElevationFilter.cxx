@@ -3,6 +3,7 @@
 #include "vtkElevationFilter.h"
 
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkCellData.h"
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
@@ -184,8 +185,7 @@ int vtkElevationFilter::RequestData(
   Elevate worker; // Entry point to vtkElevationAlgorithm
 
   // Generate an optimized fast-path for float/double
-  using Dispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AllArrays,
-    vtkArrayDispatch::Reals>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllPointArrays>;
   if (!Dispatcher::Execute(pointsArray, worker, this, diffVector, length2, scalars))
   { // fallback for unknown arrays and integral value types:
     worker(pointsArray, this, diffVector, length2, scalars);
