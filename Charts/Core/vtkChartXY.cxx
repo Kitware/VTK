@@ -19,11 +19,9 @@
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkDataArray.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPen.h"
 #include "vtkPlotArea.h"
@@ -38,9 +36,7 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
-#include "vtkStringArray.h"
 #include "vtkTable.h"
-#include "vtkTextProperty.h"
 #include "vtkTooltipItem.h"
 #include "vtkTransform2D.h"
 #include "vtkVector.h"
@@ -549,10 +545,21 @@ void vtkChartXY::CalculateBarPlots()
       if (table)
       {
         vtkDataArray* x = bar->GetData()->GetInputArrayToProcess(0, table);
+        const vtkRectd ss = bar->GetShiftScale();
         if (x && x->GetNumberOfTuples() > 1)
         {
-          double x0 = x->GetTuple1(0);
-          double x1 = x->GetTuple1(1);
+          double x0 = 0;
+          double x1 = 0;
+          if (bar->GetOrientation() == vtkPlotBar::VERTICAL)
+          {
+            x0 = (x->GetTuple1(0) + ss[0]) * ss[2];
+            x1 = (x->GetTuple1(1) + ss[0]) * ss[2];
+          }
+          else
+          {
+            x0 = (x->GetTuple1(0) + ss[1]) * ss[3];
+            x1 = (x->GetTuple1(1) + ss[1]) * ss[3];
+          }
           float width = static_cast<float>(fabs(x1 - x0) * this->BarWidthFraction);
           barWidth = width / bars.size();
         }

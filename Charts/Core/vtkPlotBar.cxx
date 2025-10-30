@@ -3,17 +3,17 @@
 
 #include "vtkPlotBar.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkAxis.h"
 #include "vtkBrush.h"
 #include "vtkColorSeries.h"
 #include "vtkContext2D.h"
 #include "vtkContextDevice2D.h"
 #include "vtkContextMapper2D.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkExecutive.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkInformation.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPen.h"
@@ -28,7 +28,6 @@
 
 #include <algorithm>
 #include <map>
-#include <set>
 #include <vector>
 
 //------------------------------------------------------------------------------
@@ -37,69 +36,72 @@ namespace
 {
 
 // Copy the two arrays into the points array
-template <class A, class B>
-void CopyToPoints(vtkPoints2D* points, vtkPoints2D* previousPoints, A* a, B* b, int n, int logScale,
-  const vtkRectd& ss)
+struct CopyToPoints2Worker
 {
-  points->SetNumberOfPoints(n);
-  float* data = static_cast<float*>(points->GetVoidPointer(0));
-  float* prevData = nullptr;
-  if (previousPoints && static_cast<int>(previousPoints->GetNumberOfPoints()) == n)
+  template <typename A, typename B>
+  void operator()(A* a, B* b, vtkSmartPointer<vtkPoints2D> points,
+    vtkSmartPointer<vtkPoints2D> previousPoints, int n, int logScale, int orientation,
+    const vtkRectd& ss) const
   {
-    prevData = static_cast<float*>(previousPoints->GetVoidPointer(0));
-  }
-  float prev = 0.0;
-  for (int i = 0; i < n; ++i)
-  {
-    if (prevData)
+    const auto ad = vtk::DataArrayValueRange<1>(a);
+    const auto bd = vtk::DataArrayValueRange<1>(b);
+    points->SetNumberOfPoints(n);
+    for (int i = 0; i < n; ++i)
     {
-      prev = prevData[2 * i + 1];
+      float tmpA = static_cast<float>(0.0);
+      float tmpB = static_cast<float>(0.0);
+      if (orientation == vtkPlotBar::VERTICAL)
+      {
+        tmpA = ((ad[i] + ss[0]) * ss[2]);
+        tmpB = ((bd[i] + ss[1]) * ss[3]);
+      }
+      else
+      {
+        tmpA = ((ad[i] + ss[1]) * ss[3]);
+        tmpB = ((bd[i] + ss[0]) * ss[2]);
+      }
+      if (previousPoints && static_cast<int>(previousPoints->GetNumberOfPoints()) == n)
+      {
+        auto prev = previousPoints->GetPoint(i)[1];
+        tmpB = tmpB + prev;
+      }
+      points->SetPoint(i, static_cast<float>((logScale & 1) ? log10(tmpA) : tmpA),
+        static_cast<float>((logScale & 2) ? log10(tmpB) : tmpB));
     }
-    A tmpA(static_cast<A>((a[i] + ss[0]) * ss[2]));
-    B tmpB(static_cast<B>((b[i] + ss[1]) * ss[3]));
-    data[2 * i] = static_cast<float>((logScale & 1) ? log10(static_cast<double>(tmpA)) : tmpA);
-    data[2 * i + 1] =
-      static_cast<float>((logScale & 2) ? log10(static_cast<double>(tmpB + prev)) : (tmpB + prev));
   }
-}
+};
 
 // Copy one array into the points array, use the index of that array as x
-template <class A>
-void CopyToPoints(
-  vtkPoints2D* points, vtkPoints2D* previousPoints, A* a, int n, int logScale, const vtkRectd& ss)
+struct CopyToPointsWorker
 {
-  points->SetNumberOfPoints(n);
-  float* data = static_cast<float*>(points->GetVoidPointer(0));
-  float* prevData = nullptr;
-  if (previousPoints && static_cast<int>(previousPoints->GetNumberOfPoints()) == n)
+  template <typename A>
+  void operator()(A* a, vtkPoints2D* points, vtkPoints2D* previousPoints, int n, int logScale,
+    int orientation, const vtkRectd& ss)
   {
-    prevData = static_cast<float*>(previousPoints->GetVoidPointer(0));
-  }
-  float prev = 0.0;
-  for (int i = 0; i < n; ++i)
-  {
-    if (prevData)
+    points->SetNumberOfPoints(n);
+    const auto ad = vtk::DataArrayValueRange<1>(a);
+    for (int i = 0; i < n; ++i)
     {
-      prev = prevData[2 * i + 1];
+      float tmpA = static_cast<float>(0.0);
+      if (orientation == vtkPlotBar::VERTICAL)
+      {
+        tmpA = (ad[i] + ss[1]) * ss[3];
+      }
+      else
+      {
+        tmpA = (ad[i] + ss[0]) * ss[2];
+      }
+      if (previousPoints && static_cast<int>(previousPoints->GetNumberOfPoints()) == n)
+      {
+        auto prev = previousPoints->GetPoint(i)[1];
+        tmpA = tmpA + prev;
+      }
+      points->SetPoint(i,
+        static_cast<float>((logScale & 1) ? log10(static_cast<double>(i + 1.0)) : i),
+        static_cast<float>((logScale & 2) ? log10(static_cast<double>(tmpA)) : tmpA));
     }
-    A tmpA(static_cast<A>((a[i] + ss[1]) * ss[3]));
-    data[2 * i] = static_cast<float>((logScale & 1) ? log10(static_cast<double>(i + 1.0)) : i);
-    data[2 * i + 1] =
-      static_cast<float>((logScale & 2) ? log10(static_cast<double>(tmpA + prev)) : (tmpA + prev));
   }
-}
-
-// Copy the two arrays into the points array
-template <class A>
-void CopyToPointsSwitch(vtkPoints2D* points, vtkPoints2D* previousPoints, A* a, vtkDataArray* b,
-  int n, int logScale, const vtkRectd& ss)
-{
-  switch (b->GetDataType())
-  {
-    vtkTemplateMacro(CopyToPoints(
-      points, previousPoints, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n, logScale, ss));
-  }
-}
+};
 
 } // namespace
 
@@ -137,22 +139,29 @@ public:
     int logScale = (xAxis->GetLogScaleActive() ? 1 : 0) + (yAxis->GetLogScaleActive() ? 2 : 0);
     if (xArray)
     {
-      switch (xArray->GetDataType())
+      using CopyPointsDispatch =
+        vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+      CopyToPoints2Worker cp2worker;
+      if (!CopyPointsDispatch::Execute(xArray, yArray, cp2worker, this->Points,
+            this->Previous ? this->Previous->Points : nullptr, xArray->GetNumberOfTuples(),
+            logScale, this->Bar->GetOrientation(), this->Bar->GetShiftScale()))
       {
-        vtkTemplateMacro(
-          CopyToPointsSwitch(this->Points, this->Previous ? this->Previous->Points : nullptr,
-            static_cast<VTK_TT*>(xArray->GetVoidPointer(0)), yArray, xArray->GetNumberOfTuples(),
-            logScale, this->Bar->GetShiftScale()));
+        cp2worker(xArray, yArray, this->Points, this->Previous ? this->Previous->Points : nullptr,
+          xArray->GetNumberOfTuples(), logScale, this->Bar->GetOrientation(),
+          this->Bar->GetShiftScale());
       }
     }
     else
     { // Using Index for X Series
-      switch (yArray->GetDataType())
+      using CopyPointsDispatch = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::Reals>;
+      CopyToPointsWorker cpworker;
+      if (!CopyPointsDispatch::Execute(yArray, cpworker, this->Points,
+            this->Previous ? this->Previous->Points : nullptr, yArray->GetNumberOfTuples(),
+            logScale, this->Bar->GetOrientation(), this->Bar->GetShiftScale()))
       {
-        vtkTemplateMacro(
-          CopyToPoints(this->Points, this->Previous ? this->Previous->Points : nullptr,
-            static_cast<VTK_TT*>(yArray->GetVoidPointer(0)), yArray->GetNumberOfTuples(), logScale,
-            this->Bar->GetShiftScale()));
+        cpworker(yArray, this->Points, this->Previous ? this->Previous->Points : nullptr,
+          yArray->GetNumberOfTuples(), logScale, this->Bar->GetOrientation(),
+          this->Bar->GetShiftScale());
       }
     }
   }
@@ -209,7 +218,7 @@ public:
         }
         else
         {
-          painter->DrawRect(0.0, f[2 * i] - (width / 2) - offset, f[2 * i + 1], width);
+          painter->DrawRect(0.0, (f[2 * i] - (width / 2) - offset), f[2 * i + 1], width);
         }
       }
     }
