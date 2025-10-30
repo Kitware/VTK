@@ -103,13 +103,17 @@ xyz = [0.0,0.0,0.0]
 lineInt = [0.0,0.0,0.0]
 xInt = [0.0,0.0,0.0]
 
+firstCorrectIds = [0, 1, 3, 5, 7, 10, 12, 14, 16, 35, 37, 39, 42, 44, 46, 48, 67]
+
 pts.SetPoint(0,center)
 rayPts.SetPoint(0,center)
 for i in range(0, numRays):
     spherePts.GetPoint(i,xyz)
     rayPts.SetPoint(i+1,xyz)
-    cellId = reference(i);
+    cellId = reference(i)
     hit = loc.IntersectWithLine(xyz, center, 0.05, t, lineInt, xInt, ptId)
+    assert i >= len(firstCorrectIds) or ptId == firstCorrectIds[i], ("The ID of the closest point found ({}) is different "
+                                                                    "from the expected ({})".format(ptId, firstCorrectIds[i]))
     if ( hit == 0 ):
         print("Missed: {}".format(i))
         pts.SetPoint(i+1,center)
