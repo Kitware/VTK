@@ -9,6 +9,7 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkDoubleArray.h"
 #include "vtkFieldData.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridSource.h"
@@ -16,8 +17,10 @@
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMathUtilities.h"
+#include "vtkMultiBlockDataSet.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
 #include "vtkRTAnalyticSource.h"
 #include "vtkSphereSource.h"
@@ -74,6 +77,7 @@ int TestHyperTreeGridTemporal(const std::string& dataRoot, unsigned int depthLim
 int TestHyperTreeGridPartitionedTemporal(const std::string& dataRoot);
 int TestOverlappingAMRTemporal(const std::string& dataRoot);
 int TestOverlappingAMRTemporalLegacy(const std::string& dataRoot);
+int TestPartialArrayWithCompositeDataset(const std::string& dataRoot);
 }
 
 //------------------------------------------------------------------------------
@@ -93,9 +97,10 @@ int TestHDFReaderTemporal(int argc, char* argv[])
   res |= ::TestPolyDataTemporalFieldData(dataRoot);
   res |= ::TestHyperTreeGridTemporal(dataRoot, 3);
   res |= ::TestHyperTreeGridTemporal(dataRoot, 1);
+  res |= ::TestOverlappingAMRTemporalLegacy(dataRoot);
   res |= ::TestHyperTreeGridPartitionedTemporal(dataRoot);
   res |= ::TestOverlappingAMRTemporal(dataRoot);
-  res |= ::TestOverlappingAMRTemporalLegacy(dataRoot);
+  res |= ::TestPartialArrayWithCompositeDataset(dataRoot);
 
   return res;
 }
@@ -1112,6 +1117,85 @@ int TestPolyDataTemporalFieldData(const std::string& dataRoot)
                 << ", " << expectedNbTuples << ") for step " << iStep << ", instead got ("
                 << testArray->GetNumberOfComponents() << ", " << testArray->GetNumberOfTuples()
                 << ")" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+int TestPartialArrayWithCompositeDataset(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/vtkHDF/composite_partial_array.vtkhdf", false);
+
+  // Generic Time data checks
+  if (opener.GetReader()->GetNumberOfSteps() != 7)
+  {
+    std::cerr << "Number of time steps is not correct: " << opener.GetReader()->GetNumberOfSteps()
+              << " != " << 7 << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  auto tRange = opener.GetReader()->GetTimeRange();
+  if ((tRange[0] != 0.0) || (tRange[1] != 9.0))
+  {
+    std::cerr << "Time range is incorrect: (0, 9) != (" << tRange[0] << ", " << tRange[1] << ")"
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  std::array<double, 7> expectedFirstValues = { 1.14685, 1.97722, -4.61971, 0.317693, 1.70716,
+    3.10965, -3.86293 };
+
+  constexpr vtkIdType numberOfSteps = 7;
+  for (vtkIdType iStep = 0; iStep < numberOfSteps; iStep++)
+  {
+    vtkSmartPointer<vtkMultiBlockDataSet> multiblock =
+      vtkMultiBlockDataSet::SafeDownCast(opener(iStep));
+
+    if (!multiblock)
+    {
+      std::cerr << "The data isn't a multi block." << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    if (multiblock->GetNumberOfBlocks() != 2)
+    {
+      std::cerr << "The multiblock should contain 2 blocks but has "
+                << multiblock->GetNumberOfBlocks() << " instead." << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    auto block0 = vtkPolyData::SafeDownCast(multiblock->GetBlock(0));
+    auto block1 = vtkPolyData::SafeDownCast(multiblock->GetBlock(1));
+    if (!block0 || !block1)
+    {
+      std::cerr << "Both blocks should be polydata." << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    // only the first block contains this data array
+    if (block0->GetPointData()->GetNumberOfArrays() != 1)
+    {
+      std::cout << "Block0 should contain point data arrays." << std::endl;
+      return EXIT_FAILURE;
+    }
+    if (block1->GetPointData()->GetNumberOfArrays() != 0)
+    {
+      std::cout << "Block1 should not contain point data arrays." << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    // check at least the first value at each time step
+    auto spatioTemporalArray =
+      vtkDoubleArray::SafeDownCast(block0->GetPointData()->GetArray("SpatioTemporalHarmonics"));
+    if (!vtkMathUtilities::FuzzyCompare(
+          spatioTemporalArray->GetValue(0), expectedFirstValues[iStep], CHECK_TOLERANCE))
+    {
+      std::cerr << "The first value of the array at step " << iStep
+                << " is incorrect: " << spatioTemporalArray->GetValue(0)
+                << " != " << expectedFirstValues[iStep] << std::endl;
       return EXIT_FAILURE;
     }
   }
