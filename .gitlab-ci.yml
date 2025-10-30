@@ -75,9 +75,9 @@ readthedocs:build:
 
 ## Basic builds
 
-el7-x86_64-mindeps-debug-python-qt5:build:
+el7-x86_64-mindeps-debug-qt5:build:
     extends:
-        - .el7_x86_64_mindeps_debug_python_qt5
+        - .el7_x86_64_mindeps_debug_qt5
         - .cmake_build_linux
         - .linux_x86_64_builder_tags
         - .cmake_build_artifacts
@@ -506,97 +506,6 @@ wasm64-emscripten-windows-chrome:test-ext:
         - wasm64-emscripten-linux:build
 
 ## Python x86_64 wheel builds
-
-wheel-linux-python38-x86_64:build:
-    extends:
-        - .wheel_linux38_x86_64
-        - .cmake_build_wheel_linux
-        - .linux_x86_64_builder_tags
-        - .cmake_wheel_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-        VTK_CI_RUN_MANUALLY: "true"
-    needs: []
-
-wheel-linux-python38-x86_64:test:
-    extends:
-        - .wheel_linux38_x86_64
-        - .cmake_test_wheel_linux
-        - .linux_x86_64_builder_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-linux-python38-x86_64:build
-
-wheel-linux-python38-x86_64:test-x11:
-    extends:
-        - .wheel_linux38_x86_64
-        - .cmake_test_wheel_linux_x11
-        - .linux_x86_64_tester_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-linux-python38-x86_64:build
-
-wheel-linux-python38-x86_64-osmesa:test:
-    extends:
-        - .wheel_linux38_x86_64_osmesa
-        - .cmake_test_wheel_linux
-        - .linux_x86_64_builder_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-linux-python38-x86_64:build
-
-wheel-linux-python38-x86_64-osmesa:test-x11:
-    extends:
-        - .wheel_linux38_x86_64_osmesa
-        - .cmake_test_wheel_linux_x11
-        - .linux_x86_64_builder_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-linux-python38-x86_64:build
-
-wheel-linux-python38-x86_64-egl:test:
-    extends:
-        - .wheel_linux38_x86_64_egl
-        - .cmake_test_wheel_linux
-        - .linux_x86_64_builder_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-linux-python38-x86_64:build
-
-wheel-linux-python38-x86_64-egl:test-x11:
-    extends:
-        - .wheel_linux38_x86_64_egl
-        - .cmake_test_wheel_linux_x11
-        - .linux_x86_64_tester_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-linux-python38-x86_64:build
 
 wheel-linux-python39-x86_64:build:
     extends:
@@ -1027,97 +936,6 @@ wheel-linux-python313-x86_64-egl:test-x11:
         - wheel-linux-python313-x86_64:build
 
 ## Python aarch64 wheel builds
-
-wheel-linux-python38-aarch64:build:
-    extends:
-        - .wheel_linux38_aarch64
-        - .cmake_build_wheel_linux
-        - .linux_aarch64_builder_tags
-        - .cmake_wheel_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-        VTK_CI_RUN_MANUALLY: "true"
-    needs: []
-
-wheel-linux-python38-aarch64:test:
-    extends:
-        - .wheel_linux38_aarch64
-        - .cmake_test_wheel_linux
-        - .linux_aarch64_builder_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-linux-python38-aarch64:build
-
-wheel-linux-python38-aarch64:test-x11:
-    extends:
-        - .wheel_linux38_aarch64
-        - .cmake_test_wheel_linux_x11_aarch64
-        - .linux_aarch64_tester_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-linux-python38-aarch64:build
-
-wheel-linux-python38-aarch64-osmesa:test:
-    extends:
-        - .wheel_linux38_aarch64_osmesa
-        - .cmake_test_wheel_linux
-        - .linux_aarch64_builder_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-linux-python38-aarch64:build
-
-wheel-linux-python38-aarch64-osmesa:test-x11:
-    extends:
-        - .wheel_linux38_aarch64_osmesa
-        - .cmake_test_wheel_linux_x11_aarch64
-        - .linux_aarch64_builder_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-linux-python38-aarch64:build
-
-wheel-linux-python38-aarch64-egl:test:
-    extends:
-        - .wheel_linux38_aarch64_egl
-        - .cmake_test_wheel_linux
-        - .linux_aarch64_builder_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-linux-python38-aarch64:build
-
-wheel-linux-python38-aarch64-egl:test-x11:
-    extends:
-        - .wheel_linux38_aarch64_egl
-        - .cmake_test_wheel_linux_x11_aarch64
-        - .linux_aarch64_tester_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-linux-python38-aarch64:build
 
 wheel-linux-python39-aarch64:build:
     extends:
@@ -1561,11 +1379,6 @@ wheel:pypi:upload:
     variables:
         VTK_CI_RELEASE_ONLY: "true"
     needs:
-        - wheel-linux-python38-x86_64:build
-        - job: wheel-linux-python38-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python38-x86_64:test-x11
-          artifacts: false
         - wheel-linux-python39-x86_64:build
         - job: wheel-linux-python39-x86_64:test
           artifacts: false
@@ -1591,11 +1404,6 @@ wheel:pypi:upload:
           artifacts: false
         - job: wheel-linux-python313-x86_64:test-x11
           artifacts: false
-        - wheel-linux-python38-aarch64:build
-        - job: wheel-linux-python38-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python38-aarch64:test-x11
-          artifacts: false
         - wheel-linux-python39-aarch64:build
         - job: wheel-linux-python39-aarch64:test
           artifacts: false
@@ -1620,9 +1428,6 @@ wheel:pypi:upload:
         - job: wheel-linux-python313-aarch64:test
           artifacts: false
         - job: wheel-linux-python313-aarch64:test-x11
-          artifacts: false
-        - wheel-macos-python38-x86_64:build
-        - job: wheel-macos-python38-x86_64:test
           artifacts: false
         - wheel-macos-python39-arm64:build
         - job: wheel-macos-python39-arm64:test
@@ -1654,9 +1459,6 @@ wheel:pypi:upload:
         - wheel-macos-python313-x86_64:build
         - job: wheel-macos-python313-x86_64:test
           artifacts: false
-        - wheel-windows-python38-x86_64:build
-        - job: wheel-windows-python38-x86_64:test
-          artifacts: false
         - wheel-windows-python39-x86_64:build
         - job: wheel-windows-python39-x86_64:test
           artifacts: false
@@ -1681,19 +1483,6 @@ wheel:vtk:upload:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
-        - wheel-linux-python38-x86_64:build
-        - job: wheel-linux-python38-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python38-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python38-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python38-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python38-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python38-x86_64-egl:test-x11
-          artifacts: false
         - wheel-linux-python39-x86_64:build
         - job: wheel-linux-python39-x86_64:test
           artifacts: false
@@ -1759,11 +1548,6 @@ wheel:vtk:upload:
           artifacts: false
         - job: wheel-linux-python313-x86_64-egl:test-x11
           artifacts: false
-        - wheel-linux-python38-aarch64:build
-        - job: wheel-linux-python38-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python38-aarch64:test-x11
-          artifacts: false
         - wheel-linux-python39-aarch64:build
         - job: wheel-linux-python39-aarch64:test
           artifacts: false
@@ -1788,9 +1572,6 @@ wheel:vtk:upload:
         - job: wheel-linux-python313-aarch64:test
           artifacts: false
         - job: wheel-linux-python313-aarch64:test-x11
-          artifacts: false
-        - wheel-macos-python38-x86_64:build
-        - job: wheel-macos-python38-x86_64:test
           artifacts: false
         - wheel-macos-python39-arm64:build
         - job: wheel-macos-python39-arm64:test
@@ -1821,11 +1602,6 @@ wheel:vtk:upload:
           artifacts: false
         - wheel-macos-python313-x86_64:build
         - job: wheel-macos-python313-x86_64:test
-          artifacts: false
-        - wheel-windows-python38-x86_64:build
-        - job: wheel-windows-python38-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python38-x86_64-osmesa:test
           artifacts: false
         - wheel-windows-python39-x86_64:build
         - job: wheel-windows-python39-x86_64:test
@@ -1863,19 +1639,6 @@ wheel-sdk:upload:
         RSYNC_SOURCE: build/*-wheel-sdk-*.tar.xz
         RSYNC_DESTINATION: wheel-sdks/
     needs:
-        - wheel-linux-python38-x86_64:build
-        - job: wheel-linux-python38-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python38-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python38-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python38-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python38-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python38-x86_64-egl:test-x11
-          artifacts: false
         - wheel-linux-python39-x86_64:build
         - job: wheel-linux-python39-x86_64:test
           artifacts: false
@@ -1941,11 +1704,6 @@ wheel-sdk:upload:
           artifacts: false
         - job: wheel-linux-python313-x86_64-egl:test-x11
           artifacts: false
-        - wheel-linux-python38-aarch64:build
-        - job: wheel-linux-python38-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python38-aarch64:test-x11
-          artifacts: false
         - wheel-linux-python39-aarch64:build
         - job: wheel-linux-python39-aarch64:test
           artifacts: false
@@ -1970,9 +1728,6 @@ wheel-sdk:upload:
         - job: wheel-linux-python313-aarch64:test
           artifacts: false
         - job: wheel-linux-python313-aarch64:test-x11
-          artifacts: false
-        - wheel-macos-python38-x86_64:build
-        - job: wheel-macos-python38-x86_64:test
           artifacts: false
         - wheel-macos-python39-arm64:build
         - job: wheel-macos-python39-arm64:test
@@ -2003,11 +1758,6 @@ wheel-sdk:upload:
           artifacts: false
         - wheel-macos-python313-x86_64:build
         - job: wheel-macos-python313-x86_64:test
-          artifacts: false
-        - wheel-windows-python38-x86_64:build
-        - job: wheel-windows-python38-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python38-x86_64-osmesa:test
           artifacts: false
         - wheel-windows-python39-x86_64:build
         - job: wheel-windows-python39-x86_64:test
@@ -2175,19 +1925,6 @@ release-artifacts:upload:
     needs:
         - source:build
         - documentation:release-prep
-        - wheel-linux-python38-x86_64:build
-        - job: wheel-linux-python38-x86_64:test
-          artifacts: false
-        - job: wheel-linux-python38-x86_64:test-x11
-          artifacts: false
-        - job: wheel-linux-python38-x86_64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python38-x86_64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python38-x86_64-egl:test
-          artifacts: false
-        - job: wheel-linux-python38-x86_64-egl:test-x11
-          artifacts: false
         - wheel-linux-python39-x86_64:build
         - job: wheel-linux-python39-x86_64:test
           artifacts: false
@@ -2252,19 +1989,6 @@ release-artifacts:upload:
         - job: wheel-linux-python313-x86_64-egl:test
           artifacts: false
         - job: wheel-linux-python313-x86_64-egl:test-x11
-          artifacts: false
-        - wheel-linux-python38-aarch64:build
-        - job: wheel-linux-python38-aarch64:test
-          artifacts: false
-        - job: wheel-linux-python38-aarch64:test-x11
-          artifacts: false
-        - job: wheel-linux-python38-aarch64-osmesa:test
-          artifacts: false
-        - job: wheel-linux-python38-aarch64-osmesa:test-x11
-          artifacts: false
-        - job: wheel-linux-python38-aarch64-egl:test
-          artifacts: false
-        - job: wheel-linux-python38-aarch64-egl:test-x11
           artifacts: false
         - wheel-linux-python39-aarch64:build
         - job: wheel-linux-python39-aarch64:test
@@ -2331,9 +2055,6 @@ release-artifacts:upload:
           artifacts: false
         - job: wheel-linux-python313-aarch64-egl:test-x11
           artifacts: false
-        - wheel-macos-python38-x86_64:build
-        - job: wheel-macos-python38-x86_64:test
-          artifacts: false
         - wheel-macos-python39-arm64:build
         - job: wheel-macos-python39-arm64:test
           artifacts: false
@@ -2363,11 +2084,6 @@ release-artifacts:upload:
           artifacts: false
         - wheel-macos-python313-x86_64:build
         - job: wheel-macos-python313-x86_64:test
-          artifacts: false
-        - wheel-windows-python38-x86_64:build
-        - job: wheel-windows-python38-x86_64:test
-          artifacts: false
-        - job: wheel-windows-python38-x86_64-osmesa:test
           artifacts: false
         - wheel-windows-python39-x86_64:build
         - job: wheel-windows-python39-x86_64:test
@@ -2474,33 +2190,6 @@ macos-x86_64-kits-python-qt-stdthread:test:
 #         - macos-x86_64-kits-python-qt:test
 
 ## Python wheel builds
-
-wheel-macos-python38-x86_64:build:
-    extends:
-        - .wheel_macos38_x86_64
-        - .cmake_build_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
-        - .cmake_wheel_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-        VTK_CI_RUN_MANUALLY: "true"
-    timeout: 90 minutes
-    needs: []
-
-wheel-macos-python38-x86_64:test:
-    extends:
-        - .wheel_macos38_x86_64
-        - .cmake_test_wheel_macos
-        - .macos_x86_64_wheel_builder_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-macos-python38-x86_64:build
 
 wheel-macos-python39-arm64:build:
     extends:
@@ -2879,45 +2568,6 @@ windows-vs2022-mpi-python-qt-static:test:
         - windows-vs2022-mpi-python-qt-static:build
 
 ## Python wheel builds
-
-wheel-windows-python38-x86_64:build:
-    extends:
-        - .wheel_windows38_x86_64
-        - .cmake_build_wheel_windows
-        - .windows_wheel_builder_tags
-        - .cmake_wheel_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-        VTK_CI_RUN_MANUALLY: "true"
-    needs: []
-
-wheel-windows-python38-x86_64:test:
-    extends:
-        - .wheel_windows38_x86_64
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-windows-python38-x86_64:build
-
-wheel-windows-python38-x86_64-osmesa:test:
-    extends:
-        - .wheel_windows38_x86_64_osmesa
-        - .cmake_test_wheel_windows
-        - .windows_wheel_builder_tags
-        - .cdash_annotations_artifacts
-        - .rules
-    variables:
-        VTK_CI_MERGED_ONLY: "true"
-        VTK_CI_NIGHTLY_ONLY: "true"
-    needs:
-        - wheel-windows-python38-x86_64:build
 
 wheel-windows-python39-x86_64:build:
     extends:

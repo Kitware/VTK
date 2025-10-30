@@ -21,20 +21,6 @@
     variables:
         VTK_DEFAULT_OPENGL_WINDOW: vtkOSOpenGLRenderWindow
 
-.wheel_windows38_x86_64:
-    extends: .wheel_windows_x86_64
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_windows38_x86_64
-
-.wheel_windows38_x86_64_osmesa:
-    extends:
-        - .wheel_windows38_x86_64
-        - .wheel_windows_osmesa_addon
-
-    variables:
-        CMAKE_CONFIGURATION: wheel_windows38_x86_64_osmesa
-
 .wheel_windows39_x86_64:
     extends: .wheel_windows_x86_64
 
