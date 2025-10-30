@@ -523,6 +523,10 @@ private:
 
   void GeneratePointToIncidentFaces();
 
+  // This variant of GenerateEdges() always regenerates edges but also populates
+  // \a unevenCoedges with a map from edge ID to the signed number of mismatched coedges.
+  int GenerateEdges(std::map<vtkIdType, int>& unevenCoedges);
+
   // Members used in GetPointToIncidentFaces
   std::vector<std::vector<vtkIdType>> PointToIncidentFaces;
 
