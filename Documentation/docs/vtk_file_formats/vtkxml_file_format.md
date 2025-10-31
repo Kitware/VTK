@@ -68,12 +68,12 @@ Each ImageData piece specifies its extent within the dataset’s whole extent. T
 :force:
 <VTKFile type="ImageData" ...>
   <ImageData WholeExtent="x1 x2 y1 y2 z1 z2"
-   Origin="x0 y0 z0" Spacing="dx dy dz">
-   <Piece Extent="x1 x2 y1 y2 z1 z2">
+             Origin="x0 y0 z0" Spacing="dx dy dz">
+    <Piece Extent="x1 x2 y1 y2 z1 z2">
       <PointData>...</PointData>
       <CellData>...</CellData>
-   </Piece>
-   </ImageData>
+    </Piece>
+  </ImageData>
 </VTKFile>
 ```
 
@@ -85,9 +85,9 @@ Each RectilinearGrid piece specifies its extent within the dataset’s whole ext
 <VTKFile type="RectilinearGrid" ...>
   <RectilinearGrid WholeExtent="x1 x2 y1 y2 z1 z2">
     <Piece Extent="x1 x2 y1 y2 z1 z2">
-    <PointData>...</PointData>
-    <CellData>...</CellData>
-    <Coordinates>...</Coordinates>
+      <PointData>...</PointData>
+      <CellData>...</CellData>
+      <Coordinates>...</Coordinates>
     </Piece>
   </RectilinearGrid>
 </VTKFile>
@@ -101,9 +101,9 @@ Each StructuredGrid piece specifies its extent within the dataset's whole extent
 <VTKFile type="StructuredGrid" ...>
   <StructuredGrid WholeExtent="x1 x2 y1 y2 z1 z2">
     <Piece Extent="x1 x2 y1 y2 z1 z2">
-    <PointData>...</PointData>
-    <CellData>...</CellData>
-    <Points>...</Points>
+      <PointData>...</PointData>
+      <CellData>...</CellData>
+      <Points>...</Points>
     </Piece>
   </StructuredGrid>
 </VTKFile>
@@ -117,15 +117,15 @@ Each PolyData piece specifies a set of points and cells independently from the o
 <VTKFile type="PolyData" ...>
   <PolyData>
     <Piece NumberOfPoints="#" NumberOfVerts="#" NumberOfLines="#"
-      NumberOfStrips="#" NumberOfPolys="#">
-    <PointData>...</PointData>
-    <CellData>...</CellData>
-    <Points>...</Points>
-    <Verts>...</Verts>
-    <Lines>...</Lines>
-    <Strips>...</Strips>
-    <Polys>...</Polys>
-   </Piece>
+           NumberOfStrips="#" NumberOfPolys="#">
+      <PointData>...</PointData>
+      <CellData>...</CellData>
+      <Points>...</Points>
+      <Verts>...</Verts>
+      <Lines>...</Lines>
+      <Strips>...</Strips>
+      <Polys>...</Polys>
+    </Piece>
   </PolyData>
 </VTKFile>
 ```
@@ -138,10 +138,10 @@ Each UnstructuredGrid piece specifies a set of points and cells independently fr
 <VTKFile type="UnstructuredGrid" ...>
   <UnstructuredGrid>
     <Piece NumberOfPoints="#" NumberOfCells="#">
-    <PointData>...</PointData>
-    <CellData>...</CellData>
-    <Points>...</Points>
-    <Cells>...</Cells>
+      <PointData>...</PointData>
+      <CellData>...</CellData>
+      <Points>...</Points>
+      <Cells>...</Cells>
     </Piece>
   </UnstructuredGrid>
 </VTKFile>
@@ -150,11 +150,11 @@ Each UnstructuredGrid piece specifies a set of points and cells independently fr
 Every dataset describes the data associated with its points and cells with PointData and CellData XML elements as follows:
 ```{code-block} xml
 :force:
-  <PointData Scalars="Temperature" Vectors="Velocity">
-    <DataArray Name="Velocity" .../>
-    <DataArray Name="Temperature" .../>
-    <DataArray Name="Pressure" .../>
-  </PointData>
+      <PointData Scalars="Temperature" Vectors="Velocity">
+        <DataArray Name="Velocity" .../>
+        <DataArray Name="Temperature" .../>
+        <DataArray Name="Pressure" .../>
+      </PointData>
 ```
 
 VTK allows an arbitrary number of data arrays to be associated with the points and cells of a dataset. Each data array is described by a DataArray element which, among other things, gives each array a name. The following attributes of PointData and CellData are used to specify the active arrays by name:
@@ -170,41 +170,41 @@ Some datasets describe their points and cells using different combinations of th
 
 ```{code-block} xml
 :force:
-    <Points>
-      <DataArray NumberOfComponents="3" .../>
-    </Points>
+      <Points>
+        <DataArray NumberOfComponents="3" .../>
+      </Points>
 ```
 
 * **Coordinates**. The _Coordinates_ element defines point coordinates for an extent by specifying the ordinate along each axis for each integer value in the extent’s range. It contains three _DataArray_ elements describing the ordinates along the x-y-z axes, respectively.
 
 ```{code-block} xml
 :force:
-    <Coordinates>
-      <DataArray .../>
-      <DataArray .../>
-      <DataArray .../>
-    </Coordinates>
+      <Coordinates>
+        <DataArray .../>
+        <DataArray .../>
+        <DataArray .../>
+      </Coordinates>
 ```
 
 * **Verts**, **Lines**, **Strips**, and **Polys**. The _Verts_, _Lines_, _Strips_, and _Polys_ elements define cells explicitly by specifying point connectivity. Cell types are implicitly known by the type of element in which they are specified. Each element contains two _DataArray_ elements. The first array specifies the point connectivity. All the cells’ point lists are concatenated together. The second array specifies the offset into the connectivity array for the end of each cell.
 
 ```{code-block} xml
 :force:
-    <Verts>
-      <DataArray type="Int32" Name="connectivity" .../>
-      <DataArray type="Int32" Name="offsets" .../>
-    </Verts>
+      <Verts>
+        <DataArray type="Int32" Name="connectivity" .../>
+        <DataArray type="Int32" Name="offsets" .../>
+      </Verts>
 ```
 
 * **Cells**. The _Cells_ element defines cells explicitly by specifying point connectivity and cell types. It contains three _DataArray_ elements. The first array specifies the point connectivity. All the cells’ point lists are concatenated together. The second array specifies the offset into the connectivity array for the end of each cell. The third array specifies the type of each cell. (Note: the cell types are defined in Figure 2 and Figure 3.)
 
 ```{code-block} xml
 :force:
-    <Cells>
-      <DataArray type="Int32" Name="connectivity" .../>
-      <DataArray type="Int32" Name="offsets" .../>
-      <DataArray type="UInt8" Name="types" .../>
-    </Cells>
+      <Cells>
+        <DataArray type="Int32" Name="connectivity" .../>
+        <DataArray type="Int32" Name="offsets" .../>
+        <DataArray type="UInt8" Name="types" .../>
+      </Cells>
 ```
 
 All of the data and geometry specifications use _DataArray_ elements to describe their actual content as follows:
@@ -213,12 +213,12 @@ All of the data and geometry specifications use _DataArray_ elements to describe
 
 ```{code-block} xml
 :force:
-    <DataArray type="Float32" Name="vectors" NumberOfComponents="3"
-               format="appended" offset="0"/>
-    <DataArray type="Float32" Name="scalars" format="binary">
-               bAAAAAAAAAAAAIA/AAAAQAAAQEAAAIBA... </DataArray>
-    <DataArray type="Int32" Name="offsets" format="ascii">
-               10 20 30 ... </DataArray>
+        <DataArray type="Float32" Name="vectors" NumberOfComponents="3"
+                   format="appended" offset="0"/>
+        <DataArray type="Float32" Name="scalars" format="binary">
+                   bAAAAAAAAAAAAIA/AAAAQAAAQEAAAIBA... </DataArray>
+        <DataArray type="Int32" Name="offsets" format="ascii">
+                   10 20 30 ... </DataArray>
 ```
 
 
@@ -244,12 +244,12 @@ The appended data section is stored in an _AppendedData_ element that is nested 
 
 ```{code-block} xml
 :force:
-  <VTKFile ...>
-    ...
-    <AppendedData encoding="base64">
-                  _QMwEAAAAAAAAA...
-    </AppendedData>
-  </VTKFile>
+<VTKFile ...>
+  ...
+  <AppendedData encoding="base64">
+                _QMwEAAAAAAAAA...
+  </AppendedData>
+</VTKFile>
 ```
 
 The appended data section begins immediately after the underscore ('_') that prefixes the content of the _AppendedData_ element; the underscore itself is not part of the data but is always present. Data in this section is stored in binary form and may be compressed and/or base64 encoded. The byte order of the data matches the value of the _byte_order_ attribute of the _VTKFile_ element. Each _DataArray_'s data is stored contiguously and appended immediately after the previous _DataArray_'s data without a separator. The _DataArray_'s _offset_ attribute indicates the file-position offset from the first character after the underscore to the beginning of its data.
@@ -268,15 +268,15 @@ The _PImageData_ element specifies the whole extent of the dataset and the numbe
 
 ```{code-block} xml
 :force: true
-  <VTKFile type="PImageData" ...>
-    <PImageData WholeExtent="x1 x2 y1 y2 z1 z2"
-                GhostLevel="#" Origin="x0 y0 z0" Spacing="dx dy dz">
-      <PPointData>...</PPointData>
-      <PCellData>...</PCellData>
-      <Piece Extent="x1 x2 y1 y2 z1 z2" Source="imageData0.vti"/>
-      ...
-   </PImageData>
-  </VTKFile>
+<VTKFile type="PImageData" ...>
+  <PImageData WholeExtent="x1 x2 y1 y2 z1 z2"
+              GhostLevel="#" Origin="x0 y0 z0" Spacing="dx dy dz">
+    <PPointData>...</PPointData>
+    <PCellData>...</PCellData>
+    <Piece Extent="x1 x2 y1 y2 z1 z2" Source="imageData0.vti"/>
+    ...
+  </PImageData>
+</VTKFile>
 ```
 
 ### **PRectilinearGrid**
@@ -284,17 +284,17 @@ The _PRectilinearGrid_ element specifies the whole extent of the dataset and the
 
 ```{code-block} xml
 :force: true
-  <VTKFile type="PRectilinearGrid" ...>
-    <PRectilinearGrid WholeExtent="x1 x2 y1 y2 z1 z2"
-                      GhostLevel="#">
-      <PPointData>...</PPointData>
-      <PCellData>...</PCellData>
-      <PCoordinates>...</PCoordinates>
-      <Piece Extent="x1 x2 y1 y2 z1 z2"
-             Source="rectilinearGrid0.vtr"/>
-      ...
-    </PRectilinearGrid>
-  </VTKFile>
+<VTKFile type="PRectilinearGrid" ...>
+  <PRectilinearGrid WholeExtent="x1 x2 y1 y2 z1 z2"
+                    GhostLevel="#">
+    <PPointData>...</PPointData>
+    <PCellData>...</PCellData>
+    <PCoordinates>...</PCoordinates>
+    <Piece Extent="x1 x2 y1 y2 z1 z2"
+           Source="rectilinearGrid0.vtr"/>
+    ...
+  </PRectilinearGrid>
+</VTKFile>
 ```
 
 ### **PStructuredGrid**
@@ -302,17 +302,17 @@ The _PStructuredGrid_ element specifies the whole extent of the dataset and the 
 
 ```{code-block} xml
 :force: true
-  <VTKFile type="PStructuredGrid" ...>
-    <PStructuredGrid WholeExtent="x1 x2 y1 y2 z1 z2"
-                     GhostLevel="#">
-      <PPointData>...</PPointData>
-      <PCellData>...</PCellData>
-      <PPoints>...</PPoints>
-      <Piece Extent="x1 x2 y1 y2 z1 z2"
-             Source="structuredGrid0.vts"/>
-      ...
-    </PStructuredGrid>
-  </VTKFile>
+<VTKFile type="PStructuredGrid" ...>
+  <PStructuredGrid WholeExtent="x1 x2 y1 y2 z1 z2"
+                   GhostLevel="#">
+    <PPointData>...</PPointData>
+    <PCellData>...</PCellData>
+    <PPoints>...</PPoints>
+    <Piece Extent="x1 x2 y1 y2 z1 z2"
+           Source="structuredGrid0.vts"/>
+    ...
+  </PStructuredGrid>
+</VTKFile>
 ```
 
 ### **PPolyData**
@@ -320,15 +320,15 @@ The _PPolyData_ element specifies the number of ghost-levels by which the indivi
 
 ```{code-block} xml
 :force: true
-  <VTKFile type="PPolyData" ...>
-    <PPolyData GhostLevel="#">
-      <PPointData>...</PPointData>
-      <PCellData>...</PCellData>
-      <PPoints>...</PPoints>
-      <Piece Source="polyData0.vtp"/>
-      ...
-    </PPolyData>
-  </VTKFile>
+<VTKFile type="PPolyData" ...>
+  <PPolyData GhostLevel="#">
+    <PPointData>...</PPointData>
+    <PCellData>...</PCellData>
+    <PPoints>...</PPoints>
+    <Piece Source="polyData0.vtp"/>
+    ...
+  </PPolyData>
+</VTKFile>
 ```
 
 ### **PUnstructuredGrid**
@@ -336,15 +336,15 @@ The _PUnstructuredGrid_ element specifies the number of ghost-levels by which th
 
 ```{code-block} xml
 :force: true
-  <VTKFile type="PUnstructuredGrid" ...>
-    <PUnstructuredGrid GhostLevel="0">
-      <PPointData>...</PPointData>
-      <PCellData>...</PCellData>
-      <PPoints>...</PPoints>
-      <Piece Source="unstructuredGrid0.vtu"/>
-      ...
-    </PUnstructuredGrid>
-  </VTKFile>
+<VTKFile type="PUnstructuredGrid" ...>
+  <PUnstructuredGrid GhostLevel="0">
+    <PPointData>...</PPointData>
+    <PCellData>...</PCellData>
+    <PPoints>...</PPoints>
+    <Piece Source="unstructuredGrid0.vtu"/>
+    ...
+  </PUnstructuredGrid>
+</VTKFile>
 ```
 
 Every dataset uses _PPointData_ and _PCellData_ elements to describe the types of data arrays associated with its points and cells.
@@ -357,7 +357,7 @@ Every dataset uses _PPointData_ and _PCellData_ elements to describe the types o
       <PDataArray Name="Velocity" .../>
       <PDataArray Name="Temperature" .../>
       <PDataArray Name="Pressure" .../>
-   </PPointData>
+    </PPointData>
 ```
 
 For datasets that need specification of points, the following elements mirror their counterparts from the serial file format:
@@ -379,7 +379,7 @@ For datasets that need specification of points, the following elements mirror th
       <PDataArray .../>
       <PDataArray .../>
       <PDataArray .../>
-   </PCoordinates>
+    </PCoordinates>
 ```
 
 All of the data and geometry specifications use _PDataArray_ elements to describe the data array types:
@@ -387,64 +387,64 @@ All of the data and geometry specifications use _PDataArray_ elements to describ
 * **PDataArray**. The _PDataArray_ element specifies the type, Name, and optionally the NumberOfComponents attributes from the _DataArray_ element. It does not contain the actual data. This can be used by readers to create the data array in their output without needing to read any real data, which is necessary for efficient pipeline updates in some cases.
 
 ```xml
-    <PDataArray type="Float32" Name="vectors" NumberOfComponents="3"/>
+      <PDataArray type="Float32" Name="vectors" NumberOfComponents="3"/>
 ```
 
 ## XML File Example
 The following is a complete example specifying a vtkPolyData representing a cube with some scalar data on its points and faces. <sup>[1](https://kitware.com/products/books/VTKUsersGuide.pdf)</sup>
 
 ```xml
-  <?xml version="1.0"?>
-  <VTKFile type="PPolyData" version="0.1" byte_order="LittleEndian">
-    <PPolyData GhostLevel="0">
-      <PPointData Scalars="my_scalars">
-        <PDataArray type="Float32" Name="my_scalars"/>
-      </PPointData>
-        <PCellData Scalars="cell_scalars" Normals="cell_normals">
-          <PDataArray type="Int32" Name="cell_scalars"/>
-           <PDataArray type="Float32" Name="cell_normals" NumberOfComponents="3"/>
-        </PCellData>
-        <PPoints>
-          <PDataArray type="Float32" NumberOfComponents="3"/>
-        </PPoints>
-        <Piece Source="polyEx0.vtp"/>
-    </PPolyData>
-  </VTKFile>
+<?xml version="1.0"?>
+<VTKFile type="PPolyData" version="0.1" byte_order="LittleEndian">
+  <PPolyData GhostLevel="0">
+    <PPointData Scalars="my_scalars">
+      <PDataArray type="Float32" Name="my_scalars"/>
+    </PPointData>
+    <PCellData Scalars="cell_scalars" Normals="cell_normals">
+      <PDataArray type="Int32" Name="cell_scalars"/>
+      <PDataArray type="Float32" Name="cell_normals" NumberOfComponents="3"/>
+    </PCellData>
+    <PPoints>
+      <PDataArray type="Float32" NumberOfComponents="3"/>
+    </PPoints>
+    <Piece Source="polyEx0.vtp"/>
+  </PPolyData>
+</VTKFile>
 
 
-  <?xml version="1.0"?>
-    <VTKFile type="PolyData" version="0.1" byte_order="LittleEndian">
-      <PolyData>
-        <Piece NumberOfPoints="8" NumberOfVerts="0" NumberOfLines="0"
-               NumberOfStrips="0" NumberOfPolys="6">
-        <Points>
-          <DataArray type="Float32" NumberOfComponents="3" format="ascii">
-            0 0 0 1 0 0 1 1 0 0 1 0 0 0 1 1 0 1 1 1 1 0 1 1
-          </DataArray>
-        </Points>
-        <PointData Scalars="my_scalars">
-          <DataArray type="Float32" Name="my_scalars" format="ascii">
-            0 1 2 3 4 5 6 7
-         </DataArray>
-        </PointData>
-        <CellData Scalars="cell_scalars" Normals="cell_normals">
-          <DataArray type="Int32" Name="cell_scalars" format="ascii">
-           0 1 2 3 4 5
-          </DataArray>
-          <DataArray type="Float32" Name="cell_normals"
-                     NumberOfComponents="3" format="ascii">
-            0 0 -1 0 0 1 0 -1 0 0 1 0 -1 0 0 1 0 0
-          </DataArray>
-        </CellData>
-        <Polys>
-          <DataArray type="Int32" Name="connectivity" format="ascii">
-             0 1 2 3 4 5 6 7 0 1 5 4 2 3 7 6 0 4 7 3 1 2 6 5
-          </DataArray>
-          <DataArray type="Int32" Name="offsets" format="ascii">
-             4 8 12 16 20 24
-          </DataArray>
-        </Polys>
-      </Piece>
-    </PolyData>
-   </VTKFile>
+<?xml version="1.0"?>
+<VTKFile type="PolyData" version="0.1" byte_order="LittleEndian">
+  <PolyData>
+    <Piece NumberOfPoints="8" NumberOfVerts="0" NumberOfLines="0"
+           NumberOfStrips="0" NumberOfPolys="6">
+      <Points>
+        <DataArray type="Float32" NumberOfComponents="3" format="ascii">
+          0 0 0 1 0 0 1 1 0 0 1 0 0 0 1 1 0 1 1 1 1 0 1 1
+        </DataArray>
+      </Points>
+      <PointData Scalars="my_scalars">
+        <DataArray type="Float32" Name="my_scalars" format="ascii">
+          0 1 2 3 4 5 6 7
+        </DataArray>
+      </PointData>
+      <CellData Scalars="cell_scalars" Normals="cell_normals">
+        <DataArray type="Int32" Name="cell_scalars" format="ascii">
+          0 1 2 3 4 5
+        </DataArray>
+        <DataArray type="Float32" Name="cell_normals"
+                   NumberOfComponents="3" format="ascii">
+          0 0 -1 0 0 1 0 -1 0 0 1 0 -1 0 0 1 0 0
+        </DataArray>
+      </CellData>
+      <Polys>
+        <DataArray type="Int32" Name="connectivity" format="ascii">
+          0 1 2 3 4 5 6 7 0 1 5 4 2 3 7 6 0 4 7 3 1 2 6 5
+        </DataArray>
+        <DataArray type="Int32" Name="offsets" format="ascii">
+          4 8 12 16 20 24
+        </DataArray>
+      </Polys>
+    </Piece>
+  </PolyData>
+</VTKFile>
 ```
