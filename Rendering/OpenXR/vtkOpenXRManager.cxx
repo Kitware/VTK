@@ -632,7 +632,7 @@ void vtkOpenXRManager::PrintSupportedViewConfigs()
     XrViewConfigurationProperties props = { XR_TYPE_VIEW_CONFIGURATION_PROPERTIES };
     this->XrCheckOutput(vtkOpenXRManager::WarningOutput,
       xrGetViewConfigurationProperties(this->Instance, this->SystemId, viewConfigs[i], &props),
-      "Failed to get view configuration info " + i);
+      "Failed to get view configuration info " + vtk::to_string(i));
 
     std::cout << "Type "
               << vtkOpenXRUtilities::GetViewConfigurationTypeAsString(props.viewConfigurationType)

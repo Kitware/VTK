@@ -8,6 +8,7 @@
 #include "vtkOpenXRRenderWindow.h"
 #include "vtkOpenXRUtilities.h"
 #include "vtkResourceFileLocator.h"
+#include "vtkStringFormatter.h"
 #include "vtkVersion.h"
 
 #include "vtk_jsoncpp.h"
@@ -162,7 +163,7 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
           if (!xrManager.XrCheckOutput(vtkOpenXRManager::WarningOutput,
                 xrGetCurrentInteractionProfile(
                   xrManager.GetSession(), xrManager.GetSubactionPaths()[hand], &state),
-                "Failed to get interaction profile for hand " + hand))
+                "Failed to get interaction profile for hand " + vtk::to_string(hand)))
           {
             continue;
           }
@@ -180,7 +181,7 @@ void vtkOpenXRRenderWindowInteractor::ProcessXrEvents()
           if (!xrManager.XrCheckOutput(vtkOpenXRManager::WarningOutput,
                 xrPathToString(xrManager.GetXrRuntimeInstance(), interactionProfile,
                   XR_MAX_PATH_LENGTH, &strLength, profileString),
-                "Failed to get interaction profile path string for hand " + hand))
+                "Failed to get interaction profile path string for hand " + vtk::to_string(hand)))
           {
             continue;
           }
