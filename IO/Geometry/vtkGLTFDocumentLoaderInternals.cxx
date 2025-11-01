@@ -933,8 +933,8 @@ bool vtkGLTFDocumentLoaderInternals::LoadSampler(
 
   if (root.empty())
   {
-    sampler.MagFilter = Sampler::FilterType::LINEAR_MIPMAP_LINEAR;
-    sampler.MinFilter = Sampler::FilterType::LINEAR_MIPMAP_LINEAR;
+    sampler.MagFilter = Sampler::FilterType::LINEAR;
+    sampler.MinFilter = Sampler::FilterType::NEAREST_MIPMAP_LINEAR;
     sampler.WrapT = Sampler::WrapType::REPEAT;
     sampler.WrapS = Sampler::WrapType::REPEAT;
     return true;
@@ -943,7 +943,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadSampler(
   int tempIntValue = 0;
   if (!vtkGLTFUtils::GetIntValue(root, "magFilter", tempIntValue))
   {
-    sampler.MagFilter = vtkGLTFDocumentLoader::Sampler::FilterType::NEAREST;
+    sampler.MagFilter = vtkGLTFDocumentLoader::Sampler::FilterType::LINEAR;
   }
   else
   {
@@ -954,14 +954,14 @@ bool vtkGLTFDocumentLoaderInternals::LoadSampler(
         sampler.MagFilter = static_cast<Sampler::FilterType>(tempIntValue);
         break;
       default:
-        sampler.MagFilter = Sampler::FilterType::NEAREST;
+        sampler.MagFilter = Sampler::FilterType::LINEAR;
         vtkWarningWithObjectMacro(this->Self, "Invalid sampler.magFilter value.");
     }
   }
 
   if (!vtkGLTFUtils::GetIntValue(root, "minFilter", tempIntValue))
   {
-    sampler.MinFilter = Sampler::FilterType::NEAREST;
+    sampler.MinFilter = Sampler::FilterType::NEAREST_MIPMAP_LINEAR;
   }
   else
   {
@@ -976,7 +976,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadSampler(
         sampler.MinFilter = static_cast<Sampler::FilterType>(tempIntValue);
         break;
       default:
-        sampler.MinFilter = Sampler::FilterType::NEAREST;
+        sampler.MinFilter = Sampler::FilterType::NEAREST_MIPMAP_LINEAR;
         vtkWarningWithObjectMacro(this->Self, "Invalid sampler.minFilter value.");
     }
   }
