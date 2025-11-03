@@ -7,7 +7,7 @@
  * vtkSTLReader is a source object that reads ASCII or binary stereo
  * lithography files (.stl files). The FileName must be specified to
  * vtkSTLReader. The object automatically detects whether the file is
- * ASCII or binary.
+ * ASCII or binary. This reader supports reading streams.
  *
  * .stl files are quite inefficient since they duplicate vertex
  * definitions. By setting the Merging boolean you can control whether the
@@ -31,6 +31,8 @@ class vtkCellArray;
 class vtkFloatArray;
 class vtkIncrementalPointLocator;
 class vtkPoints;
+class vtkResourceParser;
+class vtkResourceStream;
 
 class VTKIOGEOMETRY_EXPORT vtkSTLReader : public vtkAbstractPolyDataReader
 {
@@ -117,13 +119,14 @@ protected:
   vtkUnsignedCharArray* BinaryHeader;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-  bool ReadBinarySTL(FILE* fp, vtkPoints*, vtkCellArray*);
-  bool ReadASCIISTL(FILE* fp, vtkPoints*, vtkCellArray*, vtkFloatArray* scalars = nullptr);
-  int GetSTLFileType(const char* filename);
 
 private:
   vtkSTLReader(const vtkSTLReader&) = delete;
   void operator=(const vtkSTLReader&) = delete;
+
+  bool ReadBinarySTL(vtkResourceStream* stream, vtkPoints*, vtkCellArray*);
+  bool ReadASCIISTL(
+    vtkResourceParser* parser, vtkPoints*, vtkCellArray*, vtkFloatArray* scalars = nullptr);
 };
 
 VTK_ABI_NAMESPACE_END
