@@ -2584,6 +2584,49 @@ wheel-macos-python313-x86_64:test:
     needs:
         - wheel-macos-python313-x86_64:build
 
+wheel-macos-python314-arm64:build:
+    extends:
+        - .wheel_macos314_arm64
+        - .cmake_build_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
+    needs: []
+
+wheel-macos-python314-arm64:test:
+    extends:
+        - .wheel_macos314_arm64
+        - .cmake_test_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-macos-python314-arm64:build
+
+wheel-macos-python314-x86_64:build:
+    extends:
+        - .wheel_macos314_x86_64
+        - .cmake_build_wheel_macos
+        - .macos_x86_64_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
+    timeout: 90 minutes
+    needs: []
+
+wheel-macos-python314-x86_64:test:
+    extends:
+        - .wheel_macos314_x86_64
+        - .cmake_test_wheel_macos
+        - .macos_x86_64_wheel_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-macos-python314-x86_64:build
+
 # Windows
 
 # The build artifacts are too large. It's unclear how big they actually are at
@@ -2894,6 +2937,37 @@ wheel-windows-python313-x86_64-osmesa:test:
         - .cdash_annotations_artifacts
     needs:
         - wheel-windows-python313-x86_64:build
+
+wheel-windows-python314-x86_64:build:
+    extends:
+        - .wheel_windows314_x86_64
+        - .cmake_build_wheel_windows
+        - .windows_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
+    needs: []
+
+wheel-windows-python314-x86_64:test:
+    extends:
+        - .wheel_windows314_x86_64
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-windows-python314-x86_64:build
+
+wheel-windows-python314-x86_64-osmesa:test:
+    extends:
+        - .wheel_windows314_x86_64_osmesa
+        - .cmake_test_wheel_windows
+        - .windows_wheel_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-windows-python314-x86_64:build
 
 macos-x86_64-java8:build:
     extends:
