@@ -22,7 +22,6 @@
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIdList;
 class vtkXOpenGLRenderWindowInternal;
-struct vtkXVisualInfo;
 
 class VTKRENDERINGOPENGL2_EXPORT VTK_MARSHALAUTO vtkXOpenGLRenderWindow
   : public vtkOpenGLRenderWindow

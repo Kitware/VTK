@@ -23,8 +23,7 @@
 #include "vtkHardwareWindow.h"
 #include "vtkRenderingUIModule.h" // For export macro
 
-#include <X11/Xlib.h>  // Needed for X types used in the public interface
-#include <X11/Xutil.h> // Needed for X types used in the public interface
+#include "vtkX11Functions.h" // Needed for X types used in the public interface
 
 VTK_ABI_NAMESPACE_BEGIN
 // Forward declarations
@@ -152,7 +151,7 @@ protected:
   ~vtkXlibHardwareWindow() override;
 
   // Helper members
-  XVisualInfo* GetDesiredVisualInfo();
+  vtkXVisualInfo* GetDesiredVisualInfo();
   void CloseDisplay();
 
   Display* DisplayId;

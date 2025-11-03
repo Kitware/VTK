@@ -26,17 +26,7 @@
 #include "vtk_glad.h"
 #include "vtkglad/include/glad/glx.h"
 
-#include <iostream>
-
-/*
- * Work-around to get forward declarations of C typedef of anonymous
- * structs working. We do not want to include XUtil.h in the header as
- * it populates the global namespace.
- */
 VTK_ABI_NAMESPACE_BEGIN
-struct vtkXVisualInfo : public XVisualInfo
-{
-};
 
 /*******************************************************************************
  * Motif style hint definitions
