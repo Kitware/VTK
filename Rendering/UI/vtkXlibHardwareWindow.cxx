@@ -115,6 +115,8 @@ vtkXlibHardwareWindow::vtkXlibHardwareWindow()
   this->XCSizeSW = 0;
   this->XCHand = 0;
   this->XCCustom = 0;
+
+  vtkX11FunctionsInitialize();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -124,6 +126,8 @@ vtkXlibHardwareWindow::~vtkXlibHardwareWindow()
   {
     this->Destroy();
   }
+
+  vtkX11FunctionsFinalize();
 }
 
 //-------------------------------------------------------------------------------------------------
@@ -397,7 +401,7 @@ void vtkXlibHardwareWindow::Destroy()
     if (this->OwnWindow)
     {
       vtkXDestroyWindow(this->DisplayId, this->WindowId);
-      // this->WindowId = static_cast<Window>(0);
+      this->WindowId = static_cast<Window>(0);
     }
     else
     {
