@@ -11,19 +11,8 @@
 
 // include what we need for the helper window
 #ifdef VTK_USE_X
-// We need to cast to a XOpenGLRenderWindow for vtkXVisualInfo->visualid
+// We need to cast to a XOpenGLRenderWindow for XVisualInfo->visualid
 #include "vtkXOpenGLRenderWindow.h"
-
-// From vtkXOpenGLRenderWindow.cxx :
-// Work-around to get forward declarations of C typedef of anonymous
-// structs working. We do not want to include XUtil.h in the header as
-// it populates the global namespace.
-#include <X11/Xutil.h>
-VTK_ABI_NAMESPACE_BEGIN
-struct vtkXVisualInfo : public XVisualInfo
-{
-};
-VTK_ABI_NAMESPACE_END
 #endif // VTK_USE_X
 
 VTK_ABI_NAMESPACE_BEGIN
