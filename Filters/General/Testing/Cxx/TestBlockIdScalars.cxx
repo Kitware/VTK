@@ -3,11 +3,35 @@
 
 #include "vtkBlockIdScalars.h"
 #include "vtkCellData.h"
+#include "vtkDataObjectTree.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkImageData.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
-#include "vtkUnsignedCharArray.h"
 
+namespace
+{
+bool CheckExpectedIds(vtkDataObjectTree* output, const std::array<int, 3>& expectedIds)
+{
+  auto iter = vtkSmartPointer<vtkDataObjectTreeIterator>::Take(output->NewTreeIterator());
+  iter->TraverseSubTreeOn();
+  iter->VisitOnlyLeavesOn();
+  int leafId = 0;
+  for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), leafId++)
+  {
+    vtkImageData* img = vtkImageData::SafeDownCast(iter->GetCurrentDataObject());
+    vtkDataArray* blockIdArray = img->GetCellData()->GetArray("BlockIdScalars");
+    double* range = blockIdArray->GetRange();
+    if (range[0] != expectedIds[leafId] || range[1] != expectedIds[leafId])
+    {
+      std::cerr << "Wrong BlockIdScalars range for leaf " << leafId << ". Got [" << range[0] << ","
+                << range[1] << "] instead of " << expectedIds[leafId] << std::endl;
+      return false;
+    }
+  }
+  return true;
+}
+}
 int TestBlockIdScalars(int, char*[])
 {
   // Create multiblock recursive structure
@@ -32,31 +56,22 @@ int TestBlockIdScalars(int, char*[])
   blockIdFilter->SetInputData(mb1);
   blockIdFilter->Update();
 
-  vtkMultiBlockDataSet* outputMb1 = vtkMultiBlockDataSet::SafeDownCast(blockIdFilter->GetOutput());
-  vtkMultiBlockDataSet* outputMb0 = vtkMultiBlockDataSet::SafeDownCast(outputMb1->GetBlock(0));
-  std::array<vtkImageData*, 3> outputImages{ vtkImageData::SafeDownCast(outputMb0->GetBlock(0)),
-    vtkImageData::SafeDownCast(outputMb0->GetBlock(1)),
-    vtkImageData::SafeDownCast(outputMb1->GetBlock(1)) };
-
-  for (int leafId = 0; leafId < static_cast<int>(outputImages.size()); leafId++)
+  vtkDataObjectTree* output = vtkDataObjectTree::SafeDownCast(blockIdFilter->GetOutput());
+  std::array<int, 3> expectedIds{ 0, 0, 1 };
+  if (!::CheckExpectedIds(output, expectedIds))
   {
-    vtkDataArray* blockIdArray = outputImages[leafId]->GetCellData()->GetArray("BlockIdScalars");
-    unsigned char expectedBlockIdValue = 0;
-    if (leafId == 2)
-    {
-      expectedBlockIdValue = 1;
-    }
+    return EXIT_FAILURE;
+  }
 
-    for (int cellId = 0; cellId < outputImages[leafId]->GetNumberOfCells(); cellId++)
-    {
-      if (blockIdArray->GetTuple1(cellId) != expectedBlockIdValue)
-      {
-        std::cerr << "Wrong BlockIdScalars value for cell " << cellId << " in leaf block " << leafId
-                  << ". Got " << blockIdArray->GetTuple1(cellId) << " but expected "
-                  << static_cast<int>(expectedBlockIdValue);
-        return EXIT_FAILURE;
-      }
-    }
+  blockIdFilter->TraverseSubTreeOn();
+  blockIdFilter->VisitOnlyLeavesOn();
+  blockIdFilter->Update();
+
+  output = vtkDataObjectTree::SafeDownCast(blockIdFilter->GetOutput());
+  expectedIds = { 0, 1, 2 };
+  if (!::CheckExpectedIds(output, expectedIds))
+  {
+    return EXIT_FAILURE;
   }
 
   return EXIT_SUCCESS;

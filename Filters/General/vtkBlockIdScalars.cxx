@@ -4,15 +4,45 @@
 
 #include "vtkCellData.h"
 #include "vtkConstantArray.h"
+#include "vtkDataObjectTree.h"
 #include "vtkDataObjectTreeIterator.h"
 #include "vtkDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBlockIdScalars);
+
+//------------------------------------------------------------------------------
+namespace
+{
+void ColorBlock(vtkDataObject* block, int group)
+{
+  vtkDataSet* ds = vtkDataSet::SafeDownCast(block);
+  vtkDataObjectTree* tree = vtkDataObjectTree::SafeDownCast(block);
+  if (ds)
+  {
+    vtkNew<vtkConstantArray<unsigned char>> blockIdArray;
+    blockIdArray->ConstructBackend(group);
+    blockIdArray->SetNumberOfComponents(1);
+    blockIdArray->SetNumberOfTuples(ds->GetNumberOfCells());
+    blockIdArray->SetName("BlockIdScalars");
+    ds->GetCellData()->AddArray(blockIdArray);
+  }
+  else if (tree)
+  {
+    auto localIter = vtkSmartPointer<vtkDataObjectTreeIterator>::Take(tree->NewTreeIterator());
+    localIter->TraverseSubTreeOn();
+    localIter->VisitOnlyLeavesOn();
+    for (localIter->InitTraversal(); !localIter->IsDoneWithTraversal(); localIter->GoToNextItem())
+    {
+      ::ColorBlock(localIter->GetCurrentDataObject(), group);
+    }
+  }
+}
+}
+
 //------------------------------------------------------------------------------
 vtkBlockIdScalars::vtkBlockIdScalars() = default;
 
@@ -20,33 +50,32 @@ vtkBlockIdScalars::vtkBlockIdScalars() = default;
 vtkBlockIdScalars::~vtkBlockIdScalars() = default;
 
 //------------------------------------------------------------------------------
-// Map ids into attribute data
+int vtkBlockIdScalars::FillInputPortInformation(int, vtkInformation* info)
+{
+  info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObjectTree");
+  return 1;
+}
+
+//------------------------------------------------------------------------------
 int vtkBlockIdScalars::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
+  // Recover input and outputs
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkMultiBlockDataSet* input =
-    vtkMultiBlockDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-  if (!input)
-  {
-    return 0;
-  }
+  vtkDataObjectTree* input =
+    vtkDataObjectTree::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkInformation* info = outputVector->GetInformationObject(0);
-  vtkMultiBlockDataSet* output =
-    vtkMultiBlockDataSet::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
-  if (!output)
-  {
-    return 0;
-  }
+  vtkDataObjectTree* output =
+    vtkDataObjectTree::SafeDownCast(info->Get(vtkDataObject::DATA_OBJECT()));
 
-  unsigned int numBlocks = input->GetNumberOfBlocks();
-  output->SetNumberOfBlocks(numBlocks);
+  // ShallowCopy input into output
+  output->ShallowCopy(input);
 
-  vtkDataObjectTreeIterator* iter = input->NewTreeIterator();
-  iter->TraverseSubTreeOff();
-  iter->VisitOnlyLeavesOff();
-
+  // Traverse tree as specified
+  auto iter = vtkSmartPointer<vtkDataObjectTreeIterator>::Take(output->NewTreeIterator());
+  iter->SetTraverseSubTree(this->TraverseSubTree);
+  iter->SetVisitOnlyLeaves(this->VisitOnlyLeaves);
   int blockIdx = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), blockIdx++)
   {
@@ -57,69 +86,18 @@ int vtkBlockIdScalars::RequestData(vtkInformation* vtkNotUsed(request),
     vtkDataObject* dObj = iter->GetCurrentDataObject();
     if (dObj)
     {
-      vtkDataObject* block = this->ColorBlock(dObj, blockIdx);
-      if (block)
-      {
-        output->SetDataSet(iter, block);
-        block->Delete();
-      }
+      // Color each block
+      ::ColorBlock(dObj, blockIdx);
     }
   }
-
-  iter->Delete();
   return 1;
-}
-
-//------------------------------------------------------------------------------
-vtkDataObject* vtkBlockIdScalars::ColorBlock(vtkDataObject* input, int group)
-{
-  vtkDataObject* output = nullptr;
-  if (input->IsA("vtkCompositeDataSet"))
-  {
-    vtkCompositeDataSet* mbInput = vtkCompositeDataSet::SafeDownCast(input);
-
-    output = input->NewInstance();
-    vtkCompositeDataSet* mbOutput = vtkCompositeDataSet::SafeDownCast(output);
-    mbOutput->CopyStructure(mbInput);
-
-    vtkSmartPointer<vtkCompositeDataIterator> inIter =
-      vtk::TakeSmartPointer(mbInput->NewIterator());
-    for (inIter->InitTraversal(); !inIter->IsDoneWithTraversal(); inIter->GoToNextItem())
-    {
-      vtkDataObject* src = inIter->GetCurrentDataObject();
-      vtkDataObject* dest = nullptr;
-      if (src)
-      {
-        dest = this->ColorBlock(src, group);
-      }
-      mbOutput->SetDataSet(inIter, dest);
-      dest->Delete();
-    }
-  }
-  else
-  {
-    vtkDataSet* ds = vtkDataSet::SafeDownCast(input);
-    if (ds)
-    {
-      output = ds->NewInstance();
-      output->ShallowCopy(ds);
-      vtkDataSet* dsOutput = vtkDataSet::SafeDownCast(output);
-      vtkIdType numCells = dsOutput->GetNumberOfCells();
-
-      vtkNew<vtkConstantArray<unsigned char>> blockIdArray;
-      blockIdArray->ConstructBackend(group);
-      blockIdArray->SetNumberOfComponents(1);
-      blockIdArray->SetNumberOfTuples(numCells);
-      blockIdArray->SetName("BlockIdScalars");
-      dsOutput->GetCellData()->AddArray(blockIdArray);
-    }
-  }
-  return output;
 }
 
 //------------------------------------------------------------------------------
 void vtkBlockIdScalars::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  os << indent << "TraverseSubTree: " << this->TraverseSubTree << endl;
+  os << indent << "VisitOnlyLeaves: " << this->VisitOnlyLeaves << endl;
 }
 VTK_ABI_NAMESPACE_END
