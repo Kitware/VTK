@@ -33,6 +33,8 @@ void vtkZSpaceGenericRenderWindow::Start()
   vtkZSpaceSDKManager* sdkManager = vtkZSpaceSDKManager::GetInstance();
   if (sdkManager)
   {
+    // It is important to switch the target window to the current one we are trying to render on.
+    sdkManager->SetRenderWindow(this);
     sdkManager->BeginFrame();
   }
   this->Superclass::Start();
@@ -51,6 +53,11 @@ void vtkZSpaceGenericRenderWindow::Start()
 //------------------------------------------------------------------------------
 void vtkZSpaceGenericRenderWindow::OpenGLInitContext()
 {
+  if (this->ContextInitialized)
+  {
+    return;
+  }
+
   this->Superclass::OpenGLInitContext();
 
   this->MakeCurrent();
@@ -60,6 +67,8 @@ void vtkZSpaceGenericRenderWindow::OpenGLInitContext()
   {
     sdkManager->EnableGraphicsBinding();
   }
+
+  this->ContextInitialized = true;
 }
 
 //------------------------------------------------------------------------------

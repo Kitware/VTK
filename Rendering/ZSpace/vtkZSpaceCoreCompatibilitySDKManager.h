@@ -143,7 +143,7 @@ public:
 
   /**
    * Shutdown the zSpace SDK (clean its internal state).
-   * Useful to re-initialize the zSpace SDK from a clean state.
+   * Useful to re-initialize the zSpace SDK to a clean state.
    */
   void ShutDown() override;
 
@@ -169,9 +169,6 @@ protected:
 
   // Handle to the zSpace Core Compatibility API dynamic library (.dll).
   HMODULE zSpaceCoreCompatDllModuleHandle;
-
-  // Handle to the current window
-  HWND WidondowHandle;
 
   /**
    * Load the "zSpaceCoreCompatibility64.dll" shared library then load the
