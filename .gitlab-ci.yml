@@ -935,6 +935,77 @@ wheel-linux-python313-x86_64-egl:test-x11:
     needs:
         - wheel-linux-python313-x86_64:build
 
+wheel-linux-python314-x86_64:build:
+    extends:
+        - .wheel_linux314_x86_64
+        - .cmake_build_wheel_linux
+        - .linux_x86_64_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
+    needs: []
+
+wheel-linux-python314-x86_64:test:
+    extends:
+        - .wheel_linux314_x86_64
+        - .cmake_test_wheel_linux
+        - .linux_x86_64_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-linux-python314-x86_64:build
+
+wheel-linux-python314-x86_64:test-x11:
+    extends:
+        - .wheel_linux314_x86_64
+        - .cmake_test_wheel_linux_x11
+        - .linux_x86_64_tester_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-linux-python314-x86_64:build
+
+wheel-linux-python314-x86_64-osmesa:test:
+    extends:
+        - .wheel_linux314_x86_64_osmesa
+        - .cmake_test_wheel_linux
+        - .linux_x86_64_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-linux-python314-x86_64:build
+
+wheel-linux-python314-x86_64-osmesa:test-x11:
+    extends:
+        - .wheel_linux314_x86_64_osmesa
+        - .cmake_test_wheel_linux_x11
+        - .linux_x86_64_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-linux-python314-x86_64:build
+
+wheel-linux-python314-x86_64-egl:test:
+    extends:
+        - .wheel_linux314_x86_64_egl
+        - .cmake_test_wheel_linux
+        - .linux_x86_64_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-linux-python314-x86_64:build
+
+wheel-linux-python314-x86_64-egl:test-x11:
+    extends:
+        - .wheel_linux314_x86_64_egl
+        - .cmake_test_wheel_linux_x11
+        - .linux_x86_64_tester_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-linux-python314-x86_64:build
+
 ## Python aarch64 wheel builds
 
 wheel-linux-python39-aarch64:build:
@@ -1371,6 +1442,77 @@ wheel-linux-python313-aarch64-egl:test-x11:
         - .cdash_annotations_artifacts
     needs:
         - wheel-linux-python313-aarch64:build
+
+wheel-linux-python314-aarch64:build:
+    extends:
+        - .wheel_linux314_aarch64
+        - .cmake_build_wheel_linux
+        - .linux_aarch64_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
+    needs: []
+
+wheel-linux-python314-aarch64:test:
+    extends:
+        - .wheel_linux314_aarch64
+        - .cmake_test_wheel_linux
+        - .linux_aarch64_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-linux-python314-aarch64:build
+
+wheel-linux-python314-aarch64:test-x11:
+    extends:
+        - .wheel_linux314_aarch64
+        - .cmake_test_wheel_linux_x11_aarch64
+        - .linux_aarch64_tester_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-linux-python314-aarch64:build
+
+wheel-linux-python314-aarch64-osmesa:test:
+    extends:
+        - .wheel_linux314_aarch64_osmesa
+        - .cmake_test_wheel_linux
+        - .linux_aarch64_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-linux-python314-aarch64:build
+
+wheel-linux-python314-aarch64-osmesa:test-x11:
+    extends:
+        - .wheel_linux314_aarch64_osmesa
+        - .cmake_test_wheel_linux_x11_aarch64
+        - .linux_aarch64_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-linux-python314-aarch64:build
+
+wheel-linux-python314-aarch64-egl:test:
+    extends:
+        - .wheel_linux314_aarch64_egl
+        - .cmake_test_wheel_linux
+        - .linux_aarch64_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-linux-python314-aarch64:build
+
+wheel-linux-python314-aarch64-egl:test-x11:
+    extends:
+        - .wheel_linux314_aarch64_egl
+        - .cmake_test_wheel_linux_x11_aarch64
+        - .linux_aarch64_tester_tags
+        - .rules
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-linux-python314-aarch64:build
 
 wheel:pypi:upload:
     extends:
