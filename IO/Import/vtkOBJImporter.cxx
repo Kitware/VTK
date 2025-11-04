@@ -16,6 +16,7 @@
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkResourceParser.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringScanner.h"
 #include "vtksys/SystemTools.hxx"
@@ -44,29 +45,6 @@ bool CanReadFile(vtkObject* that, const std::string& fname)
     return false;
   }
   return true;
-}
-
-/**
- * Read a line char by char from a vtkResourceStream
- * Behave like fgets as specified here: https://en.cppreference.com/w/c/io/fgets
- */
-bool ReadLine(char* rawLine, int maxLine, vtkResourceStream* stream)
-{
-  int nRead = 0;
-  for (; nRead < maxLine - 1 && !stream->EndOfStream(); nRead++)
-  {
-    if (stream->Read(rawLine, 1) != 1)
-    {
-      return false;
-    }
-    if (*rawLine == '\n')
-    {
-      *(rawLine + 1) = '\0';
-      return true;
-    }
-    rawLine++;
-  }
-  return nRead > 0;
 }
 }
 
@@ -442,12 +420,14 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     bool mtllibDefined = false;
     { // (make a local scope section to emphasise that the variables below are only used here)
 
-      constexpr int MAX_LINE = 100000;
-      char rawLine[MAX_LINE];
-
-      while (::ReadLine(rawLine, MAX_LINE, stream))
+      std::string rawLine;
+      vtkNew<vtkResourceParser> parser;
+      parser->SetStream(stream);
+      for (vtkParseResult res = vtkParseResult::Ok;
+           res != vtkParseResult::Error && res != vtkParseResult::EndOfStream;
+           res = parser->ReadLine(rawLine))
       {
-        _extractLine(rawLine);
+        _extractLine(rawLine.data());
 
         // in the OBJ format the first characters determine how to interpret the line:
         // Skip comments and empty lines
@@ -601,17 +581,21 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
   // -- work through the file line by line, assigning into the above 7 structures as appropriate --
   { // (make a local scope section to emphasise that the variables below are only used here)
 
-    constexpr int MAX_LINE = 100000;
-    char rawLine[MAX_LINE];
     float xyz[3];
     float col[3];
 
     int lineNr = 0;
     long lastVertexIndex = 0;
-    while (everything_ok && ::ReadLine(rawLine, MAX_LINE, stream))
+
+    std::string rawLine;
+    vtkNew<vtkResourceParser> parser;
+    parser->SetStream(stream);
+    for (vtkParseResult res = vtkParseResult::Ok;
+         everything_ok && res != vtkParseResult::Error && res != vtkParseResult::EndOfStream;
+         res = parser->ReadLine(rawLine))
     { /** While OK and there is another line in the file */
       lineNr++;
-      _extractLine(rawLine);
+      _extractLine(rawLine.data());
 
       // in the OBJ format the first characters determine how to interpret the line:
       if (strcmp(cmd, "v") == 0)
@@ -710,23 +694,26 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
             else if (strcmp(pLine, "\\\n") == 0)
             {
               // handle backslash-newline continuation
-              if (::ReadLine(rawLine, MAX_LINE, stream))
+              res = parser->ReadLine(rawLine);
+              if (res != vtkParseResult::Error && res != vtkParseResult::EndOfStream)
               {
                 lineNr++;
-                pLine = rawLine;
-                pEnd = rawLine + strlen(rawLine);
+                pLine = rawLine.data();
+                pEnd = pLine + rawLine.size();
                 continue;
               }
               else
               {
                 vtkErrorMacro(<< "Error reading continuation line at line " << lineNr);
                 everything_ok = false;
+                break;
               }
             }
             else
             {
               vtkErrorMacro(<< "Error reading 'p' at line " << lineNr);
               everything_ok = false;
+              break;
             }
             // skip over what we just sscanf'd
             // (find the first whitespace character)
@@ -797,23 +784,26 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
             else if (strcmp(pLine, "\\\n") == 0)
             {
               // handle backslash-newline continuation
-              if (::ReadLine(rawLine, MAX_LINE, stream))
+              res = parser->ReadLine(rawLine);
+              if (res != vtkParseResult::Error && res != vtkParseResult::EndOfStream)
               {
                 lineNr++;
-                pLine = rawLine;
-                pEnd = rawLine + strlen(rawLine);
+                pLine = rawLine.data();
+                pEnd = pLine + rawLine.size();
                 continue;
               }
               else
               {
                 vtkErrorMacro(<< "Error reading continuation line at line " << lineNr);
                 everything_ok = false;
+                break;
               }
             }
             else
             {
               vtkErrorMacro(<< "Error reading 'l' at line " << lineNr);
               everything_ok = false;
+              break;
             }
             // skip over what we just sscanf'd
             // (find the first whitespace character)
@@ -879,6 +869,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
               {
                 vtkErrorMacro(<< "Unexpected point indice value");
                 everything_ok = false;
+                break;
               }
               else
               {
@@ -914,6 +905,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
               {
                 vtkErrorMacro(<< "Unexpected point indice value");
                 everything_ok = false;
+                break;
               }
               else
               {
@@ -943,6 +935,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
               {
                 vtkErrorMacro(<< "Unexpected point indice value");
                 everything_ok = false;
+                break;
               }
               else
               {
@@ -968,6 +961,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
               {
                 vtkErrorMacro(<< "Unexpected point indice value");
                 everything_ok = false;
+                break;
               }
               else
               {
@@ -979,23 +973,26 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
             else if (strcmp(pLine, "\\\n") == 0)
             {
               // handle backslash-newline continuation
-              if (::ReadLine(rawLine, MAX_LINE, stream))
+              res = parser->ReadLine(rawLine);
+              if (res != vtkParseResult::Error && res != vtkParseResult::EndOfStream)
               {
                 lineNr++;
-                pLine = rawLine;
-                pEnd = rawLine + strlen(rawLine);
+                pLine = rawLine.data();
+                pEnd = pLine + rawLine.size();
                 continue;
               }
               else
               {
                 vtkErrorMacro(<< "Error reading continuation line at line " << lineNr);
                 everything_ok = false;
+                break;
               }
             }
             else
             {
               vtkErrorMacro(<< "Error reading 'f' at line " << lineNr);
               everything_ok = false;
+              break;
             }
             // skip over what we just read
             // (find the first whitespace character)
@@ -1013,7 +1010,7 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
           vtkErrorMacro(<< "Error reading file near line " << lineNr
                         << " while processing the 'f' command"
                         << " nVerts= " << nVerts << " nTCoords= " << nTCoords
-                        << " nNormals= " << nNormals << pLine);
+                        << " nNormals= " << nNormals);
           everything_ok = false;
         }
 
