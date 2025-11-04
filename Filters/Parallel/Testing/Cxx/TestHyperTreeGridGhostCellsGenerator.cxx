@@ -8,7 +8,6 @@
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
 #include "vtkNew.h"
-#include "vtkObjectFactory.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkStringFormatter.h"
@@ -486,6 +485,55 @@ int TestPartitionedHTG(vtkMPIController* controller, int config)
 
   return ret;
 }
+
+int TestExchangeMetadata(vtkMPIController* controller, const std::string& filename)
+{
+  int myRank = controller->GetLocalProcessId();
+  int nbRanks = controller->GetNumberOfProcesses();
+
+  vtkNew<vtkHyperTreeGridGhostCellsGenerator> generator;
+  if (myRank == 0)
+  {
+    vtkNew<vtkXMLHyperTreeGridReader> reader;
+    reader->SetFileName(filename.c_str());
+    reader->UpdatePiece(myRank, nbRanks, 0);
+
+    generator->SetInputConnection(reader->GetOutputPort());
+  }
+  else
+  {
+    vtkNew<vtkHyperTreeGrid> htg;
+    htg->Initialize();
+    generator->SetInputData(htg);
+  }
+
+  if (generator->UpdatePiece(myRank, nbRanks, 0) != 1)
+  {
+    vtkErrorWithObjectMacro(nullptr, << "Fail to update piece for process " << myRank);
+    return EXIT_FAILURE;
+  }
+
+  vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(generator->GetOutputDataObject(0));
+
+  const unsigned int* dims = htg->GetDimensions();
+  std::array<unsigned int, 3> expectedDims = { 3, 3, 3 };
+  if (dims[0] != expectedDims[0] || dims[1] != expectedDims[1] || dims[2] != expectedDims[2])
+  {
+    vtkLogF(ERROR, "Invalid dimensions for htg. Expected (%d, %d, %d) but got (%d, %d, %d)",
+      expectedDims[0], expectedDims[1], expectedDims[2], dims[0], dims[1], dims[2]);
+    return EXIT_FAILURE;
+  }
+
+  unsigned int expectedBranchFactor = 2;
+  if (htg->GetBranchFactor() != expectedBranchFactor)
+  {
+    vtkLogF(ERROR, "Invalid branch factor. Expected %d but got %d", expectedBranchFactor,
+      htg->GetBranchFactor());
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
 }
 
 /**
@@ -525,6 +573,7 @@ int TestHyperTreeGridGhostCellsGenerator(int argc, char* argv[])
   ret |= ::TestPartitionedHTG(controller, 0);
   ret |= ::TestPartitionedHTG(controller, 1);
   ret |= ::TestPartitionedHTG(controller, 2);
+  ret |= ::TestExchangeMetadata(controller, htgFileName);
 
   controller->Finalize();
   return ret;
