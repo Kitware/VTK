@@ -43,6 +43,16 @@
 // clang-format off
 #include VTK_IOSS(Ioss_TransformFactory.h)
 // clang-format on
+#include "vtk_netcdf.h"
+#if VTK_MODULE_USE_EXTERNAL_vtknetcdf
+#if defined(NC_HAVE_META_H)
+#include "netcdf_meta.h"
+#endif
+#endif
+
+#if defined(SEACAS_HAVE_MPI) && (NC_HAS_PARALLEL4 && NC_HAS_PNETCDF)
+#define SEACAS_HAVE_MPI_WITH_ALL_BACKENDS
+#endif
 
 #include <algorithm>
 
@@ -53,11 +63,19 @@ std::vector<int> vtkIOSSReaderInternal::GetFileIds(
 {
   auto iter = this->DatabaseNames.find(dbasename);
   if ((iter == this->DatabaseNames.end()) || (myrank < 0) ||
+#ifndef SEACAS_HAVE_MPI_WITH_ALL_BACKENDS
     (iter->second.ProcessCount == 0 && myrank != 0) ||
+#endif
     (iter->second.ProcessCount != 0 && myrank >= iter->second.ProcessCount))
   {
     return std::vector<int>();
   }
+#ifdef SEACAS_HAVE_MPI_WITH_ALL_BACKENDS
+  if (iter->second.ProcessCount == 0)
+  {
+    return { 0 };
+  }
+#endif
 
   // note, number of files may be less than the number of ranks the partitioned
   // file was written out on. that happens when user only chooses a smaller
@@ -304,7 +322,9 @@ bool vtkIOSSReaderInternal::UpdateTimeInformation(vtkIOSSReader* self)
   const auto numRanks = controller ? controller->GetNumberOfProcesses() : 1;
 
   int success = 1;
+#ifndef SEACAS_HAVE_MPI_WITH_ALL_BACKENDS
   if (rank == 0)
+#endif
   {
     // time values for each database.
     auto& dbase_times = this->DatabaseTimes;
@@ -506,7 +526,13 @@ bool vtkIOSSReaderInternal::UpdateEntityAndFieldSelections(vtkIOSSReader* self)
     // all files and just read the first file.
     if (!self->GetReadAllFilesToDetermineStructure())
     {
-      fileids.resize(rank == 0 ? 1 : 0);
+      fileids.resize(
+#ifndef SEACAS_HAVE_MPI_WITH_ALL_BACKENDS
+        rank == 0 ? 1 : 0
+#else
+        1
+#endif
+      );
     }
 
     for (const auto& fileid : fileids)
@@ -881,6 +907,12 @@ Ioss::Region* vtkIOSSReaderInternal::GetRegion(
       properties.add(Ioss::Property("my_processor", processor));
       properties.add(Ioss::Property("processor_count", iter->second.ProcessCount));
     }
+#ifdef SEACAS_HAVE_MPI_WITH_ALL_BACKENDS
+    else
+    {
+      properties.add(Ioss::Property("DECOMPOSITION_METHOD", "Linear"));
+    }
+#endif
 
     // tell the reader to read all blocks, even if empty. necessary to avoid
     // having to read all files to gather metadata, if possible
@@ -961,13 +993,14 @@ Ioss::Region* vtkIOSSReaderInternal::GetRegion(
     }
 
 #ifdef SEACAS_HAVE_MPI
-    // As of now netcdf mpi support is not working for IOSSReader
-    // because mpi calls are called inside the reader instead of the ioss library
-    // so we are using comm_null(), instead of comm_world().
-    // In the future, when comm_world() is used and SEACAS_HAVE_MPI is on
-    // my_processor and processor_count properties should be removed for exodus.
-    // For more info. see Ioex::DatabaseIO::DatabaseIO in the ioss library.
+#ifdef SEACAS_HAVE_MPI_WITH_ALL_BACKENDS
+    // netCDF mpi support is used only when reading a single file in a parallel run.
+    // When reading multiple files, each process reads its own file using serial netcdf.
+    auto parallelUtilsComm =
+      has_multiple_files ? Ioss::ParallelUtils::comm_null() : Ioss::ParallelUtils::comm_world();
+#else
     auto parallelUtilsComm = Ioss::ParallelUtils::comm_null();
+#endif
 #else
     auto parallelUtilsComm = Ioss::ParallelUtils::comm_world();
 #endif

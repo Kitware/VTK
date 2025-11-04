@@ -18,8 +18,8 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::FiltersExtraction
-  VTK::fmt
   VTK::ioss
+  VTK::netcdf
 OPTIONAL_DEPENDS
   VTK::ParallelMPI
   VTK::mpi

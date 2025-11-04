@@ -15,6 +15,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
+#include "vtkStringFormatter.h"
 #include "vtkVersion.h"
 
 // Ioss includes
@@ -41,11 +42,6 @@
 #include <algorithm>
 #include <string>
 #include <vector>
-
-// clang-format off
-#include <vtk_fmt.h> // needed for `fmt`
-#include VTK_FMT(fmt/format.h)
-// clang-format on
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkIOSSWriter::vtkInternals
@@ -451,7 +447,7 @@ void vtkIOSSWriter::WriteData()
       properties.add(Ioss::Property("OMIT_QA_RECORDS", true));
     }
     const auto fname = internals.RestartIndex > 0
-      ? fmt::format("{}-s{:04}", this->FileName, internals.RestartIndex)
+      ? vtk::format("{}-s{:04}", this->FileName, internals.RestartIndex)
       : std::string(this->FileName);
 
 #ifdef SEACAS_HAVE_MPI
