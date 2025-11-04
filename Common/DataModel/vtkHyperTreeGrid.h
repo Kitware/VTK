@@ -420,6 +420,12 @@ public:
    */
   vtkHyperTreeGridNonOrientedGeometryCursor* FindNonOrientedGeometryCursor(double x[3]);
 
+  /**
+   * Generate the ghost array for this hypertree grid.
+   * zeroExt defines the bounding box of the non-ghost ("core") region.
+   */
+  virtual void GenerateGhostArray(int zeroExt[6]);
+
 private:
   unsigned int RecurseDichotomic(
     double value, vtkDoubleArray* coord, double tol, unsigned int ideb, unsigned int ifin) const;
@@ -815,14 +821,6 @@ protected:
   unsigned int BranchFactor = 0; // 2 or 3, 0 for invalid
   unsigned int Dimension = 0;    // 1, 2, or 3, 0 for invalid
 
-  ///@{
-  /**
-   * These arrays pointers are caches used to avoid a string comparison (when
-   * getting ghost arrays using GetArray(name))
-   */
-  vtkUnsignedCharArray* TreeGhostArray = nullptr;
-  bool TreeGhostArrayCached = false;
-  ///@}
 private:
   // Invalid default grid parameters to force actual initialization
   unsigned int Orientation = std::numeric_limits<unsigned int>::max(); // 0, 1, or 2
@@ -830,6 +828,15 @@ private:
     std::numeric_limits<unsigned int>::max() };
 
   vtkTimeStamp ComputeTime;
+
+  ///@{
+  /**
+   * These arrays pointers are caches used to avoid a string comparison (when
+   * getting ghost arrays using GetArray(name))
+   */
+  vtkSmartPointer<vtkUnsignedCharArray> TreeGhostArray;
+  bool TreeGhostArrayCached = false;
+  ///@}
 
 protected:
   unsigned int NumberOfChildren = 0;

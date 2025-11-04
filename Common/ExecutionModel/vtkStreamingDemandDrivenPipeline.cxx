@@ -8,6 +8,7 @@
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkExtentTranslator.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"
 #include "vtkInformationDoubleVectorKey.h"
@@ -972,9 +973,11 @@ void vtkStreamingDemandDrivenPipeline ::ExecuteDataEnd(
         if (ghost > 0)
         {
           vtkDataSet* data = vtkDataSet::SafeDownCast(dobj);
-          if (data)
+          vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(dobj);
+          if (data || htg)
           {
-            int* uExt = data->GetInformation()->Get(vtkDataObject::ALL_PIECES_EXTENT());
+            int* uExt = data ? data->GetInformation()->Get(vtkDataObject::ALL_PIECES_EXTENT())
+                             : htg->GetInformation()->Get(vtkDataObject::ALL_PIECES_EXTENT());
 
             int piece = outInfo->Get(UPDATE_PIECE_NUMBER());
 
@@ -984,7 +987,14 @@ void vtkStreamingDemandDrivenPipeline ::ExecuteDataEnd(
               piece, numPieces, 0, uExt, zeroExt, vtkExtentTranslator::BLOCK_MODE, 0);
             et->Delete();
 
-            data->GenerateGhostArray(zeroExt);
+            if (data)
+            {
+              data->GenerateGhostArray(zeroExt);
+            }
+            else
+            {
+              htg->GenerateGhostArray(zeroExt);
+            }
           }
         }
 
