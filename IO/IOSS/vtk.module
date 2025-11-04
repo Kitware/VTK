@@ -26,6 +26,7 @@ OPTIONAL_DEPENDS
 TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::InteractionStyle
+  VTK::netcdf
   VTK::RenderingOpenGL2
   VTK::TestingCore
   VTK::TestingRendering

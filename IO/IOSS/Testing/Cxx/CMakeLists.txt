@@ -39,7 +39,8 @@ if (TARGET VTK::FiltersParallel AND TARGET VTK::RenderingParallel AND TARGET VTK
   vtk_add_test_mpi(vtkIOIOSSCxxTests tests
     TestIOSSExodusParallelWriter.cxx,TESTING_DATA
     TestIOSSExodusPartitionedFiles.cxx,TESTING_DATA
-    TestIOSSExodusRestarts.cxx,NO_VALID,TESTING_DATA)
+    TestIOSSExodusRestarts.cxx,NO_VALID,TESTING_DATA
+    TestIOSSExodusSingleFileParallel.cxx,NO_VALID,TESTING_DATA)
   if (TARGET VTK::catalyst)
     vtk_add_test_mpi(vtkIOIOSSCxxTests tests
       TestIOSSCatalystExodus.cxx,TESTING_DATA
