@@ -96,10 +96,10 @@ void vtkAnariRenderer::SetAnariDevice(vtkAnariDevice* dev)
   }
 
   this->AnariDevice = dev;
-  if (auto d = this->AnariDevice->GetHandle())
+  if (auto devHandle = this->AnariDevice->GetHandle())
   {
-    this->Internal->AnariDevice = d;
-    anari::retain(d, d);
+    this->Internal->AnariDevice = devHandle;
+    anari::retain(devHandle, devHandle);
     this->SetSubtype();
   }
 
