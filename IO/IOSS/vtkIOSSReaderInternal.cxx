@@ -314,15 +314,18 @@ bool vtkIOSSReaderInternal::UpdateTimeInformation(vtkIOSSReader* self)
     for (const auto& pair : this->DatabaseNames)
     {
       assert(pair.second.ProcessCount == 0 || !pair.second.Ranks.empty());
-      const auto fileids = this->GetFileIds(pair.first, rank, numRanks);
+      auto fileids = this->GetFileIds(pair.first, rank, numRanks);
       if (fileids.empty())
       {
         continue;
       }
       try
       {
-        auto region = this->GetRegion(pair.first, fileids.front());
+        // reading one of the processor files is sufficient to get time information.
+        fileids.resize(1);
+        auto region = this->GetRegion(pair.first, fileids.front(), Ioss::QUERY_TIMESTEPS_ONLY);
         dbase_times[pair.first] = vtkIOSSUtilities::GetTime(region);
+        this->ReleaseRegions();
       }
       catch (std::runtime_error& e)
       {
@@ -495,6 +498,10 @@ bool vtkIOSSReaderInternal::UpdateEntityAndFieldSelections(vtkIOSSReader* self)
     // about all blocks in all files. If we read only the first file, we will not know about
     // block_2.
     auto fileids = this->GetFileIds(pair.first, rank, numRanks);
+    if (fileids.empty())
+    {
+      continue;
+    }
     // Nonetheless, if you know that all files have the same structure, you can skip reading
     // all files and just read the first file.
     if (!self->GetReadAllFilesToDetermineStructure())
@@ -853,7 +860,8 @@ bool vtkIOSSReaderInternal::ReadAssemblies(
   return true;
 }
 
-Ioss::Region* vtkIOSSReaderInternal::GetRegion(const std::string& dbasename, int fileid)
+Ioss::Region* vtkIOSSReaderInternal::GetRegion(
+  const std::string& dbasename, int fileid, Ioss::DatabaseUsage dbUsage)
 {
   assert(fileid >= 0);
   auto iter = this->DatabaseNames.find(dbasename);
@@ -966,7 +974,7 @@ Ioss::Region* vtkIOSSReaderInternal::GetRegion(const std::string& dbasename, int
     auto dbase = std::unique_ptr<Ioss::DatabaseIO>(Ioss::IOFactory::create(
       this->IOSSReader->DatabaseTypeOverride ? std::string(this->IOSSReader->DatabaseTypeOverride)
                                              : dtype,
-      dbasename, Ioss::READ_RESTART, parallelUtilsComm, properties));
+      dbasename, dbUsage, parallelUtilsComm, properties));
     if (dbase == nullptr || !dbase->ok(/*write_message=*/true))
     {
       throw std::runtime_error(
