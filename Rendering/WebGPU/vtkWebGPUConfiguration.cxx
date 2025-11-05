@@ -16,7 +16,6 @@
 
 #include <cstdint>
 #include <sstream>
-#include <webgpu/webgpu_cpp.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>

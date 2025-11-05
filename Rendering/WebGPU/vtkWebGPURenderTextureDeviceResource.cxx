@@ -10,7 +10,6 @@
 #include "Private/vtkWebGPUComputePassTextureStorageInternals.h"
 
 #include <string_view>
-#include <webgpu/webgpu_cpp.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 

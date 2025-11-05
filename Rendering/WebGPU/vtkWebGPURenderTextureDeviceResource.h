@@ -13,7 +13,6 @@
 #include "vtk_wgpu.h" // for webgpu
 
 #include <cstdint>
-#include <webgpu/webgpu_cpp.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkWindow;
