@@ -259,7 +259,8 @@ public:
    * assuming `bytesPerRow` bytes of data per row in the texture.
    */
   void WriteTexture(wgpu::Texture texture, uint32_t bytesPerRow, uint32_t byteSize,
-    const void* data, const char* description = nullptr);
+    const void* data, uint32_t srcOffset = 0, wgpu::Origin3D dstOffset = { 0, 0, 0 },
+    uint32_t dstMipLevel = 0, const char* description = nullptr);
 
   ///@{
   /**
