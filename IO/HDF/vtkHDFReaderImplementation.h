@@ -18,10 +18,12 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkAbstractArray;
-class vtkDataArray;
-class vtkStringArray;
-class vtkDataAssembly;
 class vtkBitArray;
+class vtkDataArray;
+class vtkDataAssembly;
+class vtkMemoryResourceStream;
+class vtkResourceStream;
+class vtkStringArray;
 
 /**
  * Implementation for the vtkHDFReader. Opens, closes and
@@ -32,10 +34,17 @@ class vtkHDFReader::Implementation
 public:
   Implementation(vtkHDFReader* reader);
   virtual ~Implementation();
+
   /**
    * Opens this VTK HDF file and checks if it is valid.
    */
   bool Open(VTK_FILEPATH const char* fileName);
+
+  /**
+   * Opens this VTK HDF stream and checks if it is valid.
+   */
+  bool Open(vtkResourceStream* stream);
+
   /**
    * Closes the VTK HDF file and releases any allocated resources.
    */
@@ -237,6 +246,8 @@ public:
 
 private:
   std::string FileName;
+  vtkResourceStream* Stream = nullptr;
+  vtkNew<vtkMemoryResourceStream> LocalMemStream;
   hid_t File;
   hid_t VTKGroup;
   // in the same order as vtkDataObject::AttributeTypes: POINT, CELL, FIELD

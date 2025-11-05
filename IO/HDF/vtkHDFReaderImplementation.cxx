@@ -20,6 +20,7 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridNonOrientedCursor.h"
 #include "vtkImageData.h"
+#include "vtkMemoryResourceStream.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
@@ -88,6 +89,48 @@ bool vtkHDFReader::Implementation::Open(const char* fileName)
     }
 
     if (!vtkHDFUtilities::Open(fileName, this->File))
+    {
+      return false;
+    }
+
+    return this->RetrieveHDFInformation(vtkHDFUtilities::VTKHDF_ROOT_PATH);
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFReader::Implementation::Open(vtkResourceStream* stream)
+{
+  if (!stream)
+  {
+    vtkErrorWithObjectMacro(this->Reader, "Stream is nullptr");
+    return false;
+  }
+
+  if (!this->Stream || this->Stream != stream || this->File < 0)
+  {
+    this->Stream = stream;
+    if (this->File >= 0)
+    {
+      this->Close();
+    }
+
+    auto memStream = vtkMemoryResourceStream::SafeDownCast(stream);
+    if (!memStream)
+    {
+      // Copy to a mem stream if needed
+      stream->Seek(0, vtkResourceStream::SeekDirection::End);
+      std::size_t size = stream->Tell();
+      stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+      std::vector<std::byte> tempBuffer;
+      tempBuffer.resize(size);
+      stream->Read(tempBuffer.data(), size);
+      this->LocalMemStream->SetBuffer(std::move(tempBuffer));
+      memStream = this->LocalMemStream;
+    }
+
+    if (!vtkHDFUtilities::Open(memStream, this->File))
     {
       return false;
     }
