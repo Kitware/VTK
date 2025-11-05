@@ -530,6 +530,22 @@ int TestMultiBlockEmptyPiece(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
+int TestUnstructuredGridWithGlobalIds(int argc, char* argv[])
+{
+  ReadFileMacro("Data/ugWithGlobalIds.vtu", vtkXMLUnstructuredGridReader);
+
+  vtkSmartPointer<vtkPartitionedDataSetCollection> output =
+    Reflect(reader->GetOutputPort(), true, true, vtkAxisAlignedReflectionFilter::Z_MAX);
+
+  vtkUnstructuredGrid* unstructuredOutput =
+    vtkUnstructuredGrid::SafeDownCast(output->GetPartition(0, 0));
+
+  AssertMacro(unstructuredOutput->GetCellData()->GetNumberOfArrays() == 2,
+    unstructuredOutput->GetClassName(), "Incorrect number of field arrays");
+
+  return EXIT_SUCCESS;
+}
+
 // This function tests all the input types, and each input type will test a different plane mode.
 int TestAxisAlignedReflectionFilter(int argc, char* argv[])
 {
@@ -537,5 +553,6 @@ int TestAxisAlignedReflectionFilter(int argc, char* argv[])
     TestRectilinearGrid(argc, argv) || TestExplicitStructuredGrid(argc, argv) ||
     TestStructuredGrid(argc, argv) || TestPolyData(argc, argv) || TestHyperTreeGrid(argc, argv) ||
     TestPartitionedDataSetCollection(argc, argv) || TestMultiBlockMultiPiece(argc, argv) ||
-    TestMultiBlockOnlyDataSets(argc, argv) || TestMultiBlockEmptyPiece(argc, argv);
+    TestMultiBlockOnlyDataSets(argc, argv) || TestMultiBlockEmptyPiece(argc, argv) ||
+    TestUnstructuredGridWithGlobalIds(argc, argv);
 }
