@@ -84,7 +84,7 @@ public:
     /**
      * Update the cached value with the new value. This also increments the TimeStamp.
      */
-    inline void SetValue(bool newValue)
+    void SetValue(bool newValue)
     {
       this->Value = newValue;
       this->TimeStamp.Modified();
@@ -93,12 +93,12 @@ public:
     /**
      * Returns the cached `Value`.
      */
-    inline bool GetValue() const { return Value; }
+    bool GetValue() const { return Value; }
 
     /**
      * Returns true if the timestamp of the cached value is older than the mapper's MTime.
      */
-    inline bool IsOutdated(vtkMapper* mapper) const { return mapper->GetMTime() > this->TimeStamp; }
+    bool IsOutdated(vtkMapper* mapper) const { return mapper->GetMTime() > this->TimeStamp; }
   };
 
   ActorBlock CachedActorInfo;
@@ -113,6 +113,7 @@ public:
   vtkTimeStamp ModelTransformsBuildTimestamp;
   vtkTimeStamp ShadingOptionsBuildTimestamp;
   vtkTimeStamp RenderOptionsBuildTimestamp;
+  vtkTimeStamp DeviceResourcesBuildTimestamp;
 
   wgpu::BindGroupLayout ActorBindGroupLayout;
   wgpu::BindGroup ActorBindGroup;
@@ -120,7 +121,7 @@ public:
 
   vtkTypeUInt32 Id = 0;
 
-  inline void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts)
+  void PopulateBindgroupLayouts(std::vector<wgpu::BindGroupLayout>& layouts)
   {
     layouts.emplace_back(this->ActorBindGroupLayout);
   }
