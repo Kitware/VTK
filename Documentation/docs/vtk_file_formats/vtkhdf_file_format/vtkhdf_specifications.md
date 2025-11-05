@@ -10,6 +10,10 @@ to VTK data model and are outside of the scope of this specification.
 They can be useful to store meta-information that could be read and written
 by custom VTKHDF implementations.
 
+:::{hint}
+Unless specified otherwise, every mention of "dataset" in this doc refers to a [HDF5 dataset](https://support.hdfgroup.org/documentation/hdf5/latest/_h5_d__u_g.html) and not a VTK dataset.
+:::
+
 ### Versioning
 
 VTKHDF File format stores the version in the related attribute `Version`. It is an array of 2 integers `[X,Y]` where
@@ -204,6 +208,9 @@ Figure 2. - Unstructured Grid VTKHDF File Format
 To read the data for its rank a node reads the information about all
 partitions, compute the correct offset and then read data from that
 offset.
+
+In VTK, Unstructured Grids support a large variety of cell types. Most VTK cell types are supported, with the exception of `VTK_POLYHEDRON`.
+which is different from other cell types.
 
 ## Poly data
 
@@ -563,8 +570,8 @@ Each block should describe a valid VTKHDF root node for a supported data types. 
 The generic format for all `VTKHDF` temporal data is shown in Figure 7.
 The general idea is to take the static formats described above and use them
 as a base to append all the time dependent data. As such, a file holding static
-data has a very similar structure to a file holding dynamic data. An additional
-`Steps` subgroup is added to the `VTKHDF` main group holding offset information
+data has a very similar structure to a file holding dynamic data. For a non-composite dataset,
+an additional `Steps` subgroup is added to the `VTKHDF` main group holding offset information
 for each of the time steps as well as the time values. The choice to include offset
 information as HDF5 datasets was made to reduce the quantity of meta-data in the
 file to improve performance. This `Steps` group has one integer like attribute
@@ -661,6 +668,13 @@ Writing incrementally to `VTKHDF` temporal datasets is relatively straightforwar
 appending functionality of `HDF5` chunked data sets
 ([Chunking in HDF5](https://davis.lbl.gov/Manuals/HDF5-1.8.7/Advanced/Chunking/index.html)).
 
+### Particularity regarding UnstructuredGrid and PolyData
+
+Adding data for a new time step works the same way as adding a data for a new partition: data is added
+at the end of existing datasets, and a new value is added to "count" elements for `NumberOfPoints`, `NumberOfCells`
+and `NumberOfConnectivityIds`. For instance, given an object of 2 partitions changing over 10 time steps,
+`NumberOf...` datasets would contain 20 total values.
+
 ### Particularity regarding ImageData
 
 A particularity of temporal `Image Data` in the format is that the reader expects an additional
@@ -731,6 +745,60 @@ digraph G {
 Figure 8. - Temporal OverlappingAMR VTKHDF File Format
 </div>
 
+### Particularity regarding composite dataset
+
+For temporal composite datasets, there is no top-level `/VTKHDF/Steps` group,
+but each block defines its time and offset values in its own `Steps` group,
+in `/VTKHDF/<BlockName>/Steps` (see Figure 9). Each block should have the same
+number of time steps, and the same time values.
+
+```{graphviz}
+digraph G {
+    rankdir=LR;
+    graph [bgcolor=transparent, fontname="Helvetica"];
+    node [style=filled, fillcolor=white, fontname="Helvetica"];
+    edge [color=gray, fontname="Helvetica"];
+
+    VTKHDF [label="VTKHDF\n Version, Type", shape=Mrecord, fillcolor=lightblue];
+
+    Assembly [label="Assembly", shape=Mrecord, fillcolor=lightblue];
+    Block0 [label="Block0", shape=Mrecord, fillcolor=lightblue];
+    BlockEtc [label="...", shape=Mrecord, fillcolor=lightblue];
+    BlockN [label="BlockN", shape=Mrecord, fillcolor=lightblue];
+
+    GroupNameEtc [label="...", shape=Mrecord, fillcolor=lightblue];
+    Steps0 [label="Steps", shape=Mrecord, fillcolor=lightblue];
+    StepsN [label="Steps", shape=Mrecord, fillcolor=lightblue];
+
+    Steps0Etc [label="...", shape=Mrecord, fillcolor=lightblue];
+    StepsNEtc [label="...", shape=Mrecord, fillcolor=lightblue];
+
+    VTKHDF -> Assembly;
+    VTKHDF -> Block0;
+    VTKHDF -> BlockEtc;
+    VTKHDF -> BlockN;
+    Assembly -> GroupNameEtc;
+    Block0 -> Steps0;
+    BlockN -> StepsN;
+    Steps0 -> Steps0Etc;
+    StepsN -> StepsNEtc;
+}
+
+```
+
+<div align="center">
+Figure 9. - Temporal Composite DataSet VTKHDF File Format
+</div>
+
+```{admonition} **Steps defined in multiple Block**
+:class: warning
+
+Having different value in the attribute `NSteps` of the group `Step` between Block is not supported.
+```
+
+:::{hint}
+Not all blocks need to define a `Steps` group, if a block doesn't have it, a temporal data array will be considered to be a "partial" array.
+:::
 
 ## Limitations
 

@@ -140,6 +140,8 @@ vtk_module_test_data(
   Data/vtkHDF/Transient/transient_expected_overlapping_amr_2/transient_expected_overlapping_amr_2_0.vti
   Data/vtkHDF/Transient/transient_expected_overlapping_amr_2/transient_expected_overlapping_amr_2_1.vti
 
+  Data/vtkHDF/composite_partial_array.vtkhdf
+
   Data/vtkHDF/multipiece_temporal_htg.hdf
   Data/vtkHDF/sphere_onepiece.vtkhdf
   Data/vtkHDF/multipiece_htg.hdf
