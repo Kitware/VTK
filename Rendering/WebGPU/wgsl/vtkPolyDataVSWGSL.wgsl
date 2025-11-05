@@ -56,6 +56,8 @@
 
   //VTK::Colors::Impl
 
+  //VTK::UVs::Impl
+
   //VTK::Edges::Impl
 
   //VTK::Normals::Impl

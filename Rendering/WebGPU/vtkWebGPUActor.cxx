@@ -7,6 +7,7 @@
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 
+#include "vtkImageData.h"
 #include "vtkMapper.h"
 #include "vtkMatrix3x3.h"
 #include "vtkObjectFactory.h"
@@ -18,6 +19,7 @@
 #include "vtkWebGPUComputePointCloudMapper.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
+#include "vtkWebGPUTexture.h"
 #include "vtkWindow.h"
 
 #include <algorithm>
@@ -40,11 +42,11 @@ vtkWebGPUActor::~vtkWebGPUActor() = default;
 void vtkWebGPUActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   const auto& internals = (*this->Internals);
-  os << indent << "ModelTransformsBuildTimestamp: " << internals.ModelTransformsBuildTimestamp
+  os << indent << "ModelTransformsLastUpdated: " << internals.ModelTransformsLastUpdated << '\n';
+  os << indent << "ShadingOptionsLastUpdated: " << internals.ShadingOptionsLastUpdated << '\n';
+  os << indent << "RenderOptionsLastUpdated: " << internals.RenderOptionsLastUpdated << '\n';
+  os << indent << "DeviceResourcesBuildTimestamp: " << internals.DeviceResourcesBuildTimestamp
      << '\n';
-  os << indent << "ShadingOptionsBuildTimestamp: " << internals.ShadingOptionsBuildTimestamp
-     << '\n';
-  os << indent << "RenderOptionsBuildTimestamp: " << internals.RenderOptionsBuildTimestamp << '\n';
   this->Superclass::PrintSelf(os, indent);
 }
 
@@ -88,7 +90,7 @@ void vtkWebGPUActor::ShallowCopy(vtkProp* other)
 //------------------------------------------------------------------------------
 void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
 {
-  const auto& internals = (*this->Internals);
+  auto& internals = (*this->Internals);
   if (auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
   {
     auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(wgpuRenderer->GetRenderWindow());
@@ -99,9 +101,13 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
         break;
       case vtkWebGPURenderer::SyncDeviceResources:
       {
-        if (!(internals.ActorBindGroup && internals.ActorBindGroupLayout && internals.ActorBuffer))
+        if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(this->GetTexture()))
         {
-          this->AllocateResources(wgpuConfiguration);
+          wgpuTexture->Render(renderer);
+        }
+        if (this->NeedToRecreateBindGroups())
+        {
+          this->CreateBindGroups(wgpuConfiguration);
         }
         // reset this flag because the `mapper->Render()` call shall invalidate the bundle if it
         // determines that the render bundle needs to be recorded once again.
@@ -238,8 +244,8 @@ bool vtkWebGPUActor::UpdateKeyMatrices()
   }
 
   // has the actor changed or is in device coords?
-  if (this->GetMTime() > internals.ModelTransformsBuildTimestamp ||
-    rwTime > internals.ModelTransformsBuildTimestamp || this->CoordinateSystem == DEVICE)
+  if (this->GetMTime() > internals.ModelTransformsLastUpdated ||
+    rwTime > internals.ModelTransformsLastUpdated || this->CoordinateSystem == DEVICE)
   {
     this->GetModelToWorldMatrix(internals.MCWCMatrix);
 
@@ -262,7 +268,7 @@ bool vtkWebGPUActor::UpdateKeyMatrices()
       }
     }
     internals.NormalMatrix->Invert();
-    internals.ModelTransformsBuildTimestamp.Modified();
+    internals.ModelTransformsLastUpdated.Modified();
     return true;
   }
   return false;
@@ -308,8 +314,8 @@ bool vtkWebGPUActor::CacheActorRenderOptions()
 {
   auto& internals = (*this->Internals);
   auto* displayProperty = this->GetProperty();
-  if (displayProperty->GetMTime() > internals.RenderOptionsBuildTimestamp ||
-    this->GetMTime() > internals.RenderOptionsBuildTimestamp)
+  if (displayProperty->GetMTime() > internals.RenderOptionsLastUpdated ||
+    this->GetMTime() > internals.RenderOptionsLastUpdated)
   {
     auto& ro = internals.CachedActorInfo.RenderOpts;
     ro.PointSize = displayProperty->GetPointSize();
@@ -323,7 +329,7 @@ bool vtkWebGPUActor::CacheActorRenderOptions()
       (displayProperty->GetRenderPointsAsSpheres() << 5) |
       (displayProperty->GetRenderLinesAsTubes() << 6) |
       (static_cast<int>(displayProperty->GetPoint2DShape()) << 7);
-    internals.RenderOptionsBuildTimestamp.Modified();
+    internals.RenderOptionsLastUpdated.Modified();
     return true;
   }
   return false;
@@ -334,8 +340,8 @@ bool vtkWebGPUActor::CacheActorShadeOptions()
 {
   auto& internals = (*this->Internals);
   auto* displayProperty = this->GetProperty();
-  if (displayProperty->GetMTime() > internals.ShadingOptionsBuildTimestamp ||
-    this->GetMTime() > internals.ShadingOptionsBuildTimestamp)
+  if (displayProperty->GetMTime() > internals.ShadingOptionsLastUpdated ||
+    this->GetMTime() > internals.ShadingOptionsLastUpdated)
   {
     auto& so = internals.CachedActorInfo.ColorOpts;
     so.AmbientIntensity = displayProperty->GetAmbient();
@@ -351,7 +357,7 @@ bool vtkWebGPUActor::CacheActorShadeOptions()
       so.EdgeColor[i] = displayProperty->GetEdgeColor()[i];
       so.VertexColor[i] = displayProperty->GetVertexColor()[i];
     }
-    internals.ShadingOptionsBuildTimestamp.Modified();
+    internals.ShadingOptionsLastUpdated.Modified();
     return true;
   }
   return false;
@@ -370,7 +376,25 @@ bool vtkWebGPUActor::CacheActorId()
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUActor::AllocateResources(vtkWebGPUConfiguration* wgpuConfiguration)
+bool vtkWebGPUActor::NeedToRecreateBindGroups()
+{
+  auto& internals = (*this->Internals);
+  if (!(internals.ActorBindGroup && internals.ActorBindGroupLayout && internals.ActorBuffer))
+  {
+    return true;
+  }
+  if (auto* texture = this->GetTexture())
+  {
+    if (texture->GetMTime() > internals.DeviceResourcesBuildTimestamp)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUActor::CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration)
 {
   auto& internals = (*this->Internals);
   const auto& device = wgpuConfiguration->GetDevice();
@@ -381,26 +405,49 @@ void vtkWebGPUActor::AllocateResources(vtkWebGPUConfiguration* wgpuConfiguration
   internals.ActorBuffer = wgpuConfiguration->CreateBuffer(bufferSize,
     wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst, false, bufferLabel.c_str());
 
-  internals.ActorBindGroupLayout = vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
+  std::uint32_t bindingIdBGL = 0;
+  std::vector<wgpu::BindGroupLayoutEntry> bglEntries;
+  // ActorBlock
+  bglEntries.emplace_back(vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper{
+    bindingIdBGL++, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
+    wgpu::BufferBindingType::ReadOnlyStorage });
+  // Actor texture
+  if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(this->GetTexture()))
+  {
+    if (auto devRc = wgpuTexture->GetDeviceResource())
     {
-      // clang-format off
-      // ActorBlocks
-      { 0, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::ReadOnlyStorage },
-      // clang-format on
-    },
-    actorDescription);
-  internals.ActorBindGroup =
-    vtkWebGPUBindGroupInternals::MakeBindGroup(device, internals.ActorBindGroupLayout,
-      {
-        // clang-format off
-        { 0, internals.ActorBuffer, 0, bufferSize },
-        // clang-format on
-      },
-      actorDescription);
+      bglEntries.emplace_back(
+        devRc->MakeSamplerBindGroupLayoutEntry(bindingIdBGL++, wgpu::ShaderStage::Fragment));
+      bglEntries.emplace_back(
+        devRc->MakeTextureViewBindGroupLayoutEntry(bindingIdBGL++, wgpu::ShaderStage::Fragment));
+    }
+  }
+
+  internals.ActorBindGroupLayout =
+    vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, bglEntries, actorDescription);
+  std::uint32_t bindingIdBG = 0;
+  std::vector<wgpu::BindGroupEntry> bgEntries;
+  // ActorBlock
+  auto actorBindingInit = vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingIdBG++,
+    internals.ActorBuffer, 0, bufferSize };
+  bgEntries.emplace_back(actorBindingInit.GetAsBinding());
+  // Actor texture
+  if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(this->GetTexture()))
+  {
+    if (auto devRc = wgpuTexture->GetDeviceResource())
+    {
+      bgEntries.emplace_back(devRc->MakeSamplerBindGroupEntry(bindingIdBG++));
+      bgEntries.emplace_back(devRc->MakeTextureViewBindGroupEntry(bindingIdBG++));
+    }
+  }
+
+  internals.ActorBindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(
+    device, internals.ActorBindGroupLayout, bgEntries, actorDescription);
+  internals.DeviceResourcesBuildTimestamp.Modified();
   // Reset timestamps because the previous buffer is now gone and contents of the buffer will need
   // to be re-uploaded.
-  internals.ModelTransformsBuildTimestamp = vtkTimeStamp();
-  internals.ShadingOptionsBuildTimestamp = vtkTimeStamp();
-  internals.RenderOptionsBuildTimestamp = vtkTimeStamp();
+  internals.ModelTransformsLastUpdated = vtkTimeStamp();
+  internals.ShadingOptionsLastUpdated = vtkTimeStamp();
+  internals.RenderOptionsLastUpdated = vtkTimeStamp();
 }
 VTK_ABI_NAMESPACE_END

@@ -11,6 +11,7 @@
 #include "vtkDataArray.h"
 #include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
+#include "vtkImageData.h"
 #include "vtkLogger.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
@@ -35,8 +36,10 @@
 #include "vtkWebGPUComputeRenderBuffer.h"
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPURenderPipelineCache.h"
+#include "vtkWebGPURenderTextureDeviceResource.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
+#include "vtkWebGPUTexture.h"
 
 #include "vtkPolyDataFSWGSL.h"
 #include "vtkPolyDataVSWGSL.h"
@@ -222,6 +225,10 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
       {
         wgpuRenderer->InvalidateBundle();
         return;
+      }
+      if (this->ColorTextureHostResource)
+      {
+        this->ColorTextureHostResource->Render(renderer);
       }
       this->UpdateClippingPlanesBuffer(wgpuConfiguration, actor);
       vtkTypeUInt32* vertexCounts[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES];
@@ -953,6 +960,19 @@ std::vector<wgpu::BindGroupLayoutEntry> vtkWebGPUPolyDataMapper::GetMeshBindGrou
         bindingId++, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
     }
   }
+  if (this->HasPointAttributes[POINT_COLOR_UVS])
+  {
+    if (this->ColorTextureHostResource != nullptr)
+    {
+      if (auto devRc = this->ColorTextureHostResource->GetDeviceResource())
+      {
+        entries.emplace_back(
+          devRc->MakeSamplerBindGroupLayoutEntry(bindingId++, wgpu::ShaderStage::Fragment));
+        entries.emplace_back(
+          devRc->MakeTextureViewBindGroupLayoutEntry(bindingId++, wgpu::ShaderStage::Fragment));
+      }
+    }
+  }
   for (int attributeIndex = 0; attributeIndex < CELL_NB_ATTRIBUTES; ++attributeIndex)
   {
     if (this->HasCellAttributes[attributeIndex])
@@ -1038,6 +1058,17 @@ std::vector<wgpu::BindGroupEntry> vtkWebGPUPolyDataMapper::GetMeshBindGroupEntri
         vtkWebGPUBindGroupInternals::BindingInitializationHelper{ bindingId++,
           this->PointBuffers[attributeIndex].Buffer, 0 };
       entries.emplace_back(initializer.GetAsBinding());
+    }
+  }
+  if (this->HasPointAttributes[POINT_COLOR_UVS])
+  {
+    if (this->ColorTextureHostResource != nullptr)
+    {
+      if (auto devRc = this->ColorTextureHostResource->GetDeviceResource())
+      {
+        entries.emplace_back(devRc->MakeSamplerBindGroupEntry(bindingId++));
+        entries.emplace_back(devRc->MakeTextureViewBindGroupEntry(bindingId++));
+      }
     }
   }
   for (int attributeIndex = 0; attributeIndex < CELL_NB_ATTRIBUTES; ++attributeIndex)
@@ -1147,7 +1178,13 @@ unsigned long vtkWebGPUPolyDataMapper::GetPointAttributeByteSize(
         return this->CurrentInput->GetPointData()->GetTCoords()->GetNumberOfValues() *
           sizeof(vtkTypeFloat32);
       }
+      break;
 
+    case PointDataAttributes::POINT_COLOR_UVS:
+      if (this->HasPointAttributes[attribute])
+      {
+        return this->ColorCoordinates->GetNumberOfValues() * sizeof(vtkTypeFloat32);
+      }
       break;
 
     default:
@@ -1238,7 +1275,13 @@ unsigned long vtkWebGPUPolyDataMapper::GetPointAttributeElementSize(
         return this->CurrentInput->GetPointData()->GetTCoords()->GetNumberOfComponents() *
           sizeof(vtkTypeFloat32);
       }
+      break;
 
+    case PointDataAttributes::POINT_COLOR_UVS:
+      if (this->HasPointAttributes[attribute])
+      {
+        return this->ColorCoordinates->GetNumberOfComponents() * sizeof(vtkTypeFloat32);
+      }
       break;
 
     default:
@@ -1301,6 +1344,9 @@ unsigned long vtkWebGPUPolyDataMapper::GetExactPointBufferSize(
     case POINT_UVS:
       result = this->GetPointAttributeByteSize(POINT_UVS);
       break;
+    case POINT_COLOR_UVS:
+      result = this->GetPointAttributeByteSize(POINT_COLOR_UVS);
+      break;
     case POINT_NB_ATTRIBUTES:
     case POINT_UNDEFINED:
       break;
@@ -1352,6 +1398,10 @@ void vtkWebGPUPolyDataMapper::DeducePointCellAttributeAvailability(vtkPolyData* 
   {
     // we've point scalars mapped to colors.
     this->HasPointAttributes[POINT_COLORS] = true;
+  }
+  if (this->ColorCoordinates != nullptr && this->ColorCoordinates->GetNumberOfValues() > 0)
+  {
+    this->HasPointAttributes[POINT_COLOR_UVS] = true;
   }
   // check for cell normals
   this->HasCellAttributes[CELL_NORMALS] = cellData->GetNormals() != nullptr;
@@ -1432,6 +1482,19 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
   // and ColorTextureMap as a side effect.
   int cellFlag = 0;
   this->MapScalars(this->CurrentInput, 1.0, cellFlag);
+  if (this->ColorTextureMap)
+  {
+    if (this->ColorTextureHostResource == nullptr)
+    {
+      this->ColorTextureHostResource = vtk::TakeSmartPointer(vtkWebGPUTexture::New());
+      this->ColorTextureHostResource->RepeatOff();
+    }
+    this->ColorTextureHostResource->SetInputData(this->ColorTextureMap);
+  }
+  else
+  {
+    this->ColorTextureHostResource = nullptr;
+  }
   this->DeducePointCellAttributeAvailability(this->CurrentInput);
 
   vtkPointData* pointData = this->CurrentInput->GetPointData();
@@ -1441,13 +1504,15 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
   vtkDataArray* pointNormals = pointData->GetNormals();
   vtkDataArray* pointTangents = pointData->GetTangents();
   vtkDataArray* pointUvs = pointData->GetTCoords();
+  vtkDataArray* colorUvs =
+    this->HasPointAttributes[POINT_COLOR_UVS] ? this->ColorCoordinates : nullptr;
 
   using DispatchT = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>;
 
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
 
   const char* pointAttribLabels[PointDataAttributes::POINT_NB_ATTRIBUTES] = { "point_coordinates",
-    "point_colors", "point_normals", "point_tangents", "point_uvs" };
+    "point_colors", "point_normals", "point_tangents", "point_uvs", "point_color_uvs" };
   for (int attributeIndex = 0; attributeIndex < PointDataAttributes::POINT_NB_ATTRIBUTES;
        attributeIndex++)
   {
@@ -1538,6 +1603,16 @@ void vtkWebGPUPolyDataMapper::UpdateMeshGeometryBuffers(vtkWebGPURenderWindow* w
           if (!DispatchT::Execute(pointUvs, attributeWriter, pointAttribLabels[attributeIndex]))
           {
             attributeWriter(pointUvs, pointAttribLabels[attributeIndex]);
+          }
+          this->PointAttributesBuildTimestamp[attributeIndex].Modified();
+        }
+        break;
+      case PointDataAttributes::POINT_COLOR_UVS:
+        if (colorUvs && colorUvs->GetMTime() > this->PointAttributesBuildTimestamp[attributeIndex])
+        {
+          if (!DispatchT::Execute(colorUvs, attributeWriter, pointAttribLabels[attributeIndex]))
+          {
+            attributeWriter(colorUvs, pointAttribLabels[attributeIndex]);
           }
           this->PointAttributesBuildTimestamp[attributeIndex].Modified();
         }
@@ -1822,7 +1897,8 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
     descriptor.primitive.topology = this->GetPrimitiveTopologyForPipeline(pipelineType);
     std::string vertexShaderSource = vtkPolyDataVSWGSL;
     std::string fragmentShaderSource = vtkPolyDataFSWGSL;
-    this->ApplyShaderReplacements(pipelineType, vertexShaderSource, fragmentShaderSource);
+    this->ApplyShaderReplacements(
+      pipelineType, wgpuRenderer, wgpuActor, vertexShaderSource, fragmentShaderSource);
     // generate a unique key for the pipeline descriptor and shader source pointer
     this->GraphicsPipelineKeys[i] = wgpuPipelineCache->GetPipelineKey(
       &descriptor, vertexShaderSource.c_str(), fragmentShaderSource.c_str());
@@ -1836,56 +1912,58 @@ void vtkWebGPUPolyDataMapper::SetupGraphicsPipelines(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ApplyShaderReplacements(
-  vtkWebGPUPolyDataMapper::GraphicsPipelineType pipelineType, std::string& vss, std::string& fss)
+void vtkWebGPUPolyDataMapper::ApplyShaderReplacements(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor, std::string& vss, std::string& fss)
 {
   std::fill(this->NumberOfBindings.begin(), this->NumberOfBindings.end(), 0);
 
-  this->ReplaceShaderConstantsDef(pipelineType, vss, fss);
-  this->ReplaceShaderActorDef(pipelineType, vss, fss);
-  this->ReplaceShaderCustomDef(pipelineType, vss, fss);
-  this->ReplaceShaderClippingPlanesDef(pipelineType, vss, fss);
+  this->ReplaceShaderConstantsDef(pipelineType, wgpuRenderer, wgpuActor, vss, fss);
+  this->ReplaceShaderActorDef(pipelineType, wgpuRenderer, wgpuActor, vss, fss);
+  this->ReplaceShaderCustomDef(pipelineType, wgpuRenderer, wgpuActor, vss, fss);
+  this->ReplaceShaderClippingPlanesDef(pipelineType, wgpuRenderer, wgpuActor, vss, fss);
 
-  this->ReplaceShaderRendererBindings(pipelineType, vss, fss);
-  this->ReplaceShaderActorBindings(pipelineType, vss, fss);
-  this->ReplaceShaderMeshAttributeBindings(pipelineType, vss, fss);
-  this->ReplaceShaderClippingPlanesBindings(pipelineType, vss, fss);
-  this->ReplaceShaderTopologyBindings(pipelineType, vss, fss);
-  this->ReplaceShaderCustomBindings(pipelineType, vss, fss);
+  this->ReplaceShaderRendererBindings(pipelineType, wgpuRenderer, wgpuActor, vss, fss);
+  this->ReplaceShaderActorBindings(pipelineType, wgpuRenderer, wgpuActor, vss, fss);
+  this->ReplaceShaderMeshAttributeBindings(pipelineType, wgpuRenderer, wgpuActor, vss, fss);
+  this->ReplaceShaderClippingPlanesBindings(pipelineType, wgpuRenderer, wgpuActor, vss, fss);
+  this->ReplaceShaderTopologyBindings(pipelineType, wgpuRenderer, wgpuActor, vss, fss);
+  this->ReplaceShaderCustomBindings(pipelineType, wgpuRenderer, wgpuActor, vss, fss);
 
-  this->ReplaceShaderVertexOutputDef(pipelineType, vss, fss);
+  this->ReplaceShaderVertexOutputDef(pipelineType, wgpuRenderer, wgpuActor, vss, fss);
 
-  this->ReplaceVertexShaderInputDef(pipelineType, vss);
-  this->ReplaceVertexShaderMainStart(pipelineType, vss);
-  this->ReplaceVertexShaderCamera(pipelineType, vss);
-  this->ReplaceVertexShaderNormalTransform(pipelineType, vss);
-  this->ReplaceVertexShaderVertexId(pipelineType, vss);
-  this->ReplaceVertexShaderPrimitiveId(pipelineType, vss);
-  this->ReplaceVertexShaderCellId(pipelineType, vss);
-  this->ReplaceVertexShaderPosition(pipelineType, vss);
-  this->ReplaceVertexShaderClippingPlanes(pipelineType, vss);
-  this->ReplaceVertexShaderPositionVC(pipelineType, vss);
-  this->ReplaceVertexShaderPicking(pipelineType, vss);
-  this->ReplaceVertexShaderColors(pipelineType, vss);
-  this->ReplaceVertexShaderEdges(pipelineType, vss);
-  this->ReplaceVertexShaderNormals(pipelineType, vss);
-  this->ReplaceVertexShaderTangents(pipelineType, vss);
-  this->ReplaceVertexShaderMainEnd(pipelineType, vss);
+  this->ReplaceVertexShaderInputDef(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderMainStart(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderCamera(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderNormalTransform(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderVertexId(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderPrimitiveId(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderCellId(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderPosition(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderClippingPlanes(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderPositionVC(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderPicking(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderColors(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderUVs(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderEdges(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderNormals(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderTangents(pipelineType, wgpuRenderer, wgpuActor, vss);
+  this->ReplaceVertexShaderMainEnd(pipelineType, wgpuRenderer, wgpuActor, vss);
 
-  this->ReplaceFragmentShaderOutputDef(pipelineType, fss);
-  this->ReplaceFragmentShaderMainStart(pipelineType, fss);
-  this->ReplaceFragmentShaderClippingPlanes(pipelineType, fss);
-  this->ReplaceFragmentShaderColors(pipelineType, fss);
-  this->ReplaceFragmentShaderNormals(pipelineType, fss);
-  this->ReplaceFragmentShaderEdges(pipelineType, fss);
-  this->ReplaceFragmentShaderLights(pipelineType, fss);
-  this->ReplaceFragmentShaderPicking(pipelineType, fss);
-  this->ReplaceFragmentShaderMainEnd(pipelineType, fss);
+  this->ReplaceFragmentShaderOutputDef(pipelineType, wgpuRenderer, wgpuActor, fss);
+  this->ReplaceFragmentShaderMainStart(pipelineType, wgpuRenderer, wgpuActor, fss);
+  this->ReplaceFragmentShaderClippingPlanes(pipelineType, wgpuRenderer, wgpuActor, fss);
+  this->ReplaceFragmentShaderColors(pipelineType, wgpuRenderer, wgpuActor, fss);
+  this->ReplaceFragmentShaderNormals(pipelineType, wgpuRenderer, wgpuActor, fss);
+  this->ReplaceFragmentShaderEdges(pipelineType, wgpuRenderer, wgpuActor, fss);
+  this->ReplaceFragmentShaderLights(pipelineType, wgpuRenderer, wgpuActor, fss);
+  this->ReplaceFragmentShaderPicking(pipelineType, wgpuRenderer, wgpuActor, fss);
+  this->ReplaceFragmentShaderMainEnd(pipelineType, wgpuRenderer, wgpuActor, fss);
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceShaderConstantsDef(
-  GraphicsPipelineType pipelineType, std::string& vss, std::string& vtkNotUsed(fss))
+void vtkWebGPUPolyDataMapper::ReplaceShaderConstantsDef(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vss, std::string& vtkNotUsed(fss))
 {
   std::string code;
   switch (pipelineType)
@@ -2033,8 +2111,9 @@ const TRIANGLE_VERTS = array(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceShaderActorDef(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+void vtkWebGPUPolyDataMapper::ReplaceShaderActorDef(GraphicsPipelineType vtkNotUsed(pipelineType),
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vss, std::string& fss)
 {
   const std::string code = R"(
 struct Actor
@@ -2050,7 +2129,8 @@ struct Actor
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceShaderClippingPlanesDef(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss, std::string& fss)
 {
   if (this->GetNumberOfClippingPlanes() == 0)
   {
@@ -2068,17 +2148,16 @@ struct ClippingPlanes
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceShaderCustomDef(
-  GraphicsPipelineType pipelineType, std::string& vss, std::string& fss)
+void vtkWebGPUPolyDataMapper::ReplaceShaderCustomDef(GraphicsPipelineType vtkNotUsed(pipelineType),
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vtkNotUsed(vss), std::string& vtkNotUsed(fss))
 {
-  (void)pipelineType;
-  (void)vss;
-  (void)fss;
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceShaderRendererBindings(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss, std::string& fss)
 {
   auto& bindingId = this->NumberOfBindings[GROUP_RENDERER];
 
@@ -2096,13 +2175,26 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderRendererBindings(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceShaderActorBindings(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* wgpuActor, std::string& vss, std::string& fss)
 {
   auto& bindingId = this->NumberOfBindings[GROUP_ACTOR];
 
   std::stringstream codeStream;
   codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++
              << ") var<storage, read> actor: Actor;";
+  if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(wgpuActor->GetTexture()))
+  {
+    if (auto devRc = wgpuTexture->GetDeviceResource())
+    {
+      const char* textureSampleTypeStr =
+        vtkWebGPURenderTextureDeviceResource::GetTextureSampleTypeString(devRc->GetSampleType());
+      codeStream << "\n@group(" << GROUP_ACTOR << ") @binding(" << bindingId++
+                 << ") var actor_texture_sampler: sampler;\n";
+      codeStream << "@group(" << GROUP_ACTOR << ") @binding(" << bindingId++
+                 << ") var actor_texture: texture_2d<" << textureSampleTypeStr << ">;\n";
+    }
+  }
 
   vtkWebGPURenderPipelineCache::Substitute(
     vss, "//VTK::Actor::Bindings", codeStream.str(), /*all=*/true);
@@ -2112,7 +2204,8 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderActorBindings(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceShaderClippingPlanesBindings(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss, std::string& fss)
 {
   if (this->GetNumberOfClippingPlanes() == 0)
   {
@@ -2132,12 +2225,13 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderClippingPlanesBindings(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceShaderMeshAttributeBindings(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& vtkNotUsed(fss))
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss, std::string& fss)
 {
   auto& bindingId = this->NumberOfBindings[GROUP_MESH];
 
   const char* pointAttributeLabels[POINT_NB_ATTRIBUTES] = { "point_coordinates", "point_colors",
-    "point_normals", "point_tangents", "point_uvs" };
+    "point_normals", "point_tangents", "point_uvs", "point_color_uvs" };
 
   std::stringstream codeStream;
   for (int i = 0; i < POINT_NB_ATTRIBUTES; ++i)
@@ -2146,6 +2240,19 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderMeshAttributeBindings(
     {
       codeStream << "@group(" << GROUP_MESH << ") @binding(" << bindingId++
                  << ") var<storage, read> " << pointAttributeLabels[i] << " : array<f32>;\n ";
+    }
+  }
+  if (this->HasPointAttributes[POINT_COLOR_UVS])
+  {
+    if (auto deviceResource = this->ColorTextureHostResource->GetDeviceResource())
+    {
+      codeStream << "@group(" << GROUP_MESH << ") @binding(" << bindingId++
+                 << ") var point_color_sampler: sampler;\n ";
+      const char* textureSampleTypeStr =
+        vtkWebGPURenderTextureDeviceResource::GetTextureSampleTypeString(
+          deviceResource->GetSampleType());
+      codeStream << "@group(" << GROUP_MESH << ") @binding(" << bindingId++
+                 << ") var point_color_texture: texture_2d<" << textureSampleTypeStr << ">;\n";
     }
   }
   const char* cellAttributeLabels[CELL_NB_ATTRIBUTES] = { "cell_colors", "cell_normals" };
@@ -2159,20 +2266,21 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderMeshAttributeBindings(
   }
   vtkWebGPURenderPipelineCache::Substitute(
     vss, "//VTK::Mesh::Bindings", codeStream.str(), /*all=*/true);
+  vtkWebGPURenderPipelineCache::Substitute(
+    fss, "//VTK::Mesh::Bindings", codeStream.str(), /*all=*/true);
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceShaderCustomBindings(
-  GraphicsPipelineType pipelineType, std::string& vss, std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vtkNotUsed(vss), std::string& vtkNotUsed(fss))
 {
-  (void)pipelineType;
-  (void)vss;
-  (void)fss;
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceShaderTopologyBindings(
-  GraphicsPipelineType pipelineType, std::string& vss, std::string& vtkNotUsed(fss))
+void vtkWebGPUPolyDataMapper::ReplaceShaderTopologyBindings(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vss, std::string& vtkNotUsed(fss))
 {
   switch (pipelineType)
   {
@@ -2212,8 +2320,9 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderTopologyBindings(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceVertexShaderInputDef(
-  GraphicsPipelineType pipelineType, std::string& vss)
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderInputDef(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vss)
 {
   std::stringstream codeStream;
   codeStream << "struct VertexInput\n{\n";
@@ -2228,14 +2337,17 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderInputDef(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceShaderVertexOutputDef(
-  GraphicsPipelineType pipelineType, std::string& vss, std::string& fss)
+void vtkWebGPUPolyDataMapper::ReplaceShaderVertexOutputDef(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vss, std::string& fss)
 {
   std::stringstream codeStream;
   std::size_t id = 0;
   codeStream << "struct VertexOutput\n{\n";
   codeStream << "  @builtin(position) position: vec4<f32>,\n";
   codeStream << "  @location(" << id++ << ") color: vec4<f32>,\n";
+  codeStream << "  @location(" << id++ << ") uv: vec2<f32>,\n";
+  codeStream << "  @location(" << id++ << ") lut_uv: vec2<f32>,\n";
   codeStream << "  @location(" << id++ << ") position_VC: vec4<f32>,\n";
   codeStream << "  @location(" << id++ << ") normal_VC: vec3<f32>,\n";
   if (this->HasPointAttributes[POINT_TANGENTS])
@@ -2287,7 +2399,8 @@ void vtkWebGPUPolyDataMapper::ReplaceShaderVertexOutputDef(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceVertexShaderMainStart(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss)
 {
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexMain::Start", R"(@vertex
 fn vertexMain(vertex: VertexInput) -> VertexOutput
@@ -2299,7 +2412,8 @@ fn vertexMain(vertex: VertexInput) -> VertexOutput
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceVertexShaderCamera(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss)
 {
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Camera::Impl",
     "let model_view_projection = scene_transform.projection * scene_transform.view * "
@@ -2309,7 +2423,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderCamera(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceVertexShaderNormalTransform(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss)
 {
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::NormalTransform::Impl",
     "let normal_model_view = scene_transform.normal * actor.transform.normal;",
@@ -2317,8 +2432,9 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderNormalTransform(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceVertexShaderVertexId(
-  GraphicsPipelineType pipelineType, std::string& vss)
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderVertexId(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vss)
 {
   switch (pipelineType)
   {
@@ -2363,8 +2479,9 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderVertexId(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPrimitiveId(
-  GraphicsPipelineType pipelineType, std::string& vss)
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPrimitiveId(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vss)
 {
   switch (pipelineType)
   {
@@ -2408,8 +2525,9 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPrimitiveId(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceVertexShaderCellId(
-  GraphicsPipelineType pipelineType, std::string& vss)
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderCellId(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vss)
 {
   switch (pipelineType)
   {
@@ -2441,8 +2559,9 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderCellId(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(
-  GraphicsPipelineType pipelineType, std::string& vss)
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vss)
 {
   switch (pipelineType)
   {
@@ -2767,7 +2886,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(
 }
 
 void vtkWebGPUPolyDataMapper::ReplaceVertexShaderClippingPlanes(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss)
 {
   if (this->GetNumberOfClippingPlanes() == 0)
   {
@@ -2789,7 +2909,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderClippingPlanes(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPositionVC(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss)
 {
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::PositionVC::Impl",
     "output.position_VC = scene_transform.inverted_projection * output.position;",
@@ -2798,7 +2919,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPositionVC(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPicking(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss)
 {
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Picking::Impl", R"(
     // Write indices
@@ -2812,7 +2934,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPicking(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceVertexShaderColors(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss)
 {
   if (this->HasPointAttributes[POINT_COLORS])
   {
@@ -2843,8 +2966,32 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderColors(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceVertexShaderEdges(
-  GraphicsPipelineType pipelineType, std::string& vss)
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderUVs(GraphicsPipelineType vtkNotUsed(pipelineType),
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vss)
+{
+  std::stringstream codeStream;
+  if (this->HasPointAttributes[POINT_UVS])
+  {
+    codeStream << R"(
+      output.uv[0] = point_uvs[2u * point_id];
+      output.uv[1] = point_uvs[2u * point_id + 1u];
+    )";
+  }
+  if (this->HasPointAttributes[POINT_COLOR_UVS])
+  {
+    codeStream << R"(
+      output.lut_uv[0] = point_color_uvs[2u * point_id];
+      output.lut_uv[1] = point_color_uvs[2u * point_id + 1u];
+    )";
+  }
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::UVs::Impl", codeStream.str(), /*all=*/true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderEdges(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vss)
 {
   if (pipelineType == GFX_PIPELINE_TRIANGLES ||
     pipelineType == GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE)
@@ -2910,8 +3057,9 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderEdges(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceVertexShaderNormals(
-  GraphicsPipelineType pipelineType, std::string& vss)
+void vtkWebGPUPolyDataMapper::ReplaceVertexShaderNormals(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& vss)
 {
   if (this->HasPointAttributes[POINT_NORMALS])
   {
@@ -2971,7 +3119,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderNormals(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceVertexShaderTangents(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss)
 {
   if (this->HasPointAttributes[POINT_TANGENTS])
   {
@@ -2984,7 +3133,8 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderTangents(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceVertexShaderMainEnd(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss)
 {
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexMain::End", R"( return output;
 })",
@@ -2992,8 +3142,9 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderMainEnd(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderOutputDef(
-  GraphicsPipelineType pipelineType, std::string& fss)
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderOutputDef(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& fss)
 {
   const bool usesFragDepth = pipelineType == GFX_PIPELINE_POINTS_SHAPED ||
     pipelineType == GFX_PIPELINE_POINTS_SHAPED_HOMOGENEOUS_CELL_SIZE;
@@ -3021,8 +3172,9 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderOutputDef(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainStart(
-  GraphicsPipelineType pipelineType, std::string& fss)
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainStart(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& fss)
 {
   const std::string basicCode = R"(@fragment
 fn fragmentMain(
@@ -3069,7 +3221,8 @@ fn fragmentMain(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderClippingPlanes(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
 {
   if (this->GetNumberOfClippingPlanes() == 0)
   {
@@ -3094,13 +3247,16 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderClippingPlanes(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderColors(
-  GraphicsPipelineType pipelineType, std::string& fss)
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderColors(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* wgpuActor, std::string& fss)
 {
   std::string basicColorFSImpl = R"(var ambient_color: vec3<f32> = vec3<f32>(0., 0., 0.);
   var diffuse_color: vec3<f32> = vec3<f32>(0., 0., 0.);
   var specular_color: vec3<f32> = vec3<f32>(0., 0., 0.);
   var opacity: f32;
+  ambient_color = actor.color_options.ambient_color;
+  diffuse_color = actor.color_options.diffuse_color;
+  opacity = actor.color_options.opacity;
   )";
   if (this->HasPointAttributes[POINT_COLORS] || this->HasCellAttributes[CELL_COLORS])
   {
@@ -3110,13 +3266,36 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderColors(
   opacity = vertex.color.a;
 )";
   }
-  else
+  else if (this->HasPointAttributes[POINT_COLOR_UVS])
   {
-    basicColorFSImpl += R"(
-  ambient_color = actor.color_options.ambient_color;
-  diffuse_color = actor.color_options.diffuse_color;
-  opacity = actor.color_options.opacity;
+    if (this->ColorTextureHostResource != nullptr)
+    {
+      if (this->ColorTextureHostResource->GetDeviceResource() != nullptr)
+      {
+        basicColorFSImpl += R"(
+  let lut_tex_color: vec4<f32> = textureSample(point_color_texture, point_color_sampler, vertex.lut_uv);
+  ambient_color = ambient_color * lut_tex_color.rgb;
+  diffuse_color = diffuse_color * lut_tex_color.rgb;
+  opacity = opacity * lut_tex_color.a;
 )";
+      }
+    }
+  }
+
+  if (this->HasPointAttributes[POINT_UVS])
+  {
+    if (auto* wgpuTexture = vtkWebGPUTexture::SafeDownCast(wgpuActor->GetTexture()))
+    {
+      if (wgpuTexture->GetDeviceResource() != nullptr)
+      {
+        basicColorFSImpl += R"(
+  let actor_tex_color: vec4<f32> = textureSample(actor_texture, actor_texture_sampler, vertex.uv);
+  ambient_color = ambient_color * actor_tex_color.rgb;
+  diffuse_color = diffuse_color * actor_tex_color.rgb;
+  opacity = opacity * actor_tex_color.a;
+)";
+      }
+    }
   }
   switch (pipelineType)
   {
@@ -3156,8 +3335,9 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderColors(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderNormals(
-  GraphicsPipelineType pipelineType, std::string& fss)
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderNormals(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& fss)
 {
   switch (pipelineType)
   {
@@ -3258,8 +3438,9 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderNormals(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderEdges(
-  GraphicsPipelineType pipelineType, std::string& fss)
+void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderEdges(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+  std::string& fss)
 {
   if (pipelineType == GFX_PIPELINE_TRIANGLES ||
     pipelineType == GFX_PIPELINE_TRIANGLES_HOMOGENEOUS_CELL_SIZE)
@@ -3314,7 +3495,8 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderEdges(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
 {
   vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Lights::Impl",
     R"(if scene_lights.count == 0u
@@ -3322,7 +3504,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(
     // allow post-processing this pixel.
     output.color = vec4<f32>(
       actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
-      opacity
+      actor.color_options.opacity * opacity
     );
   }
   else if scene_lights.count == 1u
@@ -3333,7 +3515,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(
       // TODO: positional
       output.color = vec4<f32>(
           actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color,
-          opacity
+          actor.color_options.opacity * opacity
       );
     }
     else
@@ -3345,7 +3527,7 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(
       specular_color = sf * actor.color_options.specular_intensity * actor.color_options.specular_color * light.color;
       output.color = vec4<f32>(
           actor.color_options.ambient_intensity * ambient_color + actor.color_options.diffuse_intensity * diffuse_color + specular_color,
-          opacity
+          actor.color_options.opacity * opacity
       );
     }
   }
@@ -3364,7 +3546,8 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderLights(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderPicking(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
 {
   vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Picking::Impl",
     R"(
@@ -3377,7 +3560,8 @@ void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderPicking(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper::ReplaceFragmentShaderMainEnd(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
 {
   vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::FragmentMain::End", R"(return output;
 })",
@@ -3503,6 +3687,11 @@ void vtkWebGPUPolyDataMapper::ReleaseGraphicsResources(vtkWindow* w)
   {
     this->ClippingPlanesBuffer.Destroy();
     this->ClippingPlanesBuffer = nullptr;
+  }
+  if (this->ColorTextureHostResource != nullptr)
+  {
+    this->ColorTextureHostResource->ReleaseGraphicsResources(w);
+    this->ColorTextureHostResource = nullptr;
   }
   this->ClippingPlanesBuildTimestamp = vtkTimeStamp();
   this->LastScalarMode = -1;

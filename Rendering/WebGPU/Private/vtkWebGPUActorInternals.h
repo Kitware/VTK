@@ -110,9 +110,9 @@ public:
   vtkNew<vtkMatrix3x3> NormalMatrix;
   vtkNew<vtkTransform> NormalTransform;
 
-  vtkTimeStamp ModelTransformsBuildTimestamp;
-  vtkTimeStamp ShadingOptionsBuildTimestamp;
-  vtkTimeStamp RenderOptionsBuildTimestamp;
+  vtkTimeStamp ModelTransformsLastUpdated;
+  vtkTimeStamp ShadingOptionsLastUpdated;
+  vtkTimeStamp RenderOptionsLastUpdated;
   vtkTimeStamp DeviceResourcesBuildTimestamp;
 
   wgpu::BindGroupLayout ActorBindGroupLayout;

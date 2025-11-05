@@ -312,7 +312,8 @@ void vtkWebGPUBatchedPolyDataMapper::UploadCompositeDataProperties(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUBatchedPolyDataMapper::ReplaceShaderCustomDef(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss, std::string& fss)
 {
   const std::string code = R"(struct CompositeDataProperties
 {
@@ -332,7 +333,8 @@ void vtkWebGPUBatchedPolyDataMapper::ReplaceShaderCustomDef(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUBatchedPolyDataMapper::ReplaceShaderCustomBindings(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss, std::string& fss)
 {
   auto& bindingId = this->NumberOfBindings[GROUP_MESH];
   std::stringstream codeStream;
@@ -346,7 +348,8 @@ void vtkWebGPUBatchedPolyDataMapper::ReplaceShaderCustomBindings(
 
 //------------------------------------------------------------------------------
 void vtkWebGPUBatchedPolyDataMapper::ReplaceVertexShaderPicking(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& vss)
 {
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Picking::Impl",
     R"(if (composite_data_properties.pickable == 1u)
@@ -361,8 +364,8 @@ void vtkWebGPUBatchedPolyDataMapper::ReplaceVertexShaderPicking(
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUBatchedPolyDataMapper::ReplaceFragmentShaderColors(
-  GraphicsPipelineType pipelineType, std::string& fss)
+void vtkWebGPUBatchedPolyDataMapper::ReplaceFragmentShaderColors(GraphicsPipelineType pipelineType,
+  vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor, std::string& fss)
 {
   vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Colors::Impl",
     R"(//VTK::Colors::Impl
@@ -373,12 +376,13 @@ void vtkWebGPUBatchedPolyDataMapper::ReplaceFragmentShaderColors(
     opacity = composite_data_properties.opacity;
   })",
     /*all=*/false);
-  this->Superclass::ReplaceFragmentShaderColors(pipelineType, fss);
+  this->Superclass::ReplaceFragmentShaderColors(pipelineType, wgpuRenderer, wgpuActor, fss);
 }
 
 //------------------------------------------------------------------------------
 void vtkWebGPUBatchedPolyDataMapper::ReplaceFragmentShaderPicking(
-  GraphicsPipelineType vtkNotUsed(pipelineType), std::string& fss)
+  GraphicsPipelineType vtkNotUsed(pipelineType), vtkWebGPURenderer* vtkNotUsed(wgpuRenderer),
+  vtkWebGPUActor* vtkNotUsed(wgpuActor), std::string& fss)
 {
   vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Picking::Impl",
     R"(if (composite_data_properties.pickable == 1u)

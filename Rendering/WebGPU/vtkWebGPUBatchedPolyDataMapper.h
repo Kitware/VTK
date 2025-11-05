@@ -99,15 +99,19 @@ protected:
     bool applyOverrides, double overrideOpacity, const vtkColor3d& overrideAmbientColor,
     const vtkColor3d& overrideDiffuseColor, vtkTypeUInt32 compositeId, bool pickable);
 
-  void ReplaceShaderCustomDef(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss) override;
-  void ReplaceShaderCustomBindings(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss) override;
+  void ReplaceShaderCustomDef(GraphicsPipelineType pipelineType, vtkWebGPURenderer* wgpuRenderer,
+    vtkWebGPUActor* wgpuActor, std::string& vss, std::string& fss) override;
+  void ReplaceShaderCustomBindings(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor, std::string& vss,
+    std::string& fss) override;
 
-  void ReplaceVertexShaderPicking(GraphicsPipelineType pipelineType, std::string& vss) override;
+  void ReplaceVertexShaderPicking(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor, std::string& vss) override;
 
-  void ReplaceFragmentShaderColors(GraphicsPipelineType pipelineType, std::string& fss) override;
-  void ReplaceFragmentShaderPicking(GraphicsPipelineType pipelineType, std::string& fss) override;
+  void ReplaceFragmentShaderColors(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor, std::string& fss) override;
+  void ReplaceFragmentShaderPicking(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* wgpuRenderer, vtkWebGPUActor* wgpuActor, std::string& fss) override;
 
 private:
   vtkWebGPUBatchedPolyDataMapper(const vtkWebGPUBatchedPolyDataMapper&) = delete;

@@ -360,8 +360,8 @@ protected:
 
   // Defines parametric coordinates for a TriangleList (6 elements) instead of TriangleStrip (4
   // elements) because we use the instance_id for glyphing.
-  void ReplaceShaderConstantsDef(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss) override
+  void ReplaceShaderConstantsDef(GraphicsPipelineType pipelineType, vtkWebGPURenderer* wgpuRenderer,
+    vtkWebGPUActor* wgpuActor, std::string& vss, std::string& fss) override
   {
     std::string code;
     switch (pipelineType)
@@ -428,12 +428,13 @@ const TRIANGLE_VERTS = array(
     }
     else
     {
-      this->Superclass::ReplaceShaderConstantsDef(pipelineType, vss, fss);
+      this->Superclass::ReplaceShaderConstantsDef(pipelineType, wgpuRenderer, wgpuActor, vss, fss);
     }
   }
 
-  void ReplaceShaderCustomDef(
-    GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss) override
+  void ReplaceShaderCustomDef(GraphicsPipelineType vtkNotUsed(pipelineType),
+    vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+    std::string& vss, std::string& fss) override
   {
     const std::string code = R"(struct InstanceProperties
 {
@@ -447,8 +448,9 @@ const TRIANGLE_VERTS = array(
       /*all=*/false);
   }
 
-  void ReplaceShaderCustomBindings(
-    GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss, std::string& fss) override
+  void ReplaceShaderCustomBindings(GraphicsPipelineType vtkNotUsed(pipelineType),
+    vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+    std::string& vss, std::string& fss) override
   {
     auto& bindingId = this->NumberOfBindings[GROUP_MESH];
     std::stringstream codeStream;
@@ -466,8 +468,9 @@ const TRIANGLE_VERTS = array(
       /*all=*/false);
   }
 
-  void ReplaceVertexShaderInputDef(
-    GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss) override
+  void ReplaceVertexShaderInputDef(GraphicsPipelineType vtkNotUsed(pipelineType),
+    vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+    std::string& vss) override
   {
     vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexInput::Def", R"(struct VertexInput
 {
@@ -477,8 +480,9 @@ const TRIANGLE_VERTS = array(
       /*all=*/true);
   }
 
-  void ReplaceVertexShaderCamera(
-    GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss) override
+  void ReplaceVertexShaderCamera(GraphicsPipelineType vtkNotUsed(pipelineType),
+    vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+    std::string& vss) override
   {
     vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Camera::Impl",
       R"(let glyph_transform = mat4x4<f32>(
@@ -507,8 +511,9 @@ const TRIANGLE_VERTS = array(
       /*all=*/true);
   }
 
-  void ReplaceVertexShaderNormalTransform(
-    GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss) override
+  void ReplaceVertexShaderNormalTransform(GraphicsPipelineType vtkNotUsed(pipelineType),
+    vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+    std::string& vss) override
   {
     vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::NormalTransform::Impl",
       R"(let glyph_normal_transform = mat3x3<f32>(
@@ -530,7 +535,9 @@ const TRIANGLE_VERTS = array(
   }
 
   //------------------------------------------------------------------------------
-  void ReplaceVertexShaderVertexId(GraphicsPipelineType pipelineType, std::string& vss) override
+  void ReplaceVertexShaderVertexId(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+    std::string& vss) override
   {
     switch (pipelineType)
     {
@@ -586,8 +593,9 @@ const TRIANGLE_VERTS = array(
     }
   }
 
-  void ReplaceVertexShaderPicking(
-    GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss) override
+  void ReplaceVertexShaderPicking(GraphicsPipelineType vtkNotUsed(pipelineType),
+    vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+    std::string& vss) override
   {
     vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Picking::Impl",
       R"(if (instance_properties.pickable == 1u)
@@ -601,8 +609,9 @@ const TRIANGLE_VERTS = array(
       /*all=*/true);
   }
 
-  void ReplaceVertexShaderColors(
-    GraphicsPipelineType vtkNotUsed(pipelineType), std::string& vss) override
+  void ReplaceVertexShaderColors(GraphicsPipelineType vtkNotUsed(pipelineType),
+    vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+    std::string& vss) override
   {
     vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Colors::Impl",
       R"(output.color = vec4<f32>(
@@ -614,7 +623,9 @@ const TRIANGLE_VERTS = array(
       /*all=*/true);
   }
 
-  void ReplaceFragmentShaderColors(GraphicsPipelineType pipelineType, std::string& fss) override
+  void ReplaceFragmentShaderColors(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+    std::string& fss) override
   {
     std::string basicColorFSImpl = R"(var ambient_color: vec3<f32> = vec3<f32>(0., 0., 0.);
     var diffuse_color: vec3<f32> = vec3<f32>(0., 0., 0.);
@@ -661,8 +672,9 @@ const TRIANGLE_VERTS = array(
     }
   }
 
-  void ReplaceFragmentShaderPicking(
-    GraphicsPipelineType vtkNotUsed(pipelineType), std::string& fss) override
+  void ReplaceFragmentShaderPicking(GraphicsPipelineType vtkNotUsed(pipelineType),
+    vtkWebGPURenderer* vtkNotUsed(wgpuRenderer), vtkWebGPUActor* vtkNotUsed(wgpuActor),
+    std::string& fss) override
   {
     vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Picking::Impl",
       R"(if (instance_properties.pickable == 1u)

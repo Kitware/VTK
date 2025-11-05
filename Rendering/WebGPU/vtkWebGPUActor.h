@@ -85,7 +85,8 @@ private:
   bool CacheActorShadeOptions();
   bool CacheActorId();
 
-  void AllocateResources(vtkWebGPUConfiguration* renderer);
+  bool NeedToRecreateBindGroups();
+  void CreateBindGroups(vtkWebGPUConfiguration* wgpuConfiguration);
 };
 
 VTK_ABI_NAMESPACE_END
