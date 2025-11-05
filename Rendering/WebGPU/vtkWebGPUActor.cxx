@@ -97,7 +97,7 @@ void vtkWebGPUActor::Render(vtkRenderer* renderer, vtkMapper* mapper)
     {
       case vtkWebGPURenderer::AwaitingPreparation:
         break;
-      case vtkWebGPURenderer::UpdatingBuffers:
+      case vtkWebGPURenderer::SyncDeviceResources:
       {
         if (!(internals.ActorBindGroup && internals.ActorBindGroupLayout && internals.ActorBuffer))
         {

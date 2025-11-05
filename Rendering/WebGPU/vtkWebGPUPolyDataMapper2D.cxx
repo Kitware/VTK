@@ -38,7 +38,7 @@ void vtkWebGPUPolyDataMapper2D::RenderOverlay(vtkViewport* viewport, vtkActor2D*
 
   switch (wgpuRenderer->GetRenderStage())
   {
-    case vtkWebGPURenderer::RenderStageEnum::UpdatingBuffers:
+    case vtkWebGPURenderer::RenderStageEnum::SyncDeviceResources:
       internals.UpdateBuffers(viewport, actor, this);
       break;
     case vtkWebGPURenderer::RenderStageEnum::RecordingCommands:

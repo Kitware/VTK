@@ -84,7 +84,7 @@ public:
     auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
     switch (wgpuRenderer->GetRenderStage())
     {
-      case vtkWebGPURenderer::RenderStageEnum::UpdatingBuffers:
+      case vtkWebGPURenderer::RenderStageEnum::SyncDeviceResources:
         this->UpdateInstanceAttributeBuffers(wgpuConfiguration);
         break;
       default:

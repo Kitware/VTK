@@ -213,7 +213,7 @@ void vtkWebGPUPolyDataMapper::RenderPiece(vtkRenderer* renderer, vtkActor* actor
                               << " in stage: " << static_cast<int>(wgpuRenderer->GetRenderStage()));
   switch (wgpuRenderer->GetRenderStage())
   {
-    case vtkWebGPURenderer::RenderStageEnum::UpdatingBuffers:
+    case vtkWebGPURenderer::RenderStageEnum::SyncDeviceResources:
     {
       // update (i.e, create and write) GPU buffers if the data is outdated.
       this->UpdateMeshGeometryBuffers(wgpuRenderWindow);
