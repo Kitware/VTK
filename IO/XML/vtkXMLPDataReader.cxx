@@ -76,45 +76,75 @@ void vtkXMLPDataReader::SetupOutputData()
   int i;
   if (ePointData)
   {
+    std::vector<vtkXMLDataElement*> elementsToRemove;
     for (i = 0; i < ePointData->GetNumberOfNestedElements(); ++i)
     {
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
+      const char* ename = eNested->GetAttribute("Name");
       if (this->PointDataArrayIsEnabled(eNested))
       {
-        vtkAbstractArray* array = this->CreateArray(eNested);
-        if (array)
+        if (!pointData->HasArray(ename))
         {
-          array->SetNumberOfTuples(pointTuples);
-          pointData->AddArray(array);
-          array->Delete();
+          vtkAbstractArray* array = this->CreateArray(eNested);
+          if (array)
+          {
+            array->SetNumberOfTuples(pointTuples);
+            pointData->AddArray(array);
+            array->Delete();
+          }
+          else
+          {
+            this->DataError = 1;
+          }
         }
         else
         {
-          this->DataError = 1;
+          vtkWarningMacro(
+            "Another point data array named " << ename << " already exists. Ignoring.");
+          elementsToRemove.push_back(eNested);
         }
       }
+    }
+    for (const auto& elem : elementsToRemove)
+    {
+      ePointData->RemoveNestedElement(elem);
     }
   }
 
   if (eCellData)
   {
+    std::vector<vtkXMLDataElement*> elementsToRemove;
     for (i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
     {
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
+      const char* ename = eNested->GetAttribute("Name");
       if (this->CellDataArrayIsEnabled(eNested))
       {
-        vtkAbstractArray* array = this->CreateArray(eNested);
-        if (array)
+        if (!cellData->HasArray(ename))
         {
-          array->SetNumberOfTuples(cellTuples);
-          cellData->AddArray(array);
-          array->Delete();
+          vtkAbstractArray* array = this->CreateArray(eNested);
+          if (array)
+          {
+            array->SetNumberOfTuples(cellTuples);
+            cellData->AddArray(array);
+            array->Delete();
+          }
+          else
+          {
+            this->DataError = 1;
+          }
         }
         else
         {
-          this->DataError = 1;
+          vtkWarningMacro(
+            "Another cell data array named " << ename << " already exists. Ignoring.");
+          elementsToRemove.push_back(eNested);
         }
       }
+    }
+    for (const auto& elem : elementsToRemove)
+    {
+      eCellData->RemoveNestedElement(elem);
     }
   }
 
