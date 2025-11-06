@@ -109,3 +109,45 @@ workflow:
           start_in: 4 hours
         # Normal jobs on the project run automatically.
         - when: on_success
+
+###
+## Rules shortcuts for wheels
+###
+.rules_variables_wheel_latest_build:
+    extends:
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
+
+# No-op but needed for consistency
+.rules_variables_wheel_latest_test:
+    extends:
+        - .rules
+
+.rules_variables_wheel_previous_build:
+    extends:
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+
+.rules_variables_wheel_previous_test:
+    extends:
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+
+.rules_variables_wheel_older_build:
+    extends:
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+
+.rules_variables_wheel_older_test:
+    extends:
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_NIGHTLY_ONLY: "true"
