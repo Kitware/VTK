@@ -590,6 +590,11 @@ int vtkXMLReader::ReadXMLInformation()
         if (name)
         {
           vtkAbstractArray* array = this->CreateArray(eNested);
+          if (!array)
+          {
+            vtkWarningMacro("Failed creating array named " << name);
+            continue;
+          }
           if (array->IsNumeric())
           {
             array->SetNumberOfTuples(1);
