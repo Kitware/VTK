@@ -91,7 +91,7 @@ int vtkPDALReader::RequestInformation(
       std::ostringstream ss;
       ss.setf(std::ios::fixed);
       ss.precision(3);
-      ss << "(" << offsets[0] << ", " << offsets[1] << ", " << offsets[2] << ")\r\n";
+      ss << "(" << offsets[0] << ", " << offsets[1] << ", " << offsets[2] << ")";
 
       this->HasOffset = true;
       this->OffsetAsString = ss.str();
