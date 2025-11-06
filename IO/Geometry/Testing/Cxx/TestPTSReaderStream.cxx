@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include <vtkActor.h>
+#include <vtkFileResourceStream.h>
 #include <vtkNew.h>
 #include <vtkPTSReader.h>
 #include <vtkPolyData.h>
@@ -10,7 +11,7 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 
-int TestPTSReader(int argc, char* argv[])
+int TestPTSReaderStream(int argc, char* argv[])
 {
   if (argc < 2)
   {
@@ -19,9 +20,11 @@ int TestPTSReader(int argc, char* argv[])
   }
 
   std::string inputFilename = argv[1];
+  vtkNew<vtkFileResourceStream> stream;
+  stream->Open(inputFilename.c_str());
 
   vtkNew<vtkPTSReader> reader;
-  reader->SetFileName(inputFilename.c_str());
+  reader->SetStream(stream);
   reader->SetLimitToMaxNumberOfPoints(true);
   reader->SetMaxNumberOfPoints(100000);
 

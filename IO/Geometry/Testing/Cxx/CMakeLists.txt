@@ -103,6 +103,10 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestPTSReaderStream,TestPTSReaderStream.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/samplePTS.pts}
+)
+
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestAVSucdReaderContiguousASCII,TestAVSucdReader.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/cellsnd.ascii.inp}
 )
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
