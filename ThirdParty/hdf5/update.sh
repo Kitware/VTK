@@ -8,7 +8,7 @@ readonly name="hdf5"
 readonly ownership="HDF Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/hdf5.git"
-readonly tag="for/vtk-20250808-1.13.1"
+readonly tag="for/vtk-20251119-1.14.6"
 readonly paths="
 CMakeFilters.cmake
 CMakeInstallation.cmake
@@ -30,12 +30,12 @@ config/cmake/H5pubconf.h.in
 config/cmake/HDF5Macros.cmake
 config/cmake/HDF5PluginMacros.cmake
 config/cmake/HDFCompilerFlags.cmake
-config/cmake/libhdf5.settings.cmake.in
+config/cmake/HDFCompilerFlags.cmake
+config/cmake/HDFLibMacros.cmake
+config/cmake/HDFMacros.cmake
+config/cmake/HDFTests.c
 
 config/cmake_ext_mod/ConfigureChecks.cmake
-config/cmake_ext_mod/HDFMacros.cmake
-config/cmake_ext_mod/HDFLibMacros.cmake
-config/cmake_ext_mod/HDFTests.c
 
 .gitattributes
 ACKNOWLEDGMENTS
