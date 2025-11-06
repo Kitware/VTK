@@ -20,6 +20,7 @@ set(all_tests
   TestXMLMultiBlockDataWriterWithEmptyLeaf.cxx,NO_DATA,NO_VALID
   TestXMLPieceDistribution.cxx
   TestXMLPolyhedronUnstructuredGrid.cxx,NO_DATA,NO_VALID
+  TestXMLReaderVariant.cxx,NO_VALID
   TestXMLToString.cxx,NO_DATA,NO_VALID,NO_OUTPUT
   TestXMLUnstructuredGridReader.cxx
   TestXMLWriterWithDataArrayFallback.cxx,NO_VALID
@@ -35,6 +36,10 @@ endif()
 
 vtk_add_test_cxx(vtkIOXMLCxxTests tests
   ${all_tests})
+
+# We expect TestXMLReaderVariant to fail, the test ensures it raises an error instead of segfault
+set_tests_properties(VTK::IOXMLCxx-TestXMLReaderVariant PROPERTIES PASS_REGULAR_EXPRESSION "Missing word type attribute")
+set_tests_properties(VTK::IOXMLCxx-TestXMLReaderVariant PROPERTIES FAIL_REGULAR_EXPRESSION "")
 
 # Each of these most be added in a separate vtk_add_test_cxx
 vtk_add_test_cxx(vtkIOXMLCxxTests tests
