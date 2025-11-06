@@ -39,6 +39,12 @@ public:
   void InitializeZSpace() override;
 
   /**
+   * Shutdown the zSpace SDK (clean its internal state).
+   * Useful to re-initialize the zSpace SDK to a clean state.
+   */
+  void ShutDown() override;
+
+  /**
    * Update the zSpace viewport position and size based
    * on the position and size of the application window.
    */

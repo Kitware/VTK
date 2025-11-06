@@ -91,6 +91,8 @@ protected:
 private:
   vtkZSpaceGenericRenderWindow(const vtkZSpaceGenericRenderWindow&) = delete;
   void operator=(const vtkZSpaceGenericRenderWindow&) = delete;
+
+  bool ContextInitialized = false;
 };
 VTK_ABI_NAMESPACE_END
 #endif

@@ -21,13 +21,13 @@ vtkStandardNewMacro(vtkZSpaceCoreSDKManager);
   }
 
 //------------------------------------------------------------------------------
-vtkZSpaceCoreSDKManager::vtkZSpaceCoreSDKManager()
-{
-  this->InitializeZSpace();
-}
+vtkZSpaceCoreSDKManager::vtkZSpaceCoreSDKManager() = default;
 
 //------------------------------------------------------------------------------
-vtkZSpaceCoreSDKManager::~vtkZSpaceCoreSDKManager()
+vtkZSpaceCoreSDKManager::~vtkZSpaceCoreSDKManager() = default;
+
+//------------------------------------------------------------------------------
+void ShutDown()
 {
   ZCError error;
   error = zcDestroyStereoBuffer(this->BufferHandle);
