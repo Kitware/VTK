@@ -8,6 +8,7 @@ set(all_tests
   TestReadDuplicateDataArrayNames.cxx,NO_DATA,NO_VALID
   TestSettingTimeArrayInReader.cxx,NO_VALID,NO_OUTPUT
   TestXML.cxx,NO_DATA,NO_VALID,NO_OUTPUT
+  TestXMLDuplicatedDataArray.cxx,NO_VALID
   TestXMLGhostCellsImport.cxx
   TestXMLHierarchicalBoxDataFileConverter.cxx,NO_VALID
   TestXMLHyperTreeGridIO.cxx,NO_VALID

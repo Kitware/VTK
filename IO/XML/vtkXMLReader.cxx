@@ -1111,30 +1111,44 @@ void vtkXMLReader::ReadFieldData()
   {
     vtkIdType numTuples;
     vtkFieldData* fieldData = this->GetCurrentOutput()->GetFieldData();
+    std::vector<vtkXMLDataElement*> elementsToRemove;
     for (int i = 0; i < this->FieldDataElement->GetNumberOfNestedElements() && !this->AbortExecute;
          i++)
     {
       vtkXMLDataElement* eNested = this->FieldDataElement->GetNestedElement(i);
-      vtkAbstractArray* array = this->CreateArray(eNested);
-      if (array)
+      const char* ename = eNested->GetAttribute("Name");
+      if (!fieldData->HasArray(ename))
       {
-        if (eNested->GetScalarAttribute("NumberOfTuples", numTuples))
+        vtkAbstractArray* array = this->CreateArray(eNested);
+        if (array)
         {
-          array->SetNumberOfTuples(numTuples);
-        }
-        else
-        {
-          numTuples = 0;
-        }
-        fieldData->AddArray(array);
-        array->Delete();
-        if (!this->ReadArrayValues(
-              eNested, 0, array, 0, numTuples * array->GetNumberOfComponents()) &&
-          numTuples)
-        {
-          this->DataError = 1;
+          if (eNested->GetScalarAttribute("NumberOfTuples", numTuples))
+          {
+            array->SetNumberOfTuples(numTuples);
+          }
+          else
+          {
+            numTuples = 0;
+          }
+          fieldData->AddArray(array);
+          array->Delete();
+          if (!this->ReadArrayValues(
+                eNested, 0, array, 0, numTuples * array->GetNumberOfComponents()) &&
+            numTuples)
+          {
+            this->DataError = 1;
+          }
         }
       }
+      else
+      {
+        vtkWarningMacro("Another cell data array named " << ename << " already exists. Ignoring.");
+        elementsToRemove.push_back(eNested);
+      }
+    }
+    for (const auto& elem : elementsToRemove)
+    {
+      this->FieldDataElement->RemoveNestedElement(elem);
     }
   }
 }

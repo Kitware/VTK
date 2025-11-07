@@ -256,27 +256,41 @@ void vtkXMLDataReader::SetupOutputData()
   if (ePointData)
   {
     this->MarkIdTypeArrays(ePointData);
-    for (int i = 0; i < ePointData->GetNumberOfNestedElements(); i++)
+    std::vector<vtkXMLDataElement*> elementsToRemove;
+    for (int i = 0; i < ePointData->GetNumberOfNestedElements(); ++i)
     {
       vtkXMLDataElement* eNested = ePointData->GetNestedElement(i);
       const char* ename = eNested->GetAttribute("Name");
-      if (this->PointDataArrayIsEnabled(eNested) && !pointData->HasArray(ename))
+      if (this->PointDataArrayIsEnabled(eNested))
       {
-        this->NumberOfPointArrays++;
-        (*this->PointDataTimeStep)[ename] = -1;
-        (*this->PointDataOffset)[ename] = -1;
-        vtkAbstractArray* array = this->CreateArray(eNested);
-        if (array)
+        if (!pointData->HasArray(ename))
         {
-          array->SetNumberOfTuples(pointTuples);
-          pointData->AddArray(array);
-          array->Delete();
+          this->NumberOfPointArrays++;
+          (*this->PointDataTimeStep)[ename] = -1;
+          (*this->PointDataOffset)[ename] = -1;
+          vtkAbstractArray* array = this->CreateArray(eNested);
+          if (array)
+          {
+            array->SetNumberOfTuples(pointTuples);
+            pointData->AddArray(array);
+            array->Delete();
+          }
+          else
+          {
+            this->DataError = 1;
+          }
         }
         else
         {
-          this->DataError = 1;
+          vtkWarningMacro(
+            "Another point data array named " << ename << " already exists. Ignoring.");
+          elementsToRemove.push_back(eNested);
         }
       }
+    }
+    for (const auto& elem : elementsToRemove)
+    {
+      ePointData->RemoveNestedElement(elem);
     }
   }
   this->NumberOfCellArrays = 0;
@@ -285,27 +299,41 @@ void vtkXMLDataReader::SetupOutputData()
   if (eCellData)
   {
     this->MarkIdTypeArrays(eCellData);
-    for (int i = 0; i < eCellData->GetNumberOfNestedElements(); i++)
+    std::vector<vtkXMLDataElement*> elementsToRemove;
+    for (int i = 0; i < eCellData->GetNumberOfNestedElements(); ++i)
     {
       vtkXMLDataElement* eNested = eCellData->GetNestedElement(i);
       const char* ename = eNested->GetAttribute("Name");
-      if (this->CellDataArrayIsEnabled(eNested) && !cellData->HasArray(ename))
+      if (this->CellDataArrayIsEnabled(eNested))
       {
-        this->NumberOfCellArrays++;
-        (*this->CellDataTimeStep)[ename] = -1;
-        (*this->CellDataOffset)[ename] = -1;
-        vtkAbstractArray* array = this->CreateArray(eNested);
-        if (array)
+        if (!cellData->HasArray(ename))
         {
-          array->SetNumberOfTuples(cellTuples);
-          cellData->AddArray(array);
-          array->Delete();
+          this->NumberOfCellArrays++;
+          (*this->CellDataTimeStep)[ename] = -1;
+          (*this->CellDataOffset)[ename] = -1;
+          vtkAbstractArray* array = this->CreateArray(eNested);
+          if (array)
+          {
+            array->SetNumberOfTuples(cellTuples);
+            cellData->AddArray(array);
+            array->Delete();
+          }
+          else
+          {
+            this->DataError = 1;
+          }
         }
         else
         {
-          this->DataError = 1;
+          vtkWarningMacro(
+            "Another cell data array named " << ename << " already exists. Ignoring.");
+          elementsToRemove.push_back(eNested);
         }
       }
+    }
+    for (const auto& elem : elementsToRemove)
+    {
+      eCellData->RemoveNestedElement(elem);
     }
   }
 
