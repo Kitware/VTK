@@ -276,6 +276,8 @@ protected:
 private:
   vtkObjectManager(const vtkObjectManager&) = delete;
   void operator=(const vtkObjectManager&) = delete;
+
+  std::vector<vtkTypeUInt32> ImportFromJSON(const nlohmann::json& json);
 };
 VTK_ABI_NAMESPACE_END
 #endif

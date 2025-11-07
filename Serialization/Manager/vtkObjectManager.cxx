@@ -197,85 +197,9 @@ void vtkObjectManager::Export(const std::string& filename, int indent, char inde
 }
 
 //------------------------------------------------------------------------------
-void vtkObjectManager::Import(const std::string& stateFileName, const std::string& blobFileName)
+std::vector<vtkTypeUInt32> vtkObjectManager::ImportFromJSON(const nlohmann::json& importJson)
 {
-  this->Clear();
-  // Register all the states.
-  try
-  {
-    nlohmann::json states = nlohmann::json::parse(std::ifstream(stateFileName));
-    for (const auto& state : states.items())
-    {
-      this->Context->RegisterState(state.value());
-    }
-  }
-  catch (nlohmann::json::type_error& e)
-  {
-    vtkErrorMacro(<< "Failed to parse states from " << stateFileName << ". message=" << e.what());
-  }
-  // Register all the blobs.
-  try
-  {
-    nlohmann::json blobs = nlohmann::json::parse(std::ifstream(blobFileName));
-    for (const auto& blob : blobs.items())
-    {
-      auto hash = blob.key();
-      const auto& values = blob.value().get_binary();
-      if (!values.empty())
-      {
-        auto byteArray = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
-        auto* bytePtr = const_cast<vtkTypeUInt8*>(values.data());
-        const vtkIdType numValues = static_cast<vtkIdType>(values.size());
-        byteArray->SetArray(bytePtr, numValues, /*save=*/1);
-        this->Context->RegisterBlob(byteArray, hash);
-      }
-    }
-  }
-  catch (nlohmann::json::type_error& e)
-  {
-    vtkErrorMacro(<< "Failed to parse blobs from " << blobFileName << ". message=" << e.what());
-  }
-  // Creates objects and deserializes states.
-  this->UpdateObjectsFromStates();
-}
-
-//------------------------------------------------------------------------------
-vtkSmartPointer<vtkUnsignedCharArray> vtkObjectManager::ExportToBytes()
-{
-  nlohmann::json exportJson;
-  exportJson["States"] = this->Context->States();
-  exportJson["Blobs"] = this->Context->Blobs();
-  auto exportBytes = nlohmann::json::to_cbor(exportJson);
-  auto byteArray = vtk::TakeSmartPointer(vtkUnsignedCharArray::New());
-  using OutputAdapterType = ::output_vtk_buffer_adapter<unsigned char>;
-  using CBORWriter = nlohmann::detail::binary_writer<nlohmann::json, unsigned char>;
-  auto adapter = std::make_shared<OutputAdapterType>(byteArray);
-  CBORWriter writer(adapter);
-  writer.write_cbor(exportJson);
-  return byteArray;
-}
-
-//------------------------------------------------------------------------------
-std::vector<vtkSmartPointer<vtkObjectBase>> vtkObjectManager::ImportFromBytes(
-  vtkSmartPointer<vtkUnsignedCharArray> inputByteArray)
-{
-  std::vector<vtkSmartPointer<vtkObjectBase>> strongObjects;
   std::vector<vtkTypeUInt32> strongObjectIds;
-  if (inputByteArray == nullptr || inputByteArray->GetNumberOfValues() == 0)
-  {
-    return strongObjects;
-  }
-  this->Clear();
-  nlohmann::json importJson;
-  try
-  {
-    auto byteRange = vtk::DataArrayValueRange(inputByteArray);
-    importJson = nlohmann::json::from_cbor(byteRange.begin(), byteRange.end());
-  }
-  catch (nlohmann::json::exception& e)
-  {
-    vtkErrorMacro(<< "Failed to parse json from byte array. message=" << e.what());
-  }
   try
   {
     // Register all the states.
@@ -307,15 +231,30 @@ std::vector<vtkSmartPointer<vtkObjectBase>> vtkObjectManager::ImportFromBytes(
       for (const auto& blob : blobsIter->items())
       {
         auto hash = blob.key();
-        const auto& values = blob.value().get_binary();
-        if (!values.empty())
+        auto byteArray = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
+        if (blob.value().is_object())
         {
-          auto byteArray = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
-          auto* bytePtr = const_cast<vtkTypeUInt8*>(values.data());
-          const vtkIdType numValues = static_cast<vtkIdType>(values.size());
-          byteArray->SetArray(bytePtr, numValues, /*save=*/1);
-          this->Context->RegisterBlob(byteArray, hash);
+          // when import json from a file, the type is object, and values must be copied into a
+          // vector.
+          const auto values = blob.value().at("bytes").get<std::vector<vtkTypeUInt8>>();
+          if (!values.empty())
+          {
+            auto* bytePtr = const_cast<vtkTypeUInt8*>(values.data());
+            const vtkIdType numValues = static_cast<vtkIdType>(values.size());
+            byteArray->SetArray(bytePtr, numValues, /*save=*/1);
+          }
         }
+        else
+        {
+          const auto& values = blob.value().get_binary();
+          if (!values.empty())
+          {
+            auto* bytePtr = const_cast<vtkTypeUInt8*>(values.data());
+            const vtkIdType numValues = static_cast<vtkIdType>(values.size());
+            byteArray->SetArray(bytePtr, numValues, /*save=*/1);
+          }
+        }
+        this->Context->RegisterBlob(byteArray, hash);
       }
     }
     // Creates objects and deserializes states.
@@ -325,6 +264,79 @@ std::vector<vtkSmartPointer<vtkObjectBase>> vtkObjectManager::ImportFromBytes(
   {
     vtkErrorMacro(<< "Failed to import blobs from byte array. message=" << e.what());
   }
+  return strongObjectIds;
+}
+
+//------------------------------------------------------------------------------
+void vtkObjectManager::Import(const std::string& stateFileName, const std::string& blobFileName)
+{
+  this->Clear();
+  // Register all the states.
+  nlohmann::json importJson;
+  try
+  {
+    importJson["States"] = nlohmann::json::parse(std::ifstream(stateFileName));
+  }
+  catch (nlohmann::json::type_error& e)
+  {
+    vtkErrorMacro(<< "Failed to parse states from " << stateFileName << ". message=" << e.what());
+  }
+  // Register all the blobs.
+  try
+  {
+    importJson["Blobs"] = nlohmann::json::parse(std::ifstream(blobFileName));
+  }
+  catch (nlohmann::json::type_error& e)
+  {
+    vtkErrorMacro(<< "Failed to parse blobs from " << blobFileName << ". message=" << e.what());
+  }
+  const auto strongObjectIds = this->ImportFromJSON(importJson);
+  if (strongObjectIds.empty())
+  {
+    vtkWarningMacro(<< "No strong objects were imported from the files: " << stateFileName << ", "
+                    << blobFileName
+                    << ". Check whether the states contain the key "
+                       "\"vtk-object-manager-kept-alive\": true");
+  }
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkUnsignedCharArray> vtkObjectManager::ExportToBytes()
+{
+  nlohmann::json exportJson;
+  exportJson["States"] = this->Context->States();
+  exportJson["Blobs"] = this->Context->Blobs();
+  auto exportBytes = nlohmann::json::to_cbor(exportJson);
+  auto byteArray = vtk::TakeSmartPointer(vtkUnsignedCharArray::New());
+  using OutputAdapterType = ::output_vtk_buffer_adapter<unsigned char>;
+  using CBORWriter = nlohmann::detail::binary_writer<nlohmann::json, unsigned char>;
+  auto adapter = std::make_shared<OutputAdapterType>(byteArray);
+  CBORWriter writer(adapter);
+  writer.write_cbor(exportJson);
+  return byteArray;
+}
+
+//------------------------------------------------------------------------------
+std::vector<vtkSmartPointer<vtkObjectBase>> vtkObjectManager::ImportFromBytes(
+  vtkSmartPointer<vtkUnsignedCharArray> inputByteArray)
+{
+  this->Clear();
+  std::vector<vtkSmartPointer<vtkObjectBase>> strongObjects;
+  if (inputByteArray == nullptr || inputByteArray->GetNumberOfValues() == 0)
+  {
+    return strongObjects;
+  }
+  nlohmann::json importJson;
+  try
+  {
+    auto byteRange = vtk::DataArrayValueRange(inputByteArray);
+    importJson = nlohmann::json::from_cbor(byteRange.begin(), byteRange.end());
+  }
+  catch (nlohmann::json::exception& e)
+  {
+    vtkErrorMacro(<< "Failed to parse json from byte array. message=" << e.what());
+  }
+  const auto strongObjectIds = this->ImportFromJSON(importJson);
   // Collect strong objects
   for (const auto& id : strongObjectIds)
   {
