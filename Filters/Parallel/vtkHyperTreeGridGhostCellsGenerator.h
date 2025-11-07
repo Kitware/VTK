@@ -84,6 +84,14 @@ private:
   vtkHyperTreeGridGhostCellsGenerator(const vtkHyperTreeGridGhostCellsGenerator&) = delete;
   void operator=(const vtkHyperTreeGridGhostCellsGenerator&) = delete;
 
+  /**
+   * Exchange HTG metadata between processes
+   * Duplicated from vtkHyperTreeGridRedistribute, to be merged when both filters are moved
+   * to the same vtk module (currently vtkHyperTreeGridRedistribute is in VTK::ParallelMPI,
+   * and vtkHyperTreeGridGhostCellsGenerator is in VTK::Parallel).
+   */
+  void ExchangeHTGMetadata(vtkHyperTreeGrid* inputHTG);
+
   vtkWeakPointer<vtkMultiProcessController> Controller;
 };
 

@@ -36,6 +36,7 @@ if (TARGET VTK::ParallelMPI)
   vtk_add_test_mpi(vtkFiltersParallelCxxTests-MPI no_data_tests_4_procs
     AggregateDataSet.cxx
     TestGenerateGlobalIdsHTG.cxx,NO_VALID
+    TestGroupDataSetHTGGhostCellsGeneration.cxx,NO_VALID
   )
   vtk_add_test_mpi(vtkFiltersParallelCxxTests-MPI tests_4_procs
     TESTING_DATA

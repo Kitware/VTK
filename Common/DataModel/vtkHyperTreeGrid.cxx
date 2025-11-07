@@ -1796,14 +1796,12 @@ vtkUnsignedCharArray* vtkHyperTreeGrid::AllocateTreeGhostArray()
 {
   if (!this->GetTreeGhostArray())
   {
-    vtkNew<vtkUnsignedCharArray> ghosts;
-    ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
-    ghosts->SetNumberOfComponents(1);
-    ghosts->SetNumberOfTuples(this->GetMaxNumberOfTrees());
-    ghosts->Fill(0);
-    this->GetCellData()->AddArray(ghosts);
-    ghosts->Delete();
-    this->TreeGhostArray = ghosts;
+    this->TreeGhostArray = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    this->TreeGhostArray->SetName(vtkDataSetAttributes::GhostArrayName());
+    this->TreeGhostArray->SetNumberOfComponents(1);
+    this->TreeGhostArray->SetNumberOfTuples(this->GetNumberOfCells());
+    this->TreeGhostArray->Fill(0);
+    this->GetCellData()->AddArray(this->TreeGhostArray);
     this->TreeGhostArrayCached = true;
   }
   return this->TreeGhostArray;
@@ -1820,5 +1818,91 @@ vtkUnsignedCharArray* vtkHyperTreeGrid::GetGhostCells()
 bool vtkHyperTreeGrid::HasAnyGhostCells() const
 {
   return this->CellData->GetArray(vtkDataSetAttributes::GhostArrayName()) != nullptr;
+}
+
+//------------------------------------------------------------------------------
+namespace
+{
+void MarkEntireTreeAsGhost(
+  vtkHyperTreeGridNonOrientedCursor* cursor, vtkUnsignedCharArray* ghostCells)
+{
+  vtkIdType id = cursor->GetGlobalNodeIndex();
+  unsigned char val = ghostCells->GetValue(id) | vtkDataSetAttributes::DUPLICATECELL;
+  ghostCells->SetValue(id, val);
+
+  if (!cursor->IsLeaf())
+  {
+    for (unsigned int c = 0; c < cursor->GetNumberOfChildren(); ++c)
+    {
+      cursor->ToChild(c);
+      ::MarkEntireTreeAsGhost(cursor, ghostCells);
+      cursor->ToParent();
+    }
+  }
+}
+}
+
+//------------------------------------------------------------------------------
+void vtkHyperTreeGrid::GenerateGhostArray(int zeroExt[6])
+{
+  if (this->GetNumberOfCells() == 0)
+  {
+    vtkDebugMacro("No cells in vtkHyperTreeGrid, skipping ghost generation.");
+    return;
+  }
+
+  this->AllocateTreeGhostArray();
+
+  auto markGhost = [&](int imin, int imax, int jmin, int jmax, int kmin, int kmax)
+  {
+    vtkNew<vtkHyperTreeGridNonOrientedCursor> cursor;
+    for (int i = imin; i < imax; ++i)
+    {
+      for (int j = jmin; j < jmax; ++j)
+      {
+        for (int k = kmin; k < kmax; ++k)
+        {
+          vtkIdType treeIdx;
+          this->GetIndexFromLevelZeroCoordinates(treeIdx, i, j, k);
+
+          this->InitializeNonOrientedCursor(cursor, treeIdx, false);
+
+          if (cursor->HasTree())
+          {
+            ::MarkEntireTreeAsGhost(cursor, this->TreeGhostArray);
+          }
+        }
+      }
+    }
+  };
+
+  if (zeroExt[0] > this->Extent[0])
+  {
+    markGhost(this->Extent[0], zeroExt[0], zeroExt[2], zeroExt[3], zeroExt[4], zeroExt[5]);
+  }
+  if (zeroExt[1] < this->Extent[1])
+  {
+    markGhost(zeroExt[1], this->Extent[1], zeroExt[2], zeroExt[3], zeroExt[4], zeroExt[5]);
+  }
+  if (zeroExt[2] > this->Extent[2])
+  {
+    markGhost(
+      this->Extent[0], this->Extent[1], this->Extent[2], zeroExt[2], zeroExt[4], zeroExt[5]);
+  }
+  if (zeroExt[3] < this->Extent[3])
+  {
+    markGhost(
+      this->Extent[0], this->Extent[1], zeroExt[3], this->Extent[3], zeroExt[4], zeroExt[5]);
+  }
+  if (zeroExt[4] > this->Extent[4])
+  {
+    markGhost(this->Extent[0], this->Extent[1], this->Extent[2], this->Extent[3], this->Extent[4],
+      zeroExt[4]);
+  }
+  if (zeroExt[5] < this->Extent[5])
+  {
+    markGhost(this->Extent[0], this->Extent[1], this->Extent[2], this->Extent[3], zeroExt[5],
+      this->Extent[5]);
+  }
 }
 VTK_ABI_NAMESPACE_END
