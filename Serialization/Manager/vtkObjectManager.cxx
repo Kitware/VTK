@@ -193,13 +193,13 @@ void vtkObjectManager::Import(const std::string& stateFileName, const std::strin
     for (const auto& blob : blobs.items())
     {
       auto hash = blob.key();
-      const auto& values = blob.value().at("bytes").get<std::vector<vtkTypeUInt8>>();
+      const auto& values = blob.value().get_binary();
       if (!values.empty())
       {
         auto byteArray = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
-        byteArray->SetNumberOfValues(values.size());
-        auto blobRange = vtk::DataArrayValueRange(byteArray);
-        std::copy(values.begin(), values.end(), blobRange.begin());
+        auto* bytePtr = const_cast<vtkTypeUInt8*>(values.data());
+        const vtkIdType numValues = static_cast<vtkIdType>(values.size());
+        byteArray->SetArray(bytePtr, numValues, /*save=*/1);
         this->Context->RegisterBlob(byteArray, hash);
       }
     }
