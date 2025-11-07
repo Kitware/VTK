@@ -216,6 +216,12 @@ public:
   void Import(const std::string& stateFileName, const std::string& blobFileName);
 
   /**
+   * Exports the states and blobs to a vtkUnsignedCharArray. The return value can be passed back
+   * into ImportFromBytes();
+   */
+  vtkSmartPointer<vtkUnsignedCharArray> ExportToBytes();
+
+  /**
    * Removes all states whose corresponding objects no longer exist.
    */
   void PruneUnusedStates();

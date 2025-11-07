@@ -21,6 +21,33 @@
 #include <unordered_set>
 
 VTK_ABI_NAMESPACE_BEGIN
+namespace
+{
+//----------------------------------------------------------------------------
+/// output adapter for vtkUnsignedCharArray
+template <typename CharType, typename ArrayType = vtkUnsignedCharArray>
+class output_vtk_buffer_adapter : public nlohmann::detail::output_adapter_protocol<CharType>
+{
+  vtkSmartPointer<ArrayType> Array;
+
+public:
+  explicit output_vtk_buffer_adapter(vtkSmartPointer<ArrayType> array) noexcept
+    : Array(array)
+  {
+  }
+
+  void write_character(CharType value) override { this->Array->InsertNextValue(value); }
+
+  void write_characters(const CharType* values, std::size_t length) override
+  {
+    for (std::size_t i = 0; i < length; ++i)
+    {
+      this->Array->InsertNextValue(values[i]);
+    }
+  }
+};
+
+}
 
 //------------------------------------------------------------------------------
 vtkStandardNewMacro(vtkObjectManager);
@@ -210,6 +237,22 @@ void vtkObjectManager::Import(const std::string& stateFileName, const std::strin
   }
   // Creates objects and deserializes states.
   this->UpdateObjectsFromStates();
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkUnsignedCharArray> vtkObjectManager::ExportToBytes()
+{
+  nlohmann::json exportJson;
+  exportJson["States"] = this->Context->States();
+  exportJson["Blobs"] = this->Context->Blobs();
+  auto exportBytes = nlohmann::json::to_cbor(exportJson);
+  auto byteArray = vtk::TakeSmartPointer(vtkUnsignedCharArray::New());
+  using OutputAdapterType = ::output_vtk_buffer_adapter<unsigned char>;
+  using CBORWriter = nlohmann::detail::binary_writer<nlohmann::json, unsigned char>;
+  auto adapter = std::make_shared<OutputAdapterType>(byteArray);
+  CBORWriter writer(adapter);
+  writer.write_cbor(exportJson);
+  return byteArray;
 }
 
 //------------------------------------------------------------------------------
