@@ -222,6 +222,13 @@ public:
   vtkSmartPointer<vtkUnsignedCharArray> ExportToBytes();
 
   /**
+   * Imports the states and blobs from a vtkUnsignedCharArray previously exported via
+   * ExportToBytes(); Returns the list of imported strong objects.
+   */
+  std::vector<vtkSmartPointer<vtkObjectBase>> ImportFromBytes(
+    vtkSmartPointer<vtkUnsignedCharArray> byteArray);
+
+  /**
    * Removes all states whose corresponding objects no longer exist.
    */
   void PruneUnusedStates();

@@ -256,6 +256,87 @@ vtkSmartPointer<vtkUnsignedCharArray> vtkObjectManager::ExportToBytes()
 }
 
 //------------------------------------------------------------------------------
+std::vector<vtkSmartPointer<vtkObjectBase>> vtkObjectManager::ImportFromBytes(
+  vtkSmartPointer<vtkUnsignedCharArray> inputByteArray)
+{
+  std::vector<vtkSmartPointer<vtkObjectBase>> strongObjects;
+  std::vector<vtkTypeUInt32> strongObjectIds;
+  if (inputByteArray == nullptr || inputByteArray->GetNumberOfValues() == 0)
+  {
+    return strongObjects;
+  }
+  this->Clear();
+  nlohmann::json importJson;
+  try
+  {
+    auto byteRange = vtk::DataArrayValueRange(inputByteArray);
+    importJson = nlohmann::json::from_cbor(byteRange.begin(), byteRange.end());
+  }
+  catch (nlohmann::json::exception& e)
+  {
+    vtkErrorMacro(<< "Failed to parse json from byte array. message=" << e.what());
+  }
+  try
+  {
+    // Register all the states.
+    auto statesIter = importJson.find("States");
+    if (statesIter != importJson.end())
+    {
+      for (const auto& state : statesIter->items())
+      {
+        this->Context->RegisterState(state.value());
+        const auto identifier = state.value().at("Id").get<vtkTypeUInt32>();
+        if (state.value().find("vtk-object-manager-kept-alive") != state.value().end() &&
+          (state.value().at("vtk-object-manager-kept-alive").get<bool>() == true))
+        {
+          strongObjectIds.emplace_back(identifier);
+        }
+      }
+    }
+  }
+  catch (nlohmann::json::exception& e)
+  {
+    vtkErrorMacro(<< "Failed to import states from byte array. message=" << e.what());
+  }
+  try
+  {
+    // Register all the blobs.
+    auto blobsIter = importJson.find("Blobs");
+    if (blobsIter != importJson.end())
+    {
+      for (const auto& blob : blobsIter->items())
+      {
+        auto hash = blob.key();
+        const auto& values = blob.value().get_binary();
+        if (!values.empty())
+        {
+          auto byteArray = vtk::TakeSmartPointer(vtkTypeUInt8Array::New());
+          auto* bytePtr = const_cast<vtkTypeUInt8*>(values.data());
+          const vtkIdType numValues = static_cast<vtkIdType>(values.size());
+          byteArray->SetArray(bytePtr, numValues, /*save=*/1);
+          this->Context->RegisterBlob(byteArray, hash);
+        }
+      }
+    }
+    // Creates objects and deserializes states.
+    this->UpdateObjectsFromStates();
+  }
+  catch (nlohmann::json::exception& e)
+  {
+    vtkErrorMacro(<< "Failed to import blobs from byte array. message=" << e.what());
+  }
+  // Collect strong objects
+  for (const auto& id : strongObjectIds)
+  {
+    if (auto object = this->Context->GetObjectAtId(id))
+    {
+      strongObjects.emplace_back(object);
+    }
+  }
+  return strongObjects;
+}
+
+//------------------------------------------------------------------------------
 vtkTypeUInt32 vtkObjectManager::RegisterObject(vtkSmartPointer<vtkObjectBase> objectBase)
 {
   if (objectBase == nullptr)
