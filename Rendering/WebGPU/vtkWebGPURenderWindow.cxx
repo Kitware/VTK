@@ -2288,6 +2288,7 @@ void vtkWebGPURenderWindow::SyncWithHardware()
   {
     return;
   }
+  this->HardwareWindow->SetWindowName(this->GetWindowName());
   this->HardwareWindow->SetSize(this->GetSize());
   this->HardwareWindow->SetCoverable(this->GetCoverable());
 }
