@@ -7,6 +7,8 @@
  * vtkPTSReader reads either a text file of
  *  points. The first line is the number of points. Point information is
  *  either x y z intensity or x y z intensity r g b
+ *
+ * This reader supports reading streams.
  */
 
 #ifndef vtkPTSReader_h
@@ -15,8 +17,10 @@
 #include "vtkBoundingBox.h"      // For Bounding Box Data Member
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
+#include "vtkSmartPointer.h" // for vtkSmartPointer
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkResourceStream;
 class VTKIOGEOMETRY_EXPORT vtkPTSReader : public vtkPolyDataAlgorithm
 {
 public:
@@ -30,6 +34,15 @@ public:
    */
   void SetFileName(VTK_FILEPATH const char* filename);
   vtkGetFilePathMacro(FileName);
+  ///@}
+
+  ///@{
+  /**
+   * Specify stream to read from
+   * When both `Stream` and `Filename` are set, stream is used.
+   */
+  void SetStream(vtkResourceStream* stream);
+  vtkResourceStream* GetStream();
   ///@}
 
   ///@{
@@ -100,6 +113,11 @@ public:
   vtkGetMacro(IncludeColorAndLuminance, bool);
   ///@}
 
+  /**
+   * Overridden to take into account mtime from the internal vtkResourceStream.
+   */
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkPTSReader();
   ~vtkPTSReader() override;
@@ -107,20 +125,22 @@ protected:
   int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
-  char* FileName;
-  bool OutputDataTypeIsDouble;
-
-  bool LimitReadToBounds;
+  char* FileName = nullptr;
+  bool OutputDataTypeIsDouble = false;
+  bool LimitReadToBounds = false;
   double ReadBounds[6];
+  bool LimitToMaxNumberOfPoints = false;
+  vtkIdType MaxNumberOfPoints = 1000000;
+  bool CreateCells = true;
+  bool IncludeColorAndLuminance = true;
+
   vtkBoundingBox ReadBBox;
-  bool LimitToMaxNumberOfPoints;
-  vtkIdType MaxNumberOfPoints;
-  bool CreateCells;
-  bool IncludeColorAndLuminance;
 
 private:
   vtkPTSReader(const vtkPTSReader&) = delete;
   void operator=(const vtkPTSReader&) = delete;
+
+  vtkSmartPointer<vtkResourceStream> Stream;
 };
 
 VTK_ABI_NAMESPACE_END
