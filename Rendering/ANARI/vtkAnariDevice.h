@@ -27,7 +27,7 @@ class vtkAnariDeviceInternals;
 class VTKRENDERINGANARI_EXPORT vtkAnariDevice : public vtkObject
 {
 public:
-  using OnNewDeviceCallback = std::function<void(anari::Device)>;
+  using OnNewDeviceCallback = std::function<void()>;
 
   static vtkAnariDevice* New();
   vtkTypeMacro(vtkAnariDevice, vtkObject);
@@ -105,6 +105,11 @@ public:
    * Get the anari device name
    */
   std::string& GetAnariDeviceName() const;
+
+  /**
+   * Get all the available renderer subtypes
+   */
+  std::vector<std::string> GetAnariRendererSubTypes() const;
 
 protected:
   /**

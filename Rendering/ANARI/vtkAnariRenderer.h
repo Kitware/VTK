@@ -15,14 +15,17 @@
 #ifndef vtkAnariRenderer_h
 #define vtkAnariRenderer_h
 
+#include "vtkAnariDevice.h" // For device ivar
 #include "vtkObject.h"
 #include "vtkRenderingAnariModule.h" // For export macro
+#include "vtkSmartPointer.h"         // For device ivar
 
 #include <anari/anari_cpp.hpp> // for ANARI handles
 
 VTK_ABI_NAMESPACE_BEGIN
 
 class vtkAnariRendererInternals;
+class vtkAnariDevice;
 
 class VTKRENDERINGANARI_EXPORT vtkAnariRenderer : public vtkObject
 {
@@ -31,8 +34,13 @@ public:
   vtkTypeMacro(vtkAnariRenderer, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
-  void SetAnariDevice(anari::Device d);
-  anari::Device GetAnariDevice() const;
+  ///@{
+  /**
+   * Set/Get the anari device
+   */
+  void SetAnariDevice(vtkAnariDevice* d);
+  vtkGetSmartPointerMacro(AnariDevice, vtkAnariDevice);
+  ///@}
 
   /**
    * Set the underlying subtype of the anari::Renderer. When a different subtype
@@ -74,6 +82,32 @@ public:
    */
   anari::Renderer GetHandle() const;
 
+  /**
+   * Returns a list of parameter names, and their respective ANARI type.
+   * For type inference, refer to anari_enums.h
+   */
+  std::vector<std::pair<std::string, int>> GetRendererParameters() const;
+
+  /**
+   * Provide description for a given renderer parameter
+   */
+  std::string GetRendererParameterDescription(std::pair<std::string, int> rparam) const;
+
+  /**
+   * Check if a given renderer parameter is required
+   */
+  bool IsRendererParameterRequired(std::pair<std::string, int> rparam) const;
+
+  ///@{
+  /**
+   * Get default, min, max, and current value for a given renderer parameter
+   */
+  const void* GetRendererParameterDefault(std::pair<std::string, int> rparam);
+  const void* GetRendererParameterMinimum(std::pair<std::string, int> rparam);
+  const void* GetRendererParameterMaximum(std::pair<std::string, int> rparam);
+  const void* GetRendererParameterValue(std::pair<std::string, int> rparam);
+  ///@}
+
 protected:
   /**
    * Default constructor.
@@ -84,6 +118,9 @@ protected:
    * Destructor.
    */
   ~vtkAnariRenderer() override;
+
+  // member variables
+  vtkSmartPointer<vtkAnariDevice> AnariDevice = nullptr;
 
 private:
   void CheckAnariDeviceInitialized();

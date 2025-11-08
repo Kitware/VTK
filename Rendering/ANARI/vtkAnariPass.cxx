@@ -290,7 +290,7 @@ vtkAnariPass::vtkAnariPass()
   this->CameraPass->SetDelegatePass(sequencePass);
 
   this->GetAnariDevice()->SetOnNewDeviceCallback(
-    [&](anari::Device d) { this->GetAnariRenderer()->SetAnariDevice(d); });
+    [&]() { this->GetAnariRenderer()->SetAnariDevice(this->GetAnariDevice()); });
 }
 
 // ----------------------------------------------------------------------------
