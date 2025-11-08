@@ -6,6 +6,7 @@
 #include "vtkIntArray.h"
 #include "vtkNew.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
 #include "vtkTable.h"
 
 #include <iostream>
@@ -29,7 +30,7 @@ int TestDelimitedTextWriter(int, char*[])
   {
     intArray->InsertNextValue(i);
     doubleArray->InsertNextValue(i * 0.5);
-    stringArray->InsertNextValue("String " + std::to_string(i));
+    stringArray->InsertNextValue("String " + vtk::to_string(i));
   }
 
   vtkNew<vtkDelimitedTextWriter> writer;
@@ -107,7 +108,7 @@ int TestDelimitedTextWriter(int, char*[])
   {
     intArray->InsertNextValue(i * 200000);
     doubleArray->InsertNextValue(i * 0.00012345);
-    stringArray->InsertNextValue("String " + std::to_string(i));
+    stringArray->InsertNextValue("String " + vtk::to_string(i));
   }
   writer->SetPrecision(10);
   writer->SetNotationToScientific();
