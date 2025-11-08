@@ -307,6 +307,11 @@ public:
    */
   virtual const char* GetDescriptiveName() { return nullptr; }
 
+  /**
+   * Overridden to take into account mtime from the internal vtkResourceStream.
+   */
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkImageReader2();
   ~vtkImageReader2() override;

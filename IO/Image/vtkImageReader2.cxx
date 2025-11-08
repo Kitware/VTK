@@ -768,4 +768,16 @@ void vtkImageReader2::SetDataScalarType(int type)
   // Set the default output scalar type
   vtkImageData::SetScalarType(this->DataScalarType, this->GetOutputInformation(0));
 }
+
+//----------------------------------------------------------------------------
+vtkMTimeType vtkImageReader2::GetMTime()
+{
+  auto mtime = this->Superclass::GetMTime();
+  if (this->Stream)
+  {
+    mtime = std::max(mtime, this->Stream->GetMTime());
+  }
+  return mtime;
+}
+
 VTK_ABI_NAMESPACE_END
