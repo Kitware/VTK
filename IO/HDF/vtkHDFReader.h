@@ -216,6 +216,11 @@ public:
   void SetAttributeOriginalIdName(vtkIdType attribute, const std::string& name);
   ///@}
 
+  /**
+   * Overridden to take into account mtime from the internal vtkResourceStream.
+   */
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkHDFReader();
   ~vtkHDFReader() override;
