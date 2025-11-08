@@ -4,6 +4,7 @@
 
 #include "vtkActor.h"
 #include "vtkCellArray.h"
+#include "vtkEventForwarderCommand.h"
 #include "vtkFileResourceStream.h"
 #include "vtkFloatArray.h"
 #include "vtkInformation.h"
@@ -80,6 +81,11 @@ void vtkOBJImporter::ImportEnd()
 void vtkOBJImporter::ReadData()
 {
   this->Impl->SetFileName(this->GetFileName());
+
+  vtkNew<vtkEventForwarderCommand> progressForwarder;
+  progressForwarder->SetTarget(this);
+  this->Impl->AddObserver(vtkCommand::ProgressEvent, progressForwarder);
+
   this->Impl->Update();
   if (Impl->GetSuccessParsingFiles())
   {
@@ -585,11 +591,20 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
     float col[3];
 
     int lineNr = 0;
+    vtkTypeInt64 ulFileLength = 0;
     long lastVertexIndex = 0;
 
     std::string rawLine;
     vtkNew<vtkResourceParser> parser;
     parser->SetStream(stream);
+
+    parser->Seek(0, vtkResourceStream::SeekDirection::End);
+    ulFileLength = parser->Tell();
+    parser->Seek(0, vtkResourceStream::SeekDirection::Begin);
+
+    // average of 40 bytes per line for obj file
+    ulFileLength /= 40;
+
     for (vtkParseResult res = vtkParseResult::Ok;
          everything_ok && res != vtkParseResult::Error && res != vtkParseResult::EndOfStream;
          res = parser->ReadLine(rawLine))
@@ -1089,8 +1104,14 @@ int vtkOBJPolyDataProcessor::RequestData(vtkInformation* vtkNotUsed(request),
       {
         vtkDebugMacro(<< "Ignoring line: " << rawLine);
       }
+
+      if (ulFileLength > 0 && lineNr % 10000 == 0)
+      {
+        this->UpdateProgress(static_cast<double>(lineNr) / ulFileLength);
+      }
     } /** Looping over lines of file */ // (end of while loop)
   }                                     // (end of local scope section)
+  this->UpdateProgress(1.0);
 
   /** based on how many used materials are present,
                  set the number of output ports of vtkPolyData */
