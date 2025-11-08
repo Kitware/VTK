@@ -34,6 +34,8 @@ VTK_ABI_NAMESPACE_BEGIN
 #error "No HDF5 type available for vtkIdType"
 #endif
 
+class vtkMemoryResourceStream;
+
 namespace vtkHDFUtilities
 {
 const std::string VTKHDF_ROOT_PATH = "/VTKHDF";
@@ -134,9 +136,15 @@ public:
 
 /**
  * Open a VTK HDF file and checks if it is valid.
- * On succeed fileID is set to a valid hid.
+ * On success, fileID is set to a valid hid and the function returns true
  */
 VTKIOHDF_EXPORT bool Open(const char* fileName, hid_t& fileID);
+
+/**
+ * Open a VTK HDF file image from memory and checks if it is valid.
+ * On success, fileImageID is set to a valid hid and the function returns true
+ */
+VTKIOHDF_EXPORT bool Open(vtkMemoryResourceStream* stream, hid_t& fileImageID);
 
 /**
  * Convert C++ template type T to HDF5 native type

@@ -32,6 +32,7 @@
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPolyData.h"
+#include "vtkResourceStream.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringFormatter.h"
 #include "vtkUnstructuredGrid.h"
@@ -46,6 +47,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkHDFReader);
+vtkCxxSetSmartPointerMacro(vtkHDFReader, Stream, vtkResourceStream);
 
 namespace
 {
@@ -364,6 +366,12 @@ vtkHDFReader::~vtkHDFReader()
 }
 
 //----------------------------------------------------------------------------
+vtkResourceStream* vtkHDFReader::GetStream()
+{
+  return this->Stream;
+}
+
+//----------------------------------------------------------------------------
 void vtkHDFReader::MergePartsOn()
 {
   this->SetMergeParts(true);
@@ -389,6 +397,16 @@ void vtkHDFReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Step: " << this->Step << "\n";
   os << indent << "TimeValue: " << this->TimeValue << "\n";
   os << indent << "TimeRange: " << this->TimeRange[0] << " - " << this->TimeRange[1] << "\n";
+  if (this->Stream)
+  {
+    os << indent << "Stream: "
+       << "\n";
+    this->Stream->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Stream: (none)\n";
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -504,16 +522,25 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
   vtkInformation* info = outputVector->GetInformationObject(0);
   vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
 
-  if (!this->FileName)
+  if (!this->FileName && !this->Stream)
   {
-    vtkErrorMacro("Requires valid input file name");
+    vtkErrorMacro("Requires valid input file name or stream");
     return 0;
   }
 
-  if (!this->Impl->Open(this->FileName))
+  if (this->Stream)
+  {
+    this->Stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+    if (!this->Impl->Open(this->Stream))
+    {
+      return 0;
+    }
+  }
+  else if (!this->Impl->Open(this->FileName))
   {
     return 0;
   }
+
   auto version = this->Impl->GetVersion();
   if (!CanReadFileVersion(version[0], version[1]))
   {
@@ -571,18 +598,28 @@ int vtkHDFReader::RequestDataObject(vtkInformation*, vtkInformationVector** vtkN
 int vtkHDFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  if (!this->FileName)
+  if (!this->FileName && !this->Stream)
   {
-    vtkErrorMacro("Requires valid input file name");
+    vtkErrorMacro("Requires valid input file name or stream");
     return 0;
   }
   // Ensures a new file is open. This happen for vtkFileSeriesReader
   // which does not call RequestDataObject for every time step.
-  if (!this->Impl->Open(this->FileName))
+  if (this->Stream)
+  {
+    this->Stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+    if (!this->Impl->Open(this->Stream))
+    {
+      vtkErrorMacro("Could not open stream");
+      return 0;
+    }
+  }
+  else if (!this->Impl->Open(this->FileName))
   {
     vtkErrorMacro("Could not open file " << this->FileName);
     return 0;
   }
+
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
   {
@@ -1722,10 +1759,19 @@ int vtkHDFReader::Read(const std::vector<vtkIdType>& numberOfTrees,
 int vtkHDFReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  if (!this->Impl->Open(this->FileName))
+  if (this->Stream)
+  {
+    this->Stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+    if (!this->Impl->Open(this->Stream))
+    {
+      return 0;
+    }
+  }
+  else if (!this->Impl->Open(this->FileName))
   {
     return 0;
   }
+
   this->CompositeCachePath.clear();
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)

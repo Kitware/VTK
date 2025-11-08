@@ -11,6 +11,7 @@
 #include "vtkLogger.h"
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
+#include "vtkMemoryResourceStream.h"
 #include "vtkShortArray.h"
 #include "vtkSignedCharArray.h"
 #include "vtkStringArray.h"
@@ -521,6 +522,26 @@ bool vtkHDFUtilities::Open(const char* fileName, hid_t& fileID)
   if (fileID < 0)
   {
     // we try to read a non-HDF file
+    return false;
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkHDFUtilities::Open(vtkMemoryResourceStream* stream, hid_t& fileImageID)
+{
+  if (!stream)
+  {
+    vtkErrorWithObjectMacro(nullptr, "stream is nullptr.");
+    return false;
+  }
+
+  fileImageID = H5LTopen_file_image((void*)(stream->GetBuffer()), stream->GetSize(),
+    H5LT_FILE_IMAGE_DONT_COPY | H5LT_FILE_IMAGE_DONT_RELEASE);
+  if (fileImageID < 0)
+  {
+    // we try to read a non-HDF memory stream
     return false;
   }
 

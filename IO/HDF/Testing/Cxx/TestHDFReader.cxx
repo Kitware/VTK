@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkAppendDataSets.h"
+#include "vtkFileResourceStream.h"
 #include "vtkFloatArray.h"
 #include "vtkHDFReader.h"
 #include "vtkHyperTreeGrid.h"
@@ -251,6 +252,35 @@ int TestPolyData(const std::string& dataRoot)
   const std::string fileName = dataRoot + "/Data/test_poly_data.hdf";
   vtkNew<vtkHDFReader> reader;
   reader->SetFileName(fileName.c_str());
+  reader->Update();
+
+  vtkPartitionedDataSet* pds = vtkPartitionedDataSet::SafeDownCast(reader->GetOutputDataObject(0));
+  if (pds->GetNumberOfPartitions() != 2)
+  {
+    std::cerr << "Error: expected 2 partitions in polydata but got " << pds->GetNumberOfPartitions()
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  return !vtkTestUtilities::CompareDataObjects(
+    GetMergedBlocks(reader, VTK_POLY_DATA), expectedData);
+}
+
+//----------------------------------------------------------------------------
+int TestPolyDataStream(const std::string& dataRoot)
+{
+  const std::string expectedName = dataRoot + "/Data/hdf_poly_data_twin.vtp";
+  vtkNew<vtkXMLPolyDataReader> expectedReader;
+  expectedReader->SetFileName(expectedName.c_str());
+  expectedReader->Update();
+  auto expectedData = vtkPolyData::SafeDownCast(expectedReader->GetOutput());
+
+  const std::string fileName = dataRoot + "/Data/test_poly_data.hdf";
+  vtkNew<vtkFileResourceStream> fileStream;
+  fileStream->Open(fileName.c_str());
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetStream(fileStream);
   reader->Update();
 
   vtkPartitionedDataSet* pds = vtkPartitionedDataSet::SafeDownCast(reader->GetOutputDataObject(0));
@@ -558,6 +588,11 @@ int TestHDFReader(int argc, char* argv[])
   }
 
   if (TestPolyData(dataRoot))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (TestPolyDataStream(dataRoot))
   {
     return EXIT_FAILURE;
   }

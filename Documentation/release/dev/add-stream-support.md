@@ -1,6 +1,8 @@
-## Adding stream support to vtkSTLReader
+## Adding stream support to various readers
 
-vtkSTLReader new supports reading streams
+Stream support have been added to:
+ - vtkSTLReader
+ - vtkHDFReader (prefer memory stream)
 
 In that context the following protected methods are now private/removed:
  - vtkSTLReader::ReadBinarySTL

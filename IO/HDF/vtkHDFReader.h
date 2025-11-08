@@ -8,6 +8,8 @@
  * image data, poly data, unstructured grid, overlapping AMR, hyper tree grid, partitioned dataset
  * collection and multiblock.
  *
+ * This reader supports reading any vtkResourceStream, but is more efficient with a vtkMemoryStream.
+ *
  * Serial and parallel reading are supported, with the possibility of piece selection.
  *
  * This reader provides an internal cache with the `UseCache` option,
@@ -48,14 +50,15 @@ class vtkDataSet;
 class vtkDataSetAttributes;
 class vtkHyperTreeGrid;
 class vtkImageData;
-class vtkInformationVector;
 class vtkInformation;
+class vtkInformationVector;
 class vtkMultiBlockDataSet;
 class vtkOverlappingAMR;
 class vtkPartitionedDataSet;
 class vtkPartitionedDataSetCollection;
 class vtkPointData;
 class vtkPolyData;
+class vtkResourceStream;
 class vtkUnstructuredGrid;
 
 namespace vtkHDFUtilities
@@ -76,6 +79,17 @@ public:
    */
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
+  ///@}
+
+  ///@{
+  /**
+   * Specify stream to read from
+   * When both `Stream` and `Filename` are set, stream is used.
+   * Please note that when using virtual dataset (eg. when using the vtkHDFWriter::UseExternal*
+   * properties) these files are still read from disk.
+   */
+  void SetStream(vtkResourceStream* stream);
+  vtkResourceStream* GetStream();
   ///@}
 
   /**
@@ -276,6 +290,11 @@ protected:
    * The input file's name.
    */
   char* FileName;
+
+  /**
+   * The input stream.
+   */
+  vtkSmartPointer<vtkResourceStream> Stream;
 
   /**
    * The array selections.
