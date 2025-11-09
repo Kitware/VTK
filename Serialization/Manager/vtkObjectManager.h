@@ -216,6 +216,19 @@ public:
   void Import(const std::string& stateFileName, const std::string& blobFileName);
 
   /**
+   * Exports the states and blobs to a vtkUnsignedCharArray. The return value can be passed back
+   * into ImportFromBytes();
+   */
+  vtkSmartPointer<vtkUnsignedCharArray> ExportToBytes();
+
+  /**
+   * Imports the states and blobs from a vtkUnsignedCharArray previously exported via
+   * ExportToBytes(); Returns the list of imported strong objects.
+   */
+  std::vector<vtkSmartPointer<vtkObjectBase>> ImportFromBytes(
+    vtkSmartPointer<vtkUnsignedCharArray> byteArray);
+
+  /**
    * Removes all states whose corresponding objects no longer exist.
    */
   void PruneUnusedStates();
@@ -263,6 +276,8 @@ protected:
 private:
   vtkObjectManager(const vtkObjectManager&) = delete;
   void operator=(const vtkObjectManager&) = delete;
+
+  std::vector<vtkTypeUInt32> ImportFromJSON(const nlohmann::json& json);
 };
 VTK_ABI_NAMESPACE_END
 #endif

@@ -5,6 +5,7 @@ vtk_add_test_python(
   TestChartsScatter.py
   TestCompositeDataSets.py,NO_VALID
   TestCompositePolyDataMapper.py
+  TestDataSetImportExport.py,NO_VALID
   TestDynamic.py,NO_VALID
   TestGlyph3DMapper.py
   TestInitialize.py,NO_VALID
