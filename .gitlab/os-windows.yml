@@ -434,7 +434,7 @@
         # Fetch chrome-for-testing
         - cmake -P .gitlab/ci/download_chrome.cmake
         - Set-Item -Force -Path "env:VTK_TESTING_WASM_ENGINE" -Value "$pwdpath\.gitlab\chrome\chrome.exe"
-        - ctest --output-on-failure -V -S .gitlab/ci/ctest_test_external_wasm.cmake
+        - ctest --output-on-failure -VV -S .gitlab/ci/ctest_test_external_wasm.cmake
         - buildcache --show-stats
         - powershell -File ".gitlab/ci/terminate_chrome_processes.ps1"
         - .gitlab\ci\check_warnings.ps1 -BuildPath .\Testing\ExternalWasm # This will call exit in case of warnings
