@@ -84,22 +84,7 @@ public:
    * Copy the tuple at @a tupleIdx into @a tuple.
    */
   void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
-    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples())
-  {
-    if (this->StorageType == StorageTypeEnum::SOA)
-    {
-      for (size_t cc = 0; cc < this->Data.size(); cc++)
-      {
-        tuple[cc] = this->Data[cc]->GetBuffer()[tupleIdx];
-      }
-    }
-    else
-    {
-      ValueType* buffer = this->AoSData->GetBuffer();
-      std::copy(buffer + tupleIdx * this->GetNumberOfComponents(),
-        buffer + (tupleIdx + 1) * this->GetNumberOfComponents(), tuple);
-    }
-  }
+    VTK_EXPECTS(0 <= tupleIdx && tupleIdx < GetNumberOfTuples());
 
   /**
    * Set this array's tuple at @a tupleIdx to the values in @a tuple.
@@ -127,14 +112,7 @@ public:
    */
   ValueType GetTypedComponent(vtkIdType tupleIdx, int comp) const
     VTK_EXPECTS(0 <= tupleIdx && GetNumberOfComponents() * tupleIdx + comp < GetNumberOfValues())
-      VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents())
-  {
-    if (this->StorageType == StorageTypeEnum::SOA)
-    {
-      return this->Data[comp]->GetBuffer()[tupleIdx];
-    }
-    return this->AoSData->GetBuffer()[tupleIdx * this->GetNumberOfComponents() + comp];
-  }
+      VTK_EXPECTS(0 <= comp && comp < GetNumberOfComponents());
 
   /**
    * Set component @a comp of the tuple at @a tupleIdx to @a value.
