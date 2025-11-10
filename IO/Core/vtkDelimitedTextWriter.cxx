@@ -81,6 +81,25 @@ bool vtkDelimitedTextWriter::OpenStream()
     this->Stream = fptr;
   }
 
+  if (this->Notation == SCIENTIFIC_NOTATION)
+  {
+    this->Stream->setf(ios::scientific, ios::floatfield);
+  }
+  else if (this->Notation == FIXED_NOTATION)
+  {
+    this->Stream->setf(ios::fixed, ios::floatfield);
+  }
+  else
+  {
+    // Standard notation
+    this->Stream->unsetf(ios::floatfield);
+  }
+
+  if (this->Precision > 0)
+  {
+    this->Stream->precision(this->Precision);
+  }
+
   return true;
 }
 

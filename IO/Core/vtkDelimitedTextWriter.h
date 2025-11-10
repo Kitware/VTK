@@ -79,6 +79,43 @@ public:
    */
   vtkStdString GetString(vtkStdString string);
 
+  ///@{
+  /**
+   * Set/Get the precision for writing floating point numbers
+   * Default is 6.
+   */
+  vtkSetMacro(Precision, int);
+  vtkGetMacro(Precision, int);
+  ///@}
+
+  enum Notations
+  {
+    STANDARD_NOTATION = 0,
+    SCIENTIFIC_NOTATION,
+    FIXED_NOTATION
+  };
+
+  ///@{
+  /**
+   * Sets or gets the notation for writing floating point numbers using std::floatfield.
+   *
+   * The available notations are:
+   *   - FIXED_NOTATIOn: Writes floating point numbers in fixed-point notation (e.g.,
+123.456).
+   *   - SCIENTIFIC_NOTATION: Writes floating point numbers in scientific notation
+(  e.g., 1.23456e+02).
+   *   - STANDARD_NOTATION: Uses the default notation, which may be fixed or
+s  cientific depending on the value.
+   *
+   * Default is STANDARD_NOTATION.
+   */
+  vtkSetMacro(Notation, int);
+  vtkGetMacro(Notation, int);
+  virtual void SetNotationToStandard() { this->SetNotation(STANDARD_NOTATION); }
+  virtual void SetNotationToScientific() { this->SetNotation(SCIENTIFIC_NOTATION); }
+  virtual void SetNotationToFixed() { this->SetNotation(FIXED_NOTATION); }
+  ///@}
+
 protected:
   vtkDelimitedTextWriter();
   ~vtkDelimitedTextWriter() override;
@@ -99,6 +136,8 @@ protected:
   char* FieldDelimiter;
   char* StringDelimiter;
   bool UseStringDelimiter;
+  int Precision = 6;
+  int Notation = STANDARD_NOTATION;
 
   ostream* Stream;
 
