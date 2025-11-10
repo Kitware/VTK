@@ -114,29 +114,35 @@ public:
 
   ///@{
   /**
-   * Get the end-point (sphere) properties. The properties of the end-points
+   * Set/Get the end-point (sphere) properties. The properties of the end-points
    * when selected and unselected can be manipulated.
    */
   vtkGetObjectMacro(EndPointProperty, vtkProperty);
   vtkGetObjectMacro(SelectedEndPointProperty, vtkProperty);
+  void SetEndPointProperty(vtkProperty* property);
+  void SetSelectedEndPointProperty(vtkProperty* property);
   ///@}
 
   ///@{
   /**
-   * Get the end-point (sphere) properties. The properties of the end-points
+   * Set/Get the end-point (sphere) properties. The properties of the end-points
    * when selected and unselected can be manipulated.
    */
   vtkGetObjectMacro(EndPoint2Property, vtkProperty);
   vtkGetObjectMacro(SelectedEndPoint2Property, vtkProperty);
+  void SetEndPoint2Property(vtkProperty* property);
+  void SetSelectedEndPoint2Property(vtkProperty* property);
   ///@}
 
   ///@{
   /**
-   * Get the line properties. The properties of the line when selected
+   * Set/Get the line properties. The properties of the line when selected
    * and unselected can be manipulated.
    */
   vtkGetObjectMacro(LineProperty, vtkProperty);
   vtkGetObjectMacro(SelectedLineProperty, vtkProperty);
+  void SetLineProperty(vtkProperty* property);
+  void SetSelectedLineProperty(vtkProperty* property);
   ///@}
 
   ///@{

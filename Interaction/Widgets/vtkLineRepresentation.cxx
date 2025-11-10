@@ -31,6 +31,13 @@ vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation, HandleRepresentation, vtkPointHandleRepresentation3D);
 
+vtkCxxSetObjectMacro(vtkLineRepresentation, EndPointProperty, vtkProperty);
+vtkCxxSetObjectMacro(vtkLineRepresentation, SelectedEndPointProperty, vtkProperty);
+vtkCxxSetObjectMacro(vtkLineRepresentation, EndPoint2Property, vtkProperty);
+vtkCxxSetObjectMacro(vtkLineRepresentation, SelectedEndPoint2Property, vtkProperty);
+vtkCxxSetObjectMacro(vtkLineRepresentation, LineProperty, vtkProperty);
+vtkCxxSetObjectMacro(vtkLineRepresentation, SelectedLineProperty, vtkProperty);
+
 //------------------------------------------------------------------------------
 vtkLineRepresentation::vtkLineRepresentation()
 {
