@@ -256,14 +256,19 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   auto resultPoint = vtk::scan<double, double, double>(buffer, "{:f} {:f} {:f}");
-  auto resultIntensity = vtk::scan_value<double>(resultPoint->range());
-  auto resultColor = vtk::scan<double, double, double>(resultIntensity->range(), "{:f} {:f} {:f}");
+  bool hasIntensity = false;
+  bool hasColor = false;
   if (resultPoint)
   {
     std::tie(pt[0], pt[1], pt[2]) = resultPoint->values();
+    auto resultIntensity = vtk::scan_value<double>(resultPoint->range());
+    hasIntensity = resultIntensity.has_value();
     if (resultIntensity)
     {
       irgb[0] = resultIntensity->value();
+      auto resultColor =
+        vtk::scan<double, double, double>(resultIntensity->range(), "{:f} {:f} {:f}");
+      hasColor = resultColor.has_value();
       if (resultColor)
       {
         std::tie(irgb[1], irgb[2], irgb[3]) = resultColor->values();
@@ -315,8 +320,8 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
     output->SetVerts(newVerts);
   }
 
-  bool wantIntensities = (resultIntensity || resultColor);
-  if (resultColor)
+  bool wantIntensities = (hasIntensity || hasColor);
+  if (hasColor)
   {
     colors->SetNumberOfComponents(3);
     colors->SetName("Color");
@@ -363,8 +368,8 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     pids = new vtkIdType[targetNumPts];
   }
-  const bool hasOnlyPoint = resultPoint && !resultIntensity && !resultColor;
-  const bool hasOnlyPointAndIntensity = resultPoint && resultIntensity && !resultColor;
+  const bool hasOnlyPoint = resultPoint && !hasIntensity && !hasColor;
+  const bool hasOnlyPointAndIntensity = resultPoint && hasIntensity && !hasColor;
   long lastCount = 0;
   res = parser->ReadLine(buffer);
   for (long i = 0; res != vtkParseResult::Error && res != vtkParseResult::EndOfStream && i < numPts;
@@ -408,7 +413,7 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
         {
           intensities->InsertNextValue(irgb[0]);
         }
-        if (resultColor)
+        if (hasColor)
         {
           // if we have intensity then the color info starts with the second value in the array
           // else it starts with the first
@@ -447,7 +452,7 @@ int vtkPTSReader::RequestData(vtkInformation* vtkNotUsed(request),
     {
       intensities->Squeeze();
     }
-    if (resultColor)
+    if (hasColor)
     {
       colors->Squeeze();
     }
