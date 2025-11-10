@@ -20,7 +20,7 @@ line arguments.
 - Git
 - tools for building VTK
 
-This module uses Dawn's C++ WebGPU implementation on desktop and the `emdawnwebgpu` subcomponent for wasm. You can either build Dawn from scratch or download pre-built releases for your machine from [kitware:utils/ci-utilities/dawn-v20250621.085109-20250630.1](https://gitlab.kitware.com/utils/ci-utilities/-/releases/dawn%2Fv20250621.085109-20250630.1)
+This module uses Dawn's C++ WebGPU implementation on desktop and the `emdawnwebgpu` subcomponent for wasm (automatically fetched by emscripten with `--use-port=emdawnwebgpu` flag)
 
 #### Cloning and Building Dawn
 
@@ -50,7 +50,6 @@ cmake \
 -B /path/to/vtk/build \
 -GNinja \
 -DVTK_ENABLE_WEBGPU=ON \
--Demdawnwebgpu_DIR=/path/to/where/dawn/is/installed/lib/cmake/emdawnwebgpu \
 -DVTK_BUILD_TESTING=ON
 
 cmake --build
