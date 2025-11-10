@@ -363,8 +363,15 @@ protected:
   // Helper members
   int ClampToBounds;
   void ClampPosition(double x[3]);
+
+  ///@{
+  /**
+   * These methods are just changing the properties of actors and representations
+   */
   void HighlightPoint(int ptId, int highlight);
   void HighlightLine(int highlight);
+  ///@}
+
   int InBounds(double x[3]);
   void SizeHandles();
 
@@ -397,6 +404,8 @@ protected:
   vtkCellPicker* LinePicker;
 
 private:
+  void UpdatePointAndLineProperties();
+
   vtkLineRepresentation(const vtkLineRepresentation&) = delete;
   void operator=(const vtkLineRepresentation&) = delete;
 };
