@@ -1109,17 +1109,14 @@ int vtkOpenVDBReader::RequestData(vtkInformation* vtkNotUsed(request),
     // we can already fill the topology of the polydata:
     // only vertices
     points->SetNumberOfPoints(numVertices);
-    vtkIdType* rawVertices = new vtkIdType[2l * numVertices];
+    vertices->SetNumberOfTuples(numVertices);
 
     // only vertices
     for (vtkIdType i = 0; i < numVertices; i++)
     {
-      rawVertices[2 * i] = 1;
-      rawVertices[2 * i + 1] = i;
+      vertices->SetValue(i, i);
     }
-
-    vertices->SetArray(rawVertices, 2l * numVertices, 0, vtkDataArray::VTK_DATA_ARRAY_DELETE);
-    cells->SetCells(numVertices, vertices);
+    cells->SetData(1, vertices);
 
     polydata->SetPoints(points);
     polydata->SetVerts(cells);
