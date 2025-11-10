@@ -7,9 +7,9 @@ vtk_module_third_party(
     SPDX_COPYRIGHT_TEXT
       "Copyright 2018 Unidata"
     SPDX_DOWNLOAD_LOCATION
-      "git+https://gitlab.kitware.com/third-party/netcdf.git@for/vtk-20241123-4.9.2"
+      "git+https://gitlab.kitware.com/third-party/netcdf.git@for/vtk-20251112-4.9.3"
     VERSION
-      "4.9.2"
+      "4.9.3"
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE NetCDF
