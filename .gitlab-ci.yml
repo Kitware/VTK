@@ -491,6 +491,8 @@ wasm32-emscripten-windows-chrome:test-ext:
         - .windows_tester_tags
         - .cmake_test_artifacts
         - .rules
+    variables:
+        CTEST_MAX_PARALLELISM: 8
     needs:
         - wasm32-emscripten-linux:build
     timeout: 3 hours
@@ -503,6 +505,8 @@ wasm64-emscripten-windows-chrome:test-ext:
         - .windows_tester_tags
         - .cmake_test_artifacts
         - .rules
+    variables:
+        CTEST_MAX_PARALLELISM: 8
     needs:
         - wasm64-emscripten-linux:build
     timeout: 3 hours
