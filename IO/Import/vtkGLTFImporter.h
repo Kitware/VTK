@@ -186,6 +186,7 @@ protected:
   void ImportActors(vtkRenderer* renderer) override;
   void ImportCameras(vtkRenderer* renderer) override;
   void ImportLights(vtkRenderer* renderer) override;
+  void ImportEnd() override;
 
   void ApplySkinningMorphing();
 
@@ -213,6 +214,12 @@ private:
   void operator=(const vtkGLTFImporter&) = delete;
 
   std::map<int, vtkSmartPointer<vtkActor>> ArmatureActors;
+
+  /**
+   * Move each camera's focal point along its view direction taking actors into account
+   * so focal point is in a usable location for interactions
+   */
+  void GuessCamerasFocalPoints();
 };
 
 VTK_ABI_NAMESPACE_END

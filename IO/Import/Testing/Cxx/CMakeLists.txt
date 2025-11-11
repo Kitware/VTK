@@ -169,6 +169,10 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterCameraMove,TestGLTFImporterCameraMove.cxx DATA{../Data/glTF/Cameras/Cameras.gltf} 0 30 20
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
   NO_VALID
   TestImportGLFTExportOBJ,TestImportExportOBJ.cxx
   DATA{../Data/glTF/Avocado/Avocado.glb}

@@ -20,6 +20,7 @@
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkMathUtilities.h"
+#include "vtkPlane.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
@@ -575,6 +576,50 @@ int vtkGLTFImporter::ImportBegin()
   std::fill(std::begin(this->EnabledAnimations), std::end(this->EnabledAnimations), false);
 
   return 1;
+}
+
+//------------------------------------------------------------------------------
+void vtkGLTFImporter::ImportEnd()
+{
+  this->GuessCamerasFocalPoints();
+}
+
+//------------------------------------------------------------------------------
+void vtkGLTFImporter::GuessCamerasFocalPoints()
+{
+  if (this->Cameras.empty())
+  {
+    return;
+  }
+
+  // Compute bounds around all actors
+  vtkBoundingBox sceneBounds;
+  for (const auto& actorItem : this->Actors)
+  {
+    for (const auto& actor : actorItem.second)
+    {
+      sceneBounds.AddBounds(actor->GetBounds());
+    }
+  }
+
+  if (!sceneBounds.IsValid())
+  {
+    return;
+  }
+
+  // Adjust cameras' focal point by projecting bounds center on projection direction.
+  for (const auto& cameraItem : this->Cameras)
+  {
+    auto camera = cameraItem.second;
+    vtkNew<vtkPlane> plane;
+    sceneBounds.GetCenter(plane->GetOrigin());
+    plane->SetNormal(camera->GetDirectionOfProjection());
+    // Only change the focal point if the target in front of the camera
+    if (plane->EvaluateFunction(camera->GetPosition()) < 0)
+    {
+      plane->ProjectPoint(camera->GetPosition(), camera->GetFocalPoint());
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
