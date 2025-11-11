@@ -408,12 +408,6 @@
     - cmake -P .gitlab/ci/download_python.cmake
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\python;$env:PATH"
     - Set-Item -Force -Path "env:PYTHONHOME" -Value "$pwdpath\.gitlab\python"
-    # Build and activate the venv
-    - python -m venv $pwdpath\build\ci-venv
-    # This may be necessary when running manually.
-    # Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-    - . .\build\ci-venv\Scripts\Activate.ps1
-    - pip install -qq -r $pwdpath\.gitlab\ci\requirements.txt
     - cmake -P .gitlab/ci/download_node.cmake
     - Set-Item -Force -Path "env:NODE_DIR" -Value "$pwdpath\.gitlab\node"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\node;$env:PATH"
@@ -439,11 +433,6 @@
         - buildcache --show-stats
         # Fetch chrome-for-testing
         - cmake -P .gitlab/ci/download_chrome.cmake
-        # Reuse the venv from the build step (avoids version changes between
-        # build and testing). This is set up manually because Activate.ps1
-        # doesn't seem to work for our extracted Python tarball.
-        - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\build\ci-venv\Scripts;$env:PATH"
-        - Set-Item -Force -Path "env:PYTHONPATH" -Value "$pwdpath\build\ci-venv\Lib\site-packages"
         - Set-Item -Force -Path "env:VTK_TESTING_WASM_ENGINE" -Value "$pwdpath\.gitlab\chrome\chrome.exe"
         - ctest --output-on-failure -V -S .gitlab/ci/ctest_test_external_wasm.cmake
         - buildcache --show-stats
