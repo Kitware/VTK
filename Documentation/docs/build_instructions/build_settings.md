@@ -65,6 +65,8 @@ Less common, but variables which may be of interest to some:
     Controls the optimization flags being used when running emcc.
     Must be either `NO_OPTIMIZATION`, `LITTLE`, `MORE`, `BEST`, `SMALL`, `SMALLEST` or
     `SMALLEST_WITH_CLOSURE`.
+  * `VTK_WEBASSEMBLY_JOB_POOL_LINK_SIZE` (default number of processors):
+    Size of the job pool for linking wasm targets. Adjust as needed to avoid OOM errors.
 
 ## OpenGL related build options:
 
