@@ -493,6 +493,7 @@ wasm32-emscripten-windows-chrome:test-ext:
         - .rules
     needs:
         - wasm32-emscripten-linux:build
+    timeout: 3 hours
 
 ## Test the 'wasm64-emscripten' architecture on a windows host
 wasm64-emscripten-windows-chrome:test-ext:
@@ -504,6 +505,7 @@ wasm64-emscripten-windows-chrome:test-ext:
         - .rules
     needs:
         - wasm64-emscripten-linux:build
+    timeout: 3 hours
 
 ## Python x86_64 wheel builds
 
