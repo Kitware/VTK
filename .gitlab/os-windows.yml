@@ -332,7 +332,7 @@
         - Set-Item -Force -Path "env:PYTHONPATH" -Value "$pwdpath\build\ci-venv\Lib\site-packages"
         - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\build\install\bin;$env:PATH"
         - Invoke-Expression -Command .gitlab/ci/vcvarsall.ps1
-        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
+        - ctest -VV --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
         - .gitlab\ci\check_warnings.ps1 -BuildPath .\Testing\External\ # This will call exit in case of warnings
 
     interruptible: true
@@ -393,7 +393,7 @@
         - python -c "import xarray"
         - python -c "import vtk"
         - if ( "$env:VTK_DISABLE_PYI_TESTING" -ne "1" ) { python -m vtkmodules.generate_pyi --test -p vtkmodules } else { echo "pyi test is disabled." }
-        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
+        - ctest -VV --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
         # Verify default render window backend works.
         - Set-Item -Force -Path "env:VTK_DEFAULT_OPENGL_WINDOW" -Value ""
         - python -c "import vtk; assert(vtk.vtkRenderWindow().GetClassName() == 'vtkWin32OpenGLRenderWindow')"
