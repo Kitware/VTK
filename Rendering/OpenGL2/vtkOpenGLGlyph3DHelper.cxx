@@ -393,6 +393,12 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkI
         {
           program->SetUniformf("pointSize", 6.0);
         }
+        else if (mode == GL_POINTS)
+        {
+          // set point size from actor property when drawing points and not selecting points
+          const float pointSize = actor->GetProperty()->GetPointSize();
+          program->SetUniformf("pointSize", pointSize);
+        }
 #endif
         glDrawRangeElements(mode, 0, static_cast<GLuint>(numVerts - 1),
           static_cast<GLsizei>(this->Primitives[i].IBO->IndexCount), GL_UNSIGNED_INT, nullptr);
@@ -460,6 +466,14 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
         {
           return;
         }
+#ifdef GL_ES_VERSION_3_0
+        if (mode == GL_POINTS)
+        {
+          // set point size from actor property when drawing points and not selecting points
+          const float pointSize = actor->GetProperty()->GetPointSize();
+          this->Primitives[i].Program->SetUniformf("pointSize", pointSize);
+        }
+#endif
 
         size_t stride = (withNormals ? 29 : 20) * sizeof(float);
 
@@ -564,6 +578,14 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(vtkRenderer* ren, vtkActor* ac
         {
           return;
         }
+#ifdef GL_ES_VERSION_3_0
+        if (mode == GL_POINTS)
+        {
+          // set point size from actor property when drawing points and not selecting points
+          const float pointSize = actor->GetProperty()->GetPointSize();
+          this->Primitives[i].Program->SetUniformf("pointSize", pointSize);
+        }
+#endif
 
         // do the superclass and then reset a couple values
         if ((this->InstanceBuffersBuildTime > this->InstanceBuffersLoadTime ||

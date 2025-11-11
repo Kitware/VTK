@@ -70,6 +70,7 @@ vtk_add_test_cxx(vtkRenderingCoreCxxTests tests
   TestEdgeThickness.cxx
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx
+  TestGlyph3DMapperPointSize.cxx
   TestGlyph3DMapper2.cxx,NO_VALID,NO_RT,NO_DATA
   TestGlyph3DMapperArrow.cxx
   TestGlyph3DMapperBackfaceColor.cxx
