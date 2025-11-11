@@ -33,6 +33,13 @@
 #include <cstdint>
 #endif
 
+// Py_HashPointer added in 3.13 and _Py_HashPointer deprecated in 3.14.
+#if PY_VERSION_HEX >= 0x030D0000
+#define PY_HASHPOINTER Py_HashPointer
+#else
+#define PY_HASHPOINTER _Py_HashPointer
+#endif
+
 VTK_ABI_NAMESPACE_BEGIN
 //------------------------------------------------------------------------------
 // A ghost object, can be used to recreate a deleted PyVTKObject
@@ -1149,7 +1156,7 @@ Py_hash_t vtkPythonUtil::VariantHash(const vtkVariant* v)
   {
     case VTK_OBJECT:
     {
-      h = _Py_HashPointer(v->ToVTKObject());
+      h = PY_HASHPOINTER(v->ToVTKObject());
       break;
     }
 
