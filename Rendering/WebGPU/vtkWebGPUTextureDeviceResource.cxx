@@ -33,23 +33,34 @@ unsigned int vtkWebGPUTextureDeviceResource::GetBytesPerPixel() const
 {
   switch (this->Format)
   {
-    case vtkWebGPUTextureDeviceResource::TextureFormat::RGBA8_UNORM:
-    case vtkWebGPUTextureDeviceResource::TextureFormat::BGRA8_UNORM:
+    case R8_UNORM:
+      return 1;
+    case RG8_UNORM:
+      return 2;
+    case RGBA8_UNORM:
+    case BGRA8_UNORM:
       return 4;
-
-    case vtkWebGPUTextureDeviceResource::TextureFormat::DEPTH_24_PLUS:
+    case R16_UINT:
+      return 2;
+    case RG16_UINT:
+      return 4;
+    case RGBA16_UINT:
+      return 8;
+    case R32_FLOAT:
+      return 4;
+    case RG32_FLOAT:
+      return 8;
+    case RGBA32_FLOAT:
+      return 16;
+    case DEPTH_24_PLUS:
       return 3;
-
-    case vtkWebGPUTextureDeviceResource::TextureFormat::DEPTH_24_PLUS_8_STENCIL:
+    case DEPTH_24_PLUS_8_STENCIL:
       return 4;
-
-    case vtkWebGPUTextureDeviceResource::TextureFormat::R32_FLOAT:
-      return 4;
-
     default:
       vtkLog(ERROR,
         "Unhandled texture format in vtkWebGPUTextureDeviceResource::GetBytesPerPixel: "
           << this->Format);
+      break;
   }
 
   return 0;
@@ -60,16 +71,28 @@ unsigned int vtkWebGPUTextureDeviceResource::GetPixelComponentsCount() const
 {
   switch (this->Format)
   {
-    case vtkWebGPUTextureDeviceResource::TextureFormat::RGBA8_UNORM:
-      return 4;
-
-    case vtkWebGPUTextureDeviceResource::TextureFormat::R32_FLOAT:
+    case R8_UNORM:
+    case R16_UINT:
+    case R32_FLOAT:
       return 1;
-
+    case RG8_UNORM:
+    case RG16_UINT:
+    case RG32_FLOAT:
+      return 2;
+    case RGBA8_UNORM:
+    case BGRA8_UNORM:
+    case RGBA16_UINT:
+    case RGBA32_FLOAT:
+      return 4;
+    case DEPTH_24_PLUS:
+      return 1;
+    case DEPTH_24_PLUS_8_STENCIL:
+      return 2;
     default:
       vtkLog(ERROR,
         "Unhandled texture format in vtkWebGPUTextureDeviceResource::GetPixelComponentsCount: "
           << this->Format);
+      break;
   }
 
   return 0;

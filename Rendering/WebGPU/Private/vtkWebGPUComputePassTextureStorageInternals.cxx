@@ -932,21 +932,30 @@ wgpu::TextureFormat vtkWebGPUComputePassTextureStorageInternals::ComputeTextureF
 {
   switch (format)
   {
+    case vtkWebGPUComputeTexture::TextureFormat::R8_UNORM:
+      return wgpu::TextureFormat::R8Unorm;
+    case vtkWebGPUComputeTexture::TextureFormat::RG8_UNORM:
+      return wgpu::TextureFormat::RG8Unorm;
     case vtkWebGPUComputeTexture::TextureFormat::RGBA8_UNORM:
       return wgpu::TextureFormat::RGBA8Unorm;
-
     case vtkWebGPUComputeTexture::TextureFormat::BGRA8_UNORM:
       return wgpu::TextureFormat::BGRA8Unorm;
-
+    case vtkWebGPUComputeTexture::TextureFormat::R16_UINT:
+      return wgpu::TextureFormat::R16Uint;
+    case vtkWebGPUComputeTexture::TextureFormat::RG16_UINT:
+      return wgpu::TextureFormat::RG16Uint;
+    case vtkWebGPUComputeTexture::TextureFormat::RGBA16_UINT:
+      return wgpu::TextureFormat::RGBA16Uint;
     case vtkWebGPUComputeTexture::TextureFormat::R32_FLOAT:
       return wgpu::TextureFormat::R32Float;
-
+    case vtkWebGPUComputeTexture::TextureFormat::RG32_FLOAT:
+      return wgpu::TextureFormat::RG32Float;
+    case vtkWebGPUComputeTexture::TextureFormat::RGBA32_FLOAT:
+      return wgpu::TextureFormat::RGBA32Float;
     case vtkWebGPUComputeTexture::TextureFormat::DEPTH_24_PLUS:
       return wgpu::TextureFormat::Depth24Plus;
-
     case vtkWebGPUComputeTexture::TextureFormat::DEPTH_24_PLUS_8_STENCIL:
       return wgpu::TextureFormat::Depth24PlusStencil8;
-
     default:
       vtkLog(ERROR, "Unhandled texture format in ComputeTextureFormatToWebGPU: " << format);
       return wgpu::TextureFormat::Undefined;

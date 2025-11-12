@@ -12,7 +12,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 /**
  * Abstraction class for WebGPU textures. This class mainly holds a bunch of parameters needed for
- * the creation of a texture.
+ * the creation of a texture on the webgpu device.
  */
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUTextureDeviceResource : public vtkObject
 {
@@ -31,9 +31,16 @@ public:
    */
   enum TextureFormat
   {
-    RGBA8_UNORM = 0,
+    R8_UNORM = 0,
+    RG8_UNORM,
+    RGBA8_UNORM,
     BGRA8_UNORM,
+    R16_UINT,
+    RG16_UINT,
+    RGBA16_UINT,
     R32_FLOAT,
+    RG32_FLOAT,
+    RGBA32_FLOAT,
     DEPTH_24_PLUS,
     DEPTH_24_PLUS_8_STENCIL
   };
