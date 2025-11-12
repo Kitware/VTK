@@ -512,5 +512,36 @@ void vtkSOADataArrayTemplate<ValueType>::CopyData(vtkSOADataArrayTemplate<ValueT
   }
 }
 
+//-----------------------------------------------------------------------------
+template <class ValueType>
+void vtkSOADataArrayTemplate<ValueType>::GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
+{
+  if (this->StorageType == StorageTypeEnum::SOA)
+  {
+    for (size_t cc = 0; cc < this->Data.size(); cc++)
+    {
+      tuple[cc] = this->Data[cc]->GetBuffer()[tupleIdx];
+    }
+  }
+  else
+  {
+    ValueType* buffer = this->AoSData->GetBuffer();
+    std::copy(buffer + tupleIdx * this->GetNumberOfComponents(),
+      buffer + (tupleIdx + 1) * this->GetNumberOfComponents(), tuple);
+  }
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueType>
+typename vtkSOADataArrayTemplate<ValueType>::ValueType
+vtkSOADataArrayTemplate<ValueType>::GetTypedComponent(vtkIdType tupleIdx, int comp) const
+{
+  if (this->StorageType == StorageTypeEnum::SOA)
+  {
+    return this->Data[comp]->GetBuffer()[tupleIdx];
+  }
+  return this->AoSData->GetBuffer()[tupleIdx * this->GetNumberOfComponents() + comp];
+}
+
 VTK_ABI_NAMESPACE_END
 #endif
