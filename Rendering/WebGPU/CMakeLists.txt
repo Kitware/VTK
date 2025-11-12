@@ -34,6 +34,7 @@ set(classes
   vtkWebGPURenderer
   vtkWebGPUShaderDatabase
   vtkWebGPUShaderProperty
+  vtkWebGPURenderTextureDeviceResource
   vtkWebGPUTextureDeviceResource
   vtkWebGPUTextureView)
 
