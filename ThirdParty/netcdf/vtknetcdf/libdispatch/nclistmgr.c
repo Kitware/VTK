@@ -81,8 +81,8 @@ free_NCList(void)
 int
 add_to_NCList(NC* ncp)
 {
-    int i;
-    int new_id;
+    unsigned int i;
+    unsigned int new_id;
     if(nc_filelist == NULL) {
         if (!(nc_filelist = calloc(1, sizeof(NC*)*NCFILELISTLENGTH)))
             return NC_ENOMEM;
@@ -96,7 +96,7 @@ add_to_NCList(NC* ncp)
     if(new_id == 0) return NC_ENOMEM; /* no more slots */
     nc_filelist[new_id] = ncp;
     numfiles++;
-    ncp->ext_ncid = (new_id << ID_SHIFT);
+    ncp->ext_ncid = (int)(new_id << ID_SHIFT);
     return NC_NOERR;
 }
 

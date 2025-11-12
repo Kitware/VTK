@@ -604,7 +604,7 @@ ncio_ffio_assign(const char *filename) {
 		errno=E2BIG;
 		return (const char *) NULL;
 	}
-	(void) sprintf(buffer,"-F %s %s", envstr,xtra_assign);
+	(void) snprintf(buffer,sizeof(buffer),"-F %s %s", envstr,xtra_assign);
 #ifdef __crayx1
 	ASNFILE(filename, buffer, &istat, strlen(filename)+1, strlen(buffer)+1);
 #else

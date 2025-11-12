@@ -2,34 +2,20 @@
    See the COPYRIGHT file for more information.
 */
 
-
 #ifndef NCJSON_H
-#define NCJSON_H 1
+#define NCJSON_H
 
-/*
-WARNING:
-If you modify this file,
-then you need to got to
-the include/ directory
-and do the command:
-    make makepluginjson
-*/
-
-/* Inside libnetcdf and for plugins, export the json symbols */
-#ifndef DLLEXPORT
-#ifdef _WIN32
-#define DLLEXPORT __declspec(dllexport)
-#else
-#define DLLEXPORT
-#endif
-#endif
-
-/* Override for plugins */
+#ifndef OPTEXPORT
 #ifdef NETCDF_JSON_H
 #define OPTEXPORT static
+#else /*!NETCDF_JSON_H*/
+#ifdef _WIN32
+#define OPTEXPORT __declspec(dllexport)
 #else
-#define OPTEXPORT DLLEXPORT
+#define OPTEXPORT extern
+#endif
 #endif /*NETCDF_JSON_H*/
+#endif /*OPTEXPORT*/
 
 /**************************************************/
 #include "vtk_netcdf_mangle.h"
@@ -46,8 +32,6 @@ and do the command:
 
 #define NCJ_NSORTS   8
 
-/* No flags are currently defined, but the argument is a placeholder */
-
 /* Define a struct to store primitive values as unquoted
    strings. The sort will provide more info.  Do not bother with
    a union since the amount of saved space is minimal.
@@ -57,7 +41,7 @@ typedef struct NCjson {
     int sort;     /* of this object */
     char* string; /* sort != DICT|ARRAY */
     struct NCjlist {
-	    int len;
+	    size_t len;
 	    struct NCjson** contents;
     } list; /* sort == DICT|ARRAY */
 } NCjson;
@@ -96,7 +80,7 @@ OPTEXPORT int NCJnewstring(int sort, const char* value, NCjson** jsonp);
 OPTEXPORT int NCJnewstringn(int sort, size_t len, const char* value, NCjson** jsonp);
 
 /* Get dict key value by name */
-OPTEXPORT int NCJdictget(const NCjson* dict, const char* key, NCjson** valuep);
+OPTEXPORT int NCJdictget(const NCjson* dict, const char* key, const NCjson** valuep);
 
 /* Convert one json sort to  value of another type; don't use union so we can know when to reclaim sval */
 OPTEXPORT int NCJcvt(const NCjson* value, int outsort, struct NCJconst* output);
@@ -108,7 +92,14 @@ OPTEXPORT int NCJaddstring(NCjson* json, int sort, const char* s);
 OPTEXPORT int NCJappend(NCjson* object, NCjson* value);
 
 /* Insert key-value pair into a dict object. key will be copied */
-OPTEXPORT int NCJinsert(NCjson* object, char* key, NCjson* value);
+OPTEXPORT int NCJinsert(NCjson* object, const char* key, NCjson* value);
+
+/* Insert key-value pair as strings into a dict object.
+   key and value will be copied */
+OPTEXPORT int NCJinsertstring(NCjson* object, const char* key, const char* value);
+
+/* Insert key-value pair where value is an int */
+OPTEXPORT int NCJinsertint(NCjson* object, const char* key, long long ivalue);
 
 /* Unparser to convert NCjson object to text in buffer */
 OPTEXPORT int NCJunparse(const NCjson* json, unsigned flags, char** textp);
@@ -121,7 +112,7 @@ OPTEXPORT int NCJclone(const NCjson* json, NCjson** clonep);
 OPTEXPORT void NCJdump(const NCjson* json, unsigned flags, FILE*);
 /* convert NCjson* object to output string */
 OPTEXPORT const char* NCJtotext(const NCjson* json);
-#endif
+#endif /*NETCDF_JSON_H*/
 
 #if defined(__cplusplus)
 }
@@ -131,8 +122,10 @@ OPTEXPORT const char* NCJtotext(const NCjson* json);
 #define NCJsort(x) ((x)->sort)
 #define NCJstring(x) ((x)->string)
 #define NCJlength(x) ((x)==NULL ? 0 : (x)->list.len)
+#define NCJdictlength(x) ((x)==NULL ? 0 : (x)->list.len/2)
 #define NCJcontents(x) ((x)->list.contents)
 #define NCJith(x,i) ((x)->list.contents[i])
+#define NCJdictith(x,i) ((x)->list.contents[2*i])
 
 /* Setters */
 #define NCJsetsort(x,s) (x)->sort=(s)
@@ -146,4 +139,6 @@ OPTEXPORT const char* NCJtotext(const NCjson* json);
 /**************************************************/
 
 #endif /*NCJSON_H*/
+
+
 

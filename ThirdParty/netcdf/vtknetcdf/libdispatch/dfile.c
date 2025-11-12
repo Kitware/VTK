@@ -45,8 +45,6 @@
 #endif
 
 
-extern int NC_initialized; /**< True when dispatch table is initialized. */
-
 /* User-defined formats. */
 NC_Dispatch *UDF0_dispatch_table = NULL;
 char UDF0_magic_number[NC_MAX_MAGIC_NUMBER_LEN + 1] = "";
@@ -1750,6 +1748,13 @@ nc_inq_type(int ncid, nc_type xtype, char *name, size_t *size)
     return ncp->dispatch->inq_type(ncid,xtype,name,size);
 }
 
+/** \defgroup dispatch dispatch functions. */
+/** \{
+
+\ingroup dispatch
+*/
+
+
 /**
    Check the create mode parameter for sanity.
 
@@ -1770,7 +1775,7 @@ static int
 check_create_mode(int mode)
 {
     int mode_format;
-    int mmap = 0;
+    int use_mmap = 0;
     int inmemory = 0;
     int diskless = 0;
 
@@ -1781,17 +1786,17 @@ check_create_mode(int mode)
     if (mode_format && (mode_format & (mode_format - 1)))
         return NC_EINVAL;
 
-    mmap = ((mode & NC_MMAP) == NC_MMAP);
+    use_mmap = ((mode & NC_MMAP) == NC_MMAP);
     inmemory = ((mode & NC_INMEMORY) == NC_INMEMORY);
     diskless = ((mode & NC_DISKLESS) == NC_DISKLESS);
 
     /* NC_INMEMORY and NC_DISKLESS and NC_MMAP are all mutually exclusive */
     if(diskless && inmemory) return NC_EDISKLESS;
-    if(diskless && mmap) return NC_EDISKLESS;
-    if(inmemory && mmap) return NC_EINMEMORY;
+    if(diskless && use_mmap) return NC_EDISKLESS;
+    if(inmemory && use_mmap) return NC_EINMEMORY;
 
     /* mmap is not allowed for netcdf-4 */
-    if(mmap && (mode & NC_NETCDF4)) return NC_EINVAL;
+    if(use_mmap && (mode & NC_NETCDF4)) return NC_EINVAL;
 
 #ifndef USE_NETCDF4
     /* If the user asks for a netCDF-4 file, and the library was built
@@ -1884,7 +1889,7 @@ NC_create(const char *path0, int cmode, size_t initialsz,
     if (model.impl == NC_FORMATX_PNETCDF)
     {stat = NC_ENOTBUILT; goto done;}
 #endif
-#ifndef ENABLE_CDF5
+#ifndef NETCDF_ENABLE_CDF5
     if (model.impl == NC_FORMATX_NC3 && (cmode & NC_64BIT_DATA))
     {stat = NC_ENOTBUILT; goto done;}
 #endif
@@ -1909,7 +1914,7 @@ NC_create(const char *path0, int cmode, size_t initialsz,
         dispatcher = UDF1_dispatch_table;
         break;
 #endif /* USE_NETCDF4 */
-#ifdef ENABLE_NCZARR
+#ifdef NETCDF_ENABLE_NCZARR
     case NC_FORMATX_NCZARR:
         dispatcher = NCZ_dispatch_table;
 	break;
@@ -1973,7 +1978,7 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
     const NC_Dispatch* dispatcher = NULL;
     int inmemory = 0;
     int diskless = 0;
-    int mmap = 0;
+    int use_mmap = 0;
     char* path = NULL;
     NCmodel model;
     char* newpath = NULL;
@@ -1989,17 +1994,17 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
         {stat = NC_EINVAL; goto done;}
 
     /* Capture the inmemory related flags */
-    mmap = ((omode & NC_MMAP) == NC_MMAP);
+    use_mmap = ((omode & NC_MMAP) == NC_MMAP);
     diskless = ((omode & NC_DISKLESS) == NC_DISKLESS);
     inmemory = ((omode & NC_INMEMORY) == NC_INMEMORY);
 
     /* NC_INMEMORY and NC_DISKLESS and NC_MMAP are all mutually exclusive */
     if(diskless && inmemory) {stat = NC_EDISKLESS; goto done;}
-    if(diskless && mmap) {stat = NC_EDISKLESS; goto done;}
-    if(inmemory && mmap) {stat = NC_EINMEMORY; goto done;}
+    if(diskless && use_mmap) {stat = NC_EDISKLESS; goto done;}
+    if(inmemory && use_mmap) {stat = NC_EINMEMORY; goto done;}
 
     /* mmap is not allowed for netcdf-4 */
-    if(mmap && (omode & NC_NETCDF4)) {stat = NC_EINVAL; goto done;}
+    if(use_mmap && (omode & NC_NETCDF4)) {stat = NC_EINVAL; goto done;}
 
     /* Attempt to do file path conversion: note that this will do
        nothing if path is a 'file:...' url, so it will need to be
@@ -2047,10 +2052,10 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
 #ifdef USE_HDF4
         hdf4built = 1;
 #endif
-#ifdef ENABLE_CDF5
+#ifdef NETCDF_ENABLE_CDF5
         cdf5built = 1;
 #endif
-#ifdef ENABLE_NCZARR
+#ifdef NETCDF_ENABLE_NCZARR
 	nczarrbuilt = 1;
 #endif
         if(UDF0_dispatch_table != NULL)
@@ -2081,13 +2086,13 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
 #ifdef USE_HDF4
 		| (1<<NC_FORMATX_NC_HDF4)
 #endif
-#ifdef ENABLE_NCZARR
+#ifdef NETCDF_ENABLE_NCZARR
 		| (1<<NC_FORMATX_NCZARR)
 #endif
-#ifdef ENABLE_DAP
+#ifdef NETCDF_ENABLE_DAP
 		| (1<<NC_FORMATX_DAP2)
 #endif
-#ifdef ENABLE_DAP4
+#ifdef NETCDF_ENABLE_DAP4
 		| (1<<NC_FORMATX_DAP4)
 #endif
 #ifdef USE_PNETCDF
@@ -2101,7 +2106,7 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
 	/* Verify */
 	if((built & (1 << model.impl)) == 0)
             {stat = NC_ENOTBUILT; goto done;}
-#ifndef ENABLE_CDF5
+#ifndef NETCDF_ENABLE_CDF5
 	/* Special case because there is no separate CDF5 dispatcher */
         if(model.impl == NC_FORMATX_NC3 && (omode & NC_64BIT_DATA))
             {stat = NC_ENOTBUILT; goto done;}
@@ -2111,17 +2116,17 @@ NC_open(const char *path0, int omode, int basepe, size_t *chunksizehintp,
     /* Figure out what dispatcher to use */
     if (!dispatcher) {
         switch (model.impl) {
-#ifdef ENABLE_DAP
+#ifdef NETCDF_ENABLE_DAP
         case NC_FORMATX_DAP2:
             dispatcher = NCD2_dispatch_table;
             break;
 #endif
-#ifdef ENABLE_DAP4
+#ifdef NETCDF_ENABLE_DAP4
         case NC_FORMATX_DAP4:
             dispatcher = NCD4_dispatch_table;
             break;
 #endif
-#ifdef ENABLE_NCZARR
+#ifdef NETCDF_ENABLE_NCZARR
 	case NC_FORMATX_NCZARR:
 	    dispatcher = NCZ_dispatch_table;
 	    break;
@@ -2216,3 +2221,4 @@ nc__pseudofd(void)
     }
     return pseudofd++;
 }
+/** \} */

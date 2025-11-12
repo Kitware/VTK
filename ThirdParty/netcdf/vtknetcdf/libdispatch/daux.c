@@ -25,10 +25,12 @@ See COPYRIGHT for license information.
 #include "config.h"
 #include "netcdf.h"
 #include "netcdf_aux.h"
+#include "nc4internal.h"
 #include "ncoffsets.h"
 #include "nclog.h"
 #include "ncrc.h"
 #include "netcdf_filter.h"
+#include "ncpathmgr.h"
 
 struct NCAUX_FIELD {
     char* name;
@@ -54,6 +56,9 @@ struct NCAUX_CMPD {
 static int computefieldinfo(struct NCAUX_CMPD* cmpd);
 
 static int filterspec_cvt(const char* txt, size_t* nparamsp, unsigned int* params);
+
+EXTERNL int nc_dump_data(int ncid, nc_type xtype, void* memory, size_t count, char** bufp);
+EXTERNL int nc_parse_plugin_pathlist(const char* path0, NClist* dirlist);
 
 /**************************************************/
 /*
@@ -97,7 +102,7 @@ EXTERNL int
 ncaux_abort_compound(void* tag)
 {
 #ifdef USE_NETCDF4
-    int i;
+    size_t i;
     struct NCAUX_CMPD* cmpd = (struct NCAUX_CMPD*)tag;
     if(cmpd == NULL) goto done;
     if(cmpd->name) free(cmpd->name);
@@ -159,7 +164,7 @@ EXTERNL int
 ncaux_end_compound(void* tag, nc_type* idp)
 {
 #ifdef USE_NETCDF4
-    int i;
+    size_t i;
     int status = NC_NOERR;
     struct NCAUX_CMPD* cmpd = (struct NCAUX_CMPD*)tag;
 
@@ -242,7 +247,7 @@ getpadding(size_t offset, size_t alignment)
 static size_t
 dimproduct(size_t ndims, int* dimsizes)
 {
-    int i;
+    size_t i;
     size_t product = 1;
     for(i=0;i<ndims;i++) product *= (size_t)dimsizes[i];
     return product;
@@ -251,7 +256,7 @@ dimproduct(size_t ndims, int* dimsizes)
 static int
 computefieldinfo(struct NCAUX_CMPD* cmpd)
 {
-    int i;
+    size_t i;
     int status = NC_NOERR;
     size_t offset = 0;
     size_t totaldimsize;
@@ -267,7 +272,7 @@ computefieldinfo(struct NCAUX_CMPD* cmpd)
 
     for(offset=0,i=0;i<cmpd->nfields;i++) {
         struct NCAUX_FIELD* field = &cmpd->fields[i];
-	int alignment = 0;
+	size_t alignment = 0;
 	nc_type firsttype = findfirstfield(cmpd->ncid,field->fieldtype);
 
         /* only support 'c' alignment for now*/
@@ -310,11 +315,9 @@ done:
 #define LBRACK '['
 #define RBRACK ']'
 
-static int gettype(const int q0, const int q1, int* unsignedp);
-
 /* Look at q0 and q1) to determine type */
 static int
-gettype(const int q0, const int q1, int* isunsignedp)
+gettype(const char q0, const char q1, int* isunsignedp)
 {
     int type = 0;
     int isunsigned = 0;
@@ -429,7 +432,8 @@ and the parameters themselves (hence the unsigned int** paramsp).
 EXTERNL int
 ncaux_h5filterspec_parse(const char* txt, unsigned int* idp, size_t* nparamsp, unsigned int** paramsp)
 {
-    int i,stat = NC_NOERR;
+    int stat = NC_NOERR;
+    size_t i;
     char* p;
     char* sdata0 = NULL; /* what to free */
     char* sdata = NULL; /* sdata0 with leading prefix skipped */
@@ -592,7 +596,7 @@ ncaux_h5filterspec_parselist(const char* txt0, int* formatp, size_t* nspecsp, NC
 	p = q + 1;
     }
     if(nspecs >  0) {
-	int count = 0;
+	size_t count = 0;
 	if((vector = (NC_H5_Filterspec**)calloc(sizeof(NC_H5_Filterspec*),nspecs)) == NULL)
 	    {stat = NC_ENOMEM; goto done;}
 	/* pass 2: parse */
@@ -614,7 +618,7 @@ ncaux_h5filterspec_parselist(const char* txt0, int* formatp, size_t* nspecsp, NC
 done:
     nullfree(spec);
     if(vector) {
-	int i;
+	size_t i;
         for(i=0;i<nspecs;i++)
 	    ncaux_h5filterspec_free(vector[i]);
 	nullfree(vector);
@@ -857,15 +861,15 @@ done:
 /* Wrappers to export selected functions from libnetcdf */
 
 EXTERNL int
-ncaux_readfile(const char* filename, size_t* sizep, void** contentp)
+ncaux_readfile(const char* filename, size_t* sizep, void** datap)
 {
     int stat = NC_NOERR;
     NCbytes* content = ncbytesnew();
     stat = NC_readfile(filename,content);
     if(stat == NC_NOERR && sizep)
         *sizep = ncbyteslength(content);
-    if(stat == NC_NOERR && contentp)
-        *contentp = ncbytesextract(content);
+    if(stat == NC_NOERR && datap)
+        *datap = ncbytesextract(content);
     ncbytesfree(content);
     return stat;        
 }
@@ -915,6 +919,15 @@ ncaux_reclaim_data_all(int ncid, int xtype, void* memory, size_t count)
     return nc_reclaim_data_all(ncid, xtype, memory, count);
 }
 
+EXTERNL int NC_inq_any_type(int ncid, nc_type typeid, char *name, size_t *size, nc_type *basetypep, size_t *nfieldsp, int *classp);
+
+EXTERNL int
+ncaux_inq_any_type(int ncid, nc_type typeid, char *name, size_t *sizep, nc_type *basetypep, size_t *nfieldsp, int *classp)
+{
+    return NC_inq_any_type(ncid, typeid, name, sizep, basetypep, nfieldsp, classp);
+}
+
+#ifdef USE_NETCDF4
 /**
  @param ncid - only needed for a compound type
  @param xtype - type for which alignment is requested
@@ -924,4 +937,340 @@ ncaux_type_alignment(int xtype, int ncid, size_t* alignp)
 {
     /* Defer to the internal version */
     return NC_type_alignment(ncid, xtype, alignp);
+}
+#endif
+
+/**
+Dump the output tree of data from a call
+to e.g. nc_get_vara or the input to e.g. nc_put_vara.
+This function is just a wrapper around nc_dump__data.
+
+@param ncid file ncid
+@param xtype type id
+@param memory to print
+@param count number of instances of the type in memory
+@return error code
+*/
+
+EXTERNL int
+ncaux_dump_data(int ncid, int xtype, void* memory, size_t count, char** bufp)
+{
+    return nc_dump_data(ncid, xtype, memory, count, bufp);
+}
+
+/**************************************************/
+/* Path List Utilities */
+
+/* Path-list Parser:
+@param pathlen length of the pathlist0 arg
+@param pathlist0 the string to parse
+@param dirs return the parsed directories -- see note below.
+@param sep the separator parsing: one of ';' | ':' | '\0', where zero means use platform default.
+@return NC_NOERR || NC_EXXX
+
+Note: If dirs->dirs is not NULL, then this function
+will allocate the space for the vector of directory path.
+The user is then responsible for free'ing that vector
+(or call ncaux_plugin_path_reclaim).
+*/
+EXTERNL int
+ncaux_plugin_path_parsen(size_t pathlen, const char* pathlist0, char sep, NCPluginList* dirs)
+{
+    int stat = NC_NOERR;
+    size_t i;
+    char* path = NULL;
+    char* p;
+    size_t count;
+    char seps[2] = "\0\0"; /* will contain all allowable separators */
+
+    if(dirs == NULL) {stat = NC_EINVAL; goto done;}
+
+    if(pathlen == 0 || pathlist0 == NULL) {dirs->ndirs = 0; goto done;}
+
+    /* If a separator is specified, use it, otherwise search for ';' or ':' */
+    seps[0] = sep;
+    if(sep == 0) {
+	if(NCgetlocalpathkind() == NCPD_WIN
+	    || NCgetlocalpathkind() == NCPD_MSYS)
+	   seps[0] = ';';
+	else
+	    seps[0] = ':';
+    }
+    if((path = malloc(pathlen+1+1))==NULL) {stat = NC_ENOMEM; goto done;}
+    memcpy(path,pathlist0,pathlen);
+    path[pathlen] = '\0'; path[pathlen+1] = '\0';  /* double null term */
+
+    for(count=0,p=path;*p;p++) {
+	if(strchr(seps,*p) == NULL)
+	    continue; /* non-separator */
+	else {
+	    *p = '\0';
+ 	    count++;
+	}
+    }
+    count++; /* count last piece */
+
+    /* Save and allocate */
+    dirs->ndirs = count;
+    if(dirs->dirs == NULL) {
+	if((dirs->dirs = (char**)calloc(count,sizeof(char*)))==NULL)
+	    {stat = NC_ENOMEM; goto done;}
+    }
+
+    /* capture the parsed pieces */
+    for(p=path,i=0;i<count;i++) {
+	size_t len = strlen(p);
+	dirs->dirs[i] = strdup(p);
+        p = p+len+1; /* point to next piece */
+    }
+
+done:
+    nullfree(path);
+    return stat;
+}
+
+/* Wrapper around ncaux_plugin_path_parsen
+to allow passing a nul-terminated string to parse.
+@param pathlist0 the nul-termiated string to parse
+@param dirs return the parsed directories -- see note below.
+@param sep the separator parsing: one of ';' | ':' | '\0', where zero means use platform default.
+@return NC_NOERR || NC_EXXX
+See also the comments for ncaux_plugin_path_parsen.
+*/
+EXTERNL int
+ncaux_plugin_path_parse(const char* pathlist0, char sep, NCPluginList* dirs)
+{
+    return ncaux_plugin_path_parsen(nulllen(pathlist0),pathlist0,sep,dirs);
+}
+
+/*
+Path-list concatenator where given a vector of directories,
+concatenate all dirs with specified separator.
+If the separator is 0, then use the default platform separator.
+
+@param dirs the counted directory vector to concatenate
+@param sep one of ';', ':', or '\0'
+@param catp return the concatenation; WARNING: caller frees.
+@return ::NC_NOERR
+@return ::NC_EINVAL for illegal arguments
+*/
+EXTERNL int
+ncaux_plugin_path_tostring(const NCPluginList* dirs, char sep, char** catp)
+{
+    int stat = NC_NOERR;
+    NCbytes* buf = ncbytesnew();
+    size_t i;
+
+    if(dirs == NULL) {stat = NC_EINVAL; goto done;}
+    if(dirs->ndirs > 0 && dirs->dirs == NULL) {stat = NC_EINVAL; goto done;}
+
+    if(sep == '\0')
+#ifdef _WIN32
+        sep = ';';
+#else
+	sep = ':';
+#endif    
+    if(dirs->ndirs > 0) {
+	for(i=0;i<dirs->ndirs;i++) {
+	    if(i>0) ncbytesappend(buf,sep);
+	    if(dirs->dirs[i] != NULL) ncbytescat(buf,dirs->dirs[i]);
+	}
+    }
+    ncbytesnull(buf);
+    if(catp) *catp = ncbytesextract(buf);
+done:
+    ncbytesfree(buf);
+    return stat;
+}
+
+/*
+Clear an NCPluginList object possibly produced by ncaux_plugin_parse function.
+@param dirs the object to clear
+@return ::NC_NOERR
+@return ::NC_EINVAL for illegal arguments
+*/
+EXTERNL int
+ncaux_plugin_path_clear(NCPluginList* dirs)
+{
+    int stat = NC_NOERR;
+    size_t i;
+    if(dirs == NULL || dirs->ndirs == 0 || dirs->dirs == NULL) goto done;
+    for(i=0;i<dirs->ndirs;i++) {
+	if(dirs->dirs[i] != NULL) free(dirs->dirs[i]);
+	dirs->dirs[i] = NULL;
+    }
+    free(dirs->dirs);
+    dirs->dirs = NULL;
+    dirs->ndirs = 0;
+done:
+    return stat;
+}
+
+/*
+Reclaim an NCPluginList object.
+@param dir the object to reclaim
+@return ::NC_NOERR
+@return ::NC_EINVAL for illegal arguments
+*/
+EXTERNL int
+ncaux_plugin_path_reclaim(NCPluginList* dirs)
+{
+    int stat = NC_NOERR;
+    if((stat = ncaux_plugin_path_clear(dirs))) goto done;
+    nullfree(dirs);
+done:
+    return stat;
+}
+
+/*
+Modify a plugin path set to append a new directory to the end.
+@param dirs a pointer to an  NCPluginPath object giving the number and vector of directories to which 'dir' argument is appended.
+@return ::NC_NOERR
+@return ::NC_EINVAL for illegal arguments
+
+WARNING: dirs->dirs may be reallocated.
+
+Author: Dennis Heimbigner
+*/
+
+EXTERNL int
+ncaux_plugin_path_append(NCPluginList* dirs, const char* dir)
+{
+    int stat = NC_NOERR;
+    char** newdirs = NULL;
+    char** olddirs = NULL;
+    if(dirs == NULL || dir == NULL) {stat = NC_EINVAL; goto done;}
+    olddirs = dirs->dirs; dirs->dirs = NULL;
+    if((newdirs = (char**)calloc(dirs->ndirs+1,sizeof(char*)))==NULL)
+	{stat = NC_ENOMEM; goto done;}
+    if(dirs->ndirs > 0)
+	memcpy(newdirs,olddirs,sizeof(char*)*dirs->ndirs);
+    nullfree(olddirs);
+    dirs->dirs = newdirs; newdirs = NULL;
+    dirs->dirs[dirs->ndirs] = nulldup(dir);
+    dirs->ndirs++;
+done:
+    return stat;
+}
+
+/*
+Modify a plugin path set to prepend a new directory to the front.
+@param dirs a pointer to an  NCPluginList object giving the number and vector of directories to which 'dir' argument is appended.
+@return ::NC_NOERR
+@return ::NC_EINVAL for illegal arguments
+
+WARNING: dirs->dirs may be reallocated.
+
+Author: Dennis Heimbigner
+*/
+EXTERNL int
+ncaux_plugin_path_prepend(struct NCPluginList* dirs, const char* dir)
+{
+    int stat = NC_NOERR;
+    char** newdirs = NULL;
+    char** olddirs = NULL;
+    if(dirs == NULL || dir == NULL) {stat = NC_EINVAL; goto done;}
+    olddirs = dirs->dirs; dirs->dirs = NULL;
+    if((newdirs = (char**)calloc(dirs->ndirs+1,sizeof(char*)))==NULL)
+	{stat = NC_ENOMEM; goto done;}
+    if(dirs->ndirs > 0)
+	memcpy(&newdirs[1],olddirs,sizeof(char*)*dirs->ndirs);
+    nullfree(olddirs);
+    dirs->dirs = newdirs; newdirs = NULL;
+    dirs->dirs[0] = nulldup(dir);
+    dirs->ndirs++;
+done:
+    return stat;
+}
+
+/* FORTRAN is not good at manipulating C char** vectors,
+   so provide some wrappers for use by netcdf-fortran
+   that read/write plugin path as a single string.
+   For simplicity, the path separator is always semi-colon.
+*/
+
+/**
+ * Return the length (as in strlen) of the current plugin path directories encoded as a string.
+ * @return length of the string encoded plugin path or -1 if failed.
+ * @author Dennis Heimbigner
+ *
+ * @author: Dennis Heimbigner
+*/
+int
+ncaux_plugin_path_stringlen(void)
+{
+    int len = 0;
+    int stat = NC_NOERR;
+    struct NCPluginList npl = {0,NULL};
+    char* buf = NULL;
+
+    /* Get the list of dirs */
+    if((stat = nc_plugin_path_get(&npl))) goto done;
+    /* Convert to a string path separated by ';' */
+    if((stat = ncaux_plugin_path_tostring(&npl,';',&buf))) goto done;
+    len = nulllen(buf);
+
+done:
+    if(npl.dirs != NULL) {(void)ncaux_plugin_path_clear(&npl);}
+    nullfree(buf);
+    if(stat) return -1; else return len;
+}
+
+/**
+ * Return the current sequence of directories in the internal global
+ * plugin path list encoded as a string path using ';' as a path separator.
+ * @param pathlen the length of the path argument.
+ * @param path a string into which the current plugin paths are encodeded.
+ * @return NC_NOERR | NC_EXXX
+ * @author Dennis Heimbigner
+ *
+ * @author: Dennis Heimbigner
+*/
+int
+ncaux_plugin_path_stringget(int pathlen, char* path)
+{
+    int stat = NC_NOERR;
+    struct NCPluginList npl = {0,NULL};
+    char* buf = NULL;
+
+    if(pathlen == 0 || path == NULL) {stat = NC_EINVAL; goto done;}
+
+    /* Get the list of dirs */
+    if((stat = nc_plugin_path_get(&npl))) goto done;
+    /* Convert to a string path separated by ';' */
+    if((stat = ncaux_plugin_path_tostring(&npl,';',&buf))) goto done;
+    strncpy(path,buf,(size_t)pathlen);
+
+done:
+    nullfree(buf);
+    if(npl.dirs != NULL) {(void)ncaux_plugin_path_clear(&npl);}
+    return stat;
+}
+
+/**
+ * Set the current sequence of directories in the internal global
+ * plugin path list to the sequence of directories encoded as a
+ * string path using ';' as a path separator.
+ * @param pathlen the length of the path argument.
+ * @param path a string encoding the sequence of directories and using ';' to separate them.
+ * @return NC_NOERR | NC_EXXX
+ * @author Dennis Heimbigner
+ *
+ * @author: Dennis Heimbigner
+*/
+int
+ncaux_plugin_path_stringset(int pathlen, const char* path)
+{
+    int stat = NC_NOERR;
+    struct NCPluginList npl = {0,NULL};
+
+    if(pathlen == 0 || path == NULL) {stat = NC_EINVAL; goto done;}
+    /* Parse the incoming path */
+    if((stat = ncaux_plugin_path_parsen((size_t)pathlen,path,';',&npl))) goto done;
+    /* set the list of dirs */
+    if((stat = nc_plugin_path_set(&npl))) goto done;
+
+done:
+    if(npl.dirs != NULL) {(void)ncaux_plugin_path_clear(&npl);}
+    return stat;
 }

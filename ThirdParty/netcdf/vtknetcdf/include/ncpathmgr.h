@@ -5,6 +5,8 @@
 #ifndef _NCPATHMGR_H_
 #define _NCPATHMGR_H_
 
+#include "vtk_netcdf_mangle.h"
+
 #include "config.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,6 +15,9 @@
 #endif
 #ifdef HAVE_DIRENT_H
 #include <dirent.h>
+#endif
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
 #endif
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
@@ -30,9 +35,9 @@ Assumptions about Input path:
 2. It conforms to the format expected by one of the following:
        Linux (/x/y/...),
        Cygwin (/cygdrive/D/...),
-       Windows|MINGW (D:\...),
+       Windows|MINGW|MSYS (D:\...),
        Windows network path (\\mathworks\...)
-       MSYS (/D/...),
+       MSYS (/D/...) but only if local platform is Windows or MSYS.
 4. It is encoded in the local platform character set.  Note that
    for most systems, this is utf-8. But for Windows, the
    encoding is most likely some form of ANSI code page, probably
@@ -47,11 +52,11 @@ Parsing Rules:
 2. A leading '/cygdrive/D' will be converted to
    drive letter D if D is alpha-char.
 3. A leading D:/... is treated as a windows drive letter
-4. A leading /d/... is treated as a windows drive letter
-   if the platform is MSYS2.
-5. A leading // is a windows network path and is converted
+4. A leading // is a windows network path and is converted
    to a drive letter using the fake drive letter "/".
    So '//svc/x/y' translates to '/:/svc/x/y'.
+5. If the platform is Windows or MSYS, then a leading /D/ is treated
+   as a drive letter.
 6. All other cases are assumed to be Unix variants with no drive letter. 
 
 After parsing, the following pieces of information are kept in a struct.
@@ -71,12 +76,13 @@ The re-write rules (unparsing) are given the above three pieces
 of info + the current platform + the root mount point (if any).
 The conversion rules are as follows.
 
-  Platform  | No Input Driv       | Input Drive
+  Platform  | No Input Drive      | Input Drive
 ----------------------------------------------------
 NCPD_NIX    | <path>              | /<drive>/path
 NCPD_CYGWIN | /<path>             | /cygdrive/<drive>/<path>
 NCPD_WIN    | <mountpoint>/<path> | <drive>:<path>
 NCPD_MSYS   | <mountpoint>/<path> | <drive>:<path>
+NCPD_MINGW  | <mountpoint>/<path> | <drive>:<path>
 
 Notes:
 1. MINGW without MSYS is treated like WIN.
@@ -165,6 +171,9 @@ EXTERNL int NChasdriveletter(const char* path);
    note that this can produce unexpected results for Windows
    because it first converts to wide character and then to utf8. */
 EXTERNL int NCpath2utf8(const char* path, char** u8p);
+
+/* Convert stdin, stdout, stderr to use binary mode (\r\n -> \n) */
+EXTERNL int NCstdbinary(void);
 
 /* Wrap various stdio and unistd IO functions.
 It is especially important to use for windows so that

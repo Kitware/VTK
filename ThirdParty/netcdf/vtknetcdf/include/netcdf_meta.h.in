@@ -23,9 +23,9 @@
 #ifndef NETCDF_META_H
 #define NETCDF_META_H
 
-#define NC_VERSION_MAJOR @NC_VERSION_MAJOR@ /*!< netcdf-c major version. */
-#define NC_VERSION_MINOR @NC_VERSION_MINOR@ /*!< netcdf-c minor version. */
-#define NC_VERSION_PATCH @NC_VERSION_PATCH@ /*!< netcdf-c patch version. */
+#define NC_VERSION_MAJOR @netCDF_VERSION_MAJOR@ /*!< netcdf-c major version. */
+#define NC_VERSION_MINOR @netCDF_VERSION_MINOR@ /*!< netcdf-c minor version. */
+#define NC_VERSION_PATCH @netCDF_VERSION_PATCH@ /*!< netcdf-c patch version. */
 #define NC_VERSION_NOTE  "@NC_VERSION_NOTE@" /*!< netcdf-c note. May be blank. */
 
 /*! netcdf-c version string.
@@ -40,7 +40,6 @@
 #define NC_VERSION       "@NC_VERSION@"
 
 #define NC_HAS_NC2       @NC_HAS_NC2@ /*!< API version 2 support. */
-#define NC_HAS_NC4       @NC_HAS_NC4@ /*!< API version 4 support. */
 #define NC_HAS_HDF4      @NC_HAS_HDF4@ /*!< HDF4 support. */
 #define NC_HAS_HDF5      @NC_HAS_HDF5@ /*!< HDF5 support. */
 #define NC_HAS_SZIP      @NC_HAS_SZIP@ /*!< szip support */
@@ -50,7 +49,6 @@
 #define NC_HAS_BYTERANGE @NC_HAS_BYTERANGE@ /*!< Byterange support. */
 #define NC_HAS_DISKLESS  @NC_HAS_DISKLESS@ /*!< diskless support. */
 #define NC_HAS_MMAP      @NC_HAS_MMAP@ /*!< mmap support. */
-#define NC_HAS_JNA       @NC_HAS_JNA@ /*!< jna support. */
 #define NC_HAS_PNETCDF   @NC_HAS_PNETCDF@ /*!< PnetCDF support. */
 #define NC_HAS_PARALLEL4 @NC_HAS_PARALLEL4@ /*!< parallel IO support via HDF5 */
 #define NC_HAS_PARALLEL  @NC_HAS_PARALLEL@ /*!< parallel IO support via HDF5 and/or PnetCDF. */
@@ -60,14 +58,17 @@
 #define NC_RELAX_COORD_BOUND 1 /*!< Always allow 0 counts in parallel I/O. */
 #define NC_DISPATCH_VERSION  @NC_DISPATCH_VERSION@ /*!< Dispatch table version. */
 #define NC_HAS_PAR_FILTERS   @NC_HAS_PAR_FILTERS@ /* Parallel I/O with filter support. */
-#define NC_HAS_NCZARR        @NC_HAS_NCZARR@ /*!< Parallel I/O with filter support. */
-#define NC_HAS_MULTIFILTERS  @NC_HAS_MULTIFILTERS@ /*!< Nczarr support. */
 #define NC_HAS_LOGGING       @NC_HAS_LOGGING@ /*!< Logging support. */
+
 #define NC_HAS_QUANTIZE      @NC_HAS_QUANTIZE@ /*!< Quantization support. */
 #define NC_HAS_ZSTD          @NC_HAS_ZSTD@ /*!< Zstd support. */
 #define NC_HAS_BENCHMARKS    @NC_HAS_BENCHMARKS@ /*!< Benchmarks. */
-#define NC_HAS_S3            @NC_HAS_S3@ /*!< Amazon S3 Support. */
 #define NC_HAS_BLOSC         @NC_HAS_BLOSC@ /*!< Blosc Support. */
 #define NC_HAS_BZ2           @NC_HAS_BZ2@ /*!< bzip2 support */
+#define NC_HAS_S3            @NC_HAS_S3@ /*!< Amazon S3 Support. */
+#define NC_HAS_S3_AWS        @NC_HAS_S3_AWS@ /*!< Amazon S3 SDK. */
+#define NC_HAS_S3_INTERNAL   @NC_HAS_S3_INTERNAL@ /*!< Internal S3 SDK. */
+#define NC_HAS_HDF5_ROS3     @NC_HAS_HDF5_ROS3@ /*!< HDF5 ROS3 Support. */
+#define NC_HAS_NCZARR        @NC_HAS_NCZARR@ /*!< Parallel I/O with filter support. */
 
 #endif

@@ -225,15 +225,18 @@ dup_NC_attrarrayV(NC_attrarray *ncap, const NC_attrarray *ref)
 	ncap->nelems = 0;
 	{
 		NC_attr **app = ncap->value;
-		const NC_attr **drpp = (const NC_attr **)ref->value;
-		NC_attr *const *const end = &app[ref->nelems];
-		for( /*NADA*/; app < end; drpp++, app++, ncap->nelems++)
+		if (app)
 		{
-			*app = dup_NC_attr(*drpp);
-			if(*app == NULL)
+			const NC_attr **drpp = (const NC_attr **)ref->value;
+			NC_attr *const *const end = &app[ref->nelems];
+			for( /*NADA*/; app < end; drpp++, app++, ncap->nelems++)
 			{
-				status = NC_ENOMEM;
-				break;
+				*app = dup_NC_attr(*drpp);
+				if(*app == NULL)
+				{
+					status = NC_ENOMEM;
+					break;
+				}
 			}
 		}
 	}

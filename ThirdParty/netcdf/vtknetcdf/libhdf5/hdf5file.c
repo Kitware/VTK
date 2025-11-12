@@ -15,6 +15,7 @@
 #include "hdf5internal.h"
 #include "ncrc.h"
 #include "ncauth.h"
+#include <sys/types.h>
 
 extern int NC4_extract_file_image(NC_FILE_INFO_T* h5, int abort); /* In nc4memcb.c */
 
@@ -51,10 +52,9 @@ detect_preserve_dimids(NC_GRP_INFO_T *grp, nc_bool_t *bad_coord_orderp)
     NC_GRP_INFO_T *child_grp;
     int last_dimid = -1;
     int retval;
-    int i;
 
     /* Iterate over variables in this group */
-    for (i=0; i < ncindexsize(grp->vars); i++)
+    for (size_t i=0; i < ncindexsize(grp->vars); i++)
     {
         NC_HDF5_VAR_INFO_T *hdf5_var;
         var = (NC_VAR_INFO_T*)ncindexith(grp->vars,i);
@@ -98,7 +98,7 @@ detect_preserve_dimids(NC_GRP_INFO_T *grp, nc_bool_t *bad_coord_orderp)
     }
 
     /* If there are any child groups, check them also for this condition. */
-    for (i = 0; i < ncindexsize(grp->children); i++)
+    for (size_t i = 0; i < ncindexsize(grp->children); i++)
     {
         if (!(child_grp = (NC_GRP_INFO_T *)ncindexith(grp->children, i)))
             continue;
@@ -220,12 +220,10 @@ nc4_close_netcdf4_file(NC_FILE_INFO_T *h5, int abort, NC_memio *memio)
      * hidden attribute. */
     NC4_clear_provenance(&h5->provenance);
 
-#if defined(ENABLE_BYTERANGE)
     ncurifree(hdf5_info->uri);
-#if defined(ENABLE_HDF5_ROS3) || defined(ENABLE_S3_SDK)
+#ifdef NETCDF_ENABLE_S3
     /* Free the http info */
     NC_authfree(hdf5_info->auth);
-#endif
 #endif
 
     /* Close hdf file. It may not be open, since this function is also
@@ -328,7 +326,6 @@ static void
 dumpopenobjects(NC_FILE_INFO_T* h5)
 {
     NC_HDF5_FILE_INFO_T *hdf5_info;
-    int nobjs;
 
     assert(h5 && h5->format_file_info);
     hdf5_info = (NC_HDF5_FILE_INFO_T *)h5->format_file_info;
@@ -336,7 +333,7 @@ dumpopenobjects(NC_FILE_INFO_T* h5)
     if(hdf5_info->hdfid <= 0)
         return; /* File was never opened */
 
-    nobjs = H5Fget_obj_count(hdf5_info->hdfid, H5F_OBJ_ALL);
+    ssize_t nobjs = H5Fget_obj_count(hdf5_info->hdfid, H5F_OBJ_ALL);
 
     /* Apparently we can get an error even when nobjs == 0 */
     if(nobjs < 0) {
@@ -348,7 +345,7 @@ dumpopenobjects(NC_FILE_INFO_T* h5)
          * objects open, which means there's a bug in the library. So
          * print out some info on to help the poor programmer figure it
          * out. */
-        snprintf(msg,sizeof(msg),"There are %d HDF5 objects open!", nobjs);
+        snprintf(msg,sizeof(msg),"There are %zd HDF5 objects open!", nobjs);
 #ifdef LOGGING
 #ifdef LOGOPEN
         LOG((0, msg));
@@ -487,7 +484,6 @@ NC4_enddef(int ncid)
     NC_FILE_INFO_T *nc4_info;
     NC_GRP_INFO_T *grp;
     int retval;
-    int i;
     NC_VAR_INFO_T* var = NULL;
 
     LOG((1, "%s: ncid 0x%x", __func__, ncid));
@@ -499,7 +495,7 @@ NC4_enddef(int ncid)
     /* Why is this here? Especially since it is not recursive so it
        only applies to the this grp */
     /* When exiting define mode, mark all variable written. */
-    for (i = 0; i < ncindexsize(grp->vars); i++)
+    for (size_t i = 0; i < ncindexsize(grp->vars); i++)
     {
         var = (NC_VAR_INFO_T *)ncindexith(grp->vars, i);
         assert(var);
@@ -660,7 +656,6 @@ NC4_inq(int ncid, int *ndimsp, int *nvarsp, int *nattsp, int *unlimdimidp)
     NC_FILE_INFO_T *h5;
     NC_GRP_INFO_T *grp;
     int retval;
-    int i;
 
     LOG((2, "%s: ncid 0x%x", __func__, ncid));
 
@@ -699,7 +694,7 @@ NC4_inq(int ncid, int *ndimsp, int *nvarsp, int *nattsp, int *unlimdimidp)
            with netcdf-3, then only the last unlimited one will be reported
            back in xtendimp. */
         /* Note that this code is inconsistent with nc_inq_unlimid() */
-        for(i=0;i<ncindexsize(grp->dim);i++) {
+        for(size_t i=0;i<ncindexsize(grp->dim);i++) {
             NC_DIM_INFO_T* d = (NC_DIM_INFO_T*)ncindexith(grp->dim,i);
             if(d == NULL) continue;
             if(d->unlimited) {

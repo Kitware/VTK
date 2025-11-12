@@ -11,10 +11,13 @@ and accessing rc files (e.g. .daprc).
 #ifndef NCRC_H
 #define NCRC_H
 
+#include "vtk_netcdf_mangle.h"
+
 /* Need these support includes */
 #include "ncuri.h"
 #include "nclist.h"
 #include "ncbytes.h"
+#include <stdio.h>
 
 /* getenv() keys */
 #define NCRCENVIGNORE "NCRCENV_IGNORE"
@@ -33,16 +36,6 @@ typedef struct NCRCentry {
         char* value;
 } NCRCentry;
 
-struct AWSentry {
-    char* key;
-    char* value;
-};
-
-struct AWSprofile {
-    char* name;
-    NClist* entries; /* NClist<struct AWSentry*> */
-};
-
 /* collect all the relevant info around the rc file and AWS */
 typedef struct NCRCinfo {
 	int ignore; /* if 1, then do not use any rc file */
@@ -53,13 +46,8 @@ typedef struct NCRCinfo {
 	NClist* s3profiles; /* NClist<struct AWSprofile*> */
 } NCRCinfo;
 
-typedef struct NCS3INFO {
-    char* host; /* non-null if other*/
-    char* region; /* region */
-    char* bucket; /* bucket name */
-    char* rootkey;
-    char* profile;
-} NCS3INFO;
+/* Opaque structures */
+struct NCS3INFO;
 
 #if defined(__cplusplus)
 extern "C" {
@@ -93,19 +81,10 @@ EXTERNL char* NC_mktmp(const char* base);
 EXTERNL int NC_getmodelist(const char* modestr, NClist** modelistp);
 EXTERNL int NC_testmode(NCURI* uri, const char* tag);
 EXTERNL int NC_testpathmode(const char* path, const char* tag);
+EXTERNL int NC_addmodetag(NCURI* uri, const char* tag);
 EXTERNL int NC_split_delim(const char* path, char delim, NClist* segments);
 EXTERNL int NC_join(struct NClist* segments, char** pathp);
-
-/* From ds3util.c */
-/* S3 profiles */
-EXTERNL int NC_s3urlrebuild(NCURI* url, NCURI** newurlp, char** bucketp, char** regionp);
-EXTERNL int NC_getactives3profile(NCURI* uri, const char** profilep);
-EXTERNL int NC_getdefaults3region(NCURI* uri, const char** regionp);
-EXTERNL int NC_authgets3profile(const char* profile, struct AWSprofile** profilep);
-EXTERNL int NC_s3profilelookup(const char* profile, const char* key, const char** valuep);
-EXTERNL int NC_s3urlprocess(NCURI* url, NCS3INFO* s3);
-EXTERNL int NC_s3clear(NCS3INFO* s3);
-EXTERNL int NC_iss3(NCURI* uri);
+EXTERNL int NC_joinwith(NClist* segments, const char* sep, const char* prefix, const char* suffix, char** pathp);
 
 #if defined(__cplusplus)
 }

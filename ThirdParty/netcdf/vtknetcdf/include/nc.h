@@ -5,6 +5,8 @@
 #ifndef _NC_H_
 #define _NC_H_
 
+#include "vtk_netcdf_mangle.h"
+
 #include "config.h"
 #include "netcdf.h"
 
@@ -76,5 +78,73 @@ extern int iterate_NCList(int i,NC**); /* Walk from 0 ...; ERANGE return => stop
 /* Defined in nc.c */
 extern void free_NC(NC*);
 extern int new_NC(const struct NC_Dispatch*, const char*, int, NC**);
+
+/* Defined in dinstance_intern.c */
+
+/**************************************************/
+/**
+Following are the internal implementation signatures upon which
+are built the API functions: nc_reclaim_data, nc_reclaim_data_all,
+nc_copy_data, and nc_copy_data_all.
+These functions access internal data structures instead of using e.g. ncid.
+This is to improve performance.
+*/
+
+/*
+Reclaim a vector of instances of arbitrary type.
+This recursively walks the top-level instances to reclaim any
+nested data such as vlen or strings or such.
+
+Assumes it is passed a pointer to count instances of xtype.
+Reclaims any nested data.
+
+WARNING: nc_reclaim_data does not reclaim the top-level
+memory because we do not know how it was allocated.  However
+nc_reclaim_data_all does reclaim top-level memory assuming that it
+was allocated using malloc().
+
+WARNING: all data blocks below the top-level (e.g. string
+instances) will be reclaimed, so do not call if there is any
+static data in the instance.
+
+Should work for any netcdf format.
+*/
+
+EXTERNL int NC_reclaim_data(NC* nc, nc_type xtypeid, void* memory, size_t count);
+EXTERNL int NC_reclaim_data_all(NC* nc, nc_type xtypeid, void* memory, size_t count);
+
+/**
+Copy vector of arbitrary type instances.  This recursively walks
+the top-level instances to copy any nested data such as vlen or
+strings or such.
+
+Assumes it is passed a pointer to count instances of xtype.
+WARNING: nc_copy_data does not copy the top-level memory, but
+assumes a block of proper size was passed in.  However
+nc_copy_data_all does allocate top-level memory copy.
+
+Should work for any netcdf format.
+*/
+
+EXTERNL int NC_copy_data(NC* nc, nc_type xtypeid, const void* memory, size_t count, void* copy);
+EXTERNL int NC_copy_data_all(NC* nc, nc_type xtypeid, const void* memory, size_t count, void** copyp);
+
+/* Macros to map NC_FORMAT_XX to metadata structure (e.g. NC_FILE_INFO_T) */
+/* Fast test for what file structure is used */
+#define NC3INFOFLAGS ((1<<NC_FORMATX_NC3)|(1<<NC_FORMATX_PNETCDF)|(1<<NC_FORMATX_DAP2))
+#define FILEINFOFLAGS ((1<<NC_FORMATX_NC_HDF5)|(1<<NC_FORMATX_NC_HDF4)|(1<<NC_FORMATX_DAP4)|(1<<NC_FORMATX_UDF1)|(1<<NC_FORMATX_UDF0)|(1<<NC_FORMATX_NCZARR))
+
+#define USENC3INFO(nc) ((1<<(nc->dispatch->model)) & NC3INFOFLAGS)
+#define USEFILEINFO(nc) ((1<<(nc->dispatch->model)) & FILEINFOFLAGS)
+#define USED2INFO(nc) ((1<<(nc->dispatch->model)) & (1<<NC_FORMATX_DAP2))
+#define USED4INFO(nc) ((1<<(nc->dispatch->model)) & (1<<NC_FORMATX_DAP4))
+
+/* In DAP4 and Zarr (and maybe other places in the future)
+   we may have dimensions with a size, but no name.
+   In this case we need to create a name based on the size.
+   As a rule, the dimension name is NCDIMANON_<n> where n is the size
+   and NCDIMANON is a prefix defined here.
+*/
+#define NCDIMANON "_Anonymous_Dim"   
 
 #endif /* _NC_H_ */

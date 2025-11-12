@@ -12,6 +12,7 @@
 
 #ifdef H5CATCH
 /* Place breakpoint to catch errors close to where they occur*/
+/* Warning: do not evaluate e more than once */
 #define THROW(e) nch5throw(e,__LINE__)
 #define THROWCHK(e) (void)nch5throw(e)
 extern int nch5breakpoint(int err);

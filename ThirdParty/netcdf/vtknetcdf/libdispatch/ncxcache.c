@@ -21,6 +21,7 @@
 #define SMALLTABLE
 
 #ifdef CATCH
+/* Warning: do not evalue x more than once */
 #define THROW(x) throw(x)
 static void breakpoint(void) {}
 static int ignore[] = {0};
@@ -229,7 +230,7 @@ ncxcachenew(size_t leaflen, NCxcache** cachep)
     cache = calloc(1,sizeof(NCxcache));
     if(cache == NULL)
         {stat = NC_ENOMEM; goto done;}
-    cache->map = ncexhashnew(leaflen);
+    cache->map = ncexhashnew((int)leaflen);
     if(cache->map == NULL)
         {stat = NC_ENOMEM; goto done;}
     cache->lru.next = &cache->lru;

@@ -5,6 +5,8 @@
 #ifndef _NC3INTERNAL_
 #define _NC3INTERNAL_
 
+#include "vtk_netcdf_mangle.h"
+
 /*
  *      netcdf library 'private' data structures, objects and interfaces
  */
@@ -15,7 +17,6 @@
 #else
 #  include <stdint.h>
 #endif /* HAVE_STDINT_H */
-#include <sys/types.h>  /* off_t */
 #include "netcdf.h"
 #ifdef USE_PARALLEL
 #include "netcdf_par.h"

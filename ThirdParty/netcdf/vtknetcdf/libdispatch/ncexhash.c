@@ -20,6 +20,7 @@ See LICENSE.txt for license information.
 #define INLINED
 
 #ifdef CATCH
+/* Warning: do not evaluate x more than once */
 #define THROW(x) throw(x)
 static void breakpoint(void) {}
 static int ignore[] = {NC_ENOTFOUND, 0};
@@ -110,7 +111,7 @@ ncexinit(void)
     int i;
     bitmasks[0] = 0;
     for(i=1;i<NCEXHASHKEYBITS;i++)
-	bitmasks[i] = (1 << i) - 1;
+	bitmasks[i] = (1ULL << i) - 1;
     ncexinitialized = 1;
 }
 
@@ -284,6 +285,8 @@ exhashlocate(NCexhashmap* map, ncexhashkey_t hkey, NCexleaf** leafp, int* indexp
         /* Is there room in the leaf to add an entry? */
 #if DEBUG >= 3
 	fprintf(stderr,"locate: iter=%d offset=%x leaf=(%d)%p active=%d\n",iter,offset,leaf->uid,leaf,(int)leaf->active);
+#else
+	(void)iter;
 #endif
        if(leaf->active < map->leaflen) break; /* yes, there is room */
        /* Not Enough room, so we need to split this leaf */
@@ -385,7 +388,7 @@ exhashsplit(NCexhashmap* map, ncexhashkey_t hkey, NCexleaf* leaf)
     }
     
     /* Re-build the old leaf; keep same uid */
-    if((leaf->entries = (NCexentry*)calloc(map->leaflen,sizeof(NCexentry))) == NULL)
+    if((leaf->entries = (NCexentry*)calloc((size_t)map->leaflen, sizeof(NCexentry))) == NULL)
 	{stat = NC_ENOMEM; goto done;}
     leaf->active = 0;
 
@@ -587,7 +590,7 @@ exhashnewleaf(NCexhashmap* map, NCexleaf** leafp)
         if((leaf = calloc(1,sizeof(NCexleaf))) == NULL)
 	    goto done;
 	assert(map->leaflen > 0);
-        if((leaf->entries = calloc(map->leaflen,sizeof(NCexentry))) == NULL)
+        if((leaf->entries = calloc((size_t)map->leaflen, sizeof(NCexentry))) == NULL)
 	    goto done;	
         leaf->uid = map->uid++;
 	*leafp = leaf; leaf = NULL;
@@ -735,7 +738,7 @@ ncexhashiterate(NCexhashmap* map, ncexhashkey_t* keyp, uintptr_t* datap)
 void
 ncexhashprint(NCexhashmap* hm)
 {
-    int dirindex,index;
+    int index;
 
     if(hm == NULL) {fprintf(stderr,"NULL"); fflush(stderr); return;}
     fprintf(stderr,"{depth=%u leaflen=%u",hm->depth,hm->leaflen);
@@ -744,9 +747,9 @@ ncexhashprint(NCexhashmap* hm)
 		hm->iterator.leaf,hm->iterator.index);
     }
     fprintf(stderr,"\n");
-    for(dirindex=0;dirindex<(1<<hm->depth);dirindex++) {
+    for(size_t dirindex=0;dirindex<(1<<hm->depth);dirindex++) {
 	NCexleaf* leaf = hm->directory[dirindex];
-	fprintf(stderr,"\tdirectory[%03d|%sb]=(%04x)[(%u)^%d|%d|",
+	fprintf(stderr,"\tdirectory[%03zu|%sb]=(%04x)[(%u)^%d|%d|",
 		dirindex,ncexbinstr(dirindex,hm->depth),
 		leaf->active,
 		(unsigned)(0xffff & (uintptr_t)leaf),
@@ -775,10 +778,9 @@ ncexhashprint(NCexhashmap* hm)
 void
 ncexhashprintdir(NCexhashmap* map, NCexleaf** dir)
 {
-    int dirindex;
-    for(dirindex=0;dirindex<(1<<map->depth);dirindex++) {
+    for(unsigned long long dirindex=0;dirindex<(1<<map->depth);dirindex++) {
 	NCexleaf* leaf = dir[dirindex];
-	fprintf(stderr,"\tdirectory[%03d|%sb]=%d/%p\n",
+	fprintf(stderr,"\tdirectory[%03llu|%sb]=%d/%p\n",
 		dirindex,ncexbinstr(dirindex,map->depth),leaf->uid,leaf);
     }
     fflush(stderr);
@@ -830,14 +832,14 @@ ncexbinstr(ncexhashkey_t hkey, int depth)
 void
 ncexhashprintstats(NCexhashmap* map)
 {
-    int nactive, nleaves;
+    int nactive;
     NCexleaf* leaf = NULL;
     double leafavg = 0.0;
     double leafload = 0.0;
     unsigned long long dirsize, leafsize, total;
     
     nactive = 0;
-    nleaves = 0;
+    unsigned long long nleaves = 0;
     for(leaf=map->leaves;leaf;leaf=leaf->next) {
         nleaves++;
 	nactive += leaf->active;
@@ -849,12 +851,12 @@ ncexhashprintstats(NCexhashmap* map)
     if(nactive != map->nactive) {
 	fprintf(stderr,"nactive mismatch: map->active=%d actual=%d\n",map->nactive,nactive);
     }
-    fprintf(stderr,"|directory|=%llu nleaves=%d nactive=%d",
+    fprintf(stderr,"|directory|=%llu nleaves=%llu nactive=%d",
 	(unsigned long long)(1<<(map->depth)),nleaves,nactive);
     fprintf(stderr," |leaf|=%d nactive/nleaves=%g", map->leaflen, leafavg);
     fprintf(stderr," load=%g",leafload);
     fprintf(stderr,"]\n");
-    dirsize = (1<<(map->depth)*((unsigned long long)sizeof(void*)));
+    dirsize = (1ULL<<(map->depth))*((unsigned long long)sizeof(void*));
     leafsize = (nleaves)*((unsigned long long)sizeof(NCexleaf));
     total = dirsize + leafsize;
     fprintf(stderr,"\tsizeof(directory)=%llu sizeof(leaves)=%lld total=%lld\n",

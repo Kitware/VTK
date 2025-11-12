@@ -6,6 +6,7 @@
 #include "vtk_netcdf_mangle.h"
 
 #include "ncexternl.h"
+#include <stddef.h>
 
 /* Define the type of the elements in the list*/
 
@@ -13,7 +14,7 @@
 extern "C" {
 #endif
 
-EXTERNL int nclistnull(void*);
+EXTERNL int nclistisnull(void*);
 
 typedef struct NClist {
   size_t alloc;
@@ -57,7 +58,11 @@ EXTERNL int nclistunique(NClist*);
 /* Create a clone of a list; if deep, then assume it is a list of strings */
 EXTERNL NClist* nclistclone(const NClist*, int deep);
 
+/* Extract the contents of a list, leaving list empty */
 EXTERNL void* nclistextract(NClist*);
+
+/* Append an uncounted NULL to the end of the list */
+EXTERNL int nclistnull(NClist*);
 
 /* Following are always "in-lined"*/
 #define nclistclear(l) nclistsetlength((l),0)

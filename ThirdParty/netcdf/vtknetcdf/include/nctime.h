@@ -152,14 +152,14 @@ typedef struct timeinfo_t {
 #   define MSC_NCTIME_EXTRA __declspec(dllimport)
 # endif
 
-MSC_NCTIME_EXTRA extern void cdRel2Iso(cdCalenType timetype, char* relunits, int separator, double reltime, char* chartime);
+MSC_NCTIME_EXTRA extern void cdRel2Iso(cdCalenType timetype, char* relunits, int separator, double reltime, char* chartime, size_t chartime_size);
 MSC_NCTIME_EXTRA extern void cdChar2Comp(cdCalenType timetype, char* chartime, cdCompTime* comptime);
 MSC_NCTIME_EXTRA extern void Cdh2e(CdTime *htime, double *etime);
 MSC_NCTIME_EXTRA extern void Cde2h(double etime, CdTimeType timeType, long baseYear, CdTime *htime);
 MSC_NCTIME_EXTRA extern int cdParseRelunits(cdCalenType timetype, char* relunits, cdUnitTime* unit, cdCompTime* base_comptime);
 MSC_NCTIME_EXTRA extern int cdSetErrOpts(int opts);
 #else
-extern void cdRel2Iso(cdCalenType timetype, char* relunits, int separator, double reltime, char* chartime);
+extern void cdRel2Iso(cdCalenType timetype, char* relunits, int separator, double reltime, char* chartime, size_t chartime_size);
 extern void cdChar2Comp(cdCalenType timetype, char* chartime, cdCompTime* comptime);
 extern void Cdh2e(CdTime *htime, double *etime);
 extern void Cde2h(double etime, CdTimeType timeType, long baseYear, CdTime *htime);
