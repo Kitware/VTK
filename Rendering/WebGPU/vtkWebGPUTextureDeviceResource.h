@@ -63,18 +63,29 @@ public:
    * How will the texture be used by the shader
    *
    * UNDEFINED: Texture mode not set. Default.
-   * READ_ONLY: The compute shader can only read from the texture and a sampler can be used
-   * WRITE_ONLY_STORAGE: The compute shader can only write to the texture and a sampler cannot be
-   * used
-   * READ_WRITE_STORAGE: The compute shader can read and write to the texture and a sampler
-   * cannot be used
+   * READ_ONLY: The shader can only read from the texture and a sampler can be used.
+   *   Can be copied to from CPU or other GPU resources.
+   * WRITE_ONLY_STORAGE: The shader can only write to the texture as storage and a sampler
+   *   cannot be used. Can be copied from to read back results on CPU.
+   * WRITE_ONLY_RENDER_ATTACHMENT: The texture can be used as a render attachment and cannot be
+   *   read from or sampled by a shader. Can be copied from to read back results on CPU.
+   * READ_WRITE_STORAGE: The shader can read and write to the texture as storage and a
+   *   sampler can be used. Supports copying both to and from the texture.
+   * READ_WRITE_RENDER_ATTACHMENT: The texture can be used as a render attachment and can be
+   *   sampled from the shader. Supports copying both to and from the texture.
+   * READ_WRITE_RENDER_ATTACHMENT_STORAGE: The texture can be used as a render attachment and can be
+   *   read and written from the shader as storage and a sampler can be used. Supports copying
+   *   both to and from the texture.
    */
   enum TextureMode
   {
     UNDEFINED = 0,
     READ_ONLY,
     WRITE_ONLY_STORAGE,
-    READ_WRITE_STORAGE
+    WRITE_ONLY_RENDER_ATTACHMENT,
+    READ_WRITE_STORAGE,
+    READ_WRITE_RENDER_ATTACHMENT,
+    READ_WRITE_RENDER_ATTACHMENT_STORAGE,
   };
 
   /**

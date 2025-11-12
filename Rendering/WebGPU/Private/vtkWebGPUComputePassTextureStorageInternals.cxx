@@ -1016,14 +1016,36 @@ wgpu::TextureUsage vtkWebGPUComputePassTextureStorageInternals::ComputeTextureMo
   switch (mode)
   {
     case vtkWebGPUComputeTexture::TextureMode::READ_ONLY:
+      // The CopyDst flag can be confusing here. It makes sense because the TextureMode is
+      // understood from the shader point of view. Whereas, the TextureUsage is understood from the
+      // WebGPU CPU side API.
+      //
+      // READ_ONLY textures can only be read from the shader, but data must be placed somehow.
+      // Use CopyDst because we might want to first upload data to the texture
+      // from the CPU, or from another GPU resource (like a buffer), before binding it to the
+      // shader. then read from it in the shader.
       return wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::CopyDst;
 
     case vtkWebGPUComputeTexture::TextureMode::WRITE_ONLY_STORAGE:
+      // CopySrc because we might want to read back the results of the computation on the CPU
+      // after the shader wrote to the texture.
       return wgpu::TextureUsage::StorageBinding | wgpu::TextureUsage::CopySrc;
 
-    case vtkWebGPUComputeTexture::READ_WRITE_STORAGE:
+    case vtkWebGPUComputeTexture::TextureMode::WRITE_ONLY_RENDER_ATTACHMENT:
+      return wgpu::TextureUsage::RenderAttachment | wgpu::TextureUsage::CopySrc;
+
+    case vtkWebGPUComputeTexture::TextureMode::READ_WRITE_STORAGE:
       return wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::StorageBinding |
         wgpu::TextureUsage::CopySrc | wgpu::TextureUsage::CopyDst;
+
+    case vtkWebGPUComputeTexture::TextureMode::READ_WRITE_RENDER_ATTACHMENT:
+      return wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::RenderAttachment |
+        wgpu::TextureUsage::CopySrc | wgpu::TextureUsage::CopyDst;
+
+    case vtkWebGPUComputeTexture::TextureMode::READ_WRITE_RENDER_ATTACHMENT_STORAGE:
+      return wgpu::TextureUsage::TextureBinding | wgpu::TextureUsage::RenderAttachment |
+        wgpu::TextureUsage::StorageBinding | wgpu::TextureUsage::CopySrc |
+        wgpu::TextureUsage::CopyDst;
 
     default:
       vtkLog(ERROR,
