@@ -60,9 +60,9 @@ VTK supports the following compilers:
 
 <!-- Keep this section in sync with Documentation/dev/build.md  -->
 1. GCC 8.0 or newer
-2. Clang 5.0 or newer
-3. Apple Clang 10.0 or newer
-4. Microsoft Visual Studio 2017 or newer
+2. Clang 7.0 or newer
+3. Apple Clang 11.0 (Xcode 11.3.1) or newer
+4. Microsoft Visual Studio 2019 or newer
 5. Intel 19.0 or newer
 
 VTK supports the following operating systems:

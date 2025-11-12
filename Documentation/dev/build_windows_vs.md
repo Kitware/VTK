@@ -162,8 +162,8 @@ If your program complains about missing DLLs then check if the .dll path (last s
 
 ## Guide created using
 
-- VTK 8.2.0
-- CMake 3.13.4
-- Visual Studio 2017 ; community edition
+- VTK 9.6.0
+- CMake 3.13.4+
+- Visual Studio 2019 ; community edition
 - x64
-- Windows 10
+- Windows 11
