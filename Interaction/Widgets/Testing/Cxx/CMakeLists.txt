@@ -86,6 +86,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests tests
 vtk_add_test_cxx(vtkInteractionWidgetsCxxTests no_valid_tests
   NO_VALID
   TestEqualizerContextItem.cxx
+  TestMultiLineRepresentation.cxx
   vtkAngleRepresentation2DTest1.cxx
   vtkAngleRepresentation3DTest1.cxx
   vtkAngleWidgetTest1.cxx
@@ -125,6 +126,7 @@ vtk_add_test_cxx(vtkInteractionWidgetsCxxTests data_tests
   TestDijkstraGraphGeodesicPath.cxx
   TestLineWidget.cxx
   TestLineWidget2.cxx
+  TestMultiLineWidget.cxx
   TestOrientedGlyphContour.cxx
   TestPlaneWidget.cxx
   TestPointWidget.cxx
