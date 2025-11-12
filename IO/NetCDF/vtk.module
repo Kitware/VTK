@@ -28,6 +28,7 @@ PRIVATE_DEPENDS
   VTK::vtksys
 TEST_DEPENDS
   VTK::CommonExecutionModel
+  VTK::FiltersExtraction
   VTK::FiltersGeometry
   VTK::InteractionStyle
   VTK::RenderingOpenGL2
