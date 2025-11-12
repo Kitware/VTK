@@ -1825,8 +1825,9 @@ if (cellType == 3 && primitiveSize == 3) // VTK_LINE rendered as 2 triangle prim
     vec2 p1Offset = p1Screen + pCoord.x * xBasis + pCoord.y * yBasis * lineWidth;
     vec2 p = mix(p0Offset, p1Offset, pCoord.x);
     vec4 p_DC = mix(p0_DC, p1_DC, pCoord.x);
-    // compute the final position in clip space.
-    gl_Position = vec4(p_DC.w * ((2.0 * p / (viewportDimensions.zw + viewportDimensions.xy)) - 1.0), p_DC.z, p_DC.w);
+    // compute the final position in clip space: convert window -> NDC
+    vec2 ndcPos = ((p - viewportDimensions.xy) / viewportDimensions.zw) * 2.0 - 1.0;
+    gl_Position = vec4(p_DC.w * ndcPos, p_DC.z, p_DC.w);
     vertexVCVSOutput = mix(p0VC, p1VC, pCoord.x);
     vec3 lineDirVec = p1VC.xyz - p0VC.xyz;
     float lineDirLen = length(lineDirVec);
@@ -1942,6 +1943,25 @@ uniform float edgeWidth;
     {
       diffuseColor = mix(diffuseColor, vec3(0.0), emix * edgeOpacity);
       ambientColor = mix(ambientColor, edgeColor, emix * edgeOpacity);
+      // When lighting is enabled and tubes are requested, add a subtle
+      // color-only highlight that mimics a rounded tube without touching
+      // normals (safe for WebGL/ES). This matches the legacy look.
+      if (enable_lights == 1 && renderLinesAsTubes == 1)
+      {
+        float cdist = min(edist[0], edist[1]);
+        vec4 cedge = mix(edgeEqn[0], edgeEqn[1], 0.5 + 0.5 * sign(edist[0] - edist[1]));
+        cedge = mix(cedge, edgeEqn[2], 0.5 + 0.5 * sign(cdist - edist[2]));
+        // Small bias to match legacy rasterization steps on diagonals
+        float rdist = 2.0 * min(cdist, edist[2]) / (max(edgeWidth, 1e-3) + 0.15);
+        float lenZ = clamp(sqrt(max(0.0, 1.0 - rdist * rdist)), 0.0, 1.0);
+        float tubeLambert = 0.3 + 0.7 * lenZ; // soften highlight to better match legacy
+        vec3 tubeDiffuse = intensity_diffuse * edgeColor * tubeLambert;
+        vec3 tubeAmbient = intensity_ambient * edgeColor;
+        diffuseColor = mix(diffuseColor, tubeDiffuse, emix * edgeOpacity);
+        ambientColor = mix(ambientColor, tubeAmbient, emix * edgeOpacity);
+      }
+      // Note: Avoid adjusting fragment normals here. In some normal paths,
+      // normalVCVSOutput is an input varying and cannot be assigned on WebGL/ES.
     }
   }
 )";
