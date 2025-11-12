@@ -6,9 +6,8 @@ SPDX_LICENSE_IDENTIFIER
   BSD-3-Clause
 SPDX_COPYRIGHT_TEXT
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-DEPENDS
-  VTK::cgns
 PRIVATE_DEPENDS
+  VTK::cgns
   VTK::exodusII
   VTK::fmt
   VTK::zlib

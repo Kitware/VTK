@@ -18,14 +18,15 @@ DEPENDS
 PRIVATE_DEPENDS
   VTK::FiltersCore
   VTK::FiltersExtraction
-  VTK::fmt
   VTK::ioss
+  VTK::netcdf
 OPTIONAL_DEPENDS
   VTK::ParallelMPI
   VTK::mpi
 TEST_DEPENDS
   VTK::FiltersGeometry
   VTK::InteractionStyle
+  VTK::netcdf
   VTK::RenderingOpenGL2
   VTK::TestingCore
   VTK::TestingRendering

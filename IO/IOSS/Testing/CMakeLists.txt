@@ -1,4 +1,5 @@
 set(datasets
+  Data/can.ex2
   Data/CGNS/fluid.cgns.4.0
   Data/CGNS/fluid.cgns.4.1
   Data/CGNS/fluid.cgns.4.2

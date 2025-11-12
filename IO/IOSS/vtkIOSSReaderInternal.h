@@ -337,7 +337,8 @@ public:
 
 protected:
   std::vector<int> GetFileIds(const std::string& dbasename, int myrank, int numRanks) const;
-  Ioss::Region* GetRegion(const std::string& dbasename, int fileid);
+  Ioss::Region* GetRegion(
+    const std::string& dbasename, int fileid, Ioss::DatabaseUsage dbUsage = Ioss::READ_RESTART);
   Ioss::Region* GetRegion(const DatabaseHandle& handle)
   {
     return this->GetRegion(handle.first, handle.second);

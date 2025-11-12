@@ -6,18 +6,30 @@ Provides the following variables:
   * `NetCDF_LIBRARIES`: Libraries necessary to use NetCDF.
   * `NetCDF_VERSION`: The version of NetCDF found.
   * `NetCDF::NetCDF`: A target to use with `target_link_libraries`.
-  * `NetCDF_HAS_PARALLEL`: Whether or not NetCDF was found with parallel IO support.
+  * `NetCDF_HAS_PNETCDF`: Whether or not NetCDF has PnetCDF support.
+  * `NetCDF_HAS_PARALLEL4`: Whether or not NetCDF has arallel IO support via HDF5.
+  * `NetCDF_HAS_PARALLEL`: Whether or not NetCDF has parallel IO support via HDF5 and/or PnetCDF.
 #]==]
 
-function(FindNetCDF_get_is_parallel_aware include_dir)
-  file(STRINGS "${include_dir}/netcdf_meta.h" _netcdf_lines
-    REGEX "#define[ \t]+NC_HAS_PARALLEL[ \t]")
-  string(REGEX REPLACE ".*NC_HAS_PARALLEL[ \t]*([0-1]+).*" "\\1" _netcdf_has_parallel "${_netcdf_lines}")
-  if (_netcdf_has_parallel)
-    set(NetCDF_HAS_PARALLEL TRUE PARENT_SCOPE)
-  else()
-    set(NetCDF_HAS_PARALLEL FALSE PARENT_SCOPE)
-  endif()
+function(FindNetCDF_get_parallel_features include_dir)
+  set(_features
+    "PNETCDF"
+    "PARALLEL4"
+    "PARALLEL"
+  )
+  foreach (_feature IN LISTS _features)
+    set(_nc_has_feature "NC_HAS_${_feature}")
+    file(STRINGS "${include_dir}/netcdf_meta.h" _netcdf_lines
+      REGEX "#define[ \t]+${_nc_has_feature}[ \t]")
+    string(REGEX REPLACE ".*${_nc_has_feature}[ \t]*([0-1]+).*" "\\1" _nc_has_feature_value "${_netcdf_lines}")
+    if (_nc_has_feature_value)
+      set(NetCDF_HAS_${_feature} TRUE PARENT_SCOPE)
+    else ()
+      set(NetCDF_HAS_${_feature} FALSE PARENT_SCOPE)
+    endif ()
+    unset(_netcdf_lines)
+    unset(_nc_has_feature_value)
+  endforeach ()
 endfunction()
 
 # Try to find a CMake-built NetCDF.
@@ -49,7 +61,7 @@ if (netCDF_FOUND)
     endif ()
   endif ()
 
-  FindNetCDF_get_is_parallel_aware("${NetCDF_INCLUDE_DIRS}")
+  FindNetCDF_get_parallel_features("${NetCDF_INCLUDE_DIRS}")
   # Skip the rest of the logic in this file.
   return ()
 endif ()
@@ -80,7 +92,7 @@ if (PkgConfig_FOUND)
         INTERFACE_LINK_LIBRARIES "PkgConfig::_NetCDF")
     endif ()
 
-    FindNetCDF_get_is_parallel_aware("${_NetCDF_INCLUDEDIR}")
+    FindNetCDF_get_parallel_features("${_NetCDF_INCLUDEDIR}")
     # Skip the rest of the logic in this file.
     return ()
   endif ()
@@ -110,7 +122,7 @@ if (NetCDF_INCLUDE_DIR)
   unset(_netcdf_version_note)
   unset(_netcdf_version_lines)
 
-  FindNetCDF_get_is_parallel_aware("${NetCDF_INCLUDE_DIR}")
+  FindNetCDF_get_parallel_features("${NetCDF_INCLUDE_DIR}")
 endif ()
 
 include(FindPackageHandleStandardArgs)
