@@ -1223,6 +1223,12 @@ const char* vtkWebGPURenderWindow::GetRenderingBackend()
 }
 
 //------------------------------------------------------------------------------
+void* vtkWebGPURenderWindow::GetGenericContext()
+{
+  return this->WGPUConfiguration->GetDevice().Get();
+}
+
+//------------------------------------------------------------------------------
 unsigned char* vtkWebGPURenderWindow::GetPixelData(
   int x1, int y1, int x2, int y2, int front, int right)
 {
@@ -2043,6 +2049,7 @@ void vtkWebGPURenderWindow::ReleaseGraphicsResources(vtkWindow* w)
   this->DepthCopyPipeline = nullptr;
 
   this->WGPUPipelineCache->ReleaseGraphicsResources(w);
+  this->WGPUTextureCache->ReleaseGraphicsResources(w);
   this->DestroyColorCopyPipeline();
   this->DestroyIdsAttachment();
   this->DestroyDepthStencilAttachment();
