@@ -34,7 +34,7 @@ set(classes
   vtkWebGPURenderer
   vtkWebGPUShaderDatabase
   vtkWebGPUShaderProperty
-  vtkWebGPUTexture
+  vtkWebGPUTextureDeviceResource
   vtkWebGPUTextureView)
 
 set(private_headers

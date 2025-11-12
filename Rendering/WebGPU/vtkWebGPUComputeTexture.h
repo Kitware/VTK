@@ -7,7 +7,7 @@
 #include "vtkDataArray.h"             // for vtkDataArray used in SetData
 #include "vtkLogger.h"                // for the logger
 #include "vtkRenderingWebGPUModule.h" // For export macro
-#include "vtkWebGPUTexture.h"
+#include "vtkWebGPUTextureDeviceResource.h"
 #include "vtk_wgpu.h" // for dawn classes
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -25,7 +25,7 @@ class vtkWebGPURenderer;
  * - The depth of the texture (extents/size in the Z coordinate) defaults to 1
  * - The maximum number of mip levels defaults to 0
  */
-class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputeTexture : public vtkWebGPUTexture
+class VTKRENDERINGWEBGPU_EXPORT vtkWebGPUComputeTexture : public vtkWebGPUTextureDeviceResource
 {
 public:
   vtkTypeMacro(vtkWebGPUComputeTexture, vtkObject);

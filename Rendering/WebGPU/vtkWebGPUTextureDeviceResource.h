@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#ifndef vtkWebGPUTexture_h
-#define vtkWebGPUTexture_h
+#ifndef vtkWebGPUTextureDeviceResource_h
+#define vtkWebGPUTextureDeviceResource_h
 
 #include "vtkObject.h"
 #include "vtkRenderingWebGPUModule.h" // For export macro
@@ -14,11 +14,11 @@ VTK_ABI_NAMESPACE_BEGIN
  * Abstraction class for WebGPU textures. This class mainly holds a bunch of parameters needed for
  * the creation of a texture.
  */
-class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUTexture : public vtkObject
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUTextureDeviceResource : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkWebGPUTexture, vtkObject);
-  static vtkWebGPUTexture* New();
+  vtkTypeMacro(vtkWebGPUTextureDeviceResource, vtkObject);
+  static vtkWebGPUTextureDeviceResource* New();
 
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
@@ -195,12 +195,12 @@ public:
   ///@}
 
 protected:
-  vtkWebGPUTexture();
-  ~vtkWebGPUTexture() override;
+  vtkWebGPUTextureDeviceResource();
+  ~vtkWebGPUTextureDeviceResource() override;
 
 private:
-  vtkWebGPUTexture(const vtkWebGPUTexture&) = delete;
-  void operator=(const vtkWebGPUTexture&) = delete;
+  vtkWebGPUTextureDeviceResource(const vtkWebGPUTextureDeviceResource&) = delete;
+  void operator=(const vtkWebGPUTextureDeviceResource&) = delete;
 
   // Number of pixels in X, Y and Z direction.
   // Defaulting to 1 in the Z direction because 2D textures are assumed to be the common case.

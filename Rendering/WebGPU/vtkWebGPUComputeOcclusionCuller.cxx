@@ -167,7 +167,7 @@ void vtkWebGPUComputeOcclusionCuller::SetupDepthBufferCopyPass()
   depthTextureView->SetLabel("Depth buffer texture view depth buffer copy pass");
   depthTextureView->SetMode(vtkWebGPUTextureView::TextureViewMode::READ_ONLY);
   depthTextureView->SetAspect(vtkWebGPUTextureView::TextureViewAspect::ASPECT_DEPTH);
-  depthTextureView->SetFormat(vtkWebGPUTexture::TextureFormat::DEPTH_24_PLUS);
+  depthTextureView->SetFormat(vtkWebGPUTextureDeviceResource::TextureFormat::DEPTH_24_PLUS);
   this->DepthBufferCopyPass->AddTextureView(depthTextureView);
 
   this->DepthBufferCopyPass->SetLabel("Depth buffer copy compute pass");
