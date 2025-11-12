@@ -59,6 +59,7 @@ EXTERNL int ncbytessetcontents(NCbytes*, void*, unsigned long);
 #define ncbytesextend(bb,len) ncbytessetalloc((bb),(len)+(bb->alloc))
 #define ncbytesclear(bb) ((bb)!=NULL?(bb)->length=0:0)
 #define ncbytesavail(bb,n) ((bb)!=NULL?((bb)->alloc - (bb)->length) >= (n):0)
+#define ncbytesextendible(bb) ((bb)!=NULL?((bb)->nonextendible?0:1):0)
 
 #if defined(_CPLUSPLUS_) || defined(__CPLUSPLUS__) || defined(__CPLUSPLUS)
 }

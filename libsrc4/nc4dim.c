@@ -37,7 +37,6 @@ NC4_inq_unlimdim(int ncid, int *unlimdimidp)
     NC_DIM_INFO_T *dim;
     int found = 0;
     int retval;
-    int i;
 
     LOG((2, "%s: called", __func__));
 
@@ -52,7 +51,7 @@ NC4_inq_unlimdim(int ncid, int *unlimdimidp)
         *unlimdimidp = -1;
         for (g = grp; g && !found; g = g->parent)
         {
-            for(i=0;i<ncindexsize(grp->dim);i++)
+            for(size_t i=0;i<ncindexsize(grp->dim);i++)
             {
                 dim = (NC_DIM_INFO_T*)ncindexith(grp->dim,i);
                 if(dim == NULL) continue;
@@ -178,7 +177,6 @@ NC4_inq_unlimdims(int ncid, int *nunlimdimsp, int *unlimdimidsp)
     NC_FILE_INFO_T *h5;
     int num_unlim = 0;
     int retval;
-    int i;
 
     LOG((2, "%s: ncid 0x%x", __func__, ncid));
 
@@ -190,7 +188,7 @@ NC4_inq_unlimdims(int ncid, int *nunlimdimsp, int *unlimdimidsp)
     /* Get our dim info. */
     assert(h5);
     {
-        for(i=0;i<ncindexsize(grp->dim);i++)
+        for(size_t i=0;i<ncindexsize(grp->dim);i++)
         {
             dim = (NC_DIM_INFO_T*)ncindexith(grp->dim,i);
             if(dim == NULL) continue;

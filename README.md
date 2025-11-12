@@ -57,7 +57,9 @@ Copyright and licensing information can be found [here](https://www.unidata.ucar
 To install the netCDF-C software, please see the file INSTALL in the
 netCDF-C distribution, or the (usually more up-to-date) document:
 
-* [Building NetCDF](https://docs.unidata.ucar.edu/netcdf-c/current/winbin.html)
+* [Building NetCDF with CMake](https://docs.unidata.ucar.edu/netcdf-c/current/netCDF-CMake.html)
+* [Building NetCDF with Autoconf/Automake/Libtool](https://docs.unidata.ucar.edu/netcdf-c/current/netCDF-autotools.html)
+* [Building or Getting Binaries for NetCDF on Windows](https://docs.unidata.ucar.edu/netcdf-c/current/winbin.html)
 
 ### Documentation
 A language-independent User's Guide for netCDF, and some other

@@ -13,13 +13,14 @@
  */
 
 #include "config.h"
+#include <stddef.h>
 #include <stdlib.h>
 #include "hdf5internal.h"
 #include "hdf5debug.h"
 #include "netcdf.h"
 #include "netcdf_filter.h"
 
-#ifdef ENABLE_BLOSC
+#ifdef NETCDF_ENABLE_BLOSC
 #include <blosc.h>
 #endif
 
@@ -28,135 +29,6 @@
 /* Forward */
 static int NC4_hdf5_filter_free(struct NC_HDF5_Filter* spec);
 
-/**************************************************/
-/* Filter registration support */
-
-#ifdef ENABLE_CLIENTSIDE_FILTERS
-
-/* Mnemonic */
-#define FILTERACTIVE 1
-
-/* WARNING: GLOBAL VARIABLE */
-/* Define list of registered filters */
-static NClist* NC4_registeredfilters = NULL; /** List<NC_FILTER_CLIENT_HDF5*> */
-
-/**************************************************/
-/* Filter registration support */
-
-static int
-clientfilterlookup(unsigned int id)
-{
-    int i;
-    if(NC4_registeredfilters == NULL)
-	NC4_registeredfilters = nclistnew();
-    for(i=0;i<nclistlength(NC4_registeredfilters);i++) {
-	NC_FILTER_CLIENT_HDF5* x = nclistget(NC4_registeredfilters,i);
-	if(x != NULL && x->id == id) {
-	    return i; /* return position */
-	}
-    }
-    return -1;
-}
-
-static void
-reclaiminfo(NC_FILTER_CLIENT_HDF5* info)
-{
-    nullfree(info);
-}
-
-static int
-filterremove(int pos)
-{
-    NC_FILTER_CLIENT_HDF5* info = NULL;
-    if(NC4_registeredfilters == NULL)
-	return THROW(NC_EINVAL);
-    if(pos < 0 || pos >= nclistlength(NC4_registeredfilters))
-	return THROW(NC_EINVAL);
-    info = nclistget(NC4_registeredfilters,pos);
-    reclaiminfo(info);
-    nclistremove(NC4_registeredfilters,pos);
-    return NC_NOERR;
-}
-
-static NC_FILTER_CLIENT_HDF5*
-dupfilterinfo(NC_FILTER_CLIENT_HDF5* info)
-{
-    NC_FILTER_CLIENT_HDF5* dup = NULL;
-    if(info == NULL) goto fail;
-    if((dup = calloc(1,sizeof(NC_FILTER_CLIENT_HDF5))) == NULL) goto fail;
-    *dup = *info;
-    return dup;
-fail:
-    reclaiminfo(dup);
-    return NULL;
-}
-
-int
-nc4_global_filter_action(int op, unsigned int id, NC_FILTER_OBJ_HDF5* infop)
-{
-    int stat = NC_NOERR;
-    H5Z_class2_t* h5filterinfo = NULL;
-    herr_t herr;
-    int pos = -1;
-    NC_FILTER_CLIENT_HDF5* dup = NULL;
-    NC_FILTER_CLIENT_HDF5* elem = NULL;
-    NC_FILTER_CLIENT_HDF5 ncf;
-
-    NC_UNUSED(format);
-    
-    switch (op) {
-    case NCFILTER_CLIENT_REG: /* Ignore id argument */
-        if(infop == NULL) {stat = NC_EINVAL; goto done;}
-	assert(NC_FILTER_FORMAT_HDF5 == infop->hdr.format);
-	assert(NC_FILTER_SORT_CLIENT == infop->sort);
-	elem = (NC_FILTER_CLIENT_HDF5*)&infop->u.client;
-        h5filterinfo = elem->info;
-        /* Another sanity check */
-        if(id != h5filterinfo->id)
-	    {stat = NC_EINVAL; goto done;}
-	/* See if this filter is already defined */
-	if((pos = clientfilterlookup(id)) >= 0)
-	    {stat = NC_ENAMEINUSE; goto done;} /* Already defined */
-	if((herr = H5Zregister(h5filterinfo)) < 0)
-	    {stat = NC_EFILTER; goto done;}
-	/* Save a copy of the passed in info */
-	ncf.id = id;
-	ncf.info = elem->info;
-	if((dup=dupfilterinfo(&ncf)) == NULL)
-	    {stat = NC_ENOMEM; goto done;}		
-	nclistpush(NC4_registeredfilters,dup);	
-	break;
-    case NCFILTER_CLIENT_UNREG:
-	if(id <= 0)
-	    {stat = NC_ENOTNC4; goto done;}
-	/* See if this filter is already defined */
-	if((pos = clientfilterlookup(id)) < 0)
-	    {stat = NC_ENOFILTER; goto done;} /* Not defined */
-	if((herr = H5Zunregister(id)) < 0)
-	    {stat = NC_EFILTER; goto done;}
-	if((stat=filterremove(pos))) goto done;
-	break;
-    case NCFILTER_CLIENT_INQ:
-	if(infop == NULL) goto done;
-        /* Look up the id in our local table */
-   	if((pos = clientfilterlookup(id)) < 0)
-	    {stat = NC_ENOFILTER; goto done;} /* Not defined */
-        elem = (NC_FILTER_CLIENT_HDF5*)nclistget(NC4_registeredfilters,pos);
-	if(elem == NULL) {stat = NC_EINTERNAL; goto done;}
-	if(infop != NULL) {
-	    infop->u.client = *elem;
-	}
-	break;
-    default:
-	{stat = NC_EINTERNAL; goto done;}	
-    }
-done:
-    return THROW(stat);
-} 
-
-#endif /*ENABLE_CLIENTSIDE_FILTERS*/
-
-/**************************************************/
 /**************************************************/
 /**
  * @file
@@ -223,13 +95,13 @@ printfilterlist(NC_VAR_INFO_T* var, const char* tag, int line)
 int
 NC4_hdf5_filter_freelist(NC_VAR_INFO_T* var)
 {
-    int i, stat=NC_NOERR;
+    int stat=NC_NOERR;
     NClist* filters = (NClist*)var->filters;
 
     if(filters == NULL) goto done;
 PRINTFILTERLIST(var,"free: before");
     /* Free the filter list backward */
-    for(i=nclistlength(filters)-1;i>=0;i--) {
+    for(size_t i = nclistlength(filters);i-->0;) {
 	struct NC_HDF5_Filter* spec = (struct NC_HDF5_Filter*)nclistremove(filters,i);
 	if(spec->nparams > 0) nullfree(spec->params);
 	nullfree(spec);
@@ -252,6 +124,22 @@ done:
     return NC_NOERR;
 }
 
+/**
+ * Add filter to netCDF's list of filters for a variable.
+ * @internal
+ *
+ * This function handles necessary filter ordering for shuffle and
+ * fletcher32 filters.
+ *
+ * @param var Pointer to the NC_VAR_INFO_T for a variable.
+ * @param id HDF5 filter ID.
+ * @param nparams Number of parameters in filter parameter list.
+ * @param params Array that holds nparams unsigned ints - the filter parameters.
+ * @param flags NetCDF flags about the filter.
+ *
+ * @return ::NC_NOERR on success, error code otherwise.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_hdf5_addfilter(NC_VAR_INFO_T* var, unsigned int id, size_t nparams, const unsigned int* params, int flags)
 {
@@ -308,14 +196,23 @@ done:
     return THROW(stat);
 }
 
+/**
+ * @internal
+ * Remove a filter from netCDF's list of filters for a variable.
+ *
+ * @param var Pointer to the NC_VAR_INFO_T for a variable.
+ * @param id HDF5 filter ID.
+ *
+ * @return ::NC_NOERR on success, error code otherwise.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_hdf5_filter_remove(NC_VAR_INFO_T* var, unsigned int id)
 {
-    int k;
     NClist* flist = (NClist*)var->filters;
 
     /* Walk backwards */
-    for(k=nclistlength(flist)-1;k>=0;k--) {
+    for(size_t k = nclistlength(flist); k-->0;) {
 	struct NC_HDF5_Filter* f = (struct NC_HDF5_Filter*)nclistget(flist,k);
         if(f->filterid == id) {
 	    /* Remove from variable */
@@ -332,10 +229,21 @@ fprintf(stderr,"\tid=%s\n",id);
     return NC_ENOFILTER;
 }
 
+/**
+ * @internal
+ * Find a filter in netCDF's list of filters for a variable.
+ *
+ * @param var Pointer to the NC_VAR_INFO_T for a variable.
+ * @param id HDF5 filter ID.
+ * @param specp Filter specification.
+ *
+ * @return ::NC_NOERR on success, error code otherwise.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_hdf5_filter_lookup(NC_VAR_INFO_T* var, unsigned int id, struct NC_HDF5_Filter** specp)
 {
-    int i;
+    size_t i;
     NClist* flist = (NClist*)var->filters;
     
     if(flist == NULL) {
@@ -353,6 +261,19 @@ NC4_hdf5_filter_lookup(NC_VAR_INFO_T* var, unsigned int id, struct NC_HDF5_Filte
     return NC_ENOFILTER;
 }
 
+/**
+ * @internal
+ * Add a filter for a variable in a netCDF/HDF5 file.
+ *
+ * @param ncid File ID.
+ * @param varid Variable ID.
+ * @param id HDF5 filter ID.
+ * @param nparams Number of parameters in filter parameter list.
+ * @param params Array that holds nparams unsigned ints - the filter parameters.
+ *
+ * @return ::NC_NOERR on success, error code otherwise.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_hdf5_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams,
                    const unsigned int* params)
@@ -494,6 +415,18 @@ done:
     return stat;
 }
 
+/**
+ * @internal
+ * Inquire about a variable's filters in a netCDF/HDF5 file.
+ *
+ * @param ncid File ID.
+ * @param varid Variable ID.
+ * @param nfiltersp A pointer that gets the number of filters for the variable.
+ * @param ids A pointer that gets the ids of the filters.
+ *
+ * @return ::NC_NOERR on success, error code otherwise.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_hdf5_inq_var_filter_ids(int ncid, int varid, size_t* nfiltersp, unsigned int* ids)
 {
@@ -520,7 +453,7 @@ NC4_hdf5_inq_var_filter_ids(int ncid, int varid, size_t* nfiltersp, unsigned int
 
     nfilters = nclistlength(flist);
     if(nfilters > 0 && ids != NULL) {
-	int k;
+	size_t k;
 	for(k=0;k<nfilters;k++) {
 	    struct NC_HDF5_Filter* f = (struct NC_HDF5_Filter*)nclistget(flist,k);
 	    ids[k] = f->filterid;
@@ -533,6 +466,19 @@ done:
 
 }
 
+/**
+ * @internal
+ * Inquire about a filter for a variable in a netCDF/HDF5 file.
+ *
+ * @param ncid File ID.
+ * @param varid Variable ID.
+ * @param id The HDF5 filter ID.
+ * @param nparamsp A pointer that gets the number of parameters for the filter.
+ * @param params A pointer that gets nparamsp parameters for the filter.
+ *
+ * @return ::NC_NOERR on success, error code otherwise.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_hdf5_inq_var_filter_info(int ncid, int varid, unsigned int id, size_t* nparamsp, unsigned int* params)
 {
@@ -569,7 +515,8 @@ done:
 int
 NC4_hdf5_find_missing_filter(NC_VAR_INFO_T* var, unsigned int* idp)
 {
-    int i,stat = NC_NOERR;
+    size_t i;
+    int stat = NC_NOERR;
     NClist* flist = (NClist*)var->filters;
     int id = 0;
     
@@ -593,7 +540,16 @@ NC4_hdf5_filter_finalize(void)
     return NC_NOERR;
 }
 
-/* Test if filter available */
+/**
+ * @internal
+ * Test if a filter is available in HDF5.
+ *
+ * @param ncid File ID (ignored).
+ * @param id The HDF5 filter ID.
+ *
+ * @return ::NC_NOERR on success, error code otherwise.
+ * @author Dennis Heimbigner
+ */
 int
 NC4_hdf5_inq_filter_avail(int ncid, unsigned id)
 {

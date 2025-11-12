@@ -15,6 +15,9 @@
  */
 
 #include "config.h"
+#include <stddef.h>
+#include "netcdf.h"
+#include "ncplugins.h"
 #include "hdf5internal.h"
 #include "hdf5err.h" /* For BAIL2 */
 #ifdef _WIN32
@@ -50,7 +53,13 @@ extern int nc_log_level;
 int nc4_hdf5_initialized = 0; /**< True if initialization has happened. */
 
 /**
- * @internal Provide a wrapper for H5Eset_auto
+ * @internal Provide a wrapper for H5Eset_auto.
+ *
+ * If preprocessor symbol DEBUGH5 is set (at the top of this file),
+ * then error messages will be pronted by the h5catch() function. If
+ * not, a NULL will be passed as the second argument to H5eset_auto2()
+ * and error messages will not be printed by HDF5.
+ *
  * @param func Pointer to func.
  * @param client_data Client data.
  *
@@ -120,7 +129,7 @@ find_var_dim_max_length(NC_GRP_INFO_T *grp, int varid, int dimid,
     LOG((3, "find_var_dim_max_length varid %d dimid %d", varid, dimid));    
 
     /* Find this var. */
-    var = (NC_VAR_INFO_T*)ncindexith(grp->vars,varid);
+    var = (NC_VAR_INFO_T*)ncindexith(grp->vars, (size_t)varid);
     if (!var) return NC_ENOTVAR;
     assert(var->hdr.id == varid);
 
@@ -150,9 +159,9 @@ find_var_dim_max_length(NC_GRP_INFO_T *grp, int varid, int dimid,
                 BAIL(NC_EHDFERR);
             if (dataset_ndims != var->ndims)
                 BAIL(NC_EHDFERR);
-            if (!(h5dimlen = malloc(dataset_ndims * sizeof(hsize_t))))
+            if (!(h5dimlen = malloc((size_t)dataset_ndims * sizeof(hsize_t))))
                 BAIL(NC_ENOMEM);
-            if (!(h5dimlenmax = malloc(dataset_ndims * sizeof(hsize_t))))
+            if (!(h5dimlenmax = malloc((size_t)dataset_ndims * sizeof(hsize_t))))
                 BAIL(NC_ENOMEM);
             if ((dataset_ndims = H5Sget_simple_extent_dims(spaceid,
                                                            h5dimlen, h5dimlenmax)) < 0)
@@ -205,7 +214,7 @@ nc4_rec_find_hdf_type(NC_FILE_INFO_T *h5, hid_t target_hdf_typeid)
 {
     NC_TYPE_INFO_T *type;
     htri_t equal;
-    int i;
+    size_t i;
 
     assert(h5);
 
@@ -251,21 +260,20 @@ nc4_find_dim_len(NC_GRP_INFO_T *grp, int dimid, size_t **len)
 {
     NC_VAR_INFO_T *var;
     int retval;
-    int i;
 
     assert(grp && len);
     LOG((3, "%s: grp->name %s dimid %d", __func__, grp->hdr.name, dimid));
 
     /* If there are any groups, call this function recursively on
      * them. */
-    for (i = 0; i < ncindexsize(grp->children); i++)
+    for (size_t i = 0; i < ncindexsize(grp->children); i++)
         if ((retval = nc4_find_dim_len((NC_GRP_INFO_T*)ncindexith(grp->children, i),
                                        dimid, len)))
             return retval;
 
     /* For all variables in this group, find the ones that use this
      * dimension, and remember the max length. */
-    for (i = 0; i < ncindexsize(grp->vars); i++)
+    for (size_t i = 0; i < ncindexsize(grp->vars); i++)
     {
         size_t mylen;
         var = (NC_VAR_INFO_T *)ncindexith(grp->vars, i);
@@ -430,23 +438,21 @@ nc4_reform_coord_var(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var, NC_DIM_INFO_T *dim)
     {
         int dims_detached = 0;
         int finished = 0;
-        int d;
 
         /* Loop over all dimensions for variable. */
-        for (d = 0; d < var->ndims && !finished; d++)
+        for (unsigned int d = 0; d < var->ndims && !finished; d++)
         {
             /* Is there a dimscale attached to this axis? */
             if (hdf5_var->dimscale_attached[d])
             {
                 NC_GRP_INFO_T *g;
-                int k;
 
                 for (g = grp; g && !finished; g = g->parent)
                 {
                     NC_DIM_INFO_T *dim1;
                     NC_HDF5_DIM_INFO_T *hdf5_dim1;
 
-                    for (k = 0; k < ncindexsize(g->dim); k++)
+                    for (size_t k = 0; k < ncindexsize(g->dim); k++)
                     {
                         dim1 = (NC_DIM_INFO_T *)ncindexith(g->dim, k);
                         assert(dim1 && dim1->format_dim_info);
@@ -541,9 +547,8 @@ static int
 close_gatts(NC_GRP_INFO_T *grp)
 {
     NC_ATT_INFO_T *att;
-    int a;
 
-    for (a = 0; a < ncindexsize(grp->att); a++)
+    for (size_t a = 0; a < ncindexsize(grp->att); a++)
     {
         att = (NC_ATT_INFO_T *)ncindexith(grp->att, a);
         assert(att && att->format_att_info);
@@ -594,9 +599,8 @@ close_vars(NC_GRP_INFO_T *grp)
     NC_VAR_INFO_T *var;
     NC_HDF5_VAR_INFO_T *hdf5_var;
     NC_ATT_INFO_T *att;
-    int a, i;
 
-    for (i = 0; i < ncindexsize(grp->vars); i++)
+    for (size_t i = 0; i < ncindexsize(grp->vars); i++)
     {
         var = (NC_VAR_INFO_T *)ncindexith(grp->vars, i);
         assert(var && var->format_var_info);
@@ -613,18 +617,11 @@ close_vars(NC_GRP_INFO_T *grp)
             {
                 if (var->type_info)
                 {
-#ifdef SEPDATA
-		    if (var->type_info->nc_type_class == NC_VLEN)
-                        nc_free_vlen((nc_vlen_t *)var->fill_value);
-                    else if (var->type_info->nc_type_class == NC_STRING && *(char **)var->fill_value)
-                        free(*(char **)var->fill_value);
-#else
 		    int stat = NC_NOERR;
-		    if((stat = nc_reclaim_data(grp->nc4_info->controller->ext_ncid,var->type_info->hdr.id,var->fill_value,1)))
+		    if((stat = NC_reclaim_data(grp->nc4_info->controller,var->type_info->hdr.id,var->fill_value,1)))
 		        return stat;
 		    nullfree(var->fill_value);
                 }
-#endif
 		var->fill_value = NULL;
             }
         }
@@ -637,7 +634,7 @@ close_vars(NC_GRP_INFO_T *grp)
 		nc4_HDF5_close_type(var->type_info);
         }
 
-        for (a = 0; a < ncindexsize(var->att); a++)
+        for (size_t a = 0; a < ncindexsize(var->att); a++)
         {
             att = (NC_ATT_INFO_T *)ncindexith(var->att, a);
             assert(att && att->format_att_info);
@@ -675,9 +672,8 @@ static int
 close_dims(NC_GRP_INFO_T *grp)
 {
     NC_DIM_INFO_T *dim;
-    int i;
 
-    for (i = 0; i < ncindexsize(grp->dim); i++)
+    for (size_t i = 0; i < ncindexsize(grp->dim); i++)
     {
         NC_HDF5_DIM_INFO_T *hdf5_dim;
 
@@ -710,9 +706,7 @@ close_dims(NC_GRP_INFO_T *grp)
 static int
 close_types(NC_GRP_INFO_T *grp)
 {
-    int i;
-
-    for (i = 0; i < ncindexsize(grp->type); i++)
+    for (size_t i = 0; i < ncindexsize(grp->type); i++)
     {
         NC_TYPE_INFO_T *type;
 
@@ -770,7 +764,6 @@ int
 nc4_rec_grp_HDF5_del(NC_GRP_INFO_T *grp)
 {
     NC_HDF5_GRP_INFO_T *hdf5_grp;
-    int i;
     int retval;
 
     assert(grp && grp->format_grp_info);
@@ -780,7 +773,7 @@ nc4_rec_grp_HDF5_del(NC_GRP_INFO_T *grp)
 
     /* Recursively call this function for each child, if any, stopping
      * if there is an error. */
-    for (i = 0; i < ncindexsize(grp->children); i++)
+    for (size_t i = 0; i < ncindexsize(grp->children); i++)
         if ((retval = nc4_rec_grp_HDF5_del((NC_GRP_INFO_T *)ncindexith(grp->children,
                                                                        i))))
             return retval;
@@ -911,7 +904,7 @@ nc4_hdf5_find_grp_var_att(int ncid, int varid, const char *name, int attnum,
     }
     else
     {
-        if (!(my_var = (NC_VAR_INFO_T *)ncindexith(my_grp->vars, varid)))
+        if (!(my_var = (NC_VAR_INFO_T *)ncindexith(my_grp->vars, (size_t)varid)))
             return NC_ENOTVAR;
 
         /* Do we need to read the var attributes? */
@@ -941,7 +934,7 @@ nc4_hdf5_find_grp_var_att(int ncid, int varid, const char *name, int attnum,
     if (att)
     {
         my_att = use_name ? (NC_ATT_INFO_T *)ncindexlookup(attlist, my_norm_name) :
-            (NC_ATT_INFO_T *)ncindexith(attlist, attnum);
+            (NC_ATT_INFO_T *)ncindexith(attlist, (size_t)attnum);
         if (!my_att)
             return NC_ENOTATT;
     }
@@ -1002,7 +995,7 @@ nc4_hdf5_get_chunk_cache(int ncid, size_t *sizep, size_t *nelemsp,
     if (H5Pget_cache(plistid, NULL, nelemsp, sizep, &dpreemption) < 0)
 	return NC_EHDFERR;
     if (preemptionp)
-	*preemptionp = dpreemption;
+	*preemptionp = (float)dpreemption;
 
     return NC_NOERR;
 }

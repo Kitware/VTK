@@ -176,7 +176,7 @@ s3io_open(const char* path,
         {status = NC_EURL; goto done;}
 
     /* Convert to canonical path-style */
-    if((status = NC_s3urlprocess(url,&s3io->s3))) goto done;
+    if((status = NC_s3urlprocess(url,&s3io->s3,NULL))) goto done;
     /* Verify root path */
     if(s3io->s3.rootkey == NULL)
         {status = NC_EURL; goto done;}

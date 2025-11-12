@@ -153,7 +153,7 @@ int nc_utf8_to_utf16(const unsigned char* s8, unsigned short** utf16p, size_t* l
 	    goto done;
       } else { /* move to next char */
 	    /* Complain if top 16 bits not zero */
-	    if((codepoint & 0xFFFF0000) != 0) {
+	    if((codepoint & (nc_utf8proc_int32_t)0xFFFF0000) != 0) {
 	          ncstat = NC_EBADNAME;
 	          goto done;
 	    }

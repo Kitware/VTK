@@ -79,7 +79,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include <hdf5.h>
+#include <vtk_hdf5.h>
 #include <hdf5_hl.h>
 
 #include "nc4internal.h"
@@ -723,7 +723,7 @@ NC4_image_init(NC_FILE_INFO_T* h5)
     char                file_name[64];	/* Filename buffer */
     size_t              alloc_incr;     /* Buffer allocation increment */
     size_t              min_incr = 65536; /* Minimum buffer increment */
-    double              buf_prcnt = 0.1f;  /* Percentage of buffer size to set
+    double              buf_prcnt = 0.1;  /* Percentage of buffer size to set
                                              as increment */
     unsigned imageflags;
     int create = 0;
@@ -753,8 +753,8 @@ NC4_image_init(NC_FILE_INFO_T* h5)
     /* set allocation increment to a percentage of the supplied buffer size, or
      * a pre-defined minimum increment value, whichever is larger
      */
-    if ((buf_prcnt * h5->mem.memio.size) > min_incr)
-        alloc_incr = (size_t)(buf_prcnt * h5->mem.memio.size);
+    if ((size_t)(buf_prcnt * (double)h5->mem.memio.size) > min_incr)
+        alloc_incr = (size_t)(buf_prcnt * (double)h5->mem.memio.size);
     else
         alloc_incr = min_incr;
 

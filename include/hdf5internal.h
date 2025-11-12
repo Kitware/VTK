@@ -11,6 +11,8 @@
 #ifndef _HDF5INTERNAL_
 #define _HDF5INTERNAL_
 
+#include "vtk_netcdf_mangle.h"
+
 #include "config.h"
 #include <vtk_hdf5.h>
 #include "nc4internal.h"
@@ -59,12 +61,13 @@ struct NCauth;
 /** Struct to hold HDF5-specific info for the file. */
 typedef struct NC_HDF5_FILE_INFO {
    hid_t hdfid;
-#if defined(ENABLE_BYTERANGE)
-   int byterange;
+   unsigned transientid; /* counter for transient ids */
    NCURI* uri; /* Parse of the incoming path, if url */
-#if defined(ENABLE_HDF5_ROS3) || defined(ENABLE_S3_SDK)
-   struct NCauth* auth;
+#if defined(NETCDF_ENABLE_BYTERANGE)
+   int byterange;
 #endif
+#ifdef NETCDF_ENABLE_S3
+   struct NCauth* auth;
 #endif
 } NC_HDF5_FILE_INFO_T;
 
@@ -217,5 +220,10 @@ EXTERNL hid_t nc4_H5Fopen(const char *filename, unsigned flags, hid_t fapl_id);
 EXTERNL hid_t nc4_H5Fcreate(const char *filename, unsigned flags, hid_t fcpl_id, hid_t fapl_id);
 
 int hdf5set_format_compatibility(hid_t fapl_id);
+
+/* HDF5 initialization/finalization */
+extern int nc4_hdf5_initialized;
+extern void nc4_hdf5_initialize(void);
+extern void nc4_hdf5_finalize(void);
 
 #endif /* _HDF5INTERNAL_ */

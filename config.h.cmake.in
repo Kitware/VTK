@@ -1,0 +1,725 @@
+/*! \file
+
+Copyright 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
+2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014,
+2015, 2016, 2017, 2018
+University Corporation for Atmospheric Research/Unidata.
+
+See \ref copyright file for more info.
+
+*/
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#include "vtk_netcdf_mangle.h"
+
+#ifdef _MSC_VER
+
+/* Prevent an issue where there is a circular inclusion
+   of winsock.h/windows.h.  This weird state occurs with
+   libdap4 and hdf4 support. The solution comes from the
+   following URL, found after a bit of research.
+
+   Added in support of the 4.5.0-rc1.  Hello, future generations.
+
+   * https://stackoverflow.com/questions/1372480/c-redefinition-header-files-winsock2-h
+
+   */
+
+/* #cmakedefine HAVE_WINSOCK2_H
+
+#ifdef HAVE_WINSOCK2_H
+   #define _WINSOCKAPI_
+#endif
+*/
+   #if _MSC_VER>=1900
+     #define STDC99
+   #endif
+/* Define O_BINARY so that the appropriate flags
+are set when opening a binary file on Windows. */
+
+/* Disable a few warnings under Visual Studio, for the
+   time being. */
+   #include <io.h>
+   #pragma warning( disable: 4018 4996 4244 4305 )
+   #define unlink _unlink
+   #define open _open
+   #define close _close
+   #define read _read
+   #define lseek _lseeki64
+
+   #ifndef __clang__
+   #define fstat _fstat64
+   #endif
+
+   #define off_t __int64
+   #define _off_t __int64
+
+   #ifndef _OFF_T_DEFINED
+   #define _OFF_T_DEFINED
+   #endif
+
+   #define strdup _strdup
+   #define fdopen _fdopen
+   #define write _write
+   #define strtoll _strtoi64
+#endif /*_MSC_VER */
+
+#cmakedefine const
+
+#ifndef _FILE_OFFSET_BITS
+#cmakedefine _FILE_OFFSET_BITS @_FILE_OFFSET_BITS@
+#cmakedefine _LARGEFILE64_SOURCE
+#cmakedefine _LARGEFILE_SOURCE
+#endif
+
+/* Define if building universal (internal helper macro) */
+#cmakedefine AC_APPLE_UNIVERSAL_BUILD 1
+
+/* default file chunk cache nelems. */
+#cmakedefine CHUNK_CACHE_NELEMS @CHUNK_CACHE_NELEMS@
+
+/* default file chunk cache preemption policy. */
+#cmakedefine CHUNK_CACHE_PREEMPTION @CHUNK_CACHE_PREEMPTION@
+
+/* default file chunk cache size in bytes. */
+#cmakedefine CHUNK_CACHE_SIZE @CHUNK_CACHE_SIZE@
+
+/* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
+   systems. This function is required for `alloca.c' support on those systems.
+   */
+#cmakedefine CRAY_STACKSEG_END
+
+/* Define to 1 if using `alloca.c'. */
+#cmakedefine C_ALLOCA 1
+
+/* default num chunks per cache. */
+#cmakedefine DEFAULT_CHUNKS_CACHE_SIZE @DEFAULT_CHUNKS_CACHE_SIZE@
+
+/* default num chunks per cache. */
+#cmakedefine DEFAULT_CHUNK_CACHE_PREEMPTION @DEFAULT_CHUNK_CACHE_PREEMPTION@
+
+/* default total chunks cache size. */
+#cmakedefine DEFAULT_CHUNK_CACHE_SIZE @DEFAULT_CHUNK_CACHE_SIZE@
+
+/* default num chunks per cache. */
+#cmakedefine DEFAULT_CHUNKS_IN_CACHE @DEFAULT_CHUNKS_IN_CACHE@
+
+/* default chunk size in bytes */
+#cmakedefine DEFAULT_CHUNK_SIZE @DEFAULT_CHUNK_SIZE@
+
+/* set this only when building a DLL under MinGW */
+#cmakedefine DLL_EXPORT 1
+
+/* set this only when building a DLL under MinGW */
+#cmakedefine DLL_NETCDF 1
+
+/* if true, use atexist */
+#cmakedefine NETCDF_ENABLE_ATEXIT_FINALIZE 1
+
+/* if true, build byte-range Client */
+#cmakedefine NETCDF_ENABLE_BYTERANGE 1
+
+/* if true, enable ERANGE fill */
+#cmakedefine NETCDF_ENABLE_ERANGE_FILL 1
+#ifdef NETCDF_ENABLE_ERANGE_FILL
+#define ERANGE_FILL 1
+#endif
+
+/* if true, use hdf5 S3 virtual file reader */
+#cmakedefine NETCDF_ENABLE_HDF5 1
+
+/* if true, use hdf5 S3 virtual file reader */
+#cmakedefine NETCDF_ENABLE_HDF5_ROS3 1
+
+/* if true, enable CDF5 Support */
+#cmakedefine NETCDF_ENABLE_CDF5 1
+
+/* if true, enable filter testing */
+#cmakedefine NETCDF_ENABLE_FILTER_TESTING 1
+
+/* if true, enable filter testing */
+#cmakedefine NETCDF_ENABLE_FILTER_TESTING 1
+
+/* if true, enable strict null byte header padding. */
+#cmakedefine USE_STRICT_NULL_BYTE_HEADER_PADDING 1
+
+/* if true, build DAP2 and DAP4 Client */
+#cmakedefine NETCDF_ENABLE_DAP 1
+
+/* if true, build DAP4 Client */
+#cmakedefine NETCDF_ENABLE_DAP4 1
+
+/* if true, do remote tests */
+#cmakedefine NETCDF_ENABLE_DAP_REMOTE_TESTS 1
+
+/* if true, enable NCZARR */
+#cmakedefine NETCDF_ENABLE_NCZARR 1
+
+/* if true, enable nczarr filter support */
+#cmakedefine NETCDF_ENABLE_NCZARR_FILTERS 1
+
+/* if true, enable nczarr zip support */
+#cmakedefine NETCDF_ENABLE_NCZARR_ZIP 1
+
+/* if true, Allow dynamically loaded plugins */
+#cmakedefine NETCDF_ENABLE_PLUGINS 1
+
+/* Define the plugin install dir */
+#cmakedefine NETCDF_PLUGIN_INSTALL_DIR "@NETCDF_PLUGIN_INSTALL_DIR@"
+
+/* Define the plugin search path */
+#cmakedefine NETCDF_PLUGIN_SEARCH_PATH "@NETCDF_PLUGIN_SEARCH_PATH@"
+
+/* if true, enable S3 support */
+#cmakedefine NETCDF_ENABLE_S3 1
+
+/* if true, AWS S3 SDK is available */
+#cmakedefine NETCDF_ENABLE_S3_AWS 1
+
+/* if true, Force use of S3 internal library */
+#cmakedefine NETCDF_ENABLE_S3_INTERNAL 1
+
+/* if true, enable S3 testing*/
+#cmakedefine WITH_S3_TESTING "@WITH_S3_TESTING@"
+
+/* S3 Test Bucket */
+#define S3TESTBUCKET "@S3TESTBUCKET@"
+
+/* S3 Working subtree path prefix*/
+#define S3TESTSUBTREE "@S3TESTSUBTREE@"
+
+/* if true, run extra tests which may not work yet */
+#cmakedefine EXTRA_TESTS 1
+
+/* use HDF5 1.6 API */
+#cmakedefine H5_USE_16_API 1
+
+/* Define to 1 if you have `alloca', as a function or macro. */
+#cmakedefine HAVE_ALLOCA 1
+
+/* Define to 1 if you have <alloca.h> and it should be used (not on Ultrix). */
+#cmakedefine HAVE_ALLOCA_H 1
+
+/* Define to 1 if you have the `atexit function. */
+#cmakedefine HAVE_ATEXIT 1
+
+/* Define to 1 if bzip2 library available. */
+#cmakedefine HAVE_BZ2 1
+
+/* Define to 1 if zstd library available. */
+#cmakedefine HAVE_ZSTD 1
+
+/* Define to 1 if blosc library available. */
+#cmakedefine HAVE_BLOSC 1
+
+/* if true enable tests that access external servers */
+#cmakedefine NETCDF_ENABLE_EXTERNAL_SERVER_TESTS 1
+
+/* Define to 1 if you have hdf5_coll_metadata_ops */
+#cmakedefine HDF5_HAS_COLL_METADATA_OPS 1
+
+/* Is CURLINFO_RESPONSE_CODE defined */
+#cmakedefine HAVE_CURLINFO_RESPONSE_CODE 1
+
+/* Is CURLINFO_HTTP_CODE defined */
+#cmakedefine HAVE_CURLINFO_HTTP_CONNECTCODE 1
+
+/* Is CURLOPT_BUFFERSIZE defined */
+#cmakedefine HAVE_CURLOPT_BUFFERSIZE 1
+
+/* Is CURLOPT_TCP_KEEPALIVE defined */
+#cmakedefine HAVE_CURLOPT_KEEPALIVE 1
+
+/* Is CURLOPT_KEYPASSWD defined */
+#cmakedefine HAVE_CURLOPT_KEYPASSWD 1
+
+/* Is CURLOPT_PASSWORD defined */
+#cmakedefine HAVE_CURLOPT_PASSWORD 1
+
+/* Is CURLOPT_USERNAME defined */
+#cmakedefine HAVE_CURLOPT_USERNAME 1
+
+/* Is LIBCURL version >= 7.66 */
+#cmakedefine HAVE_LIBCURL_766 1
+
+/* Define to 1 if you have the declaration of `isfinite', and to 0 if you
+   don't. */
+#cmakedefine HAVE_DECL_ISFINITE 1
+
+/* Define to 1 if you have the declaration of `isinf', and to 0 if you don't.
+   */
+#cmakedefine HAVE_DECL_ISINF 1
+
+/* Define to 1 if you have the declaration of `isnan', and to 0 if you don't.
+   */
+#cmakedefine HAVE_DECL_ISNAN 1
+
+/* Define to 1 if you have the <dirent.h> header file. */
+#cmakedefine HAVE_DIRENT_H 1
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#cmakedefine HAVE_DLFCN_H 1
+
+/* Define to 1 if you have the <fcntl.h> header file. */
+#cmakedefine HAVE_FCNTL_H 1
+
+/* Define to 1 if you have the BaseTsd.h header file. */
+#cmakedefine HAVE_BASETSD_H @HAVE_BASETSD_H@
+
+/* Define if we have filelengthi64. */
+#cmakedefine HAVE_FILE_LENGTH_I64 @HAVE_FILE_LENGTH_I64@
+
+/* Define to 1 if you have the `fileno' function. */
+#cmakedefine HAVE_FILENO 1
+
+/* Define to 1 if you have the `H5Literate2' function. */
+#cmakedefine HAVE_H5LITERATE2
+
+/* Define to 1 if you have the `fsync' function. */
+#cmakedefine HAVE_FSYNC 1
+
+/* Define to 1 if you have the <getopt.h> header file. */
+#cmakedefine HAVE_GETOPT_H 1
+
+/* Define to 1 if you have the `getpagesize' function. */
+#cmakedefine HAVE_GETPAGESIZE 1
+
+/* Define to 1 if you have the `getrlimit' function. */
+#cmakedefine HAVE_GETRLIMIT 1
+
+/* Define to 1 if you have the `gettimeofday' function. */
+#cmakedefine HAVE_GETTIMEOFDAY 1
+
+/* Define to 1 if you have the `clock_gettime' function. */
+#cmakedefine HAVE_CLOCK_GETTIME 1
+
+/* Define to 1 if you have the `gettimeofday' function. */
+#cmakedefine HAVE_STRUCT_TIMESPEC 1
+
+/* Define to 1 if you have the `H5Z_SZIP' function. */
+#cmakedefine HAVE_H5Z_SZIP 1
+
+/* Define to 1 if you have libsz */
+#cmakedefine HAVE_SZ 1
+
+/* Define to 1 if the system has the type `int64'. */
+#cmakedefine HAVE_INT64 1
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#cmakedefine HAVE_INTTYPES_H 1
+
+/* Define to 1 if you have the `dl' library (-ldl). */
+#cmakedefine HAVE_LIBDL 1
+
+/* Define to 1 if you have the `jpeg' library (-ljpeg). */
+#cmakedefine HAVE_LIBJPEG 1
+
+/* Define to 1 if you have the `m' library (-lm). */
+#cmakedefine HAVE_LIBM 1
+
+/* Define to 1 if you have the `mfhdf' library (-lmfhdf). */
+#cmakedefine HAVE_LIBMFHDF 1
+
+/* Define to 1 if you have the libxml2 library. */
+#cmakedefine NETCDF_ENABLE_LIBXML2 1
+
+/* Define to 1 if you have the <locale.h> header file. */
+#cmakedefine HAVE_LOCALE_H 1
+
+/* Define to 1 if the system has the type `longlong'. */
+#cmakedefine HAVE_LONGLONG 1
+
+/* Define to 1 if the system has the type 'long long int'. */
+#cmakedefine HAVE_LONG_LONG_INT 1
+
+/* Define to 1 if you have the <malloc.h> header file. */
+#cmakedefine HAVE_MALLOC_H 1
+
+/* Define to 1 if you have the `memmove' function. */
+#cmakedefine HAVE_MEMMOVE 1
+
+/* Define to 1 if you have the `mkstemp' function. */
+#cmakedefine HAVE_MKSTEMP 1
+
+/* Define to 1 if you have the `mktemp' function. */
+#cmakedefine HAVE_MKTEMP 1
+
+/* Define to 1 if you have the `MPI_Comm_f2c' function. */
+#cmakedefine HAVE_MPI_COMM_F2C 1
+
+/* Define to 1 if you have the `MPI_Info_f2c' function. */
+#cmakedefine HAVE_MPI_INFO_F2C 1
+
+/* Define to 1 if you have the `mremap' function. */
+#cmakedefine HAVE_MREMAP 1
+
+/* Define to 1 if you have the `random' function. */
+#cmakedefine HAVE_RANDOM 1
+
+/* Define to 1 if you have the `snprintf' function. */
+#cmakedefine HAVE_SNPRINTF 1
+
+/* Define to 1 if the system has the type `mode_t'. */
+#cmakedefine HAVE_MODE_T 1
+
+/* Define to 1 if the system has the type `ssize_t'. */
+#cmakedefine HAVE_SSIZE_T 1
+
+/* Define to 1 if the system has the type `ptrdiff_t'. */
+#cmakedefine HAVE_PTRDIFF_T 1
+
+/* Define to 1 if the system has the type `uintptr_t'. */
+#cmakedefine HAVE_UINTPTR_T 1
+
+/* Define to 1 if you have the <stdarg.h> header file. */
+#cmakedefine HAVE_STDARG_H 1
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#cmakedefine HAVE_STDINT_H 1
+
+/* Define to 1 if you have the <stdio.h> header file. */
+#cmakedefine HAVE_STDIO_H 1
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#cmakedefine HAVE_STDLIB_H 1
+
+/* Define to 1 if you have the <ctype.h> header file. */
+#cmakedefine HAVE_CTYPE_H 1
+
+/* Define to 1 if you have the getfattr command line utility. */
+#cmakedefine HAVE_GETFATTR 1
+
+/* Define to 1 if you have the <sys/xattr.h> header file. */
+#cmakedefine HAVE_SYS_XATTR_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#cmakedefine HAVE_STRINGS_H 1
+
+/* Define to 1 if you have the <signal.h> header file. */
+#cmakedefine HAVE_SIGNAL_H 1
+
+/* Define to 1 if you have the <string.h> header file. */
+#cmakedefine HAVE_STRING_H 1
+
+/* Define to 1 if you have the <ftw.h> header file. */
+#cmakedefine HAVE_FTW_H 1
+
+/* Define to 1 if you have the <libgen.h> header file. */
+#cmakedefine HAVE_LIBGEN_H 1
+
+/* Define to 1 if you have the `strdup' function. */
+#cmakedefine HAVE_STRDUP 1
+
+/* Define to 1 if you have the `strndup` function. */
+#cmakedefine HAVE_STRNDUP
+
+/* Define to 1 if you have the `strcasecmp` function. */
+#cmakedefine HAVE_STRCASECMP
+
+/* Define to 1 if you have the `strlcat' function. */
+#cmakedefine HAVE_STRLCAT 1
+
+/* Define to 1 if you have the `strlcpy' function. */
+#cmakedefine HAVE_STRLCPY 1
+
+/* Define to 1 if you have the `strlen' function. */
+#cmakedefine HAVE_STRLEN 1
+
+/* Define to 1 if you have the `strtoll' function. */
+#cmakedefine HAVE_STRTOLL 1
+
+/* Define to 1 if you have the `strtoull' function. */
+#cmakedefine HAVE_STRTOULL 1
+
+/* Define to 1 if you have the `stroull' function. */
+#cmakedefine HAVE_STROULL 1
+
+/* Define to 1 if `st_blksize' is a member of `struct stat'. */
+#cmakedefine HAVE_STRUCT_STAT_ST_BLKSIZE 1
+
+/* Define to 1 if you have the `sysconf' function. */
+#cmakedefine HAVE_SYSCONF 1
+
+/* Define to 1 if you have the <sys/param.h> header file. */
+#cmakedefine HAVE_SYS_PARAM_H 1
+
+/* Define to 1 if you have the <sys/resource.h> header file. */
+#cmakedefine HAVE_SYS_RESOURCE_H 1
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#cmakedefine HAVE_SYS_STAT_H 1
+
+/* Define to 1 if you have the <sys/time.h> header file. */
+#cmakedefine HAVE_SYS_TIME_H 1
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#cmakedefine HAVE_SYS_TYPES_H 1
+
+/* Define to 1 if you have the <time.h> header file. */
+#cmakedefine HAVE_TIME_H 1
+
+/* Define to 1 if the system has the type `uchar'. */
+#cmakedefine HAVE_UCHAR 1
+
+/* Define to 1 if the system has the type `uint'. */
+#cmakedefine HAVE_UINT 1
+
+/* Define to 1 if the system has the type `uint64'. */
+#cmakedefine HAVE_UINT64 1
+
+/* Define to 1 if the system has the type `uint64_t'. */
+#cmakedefine HAVE_UINT64_T 1
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#cmakedefine HAVE_UNISTD_H 1
+#cmakedefine YY_NO_UNISTD_H 1
+
+/* Define to 1 if the system has the type `ushort'. */
+#cmakedefine HAVE_USHORT 1
+
+/* if true, hdf5 has parallelism enabled */
+#cmakedefine HDF5_PARALLEL 1
+
+/* if true, HDF5 is at least version 1.10. 3 and allows parallel I/O
+with zip */
+#cmakedefine HDF5_SUPPORTS_PAR_FILTERS 1
+
+/* if true, HDF5 is at least version 1.10.5 and supports UTF8 paths */
+#cmakedefine HDF5_UTF8_PATHS 1
+
+/* do large file tests */
+#cmakedefine LARGE_FILE_TESTS 1
+
+/* If true, turn on logging. */
+#cmakedefine LOGGING 1
+
+/* If true, define nc_set_log_level. */
+#cmakedefine NETCDF_ENABLE_LOGGING 1
+#cmakedefine NETCDF_ENABLE_SET_LOG_LEVEL 1
+
+/* min blocksize for posixio. */
+#cmakedefine NCIO_MINBLOCKSIZE @NCIO_MINBLOCKSIZE@
+
+/* Add extra properties to _NCProperties attribute */
+#cmakedefine NCPROPERTIES_EXTRA @NCPROPERTIES_EXTRA@
+
+/* Idspatch table version */
+#cmakedefine NC_DISPATCH_VERSION @NC_DISPATCH_VERSION@
+
+/* Enable Legacy, potential-conflict Macro _FillValue */
+#cmakedefine NETCDF_ENABLE_LEGACY_MACROS
+
+/* no IEEE float on this platform */
+#cmakedefine NO_IEEE_FLOAT 1
+
+#cmakedefine BUILD_V2 1
+#cmakedefine NETCDF_ENABLE_DOXYGEN 1
+#cmakedefine NETCDF_ENABLE_INTERNAL_DOCS 1
+#cmakedefine VALGRIND_TESTS 1
+#cmakedefine NETCDF_ENABLE_CDMREMOTE 1
+#cmakedefine USE_HDF5 1
+#cmakedefine ENABLE_FILEINFO 1
+#cmakedefine TEST_PARALLEL @TEST_PARALLEL@
+#cmakedefine BUILD_RPC 1
+#cmakedefine USE_X_GETOPT 1
+#cmakedefine NETCDF_ENABLE_EXTREME_NUMBERS 1
+
+/* do not build the netCDF version 2 API */
+#cmakedefine NO_NETCDF_2 1
+
+/* Name of package */
+#define PACKAGE "netcdf"
+
+/* Define to the address where bug reports for this package should be sent. */
+#define PACKAGE_BUGREPORT "support-netcdf@unidata.ucar.edu"
+
+/* Define to the full name of this package. */
+#define PACKAGE_NAME "netCDF"
+
+/* Define to the full name and version of this package. */
+#define PACKAGE_STRING "netCDF @netCDF_VERSION@"
+
+/* Define to the one symbol short name of this package. */
+#define PACKAGE_TARNAME "netcdf"
+
+/* Define to the home page for this package. */
+#define PACKAGE_URL ""
+
+/* Define to the version of this package. */
+#cmakedefine PACKAGE_VERSION "@netCDF_VERSION@"
+
+/* Do we have access to the Windows Registry */
+#cmakedefine REGEDIT 1
+
+/* define the possible sources for remote test servers */
+#cmakedefine REMOTETESTSERVERS	"@REMOTETESTSERVERS@"
+
+/* The size of `ulonglong` as computed by sizeof. */
+#cmakedefine SIZEOF_ULONGLONG @SIZEOF_ULONGLONG@
+
+/* The size of `longlong` as computed by sizeof. */
+#cmakedefine SIZEOF_LONGLONG @SIZEOF_LONGLONG@
+
+/* The size of `char` as computed by sizeof. */
+#cmakedefine SIZEOF_CHAR @SIZEOF_CHAR@
+
+/* The size of `uchar` as computed by sizeof. */
+#cmakedefine SIZEOF_UCHAR @SIZEOF_UCHAR@
+
+/* The size of `__int64` found on Windows systems. */
+#cmakedefine SIZEOF___INT64 @SIZEOF___INT64@
+
+/* The size of `void*` as computed by sizeof. */
+#cmakedefine SIZEOF_VOIDSTAR @SIZEOF_VOIDSTAR@
+
+/* The size of `short` as computed by sizeof. */
+#cmakedefine SIZEOF_OFF64_T @SIZEOF_OFF64_T@
+
+/* The size of `double', as computed by sizeof. */
+#cmakedefine SIZEOF_DOUBLE @SIZEOF_DOUBLE@
+
+/* The size of `float', as computed by sizeof. */
+#cmakedefine SIZEOF_FLOAT @SIZEOF_FLOAT@
+
+/* The size of `int', as computed by sizeof. */
+#cmakedefine SIZEOF_INT @SIZEOF_INT@
+
+/* The size of `long', as computed by sizeof. */
+#cmakedefine SIZEOF_LONG @SIZEOF_LONG@
+
+/* The size of `long long', as computed by sizeof. */
+#cmakedefine SIZEOF_LONG_LONG @SIZEOF_LONG_LONG@
+
+/* The size of `off_t', as computed by sizeof. */
+#cmakedefine SIZEOF_OFF_T @SIZEOF_OFF_T@
+
+/* The size of `short', as computed by sizeof. */
+#cmakedefine SIZEOF_SHORT @SIZEOF_SHORT@
+
+/* The size of `size_t', as computed by sizeof. */
+#cmakedefine SIZEOF_SIZE_T @SIZEOF_SIZE_T@
+
+/* The size of `ssize_t', as computed by sizeof. */
+#cmakedefine SIZEOF_SSIZE_T @SIZEOF_SSIZE_T@
+
+/* The size of `uint', as computed by sizeof. */
+#cmakedefine SIZEOF_UINT @SIZEOF_UINT@
+
+/* The size of `unsigned int', as computed by sizeof. */
+#cmakedefine SIZEOF_UNSIGNED_INT @SIZEOF_UNSIGNED_INT@
+
+/* The size of `unsigned long long', as computed by sizeof. */
+#cmakedefine SIZEOF_UNSIGNED_LONG_LONG @SIZEOF_UNSIGNED_LONG_LONG@
+
+/* The size of `unsigned short int', as computed by sizeof. */
+#cmakedefine SIZEOF_UNSIGNED_SHORT_INT @SIZEOF_UNSIGNED_SHORT_INT@
+
+/* The size of `ushort', as computed by sizeof. */
+#cmakedefine SIZEOF_USHORT @SIZEOF_USHORT@
+
+/* The size of `void*', as computed by sizeof. */
+#cmakedefine SIZEOF_VOIDP @SIZEOF_VOIDP@
+
+/* Place to put very large netCDF test files. */
+#cmakedefine TEMP_LARGE "@TEMP_LARGE@"
+
+/* if true, build DAP Client */
+#cmakedefine USE_DAP 1
+
+/* if true, include NC_DISKLESS code */
+#cmakedefine USE_DISKLESS 1
+
+/* set this to use extreme numbers in tests */
+#cmakedefine USE_EXTREME_NUMBERS 1
+
+/* if true, use ffio instead of posixio */
+#cmakedefine USE_FFIO 1
+
+/* if true, include experimental fsync code */
+#cmakedefine USE_FSYNC 1
+
+/* if true, use HDF4 too */
+#cmakedefine USE_HDF4 1
+
+/* If true, use use wget to fetch some sample HDF4 data, and then test against
+   it. */
+//#cmakedefine USE_HDF4_FILE_TESTS 1
+
+/* if true, use mmap for in-memory files */
+#cmakedefine USE_MMAP 1
+
+/* if true, build netCDF-4 */
+#cmakedefine USE_NETCDF4 1
+
+/* build the netCDF version 2 API */
+#cmakedefine USE_NETCDF_2 1
+
+/* if true, pnetcdf or parallel netcdf-4 is in use */
+#cmakedefine USE_PARALLEL 1
+
+/* if true, parallel netcdf-4 is in use */
+#cmakedefine USE_PARALLEL4 1
+
+/* if true, parallel netCDF is used */
+#cmakedefine USE_PNETCDF 1
+
+/* if true, use stdio instead of posixio */
+#cmakedefine USE_STDIO 1
+
+/* if true, multi-filters enabled*/
+#cmakedefine NETCDF_ENABLE_MULTIFILTERS 1
+
+/* if true, enable nczarr blosc support */
+#cmakedefine NETCDF_ENABLE_BLOSC 1
+
+/* if true enable tests that access external servers */
+#cmakedefine NETCDF_ENABLE_EXTERNAL_SERVER_TESTS 1
+
+/* Version number of package */
+#cmakedefine VERSION "@netCDF_VERSION@"
+
+/* Capture  Windows version and build */
+#cmakedefine WINVERMAJOR @WINVERMAJOR@
+#cmakedefine WINVERBUILD @WINVERBUILD@
+
+/* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+   significant byte first (like Motorola and SPARC, unlike Intel). */
+#if defined AC_APPLE_UNIVERSAL_BUILD
+# if defined __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN 1
+# endif
+#else
+# ifndef WORDS_BIGENDIAN
+#cmakedefine WORDS_BIGENDIAN
+# endif
+#endif
+
+/* Enable large inode numbers on Mac OS X 10.5.  */
+#ifndef _DARWIN_USE_64_BIT_INODE
+# define _DARWIN_USE_64_BIT_INODE 1
+#endif
+
+/* Define for large files, on AIX-style hosts. */
+#cmakedefine _LARGE_FILES @_LARGE_FILES@
+
+/* Define to `long int' if <sys/types.h> does not define. */
+#cmakedefine off_t long int
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#cmakedefine size_t unsigned int
+
+/* Define to `int' if <sys/types.h> does not define. */
+#cmakedefine ssize_t int
+
+/* Define to `signed long if <sys/types.h> does not define. */
+#cmakedefine ptrdiff_t signed long
+
+/* Define to `unsigned long if <sys/types.h> does not define. */
+#cmakedefine uintptr_t unsigned long
+
+#cmakedefine WORDS_BIGENDIAN
+
+#include "ncconfigure.h"
+
+#endif

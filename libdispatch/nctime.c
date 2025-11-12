@@ -55,7 +55,6 @@ cdTrim(char* s, int n)
 		return;
 	for(c=s; *c && c<s+n-1 && !isspace((int)*c); c++);
 	*c='\0';
-	return;
 }
 
 static void
@@ -73,7 +72,6 @@ cdError(char *fmt, ...)
 	}
 	if(cuErrOpts & CU_FATAL)
 		exit(1);
-	return;
 }
 
 #define ISLEAP(year,timeType)	((timeType & Cd366) || (((timeType) & CdHasLeap) && (!((year) % 4) && (((timeType) & CdJulianType) || (((year) % 100) || !((year) % 400))))))
@@ -134,7 +132,6 @@ CdMonthDay(int *doy, CdTime *date)
 		if(idoy <= 0)
 		    return;
 	}
-	return;
 }
 
 /* Compute day-of-year from year, month and day
@@ -175,7 +172,6 @@ CdDayOfYear(CdTime *date, int *doy)
 	} else {		/* date->timeType & Cd360 */
 	    *doy = 30*(month-1) + date->day + leap_add ;
 	}
-	return;
 }
 
 /* Convert epochal time (hours since 00 jan 1, 1970)
@@ -235,8 +231,6 @@ Cde2h(double etime, CdTimeType timeType, long baseYear, CdTime *htime)
 	if(!(timeType & CdChronCal)) htime->year = 0; /* Set year to 0 for Clim */
 	htime->timeType = timeType;
 	CdMonthDay(&doy,htime);
-
-        return;
 }
 
 /* Add 'nDel' times 'delTime' to epochal time 'begEtm',
@@ -249,9 +243,6 @@ CdAddDelTime(double begEtm, long nDel, CdDeltaTime delTime, CdTimeType timeType,
 	double delHours;
 	long delMonths, delYears;
 	CdTime bhtime, ehtime;
-
-	extern void Cde2h(double etime, CdTimeType timeType, long baseYear, CdTime *htime);
-	extern void Cdh2e(CdTime *htime, double *etime);
 
 	switch(delTime.units){
 	  case CdYear:
@@ -305,7 +296,6 @@ CdAddDelTime(double begEtm, long nDel, CdDeltaTime delTime, CdTimeType timeType,
 		break;
 	  default: break;
 	}
-	return;
 }
 
 /* Parse relative units, returning the unit and base component time. */
@@ -386,7 +376,7 @@ cdParseRelunits(cdCalenType timetype, char* relunits, cdUnitTime* unit, cdCompTi
 		else{
 			cdTrim(basetime_1,CD_MAX_CHARTIME);
 			cdTrim(basetime_2,CD_MAX_CHARTIME);
-			sprintf(basetime,"%s %s",basetime_1,basetime_2);
+			snprintf(basetime,sizeof(basetime),"%s %s",basetime_1,basetime_2);
 		}
 	}
 
@@ -473,8 +463,6 @@ CdDivDelTime(double begEtm, double endEtm, CdDeltaTime delTime, CdTimeType timeT
 	CdTime bhtime, ehtime;
 	int hoursInYear;
 
-	extern void Cde2h(double etime, CdTimeType timeType, long baseYear, CdTime *htime);
-
 	switch(delTime.units){
 	  case CdYear:
 		delMonths = 12;
@@ -541,7 +529,6 @@ CdDivDelTime(double begEtm, double endEtm, CdDeltaTime delTime, CdTimeType timeT
 		break;
 	    default: break;
 	}
-	return;
 }
 
 /* Value is in hours. Translate to units. */
@@ -655,7 +642,6 @@ Cdh2e(CdTime *htime, double *etime)
 		}
 	}
 	*etime	= (double) (day_cnt + doy - 1) * 24. + htime->hour;
-        return;
 }
 
 /* Validate the component time, return 0 if valid, 1 if not */
@@ -764,7 +750,6 @@ cdChar2Comp(cdCalenType timetype, char* chartime, cdCompTime* comptime)
 		}
 	}
 	(void)cdValidateTime(timetype,*comptime);
-	return;
 }
 
 /* Convert ct to relunits (unit, basetime) */
@@ -778,7 +763,6 @@ cdComp2RelMixed(cdCompTime ct, cdUnitTime unit, cdCompTime basetime, double *rel
 
 	hourdiff = cdDiffMixed(ct, basetime);
 	*reltime = cdFromHours(hourdiff, unit);
-	return;
 }
 
 static void
@@ -884,8 +868,6 @@ cdComp2Rel(cdCalenType timetype, cdCompTime comptime, char* relunits, double* re
 		cdError("invalid unit in conversion");
 		break;
 	}
-
-	return;
 }
 
 /* Add (value,unit) to comptime. */
@@ -899,7 +881,6 @@ cdCompAdd(cdCompTime comptime, double value, cdCalenType calendar, cdCompTime *r
 	cdComp2Rel(calendar, comptime, "hours", &reltime);
 	reltime += value;
 	cdRel2Comp(calendar, "hours", reltime, result);
-	return;
 }
 
 /* Add value in hours to ct, in the mixed Julian/Gregorian
@@ -927,7 +908,6 @@ cdCompAddMixed(cdCompTime ct, double value, cdCompTime *result){
 			cdCompAdd(ZA, value-xg, cdJulian, result);
 		}
 	}
-	return;
 }
 
 /* Return value expressed in hours. */
@@ -969,7 +949,6 @@ cdRel2CompMixed(double reltime, cdUnitTime unit, cdCompTime basetime, cdCompTime
 
 	reltime = cdToHours(reltime, unit);
 	cdCompAddMixed(basetime, reltime, comptime);
-	return;
 }
 
 
@@ -1079,13 +1058,11 @@ cdRel2Comp(cdCalenType timetype, char* relunits, double reltime, cdCompTime* com
 	comptime->month = humantime.month;
 	comptime->day = humantime.day;
 	comptime->hour = humantime.hour;
-
-	return;
 }
 
 /* rkr: output as ISO 8601 strings */
 static void
-cdComp2Iso(cdCalenType timetype, int separator, cdCompTime comptime, char* time)
+cdComp2Iso(cdCalenType timetype, int separator, cdCompTime comptime, char* time, size_t time_size)
 {
 	double dtmp, sec;
 	int ihr, imin, isec;
@@ -1121,23 +1098,23 @@ cdComp2Iso(cdCalenType timetype, int separator, cdCompTime comptime, char* time)
 	if(timetype & cdStandardCal){
 	    switch (nskip) {
 	    case 0:		/* sec != 0 && (int)sec != sec */
-		sprintf(time,"%4.4ld-%2.2hd-%2.2hd%c%2.2d:%2.2d:%lf",
+		snprintf(time,time_size,"%4.4ld-%2.2hd-%2.2hd%c%2.2d:%2.2d:%lf",
 			comptime.year,comptime.month,comptime.day,separator,ihr,imin,sec);
 		break;
 	    case 1:
-		sprintf(time,"%4.4ld-%2.2hd-%2.2hd%c%2.2d:%2.2d:%2.2d",
+		snprintf(time,time_size,"%4.4ld-%2.2hd-%2.2hd%c%2.2d:%2.2d:%2.2d",
 			comptime.year,comptime.month,comptime.day,separator,ihr,imin,isec);
 		break;
 	    case 2:
-		sprintf(time,"%4.4ld-%2.2hd-%2.2hd%c%2.2d:%2.2d",
+		snprintf(time,time_size,"%4.4ld-%2.2hd-%2.2hd%c%2.2d:%2.2d",
 			comptime.year,comptime.month,comptime.day,separator,ihr,imin);
 		break;
 	    case 3:
-		sprintf(time,"%4.4ld-%2.2hd-%2.2hd%c%2.2d",
+		snprintf(time,time_size,"%4.4ld-%2.2hd-%2.2hd%c%2.2d",
 			comptime.year,comptime.month,comptime.day,separator,ihr);
 		break;
 	    case 4:
-		sprintf(time,"%4.4ld-%2.2hd-%2.2hd",
+		snprintf(time,time_size,"%4.4ld-%2.2hd-%2.2hd",
 			comptime.year,comptime.month,comptime.day);
 		break;
 	    }
@@ -1145,40 +1122,37 @@ cdComp2Iso(cdCalenType timetype, int separator, cdCompTime comptime, char* time)
 	else {				     /* Climatological */
 	    switch (nskip) {
 	    case 0:		/* sec != 0 && (int)sec != sec */
-		sprintf(time,"%2.2hd-%2.2hd%c%2.2d:%2.2d:%lf",
+		snprintf(time,time_size,"%2.2hd-%2.2hd%c%2.2d:%2.2d:%lf",
 			comptime.month,comptime.day,separator,ihr,imin,sec);
 		break;
 	    case 1:
-		sprintf(time,"%2.2hd-%2.2hd%c%2.2d:%2.2d:%2.2d",
+		snprintf(time,time_size,"%2.2hd-%2.2hd%c%2.2d:%2.2d:%2.2d",
 			comptime.month,comptime.day,separator,ihr,imin,isec);
 		break;
 	    case 2:
-		sprintf(time,"%2.2hd-%2.2hd%c%2.2d:%2.2d",
+		snprintf(time,time_size,"%2.2hd-%2.2hd%c%2.2d:%2.2d",
 			comptime.month,comptime.day,separator,ihr,imin);
 		break;
 	    case 3:
-		sprintf(time,"%2.2hd-%2.2hd%c%2.2d",
+		snprintf(time,time_size,"%2.2hd-%2.2hd%c%2.2d",
 			comptime.month,comptime.day,separator,ihr);
 		break;
 	    case 4:
-		sprintf(time,"%2.2hd-%2.2hd",
+		snprintf(time,time_size,"%2.2hd-%2.2hd",
 			comptime.month,comptime.day);
 		break;
 	    }
 	}
-	return;
 }
 
 /* rkr: added for output closer to ISO 8601 */
 void
-cdRel2Iso(cdCalenType timetype, char* relunits, int separator, double reltime, char* chartime)
+cdRel2Iso(cdCalenType timetype, char* relunits, int separator, double reltime, char* chartime, size_t chartime_size)
 {
 	cdCompTime comptime;
 
 	cdRel2Comp(timetype, relunits, reltime, &comptime);
-	cdComp2Iso(timetype, separator, comptime, chartime);
-
-	return;
+	cdComp2Iso(timetype, separator, comptime, chartime, chartime_size);
 }
 
 int

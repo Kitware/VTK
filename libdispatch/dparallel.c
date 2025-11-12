@@ -76,7 +76,7 @@ parallel I/O.
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
-    sprintf(file_name, "%s/%s", TEMP_LARGE, FILE);
+    snprintf(file_name, sizeof(file_name), "%s/%s", TEMP_LARGE, FILE);
     if ((res = nc_create_par(file_name, NC_NETCDF4, comm, info, &ncid))) ERR;
 
     if (nc_def_dim(ncid, "d1", DIMSIZE, dimids)) ERR;
@@ -191,7 +191,7 @@ causes of errors include:
 Here is an example using nc_open_par() from examples/C/parallel_vara.c.
 
 \code
-#include <mpi.h>
+#include <vtk_mpi.h>
 #include <netcdf.h>
 #include <netcdf_par.h>
    ...
@@ -331,7 +331,7 @@ nc_open_par_fortran(const char *path, int omode, int comm,
    @return ::NC_NOERR No error.
    @return ::NC_EBADID Invalid ncid passed.
    @return ::NC_ENOTVAR Invalid varid passed.
-   @return ::NC_ENOPAR File was not opened with nc_open_par/nc_create_var.
+   @return ::NC_ENOPAR File was not opened with nc_open_par/nc_create_par.
    @return ::NC_EINVAL Invalid par_access specified, or attempt to set
    filtered variable to independent access.
 
@@ -344,7 +344,7 @@ nc_open_par_fortran(const char *path, int omode, int comm,
 #define NY 10
 #define NX 4
 
-    #include <mpi.h>
+    #include <vtk_mpi.h>
     #include <netcdf.h>
     #include <netcdf_par.h>
         ...

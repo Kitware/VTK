@@ -46,7 +46,6 @@ HDF5_def_dim(int ncid, const char *name, size_t len, int *idp)
     NC_DIM_INFO_T *dim;
     char norm_name[NC_MAX_NAME + 1];
     int retval = NC_NOERR;
-    int i;
 
     LOG((2, "%s: ncid 0x%x name %s len %d", __func__, ncid, name,
          (int)len));
@@ -65,7 +64,7 @@ HDF5_def_dim(int ncid, const char *name, size_t len, int *idp)
     {
         /* Only one limited dimenson for strict nc3. */
         if (len == NC_UNLIMITED) {
-            for(i=0;i<ncindexsize(grp->dim);i++) {
+            for(size_t i=0;i<ncindexsize(grp->dim);i++) {
                 dim = (NC_DIM_INFO_T*)ncindexith(grp->dim,i);
                 if(dim == NULL) continue;
                 if (dim->unlimited)

@@ -26,8 +26,9 @@
  * file info. Always locate the attribute by name, never by attnum.
  * The mem_type is ignored if data=NULL.
  *
- * @param ncid File and group ID.
- * @param varid Variable ID.
+ * @param h5 File object
+ * @param grp Group object
+ * @param var Variable object
  * @param name Name of attribute. Must already be normalized.
  * @param xtype Pointer that gets (file) type of attribute. Ignored if
  * NULL.
@@ -110,7 +111,7 @@ nc4_get_att_ptrs(NC_FILE_INFO_T *h5, NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var,
         !(mem_type == NC_CHAR &&
           (att->nc_typeid == NC_UBYTE || att->nc_typeid == NC_BYTE)))
     {
-        if (!(bufr = malloc((size_t)(att->len * type_size))))
+        if (!(bufr = malloc((size_t)(att->len) * type_size)))
             BAIL(NC_ENOMEM);
         need_to_convert++;
         if ((retval = nc4_convert_type(att->data, bufr, att->nc_typeid,
@@ -138,55 +139,10 @@ nc4_get_att_ptrs(NC_FILE_INFO_T *h5, NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var,
        bugs! */
     if (data)
     {
-#ifdef SEPDATA
-        if (att->vldata)
-        {
-            size_t base_typelen;
-            nc_hvl_t *vldest = data;
-            NC_TYPE_INFO_T *type;
-	    int i;
-
-            /* Get the type object for the attribute's type */
-            if ((retval = nc4_find_type(h5, att->nc_typeid, &type)))
-                BAIL(retval);
-
-            /* Retrieve the size of the base type */
-            if ((retval = nc4_get_typelen_mem(h5, type->u.v.base_nc_typeid, &base_typelen)))
-                BAIL(retval);
-
-            for (i = 0; i < att->len; i++)
-            {
-                vldest[i].len = att->vldata[i].len;
-                if (!(vldest[i].p = malloc(vldest[i].len * base_typelen)))
-                    BAIL(NC_ENOMEM);
-                memcpy(vldest[i].p, att->vldata[i].p, vldest[i].len * base_typelen);
-            }
-        }
-        else if (att->stdata)
-        {
-	    int i;
-            for (i = 0; i < att->len; i++)
-            {
-                /* Check for NULL pointer for string (valid in HDF5) */
-                if(att->stdata[i])
-                {
-                    if (!(((char **)data)[i] = strdup(att->stdata[i])))
-                        BAIL(NC_ENOMEM);
-                }
-                else
-                    ((char **)data)[i] = att->stdata[i];
-            }
-        }
-        else
-        {
-            memcpy(data, bufr, (size_t)(att->len * type_size));
-        }
-#else
 	{
-	    if((retval = nc_copy_data(h5->controller->ext_ncid,mem_type,bufr,att->len,data)))
+	    if((retval = NC_copy_data(h5->controller,mem_type,bufr,att->len,data)))
 	        BAIL(retval);
 	}
-#endif
     }
 
 exit:
@@ -239,7 +195,7 @@ nc4_get_att(int ncid, int varid, const char *name, nc_type *xtype,
     /* Check varid */
     if (varid != NC_GLOBAL)
     {
-        if (!(var = (NC_VAR_INFO_T*)ncindexith(grp->vars,varid)))
+        if (!(var = (NC_VAR_INFO_T*)ncindexith(grp->vars,(size_t)varid)))
             return NC_ENOTVAR;
         assert(var->hdr.id == varid);
     }

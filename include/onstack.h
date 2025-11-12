@@ -19,6 +19,8 @@
  * The macro ALLOC_ONSTACK wraps a call to alloca() on most systems.
  */
 
+#include "vtk_netcdf_mangle.h"
+
 #ifdef _WIN32
 #ifdef HAVE_MALLOC_H
 #undef HAVE_ALLOCA
@@ -45,7 +47,7 @@
 #endif /* __GNUC__ */
 
 # if !defined(ALLOCA_ARG_T)
-# define ALLOCA_ARG_T int /* the usual type of the alloca argument */
+# define ALLOCA_ARG_T size_t /* the usual type of the alloca argument */
 # endif
 
 # define ALLOC_ONSTACK(name, type, nelems) \
