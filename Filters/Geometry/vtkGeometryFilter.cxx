@@ -3491,6 +3491,12 @@ template <typename TInputIdType>
 int ExecuteDataSet(vtkGeometryFilter* self, vtkDataSet* input, vtkPolyData* output,
   vtkExcludedFaces<TInputIdType>* exc)
 {
+  auto explicitSG = vtkExplicitStructuredGrid::SafeDownCast(input);
+  if (explicitSG)
+  {
+    explicitSG->BuildLinks();
+  }
+
   vtkIdType cellId;
   int i;
   vtkIdType numCells = input->GetNumberOfCells();
