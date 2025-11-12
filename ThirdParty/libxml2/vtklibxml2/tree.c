@@ -2861,10 +2861,12 @@ xmlNodeSetDoc(xmlNodePtr node, xmlDocPtr doc) {
 int
 xmlSetTreeDoc(xmlNodePtr tree, xmlDocPtr doc) {
     int ret = 0;
+    xmlDocPtr oldDoc;
 
     if ((tree == NULL) || (tree->type == XML_NAMESPACE_DECL))
 	return(0);
-    if (tree->doc == doc)
+    oldDoc = tree->doc;
+    if (oldDoc == doc)
         return(0);
 
     if (tree->type == XML_ELEMENT_NODE) {
@@ -2891,6 +2893,18 @@ xmlSetTreeDoc(xmlNodePtr tree, xmlDocPtr doc) {
 
     if (xmlNodeSetDoc(tree, doc) < 0)
         ret = -1;
+
+    /*
+     * Reconcile namespaces when moving between documents.
+     * This prevents use-after-free when namespaces from the old
+     * document are accessed after the old document is freed.
+     */
+    if ((ret == 0) && (oldDoc != doc) && (tree->type == XML_ELEMENT_NODE)) {
+        if (xmlReconciliateNs(doc, tree) < 0) {
+            /* Reconciliation failed, but document was already changed */
+            ret = -1;
+        }
+    }
 
     return(ret);
 }
