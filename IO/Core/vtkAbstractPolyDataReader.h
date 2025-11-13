@@ -48,6 +48,11 @@ public:
   vtkGetSmartPointerMacro(Stream, vtkResourceStream);
   ///@}
 
+  /**
+   * Overridden to take into account mtime from the internal vtkResourceStream.
+   */
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkAbstractPolyDataReader();
   ~vtkAbstractPolyDataReader() override;

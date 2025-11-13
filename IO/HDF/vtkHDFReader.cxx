@@ -1938,4 +1938,15 @@ void vtkHDFReader::CleanOriginalIds(vtkPartitionedDataSet* output)
   }
 }
 
+//----------------------------------------------------------------------------
+vtkMTimeType vtkHDFReader::GetMTime()
+{
+  auto mtime = this->Superclass::GetMTime();
+  if (this->Stream)
+  {
+    mtime = std::max(mtime, this->Stream->GetMTime());
+  }
+  return mtime;
+}
+
 VTK_ABI_NAMESPACE_END
