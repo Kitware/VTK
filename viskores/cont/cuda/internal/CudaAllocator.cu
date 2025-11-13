@@ -284,10 +284,26 @@ void CudaAllocator::PrepareForControl(const void* ptr, std::size_t numBytes)
 {
   if (IsManagedPointer(ptr) && numBytes >= Threshold)
   {
+    viskores::Id deviceId;
+    viskores::cont::RuntimeDeviceInformation()
+      .GetRuntimeConfiguration(viskores::cont::DeviceAdapterTagCuda())
+      .GetDeviceInstance(deviceId);
+#if defined(VISKORES_CUDA_VERSION_MAJOR) && (VISKORES_CUDA_VERSION_MAJOR >= 13)
+    cudaMemLocation dev;
+    dev.id = cudaCpuDeviceId;
+    dev.type = cudaMemLocationTypeHost;
+#else
+    viskores::Id dev = cudaCpuDeviceId;
+#endif
     // TODO these hints need to be benchmarked and adjusted once we start
     // sharing the pointers between cont/exec
-    VISKORES_CUDA_CALL(cudaMemAdvise(ptr, numBytes, cudaMemAdviseSetAccessedBy, cudaCpuDeviceId));
-    VISKORES_CUDA_CALL(cudaMemPrefetchAsync(ptr, numBytes, cudaCpuDeviceId, cudaStreamPerThread));
+    VISKORES_CUDA_CALL(cudaMemAdvise(ptr, numBytes, cudaMemAdviseSetAccessedBy, dev));
+
+#if defined(VISKORES_CUDA_VERSION_MAJOR) && (VISKORES_CUDA_VERSION_MAJOR >= 13)
+    VISKORES_CUDA_CALL(cudaMemPrefetchAsync(ptr, numBytes, dev, 0, cudaStreamPerThread));
+#else
+    VISKORES_CUDA_CALL(cudaMemPrefetchAsync(ptr, numBytes, dev, cudaStreamPerThread));
+#endif
   }
 }
 
@@ -295,14 +311,23 @@ void CudaAllocator::PrepareForInput(const void* ptr, std::size_t numBytes)
 {
   if (IsManagedPointer(ptr) && numBytes >= Threshold)
   {
-    viskores::Id dev;
+    viskores::Id deviceId;
     viskores::cont::RuntimeDeviceInformation()
       .GetRuntimeConfiguration(viskores::cont::DeviceAdapterTagCuda())
-      .GetDeviceInstance(dev);
-    // VISKORES_CUDA_CALL(cudaMemAdvise(ptr, numBytes, cudaMemAdviseSetPreferredLocation, dev));
-    // VISKORES_CUDA_CALL(cudaMemAdvise(ptr, numBytes, cudaMemAdviseSetReadMostly, dev));
+      .GetDeviceInstance(deviceId);
+#if defined(VISKORES_CUDA_VERSION_MAJOR) && (VISKORES_CUDA_VERSION_MAJOR >= 13)
+    cudaMemLocation dev;
+    dev.id = deviceId;
+    dev.type = cudaMemLocationTypeDevice;
+#else
+    viskores::Id dev = deviceId;
+#endif
     VISKORES_CUDA_CALL(cudaMemAdvise(ptr, numBytes, cudaMemAdviseSetAccessedBy, dev));
+#if defined(VISKORES_CUDA_VERSION_MAJOR) && (VISKORES_CUDA_VERSION_MAJOR >= 13)
+    VISKORES_CUDA_CALL(cudaMemPrefetchAsync(ptr, numBytes, dev, 0, cudaStreamPerThread));
+#else
     VISKORES_CUDA_CALL(cudaMemPrefetchAsync(ptr, numBytes, dev, cudaStreamPerThread));
+#endif
   }
 }
 
@@ -310,14 +335,23 @@ void CudaAllocator::PrepareForOutput(const void* ptr, std::size_t numBytes)
 {
   if (IsManagedPointer(ptr) && numBytes >= Threshold)
   {
-    viskores::Id dev;
+    viskores::Id deviceId;
     viskores::cont::RuntimeDeviceInformation()
       .GetRuntimeConfiguration(viskores::cont::DeviceAdapterTagCuda())
-      .GetDeviceInstance(dev);
-    // VISKORES_CUDA_CALL(cudaMemAdvise(ptr, numBytes, cudaMemAdviseSetPreferredLocation, dev));
-    // VISKORES_CUDA_CALL(cudaMemAdvise(ptr, numBytes, cudaMemAdviseUnsetReadMostly, dev));
+      .GetDeviceInstance(deviceId);
+#if defined(VISKORES_CUDA_VERSION_MAJOR) && (VISKORES_CUDA_VERSION_MAJOR >= 13)
+    cudaMemLocation dev;
+    dev.id = deviceId;
+    dev.type = cudaMemLocationTypeDevice;
+#else
+    viskores::Id dev = deviceId;
+#endif
     VISKORES_CUDA_CALL(cudaMemAdvise(ptr, numBytes, cudaMemAdviseSetAccessedBy, dev));
+#if defined(VISKORES_CUDA_VERSION_MAJOR) && (VISKORES_CUDA_VERSION_MAJOR >= 13)
+    VISKORES_CUDA_CALL(cudaMemPrefetchAsync(ptr, numBytes, dev, 0, cudaStreamPerThread));
+#else
     VISKORES_CUDA_CALL(cudaMemPrefetchAsync(ptr, numBytes, dev, cudaStreamPerThread));
+#endif
   }
 }
 
@@ -325,14 +359,23 @@ void CudaAllocator::PrepareForInPlace(const void* ptr, std::size_t numBytes)
 {
   if (IsManagedPointer(ptr) && numBytes >= Threshold)
   {
-    viskores::Id dev;
+    viskores::Id deviceId;
     viskores::cont::RuntimeDeviceInformation()
       .GetRuntimeConfiguration(viskores::cont::DeviceAdapterTagCuda())
-      .GetDeviceInstance(dev);
-    // VISKORES_CUDA_CALL(cudaMemAdvise(ptr, numBytes, cudaMemAdviseSetPreferredLocation, dev));
-    // VISKORES_CUDA_CALL(cudaMemAdvise(ptr, numBytes, cudaMemAdviseUnsetReadMostly, dev));
+      .GetDeviceInstance(deviceId);
+#if defined(VISKORES_CUDA_VERSION_MAJOR) && (VISKORES_CUDA_VERSION_MAJOR >= 13)
+    cudaMemLocation dev;
+    dev.id = deviceId;
+    dev.type = cudaMemLocationTypeDevice;
+#else
+    viskores::Id dev = deviceId;
+#endif
     VISKORES_CUDA_CALL(cudaMemAdvise(ptr, numBytes, cudaMemAdviseSetAccessedBy, dev));
+#if defined(VISKORES_CUDA_VERSION_MAJOR) && (VISKORES_CUDA_VERSION_MAJOR >= 13)
+    VISKORES_CUDA_CALL(cudaMemPrefetchAsync(ptr, numBytes, dev, 0, cudaStreamPerThread));
+#else
     VISKORES_CUDA_CALL(cudaMemPrefetchAsync(ptr, numBytes, dev, cudaStreamPerThread));
+#endif
   }
 }
 

@@ -204,7 +204,7 @@ BufferInfo::~BufferInfo()
   if (this->Internals != nullptr)
   {
     detail::BufferInfoInternals::CountType oldCount =
-      this->Internals->Count.fetch_sub(1, std::memory_order::memory_order_seq_cst);
+      this->Internals->Count.fetch_sub(1, std::memory_order_seq_cst);
     if (oldCount == 1)
     {
       this->Internals->Delete(this->Internals->Container);
@@ -219,7 +219,7 @@ BufferInfo::BufferInfo(const BufferInfo& src)
   , Device(src.Device)
 {
   // Can add with relaxed because order does not matter. (But order does matter for decrement.)
-  this->Internals->Count.fetch_add(1, std::memory_order::memory_order_relaxed);
+  this->Internals->Count.fetch_add(1, std::memory_order_relaxed);
 }
 
 BufferInfo::BufferInfo(BufferInfo&& src)
@@ -232,7 +232,7 @@ BufferInfo::BufferInfo(BufferInfo&& src)
 BufferInfo& BufferInfo::operator=(const BufferInfo& src)
 {
   detail::BufferInfoInternals::CountType oldCount =
-    this->Internals->Count.fetch_sub(1, std::memory_order::memory_order_seq_cst);
+    this->Internals->Count.fetch_sub(1, std::memory_order_seq_cst);
   if (oldCount == 1)
   {
     this->Internals->Delete(this->Internals->Container);
@@ -244,7 +244,7 @@ BufferInfo& BufferInfo::operator=(const BufferInfo& src)
   this->Device = src.Device;
 
   // Can add with relaxed because order does not matter. (But order does matter for decrement.)
-  this->Internals->Count.fetch_add(1, std::memory_order::memory_order_relaxed);
+  this->Internals->Count.fetch_add(1, std::memory_order_relaxed);
 
   return *this;
 }
@@ -252,7 +252,7 @@ BufferInfo& BufferInfo::operator=(const BufferInfo& src)
 BufferInfo& BufferInfo::operator=(BufferInfo&& src)
 {
   detail::BufferInfoInternals::CountType oldCount =
-    this->Internals->Count.fetch_sub(1, std::memory_order::memory_order_seq_cst);
+    this->Internals->Count.fetch_sub(1, std::memory_order_seq_cst);
   if (oldCount == 1)
   {
     this->Internals->Delete(this->Internals->Container);
@@ -273,7 +273,7 @@ BufferInfo::BufferInfo(const BufferInfo& src, viskores::cont::DeviceAdapterId de
   , Device(device)
 {
   // Can add with relaxed because order does not matter. (But order does matter for decrement.)
-  this->Internals->Count.fetch_add(1, std::memory_order::memory_order_relaxed);
+  this->Internals->Count.fetch_add(1, std::memory_order_relaxed);
 }
 
 BufferInfo::BufferInfo(BufferInfo&& src, viskores::cont::DeviceAdapterId device)

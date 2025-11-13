@@ -19,6 +19,11 @@
 #ifndef viskores_filter_flow_worklet_ParticleAdvectionWorklets_h
 #define viskores_filter_flow_worklet_ParticleAdvectionWorklets_h
 
+// DO NOT INCLUDE THIS FILE DIRECTLY! All the code should be accessed through
+// viskores/filter/flow/worklet/ParticleAdvection.h with the
+// ParticleAdvection::Run method. If you get a linker error about an undefined
+// symbol to this method, then add an instantiation to ParticleAdvection.h.
+
 #include <viskores/cont/Algorithm.h>
 #include <viskores/cont/CellSetExplicit.h>
 #include <viskores/cont/ConvertNumComponentsToOffsets.h>
@@ -28,6 +33,8 @@
 #include <viskores/Particle.h>
 #include <viskores/filter/flow/worklet/Particles.h>
 #include <viskores/worklet/WorkletMapField.h>
+
+#include <viskores/filter/flow/worklet/ParticleAdvection.h>
 
 #ifdef VISKORES_CUDA
 #include <viskores/cont/cuda/internal/ScopedCudaStackSize.h>
@@ -158,6 +165,22 @@ public:
     analysis.FinalizeAnalysis(particles);
   }
 };
+
+template <typename IntegratorType,
+          typename ParticleType,
+          typename ParticleStorage,
+          typename TerminationType,
+          typename AnalysisType>
+void ParticleAdvection::Run(const IntegratorType& it,
+                            viskores::cont::ArrayHandle<ParticleType, ParticleStorage>& particles,
+                            const TerminationType& termination,
+                            AnalysisType& analysis)
+{
+  viskores::worklet::flow::
+    ParticleAdvectionWorklet<IntegratorType, ParticleType, TerminationType, AnalysisType>
+      worklet;
+  worklet.Run(it, particles, termination, analysis);
+}
 
 }
 }

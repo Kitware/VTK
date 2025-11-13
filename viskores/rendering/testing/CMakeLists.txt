@@ -19,6 +19,7 @@
 viskores_declare_headers(${headers})
 
 set(unit_tests
+  RenderTestAlternateCoordinates.cxx
   UnitTestCanvas.cxx
   UnitTestMapperConnectivity.cxx
   UnitTestMultiMapper.cxx

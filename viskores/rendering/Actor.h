@@ -38,31 +38,99 @@ namespace rendering
 class VISKORES_RENDERING_EXPORT Actor
 {
 public:
+  /// Create an `Actor` object that renders a given `viskores::cont::DataSet`.
+  /// The name of the coordinate system and a field to apply psudocoloring is
+  /// also provided. The default colormap is applied.
   Actor(const viskores::cont::DataSet dataSet,
         const std::string coordinateName,
         const std::string fieldName);
 
+  /// Create an `Actor` object that renders a given `viskores::cont::DataSet`. A
+  /// field to apply psudocoloring is also provided. The default colormap is
+  /// applied. This constructor assumes the `DataSet` has one coordinate system.
+  Actor(const viskores::cont::DataSet dataSet, const std::string fieldName);
+
+  /// Create an `Actor` object that renders a given `viskores::cont::DataSet`.
+  /// The name of the coordinate system and a field to apply psudocoloring is
+  /// also provided. A color table providing the map from scalar values to colors
+  /// is also provided.
   Actor(const viskores::cont::DataSet dataSet,
         const std::string coordinateName,
         const std::string fieldName,
         const viskores::cont::ColorTable& colorTable);
 
+  /// Create an `Actor` object that renders a given `viskores::cont::DataSet`. A
+  /// field to apply psudocoloring is also provided. A color table providing the
+  /// map from scalar values to colors is also provided. This constructor assumes
+  /// the `DataSet` has one coordinate system.
+  Actor(const viskores::cont::DataSet dataSet,
+        const std::string fieldName,
+        const viskores::cont::ColorTable& colorTable);
+
+  /// Create an `Actor` object that renders a given `viskores::cont::DataSet`.
+  /// The name of the coordinate system and a field to apply psudocoloring is
+  /// also provided. A constant color to apply to the object is also provided.
+  // Why do you have to provide a `Field` if a constant color is provided?
   Actor(const viskores::cont::DataSet dataSet,
         const std::string coordinateName,
         const std::string fieldName,
         const viskores::rendering::Color& color);
 
+  /// Create an `Actor` object that renders a given `viskores::cont::DataSet`. A
+  /// field to apply psudocoloring is also provided. A constant color to apply to
+  /// the object is also provided. This constructor assumes the `DataSet` has one
+  /// coordinate system.
+  // Why do you have to provide a `Field` if a constant color is provided?
+  Actor(const viskores::cont::DataSet dataSet,
+        const std::string fieldName,
+        const viskores::rendering::Color& color);
+
+  /// Create an `Actor` object that renders a given `viskores::cont::PartitionedDataSet`.
+  /// The name of the coordinate system and a field to apply psudocoloring is
+  /// also provided. The default colormap is applied.
   Actor(const viskores::cont::PartitionedDataSet dataSet,
         const std::string coordinateName,
         const std::string fieldName);
 
+  /// Create an `Actor` object that renders a given
+  /// `viskores::cont::PartitionedDataSet`. A field to apply psudocoloring is
+  /// also provided. The default colormap is applied. This constructor assumes
+  /// that each partition in the `PartitionedDataSet` has one coordinate system.
+  Actor(const viskores::cont::PartitionedDataSet dataSet, const std::string fieldName);
+
+  /// Create an `Actor` object that renders a given `viskores::cont::PartitionedDataSet`.
+  /// The name of the coordinate system and a field to apply psudocoloring is
+  /// also provided. A color table providing the map from scalar values to colors
+  /// is also provided.
   Actor(const viskores::cont::PartitionedDataSet dataSet,
         const std::string coordinateName,
         const std::string fieldName,
         const viskores::cont::ColorTable& colorTable);
 
+  /// Create an `Actor` object that renders a given
+  /// `viskores::cont::PartitionedDataSet`. A field to apply psudocoloring is
+  /// also provided. A color table providing the map from scalar values to colors
+  /// is also provided. This constructor assumes that each partition in the
+  /// `PartitionedDataSet` has one coordinate system.
+  Actor(const viskores::cont::PartitionedDataSet dataSet,
+        const std::string fieldName,
+        const viskores::cont::ColorTable& colorTable);
+
+  /// Create an `Actor` object that renders a given `viskores::cont::PartitionedDataSet`.
+  /// The name of the coordinate system and a field to apply psudocoloring is
+  /// also provided. A constant color to apply to the object is also provided.
+  // Why do you have to provide a `Field` if a constant color is provided?
   Actor(const viskores::cont::PartitionedDataSet dataSet,
         const std::string coordinateName,
+        const std::string fieldName,
+        const viskores::rendering::Color& color);
+
+  /// Create an `Actor` object that renders a given `viskores::cont::PartitionedDataSet`.
+  /// A field to apply psudocoloring is also provided. A constant color to apply
+  /// to the object is also provided. This constructor assumes that each
+  /// partition in the `PartitionedDataSet` has one coordinate system.
+  // Why do you have to provide a `Field` if a constant color is provided?
+  Actor(const viskores::cont::PartitionedDataSet dataSet,
         const std::string fieldName,
         const viskores::rendering::Color& color);
 

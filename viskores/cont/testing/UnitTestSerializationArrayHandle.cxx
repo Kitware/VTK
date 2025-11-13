@@ -16,6 +16,7 @@
 //  PURPOSE.  See the above copyright notice for more information.
 //============================================================================
 #include <viskores/cont/ArrayCopy.h>
+#include <viskores/cont/ArrayExtractComponent.h>
 #include <viskores/cont/ArrayHandle.h>
 #include <viskores/cont/ArrayHandleCartesianProduct.h>
 #include <viskores/cont/ArrayHandleCast.h>
@@ -32,6 +33,8 @@
 #include <viskores/cont/ArrayHandleReverse.h>
 #include <viskores/cont/ArrayHandleRuntimeVec.h>
 #include <viskores/cont/ArrayHandleSOA.h>
+#include <viskores/cont/ArrayHandleSOAStride.h>
+#include <viskores/cont/ArrayHandleStride.h>
 #include <viskores/cont/ArrayHandleSwizzle.h>
 #include <viskores/cont/ArrayHandleTransform.h>
 #include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
@@ -190,6 +193,21 @@ struct TestArrayHandleSOA
   }
 };
 
+struct TestArrayHandleStride
+{
+  template <typename T>
+  void operator()(T) const
+  {
+    viskores::cont::ArrayHandle<viskores::Vec<T, 3>> baseArray =
+      RandomArrayHandle<viskores::Vec<T, 3>>::Make(ArraySize);
+    viskores::cont::ArrayHandleStride<T> array =
+      viskores::cont::ArrayExtractComponent(baseArray, 1);
+    RunTest(array);
+    RunTest(MakeTestUnknownArrayHandle(array));
+    RunTest(MakeTestUncertainArrayHandle(array));
+  }
+};
+
 struct TestArrayHandleCartesianProduct
 {
   template <typename T>
@@ -334,6 +352,24 @@ struct TestArrayHandleRuntimeVec
   }
 };
 
+struct TestArrayHandleSOAStride
+{
+  template <typename T>
+  void operator()(T) const
+  {
+    auto basicArray = RandomArrayHandle<T>::Make(ArraySize);
+    viskores::cont::ArrayHandleSOAStride<T> array;
+    using VTraits = viskores::VecTraits<T>;
+    for (viskores::IdComponent compIndex = 0; compIndex < VTraits::NUM_COMPONENTS; ++compIndex)
+    {
+      array.SetArray(compIndex, viskores::cont::ArrayExtractComponent(basicArray, compIndex));
+    }
+    RunTest(array);
+    RunTest(MakeTestUnknownArrayHandle(array));
+    RunTest(MakeTestUncertainArrayHandle(array));
+  }
+};
+
 void TestArrayHandleIndex()
 {
   auto size = RandomValue<viskores::Id>::Make(2, 10);
@@ -427,6 +463,9 @@ void TestArrayHandleSerialization()
   std::cout << "Testing ArrayHandleSOA\n";
   viskores::testing::Testing::TryTypes(TestArrayHandleSOA(), TestTypesListVec());
 
+  std::cout << "Testing ArrayHandleStride\n";
+  viskores::testing::Testing::TryTypes(TestArrayHandleStride(), TestTypesListScalar());
+
   std::cout << "Testing ArrayHandleCartesianProduct\n";
   viskores::testing::Testing::TryTypes(TestArrayHandleCartesianProduct(),
                                        viskores::List<viskores::Float32, viskores::Float64>());
@@ -448,6 +487,9 @@ void TestArrayHandleSerialization()
 
   std::cout << "Testing ArrayHandleRuntimeVec\n";
   viskores::testing::Testing::TryTypes(TestArrayHandleRuntimeVec(), TestTypesList());
+
+  std::cout << "Testing ArrayHandleSOAStride\n";
+  viskores::testing::Testing::TryTypes(TestArrayHandleSOAStride(), TestTypesList());
 
   std::cout << "Testing ArrayHandleIndex\n";
   TestArrayHandleIndex();

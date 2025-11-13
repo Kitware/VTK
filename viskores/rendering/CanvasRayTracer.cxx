@@ -35,11 +35,13 @@ namespace internal
 class SurfaceConverter : public viskores::worklet::WorkletMapField
 {
   viskores::Matrix<viskores::Float32, 4, 4> ViewProjMat;
+  bool WriteDepth;
 
 public:
   VISKORES_CONT
-  SurfaceConverter(const viskores::Matrix<viskores::Float32, 4, 4> viewProjMat)
+  SurfaceConverter(const viskores::Matrix<viskores::Float32, 4, 4> viewProjMat, bool writeDepth)
     : ViewProjMat(viewProjMat)
+    , WriteDepth(writeDepth)
   {
   }
 
@@ -92,14 +94,14 @@ public:
     color[2] = static_cast<viskores::Float32>(colorBufferIn.Get(index * 4 + 2));
     color[3] = static_cast<viskores::Float32>(colorBufferIn.Get(index * 4 + 3));
     // blend the mapped color with existing canvas color
-    viskores::Vec4f_32 inColor = colorBuffer.Get(pixelIndex);
+    viskores::Vec4f_32 bufferColor = colorBuffer.Get(pixelIndex);
 
     // if transparency exists, all alphas have been pre-multiplied
     viskores::Float32 alpha = (1.f - color[3]);
-    color[0] = color[0] + inColor[0] * alpha;
-    color[1] = color[1] + inColor[1] * alpha;
-    color[2] = color[2] + inColor[2] * alpha;
-    color[3] = inColor[3] * alpha + color[3];
+    color[0] = color[0] + bufferColor[0] * alpha;
+    color[1] = color[1] + bufferColor[1] * alpha;
+    color[2] = color[2] + bufferColor[2] * alpha;
+    color[3] = color[3] + bufferColor[3] * alpha;
 
     // clamp
     for (viskores::Int32 i = 0; i < 4; ++i)
@@ -109,7 +111,10 @@ public:
     // The existing depth should already been feed into the ray mapper
     // so no color contribution will exist past the existing depth.
 
-    depthBuffer.Set(pixelIndex, depth);
+    if (this->WriteDepth)
+    {
+      depthBuffer.Set(pixelIndex, depth);
+    }
     colorBuffer.Set(pixelIndex, color);
   }
 }; //class SurfaceConverter
@@ -118,13 +123,14 @@ template <typename Precision>
 VISKORES_CONT void WriteToCanvas(const viskores::rendering::raytracing::Ray<Precision>& rays,
                                  const viskores::cont::ArrayHandle<Precision>& colors,
                                  const viskores::rendering::Camera& camera,
+                                 bool writeDepth,
                                  viskores::rendering::CanvasRayTracer* canvas)
 {
   viskores::Matrix<viskores::Float32, 4, 4> viewProjMat =
     viskores::MatrixMultiply(camera.CreateProjectionMatrix(canvas->GetWidth(), canvas->GetHeight()),
                              camera.CreateViewMatrix());
 
-  viskores::worklet::DispatcherMapField<SurfaceConverter>(SurfaceConverter(viewProjMat))
+  viskores::worklet::DispatcherMapField<SurfaceConverter>(SurfaceConverter(viewProjMat, writeDepth))
     .Invoke(rays.PixelIdx,
             colors,
             rays.Distance,
@@ -150,17 +156,19 @@ CanvasRayTracer::~CanvasRayTracer() {}
 void CanvasRayTracer::WriteToCanvas(
   const viskores::rendering::raytracing::Ray<viskores::Float32>& rays,
   const viskores::cont::ArrayHandle<viskores::Float32>& colors,
-  const viskores::rendering::Camera& camera)
+  const viskores::rendering::Camera& camera,
+  bool writeDepth)
 {
-  internal::WriteToCanvas(rays, colors, camera, this);
+  internal::WriteToCanvas(rays, colors, camera, writeDepth, this);
 }
 
 void CanvasRayTracer::WriteToCanvas(
   const viskores::rendering::raytracing::Ray<viskores::Float64>& rays,
   const viskores::cont::ArrayHandle<viskores::Float64>& colors,
-  const viskores::rendering::Camera& camera)
+  const viskores::rendering::Camera& camera,
+  bool writeDepth)
 {
-  internal::WriteToCanvas(rays, colors, camera, this);
+  internal::WriteToCanvas(rays, colors, camera, writeDepth, this);
 }
 
 viskores::rendering::Canvas* CanvasRayTracer::NewCopy() const

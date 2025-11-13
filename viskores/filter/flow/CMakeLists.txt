@@ -33,14 +33,13 @@ set(flow_headers
 
 set(flow_sources
   FilterParticleAdvection.cxx
+  internal/BoundsMap.cxx
   )
 
 set(flow_device_sources
   worklet/Analysis.cxx
   Lagrangian.cxx
   LagrangianStructures.cxx
-  FilterParticleAdvectionSteadyState.cxx
-  FilterParticleAdvectionUnsteadyState.cxx
   StreamSurface.cxx
   Lagrangian.cxx
   LagrangianStructures.cxx
@@ -51,11 +50,16 @@ set(flow_device_sources
   WarpXStreamline.cxx
   )
 
+viskores_add_instantiations(advection_worklet_instantiations
+  INSTANTIATIONS_FILE worklet/ParticleAdvection.h
+  TEMPLATE_SOURCE worklet/ParticleAdvectionWorklets.h
+  )
+
 viskores_library(
   NAME viskores_filter_flow
   HEADERS ${flow_headers}
   SOURCES ${flow_sources}
-  DEVICE_SOURCES ${flow_device_sources}
+  DEVICE_SOURCES ${flow_device_sources} ${advection_worklet_instantiations}
   USE_VISKORES_JOB_POOL
 )
 

@@ -22,7 +22,7 @@
 
 #include <viskores/cont/ArrayHandleBasic.h>
 #include <viskores/cont/ArrayHandleCartesianProduct.h>
-#include <viskores/cont/ArrayHandleSOA.h>
+#include <viskores/cont/ArrayHandleSOAStride.h>
 #include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
 
 namespace viskores
@@ -34,11 +34,11 @@ using StorageListBasic = viskores::List<viskores::cont::StorageTagBasic>;
 
 using StorageListCommon =
   viskores::List<viskores::cont::StorageTagBasic,
-                 viskores::cont::StorageTagSOA,
                  viskores::cont::StorageTagUniformPoints,
                  viskores::cont::StorageTagCartesianProduct<viskores::cont::StorageTagBasic,
                                                             viskores::cont::StorageTagBasic,
-                                                            viskores::cont::StorageTagBasic>>;
+                                                            viskores::cont::StorageTagBasic>,
+                 viskores::cont::StorageTagSOAStride>;
 
 }
 } // namespace viskores::cont

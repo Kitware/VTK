@@ -62,7 +62,8 @@
 #endif
 
 #ifdef __APPLE__
-	#include "TargetConditionals.h"
+	#include <AvailabilityMacros.h>
+	#include <TargetConditionals.h>
 #endif
 
 // TODO: use defined(_POSIX_VERSION) for some of these things?
@@ -956,7 +957,11 @@ namespace loguru
 		if (buffer[0] == 0) {
 			#ifdef __APPLE__
 				uint64_t thread_id;
-				pthread_threadid_np(thread, &thread_id);
+				#if MAC_OS_X_VERSION_MAX_ALLOWED < 1060 || defined(__POWERPC__)
+					thread_id = pthread_mach_thread_np(pthread_self());
+				#else
+					pthread_threadid_np(pthread_self(), &thread_id);
+				#endif
 			#elif defined(__FreeBSD__)
 				long thread_id;
 				(void)thr_self(&thread_id);

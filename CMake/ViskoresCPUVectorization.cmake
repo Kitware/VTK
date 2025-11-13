@@ -96,7 +96,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
   #common flags for the avx and avx2 instructions for the gcc compiler
   set(native_flags -march=native)
-  if(CMAKE_SYSTEM_PROCESSOR STREQUAL "ppc64le")
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "ppc|powerpc")
     #GCC PowerPC font end doesn't support the march flag
     set(native_flags -mcpu=native -mtune=native)
   endif()

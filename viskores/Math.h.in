@@ -52,7 +52,7 @@ $# Ignore the following comment. It is meant for the generated file.
 #endif
 
 #ifdef VISKORES_MSVC
-#include <intrin.h>                // For bitwise intrinsics (__popcnt, etc)
+#include <intrin.h>                    // For bitwise intrinsics (__popcnt, etc)
 #include <viskores/internal/Windows.h> // for types used by MSVC intrinsics.
 #ifndef VISKORES_CUDA
 #include <math.h>
@@ -267,7 +267,8 @@ static constexpr inline VISKORES_EXEC_CONT typename detail::FloatingPointReturnT
 /// Returns the constant Pi one hundred and eightieth.
 ///
 template <typename T = viskores::Float64>
-static constexpr inline VISKORES_EXEC_CONT typename detail::FloatingPointReturnType<T>::Type Pi_180()
+static constexpr inline VISKORES_EXEC_CONT typename detail::FloatingPointReturnType<T>::Type
+Pi_180()
 {
   using FT = typename detail::FloatingPointReturnType<T>::Type;
   return static_cast<FT>(0.01745329251994329547437168059786927);
@@ -677,19 +678,73 @@ static inline VISKORES_EXEC_CONT T Min(const T& x, const T& y)
   return detail::Min(x, y, typename viskores::TypeTraits<T>::DimensionalityTag());
 }
 
-///@{
-/// Clamp \p x to the given range.
-///
-inline VISKORES_EXEC_CONT viskores::Float32 Clamp(viskores::Float32 x, viskores::Float32 lo, viskores::Float32 hi)
+// clang-format on
+namespace detail
 {
-  return x > lo ? (x < hi ? x : hi) : lo;
+
+// Forward declarations
+template <typename Tx, typename Tlo, typename Thi>
+static inline VISKORES_EXEC_CONT Tx Clamp(Tx x, Tlo lo, Thi hi, viskores::TypeTraitsScalarTag);
+template <typename Tx, typename Tlo, typename Thi>
+static inline VISKORES_EXEC_CONT Tx Clamp(Tx x, Tlo lo, Thi hi, viskores::TypeTraitsVectorTag);
+
+} // namespace detail
+
+/// @brief Clamp `x` to the given range.
+///
+/// Given a value `x` and a range of valid range of values, provides the value within the range.
+/// If `x` is already within the range, that value is just returned. If `x` is outside that range,
+/// the low or high value (whichever is closer) is returned.
+///
+/// For convenience, the `low` and `high` and high values will be typecast to the type of `x`.
+/// `Clamp` may be called for `Vec` and `Vec`-like objects to do a component-wise clamp.
+/// It is an error if the number of components does not match.
+///
+/// @param x The value to clamp to a specific range.
+/// @param low The minimum value of the valid range.
+/// @param high The maximum value of the valid range.
+/// @returns `x` adjusted to be in the range from `low` to `high`.
+template <typename Tx, typename Tlow, typename Thigh>
+inline VISKORES_EXEC_CONT Tx Clamp(Tx&& x, Tlow&& low, Thigh&& high)
+{
+  return detail::Clamp(std::forward<Tx>(x),
+                       std::forward<Tlow>(low),
+                       std::forward<Thigh>(high),
+                       typename viskores::TypeTraits<Tx>::DimensionalityTag());
 }
 
-inline VISKORES_EXEC_CONT viskores::Float64 Clamp(viskores::Float64 x, viskores::Float64 lo, viskores::Float64 hi)
+namespace detail
 {
-  return x > lo ? (x < hi ? x : hi) : lo;
+
+template <typename Tx, typename Tlo, typename Thi>
+static inline VISKORES_EXEC_CONT Tx Clamp(Tx x, Tlo lo, Thi hi, viskores::TypeTraitsScalarTag)
+{
+  return x > static_cast<Tx>(lo) ? (x < static_cast<Tx>(hi) ? x : static_cast<Tx>(hi))
+                                 : static_cast<Tx>(lo);
 }
-///@}
+
+template <typename Tx, typename Tlo, typename Thi>
+static inline VISKORES_EXEC_CONT Tx Clamp(Tx x, Tlo lo, Thi hi, viskores::TypeTraitsVectorTag)
+{
+  using TraitsX = viskores::VecTraits<Tx>;
+  using TraitsLo = viskores::VecTraits<Tlo>;
+  using TraitsHi = viskores::VecTraits<Thi>;
+  VISKORES_ASSERT(TraitsX::GetNumberOfComponents(x) == TraitsLo::GetNumberOfComponents(lo));
+  VISKORES_ASSERT(TraitsX::GetNumberOfComponents(x) == TraitsHi::GetNumberOfComponents(hi));
+  Tx result;
+  for (viskores::IdComponent index = 0; index < TraitsX::GetNumberOfComponents(x); ++index)
+  {
+    TraitsX::SetComponent(result,
+                          index,
+                          viskores::Clamp(TraitsX::GetComponent(x, index),
+                                          TraitsLo::GetComponent(lo, index),
+                                          TraitsHi::GetComponent(hi, index)));
+  }
+}
+
+} // namespace detail
+
+// clang-format off
 
 //-----------------------------------------------------------------------------
 

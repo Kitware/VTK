@@ -58,7 +58,12 @@ public:
     }
     else
     {
-      using AlgorithmType = viskores::filter::flow::internal::AdvectAlgorithmThreaded<DSIType>;
+      // There appears to be a race condition in AdvectAlgorithmThreaded, so it is
+      //  currently disabled.
+      // using AlgorithmType = viskores::filter::flow::internal::AdvectAlgorithmThreaded<DSIType>;
+      VISKORES_LOG_S(viskores::cont::LogLevel::Info,
+                     "Threaded flow management currently disabled.");
+      using AlgorithmType = viskores::filter::flow::internal::AdvectAlgorithm<DSIType>;
       return this->RunAlgo<AlgorithmType>(seeds, stepSize);
     }
   }

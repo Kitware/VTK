@@ -54,10 +54,11 @@ struct TestArrayPortalSOA
     using ValueType = viskores::Vec<ComponentType, NUM_COMPONENTS>;
     using ComponentArrayType = viskores::cont::ArrayHandle<ComponentType>;
     using SOAPortalType =
-      viskores::internal::ArrayPortalSOA<ValueType, typename ComponentArrayType::WritePortalType>;
+      viskores::internal::ArrayPortalSOAWrite<ValueType,
+                                              typename ComponentArrayType::WritePortalType>;
 
     std::cout << "Test SOA portal reflects data in component portals." << std::endl;
-    SOAPortalType soaPortalIn(ARRAY_SIZE);
+    SOAPortalType soaPortalIn;
 
     std::array<viskores::cont::ArrayHandle<ComponentType>, NUM_COMPONENTS> implArrays;
     for (viskores::IdComponent componentIndex = 0; componentIndex < NUM_COMPONENTS;
@@ -81,7 +82,7 @@ struct TestArrayPortalSOA
 
     std::cout << "Test data set in SOA portal gets set in component portals." << std::endl;
     {
-      SOAPortalType soaPortalOut(ARRAY_SIZE);
+      SOAPortalType soaPortalOut;
       for (viskores::IdComponent componentIndex = 0; componentIndex < NUM_COMPONENTS;
            ++componentIndex)
       {

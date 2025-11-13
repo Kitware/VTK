@@ -52,7 +52,7 @@ ArrayExtractComponentFallback(const viskores::cont::ArrayHandle<T, S>& src,
 {
   if (allowCopy != viskores::CopyFlag::On)
   {
-    throw viskores::cont::ErrorBadValue(
+    throw viskores::cont::ErrorBadType(
       "Cannot extract component of " +
       viskores::cont::TypeToString<viskores::cont::ArrayHandle<T, S>>() + " without copying");
   }

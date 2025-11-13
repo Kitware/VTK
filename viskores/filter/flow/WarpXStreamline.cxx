@@ -17,6 +17,7 @@
 //============================================================================
 
 #include <viskores/filter/flow/WarpXStreamline.h>
+#include <viskores/filter/flow/internal/FilterParticleAdvectionSteadyStateImpl.h>
 
 namespace viskores
 {
@@ -24,6 +25,8 @@ namespace filter
 {
 namespace flow
 {
+
+template class FilterParticleAdvectionSteadyState<viskores::filter::flow::WarpXStreamline>;
 
 VISKORES_CONT WarpXStreamline::FieldType WarpXStreamline::GetField(
   const viskores::cont::DataSet& dataset) const

@@ -33,7 +33,13 @@ struct TypeTraitTest
     // If you get compiler errors here, it could be a TypeTraits instance
     // has missing or malformed tags.
     this->TestDimensionality(t, typename viskores::TypeTraits<T>::DimensionalityTag());
+    this->TestDimensionality(t, typename viskores::TypeTraits<const T>::DimensionalityTag());
+    this->TestDimensionality(t, typename viskores::TypeTraits<T&>::DimensionalityTag());
+    this->TestDimensionality(t, typename viskores::TypeTraits<const T&>::DimensionalityTag());
     this->TestNumeric(t, typename viskores::TypeTraits<T>::NumericTag());
+    this->TestNumeric(t, typename viskores::TypeTraits<const T>::NumericTag());
+    this->TestNumeric(t, typename viskores::TypeTraits<T&>::NumericTag());
+    this->TestNumeric(t, typename viskores::TypeTraits<const T&>::NumericTag());
   }
 
 private:

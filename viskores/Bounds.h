@@ -288,7 +288,7 @@ struct VISKORES_NEVER_EXPORT VecTraits<viskores::Bounds>
   static const ComponentType& GetComponent(const viskores::Bounds& bounds,
                                            viskores::IdComponent component)
   {
-    VISKORES_ASSERT((component >= 0) || (component < 3));
+    VISKORES_ASSERT((component >= 0) && (component < 3));
     switch (component)
     {
       case 0:
@@ -305,7 +305,7 @@ struct VISKORES_NEVER_EXPORT VecTraits<viskores::Bounds>
   VISKORES_EXEC_CONT
   static ComponentType& GetComponent(viskores::Bounds& bounds, viskores::IdComponent component)
   {
-    VISKORES_ASSERT((component >= 0) || (component < 3));
+    VISKORES_ASSERT((component >= 0) && (component < 3));
     switch (component)
     {
       case 0:
@@ -325,7 +325,7 @@ struct VISKORES_NEVER_EXPORT VecTraits<viskores::Bounds>
                            viskores::IdComponent component,
                            const ComponentType& value)
   {
-    VISKORES_ASSERT((component >= 0) || (component < 3));
+    VISKORES_ASSERT((component >= 0) && (component < 3));
     switch (component)
     {
       case 0:

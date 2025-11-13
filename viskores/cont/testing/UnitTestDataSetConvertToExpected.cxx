@@ -32,8 +32,8 @@ namespace
 {
 
 // Likely to contain both supported and unsupported types.
-using TypesToTry = viskores::
-  List<viskores::FloatDefault, viskores::UInt32, VISKORES_UNUSED_INT_TYPE, viskores::Int8>;
+using TypesToTry =
+  viskores::List<viskores::FloatDefault, viskores::UInt32, viskores::Int16, viskores::Int8>;
 
 constexpr viskores::Id DIM_SIZE = 4;
 constexpr viskores::Id ARRAY_SIZE = DIM_SIZE * DIM_SIZE * DIM_SIZE;

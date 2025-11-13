@@ -200,6 +200,23 @@ void DoTest()
 
     std::cout << "ArrayHandleMultiplexer" << std::endl;
     CheckInputArray(ArrayMultiplexerType(array));
+
+    std::cout << "ArrayHandleSOAStride" << std::endl;
+    {
+      array.Allocate(ARRAY_SIZE);
+      SetPortal(array.WritePortal());
+      viskores::cont::ArrayHandleSOAStride<viskores::Vec3f> soaStrideInput;
+      soaStrideInput.SetArray(1, viskores::cont::ArrayExtractComponent(array, 1));
+      soaStrideInput.SetArray(2, viskores::cont::ArrayExtractComponent(array, 2));
+      viskores::cont::ArrayHandle<viskores::Vec3f> outBuffer;
+      viskores::cont::ArrayHandleSOAStride<viskores::Vec3f> soaStrideOutput;
+      for (viskores::IdComponent i = 0; i < 3; ++i)
+      {
+        soaStrideInput.SetArray(i, viskores::cont::ArrayExtractComponent(array, i));
+        soaStrideOutput.SetArray(i, viskores::cont::ArrayExtractComponent(outBuffer, i));
+      }
+      CheckOutputArray(soaStrideInput, soaStrideOutput);
+    }
   }
 
   {

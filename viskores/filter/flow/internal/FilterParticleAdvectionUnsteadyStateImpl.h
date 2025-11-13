@@ -16,10 +16,10 @@
 //  PURPOSE.  See the above copyright notice for more information.
 //============================================================================
 
-#include <viskores/filter/flow/FilterParticleAdvectionSteadyState.h>
+#include <viskores/filter/flow/FilterParticleAdvectionUnsteadyState.h>
 
 #include <viskores/filter/flow/internal/BoundsMap.h>
-#include <viskores/filter/flow/internal/DataSetIntegratorSteadyState.h>
+#include <viskores/filter/flow/internal/DataSetIntegratorUnsteadyState.h>
 #include <viskores/filter/flow/internal/ParticleAdvector.h>
 
 namespace viskores
@@ -30,16 +30,16 @@ namespace flow
 {
 
 template <typename Derived>
-VISKORES_CONT typename FilterParticleAdvectionSteadyState<Derived>::FieldType
-FilterParticleAdvectionSteadyState<Derived>::GetField(const viskores::cont::DataSet& data) const
+VISKORES_CONT typename FilterParticleAdvectionUnsteadyState<Derived>::FieldType
+FilterParticleAdvectionUnsteadyState<Derived>::GetField(const viskores::cont::DataSet& data) const
 {
   const Derived* inst = static_cast<const Derived*>(this);
   return inst->GetField(data);
 }
 
 template <typename Derived>
-VISKORES_CONT typename FilterParticleAdvectionSteadyState<Derived>::TerminationType
-FilterParticleAdvectionSteadyState<Derived>::GetTermination(
+VISKORES_CONT typename FilterParticleAdvectionUnsteadyState<Derived>::TerminationType
+FilterParticleAdvectionUnsteadyState<Derived>::GetTermination(
   const viskores::cont::DataSet& data) const
 {
   const Derived* inst = static_cast<const Derived*>(this);
@@ -47,8 +47,9 @@ FilterParticleAdvectionSteadyState<Derived>::GetTermination(
 }
 
 template <typename Derived>
-VISKORES_CONT typename FilterParticleAdvectionSteadyState<Derived>::AnalysisType
-FilterParticleAdvectionSteadyState<Derived>::GetAnalysis(const viskores::cont::DataSet& data) const
+VISKORES_CONT typename FilterParticleAdvectionUnsteadyState<Derived>::AnalysisType
+FilterParticleAdvectionUnsteadyState<Derived>::GetAnalysis(
+  const viskores::cont::DataSet& data) const
 {
   const Derived* inst = static_cast<const Derived*>(this);
   return inst->GetAnalysis(data);
@@ -56,17 +57,14 @@ FilterParticleAdvectionSteadyState<Derived>::GetAnalysis(const viskores::cont::D
 
 template <typename Derived>
 VISKORES_CONT viskores::cont::PartitionedDataSet
-FilterParticleAdvectionSteadyState<Derived>::DoExecutePartitions(
+FilterParticleAdvectionUnsteadyState<Derived>::DoExecutePartitions(
   const viskores::cont::PartitionedDataSet& input)
 {
-  //using ParticleType    = FilterParticleAdvectionSteadyState<Derived>::ParticleType;
-  //using FieldType       = FilterParticleAdvectionSteadyState<Derived>::FieldType;
-  //using TerminationType = FilterParticleAdvectionSteadyState<Derived>::TerminationType;
-  //using AnalysisType    = FilterParticleAdvectionSteadyState<Derived>::AnalysisType;
-  using DSIType = viskores::filter::flow::internal::
-    DataSetIntegratorSteadyState<ParticleType, FieldType, TerminationType, AnalysisType>;
-
   this->ValidateOptions();
+
+  using DSIType = viskores::filter::flow::internal::
+    DataSetIntegratorUnsteadyState<ParticleType, FieldType, TerminationType, AnalysisType>;
+
   if (this->BlockIdsSet)
     this->BoundsMap = viskores::filter::flow::internal::BoundsMap(input, this->BlockIds);
   else
@@ -76,18 +74,29 @@ FilterParticleAdvectionSteadyState<Derived>::DoExecutePartitions(
   for (viskores::Id i = 0; i < input.GetNumberOfPartitions(); i++)
   {
     viskores::Id blockId = this->BoundsMap.GetLocalBlockId(i);
-    auto dataset = input.GetPartition(i);
+    auto ds1 = input.GetPartition(i);
+    auto ds2 = this->Input2.GetPartition(i);
 
     // Build the field for the current dataset
-    FieldType field = this->GetField(dataset);
+    FieldType field1 = this->GetField(ds1);
+    FieldType field2 = this->GetField(ds2);
+
     // Build the termination for the current dataset
-    TerminationType termination = this->GetTermination(dataset);
-    // Build the analysis for the current dataset
-    AnalysisType analysis = this->GetAnalysis(dataset);
+    TerminationType termination = this->GetTermination(ds1);
 
-    dsi.emplace_back(blockId, field, dataset, this->SolverType, termination, analysis);
+    AnalysisType analysis = this->GetAnalysis(ds1);
+
+    dsi.emplace_back(blockId,
+                     field1,
+                     field2,
+                     ds1,
+                     ds2,
+                     this->Time1,
+                     this->Time2,
+                     this->SolverType,
+                     termination,
+                     analysis);
   }
-
   viskores::filter::flow::internal::ParticleAdvector<DSIType> pav(
     this->BoundsMap, dsi, this->UseThreadedAlgorithm);
 
@@ -99,22 +108,3 @@ FilterParticleAdvectionSteadyState<Derived>::DoExecutePartitions(
 }
 }
 } // namespace viskores::filter::flow
-
-#include <viskores/filter/flow/ParticleAdvection.h>
-#include <viskores/filter/flow/Streamline.h>
-#include <viskores/filter/flow/WarpXStreamline.h>
-
-namespace viskores
-{
-namespace filter
-{
-namespace flow
-{
-
-template class FilterParticleAdvectionSteadyState<viskores::filter::flow::ParticleAdvection>;
-template class FilterParticleAdvectionSteadyState<viskores::filter::flow::Streamline>;
-template class FilterParticleAdvectionSteadyState<viskores::filter::flow::WarpXStreamline>;
-
-} // namespace flow
-} // namespace filter
-} // namespace viskores

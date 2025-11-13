@@ -18,6 +18,7 @@
 #ifndef viskores_filter_flow_worklet_streamsurface_h
 #define viskores_filter_flow_worklet_streamsurface_h
 
+#include <viskores/cont/Algorithm.h>
 #include <viskores/cont/ArrayHandleView.h>
 #include <viskores/cont/CellSetExplicit.h>
 #include <viskores/worklet/DispatcherMapTopology.h>

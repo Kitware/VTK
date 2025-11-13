@@ -19,6 +19,13 @@
 #ifndef viskores_filter_flow_internal_AdvectAlgorithmTerminator_h
 #define viskores_filter_flow_internal_AdvectAlgorithmTerminator_h
 
+#include <viskores/thirdparty/diy/diy.h>
+
+#ifdef VISKORES_ENABLE_MPI
+#include <mpi.h>
+#include <viskores/thirdparty/diy/mpi-cast.h>
+#endif
+
 namespace viskores
 {
 namespace filter

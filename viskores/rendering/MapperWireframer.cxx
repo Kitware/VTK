@@ -161,9 +161,11 @@ struct EdgesExtracter : public viskores::worklet::WorkletVisitCellsWithPoints
       viskores::IdComponent localEdgeIndex;
       viskores::exec::CellEdgeLocalIndex(
         pointIndices.GetNumberOfComponents(), 0, visitIndex, shape, localEdgeIndex);
+      VISKORES_ASSUME(localEdgeIndex >= 0);
       p1 = pointIndices[localEdgeIndex];
       viskores::exec::CellEdgeLocalIndex(
         pointIndices.GetNumberOfComponents(), 1, visitIndex, shape, localEdgeIndex);
+      VISKORES_ASSUME(localEdgeIndex >= 0);
       p2 = pointIndices[localEdgeIndex];
     }
     // These indices need to be arranged in a definite order, as they will later be sorted to

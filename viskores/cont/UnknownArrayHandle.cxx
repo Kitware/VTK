@@ -62,7 +62,6 @@ using RemoveBasicStorage = viskores::ListRemoveIf<List, IsBasicStorage>;
 using UnknownSerializationTypes =
   viskores::ListAppend<viskores::TypeListBaseC, AllVec<2>, AllVec<3>, AllVec<4>>;
 using UnknownSerializationSpecializedStorage = viskores::ListAppend<
-  RemoveBasicStorage<VISKORES_DEFAULT_STORAGE_LIST>,
   viskores::List<viskores::cont::StorageTagCartesianProduct<viskores::cont::StorageTagBasic,
                                                             viskores::cont::StorageTagBasic,
                                                             viskores::cont::StorageTagBasic>,
@@ -76,7 +75,8 @@ using UnknownSerializationSpecializedStorage = viskores::ListAppend<
                                                        viskores::cont::StorageTagBasic>,
                  viskores::cont::StorageTagReverse<viskores::cont::StorageTagBasic>,
                  viskores::cont::StorageTagSOA,
-                 viskores::cont::StorageTagUniformPoints>>;
+                 viskores::cont::StorageTagUniformPoints>,
+  RemoveBasicStorage<VISKORES_DEFAULT_STORAGE_LIST>>;
 
 } // anonymous namespace
 

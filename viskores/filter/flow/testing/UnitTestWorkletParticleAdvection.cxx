@@ -111,7 +111,6 @@ void GenerateRandomParticles(std::vector<viskores::Particle>& points,
                              const viskores::Bounds& bounds,
                              const std::size_t seed = 314)
 {
-  std::random_device device;
   std::default_random_engine generator(static_cast<viskores::UInt32>(seed));
   viskores::FloatDefault zero(0), one(1);
   std::uniform_real_distribution<viskores::FloatDefault> distribution(zero, one);

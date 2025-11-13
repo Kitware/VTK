@@ -20,7 +20,7 @@
 prefix=@CMAKE_INSTALL_PREFIX@
 exec_prefix=${prefix}
 includedir=${prefix}/include/viskores-@Viskores_VERSION_MAJOR@.@Viskores_VERSION_MINOR@
-libdir=${exec_prefix}/lib
+libdir=${exec_prefix}/@Viskores_INSTALL_LIB_DIR@
 
 Name: Viskores
 Description: The Viskores library

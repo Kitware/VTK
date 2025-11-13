@@ -43,12 +43,9 @@ if (TARGET viskores_kokkos)
     set_source_files_properties(${sources} TARGET_DIRECTORY viskores_cont PROPERTIES LANGUAGE HIP)
     kokkos_compilation(SOURCE ${sources})
     if (Viskores_ENABLE_KOKKOS_THRUST)
-      # rocthrust does not wrap its compile defs/ops/dirs with $<$<COMPILE_LANGUAGE:HIP>.
-      # We need this workaround since we mix CXX and HIP source files in viskores_cont.
       target_link_libraries(viskores_cont
         PRIVATE
-          $<$<COMPILE_LANGUAGE:HIP>:roc::rocthrust>
-          $<LINK_ONLY:roc::rocthrust>
+          $<$<LINK_LANGUAGE:HIP>:roc::rocthrust>
       )
     endif()
   endif()

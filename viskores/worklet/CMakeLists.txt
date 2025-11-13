@@ -33,6 +33,7 @@ set(headers
   MaskIndices.h
   MaskNone.h
   MaskSelect.h
+  MaskSelectTemplate.h
   NDimsHistMarginalization.h
   Normalize.h
   ScalarsToColors.h
