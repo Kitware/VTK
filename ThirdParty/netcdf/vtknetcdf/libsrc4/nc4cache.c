@@ -127,8 +127,8 @@ nc_set_chunk_cache_ints(int size, int nelems, int preemption)
     NCglobalstate* gs = NC_getglobalstate();
     if (size <= 0 || nelems <= 0 || preemption < 0 || preemption > 100)
         return NC_EINVAL;
-    gs->chunkcache.size = size;
-    gs->chunkcache.nelems = nelems;
+    gs->chunkcache.size = (size_t)size;
+    gs->chunkcache.nelems = (size_t)nelems;
     gs->chunkcache.preemption = (float)preemption / 100;
     return NC_NOERR;
 }

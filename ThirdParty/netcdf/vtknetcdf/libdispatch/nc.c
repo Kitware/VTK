@@ -124,7 +124,7 @@ nc_set_default_format(int format, int *old_formatp)
         *old_formatp = default_create_format;
 
     /* Make sure only valid format is set. */
-#ifndef ENABLE_CDF5
+#ifndef NETCDF_ENABLE_CDF5
     if (format == NC_FORMAT_CDF5)
         return NC_ENOTBUILT;
 #endif

@@ -763,27 +763,27 @@ int main () {
 	uintmax_t umax = UINTMAX_C(0);
 	char str0[256], str1[256];
 
-	sprintf (str0, "%d %x\n", 0, ~0);
+	snprintf (str0, sizeof(str0), "%d %x\n", 0, ~0);
 	
-	sprintf (str1, "%d %x\n",  i8, ~0);
+	snprintf (str1, sizeof(str1), "%d %x\n",  i8, ~0);
 	if (0 != strcmp (str0, str1)) printf ("Something wrong with i8 : %s\n", str1);
-	sprintf (str1, "%u %x\n",  u8, ~0);
+	snprintf (str1, sizeof(str1), "%u %x\n",  u8, ~0);
 	if (0 != strcmp (str0, str1)) printf ("Something wrong with u8 : %s\n", str1);
-	sprintf (str1, "%d %x\n",  i16, ~0);
+	snprintf (str1, sizeof(str1), "%d %x\n",  i16, ~0);
 	if (0 != strcmp (str0, str1)) printf ("Something wrong with i16 : %s\n", str1);
-	sprintf (str1, "%u %x\n",  u16, ~0);
+	snprintf (str1, sizeof(str1), "%u %x\n",  u16, ~0);
 	if (0 != strcmp (str0, str1)) printf ("Something wrong with u16 : %s\n", str1);	
-	sprintf (str1, "%" PRINTF_INT32_MODIFIER "d %x\n",  i32, ~0);
+	snprintf (str1, sizeof(str1), "%" PRINTF_INT32_MODIFIER "d %x\n",  i32, ~0);
 	if (0 != strcmp (str0, str1)) printf ("Something wrong with i32 : %s\n", str1);
-	sprintf (str1, "%" PRINTF_INT32_MODIFIER "u %x\n",  u32, ~0);
+	snprintf (str1, sizeof(str1), "%" PRINTF_INT32_MODIFIER "u %x\n",  u32, ~0);
 	if (0 != strcmp (str0, str1)) printf ("Something wrong with u32 : %s\n", str1);
 #ifdef INT64_MAX	
-	sprintf (str1, "%" PRINTF_INT64_MODIFIER "d %x\n",  i64, ~0);
+	snprintf (str1, sizeof(str1), "%" PRINTF_INT64_MODIFIER "d %x\n",  i64, ~0);
 	if (0 != strcmp (str0, str1)) printf ("Something wrong with i64 : %s\n", str1);
 #endif
-	sprintf (str1, "%" PRINTF_INTMAX_MODIFIER "d %x\n",  imax, ~0);
+	snprintf (str1, sizeof(str1), "%" PRINTF_INTMAX_MODIFIER "d %x\n",  imax, ~0);
 	if (0 != strcmp (str0, str1)) printf ("Something wrong with imax : %s\n", str1);
-	sprintf (str1, "%" PRINTF_INTMAX_MODIFIER "u %x\n",  umax, ~0);
+	snprintf (str1, sizeof(str1), "%" PRINTF_INTMAX_MODIFIER "u %x\n",  umax, ~0);
 	if (0 != strcmp (str0, str1)) printf ("Something wrong with umax : %s\n", str1);	
 	
 	TESTUMAX(8);

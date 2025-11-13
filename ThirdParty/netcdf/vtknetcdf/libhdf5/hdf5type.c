@@ -14,6 +14,7 @@
 
 #include "config.h"
 #include "hdf5internal.h"
+#include <stddef.h>
 
 /**
  * @internal Determine if two types are equal.
@@ -69,11 +70,11 @@ NC4_inq_type_equal(int ncid1, nc_type typeid1, int ncid2,
     /* Not atomic types - so find type1 and type2 information. */
     if ((retval = nc4_find_nc4_grp(ncid1, &grpone)))
         return retval;
-    if (!(type1 = nclistget(grpone->nc4_info->alltypes, typeid1)))
+    if (!(type1 = nclistget(grpone->nc4_info->alltypes, (size_t)typeid1)))
         return NC_EBADTYPE;
     if ((retval = nc4_find_nc4_grp(ncid2, &grptwo)))
         return retval;
-    if (!(type2 = nclistget(grptwo->nc4_info->alltypes, typeid2)))
+    if (!(type2 = nclistget(grptwo->nc4_info->alltypes, (size_t)typeid2)))
         return NC_EBADTYPE;
 
     /* Are the two types equal? */
@@ -176,13 +177,22 @@ add_user_type(int ncid, size_t size, const char *name, nc_type base_typeid,
 
     /* Remember info about this type. */
     type->nc_type_class = type_class;
-    if (type_class == NC_VLEN)
-        type->u.v.base_nc_typeid = base_typeid;
-    else if (type_class == NC_ENUM) {
+    switch(type_class) {
+    case NC_ENUM:
         type->u.e.base_nc_typeid = base_typeid;
         type->u.e.enum_member = nclistnew();
-    } else if (type_class == NC_COMPOUND)
+	break;
+    case NC_OPAQUE:
+	break;
+    case NC_VLEN:
+        type->u.v.base_nc_typeid = base_typeid;
+	break;
+    case NC_COMPOUND:
         type->u.c.field = nclistnew();
+	break;
+    default: break;
+    }
+    if((retval=NC4_set_varsize(type))) return retval;
 
     /* Return the typeid to the user. */
     if (typeidp)
@@ -263,7 +273,6 @@ NC4_insert_array_compound(int ncid, int typeid1, const char *name,
     NC_TYPE_INFO_T *type;
     char norm_name[NC_MAX_NAME + 1];
     int retval;
-    int fixedsize = 0;
 
     LOG((2, "nc_insert_array_compound: ncid 0x%x, typeid %d name %s "
          "offset %d field_typeid %d ndims %d", ncid, typeid1,
@@ -296,11 +305,7 @@ NC4_insert_array_compound(int ncid, int typeid1, const char *name,
         return retval;
 
     /* See if this changes from fixed size to variable size */
-    if((retval = NC4_inq_type_fixed_size(ncid,field_typeid,&fixedsize)))
-        return retval;
-    if(!fixedsize)
-        type->u.c.varsized = 1;
-
+    if((retval=NC4_recheck_varsize(type,field_typeid))) return retval;
     return NC_NOERR;
 }
 
@@ -476,7 +481,7 @@ NC4_get_vlen_element(int ncid, int typeid1, const void *vlen_element,
                      size_t *len, void *data)
 {
     const nc_vlen_t *tmp = (nc_vlen_t*)vlen_element;
-    int type_size = 4;
+    const size_t type_size = 4;
 
     *len = tmp->len;
     memcpy(data, tmp->p, tmp->len * type_size);

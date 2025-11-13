@@ -121,11 +121,12 @@ give_var_secret_name(NC_VAR_INFO_T *var, const char *name)
      * clash. */
     if (strlen(name) + strlen(NON_COORD_PREPEND) > NC_MAX_NAME)
         return NC_EMAXNAME;
-    if (!(var->alt_name = malloc((strlen(NON_COORD_PREPEND) +
-                                   strlen(name) + 1) * sizeof(char))))
+    size_t alt_name_size = (strlen(NON_COORD_PREPEND) + strlen(name) + 1) *
+                           sizeof(char);
+    if (!(var->alt_name = malloc(alt_name_size)))
         return NC_ENOMEM;
 
-    sprintf(var->alt_name, "%s%s", NON_COORD_PREPEND, name);
+    snprintf(var->alt_name, alt_name_size, "%s%s", NON_COORD_PREPEND, name);
 
     return NC_NOERR;
 }
@@ -433,7 +434,7 @@ NC4_def_var(int ncid, const char *name, nc_type xtype, int ndims,
      * remember whether dimension scales have been attached to each
      * dimension. */
     if (!hdf5_var->dimscale && ndims)
-        if (!(hdf5_var->dimscale_attached = calloc(ndims, sizeof(nc_bool_t))))
+        if (!(hdf5_var->dimscale_attached = calloc((size_t)ndims, sizeof(nc_bool_t))))
             BAIL(NC_ENOMEM);
 
     /* Return the varid. */
@@ -507,7 +508,7 @@ nc_def_var_extra(int ncid, int varid, int *shuffle, int *unused1,
         return NC_EPERM;
 
     /* Find the var. */
-    if (!(var = (NC_VAR_INFO_T *)ncindexith(grp->vars, varid)))
+    if (!(var = (NC_VAR_INFO_T *)ncindexith(grp->vars, (size_t)varid)))
         return NC_ENOTVAR;
     assert(var && var->hdr.id == varid);
 
@@ -672,19 +673,19 @@ nc_def_var_extra(int ncid, int varid, int *shuffle, int *unused1,
              var->hdr.name));
 
         /* If there's a _FillValue attribute, delete it. */
-        retval = NC4_HDF5_del_att(ncid, varid, _FillValue);
+        retval = NC4_HDF5_del_att(ncid, varid, NC_FillValue);
         if (retval && retval != NC_ENOTATT)
             return retval;
 
         /* Create a _FillValue attribute; will also fill in var->fill_value */
-        if ((retval = nc_put_att(ncid, varid, _FillValue, var->type_info->hdr.id,
+        if ((retval = nc_put_att(ncid, varid, NC_FillValue, var->type_info->hdr.id,
                                  1, fill_value)))
             return retval;
     } else if (var->fill_value && no_fill && (*no_fill)) { /* Turning off fill value? */
         /* If there's a _FillValue attribute, delete it. */
-        retval = NC4_HDF5_del_att(ncid, varid, _FillValue);
+        retval = NC4_HDF5_del_att(ncid, varid, NC_FillValue);
         if (retval && retval != NC_ENOTATT) return retval;
-	if((retval = nc_reclaim_data_all(ncid,var->type_info->hdr.id,var->fill_value,1))) return retval;
+	if((retval = NC_reclaim_data_all(h5->controller,var->type_info->hdr.id,var->fill_value,1))) return retval;
 	var->fill_value = NULL;
     }
 
@@ -1076,7 +1077,7 @@ nc_def_var_chunking_ints(int ncid, int varid, int storage, int *chunksizesp)
 
     /* Copy to size_t array. */
     for (i = 0; i < var->ndims; i++)
-        cs[i] = chunksizesp[i];
+        cs[i] = (size_t)chunksizesp[i];
 
     retval = nc_def_var_extra(ncid, varid, NULL, NULL, NULL, NULL,
                               &storage, cs, NULL, NULL, NULL, NULL, NULL);
@@ -1216,7 +1217,7 @@ NC4_rename_var(int ncid, int varid, const char *name)
         return retval;
 
     /* Get the variable wrt varid */
-    if (!(var = (NC_VAR_INFO_T *)ncindexith(grp->vars, varid)))
+    if (!(var = (NC_VAR_INFO_T *)ncindexith(grp->vars, (size_t)varid)))
         return NC_ENOTVAR;
 
     /* Check if new name is in use; note that renaming to same name is
@@ -1256,7 +1257,6 @@ NC4_rename_var(int ncid, int varid, const char *name)
        there. */
     if (var->created)
     {
-        int v;
         char *hdf5_name; /* Dataset will be renamed to this. */
         hdf5_name = use_secret_name ? var->alt_name: (char *)name;
 
@@ -1290,7 +1290,7 @@ NC4_rename_var(int ncid, int varid, const char *name)
          * and we have just changed that for this var. We must do the
          * same for all vars with a > varid, so that the creation order
          * will continue to be correct. */
-        for (v = var->hdr.id + 1; v < ncindexsize(grp->vars); v++)
+        for (size_t v = (size_t)var->hdr.id + 1; v < ncindexsize(grp->vars); v++)
         {
             NC_VAR_INFO_T *my_var;
             my_var = (NC_VAR_INFO_T *)ncindexith(grp->vars, v);
@@ -1365,8 +1365,10 @@ NC4_rename_var(int ncid, int varid, const char *name)
  *
  * @param ncid File ID.
  * @param varid Variable ID.
- * @param startp Array of start indices.
- * @param countp Array of counts.
+ * @param startp Array of start indices. This array must be same size
+ * as variable's number of dimensions.
+ * @param countp Array of counts. This array must be same size as
+ * variable's number of dimensions.
  * @param op pointer that gets the data.
  * @param memtype The type of these data in memory.
  *
@@ -1387,11 +1389,12 @@ NC4_put_vara(int ncid, int varid, const size_t *startp,
  *
  * @param ncid File ID.
  * @param varid Variable ID.
- * @param startp Array of start indices.
+ * @param startp Array of start indices. This array must be same size
+ * as variable's number of dimensions.
  * @param countp Array of counts.
  * @param ip pointer that gets the data.
  * @param memtype The type of these data after it is read into memory.
-
+ *
  * @returns ::NC_NOERR for success
  * @author Ed Hartnett, Dennis Heimbigner
  */
@@ -1512,11 +1515,13 @@ set_par_access(NC_FILE_INFO_T *h5, NC_VAR_INFO_T *var, hid_t xfer_plistid)
  * @param ncid File ID.
  * @param varid Variable ID.
  * @param startp Array of start indices. Must always be provided by
- * caller for non-scalar vars.
+ * caller for non-scalar vars. This array must be same size
+ * as variable's number of dimensions.
  * @param countp Array of counts. Will default to counts of full
- * dimension size if NULL.
+ * dimension size if NULL. This array must be same size
+ * as variable's number of dimensions.
  * @param stridep Array of strides. Will default to strides of 1 if
- * NULL.
+ * NULL. This array must be same size as variable's number of dimensions.
  * @param data The data to be written.
  * @param mem_nc_type The type of the data in memory.
  *
@@ -1541,11 +1546,12 @@ NC4_put_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
     NC_VAR_INFO_T *var;
     NC_DIM_INFO_T *dim;
     NC_HDF5_VAR_INFO_T *hdf5_var;
+    herr_t herr;
     hid_t file_spaceid = 0, mem_spaceid = 0, xfer_plistid = 0;
     long long unsigned xtend_size[NC_MAX_VAR_DIMS];
     hsize_t fdims[NC_MAX_VAR_DIMS], fmaxdims[NC_MAX_VAR_DIMS];
     hsize_t start[NC_MAX_VAR_DIMS], count[NC_MAX_VAR_DIMS];
-    hsize_t stride[NC_MAX_VAR_DIMS];
+    hsize_t stride[NC_MAX_VAR_DIMS], ones[NC_MAX_VAR_DIMS];
     int need_to_extend = 0;
 #ifdef USE_PARALLEL4
     int extend_possible = 0;
@@ -1595,7 +1601,8 @@ NC4_put_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
 
         start[i] = startp[i];
         count[i] = countp ? countp[i] : var->dim[i]->len;
-        stride[i] = stridep ? stridep[i] : 1;
+        stride[i] = stridep ? (hsize_t)stridep[i] : 1;
+        ones[i] = 1;
 	LOG((4, "start[%d] %ld count[%d] %ld stride[%d] %ld", i, start[i], i, count[i], i, stride[i]));
 
         /* Check to see if any counts are zero. */
@@ -1646,13 +1653,18 @@ NC4_put_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
     }
     else
     {
-        if (H5Sselect_hyperslab(file_spaceid, H5S_SELECT_SET, start, stride,
-                                count, NULL) < 0)
+        if (stridep == NULL)
+            herr = H5Sselect_hyperslab(file_spaceid, H5S_SELECT_SET, start,
+                                       NULL, ones, count);
+        else
+            herr = H5Sselect_hyperslab(file_spaceid, H5S_SELECT_SET, start,
+                                       stride, count, NULL);
+        if (herr < 0)
             BAIL(NC_EHDFERR);
 
         /* Create a space for the memory, just big enough to hold the slab
            we want. */
-        if ((mem_spaceid = H5Screate_simple(var->ndims, count, NULL)) < 0)
+        if ((mem_spaceid = H5Screate_simple((int)var->ndims, count, NULL)) < 0)
             BAIL(NC_EHDFERR);
     }
 
@@ -1772,8 +1784,14 @@ NC4_put_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
                 BAIL2(NC_EHDFERR);
             if ((file_spaceid = H5Dget_space(hdf5_var->hdf_datasetid)) < 0)
                 BAIL(NC_EHDFERR);
-            if (H5Sselect_hyperslab(file_spaceid, H5S_SELECT_SET,
-                                    start, stride, count, NULL) < 0)
+
+            if (stridep == NULL)
+                herr = H5Sselect_hyperslab(file_spaceid, H5S_SELECT_SET,
+                                           start, NULL, ones, count);
+            else
+                herr = H5Sselect_hyperslab(file_spaceid, H5S_SELECT_SET,
+                                           start, stride, count, NULL);
+            if (herr < 0)
                 BAIL(NC_EHDFERR);
         }
     }
@@ -1835,11 +1853,13 @@ exit:
  * @param ncid File ID.
  * @param varid Variable ID.
  * @param startp Array of start indices. Must be provided for
- * non-scalar vars.
+ * non-scalar vars. This array must be same size as variable's number
+ * of dimensions.
  * @param countp Array of counts. Will default to counts of extent of
- * dimension if NULL.
+ * dimension if NULL. This array must be same size as variable's
+ * number of dimensions.
  * @param stridep Array of strides. Will default to strides of 1 if
- * NULL.
+ * NULL. This array must be same size as variable's number of dimensions.
  * @param data The data to be written.
  * @param mem_nc_type The type of the data in memory. (Convert to this
  * type from file type.)
@@ -1872,7 +1892,7 @@ NC4_get_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
     hsize_t count[NC_MAX_VAR_DIMS];
     hsize_t fdims[NC_MAX_VAR_DIMS], fmaxdims[NC_MAX_VAR_DIMS];
     hsize_t start[NC_MAX_VAR_DIMS];
-    hsize_t stride[NC_MAX_VAR_DIMS];
+    hsize_t stride[NC_MAX_VAR_DIMS], ones[NC_MAX_VAR_DIMS];
     void *fillvalue = NULL;
     int no_read = 0, provide_fill = 0;
     hssize_t fill_value_size[NC_MAX_VAR_DIMS];
@@ -1922,7 +1942,8 @@ NC4_get_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
 
         start[i] = startp[i];
         count[i] = countp[i];
-        stride[i] = stridep ? stridep[i] : 1;
+        stride[i] = stridep ? (hsize_t)stridep[i] : 1;
+        ones[i] = 1;
 
         /* if any of the count values are zero don't actually read. */
         if (count[i] == 0)
@@ -2052,12 +2073,19 @@ NC4_get_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
         }
         else
         {
-            if (H5Sselect_hyperslab(file_spaceid, H5S_SELECT_SET,
-                                    start, stride, count, NULL) < 0)
+            herr_t herr;
+            if (stridep == NULL)
+                herr = H5Sselect_hyperslab(file_spaceid, H5S_SELECT_SET,
+                                           start, NULL, ones, count);
+            else
+                herr = H5Sselect_hyperslab(file_spaceid, H5S_SELECT_SET,
+                                           start, stride, count, NULL);
+            if (herr < 0)
                 BAIL(NC_EHDFERR);
+
             /* Create a space for the memory, just big enough to hold the slab
                we want. */
-            if ((mem_spaceid = H5Screate_simple(var->ndims, count, NULL)) < 0)
+            if ((mem_spaceid = H5Screate_simple((int)var->ndims, count, NULL)) < 0)
                 BAIL(NC_EHDFERR);
         }
 
@@ -2184,35 +2212,11 @@ NC4_get_vars(int ncid, int varid, const size_t *startp, const size_t *countp,
         for (i = 0; i < fill_len; i++)
         {
 
-#ifdef SEPDATA
-            if (var->type_info->nc_type_class == NC_STRING)
-            {
-                if (*(char **)fillvalue)
-                {
-                    if (!(*(char **)filldata = strdup(*(char **)fillvalue)))
-                        BAIL(NC_ENOMEM);
-                }
-                else
-                    *(char **)filldata = NULL;
-            }
-            else if (var->type_info->nc_type_class == NC_VLEN)
-            {
-                if (fillvalue)
-                {
-                    memcpy(filldata,fillvalue,file_type_size);
-                } else {
-                    *(char **)filldata = NULL;
-                }
-            }
-            else
-                memcpy(filldata, fillvalue, file_type_size);
-#else
 	    {
 		/* Copy one instance of the fill_value */
-		if((retval = nc_copy_data(ncid,var->type_info->hdr.id,fillvalue,1,filldata)))
+		if((retval = NC_copy_data(h5->controller,var->type_info->hdr.id,fillvalue,1,filldata)))
 		    BAIL(retval);
 	    }
-#endif
             filldata = (char *)filldata + file_type_size;
 	}        
     }
@@ -2368,7 +2372,7 @@ NC4_HDF5_set_var_chunk_cache(int ncid, int varid, size_t size, size_t nelems,
     assert(grp && h5);
 
     /* Find the var. */
-    if (!(var = (NC_VAR_INFO_T *)ncindexith(grp->vars, varid)))
+    if (!(var = (NC_VAR_INFO_T *)ncindexith(grp->vars, (size_t)varid)))
         return NC_ENOTVAR;
     assert(var && var->hdr.id == varid);
 
@@ -2412,10 +2416,10 @@ nc_set_var_chunk_cache_ints(int ncid, int varid, int size, int nelems,
         real_size = ((size_t) size) * MEGABYTE;
 
     if (nelems >= 0)
-        real_nelems = nelems;
+        real_nelems = (size_t)nelems;
 
     if (preemption >= 0)
-        real_preemption = preemption / 100.;
+        real_preemption = (float)(preemption / 100.);
 
     return NC4_HDF5_set_var_chunk_cache(ncid, varid, real_size, real_nelems,
                                         real_preemption);

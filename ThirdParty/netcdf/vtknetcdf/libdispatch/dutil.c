@@ -4,6 +4,7 @@
  *********************************************************************/
 
 #include "config.h"
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -281,7 +282,7 @@ NC_readfileF(FILE* stream, NCbytes* content, long long amount)
 {
 #define READ_BLOCK_SIZE 4194304
     int ret = NC_NOERR;
-    long long red = 0;
+    size_t red = 0;
     char *part = (char*) malloc(READ_BLOCK_SIZE);
 
     while(amount < 0 || red < amount) {
@@ -293,7 +294,7 @@ NC_readfileF(FILE* stream, NCbytes* content, long long amount)
     }
     /* Keep only amount */
     if(amount >= 0) {
-	if(red > amount) ncbytessetlength(content,amount); /* read too much */
+	if(red > amount) ncbytessetlength(content, (unsigned long)amount); /* read too much */
 	if(red < amount) ret = NC_ETRUNC; /* |file| < amount */
     }
     ncbytesnull(content);
@@ -378,7 +379,7 @@ NC_testmode(NCURI* uri, const char* tag)
 {
     int stat = NC_NOERR;
     int found = 0;
-    int i;
+    size_t i;
     const char* modestr = NULL;
     NClist* modelist = NULL;
 
@@ -394,6 +395,42 @@ NC_testmode(NCURI* uri, const char* tag)
 done:
     nclistfreeall(modelist);
     return found;
+}
+
+/** \internal
+Add tag to fragment mode list unless already present.
+*/
+int
+NC_addmodetag(NCURI* uri, const char* tag)
+{
+    int stat = NC_NOERR;
+    int found = 0;
+    const char* modestr = NULL;
+    char* modevalue = NULL;
+    NClist* modelist = NULL;
+
+    modestr = ncurifragmentlookup(uri,"mode");
+    if(modestr != NULL) {
+        /* Parse mode str */
+        if((stat = NC_getmodelist(modestr,&modelist))) goto done;
+    } else
+        modelist = nclistnew();
+    /* Search for tag */
+    for(size_t i=0;i<nclistlength(modelist);i++) {
+        const char* mode = (const char*)nclistget(modelist,i);
+	if(strcasecmp(mode,tag)==0) {found = 1; break;}
+    }
+    /* If not found, then add to modelist */
+    if(!found) nclistpush(modelist,strdup(tag));
+    /* Convert modelist back to string */
+    if((stat=NC_joinwith(modelist,",",NULL,NULL,&modevalue))) goto done;
+    /* modify the url */
+    if((stat=ncurisetfragmentkey(uri,"mode",modevalue))) goto done;
+
+done:
+    nclistfreeall(modelist);
+    nullfree(modevalue);
+    return stat;
 }
 
 #if ! defined __INTEL_COMPILER
@@ -448,9 +485,9 @@ NC_split_delim(const char* arg, char delim, NClist* segments)
         len = (q - p);
 	if(len == 0)
 	    {stat = NC_EURL; goto done;}
-	if((seg = malloc(len+1)) == NULL)
+	if((seg = malloc((size_t)len+1)) == NULL)
 	    {stat = NC_ENOMEM; goto done;}
-	memcpy(seg,p,len);
+	memcpy(seg,p,(size_t)len);
 	seg[len] = '\0';
 	nclistpush(segments,seg);
 	seg = NULL; /* avoid mem errors */
@@ -466,27 +503,39 @@ done:
 int
 NC_join(NClist* segments, char** pathp)
 {
+    return NC_joinwith(segments,"/","/",NULL,pathp);
+}
+
+/** \internal
+Concat the the segments with separator.
+@param segments to join
+@param sep to use between segments
+@param prefix put at front of joined string: NULL => no prefix
+@param suffix put at end of joined string: NULL => no suffix
+@param pathp return the join in this
+*/
+int
+NC_joinwith(NClist* segments, const char* sep, const char* prefix, const char* suffix, char** pathp)
+{
     int stat = NC_NOERR;
-    int i;
+    size_t i;
     NCbytes* buf = NULL;
+    size_t seplen = nulllen(sep);
 
     if(segments == NULL)
 	{stat = NC_EINVAL; goto done;}
     if((buf = ncbytesnew())==NULL)
 	{stat = NC_ENOMEM; goto done;}
-    if(nclistlength(segments) == 0)
-        ncbytescat(buf,"/");
-    else for(i=0;i<nclistlength(segments);i++) {
+    if(prefix) ncbytescat(buf,prefix);
+    for(i=0;i<nclistlength(segments);i++) {
 	const char* seg = nclistget(segments,i);
-	if(seg[0] != '/')
-	    ncbytescat(buf,"/");
+	if(i>0 && strncmp(seg,sep,seplen)!=0)
+	    ncbytescat(buf,sep);
 	ncbytescat(buf,seg);
     }
-
+    if(suffix) ncbytescat(buf,suffix);
+    if(pathp) *pathp = ncbytesextract(buf);
 done:
-    if(!stat) {
-	if(pathp) *pathp = ncbytesextract(buf);
-    }
     ncbytesfree(buf);
     return stat;
 }

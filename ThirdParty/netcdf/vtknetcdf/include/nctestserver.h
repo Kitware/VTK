@@ -28,6 +28,10 @@ enum KIND {NOKIND, DAP2KIND, DAP4KIND, THREDDSKIND};
 #define BUFSIZE 8192 /*bytes*/
 #define MAXREMOTETESTSERVERS 4096
 
+/* Attempt to fool lgtm */
+#define HTTP "http"
+#define HTTPS "https"
+
 #ifndef HAVE_CURLINFO_RESPONSE_CODE
 #define CURLINFO_RESPONSE_CODE CURLINFO_HTTP_CODE
 #endif
@@ -38,7 +42,7 @@ static int timedping(const char* url, long timeout);
 static char**
 parseServers(const char* remotetestservers)
 {
-    char* rts;
+    char* rts = NULL;
     char** servers = NULL;
     char** list = NULL;
     char* p;
@@ -48,7 +52,7 @@ parseServers(const char* remotetestservers)
 
     /* Keep LGTM quiet */
     if(rtslen > MAXREMOTETESTSERVERS) goto done;
-    list = (char**)malloc(sizeof(char*) * (int)(rtslen/2));
+    list = (char**)malloc(sizeof(char*) * (rtslen/2));
     if(list == NULL) return NULL;
     rts = strdup(remotetestservers);
     if(rts == NULL) goto done;
@@ -101,15 +105,15 @@ nc_findtestserver(const char* path, const char* serverlist)
 	    path++;
 	if(reportsearch)
 	    fprintf(stderr,"nc_findtestserver: candidate=%s/%s: found=",*svc,path);
-	/* Try https: first */
-        snprintf(url,MAXSERVERURL,"https://%s/%s",*svc,path);
+	/* Try http: first */
+        snprintf(url,MAXSERVERURL,HTTP"://%s/%s",*svc,path);
 	if(ping(url) == NC_NOERR) {
 	    if(reportsearch) fprintf(stderr,"yes\n");
 	    match = strdup(url);
 	    goto done;
 	}
-	/* Try http: next */
-        snprintf(url,MAXSERVERURL,"http://%s/%s",*svc,path);
+	/* Try https: next */
+        snprintf(url,MAXSERVERURL,HTTPS"://%s/%s",*svc,path);
 	if(ping(url) == NC_NOERR) {
 	    if(reportsearch) fprintf(stderr,"yes\n");
 	    match = strdup(url);

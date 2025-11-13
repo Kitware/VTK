@@ -6,6 +6,8 @@
 #ifndef NCDAP_H
 #define NCDAP_H 1
 
+#include "vtk_netcdf_mangle.h"
+
 #ifndef nullfree
 #define nullfree(m) {if((m)!=NULL) {free(m);} else {}}
 #endif
@@ -17,9 +19,9 @@ affect the operation of the system.
 */
 
 typedef unsigned int NCFLAGS;
-#  define SETFLAG(controls,flag) (((controls).flags) |= (flag))
-#  define CLRFLAG(controls,flag) (((controls).flags) &= ~(flag))
-#  define FLAGSET(controls,flag) (((controls.flags) & (flag)) != 0)
+#define SETFLAG(controls,flag) (((controls).flags) |= (NCFLAGS)(flag))
+#define CLRFLAG(controls,flag) (((controls).flags) &= ~(NCFLAGS)(flag))
+#define FLAGSET(controls,flag) ((((controls).flags) & (NCFLAGS)(flag)) != 0)
 
 /* Defined flags */
 #define NCF_NC3             (0x0001) /* DAP->netcdf-3 */
@@ -38,12 +40,18 @@ typedef unsigned int NCFLAGS;
 #define NCF_FILLMISMATCH    (0x1000)
 /* Hack to control URL encoding */
 #define NCF_ENCODE_PATH     (0x2000) 
-#define NCF_ENCODE_QUERY    (0x4000) 
+#define NCF_ENCODE_QUERY    (0x4000)
+#define NCF_FILLMISMATCH_FAIL (0x8000) 
+/* Put these at top bits for now */
 /*COLUMBIA_HACK*/
 #define NCF_COLUMBIA        (0x80000000) /* Hack for columbia server */
+/* OPeNDAP Hyrax Hack */
+#define NCF_HYRAX           (0x40000000) /* Hack for hyrax server -- use checksum, but ignore */
 
 /* Define all the default on flags */
 #define DFALT_ON_FLAGS (NCF_CACHE|NCF_PREFETCH|NCF_FILLMISMATCH)
+
+#define ALL_NCF_FLAGS (0xffff|NCF_COLUMBIA|NCF_HYRAX)
 
 typedef struct NCCONTROLS {
     NCFLAGS  flags;

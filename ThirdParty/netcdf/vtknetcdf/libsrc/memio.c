@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/types.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -130,12 +131,12 @@ static size_t pagesize = 0;
 
 /*! Create a new ncio struct to hold info about the file. */
 static int
-memio_new(const char* path, int ioflags, off_t initialsize, ncio** nciopp, NCMEMIO** memiop)
+memio_new(const char* path, int ioflags, size_t initialsize, ncio** nciopp, NCMEMIO** memiop)
 {
     int status = NC_NOERR;
     ncio* nciop = NULL;
     NCMEMIO* memio = NULL;
-    size_t minsize = (size_t)initialsize;
+    size_t minsize = initialsize;
 
     /* Unlike netcdf-4, INMEMORY and DISKLESS share code */
     if(fIsSet(ioflags,NC_DISKLESS))
@@ -202,7 +203,7 @@ memio_new(const char* path, int ioflags, off_t initialsize, ncio** nciopp, NCMEM
 	nciop->path = NULL;
         free(nciop);
     }
-    memio->alloc = (size_t)initialsize;
+    memio->alloc = initialsize;
     memio->pos = 0;
     memio->size = minsize;
     memio->memory = NULL; /* filled in by caller */
@@ -439,7 +440,7 @@ memio_filesize(ncio* nciop, off_t* filesizep)
     NCMEMIO* memio;
     if(nciop == NULL || nciop->pvt == NULL) return NC_EINVAL;
     memio = (NCMEMIO*)nciop->pvt;
-    if(filesizep != NULL) *filesizep = memio->size;
+    if(filesizep != NULL) *filesizep = (off_t)memio->size;
     return NC_NOERR;
 }
 
@@ -542,14 +543,13 @@ static int
 guarantee(ncio* nciop, off_t endpoint0)
 {
     NCMEMIO* memio = (NCMEMIO*)nciop->pvt;
-    size_t endpoint = (size_t)endpoint0;
-    if(endpoint > memio->alloc) {
+    if(endpoint0 > memio->alloc) {
 	/* extend the allocated memory and size */
-	int status = memio_pad_length(nciop,endpoint);
+	int status = memio_pad_length(nciop,endpoint0);
 	if(status != NC_NOERR) return status;
     }
-    if(memio->size < endpoint)
-	memio->size = endpoint;
+    if(memio->size < endpoint0)
+	memio->size = (size_t)endpoint0;
     return NC_NOERR;
 }
 

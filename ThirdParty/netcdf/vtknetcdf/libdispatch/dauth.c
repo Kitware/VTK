@@ -17,9 +17,10 @@ See COPYRIGHT for license information.
 #include "netcdf.h"
 #include "ncbytes.h"
 #include "ncuri.h"
-#include "ncauth.h"
 #include "nclog.h"
 #include "ncpathmgr.h"
+#include "ncs3sdk.h"
+#include "ncauth.h"
 
 #ifdef _MSC_VER
 #include <windows.h>
@@ -94,6 +95,7 @@ NC_authsetup(NCauth** authp, NCURI* uri)
     int ret = NC_NOERR;
     char* uri_hostport = NULL;
     NCauth* auth = NULL;
+    struct AWSprofile* ap = NULL;
 
     if(uri != NULL)
       uri_hostport = NC_combinehostport(uri);
@@ -175,8 +177,15 @@ NC_authsetup(NCauth** authp, NCURI* uri)
       nullfree(user);
       nullfree(pwd);
     }
+
     /* Get the Default profile */
-    auth->s3profile = strdup("default");
+    if((ret=NC_authgets3profile("no",&ap))) goto done;
+    if(ap == NULL)
+        if((ret=NC_authgets3profile("default",&ap))) goto done;
+    if(ap != NULL)
+        auth->s3profile = strdup(ap->name);
+    else
+        auth->s3profile = NULL;
 
     if(authp) {*authp = auth; auth = NULL;}
 done:
@@ -272,7 +281,7 @@ setauthfield(NCauth* auth, const char* flag, const char* value)
     }
     if(strcmp(flag,"HTTP.SSL.VERIFYPEER")==0) {
 	int v;
-        if((v = atol(value))) {
+        if((v = atoi(value))) {
 	    auth->ssl.verifypeer = v;
 #ifdef DEBUG
                 nclog(NCLOGNOTE,"HTTP.SSL.VERIFYPEER: %d", v);
@@ -281,7 +290,7 @@ setauthfield(NCauth* auth, const char* flag, const char* value)
     }
     if(strcmp(flag,"HTTP.SSL.VERIFYHOST")==0) {
 	int v;
-        if((v = atol(value))) {
+        if((v = atoi(value))) {
 	    auth->ssl.verifyhost = v;
 #ifdef DEBUG
                 nclog(NCLOGNOTE,"HTTP.SSL.VERIFYHOST: %d", v);

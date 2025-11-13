@@ -609,10 +609,12 @@ nc_inq_ncid().
 \param varid Variable ID
 
 \param startp Start vector with one element for each dimension to \ref
-specify_hyperslab.
+specify_hyperslab. This array must be same size as variable's number
+of dimensions.
 
 \param countp Count vector with one element for each dimension to \ref
-specify_hyperslab.
+specify_hyperslab. This array must be same size as variable's number
+of dimensions.
 
 \param op Pointer where the data will be copied. Memory must be
 allocated by the user before this function is called.
@@ -1018,13 +1020,16 @@ nc_inq_ncid().
 \param varid Variable ID
 
 \param startp Start vector with one element for each dimension to \ref
-specify_hyperslab.
+specify_hyperslab. This array must be same size as variable's number
+of dimensions.
 
 \param countp Count vector with one element for each dimension to \ref
-specify_hyperslab.
+specify_hyperslab. This array must be same size as variable's number
+of dimensions.
 
 \param stridep Stride vector with one element for each dimension to
-\ref specify_hyperslab.
+\ref specify_hyperslab. This array must be same size as variable's
+number of dimensions.
 
 \param op Pointer where the data will be copied. Memory must be
 allocated by the user before this function is called.
@@ -1207,13 +1212,16 @@ nc_inq_ncid().
 \param varid Variable ID
 
 \param startp Start vector with one element for each dimension to \ref
-specify_hyperslab.
+specify_hyperslab. This array must be same size as variable's number
+of dimensions.
 
 \param countp Count vector with one element for each dimension to \ref
-specify_hyperslab.
+specify_hyperslab. This array must be same size as variable's number
+of dimensions.
 
 \param stridep Stride vector with one element for each dimension to
-\ref specify_hyperslab.
+\ref specify_hyperslab. This array must be same size as variable's
+number of dimensions.
 
 \param imapp Mapping vector with one element for each dimension to
 \ref specify_hyperslab.

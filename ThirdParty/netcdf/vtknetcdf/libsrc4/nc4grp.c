@@ -87,7 +87,6 @@ NC4_inq_grps(int ncid, int *numgrps, int *ncids)
     NC_FILE_INFO_T *h5;
     int num = 0;
     int retval;
-    int i;
 
     LOG((2, "nc_inq_grps: ncid 0x%x", ncid));
 
@@ -97,7 +96,7 @@ NC4_inq_grps(int ncid, int *numgrps, int *ncids)
     assert(h5);
 
     /* Count the number of groups in this group. */
-    for(i=0;i<ncindexsize(grp->children);i++)
+    for(size_t i=0;i<ncindexsize(grp->children);i++)
     {
         g = (NC_GRP_INFO_T*)ncindexith(grp->children,i);
         if(g == NULL) continue;
@@ -177,9 +176,9 @@ NC4_inq_grpname_full(int ncid, size_t *lenp, char *full_name)
         ;
 
     /* Allocate storage. */
-    if (!(name = malloc((g + 1) * (NC_MAX_NAME + 1) + 1)))
+    if (!(name = malloc((size_t)(g + 1) * (NC_MAX_NAME + 1) + 1)))
         return NC_ENOMEM;
-    if (!(gid = malloc((g + 1) * sizeof(int))))
+    if (!(gid = malloc((size_t)(g + 1) * sizeof(int))))
     {
         free(name);
         return NC_ENOMEM;
@@ -349,7 +348,6 @@ NC4_inq_varids(int ncid, int *nvars, int *varids)
     NC_VAR_INFO_T *var;
     int num_vars = 0;
     int retval;
-    int i;
 
     LOG((2, "nc_inq_varids: ncid 0x%x", ncid));
 
@@ -360,7 +358,7 @@ NC4_inq_varids(int ncid, int *nvars, int *varids)
 
     /* This is a netCDF-4 group. Round up them doggies and count
      * 'em. The list is in correct (i.e. creation) order. */
-    for (i=0; i < ncindexsize(grp->vars); i++)
+    for (size_t i=0; i < ncindexsize(grp->vars); i++)
     {
         var = (NC_VAR_INFO_T*)ncindexith(grp->vars,i);
         if (!var) continue;
@@ -438,10 +436,9 @@ NC4_inq_dimids(int ncid, int *ndims, int *dimids, int include_parents)
     if (dimids)
     {
         int n = 0;
-        int i;
 
         /* Get dimension ids from this group. */
-        for(i=0;i<ncindexsize(grp->dim);i++) {
+        for(size_t i=0;i<ncindexsize(grp->dim);i++) {
             dim = (NC_DIM_INFO_T*)ncindexith(grp->dim,i);
             if(dim == NULL) continue;
             dimids[n++] = dim->hdr.id;
@@ -450,13 +447,13 @@ NC4_inq_dimids(int ncid, int *ndims, int *dimids, int include_parents)
         /* Get dimension ids from parent groups. */
         if (include_parents)
             for (g = grp->parent; g; g = g->parent) {
-                for(i=0;i<ncindexsize(g->dim);i++) {
+                for(size_t i=0;i<ncindexsize(g->dim);i++) {
                     dim = (NC_DIM_INFO_T*)ncindexith(g->dim,i);
                     if(dim == NULL) continue;
                     dimids[n++] = dim->hdr.id;
                 }
             }
-        qsort(dimids, num, sizeof(int), int_cmp);
+        qsort(dimids, (size_t)num, sizeof(int), int_cmp);
     }
 
     /* If the user wants the number of dims, give it. */

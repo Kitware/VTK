@@ -84,7 +84,7 @@ NC4_get_var_chunk_cache(int ncid, int varid, size_t *sizep,
     assert(nc && grp && h5);
 
     /* Find the var. */
-    var = (NC_VAR_INFO_T*)ncindexith(grp->vars,varid);
+    var = (NC_VAR_INFO_T*)ncindexith(grp->vars,(size_t)varid);
     if(!var)
         return NC_ENOTVAR;
     assert(var && var->hdr.id == varid);
@@ -129,7 +129,7 @@ nc_get_var_chunk_cache_ints(int ncid, int varid, int *sizep,
         return ret;
 
     if (sizep)
-        *sizep = real_size / MEGABYTE;
+        *sizep = (int)(real_size / MEGABYTE);
     if (nelemsp)
         *nelemsp = (int)real_nelems;
     if(preemptionp)
@@ -204,7 +204,7 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
     }
 
     /* Find the var. */
-    if (!(var = (NC_VAR_INFO_T *)ncindexith(grp->vars, varid)))
+    if (!(var = (NC_VAR_INFO_T *)ncindexith(grp->vars, (size_t)varid)))
         return NC_ENOTVAR;
     assert(var && var->hdr.id == varid);
 
@@ -214,7 +214,7 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
     if (xtypep)
         *xtypep = var->type_info->hdr.id;
     if (ndimsp)
-        *ndimsp = var->ndims;
+        *ndimsp = (int)var->ndims;
     if (dimidsp)
         for (d = 0; d < var->ndims; d++)
             dimidsp[d] = var->dimids[d];
@@ -263,53 +263,14 @@ NC4_inq_var_all(int ncid, int varid, char *name, nc_type *xtypep,
     {
         /* Do we have a fill value for this var? */
         if (var->fill_value)
-#ifdef SEPDATA
-        {
-            if (var->type_info->nc_type_class == NC_STRING)
-            {
-                assert(*(char **)var->fill_value);
-                /* This will allocate memory and copy the string. */
-                if (!(*(char **)fill_valuep = strdup(*(char **)var->fill_value)))
-                {
-                    free(*(char **)fill_valuep);
-                    return NC_ENOMEM;
-                }
-            }
-            else
-            {
-                assert(var->type_info->size);
-                memcpy(fill_valuep, var->fill_value, var->type_info->size);
-            }
-        }
-#else
         {
 	    int xtype = var->type_info->hdr.id;
-	    if((retval = nc_copy_data(ncid,xtype,var->fill_value,1,fill_valuep))) return retval;
+	    if((retval = NC_copy_data(h5->controller,xtype,var->fill_value,1,fill_valuep))) return retval;
 	}
-#endif
         else
         {
-#ifdef SEPDATA
-	    if (var->type_info->nc_type_class == NC_STRING)
-            {
-                if (!(*(char **)fill_valuep = calloc(1, sizeof(char *))))
-                    return NC_ENOMEM;
-
-                if ((retval = nc4_get_default_fill_value(var->type_info->hdr.ud, (char **)fill_valuep)))
-                {
-                    free(*(char **)fill_valuep);
-                    return retval;
-                }
-            }
-            else
-            {
-                if ((retval = nc4_get_default_fill_value(var->type_info->hdr.id, fill_valuep)))
-                    return retval;
-            }
-#else
             if ((retval = nc4_get_default_fill_value(var->type_info, fill_valuep)))
                     return retval;
-#endif
         }
     }
 
@@ -614,7 +575,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
 	    }else if (quantize_mode == NC_QUANTIZE_BITROUND){
 
 	      /* BitRound interprets nsd as number of significant binary digits (bits) */
-	      prc_bnr_xpl_rqr = nsd;
+	      prc_bnr_xpl_rqr = (unsigned short)nsd;
 	      
 	    }
 	    
@@ -624,7 +585,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
 		bit_xpl_nbr_zro = BIT_XPL_NBR_SGN_FLT - prc_bnr_xpl_rqr;
 
 		/* Create mask */
-		msk_f32_u32_zro = 0u; /* Zero all bits */
+		msk_f32_u32_zro = 0U; /* Zero all bits */
 		msk_f32_u32_zro = ~msk_f32_u32_zro; /* Turn all bits to ones */
 		
 		/* BitShave mask for AND: Left shift zeros into bits to be
@@ -644,7 +605,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
 
 		bit_xpl_nbr_zro = BIT_XPL_NBR_SGN_DBL - prc_bnr_xpl_rqr;
 		/* Create mask. */
-		msk_f64_u64_zro = 0ul; /* Zero all bits. */
+		msk_f64_u64_zro = 0UL; /* Zero all bits. */
 		msk_f64_u64_zro = ~msk_f64_u64_zro; /* Turn all bits to ones. */
 		
 		/* BitShave mask for AND: Left shift zeros into bits to be
@@ -698,7 +659,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*bp < 0)
                     (*range_error)++;
-                *ubp++ = *bp++;
+                *ubp++ = (unsigned char)*bp++;
             }
             break;
         case NC_SHORT:
@@ -710,7 +671,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*bp < 0)
                     (*range_error)++;
-                *usp++ = *bp++;
+                *usp++ = (unsigned short)*bp++;
             }
             break;
         case NC_INT:
@@ -722,7 +683,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*bp < 0)
                     (*range_error)++;
-                *uip++ = *bp++;
+                *uip++ = (unsigned int)*bp++;
             }
             break;
         case NC_INT64:
@@ -734,7 +695,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*bp < 0)
                     (*range_error)++;
-                *ulip++ = *bp++;
+                *ulip++ = (unsigned long long)*bp++;
             }
             break;
         case NC_FLOAT:
@@ -760,7 +721,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (!strict_nc3 && *ubp > X_SCHAR_MAX)
                     (*range_error)++;
-                *bp++ = *ubp++;
+                *bp++ = (signed char)*ubp++;
             }
             break;
         case NC_SHORT:
@@ -814,7 +775,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*sp > X_UCHAR_MAX || *sp < 0)
                     (*range_error)++;
-                *ubp++ = *sp++;
+                *ubp++ = (unsigned char)*sp++;
             }
             break;
         case NC_BYTE:
@@ -822,7 +783,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*sp > X_SCHAR_MAX || *sp < X_SCHAR_MIN)
                     (*range_error)++;
-                *bp++ = *sp++;
+                *bp++ = (signed char)*sp++;
             }
             break;
         case NC_SHORT:
@@ -834,7 +795,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*sp < 0)
                     (*range_error)++;
-                *usp++ = *sp++;
+                *usp++ = (unsigned short)*sp++;
             }
             break;
         case NC_INT:
@@ -846,7 +807,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*sp < 0)
                     (*range_error)++;
-                *uip++ = *sp++;
+                *uip++ = (unsigned int)*sp++;
             }
             break;
         case NC_INT64:
@@ -858,7 +819,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*sp < 0)
                     (*range_error)++;
-                *ulip++ = *sp++;
+                *ulip++ = (unsigned long long)*sp++;
             }
             break;
         case NC_FLOAT:
@@ -884,7 +845,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*usp > X_UCHAR_MAX)
                     (*range_error)++;
-                *ubp++ = *usp++;
+                *ubp++ = (unsigned char)*usp++;
             }
             break;
         case NC_BYTE:
@@ -892,7 +853,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*usp > X_SCHAR_MAX)
                     (*range_error)++;
-                *bp++ = *usp++;
+                *bp++ = (signed char)*usp++;
             }
             break;
         case NC_SHORT:
@@ -900,7 +861,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*usp > X_SHORT_MAX)
                     (*range_error)++;
-                *sp++ = *usp++;
+                *sp++ = (signed short)*usp++;
             }
             break;
         case NC_USHORT:
@@ -946,7 +907,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ip > X_UCHAR_MAX || *ip < 0)
                     (*range_error)++;
-                *ubp++ = *ip++;
+                *ubp++ = (unsigned char)*ip++;
             }
             break;
         case NC_BYTE:
@@ -954,7 +915,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ip > X_SCHAR_MAX || *ip < X_SCHAR_MIN)
                     (*range_error)++;
-                *bp++ = *ip++;
+                *bp++ = (signed char)*ip++;
             }
             break;
         case NC_SHORT:
@@ -962,7 +923,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ip > X_SHORT_MAX || *ip < X_SHORT_MIN)
                     (*range_error)++;
-                *sp++ = *ip++;
+                *sp++ = (short)*ip++;
             }
             break;
         case NC_USHORT:
@@ -970,7 +931,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ip > X_USHORT_MAX || *ip < 0)
                     (*range_error)++;
-                *usp++ = *ip++;
+                *usp++ = (unsigned short)*ip++;
             }
             break;
         case NC_INT: /* src is int */
@@ -986,7 +947,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ip > X_UINT_MAX || *ip < 0)
                     (*range_error)++;
-                *uip++ = *ip++;
+                *uip++ = (unsigned int)*ip++;
             }
             break;
         case NC_INT64:
@@ -998,16 +959,16 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ip < 0)
                     (*range_error)++;
-                *ulip++ = *ip++;
+                *ulip++ = (unsigned long long)*ip++;
             }
             break;
         case NC_FLOAT:
             for (ip = (int *)src, fp = dest; count < len; count++)
-                *fp++ = *ip++;
+                *fp++ = (float)*ip++;
             break;
         case NC_DOUBLE:
             for (ip = (int *)src, dp = dest; count < len; count++)
-                *dp++ = *ip++;
+                *dp++ = (double)*ip++;
             break;
         default:
             LOG((0, "%s: unexpected dest type. src_type %d, dest_type %d",
@@ -1024,7 +985,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*uip > X_UCHAR_MAX)
                     (*range_error)++;
-                *ubp++ = *uip++;
+                *ubp++ = (unsigned char)*uip++;
             }
             break;
         case NC_BYTE:
@@ -1032,7 +993,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*uip > X_SCHAR_MAX)
                     (*range_error)++;
-                *bp++ = *uip++;
+                *bp++ = (signed char)*uip++;
             }
             break;
         case NC_SHORT:
@@ -1040,7 +1001,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*uip > X_SHORT_MAX)
                     (*range_error)++;
-                *sp++ = *uip++;
+                *sp++ = (signed short)*uip++;
             }
             break;
         case NC_USHORT:
@@ -1048,7 +1009,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*uip > X_USHORT_MAX)
                     (*range_error)++;
-                *usp++ = *uip++;
+                *usp++ = (unsigned short)*uip++;
             }
             break;
         case NC_INT:
@@ -1056,7 +1017,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*uip > X_INT_MAX)
                     (*range_error)++;
-                *ip++ = *uip++;
+                *ip++ = (int)*uip++;
             }
             break;
         case NC_UINT:
@@ -1077,7 +1038,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             break;
         case NC_FLOAT:
             for (uip = (unsigned int *)src, fp = dest; count < len; count++)
-                *fp++ = *uip++;
+                *fp++ = (float)*uip++;
             break;
         case NC_DOUBLE:
             for (uip = (unsigned int *)src, dp = dest; count < len; count++)
@@ -1098,7 +1059,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*lip > X_UCHAR_MAX || *lip < 0)
                     (*range_error)++;
-                *ubp++ = *lip++;
+                *ubp++ = (unsigned char)*lip++;
             }
             break;
         case NC_BYTE:
@@ -1106,7 +1067,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*lip > X_SCHAR_MAX || *lip < X_SCHAR_MIN)
                     (*range_error)++;
-                *bp++ = *lip++;
+                *bp++ = (signed char)*lip++;
             }
             break;
         case NC_SHORT:
@@ -1114,7 +1075,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*lip > X_SHORT_MAX || *lip < X_SHORT_MIN)
                     (*range_error)++;
-                *sp++ = *lip++;
+                *sp++ = (short)*lip++;
             }
             break;
         case NC_USHORT:
@@ -1122,7 +1083,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*lip > X_USHORT_MAX || *lip < 0)
                     (*range_error)++;
-                *usp++ = *lip++;
+                *usp++ = (unsigned short)*lip++;
             }
             break;
         case NC_UINT:
@@ -1130,7 +1091,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*lip > X_UINT_MAX || *lip < 0)
                     (*range_error)++;
-                *uip++ = *lip++;
+                *uip++ = (unsigned int)*lip++;
             }
             break;
         case NC_INT:
@@ -1138,7 +1099,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*lip > X_INT_MAX || *lip < X_INT_MIN)
                     (*range_error)++;
-                *ip++ = *lip++;
+                *ip++ = (int)*lip++;
             }
             break;
         case NC_INT64:
@@ -1150,16 +1111,16 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*lip < 0)
                     (*range_error)++;
-                *ulip++ = *lip++;
+                *ulip++ = (unsigned long long)*lip++;
             }
             break;
         case NC_FLOAT:
             for (lip = (long long *)src, fp = dest; count < len; count++)
-                *fp++ = *lip++;
+                *fp++ = (float)*lip++;
             break;
         case NC_DOUBLE:
             for (lip = (long long *)src, dp = dest; count < len; count++)
-                *dp++ = *lip++;
+                *dp++ = (double)*lip++;
             break;
         default:
             LOG((0, "%s: unexpected dest type. src_type %d, dest_type %d",
@@ -1176,7 +1137,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ulip > X_UCHAR_MAX)
                     (*range_error)++;
-                *ubp++ = *ulip++;
+                *ubp++ = (unsigned char)*ulip++;
             }
             break;
         case NC_BYTE:
@@ -1184,7 +1145,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ulip > X_SCHAR_MAX)
                     (*range_error)++;
-                *bp++ = *ulip++;
+                *bp++ = (signed char)*ulip++;
             }
             break;
         case NC_SHORT:
@@ -1192,7 +1153,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ulip > X_SHORT_MAX)
                     (*range_error)++;
-                *sp++ = *ulip++;
+                *sp++ = (short)*ulip++;
             }
             break;
         case NC_USHORT:
@@ -1200,7 +1161,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ulip > X_USHORT_MAX)
                     (*range_error)++;
-                *usp++ = *ulip++;
+                *usp++ = (unsigned short)*ulip++;
             }
             break;
         case NC_UINT:
@@ -1208,7 +1169,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ulip > X_UINT_MAX)
                     (*range_error)++;
-                *uip++ = *ulip++;
+                *uip++ = (unsigned int)*ulip++;
             }
             break;
         case NC_INT:
@@ -1216,7 +1177,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ulip > X_INT_MAX)
                     (*range_error)++;
-                *ip++ = *ulip++;
+                *ip++ = (int)*ulip++;
             }
             break;
         case NC_INT64:
@@ -1224,7 +1185,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*ulip > X_INT64_MAX)
                     (*range_error)++;
-                *lip++ = *ulip++;
+                *lip++ = (long long)*ulip++;
             }
             break;
         case NC_UINT64:
@@ -1233,11 +1194,11 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             break;
         case NC_FLOAT:
             for (ulip = (unsigned long long *)src, fp = dest; count < len; count++)
-                *fp++ = *ulip++;
+                *fp++ = (float)*ulip++;
             break;
         case NC_DOUBLE:
             for (ulip = (unsigned long long *)src, dp = dest; count < len; count++)
-                *dp++ = *ulip++;
+                *dp++ = (double)*ulip++;
             break;
         default:
             LOG((0, "%s: unexpected dest type. src_type %d, dest_type %d",
@@ -1254,7 +1215,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*fp > X_UCHAR_MAX || *fp < 0)
                     (*range_error)++;
-                *ubp++ = *fp++;
+                *ubp++ = (unsigned char)*fp++;
             }
             break;
         case NC_BYTE:
@@ -1262,7 +1223,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*fp > (double)X_SCHAR_MAX || *fp < (double)X_SCHAR_MIN)
                     (*range_error)++;
-                *bp++ = *fp++;
+                *bp++ = (signed char)*fp++;
             }
             break;
         case NC_SHORT:
@@ -1270,7 +1231,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*fp > (double)X_SHORT_MAX || *fp < (double)X_SHORT_MIN)
                     (*range_error)++;
-                *sp++ = *fp++;
+                *sp++ = (short)*fp++;
             }
             break;
         case NC_USHORT:
@@ -1278,15 +1239,15 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*fp > X_USHORT_MAX || *fp < 0)
                     (*range_error)++;
-                *usp++ = *fp++;
+                *usp++ = (unsigned short)*fp++;
             }
             break;
         case NC_UINT:
             for (fp = (float *)src, uip = dest; count < len; count++)
             {
-                if (*fp > X_UINT_MAX || *fp < 0)
+                if (*fp > (float)X_UINT_MAX || *fp < 0)
                     (*range_error)++;
-                *uip++ = *fp++;
+                *uip++ = (unsigned int)*fp++;
             }
             break;
         case NC_INT:
@@ -1294,23 +1255,23 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*fp > (double)X_INT_MAX || *fp < (double)X_INT_MIN)
                     (*range_error)++;
-                *ip++ = *fp++;
+                *ip++ = (int)*fp++;
             }
             break;
         case NC_INT64:
             for (fp = (float *)src, lip = dest; count < len; count++)
             {
-                if (*fp > X_INT64_MAX || *fp <X_INT64_MIN)
+                if (*fp > (float)X_INT64_MAX || *fp <X_INT64_MIN)
                     (*range_error)++;
-                *lip++ = *fp++;
+                *lip++ = (long long)*fp++;
             }
             break;
         case NC_UINT64:
-            for (fp = (float *)src, lip = dest; count < len; count++)
+            for (fp = (float *)src, ulip = dest; count < len; count++)
             {
-                if (*fp > X_UINT64_MAX || *fp < 0)
+                if (*fp > (float)X_UINT64_MAX || *fp < 0)
                     (*range_error)++;
-                *lip++ = *fp++;
+                *ulip++ = (unsigned long long)*fp++;
             }
             break;
         case NC_FLOAT:
@@ -1336,7 +1297,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*dp > X_UCHAR_MAX || *dp < 0)
                     (*range_error)++;
-                *ubp++ = *dp++;
+                *ubp++ = (unsigned char)*dp++;
             }
             break;
         case NC_BYTE:
@@ -1344,7 +1305,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*dp > X_SCHAR_MAX || *dp < X_SCHAR_MIN)
                     (*range_error)++;
-                *bp++ = *dp++;
+                *bp++ = (signed char)*dp++;
             }
             break;
         case NC_SHORT:
@@ -1352,7 +1313,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*dp > X_SHORT_MAX || *dp < X_SHORT_MIN)
                     (*range_error)++;
-                *sp++ = *dp++;
+                *sp++ = (short)*dp++;
             }
             break;
         case NC_USHORT:
@@ -1360,7 +1321,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*dp > X_USHORT_MAX || *dp < 0)
                     (*range_error)++;
-                *usp++ = *dp++;
+                *usp++ = (unsigned short)*dp++;
             }
             break;
         case NC_UINT:
@@ -1368,7 +1329,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*dp > X_UINT_MAX || *dp < 0)
                     (*range_error)++;
-                *uip++ = *dp++;
+                *uip++ = (unsigned int)*dp++;
             }
             break;
         case NC_INT:
@@ -1376,23 +1337,23 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (*dp > X_INT_MAX || *dp < X_INT_MIN)
                     (*range_error)++;
-                *ip++ = *dp++;
+                *ip++ = (int)*dp++;
             }
             break;
         case NC_INT64:
             for (dp = (double *)src, lip = dest; count < len; count++)
             {
-                if (*dp > X_INT64_MAX || *dp < X_INT64_MIN)
+                if (*dp > (double)X_INT64_MAX || *dp < X_INT64_MIN)
                     (*range_error)++;
-                *lip++ = *dp++;
+                *lip++ = (long long)*dp++;
             }
             break;
         case NC_UINT64:
-            for (dp = (double *)src, lip = dest; count < len; count++)
+            for (dp = (double *)src, ulip = dest; count < len; count++)
             {
-                if (*dp > X_UINT64_MAX || *dp < 0)
+                if (*dp > (double)X_UINT64_MAX || *dp < 0)
                     (*range_error)++;
-                *lip++ = *dp++;
+                *ulip++ = (unsigned long long)*dp++;
             }
             break;
         case NC_FLOAT:
@@ -1400,7 +1361,7 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
             {
                 if (isgreater(*dp, X_FLOAT_MAX) || isless(*dp, X_FLOAT_MIN))
                     (*range_error)++;
-                *fp++ = *dp++;
+                *fp++ = (float)*dp++;
             }
             break;
         case NC_DOUBLE:
@@ -1496,11 +1457,11 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
 		    /* 20211003 Continuous determination of dgt_nbr improves CR by ~10% */
 		    dgt_nbr = (int)floor(xpn_bs2 * dgt_per_bit + mnt_log10_fabs) + 1; /* DGG19 p. 4102 (8.67) */
 		    qnt_pwr = (int)floor(bit_per_dgt * (dgt_nbr - nsd)); /* DGG19 p. 4101 (7) */
-		    prc_bnr_xpl_rqr = mnt_fabs == 0.0 ? 0 : abs((int)floor(xpn_bs2 - bit_per_dgt*mnt_log10_fabs) - qnt_pwr); /* Protect against mnt = -0.0 */
+		    prc_bnr_xpl_rqr = mnt_fabs == 0.0 ? 0 : (unsigned short)abs((int)floor(xpn_bs2 - bit_per_dgt*mnt_log10_fabs) - qnt_pwr); /* Protect against mnt = -0.0 */
 		    prc_bnr_xpl_rqr--; /* 20211003 Reduce formula result by 1 bit: Passes all tests, improves CR by ~10% */
 
 		    bit_xpl_nbr_zro = BIT_XPL_NBR_SGN_FLT - prc_bnr_xpl_rqr;
-		    msk_f32_u32_zro = 0u; /* Zero all bits */
+		    msk_f32_u32_zro = 0U; /* Zero all bits */
 		    msk_f32_u32_zro = ~msk_f32_u32_zro; /* Turn all bits to ones */
 		    /* Bit Shave mask for AND: Left shift zeros into bits to be rounded, leave ones in untouched bits */
 		    msk_f32_u32_zro <<= bit_xpl_nbr_zro;
@@ -1530,11 +1491,11 @@ nc4_convert_type(const void *src, void *dest, const nc_type src_type,
 		    /* 20211003 Continuous determination of dgt_nbr improves CR by ~10% */
 		    dgt_nbr = (int)floor(xpn_bs2 * dgt_per_bit + mnt_log10_fabs) + 1; /* DGG19 p. 4102 (8.67) */
 		    qnt_pwr = (int)floor(bit_per_dgt * (dgt_nbr - nsd)); /* DGG19 p. 4101 (7) */
-		    prc_bnr_xpl_rqr = mnt_fabs == 0.0 ? 0 : abs((int)floor(xpn_bs2 - bit_per_dgt*mnt_log10_fabs) - qnt_pwr); /* Protect against mnt = -0.0 */
+		    prc_bnr_xpl_rqr = mnt_fabs == 0.0 ? 0 : (unsigned short)abs((int)floor(xpn_bs2 - bit_per_dgt*mnt_log10_fabs) - qnt_pwr); /* Protect against mnt = -0.0 */
 		    prc_bnr_xpl_rqr--; /* 20211003 Reduce formula result by 1 bit: Passes all tests, improves CR by ~10% */
 
 		    bit_xpl_nbr_zro = BIT_XPL_NBR_SGN_DBL - prc_bnr_xpl_rqr;
-		    msk_f64_u64_zro = 0ull; /* Zero all bits */
+		    msk_f64_u64_zro = 0ULL; /* Zero all bits */
 		    msk_f64_u64_zro = ~msk_f64_u64_zro; /* Turn all bits to ones */
 		    /* Bit Shave mask for AND: Left shift zeros into bits to be rounded, leave ones in untouched bits */
 		    msk_f64_u64_zro <<= bit_xpl_nbr_zro;
@@ -1802,8 +1763,8 @@ nc4_find_default_chunksizes2(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var)
         LOG((4, "%s: name %s dim %d DEFAULT_CHUNK_SIZE %d num_values %f type_size %d "
              "chunksize %ld", __func__, var->hdr.name, d, DEFAULT_CHUNK_SIZE, num_values, type_size, var->chunksizes[0]));
     }
-    if (var->ndims > 1 && var->ndims == num_unlim) { /* all dims unlimited */
-        suggested_size = pow((double)DEFAULT_CHUNK_SIZE/type_size, 1.0/(double)(var->ndims));
+    if (var->ndims > 1 && (float)var->ndims == num_unlim) { /* all dims unlimited */
+        suggested_size = (size_t)pow((double)DEFAULT_CHUNK_SIZE/(double)type_size, 1.0/(double)(var->ndims));
         for (d = 0; d < var->ndims; d++)
         {
             var->chunksizes[d] = suggested_size ? suggested_size : 1;
@@ -1817,8 +1778,8 @@ nc4_find_default_chunksizes2(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var)
     for (d = 0; d < var->ndims; d++)
         if (!var->chunksizes[d])
         {
-            suggested_size = (pow((double)DEFAULT_CHUNK_SIZE/(num_values * type_size),
-                                  1.0/(double)(var->ndims - num_unlim)) * var->dim[d]->len - .5);
+            suggested_size = (size_t)(pow((double)DEFAULT_CHUNK_SIZE/(num_values * (double)type_size),
+                                        1.0/(double)((double)var->ndims - num_unlim)) * (double)var->dim[d]->len - .5);
             if (suggested_size > var->dim[d]->len)
                 suggested_size = var->dim[d]->len;
             var->chunksizes[d] = suggested_size ? suggested_size : 1;
@@ -1870,7 +1831,7 @@ nc4_find_default_chunksizes2(NC_GRP_INFO_T *grp, NC_VAR_INFO_T *var)
  * @internal Get the default fill value for an atomic type. Memory for
  * fill_value must already be allocated, or you are DOOMED!
  *
- * @param xtype type id
+ * @param tinfo type object
  * @param fill_value Pointer that gets the default fill value.
  *
  * @returns NC_NOERR No error.

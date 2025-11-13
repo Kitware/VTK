@@ -19,12 +19,13 @@
 #include "netcdf_filter.h"
 #include "ncdispatch.h"
 #include "nc4internal.h"
+#include "nclog.h"
 
 #ifdef USE_HDF5
 #include "hdf5internal.h"
 #endif
 
-#ifdef ENABLE_NCZARR
+#ifdef NETCDF_ENABLE_NCZARR
 #include "zdispatch.h"
 #endif
 
@@ -100,6 +101,7 @@ nc_inq_var_filter_info(int ncid, int varid, unsigned int id, size_t* nparamsp, u
     if((stat = ncp->dispatch->inq_var_filter_info(ncid,varid,id,nparamsp,params))) goto done;
 
 done:
+     if(stat == NC_ENOFILTER) nclog(NCLOGWARN,"Undefined filter: %u",(unsigned)id);
      return stat;
 }
 
@@ -125,18 +127,12 @@ nc_def_var_filter(int ncid, int varid, unsigned int id, size_t nparams, const un
 {
     int stat = NC_NOERR;
     NC* ncp;
-    int fixedsize;
-    nc_type xtype;
 
     TRACE(nc_inq_var_filter);
     if((stat = NC_check_id(ncid,&ncp))) return stat;
-    /* Get variable' type */
-    if((stat = nc_inq_vartype(ncid,varid,&xtype))) return stat;
-    /* If the variable's type is not fixed-size, then signal error */
-    if((stat = NC4_inq_type_fixed_size(ncid, xtype, &fixedsize))) return stat;
-    if(!fixedsize) return NC_EFILTER;
     if((stat = ncp->dispatch->def_var_filter(ncid,varid,id,nparams,params))) goto done;
 done:
+     if(stat == NC_ENOFILTER) nclog(NCLOGWARN,"Undefined filter: %u",(unsigned)id);
     return stat;
 }
 
@@ -221,98 +217,6 @@ nc_inq_filter_avail(int ncid, unsigned id)
 done:
     return stat;
 }
-
-/**************************************************/
-/* Support direct user defined filters */
-
-#ifdef ENABLE_CLIENTSIDE_FILTERS
-
-/** Register filer client.
- * @note  Use void* to avoid having to include hdf.h
- *
- * @param id Filter ID
- * @param info Pointer that gets info.
- *
- * @return NC_NOERR if the filter is available
- * @return NC_EBADID if ncid is invalid
- * @return NC_ENOFILTER if filter is not available.
- * @author Dennis Heimbigner
-*/
-EXTERNL int
-nc_filter_client_register(unsigned int id, void* info)
-{
-    int stat = NC_NOERR;
-#ifdef USE_HDF5
-    NC_FILTER_OBJ_HDF5 client;
-    if(id == 0 ||info == NULL)
-	return NC_EINVAL;
-    memset(&client,0,sizeof(client));
-    client.hdr.format = NC_FILTER_FORMAT_HDF5;
-    client.sort = NC_FILTER_SORT_CLIENT;
-    client.u.client.id = id;
-    client.u.client.info = info;
-    /* Note use of a global function, not part of the dispatch table */
-    stat = nc4_global_filter_action(NCFILTER_CLIENT_REG, id, &client);
-#else
-    stat = NC_ENOTBUILT;
-#endif
-    return stat;
-}
-
-/** Unregister filer client.
- * @note  Use void* to avoid having to include hdf.h
- *
- * @param id Filter ID
- *
- * @return NC_NOERR if the filter is available
- * @author Dennis Heimbigner
-*/
-EXTERNL int
-nc_filter_client_unregister(unsigned int id)
-{
-int stat = NC_NOERR;
-#ifdef USE_HDF5
-    stat = nc4_global_filter_action(NCFILTER_CLIENT_UNREG, id, NULL);
-#else
-    stat = NC_ENOTBUILT;
-#endif
-    return stat;
-}
-
-/** Inquire about filer client.
- * @note  Use void* to avoid having to include hdf.h
- *
- * @param id Filter ID
- * @param infop Pointer that gets info.
- *
- * @return NC_NOERR if the filter is available
- * @author Dennis Heimbigner
-*/
-EXTERNL int
-nc_filter_client_inq(unsigned int id, void* infop)
-{
-int stat = NC_NOERR;
-#ifdef USE_HDF5
-    H5Z_class2_t* hct = (H5Z_class2_t*)infop;
-    NC_FILTER_OBJ_HDF5 client;
-    if(id == 0 ||infop == NULL)
-	return NC_EINVAL;
-    memset(&client,0,sizeof(client));
-    client.hdr.format = NC_FILTER_FORMAT_HDF5;
-    client.sort = NC_FILTER_SORT_CLIENT;
-    client.u.client.id = id;
-    client.u.client.info = hct;
-    /* Note use of a global function, not part of the dispatch table */
-    stat = nc4_global_filter_action(NCFILTER_CLIENT_INQ, id, &client);
-    if(stat == NC_NOERR) {
-	*hct = *(H5Z_class2_t*)client.u.client.info;
-    }
-#else
-    stat = NC_ENOTBUILT;
-#endif
-    return stat;
-}
-#endif /*ENABLE_CLIENTSIDE_FILTERS*/
 
 /**************************************************/
 /* Functions for accessing standardized filters */

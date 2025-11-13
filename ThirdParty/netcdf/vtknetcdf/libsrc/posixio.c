@@ -63,7 +63,7 @@
 #undef MIN  /* system may define MIN somewhere and complain */
 #define MIN(mm,nn) (((mm) < (nn)) ? (mm) : (nn))
 
-#if !defined(NDEBUG) && !defined(X_INT_MAX)
+#if /*!defined(NDEBUG) &&*/ !defined(X_INT_MAX)
 #define  X_INT_MAX 2147483647
 #endif
 
@@ -215,7 +215,7 @@ fgrow(const int fd, const off_t len)
 	    const off_t pos = lseek(fd, 0, SEEK_CUR);
 	    if(pos < 0)
 		return errno;
-	    if (lseek(fd, len-sizeof(dumb), SEEK_SET) < 0)
+	    if (lseek(fd, len-(off_t)sizeof(dumb), SEEK_SET) < 0)
 		return errno;
 	    if(write(fd, &dumb, sizeof(dumb)) < 0)
 		return errno;
@@ -313,11 +313,11 @@ px_pgout(ncio *const nciop,
 	    if(partial == nextent)
 		break;
 	    nvp += partial;
-	    nextent -= partial;
+	    nextent -= (size_t)partial;
 	}
 	if(partial == -1)
 	    return errno;
-	*posp += extent;
+	*posp += (off_t)extent;
 
 	return NC_NOERR;
 }
@@ -390,13 +390,13 @@ px_pgin(ncio *const nciop,
       if( nread == -1 || (status != EINTR && status != NC_NOERR))
         return status;
       /* else it's okay we read less than asked for */
-      (void) memset((char *)vp + nread, 0, (ssize_t)extent - nread);
+      (void) memset((char *)vp + nread, 0, (size_t)((ssize_t)extent - nread));
     }
 
-    *nreadp = nread;
-	*posp += nread;
+    *nreadp = (size_t)nread;
+    *posp += nread;
 
-	return NC_NOERR;
+    return NC_NOERR;
 }
 
 /* This struct is for POSIX systems, with NC_SHARE not in effect. If
@@ -533,12 +533,11 @@ px_get(ncio *const nciop, ncio_px *const pxp,
 	int status = NC_NOERR;
 
 	const off_t blkoffset = _RNDDOWN(offset, (off_t)pxp->blksz);
-	off_t diff = (size_t)(offset - blkoffset);
-	off_t blkextent = _RNDUP(diff + extent, pxp->blksz);
+	off_t diff = offset - blkoffset;
+	size_t blkextent = _RNDUP((size_t)diff + extent, pxp->blksz);
 
-	assert(extent != 0);
-	assert(extent < X_INT_MAX); /* sanity check */
-	assert(offset >= 0); /* sanity check */
+	if(!(extent != 0 && extent < X_INT_MAX && offset >= 0)) /* sanity check */
+	    return NC_ENOTNC;
 
 	if(2 * pxp->blksz < blkextent)
 		return E2BIG; /* TODO: temporary kludge */
@@ -589,7 +588,7 @@ px_get(ncio *const nciop, ncio_px *const pxp,
 		if(blkextent == pxp->blksz)
 		{
 			/* all in upper half, no fault needed */
-			diff += pxp->blksz;
+			diff += (off_t)pxp->blksz;
 			goto done;
 		}
 		/* else */
@@ -731,11 +730,11 @@ pgin:
 		 &pxp->pos);
 	if(status != NC_NOERR)
 		return status;
-	 pxp->bf_offset = blkoffset;
-	 pxp->bf_extent = blkextent;
+        pxp->bf_offset = blkoffset;
+        pxp->bf_extent = blkextent;
 
 done:
-	extent += diff;
+	extent += (size_t)diff;
 	if(pxp->bf_cnt < extent)
 		pxp->bf_cnt = extent;
 	assert(pxp->bf_cnt <= pxp->bf_extent);
@@ -914,13 +913,13 @@ fprintf(stderr, "ncio_px_move %ld %ld %ld %ld %ld\n",
 
 if(to > from)
 {
-		off_t frm = from + nbytes;
-		off_t toh = to + nbytes;
+		off_t frm = from + (off_t)nbytes;
+		off_t toh = to + (off_t)nbytes;
 		for(;;)
 		{
 			size_t loopextent = MIN(remaining, pxp->blksz);
-			frm -= loopextent;
-			toh -= loopextent;
+			frm -= (off_t)loopextent;
+                        toh -= (off_t)loopextent;
 
 			status = px_double_buffer(nciop, toh, frm,
 				 	loopextent, rflags) ;
@@ -946,8 +945,8 @@ else
 
 			if(remaining == 0)
 				break; /* normal loop exit */
-			to += loopextent;
-			from += loopextent;
+			to += (off_t)loopextent;
+                        from += (off_t)loopextent;
 		}
 }
 		return NC_NOERR;

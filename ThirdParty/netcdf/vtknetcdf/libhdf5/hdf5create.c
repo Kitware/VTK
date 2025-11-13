@@ -11,7 +11,6 @@
 #include "config.h"
 #include "netcdf.h"
 #include "ncpathmgr.h"
-#include "ncpathmgr.h"
 #include "hdf5internal.h"
 
 /** @internal These flags may not be set for create. */
@@ -164,7 +163,7 @@ nc4_create_file(const char *path, int cmode, size_t initialsz,
     {
 	NCglobalstate* gs = NC_getglobalstate();
         if(gs->alignment.defined) {
-	    if (H5Pset_alignment(fapl_id, gs->alignment.threshold, gs->alignment.alignment) < 0) {
+	    if (H5Pset_alignment(fapl_id, (hsize_t)gs->alignment.threshold, (hsize_t)gs->alignment.alignment) < 0) {
 	        BAIL(NC_EHDFERR);
 	    }
 	}
@@ -222,12 +221,12 @@ nc4_create_file(const char *path, int cmode, size_t initialsz,
         if(nc4_info->mem.diskless) {
             size_t alloc_incr;     /* Buffer allocation increment */
             size_t min_incr = 65536; /* Minimum buffer increment */
-            double buf_prcnt = 0.1f;  /* Percentage of buffer size to set as increment */
+            double buf_prcnt = 0.1;  /* Percentage of buffer size to set as increment */
             /* set allocation increment to a percentage of the supplied buffer size, or
              * a pre-defined minimum increment value, whichever is larger
              */
-            if ((buf_prcnt * initialsz) > min_incr)
-                alloc_incr = (size_t)(buf_prcnt * initialsz);
+            if ((size_t)(buf_prcnt * (double)initialsz) > min_incr)
+                alloc_incr = (size_t)(buf_prcnt * (double)initialsz);
             else
                 alloc_incr = min_incr;
             /* Configure FAPL to use the core file driver */

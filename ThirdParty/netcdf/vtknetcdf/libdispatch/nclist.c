@@ -1,5 +1,6 @@
 /* Copyright 2018, UCAR/Unidata and OPeNDAP, Inc.
    See the COPYRIGHT file for more information. */
+#include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,7 +11,9 @@
 #define strcasecmp _stricmp
 #endif
 
-int nclistnull(void* e) {return e == NULL;}
+int nclistisnull(void* e) {return e == NULL;}
+
+#define NCLISTDEBUG 1
 
 #ifndef TRUE
 #define TRUE 1
@@ -22,6 +25,18 @@ int nclistnull(void* e) {return e == NULL;}
 #define DEFAULTALLOC 16
 #define ALLOCINCR 16
 
+static int
+nclistfail(void)
+{
+    fflush(stdout);
+    fprintf(stderr,"NClist failure\n");
+    fflush(stderr);
+#ifdef NCLISTDEBUG
+    abort();
+#endif
+    return FALSE;
+}
+
 NClist* nclistnew(void)
 {
   NClist* l;
@@ -31,7 +46,7 @@ NClist* nclistnew(void)
     ncinitialized = 1;
   }
 */
-  l = (NClist*)malloc(sizeof(NClist));
+  l = (NClist*)calloc(1,sizeof(NClist));
   if(l) {
     l->alloc=0;
     l->length=0;
@@ -82,7 +97,7 @@ int
 nclistsetalloc(NClist* l, size_t sz)
 {
   void** newcontent = NULL;
-  if(l == NULL) return FALSE;
+  if(l == NULL) return nclistfail();
   if(sz <= 0) {sz = (l->length?2*l->length:DEFAULTALLOC);}
   if(l->alloc >= sz) {return TRUE;}
   newcontent=(void**)calloc(sz,sizeof(void*));
@@ -98,8 +113,8 @@ nclistsetalloc(NClist* l, size_t sz)
 int
 nclistsetlength(NClist* l, size_t newlen)
 {
-  if(l == NULL) return FALSE;
-  if(newlen > l->alloc && !nclistsetalloc(l,newlen)) return FALSE;
+  if(l == NULL) return nclistfail();
+  if(newlen > l->alloc && !nclistsetalloc(l,newlen)) return nclistfail();
   if(newlen > l->length) {
       /* clear any extension */
       memset(&l->content[l->length],0,(newlen - l->length)*sizeof(void*));
@@ -111,7 +126,8 @@ nclistsetlength(NClist* l, size_t newlen)
 void*
 nclistget(const NClist* l, size_t index)
 {
-  if(l == NULL || l->length == 0) return NULL;
+  if(l == NULL) return (nclistfail(),NULL);
+  if(l->length == 0) return NULL;
   if(index >= l->length) return NULL;
   return l->content[index];
 }
@@ -122,10 +138,10 @@ nclistget(const NClist* l, size_t index)
 int
 nclistset(NClist* l, size_t index, void* elem)
 {
-  if(l == NULL) return FALSE;
-  if(!nclistsetalloc(l,index+1)) return FALSE;
+  if(l == NULL) return nclistfail();
+  if(!nclistsetalloc(l,index+1)) return nclistfail();
   if(index >= l->length) {
-      if(!nclistsetlength(l,index+1)) return FALSE;
+      if(!nclistsetlength(l,index+1)) return nclistfail();
   }
   l->content[index] = elem;
   return TRUE;
@@ -135,11 +151,13 @@ nclistset(NClist* l, size_t index, void* elem)
 int
 nclistinsert(NClist* l, size_t index, void* elem)
 {
-  long i; /* do not make unsigned */
-  if(l == NULL) return FALSE;
-  if(index > l->length) return FALSE;
+  size_t i;
+  if(l == NULL) return nclistfail();
+  if(index > l->length) return nclistfail();
   nclistsetalloc(l,0);
-  for(i=(long)l->length;i>index;i--) l->content[i] = l->content[i-1];
+  if(l->length > 0) {
+    for(i=l->length;i>index;i--) l->content[i] = l->content[i-1];
+  }
   l->content[index] = elem;
   l->length++;
   return TRUE;
@@ -148,8 +166,10 @@ nclistinsert(NClist* l, size_t index, void* elem)
 int
 nclistpush(NClist* l, const void* elem)
 {
-  if(l == NULL) return FALSE;
+  if(l == NULL) return nclistfail();
   if(l->length >= l->alloc) nclistsetalloc(l,0);
+  if(l->content == NULL)
+      nclistsetalloc(l,0);
   l->content[l->length] = (void*)elem;
   l->length++;
   return TRUE;
@@ -158,7 +178,8 @@ nclistpush(NClist* l, const void* elem)
 void*
 nclistpop(NClist* l)
 {
-  if(l == NULL || l->length == 0) return NULL;
+  if(l == NULL) return (nclistfail(),NULL);
+  if(l->length == 0) return NULL;
   l->length--;
   return l->content[l->length];
 }
@@ -166,7 +187,8 @@ nclistpop(NClist* l)
 void*
 nclisttop(NClist* l)
 {
-  if(l == NULL || l->length == 0) return NULL;
+  if(l == NULL) return (nclistfail(),NULL);
+  if(l->length == 0) return NULL;
   return l->content[l->length - 1];
 }
 
@@ -175,7 +197,8 @@ nclistremove(NClist* l, size_t i)
 {
   size_t len;
   void* elem;
-  if(l == NULL || (len=l->length) == 0) return NULL;
+  if(l == NULL) return (nclistfail(),NULL);
+  if((len=l->length) == 0) return NULL;
   if(i >= len) return NULL;
   elem = l->content[i];
   for(i+=1;i<len;i++) l->content[i-1] = l->content[i];
@@ -218,7 +241,8 @@ nclistelemremove(NClist* l, void* elem)
   size_t len;
   size_t i;
   int found = 0;
-  if(l == NULL || (len=l->length) == 0) return 0;
+  if(l == NULL) return nclistfail();
+  if((len=l->length) == 0) return 0;
   for(i=0;i<nclistlength(l);i++) {
     void* candidate = l->content[i];
     if(elem == candidate) {
@@ -241,7 +265,8 @@ nclistunique(NClist* l)
 {
     size_t i,j,k,len;
     void** content;
-    if(l == NULL || l->length == 0) return 1;
+    if(l == NULL) return nclistfail();
+    if(l->length == 0) return 1;
     len = l->length;
     content = l->content;
     for(i=0;i<len;i++) {
@@ -270,7 +295,7 @@ nclistclone(const NClist* l, int deep)
         nclistsetlength(clone,l->length);
         memcpy((void*)clone->content,(void*)l->content,sizeof(void*)*l->length);
     } else { /*deep*/
-	int i;
+	size_t i;
 	for(i=0;i<nclistlength(l);i++) {
 	    char* dups = strdup(nclistget(l,i));
 	    if(dups == NULL) {nclistfreeall(clone); clone = NULL; goto done;}
@@ -286,9 +311,27 @@ done:
 void*
 nclistextract(NClist* l)
 {
-    void* result = l->content;
+    void* result = NULL;
+    if(l) {
+    result = l->content;
     l->alloc = 0;
     l->length = 0;
     l->content = NULL;
+    }
     return result;
 }
+
+/* Extends nclist to include a NULL that is not included
+   in list length.
+   return value is always 1.
+*/
+int
+nclistnull(NClist* l)
+{
+    if(l == NULL) return nclistfail();
+    if(l->length == 0) return 1;
+    nclistpush(l,NULL);
+    nclistsetlength(l,l->length-1);
+    return 1;
+}
+

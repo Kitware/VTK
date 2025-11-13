@@ -94,6 +94,7 @@ NC_NOOP_inq_var_filter_ids(int ncid, int varid, size_t* nfilters, unsigned int* 
 int
 NC_NOOP_inq_var_filter_info(int ncid, int varid, unsigned int id, size_t* nparams, unsigned int* params)
 {
+    NC_UNUSED(ncid);
     return NC_ENOFILTER;
 }
 
@@ -101,6 +102,7 @@ int
 NC_NOOP_inq_filter_avail(int ncid, unsigned id)
 {
     NC_UNUSED(ncid);
+    NC_UNUSED(id);
     return NC_ENOFILTER;
 }
 

@@ -867,10 +867,8 @@ nc_def_var_szip(int ncid, int varid, int options_mask, int pixels_per_block)
 
     /* This will cause H5Pset_szip to be called when the var is
      * created. */
-    unsigned int params[2];
-    params[0] = options_mask;
-    params[1] = pixels_per_block;
-    if ((ret = nc_def_var_filter(ncid, varid, HDF5_FILTER_SZIP, 2, params)))
+    unsigned int params[2] = {(unsigned int)options_mask, (unsigned int)pixels_per_block};
+    if ((ret = nc_def_var_filter(ncid, varid, H5Z_FILTER_SZIP, 2, params)))
         return ret;
 
     return NC_NOERR;
@@ -1034,7 +1032,7 @@ NC_inq_recvar(int ncid, int varid, int* nrecdimsp, int *is_recdim)
         if(status != NC_NOERR) return status;
         if(nunlimdims == 0) return status;
 
-        if (!(unlimids = malloc(nunlimdims * sizeof(int))))
+        if (!(unlimids = malloc((size_t)nunlimdims * sizeof(int))))
             return NC_ENOMEM;
         status = nc_inq_unlimdims(ncid, &nunlimdims, unlimids); /* for group or file, not variable */
         if(status != NC_NOERR) {
@@ -1229,15 +1227,18 @@ NC_getshape(int ncid, int varid, int ndims, size_t* shape)
    @param ncid The file ID.
    @param varid The variable ID.
    @param start Pointer to start array. If NULL ::NC_EINVALCOORDS will
-   be returned for non-scalar variable.
+   be returned for non-scalar variable. This array must be same size
+   as variable's number of dimensions.
    @param count Pointer to pointer to count array. If *count is NULL,
    an array of the correct size will be allocated, and filled with
    counts that represent the full extent of the variable. In this
-   case, the memory must be freed by the caller.
+   case, the memory must be freed by the caller. If provided, this
+   array must be same size as variable's number of dimensions.
    @param stride Pointer to pointer to stride array. If NULL, stide is
    ignored. If *stride is NULL an array of the correct size will be
    allocated, and filled with ones. In this case, the memory must be
-   freed by the caller.
+   freed by the caller. If provided, this
+   array must be same size as variable's number of dimensions.
 
    @return ::NC_NOERR No error.
    @return ::NC_EBADID Bad ncid.
@@ -1263,7 +1264,7 @@ NC_check_nulls(int ncid, int varid, const size_t *start, size_t **count,
     /* If count is NULL, assume full extent of var. */
     if (!*count)
     {
-        if (!(*count = malloc(varndims * sizeof(size_t))))
+        if (!(*count = malloc((size_t)varndims * sizeof(size_t))))
             return NC_ENOMEM;
         if ((stat = NC_getshape(ncid, varid, varndims, *count)))
         {
@@ -1279,7 +1280,7 @@ NC_check_nulls(int ncid, int varid, const size_t *start, size_t **count,
     {
         int i;
 
-        if (!(*stride = malloc(varndims * sizeof(ptrdiff_t))))
+        if (!(*stride = malloc((size_t)varndims * sizeof(ptrdiff_t))))
             return NC_ENOMEM;
         for (i = 0; i < varndims; i++)
             (*stride)[i] = 1;
@@ -1291,19 +1292,18 @@ NC_check_nulls(int ncid, int varid, const size_t *start, size_t **count,
 /**
    @name Free String Resources
 
-   Use this functions to free resources associated with ::NC_STRING
-   data.
+   Use these functions to free resources associated with ::NC_STRING data.
 */
 /*! @{ */
 /**
    Free string space allocated by the library.
 
-   When you read string type the library will allocate the storage
-   space for the data. This storage space must be freed, so pass the
-   pointer back to this function, when you're done with the data, and
-   it will free the string memory.
+   When you read an array string typed data the library will allocate the storage
+   space for the data. The allocated strings must be freed, so pass the
+   pointer to the array plus a count of the number of elements in the array to this function,
+   when you're done with the data, and it will free the allocated string memory.
 
-   WARNING: This does not free the data vector itself, only
+   WARNING: This does not free the top-level array itself, only
    the strings to which it points.
 
    @param len The number of character arrays in the array.
@@ -1315,7 +1315,7 @@ NC_check_nulls(int ncid, int varid, const size_t *start, size_t **count,
 int
 nc_free_string(size_t len, char **data)
 {
-    int i;
+    size_t i;
     for (i = 0; i < len; i++)
         free(data[i]);
     return NC_NOERR;

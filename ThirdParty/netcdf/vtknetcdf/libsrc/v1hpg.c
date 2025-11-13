@@ -448,10 +448,13 @@ ncx_len_NC_dimarray(const NC_dimarray *ncap, int version)
 	/* else */
 	{
 		const NC_dim **dpp = (const NC_dim **)ncap->value;
-		const NC_dim *const *const end = &dpp[ncap->nelems];
-		for(  /*NADA*/; dpp < end; dpp++)
+		if (dpp)
 		{
-			xlen += ncx_len_NC_dim(*dpp,version);
+			const NC_dim *const *const end = &dpp[ncap->nelems];
+			for(  /*NADA*/; dpp < end; dpp++)
+			{
+				xlen += ncx_len_NC_dim(*dpp,version);
+			}
 		}
 	}
 	return xlen;
@@ -558,8 +561,8 @@ v1h_get_NC_dimarray(v1hs *gsp, NC_dimarray *ncap)
 				return status;
 			}
 			{
-			  int dimid = (size_t)(dpp - ncap->value);
-			  NC_hashmapadd(ncap->hashmap, (uintptr_t)dimid, (*dpp)->name->cp,strlen((*dpp)->name->cp));
+			  uintptr_t dimid = (uintptr_t)(dpp - ncap->value);
+			  NC_hashmapadd(ncap->hashmap, dimid, (*dpp)->name->cp, strlen((*dpp)->name->cp));
 			}
 		}
 	}
@@ -598,7 +601,7 @@ ncx_len_NC_attr(const NC_attr *attrp, int version)
 
 /*----< ncmpix_len_nctype() >------------------------------------------------*/
 /* return the length of external data type */
-static int
+static size_t
 ncmpix_len_nctype(nc_type type) {
     switch(type) {
         case NC_BYTE:
@@ -641,11 +644,13 @@ v1h_put_NC_attrV(v1hs *psp, const NC_attr *attrp)
 		if(status != NC_NOERR)
 			return status;
 
-		(void) memcpy(psp->pos, value, nbytes);
-
+		if (value) {
+			(void) memcpy(psp->pos, value, nbytes);
+			value = (void *)((char *)value + nbytes);
+		}
+		
 		psp->pos = (void *)((char *)psp->pos + nbytes);
-		value = (void *)((char *)value + nbytes);
-        	remaining -= nbytes;
+		remaining -= nbytes;
 
 	} while(remaining != 0);
 
@@ -709,10 +714,12 @@ v1h_get_NC_attrV(v1hs *gsp, NC_attr *attrp)
 		if(status != NC_NOERR)
 			return status;
 
-		(void) memcpy(value, gsp->pos, nget);
+		if (value) {
+			(void) memcpy(value, gsp->pos, nget);
+			value = (void *)((signed char *)value + nget);
+		}
+		
 		gsp->pos = (void*)((unsigned char *)gsp->pos + nget);
-
-		value = (void *)((signed char *)value + nget);
 
 		remaining -= nget;
 
@@ -790,10 +797,13 @@ ncx_len_NC_attrarray(const NC_attrarray *ncap, int version)
 	/* else */
 	{
 		const NC_attr **app = (const NC_attr **)ncap->value;
-		const NC_attr *const *const end = &app[ncap->nelems];
-		for( /*NADA*/; app < end; app++)
+		if (app)
 		{
-			xlen += ncx_len_NC_attr(*app,version);
+			const NC_attr *const *const end = &app[ncap->nelems];
+			for( /*NADA*/; app < end; app++)
+			{
+				xlen += ncx_len_NC_attr(*app,version);
+			}
 		}
 	}
 	return xlen;
@@ -1090,10 +1100,13 @@ ncx_len_NC_vararray(const NC_vararray *ncap, size_t sizeof_off_t, int version)
 	/* else */
 	{
 		const NC_var **vpp = (const NC_var **)ncap->value;
-		const NC_var *const *const end = &vpp[ncap->nelems];
-		for( /*NADA*/; vpp < end; vpp++)
+		if (vpp)
 		{
-			xlen += ncx_len_NC_var(*vpp, sizeof_off_t, version);
+			const NC_var *const *const end = &vpp[ncap->nelems];
+			for( /*NADA*/; vpp < end; vpp++)
+			{
+				xlen += ncx_len_NC_var(*vpp, sizeof_off_t, version);
+			}
 		}
 	}
 	return xlen;
@@ -1199,8 +1212,8 @@ v1h_get_NC_vararray(v1hs *gsp, NC_vararray *ncap)
 				return status;
 			}
 			{
-			  int varid = (size_t)(vpp - ncap->value);
-			  NC_hashmapadd(ncap->hashmap, (uintptr_t)varid, (*vpp)->name->cp,strlen((*vpp)->name->cp));
+			  uintptr_t varid = (uintptr_t)(vpp - ncap->value);
+			  NC_hashmapadd(ncap->hashmap, varid, (*vpp)->name->cp, strlen((*vpp)->name->cp));
 			}
 		}
 	}
@@ -1224,7 +1237,6 @@ static int
 NC_computeshapes(NC3_INFO* ncp)
 {
 	NC_var **vpp = (NC_var **)ncp->vars.value;
-	NC_var *const *const end = &vpp[ncp->vars.nelems];
 	NC_var *first_var = NULL;	/* first "non-record" var */
 	NC_var *first_rec = NULL;	/* first "record" var */
 	int status;
@@ -1236,27 +1248,31 @@ NC_computeshapes(NC3_INFO* ncp)
 	if(ncp->vars.nelems == 0)
 		return(0);
 
-	for( /*NADA*/; vpp < end; vpp++)
+	if (vpp)
 	{
-		status = NC_var_shape(*vpp, &ncp->dims);
-        if(status != NC_NOERR)
-			return(status);
+		NC_var *const *const end = &vpp[ncp->vars.nelems];
+		for( /*NADA*/; vpp < end; vpp++)
+		{
+			status = NC_var_shape(*vpp, &ncp->dims);
+		        if(status != NC_NOERR)
+				return(status);
 
-	  	if(IS_RECVAR(*vpp))
-		{
-	  		if(first_rec == NULL)
-				first_rec = *vpp;
-			    ncp->recsize += (*vpp)->len;
-		}
-		else
-		{
-		        if(first_var == NULL)
+		  	if(IS_RECVAR(*vpp))
+			{
+		  		if(first_rec == NULL)
+					first_rec = *vpp;
+				ncp->recsize += (*vpp)->len;
+			}
+			else
+			{
+		            if(first_var == NULL)
 			        first_var = *vpp;
-			/*
-			 * Overwritten each time thru.
-			 * Usually overwritten in first_rec != NULL clause below.
-			 */
-			ncp->begin_rec = (*vpp)->begin + (off_t)(*vpp)->len;
+			    /*
+			     * Overwritten each time thru.
+			     * Usually overwritten in first_rec != NULL clause below.
+			     */
+			    ncp->begin_rec = (*vpp)->begin + (off_t)(*vpp)->len;
+			}
 		}
 	}
 

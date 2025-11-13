@@ -12,8 +12,10 @@
 #ifndef NETCDF_FILTER_H
 #define NETCDF_FILTER_H 1
 
-/* API for libdispatch/dfilter.c
-*/
+#include "vtk_netcdf_mangle.h"
+
+/**************************************************/
+/* API for libdispatch/dfilter.c */
 
 /* Must match values in <H5Zpublic.h> */
 #ifndef H5Z_FILTER_DEFLATE
@@ -110,9 +112,68 @@ EXTERNL int nc_inq_var_zstandard(int ncid, int varid, int* hasfilterp, int *leve
 EXTERNL int nc_def_var_blosc(int ncid, int varid, unsigned subcompressor, unsigned level, unsigned blocksize, unsigned addshuffle);
 EXTERNL int nc_inq_var_blosc(int ncid, int varid, int* hasfilterp, unsigned* subcompressorp, unsigned* levelp, unsigned* blocksizep, unsigned* addshufflep);
 
+/* Filter path query/set */
+EXTERNL int nc_filter_path_query(int id);
+
 #if defined(__cplusplus)
 }
 #endif
+
 /**************************************************/
+/* API for libdispatch/dplugin.c */
+
+/* Combine the vector of directory path plus it's length in a single struct. */
+typedef struct NCPluginList {
+    size_t ndirs; /* |dirs| */
+    char** dirs;
+} NCPluginList;
+
+/* Externally visible plugin path functions */
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+/**
+ * Return the length of the current sequence of directories
+ * in the internal global plugin path list.
+ * @param ndirsp length is returned here
+ * @return NC_NOERR | NC_EXXX
+ *
+ * @author Dennis Heimbigner
+*/
+EXTERNL int nc_plugin_path_ndirs(size_t* ndirsp);
+
+/**
+ * Return the current sequence of directories in the internal global
+ * plugin path list. Since this function does not modify the plugin path,
+ * it can be called at any time.
+ * @param dirs pointer to an NCPluginList object
+ * @return NC_NOERR | NC_EXXX
+ * @author Dennis Heimbigner
+ *
+ * WARNING: if dirs->dirs is NULL, then space for the directory
+ * vector will be allocated. If not NULL, then the specified space will
+ * be overwritten with the vector.
+ *
+ * @author: Dennis Heimbigner
+*/
+EXTERNL int nc_plugin_path_get(NCPluginList* dirs);
+
+/**
+ * Empty the current internal path sequence
+ * and replace with the sequence of directories argument.
+ *
+ * Using a paths argument of NULL or npaths argument of 0 will clear the set of plugin paths.
+ * @param dirs pointer to an NCPluginList object containing
+ *        the number and vector of directory paths
+ * @return NC_NOERR | NC_EXXX
+ *
+ * @author Dennis Heimbigner
+*/
+EXTERNL int nc_plugin_path_set(NCPluginList* dirs);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* NETCDF_FILTER_H */

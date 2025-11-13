@@ -228,15 +228,18 @@ dup_NC_dimarrayV(NC_dimarray *ncap, const NC_dimarray *ref)
 	ncap->nelems = 0;
 	{
 		NC_dim **dpp = ncap->value;
-		const NC_dim **drpp = (const NC_dim **)ref->value;
-		NC_dim *const *const end = &dpp[ref->nelems];
-		for( /*NADA*/; dpp < end; drpp++, dpp++, ncap->nelems++)
+		if(dpp != NULL)
 		{
-			*dpp = dup_NC_dim(*drpp);
-			if(*dpp == NULL)
+			const NC_dim **drpp = (const NC_dim **)ref->value;
+			NC_dim *const *const end = &dpp[ref->nelems];
+			for( /*NADA*/; dpp < end; drpp++, dpp++, ncap->nelems++)
 			{
-				status = NC_ENOMEM;
-				break;
+				*dpp = dup_NC_dim(*drpp);
+				if(*dpp == NULL)
+				{
+					status = NC_ENOMEM;
+					break;
+				}
 			}
 		}
 	}
@@ -477,7 +480,7 @@ NC3_rename_dim( int ncid, int dimid, const char *unewname)
 	        NC_hashmapremove(ncp->dims.hashmap, old->cp, strlen(old->cp), NULL);
 		dimp->name = newStr;
 
-		intdata = dimid;
+		intdata = (uintptr_t)dimid;
 		NC_hashmapadd(ncp->dims.hashmap, intdata, newStr->cp, strlen(newStr->cp));
 		free_NC_string(old);
 		goto done;
