@@ -8,7 +8,7 @@ readonly name="libxml2"
 readonly ownership="libxml2 Upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name"
 readonly repo="https://gitlab.kitware.com/third-party/libxml2.git"
-readonly tag="for/vtk-20250703-2.13.5"
+readonly tag="for/vtk-20251112-2.13.5"
 readonly paths="
 
 configure.ac
