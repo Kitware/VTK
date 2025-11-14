@@ -70,20 +70,6 @@ function(vtk_type_native type ctype class)
     PARENT_SCOPE)
 endfunction()
 
-function(vtk_type_native_fallback type preferred_ctype preferred_class fallback_class)
-  string(TOUPPER "${type}" type_upper)
-  set("vtk_type_native_${type}" "
-#if VTK_TYPE_${type_upper} == VTK_${preferred_ctype}
-# include \"${preferred_class}Array.h\"
-# define vtkTypeArrayBase ${preferred_class}Array
-#else
-# include \"${fallback_class}Array.h\"
-# define vtkTypeArrayBase ${fallback_class}Array
-#endif
-"
-    PARENT_SCOPE)
-endfunction()
-
 function(vtk_type_native_choice type preferred_ctype preferred_class fallback_ctype fallback_class)
   string(TOUPPER "${type}" type_upper)
   set("vtk_type_native_${type}" "
@@ -100,7 +86,7 @@ endfunction()
 
 # Configure data arrays for platform-independent fixed-size types.
 # Match the type selection here to that in vtkType.h.
-vtk_type_native_fallback(Int8 CHAR vtkChar vtkSignedChar)
+vtk_type_native(Int8 SIGNED_CHAR vtkSignedChar)
 vtk_type_native(UInt8 UNSIGNED_CHAR vtkUnsignedChar)
 vtk_type_native(Int16 SHORT vtkShort)
 vtk_type_native(UInt16 UNSIGNED_SHORT vtkUnsignedShort)
