@@ -268,8 +268,8 @@ void vtkPlane::EvaluateGradient(double vtkNotUsed(x)[3], double n[3])
 // intersection are returned in x. A zero is returned if the plane and line
 // do not intersect between (0<=t<=1). If the plane and line are parallel,
 // zero is returned and t is set to VTK_LARGE_DOUBLE.
-int vtkPlane::IntersectWithLine(
-  const double p1[3], const double p2[3], double n[3], double p0[3], double& t, double x[3])
+int vtkPlane::IntersectWithLine(const double p1[3], const double p2[3],
+  VTK_FUTURE_CONST double n[3], VTK_FUTURE_CONST double p0[3], double& t, double x[3])
 {
   double num, den, p21[3];
   double fabsden, fabstolerance;

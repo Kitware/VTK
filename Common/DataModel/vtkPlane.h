@@ -147,8 +147,8 @@ public:
    * do not intersect between (0<=t<=1). If the plane and line are parallel,
    * zero is returned and t is set to VTK_LARGE_DOUBLE.
    */
-  static int IntersectWithLine(
-    const double p1[3], const double p2[3], double n[3], double p0[3], double& t, double x[3]);
+  static int IntersectWithLine(const double p1[3], const double p2[3], VTK_FUTURE_CONST double n[3],
+    VTK_FUTURE_CONST double p0[3], double& t, double x[3]);
   int IntersectWithLine(const double p1[3], const double p2[3], double& t, double x[3]);
   ///@}
 
