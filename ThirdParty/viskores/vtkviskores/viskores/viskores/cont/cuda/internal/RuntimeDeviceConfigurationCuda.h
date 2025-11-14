@@ -43,7 +43,7 @@ class RuntimeDeviceConfiguration<viskores::cont::DeviceAdapterTagCuda>
   : public viskores::cont::internal::RuntimeDeviceConfigurationBase
 {
 public:
-  RuntimeDeviceConfiguration<viskores::cont::DeviceAdapterTagCuda>()
+  RuntimeDeviceConfiguration()
   {
     this->CudaDeviceCount = 0;
     this->CudaProp.clear();

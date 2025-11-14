@@ -48,6 +48,7 @@ set(headers
   ArrayHandleRandomUniformReal.h
   ArrayHandleRuntimeVec.h
   ArrayHandleSOA.h
+  ArrayHandleSOAStride.h
   ArrayHandleStride.h
   ArrayHandleSwizzle.h
   ArrayHandleTransform.h
@@ -146,6 +147,7 @@ set(sources
   ArrayHandle.cxx
   ArrayHandleBasic.cxx
   ArrayHandleSOA.cxx
+  ArrayHandleSOAStride.cxx
   ArrayHandleStride.cxx
   AssignerPartitionedDataSet.cxx
   BitField.cxx

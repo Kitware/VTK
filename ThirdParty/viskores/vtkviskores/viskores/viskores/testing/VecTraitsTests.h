@@ -151,6 +151,16 @@ static void TestVecTypeImpl(const typename std::remove_const<T>::type& inVector,
   using ComponentType = typename Traits::ComponentType;
   using NonConstT = typename std::remove_const<T>::type;
 
+  VISKORES_STATIC_ASSERT_MSG(
+    (std::is_base_of<viskores::VecTraits<NonConstT>, viskores::VecTraits<T&>>::value),
+    "Reference should have same implementation as base type.");
+  VISKORES_STATIC_ASSERT_MSG(
+    (std::is_base_of<viskores::VecTraits<NonConstT>, viskores::VecTraits<const T&>>::value),
+    "Const reference should have same implementation as base type.");
+  VISKORES_STATIC_ASSERT_MSG(
+    (std::is_base_of<viskores::VecTraits<NonConstT>, viskores::VecTraits<const NonConstT>>::value),
+    "Const should have same implementation as base type.");
+
   CheckIsStatic<NUM_COMPONENTS>(inVector, typename Traits::IsSizeStatic());
 
   VISKORES_TEST_ASSERT(Traits::GetNumberOfComponents(inVector) == NUM_COMPONENTS,

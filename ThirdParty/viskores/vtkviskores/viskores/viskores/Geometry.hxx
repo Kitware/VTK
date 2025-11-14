@@ -419,7 +419,7 @@ VISKORES_EXEC_CONT bool Plane<CoordType>::Intersect(const Plane<CoordType>& othe
   // and we want it to be near the other plane base points to avoid
   // precision issues in the future.
   // So, project each plane origin to the other plane along a line
-  // perpendicular to the plane and the output line. Both of these
+  // in the plane and perpendicular to the output line. Both of these
   // points are on the output line. Average the two points. The result
   // will still be on the line and will be closer to the two base points.
   auto nn = viskores::Normal(dir);
@@ -427,8 +427,8 @@ VISKORES_EXEC_CONT bool Plane<CoordType>::Intersect(const Plane<CoordType>& othe
   auto moveDir02 = viskores::Cross(other.Normal, nn);
   Ray<CoordType, 3, true> bra(this->Origin, moveDir01);
   Ray<CoordType, 3, true> brb(other.Origin, moveDir02);
-  viskores::Vec<CoordType, 3> p0a;
-  viskores::Vec<CoordType, 3> p0b;
+  viskores::Vec<CoordType, 3> p0a(viskores::Nan<CoordType>());
+  viskores::Vec<CoordType, 3> p0b(viskores::Nan<CoordType>());
   CoordType pDummyA, pDummyB;
   bool bDummyA, bDummyB;
   auto tol = viskores::Sqrt(tol2);

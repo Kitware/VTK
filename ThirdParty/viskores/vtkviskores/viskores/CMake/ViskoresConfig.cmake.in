@@ -134,7 +134,7 @@ set(PACKAGE_PREFIX_DIR ${PACKAGE_PREFIX_DIR_save_viskores})
 # Load the library exports, but only if not compiling Viskores itself
 set_and_check(Viskores_CONFIG_DIR "@PACKAGE_Viskores_INSTALL_CONFIG_DIR@")
 set(VISKORES_FROM_INSTALL_DIR FALSE)
-if(NOT "${CMAKE_BINARY_DIR}" STREQUAL "@Viskores_BINARY_DIR@")
+if(NOT (PROJECT_NAME STREQUAL "Viskores" OR CMAKE_PROJECT_NAME STREQUAL "Viskores"))
   set(VISKORES_FROM_INSTALL_DIR TRUE)
   include(${Viskores_CONFIG_DIR}/ViskoresTargets.cmake)
 

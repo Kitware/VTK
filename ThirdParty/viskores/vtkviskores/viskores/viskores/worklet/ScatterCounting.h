@@ -39,8 +39,8 @@ struct ScatterCountingBuilder;
 
 /// \brief A scatter that maps input to some numbers of output.
 ///
-/// The \c Scatter classes are responsible for defining how much output is
-/// generated based on some sized input. \c ScatterCounting establishes a 1 to
+/// The `Scatter` classes are responsible for defining how much output is
+/// generated based on some sized input. `ScatterCounting` establishes a 1 to
 /// N mapping from input to output. That is, every input element generates 0 or
 /// more output elements associated with it. The output elements are grouped by
 /// the input associated.
@@ -60,10 +60,10 @@ struct VISKORES_WORKLET_EXPORT ScatterCounting : internal::ScatterBase
                                     viskores::UInt16,
                                     viskores::UInt8>;
 
-  /// Construct a \c ScatterCounting object using an array of counts for the
+  /// Construct a `ScatterCounting` object using an array of counts for the
   /// number of outputs for each input. Part of the construction requires
   /// generating an input to output map, but this map is not needed for the
-  /// operations of \c ScatterCounting, so by default it is deleted. However,
+  /// operations of `ScatterCounting`, so by default it is deleted. However,
   /// other users might make use of it, so you can instruct the constructor
   /// to save the input to output map.
   ///
@@ -74,20 +74,38 @@ struct VISKORES_WORKLET_EXPORT ScatterCounting : internal::ScatterBase
   {
     this->BuildArrays(countArray, device, saveInputToOutputMap);
   }
+  /// @copydoc ScatterCounting::ScatterCounting
   VISKORES_CONT ScatterCounting(const viskores::cont::UnknownArrayHandle& countArray,
                                 bool saveInputToOutputMap)
   {
     this->BuildArrays(countArray, viskores::cont::DeviceAdapterTagAny(), saveInputToOutputMap);
   }
 
+  /// @brief The type of array handle used to map output indices to input indices.
+  ///
+  /// For the case of `ScatterCounting`, this is a basic array handle.
   using OutputToInputMapType = viskores::cont::ArrayHandle<viskores::Id>;
 
+  /// @brief Provides the array that maps output indices to input indices.
+  /// @param inputRange The size of the input domain, which must be the same size as
+  ///   the count array provided in the constructor.
+  /// @return A basic array of indices that identifies which input provides data for
+  ///   each output.
   template <typename RangeType>
-  VISKORES_CONT OutputToInputMapType GetOutputToInputMap(RangeType) const
+  VISKORES_CONT OutputToInputMapType GetOutputToInputMap(RangeType inputRange) const
   {
+    (void)inputRange;
     return this->OutputToInputMap;
   }
+  /// @brief Provides the array that maps output indices to input indices.
+  /// @return A basic array of indices that identifies which input provides data for
+  ///   each output.
+  VISKORES_CONT
+  OutputToInputMapType GetOutputToInputMap() const { return this->OutputToInputMap; }
 
+  /// @brief The type of array handle used for the visit index for each output.
+  ///
+  /// For the case of `ScatterCounting`, this is a basic array handle.
   using VisitArrayType = viskores::cont::ArrayHandle<viskores::IdComponent>;
   template <typename RangeType>
   VISKORES_CONT VisitArrayType GetVisitArray(RangeType) const
@@ -95,6 +113,10 @@ struct VISKORES_WORKLET_EXPORT ScatterCounting : internal::ScatterBase
     return this->VisitArray;
   }
 
+  /// @brief Provides the number of output values for a given input domain size.
+  /// @param inputRange The size of the input domain, which must be the same size as
+  ///   the count array provided in the constructor.
+  /// @return The total number of output values.
   VISKORES_CONT
   viskores::Id GetOutputRange(viskores::Id inputRange) const
   {
@@ -107,15 +129,15 @@ struct VISKORES_WORKLET_EXPORT ScatterCounting : internal::ScatterBase
     }
     return this->VisitArray.GetNumberOfValues();
   }
+  /// @copydoc GetOutputRange
   VISKORES_CONT
   viskores::Id GetOutputRange(viskores::Id3 inputRange) const
   {
     return this->GetOutputRange(inputRange[0] * inputRange[1] * inputRange[2]);
   }
 
-  VISKORES_CONT
-  OutputToInputMapType GetOutputToInputMap() const { return this->OutputToInputMap; }
-
+  /// @brief Provides an array that maps input values to output values.
+  ///
   /// This array will not be valid unless explicitly instructed to be saved.
   /// (See documentation for the constructor.)
   ///

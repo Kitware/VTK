@@ -23,6 +23,7 @@
 
 #include <viskores/cont/ArrayHandleCartesianProduct.h>
 #include <viskores/cont/ArrayHandleSOA.h>
+#include <viskores/cont/ArrayHandleSOAStride.h>
 #include <viskores/cont/ArrayHandleUniformPointCoordinates.h>
 #include <viskores/cont/StorageList.h>
 
@@ -40,13 +41,14 @@ namespace internal
 {
 
 // Default value types for fields in Ascent.
-using TypeListAscent = viskores::List<viskores::FloatDefault,
-                                  viskores::Vec3f,
-                                  // We should not need Float32 types, but currently the tests need
-                                  // them. We should remove these types once we are able to "fix"
-                                  // the tests by converting to supported default types.
-                                  viskores::Float32,
-                                  viskores::Vec3f_32>;
+using TypeListAscent =
+  viskores::List<viskores::FloatDefault,
+                 viskores::Vec3f,
+                 // We should not need Float32 types, but currently the tests need
+                 // them. We should remove these types once we are able to "fix"
+                 // the tests by converting to supported default types.
+                 viskores::Float32,
+                 viskores::Vec3f_32>;
 
 }
 } // namespace viskores::internal
@@ -61,12 +63,18 @@ namespace internal
 {
 
 using StorageListAscent = viskores::List<
-  viskores::cont::StorageTagBasic,         // Basic storage should always be included
-  viskores::cont::StorageTagSOA,           // Support separate arrays for each component
-  viskores::cont::StorageTagUniformPoints, // Support uniform structured grids
-  viskores::cont::StorageTagCartesianProduct<viskores::cont::StorageTagBasic, // Support rectilinear grids
-                                         viskores::cont::StorageTagBasic,
-                                         viskores::cont::StorageTagBasic>>;
+  // Basic storage should always be included
+  viskores::cont::StorageTagBasic,
+  // Support separate arrays for each component
+  viskores::cont::StorageTagSOA,
+  // Support uniform structured grids
+  viskores::cont::StorageTagUniformPoints,
+  // Support rectilinear grids
+  viskores::cont::StorageTagCartesianProduct<viskores::cont::StorageTagBasic,
+                                             viskores::cont::StorageTagBasic,
+                                             viskores::cont::StorageTagBasic>,
+  // Catchall for other storage
+  viskores::cont::StorageTagSOAStride>;
 
 }
 }

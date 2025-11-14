@@ -140,6 +140,7 @@
 
 #include <type_traits>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 
 #define ITLIB_SMALL_VECTOR_ERROR_HANDLING_NONE  0

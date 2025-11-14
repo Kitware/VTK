@@ -42,8 +42,18 @@ namespace viskores
 // `Swap`, it results in ADL being used, causing the templated functions `cub::Swap` and
 // `viskores::Swap` to conflict.
 #if defined(VISKORES_CUDA_VERSION_MAJOR) && (VISKORES_CUDA_VERSION_MAJOR >= 12)
+#if VISKORES_CUDA_VERSION_MAJOR == 12
 using cub::Swap;
+#elif VISKORES_CUDA_VERSION_MAJOR >= 13
+template <typename T>
+VISKORES_EXEC_CONT inline void Swap(T& a, T& b)
+{
+  using ::cuda::std::swap;
+  swap(a, b);
+}
+#endif
 #else
+
 template <typename T>
 VISKORES_EXEC_CONT inline void Swap(T& a, T& b)
 {

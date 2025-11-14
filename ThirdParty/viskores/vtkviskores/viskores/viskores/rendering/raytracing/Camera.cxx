@@ -842,11 +842,6 @@ void Camera::FindSubset(const viskores::Bounds& bounds)
         transformed[2] = (transformed[2] * 0.5f + 0.5f);
         zmin = viskores::Min(zmin, transformed[2]);
         zmax = viskores::Max(zmax, transformed[2]);
-        // skip if outside near and far clipping
-        if (transformed[2] < 0 || transformed[2] > 1)
-        {
-          continue;
-        }
         xmin = viskores::Min(xmin, transformed[0]);
         ymin = viskores::Min(ymin, transformed[1]);
         xmax = viskores::Max(xmax, transformed[0]);
@@ -873,7 +868,7 @@ void Camera::FindSubset(const viskores::Bounds& bounds)
   //
   //  scene is behind the camera
   //
-  if (zmax < 0 || xmin >= xmax || ymin >= ymax)
+  if (xmin >= xmax || ymin >= ymax)
   {
     this->SubsetWidth = 1;
     this->SubsetHeight = 1;

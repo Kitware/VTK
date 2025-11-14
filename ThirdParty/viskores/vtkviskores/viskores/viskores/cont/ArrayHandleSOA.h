@@ -44,82 +44,59 @@ namespace internal
 /// This will only work if \c VecTraits is defined for the type.
 ///
 template <typename ValueType_, typename ComponentPortalType>
-class ArrayPortalSOA
+class ArrayPortalSOARead
 {
 public:
   using ValueType = ValueType_;
 
 private:
-  using ComponentType = typename ComponentPortalType::ValueType;
-
   using VTraits = viskores::VecTraits<ValueType>;
-  VISKORES_STATIC_ASSERT((std::is_same<typename VTraits::ComponentType, ComponentType>::value));
+  using ComponentType = typename VTraits::ComponentType;
   static constexpr viskores::IdComponent NUM_COMPONENTS = VTraits::NUM_COMPONENTS;
 
+protected:
   ComponentPortalType Portals[NUM_COMPONENTS];
-  viskores::Id NumberOfValues;
 
 public:
-  VISKORES_SUPPRESS_EXEC_WARNINGS
-  VISKORES_EXEC_CONT explicit ArrayPortalSOA(viskores::Id numValues = 0)
-    : NumberOfValues(numValues)
-  {
-  }
-
-  VISKORES_SUPPRESS_EXEC_WARNINGS
-  VISKORES_EXEC_CONT void SetPortal(viskores::IdComponent index, const ComponentPortalType& portal)
+  VISKORES_CONT void SetPortal(viskores::IdComponent index, const ComponentPortalType& portal)
   {
     this->Portals[index] = portal;
   }
 
-  VISKORES_EXEC_CONT viskores::Id GetNumberOfValues() const { return this->NumberOfValues; }
+  VISKORES_EXEC_CONT viskores::Id GetNumberOfValues() const
+  {
+    return this->Portals[0].GetNumberOfValues();
+  }
 
-  template <typename SPT = ComponentPortalType,
-            typename Supported = typename viskores::internal::PortalSupportsGets<SPT>::type,
-            typename = typename std::enable_if<Supported::value>::type>
   VISKORES_EXEC_CONT ValueType Get(viskores::Id valueIndex) const
   {
-    return this->Get(valueIndex, viskoresstd::make_index_sequence<NUM_COMPONENTS>());
+    ValueType value;
+    for (viskores::IdComponent compIndex = 0; compIndex < NUM_COMPONENTS; ++compIndex)
+    {
+      VTraits::SetComponent(value, compIndex, this->Portals[compIndex].Get(valueIndex));
+    }
+    return value;
   }
+};
 
-  template <typename SPT = ComponentPortalType,
-            typename Supported = typename viskores::internal::PortalSupportsSets<SPT>::type,
-            typename = typename std::enable_if<Supported::value>::type>
-  VISKORES_EXEC_CONT void Set(viskores::Id valueIndex, const ValueType& value) const
-  {
-    this->Set(valueIndex, value, viskoresstd::make_index_sequence<NUM_COMPONENTS>());
-  }
+template <typename ValueType_, typename ComponentPortalType>
+class ArrayPortalSOAWrite : public ArrayPortalSOARead<ValueType_, ComponentPortalType>
+{
+public:
+  using ValueType = ValueType_;
 
 private:
-  VISKORES_SUPPRESS_EXEC_WARNINGS
-  template <std::size_t I>
-  VISKORES_EXEC_CONT ComponentType GetComponent(viskores::Id valueIndex) const
-  {
-    return this->Portals[I].Get(valueIndex);
-  }
+  using VTraits = viskores::VecTraits<ValueType>;
+  using ComponentType = typename VTraits::ComponentType;
+  static constexpr viskores::IdComponent NUM_COMPONENTS = VTraits::NUM_COMPONENTS;
 
-  template <std::size_t... I>
-  VISKORES_EXEC_CONT ValueType Get(viskores::Id valueIndex, viskoresstd::index_sequence<I...>) const
+public:
+  VISKORES_EXEC_CONT void Set(viskores::Id valueIndex, const ValueType& value) const
   {
-    return ValueType{ this->GetComponent<I>(valueIndex)... };
-  }
-
-  VISKORES_SUPPRESS_EXEC_WARNINGS
-  template <std::size_t I>
-  VISKORES_EXEC_CONT bool SetComponent(viskores::Id valueIndex, const ValueType& value) const
-  {
-    this->Portals[I].Set(valueIndex,
-                         VTraits::GetComponent(value, static_cast<viskores::IdComponent>(I)));
-    return true;
-  }
-
-  template <std::size_t... I>
-  VISKORES_EXEC_CONT void Set(viskores::Id valueIndex,
-                              const ValueType& value,
-                              viskoresstd::index_sequence<I...>) const
-  {
-    // Is there a better way to unpack an expression and execute them with no other side effects?
-    (void)std::initializer_list<bool>{ this->SetComponent<I>(valueIndex, value)... };
+    for (viskores::IdComponent compIndex = 0; compIndex < NUM_COMPONENTS; ++compIndex)
+    {
+      this->Portals[compIndex].Set(valueIndex, VTraits::GetComponent(value, compIndex));
+    }
   }
 };
 
@@ -143,11 +120,10 @@ class VISKORES_ALWAYS_EXPORT
 
 public:
   using ReadPortalType =
-    viskores::internal::ArrayPortalSOA<ValueType,
-                                       viskores::internal::ArrayPortalBasicRead<ComponentType>>;
-  using WritePortalType =
-    viskores::internal::ArrayPortalSOA<ValueType,
-                                       viskores::internal::ArrayPortalBasicWrite<ComponentType>>;
+    viskores::internal::ArrayPortalSOARead<ValueType,
+                                           viskores::internal::ArrayPortalBasicRead<ComponentType>>;
+  using WritePortalType = viskores::internal::
+    ArrayPortalSOAWrite<ValueType, viskores::internal::ArrayPortalBasicWrite<ComponentType>>;
 
   VISKORES_CONT static std::vector<viskores::cont::internal::Buffer> CreateBuffers()
   {
@@ -207,7 +183,7 @@ public:
     viskores::cont::Token& token)
   {
     viskores::Id numValues = GetNumberOfValues(buffers);
-    ReadPortalType portal(numValues);
+    ReadPortalType portal;
     for (viskores::IdComponent componentIndex = 0; componentIndex < NUM_COMPONENTS;
          ++componentIndex)
     {
@@ -227,7 +203,7 @@ public:
     viskores::cont::Token& token)
   {
     viskores::Id numValues = GetNumberOfValues(buffers);
-    WritePortalType portal(numValues);
+    WritePortalType portal;
     for (viskores::IdComponent componentIndex = 0; componentIndex < NUM_COMPONENTS;
          ++componentIndex)
     {
@@ -288,8 +264,9 @@ public:
   /// viskores::cont::ArrayHandle<T> components3;
   /// // Fill arrays...
   ///
-  /// std::array<T, 3> allComponents{ components1, components2, components3 };
-  /// viskores::cont::make_ArrayHandleSOA<viskores::Vec<T, 3>vecarray(allComponents);
+  /// std::array<viskores::cont::ArrayHandle<T>, 3>
+  ///   allComponents{ components1, components2, components3 };
+  /// viskores::cont::ArrayHandleSOA<viskores::Vec<T, 3>> vecarray(allComponents);
   /// @endcode
   ArrayHandleSOA(const std::array<ComponentArrayType, NUM_COMPONENTS>& componentArrays)
   {
@@ -308,8 +285,9 @@ public:
   /// viskores::cont::ArrayHandle<T> components3;
   /// // Fill arrays...
   ///
-  /// std::vector<T> allComponents{ components1, components2, components3 };
-  /// viskores::cont::make_ArrayHandleSOA<viskores::Vec<T, 3>vecarray(allComponents);
+  /// std::vector<viskores::cont::ArrayHandle<T>>
+  ///   allComponents{ components1, components2, components3 };
+  /// viskores::cont::make_ArrayHandleSOA<viskores::Vec<T, 3>> vecarray(allComponents);
   /// @endcode
   ArrayHandleSOA(const std::vector<ComponentArrayType>& componentArrays)
   {
@@ -329,7 +307,7 @@ public:
   /// viskores::cont::ArrayHandle<T> components3;
   /// // Fill arrays...
   ///
-  /// viskores::cont::make_ArrayHandleSOA<viskores::Vec<T, 3> vecarray(
+  /// viskores::cont::ArrayHandleSOA<viskores::Vec<T, 3> vecarray(
   ///   { components1, components2, components3 });
   /// @endcode
   ArrayHandleSOA(std::initializer_list<ComponentArrayType>&& componentArrays)

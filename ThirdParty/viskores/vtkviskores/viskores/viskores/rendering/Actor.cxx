@@ -26,6 +26,8 @@
 
 #include <utility>
 
+static std::string gDefaultCoordName = "_viskores_default_coords";
+
 namespace viskores
 {
 namespace rendering
@@ -78,6 +80,14 @@ Actor::Actor(const viskores::cont::DataSet dataSet,
   this->Init();
 }
 
+Actor::Actor(const viskores::cont::DataSet dataSet, const std::string fieldName)
+{
+  viskores::cont::PartitionedDataSet partitionedDataSet(dataSet);
+  this->Internals =
+    std::make_unique<InternalsType>(partitionedDataSet, gDefaultCoordName, fieldName);
+  this->Init();
+}
+
 Actor::Actor(const viskores::cont::DataSet dataSet,
              const std::string coordinateName,
              const std::string fieldName,
@@ -86,6 +96,16 @@ Actor::Actor(const viskores::cont::DataSet dataSet,
   viskores::cont::PartitionedDataSet partitionedDataSet(dataSet);
   this->Internals =
     std::make_unique<InternalsType>(partitionedDataSet, coordinateName, fieldName, color);
+  this->Init();
+}
+
+Actor::Actor(const viskores::cont::DataSet dataSet,
+             const std::string fieldName,
+             const viskores::rendering::Color& color)
+{
+  viskores::cont::PartitionedDataSet partitionedDataSet(dataSet);
+  this->Internals =
+    std::make_unique<InternalsType>(partitionedDataSet, gDefaultCoordName, fieldName, color);
   this->Init();
 }
 
@@ -100,10 +120,26 @@ Actor::Actor(const viskores::cont::DataSet dataSet,
   this->Init();
 }
 
+Actor::Actor(const viskores::cont::DataSet dataSet,
+             const std::string fieldName,
+             const viskores::cont::ColorTable& colorTable)
+{
+  viskores::cont::PartitionedDataSet partitionedDataSet(dataSet);
+  this->Internals =
+    std::make_unique<InternalsType>(partitionedDataSet, gDefaultCoordName, fieldName, colorTable);
+  this->Init();
+}
+
 Actor::Actor(const viskores::cont::PartitionedDataSet dataSet,
              const std::string coordinateName,
              const std::string fieldName)
   : Internals(new InternalsType(dataSet, coordinateName, fieldName))
+{
+  this->Init();
+}
+
+Actor::Actor(const viskores::cont::PartitionedDataSet dataSet, const std::string fieldName)
+  : Internals(new InternalsType(dataSet, gDefaultCoordName, fieldName))
 {
   this->Init();
 }
@@ -118,10 +154,26 @@ Actor::Actor(const viskores::cont::PartitionedDataSet dataSet,
 }
 
 Actor::Actor(const viskores::cont::PartitionedDataSet dataSet,
+             const std::string fieldName,
+             const viskores::rendering::Color& color)
+  : Internals(new InternalsType(dataSet, gDefaultCoordName, fieldName, color))
+{
+  this->Init();
+}
+
+Actor::Actor(const viskores::cont::PartitionedDataSet dataSet,
              const std::string coordinateName,
              const std::string fieldName,
              const viskores::cont::ColorTable& colorTable)
   : Internals(new InternalsType(dataSet, coordinateName, fieldName, colorTable))
+{
+  this->Init();
+}
+
+Actor::Actor(const viskores::cont::PartitionedDataSet dataSet,
+             const std::string fieldName,
+             const viskores::cont::ColorTable& colorTable)
+  : Internals(new InternalsType(dataSet, gDefaultCoordName, fieldName, colorTable))
 {
   this->Init();
 }
@@ -228,7 +280,15 @@ const viskores::cont::UnknownCellSet& Actor::GetCells() const
 
 viskores::cont::CoordinateSystem Actor::GetCoordinates() const
 {
-  return this->Internals->Data.GetPartition(0).GetCoordinateSystem(this->Internals->CoordinateName);
+  if (this->Internals->CoordinateName == gDefaultCoordName)
+  {
+    return this->Internals->Data.GetPartition(0).GetCoordinateSystem();
+  }
+  else
+  {
+    return this->Internals->Data.GetPartition(0).GetCoordinateSystem(
+      this->Internals->CoordinateName);
+  }
 }
 
 const viskores::cont::Field& Actor::GetScalarField() const

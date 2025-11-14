@@ -77,7 +77,7 @@ if(Viskores_ENABLE_OPENMP AND NOT (TARGET viskores_openmp OR TARGET viskores::op
 endif()
 
 if(Viskores_ENABLE_CUDA)
-  cmake_minimum_required(VERSION 3.13...3.15 FATAL_ERROR)
+  cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
   enable_language(CUDA)
 
   if(CMAKE_CUDA_COMPILER_ID STREQUAL "NVIDIA" AND
@@ -320,7 +320,7 @@ function(kokkos_fix_compile_options)
 endfunction()
 
 if(Viskores_ENABLE_KOKKOS AND NOT TARGET viskores_kokkos)
-  cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+  cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
   find_package(Kokkos 3.7 REQUIRED)
 

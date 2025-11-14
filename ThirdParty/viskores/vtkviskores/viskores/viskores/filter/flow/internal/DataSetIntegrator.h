@@ -20,6 +20,7 @@
 #define viskores_filter_flow_internal_DataSetIntegrator_h
 
 #include <viskores/cont/DataSet.h>
+#include <viskores/cont/EnvironmentTracker.h>
 #include <viskores/cont/ErrorFilterExecution.h>
 #include <viskores/cont/ParticleArrayCopy.h>
 #include <viskores/filter/flow/FlowTypes.h>
@@ -31,6 +32,8 @@
 #include <viskores/filter/flow/worklet/Stepper.h>
 
 #include <viskores/cont/Variant.h>
+
+#include <viskores/thirdparty/diy/diy.h>
 
 namespace viskores
 {

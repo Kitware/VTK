@@ -176,6 +176,12 @@ void CheckAsArrayHandle(const ArrayHandleType& array)
 
     ArrayHandleType retreivedArray2 = arrayUnknown.AsArrayHandle<ArrayHandleType>();
     VISKORES_TEST_ASSERT(array == retreivedArray2, "Did not get back same array.");
+
+    std::cout << "    Get as SOA Stride" << std::endl;
+    viskores::cont::ArrayHandleSOAStride<T> strideArray;
+    arrayUnknown.AsArrayHandle(strideArray);
+    VISKORES_TEST_ASSERT(test_equal_ArrayHandles(array, strideArray),
+                         "Could not retrieve basic array in ArrayHandleSOAStride.");
   }
 
   {
@@ -583,16 +589,37 @@ void TryExtractComponent()
   unknownArray.CastAndCallWithExtractedArray(CheckExtractedArray{}, originalArray);
 }
 
+// Currently separated from TryExtractComponent because ExtractArrayWithValueType does not
+// work with nested Vecs.
+template <typename ArrayHandleType>
+void TryExtractArrayWithValueType()
+{
+  using ValueType = typename ArrayHandleType::ValueType;
+
+  ArrayHandleType originalArray;
+  originalArray.Allocate(ARRAY_SIZE);
+  SetPortal(originalArray.WritePortal());
+
+  viskores::cont::UnknownArrayHandle unknownArray(originalArray);
+
+  viskores::cont::ArrayHandleSOAStride<ValueType> extractedArray =
+    unknownArray.ExtractArrayWithValueType<ValueType>();
+  VISKORES_TEST_ASSERT(test_equal_ArrayHandles(originalArray, extractedArray));
+}
+
 void TryExtractComponent()
 {
   std::cout << "  Scalar array." << std::endl;
   TryExtractComponent<viskores::cont::ArrayHandle<viskores::FloatDefault>>();
+  TryExtractArrayWithValueType<viskores::cont::ArrayHandle<viskores::FloatDefault>>();
 
   std::cout << "  Equivalent scalar." << std::endl;
   TryExtractComponent<viskores::cont::ArrayHandle<VISKORES_UNUSED_INT_TYPE>>();
+  TryExtractArrayWithValueType<viskores::cont::ArrayHandle<VISKORES_UNUSED_INT_TYPE>>();
 
   std::cout << "  Basic Vec." << std::endl;
   TryExtractComponent<viskores::cont::ArrayHandle<viskores::Id3>>();
+  TryExtractArrayWithValueType<viskores::cont::ArrayHandle<viskores::Id3>>();
 
   std::cout << "  Vec of Vecs." << std::endl;
   TryExtractComponent<viskores::cont::ArrayHandle<viskores::Vec<viskores::Vec2f, 3>>>();

@@ -63,6 +63,14 @@ struct CheckSameCoordinateSystem
     CheckSameField{}(originalArray, fileCoords);
   }
 
+  template <typename T>
+  void operator()(
+    const viskores::cont::ArrayHandle<T, viskores::cont::StorageTagSOAStride>& originalArray,
+    const viskores::cont::CoordinateSystem& fileCoords) const
+  {
+    CheckSameField{}(originalArray, fileCoords);
+  }
+
   void operator()(const viskores::cont::ArrayHandleUniformPointCoordinates& originalArray,
                   const viskores::cont::CoordinateSystem& fileCoords) const
   {

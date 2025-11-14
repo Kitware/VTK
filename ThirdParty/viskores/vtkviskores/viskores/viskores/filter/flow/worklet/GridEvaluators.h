@@ -20,6 +20,7 @@
 #define viskores_filter_flow_worklet_GridEvaluators_h
 
 #include <viskores/CellClassification.h>
+#include <viskores/cont/ArrayCopy.h>
 #include <viskores/cont/ArrayHandle.h>
 #include <viskores/cont/CellLocatorGeneral.h>
 #include <viskores/cont/CellLocatorRectilinearGrid.h>

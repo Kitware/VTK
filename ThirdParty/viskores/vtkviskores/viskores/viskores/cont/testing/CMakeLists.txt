@@ -96,6 +96,7 @@ set(unit_tests_device
   UnitTestArrayHandleRecombineVec.cxx
   UnitTestArrayHandleRuntimeVec.cxx
   UnitTestArrayHandleSOA.cxx
+  UnitTestArrayHandleSOAStride.cxx
   UnitTestArrayHandleSwizzle.cxx
   UnitTestArrayHandleTransform.cxx
   UnitTestArrayHandleView.cxx

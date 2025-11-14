@@ -129,7 +129,7 @@ void MapperVolume::RenderCellsImpl(const viskores::cont::UnknownCellSet& cellset
     tracer.Render(rays);
 
     timer.Start();
-    this->Internals->Canvas->WriteToCanvas(rays, rays.Buffers.at(0).Buffer, camera);
+    this->Internals->Canvas->WriteToCanvas(rays, rays.Buffers.at(0).Buffer, camera, false);
 
     if (this->Internals->CompositeBackground)
     {

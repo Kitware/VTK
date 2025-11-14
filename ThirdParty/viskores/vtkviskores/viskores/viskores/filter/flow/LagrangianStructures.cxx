@@ -149,7 +149,7 @@ VISKORES_CONT viskores::cont::DataSet LagrangianStructures::DoExecute(
   }
   else
   {
-    const auto field = input.GetField(this->GetActiveFieldName());
+    viskores::cont::Field field = this->GetFieldFromDataSet(input);
 
     FieldType velocities(
       field.GetData().AsArrayHandle<viskores::cont::ArrayHandle<viskores::Vec3f>>(),
@@ -175,15 +175,13 @@ VISKORES_CONT viskores::cont::DataSet LagrangianStructures::DoExecute(
   {
     using AnalysisType = viskores::worklet::flow::LagrangianStructures<2>;
     AnalysisType ftleCalculator(advectionTime, lcsCellSet);
-    viskores::worklet::DispatcherMapField<AnalysisType> dispatcher(ftleCalculator);
-    dispatcher.Invoke(lcsInputPoints, lcsOutputPoints, outputField);
+    this->Invoke(ftleCalculator, lcsInputPoints, lcsOutputPoints, outputField);
   }
   else if (lcsCellSet.IsType<Structured3DType>())
   {
     using AnalysisType = viskores::worklet::flow::LagrangianStructures<3>;
     AnalysisType ftleCalculator(advectionTime, lcsCellSet);
-    viskores::worklet::DispatcherMapField<AnalysisType> dispatcher(ftleCalculator);
-    dispatcher.Invoke(lcsInputPoints, lcsOutputPoints, outputField);
+    this->Invoke(ftleCalculator, lcsInputPoints, lcsOutputPoints, outputField);
   }
 
 
