@@ -181,7 +181,7 @@ set(instantiation_sources)
 
 include(vtkTypeLists)
 
-foreach (type IN LISTS vtk_numeric_types vtk_fixed_size_numeric_types)
+foreach (type IN LISTS vtk_numeric_types)
   string(REPLACE " " "_" _suffix "${type}")
   list(APPEND instantiation_sources
     "${CMAKE_CURRENT_BINARY_DIR}/vtkArrayBulkInstantiate_${_suffix}.cxx")
@@ -657,7 +657,7 @@ endforeach ()
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/vtkTypeArrays.cmake")
 
-foreach (type IN LISTS vtk_numeric_types vtk_fixed_size_numeric_types)
+foreach (type IN LISTS vtk_numeric_types)
   # Referenced in vtkArrayBulkInstantiate.cxx.in
   string(REPLACE " " "_" _suffix "${type}")
   list(JOIN "bulk_instantiation_sources_${_suffix}" "\n" BULK_INSTANTIATION_SOURCES)

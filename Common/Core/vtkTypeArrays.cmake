@@ -3,6 +3,8 @@
 #
 # Generated classes are not templated thus they can be wrapped.
 
+include(vtkTypeLists)
+
 # Configure `.in` class files depending on the requested backend
 # and the concrete c++ type.
 macro(_generate_array_specialization array_prefix vtk_type concrete_type deprecated)
@@ -32,7 +34,13 @@ macro(_generate_array_specialization array_prefix vtk_type concrete_type depreca
     "${CMAKE_CURRENT_BINARY_DIR}/${_className}.h")
 
   # append generated source to the bulk instantiation of concrete_type
-  string(REPLACE " " "_" _suffix "${concrete_type}")
+  if (type MATCHES "^vtkType")
+    # String starts with "vtkType"
+    vtk_get_fixed_size_type_mapping("${concrete_type}" numeric_type)
+    string(REPLACE " " "_" _suffix "${numeric_type}")
+  else ()
+    string(REPLACE " " "_" _suffix "${concrete_type}")
+  endif ()
   list(APPEND "bulk_instantiation_sources_${_suffix}"
     "#include \"${_className}.cxx\"")
 
@@ -41,8 +49,6 @@ macro(_generate_array_specialization array_prefix vtk_type concrete_type depreca
   unset(CONCRETE_TYPE)
   unset(_className)
 endmacro()
-
-include(vtkTypeLists)
 
 # VTK_DEPRECATED_IN_9_6_0 to be removed later
 foreach (array_prefix IN ITEMS Affine Composite Constant Indexed)
@@ -114,7 +120,8 @@ foreach (type IN LISTS vtk_fixed_size_numeric_types)
     list(APPEND headers
       "${CMAKE_CURRENT_BINARY_DIR}/${type}Array.h")
     # append generated source to the bulk instantiation of concrete_type
-    string(REPLACE " " "_" _suffix "${type}")
+    vtk_get_fixed_size_type_mapping("${type}" numeric_type)
+    string(REPLACE " " "_" _suffix "${numeric_type}")
     list(APPEND "bulk_instantiation_sources_${_suffix}"
       "#include \"${type}Array.cxx\"")
   endif ()
