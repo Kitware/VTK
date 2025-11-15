@@ -1619,42 +1619,24 @@ struct double4
   double x, y, z, w;
 };
 
-FUNC_DECL double2 make_double2(double x, double y)
-{
-  double2 v = { x, y };
-  return v;
-}
-
-FUNC_DECL double3 make_double3(double x, double y, double z)
-{
-  double3 v = { x, y, z };
-  return v;
-}
-
-FUNC_DECL double4 make_double4(double x, double y, double z, double w)
-{
-  double4 v = { x, y, z, w };
-  return v;
-}
-
 FUNC_DECL double3 operator*(double f, double3 v)
 {
-  return make_double3(v.x * f, v.y * f, v.z * f);
+  return double3{ v.x * f, v.y * f, v.z * f };
 }
 
 FUNC_DECL double2 operator*(double f, double2 v)
 {
-  return make_double2(v.x * f, v.y * f);
+  return double2{ v.x * f, v.y * f };
 }
 
 FUNC_DECL double3 operator+(double3 a, double3 b)
 {
-  return make_double3(a.x + b.x, a.y + b.y, a.z + b.z);
+  return double3{ a.x + b.x, a.y + b.y, a.z + b.z };
 }
 
 FUNC_DECL double2 operator+(double2 a, double2 b)
 {
-  return make_double2(a.x + b.x, a.y + b.y);
+  return double2{ a.x + b.x, a.y + b.y };
 }
 
 FUNC_DECL void operator+=(double3& b, double3 a)
@@ -1671,12 +1653,12 @@ FUNC_DECL void operator+=(double2& b, double2 a)
 
 FUNC_DECL double3 operator-(double3 a, double3 b)
 {
-  return make_double3(a.x - b.x, a.y - b.y, a.z - b.z);
+  return double3{ a.x - b.x, a.y - b.y, a.z - b.z };
 }
 
 FUNC_DECL double2 operator-(double2 a, double2 b)
 {
-  return make_double2(a.x - b.x, a.y - b.y);
+  return double2{ a.x - b.x, a.y - b.y };
 }
 
 FUNC_DECL void operator/=(double2& b, double f)
@@ -1704,7 +1686,7 @@ FUNC_DECL double dot(double3 a, double3 b)
 
 FUNC_DECL double3 cross(double3 A, double3 B)
 {
-  return make_double3(A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x);
+  return double3{ A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x };
 }
 
 /**************************************
@@ -1802,13 +1784,13 @@ double evalPolynomialFunc(const double4 F, const double x)
 FUNC_DECL
 double3 integratePolynomialFunc(double2 linearFunc)
 {
-  return make_double3(linearFunc.x / 2, linearFunc.y, 0);
+  return double3{ linearFunc.x / 2, linearFunc.y, 0 };
 }
 
 FUNC_DECL
 double4 integratePolynomialFunc(double3 quadFunc)
 {
-  return make_double4(quadFunc.x / 3, quadFunc.y / 2, quadFunc.z, 0);
+  return double4{ quadFunc.x / 3, quadFunc.y / 2, quadFunc.z, 0 };
 }
 
 /****************************
@@ -1845,21 +1827,21 @@ double3 quadraticInterpFunc(double x0, double y0, double x1, double y1, double x
     const double d2 = (x2 - x0) * (x2 - x1);
 
     // coefficients for the quadratic interpolation of (x0,y0) , (x1,y1) and p2(x2,y2)
-    return make_double3((y0 / d0) + (y1 / d1) + (y2 / d2),                      // x^2 term
+    return double3{ (y0 / d0) + (y1 / d1) + (y2 / d2),                          // x^2 term
       (y0 * (-x1 - x2) / d0) + (y1 * (-x0 - x2) / d1) + (y2 * (-x0 - x1) / d2), // x term
-      (y0 * (x1 * x2) / d0) + (y1 * (x0 * x2) / d1) + (y2 * (x0 * x1) / d2));   // constant term
+      (y0 * (x1 * x2) / d0) + (y1 * (x0 * x2) / d1) + (y2 * (x0 * x1) / d2) };  // constant term
   }
 
   // linear case : 2 out of the 3 points are the same
   else if (x2 > x0)
   {
-    return make_double3(0,   // x^2 term
+    return double3{ 0,       // x^2 term
       (y2 - y0) / (x2 - x0), // x term
-      y0);                   // constant term
+      y0 };                  // constant term
   }
 
   // degenerated case
-  return make_double3(0, 0, 0);
+  return double3{ 0, 0, 0 };
 }
 
 /****************************
@@ -2060,18 +2042,18 @@ double makeTriangleSurfaceFunctions(
   DBG_MESG("length = " << length);
 
   // side length function = (x-d0) * length / (d1-d0) = (length/(d1-d0)) * x - length * d0 / (d1-d0)
-  double2 linearFunc01 = make_double2(length / (d1 - d0), -length * d0 / (d1 - d0));
+  double2 linearFunc01 = double2{ length / (d1 - d0), -length * d0 / (d1 - d0) };
   // surface function = integral of distance function starting at d0
-  func[0] = make_double2(0, 0);
+  func[0] = double2{ 0, 0 };
   if (d1 > d0)
   {
     func[0] = linearFunc01;
   }
 
   // side length function = (d2-x) * length / (d2-d1) = (-length/(d2-d1)) * x + d2*length / (d2-d1)
-  double2 linearFunc12 = make_double2(-length / (d2 - d1), d2 * length / (d2 - d1));
+  double2 linearFunc12 = double2{ -length / (d2 - d1), d2 * length / (d2 - d1) };
   // surface function = integral of distance function starting at d1
-  func[1] = make_double2(0, 0);
+  func[1] = double2{ 0, 0 };
   if (d2 > d1)
   {
     func[1] = linearFunc12;
@@ -2103,7 +2085,7 @@ double findTriangleSetCuttingPlane(const double3 normal, // IN  , normal vector
 
   for (int i = 0; i < (nv - 1); i++)
   {
-    derivatives[i] = make_double2(0, 0);
+    derivatives[i] = double2{ 0, 0 };
   }
 
   // sort vertices in the normal vector direction
@@ -2163,7 +2145,7 @@ double findTriangleSetCuttingPlane(const double3 normal, // IN  , normal vector
 
   // integrate area function pieces to obtain volume function pieces
   double sum = 0;
-  double3 surfaceFunction = make_double3(0, 0, 0);
+  double3 surfaceFunction = double3{ 0, 0, 0 };
   double xmin = 0;
   double xmax = dot(vertices[index[0]], normal);
   int s = -1;
@@ -2232,10 +2214,10 @@ void makeConeVolumeDerivatives(
 
   // build cubic volume functions derivatives
   coef = (d1 > d0) ? (Isurf / ((d1 - d0) * (d1 - d0))) : 0.0;
-  deriv[0] = coef * make_double3(1, -2 * d0, d0 * d0);
+  deriv[0] = coef * double3{ 1, -2 * d0, d0 * d0 };
 
   coef = (d2 > d1) ? (Isurf / ((d2 - d1) * (d2 - d1))) : 0.0;
-  deriv[1] = coef * make_double3(1, -2 * d2, d2 * d2);
+  deriv[1] = coef * double3{ 1, -2 * d2, d2 * d2 };
 }
 
 FUNC_DECL
@@ -2259,7 +2241,7 @@ double findTriangleSetCuttingCone(const double2 normal, // IN  , normal vector
 
   for (int i = 0; i < (nv - 1); i++)
   {
-    derivatives[i] = make_double3(0, 0, 0);
+    derivatives[i] = double3{ 0, 0, 0 };
   }
 
   // sort vertices along normal vector
@@ -2320,7 +2302,7 @@ double findTriangleSetCuttingCone(const double2 normal, // IN  , normal vector
 
   // integrate area function pieces to obtain volume function pieces
   double sum = 0;
-  double4 volumeFunction = make_double4(0, 0, 0, 0);
+  double4 volumeFunction = double4{ 0, 0, 0, 0 };
   xmax = dot(vertices[index[0]], normal);
   int s = -1;
   while (sum < y && s < (nv - 2))
@@ -2408,14 +2390,14 @@ double tetraPlaneSurfFunc(
 
   // Search S0(x) = coef * (x-d0)^2
   coef = (d1 > d0) ? (surf1 / ((d1 - d0) * (d1 - d0))) : 0.0;
-  func[0] = coef * make_double3(1, -2 * d0, d0 * d0);
+  func[0] = coef * double3{ 1, -2 * d0, d0 * d0 };
 
   // Search S1(x) = quadric interpolation of surf1, surf12, surf2 at the points d1, d12, d2
   func[1] = quadraticInterpFunc(d1, surf1, d12, surf12, d2, surf2);
 
   // S(x) = coef * (d3-x)^2
   coef = (d3 > d2) ? (surf2 / ((d3 - d2) * (d3 - d2))) : 0.0;
-  func[2] = coef * make_double3(1, -2 * d3, d3 * d3);
+  func[2] = coef * double3{ 1, -2 * d3, d3 * d3 };
 
   return tetraVolume(v0, v1, v2, v3);
 }
@@ -2457,7 +2439,7 @@ double findTetraSetCuttingPlane(const double3 normal, // IN  , normal vector
 
   for (int i = 0; i < (nv - 1); i++)
   {
-    derivatives[i] = make_double3(0, 0, 0);
+    derivatives[i] = double3{ 0, 0, 0 };
   }
 
   double volume = 0;
@@ -2510,7 +2492,7 @@ double findTetraSetCuttingPlane(const double3 normal, // IN  , normal vector
 
   // integrate area function pieces to obtain volume function pieces
   double sum = 0;
-  double4 volumeFunction = make_double4(0, 0, 0, 0);
+  double4 volumeFunction = double4{ 0, 0, 0, 0 };
   double xmin = 0;
   double xmax = dot(vertices[index[0]], normal);
   int s = -1;
