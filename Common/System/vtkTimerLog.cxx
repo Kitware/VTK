@@ -317,7 +317,7 @@ vtkTimerLogEntry* vtkTimerLog::GetEvent(int idx)
 
   if (idx < 0 || idx >= num)
   {
-    cerr << "Bad entry index " << idx << endl;
+    std::cerr << "Bad entry index " << idx << endl;
     return nullptr;
   }
   idx = (idx + start) % vtkTimerLog::MaxEntries;

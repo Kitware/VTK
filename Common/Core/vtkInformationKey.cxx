@@ -113,7 +113,7 @@ void vtkInformationKey::Report(vtkInformation*, vtkGarbageCollector*)
 //------------------------------------------------------------------------------
 void vtkInformationKey::Print(vtkInformation* info)
 {
-  this->Print(cout, info);
+  this->Print(std::cout, info);
 }
 
 //------------------------------------------------------------------------------

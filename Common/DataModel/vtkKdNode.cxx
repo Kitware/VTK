@@ -895,21 +895,21 @@ void vtkKdNode::PrintNode(int depth)
 
   for (int i = 0; i < depth; i++)
   {
-    cout << " ";
+    std::cout << " ";
   }
 
-  cout << " x (" << this->Min[0] << ", " << this->Max[0] << ") ";
-  cout << " y (" << this->Min[1] << ", " << this->Max[1] << ") ";
-  cout << " z (" << this->Min[2] << ", " << this->Max[2] << ") ";
-  cout << this->NumberOfPoints << " cells, ";
+  std::cout << " x (" << this->Min[0] << ", " << this->Max[0] << ") ";
+  std::cout << " y (" << this->Min[1] << ", " << this->Max[1] << ") ";
+  std::cout << " z (" << this->Min[2] << ", " << this->Max[2] << ") ";
+  std::cout << this->NumberOfPoints << " cells, ";
 
   if (this->ID > -1)
   {
-    cout << this->ID << " (leaf node)" << endl;
+    std::cout << this->ID << " (leaf node)" << endl;
   }
   else
   {
-    cout << this->MinID << " - " << this->MaxID << endl;
+    std::cout << this->MinID << " - " << this->MaxID << endl;
   }
 }
 
@@ -925,43 +925,43 @@ void vtkKdNode::PrintVerboseNode(int depth)
 
   for (i = 0; i < depth; i++)
   {
-    cout << " ";
+    std::cout << " ";
   }
 
-  cout << " Space ";
-  cout << " x (" << this->Min[0] << ", " << this->Max[0] << ") ";
-  cout << " y (" << this->Min[1] << ", " << this->Max[1] << ") ";
-  cout << " z (" << this->Min[2] << ", " << this->Max[2] << ") " << endl;
+  std::cout << " Space ";
+  std::cout << " x (" << this->Min[0] << ", " << this->Max[0] << ") ";
+  std::cout << " y (" << this->Min[1] << ", " << this->Max[1] << ") ";
+  std::cout << " z (" << this->Min[2] << ", " << this->Max[2] << ") " << endl;
 
   for (i = 0; i < depth; i++)
   {
-    cout << " ";
+    std::cout << " ";
   }
 
-  cout << " Data ";
-  cout << " x (" << this->MinVal[0] << ", " << this->MaxVal[0] << ") ";
-  cout << " y (" << this->MinVal[1] << ", " << this->MaxVal[1] << ") ";
-  cout << " z (" << this->MinVal[2] << ", " << this->MaxVal[2] << ") " << endl;
+  std::cout << " Data ";
+  std::cout << " x (" << this->MinVal[0] << ", " << this->MaxVal[0] << ") ";
+  std::cout << " y (" << this->MinVal[1] << ", " << this->MaxVal[1] << ") ";
+  std::cout << " z (" << this->MinVal[2] << ", " << this->MaxVal[2] << ") " << endl;
 
   for (i = 0; i < depth; i++)
   {
-    cout << " ";
+    std::cout << " ";
   }
 
-  cout << this->NumberOfPoints << " cells, ";
+  std::cout << this->NumberOfPoints << " cells, ";
 
   if (this->ID == -1)
   {
-    cout << "id range " << this->MinID << " - " << this->MaxID << ", ";
+    std::cout << "id range " << this->MinID << " - " << this->MaxID << ", ";
   }
   else
   {
-    cout << "id " << this->ID << ", ";
+    std::cout << "id " << this->ID << ", ";
   }
 
-  cout << "cut next along " << this->Dim << ", left ";
-  cout << static_cast<void*>(this->Left) << ", right ";
-  cout << static_cast<void*>(this->Right) << ", up " << static_cast<void*>(this->Up) << endl;
+  std::cout << "cut next along " << this->Dim << ", left ";
+  std::cout << static_cast<void*>(this->Left) << ", right ";
+  std::cout << static_cast<void*>(this->Right) << ", up " << static_cast<void*>(this->Up) << endl;
 }
 
 //------------------------------------------------------------------------------

@@ -8,6 +8,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkStructuredData.h"
 
+#include <iostream>
 #include <set>
 
 VTK_ABI_NAMESPACE_BEGIN

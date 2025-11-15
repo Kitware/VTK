@@ -528,26 +528,26 @@ void vtkBSPCuts::PrintArrays()
     return;
   }
 
-  cout << "xmin: " << this->Bounds[0] << " xmax: " << this->Bounds[1] << endl;
-  cout << "ymin: " << this->Bounds[2] << " ymax: " << this->Bounds[3] << endl;
-  cout << "zmin: " << this->Bounds[4] << " zmax: " << this->Bounds[5] << endl;
+  std::cout << "xmin: " << this->Bounds[0] << " xmax: " << this->Bounds[1] << endl;
+  std::cout << "ymin: " << this->Bounds[2] << " ymax: " << this->Bounds[3] << endl;
+  std::cout << "zmin: " << this->Bounds[4] << " zmax: " << this->Bounds[5] << endl;
 
-  cout << "index / dimension / coordinate / lower region / upper region" << endl;
+  std::cout << "index / dimension / coordinate / lower region / upper region" << endl;
 
   for (i = 0; i < this->NumberOfCuts; i++)
   {
-    cout << i << " / " << this->Dim[i] << " / " << this->Coord[i];
-    cout << " / " << this->Lower[i] << " / " << this->Upper[i] << endl;
+    std::cout << i << " / " << this->Dim[i] << " / " << this->Coord[i];
+    std::cout << " / " << this->Lower[i] << " / " << this->Upper[i] << endl;
   }
 
   if (this->LowerDataCoord)
   {
-    cout << "index / lower data bdry / upper data bdry / data points" << endl;
+    std::cout << "index / lower data bdry / upper data bdry / data points" << endl;
 
     for (i = 0; i < this->NumberOfCuts; i++)
     {
-      cout << i << " / " << this->LowerDataCoord[i] << " / " << this->UpperDataCoord[i];
-      cout << " / " << this->Npoints[i] << endl;
+      std::cout << i << " / " << this->LowerDataCoord[i] << " / " << this->UpperDataCoord[i];
+      std::cout << " / " << this->Npoints[i] << endl;
     }
   }
 }

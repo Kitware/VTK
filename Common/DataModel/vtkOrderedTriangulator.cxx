@@ -1007,36 +1007,37 @@ void vtkOTMesh::DumpInsertionCavity(double x[3])
   OTFace* face;
   FaceListIterator fptr;
 
-  cout << "# vtk DataFile Version 3.0\n";
-  cout << "ordered triangulator output\n";
-  cout << "ASCII\n";
-  cout << "DATASET POLYDATA\n";
+  std::cout << "# vtk DataFile Version 3.0\n";
+  std::cout << "ordered triangulator output\n";
+  std::cout << "ASCII\n";
+  std::cout << "DATASET POLYDATA\n";
 
   // write out points
   int numFaces = static_cast<int>(this->CavityFaces.size());
-  cout << "POINTS " << 3 * numFaces + 1 << " double\n";
+  std::cout << "POINTS " << 3 * numFaces + 1 << " double\n";
 
   for (fptr = this->CavityFaces.begin(); fptr != this->CavityFaces.end(); ++fptr)
   {
     face = *fptr;
-    cout << face->Points[0]->P[0] << " " << face->Points[0]->P[1] << " " << face->Points[0]->P[2]
-         << " " << face->Points[1]->P[0] << " " << face->Points[1]->P[1] << " "
-         << face->Points[1]->P[2] << " " << face->Points[2]->P[0] << " " << face->Points[2]->P[1]
-         << " " << face->Points[2]->P[2] << "\n";
+    std::cout << face->Points[0]->P[0] << " " << face->Points[0]->P[1] << " "
+              << face->Points[0]->P[2] << " " << face->Points[1]->P[0] << " "
+              << face->Points[1]->P[1] << " " << face->Points[1]->P[2] << " "
+              << face->Points[2]->P[0] << " " << face->Points[2]->P[1] << " "
+              << face->Points[2]->P[2] << "\n";
   }
 
   // write out point insertion vertex
-  cout << x[0] << " " << x[1] << " " << x[2] << "\n\n";
-  cout << "VERTICES 1 2 \n";
-  cout << "1 " << 3 * numFaces << "\n\n";
+  std::cout << x[0] << " " << x[1] << " " << x[2] << "\n\n";
+  std::cout << "VERTICES 1 2 \n";
+  std::cout << "1 " << 3 * numFaces << "\n\n";
 
   // write out triangles
-  cout << "POLYGONS " << numFaces << " " << 4 * numFaces << "\n";
+  std::cout << "POLYGONS " << numFaces << " " << 4 * numFaces << "\n";
 
   int idx = 0;
   for (fptr = this->CavityFaces.begin(); fptr != this->CavityFaces.end(); ++fptr, idx += 3)
   {
-    cout << 3 << " " << idx << " " << idx + 1 << " " << idx + 2 << "\n";
+    std::cout << 3 << " " << idx << " " << idx + 1 << " " << idx + 2 << "\n";
   }
 }
 

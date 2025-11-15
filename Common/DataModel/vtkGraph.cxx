@@ -1777,32 +1777,32 @@ vtkIdType vtkGraph::GetNumberOfElements(int type)
 //------------------------------------------------------------------------------
 void vtkGraph::Dump()
 {
-  cout << "vertex adjacency:" << endl;
+  std::cout << "vertex adjacency:" << endl;
   for (size_t v = 0; v < this->Internals->Adjacency.size(); ++v)
   {
-    cout << v << " (out): ";
+    std::cout << v << " (out): ";
     for (size_t eind = 0; eind < this->Internals->Adjacency[v].OutEdges.size(); ++eind)
     {
-      cout << "[" << this->Internals->Adjacency[v].OutEdges[eind].Id << ","
-           << this->Internals->Adjacency[v].OutEdges[eind].Target << "]";
+      std::cout << "[" << this->Internals->Adjacency[v].OutEdges[eind].Id << ","
+                << this->Internals->Adjacency[v].OutEdges[eind].Target << "]";
     }
-    cout << " (in): ";
+    std::cout << " (in): ";
     for (size_t eind = 0; eind < this->Internals->Adjacency[v].InEdges.size(); ++eind)
     {
-      cout << "[" << this->Internals->Adjacency[v].InEdges[eind].Id << ","
-           << this->Internals->Adjacency[v].InEdges[eind].Source << "]";
+      std::cout << "[" << this->Internals->Adjacency[v].InEdges[eind].Id << ","
+                << this->Internals->Adjacency[v].InEdges[eind].Source << "]";
     }
-    cout << endl;
+    std::cout << endl;
   }
   if (this->EdgeList)
   {
-    cout << "edge list:" << endl;
+    std::cout << "edge list:" << endl;
     for (vtkIdType e = 0; e < this->EdgeList->GetNumberOfTuples(); ++e)
     {
-      cout << e << ": (" << this->EdgeList->GetValue(2 * e + 0) << ","
-           << this->EdgeList->GetValue(2 * e + 1) << ")" << endl;
+      std::cout << e << ": (" << this->EdgeList->GetValue(2 * e + 0) << ","
+                << this->EdgeList->GetValue(2 * e + 1) << ")" << endl;
     }
-    cout << endl;
+    std::cout << endl;
   }
 }
 

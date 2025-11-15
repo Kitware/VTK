@@ -16,10 +16,6 @@
 #include <iostream>
 #include <mutex>
 #include <sstream>
-#include <thread>
-
-using std::cerr;
-using std::cout;
 
 namespace
 {
@@ -183,7 +179,7 @@ void vtkOutputWindow::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "vtkOutputWindow Single instance = " << (void*)vtkOutputWindowGlobalInstance
-     << endl;
+     << std::endl;
   os << indent << "Prompt User: " << (this->PromptUser ? "On\n" : "Off\n");
   os << indent << "DisplayMode: ";
   switch (this->DisplayMode)
@@ -233,7 +229,7 @@ vtkOutputWindow::StreamType vtkOutputWindow::GetDisplayStream(MessageTypes msgTy
   }
 }
 
-// default implementation outputs to cerr only
+// default implementation outputs to std::cerr only
 void vtkOutputWindow::DisplayText(const char* txt)
 {
   // pick correct output channel to dump text on.
@@ -241,10 +237,10 @@ void vtkOutputWindow::DisplayText(const char* txt)
   switch (stream_type)
   {
     case StreamType::StdOutput:
-      cout << txt;
+      std::cout << txt;
       break;
     case StreamType::StdError:
-      cerr << txt;
+      std::cerr << txt;
       break;
     case StreamType::Null:
       break;
@@ -254,8 +250,8 @@ void vtkOutputWindow::DisplayText(const char* txt)
     stream_type != StreamType::Null)
   {
     char c = 'n';
-    cerr << "\nDo you want to suppress any further messages (y,n,q)?." << endl;
-    cin >> c;
+    std::cerr << "\nDo you want to suppress any further messages (y,n,q)?." << std::endl;
+    std::cin >> c;
     if (c == 'y')
     {
       vtkObject::GlobalWarningDisplayOff();

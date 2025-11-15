@@ -2080,17 +2080,17 @@ void vtkReebGraph::PrintNodeData(ostream& os, vtkIndent indent)
     this->Storage->GetNodeDownArcIds(nodeId, downArcIdList);
     this->Storage->GetNodeUpArcIds(nodeId, upArcIdList);
 
-    cout << indent << indent << "Node " << nodeId << ":" << endl;
-    cout << indent << indent << indent;
-    cout << "Vert: " << this->Storage->GetNodeVertexId(nodeId);
-    cout << ", Val: " << this->Storage->GetNodeScalarValue(nodeId);
-    cout << ", DwA:";
+    std::cout << indent << indent << "Node " << nodeId << ":" << endl;
+    std::cout << indent << indent << indent;
+    std::cout << "Vert: " << this->Storage->GetNodeVertexId(nodeId);
+    std::cout << ", Val: " << this->Storage->GetNodeScalarValue(nodeId);
+    std::cout << ", DwA:";
     for (vtkIdType i = 0; i < downArcIdList->GetNumberOfIds(); i++)
-      cout << " " << this->Storage->GetArcDownNodeId(downArcIdList->GetId(i));
-    cout << ", UpA:";
+      std::cout << " " << this->Storage->GetArcDownNodeId(downArcIdList->GetId(i));
+    std::cout << ", UpA:";
     for (vtkIdType i = 0; i < upArcIdList->GetNumberOfIds(); i++)
-      cout << " " << this->Storage->GetArcUpNodeId(upArcIdList->GetId(i));
-    cout << endl;
+      std::cout << " " << this->Storage->GetArcUpNodeId(upArcIdList->GetId(i));
+    std::cout << endl;
 
     downArcIdList->Delete();
     upArcIdList->Delete();
@@ -2112,14 +2112,14 @@ void vtkReebGraph::PrintNodeData(ostream& os, vtkIndent indent)
   while (prevArcId != arcId)
   {
     prevArcId = arcId;
-    cout << indent << indent << "Arc " << arcId << ":" << endl;
-    cout << indent << indent << indent;
-    cout << "Down: " << this->Storage->GetArcDownNodeId(arcId);
-    cout << ", Up: " << this->Storage->GetArcUpNodeId(arcId);
-    cout << ", Persistence: "
-         << this->Storage->GetNodeScalarValue(this->Storage->GetArcUpNodeId(arcId)) -
+    std::cout << indent << indent << "Arc " << arcId << ":" << endl;
+    std::cout << indent << indent << indent;
+    std::cout << "Down: " << this->Storage->GetArcDownNodeId(arcId);
+    std::cout << ", Up: " << this->Storage->GetArcUpNodeId(arcId);
+    std::cout << ", Persistence: "
+              << this->Storage->GetNodeScalarValue(this->Storage->GetArcUpNodeId(arcId)) -
         this->Storage->GetNodeScalarValue(this->Storage->GetArcDownNodeId(arcId));
-    cout << endl;
+    std::cout << endl;
     arcId = this->Storage->GetNextArcId();
   }
 }

@@ -15,6 +15,8 @@
 #include "vtkVector.h"
 #include <numeric> // std::accumulate
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkBezierInterpolation);
 
@@ -95,8 +97,9 @@ static vtkVector3i unflattenTetrahedron(int deg, vtkIdType flat)
       n_before_this_level += n_on_this_level;
     }
   }
-  // cout << "deg " << deg << " level " << level << " flat " << flat <<  " deg - level " << ( deg -
-  // level ) << " f  lat - n_before_this_level " << ( flat - n_before_this_level ) << std::endl;
+  // std::cout << "deg " << deg << " level " << level << " flat " << flat <<  " deg - level " << (
+  // deg - level ) << " f  lat - n_before_this_level " << ( flat - n_before_this_level ) <<
+  // std::endl;
   const auto cv_tri = unflattenTri(deg - level, flat - n_before_this_level);
   return { cv_tri[0], cv_tri[1], level };
 }

@@ -14,6 +14,8 @@
 #include <array>
 #include <vector>
 
+#include <iostream>
+
 // vtkStandardNewMacro(vtkHigherOrderInterpolation);
 
 //------------------------------------------------------------------------------
@@ -146,14 +148,14 @@ int vtkHigherOrderInterpolation::Tensor2ShapeFunctions(const int order[2], const
   int sn1 = sn + order[0] + order[1] - 2;
   for (i = 1; i < order[0]; ++i)
   {
-    // cout << sn << ", " << sn1 << "\n";
+    // std::cout << sn << ", " << sn1 << "\n";
     shape[sn++] = ll[0][i] * ll[1][0];         // Edge 0-1
     shape[sn1++] = ll[0][i] * ll[1][order[1]]; // Edge 2-3
   }
 
   for (i = 1; i < order[1]; ++i)
   {
-    // cout << sn << ", " << sn1 << "\n";
+    // std::cout << sn << ", " << sn1 << "\n";
     shape[sn++] = ll[0][order[0]] * ll[1][i]; // Edge 1-2
     shape[sn1++] = ll[0][0] * ll[1][i];       // Edge 3-0
   }
@@ -163,7 +165,7 @@ int vtkHigherOrderInterpolation::Tensor2ShapeFunctions(const int order[2], const
   {
     for (j = 1; j < order[0]; ++j)
     {
-      // cout << sn << "\n";
+      // std::cout << sn << "\n";
       shape[sn++] = ll[0][j] * ll[1][i]; // Face 0-1-2-3
     }
   }
@@ -204,7 +206,7 @@ int vtkHigherOrderInterpolation::Tensor2ShapeDerivatives(const int order[2],
   int sn1 = sn + 2 * (order[0] + order[1] - 2);
   for (i = 1; i < order[0]; ++i)
   {
-    // cout << sn << ", " << sn1 << "\n";
+    // std::cout << sn << ", " << sn1 << "\n";
     deriv[sn++] = dd[0][i] * ll[1][0]; // Edge 0-1
     deriv[sn++] = ll[0][i] * dd[1][0]; // Edge 0-1
 
@@ -214,7 +216,7 @@ int vtkHigherOrderInterpolation::Tensor2ShapeDerivatives(const int order[2],
 
   for (i = 1; i < order[1]; ++i)
   {
-    // cout << sn << ", " << sn1 << "\n";
+    // std::cout << sn << ", " << sn1 << "\n";
     deriv[sn++] = dd[0][order[0]] * ll[1][i]; // Edge 1-2
     deriv[sn++] = ll[0][order[0]] * dd[1][i]; // Edge 1-2
 
@@ -226,7 +228,7 @@ int vtkHigherOrderInterpolation::Tensor2ShapeDerivatives(const int order[2],
   {
     for (j = 1; j < order[0]; ++j)
     {
-      // cout << sn << "\n";
+      // std::cout << sn << "\n";
       deriv[sn++] = dd[0][j] * ll[1][i]; // Face 0-1-2-3
       deriv[sn++] = ll[0][j] * dd[1][i]; // Face 0-1-2-3
     }
@@ -267,7 +269,7 @@ int vtkHigherOrderInterpolation::Tensor3ShapeFunctions(const int order[3], const
   sn2 += sn;
   for (i = 1; i < order[0]; ++i)
   {
-    // cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
+    // std::cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
     shape[sn++] = ll[0][i] * ll[1][0] * ll[2][0];                // Edge 0-1
     shape[sn1++] = ll[0][i] * ll[1][order[1]] * ll[2][0];        // Edge 2-3
     shape[sn2++] = ll[0][i] * ll[1][0] * ll[2][order[2]];        // Edge 4-5
@@ -276,7 +278,7 @@ int vtkHigherOrderInterpolation::Tensor3ShapeFunctions(const int order[3], const
 
   for (i = 1; i < order[1]; ++i)
   {
-    // cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
+    // std::cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
     shape[sn++] = ll[0][order[0]] * ll[1][i] * ll[2][0];         // Edge 1-2
     shape[sn1++] = ll[0][0] * ll[1][i] * ll[2][0];               // Edge 3-0
     shape[sn2++] = ll[0][order[0]] * ll[1][i] * ll[2][order[2]]; // Edge 5-6
@@ -290,7 +292,7 @@ int vtkHigherOrderInterpolation::Tensor3ShapeFunctions(const int order[3], const
   sn2 += sn;
   for (i = 1; i < order[2]; ++i)
   {
-    // cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
+    // std::cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
     shape[sn++] = ll[0][0] * ll[1][0] * ll[2][i];         // Edge 0-4
     shape[sn1++] = ll[0][order[0]] * ll[1][0] * ll[2][i]; // Edge 1-5
     // Kitware insists on swapping edges 10 and 11 as follows:
@@ -308,13 +310,13 @@ int vtkHigherOrderInterpolation::Tensor3ShapeFunctions(const int order[3], const
   {
     for (j = 1; j < order[1]; ++j)
     {
-      // cout << sn << ", " << sn1 << "\n";
+      // std::cout << sn << ", " << sn1 << "\n";
       shape[sn++] = ll[0][0] * ll[1][j] * ll[2][i];         // Face 0-4-7-3
       shape[sn1++] = ll[0][order[0]] * ll[1][j] * ll[2][i]; // Face 1-2-6-5
     }
     for (j = 1; j < order[0]; ++j)
     {
-      // cout << sn2 << ", " << sn3 << "\n";
+      // std::cout << sn2 << ", " << sn3 << "\n";
       shape[sn2++] = ll[0][j] * ll[1][0] * ll[2][i];        // Face 0-1-5-4
       shape[sn3++] = ll[0][j] * ll[1][order[1]] * ll[2][i]; // Face 2-3-7-6
     }
@@ -325,7 +327,7 @@ int vtkHigherOrderInterpolation::Tensor3ShapeFunctions(const int order[3], const
   {
     for (j = 1; j < order[0]; ++j)
     {
-      // cout << sn << ", " << sn1 << "\n";
+      // std::cout << sn << ", " << sn1 << "\n";
       shape[sn++] = ll[0][j] * ll[1][i] * ll[2][0];         // Face 0-1-2-3
       shape[sn1++] = ll[0][j] * ll[1][i] * ll[2][order[2]]; // Face 4-7-6-5
     }
@@ -337,7 +339,7 @@ int vtkHigherOrderInterpolation::Tensor3ShapeFunctions(const int order[3], const
     {
       for (i = 1; i < order[0]; ++i)
       {
-        // cout << sn << "\n";
+        // std::cout << sn << "\n";
         shape[sn++] = ll[0][i] * ll[1][j] * ll[2][k]; // Body
       }
     }
@@ -403,7 +405,7 @@ int vtkHigherOrderInterpolation::Tensor3ShapeDerivatives(const int order[3],
   sn2 += sn;
   for (i = 1; i < order[0]; ++i)
   {
-    // cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
+    // std::cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
     deriv[sn++] = dd[0][i] * ll[1][0] * ll[2][0]; // Edge 0-1
     deriv[sn++] = ll[0][i] * dd[1][0] * ll[2][0]; // Edge 0-1
     deriv[sn++] = ll[0][i] * ll[1][0] * dd[2][0]; // Edge 0-1
@@ -423,7 +425,7 @@ int vtkHigherOrderInterpolation::Tensor3ShapeDerivatives(const int order[3],
 
   for (i = 1; i < order[1]; ++i)
   {
-    // cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
+    // std::cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
     deriv[sn++] = dd[0][order[0]] * ll[1][i] * ll[2][0]; // Edge 1-2
     deriv[sn++] = ll[0][order[0]] * dd[1][i] * ll[2][0]; // Edge 1-2
     deriv[sn++] = ll[0][order[0]] * ll[1][i] * dd[2][0]; // Edge 1-2
@@ -448,7 +450,7 @@ int vtkHigherOrderInterpolation::Tensor3ShapeDerivatives(const int order[3],
   sn2 += sn;
   for (i = 1; i < order[2]; ++i)
   {
-    // cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
+    // std::cout << sn << ", " << sn1 << ", " << sn2 << ", " << sn3 << "\n";
     deriv[sn++] = dd[0][0] * ll[1][0] * ll[2][i]; // Edge 0-4
     deriv[sn++] = ll[0][0] * dd[1][0] * ll[2][i]; // Edge 0-4
     deriv[sn++] = ll[0][0] * ll[1][0] * dd[2][i]; // Edge 0-4
@@ -477,7 +479,7 @@ int vtkHigherOrderInterpolation::Tensor3ShapeDerivatives(const int order[3],
   {
     for (j = 1; j < order[1]; ++j)
     {
-      // cout << sn << ", " << sn1 << "\n";
+      // std::cout << sn << ", " << sn1 << "\n";
       deriv[sn++] = dd[0][0] * ll[1][j] * ll[2][i]; // Face 0-4-7-3
       deriv[sn++] = ll[0][0] * dd[1][j] * ll[2][i]; // Face 0-4-7-3
       deriv[sn++] = ll[0][0] * ll[1][j] * dd[2][i]; // Face 0-4-7-3
@@ -488,7 +490,7 @@ int vtkHigherOrderInterpolation::Tensor3ShapeDerivatives(const int order[3],
     }
     for (j = 1; j < order[0]; ++j)
     {
-      // cout << sn2 << ", " << sn3 << "\n";
+      // std::cout << sn2 << ", " << sn3 << "\n";
       deriv[sn2++] = dd[0][j] * ll[1][0] * ll[2][i]; // Face 0-1-5-4
       deriv[sn2++] = ll[0][j] * dd[1][0] * ll[2][i]; // Face 0-1-5-4
       deriv[sn2++] = ll[0][j] * ll[1][0] * dd[2][i]; // Face 0-1-5-4
@@ -504,7 +506,7 @@ int vtkHigherOrderInterpolation::Tensor3ShapeDerivatives(const int order[3],
   {
     for (j = 1; j < order[0]; ++j)
     {
-      // cout << sn << ", " << sn1 << "\n";
+      // std::cout << sn << ", " << sn1 << "\n";
       deriv[sn++] = dd[0][j] * ll[1][i] * ll[2][0]; // Face 0-1-2-3
       deriv[sn++] = ll[0][j] * dd[1][i] * ll[2][0]; // Face 0-1-2-3
       deriv[sn++] = ll[0][j] * ll[1][i] * dd[2][0]; // Face 0-1-2-3
@@ -521,7 +523,7 @@ int vtkHigherOrderInterpolation::Tensor3ShapeDerivatives(const int order[3],
     {
       for (i = 1; i < order[0]; ++i)
       {
-        // cout << sn << "\n";
+        // std::cout << sn << "\n";
         deriv[sn++] = dd[0][i] * ll[1][j] * ll[2][k]; // Body
         deriv[sn++] = ll[0][i] * dd[1][j] * ll[2][k]; // Body
         deriv[sn++] = ll[0][i] * ll[1][j] * dd[2][k]; // Body

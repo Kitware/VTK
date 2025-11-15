@@ -8,6 +8,8 @@
 #include "vtkCellMetadata.h"
 #include "vtkObjectFactory.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 using namespace vtk::literals;

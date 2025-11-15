@@ -14,6 +14,8 @@
 #include <array>
 #include <vector>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLagrangeInterpolation);
 
