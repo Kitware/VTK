@@ -1594,8 +1594,6 @@ VTK_ABI_NAMESPACE_BEGIN
 #define make_REAL3 make_double3
 #define make_REAL4 make_double4
 
-#define REAL_CONST(x) x
-
 #ifndef FUNC_DECL
 #define FUNC_DECL static inline
 #endif
@@ -1802,7 +1800,7 @@ REAL triangleSurf(REAL3 p1, REAL3 p2, REAL3 p3)
   const REAL b = dot(e2, e2);
   const REAL c = dot(e3, e3);
 
-  return REAL_CONST(0.25) * sqrt(fabs(4 * a * c - (a - b + c) * (a - b + c)));
+  return 0.25 * sqrt(fabs(4 * a * c - (a - b + c) * (a - b + c)));
 }
 
 /*************************
@@ -1816,7 +1814,7 @@ REAL tetraVolume(REAL3 p0, REAL3 p1, REAL3 p2, REAL3 p3)
   REAL3 B = p2 - p0;
   REAL3 C = p3 - p0;
   REAL3 BC = cross(B, C);
-  return fabs(dot(A, BC) / REAL_CONST(6.0));
+  return fabs(dot(A, BC) / 6.0);
 }
 
 /*******************************************
@@ -1870,7 +1868,7 @@ REAL3 linearInterp(REAL t0, REAL3 x0, REAL t1, REAL3 x1, REAL t)
 FUNC_DECL
 REAL2 linearInterp(REAL t0, REAL2 x0, REAL t1, REAL2 x1, REAL t)
 {
-  REAL f = (t1 != t0) ? (t - t0) / (t1 - t0) : REAL_CONST(0.0);
+  REAL f = (t1 != t0) ? (t - t0) / (t1 - t0) : 0.0;
   return x0 + f * (x1 - x0);
 }
 
@@ -1922,7 +1920,7 @@ REAL newtonSearchPolynomialFunc(
   const REAL ymin = evalPolynomialFunc(F, xmin);
   const REAL ymax = evalPolynomialFunc(F, xmax);
 
-  REAL x = (xmin + xmax) * REAL_CONST(0.5);
+  REAL x = (xmin + xmax) * 0.5;
   REAL y = evalPolynomialFunc(F, x);
 
   // search x where F(x) = 0
@@ -1969,7 +1967,7 @@ REAL newtonSearchPolynomialFunc(
   const REAL ymin = evalPolynomialFunc(F, xmin);
   const REAL ymax = evalPolynomialFunc(F, xmax);
 
-  REAL x = (xmin + xmax) * REAL_CONST(0.5);
+  REAL x = (xmin + xmax) * 0.5;
   REAL y = evalPolynomialFunc(F, x);
 
   // search x where F(x) = 0
@@ -2272,15 +2270,14 @@ void makeConeVolumeDerivatives(
   DBG_MESG("length = " << length);
 
   // compute truncated cone surface at d1
-  REAL Isurf = REAL_CONST(M_PI) * fabs(I.y + v1.y) *
-    length; // 2 * REAL_CONST(M_PI) * ( (I.y+v1.y) * 0.5 ) * length ;
+  REAL Isurf = M_PI * fabs(I.y + v1.y) * length; // 2 * M_PI * ( (I.y+v1.y) * 0.5 ) * length ;
   REAL coef;
 
   // build cubic volume functions derivatives
-  coef = (d1 > d0) ? (Isurf / ((d1 - d0) * (d1 - d0))) : REAL_CONST(0.0);
+  coef = (d1 > d0) ? (Isurf / ((d1 - d0) * (d1 - d0))) : 0.0;
   deriv[0] = coef * make_REAL3(1, -2 * d0, d0 * d0);
 
-  coef = (d2 > d1) ? (Isurf / ((d2 - d1) * (d2 - d1))) : REAL_CONST(0.0);
+  coef = (d2 > d1) ? (Isurf / ((d2 - d1) * (d2 - d1))) : 0.0;
   deriv[1] = coef * make_REAL3(1, -2 * d2, d2 * d2);
 }
 
@@ -2437,7 +2434,7 @@ REAL tetraPlaneSurfFunc(
 
   // Compute the intersection surfice in the middle of p1 and p2.
   // The intersection is a quadric of a,b,c,d
-  const REAL d12 = (d1 + d2) * REAL_CONST(0.5);
+  const REAL d12 = (d1 + d2) * 0.5;
   const REAL3 a = linearInterp(d0, v0, d2, v2, d12);
   const REAL3 b = linearInterp(d0, v0, d3, v3, d12);
   const REAL3 c = linearInterp(d1, v1, d3, v3, d12);
@@ -2453,14 +2450,14 @@ REAL tetraPlaneSurfFunc(
   REAL coef;
 
   // Search S0(x) = coef * (x-d0)^2
-  coef = (d1 > d0) ? (surf1 / ((d1 - d0) * (d1 - d0))) : REAL_CONST(0.0);
+  coef = (d1 > d0) ? (surf1 / ((d1 - d0) * (d1 - d0))) : 0.0;
   func[0] = coef * make_REAL3(1, -2 * d0, d0 * d0);
 
   // Search S1(x) = quadric interpolation of surf1, surf12, surf2 at the points d1, d12, d2
   func[1] = quadraticInterpFunc(d1, surf1, d12, surf12, d2, surf2);
 
   // S(x) = coef * (d3-x)^2
-  coef = (d3 > d2) ? (surf2 / ((d3 - d2) * (d3 - d2))) : REAL_CONST(0.0);
+  coef = (d3 > d2) ? (surf2 / ((d3 - d2) * (d3 - d2))) : 0.0;
   func[2] = coef * make_REAL3(1, -2 * d3, d3 * d3);
 
   return tetraVolume(v0, v1, v2, v3);
