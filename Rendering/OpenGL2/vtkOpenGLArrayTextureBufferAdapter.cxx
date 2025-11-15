@@ -7,6 +7,8 @@
 #include "vtkTypeInt32Array.h"
 #include "vtkTypeUInt32Array.h"
 
+#include <iostream>
+
 // Uncomment to print upload events.
 // #define vtkOpenGLArrayTextureBufferAdapter_DEBUG
 

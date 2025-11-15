@@ -9,12 +9,12 @@
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
 #include "vtkObjectFactory.h"
-#include "vtkProperty.h"
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 #include "vtkViewport.h"
 
 #include <cmath>
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkProp3DAxisFollower);

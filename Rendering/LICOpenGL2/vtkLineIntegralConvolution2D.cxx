@@ -83,6 +83,8 @@ VTK_ABI_NAMESPACE_END
 #include "vtkLineIntegralConvolution2D_LICN.h" // finalize lic
 #include "vtkLineIntegralConvolution2D_VT.h"   // normalized image space transform
 
+#include <iostream>
+
 #if defined(NDEBUG) || (vtkLineIntegralConvolution2DDEBUG < 3)
 #define DEBUG3CheckFrameBufferStatusMacro(mode)
 #else
@@ -135,7 +137,7 @@ public:
     this->LastQuadProgram = nullptr;
 
 #if vtkLineIntegralConvolution2DDEBUG >= 3
-    this->Print(cerr);
+    this->Print(std::cerr);
 #endif
   }
 
@@ -821,7 +823,7 @@ void StreamingFindMinMax(vtkOpenGLFramebufferObject* fbo, vtkTextureObject* tex,
   }
   pbos.clear();
 #if vtkLineIntegralConvolution2DDEBUG >= 1
-  cerr << "min=" << min << " max=" << max << endl;
+  std::cerr << "min=" << min << " max=" << max << endl;
 #endif
 }
 #else
@@ -858,7 +860,7 @@ void FindMinMax(vtkTextureObject* tex, const deque<vtkPixelExtent>& extents, flo
   colors->UnmapPackedBuffer();
   colors->Delete();
 #if vtkLineIntegralConvolution2DDEBUG >= 1
-  cerr << "min=" << min << " max=" << max << endl;
+  std::cerr << "min=" << min << " max=" << max << endl;
 #endif
 }
 #endif

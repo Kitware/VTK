@@ -33,6 +33,8 @@
 #include "vtkSobelGradientMagnitudePass2FS.h"
 #include "vtkTextureObjectVS.h" // a pass through shader
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSobelGradientMagnitudePass);
 
@@ -209,8 +211,8 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
     this->Gy1->Create2D(w, h, 4, VTK_UNSIGNED_CHAR, false);
   }
 #ifdef VTK_SOBEL_PASS_DEBUG
-  cout << "gx1 TOid=" << this->Gx1->GetHandle() << endl;
-  cout << "gy1 TOid=" << this->Gy1->GetHandle() << endl;
+  std::cout << "gx1 TOid=" << this->Gx1->GetHandle() << endl;
+  std::cout << "gy1 TOid=" << this->Gy1->GetHandle() << endl;
 #endif
   this->FrameBufferObject->AddColorAttachment(0, this->Gx1);
   this->FrameBufferObject->AddColorAttachment(1, this->Gy1);
@@ -220,7 +222,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   this->FrameBufferObject->Start(w, h);
 
 #ifdef VTK_SOBEL_PASS_DEBUG
-  cout << "sobel finish2" << endl;
+  std::cout << "sobel finish2" << endl;
   glFinish();
 #endif
 
@@ -257,7 +259,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   }
 
 #ifdef VTK_SOBEL_PASS_DEBUG
-  cout << "sobel finish build 1" << endl;
+  std::cout << "sobel finish build 1" << endl;
   glFinish();
 #endif
 
@@ -281,7 +283,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   this->Program1->Program->SetUniformf("stepSize", fvalue);
 
 #ifdef VTK_SOBEL_PASS_DEBUG
-  cout << "sobel finish3-" << endl;
+  std::cout << "sobel finish3-" << endl;
   glFinish();
 #endif
 
@@ -289,7 +291,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
     0, w - 1, 0, h - 1, this->Program1->Program, this->Program1->VAO);
 
 #ifdef VTK_SOBEL_PASS_DEBUG
-  cout << "sobel finish3" << endl;
+  std::cout << "sobel finish3" << endl;
   glFinish();
 #endif
 
@@ -386,7 +388,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   }
 
 #ifdef VTK_SOBEL_PASS_DEBUG
-  cout << "sobel finish build 2" << endl;
+  std::cout << "sobel finish build 2" << endl;
   glFinish();
 #endif
 
@@ -398,7 +400,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   }
 
 #ifdef VTK_SOBEL_PASS_DEBUG
-  cout << "sobel finish build 2" << endl;
+  std::cout << "sobel finish build 2" << endl;
   glFinish();
 #endif
 
@@ -420,12 +422,12 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   this->Program2->Program->SetUniformf("stepSize", fvalue);
 
 #ifdef VTK_SOBEL_PASS_DEBUG
-  cout << "sobel finish use 2" << endl;
+  std::cout << "sobel finish use 2" << endl;
   glFinish();
 #endif
 
 #ifdef VTK_SOBEL_PASS_DEBUG
-  cout << "sobel finish 4-" << endl;
+  std::cout << "sobel finish 4-" << endl;
   glFinish();
 #endif
 
@@ -442,7 +444,7 @@ void vtkSobelGradientMagnitudePass::Render(const vtkRenderState* s)
   this->Gx1->Deactivate();
 
 #ifdef VTK_SOBEL_PASS_DEBUG
-  cout << "sobel finish4" << endl;
+  std::cout << "sobel finish4" << endl;
   glFinish();
 #endif
 

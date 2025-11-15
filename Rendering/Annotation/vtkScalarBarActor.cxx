@@ -37,6 +37,8 @@
 #include <map>
 #include <vector>
 
+#include <iostream>
+
 #undef VTK_DBG_LAYOUT
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -2381,7 +2383,7 @@ int vtkScalarBarActor::PlaceAnnotationsVertically(double barX, double barY,
     upCum = barY;
     VTK_ANN_VLAYOUT(ic, 0, dnCum);
     /*
-       cout
+       std::cout
        << "ic: " << ic << " ctr: " << ctr << " hh: " << hh
        << " uc: " << upCum << " dc: " << dnCum
        << " t:" << this->P->AnnotationLabels[ic]->GetInput() << endl;
@@ -2391,14 +2393,14 @@ int vtkScalarBarActor::PlaceAnnotationsVertically(double barX, double barY,
   {
     VTK_ANN_VLAYOUT(dn, -1, dnCum);
     /*
-       cout
+       std::cout
        << "dn: " << dn << " ctr: " << ctr << " hh: " << hh
        << " uc: " << upCum << " dc: " << dnCum
        << " t:" << this->P->AnnotationLabels[dn]->GetInput() << endl;
      */
     VTK_ANN_VLAYOUT(up, 1, upCum);
     /*
-       cout
+       std::cout
        << "up: " << up << " ctr: " << ctr << " hh: " << hh
        << " uc: " << upCum << " dc: " << dnCum
        << " t:" << this->P->AnnotationLabels[up]->GetInput() << endl;
@@ -2609,7 +2611,7 @@ struct vtkScalarBarHLabelPlacer
       }
       else
       {
-        // cout << "Break " << lidx << " with " << ic << "\n";
+        // std::cout << "Break " << lidx << " with " << ic << "\n";
         this->BreakLeader(label, curY, ic, pts, lines, colors, color);
       }
     }
@@ -2619,11 +2621,11 @@ struct vtkScalarBarHLabelPlacer
       {
         if (lf == lidx)
           break;
-        // cout << "Break " << lidx << " with " << lf << "\n";
+        // std::cout << "Break " << lidx << " with " << lf << "\n";
         this->BreakLeader(label, curY, lf, pts, lines, colors, color);
         if (rt == lidx)
           break;
-        // cout << "Break " << lidx << " with " << rt << "\n";
+        // std::cout << "Break " << lidx << " with " << rt << "\n";
         this->BreakLeader(label, curY, rt, pts, lines, colors, color);
       }
     }

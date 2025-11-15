@@ -841,8 +841,8 @@ int vtkVolumeRayCastSpaceLeapingImageFilter::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
 #ifdef vtkVolumeRayCastSpaceLeapingImageFilter_DEBUG
-  cout << "ComputingGradientOpacity: " << ComputeGradientOpacity;
-  cout << " ComputingMinMax: " << ComputeMinMax << " UpdatingFlags: 1" << endl;
+  std::cout << "ComputingGradientOpacity: " << ComputeGradientOpacity;
+  std::cout << " ComputingMinMax: " << ComputeMinMax << " UpdatingFlags: 1" << endl;
 #endif
 
   // Find the first non-zero scalar opacity and gradient opacity points on

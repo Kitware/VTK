@@ -39,6 +39,8 @@
 #include "vtkTextureObjectVS.h"
 #include "vtk_glad.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeZPass);
 vtkCxxSetObjectMacro(vtkCompositeZPass, Controller, vtkMultiProcessController);
@@ -189,7 +191,8 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
   vtkImageShiftScale* converter;
   vtkPNGWriter* writer;
 
-  cout << "me=" << me << " TID=" << syscall(SYS_gettid) << " thread=" << pthread_self() << endl;
+  std::cout << "me=" << me << " TID=" << syscall(SYS_gettid) << " thread=" << pthread_self()
+            << endl;
   timer->StartTimer();
 #endif
 
@@ -246,7 +249,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
     double range[2];
     importer->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
 
-    cout << "root0 scalar range=" << range[0] << "," << range[1] << endl;
+    std::cout << "root0 scalar range=" << range[0] << "," << range[1] << endl;
 
     converter = vtkImageShiftScale::New();
     converter->SetInputConnection(importer->GetOutputPort());
@@ -269,9 +272,9 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
     writer->SetInputConnection(converter->GetOutputPort());
     importer->Delete();
     //    rgbaToRgb->Delete();
-    cout << "Writing " << writer->GetFileName() << endl;
+    std::cout << "Writing " << writer->GetFileName() << endl;
     writer->Write();
-    cout << "Wrote " << writer->GetFileName() << endl;
+    std::cout << "Wrote " << writer->GetFileName() << endl;
     //    sleep(30);
     writer->Delete();
 
@@ -313,9 +316,9 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
       writer->SetInputConnection(converter->GetOutputPort());
       importer->Delete();
       //    rgbaToRgb->Delete();
-      cout << "Writing " << writer->GetFileName() << endl;
+      std::cout << "Writing " << writer->GetFileName() << endl;
       writer->Write();
-      cout << "Wrote " << writer->GetFileName() << endl;
+      std::cout << "Wrote " << writer->GetFileName() << endl;
       //    sleep(30);
       writer->Delete();
 #endif
@@ -352,9 +355,9 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
 
       GLint value;
       glGetIntegerv(vtkgl::PIXEL_UNPACK_BUFFER_BINDING, &value);
-      cout << pthread_self() << "compz pixel unpack buffer=" << value << endl;
+      std::cout << pthread_self() << "compz pixel unpack buffer=" << value << endl;
       glGetIntegerv(vtkgl::PIXEL_PACK_BUFFER_BINDING, &value);
-      cout << pthread_self() << "compz pixel unpack buffer=" << value << endl;
+      std::cout << pthread_self() << "compz pixel unpack buffer=" << value << endl;
 #endif
 
       // Send PBO to TO
@@ -366,7 +369,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
       }
 
 #ifdef VTK_COMPOSITE_ZPASS_DEBUG
-      cout << "sourceId=" << sourceId << endl;
+      std::cout << "sourceId=" << sourceId << endl;
 #endif
 
       // Apply TO on quad with special zcomposite fragment shader.
@@ -475,9 +478,9 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
     writer->SetInputConnection(converter->GetOutputPort());
     importer->Delete();
     //    rgbaToRgb->Delete();
-    cout << "Writing " << writer->GetFileName() << endl;
+    std::cout << "Writing " << writer->GetFileName() << endl;
     writer->Write();
-    cout << "Wrote " << writer->GetFileName() << endl;
+    std::cout << "Wrote " << writer->GetFileName() << endl;
     writer->Delete();
 #endif
 
@@ -517,7 +520,7 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
     double range[2];
     importer->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
 
-    cout << " scalar range=" << range[0] << "," << range[1] << endl;
+    std::cout << " scalar range=" << range[0] << "," << range[1] << endl;
 
     converter = vtkImageShiftScale::New();
     converter->SetInputConnection(importer->GetOutputPort());
@@ -540,9 +543,9 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
     writer->SetInputConnection(converter->GetOutputPort());
     importer->Delete();
     //    rgbaToRgb->Delete();
-    cout << "Writing " << writer->GetFileName() << endl;
+    std::cout << "Writing " << writer->GetFileName() << endl;
     writer->Write();
-    cout << "Wrote " << writer->GetFileName() << endl;
+    std::cout << "Wrote " << writer->GetFileName() << endl;
     //    sleep(30);
     writer->Delete();
 #endif
@@ -584,9 +587,9 @@ void vtkCompositeZPass::Render(const vtkRenderState* s)
     writer->SetInputConnection(converter->GetOutputPort());
     importer->Delete();
     //    rgbaToRgb->Delete();
-    cout << "Writing " << writer->GetFileName() << endl;
+    std::cout << "Writing " << writer->GetFileName() << endl;
     writer->Write();
-    cout << "Wrote " << writer->GetFileName() << endl;
+    std::cout << "Wrote " << writer->GetFileName() << endl;
     writer->Delete();
 #endif
 

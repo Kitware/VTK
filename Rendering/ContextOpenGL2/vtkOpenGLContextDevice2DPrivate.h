@@ -35,6 +35,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <algorithm>
+#include <iostream>
 #include <list>
 #include <utility>
 
@@ -453,7 +454,7 @@ public:
   {
     if (image->GetScalarType() != VTK_UNSIGNED_CHAR)
     {
-      cout << "Error = not an unsigned char..." << endl;
+      std::cout << "Error = not an unsigned char..." << std::endl;
       return 0;
     }
     int bytesPerPixel = image->GetNumberOfScalarComponents();

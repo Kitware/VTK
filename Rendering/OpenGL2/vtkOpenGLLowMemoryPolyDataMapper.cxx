@@ -52,9 +52,11 @@
 #include <limits>
 #include <sstream>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
-// Uncomment to print shader/color info to cout
+// Uncomment to print shader/color info to std::cout
 // #define vtkOpenGLLowMemoryPolyDataMapper_DEBUG
 namespace
 {

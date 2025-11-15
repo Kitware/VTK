@@ -24,6 +24,8 @@
 
 #include <memory>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 // Uncomment to view cell group information from `BindArraysToTextureBuffers()` and `Draw()`

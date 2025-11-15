@@ -184,7 +184,7 @@ void vtkScenePicker::PickRender(int x0, int y0, int x1, int y1)
   {
     this->Selector->SetFieldAssociation(vtkDataObject::FIELD_ASSOCIATION_CELLS);
   }
-  cout << "Area: " << x0 << ", " << y0 << ", " << x1 << ", " << y1 << endl;
+  std::cout << "Area: " << x0 << ", " << y0 << ", " << x1 << ", " << y1 << endl;
   this->Selector->SetArea(x0, y0, x1, y1);
   if (!this->Selector->CaptureBuffers())
   {

@@ -25,6 +25,8 @@
 #include "vtkCamera.h"
 #include "vtkMath.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkImageProcessingPass, DelegatePass, vtkRenderPass);
 
@@ -77,10 +79,10 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, 
   assert("pre: target_has_context" && target->GetContext() != nullptr);
 
 #ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
-  cout << "width=" << width << endl;
-  cout << "height=" << height << endl;
-  cout << "newWidth=" << newWidth << endl;
-  cout << "newHeight=" << newHeight << endl;
+  std::cout << "width=" << width << endl;
+  std::cout << "height=" << height << endl;
+  std::cout << "newWidth=" << newWidth << endl;
+  std::cout << "newHeight=" << newHeight << endl;
 #endif
 
   vtkRenderer* r = s->GetRenderer();
@@ -96,10 +98,10 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, 
   vtkOpenGLState* ostate = static_cast<vtkOpenGLRenderWindow*>(r->GetVTKWindow())->GetState();
 
 #ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
-  cout << "old camera params=";
-  savedCamera->Print(cout);
-  cout << "new camera params=";
-  newCamera->Print(cout);
+  std::cout << "old camera params=";
+  savedCamera->Print(std::cout);
+  std::cout << "new camera params=";
+  newCamera->Print(std::cout);
 #endif
   r->SetActiveCamera(newCamera);
 
@@ -125,15 +127,15 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, 
     double angle = vtkMath::RadiansFromDegrees(newCamera->GetViewAngle());
 
 #ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
-    cout << "old angle =" << angle << " rad=" << vtkMath::DegreesFromRadians(angle) << " deg"
-         << endl;
+    std::cout << "old angle =" << angle << " rad=" << vtkMath::DegreesFromRadians(angle) << " deg"
+              << endl;
 #endif
 
     angle = 2.0 * atan(tan(angle / 2.0) * largeDim / smallDim);
 
 #ifdef VTK_IMAGE_PROCESSING_PASS_DEBUG
-    cout << "new angle =" << angle << " rad=" << vtkMath::DegreesFromRadians(angle) << " deg"
-         << endl;
+    std::cout << "new angle =" << angle << " rad=" << vtkMath::DegreesFromRadians(angle) << " deg"
+              << endl;
 #endif
 
     newCamera->SetViewAngle(vtkMath::DegreesFromRadians(angle));
@@ -201,9 +203,9 @@ void vtkImageProcessingPass::RenderDelegate(const vtkRenderState* s, int width, 
   writer->SetFileName("ip.png");
   writer->SetInputConnection(importer->GetOutputPort());
   importer->Delete();
-  cout << "Writing " << writer->GetFileName() << endl;
+  std::cout << "Writing " << writer->GetFileName() << endl;
   writer->Write();
-  cout << "Wrote " << writer->GetFileName() << endl;
+  std::cout << "Wrote " << writer->GetFileName() << endl;
   writer->Delete();
 
   pbo->Delete();

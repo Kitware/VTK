@@ -26,6 +26,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 #define vtkSurfaceLICHelperDEBUG 0
 
 // Description
@@ -69,7 +71,7 @@ void vtkSurfaceLICHelper::StreamingFindMinMax(
     pbo = nullptr;
   }
 #if vtkSurfaceLICHelperDEBUG >= 1
-  cerr << "min=" << min << " max=" << max << endl;
+  std::cerr << "min=" << min << " max=" << max << endl;
 #endif
 }
 
@@ -361,7 +363,7 @@ bool vtkSurfaceLICHelper::ProjectBounds(
     if (ndcw < 0.0)
     {
       screenExt = vtkPixelExtent(viewsize[0], viewsize[1]);
-      // cerr << "W<0!!!!!!!!!!!!!" << endl;
+      // std::cerr << "W<0!!!!!!!!!!!!!" << endl;
       return true;
     }
 
@@ -459,7 +461,7 @@ int vtkSurfaceLICHelper::ProjectBounds(vtkRenderer* ren, vtkActor* actor, vtkDat
       blockExts.push_back(dataExt);
       return 1;
     }
-    // cerr << "ds " << ds << " not visible " << endl;
+    // std::cerr << "ds " << ds << " not visible " << endl;
     return 0;
   }
   // composite dataset case
@@ -486,7 +488,7 @@ int vtkSurfaceLICHelper::ProjectBounds(vtkRenderer* ren, vtkActor* actor, vtkDat
           blockExts.push_back(screenExt);
           bbox.AddBounds(bounds);
         }
-        // else { cerr << "leaf " << ds << " not visible " << endl << endl;}
+        // else { std::cerr << "leaf " << ds << " not visible " << endl << endl;}
       }
     }
     iter->Delete();
@@ -500,7 +502,7 @@ int vtkSurfaceLICHelper::ProjectBounds(vtkRenderer* ren, vtkActor* actor, vtkDat
     }
     return 0;
   }
-  // cerr << "ds " << ds << " no cells " << endl;
+  // std::cerr << "ds " << ds << " no cells " << endl;
   return 0;
 }
 

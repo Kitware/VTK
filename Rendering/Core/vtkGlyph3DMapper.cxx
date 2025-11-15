@@ -791,7 +791,7 @@ void vtkGlyph3DMapper::GetBounds(double bounds[6])
 //------------------------------------------------------------------------------
 void vtkGlyph3DMapper::Render(vtkRenderer*, vtkActor*)
 {
-  cerr << "Calling wrong render method!!\n";
+  std::cerr << "Calling wrong render method!!\n";
 }
 
 //------------------------------------------------------------------------------

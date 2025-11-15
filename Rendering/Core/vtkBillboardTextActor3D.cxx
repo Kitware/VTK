@@ -24,6 +24,8 @@
 #include <cassert>
 #include <cmath>
 
+#include <iostream>
+
 // Define to print debugging info:
 // #define DEBUG_BTA3D
 

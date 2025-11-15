@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include <algorithm>
+#include <iostream>
 
 #include "vtkBlockSortHelper.h"
 #include "vtkCamera.h"

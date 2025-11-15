@@ -43,6 +43,9 @@ VTK_ABI_NAMESPACE_END
 
 #ifdef VTK_PBO_DEBUG
 #include <pthread.h> // for debugging with MPI, pthread_self()
+
+#include <iostream>
+
 #endif
 
 // converting double to float behind the
@@ -221,7 +224,7 @@ public:
   static void Upload(void* pboPtr, T* inData, unsigned int dims[3], int numComponents,
     vtkIdType continuousIncrements[3], int components, int* componentList)
   {
-    //  cout<<"incs[3]="<<continuousIncrements[0]<<" "<<continuousIncrements[1]
+    //  std::cout<<"incs[3]="<<continuousIncrements[0]<<" "<<continuousIncrements[1]
     //      <<" "<<continuousIncrements[2]<<endl;
 
     T* fIoMem = static_cast<T*>(pboPtr);
@@ -255,7 +258,7 @@ public:
           for (int compNo = 0; compNo < numComp; compNo++)
           {
             *fIoMem = inData[permutation[compNo]];
-            //              cout<<"upload[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][compNo="<<
+            //              std::cout<<"upload[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][compNo="<<
             //              compNo<<"] from inData to pbo="<<(double)(*fIoMem)<<endl;
 
             fIoMem++;
@@ -315,7 +318,7 @@ public:
           {
             *fIoMem = static_cast<float>(inData[permutation[compNo]]);
 
-            //        cout<<"upload specialized
+            //        std::cout<<"upload specialized
             //        double[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][compNo="<<compNo<<"] from
             //        inData="<<(*inData)<<" to pbo="<<(*fIoMem)<<endl;
 
@@ -509,7 +512,7 @@ bool vtkPixelBufferObject::Upload3D(int type, void* data, unsigned int dims[3], 
   timer->StopTimer();
   double time = timer->GetElapsedTime();
   timer->Delete();
-  cout << "Upload data to PBO" << time << " seconds." << endl;
+  std::cout << "Upload data to PBO" << time << " seconds." << endl;
 #endif
   return true;
 }
@@ -574,7 +577,7 @@ void vtkDownload3D(
   TPBO* pboPtr, TCPU* cpuPtr, unsigned int dims[3], int numcomps, vtkIdType increments[3])
 {
 #ifdef VTK_PBO_DEBUG
-  cout << "template vtkDownload3D" << endl;
+  std::cout << "template vtkDownload3D" << endl;
 #endif
   vtkIdType tupleSize = static_cast<vtkIdType>(numcomps + increments[0]);
   for (unsigned int zz = 0; zz < dims[2]; zz++)
@@ -586,8 +589,8 @@ void vtkDownload3D(
         for (int comp = 0; comp < numcomps; comp++)
         {
           *cpuPtr = static_cast<TCPU>(*pboPtr);
-          //          cout<<"download[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][comp="<<comp<<"] from
-          //          pbo="<<(*pboPtr)<<" to cpu="<<(*cpuPtr)<<endl;
+          //          std::cout<<"download[zz="<<zz<<"][yy="<<yy<<"][xx="<<xx<<"][comp="<<comp<<"]
+          //          from pbo="<<(*pboPtr)<<" to cpu="<<(*cpuPtr)<<endl;
           pboPtr++;
           cpuPtr++;
         }
@@ -606,7 +609,7 @@ void vtkDownload3DSpe(
   int iType, void* iData, OType odata, unsigned int dims[3], int numcomps, vtkIdType increments[3])
 {
 #ifdef VTK_PBO_DEBUG
-  cout << "vtkDownload3DSpe" << endl;
+  std::cout << "vtkDownload3DSpe" << endl;
 #endif
   switch (iType)
   {
@@ -614,7 +617,7 @@ void vtkDownload3DSpe(
       ::vtkDownload3D(static_cast<VTK_TT*>(iData), odata, dims, numcomps, increments););
     default:
 #ifdef VTK_PBO_DEBUG
-      cout << "d nested default." << endl;
+      std::cout << "d nested default." << endl;
 #endif
       break;
   }
@@ -667,7 +670,7 @@ bool vtkPixelBufferObject::Download3D(
   timer->StopTimer();
   double time = timer->GetElapsedTime();
   timer->Delete();
-  cout << "dowmload data from PBO" << time << " seconds." << endl;
+  std::cout << "dowmload data from PBO" << time << " seconds." << endl;
 #endif
 
   return true;

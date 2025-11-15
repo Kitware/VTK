@@ -16,6 +16,8 @@
 
 #include <cstring>
 
+#include <iostream>
+
 #define VTK_CHECK_NULL_XRHANDLE(handle, msg)                                                       \
   if (handle == XR_NULL_HANDLE)                                                                    \
   {                                                                                                \

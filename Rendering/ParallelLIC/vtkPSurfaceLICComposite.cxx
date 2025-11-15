@@ -52,6 +52,9 @@ using std::vector;
 #if vtkPSurfaceLICCompositeDEBUG >= 2
 #include "vtkTextureIO.h"
 #include <sstream>
+
+#include <iostream>
+
 using std::ostringstream;
 using std::string;
 //------------------------------------------------------------------------------
@@ -257,7 +260,7 @@ static int ScanMPIStatusForError(vector<MPI_Status>& stat)
       char eStr[MPI_MAX_ERROR_STRING] = { '\0' };
       int eStrLen = 0;
       MPI_Error_string(ierr, eStr, &eStrLen);
-      cerr << "transaction for request " << q << " failed." << endl << eStr << endl << endl;
+      std::cerr << "transaction for request " << q << " failed." << endl << eStr << endl << endl;
       return -1;
     }
   }
@@ -357,7 +360,7 @@ int vtkPSurfaceLICComposite::AllGatherExtents(const deque<vtkPixelExtent>& local
   deque<deque<vtkPixelExtent>>& remoteExts, vtkPixelExtent& dataSetExt)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-  cerr << "=====vtkPSurfaceLICComposite::AllGatherExtents" << endl;
+  std::cerr << "=====vtkPSurfaceLICComposite::AllGatherExtents" << endl;
 #endif
 
   // serialize the local extents
@@ -425,7 +428,7 @@ int vtkPSurfaceLICComposite::AllReduceVectorMax(
   float* vectors, vector<vector<float>>& vectorMax)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-  cerr << "=====vtkPSurfaceLICComposite::AllReduceVectorMax" << endl;
+  std::cerr << "=====vtkPSurfaceLICComposite::AllReduceVectorMax" << endl;
 #endif
 
   // vector data is currently on the original decomp (m blocks for n ranks)
@@ -507,7 +510,7 @@ int vtkPSurfaceLICComposite::DecomposeExtent(
   vtkPixelExtent& in, int nPieces, list<vtkPixelExtent>& out)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-  cerr << "=====vtkPSurfaceLICComposite::DecomposeWindowExtent" << endl;
+  std::cerr << "=====vtkPSurfaceLICComposite::DecomposeWindowExtent" << endl;
 #endif
 
   int res[3];
@@ -575,7 +578,7 @@ int vtkPSurfaceLICComposite::DecomposeScreenExtent(
   deque<deque<vtkPixelExtent>>& newExts, float* vectors)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-  cerr << "=====vtkPSurfaceLICComposite::DecomposeWindowExtent" << endl;
+  std::cerr << "=====vtkPSurfaceLICComposite::DecomposeWindowExtent" << endl;
 #endif
 
   // TODO -- the balanced compositor is not finished. details
@@ -770,7 +773,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent>>& 
   float* vectors)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-  cerr << "=====vtkPSurfaceLICComposite::AddGuardPixels" << endl;
+  std::cerr << "=====vtkPSurfaceLICComposite::AddGuardPixels" << endl;
 #endif
 #ifdef vtkSurfaceLICPainterTIME
   vtkParallelTimer* log = vtkParallelTimer::GetGlobalInstance();
@@ -783,7 +786,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent>>& 
   this->WindowExt.Size(nx);
   float fudge = this->GetFudgeFactor(nx);
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-  cerr << " fudge=" << fudge << endl;
+  std::cerr << " fudge=" << fudge << endl;
 #endif
 
   float arc = this->StepSize * this->NumberOfSteps * this->NumberOfGuardLevels * fudge;
@@ -798,7 +801,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent>>& 
     log->GetHeader() << "ng=" << ng << "\n";
 #endif
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-    cerr << "ng=" << ng << endl;
+    std::cerr << "ng=" << ng << endl;
 #endif
     for (int r = 0; r < this->CommSize; ++r)
     {
@@ -828,7 +831,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent>>& 
     log->GetHeader() << "ng=";
 #endif
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-    cerr << "ng=";
+    std::cerr << "ng=";
 #endif
     for (int r = 0; r < this->CommSize; ++r)
     {
@@ -843,7 +846,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent>>& 
         log->GetHeader() << " " << ng;
 #endif
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-        cerr << "  " << ng;
+        std::cerr << "  " << ng;
 #endif
         tmpExts[b].Grow(ng);
         tmpExts[b] &= this->DataSetExt;
@@ -857,7 +860,7 @@ int vtkPSurfaceLICComposite::AddGuardPixels(const deque<deque<vtkPixelExtent>>& 
     log->GetHeader() << "\n";
 #endif
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-    cerr << endl;
+    std::cerr << endl;
 #endif
   }
 
@@ -926,7 +929,7 @@ double vtkPSurfaceLICComposite::EstimateDecompEfficiency(
 int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-  cerr << "=====vtkPSurfaceLICComposite::BuildProgram" << endl;
+  std::cerr << "=====vtkPSurfaceLICComposite::BuildProgram" << endl;
 #endif
 
 #ifdef vtkSurfaceLICPainterTIME
@@ -944,7 +947,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
     log->GetHeader() << "in-place comm cost=" << commCost << "\n";
 #endif
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-    cerr << "in-place comm cost=" << commCost << endl;
+    std::cerr << "in-place comm cost=" << commCost << endl;
 #endif
     if (commCost <= 0.3)
     {
@@ -953,7 +956,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
       log->GetHeader() << "using in-place composite\n";
 #endif
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-      cerr << "using in-place composite" << endl;
+      std::cerr << "using in-place composite" << endl;
 #endif
     }
     else
@@ -963,7 +966,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
       log->GetHeader() << "using disjoint composite\n";
 #endif
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-      cerr << "using disjoint composite" << endl;
+      std::cerr << "using disjoint composite" << endl;
 #endif
     }
   }
@@ -996,7 +999,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
   log->GetHeader() << "actual comm cost=" << commCost << "\n";
 #endif
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-  cerr << "actual comm cost=" << commCost << endl;
+  std::cerr << "actual comm cost=" << commCost << endl;
 #endif
 
   // save the local decomp
@@ -1066,7 +1069,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
                    << "numberOfExtents=" << nNewExts << "\n";
 #endif
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-  cerr << "decompEfficiency=" << efficiency << endl << "numberOfExtents=" << nNewExts << endl;
+  std::cerr << "decompEfficiency=" << efficiency << endl << "numberOfExtents=" << nNewExts << endl;
 #endif
 
   // save the local decomp with guard cells
@@ -1113,7 +1116,7 @@ int vtkPSurfaceLICComposite::BuildProgram(float* vectors)
   }
 
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-  cerr << *this << endl;
+  std::cerr << *this << endl;
 #endif
 
   return 0;
@@ -1124,7 +1127,7 @@ int vtkPSurfaceLICComposite::Gather(
   void* pSendPBO, int dataType, int nComps, vtkTextureObject*& newImage)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-  cerr << "=====vtkPSurfaceLICComposite::Composite" << endl;
+  std::cerr << "=====vtkPSurfaceLICComposite::Composite" << endl;
 #endif
 
   // two pipelines depending on if this process recv's or send's
@@ -1230,8 +1233,9 @@ int vtkPSurfaceLICComposite::Gather(
       mpiReqs, mpiTypes, tag);
     if (iErr)
     {
-      cerr << this->CommRank << " transaction " << j << ":" << tag << " failed " << iErr << endl
-           << transaction << endl;
+      std::cerr << this->CommRank << " transaction " << j << ":" << tag << " failed " << iErr
+                << endl
+                << transaction << endl;
     }
   }
 
@@ -1281,8 +1285,8 @@ int vtkPSurfaceLICComposite::Gather(
     }
 
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-    cerr << this->CommRank << ":" << j << ":" << encodeTag(j, this->Pass) << " Local "
-         << transaction << endl;
+    std::cerr << this->CommRank << ":" << j << ":" << encodeTag(j, this->Pass) << " Local "
+              << transaction << endl;
 #endif
 
     const vtkPixelExtent& destExt = transaction.GetDestinationExtent();
@@ -1301,9 +1305,9 @@ int vtkPSurfaceLICComposite::Gather(
 
     if (iErr)
     {
-      cerr << this->CommRank << " local transaction " << j << ":" << this->Pass << " failed "
-           << iErr << endl
-           << transaction << endl;
+      std::cerr << this->CommRank << " local transaction " << j << ":" << this->Pass << " failed "
+                << iErr << endl
+                << transaction << endl;
     }
 
     pbo->UnmapUnpackedBuffer();
@@ -1347,7 +1351,8 @@ int vtkPSurfaceLICComposite::Gather(
     vtkPPixelTransfer& transaction = this->GatherProgram[j];
 
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-    cerr << this->CommRank << ":" << j << ":" << stat.MPI_TAG << " Recv " << transaction << endl;
+    std::cerr << this->CommRank << ":" << j << ":" << stat.MPI_TAG << " Recv " << transaction
+              << endl;
 #endif
 
     // move recv'd data from pbo to texture
@@ -1457,7 +1462,7 @@ int vtkPSurfaceLICComposite::Scatter(
   void* pSendPBO, int dataType, int nComps, vtkTextureObject*& newImage)
 {
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-  cerr << "=====vtkPSurfaceLICComposite::Scatter" << endl;
+  std::cerr << "=====vtkPSurfaceLICComposite::Scatter" << endl;
 #endif
 
   int iErr = 0;
@@ -1562,8 +1567,8 @@ int vtkPSurfaceLICComposite::Scatter(
     }
 
 #if vtkPSurfaceLICCompositeDEBUG >= 2
-    cerr << this->CommRank << ":" << j << ":" << encodeTag(j, this->Pass) << " Local "
-         << transaction << endl;
+    std::cerr << this->CommRank << ":" << j << ":" << encodeTag(j, this->Pass) << " Local "
+              << transaction << endl;
 #endif
 
     iErr = transaction.Blit(nComps, dataType, pSendPBO, dataType,

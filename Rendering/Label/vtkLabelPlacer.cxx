@@ -30,6 +30,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLabelPlacer);
 vtkCxxSetObjectMacro(vtkLabelPlacer, AnchorTransform, vtkCoordinate);
@@ -777,8 +779,8 @@ int vtkLabelPlacer::RequestData(vtkInformation* vtkNotUsed(request),
   (void)placed;
   (void)occluded;
   vtkDebugMacro("------");
-  // cout << "Not Placed: " << notPlaced << endl;
-  // cout << "Labels Occluded: " << occluded << endl;
+  // std::cout << "Not Placed: " << notPlaced << endl;
+  // std::cout << "Labels Occluded: " << occluded << endl;
 
   inIter->Delete();
   delete[] zPtr;

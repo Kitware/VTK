@@ -53,7 +53,7 @@ void vtkRenderWidget::SetName(const std::string& name)
 void vtkRenderWidget::Render()
 {
   assert(this->RenderDevice != nullptr);
-  cout << "Render called!!!" << endl;
+  std::cout << "Render called!!!" << endl;
 }
 
 void vtkRenderWidget::MakeCurrent()

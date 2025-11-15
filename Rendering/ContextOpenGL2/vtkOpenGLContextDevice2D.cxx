@@ -2397,15 +2397,15 @@ void vtkOpenGLContextDevice2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Renderer: ";
   if (this->Renderer)
   {
-    os << endl;
+    os << std::endl;
     this->Renderer->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {
-    os << "(none)" << endl;
+    os << "(none)" << std::endl;
   }
-  os << indent << "MaximumMarkerCacheSize: " << this->MaximumMarkerCacheSize << endl;
-  os << indent << "MarkerCache: " << this->MarkerCache.size() << " entries." << endl;
+  os << indent << "MaximumMarkerCacheSize: " << this->MaximumMarkerCacheSize << std::endl;
+  os << indent << "MarkerCache: " << this->MarkerCache.size() << " entries." << std::endl;
 }
 
 //------------------------------------------------------------------------------

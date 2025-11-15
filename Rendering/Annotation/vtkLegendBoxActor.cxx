@@ -21,6 +21,8 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkViewport.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLegendBoxActor);
 
@@ -881,7 +883,7 @@ int vtkLegendBoxActor::RenderOpaqueGeometry(vtkViewport* viewport)
       } // if symbol defined
       else
       {
-        std::cout << "Symbol is not defined: " << std::endl;
+        std::cout << "Symbol is not defined: \n";
       }
     }
 

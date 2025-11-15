@@ -26,6 +26,8 @@
 #include "vtk_glad.h"
 #include "vtkglad/include/glad/glx.h"
 
+#include <iostream>
+
 /*
  * Work-around to get forward declarations of C typedef of anonymous
  * structs working. We do not want to include XUtil.h in the header as
@@ -167,7 +169,7 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display* DisplayId, int drawabl
 
   attributes[index++] = None;
 
-  // cout << "Trying config: " << endl
+  // std::cout << "Trying config: " << endl
   //      << "         DisplayId : " << DisplayId << endl
   //      << "     drawable_type : " << drawable_type << endl
   //      << "        doublebuff : " << doublebuff << endl
@@ -178,12 +180,12 @@ GLXFBConfig vtkXOpenGLRenderWindowTryForFBConfig(Display* DisplayId, int drawabl
   GLXFBConfig* fb = glXChooseFBConfig(DisplayId, vtkXDefaultScreen(DisplayId), attributes, &tmp);
   if (fb && tmp > 0)
   {
-    // cout << "            STATUS : SUCCESS!!!" << endl;
+    // std::cout << "            STATUS : SUCCESS!!!" << endl;
     GLXFBConfig result = fb[0];
     vtkXFree(fb); // NOLINT(bugprone-multi-level-implicit-pointer-conversion)
     return result;
   }
-  // cout << "            STATUS : FAILURE!!!" << endl;
+  // std::cout << "            STATUS : FAILURE!!!" << endl;
   return None;
 }
 

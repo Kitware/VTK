@@ -37,6 +37,8 @@
 #include <cmath>
 #include <exception>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFixedPointVolumeRayCastMapper);
 vtkCxxSetObjectMacro(vtkFixedPointVolumeRayCastMapper, RayCastImage, vtkFixedPointRayCastImage);
@@ -2695,7 +2697,7 @@ void vtkFixedPointVolumeRayCastMapper::ComputeGradients(vtkVolume* vol)
   }
 
   timer->StopTimer();
-  // cout << "Gradients computed in " << timer->GetElapsedTime() << " seconds " << endl;
+  // std::cout << "Gradients computed in " << timer->GetElapsedTime() << " seconds " << endl;
   timer->Delete();
 }
 

@@ -28,6 +28,8 @@
 #include "vtkDepthPeelingPassFinalFS.h"
 #include "vtkDepthPeelingPassIntermediateFS.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDepthPeelingPass);
 vtkCxxSetObjectMacro(vtkDepthPeelingPass, TranslucentPass, vtkRenderPass);
@@ -526,7 +528,7 @@ void vtkDepthPeelingPass::Render(const vtkRenderState* s)
     glEndQuery(GL_SAMPLES_PASSED);
     glGetQueryObjectuiv(queryId, GL_QUERY_RESULT, &nbPixels);
 #endif
-    // cerr << "Pass " << peelCount << " pixels Drawn " << nbPixels << "\n";
+    // std::cerr << "Pass " << peelCount << " pixels Drawn " << nbPixels << "\n";
 
     // if something was drawn, blend it in
     if (nbPixels > 0)

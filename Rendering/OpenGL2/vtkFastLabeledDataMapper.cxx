@@ -41,6 +41,8 @@
 
 #include <array>
 
+#include <iostream>
+
 // Colsize is a heuristic to move to the next row in the word texture.
 // Keeping the texture roughly square gives better texture sampling
 // accuracy (less pixelization) as we use bits from both U and V.
