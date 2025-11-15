@@ -1697,16 +1697,6 @@ static inline double3 cross(double3 A, double3 B)
  ***          Macros                 ***
  ***************************************/
 
-// local arrays allocation
-#if defined(__GNUC__) // Warning, this is a gcc extension, not all compiler accept it
-#define ALLOC_LOCAL_ARRAY(name, type, n) type name[(n)]
-#define FREE_LOCAL_ARRAY(name, type, n)
-#else
-#include <malloc.h>
-#define ALLOC_LOCAL_ARRAY(name, type, n) type* name = (type*)malloc(sizeof(type) * (n))
-#define FREE_LOCAL_ARRAY(name, type, n) free(name)
-#endif
-
 #ifdef __GNUC__
 #define LOCAL_ARRAY_SIZE(n) n
 #else
@@ -2046,11 +2036,9 @@ static inline double findTriangleSetCuttingPlane(double3 normal, // IN  , normal
   const double3* vertices // IN  , vertex coordinates, size=nv
 )
 {
-  // only need nv-1 derivs but allocate nv as gcc freaks out
-  // with nv-1 as an argument
-  ALLOC_LOCAL_ARRAY(derivatives, double2, nv);
-  ALLOC_LOCAL_ARRAY(index, unsigned char, nv);
-  ALLOC_LOCAL_ARRAY(rindex, unsigned char, nv);
+  auto derivatives = std::make_unique<double2[]>(nv - 1);
+  auto index = std::make_unique<unsigned char[]>(nv);
+  auto rindex = std::make_unique<unsigned char[]>(nv);
 
   // initialization
   for (int i = 0; i < nv; i++)
@@ -2058,13 +2046,8 @@ static inline double findTriangleSetCuttingPlane(double3 normal, // IN  , normal
     index[i] = i;
   }
 
-  for (int i = 0; i < (nv - 1); i++)
-  {
-    derivatives[i] = double2{ 0, 0 };
-  }
-
   // sort vertices in the normal vector direction
-  sortVertices(nv, vertices, normal, index);
+  sortVertices(nv, vertices, normal, index.get());
 
   // reverse indirection table
   for (int i = 0; i < nv; i++)
@@ -2079,7 +2062,7 @@ static inline double findTriangleSetCuttingPlane(double3 normal, // IN  , normal
   for (int i = 0; i < nt; i++)
   {
     // area of the interface-tetra intersection at points P1 and P2
-    uchar3 triangle = sortTriangle(tv[i], rindex);
+    uchar3 triangle = sortTriangle(tv[i], rindex.get());
     DBG_MESG("\ntriangle " << i << " : " << tv[i].x << ',' << tv[i].y << ',' << tv[i].z << " -> "
                            << triangle.x << ',' << triangle.y << ',' << triangle.z);
 
@@ -2145,10 +2128,6 @@ static inline double findTriangleSetCuttingPlane(double3 normal, // IN  , normal
 
   DBG_MESG("final x = " << x);
 
-  FREE_LOCAL_ARRAY(derivatives, double2, nv - 1);
-  FREE_LOCAL_ARRAY(index, unsigned char, nv);
-  FREE_LOCAL_ARRAY(rindex, unsigned char, nv);
-
   return x;
 }
 
@@ -2202,9 +2181,9 @@ static inline double findTriangleSetCuttingCone(double2 normal, // IN  , normal 
   const double2* vertices // IN  , vertex coordinates, size=nv
 )
 {
-  ALLOC_LOCAL_ARRAY(derivatives, double3, nv - 1);
-  ALLOC_LOCAL_ARRAY(index, unsigned char, nv);
-  ALLOC_LOCAL_ARRAY(rindex, unsigned char, nv);
+  auto derivatives = std::make_unique<double3[]>(nv - 1);
+  auto index = std::make_unique<unsigned char[]>(nv);
+  auto rindex = std::make_unique<unsigned char[]>(nv);
 
   // initialization
   for (int i = 0; i < nv; i++)
@@ -2212,13 +2191,8 @@ static inline double findTriangleSetCuttingCone(double2 normal, // IN  , normal 
     index[i] = i;
   }
 
-  for (int i = 0; i < (nv - 1); i++)
-  {
-    derivatives[i] = double3{ 0, 0, 0 };
-  }
-
   // sort vertices along normal vector
-  sortVertices(nv, vertices, normal, index);
+  sortVertices(nv, vertices, normal, index.get());
 
   // reverse indirection table
   for (int i = 0; i < nv; i++)
@@ -2230,7 +2204,7 @@ static inline double findTriangleSetCuttingCone(double2 normal, // IN  , normal 
   for (int i = 0; i < nt; i++)
   {
     // area of the interface-tetra intersection at points P1 and P2
-    uchar3 triangle = sortTriangle(tv[i], rindex);
+    uchar3 triangle = sortTriangle(tv[i], rindex.get());
     DBG_MESG("\ntriangle " << i << " : " << tv[i].x << ',' << tv[i].y << ',' << tv[i].z << " -> "
                            << triangle.x << ',' << triangle.y << ',' << triangle.z);
 
@@ -2299,10 +2273,6 @@ static inline double findTriangleSetCuttingCone(double2 normal, // IN  , normal 
   double x = newtonSearchPolynomialFunc(volumeFunction, derivatives[s], y, xmin, xmax);
 
   DBG_MESG("final x = " << x);
-
-  FREE_LOCAL_ARRAY(derivatives, double3, nv - 1);
-  FREE_LOCAL_ARRAY(index, unsigned char, nv);
-  FREE_LOCAL_ARRAY(rindex, unsigned char, nv);
 
   return x;
 }
@@ -2382,9 +2352,9 @@ static inline double findTetraSetCuttingPlane(double3 normal, // IN  , normal ve
   const double3* vertices                                     // IN  , vertex coordinates, size=nv
 )
 {
-  ALLOC_LOCAL_ARRAY(rindex, unsigned char, nv);
-  ALLOC_LOCAL_ARRAY(index, unsigned char, nv);
-  ALLOC_LOCAL_ARRAY(derivatives, double3, nv - 1);
+  auto index = std::make_unique<unsigned char[]>(nv);
+  auto rindex = std::make_unique<unsigned char[]>(nv);
+  auto derivatives = std::make_unique<double3[]>(nv - 1);
 
   // initialization
   for (int i = 0; i < nv; i++)
@@ -2393,7 +2363,7 @@ static inline double findTetraSetCuttingPlane(double3 normal, // IN  , normal ve
   }
 
   // sort vertices in the normal vector direction
-  sortVertices(nv, vertices, normal, index);
+  sortVertices(nv, vertices, normal, index.get());
 
   // reverse indirection table
   for (int i = 0; i < nv; i++)
@@ -2419,7 +2389,7 @@ static inline double findTetraSetCuttingPlane(double3 normal, // IN  , normal ve
   for (int i = 0; i < nt; i++)
   {
     // area of the interface-tetra intersection at points P1 and P2
-    uchar4 tetra = sortTetra(tv[i], rindex);
+    uchar4 tetra = sortTetra(tv[i], rindex.get());
     DBG_MESG("\ntetra " << i << " : " << tv[i].x << ',' << tv[i].y << ',' << tv[i].z << ','
                         << tv[i].w << " -> " << tetra.x << ',' << tetra.y << ',' << tetra.z << ','
                         << tetra.w);
@@ -2494,10 +2464,6 @@ static inline double findTetraSetCuttingPlane(double3 normal, // IN  , normal ve
   double x = newtonSearchPolynomialFunc(volumeFunction, derivatives[s], y, xmin, xmax);
 
   DBG_MESG("final x = " << x);
-
-  FREE_LOCAL_ARRAY(rindex, unsigned char, nv);
-  FREE_LOCAL_ARRAY(index, unsigned char, nv);
-  FREE_LOCAL_ARRAY(derivatives, double3, nv - 1);
 
   return x;
 }
