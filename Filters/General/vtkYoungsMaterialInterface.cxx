@@ -1594,9 +1594,6 @@ VTK_ABI_NAMESPACE_BEGIN
 #define make_REAL3 make_double3
 #define make_REAL4 make_double4
 
-#define SQRT sqrt
-#define FABS fabs
-
 #define REAL_CONST(x) x
 
 #ifndef FUNC_DECL
@@ -1805,7 +1802,7 @@ REAL triangleSurf(REAL3 p1, REAL3 p2, REAL3 p3)
   const REAL b = dot(e2, e2);
   const REAL c = dot(e3, e3);
 
-  return REAL_CONST(0.25) * SQRT(FABS(4 * a * c - (a - b + c) * (a - b + c)));
+  return REAL_CONST(0.25) * sqrt(fabs(4 * a * c - (a - b + c) * (a - b + c)));
 }
 
 /*************************
@@ -1819,7 +1816,7 @@ REAL tetraVolume(REAL3 p0, REAL3 p1, REAL3 p2, REAL3 p3)
   REAL3 B = p2 - p0;
   REAL3 C = p3 - p0;
   REAL3 BC = cross(B, C);
-  return FABS(dot(A, BC) / REAL_CONST(6.0));
+  return fabs(dot(A, BC) / REAL_CONST(6.0));
 }
 
 /*******************************************
@@ -1947,12 +1944,12 @@ REAL newtonSearchPolynomialFunc(
   DBG_MESG("F(" << xmin << ")=" << ymin << ", "
                 << "F(" << x << ")=" << y << ", "
                 << "F(" << xmax << ")=" << ymax);
-  y = FABS(y);
-  if (FABS(ymin) < y)
+  y = fabs(y);
+  if (fabs(ymin) < y)
   {
     x = xmin;
   }
-  if (FABS(ymax) < y)
+  if (fabs(ymax) < y)
   {
     x = xmax;
   }
@@ -1994,12 +1991,12 @@ REAL newtonSearchPolynomialFunc(
   DBG_MESG("F(" << xmin << ")=" << ymin << ", "
                 << "F(" << x << ")=" << y << ", "
                 << "F(" << xmax << ")=" << ymax);
-  y = FABS(y);
-  if (FABS(ymin) < y)
+  y = fabs(y);
+  if (fabs(ymin) < y)
   {
     x = xmin;
   }
-  if (FABS(ymax) < y)
+  if (fabs(ymax) < y)
   {
     x = xmax;
   }
@@ -2275,7 +2272,7 @@ void makeConeVolumeDerivatives(
   DBG_MESG("length = " << length);
 
   // compute truncated cone surface at d1
-  REAL Isurf = REAL_CONST(M_PI) * FABS(I.y + v1.y) *
+  REAL Isurf = REAL_CONST(M_PI) * fabs(I.y + v1.y) *
     length; // 2 * REAL_CONST(M_PI) * ( (I.y+v1.y) * 0.5 ) * length ;
   REAL coef;
 
