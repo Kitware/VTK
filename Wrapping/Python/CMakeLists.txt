@@ -172,6 +172,12 @@ if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.27")
     DEPENDS_EXPLICIT_ONLY)
 endif ()
 
+# used by vtkLoadPythonTkWidgets.py.in
+set(_renderingtk_output_name "vtkRenderingTk")
+if (TARGET VTK::RenderingTk)
+  get_target_property(_renderingtk_output_name VTK::RenderingTk OUTPUT_NAME)
+endif ()
+
 set(python_copied_modules)
 foreach (python_file IN LISTS python_files)
   set(output_python_file
