@@ -3,29 +3,16 @@
 // SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkModelMetadata.h"
-#include "vtkCellData.h"
-#include "vtkCharArray.h"
-#include "vtkDataArray.h"
-#include "vtkDataSet.h"
-#include "vtkFieldData.h"
-#include "vtkFloatArray.h"
-#include "vtkIdList.h"
-#include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkStringArray.h"
+
 #include <ctime>
-
-VTK_ABI_NAMESPACE_BEGIN
-vtkStandardNewMacro(vtkModelMetadata);
-
-VTK_ABI_NAMESPACE_END
-#include <algorithm>
+#include <iostream>
 #include <map>
 #include <set>
 
 VTK_ABI_NAMESPACE_BEGIN
+vtkStandardNewMacro(vtkModelMetadata);
 class vtkModelMetadataSTLCloak
 {
 public:
@@ -771,14 +758,14 @@ void vtkModelMetadata::ShowFloats(const char* what, int num, float* f)
     return;
   if (!f)
     return;
-  cout << what << endl;
+  std::cout << what << std::endl;
   for (int i = 0; i < num; i++)
   {
     if (i && (i % 10 == 0))
-      cout << endl;
-    cout << " " << f[i];
+      std::cout << std::endl;
+    std::cout << " " << f[i];
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 void vtkModelMetadata::ShowLines(const char* what, int num, char** l)
 {
@@ -786,11 +773,11 @@ void vtkModelMetadata::ShowLines(const char* what, int num, char** l)
     return;
   if (!l)
     return;
-  cout << what << endl;
+  std::cout << what << std::endl;
   for (int i = 0; i < num; i++)
   {
     if (l[i])
-      cout << "  " << l[i] << endl;
+      std::cout << "  " << l[i] << std::endl;
   }
 }
 void vtkModelMetadata::ShowIntArray(const char* what, int numx, int numy, int* id)
@@ -802,16 +789,16 @@ void vtkModelMetadata::ShowIntArray(const char* what, int numx, int numy, int* i
   if (id == nullptr)
     return;
 
-  cout << what << endl;
+  std::cout << what << std::endl;
   for (int x = 0; x < numx; x++)
   {
     for (int y = 0; y < numy; y++)
     {
-      cout << " " << *id++;
+      std::cout << " " << *id++;
     }
-    cout << endl;
+    std::cout << std::endl;
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 void vtkModelMetadata::ShowInts(const char* what, int num, int* id)
 {
@@ -819,14 +806,14 @@ void vtkModelMetadata::ShowInts(const char* what, int num, int* id)
     return;
   if (!id)
     return;
-  cout << what << endl;
+  std::cout << what << std::endl;
   for (int i = 0; i < num; i++)
   {
     if (i && (i % 10 == 0))
-      cout << endl;
-    cout << " " << id[i];
+      std::cout << std::endl;
+    std::cout << " " << id[i];
   }
-  cout << endl;
+  std::cout << std::endl;
 }
 void vtkModelMetadata::ShowListsOfInts(
   const char* what, int* list, int nlists, int* idx, int len, int verbose)
@@ -835,13 +822,13 @@ void vtkModelMetadata::ShowListsOfInts(
   if (len == 0)
     return;
 
-  cout << what << endl;
+  std::cout << what << std::endl;
   for (i = 0; i < nlists; i++)
   {
     int start = idx[i];
     int end = ((i == nlists - 1) ? len : idx[i + 1]);
 
-    cout << i << ") ";
+    std::cout << i << ") ";
 
     for (j = start, ii = 0; j < end; j++, ii++)
     {
@@ -849,17 +836,17 @@ void vtkModelMetadata::ShowListsOfInts(
       {
         if (verbose)
         {
-          cout << endl;
+          std::cout << std::endl;
         }
         else
         {
-          cout << "...";
+          std::cout << "...";
           break;
         }
       }
-      cout << list[j] << " ";
+      std::cout << list[j] << " ";
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 }
 void vtkModelMetadata::ShowListsOfFloats(
@@ -869,13 +856,13 @@ void vtkModelMetadata::ShowListsOfFloats(
   if (len == 0)
     return;
 
-  cout << what << endl;
+  std::cout << what << std::endl;
   for (i = 0; i < nlists; i++)
   {
     int start = idx[i];
     int end = ((i == nlists - 1) ? len : idx[i + 1]);
 
-    cout << i << ") ";
+    std::cout << i << ") ";
 
     for (j = start, ii = 0; j < end; j++, ii++)
     {
@@ -883,17 +870,17 @@ void vtkModelMetadata::ShowListsOfFloats(
       {
         if (verbose)
         {
-          cout << endl;
+          std::cout << std::endl;
         }
         else
         {
-          cout << "...";
+          std::cout << "...";
           break;
         }
       }
-      cout << list[j] << " ";
+      std::cout << list[j] << " ";
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 }
 
@@ -912,10 +899,10 @@ void vtkModelMetadata::PrintLocalInformation()
   if (val)
     verbose = 2;
 
-  cout << "Metadata local information" << endl;
-  cout << "========================================" << endl;
+  std::cout << "Metadata local information" << std::endl;
+  std::cout << "========================================" << std::endl;
 
-  cout << "Time step (starting with 0): " << this->TimeStepIndex << endl;
+  std::cout << "Time step (starting with 0): " << this->TimeStepIndex << std::endl;
 
   this->ShowInts("BlockNumberOfElements", this->NumberOfBlocks, this->BlockNumberOfElements);
 
@@ -961,7 +948,7 @@ void vtkModelMetadata::PrintLocalInformation()
 
   this->ShowFloats("GlobalVariables", this->NumberOfGlobalVariables, this->GlobalVariableValue);
 
-  cout << "NumberOfElementVariables " << this->NumberOfElementVariables << endl;
+  std::cout << "NumberOfElementVariables " << this->NumberOfElementVariables << std::endl;
   this->ShowLines(
     "ElementVariableNames", this->NumberOfElementVariables, this->ElementVariableNames);
   this->ShowInts("ElementVariableNumberOfComponents", this->NumberOfElementVariables,
@@ -969,7 +956,7 @@ void vtkModelMetadata::PrintLocalInformation()
   this->ShowInts("MapToOriginalElementVariableNames", this->NumberOfElementVariables,
     this->MapToOriginalElementVariableNames);
 
-  cout << "NumberOfNodeVariables " << this->NumberOfNodeVariables << endl;
+  std::cout << "NumberOfNodeVariables " << this->NumberOfNodeVariables << std::endl;
   this->ShowLines("NodeVariableNames", this->NumberOfNodeVariables, this->NodeVariableNames);
   this->ShowInts("NodeVariableNumberOfComponents", this->NumberOfNodeVariables,
     this->NodeVariableNumberOfComponents);
@@ -981,57 +968,58 @@ void vtkModelMetadata::PrintGlobalInformation()
 {
   int i, j;
 
-  cout << "Metadata global information" << endl;
-  cout << "========================================" << endl;
+  std::cout << "Metadata global information" << std::endl;
+  std::cout << "========================================" << std::endl;
 
   if (this->Title)
-    cout << "Title: " << this->Title << endl;
+    std::cout << "Title: " << this->Title << std::endl;
 
   this->ShowLines("InformationLines", this->NumberOfInformationLines, this->InformationLine);
 
   this->ShowLines("CoordinateNames", this->Dimension, this->CoordinateNames);
 
-  cout << "NumberOfTimeSteps " << this->NumberOfTimeSteps << endl;
+  std::cout << "NumberOfTimeSteps " << this->NumberOfTimeSteps << std::endl;
   this->ShowFloats("TimeStepValues", this->NumberOfTimeSteps, this->TimeStepValues);
 
-  cout << "NumberOfBlocks " << this->NumberOfBlocks << endl;
+  std::cout << "NumberOfBlocks " << this->NumberOfBlocks << std::endl;
   this->ShowInts("BlockIds", this->NumberOfBlocks, this->BlockIds);
   this->ShowLines("BlockElementType", this->NumberOfBlocks, this->BlockElementType);
   this->ShowInts("BlockNodesPerElement", this->NumberOfBlocks, this->BlockNodesPerElement);
   this->ShowInts("BlockNumberOfAttributesPerElement", this->NumberOfBlocks,
     this->BlockNumberOfAttributesPerElement);
 
-  cout << "NumberOfNodeSets " << this->NumberOfNodeSets << endl;
+  std::cout << "NumberOfNodeSets " << this->NumberOfNodeSets << std::endl;
   this->ShowInts("NodeSetIds", this->NumberOfNodeSets, this->NodeSetIds);
 
-  cout << "NumberOfSideSets " << this->NumberOfSideSets << endl;
+  std::cout << "NumberOfSideSets " << this->NumberOfSideSets << std::endl;
   this->ShowInts("SideSetIds", this->NumberOfSideSets, this->SideSetIds);
 
-  cout << "NumberOfBlockProperties " << this->NumberOfBlockProperties << endl;
+  std::cout << "NumberOfBlockProperties " << this->NumberOfBlockProperties << std::endl;
   this->ShowLines("BlockPropertyNames", this->NumberOfBlockProperties, this->BlockPropertyNames);
   this->ShowIntArray("BlockPropertyValue", this->NumberOfBlocks, this->NumberOfBlockProperties,
     this->BlockPropertyValue);
 
-  cout << "NumberOfNodeSetProperties " << this->NumberOfNodeSetProperties << endl;
+  std::cout << "NumberOfNodeSetProperties " << this->NumberOfNodeSetProperties << std::endl;
   this->ShowLines(
     "NodeSetPropertyNames", this->NumberOfNodeSetProperties, this->NodeSetPropertyNames);
   this->ShowIntArray("NodeSetPropertyValue", this->NumberOfNodeSets,
     this->NumberOfNodeSetProperties, this->NodeSetPropertyValue);
 
-  cout << "NumberOfSideSetProperties " << this->NumberOfSideSetProperties << endl;
+  std::cout << "NumberOfSideSetProperties " << this->NumberOfSideSetProperties << std::endl;
   this->ShowLines(
     "SideSetPropertyNames", this->NumberOfSideSetProperties, this->SideSetPropertyNames);
   this->ShowIntArray("SideSetPropertyValue", this->NumberOfSideSets,
     this->NumberOfSideSetProperties, this->SideSetPropertyValue);
 
-  cout << "NumberOfGlobalVariables " << this->NumberOfGlobalVariables << endl;
+  std::cout << "NumberOfGlobalVariables " << this->NumberOfGlobalVariables << std::endl;
   this->ShowLines("GlobalVariableNames", this->NumberOfGlobalVariables, this->GlobalVariableNames);
 
-  cout << "OriginalNumberOfElementVariables " << this->OriginalNumberOfElementVariables << endl;
+  std::cout << "OriginalNumberOfElementVariables " << this->OriginalNumberOfElementVariables
+            << std::endl;
   this->ShowLines("OriginalElementVariableNames", this->OriginalNumberOfElementVariables,
     this->OriginalElementVariableNames);
 
-  cout << "OriginalNumberOfNodeVariables " << this->OriginalNumberOfNodeVariables << endl;
+  std::cout << "OriginalNumberOfNodeVariables " << this->OriginalNumberOfNodeVariables << std::endl;
   this->ShowLines("OriginalNodeVariableNames", this->OriginalNumberOfNodeVariables,
     this->OriginalNodeVariableNames);
 
@@ -1042,19 +1030,19 @@ void vtkModelMetadata::PrintGlobalInformation()
 
   if (tt && ttsize)
   {
-    cout << "Block/Element variable truth table" << endl;
+    std::cout << "Block/Element variable truth table" << std::endl;
     for (i = 0; i < nblocks; i++)
     {
-      cout << "block " << i << ", ";
+      std::cout << "block " << i << ", ";
       for (j = 0; j < nelts; j++)
       {
-        cout << *tt++ << " ";
+        std::cout << *tt++ << " ";
       }
-      cout << endl;
+      std::cout << std::endl;
     }
   }
 
-  cout << "========================================" << endl;
+  std::cout << "========================================" << std::endl;
 }
 
 int vtkModelMetadata::CalculateMaximumLengths(int& maxString, int& maxLine)
@@ -1149,16 +1137,17 @@ void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
   int i;
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "Title: " << (this->Title ? this->Title : "(none)") << endl;
-  os << indent << "NumberOfInformationLines: " << this->NumberOfInformationLines << endl;
-  os << indent << "Dimension: " << this->Dimension << endl;
-  os << indent << "CoordinateNames: " << endl;
+  os << indent << "Title: " << (this->Title ? this->Title : "(none)") << std::endl;
+  os << indent << "NumberOfInformationLines: " << this->NumberOfInformationLines << std::endl;
+  os << indent << "Dimension: " << this->Dimension << std::endl;
+  os << indent << "CoordinateNames: " << std::endl;
   for (i = 0; i < this->Dimension; i++)
   {
-    os << indent << "-" << (this->CoordinateNames[i] ? this->CoordinateNames[i] : "(none)") << endl;
+    os << indent << "-" << (this->CoordinateNames[i] ? this->CoordinateNames[i] : "(none)")
+       << std::endl;
   }
-  os << indent << "NumberOfBlocks: " << this->NumberOfBlocks << endl;
-  os << indent << "NumberOfNodeSets: " << this->NumberOfNodeSets << endl;
+  os << indent << "NumberOfBlocks: " << this->NumberOfBlocks << std::endl;
+  os << indent << "NumberOfNodeSets: " << this->NumberOfNodeSets << std::endl;
   os << indent << "NodeSetNames: ";
   for (i = 0; this->NodeSetNames && (i < this->NodeSetNames->GetNumberOfValues()); i++)
   {
@@ -1169,7 +1158,7 @@ void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << this->NodeSetIds[i] << " ";
   }
-  os << endl;
+  os << std::endl;
   if (this->NodeSetSize)
   {
     os << indent << "NodeSetSize: ";
@@ -1177,24 +1166,24 @@ void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
     {
       os << this->NodeSetSize[i] << " ";
     }
-    os << endl;
+    os << std::endl;
   }
   os << indent << "NodeSetNodeIdList: ";
   for (i = 0; i < this->SumNodesPerNodeSet; i++)
   {
     os << this->NodeSetNodeIdList[i] << " ";
   }
-  os << endl;
+  os << std::endl;
   //  os << indent << "NodeSetNumberOfDistributionFactors: " <<
   //                   (this->NodeSetNumberOfDistributionFactors?this->NodeSetNumberOfDistributionFactors:"(none)")
-  //                   << endl;
+  //                   << std::endl;
   os << indent << "NodeSetDistributionFactors: ";
   for (i = 0; i < this->SumDistFactPerNodeSet; i++)
   {
     os << this->NodeSetDistributionFactors[i] << " ";
   }
-  os << endl;
-  os << indent << "NumberOfSideSets: " << this->NumberOfSideSets << endl;
+  os << std::endl;
+  os << indent << "NumberOfSideSets: " << this->NumberOfSideSets << std::endl;
   os << indent << "SideSetNames: ";
   for (i = 0; this->SideSetNames && (i < this->SideSetNames->GetNumberOfValues()); i++)
   {
@@ -1205,7 +1194,7 @@ void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
   {
     os << this->SideSetIds[i] << " ";
   }
-  os << endl;
+  os << std::endl;
   if (this->SideSetSize)
   {
     os << indent << "SideSetSize: ";
@@ -1213,81 +1202,81 @@ void vtkModelMetadata::PrintSelf(ostream& os, vtkIndent indent)
     {
       os << this->SideSetSize[i] << " ";
     }
-    os << endl;
+    os << std::endl;
   }
   //  os << indent << "SideSetNumberOfDistributionFactors: " <<
   //                  (this->SideSetNumberOfDistributionFactors?this->SideSetNumberOfDistributionFactors:"(none)"
-  //                  << endl;
+  //                  << std::endl;
   os << indent << "SideSetElementList: ";
   for (i = 0; i < this->SumSidesPerSideSet; i++)
   {
     os << this->SideSetElementList[i] << " ";
   }
-  os << endl;
+  os << std::endl;
   os << indent << "SideSetSideList: ";
   for (i = 0; i < this->SumSidesPerSideSet; i++)
   {
     os << this->SideSetSideList[i] << " ";
   }
-  os << endl;
+  os << std::endl;
   os << indent << "SideSetNumDFPerSide: ";
   for (i = 0; i < this->SumSidesPerSideSet; i++)
   {
     os << this->SideSetNumDFPerSide[i] << " ";
   }
-  os << endl;
+  os << std::endl;
   os << indent << "SideSetDistributionFactors: ";
   for (i = 0; i < this->SumDistFactPerSideSet; i++)
   {
     os << this->SideSetDistributionFactors[i] << " ";
   }
-  os << endl;
-  os << indent << "NumberOfBlockProperties: " << this->NumberOfBlockProperties << endl;
+  os << std::endl;
+  os << indent << "NumberOfBlockProperties: " << this->NumberOfBlockProperties << std::endl;
   os << indent << "BlockPropertyNames: ";
   for (i = 0; i < this->NumberOfBlockProperties; i++)
   {
     os << indent << "-" << (this->BlockPropertyNames[i] ? this->BlockPropertyNames[i] : "(none)")
-       << endl;
+       << std::endl;
   }
   //  os << indent << "BlockPropertyValue: " <<
-  //                   (this->BlockPropertyValue?this->BlockPropertyValue:"(none)") << endl;
-  os << indent << "NumberOfNodeSetProperties: " << this->NumberOfNodeSetProperties << endl;
+  //                   (this->BlockPropertyValue?this->BlockPropertyValue:"(none)") << std::endl;
+  os << indent << "NumberOfNodeSetProperties: " << this->NumberOfNodeSetProperties << std::endl;
   os << indent << "NodeSetPropertyNames: ";
   for (i = 0; i < this->NumberOfNodeSetProperties; i++)
   {
     os << indent << "-"
-       << (this->NodeSetPropertyNames[i] ? this->NodeSetPropertyNames[i] : "(none)") << endl;
+       << (this->NodeSetPropertyNames[i] ? this->NodeSetPropertyNames[i] : "(none)") << std::endl;
   }
   //  os << indent << "NodeSetPropertyValue: " <<
-  //                  (this->NodeSetPropertyValue?this->NodeSetPropertyValue:"(none)") << endl;
-  os << indent << "NumberOfSideSetProperties: " << this->NumberOfSideSetProperties << endl;
+  //                  (this->NodeSetPropertyValue?this->NodeSetPropertyValue:"(none)") << std::endl;
+  os << indent << "NumberOfSideSetProperties: " << this->NumberOfSideSetProperties << std::endl;
   os << indent << "SideSetPropertyNames: ";
   for (i = 0; i < this->NumberOfSideSetProperties; i++)
   {
     os << indent << "-"
-       << (this->SideSetPropertyNames[i] ? this->SideSetPropertyNames[i] : "(none)") << endl;
+       << (this->SideSetPropertyNames[i] ? this->SideSetPropertyNames[i] : "(none)") << std::endl;
   }
   //  os << indent << "SideSetPropertyValue: " <<
-  //                  (this->SideSetPropertyValue?this->SideSetPropertyValue:"(none)") << endl;
-  os << indent << "NumberOfElementVariables: " << this->NumberOfElementVariables << endl;
+  //                  (this->SideSetPropertyValue?this->SideSetPropertyValue:"(none)") << std::endl;
+  os << indent << "NumberOfElementVariables: " << this->NumberOfElementVariables << std::endl;
   os << indent << "ElementVariableNames: ";
   for (i = 0; i < this->MaxNumberOfElementVariables; i++)
   {
     os << indent << "-"
-       << (this->ElementVariableNames[i] ? this->ElementVariableNames[i] : "(none)") << endl;
+       << (this->ElementVariableNames[i] ? this->ElementVariableNames[i] : "(none)") << std::endl;
   }
-  os << indent << "NumberOfNodeVariables: " << this->NumberOfNodeVariables << endl;
+  os << indent << "NumberOfNodeVariables: " << this->NumberOfNodeVariables << std::endl;
   os << indent << "NodeVariableNames: ";
   for (i = 0; i < this->NumberOfNodeVariables; i++)
   {
     os << indent << "-" << (this->NodeVariableNames[i] ? this->NodeVariableNames[i] : "(none)")
-       << endl;
+       << std::endl;
   }
   //  os << indent << "ElementVariableTruthTable: " <<
   //                  (this->ElementVariableTruthTable?this->ElementVariableTruthTable:"(none)") <<
-  //                  endl;
-  os << indent << "TimeStepIndex: " << this->TimeStepIndex << endl;
+  //                  std::endl;
+  os << indent << "TimeStepIndex: " << this->TimeStepIndex << std::endl;
   os << indent << "AllVariablesDefinedInAllBlocks: " << this->AllVariablesDefinedInAllBlocks
-     << endl;
+     << std::endl;
 }
 VTK_ABI_NAMESPACE_END

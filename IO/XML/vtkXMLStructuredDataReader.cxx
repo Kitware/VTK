@@ -10,6 +10,8 @@
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkXMLStructuredDataReader::vtkXMLStructuredDataReader()
@@ -224,8 +226,8 @@ void vtkXMLStructuredDataReader::ReadXMLData()
 
   if (piece == 0)
     {
-    cout << "Piece:" << piece << " " << numPieces << " " << numGhosts << endl;
-    cout << "Extent: "
+    std::cout << "Piece:" << piece << " " << numPieces << " " << numGhosts << endl;
+    std::cout << "Extent: "
          << this->UpdateExtent[0] << " "
          << this->UpdateExtent[1] << " "
          << this->UpdateExtent[2] << " "

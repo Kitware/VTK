@@ -21,6 +21,8 @@
 #include "vtkvpic/VPICDataSet.h"
 #include "vtkvpic/VPICView.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkVPICReader);
 vtkCxxSetObjectMacro(vtkVPICReader, MPIController, vtkMultiProcessController);
@@ -445,7 +447,7 @@ void vtkVPICReader::LoadVariableData(int var, int timeStep)
 
   /*
   if (this->Rank == 0)
-    cout << "LoadVariableData " << this->VariableName[var]
+    std::cout << "LoadVariableData " << this->VariableName[var]
          << " time " << timeStep << endl;
   */
 

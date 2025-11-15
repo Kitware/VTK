@@ -15,6 +15,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeoJSONWriter);
 
@@ -35,7 +37,7 @@ public:
   void Grow()
   {
     this->MaxBufferSize *= 2;
-    // cerr << "GROW " << this->MaxBufferSize << endl;
+    // std::cerr << "GROW " << this->MaxBufferSize << endl;
     char* biggerBuffer = new char[this->MaxBufferSize];
     size_t curSize = this->Top - this->Buffer;
     memcpy(biggerBuffer, this->Buffer, curSize);

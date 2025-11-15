@@ -35,6 +35,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 using namespace vtksys;
 
 VTK_ABI_NAMESPACE_BEGIN

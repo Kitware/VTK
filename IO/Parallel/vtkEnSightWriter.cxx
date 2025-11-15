@@ -41,6 +41,8 @@
 #include <map>
 #include <vector>
 
+#include <iostream>
+
 // If we are building against a slightly older VTK version,
 // these cell types are not defined, and won't occur in the input
 
@@ -366,7 +368,7 @@ void vtkEnSightWriter::WriteData()
       blockCount += 1;
       this->WriteStringToFile("part", fd);
       this->WriteIntToFile(part, fd);
-      // cout << "part is " << part << endl;
+      // std::cout << "part is " << part << endl;
       this->WriteStringToFile("VTK Part", fd);
       this->WriteStringToFile("coordinates", fd);
     }
@@ -819,7 +821,7 @@ void vtkEnSightWriter::WriteData()
 
   if (elementIDs)
   {
-    // cout << "have " << this->NumberOfBlocks << " blocks " << endl;
+    // std::cout << "have " << this->NumberOfBlocks << " blocks " << endl;
     for (i = 0; i < this->NumberOfBlocks; i++)
     {
       unsigned int j;

@@ -24,6 +24,8 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 //                       Functions for Parsing File Names
 //------------------------------------------------------------------------------

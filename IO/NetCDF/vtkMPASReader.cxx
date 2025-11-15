@@ -2408,7 +2408,7 @@ void vtkMPASReader::OutputCells()
 
       if (this->IncludeTopography && ((minLevel - 1) < this->GetVerticalLevel()))
       {
-        // cerr << "Setting all points to zero" << endl;
+        // std::cerr << "Setting all points to zero" << endl;
         val = 0;
         for (size_t k = 0; k < this->PointsPerCell; k++)
         {

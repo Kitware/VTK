@@ -11,6 +11,8 @@
 
 #include <algorithm>
 
+#include <iostream>
+
 namespace CGNSRead
 {
 VTK_ABI_NAMESPACE_BEGIN

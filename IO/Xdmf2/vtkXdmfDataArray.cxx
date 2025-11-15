@@ -19,6 +19,8 @@
 #include "vtk_xdmf2.h"
 #include VTKXDMF2_HEADER(XdmfArray.h)
 
+#include <iostream>
+
 using namespace xdmf2;
 
 //------------------------------------------------------------------------------
@@ -130,8 +132,8 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
     /// this breaks
     components = Components;
     tuples = array->GetNumberOfElements() / components;
-    // cout << "Tuples: " << tuples << " components: " << components << endl;
-    // cout << "Rank: " << rank << endl;
+    // std::cout << "Tuples: " << tuples << " components: " << components << endl;
+    // std::cout << "Rank: " << rank << endl;
     this->vtkArray->SetNumberOfComponents(components);
     if (MakeCopy)
       this->vtkArray->SetNumberOfTuples(tuples);
@@ -142,7 +144,7 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
     if (MakeCopy)
       this->vtkArray->SetNumberOfTuples(array->GetNumberOfElements());
   }
-  // cout << "Number type: " << array->GetNumberType() << endl;
+  // std::cout << "Number type: " << array->GetNumberType() << endl;
   if (MakeCopy)
   {
     switch (array->GetNumberType())
@@ -186,10 +188,10 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
       default:
         if (array->GetNumberOfElements() > 0)
         {
-          // cout << "Manual idx" << endl;
-          // cout << "Tuples: " << vtkArray->GetNumberOfTuples() << endl;
-          // cout << "Components: " << vtkArray->GetNumberOfComponents() << endl;
-          // cout << "Elements: " << array->GetNumberOfElements() << endl;
+          // std::cout << "Manual idx" << endl;
+          // std::cout << "Tuples: " << vtkArray->GetNumberOfTuples() << endl;
+          // std::cout << "Components: " << vtkArray->GetNumberOfComponents() << endl;
+          // std::cout << "Elements: " << array->GetNumberOfElements() << endl;
           vtkIdType jj, kk;
           vtkIdType idx = 0;
           for (jj = 0; jj < vtkArray->GetNumberOfTuples(); jj++)
@@ -197,7 +199,7 @@ vtkDataArray* vtkXdmfDataArray::FromXdmfArray(
             for (kk = 0; kk < vtkArray->GetNumberOfComponents(); kk++)
             {
               double val = array->GetValueAsFloat64(idx);
-              // cout << "Value: " << val << endl;
+              // std::cout << "Value: " << val << endl;
               vtkArray->SetComponent(jj, kk, val);
               idx++;
             }

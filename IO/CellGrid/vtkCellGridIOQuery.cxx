@@ -10,6 +10,8 @@
 #include <vtk_nlohmannjson.h>        // For API.
 #include VTK_NLOHMANN_JSON(json.hpp) // For API.
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkCellGridIOQuery);

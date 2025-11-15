@@ -21,6 +21,8 @@
 
 #include "vtksys/FStream.hxx"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPTSReader);
 vtkCxxSetSmartPointerMacro(vtkPTSReader, Stream, vtkResourceStream);

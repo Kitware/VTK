@@ -18,6 +18,8 @@
 #include <vfw.h>
 #include <winuser.h>
 
+#include <iostream>
+
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -91,20 +93,20 @@ LONG FAR PASCAL vtkWin32VideoSourceWinProc(HWND hwnd, UINT message, WPARAM wPara
   {
 
     case WM_MOVE:
-      // cerr << "WM_MOVE\n";
+      // std::cerr << "WM_MOVE\n";
       break;
 
     case WM_SIZE:
-      // cerr << "WM_SIZE\n";
+      // std::cerr << "WM_SIZE\n";
       break;
 
     case WM_DESTROY:
-      // cerr << "WM_DESTROY\n";
+      // std::cerr << "WM_DESTROY\n";
       self->OnParentWndDestroy();
       break;
 
     case WM_CLOSE:
-      // cerr << "WM_CLOSE\n";
+      // std::cerr << "WM_CLOSE\n";
       self->PreviewOff();
       return 0;
   }
@@ -119,12 +121,12 @@ LRESULT PASCAL vtkWin32VideoSourceCapControlProc(HWND hwndC, int nState)
 
   if (nState == CONTROLCALLBACK_PREROLL)
   {
-    // cerr << "controlcallback preroll\n";
+    // std::cerr << "controlcallback preroll\n";
     self->SetStartTimeStamp(vtkTimerLog::GetUniversalTime());
   }
   else if (nState == CONTROLCALLBACK_CAPTURING)
   {
-    // cerr << "controlcallback capturing\n";
+    // std::cerr << "controlcallback capturing\n";
   }
 
   return TRUE;
@@ -148,12 +150,12 @@ LRESULT PASCAL vtkWin32VideoSourceStatusCallbackProc(
 
   if (nID == IDS_CAP_BEGIN)
   {
-    // cerr << "start of capture\n";
+    // std::cerr << "start of capture\n";
   }
 
   if (nID == IDS_CAP_END)
   {
-    // cerr << "end of capture\n";
+    // std::cerr << "end of capture\n";
   }
 
   return 1;
@@ -447,7 +449,7 @@ void vtkWin32VideoSource::OnParentWndDestroy()
 void vtkWin32VideoSource::LocalInternalGrab(void* lpptr)
 {
   LPVIDEOHDR lpVHdr = static_cast<LPVIDEOHDR>(lpptr);
-  // cerr << "Grabbed\n";
+  // std::cerr << "Grabbed\n";
 
   // the VIDEOHDR has the following contents, for quick ref:
   //

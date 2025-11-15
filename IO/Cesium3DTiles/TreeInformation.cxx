@@ -42,6 +42,8 @@
 #include "vtksys/SystemTools.hxx"
 #include <vtksys/FStream.hxx>
 
+#include <iostream>
+
 using RegionType = std::array<int, 6>;
 
 namespace

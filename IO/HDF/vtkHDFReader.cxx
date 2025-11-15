@@ -41,8 +41,8 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <algorithm>
+#include <iostream>
 #include <numeric>
-#include <sstream>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN

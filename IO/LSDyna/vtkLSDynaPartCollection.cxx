@@ -19,6 +19,7 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <algorithm>
+#include <iostream>
 #include <list>
 #include <vector>
 
@@ -329,7 +330,7 @@ public:
           std::cout << "The numCells is:    " << info->numCells << std::endl;
           std::cout << std::endl;
           std::cout << "The Part is :" << std::endl;
-          info->part->PrintSelf(cout, vtkIndent().GetNextIndent());
+          info->part->PrintSelf(std::cout, vtkIndent().GetNextIndent());
           std::cout << std::endl;
           std::cout << std::endl;
         }

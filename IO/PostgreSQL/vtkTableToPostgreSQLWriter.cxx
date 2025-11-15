@@ -11,6 +11,8 @@
 
 #include "vtkTableToPostgreSQLWriter.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTableToPostgreSQLWriter);
@@ -97,7 +99,7 @@ void vtkTableToPostgreSQLWriter::WriteData()
   vtkPostgreSQLQuery* query = static_cast<vtkPostgreSQLQuery*>(this->Database->GetQueryInstance());
 
   query->SetQuery(createTableQuery.c_str());
-  cout << createTableQuery << endl;
+  std::cout << createTableQuery << endl;
   if (!query->Execute())
   {
     vtkErrorMacro(<< "Error performing 'create table' query");

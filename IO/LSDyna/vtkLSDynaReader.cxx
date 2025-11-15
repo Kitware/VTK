@@ -59,6 +59,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVector.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLSDynaReader);
 
@@ -612,7 +614,7 @@ void vtkLSDynaReader::Dump(ostream& os)
 
 void vtkLSDynaReader::DebugDump()
 {
-  this->Dump(cout);
+  this->Dump(std::cout);
 }
 
 int vtkLSDynaReader::CanReadFile(const char* fname)
@@ -2954,8 +2956,8 @@ int vtkLSDynaReader::ReadSPHState(vtkIdType vtkNotUsed(step))
   VTK_LS_SPHARRAY(p->Dict["isphfg(9)"], LSDynaMetaData::PARTICLE, LS_ARRAYNAME_STRAIN, 6);
   VTK_LS_SPHARRAY(p->Dict["isphfg(10)"], LSDynaMetaData::PARTICLE, LS_ARRAYNAME_MASS, 1);
 
-  //  std::cout << "NUM_SPH_DATA: " << p->Dict["NUM_SPH_DATA"] << "start Pos is " << startPos <<
-  //  std::endl;
+  //  std::cout << "NUM_SPH_DATA: " << p->Dict["NUM_SPH_DATA"] << "start Pos is " << startPos
+  //  << std::endl;
   this->ReadCellProperties(LSDynaMetaData::PARTICLE, p->Dict["NUM_SPH_DATA"]);
 
 #undef VTK_LS_SPHARRAY

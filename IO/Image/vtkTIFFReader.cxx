@@ -263,7 +263,7 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
       if (!TIFFGetField(this->Image, TIFFTAG_TILEWIDTH, &this->TileWidth) ||
         !TIFFGetField(this->Image, TIFFTAG_TILELENGTH, &this->TileHeight))
       {
-        cerr << "Cannot read tile width and height from file" << endl;
+        std::cerr << "Cannot read tile width and height from file" << endl;
       }
       else
       {

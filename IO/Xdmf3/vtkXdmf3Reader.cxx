@@ -37,6 +37,8 @@
 
 #include <algorithm>
 
+#include <iostream>
+
 // TODO: implement fast and approximate CanReadFile
 // TODO: read from buffer, allowing for xincludes
 // TODO: strided access to structured data
@@ -279,7 +281,7 @@ private:
       {
         if (AsTime || (i % updateNumPieces == updatePiece))
         {
-          // cerr << updatePiece << " reading " << this->FileNames[i] << endl;
+          // std::cerr << updatePiece << " reading " << this->FileNames[i] << endl;
           shared_ptr<XdmfDomain> fdomain =
             shared_dynamic_cast<XdmfDomain>(this->Reader->read(this->FileNames[i]));
 
@@ -758,7 +760,7 @@ vtkMultiPieceDataSet* vtkXdmf3Reader::Internals::Flatten(vtkMultiBlockDataSet* i
   }
   delete[] allLens;
 
-  // cerr << "PROC " << procnum << " starts at " << myStart << endl;
+  // std::cerr << "PROC " << procnum << " starts at " << myStart << endl;
   // zero out everyone else's
   vtkMultiPieceDataSet* mpds = vtkMultiPieceDataSet::New();
   for (i = 0; i < total; i++)

@@ -14,6 +14,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkUnstructuredGridReader);
 
@@ -198,7 +200,7 @@ int vtkUnstructuredGridReader::ReadMeshSimple(const std::string& fname, vtkDataO
         // the number of ints after the piece
         skip3 = ncells - skip1 - read2;
 
-        // cerr << skip1 << " --- " << read2 << " --- " << skip3 << endl;
+        // std::cerr << skip1 << " --- " << read2 << " --- " << skip3 << endl;
         // allocate array for piece cell types
         types = new int[read2];
         if (this->GetFileType() == VTK_BINARY)

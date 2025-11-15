@@ -52,6 +52,7 @@
 #include <cstdio>
 #include <cstdlib> /* for free() */
 #include <cstring> /* for memset() */
+#include <iostream>
 
 #ifdef EXODUSII_HAVE_MALLOC_H
 #include <malloc.h>
@@ -436,7 +437,7 @@ void vtkExodusIIReaderPrivate::GlomArrayNames(
   for ( varVec::iterator it = this->ArrayInfo[objtyp].begin(); it != this->ArrayInfo[objtyp].end();
   ++ it )
     {
-    cout << "Name: \"" << it->Name << "\" (" << it->Components << ")\n";
+    std::cout << "Name: \"" << it->Name << "\" (" << it->Components << ")\n";
     }
     */
 
@@ -665,7 +666,7 @@ int vtkExodusIIReaderPrivate::AssembleOutputCellArrays(
     vtkErrorMacro( "Unknown block or set type \"" << otyp << "\" encountered." );
     for ( ami = this->ArrayInfo.begin(); ami != this->ArrayInfo.end(); ++ ami )
     {
-      cerr << "   Have type: \"" << ami->first << "\"\n";
+      std::cerr << "   Have type: \"" << ami->first << "\"\n";
     }
     return 0;
 #else
@@ -1085,7 +1086,7 @@ vtkIdType vtkExodusIIReaderPrivate::GetPolyhedronFaceConnectivity(
        ++fbit)
   {
     ++fbidx;
-    // std::cout << "Skipping block " << fbit->Id << " (" << fbit->Name << ") offset " <<
+    // std::std::cout << "Skipping block " << fbit->Id << " (" << fbit->Name << ") offset " <<
     // fbit->FileOffset << "\n";
   }
   if (fbit == faceBlocks.end() || blockLocalFaceId < 0)
@@ -1280,14 +1281,14 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       for (int p = 0; p < entitiesPerCell; ++p)
       {
         cellIds[p] = this->GetSqueezePointId(binfo, srcIds[p]);
-        // cout << " " << srcIds[p] << "(" << cellIds[p] << ")";
+        // std::cout << " " << srcIds[p] << "(" << cellIds[p] << ")";
       }
-      // cout << "\n";
-      // cout << " " <<
+      // std::cout << "\n";
+      // std::cout << " " <<
       binfo->CachedConnectivity->InsertNextCell(binfo->CellType, entitiesPerCell, cellIds.data());
       srcIds += entitiesPerCell;
     }
-    // cout << "\n";
+    // std::cout << "\n";
   }
   else
   {
@@ -1304,8 +1305,8 @@ void vtkExodusIIReaderPrivate::InsertBlockCells(
       binfo->CachedConnectivity->InsertNextCell(binfo->CellType, entitiesPerCell, srcIds);
       srcIds += entitiesPerCell;
       // for ( int k = 0; k < binfo->PointsPerCell; ++k )
-      // cout << " " << srcIds[k];
-      // cout << "\n";
+      // std::cout << " " << srcIds[k];
+      // std::cout << "\n";
     }
   }
 }
@@ -4522,7 +4523,7 @@ int vtkExodusIIReaderPrivate::RequestData(vtkIdType timeStep, vtkMultiBlockDataS
     output->SetBlock(conntypidx, mbds);
     output->GetMetaData(conntypidx)->Set(vtkCompositeDataSet::NAME(), conn_types_names[conntypidx]);
     mbds->FastDelete();
-    // cout << "++ Block: " << mbds << " ObjectType: " << otyp << "\n";
+    // std::cout << "++ Block: " << mbds << " ObjectType: " << otyp << "\n";
     int obj;
     int sortIdx;
     for (sortIdx = 0; sortIdx < numObj; ++sortIdx)
@@ -4532,7 +4533,7 @@ int vtkExodusIIReaderPrivate::RequestData(vtkIdType timeStep, vtkMultiBlockDataS
       // Preserve the "sorted" order when concatenating
       obj = this->SortedObjectIndices[otyp][sortIdx];
       BlockSetInfoType* bsinfop = static_cast<BlockSetInfoType*>(this->GetObjectInfo(otypidx, obj));
-      // cout << ( bsinfop->Status ? "++" : "--" ) << "   ObjectId: " << bsinfop->Id;
+      // std::cout << ( bsinfop->Status ? "++" : "--" ) << "   ObjectId: " << bsinfop->Id;
       // vtkLogF(TRACE, "%s: name=%s, idx=%d, type=%d status=%d",
       //    vtkLogIdentifier(this), object_name, sortIdx, otypidx, bsinfop->Status);
       if (!bsinfop->Status)
@@ -4551,7 +4552,7 @@ int vtkExodusIIReaderPrivate::RequestData(vtkIdType timeStep, vtkMultiBlockDataS
         mbds->GetMetaData(sortIdx)->Set(vtkCompositeDataSet::NAME(), object_name);
       }
       ug->FastDelete();
-      // cout << " Grid: " << ug << "\n";
+      // std::cout << " Grid: " << ug << "\n";
 
       try
       {
@@ -4632,10 +4633,10 @@ int vtkExodusIIReaderPrivate::SetUpEmptyGrid(vtkMultiBlockDataSet* output)
       // Preserve the "sorted" order when concatenating
       obj = this->SortedObjectIndices[otyp][sortIdx];
       BlockSetInfoType* bsinfop = static_cast<BlockSetInfoType*>(this->GetObjectInfo(otypidx, obj));
-      // cout << ( bsinfop->Status ? "++" : "--" ) << "   ObjectId: " << bsinfop->Id;
+      // std::cout << ( bsinfop->Status ? "++" : "--" ) << "   ObjectId: " << bsinfop->Id;
       if (!bsinfop->Status)
       {
-        // cout << "\n";
+        // std::cout << "\n";
         mbds->SetBlock(sortIdx, nullptr);
         continue;
       }
@@ -5353,12 +5354,12 @@ int vtkExodusIIReader::CanReadFile(const char* fname)
 #if 0
 void vtkExodusIIReaderPrivate::Modified()
 {
-  cout << "E2RP modified\n"; this->Superclass::Modified();
+  std::cout << "E2RP modified\n"; this->Superclass::Modified();
 }
 
 void vtkExodusIIReader::Modified()
 {
-  cout << "E2R modified\n"; this->Superclass::Modified();
+  std::cout << "E2R modified\n"; this->Superclass::Modified();
 }
 #endif // 0
 
@@ -5563,7 +5564,8 @@ int vtkExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
         }
       }
       this->TimeStep = closestStep;
-      // cout << "Requested value: " << requestedTimeStep << " Step: " << this->TimeStep << endl;
+      // std::cout << "Requested value: " << requestedTimeStep << " Step: " << this->TimeStep <<
+      // endl;
       output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), steps[this->TimeStep]);
     }
     else if (this->GetAnimateModeShapes())
@@ -6422,7 +6424,7 @@ void vtkExodusIIReader::SetHierarchyArrayStatus(const char* vtkNotUsed(name), in
   //    (std::string(name));
   //  for (std::vector<int>::size_type i=0;i<blocksIds.size();i++)
   //    {
-  //    //cout << "turning block " << blocks[i] << " " << flag << endl;
+  //    //std::cout << "turning block " << blocks[i] << " " << flag << endl;
   //    this->Metadata->SetObjectStatus(vtkExodusIIReader::ELEM_BLOCK,
   //      this->GetObjectIndex(ELEM_BLOCK,blocksIds[i]),flag);
   //    }
@@ -6611,7 +6613,7 @@ void vtkExodusIIReader::SetAllArrayStatus(int otyp, int status)
 void vtkExodusIIReader::Dump()
 {
   vtkIndent indent;
-  this->PrintSelf(cout, indent);
+  this->PrintSelf(std::cout, indent);
 }
 
 bool vtkExodusIIReader::FindXMLFile()

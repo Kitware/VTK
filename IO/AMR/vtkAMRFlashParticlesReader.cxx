@@ -16,6 +16,7 @@
 #include "vtk_hdf5.h" // for the HDF data loading engine
 
 #include <cassert>
+#include <iostream>
 #include <vector>
 
 //------------------------------------------------------------------------------
@@ -88,7 +89,6 @@ static void GetParticleCoordinates(hid_t& dataIdx, std::vector<double>& xcoords,
       break;
     default:
       std::cerr << "ERROR: Undefined dimension!\n" << std::endl;
-      std::cerr.flush();
       return;
   }
 }

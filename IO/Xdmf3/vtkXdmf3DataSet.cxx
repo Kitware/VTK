@@ -51,6 +51,8 @@
 
 #include <array>
 
+#include <iostream>
+
 //==============================================================================
 VTK_ABI_NAMESPACE_BEGIN
 bool vtkXdmf3DataSet_ReadIfNeeded(XdmfArray* array, bool dbg = false)
@@ -59,7 +61,7 @@ bool vtkXdmf3DataSet_ReadIfNeeded(XdmfArray* array, bool dbg = false)
   {
     if (dbg)
     {
-      cerr << "READ " << array << endl;
+      std::cerr << "READ " << array << endl;
     }
     array->read();
     return true;
@@ -73,7 +75,7 @@ void vtkXdmf3DataSet_ReleaseIfNeeded(XdmfArray* array, bool MyInit, bool dbg = f
   {
     if (dbg)
     {
-      cerr << "RELEASE " << array << endl;
+      std::cerr << "RELEASE " << array << endl;
     }
     // array->release(); //reader level uses vtkXdmfArrayKeeper to aggregate now
   }
@@ -135,7 +137,7 @@ vtkDataArray* vtkXdmf3DataSet::XdmfToVTKArray(XdmfArray* xArray,
   }
   else
   {
-    cerr << "Skipping unrecognized array type [" << arrayType->getName() << "]" << endl;
+    std::cerr << "Skipping unrecognized array type [" << arrayType->getName() << "]" << endl;
     return nullptr;
   }
   vArray = vtkDataArray::CreateDataArray(vtk_type);
@@ -168,7 +170,7 @@ vtkDataArray* vtkXdmf3DataSet::XdmfToVTKArray(XdmfArray* xArray,
       vtkTemplateMacro(
         xArray->getValues(0, static_cast<VTK_TT*>(vArray->GetVoidPointer(0)), ntuples * ncomp););
       default:
-        cerr << "UNKNOWN" << endl;
+        std::cerr << "UNKNOWN" << endl;
     }
 #else
     // shallowcopy
@@ -180,7 +182,7 @@ vtkDataArray* vtkXdmf3DataSet::XdmfToVTKArray(XdmfArray* xArray,
 #endif
 
     /*
-        cerr
+        std::cerr
           << xArray << " " << xArray->getValuesInternal() << " "
           << vArray->GetVoidPointer(0) << " " << ntuples << " "
           << vArray << " " << vArray->GetName() << endl;
@@ -305,7 +307,7 @@ bool vtkXdmf3DataSet::VTKToXdmfArray(
     case VTK_OBJECT:
       return false;
     default:
-      cerr << "Unrecognized vtk_type";
+      std::cerr << "Unrecognized vtk_type";
       return false;
   }
 
@@ -331,7 +333,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(vtkXdmf3ArraySelection* fselection,
     std::string attrName = xmfAttribute->getName();
     if (attrName.empty())
     {
-      cerr << "Skipping unnamed array." << endl;
+      std::cerr << "Skipping unnamed array." << endl;
       continue;
     }
 
@@ -398,7 +400,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(vtkXdmf3ArraySelection* fselection,
     }
     else
     {
-      cerr << "skipping " << attrName << " unrecognized association" << endl;
+      std::cerr << "skipping " << attrName << " unrecognized association" << endl;
       continue; // unhandled.
     }
     vtkDataSetAttributes* fdAsDSA = vtkDataSetAttributes::SafeDownCast(fieldData);
@@ -579,7 +581,7 @@ void vtkXdmf3DataSet::VTKToXdmfAttributes(vtkDataObject* dObject, XdmfGrid* grid
       std::string attrName = vArray->GetName();
       if (attrName.empty())
       {
-        cerr << "Skipping unnamed array." << endl;
+        std::cerr << "Skipping unnamed array." << endl;
         continue;
       }
       shared_ptr<XdmfAttribute> xmfAttribute = XdmfAttribute::New();
@@ -742,11 +744,11 @@ int vtkXdmf3DataSet::GetXdmfCellType(int vtkType)
     case VTK_HIGHER_ORDER_WEDGE:
     case VTK_HIGHER_ORDER_PYRAMID:
     case VTK_HIGHER_ORDER_HEXAHEDRON:
-      cerr << "I do not know how to make that xdmf cell type" << endl;
+      std::cerr << "I do not know how to make that xdmf cell type" << endl;
       // TODO: see list below
       return -1;
     default:
-      cerr << "Unknown vtk cell type" << endl;
+      std::cerr << "Unknown vtk cell type" << endl;
       return -1;
   }
 
@@ -974,11 +976,11 @@ int vtkXdmf3DataSet::GetVTKFiniteElementCellType(unsigned int element_degree,
     return VTK_TRIANGLE;
   }
 
-  cerr << "Finite element function of family " << element_family
-       << " and "
-          "degree "
-       << vtk::to_string(element_degree) << " on " << topologyType->getName()
-       << " is not supported." << endl;
+  std::cerr << "Finite element function of family " << element_family
+            << " and "
+               "degree "
+            << vtk::to_string(element_degree) << " on " << topologyType->getName()
+            << " is not supported." << endl;
   return 0;
 }
 //==========================================================================
@@ -1434,7 +1436,7 @@ void vtkXdmf3DataSet::CopyShape(
         if (unknownCell)
         {
           // encountered an unknown cell.
-          cerr << "Unknown cell type." << endl;
+          std::cerr << "Unknown cell type." << endl;
           vCells->Delete();
           delete[] cell_types;
           vtkXdmf3DataSet_ReleaseIfNeeded(xTopology.get(), freeMe);
@@ -1722,7 +1724,7 @@ void vtkXdmf3DataSet::XdmfToVTK(vtkXdmf3ArraySelection* fselection,
     std::string attrName = xmfAttribute->getName();
     if (attrName.empty())
     {
-      cerr << "Skipping unnamed array." << endl;
+      std::cerr << "Skipping unnamed array." << endl;
       continue;
     }
 
@@ -1754,7 +1756,7 @@ void vtkXdmf3DataSet::XdmfToVTK(vtkXdmf3ArraySelection* fselection,
     }
     else
     {
-      cerr << "Skipping " << attrName << " unrecognized association" << endl;
+      std::cerr << "Skipping " << attrName << " unrecognized association" << endl;
       continue; // unhandled.
     }
 
@@ -1898,7 +1900,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
     std::string attrName = xmfAttribute->getName();
     if (attrName.empty())
     {
-      cerr << "Skipping unnamed array." << endl;
+      std::cerr << "Skipping unnamed array." << endl;
       continue;
     }
 
@@ -1959,7 +1961,7 @@ void vtkXdmf3DataSet::XdmfToVTKAttributes(
     }
     else
     {
-      cerr << "skipping " << attrName << " unrecognized association" << endl;
+      std::cerr << "skipping " << attrName << " unrecognized association" << endl;
       continue; // unhandled.
     }
     vtkDataSetAttributes* fdAsDSA = vtkDataSetAttributes::SafeDownCast(fieldData);
@@ -2236,9 +2238,9 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject* dObject,
   // One array is xmfAttribute and other array is the first auxiliary array
   if (xmfAttribute->getNumberAuxiliaryArrays() < 1)
   {
-    cerr << "There must be at least 2 children DataItems under "
-            "FiniteElementFunction item type."
-         << endl;
+    std::cerr << "There must be at least 2 children DataItems under "
+                 "FiniteElementFunction item type."
+              << endl;
     return;
   }
 
@@ -2290,7 +2292,7 @@ void vtkXdmf3DataSet::ParseFiniteElementFunction(vtkDataObject* dObject,
 
     if (failed)
     {
-      cerr << "Unable to get number of points for cell type " << new_cell_type << endl;
+      std::cerr << "Unable to get number of points for cell type " << new_cell_type << endl;
       return;
     }
 

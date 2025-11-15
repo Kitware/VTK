@@ -79,6 +79,8 @@
 #include <cstring>
 #include <numeric>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 
 VTK_ABI_NAMESPACE_BEGIN

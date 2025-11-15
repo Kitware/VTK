@@ -7,7 +7,6 @@
 #include "vtkCellData.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
-#include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkObjectFactory.h"
@@ -18,6 +17,7 @@
 
 #include <cctype>
 #include <cstdio>
+#include <iostream>
 #include <vtksys/SystemTools.hxx>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -762,12 +762,12 @@ void vtkChacoReader::PrintSelf(ostream& os, vtkIndent indent)
 
   for (i = 1; i <= this->NumberOfPointWeightArrays; i++)
   {
-    cout << "vertex weight array name: " << this->GetVertexWeightArrayName(i) << endl;
+    std::cout << "vertex weight array name: " << this->GetVertexWeightArrayName(i) << "\n";
   }
 
   for (i = 1; i <= this->NumberOfCellWeightArrays; i++)
   {
-    cout << "edge weight array name: " << this->GetEdgeWeightArrayName(i) << endl;
+    std::cout << "edge weight array name: " << this->GetEdgeWeightArrayName(i) << "\n";
   }
 }
 

@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLHierarchicalBoxDataFileConverter);
 //------------------------------------------------------------------------------
@@ -112,9 +114,9 @@ bool vtkXMLHierarchicalBoxDataFileConverter::Convert()
     return false;
   }
 
-  //  cout << "Origin: " << origin[0] <<", " << origin[1] << ", " << origin[2]
+  //  std::cout << "Origin: " << origin[0] <<", " << origin[1] << ", " << origin[2]
   //    << endl;
-  //  cout << "Spacing: " << spacing[0] << ", " << spacing[1] << ", " << spacing[2]
+  //  std::cout << "Spacing: " << spacing[0] << ", " << spacing[1] << ", " << spacing[2]
   //    << endl;
 
   const char* grid_description = "XYZ";

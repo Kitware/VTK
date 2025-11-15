@@ -13,6 +13,7 @@
 #include "vtksys/FStream.hxx"
 
 #include <cassert>
+#include <iostream>
 #include <sstream>
 #include <vector>
 
@@ -245,7 +246,7 @@ void vtkX3DExporterFIByteWriter::EncodeLineFeed()
   }
   else
   {
-    // cout << "Encode NOT the first time" << endl;
+    // std::cout << "Encode NOT the first time" << std::endl;
     this->PutBits("10100000");
   }
 }
@@ -279,7 +280,7 @@ vtkX3DExporterFIWriter::vtkX3DExporterFIWriter()
 void vtkX3DExporterFIWriter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Fastest: " << this->Fastest << endl;
+  os << indent << "Fastest: " << this->Fastest << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -389,7 +390,7 @@ void vtkX3DExporterFIWriter::EndNode()
   }
   if (!this->InfoStack->back().attributesTerminated)
   {
-    // cout << "Terminated in EndNode: could be wrong" << endl;
+    // std::cout << "Terminated in EndNode: could be wrong" << std::endl;
     // ITU C.3.6.2: End of attribute
     this->Writer->PutBits("1111");
   }
@@ -479,7 +480,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
       loc = temp;
       break;
     default:
-      cerr << "UNKNOWN DATATYPE";
+      std::cerr << "UNKNOWN DATATYPE";
       assert(false);
   }
   vtkX3DExporterFIWriterHelper::EncodeFloatFI(this->Writer, loc, size);
@@ -498,7 +499,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, const double* d
          << static_cast<float>(vtkMath::RadiansFromDegrees(-d[0]));
       break;
     default:
-      cout << "UNKNOWN DATATYPE";
+      std::cout << "UNKNOWN DATATYPE";
       assert(false);
   }
   vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, ss.str());
@@ -528,7 +529,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkDataArray* a
       vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, ss.str());
       break;
     default:
-      cerr << "UNKNOWN DATATYPE";
+      std::cerr << "UNKNOWN DATATYPE";
       assert(false);
   }
 #else
@@ -619,7 +620,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a
       vtkX3DExporterFIWriterHelper::EncodeCharacterString3(this->Writer, ss.str());
       break;
     default:
-      cerr << "UNKNOWN DATATYPE";
+      std::cerr << "UNKNOWN DATATYPE";
       assert(false);
   }
 #else
@@ -639,7 +640,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, int type, vtkCellArray* a
       vtkX3DExporterFIWriterHelper::EncodeIntegerFI(this->Writer, &(values.front()), values.size());
       break;
     default:
-      cerr << "UNKNOWN DATATYPE";
+      std::cerr << "UNKNOWN DATATYPE";
       assert(false);
   }
 #endif
@@ -673,7 +674,7 @@ void vtkX3DExporterFIWriter::SetField(int attributeID, float value)
 //------------------------------------------------------------------------------
 void vtkX3DExporterFIWriter::SetField(int vtkNotUsed(attributeID), double vtkNotUsed(value))
 {
-  cout << "Function not implemented yet." << endl;
+  std::cout << "Function not implemented yet." << std::endl;
   assert(false);
 }
 

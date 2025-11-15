@@ -22,6 +22,7 @@
 #include <cctype>
 #include <cfloat>
 #include <cstdlib>
+#include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
@@ -351,7 +352,7 @@ const char* vtkMINCImageAttributes::ConvertDataArrayToString(vtkDataArray* array
 //------------------------------------------------------------------------------
 void vtkMINCImageAttributes::PrintFileHeader()
 {
-  this->PrintFileHeader(cout);
+  this->PrintFileHeader(std::cout);
 }
 
 //------------------------------------------------------------------------------

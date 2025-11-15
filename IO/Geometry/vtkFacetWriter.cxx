@@ -3,25 +3,16 @@
 #include "vtkFacetWriter.h"
 
 #include "vtkCellArray.h"
-#include "vtkCellData.h"
-#include "vtkCellType.h"
 #include "vtkErrorCode.h"
-#include "vtkGarbageCollector.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkUnstructuredGrid.h"
 
-#include "vtkDoubleArray.h"
-#include "vtkSmartPointer.h"
-#include "vtkUnsignedIntArray.h"
 #include "vtksys/FStream.hxx"
 
-#include <string>
+#include <iostream>
 #include <sys/stat.h>
-#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFacetWriter);
@@ -77,7 +68,7 @@ int vtkFacetWriter::RequestData(vtkInformation* vtkNotUsed(request),
 
   int cc;
   int len = inputVector[0]->GetNumberOfInformationObjects();
-  *this->OutputStream << "FACET FILE FROM VTK" << endl << len << endl;
+  *this->OutputStream << "FACET FILE FROM VTK" << std::endl << len << std::endl;
 
   for (cc = 0; cc < len; cc++)
   {
@@ -118,15 +109,17 @@ void vtkFacetWriter::WriteToStream(ostream* ost)
 //------------------------------------------------------------------------------
 int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
 {
-  *ost << "Element" << data << endl << "0" << endl << data->GetNumberOfPoints() << " 0 0" << endl;
+  *ost << "Element" << data << std::endl
+       << "0" << std::endl
+       << data->GetNumberOfPoints() << " 0 0" << std::endl;
   vtkIdType point;
   for (point = 0; point < data->GetNumberOfPoints(); point++)
   {
     double xyz[3];
     data->GetPoint(point, xyz);
-    *ost << xyz[0] << " " << xyz[1] << " " << xyz[2] << endl;
+    *ost << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
   }
-  *ost << "1" << endl << "Element" << data << endl;
+  *ost << "1" << std::endl << "Element" << data << std::endl;
   int written = 0;
   vtkCellArray* ca;
   vtkIdType numCells;
@@ -159,7 +152,7 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
         totalCells++;
       }
     }
-    *ost << totalCells << " 1" << endl;
+    *ost << totalCells << " 1" << std::endl;
     ca->InitTraversal();
     while (ca->GetNextCell(numPts, pts))
     {
@@ -167,7 +160,7 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
       {
         // Indices of point starts with 1
         vtkIdType pointIndex = pts[cc] + 1;
-        *ost << pointIndex << " " << material << " " << part << endl;
+        *ost << pointIndex << " " << material << " " << part << std::endl;
       }
     }
     written = 1;
@@ -193,7 +186,7 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
         totalCells++;
       }
     }
-    *ost << totalCells << " 2" << endl;
+    *ost << totalCells << " 2" << std::endl;
     ca->InitTraversal();
     while (ca->GetNextCell(numPts, pts))
     {
@@ -201,7 +194,7 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
       {
         vtkIdType point1 = pts[cc - 1] + 1;
         vtkIdType point2 = pts[cc] + 1;
-        *ost << point1 << " " << point2 << " " << material << " " << part << endl;
+        *ost << point1 << " " << point2 << " " << material << " " << part << std::endl;
       }
     }
     written = 1;
@@ -231,7 +224,7 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
       }
       totalCells++;
     }
-    *ost << totalCells << " " << numPoints << endl;
+    *ost << totalCells << " " << numPoints << std::endl;
     ca->InitTraversal();
     int cnt = 0;
     while (ca->GetNextCell(numPts, pts))
@@ -241,10 +234,10 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
         vtkIdType pointindex = pts[cc] + 1;
         *ost << pointindex << " ";
       }
-      *ost << material << " " << part << endl;
+      *ost << material << " " << part << std::endl;
       cnt++;
     }
-    cout << "Written: " << cnt << " / " << numCells << " / " << totalCells << endl;
+    std::cout << "Written: " << cnt << " / " << numCells << " / " << totalCells << std::endl;
     written = 1;
   }
 
@@ -268,7 +261,7 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
         totalCells++;
       }
     }
-    *ost << totalCells << " 3" << endl;
+    *ost << totalCells << " 3" << std::endl;
     ca->InitTraversal();
     while (ca->GetNextCell(numPts, pts))
     {
@@ -277,7 +270,8 @@ int vtkFacetWriter::WriteDataToStream(ostream* ost, vtkPolyData* data)
         vtkIdType point1 = pts[cc - 2] + 1;
         vtkIdType point2 = pts[cc - 1] + 1;
         vtkIdType point3 = pts[cc] + 1;
-        *ost << point1 << " " << point2 << " " << point3 << " " << material << " " << part << endl;
+        *ost << point1 << " " << point2 << " " << point3 << " " << material << " " << part
+             << std::endl;
       }
     }
     written = 1;

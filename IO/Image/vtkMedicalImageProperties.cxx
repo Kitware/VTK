@@ -15,6 +15,8 @@
 #include <cctype> // for isdigit
 #include <ctime>  // for std::tm
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMedicalImageProperties);
@@ -130,7 +132,7 @@ public:
     assert(UID[vol].find(slice) != UID[vol].end());
     // if( UID[vol].find(slice) == UID[vol].end() )
     //  {
-    //  this->Print( cerr, vtkIndent() );
+    //  this->Print( std::cerr, vtkIndent() );
     //  }
     return UID[vol].find(slice)->second.c_str();
   }

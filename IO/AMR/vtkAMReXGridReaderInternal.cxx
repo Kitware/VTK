@@ -11,6 +11,7 @@
 #include "vtkPointData.h"
 #include "vtkSetGet.h"
 
+#include <iostream>
 #include <sstream>
 #include <vector>
 #include <vtksys/FStream.hxx>

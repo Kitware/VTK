@@ -23,6 +23,8 @@
 
 #include <cassert>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkCxxSetObjectMacro(vtkAMRBaseReader, Controller, vtkMultiProcessController);
 
@@ -587,7 +589,7 @@ int vtkAMRBaseReader::RequestData(vtkInformation* vtkNotUsed(request),
   else
   {
 #ifdef DEBUGME
-    cout << "load " << this->BlockMap.size() << " blocks" << endl;
+    std::cout << "load " << this->BlockMap.size() << " blocks" << endl;
 #endif
     this->AssignAndLoadBlocks(output);
 

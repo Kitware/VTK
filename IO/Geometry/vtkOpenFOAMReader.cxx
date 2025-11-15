@@ -222,6 +222,8 @@
 #include <utility>
 #include <vector>
 
+#include <iostream>
+
 #if VTK_FOAMFILE_OMIT_CRCCHECK
 VTK_ABI_NAMESPACE_BEGIN
 uLong ZEXPORT crc32(uLong, const Bytef*, uInt)

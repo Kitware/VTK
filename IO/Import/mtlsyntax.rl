@@ -76,7 +76,7 @@
       currentNum.clear(); recentString.clear(); recentSpace.clear();
     };
 
-    default => { std::string value = "Error unknown text: "; value += std::string(ts, te-ts); cerr << value << "\n"; };
+    default => { std::string value = "Error unknown text: "; value += std::string(ts, te-ts); std::cerr << value << "\n"; };
 
   *|;
 
