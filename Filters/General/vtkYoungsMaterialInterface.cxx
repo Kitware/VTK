@@ -1741,10 +1741,6 @@ FUNC_DECL double3 cross(double3 A, double3 B)
   return make_double3(A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x);
 }
 
-#ifndef M_PI
-#define M_PI vtkMath::Pi()
-#endif
-
 /**************************************
  *** Precision dependent constants   ***
  ***************************************/
@@ -2264,7 +2260,8 @@ void makeConeVolumeDerivatives(
   DBG_MESG("length = " << length);
 
   // compute truncated cone surface at d1
-  REAL Isurf = M_PI * fabs(I.y + v1.y) * length; // 2 * M_PI * ( (I.y+v1.y) * 0.5 ) * length ;
+  REAL Isurf = vtkMath::Pi() * fabs(I.y + v1.y) *
+    length; // 2 * vtkMath::Pi() * ( (I.y+v1.y) * 0.5 ) * length ;
   REAL coef;
 
   // build cubic volume functions derivatives
