@@ -1589,17 +1589,12 @@ VTK_ABI_NAMESPACE_BEGIN
 #define REAL3 double3
 #define REAL4 double4
 
-#define make_REAL1 make_double1
 #define make_REAL2 make_double2
 #define make_REAL3 make_double3
 #define make_REAL4 make_double4
 
 #ifndef FUNC_DECL
 #define FUNC_DECL static inline
-#endif
-
-#ifndef KERNEL_DECL
-#define KERNEL_DECL /* exported function */
 #endif
 
 // define base vector types and operators or use those provided by CUDA
@@ -1755,7 +1750,6 @@ FUNC_DECL double3 cross(double3 A, double3 B)
  ***************************************/
 
 // double ( default )
-#define EPSILON 1e-15
 #define NEWTON_NITER 32
 
 /**************************************
