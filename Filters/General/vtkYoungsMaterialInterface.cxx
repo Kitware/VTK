@@ -1693,16 +1693,6 @@ static inline double3 cross(double3 A, double3 B)
  ***************************************/
 #define DBG_MESG(m) (void)0
 
-/**************************************
- ***          Macros                 ***
- ***************************************/
-
-#ifdef __GNUC__
-#define LOCAL_ARRAY_SIZE(n) n
-#else
-#define LOCAL_ARRAY_SIZE(n) 128
-#endif
-
 /*********************
  *** Triangle area ***
  *********************/
@@ -2651,8 +2641,8 @@ double vtkYoungsMaterialInterfaceCellCut::findTetraSetCuttingPlane(const double 
   const int tetras[][4])
 {
   vtkYoungsMaterialInterfaceCellCutInternals::double3 N = { normal[0], normal[1], normal[2] };
-  vtkYoungsMaterialInterfaceCellCutInternals::double3 V[LOCAL_ARRAY_SIZE(vertexCount)];
-  vtkYoungsMaterialInterfaceCellCutInternals::uchar4 tet[LOCAL_ARRAY_SIZE(tetraCount)];
+  auto V = std::make_unique<vtkYoungsMaterialInterfaceCellCutInternals::double3[]>(vertexCount);
+  auto tet = std::make_unique<vtkYoungsMaterialInterfaceCellCutInternals::uchar4[]>(tetraCount);
 
   for (int i = 0; i < vertexCount; i++)
   {
@@ -2691,7 +2681,7 @@ double vtkYoungsMaterialInterfaceCellCut::findTetraSetCuttingPlane(const double 
     vertices[0][0] * normal[0] + vertices[0][1] * normal[1] + vertices[0][2] * normal[2];
   double d = dist0 +
     vtkYoungsMaterialInterfaceCellCutInternals::findTetraSetCuttingPlane(
-      N, fraction, vertexCount, tetraCount, tet, V) *
+      N, fraction, vertexCount, tetraCount, tet.get(), V.get()) *
       scale;
 
   return -d;
@@ -2716,7 +2706,7 @@ bool vtkYoungsMaterialInterfaceCellCut::cellInterfaceD(double points[][3], int n
                                        nTriangles, triangles, axisSymetric);
 
   // compute vertex distances to interface plane
-  double dist[LOCAL_ARRAY_SIZE(nPoints)];
+  auto dist = std::make_unique<double[]>(nPoints);
   for (int i = 0; i < nPoints; i++)
   {
     dist[i] = points[i][0] * normal[0] + points[i][1] * normal[1] + points[i][2] * normal[2] + d;
@@ -2764,7 +2754,7 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
 {
   double d;
 
-  vtkYoungsMaterialInterfaceCellCutInternals::uchar3 tri[LOCAL_ARRAY_SIZE(triangleCount)];
+  auto tri = std::make_unique<vtkYoungsMaterialInterfaceCellCutInternals::uchar3[]>(triangleCount);
   for (int i = 0; i < triangleCount; i++)
   {
     tri[i].x = triangles[i][0];
@@ -2775,7 +2765,7 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
   if (axisSymetric)
   {
     vtkYoungsMaterialInterfaceCellCutInternals::double2 N = { normal[0], normal[1] };
-    vtkYoungsMaterialInterfaceCellCutInternals::double2 V[LOCAL_ARRAY_SIZE(vertexCount)];
+    auto V = std::make_unique<vtkYoungsMaterialInterfaceCellCutInternals::double2[]>(vertexCount);
     for (int i = 0; i < vertexCount; i++)
     {
       V[i].x = vertices[i][0] - vertices[0][0];
@@ -2798,13 +2788,13 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
     double dist0 = vertices[0][0] * normal[0] + vertices[0][1] * normal[1];
     d = dist0 +
       vtkYoungsMaterialInterfaceCellCutInternals::findTriangleSetCuttingCone(
-        N, fraction, vertexCount, triangleCount, tri, V) *
+        N, fraction, vertexCount, triangleCount, tri.get(), V.get()) *
         scale;
   }
   else
   {
     vtkYoungsMaterialInterfaceCellCutInternals::double3 N = { normal[0], normal[1], normal[2] };
-    vtkYoungsMaterialInterfaceCellCutInternals::double3 V[LOCAL_ARRAY_SIZE(vertexCount)];
+    auto V = std::make_unique<vtkYoungsMaterialInterfaceCellCutInternals::double3[]>(vertexCount);
     for (int i = 0; i < vertexCount; i++)
     {
       V[i].x = vertices[i][0] - vertices[0][0];
@@ -2832,7 +2822,7 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
       vertices[0][0] * normal[0] + vertices[0][1] * normal[1] + vertices[0][2] * normal[2];
     d = dist0 +
       vtkYoungsMaterialInterfaceCellCutInternals::findTriangleSetCuttingPlane(
-        N, fraction, vertexCount, triangleCount, tri, V) *
+        N, fraction, vertexCount, triangleCount, tri.get(), V.get()) *
         scale;
   }
 
