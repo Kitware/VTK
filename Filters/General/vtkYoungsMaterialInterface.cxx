@@ -1748,18 +1748,18 @@ static inline double tetraVolume(double3 p0, double3 p1, double3 p2, double3 p3)
 /*******************************************
  *** Evaluation of a polynomial function ***
  *******************************************/
-static inline double evalPolynomialFunc(const double2 F, const double x)
+static inline double evalPolynomialFunc(double2 F, double x)
 {
   return F.x * x + F.y;
 }
 
-static inline double evalPolynomialFunc(const double3 F, const double x)
+static inline double evalPolynomialFunc(double3 F, double x)
 {
   double y = (F.x * x + F.y) * x;
   return y + F.z;
 }
 
-static inline double evalPolynomialFunc(const double4 F, const double x)
+static inline double evalPolynomialFunc(double4 F, double x)
 {
   double y = ((F.x * x + F.y) * x + F.z) * x;
   return y + F.w; // this increases numerical stability when compiled with -ffloat-store
@@ -1831,7 +1831,7 @@ static inline double3 quadraticInterpFunc(
  *** Newton search method ***
  ****************************/
 static inline double newtonSearchPolynomialFunc(
-  double3 F, double2 dF, const double value, const double xmin, const double xmax)
+  double3 F, double2 dF, double value, double xmin, double xmax)
 {
   // translate F, because newton searches for the 0 of the derivative
   F.z -= value;
@@ -1877,7 +1877,7 @@ static inline double newtonSearchPolynomialFunc(
 }
 
 static inline double newtonSearchPolynomialFunc(
-  double4 F, double3 dF, const double value, const double xmin, const double xmax)
+  double4 F, double3 dF, double value, double xmin, double xmax)
 {
   // translate F, because newton searches for the 0 of the derivative
   F.w -= value;
@@ -1940,8 +1940,7 @@ typedef unsigned char IntType;
 /***********************
  *** Sorting methods ***
  ***********************/
-static inline void sortVertices(
-  const int n, const double3* vertices, const double3 normal, IntType* indices)
+static inline void sortVertices(int n, const double3* vertices, double3 normal, IntType* indices)
 {
   // insertion sort : slow but symmetrical across all instances
   for (int i = 0; i < n; i++)
@@ -1958,8 +1957,7 @@ static inline void sortVertices(
   }
 }
 
-static inline void sortVertices(
-  const int n, const double2* vertices, const double2 normal, IntType* indices)
+static inline void sortVertices(int n, const double2* vertices, double2 normal, IntType* indices)
 {
   // insertion sort : slow but symmetrical across all instances
   for (int i = 0; i < n; i++)
@@ -1994,7 +1992,7 @@ static inline uchar4 sortTetra(uchar4 t, IntType* i)
 }
 
 static inline double makeTriangleSurfaceFunctions(
-  const uchar3 triangle, const double3* vertices, const double3 normal, double2 func[2])
+  uchar3 triangle, const double3* vertices, double3 normal, double2 func[2])
 {
 
   // 1. load the data
@@ -2040,10 +2038,10 @@ static inline double makeTriangleSurfaceFunctions(
   return triangleSurf(v0, v1, v2);
 }
 
-static inline double findTriangleSetCuttingPlane(const double3 normal, // IN  , normal vector
-  const double fraction,                                               // IN  , volume fraction
-  const int nv,                                                        // IN  , number of vertices
-  const int nt,                                                        // IN  , number of triangles
+static inline double findTriangleSetCuttingPlane(double3 normal, // IN  , normal vector
+  double fraction,                                               // IN  , volume fraction
+  int nv,                                                        // IN  , number of vertices
+  int nt,                                                        // IN  , number of triangles
   const uchar3* tv,       // IN  , triangles connectivity, size=nt
   const double3* vertices // IN  , vertex coordinates, size=nv
 )
@@ -2159,7 +2157,7 @@ static inline double findTriangleSetCuttingPlane(const double3 normal, // IN  , 
   (axis symmetric 2D plane)
 */
 static inline void makeConeVolumeDerivatives(
-  const uchar3 triangle, const double2* vertices, const double2 normal, double3 deriv[2])
+  uchar3 triangle, const double2* vertices, double2 normal, double3 deriv[2])
 {
 
   // 1. load the data
@@ -2196,10 +2194,10 @@ static inline void makeConeVolumeDerivatives(
   deriv[1] = coef * double3{ 1, -2 * d2, d2 * d2 };
 }
 
-static inline double findTriangleSetCuttingCone(const double2 normal, // IN  , normal vector
-  const double fraction,                                              // IN  , volume fraction
-  const int nv,                                                       // IN  , number of vertices
-  const int nt,                                                       // IN  , number of triangles
+static inline double findTriangleSetCuttingCone(double2 normal, // IN  , normal vector
+  double fraction,                                              // IN  , volume fraction
+  int nv,                                                       // IN  , number of vertices
+  int nt,                                                       // IN  , number of triangles
   const uchar3* tv,       // IN  , triangles connectivity, size=nt
   const double2* vertices // IN  , vertex coordinates, size=nv
 )
@@ -2316,7 +2314,7 @@ static inline double findTriangleSetCuttingCone(const double2 normal, // IN  , n
   cutting plane to the origin.
 */
 static inline double tetraPlaneSurfFunc(
-  const uchar4 tetra, const double3* vertices, const double3 normal, double3 func[3])
+  uchar4 tetra, const double3* vertices, double3 normal, double3 func[3])
 {
   // 1. load the data
 
@@ -2376,12 +2374,12 @@ static inline double tetraPlaneSurfFunc(
   return tetraVolume(v0, v1, v2, v3);
 }
 
-static inline double findTetraSetCuttingPlane(const double3 normal, // IN  , normal vector
-  const double fraction,                                            // IN  , volume fraction
-  const int nv,                                                     // IN  , number of vertices
-  const int nt,                                                     // IN  , number of tetras
-  const uchar4* tv,       // IN  , tetras connectivity, size=nt
-  const double3* vertices // IN  , vertex coordinates, size=nv
+static inline double findTetraSetCuttingPlane(double3 normal, // IN  , normal vector
+  double fraction,                                            // IN  , volume fraction
+  int nv,                                                     // IN  , number of vertices
+  int nt,                                                     // IN  , number of tetras
+  const uchar4* tv,                                           // IN  , tetras connectivity, size=nt
+  const double3* vertices                                     // IN  , vertex coordinates, size=nv
 )
 {
   ALLOC_LOCAL_ARRAY(rindex, unsigned char, nv);
@@ -2688,7 +2686,7 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(int ncoords, double coor
 }
 
 double vtkYoungsMaterialInterfaceCellCut::findTetraSetCuttingPlane(const double normal[3],
-  const double fraction, const int vertexCount, const double vertices[][3], const int tetraCount,
+  double fraction, int vertexCount, const double vertices[][3], int tetraCount,
   const int tetras[][4])
 {
   vtkYoungsMaterialInterfaceCellCutInternals::Real3 N = { normal[0], normal[1], normal[2] };
@@ -2800,7 +2798,7 @@ bool vtkYoungsMaterialInterfaceCellCut::cellInterfaceD(double points[][3], int n
 }
 
 double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const double normal[3],
-  const double fraction, const int vertexCount, const double vertices[][3], const int triangleCount,
+  double fraction, int vertexCount, const double vertices[][3], int triangleCount,
   const int triangles[][3], bool axisSymetric)
 {
   double d;
