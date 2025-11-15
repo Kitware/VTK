@@ -2468,11 +2468,6 @@ static inline double findTetraSetCuttingPlane(double3 normal, // IN  , normal ve
   return x;
 }
 
-typedef double Real;
-typedef double2 Real2;
-typedef double3 Real3;
-typedef double4 Real4;
-
 struct VertexInfo
 {
   double coord[3];
@@ -2655,8 +2650,8 @@ double vtkYoungsMaterialInterfaceCellCut::findTetraSetCuttingPlane(const double 
   double fraction, int vertexCount, const double vertices[][3], int tetraCount,
   const int tetras[][4])
 {
-  vtkYoungsMaterialInterfaceCellCutInternals::Real3 N = { normal[0], normal[1], normal[2] };
-  vtkYoungsMaterialInterfaceCellCutInternals::Real3 V[LOCAL_ARRAY_SIZE(vertexCount)];
+  vtkYoungsMaterialInterfaceCellCutInternals::double3 N = { normal[0], normal[1], normal[2] };
+  vtkYoungsMaterialInterfaceCellCutInternals::double3 V[LOCAL_ARRAY_SIZE(vertexCount)];
   vtkYoungsMaterialInterfaceCellCutInternals::uchar4 tet[LOCAL_ARRAY_SIZE(tetraCount)];
 
   for (int i = 0; i < vertexCount; i++)
@@ -2666,8 +2661,8 @@ double vtkYoungsMaterialInterfaceCellCut::findTetraSetCuttingPlane(const double 
     V[i].z = vertices[i][2] - vertices[0][2];
   }
 
-  vtkYoungsMaterialInterfaceCellCutInternals::Real3 vmin, vmax;
-  vtkYoungsMaterialInterfaceCellCutInternals::Real scale;
+  vtkYoungsMaterialInterfaceCellCutInternals::double3 vmin, vmax;
+  double scale;
   vmin = vmax = V[0];
   for (int i = 1; i < vertexCount; i++)
   {
@@ -2779,15 +2774,15 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
 
   if (axisSymetric)
   {
-    vtkYoungsMaterialInterfaceCellCutInternals::Real2 N = { normal[0], normal[1] };
-    vtkYoungsMaterialInterfaceCellCutInternals::Real2 V[LOCAL_ARRAY_SIZE(vertexCount)];
+    vtkYoungsMaterialInterfaceCellCutInternals::double2 N = { normal[0], normal[1] };
+    vtkYoungsMaterialInterfaceCellCutInternals::double2 V[LOCAL_ARRAY_SIZE(vertexCount)];
     for (int i = 0; i < vertexCount; i++)
     {
       V[i].x = vertices[i][0] - vertices[0][0];
       V[i].y = vertices[i][1] - vertices[0][1];
     }
-    vtkYoungsMaterialInterfaceCellCutInternals::Real2 vmin, vmax;
-    vtkYoungsMaterialInterfaceCellCutInternals::Real scale;
+    vtkYoungsMaterialInterfaceCellCutInternals::double2 vmin, vmax;
+    double scale;
     vmin = vmax = V[0];
     for (int i = 1; i < vertexCount; i++)
     {
@@ -2808,16 +2803,16 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
   }
   else
   {
-    vtkYoungsMaterialInterfaceCellCutInternals::Real3 N = { normal[0], normal[1], normal[2] };
-    vtkYoungsMaterialInterfaceCellCutInternals::Real3 V[LOCAL_ARRAY_SIZE(vertexCount)];
+    vtkYoungsMaterialInterfaceCellCutInternals::double3 N = { normal[0], normal[1], normal[2] };
+    vtkYoungsMaterialInterfaceCellCutInternals::double3 V[LOCAL_ARRAY_SIZE(vertexCount)];
     for (int i = 0; i < vertexCount; i++)
     {
       V[i].x = vertices[i][0] - vertices[0][0];
       V[i].y = vertices[i][1] - vertices[0][1];
       V[i].z = vertices[i][2] - vertices[0][2];
     }
-    vtkYoungsMaterialInterfaceCellCutInternals::Real3 vmin, vmax;
-    vtkYoungsMaterialInterfaceCellCutInternals::Real scale;
+    vtkYoungsMaterialInterfaceCellCutInternals::double3 vmin, vmax;
+    double scale;
     vmin = vmax = V[0];
     for (int i = 1; i < vertexCount; i++)
     {
