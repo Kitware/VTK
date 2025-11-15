@@ -1628,11 +1628,6 @@ struct double4
   double x, y, z, w;
 };
 
-FUNC_DECL double min(double a, double b)
-{
-  return (a < b) ? a : b;
-}
-
 FUNC_DECL double2 make_double2(double x, double y)
 {
   double2 v = { x, y };
@@ -2004,7 +1999,7 @@ void sortVertices(const int n, const REAL3* vertices, const REAL3 normal, IntTyp
     {
       REAL d = dot(vertices[indices[j]], normal);
       imin = (d < dmin) ? j : imin;
-      dmin = min(dmin, d);
+      dmin = std::min(dmin, d);
     }
     std::swap(i, imin);
   }
@@ -2022,7 +2017,7 @@ void sortVertices(const int n, const REAL2* vertices, const REAL2 normal, IntTyp
     {
       REAL d = dot(vertices[indices[j]], normal);
       imin = (d < dmin) ? j : imin;
-      dmin = min(dmin, d);
+      dmin = std::min(dmin, d);
     }
     std::swap(i, imin);
   }
