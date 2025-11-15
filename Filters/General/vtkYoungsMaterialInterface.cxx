@@ -1599,29 +1599,9 @@ VTK_ABI_NAMESPACE_BEGIN
 
 // define base vector types and operators or use those provided by CUDA
 
-struct float2
-{
-  float x, y;
-};
-struct float3
-{
-  float x, y, z;
-};
-struct float4
-{
-  float x, y, z, w;
-};
 struct double2
 {
   double x, y;
-};
-struct uint3
-{
-  unsigned int x, y, z;
-};
-struct uint4
-{
-  unsigned int x, y, z, w;
 };
 struct uchar4
 {
