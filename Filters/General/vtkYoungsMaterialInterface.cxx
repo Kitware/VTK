@@ -1584,10 +1584,6 @@ VTK_ABI_NAMESPACE_END
 namespace vtkYoungsMaterialInterfaceCellCutInternals
 {
 VTK_ABI_NAMESPACE_BEGIN
-#ifndef FUNC_DECL
-#define FUNC_DECL static inline
-#endif
-
 // define base vector types and operators or use those provided by CUDA
 
 struct double2
@@ -1603,10 +1599,6 @@ struct uchar3
   unsigned char x, y, z;
 };
 
-#ifndef FUNC_DECL
-#define FUNC_DECL static inline
-#endif
-
 /* -------------------------------------------------------- */
 /* ----------- DOUBLE ------------------------------------- */
 /* -------------------------------------------------------- */
@@ -1619,72 +1611,72 @@ struct double4
   double x, y, z, w;
 };
 
-FUNC_DECL double3 operator*(double f, double3 v)
+static inline double3 operator*(double f, double3 v)
 {
   return double3{ v.x * f, v.y * f, v.z * f };
 }
 
-FUNC_DECL double2 operator*(double f, double2 v)
+static inline double2 operator*(double f, double2 v)
 {
   return double2{ v.x * f, v.y * f };
 }
 
-FUNC_DECL double3 operator+(double3 a, double3 b)
+static inline double3 operator+(double3 a, double3 b)
 {
   return double3{ a.x + b.x, a.y + b.y, a.z + b.z };
 }
 
-FUNC_DECL double2 operator+(double2 a, double2 b)
+static inline double2 operator+(double2 a, double2 b)
 {
   return double2{ a.x + b.x, a.y + b.y };
 }
 
-FUNC_DECL void operator+=(double3& b, double3 a)
+static inline void operator+=(double3& b, double3 a)
 {
   b.x += a.x;
   b.y += a.y;
   b.z += a.z;
 }
-FUNC_DECL void operator+=(double2& b, double2 a)
+static inline void operator+=(double2& b, double2 a)
 {
   b.x += a.x;
   b.y += a.y;
 }
 
-FUNC_DECL double3 operator-(double3 a, double3 b)
+static inline double3 operator-(double3 a, double3 b)
 {
   return double3{ a.x - b.x, a.y - b.y, a.z - b.z };
 }
 
-FUNC_DECL double2 operator-(double2 a, double2 b)
+static inline double2 operator-(double2 a, double2 b)
 {
   return double2{ a.x - b.x, a.y - b.y };
 }
 
-FUNC_DECL void operator/=(double2& b, double f)
+static inline void operator/=(double2& b, double f)
 {
   b.x /= f;
   b.y /= f;
 }
 
-FUNC_DECL void operator/=(double3& b, double f)
+static inline void operator/=(double3& b, double f)
 {
   b.x /= f;
   b.y /= f;
   b.z /= f;
 }
 
-FUNC_DECL double dot(double2 a, double2 b)
+static inline double dot(double2 a, double2 b)
 {
   return a.x * b.x + a.y * b.y;
 }
 
-FUNC_DECL double dot(double3 a, double3 b)
+static inline double dot(double3 a, double3 b)
 {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-FUNC_DECL double3 cross(double3 A, double3 B)
+static inline double3 cross(double3 A, double3 B)
 {
   return double3{ A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x };
 }
@@ -1727,8 +1719,7 @@ FUNC_DECL double3 cross(double3 A, double3 B)
 /*
   Formula from VTK in vtkTriangle.cxx, method TriangleArea
 */
-FUNC_DECL
-double triangleSurf(double3 p1, double3 p2, double3 p3)
+static inline double triangleSurf(double3 p1, double3 p2, double3 p3)
 {
   const double3 e1 = p2 - p1;
   const double3 e2 = p3 - p2;
@@ -1745,8 +1736,7 @@ double triangleSurf(double3 p1, double3 p2, double3 p3)
  *** Tetrahedra volume ***
  *************************/
 
-FUNC_DECL
-double tetraVolume(double3 p0, double3 p1, double3 p2, double3 p3)
+static inline double tetraVolume(double3 p0, double3 p1, double3 p2, double3 p3)
 {
   double3 A = p1 - p0;
   double3 B = p2 - p0;
@@ -1758,21 +1748,18 @@ double tetraVolume(double3 p0, double3 p1, double3 p2, double3 p3)
 /*******************************************
  *** Evaluation of a polynomial function ***
  *******************************************/
-FUNC_DECL
-double evalPolynomialFunc(const double2 F, const double x)
+static inline double evalPolynomialFunc(const double2 F, const double x)
 {
   return F.x * x + F.y;
 }
 
-FUNC_DECL
-double evalPolynomialFunc(const double3 F, const double x)
+static inline double evalPolynomialFunc(const double3 F, const double x)
 {
   double y = (F.x * x + F.y) * x;
   return y + F.z;
 }
 
-FUNC_DECL
-double evalPolynomialFunc(const double4 F, const double x)
+static inline double evalPolynomialFunc(const double4 F, const double x)
 {
   double y = ((F.x * x + F.y) * x + F.z) * x;
   return y + F.w; // this increases numerical stability when compiled with -ffloat-store
@@ -1781,14 +1768,12 @@ double evalPolynomialFunc(const double4 F, const double x)
 /*****************************************
  *** Integral of a polynomial function ***
  *****************************************/
-FUNC_DECL
-double3 integratePolynomialFunc(double2 linearFunc)
+static inline double3 integratePolynomialFunc(double2 linearFunc)
 {
   return double3{ linearFunc.x / 2, linearFunc.y, 0 };
 }
 
-FUNC_DECL
-double4 integratePolynomialFunc(double3 quadFunc)
+static inline double4 integratePolynomialFunc(double3 quadFunc)
 {
   return double4{ quadFunc.x / 3, quadFunc.y / 2, quadFunc.z, 0 };
 }
@@ -1796,15 +1781,13 @@ double4 integratePolynomialFunc(double3 quadFunc)
 /****************************
  *** Linear interpolation ***
  ****************************/
-FUNC_DECL
-double3 linearInterp(double t0, double3 x0, double t1, double3 x1, double t)
+static inline double3 linearInterp(double t0, double3 x0, double t1, double3 x1, double t)
 {
   double f = (t1 != t0) ? (t - t0) / (t1 - t0) : 0;
   return x0 + f * (x1 - x0);
 }
 
-FUNC_DECL
-double2 linearInterp(double t0, double2 x0, double t1, double2 x1, double t)
+static inline double2 linearInterp(double t0, double2 x0, double t1, double2 x1, double t)
 {
   double f = (t1 != t0) ? (t - t0) / (t1 - t0) : 0.0;
   return x0 + f * (x1 - x0);
@@ -1813,8 +1796,8 @@ double2 linearInterp(double t0, double2 x0, double t1, double2 x1, double t)
 /****************************************
  *** Quadratic interpolation function ***
  ****************************************/
-FUNC_DECL
-double3 quadraticInterpFunc(double x0, double y0, double x1, double y1, double x2, double y2)
+static inline double3 quadraticInterpFunc(
+  double x0, double y0, double x1, double y1, double x2, double y2)
 {
   // Formula from the book 'Maillages', page 409
 
@@ -1847,8 +1830,7 @@ double3 quadraticInterpFunc(double x0, double y0, double x1, double y1, double x
 /****************************
  *** Newton search method ***
  ****************************/
-FUNC_DECL
-double newtonSearchPolynomialFunc(
+static inline double newtonSearchPolynomialFunc(
   double3 F, double2 dF, const double value, const double xmin, const double xmax)
 {
   // translate F, because newton searches for the 0 of the derivative
@@ -1894,8 +1876,7 @@ double newtonSearchPolynomialFunc(
   return x;
 }
 
-FUNC_DECL
-double newtonSearchPolynomialFunc(
+static inline double newtonSearchPolynomialFunc(
   double4 F, double3 dF, const double value, const double xmin, const double xmax)
 {
   // translate F, because newton searches for the 0 of the derivative
@@ -1944,8 +1925,7 @@ double newtonSearchPolynomialFunc(
 /***********************
  *** Sorting methods ***
  ***********************/
-FUNC_DECL
-uchar3 sortTriangle(uchar3 t, unsigned char* i)
+static inline uchar3 sortTriangle(uchar3 t, unsigned char* i)
 {
   if (i[t.y] < i[t.x])
     std::swap(t.x, t.y);
@@ -1960,8 +1940,8 @@ typedef unsigned char IntType;
 /***********************
  *** Sorting methods ***
  ***********************/
-FUNC_DECL
-void sortVertices(const int n, const double3* vertices, const double3 normal, IntType* indices)
+static inline void sortVertices(
+  const int n, const double3* vertices, const double3 normal, IntType* indices)
 {
   // insertion sort : slow but symmetrical across all instances
   for (int i = 0; i < n; i++)
@@ -1978,8 +1958,8 @@ void sortVertices(const int n, const double3* vertices, const double3 normal, In
   }
 }
 
-FUNC_DECL
-void sortVertices(const int n, const double2* vertices, const double2 normal, IntType* indices)
+static inline void sortVertices(
+  const int n, const double2* vertices, const double2 normal, IntType* indices)
 {
   // insertion sort : slow but symmetrical across all instances
   for (int i = 0; i < n; i++)
@@ -1996,8 +1976,7 @@ void sortVertices(const int n, const double2* vertices, const double2 normal, In
   }
 }
 
-FUNC_DECL
-uchar4 sortTetra(uchar4 t, IntType* i)
+static inline uchar4 sortTetra(uchar4 t, IntType* i)
 {
   if (i[t.y] < i[t.x])
     std::swap(t.x, t.y);
@@ -2014,8 +1993,7 @@ uchar4 sortTetra(uchar4 t, IntType* i)
   return t;
 }
 
-FUNC_DECL
-double makeTriangleSurfaceFunctions(
+static inline double makeTriangleSurfaceFunctions(
   const uchar3 triangle, const double3* vertices, const double3 normal, double2 func[2])
 {
 
@@ -2062,13 +2040,12 @@ double makeTriangleSurfaceFunctions(
   return triangleSurf(v0, v1, v2);
 }
 
-FUNC_DECL
-double findTriangleSetCuttingPlane(const double3 normal, // IN  , normal vector
-  const double fraction,                                 // IN  , volume fraction
-  const int nv,                                          // IN  , number of vertices
-  const int nt,                                          // IN  , number of triangles
-  const uchar3* tv,                                      // IN  , triangles connectivity, size=nt
-  const double3* vertices                                // IN  , vertex coordinates, size=nv
+static inline double findTriangleSetCuttingPlane(const double3 normal, // IN  , normal vector
+  const double fraction,                                               // IN  , volume fraction
+  const int nv,                                                        // IN  , number of vertices
+  const int nt,                                                        // IN  , number of triangles
+  const uchar3* tv,       // IN  , triangles connectivity, size=nt
+  const double3* vertices // IN  , vertex coordinates, size=nv
 )
 {
   // only need nv-1 derivs but allocate nv as gcc freaks out
@@ -2181,8 +2158,7 @@ double findTriangleSetCuttingPlane(const double3 normal, // IN  , normal vector
   compute the derivatives of the piecewise cubic function of the volume behind the cutting cone
   (axis symmetric 2D plane)
 */
-FUNC_DECL
-void makeConeVolumeDerivatives(
+static inline void makeConeVolumeDerivatives(
   const uchar3 triangle, const double2* vertices, const double2 normal, double3 deriv[2])
 {
 
@@ -2220,13 +2196,12 @@ void makeConeVolumeDerivatives(
   deriv[1] = coef * double3{ 1, -2 * d2, d2 * d2 };
 }
 
-FUNC_DECL
-double findTriangleSetCuttingCone(const double2 normal, // IN  , normal vector
-  const double fraction,                                // IN  , volume fraction
-  const int nv,                                         // IN  , number of vertices
-  const int nt,                                         // IN  , number of triangles
-  const uchar3* tv,                                     // IN  , triangles connectivity, size=nt
-  const double2* vertices                               // IN  , vertex coordinates, size=nv
+static inline double findTriangleSetCuttingCone(const double2 normal, // IN  , normal vector
+  const double fraction,                                              // IN  , volume fraction
+  const int nv,                                                       // IN  , number of vertices
+  const int nt,                                                       // IN  , number of triangles
+  const uchar3* tv,       // IN  , triangles connectivity, size=nt
+  const double2* vertices // IN  , vertex coordinates, size=nv
 )
 {
   ALLOC_LOCAL_ARRAY(derivatives, double3, nv - 1);
@@ -2340,8 +2315,7 @@ double findTriangleSetCuttingCone(const double2 normal, // IN  , normal vector
   the resulting area function, is a function of the intersection area given the distance of the
   cutting plane to the origin.
 */
-FUNC_DECL
-double tetraPlaneSurfFunc(
+static inline double tetraPlaneSurfFunc(
   const uchar4 tetra, const double3* vertices, const double3 normal, double3 func[3])
 {
   // 1. load the data
@@ -2402,13 +2376,12 @@ double tetraPlaneSurfFunc(
   return tetraVolume(v0, v1, v2, v3);
 }
 
-FUNC_DECL
-double findTetraSetCuttingPlane(const double3 normal, // IN  , normal vector
-  const double fraction,                              // IN  , volume fraction
-  const int nv,                                       // IN  , number of vertices
-  const int nt,                                       // IN  , number of tetras
-  const uchar4* tv,                                   // IN  , tetras connectivity, size=nt
-  const double3* vertices                             // IN  , vertex coordinates, size=nv
+static inline double findTetraSetCuttingPlane(const double3 normal, // IN  , normal vector
+  const double fraction,                                            // IN  , volume fraction
+  const int nv,                                                     // IN  , number of vertices
+  const int nt,                                                     // IN  , number of tetras
+  const uchar4* tv,       // IN  , tetras connectivity, size=nt
+  const double3* vertices // IN  , vertex coordinates, size=nv
 )
 {
   ALLOC_LOCAL_ARRAY(rindex, unsigned char, nv);
