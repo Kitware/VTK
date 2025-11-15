@@ -1584,51 +1584,7 @@ VTK_ABI_NAMESPACE_END
 namespace vtkYoungsMaterialInterfaceCellCutInternals
 {
 VTK_ABI_NAMESPACE_BEGIN
-#define REAL_PRECISION 64 // use double precision
 #define REAL_COORD REAL3
-
-// double by default
-#ifndef REAL_PRECISION
-#define REAL_PRECISION 64
-#endif
-
-// float = lowest precision
-#if (REAL_PRECISION == 32)
-
-#define REAL float
-#define REAL2 float2
-#define REAL3 float3
-#define REAL4 float4
-
-#define make_REAL1 make_float1
-#define make_REAL2 make_float2
-#define make_REAL3 make_float3
-#define make_REAL4 make_float4
-
-#define SQRT sqrtf
-#define FABS fabsf
-#define REAL_CONST(x) ((float)(x)) //( x##f )
-
-// long double = highest precision
-#elif (REAL_PRECISION > 64)
-
-#define REAL long double
-#define REAL2 ldouble2
-#define REAL3 ldouble3
-#define REAL4 ldouble4
-
-#define make_REAL1 make_ldouble1
-#define make_REAL2 make_ldouble2
-#define make_REAL3 make_ldouble3
-#define make_REAL4 make_ldouble4
-
-#define SQRT sqrtl
-#define FABS fabsl
-
-#define REAL_CONST(x) ((long double)(x)) //( x##l )
-
-// double = default precision
-#else
 
 #define REAL double
 #define REAL2 double2
@@ -1645,18 +1601,12 @@ VTK_ABI_NAMESPACE_BEGIN
 
 #define REAL_CONST(x) x
 
-#endif
-
 #ifndef FUNC_DECL
 #define FUNC_DECL static inline
 #endif
 
 #ifndef KERNEL_DECL
 #define KERNEL_DECL /* exported function */
-#endif
-
-#ifndef REAL_PRECISION
-#define REAL_PRECISION 64 /* defaults to 64 bits floating point */
 #endif
 
 // define base vector types and operators or use those provided by CUDA
@@ -1699,139 +1649,8 @@ struct uchar3
 #endif
 
 /* -------------------------------------------------------- */
-/* -----------  FLOAT ------------------------------------- */
-/* -------------------------------------------------------- */
-#if REAL_PRECISION <= 32
-
-FUNC_DECL float3 operator*(float3 a, float3 b)
-{
-  return make_float3(a.x * b.x, a.y * b.y, a.z * b.z);
-}
-
-FUNC_DECL float3 operator*(float f, float3 v)
-{
-  return make_float3(v.x * f, v.y * f, v.z * f);
-}
-
-FUNC_DECL float2 operator*(float f, float2 v)
-{
-  return make_float2(v.x * f, v.y * f);
-}
-
-FUNC_DECL float3 operator*(float3 v, float f)
-{
-  return make_float3(v.x * f, v.y * f, v.z * f);
-}
-
-FUNC_DECL float2 operator*(float2 v, float f)
-{
-  return make_float2(v.x * f, v.y * f);
-}
-
-FUNC_DECL float4 operator*(float4 v, float f)
-{
-  return make_float4(v.x * f, v.y * f, v.z * f, v.w * f);
-}
-FUNC_DECL float4 operator*(float f, float4 v)
-{
-  return make_float4(v.x * f, v.y * f, v.z * f, v.w * f);
-}
-
-FUNC_DECL float2 operator+(float2 a, float2 b)
-{
-  return make_float2(a.x + b.x, a.y + b.y);
-}
-
-FUNC_DECL float3 operator+(float3 a, float3 b)
-{
-  return make_float3(a.x + b.x, a.y + b.y, a.z + b.z);
-}
-
-FUNC_DECL void operator+=(float3& b, float3 a)
-{
-  b.x += a.x;
-  b.y += a.y;
-  b.z += a.z;
-}
-FUNC_DECL void operator+=(float2& b, float2 a)
-{
-  b.x += a.x;
-  b.y += a.y;
-}
-
-FUNC_DECL void operator+=(float4& b, float4 a)
-{
-  b.x += a.x;
-  b.y += a.y;
-  b.z += a.z;
-  b.w += a.w;
-}
-
-FUNC_DECL float3 operator-(float3 a, float3 b)
-{
-  return make_float3(a.x - b.x, a.y - b.y, a.z - b.z);
-}
-
-FUNC_DECL float2 operator-(float2 a, float2 b)
-{
-  return make_float2(a.x - b.x, a.y - b.y);
-}
-
-FUNC_DECL void operator-=(float3& b, float3 a)
-{
-  b.x -= a.x;
-  b.y -= a.y;
-  b.z -= a.z;
-}
-
-FUNC_DECL float3 operator/(float3 v, float f)
-{
-  float inv = 1.0f / f;
-  return v * inv;
-}
-
-FUNC_DECL void operator/=(float2& b, float f)
-{
-  float inv = 1.0f / f;
-  b.x *= inv;
-  b.y *= inv;
-}
-
-FUNC_DECL void operator/=(float3& b, float f)
-{
-  float inv = 1.0f / f;
-  b.x *= inv;
-  b.y *= inv;
-  b.z *= inv;
-}
-
-FUNC_DECL float dot(float2 a, float2 b)
-{
-  return a.x * b.x + a.y * b.y;
-}
-
-FUNC_DECL float dot(float3 a, float3 b)
-{
-  return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-FUNC_DECL float dot(float4 a, float4 b)
-{
-  return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-}
-
-FUNC_DECL float3 cross(float3 A, float3 B)
-{
-  return make_float3(A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x);
-}
-
-#endif /* REAL_PRECISION <= 32 */
-
-/* -------------------------------------------------------- */
 /* ----------- DOUBLE ------------------------------------- */
 /* -------------------------------------------------------- */
-#if REAL_PRECISION == 64
-
 struct double3
 {
   double x, y, z;
@@ -1933,167 +1752,6 @@ FUNC_DECL double3 cross(double3 A, double3 B)
 {
   return make_double3(A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x);
 }
-#endif /* REAL_PRECISION == 64 */
-
-/* -------------------------------------------------------- */
-/* ----------- LONG DOUBLE -------------------------------- */
-/* -------------------------------------------------------- */
-#if REAL_PRECISION > 64
-
-struct ldouble2
-{
-  long double x, y;
-};
-struct ldouble3
-{
-  long double x, y, z;
-};
-struct ldouble4
-{
-  long double x, y, z, w;
-};
-
-FUNC_DECL long double min(long double a, long double b)
-{
-  return (a < b) ? a : b;
-}
-FUNC_DECL long double max(long double a, long double b)
-{
-  return (a > b) ? a : b;
-}
-
-FUNC_DECL ldouble2 make_ldouble2(long double x, long double y)
-{
-  ldouble2 v = { x, y };
-  return v;
-}
-
-FUNC_DECL ldouble3 make_ldouble3(long double x, long double y, long double z)
-{
-  ldouble3 v = { x, y, z };
-  return v;
-}
-
-FUNC_DECL ldouble4 make_ldouble4(long double x, long double y, long double z, long double w)
-{
-  ldouble4 v = { x, y, z, w };
-  return v;
-}
-
-FUNC_DECL ldouble3 operator*(ldouble3 a, ldouble3 b)
-{
-  return make_ldouble3(a.x * b.x, a.y * b.y, a.z * b.z);
-}
-
-FUNC_DECL ldouble2 operator*(long double f, ldouble2 v)
-{
-  return make_ldouble2(v.x * f, v.y * f);
-}
-
-FUNC_DECL ldouble3 operator*(long double f, ldouble3 v)
-{
-  return make_ldouble3(v.x * f, v.y * f, v.z * f);
-}
-
-FUNC_DECL ldouble2 operator*(ldouble2 v, long double f)
-{
-  return make_ldouble2(v.x * f, v.y * f);
-}
-
-FUNC_DECL ldouble3 operator*(ldouble3 v, long double f)
-{
-  return make_ldouble3(v.x * f, v.y * f, v.z * f);
-}
-
-FUNC_DECL ldouble4 operator*(ldouble4 v, long double f)
-{
-  return make_ldouble4(v.x * f, v.y * f, v.z * f, v.w * f);
-}
-FUNC_DECL ldouble4 operator*(long double f, ldouble4 v)
-{
-  return make_ldouble4(v.x * f, v.y * f, v.z * f, v.w * f);
-}
-
-FUNC_DECL ldouble2 operator+(ldouble2 a, ldouble2 b)
-{
-  return make_ldouble2(a.x + b.x, a.y + b.y);
-}
-
-FUNC_DECL ldouble3 operator+(ldouble3 a, ldouble3 b)
-{
-  return make_ldouble3(a.x + b.x, a.y + b.y, a.z + b.z);
-}
-
-FUNC_DECL void operator+=(ldouble3& b, ldouble3 a)
-{
-  b.x += a.x;
-  b.y += a.y;
-  b.z += a.z;
-}
-
-FUNC_DECL void operator+=(ldouble2& b, ldouble2 a)
-{
-  b.x += a.x;
-  b.y += a.y;
-}
-
-FUNC_DECL void operator+=(ldouble4& b, ldouble4 a)
-{
-  b.x += a.x;
-  b.y += a.y;
-  b.z += a.z;
-  b.w += a.w;
-}
-
-FUNC_DECL ldouble2 operator-(ldouble2 a, ldouble2 b)
-{
-  return make_ldouble2(a.x - b.x, a.y - b.y);
-}
-
-FUNC_DECL ldouble3 operator-(ldouble3 a, ldouble3 b)
-{
-  return make_ldouble3(a.x - b.x, a.y - b.y, a.z - b.z);
-}
-
-FUNC_DECL void operator-=(ldouble3& b, ldouble3 a)
-{
-  b.x -= a.x;
-  b.y -= a.y;
-  b.z -= a.z;
-}
-
-FUNC_DECL ldouble3 operator/(ldouble3 v, long double f)
-{
-  return make_ldouble3(v.x / f, v.y / f, v.z / f);
-}
-
-FUNC_DECL void operator/=(ldouble3& b, long double f)
-{
-  b.x /= f;
-  b.y /= f;
-  b.z /= f;
-}
-
-FUNC_DECL long double dot(ldouble2 a, ldouble2 b)
-{
-  return a.x * b.x + a.y * b.y;
-}
-
-FUNC_DECL long double dot(ldouble3 a, ldouble3 b)
-{
-  return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-FUNC_DECL long double dot(ldouble4 a, ldouble4 b)
-{
-  return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-}
-
-FUNC_DECL ldouble3 cross(ldouble3 A, ldouble3 B)
-{
-  return make_ldouble3(A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x);
-}
-#endif /* REAL_PRECISION > 64 */
 
 #ifndef M_PI
 #define M_PI vtkMath::Pi()
@@ -2103,22 +1761,9 @@ FUNC_DECL ldouble3 cross(ldouble3 A, ldouble3 B)
  *** Precision dependent constants   ***
  ***************************************/
 
-// float
-#if (REAL_PRECISION <= 32)
-#define EPSILON 1e-7
-#define NEWTON_NITER 16
-
-// long double
-#elif (REAL_PRECISION > 64)
-#define EPSILON 1e-31
-#define NEWTON_NITER 64
-
 // double ( default )
-#else
 #define EPSILON 1e-15
 #define NEWTON_NITER 32
-
-#endif
 
 /**************************************
  ***       Debugging                 ***
@@ -2960,7 +2605,6 @@ typedef REAL2 Real2;
 typedef REAL3 Real3;
 typedef REAL4 Real4;
 
-#undef REAL_PRECISION
 #undef REAL_COORD
 
 struct VertexInfo
