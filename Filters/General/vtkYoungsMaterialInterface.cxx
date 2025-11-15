@@ -1647,8 +1647,6 @@ VTK_ABI_NAMESPACE_BEGIN
 
 #endif
 
-#ifndef __CUDACC__ /* compiling with host compiler (gcc, icc, etc.) */
-
 #ifndef FUNC_DECL
 #define FUNC_DECL static inline
 #endif
@@ -1661,25 +1659,8 @@ VTK_ABI_NAMESPACE_BEGIN
 #define REAL_PRECISION 64 /* defaults to 64 bits floating point */
 #endif
 
-#else /* compiling with cuda */
-
-#ifndef FUNC_DECL
-#define FUNC_DECL __device__
-#endif
-
-#ifndef KERNEL_DECL
-#define KERNEL_DECL __global__
-#endif
-
-#ifndef REAL_PRECISION
-#define REAL_PRECISION 32 /* defaults to 32 bits floating point */
-#endif
-
-#endif /* __CUDACC__ */
-
 // define base vector types and operators or use those provided by CUDA
 
-#ifndef __CUDACC__
 struct float2
 {
   float x, y;
@@ -1712,11 +1693,6 @@ struct uchar3
 {
   unsigned char x, y, z;
 };
-
-#else
-#include <vector_functions.h>
-#include <vector_types.h>
-#endif
 
 #ifndef FUNC_DECL
 #define FUNC_DECL static inline
@@ -1850,8 +1826,6 @@ FUNC_DECL float3 cross(float3 A, float3 B)
 }
 
 #endif /* REAL_PRECISION <= 32 */
-
-#ifndef __CUDACC__
 
 /* -------------------------------------------------------- */
 /* ----------- DOUBLE ------------------------------------- */
@@ -2121,8 +2095,6 @@ FUNC_DECL ldouble3 cross(ldouble3 A, ldouble3 B)
 }
 #endif /* REAL_PRECISION > 64 */
 
-#endif /* __CUDACC__ */
-
 #ifndef M_PI
 #define M_PI vtkMath::Pi()
 #endif
@@ -2158,18 +2130,7 @@ FUNC_DECL ldouble3 cross(ldouble3 A, ldouble3 B)
  ***************************************/
 
 // local arrays allocation
-#ifdef __CUDACC__
-
-// ensure a maximum alignment of arrays
-#define ROUND_SIZE(n) (n)
-//( (n+sizeof(REAL)-1) & ~(sizeof(REAL)-1) )
-
-#define ALLOC_LOCAL_ARRAY(name, type, n)                                                           \
-  type* name = (type*)sdata;                                                                       \
-  sdata += ROUND_SIZE(sizeof(type) * (n))
-#define FREE_LOCAL_ARRAY(name, type, n) sdata -= ROUND_SIZE(sizeof(type) * (n))
-
-#elif defined(__GNUC__) // Warning, this is a gcc extension, not all compiler accept it
+#if defined(__GNUC__) // Warning, this is a gcc extension, not all compiler accept it
 #define ALLOC_LOCAL_ARRAY(name, type, n) type name[(n)]
 #define FREE_LOCAL_ARRAY(name, type, n)
 #else
@@ -2325,9 +2286,6 @@ REAL newtonSearchPolynomialFunc(
   REAL y = evalPolynomialFunc(F, x);
 
   // search x where F(x) = 0
-#ifdef __CUDACC__
-#pragma unroll
-#endif
   for (int i = 0; i < NEWTON_NITER; i++)
   {
     DBG_MESG("F(" << x << ")=" << y);
@@ -2375,9 +2333,6 @@ REAL newtonSearchPolynomialFunc(
   REAL y = evalPolynomialFunc(F, x);
 
   // search x where F(x) = 0
-#ifdef __CUDACC__
-#pragma unroll
-#endif
   for (int i = 0; i < NEWTON_NITER; i++)
   {
     DBG_MESG("F(" << x << ")=" << y);
@@ -2538,10 +2493,6 @@ REAL findTriangleSetCuttingPlane(const REAL_COORD normal, // IN  , normal vector
   const int nt,                                           // IN  , number of triangles
   const uchar3* tv,                                       // IN  , triangles connectivity, size=nt
   const REAL_COORD* vertices                              // IN  , vertex coordinates, size=nv
-#ifdef __CUDACC__
-  ,
-  char* sdata // TEMP Storage
-#endif
 )
 {
   // only need nv-1 derivs but allocate nv as gcc freaks out
@@ -2700,10 +2651,6 @@ REAL findTriangleSetCuttingCone(const REAL2 normal, // IN  , normal vector
   const int nt,                                     // IN  , number of triangles
   const uchar3* tv,                                 // IN  , triangles connectivity, size=nt
   const REAL2* vertices                             // IN  , vertex coordinates, size=nv
-#ifdef __CUDACC__
-  ,
-  char* sdata // TEMP Storage
-#endif
 )
 {
   ALLOC_LOCAL_ARRAY(derivatives, REAL3, nv - 1);
@@ -2886,10 +2833,6 @@ REAL findTetraSetCuttingPlane(const REAL3 normal, // IN  , normal vector
   const int nt,                                   // IN  , number of tetras
   const uchar4* tv,                               // IN  , tetras connectivity, size=nt
   const REAL3* vertices                           // IN  , vertex coordinates, size=nv
-#ifdef __CUDACC__
-  ,
-  char* sdata // TEMP Storage
-#endif
 )
 {
   ALLOC_LOCAL_ARRAY(rindex, unsigned char, nv);
