@@ -1584,8 +1584,6 @@ VTK_ABI_NAMESPACE_END
 namespace vtkYoungsMaterialInterfaceCellCutInternals
 {
 VTK_ABI_NAMESPACE_BEGIN
-#define REAL_COORD REAL3
-
 #define REAL double
 #define REAL2 double2
 #define REAL3 double3
@@ -2085,13 +2083,13 @@ uchar4 sortTetra(uchar4 t, IntType* i)
 
 FUNC_DECL
 REAL makeTriangleSurfaceFunctions(
-  const uchar3 triangle, const REAL_COORD* vertices, const REAL_COORD normal, REAL2 func[2])
+  const uchar3 triangle, const REAL3* vertices, const REAL3 normal, REAL2 func[2])
 {
 
   // 1. load the data
-  const REAL_COORD v0 = vertices[triangle.x];
-  const REAL_COORD v1 = vertices[triangle.y];
-  const REAL_COORD v2 = vertices[triangle.z];
+  const REAL3 v0 = vertices[triangle.x];
+  const REAL3 v1 = vertices[triangle.y];
+  const REAL3 v2 = vertices[triangle.z];
 
   const REAL d0 = dot(v0, normal);
   const REAL d1 = dot(v1, normal);
@@ -2104,9 +2102,9 @@ REAL makeTriangleSurfaceFunctions(
   // 2. compute
 
   // compute vector from point on v0-v2 that has distance d1 from Plane0
-  REAL_COORD I = linearInterp(d0, v0, d2, v2, d1);
+  REAL3 I = linearInterp(d0, v0, d2, v2, d1);
   DBG_MESG("I = " << I.x << ',' << I.y);
-  REAL_COORD vec = v1 - I;
+  REAL3 vec = v1 - I;
   REAL length = sqrt(dot(vec, vec));
   DBG_MESG("length = " << length);
 
@@ -2132,12 +2130,12 @@ REAL makeTriangleSurfaceFunctions(
 }
 
 FUNC_DECL
-REAL findTriangleSetCuttingPlane(const REAL_COORD normal, // IN  , normal vector
-  const REAL fraction,                                    // IN  , volume fraction
-  const int nv,                                           // IN  , number of vertices
-  const int nt,                                           // IN  , number of triangles
-  const uchar3* tv,                                       // IN  , triangles connectivity, size=nt
-  const REAL_COORD* vertices                              // IN  , vertex coordinates, size=nv
+REAL findTriangleSetCuttingPlane(const REAL3 normal, // IN  , normal vector
+  const REAL fraction,                               // IN  , volume fraction
+  const int nv,                                      // IN  , number of vertices
+  const int nt,                                      // IN  , number of triangles
+  const uchar3* tv,                                  // IN  , triangles connectivity, size=nt
+  const REAL3* vertices                              // IN  , vertex coordinates, size=nv
 )
 {
   // only need nv-1 derivs but allocate nv as gcc freaks out
@@ -2604,8 +2602,6 @@ typedef REAL Real;
 typedef REAL2 Real2;
 typedef REAL3 Real3;
 typedef REAL4 Real4;
-
-#undef REAL_COORD
 
 struct VertexInfo
 {
