@@ -30,6 +30,8 @@
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCollisionDetectionFilter);
 
@@ -631,12 +633,12 @@ int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(int npts, double* p
     }
     else
     {
-      // cout << "Test for overlapping" << endl;
+      // std::cout << "Test for overlapping" << endl;
       // test to see if cells are coplanar and overlapping...
       parallel_edges++;
       if (parallel_edges > 1) // cells are parallel then...
       {
-        // cout << "cells are parallel" << endl;
+        // std::cout << "cells are parallel" << endl;
         // test to see if they are coplanar
         q1 = pts2;
         for (j = 0; j < 3; j++)
@@ -645,7 +647,7 @@ int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(int npts, double* p
         }
         if (vtkMath::Dot(n, ray2) == 0.0) // cells are coplanar
         {
-          // cout << "cells are coplanar" << endl;
+          // std::cout << "cells are coplanar" << endl;
           // test to see if coplanar cells overlap
           // ie, if one of the tris has a vertex in the other
           for (int ii = 0; ii < npts; ii++)
@@ -655,7 +657,7 @@ int vtkCollisionDetectionFilter::IntersectPolygonWithPolygon(int npts, double* p
               if (vtkLine::Intersection(pts + 3 * ii, pts + 3 * ((ii + 1) % npts), pts2 + 3 * jj,
                     pts2 + 3 * ((jj + 1) % npts2), u, v) == 2)
               {
-                // cout << "Found an overlapping one!!!" << endl;
+                // std::cout << "Found an overlapping one!!!" << endl;
                 for (int k = 0; k < 3; k++)
                 {
                   x[Num][k] =

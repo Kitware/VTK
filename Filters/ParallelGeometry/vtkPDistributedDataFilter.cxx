@@ -54,6 +54,8 @@ VTK_ABI_NAMESPACE_END
 #include <map>
 #include <set>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 namespace
 {

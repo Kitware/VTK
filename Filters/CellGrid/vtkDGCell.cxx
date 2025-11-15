@@ -13,6 +13,8 @@
 
 #include <token/Singletons.h>
 
+#include <iostream>
+
 // Switch this to defined to get some debug printouts.
 #undef VTK_DBG_DGCELL
 

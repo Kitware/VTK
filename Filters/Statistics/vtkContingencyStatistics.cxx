@@ -17,10 +17,10 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
+#include <iostream>
 #include <map>
-#include <vector>
-
 #include <sstream>
+#include <vector>
 
 typedef std::map<std::string, vtkIdType> StringCounts;
 typedef std::map<vtkIdType, double> Entropies;
@@ -240,8 +240,8 @@ public:
 
       if (key < 0 || key >= nRowSumm)
       {
-        cerr << "Inconsistent input: dictionary does not have a row " << key
-             << ". Cannot derive model." << endl;
+        std::cerr << "Inconsistent input: dictionary does not have a row " << key
+                  << ". Cannot derive model.\n";
         return;
       }
 
@@ -296,8 +296,8 @@ public:
     {
       if (iit->second != n)
       {
-        cerr << "Inconsistent input: variable pairs do not have equal cardinalities: " << iit->first
-             << " != " << n << ". Cannot derive model." << endl;
+        std::cerr << "Inconsistent input: variable pairs do not have equal cardinalities: "
+                  << iit->first << " != " << n << ". Cannot derive model.\n";
         return;
       }
     }
@@ -619,8 +619,8 @@ public:
 
       if (key < 0 || key >= nRowSumm)
       {
-        cerr << "Inconsistent input: dictionary does not have a row " << key
-             << ". Cannot derive model." << endl;
+        std::cerr << "Inconsistent input: dictionary does not have a row " << key
+                  << ". Cannot derive model.\n";
         return;
       }
 
@@ -665,8 +665,8 @@ public:
     {
       if (iit->second != n)
       {
-        cerr << "Inconsistent input: variable pairs do not have equal cardinalities: " << iit->first
-             << " != " << n << ". Cannot derive model." << endl;
+        std::cerr << "Inconsistent input: variable pairs do not have equal cardinalities: "
+                  << iit->first << " != " << n << ". Cannot derive model.\n";
         return;
       }
     }

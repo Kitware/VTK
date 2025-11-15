@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 #include <iterator>
 #include <set>
 #include <string>
@@ -210,7 +211,7 @@ public:
         mda.Set(array);
         if (myself.find(mda) == myself.end())
         {
-          // cout << "Removing: " << array->GetName() << endl;
+          // std::cout << "Removing: " << array->GetName() << std::endl;
           dsa->RemoveArray(array->GetName());
         }
         else
@@ -290,12 +291,13 @@ public:
   void Print()
   {
     vtkCleanArrays::vtkArraySet::iterator iter;
-    cout << "Valid: " << this->Valid << endl;
+    std::cout << "Valid: " << this->Valid << std::endl;
     for (iter = this->begin(); iter != this->end(); ++iter)
     {
-      cout << iter->Name << ", " << iter->NumberOfComponents << ", " << iter->Type << endl;
+      std::cout << iter->Name << ", " << iter->NumberOfComponents << ", " << iter->Type
+                << std::endl;
     }
-    cout << "-----------------------------------" << endl << endl;
+    std::cout << "-----------------------------------" << std::endl << std::endl;
   }
 };
 
@@ -438,7 +440,7 @@ int vtkCleanArrays::RequestData(
 void vtkCleanArrays::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "FillPartialArrays: " << this->FillPartialArrays << endl;
-  os << indent << "Controller: " << this->Controller << endl;
+  os << indent << "FillPartialArrays: " << this->FillPartialArrays << std::endl;
+  os << indent << "Controller: " << this->Controller << std::endl;
 }
 VTK_ABI_NAMESPACE_END

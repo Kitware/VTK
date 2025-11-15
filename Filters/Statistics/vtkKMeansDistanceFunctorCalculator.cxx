@@ -10,6 +10,7 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
+#include <iostream>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -51,7 +52,7 @@ void vtkKMeansDistanceFunctorCalculator::operator()(
   vtkIdType nv = clusterCoord->GetNumberOfValues();
   if (nv != dataCoord->GetNumberOfValues())
   {
-    cout << "The dimensions of the cluster and data do not match." << endl;
+    std::cout << "The dimensions of the cluster and data do not match.\n";
     distance = -1;
     return;
   }
@@ -88,13 +89,13 @@ void vtkKMeansDistanceFunctorCalculator::operator()(
   }
   distance = this->FunctionParser->GetScalarResult();
   /*
-  cout << "f([";
+  std::cout << "f([";
   for ( vtkIdType i = 0; i < nv; ++ i )
-    cout << " " << dataCoord->GetValue( i ).ToDouble();
-  cout << " ],[";
+    std::cout << " " << dataCoord->GetValue( i ).ToDouble();
+  std::cout << " ],[";
   for ( vtkIdType i = 0; i < nv; ++ i )
-    cout << " " << clusterCoord->GetValue( i ).ToDouble();
-  cout << " ]) = " << distance << "\n";
+    std::cout << " " << clusterCoord->GetValue( i ).ToDouble();
+  std::cout << " ]) = " << distance << "\n";
   */
 }
 VTK_ABI_NAMESPACE_END

@@ -43,6 +43,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractCTHPart);
 vtkCxxSetObjectMacro(vtkExtractCTHPart, ClipPlane, vtkPlane);
@@ -91,7 +93,7 @@ public:
 
     self->ProgressShift += shift * self->ProgressScale;
     self->ProgressScale *= scale;
-    // cout << "Shift-Scale Push: " << self->ProgressShift << ", " <<
+    // std::cout << "Shift-Scale Push: " << self->ProgressShift << ", " <<
     //  self->ProgressScale << endl;
   }
 
@@ -103,7 +105,7 @@ public:
     {
       this->Self->ProgressScale = this->Scale;
       this->Self->ProgressShift = this->Shift;
-      // cout << "Shift-Scale Pop: " << this->Self->ProgressShift << ", " <<
+      // std::cout << "Shift-Scale Pop: " << this->Self->ProgressShift << ", " <<
       //  this->Self->ProgressScale << endl;
       this->Self = nullptr;
     }
@@ -1300,7 +1302,7 @@ void vtkExtractCTHPart::ExecuteCellDataToPointData(
 void vtkExtractCTHPart::TriggerProgressEvent(double val)
 {
   double progress = this->ProgressShift + val * this->ProgressScale;
-  // cout << "Progress: " << progress << endl;
+  // std::cout << "Progress: " << progress << endl;
   this->UpdateProgress(progress);
 }
 

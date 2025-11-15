@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImplicitModeller);

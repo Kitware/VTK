@@ -9,6 +9,8 @@
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkKMeansDistanceFunctor);
 
@@ -52,7 +54,7 @@ void vtkKMeansDistanceFunctor::operator()(
   distance = 0.0;
   if (clusterCoord->GetNumberOfValues() != dataCoord->GetNumberOfValues())
   {
-    cout << "The dimensions of the cluster and data do not match." << endl;
+    std::cout << "The dimensions of the cluster and data do not match.\n";
     distance = -1;
   }
 
@@ -69,7 +71,7 @@ void vtkKMeansDistanceFunctor::PairwiseUpdate(vtkTable* clusterCoords, vtkIdType
 {
   if (clusterCoords->GetNumberOfColumns() != dataCoord->GetNumberOfValues())
   {
-    cout << "The dimensions of the cluster and/or data do not match." << endl;
+    std::cout << "The dimensions of the cluster and/or data do not match.\n";
     return;
   }
 

@@ -23,13 +23,15 @@
 #include <cassert>
 #include <cmath>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeCutter);
 
 #ifdef DEBUGME
 #define PRINT(x)                                                                                   \
   {                                                                                                \
-    cout << x << endl;                                                                             \
+    std::cout << x << endl;                                                                        \
   }
 #else
 #define PRINT(x)

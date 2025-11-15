@@ -22,7 +22,6 @@
 #include "vtkTableAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkDataObjectCollection;
 class vtkMultiBlockDataSet;
 class vtkStatisticsAlgorithm;
 class vtkTable;

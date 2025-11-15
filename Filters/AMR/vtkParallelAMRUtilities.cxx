@@ -12,6 +12,8 @@
 #include <cmath>
 #include <limits>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 void vtkParallelAMRUtilities::PrintSelf(std::ostream& os, vtkIndent indent)
@@ -73,12 +75,12 @@ void vtkParallelAMRUtilities::DistributeProcessInformation(
     {
       vtkIdType offset = offsets[i];
       int n = numBlocks[i];
-      cout << "Rank " << i << " has: ";
+      std::cout << "Rank " << i << " has: ";
       for (vtkIdType j = offset; j < offset + n; j++)
       {
-        cout << allBlocks[j] << " ";
+        std::cout << allBlocks[j] << " ";
       }
-      cout << endl;
+      std::cout << endl;
     }
   }
 #endif

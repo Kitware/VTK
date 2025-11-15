@@ -21,6 +21,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 // Define this for debugging output:
 #undef VTK_DBG_UGRID_TO_CGRID
 

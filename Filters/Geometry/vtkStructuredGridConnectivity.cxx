@@ -10,6 +10,8 @@
 #include "vtkStructuredNeighbor.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStructuredGridConnectivity);
 VTK_ABI_NAMESPACE_END

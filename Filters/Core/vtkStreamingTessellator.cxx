@@ -18,6 +18,8 @@
 #include <algorithm>
 #include <stack>
 
+#include <iostream>
+
 #ifdef PARAVIEW_DEBUG_TESSELLATOR
 #  define VTK_TESSELLATOR_INCR_CASE_COUNT(cs) this->CaseCounts[cs]++
 #  define VTK_TESSELLATOR_INCR_SUBCASE_COUNT(cs,sc) this->SubcaseCounts[cs][sc]++
@@ -631,7 +633,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
     std::stack<vtkIdType*> outputPerm;
     std::stack<int>        outputSign;
 
-    // cout << "Case " << C << "  Permutation " << P << endl;
+    // std::cout << "Case " << C << "  Permutation " << P << endl;
     // 2. Generate tetrahedra based on the configuration.
     //    Note that case 0 is handled above (edgeCode == 0).
     switch (C)
@@ -1528,7 +1530,7 @@ void vtkStreamingTessellator::AdaptivelySample3Facet( double* v0, double* v1, do
 #ifdef PARAVIEW_DEBUG_TESSELLATOR
     if ( outputTets.empty() )
     {
-    cout << "Argh! Case " << C << " Perm " << P << " has no output!" << endl;
+    std::cout << "Argh! Case " << C << " Perm " << P << " has no output!" << endl;
     }
 #endif // PARAVIEW_DEBUG_TESSELLATOR
     while ( ! outputTets.empty() )
