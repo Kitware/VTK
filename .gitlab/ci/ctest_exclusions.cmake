@@ -128,7 +128,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora[0-9]*_x86_64")
     )
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_x86_64" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "mpi")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora42_x86_64" AND "$ENV{CMAKE_CONFIGURATION}" MATCHES "mpi")
   list(APPEND test_exclusions
     # MPI initialization failures from inside of IOSS. Needs investigation.
     # https://gitlab.kitware.com/vtk/vtk/-/issues/19314
@@ -619,7 +619,7 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "^wasm(32|64)")
     "^VTK::RenderingOpenGL2Cxx-TestWindowBlits$")
 endif ()
 
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_webgpu")
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora42_webgpu")
   list(APPEND test_exclusions
     "^VTK::RenderingWebGPUCxx-TestComputeFrustumCulling") # Crashes randomly with mesa-vulkan-drivers
 endif ()

@@ -1,6 +1,6 @@
 set(VTK_JAVA_RELEASE_VERSION $ENV{VTK_JAVA_VERSION} CACHE STRING "" FORCE)
 
-include("${CMAKE_CURRENT_LIST_DIR}/configure_fedora39.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/configure_fedora42.cmake")
 
 string(TOLOWER "${CMAKE_BUILD_TYPE}" cmake_build_type)
 set(MAVEN_LOCAL_NATIVE_NAME "linux-amd-${cmake_build_type}" CACHE STRING "" FORCE)
