@@ -67,7 +67,7 @@ Required:
     - GCC 8.0 or newer
     - Clang 7.0 or newer
     - Apple Clang 11.0 (Xcode 11.3.1) or newer
-    - Microsoft Visual Studio 2017 or newer
+    - Microsoft Visual Studio 2019 or newer
     - Intel 19.0 or newer
 
 ### Optional Additions
