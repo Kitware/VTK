@@ -780,7 +780,7 @@
         - *before_script_linux
         - cmake -P .gitlab/ci/download_onnxruntime.cmake
         - export LD_LIBRARY_PATH=$PWD/.gitlab/onnxruntime/lib64
-        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
+        - ctest -VV --output-on-failure -S .gitlab/ci/ctest_test_external.cmake
         - exec .gitlab/ci/check_warnings.sh ./Testing/External
 
     interruptible: true
@@ -860,7 +860,7 @@
         - python -c "import vtk"
         - if [ "$VTK_DISABLE_PYI_TESTING" != "1" ]; then python -m vtkmodules.generate_pyi --test -p vtkmodules; else echo "pyi test is disabled."; fi
         - *before_script_linux
-        - ctest -V --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
+        - ctest -VV --output-on-failure -S .gitlab/ci/ctest_test_external_wheel.cmake
         - exec .gitlab/ci/check_warnings.sh ./Testing/ExternalWheel
     interruptible: true
 
