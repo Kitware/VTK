@@ -119,8 +119,8 @@ using CellListAllOutVTK = viskores::ListAppend<CellListStructuredOutVTK, CellLis
 
 #ifdef VISKORES_ADD_XGC_DEFAULT_TYPES
 using StorageListField = viskores::ListAppend<
-  viskores::cont::StorageListCommon,
-  viskores::List<viskores::cont::StorageTagXGCCoordinates>>;
+  viskores::List<viskores::cont::StorageTagXGCCoordinates>,
+  viskores::cont::StorageListCommon>;
 #endif
 
 } // end namespace toviskores

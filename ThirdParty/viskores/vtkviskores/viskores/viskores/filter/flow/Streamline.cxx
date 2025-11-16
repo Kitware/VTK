@@ -17,6 +17,7 @@
 //============================================================================
 
 #include <viskores/filter/flow/Streamline.h>
+#include <viskores/filter/flow/internal/FilterParticleAdvectionSteadyStateImpl.h>
 
 namespace viskores
 {
@@ -24,6 +25,8 @@ namespace filter
 {
 namespace flow
 {
+
+template class FilterParticleAdvectionSteadyState<viskores::filter::flow::Streamline>;
 
 // using ParticleType    = viskores::Particle;
 // using TerminationType = viskores::worklet::flow::NormalTermination;

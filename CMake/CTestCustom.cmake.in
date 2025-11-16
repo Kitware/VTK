@@ -133,6 +133,12 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # 12 diagnostics. These come from the `quay.io/pypa/manylinux_2_28_x86_64`
   # container as of now.
   "/opt/rh/gcc-toolset-12"
+
+  # GCC 10.1 contains a bugfix for an error in previous GCC versions that
+  # resulted in a class zero-sized subobject to be passed incorrectly when
+  # compiled as C++17 or C++20 in versions of GCC prior to 10.1. GCC 10.1 fixes
+  # this by forcing the C++14 implementation and issuing a warning.
+  "when C\\+\\+17 is enabled changed to match C\\+\\+14 in GCC 10.1"
   )
 
 set(cdash_show_third_party_warnings "@VTK_ENABLE_CDASH_THIRD_PARTY_WARNINGS@")

@@ -26,6 +26,7 @@
 #include <viskores/cont/ArrayHandleMultiplexer.h>
 #include <viskores/cont/ArrayHandleRecombineVec.h>
 #include <viskores/cont/ArrayHandleRuntimeVec.h>
+#include <viskores/cont/ArrayHandleSOAStride.h>
 #include <viskores/cont/ArrayHandleStride.h>
 #include <viskores/cont/StorageList.h>
 
@@ -160,6 +161,13 @@ std::vector<viskores::cont::internal::Buffer> UnknownAHExtractComponent(
 }
 
 template <typename T, typename S>
+bool UnknownAHExtractIsInefficient()
+{
+  return viskores::cont::internal::ArrayExtractComponentIsInefficient<
+    viskores::cont::ArrayHandle<T, S>>::value;
+}
+
+template <typename T, typename S>
 void UnknownAHReleaseResources(void* mem)
 {
   using AH = viskores::cont::ArrayHandle<T, S>;
@@ -270,6 +278,9 @@ struct VISKORES_CONT_EXPORT UnknownAHContainer
                                                                              viskores::IdComponent,
                                                                              viskores::CopyFlag);
   ExtractComponentType* ExtractComponent;
+
+  using ExtractIsInefficientType = bool();
+  ExtractIsInefficientType* ExtractIsInefficient;
 
   using ReleaseResourcesType = void(void*);
   ReleaseResourcesType* ReleaseResources;
@@ -399,6 +410,7 @@ inline UnknownAHContainer::UnknownAHContainer(const viskores::cont::ArrayHandle<
   , ShallowCopy(detail::UnknownAHShallowCopy<T, S>)
   , DeepCopy(detail::UnknownAHDeepCopy<T, S>)
   , ExtractComponent(detail::UnknownAHExtractComponent<T, S>)
+  , ExtractIsInefficient(detail::UnknownAHExtractIsInefficient<T, S>)
   , ReleaseResources(detail::UnknownAHReleaseResources<T, S>)
   , ReleaseResourcesExecution(detail::UnknownAHReleaseResourcesExecution<T, S>)
   , PrintSummary(detail::UnknownAHPrintSummary<T, S>)
@@ -719,6 +731,18 @@ public:
     }
   }
   /// @copydoc AsArrayHandle
+  template <typename T>
+  VISKORES_CONT void AsArrayHandle(
+    viskores::cont::ArrayHandle<T, viskores::cont::StorageTagSOAStride>& array) const
+  {
+    if (!this->CanConvert<viskores::cont::ArrayHandle<T, viskores::cont::StorageTagSOAStride>>())
+    {
+      VISKORES_LOG_CAST_FAIL(*this, decltype(array));
+      throwFailedDynamicCast(this->GetArrayTypeName(), viskores::cont::TypeToString(array));
+    }
+    array = this->ExtractArrayWithValueType<T>();
+  }
+  /// @copydoc AsArrayHandle
   template <typename ArrayType>
   VISKORES_CONT ArrayType AsArrayHandle() const
   {
@@ -826,6 +850,16 @@ public:
     return ComponentArrayType(buffers);
   }
 
+  /// @brief Returns true if a call to `ExtractComponent` or a related method is inefficient.
+  ///
+  /// It is usually efficient to extract components from array handles. However,
+  /// some array handle types are inefficient. If the `UnknownArrayHandle` holds
+  /// an array with this type of storage, this method will return true. Note that
+  /// if the array returns false, an array extract may still require a copy. The
+  /// main consequence of the copy is that the extracted array will not point to
+  /// the same space as the original array.
+  bool ExtractIsInefficient() const { return this->Container->ExtractIsInefficient(); }
+
   /// @brief Extract the array knowing only the component type of the array.
   ///
   /// This method returns an `ArrayHandle` that points to the data in the array. This method
@@ -868,6 +902,23 @@ public:
   /// for each component. This array adds a slight overhead for each lookup as it performs the
   /// arithmetic for finding the index of each component.
   ///
+  /// This method is similar to `ExtractArrayWithValueType()` except that the
+  /// number of components need not be specified at compile time. However,
+  /// because the components cannot be specified, you get many of the
+  /// aforementioned limitations of the returned array.
+  ///
+  /// Note that the template argument between this method and
+  /// `ExtractArrayWithValueType()` is different. For this method, provide the type
+  /// of the base component.
+  /// ```cpp
+  /// auto extractedArray = unknownArray.ExtractArrayFromComponents<viskores::FloatDefault>();
+  /// ```
+  /// However, to extract the same array with `ExtractArrayWithValueType()`,
+  /// you would use this full `Vec` type.
+  /// ```cpp
+  /// auto extractedArray = unknownArray.ExtractArrayWithValue<viskores::Vec3f>();
+  /// ```
+  ///
   template <typename BaseComponentType>
   VISKORES_CONT viskores::cont::ArrayHandleRecombineVec<BaseComponentType>
   ExtractArrayFromComponents(viskores::CopyFlag allowCopy = viskores::CopyFlag::On) const
@@ -879,6 +930,68 @@ public:
       result.AppendComponentArray(this->ExtractComponent<BaseComponentType>(cIndex, allowCopy));
     }
     return result;
+  }
+
+  /// @brief Extract an array with any storage for a given value type.
+  ///
+  /// If you can determine the type of each value in the array, which can be
+  /// verified with the `IsValueType()` method, then this method can extract that
+  /// array into a flexible `ArrayHandleSOAStride`. Most arrays can do so
+  /// efficiently. You can check the `ExtractionIsInefficient()` method to check
+  /// to see if a very inefficient copy would be required (and hence should not
+  /// be used). Regardless, some arrays may be efficiently extracted but require
+  /// a some amount of copying to match the `ArrayHandleSOAStride` structure.
+  /// This would mean that writing to the extracted array will not be reflected
+  /// in the array held by this `UnknownArrayHandle`. To prevent such problems,
+  /// you can use the `allowCopy` parameter.
+  ///
+  /// @tparam ValueType The type of each value in the array. This must match `IsValueType()`.
+  /// @param allowCopy Determines whether the data is allowed to be copied or it must reference
+  ///   the data from the original array.
+  /// @return A `viskores::cont::ArrayHandleSOSStride` containing the array.
+  template <typename ValueType>
+  VISKORES_CONT viskores::cont::ArrayHandleSOAStride<ValueType> ExtractArrayWithValueType(
+    viskores::CopyFlag allowCopy = viskores::CopyFlag::On) const
+  {
+    using VTraits = viskores::VecTraits<ValueType>;
+    using ComponentType = typename VTraits::ComponentType;
+    viskores::cont::ArrayHandleSOAStride<ValueType> strideArray;
+    for (viskores::IdComponent componentIndex = 0; componentIndex < VTraits::NUM_COMPONENTS;
+         ++componentIndex)
+    {
+      viskores::cont::ArrayHandleStride<ComponentType> componentArray =
+        this->ExtractComponent<ComponentType>(componentIndex, allowCopy);
+      // ArrayHandleSOAStride currently does not support div and mod due to Cuda compile issues.
+      if (((componentArray.GetModulo() > 0) &&
+           (componentArray.GetModulo() < componentArray.GetNumberOfValues())) ||
+          (componentArray.GetDivisor() > 1))
+      {
+        if (allowCopy != viskores::CopyFlag::On)
+        {
+          throw viskores::cont::ErrorBadType("Cannot extract array of type " +
+                                             this->GetArrayTypeName() +
+                                             " without copying because ArrayHandleSOAStride "
+                                             "currently does not support divisor or modulo.");
+        }
+        else
+        {
+          VISKORES_LOG_S(
+            viskores::cont::LogLevel::Warn,
+            "Extracting "
+              << this->GetArrayTypeName()
+              << " to ArrayHandleSOAStride requires full array copy because divisor and "
+                 "modulo not supported there. ExtractComponent or "
+                 "ExtractArrayFromComponents can be used without a copy.");
+          viskores::cont::UnknownArrayHandle arrayCopy;
+          arrayCopy = viskores::cont::ArrayHandle<ValueType>{};
+          arrayCopy.DeepCopyFrom(*this);
+          return arrayCopy.ExtractArrayWithValueType<ValueType>(allowCopy);
+        }
+      }
+
+      strideArray.SetArray(componentIndex, componentArray);
+    }
+    return strideArray;
   }
 
   /// @brief Call a functor using the underlying array type.
@@ -1016,6 +1129,19 @@ struct UnknownArrayHandleCanConvert<T, viskores::cont::StorageTagRuntimeVec>
     return (array.IsType<viskores::cont::ArrayHandle<T, viskores::cont::StorageTagRuntimeVec>>() ||
             (array.IsStorageType<viskores::cont::StorageTagBasic>() &&
              array.IsBaseComponentType<BaseComponentType>()));
+  }
+};
+
+template <typename T>
+struct UnknownArrayHandleCanConvert<T, viskores::cont::StorageTagSOAStride>
+{
+  VISKORES_CONT bool operator()(const viskores::cont::UnknownArrayHandle& array) const
+  {
+    using VTraits = viskores::VecTraits<T>;
+    using BaseComponentType = typename VTraits::BaseComponentType;
+    return (!array.ExtractIsInefficient() && array.IsBaseComponentType<BaseComponentType>() &&
+            (array.GetNumberOfComponentsFlat() == VTraits::NUM_COMPONENTS) &&
+            std::is_same<BaseComponentType, typename VTraits::ComponentType>::value);
   }
 };
 

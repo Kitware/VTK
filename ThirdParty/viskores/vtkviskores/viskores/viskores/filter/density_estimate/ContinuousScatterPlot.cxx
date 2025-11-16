@@ -63,7 +63,7 @@ VISKORES_CONT viskores::cont::DataSet ContinuousScatterPlot::DoExecute(
     viskores::cont::ArrayHandle<viskores::Vec<FieldType, 3>> newCoords;
 
     // Both fields need to resolve to the same type in order to perform calculations
-    viskores::cont::ArrayHandle<FieldType> resolvedScalar2;
+    std::decay_t<decltype(resolvedScalar)> resolvedScalar2;
     viskores::cont::ArrayCopyShallowIfPossible(scalarField2.GetData(), resolvedScalar2);
 
     worklet.Run(tetraCellSet,

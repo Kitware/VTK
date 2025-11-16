@@ -22,6 +22,8 @@
 
 #include <viskores/testing/Testing.h>
 
+#include <vector>
+
 namespace UnitTestVecFromPortalPermuteNamespace
 {
 
@@ -52,7 +54,7 @@ struct VecFromPortalPermuteTestFunctor
   void operator()(T) const
   {
     using PortalType = TestPortal<T>;
-    using IndexVecType = viskores::VecVariable<viskores::Id, ARRAY_SIZE>;
+    using IndexVecType = viskores::VecCConst<viskores::Id>;
     using VecType = viskores::VecFromPortalPermute<IndexVecType, PortalType>;
     using TTraits = viskores::TypeTraits<VecType>;
     using VTraits = viskores::VecTraits<VecType>;
@@ -75,12 +77,14 @@ struct VecFromPortalPermuteTestFunctor
     {
       for (viskores::IdComponent length = 0; 2 * length + offset < ARRAY_SIZE; length++)
       {
-        IndexVecType indices;
+        std::vector<viskores::Id> indexVector;
+        indexVector.reserve(static_cast<std::size_t>(length));
         for (viskores::IdComponent index = 0; index < length; index++)
         {
-          indices.Append(offset + 2 * index);
+          indexVector.push_back(offset + 2 * index);
         }
 
+        IndexVecType indices(indexVector.data(), length);
         VecType vec(&indices, portal);
 
         VISKORES_TEST_ASSERT(vec.GetNumberOfComponents() == length, "Wrong length.");

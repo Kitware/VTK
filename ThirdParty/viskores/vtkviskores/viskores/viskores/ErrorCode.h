@@ -50,6 +50,8 @@ enum class ErrorCode
   MalformedCellDetected,
   OperationOnEmptyCell,
   CellNotFound,
+  InvalidNumberOfIndices,
+  Unsupported,
 
   UnknownError
 };
@@ -127,9 +129,15 @@ enum class ErrorCode
 
 /// @var ErrorCode CellNotFound
 /// @brief A cell matching some given criteria could not be found.
+//
+/// @var ErrorCode InvalidNumberOfIndices
+/// @brief The wrong number of indices was provided for an operation.
 ///
 /// This error code is most often used in a cell locator where no cell in the
 /// given region could be found.
+
+/// @var ErrorCode Unsupported
+/// @brief The operation is not supported.
 
 /// @brief Convert a `viskores::ErrorCode` into a human-readable string.
 ///
@@ -168,6 +176,10 @@ inline const char* ErrorString(viskores::ErrorCode code) noexcept
       return "Operation on empty cell";
     case viskores::ErrorCode::CellNotFound:
       return "Cell not found";
+    case viskores::ErrorCode::InvalidNumberOfIndices:
+      return "Invalid number of indices";
+    case viskores::ErrorCode::Unsupported:
+      return "Unsupported operation";
     case viskores::ErrorCode::UnknownError:
       return "Unknown error";
   }

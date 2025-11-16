@@ -327,12 +327,10 @@
 #define VISKORES_CUDA_VERSION_MINOR @VISKORES_CUDA_VERSION_MINOR@
 #endif
 
-#if __cplusplus >= 201402L || \
-    ( defined(VISKORES_MSVC) && _MSC_VER >= 1910 ) || \
-    ( defined(VISKORES_ICC)  && defined(__INTEL_CXX11_MODE__) )
-#define VISKORES_HAVE_CXX_14
+#if __cplusplus >= 201703L || (defined(VISKORES_MSVC) && (_MSC_VER >= 1928))
+#define VISKORES_HAVE_CXX_17
 #else
-#error "Viskores requires at least a C++14 compiler"
+#error "Viskores requires at least a C++17 compiler"
 #endif
 
 //Mark if we have enabled logging.

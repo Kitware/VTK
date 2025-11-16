@@ -50,11 +50,31 @@ list(APPEND CTEST_CUSTOM_WARNING_EXCEPTION
   # compiler flags there, so I'm just going to suppress those.
   ".*nvlink warning.*SM Arch.*not found in.*"
 
+  # Disable warning from Macos linker that seems to be a side effect of how
+  # GitHub Actions provisions its macos VMs.
+  ".*truncating -dylib_current_version to fit in 32-bit space used by old mach-o format.*"
+
   # Disable warnings about third party libraries.
   # Normally compilers do not generate warnings for includes using -isystem,
   # however, that is not always the case, specially in exotic systems such as
   # OLCF Ascent/Summit
-  ".*viskores/thirdparty.*"
+  "viskores/thirdparty"
+
+  # Disable a particular warning that comes from DIY and GCC 12. The warning seems incorrect.
+  "12/bits/stl_vector.h:988:50: warning: pointer used after"
+  "12/bits/new_allocator.h:158:33: note: call to"
+
+  # This is a warning about not being able to write all the information necessary tracing
+  # debugging those variables. This is not an important warning for the builds in our CI.
+  # (Developers can resolve the issue if they need to by using a parameter like
+  # `--param=max-vartrack-size=600000`. See
+  # https://stackoverflow.com/questions/23499909/adjust-variable-tracking-assignment-length)
+  "note: variable tracking size limit exceeded"
+
+  # Disable warning that can happen in the standard lib from the loguru
+  # third party library. This is a note that can get flagged because it
+  # happens in a file outside of the thirdparty directory.
+  ".*'__builtin___snprintf_chk' output between 5 and 12 bytes.*"
 
   ".*warning: template-id not allowed for constructor.*"
 )
@@ -71,3 +91,7 @@ if (NOT x"@CMAKE_HIP_COMPILER@"x STREQUAL xx)
 endif()
 
 set(Viskores_ENABLE_PERFORMANCE_TESTING "@Viskores_ENABLE_PERFORMANCE_TESTING@")
+
+# Fail on warnings without stopping the build
+# Set maximum number of warnings to 0 to make the build fail on any warning
+set(CTEST_CUSTOM_MAXIMUM_NUMBER_OF_WARNINGS 0)

@@ -1,5 +1,5 @@
-# Lowest-common denominator. Pascal = 60
-set(CMAKE_CUDA_ARCHITECTURES 60 CACHE STRING "")
+# Greatest-common value: Turing = 75
+set(CMAKE_CUDA_ARCHITECTURES 75 CACHE STRING "")
 
 # OpenXR do not support OSMesa
 set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "")

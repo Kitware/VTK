@@ -993,6 +993,35 @@ struct AllTypesTests : public viskores::exec::FunctorBase
     VISKORES_MATH_ASSERT(test_equal(viskores::Max(mixed2, mixed1), high), "Wrong max.");
   }
 
+  VISKORES_EXEC void TestClamp() const
+  {
+    T low = TestValue(2, T());
+    T high = TestValue(7, T());
+
+    using FloatType =
+      typename viskores::TypeTraits<T>::template ReplaceComponentType<viskores::FloatDefault>;
+    FloatType lowf = static_cast<FloatType>(low);
+    FloatType highf = static_cast<FloatType>(high);
+
+    for (viskores::Id index = 0; index < 5; ++index)
+    {
+      T x = TestValue(index, T());
+      VISKORES_MATH_ASSERT(test_equal(viskores::Clamp(x, low, high), viskores::Max(x, low)),
+                           "Bad clamp.");
+      VISKORES_MATH_ASSERT(test_equal(viskores::Clamp(x, lowf, highf), viskores::Max(x, low)),
+                           "Bad clamp.");
+    }
+
+    for (viskores::Id index = 5; index < 10; ++index)
+    {
+      T x = TestValue(index, T());
+      VISKORES_MATH_ASSERT(test_equal(viskores::Clamp(x, low, high), viskores::Min(x, high)),
+                           "Bad clamp.");
+      VISKORES_MATH_ASSERT(test_equal(viskores::Clamp(x, lowf, highf), viskores::Min(x, high)),
+                           "Bad clamp.");
+    }
+  }
+
   VISKORES_EXEC
   void operator()(viskores::Id) const { this->TestMinMax(); }
 };

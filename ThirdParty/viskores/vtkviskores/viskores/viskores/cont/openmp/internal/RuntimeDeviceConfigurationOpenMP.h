@@ -39,7 +39,7 @@ class RuntimeDeviceConfiguration<viskores::cont::DeviceAdapterTagOpenMP>
   : public viskores::cont::internal::RuntimeDeviceConfigurationBase
 {
 public:
-  RuntimeDeviceConfiguration<viskores::cont::DeviceAdapterTagOpenMP>()
+  RuntimeDeviceConfiguration()
     : HardwareMaxThreads(InitializeHardwareMaxThreads())
     , CurrentNumThreads(this->HardwareMaxThreads)
   {

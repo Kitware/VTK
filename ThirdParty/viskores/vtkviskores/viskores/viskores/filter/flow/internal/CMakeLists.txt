@@ -24,6 +24,8 @@ set(headers
   DataSetIntegrator.h
   DataSetIntegratorSteadyState.h
   DataSetIntegratorUnsteadyState.h
+  FilterParticleAdvectionSteadyStateImpl.h
+  FilterParticleAdvectionUnsteadyStateImpl.h
   GridMetaData.h
   LagrangianStructureHelpers.h
   ParticleAdvector.h

@@ -51,30 +51,45 @@ struct FunctorDiv
 
 /// \brief A scatter that maps input to some constant numbers of output.
 ///
-/// The \c Scatter classes are responsible for defining how much output is
-/// generated based on some sized input. \c ScatterUniform establishes a 1 to N
+/// The `Scatter` classes are responsible for defining how much output is
+/// generated based on some sized input. `ScatterUniform` establishes a 1 to N
 /// mapping from input to output. That is, every input element generates N
 /// elements associated with it where N is the same for every input. The output
 /// elements are grouped by the input associated.
 ///
+/// @tparam NumOutputsPerInput Specifies how many outputs are generated per input value.
 template <viskores::IdComponent NumOutputsPerInput>
 struct ScatterUniform : internal::ScatterBase
 {
   VISKORES_CONT ScatterUniform() = default;
 
+  /// @brief Provides the number of output values for a given input domain size.
+  /// @param inputRange The size of the input domain.
+  /// @return The number of output values, which for a `ScatterUniform` is the `inputRange`
+  ///   times the `NumOutputsPerInput`.
   VISKORES_CONT
   viskores::Id GetOutputRange(viskores::Id inputRange) const
   {
     return inputRange * NumOutputsPerInput;
   }
+  /// @copydoc GetOutputRange
   VISKORES_CONT
   viskores::Id GetOutputRange(viskores::Id3 inputRange) const
   {
     return this->GetOutputRange(inputRange[0] * inputRange[1] * inputRange[2]);
   }
 
+  /// @brief The type of array handle used to map output indices to input indices.
+  ///
+  /// For the case of `ScatterUniform`, this is an implicit array that has every
+  /// `NumOutputsPerInput` output indices point to the same input index.
   using OutputToInputMapType =
     viskores::cont::ArrayHandleImplicit<detail::FunctorDiv<NumOutputsPerInput>>;
+
+  /// @brief Provides the array that maps output indices to input indices.
+  /// @param inputRange The size of the input domain.
+  /// @return An implicit array that has every
+  ///   `NumOutputsPerInput` output indices point to the same input index.
   template <typename RangeType>
   VISKORES_CONT OutputToInputMapType GetOutputToInputMap(RangeType inputRange) const
   {
@@ -82,8 +97,17 @@ struct ScatterUniform : internal::ScatterBase
                                 this->GetOutputRange(inputRange));
   }
 
+  /// @brief The type of array handle used for the visit index for each output.
+  ///
+  /// For the case of `ScatterUniform`, this is an implicit array that repeats
+  /// 0, 1,... `NumOutputsPerInput` for every input.
   using VisitArrayType =
     viskores::cont::ArrayHandleImplicit<detail::FunctorModulus<NumOutputsPerInput>>;
+
+  /// @brief Provides the array that gives the visit index for each output.
+  /// @param inputRange The size of the input domain.
+  /// @return An implicit array that repeats 0, 1,... `NumOutputsPerInput`
+  ///   for every input.
   template <typename RangeType>
   VISKORES_CONT VisitArrayType GetVisitArray(RangeType inputRange) const
   {

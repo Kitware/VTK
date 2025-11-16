@@ -420,15 +420,16 @@ public:
             typename CoordsInStorageType,
             typename OutputCellSetType,
             typename CoordsOutStorageType,
-            typename FieldType>
+            typename FieldType,
+            typename FieldStorageType>
   void Run(
     const viskores::cont::CellSetSingleType<>& inputCellSet,
     const viskores::cont::ArrayHandle<viskores::Vec<CoordsComType, 3>, CoordsInStorageType>& coords,
     viskores::cont::ArrayHandle<viskores::Vec<CoordsComTypeOut, 3>, CoordsOutStorageType>&
       newCoords,
     viskores::cont::ArrayHandle<FieldType>& density,
-    const viskores::cont::ArrayHandle<FieldType>& field1,
-    const viskores::cont::ArrayHandle<FieldType>& field2,
+    const viskores::cont::ArrayHandle<FieldType, FieldStorageType>& field1,
+    const viskores::cont::ArrayHandle<FieldType, FieldStorageType>& field2,
     OutputCellSetType& outputCellset)
   {
     viskores::cont::Invoker invoke;

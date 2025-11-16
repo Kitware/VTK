@@ -27,5 +27,5 @@ set(CTEST_NIGHTLY_START_TIME "01:00:00 UTC")
 
 set(CTEST_DROP_METHOD "https")
 set(CTEST_DROP_SITE "open.cdash.org")
-set(CTEST_DROP_LOCATION "/submit.php?project=VISKORES")
+set(CTEST_DROP_LOCATION "/submit.php?project=Viskores")
 set(CTEST_DROP_SITE_CDASH TRUE)

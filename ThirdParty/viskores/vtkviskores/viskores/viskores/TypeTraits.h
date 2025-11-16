@@ -92,6 +92,12 @@ struct TypeTraits<const T> : TypeTraits<T>
 {
 };
 
+// Reference types should have the same traits as their value counterparts.
+template <typename T>
+struct TypeTraits<T&> : TypeTraits<T>
+{
+};
+
 #define VISKORES_BASIC_REAL_TYPE(T)                  \
   template <>                                        \
   struct TypeTraits<T>                               \

@@ -17,6 +17,7 @@
 //============================================================================
 
 #include <viskores/filter/flow/Pathline.h>
+#include <viskores/filter/flow/internal/FilterParticleAdvectionUnsteadyStateImpl.h>
 
 namespace viskores
 {
@@ -24,6 +25,8 @@ namespace filter
 {
 namespace flow
 {
+
+template class FilterParticleAdvectionUnsteadyState<viskores::filter::flow::Pathline>;
 
 VISKORES_CONT Pathline::FieldType Pathline::GetField(const viskores::cont::DataSet& dataset) const
 {

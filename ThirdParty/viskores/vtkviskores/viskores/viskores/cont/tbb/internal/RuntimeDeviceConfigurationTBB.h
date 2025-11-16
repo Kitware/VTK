@@ -46,7 +46,7 @@ class RuntimeDeviceConfiguration<viskores::cont::DeviceAdapterTagTBB>
 {
 public:
   VISKORES_CONT
-  RuntimeDeviceConfiguration<viskores::cont::DeviceAdapterTagTBB>()
+  RuntimeDeviceConfiguration()
     :
 #if TBB_VERSION_MAJOR >= 2020
     HardwareMaxThreads(::tbb::task_arena{}.max_concurrency())

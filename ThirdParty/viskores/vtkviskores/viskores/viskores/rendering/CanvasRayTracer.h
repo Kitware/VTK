@@ -42,11 +42,13 @@ public:
 
   void WriteToCanvas(const viskores::rendering::raytracing::Ray<viskores::Float32>& rays,
                      const viskores::cont::ArrayHandle<viskores::Float32>& colors,
-                     const viskores::rendering::Camera& camera);
+                     const viskores::rendering::Camera& camera,
+                     bool writeDepth = true);
 
   void WriteToCanvas(const viskores::rendering::raytracing::Ray<viskores::Float64>& rays,
                      const viskores::cont::ArrayHandle<viskores::Float64>& colors,
-                     const viskores::rendering::Camera& camera);
+                     const viskores::rendering::Camera& camera,
+                     bool writeDepth = true);
 }; // class CanvasRayTracer
 }
 } // namespace viskores::rendering

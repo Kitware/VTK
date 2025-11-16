@@ -53,8 +53,8 @@ set_target_properties(
 target_link_libraries(viskores_compiler_flags
   INTERFACE $<BUILD_INTERFACE:viskores_vectorization_flags>)
 
-# setup that we need C++14 support
-target_compile_features(viskores_compiler_flags INTERFACE cxx_std_14)
+# setup that we need C++17 support
+target_compile_features(viskores_compiler_flags INTERFACE cxx_std_17)
 
 # setup our static libraries so that a separate ELF section
 # is generated for each function. This allows for the linker to

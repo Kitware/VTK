@@ -23,7 +23,7 @@
 
 void TestParticleArrayCopy()
 {
-  std::random_device device;
+  // std::random_device device;
   std::default_random_engine generator(static_cast<viskores::UInt32>(277));
   viskores::FloatDefault x0(-1), x1(1);
   std::uniform_real_distribution<viskores::FloatDefault> dist(x0, x1);

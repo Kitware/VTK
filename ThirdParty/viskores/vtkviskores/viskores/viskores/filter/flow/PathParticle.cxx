@@ -17,6 +17,7 @@
 //============================================================================
 
 #include <viskores/filter/flow/PathParticle.h>
+#include <viskores/filter/flow/internal/FilterParticleAdvectionUnsteadyStateImpl.h>
 
 namespace viskores
 {
@@ -24,6 +25,8 @@ namespace filter
 {
 namespace flow
 {
+
+template class FilterParticleAdvectionUnsteadyState<viskores::filter::flow::PathParticle>;
 
 VISKORES_CONT PathParticle::FieldType PathParticle::GetField(
   const viskores::cont::DataSet& dataset) const

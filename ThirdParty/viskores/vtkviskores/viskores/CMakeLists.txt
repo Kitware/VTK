@@ -19,11 +19,11 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 project (Viskores)
 
-# We only allow c++14
-set(CMAKE_CXX_STANDARD 14)
+# We only allow c++17
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# When using C++14 support make sure you use the standard C++ extensions rather
+# When using C++17 support make sure you use the standard C++ extensions rather
 # than compiler-specific versions of the extensions (to preserve portability).
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -52,11 +52,11 @@ determine_version(${Viskores_SOURCE_DIR} ${GIT_EXECUTABLE} "Viskores")
 if (NOT DEFINED Viskores_INSTALL_INCLUDE_DIR)
   set(Viskores_INSTALL_INCLUDE_DIR "include/viskores-${Viskores_VERSION_MAJOR}.${Viskores_VERSION_MINOR}")
 endif()
-if (NOT DEFINED Viskores_INSTALL_CONFIG_DIR)
-  set(Viskores_INSTALL_CONFIG_DIR "lib/cmake/viskores-${Viskores_VERSION_MAJOR}.${Viskores_VERSION_MINOR}")
-endif()
 if (NOT DEFINED Viskores_INSTALL_LIB_DIR)
   set(Viskores_INSTALL_LIB_DIR "lib")
+endif()
+if (NOT DEFINED Viskores_INSTALL_CONFIG_DIR)
+  set(Viskores_INSTALL_CONFIG_DIR "${Viskores_INSTALL_LIB_DIR}/cmake/viskores-${Viskores_VERSION_MAJOR}.${Viskores_VERSION_MINOR}")
 endif()
 if (NOT DEFINED Viskores_INSTALL_BIN_DIR)
   set(Viskores_INSTALL_BIN_DIR "bin")
@@ -275,7 +275,7 @@ cmake_dependent_option(
   Viskores_ENABLE_KOKKOS_THRUST
   "Enable Kokkos thrust support (only valid with CUDA and HIP)"
   ON
-  "Viskores_ENABLE_KOKKOS;Kokkos_ENABLE_CUDA OR Kokkos_ENABLE_HIP; NOT Kokkos_ENABLE_HIP AND CMAKE_VERSION VERSION_LESS 3.24"
+  "Viskores_ENABLE_KOKKOS;Kokkos_ENABLE_CUDA OR Kokkos_ENABLE_HIP; NOT Kokkos_ENABLE_HIP OR CMAKE_VERSION VERSION_GREATER_EQUAL 3.24"
   OFF
 )
 
@@ -300,14 +300,21 @@ endif()
 #-----------------------------------------------------------------------------
 # We need to check and see if the git submodule has been correctly cloned.
 if (Viskores_ENABLE_TESTING)
-  file(STRINGS "${Viskores_SOURCE_DIR}/data/data/sentinel-data" sentinel_data LIMIT_COUNT 1)
+  if (EXISTS "${Viskores_SOURCE_DIR}/data/data/sentinel-data")
+    file(STRINGS "${Viskores_SOURCE_DIR}/data/data/sentinel-data" sentinel_data LIMIT_COUNT 1)
+  else()
+    set(sentinel_data "Data dir not found")
+  endif()
   if (NOT sentinel_data STREQUAL "-- DO NOT MODIFY THIS LINE --")
     message(WARNING
-      "Testing is enabled, but the data is not available. Use git submodule in order "
-      "to obtain the testing data.")
+      "Testing is enabled, but the data is not available. Use "
+      "`git submodule update --init` to obtain the testing data.")
     set(Viskores_ENABLE_TESTING off)
   endif()
 endif()
+
+configure_file(CTestCustom.cmake.in
+  ${Viskores_BINARY_DIR}/CTestCustom.cmake @ONLY)
 
 # We include the wrappers unconditionally as Viskores expects the function to
 # always exist (and early terminate when testing is disabled).
@@ -324,10 +331,6 @@ if (Viskores_ENABLE_TESTING)
     mark_as_advanced(BUILD_TESTING)
   endif()
 
-
-  configure_file(CTestCustom.cmake.in
-    ${Viskores_BINARY_DIR}/CTestCustom.cmake @ONLY)
-
   #-----------------------------------------------------------------------------
   # Find the Python interpreter, which we will use during the build process
   find_package(Python QUIET COMPONENTS Interpreter)
@@ -339,7 +342,6 @@ if (Viskores_ENABLE_TESTING)
 
   # Setup compiler flags for dynamic analysis if needed
   include(testing/ViskoresCompilerDynamicAnalysisFlags)
-
 endif()
 
 #-----------------------------------------------------------------------------
@@ -427,7 +429,7 @@ install(FILES ${Viskores_BINARY_DIR}/config/viskores_config.mk
 configure_file(${Viskores_SOURCE_DIR}/config/viskores.pc.in
   ${Viskores_BINARY_DIR}/config/viskores.pc @ONLY)
 install(FILES ${Viskores_BINARY_DIR}/config/viskores.pc
-  DESTINATION ${Viskores_INSTALL_SHARE_DIR}
+  DESTINATION ${Viskores_INSTALL_LIB_DIR}/pkgconfig
   )
 
 include(ViskoresInstallCMakePackage)
@@ -508,7 +510,7 @@ if (Viskores_ENABLE_TESTING)
   # SourceInBuild checks that all source files are listed in the build
   # SourceInInstall checks that all source files are installed in the build
   add_test(NAME SystemInformation
-    COMMAND ${CMAKE_COMMAND} "-DViskores_SOURCE_DIR=${Viskores_SOURCE_DIR}" "-DViskores_BINARY_DIR=${Viskores_BINARY_DIR}" -P "${Viskores_SOURCE_DIR}/CMake/testing/ViskoresSystemInformation.cmake"
+    COMMAND ${CMAKE_COMMAND} "-DViskores_SOURCE_DIR=${Viskores_SOURCE_DIR}" "-DViskores_BINARY_DIR=${Viskores_BINARY_DIR}" "-DViskores_CXX_COMPILER=${CMAKE_CXX_COMPILER}" -P "${Viskores_SOURCE_DIR}/CMake/testing/ViskoresSystemInformation.cmake"
     )
   if(NOT WIN32)
     # Test takes too long on windows

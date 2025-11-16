@@ -30,11 +30,11 @@ namespace worklet
 
 /// \brief Mask using arrays to select specific elements to suppress.
 ///
-/// \c MaskSelect is a worklet mask object that is used to select elements in the output of a
+/// `MaskSelect` is a worklet mask object that is used to select elements in the output of a
 /// worklet to suppress the invocation. That is, the worklet will only be invoked for elements in
 /// the output that are not masked out by the given array.
 ///
-/// \c MaskSelect is initialized with a mask array. This array should contain a 0 for any entry
+/// `MaskSelect` is initialized with a mask array. This array should contain a 0 for any entry
 /// that should be masked and a 1 for any output that should be generated. It is an error to have
 /// any value that is not a 0 or 1. This method is slower than specifying an index array.
 ///
@@ -49,24 +49,54 @@ class VISKORES_WORKLET_EXPORT MaskSelect : public internal::MaskBase
                                    char>;
 
 public:
+  /// @brief The type of array handle used to map thread indices to output indices.
+  ///
+  /// For the case of `MaskSelect`, this is a basic array handle.
   using ThreadToOutputMapType = viskores::cont::ArrayHandle<viskores::Id>;
 
+  /// Construct a `MaskSelect` object using an array that masks an output
+  /// value with `0` and enables an output value with `1`.
   MaskSelect(const viskores::cont::UnknownArrayHandle& maskArray,
              viskores::cont::DeviceAdapterId device = viskores::cont::DeviceAdapterTagAny())
   {
     this->ThreadToOutputMap = this->Build(maskArray, device);
   }
 
+  /// @brief Provides the number of threads for a given output domain size.
+  /// @param outputRange The size of the full output domain (including masked
+  ///   entries), which must be the same size as the select array provided in
+  ///   the constructor.
+  /// @return The total number of threads.
   template <typename RangeType>
-  viskores::Id GetThreadRange(RangeType viskoresNotUsed(outputRange)) const
+  viskores::Id GetThreadRange(RangeType outputRange) const
   {
+    (void)outputRange;
     return this->ThreadToOutputMap.GetNumberOfValues();
   }
 
+  /// @brief Provides the array that maps thread indices to output indices.
+  /// @param outputRange The size of the full output domain (including masked
+  ///   entries), which must be the same size as the select array provided in
+  ///   the constructor.
+  /// @return A basic array of indices that identifies which output each thread
+  ///   writes to.
   template <typename RangeType>
-  ThreadToOutputMapType GetThreadToOutputMap(RangeType viskoresNotUsed(outputRange)) const
+  ThreadToOutputMapType GetThreadToOutputMap(RangeType outputRange) const
   {
+    (void)outputRange;
     return this->ThreadToOutputMap;
+  }
+
+protected:
+  // Allows to differentiate between MaskSelect and ThreadToOutputMap arrays in constructors.
+  struct ThreadToOutputMapWrapper
+  {
+    ThreadToOutputMapType ThreadToOutputMap;
+  };
+
+  MaskSelect(const ThreadToOutputMapWrapper& threadToOutputMap)
+    : ThreadToOutputMap(threadToOutputMap.ThreadToOutputMap)
+  {
   }
 
 private:

@@ -8,7 +8,7 @@ readonly name="viskores"
 readonly ownership="Viskores upstream <kwrobot@kitware.com>"
 readonly subtree="ThirdParty/$name/vtk$name/$name"
 readonly repo="https://github.com/Viskores/viskores.git"
-readonly tag="521f3b72aabe0bf37e9972975700df27adbbae71" # Commit just past v1.0.0
+readonly tag="v1.1.0-rc2"
 readonly paths="
 CMake/testing/ViskoresTestWrappers.cmake
 CMake/FindPyexpander.cmake
