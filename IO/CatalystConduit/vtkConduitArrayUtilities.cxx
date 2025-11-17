@@ -232,12 +232,12 @@ public:
   void operator()(ArrayT1* offsets, ArrayT2* connectivity)
   {
     // conduit offsets array does not include the last index = connectivity.size() as vtkCellArray
-    vtkSmartPointer<vtkDataArray> vtkOffsets = vtk::TakeSmartPointer(offsets->NewInstance());
+    auto vtkOffsets = vtk::TakeSmartPointer(offsets->NewInstance());
     vtkOffsets->SetNumberOfTuples(offsets->GetNumberOfTuples() + 1);
     vtkOffsets->SetNumberOfComponents(1);
 
-    const auto offsetsRange = vtk::DataArrayValueRange(offsets);
-    auto vtkOffsetsRange = vtk::DataArrayValueRange(vtkOffsets);
+    const auto offsetsRange = vtk::DataArrayValueRange<1>(offsets);
+    auto vtkOffsetsRange = vtk::DataArrayValueRange<1>(vtkOffsets);
     std::copy(offsetsRange.begin(), offsetsRange.end(), vtkOffsetsRange.begin());
     *(vtkOffsetsRange.end() - 1) = connectivity->GetNumberOfTuples();
     this->CellArray->SetData(vtkOffsets, connectivity);
