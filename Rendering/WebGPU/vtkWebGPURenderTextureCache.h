@@ -38,8 +38,8 @@ public:
   /**
    * PrintSelf outputs the cache contents in the following format:
    *   RenderTextureCache:
-   *   <index>: <pointer>
-   *   <index>: <pointer>
+   *   index: pointer
+   *   index: pointer
    *   ...
    * This is useful for debugging and logging the current state of the cache.
    */
