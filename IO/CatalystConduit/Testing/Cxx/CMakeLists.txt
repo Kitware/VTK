@@ -1,6 +1,7 @@
 vtk_add_test_cxx(vtkConduitCxxTests tests
   NO_VALID NO_OUTPUT
   TestDataObjectToConduit.cxx
+  TestDataObjectToConduitToDataObject.cxx
   TestConduitSource.cxx
   TestConduitSourceSameAttributeTypes.cxx)
 

@@ -785,8 +785,8 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
   for (int array_index = 0; is_success && array_index < array_count; ++array_index)
   {
     auto array = field_data->GetAbstractArray(array_index);
-    auto name = array->GetName();
-    if (!name)
+    std::string name = array->GetName();
+    if (name.empty())
     {
       vtkLogF(WARNING, "Unnamed array, it will be ignored.");
       continue;
@@ -817,16 +817,39 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
       }
       else
       {
-        vtkLogF(ERROR, "Unknown array type '%s' in Field Data.", name);
+        vtkLogF(ERROR, "Unknown array type '%s' in Field Data.", name.c_str());
         is_success = false;
       }
     }
     else if (auto data_array = vtkDataArray::SafeDownCast(array))
     {
+      bool needDisplayName = false;
+      if (conduit_node["fields"].has_child(name))
+      {
+        // Another field has the same name
+        // rename other array
+        std::string newName = name + "_" + (association == "vertex" ? "element" : "vertex");
+        conduit_node["fields"].rename_child(name, newName);
+        conduit_node["fields"][newName]["display_name"] = name;
+        if (conduit_node["state/metadata/vtk_fields"].has_child(name))
+        {
+          conduit_node["state/metadata/vtk_fields"].rename_child(name, newName);
+        }
+        // rename current array
+        vtkLogF(TRACE, "Renaming '%s' point and cell arrays.", name.c_str());
+        name += "_" + association;
+        needDisplayName = true;
+      }
       auto field_node = conduit_node["fields"][name];
       field_node["association"] = association;
       field_node["topology"] = topology_name;
       field_node["volume_dependent"] = "false";
+      if (needDisplayName)
+      {
+        // using display_name field property from the Conduit Blueprint Mesh Index Protocol
+        // display_name stores the original name of the field
+        field_node["display_name"] = name;
+      }
 
       auto values_node = field_node["values"];
       ::FillFieldArrayValues(data_set, values_node, association, data_array);
@@ -845,7 +868,9 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
             break;
           }
         }
-        if (!is_dataset_attribute && strcmp(name, vtkDataSetAttributes::GhostArrayName()) == 0)
+        if (!is_dataset_attribute &&
+          (name == vtkDataSetAttributes::GhostArrayName() ||
+            name == vtkDataSetAttributes::GhostArrayName() + ("_" + association)))
         {
           auto field_metadata_node = conduit_node["state/metadata/vtk_fields"][name];
           field_metadata_node["attribute_type"] = "Ghosts";
@@ -854,7 +879,8 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
     }
     else
     {
-      vtkLogF(ERROR, "Unknown array type '%s' associated to: %s", name, association.c_str());
+      vtkLogF(
+        ERROR, "Unknown array type '%s' associated to: %s", name.c_str(), association.c_str());
       is_success = false;
     }
   }

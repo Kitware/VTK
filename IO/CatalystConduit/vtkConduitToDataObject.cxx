@@ -451,7 +451,6 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
   if (node.has_path("state/metadata/vtk_fields"))
   {
     auto fieldsMetadata = node["state/metadata/vtk_fields"];
-    std::set<std::string> assignedAttributeTypes;
     for (conduit_index_t i = 0, nchildren = fieldsMetadata.number_of_children(); i < nchildren; ++i)
     {
       auto fieldMetadataNode = fieldsMetadata.child(i);
@@ -493,8 +492,6 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
           bool validAttributeType = FieldMetadata::GetDataSetAttributeType(attributeType) !=
               vtkDataSetAttributes::AttributeTypes::NUM_ATTRIBUTES ||
             FieldMetadata::IsGhostsAttributeType(attributeType);
-          bool attributeAlreadyAssigned =
-            assignedAttributeTypes.find(attributeType) != assignedAttributeTypes.end();
 
           if (!validAttributeType)
           {
@@ -502,16 +499,8 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
               ERROR, "invalid attribute type '%s' for '%s'.", attributeType.c_str(), name.c_str());
             return false;
           }
-          if (attributeAlreadyAssigned)
-          {
-            vtkLogF(WARNING,
-              "%s has attribute type %s, but this type is already assigned to another field.",
-              name.c_str(), attributeType.c_str());
-            continue;
-          }
 
           fieldMetadata[name].AttributeType = attributeType;
-          assignedAttributeTypes.insert(attributeType);
         }
       }
       catch (std::exception& e)
@@ -523,6 +512,7 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
     }
   }
   auto fields = node["fields"];
+  std::set<std::tuple<std::string, int>> assignedAttributeTypes;
   for (conduit_index_t i = 0, nchildren = fields.number_of_children(); i < nchildren; ++i)
   {
     auto fieldNode = fields.child(i);
@@ -566,6 +556,19 @@ bool FillPartitionedDataSet(vtkPartitionedDataSet* output, const conduit_cpp::No
         if (fieldMetadata.find(fieldname) != fieldMetadata.end())
         {
           const auto& metadata = fieldMetadata[fieldname];
+          // check if attribute type is unique for this dataset
+          if (assignedAttributeTypes.find({ metadata.AttributeType, vtk_association }) !=
+            assignedAttributeTypes.end())
+          {
+            vtkLogF(WARNING,
+              "%s has attribute type %s for association %s, but this type is already assigned to "
+              "another field.",
+              fieldname.c_str(), metadata.AttributeType.c_str(),
+              fieldNode["association"].as_char8_str());
+            dsa->AddArray(array);
+            continue;
+          }
+          assignedAttributeTypes.insert({ metadata.AttributeType, vtk_association });
           // replace values if needed
           if (metadata.ValuesToReplace && metadata.ReplacementValues)
           {
@@ -1043,7 +1046,12 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, b
   for (conduit_index_t child_index = 0; child_index < number_of_children; ++child_index)
   {
     auto field_node = stateFields.child(child_index);
-    const auto& field_name = field_node.name();
+    std::string fieldName = field_node.name();
+    if (field_node.has_child("display_name"))
+    {
+      // get original field name from the display_name property
+      fieldName = field_node["display_name"].as_string();
+    }
 
     try
     {
@@ -1066,12 +1074,12 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, b
           stringArray->SetNumberOfTuples(1);
           stringArray->SetValue(0, field_node.as_string().c_str());
           dataArray = stringArray;
-          dataArray->SetName(field_name.c_str());
+          dataArray->SetName(fieldName.c_str());
         }
         else
         {
           dataArray = vtkConduitArrayUtilities::MCArrayToVTKArray(
-            conduit_cpp::c_node(&field_node), field_name);
+            conduit_cpp::c_node(&field_node), fieldName);
         }
 
         if (dataArray)
@@ -1089,7 +1097,7 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, b
           }
         }
 
-        if ((field_name == "time" || field_name == "TimeValue") && field_node.dtype().is_number())
+        if ((fieldName == "time" || fieldName == "TimeValue") && field_node.dtype().is_number())
         {
           // let's also set DATA_TIME_STEP.
           output->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), field_node.to_float64());
@@ -1098,7 +1106,7 @@ bool AddFieldData(vtkDataObject* output, const conduit_cpp::Node& stateFields, b
     }
     catch (std::exception& e)
     {
-      vtkLogF(ERROR, "failed to process '../state/fields/%s'.", field_name.c_str());
+      vtkLogF(ERROR, "failed to process '../state/fields/%s'.", fieldName.c_str());
       vtkLogF(ERROR, "ERROR: \n%s\n", e.what());
       return false;
     }
