@@ -1,0 +1,17 @@
+# This is the topmost EditorConfig file.
+root = true
+
+# General defaults: newline ending every file, UTF-8 encoding.
+[*]
+insert_final_newline = true
+charset = utf-8
+
+# one tab/indent is 2 spaces
+[*]
+indent_style = space
+indent_size = 2
+
+# in python, 4 spaces
+[*.py]
+indent_style = space
+indent_size = 4
