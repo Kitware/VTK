@@ -3,20 +3,35 @@
 #include "vtkLegacy.h"
 
 #include "vtkConduitArrayUtilities.h"
-#include "vtkConduitArrayUtilitiesInternals.h"
 
-#include "vtkAffineArray.h"
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDeviceMemoryType.h"
-#include "vtkIndexedArray.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
-#include "vtkSOADataArrayTemplate.h"
+#include "vtkSOATypeFloat32Array.h"
+#include "vtkSOATypeFloat64Array.h"
+#include "vtkSOATypeInt16Array.h"
+#include "vtkSOATypeInt32Array.h"
+#include "vtkSOATypeInt64Array.h"
+#include "vtkSOATypeInt8Array.h"
+#include "vtkSOATypeUInt16Array.h"
+#include "vtkSOATypeUInt32Array.h"
+#include "vtkSOATypeUInt64Array.h"
+#include "vtkSOATypeUInt8Array.h"
 #include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
-#include "vtkStridedArray.h"
+#include "vtkStridedTypeFloat32Array.h"
+#include "vtkStridedTypeFloat64Array.h"
+#include "vtkStridedTypeInt16Array.h"
+#include "vtkStridedTypeInt32Array.h"
+#include "vtkStridedTypeInt64Array.h"
+#include "vtkStridedTypeInt8Array.h"
+#include "vtkStridedTypeUInt16Array.h"
+#include "vtkStridedTypeUInt32Array.h"
+#include "vtkStridedTypeUInt64Array.h"
+#include "vtkStridedTypeUInt8Array.h"
 #include "vtkStringFormatter.h"
 #include "vtkType.h"
 #include "vtkTypeFloat32Array.h"
@@ -80,19 +95,19 @@ bool is_contiguous(const conduit_cpp::Node& node)
   return true;
 }
 
-template <typename ArrayT>
-vtkSmartPointer<ArrayT> CreateAOSArray(
-  vtkIdType number_of_tuples, int number_of_components, const typename ArrayT::ValueType* raw_ptr)
+template <typename AOSArrayT, typename ValueType = typename AOSArrayT::ValueType>
+vtkSmartPointer<AOSArrayT> CreateAOSArray(
+  vtkIdType number_of_tuples, int number_of_components, const void* raw_ptr)
 {
-  auto array = vtkSmartPointer<ArrayT>::New();
+  auto array = vtkSmartPointer<AOSArrayT>::New();
   array->SetNumberOfComponents(number_of_components);
-  array->SetArray(const_cast<typename ArrayT::ValueType*>(raw_ptr),
+  array->SetArray(static_cast<ValueType*>(const_cast<void*>(raw_ptr)),
     number_of_tuples * number_of_components, /*save=*/1);
   return array;
 }
 
-template <typename ValueType>
-vtkSmartPointer<vtkDataArray> CreateStridedArray(const conduit_cpp::Node& arrayNode)
+template <typename StridedArrayT, typename ValueType = typename StridedArrayT::ValueType>
+vtkSmartPointer<StridedArrayT> CreateStridedArray(const conduit_cpp::Node& arrayNode)
 {
   const auto& child0 = arrayNode.child(0);
   const conduit_cpp::DataType dtype0 = child0.dtype();
@@ -101,23 +116,23 @@ vtkSmartPointer<vtkDataArray> CreateStridedArray(const conduit_cpp::Node& arrayN
   const int strideBytes = dtype0.stride();
   const int index_stride = strideBytes / (sizeof(ValueType));
 
-  auto array = vtkSmartPointer<vtkStridedArray<ValueType>>::New();
+  auto array = vtkSmartPointer<StridedArrayT>::New();
   array->SetNumberOfComponents(number_of_components);
   array->SetNumberOfTuples(number_of_tuples);
   array->ConstructBackend(
-    reinterpret_cast<const ValueType*>(child0.element_ptr(0)), index_stride, number_of_components);
+    static_cast<const ValueType*>(child0.element_ptr(0)), index_stride, number_of_components);
   return array;
 }
 
-template <typename ValueT>
-vtkSmartPointer<vtkSOADataArrayTemplate<ValueT>> CreateSOArray(
+template <typename SOAArrayT, typename ValueType = typename SOAArrayT::ValueType>
+vtkSmartPointer<SOAArrayT> CreateSOArray(
   vtkIdType number_of_tuples, int number_of_components, const std::vector<void*>& raw_ptrs)
 {
-  auto array = vtkSmartPointer<vtkSOADataArrayTemplate<ValueT>>::New();
+  auto array = vtkSmartPointer<SOAArrayT>::New();
   array->SetNumberOfComponents(number_of_components);
   for (int cc = 0; cc < number_of_components; ++cc)
   {
-    array->SetArray(cc, reinterpret_cast<ValueT*>(raw_ptrs.at(cc)), number_of_tuples,
+    array->SetArray(cc, static_cast<ValueType*>(raw_ptrs.at(cc)), number_of_tuples,
       /*updateMaxId=*/true, /*save*/ true);
   }
   return array;
@@ -258,13 +273,6 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArray(
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArray(
-  const conduit_node* mcarray)
-{
-  return vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(mcarray, false);
-}
-
-//----------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCGhostArrayToVTKGhostArray(
   const conduit_node* c_mcarray, bool is_cell_data)
 {
@@ -301,8 +309,8 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCGhostArrayToVTKGhostAr
 }
 
 //----------------------------------------------------------------------------
-vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
-  const conduit_node* c_mcarray, bool force_signed)
+vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArray(
+  const conduit_node* c_mcarray)
 {
   // XXX(const-correctness): This should really be `const Node`, but is used
   // non-const in the `set_external` below.
@@ -316,15 +324,13 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     {
       conduit_cpp::Node temp;
       temp.append().set_external(mcarray);
-      return vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
-        conduit_cpp::c_node(&temp), force_signed);
+      return vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&temp));
     }
     // in some cases, the array is inside a values subnode. handle that
     else if (mcarray.has_path("values"))
     {
       const auto& tmp = mcarray["values"];
-      return vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
-        conduit_cpp::c_node(&tmp), force_signed);
+      return vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&tmp));
     }
     else
     {
@@ -374,7 +380,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     {
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
       return vtkConduitArrayUtilitiesDevice::MCArrayToVTKmAOSArray(
-        conduit_cpp::c_node(&mcarray), force_signed, deviceAdapterId);
+        conduit_cpp::c_node(&mcarray), deviceAdapterId);
 #else
       // IsDeviceMemory returns false in this case
       vtkLogF(ERROR, "VTK was not compiled with AcceleratorsVTKmDataModel");
@@ -389,12 +395,10 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
       if (mcarray.number_of_children() * dtype0.element_bytes() != dtype0.stride())
       {
         // there is some data interlaced with current array
-        return vtkConduitArrayUtilities::MCArrayToVTKStridedArray(
-          conduit_cpp::c_node(&mcarray), force_signed);
+        return vtkConduitArrayUtilities::MCArrayToVTKStridedArray(conduit_cpp::c_node(&mcarray));
       }
 
-      return vtkConduitArrayUtilities::MCArrayToVTKAOSArray(
-        conduit_cpp::c_node(&mcarray), force_signed);
+      return vtkConduitArrayUtilities::MCArrayToVTKAOSArray(conduit_cpp::c_node(&mcarray));
     }
   }
   else if (internals::is_contiguous(mcarray))
@@ -403,7 +407,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     {
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
       return vtkConduitArrayUtilitiesDevice::MCArrayToVTKmSOAArray(
-        conduit_cpp::c_node(&mcarray), force_signed, deviceAdapterId);
+        conduit_cpp::c_node(&mcarray), deviceAdapterId);
 #else
       // IsDeviceMemory returns false in this case
       vtkLogF(ERROR, "VTK was not compiled with AcceleratorsVTKmDataModel");
@@ -412,8 +416,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     }
     else
     {
-      return vtkConduitArrayUtilities::MCArrayToVTKSOAArray(
-        conduit_cpp::c_node(&mcarray), force_signed);
+      return vtkConduitArrayUtilities::MCArrayToVTKSOAArray(conduit_cpp::c_node(&mcarray));
     }
   }
   else if (mcarray.dtype().number_of_elements() == 1)
@@ -422,7 +425,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     {
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
       return vtkConduitArrayUtilitiesDevice::MCArrayToVTKmSOAArray(
-        conduit_cpp::c_node(&mcarray), force_signed, deviceAdapterId);
+        conduit_cpp::c_node(&mcarray), deviceAdapterId);
 #else
       // IsDeviceMemory returns false in this case
       vtkLogF(ERROR, "VTK was not compiled with AcceleratorsVTKmDataModel");
@@ -431,8 +434,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
     }
     else
     {
-      return vtkConduitArrayUtilities::MCArrayToVTKSOAArray(
-        conduit_cpp::c_node(&mcarray), force_signed);
+      return vtkConduitArrayUtilities::MCArrayToVTKSOAArray(conduit_cpp::c_node(&mcarray));
     }
   }
   else
@@ -447,43 +449,43 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKStridedArray(
-  const conduit_node* c_mcarray, bool force_signed)
+  const conduit_node* c_mcarray)
 {
   const conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
   const auto& child0 = mcarray.child(0);
   const conduit_cpp::DataType dtype0 = child0.dtype();
 
-  switch (internals::GetTypeId(dtype0.id(), force_signed))
+  switch (dtype0.id())
   {
     case conduit_cpp::DataType::Id::int8:
-      return internals::CreateStridedArray<vtkTypeInt8>(mcarray);
+      return internals::CreateStridedArray<vtkStridedTypeInt8Array>(mcarray);
 
     case conduit_cpp::DataType::Id::int16:
-      return internals::CreateStridedArray<vtkTypeInt16>(mcarray);
+      return internals::CreateStridedArray<vtkStridedTypeInt16Array>(mcarray);
 
     case conduit_cpp::DataType::Id::int32:
-      return internals::CreateStridedArray<vtkTypeInt32>(mcarray);
+      return internals::CreateStridedArray<vtkStridedTypeInt32Array>(mcarray);
 
     case conduit_cpp::DataType::Id::int64:
-      return internals::CreateStridedArray<vtkTypeInt64>(mcarray);
+      return internals::CreateStridedArray<vtkStridedTypeInt64Array>(mcarray);
 
     case conduit_cpp::DataType::Id::uint8:
-      return internals::CreateStridedArray<vtkTypeUInt8>(mcarray);
+      return internals::CreateStridedArray<vtkStridedTypeUInt8Array>(mcarray);
 
     case conduit_cpp::DataType::Id::uint16:
-      return internals::CreateStridedArray<vtkTypeUInt16>(mcarray);
+      return internals::CreateStridedArray<vtkStridedTypeUInt16Array>(mcarray);
 
     case conduit_cpp::DataType::Id::uint32:
-      return internals::CreateStridedArray<vtkTypeUInt32>(mcarray);
+      return internals::CreateStridedArray<vtkStridedTypeUInt32Array>(mcarray);
 
     case conduit_cpp::DataType::Id::uint64:
-      return internals::CreateStridedArray<vtkTypeUInt64>(mcarray);
+      return internals::CreateStridedArray<vtkStridedTypeUInt64Array>(mcarray);
 
     case conduit_cpp::DataType::Id::float32:
-      return internals::CreateStridedArray<vtkTypeFloat32>(mcarray);
+      return internals::CreateStridedArray<vtkStridedTypeFloat32Array>(mcarray);
 
     case conduit_cpp::DataType::Id::float64:
-      return internals::CreateStridedArray<vtkTypeFloat64>(mcarray);
+      return internals::CreateStridedArray<vtkStridedTypeFloat64Array>(mcarray);
 
     default:
       vtkLogF(ERROR, "unsupported data type '%s' ", dtype0.name().c_str());
@@ -493,7 +495,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKStridedArray
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKAOSArray(
-  const conduit_node* c_mcarray, bool force_signed)
+  const conduit_node* c_mcarray)
 {
   const conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
   auto& child0 = mcarray.child(0);
@@ -502,47 +504,47 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKAOSArray(
   const int num_components = static_cast<int>(mcarray.number_of_children());
   const vtkIdType num_tuples = static_cast<vtkIdType>(dtype0.number_of_elements());
 
-  switch (internals::GetTypeId(dtype0.id(), force_signed))
+  switch (dtype0.id())
   {
     case conduit_cpp::DataType::Id::int8:
-      return internals::CreateAOSArray<vtkTypeInt8Array>(num_tuples, num_components,
-        reinterpret_cast<const vtkTypeInt8Array::ValueType*>(child0.element_ptr(0)));
+      return internals::CreateAOSArray<vtkTypeInt8Array>(
+        num_tuples, num_components, child0.element_ptr(0));
 
     case conduit_cpp::DataType::Id::int16:
-      return internals::CreateAOSArray<vtkTypeInt16Array>(num_tuples, num_components,
-        reinterpret_cast<const vtkTypeInt16Array::ValueType*>(child0.element_ptr(0)));
+      return internals::CreateAOSArray<vtkTypeInt16Array>(
+        num_tuples, num_components, child0.element_ptr(0));
 
     case conduit_cpp::DataType::Id::int32:
-      return internals::CreateAOSArray<vtkTypeInt32Array>(num_tuples, num_components,
-        reinterpret_cast<const vtkTypeInt32Array::ValueType*>(child0.element_ptr(0)));
+      return internals::CreateAOSArray<vtkTypeInt32Array>(
+        num_tuples, num_components, child0.element_ptr(0));
 
     case conduit_cpp::DataType::Id::int64:
-      return internals::CreateAOSArray<vtkTypeInt64Array>(num_tuples, num_components,
-        reinterpret_cast<const vtkTypeInt64Array::ValueType*>(child0.element_ptr(0)));
+      return internals::CreateAOSArray<vtkTypeInt64Array>(
+        num_tuples, num_components, child0.element_ptr(0));
 
     case conduit_cpp::DataType::Id::uint8:
-      return internals::CreateAOSArray<vtkTypeUInt8Array>(num_tuples, num_components,
-        reinterpret_cast<const vtkTypeUInt8Array::ValueType*>(child0.element_ptr(0)));
+      return internals::CreateAOSArray<vtkTypeUInt8Array>(
+        num_tuples, num_components, child0.element_ptr(0));
 
     case conduit_cpp::DataType::Id::uint16:
-      return internals::CreateAOSArray<vtkTypeUInt16Array>(num_tuples, num_components,
-        reinterpret_cast<const vtkTypeUInt16Array::ValueType*>(child0.element_ptr(0)));
+      return internals::CreateAOSArray<vtkTypeUInt16Array>(
+        num_tuples, num_components, child0.element_ptr(0));
 
     case conduit_cpp::DataType::Id::uint32:
-      return internals::CreateAOSArray<vtkTypeUInt32Array>(num_tuples, num_components,
-        reinterpret_cast<const vtkTypeUInt32Array::ValueType*>(child0.element_ptr(0)));
+      return internals::CreateAOSArray<vtkTypeUInt32Array>(
+        num_tuples, num_components, child0.element_ptr(0));
 
     case conduit_cpp::DataType::Id::uint64:
-      return internals::CreateAOSArray<vtkTypeUInt64Array>(num_tuples, num_components,
-        reinterpret_cast<const vtkTypeUInt64Array::ValueType*>(child0.element_ptr(0)));
+      return internals::CreateAOSArray<vtkTypeUInt64Array>(
+        num_tuples, num_components, child0.element_ptr(0));
 
     case conduit_cpp::DataType::Id::float32:
-      return internals::CreateAOSArray<vtkTypeFloat32Array>(num_tuples, num_components,
-        reinterpret_cast<const vtkTypeFloat32Array::ValueType*>(child0.element_ptr(0)));
+      return internals::CreateAOSArray<vtkTypeFloat32Array>(
+        num_tuples, num_components, child0.element_ptr(0));
 
     case conduit_cpp::DataType::Id::float64:
-      return internals::CreateAOSArray<vtkTypeFloat64Array>(num_tuples, num_components,
-        reinterpret_cast<const vtkTypeFloat64Array::ValueType*>(child0.element_ptr(0)));
+      return internals::CreateAOSArray<vtkTypeFloat64Array>(
+        num_tuples, num_components, child0.element_ptr(0));
 
     default:
       vtkLogF(ERROR, "unsupported data type '%s' ", dtype0.name().c_str());
@@ -552,7 +554,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKAOSArray(
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKSOAArray(
-  const conduit_node* c_mcarray, bool force_signed)
+  const conduit_node* c_mcarray)
 {
   const conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
   const conduit_cpp::DataType dtype0 = mcarray.child(0).dtype();
@@ -566,37 +568,37 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKSOAArray(
     ptrs.push_back(const_cast<void*>(mcarray.child(cc).element_ptr(0)));
   }
 
-  switch (internals::GetTypeId(dtype0.id(), force_signed))
+  switch (dtype0.id())
   {
     case conduit_cpp::DataType::Id::int8:
-      return internals::CreateSOArray<vtkTypeInt8>(num_tuples, num_components, ptrs);
+      return internals::CreateSOArray<vtkSOATypeInt8Array>(num_tuples, num_components, ptrs);
 
     case conduit_cpp::DataType::Id::int16:
-      return internals::CreateSOArray<vtkTypeInt16>(num_tuples, num_components, ptrs);
+      return internals::CreateSOArray<vtkSOATypeInt16Array>(num_tuples, num_components, ptrs);
 
     case conduit_cpp::DataType::Id::int32:
-      return internals::CreateSOArray<vtkTypeInt32>(num_tuples, num_components, ptrs);
+      return internals::CreateSOArray<vtkSOATypeInt32Array>(num_tuples, num_components, ptrs);
 
     case conduit_cpp::DataType::Id::int64:
-      return internals::CreateSOArray<vtkTypeInt64>(num_tuples, num_components, ptrs);
+      return internals::CreateSOArray<vtkSOATypeInt64Array>(num_tuples, num_components, ptrs);
 
     case conduit_cpp::DataType::Id::uint8:
-      return internals::CreateSOArray<vtkTypeUInt8>(num_tuples, num_components, ptrs);
+      return internals::CreateSOArray<vtkSOATypeUInt8Array>(num_tuples, num_components, ptrs);
 
     case conduit_cpp::DataType::Id::uint16:
-      return internals::CreateSOArray<vtkTypeUInt16>(num_tuples, num_components, ptrs);
+      return internals::CreateSOArray<vtkSOATypeUInt16Array>(num_tuples, num_components, ptrs);
 
     case conduit_cpp::DataType::Id::uint32:
-      return internals::CreateSOArray<vtkTypeUInt32>(num_tuples, num_components, ptrs);
+      return internals::CreateSOArray<vtkSOATypeUInt32Array>(num_tuples, num_components, ptrs);
 
     case conduit_cpp::DataType::Id::uint64:
-      return internals::CreateSOArray<vtkTypeUInt64>(num_tuples, num_components, ptrs);
+      return internals::CreateSOArray<vtkSOATypeUInt64Array>(num_tuples, num_components, ptrs);
 
     case conduit_cpp::DataType::Id::float32:
-      return internals::CreateSOArray<vtkTypeFloat32>(num_tuples, num_components, ptrs);
+      return internals::CreateSOArray<vtkSOATypeFloat32Array>(num_tuples, num_components, ptrs);
 
     case conduit_cpp::DataType::Id::float64:
-      return internals::CreateSOArray<vtkTypeFloat64>(num_tuples, num_components, ptrs);
+      return internals::CreateSOArray<vtkSOATypeFloat64Array>(num_tuples, num_components, ptrs);
 
     default:
       vtkLogF(ERROR, "unsupported data type '%s' ", dtype0.name().c_str());
@@ -635,8 +637,7 @@ struct NoOp
 vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::MCArrayToVTKCellArray(
   vtkIdType numberOfPoints, int cellType, vtkIdType cellSize, const conduit_node* c_mcarray)
 {
-  auto connectivity =
-    vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(c_mcarray, /*force_signed*/ true);
+  auto connectivity = vtkConduitArrayUtilities::MCArrayToVTKArray(c_mcarray);
   conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
 
   int8_t id;
@@ -691,8 +692,7 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
     return nullptr;
   }
 
-  auto elements = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
-    conduit_cpp::c_node(&leaf), /*force_signed*/ true);
+  auto elements = vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&leaf));
   if (!elements)
   {
     return nullptr;
@@ -704,15 +704,13 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
   }
 
   const auto node_offsets = o2mrelation["offsets"];
-  auto offsets = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
-    conduit_cpp::c_node(&node_offsets), /*force_signed*/ true);
+  auto offsets = vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&node_offsets));
   vtkNew<vtkCellArray> cellArray;
   if (isDevicePointer)
   {
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
     const auto node_shapes = o2mrelation["shapes"];
-    auto shapes = vtkConduitArrayUtilities::MCArrayToVTKArrayImpl(
-      conduit_cpp::c_node(&node_shapes), /*force_signed*/ true);
+    auto shapes = vtkConduitArrayUtilities::MCArrayToVTKArray(conduit_cpp::c_node(&node_shapes));
     if (!vtkConduitArrayUtilitiesDevice::IfVTKmConvertVTKMixedCellArray(
           numberOfPoints, offsets, shapes, elements, cellArray))
     {

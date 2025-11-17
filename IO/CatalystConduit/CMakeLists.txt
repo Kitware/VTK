@@ -14,9 +14,7 @@ endif()
 
 vtk_module_add_module(VTK::IOCatalystConduit
   CLASSES ${classes}
-  PRIVATE_CLASSES ${private_classes}
-  SOURCES vtkConduitArrayUtilitiesInternals.cxx
-  PRIVATE_HEADERS vtkConduitArrayUtilitiesInternals.h)
+  PRIVATE_CLASSES ${private_classes})
 
 if (VTK_KOKKOS_BACKEND STREQUAL "HIP")
   set(VTK_KOKKOS_BACKEND_HIP 1)
