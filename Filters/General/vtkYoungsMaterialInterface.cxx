@@ -1584,125 +1584,11 @@ VTK_ABI_NAMESPACE_END
 namespace vtkYoungsMaterialInterfaceCellCutInternals
 {
 VTK_ABI_NAMESPACE_BEGIN
-#define REAL_PRECISION 64 // use double precision
-#define REAL_COORD REAL3
-
-// double by default
-#ifndef REAL_PRECISION
-#define REAL_PRECISION 64
-#endif
-
-// float = lowest precision
-#if (REAL_PRECISION == 32)
-
-#define REAL float
-#define REAL2 float2
-#define REAL3 float3
-#define REAL4 float4
-
-#define make_REAL1 make_float1
-#define make_REAL2 make_float2
-#define make_REAL3 make_float3
-#define make_REAL4 make_float4
-
-#define SQRT sqrtf
-#define FABS fabsf
-#define REAL_CONST(x) ((float)(x)) //( x##f )
-
-// long double = highest precision
-#elif (REAL_PRECISION > 64)
-
-#define REAL long double
-#define REAL2 ldouble2
-#define REAL3 ldouble3
-#define REAL4 ldouble4
-
-#define make_REAL1 make_ldouble1
-#define make_REAL2 make_ldouble2
-#define make_REAL3 make_ldouble3
-#define make_REAL4 make_ldouble4
-
-#define SQRT sqrtl
-#define FABS fabsl
-
-#define REAL_CONST(x) ((long double)(x)) //( x##l )
-
-// double = default precision
-#else
-
-#define REAL double
-#define REAL2 double2
-#define REAL3 double3
-#define REAL4 double4
-
-#define make_REAL1 make_double1
-#define make_REAL2 make_double2
-#define make_REAL3 make_double3
-#define make_REAL4 make_double4
-
-#define SQRT sqrt
-#define FABS fabs
-
-#define REAL_CONST(x) x
-
-#endif
-
-#ifndef __CUDACC__ /* compiling with host compiler (gcc, icc, etc.) */
-
-#ifndef FUNC_DECL
-#define FUNC_DECL static inline
-#endif
-
-#ifndef KERNEL_DECL
-#define KERNEL_DECL /* exported function */
-#endif
-
-#ifndef REAL_PRECISION
-#define REAL_PRECISION 64 /* defaults to 64 bits floating point */
-#endif
-
-#else /* compiling with cuda */
-
-#ifndef FUNC_DECL
-#define FUNC_DECL __device__
-#endif
-
-#ifndef KERNEL_DECL
-#define KERNEL_DECL __global__
-#endif
-
-#ifndef REAL_PRECISION
-#define REAL_PRECISION 32 /* defaults to 32 bits floating point */
-#endif
-
-#endif /* __CUDACC__ */
-
 // define base vector types and operators or use those provided by CUDA
 
-#ifndef __CUDACC__
-struct float2
-{
-  float x, y;
-};
-struct float3
-{
-  float x, y, z;
-};
-struct float4
-{
-  float x, y, z, w;
-};
 struct double2
 {
   double x, y;
-};
-struct uint3
-{
-  unsigned int x, y, z;
-};
-struct uint4
-{
-  unsigned int x, y, z, w;
 };
 struct uchar4
 {
@@ -1713,151 +1599,9 @@ struct uchar3
   unsigned char x, y, z;
 };
 
-#else
-#include <vector_functions.h>
-#include <vector_types.h>
-#endif
-
-#ifndef FUNC_DECL
-#define FUNC_DECL static inline
-#endif
-
-/* -------------------------------------------------------- */
-/* -----------  FLOAT ------------------------------------- */
-/* -------------------------------------------------------- */
-#if REAL_PRECISION <= 32
-
-FUNC_DECL float3 operator*(float3 a, float3 b)
-{
-  return make_float3(a.x * b.x, a.y * b.y, a.z * b.z);
-}
-
-FUNC_DECL float3 operator*(float f, float3 v)
-{
-  return make_float3(v.x * f, v.y * f, v.z * f);
-}
-
-FUNC_DECL float2 operator*(float f, float2 v)
-{
-  return make_float2(v.x * f, v.y * f);
-}
-
-FUNC_DECL float3 operator*(float3 v, float f)
-{
-  return make_float3(v.x * f, v.y * f, v.z * f);
-}
-
-FUNC_DECL float2 operator*(float2 v, float f)
-{
-  return make_float2(v.x * f, v.y * f);
-}
-
-FUNC_DECL float4 operator*(float4 v, float f)
-{
-  return make_float4(v.x * f, v.y * f, v.z * f, v.w * f);
-}
-FUNC_DECL float4 operator*(float f, float4 v)
-{
-  return make_float4(v.x * f, v.y * f, v.z * f, v.w * f);
-}
-
-FUNC_DECL float2 operator+(float2 a, float2 b)
-{
-  return make_float2(a.x + b.x, a.y + b.y);
-}
-
-FUNC_DECL float3 operator+(float3 a, float3 b)
-{
-  return make_float3(a.x + b.x, a.y + b.y, a.z + b.z);
-}
-
-FUNC_DECL void operator+=(float3& b, float3 a)
-{
-  b.x += a.x;
-  b.y += a.y;
-  b.z += a.z;
-}
-FUNC_DECL void operator+=(float2& b, float2 a)
-{
-  b.x += a.x;
-  b.y += a.y;
-}
-
-FUNC_DECL void operator+=(float4& b, float4 a)
-{
-  b.x += a.x;
-  b.y += a.y;
-  b.z += a.z;
-  b.w += a.w;
-}
-
-FUNC_DECL float3 operator-(float3 a, float3 b)
-{
-  return make_float3(a.x - b.x, a.y - b.y, a.z - b.z);
-}
-
-FUNC_DECL float2 operator-(float2 a, float2 b)
-{
-  return make_float2(a.x - b.x, a.y - b.y);
-}
-
-FUNC_DECL void operator-=(float3& b, float3 a)
-{
-  b.x -= a.x;
-  b.y -= a.y;
-  b.z -= a.z;
-}
-
-FUNC_DECL float3 operator/(float3 v, float f)
-{
-  float inv = 1.0f / f;
-  return v * inv;
-}
-
-FUNC_DECL void operator/=(float2& b, float f)
-{
-  float inv = 1.0f / f;
-  b.x *= inv;
-  b.y *= inv;
-}
-
-FUNC_DECL void operator/=(float3& b, float f)
-{
-  float inv = 1.0f / f;
-  b.x *= inv;
-  b.y *= inv;
-  b.z *= inv;
-}
-
-FUNC_DECL float dot(float2 a, float2 b)
-{
-  return a.x * b.x + a.y * b.y;
-}
-
-FUNC_DECL float dot(float3 a, float3 b)
-{
-  return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-FUNC_DECL float dot(float4 a, float4 b)
-{
-  return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-}
-
-FUNC_DECL float3 cross(float3 A, float3 B)
-{
-  return make_float3(A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x);
-}
-
-#endif /* REAL_PRECISION <= 32 */
-
-#ifndef __CUDACC__
-
 /* -------------------------------------------------------- */
 /* ----------- DOUBLE ------------------------------------- */
 /* -------------------------------------------------------- */
-#if REAL_PRECISION == 64
-
 struct double3
 {
   double x, y, z;
@@ -1867,322 +1611,87 @@ struct double4
   double x, y, z, w;
 };
 
-FUNC_DECL double min(double a, double b)
+static inline double3 operator*(double f, double3 v)
 {
-  return (a < b) ? a : b;
+  return double3{ v.x * f, v.y * f, v.z * f };
 }
 
-FUNC_DECL double2 make_double2(double x, double y)
+static inline double2 operator*(double f, double2 v)
 {
-  double2 v = { x, y };
-  return v;
+  return double2{ v.x * f, v.y * f };
 }
 
-FUNC_DECL double3 make_double3(double x, double y, double z)
+static inline double3 operator+(double3 a, double3 b)
 {
-  double3 v = { x, y, z };
-  return v;
+  return double3{ a.x + b.x, a.y + b.y, a.z + b.z };
 }
 
-FUNC_DECL double4 make_double4(double x, double y, double z, double w)
+static inline double2 operator+(double2 a, double2 b)
 {
-  double4 v = { x, y, z, w };
-  return v;
+  return double2{ a.x + b.x, a.y + b.y };
 }
 
-FUNC_DECL double3 operator*(double f, double3 v)
-{
-  return make_double3(v.x * f, v.y * f, v.z * f);
-}
-
-FUNC_DECL double2 operator*(double f, double2 v)
-{
-  return make_double2(v.x * f, v.y * f);
-}
-
-FUNC_DECL double3 operator+(double3 a, double3 b)
-{
-  return make_double3(a.x + b.x, a.y + b.y, a.z + b.z);
-}
-
-FUNC_DECL double2 operator+(double2 a, double2 b)
-{
-  return make_double2(a.x + b.x, a.y + b.y);
-}
-
-FUNC_DECL void operator+=(double3& b, double3 a)
+static inline void operator+=(double3& b, double3 a)
 {
   b.x += a.x;
   b.y += a.y;
   b.z += a.z;
 }
-FUNC_DECL void operator+=(double2& b, double2 a)
+static inline void operator+=(double2& b, double2 a)
 {
   b.x += a.x;
   b.y += a.y;
 }
 
-FUNC_DECL double3 operator-(double3 a, double3 b)
+static inline double3 operator-(double3 a, double3 b)
 {
-  return make_double3(a.x - b.x, a.y - b.y, a.z - b.z);
+  return double3{ a.x - b.x, a.y - b.y, a.z - b.z };
 }
 
-FUNC_DECL double2 operator-(double2 a, double2 b)
+static inline double2 operator-(double2 a, double2 b)
 {
-  return make_double2(a.x - b.x, a.y - b.y);
+  return double2{ a.x - b.x, a.y - b.y };
 }
 
-FUNC_DECL void operator/=(double2& b, double f)
+static inline void operator/=(double2& b, double f)
 {
   b.x /= f;
   b.y /= f;
 }
 
-FUNC_DECL void operator/=(double3& b, double f)
+static inline void operator/=(double3& b, double f)
 {
   b.x /= f;
   b.y /= f;
   b.z /= f;
 }
 
-FUNC_DECL double dot(double2 a, double2 b)
+static inline double dot(double2 a, double2 b)
 {
   return a.x * b.x + a.y * b.y;
 }
 
-FUNC_DECL double dot(double3 a, double3 b)
+static inline double dot(double3 a, double3 b)
 {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-FUNC_DECL double3 cross(double3 A, double3 B)
+static inline double3 cross(double3 A, double3 B)
 {
-  return make_double3(A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x);
+  return double3{ A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x };
 }
-#endif /* REAL_PRECISION == 64 */
-
-/* -------------------------------------------------------- */
-/* ----------- LONG DOUBLE -------------------------------- */
-/* -------------------------------------------------------- */
-#if REAL_PRECISION > 64
-
-struct ldouble2
-{
-  long double x, y;
-};
-struct ldouble3
-{
-  long double x, y, z;
-};
-struct ldouble4
-{
-  long double x, y, z, w;
-};
-
-FUNC_DECL long double min(long double a, long double b)
-{
-  return (a < b) ? a : b;
-}
-FUNC_DECL long double max(long double a, long double b)
-{
-  return (a > b) ? a : b;
-}
-
-FUNC_DECL ldouble2 make_ldouble2(long double x, long double y)
-{
-  ldouble2 v = { x, y };
-  return v;
-}
-
-FUNC_DECL ldouble3 make_ldouble3(long double x, long double y, long double z)
-{
-  ldouble3 v = { x, y, z };
-  return v;
-}
-
-FUNC_DECL ldouble4 make_ldouble4(long double x, long double y, long double z, long double w)
-{
-  ldouble4 v = { x, y, z, w };
-  return v;
-}
-
-FUNC_DECL ldouble3 operator*(ldouble3 a, ldouble3 b)
-{
-  return make_ldouble3(a.x * b.x, a.y * b.y, a.z * b.z);
-}
-
-FUNC_DECL ldouble2 operator*(long double f, ldouble2 v)
-{
-  return make_ldouble2(v.x * f, v.y * f);
-}
-
-FUNC_DECL ldouble3 operator*(long double f, ldouble3 v)
-{
-  return make_ldouble3(v.x * f, v.y * f, v.z * f);
-}
-
-FUNC_DECL ldouble2 operator*(ldouble2 v, long double f)
-{
-  return make_ldouble2(v.x * f, v.y * f);
-}
-
-FUNC_DECL ldouble3 operator*(ldouble3 v, long double f)
-{
-  return make_ldouble3(v.x * f, v.y * f, v.z * f);
-}
-
-FUNC_DECL ldouble4 operator*(ldouble4 v, long double f)
-{
-  return make_ldouble4(v.x * f, v.y * f, v.z * f, v.w * f);
-}
-FUNC_DECL ldouble4 operator*(long double f, ldouble4 v)
-{
-  return make_ldouble4(v.x * f, v.y * f, v.z * f, v.w * f);
-}
-
-FUNC_DECL ldouble2 operator+(ldouble2 a, ldouble2 b)
-{
-  return make_ldouble2(a.x + b.x, a.y + b.y);
-}
-
-FUNC_DECL ldouble3 operator+(ldouble3 a, ldouble3 b)
-{
-  return make_ldouble3(a.x + b.x, a.y + b.y, a.z + b.z);
-}
-
-FUNC_DECL void operator+=(ldouble3& b, ldouble3 a)
-{
-  b.x += a.x;
-  b.y += a.y;
-  b.z += a.z;
-}
-
-FUNC_DECL void operator+=(ldouble2& b, ldouble2 a)
-{
-  b.x += a.x;
-  b.y += a.y;
-}
-
-FUNC_DECL void operator+=(ldouble4& b, ldouble4 a)
-{
-  b.x += a.x;
-  b.y += a.y;
-  b.z += a.z;
-  b.w += a.w;
-}
-
-FUNC_DECL ldouble2 operator-(ldouble2 a, ldouble2 b)
-{
-  return make_ldouble2(a.x - b.x, a.y - b.y);
-}
-
-FUNC_DECL ldouble3 operator-(ldouble3 a, ldouble3 b)
-{
-  return make_ldouble3(a.x - b.x, a.y - b.y, a.z - b.z);
-}
-
-FUNC_DECL void operator-=(ldouble3& b, ldouble3 a)
-{
-  b.x -= a.x;
-  b.y -= a.y;
-  b.z -= a.z;
-}
-
-FUNC_DECL ldouble3 operator/(ldouble3 v, long double f)
-{
-  return make_ldouble3(v.x / f, v.y / f, v.z / f);
-}
-
-FUNC_DECL void operator/=(ldouble3& b, long double f)
-{
-  b.x /= f;
-  b.y /= f;
-  b.z /= f;
-}
-
-FUNC_DECL long double dot(ldouble2 a, ldouble2 b)
-{
-  return a.x * b.x + a.y * b.y;
-}
-
-FUNC_DECL long double dot(ldouble3 a, ldouble3 b)
-{
-  return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-FUNC_DECL long double dot(ldouble4 a, ldouble4 b)
-{
-  return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
-}
-
-FUNC_DECL ldouble3 cross(ldouble3 A, ldouble3 B)
-{
-  return make_ldouble3(A.y * B.z - A.z * B.y, A.z * B.x - A.x * B.z, A.x * B.y - A.y * B.x);
-}
-#endif /* REAL_PRECISION > 64 */
-
-#endif /* __CUDACC__ */
-
-#ifndef M_PI
-#define M_PI vtkMath::Pi()
-#endif
 
 /**************************************
  *** Precision dependent constants   ***
  ***************************************/
 
-// float
-#if (REAL_PRECISION <= 32)
-#define EPSILON 1e-7
-#define NEWTON_NITER 16
-
-// long double
-#elif (REAL_PRECISION > 64)
-#define EPSILON 1e-31
-#define NEWTON_NITER 64
-
 // double ( default )
-#else
-#define EPSILON 1e-15
 #define NEWTON_NITER 32
-
-#endif
 
 /**************************************
  ***       Debugging                 ***
  ***************************************/
 #define DBG_MESG(m) (void)0
-
-/**************************************
- ***          Macros                 ***
- ***************************************/
-
-// local arrays allocation
-#ifdef __CUDACC__
-
-// ensure a maximum alignment of arrays
-#define ROUND_SIZE(n) (n)
-//( (n+sizeof(REAL)-1) & ~(sizeof(REAL)-1) )
-
-#define ALLOC_LOCAL_ARRAY(name, type, n)                                                           \
-  type* name = (type*)sdata;                                                                       \
-  sdata += ROUND_SIZE(sizeof(type) * (n))
-#define FREE_LOCAL_ARRAY(name, type, n) sdata -= ROUND_SIZE(sizeof(type) * (n))
-
-#elif defined(__GNUC__) // Warning, this is a gcc extension, not all compiler accept it
-#define ALLOC_LOCAL_ARRAY(name, type, n) type name[(n)]
-#define FREE_LOCAL_ARRAY(name, type, n)
-#else
-#include <malloc.h>
-#define ALLOC_LOCAL_ARRAY(name, type, n) type* name = (type*)malloc(sizeof(type) * (n))
-#define FREE_LOCAL_ARRAY(name, type, n) free(name)
-#endif
-
-#ifdef __GNUC__
-#define LOCAL_ARRAY_SIZE(n) n
-#else
-#define LOCAL_ARRAY_SIZE(n) 128
-#endif
 
 /*********************
  *** Triangle area ***
@@ -2190,94 +1699,85 @@ FUNC_DECL ldouble3 cross(ldouble3 A, ldouble3 B)
 /*
   Formula from VTK in vtkTriangle.cxx, method TriangleArea
 */
-FUNC_DECL
-REAL triangleSurf(REAL3 p1, REAL3 p2, REAL3 p3)
+static inline double triangleSurf(double3 p1, double3 p2, double3 p3)
 {
-  const REAL3 e1 = p2 - p1;
-  const REAL3 e2 = p3 - p2;
-  const REAL3 e3 = p1 - p3;
+  const double3 e1 = p2 - p1;
+  const double3 e2 = p3 - p2;
+  const double3 e3 = p1 - p3;
 
-  const REAL a = dot(e1, e1);
-  const REAL b = dot(e2, e2);
-  const REAL c = dot(e3, e3);
+  const double a = dot(e1, e1);
+  const double b = dot(e2, e2);
+  const double c = dot(e3, e3);
 
-  return REAL_CONST(0.25) * SQRT(FABS(4 * a * c - (a - b + c) * (a - b + c)));
+  return 0.25 * sqrt(fabs(4 * a * c - (a - b + c) * (a - b + c)));
 }
 
 /*************************
  *** Tetrahedra volume ***
  *************************/
 
-FUNC_DECL
-REAL tetraVolume(REAL3 p0, REAL3 p1, REAL3 p2, REAL3 p3)
+static inline double tetraVolume(double3 p0, double3 p1, double3 p2, double3 p3)
 {
-  REAL3 A = p1 - p0;
-  REAL3 B = p2 - p0;
-  REAL3 C = p3 - p0;
-  REAL3 BC = cross(B, C);
-  return FABS(dot(A, BC) / REAL_CONST(6.0));
+  double3 A = p1 - p0;
+  double3 B = p2 - p0;
+  double3 C = p3 - p0;
+  double3 BC = cross(B, C);
+  return fabs(dot(A, BC) / 6.0);
 }
 
 /*******************************************
  *** Evaluation of a polynomial function ***
  *******************************************/
-FUNC_DECL
-REAL evalPolynomialFunc(const REAL2 F, const REAL x)
+static inline double evalPolynomialFunc(double2 F, double x)
 {
   return F.x * x + F.y;
 }
 
-FUNC_DECL
-REAL evalPolynomialFunc(const REAL3 F, const REAL x)
+static inline double evalPolynomialFunc(double3 F, double x)
 {
-  REAL y = (F.x * x + F.y) * x;
+  double y = (F.x * x + F.y) * x;
   return y + F.z;
 }
 
-FUNC_DECL
-REAL evalPolynomialFunc(const REAL4 F, const REAL x)
+static inline double evalPolynomialFunc(double4 F, double x)
 {
-  REAL y = ((F.x * x + F.y) * x + F.z) * x;
+  double y = ((F.x * x + F.y) * x + F.z) * x;
   return y + F.w; // this increases numerical stability when compiled with -ffloat-store
 }
 
 /*****************************************
  *** Integral of a polynomial function ***
  *****************************************/
-FUNC_DECL
-REAL3 integratePolynomialFunc(REAL2 linearFunc)
+static inline double3 integratePolynomialFunc(double2 linearFunc)
 {
-  return make_REAL3(linearFunc.x / 2, linearFunc.y, 0);
+  return double3{ linearFunc.x / 2, linearFunc.y, 0 };
 }
 
-FUNC_DECL
-REAL4 integratePolynomialFunc(REAL3 quadFunc)
+static inline double4 integratePolynomialFunc(double3 quadFunc)
 {
-  return make_REAL4(quadFunc.x / 3, quadFunc.y / 2, quadFunc.z, 0);
+  return double4{ quadFunc.x / 3, quadFunc.y / 2, quadFunc.z, 0 };
 }
 
 /****************************
  *** Linear interpolation ***
  ****************************/
-FUNC_DECL
-REAL3 linearInterp(REAL t0, REAL3 x0, REAL t1, REAL3 x1, REAL t)
+static inline double3 linearInterp(double t0, double3 x0, double t1, double3 x1, double t)
 {
-  REAL f = (t1 != t0) ? (t - t0) / (t1 - t0) : 0;
+  double f = (t1 != t0) ? (t - t0) / (t1 - t0) : 0;
   return x0 + f * (x1 - x0);
 }
 
-FUNC_DECL
-REAL2 linearInterp(REAL t0, REAL2 x0, REAL t1, REAL2 x1, REAL t)
+static inline double2 linearInterp(double t0, double2 x0, double t1, double2 x1, double t)
 {
-  REAL f = (t1 != t0) ? (t - t0) / (t1 - t0) : REAL_CONST(0.0);
+  double f = (t1 != t0) ? (t - t0) / (t1 - t0) : 0.0;
   return x0 + f * (x1 - x0);
 }
 
 /****************************************
  *** Quadratic interpolation function ***
  ****************************************/
-FUNC_DECL
-REAL3 quadraticInterpFunc(REAL x0, REAL y0, REAL x1, REAL y1, REAL x2, REAL y2)
+static inline double3 quadraticInterpFunc(
+  double x0, double y0, double x1, double y1, double x2, double y2)
 {
   // Formula from the book 'Maillages', page 409
 
@@ -2285,54 +1785,50 @@ REAL3 quadraticInterpFunc(REAL x0, REAL y0, REAL x1, REAL y1, REAL x2, REAL y2)
   if (x1 > x0 && x2 > x1)
   {
     // denominators
-    const REAL d0 = (x0 - x1) * (x0 - x2);
-    const REAL d1 = (x1 - x0) * (x1 - x2);
-    const REAL d2 = (x2 - x0) * (x2 - x1);
+    const double d0 = (x0 - x1) * (x0 - x2);
+    const double d1 = (x1 - x0) * (x1 - x2);
+    const double d2 = (x2 - x0) * (x2 - x1);
 
     // coefficients for the quadratic interpolation of (x0,y0) , (x1,y1) and p2(x2,y2)
-    return make_REAL3((y0 / d0) + (y1 / d1) + (y2 / d2),                        // x^2 term
+    return double3{ (y0 / d0) + (y1 / d1) + (y2 / d2),                          // x^2 term
       (y0 * (-x1 - x2) / d0) + (y1 * (-x0 - x2) / d1) + (y2 * (-x0 - x1) / d2), // x term
-      (y0 * (x1 * x2) / d0) + (y1 * (x0 * x2) / d1) + (y2 * (x0 * x1) / d2));   // constant term
+      (y0 * (x1 * x2) / d0) + (y1 * (x0 * x2) / d1) + (y2 * (x0 * x1) / d2) };  // constant term
   }
 
   // linear case : 2 out of the 3 points are the same
   else if (x2 > x0)
   {
-    return make_REAL3(0,     // x^2 term
+    return double3{ 0,       // x^2 term
       (y2 - y0) / (x2 - x0), // x term
-      y0);                   // constant term
+      y0 };                  // constant term
   }
 
   // degenerated case
-  return make_REAL3(0, 0, 0);
+  return double3{ 0, 0, 0 };
 }
 
 /****************************
  *** Newton search method ***
  ****************************/
-FUNC_DECL
-REAL newtonSearchPolynomialFunc(
-  REAL3 F, REAL2 dF, const REAL value, const REAL xmin, const REAL xmax)
+static inline double newtonSearchPolynomialFunc(
+  double3 F, double2 dF, double value, double xmin, double xmax)
 {
   // translate F, because newton searches for the 0 of the derivative
   F.z -= value;
 
   // start with x, the closest of xmin, xmean and xmax
-  const REAL ymin = evalPolynomialFunc(F, xmin);
-  const REAL ymax = evalPolynomialFunc(F, xmax);
+  const double ymin = evalPolynomialFunc(F, xmin);
+  const double ymax = evalPolynomialFunc(F, xmax);
 
-  REAL x = (xmin + xmax) * REAL_CONST(0.5);
-  REAL y = evalPolynomialFunc(F, x);
+  double x = (xmin + xmax) * 0.5;
+  double y = evalPolynomialFunc(F, x);
 
   // search x where F(x) = 0
-#ifdef __CUDACC__
-#pragma unroll
-#endif
   for (int i = 0; i < NEWTON_NITER; i++)
   {
     DBG_MESG("F(" << x << ")=" << y);
     // Xi+1 = Xi - F'(x)/F''(x)
-    REAL d = evalPolynomialFunc(dF, x);
+    double d = evalPolynomialFunc(dF, x);
     if (d == 0)
     {
       d = 1;
@@ -2346,12 +1842,12 @@ REAL newtonSearchPolynomialFunc(
   DBG_MESG("F(" << xmin << ")=" << ymin << ", "
                 << "F(" << x << ")=" << y << ", "
                 << "F(" << xmax << ")=" << ymax);
-  y = FABS(y);
-  if (FABS(ymin) < y)
+  y = fabs(y);
+  if (fabs(ymin) < y)
   {
     x = xmin;
   }
-  if (FABS(ymax) < y)
+  if (fabs(ymax) < y)
   {
     x = xmax;
   }
@@ -2360,29 +1856,25 @@ REAL newtonSearchPolynomialFunc(
   return x;
 }
 
-FUNC_DECL
-REAL newtonSearchPolynomialFunc(
-  REAL4 F, REAL3 dF, const REAL value, const REAL xmin, const REAL xmax)
+static inline double newtonSearchPolynomialFunc(
+  double4 F, double3 dF, double value, double xmin, double xmax)
 {
   // translate F, because newton searches for the 0 of the derivative
   F.w -= value;
 
   // start with x, the closest of xmin, xmean and xmax
-  const REAL ymin = evalPolynomialFunc(F, xmin);
-  const REAL ymax = evalPolynomialFunc(F, xmax);
+  const double ymin = evalPolynomialFunc(F, xmin);
+  const double ymax = evalPolynomialFunc(F, xmax);
 
-  REAL x = (xmin + xmax) * REAL_CONST(0.5);
-  REAL y = evalPolynomialFunc(F, x);
+  double x = (xmin + xmax) * 0.5;
+  double y = evalPolynomialFunc(F, x);
 
   // search x where F(x) = 0
-#ifdef __CUDACC__
-#pragma unroll
-#endif
   for (int i = 0; i < NEWTON_NITER; i++)
   {
     DBG_MESG("F(" << x << ")=" << y);
     // Xi+1 = Xi - F'(x)/F''(x)
-    REAL d = evalPolynomialFunc(dF, x);
+    double d = evalPolynomialFunc(dF, x);
     if (d == 0)
     {
       d = 1;
@@ -2396,12 +1888,12 @@ REAL newtonSearchPolynomialFunc(
   DBG_MESG("F(" << xmin << ")=" << ymin << ", "
                 << "F(" << x << ")=" << y << ", "
                 << "F(" << xmax << ")=" << ymax);
-  y = FABS(y);
-  if (FABS(ymin) < y)
+  y = fabs(y);
+  if (fabs(ymin) < y)
   {
     x = xmin;
   }
-  if (FABS(ymax) < y)
+  if (fabs(ymax) < y)
   {
     x = xmax;
   }
@@ -2413,8 +1905,7 @@ REAL newtonSearchPolynomialFunc(
 /***********************
  *** Sorting methods ***
  ***********************/
-FUNC_DECL
-uchar3 sortTriangle(uchar3 t, unsigned char* i)
+static inline uchar3 sortTriangle(uchar3 t, unsigned char* i)
 {
   if (i[t.y] < i[t.x])
     std::swap(t.x, t.y);
@@ -2429,44 +1920,41 @@ typedef unsigned char IntType;
 /***********************
  *** Sorting methods ***
  ***********************/
-FUNC_DECL
-void sortVertices(const int n, const REAL3* vertices, const REAL3 normal, IntType* indices)
+static inline void sortVertices(int n, const double3* vertices, double3 normal, IntType* indices)
 {
   // insertion sort : slow but symmetrical across all instances
   for (int i = 0; i < n; i++)
   {
     int imin = i;
-    REAL dmin = dot(vertices[indices[i]], normal);
+    double dmin = dot(vertices[indices[i]], normal);
     for (int j = i + 1; j < n; j++)
     {
-      REAL d = dot(vertices[indices[j]], normal);
+      double d = dot(vertices[indices[j]], normal);
       imin = (d < dmin) ? j : imin;
-      dmin = min(dmin, d);
+      dmin = std::min(dmin, d);
     }
     std::swap(i, imin);
   }
 }
 
-FUNC_DECL
-void sortVertices(const int n, const REAL2* vertices, const REAL2 normal, IntType* indices)
+static inline void sortVertices(int n, const double2* vertices, double2 normal, IntType* indices)
 {
   // insertion sort : slow but symmetrical across all instances
   for (int i = 0; i < n; i++)
   {
     int imin = i;
-    REAL dmin = dot(vertices[indices[i]], normal);
+    double dmin = dot(vertices[indices[i]], normal);
     for (int j = i + 1; j < n; j++)
     {
-      REAL d = dot(vertices[indices[j]], normal);
+      double d = dot(vertices[indices[j]], normal);
       imin = (d < dmin) ? j : imin;
-      dmin = min(dmin, d);
+      dmin = std::min(dmin, d);
     }
     std::swap(i, imin);
   }
 }
 
-FUNC_DECL
-uchar4 sortTetra(uchar4 t, IntType* i)
+static inline uchar4 sortTetra(uchar4 t, IntType* i)
 {
   if (i[t.y] < i[t.x])
     std::swap(t.x, t.y);
@@ -2483,19 +1971,18 @@ uchar4 sortTetra(uchar4 t, IntType* i)
   return t;
 }
 
-FUNC_DECL
-REAL makeTriangleSurfaceFunctions(
-  const uchar3 triangle, const REAL_COORD* vertices, const REAL_COORD normal, REAL2 func[2])
+static inline double makeTriangleSurfaceFunctions(
+  uchar3 triangle, const double3* vertices, double3 normal, double2 func[2])
 {
 
   // 1. load the data
-  const REAL_COORD v0 = vertices[triangle.x];
-  const REAL_COORD v1 = vertices[triangle.y];
-  const REAL_COORD v2 = vertices[triangle.z];
+  const double3 v0 = vertices[triangle.x];
+  const double3 v1 = vertices[triangle.y];
+  const double3 v2 = vertices[triangle.z];
 
-  const REAL d0 = dot(v0, normal);
-  const REAL d1 = dot(v1, normal);
-  const REAL d2 = dot(v2, normal);
+  const double d0 = dot(v0, normal);
+  const double d1 = dot(v1, normal);
+  const double d2 = dot(v2, normal);
 
   DBG_MESG("v0 = " << v0.x << ',' << v0.y << " d0=" << d0);
   DBG_MESG("v1 = " << v1.x << ',' << v1.y << " d1=" << d1);
@@ -2504,25 +1991,25 @@ REAL makeTriangleSurfaceFunctions(
   // 2. compute
 
   // compute vector from point on v0-v2 that has distance d1 from Plane0
-  REAL_COORD I = linearInterp(d0, v0, d2, v2, d1);
+  double3 I = linearInterp(d0, v0, d2, v2, d1);
   DBG_MESG("I = " << I.x << ',' << I.y);
-  REAL_COORD vec = v1 - I;
-  REAL length = sqrt(dot(vec, vec));
+  double3 vec = v1 - I;
+  double length = sqrt(dot(vec, vec));
   DBG_MESG("length = " << length);
 
   // side length function = (x-d0) * length / (d1-d0) = (length/(d1-d0)) * x - length * d0 / (d1-d0)
-  REAL2 linearFunc01 = make_REAL2(length / (d1 - d0), -length * d0 / (d1 - d0));
+  double2 linearFunc01 = double2{ length / (d1 - d0), -length * d0 / (d1 - d0) };
   // surface function = integral of distance function starting at d0
-  func[0] = make_REAL2(0, 0);
+  func[0] = double2{ 0, 0 };
   if (d1 > d0)
   {
     func[0] = linearFunc01;
   }
 
   // side length function = (d2-x) * length / (d2-d1) = (-length/(d2-d1)) * x + d2*length / (d2-d1)
-  REAL2 linearFunc12 = make_REAL2(-length / (d2 - d1), d2 * length / (d2 - d1));
+  double2 linearFunc12 = double2{ -length / (d2 - d1), d2 * length / (d2 - d1) };
   // surface function = integral of distance function starting at d1
-  func[1] = make_REAL2(0, 0);
+  func[1] = double2{ 0, 0 };
   if (d2 > d1)
   {
     func[1] = linearFunc12;
@@ -2531,24 +2018,17 @@ REAL makeTriangleSurfaceFunctions(
   return triangleSurf(v0, v1, v2);
 }
 
-FUNC_DECL
-REAL findTriangleSetCuttingPlane(const REAL_COORD normal, // IN  , normal vector
-  const REAL fraction,                                    // IN  , volume fraction
-  const int nv,                                           // IN  , number of vertices
-  const int nt,                                           // IN  , number of triangles
-  const uchar3* tv,                                       // IN  , triangles connectivity, size=nt
-  const REAL_COORD* vertices                              // IN  , vertex coordinates, size=nv
-#ifdef __CUDACC__
-  ,
-  char* sdata // TEMP Storage
-#endif
+static inline double findTriangleSetCuttingPlane(double3 normal, // IN  , normal vector
+  double fraction,                                               // IN  , volume fraction
+  int nv,                                                        // IN  , number of vertices
+  int nt,                                                        // IN  , number of triangles
+  const uchar3* tv,       // IN  , triangles connectivity, size=nt
+  const double3* vertices // IN  , vertex coordinates, size=nv
 )
 {
-  // only need nv-1 derivs but allocate nv as gcc freaks out
-  // with nv-1 as an argument
-  ALLOC_LOCAL_ARRAY(derivatives, REAL2, nv);
-  ALLOC_LOCAL_ARRAY(index, unsigned char, nv);
-  ALLOC_LOCAL_ARRAY(rindex, unsigned char, nv);
+  auto derivatives = std::make_unique<double2[]>(nv - 1);
+  auto index = std::make_unique<unsigned char[]>(nv);
+  auto rindex = std::make_unique<unsigned char[]>(nv);
 
   // initialization
   for (int i = 0; i < nv; i++)
@@ -2556,13 +2036,8 @@ REAL findTriangleSetCuttingPlane(const REAL_COORD normal, // IN  , normal vector
     index[i] = i;
   }
 
-  for (int i = 0; i < (nv - 1); i++)
-  {
-    derivatives[i] = make_REAL2(0, 0);
-  }
-
   // sort vertices in the normal vector direction
-  sortVertices(nv, vertices, normal, index);
+  sortVertices(nv, vertices, normal, index.get());
 
   // reverse indirection table
   for (int i = 0; i < nv; i++)
@@ -2571,18 +2046,18 @@ REAL findTriangleSetCuttingPlane(const REAL_COORD normal, // IN  , normal vector
   }
 
   // total area
-  REAL surface = 0;
+  double surface = 0;
 
   // construction of the truncated volume piecewise cubic function
   for (int i = 0; i < nt; i++)
   {
     // area of the interface-tetra intersection at points P1 and P2
-    uchar3 triangle = sortTriangle(tv[i], rindex);
+    uchar3 triangle = sortTriangle(tv[i], rindex.get());
     DBG_MESG("\ntriangle " << i << " : " << tv[i].x << ',' << tv[i].y << ',' << tv[i].z << " -> "
                            << triangle.x << ',' << triangle.y << ',' << triangle.z);
 
     // compute the volume function derivative pieces
-    REAL2 triangleSurfFunc[2];
+    double2 triangleSurfFunc[2];
     surface += makeTriangleSurfaceFunctions(triangle, vertices, normal, triangleSurfFunc);
 
 #ifdef DEBUG
@@ -2613,21 +2088,21 @@ REAL findTriangleSetCuttingPlane(const REAL_COORD normal, // IN  , normal vector
   }
 
   // target volume fraction we're looking for
-  REAL y = surface * fraction;
+  double y = surface * fraction;
   DBG_MESG("surface = " << surface << ", surface*fraction = " << y);
 
   // integrate area function pieces to obtain volume function pieces
-  REAL sum = 0;
-  REAL3 surfaceFunction = make_REAL3(0, 0, 0);
-  REAL xmin = 0;
-  REAL xmax = dot(vertices[index[0]], normal);
+  double sum = 0;
+  double3 surfaceFunction = double3{ 0, 0, 0 };
+  double xmin = 0;
+  double xmax = dot(vertices[index[0]], normal);
   int s = -1;
   while (sum < y && s < (nv - 2))
   {
     xmin = xmax;
     y -= sum;
     ++s;
-    REAL3 F = integratePolynomialFunc(derivatives[s]);
+    double3 F = integratePolynomialFunc(derivatives[s]);
     F.z = -evalPolynomialFunc(F, xmin);
     surfaceFunction = F;
     xmax = dot(vertices[index[s + 1]], normal);
@@ -2639,13 +2114,9 @@ REAL findTriangleSetCuttingPlane(const REAL_COORD normal, // IN  , normal vector
   DBG_MESG("surface reminder = " << y);
 
   // newton search
-  REAL x = newtonSearchPolynomialFunc(surfaceFunction, derivatives[s], y, xmin, xmax);
+  double x = newtonSearchPolynomialFunc(surfaceFunction, derivatives[s], y, xmin, xmax);
 
   DBG_MESG("final x = " << x);
-
-  FREE_LOCAL_ARRAY(derivatives, REAL2, nv - 1);
-  FREE_LOCAL_ARRAY(index, unsigned char, nv);
-  FREE_LOCAL_ARRAY(rindex, unsigned char, nv);
 
   return x;
 }
@@ -2654,61 +2125,55 @@ REAL findTriangleSetCuttingPlane(const REAL_COORD normal, // IN  , normal vector
   compute the derivatives of the piecewise cubic function of the volume behind the cutting cone
   (axis symmetric 2D plane)
 */
-FUNC_DECL
-void makeConeVolumeDerivatives(
-  const uchar3 triangle, const REAL2* vertices, const REAL2 normal, REAL3 deriv[2])
+static inline void makeConeVolumeDerivatives(
+  uchar3 triangle, const double2* vertices, double2 normal, double3 deriv[2])
 {
 
   // 1. load the data
-  const REAL2 v0 = vertices[triangle.x];
-  const REAL2 v1 = vertices[triangle.y];
-  const REAL2 v2 = vertices[triangle.z];
+  const double2 v0 = vertices[triangle.x];
+  const double2 v1 = vertices[triangle.y];
+  const double2 v2 = vertices[triangle.z];
 
   // 2. compute
-  const REAL d0 = dot(v0, normal);
-  const REAL d1 = dot(v1, normal);
-  const REAL d2 = dot(v2, normal);
+  const double d0 = dot(v0, normal);
+  const double d1 = dot(v1, normal);
+  const double d2 = dot(v2, normal);
 
   DBG_MESG("v0 = " << v0.x << ',' << v0.y << " d0=" << d0);
   DBG_MESG("v1 = " << v1.x << ',' << v1.y << " d1=" << d1);
   DBG_MESG("v2 = " << v2.x << ',' << v2.y << " d2=" << d2);
 
   // compute vector from point on v0-v2 that has distance d1 from Plane0
-  REAL2 I = linearInterp(d0, v0, d2, v2, d1);
+  double2 I = linearInterp(d0, v0, d2, v2, d1);
   DBG_MESG("I = " << I.x << ',' << I.y);
-  REAL2 vec = v1 - I;
-  REAL length = sqrt(dot(vec, vec));
+  double2 vec = v1 - I;
+  double length = sqrt(dot(vec, vec));
   DBG_MESG("length = " << length);
 
   // compute truncated cone surface at d1
-  REAL Isurf = REAL_CONST(M_PI) * FABS(I.y + v1.y) *
-    length; // 2 * REAL_CONST(M_PI) * ( (I.y+v1.y) * 0.5 ) * length ;
-  REAL coef;
+  double Isurf = vtkMath::Pi() * fabs(I.y + v1.y) *
+    length; // 2 * vtkMath::Pi() * ( (I.y+v1.y) * 0.5 ) * length ;
+  double coef;
 
   // build cubic volume functions derivatives
-  coef = (d1 > d0) ? (Isurf / ((d1 - d0) * (d1 - d0))) : REAL_CONST(0.0);
-  deriv[0] = coef * make_REAL3(1, -2 * d0, d0 * d0);
+  coef = (d1 > d0) ? (Isurf / ((d1 - d0) * (d1 - d0))) : 0.0;
+  deriv[0] = coef * double3{ 1, -2 * d0, d0 * d0 };
 
-  coef = (d2 > d1) ? (Isurf / ((d2 - d1) * (d2 - d1))) : REAL_CONST(0.0);
-  deriv[1] = coef * make_REAL3(1, -2 * d2, d2 * d2);
+  coef = (d2 > d1) ? (Isurf / ((d2 - d1) * (d2 - d1))) : 0.0;
+  deriv[1] = coef * double3{ 1, -2 * d2, d2 * d2 };
 }
 
-FUNC_DECL
-REAL findTriangleSetCuttingCone(const REAL2 normal, // IN  , normal vector
-  const REAL fraction,                              // IN  , volume fraction
-  const int nv,                                     // IN  , number of vertices
-  const int nt,                                     // IN  , number of triangles
-  const uchar3* tv,                                 // IN  , triangles connectivity, size=nt
-  const REAL2* vertices                             // IN  , vertex coordinates, size=nv
-#ifdef __CUDACC__
-  ,
-  char* sdata // TEMP Storage
-#endif
+static inline double findTriangleSetCuttingCone(double2 normal, // IN  , normal vector
+  double fraction,                                              // IN  , volume fraction
+  int nv,                                                       // IN  , number of vertices
+  int nt,                                                       // IN  , number of triangles
+  const uchar3* tv,       // IN  , triangles connectivity, size=nt
+  const double2* vertices // IN  , vertex coordinates, size=nv
 )
 {
-  ALLOC_LOCAL_ARRAY(derivatives, REAL3, nv - 1);
-  ALLOC_LOCAL_ARRAY(index, unsigned char, nv);
-  ALLOC_LOCAL_ARRAY(rindex, unsigned char, nv);
+  auto derivatives = std::make_unique<double3[]>(nv - 1);
+  auto index = std::make_unique<unsigned char[]>(nv);
+  auto rindex = std::make_unique<unsigned char[]>(nv);
 
   // initialization
   for (int i = 0; i < nv; i++)
@@ -2716,13 +2181,8 @@ REAL findTriangleSetCuttingCone(const REAL2 normal, // IN  , normal vector
     index[i] = i;
   }
 
-  for (int i = 0; i < (nv - 1); i++)
-  {
-    derivatives[i] = make_REAL3(0, 0, 0);
-  }
-
   // sort vertices along normal vector
-  sortVertices(nv, vertices, normal, index);
+  sortVertices(nv, vertices, normal, index.get());
 
   // reverse indirection table
   for (int i = 0; i < nv; i++)
@@ -2734,12 +2194,12 @@ REAL findTriangleSetCuttingCone(const REAL2 normal, // IN  , normal vector
   for (int i = 0; i < nt; i++)
   {
     // area of the interface-tetra intersection at points P1 and P2
-    uchar3 triangle = sortTriangle(tv[i], rindex);
+    uchar3 triangle = sortTriangle(tv[i], rindex.get());
     DBG_MESG("\ntriangle " << i << " : " << tv[i].x << ',' << tv[i].y << ',' << tv[i].z << " -> "
                            << triangle.x << ',' << triangle.y << ',' << triangle.z);
 
     // compute the volume function derivatives pieces
-    REAL3 coneVolDeriv[2];
+    double3 coneVolDeriv[2];
     makeConeVolumeDerivatives(triangle, vertices, normal, coneVolDeriv);
 
     // area function bounds
@@ -2762,24 +2222,24 @@ REAL findTriangleSetCuttingCone(const REAL2 normal, // IN  , normal vector
     }
   }
 
-  REAL surface = 0;
-  REAL xmin = 0;
-  REAL xmax = dot(vertices[index[0]], normal);
+  double surface = 0;
+  double xmin = 0;
+  double xmax = dot(vertices[index[0]], normal);
   for (int i = 0; i < (nv - 1); i++)
   {
     xmin = xmax;
-    REAL4 F = integratePolynomialFunc(derivatives[i]);
+    double4 F = integratePolynomialFunc(derivatives[i]);
     F.w = -evalPolynomialFunc(F, xmin);
     xmax = dot(vertices[index[i + 1]], normal);
     surface += evalPolynomialFunc(F, xmax);
   }
 
-  REAL y = surface * fraction;
+  double y = surface * fraction;
   DBG_MESG("surface = " << surface << ", surface*fraction = " << y);
 
   // integrate area function pieces to obtain volume function pieces
-  REAL sum = 0;
-  REAL4 volumeFunction = make_REAL4(0, 0, 0, 0);
+  double sum = 0;
+  double4 volumeFunction = double4{ 0, 0, 0, 0 };
   xmax = dot(vertices[index[0]], normal);
   int s = -1;
   while (sum < y && s < (nv - 2))
@@ -2787,7 +2247,7 @@ REAL findTriangleSetCuttingCone(const REAL2 normal, // IN  , normal vector
     xmin = xmax;
     y -= sum;
     ++s;
-    REAL4 F = integratePolynomialFunc(derivatives[s]);
+    double4 F = integratePolynomialFunc(derivatives[s]);
     F.w = -evalPolynomialFunc(F, xmin);
     volumeFunction = F;
     xmax = dot(vertices[index[s + 1]], normal);
@@ -2800,13 +2260,9 @@ REAL findTriangleSetCuttingCone(const REAL2 normal, // IN  , normal vector
   DBG_MESG("surface reminder = " << y);
 
   // newton search method
-  REAL x = newtonSearchPolynomialFunc(volumeFunction, derivatives[s], y, xmin, xmax);
+  double x = newtonSearchPolynomialFunc(volumeFunction, derivatives[s], y, xmin, xmax);
 
   DBG_MESG("final x = " << x);
-
-  FREE_LOCAL_ARRAY(derivatives, REAL3, nv - 1);
-  FREE_LOCAL_ARRAY(index, unsigned char, nv);
-  FREE_LOCAL_ARRAY(rindex, unsigned char, nv);
 
   return x;
 }
@@ -2817,21 +2273,20 @@ REAL findTriangleSetCuttingCone(const REAL2 normal, // IN  , normal vector
   the resulting area function, is a function of the intersection area given the distance of the
   cutting plane to the origin.
 */
-FUNC_DECL
-REAL tetraPlaneSurfFunc(
-  const uchar4 tetra, const REAL3* vertices, const REAL3 normal, REAL3 func[3])
+static inline double tetraPlaneSurfFunc(
+  uchar4 tetra, const double3* vertices, double3 normal, double3 func[3])
 {
   // 1. load the data
 
-  const REAL3 v0 = vertices[tetra.x];
-  const REAL3 v1 = vertices[tetra.y];
-  const REAL3 v2 = vertices[tetra.z];
-  const REAL3 v3 = vertices[tetra.w];
+  const double3 v0 = vertices[tetra.x];
+  const double3 v1 = vertices[tetra.y];
+  const double3 v2 = vertices[tetra.z];
+  const double3 v3 = vertices[tetra.w];
 
-  const REAL d0 = dot(v0, normal);
-  const REAL d1 = dot(v1, normal);
-  const REAL d2 = dot(v2, normal);
-  const REAL d3 = dot(v3, normal);
+  const double d0 = dot(v0, normal);
+  const double d1 = dot(v1, normal);
+  const double d2 = dot(v2, normal);
+  const double d3 = dot(v3, normal);
 
 #ifdef DEBUG
   bool ok = (d0 <= d1 && d1 <= d2 && d2 <= d3);
@@ -2845,56 +2300,51 @@ REAL tetraPlaneSurfFunc(
   // 2. compute
 
   // Intersection surface in p1
-  const REAL surf1 =
+  const double surf1 =
     triangleSurf(v1, linearInterp(d0, v0, d2, v2, d1), linearInterp(d0, v0, d3, v3, d1));
 
   // Compute the intersection surfice in the middle of p1 and p2.
   // The intersection is a quadric of a,b,c,d
-  const REAL d12 = (d1 + d2) * REAL_CONST(0.5);
-  const REAL3 a = linearInterp(d0, v0, d2, v2, d12);
-  const REAL3 b = linearInterp(d0, v0, d3, v3, d12);
-  const REAL3 c = linearInterp(d1, v1, d3, v3, d12);
-  const REAL3 d = linearInterp(d1, v1, d2, v2, d12);
+  const double d12 = (d1 + d2) * 0.5;
+  const double3 a = linearInterp(d0, v0, d2, v2, d12);
+  const double3 b = linearInterp(d0, v0, d3, v3, d12);
+  const double3 c = linearInterp(d1, v1, d3, v3, d12);
+  const double3 d = linearInterp(d1, v1, d2, v2, d12);
 
-  const REAL surf12 = triangleSurf(a, b, d) + triangleSurf(b, c, d);
+  const double surf12 = triangleSurf(a, b, d) + triangleSurf(b, c, d);
 
   // intersection  surface in p2
-  const REAL surf2 =
+  const double surf2 =
     triangleSurf(v2, linearInterp(d0, v0, d3, v3, d2), linearInterp(d1, v1, d3, v3, d2));
 
   // Construct the surface functions
-  REAL coef;
+  double coef;
 
   // Search S0(x) = coef * (x-d0)^2
-  coef = (d1 > d0) ? (surf1 / ((d1 - d0) * (d1 - d0))) : REAL_CONST(0.0);
-  func[0] = coef * make_REAL3(1, -2 * d0, d0 * d0);
+  coef = (d1 > d0) ? (surf1 / ((d1 - d0) * (d1 - d0))) : 0.0;
+  func[0] = coef * double3{ 1, -2 * d0, d0 * d0 };
 
   // Search S1(x) = quadric interpolation of surf1, surf12, surf2 at the points d1, d12, d2
   func[1] = quadraticInterpFunc(d1, surf1, d12, surf12, d2, surf2);
 
   // S(x) = coef * (d3-x)^2
-  coef = (d3 > d2) ? (surf2 / ((d3 - d2) * (d3 - d2))) : REAL_CONST(0.0);
-  func[2] = coef * make_REAL3(1, -2 * d3, d3 * d3);
+  coef = (d3 > d2) ? (surf2 / ((d3 - d2) * (d3 - d2))) : 0.0;
+  func[2] = coef * double3{ 1, -2 * d3, d3 * d3 };
 
   return tetraVolume(v0, v1, v2, v3);
 }
 
-FUNC_DECL
-REAL findTetraSetCuttingPlane(const REAL3 normal, // IN  , normal vector
-  const REAL fraction,                            // IN  , volume fraction
-  const int nv,                                   // IN  , number of vertices
-  const int nt,                                   // IN  , number of tetras
-  const uchar4* tv,                               // IN  , tetras connectivity, size=nt
-  const REAL3* vertices                           // IN  , vertex coordinates, size=nv
-#ifdef __CUDACC__
-  ,
-  char* sdata // TEMP Storage
-#endif
+static inline double findTetraSetCuttingPlane(double3 normal, // IN  , normal vector
+  double fraction,                                            // IN  , volume fraction
+  int nv,                                                     // IN  , number of vertices
+  int nt,                                                     // IN  , number of tetras
+  const uchar4* tv,                                           // IN  , tetras connectivity, size=nt
+  const double3* vertices                                     // IN  , vertex coordinates, size=nv
 )
 {
-  ALLOC_LOCAL_ARRAY(rindex, unsigned char, nv);
-  ALLOC_LOCAL_ARRAY(index, unsigned char, nv);
-  ALLOC_LOCAL_ARRAY(derivatives, REAL3, nv - 1);
+  auto index = std::make_unique<unsigned char[]>(nv);
+  auto rindex = std::make_unique<unsigned char[]>(nv);
+  auto derivatives = std::make_unique<double3[]>(nv - 1);
 
   // initialization
   for (int i = 0; i < nv; i++)
@@ -2903,7 +2353,7 @@ REAL findTetraSetCuttingPlane(const REAL3 normal, // IN  , normal vector
   }
 
   // sort vertices in the normal vector direction
-  sortVertices(nv, vertices, normal, index);
+  sortVertices(nv, vertices, normal, index.get());
 
   // reverse indirection table
   for (int i = 0; i < nv; i++)
@@ -2920,22 +2370,22 @@ REAL findTetraSetCuttingPlane(const REAL3 normal, // IN  , normal vector
 
   for (int i = 0; i < (nv - 1); i++)
   {
-    derivatives[i] = make_REAL3(0, 0, 0);
+    derivatives[i] = double3{ 0, 0, 0 };
   }
 
-  REAL volume = 0;
+  double volume = 0;
 
   // construction of the truncated volume piecewise cubic function
   for (int i = 0; i < nt; i++)
   {
     // area of the interface-tetra intersection at points P1 and P2
-    uchar4 tetra = sortTetra(tv[i], rindex);
+    uchar4 tetra = sortTetra(tv[i], rindex.get());
     DBG_MESG("\ntetra " << i << " : " << tv[i].x << ',' << tv[i].y << ',' << tv[i].z << ','
                         << tv[i].w << " -> " << tetra.x << ',' << tetra.y << ',' << tetra.z << ','
                         << tetra.w);
 
     // compute the volume function derivative pieces
-    REAL3 tetraSurfFunc[3];
+    double3 tetraSurfFunc[3];
     volume += tetraPlaneSurfFunc(tetra, vertices, normal, tetraSurfFunc);
 
 #ifdef DEBUG
@@ -2968,21 +2418,21 @@ REAL findTetraSetCuttingPlane(const REAL3 normal, // IN  , normal vector
   }
 
   // target volume fraction we're looking for
-  REAL y = volume * fraction;
+  double y = volume * fraction;
   DBG_MESG("volume = " << volume << ", volume*fraction = " << y);
 
   // integrate area function pieces to obtain volume function pieces
-  REAL sum = 0;
-  REAL4 volumeFunction = make_REAL4(0, 0, 0, 0);
-  REAL xmin = 0;
-  REAL xmax = dot(vertices[index[0]], normal);
+  double sum = 0;
+  double4 volumeFunction = double4{ 0, 0, 0, 0 };
+  double xmin = 0;
+  double xmax = dot(vertices[index[0]], normal);
   int s = -1;
   while (sum < y && s < (nv - 2))
   {
     xmin = xmax;
     y -= sum;
     ++s;
-    REAL4 F = integratePolynomialFunc(derivatives[s]);
+    double4 F = integratePolynomialFunc(derivatives[s]);
     F.w = -evalPolynomialFunc(F, xmin);
     volumeFunction = F;
     xmax = dot(vertices[index[s + 1]], normal);
@@ -3001,24 +2451,12 @@ REAL findTetraSetCuttingPlane(const REAL3 normal, // IN  , normal vector
   DBG_MESG("volume reminder = " << y);
 
   // search by newton
-  REAL x = newtonSearchPolynomialFunc(volumeFunction, derivatives[s], y, xmin, xmax);
+  double x = newtonSearchPolynomialFunc(volumeFunction, derivatives[s], y, xmin, xmax);
 
   DBG_MESG("final x = " << x);
 
-  FREE_LOCAL_ARRAY(rindex, unsigned char, nv);
-  FREE_LOCAL_ARRAY(index, unsigned char, nv);
-  FREE_LOCAL_ARRAY(derivatives, REAL3, nv - 1);
-
   return x;
 }
-
-typedef REAL Real;
-typedef REAL2 Real2;
-typedef REAL3 Real3;
-typedef REAL4 Real4;
-
-#undef REAL_PRECISION
-#undef REAL_COORD
 
 struct VertexInfo
 {
@@ -3199,12 +2637,12 @@ void vtkYoungsMaterialInterfaceCellCut::cellInterface3D(int ncoords, double coor
 }
 
 double vtkYoungsMaterialInterfaceCellCut::findTetraSetCuttingPlane(const double normal[3],
-  const double fraction, const int vertexCount, const double vertices[][3], const int tetraCount,
+  double fraction, int vertexCount, const double vertices[][3], int tetraCount,
   const int tetras[][4])
 {
-  vtkYoungsMaterialInterfaceCellCutInternals::Real3 N = { normal[0], normal[1], normal[2] };
-  vtkYoungsMaterialInterfaceCellCutInternals::Real3 V[LOCAL_ARRAY_SIZE(vertexCount)];
-  vtkYoungsMaterialInterfaceCellCutInternals::uchar4 tet[LOCAL_ARRAY_SIZE(tetraCount)];
+  vtkYoungsMaterialInterfaceCellCutInternals::double3 N = { normal[0], normal[1], normal[2] };
+  auto V = std::make_unique<vtkYoungsMaterialInterfaceCellCutInternals::double3[]>(vertexCount);
+  auto tet = std::make_unique<vtkYoungsMaterialInterfaceCellCutInternals::uchar4[]>(tetraCount);
 
   for (int i = 0; i < vertexCount; i++)
   {
@@ -3213,8 +2651,8 @@ double vtkYoungsMaterialInterfaceCellCut::findTetraSetCuttingPlane(const double 
     V[i].z = vertices[i][2] - vertices[0][2];
   }
 
-  vtkYoungsMaterialInterfaceCellCutInternals::Real3 vmin, vmax;
-  vtkYoungsMaterialInterfaceCellCutInternals::Real scale;
+  vtkYoungsMaterialInterfaceCellCutInternals::double3 vmin, vmax;
+  double scale;
   vmin = vmax = V[0];
   for (int i = 1; i < vertexCount; i++)
   {
@@ -3243,7 +2681,7 @@ double vtkYoungsMaterialInterfaceCellCut::findTetraSetCuttingPlane(const double 
     vertices[0][0] * normal[0] + vertices[0][1] * normal[1] + vertices[0][2] * normal[2];
   double d = dist0 +
     vtkYoungsMaterialInterfaceCellCutInternals::findTetraSetCuttingPlane(
-      N, fraction, vertexCount, tetraCount, tet, V) *
+      N, fraction, vertexCount, tetraCount, tet.get(), V.get()) *
       scale;
 
   return -d;
@@ -3268,7 +2706,7 @@ bool vtkYoungsMaterialInterfaceCellCut::cellInterfaceD(double points[][3], int n
                                        nTriangles, triangles, axisSymetric);
 
   // compute vertex distances to interface plane
-  double dist[LOCAL_ARRAY_SIZE(nPoints)];
+  auto dist = std::make_unique<double[]>(nPoints);
   for (int i = 0; i < nPoints; i++)
   {
     dist[i] = points[i][0] * normal[0] + points[i][1] * normal[1] + points[i][2] * normal[2] + d;
@@ -3311,12 +2749,12 @@ bool vtkYoungsMaterialInterfaceCellCut::cellInterfaceD(double points[][3], int n
 }
 
 double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const double normal[3],
-  const double fraction, const int vertexCount, const double vertices[][3], const int triangleCount,
+  double fraction, int vertexCount, const double vertices[][3], int triangleCount,
   const int triangles[][3], bool axisSymetric)
 {
   double d;
 
-  vtkYoungsMaterialInterfaceCellCutInternals::uchar3 tri[LOCAL_ARRAY_SIZE(triangleCount)];
+  auto tri = std::make_unique<vtkYoungsMaterialInterfaceCellCutInternals::uchar3[]>(triangleCount);
   for (int i = 0; i < triangleCount; i++)
   {
     tri[i].x = triangles[i][0];
@@ -3326,15 +2764,15 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
 
   if (axisSymetric)
   {
-    vtkYoungsMaterialInterfaceCellCutInternals::Real2 N = { normal[0], normal[1] };
-    vtkYoungsMaterialInterfaceCellCutInternals::Real2 V[LOCAL_ARRAY_SIZE(vertexCount)];
+    vtkYoungsMaterialInterfaceCellCutInternals::double2 N = { normal[0], normal[1] };
+    auto V = std::make_unique<vtkYoungsMaterialInterfaceCellCutInternals::double2[]>(vertexCount);
     for (int i = 0; i < vertexCount; i++)
     {
       V[i].x = vertices[i][0] - vertices[0][0];
       V[i].y = vertices[i][1] - vertices[0][1];
     }
-    vtkYoungsMaterialInterfaceCellCutInternals::Real2 vmin, vmax;
-    vtkYoungsMaterialInterfaceCellCutInternals::Real scale;
+    vtkYoungsMaterialInterfaceCellCutInternals::double2 vmin, vmax;
+    double scale;
     vmin = vmax = V[0];
     for (int i = 1; i < vertexCount; i++)
     {
@@ -3350,21 +2788,21 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
     double dist0 = vertices[0][0] * normal[0] + vertices[0][1] * normal[1];
     d = dist0 +
       vtkYoungsMaterialInterfaceCellCutInternals::findTriangleSetCuttingCone(
-        N, fraction, vertexCount, triangleCount, tri, V) *
+        N, fraction, vertexCount, triangleCount, tri.get(), V.get()) *
         scale;
   }
   else
   {
-    vtkYoungsMaterialInterfaceCellCutInternals::Real3 N = { normal[0], normal[1], normal[2] };
-    vtkYoungsMaterialInterfaceCellCutInternals::Real3 V[LOCAL_ARRAY_SIZE(vertexCount)];
+    vtkYoungsMaterialInterfaceCellCutInternals::double3 N = { normal[0], normal[1], normal[2] };
+    auto V = std::make_unique<vtkYoungsMaterialInterfaceCellCutInternals::double3[]>(vertexCount);
     for (int i = 0; i < vertexCount; i++)
     {
       V[i].x = vertices[i][0] - vertices[0][0];
       V[i].y = vertices[i][1] - vertices[0][1];
       V[i].z = vertices[i][2] - vertices[0][2];
     }
-    vtkYoungsMaterialInterfaceCellCutInternals::Real3 vmin, vmax;
-    vtkYoungsMaterialInterfaceCellCutInternals::Real scale;
+    vtkYoungsMaterialInterfaceCellCutInternals::double3 vmin, vmax;
+    double scale;
     vmin = vmax = V[0];
     for (int i = 1; i < vertexCount; i++)
     {
@@ -3384,7 +2822,7 @@ double vtkYoungsMaterialInterfaceCellCut::findTriangleSetCuttingPlane(const doub
       vertices[0][0] * normal[0] + vertices[0][1] * normal[1] + vertices[0][2] * normal[2];
     d = dist0 +
       vtkYoungsMaterialInterfaceCellCutInternals::findTriangleSetCuttingPlane(
-        N, fraction, vertexCount, triangleCount, tri, V) *
+        N, fraction, vertexCount, triangleCount, tri.get(), V.get()) *
         scale;
   }
 
