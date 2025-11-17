@@ -31,6 +31,13 @@ vtkStandardNewMacro(vtkLineRepresentation);
 
 vtkCxxSetObjectMacro(vtkLineRepresentation, HandleRepresentation, vtkPointHandleRepresentation3D);
 
+vtkCxxSetObjectMacro(vtkLineRepresentation, EndPointProperty, vtkProperty);
+vtkCxxSetObjectMacro(vtkLineRepresentation, SelectedEndPointProperty, vtkProperty);
+vtkCxxSetObjectMacro(vtkLineRepresentation, EndPoint2Property, vtkProperty);
+vtkCxxSetObjectMacro(vtkLineRepresentation, SelectedEndPoint2Property, vtkProperty);
+vtkCxxSetObjectMacro(vtkLineRepresentation, LineProperty, vtkProperty);
+vtkCxxSetObjectMacro(vtkLineRepresentation, SelectedLineProperty, vtkProperty);
+
 //------------------------------------------------------------------------------
 vtkLineRepresentation::vtkLineRepresentation()
 {
@@ -83,12 +90,7 @@ vtkLineRepresentation::vtkLineRepresentation()
   this->CreateDefaultProperties();
 
   // Pass the initial properties to the actors.
-  this->Handle[0]->SetProperty(this->EndPointProperty);
-  this->Point1Representation->SetProperty(this->EndPointProperty);
-  this->Handle[1]->SetProperty(this->EndPoint2Property);
-  this->Point2Representation->SetProperty(this->EndPoint2Property);
-  this->LineHandleRepresentation->SetProperty(this->EndPointProperty);
-  this->LineActor->SetProperty(this->LineProperty);
+  this->UpdatePointAndLineProperties();
 
   // Define the point coordinates
   double bounds[6];
@@ -622,37 +624,6 @@ void vtkLineRepresentation::SetRepresentationState(int state)
 
   this->RepresentationState = state;
   this->Modified();
-
-  if (state == vtkLineRepresentation::Outside)
-  {
-    this->HighlightPoint(0, 0);
-    this->HighlightPoint(1, 0);
-    this->HighlightLine(0);
-  }
-  else if (state == vtkLineRepresentation::OnP1)
-  {
-    this->HighlightPoint(0, 1);
-    this->HighlightPoint(1, 0);
-    this->HighlightLine(0);
-  }
-  else if (state == vtkLineRepresentation::OnP2)
-  {
-    this->HighlightPoint(0, 0);
-    this->HighlightPoint(1, 1);
-    this->HighlightLine(0);
-  }
-  else if (state == vtkLineRepresentation::OnLine)
-  {
-    this->HighlightPoint(0, 0);
-    this->HighlightPoint(1, 0);
-    this->HighlightLine(1);
-  }
-  else
-  {
-    this->HighlightPoint(0, 1);
-    this->HighlightPoint(1, 1);
-    this->HighlightLine(1);
-  }
 }
 
 //------------------------------------------------------------------------------
@@ -715,6 +686,41 @@ void vtkLineRepresentation::SizeHandles()
 }
 
 //------------------------------------------------------------------------------
+void vtkLineRepresentation::UpdatePointAndLineProperties()
+{
+  if (this->RepresentationState == vtkLineRepresentation::Outside)
+  {
+    this->HighlightPoint(0, 0);
+    this->HighlightPoint(1, 0);
+    this->HighlightLine(0);
+  }
+  else if (this->RepresentationState == vtkLineRepresentation::OnP1)
+  {
+    this->HighlightPoint(0, 1);
+    this->HighlightPoint(1, 0);
+    this->HighlightLine(0);
+  }
+  else if (this->RepresentationState == vtkLineRepresentation::OnP2)
+  {
+    this->HighlightPoint(0, 0);
+    this->HighlightPoint(1, 1);
+    this->HighlightLine(0);
+  }
+  else if (this->RepresentationState == vtkLineRepresentation::OnLine)
+  {
+    this->HighlightPoint(0, 0);
+    this->HighlightPoint(1, 0);
+    this->HighlightLine(1);
+  }
+  else
+  {
+    this->HighlightPoint(0, 1);
+    this->HighlightPoint(1, 1);
+    this->HighlightLine(1);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkLineRepresentation::BuildRepresentation()
 {
   // Rebuild only if necessary
@@ -726,6 +732,7 @@ void vtkLineRepresentation::BuildRepresentation()
       (this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime ||
         this->Renderer->GetActiveCamera()->GetMTime() > this->BuildTime)))
   {
+    this->UpdatePointAndLineProperties();
     if (!this->InitializedDisplayPosition && this->Renderer)
     {
       this->SetPoint1WorldPosition(this->LineSource->GetPoint1());
