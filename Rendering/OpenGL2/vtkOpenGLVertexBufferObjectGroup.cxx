@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOpenGLVertexBufferObjectGroup.h"
 
-#include <cassert>
-
 #include "vtkDataArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -262,9 +260,9 @@ void vtkOpenGLVertexBufferObjectGroup::AddAllAttributesToVAO(
     if (program->IsAttributeUsed(dataShaderName.c_str()))
     {
       vtkOpenGLVertexBufferObject* vbo = i->second;
-      if (!vao->AddAttributeArray(program, vbo, dataShaderName,
-            0,                                          // offset see assert later in this file
-            (vbo->GetDataType() == VTK_UNSIGNED_CHAR))) // TODO: fix tweak. true for colors.
+      if (!vao->AddAttributeArrayWithDivisor(program, vbo, dataShaderName, 0, vbo->GetStride(),
+            vbo->GetDataType(), vbo->GetNumberOfComponents(),
+            (vbo->GetDataType() == VTK_UNSIGNED_CHAR), this->Instancing ? 1 : 0, false))
       {
         vtkErrorMacro(<< "Error setting '" << dataShaderName << "' in shader VAO.");
       }
