@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -12,9 +11,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Quincey Koziol
- *              Wednesday, July 20, 2011
- *
  * Purpose:	Query routines for global heaps.
  *
  */
@@ -67,9 +63,6 @@
  *
  * Return:	Address of heap on success/abort on failure (shouldn't fail)
  *
- * Programmer:	Quincey Koziol
- *              Wednesday, July 20, 2011
- *
  *-------------------------------------------------------------------------
  */
 haddr_t
@@ -78,7 +71,7 @@ H5HG_get_addr(const H5HG_heap_t *heap)
     /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    HDassert(heap);
+    assert(heap);
 
     FUNC_LEAVE_NOAPI(heap->addr)
 } /* H5HG_get_addr() */
@@ -90,9 +83,6 @@ H5HG_get_addr(const H5HG_heap_t *heap)
  *
  * Return:	Size of heap on success/abort on failure (shouldn't fail)
  *
- * Programmer:	Quincey Koziol
- *              Wednesday, July 20, 2011
- *
  *-------------------------------------------------------------------------
  */
 size_t
@@ -101,7 +91,7 @@ H5HG_get_size(const H5HG_heap_t *heap)
     /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    HDassert(heap);
+    assert(heap);
 
     FUNC_LEAVE_NOAPI(heap->size)
 } /* H5HG_get_size() */
@@ -113,9 +103,6 @@ H5HG_get_size(const H5HG_heap_t *heap)
  *
  * Return:	Free size of heap on success/abort on failure (shouldn't fail)
  *
- * Programmer:	Quincey Koziol
- *              Wednesday, July 20, 2011
- *
  *-------------------------------------------------------------------------
  */
 size_t
@@ -124,7 +111,7 @@ H5HG_get_free_size(const H5HG_heap_t *heap)
     /* Use FUNC_ENTER_NOAPI_NOINIT_NOERR here to avoid performance issues */
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
-    HDassert(heap);
+    assert(heap);
 
     FUNC_LEAVE_NOAPI(heap->obj[0].size)
 } /* H5HG_get_free_size() */

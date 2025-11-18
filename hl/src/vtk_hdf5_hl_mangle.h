@@ -1,5 +1,5 @@
-#ifndef VTK_HDF5_HL_MANGLE_H
-#define VTK_HDF5_HL_MANGLE_H
+#ifndef vtk_hdf5_hl_mangle_h
+#define vtk_hdf5_hl_mangle_h
 
 #define H5DOappend vtkhdf5_hl_H5DOappend
 #define H5DOread_chunk vtkhdf5_hl_H5DOread_chunk

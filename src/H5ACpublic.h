@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,23 +13,16 @@
 /*-------------------------------------------------------------------------
  *
  * Created:             H5ACpublic.h
- *                      Jul 10 1997
- *                      Robb Matzke
  *
- * Purpose:             Public include file for cache functions.
+ * Purpose:             Public include file for cache functions
  *
  *-------------------------------------------------------------------------
  */
 #ifndef H5ACpublic_H
 #define H5ACpublic_H
 
-/* Public headers needed by this file */
-#include "H5public.h"
-#include "H5Cpublic.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "H5public.h"  /* Generic Functions                        */
+#include "H5Cpublic.h" /* Cache                                    */
 
 /****************************************************************************
  *
@@ -78,13 +70,13 @@ extern "C" {
  *
  *     The trace file is a debugging feature that allow the capture of
  *     top level metadata cache requests for purposes of debugging and/or
- *     optimization.  This field should normally be set to FALSE, as
+ *     optimization.  This field should normally be set to false, as
  *     trace file collection imposes considerable overhead.
  *
- *     This field should only be set to TRUE when the trace_file_name
+ *     This field should only be set to true when the trace_file_name
  *     contains the full path of the desired trace file, and either
  *     there is no open trace file on the cache, or the close_trace_file
- *     field is also TRUE.
+ *     field is also true.
  *
  * close_trace_file: Boolean field indicating whether the current trace
  *     file (if any) should be closed.
@@ -92,11 +84,11 @@ extern "C" {
  *      *** DEPRECATED *** Use H5Fstart/stop logging functions instead
  *
  *     See the above comments on the open_trace_file field.  This field
- *     should be set to FALSE unless there is an open trace file on the
+ *     should be set to false unless there is an open trace file on the
  *     cache that you wish to close.
  *
  * trace_file_name: Full path of the trace file to be opened if the
- *     open_trace_file field is TRUE.
+ *     open_trace_file field is true.
  *
  *      *** DEPRECATED *** Use H5Fstart/stop logging functions instead
  *
@@ -128,7 +120,7 @@ extern "C" {
  *
  * set_initial_size: Boolean flag indicating whether the size of the
  *      initial size of the cache is to be set to the value given in
- *      the initial_size field.  If set_initial_size is FALSE, the
+ *      the initial_size field.  If set_initial_size is false, the
  *      initial_size field is ignored.
  *
  * initial_size: If enabled, this field contain the size the cache is
@@ -471,7 +463,7 @@ typedef struct H5AC_cache_config_t {
     /* general configuration fields: */
     //! <!-- [H5AC_cache_config_t_general_snip] -->
     int version;
-    /**< Integer field indicating the the version of the H5AC_cache_config_t
+    /**< Integer field indicating the version of the H5AC_cache_config_t
      * in use. This field should be set to #H5AC__CURR_CACHE_CONFIG_VERSION
      * (defined in H5ACpublic.h). */
 
@@ -567,7 +559,7 @@ typedef struct H5AC_cache_config_t {
      * The value must lie in the interval [0.0, 1.0]. 0.01 is a good place to
      * start in the serial case. In the parallel case, a larger value is needed
      * -- see the overview of the metadata cache in the
-     * “Metadata Caching in HDF5” section of the -- <em>HDF5 User’s Guide</em>
+     * “Metadata Caching in HDF5” section of the -- <em>\ref UG</em>
      * for details. */
 
     size_t max_size;
@@ -727,8 +719,18 @@ typedef struct H5AC_cache_config_t {
 
 #define H5AC__CURR_CACHE_IMAGE_CONFIG_VERSION 1
 
+/**
+ * No limit on number of times a prefetched entry can appear in subsequent
+ * cache images
+ * \since 1.10.1
+ */
 #define H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE -1
-#define H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX  100
+/**
+ * Limit on number of times a prefetched entry can appear in subsequent
+ * cache images
+ * \since 1.10.1
+ */
+#define H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX 100
 
 //! <!-- [H5AC_cache_image_config_t_snip] -->
 /**
@@ -764,7 +766,7 @@ typedef struct H5AC_cache_image_config_t {
      *   H5AC__CACHE_IMAGE__ENTRY_AGEOUT__MAX (100).
      *
      *   \ref H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE means that no limit is
-     *   imposed on number of times a prefeteched entry can appear in subsequent
+     *   imposed on number of times a prefetched entry can appear in subsequent
      *   cache images.
      *
      *   A value of 0 prevents prefetched entries from being included in cache
@@ -783,7 +785,4 @@ typedef struct H5AC_cache_image_config_t {
 
 //! <!-- [H5AC_cache_image_config_t_snip] -->
 
-#ifdef __cplusplus
-}
-#endif
 #endif

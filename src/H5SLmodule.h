@@ -11,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol
- *		Saturday, September 12, 2015
- *
- * Purpose:	This file contains declarations which define macros for the
- *		H5SL package.  Including this header means that the source file
- *		is part of the H5SL package.
+ * Purpose: This file contains declarations which define macros for the
+ *          H5SL package.  Including this header means that the source file
+ *          is part of the H5SL package.
  */
 #ifndef H5SLmodule_H
 #define H5SLmodule_H
@@ -25,8 +22,7 @@
  *      reporting macros.
  */
 #define H5SL_MODULE
-#define H5_MY_PKG      H5SL
-#define H5_MY_PKG_ERR  H5E_SLIST
-#define H5_MY_PKG_INIT YES
+#define H5_MY_PKG     H5SL
+#define H5_MY_PKG_ERR H5E_SLIST
 
 #endif /* H5SLmodule_H */

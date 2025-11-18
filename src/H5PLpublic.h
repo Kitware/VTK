@@ -2,7 +2,7 @@
  * Copyright by The HDF Group.                                               *
  * All rights reserved.                                                      *
  *                                                                           *
- * This file is part of HDF5. The full HDF5 copyright notice, including      *
+ * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
  * distribution tree, or in https://www.hdfgroup.org/licenses.               *
@@ -17,15 +17,13 @@
 #ifndef H5PLpublic_H
 #define H5PLpublic_H
 
-/* Public headers needed by this file */
-#include "H5public.h" /* Generic Functions                    */
+#include "H5public.h" /* Generic Functions                        */
 
 /*******************/
 /* Public Typedefs */
 /*******************/
 
-/* Special string to indicate no plugin loading.
- */
+/** Special string to indicate no plugin loading \since 1.10.2 */
 #define H5PL_NO_PLUGIN "::"
 
 //! <!-- [H5PL_type_t_snip] -->
@@ -42,10 +40,14 @@ typedef enum H5PL_type_t {
 //! <!-- [H5PL_type_t_snip] -->
 
 /* Common dynamic plugin type flags used by the set/get_loading_state functions */
+/** Flag for filter plugin \since 1.8.15 */
 #define H5PL_FILTER_PLUGIN 0x0001
-#define H5PL_VOL_PLUGIN    0x0002
-#define H5PL_VFD_PLUGIN    0x0004
-#define H5PL_ALL_PLUGIN    0xFFFF
+/** Flag for VOL plugin \since 1.12.0 */
+#define H5PL_VOL_PLUGIN 0x0002
+/** Flag for VFD plugin \since 1.14.0 */
+#define H5PL_VFD_PLUGIN 0x0004
+/** Flag for all plugin types \since 1.8.15 */
+#define H5PL_ALL_PLUGIN 0xFFFF
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,9 +97,9 @@ H5_DLL herr_t H5PLset_loading_state(unsigned int plugin_control_mask);
  * \brief Queries the loadability of dynamic plugin types
  *
  * \param[out] plugin_control_mask List of dynamic plugin types that are enabled or disabled.\n
- *                                 A plugin bit set to 0 (zero) indicates that that the dynamic plugin type is
+ *                                 A plugin bit set to 0 (zero) indicates that the dynamic plugin type is
  *                                 disabled.\n
- *                                 A plugin bit set to 1 (one) indicates that that the dynamic plugin type is
+ *                                 A plugin bit set to 1 (one) indicates that the dynamic plugin type is
  *                                 enabled.\n
  *                                 If the value of \p plugin_control_mask is negative, all dynamic plugin
  *                                 types are enabled.\n
@@ -105,7 +107,7 @@ H5_DLL herr_t H5PLset_loading_state(unsigned int plugin_control_mask);
  *                                 are disabled.
  * \return \herr_t
  *
- * \details H5PLget_loading_state() retrieves the bitmask that controls whether a certain type of plugins
+ * \details H5PLget_loading_state() retrieves the bitmask that controls whether a certain type of plugin
  *          (e.g.: filters, VOL drivers) will be loaded by the HDF5 library.
  *
  *          Bit positions allocated to date are specified in \ref H5PL_type_t as follows:

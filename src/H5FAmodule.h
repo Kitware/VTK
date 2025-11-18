@@ -11,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol
- *		Saturday, September 12, 2015
- *
- * Purpose:	This file contains declarations which define macros for the
- *		H5FA package.  Including this header means that the source file
- *		is part of the H5FA package.
+ * Purpose: This file contains declarations which define macros for the
+ *          H5FA package.  Including this header means that the source file
+ *          is part of the H5FA package.
  */
 #ifndef H5FAmodule_H
 #define H5FAmodule_H
@@ -25,8 +22,7 @@
  *      reporting macros.
  */
 #define H5FA_MODULE
-#define H5_MY_PKG      H5FA
-#define H5_MY_PKG_ERR  H5E_FARRAY
-#define H5_MY_PKG_INIT NO
+#define H5_MY_PKG     H5FA
+#define H5_MY_PKG_ERR H5E_FARRAY
 
 #endif /* H5FAmodule_H */

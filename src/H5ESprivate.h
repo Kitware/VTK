@@ -13,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:     H5ESprivate.h
- *              Apr  6 2020
- *              Quincey Koziol
  *
  * Purpose:     Private header for library accessible event set routines.
  *

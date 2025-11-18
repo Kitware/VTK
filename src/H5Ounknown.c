@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:             H5Ounknown.c
- *                      Apr 19 2007
- *                      Quincey Koziol
  *
  * Purpose:             Handle unknown message classes in a minimal way.
  *
@@ -66,17 +63,14 @@ H5FL_DEFINE(H5O_unknown_t);
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *              Tuesday, May 1, 2007
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5O__unknown_free(void *mesg)
 {
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
-    HDassert(mesg);
+    assert(mesg);
 
     mesg = H5FL_FREE(H5O_unknown_t, mesg);
 

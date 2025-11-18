@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,10 +13,8 @@
 /*-------------------------------------------------------------------------
  *
  * Created:             H5MMprivate.h
- *                      Jul 10 1997
- *                      Robb Matzke
  *
- * Purpose:             Private header for memory management.
+ * Purpose:             Private header for memory management
  *
  *-------------------------------------------------------------------------
  */
@@ -29,28 +26,33 @@
 /* Private headers needed by this file */
 #include "H5private.h"
 
-#if defined H5_MEMORY_ALLOC_SANITY_CHECK
-/*#define H5MM_PRINT_MEMORY_STATS */
-#define H5MM_free(Z) H5MM_xfree(Z)
-#else /* H5_MEMORY_ALLOC_SANITY_CHECK */
-#define H5MM_free(Z) HDfree(Z)
-#endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
+/* Uncomment this macro to enable some extra memory checks
+ *
+ * This can also be defined at configure time, which we do in debug builds
+ * by default.
+ */
+/* #define H5MM_DEBUG */
+
+#define H5MM_calloc(Z) calloc(1, Z)
+#define H5MM_free(Z)   free(Z)
+#define H5MM_malloc(Z) malloc(Z)
+
+#ifndef H5MM_DEBUG
+#define H5MM_memcpy(D, S, N) memcpy(D, S, N)
+#endif /* !H5MM_DEBUG */
 
 /*
  * Library prototypes...
  */
-H5_DLL void * H5MM_malloc(size_t size);
-H5_DLL void * H5MM_calloc(size_t size);
-H5_DLL void * H5MM_realloc(void *mem, size_t size);
-H5_DLL char * H5MM_xstrdup(const char *s);
-H5_DLL char * H5MM_strdup(const char *s);
-H5_DLL void * H5MM_xfree(void *mem);
-H5_DLL void * H5MM_xfree_const(const void *mem);
-H5_DLL void * H5MM_memcpy(void *dest, const void *src, size_t n);
-H5_DLL herr_t H5MM_get_alloc_stats(H5_alloc_stats_t *stats);
-#if defined   H5_MEMORY_ALLOC_SANITY_CHECK
-H5_DLL void   H5MM_sanity_check_all(void);
-H5_DLL void   H5MM_final_sanity_check(void);
-#endif /* H5_MEMORY_ALLOC_SANITY_CHECK */
+H5_DLL void *H5MM_realloc(void *mem, size_t size);
+H5_DLL char *H5MM_xstrdup(const char *s) H5_ATTR_MALLOC;
+H5_DLL char *H5MM_strdup(const char *s) H5_ATTR_MALLOC;
+H5_DLL char *H5MM_strndup(const char *s, size_t n) H5_ATTR_MALLOC;
+H5_DLL void *H5MM_xfree(void *mem);
+H5_DLL void *H5MM_xfree_const(const void *mem);
+
+#ifdef H5MM_DEBUG
+H5_DLL void *H5MM_memcpy(void *dest, const void *src, size_t n);
+#endif
 
 #endif /* H5MMprivate_H */

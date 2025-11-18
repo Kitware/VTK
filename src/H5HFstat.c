@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -11,9 +10,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Quincey Koziol
- *              Monday, March  6, 2006
- *
+/*
  * Purpose:	Fractal heap metadata statistics functions.
  *
  */
@@ -68,9 +65,6 @@
  *
  *		Failure:	negative
  *
- * Programmer:	Quincey Koziol
- *              Monday, March  6, 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -79,8 +73,8 @@ H5HF_stat_info(const H5HF_t *fh, H5HF_stat_t *stats)
     FUNC_ENTER_NOAPI_NOINIT_NOERR
 
     /* Check arguments. */
-    HDassert(fh);
-    HDassert(stats);
+    assert(fh);
+    assert(stats);
 
     /* Report statistics for fractal heap */
     stats->man_size       = fh->hdr->man_size;
@@ -107,16 +101,13 @@ H5HF_stat_info(const H5HF_t *fh, H5HF_stat_t *stats)
  *
  * Return:      non-negative on success, negative on error
  *
- * Programmer:  Vailin Choi
- *              July 12 2007
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5HF_size(const H5HF_t *fh, hsize_t *heap_size)
 {
     H5HF_hdr_t *hdr;                 /* Fractal heap header */
-    H5B2_t *    bt2       = NULL;    /* v2 B-tree handle for index */
+    H5B2_t     *bt2       = NULL;    /* v2 B-tree handle for index */
     hsize_t     meta_size = 0;       /* free space storage size */
     herr_t      ret_value = SUCCEED; /* Return value */
 
@@ -125,8 +116,8 @@ H5HF_size(const H5HF_t *fh, hsize_t *heap_size)
     /*
      * Check arguments.
      */
-    HDassert(fh);
-    HDassert(heap_size);
+    assert(fh);
+    assert(heap_size);
 
     /* Get "convenience" pointer to fractal heap header */
     hdr = fh->hdr;
@@ -137,35 +128,35 @@ H5HF_size(const H5HF_t *fh, hsize_t *heap_size)
     *heap_size += hdr->huge_size;      /* "huge" object storage */
 
     /* Check for indirect blocks for managed objects */
-    if (H5F_addr_defined(hdr->man_dtable.table_addr) && hdr->man_dtable.curr_root_rows != 0)
+    if (H5_addr_defined(hdr->man_dtable.table_addr) && hdr->man_dtable.curr_root_rows != 0)
         if (H5HF__man_iblock_size(hdr->f, hdr, hdr->man_dtable.table_addr, hdr->man_dtable.curr_root_rows,
                                   NULL, 0, heap_size) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL,
-                        "unable to get fractal heap storage info for indirect block")
+                        "unable to get fractal heap storage info for indirect block");
 
     /* Check for B-tree storage of huge objects in fractal heap */
-    if (H5F_addr_defined(hdr->huge_bt2_addr)) {
+    if (H5_addr_defined(hdr->huge_bt2_addr)) {
         /* Open the huge object index v2 B-tree */
         if (NULL == (bt2 = H5B2_open(hdr->f, hdr->huge_bt2_addr, hdr->f)))
             HGOTO_ERROR(H5E_HEAP, H5E_CANTOPENOBJ, FAIL,
-                        "unable to open v2 B-tree for tracking 'huge' objects")
+                        "unable to open v2 B-tree for tracking 'huge' objects");
 
         /* Get the B-tree storage */
         if (H5B2_size(bt2, heap_size) < 0)
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve B-tree storage info")
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve B-tree storage info");
     } /* end if */
 
     /* Get storage for free-space tracking info */
-    if (H5F_addr_defined(hdr->fs_addr)) {
+    if (H5_addr_defined(hdr->fs_addr)) {
         if (H5HF__space_size(hdr, &meta_size) < 0)
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve FS meta storage info")
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve FS meta storage info");
         *heap_size += meta_size;
     } /* end if */
 
 done:
     /* Release resources */
     if (bt2 && H5B2_close(bt2) < 0)
-        HDONE_ERROR(H5E_HEAP, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for tracking 'huge' objects")
+        HDONE_ERROR(H5E_HEAP, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for tracking 'huge' objects");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5HF_size() */

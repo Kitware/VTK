@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -92,22 +91,22 @@ typedef herr_t (*H5P_reg_prop_func_t)(H5P_genclass_t *pclass);
  * class variables and methods used to initialize the class.
  */
 typedef struct H5P_libclass_t {
-    const char *     name; /* Class name */
+    const char      *name; /* Class name */
     H5P_plist_type_t type; /* Class type */
 
-    H5P_genclass_t **   par_pclass;    /* Pointer to global parent class property list class */
-    H5P_genclass_t **   pclass;        /* Pointer to global property list class */
+    H5P_genclass_t    **par_pclass;    /* Pointer to global parent class property list class */
+    H5P_genclass_t    **pclass;        /* Pointer to global property list class */
     hid_t *const        class_id;      /* Pointer to global property list class ID */
     hid_t *const        def_plist_id;  /* Pointer to global default property list ID */
     H5P_reg_prop_func_t reg_prop_func; /* Register class's properties */
 
     /* Class callback function pointers & info */
     H5P_cls_create_func_t create_func; /* Function to call when a property list is created */
-    void *                create_data; /* Pointer to user data to pass along to create callback */
+    void                 *create_data; /* Pointer to user data to pass along to create callback */
     H5P_cls_copy_func_t   copy_func;   /* Function to call when a property list is copied */
-    void *                copy_data;   /* Pointer to user data to pass along to copy callback */
+    void                 *copy_data;   /* Pointer to user data to pass along to copy callback */
     H5P_cls_close_func_t  close_func;  /* Function to call when a property list is closed */
-    void *                close_data;  /* Pointer to user data to pass along to close callback */
+    void                 *close_data;  /* Pointer to user data to pass along to close callback */
 } H5P_libclass_t;
 
 /*****************************/
@@ -162,8 +161,8 @@ H5_DLL herr_t H5P_init_phase2(void);
 
 /* Internal versions of API routines */
 H5_DLL herr_t H5P_close(H5P_genplist_t *plist);
-H5_DLL hid_t  H5P_create_id(H5P_genclass_t *pclass, hbool_t app_ref);
-H5_DLL hid_t  H5P_copy_plist(const H5P_genplist_t *old_plist, hbool_t app_ref);
+H5_DLL hid_t  H5P_create_id(H5P_genclass_t *pclass, bool app_ref);
+H5_DLL hid_t  H5P_copy_plist(const H5P_genplist_t *old_plist, bool app_ref);
 H5_DLL herr_t H5P_get(H5P_genplist_t *plist, const char *name, void *value);
 H5_DLL herr_t H5P_set(H5P_genplist_t *plist, const char *name, const void *value);
 H5_DLL herr_t H5P_peek(H5P_genplist_t *plist, const char *name, void *value);
@@ -176,19 +175,19 @@ H5_DLL herr_t H5P_insert(H5P_genplist_t *plist, const char *name, size_t size, v
 H5_DLL herr_t H5P_remove(H5P_genplist_t *plist, const char *name);
 H5_DLL htri_t H5P_exist_plist(const H5P_genplist_t *plist, const char *name);
 H5_DLL htri_t H5P_class_isa(const H5P_genclass_t *pclass1, const H5P_genclass_t *pclass2);
-H5_DLL char * H5P_get_class_name(H5P_genclass_t *pclass);
+H5_DLL char  *H5P_get_class_name(H5P_genclass_t *pclass) H5_ATTR_MALLOC;
 
 /* Internal helper routines */
-H5_DLL herr_t      H5P_get_nprops_pclass(const H5P_genclass_t *pclass, size_t *nprops, hbool_t recurse);
+H5_DLL herr_t      H5P_get_nprops_pclass(const H5P_genclass_t *pclass, size_t *nprops, bool recurse);
 H5_DLL hid_t       H5P_peek_driver(H5P_genplist_t *plist);
 H5_DLL const void *H5P_peek_driver_info(H5P_genplist_t *plist);
 H5_DLL const char *H5P_peek_driver_config_str(H5P_genplist_t *plist);
 H5_DLL herr_t      H5P_set_driver(H5P_genplist_t *plist, hid_t new_driver_id, const void *new_driver_info,
                                   const char *new_driver_config_str);
 H5_DLL herr_t      H5P_set_driver_by_name(H5P_genplist_t *plist, const char *driver_name,
-                                          const char *driver_config, hbool_t app_ref);
+                                          const char *driver_config, bool app_ref);
 H5_DLL herr_t      H5P_set_driver_by_value(H5P_genplist_t *plist, H5FD_class_value_t driver_value,
-                                           const char *driver_config, hbool_t app_ref);
+                                           const char *driver_config, bool app_ref);
 H5_DLL herr_t      H5P_set_vol(H5P_genplist_t *plist, hid_t vol_id, const void *vol_info);
 H5_DLL herr_t H5P_reset_vol_class(const H5P_genclass_t *pclass, const struct H5VL_connector_prop_t *vol_prop);
 H5_DLL herr_t H5P_set_vlen_mem_manager(H5P_genplist_t *plist, H5MM_allocate_t alloc_func, void *alloc_info,
@@ -203,11 +202,11 @@ H5_DLL herr_t H5P_get_filter_by_id(H5P_genplist_t *plist, H5Z_filter_t id, unsig
 H5_DLL htri_t H5P_filter_in_pline(H5P_genplist_t *plist, H5Z_filter_t id);
 
 /* Query internal fields of the property list struct */
-H5_DLL hid_t H5P_get_plist_id(const H5P_genplist_t *plist);
+H5_DLL hid_t           H5P_get_plist_id(const H5P_genplist_t *plist);
 H5_DLL H5P_genclass_t *H5P_get_class(const H5P_genplist_t *plist);
 
 /* *SPECIAL* Don't make more of these! -QAK */
-H5_DLL htri_t H5P_isa_class(hid_t plist_id, hid_t pclass_id);
+H5_DLL htri_t          H5P_isa_class(hid_t plist_id, hid_t pclass_id);
 H5_DLL H5P_genplist_t *H5P_object_verify(hid_t plist_id, hid_t pclass_id);
 
 /* Private DCPL routines */

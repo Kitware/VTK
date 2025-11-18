@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -79,9 +78,6 @@ H5FL_BLK_DEFINE(page_elmts);
  *
  * Return:      Non-NULL pointer to data block on success/NULL on failure
  *
- * Programmer:  Vailin Choi
- *              Thursday, April 30, 2009
- *
  *-------------------------------------------------------------------------
  */
 H5FA_dblk_page_t *
@@ -93,16 +89,16 @@ H5FA__dblk_page_alloc(H5FA_hdr_t *hdr, size_t nelmts)
     FUNC_ENTER_PACKAGE
 
     /* Check arguments */
-    HDassert(hdr);
+    assert(hdr);
 
     /* Allocate memory for the data block */
     if (NULL == (dblk_page = H5FL_CALLOC(H5FA_dblk_page_t)))
         HGOTO_ERROR(H5E_FARRAY, H5E_CANTALLOC, NULL,
-                    "memory allocation failed for fixed array data block page")
+                    "memory allocation failed for fixed array data block page");
 
     /* Share common array information */
     if (H5FA__hdr_incr(hdr) < 0)
-        HGOTO_ERROR(H5E_FARRAY, H5E_CANTINC, NULL, "can't increment reference count on shared array header")
+        HGOTO_ERROR(H5E_FARRAY, H5E_CANTINC, NULL, "can't increment reference count on shared array header");
     dblk_page->hdr = hdr;
 
     /* Set non-zero internal fields */
@@ -111,7 +107,7 @@ H5FA__dblk_page_alloc(H5FA_hdr_t *hdr, size_t nelmts)
     /* Allocate buffer for elements in data block page */
     if (NULL == (dblk_page->elmts = H5FL_BLK_MALLOC(page_elmts, nelmts * hdr->cparam.cls->nat_elmt_size)))
         HGOTO_ERROR(H5E_FARRAY, H5E_CANTALLOC, NULL,
-                    "memory allocation failed for data block page element buffer")
+                    "memory allocation failed for data block page element buffer");
 
     /* Set the return value */
     ret_value = dblk_page;
@@ -120,7 +116,7 @@ done:
 
     if (!ret_value)
         if (dblk_page && H5FA__dblk_page_dest(dblk_page) < 0)
-            HDONE_ERROR(H5E_FARRAY, H5E_CANTFREE, NULL, "unable to destroy fixed array data block page")
+            HDONE_ERROR(H5E_FARRAY, H5E_CANTFREE, NULL, "unable to destroy fixed array data block page");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FA__dblk_page_alloc() */
@@ -132,54 +128,51 @@ done:
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Vailin Choi
- *              Thursday, April 30, 2009
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5FA__dblk_page_create(H5FA_hdr_t *hdr, haddr_t addr, size_t nelmts)
 {
     H5FA_dblk_page_t *dblk_page = NULL;  /* Fixed array data block page */
-    hbool_t           inserted  = FALSE; /* Whether the header was inserted into cache */
+    bool              inserted  = false; /* Whether the header was inserted into cache */
     herr_t            ret_value = SUCCEED;
 
     FUNC_ENTER_PACKAGE
 
 #ifdef H5FA_DEBUG
-    HDfprintf(stderr, "%s: Called, addr = %" PRIuHADDR "\n", __func__, addr);
+    fprintf(stderr, "%s: Called, addr = %" PRIuHADDR "\n", __func__, addr);
 #endif /* H5FA_DEBUG */
 
     /* Sanity check */
-    HDassert(hdr);
+    assert(hdr);
 
     /* Allocate the data block page */
     if (NULL == (dblk_page = H5FA__dblk_page_alloc(hdr, nelmts)))
         HGOTO_ERROR(H5E_FARRAY, H5E_CANTALLOC, FAIL,
-                    "memory allocation failed for fixed array data block page")
+                    "memory allocation failed for fixed array data block page");
 
     /* Set info about data block page on disk */
     dblk_page->addr = addr;
     dblk_page->size = H5FA_DBLK_PAGE_SIZE(hdr, nelmts);
 #ifdef H5FA_DEBUG
-    HDfprintf(stderr, "%s: dblk_page->size = %Zu\n", __func__, dblk_page->size);
+    fprintf(stderr, "%s: dblk_page->size = %Zu\n", __func__, dblk_page->size);
 #endif /* H5FA_DEBUG */
 
     /* Clear any elements in data block page to fill value */
     if ((hdr->cparam.cls->fill)(dblk_page->elmts, nelmts) < 0)
         HGOTO_ERROR(H5E_FARRAY, H5E_CANTSET, FAIL,
-                    "can't set fixed array data block page elements to class's fill value")
+                    "can't set fixed array data block page elements to class's fill value");
 
     /* Cache the new fixed array data block page */
     if (H5AC_insert_entry(hdr->f, H5AC_FARRAY_DBLK_PAGE, dblk_page->addr, dblk_page, H5AC__NO_FLAGS_SET) < 0)
-        HGOTO_ERROR(H5E_FARRAY, H5E_CANTINSERT, FAIL, "can't add fixed array data block page to cache")
-    inserted = TRUE;
+        HGOTO_ERROR(H5E_FARRAY, H5E_CANTINSERT, FAIL, "can't add fixed array data block page to cache");
+    inserted = true;
 
     /* Add data block page as child of 'top' proxy */
     if (hdr->top_proxy) {
         if (H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dblk_page) < 0)
             HGOTO_ERROR(H5E_FARRAY, H5E_CANTSET, FAIL,
-                        "unable to add fixed array entry as child of array proxy")
+                        "unable to add fixed array entry as child of array proxy");
         dblk_page->top_proxy = hdr->top_proxy;
     } /* end if */
 
@@ -190,11 +183,11 @@ done:
             if (inserted)
                 if (H5AC_remove_entry(dblk_page) < 0)
                     HDONE_ERROR(H5E_FARRAY, H5E_CANTREMOVE, FAIL,
-                                "unable to remove fixed array data block page from cache")
+                                "unable to remove fixed array data block page from cache");
 
             /* Destroy data block page */
             if (H5FA__dblk_page_dest(dblk_page) < 0)
-                HDONE_ERROR(H5E_FARRAY, H5E_CANTFREE, FAIL, "unable to destroy fixed array data block page")
+                HDONE_ERROR(H5E_FARRAY, H5E_CANTFREE, FAIL, "unable to destroy fixed array data block page");
         } /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -208,30 +201,27 @@ done:
  *
  * Return:      Non-NULL pointer to data block page on success/NULL on failure
  *
- * Programmer:  Vailin Choi
- *              Thursday, April 30, 2009
- *
  *-------------------------------------------------------------------------
  */
 H5FA_dblk_page_t *
 H5FA__dblk_page_protect(H5FA_hdr_t *hdr, haddr_t dblk_page_addr, size_t dblk_page_nelmts, unsigned flags)
 {
-    H5FA_dblk_page_t *        dblk_page = NULL; /* Fixed array data block page */
+    H5FA_dblk_page_t         *dblk_page = NULL; /* Fixed array data block page */
     H5FA_dblk_page_cache_ud_t udata;            /* Information needed for loading data block page */
-    H5FA_dblk_page_t *        ret_value = NULL;
+    H5FA_dblk_page_t         *ret_value = NULL;
 
     FUNC_ENTER_PACKAGE
 
 #ifdef H5FA_DEBUG
-    HDfprintf(stderr, "%s: Called\n", __func__);
+    fprintf(stderr, "%s: Called\n", __func__);
 #endif /* H5FA_DEBUG */
 
     /* Sanity check */
-    HDassert(hdr);
-    HDassert(H5F_addr_defined(dblk_page_addr));
+    assert(hdr);
+    assert(H5_addr_defined(dblk_page_addr));
 
     /* only the H5AC__READ_ONLY_FLAG is permitted */
-    HDassert((flags & (unsigned)(~H5AC__READ_ONLY_FLAG)) == 0);
+    assert((flags & (unsigned)(~H5AC__READ_ONLY_FLAG)) == 0);
 
     /* Set up user data */
     udata.hdr            = hdr;
@@ -243,14 +233,14 @@ H5FA__dblk_page_protect(H5FA_hdr_t *hdr, haddr_t dblk_page_addr, size_t dblk_pag
                                                               &udata, flags)))
         HGOTO_ERROR(H5E_FARRAY, H5E_CANTPROTECT, NULL,
                     "unable to protect fixed array data block page, address = %llu",
-                    (unsigned long long)dblk_page_addr)
+                    (unsigned long long)dblk_page_addr);
 
     /* Create top proxy, if it doesn't exist */
     if (hdr->top_proxy && NULL == dblk_page->top_proxy) {
         /* Add data block page as child of 'top' proxy */
         if (H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, dblk_page) < 0)
             HGOTO_ERROR(H5E_FARRAY, H5E_CANTSET, NULL,
-                        "unable to add fixed array entry as child of array proxy")
+                        "unable to add fixed array entry as child of array proxy");
         dblk_page->top_proxy = hdr->top_proxy;
     } /* end if */
 
@@ -266,7 +256,7 @@ done:
             H5AC_unprotect(hdr->f, H5AC_FARRAY_DBLK_PAGE, dblk_page->addr, dblk_page, H5AC__NO_FLAGS_SET) < 0)
             HDONE_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, NULL,
                         "unable to unprotect fixed array data block page, address = %llu",
-                        (unsigned long long)dblk_page->addr)
+                        (unsigned long long)dblk_page->addr);
     } /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -280,9 +270,6 @@ done:
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Vailin Choi
- *              Thursday, April 30, 2009
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -293,17 +280,17 @@ H5FA__dblk_page_unprotect(H5FA_dblk_page_t *dblk_page, unsigned cache_flags)
     FUNC_ENTER_PACKAGE
 
 #ifdef H5FA_DEBUG
-    HDfprintf(stderr, "%s: Called\n", __func__);
+    fprintf(stderr, "%s: Called\n", __func__);
 #endif /* H5FA_DEBUG */
 
     /* Sanity check */
-    HDassert(dblk_page);
+    assert(dblk_page);
 
     /* Unprotect the data block page */
     if (H5AC_unprotect(dblk_page->hdr->f, H5AC_FARRAY_DBLK_PAGE, dblk_page->addr, dblk_page, cache_flags) < 0)
         HGOTO_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, FAIL,
                     "unable to unprotect fixed array data block page, address = %llu",
-                    (unsigned long long)dblk_page->addr)
+                    (unsigned long long)dblk_page->addr);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -316,9 +303,6 @@ done:
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Vailin Choi
- *              Thursday, April 30, 2009
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -329,7 +313,7 @@ H5FA__dblk_page_dest(H5FA_dblk_page_t *dblk_page)
     FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(dblk_page);
+    assert(dblk_page);
 
     /* Check if header field has been initialized */
     if (dblk_page->hdr) {
@@ -342,12 +326,12 @@ H5FA__dblk_page_dest(H5FA_dblk_page_t *dblk_page)
         /* Decrement reference count on shared info */
         if (H5FA__hdr_decr(dblk_page->hdr) < 0)
             HGOTO_ERROR(H5E_FARRAY, H5E_CANTDEC, FAIL,
-                        "can't decrement reference count on shared array header")
+                        "can't decrement reference count on shared array header");
         dblk_page->hdr = NULL;
     } /* end if */
 
     /* Sanity check */
-    HDassert(NULL == dblk_page->top_proxy);
+    assert(NULL == dblk_page->top_proxy);
 
     /* Free the data block page itself */
     dblk_page = H5FL_FREE(H5FA_dblk_page_t, dblk_page);

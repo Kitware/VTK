@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -11,9 +10,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Robb Matzke
- *              Wednesday, October 22, 1997
- *
+/*
  * Purpose: The C STDIO virtual file driver which only uses calls from stdio.h.
  *          This also serves as an example of coding a simple file driver,
  *          therefore, it should not use any non-public definitions.
@@ -21,6 +18,7 @@
  * NOTE:    This driver is not as well tested as the standard SEC2 driver
  *          and is not intended for production use!
  */
+
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
@@ -79,13 +77,13 @@ typedef enum {
  */
 typedef struct H5FD_stdio_t {
     H5FD_t             pub;          /* public stuff, must be first      */
-    FILE *             fp;           /* the file handle                  */
+    FILE              *fp;           /* the file handle                  */
     int                fd;           /* file descriptor (for truncate)   */
     haddr_t            eoa;          /* end of allocated region          */
     haddr_t            eof;          /* end of file; current file size   */
     haddr_t            pos;          /* current file I/O position        */
     unsigned           write_access; /* Flag to indicate the file was opened with write access */
-    hbool_t            ignore_disabled_file_locks;
+    bool               ignore_disabled_file_locks;
     H5FD_stdio_file_op op; /* last operation */
 #ifndef H5_HAVE_WIN32_API
     /* On most systems the combination of device and i-node number uniquely
@@ -115,7 +113,7 @@ typedef struct H5FD_stdio_t {
     DWORD nFileIndexHigh;
     DWORD dwVolumeSerialNumber;
 
-    HANDLE      hFile; /* Native windows file handle */
+    HANDLE hFile; /* Native windows file handle */
 #endif /* H5_HAVE_WIN32_API */
 } H5FD_stdio_t;
 
@@ -176,48 +174,53 @@ static herr_t  H5FD_stdio_read(H5FD_t *lf, H5FD_mem_t type, hid_t fapl_id, haddr
                                void *buf);
 static herr_t  H5FD_stdio_write(H5FD_t *lf, H5FD_mem_t type, hid_t fapl_id, haddr_t addr, size_t size,
                                 const void *buf);
-static herr_t  H5FD_stdio_flush(H5FD_t *_file, hid_t dxpl_id, hbool_t closing);
-static herr_t  H5FD_stdio_truncate(H5FD_t *_file, hid_t dxpl_id, hbool_t closing);
-static herr_t  H5FD_stdio_lock(H5FD_t *_file, hbool_t rw);
+static herr_t  H5FD_stdio_flush(H5FD_t *_file, hid_t dxpl_id, bool closing);
+static herr_t  H5FD_stdio_truncate(H5FD_t *_file, hid_t dxpl_id, bool closing);
+static herr_t  H5FD_stdio_lock(H5FD_t *_file, bool rw);
 static herr_t  H5FD_stdio_unlock(H5FD_t *_file);
 static herr_t  H5FD_stdio_delete(const char *filename, hid_t fapl_id);
 
 static const H5FD_class_t H5FD_stdio_g = {
-    H5_VFD_STDIO,          /* value        */
-    "stdio",               /* name         */
-    MAXADDR,               /* maxaddr      */
-    H5F_CLOSE_WEAK,        /* fc_degree    */
-    H5FD_stdio_term,       /* terminate    */
-    NULL,                  /* sb_size      */
-    NULL,                  /* sb_encode    */
-    NULL,                  /* sb_decode    */
-    0,                     /* fapl_size    */
-    NULL,                  /* fapl_get     */
-    NULL,                  /* fapl_copy    */
-    NULL,                  /* fapl_free    */
-    0,                     /* dxpl_size    */
-    NULL,                  /* dxpl_copy    */
-    NULL,                  /* dxpl_free    */
-    H5FD_stdio_open,       /* open         */
-    H5FD_stdio_close,      /* close        */
-    H5FD_stdio_cmp,        /* cmp          */
-    H5FD_stdio_query,      /* query        */
-    NULL,                  /* get_type_map */
-    H5FD_stdio_alloc,      /* alloc        */
-    NULL,                  /* free         */
-    H5FD_stdio_get_eoa,    /* get_eoa      */
-    H5FD_stdio_set_eoa,    /* set_eoa      */
-    H5FD_stdio_get_eof,    /* get_eof      */
-    H5FD_stdio_get_handle, /* get_handle   */
-    H5FD_stdio_read,       /* read         */
-    H5FD_stdio_write,      /* write        */
-    H5FD_stdio_flush,      /* flush        */
-    H5FD_stdio_truncate,   /* truncate     */
-    H5FD_stdio_lock,       /* lock         */
-    H5FD_stdio_unlock,     /* unlock       */
-    H5FD_stdio_delete,     /* del          */
-    NULL,                  /* ctl          */
-    H5FD_FLMAP_DICHOTOMY   /* fl_map       */
+    H5FD_CLASS_VERSION,    /* struct version  */
+    H5_VFD_STDIO,          /* value           */
+    "stdio",               /* name            */
+    MAXADDR,               /* maxaddr         */
+    H5F_CLOSE_WEAK,        /* fc_degree       */
+    H5FD_stdio_term,       /* terminate       */
+    NULL,                  /* sb_size         */
+    NULL,                  /* sb_encode       */
+    NULL,                  /* sb_decode       */
+    0,                     /* fapl_size       */
+    NULL,                  /* fapl_get        */
+    NULL,                  /* fapl_copy       */
+    NULL,                  /* fapl_free       */
+    0,                     /* dxpl_size       */
+    NULL,                  /* dxpl_copy       */
+    NULL,                  /* dxpl_free       */
+    H5FD_stdio_open,       /* open            */
+    H5FD_stdio_close,      /* close           */
+    H5FD_stdio_cmp,        /* cmp             */
+    H5FD_stdio_query,      /* query           */
+    NULL,                  /* get_type_map    */
+    H5FD_stdio_alloc,      /* alloc           */
+    NULL,                  /* free            */
+    H5FD_stdio_get_eoa,    /* get_eoa         */
+    H5FD_stdio_set_eoa,    /* set_eoa         */
+    H5FD_stdio_get_eof,    /* get_eof         */
+    H5FD_stdio_get_handle, /* get_handle      */
+    H5FD_stdio_read,       /* read            */
+    H5FD_stdio_write,      /* write           */
+    NULL,                  /* read_vector     */
+    NULL,                  /* write_vector    */
+    NULL,                  /* read_selection  */
+    NULL,                  /* write_selection */
+    H5FD_stdio_flush,      /* flush           */
+    H5FD_stdio_truncate,   /* truncate        */
+    H5FD_stdio_lock,       /* lock            */
+    H5FD_stdio_unlock,     /* unlock          */
+    H5FD_stdio_delete,     /* del             */
+    NULL,                  /* ctl             */
+    H5FD_FLMAP_DICHOTOMY   /* fl_map          */
 };
 
 /*-------------------------------------------------------------------------
@@ -229,9 +232,6 @@ static const H5FD_class_t H5FD_stdio_g = {
  * Return:  Success:  The driver ID for the stdio driver.
  *
  *    Failure:  Negative.
- *
- * Programmer:  Robb Matzke
- *              Thursday, July 29, 1999
  *
  *-------------------------------------------------------------------------
  */
@@ -265,9 +265,6 @@ H5FD_stdio_init(void)
  *
  * Returns:     Non-negative on success or negative on failure
  *
- * Programmer:  Quincey Koziol
- *              Friday, Jan 30, 2004
- *
  *---------------------------------------------------------------------------
  */
 static herr_t
@@ -288,17 +285,12 @@ H5FD_stdio_term(void)
  *
  * Return:  Non-negative on success/Negative on failure
  *
- * Programmer:  Robb Matzke
- *    Thursday, February 19, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Pset_fapl_stdio(hid_t fapl_id)
 {
     static const char *func = "H5FDset_fapl_stdio"; /*for error reporting*/
-
-    /*NO TRACE*/
 
     /* Clear the error stack */
     H5Eclear2(H5E_DEFAULT);
@@ -328,17 +320,14 @@ H5Pset_fapl_stdio(hid_t fapl_id)
  *
  *      Failure:    NULL
  *
- * Programmer:  Robb Matzke
- *    Wednesday, October 22, 1997
- *
  *-------------------------------------------------------------------------
  */
 static H5FD_t *
 H5FD_stdio_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
 {
-    FILE *             f            = NULL;
+    FILE              *f            = NULL;
     unsigned           write_access = 0; /* File opened with write access? */
-    H5FD_stdio_t *     file         = NULL;
+    H5FD_stdio_t      *file         = NULL;
     static const char *func         = "H5FD_stdio_open"; /* Function Name for error reporting */
 #ifdef H5_HAVE_WIN32_API
     struct _BY_HANDLE_FILE_INFORMATION fileinfo;
@@ -421,7 +410,7 @@ H5FD_stdio_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr
         /* The environment variable was set, so use that preferentially */
         file->ignore_disabled_file_locks = ignore_disabled_file_locks_s;
     else {
-        hbool_t unused;
+        bool unused;
 
         /* Use the value in the property list */
         if (H5Pget_file_locking(fapl_id, &unused, &file->ignore_disabled_file_locks) < 0) {
@@ -485,15 +474,12 @@ H5FD_stdio_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr
  *
  * Return:  Non-negative on success/Negative on failure
  *
- * Programmer:  Robb Matzke
- *    Wednesday, October 22, 1997
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5FD_stdio_close(H5FD_t *_file)
 {
-    H5FD_stdio_t *     file = (H5FD_stdio_t *)_file;
+    H5FD_stdio_t      *file = (H5FD_stdio_t *)_file;
     static const char *func = "H5FD_stdio_close"; /* Function Name for error reporting */
 
     /* Clear the error stack */
@@ -517,9 +503,6 @@ H5FD_stdio_close(H5FD_t *_file)
  *      Success:    A value like strcmp()
  *
  *      Failure:    never fails (arguments were checked by the caller).
- *
- * Programmer:  Robb Matzke
- *              Thursday, July 29, 1999
  *
  *-------------------------------------------------------------------------
  */
@@ -582,9 +565,6 @@ H5FD_stdio_cmp(const H5FD_t *_f1, const H5FD_t *_f2)
  *
  *    Failure:  negative
  *
- * Programmer:  Quincey Koziol
- *              Friday, August 25, 2000
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -624,9 +604,6 @@ H5FD_stdio_query(const H5FD_t *_f, unsigned long /*OUT*/ *flags)
  *
  *      Failure:    HADDR_UNDEF
  *
- * Programmer:  Raymond Lu
- *              30 March 2007
- *
  *-------------------------------------------------------------------------
  */
 static haddr_t
@@ -661,9 +638,6 @@ H5FD_stdio_alloc(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, hid_t /*UNUSED*/ dxp
  *
  *    Failure:  HADDR_UNDEF
  *
- * Programmer:  Robb Matzke
- *              Monday, August  2, 1999
- *
  *-------------------------------------------------------------------------
  */
 static haddr_t
@@ -690,9 +664,6 @@ H5FD_stdio_get_eoa(const H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type)
  * Return:  Success:  0
  *
  *    Failure:  Does not fail
- *
- * Programmer:  Robb Matzke
- *              Thursday, July 29, 1999
  *
  *-------------------------------------------------------------------------
  */
@@ -725,9 +696,6 @@ H5FD_stdio_set_eoa(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, haddr_t addr)
  *
  *    Failure:  HADDR_UNDEF
  *
- * Programmer:  Robb Matzke
- *              Thursday, July 29, 1999
- *
  *-------------------------------------------------------------------------
  */
 static haddr_t
@@ -754,15 +722,12 @@ H5FD_stdio_get_eof(const H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type)
  *
  * Returns:        Non-negative if succeed or negative if fails.
  *
- * Programmer:     Raymond Lu
- *                 Sept. 16, 2002
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5FD_stdio_get_handle(H5FD_t *_file, hid_t /*UNUSED*/ fapl, void **file_handle)
 {
-    H5FD_stdio_t *     file = (H5FD_stdio_t *)_file;
+    H5FD_stdio_t      *file = (H5FD_stdio_t *)_file;
     static const char *func = "H5FD_stdio_get_handle"; /* Function Name for error reporting */
 
     /* Quiet the compiler */
@@ -791,16 +756,13 @@ H5FD_stdio_get_handle(H5FD_t *_file, hid_t /*UNUSED*/ fapl, void **file_handle)
  *
  * Return:  Non-negative on success/Negative on failure
  *
- * Programmer:  Robb Matzke
- *    Wednesday, October 22, 1997
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5FD_stdio_read(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, hid_t /*UNUSED*/ dxpl_id, haddr_t addr,
                 size_t size, void /*OUT*/ *buf)
 {
-    H5FD_stdio_t *     file = (H5FD_stdio_t *)_file;
+    H5FD_stdio_t      *file = (H5FD_stdio_t *)_file;
     static const char *func = "H5FD_stdio_read"; /* Function Name for error reporting */
 
     /* Quiet the compiler */
@@ -894,16 +856,13 @@ H5FD_stdio_read(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, hid_t /*UNUSED*/ dxpl
  *
  * Return:  Non-negative on success/Negative on failure
  *
- * Programmer:  Robb Matzke
- *    Wednesday, October 22, 1997
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5FD_stdio_write(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, hid_t /*UNUSED*/ dxpl_id, haddr_t addr,
                  size_t size, const void *buf)
 {
-    H5FD_stdio_t *     file = (H5FD_stdio_t *)_file;
+    H5FD_stdio_t      *file = (H5FD_stdio_t *)_file;
     static const char *func = "H5FD_stdio_write"; /* Function Name for error reporting */
 
     /* Quiet the compiler */
@@ -982,15 +941,12 @@ H5FD_stdio_write(H5FD_t *_file, H5FD_mem_t /*UNUSED*/ type, hid_t /*UNUSED*/ dxp
  *
  * Return:  Non-negative on success/Negative on failure
  *
- * Programmer:  Robb Matzke
- *    Wednesday, October 22, 1997
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_stdio_flush(H5FD_t *_file, hid_t /*UNUSED*/ dxpl_id, hbool_t closing)
+H5FD_stdio_flush(H5FD_t *_file, hid_t /*UNUSED*/ dxpl_id, bool closing)
 {
-    H5FD_stdio_t *     file = (H5FD_stdio_t *)_file;
+    H5FD_stdio_t      *file = (H5FD_stdio_t *)_file;
     static const char *func = "H5FD_stdio_flush"; /* Function Name for error reporting */
 
     /* Quiet the compiler */
@@ -1026,15 +982,12 @@ H5FD_stdio_flush(H5FD_t *_file, hid_t /*UNUSED*/ dxpl_id, hbool_t closing)
  *
  * Return:  Non-negative on success/Negative on failure
  *
- * Programmer:  Quincey Koziol
- *    Thursday, January 31, 2008
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_stdio_truncate(H5FD_t *_file, hid_t /*UNUSED*/ dxpl_id, hbool_t /*UNUSED*/ closing)
+H5FD_stdio_truncate(H5FD_t *_file, hid_t /*UNUSED*/ dxpl_id, bool /*UNUSED*/ closing)
 {
-    H5FD_stdio_t *     file = (H5FD_stdio_t *)_file;
+    H5FD_stdio_t      *file = (H5FD_stdio_t *)_file;
     static const char *func = "H5FD_stdio_truncate"; /* Function Name for error reporting */
 
     /* Quiet the compiler */
@@ -1061,7 +1014,7 @@ H5FD_stdio_truncate(H5FD_t *_file, hid_t /*UNUSED*/ dxpl_id, hbool_t /*UNUSED*/ 
             rewind(file->fp);
 
             /* Windows uses this odd QuadPart union for 32/64-bit portability */
-            li.QuadPart = (__int64)file->eoa;
+            li.QuadPart = (LONGLONG)file->eoa;
 
             /* Extend the file to make sure it's large enough.
              *
@@ -1117,15 +1070,13 @@ H5FD_stdio_truncate(H5FD_t *_file, hid_t /*UNUSED*/ dxpl_id, hbool_t /*UNUSED*/ 
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Vailin Choi; March 2015
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD_stdio_lock(H5FD_t *_file, hbool_t rw)
+H5FD_stdio_lock(H5FD_t *_file, bool rw)
 {
 #ifdef H5_HAVE_FLOCK
-    H5FD_stdio_t *     file = (H5FD_stdio_t *)_file; /* VFD file struct                      */
+    H5FD_stdio_t      *file = (H5FD_stdio_t *)_file; /* VFD file struct                      */
     int                lock_flags;                   /* file locking flags                   */
     static const char *func = "H5FD_stdio_lock";     /* Function Name for error reporting    */
 
@@ -1168,15 +1119,13 @@ H5FD_stdio_lock(H5FD_t *_file, hbool_t rw)
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Vailin Choi; March 2015
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5FD_stdio_unlock(H5FD_t *_file)
 {
 #ifdef H5_HAVE_FLOCK
-    H5FD_stdio_t *     file = (H5FD_stdio_t *)_file; /* VFD file struct                      */
+    H5FD_stdio_t      *file = (H5FD_stdio_t *)_file; /* VFD file struct                      */
     static const char *func = "H5FD_stdio_unlock";   /* Function Name for error reporting    */
 
     /* Clear the error stack */

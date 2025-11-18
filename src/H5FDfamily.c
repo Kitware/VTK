@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -12,9 +11,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:    Robb Matzke
- *        Monday, November 10, 1997
- *
  * Purpose:    Implements a family of files that acts as a single hdf5
  *        file.  The purpose is to be able to split a huge file on a
  *        64-bit platform, transfer all the <2GB members to a 32-bit
@@ -34,15 +30,14 @@
 
 #include "H5FDdrvr_module.h" /* This source code file is part of the H5FD driver module */
 
-#include "H5private.h"   /* Generic Functions            */
-#include "H5CXprivate.h" /* API Contexts                         */
-#include "H5Eprivate.h"  /* Error handling              */
-#include "H5Fprivate.h"  /* File access                */
-#include "H5FDprivate.h" /* File drivers                */
-#include "H5FDfamily.h"  /* Family file driver             */
-#include "H5Iprivate.h"  /* IDs                      */
-#include "H5MMprivate.h" /* Memory management            */
-#include "H5Pprivate.h"  /* Property lists            */
+#include "H5private.h"   /* Generic Functions                       */
+#include "H5Eprivate.h"  /* Error handling                          */
+#include "H5Fprivate.h"  /* File access                             */
+#include "H5FDprivate.h" /* File drivers                            */
+#include "H5FDfamily.h"  /* Family file driver                      */
+#include "H5Iprivate.h"  /* IDs                                     */
+#include "H5MMprivate.h" /* Memory management                       */
+#include "H5Pprivate.h"  /* Property lists                          */
 
 /* The size of the member name buffers */
 #define H5FD_FAM_MEMB_NAME_BUF_SIZE 4096
@@ -63,15 +58,15 @@ typedef struct H5FD_family_t {
     unsigned amembs;       /*number of member slots allocated    */
     H5FD_t **memb;         /*dynamic array of member pointers    */
     haddr_t  eoa;          /*end of allocated addresses        */
-    char *   name;         /*name generator printf format        */
+    char    *name;         /*name generator printf format        */
     unsigned flags;        /*flags for opening additional members    */
 
     /* Information from properties set by 'h5repart' tool */
-    hsize_t mem_newsize;    /*new member size passed in as private
-                             * property. It's used only by h5repart */
-    hbool_t repart_members; /* Whether to mark the superblock dirty
-                             * when it is loaded, so that the family
-                             * member sizes can be re-encoded       */
+    hsize_t mem_newsize; /*new member size passed in as private
+                          * property. It's used only by h5repart */
+    bool repart_members; /* Whether to mark the superblock dirty
+                          * when it is loaded, so that the family
+                          * member sizes can be re-encoded       */
 } H5FD_family_t;
 
 /* Driver-specific file access properties */
@@ -82,12 +77,12 @@ typedef struct H5FD_family_fapl_t {
 
 /* Private routines */
 static herr_t H5FD__family_get_default_config(H5FD_family_fapl_t *fa_out);
-static char * H5FD__family_get_default_printf_filename(const char *old_filename);
+static char  *H5FD__family_get_default_printf_filename(const char *old_filename);
 
 /* Callback prototypes */
 static herr_t  H5FD__family_term(void);
-static void *  H5FD__family_fapl_get(H5FD_t *_file);
-static void *  H5FD__family_fapl_copy(const void *_old_fa);
+static void   *H5FD__family_fapl_get(H5FD_t *_file);
+static void   *H5FD__family_fapl_copy(const void *_old_fa);
 static herr_t  H5FD__family_fapl_free(void *_fa);
 static hsize_t H5FD__family_sb_size(H5FD_t *_file);
 static herr_t  H5FD__family_sb_encode(H5FD_t *_file, char *name /*out*/, unsigned char *buf /*out*/);
@@ -104,14 +99,15 @@ static herr_t  H5FD__family_read(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, 
                                  void *_buf /*out*/);
 static herr_t  H5FD__family_write(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, size_t size,
                                   const void *_buf);
-static herr_t  H5FD__family_flush(H5FD_t *_file, hid_t dxpl_id, hbool_t closing);
-static herr_t  H5FD__family_truncate(H5FD_t *_file, hid_t dxpl_id, hbool_t closing);
-static herr_t  H5FD__family_lock(H5FD_t *_file, hbool_t rw);
+static herr_t  H5FD__family_flush(H5FD_t *_file, hid_t dxpl_id, bool closing);
+static herr_t  H5FD__family_truncate(H5FD_t *_file, hid_t dxpl_id, bool closing);
+static herr_t  H5FD__family_lock(H5FD_t *_file, bool rw);
 static herr_t  H5FD__family_unlock(H5FD_t *_file);
 static herr_t  H5FD__family_delete(const char *filename, hid_t fapl_id);
 
 /* The class struct */
 static const H5FD_class_t H5FD_family_g = {
+    H5FD_CLASS_VERSION,         /* struct version       */
     H5FD_FAMILY_VALUE,          /* value                */
     "family",                   /* name                 */
     HADDR_MAX,                  /* maxaddr              */
@@ -140,6 +136,10 @@ static const H5FD_class_t H5FD_family_g = {
     H5FD__family_get_handle,    /* get_handle           */
     H5FD__family_read,          /* read                 */
     H5FD__family_write,         /* write                */
+    NULL,                       /* read_vector          */
+    NULL,                       /* write_vector         */
+    NULL,                       /* read_selection       */
+    NULL,                       /* write_selection      */
     H5FD__family_flush,         /* flush                */
     H5FD__family_truncate,      /* truncate             */
     H5FD__family_lock,          /* lock                 */
@@ -166,9 +166,9 @@ H5FD__family_get_default_config(H5FD_family_fapl_t *fa_out)
     H5P_genplist_t *plist;
     herr_t          ret_value = SUCCEED;
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
-    HDassert(fa_out);
+    assert(fa_out);
 
     fa_out->memb_size = H5FD_FAM_DEF_MEM_SIZE;
 
@@ -178,19 +178,18 @@ H5FD__family_get_default_config(H5FD_family_fapl_t *fa_out)
      * would cause recursion badness in the child members.
      */
     if (NULL == (def_plist = (H5P_genplist_t *)H5I_object(H5P_FILE_ACCESS_DEFAULT)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list")
-    if ((fa_out->memb_fapl_id = H5P_copy_plist(def_plist, FALSE)) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTCOPY, FAIL, "can't copy property list")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
+    if ((fa_out->memb_fapl_id = H5P_copy_plist(def_plist, false)) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTCOPY, FAIL, "can't copy property list");
     if (NULL == (plist = (H5P_genplist_t *)H5I_object(fa_out->memb_fapl_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list")
-    if (H5P_set_driver_by_value(plist, H5_VFD_SEC2, NULL, TRUE) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTSET, FAIL, "can't set default driver on member FAPL")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
+    if (H5P_set_driver_by_value(plist, H5_VFD_SEC2, NULL, true) < 0)
+        HGOTO_ERROR(H5E_VFL, H5E_CANTSET, FAIL, "can't set default driver on member FAPL");
 
 done:
-    if (ret_value < 0 && fa_out->memb_fapl_id >= 0) {
+    if (ret_value < 0 && fa_out->memb_fapl_id >= 0)
         if (H5I_dec_ref(fa_out->memb_fapl_id) < 0)
-            HDONE_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't decrement ref. count on member FAPL ID")
-    }
+            HDONE_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't decrement ref. count on member FAPL ID");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD__family_get_default_config() */
@@ -216,44 +215,46 @@ H5FD__family_get_default_printf_filename(const char *old_filename)
     const char *suffix           = "-%06d";
     size_t      old_filename_len = 0;
     size_t      new_filename_len = 0;
-    char *      file_extension   = NULL;
-    char *      tmp_buffer       = NULL;
-    char *      ret_value        = NULL;
+    char       *file_extension   = NULL;
+    char       *tmp_buffer       = NULL;
+    char       *ret_value        = NULL;
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
-    HDassert(old_filename);
+    assert(old_filename);
 
-    old_filename_len = HDstrlen(old_filename);
+    old_filename_len = strlen(old_filename);
     if (0 == old_filename_len)
-        HGOTO_ERROR(H5E_VFL, H5E_BADVALUE, NULL, "invalid filename")
+        HGOTO_ERROR(H5E_VFL, H5E_BADVALUE, NULL, "invalid filename");
 
-    new_filename_len = old_filename_len + HDstrlen(suffix) + 1;
+    new_filename_len = old_filename_len + strlen(suffix) + 1;
     if (NULL == (tmp_buffer = H5MM_malloc(new_filename_len)))
-        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, NULL, "can't allocate new filename buffer")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, NULL, "can't allocate new filename buffer");
 
     /* Determine if filename contains a ".h5" extension. */
-    if ((file_extension = strstr(old_filename, ".h5"))) {
+    file_extension = strstr(old_filename, ".h5");
+    if (file_extension) {
         /* Insert the printf format between the filename and ".h5" extension. */
-        HDstrcpy(tmp_buffer, old_filename);
-        file_extension = strstr(tmp_buffer, ".h5");
-        HDsprintf(file_extension, "%s%s", suffix, ".h5");
-    }
-    else if ((file_extension = strrchr(old_filename, '.'))) {
-        char *new_extension_loc = NULL;
+        intptr_t beginningLength = file_extension - old_filename;
 
+        snprintf(tmp_buffer, new_filename_len, "%.*s%s%s", (int)beginningLength, old_filename, suffix, ".h5");
+    }
+    else {
         /* If the filename doesn't contain a ".h5" extension, but contains
          * AN extension, just insert the printf format before that extension.
          */
-        HDstrcpy(tmp_buffer, old_filename);
-        new_extension_loc = strrchr(tmp_buffer, '.');
-        HDsprintf(new_extension_loc, "%s%s", suffix, file_extension);
-    }
-    else {
-        /* If the filename doesn't contain an extension at all, just insert
-         * the printf format at the end of the filename.
-         */
-        HDsnprintf(tmp_buffer, new_filename_len, "%s%s", old_filename, suffix);
+        file_extension = strrchr(old_filename, '.');
+        if (file_extension) {
+            intptr_t beginningLength = file_extension - old_filename;
+
+            snprintf(tmp_buffer, new_filename_len, "%.*s%s%s", (int)beginningLength, old_filename, suffix,
+                     file_extension);
+        }
+        else
+            /* If the filename doesn't contain an extension at all, just insert
+             * the printf format at the end of the filename.
+             */
+            snprintf(tmp_buffer, new_filename_len, "%s%s", old_filename, suffix);
     }
 
     ret_value = tmp_buffer;
@@ -274,9 +275,6 @@ done:
  * Return:      Success:    The driver ID for the family driver
  *              Failure:    H5I_INVALID_HID
  *
- * Programmer:  Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 hid_t
@@ -287,7 +285,7 @@ H5FD_family_init(void)
     FUNC_ENTER_NOAPI_NOERR
 
     if (H5I_VFL != H5I_get_type(H5FD_FAMILY_g))
-        H5FD_FAMILY_g = H5FD_register(&H5FD_family_g, sizeof(H5FD_class_t), FALSE);
+        H5FD_FAMILY_g = H5FD_register(&H5FD_family_g, sizeof(H5FD_class_t), false);
 
     /* Set return value */
     ret_value = H5FD_FAMILY_g;
@@ -302,15 +300,12 @@ H5FD_family_init(void)
  *
  * Returns:     Non-negative on success or negative on failure
  *
- * Programmer:  Quincey Koziol
- *              Friday, Jan 30, 2004
- *
  *---------------------------------------------------------------------------
  */
 static herr_t
 H5FD__family_term(void)
 {
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Reset VFL ID */
     H5FD_FAMILY_g = 0;
@@ -331,9 +326,6 @@ H5FD__family_term(void)
  *
  *            Failure:    Negative
  *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -341,21 +333,20 @@ H5Pset_fapl_family(hid_t fapl_id, hsize_t msize, hid_t memb_fapl_id)
 {
     herr_t             ret_value;
     H5FD_family_fapl_t fa = {0, H5I_INVALID_HID};
-    H5P_genplist_t *   plist; /* Property list pointer */
+    H5P_genplist_t    *plist; /* Property list pointer */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "ihi", fapl_id, msize, memb_fapl_id);
 
     /* Check arguments */
-    if (TRUE != H5P_isa_class(fapl_id, H5P_FILE_ACCESS))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list")
+    if (true != H5P_isa_class(fapl_id, H5P_FILE_ACCESS))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
     if (H5P_DEFAULT == memb_fapl_id) {
         /* Get default configuration for member FAPL */
         if (H5FD__family_get_default_config(&fa) < 0)
-            HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get default driver configuration info")
+            HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get default driver configuration info");
     }
-    else if (TRUE != H5P_isa_class(memb_fapl_id, H5P_FILE_ACCESS))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access list")
+    else if (true != H5P_isa_class(memb_fapl_id, H5P_FILE_ACCESS))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access list");
 
     /* Initialize driver specific information. */
     fa.memb_size = msize;
@@ -363,7 +354,7 @@ H5Pset_fapl_family(hid_t fapl_id, hsize_t msize, hid_t memb_fapl_id)
         fa.memb_fapl_id = memb_fapl_id;
 
     if (NULL == (plist = (H5P_genplist_t *)H5I_object(fapl_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
     ret_value = H5P_set_driver(plist, H5FD_FAMILY, &fa, NULL);
 
 done:
@@ -380,33 +371,29 @@ done:
  *
  *            Failure:    Negative
  *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Pget_fapl_family(hid_t fapl_id, hsize_t *msize /*out*/, hid_t *memb_fapl_id /*out*/)
 {
-    H5P_genplist_t *          plist; /* Property list pointer */
+    H5P_genplist_t           *plist; /* Property list pointer */
     const H5FD_family_fapl_t *fa;
     herr_t                    ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "ixx", fapl_id, msize, memb_fapl_id);
 
     if (NULL == (plist = H5P_object_verify(fapl_id, H5P_FILE_ACCESS)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access list")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access list");
     if (H5FD_FAMILY != H5P_peek_driver(plist))
-        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "incorrect VFL driver")
+        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "incorrect VFL driver");
     if (NULL == (fa = (const H5FD_family_fapl_t *)H5P_peek_driver_info(plist)))
-        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "bad VFL driver info")
+        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "bad VFL driver info");
     if (msize)
         *msize = fa->memb_size;
     if (memb_fapl_id) {
         if (NULL == (plist = (H5P_genplist_t *)H5I_object(fa->memb_fapl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access list")
-        *memb_fapl_id = H5P_copy_plist(plist, TRUE);
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access list");
+        *memb_fapl_id = H5P_copy_plist(plist, true);
     } /* end if */
 
 done:
@@ -423,28 +410,25 @@ done:
  *
  *            Failure:    NULL
  *
- * Programmer:    Robb Matzke
- *              Friday, August 13, 1999
- *
  *-------------------------------------------------------------------------
  */
 static void *
 H5FD__family_fapl_get(H5FD_t *_file)
 {
-    H5FD_family_t *     file = (H5FD_family_t *)_file;
+    H5FD_family_t      *file = (H5FD_family_t *)_file;
     H5FD_family_fapl_t *fa   = NULL;
-    H5P_genplist_t *    plist;            /* Property list pointer */
-    void *              ret_value = NULL; /* Return value */
+    H5P_genplist_t     *plist;            /* Property list pointer */
+    void               *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     if (NULL == (fa = (H5FD_family_fapl_t *)H5MM_calloc(sizeof(H5FD_family_fapl_t))))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, NULL, "memory allocation failed");
 
     fa->memb_size = file->memb_size;
     if (NULL == (plist = (H5P_genplist_t *)H5I_object(file->memb_fapl_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not a file access property list")
-    fa->memb_fapl_id = H5P_copy_plist(plist, FALSE);
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not a file access property list");
+    fa->memb_fapl_id = H5P_copy_plist(plist, false);
 
     /* Set return value */
     ret_value = fa;
@@ -466,36 +450,33 @@ done:
  *
  *            Failure:    NULL
  *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 static void *
 H5FD__family_fapl_copy(const void *_old_fa)
 {
     const H5FD_family_fapl_t *old_fa = (const H5FD_family_fapl_t *)_old_fa;
-    H5FD_family_fapl_t *      new_fa = NULL;
-    H5P_genplist_t *          plist;            /* Property list pointer */
-    void *                    ret_value = NULL; /* Return value */
+    H5FD_family_fapl_t       *new_fa = NULL;
+    H5P_genplist_t           *plist;            /* Property list pointer */
+    void                     *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     if (NULL == (new_fa = (H5FD_family_fapl_t *)H5MM_malloc(sizeof(H5FD_family_fapl_t))))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, NULL, "memory allocation failed");
 
     /* Copy the fields of the structure */
     H5MM_memcpy(new_fa, old_fa, sizeof(H5FD_family_fapl_t));
 
     /* Deep copy the property list objects in the structure */
     if (old_fa->memb_fapl_id == H5P_FILE_ACCESS_DEFAULT) {
-        if (H5I_inc_ref(new_fa->memb_fapl_id, FALSE) < 0)
-            HGOTO_ERROR(H5E_VFL, H5E_CANTINC, NULL, "unable to increment ref count on VFL driver")
+        if (H5I_inc_ref(new_fa->memb_fapl_id, false) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_CANTINC, NULL, "unable to increment ref count on VFL driver");
     } /* end if */
     else {
         if (NULL == (plist = (H5P_genplist_t *)H5I_object(old_fa->memb_fapl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not a file access property list")
-        new_fa->memb_fapl_id = H5P_copy_plist(plist, FALSE);
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not a file access property list");
+        new_fa->memb_fapl_id = H5P_copy_plist(plist, false);
     } /* end else */
 
     /* Set return value */
@@ -518,9 +499,6 @@ done:
  *
  *            Failure:    -1
  *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -529,10 +507,10 @@ H5FD__family_fapl_free(void *_fa)
     H5FD_family_fapl_t *fa        = (H5FD_family_fapl_t *)_fa;
     herr_t              ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     if (H5I_dec_ref(fa->memb_fapl_id) < 0)
-        HGOTO_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't close driver ID")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't close driver ID");
     H5MM_xfree(fa);
 
 done:
@@ -549,15 +527,12 @@ done:
  *
  *            Failure:    never fails
  *
- * Programmer:    Raymond Lu
- *              Tuesday, May 10, 2005
- *
  *-------------------------------------------------------------------------
  */
 static hsize_t
 H5FD__family_sb_size(H5FD_t H5_ATTR_UNUSED *_file)
 {
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* 8 bytes field for the size of member file size field should be
      * enough for now. */
@@ -577,9 +552,6 @@ H5FD__family_sb_size(H5FD_t H5_ATTR_UNUSED *_file)
  *
  *            Failure:    -1
  *
- * Programmer:    Raymond Lu
- *              Tuesday, May 10, 2005
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -587,10 +559,10 @@ H5FD__family_sb_encode(H5FD_t *_file, char *name /*out*/, unsigned char *buf /*o
 {
     H5FD_family_t *file = (H5FD_family_t *)_file;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Name and version number */
-    HDstrncpy(name, "NCSAfami", (size_t)9);
+    strncpy(name, "NCSAfami", (size_t)9);
     name[8] = '\0';
 
     /* Store member file size.  Use the member file size from the property here.
@@ -619,9 +591,6 @@ H5FD__family_sb_encode(H5FD_t *_file, char *name /*out*/, unsigned char *buf /*o
  *
  *            Failure:    -1
  *
- * Programmer:    Raymond Lu
- *              Tuesday, May 10, 2005
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -631,7 +600,7 @@ H5FD__family_sb_decode(H5FD_t *_file, const char H5_ATTR_UNUSED *name, const uns
     uint64_t       msize;
     herr_t         ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Read member file size. Skip name template for now although it's saved. */
     UINT64DECODE(buf, msize);
@@ -649,9 +618,9 @@ H5FD__family_sb_decode(H5FD_t *_file, const char H5_ATTR_UNUSED *name, const uns
 
         /* Check if member size from file access property is correct */
         if (msize != file->pmem_size)
-            HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL,
+            HGOTO_ERROR(H5E_VFL, H5E_BADVALUE, FAIL,
                         "Family member size should be %lu.  But the size from file access property is %lu",
-                        (unsigned long)msize, (unsigned long)file->pmem_size)
+                        (unsigned long)msize, (unsigned long)file->pmem_size);
 
         /* Update member file size to the size saved in the superblock.
          * That's the size intended to be. */
@@ -673,9 +642,6 @@ done:
  *
  *            Failure:    NULL
  *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 /* Disable warning for "format not a string literal" here -QAK */
@@ -689,112 +655,112 @@ static H5FD_t *
 H5FD__family_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxaddr)
 {
     H5FD_family_t *file      = NULL;
-    char *         memb_name = NULL, *temp = NULL;
+    char          *memb_name = NULL, *temp = NULL;
     hsize_t        eof            = HADDR_UNDEF;
-    hbool_t        default_config = FALSE;
+    bool           default_config = false;
     unsigned       t_flags        = flags & ~H5F_ACC_CREAT;
-    H5FD_t *       ret_value      = NULL;
+    H5FD_t        *ret_value      = NULL;
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     if (!name || !*name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "invalid file name")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "invalid file name");
     if (0 == maxaddr || HADDR_UNDEF == maxaddr)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, NULL, "bogus maxaddr")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, NULL, "bogus maxaddr");
 
     /* Initialize file from file access properties */
     if (NULL == (file = (H5FD_family_t *)H5MM_calloc(sizeof(H5FD_family_t))))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "unable to allocate file struct")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, NULL, "unable to allocate file struct");
     if (H5P_FILE_ACCESS_DEFAULT == fapl_id) {
         H5FD_family_fapl_t default_fa;
 
         /* Get default configuration */
         if (H5FD__family_get_default_config(&default_fa) < 0)
-            HGOTO_ERROR(H5E_VFL, H5E_CANTGET, NULL, "can't get default driver configuration info")
+            HGOTO_ERROR(H5E_VFL, H5E_CANTGET, NULL, "can't get default driver configuration info");
 
         file->memb_fapl_id = default_fa.memb_fapl_id;
         file->memb_size    = H5FD_FAM_DEF_MEM_SIZE; /* Actual member size to be updated later */
         file->pmem_size    = H5FD_FAM_DEF_MEM_SIZE; /* Member size passed in through property */
         file->mem_newsize  = 0;                     /*New member size used by h5repart only       */
 
-        default_config = TRUE;
+        default_config = true;
     } /* end if */
     else {
-        H5P_genplist_t *          plist; /* Property list pointer */
+        H5P_genplist_t           *plist; /* Property list pointer */
         const H5FD_family_fapl_t *fa;
         H5FD_family_fapl_t        default_fa;
 
         if (NULL == (plist = (H5P_genplist_t *)H5I_object(fapl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not a file access property list")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not a file access property list");
         if (NULL == (fa = (const H5FD_family_fapl_t *)H5P_peek_driver_info(plist))) {
             if (H5FD__family_get_default_config(&default_fa) < 0)
-                HGOTO_ERROR(H5E_VFL, H5E_CANTGET, NULL, "can't get default family VFD configuration")
+                HGOTO_ERROR(H5E_VFL, H5E_CANTGET, NULL, "can't get default family VFD configuration");
             fa             = &default_fa;
-            default_config = TRUE;
+            default_config = true;
         }
 
         /* Check for new family file size. It's used by h5repart only. */
         if (H5P_exist_plist(plist, H5F_ACS_FAMILY_NEWSIZE_NAME) > 0) {
             /* Get the new family file size */
             if (H5P_get(plist, H5F_ACS_FAMILY_NEWSIZE_NAME, &file->mem_newsize) < 0)
-                HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, NULL, "can't get new family member size")
+                HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, NULL, "can't get new family member size");
 
             /* Set flag for later */
-            file->repart_members = TRUE;
+            file->repart_members = true;
         } /* end if */
 
         if (fa->memb_fapl_id == H5P_FILE_ACCESS_DEFAULT) {
-            if (H5I_inc_ref(fa->memb_fapl_id, FALSE) < 0)
-                HGOTO_ERROR(H5E_VFL, H5E_CANTINC, NULL, "unable to increment ref count on VFL driver")
+            if (H5I_inc_ref(fa->memb_fapl_id, false) < 0)
+                HGOTO_ERROR(H5E_VFL, H5E_CANTINC, NULL, "unable to increment ref count on VFL driver");
             file->memb_fapl_id = fa->memb_fapl_id;
         } /* end if */
         else {
             if (NULL == (plist = (H5P_genplist_t *)H5I_object(fa->memb_fapl_id)))
-                HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not a file access property list")
-            file->memb_fapl_id = H5P_copy_plist(plist, FALSE);
+                HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, NULL, "not a file access property list");
+            file->memb_fapl_id = H5P_copy_plist(plist, false);
         }                                /* end else */
         file->memb_size = fa->memb_size; /* Actual member size to be updated later */
         file->pmem_size = fa->memb_size; /* Member size passed in through property */
 
         if (default_config && H5I_dec_ref(fa->memb_fapl_id) < 0)
-            HGOTO_ERROR(H5E_ID, H5E_CANTDEC, NULL, "can't decrement ref. count on member FAPL")
+            HGOTO_ERROR(H5E_VFL, H5E_CANTDEC, NULL, "can't decrement ref. count on member FAPL");
     } /* end else */
     file->name  = H5MM_strdup(name);
     file->flags = flags;
 
     /* Allocate space for the string buffers */
     if (NULL == (memb_name = (char *)H5MM_malloc(H5FD_FAM_MEMB_NAME_BUF_SIZE)))
-        HGOTO_ERROR(H5E_FILE, H5E_CANTALLOC, NULL, "unable to allocate member name")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, NULL, "unable to allocate member name");
     if (NULL == (temp = (char *)H5MM_malloc(H5FD_FAM_MEMB_NAME_BUF_SIZE)))
-        HGOTO_ERROR(H5E_FILE, H5E_CANTALLOC, NULL, "unable to allocate temporary member name")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, NULL, "unable to allocate temporary member name");
 
     /* Check that names are unique */
-    HDsnprintf(memb_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, name, 0);
-    HDsnprintf(temp, H5FD_FAM_MEMB_NAME_BUF_SIZE, name, 1);
-    if (!HDstrcmp(memb_name, temp)) {
+    snprintf(memb_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, name, 0);
+    snprintf(temp, H5FD_FAM_MEMB_NAME_BUF_SIZE, name, 1);
+    if (!strcmp(memb_name, temp)) {
         if (default_config) {
             temp = H5MM_xfree(temp);
             if (NULL == (temp = H5FD__family_get_default_printf_filename(name)))
-                HGOTO_ERROR(H5E_VFL, H5E_CANTGET, NULL, "can't get default printf-style filename")
+                HGOTO_ERROR(H5E_VFL, H5E_CANTGET, NULL, "can't get default printf-style filename");
             name = temp;
         }
         else
-            HGOTO_ERROR(H5E_FILE, H5E_FILEEXISTS, NULL, "file names not unique")
+            HGOTO_ERROR(H5E_VFL, H5E_FILEEXISTS, NULL, "file names not unique");
     }
 
     /* Open all the family members */
     while (1) {
-        HDsnprintf(memb_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, name, file->nmembs);
+        snprintf(memb_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, name, file->nmembs);
 
         /* Enlarge member array */
         if (file->nmembs >= file->amembs) {
             unsigned n = MAX(64, 2 * file->amembs);
             H5FD_t **x;
 
-            HDassert(n > 0);
+            assert(n > 0);
             if (NULL == (x = (H5FD_t **)H5MM_realloc(file->memb, n * sizeof(H5FD_t *))))
-                HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "unable to reallocate members")
+                HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, NULL, "unable to reallocate members");
             file->amembs = n;
             file->memb   = x;
         } /* end if */
@@ -804,18 +770,20 @@ H5FD__family_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxad
          * otherwise an open failure means that we've reached the last member.
          * Allow H5F_ACC_CREAT only on the first family member.
          */
-        H5E_BEGIN_TRY
-        {
-            file->memb[file->nmembs] =
-                H5FDopen(memb_name, (0 == file->nmembs ? flags : t_flags), file->memb_fapl_id, HADDR_UNDEF);
+        if (0 == file->nmembs) {
+            if (H5FD_open(false, &file->memb[file->nmembs], memb_name, (0 == file->nmembs ? flags : t_flags),
+                          file->memb_fapl_id, HADDR_UNDEF) < 0)
+                HGOTO_ERROR(H5E_VFL, H5E_CANTOPENFILE, NULL, "unable to open member file");
         }
-        H5E_END_TRY;
-        if (!file->memb[file->nmembs]) {
-            if (0 == file->nmembs)
-                HGOTO_ERROR(H5E_FILE, H5E_CANTOPENFILE, NULL, "unable to open member file")
-            H5E_clear_stack(NULL);
-            break;
+        else {
+            if (H5FD_open(true, &file->memb[file->nmembs], memb_name, (0 == file->nmembs ? flags : t_flags),
+                          file->memb_fapl_id, HADDR_UNDEF) < 0)
+                HGOTO_ERROR(H5E_VFL, H5E_CANTOPENFILE, NULL, "unable to open member file");
+
+            if (!file->memb[file->nmembs])
+                break;
         }
+
         file->nmembs++;
     }
 
@@ -823,7 +791,7 @@ H5FD__family_open(const char *name, unsigned flags, hid_t fapl_id, haddr_t maxad
      * smaller than the size specified through H5Pset_fapl_family().  Update the actual
      * member size.
      */
-    if ((eof = H5FDget_eof(file->memb[0], H5FD_MEM_DEFAULT)))
+    if ((eof = H5FD_get_eof(file->memb[0], H5FD_MEM_DEFAULT)))
         file->memb_size = eof;
 
     ret_value = (H5FD_t *)file;
@@ -847,12 +815,12 @@ done:
                 if (H5FD_close(file->memb[u]) < 0)
                     nerrors++;
         if (nerrors)
-            HGOTO_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, NULL, "unable to close member files")
+            HDONE_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, NULL, "unable to close member files");
 
         if (file->memb)
             H5MM_xfree(file->memb);
         if (H5I_dec_ref(file->memb_fapl_id) < 0)
-            HDONE_ERROR(H5E_VFL, H5E_CANTDEC, NULL, "can't close driver ID")
+            HDONE_ERROR(H5E_VFL, H5E_CANTDEC, NULL, "can't close driver ID");
         if (file->name)
             H5MM_xfree(file->name);
         H5MM_xfree(file);
@@ -873,9 +841,6 @@ H5_GCC_CLANG_DIAG_ON("format-nonliteral")
  *                possible. The only subsequent operation
  *                permitted on the file is a close operation.
  *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -886,7 +851,7 @@ H5FD__family_close(H5FD_t *_file)
     unsigned       u;                   /* Local index variable */
     herr_t         ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Close as many members as possible. Use private function here to avoid clearing
      * the error stack. We need the error message to indicate wrong member file size. */
@@ -900,12 +865,12 @@ H5FD__family_close(H5FD_t *_file)
     }     /* end for */
     if (nerrors)
         /* Push error, but keep going*/
-        HDONE_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, FAIL, "unable to close member files")
+        HDONE_ERROR(H5E_FILE, H5E_CANTCLOSEFILE, FAIL, "unable to close member files");
 
     /* Clean up other stuff */
     if (H5I_dec_ref(file->memb_fapl_id) < 0)
         /* Push error, but keep going*/
-        HDONE_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't close driver ID")
+        HDONE_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't close driver ID");
     H5MM_xfree(file->memb);
     H5MM_xfree(file->name);
     H5MM_xfree(file);
@@ -924,9 +889,6 @@ H5FD__family_close(H5FD_t *_file)
  *            Failure:    never fails (arguments were checked by the
  *                caller).
  *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 static int
@@ -936,12 +898,12 @@ H5FD__family_cmp(const H5FD_t *_f1, const H5FD_t *_f2)
     const H5FD_family_t *f2        = (const H5FD_family_t *)_f2;
     int                  ret_value = 0;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
-    HDassert(f1->nmembs >= 1 && f1->memb[0]);
-    HDassert(f2->nmembs >= 1 && f2->memb[0]);
+    assert(f1->nmembs >= 1 && f1->memb[0]);
+    assert(f2->nmembs >= 1 && f2->memb[0]);
 
-    ret_value = H5FDcmp(f1->memb[0], f2->memb[0]);
+    ret_value = H5FD_cmp(f1->memb[0], f2->memb[0]);
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD__family_cmp() */
@@ -955,9 +917,6 @@ H5FD__family_cmp(const H5FD_t *_f1, const H5FD_t *_f2)
  * Return:    Success:    non-negative
  *            Failure:    negative
  *
- * Programmer:    Quincey Koziol
- *              Friday, August 25, 2000
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -965,7 +924,7 @@ H5FD__family_query(const H5FD_t *_file, unsigned long *flags /* out */)
 {
     const H5FD_family_t *file = (const H5FD_family_t *)_file; /* Family VFD info */
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Set the VFL feature flags that this driver supports */
     if (flags) {
@@ -995,9 +954,6 @@ H5FD__family_query(const H5FD_t *_file, unsigned long *flags /* out */)
  *
  *            Failure:    HADDR_UNDEF
  *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 static haddr_t
@@ -1005,7 +961,7 @@ H5FD__family_get_eoa(const H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type)
 {
     const H5FD_family_t *file = (const H5FD_family_t *)_file;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     FUNC_LEAVE_NOAPI(file->eoa)
 }
@@ -1018,9 +974,6 @@ H5FD__family_get_eoa(const H5FD_t *_file, H5FD_mem_t H5_ATTR_UNUSED type)
  * Return:    Success:    0
  *
  *            Failure:    -1
- *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
  *
  *-------------------------------------------------------------------------
  */
@@ -1036,15 +989,15 @@ H5FD__family_set_eoa(H5FD_t *_file, H5FD_mem_t type, haddr_t abs_eoa)
 {
     H5FD_family_t *file      = (H5FD_family_t *)_file;
     haddr_t        addr      = abs_eoa;
-    char *         memb_name = NULL;
+    char          *memb_name = NULL;
     unsigned       u;                   /* Local index variable */
     herr_t         ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Allocate space for the member name buffer */
     if (NULL == (memb_name = (char *)H5MM_malloc(H5FD_FAM_MEMB_NAME_BUF_SIZE)))
-        HGOTO_ERROR(H5E_FILE, H5E_CANTALLOC, FAIL, "unable to allocate member name")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, FAIL, "unable to allocate member name");
 
     for (u = 0; addr || u < file->nmembs; u++) {
 
@@ -1054,7 +1007,7 @@ H5FD__family_set_eoa(H5FD_t *_file, H5FD_mem_t type, haddr_t abs_eoa)
             H5FD_t **x = (H5FD_t **)H5MM_realloc(file->memb, n * sizeof(H5FD_t *));
 
             if (!x)
-                HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "unable to allocate memory block")
+                HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, FAIL, "unable to allocate memory block");
             file->amembs = n;
             file->memb   = x;
             file->nmembs = u;
@@ -1063,16 +1016,11 @@ H5FD__family_set_eoa(H5FD_t *_file, H5FD_mem_t type, haddr_t abs_eoa)
         /* Create another file if necessary */
         if (u >= file->nmembs || !file->memb[u]) {
             file->nmembs = MAX(file->nmembs, u + 1);
-            HDsnprintf(memb_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, file->name, u);
-            H5E_BEGIN_TRY
-            {
-                H5_CHECK_OVERFLOW(file->memb_size, hsize_t, haddr_t);
-                file->memb[u] = H5FDopen(memb_name, file->flags | H5F_ACC_CREAT, file->memb_fapl_id,
-                                         (haddr_t)file->memb_size);
-            }
-            H5E_END_TRY;
-            if (NULL == file->memb[u])
-                HGOTO_ERROR(H5E_FILE, H5E_CANTOPENFILE, FAIL, "unable to open member file")
+            snprintf(memb_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, file->name, u);
+            H5_CHECK_OVERFLOW(file->memb_size, hsize_t, haddr_t);
+            if (H5FD_open(false, &file->memb[u], memb_name, file->flags | H5F_ACC_CREAT, file->memb_fapl_id,
+                          (haddr_t)file->memb_size) < 0)
+                HGOTO_ERROR(H5E_VFL, H5E_CANTOPENFILE, FAIL, "unable to open member file");
         } /* end if */
 
         /* Set the EOA marker for the member */
@@ -1080,12 +1028,12 @@ H5FD__family_set_eoa(H5FD_t *_file, H5FD_mem_t type, haddr_t abs_eoa)
         H5_CHECK_OVERFLOW(file->memb_size, hsize_t, haddr_t);
         if (addr > (haddr_t)file->memb_size) {
             if (H5FD_set_eoa(file->memb[u], type, ((haddr_t)file->memb_size - file->pub.base_addr)) < 0)
-                HGOTO_ERROR(H5E_FILE, H5E_CANTINIT, FAIL, "unable to set file eoa")
+                HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "unable to set file eoa");
             addr -= file->memb_size;
         } /* end if */
         else {
             if (H5FD_set_eoa(file->memb[u], type, (addr - file->pub.base_addr)) < 0)
-                HGOTO_ERROR(H5E_FILE, H5E_CANTINIT, FAIL, "unable to set file eoa")
+                HGOTO_ERROR(H5E_VFL, H5E_CANTINIT, FAIL, "unable to set file eoa");
             addr = 0;
         } /* end else */
     }     /* end for */
@@ -1113,9 +1061,6 @@ H5_GCC_CLANG_DIAG_ON("format-nonliteral")
  *
  *            Failure:          HADDR_UNDEF
  *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 static haddr_t
@@ -1126,15 +1071,15 @@ H5FD__family_get_eof(const H5FD_t *_file, H5FD_mem_t type)
     int                  i;                       /* Local index variable */
     haddr_t              ret_value = HADDR_UNDEF; /* Return value */
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /*
      * Find the last member that has a non-zero EOF and break out of the loop
      * with `i' equal to that member. If all members have zero EOF then exit
      * loop with i==0.
      */
-    HDassert(file->nmembs > 0);
-    for (i = (int)file->nmembs - 1; i >= 0; --i) {
+    assert(file->nmembs > 0);
+    for (i = (int)(file->nmembs - 1); i >= 0; --i) {
         if ((eof = H5FD_get_eof(file->memb[i], type)) != 0)
             break;
         if (0 == i)
@@ -1163,30 +1108,27 @@ H5FD__family_get_eof(const H5FD_t *_file, H5FD_mem_t type)
  *
  * Returns:        Non-negative if succeed or negative if fails.
  *
- * Programmer:     Raymond Lu
- *                 Sept. 16, 2002
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5FD__family_get_handle(H5FD_t *_file, hid_t fapl, void **file_handle)
 {
-    H5FD_family_t * file = (H5FD_family_t *)_file;
+    H5FD_family_t  *file = (H5FD_family_t *)_file;
     H5P_genplist_t *plist;
     hsize_t         offset;
     int             memb;
     herr_t          ret_value = FAIL; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Get the plist structure and family offset */
     if (NULL == (plist = H5P_object_verify(fapl, H5P_FILE_ACCESS)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_VFL, H5E_BADID, FAIL, "can't find object for ID");
     if (H5P_get(plist, H5F_ACS_FAMILY_OFFSET_NAME, &offset) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get offset for family driver")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get offset for family driver");
 
     if (offset > (file->memb_size * file->nmembs))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "offset is bigger than file size")
+        HGOTO_ERROR(H5E_VFL, H5E_BADID, FAIL, "offset is bigger than file size");
     memb = (int)(offset / file->memb_size);
 
     ret_value = H5FD_get_vfd_handle(file->memb[memb], fapl, file_handle);
@@ -1207,17 +1149,14 @@ done:
  *
  *            Failure:    -1, contents of buffer BUF are undefined.
  *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5FD__family_read(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, size_t size,
                   void *_buf /*out*/)
 {
-    H5FD_family_t * file = (H5FD_family_t *)_file;
-    unsigned char * buf  = (unsigned char *)_buf;
+    H5FD_family_t  *file = (H5FD_family_t *)_file;
+    unsigned char  *buf  = (unsigned char *)_buf;
     haddr_t         sub;
     size_t          req;
     hsize_t         tempreq;
@@ -1225,14 +1164,14 @@ H5FD__family_read(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, s
     H5P_genplist_t *plist;               /* Property list pointer */
     herr_t          ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /*
      * Get the member data transfer property list. If the transfer property
      * list does not belong to this driver then assume defaults
      */
     if (NULL == (plist = (H5P_genplist_t *)H5I_object(dxpl_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
 
     /* Read from each member */
     while (size > 0) {
@@ -1244,14 +1183,14 @@ H5FD__family_read(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, s
          * is 4 bytes, to prevent overflow when user application is trying to
          * write files bigger than 4GB. */
         tempreq = file->memb_size - sub;
-        if (tempreq > SIZET_MAX)
-            tempreq = SIZET_MAX;
+        if (tempreq > SIZE_MAX)
+            tempreq = SIZE_MAX;
         req = MIN(size, (size_t)tempreq);
 
-        HDassert(u < file->nmembs);
+        assert(u < file->nmembs);
 
-        if (H5FDread(file->memb[u], type, dxpl_id, sub, req, buf) < 0)
-            HGOTO_ERROR(H5E_IO, H5E_READERROR, FAIL, "member file read failed")
+        if (H5FD_read(file->memb[u], type, sub, req, buf) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_READERROR, FAIL, "member file read failed");
 
         addr += req;
         buf += req;
@@ -1273,31 +1212,28 @@ done:
  *
  *            Failure:    -1
  *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5FD__family_write(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, size_t size, const void *_buf)
 {
-    H5FD_family_t *      file = (H5FD_family_t *)_file;
+    H5FD_family_t       *file = (H5FD_family_t *)_file;
     const unsigned char *buf  = (const unsigned char *)_buf;
     haddr_t              sub;
     size_t               req;
     hsize_t              tempreq;
     unsigned             u;                   /* Local index variable */
-    H5P_genplist_t *     plist;               /* Property list pointer */
+    H5P_genplist_t      *plist;               /* Property list pointer */
     herr_t               ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /*
      * Get the member data transfer property list. If the transfer property
      * list does not belong to this driver then assume defaults.
      */
     if (NULL == (plist = (H5P_genplist_t *)H5I_object(dxpl_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
 
     /* Write to each member */
     while (size > 0) {
@@ -1309,14 +1245,14 @@ H5FD__family_write(H5FD_t *_file, H5FD_mem_t type, hid_t dxpl_id, haddr_t addr, 
          * is 4 bytes, to prevent overflow when user application is trying to
          * write files bigger than 4GB. */
         tempreq = file->memb_size - sub;
-        if (tempreq > SIZET_MAX)
-            tempreq = SIZET_MAX;
+        if (tempreq > SIZE_MAX)
+            tempreq = SIZE_MAX;
         req = MIN(size, (size_t)tempreq);
 
-        HDassert(u < file->nmembs);
+        assert(u < file->nmembs);
 
-        if (H5FDwrite(file->memb[u], type, dxpl_id, sub, req, buf) < 0)
-            HGOTO_ERROR(H5E_IO, H5E_WRITEERROR, FAIL, "member file write failed")
+        if (H5FD_write(file->memb[u], type, sub, req, buf) < 0)
+            HGOTO_ERROR(H5E_VFL, H5E_WRITEERROR, FAIL, "member file write failed");
 
         addr += req;
         buf += req;
@@ -1335,26 +1271,23 @@ done:
  * Return:    Success:    0
  *            Failure:    -1, as many files flushed as possible.
  *
- * Programmer:    Robb Matzke
- *              Wednesday, August  4, 1999
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD__family_flush(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, hbool_t closing)
+H5FD__family_flush(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, bool closing)
 {
     H5FD_family_t *file = (H5FD_family_t *)_file;
     unsigned       u, nerrors = 0;
     herr_t         ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     for (u = 0; u < file->nmembs; u++)
         if (file->memb[u] && H5FD_flush(file->memb[u], closing) < 0)
             nerrors++;
 
     if (nerrors)
-        HGOTO_ERROR(H5E_IO, H5E_BADVALUE, FAIL, "unable to flush member files")
+        HGOTO_ERROR(H5E_VFL, H5E_BADVALUE, FAIL, "unable to flush member files");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1369,26 +1302,23 @@ done:
  *
  *            Failure:    -1, as many files truncated as possible.
  *
- * Programmer:    Quincey Koziol
- *              Saturday, February 23, 2008
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD__family_truncate(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, hbool_t closing)
+H5FD__family_truncate(H5FD_t *_file, hid_t H5_ATTR_UNUSED dxpl_id, bool closing)
 {
     H5FD_family_t *file = (H5FD_family_t *)_file;
     unsigned       u, nerrors = 0;
     herr_t         ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     for (u = 0; u < file->nmembs; u++)
         if (file->memb[u] && H5FD_truncate(file->memb[u], closing) < 0)
             nerrors++;
 
     if (nerrors)
-        HGOTO_ERROR(H5E_IO, H5E_BADVALUE, FAIL, "unable to flush member files")
+        HGOTO_ERROR(H5E_VFL, H5E_BADVALUE, FAIL, "unable to flush member files");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1399,23 +1329,21 @@ done:
  *
  * Purpose:     To place an advisory lock on a file.
  *              The lock type to apply depends on the parameter "rw":
- *                      TRUE--opens for write: an exclusive lock
- *                      FALSE--opens for read: a shared lock
+ *                      true--opens for write: an exclusive lock
+ *                      false--opens for read: a shared lock
  *
  * Return:      SUCCEED/FAIL
- *
- * Programmer:  Vailin Choi; May 2013
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5FD__family_lock(H5FD_t *_file, hbool_t rw)
+H5FD__family_lock(H5FD_t *_file, bool rw)
 {
     H5FD_family_t *file = (H5FD_family_t *)_file; /* VFD file struct */
     unsigned       u;                             /* Local index variable */
     herr_t         ret_value = SUCCEED;           /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Place the lock on all the member files */
     for (u = 0; u < file->nmembs; u++)
@@ -1429,12 +1357,12 @@ H5FD__family_lock(H5FD_t *_file, hbool_t rw)
     if (u < file->nmembs) {
         unsigned v; /* Local index variable */
 
-        for (v = 0; v < u; v++) {
+        for (v = 0; v < u; v++)
             if (H5FD_unlock(file->memb[v]) < 0)
                 /* Push error, but keep going */
-                HDONE_ERROR(H5E_IO, H5E_CANTUNLOCKFILE, FAIL, "unable to unlock member files")
-        } /* end for */
-        HGOTO_ERROR(H5E_IO, H5E_CANTLOCKFILE, FAIL, "unable to lock member files")
+                HDONE_ERROR(H5E_IO, H5E_CANTUNLOCKFILE, FAIL, "unable to unlock member files");
+
+        HGOTO_ERROR(H5E_VFL, H5E_CANTLOCKFILE, FAIL, "unable to lock member files");
     } /* end if */
 
 done:
@@ -1448,8 +1376,6 @@ done:
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Vailin Choi; May 2013
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -1459,13 +1385,13 @@ H5FD__family_unlock(H5FD_t *_file)
     unsigned       u;                             /* Local index variable */
     herr_t         ret_value = SUCCEED;           /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Remove the lock on the member files */
     for (u = 0; u < file->nmembs; u++)
         if (file->memb[u])
             if (H5FD_unlock(file->memb[u]) < 0)
-                HGOTO_ERROR(H5E_IO, H5E_CANTUNLOCKFILE, FAIL, "unable to unlock member files")
+                HGOTO_ERROR(H5E_VFL, H5E_CANTUNLOCKFILE, FAIL, "unable to unlock member files");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1483,68 +1409,73 @@ done:
 static herr_t
 H5FD__family_delete(const char *filename, hid_t fapl_id)
 {
-    H5P_genplist_t *          plist;
+    H5P_genplist_t           *plist;
     const H5FD_family_fapl_t *fa;
     H5FD_family_fapl_t        default_fa     = {0, H5I_INVALID_HID};
-    hbool_t                   default_config = FALSE;
+    bool                      default_config = false;
     hid_t                     memb_fapl_id   = H5I_INVALID_HID;
     unsigned                  current_member;
-    char *                    member_name  = NULL;
-    char *                    temp         = NULL;
-    herr_t                    delete_error = FAIL;
-    herr_t                    ret_value    = SUCCEED;
+    char                     *member_name = NULL;
+    char                     *temp        = NULL;
+    herr_t                    ret_value   = SUCCEED;
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
-    HDassert(filename);
+    if (!filename)
+        HGOTO_ERROR(H5E_VFL, H5E_BADVALUE, FAIL, "invalid filename pointer");
 
     /* Get the driver info (for the member fapl)
      * The family_open call accepts H5P_DEFAULT, so we'll accept that here, too.
      */
     if (H5P_FILE_ACCESS_DEFAULT == fapl_id) {
         if (H5FD__family_get_default_config(&default_fa) < 0)
-            HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get default family VFD configuration")
+            HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get default family VFD configuration");
         memb_fapl_id   = default_fa.memb_fapl_id;
-        default_config = TRUE;
+        default_config = true;
     }
     else {
         if (NULL == (plist = (H5P_genplist_t *)H5I_object(fapl_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a file access property list");
         if (NULL == (fa = (const H5FD_family_fapl_t *)H5P_peek_driver_info(plist))) {
             if (H5FD__family_get_default_config(&default_fa) < 0)
-                HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get default family VFD configuration")
+                HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get default family VFD configuration");
             fa             = &default_fa;
-            default_config = TRUE;
+            default_config = true;
         }
         memb_fapl_id = fa->memb_fapl_id;
     }
 
     /* Allocate space for the string buffers */
     if (NULL == (member_name = (char *)H5MM_malloc(H5FD_FAM_MEMB_NAME_BUF_SIZE)))
-        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, FAIL, "unable to allocate member name")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, FAIL, "unable to allocate member name");
     if (NULL == (temp = (char *)H5MM_malloc(H5FD_FAM_MEMB_NAME_BUF_SIZE)))
-        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, FAIL, "unable to allocate temporary member name")
+        HGOTO_ERROR(H5E_VFL, H5E_CANTALLOC, FAIL, "unable to allocate temporary member name");
 
     /* Sanity check to make sure that generated names are unique */
-    HDsnprintf(member_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, filename, 0);
-    HDsnprintf(temp, H5FD_FAM_MEMB_NAME_BUF_SIZE, filename, 1);
-    if (!HDstrcmp(member_name, temp)) {
+    H5_GCC_CLANG_DIAG_OFF("format-nonliteral")
+    snprintf(member_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, filename, 0);
+    snprintf(temp, H5FD_FAM_MEMB_NAME_BUF_SIZE, filename, 1);
+    H5_GCC_CLANG_DIAG_ON("format-nonliteral")
+
+    if (!strcmp(member_name, temp)) {
         if (default_config) {
             temp = H5MM_xfree(temp);
             if (NULL == (temp = H5FD__family_get_default_printf_filename(filename)))
-                HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get default printf-style filename")
+                HGOTO_ERROR(H5E_VFL, H5E_CANTGET, FAIL, "can't get default printf-style filename");
             filename = temp;
         }
         else
             HGOTO_ERROR(H5E_VFL, H5E_CANTDELETEFILE, FAIL,
-                        "provided file name cannot generate unique sub-files")
+                        "provided file name cannot generate unique sub-files");
     }
 
     /* Delete all the family members */
     current_member = 0;
     while (1) {
         /* Fix up the filename with the current member's number */
-        HDsnprintf(member_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, filename, current_member);
+        H5_GCC_CLANG_DIAG_OFF("format-nonliteral")
+        snprintf(member_name, H5FD_FAM_MEMB_NAME_BUF_SIZE, filename, current_member);
+        H5_GCC_CLANG_DIAG_ON("format-nonliteral")
 
         /* Attempt to delete the member files. If the first file throws an error
          * we always consider this an error. With subsequent member files, however,
@@ -1553,18 +1484,22 @@ H5FD__family_delete(const char *filename, hid_t fapl_id)
          * Note that this means that any missing files in the family will leave
          * undeleted members behind.
          */
-        H5E_BEGIN_TRY
-        {
-            delete_error = H5FD_delete(member_name, memb_fapl_id);
+        if (0 == current_member) {
+            if (H5FD_delete(member_name, memb_fapl_id) < 0)
+                HGOTO_ERROR(H5E_VFL, H5E_CANTDELETEFILE, FAIL, "unable to delete member file");
         }
-        H5E_END_TRY;
-        if (FAIL == delete_error) {
-            if (0 == current_member)
-                HGOTO_ERROR(H5E_VFL, H5E_CANTDELETEFILE, FAIL, "unable to delete member file")
-            else
-                H5E_clear_stack(NULL);
-            break;
+        else {
+            herr_t delete_error;
+
+            H5E_PAUSE_ERRORS
+            {
+                delete_error = H5FD_delete(member_name, memb_fapl_id);
+            }
+            H5E_RESUME_ERRORS
+            if (delete_error < 0)
+                break;
         }
+
         current_member++;
     } /* end while */
 
@@ -1576,7 +1511,7 @@ done:
 
     /* Only close memb_fapl_id if we created one from the default configuration */
     if (default_fa.memb_fapl_id >= 0 && H5I_dec_ref(default_fa.memb_fapl_id) < 0)
-        HDONE_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't decrement ref. count on member FAPL ID")
+        HDONE_ERROR(H5E_VFL, H5E_CANTDEC, FAIL, "can't decrement ref. count on member FAPL ID");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FD__family_delete() */

@@ -2,7 +2,6 @@
 ## (Use double hashes for copyright notice so that automake treats it as
 ## comments and does not pass it to Makefile.in)
 ## Copyright by The HDF Group.
-## Copyright by the Board of Trustees of the University of Illinois.
 ## All rights reserved.
 ##
 ## This file is part of HDF5.  The full HDF5 copyright notice, including
@@ -16,21 +15,22 @@
 # See libtool versioning documentation online.
 # After making changes, run bin/reconfigure to update other configure related
 # files like Makefile.in.
-LT_VERS_INTERFACE = 301
-LT_VERS_AGE = 1
-LT_VERS_REVISION = 0
+LT_VERS_INTERFACE = 315
+LT_VERS_REVISION = 1
+LT_VERS_AGE = 5
 
-## If the API changes *at all*, increment LT_VERS_INTERFACE and
+## 1. If the API changes *at all*, increment LT_VERS_INTERFACE and
 ## reset LT_VERS_REVISION to 0.
 ##
-## If the API changes but no function signatures are removed or
+## 2. If the API changes but no function signatures are removed or
 ## changed, also increment LT_VERS_AGE.
-## If any functions are removed from the API, or their signatures
+##
+## 3. If any functions are removed from the API, or their signatures
 ## are changed reset LT_VERS_AGE to 0 to indicate that previous
 ## versions of the API are not necessarily compatible with this
 ## version.
 ##
-## If the source changes but there are no API changes, increment
+## 4. If the source changes but there are no API changes, increment
 ## LT_VERS_REVISION.  This will happen automatically when
 ## bin/h5vers is run, but doing it manually shouldn't hurt
 ## anything.
@@ -39,31 +39,31 @@ LT_VERS_REVISION = 0
 ## the effects of the H5_V1_x_COMPAT flag.
 ##
 ## Version numbers for wrapper shared library files.
-LT_CXX_VERS_INTERFACE = 300
-LT_CXX_VERS_REVISION = 1
+LT_CXX_VERS_INTERFACE = 310
+LT_CXX_VERS_REVISION = 6
 LT_CXX_VERS_AGE = 0
 
-LT_F_VERS_INTERFACE = 300
-LT_F_VERS_REVISION = 1
-LT_F_VERS_AGE = 0
+LT_F_VERS_INTERFACE = 313
+LT_F_VERS_REVISION = 2
+LT_F_VERS_AGE = 3
 
-LT_HL_VERS_INTERFACE = 300
-LT_HL_VERS_REVISION = 1
+LT_HL_VERS_INTERFACE = 310
+LT_HL_VERS_REVISION = 6
 LT_HL_VERS_AGE = 0
 
-LT_HL_CXX_VERS_INTERFACE = 300
-LT_HL_CXX_VERS_REVISION = 1
+LT_HL_CXX_VERS_INTERFACE = 310
+LT_HL_CXX_VERS_REVISION = 6
 LT_HL_CXX_VERS_AGE = 0
 
-LT_HL_F_VERS_INTERFACE = 300
-LT_HL_F_VERS_REVISION = 1
+LT_HL_F_VERS_INTERFACE = 310
+LT_HL_F_VERS_REVISION = 6
 LT_HL_F_VERS_AGE = 0
 
-LT_JAVA_VERS_INTERFACE = 300
-LT_JAVA_VERS_REVISION = 1
+LT_JAVA_VERS_INTERFACE = 310
+LT_JAVA_VERS_REVISION = 6
 LT_JAVA_VERS_AGE = 0
 
-LT_TOOLS_VERS_INTERFACE = 300
-LT_TOOLS_VERS_REVISION = 1
+LT_TOOLS_VERS_INTERFACE = 310
+LT_TOOLS_VERS_REVISION = 6
 LT_TOOLS_VERS_AGE = 0
 

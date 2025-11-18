@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:	H5Gdeprec.c
- *		June 21 2006
- *		James Laird
  *
  * Purpose:	Deprecated functions from the H5G interface.  These
  *              functions are here for compatibility purposes and may be
@@ -35,7 +32,6 @@
 /* Headers */
 /***********/
 #include "H5private.h"   /* Generic Functions			*/
-#include "H5ACprivate.h" /* Metadata cache			*/
 #include "H5CXprivate.h" /* API Contexts                         */
 #include "H5Eprivate.h"  /* Error handling		  	*/
 #include "H5Gpkg.h"      /* Groups		  		*/
@@ -58,8 +54,8 @@
 /* User data for path traversal routine for getting object info */
 typedef struct {
     H5G_stat_t *statbuf;     /* Stat buffer about object */
-    hbool_t     follow_link; /* Whether we are following a link or not */
-    H5F_t *     loc_file;    /* Pointer to the file the location is in */
+    bool        follow_link; /* Whether we are following a link or not */
+    H5F_t      *loc_file;    /* Pointer to the file the location is in */
 } H5G_trav_goi_t;
 
 /********************/
@@ -94,9 +90,6 @@ static herr_t H5G__get_objinfo_cb(H5G_loc_t *grp_loc /*in*/, const char *name, c
  * Purpose:	Maps the object type to the older "group" object type
  *
  * Return:	Object type (can't fail)
- *
- * Programmer:	Quincey Koziol
- *              Tuesday, November 21, 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -154,28 +147,24 @@ H5G_map_obj_type(H5O_type_t obj_type)
  *
  *		Failure:	H5I_INVALID_HID
  *
- * Programmer:	Robb Matzke
- *		Wednesday, September 24, 1997
- *
  *-------------------------------------------------------------------------
  */
 hid_t
 H5Gcreate1(hid_t loc_id, const char *name, size_t size_hint)
 {
-    void *            grp = NULL; /* New group created */
-    H5VL_object_t *   vol_obj;    /* Object of loc_id */
+    void             *grp = NULL; /* New group created */
+    H5VL_object_t    *vol_obj;    /* Object of loc_id */
     H5VL_loc_params_t loc_params;
     hid_t             tmp_gcpl  = H5I_INVALID_HID; /* Temporary group creation property list */
     hid_t             ret_value = H5I_INVALID_HID; /* Return value */
 
     FUNC_ENTER_API(H5I_INVALID_HID)
-    H5TRACE3("i", "i*sz", loc_id, name, size_hint);
 
     /* Check arguments */
     if (!name || !*name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "no name given")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "no name given");
     if (size_hint > UINT32_MAX)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "size_hint cannot be larger than UINT32_MAX")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "size_hint cannot be larger than UINT32_MAX");
 
     /* Check if we need to create a non-standard GCPL */
     if (size_hint > 0) {
@@ -184,58 +173,58 @@ H5Gcreate1(hid_t loc_id, const char *name, size_t size_hint)
 
         /* Get the default property list */
         if (NULL == (gc_plist = (H5P_genplist_t *)H5I_object(H5P_GROUP_CREATE_DEFAULT)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a property list")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a property list");
 
         /* Make a copy of the default property list */
-        if ((tmp_gcpl = H5P_copy_plist(gc_plist, FALSE)) < 0)
-            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, H5I_INVALID_HID, "unable to copy the creation property list")
+        if ((tmp_gcpl = H5P_copy_plist(gc_plist, false)) < 0)
+            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, H5I_INVALID_HID, "unable to copy the creation property list");
 
         /* Get pointer to the copied property list */
         if (NULL == (gc_plist = (H5P_genplist_t *)H5I_object(tmp_gcpl)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a property list")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "not a property list");
 
         /* Get the group info property */
         if (H5P_get(gc_plist, H5G_CRT_GROUP_INFO_NAME, &ginfo) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, H5I_INVALID_HID, "can't get group info")
+            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, H5I_INVALID_HID, "can't get group info");
 
         /* Set the non-default local heap size hint */
         H5_CHECKED_ASSIGN(ginfo.lheap_size_hint, uint32_t, size_hint, size_t);
         if (H5P_set(gc_plist, H5G_CRT_GROUP_INFO_NAME, &ginfo) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, H5I_INVALID_HID, "can't set group info")
+            HGOTO_ERROR(H5E_SYM, H5E_CANTSET, H5I_INVALID_HID, "can't set group info");
     }
     else
         tmp_gcpl = H5P_GROUP_CREATE_DEFAULT;
 
     /* Set up collective metadata if appropriate */
     if (H5CX_set_loc(loc_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, H5I_INVALID_HID, "can't set collective metadata read info")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, H5I_INVALID_HID, "can't set collective metadata read info");
 
     /* Set location parameters */
     loc_params.type     = H5VL_OBJECT_BY_SELF;
     loc_params.obj_type = H5I_get_type(loc_id);
 
     /* get the location object */
-    if (NULL == (vol_obj = (H5VL_object_t *)H5I_object(loc_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "invalid location identifier")
+    if (NULL == (vol_obj = H5VL_vol_object(loc_id)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "invalid location identifier");
 
     /* Create the group */
     if (NULL ==
         (grp = H5VL_group_create(vol_obj, &loc_params, name, H5P_LINK_CREATE_DEFAULT, tmp_gcpl,
                                  H5P_GROUP_ACCESS_DEFAULT, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL)))
-        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, H5I_INVALID_HID, "unable to create group")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, H5I_INVALID_HID, "unable to create group");
 
     /* Get an ID for the group */
-    if ((ret_value = H5VL_register(H5I_GROUP, grp, vol_obj->connector, TRUE)) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register group")
+    if ((ret_value = H5VL_register(H5I_GROUP, grp, vol_obj->connector, true)) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register group");
 
 done:
     if (H5I_INVALID_HID != tmp_gcpl && tmp_gcpl != H5P_GROUP_CREATE_DEFAULT)
         if (H5I_dec_ref(tmp_gcpl) < 0)
-            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, H5I_INVALID_HID, "unable to release property list")
+            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, H5I_INVALID_HID, "unable to release property list");
 
     if (H5I_INVALID_HID == ret_value)
         if (grp && H5VL_group_close(vol_obj, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, H5I_INVALID_HID, "unable to release group")
+            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, H5I_INVALID_HID, "unable to release group");
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gcreate1() */
@@ -252,47 +241,43 @@ done:
  *
  *		Failure:	H5I_INVALID_HID
  *
- * Programmer:	Robb Matzke
- *		Wednesday, December 31, 1997
- *
  *-------------------------------------------------------------------------
  */
 hid_t
 H5Gopen1(hid_t loc_id, const char *name)
 {
-    void *            grp     = NULL; /* Group opened */
-    H5VL_object_t *   vol_obj = NULL; /* Object of loc_id */
+    void             *grp     = NULL; /* Group opened */
+    H5VL_object_t    *vol_obj = NULL; /* Object of loc_id */
     H5VL_loc_params_t loc_params;
     hid_t             ret_value = H5I_INVALID_HID; /* Return value */
 
     FUNC_ENTER_API(H5I_INVALID_HID)
-    H5TRACE2("i", "i*s", loc_id, name);
 
     /* Check args */
     if (!name || !*name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "no name")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, H5I_INVALID_HID, "no name");
 
     /* Set location parameters */
     loc_params.type     = H5VL_OBJECT_BY_SELF;
     loc_params.obj_type = H5I_get_type(loc_id);
 
     /* get the location object */
-    if (NULL == (vol_obj = (H5VL_object_t *)H5I_object(loc_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "invalid location identifier")
+    if (NULL == (vol_obj = H5VL_vol_object(loc_id)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5I_INVALID_HID, "invalid location identifier");
 
     /* Open the group */
     if (NULL == (grp = H5VL_group_open(vol_obj, &loc_params, name, H5P_GROUP_ACCESS_DEFAULT,
                                        H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL)))
-        HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, H5I_INVALID_HID, "unable to open group")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, H5I_INVALID_HID, "unable to open group");
 
     /* Get an ID for the group */
-    if ((ret_value = H5VL_register(H5I_GROUP, grp, vol_obj->connector, TRUE)) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register group")
+    if ((ret_value = H5VL_register(H5I_GROUP, grp, vol_obj->connector, true)) < 0)
+        HGOTO_ERROR(H5E_SYM, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register group");
 
 done:
     if (H5I_INVALID_HID == ret_value)
         if (grp && H5VL_group_close(vol_obj, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, H5I_INVALID_HID, "unable to release group")
+            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, H5I_INVALID_HID, "unable to release group");
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5Gopen1() */
@@ -312,21 +297,20 @@ H5Glink(hid_t cur_loc_id, H5G_link_t type, const char *cur_name, const char *new
     herr_t                  ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "iLl*s*s", cur_loc_id, type, cur_name, new_name);
 
     /* Check arguments */
     if (!cur_name || !*cur_name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no current name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no current name specified");
     if (!new_name || !*new_name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no new name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no new name specified");
 
     /* Set up collective metadata if appropriate */
     if (H5CX_set_loc(cur_loc_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info");
 
     /* Create link */
     if (type == H5L_TYPE_HARD) {
-        H5VL_object_t *   vol_obj; /* Object of loc_id */
+        H5VL_object_t    *vol_obj; /* Object of loc_id */
         H5VL_loc_params_t new_loc_params;
         H5VL_object_t     tmp_vol_obj; /* Temporary object */
 
@@ -336,8 +320,8 @@ H5Glink(hid_t cur_loc_id, H5G_link_t type, const char *cur_name, const char *new
         new_loc_params.loc_data.loc_by_name.lapl_id = H5P_LINK_ACCESS_DEFAULT;
 
         /* Get the location object */
-        if (NULL == (vol_obj = (H5VL_object_t *)H5I_object(cur_loc_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier")
+        if (NULL == (vol_obj = H5VL_vol_object(cur_loc_id)))
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier");
 
         /* Construct a temporary VOL object */
         tmp_vol_obj.data      = NULL;
@@ -354,10 +338,10 @@ H5Glink(hid_t cur_loc_id, H5G_link_t type, const char *cur_name, const char *new
         /* Create the link through the VOL */
         if (H5VL_link_create(&vol_cb_args, &tmp_vol_obj, &new_loc_params, H5P_LINK_CREATE_DEFAULT,
                              H5P_LINK_ACCESS_DEFAULT, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-            HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create link")
+            HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create link");
     } /* end if */
     else if (type == H5L_TYPE_SOFT) {
-        H5VL_object_t *   vol_obj; /* Object of loc_id */
+        H5VL_object_t    *vol_obj; /* Object of loc_id */
         H5VL_loc_params_t loc_params;
 
         /* Set up location struct */
@@ -367,8 +351,8 @@ H5Glink(hid_t cur_loc_id, H5G_link_t type, const char *cur_name, const char *new
         loc_params.obj_type                     = H5I_get_type(cur_loc_id);
 
         /* get the location object */
-        if (NULL == (vol_obj = (H5VL_object_t *)H5I_object(cur_loc_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier")
+        if (NULL == (vol_obj = H5VL_vol_object(cur_loc_id)))
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier");
 
         /* Set up VOL callback arguments */
         vol_cb_args.op_type          = H5VL_LINK_CREATE_SOFT;
@@ -377,10 +361,10 @@ H5Glink(hid_t cur_loc_id, H5G_link_t type, const char *cur_name, const char *new
         /* Create the link through the VOL */
         if (H5VL_link_create(&vol_cb_args, vol_obj, &loc_params, H5P_LINK_CREATE_DEFAULT,
                              H5P_LINK_ACCESS_DEFAULT, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-            HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create link")
+            HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create link");
     } /* end else-if */
     else
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "Not a valid link type")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "Not a valid link type");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -401,22 +385,21 @@ H5Glink2(hid_t cur_loc_id, const char *cur_name, H5G_link_t type, hid_t new_loc_
     herr_t                  ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE5("e", "i*sLli*s", cur_loc_id, cur_name, type, new_loc_id, new_name);
 
     /* Check arguments */
     if (!cur_name || !*cur_name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no current name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no current name specified");
     if (!new_name || !*new_name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no new name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no new name specified");
 
     /* Set up collective metadata if appropriate */
     if (H5CX_set_loc(cur_loc_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info");
 
     /* Create the appropriate kind of link */
     if (type == H5L_TYPE_HARD) {
-        H5VL_object_t *   vol_obj1; /* Object of loc_id */
-        H5VL_object_t *   vol_obj2; /* Object of loc_id */
+        H5VL_object_t    *vol_obj1; /* Object of loc_id */
+        H5VL_object_t    *vol_obj2; /* Object of loc_id */
         H5VL_loc_params_t new_loc_params;
 
         /* Set up new location struct */
@@ -426,10 +409,10 @@ H5Glink2(hid_t cur_loc_id, const char *cur_name, H5G_link_t type, hid_t new_loc_
         new_loc_params.loc_data.loc_by_name.lapl_id = H5P_LINK_ACCESS_DEFAULT;
 
         /* Get the location objects */
-        if (NULL == (vol_obj1 = (H5VL_object_t *)H5I_object(cur_loc_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier")
-        if (NULL == (vol_obj2 = (H5VL_object_t *)H5I_object(new_loc_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier")
+        if (NULL == (vol_obj1 = H5VL_vol_object(cur_loc_id)))
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier");
+        if (NULL == (vol_obj2 = H5VL_vol_object(new_loc_id)))
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier");
 
         /* Set up VOL callback arguments */
         vol_cb_args.op_type                                                = H5VL_LINK_CREATE_HARD;
@@ -442,10 +425,10 @@ H5Glink2(hid_t cur_loc_id, const char *cur_name, H5G_link_t type, hid_t new_loc_
         /* Create the link through the VOL */
         if (H5VL_link_create(&vol_cb_args, vol_obj2, &new_loc_params, H5P_LINK_CREATE_DEFAULT,
                              H5P_LINK_ACCESS_DEFAULT, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-            HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create link")
+            HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create link");
     } /* end if */
     else if (type == H5L_TYPE_SOFT) {
-        H5VL_object_t *   vol_obj; /* Object of loc_id */
+        H5VL_object_t    *vol_obj; /* Object of loc_id */
         H5VL_loc_params_t loc_params;
 
         /* Soft links only need one location, the new_loc_id, but it's possible that
@@ -460,8 +443,8 @@ H5Glink2(hid_t cur_loc_id, const char *cur_name, H5G_link_t type, hid_t new_loc_
         loc_params.obj_type                     = H5I_get_type(new_loc_id);
 
         /* get the location object */
-        if (NULL == (vol_obj = (H5VL_object_t *)H5I_object(new_loc_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier")
+        if (NULL == (vol_obj = H5VL_vol_object(new_loc_id)))
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier");
 
         /* Set up VOL callback arguments */
         vol_cb_args.op_type          = H5VL_LINK_CREATE_SOFT;
@@ -470,10 +453,10 @@ H5Glink2(hid_t cur_loc_id, const char *cur_name, H5G_link_t type, hid_t new_loc_
         /* Create the link through the VOL */
         if (H5VL_link_create(&vol_cb_args, vol_obj, &loc_params, H5P_LINK_CREATE_DEFAULT,
                              H5P_LINK_ACCESS_DEFAULT, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-            HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create link")
+            HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, FAIL, "unable to create link");
     } /* end else-if */
     else
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "not a valid link type")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "not a valid link type");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -489,17 +472,16 @@ done:
 herr_t
 H5Gmove(hid_t src_loc_id, const char *src_name, const char *dst_name)
 {
-    H5VL_object_t *   vol_obj; /* Object of loc_id */
+    H5VL_object_t    *vol_obj; /* Object of loc_id */
     H5VL_loc_params_t loc_params1;
     H5VL_loc_params_t loc_params2;
     herr_t            ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "i*s*s", src_loc_id, src_name, dst_name);
 
     /* Set up collective metadata if appropriate */
     if (H5CX_set_loc(src_loc_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info");
 
     loc_params1.type                         = H5VL_OBJECT_BY_NAME;
     loc_params1.obj_type                     = H5I_get_type(src_loc_id);
@@ -511,13 +493,13 @@ H5Gmove(hid_t src_loc_id, const char *src_name, const char *dst_name)
     loc_params2.loc_data.loc_by_name.lapl_id = H5P_LINK_ACCESS_DEFAULT;
 
     /* get the location object */
-    if (NULL == (vol_obj = (H5VL_object_t *)H5I_object(src_loc_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier")
+    if (NULL == (vol_obj = H5VL_vol_object(src_loc_id)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier");
 
     /* Move the link */
     if (H5VL_link_move(vol_obj, &loc_params1, NULL, &loc_params2, H5P_LINK_CREATE_DEFAULT,
                        H5P_LINK_ACCESS_DEFAULT, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTMOVE, FAIL, "couldn't move link")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTMOVE, FAIL, "couldn't move link");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -533,44 +515,66 @@ done:
 herr_t
 H5Gmove2(hid_t src_loc_id, const char *src_name, hid_t dst_loc_id, const char *dst_name)
 {
-    H5VL_object_t *   vol_obj1 = NULL; /* Object of src_id */
+    H5VL_object_t    *vol_obj1 = NULL; /* Object of src_id */
     H5VL_loc_params_t loc_params1;
-    H5VL_object_t *   vol_obj2 = NULL; /* Object of dst_id */
+    H5VL_object_t    *vol_obj2 = NULL; /* Object of dst_id */
     H5VL_loc_params_t loc_params2;
+    H5I_type_t        src_id_type = H5I_BADID, dst_id_type = H5I_BADID;
     herr_t            ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "i*si*s", src_loc_id, src_name, dst_loc_id, dst_name);
+
+    /* Check arguments */
+    if (!src_name || !*src_name)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no current name specified");
+    if (!dst_name || !*dst_name)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no destination name specified");
+
+    /* src and dst location IDs cannot both have the value of H5L_SAME_LOC */
+    if (src_loc_id == H5L_SAME_LOC && dst_loc_id == H5L_SAME_LOC)
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "current and destination should not both be H5L_SAME_LOC");
+
+    /* reset an ID in the case of H5L_SAME_LOC */
+    if (src_loc_id == H5L_SAME_LOC)
+        src_loc_id = dst_loc_id;
+    else if (dst_loc_id == H5L_SAME_LOC)
+        dst_loc_id = src_loc_id;
+
+    src_id_type = H5I_get_type(src_loc_id);
+    if (!(H5I_GROUP == src_id_type || H5I_FILE == src_id_type))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid group (or file) ID, src_loc_id");
+
+    dst_id_type = H5I_get_type(dst_loc_id);
+    if (!(H5I_GROUP == dst_id_type || H5I_FILE == dst_id_type))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid group (or file) ID, dst_loc_id");
 
     /* Set up collective metadata if appropriate */
     if (H5CX_set_loc(dst_loc_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info");
 
     /* Set location parameter for source object */
     loc_params1.type                         = H5VL_OBJECT_BY_NAME;
     loc_params1.loc_data.loc_by_name.name    = src_name;
     loc_params1.loc_data.loc_by_name.lapl_id = H5P_LINK_ACCESS_DEFAULT;
-    loc_params1.obj_type                     = H5I_get_type(src_loc_id);
+    loc_params1.obj_type                     = src_id_type;
 
     /* Set location parameter for destination object */
     loc_params2.type                         = H5VL_OBJECT_BY_NAME;
     loc_params2.loc_data.loc_by_name.name    = dst_name;
     loc_params2.loc_data.loc_by_name.lapl_id = H5P_LINK_ACCESS_DEFAULT;
-    loc_params2.obj_type                     = H5I_get_type(dst_loc_id);
+    loc_params2.obj_type                     = dst_id_type;
 
-    if (H5L_SAME_LOC != src_loc_id)
-        /* get the location object */
-        if (NULL == (vol_obj1 = (H5VL_object_t *)H5I_object(src_loc_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier")
-    if (H5L_SAME_LOC != dst_loc_id)
-        /* get the location object */
-        if (NULL == (vol_obj2 = (H5VL_object_t *)H5I_object(dst_loc_id)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier")
+    /* get the location object */
+    if (NULL == (vol_obj1 = H5VL_vol_object(src_loc_id)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier");
+    /* get the location object */
+    if (NULL == (vol_obj2 = H5VL_vol_object(dst_loc_id)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier");
 
     /* Move the link */
     if (H5VL_link_move(vol_obj1, &loc_params1, vol_obj2, &loc_params2, H5P_LINK_CREATE_DEFAULT,
                        H5P_LINK_ACCESS_DEFAULT, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTMOVE, FAIL, "unable to move link")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTMOVE, FAIL, "unable to move link");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -586,21 +590,20 @@ done:
 herr_t
 H5Gunlink(hid_t loc_id, const char *name)
 {
-    H5VL_object_t *           vol_obj;     /* Object of loc_id */
+    H5VL_object_t            *vol_obj;     /* Object of loc_id */
     H5VL_link_specific_args_t vol_cb_args; /* Arguments to VOL callback */
     H5VL_loc_params_t         loc_params;
     herr_t                    ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "i*s", loc_id, name);
 
     /* Check arguments */
     if (!name || !*name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name");
 
     /* Set up collective metadata if appropriate */
     if (H5CX_set_loc(loc_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info");
 
     loc_params.type                         = H5VL_OBJECT_BY_NAME;
     loc_params.obj_type                     = H5I_get_type(loc_id);
@@ -608,15 +611,15 @@ H5Gunlink(hid_t loc_id, const char *name)
     loc_params.loc_data.loc_by_name.lapl_id = H5P_LINK_ACCESS_DEFAULT;
 
     /* Get the location object */
-    if (NULL == (vol_obj = (H5VL_object_t *)H5I_object(loc_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier")
+    if (NULL == (vol_obj = H5VL_vol_object(loc_id)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier");
 
     /* Set up VOL callback arguments */
     vol_cb_args.op_type = H5VL_LINK_DELETE;
 
     /* Delete the link */
     if (H5VL_link_specific(vol_obj, &loc_params, &vol_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTDELETE, FAIL, "couldn't delete link")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTDELETE, FAIL, "couldn't delete link");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -633,21 +636,20 @@ done:
 herr_t
 H5Gget_linkval(hid_t loc_id, const char *name, size_t size, char *buf /*out*/)
 {
-    H5VL_object_t *      vol_obj;     /* Object of loc_id */
+    H5VL_object_t       *vol_obj;     /* Object of loc_id */
     H5VL_link_get_args_t vol_cb_args; /* Arguments to VOL callback */
     H5VL_loc_params_t    loc_params;
     herr_t               ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "i*szx", loc_id, name, size, buf);
 
     /* Check arguments */
     if (!name || !*name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified");
 
     /* Set up collective metadata if appropriate */
     if (H5CX_set_loc(loc_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info");
 
     /* Set up location struct */
     loc_params.type                         = H5VL_OBJECT_BY_NAME;
@@ -656,8 +658,8 @@ H5Gget_linkval(hid_t loc_id, const char *name, size_t size, char *buf /*out*/)
     loc_params.loc_data.loc_by_name.lapl_id = H5P_LINK_ACCESS_DEFAULT;
 
     /* Get the location object */
-    if (NULL == (vol_obj = (H5VL_object_t *)H5I_object(loc_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier")
+    if (NULL == (vol_obj = H5VL_vol_object(loc_id)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier");
 
     /* Set up VOL callback arguments */
     vol_cb_args.op_type               = H5VL_LINK_GET_VAL;
@@ -666,7 +668,7 @@ H5Gget_linkval(hid_t loc_id, const char *name, size_t size, char *buf /*out*/)
 
     /* Get the link value */
     if (H5VL_link_get(vol_obj, &loc_params, &vol_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get link value")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get link value");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -684,29 +686,25 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *              Monday, July 20, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Gset_comment(hid_t loc_id, const char *name, const char *comment)
 {
-    H5VL_object_t *                    vol_obj;      /* Object of loc_id */
+    H5VL_object_t                     *vol_obj;      /* Object of loc_id */
     H5VL_optional_args_t               vol_cb_args;  /* Arguments to VOL callback */
     H5VL_native_object_optional_args_t obj_opt_args; /* Arguments for optional operation */
     H5VL_loc_params_t                  loc_params;
     herr_t                             ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "i*s*s", loc_id, name, comment);
 
     if (!name || !*name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified");
 
     /* Set up collective metadata if appropriate */
     if (H5CX_set_loc(loc_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set collective metadata read info");
 
     /* Fill in location struct fields */
     loc_params.type                         = H5VL_OBJECT_BY_NAME;
@@ -716,7 +714,7 @@ H5Gset_comment(hid_t loc_id, const char *name, const char *comment)
 
     /* Get the location object */
     if (NULL == (vol_obj = H5VL_vol_object(loc_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid location identifier");
 
     /* Set up VOL callback arguments */
     obj_opt_args.set_comment.comment = comment;
@@ -726,7 +724,7 @@ H5Gset_comment(hid_t loc_id, const char *name, const char *comment)
     /* Set the comment */
     if (H5VL_object_optional(vol_obj, &loc_params, &vol_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) <
         0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "unable to set comment value")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "unable to set comment value");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -744,21 +742,18 @@ done:
  *
  * Note:	Deprecated in favor of H5Oget_comment/H5Oget_comment_by_name
  *
- * Return:	Success:	Number of characters in the comment counting
- *				the null terminator.  The value returned may
- *				be larger than the BUFSIZE argument.
+ * Return:	Success: Number of characters in the comment, excluding the
+ *                   NULL terminator character.  The value returned may be
+ *                   larger than the BUFSIZE argument.
  *
- *		Failure:	Negative
- *
- * Programmer:	Robb Matzke
- *              Monday, July 20, 1998
+ *          Failure: Negative
  *
  *-------------------------------------------------------------------------
  */
 int
 H5Gget_comment(hid_t loc_id, const char *name, size_t bufsize, char *buf /*out*/)
 {
-    H5VL_object_t *                    vol_obj;      /* Object of loc_id */
+    H5VL_object_t                     *vol_obj;      /* Object of loc_id */
     H5VL_optional_args_t               vol_cb_args;  /* Arguments to VOL callback */
     H5VL_native_object_optional_args_t obj_opt_args; /* Arguments for optional operation */
     H5VL_loc_params_t                  loc_params;
@@ -766,16 +761,15 @@ H5Gget_comment(hid_t loc_id, const char *name, size_t bufsize, char *buf /*out*/
     int                                ret_value;       /* Return value */
 
     FUNC_ENTER_API(-1)
-    H5TRACE4("Is", "i*szx", loc_id, name, bufsize, buf);
 
     if (!name || !*name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, -1, "no name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, -1, "no name specified");
     if (bufsize > 0 && !buf)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, -1, "no buffer specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, -1, "no buffer specified");
 
     /* Set up collective metadata if appropriate */
     if (H5CX_set_loc(loc_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, -1, "can't set collective metadata read info")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, -1, "can't set collective metadata read info");
 
     /* Fill in location struct fields */
     loc_params.type                         = H5VL_OBJECT_BY_NAME;
@@ -785,7 +779,7 @@ H5Gget_comment(hid_t loc_id, const char *name, size_t bufsize, char *buf /*out*/
 
     /* Get the location object */
     if (NULL == (vol_obj = H5VL_vol_object(loc_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, -1, "invalid location identifier")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, -1, "invalid location identifier");
 
     /* Set up VOL callback arguments */
     obj_opt_args.get_comment.buf         = buf;
@@ -797,7 +791,7 @@ H5Gget_comment(hid_t loc_id, const char *name, size_t bufsize, char *buf /*out*/
     /* Get the comment */
     if (H5VL_object_optional(vol_obj, &loc_params, &vol_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) <
         0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, -1, "unable to get comment value")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, -1, "unable to get comment value");
 
     /* Set return value */
     ret_value = (int)comment_len;
@@ -833,26 +827,25 @@ done:
 herr_t
 H5Giterate(hid_t loc_id, const char *name, int *idx_p, H5G_iterate_t op, void *op_data)
 {
-    H5VL_object_t *                   vol_obj;      /* Object of loc_id */
+    H5VL_object_t                    *vol_obj;      /* Object of loc_id */
     H5VL_optional_args_t              vol_cb_args;  /* Arguments to VOL callback */
     H5VL_native_group_optional_args_t grp_opt_args; /* Arguments for optional operation */
     hsize_t                           last_obj = 0; /* Pointer to index value */
     herr_t                            ret_value;    /* Return value                     */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE5("e", "i*s*IsGi*x", loc_id, name, idx_p, op, op_data);
 
     /* Check args */
     if (!name || !*name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified");
     if (idx_p && *idx_p < 0)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid index specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid index specified");
     if (!op)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no operator specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no operator specified");
 
     /* Get the object pointer */
     if (NULL == (vol_obj = H5VL_vol_object(loc_id)))
-        HGOTO_ERROR(H5E_ID, H5E_BADTYPE, (-1), "invalid identifier")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid identifier");
 
     /* Set up VOL callback arguments */
     grp_opt_args.iterate_old.loc_params.type                         = H5VL_OBJECT_BY_NAME;
@@ -890,39 +883,35 @@ done:
  * Return:	Success:        Non-negative
  *		Failure:	Negative
  *
- * Programmer:	Raymond Lu
- *	        Nov 20, 2002
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Gget_num_objs(hid_t loc_id, hsize_t *num_objs /*out*/)
 {
-    H5VL_object_t *       vol_obj = NULL;      /* Object of loc_id */
+    H5VL_object_t        *vol_obj = NULL;      /* Object of loc_id */
     H5VL_group_get_args_t vol_cb_args;         /* Arguments to VOL callback */
     H5I_type_t            id_type;             /* Type of ID */
     H5G_info_t            grp_info;            /* Group information */
     herr_t                ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", loc_id, num_objs);
 
     /* Check args */
     id_type = H5I_get_type(loc_id);
     if (!(H5I_GROUP == id_type || H5I_FILE == id_type))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid group (or file) ID")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid group (or file) ID");
     if (!num_objs)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "bad pointer to # of objects")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "bad pointer to # of objects");
 
     /* Set up VOL callback & object access arguments */
     vol_cb_args.op_type = H5VL_GROUP_GET_INFO;
     if (H5VL_setup_self_args(loc_id, &vol_obj, &vol_cb_args.args.get_info.loc_params) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set object access arguments")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, FAIL, "can't set object access arguments");
     vol_cb_args.args.get_info.ginfo = &grp_info;
 
     /* Retrieve the group's information */
     if (H5VL_group_get(vol_obj, &vol_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get group info")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get group info");
 
     /* Set the number of objects [i.e. links] in the group */
     *num_objs = grp_info.nlinks;
@@ -943,25 +932,21 @@ done:
  * Return:	Non-negative on success, with the fields of STATBUF (if
  *              non-null) initialized. Negative on failure.
  *
- * Programmer:	Robb Matzke
- *              Monday, April 13, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5Gget_objinfo(hid_t loc_id, const char *name, hbool_t follow_link, H5G_stat_t *statbuf /*out*/)
 {
-    H5VL_object_t *                   vol_obj = NULL;      /* Object of loc_id */
+    H5VL_object_t                    *vol_obj = NULL;      /* Object of loc_id */
     H5VL_optional_args_t              vol_cb_args;         /* Arguments to VOL callback */
     H5VL_native_group_optional_args_t grp_opt_args;        /* Arguments for optional operation */
     herr_t                            ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_API(FAIL);
-    H5TRACE4("e", "i*sbx", loc_id, name, follow_link, statbuf);
+    FUNC_ENTER_API(FAIL)
 
     /* Check arguments */
     if (!name || !*name)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "no name specified");
 
     /* Set up collective metadata if appropriate */
     if (H5CX_set_loc(loc_id) < 0)
@@ -986,7 +971,7 @@ H5Gget_objinfo(hid_t loc_id, const char *name, hbool_t follow_link, H5G_stat_t *
         HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get info for object: '%s'", name);
 
 done:
-    FUNC_LEAVE_API(ret_value);
+    FUNC_LEAVE_API(ret_value)
 } /* end H5Gget_objinfo() */
 
 /*-------------------------------------------------------------------------
@@ -997,9 +982,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *              Tuesday, September 20, 2005
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -1009,7 +991,7 @@ H5G__get_objinfo_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc /*in*/, const char *name, 
     H5G_trav_goi_t *udata     = (H5G_trav_goi_t *)_udata; /* User data passed in */
     herr_t          ret_value = SUCCEED;                  /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Check if the name in this group resolved to a valid link */
     if (lnk == NULL && obj_loc == NULL)
@@ -1021,7 +1003,7 @@ H5G__get_objinfo_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc /*in*/, const char *name, 
 
         /* Common code to retrieve the file's fileno */
         if (H5F_get_fileno((obj_loc ? obj_loc : grp_loc)->oloc->file, &statbuf->fileno[0]) < 0)
-            HGOTO_ERROR(H5E_FILE, H5E_BADVALUE, FAIL, "unable to read fileno");
+            HGOTO_ERROR(H5E_SYM, H5E_BADVALUE, FAIL, "unable to read fileno");
 
         /* Info for soft and UD links is gotten by H5L_get_info. If we have
          *      a hard link, follow it and get info on the object
@@ -1033,19 +1015,19 @@ H5G__get_objinfo_cb(H5G_loc_t H5_ATTR_UNUSED *grp_loc /*in*/, const char *name, 
 
             /* Go retrieve the data model & native object information */
             /* (don't need index & heap info) */
-            HDassert(obj_loc);
+            assert(obj_loc);
             if (H5O_get_info(obj_loc->oloc, &dm_info, H5O_INFO_BASIC | H5O_INFO_TIME) < 0)
-                HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to get data model object info")
+                HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get data model object info");
             if (H5O_get_native_info(obj_loc->oloc, &nat_info, H5O_INFO_HDR) < 0)
-                HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, FAIL, "unable to get native object info")
+                HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "unable to get native object info");
 
             /* Get mapped object type */
             statbuf->type = H5G_map_obj_type(dm_info.type);
 
             /* Get object number (i.e. address) for object */
             if (H5VL_native_token_to_addr(obj_loc->oloc->file, H5I_FILE, dm_info.token, &obj_addr) < 0)
-                HGOTO_ERROR(H5E_OHDR, H5E_CANTUNSERIALIZE, FAIL,
-                            "can't deserialize object token into address")
+                HGOTO_ERROR(H5E_SYM, H5E_CANTUNSERIALIZE, FAIL,
+                            "can't deserialize object token into address");
 
             statbuf->objno[0] = (unsigned long)(obj_addr);
 #if H5_SIZEOF_UINT64_T > H5_SIZEOF_LONG
@@ -1072,7 +1054,7 @@ done:
      * location for the object */
     *own_loc = H5G_OWN_NONE;
 
-    FUNC_LEAVE_NOAPI(ret_value);
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G__get_objinfo_cb() */
 
 /*-------------------------------------------------------------------------
@@ -1086,26 +1068,26 @@ done:
  *
  *		Failure:	Negative
  *
- * Programmer:	Robb Matzke
- *              Monday, April 13, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5G__get_objinfo(const H5G_loc_t *loc, const char *name, hbool_t follow_link, H5G_stat_t *statbuf /*out*/)
+H5G__get_objinfo(const H5G_loc_t *loc, const char *name, bool follow_link, H5G_stat_t *statbuf /*out*/)
 {
     H5G_trav_goi_t udata;               /* User data for callback */
+    char          *obj_path = NULL;     /* Actual path to object */
+    const char    *last;                /* Pointer to last character in name string */
+    size_t         name_len;            /* Length of name */
     herr_t         ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_PACKAGE;
+    FUNC_ENTER_PACKAGE
 
     /* Sanity checks */
-    HDassert(loc);
-    HDassert(name && *name);
+    assert(loc);
+    assert(name && *name);
 
     /* Reset stat buffer */
     if (statbuf)
-        HDmemset(statbuf, 0, sizeof(H5G_stat_t));
+        memset(statbuf, 0, sizeof(H5G_stat_t));
 
     /* Set up user data for retrieving information */
     udata.statbuf     = statbuf;
@@ -1118,34 +1100,49 @@ H5G__get_objinfo(const H5G_loc_t *loc, const char *name, hbool_t follow_link, H5
                      H5G__get_objinfo_cb, &udata) < 0)
         HGOTO_ERROR(H5E_SYM, H5E_EXISTS, FAIL, "name doesn't exist");
 
-    /* If we're pointing at a soft or UD link, get the real link length and type */
-    if (statbuf && follow_link == 0) {
-        H5L_info2_t linfo; /* Link information buffer */
-        herr_t      ret;
-
-        /* Get information about link to the object. If this fails, e.g.
-         * because the object is ".", just treat the object as a hard link. */
-        H5E_BEGIN_TRY
-        {
-            ret = H5L_get_info(loc, name, &linfo);
+    /* Compose the path to the object by eliminating any trailing '.' components */
+    name_len = strlen(name);
+    last     = name + (name_len - 1);
+    while (name_len > 0) {
+        /* Trim trailing '/'s & '.'s*/
+        if ('/' == *last || '.' == *last) {
+            name_len--;
+            last--;
         }
-        H5E_END_TRY;
+        else
+            break;
+    }
+    if (name_len > 0) {
+        if (NULL == (obj_path = H5MM_strdup(name)))
+            HGOTO_ERROR(H5E_SYM, H5E_CANTALLOC, FAIL, "memory allocation failed for object path string");
 
-        if (ret >= 0 && linfo.type != H5L_TYPE_HARD) {
+        *(obj_path + name_len) = '\0';
+    }
+
+    /* If we're pointing at a soft or UD link, get the real link length and type */
+    if (obj_path && statbuf && follow_link == 0) {
+        H5L_info2_t linfo; /* Link information buffer */
+
+        /* Get information about link to the object */
+        if (H5L_get_info(loc, obj_path, &linfo) < 0)
+            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't get link info");
+
+        if (linfo.type != H5L_TYPE_HARD) {
             statbuf->linklen = linfo.u.val_size;
-            if (linfo.type == H5L_TYPE_SOFT) {
+            if (linfo.type == H5L_TYPE_SOFT)
                 statbuf->type = H5G_LINK;
-            }
             else {
                 /* UD link. H5L_get_info checked for invalid link classes */
-                HDassert(linfo.type >= H5L_TYPE_UD_MIN && linfo.type <= H5L_TYPE_MAX);
+                assert(linfo.type >= H5L_TYPE_UD_MIN && linfo.type <= H5L_TYPE_MAX);
                 statbuf->type = H5G_UDLINK;
             }
         }
     }
 
 done:
-    FUNC_LEAVE_NOAPI(ret_value);
+    H5MM_xfree(obj_path);
+
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5G__get_objinfo() */
 
 /*-------------------------------------------------------------------------
@@ -1166,26 +1163,22 @@ done:
  * Return:	Success:        Non-negative
  *		Failure:	Negative
  *
- * Programmer:	Raymond Lu
- *	        Nov 20, 2002
- *
  *-------------------------------------------------------------------------
  */
 ssize_t
 H5Gget_objname_by_idx(hid_t loc_id, hsize_t idx, char *name /*out*/, size_t size)
 {
-    H5VL_object_t *      vol_obj;     /* Object of loc_id */
+    H5VL_object_t       *vol_obj;     /* Object of loc_id */
     H5VL_link_get_args_t vol_cb_args; /* Arguments to VOL callback */
     H5VL_loc_params_t    loc_params;
     size_t               name_len = 0; /* Length of object name */
     ssize_t              ret_value;    /* Return value */
 
-    FUNC_ENTER_API(FAIL)
-    H5TRACE4("Zs", "ihxz", loc_id, idx, name, size);
+    FUNC_ENTER_API(-1)
 
     /* Set up collective metadata if appropriate */
     if (H5CX_set_loc(loc_id) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, (-1), "can't set collective metadata read info")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, (-1), "can't set collective metadata read info");
 
     /* Set up location struct */
     loc_params.type                         = H5VL_OBJECT_BY_IDX;
@@ -1197,8 +1190,8 @@ H5Gget_objname_by_idx(hid_t loc_id, hsize_t idx, char *name /*out*/, size_t size
     loc_params.obj_type                     = H5I_get_type(loc_id);
 
     /* Get the location object */
-    if (NULL == (vol_obj = (H5VL_object_t *)H5I_object(loc_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, (-1), "invalid location identifier")
+    if (NULL == (vol_obj = H5VL_vol_object(loc_id)))
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, (-1), "invalid location identifier");
 
     /* Set up VOL callback arguments */
     vol_cb_args.op_type                 = H5VL_LINK_GET_NAME;
@@ -1208,7 +1201,7 @@ H5Gget_objname_by_idx(hid_t loc_id, hsize_t idx, char *name /*out*/, size_t size
 
     /* Call internal function */
     if (H5VL_link_get(vol_obj, &loc_params, &vol_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, (-1), "can't get object name")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTGET, (-1), "can't get object name");
 
     /* Set the return value */
     ret_value = (ssize_t)name_len;
@@ -1227,22 +1220,18 @@ done:
  * Return:	Success:        H5G_GROUP(1), H5G_DATASET(2), H5G_TYPE(3)
  *		Failure:	H5G_UNKNOWN
  *
- * Programmer:	Raymond Lu
- *	        Nov 20, 2002
- *
  *-------------------------------------------------------------------------
  */
 H5G_obj_t
 H5Gget_objtype_by_idx(hid_t loc_id, hsize_t idx)
 {
-    H5VL_object_t *        vol_obj;     /* Object of loc_id */
+    H5VL_object_t         *vol_obj;     /* Object of loc_id */
     H5VL_object_get_args_t vol_cb_args; /* Arguments to VOL callback */
     H5VL_loc_params_t      loc_params;
     H5O_info2_t            oinfo;     /* Object info (contains object type) */
     H5G_obj_t              ret_value; /* Return value */
 
     FUNC_ENTER_API(H5G_UNKNOWN)
-    H5TRACE2("Go", "ih", loc_id, idx);
 
     /* Set location parameters */
     loc_params.type                         = H5VL_OBJECT_BY_IDX;
@@ -1255,7 +1244,7 @@ H5Gget_objtype_by_idx(hid_t loc_id, hsize_t idx)
 
     /* Get the location object */
     if (NULL == (vol_obj = H5VL_vol_object(loc_id)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5G_UNKNOWN, "invalid location identifier")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, H5G_UNKNOWN, "invalid location identifier");
 
     /* Set up VOL callback arguments */
     vol_cb_args.op_type              = H5VL_OBJECT_GET_INFO;
@@ -1264,11 +1253,11 @@ H5Gget_objtype_by_idx(hid_t loc_id, hsize_t idx)
 
     /* Retrieve the object's basic information (which includes its type) */
     if (H5VL_object_get(vol_obj, &loc_params, &vol_cb_args, H5P_DATASET_XFER_DEFAULT, H5_REQUEST_NULL) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, H5G_UNKNOWN, "can't get object info")
+        HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, H5G_UNKNOWN, "can't get object info");
 
     /* Map to group object type */
     if (H5G_UNKNOWN == (ret_value = H5G_map_obj_type(oinfo.type)))
-        HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, H5G_UNKNOWN, "can't determine object type")
+        HGOTO_ERROR(H5E_SYM, H5E_BADTYPE, H5G_UNKNOWN, "can't determine object type");
 
 done:
     FUNC_LEAVE_API(ret_value)

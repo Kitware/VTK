@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -13,23 +12,16 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:	H5Cpublic.h
- *              June 4, 2005
- *              John Mainzer
+ * Created:     H5Cpublic.h
  *
- * Purpose:     Public include file for cache functions.
+ * Purpose:     Public header file for cache functions
  *
  *-------------------------------------------------------------------------
  */
 #ifndef H5Cpublic_H
 #define H5Cpublic_H
 
-/* Public headers needed by this file */
-#include "H5public.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "H5public.h" /* Generic Functions                        */
 
 enum H5C_cache_incr_mode {
     H5C_incr__off,
@@ -61,7 +53,4 @@ enum H5C_cache_decr_mode {
     /**<Automatic cache size decrease is enabled using the ageout with hit rate threshold algorithm.*/
 };
 
-#ifdef __cplusplus
-}
-#endif
 #endif

@@ -36,8 +36,14 @@
 /* As FC_FUNC, but for C identifiers containing underscores. */
 #undef FC_FUNC_
 
+/* Define if Fortran C_BOOL is different from default LOGICAL */
+#undef FORTRAN_C_BOOL_IS_UNIQUE
+
 /* Define if Fortran C_LONG_DOUBLE is different from C_DOUBLE */
 #undef FORTRAN_C_LONG_DOUBLE_IS_UNIQUE
+
+/* Define if Fortran supports allocatable character */
+#undef FORTRAN_HAVE_CHAR_ALLOC
 
 /* Define if we have Fortran C_LONG_DOUBLE */
 #undef FORTRAN_HAVE_C_LONG_DOUBLE
@@ -84,18 +90,20 @@
 /* Define if the __attribute__(()) extension is present */
 #undef HAVE_ATTRIBUTE
 
-/* Define if the compiler understands C99 designated initialization of structs
-   and unions */
-#undef HAVE_C99_DESIGNATED_INITIALIZER
+/* Define if supports __builtin_expect() extension */
+#undef HAVE_BUILTIN_EXPECT
 
 /* Define to 1 if you have the `clock_gettime' function. */
 #undef HAVE_CLOCK_GETTIME
 
-/* Define if the function stack tracing code is to be compiled in */
-#undef HAVE_CODESTACK
+/* Define if has CLOCK_MONOTONIC_COARSE */
+#undef HAVE_CLOCK_MONOTONIC_COARSE
 
 /* Define to 1 if you have the <curl/curl.h> header file. */
 #undef HAVE_CURL_CURL_H
+
+/* Define if using Cygwin */
+#undef HAVE_CYGWIN
 
 /* Define if Darwin or Mac OS X */
 #undef HAVE_DARWIN
@@ -109,11 +117,11 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
-/* Define to 1 if you have the <dmalloc.h> header file. */
-#undef HAVE_DMALLOC_H
-
 /* Define if library information should be embedded in the executables */
 #undef HAVE_EMBEDDED_LIBINFO
+
+/* Define if has fabsf16 function */
+#undef HAVE_FABSF16
 
 /* Define to 1 if you have the `fcntl' function. */
 #undef HAVE_FCNTL
@@ -127,7 +135,7 @@
 /* Define if support for szip filter is enabled */
 #undef HAVE_FILTER_SZIP
 
-/* Determine if __float128 is available */
+/* Determine if __float128 will be used in the Fortran wrappers */
 #undef HAVE_FLOAT128
 
 /* Define to 1 if you have the `flock' function. */
@@ -144,9 +152,6 @@
 
 /* Define to 1 if you have the `gethostname' function. */
 #undef HAVE_GETHOSTNAME
-
-/* Define to 1 if you have the `getpwuid' function. */
-#undef HAVE_GETPWUID
 
 /* Define to 1 if you have the `getrusage' function. */
 #undef HAVE_GETRUSAGE
@@ -170,6 +175,13 @@
 /* Define to 1 if you have the `ioctl' function. */
 #undef HAVE_IOCTL
 
+/* Define if the I/O Concentrator virtual file driver (VFD) should be compiled
+   */
+#undef HAVE_IOC_VFD
+
+/* Define if Fortran supports ISO_FORTRAN_ENV (F08) */
+#undef HAVE_ISO_FORTRAN_ENV
+
 /* Define to 1 if you have the `crypto' library (-lcrypto). */
 #undef HAVE_LIBCRYPTO
 
@@ -179,9 +191,6 @@
 /* Define to 1 if you have the `dl' library (-ldl). */
 #undef HAVE_LIBDL
 
-/* Define to 1 if you have the `dmalloc' library (-ldmalloc). */
-#undef HAVE_LIBDMALLOC
-
 /* Proceed to build with libhdfs */
 #undef HAVE_LIBHDFS
 
@@ -190,9 +199,6 @@
 
 /* Define to 1 if you have the `m' library (-lm). */
 #undef HAVE_LIBM
-
-/* Define to 1 if you have the `mpe' library (-lmpe). */
-#undef HAVE_LIBMPE
 
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
@@ -206,26 +212,20 @@
 /* Define to 1 if you have the `z' library (-lz). */
 #undef HAVE_LIBZ
 
-/* Define to 1 if you have the `lstat' function. */
-#undef HAVE_LSTAT
-
 /* Define if the map API (H5M) should be compiled */
 #undef HAVE_MAP_API
-
-/* Define to 1 if you have the <memory.h> header file. */
-#undef HAVE_MEMORY_H
 
 /* Define to 1 if you have the <mfu.h> header file. */
 #undef HAVE_MFU_H
 
+/* Define if using MinGW */
+#undef HAVE_MINGW
+
 /* Define whether the Mirror virtual file driver (VFD) will be compiled */
 #undef HAVE_MIRROR_VFD
 
-/* Define if we have MPE support */
-#undef HAVE_MPE
-
-/* Define to 1 if you have the <mpe.h> header file. */
-#undef HAVE_MPE_H
+/* Define if mpi_f08 module exist */
+#undef HAVE_MPI_F08
 
 /* Define if MPI_Comm_c2f and MPI_Comm_f2c exist */
 #undef HAVE_MPI_MULTI_LANG_Comm
@@ -257,14 +257,17 @@
 /* Define if both pread and pwrite exist. */
 #undef HAVE_PREADWRITE
 
+/* Define if has pthread_condattr_setclock() */
+#undef HAVE_PTHREAD_CONDATTR_SETCLOCK
+
 /* Define to 1 if you have the <pthread.h> header file. */
 #undef HAVE_PTHREAD_H
 
+/* Define if has PTHREAD_MUTEX_ADAPTIVE_NP */
+#undef HAVE_PTHREAD_MUTEX_ADAPTIVE_NP
+
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
-
-/* Define to 1 if you have the <quadmath.h> header file. */
-#undef HAVE_QUADMATH_H
 
 /* Define to 1 if you have the `random' function. */
 #undef HAVE_RANDOM
@@ -276,29 +279,23 @@
    compiled */
 #undef HAVE_ROS3_VFD
 
-/* Define to 1 if you have the `setsysinfo' function. */
-#undef HAVE_SETSYSINFO
-
-/* Define to 1 if you have the `siglongjmp' function. */
-#undef HAVE_SIGLONGJMP
-
-/* Define to 1 if you have the `sigprocmask' function. */
-#undef HAVE_SIGPROCMASK
-
-/* Define to 1 if you have the `sigsetjmp' function. */
-#undef HAVE_SIGSETJMP
-
-/* Define to 1 if you have the `srandom' function. */
-#undef HAVE_SRANDOM
-
 /* Define if struct stat has the st_blocks field */
 #undef HAVE_STAT_ST_BLOCKS
+
+/* Define to 1 if you have the <stdatomic.h> header file. */
+#undef HAVE_STDATOMIC_H
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
+/* Define to 1 if you have the <stdio.h> header file. */
+#undef HAVE_STDIO_H
+
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the `strcasestr' function. */
+#undef HAVE_STRCASESTR
 
 /* Define to 1 if you have the `strdup' function. */
 #undef HAVE_STRDUP
@@ -314,6 +311,9 @@
 
 /* Define if struct videoconfig is defined */
 #undef HAVE_STRUCT_VIDEOCONFIG
+
+/* Define if the subfiling I/O virtual file driver (VFD) should be compiled */
+#undef HAVE_SUBFILING_VFD
 
 /* Define to 1 if you have the `symlink' function. */
 #undef HAVE_SYMLINK
@@ -369,11 +369,23 @@
 /* Define to 1 if you have the `waitpid' function. */
 #undef HAVE_WAITPID
 
-/* Define if your system has window style path name. */
+/* Define if on the Windows platform using the Win32 API */
+#undef HAVE_WIN32_API
+
+/* Define if this is a Windows machine */
+#undef HAVE_WINDOWS
+
+/* Define if your system has Windows-style path name. */
 #undef HAVE_WINDOW_PATH
+
+/* Define to 1 if you have win32 threads */
+#undef HAVE_WIN_THREADS
 
 /* Define to 1 if you have the <zlib.h> header file. */
 #undef HAVE_ZLIB_H
+
+/* Determine if _Float16 is available */
+#undef HAVE__FLOAT16
 
 /* Define to 1 if you have the `_getvideoconfig' function. */
 #undef HAVE__GETVIDEOCONFIG
@@ -386,6 +398,10 @@
 
 /* Define if the high-level library headers should be included in hdf5.h */
 #undef INCLUDE_HL
+
+/* Define if your system can convert long double to _Float16 values correctly.
+   */
+#undef LDOUBLE_TO_FLOAT16_CORRECT
 
 /* Define if your system can convert long double to (unsigned) long long
    values correctly. */
@@ -406,11 +422,8 @@
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR
 
-/* Define to enable internal memory allocation sanity checking. */
-#undef MEMORY_ALLOC_SANITY_CHECK
-
-/* Define if we can violate pointer alignment restrictions */
-#undef NO_ALIGNMENT_RESTRICTIONS
+/* Define MPI Fortran KIND of LOGICAL */
+#undef MPI_LOGICAL_KIND
 
 /* Define if deprecated public API symbols are disabled */
 #undef NO_DEPRECATED_SYMBOLS
@@ -442,8 +455,9 @@
 /* Define Fortran Maximum Real Decimal Precision */
 #undef PAC_FC_MAX_REAL_PRECISION
 
-/* Width for printf() for type `long long' or `__int64', use `ll' */
-#undef PRINTF_LL_WIDTH
+/* Define if showing all warnings is desired (i.e. not suppressed internally
+   with H5_DIAG_OFF) */
+#undef SHOW_ALL_WARNINGS
 
 /* The size of `bool', as computed by sizeof. */
 #undef SIZEOF_BOOL
@@ -562,16 +576,12 @@
 /* The size of `unsigned', as computed by sizeof. */
 #undef SIZEOF_UNSIGNED
 
-/* The size of `_Quad', as computed by sizeof. */
-#undef SIZEOF__QUAD
+/* The size of `_Float16', as computed by sizeof. */
+#undef SIZEOF__FLOAT16
 
-/* The size of `__float128', as computed by sizeof. */
-#undef SIZEOF___FLOAT128
-
-/* The size of `__int64', as computed by sizeof. */
-#undef SIZEOF___INT64
-
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #undef STDC_HEADERS
 
 /* Define if strict file format checks are enabled */
@@ -580,6 +590,9 @@
 /* Define if your system supports pthread_attr_setscope(&attribute,
    PTHREAD_SCOPE_SYSTEM) call. */
 #undef SYSTEM_SCOPE_THREADS
+
+/* HDF5 testing intensity level */
+#undef TEST_EXPRESS_LEVEL_DEFAULT
 
 /* Define using v1.10 public API symbols by default */
 #undef USE_110_API_DEFAULT
@@ -606,6 +619,15 @@
 
 /* Version number of package */
 #undef VERSION
+
+/* Define major library version */
+#undef VERS_MAJOR_TMP
+
+/* Define minor library version */
+#undef VERS_MINOR_TMP
+
+/* Define release library version */
+#undef VERS_RELEASE_TMP
 
 /* Data accuracy is preferred to speed during data conversions */
 #undef WANT_DATA_ACCURACY

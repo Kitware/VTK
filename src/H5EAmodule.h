@@ -11,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol
- *		Saturday, September 12, 2015
- *
- * Purpose:	This file contains declarations which define macros for the
- *		H5EA package.  Including this header means that the source file
- *		is part of the H5EA package.
+ * Purpose: This file contains declarations which define macros for the
+ *          H5EA package.  Including this header means that the source file
+ *          is part of the H5EA package.
  */
 #ifndef H5EAmodule_H
 #define H5EAmodule_H
@@ -25,8 +22,7 @@
  *      reporting macros.
  */
 #define H5EA_MODULE
-#define H5_MY_PKG      H5EA
-#define H5_MY_PKG_ERR  H5E_EARRAY
-#define H5_MY_PKG_INIT NO
+#define H5_MY_PKG     H5EA
+#define H5_MY_PKG_ERR H5E_EARRAY
 
 #endif /* H5EAmodule_H */

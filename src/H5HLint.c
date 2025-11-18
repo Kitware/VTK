@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:     H5HLint.c
- *              Oct 12 2008
- *              Quincey Koziol
  *
  * Purpose:     Local heap internal routines.
  *
@@ -75,9 +72,6 @@ H5FL_DEFINE_STATIC(H5HL_t);
  * Return:      Success:    non-NULL pointer to new local heap
  *              Failure:    NULL
  *
- * Programmer:  Quincey Koziol
- *              Jan  5 2010
- *
  *-------------------------------------------------------------------------
  */
 H5HL_t *
@@ -89,13 +83,13 @@ H5HL__new(size_t sizeof_size, size_t sizeof_addr, size_t prfx_size)
     FUNC_ENTER_PACKAGE
 
     /* check arguments */
-    HDassert(sizeof_size > 0);
-    HDassert(sizeof_addr > 0);
-    HDassert(prfx_size > 0);
+    assert(sizeof_size > 0);
+    assert(sizeof_addr > 0);
+    assert(prfx_size > 0);
 
     /* Allocate new local heap structure */
     if (NULL == (heap = H5FL_CALLOC(H5HL_t)))
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, NULL, "memory allocation failed");
 
     /* Initialize non-zero fields */
     heap->sizeof_size = sizeof_size;
@@ -108,7 +102,7 @@ H5HL__new(size_t sizeof_size, size_t sizeof_addr, size_t prfx_size)
 done:
     if (!ret_value && heap != NULL)
         if (NULL == (heap = H5FL_FREE(H5HL_t, heap)))
-            HDONE_ERROR(H5E_HEAP, H5E_CANTFREE, NULL, "can't free heap memory")
+            HDONE_ERROR(H5E_HEAP, H5E_CANTFREE, NULL, "can't free heap memory");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5HL__new() */
@@ -120,9 +114,6 @@ done:
  *
  * Return:      SUCCEED (Can't fail)
  *
- * Programmer:  Quincey Koziol
- *              Oct 12 2008
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -131,7 +122,7 @@ H5HL__inc_rc(H5HL_t *heap)
     FUNC_ENTER_PACKAGE_NOERR
 
     /* check arguments */
-    HDassert(heap);
+    assert(heap);
 
     /* Increment heap's ref. count */
     heap->rc++;
@@ -146,9 +137,6 @@ H5HL__inc_rc(H5HL_t *heap)
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Quincey Koziol
- *              Oct 12 2008
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -159,7 +147,7 @@ H5HL__dec_rc(H5HL_t *heap)
     FUNC_ENTER_PACKAGE
 
     /* check arguments */
-    HDassert(heap);
+    assert(heap);
 
     /* Decrement heap's ref. count */
     heap->rc--;
@@ -179,9 +167,6 @@ done:
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Quincey Koziol
- *              Jan 15 2003
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -192,13 +177,13 @@ H5HL__dest(H5HL_t *heap)
     FUNC_ENTER_PACKAGE
 
     /* check arguments */
-    HDassert(heap);
+    assert(heap);
 
     /* Verify that node is unused */
-    HDassert(heap->prots == 0);
-    HDassert(heap->rc == 0);
-    HDassert(heap->prfx == NULL);
-    HDassert(heap->dblk == NULL);
+    assert(heap->prots == 0);
+    assert(heap->rc == 0);
+    assert(heap->prfx == NULL);
+    assert(heap->dblk == NULL);
 
     /* Use DONE errors here to try to free as much as possible */
     if (heap->dblk_image)

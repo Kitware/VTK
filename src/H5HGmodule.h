@@ -11,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol
- *		Saturday, September 12, 2015
- *
- * Purpose:	This file contains declarations which define macros for the
- *		H5HG package.  Including this header means that the source file
- *		is part of the H5HG package.
+ * Purpose: This file contains declarations which define macros for the
+ *          H5HG package.  Including this header means that the source file
+ *          is part of the H5HG package.
  */
 #ifndef H5HGmodule_H
 #define H5HGmodule_H
@@ -25,8 +22,7 @@
  *      reporting macros.
  */
 #define H5HG_MODULE
-#define H5_MY_PKG      H5HG
-#define H5_MY_PKG_ERR  H5E_HEAP
-#define H5_MY_PKG_INIT NO
+#define H5_MY_PKG     H5HG
+#define H5_MY_PKG_ERR H5E_HEAP
 
 #endif /* H5HGmodule_H */

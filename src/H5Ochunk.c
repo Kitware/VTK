@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:		H5Ochunk.c
- *			Jul 13 2008
- *			Quincey Koziol
  *
  * Purpose:		Object header chunk routines.
  *
@@ -31,9 +28,10 @@
 /***********/
 /* Headers */
 /***********/
-#include "H5private.h"  /* Generic Functions			*/
-#include "H5Eprivate.h" /* Error handling		  	*/
-#include "H5Opkg.h"     /* Object headers			*/
+#include "H5private.h"   /* Generic Functions			*/
+#include "H5Eprivate.h"  /* Error handling		  	*/
+#include "H5FLprivate.h" /* Free Lists                               */
+#include "H5Opkg.h"      /* Object headers			*/
 
 /****************/
 /* Local Macros */
@@ -73,9 +71,6 @@ H5FL_DEFINE(H5O_chunk_proxy_t);
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		Jul 13 2008
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -89,18 +84,18 @@ H5O__chunk_add(H5F_t *f, H5O_t *oh, unsigned idx, unsigned cont_chunkno)
     FUNC_ENTER_PACKAGE_TAG(oh->cache_info.addr)
 
     /* check args */
-    HDassert(f);
-    HDassert(oh);
-    HDassert(idx < oh->nchunks);
-    HDassert(idx > 0);
+    assert(f);
+    assert(oh);
+    assert(idx < oh->nchunks);
+    assert(idx > 0);
 
     /* Allocate space for the object header data structure */
     if (NULL == (chk_proxy = H5FL_CALLOC(H5O_chunk_proxy_t)))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed");
 
     /* Increment reference count on object header */
     if (H5O__inc_rc(oh) < 0)
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTINC, FAIL, "can't increment reference count on object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTINC, FAIL, "can't increment reference count on object header");
 
     /* Set the values in the chunk proxy */
     chk_proxy->f       = f;
@@ -110,13 +105,13 @@ H5O__chunk_add(H5F_t *f, H5O_t *oh, unsigned idx, unsigned cont_chunkno)
     /* Determine the parent of the chunk */
     if (cont_chunkno != 0) {
         if (NULL == (cont_chk_proxy = H5O__chunk_protect(f, oh, cont_chunkno)))
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk");
         chk_proxy->fd_parent = cont_chk_proxy;
     } /* end else */
 
     /* Insert the chunk proxy into the cache */
     if (H5AC_insert_entry(f, H5AC_OHDR_CHK, oh->chunk[idx].addr, chk_proxy, H5AC__NO_FLAGS_SET) < 0)
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTINSERT, FAIL, "unable to cache object header chunk")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTINSERT, FAIL, "unable to cache object header chunk");
 
     chk_proxy = NULL;
 
@@ -124,12 +119,12 @@ done:
     /* Cleanup on failure */
     if (ret_value < 0)
         if (chk_proxy && H5O__chunk_dest(chk_proxy) < 0)
-            HDONE_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "unable to destroy object header chunk")
+            HDONE_ERROR(H5E_OHDR, H5E_CANTRELEASE, FAIL, "unable to destroy object header chunk");
 
     /* Release resources */
     if (cont_chk_proxy)
-        if (H5O__chunk_unprotect(f, cont_chk_proxy, FALSE) < 0)
-            HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk")
+        if (H5O__chunk_unprotect(f, cont_chk_proxy, false) < 0)
+            HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to unprotect object header chunk");
 
     FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5O__chunk_add() */
@@ -140,9 +135,6 @@ done:
  * Purpose:     Protect an object header chunk for modifications
  *
  * Return:      SUCCEED/FAIL
- *
- * Programmer:	Quincey Koziol
- *		Jul 17 2008
  *
  *-------------------------------------------------------------------------
  */
@@ -155,20 +147,20 @@ H5O__chunk_protect(H5F_t *f, H5O_t *oh, unsigned idx)
     FUNC_ENTER_PACKAGE_TAG(oh->cache_info.addr)
 
     /* check args */
-    HDassert(f);
-    HDassert(oh);
-    HDassert(idx < oh->nchunks);
+    assert(f);
+    assert(oh);
+    assert(idx < oh->nchunks);
 
     /* Check for protecting first chunk */
     if (0 == idx) {
         /* Create new "fake" chunk proxy for first chunk */
         /* (since the first chunk is already handled by the H5O_t object) */
         if (NULL == (chk_proxy = H5FL_CALLOC(H5O_chunk_proxy_t)))
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTALLOC, NULL, "memory allocation failed")
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTALLOC, NULL, "memory allocation failed");
 
         /* Increment reference count on object header */
         if (H5O__inc_rc(oh) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTINC, NULL, "can't increment reference count on object header")
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTINC, NULL, "can't increment reference count on object header");
 
         /* Set chunk proxy fields */
         chk_proxy->f       = f;
@@ -180,7 +172,7 @@ H5O__chunk_protect(H5F_t *f, H5O_t *oh, unsigned idx)
 
         /* Construct the user data for protecting chunk proxy */
         /* (and _not_ decoding it) */
-        HDmemset(&chk_udata, 0, sizeof(chk_udata));
+        memset(&chk_udata, 0, sizeof(chk_udata));
         chk_udata.oh      = oh;
         chk_udata.chunkno = idx;
         chk_udata.size    = oh->chunk[idx].size;
@@ -188,11 +180,11 @@ H5O__chunk_protect(H5F_t *f, H5O_t *oh, unsigned idx)
         /* Get the chunk proxy */
         if (NULL == (chk_proxy = (H5O_chunk_proxy_t *)H5AC_protect(f, H5AC_OHDR_CHK, oh->chunk[idx].addr,
                                                                    &chk_udata, H5AC__NO_FLAGS_SET)))
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, NULL, "unable to load object header chunk")
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, NULL, "unable to load object header chunk");
 
         /* Sanity check */
-        HDassert(chk_proxy->oh == oh);
-        HDassert(chk_proxy->chunkno == idx);
+        assert(chk_proxy->oh == oh);
+        assert(chk_proxy->chunkno == idx);
     } /* end else */
 
     /* Set return value */
@@ -202,7 +194,7 @@ done:
     /* Cleanup on error */
     if (!ret_value)
         if (0 == idx && chk_proxy && H5O__chunk_dest(chk_proxy) < 0)
-            HDONE_ERROR(H5E_OHDR, H5E_CANTRELEASE, NULL, "unable to destroy object header chunk")
+            HDONE_ERROR(H5E_OHDR, H5E_CANTRELEASE, NULL, "unable to destroy object header chunk");
 
     FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5O__chunk_protect() */
@@ -214,21 +206,18 @@ done:
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		Jul 17 2008
- *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5O__chunk_unprotect(H5F_t *f, H5O_chunk_proxy_t *chk_proxy, hbool_t dirtied)
+H5O__chunk_unprotect(H5F_t *f, H5O_chunk_proxy_t *chk_proxy, bool dirtied)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
     /* check args */
-    HDassert(f);
-    HDassert(chk_proxy);
+    assert(f);
+    assert(chk_proxy);
 
     /* Check for releasing first chunk */
     if (0 == chk_proxy->chunkno) {
@@ -236,12 +225,12 @@ H5O__chunk_unprotect(H5F_t *f, H5O_chunk_proxy_t *chk_proxy, hbool_t dirtied)
         if (dirtied) {
             /* Mark object header as dirty in cache */
             if (H5AC_mark_entry_dirty(chk_proxy->oh) < 0)
-                HGOTO_ERROR(H5E_OHDR, H5E_CANTMARKDIRTY, FAIL, "unable to mark object header as dirty")
+                HGOTO_ERROR(H5E_OHDR, H5E_CANTMARKDIRTY, FAIL, "unable to mark object header as dirty");
         } /* end else/if */
 
         /* Decrement reference count of object header */
         if (H5O__dec_rc(chk_proxy->oh) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTDEC, FAIL, "can't decrement reference count on object header")
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTDEC, FAIL, "can't decrement reference count on object header");
 
         /* Free fake chunk proxy */
         chk_proxy = H5FL_FREE(H5O_chunk_proxy_t, chk_proxy);
@@ -250,7 +239,7 @@ H5O__chunk_unprotect(H5F_t *f, H5O_chunk_proxy_t *chk_proxy, hbool_t dirtied)
         /* Release the chunk proxy from the cache, possibly marking it dirty */
         if (H5AC_unprotect(f, H5AC_OHDR_CHK, chk_proxy->oh->chunk[chk_proxy->chunkno].addr, chk_proxy,
                            (dirtied ? H5AC__DIRTIED_FLAG : H5AC__NO_FLAGS_SET)) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header chunk")
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header chunk");
     } /* end else */
 
 done:
@@ -264,9 +253,6 @@ done:
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		May  6 2010
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -277,19 +263,19 @@ H5O__chunk_resize(H5O_t *oh, H5O_chunk_proxy_t *chk_proxy)
     FUNC_ENTER_PACKAGE
 
     /* check args */
-    HDassert(oh);
-    HDassert(chk_proxy);
+    assert(oh);
+    assert(chk_proxy);
 
     /* Check for resizing first chunk */
     if (0 == chk_proxy->chunkno) {
         /* Resize object header in cache */
         if (H5AC_resize_entry(oh, oh->chunk[0].size) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTRESIZE, FAIL, "unable to resize chunk in cache")
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTRESIZE, FAIL, "unable to resize chunk in cache");
     } /* end if */
     else {
         /* Resize chunk in cache */
         if (H5AC_resize_entry(chk_proxy, oh->chunk[chk_proxy->chunkno].size) < 0)
-            HGOTO_ERROR(H5E_OHDR, H5E_CANTRESIZE, FAIL, "unable to resize chunk in cache")
+            HGOTO_ERROR(H5E_OHDR, H5E_CANTRESIZE, FAIL, "unable to resize chunk in cache");
     } /* end else */
 
 done:
@@ -303,9 +289,6 @@ done:
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		Jul 13 2008
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -318,14 +301,14 @@ H5O__chunk_update_idx(H5F_t *f, H5O_t *oh, unsigned idx)
     FUNC_ENTER_PACKAGE_TAG(oh->cache_info.addr)
 
     /* check args */
-    HDassert(f);
-    HDassert(oh);
-    HDassert(idx < oh->nchunks);
-    HDassert(idx > 0);
+    assert(f);
+    assert(oh);
+    assert(idx < oh->nchunks);
+    assert(idx > 0);
 
     /* Construct the user data for protecting chunk proxy */
     /* (and _not_ decoding it) */
-    HDmemset(&chk_udata, 0, sizeof(chk_udata));
+    memset(&chk_udata, 0, sizeof(chk_udata));
     chk_udata.oh      = oh;
     chk_udata.chunkno = idx;
     chk_udata.size    = oh->chunk[idx].size;
@@ -333,14 +316,14 @@ H5O__chunk_update_idx(H5F_t *f, H5O_t *oh, unsigned idx)
     /* Get the chunk proxy */
     if (NULL == (chk_proxy = (H5O_chunk_proxy_t *)H5AC_protect(f, H5AC_OHDR_CHK, oh->chunk[idx].addr,
                                                                &chk_udata, H5AC__NO_FLAGS_SET)))
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk");
 
     /* Update index for chunk proxy in cache */
     chk_proxy->chunkno = idx;
 
     /* Release the chunk proxy from the cache, marking it deleted */
     if (H5AC_unprotect(f, H5AC_OHDR_CHK, oh->chunk[idx].addr, chk_proxy, H5AC__DIRTIED_FLAG) < 0)
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header chunk")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header chunk");
 
 done:
     FUNC_LEAVE_NOAPI_TAG(ret_value)
@@ -352,9 +335,6 @@ done:
  * Purpose:     Notify metadata cache that a chunk has been deleted
  *
  * Return:      SUCCEED/FAIL
- *
- * Programmer:	Quincey Koziol
- *		Jul 13 2008
  *
  *-------------------------------------------------------------------------
  */
@@ -368,14 +348,14 @@ H5O__chunk_delete(H5F_t *f, H5O_t *oh, unsigned idx)
     FUNC_ENTER_PACKAGE_TAG(oh->cache_info.addr)
 
     /* check args */
-    HDassert(f);
-    HDassert(oh);
-    HDassert(idx < oh->nchunks);
-    HDassert(idx > 0);
+    assert(f);
+    assert(oh);
+    assert(idx < oh->nchunks);
+    assert(idx > 0);
 
     /* Get the chunk proxy */
     if (NULL == (chk_proxy = H5O__chunk_protect(f, oh, idx)))
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTPROTECT, FAIL, "unable to load object header chunk");
 
     /* Only free file space if not doing SWMR writes */
     if (!oh->swmr_write)
@@ -384,7 +364,7 @@ H5O__chunk_delete(H5F_t *f, H5O_t *oh, unsigned idx)
 done:
     /* Release the chunk proxy from the cache, marking it deleted */
     if (chk_proxy && H5AC_unprotect(f, H5AC_OHDR_CHK, oh->chunk[idx].addr, chk_proxy, cache_flags) < 0)
-        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header chunk")
+        HDONE_ERROR(H5E_OHDR, H5E_CANTUNPROTECT, FAIL, "unable to release object header chunk");
 
     FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5O__chunk_delete() */
@@ -396,9 +376,6 @@ done:
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *              July 13, 2008
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -409,11 +386,11 @@ H5O__chunk_dest(H5O_chunk_proxy_t *chk_proxy)
     FUNC_ENTER_PACKAGE
 
     /* Check arguments */
-    HDassert(chk_proxy);
+    assert(chk_proxy);
 
     /* Decrement reference count of object header */
     if (H5O__dec_rc(chk_proxy->oh) < 0)
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTDEC, FAIL, "can't decrement reference count on object header")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTDEC, FAIL, "can't decrement reference count on object header");
 
 done:
     /* Release the chunk proxy object */

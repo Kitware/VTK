@@ -2,10 +2,10 @@
  * Copyright by The HDF Group.                                               *
  * All rights reserved.                                                      *
  *                                                                           *
- * This file is part of HDF5. The full HDF5 copyright notice, including      *
+ * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -15,8 +15,8 @@
  *      support routines.
  */
 
-#ifndef _H5Idevelop_H
-#define _H5Idevelop_H
+#ifndef H5Idevelop_H
+#define H5Idevelop_H
 
 /* Include package's public header */
 #include "H5Ipublic.h" /* ID management */
@@ -128,6 +128,8 @@ extern "C" {
  * \note The H5Iregister_future() function is primarily targeted at VOL connector
  *          authors and is _not_ designed for general-purpose application use.
  *
+ * \since 1.14.0
+ *
  */
 H5_DLL hid_t H5Iregister_future(H5I_type_t type, const void *object, H5I_future_realize_func_t realize_cb,
                                 H5I_future_discard_func_t discard_cb);
@@ -136,4 +138,4 @@ H5_DLL hid_t H5Iregister_future(H5I_type_t type, const void *object, H5I_future_
 }
 #endif
 
-#endif /* _H5Idevelop_H */
+#endif /* H5Idevelop_H */

@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:		H5WBprivate.h
- *			Jun 26 2007
- *			Quincey Koziol
  *
  * Purpose:		Private header for library accessible wrapped buffer routines.
  *
@@ -51,8 +48,8 @@ typedef struct H5WB_t H5WB_t;
 
 /* General routines for wrapped buffer operations */
 H5_DLL H5WB_t *H5WB_wrap(void *buf, size_t buf_size);
-H5_DLL void *  H5WB_actual(H5WB_t *wb, size_t need);
-H5_DLL void *  H5WB_actual_clear(H5WB_t *wb, size_t need);
+H5_DLL void   *H5WB_actual(H5WB_t *wb, size_t need);
+H5_DLL void   *H5WB_actual_clear(H5WB_t *wb, size_t need);
 H5_DLL herr_t  H5WB_unwrap(H5WB_t *wb);
 
 #endif /* H5WBprivate_H */

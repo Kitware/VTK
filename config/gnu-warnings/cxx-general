@@ -17,7 +17,6 @@
 -Winit-self
 -Winvalid-pch
 -Wmissing-include-dirs
--Wno-format-nonliteral
 -Wnon-virtual-dtor
 -Wold-style-cast
 -Woverloaded-virtual

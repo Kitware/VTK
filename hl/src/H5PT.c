@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -43,29 +42,16 @@ static herr_t H5PT_get_index(htbl_t *table_id, hsize_t *pt_index);
  */
 
 /*-------------------------------------------------------------------------
- * Function: H5PTcreate
+ * Function:    H5PTcreate
  *
- * Purpose: Creates a dataset containing a table and returns the Identifier
- *          of the table. (Copied mostly from H5PTcreate_fl)
+ * Purpose:     Creates a dataset containing a table and returns the Identifier
+ *              of the table. (Copied mostly from H5PTcreate_fl)
  *
- * Return: Success: table ID, Failure: FAIL
+ *              This function does not handle fill data
+ *              currently.  Fill data is not necessary because the
+ *              table is initially of size 0.
  *
- * Programmer: Nat Furrer (Author of H5PTcreate_fl)
- *             James Laird (Author of H5PTcreate_fl)
- *
- * Date: March 12, 2004
- *
- * Comments: This function does not handle fill data
- *           currently.  Fill data is not necessary because the
- *           table is initially of size 0.
- *
- * Modifications:
- *	Mar 1, 2016
- *		This function is added to replace H5PTcreate_fl and it differs
- *		from H5PTcreate_fl only because its last argument is plist_id
- *		instead of compression; this is to allow flexible compression.
- *		-BMR
- *
+ * Return:      Success: table ID, Failure: FAIL
  *-------------------------------------------------------------------------
  */
 hid_t
@@ -92,7 +78,7 @@ H5PTcreate(hid_t loc_id, const char *dset_name, hid_t dtype_id, hsize_t chunk_si
             goto error;
 
     /* Get memory for the table identifier */
-    table = (htbl_t *)HDmalloc(sizeof(htbl_t));
+    table = (htbl_t *)malloc(sizeof(htbl_t));
     if (table == NULL) {
         goto error;
     }
@@ -161,30 +147,23 @@ error:
     if (table) {
         if (table->type_id != H5I_INVALID_HID)
             H5Tclose(table->type_id);
-        HDfree(table);
+        free(table);
     }
 
     return ret_value;
 } /* H5PTcreate */
 
 /*-------------------------------------------------------------------------
- * Function: H5PTcreate_fl
+ * Function:    H5PTcreate_fl
  *
- * Purpose: Creates a dataset containing a table and returns the Identifier
- *          of the table.
+ * Purpose:     Creates a dataset containing a table and returns the
+ *              identifier of the table.
  *
- * Return: Success: table ID, Failure: Negative
+ *              This function does not handle fill data
+ *              currently.  Fill data is not necessary because the
+ *              table is initially of size 0.
  *
- * Programmer: Nat Furrer
- *             James Laird
- *
- * Date: March 12, 2004
- *
- * Comments: This function does not handle fill data
- *           currently.  Fill data is not necessary because the
- *           table is initially of size 0.
- *
- * Modifications:
+ * Return:      Success: table ID, Failure: Negative
  *
  *-------------------------------------------------------------------------
  */
@@ -213,7 +192,7 @@ H5PTcreate_fl(hid_t loc_id, const char *dset_name, hid_t dtype_id, hsize_t chunk
             goto error;
 
     /* Get memory for the table identifier */
-    table = (htbl_t *)HDmalloc(sizeof(htbl_t));
+    table = (htbl_t *)malloc(sizeof(htbl_t));
     if (table == NULL) {
         goto error;
     }
@@ -277,7 +256,7 @@ error:
     if (table) {
         if (table->type_id != H5I_INVALID_HID)
             H5Tclose(table->type_id);
-        HDfree(table);
+        free(table);
     }
 
     return ret_value;
@@ -290,21 +269,6 @@ error:
  *          of the table.
  *
  * Return: Success: table ID, Failure: Negative
- *
- * Programmer: Nat Furrer
- *             James Laird
- *
- * Date: March 10, 2004
- *
- * Comments:
- *
- * Modifications:
- *
- * 		John Mainzer -- 4/23/08
- * 		Added error check on malloc of table, initialized fields
- * 		in table to keep lower level code from choking on bogus
- * 		data in error cases.
- *
  *-------------------------------------------------------------------------
  */
 hid_t
@@ -327,7 +291,7 @@ H5PTopen(hid_t loc_id, const char *dset_name)
                  H5Iregister_type((size_t)H5PT_HASH_TABLE_SIZE, 0, (H5I_free_t)H5PT_free_id)) < 0)
             goto error;
 
-    table = (htbl_t *)HDmalloc(sizeof(htbl_t));
+    table = (htbl_t *)malloc(sizeof(htbl_t));
     if (table == NULL) {
         goto error;
     }
@@ -387,7 +351,7 @@ error:
             H5Tclose(table->type_id);
         if (table->dset_id != H5I_INVALID_HID)
             H5Dclose(table->dset_id);
-        HDfree(table);
+        free(table);
     }
 
     return ret_value;
@@ -404,7 +368,7 @@ error:
 static herr_t
 H5PT_free_id(void *id, void H5_ATTR_UNUSED **_ctx)
 {
-    HDfree(id);
+    free(id);
     return SUCCEED;
 }
 
@@ -415,16 +379,6 @@ H5PT_free_id(void *id, void H5_ATTR_UNUSED **_ctx)
  *          table).
  *
  * Return: Success: SUCCEED, Failure: FAIL
- *
- * Programmer: Nat Furrer
- *             James Laird
- *
- * Date: March 10, 2004
- *
- * Comments:
- *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -441,7 +395,7 @@ H5PT_close(htbl_t *table)
     if (H5Tclose(table->type_id) < 0)
         goto error;
 
-    HDfree(table);
+    free(table);
 
     return SUCCEED;
 
@@ -451,7 +405,7 @@ error:
         H5Dclose(table->dset_id);
         H5Tclose(table->type_id);
         H5E_END_TRY
-        HDfree(table);
+        free(table);
     }
     return FAIL;
 }
@@ -463,16 +417,6 @@ error:
  *          table).
  *
  * Return: Success: SUCCEED, Failure: FAIL
- *
- * Programmer: Nat Furrer
- *             James Laird
- *
- * Date: April 21, 2004
- *
- * Comments:
- *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -517,16 +461,6 @@ error:
  * Purpose: Appends packets to the end of a packet table
  *
  * Return: Success: SUCCEED, Failure: FAIL
- *
- * Programmer: Nat Furrer
- *             James Laird
- *
- * Date: March 12, 2004
- *
- * Comments:
- *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -567,17 +501,6 @@ error:
  *          that index
  *
  * Return: Success: SUCCEED, Failure: FAIL
- *
- * Programmer: Nat Furrer
- *             James Laird
- *
- * Date: March 10, 2004
- *
- * Comments:
- *
- * Modifications:
- *
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -611,17 +534,6 @@ error:
  * Purpose: Reads packets from anywhere in a packet table
  *
  * Return: Success: SUCCEED, Failure: FAIL
- *
- * Programmer: Nat Furrer
- *             James Laird
- *
- * Date: March 12, 2004
- *
- * Comments:
- *
- * Modifications:
- *
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -660,16 +572,6 @@ error:
  * Purpose: Resets, sets, and gets the current record index for a packet table
  *
  * Return: Success: SUCCEED, Failure: FAIL
- *
- * Programmer: Nat Furrer
- *  		   James Laird
- *
- * Date: March 12, 2004
- *
- * Comments:
- *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -713,16 +615,6 @@ H5PT_get_index(htbl_t *table, hsize_t *pt_index)
  * Purpose: Resets, sets, and gets the current record index for a packet table
  *
  * Return: Success: SUCCEED, Failure: FAIL
- *
- * Programmer: Nat Furrer
- *             James Laird
- *
- * Date: April 23, 2004
- *
- * Comments:
- *
- * Modifications:
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -774,17 +666,6 @@ H5PTget_index(hid_t table_id, hsize_t *pt_index)
  * Purpose: Returns by reference the number of packets in the packet table
  *
  * Return: Success: SUCCEED, Failure: FAIL
- *
- * Programmer: Nat Furrer
- *             James Laird
- *
- * Date: March 12, 2004
- *
- * Comments:
- *
- * Modifications:
- *
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -811,17 +692,6 @@ error:
  * Purpose: Validates a table identifier
  *
  * Return: Success: SUCCEED, Failure: FAIL
- *
- * Programmer: Nat Furrer
- *             James Laird
- *
- * Date: March 12, 2004
- *
- * Comments:
- *
- * Modifications:
- *
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -841,24 +711,13 @@ H5PTis_valid(hid_t table_id)
  *          length records or 0 for fixed-length records.
  *
  * Return: True: 1, False: 0, Failure: FAIL
- *
- * Programmer: Nat Furrer
- *             James Laird
- *
- * Date: April 14, 2004
- *
- * Comments:
- *
- * Modifications:
- *
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5PTis_varlen(hid_t table_id)
 {
     H5T_class_t type;
-    htbl_t *    table;
+    htbl_t     *table;
 
     /* find the table struct from its ID */
     if ((table = (htbl_t *)H5Iobject_verify(table_id, H5PT_ptable_id_type)) == NULL)
@@ -891,17 +750,6 @@ error:
  *
  * Return: Success: SUCCEED, Failure: FAIL
  *          -2 if memory was reclaimed but another error occurred
- *
- * Programmer: Nat Furrer
- *             James Laird
- *
- * Date: April 12, 2004
- *
- * Comments:
- *
- * Modifications:
- *
- *
  *-------------------------------------------------------------------------
  */
 
@@ -945,21 +793,11 @@ error:
  *-------------------------------------------------------------------------
  */
 /*-------------------------------------------------------------------------
- * Function: H5PTget_dataset
+ * Function:    H5PTget_dataset
  *
- * Purpose: Returns the backend dataset of this packet table
+ * Purpose:     Returns the backend dataset of this packet table
  *
- * Return: Success: SUCCEED, Failure: FAIL
- *
- * Programmer: User's patch 0003, HDFFV-8623. -BMR
- *
- * Date: Feb 10, 2016
- *
- * Comments:
- *
- * Modifications:
- *
- *
+ * Return:      SUCCEED/FAIL
  *-------------------------------------------------------------------------
  */
 hid_t
@@ -980,21 +818,11 @@ error:
 }
 
 /*-------------------------------------------------------------------------
- * Function: H5PTget_type
+ * Function:    H5PTget_type
  *
- * Purpose: Returns the backend type of this packet table
+ * Purpose:     Returns the backend type of this packet table
  *
- * Return: Success: datatype ID, Failure: H5I_INVALID_HID
- *
- * Programmer: User's patch 0003, HDFFV-8623. -BMR
- *
- * Date: Feb 10, 2016
- *
- * Comments:
- *
- * Modifications:
- *
- *
+ * Return:      Success: datatype ID, Failure: H5I_INVALID_HID
  *-------------------------------------------------------------------------
  */
 hid_t

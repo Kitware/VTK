@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:		H5HFdtable.c
- *			Apr 10 2006
- *			Quincey Koziol
  *
  * Purpose:		"Doubling table" routines for fractal heaps.
  *
@@ -72,9 +69,6 @@
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Mar  6 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -90,7 +84,7 @@ H5HF__dtable_init(H5HF_dtable_t *dtable)
     /*
      * Check arguments.
      */
-    HDassert(dtable);
+    assert(dtable);
 
     /* Compute/cache some values */
     dtable->start_bits           = H5VM_log2_of2((uint32_t)dtable->cparam.start_block_size);
@@ -103,16 +97,16 @@ H5HF__dtable_init(H5HF_dtable_t *dtable)
 
     /* Build table of block sizes for each row */
     if (NULL == (dtable->row_block_size = (hsize_t *)H5MM_malloc(dtable->max_root_rows * sizeof(hsize_t))))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "can't create doubling table block size table")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "can't create doubling table block size table");
     if (NULL == (dtable->row_block_off = (hsize_t *)H5MM_malloc(dtable->max_root_rows * sizeof(hsize_t))))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "can't create doubling table block offset table")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "can't create doubling table block offset table");
     if (NULL ==
         (dtable->row_tot_dblock_free = (hsize_t *)H5MM_malloc(dtable->max_root_rows * sizeof(hsize_t))))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL,
-                    "can't create doubling table total direct block free space table")
+                    "can't create doubling table total direct block free space table");
     if (NULL == (dtable->row_max_dblock_free = (size_t *)H5MM_malloc(dtable->max_root_rows * sizeof(size_t))))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL,
-                    "can't create doubling table max. direct block free space table")
+                    "can't create doubling table max. direct block free space table");
     tmp_block_size            = dtable->cparam.start_block_size;
     acc_block_off             = dtable->cparam.start_block_size * dtable->cparam.width;
     dtable->row_block_size[0] = dtable->cparam.start_block_size;
@@ -135,9 +129,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Mar  6 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -148,9 +139,9 @@ H5HF__dtable_lookup(const H5HF_dtable_t *dtable, hsize_t off, unsigned *row, uns
     /*
      * Check arguments.
      */
-    HDassert(dtable);
-    HDassert(row);
-    HDassert(col);
+    assert(dtable);
+    assert(row);
+    assert(col);
 
     /* Check for offset in first row */
     if (off < dtable->num_id_first_row) {
@@ -175,9 +166,6 @@ H5HF__dtable_lookup(const H5HF_dtable_t *dtable, hsize_t off, unsigned *row, uns
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Mar 27 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -188,7 +176,7 @@ H5HF__dtable_dest(H5HF_dtable_t *dtable)
     /*
      * Check arguments.
      */
-    HDassert(dtable);
+    assert(dtable);
 
     /* Free the block size lookup table for the doubling table */
     H5MM_xfree(dtable->row_block_size);
@@ -212,9 +200,6 @@ H5HF__dtable_dest(H5HF_dtable_t *dtable)
  *
  * Return:	Non-negative on success (can't fail)
  *
- * Programmer:	Quincey Koziol
- *		Apr 25 2006
- *
  *-------------------------------------------------------------------------
  */
 unsigned
@@ -227,7 +212,7 @@ H5HF__dtable_size_to_row(const H5HF_dtable_t *dtable, size_t block_size)
     /*
      * Check arguments.
      */
-    HDassert(dtable);
+    assert(dtable);
 
     if (block_size == dtable->cparam.start_block_size)
         row = 0;
@@ -246,9 +231,6 @@ H5HF__dtable_size_to_row(const H5HF_dtable_t *dtable, size_t block_size)
  *
  * Return:	Non-negative on success (can't fail)
  *
- * Programmer:	Quincey Koziol
- *		May 31 2006
- *
  *-------------------------------------------------------------------------
  */
 unsigned
@@ -261,7 +243,7 @@ H5HF__dtable_size_to_rows(const H5HF_dtable_t *dtable, hsize_t size)
     /*
      * Check arguments.
      */
-    HDassert(dtable);
+    assert(dtable);
 
     rows = (H5VM_log2_gen(size) - dtable->first_row_bits) + 1;
 
@@ -274,9 +256,6 @@ H5HF__dtable_size_to_rows(const H5HF_dtable_t *dtable, hsize_t size)
  * Purpose:	Compute the size covered by a span of entries
  *
  * Return:	Non-zero span size on success/zero on failure
- *
- * Programmer:	Quincey Koziol
- *		July 25 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -295,8 +274,8 @@ H5HF__dtable_span_size(const H5HF_dtable_t *dtable, unsigned start_row, unsigned
     /*
      * Check arguments.
      */
-    HDassert(dtable);
-    HDassert(num_entries > 0);
+    assert(dtable);
+    assert(num_entries > 0);
 
     /* Compute starting entry */
     start_entry = (start_row * dtable->cparam.width) + start_col;

@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -12,11 +11,8 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	James Laird
- *		Thursday, March 2, 2006
- *
- * Purpose:	This file contains private declarations for the H5SM
- *              shared object header messages module.
+ * Purpose: This file contains private declarations for the H5SM
+ *          shared object header messages module.
  */
 #ifndef H5SMprivate_H
 #define H5SMprivate_H

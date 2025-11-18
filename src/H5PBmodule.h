@@ -11,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol
- *		Saturday, September 12, 2015
- *
- * Purpose:	This file contains declarations which define macros for the
- *		H5PB package.  Including this header means that the source file
- *		is part of the H5PB package.
+ * Purpose: This file contains declarations which define macros for the
+ *          H5PB package.  Including this header means that the source file
+ *          is part of the H5PB package.
  */
 #ifndef H5PBmodule_H
 #define H5PBmodule_H
@@ -25,8 +22,7 @@
  *      reporting macros.
  */
 #define H5PB_MODULE
-#define H5_MY_PKG      H5PB
-#define H5_MY_PKG_ERR  H5E_RESOURCE
-#define H5_MY_PKG_INIT NO
+#define H5_MY_PKG     H5PB
+#define H5_MY_PKG_ERR H5E_RESOURCE
 
 #endif /* H5PBmodule_H */

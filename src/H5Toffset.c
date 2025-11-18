@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -50,9 +49,6 @@ static herr_t H5T__set_offset(const H5T_t *dt, size_t offset);
  * Return:	Success:	The offset (non-negative)
  *		Failure:	Negative
  *
- * Programmer:	Robb Matzke
- *		Wednesday, January  7, 1998
- *
  *-------------------------------------------------------------------------
  */
 int
@@ -62,15 +58,14 @@ H5Tget_offset(hid_t type_id)
     int    ret_value;
 
     FUNC_ENTER_API(-1)
-    H5TRACE1("Is", "i", type_id);
 
     /* Check args */
     if (NULL == (dt = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an atomic data type")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an atomic data type");
 
     /* Get offset */
     if ((ret_value = H5T_get_offset(dt)) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "cant't get offset for specified datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "can't get offset for specified datatype");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -100,9 +95,6 @@ done:
  * Return:	Success:	The offset (non-negative)
  *		Failure:	Negative
  *
- * Programmer:	Quincey Koziol
- *		Wednesday, October 17, 2007
- *
  *-------------------------------------------------------------------------
  */
 int
@@ -116,7 +108,7 @@ H5T_get_offset(const H5T_t *dt)
     while (dt->shared->parent)
         dt = dt->shared->parent;
     if (!H5T_IS_ATOMIC(dt->shared))
-        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "operation not defined for specified data type")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "operation not defined for specified data type");
 
     /* Offset */
     ret_value = (int)dt->shared->u.atomic.offset;
@@ -155,9 +147,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Wednesday, January  7, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -167,24 +156,23 @@ H5Tset_offset(hid_t type_id, size_t offset)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "iz", type_id, offset);
 
     /* Check args */
     if (NULL == (dt = (H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an atomic data type")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an atomic data type");
     if (H5T_STATE_TRANSIENT != dt->shared->state)
-        HGOTO_ERROR(H5E_ARGS, H5E_CANTINIT, FAIL, "data type is read-only")
+        HGOTO_ERROR(H5E_ARGS, H5E_CANTINIT, FAIL, "data type is read-only");
     if (H5T_STRING == dt->shared->type && offset != 0)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "offset must be zero for this type")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "offset must be zero for this type");
     if (H5T_ENUM == dt->shared->type && dt->shared->u.enumer.nmembs > 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "operation not allowed after members are defined")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "operation not allowed after members are defined");
     if (H5T_COMPOUND == dt->shared->type || H5T_REFERENCE == dt->shared->type ||
         H5T_OPAQUE == dt->shared->type)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "operation not defined for this datatype")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_UNSUPPORTED, FAIL, "operation not defined for this datatype");
 
     /* Do the real work */
     if (H5T__set_offset(dt, offset) < 0)
-        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to set offset")
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to set offset");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -220,9 +208,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Wednesday, January  7, 1998
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -230,19 +215,19 @@ H5T__set_offset(const H5T_t *dt, size_t offset)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Check args */
-    HDassert(dt);
-    HDassert(H5T_STRING != dt->shared->type || 0 == offset);
-    HDassert(H5T_REFERENCE != dt->shared->type);
-    HDassert(H5T_OPAQUE != dt->shared->type);
-    HDassert(H5T_COMPOUND != dt->shared->type);
-    HDassert(!(H5T_ENUM == dt->shared->type && 0 == dt->shared->u.enumer.nmembs));
+    assert(dt);
+    assert(H5T_STRING != dt->shared->type || 0 == offset);
+    assert(H5T_REFERENCE != dt->shared->type);
+    assert(H5T_OPAQUE != dt->shared->type);
+    assert(H5T_COMPOUND != dt->shared->type);
+    assert(!(H5T_ENUM == dt->shared->type && 0 == dt->shared->u.enumer.nmembs));
 
     if (dt->shared->parent) {
         if (H5T__set_offset(dt->shared->parent, offset) < 0)
-            HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to set offset for base type")
+            HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "unable to set offset for base type");
 
         /* Adjust size of datatype appropriately */
         if (dt->shared->type == H5T_ARRAY)

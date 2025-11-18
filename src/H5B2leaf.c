@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,10 +13,8 @@
 /*-------------------------------------------------------------------------
  *
  * Created:		H5B2leaf.c
- *			Dec 01 2016
- *			Quincey Koziol
  *
- * Purpose:		Routines for managing v2 B-tree leaf ndoes.
+ * Purpose:		Routines for managing v2 B-tree leaf nodes.
  *
  *-------------------------------------------------------------------------
  */
@@ -34,6 +31,7 @@
 #include "H5private.h"   /* Generic Functions			*/
 #include "H5B2pkg.h"     /* v2 B-trees				*/
 #include "H5Eprivate.h"  /* Error handling		  	*/
+#include "H5FLprivate.h" /* Free Lists                               */
 #include "H5MFprivate.h" /* File memory management		*/
 #include "H5MMprivate.h" /* Memory management			*/
 
@@ -77,39 +75,36 @@ H5FL_DEFINE(H5B2_leaf_t);
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Feb  2 2005
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5B2__create_leaf(H5B2_hdr_t *hdr, void *parent, H5B2_node_ptr_t *node_ptr)
 {
     H5B2_leaf_t *leaf      = NULL;    /* Pointer to new leaf node created */
-    hbool_t      inserted  = FALSE;   /* Whether the leaf node was inserted into cache */
+    bool         inserted  = false;   /* Whether the leaf node was inserted into cache */
     herr_t       ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
     /* Check arguments. */
-    HDassert(hdr);
-    HDassert(node_ptr);
+    assert(hdr);
+    assert(node_ptr);
 
     /* Allocate memory for leaf information */
     if (NULL == (leaf = H5FL_CALLOC(H5B2_leaf_t)))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for B-tree leaf info")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for B-tree leaf info");
 
     /* Increment ref. count on B-tree header */
     if (H5B2__hdr_incr(hdr) < 0)
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTINC, FAIL, "can't increment ref. count on B-tree header")
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTINC, FAIL, "can't increment ref. count on B-tree header");
 
     /* Share B-tree header information */
     leaf->hdr = hdr;
 
     /* Allocate space for the native keys in memory */
     if (NULL == (leaf->leaf_native = (uint8_t *)H5FL_FAC_MALLOC(hdr->node_info[0].nat_rec_fac)))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for B-tree leaf native keys")
-    HDmemset(leaf->leaf_native, 0, hdr->cls->nrec_size * hdr->node_info[0].max_nrec);
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "memory allocation failed for B-tree leaf native keys");
+    memset(leaf->leaf_native, 0, hdr->cls->nrec_size * hdr->node_info[0].max_nrec);
 
     /* Set parent */
     leaf->parent = parent;
@@ -119,17 +114,17 @@ H5B2__create_leaf(H5B2_hdr_t *hdr, void *parent, H5B2_node_ptr_t *node_ptr)
 
     /* Allocate space on disk for the leaf */
     if (HADDR_UNDEF == (node_ptr->addr = H5MF_alloc(hdr->f, H5FD_MEM_BTREE, (hsize_t)hdr->node_size)))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "file allocation failed for B-tree leaf node")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL, "file allocation failed for B-tree leaf node");
 
     /* Cache the new B-tree node */
     if (H5AC_insert_entry(hdr->f, H5AC_BT2_LEAF, node_ptr->addr, leaf, H5AC__NO_FLAGS_SET) < 0)
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, FAIL, "can't add B-tree leaf to cache")
-    inserted = TRUE;
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTINIT, FAIL, "can't add B-tree leaf to cache");
+    inserted = true;
 
     /* Add leaf node as child of 'top' proxy */
     if (hdr->top_proxy) {
         if (H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, leaf) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTSET, FAIL, "unable to add v2 B-tree node as child of proxy")
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTSET, FAIL, "unable to add v2 B-tree node as child of proxy");
         leaf->top_proxy = hdr->top_proxy;
     } /* end if */
 
@@ -140,17 +135,17 @@ done:
             if (inserted)
                 if (H5AC_remove_entry(leaf) < 0)
                     HDONE_ERROR(H5E_BTREE, H5E_CANTREMOVE, FAIL,
-                                "unable to remove v2 B-tree leaf node from cache")
+                                "unable to remove v2 B-tree leaf node from cache");
 
             /* Release leaf node's disk space */
-            if (H5F_addr_defined(node_ptr->addr) &&
+            if (H5_addr_defined(node_ptr->addr) &&
                 H5MF_xfree(hdr->f, H5FD_MEM_BTREE, node_ptr->addr, (hsize_t)hdr->node_size) < 0)
                 HDONE_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL,
-                            "unable to release file space for v2 B-tree leaf node")
+                            "unable to release file space for v2 B-tree leaf node");
 
             /* Destroy leaf node */
             if (H5B2__leaf_free(leaf) < 0)
-                HDONE_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to release v2 B-tree leaf node")
+                HDONE_ERROR(H5E_BTREE, H5E_CANTFREE, FAIL, "unable to release v2 B-tree leaf node");
         } /* end if */
     }     /* end if */
 
@@ -164,27 +159,24 @@ done:
  *
  * Return:	Pointer to leaf node on success/NULL on failure
  *
- * Programmer:	Quincey Koziol
- *		May  5 2010
- *
  *-------------------------------------------------------------------------
  */
 H5B2_leaf_t *
-H5B2__protect_leaf(H5B2_hdr_t *hdr, void *parent, H5B2_node_ptr_t *node_ptr, hbool_t shadow, unsigned flags)
+H5B2__protect_leaf(H5B2_hdr_t *hdr, void *parent, H5B2_node_ptr_t *node_ptr, bool shadow, unsigned flags)
 {
     H5B2_leaf_cache_ud_t udata;            /* User-data for callback */
-    H5B2_leaf_t *        leaf;             /* v2 B-tree leaf node */
-    H5B2_leaf_t *        ret_value = NULL; /* Return value */
+    H5B2_leaf_t         *leaf;             /* v2 B-tree leaf node */
+    H5B2_leaf_t         *ret_value = NULL; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
     /* Check arguments. */
-    HDassert(hdr);
-    HDassert(node_ptr);
-    HDassert(H5F_addr_defined(node_ptr->addr));
+    assert(hdr);
+    assert(node_ptr);
+    assert(H5_addr_defined(node_ptr->addr));
 
     /* only H5AC__READ_ONLY_FLAG may appear in flags */
-    HDassert((flags & (unsigned)(~H5AC__READ_ONLY_FLAG)) == 0);
+    assert((flags & (unsigned)(~H5AC__READ_ONLY_FLAG)) == 0);
 
     /* Set up user data for callback */
     udata.f      = hdr->f;
@@ -194,20 +186,20 @@ H5B2__protect_leaf(H5B2_hdr_t *hdr, void *parent, H5B2_node_ptr_t *node_ptr, hbo
 
     /* Protect the leaf node */
     if (NULL == (leaf = (H5B2_leaf_t *)H5AC_protect(hdr->f, H5AC_BT2_LEAF, node_ptr->addr, &udata, flags)))
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, NULL, "unable to protect B-tree leaf node")
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, NULL, "unable to protect B-tree leaf node");
 
     /* Create top proxy, if it doesn't exist */
     if (hdr->top_proxy && NULL == leaf->top_proxy) {
         /* Add leaf node as child of 'top' proxy */
         if (H5AC_proxy_entry_add_child(hdr->top_proxy, hdr->f, leaf) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTSET, NULL, "unable to add v2 B-tree leaf node as child of proxy")
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTSET, NULL, "unable to add v2 B-tree leaf node as child of proxy");
         leaf->top_proxy = hdr->top_proxy;
     } /* end if */
 
     /* Shadow the node, if requested */
     if (shadow)
         if (H5B2__shadow_leaf(leaf, node_ptr) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTCOPY, NULL, "unable to shadow leaf node")
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTCOPY, NULL, "unable to shadow leaf node");
 
     /* Set return value */
     ret_value = leaf;
@@ -222,7 +214,7 @@ done:
                 if (H5AC_proxy_entry_remove_child(leaf->top_proxy, leaf) < 0)
                     HDONE_ERROR(
                         H5E_BTREE, H5E_CANTUNDEPEND, NULL,
-                        "unable to destroy flush dependency between leaf node and v2 B-tree 'top' proxy")
+                        "unable to destroy flush dependency between leaf node and v2 B-tree 'top' proxy");
                 leaf->top_proxy = NULL;
             } /* end if */
 
@@ -230,7 +222,7 @@ done:
             if (H5AC_unprotect(hdr->f, H5AC_BT2_LEAF, node_ptr->addr, leaf, H5AC__NO_FLAGS_SET) < 0)
                 HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, NULL,
                             "unable to unprotect v2 B-tree leaf node, address = %llu",
-                            (unsigned long long)node_ptr->addr)
+                            (unsigned long long)node_ptr->addr);
         } /* end if */
     }     /* end if */
 
@@ -257,9 +249,6 @@ done:
  *
  * Return:	Non-negative on success, negative on failure.
  *
- * Programmer:	Quincey Koziol
- *		Mar  9 2005
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -274,18 +263,18 @@ H5B2__neighbor_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, void *neigh
     FUNC_ENTER_PACKAGE
 
     /* Check arguments. */
-    HDassert(hdr);
-    HDassert(curr_node_ptr);
-    HDassert(H5F_addr_defined(curr_node_ptr->addr));
-    HDassert(op);
+    assert(hdr);
+    assert(curr_node_ptr);
+    assert(H5_addr_defined(curr_node_ptr->addr));
+    assert(op);
 
     /* Lock current B-tree node */
-    if (NULL == (leaf = H5B2__protect_leaf(hdr, parent, curr_node_ptr, FALSE, H5AC__READ_ONLY_FLAG)))
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
+    if (NULL == (leaf = H5B2__protect_leaf(hdr, parent, curr_node_ptr, false, H5AC__READ_ONLY_FLAG)))
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node");
 
     /* Locate node pointer for child */
     if (H5B2__locate_record(hdr->cls, leaf->nrec, hdr->nat_off, leaf->leaf_native, udata, &idx, &cmp) < 0)
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records")
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records");
     if (cmp > 0)
         idx++;
     else if (cmp == 0 && comp == H5B2_COMPARE_GREATER)
@@ -297,7 +286,7 @@ H5B2__neighbor_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, void *neigh
             neighbor_loc = H5B2_LEAF_NREC(leaf, hdr, idx - 1);
     } /* end if */
     else {
-        HDassert(comp == H5B2_COMPARE_GREATER);
+        assert(comp == H5B2_COMPARE_GREATER);
 
         if (idx < leaf->nrec)
             neighbor_loc = H5B2_LEAF_NREC(leaf, hdr, idx);
@@ -308,15 +297,15 @@ H5B2__neighbor_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, void *neigh
         /* Make callback for current record */
         if ((op)(neighbor_loc, op_data) < 0)
             HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL,
-                        "'found' callback failed for B-tree neighbor operation")
+                        "'found' callback failed for B-tree neighbor operation");
     } /* end if */
     else
-        HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL, "unable to find neighbor record in B-tree")
+        HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL, "unable to find neighbor record in B-tree");
 
 done:
     /* Release the B-tree leaf node */
     if (leaf && H5AC_unprotect(hdr->f, H5AC_BT2_LEAF, curr_node_ptr->addr, leaf, H5AC__NO_FLAGS_SET) < 0)
-        HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree leaf node")
+        HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree leaf node");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5B2__neighbor_leaf() */
@@ -327,9 +316,6 @@ done:
  * Purpose:	Adds a new record to a B-tree leaf node.
  *
  * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Quincey Koziol
- *		Mar  3 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -346,20 +332,20 @@ H5B2__insert_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_nodepos_
     FUNC_ENTER_PACKAGE
 
     /* Check arguments. */
-    HDassert(hdr);
-    HDassert(curr_node_ptr);
-    HDassert(H5F_addr_defined(curr_node_ptr->addr));
+    assert(hdr);
+    assert(curr_node_ptr);
+    assert(H5_addr_defined(curr_node_ptr->addr));
 
     /* Lock current B-tree node */
-    if (NULL == (leaf = H5B2__protect_leaf(hdr, parent, curr_node_ptr, FALSE, H5AC__NO_FLAGS_SET)))
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
+    if (NULL == (leaf = H5B2__protect_leaf(hdr, parent, curr_node_ptr, false, H5AC__NO_FLAGS_SET)))
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node");
 
     /* Must have a leaf node with enough space to insert a record now */
-    HDassert(curr_node_ptr->node_nrec < hdr->node_info[0].max_nrec);
+    assert(curr_node_ptr->node_nrec < hdr->node_info[0].max_nrec);
 
     /* Sanity check number of records */
-    HDassert(curr_node_ptr->all_nrec == curr_node_ptr->node_nrec);
-    HDassert(leaf->nrec == curr_node_ptr->node_nrec);
+    assert(curr_node_ptr->all_nrec == curr_node_ptr->node_nrec);
+    assert(leaf->nrec == curr_node_ptr->node_nrec);
 
     /* Check for inserting into empty leaf */
     if (leaf->nrec == 0)
@@ -367,21 +353,21 @@ H5B2__insert_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_nodepos_
     else {
         /* Find correct location to insert this record */
         if (H5B2__locate_record(hdr->cls, leaf->nrec, hdr->nat_off, leaf->leaf_native, udata, &idx, &cmp) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records")
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records");
         if (cmp == 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_EXISTS, FAIL, "record is already in B-tree")
+            HGOTO_ERROR(H5E_BTREE, H5E_EXISTS, FAIL, "record is already in B-tree");
         if (cmp > 0)
             idx++;
 
         /* Make room for new record */
         if (idx < leaf->nrec)
-            HDmemmove(H5B2_LEAF_NREC(leaf, hdr, idx + 1), H5B2_LEAF_NREC(leaf, hdr, idx),
-                      hdr->cls->nrec_size * (leaf->nrec - idx));
+            memmove(H5B2_LEAF_NREC(leaf, hdr, idx + 1), H5B2_LEAF_NREC(leaf, hdr, idx),
+                    hdr->cls->nrec_size * (leaf->nrec - idx));
     } /* end else */
 
     /* Make callback to store record in native form */
     if ((hdr->cls->store)(H5B2_LEAF_NREC(leaf, hdr, idx), udata) < 0)
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTINSERT, FAIL, "unable to insert record into leaf node")
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTINSERT, FAIL, "unable to insert record into leaf node");
 
     /* Mark the node as dirty */
     leaf_flags |= H5AC__DIRTIED_FLAG;
@@ -401,7 +387,7 @@ H5B2__insert_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_nodepos_
                 if (hdr->min_native_rec == NULL)
                     if (NULL == (hdr->min_native_rec = H5MM_malloc(hdr->cls->nrec_size)))
                         HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, FAIL,
-                                    "memory allocation failed for v2 B-tree min record info")
+                                    "memory allocation failed for v2 B-tree min record info");
                 H5MM_memcpy(hdr->min_native_rec, H5B2_LEAF_NREC(leaf, hdr, idx), hdr->cls->nrec_size);
             } /* end if */
         }     /* end if */
@@ -410,7 +396,7 @@ H5B2__insert_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_nodepos_
                 if (hdr->max_native_rec == NULL)
                     if (NULL == (hdr->max_native_rec = H5MM_malloc(hdr->cls->nrec_size)))
                         HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, FAIL,
-                                    "memory allocation failed for v2 B-tree max record info")
+                                    "memory allocation failed for v2 B-tree max record info");
                 H5MM_memcpy(hdr->max_native_rec, H5B2_LEAF_NREC(leaf, hdr, idx), hdr->cls->nrec_size);
             } /* end if */
         }     /* end if */
@@ -422,11 +408,11 @@ done:
         /* Shadow the node if doing SWMR writes */
         if (hdr->swmr_write && (leaf_flags & H5AC__DIRTIED_FLAG))
             if (H5B2__shadow_leaf(leaf, curr_node_ptr) < 0)
-                HDONE_ERROR(H5E_BTREE, H5E_CANTCOPY, FAIL, "unable to shadow leaf B-tree node")
+                HDONE_ERROR(H5E_BTREE, H5E_CANTCOPY, FAIL, "unable to shadow leaf B-tree node");
 
         /* Unprotect leaf node */
         if (H5AC_unprotect(hdr->f, H5AC_BT2_LEAF, curr_node_ptr->addr, leaf, leaf_flags) < 0)
-            HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release leaf B-tree node")
+            HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release leaf B-tree node");
     } /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -441,9 +427,6 @@ done:
  *		H5B2_insert was called.
  *
  * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Quincey Koziol
- *		Dec 23 2015
  *
  *-------------------------------------------------------------------------
  */
@@ -460,17 +443,17 @@ H5B2__update_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_update_s
     FUNC_ENTER_PACKAGE
 
     /* Check arguments. */
-    HDassert(hdr);
-    HDassert(curr_node_ptr);
-    HDassert(H5F_addr_defined(curr_node_ptr->addr));
+    assert(hdr);
+    assert(curr_node_ptr);
+    assert(H5_addr_defined(curr_node_ptr->addr));
 
     /* Lock current B-tree node */
-    if (NULL == (leaf = H5B2__protect_leaf(hdr, parent, curr_node_ptr, FALSE, H5AC__NO_FLAGS_SET)))
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
+    if (NULL == (leaf = H5B2__protect_leaf(hdr, parent, curr_node_ptr, false, H5AC__NO_FLAGS_SET)))
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node");
 
     /* Sanity check number of records */
-    HDassert(curr_node_ptr->all_nrec == curr_node_ptr->node_nrec);
-    HDassert(leaf->nrec == curr_node_ptr->node_nrec);
+    assert(curr_node_ptr->all_nrec == curr_node_ptr->node_nrec);
+    assert(leaf->nrec == curr_node_ptr->node_nrec);
 
     /* Check for inserting into empty leaf */
     if (leaf->nrec == 0)
@@ -478,7 +461,7 @@ H5B2__update_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_update_s
     else {
         /* Find correct location to insert this record */
         if (H5B2__locate_record(hdr->cls, leaf->nrec, hdr->nat_off, leaf->leaf_native, udata, &idx, &cmp) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records")
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records");
 
         /* Check for inserting a record */
         if (0 != cmp) {
@@ -488,7 +471,7 @@ H5B2__update_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_update_s
                 *status = H5B2_UPDATE_INSERT_CHILD_FULL;
 
                 /* Let calling routine handle insertion */
-                HGOTO_DONE(SUCCEED)
+                HGOTO_DONE(SUCCEED);
             } /* end if */
 
             /* Adjust index to leave room for record to insert */
@@ -497,22 +480,22 @@ H5B2__update_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_update_s
 
             /* Make room for new record */
             if (idx < leaf->nrec)
-                HDmemmove(H5B2_LEAF_NREC(leaf, hdr, idx + 1), H5B2_LEAF_NREC(leaf, hdr, idx),
-                          hdr->cls->nrec_size * (leaf->nrec - idx));
+                memmove(H5B2_LEAF_NREC(leaf, hdr, idx + 1), H5B2_LEAF_NREC(leaf, hdr, idx),
+                        hdr->cls->nrec_size * (leaf->nrec - idx));
         } /* end if */
     }     /* end else */
 
     /* Check for modifying existing record */
     if (0 == cmp) {
-        hbool_t changed = FALSE; /* Whether the 'modify' callback changed the record */
+        bool changed = false; /* Whether the 'modify' callback changed the record */
 
         /* Make callback for current record */
         if ((op)(H5B2_LEAF_NREC(leaf, hdr, idx), op_data, &changed) < 0) {
             /* Make certain that the callback didn't modify the value if it failed */
-            HDassert(changed == FALSE);
+            assert(changed == false);
 
             HGOTO_ERROR(H5E_BTREE, H5E_CANTMODIFY, FAIL,
-                        "'modify' callback failed for B-tree update operation")
+                        "'modify' callback failed for B-tree update operation");
         } /* end if */
 
         /* Mark the node as dirty if it changed */
@@ -523,11 +506,11 @@ H5B2__update_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_update_s
     } /* end if */
     else {
         /* Must have a leaf node with enough space to insert a record now */
-        HDassert(curr_node_ptr->node_nrec < hdr->node_info[0].max_nrec);
+        assert(curr_node_ptr->node_nrec < hdr->node_info[0].max_nrec);
 
         /* Make callback to store record in native form */
         if ((hdr->cls->store)(H5B2_LEAF_NREC(leaf, hdr, idx), udata) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTINSERT, FAIL, "unable to insert record into leaf node")
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTINSERT, FAIL, "unable to insert record into leaf node");
 
         /* Mark the node as dirty */
         leaf_flags |= H5AC__DIRTIED_FLAG;
@@ -551,7 +534,7 @@ H5B2__update_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_update_s
                 if (hdr->min_native_rec == NULL)
                     if (NULL == (hdr->min_native_rec = H5MM_malloc(hdr->cls->nrec_size)))
                         HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, FAIL,
-                                    "memory allocation failed for v2 B-tree min record info")
+                                    "memory allocation failed for v2 B-tree min record info");
                 H5MM_memcpy(hdr->min_native_rec, H5B2_LEAF_NREC(leaf, hdr, idx), hdr->cls->nrec_size);
             } /* end if */
         }     /* end if */
@@ -560,7 +543,7 @@ H5B2__update_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_update_s
                 if (hdr->max_native_rec == NULL)
                     if (NULL == (hdr->max_native_rec = H5MM_malloc(hdr->cls->nrec_size)))
                         HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, FAIL,
-                                    "memory allocation failed for v2 B-tree max record info")
+                                    "memory allocation failed for v2 B-tree max record info");
                 H5MM_memcpy(hdr->max_native_rec, H5B2_LEAF_NREC(leaf, hdr, idx), hdr->cls->nrec_size);
             } /* end if */
         }     /* end if */
@@ -573,7 +556,7 @@ done:
         if (hdr->swmr_write && (leaf_flags & H5AC__DIRTIED_FLAG)) {
             /* Attempt to shadow the node if doing SWMR writes */
             if (H5B2__shadow_leaf(leaf, curr_node_ptr) < 0)
-                HDONE_ERROR(H5E_BTREE, H5E_CANTCOPY, FAIL, "unable to shadow leaf B-tree node")
+                HDONE_ERROR(H5E_BTREE, H5E_CANTCOPY, FAIL, "unable to shadow leaf B-tree node");
 
             /* Change the state to "shadowed" if only modified currently */
             /* (Triggers parent to be marked dirty) */
@@ -583,7 +566,7 @@ done:
 
         /* Unprotect leaf node */
         if (H5AC_unprotect(hdr->f, H5AC_BT2_LEAF, curr_node_ptr->addr, leaf, leaf_flags) < 0)
-            HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release leaf B-tree node")
+            HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release leaf B-tree node");
     } /* end if */
 
     FUNC_LEAVE_NOAPI(ret_value)
@@ -598,9 +581,6 @@ done:
  *
  *		Failure:	Negative
  *
- * Programmer:	Quincey Koziol
- *		Mar  4 2005
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -609,17 +589,17 @@ H5B2__swap_leaf(H5B2_hdr_t *hdr, uint16_t depth, H5B2_internal_t *internal, unsi
 {
     const H5AC_class_t *child_class;              /* Pointer to child node's class info */
     haddr_t             child_addr = HADDR_UNDEF; /* Address of child node */
-    void *              child      = NULL;        /* Pointer to child node */
-    uint8_t *           child_native;             /* Pointer to child's native records */
+    void               *child      = NULL;        /* Pointer to child node */
+    uint8_t            *child_native;             /* Pointer to child's native records */
     herr_t              ret_value = SUCCEED;      /* Return value */
 
     FUNC_ENTER_PACKAGE
 
     /* Check arguments. */
-    HDassert(hdr);
-    HDassert(internal);
-    HDassert(internal_flags_ptr);
-    HDassert(idx <= internal->nrec);
+    assert(hdr);
+    assert(internal);
+    assert(internal_flags_ptr);
+    assert(idx <= internal->nrec);
 
     /* Check for the kind of B-tree node to swap */
     if (depth > 1) {
@@ -631,8 +611,8 @@ H5B2__swap_leaf(H5B2_hdr_t *hdr, uint16_t depth, H5B2_internal_t *internal, unsi
         /* Lock B-tree child nodes */
         if (NULL ==
             (child_internal = H5B2__protect_internal(hdr, internal, &internal->node_ptrs[idx],
-                                                     (uint16_t)(depth - 1), FALSE, H5AC__NO_FLAGS_SET)))
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node")
+                                                     (uint16_t)(depth - 1), false, H5AC__NO_FLAGS_SET)))
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree internal node");
         child_addr = internal->node_ptrs[idx].addr;
 
         /* More setup for accessing child node information */
@@ -646,9 +626,9 @@ H5B2__swap_leaf(H5B2_hdr_t *hdr, uint16_t depth, H5B2_internal_t *internal, unsi
         child_class = H5AC_BT2_LEAF;
 
         /* Lock B-tree child node */
-        if (NULL == (child_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx], FALSE,
+        if (NULL == (child_leaf = H5B2__protect_leaf(hdr, internal, &internal->node_ptrs[idx], false,
                                                      H5AC__NO_FLAGS_SET)))
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node");
         child_addr = internal->node_ptrs[idx].addr;
 
         /* More setup for accessing child node information */
@@ -675,7 +655,7 @@ H5B2__swap_leaf(H5B2_hdr_t *hdr, uint16_t depth, H5B2_internal_t *internal, unsi
 done:
     /* Unlock child node */
     if (child && H5AC_unprotect(hdr->f, child_class, child_addr, child, H5AC__DIRTIED_FLAG) < 0)
-        HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree child node")
+        HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release B-tree child node");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5B2__swap_leaf() */
@@ -691,9 +671,6 @@ done:
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Neil Fortner
- *              Apr 27 2012
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -702,17 +679,17 @@ H5B2__shadow_leaf(H5B2_leaf_t *leaf, H5B2_node_ptr_t *curr_node_ptr)
     H5B2_hdr_t *hdr;                 /* B-tree header */
     herr_t      ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /*
      * Check arguments.
      */
-    HDassert(leaf);
-    HDassert(curr_node_ptr);
-    HDassert(H5F_addr_defined(curr_node_ptr->addr));
+    assert(leaf);
+    assert(curr_node_ptr);
+    assert(H5_addr_defined(curr_node_ptr->addr));
     hdr = leaf->hdr;
-    HDassert(hdr);
-    HDassert(hdr->swmr_write);
+    assert(hdr);
+    assert(hdr->swmr_write);
 
     /* We only need to shadow the node if it has not been shadowed since the
      * last time the header was flushed, as otherwise it will be unreachable by
@@ -729,11 +706,11 @@ H5B2__shadow_leaf(H5B2_leaf_t *leaf, H5B2_node_ptr_t *curr_node_ptr)
          */
         /* Allocate space for the cloned node */
         if (HADDR_UNDEF == (new_node_addr = H5MF_alloc(hdr->f, H5FD_MEM_BTREE, (hsize_t)hdr->node_size)))
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, FAIL, "unable to allocate file space to move B-tree node")
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTALLOC, FAIL, "unable to allocate file space to move B-tree node");
 
         /* Move the location of the old child on the disk */
         if (H5AC_move_entry(hdr->f, H5AC_BT2_LEAF, curr_node_ptr->addr, new_node_addr) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTMOVE, FAIL, "unable to move B-tree node")
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTMOVE, FAIL, "unable to move B-tree node");
         curr_node_ptr->addr = new_node_addr;
 
         /* Should free the space in the file, but this is not supported by
@@ -755,9 +732,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Mar  3 2005
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -774,24 +748,24 @@ H5B2__remove_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_nodepos_
     FUNC_ENTER_PACKAGE
 
     /* Check arguments. */
-    HDassert(hdr);
-    HDassert(curr_node_ptr);
-    HDassert(H5F_addr_defined(curr_node_ptr->addr));
+    assert(hdr);
+    assert(curr_node_ptr);
+    assert(H5_addr_defined(curr_node_ptr->addr));
 
     /* Lock current B-tree node */
-    if (NULL == (leaf = H5B2__protect_leaf(hdr, parent, curr_node_ptr, FALSE, H5AC__NO_FLAGS_SET)))
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
+    if (NULL == (leaf = H5B2__protect_leaf(hdr, parent, curr_node_ptr, false, H5AC__NO_FLAGS_SET)))
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node");
     leaf_addr = curr_node_ptr->addr;
 
     /* Sanity check number of records */
-    HDassert(curr_node_ptr->all_nrec == curr_node_ptr->node_nrec);
-    HDassert(leaf->nrec == curr_node_ptr->node_nrec);
+    assert(curr_node_ptr->all_nrec == curr_node_ptr->node_nrec);
+    assert(leaf->nrec == curr_node_ptr->node_nrec);
 
     /* Find correct location to remove this record */
     if (H5B2__locate_record(hdr->cls, leaf->nrec, hdr->nat_off, leaf->leaf_native, udata, &idx, &cmp) < 0)
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records")
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTCOMPARE, FAIL, "can't compare btree2 records");
     if (cmp != 0)
-        HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL, "record is not in B-tree")
+        HGOTO_ERROR(H5E_BTREE, H5E_NOTFOUND, FAIL, "record is not in B-tree");
 
     /* Check for invalidating the min/max record for the tree */
     if (H5B2_POS_MIDDLE != curr_pos) {
@@ -813,7 +787,7 @@ H5B2__remove_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_nodepos_
     /* Make 'remove' callback if there is one */
     if (op)
         if ((op)(H5B2_LEAF_NREC(leaf, hdr, idx), op_data) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTDELETE, FAIL, "unable to remove record into leaf node")
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTDELETE, FAIL, "unable to remove record into leaf node");
 
     /* Update number of records in node */
     leaf->nrec--;
@@ -822,14 +796,14 @@ H5B2__remove_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_nodepos_
         /* Shadow the node if doing SWMR writes */
         if (hdr->swmr_write) {
             if (H5B2__shadow_leaf(leaf, curr_node_ptr) < 0)
-                HGOTO_ERROR(H5E_BTREE, H5E_CANTCOPY, FAIL, "unable to shadow leaf node")
+                HGOTO_ERROR(H5E_BTREE, H5E_CANTCOPY, FAIL, "unable to shadow leaf node");
             leaf_addr = curr_node_ptr->addr;
         } /* end if */
 
         /* Pack record out of leaf */
         if (idx < leaf->nrec)
-            HDmemmove(H5B2_LEAF_NREC(leaf, hdr, idx), H5B2_LEAF_NREC(leaf, hdr, (idx + 1)),
-                      hdr->cls->nrec_size * (leaf->nrec - idx));
+            memmove(H5B2_LEAF_NREC(leaf, hdr, idx), H5B2_LEAF_NREC(leaf, hdr, (idx + 1)),
+                    hdr->cls->nrec_size * (leaf->nrec - idx));
 
         /* Mark leaf node as dirty also */
         leaf_flags |= H5AC__DIRTIED_FLAG;
@@ -850,7 +824,7 @@ H5B2__remove_leaf(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_nodepos_
 done:
     /* Release the B-tree leaf node */
     if (leaf && H5AC_unprotect(hdr->f, H5AC_BT2_LEAF, leaf_addr, leaf, leaf_flags) < 0)
-        HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release leaf B-tree node")
+        HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release leaf B-tree node");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5B2__remove_leaf() */
@@ -862,9 +836,6 @@ done:
  *              offset in the B-tree records.
  *
  * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Quincey Koziol
- *		Nov 14 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -880,19 +851,19 @@ H5B2__remove_leaf_by_idx(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_n
     FUNC_ENTER_PACKAGE
 
     /* Check arguments. */
-    HDassert(hdr);
-    HDassert(curr_node_ptr);
-    HDassert(H5F_addr_defined(curr_node_ptr->addr));
+    assert(hdr);
+    assert(curr_node_ptr);
+    assert(H5_addr_defined(curr_node_ptr->addr));
 
     /* Lock B-tree leaf node */
-    if (NULL == (leaf = H5B2__protect_leaf(hdr, parent, curr_node_ptr, FALSE, H5AC__NO_FLAGS_SET)))
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node")
+    if (NULL == (leaf = H5B2__protect_leaf(hdr, parent, curr_node_ptr, false, H5AC__NO_FLAGS_SET)))
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTPROTECT, FAIL, "unable to protect B-tree leaf node");
     leaf_addr = curr_node_ptr->addr;
 
     /* Sanity check number of records */
-    HDassert(curr_node_ptr->all_nrec == curr_node_ptr->node_nrec);
-    HDassert(leaf->nrec == curr_node_ptr->node_nrec);
-    HDassert(idx < leaf->nrec);
+    assert(curr_node_ptr->all_nrec == curr_node_ptr->node_nrec);
+    assert(leaf->nrec == curr_node_ptr->node_nrec);
+    assert(idx < leaf->nrec);
 
     /* Check for invalidating the min/max record for the tree */
     if (H5B2_POS_MIDDLE != curr_pos) {
@@ -914,7 +885,7 @@ H5B2__remove_leaf_by_idx(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_n
     /* Make 'remove' callback if there is one */
     if (op)
         if ((op)(H5B2_LEAF_NREC(leaf, hdr, idx), op_data) < 0)
-            HGOTO_ERROR(H5E_BTREE, H5E_CANTDELETE, FAIL, "unable to remove record into leaf node")
+            HGOTO_ERROR(H5E_BTREE, H5E_CANTDELETE, FAIL, "unable to remove record into leaf node");
 
     /* Update number of records in node */
     leaf->nrec--;
@@ -923,14 +894,14 @@ H5B2__remove_leaf_by_idx(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_n
         /* Shadow the node if doing SWMR writes */
         if (hdr->swmr_write) {
             if (H5B2__shadow_leaf(leaf, curr_node_ptr) < 0)
-                HGOTO_ERROR(H5E_BTREE, H5E_CANTCOPY, FAIL, "unable to shadow leaf node")
+                HGOTO_ERROR(H5E_BTREE, H5E_CANTCOPY, FAIL, "unable to shadow leaf node");
             leaf_addr = curr_node_ptr->addr;
         } /* end if */
 
         /* Pack record out of leaf */
         if (idx < leaf->nrec)
-            HDmemmove(H5B2_LEAF_NREC(leaf, hdr, idx), H5B2_LEAF_NREC(leaf, hdr, (idx + 1)),
-                      hdr->cls->nrec_size * (leaf->nrec - idx));
+            memmove(H5B2_LEAF_NREC(leaf, hdr, idx), H5B2_LEAF_NREC(leaf, hdr, (idx + 1)),
+                    hdr->cls->nrec_size * (leaf->nrec - idx));
 
         /* Mark leaf node as dirty also */
         leaf_flags |= H5AC__DIRTIED_FLAG;
@@ -951,7 +922,7 @@ H5B2__remove_leaf_by_idx(H5B2_hdr_t *hdr, H5B2_node_ptr_t *curr_node_ptr, H5B2_n
 done:
     /* Release the B-tree leaf node */
     if (leaf && H5AC_unprotect(hdr->f, H5AC_BT2_LEAF, leaf_addr, leaf, leaf_flags) < 0)
-        HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release leaf B-tree node")
+        HDONE_ERROR(H5E_BTREE, H5E_CANTUNPROTECT, FAIL, "unable to release leaf B-tree node");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5B2__remove_leaf_by_idx() */
@@ -962,9 +933,6 @@ done:
  * Purpose:	Destroys a B-tree leaf node in memory.
  *
  * Return:	Non-negative on success/Negative on failure
- *
- * Programmer:	Quincey Koziol
- *		Feb 2 2005
  *
  *-------------------------------------------------------------------------
  */
@@ -978,7 +946,7 @@ H5B2__leaf_free(H5B2_leaf_t *leaf)
     /*
      * Check arguments.
      */
-    HDassert(leaf);
+    assert(leaf);
 
     /* Release leaf's native key buffer */
     if (leaf->leaf_native)
@@ -986,10 +954,10 @@ H5B2__leaf_free(H5B2_leaf_t *leaf)
 
     /* Decrement ref. count on B-tree header */
     if (H5B2__hdr_decr(leaf->hdr) < 0)
-        HGOTO_ERROR(H5E_BTREE, H5E_CANTDEC, FAIL, "can't decrement ref. count on B-tree header")
+        HGOTO_ERROR(H5E_BTREE, H5E_CANTDEC, FAIL, "can't decrement ref. count on B-tree header");
 
     /* Sanity check */
-    HDassert(NULL == leaf->top_proxy);
+    assert(NULL == leaf->top_proxy);
 
     /* Free B-tree leaf node info */
     leaf = H5FL_FREE(H5B2_leaf_t, leaf);
@@ -1007,16 +975,13 @@ done:
  *
  * Return:	Non-negative on success, negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Feb 19 2005
- *
  *-------------------------------------------------------------------------
  */
 H5_ATTR_PURE herr_t
 H5B2__assert_leaf(const H5B2_hdr_t H5_ATTR_NDEBUG_UNUSED *hdr, const H5B2_leaf_t H5_ATTR_NDEBUG_UNUSED *leaf)
 {
     /* General sanity checking on node */
-    HDassert(leaf->nrec <= hdr->node_info->split_nrec);
+    assert(leaf->nrec <= hdr->node_info->split_nrec);
 
     return (0);
 } /* end H5B2__assert_leaf() */
@@ -1028,9 +993,6 @@ H5B2__assert_leaf(const H5B2_hdr_t H5_ATTR_NDEBUG_UNUSED *hdr, const H5B2_leaf_t
  *
  * Return:	Non-negative on success, negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Feb 19 2005
- *
  *-------------------------------------------------------------------------
  */
 H5_ATTR_PURE herr_t
@@ -1038,7 +1000,7 @@ H5B2__assert_leaf2(const H5B2_hdr_t H5_ATTR_NDEBUG_UNUSED *hdr, const H5B2_leaf_
                    const H5B2_leaf_t H5_ATTR_UNUSED *leaf2)
 {
     /* General sanity checking on node */
-    HDassert(leaf->nrec <= hdr->node_info->split_nrec);
+    assert(leaf->nrec <= hdr->node_info->split_nrec);
 
     return (0);
 } /* end H5B2__assert_leaf2() */

@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:   H5ACprivate.h
- *            Jul  9 1997
- *            Robb Matzke
  *
  * Purpose:   Constants and typedefs available to the rest of the
  *            library.
@@ -28,7 +25,7 @@
 
 #include "H5ACpublic.h" /*public prototypes            */
 
-/* Pivate headers needed by this header */
+/* Private headers needed by this header */
 #include "H5private.h"   /* Generic Functions            */
 #include "H5Cprivate.h"  /* Cache                */
 #include "H5Fprivate.h"  /* File access                */
@@ -79,11 +76,11 @@ typedef enum {
     H5AC_NTYPES               /* Number of types, must be last                    */
 } H5AC_type_t;
 
-/* H5AC_DUMP_STATS_ON_CLOSE should always be FALSE when
- * H5C_COLLECT_CACHE_STATS is FALSE.
+/* H5AC_DUMP_STATS_ON_CLOSE should always be false when
+ * H5C_COLLECT_CACHE_STATS is false.
  *
- * When H5C_COLLECT_CACHE_STATS is TRUE, H5AC_DUMP_STATS_ON_CLOSE must
- * be FALSE for "make check" to succeed, but may be set to TRUE at other
+ * When H5C_COLLECT_CACHE_STATS is true, H5AC_DUMP_STATS_ON_CLOSE must
+ * be false for "make check" to succeed, but may be set to true at other
  * times for debugging purposes.
  *
  * Hence the following, somewhat odd set of #defines.
@@ -125,7 +122,7 @@ typedef enum {
 #define H5AC__DEFAULT_MIN_CLEAN_SIZE H5C__DEFAULT_MIN_CLEAN_SIZE
 
 /* Check if we are sanity checking tagging */
-#if H5C_DO_TAGGING_SANITY_CHECKS
+#ifdef H5C_DO_TAGGING_SANITY_CHECKS
 #define H5AC_DO_TAGGING_SANITY_CHECKS 1
 #else
 #define H5AC_DO_TAGGING_SANITY_CHECKS 0
@@ -227,12 +224,12 @@ typedef struct H5AC_proxy_entry_t {
 #define H5AC__DEFAULT_CACHE_CONFIG                                            \
 {                                                                             \
   /* int         version                = */ H5AC__CURR_CACHE_CONFIG_VERSION, \
-  /* hbool_t     rpt_fcn_enabled        = */ FALSE,                           \
-  /* hbool_t     open_trace_file        = */ FALSE,                           \
-  /* hbool_t     close_trace_file       = */ FALSE,                           \
+  /* bool     rpt_fcn_enabled        = */ false,                           \
+  /* bool     open_trace_file        = */ false,                           \
+  /* bool     close_trace_file       = */ false,                           \
   /* char        trace_file_name[]      = */ "",                              \
-  /* hbool_t     evictions_enabled      = */ TRUE,                            \
-  /* hbool_t     set_initial_size       = */ TRUE,                            \
+  /* bool     evictions_enabled      = */ true,                            \
+  /* bool     set_initial_size       = */ true,                            \
   /* size_t      initial_size           = */ ( 2 * 1024 * 1024),              \
   /* double      min_clean_fraction     = */ 0.3,                            \
   /* size_t      max_size               = */ (32 * 1024 * 1024),              \
@@ -241,7 +238,7 @@ typedef struct H5AC_proxy_entry_t {
   /* enum H5C_cache_incr_mode incr_mode = */ H5C_incr__threshold,             \
   /* double      lower_hr_threshold     = */ 0.9,                            \
   /* double      increment              = */ 2.0,                            \
-  /* hbool_t     apply_max_increment    = */ TRUE,                            \
+  /* bool     apply_max_increment    = */ true,                            \
   /* size_t      max_increment          = */ (4 * 1024 * 1024),               \
   /* enum H5C_cache_flash_incr_mode       */                                  \
   /*                    flash_incr_mode = */ H5C_flash_incr__add_space,       \
@@ -250,10 +247,10 @@ typedef struct H5AC_proxy_entry_t {
   /* enum H5C_cache_decr_mode decr_mode = */ H5C_decr__age_out_with_threshold, \
   /* double      upper_hr_threshold     = */ 0.999,                          \
   /* double      decrement              = */ 0.9,                           \
-  /* hbool_t     apply_max_decrement    = */ TRUE,                            \
+  /* bool     apply_max_decrement    = */ true,                            \
   /* size_t      max_decrement          = */ (1 * 1024 * 1024),               \
   /* int         epochs_before_eviction = */ 3,                               \
-  /* hbool_t     apply_empty_reserve    = */ TRUE,                            \
+  /* bool     apply_empty_reserve    = */ true,                            \
   /* double      empty_reserve          = */ 0.1,                            \
   /* size_t      dirty_bytes_threshold  = */ (256 * 1024),                    \
   /* int         metadata_write_strategy = */                                  \
@@ -263,12 +260,12 @@ typedef struct H5AC_proxy_entry_t {
 #define H5AC__DEFAULT_CACHE_CONFIG                                            \
 {                                                                             \
   /* int         version                = */ H5C__CURR_AUTO_SIZE_CTL_VER,     \
-  /* hbool_t     rpt_fcn_enabled        = */ FALSE,                           \
-  /* hbool_t     open_trace_file        = */ FALSE,                           \
-  /* hbool_t     close_trace_file       = */ FALSE,                           \
+  /* bool     rpt_fcn_enabled        = */ false,                           \
+  /* bool     open_trace_file        = */ false,                           \
+  /* bool     close_trace_file       = */ false,                           \
   /* char        trace_file_name[]      = */ "",                              \
-  /* hbool_t     evictions_enabled      = */ TRUE,                            \
-  /* hbool_t     set_initial_size       = */ TRUE,                            \
+  /* bool     evictions_enabled      = */ true,                            \
+  /* bool     set_initial_size       = */ true,                            \
   /* size_t      initial_size           = */ ( 2 * 1024 * 1024),              \
   /* double      min_clean_fraction     = */ 0.01,                           \
   /* size_t      max_size               = */ (32 * 1024 * 1024),              \
@@ -277,7 +274,7 @@ typedef struct H5AC_proxy_entry_t {
   /* enum H5C_cache_incr_mode incr_mode = */ H5C_incr__threshold,             \
   /* double      lower_hr_threshold     = */ 0.9,                             \
   /* double      increment              = */ 2.0,                             \
-  /* hbool_t     apply_max_increment    = */ TRUE,                            \
+  /* bool     apply_max_increment    = */ true,                            \
   /* size_t      max_increment          = */ (4 * 1024 * 1024),               \
   /* enum H5C_cache_flash_incr_mode       */                                  \
   /*                    flash_incr_mode = */ H5C_flash_incr__add_space,       \
@@ -286,10 +283,10 @@ typedef struct H5AC_proxy_entry_t {
   /* enum H5C_cache_decr_mode decr_mode = */ H5C_decr__age_out_with_threshold,\
   /* double      upper_hr_threshold     = */ 0.999,                           \
   /* double      decrement              = */ 0.9,                             \
-  /* hbool_t     apply_max_decrement    = */ TRUE,                            \
+  /* bool     apply_max_decrement    = */ true,                            \
   /* size_t      max_decrement          = */ (1 * 1024 * 1024),               \
   /* int         epochs_before_eviction = */ 3,                               \
-  /* hbool_t     apply_empty_reserve    = */ TRUE,                            \
+  /* bool     apply_empty_reserve    = */ true,                            \
   /* double      empty_reserve          = */ 0.1,                             \
   /* size_t      dirty_bytes_threshold  = */ (256 * 1024),                    \
   /* int         metadata_write_strategy = */                                 \
@@ -300,8 +297,8 @@ typedef struct H5AC_proxy_entry_t {
 #define H5AC__DEFAULT_CACHE_IMAGE_CONFIG                                     \
 {                                                                            \
    /* int32_t version            = */ H5AC__CURR_CACHE_IMAGE_CONFIG_VERSION, \
-   /* hbool_t generate_image     = */ FALSE,                                 \
-   /* hbool_t save_resize_status = */ FALSE,                                 \
+   /* bool generate_image     = */ false,                                 \
+   /* bool save_resize_status = */ false,                                 \
    /* int32_t entry_ageout       = */ H5AC__CACHE_IMAGE__ENTRY_AGEOUT__NONE  \
 }
 /* clang-format on */
@@ -315,14 +312,12 @@ typedef struct H5AC_proxy_entry_t {
  */
 
 #define H5AC__NO_FLAGS_SET                H5C__NO_FLAGS_SET
-#define H5AC__SET_FLUSH_MARKER_FLAG       H5C__SET_FLUSH_MARKER_FLAG
 #define H5AC__DELETED_FLAG                H5C__DELETED_FLAG
 #define H5AC__DIRTIED_FLAG                H5C__DIRTIED_FLAG
 #define H5AC__PIN_ENTRY_FLAG              H5C__PIN_ENTRY_FLAG
 #define H5AC__UNPIN_ENTRY_FLAG            H5C__UNPIN_ENTRY_FLAG
 #define H5AC__FLUSH_INVALIDATE_FLAG       H5C__FLUSH_INVALIDATE_FLAG
 #define H5AC__FLUSH_CLEAR_ONLY_FLAG       H5C__FLUSH_CLEAR_ONLY_FLAG
-#define H5AC__FLUSH_MARKED_ENTRIES_FLAG   H5C__FLUSH_MARKED_ENTRIES_FLAG
 #define H5AC__FLUSH_IGNORE_PROTECTED_FLAG H5C__FLUSH_IGNORE_PROTECTED_FLAG
 #define H5AC__READ_ONLY_FLAG              H5C__READ_ONLY_FLAG
 #define H5AC__FREE_FILE_SPACE_FLAG        H5C__FREE_FILE_SPACE_FLAG
@@ -388,7 +383,7 @@ H5_DLL herr_t H5AC_prep_for_file_close(H5F_t *f);
 H5_DLL herr_t H5AC_prep_for_file_flush(H5F_t *f);
 H5_DLL herr_t H5AC_secure_from_file_flush(H5F_t *f);
 H5_DLL herr_t H5AC_create_flush_dependency(void *parent_thing, void *child_thing);
-H5_DLL void * H5AC_protect(H5F_t *f, const H5AC_class_t *type, haddr_t addr, void *udata, unsigned flags);
+H5_DLL void  *H5AC_protect(H5F_t *f, const H5AC_class_t *type, haddr_t addr, void *udata, unsigned flags);
 H5_DLL herr_t H5AC_resize_entry(void *thing, size_t new_size);
 H5_DLL herr_t H5AC_unpin_entry(void *thing);
 H5_DLL herr_t H5AC_destroy_flush_dependency(void *parent_thing, void *child_thing);
@@ -406,26 +401,26 @@ H5_DLL herr_t H5AC_remove_entry(void *entry);
 H5_DLL herr_t H5AC_get_cache_auto_resize_config(const H5AC_t *cache_ptr, H5AC_cache_config_t *config_ptr);
 H5_DLL herr_t H5AC_get_cache_size(const H5AC_t *cache_ptr, size_t *max_size_ptr, size_t *min_clean_size_ptr,
                                   size_t *cur_size_ptr, uint32_t *cur_num_entries_ptr);
-H5_DLL herr_t H5AC_get_cache_flush_in_progress(H5AC_t *cache_ptr, hbool_t *flush_in_progress_ptr);
+H5_DLL herr_t H5AC_get_cache_flush_in_progress(H5AC_t *cache_ptr, bool *flush_in_progress_ptr);
 H5_DLL herr_t H5AC_get_cache_hit_rate(const H5AC_t *cache_ptr, double *hit_rate_ptr);
 H5_DLL herr_t H5AC_reset_cache_hit_rate_stats(H5AC_t *cache_ptr);
 H5_DLL herr_t H5AC_set_cache_auto_resize_config(H5AC_t *cache_ptr, const H5AC_cache_config_t *config_ptr);
 H5_DLL herr_t H5AC_validate_config(const H5AC_cache_config_t *config_ptr);
 
 /* Cache image routines */
-H5_DLL herr_t  H5AC_load_cache_image_on_next_protect(H5F_t *f, haddr_t addr, hsize_t len, hbool_t rw);
-H5_DLL herr_t  H5AC_validate_cache_image_config(H5AC_cache_image_config_t *config_ptr);
-H5_DLL hbool_t H5AC_cache_image_pending(const H5F_t *f);
-H5_DLL herr_t  H5AC_force_cache_image_load(H5F_t *f);
-H5_DLL herr_t  H5AC_get_mdc_image_info(const H5AC_t *cache_ptr, haddr_t *image_addr, hsize_t *image_len);
+H5_DLL herr_t H5AC_load_cache_image_on_next_protect(H5F_t *f, haddr_t addr, hsize_t len, bool rw);
+H5_DLL herr_t H5AC_validate_cache_image_config(H5AC_cache_image_config_t *config_ptr);
+H5_DLL bool   H5AC_cache_image_pending(const H5F_t *f);
+H5_DLL herr_t H5AC_force_cache_image_load(H5F_t *f);
+H5_DLL herr_t H5AC_get_mdc_image_info(const H5AC_t *cache_ptr, haddr_t *image_addr, hsize_t *image_len);
 
 /* Tag & Ring routines */
 H5_DLL void   H5AC_tag(haddr_t metadata_tag, haddr_t *prev_tag);
 H5_DLL herr_t H5AC_flush_tagged_metadata(H5F_t *f, haddr_t metadata_tag);
-H5_DLL herr_t H5AC_evict_tagged_metadata(H5F_t *f, haddr_t metadata_tag, hbool_t match_global);
+H5_DLL herr_t H5AC_evict_tagged_metadata(H5F_t *f, haddr_t metadata_tag, bool match_global);
 H5_DLL herr_t H5AC_retag_copied_metadata(const H5F_t *f, haddr_t metadata_tag);
 H5_DLL herr_t H5AC_ignore_tags(const H5F_t *f);
-H5_DLL herr_t H5AC_cork(H5F_t *f, haddr_t obj_addr, unsigned action, hbool_t *corked);
+H5_DLL herr_t H5AC_cork(H5F_t *f, haddr_t obj_addr, unsigned action, bool *corked);
 H5_DLL herr_t H5AC_get_entry_ring(const H5F_t *f, haddr_t addr, H5AC_ring_t *ring);
 H5_DLL void   H5AC_set_ring(H5AC_ring_t ring, H5AC_ring_t *orig_ring);
 H5_DLL herr_t H5AC_unsettle_entry_ring(void *entry);
@@ -448,14 +443,14 @@ H5_DLL herr_t H5AC_add_candidate(H5AC_t *cache_ptr, haddr_t addr);
 /* Debugging functions */
 H5_DLL herr_t H5AC_stats(const H5F_t *f);
 #ifndef NDEBUG
-H5_DLL herr_t  H5AC_dump_cache(const H5F_t *f);
-H5_DLL herr_t  H5AC_get_entry_ptr_from_addr(const H5F_t *f, haddr_t addr, void **entry_ptr_ptr);
-H5_DLL herr_t  H5AC_flush_dependency_exists(H5F_t *f, haddr_t parent_addr, haddr_t child_addr,
-                                            hbool_t *fd_exists_ptr);
-H5_DLL herr_t  H5AC_verify_entry_type(const H5F_t *f, haddr_t addr, const H5AC_class_t *expected_type,
-                                      hbool_t *in_cache_ptr, hbool_t *type_ok_ptr);
-H5_DLL hbool_t H5AC_get_serialization_in_progress(H5F_t *f);
-H5_DLL hbool_t H5AC_cache_is_clean(const H5F_t *f, H5AC_ring_t inner_ring);
+H5_DLL herr_t H5AC_dump_cache(const H5F_t *f);
+H5_DLL herr_t H5AC_get_entry_ptr_from_addr(const H5F_t *f, haddr_t addr, void **entry_ptr_ptr);
+H5_DLL herr_t H5AC_flush_dependency_exists(H5F_t *f, haddr_t parent_addr, haddr_t child_addr,
+                                           bool *fd_exists_ptr);
+H5_DLL herr_t H5AC_verify_entry_type(const H5F_t *f, haddr_t addr, const H5AC_class_t *expected_type,
+                                     bool *in_cache_ptr, bool *type_ok_ptr);
+H5_DLL bool   H5AC_get_serialization_in_progress(H5F_t *f);
+H5_DLL bool   H5AC_cache_is_clean(const H5F_t *f, H5AC_ring_t inner_ring);
 #endif /* NDEBUG */ /* end debugging functions */
 
 #endif /* H5ACprivate_H */

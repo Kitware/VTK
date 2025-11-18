@@ -10,6 +10,7 @@
 #pragma GCC diagnostic ignored "-Wsign-conversion"                
 #pragma GCC diagnostic ignored "-Wstrict-overflow"                
 #pragma GCC diagnostic ignored "-Wstrict-prototypes"              
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"           
 #if !defined (__clang__)                                          
 #pragma GCC diagnostic ignored "-Wlarger-than="                   
 #pragma GCC diagnostic ignored "-Wsuggest-attribute=const"        
@@ -28,9 +29,14 @@
 #elif defined _MSC_VER                                            
 #pragma warning(push, 1)                                          
 #endif                                                            
-#line 1 "hl/src/H5LTanalyze.c"
+#line 1 "hl/src//H5LTanalyze.c"
+/* Quiet warnings about integer type macro redefinitions on Visual Studio
+ * (MSVC doesn't define STDC_VERSION, but has inttypes.h). This is an
+ * issue that is apparently fixed in flex 2.6.5.
+ */
+#include <stdint.h>
 
-#line 3 "hl/src/H5LTanalyze.c"
+#line 8 "hl/src//H5LTanalyze.c"
 
 /* XXX(kitware): Mangle all HDF5 HL symbols */
 #include "vtk_hdf5_hl_mangle.h"
@@ -647,8 +653,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 64
-#define YY_END_OF_BUFFER 65
+#define YY_NUM_RULES 67
+#define YY_END_OF_BUFFER 68
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -656,38 +662,39 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[275] =
+static const flex_int16_t yy_accept[283] =
     {   0,
-       63,   63,   65,   64,   63,   64,   55,   61,   62,   64,
-       64,   64,   64,   59,   60,   57,   58,   63,    0,   55,
-        0,    0,    0,    0,    0,   56,    0,    0,    0,    0,
-        0,   38,    0,    0,    0,    0,    0,   39,    0,    0,
+       66,   66,   68,   67,   66,   67,   58,   64,   65,   67,
+       67,   67,   67,   62,   63,   60,   61,   66,    0,   58,
+        0,    0,    0,    0,    0,   59,    0,    0,    0,    0,
+        0,   41,    0,    0,    0,    0,    0,   42,    0,    0,
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-        0,    0,    0,    0,    0,   37,    0,    0,    0,    0,
+        0,    0,    0,    0,    0,   40,    0,    0,    0,    0,
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-        0,   54,   36,    0,    0,    0,   45,   49,    0,    0,
-        0,    0,    0,    0,    0,    0,   51,   53,   50,    0,
+        0,   57,   39,    0,    0,    0,   48,   52,    0,    0,
+        0,    0,    0,    0,    0,    0,   54,   56,   53,    0,
 
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-        0,    0,    0,    0,    0,    0,    0,   52,    0,    0,
-        0,    0,    0,    0,    0,    0,   35,    0,    0,    0,
+        0,    0,    0,    0,    0,    0,    0,   55,    0,    0,
+        0,    0,    0,    0,    0,    0,   38,    0,    0,    0,
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-       48,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-        0,    0,    0,    0,    0,    0,    0,    0,    0,    1,
-        2,    0,    0,    0,    0,    0,    0,    9,   10,    0,
-        0,   47,    0,   44,    0,    0,    0,    0,    0,    0,
+        0,   51,    0,    0,    0,    0,    0,    0,    0,    0,
+        0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
+        0,    1,    2,    0,    0,    0,    0,    0,    0,    9,
+       10,    0,    0,   50,    0,   47,    0,    0,    0,    0,
         0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
 
-        0,    0,    3,    4,    5,    6,    7,    8,   11,   12,
-       13,   14,   15,   16,    0,    0,    0,   43,   46,   28,
-       29,   30,   31,    0,    0,    0,   22,    0,    0,    0,
-        0,    0,    0,    0,    0,    0,    0,    0,    0,    0,
-       17,    0,    0,    0,    0,   24,    0,    0,    0,   23,
-        0,    0,    0,   41,    0,    0,    0,   32,    0,   26,
-       18,   20,   19,    0,   25,    0,   40,   42,   33,    0,
-       27,   21,   34,    0
+        0,    0,    0,    0,    0,    0,    3,    4,    5,    6,
+        7,    8,   11,   12,   13,   14,   15,   16,    0,    0,
+        0,   46,   49,   28,   29,   30,   31,   32,   33,    0,
+        0,    0,   22,    0,    0,    0,    0,    0,    0,    0,
+        0,    0,    0,    0,    0,    0,   17,    0,    0,    0,
+        0,   24,    0,    0,    0,   23,    0,    0,    0,   44,
+        0,    0,    0,   35,    0,   26,   18,   20,   19,    0,
+       25,    0,   43,   45,   36,    0,    0,   27,   21,   34,
+       37,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -730,75 +737,77 @@ static const YY_CHAR yy_meta[41] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1
     } ;
 
-static const flex_int16_t yy_base[277] =
+static const flex_int16_t yy_base[285] =
     {   0,
-        0,    0,  299,  300,  296,    0,    0,  300,  300,   11,
-      288,  269,  264,  300,  300,  300,  300,  292,  290,    0,
-      274,  257,  259,  261,  259,  300,  256,  259,  247,  246,
-       16,  300,  265,   33,   14,  268,  259,  300,  251,   24,
-      254,  252,  259,  262,  248,  243,   34,  251,  258,  254,
-      235,  240,  244,  249,  236,  233,  235,  245,  231,  247,
-       36,  231,  241,  223,  237,  300,  238,  241,  227,  222,
-      247,  227,  219,  231,  226,  219,  208,   34,  223,  219,
-      225,  300,  300,  208,  215,  202,  300,  300,  210,  200,
-      204,  204,   38,  210,   39,  220,  300,  300,  300,  201,
+        0,    0,  307,  308,  304,    0,    0,  308,  308,   11,
+      296,  277,  272,  308,  308,  308,  308,  300,  298,    0,
+      282,  265,  267,  269,  267,  308,  264,  267,  255,  254,
+       16,  308,  273,   33,   14,  276,  267,  308,  259,   24,
+      262,  260,  267,  270,  256,  251,   34,  259,  266,  262,
+      243,  248,  252,  257,  244,  241,  243,  253,  239,  255,
+       36,  239,  249,  231,  245,  308,  246,  249,  235,  230,
+      255,  235,  227,  239,  234,  227,  216,   34,  231,  227,
+      233,  308,  308,  216,  223,  210,  308,  308,  218,  208,
+      212,  212,   38,  218,   39,  228,  308,  308,  308,  209,
 
-       47,  218,  212,  212,  211,   66,   73,  208,  195,  199,
-      210,  199,  193,  191,  196,   75,  182,  300,  209,  212,
-      209,   52,  206,  209,  206,   66,  300,  190,  198,  188,
-      193,  193,  189,  169,  200,  197,   74,   71,   72,   77,
-      186,  185,   84,   86,   87,  184,  183,  177,  183,  180,
-      300,  175,  185,  165,   88,   90,  173,  167,  169,  166,
-       91,   99,   96,  172,  171,  170,  169,  168,  167,  300,
-      300,  166,  165,  164,  163,  162,  161,  300,  300,   94,
-      160,  300,  155,  300,  171,  157,  156,  155,  154,  157,
-      138,  143,  137,  141,  140,  140,  143,  137,  141,  136,
+       47,  226,  220,  220,  219,   66,   73,  216,  203,  207,
+      218,  207,  201,  199,  204,   80,  190,  308,  217,  220,
+      217,   52,  214,  217,  214,   59,  308,  198,  206,  196,
+      201,  201,  197,  177,  204,  207,  204,   75,   66,   73,
+       78,  193,  192,   80,   85,   87,  191,  190,  184,  190,
+      187,  308,  182,  192,  172,   89,   91,   94,  180,  174,
+      176,  173,   96,   95,  102,  179,  178,  177,  176,  175,
+      174,  308,  308,  173,  172,  171,  170,  169,  168,  308,
+      308,   96,  167,  308,  162,  308,  178,  164,  163,  162,
+      161,  160,  159,  162,  143,  148,  142,  146,  145,  145,
 
-      101,  139,  300,  300,  300,  300,  300,  300,  300,  300,
-      300,  300,  300,  300,  145,  140,  130,  300,  300,  300,
-      300,  300,  300,  127,  140,  140,  300,  121,  127,  131,
-      136,  120,  134,  116,  120,  120,  118,  126,  113,  127,
-      300,  117,  108,  123,  117,  300,  107,  104,  105,  300,
-      108,  112,  102,  300,  105,  106,  104,  300,   93,  300,
-      300,  300,  300,   78,  300,   57,  300,  300,  300,   56,
-      300,  300,  300,  300,  127,   65
+      148,  142,  146,  141,  103,  144,  308,  308,  308,  308,
+      308,  308,  308,  308,  308,  308,  308,  308,  150,  145,
+      135,  308,  308,  308,  308,  308,  308,  308,  308,  132,
+      145,  145,  308,  126,  132,  136,  141,  125,  139,  121,
+      125,  125,  123,  131,  118,  132,  308,  122,  113,  128,
+      122,  308,  112,  109,  110,  308,  113,  117,  107,  308,
+      110,  114,  112,  123,   98,  308,  308,  308,  308,  100,
+      308,   84,  308,  308,  308,   89,   68,  308,  308,  308,
+      308,  308,  132,   65
     } ;
 
-static const flex_int16_t yy_def[277] =
+static const flex_int16_t yy_def[285] =
     {   0,
-      274,    1,  274,  274,  274,  275,  276,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  275,  276,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
+      282,    1,  282,  282,  282,  283,  284,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  283,  284,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
 
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
 
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,    0,  274,  274
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,    0,  282,  282
     } ;
 
-static const flex_int16_t yy_nxt[341] =
+static const flex_int16_t yy_nxt[349] =
     {   0,
         4,    5,    6,    7,    7,    7,    7,    7,    7,    7,
         7,    8,    9,    4,    4,   10,    4,    4,    4,    4,
@@ -806,40 +815,41 @@ static const flex_int16_t yy_nxt[341] =
         4,    4,    4,    4,    4,   14,   15,    4,   16,   17,
        21,   22,   36,   48,   49,   37,   39,   62,   40,   53,
        41,   42,   77,   54,   43,   94,   63,   44,   45,  106,
-      113,   55,   46,  109,   78,   47,  141,   20,  110,  107,
-      119,   95,  120,  273,  142,  121,  122,  123,  114,  124,
-      146,  135,  125,  126,  136,  164,  166,  272,  147,  157,
-      158,  168,  159,  165,  167,  160,  161,  271,  172,  169,
+      113,   55,   46,  109,   78,   47,  142,   20,  110,  107,
+      119,   95,  120,  147,  143,  121,  122,  123,  114,  124,
+      166,  148,  125,  126,  135,  281,  136,  168,  167,  137,
+      159,  160,  170,  161,  174,  169,  162,  163,  280,  176,
 
-      174,  176,  186,  162,  188,  163,  173,  194,  175,  177,
-      187,  199,  189,  195,  197,  270,  196,  200,  201,  198,
-      215,  269,  268,  235,  216,  202,  236,   19,  267,   19,
-      266,  265,  264,  263,  262,  261,  260,  259,  258,  257,
-      256,  255,  254,  253,  252,  251,  250,  249,  248,  247,
-      246,  245,  244,  243,  242,  241,  240,  239,  238,  237,
-      234,  233,  232,  231,  230,  229,  228,  227,  226,  225,
-      224,  223,  222,  221,  220,  219,  218,  217,  214,  213,
-      212,  211,  210,  209,  208,  207,  206,  205,  204,  203,
-      193,  192,  191,  190,  185,  184,  183,  182,  181,  180,
+      171,  178,  175,  188,  164,  190,  165,  177,  192,  179,
+      201,  189,  198,  191,  279,  202,  193,  203,  199,  278,
+      277,  200,  219,  204,  205,  241,  220,  276,  242,  275,
+      274,  206,   19,  273,   19,  272,  271,  270,  269,  268,
+      267,  266,  265,  264,  263,  262,  261,  260,  259,  258,
+      257,  256,  255,  254,  253,  252,  251,  250,  249,  248,
+      247,  246,  245,  244,  243,  240,  239,  238,  237,  236,
+      235,  234,  233,  232,  231,  230,  229,  228,  227,  226,
+      225,  224,  223,  222,  221,  218,  217,  216,  215,  214,
+      213,  212,  211,  210,  209,  208,  207,  197,  196,  195,
 
-      179,  178,  171,  170,  156,  155,  154,  153,  152,  151,
-      150,  149,  148,  145,  144,  143,  140,  139,  138,  137,
-      134,  133,  132,  131,  130,  129,  128,  127,  118,  117,
-      116,  115,  112,  111,  108,  105,  104,  103,  102,  101,
-      100,   99,   98,   97,   96,   93,   92,   91,   90,   89,
-       88,   87,   86,   85,   84,   83,   82,   81,   80,   79,
-       76,   75,   74,   73,   72,   71,   70,   69,   68,   67,
-       66,   65,   64,   61,   60,   59,   58,   57,   56,   52,
-       51,   50,   38,   35,   34,   33,   32,   31,   30,   29,
-       28,   27,   26,   18,   25,   24,   23,   18,  274,    3,
+      194,  187,  186,  185,  184,  183,  182,  181,  180,  173,
+      172,  158,  157,  156,  155,  154,  153,  152,  151,  150,
+      149,  146,  145,  144,  141,  140,  139,  138,  134,  133,
+      132,  131,  130,  129,  128,  127,  118,  117,  116,  115,
+      112,  111,  108,  105,  104,  103,  102,  101,  100,   99,
+       98,   97,   96,   93,   92,   91,   90,   89,   88,   87,
+       86,   85,   84,   83,   82,   81,   80,   79,   76,   75,
+       74,   73,   72,   71,   70,   69,   68,   67,   66,   65,
+       64,   61,   60,   59,   58,   57,   56,   52,   51,   50,
+       38,   35,   34,   33,   32,   31,   30,   29,   28,   27,
 
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274
+       26,   18,   25,   24,   23,   18,  282,    3,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282
     } ;
 
-static const flex_int16_t yy_chk[341] =
+static const flex_int16_t yy_chk[349] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -847,37 +857,38 @@ static const flex_int16_t yy_chk[341] =
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
        10,   10,   31,   35,   35,   31,   34,   47,   34,   40,
        34,   34,   61,   40,   34,   78,   47,   34,   34,   93,
-      101,   40,   34,   95,   61,   34,  122,  276,   95,   93,
-      106,   78,  106,  270,  122,  106,  106,  107,  101,  107,
-      126,  116,  107,  107,  116,  138,  139,  266,  126,  137,
-      137,  140,  137,  138,  139,  137,  137,  264,  143,  140,
+      101,   40,   34,   95,   61,   34,  122,  284,   95,   93,
+      106,   78,  106,  126,  122,  106,  106,  107,  101,  107,
+      139,  126,  107,  107,  116,  277,  116,  140,  139,  116,
+      138,  138,  141,  138,  144,  140,  138,  138,  276,  145,
 
-      144,  145,  155,  137,  156,  137,  143,  161,  144,  145,
-      155,  163,  156,  161,  162,  259,  161,  163,  163,  162,
-      180,  257,  256,  201,  180,  163,  201,  275,  255,  275,
-      253,  252,  251,  249,  248,  247,  245,  244,  243,  242,
-      240,  239,  238,  237,  236,  235,  234,  233,  232,  231,
-      230,  229,  228,  226,  225,  224,  217,  216,  215,  202,
-      200,  199,  198,  197,  196,  195,  194,  193,  192,  191,
-      190,  189,  188,  187,  186,  185,  183,  181,  177,  176,
-      175,  174,  173,  172,  169,  168,  167,  166,  165,  164,
-      160,  159,  158,  157,  154,  153,  152,  150,  149,  148,
+      141,  146,  144,  156,  138,  157,  138,  145,  158,  146,
+      164,  156,  163,  157,  272,  164,  158,  165,  163,  270,
+      265,  163,  182,  165,  165,  205,  182,  264,  205,  263,
+      262,  165,  283,  261,  283,  259,  258,  257,  255,  254,
+      253,  251,  250,  249,  248,  246,  245,  244,  243,  242,
+      241,  240,  239,  238,  237,  236,  235,  234,  232,  231,
+      230,  221,  220,  219,  206,  204,  203,  202,  201,  200,
+      199,  198,  197,  196,  195,  194,  193,  192,  191,  190,
+      189,  188,  187,  185,  183,  179,  178,  177,  176,  175,
+      174,  171,  170,  169,  168,  167,  166,  162,  161,  160,
 
-      147,  146,  142,  141,  136,  135,  134,  133,  132,  131,
-      130,  129,  128,  125,  124,  123,  121,  120,  119,  117,
-      115,  114,  113,  112,  111,  110,  109,  108,  105,  104,
-      103,  102,  100,   96,   94,   92,   91,   90,   89,   86,
-       85,   84,   81,   80,   79,   77,   76,   75,   74,   73,
-       72,   71,   70,   69,   68,   67,   65,   64,   63,   62,
-       60,   59,   58,   57,   56,   55,   54,   53,   52,   51,
-       50,   49,   48,   46,   45,   44,   43,   42,   41,   39,
-       37,   36,   33,   30,   29,   28,   27,   25,   24,   23,
-       22,   21,   19,   18,   13,   12,   11,    5,    3,  274,
+      159,  155,  154,  153,  151,  150,  149,  148,  147,  143,
+      142,  137,  136,  135,  134,  133,  132,  131,  130,  129,
+      128,  125,  124,  123,  121,  120,  119,  117,  115,  114,
+      113,  112,  111,  110,  109,  108,  105,  104,  103,  102,
+      100,   96,   94,   92,   91,   90,   89,   86,   85,   84,
+       81,   80,   79,   77,   76,   75,   74,   73,   72,   71,
+       70,   69,   68,   67,   65,   64,   63,   62,   60,   59,
+       58,   57,   56,   55,   54,   53,   52,   51,   50,   49,
+       48,   46,   45,   44,   43,   42,   41,   39,   37,   36,
+       33,   30,   29,   28,   27,   25,   24,   23,   22,   21,
 
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274,
-      274,  274,  274,  274,  274,  274,  274,  274,  274,  274
+       19,   18,   13,   12,   11,    5,    3,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282,  282,  282,
+      282,  282,  282,  282,  282,  282,  282,  282
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -894,10 +905,9 @@ int yy_flex_debug = 0;
 #define YY_MORE_ADJ 0
 #define YY_RESTORE_YY_MORE_OFFSET
 char *yytext;
-#line 1 "hl/src/H5LTanalyze.l"
+#line 1 "hl/src//H5LTanalyze.l"
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -912,7 +922,8 @@ char *yytext;
  * If you make any changes to H5LTanalyze.l, please run bin/genparser to
  * recreate the output files.
  */
-#line 21 "hl/src/H5LTanalyze.l"
+
+#line 28 "hl/src//H5LTanalyze.l"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -936,8 +947,8 @@ static int my_yyinput(char *, int);
 extern char *myinput;
 extern size_t input_len;
 
-#line 903 "hl/src/H5LTanalyze.c"
-#line 904 "hl/src/H5LTanalyze.c"
+#line 913 "hl/src//H5LTanalyze.c"
+#line 914 "hl/src//H5LTanalyze.c"
 
 #define INITIAL 0
 
@@ -1146,10 +1157,10 @@ YY_DECL
 		}
 
 	{
-#line 46 "hl/src/H5LTanalyze.l"
+#line 53 "hl/src//H5LTanalyze.l"
 
 
-#line 1116 "hl/src/H5LTanalyze.c"
+#line 1126 "hl/src//H5LTanalyze.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1176,13 +1187,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 275 )
+				if ( yy_current_state >= 283 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 300 );
+		while ( yy_base[yy_current_state] != 308 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -1208,333 +1219,348 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 48 "hl/src/H5LTanalyze.l"
+#line 55 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_I8BE_TOKEN);}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 49 "hl/src/H5LTanalyze.l"
+#line 56 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_I8LE_TOKEN);}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 50 "hl/src/H5LTanalyze.l"
+#line 57 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_I16BE_TOKEN);}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 51 "hl/src/H5LTanalyze.l"
+#line 58 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_I16LE_TOKEN);}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 52 "hl/src/H5LTanalyze.l"
+#line 59 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_I32BE_TOKEN);}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 53 "hl/src/H5LTanalyze.l"
+#line 60 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_I32LE_TOKEN);}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 54 "hl/src/H5LTanalyze.l"
+#line 61 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_I64BE_TOKEN);}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 55 "hl/src/H5LTanalyze.l"
+#line 62 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_I64LE_TOKEN);}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 57 "hl/src/H5LTanalyze.l"
+#line 64 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_U8BE_TOKEN);}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 58 "hl/src/H5LTanalyze.l"
+#line 65 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_U8LE_TOKEN);}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 59 "hl/src/H5LTanalyze.l"
+#line 66 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_U16BE_TOKEN);}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 60 "hl/src/H5LTanalyze.l"
+#line 67 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_U16LE_TOKEN);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 61 "hl/src/H5LTanalyze.l"
+#line 68 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_U32BE_TOKEN);}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 62 "hl/src/H5LTanalyze.l"
+#line 69 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_U32LE_TOKEN);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 63 "hl/src/H5LTanalyze.l"
+#line 70 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_U64BE_TOKEN);}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 64 "hl/src/H5LTanalyze.l"
+#line 71 "hl/src//H5LTanalyze.l"
 {return hid(H5T_STD_U64LE_TOKEN);}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 66 "hl/src/H5LTanalyze.l"
+#line 73 "hl/src//H5LTanalyze.l"
 {return hid(H5T_NATIVE_CHAR_TOKEN);}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 67 "hl/src/H5LTanalyze.l"
+#line 74 "hl/src//H5LTanalyze.l"
 {return hid(H5T_NATIVE_SCHAR_TOKEN);}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 68 "hl/src/H5LTanalyze.l"
+#line 75 "hl/src//H5LTanalyze.l"
 {return hid(H5T_NATIVE_UCHAR_TOKEN);}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 69 "hl/src/H5LTanalyze.l"
+#line 76 "hl/src//H5LTanalyze.l"
 {return hid(H5T_NATIVE_SHORT_TOKEN);}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 70 "hl/src/H5LTanalyze.l"
+#line 77 "hl/src//H5LTanalyze.l"
 {return hid(H5T_NATIVE_USHORT_TOKEN);}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 71 "hl/src/H5LTanalyze.l"
+#line 78 "hl/src//H5LTanalyze.l"
 {return hid(H5T_NATIVE_INT_TOKEN);}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 72 "hl/src/H5LTanalyze.l"
+#line 79 "hl/src//H5LTanalyze.l"
 {return hid(H5T_NATIVE_UINT_TOKEN);}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 73 "hl/src/H5LTanalyze.l"
+#line 80 "hl/src//H5LTanalyze.l"
 {return hid(H5T_NATIVE_LONG_TOKEN);}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 74 "hl/src/H5LTanalyze.l"
+#line 81 "hl/src//H5LTanalyze.l"
 {return hid(H5T_NATIVE_ULONG_TOKEN);}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 75 "hl/src/H5LTanalyze.l"
+#line 82 "hl/src//H5LTanalyze.l"
 {return hid(H5T_NATIVE_LLONG_TOKEN);}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 76 "hl/src/H5LTanalyze.l"
+#line 83 "hl/src//H5LTanalyze.l"
 {return hid(H5T_NATIVE_ULLONG_TOKEN);}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 78 "hl/src/H5LTanalyze.l"
-{return hid(H5T_IEEE_F32BE_TOKEN);}
+#line 85 "hl/src//H5LTanalyze.l"
+{return hid(H5T_IEEE_F16BE_TOKEN);}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 79 "hl/src/H5LTanalyze.l"
-{return hid(H5T_IEEE_F32LE_TOKEN);}
+#line 86 "hl/src//H5LTanalyze.l"
+{return hid(H5T_IEEE_F16LE_TOKEN);}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 80 "hl/src/H5LTanalyze.l"
-{return hid(H5T_IEEE_F64BE_TOKEN);}
+#line 87 "hl/src//H5LTanalyze.l"
+{return hid(H5T_IEEE_F32BE_TOKEN);}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 81 "hl/src/H5LTanalyze.l"
-{return hid(H5T_IEEE_F64LE_TOKEN);}
+#line 88 "hl/src//H5LTanalyze.l"
+{return hid(H5T_IEEE_F32LE_TOKEN);}
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 82 "hl/src/H5LTanalyze.l"
-{return hid(H5T_NATIVE_FLOAT_TOKEN);}
+#line 89 "hl/src//H5LTanalyze.l"
+{return hid(H5T_IEEE_F64BE_TOKEN);}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 83 "hl/src/H5LTanalyze.l"
-{return hid(H5T_NATIVE_DOUBLE_TOKEN);}
+#line 90 "hl/src//H5LTanalyze.l"
+{return hid(H5T_IEEE_F64LE_TOKEN);}
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 84 "hl/src/H5LTanalyze.l"
-{return hid(H5T_NATIVE_LDOUBLE_TOKEN);}
+#line 91 "hl/src//H5LTanalyze.l"
+{return hid(H5T_NATIVE_FLOAT16_TOKEN);}
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 86 "hl/src/H5LTanalyze.l"
-{return token(H5T_STRING_TOKEN);}
+#line 92 "hl/src//H5LTanalyze.l"
+{return hid(H5T_NATIVE_FLOAT_TOKEN);}
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 87 "hl/src/H5LTanalyze.l"
-{return token(STRSIZE_TOKEN);}
+#line 93 "hl/src//H5LTanalyze.l"
+{return hid(H5T_NATIVE_DOUBLE_TOKEN);}
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 88 "hl/src/H5LTanalyze.l"
-{return token(STRPAD_TOKEN);}
+#line 94 "hl/src//H5LTanalyze.l"
+{return hid(H5T_NATIVE_LDOUBLE_TOKEN);}
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 89 "hl/src/H5LTanalyze.l"
-{return token(CSET_TOKEN);}
+#line 96 "hl/src//H5LTanalyze.l"
+{return token(H5T_STRING_TOKEN);}
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 90 "hl/src/H5LTanalyze.l"
-{return token(CTYPE_TOKEN);}
+#line 97 "hl/src//H5LTanalyze.l"
+{return token(STRSIZE_TOKEN);}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 91 "hl/src/H5LTanalyze.l"
-{return token(H5T_STR_NULLTERM_TOKEN);}
+#line 98 "hl/src//H5LTanalyze.l"
+{return token(STRPAD_TOKEN);}
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 92 "hl/src/H5LTanalyze.l"
-{return token(H5T_STR_NULLPAD_TOKEN);}
+#line 99 "hl/src//H5LTanalyze.l"
+{return token(CSET_TOKEN);}
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 93 "hl/src/H5LTanalyze.l"
-{return token(H5T_STR_SPACEPAD_TOKEN);}
+#line 100 "hl/src//H5LTanalyze.l"
+{return token(CTYPE_TOKEN);}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 94 "hl/src/H5LTanalyze.l"
-{return token(H5T_CSET_ASCII_TOKEN);}
+#line 101 "hl/src//H5LTanalyze.l"
+{return token(H5T_STR_NULLTERM_TOKEN);}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 95 "hl/src/H5LTanalyze.l"
-{return token(H5T_CSET_UTF8_TOKEN);}
+#line 102 "hl/src//H5LTanalyze.l"
+{return token(H5T_STR_NULLPAD_TOKEN);}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 96 "hl/src/H5LTanalyze.l"
-{return token(H5T_C_S1_TOKEN);}
+#line 103 "hl/src//H5LTanalyze.l"
+{return token(H5T_STR_SPACEPAD_TOKEN);}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 97 "hl/src/H5LTanalyze.l"
-{return token(H5T_FORTRAN_S1_TOKEN);}
+#line 104 "hl/src//H5LTanalyze.l"
+{return token(H5T_CSET_ASCII_TOKEN);}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 98 "hl/src/H5LTanalyze.l"
-{return token(H5T_VARIABLE_TOKEN);}
+#line 105 "hl/src//H5LTanalyze.l"
+{return token(H5T_CSET_UTF8_TOKEN);}
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 100 "hl/src/H5LTanalyze.l"
-{return token(H5T_COMPOUND_TOKEN);}
+#line 106 "hl/src//H5LTanalyze.l"
+{return token(H5T_C_S1_TOKEN);}
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 101 "hl/src/H5LTanalyze.l"
-{return token(H5T_ENUM_TOKEN);}
+#line 107 "hl/src//H5LTanalyze.l"
+{return token(H5T_FORTRAN_S1_TOKEN);}
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 102 "hl/src/H5LTanalyze.l"
-{return token(H5T_ARRAY_TOKEN);}
+#line 108 "hl/src//H5LTanalyze.l"
+{return token(H5T_VARIABLE_TOKEN);}
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 103 "hl/src/H5LTanalyze.l"
-{return token(H5T_VLEN_TOKEN);}
+#line 110 "hl/src//H5LTanalyze.l"
+{return token(H5T_COMPOUND_TOKEN);}
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 105 "hl/src/H5LTanalyze.l"
-{return token(H5T_OPAQUE_TOKEN);}
+#line 111 "hl/src//H5LTanalyze.l"
+{return token(H5T_ENUM_TOKEN);}
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 106 "hl/src/H5LTanalyze.l"
-{return token(OPQ_SIZE_TOKEN);}
+#line 112 "hl/src//H5LTanalyze.l"
+{return token(H5T_ARRAY_TOKEN);}
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 107 "hl/src/H5LTanalyze.l"
-{return token(OPQ_TAG_TOKEN);}
+#line 113 "hl/src//H5LTanalyze.l"
+{return token(H5T_VLEN_TOKEN);}
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 109 "hl/src/H5LTanalyze.l"
+#line 115 "hl/src//H5LTanalyze.l"
+{return token(H5T_OPAQUE_TOKEN);}
+	YY_BREAK
+case 56:
+YY_RULE_SETUP
+#line 116 "hl/src//H5LTanalyze.l"
+{return token(OPQ_SIZE_TOKEN);}
+	YY_BREAK
+case 57:
+YY_RULE_SETUP
+#line 117 "hl/src//H5LTanalyze.l"
+{return token(OPQ_TAG_TOKEN);}
+	YY_BREAK
+case 58:
+YY_RULE_SETUP
+#line 119 "hl/src//H5LTanalyze.l"
 {
-                        H5LTyylval.ival = HDatoi(yytext);
+                        H5LTyylval.ival = atoi(yytext);
                         return NUMBER;
                  }
 	YY_BREAK
-case 56:
-/* rule 56 can match eol */
+case 59:
+/* rule 59 can match eol */
 YY_RULE_SETUP
-#line 114 "hl/src/H5LTanalyze.l"
+#line 124 "hl/src//H5LTanalyze.l"
 {
                     H5LTyylval.sval = trim_quotes(yytext);
                     return STRING;
                  }
 	YY_BREAK
-case 57:
-YY_RULE_SETUP
-#line 119 "hl/src/H5LTanalyze.l"
-{return token('{');}
-	YY_BREAK
-case 58:
-YY_RULE_SETUP
-#line 120 "hl/src/H5LTanalyze.l"
-{return token('}');}
-	YY_BREAK
-case 59:
-YY_RULE_SETUP
-#line 121 "hl/src/H5LTanalyze.l"
-{return token('[');}
-	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 122 "hl/src/H5LTanalyze.l"
-{return token(']');}
+#line 129 "hl/src//H5LTanalyze.l"
+{return token('{');}
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 123 "hl/src/H5LTanalyze.l"
-{return token(':');}
+#line 130 "hl/src//H5LTanalyze.l"
+{return token('}');}
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 124 "hl/src/H5LTanalyze.l"
-{return token(';');}
+#line 131 "hl/src//H5LTanalyze.l"
+{return token('[');}
 	YY_BREAK
 case 63:
-/* rule 63 can match eol */
 YY_RULE_SETUP
-#line 125 "hl/src/H5LTanalyze.l"
-;
+#line 132 "hl/src//H5LTanalyze.l"
+{return token(']');}
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 127 "hl/src/H5LTanalyze.l"
+#line 133 "hl/src//H5LTanalyze.l"
+{return token(':');}
+	YY_BREAK
+case 65:
+YY_RULE_SETUP
+#line 134 "hl/src//H5LTanalyze.l"
+{return token(';');}
+	YY_BREAK
+case 66:
+/* rule 66 can match eol */
+YY_RULE_SETUP
+#line 135 "hl/src//H5LTanalyze.l"
+;
+	YY_BREAK
+case 67:
+YY_RULE_SETUP
+#line 137 "hl/src//H5LTanalyze.l"
 ECHO;
 	YY_BREAK
-#line 1501 "hl/src/H5LTanalyze.c"
+#line 1526 "hl/src//H5LTanalyze.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1831,7 +1857,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 275 )
+			if ( yy_current_state >= 283 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1859,11 +1885,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 275 )
+		if ( yy_current_state >= 283 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 274);
+	yy_is_jam = (yy_current_state == 282);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -2539,7 +2565,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 127 "hl/src/H5LTanalyze.l"
+#line 137 "hl/src//H5LTanalyze.l"
 
 
 /* Allocate a copy of `quoted` with the double quote character at
@@ -2549,12 +2575,12 @@ void yyfree (void * ptr )
 static char *
 trim_quotes(const char *quoted)
 {
-    size_t len = HDstrlen(quoted);
+    size_t len = strlen(quoted);
     char *trimmed;
 
-    HDassert(quoted[0] == '"' && quoted[len - 1] == '"');
+    assert(quoted[0] == '"' && quoted[len - 1] == '"');
 
-    trimmed = HDstrdup(quoted + 1);
+    trimmed = strdup(quoted + 1);
     trimmed[len - 2] = '\0';
 
     return trimmed;
@@ -2564,19 +2590,19 @@ static int my_yyinput(char *buf, int max_size)
 {
    int ret;
 
-   HDmemcpy(buf, myinput, input_len);
+   memcpy(buf, myinput, input_len);
    ret = (int)input_len;
    return ret;
 }
 
 int H5LTyyerror(const char *msg)
 {
-   HDprintf("ERROR: %s before \"%s\".\n", msg, yytext);
+   printf("ERROR: %s before \"%s\".\n", msg, yytext);
    return 0;
 }
 
 int yywrap()
 {
-    return(1);
+    return 1;
 }
 
