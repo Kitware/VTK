@@ -103,6 +103,18 @@ vtk_add_test_cxx(vtkRenderingLICOpenGL2CxxTests tests
     TestSurfaceLICCurvedDefaultsColor,TestSurfaceLIC.cxx
   )
 vtk_add_test_cxx(vtkRenderingLICOpenGL2CxxTests tests
+    --step-size=0.4
+    --num-steps=40
+    --camera-config=1
+    --data=Data/disk_out_ref_surface.vtp
+    --vectors=V
+    --color-by-mag=1
+    --interpolate-scalars-before-mapping=1
+    --num-discrete-colors=10
+    --lic-intensity=0.3
+    TestSurfaceLICCurvedDefaultsColorInterpolateScalarsBeforeMapping,TestSurfaceLIC.cxx
+  )
+vtk_add_test_cxx(vtkRenderingLICOpenGL2CxxTests tests
     --camera-config=1
     --data=Data/disk_out_ref_surface.vtp
     --vectors=V

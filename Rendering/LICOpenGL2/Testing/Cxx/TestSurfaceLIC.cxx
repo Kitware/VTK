@@ -53,6 +53,8 @@ int TestSurfaceLIC(int argc, char* argv[])
   int mask_on_surface = 0;
   double mask_threshold = 0.0;
   double mask_intensity = 0.0;
+  int interpolate_scalars_before_mapping = 0;
+  int num_discrete_colors = 256;
   std::vector<double> mask_color_rgb;
   std::string vectors;
 
@@ -132,7 +134,11 @@ int TestSurfaceLIC(int argc, char* argv[])
     "(optional: default pink=1.0 0.0 0.84705) mask color");
   arg.AddArgument("--camera-config", argT::EQUAL_ARGUMENT, &camera_config,
     "(optional: default 1) use a preset camera configuration");
-
+  arg.AddArgument("--interpolate-scalars-before-mapping", argT::EQUAL_ARGUMENT,
+    &interpolate_scalars_before_mapping,
+    "(optional: default 0) interpolate scalars before mapping to colors");
+  arg.AddArgument("--num-discrete-colors", argT::EQUAL_ARGUMENT, &num_discrete_colors,
+    "(optional: default 256) number of discrete colors to use when mapping scalars to colors");
   if (!arg.Parse() || filename.empty())
   {
     cerr << "Usage: " << endl;
@@ -212,7 +218,8 @@ int TestSurfaceLIC(int argc, char* argv[])
     impulse_noise_bg_value, noise_gen_seed, enhance_contrast, low_lic_contrast_enhancement_factor,
     high_lic_contrast_enhancement_factor, low_color_contrast_enhancement_factor,
     high_color_contrast_enhancement_factor, anti_alias, color_mode, lic_intensity, map_mode_bias,
-    color_by_mag, mask_on_surface, mask_threshold, mask_intensity, mask_color_rgb, vectors);
+    color_by_mag, mask_on_surface, mask_threshold, mask_intensity,
+    interpolate_scalars_before_mapping, num_discrete_colors, mask_color_rgb, vectors);
 
   vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
 

@@ -23,7 +23,7 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
   double high_lic_contrast_enhancement_factor, double low_color_contrast_enhancement_factor,
   double high_color_contrast_enhancement_factor, int anti_alias, int color_mode,
   double lic_intensity, double map_mode_bias, int color_by_mag, int mask_on_surface,
-  double mask_threshold, double mask_intensity, std::vector<double>& mask_color_rgb,
-  std::string& vectors);
+  double mask_threshold, double mask_intensity, int interpolate_scalars_before_mapping,
+  int num_discrete_colors, std::vector<double>& mask_color_rgb, std::string& vectors);
 
 #endif
