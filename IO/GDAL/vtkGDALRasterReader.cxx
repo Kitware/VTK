@@ -640,7 +640,11 @@ bool vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetGeoCornerPoint(
   double dfGeoY = 0;
   double adfGeoTransform[6];
 
+#if GDAL_VERSION_MAJOR >= 3
+  const char* gcpProj = this->GDALData->GetSpatialRef()->GetName();
+#else
   const char* gcpProj = this->GDALData->GetGCPProjection();
+#endif
   const GDAL_GCP* gcps = this->GDALData->GetGCPs();
 
   if (gcpProj == nullptr || gcps == nullptr)
