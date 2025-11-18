@@ -1080,13 +1080,30 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
 
   static PyMethodDef Py${_vtk_python_static_importer_name}_Methods[] = {
   {NULL, NULL, 0, NULL}};
+
+  static int Py${_vtk_python_static_importer_name}_Exec(PyObject *m)
+  {
+    // since this gets called after `Py_Initialize`, this will import the static
+    // modules and not just update the init table.
+    ${_vtk_python_TARGET_NAME}_load();
+    return 0;
+  }
+
+  static PyModuleDef_Slot Py${_vtk_python_static_importer_name}_Slots[] = {
+  #ifdef Py_GIL_DISABLED
+      {Py_mod_gil, Py_MOD_GIL_NOT_USED},
+  #endif
+      {Py_mod_exec, (void*)Py${_vtk_python_static_importer_name}_Exec},
+      {0, NULL}
+  };
+
   static PyModuleDef ${_vtk_python_static_importer_name}Module = {
     PyModuleDef_HEAD_INIT,
     \"${_vtk_python_static_importer_name}\", // m_name
     \"module to import static components for ${_vtk_python_TARGET_NAME}\", // m_doc
     0, // m_size
     Py${_vtk_python_static_importer_name}_Methods, // m_methods
-    NULL, // m_reload
+    Py${_vtk_python_static_importer_name}_Slots, // m_slots
     NULL, // m_traverse
     NULL, // m_clear
     NULL  // m_free
@@ -1094,10 +1111,7 @@ static void ${_vtk_python_TARGET_NAME}_load() {\n")
 
   PyMODINIT_FUNC PyInit_${_vtk_python_static_importer_name}()
   {
-    // since this gets called after `Py_Initialize`, this will import the static
-    // modules and not just update the init table.
-    ${_vtk_python_TARGET_NAME}_load();
-    return PyModule_Create(&${_vtk_python_static_importer_name}Module);
+    return PyModuleDef_Init(&${_vtk_python_static_importer_name}Module);
   }\n")
 
       file(GENERATE

@@ -14,6 +14,9 @@ if justver is not None and sys.version_info[:2] <= justver:
 else:
     tag = '{}-{}{}'.format(sys.implementation.name, sys.version_info.major, sys.version_info.minor)
 
+if hasattr(sys, "_is_gil_enabled") and not sys._is_gil_enabled():
+    tag += "t"
+
 manual = 'build/lib.{}-{}'.format(sysconfig.get_platform(), tag)
 
 try:
