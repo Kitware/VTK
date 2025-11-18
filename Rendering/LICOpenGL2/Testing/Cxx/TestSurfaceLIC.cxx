@@ -1,13 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkCellData.h"
 #include "vtkCompositeDataPipeline.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGenericDataObjectReader.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkSurfaceLICTestDriver.h"
 #include "vtkTestUtilities.h"
