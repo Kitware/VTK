@@ -2487,6 +2487,13 @@ bool vtkOpenGLPolyDataMapper::DrawingTubes(vtkOpenGLHelper& cellBO, vtkActor* ac
 }
 
 //------------------------------------------------------------------------------
+bool vtkOpenGLPolyDataMapper::DrawingPoints(vtkOpenGLHelper& cellBO, vtkActor* actor)
+{
+  return (this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(), cellBO.PrimitiveType) ==
+    GL_POINTS);
+}
+
+//------------------------------------------------------------------------------
 bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
   vtkOpenGLHelper& cellBO, vtkRenderer* ren, vtkActor* actor)
 {
