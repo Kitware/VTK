@@ -1444,13 +1444,46 @@ void vtkScalarBarActor::LayoutTicks()
       // Ticks span the entire width of the frame
       this->P->TickBox.Size[1] = this->P->ScalarBarBox.Size[1];
       // Ticks share vertical space with title and scalar bar.
-      this->P->TickBox.Size[0] = this->P->Frame.Size[0] - this->P->ScalarBarBox.Size[0] -
-        4 * this->TextPad - this->P->TitleBox.Size[0];
+      // Calculate the original heights for the bar (already computed) and ticks.
+      double originalBarHeight = this->P->ScalarBarBox.Size[0];
+      double originalTickHeight =
+        this->P->Frame.Size[0] - originalBarHeight - 4 * this->TextPad - this->P->TitleBox.Size[0];
 
+      // This is the total height used by bar + ticks
+      double originalTotal = originalBarHeight + originalTickHeight;
+      if (originalTotal < 1.0)
+        originalTotal = 1.0; // Avoid division by zero
+
+      // This is the new total height we want them to occupy
+      // (subtracting the vertical separation)
+      double newTotal = originalTotal - this->VerticalTitleSeparation;
+
+      // Avoid negative sizes
+      if (newTotal < 1.0)
+        newTotal = 1.0;
+
+      // Calculate scaling factor
+      double scale = newTotal / originalTotal;
+
+      // Scale both heights
+      double newBarHeight = originalBarHeight * scale;
+      double newTickHeight = originalTickHeight * scale;
+
+      // If text precedes bar, we must also adjust the bar's Y-position
       if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
       {
-        this->P->TickBox.Posn[1] =
-          this->P->TitleBox.Size[0] + 2 * this->TextPad + this->P->TitleBox.Posn[1];
+        // Bar Y-pos was FrameHeight - originalBarHeight. Adjust for new height.
+        double heightDelta = originalBarHeight - newBarHeight;
+        this->P->ScalarBarBox.Posn[1] += heightDelta; // Move bar "down"
+      }
+
+      // Now, assign the new heights
+      this->P->ScalarBarBox.Size[0] = static_cast<int>(newBarHeight);
+      this->P->TickBox.Size[0] = static_cast<int>(newTickHeight);
+      if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
+      {
+        this->P->TickBox.Posn[1] = this->P->TitleBox.Size[0] + this->VerticalTitleSeparation +
+          2 * this->TextPad + this->P->TitleBox.Posn[1];
       }
       else
       {

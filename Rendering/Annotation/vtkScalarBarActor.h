@@ -483,8 +483,7 @@ public:
 
   ///@{
   /**
-   * Set/get the margin in pixels, between the title and the bar,
-   * when the \a Orientation is vertical.
+   * Set/get the margin in pixels, between the title and the bar.
    * The default is 0 pixels.
    */
   vtkGetMacro(VerticalTitleSeparation, int);
