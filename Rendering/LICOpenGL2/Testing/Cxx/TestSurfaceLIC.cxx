@@ -10,6 +10,7 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkSurfaceLICTestDriver.h"
+#include "vtkTestUtilities.h"
 #include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPolyDataReader.h"
 
@@ -67,7 +68,8 @@ int TestSurfaceLIC(int argc, char* argv[])
   typedef vtksys::CommandLineArguments argT;
 
   arg.AddArgument("--data", argT::EQUAL_ARGUMENT, &filename,
-    "(required) Enter dataset to load (currently only *.[vtk|vtp] files are supported");
+    "(required) Enter dataset to load. The full path will be computed relative to VTK_DATA_ROOT "
+    "using vtkTestUtilities::ExpandDataFileName. (currently only *.[vtk|vtp] files are supported");
   arg.AddArgument("--num-steps", argT::EQUAL_ARGUMENT, &num_steps,
     "(optional: default 40) Number of steps in each direction");
   arg.AddArgument(
@@ -141,6 +143,11 @@ int TestSurfaceLIC(int argc, char* argv[])
     cerr << arg.GetHelp() << endl;
     return 1;
   }
+
+  // Expand the filename to a full path.
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, filename.c_str());
+  filename = fname;
+  delete[] fname;
 
   if (mask_color_rgb.empty())
   {
