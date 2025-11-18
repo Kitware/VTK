@@ -102,7 +102,7 @@ int TestPolyhedralCellsInUG(int argc, char* argv[])
   cube->SetCenter(0, 0, 0);
   cube->Update();
 
-  // add scaler
+  // add scalar
   vtkNew<vtkElevationFilter> ele;
   ele->SetInputConnection(cube->GetOutputPort());
   ele->SetLowPoint(0, 0, -10);

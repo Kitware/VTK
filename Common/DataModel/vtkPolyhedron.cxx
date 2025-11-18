@@ -33,6 +33,40 @@
 #define VTK_DEFAULT_PLANARITY_TOLERANCE 0.1
 
 VTK_ABI_NAMESPACE_BEGIN
+
+namespace
+{
+
+/// Called in IsConvex() when a face is flipped so its normal points outward.
+///
+/// This modifies \a unevenCoedges for all the edges of \a face so that successive
+/// attempts to flip those edges will pass; if \a unevenCoedges is not updated, flips
+/// will not be allowed and double-flips may be.
+void updateFlippedEdges(
+  std::map<vtkIdType, int>& unevenCoedges, int face, vtkCellArray* faces, vtkEdgeTable* edgeTable)
+{
+  vtkNew<vtkIdList> face_tmp;
+  const vtkIdType* conn;
+  vtkIdType numPts;
+  faces->GetCellAtId(face, numPts, conn, face_tmp);
+  if (conn)
+  {
+    vtkIdType pp = conn[numPts - 1];
+    vtkIdType qq;
+    for (int ii = 0; ii < numPts; ++ii, pp = qq)
+    {
+      qq = conn[ii];
+      // The direction has been flipped, so \a dir is opposite from elsewhere:
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+      int dir = (pp < qq ? -1 : (pp == qq ? 0 : +1));
+      auto edgeId = edgeTable->IsEdge(pp, qq);
+      unevenCoedges[edgeId] += dir;
+    }
+  }
+}
+
+} // anonymous namespace
+
 vtkStandardNewMacro(vtkPolyhedron);
 
 // Special typedef
@@ -357,6 +391,75 @@ int vtkPolyhedron::GenerateEdges()
       else
       {
         this->EdgeFaces->SetComponent(edgeId, 1, fid);
+      }
+    }
+  } // for all faces
+
+  // Okay all done
+  this->EdgesGenerated = 1;
+  return this->Edges->GetNumberOfTuples();
+}
+
+//------------------------------------------------------------------------------
+int vtkPolyhedron::GenerateEdges(std::map<vtkIdType, int>& unevenCoedges)
+{
+  // check the number of faces and return if there aren't any
+  if (this->GlobalFaces->GetNumberOfCells() <= 0)
+  {
+    return 0;
+  }
+
+  // This method will always regenerate edges so that \a flips can be populated.
+  // So instead of exiting early here, we reset the edge list and table.
+  if (this->EdgesGenerated)
+  {
+    this->Edges->Initialize();
+    this->EdgeTable->Initialize();
+  }
+
+  unevenCoedges.clear();
+  vtkNew<vtkIdList> tmpface;
+  vtkIdType nfaces = 0;
+  const vtkIdType* face;
+  vtkIdType fid, i, edge[2], npts, edgeFaces[2], edgeId;
+  edgeFaces[1] = -1;
+
+  // Loop over all faces, inserting edges into the table
+  this->EdgeTable->InitEdgeInsertion(this->Points->GetNumberOfPoints(), 1);
+  nfaces = this->GlobalFaces->GetNumberOfCells();
+  for (fid = 0; fid < nfaces; ++fid)
+  {
+    this->GlobalFaces->GetCellAtId(fid, npts, face, tmpface);
+    for (i = 0; i < npts; ++i)
+    {
+      edge[0] = this->PointIdMap[face[i]];
+      edge[1] = this->PointIdMap[((i + 1) != npts ? face[i + 1] : face[0])];
+      // NOLINTNEXTLINE(readability-avoid-nested-conditional-operator)
+      int dir = (edge[0] < edge[1] ? +1 : (edge[0] == edge[1] ? 0 : -1));
+      edgeFaces[0] = fid;
+      if ((edgeId = this->EdgeTable->IsEdge(edge[0], edge[1])) == (-1))
+      {
+        edgeId = this->EdgeTable->InsertEdge(edge[0], edge[1]);
+        this->Edges->InsertNextTypedTuple(edge);
+        this->EdgeFaces->InsertTypedTuple(edgeId, edgeFaces);
+        unevenCoedges[edgeId] = dir;
+      }
+      else
+      {
+        this->EdgeFaces->SetComponent(edgeId, 1, fid);
+        auto it = unevenCoedges.find(edgeId);
+        if (it == unevenCoedges.end())
+        {
+          unevenCoedges[edgeId] = dir;
+        }
+        else if (it->second + dir == 0)
+        {
+          unevenCoedges.erase(it);
+        }
+        else
+        {
+          it->second += dir;
+        }
       }
     }
   } // for all faces
@@ -792,27 +895,65 @@ bool vtkPolyhedron::IsConvex()
 
 vtkPolyhedron::Status vtkPolyhedron::IsConvex(double planarThreshold)
 {
-  double x[2][3], n[3], c[3], c0[3], c1[3], c0p[3], c1p[3], n0[3], n1[3];
-  double np[3], tmp0, tmp1;
+  double x[2][3];
+  vtkVector3d n;
+  vtkVector3d c, c0, c1;
+  vtkVector3d c0p, c1p;
+  vtkVector3d n0, n1;
+  vtkVector3d np;
+  double tmp0, tmp1;
   vtkIdType i, w[2], edgeId, edgeFaces[2], v, r = 0;
   vtkIdType numPts;
   vtkNew<vtkIdList> face_tmp;
   const vtkIdType* face;
   const double eps = FLT_EPSILON;
+  enum FaceNormalStatus
+  {
+    Unvisited,
+    Degenerate,
+    Visited
+  };
+  std::vector<std::pair<vtkVector3d, FaceNormalStatus>> faceNormalsAndStatus;
 
   std::vector<double> p(this->PointIds->GetNumberOfIds());
   vtkIdVectorType d(this->PointIds->GetNumberOfIds(), 0);
 
   // initialization
-  this->GenerateEdges();
+  std::map<vtkIdType, int> unevenCoedges;
+  this->GenerateEdges(unevenCoedges);
   this->GenerateFaces();
   this->ConstructPolyData();
   this->ComputeBounds();
+
+  // Compute face normals as best we can. This eliminates work below
+  // when vtkPolygon::ComputeNormal is called for each edge (N times per polygon).
+  // Also, we can determine whether normals need to be flipped as we visit edges
+  // below. Each face is initially marked as unvisited. As we loop over edges of
+  // the polyhedron, we may flip any unvisited normal if both polygons orient the
+  // edge the same way.
+  vtkIdType numFaces = this->Faces->GetNumberOfCells();
+  faceNormalsAndStatus.reserve(numFaces);
+  for (int ff = 0; ff < numFaces; ++ff)
+  {
+    vtkVector3d norm;
+    this->Faces->GetCellAtId(ff, numPts, face, face_tmp);
+    auto stat = vtkPolygon::ComputeNormal(this->Points, numPts, face, norm.GetData());
+    faceNormalsAndStatus.emplace_back(norm,
+      stat == vtkCellStatus::DegenerateFaces ? FaceNormalStatus::Degenerate
+                                             : FaceNormalStatus::Unvisited);
+  }
 
   // loop over all edges in the polyhedron
   this->EdgeTable->InitTraversal();
   while ((edgeId = this->EdgeTable->GetNextEdge(w[0], w[1])) >= 0)
   {
+    // Are we allowed to flip a face-normal attached to this edge?
+    // This is true when coedge pairs do not cancel one another out.
+    // A flip will occur if allowed and if the local convexity test
+    // would fail otherwise and if one of the faces has not been
+    // visited (i.e., used to pass a convexity test elsewhere).
+    bool flipAllowed = (unevenCoedges.find(edgeId) != unevenCoedges.end());
+
     // get the edge points
     this->Points->GetPoint(w[0], x[0]);
     this->Points->GetPoint(w[1], x[1]);
@@ -824,34 +965,69 @@ vtkPolyhedron::Status vtkPolyhedron::IsConvex(double planarThreshold)
     this->Faces->GetCellAtId(edgeFaces[0], numPts, face, face_tmp);
 
     // compute the centroid and normal for the first face
-    auto status = vtkPolygon::ComputeCentroid(this->Points, numPts, face, c0, planarThreshold);
+    auto status =
+      vtkPolygon::ComputeCentroid(this->Points, numPts, face, c0.GetData(), planarThreshold);
     if (!status)
     {
       return status;
     }
-    vtkPolygon::ComputeNormal(this->Points, numPts, face, n0);
+    // vtkPolygon::ComputeNormal(this->Points, numPts, face, n0);
+    n0 = faceNormalsAndStatus[edgeFaces[0]].first;
 
     // get the face vertex ids for the second face
     this->Faces->GetCellAtId(edgeFaces[1], numPts, face, face_tmp);
 
     // compute the centroid and normal for the second face
-    status = vtkPolygon::ComputeCentroid(this->Points, numPts, face, c1, planarThreshold);
+    status = vtkPolygon::ComputeCentroid(this->Points, numPts, face, c1.GetData(), planarThreshold);
     if (!status)
     {
       return status;
     }
-    vtkPolygon::ComputeNormal(this->Points, numPts, face, n1);
+    // vtkPolygon::ComputeNormal(this->Points, numPts, face, n1);
+    n1 = faceNormalsAndStatus[edgeFaces[1]].first;
 
     // check for local convexity (the average of the two centroids must be
     // "below" both faces, as defined by their outward normals).
-    for (i = 0; i < 3; i++)
-    {
-      c[i] = (c1[i] + c0[i]) * .5;
-      c0p[i] = c[i] - c0[i];
-      c1p[i] = c[i] - c1[i];
-    }
+    c = 0.5 * (c0 + c1);
+    c0p = c - c0;
+    c1p = c - c1;
 
-    if (vtkMath::Dot(n0, c0p) > 0. || vtkMath::Dot(n1, c1p) > 0.)
+    bool out0 = n0.Dot(c0p) > 0.; // vtkMath::Dot(n0, c0p) > 0.;
+    bool out1 = n1.Dot(c1p) > 0.; // vtkMath::Dot(n1, c1p) > 0.;
+    if (out0 && out1 && faceNormalsAndStatus[edgeFaces[0]].second != Visited &&
+      faceNormalsAndStatus[edgeFaces[1]].second != Visited && !flipAllowed)
+    {
+      // 1 flip is not allowed, but two are.
+      out0 = false;
+      out1 = false;
+      faceNormalsAndStatus[edgeFaces[0]].first = -faceNormalsAndStatus[edgeFaces[0]].first;
+      faceNormalsAndStatus[edgeFaces[1]].first = -faceNormalsAndStatus[edgeFaces[1]].first;
+      n0 = -n0;
+      n1 = -n1;
+      updateFlippedEdges(unevenCoedges, edgeFaces[0], this->Faces, this->EdgeTable);
+      updateFlippedEdges(unevenCoedges, edgeFaces[1], this->Faces, this->EdgeTable);
+    }
+    else if (flipAllowed)
+    {
+      // Flip at most one normal, and only if required and allowed.
+      if (out0 && faceNormalsAndStatus[edgeFaces[0]].second != Visited)
+      {
+        out0 = false;
+        n0 = -n0;
+        faceNormalsAndStatus[edgeFaces[0]].first = -faceNormalsAndStatus[edgeFaces[0]].first;
+        updateFlippedEdges(unevenCoedges, edgeFaces[0], this->Faces, this->EdgeTable);
+      }
+      else if (out1 && faceNormalsAndStatus[edgeFaces[1]].second != Visited)
+      {
+        out1 = false;
+        n1 = -n1;
+        faceNormalsAndStatus[edgeFaces[1]].first = -faceNormalsAndStatus[edgeFaces[1]].first;
+        updateFlippedEdges(unevenCoedges, edgeFaces[1], this->Faces, this->EdgeTable);
+      }
+    }
+    faceNormalsAndStatus[edgeFaces[0]].second = FaceNormalStatus::Visited;
+    faceNormalsAndStatus[edgeFaces[1]].second = FaceNormalStatus::Visited;
+    if (out0 || out1)
     {
       return Status::Nonconvex;
     }
@@ -867,7 +1043,7 @@ vtkPolyhedron::Status vtkPolyhedron::IsConvex(double planarThreshold)
     {
       n[i] = x[1][i] - x[0][i];
     }
-    vtkMath::Normalize(n);
+    n.Normalize();
     if (std::abs(n[0]) < eps && std::abs(n[1]) < eps)
     {
       continue;
@@ -890,8 +1066,8 @@ vtkPolyhedron::Status vtkPolyhedron::IsConvex(double planarThreshold)
 
     // if the vectors from the seam centroid to the face centroid are in the
     // same direction relative to the plane, then condition 2 is satisfied.
-    tmp0 = vtkMath::Dot(np, c0p);
-    tmp1 = vtkMath::Dot(np, c1p);
+    tmp0 = np.Dot(c0p);
+    tmp1 = np.Dot(c1p);
 
     if ((tmp0 < 0.) != (tmp1 < 0.))
     {
@@ -900,9 +1076,7 @@ vtkPolyhedron::Status vtkPolyhedron::IsConvex(double planarThreshold)
 
     // 3. We get the z component of the normal of the highest face
     //    If this is null, the face is in the vertical plane
-    tmp0 =
-      ((c0p[2] - vtkMath::Dot(c0p, n) * n[2]) > (c1p[2] - vtkMath::Dot(c1p, n) * n[2]) ? n0[2]
-                                                                                       : n1[2]);
+    tmp0 = ((c0p[2] - c0p.Dot(n) * n[2]) > (c1p[2] - c1p.Dot(n) * n[2]) ? n0[2] : n1[2]);
     if (std::abs(tmp0) < eps)
     {
       continue;
@@ -2644,4 +2818,5 @@ void vtkPolyhedron::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Faces:\n";
   this->GlobalFaces->PrintSelf(os, indent.GetNextIndent());
 }
+
 VTK_ABI_NAMESPACE_END

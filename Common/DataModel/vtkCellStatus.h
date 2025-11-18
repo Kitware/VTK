@@ -24,6 +24,7 @@ enum class vtkCellStatus : short
   FacesAreOrientedIncorrectly = 0x20, //!< All faces should have CCW windings.
   NonPlanarFaces = 0x40,              //!< Vertices for a face do not all lie in the same plane.
   DegenerateFaces = 0x80,             //!< A face is collapsed to a line or a point.
+  CoincidentPoints = 0x100,           //!< A cell is otherwise valid but has coincident points.
 };
 
 inline bool operator!=(short a, vtkCellStatus b)
@@ -97,6 +98,15 @@ inline std::ostream& operator<<(std::ostream& os, vtkCellStatus state)
       os << "intersecting edges";
       comma = true;
     }
+    if ((state & vtkCellStatus::IntersectingFaces) == vtkCellStatus::IntersectingFaces)
+    {
+      if (comma)
+      {
+        os << ", ";
+      }
+      os << "intersecting faces";
+      comma = true;
+    }
     if ((state & vtkCellStatus::NoncontiguousEdges) == vtkCellStatus::NoncontiguousEdges)
     {
       if (comma)
@@ -132,6 +142,22 @@ inline std::ostream& operator<<(std::ostream& os, vtkCellStatus state)
         os << ", ";
       }
       os << "non-planar faces";
+    }
+    if ((state & vtkCellStatus::DegenerateFaces) == vtkCellStatus::DegenerateFaces)
+    {
+      if (comma)
+      {
+        os << ", ";
+      }
+      os << "degenerate faces";
+    }
+    if ((state & vtkCellStatus::CoincidentPoints) == vtkCellStatus::CoincidentPoints)
+    {
+      if (comma)
+      {
+        os << ", ";
+      }
+      os << "coincident points";
     }
     os << ")";
   }
