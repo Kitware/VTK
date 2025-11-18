@@ -627,6 +627,7 @@ static void parse_mdata(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
 
   unsigned long progress = 0.0;
   unsigned long totalProgress = mainchunk->length;
+  unsigned int chunkNr = 0;
 
   do
   {
@@ -660,9 +661,13 @@ static void parse_mdata(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
     end_chunk(importer->GetTempStream(), &chunk);
 
     progress += chunk.length;
+    chunkNr += 1;
 
-    double progressRate = static_cast<double>(progress) / totalProgress;
-    importer->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progressRate));
+    if (chunkNr % 100 == 0)
+    {
+      double progressRate = static_cast<double>(progress) / totalProgress;
+      importer->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progressRate));
+    }
   } while (chunk.end <= mainchunk->end);
 
   progress = totalProgress;
