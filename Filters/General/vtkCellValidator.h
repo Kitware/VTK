@@ -64,6 +64,9 @@
  *                    for topologically distinct points are coincident, collinear, or
  *                    coplanar when they ought not to be.
  *
+ * CoincidentPoints: A cell is otherwise valid but has coincident points, which may
+ *                   arise from distinct entries in vtkPoints with duplicate coordinates
+ *                   or from repeated use of the same connectivity entry.
  * @sa
  * vtkCellQuality
  */
@@ -73,7 +76,8 @@
 
 #include "vtkCellStatus.h" // For enum class.
 #include "vtkDataSetAlgorithm.h"
-#include "vtkFiltersGeneralModule.h" // For export macro
+#include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_6_0.
+#include "vtkFiltersGeneralModule.h" // For export macro.
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCell;
@@ -203,6 +207,20 @@ public:
   ///@}
 
   ///@{
+  /// Set/get whether to compute a per-cell tolerance that is a quarter of
+  /// the length of the shortest non-degenerate edge.
+  ///
+  /// This setting is off by default. If enabled, the \a Tolerance ivar is ignored
+  /// unless the cell has no edges (i.e., vertex cells) or all its edges have zero
+  /// length – in which case \a Tolerance is used.
+  ///
+  /// This setting is independent of PlanarityTolerance.
+  vtkSetMacro(AutoTolerance, vtkTypeBool);
+  vtkGetMacro(AutoTolerance, vtkTypeBool);
+  vtkBooleanMacro(AutoTolerance, vtkTypeBool);
+  ///@}
+
+  ///@{
   /// Set/get a planarity tolerance.
   ///
   /// This tolerance thresholds the ratio of the distance a planar polygonal
@@ -221,16 +239,17 @@ public:
   static void SetPlanarityTolerance(double tolerance);
   static double GetPlanarityTolerance();
   ///@}
-
 protected:
   vtkCellValidator();
   ~vtkCellValidator() override = default;
 
   double Tolerance;
+  vtkTypeBool AutoTolerance = false;
 
   int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
 
   static bool NoIntersectingEdges(vtkCell* cell, double tolerance);
+  VTK_DEPRECATED_IN_9_6_0("Do not use or make NoIntersectingFacesStatus protected and use it.")
   static bool NoIntersectingFaces(vtkCell* cell, double tolerance);
   static bool ContiguousEdges(vtkCell* twoDimensionalCell, double tolerance);
   static State Convex(vtkCell* cell, double tolerance);
@@ -239,6 +258,8 @@ protected:
 private:
   vtkCellValidator(const vtkCellValidator&) = delete;
   void operator=(const vtkCellValidator&) = delete;
+
+  static State NoIntersectingFacesStatus(vtkCell* cell, double tolerance);
 };
 
 VTK_ABI_NAMESPACE_END

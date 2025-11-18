@@ -75,6 +75,7 @@ vtk_add_test_python(
   TestContourPolyData.py,NO_VALID
   TestTensorGlyph.py
   TestTextureGlyph.py
+  TestThresholdScalars.py,NO_VALID
   TestTriangleFilter.py
   TestUnstructuredGridPlaneCutter.py
   TestVectorDotNorm.py
