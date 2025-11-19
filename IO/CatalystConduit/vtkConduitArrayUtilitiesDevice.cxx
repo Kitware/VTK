@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkConduitArrayUtilitiesDevice.h"
-#include "vtkConduitArrayUtilitiesInternals.h"
 
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
@@ -34,9 +33,11 @@ namespace internals
 {
 VTK_ABI_NAMESPACE_BEGIN
 
-using vtkmConnectivityArrays = vtkTypeList::Unique<
-  vtkTypeList::Create<vtkmDataArray<viskores::Int8>, vtkmDataArray<viskores::Int16>,
-    vtkmDataArray<viskores::Int32>, vtkmDataArray<viskores::Int64>>>::Result;
+using vtkmConnectivityArrays =
+  vtkTypeList::Unique<vtkTypeList::Create<vtkmDataArray<viskores::Int8>,
+    vtkmDataArray<viskores::Int16>, vtkmDataArray<viskores::Int32>, vtkmDataArray<viskores::Int64>,
+    vtkmDataArray<viskores::UInt8>, vtkmDataArray<viskores::UInt16>,
+    vtkmDataArray<viskores::UInt32>, vtkmDataArray<viskores::UInt64>>>::Result;
 
 template <typename T>
 void AddOneIndexToOffset(viskores::cont::ArrayHandle<T>& offsets, viskores::Id connectivitySize)
@@ -214,25 +215,23 @@ vtkConduitArrayUtilitiesDevice::vtkConduitArrayUtilitiesDevice() = default;
 vtkConduitArrayUtilitiesDevice::~vtkConduitArrayUtilitiesDevice() = default;
 
 #define vtkmAOSDataArrayConstructSingleComponent(dtype, nvals, raw_ptr, deviceAdapterId)           \
-  do                                                                                               \
   {                                                                                                \
     return vtk::TakeSmartPointer(make_vtkmDataArray(viskores::cont::ArrayHandle<dtype>(            \
       std::vector<viskores::cont::internal::Buffer>{ viskores::cont::internal::MakeBuffer(         \
-        deviceAdapterId, reinterpret_cast<dtype*>(raw_ptr), reinterpret_cast<dtype*>(raw_ptr),     \
+        deviceAdapterId, raw_ptr, raw_ptr,                                                         \
         viskores::internal::NumberOfValuesToNumberOfBytes<dtype>(nvals), [](void*) {},             \
         viskores::cont::internal::InvalidRealloc) })));                                            \
-  } while (0)
+  }
 
 #define vtkmAOSDataArrayConstructMultiComponent(dtype, ntups, ncomp, raw_ptr, deviceAdapterId)     \
-  do                                                                                               \
   {                                                                                                \
     return vtk::TakeSmartPointer(                                                                  \
       make_vtkmDataArray(viskores::cont::ArrayHandle<viskores::Vec<dtype, ncomp>>(                 \
         std::vector<viskores::cont::internal::Buffer>{ viskores::cont::internal::MakeBuffer(       \
-          deviceAdapterId, reinterpret_cast<dtype*>(raw_ptr), reinterpret_cast<dtype*>(raw_ptr),   \
+          deviceAdapterId, raw_ptr, raw_ptr,                                                       \
           viskores::internal::NumberOfValuesToNumberOfBytes<dtype>(ntups * ncomp), [](void*) {},   \
           viskores::cont::internal::InvalidRealloc) })));                                          \
-  } while (0)
+  }
 
 #define vtkmAOSDataArrayNumComponentsBody(dtype, ntups, ncomp, raw_ptr, deviceAdapterId)           \
   switch (num_components)                                                                          \
@@ -261,8 +260,7 @@ vtkConduitArrayUtilitiesDevice::~vtkConduitArrayUtilitiesDevice() = default;
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmAOSArray(
-  const conduit_node* c_mcarray, bool force_signed,
-  const viskores::cont::DeviceAdapterId& deviceAdapterId)
+  const conduit_node* c_mcarray, const viskores::cont::DeviceAdapterId& deviceAdapterId)
 {
   const conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
   const auto& child0 = mcarray.child(0);
@@ -274,7 +272,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmAOSAr
 
   using conduit_dtype = conduit_cpp::DataType::Id;
 
-  switch (internals::GetTypeId(dtype0.id(), force_signed))
+  switch (dtype0.id())
   {
     vtkmAOSDataArrayCase(
       conduit_dtype::int8, viskores::Int8, num_tuples, num_components, raw_ptr, deviceAdapterId);
@@ -304,39 +302,35 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmAOSAr
 }
 
 #define vtkmSOADataArrayConstructSingleComponent(dtype, nvals, deviceAdapterId)                    \
-  do                                                                                               \
   {                                                                                                \
     std::vector<viskores::cont::internal::Buffer> buffers;                                         \
     buffers.reserve(num_components);                                                               \
     for (int cc = 0; cc < num_components; ++cc)                                                    \
     {                                                                                              \
       buffers.push_back(viskores::cont::internal::MakeBuffer(                                      \
-        deviceAdapterId,                                                                           \
-        reinterpret_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),             \
-        reinterpret_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),             \
+        deviceAdapterId, static_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))), \
+        static_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),                  \
         viskores::internal::NumberOfValuesToNumberOfBytes<dtype>(nvals), [](void*) {},             \
         viskores::cont::internal::InvalidRealloc));                                                \
     }                                                                                              \
     return vtk::TakeSmartPointer(make_vtkmDataArray(viskores::cont::ArrayHandle<dtype>(buffers))); \
-  } while (0)
+  }
 
 #define vtkmSOADataArrayConstructMultiComponent(dtype, ntups, ncomp, deviceAdapterId)              \
-  do                                                                                               \
   {                                                                                                \
     std::vector<viskores::cont::internal::Buffer> buffers;                                         \
     buffers.reserve(num_components);                                                               \
     for (int cc = 0; cc < num_components; ++cc)                                                    \
     {                                                                                              \
       buffers.push_back(viskores::cont::internal::MakeBuffer(                                      \
-        deviceAdapterId,                                                                           \
-        reinterpret_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),             \
-        reinterpret_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),             \
+        deviceAdapterId, static_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))), \
+        static_cast<dtype*>(const_cast<void*>(mcarray.child(cc).element_ptr(0))),                  \
         viskores::internal::NumberOfValuesToNumberOfBytes<dtype>(num_tuples), [](void*) {},        \
         viskores::cont::internal::InvalidRealloc));                                                \
     }                                                                                              \
     return vtk::TakeSmartPointer(                                                                  \
       make_vtkmDataArray(viskores::cont::ArrayHandleSOA<viskores::Vec<dtype, ncomp>>(buffers)));   \
-  } while (0)
+  }
 
 #define vtkmSOADataArrayCase(conduitTypeId, dtype, ntups, ncomp, deviceAdapterId)                  \
   case conduitTypeId:                                                                              \
@@ -362,8 +356,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmAOSAr
 
 //----------------------------------------------------------------------------
 vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmSOAArray(
-  const conduit_node* c_mcarray, bool force_signed,
-  const viskores::cont::DeviceAdapterId& deviceAdapterId)
+  const conduit_node* c_mcarray, const viskores::cont::DeviceAdapterId& deviceAdapterId)
 {
   const conduit_cpp::Node mcarray = conduit_cpp::cpp_node(const_cast<conduit_node*>(c_mcarray));
   const conduit_cpp::DataType dtype0 = mcarray.child(0).dtype();
@@ -372,7 +365,7 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilitiesDevice::MCArrayToVTKmSOAAr
 
   using conduit_dtype = conduit_cpp::DataType::Id;
 
-  switch (internals::GetTypeId(dtype0.id(), force_signed))
+  switch (dtype0.id())
   {
     vtkmSOADataArrayCase(
       conduit_dtype::int8, viskores::Int8, num_tuples, num_components, deviceAdapterId);

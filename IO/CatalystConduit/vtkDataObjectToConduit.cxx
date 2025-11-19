@@ -170,7 +170,7 @@ bool IsSignedIntegralType(int data_type)
 
   return (is_char_type_signed && (data_type == VTK_CHAR)) || (data_type == VTK_SIGNED_CHAR) ||
     (data_type == VTK_SHORT) || (data_type == VTK_INT) || (data_type == VTK_LONG) ||
-    (data_type == VTK_ID_TYPE) || (data_type == VTK_LONG_LONG) || (data_type == VTK_TYPE_INT64);
+    (data_type == VTK_ID_TYPE) || (data_type == VTK_LONG_LONG);
 }
 
 //----------------------------------------------------------------------------

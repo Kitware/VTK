@@ -17,7 +17,7 @@
 #ifndef vtkConduitArrayUtilities_h
 #define vtkConduitArrayUtilities_h
 
-#include "vtkDeprecation.h"             // for VTK_DEPRECATED_IN_9_5_0
+#include "vtkDeprecation.h"             // for VTK_DEPRECATED_IN_9_6_0
 #include "vtkIOCatalystConduitModule.h" // for exports
 #include "vtkObject.h"
 #include "vtkSmartPointer.h" // for vtkSmartPointer
@@ -99,14 +99,38 @@ protected:
   ~vtkConduitArrayUtilities() override;
 
   static bool IsDevicePointer(const void* p, int8_t& id);
+  VTK_DEPRECATED_IN_9_6_0("Use MCArrayToVTKArray.")
+  static vtkSmartPointer<vtkDataArray> MCArrayToVTKArrayImpl(const conduit_node* mcarray)
+  {
+    return MCArrayToVTKArray(mcarray);
+  }
+  static vtkSmartPointer<vtkDataArray> MCArrayToVTKAOSArray(const conduit_node* mcarray);
+  static vtkSmartPointer<vtkDataArray> MCArrayToVTKSOAArray(const conduit_node* mcarray);
+  static vtkSmartPointer<vtkDataArray> MCArrayToVTKStridedArray(const conduit_node* mcarray);
+  VTK_DEPRECATED_IN_9_6_0("Use the overload without force_signed parameter.")
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKArrayImpl(
-    const conduit_node* mcarray, bool force_signed);
+    const conduit_node* mcarray, bool vtkNotUsed(force_signed))
+  {
+    return MCArrayToVTKArray(mcarray);
+  }
+  VTK_DEPRECATED_IN_9_6_0("Use the overload without force_signed parameter.")
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKAOSArray(
-    const conduit_node* mcarray, bool force_signed);
+    const conduit_node* mcarray, bool vtkNotUsed(force_signed))
+  {
+    return MCArrayToVTKAOSArray(mcarray);
+  }
+  VTK_DEPRECATED_IN_9_6_0("Use the overload without force_signed parameter.")
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKSOAArray(
-    const conduit_node* mcarray, bool force_signed);
+    const conduit_node* mcarray, bool vtkNotUsed(force_signed))
+  {
+    return MCArrayToVTKSOAArray(mcarray);
+  }
+  VTK_DEPRECATED_IN_9_6_0("Use the overload without force_signed parameter.")
   static vtkSmartPointer<vtkDataArray> MCArrayToVTKStridedArray(
-    const conduit_node* mcarray, bool force_signed);
+    const conduit_node* mcarray, bool vtkNotUsed(force_signed))
+  {
+    return MCArrayToVTKStridedArray(mcarray);
+  }
 
 private:
   vtkConduitArrayUtilities(const vtkConduitArrayUtilities&) = delete;
