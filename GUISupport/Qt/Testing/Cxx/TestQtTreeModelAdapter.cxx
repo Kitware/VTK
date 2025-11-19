@@ -11,6 +11,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestQtTreeModelAdapter(int, char*[])
@@ -40,12 +42,12 @@ int TestQtTreeModelAdapter(int, char*[])
   vtkQtTreeModelAdapter adapter(nullptr, tree);
   if (adapter.rowCount(QModelIndex()) != 1)
   {
-    cerr << "ERROR: Wrong number of rows." << endl;
+    std::cerr << "ERROR: Wrong number of rows." << std::endl;
     ++errors;
   }
   if (adapter.columnCount(QModelIndex()) != 2)
   {
-    cerr << "ERROR: Wrong number of columns." << endl;
+    std::cerr << "ERROR: Wrong number of columns." << std::endl;
     ++errors;
   }
 
@@ -84,18 +86,18 @@ int TestQtTreeModelAdapter(int, char*[])
     QModelIndex pind = adapter.PedigreeToQModelIndex(i);
     if (ind != pind)
     {
-      cerr << "ERROR: Pedigree lookup failed." << endl;
+      std::cerr << "ERROR: Pedigree lookup failed." << std::endl;
       ++errors;
     }
 #endif
     if (adapter.rowCount(ind) != rows)
     {
-      cerr << "ERROR: Row should have zero sub-rows." << endl;
+      std::cerr << "ERROR: Row should have zero sub-rows." << std::endl;
       ++errors;
     }
     if (adapter.parent(ind) != parent)
     {
-      cerr << "ERROR: Wrong parent." << endl;
+      std::cerr << "ERROR: Wrong parent." << std::endl;
       ++errors;
     }
   }

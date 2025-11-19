@@ -35,15 +35,16 @@ void QVTKTableModelAdapterTestClass::testClearTable()
 
   if (this->TargetAdapter->GetTable()->GetNumberOfColumns() != 0)
   {
-    cerr << "[TestClassQVTKTableModelAdapter::testClearTable] ERROR: Number of columns not zero."
-         << endl;
+    std::cerr
+      << "[TestClassQVTKTableModelAdapter::testClearTable] ERROR: Number of columns not zero."
+      << std::endl;
     this->Errors++;
   }
 
   if (this->TargetAdapter->GetTable()->GetNumberOfRows() != 0)
   {
-    cerr << "[TestClassQVTKTableModelAdapter::testClearTable] ERROR: Number of rows not zero."
-         << endl;
+    std::cerr << "[TestClassQVTKTableModelAdapter::testClearTable] ERROR: Number of rows not zero."
+              << std::endl;
     this->Errors++;
   }
 }
@@ -57,9 +58,9 @@ void QVTKTableModelAdapterTestClass::testChangeHeader(int column, const QString&
 
   if (this->TargetAdapter->GetTable()->GetColumn(column)->GetName() != name)
   {
-    cerr
+    std::cerr
       << "[TestClassQVTKTableModelAdapter::testChangeHeader] ERROR: Change of header data failed."
-      << endl;
+      << std::endl;
     this->Errors++;
   }
 }
@@ -79,9 +80,10 @@ void QVTKTableModelAdapterTestClass::testColumnInsertion(int column, const QStri
   int new_ncols = this->TargetAdapter->GetTable()->GetNumberOfColumns();
   if (new_ncols != old_ncols + names.count())
   {
-    cerr << "[TestClassQVTKTableModelAdapter::testColumnInsertion] ERROR: Mismatch in number of "
-            "columns."
-         << endl;
+    std::cerr
+      << "[TestClassQVTKTableModelAdapter::testColumnInsertion] ERROR: Mismatch in number of "
+         "columns."
+      << std::endl;
     this->Errors++;
   }
 }
@@ -97,9 +99,9 @@ void QVTKTableModelAdapterTestClass::testColumnRemoval(int column, int n)
   int new_ncols = this->TargetAdapter->GetTable()->GetNumberOfColumns();
   if (new_ncols != old_ncols - n)
   {
-    cerr
+    std::cerr
       << "[TestClassQVTKTableModelAdapter::testColumnRemoval] ERROR: Mismatch in number of columns."
-      << endl;
+      << std::endl;
     this->Errors++;
   }
 }
@@ -114,8 +116,9 @@ void QVTKTableModelAdapterTestClass::testRowInsertion(int row, int n)
   int new_nrows = this->TargetAdapter->GetTable()->GetNumberOfRows();
   if (new_nrows != old_nrows + n)
   {
-    cerr << "[TestClassQVTKTableModelAdapter::testRowInsertion] ERROR: Mismatch in number of rows."
-         << endl;
+    std::cerr
+      << "[TestClassQVTKTableModelAdapter::testRowInsertion] ERROR: Mismatch in number of rows."
+      << std::endl;
     this->Errors++;
   }
 }
@@ -130,8 +133,9 @@ void QVTKTableModelAdapterTestClass::testRowRemoval(int row, int n)
   int new_nrows = this->TargetAdapter->GetTable()->GetNumberOfRows();
   if (new_nrows != old_nrows - n)
   {
-    cerr << "[TestClassQVTKTableModelAdapter::testRowRemoval] ERROR: Mismatch in number of rows."
-         << endl;
+    std::cerr
+      << "[TestClassQVTKTableModelAdapter::testRowRemoval] ERROR: Mismatch in number of rows."
+      << std::endl;
     this->Errors++;
   }
 }
@@ -156,9 +160,10 @@ void QVTKTableModelAdapterTestClass::testInsertRemoveColumns()
   }
   if (headers != target)
   {
-    cerr << "[TestClassQVTKTableModelAdapter::testInsertRemoveColumns] ERROR: Mismatch in column "
-            "header names after inserting columns."
-         << endl;
+    std::cerr
+      << "[TestClassQVTKTableModelAdapter::testInsertRemoveColumns] ERROR: Mismatch in column "
+         "header names after inserting columns."
+      << std::endl;
     this->Errors++;
   }
 
@@ -176,9 +181,10 @@ void QVTKTableModelAdapterTestClass::testInsertRemoveColumns()
   }
   if (headers != target)
   {
-    cerr << "[TestClassQVTKTableModelAdapter::testInsertRemoveColumns] ERROR: Mismatch in column "
-            "header names after removing columns."
-         << endl;
+    std::cerr
+      << "[TestClassQVTKTableModelAdapter::testInsertRemoveColumns] ERROR: Mismatch in column "
+         "header names after removing columns."
+      << std::endl;
     this->Errors++;
   }
 }
@@ -208,9 +214,10 @@ void QVTKTableModelAdapterTestClass::testInsertRemoveRows()
   {
     if (x_col->GetTuple1(i) != i)
     {
-      cerr << "[TestClassQVTKTableModelAdapter::testInsertRemoveRows] ERROR: Mismatch in row data "
-              "after inserting rows."
-           << endl;
+      std::cerr
+        << "[TestClassQVTKTableModelAdapter::testInsertRemoveRows] ERROR: Mismatch in row data "
+           "after inserting rows."
+        << std::endl;
       this->Errors++;
     }
   }
@@ -220,9 +227,10 @@ void QVTKTableModelAdapterTestClass::testInsertRemoveRows()
 
   if ((x_col->GetTuple1(0) != 0) || (x_col->GetTuple1(1) != 3))
   {
-    cerr << "[TestClassQVTKTableModelAdapter::testInsertRemoveRows] ERROR: Mismatch in row data "
-            "after removing rows."
-         << endl;
+    std::cerr
+      << "[TestClassQVTKTableModelAdapter::testInsertRemoveRows] ERROR: Mismatch in row data "
+         "after removing rows."
+      << std::endl;
     this->Errors++;
   }
 }

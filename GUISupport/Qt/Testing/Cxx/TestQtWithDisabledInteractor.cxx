@@ -4,7 +4,6 @@
 // EnableRender flag disabled.
 #include "TestQtCommon.h"
 #include "vtkActor.h"
-#include "vtkGenericOpenGLRenderWindow.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
@@ -12,6 +11,8 @@
 #include "vtkSphereSource.h"
 
 #include <QImage>
+
+#include <iostream>
 
 int TestQtWithDisabledInteractor(int argc, char* argv[])
 {
