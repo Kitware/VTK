@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -12,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:    Quincey Koziol
- *        Thursday, September 28, 2000
- *
- * Purpose:    This file contains declarations which are visible only within
- *        the H5S package.  Source files outside the H5S package should
- *        include H5Sprivate.h instead.
+ * Purpose: This file contains declarations which are visible only within
+ *          the H5S package.  Source files outside the H5S package should
+ *          include H5Sprivate.h instead.
  */
 #if !(defined H5S_FRIEND || defined H5S_MODULE)
 #error "Do not include this file outside the H5S package!"
@@ -93,15 +89,6 @@
  * H5S_UNLIMITED) */
 #define H5S_MAX_SIZE ((hsize_t)(hssize_t)(-2))
 
-/* Macro for checking if two ranges overlap one another */
-/*
- * Check for the inverse of whether the ranges are disjoint.  If they are
- * disjoint, then the low bound of one of the ranges must be greater than the
- * high bound of the other.
- */
-/* (Assumes that low & high bounds are _inclusive_) */
-#define H5S_RANGE_OVERLAP(L1, H1, L2, H2) (!((L1) > (H2) || (L2) > (H1)))
-
 /*
  * Dataspace extent information
  */
@@ -150,7 +137,7 @@ struct H5S_pnt_list_t {
 struct H5S_hyper_span_t {
     hsize_t                       low, high; /* Low & high bounds of elements selected for span, inclusive */
     struct H5S_hyper_span_info_t *down;      /* Pointer to list of spans in next dimension down */
-    struct H5S_hyper_span_t *     next;      /* Pointer to next span in list */
+    struct H5S_hyper_span_t      *next;      /* Pointer to next span in list */
 };
 
 /* "Operation info" struct.  Used to hold temporary information during  copies,
@@ -236,7 +223,7 @@ typedef struct {
 
 /* Selection information methods */
 /* Method to copy a selection */
-typedef herr_t (*H5S_sel_copy_func_t)(H5S_t *dst, const H5S_t *src, hbool_t share_selection);
+typedef herr_t (*H5S_sel_copy_func_t)(H5S_t *dst, const H5S_t *src, bool share_selection);
 /* Method to release current selection */
 typedef herr_t (*H5S_sel_release_func_t)(H5S_t *space);
 /* Method to determine if current selection is valid for dataspace */
@@ -246,7 +233,8 @@ typedef hssize_t (*H5S_sel_serial_size_func_t)(H5S_t *space);
 /* Method to store current selection in "serialized" form (a byte sequence suitable for storing on disk) */
 typedef herr_t (*H5S_sel_serialize_func_t)(H5S_t *space, uint8_t **p);
 /* Method to create selection from "serialized" form (a byte sequence suitable for storing on disk) */
-typedef herr_t (*H5S_sel_deserialize_func_t)(H5S_t **space, const uint8_t **p);
+typedef herr_t (*H5S_sel_deserialize_func_t)(H5S_t **space, const uint8_t **p, const size_t p_size,
+                                             bool skip);
 /* Method to determine smallest n-D bounding box containing the current selection */
 typedef herr_t (*H5S_sel_bounds_func_t)(const H5S_t *space, hsize_t *start, hsize_t *end);
 /* Method to determine linear offset of initial element in selection within dataspace */
@@ -285,7 +273,7 @@ typedef struct {
     H5S_sel_release_func_t  release;  /* Method to release current selection */
     H5S_sel_is_valid_func_t is_valid; /* Method to determine if current selection is valid for dataspace */
     H5S_sel_serial_size_func_t
-                             serial_size; /* Method to determine number of bytes required to store current selection */
+        serial_size; /* Method to determine number of bytes required to store current selection */
     H5S_sel_serialize_func_t serialize;     /* Method to store current selection in "serialized" form (a byte
                                                sequence suitable for storing on disk) */
     H5S_sel_deserialize_func_t deserialize; /* Method to store create selection from "serialized" form (a byte
@@ -293,7 +281,7 @@ typedef struct {
     H5S_sel_bounds_func_t
         bounds; /* Method to determine to smallest n-D bounding box containing the current selection */
     H5S_sel_offset_func_t
-                             offset; /* Method to determine linear offset of initial element in selection within dataspace */
+        offset; /* Method to determine linear offset of initial element in selection within dataspace */
     H5S_sel_unlim_dim_func_t unlim_dim; /* Method to get unlimited dimension of selection (or -1 for none) */
     H5S_sel_num_elem_non_unlim_func_t num_elem_non_unlim; /* Method to get the number of elements in a slice
                                                              through the unlimited dimension */
@@ -303,9 +291,9 @@ typedef struct {
     H5S_sel_shape_same_func_t
         shape_same; /* Method to determine if two dataspaces' selections are the same shape */
     H5S_sel_intersect_block_func_t
-                             intersect_block; /* Method to determine if a dataspaces' selection intersects a block */
-    H5S_sel_adjust_u_func_t  adjust_u;        /* Method to adjust a selection by an offset */
-    H5S_sel_adjust_s_func_t  adjust_s;        /* Method to adjust a selection by an offset (signed) */
+        intersect_block;               /* Method to determine if a dataspaces' selection intersects a block */
+    H5S_sel_adjust_u_func_t  adjust_u; /* Method to adjust a selection by an offset */
+    H5S_sel_adjust_s_func_t  adjust_s; /* Method to adjust a selection by an offset (signed) */
     H5S_sel_project_scalar   project_scalar; /* Method to construct scalar dataspace projection */
     H5S_sel_project_simple   project_simple; /* Method to construct simple dataspace projection */
     H5S_sel_iter_init_func_t iter_init;      /* Method to initialize iterator for current selection */
@@ -315,13 +303,13 @@ typedef struct {
 typedef struct {
     const H5S_select_class_t *type; /* Pointer to selection's class info */
 
-    hbool_t  offset_changed;       /* Indicate that the offset for the selection has been changed */
+    bool     offset_changed;       /* Indicate that the offset for the selection has been changed */
     hssize_t offset[H5S_MAX_RANK]; /* Offset within the extent */
 
     hsize_t num_elem; /* Number of elements in selection */
 
     union {
-        H5S_pnt_list_t * pnt_lst; /* Info about list of selected points (order is important) */
+        H5S_pnt_list_t  *pnt_lst; /* Info about list of selected points (order is important) */
         H5S_hyper_sel_t *hslab;   /* Info about hyperslab selection */
     } sel_info;
 } H5S_select_t;
@@ -369,7 +357,7 @@ typedef struct H5S_sel_iter_class_t {
     H5S_sel_iter_next_block_func_t
         iter_next_block; /* Method to move selection iterator to the next block in the selection */
     H5S_sel_iter_get_seq_list_func_t
-                                iter_get_seq_list; /* Method to retrieve a list of offset/length sequences for selection iterator */
+        iter_get_seq_list; /* Method to retrieve a list of offset/length sequences for selection iterator */
     H5S_sel_iter_release_func_t iter_release; /* Method to release iterator for current selection */
 } H5S_sel_iter_class_t;
 
@@ -398,14 +386,14 @@ H5_DLLVAR const unsigned H5O_sdspace_ver_bounds[H5F_LIBVER_NBOUNDS];
 
 /* Extent functions */
 H5_DLL herr_t H5S__extent_release(H5S_extent_t *extent);
-H5_DLL herr_t H5S__extent_copy_real(H5S_extent_t *dst, const H5S_extent_t *src, hbool_t copy_max);
+H5_DLL herr_t H5S__extent_copy_real(H5S_extent_t *dst, const H5S_extent_t *src, bool copy_max);
 
 /* Operations on hyperslab selections */
 H5_DLL uint64_t H5S__hyper_get_op_gen(void);
 H5_DLL void     H5S__hyper_rebuild(const H5S_t *space);
 H5_DLL herr_t   H5S__modify_select(H5S_t *space1, H5S_seloper_t op, H5S_t *space2);
 H5_DLL herr_t H5S__hyper_project_intersection(H5S_t *src_space, H5S_t *dst_space, H5S_t *src_intersect_space,
-                                              H5S_t *proj_space, hbool_t share_space);
+                                              H5S_t *proj_space, bool share_space);
 
 /* Operations on selection iterators */
 H5_DLL herr_t H5S__sel_iter_close_cb(H5S_sel_iter_t *_sel_iter, void **request);
@@ -416,6 +404,7 @@ H5_DLL herr_t H5S__get_rebuild_status_test(hid_t space_id, H5S_diminfo_valid_t *
                                            H5S_diminfo_valid_t *status2);
 H5_DLL herr_t H5S__get_diminfo_status_test(hid_t space_id, H5S_diminfo_valid_t *status);
 H5_DLL htri_t H5S__internal_consistency_test(hid_t space_id);
+H5_DLL herr_t H5S__verify_offsets(hid_t space_id, const hssize_t *offset);
 #endif /* H5S_TESTING */
 
 #endif /*H5Spkg_H*/

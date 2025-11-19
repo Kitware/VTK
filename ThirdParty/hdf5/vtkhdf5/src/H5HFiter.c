@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:		H5HFiter.c
- *			Apr 24 2006
- *			Quincey Koziol
  *
  * Purpose:		Block iteration routines for fractal heaps.
  *
@@ -33,6 +30,7 @@
 /***********/
 #include "H5private.h"   /* Generic Functions			*/
 #include "H5Eprivate.h"  /* Error handling		  	*/
+#include "H5FLprivate.h" /* Free Lists                               */
 #include "H5HFpkg.h"     /* Fractal heaps			*/
 #include "H5VMprivate.h" /* Vectors and arrays 			*/
 
@@ -65,7 +63,7 @@
 /*******************/
 
 /* Declare a free list to manage the H5HF_block_loc_t struct */
-H5FL_DEFINE(H5HF_block_loc_t);
+H5FL_DEFINE_STATIC(H5HF_block_loc_t);
 
 /*-------------------------------------------------------------------------
  * Function:	H5HF__man_iter_init
@@ -75,9 +73,6 @@ H5FL_DEFINE(H5HF_block_loc_t);
  *              actually used)
  *
  * Return:	SUCCEED/FAIL
- *
- * Programmer:	Quincey Koziol
- *		Apr 24 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -89,10 +84,10 @@ H5HF__man_iter_init(H5HF_block_iter_t *biter)
     /*
      * Check arguments.
      */
-    HDassert(biter);
+    assert(biter);
 
     /* Reset block iterator information */
-    HDmemset(biter, 0, sizeof(H5HF_block_iter_t));
+    memset(biter, 0, sizeof(H5HF_block_iter_t));
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5HF__man_iter_init() */
@@ -104,9 +99,6 @@ H5HF__man_iter_init(H5HF_block_iter_t *biter)
  *              an offset in the heap
  *
  * Return:	SUCCEED/FAIL
- *
- * Programmer:	Quincey Koziol
- *		Apr 24 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -121,7 +113,7 @@ H5HF__man_iter_start_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, hsize_t o
     hsize_t          curr_offset;          /* Current offset, as adjusted */
     unsigned         row;                  /* Current row we are on */
     unsigned         col;                  /* Column in row */
-    hbool_t          root_block = TRUE;    /* Flag to indicate the current block is the root indirect block */
+    bool             root_block = true;    /* Flag to indicate the current block is the root indirect block */
     herr_t           ret_value  = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
@@ -129,16 +121,16 @@ H5HF__man_iter_start_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, hsize_t o
     /*
      * Check arguments.
      */
-    HDassert(biter);
-    HDassert(!biter->ready);
+    assert(biter);
+    assert(!biter->ready);
 
     /* Check for empty heap */
-    HDassert(offset >= hdr->man_dtable.cparam.start_block_size);
+    assert(offset >= hdr->man_dtable.cparam.start_block_size);
 
     /* Allocate level structure */
     if (NULL == (biter->curr = H5FL_MALLOC(H5HF_block_loc_t)))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL,
-                    "memory allocation failed for direct block free list section")
+                    "memory allocation failed for direct block free list section");
 
     /*
     1:  <Scan down block offsets for dtable rows until find a row >= offset>
@@ -154,7 +146,7 @@ H5HF__man_iter_start_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, hsize_t o
 
     */
     do {
-        hbool_t did_protect; /* Whether we protected the indirect block or not */
+        bool did_protect; /* Whether we protected the indirect block or not */
 
         /* Walk down the rows in the doubling table until we've found the correct row for the next block */
         for (row = 0; row < hdr->man_dtable.max_root_rows; row++)
@@ -186,7 +178,7 @@ H5HF__man_iter_start_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, hsize_t o
             biter->curr->up = NULL;
 
             /* Next time through the loop will not be with the root indirect block */
-            root_block = FALSE;
+            root_block = false;
         } /* end if */
         else {
             hsize_t child_size; /* Size of new indirect block to create */
@@ -206,8 +198,8 @@ H5HF__man_iter_start_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, hsize_t o
         /* Load indirect block for this context location */
         if (NULL ==
             (iblock = H5HF__man_iblock_protect(hdr, iblock_addr, iblock_nrows, iblock_parent,
-                                               iblock_par_entry, FALSE, H5AC__NO_FLAGS_SET, &did_protect)))
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap indirect block")
+                                               iblock_par_entry, false, H5AC__NO_FLAGS_SET, &did_protect)))
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap indirect block");
 
         /* Make indirect block the context for the current location */
         biter->curr->context = iblock;
@@ -215,18 +207,18 @@ H5HF__man_iter_start_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, hsize_t o
         /* Hold the indirect block with the location */
         if (H5HF__iblock_incr(biter->curr->context) < 0)
             HGOTO_ERROR(H5E_HEAP, H5E_CANTINC, FAIL,
-                        "can't increment reference count on shared indirect block")
+                        "can't increment reference count on shared indirect block");
 
         /* Release the current indirect block */
         if (H5HF__man_iblock_unprotect(iblock, H5AC__NO_FLAGS_SET, did_protect) < 0)
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap indirect block")
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap indirect block");
         iblock = NULL;
 
         /* See if the location falls in a direct block row */
         /* Or, if the offset has just filled up a direct or indirect block */
         if (curr_offset == (col * hdr->man_dtable.row_block_size[row]) ||
             row < hdr->man_dtable.max_direct_rows) {
-            HDassert(curr_offset - (col * hdr->man_dtable.row_block_size[row]) == 0);
+            assert(curr_offset - (col * hdr->man_dtable.row_block_size[row]) == 0);
             break; /* Done now */
         }          /* end if */
         /* Indirect block row */
@@ -236,7 +228,7 @@ H5HF__man_iter_start_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, hsize_t o
             /* Allocate level structure */
             if (NULL == (new_loc = H5FL_MALLOC(H5HF_block_loc_t)))
                 HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL,
-                            "memory allocation failed for direct block free list section")
+                            "memory allocation failed for direct block free list section");
 
             /* Link new level into iterator */
             new_loc->up = biter->curr;
@@ -250,7 +242,7 @@ H5HF__man_iter_start_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, hsize_t o
     } while (1); /* Breaks out in middle */
 
     /* Set flag to indicate block iterator finished initializing */
-    biter->ready = TRUE;
+    biter->ready = true;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -263,9 +255,6 @@ done:
  *
  * Return:	SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		May 31 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -276,7 +265,7 @@ H5HF__man_iter_set_entry(const H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, unsign
     /*
      * Check arguments.
      */
-    HDassert(biter);
+    assert(biter);
 
     /* Set location context */
     biter->curr->entry = entry;
@@ -294,9 +283,6 @@ H5HF__man_iter_set_entry(const H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, unsign
  *
  * Return:	SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		Apr 24 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -311,15 +297,15 @@ H5HF__man_iter_start_entry(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, H5HF_indir
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(biter);
-    HDassert(!biter->ready);
-    HDassert(iblock);
+    assert(hdr);
+    assert(biter);
+    assert(!biter->ready);
+    assert(iblock);
 
     /* Create new location for iterator */
     if (NULL == (new_loc = H5FL_MALLOC(H5HF_block_loc_t)))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL,
-                    "memory allocation failed for direct block free list section")
+                    "memory allocation failed for direct block free list section");
 
     /* Set up location context */
     new_loc->entry   = start_entry;
@@ -330,13 +316,13 @@ H5HF__man_iter_start_entry(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, H5HF_indir
 
     /* Increment reference count on indirect block */
     if (H5HF__iblock_incr(new_loc->context) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTINC, FAIL, "can't increment reference count on shared indirect block")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTINC, FAIL, "can't increment reference count on shared indirect block");
 
     /* Make new location the current location */
     biter->curr = new_loc;
 
     /* Set flag to indicate block iterator finished initializing */
-    biter->ready = TRUE;
+    biter->ready = true;
 
 done:
     if (ret_value < 0 && new_loc)
@@ -353,9 +339,6 @@ done:
  *
  * Return:	SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		Apr 24 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -368,7 +351,7 @@ H5HF__man_iter_reset(H5HF_block_iter_t *biter)
     /*
      * Check arguments.
      */
-    HDassert(biter);
+    assert(biter);
 
     /* Free any location contexts that exist */
     if (biter->curr) {
@@ -385,7 +368,7 @@ H5HF__man_iter_reset(H5HF_block_iter_t *biter)
             if (curr_loc->context)
                 if (H5HF__iblock_decr(curr_loc->context) < 0)
                     HGOTO_ERROR(H5E_HEAP, H5E_CANTDEC, FAIL,
-                                "can't decrement reference count on shared indirect block")
+                                "can't decrement reference count on shared indirect block");
 
             /* Free the current location context */
             curr_loc = H5FL_FREE(H5HF_block_loc_t, curr_loc);
@@ -399,7 +382,7 @@ H5HF__man_iter_reset(H5HF_block_iter_t *biter)
     } /* end if */
 
     /* Reset block iterator flags */
-    biter->ready = FALSE;
+    biter->ready = false;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -412,9 +395,6 @@ done:
  *
  * Return:	SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		Apr 24 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -425,16 +405,16 @@ H5HF__man_iter_next(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, unsigned nentries
     /*
      * Check arguments.
      */
-    HDassert(biter);
-    HDassert(biter->curr);
-    HDassert(biter->curr->context);
-    HDassert(biter->curr->row < biter->curr->context->nrows);
+    assert(biter);
+    assert(biter->curr);
+    assert(biter->curr->context);
+    assert(biter->curr->row < biter->curr->context->nrows);
 
     /* Advance entry in current block */
     biter->curr->entry += nentries;
     biter->curr->row = biter->curr->entry / hdr->man_dtable.cparam.width;
     biter->curr->col = biter->curr->entry % hdr->man_dtable.cparam.width;
-    /*    HDassert(biter->curr->row <= biter->curr->context->nrows); */
+    /*    assert(biter->curr->row <= biter->curr->context->nrows); */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5HF__man_iter_next() */
@@ -445,9 +425,6 @@ H5HF__man_iter_next(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, unsigned nentries
  * Purpose:	Move iterator up one level
  *
  * Return:	SUCCEED/FAIL
- *
- * Programmer:	Quincey Koziol
- *		Apr 24 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -462,15 +439,15 @@ H5HF__man_iter_up(H5HF_block_iter_t *biter)
     /*
      * Check arguments.
      */
-    HDassert(biter);
-    HDassert(biter->ready);
-    HDassert(biter->curr);
-    HDassert(biter->curr->up);
-    HDassert(biter->curr->context);
+    assert(biter);
+    assert(biter->ready);
+    assert(biter->curr);
+    assert(biter->curr->up);
+    assert(biter->curr->context);
 
     /* Release hold on current location's indirect block */
     if (H5HF__iblock_decr(biter->curr->context) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTDEC, FAIL, "can't decrement reference count on shared indirect block")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTDEC, FAIL, "can't decrement reference count on shared indirect block");
 
     /* Get pointer to location context above this one */
     up_loc = biter->curr->up;
@@ -492,9 +469,6 @@ done:
  *
  * Return:	SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		Apr 24 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -508,15 +482,15 @@ H5HF__man_iter_down(H5HF_block_iter_t *biter, H5HF_indirect_t *iblock)
     /*
      * Check arguments.
      */
-    HDassert(biter);
-    HDassert(biter->ready);
-    HDassert(biter->curr);
-    HDassert(biter->curr->context);
+    assert(biter);
+    assert(biter->ready);
+    assert(biter->curr);
+    assert(biter->curr->context);
 
     /* Create new location to move down to */
     if (NULL == (down_loc = H5FL_MALLOC(H5HF_block_loc_t)))
         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, FAIL,
-                    "memory allocation failed for direct block free list section")
+                    "memory allocation failed for direct block free list section");
 
     /* Initialize down location */
     down_loc->row     = 0;
@@ -527,7 +501,7 @@ H5HF__man_iter_down(H5HF_block_iter_t *biter, H5HF_indirect_t *iblock)
 
     /* Increment reference count on indirect block */
     if (H5HF__iblock_incr(down_loc->context) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTINC, FAIL, "can't increment reference count on shared indirect block")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTINC, FAIL, "can't increment reference count on shared indirect block");
 
     /* Make down location the current location */
     biter->curr = down_loc;
@@ -546,9 +520,6 @@ done:
  *
  * Return:	SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		Apr 24 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -560,8 +531,8 @@ H5HF__man_iter_curr(H5HF_block_iter_t *biter, unsigned *row, unsigned *col, unsi
     /*
      * Check arguments.
      */
-    HDassert(biter);
-    HDassert(biter->ready);
+    assert(biter);
+    assert(biter->ready);
 
     /* Retrieve the information asked for */
     if (row)
@@ -583,12 +554,9 @@ H5HF__man_iter_curr(H5HF_block_iter_t *biter, unsigned *row, unsigned *col, unsi
  *
  * Return:	SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		Apr 25 2006
- *
  *-------------------------------------------------------------------------
  */
-hbool_t
+bool
 H5HF__man_iter_ready(H5HF_block_iter_t *biter)
 {
     FUNC_ENTER_PACKAGE_NOERR
@@ -596,7 +564,7 @@ H5HF__man_iter_ready(H5HF_block_iter_t *biter)
     /*
      * Check arguments.
      */
-    HDassert(biter);
+    assert(biter);
 
     FUNC_LEAVE_NOAPI(biter->ready)
 } /* end H5HF__man_iter_ready() */

@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -12,9 +11,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  James Laird
- *              Thursday, March 30, 2006
- *
  * Purpose:     This file contains declarations which are visible only within
  *              the H5SM shared object header messages package.  Source files
  *              outside the H5SM package should	include H5SMprivate.h instead.
@@ -33,6 +29,7 @@
 #include "H5ACprivate.h" /* Metadata Cache		  	*/
 #include "H5B2private.h" /* B-trees                              */
 #include "H5HFprivate.h" /* Fractal heaps		  	*/
+#include "H5FLprivate.h" /* Free Lists                           */
 
 /****************************/
 /* Package Macros           */
@@ -180,7 +177,7 @@ typedef struct {
     H5AC_info_t cache_info;
 
     H5SM_index_header_t *header;   /* Pointer to the corresponding index header */
-    H5SM_sohm_t *        messages; /* Actual list, stored as an array */
+    H5SM_sohm_t         *messages; /* Actual list, stored as an array */
 } H5SM_list_t;
 
 /* Typedef for shared object header message master table */
@@ -195,9 +192,9 @@ struct H5SM_master_table_t {
 
 /* Typedef for searching an index (list or B-tree) */
 typedef struct {
-    H5F_t *     file;          /* File in which sharing is happening */
-    H5HF_t *    fheap;         /* The heap for this message type, open. */
-    void *      encoding;      /* The message encoded, or NULL */
+    H5F_t      *file;          /* File in which sharing is happening */
+    H5HF_t     *fheap;         /* The heap for this message type, open. */
+    void       *encoding;      /* The message encoded, or NULL */
     size_t      encoding_size; /* Size of the encoding, or 0 */
     H5SM_sohm_t message;       /* The message to find/insert.
                                 * If the message doesn't yet have a
@@ -234,7 +231,7 @@ typedef struct H5SM_table_cache_ud_t {
 
 /* Callback info for loading a shared message list index into the cache */
 typedef struct H5SM_list_cache_ud_t {
-    H5F_t *              f;      /* File that shared message index stored as a table is in */
+    H5F_t               *f;      /* File that shared message index stored as a table is in */
     H5SM_index_header_t *header; /* Index header for this list */
 } H5SM_list_cache_ud_t;
 
@@ -255,7 +252,7 @@ H5_DLLVAR const H5B2_class_t H5SM_INDEX[1];
 /****************************/
 
 /* General routines */
-H5_DLL ssize_t H5SM__get_index(const H5SM_master_table_t *table, unsigned type_id);
+H5_DLL herr_t H5SM__get_index(const H5SM_master_table_t *table, unsigned type_id, ssize_t *idx);
 
 /* Encode and decode routines, used for B-tree and cache encoding/decoding */
 H5_DLL herr_t H5SM__message_compare(const void *rec1, const void *rec2, int *result);

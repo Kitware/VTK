@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -12,21 +11,25 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Robb Matzke
- *              Monday, August  4, 1999
- *
- * Purpose:	The public header file for the family driver.
+ * Purpose:	The public header file for the family virtual file driver (VFD)
  */
 #ifndef H5FDfamily_H
 #define H5FDfamily_H
 
-#define H5FD_FAMILY       (H5FDperform_init(H5FD_family_init))
+/** Initializer for the family VFD */
+#define H5FD_FAMILY (H5FDperform_init(H5FD_family_init))
+
+/** Identifier for the family VFD */
 #define H5FD_FAMILY_VALUE H5_VFD_FAMILY
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/** @private
+ *
+ * \brief Private initializer for the family VFD
+ */
 H5_DLL hid_t H5FD_family_init(void);
 
 /**

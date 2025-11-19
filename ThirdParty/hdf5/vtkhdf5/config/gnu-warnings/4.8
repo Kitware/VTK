@@ -7,9 +7,6 @@
 -Wpacked-bitfield-compat
 -Wsync-nand
 
-# warning flag added for GCC >= 4.5
--Wstrict-overflow=5
-
 # This warning can only be truly addressed using the gcc extension of
 # using D to indicate doubles (e.g., 1.23D).
 -Wno-unsuffixed-float-constants
@@ -19,10 +16,6 @@
 -Wtrampolines
 
 # warning flag added for GCC >= 4.7
-#
-# -Wstack-usage=8192 warnings need to be swept up on a branch so
-# that we can stop burdening the whole development team.
-#
 -Wstack-usage=8192
 
 # warning flag added for GCC >= 4.8

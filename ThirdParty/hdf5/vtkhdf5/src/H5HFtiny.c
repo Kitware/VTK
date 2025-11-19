@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:     H5HFtiny.c
- *              Aug 14 2006
- *              Quincey Koziol
  *
  * Purpose:     Routines for "tiny" objects in fractal heap
  *
@@ -79,9 +76,6 @@ static herr_t H5HF__tiny_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operat
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Quincey Koziol
- *              Aug 14 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -92,7 +86,7 @@ H5HF__tiny_init(H5HF_hdr_t *hdr)
     /*
      * Check arguments.
      */
-    HDassert(hdr);
+    assert(hdr);
 
     /* Compute information about 'tiny' objects for the heap */
 
@@ -103,15 +97,15 @@ H5HF__tiny_init(H5HF_hdr_t *hdr)
      */
     if ((hdr->id_len - 1) <= H5HF_TINY_LEN_SHORT) {
         hdr->tiny_max_len      = hdr->id_len - 1;
-        hdr->tiny_len_extended = FALSE;
+        hdr->tiny_len_extended = false;
     } /* end if */
     else if ((hdr->id_len - 1) == (H5HF_TINY_LEN_SHORT + 1)) {
         hdr->tiny_max_len      = H5HF_TINY_LEN_SHORT;
-        hdr->tiny_len_extended = FALSE;
+        hdr->tiny_len_extended = false;
     } /* end if */
     else {
         hdr->tiny_max_len      = hdr->id_len - 2;
-        hdr->tiny_len_extended = TRUE;
+        hdr->tiny_len_extended = true;
     } /* end else */
 
     FUNC_LEAVE_NOAPI(SUCCEED)
@@ -123,9 +117,6 @@ H5HF__tiny_init(H5HF_hdr_t *hdr)
  * Purpose:     Pack a 'tiny' object in a heap ID
  *
  * Return:      SUCCEED/FAIL
- *
- * Programmer:  Quincey Koziol
- *              Aug 14 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -141,11 +132,11 @@ H5HF__tiny_insert(H5HF_hdr_t *hdr, size_t obj_size, const void *obj, void *_id)
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(obj_size <= hdr->tiny_max_len);
-    HDassert(obj_size <= (H5HF_TINY_MASK_EXT + 1));
-    HDassert(obj);
-    HDassert(id);
+    assert(hdr);
+    assert(obj_size <= hdr->tiny_max_len);
+    assert(obj_size <= (H5HF_TINY_MASK_EXT + 1));
+    assert(obj);
+    assert(id);
 
     /* Adjust object's size for encoding it */
     enc_obj_size = obj_size - 1;
@@ -161,7 +152,7 @@ H5HF__tiny_insert(H5HF_hdr_t *hdr, size_t obj_size, const void *obj, void *_id)
     } /* end else */
 
     H5MM_memcpy(id, obj, obj_size);
-    HDmemset(id + obj_size, 0, (hdr->id_len - ((size_t)1 + (size_t)hdr->tiny_len_extended + obj_size)));
+    memset(id + obj_size, 0, (hdr->id_len - ((size_t)1 + (size_t)hdr->tiny_len_extended + obj_size)));
 
     /* Update statistics about heap */
     hdr->tiny_size += obj_size;
@@ -169,7 +160,7 @@ H5HF__tiny_insert(H5HF_hdr_t *hdr, size_t obj_size, const void *obj, void *_id)
 
     /* Mark heap header as modified */
     if (H5HF__hdr_dirty(hdr) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTDIRTY, FAIL, "can't mark heap header as dirty")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTDIRTY, FAIL, "can't mark heap header as dirty");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -181,9 +172,6 @@ done:
  * Purpose:     Get the size of a 'tiny' object in a fractal heap
  *
  * Return:      SUCCEED (Can't fail)
- *
- * Programmer:  Quincey Koziol
- *              Aug 14 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -197,9 +185,9 @@ H5HF__tiny_get_obj_len(H5HF_hdr_t *hdr, const uint8_t *id, size_t *obj_len_p)
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(id);
-    HDassert(obj_len_p);
+    assert(hdr);
+    assert(id);
+    assert(obj_len_p);
 
     /* Check if 'tiny' object ID is in extended form, and retrieve encoded size */
     if (!hdr->tiny_len_extended)
@@ -223,9 +211,6 @@ H5HF__tiny_get_obj_len(H5HF_hdr_t *hdr, const uint8_t *id, size_t *obj_len_p)
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Quincey Koziol
- *              Sep 11 2006
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -234,14 +219,14 @@ H5HF__tiny_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op, void 
     size_t enc_obj_size;        /* Encoded object size */
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(id);
-    HDassert(op);
+    assert(hdr);
+    assert(id);
+    assert(op);
 
     /* Get the object's encoded length */
     /* H5HF__tiny_obj_len can't fail */
@@ -260,7 +245,7 @@ H5HF__tiny_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op, void 
 
     /* Call the user's 'op' callback */
     if (op(id, enc_obj_size, op_data) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "application's callback failed")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "application's callback failed");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -272,9 +257,6 @@ done:
  * Purpose:     Read a 'tiny' object from the heap
  *
  * Return:      SUCCEED/FAIL
- *
- * Programmer:  Quincey Koziol
- *              Aug  8 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -288,13 +270,13 @@ H5HF__tiny_read(H5HF_hdr_t *hdr, const uint8_t *id, void *obj)
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(id);
-    HDassert(obj);
+    assert(hdr);
+    assert(id);
+    assert(obj);
 
     /* Call the internal 'op' routine */
     if (H5HF__tiny_op_real(hdr, id, H5HF__op_read, obj) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -306,9 +288,6 @@ done:
  * Purpose:     Operate directly on a 'tiny' object
  *
  * Return:      SUCCEED/FAIL
- *
- * Programmer:  Quincey Koziol
- *              Sept 11 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -322,13 +301,13 @@ H5HF__tiny_op(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op, void *op_d
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(id);
-    HDassert(op);
+    assert(hdr);
+    assert(id);
+    assert(op);
 
     /* Call the internal 'op' routine routine */
     if (H5HF__tiny_op_real(hdr, id, op, op_data) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -340,9 +319,6 @@ done:
  * Purpose:     Remove a 'tiny' object from the heap statistics
  *
  * Return:      SUCCEED/FAIL
- *
- * Programmer:  Quincey Koziol
- *              Aug 14 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -357,8 +333,8 @@ H5HF__tiny_remove(H5HF_hdr_t *hdr, const uint8_t *id)
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(id);
+    assert(hdr);
+    assert(id);
 
     /* Get the object's encoded length */
     /* H5HF__tiny_obj_len can't fail */
@@ -370,7 +346,7 @@ H5HF__tiny_remove(H5HF_hdr_t *hdr, const uint8_t *id)
 
     /* Mark heap header as modified */
     if (H5HF__hdr_dirty(hdr) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTDIRTY, FAIL, "can't mark heap header as dirty")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTDIRTY, FAIL, "can't mark heap header as dirty");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

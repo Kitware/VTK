@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -12,9 +11,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer: Quincey Koziol
- *             Wednesday, July 9, 2003
- *
  * Purpose:     This file contains declarations which are visible
  *              only within the H5HG package. Source files outside the
  *              H5HG package should include H5HGprivate.h instead.
@@ -107,33 +103,38 @@ H5FL_BLK_EXTERN(gheap_chunk);
 /****************************/
 
 typedef struct H5HG_obj_t {
-    int      nrefs; /* reference count                  */
-    size_t   size;  /* total size of object             */
-    uint8_t *begin; /* ptr to object into heap->chunk   */
+    int      nrefs; /* Reference count */
+    size_t   size;  /* Total size of object */
+    uint8_t *begin; /* Pointer to object into heap->chunk (INCLUDES header) */
 } H5HG_obj_t;
 
 /* Forward declarations for fields */
 struct H5F_shared_t;
 
 struct H5HG_heap_t {
-    H5AC_info_t cache_info;      /* Information for H5AC cache functions, _must_ be */
-                                 /* first field in structure */
-    haddr_t  addr;               /*collection address		*/
-    size_t   size;               /*total size of collection	*/
-    uint8_t *chunk;              /*the collection, incl. header	*/
-    size_t   nalloc;             /*numb object slots allocated	*/
-    size_t   nused;              /*number of slots used		*/
-                                 /* If this value is >65535 then all indices */
-                                 /* have been used at some time and the */
-                                 /* correct new index should be searched for */
-    struct H5F_shared_t *shared; /* shared file */
-    H5HG_obj_t *         obj;    /*array of object descriptions	*/
+    H5AC_info_t cache_info;      /* Information for H5AC cache functions, MUST be
+                                  * the first field in structure
+                                  */
+    haddr_t  addr;               /* Collection address */
+    size_t   size;               /* Total size of collection */
+    uint8_t *chunk;              /* Collection of elements - note that this
+                                  * INCLUDES the header, so it's not just
+                                  * the objects!
+                                  */
+    size_t nalloc;               /* # object slots allocated */
+    size_t nused;                /* # of slots used
+                                  * If this value is >65535 then all indices
+                                  * have been used at some time and the
+                                  * correct new index should be searched for
+                                  */
+    struct H5F_shared_t *shared; /* Shared file */
+    H5HG_obj_t          *obj;    /* Array of object descriptions */
 };
 
 /******************************/
 /* Package Private Prototypes */
 /******************************/
-H5_DLL herr_t H5HG__free(H5HG_heap_t *heap);
+H5_DLL herr_t       H5HG__free(H5HG_heap_t *heap);
 H5_DLL H5HG_heap_t *H5HG__protect(H5F_t *f, haddr_t addr, unsigned flags);
 
 #endif /* H5HGpkg_H */

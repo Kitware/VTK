@@ -11,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol
- *		Saturday, September 12, 2015
- *
- * Purpose:	This file contains declarations which define macros for the
- *		H5FD package.  Including this header means that the source file
- *		is part of the H5FD package.
+ * Purpose: This file contains declarations which define macros for the
+ *          H5FD package.  Including this header means that the source file
+ *          is part of the H5FD package.
  */
 #ifndef H5FDmodule_H
 #define H5FDmodule_H
@@ -25,8 +22,11 @@
  *      reporting macros.
  */
 #define H5FD_MODULE
-#define H5_MY_PKG      H5FD
-#define H5_MY_PKG_ERR  H5E_VFL
-#define H5_MY_PKG_INIT YES
+#define H5_MY_PKG     H5FD
+#define H5_MY_PKG_ERR H5E_VFL
+/**
+ * \defgroup H5VFD Virtual File Driver Features
+ *
+ */
 
 #endif /* H5FDmodule_H */

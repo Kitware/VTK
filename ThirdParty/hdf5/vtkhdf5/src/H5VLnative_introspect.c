@@ -75,7 +75,7 @@ H5VL__native_introspect_opt_query(void H5_ATTR_UNUSED *obj, H5VL_subclass_t subc
     FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(flags);
+    assert(flags);
 
     /* The native VOL connector supports all optional operations */
     *flags = H5VL_OPT_QUERY_SUPPORTED;
@@ -83,13 +83,13 @@ H5VL__native_introspect_opt_query(void H5_ATTR_UNUSED *obj, H5VL_subclass_t subc
     /* Set appropriate flags for each operation in each subclass */
     switch (subcls) {
         case H5VL_SUBCLS_NONE:
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional 'none' operation")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional 'none' operation");
 
         case H5VL_SUBCLS_INFO:
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional info operation")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional info operation");
 
         case H5VL_SUBCLS_WRAP:
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional wrapper operation")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional wrapper operation");
 
         case H5VL_SUBCLS_ATTR:
             switch (opt_type) {
@@ -101,7 +101,7 @@ H5VL__native_introspect_opt_query(void H5_ATTR_UNUSED *obj, H5VL_subclass_t subc
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 
                 default:
-                    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional attribute operation")
+                    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional attribute operation");
                     break;
             } /* end switch */
             break;
@@ -131,13 +131,13 @@ H5VL__native_introspect_opt_query(void H5_ATTR_UNUSED *obj, H5VL_subclass_t subc
                     break;
 
                 default:
-                    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional dataset operation")
+                    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional dataset operation");
                     break;
             } /* end switch */
             break;
 
         case H5VL_SUBCLS_DATATYPE:
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional datatype operation")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional datatype operation");
 
         case H5VL_SUBCLS_FILE:
             switch (opt_type) {
@@ -190,7 +190,7 @@ H5VL__native_introspect_opt_query(void H5_ATTR_UNUSED *obj, H5VL_subclass_t subc
                     break;
 
                 default:
-                    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional file operation")
+                    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional file operation");
                     break;
             } /* end switch */
             break;
@@ -209,13 +209,13 @@ H5VL__native_introspect_opt_query(void H5_ATTR_UNUSED *obj, H5VL_subclass_t subc
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 
                 default:
-                    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional group operation")
+                    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional group operation");
                     break;
             } /* end switch */
             break;
 
         case H5VL_SUBCLS_LINK:
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional link operation")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional link operation");
 
         case H5VL_SUBCLS_OBJECT:
             switch (opt_type) {
@@ -237,22 +237,22 @@ H5VL__native_introspect_opt_query(void H5_ATTR_UNUSED *obj, H5VL_subclass_t subc
                     break;
 
                 default:
-                    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional object operation")
+                    HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional object operation");
                     break;
             } /* end switch */
             break;
 
         case H5VL_SUBCLS_REQUEST:
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional request operation")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional request operation");
 
         case H5VL_SUBCLS_BLOB:
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional blob operation")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional blob operation");
 
         case H5VL_SUBCLS_TOKEN:
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional token operation")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown optional token operation");
 
         default:
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown H5VL subclass")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "unknown H5VL subclass");
     } /* end switch */
 
 done:

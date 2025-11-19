@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -81,22 +80,6 @@ H5DOread_chunk(hid_t dset_id, hid_t dxpl_id, const hsize_t *offset, uint32_t *fi
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Vailin Choi; Jan 2014
- *
- * Note:
- * 	This routine is copied from the fast forward feature branch: features/hdf5_ff
- *	src/H5FF.c:H5DOappend() with the following modifications:
- * 	1) Remove and replace macro calls such as
- *		FUNC_ENTER_API, H5TRACE, HGOTO_ERROR
- * 	   accordingly because hl does not have these macros
- *	2) Replace H5I_get_type() by H5Iget_type()
- *	3) Replace H5P_isa_class() by H5Pisa_class()
- *	4) Fix a bug in the following: replace extension by size[axis]
- *		if(extension < old_size) {
- *		  ret_value = FAIL;
- *		  goto done;
- *   		}
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -118,10 +101,10 @@ H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t extension, hid_t 
     hsize_t stride[H5S_MAX_RANK]; /* H5Sselect_hyperslab: # of elements to move when selecting */
     hsize_t block[H5S_MAX_RANK];  /* H5Sselect_hyperslab: # of elements in a block */
 
-    hsize_t *       boundary = NULL;  /* Boundary set in append flush property */
+    hsize_t        *boundary = NULL;  /* Boundary set in append flush property */
     H5D_append_cb_t append_cb;        /* Callback function set in append flush property */
-    void *          udata;            /* User data set in append flush property */
-    hbool_t         hit = FALSE;      /* Boundary is hit or not */
+    void           *udata;            /* User data set in append flush property */
+    bool            hit = false;      /* Boundary is hit or not */
     hsize_t         k;                /* Local index variable */
     unsigned        u;                /* Local index variable */
     herr_t          ret_value = FAIL; /* Return value */
@@ -132,7 +115,7 @@ H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t extension, hid_t 
 
     /* If the user passed in a default DXPL, sanity check it */
     if (H5P_DEFAULT != dxpl_id)
-        if (TRUE != H5Pisa_class(dxpl_id, H5P_DATASET_XFER))
+        if (true != H5Pisa_class(dxpl_id, H5P_DATASET_XFER))
             goto done;
 
     /* Get the dataspace of the dataset */
@@ -200,7 +183,7 @@ H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t extension, hid_t 
         goto done;
 
     /* Allocate the boundary array */
-    boundary = (hsize_t *)HDmalloc(ndims * sizeof(hsize_t));
+    boundary = (hsize_t *)malloc(ndims * sizeof(hsize_t));
 
     /* Retrieve the append flush property */
     if (H5Pget_append_flush(dapl, ndims, boundary, &append_cb, &udata) < 0)
@@ -212,7 +195,7 @@ H5DOappend(hid_t dset_id, hid_t dxpl_id, unsigned axis, size_t extension, hid_t 
         /* Determine whether a boundary is hit or not */
         for (k = start[axis]; k < size[axis]; k++)
             if (!((k + 1) % boundary[axis])) {
-                hit = TRUE;
+                hit = true;
                 break;
             }
 
@@ -248,7 +231,7 @@ done:
         ret_value = FAIL;
 
     if (boundary)
-        HDfree(boundary);
+        free(boundary);
 
     return ret_value;
 } /* H5DOappend() */

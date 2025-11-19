@@ -11,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol
- *		Saturday, September 12, 2015
- *
- * Purpose:	This file contains declarations which define macros for the
- *		H5AC package.  Including this header means that the source file
- *		is part of the H5AC package.
+ * Purpose: This file contains declarations which define macros for the
+ *          H5AC package.  Including this header means that the source file
+ *          is part of the H5AC package.
  */
 #ifndef H5ACmodule_H
 #define H5ACmodule_H
@@ -25,8 +22,7 @@
  *      reporting macros.
  */
 #define H5AC_MODULE
-#define H5_MY_PKG      H5AC
-#define H5_MY_PKG_ERR  H5E_CACHE
-#define H5_MY_PKG_INIT YES
+#define H5_MY_PKG     H5AC
+#define H5_MY_PKG_ERR H5E_CACHE
 
 #endif /* H5ACmodule_H */

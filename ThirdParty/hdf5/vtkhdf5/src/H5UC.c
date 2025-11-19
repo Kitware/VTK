@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -59,12 +58,12 @@ H5UC_create(void *o, H5UC_free_func_t free_func)
     FUNC_ENTER_NOAPI(NULL)
 
     /* Sanity check */
-    HDassert(o);
-    HDassert(free_func);
+    assert(o);
+    assert(free_func);
 
     /* Allocate ref-counted string structure */
     if (NULL == (ret_value = H5FL_MALLOC(H5UC_t)))
-        HGOTO_ERROR(H5E_RS, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RS, H5E_NOSPACE, NULL, "memory allocation failed");
 
     /* Set the internal fields */
     ret_value->o         = o;
@@ -102,10 +101,10 @@ H5UC_decr(H5UC_t *rc)
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
-    HDassert(rc);
-    HDassert(rc->o);
-    HDassert(rc->n > 0);
-    HDassert(rc->free_func);
+    assert(rc);
+    assert(rc->o);
+    assert(rc->n > 0);
+    assert(rc->free_func);
 
     /* Decrement reference count */
     rc->n--;
@@ -114,7 +113,7 @@ H5UC_decr(H5UC_t *rc)
     if (rc->n == 0) {
         if ((rc->free_func)(rc->o) < 0) {
             rc = H5FL_FREE(H5UC_t, rc);
-            HGOTO_ERROR(H5E_RS, H5E_CANTFREE, FAIL, "memory release failed")
+            HGOTO_ERROR(H5E_RS, H5E_CANTFREE, FAIL, "memory release failed");
         } /* end if */
         rc = H5FL_FREE(H5UC_t, rc);
     } /* end if */

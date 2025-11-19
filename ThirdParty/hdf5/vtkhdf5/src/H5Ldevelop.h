@@ -2,10 +2,10 @@
  * Copyright by The HDF Group.                                               *
  * All rights reserved.                                                      *
  *                                                                           *
- * This file is part of HDF5. The full HDF5 copyright notice, including      *
+ * This file is part of HDF5.  The full HDF5 copyright notice, including     *
  * terms governing use, modification, and redistribution, is contained in    *
  * the COPYING file, which can be found at the root of the source code       *
- * distribution tree, or in https://support.hdfgroup.org/ftp/HDF5/releases.  *
+ * distribution tree, or in https://www.hdfgroup.org/licenses.               *
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -15,8 +15,8 @@
  *      support routines.
  */
 
-#ifndef _H5Ldevelop_H
-#define _H5Ldevelop_H
+#ifndef H5Ldevelop_H
+#define H5Ldevelop_H
 
 /* Include package's public header */
 #include "H5Lpublic.h"
@@ -29,6 +29,16 @@
  * \brief Current version of the H5L_class_t struct
  */
 #define H5L_LINK_CLASS_T_VERS 1
+
+/**
+ * \brief Version of external link format
+ */
+#define H5L_EXT_VERSION 0
+
+/**
+ * \brief Valid flags for external links
+ */
+#define H5L_EXT_FLAGS_ALL 0
 
 /*******************/
 /* Public Typedefs */
@@ -83,7 +93,7 @@ typedef ssize_t (*H5L_query_func_t)(const char *link_name, const void *lnkdata, 
 typedef struct {
     int                 version;     /**< Version number of this struct       */
     H5L_type_t          id;          /**< Link type ID                        */
-    const char *        comment;     /**< Comment for debugging               */
+    const char         *comment;     /**< Comment for debugging               */
     H5L_create_func_t   create_func; /**< Callback during link creation       */
     H5L_move_func_t     move_func;   /**< Callback after moving link          */
     H5L_copy_func_t     copy_func;   /**< Callback after copying link         */
@@ -289,7 +299,7 @@ H5_DLL herr_t H5Lunregister(H5L_type_t id);
  */
 #ifndef H5_NO_DEPRECATED_SYMBOLS
 
-/* Previous versions of the H5L_class_t struct */
+/** Previous versions of the H5L_class_t struct \since 1.10.3 */
 #define H5L_LINK_CLASS_T_VERS_0 0
 
 /** Callback during link traversal */
@@ -300,7 +310,7 @@ typedef hid_t (*H5L_traverse_0_func_t)(const char *link_name, hid_t cur_group, c
 typedef struct {
     int                   version;     /**< Version number of this struct        */
     H5L_type_t            id;          /**< Link type ID                         */
-    const char *          comment;     /**< Comment for debugging                */
+    const char           *comment;     /**< Comment for debugging                */
     H5L_create_func_t     create_func; /**< Callback during link creation        */
     H5L_move_func_t       move_func;   /**< Callback after moving link           */
     H5L_copy_func_t       copy_func;   /**< Callback after copying link          */
@@ -311,4 +321,4 @@ typedef struct {
 
 #endif /* H5_NO_DEPRECATED_SYMBOLS */
 
-#endif /* _H5Ldevelop_H */
+#endif /* H5Ldevelop_H */

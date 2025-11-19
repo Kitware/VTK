@@ -22,13 +22,26 @@
  *      reporting macros.
  */
 #define H5M_MODULE
-#define H5_MY_PKG      H5M
-#define H5_MY_PKG_ERR  H5E_MAP
-#define H5_MY_PKG_INIT YES
+#define H5_MY_PKG     H5M
+#define H5_MY_PKG_ERR H5E_MAP
 
-/**\defgroup H5M H5M
+/**
+ * \page H5M_UG HDF5 VOL Data Mapping
+ * \Bold{The HDF5 Data Mapping can only be used with the HDF5 VOL connectors that
+ * implement map objects.} The native HDF5 library does not support this feature.
+ *
+ * \section sec_map HDF5 Map Object
  *
  * \todo Describe the map life cycle.
+ *
+ * \todo How does MAPL fit into \ref subsubsec_plist_class.
+ *
+ * Previous Chapter \ref sec_async - Next Chapter \ref sec_addition
+ *
+ */
+
+/**
+ * \defgroup H5M VOL Mapping (H5M)
  *
  * \details \Bold{The interface can only be used with the HDF5 VOL connectors that
  *          implement map objects.} The native HDF5 library does not support this

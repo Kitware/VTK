@@ -11,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol
- *		Saturday, September 12, 2015
- *
- * Purpose:	This file contains declarations which define macros for the
- *		H5FS package.  Including this header means that the source file
- *		is part of the H5FS package.
+ * Purpose: This file contains declarations which define macros for the
+ *          H5FS package.  Including this header means that the source file
+ *          is part of the H5FS package.
  */
 #ifndef H5FSmodule_H
 #define H5FSmodule_H
@@ -25,8 +22,7 @@
  *      reporting macros.
  */
 #define H5FS_MODULE
-#define H5_MY_PKG      H5FS
-#define H5_MY_PKG_ERR  H5E_FSPACE
-#define H5_MY_PKG_INIT NO
+#define H5_MY_PKG     H5FS
+#define H5_MY_PKG_ERR H5E_FSPACE
 
 #endif /* H5FSmodule_H */

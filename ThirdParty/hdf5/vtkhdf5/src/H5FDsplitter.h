@@ -11,96 +11,103 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Purpose:	The public header file for the "splitter" driver.
+ * Purpose:	The public header file for the splitter virtual file driver (VFD)
  */
 
 #ifndef H5FDsplitter_H
 #define H5FDsplitter_H
 
-#define H5FD_SPLITTER       (H5FDperform_init(H5FD_splitter_init))
+/** Initializer for the splitter VFD */
+#define H5FD_SPLITTER (H5FDperform_init(H5FD_splitter_init))
+
+/** Identifier for the splitter VFD */
 #define H5FD_SPLITTER_VALUE H5_VFD_SPLITTER
 
-/* The version of the H5FD_splitter_vfd_config_t structure used */
+/** The version of the H5FD_splitter_vfd_config_t structure used */
 #define H5FD_CURR_SPLITTER_VFD_CONFIG_VERSION 1
 
-/* Maximum length of a filename/path string in the Write-Only channel,
- * including the NULL-terminator.
+/**
+ * Maximum length of a filename/path string in the Write-Only channel,
+ * including the NULL-terminator. \since 1.10.7
  */
 #define H5FD_SPLITTER_PATH_MAX 4096
 
-/* Semi-unique constant used to help identify structure pointers */
+/** Semi-unique constant used to help identify structure pointers \since 1.10.7 */
 #define H5FD_SPLITTER_MAGIC 0x2B916880
 
-/* ----------------------------------------------------------------------------
- * Structure:   H5FD_spliiter_vfd_config_t
- *
- * One-stop shopping for configuring a Splitter VFD (rather than many
- * parameters passed into H5Pset/get functions).
- *
- * magic (int32_t)
- *      Semi-unique number, used to sanity-check that a given pointer is
- *      likely (or not) to be this structure type. MUST be first.
- *      If magic is not H5FD_SPLITTER_MAGIC, the structure (and/or pointer to)
- *      must be considered invalid.
- *
- * version (unsigned int)
- *      Version number of this structure -- informs component membership.
- *      If not H5FD_CURR_SPLITTER_VFD_CONFIG_VERSION, the structure (and/or
- *      pointer to) must be considered invalid.
- *
- * rw_fapl_id (hid_t)
- *      Library-given identification number of the Read/Write channel driver
- *      File Access Property List.
- *      The driver must support read/write access.
- *      Must be set to H5P_DEFAULT or a valid FAPL ID.
- *
- * wo_fapl_id (hid_t)
- *      Library-given identification number of the Read/Write channel driver
- *      File Access Property List.
- *      The driver feature flags must include H5FD_FEAT_DEFAULT_VFD_COMPAITBLE.
- *      Must be set to H5P_DEFAULT or a valid FAPL ID.
- *
- * wo_file_path (char[H5FD_SPLITTER_PATH_MAX + 1])
- *      String buffer for the Write-Only channel target file.
- *      Must be null-terminated, cannot be empty.
- *
- * log_file_path (char[H5FD_SPLITTER_PATH_MAX + 1])
- *      String buffer for the Splitter VFD logging output.
- *      Must be null-terminated.
- *      If null, no logfile is created.
- *
- * ignore_wo_errors (hbool_t)
- *      Toggle flag for how judiciously to respond to errors on the Write-Only
- *      channel.
- *
- * ----------------------------------------------------------------------------
+//! <!-- [H5FD_splitter_vfd_config_t_snip] -->
+/**
+ * Configuration options for setting up the Splitter VFD
  */
 typedef struct H5FD_splitter_vfd_config_t {
-    int32_t      magic;
-    unsigned int version;
-    hid_t        rw_fapl_id;
-    hid_t        wo_fapl_id;
-    char         wo_path[H5FD_SPLITTER_PATH_MAX + 1];
-    char         log_file_path[H5FD_SPLITTER_PATH_MAX + 1];
-    hbool_t      ignore_wo_errs;
+    int32_t      magic;   /**< Magic number to identify this struct. Must be \p H5FD_SPLITTER_MAGIC. */
+    unsigned int version; /**< Version number of this struct. Currently must be \p
+                             H5FD_CURR_SPLITTER_VFD_CONFIG_VERSION. */
+    hid_t rw_fapl_id;     /**< File-access property list for setting up the read/write channel. Can be \p
+                             H5P_DEFAULT. */
+    hid_t wo_fapl_id; /**< File-access property list for setting up the read-only channel. The selected VFD
+                         must support the \p H5FD_FEAT_DEFAULT_VFD_COMPATIBLE flag. Can be \p H5P_DEFAULT. */
+    char wo_path[H5FD_SPLITTER_PATH_MAX + 1];       /**< Path to the write-only file */
+    char log_file_path[H5FD_SPLITTER_PATH_MAX + 1]; /**< Path to the log file, which will be created on HDF5
+                                                       file open (existing files will be clobbered). Can be
+                                                       NULL, in which case no logging output is generated. */
+    hbool_t ignore_wo_errs;                         /**< Whether to ignore errors on the write-only channel */
 } H5FD_splitter_vfd_config_t;
+//! <!-- [H5FD_splitter_vfd_config_t_snip] -->
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** @private
+ *
+ * \brief Private initializer for the splitter VFD
+ */
 H5_DLL hid_t H5FD_splitter_init(void);
 
 /**
  * \ingroup FAPL
  *
- * \todo Add missing documentation
+ * \brief Sets the file access property list to use the splitter driver
+ *
+ * \fapl_id
+ * \param[in] config_ptr Configuration options for the VFD
+ * \returns \herr_t
+ *
+ * \details H5Pset_fapl_splitter() sets the file access property list identifier,
+ *          \p fapl_id, to use the splitter driver.
+ *
+ *          The splitter VFD echoes file manipulation (e.g. create, truncate)
+ *          and write calls to a second, write-only file.
+ *
+ *          \note The splitter VFD should not be confused with the split VFD,
+ *          which is a simplification of the multi VFD and creates separate
+ *          files for metadata and data.
+ *
+ * \since 1.10.7, 1.12.1
  */
 H5_DLL herr_t H5Pset_fapl_splitter(hid_t fapl_id, H5FD_splitter_vfd_config_t *config_ptr);
 
 /**
  * \ingroup FAPL
  *
- * \todo Add missing documentation
+ * \brief Gets splitter driver properties from the the file access property list
+ *
+ * \fapl_id
+ * \param[out] config_ptr Configuration options for the VFD
+ * \returns \herr_t
+ *
+ * \details H5Pset_fapl_splitter() sets the file access property list identifier,
+ *          \p fapl_id, to use the splitter driver.
+ *
+ *          The splitter VFD echoes file manipulation (e.g. create, truncate)
+ *          and write calls to a second file.
+ *
+ *          \note The splitter VFD should not be confused with the split VFD,
+ *          which is a simplification of the multi VFD and creates separate
+ *          files for metadata and data.
+ *
+ * \since 1.10.7, 1.12.1
  */
 H5_DLL herr_t H5Pget_fapl_splitter(hid_t fapl_id, H5FD_splitter_vfd_config_t *config_ptr);
 

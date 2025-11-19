@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -13,11 +12,9 @@
 
 /*-------------------------------------------------------------------------
  *
- * Created:		H5TSprivate.h
- *			May 2 2000
- *			Chee Wai LEE
+ * Created:     H5TSprivate.h
  *
- * Purpose:		Private non-prototype header.
+ * Purpose:     Thread-safety abstractions used by the library
  *
  *-------------------------------------------------------------------------
  */

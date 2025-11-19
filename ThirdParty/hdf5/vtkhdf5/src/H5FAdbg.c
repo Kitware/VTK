@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -36,7 +35,6 @@
 #include "H5private.h"   /* Generic Functions			*/
 #include "H5Eprivate.h"  /* Error handling		  	*/
 #include "H5FApkg.h"     /* Fixed Arrays				*/
-#include "H5Oprivate.h"  /* Object Header 			*/
 #include "H5VMprivate.h" /* Vector functions                     */
 
 /****************/
@@ -74,9 +72,6 @@
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Vailin Choi
- *              Thursday, April 30, 2009
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -85,55 +80,55 @@ H5FA__hdr_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth, co
 {
     /* Local variables */
     H5FA_hdr_t *hdr       = NULL;    /* Shared fixed array header */
-    void *      dbg_ctx   = NULL;    /* Fixed array debugging context */
+    void       *dbg_ctx   = NULL;    /* Fixed array debugging context */
     herr_t      ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
     /* Check arguments */
-    HDassert(f);
-    HDassert(H5F_addr_defined(addr));
-    HDassert(H5F_addr_defined(obj_addr));
-    HDassert(stream);
-    HDassert(indent >= 0);
-    HDassert(fwidth >= 0);
-    HDassert(cls);
+    assert(f);
+    assert(H5_addr_defined(addr));
+    assert(H5_addr_defined(obj_addr));
+    assert(stream);
+    assert(indent >= 0);
+    assert(fwidth >= 0);
+    assert(cls);
 
     /* Check for debugging context callback available */
     if (cls->crt_dbg_ctx)
         /* Create debugging context */
         if (NULL == (dbg_ctx = cls->crt_dbg_ctx(f, obj_addr)))
-            HGOTO_ERROR(H5E_FARRAY, H5E_CANTGET, FAIL, "unable to create fixed array debugging context")
+            HGOTO_ERROR(H5E_FARRAY, H5E_CANTGET, FAIL, "unable to create fixed array debugging context");
 
     /* Load the fixed array header */
     if (NULL == (hdr = H5FA__hdr_protect(f, addr, dbg_ctx, H5AC__READ_ONLY_FLAG)))
-        HGOTO_ERROR(H5E_FARRAY, H5E_CANTPROTECT, FAIL, "unable to load fixed array header")
+        HGOTO_ERROR(H5E_FARRAY, H5E_CANTPROTECT, FAIL, "unable to load fixed array header");
 
     /* Print opening message */
-    HDfprintf(stream, "%*sFixed Array Header...\n", indent, "");
+    fprintf(stream, "%*sFixed Array Header...\n", indent, "");
 
     /* Print the values */
-    HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth, "Array class ID:", hdr->cparam.cls->name);
-    HDfprintf(stream, "%*s%-*s %zu\n", indent, "", fwidth, "Header size:", hdr->size);
-    HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
-              "Raw Element Size:", (unsigned)hdr->cparam.raw_elmt_size);
-    HDfprintf(stream, "%*s%-*s %zu\n", indent, "", fwidth,
-              "Native Element Size (on this platform):", hdr->cparam.cls->nat_elmt_size);
+    fprintf(stream, "%*s%-*s %s\n", indent, "", fwidth, "Array class ID:", hdr->cparam.cls->name);
+    fprintf(stream, "%*s%-*s %zu\n", indent, "", fwidth, "Header size:", hdr->size);
+    fprintf(stream, "%*s%-*s %u\n", indent, "", fwidth,
+            "Raw Element Size:", (unsigned)hdr->cparam.raw_elmt_size);
+    fprintf(stream, "%*s%-*s %zu\n", indent, "", fwidth,
+            "Native Element Size (on this platform):", hdr->cparam.cls->nat_elmt_size);
 
-    HDfprintf(stream, "%*s%-*s %u\n", indent, "", fwidth, "Max. # of elements in data block page:",
-              (unsigned)((size_t)1 << hdr->cparam.max_dblk_page_nelmts_bits));
+    fprintf(stream, "%*s%-*s %u\n", indent, "", fwidth, "Max. # of elements in data block page:",
+            (unsigned)((size_t)1 << hdr->cparam.max_dblk_page_nelmts_bits));
 
-    HDfprintf(stream, "%*s%-*s %" PRIuHSIZE "\n", indent, "", fwidth,
-              "Number of elements in Fixed Array:", hdr->stats.nelmts);
+    fprintf(stream, "%*s%-*s %" PRIuHSIZE "\n", indent, "", fwidth,
+            "Number of elements in Fixed Array:", hdr->stats.nelmts);
 
-    HDfprintf(stream, "%*s%-*s %" PRIuHADDR "\n", indent, "", fwidth,
-              "Fixed Array Data Block Address:", hdr->dblk_addr);
+    fprintf(stream, "%*s%-*s %" PRIuHADDR "\n", indent, "", fwidth,
+            "Fixed Array Data Block Address:", hdr->dblk_addr);
 
 done:
     if (dbg_ctx && cls->dst_dbg_ctx(dbg_ctx) < 0)
-        HDONE_ERROR(H5E_FARRAY, H5E_CANTRELEASE, FAIL, "unable to release fixed array debugging context")
+        HDONE_ERROR(H5E_FARRAY, H5E_CANTRELEASE, FAIL, "unable to release fixed array debugging context");
     if (hdr && H5FA__hdr_unprotect(hdr, H5AC__NO_FLAGS_SET) < 0)
-        HDONE_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, FAIL, "unable to release fixed array header")
+        HDONE_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, FAIL, "unable to release fixed array header");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FA__hdr_debug() */
@@ -145,9 +140,6 @@ done:
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Vailin Choi
- *              Thursday, April 30, 2009
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -155,58 +147,58 @@ H5FA__dblock_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
                    haddr_t hdr_addr, haddr_t obj_addr)
 {
     /* Local variables */
-    H5FA_hdr_t *   hdr     = NULL;      /* Shared fixed array header */
+    H5FA_hdr_t    *hdr     = NULL;      /* Shared fixed array header */
     H5FA_dblock_t *dblock  = NULL;      /* Fixed array data block */
-    void *         dbg_ctx = NULL;      /* Fixed array context */
+    void          *dbg_ctx = NULL;      /* Fixed array context */
     size_t         u;                   /* Local index variable */
     herr_t         ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
     /* Check arguments */
-    HDassert(f);
-    HDassert(H5F_addr_defined(addr));
-    HDassert(stream);
-    HDassert(indent >= 0);
-    HDassert(fwidth >= 0);
-    HDassert(cls);
-    HDassert(H5F_addr_defined(hdr_addr));
-    HDassert(H5F_addr_defined(obj_addr));
+    assert(f);
+    assert(H5_addr_defined(addr));
+    assert(stream);
+    assert(indent >= 0);
+    assert(fwidth >= 0);
+    assert(cls);
+    assert(H5_addr_defined(hdr_addr));
+    assert(H5_addr_defined(obj_addr));
 
     /* Check for debugging context callback available */
     if (cls->crt_dbg_ctx)
         /* Create debugging context */
         if (NULL == (dbg_ctx = cls->crt_dbg_ctx(f, obj_addr)))
-            HGOTO_ERROR(H5E_FARRAY, H5E_CANTGET, FAIL, "unable to create fixed array debugging context")
+            HGOTO_ERROR(H5E_FARRAY, H5E_CANTGET, FAIL, "unable to create fixed array debugging context");
 
     /* Load the fixed array header */
     if (NULL == (hdr = H5FA__hdr_protect(f, hdr_addr, dbg_ctx, H5AC__READ_ONLY_FLAG)))
-        HGOTO_ERROR(H5E_FARRAY, H5E_CANTPROTECT, FAIL, "unable to load fixed array header")
+        HGOTO_ERROR(H5E_FARRAY, H5E_CANTPROTECT, FAIL, "unable to load fixed array header");
 
     /* Protect data block */
     if (NULL == (dblock = H5FA__dblock_protect(hdr, addr, H5AC__READ_ONLY_FLAG)))
         HGOTO_ERROR(H5E_FARRAY, H5E_CANTPROTECT, FAIL,
-                    "unable to protect fixed array data block, address = %llu", (unsigned long long)addr)
+                    "unable to protect fixed array data block, address = %llu", (unsigned long long)addr);
 
     /* Print opening message */
-    HDfprintf(stream, "%*sFixed Array data Block...\n", indent, "");
+    fprintf(stream, "%*sFixed Array data Block...\n", indent, "");
 
     /* Print the values */
-    HDfprintf(stream, "%*s%-*s %s\n", indent, "", fwidth, "Array class ID:", hdr->cparam.cls->name);
-    HDfprintf(stream, "%*s%-*s %" PRIuHADDR "\n", indent, "", fwidth, "Address of Data Block:", dblock->addr);
-    HDfprintf(stream, "%*s%-*s %" PRIuHSIZE "\n", indent, "", fwidth, "Data Block size:", dblock->size);
-    HDfprintf(stream, "%*s%-*s %" PRIuHSIZE "\n", indent, "", fwidth,
-              "Number of elements in Data Block:", hdr->cparam.nelmts);
-    HDfprintf(stream, "%*s%-*s %zu\n", indent, "", fwidth, "Number of pages in Data Block:", dblock->npages);
-    HDfprintf(stream, "%*s%-*s %zu\n", indent, "", fwidth,
-              "Number of elements per Data Block page:", dblock->dblk_page_nelmts);
+    fprintf(stream, "%*s%-*s %s\n", indent, "", fwidth, "Array class ID:", hdr->cparam.cls->name);
+    fprintf(stream, "%*s%-*s %" PRIuHADDR "\n", indent, "", fwidth, "Address of Data Block:", dblock->addr);
+    fprintf(stream, "%*s%-*s %" PRIuHSIZE "\n", indent, "", fwidth, "Data Block size:", dblock->size);
+    fprintf(stream, "%*s%-*s %" PRIuHSIZE "\n", indent, "", fwidth,
+            "Number of elements in Data Block:", hdr->cparam.nelmts);
+    fprintf(stream, "%*s%-*s %zu\n", indent, "", fwidth, "Number of pages in Data Block:", dblock->npages);
+    fprintf(stream, "%*s%-*s %zu\n", indent, "", fwidth,
+            "Number of elements per Data Block page:", dblock->dblk_page_nelmts);
 
     if (dblock->npages) {         /* paging */
         size_t  dblk_page_nelmts; /* # of elements in a data block page */
         haddr_t dblk_page_addr;   /* Address of a data block page */
         size_t  page_idx;         /* Page index within data block */
 
-        HDfprintf(stream, "%*sPaging:\n", indent, "");
+        fprintf(stream, "%*sPaging:\n", indent, "");
 
         /* Iterate over the pages */
         dblk_page_addr   = dblock->addr + H5FA_DBLOCK_PREFIX_SIZE(dblock);
@@ -215,7 +207,7 @@ H5FA__dblock_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
         /* Read and print each page's elements in the data block */
         for (page_idx = 0; page_idx < dblock->npages; page_idx++) {
             if (!H5VM_bit_get(dblock->dblk_page_init, page_idx)) {
-                HDfprintf(stream, "%*s%-*s %zu %s\n", indent, "", fwidth, "Page %zu:", page_idx, "empty");
+                fprintf(stream, "%*s%-*s %zu %s\n", indent, "", fwidth, "Page %zu:", page_idx, "empty");
 
             }                                  /* end if */
             else {                             /* get the page */
@@ -231,19 +223,19 @@ H5FA__dblock_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
                                                                  H5AC__READ_ONLY_FLAG)))
                     HGOTO_ERROR(H5E_FARRAY, H5E_CANTPROTECT, FAIL,
                                 "unable to protect fixed array data block page, address = %llu",
-                                (unsigned long long)dblk_page_addr)
+                                (unsigned long long)dblk_page_addr);
 
-                HDfprintf(stream, "%*sElements in page %zu:\n", indent, "", page_idx);
+                fprintf(stream, "%*sElements in page %zu:\n", indent, "", page_idx);
                 for (u = 0; u < dblk_page_nelmts; u++) {
                     /* Call the class's 'debug' callback */
                     if ((hdr->cparam.cls->debug)(stream, (indent + 3), MAX(0, (fwidth - 3)), (hsize_t)u,
                                                  ((uint8_t *)dblk_page->elmts) +
                                                      (hdr->cparam.cls->nat_elmt_size * u)) < 0)
-                        HGOTO_ERROR(H5E_FARRAY, H5E_CANTGET, FAIL, "can't get element for debugging")
+                        HGOTO_ERROR(H5E_FARRAY, H5E_CANTGET, FAIL, "can't get element for debugging");
                 } /* end for */
                 if (H5FA__dblk_page_unprotect(dblk_page, H5AC__NO_FLAGS_SET) < 0)
                     HGOTO_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, FAIL,
-                                "unable to release fixed array data block page")
+                                "unable to release fixed array data block page");
 
                 /* Advance to next page address */
                 dblk_page_addr += dblock->dblk_page_size;
@@ -252,23 +244,23 @@ H5FA__dblock_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
     }         /* end if */
     else {    /* not paging */
         /* Print the elements in the data block */
-        HDfprintf(stream, "%*sElements:\n", indent, "");
+        fprintf(stream, "%*sElements:\n", indent, "");
         for (u = 0; u < hdr->cparam.nelmts; u++) {
             /* Call the class's 'debug' callback */
             if ((hdr->cparam.cls->debug)(stream, (indent + 3), MAX(0, (fwidth - 3)), (hsize_t)u,
                                          ((uint8_t *)dblock->elmts) + (hdr->cparam.cls->nat_elmt_size * u)) <
                 0)
-                HGOTO_ERROR(H5E_FARRAY, H5E_CANTGET, FAIL, "can't get element for debugging")
+                HGOTO_ERROR(H5E_FARRAY, H5E_CANTGET, FAIL, "can't get element for debugging");
         } /* end for */
     }     /* end else */
 
 done:
     if (dbg_ctx && cls->dst_dbg_ctx(dbg_ctx) < 0)
-        HDONE_ERROR(H5E_FARRAY, H5E_CANTRELEASE, FAIL, "unable to release fixed array debugging context")
+        HDONE_ERROR(H5E_FARRAY, H5E_CANTRELEASE, FAIL, "unable to release fixed array debugging context");
     if (dblock && H5FA__dblock_unprotect(dblock, H5AC__NO_FLAGS_SET) < 0)
-        HDONE_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, FAIL, "unable to release fixed array data block")
+        HDONE_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, FAIL, "unable to release fixed array data block");
     if (hdr && H5FA__hdr_unprotect(hdr, H5AC__NO_FLAGS_SET) < 0)
-        HDONE_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, FAIL, "unable to release fixed array header")
+        HDONE_ERROR(H5E_FARRAY, H5E_CANTUNPROTECT, FAIL, "unable to release fixed array header");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5FA__dblock_debug() */

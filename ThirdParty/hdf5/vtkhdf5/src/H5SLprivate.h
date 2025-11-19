@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -20,9 +19,6 @@
 /**************************************/
 /* Public headers needed by this file */
 /**************************************/
-#ifdef LATER
-#include "H5SLpublic.h"
-#endif /* LATER */
 
 /***************************************/
 /* Private headers needed by this file */
@@ -63,15 +59,15 @@ typedef herr_t (*H5SL_operator_t)(void *item, void *key, void *operator_data /*i
 /********************/
 /* Private routines */
 /********************/
-H5_DLL H5SL_t *H5SL_create(H5SL_type_t type, H5SL_cmp_t cmp);
-H5_DLL size_t  H5SL_count(H5SL_t *slist);
-H5_DLL herr_t  H5SL_insert(H5SL_t *slist, void *item, const void *key);
+H5_DLL H5SL_t      *H5SL_create(H5SL_type_t type, H5SL_cmp_t cmp);
+H5_DLL size_t       H5SL_count(H5SL_t *slist);
+H5_DLL herr_t       H5SL_insert(H5SL_t *slist, void *item, const void *key);
 H5_DLL H5SL_node_t *H5SL_add(H5SL_t *slist, void *item, const void *key);
-H5_DLL void *       H5SL_remove(H5SL_t *slist, const void *key);
-H5_DLL void *       H5SL_remove_first(H5SL_t *slist);
-H5_DLL void *       H5SL_search(H5SL_t *slist, const void *key);
-H5_DLL void *       H5SL_less(H5SL_t *slist, const void *key);
-H5_DLL void *       H5SL_greater(H5SL_t *slist, const void *key);
+H5_DLL void        *H5SL_remove(H5SL_t *slist, const void *key);
+H5_DLL void        *H5SL_remove_first(H5SL_t *slist);
+H5_DLL void        *H5SL_search(H5SL_t *slist, const void *key);
+H5_DLL void        *H5SL_less(H5SL_t *slist, const void *key);
+H5_DLL void        *H5SL_greater(H5SL_t *slist, const void *key);
 H5_DLL H5SL_node_t *H5SL_find(H5SL_t *slist, const void *key);
 H5_DLL H5SL_node_t *H5SL_below(H5SL_t *slist, const void *key);
 H5_DLL H5SL_node_t *H5SL_above(H5SL_t *slist, const void *key);
@@ -79,7 +75,7 @@ H5_DLL H5SL_node_t *H5SL_first(H5SL_t *slist);
 H5_DLL H5SL_node_t *H5SL_next(H5SL_node_t *slist_node);
 H5_DLL H5SL_node_t *H5SL_prev(H5SL_node_t *slist_node);
 H5_DLL H5SL_node_t *H5SL_last(H5SL_t *slist);
-H5_DLL void *       H5SL_item(H5SL_node_t *slist_node);
+H5_DLL void        *H5SL_item(H5SL_node_t *slist_node);
 H5_DLL herr_t       H5SL_iterate(H5SL_t *slist, H5SL_operator_t op, void *op_data);
 H5_DLL herr_t       H5SL_release(H5SL_t *slist);
 H5_DLL herr_t       H5SL_free(H5SL_t *slist, H5SL_operator_t op, void *op_data);

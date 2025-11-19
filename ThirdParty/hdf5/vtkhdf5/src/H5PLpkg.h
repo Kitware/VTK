@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -132,16 +131,15 @@ H5_DLL herr_t H5PL__get_plugin_control_mask(unsigned int *mask /*out*/);
 H5_DLL herr_t H5PL__set_plugin_control_mask(unsigned int mask);
 
 /* Plugin search and manipulation */
-H5_DLL herr_t H5PL__open(const char *libname, H5PL_type_t type, const H5PL_key_t *key,
-                         hbool_t *success /*out*/, H5PL_type_t *plugin_type /*out*/,
-                         const void **plugin_info /*out*/);
+H5_DLL herr_t H5PL__open(const char *libname, H5PL_type_t type, const H5PL_key_t *key, bool *success /*out*/,
+                         H5PL_type_t *plugin_type /*out*/, const void **plugin_info /*out*/);
 H5_DLL herr_t H5PL__close(H5PL_HANDLE handle);
 
 /* Plugin cache calls */
 H5_DLL herr_t H5PL__create_plugin_cache(void);
-H5_DLL herr_t H5PL__close_plugin_cache(hbool_t *already_closed /*out*/);
+H5_DLL herr_t H5PL__close_plugin_cache(bool *already_closed /*out*/);
 H5_DLL herr_t H5PL__add_plugin(H5PL_type_t type, const H5PL_key_t *key, H5PL_HANDLE handle);
-H5_DLL herr_t H5PL__find_plugin_in_cache(const H5PL_search_params_t *search_params, hbool_t *found /*out*/,
+H5_DLL herr_t H5PL__find_plugin_in_cache(const H5PL_search_params_t *search_params, bool *found /*out*/,
                                          const void **plugin_info /*out*/);
 
 /* Plugin search path calls */
@@ -155,7 +153,7 @@ H5_DLL herr_t      H5PL__insert_path(const char *path, unsigned int index);
 H5_DLL herr_t      H5PL__remove_path(unsigned int index);
 H5_DLL const char *H5PL__get_path(unsigned int index);
 H5_DLL herr_t H5PL__path_table_iterate(H5PL_iterate_type_t iter_type, H5PL_iterate_t iter_op, void *op_data);
-H5_DLL herr_t H5PL__find_plugin_in_path_table(const H5PL_search_params_t *search_params,
-                                              hbool_t *found /*out*/, const void **plugin_info /*out*/);
+H5_DLL herr_t H5PL__find_plugin_in_path_table(const H5PL_search_params_t *search_params, bool *found /*out*/,
+                                              const void **plugin_info /*out*/);
 
 #endif /* H5PLpkg_H */

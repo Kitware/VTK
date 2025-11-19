@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -12,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol
- *		Thursday, May 15, 2003
- *
- * Purpose:	This file contains declarations which are visible only within
- *		the H5I package.  Source files outside the H5I package should
- *		include H5Iprivate.h instead.
+ * Purpose: This file contains declarations which are visible only within
+ *          the H5I package.  Source files outside the H5I package should
+ *          include H5Iprivate.h instead.
  */
 #if !(defined H5I_FRIEND || defined H5I_MODULE)
 #error "Do not include this file outside the H5I package!"
@@ -28,15 +24,6 @@
 
 /* Get package's private header */
 #include "H5Iprivate.h"
-
-/* uthash is an external, header-only hash table implementation.
- *
- * We include the file directly in src/ and #define a few functions
- * to use our internal memory calls.
- */
-#define uthash_malloc(sz)    H5MM_malloc(sz)
-#define uthash_free(ptr, sz) H5MM_free(ptr) /* Ignoring sz is intentional */
-#include "uthash.h"
 
 /**************************/
 /* Package Private Macros */
@@ -69,18 +56,21 @@
 
 /* ID information structure used */
 typedef struct H5I_id_info_t {
-    hid_t       id;        /* ID for this info */
-    unsigned    count;     /* Ref. count for this ID */
-    unsigned    app_count; /* Ref. count of application visible IDs */
-    const void *object;    /* Pointer associated with the ID */
+    hid_t    id;        /* ID for this info */
+    unsigned count;     /* Ref. count for this ID */
+    unsigned app_count; /* Ref. count of application visible IDs */
+    union {
+        const void *c_object; /* Const pointer associated with the ID */
+        void       *object;   /* Pointer associated with the ID */
+    } u;
 
     /* Future ID info */
-    hbool_t                   is_future;  /* Whether this ID represents a future object */
+    bool                      is_future;  /* Whether this ID represents a future object */
     H5I_future_realize_func_t realize_cb; /* 'realize' callback for future object */
     H5I_future_discard_func_t discard_cb; /* 'discard' callback for future object */
 
     /* Hash table ID fields */
-    hbool_t        marked; /* Marked for deletion */
+    bool           marked; /* Marked for deletion */
     UT_hash_handle hh;     /* Hash table handle (must be LAST) */
 } H5I_id_info_t;
 
@@ -90,8 +80,8 @@ typedef struct H5I_type_info_t {
     unsigned           init_count;   /* # of times this type has been initialized */
     uint64_t           id_count;     /* Current number of IDs held */
     uint64_t           nextid;       /* ID to use for the next object */
-    H5I_id_info_t *    last_id_info; /* Info for most recent ID looked up */
-    H5I_id_info_t *    hash_table;   /* Hash table pointer for this ID type */
+    H5I_id_info_t     *last_id_info; /* Info for most recent ID looked up */
+    H5I_id_info_t     *hash_table;   /* Hash table pointer for this ID type */
 } H5I_type_info_t;
 
 /*****************************/
@@ -114,17 +104,17 @@ H5_DLLVAR int H5I_next_type_g;
 /* Package Private Prototypes */
 /******************************/
 
-H5_DLL hid_t H5I__register(H5I_type_t type, const void *object, hbool_t app_ref,
-                           H5I_future_realize_func_t realize_cb, H5I_future_discard_func_t discard_cb);
-H5_DLL int   H5I__destroy_type(H5I_type_t type);
-H5_DLL void *H5I__remove_verify(hid_t id, H5I_type_t type);
-H5_DLL int   H5I__inc_type_ref(H5I_type_t type);
-H5_DLL int   H5I__get_type_ref(H5I_type_t type);
+H5_DLL hid_t          H5I__register(H5I_type_t type, const void *object, bool app_ref,
+                                    H5I_future_realize_func_t realize_cb, H5I_future_discard_func_t discard_cb);
+H5_DLL int            H5I__destroy_type(H5I_type_t type);
+H5_DLL void          *H5I__remove_verify(hid_t id, H5I_type_t type);
+H5_DLL int            H5I__inc_type_ref(H5I_type_t type);
+H5_DLL int            H5I__get_type_ref(H5I_type_t type);
 H5_DLL H5I_id_info_t *H5I__find_id(hid_t id);
 
 /* Testing functions */
 #ifdef H5I_TESTING
-H5_DLL ssize_t H5I__get_name_test(hid_t id, char *name /*out*/, size_t size, hbool_t *cached);
+H5_DLL ssize_t H5I__get_name_test(hid_t id, char *name /*out*/, size_t size, bool *cached);
 #endif /* H5I_TESTING */
 
 #endif /*H5Ipkg_H*/

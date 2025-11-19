@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:             H5Obogus.c
- *                      Jan 21 2003
- *                      Quincey Koziol
  *
  * Purpose:             "bogus" message.  This message is guaranteed to never
  *                      be found in a valid HDF5 file and is only used to
@@ -36,10 +33,11 @@
 #ifdef H5O_ENABLE_BOGUS
 
 /* PRIVATE PROTOTYPES */
-static void * H5O__bogus_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags, unsigned *ioflags,
+static void  *H5O__bogus_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags, unsigned *ioflags,
                                 size_t p_size, const uint8_t *p);
-static herr_t H5O__bogus_encode(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg);
-static size_t H5O__bogus_size(const H5F_t *f, hbool_t disable_shared, const void *_mesg);
+static herr_t H5O__bogus_encode(H5F_t *f, bool disable_shared, size_t H5_ATTR_UNUSED p_size, uint8_t *p,
+                                const void *_mesg);
+static size_t H5O__bogus_size(const H5F_t *f, bool disable_shared, const void *_mesg);
 static herr_t H5O__bogus_debug(H5F_t *f, const void *_mesg, FILE *stream, int indent, int fwidth);
 
 /* This message derives from H5O message class */
@@ -96,38 +94,34 @@ const H5O_msg_class_t H5O_MSG_BOGUS_INVALID[1] = {{
  * Purpose:     Decode a "bogus" message and return a pointer to a new
  *              native message struct.
  *
- * Return:      Success:        Ptr to new message in native struct.
- *
+ * Return:      Success:        Pointer to new message in native struct
  *              Failure:        NULL
- *
- * Programmer:  Quincey Koziol
- *              Jan 21 2003
- *
  *-------------------------------------------------------------------------
  */
 static void *
-H5O__bogus_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNUSED mesg_flags,
-                  unsigned H5_ATTR_UNUSED *ioflags, size_t H5_ATTR_UNUSED p_size, const uint8_t *p)
+H5O__bogus_decode(H5F_t *f, H5O_t H5_ATTR_NDEBUG_UNUSED *open_oh, unsigned H5_ATTR_UNUSED mesg_flags,
+                  unsigned H5_ATTR_UNUSED *ioflags, size_t p_size, const uint8_t *p)
 {
-    H5O_bogus_t *mesg = NULL;
-    void *       ret_value; /* Return value */
+    const uint8_t *p_end = p + p_size - 1;
+    H5O_bogus_t   *mesg  = NULL;
+    void          *ret_value;
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
-    /* check args */
-    HDassert(f);
-    HDassert(p);
+    assert(f);
+    assert(p);
 
     /* Allocate the bogus message */
     if (NULL == (mesg = (H5O_bogus_t *)H5MM_calloc(sizeof(H5O_bogus_t))))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed");
 
-    /* decode */
+    if (H5_IS_BUFFER_OVERFLOW(p, 4, p_end))
+        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     UINT32DECODE(p, mesg->u);
 
     /* Validate the bogus info */
     if (mesg->u != H5O_BOGUS_VALUE)
-        HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, NULL, "invalid bogus value :-)")
+        HGOTO_ERROR(H5E_OHDR, H5E_BADVALUE, NULL, "invalid bogus value :-)");
 
     /* Set return value */
     ret_value = mesg;
@@ -146,21 +140,18 @@ done:
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Quincey Koziol
- *              Jan 21 2003
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O__bogus_encode(H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p,
-                  const void H5_ATTR_UNUSED *mesg)
+H5O__bogus_encode(H5F_t H5_ATTR_UNUSED *f, bool H5_ATTR_UNUSED disable_shared, size_t H5_ATTR_UNUSED p_size,
+                  uint8_t *p, const void H5_ATTR_UNUSED *mesg)
 {
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* check args */
-    HDassert(f);
-    HDassert(p);
-    HDassert(mesg);
+    assert(f);
+    assert(p);
+    assert(mesg);
 
     /* encode */
     UINT32ENCODE(p, H5O_BOGUS_VALUE);
@@ -180,16 +171,13 @@ H5O__bogus_encode(H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shared
  *
  *              Failure:        Negative
  *
- * Programmer:  Quincey Koziol
- *              Jan 21 2003
- *
  *-------------------------------------------------------------------------
  */
 static size_t
-H5O__bogus_size(const H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_shared,
+H5O__bogus_size(const H5F_t H5_ATTR_UNUSED *f, bool H5_ATTR_UNUSED disable_shared,
                 const void H5_ATTR_UNUSED *mesg)
 {
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     FUNC_LEAVE_NOAPI(4)
 } /* end H5O__bogus_size() */
@@ -201,9 +189,6 @@ H5O__bogus_size(const H5F_t H5_ATTR_UNUSED *f, hbool_t H5_ATTR_UNUSED disable_sh
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Quincey Koziol
- *              Jan 21 2003
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -211,16 +196,16 @@ H5O__bogus_debug(H5F_t H5_ATTR_UNUSED *f, const void *_mesg, FILE *stream, int i
 {
     const H5O_bogus_t *mesg = (const H5O_bogus_t *)_mesg;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* check args */
-    HDassert(f);
-    HDassert(mesg);
-    HDassert(stream);
-    HDassert(indent >= 0);
-    HDassert(fwidth >= 0);
+    assert(f);
+    assert(mesg);
+    assert(stream);
+    assert(indent >= 0);
+    assert(fwidth >= 0);
 
-    HDfprintf(stream, "%*s%-*s `%u'\n", indent, "", fwidth, "Bogus Value:", mesg->u);
+    fprintf(stream, "%*s%-*s `%u'\n", indent, "", fwidth, "Bogus Value:", mesg->u);
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5O__bogus_debug() */

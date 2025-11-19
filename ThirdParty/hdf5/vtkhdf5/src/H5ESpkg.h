@@ -11,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:  Quincey Koziol
- *              Wednesday, April 8, 2020
- *
- * Purpose:	This file contains declarations which are visible only within
- *		the H5ES package.  Source files outside the H5ES package should
- *		include H5ESprivate.h instead.
+ * Purpose: This file contains declarations which are visible only within
+ *          the H5ES package.  Source files outside the H5ES package should
+ *          include H5ESprivate.h instead.
  */
 #if !(defined H5ES_FRIEND || defined H5ES_MODULE)
 #error "Do not include this file outside the H5ES package!"
@@ -40,7 +37,7 @@
 
 /* Typedef for event nodes */
 typedef struct H5ES_event_t {
-    H5VL_object_t *      request;     /* Request token for event */
+    H5VL_object_t       *request;     /* Request token for event */
     struct H5ES_event_t *prev, *next; /* Previous and next event nodes */
 
     H5ES_op_info_t op_info; /* Useful info about operation */
@@ -56,15 +53,15 @@ typedef struct H5ES_event_list_t {
 struct H5ES_t {
     uint64_t                   op_counter; /* Count of operations inserted into this set */
     H5ES_event_insert_func_t   ins_func;   /* Callback to invoke for operation inserts */
-    void *                     ins_ctx;    /* Context for callback to invoke for operation inserts */
+    void                      *ins_ctx;    /* Context for callback to invoke for operation inserts */
     H5ES_event_complete_func_t comp_func;  /* Callback to invoke for operation completions */
-    void *                     comp_ctx;   /* Context for callback to invoke for operation inserts */
+    void                      *comp_ctx;   /* Context for callback to invoke for operation inserts */
 
     /* Active events */
     H5ES_event_list_t active; /* List of active events in set */
 
     /* Failed events */
-    hbool_t           err_occurred; /* Flag for error from an operation */
+    bool              err_occurred; /* Flag for error from an operation */
     H5ES_event_list_t failed;       /* List of failed events in set */
 };
 
@@ -78,12 +75,12 @@ typedef int (*H5ES_list_iter_func_t)(H5ES_event_t *ev, void *ctx);
 /******************************/
 /* Package Private Prototypes */
 /******************************/
-H5_DLL H5ES_t *H5ES__create(void);
+H5_DLL H5ES_t *H5ES__create(void) H5_ATTR_MALLOC;
 H5_DLL herr_t  H5ES__insert_request(H5ES_t *es, H5VL_t *connector, void *token);
-H5_DLL herr_t  H5ES__wait(H5ES_t *es, uint64_t timeout, size_t *num_in_progress, hbool_t *op_failed);
+H5_DLL herr_t  H5ES__wait(H5ES_t *es, uint64_t timeout, size_t *num_in_progress, bool *op_failed);
 H5_DLL herr_t  H5ES__get_requests(H5ES_t *es, H5_iter_order_t order, hid_t *connector_ids, void **requests,
                                   size_t array_len);
-H5_DLL herr_t  H5ES__cancel(H5ES_t *es, size_t *num_not_canceled, hbool_t *op_failed);
+H5_DLL herr_t  H5ES__cancel(H5ES_t *es, size_t *num_not_canceled, bool *op_failed);
 H5_DLL herr_t  H5ES__get_err_info(H5ES_t *es, size_t num_err_info, H5ES_err_info_t err_info[],
                                   size_t *num_cleared);
 

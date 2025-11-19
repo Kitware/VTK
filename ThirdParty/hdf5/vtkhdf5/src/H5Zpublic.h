@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -11,25 +10,48 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Robb Matzke
- *              Thursday, April 16, 1998
- */
-
 #ifndef H5Zpublic_H
 #define H5Zpublic_H
 
-/* Public headers needed by this file */
-#include "H5public.h"
-
+#include "H5public.h" /* Generic Functions                        */
 /**
  * \brief Filter identifiers
  *
- * \details Values 0 through 255 are for filters defined by the HDF5 library.
- *          Values 256 through 511 are available for testing new filters.
- *          Subsequent values should be obtained from the HDF5 development team
- *          at mailto:help@hdfgroup.org. These values will never change because
- *          they appear in the HDF5 files.
+//! [FiltersIdTable]
+<table>
+<tr>
+<th>Values for #H5Z_filter_t</th><th>Description</th>
+</tr>
+<tr>
+<td><code>0-255</code></td>
+<td>These values are reserved for filters predefined and
+       registered by the HDF5 library and of use to the general public.</td>
+</tr>
+<tr>
+<td><code>256-511</code></td>
+<td>Filter values in this range are intended for testing only and can be
+    temporarily used by any organization. No attempts are made to resolve
+    numbering conflicts, as all definitions are temporary.</td>
+</tr>
+<tr>
+<td><code>512-32,767</code></td>
+<td>Filter values within this range are designated for filters managed by
+    The HDF Group, but they are nominally requested, developed, and supported
+    by third parties. Please contact the
+    <a href="mailto:help@hdfgroup.org">HDF5 development team</a>
+    to reserve a value or range of values for use by your filters.</td>
+</tr>
+<tr>
+<td><code>32,768-65,535</code></td>
+<td>Filter values in this range are designated for internal company use or
+    application testing when assessing a feature. The HDF Group does not
+    track or document the use of filters within this range.
+</td>
+</tr>
+</table>
+//! [FiltersIdTable]
  */
+
 typedef int H5Z_filter_t;
 
 /* Filter IDs */
@@ -116,24 +138,55 @@ typedef int H5Z_filter_t;
  */
 #define H5Z_FLAG_SKIP_EDC 0x0200
 
-/* Special parameters for szip compression */
-/* [These are aliases for the similar definitions in szlib.h, which we can't
- * include directly due to the duplication of various symbols with the zlib.h
- * header file] */
+/* Special parameters for szip compression
+ *
+ * These are aliases for similarly-named definitions in szlib.h, which we
+ * can't include directly due to the duplication of various symbols with the
+ * zlib.h header file.
+ *
+ * The flag values are set to the same values as in szlib.h. The following
+ * symbols are internal and defined in H5Zprivate.h:
+ *
+ * - H5_SZIP_LSB_OPTION_MASK
+ * - H5_SZIP_MSB_OPTION_MASK
+ * - H5_SZIP_RAW_OPTION_MASK
+ *
+ * TODO: These symbols should probably be deprecated and moved to H5Zprivate.h
+ *       in the next major release of the library since they are only used
+ *       internally:
+ *
+ * - H5_SZIP_ALLOW_K13_OPTION_MASK
+ * - H5_SZIP_CHIP_OPTION_MASK
+ */
 /**
- * \ingroup SZIP */
+ * \ingroup SZIP
+ *
+ * Used internally. Always added to the \p options_mask parameter of H5Pset_szip().
+ */
 #define H5_SZIP_ALLOW_K13_OPTION_MASK 1
 /**
- * \ingroup SZIP */
+ * \ingroup SZIP
+ *
+ * Used internally. Always removed from the \p options_mask parameter of H5Pset_szip().
+ */
 #define H5_SZIP_CHIP_OPTION_MASK 2
 /**
- * \ingroup SZIP */
+ * \ingroup SZIP
+ *
+ * Use the entropy coding method
+ */
 #define H5_SZIP_EC_OPTION_MASK 4
 /**
- * \ingroup SZIP */
+ * \ingroup SZIP
+ *
+ * Use nearest neighbor preprocessing and then the entropy coding method
+ */
 #define H5_SZIP_NN_OPTION_MASK 32
 /**
- * \ingroup SZIP */
+ * \ingroup SZIP
+ *
+ * The maximum number of pixels per block (see H5Pset_szip())
+ */
 #define H5_SZIP_MAX_PIXELS_PER_BLOCK 32
 
 /* Macros for the shuffle filter */
@@ -269,7 +322,7 @@ H5_DLL htri_t H5Zfilter_avail(H5Z_filter_t id);
  * \details H5Zget_filter_info() retrieves information about a filter. At
  *          present, this means that the function retrieves a filter's
  *          configuration flags, indicating whether the filter is configured to
- *          decode data, to encode data, neither, or both.
+ *          decode data, encode data, neither, or both.
  *
  *          If \p filter_config_flags is not set to NULL prior to the function
  *          call, the returned parameter contains a bit field specifying the
@@ -292,7 +345,7 @@ H5_DLL htri_t H5Zfilter_avail(H5Z_filter_t id);
  *          H5Z_FILTER_CONFIG_ENCODE_ENABLED & filter_config_flags
  *          \endcode
  *          is true, i.e., greater than 0 (zero), the queried filter
- *          is configured to encode data; if the value is \c FALSE, i.e., equal to
+ *          is configured to encode data; if the value is \c false, i.e., equal to
  *          0 (zero), the filter is not so configured.
  *
  *          If a filter is not encode-enabled, the corresponding \c H5Pset_*
@@ -306,11 +359,11 @@ H5_DLL htri_t H5Zfilter_avail(H5Z_filter_t id);
  *          to read an existing file encoded with that filter.
  *
  *          This function should be called, and the returned \p
- *          filter_config_flags analyzed, before calling any other function,
- *          such as H5Pset_szip() , that might require a particular filter
+ *          filter_config_flags should be analyzed, before calling any other function,
+ *          such as H5Pset_szip(), that might require a particular filter
  *          configuration.
  *
- * \since 1.6.3
+ * \since 1.6.0
  */
 H5_DLL herr_t H5Zget_filter_info(H5Z_filter_t filter, unsigned int *filter_config_flags);
 

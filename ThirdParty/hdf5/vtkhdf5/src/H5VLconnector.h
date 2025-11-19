@@ -33,12 +33,6 @@
 /* Public Macros */
 /*****************/
 
-/* Capability flags for connector */
-#define H5VL_CAP_FLAG_NONE         0    /* No special connector capabilities */
-#define H5VL_CAP_FLAG_THREADSAFE   0x01 /* Connector is threadsafe */
-#define H5VL_CAP_FLAG_ASYNC        0x02 /* Connector performs operations asynchronously*/
-#define H5VL_CAP_FLAG_NATIVE_FILES 0x04 /* Connector produces native file format */
-
 /* Container info version */
 #define H5VL_CONTAINER_INFO_VERSION 0x01 /* Container info struct version */
 
@@ -66,7 +60,7 @@ typedef struct H5VL_loc_by_name {
 } H5VL_loc_by_name_t;
 
 typedef struct H5VL_loc_by_idx {
-    const char *    name;
+    const char     *name;
     H5_index_t      idx_type;
     H5_iter_order_t order;
     hsize_t         n;
@@ -116,15 +110,15 @@ typedef enum H5VL_attr_get_t {
 typedef struct H5VL_attr_get_name_args_t {
     H5VL_loc_params_t loc_params;    /* Location parameters for object access */
     size_t            buf_size;      /* Size of attribute name buffer */
-    char *            buf;           /* Buffer for attribute name (OUT) */
-    size_t *          attr_name_len; /* Actual length of attribute name (OUT) */
+    char             *buf;           /* Buffer for attribute name (OUT) */
+    size_t           *attr_name_len; /* Actual length of attribute name (OUT) */
 } H5VL_attr_get_name_args_t;
 
 /* Parameters for attribute 'get_info' operation */
 typedef struct H5VL_attr_get_info_args_t {
     H5VL_loc_params_t loc_params; /* Location parameters for object access */
-    const char *      attr_name;  /* Attribute name (for get_info_by_name) */
-    H5A_info_t *      ainfo;      /* Attribute info (OUT) */
+    const char       *attr_name;  /* Attribute name (for get_info_by_name) */
+    H5A_info_t       *ainfo;      /* Attribute info (OUT) */
 } H5VL_attr_get_info_args_t;
 
 /* Parameters for attribute 'get' operations */
@@ -174,9 +168,9 @@ typedef enum H5VL_attr_specific_t {
 typedef struct H5VL_attr_iterate_args_t {
     H5_index_t      idx_type; /* Type of index to iterate over */
     H5_iter_order_t order;    /* Order of index iteration */
-    hsize_t *       idx;      /* Start/stop iteration index (IN/OUT) */
+    hsize_t        *idx;      /* Start/stop iteration index (IN/OUT) */
     H5A_operator2_t op;       /* Iteration callback function */
-    void *          op_data;  /* Iteration callback context */
+    void           *op_data;  /* Iteration callback context */
 } H5VL_attr_iterate_args_t;
 
 /* Parameters for attribute 'delete_by_idx' operation */
@@ -203,7 +197,7 @@ typedef struct H5VL_attr_specific_args_t {
         /* H5VL_ATTR_EXISTS */
         struct {
             const char *name;   /* Name of attribute to check */
-            hbool_t *   exists; /* Whether attribute exists (OUT) */
+            hbool_t    *exists; /* Whether attribute exists (OUT) */
         } exists;
 
         /* H5VL_ATTR_ITER */
@@ -321,7 +315,7 @@ typedef struct H5VL_datatype_get_args_t {
 
         /* H5VL_DATATYPE_GET_BINARY */
         struct {
-            void * buf;      /* Buffer to store serialized form of datatype (OUT) */
+            void  *buf;      /* Buffer to store serialized form of datatype (OUT) */
             size_t buf_size; /* Size of serialized datatype buffer */
         } get_binary;
 
@@ -385,16 +379,16 @@ typedef enum H5VL_file_get_t {
 typedef struct H5VL_file_get_name_args_t {
     H5I_type_t type;          /* ID type of object pointer */
     size_t     buf_size;      /* Size of file name buffer (IN) */
-    char *     buf;           /* Buffer for file name (OUT) */
-    size_t *   file_name_len; /* Actual length of file name (OUT) */
+    char      *buf;           /* Buffer for file name (OUT) */
+    size_t    *file_name_len; /* Actual length of file name (OUT) */
 } H5VL_file_get_name_args_t;
 
 /* Parameters for file 'get_obj_ids' operation */
 typedef struct H5VL_file_get_obj_ids_args_t {
     unsigned types;    /* Type of objects to count */
     size_t   max_objs; /* Size of array of object IDs */
-    hid_t *  oid_list; /* Array of object IDs (OUT) */
-    size_t * count;    /* # of objects (OUT) */
+    hid_t   *oid_list; /* Array of object IDs (OUT) */
+    size_t  *count;    /* # of objects (OUT) */
 } H5VL_file_get_obj_ids_args_t;
 
 /* Parameters for file 'get' operations */
@@ -434,7 +428,7 @@ typedef struct H5VL_file_get_args_t {
         /* H5VL_FILE_GET_OBJ_COUNT */
         struct {
             unsigned types; /* Type of objects to count */
-            size_t * count; /* # of objects (OUT) */
+            size_t  *count; /* # of objects (OUT) */
         } get_obj_count;
 
         /* H5VL_FILE_GET_OBJ_IDS */
@@ -447,6 +441,14 @@ typedef enum H5VL_file_specific_t {
     H5VL_FILE_FLUSH,         /* Flush file                       */
     H5VL_FILE_REOPEN,        /* Reopen the file                  */
     H5VL_FILE_IS_ACCESSIBLE, /* Check if a file is accessible    */
+                             /* Note for VOL connector authors:  */
+                             /*  Only return an error from this  */
+                             /*  callback if it is not possible  */
+                             /*  to determine if a file (or      */
+                             /*  container) is accessible.       */
+                             /*  It is _not_ an error to return  */
+                             /*  a 'false' value for the         */
+                             /*  'accessible' argument.          */
     H5VL_FILE_DELETE,        /* Delete a file                    */
     H5VL_FILE_IS_EQUAL       /* Check if two files are the same  */
 } H5VL_file_specific_t;
@@ -472,7 +474,7 @@ typedef struct H5VL_file_specific_args_t {
         struct {
             const char *filename;   /* Name of file to check */
             hid_t       fapl_id;    /* File access property list to use */
-            hbool_t *   accessible; /* Whether file is accessible with FAPL settings (OUT) */
+            hbool_t    *accessible; /* Whether file is accessible with FAPL settings (OUT) */
         } is_accessible;
 
         /* H5VL_FILE_DELETE */
@@ -483,7 +485,7 @@ typedef struct H5VL_file_specific_args_t {
 
         /* H5VL_FILE_IS_EQUAL */
         struct {
-            void *   obj2;      /* Second file object to compare against */
+            void    *obj2;      /* Second file object to compare against */
             hbool_t *same_file; /* Whether files are the same (OUT) */
         } is_equal;
     } args;
@@ -501,7 +503,7 @@ typedef enum H5VL_group_get_t {
 /* Parameters for group 'get_info' operation */
 typedef struct H5VL_group_get_info_args_t {
     H5VL_loc_params_t loc_params; /* Location parameters for object access */
-    H5G_info_t *      ginfo;      /* Group info (OUT) */
+    H5G_info_t       *ginfo;      /* Group info (OUT) */
 } H5VL_group_get_info_args_t;
 
 /* Parameters for group 'get' operations */
@@ -531,7 +533,7 @@ typedef enum H5VL_group_specific_t {
 /* Parameters for group 'mount' operation */
 typedef struct H5VL_group_spec_mount_args_t {
     const char *name;       /* Name of location to mount child file */
-    void *      child_file; /* Pointer to child file object */
+    void       *child_file; /* Pointer to child file object */
     hid_t       fmpl_id;    /* File mount property list to use */
 } H5VL_group_spec_mount_args_t;
 
@@ -579,7 +581,7 @@ typedef struct H5VL_link_create_args_t {
     union {
         /* H5VL_LINK_CREATE_HARD */
         struct {
-            void *            curr_obj;        /* Current object */
+            void             *curr_obj;        /* Current object */
             H5VL_loc_params_t curr_loc_params; /* Location parameters for current object */
         } hard;
 
@@ -618,14 +620,14 @@ typedef struct H5VL_link_get_args_t {
         /* H5VL_LINK_GET_NAME */
         struct {
             size_t  name_size; /* Size of link name buffer (IN) */
-            char *  name;      /* Buffer for link name (OUT) */
+            char   *name;      /* Buffer for link name (OUT) */
             size_t *name_len;  /* Actual length of link name (OUT) */
         } get_name;
 
         /* H5VL_LINK_GET_VAL */
         struct {
             size_t buf_size; /* Size of link value buffer (IN) */
-            void * buf;      /* Buffer for link value (OUT) */
+            void  *buf;      /* Buffer for link value (OUT) */
         } get_val;
     } args;
 } H5VL_link_get_args_t;
@@ -642,9 +644,9 @@ typedef struct H5VL_link_iterate_args_t {
     hbool_t         recursive; /* Whether iteration is recursive */
     H5_index_t      idx_type;  /* Type of index to iterate over */
     H5_iter_order_t order;     /* Order of index iteration */
-    hsize_t *       idx_p;     /* Start/stop iteration index (OUT) */
+    hsize_t        *idx_p;     /* Start/stop iteration index (OUT) */
     H5L_iterate2_t  op;        /* Iteration callback function */
-    void *          op_data;   /* Iteration callback context */
+    void           *op_data;   /* Iteration callback context */
 } H5VL_link_iterate_args_t;
 
 /* Parameters for link 'specific' operations */
@@ -692,7 +694,7 @@ typedef struct H5VL_object_get_args_t {
         /* H5VL_OBJECT_GET_NAME */
         struct {
             size_t  buf_size; /* Size of name buffer (IN) */
-            char *  buf;      /* Buffer for name (OUT) */
+            char   *buf;      /* Buffer for name (OUT) */
             size_t *name_len; /* Actual length of name (OUT) */
         } get_name;
 
@@ -725,7 +727,7 @@ typedef struct H5VL_object_visit_args_t {
     H5_iter_order_t order;    /* Order of index iteration */
     unsigned        fields;   /* Flags for fields to provide in 'info' object for 'op' callback */
     H5O_iterate2_t  op;       /* Iteration callback function */
-    void *          op_data;  /* Iteration callback context */
+    void           *op_data;  /* Iteration callback context */
 } H5VL_object_visit_args_t;
 
 /* Parameters for object 'specific' operations */
@@ -847,16 +849,17 @@ typedef struct H5VL_info_class_t {
     herr_t (*free)(void *info);                     /* Callback to release a VOL info               */
     herr_t (*to_str)(const void *info, char **str); /* Callback to serialize connector's info into a string */
     herr_t (*from_str)(const char *str,
-                       void **     info); /* Callback to deserialize a string into connector's info */
+                       void      **info); /* Callback to deserialize a string into connector's info */
 } H5VL_info_class_t;
 
 /* VOL object wrap / retrieval callbacks */
-/* (These only need to be implemented by "pass through" VOL connectors) */
+/* (These must be implemented by "pass through" VOL connectors, and should not be implemented by terminal VOL
+ * connectors) */
 typedef struct H5VL_wrap_class_t {
     void *(*get_object)(const void *obj); /* Callback to retrieve underlying object       */
     herr_t (*get_wrap_ctx)(
         const void *obj,
-        void **     wrap_ctx); /* Callback to retrieve the object wrapping context for the connector */
+        void      **wrap_ctx); /* Callback to retrieve the object wrapping context for the connector */
     void *(*wrap_object)(void *obj, H5I_type_t obj_type,
                          void *wrap_ctx); /* Callback to wrap a library object */
     void *(*unwrap_object)(void *obj);    /* Callback to unwrap a library object */
@@ -885,10 +888,10 @@ typedef struct H5VL_dataset_class_t {
                     hid_t type_id, hid_t space_id, hid_t dcpl_id, hid_t dapl_id, hid_t dxpl_id, void **req);
     void *(*open)(void *obj, const H5VL_loc_params_t *loc_params, const char *name, hid_t dapl_id,
                   hid_t dxpl_id, void **req);
-    herr_t (*read)(void *dset, hid_t mem_type_id, hid_t mem_space_id, hid_t file_space_id, hid_t dxpl_id,
-                   void *buf, void **req);
-    herr_t (*write)(void *dset, hid_t mem_type_id, hid_t mem_space_id, hid_t file_space_id, hid_t dxpl_id,
-                    const void *buf, void **req);
+    herr_t (*read)(size_t count, void *dset[], hid_t mem_type_id[], hid_t mem_space_id[],
+                   hid_t file_space_id[], hid_t dxpl_id, void *buf[], void **req);
+    herr_t (*write)(size_t count, void *dset[], hid_t mem_type_id[], hid_t mem_space_id[],
+                    hid_t file_space_id[], hid_t dxpl_id, const void *buf[], void **req);
     herr_t (*get)(void *obj, H5VL_dataset_get_args_t *args, hid_t dxpl_id, void **req);
     herr_t (*specific)(void *obj, H5VL_dataset_specific_args_t *args, hid_t dxpl_id, void **req);
     herr_t (*optional)(void *obj, H5VL_optional_args_t *args, hid_t dxpl_id, void **req);
@@ -980,7 +983,7 @@ struct H5VL_class_t;
 /* Container/connector introspection routines */
 typedef struct H5VL_introspect_class_t {
     herr_t (*get_conn_cls)(void *obj, H5VL_get_conn_lvl_t lvl, const struct H5VL_class_t **conn_cls);
-    herr_t (*get_cap_flags)(const void *info, unsigned *cap_flags);
+    herr_t (*get_cap_flags)(const void *info, uint64_t *cap_flags);
     herr_t (*opt_query)(void *obj, H5VL_subclass_t cls, int opt_type, uint64_t *flags);
 } H5VL_introspect_class_t;
 
@@ -1016,13 +1019,13 @@ typedef struct H5VL_token_class_t {
 //! <!-- [H5VL_class_t_snip] -->
 typedef struct H5VL_class_t {
     /* Overall connector fields & callbacks */
-    unsigned           version;          /**< VOL connector class struct version #     */
-    H5VL_class_value_t value;            /**< Value to identify connector              */
-    const char *       name;             /**< Connector name (MUST be unique!)         */
-    unsigned           conn_version;     /**< Version # of connector                   */
-    unsigned           cap_flags;        /**< Capability flags for connector           */
-    herr_t (*initialize)(hid_t vipl_id); /**< Connector initialization callback        */
-    herr_t (*terminate)(void);           /**< Connector termination callback           */
+    unsigned           version;          /**< VOL connector class struct version number */
+    H5VL_class_value_t value;            /**< Value to identify connector               */
+    const char        *name;             /**< Connector name (MUST be unique!)          */
+    unsigned           conn_version;     /**< Version number of connector               */
+    uint64_t           cap_flags;        /**< Capability flags for connector            */
+    herr_t (*initialize)(hid_t vipl_id); /**< Connector initialization callback         */
+    herr_t (*terminate)(void);           /**< Connector termination callback            */
 
     /* VOL framework */
     H5VL_info_class_t info_cls; /**< VOL info fields & callbacks  */

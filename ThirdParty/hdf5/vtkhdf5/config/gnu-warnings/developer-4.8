@@ -6,6 +6,13 @@
 #
 -Wjump-misses-init
 
+# developer warning flag added for GCC >= 4.5
+#
+# strict-overflow level 5 catches a LOT of false positives, but is useful
+# for detecting overflow conditions.
+#
+-Wstrict-overflow=5
+
 # developer warning flag added for GCC >= 4.6
 -Wsuggest-attribute=const
 

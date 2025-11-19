@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -40,9 +39,10 @@
 
 /* C library header files for things that appear in HDF5 public headers */
 #ifdef __cplusplus
-#define __STDC_FORMAT_MACROS
-#endif
+#include <cinttypes>
+#else
 #include <inttypes.h>
+#endif
 #include <limits.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -82,19 +82,23 @@
 /**
  * For minor interface/format changes
  */
-#define H5_VERS_MINOR 13
+#define H5_VERS_MINOR 14
 /**
  * For tweaks, bug-fixes, or development
  */
-#define H5_VERS_RELEASE 1
+#define H5_VERS_RELEASE 6
 /**
  * For pre-releases like \c snap0. Empty string for official releases.
  */
 #define H5_VERS_SUBRELEASE ""
 /**
+ * Short version string
+ */
+#define H5_VERS_STR "1.14.6"
+/**
  * Full version string
  */
-#define H5_VERS_INFO "HDF5 library version: 1.13.1"
+#define H5_VERS_INFO "HDF5 library version: 1.14.6"
 
 #define H5check() H5check_version(H5_VERS_MAJOR, H5_VERS_MINOR, H5_VERS_RELEASE)
 
@@ -106,7 +110,7 @@
  * \param[in] Maj Major version number - A non-negative integer value
  * \param[in] Min Minor version number - A non-negative integer value
  * \param[in] Rel Release version number - A non-negative integer value
- * \returns A value of 1 is returned if the library version is greater than
+ * \return A value of 1 is returned if the library version is greater than
  *          or equal to the version number specified.\n
  *          A value of 0 is returned if the library version is less than the
  *          version number specified.\n
@@ -126,7 +130,7 @@
  *          The #H5_VERSION_GE macro compares the version of the HDF5 library
  *          being used against the version number specified in the parameters.
  *
- *          For more information about release versioning, see \ref_h5lib_relver.
+ *          For more information about release versioning, see \ref RELVERSION.
  *
  * \since 1.8.7
  *
@@ -142,7 +146,7 @@
  * \param[in] Maj Major version number - A non-negative integer value
  * \param[in] Min Minor version number - A non-negative integer value
  * \param[in] Rel Release version number - A non-negative integer value
- * \returns A value of 1 is returned if the library version is less than
+ * \return A value of 1 is returned if the library version is less than
  *          or equal to the version number specified.\n
  *          A value of 0 is returned if the library version is greater than the
  *          version number specified.\n
@@ -162,7 +166,7 @@
  *          The #H5_VERSION_LE macro compares the version of the HDF5 library
  *          being used against the version number specified in the parameters.
  *
- *          For more information about release versioning, see \ref_h5lib_relver.
+ *          For more information about release versioning, see \ref RELVERSION.
  *
  * \since 1.8.7
  *
@@ -240,6 +244,12 @@ typedef int herr_t;
 /**
  * C99-style Boolean type. Successful return values are zero (false) or positive
  * (true). The typical true value is 1 but don't bet on it.
+ *
+ * \deprecated Now that we require C99, hbool_t is typedef'd to C99's bool
+ *             and hbool_t is considered deprecated. Due to its long-standing,
+ *             widespread use, we have no plans to remove the hbool_t typedef
+ *             from the public API, though we will probably switch to using
+ *             bool in the public API starting in the next major release of HDF5.
  * \attention Boolean functions cannot fail.
  */
 #include <stdbool.h>
@@ -304,15 +314,22 @@ typedef uint64_t hsize_t;
  * should be discouraged in new code.
  */
 typedef int64_t hssize_t;
-#define PRIdHSIZE          PRId64
-#define PRIiHSIZE          PRIi64
-#define PRIoHSIZE          PRIo64
-#define PRIuHSIZE          PRIu64
-#define PRIxHSIZE          PRIx64
+/** d print conversion specifier for signed integer type \since 1.10.8 */
+#define PRIdHSIZE PRId64
+/** i print conversion specifier for signed integer type \since 1.10.8 */
+#define PRIiHSIZE PRIi64
+/** o print conversion specifier for signed integer type \since 1.10.8 */
+#define PRIoHSIZE PRIo64
+/** u print conversion specifier for signed integer type \since 1.10.8 */
+#define PRIuHSIZE PRIu64
+/** x print conversion specifier for signed integer type \since 1.10.8 */
+#define PRIxHSIZE PRIx64
+/** X print conversion specifier for signed integer type \since 1.10.8 */
 #define PRIXHSIZE          PRIX64
 #define H5_SIZEOF_HSIZE_T  8
 #define H5_SIZEOF_HSSIZE_T 8
-#define HSIZE_UNDEF        UINT64_MAX
+/** Represents the largest possible value of uint64_t \since 1.10.0 */
+#define HSIZE_UNDEF UINT64_MAX
 
 /**
  * The address of an object in the file.
@@ -320,10 +337,15 @@ typedef int64_t hssize_t;
  * \internal Defined as a (minimum) 64-bit unsigned integer type.
  */
 typedef uint64_t haddr_t;
-#define PRIdHADDR           PRId64
-#define PRIoHADDR           PRIo64
-#define PRIuHADDR           PRIu64
-#define PRIxHADDR           PRIx64
+/** d print conversion specifier for unsigned integer type \since 1.8.23 */
+#define PRIdHADDR PRId64
+/** o print conversion specifier for unsigned integer type \since 1.8.23 */
+#define PRIoHADDR PRIo64
+/** u print conversion specifier for unsigned integer type \since 1.8.23 */
+#define PRIuHADDR PRIu64
+/** x print conversion specifier for unsigned integer type \since 1.8.23 */
+#define PRIxHADDR PRIx64
+/** X print conversion specifier for unsigned integer type \since 1.8.23 */
 #define PRIXHADDR           PRIX64
 #define H5_SIZEOF_HADDR_T   8
 #define HADDR_UNDEF         UINT64_MAX
@@ -384,6 +406,8 @@ typedef struct H5_ih_info_t {
  * \details Tokens are unique and permanent identifiers that are
  *          used to reference HDF5 objects in a container. This allows
  *          for 128-bit tokens
+ *
+ * \since 1.12.0
  */
 #define H5O_MAX_TOKEN_SIZE (16)
 
@@ -398,19 +422,6 @@ typedef struct H5O_token_t {
     uint8_t __data[H5O_MAX_TOKEN_SIZE];
 } H5O_token_t;
 //! <!-- [H5O_token_t_snip] -->
-
-/**
- * Allocation statistics info struct
- */
-typedef struct H5_alloc_stats_t {
-    unsigned long long total_alloc_bytes;        /**< Running count of total # of bytes allocated */
-    size_t             curr_alloc_bytes;         /**< Current # of bytes allocated */
-    size_t             peak_alloc_bytes;         /**< Peak # of bytes allocated */
-    size_t             max_block_size;           /**< Largest block allocated */
-    size_t             total_alloc_blocks_count; /**< Running count of total # of blocks allocated */
-    size_t             curr_alloc_blocks_count;  /**< Current # of blocks allocated */
-    size_t             peak_alloc_blocks_count;  /**< Peak # of blocks allocated */
-} H5_alloc_stats_t;
 
 /**
  * Library shutdown callback, used by H5atclose().
@@ -433,12 +444,15 @@ extern "C" {
  * \details H5open() initializes the HDF5 library.
  *
  * \details When the HDF5 library is used in a C application, the library is
- *          automatically initialized when the first HDf5 function call is
+ *          automatically initialized when the first HDF5 function call is
  *          issued. If one finds that an HDF5 library function is failing
  *          inexplicably, H5open() can be called first. It is safe to call
  *          H5open() before an application issues any other function calls to
- *          the HDF5 library as there are no damaging side effects in calling
+ *          the HDF5 library, as there are no damaging side effects in calling
  *          it more than once.
+ *
+ * \since 1.0.0
+ *
  */
 H5_DLL herr_t H5open(void);
 /**
@@ -450,13 +464,13 @@ H5_DLL herr_t H5open(void);
  *
  * \details H5atclose() registers a callback that the HDF5 library will invoke
  *          when closing.  The full capabilities of the HDF5 library are
- *          available to callbacks invoked through this mechanism, library
+ *          available to callbacks invoked through this mechanism, and library
  *          shutdown will only begin in earnest when all callbacks have been
  *          invoked and have returned.
  *
  *          Registered callbacks are invoked in LIFO order, similar to the
  *          Standard C 'atexit' routine.  For example, if 'func1' is registered,
- *          then 'func2', when the library is closing 'func2' will
+ *          then 'func2', when the library is closing 'func2', will
  *          be invoked first, then 'func1'.
  *
  *          The \p ctx pointer will be passed to \p func when it's invoked.
@@ -465,7 +479,7 @@ H5_DLL herr_t H5open(void);
  *          If the HDF5 library is initialized and closed more than once, the
  *          \p func callback must be registered within each open/close cycle.
  *
- * \since 1.13.0
+ * \since 1.14.0
  */
 H5_DLL herr_t H5atclose(H5_atclose_func_t func, void *ctx);
 /**
@@ -478,6 +492,9 @@ H5_DLL herr_t H5atclose(H5_atclose_func_t func, void *ctx);
  *          generally called when the application calls exit(), but may be
  *          called earlier in the event of an emergency shutdown or out of a
  *          desire to free all resources used by the HDF5 library.
+ *
+ * \since 1.0.0
+ *
  */
 H5_DLL herr_t H5close(void);
 /**
@@ -490,13 +507,16 @@ H5_DLL herr_t H5close(void);
  *          function is in situations where the library is dynamically linked
  *          into an application and is un-linked from the application before
  *          exit() gets called. In those situations, a routine installed with
- *          atexit() would jump to a routine which was no longer in memory,
+ *          atexit() would jump to a routine that was no longer in memory,
  *          causing errors.
  *
  * \attention In order to be effective, this routine \Emph{must} be called
  *            before any other HDF5 function calls, and must be called each
  *            time the library is loaded/linked into the application (the first
- *            time and after it's been un-loaded).
+ *            time and after it's been unloaded).
+ *
+ * \since 1.0.0
+ *
  */
 H5_DLL herr_t H5dont_atexit(void);
 /**
@@ -508,7 +528,7 @@ H5_DLL herr_t H5dont_atexit(void);
  *          of the library, freeing any unused memory.
  *
  *          It is not required that H5garbage_collect() be called at any
- *          particular time; it is only necessary in certain situations where
+ *          particular time; it is only necessary for certain situations where
  *          the application has performed actions that cause the library to
  *          allocate many objects. The application should call
  *          H5garbage_collect() if it eventually releases those objects and
@@ -517,6 +537,9 @@ H5_DLL herr_t H5dont_atexit(void);
  *
  * \note The library automatically garbage collects all the free lists when the
  *       application ends.
+ *
+ * \since 1.4.0
+ *
  */
 H5_DLL herr_t H5garbage_collect(void);
 /**
@@ -569,7 +592,7 @@ H5_DLL herr_t H5garbage_collect(void);
  * \version 1.8.3 Function changed in this release to set factory free list
  *                memory limits.
  *
- * \since 1.6.0
+ * \since 1.4.0
  */
 H5_DLL herr_t H5set_free_list_limits(int reg_global_lim, int reg_list_lim, int arr_global_lim,
                                      int arr_list_lim, int blk_global_lim, int blk_list_lim);
@@ -589,30 +612,9 @@ H5_DLL herr_t H5set_free_list_limits(int reg_global_lim, int reg_list_lim, int a
  *          garbage collected with H5garbage_collect(). These lists are global
  *          for the entire library.
  *
- * \since 1.12.1
+ * \since 1.10.7
  */
 H5_DLL herr_t H5get_free_list_sizes(size_t *reg_size, size_t *arr_size, size_t *blk_size, size_t *fac_size);
-/**
- * \ingroup H5
- * \brief Gets the memory allocation statistics for the library
- *
- * \param[out] stats Memory allocation statistics
- * \return \herr_t
- *
- * \details H5get_alloc_stats() gets the memory allocation statistics for the
- *          library, if the \c --enable-memory-alloc-sanity-check option was
- *          given when building the library. Applications can check whether
- *          this option was enabled detecting if the
- *          \c H5_MEMORY_ALLOC_SANITY_CHECK macro is defined. This option is
- *          enabled by default for debug builds of the library and disabled by
- *          default for non-debug builds. If the option is not enabled, all the
- *          values returned with be 0. These statistics are global for the
- *          entire library, but do not include allocations from chunked dataset
- *          I/O filters or non-native VOL connectors.
- *
- * \since 1.12.1
- */
-H5_DLL herr_t H5get_alloc_stats(H5_alloc_stats_t *stats);
 /**
  * \ingroup H5
  * \brief Returns the HDF library release number
@@ -625,6 +627,8 @@ H5_DLL herr_t H5get_alloc_stats(H5_alloc_stats_t *stats);
  * \details H5get_libversion() retrieves the major, minor, and release numbers
  *          of the version of the HDF5 library which is linked to the
  *          application.
+ *
+ * \since 1.0.0
  *
  */
 H5_DLL herr_t H5get_libversion(unsigned *majnum, unsigned *minnum, unsigned *relnum);
@@ -648,7 +652,7 @@ H5_DLL herr_t H5get_libversion(unsigned *majnum, unsigned *minnum, unsigned *rel
  *          example:
  *
  *          An official HDF5 release is labelled as follows:
- *          HDF5 Release \Code{\<majnum\>.\<minnum\>.\<relnum\>}\n
+ *          HDF5 Release \TText{\<majnum\>.\<minnum\>.\<relnum\>}\n
  *          For example, in HDF5 Release 1.8.5:
  *          \li 1 is the major version number, \p majnum.
  *          \li 8 is the minor version number, \p minnum.
@@ -660,7 +664,7 @@ H5_DLL herr_t H5get_libversion(unsigned *majnum, unsigned *minnum, unsigned *rel
  *          currently linked. If this check fails, H5check_version() causes the
  *          application to abort (by means of a standard C abort() call) and
  *          prints information that is usually useful for debugging. This
- *          precaution is is taken to avoid the risks of data corruption or
+ *          precaution is taken to avoid the risks of data corruption or
  *          segmentation faults.
  *
  *          The most common cause of this failure is that an application was
@@ -674,6 +678,8 @@ H5_DLL herr_t H5get_libversion(unsigned *majnum, unsigned *minnum, unsigned *rel
  *          informational warning is printed but the application is allowed to
  *          run.
  *
+ * \since 1.0.0
+ *
  */
 H5_DLL herr_t H5check_version(unsigned majnum, unsigned minnum, unsigned relnum);
 /**
@@ -684,12 +690,12 @@ H5_DLL herr_t H5check_version(unsigned majnum, unsigned minnum, unsigned relnum)
  *
  * \details H5is_library_terminating() queries whether the HDF5 library is in
  *          the process of shutting down.  The \p is_terminating flag will only
- *          be set to TRUE after shutdown starts, it will be FALSE before the
+ *          be set to true after shutdown starts, it will be false before the
  *          library has been initialized, while the library is initialized, and
  *          after it has been closed.  The value of \p is_terminating is
  *          undefined if this routine fails.
  *
- * \since 1.13.0
+ * \since 1.14.0
  */
 H5_DLL herr_t H5is_library_terminating(hbool_t *is_terminating);
 /**
@@ -706,6 +712,9 @@ H5_DLL herr_t H5is_library_terminating(hbool_t *is_terminating);
  *          data structures with a mutex. In certain circumstances, it may be
  *          useful to determine, at run-time, whether the linked HDF5 library
  *          was built with the thread-safety feature enabled.
+ *
+ * \since 1.10.0
+ *
  */
 H5_DLL herr_t H5is_library_threadsafe(hbool_t *is_ts);
 /**
@@ -715,13 +724,13 @@ H5_DLL herr_t H5is_library_threadsafe(hbool_t *is_ts);
  * \param[in] mem Buffer to be freed. Can be NULL
  * \return \herr_t
  *
- * \details H5free_memory() frees memory that has been allocated by the caller
+ * \details H5free_memory() frees the memory that has been allocated by the caller
  *          with H5allocate_memory() or by the HDF5 library on behalf of the
  *          caller.
  *
  *          H5Tget_member_name() provides an example of memory allocation on
  *          behalf of the caller: The function returns a buffer containing the
- *          name of a compound datatype member. It is the caller’s
+ *          name of a compound datatype member. It is the caller's
  *          responsibility to eventually free that buffer with H5free_memory().
  *
  * \attention It is especially important to use this function to free memory
@@ -747,7 +756,7 @@ H5_DLL herr_t H5is_library_threadsafe(hbool_t *is_ts);
 H5_DLL herr_t H5free_memory(void *mem);
 /**
  * \ingroup H5
- * \brief Frees memory allocated by the HDF5 library
+ * \brief Allocates memory that will be freed later internally.
  *
  * \param[in] size The size in bytes of the buffer to be allocated
  * \param[in] clear Flag whether the new buffer is to be initialized with 0
@@ -760,12 +769,12 @@ H5_DLL herr_t H5free_memory(void *mem);
  *          will later be freed internally by the HDF5 library.
  *
  *          The boolean \p clear parameter specifies whether the buffer should
- *          be initialized. If clear is \c TRUE, all bits in the buffer are to be
- *          set to 0 (zero); if clear is \c FALSE, the buffer will not be
+ *          be initialized. If clear is \c true, all bits in the buffer are to be
+ *          set to 0 (zero); if clear is \c false, the buffer will not be
  *          initialized.
  *
  *          This function is intended to have the semantics of malloc() and
- *          calloc(). However, unlike malloc() and calloc() which allow for a
+ *          calloc(). However, unlike malloc() and calloc(), which allow for a
  *          "special" pointer to be returned instead of NULL, this function
  *          always returns NULL on failure or when size is set to 0 (zero).
  *
@@ -777,7 +786,7 @@ H5_DLL herr_t H5free_memory(void *mem);
  *            the same library that initially allocated it. In most cases, the
  *            HDF5 API uses resources that are allocated and freed either
  *            entirely by the user or entirely by the library, so this is not a
- *            problem. In rare cases, however, HDF5 API calls will free memory
+ *            problem. In rare cases, however, HDF5 API calls will free the memory
  *            that the user allocated. This function allows the user to safely
  *            allocate this memory.\n
  *            It is particularly important to use this function to allocate
@@ -827,15 +836,15 @@ H5_DLL void *H5allocate_memory(size_t size, hbool_t clear);
  *          This function is intended to have the semantics of realloc():
  *
  *          <table>
- *            <tr><td>\Code{H5resize_memory(buffer, size)}</td>
+ *            <tr><td>\TText{H5resize_memory(buffer, size)}</td>
  *                <td>Resizes buffer. Returns pointer to resized buffer.</td></tr>
- *            <tr><td>\Code{H5resize_memory(NULL, size)}</td>
+ *            <tr><td>\TText{H5resize_memory(NULL, size)}</td>
  *                <td>Allocates memory using HDF5 Library allocator.
  *                    Returns pointer to new buffer</td></tr>
- *            <tr><td>\Code{H5resize_memory(buffer, 0)}</td>
+ *            <tr><td>\TText{H5resize_memory(buffer, 0)}</td>
  *                <td>Frees memory using HDF5 Library allocator.
  *                    Returns NULL.</td></tr>
- *            <tr><td>\Code{H5resize_memory(NULL, 0)}</td>
+ *            <tr><td>\TText{H5resize_memory(NULL, 0)}</td>
  *                <td>Returns NULL (undefined in C standard).</td></tr>
  *          </table>
  *

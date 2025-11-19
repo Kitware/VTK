@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -16,6 +15,14 @@
  * If you make any changes to H5LTanalyze.l, please run bin/genparser to
  * recreate the output files.
  */
+
+%top{
+/* Quiet warnings about integer type macro redefinitions on Visual Studio
+ * (MSVC doesn't define STDC_VERSION, but has inttypes.h). This is an
+ * issue that is apparently fixed in flex 2.6.5.
+ */
+#include <stdint.h>
+}
 
 %{
 #include <assert.h>
@@ -75,10 +82,13 @@ H5T_NATIVE_ULONG {return hid(H5T_NATIVE_ULONG_TOKEN);}
 H5T_NATIVE_LLONG   {return hid(H5T_NATIVE_LLONG_TOKEN);}
 H5T_NATIVE_ULLONG  {return hid(H5T_NATIVE_ULLONG_TOKEN);}
 
+H5T_IEEE_F16BE   {return hid(H5T_IEEE_F16BE_TOKEN);}
+H5T_IEEE_F16LE   {return hid(H5T_IEEE_F16LE_TOKEN);}
 H5T_IEEE_F32BE   {return hid(H5T_IEEE_F32BE_TOKEN);}
 H5T_IEEE_F32LE   {return hid(H5T_IEEE_F32LE_TOKEN);}
 H5T_IEEE_F64BE   {return hid(H5T_IEEE_F64BE_TOKEN);}
 H5T_IEEE_F64LE   {return hid(H5T_IEEE_F64LE_TOKEN);}
+H5T_NATIVE_FLOAT16 {return hid(H5T_NATIVE_FLOAT16_TOKEN);}
 H5T_NATIVE_FLOAT   {return hid(H5T_NATIVE_FLOAT_TOKEN);}
 H5T_NATIVE_DOUBLE  {return hid(H5T_NATIVE_DOUBLE_TOKEN);}
 H5T_NATIVE_LDOUBLE {return hid(H5T_NATIVE_LDOUBLE_TOKEN);}
@@ -107,7 +117,7 @@ OPQ_SIZE         {return token(OPQ_SIZE_TOKEN);}
 OPQ_TAG          {return token(OPQ_TAG_TOKEN);}
 
 [0-9]+           {
-                        H5LTyylval.ival = HDatoi(yytext);
+                        H5LTyylval.ival = atoi(yytext);
                         return NUMBER;
                  }
 
@@ -133,12 +143,12 @@ OPQ_TAG          {return token(OPQ_TAG_TOKEN);}
 static char *
 trim_quotes(const char *quoted)
 {
-    size_t len = HDstrlen(quoted);
+    size_t len = strlen(quoted);
     char *trimmed;
 
-    HDassert(quoted[0] == '"' && quoted[len - 1] == '"');
+    assert(quoted[0] == '"' && quoted[len - 1] == '"');
 
-    trimmed = HDstrdup(quoted + 1);
+    trimmed = strdup(quoted + 1);
     trimmed[len - 2] = '\0';
 
     return trimmed;
@@ -148,18 +158,18 @@ static int my_yyinput(char *buf, int max_size)
 {
    int ret;
 
-   HDmemcpy(buf, myinput, input_len);
+   memcpy(buf, myinput, input_len);
    ret = (int)input_len;
    return ret;
 }
 
 int H5LTyyerror(const char *msg)
 {
-   HDprintf("ERROR: %s before \"%s\".\n", msg, yytext);
+   printf("ERROR: %s before \"%s\".\n", msg, yytext);
    return 0;
 }
 
 int yywrap()
 {
-    return(1);
+    return 1;
 }

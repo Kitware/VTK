@@ -6,17 +6,15 @@
 # in order to detect initializations that occur there.  It's possible
 # that GCC 8 only performs that analysis at -O3, though.
 #
-#
-# NOTE: File Driver files are not compatible with these warnings as errors
-#     H5FDlog.c,
-#       -Werror=maybe-uninitialized
--Wmaybe-uninitialized
-# NOTE: src/ files are not compatible with these warnings as errors
-#     src/H5Shyper.c,src/H5SL.c,src/H5Shyper.c
-#       -Werror=maybe-uninitialized
-# NOTE: Test files are not compatible with these warnings as errors
-#     test/cache_common.c,
-#       -Werror=maybe-uninitialized
-# NOTE: hl/src/ files are not compatible with these warnings as errors
-#     hl/src/H5DS.c,
-#       -Werror=maybe-uninitialized
+-Werror=maybe-uninitialized
+# Ask GCC to warn about cast-align problems, even on platforms where
+# it normally wouldn't (because those platforms don't require alignment).
+# While this flag doesn't follow the -Werror format like above, it's
+# placed here to make sure that it comes after the -Werror=cast-align
+# line from error-general in the list of flags. Otherwise, if the
+# '--enable-warnings-as-errors' flag isn't passed at configure time,
+# the logic in config/gnu-flags that demotes these errors to their
+# normal warning form will cause -Wcast-align to come after
+# -Wcast-align=strict in the list of flags, causing it to take
+# precedence and mask cast-align warnings from GCC on certain platforms.
+-Wcast-align=strict

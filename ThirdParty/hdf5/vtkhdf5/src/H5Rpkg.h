@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -52,19 +51,19 @@
 /* Object reference */
 typedef struct H5R_ref_priv_obj_t {
     H5O_token_t token;    /* Object token     */
-    char *      filename; /* File name        */
+    char       *filename; /* File name        */
 } H5R_ref_priv_obj_t;
 
 /* Region reference */
 typedef struct H5R_ref_priv_reg_t {
     H5R_ref_priv_obj_t obj;   /* Object reference */
-    H5S_t *            space; /* Selection        */
+    H5S_t             *space; /* Selection        */
 } H5R_ref_priv_reg_t;
 
 /* Attribute reference */
 typedef struct H5R_ref_priv_attr_t {
     H5R_ref_priv_obj_t obj;  /* Object reference */
-    char *             name; /* Attribute name   */
+    char              *name; /* Attribute name   */
 } H5R_ref_priv_attr_t;
 
 /* Generic reference type (keep it cache aligned) */
@@ -78,7 +77,7 @@ typedef struct H5R_ref_priv_t {
     uint32_t encode_size; /* Cached encoding size             */
     int8_t   type;        /* Reference type                   */
     uint8_t  token_size;  /* Cached token size                */
-    hbool_t  app_ref;     /* App ref on loc_id                */
+    bool     app_ref;     /* App ref on loc_id                */
 } H5R_ref_priv_t;
 
 /*****************************/
@@ -95,7 +94,7 @@ H5_DLL herr_t H5R__create_attr(const H5O_token_t *obj_token, size_t token_size, 
                                H5R_ref_priv_t *ref);
 H5_DLL herr_t H5R__destroy(H5R_ref_priv_t *ref);
 
-H5_DLL herr_t H5R__set_loc_id(H5R_ref_priv_t *ref, hid_t id, hbool_t inc_ref, hbool_t app_ref);
+H5_DLL herr_t H5R__set_loc_id(H5R_ref_priv_t *ref, hid_t id, bool inc_ref, bool app_ref);
 H5_DLL hid_t  H5R__get_loc_id(const H5R_ref_priv_t *ref);
 H5_DLL hid_t  H5R__reopen_file(H5R_ref_priv_t *ref, hid_t fapl_id);
 

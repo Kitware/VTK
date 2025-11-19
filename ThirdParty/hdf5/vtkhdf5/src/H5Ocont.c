@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:             H5Ocont.c
- *                      Aug  6 1997
- *                      Robb Matzke
  *
  * Purpose:             The object header continuation message.  This
  *                      message is only generated and read from within
@@ -30,14 +27,14 @@
 #include "H5private.h"   /* Generic Functions			*/
 #include "H5Eprivate.h"  /* Error handling		  	*/
 #include "H5FLprivate.h" /* Free Lists				*/
-#include "H5MFprivate.h" /* File memory management		*/
 #include "H5Opkg.h"      /* Object headers			*/
 
 /* PRIVATE PROTOTYPES */
 static void *H5O__cont_decode(H5F_t *f, H5O_t *open_oh, unsigned mesg_flags, unsigned *ioflags, size_t p_size,
                               const uint8_t *p);
-static herr_t H5O__cont_encode(H5F_t *f, hbool_t disable_shared, uint8_t *p, const void *_mesg);
-static size_t H5O__cont_size(const H5F_t *f, hbool_t disable_shared, const void *_mesg);
+static herr_t H5O__cont_encode(H5F_t *f, bool disable_shared, size_t H5_ATTR_UNUSED p_size, uint8_t *p,
+                               const void *_mesg);
+static size_t H5O__cont_size(const H5F_t *f, bool disable_shared, const void *_mesg);
 static herr_t H5O__cont_free(void *mesg);
 static herr_t H5O__cont_delete(H5F_t *f, H5O_t *open_oh, void *_mesg);
 static herr_t H5O__cont_debug(H5F_t *f, const void *_mesg, FILE *stream, int indent, int fwidth);
@@ -75,40 +72,43 @@ H5FL_DEFINE(H5O_cont_t);
  * Purpose:     Decode the raw header continuation message.
  *
  * Return:      Success:        Ptr to the new native message
- *
  *              Failure:        NULL
- *
- * Programmer:  Robb Matzke
- *              Aug  6 1997
- *
  *-------------------------------------------------------------------------
  */
 static void *
 H5O__cont_decode(H5F_t *f, H5O_t H5_ATTR_UNUSED *open_oh, unsigned H5_ATTR_UNUSED mesg_flags,
-                 unsigned H5_ATTR_UNUSED *ioflags, size_t H5_ATTR_UNUSED p_size, const uint8_t *p)
+                 unsigned H5_ATTR_UNUSED *ioflags, size_t p_size, const uint8_t *p)
 {
-    H5O_cont_t *cont      = NULL;
-    void *      ret_value = NULL; /* Return value */
+    H5O_cont_t    *cont      = NULL;
+    const uint8_t *p_end     = p + p_size - 1;
+    void          *ret_value = NULL;
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
-    /* check args */
-    HDassert(f);
-    HDassert(p);
+    assert(f);
+    assert(p);
 
     /* Allocate space for the message */
     if (NULL == (cont = H5FL_MALLOC(H5O_cont_t)))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed");
+        HGOTO_ERROR(H5E_OHDR, H5E_NOSPACE, NULL, "memory allocation failed");
 
     /* Decode */
+    if (H5_IS_BUFFER_OVERFLOW(p, H5F_sizeof_addr(f), p_end))
+        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     H5F_addr_decode(f, &p, &(cont->addr));
+
+    if (H5_IS_BUFFER_OVERFLOW(p, H5F_sizeof_size(f), p_end))
+        HGOTO_ERROR(H5E_OHDR, H5E_OVERFLOW, NULL, "ran off end of input buffer while decoding");
     H5F_DECODE_LENGTH(f, p, cont->size);
+
     cont->chunkno = 0;
 
     /* Set return value */
     ret_value = cont;
 
 done:
+    if (NULL == ret_value && NULL != cont)
+        H5FL_FREE(H5O_cont_t, cont);
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O__cont_decode() */
 
@@ -119,24 +119,22 @@ done:
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Robb Matzke
- *              Aug  7 1997
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
-H5O__cont_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, const void *_mesg)
+H5O__cont_encode(H5F_t *f, bool H5_ATTR_UNUSED disable_shared, size_t H5_ATTR_UNUSED p_size, uint8_t *p,
+                 const void *_mesg)
 {
     const H5O_cont_t *cont = (const H5O_cont_t *)_mesg;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* check args */
-    HDassert(f);
-    HDassert(p);
-    HDassert(cont);
-    HDassert(H5F_addr_defined(cont->addr));
-    HDassert(cont->size > 0);
+    assert(f);
+    assert(p);
+    assert(cont);
+    assert(H5_addr_defined(cont->addr));
+    assert(cont->size > 0);
 
     /* encode */
     H5F_addr_encode(f, &p, cont->addr);
@@ -156,17 +154,14 @@ H5O__cont_encode(H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, uint8_t *p, co
  *
  *              Failure:        zero
  *
- * Programmer:  Quincey Koziol
- *              Sep  6 2005
- *
  *-------------------------------------------------------------------------
  */
 static size_t
-H5O__cont_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const void H5_ATTR_UNUSED *_mesg)
+H5O__cont_size(const H5F_t *f, bool H5_ATTR_UNUSED disable_shared, const void H5_ATTR_UNUSED *_mesg)
 {
     size_t ret_value = 0; /* Return value */
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Set return value */
     ret_value = (size_t)(H5F_SIZEOF_ADDR(f) + /* Continuation header address */
@@ -182,17 +177,14 @@ H5O__cont_size(const H5F_t *f, hbool_t H5_ATTR_UNUSED disable_shared, const void
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *              Monday, November 15, 2004
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5O__cont_free(void *mesg)
 {
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
-    HDassert(mesg);
+    assert(mesg);
 
     mesg = H5FL_FREE(H5O_cont_t, mesg);
 
@@ -206,9 +198,6 @@ H5O__cont_free(void *mesg)
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Quincey Koziol
- *              Monday, October 10, 2005
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -217,16 +206,16 @@ H5O__cont_delete(H5F_t *f, H5O_t *open_oh, void *_mesg)
     H5O_cont_t *mesg      = (H5O_cont_t *)_mesg;
     herr_t      ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* check args */
-    HDassert(f);
-    HDassert(mesg);
+    assert(f);
+    assert(mesg);
 
     /* Notify the cache that the chunk has been deleted */
     /* (releases the space for the chunk) */
     if (H5O__chunk_delete(f, open_oh, mesg->chunkno) < 0)
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "unable to remove chunk from cache")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTDELETE, FAIL, "unable to remove chunk from cache");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -239,9 +228,6 @@ done:
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Robb Matzke
- *              Aug  6 1997
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -249,20 +235,20 @@ H5O__cont_debug(H5F_t H5_ATTR_UNUSED *f, const void *_mesg, FILE *stream, int in
 {
     const H5O_cont_t *cont = (const H5O_cont_t *)_mesg;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* check args */
-    HDassert(f);
-    HDassert(cont);
-    HDassert(stream);
-    HDassert(indent >= 0);
-    HDassert(fwidth >= 0);
+    assert(f);
+    assert(cont);
+    assert(stream);
+    assert(indent >= 0);
+    assert(fwidth >= 0);
 
-    HDfprintf(stream, "%*s%-*s %" PRIuHADDR "\n", indent, "", fwidth, "Continuation address:", cont->addr);
+    fprintf(stream, "%*s%-*s %" PRIuHADDR "\n", indent, "", fwidth, "Continuation address:", cont->addr);
 
-    HDfprintf(stream, "%*s%-*s %lu\n", indent, "", fwidth,
-              "Continuation size in bytes:", (unsigned long)(cont->size));
-    HDfprintf(stream, "%*s%-*s %d\n", indent, "", fwidth, "Points to chunk number:", (int)(cont->chunkno));
+    fprintf(stream, "%*s%-*s %lu\n", indent, "", fwidth,
+            "Continuation size in bytes:", (unsigned long)(cont->size));
+    fprintf(stream, "%*s%-*s %d\n", indent, "", fwidth, "Points to chunk number:", (int)(cont->chunkno));
 
     FUNC_LEAVE_NOAPI(SUCCEED)
 } /* end H5O__cont_debug() */

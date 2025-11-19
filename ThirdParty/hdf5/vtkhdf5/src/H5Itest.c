@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -59,18 +58,15 @@
  * Return:      Success: The length of name.
  *              Failure: -1
  *
- * Programmer:  Quincey Koziol
- *              Tuesday, July 27, 2010
- *
  *-------------------------------------------------------------------------
  */
 ssize_t
-H5I__get_name_test(hid_t id, char *name /*out*/, size_t size, hbool_t *cached)
+H5I__get_name_test(hid_t id, char *name /*out*/, size_t size, bool *cached)
 {
     H5VL_object_t *vol_obj;                 /* Object of id */
     H5G_loc_t      loc;                     /* Object location */
-    hbool_t        api_ctx_pushed  = FALSE; /* Whether API context pushed */
-    hbool_t        vol_wrapper_set = FALSE; /* Whether the VOL object wrapping context was set up */
+    bool           api_ctx_pushed  = false; /* Whether API context pushed */
+    bool           vol_wrapper_set = false; /* Whether the VOL object wrapping context was set up */
     size_t         name_len        = 0;     /* Length of name */
     ssize_t        ret_value       = -1;    /* Return value */
 
@@ -78,25 +74,25 @@ H5I__get_name_test(hid_t id, char *name /*out*/, size_t size, hbool_t *cached)
 
     /* Set API context */
     if (H5CX_push() < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, (-1), "can't set API context")
-    api_ctx_pushed = TRUE;
+        HGOTO_ERROR(H5E_SYM, H5E_CANTSET, (-1), "can't set API context");
+    api_ctx_pushed = true;
 
     /* Get the object pointer */
     if (NULL == (vol_obj = H5VL_vol_object(id)))
-        HGOTO_ERROR(H5E_ID, H5E_BADTYPE, (-1), "invalid identifier")
+        HGOTO_ERROR(H5E_ID, H5E_BADTYPE, (-1), "invalid identifier");
 
     /* Set wrapper info in API context */
     if (H5VL_set_vol_wrapper(vol_obj) < 0)
-        HGOTO_ERROR(H5E_ID, H5E_CANTSET, (-1), "can't set VOL wrapper info")
-    vol_wrapper_set = TRUE;
+        HGOTO_ERROR(H5E_ID, H5E_CANTSET, (-1), "can't set VOL wrapper info");
+    vol_wrapper_set = true;
 
     /* Get object location */
     if (H5G_loc(id, &loc) < 0)
-        HGOTO_ERROR(H5E_ID, H5E_CANTGET, (-1), "can't retrieve object location")
+        HGOTO_ERROR(H5E_ID, H5E_CANTGET, (-1), "can't retrieve object location");
 
     /* Call internal group routine to retrieve object's name */
     if (H5G_get_name(&loc, name, size, &name_len, cached) < 0)
-        HGOTO_ERROR(H5E_ID, H5E_CANTGET, (-1), "can't retrieve object name")
+        HGOTO_ERROR(H5E_ID, H5E_CANTGET, (-1), "can't retrieve object name");
 
     /* Set return value */
     ret_value = (ssize_t)name_len;
@@ -104,10 +100,10 @@ H5I__get_name_test(hid_t id, char *name /*out*/, size_t size, hbool_t *cached)
 done:
     /* Reset object wrapping info in API context */
     if (vol_wrapper_set && H5VL_reset_vol_wrapper() < 0)
-        HDONE_ERROR(H5E_ID, H5E_CANTRESET, (-1), "can't reset VOL wrapper info")
+        HDONE_ERROR(H5E_ID, H5E_CANTRESET, (-1), "can't reset VOL wrapper info");
 
-    if (api_ctx_pushed && H5CX_pop(FALSE) < 0)
-        HDONE_ERROR(H5E_SYM, H5E_CANTRESET, (-1), "can't reset API context")
+    if (api_ctx_pushed && H5CX_pop(false) < 0)
+        HDONE_ERROR(H5E_SYM, H5E_CANTRESET, (-1), "can't reset API context");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5I__get_name_test() */

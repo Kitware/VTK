@@ -1,5 +1,4 @@
 # Copyright by The HDF Group.
-# Copyright by the Board of Trustees of the University of Illinois.
 # All rights reserved.
 #
 # This file is part of HDF5.  The full HDF5 copyright notice, including
@@ -37,8 +36,6 @@
 # FUNCTION: H5Gfoo; ; v10, v14, v18
 # FUNCTION: H5Gbar; ; v12, v16
 #
-# Programmer: Quincey Koziol
-# Creation Date: 2007/07/10
 
 # API function names
 # (although not required, it's easier to compare this file with the headers

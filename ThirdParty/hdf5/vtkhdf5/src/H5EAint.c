@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:		H5EAint.c
- *			Jun 17 2008
- *			Quincey Koziol
  *
  * Purpose:		Internal routines for extnsible arrays.
  *
@@ -74,9 +71,6 @@
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Mar 26 2009
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -87,12 +81,12 @@ H5EA__create_flush_depend(H5AC_info_t *parent_entry, H5AC_info_t *child_entry)
     FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(parent_entry);
-    HDassert(child_entry);
+    assert(parent_entry);
+    assert(child_entry);
 
     /* Create a flush dependency between parent and child entry */
     if (H5AC_create_flush_dependency(parent_entry, child_entry) < 0)
-        HGOTO_ERROR(H5E_EARRAY, H5E_CANTDEPEND, FAIL, "unable to create flush dependency")
+        HGOTO_ERROR(H5E_EARRAY, H5E_CANTDEPEND, FAIL, "unable to create flush dependency");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -105,9 +99,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Quincey Koziol
- *		Mar 26 2009
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -118,12 +109,12 @@ H5EA__destroy_flush_depend(H5AC_info_t *parent_entry, H5AC_info_t *child_entry)
     FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(parent_entry);
-    HDassert(child_entry);
+    assert(parent_entry);
+    assert(child_entry);
 
     /* Destroy a flush dependency between parent and child entry */
     if (H5AC_destroy_flush_dependency(parent_entry, child_entry) < 0)
-        HGOTO_ERROR(H5E_EARRAY, H5E_CANTUNDEPEND, FAIL, "unable to destroy flush dependency")
+        HGOTO_ERROR(H5E_EARRAY, H5E_CANTUNDEPEND, FAIL, "unable to destroy flush dependency");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

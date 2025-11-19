@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -11,9 +10,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-/* Programmer:  Quincey Koziol
- *              Saturday May 31, 2003
- *
+/*
  * Purpose:	Generic Property Testing Functions
  */
 
@@ -25,7 +22,6 @@
 #include "H5Eprivate.h" /* Error handling		  	*/
 #include "H5Iprivate.h" /* IDs			  		*/
 #include "H5Ppkg.h"     /* Property lists		  	*/
-#include "H5Dprivate.h" /* Dataset		  		*/
 
 /* Local variables */
 
@@ -57,7 +53,7 @@ char *
 H5P__get_class_path_test(hid_t pclass_id)
 {
     H5P_genclass_t *pclass;           /* Property class to query */
-    char *          ret_value = NULL; /* Return value */
+    char           *ret_value = NULL; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
@@ -67,7 +63,7 @@ H5P__get_class_path_test(hid_t pclass_id)
 
     /* Get the property list class path */
     if (NULL == (ret_value = H5P__get_class_path(pclass)))
-        HGOTO_ERROR(H5E_PLIST, H5E_NOTFOUND, NULL, "unable to query full path of class")
+        HGOTO_ERROR(H5E_PLIST, H5E_NOTFOUND, NULL, "unable to query full path of class");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -110,7 +106,7 @@ H5P__open_class_path_test(const char *path)
         HGOTO_ERROR(H5E_PLIST, H5E_NOTFOUND, H5I_INVALID_HID, "unable to find class with full path");
 
     /* Get an ID for the class */
-    if ((ret_value = H5I_register(H5I_GENPROP_CLS, pclass, TRUE)) < 0)
+    if ((ret_value = H5I_register(H5I_GENPROP_CLS, pclass, true)) < 0)
         HGOTO_ERROR(H5E_PLIST, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register property list class");
 
 done:
