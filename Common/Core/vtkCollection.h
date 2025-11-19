@@ -165,6 +165,23 @@ public:
    */
   VTK_NEWINSTANCE vtkCollectionIterator* NewIterator();
 
+  /**
+   * Add support for C++11 range-based for loops.
+   */
+  struct Iterator
+  {
+    vtkCollectionElement* current;
+    vtkObject* operator*() const { return current->Item; }
+    Iterator& operator++()
+    {
+      current = current->Next;
+      return *this;
+    }
+    bool operator!=(const Iterator& other) const { return current != other.current; }
+  };
+  Iterator begin() const { return { this->Top }; }
+  Iterator end() const { return { nullptr }; }
+
   ///@{
   /**
    * Participate in garbage collection.
