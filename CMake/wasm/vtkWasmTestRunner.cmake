@@ -48,7 +48,8 @@ if (NOT TEST_EXECUTABLE)
 endif()
 
 function(generate_index_html js test_args exit_after_test url output_file)
-  file(READ "${js}" javascript)
+  # Get file name from test executable
+  get_filename_component(js_filename "${js}" NAME)
   set(close_window "")
   # right now we only use webgpu for the unit tests in the RenderingWebGPU module.
   set(graphics_backend "OPENGL") # default equivalent to WebGL2
@@ -82,7 +83,8 @@ if (EXISTS "${TEST_OUTPUT_DIR}/vtkhttp.lock")
   string(JSON HTTP_SERVER_PORT GET "${HTTP_LOCK}" port)
   set(HTTP_SERVER_URL "http://${HTTP_SERVER_ADDRESS}:${HTTP_SERVER_PORT}")
 else ()
-  message(WARNING "${TEST_OUTPUT_DIR}/vtkhttp.lock file does not exist!")
+  message(FATAL_ERROR "${TEST_OUTPUT_DIR}/vtkhttp.lock file does not exist!")
+  cmake_language(EXIT 1)
 endif()
 
 # Create user profile directory
@@ -92,6 +94,7 @@ file(MAKE_DIRECTORY "${USER_PROFILE_DIR}")
 set(TEST_HTML "${USER_PROFILE_DIR}/test.html")
 set(TEST_HTML_URL "file://${TEST_HTML}")
 generate_index_html("${TEST_EXECUTABLE}" "${TEST_ARGS}" "${EXIT_AFTER_TEST}" "${HTTP_SERVER_URL}" "${TEST_HTML}")
+set(TEST_HTML_URL "${HTTP_SERVER_URL}/${USER_PROFILE}/test.html")
 
 message(STATUS "TEST_EXECUTABLE=${TEST_EXECUTABLE}")
 message(STATUS "TEST_ARGS=${TEST_ARGS}")
@@ -121,7 +124,7 @@ endif()
 
 if (IS_EXECUTABLE "${TESTING_WASM_ENGINE}")
   execute_process(
-    COMMAND ${TESTING_WASM_ENGINE} ${IMPLICIT_ENGINE_ARGS} ${TESTING_WASM_ENGINE_ARGS} "--allow-file-access-from-files" ${TEST_HTML_URL}
+    COMMAND ${TESTING_WASM_ENGINE} ${IMPLICIT_ENGINE_ARGS} ${TESTING_WASM_ENGINE_ARGS} ${TEST_HTML_URL}
     OUTPUT_VARIABLE ENGINE_ERROR_OUTPUT
     ERROR_VARIABLE ENGINE_ERROR_OUTPUT
     ECHO_OUTPUT_VARIABLE

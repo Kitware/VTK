@@ -106,8 +106,6 @@
       arguments: "@test_args@".split(";") // Comes in as a stringified cmake list
     };
   </script>
-  <script type="text/javascript">
-    @javascript@
-  </script>
+  <script src="@js_filename@"></script>
 </body>
 </html>

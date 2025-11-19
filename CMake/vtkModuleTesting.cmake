@@ -23,6 +23,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       "${_vtkModuleTesting_dir}/wasm/server.js"
       "--directory"
       "${CMAKE_BINARY_DIR}/Testing/Temporary"
+      "--binaryDirectory"
+      "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
       "--port"
       "0"
       "--operation"

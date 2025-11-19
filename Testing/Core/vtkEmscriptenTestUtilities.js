@@ -22,7 +22,7 @@ var vtkEmscriptenTestUtilities = {
     hostPathFile = UTF8ToString(hostPathFile);
     const req = new XMLHttpRequest;
     req.overrideMimeType('text/plain; charset=x-user-defined');
-    req.open("GET", `file://${hostPathFile}`, false);
+    req.open("GET", `preload?file=${hostPathFile}`, false);
     try {
       req.send(null);
     } catch (e){
