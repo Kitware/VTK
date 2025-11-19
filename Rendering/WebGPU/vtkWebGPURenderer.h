@@ -51,7 +51,7 @@ public:
   enum RenderStageEnum
   {
     AwaitingPreparation,
-    UpdatingBuffers,
+    SyncDeviceResources,
     RecordingCommands,
     Finished,
     RenderPostRasterization

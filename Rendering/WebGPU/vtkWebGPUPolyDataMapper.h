@@ -17,9 +17,11 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArray;
+class vtkWebGPUActor;
 class vtkWebGPURenderWindow;
 class vtkWebGPURenderer;
 class vtkWebGPUComputeRenderBuffer;
+class vtkWebGPUTexture;
 class vtkWebGPUConfiguration;
 
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUPolyDataMapper : public vtkPolyDataMapper
@@ -39,6 +41,7 @@ public:
     POINT_NORMALS,
     POINT_TANGENTS,
     POINT_UVS,
+    POINT_COLOR_UVS,
     POINT_NB_ATTRIBUTES,
     POINT_UNDEFINED
   };
@@ -335,63 +338,87 @@ protected:
   /**
    * Generates vertex and fragment shader code
    */
-  virtual void ApplyShaderReplacements(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
+  virtual void ApplyShaderReplacements(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
 
-  virtual void ReplaceShaderConstantsDef(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
-  virtual void ReplaceShaderActorDef(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
-  virtual void ReplaceShaderClippingPlanesDef(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
-  virtual void ReplaceShaderCustomDef(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderConstantsDef(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderActorDef(GraphicsPipelineType pipelineType, vtkWebGPURenderer* renderer,
+    vtkWebGPUActor* actor, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderClippingPlanesDef(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderCustomDef(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
 
-  virtual void ReplaceShaderRendererBindings(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
-  virtual void ReplaceShaderActorBindings(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
-  virtual void ReplaceShaderClippingPlanesBindings(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
-  virtual void ReplaceShaderMeshAttributeBindings(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
-  virtual void ReplaceShaderCustomBindings(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
-  virtual void ReplaceShaderTopologyBindings(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
-  virtual void ReplaceShaderVertexOutputDef(
-    GraphicsPipelineType pipelineType, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderRendererBindings(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderActorBindings(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderClippingPlanesBindings(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderMeshAttributeBindings(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderCustomBindings(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderTopologyBindings(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
+  virtual void ReplaceShaderVertexOutputDef(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss, std::string& fss);
 
-  virtual void ReplaceVertexShaderInputDef(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderMainStart(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderCamera(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderNormalTransform(
-    GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderVertexId(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderPrimitiveId(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderCellId(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderPosition(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderClippingPlanes(
-    GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderPositionVC(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderPicking(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderColors(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderEdges(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderNormals(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderTangents(GraphicsPipelineType pipelineType, std::string& vss);
-  virtual void ReplaceVertexShaderMainEnd(GraphicsPipelineType pipelineType, std::string& vss);
+  virtual void ReplaceVertexShaderInputDef(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderMainStart(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderCamera(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderNormalTransform(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderVertexId(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderPrimitiveId(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderCellId(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderPosition(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderClippingPlanes(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderPositionVC(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderPicking(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderColors(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderUVs(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderEdges(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderNormals(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderTangents(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
+  virtual void ReplaceVertexShaderMainEnd(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& vss);
 
-  virtual void ReplaceFragmentShaderOutputDef(GraphicsPipelineType pipelineType, std::string& fss);
+  virtual void ReplaceFragmentShaderOutputDef(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& fss);
 
-  virtual void ReplaceFragmentShaderMainStart(GraphicsPipelineType pipelineType, std::string& fss);
-  virtual void ReplaceFragmentShaderClippingPlanes(
-    GraphicsPipelineType pipelineType, std::string& fss);
-  virtual void ReplaceFragmentShaderColors(GraphicsPipelineType pipelineType, std::string& fss);
-  virtual void ReplaceFragmentShaderNormals(GraphicsPipelineType pipelineType, std::string& fss);
-  virtual void ReplaceFragmentShaderEdges(GraphicsPipelineType pipelineType, std::string& fss);
-  virtual void ReplaceFragmentShaderLights(GraphicsPipelineType pipelineType, std::string& fss);
-  virtual void ReplaceFragmentShaderPicking(GraphicsPipelineType pipelineType, std::string& fss);
-  virtual void ReplaceFragmentShaderMainEnd(GraphicsPipelineType pipelineType, std::string& fss);
+  virtual void ReplaceFragmentShaderMainStart(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& fss);
+  virtual void ReplaceFragmentShaderClippingPlanes(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& fss);
+  virtual void ReplaceFragmentShaderColors(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& fss);
+  virtual void ReplaceFragmentShaderNormals(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& fss);
+  virtual void ReplaceFragmentShaderEdges(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& fss);
+  virtual void ReplaceFragmentShaderLights(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& fss);
+  virtual void ReplaceFragmentShaderPicking(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& fss);
+  virtual void ReplaceFragmentShaderMainEnd(GraphicsPipelineType pipelineType,
+    vtkWebGPURenderer* renderer, vtkWebGPUActor* actor, std::string& fss);
 
   /**
    * Whether shaders must be built to target the specific pipeline.
@@ -461,6 +488,7 @@ protected:
   // so that `UpdateMeshGeometryBuffers` can reuse it without climbing up
   // vtkAlgorithm pipeline.
   vtkPolyData* CachedInput = nullptr;
+  vtkSmartPointer<vtkWebGPUTexture> ColorTextureHostResource;
 
   // 1 bind group for this polydata mesh
   wgpu::BindGroup MeshAttributeBindGroup;
@@ -486,18 +514,21 @@ protected:
     vtkTypeUInt32 VertexCount = 0;
   };
 
-  enum BindingGroupId : int
+  enum BindingGroup : int
   {
-    GROUP_RENDERER,
-    GROUP_ACTOR,
-    GROUP_MESH,
+    GROUP_RENDERER = 0,
+    GROUP_ACTOR = 1,
+    GROUP_TEXTURES = GROUP_ACTOR,
+    GROUP_MESH = 2,
     // Clipping planes are bound to the same group as the mesh attributes
     // because they vary based on the mapper's shift/scale and the actor's
     // transformation matrix.
     GROUP_CLIPPING_PLANES = GROUP_MESH,
-    GROUP_TOPOLOGY,
-    GROUP_NB_BINDGROUPS
+    GROUP_TOPOLOGY = 3,
+    GROUP_NB_BINDGROUPS = 4
   };
+  static_assert(GROUP_NB_BINDGROUPS <= 4,
+    "Number of bind groups exceeds 4! Most devices can support only up to 4 bind groups");
   std::array<std::uint32_t, GROUP_NB_BINDGROUPS> NumberOfBindings = {};
   vtkNew<vtkWebGPUCellToPrimitiveConverter> CellConverter;
   TopologyBindGroupInfo
@@ -559,7 +590,7 @@ private:
   const PointDataAttributes PointDataAttributesOrder[PointDataAttributes::POINT_NB_ATTRIBUTES] = {
     PointDataAttributes::POINT_POSITIONS, PointDataAttributes::POINT_COLORS,
     PointDataAttributes::POINT_NORMALS, PointDataAttributes::POINT_TANGENTS,
-    PointDataAttributes::POINT_UVS
+    PointDataAttributes::POINT_UVS, PointDataAttributes::POINT_COLOR_UVS
   };
 
   /**

@@ -105,6 +105,11 @@ callbackCommand->SetCallback(
           factory->SetEnableFlag(useOpenGL, "vtkRenderWindow", "vtkXOpenGLRenderWindow");
           factory->SetEnableFlag(useOpenGL, "vtkRenderWindow", "vtkWebAssemblyOpenGLRenderWindow");
         }
+        if (factory->HasOverride("vtkTexture"))
+        {
+          factory->SetEnableFlag(useWebGPU, "vtkTexture", "vtkWebGPUTexture");
+          factory->SetEnableFlag(useOpenGL, "vtkTexture", "vtkOpenGLTexture");
+        }
       }
     }
   });

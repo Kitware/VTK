@@ -287,7 +287,7 @@ void vtkWebGPURenderer::RecordRenderCommands()
 //------------------------------------------------------------------------------
 void vtkWebGPURenderer::UpdateBuffers()
 {
-  this->RenderStage = RenderStageEnum::UpdatingBuffers;
+  this->RenderStage = RenderStageEnum::SyncDeviceResources;
   this->SetupBindGroupLayouts();
   this->UpdateCamera(); // brings the camera's transform matrices up-to-date.
   this->UpdateLightGeometry();
@@ -380,7 +380,7 @@ int vtkWebGPURenderer::UpdateOpaquePolygonalGeometry()
   int result = 0;
   switch (this->RenderStage)
   {
-    case RenderStageEnum::UpdatingBuffers:
+    case RenderStageEnum::SyncDeviceResources:
     {
       for (int i = 0; i < this->PropArrayCount; i++)
       {
@@ -420,7 +420,7 @@ int vtkWebGPURenderer::UpdateTranslucentPolygonalGeometry()
   int result = 0;
   switch (this->RenderStage)
   {
-    case RenderStageEnum::UpdatingBuffers:
+    case RenderStageEnum::SyncDeviceResources:
     {
       for (int i = 0; i < this->PropArrayCount; i++)
       {

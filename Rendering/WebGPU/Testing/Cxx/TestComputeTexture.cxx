@@ -14,7 +14,7 @@
 #include "vtkWebGPUComputePipeline.h"
 #include "vtkWebGPUComputeTexture.h"
 #include "vtkWebGPUComputeTextureView.h"
-#include "vtkWebGPUTexture.h"
+#include "vtkWebGPUTextureDeviceResource.h"
 
 #include <vector>
 

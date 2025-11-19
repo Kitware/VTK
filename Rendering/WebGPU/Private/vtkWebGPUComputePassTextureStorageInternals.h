@@ -245,8 +245,9 @@ public:
     const std::string textureLabel = texture->GetLabel();
     const char* textureLabelCStr = textureLabel.c_str();
     const uint32_t bytesPerRow = texture->GetBytesPerPixel() * texture->GetWidth();
-    this->ParentPassWGPUConfiguration->WriteTexture(
-      wgpuTexture, bytesPerRow, numBytes, bytes, textureLabelCStr);
+    this->ParentPassWGPUConfiguration->WriteTexture(wgpuTexture, bytesPerRow, numBytes, bytes,
+      /*srcOffset=*/0, /*dstOffset=*/{ 0, 0, 0 }, /*dstMipLevel=*/0,
+      /*textureLabel=*/textureLabelCStr);
   }
 
   /**

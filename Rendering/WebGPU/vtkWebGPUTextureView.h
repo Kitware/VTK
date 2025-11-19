@@ -5,9 +5,9 @@
 #define vtkWebGPUTextureView_h
 
 #include "vtkObject.h"
-#include "vtkRenderingWebGPUModule.h" // For export macro
-#include "vtkWebGPUTexture.h"         // for TextureFormat, TextureDimension, ...
-#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
+#include "vtkRenderingWebGPUModule.h"       // For export macro
+#include "vtkWebGPUTextureDeviceResource.h" // for TextureFormat, TextureDimension, ...
+#include "vtkWrappingHints.h"               // For VTK_MARSHALAUTO
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -107,16 +107,16 @@ public:
   /**
    * Get/set the dimension of the texture view
    */
-  vtkGetMacro(Dimension, vtkWebGPUTexture::TextureDimension);
-  vtkSetMacro(Dimension, vtkWebGPUTexture::TextureDimension);
+  vtkGetMacro(Dimension, vtkWebGPUTextureDeviceResource::TextureDimension);
+  vtkSetMacro(Dimension, vtkWebGPUTextureDeviceResource::TextureDimension);
   ///@}
 
   ///@{
   /**
    * Get/set the format of the texture view
    */
-  vtkGetMacro(Format, vtkWebGPUTexture::TextureFormat);
-  vtkSetMacro(Format, vtkWebGPUTexture::TextureFormat);
+  vtkGetMacro(Format, vtkWebGPUTextureDeviceResource::TextureFormat);
+  vtkSetMacro(Format, vtkWebGPUTextureDeviceResource::TextureFormat);
   ///@}
 
   ///@{
@@ -160,10 +160,12 @@ private:
   vtkWebGPUTextureView::TextureViewAspect Aspect = TextureViewAspect::ASPECT_ALL;
 
   // Dimension of the texture view
-  vtkWebGPUTexture::TextureDimension Dimension = vtkWebGPUTexture::TextureDimension::DIMENSION_2D;
+  vtkWebGPUTextureDeviceResource::TextureDimension Dimension =
+    vtkWebGPUTextureDeviceResource::TextureDimension::DIMENSION_2D;
 
   // Format of the texture view
-  vtkWebGPUTexture::TextureFormat Format = vtkWebGPUTexture::TextureFormat::RGBA8_UNORM;
+  vtkWebGPUTextureDeviceResource::TextureFormat Format =
+    vtkWebGPUTextureDeviceResource::TextureFormat::RGBA8_UNORM;
 
   // Mode of the texture view
   vtkWebGPUTextureView::TextureViewMode Mode = vtkWebGPUTextureView::TextureViewMode::UNDEFINED;

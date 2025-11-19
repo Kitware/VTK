@@ -68,7 +68,7 @@ void vtkWebGPUComputePointCloudMapper::RenderPiece(vtkRenderer* renderer, vtkAct
 
   switch (wgpuRenderer->GetRenderStage())
   {
-    case vtkWebGPURenderer::RenderStageEnum::UpdatingBuffers:
+    case vtkWebGPURenderer::RenderStageEnum::SyncDeviceResources:
     {
       this->Internals->UploadPointsToGPU();
       this->Internals->UploadColorsToGPU();

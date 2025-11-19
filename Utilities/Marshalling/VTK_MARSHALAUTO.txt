@@ -653,7 +653,7 @@ Rendering/WebGPU/vtkWebGPURenderPipelineCache.h
 Rendering/WebGPU/vtkWebGPURenderWindow.h
 Rendering/WebGPU/vtkWebGPUShaderDatabase.h
 Rendering/WebGPU/vtkWebGPUShaderProperty.h
-Rendering/WebGPU/vtkWebGPUTexture.h
+Rendering/WebGPU/vtkWebGPUTextureDeviceResource.h
 Rendering/WebGPU/vtkWebGPUTextureView.h
 Rendering/WebGPU/vtkXWebGPURenderWindow.h
 Views/Context2D/vtkContextInteractorStyle.h

@@ -19,6 +19,7 @@
 #include "vtkWebGPUComputePipeline.h"      // for the compute pipelines of this render window
 #include "vtkWebGPUComputeRenderTexture.h" // for compute render textures
 #include "vtkWebGPURenderPipelineCache.h"  // for vtkWebGPURenderPipelineCache
+#include "vtkWebGPURenderTextureCache.h"   // for texture cache
 #include "vtkWebGPUShaderDatabase.h"       // for shader database
 #include "vtkWrappingHints.h"              // For VTK_MARSHALAUTO
 #include "vtk_wgpu.h"                      // for webgpu
@@ -27,6 +28,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 class vtkWebGPUComputeOcclusionCuller;
 class vtkWebGPUConfiguration;
+class vtkWebGPUTextureCache;
 class vtkImageData;
 class vtkTypeUInt32Array;
 class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPURenderWindow : public vtkRenderWindow
@@ -85,6 +87,11 @@ public:
   void Frame() override;
 
   const char* GetRenderingBackend() override;
+
+  /**
+   * Get the generic context pointer. This is just the WebGPU device pointer.
+   */
+  void* GetGenericContext() override;
 
   ///@{
   /**
@@ -181,6 +188,12 @@ public:
    * render pipelines.
    */
   vtkGetNewMacro(WGPUPipelineCache, vtkWebGPURenderPipelineCache);
+
+  /**
+   * Get the texture cache for this renderer. Use this to minimize costly creation of identical
+   * render textures.
+   */
+  vtkGetNewMacro(WGPUTextureCache, vtkWebGPURenderTextureCache);
 
   /**
    * Replaces all include statements in the given source code with source code
@@ -363,6 +376,7 @@ protected:
   vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
   vtkNew<vtkWebGPUShaderDatabase> WGPUShaderDatabase;
   vtkNew<vtkWebGPURenderPipelineCache> WGPUPipelineCache;
+  vtkNew<vtkWebGPURenderTextureCache> WGPUTextureCache;
 
   vtkSmartPointer<vtkWebGPUComputePipeline> DepthCopyPipeline;
   vtkSmartPointer<vtkWebGPUComputePass> DepthCopyPass;

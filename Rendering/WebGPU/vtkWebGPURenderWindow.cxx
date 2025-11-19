@@ -286,7 +286,7 @@ vtkWebGPURenderWindow::AcquireFramebufferRenderTexture()
   int* dims = this->GetSize();
 
   texture->SetSize(dims[0], dims[1]);
-  texture->SetFormat(vtkWebGPUTexture::TextureFormat::BGRA8_UNORM);
+  texture->SetFormat(vtkWebGPUTextureDeviceResource::TextureFormat::BGRA8_UNORM);
   texture->SetSampleType(vtkWebGPUComputeTexture::TextureSampleType::FLOAT);
   texture->SetLabel("Framebuffer render texture");
   texture->SetType(vtkWebGPUComputeRenderTexture::RenderTextureType::COLOR_BUFFER);
@@ -322,8 +322,15 @@ void vtkWebGPURenderWindow::InitializeRendererComputePipelines()
 {
   for (auto renderer : vtk::Range(this->Renderers))
   {
-    vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer);
-    wgpuRenderer->ConfigureComputePipelines();
+    if (vtkWebGPURenderer* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(renderer))
+    {
+      wgpuRenderer->ConfigureComputePipelines();
+    }
+    else
+    {
+      vtkWarningMacro(<< "Renderer is not a vtkWebGPURenderer. Cannot initialize compute "
+                         "pipelines. Please ensure VTK_GRAPHICS_BACKEND is set to 'WEBGPU' ");
+    }
   }
 }
 
@@ -782,8 +789,9 @@ void vtkWebGPURenderWindow::ReadTextureFromGPU(wgpu::Texture& wgpuTexture,
       bytesPerPixel = 4;
       break;
     default:
-      vtkErrorMacro(<< "Unhandled texture format in vtkWebGPUTexture::GetBytesPerPixel: "
-                    << int(format));
+      vtkErrorMacro(
+        << "Unhandled texture format in vtkWebGPUTextureDeviceResource::GetBytesPerPixel: "
+        << int(format));
   }
 
   // Bytes needs to be a multiple of 256
@@ -1212,6 +1220,12 @@ void vtkWebGPURenderWindow::StereoMidpoint() {}
 const char* vtkWebGPURenderWindow::GetRenderingBackend()
 {
   return "";
+}
+
+//------------------------------------------------------------------------------
+void* vtkWebGPURenderWindow::GetGenericContext()
+{
+  return this->WGPUConfiguration->GetDevice().Get();
 }
 
 //------------------------------------------------------------------------------
@@ -1854,7 +1868,7 @@ int vtkWebGPURenderWindow::GetZbufferData(int x1, int y1, int x2, int y2, float*
     depthTextureView->SetLabel("DepthCopy-" + this->GetObjectDescription());
     depthTextureView->SetMode(vtkWebGPUTextureView::TextureViewMode::READ_ONLY);
     depthTextureView->SetAspect(vtkWebGPUTextureView::TextureViewAspect::ASPECT_DEPTH);
-    depthTextureView->SetFormat(vtkWebGPUTexture::TextureFormat::DEPTH_24_PLUS);
+    depthTextureView->SetFormat(vtkWebGPUTextureDeviceResource::TextureFormat::DEPTH_24_PLUS);
     this->DepthCopyPass->AddTextureView(depthTextureView);
 
     vtkNew<vtkWebGPUComputeBuffer> buffer;
@@ -2035,6 +2049,7 @@ void vtkWebGPURenderWindow::ReleaseGraphicsResources(vtkWindow* w)
   this->DepthCopyPipeline = nullptr;
 
   this->WGPUPipelineCache->ReleaseGraphicsResources(w);
+  this->WGPUTextureCache->ReleaseGraphicsResources(w);
   this->DestroyColorCopyPipeline();
   this->DestroyIdsAttachment();
   this->DestroyDepthStencilAttachment();

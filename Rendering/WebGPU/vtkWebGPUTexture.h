@@ -1,198 +1,70 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-
+/**
+ * @class   vtkWebGPUTexture
+ * @brief   vtkWebGPUTexture is a concrete implementation of the abstract class
+ * vtkTexture for WebGPU.
+ */
 #ifndef vtkWebGPUTexture_h
 #define vtkWebGPUTexture_h
 
-#include "vtkObject.h"
-#include "vtkRenderingWebGPUModule.h" // For export macro
-#include "vtkWrappingHints.h"         // For VTK_MARSHALAUTO
+#include "vtkTexture.h"
+
+#include "vtkRenderingWebGPUModule.h"             // For export macro
+#include "vtkWeakPointer.h"                       // for weak pointer
+#include "vtkWebGPURenderTextureDeviceResource.h" // for vtkWebGPURenderTextureDeviceResource
+#include "vtkWrappingHints.h"                     // For VTK_MARSHALAUTO
+#include "vtk_wgpu.h"                             // for webgpu
+
+#include <array> // for std::array
+#include <tuple> // for std::tuple
 
 VTK_ABI_NAMESPACE_BEGIN
-
-/**
- * Abstraction class for WebGPU textures. This class mainly holds a bunch of parameters needed for
- * the creation of a texture.
- */
-class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUTexture : public vtkObject
+class vtkRenderWindow;
+class vtkWebGPURenderTextureDeviceResource;
+class VTKRENDERINGWEBGPU_EXPORT VTK_MARSHALAUTO vtkWebGPUTexture : public vtkTexture
 {
 public:
-  vtkTypeMacro(vtkWebGPUTexture, vtkObject);
   static vtkWebGPUTexture* New();
-
+  vtkTypeMacro(vtkWebGPUTexture, vtkTexture);
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * RGBA8_UNORM: Uses RGB + alpha. Default.
-   * BGRA8_UNORM: Uses BGR + alpha. Used by the framebuffer of WebGPU render windows
-   * R32_FLOAT: Only a 32 bit float red channel
-   * DEPTH_24_PLUS: 24 bit depth format
-   * DEPTH_24_PLUS_8_STENCIL: 24 bit depth format + 8 bit stencil
+   * Renders a texture map. It first checks the object's modified time
+   * to make sure the texture maps Input is valid, then it invokes the
+   * Load() method.
    */
-  enum TextureFormat
-  {
-    RGBA8_UNORM = 0,
-    BGRA8_UNORM,
-    R32_FLOAT,
-    DEPTH_24_PLUS,
-    DEPTH_24_PLUS_8_STENCIL
-  };
+  void Render(vtkRenderer* ren) override;
 
   /**
-   * How the texture data is arranged. Affects the type of sampler used in the compute shader
-   *
-   * DIMENSION_1D: 1D texture
-   * DIMENSION_2D: 2D texture. Default.
-   * DIMENSION_3D: 3D texture
+   * Implement base class method.
    */
-  enum TextureDimension
-  {
-    DIMENSION_1D = 0,
-    DIMENSION_2D,
-    DIMENSION_3D
-  };
+  void Load(vtkRenderer*) override;
 
   /**
-   * How will the texture be used by the shader
-   *
-   * UNDEFINED: Texture mode not set. Default.
-   * READ_ONLY: The compute shader can only read from the texture and a sampler can be used
-   * WRITE_ONLY_STORAGE: The compute shader can only write to the texture and a sampler cannot be
-   * used
-   * READ_WRITE_STORAGE: The compute shader can read and write to the texture and a sampler
-   * cannot be used
+   * Clean up after the rendering is complete.
    */
-  enum TextureMode
-  {
-    UNDEFINED = 0,
-    READ_ONLY,
-    WRITE_ONLY_STORAGE,
-    READ_WRITE_STORAGE
-  };
+  void PostRender(vtkRenderer*) override;
 
   /**
-   * Determines what kind of value is returned when reading from the texture in the compute shader
-   *
-   * FLOAT: Reading from the texture returns float values. Default.
-   * UNFILTERABLE_FLOAT: Float but cannot be filtered by a sampler
-   * DEPTH: Used for depth textures. The depth is returned as a float in the first channel of the
-   * return vec4
-   * SIGNED_INT: Signed integers. Used for textures containing signed integers data
-   * UNSIGNED_INT: Unsigned integers. Used for textures containing unsigned integers data
+   * Release any graphics resources that are being consumed by this texture.
+   * The parameter window could be used to determine which graphic
+   * resources to release. Using the same texture object in multiple
+   * render windows is NOT currently supported.
    */
-  enum TextureSampleType
-  {
-    FLOAT = 0,
-    UNFILTERABLE_FLOAT,
-    DEPTH,
-    SIGNED_INT,
-    UNSIGNED_INT
-  };
+  void ReleaseGraphicsResources(vtkWindow*) override;
 
   /**
-   * Because the compute texture can accept multiple data types as input (std::vector, vtkDataArray)
-   * but will ultimately only use one, it has to be determined which data to use thanks to this
-   * enum.
-   *
-   * STD_VECTOR = Use the data given to the texture in the form of an std::vector. Default.
-   * VTK_DATA_ARRAY = Use the data given to the texture in the form of a vtkDataArray.
+   * TODO
    */
-  enum TextureDataType
-  {
-    VTK_DATA_ARRAY = 0,
-    STD_VECTOR
-  };
+  int GetTextureUnit() override;
 
   /**
-   * Number of bytes used per pixel
+   * TODO
    */
-  virtual unsigned int GetBytesPerPixel() const;
+  int IsTranslucent() override;
 
-  /**
-   * Returns the number of components per pixel for the format of this texture. 1 for R32_FLOAT or
-   * for RGBA8 for example.
-   */
-  unsigned int GetPixelComponentsCount() const;
-
-  ///@{
-  /**
-   * Get/set the width in pixels of the texture
-   */
-  unsigned int GetWidth() const { return Extents[0]; }
-  void SetWidth(unsigned int width) { Extents[0] = width; }
-  ///@}
-
-  ///@{
-  /**
-   * Get/set the height in pixels of the texture
-   */
-  unsigned int GetHeight() const { return Extents[1]; }
-  void SetHeight(unsigned int height) { Extents[1] = height; }
-  ///@}
-
-  ///@{
-  /**
-   * Get/set the depth in pixels of the texture
-   */
-  unsigned int GetDepth() const { return Extents[2]; }
-  void SetDepth(unsigned int depth) { Extents[2] = depth; }
-  ///@}
-
-  ///@{
-  /**
-   * Get/set the size of the texture
-   *
-   * The Z coordinate can be omitted since vtkWebGPUComputeTexture use 1 by default (meaning that
-   * there is no depth)
-   */
-  VTK_WRAPEXCLUDE void GetSize(unsigned int& x, unsigned int& y, unsigned int& z) const;
-  VTK_WRAPEXCLUDE void GetSize(unsigned int& x, unsigned int& y) const;
-  VTK_WRAPEXCLUDE void GetSize(unsigned int* xyz);
-  unsigned int* GetSize() VTK_SIZEHINT(3);
-
-  VTK_WRAPEXCLUDE virtual void SetSize(unsigned int x, unsigned int y, unsigned int z = 1);
-  virtual void SetSize(unsigned int* xyz) VTK_SIZEHINT(3);
-  ///@}
-
-  ///@{
-  /**
-   * Get/set the texture dimension
-   */
-  vtkGetEnumMacro(Dimension, TextureDimension);
-  vtkSetEnumMacro(Dimension, TextureDimension);
-  ///@}
-
-  ///@{
-  /**
-   * Get/set the texture format
-   */
-  vtkGetEnumMacro(Format, TextureFormat);
-  vtkSetEnumMacro(Format, TextureFormat);
-  ///@}
-
-  ///@{
-  /**
-   * Get/set the texture format
-   */
-  vtkGetEnumMacro(Mode, TextureMode);
-  vtkSetEnumMacro(Mode, TextureMode);
-  ///@}
-
-  ///@{
-  /**
-   * Get/set the texture sample type
-   */
-  vtkGetEnumMacro(SampleType, TextureSampleType);
-  vtkSetEnumMacro(SampleType, TextureSampleType);
-  ///@}
-
-  ///@{
-  /**
-   * Get/set the maximum mipmap levels used by the texture
-   */
-  vtkGetMacro(MipLevelCount, unsigned int);
-  vtkSetMacro(MipLevelCount, unsigned int);
-  ///@}
+  vtkSmartPointer<vtkWebGPURenderTextureDeviceResource> GetDeviceResource() const;
 
 protected:
   vtkWebGPUTexture();
@@ -202,26 +74,16 @@ private:
   vtkWebGPUTexture(const vtkWebGPUTexture&) = delete;
   void operator=(const vtkWebGPUTexture&) = delete;
 
-  // Number of pixels in X, Y and Z direction.
-  // Defaulting to 1 in the Z direction because 2D textures are assumed to be the common case.
-  unsigned int Extents[3] = { 0, 0, 1 };
+  vtkTimeStamp LoadTime;
+  vtkWeakPointer<vtkRenderWindow> RenderWindow;
+  int TextureIndex;
 
-  // Is the texture 1D, 2D or 3D
-  TextureDimension Dimension = TextureDimension::DIMENSION_2D;
-
-  // The format of the texture: RGB or RGBA?
-  TextureFormat Format = TextureFormat::RGBA8_UNORM;
-
-  // The read/write mode of the texture
-  TextureMode Mode = TextureMode::UNDEFINED;
-
-  // The type of value produced when sampling the texture in the shader
-  TextureSampleType SampleType = TextureSampleType::FLOAT;
-
-  // Maximum number of mipmap levels supported by the texture
-  unsigned int MipLevelCount = 1;
+  bool IsValidTextureIndex();
+  bool CanDataPlaneBeUsedDirectlyAsColors(vtkDataArray* inputScalars);
+  std::tuple<vtkWebGPURenderTextureDeviceResource::TextureDimension, std::array<unsigned int, 3>>
+  GetTextureDimensionAndSize(vtkImageData* imageData);
+  vtkWebGPURenderTextureDeviceResource::TextureFormat GetTextureFormatFromImageData(
+    int numComponents, int dataType);
 };
-
 VTK_ABI_NAMESPACE_END
-
 #endif

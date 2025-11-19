@@ -16,7 +16,6 @@
 #include "vtkWebGPUComputePipeline.h"
 
 #include <array>
-#include <webgpu/webgpu_cpp.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 

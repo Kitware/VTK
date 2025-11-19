@@ -8,6 +8,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkWebGPUCommandEncoderDebugGroup.h"
 #include "vtkWebGPUComputePipeline.h"
+#include "vtkWebGPUTextureDeviceResource.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -377,7 +378,9 @@ wgpu::BindGroupLayoutEntry vtkWebGPUComputePassInternals::CreateBindGroupLayoutE
   uint32_t binding, vtkSmartPointer<vtkWebGPUComputeTexture> computeTexture,
   wgpu::TextureViewDimension textureViewDimension)
 {
-  if (computeTexture->GetMode() == vtkWebGPUComputeTexture::TextureMode::READ_ONLY)
+  if (computeTexture->GetMode() == vtkWebGPUComputeTexture::TextureMode::READ_ONLY ||
+    computeTexture->GetMode() == vtkWebGPUTextureDeviceResource::READ_WRITE_RENDER_ATTACHMENT ||
+    computeTexture->GetMode() == vtkWebGPUComputeTexture::TextureMode::WRITE_ONLY_RENDER_ATTACHMENT)
   {
     // Not a storage texture
 

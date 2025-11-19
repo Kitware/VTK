@@ -53,6 +53,7 @@ vtk_add_test_cxx(vtkRenderingWebGPUCxxTests tests
   TestReportWebGPUCapabilities.cxx,NO_DATA,NO_VALID
   TestScalarModeToggle.cxx,NO_DATA
   TestSurfacePlusEdges.cxx,NO_DATA
+  TestTextureInterpolateScalars.cxx
   TestQuad.cxx,NO_DATA
   TestQuadPointRep.cxx,NO_DATA
   TestRenderWindowChangeDeviceLater.cxx,NO_DATA

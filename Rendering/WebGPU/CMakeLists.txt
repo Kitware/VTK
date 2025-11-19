@@ -35,6 +35,9 @@ set(classes
   vtkWebGPUShaderDatabase
   vtkWebGPUShaderProperty
   vtkWebGPUTexture
+  vtkWebGPURenderTextureCache
+  vtkWebGPURenderTextureDeviceResource
+  vtkWebGPUTextureDeviceResource
   vtkWebGPUTextureView)
 
 set(private_headers
@@ -100,7 +103,7 @@ set(webgpu_overrides
   # NI: TextActor
   # NI: TextActor3D
   # NI: TextMapper
-  # NI: Texture
+  Texture
 )
 
 unset(wgsl_shader_sources)
