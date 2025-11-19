@@ -72,13 +72,13 @@ public:
 
   ///@{
   /**
-   * Returns 1 if bytes must be swapped in received ints, floats, etc
+   * Returns 1 if bytes must be swapped in received ints, floats, etc.
    */
   vtkGetMacro(SwapBytesInReceivedData, int);
   ///@}
 
   /**
-   * Is the communicator connected?.
+   * Get whether the communicator is connected.
    */
   int GetIsConnected();
 

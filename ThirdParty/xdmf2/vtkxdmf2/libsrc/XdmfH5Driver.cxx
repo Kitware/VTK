@@ -634,7 +634,7 @@ H5FD_dsm_cmp(const H5FD_t *_f1, const H5FD_t *_f2)
  */
 static haddr_t
 #if (H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))
-H5FD_dsm_get_eoa(const H5FD_t *_file, H5FD_mem_t type)
+H5FD_dsm_get_eoa(const H5FD_t *_file, H5FD_mem_t /*type*/)
 #else
 H5FD_dsm_get_eoa(H5FD_t *_file)
 #endif
@@ -666,7 +666,7 @@ H5FD_dsm_get_eoa(H5FD_t *_file)
  */
 static herr_t
 #if (H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))
-H5FD_dsm_set_eoa(H5FD_t *_file, H5FD_mem_t type, haddr_t addr)
+H5FD_dsm_set_eoa(H5FD_t *_file, H5FD_mem_t /*type*/, haddr_t addr)
 #else
 H5FD_dsm_set_eoa(H5FD_t *_file, haddr_t addr)
 #endif
@@ -712,7 +712,7 @@ H5FD_dsm_set_eoa(H5FD_t *_file, haddr_t addr)
 static haddr_t
 
 #if (H5_VERS_MAJOR>1)||((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=10))
-H5FD_dsm_get_eof(const H5FD_t *_file, H5FD_mem_t type)
+H5FD_dsm_get_eof(const H5FD_t *_file, H5FD_mem_t /*type*/)
 #elif ((H5_VERS_MAJOR==1)&&(H5_VERS_MINOR>=8))
 H5FD_dsm_get_eof(const H5FD_t *_file)
 #else

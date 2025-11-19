@@ -15,13 +15,9 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "python" AND
     NOT "$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
   # only certain images have tcl/tk installed
   if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora")
-    set(VTK_USE_TK ON CACHE BOOL "")
+    # no tk until python 3.14 is available
+    # set(VTK_USE_TK ON CACHE BOOL "")
   endif ()
-endif ()
-
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora39_x86_64")
-  # fedora39 has expired repos for openturns
-  set(VTK_MODULE_ENABLE_VTK_FiltersOpenTURNS NO CACHE STRING "")
 endif ()
 
 include("${CMAKE_CURRENT_LIST_DIR}/configure_common.cmake")

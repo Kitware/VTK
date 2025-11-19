@@ -3,7 +3,6 @@
 /**
  * @class vtkConduitSource
  * @brief data source for Conduit Mesh Blueprint.
- * @ingroup Insitu
  *
  * vtkConduitSource is a data source that processes a Conduit node
  * using [Conduit Mesh

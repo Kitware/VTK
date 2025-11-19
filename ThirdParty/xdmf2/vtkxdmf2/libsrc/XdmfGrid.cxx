@@ -796,7 +796,7 @@ XdmfGrid::IsUniform(){
 XdmfInt32
 XdmfGrid::FindGridsAtTime(XdmfTime *theTime, XdmfArray *ArrayToFill, XdmfFloat64 Epsilon, XdmfInt32 Append){
     XdmfInt64   i, index = 0, nchild;
-
+    (void)Epsilon;
     nchild = this->GetNumberOfChildren();
     if(!nchild) return(XDMF_FALSE);
     if(Append){

@@ -64,6 +64,7 @@ int TestVTKMWarpScalar(int argc, char* argv[])
     if (points->GetPoint(i)[2] != 3.0)
     {
       std::cout << "XYPlane result is wrong at i=" << i << std::endl;
+      return EXIT_FAILURE;
     }
   }
 

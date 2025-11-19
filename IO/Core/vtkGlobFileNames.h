@@ -5,18 +5,25 @@
  * @brief   find files that match a wildcard pattern
  *
  * vtkGlobFileNames is a utility for finding files and directories
- * that match a given wildcard pattern.  Allowed wildcards are
- * *, ?, [...], [!...]. The "*" wildcard matches any substring,
- * the "?" matches any single character, the [...] matches any one of
- * the enclosed characters, e.g. [abc] will match one of a, b, or c,
- * while [0-9] will match any digit, and [!...] will match any single
- * character except for the ones within the brackets.  Special
- * treatment is given to "/" (or "\" on Windows) because these are
- * path separators.  These are never matched by a wildcard, they are
- * only matched with another file separator.
+ * that match a given wildcard pattern. This class supports standard
+ * shell-style wildcard patterns for flexible file system searches.
+ *
+ * Supported wildcard patterns:
+ * - "*" matches any sequence of characters (including none)
+ * - "?" matches exactly one character
+ * - "[abc]" matches any single character from the enclosed set
+ * - "[a-z]" matches any single character in the specified range
+ * - "[!abc]" matches any single character NOT in the enclosed set
+ *
+ * Path separators ("/" on Unix, "\" on Windows) receive special treatment
+ * and are never matched by wildcards. They can only be matched by explicit
+ * path separators in the pattern, ensuring that wildcard matching respects
+ * directory boundaries.
+ *
  * @warning
  * This function performs case-sensitive matches on UNIX and
  * case-insensitive matches on Windows.
+ *
  * @sa
  * vtkDirectory
  */

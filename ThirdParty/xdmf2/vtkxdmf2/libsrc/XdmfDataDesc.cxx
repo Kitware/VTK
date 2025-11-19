@@ -784,7 +784,7 @@ if( this->SelectionType == XDMF_COORDINATES ){
     for( i = 0 ; i < Total ; i++ ){
       Coordinates[i] = HCoordinates[i];
       }
-    delete HCoordinates;
+    delete[] HCoordinates;
     }
 }
 return( Coordinates );

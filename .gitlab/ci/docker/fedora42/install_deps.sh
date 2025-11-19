@@ -12,15 +12,20 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # Development tools
 dnf install -y --setopt=install_weak_deps=False \
-    libasan libtsan libubsan clang-tools-extra
+    libasan libtsan libubsan clang-tools-extra \
+    gcc gcc-c++ gcc-gfortran
 
 # MPI dependencies
 dnf install -y --setopt=install_weak_deps=False \
     openmpi-devel mpich-devel
 
+# Qt6 dependencies
+dnf install -y --setopt=install_weak_deps=False \
+    xcb-util-cursor
+
 # Mesa dependencies
 dnf install -y --setopt=install_weak_deps=False \
-    mesa-libOSMesa-devel mesa-libOSMesa mesa-dri-drivers mesa-libGL* glx-utils
+    mesa-compat-libOSMesa-devel mesa-compat-libOSMesa mesa-dri-drivers mesa-libGL* mesa-vulkan-drivers glx-utils
 
 # External dependencies
 dnf install -y --setopt=install_weak_deps=False \
@@ -38,7 +43,8 @@ dnf install -y --setopt=install_weak_deps=False \
 # Python dependencies
 dnf install -y --setopt=install_weak_deps=False \
     python3 python3-devel python3-numpy python3-tkinter \
-    python3-pip python3-mpi4py-mpich python3-mpi4py-openmpi python3-matplotlib
+    python3-pip python3-mpi4py-mpich python3-mpi4py-openmpi python3-matplotlib \
+    python3-xarray python3-cftime netcdf4-python
 
 # CI dependencies packages
 dnf install -y --setopt=install_weak_deps=False \
@@ -50,10 +56,6 @@ dnf install -y --setopt=install_weak_deps=False \
 
 # wslink will bring aiohttp>=3.7.4
 python3 -m pip install 'wslink>=1.0.4'
-
-# C++ dependencies (along GCC 15 which is the default)
-dnf install -y --setopt=install_weak_deps=False \
-    gcc14 gcc14-c++
 
 # Java dependencies
 dnf install --releasever=41 -y --setopt=install_weak_deps=False \
@@ -79,12 +81,8 @@ if [ "$( uname -m )" = "x86_64" ]; then
         openturns-libs openturns-devel
 fi
 
-# Vulkan backend dependencies
-dnf install -y --setopt=install_weak_deps=False \
-    mesa-vulkan-drivers
-
 # Emscripten SDK dependencies
 dnf install -y --setopt=install_weak_deps=False \
-    xz
+    xz libatomic
 
 dnf clean all

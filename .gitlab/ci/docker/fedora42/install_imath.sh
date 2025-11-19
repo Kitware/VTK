@@ -2,9 +2,9 @@
 
 set -e
 
-readonly imath_version="3.1.9"
+readonly imath_version="3.2.1"
 readonly imath_tarball="v$imath_version.tar.gz"
-readonly imath_sha256sum="f1d8aacd46afed958babfced3190d2d3c8209b66da451f556abd6da94c165cf3"
+readonly imath_sha256sum="b2c8a44c3e4695b74e9644c76f5f5480767355c6f98cde58ba0e82b4ad8c63ce"
 
 readonly imath_root="$HOME/imath"
 

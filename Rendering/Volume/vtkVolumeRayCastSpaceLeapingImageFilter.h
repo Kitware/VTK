@@ -45,7 +45,7 @@ public:
 
   ///@{
   /**
-   * Do we use independent components, or dependent components ?
+   * Set/Get the amount of independent components.
    */
   vtkSetMacro(IndependentComponents, int);
   vtkGetMacro(IndependentComponents, int);
@@ -53,7 +53,7 @@ public:
 
   ///@{
   /**
-   * Compute gradient opacity ?
+   * Set/Get whether gradient opacity will be computed.
    */
   vtkSetMacro(ComputeGradientOpacity, vtkTypeBool);
   vtkGetMacro(ComputeGradientOpacity, vtkTypeBool);
@@ -62,7 +62,7 @@ public:
 
   ///@{
   /**
-   * Compute the min max structure ?.
+   * Set/Get whether min/max will be computed.
    */
   vtkSetMacro(ComputeMinMax, vtkTypeBool);
   vtkGetMacro(ComputeMinMax, vtkTypeBool);

@@ -1,4 +1,5 @@
-# Modules which require software not on CI machines.
+# These are all tested in the non-CUDA CI job instead.
+# This focuses on the CUDA bits.
 set(VTK_MODULE_ENABLE_VTK_CommonArchive NO CACHE STRING "") # libarchive
 set(VTK_MODULE_ENABLE_VTK_DomainsMicroscopy NO CACHE STRING "") # openslide
 set(VTK_MODULE_ENABLE_VTK_FiltersOpenTURNS NO CACHE STRING "") # openturns
@@ -24,7 +25,4 @@ set(VTK_MODULE_ENABLE_VTK_RenderingRayTracing NO CACHE STRING "") # ospray
 set(VTK_MODULE_ENABLE_VTK_fides NO CACHE STRING "") # adios
 set(VTK_MODULE_ENABLE_VTK_xdmf3 NO CACHE STRING "") # boost
 
-# These are all tested in the non-CUDA CI job instead. This focuses on the CUDA
-# bits.
-
-include("${CMAKE_CURRENT_LIST_DIR}/configure_fedora_common.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/configure_fedora42.cmake")

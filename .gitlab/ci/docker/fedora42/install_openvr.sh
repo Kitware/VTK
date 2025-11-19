@@ -15,9 +15,9 @@ case "$( uname -m )" in
 esac
 readonly subdir
 
-readonly version="1.23.7"
+readonly version="1.26.7"
 readonly tarball="v$version.tar.gz"
-readonly sha256sum="cbe2afbfc9ed9c6c5ed7df7929f9b1f5ecfd858b849b377005d4881b72b910b3"
+readonly sha256sum="e7391f1129db777b2754f5b017cfa356d7811a7bcaf57f09805b47c2e630a725"
 
 readonly openvr_root="$HOME/openvr"
 

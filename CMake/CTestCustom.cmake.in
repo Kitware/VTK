@@ -249,6 +249,9 @@ if (NOT cdash_show_third_party_warnings)
 
     # Libxml2 has an ignored warning in a line with a string containing `warning`
     "xmlVFormatLegacyError.*validity warning"
+
+    # Suppress deprecated CUB Swap function warning suggesting cuda::std::swap
+    "cub::CUB_200802_SM_600::Swap.*deprecated.*cuda::std::swap"
   )
 endif ()
 

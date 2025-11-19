@@ -139,27 +139,27 @@ class HyperSlabReader:public XdmfObject{//
     }
 
 public:
-    HyperSlabReader(XdmfInt32 rank, XdmfInt32 byte, const XdmfInt64 * dims, const XdmfInt64 * start, const XdmfInt64 * lstride, const XdmfInt64 * lcount){
-        assert(rank>0 && rank<XDMF_MAX_DIMENSION);
-        this->rank = rank;
+    HyperSlabReader(XdmfInt32 lrank, XdmfInt32 byte, const XdmfInt64 * dims, const XdmfInt64 * lstart, const XdmfInt64 * lstride, const XdmfInt64 * lcount){
+        assert(lrank>0 && lrank<XDMF_MAX_DIMENSION);
+        this->rank = lrank;
         XdmfInt64 d[XDMF_MAX_DIMENSION];
-        for(XdmfInt32 i =0;i<rank;++i){
-            this->start[i] = start[i];
+        for(XdmfInt32 i =0;i<lrank;++i){
+            this->start[i] = lstart[i];
             this->stride[i] = lstride[i]-1;
             this->count[i] = lcount[i];
             d[i] = dims[i];
         }
         //reduce rank
-        for(XdmfInt32 i =rank-1;i>0;--i){
+        for(XdmfInt32 i =lrank-1;i>0;--i){
             if(this->start[i]==0 && this->stride[i]==0 && this->count[i]==dims[i]){
                 --this->rank;
             }else{
                 break;
             }
         }
-        if(this->rank != rank){
-            XdmfDebug("Reduce Rank: " << rank << " to " << this->rank);
-            for(XdmfInt32 i = this->rank;i<rank;++i){
+        if(this->rank != lrank){
+            XdmfDebug("Reduce Rank: " << lrank << " to " << this->rank);
+            for(XdmfInt32 i = this->rank;i<lrank;++i){
                 byte *= lcount[i];
             }
         }
@@ -303,6 +303,7 @@ XdmfValuesBinary::Read(XdmfArray *anArray){
             #else
                         XdmfDebug("GZip Lib is needed.");
             #endif
+            break;
         case BZip2:
             XdmfDebug("Compression: Bzip2");
 #ifdef XDMF_USE_BZIP2

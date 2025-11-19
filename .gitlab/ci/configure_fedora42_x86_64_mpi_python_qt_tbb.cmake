@@ -11,6 +11,4 @@ set(VTK_MODULE_USE_EXTERNAL_VTK_token OFF CACHE BOOL "")
 set(VTK_MODULE_USE_EXTERNAL_VTK_verdict OFF CACHE BOOL "")
 set(VTK_MODULE_USE_EXTERNAL_VTK_vtkviskores OFF CACHE BOOL "")
 
-set(CMAKE_PREFIX_PATH "/opt/anari" CACHE STRING "")
-
-include("${CMAKE_CURRENT_LIST_DIR}/configure_fedora39.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/configure_fedora42.cmake")
