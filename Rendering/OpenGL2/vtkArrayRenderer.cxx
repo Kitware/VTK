@@ -3,7 +3,6 @@
 #include "vtkArrayRenderer.h"
 
 #include "vtkCollection.h"
-#include "vtkCollectionIterator.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
@@ -213,11 +212,10 @@ bool vtkArrayRenderer::IsUpToDate(vtkRenderer* renderer, vtkActor* actor)
     return false;
   }
 
-  auto modsIter = vtk::TakeSmartPointer(this->GetGLSLModCollection()->NewIterator());
   auto oglRen = static_cast<vtkOpenGLRenderer*>(renderer);
-  for (modsIter->InitTraversal(); !modsIter->IsDoneWithTraversal(); modsIter->GoToNextItem())
+  for (vtkObject* obj : *(this->GetGLSLModCollection()))
   {
-    auto mod = static_cast<vtkGLSLModifierBase*>(modsIter->GetCurrentObject());
+    auto mod = static_cast<vtkGLSLModifierBase*>(obj);
     if (!mod->IsUpToDate(oglRen, this, actor))
     {
       vtkDebugWithObjectMacro(nullptr, << mod->GetClassName() << " is outdated");

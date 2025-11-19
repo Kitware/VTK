@@ -3,7 +3,6 @@
 #include "vtkViewNode.h"
 
 #include "vtkCollection.h"
-#include "vtkCollectionIterator.h"
 #include "vtkObjectFactory.h"
 #include "vtkViewNodeFactory.h"
 
@@ -95,11 +94,8 @@ void vtkViewNode::RemoveUnusedNodes()
 //------------------------------------------------------------------------------
 void vtkViewNode::AddMissingNodes(vtkCollection* col)
 {
-  vtkCollectionSimpleIterator rit;
-  col->InitTraversal(rit);
-  while (rit)
+  for (vtkObject* obj : *col)
   {
-    vtkObject* obj = col->GetNextItemAsObject(rit);
     this->AddMissingNode(obj);
   }
 }

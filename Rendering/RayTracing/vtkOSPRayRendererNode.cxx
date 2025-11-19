@@ -10,7 +10,6 @@
 #include "vtkAbstractVolumeMapper.h"
 #include "vtkBoundingBox.h"
 #include "vtkCamera.h"
-#include "vtkCollectionIterator.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationDoubleKey.h"

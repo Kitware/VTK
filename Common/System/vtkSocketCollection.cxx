@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkSocketCollection.h"
 
-#include "vtkCollectionIterator.h"
 #include "vtkObjectFactory.h"
 #include "vtkSocket.h"
 

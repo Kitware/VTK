@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkOSPRayWindowNode.h"
 
-#include "vtkCollectionIterator.h"
 #include "vtkFloatArray.h"
 #include "vtkOSPRayPass.h"
 #include "vtkOSPRayRendererNode.h"

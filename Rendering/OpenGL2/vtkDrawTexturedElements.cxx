@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkDrawTexturedElements.h"
 
-#include "vtkCollectionIterator.h"
 #include "vtkColorSeries.h"
 #include "vtkDataArray.h"
 #include "vtkGLSLModifierBase.h"
@@ -375,11 +374,10 @@ void vtkDrawTexturedElements::PreDraw(vtkRenderer* ren, vtkActor* actor, vtkMapp
     vtkOpenGLStaticCheckErrorMacro("Failed trying to activate \"" << samplerName << "\".");
   }
   // set shader parameter for GLSL mods.
-  auto modsIter = vtk::TakeSmartPointer(this->GLSLMods->NewIterator());
   auto oglRen = static_cast<vtkOpenGLRenderer*>(ren);
-  for (modsIter->InitTraversal(); !modsIter->IsDoneWithTraversal(); modsIter->GoToNextItem())
+  for (vtkObject* obj : *(this->GLSLMods))
   {
-    auto mod = static_cast<vtkGLSLModifierBase*>(modsIter->GetCurrentObject());
+    auto mod = static_cast<vtkGLSLModifierBase*>(obj);
     mod->SetPrimitiveType(this->P->Primitive);
     mod->SetShaderParameters(oglRen, this->ShaderProgram, mapper, actor, this->VAO);
     vtkOpenGLStaticCheckErrorMacro("Failed after applying mod shader parameters");

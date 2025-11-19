@@ -1,5 +1,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+
+// Hide VTK_DEPRECATED_IN_X_Y_Z() warnings for this class.
+#define VTK_DEPRECATION_LEVEL 0
+
 #include "vtkCollectionIterator.h"
 #include "vtkCollection.h"
 #include "vtkObjectFactory.h"

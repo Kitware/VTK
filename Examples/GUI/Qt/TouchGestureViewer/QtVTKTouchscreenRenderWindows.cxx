@@ -22,7 +22,6 @@
 
 #include <vtkActor.h>
 #include <vtkCamera.h>
-#include <vtkCollectionIterator.h>
 #include <vtkCubeSource.h>
 #include <vtkCylinderSource.h>
 #include <vtkGenericOpenGLRenderWindow.h>

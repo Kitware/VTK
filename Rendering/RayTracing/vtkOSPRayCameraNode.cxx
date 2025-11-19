@@ -3,7 +3,6 @@
 #include "vtkOSPRayCameraNode.h"
 
 #include "vtkCamera.h"
-#include "vtkCollectionIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
 #include "vtkOSPRayRendererNode.h"
