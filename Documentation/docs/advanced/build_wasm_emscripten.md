@@ -10,7 +10,7 @@ Guide created using
 
 - CMake 3.31.3
 - Ninja 1.12.1
-- Emscripten 4.0.10
+- Emscripten 4.0.20
 - NodeJS 24.0.1
 - Chrome For Testing 133.0.6943.98
 ```
@@ -56,7 +56,7 @@ fnm use 24.0.1
 
 # Download and install EMSDK
 git clone https://github.com/emscripten-core/emsdk.git
-./emsdk/emsdk install 4.0.10
+./emsdk/emsdk install 4.0.20
 export PATH=$PWD/emsdk/upstream/bin:$PWD/emsdk/upstream/emscripten:$PATH
 ```
 :::
@@ -72,7 +72,7 @@ fnm env --use-on-cd --shell power-shell | Out-String | Invoke-Expression
 fnm use 24.0.1
 
 git clone https://github.com/emscripten-core/emsdk.git
-.\emsdk\emsdk install 4.0.10
+.\emsdk\emsdk install 4.0.20
 $env:PATH="$PWD\emsdk\upstream\bin;$PWD\emsdk\upstream\emscripten;$env:PATH"
 ```
 :::
