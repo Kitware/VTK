@@ -666,7 +666,7 @@ static void parse_mdata(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
     if (chunkNr % 100 == 0)
     {
       double progressRate = static_cast<double>(progress) / totalProgress;
-      importer->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progressRate));
+      importer->InvokeEvent(vtkCommand::ProgressEvent, &progressRate);
     }
   } while (chunk.end <= mainchunk->end);
 
