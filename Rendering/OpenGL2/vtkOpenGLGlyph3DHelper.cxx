@@ -4,18 +4,12 @@
 
 #include "vtkOpenGLHelper.h"
 
-#include "vtkBitArray.h"
 #include "vtkCamera.h"
 #include "vtkDataObject.h"
 #include "vtkHardwareSelector.h"
-#include "vtkMath.h"
-#include "vtkMatrix3x3.h"
-#include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkOpenGLActor.h"
 #include "vtkOpenGLBufferObject.h"
-#include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLIndexBufferObject.h"
 #include "vtkOpenGLInstanceCulling.h"
@@ -25,19 +19,14 @@
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLState.h"
 #include "vtkOpenGLVertexArrayObject.h"
-#include "vtkOpenGLVertexBufferObject.h"
 #include "vtkOpenGLVertexBufferObjectGroup.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkShader.h"
 #include "vtkShaderProgram.h"
-#include "vtkTransform.h"
 #include "vtkTransformFeedback.h"
 
 #include "vtkGlyph3DVS.h"
-
-#include <algorithm>
-#include <numeric>
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
