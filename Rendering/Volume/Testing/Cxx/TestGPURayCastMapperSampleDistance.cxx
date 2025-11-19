@@ -6,7 +6,6 @@
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRTAnalyticSource.h"
@@ -15,10 +14,10 @@
 #include "vtkRenderer.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-#include "vtkXMLImageDataReader.h"
 
 #include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
+
+#include <iostream>
 
 //------------------------------------------------------------------------------
 int TestGPURayCastMapperSampleDistance(int argc, char* argv[])
@@ -77,7 +76,7 @@ int TestGPURayCastMapperSampleDistance(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
   }
 
   return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));

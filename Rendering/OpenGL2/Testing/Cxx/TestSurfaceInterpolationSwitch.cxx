@@ -4,7 +4,6 @@
 #include "vtkActor.h"
 #include "vtkNew.h"
 #include "vtkOpenGLRenderWindow.h"
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
@@ -13,8 +12,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkTestUtilities.h"
-#include "vtkUnsignedCharArray.h"
+
+#include <iostream>
 
 // Regression testing for following crash:
 // - polydata with point and cell normals is rendered as phong
@@ -56,9 +55,9 @@ int TestSurfaceInterpolationSwitch(int argc, char* argv[])
 
   if (!renWin->SupportsOpenGL())
   {
-    cerr << "The platform does not support OpenGL as required\n";
-    cerr << vtkOpenGLRenderWindow::SafeDownCast(renWin)->GetOpenGLSupportMessage();
-    cerr << renWin->ReportCapabilities();
+    std::cerr << "The platform does not support OpenGL as required\n";
+    std::cerr << vtkOpenGLRenderWindow::SafeDownCast(renWin)->GetOpenGLSupportMessage();
+    std::cerr << renWin->ReportCapabilities();
     return 1;
   }
 

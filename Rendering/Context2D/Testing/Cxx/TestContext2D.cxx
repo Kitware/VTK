@@ -16,6 +16,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTextProperty.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 namespace
 {

@@ -28,6 +28,8 @@
 
 #include <set>
 
+#include <iostream>
+
 #define TESTVP_MAX 10
 
 void PrepArray(bool byName, bool drawCell, int arrayIndex, int arrayComponent, vtkDataSet* dataset,
@@ -44,7 +46,7 @@ void PrepArray(bool byName, bool drawCell, int arrayIndex, int arrayComponent, v
     {
       arrayComponent = 0;
     }
-    cerr << "Drawing CELL " << values->GetName() << " [" << arrayComponent << "]" << endl;
+    std::cerr << "Drawing CELL " << values->GetName() << " [" << arrayComponent << "]" << std::endl;
     if (!byName)
     {
       valuePass->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA, arrayIndex);
@@ -66,7 +68,8 @@ void PrepArray(bool byName, bool drawCell, int arrayIndex, int arrayComponent, v
     {
       arrayComponent = 0;
     }
-    cerr << "Drawing POINT " << values->GetName() << " [" << arrayComponent << "]" << endl;
+    std::cerr << "Drawing POINT " << values->GetName() << " [" << arrayComponent << "]"
+              << std::endl;
     if (!byName)
     {
       valuePass->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA, arrayIndex);
@@ -251,7 +254,7 @@ int TestValuePass2(int argc, char* argv[])
   grabber->SetInput(renderWindow);
   grabber->Update();
   vtkImageData* id = grabber->GetOutput();
-  // id->PrintSelf(cerr, vtkIndent(0));
+  // id->PrintSelf(std::cerr, vtkIndent(0));
 
   vtkUnsignedCharArray* ar =
     vtkArrayDownCast<vtkUnsignedCharArray>(id->GetPointData()->GetArray("ImageScalars"));
@@ -264,8 +267,8 @@ int TestValuePass2(int argc, char* argv[])
     if (found.find(value) == found.end())
     {
       found.insert(value);
-      cerr << "READ " << std::hex << (int)ptr[0] << (int)ptr[1] << (int)ptr[2] << "\t" << std::dec
-           << value << endl;
+      std::cerr << "READ " << std::hex << (int)ptr[0] << (int)ptr[1] << (int)ptr[2] << "\t"
+                << std::dec << value << std::endl;
     }
     ptr += 3;
   }
@@ -287,12 +290,12 @@ int TestValuePass2(int argc, char* argv[])
   bool fail = false;
   if (fabs(min - -10.0) > 0.0001)
   {
-    cerr << "ERROR min value not correct" << endl;
+    std::cerr << "ERROR min value not correct" << std::endl;
     fail = true;
   }
   if (fabs(max - -9.0) > 0.12)
   {
-    cerr << "ERROR max value not correct" << endl;
+    std::cerr << "ERROR max value not correct" << std::endl;
     fail = true;
   }
 

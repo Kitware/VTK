@@ -11,9 +11,11 @@
 #include "vtkTesting.h"
 #include <anari/frontend/anari_enums.h>
 
+#include <iostream>
+
 int TestAnariRendererParameters(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
   vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_INFO);
   bool useDebugDevice = false;
 

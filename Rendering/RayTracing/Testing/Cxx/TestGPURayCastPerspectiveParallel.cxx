@@ -24,15 +24,17 @@
 #include "vtkTestUtilities.h"
 #include "vtkVolumeProperty.h"
 
+#include <iostream>
+
 int TestGPURayCastPerspectiveParallel(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
   {
     if (!strcmp(argv[i], "-GL"))
     {
-      cerr << "GL" << endl;
+      std::cerr << "GL" << std::endl;
       useOSP = false;
     }
   }
@@ -148,7 +150,7 @@ int TestGPURayCastPerspectiveParallel(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
   }
 
   volumeMapper->Delete();

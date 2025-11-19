@@ -5,6 +5,8 @@
 #include <vtkStringArray.h>
 #include <vtkUnsignedCharArray.h>
 
+#include <iostream>
+
 int TestDiscretizableColorTransferFunctionStringArray(
   int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {

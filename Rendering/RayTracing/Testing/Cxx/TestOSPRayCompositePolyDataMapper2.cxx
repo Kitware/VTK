@@ -28,6 +28,8 @@
 #define syntheticData
 #include "vtkCylinderSource.h"
 
+#include <iostream>
+
 int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
 {
   bool useGL = false;
@@ -146,7 +148,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
   timer->StartTimer();
   win->Render();
   timer->StopTimer();
-  cout << "First frame time: " << timer->GetElapsedTime() << "\n";
+  std::cout << "First frame time: " << timer->GetElapsedTime() << "\n";
 
   timer->StartTimer();
 
@@ -161,7 +163,7 @@ int TestOSPRayCompositePolyDataMapper2(int argc, char* argv[])
 
   timer->StopTimer();
   double t = timer->GetElapsedTime();
-  cout << "Avg Frame time: " << t / numFrames << " Frame Rate: " << numFrames / t << "\n";
+  std::cout << "Avg Frame time: " << t / numFrames << " Frame Rate: " << numFrames / t << "\n";
 
   iren->Start();
 

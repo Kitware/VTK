@@ -10,6 +10,8 @@
 #include "vtkTesting.h" // for VTK_SKIP_RETURN_CODE
 #include "vtkXMLMultiBlockDataReader.h"
 
+#include <iostream>
+
 #define Verify(x)                                                                                  \
   do                                                                                               \
   {                                                                                                \

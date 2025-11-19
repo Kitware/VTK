@@ -25,6 +25,8 @@
 #include <vtkLightActor.h>
 #include <vtkPolyDataMapper.h>
 
+#include <iostream>
+
 int TestGPURayCastPositionalLights(int argc, char* argv[])
 {
   bool useOSP = true;
@@ -32,7 +34,7 @@ int TestGPURayCastPositionalLights(int argc, char* argv[])
   {
     if (!strcmp(argv[i], "-GL"))
     {
-      cerr << "GL" << endl;
+      std::cerr << "GL" << std::endl;
       useOSP = false;
     }
   }

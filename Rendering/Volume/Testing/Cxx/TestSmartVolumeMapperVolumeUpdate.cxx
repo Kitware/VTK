@@ -19,9 +19,11 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
+#include <iostream>
+
 int TestSmartVolumeMapperVolumeUpdate(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   double scalarRange[2];
 

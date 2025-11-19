@@ -27,6 +27,8 @@
 
 #include "vtkOSPRayTestInteractor.h"
 
+#include <iostream>
+
 // Callback for the interaction
 class vtkOSPRayLWCallback : public vtkCommand
 {
@@ -66,13 +68,13 @@ public:
 
 int TestOSPRayLightWidget(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
   {
     if (!strcmp(argv[i], "-GL"))
     {
-      cerr << "GL" << endl;
+      std::cerr << "GL" << std::endl;
       useOSP = false;
     }
   }

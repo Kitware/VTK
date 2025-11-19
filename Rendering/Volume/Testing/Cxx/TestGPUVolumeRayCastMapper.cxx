@@ -7,7 +7,6 @@
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkImageData.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
@@ -17,9 +16,10 @@
 #include "vtkRenderer.h"
 #include "vtkTestErrorObserver.h"
 #include "vtkTesting.h"
-#include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+
+#include <iostream>
 
 static const char* TestGPUVolumeRayCastMapperLog = "# StreamVersion 1\n"
                                                    "EnterEvent 299 0 0 0 0 0 0\n"
@@ -1229,7 +1229,7 @@ static const char* TestGPUVolumeRayCastMapperLog = "# StreamVersion 1\n"
 
 int TestGPUVolumeRayCastMapper(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-10, 10, -10, 10, -10, 10);
@@ -1288,7 +1288,7 @@ int TestGPUVolumeRayCastMapper(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
   }
 
   return !retVal;

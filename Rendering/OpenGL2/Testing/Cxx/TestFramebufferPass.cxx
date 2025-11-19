@@ -23,6 +23,8 @@
 #include "vtkTextureObject.h"
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestFramebufferPass(int argc, char* argv[])
 {
@@ -114,7 +116,7 @@ int TestFramebufferPass(int argc, char* argv[])
   renderWindow->Render();
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
-  cerr << "first render time: " << firstRender << endl;
+  std::cerr << "first render time: " << firstRender << std::endl;
 
   timer->StartTimer();
   int numRenders = 2;
@@ -126,10 +128,10 @@ int TestFramebufferPass(int argc, char* argv[])
   }
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
-  cerr << "interactive render time: " << elapsed / numRenders << endl;
+  std::cerr << "interactive render time: " << elapsed / numRenders << std::endl;
   unsigned int numTris = reader->GetOutput()->GetPolys()->GetNumberOfCells();
-  cerr << "number of triangles: " << numTris << endl;
-  cerr << "triangles per second: " << numTris * (numRenders / elapsed) << endl;
+  std::cerr << "number of triangles: " << numTris << std::endl;
+  std::cerr << "triangles per second: " << numTris * (numRenders / elapsed) << std::endl;
 
   //  renderWindow->RemoveRenderer(renderer);
   //  renderWindow->AddRenderer(renderer);

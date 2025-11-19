@@ -19,6 +19,7 @@
 
 #include "vtkInteractorStyleTrackballCamera.h"
 
+#include <iostream>
 #include <string>
 #include <vector>
 

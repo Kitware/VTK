@@ -21,6 +21,8 @@
 #include <vtkVolume16Reader.h>
 #include <vtkVolumeProperty.h>
 
+#include <iostream>
+
 void CreateVolumeShadedClippingPipeline(
   vtkImageData* data, vtkVolume* volume, int UseClippedVoxelIntensity)
 {
@@ -71,7 +73,7 @@ void CreateVolumeShadedClippingPipeline(
 
 int TestGPURayCastShadedClipping(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 

@@ -28,6 +28,8 @@
 #include "vtkCylinderSource.h"
 #include "vtkElevationFilter.h"
 
+#include <iostream>
+
 // This test exercises the vtkCompositePolyDataMapper's ability to
 // render scalars with surface opacity mapping enabled. In particular,
 // it checks for correct rendering behavior when root blocks are
@@ -182,7 +184,7 @@ int TestCompositePolyDataMapperScalarsSurfaceOpacity(int argc, char* argv[])
   timer->StartTimer();
   win->Render();
   timer->StopTimer();
-  cout << "First frame time: " << timer->GetElapsedTime() << "\n";
+  std::cout << "First frame time: " << timer->GetElapsedTime() << "\n";
 
   timer->StartTimer();
 
@@ -199,7 +201,7 @@ int TestCompositePolyDataMapperScalarsSurfaceOpacity(int argc, char* argv[])
   if (timeit)
   {
     double t = timer->GetElapsedTime();
-    cout << "Avg Frame time: " << t / numFrames << " Frame Rate: " << numFrames / t << "\n";
+    std::cout << "Avg Frame time: " << t / numFrames << " Frame Rate: " << numFrames / t << "\n";
   }
 
   int retVal = vtkRegressionTestImageThreshold(win.GetPointer(), 0.05);

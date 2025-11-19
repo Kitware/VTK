@@ -17,6 +17,7 @@
 #include "vtkOpenGLError.h"
 
 #include <cstdlib>
+#include <iostream>
 
 namespace
 {

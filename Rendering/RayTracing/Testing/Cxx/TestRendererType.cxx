@@ -26,6 +26,8 @@
 
 #include "vtkOSPRayTestInteractor.h"
 
+#include <iostream>
+
 int TestRendererType(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -63,15 +65,15 @@ int TestRendererType(int argc, char* argv[])
     switch (i % 3)
     {
       case 0:
-        cerr << "Render via scivis" << endl;
+        std::cerr << "Render via scivis" << std::endl;
         vtkOSPRayRendererNode::SetRendererType("scivis", renderer);
         break;
       case 1:
-        cerr << "Render via ospray pathtracer" << endl;
+        std::cerr << "Render via ospray pathtracer" << std::endl;
         vtkOSPRayRendererNode::SetRendererType("pathtracer", renderer);
         break;
       case 2:
-        cerr << "Render via optix pathracer" << endl;
+        std::cerr << "Render via optix pathracer" << std::endl;
         vtkOSPRayRendererNode::SetRendererType("optix pathtracer", renderer);
         break;
     }

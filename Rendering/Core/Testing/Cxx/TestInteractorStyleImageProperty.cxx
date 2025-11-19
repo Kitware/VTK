@@ -14,6 +14,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkTextMapper.h"
 
+#include <iostream>
+
 int TestInteractorStyleImageProperty(int argc, char* argv[])
 {
   vtkSmartPointer<vtkPNGReader> reader = vtkSmartPointer<vtkPNGReader>::New();
@@ -100,8 +102,8 @@ int TestInteractorStyleImageProperty(int argc, char* argv[])
 
     if ((!foundProperty) ^ (sliceOrder == 3))
     {
-      cerr << "TestInteractorStyleImagePropertyInternal failed with sliceOrder parameter "
-           << sliceOrder << "." << std::endl;
+      std::cerr << "TestInteractorStyleImagePropertyInternal failed with sliceOrder parameter "
+                << sliceOrder << "." << std::endl;
       return EXIT_FAILURE;
     }
   }

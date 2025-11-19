@@ -19,12 +19,13 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTestUtilities.h"
 #include "vtkVolumeProperty.h"
+
+#include <iostream>
 
 int TestGPURayCastRenderDepthToImage2(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   vtkNew<vtkRTAnalyticSource> waveletSource;

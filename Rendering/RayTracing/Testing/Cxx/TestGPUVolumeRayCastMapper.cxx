@@ -22,6 +22,8 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+#include <iostream>
+
 static const char* TestGPUVolumeRayCastMapperLog = "# StreamVersion 1\n"
                                                    "EnterEvent 299 0 0 0 0 0 0\n"
                                                    "MouseMoveEvent 299 0 0 0 0 0 0\n"
@@ -1230,13 +1232,13 @@ static const char* TestGPUVolumeRayCastMapperLog = "# StreamVersion 1\n"
 
 int TestGPUVolumeRayCastMapper(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
   {
     if (!strcmp(argv[i], "-GL"))
     {
-      cerr << "GL" << endl;
+      std::cerr << "GL" << std::endl;
       useOSP = false;
     }
   }
@@ -1307,7 +1309,7 @@ int TestGPUVolumeRayCastMapper(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
   }
 
   return !retVal;

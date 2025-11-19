@@ -28,6 +28,7 @@
 #include "vtkTestUtilities.h"
 
 #include <functional>
+#include <iostream>
 #include <set>
 
 template <typename T>

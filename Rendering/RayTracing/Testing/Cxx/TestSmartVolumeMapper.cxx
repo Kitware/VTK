@@ -33,6 +33,9 @@
 #include <vtkXMLImageDataReader.h>
 
 #include <vtkAutoInit.h>
+
+#include <iostream>
+
 VTK_MODULE_INIT(vtkRenderingRayTracing);
 
 int TestSmartVolumeMapper(int argc, char* argv[])
@@ -42,7 +45,7 @@ int TestSmartVolumeMapper(int argc, char* argv[])
   {
     if (!strcmp(argv[i], "-GL"))
     {
-      cerr << "GL" << endl;
+      std::cerr << "GL" << std::endl;
       useOSP = false;
     }
   }

@@ -17,10 +17,11 @@
 #include "vtkVolumeProperty.h"
 
 #include <cmath>
+#include <iostream>
 
 int TestGPURayCastCompositeBinaryMask1(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // Dimensions of object
   constexpr int cx = 128;
@@ -107,7 +108,7 @@ int TestGPURayCastCompositeBinaryMask1(int argc, char* argv[])
   int valid = mapper->IsRenderSupported(renWin, colorProperty);
   if (!valid)
   {
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
     return EXIT_SUCCESS;
   }
 

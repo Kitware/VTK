@@ -15,7 +15,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
 

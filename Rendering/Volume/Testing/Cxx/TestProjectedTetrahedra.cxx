@@ -16,12 +16,12 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSLCReader.h"
-#include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkThreshold.h"
-#include "vtkUnstructuredGrid.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+
+#include <iostream>
 
 int TestProjectedTetrahedra(int argc, char* argv[])
 {
@@ -38,7 +38,7 @@ int TestProjectedTetrahedra(int argc, char* argv[])
   }
   if (!data_root)
   {
-    cout << "Need to specify the directory to VTK_DATA_ROOT with -D <dir>." << endl;
+    std::cout << "Need to specify the directory to VTK_DATA_ROOT with -D <dir>." << std::endl;
     return 1;
   }
 
@@ -69,7 +69,7 @@ int TestProjectedTetrahedra(int argc, char* argv[])
   std::string filename;
   filename = data_root;
   filename += "/Data/ironProt.vtk";
-  cout << "Loading " << filename << endl;
+  std::cout << "Loading " << filename << std::endl;
   vtkStructuredPointsReader* reader = vtkStructuredPointsReader::New();
   reader->SetFileName(filename.c_str());
 
@@ -77,7 +77,7 @@ int TestProjectedTetrahedra(int argc, char* argv[])
   // displayed as a polygonal mesh.
   filename = data_root;
   filename += "/Data/neghip.slc";
-  cout << "Loading " << filename << endl;
+  std::cout << "Loading " << filename << std::endl;
   vtkSLCReader* reader2 = vtkSLCReader::New();
   reader2->SetFileName(filename.c_str());
 

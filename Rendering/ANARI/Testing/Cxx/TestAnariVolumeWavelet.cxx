@@ -28,6 +28,8 @@
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
+#include <iostream>
+
 static const char* TestAnariVolumeWaveletLog = "# StreamVersion 1\n"
                                                "EnterEvent 299 0 0 0 0 0 0\n"
                                                "MouseMoveEvent 218 272 0 0 0 0 0\n"

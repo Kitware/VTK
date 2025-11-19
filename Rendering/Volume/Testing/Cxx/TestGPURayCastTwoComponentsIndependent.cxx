@@ -15,10 +15,11 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+
+#include <iostream>
 
 static const char* TestGPURayCastTwoComponentsIndependentLog =
   "# StreamVersion 1\n"
@@ -521,7 +522,7 @@ static const char* TestGPURayCastTwoComponentsIndependentLog =
 
 int TestGPURayCastTwoComponentsIndependent(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   int dims[3] = { 35, 35, 35 };
 

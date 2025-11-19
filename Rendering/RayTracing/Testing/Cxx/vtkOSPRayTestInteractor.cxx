@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 namespace
 {
 static std::vector<std::string> ActorNames;
@@ -107,13 +109,13 @@ void vtkOSPRayTestInteractor::OnKeyPress()
     vtkRenderPass* current = this->GLRenderer->GetPass();
     if (current == this->G)
     {
-      cerr << "OSPRAY rendering " << this->O << endl;
+      std::cerr << "OSPRAY rendering " << this->O << std::endl;
       this->GLRenderer->SetPass(this->O);
       this->GLRenderer->GetRenderWindow()->Render();
     }
     else if (current == this->O)
     {
-      cerr << "GL rendering " << this->G << endl;
+      std::cerr << "GL rendering " << this->G << std::endl;
       this->GLRenderer->SetPass(this->G);
       this->GLRenderer->GetRenderWindow()->Render();
     }
@@ -124,7 +126,7 @@ void vtkOSPRayTestInteractor::OnKeyPress()
     vtkActorCollection* actors = this->GLRenderer->GetActors();
 
     this->VisibleActor++;
-    cerr << "VISIBLE " << this->VisibleActor;
+    std::cerr << "VISIBLE " << this->VisibleActor;
     if (this->VisibleActor == actors->GetNumberOfItems())
     {
       this->VisibleActor = -1;
@@ -135,7 +137,7 @@ void vtkOSPRayTestInteractor::OnKeyPress()
       {
         if (i < static_cast<int>(ActorNames.size()))
         {
-          cerr << " : " << ActorNames[i] << " ";
+          std::cerr << " : " << ActorNames[i] << " ";
         }
         vtkActor::SafeDownCast(actors->GetItemAsObject(i))->SetVisibility(1);
       }
@@ -144,7 +146,7 @@ void vtkOSPRayTestInteractor::OnKeyPress()
         vtkActor::SafeDownCast(actors->GetItemAsObject(i))->SetVisibility(0);
       }
     }
-    cerr << endl;
+    std::cerr << std::endl;
     this->GLRenderer->ResetCamera();
     this->GLRenderer->GetRenderWindow()->Render();
   }
@@ -158,7 +160,7 @@ void vtkOSPRayTestInteractor::OnKeyPress()
     {
       this->VisibleLight = -1;
     }
-    cerr << "LIGHT " << this->VisibleLight << "/" << lights->GetNumberOfItems() << endl;
+    std::cerr << "LIGHT " << this->VisibleLight << "/" << lights->GetNumberOfItems() << std::endl;
     for (int i = 0; i < lights->GetNumberOfItems(); i++)
     {
       if (this->VisibleLight == -1 || this->VisibleLight == i)
@@ -181,7 +183,7 @@ void vtkOSPRayTestInteractor::OnKeyPress()
       maxframes = 256;
     }
     vtkOSPRayRendererNode::SetMaxFrames(maxframes, this->GLRenderer);
-    cerr << "frames " << maxframes << endl;
+    std::cerr << "frames " << maxframes << std::endl;
     this->GLRenderer->GetRenderWindow()->Render();
   }
 
@@ -193,14 +195,14 @@ void vtkOSPRayTestInteractor::OnKeyPress()
       maxframes = maxframes / 2;
     }
     vtkOSPRayRendererNode::SetMaxFrames(maxframes, this->GLRenderer);
-    cerr << "frames " << maxframes << endl;
+    std::cerr << "frames " << maxframes << std::endl;
     this->GLRenderer->GetRenderWindow()->Render();
   }
 
   if (key == "s")
   {
     bool shadows = !(this->GLRenderer->GetUseShadows() == 0);
-    cerr << "shadows now " << (!shadows ? "ON" : "OFF") << endl;
+    std::cerr << "shadows now " << (!shadows ? "ON" : "OFF") << std::endl;
     this->GLRenderer->SetUseShadows(!shadows);
     this->GLRenderer->GetRenderWindow()->Render();
   }
@@ -226,14 +228,14 @@ void vtkOSPRayTestInteractor::OnKeyPress()
   if (key == "2")
   {
     int spp = vtkOSPRayRendererNode::GetSamplesPerPixel(this->GLRenderer);
-    cerr << "samples now " << spp + 1 << endl;
+    std::cerr << "samples now " << spp + 1 << std::endl;
     vtkOSPRayRendererNode::SetSamplesPerPixel(spp + 1, this->GLRenderer);
     this->GLRenderer->GetRenderWindow()->Render();
   }
   if (key == "1")
   {
     vtkOSPRayRendererNode::SetSamplesPerPixel(1, this->GLRenderer);
-    cerr << "samples now " << 1 << endl;
+    std::cerr << "samples now " << 1 << std::endl;
     this->GLRenderer->GetRenderWindow()->Render();
   }
 
@@ -245,7 +247,7 @@ void vtkOSPRayTestInteractor::OnKeyPress()
       aoSamples = 64;
     }
     vtkOSPRayRendererNode::SetAmbientSamples(aoSamples, this->GLRenderer);
-    cerr << "aoSamples " << aoSamples << endl;
+    std::cerr << "aoSamples " << aoSamples << std::endl;
     this->GLRenderer->GetRenderWindow()->Render();
   }
 
@@ -254,7 +256,7 @@ void vtkOSPRayTestInteractor::OnKeyPress()
     int aosamples = vtkOSPRayRendererNode::GetAmbientSamples(this->GLRenderer);
     aosamples = aosamples / 2;
     vtkOSPRayRendererNode::SetAmbientSamples(aosamples, this->GLRenderer);
-    cerr << "aoSamples " << aosamples << endl;
+    std::cerr << "aoSamples " << aosamples << std::endl;
     this->GLRenderer->GetRenderWindow()->Render();
   }
 
@@ -262,7 +264,7 @@ void vtkOSPRayTestInteractor::OnKeyPress()
   {
     double intens = vtkOSPRayLightNode::GetLightScale() * 1.5;
     vtkOSPRayLightNode::SetLightScale(intens);
-    cerr << "intensity " << intens << endl;
+    std::cerr << "intensity " << intens << std::endl;
     this->GLRenderer->GetRenderWindow()->Render();
   }
 
@@ -270,7 +272,7 @@ void vtkOSPRayTestInteractor::OnKeyPress()
   {
     double intens = vtkOSPRayLightNode::GetLightScale() / 1.5;
     vtkOSPRayLightNode::SetLightScale(intens);
-    cerr << "intensity " << intens << endl;
+    std::cerr << "intensity " << intens << std::endl;
     this->GLRenderer->GetRenderWindow()->Render();
   }
 
@@ -278,7 +280,7 @@ void vtkOSPRayTestInteractor::OnKeyPress()
   {
     bool set = vtkOSPRayRendererNode::GetEnableDenoiser(this->GLRenderer);
     vtkOSPRayRendererNode::SetEnableDenoiser(!set, this->GLRenderer);
-    cerr << "denoiser " << (!set ? "ON" : "OFF") << endl;
+    std::cerr << "denoiser " << (!set ? "ON" : "OFF") << std::endl;
     this->GLRenderer->GetRenderWindow()->Render();
   }
 

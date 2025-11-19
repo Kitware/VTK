@@ -5,6 +5,7 @@
 #include "vtkOpenGLUniforms.h"
 
 #include <algorithm>
+#include <iostream>
 #include <vector>
 
 int UnitTestOpenGLUniforms(int, char*[])

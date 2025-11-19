@@ -21,9 +21,11 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+#include <iostream>
+
 int TestGPURayCastIndependentComponentsLightParameters(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   int dims[3] = { 100, 100, 100 };
 

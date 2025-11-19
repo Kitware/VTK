@@ -25,6 +25,8 @@
 
 #include "vtkOSPRayTestInteractor.h"
 
+#include <iostream>
+
 // Callback for the interaction
 class vtkOSPRayBWCallback2 : public vtkCommand
 {
@@ -90,7 +92,7 @@ const char TestOSPRayBoxWidgetEventLog2[] = "# StreamVersion 1.1\n"
                                             "";
 int TestOSPRayBoxWidget2(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   vtkNew<vtkRenderWindowInteractor> iren;
   vtkNew<vtkRenderWindow> renWin;

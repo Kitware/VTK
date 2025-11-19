@@ -9,13 +9,10 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkColorTransferFunction.h"
 #include "vtkCommand.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
-#include "vtkImageReader2.h"
 #include "vtkInteractorStyleImage.h"
-#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkMatrix4x4.h"
 #include "vtkNew.h"
 #include "vtkOutlineFilter.h"
@@ -172,7 +169,7 @@ int TestGPURayCastClippingUserTransform(int argc, char* argv[])
   }
   else
   {
-    cout << "Unable to open file";
+    std::cout << "Unable to open file";
     return 1;
   }
 

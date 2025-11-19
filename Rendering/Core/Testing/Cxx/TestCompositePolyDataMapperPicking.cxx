@@ -39,6 +39,8 @@
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 
+#include <iostream>
+
 namespace
 {
 
@@ -71,7 +73,7 @@ public:
       if (selActor && (selActor->GetMapper() == this->Mapper))
       {
         int blockIndex = node->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX());
-        cerr << "Block ID " << blockIndex << " with prim ids of: ";
+        std::cerr << "Block ID " << blockIndex << " with prim ids of: ";
 
         vtkIdTypeArray* selIds = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
         if (selIds)
@@ -81,10 +83,10 @@ public:
           {
             vtkIdType curId = selIds->GetValue(i);
             this->BlockPrims[blockIndex].push_back(curId);
-            cerr << " " << curId;
+            std::cerr << " " << curId;
           }
         }
-        cerr << "\n";
+        std::cerr << "\n";
       }
     }
   }
@@ -305,8 +307,8 @@ int TestCompositePolyDataMapperPicking(int argc, char* argv[])
     bPrims.find(82) == bPrims.end() ||
     std::find(bPrims[82].begin(), bPrims[82].end(), 114) == bPrims[82].end())
   {
-    cerr << "Incorrect pick results (if any picks were performed inter"
-            "actively this could be ignored).\n";
+    std::cerr << "Incorrect pick results (if any picks were performed inter"
+                 "actively this could be ignored).\n";
     return EXIT_FAILURE;
   }
 

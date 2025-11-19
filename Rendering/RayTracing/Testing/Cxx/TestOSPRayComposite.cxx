@@ -26,6 +26,8 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 class MyProcess : public vtkProcess
 {
 public:
@@ -149,7 +151,7 @@ int TestOSPRayComposite(int argc, char* argv[])
 
   if (numProcs < 2 && false)
   {
-    cout << "This test requires at least 2 processes" << endl;
+    std::cout << "This test requires at least 2 processes" << std::endl;
     contr->Delete();
     return retVal;
   }

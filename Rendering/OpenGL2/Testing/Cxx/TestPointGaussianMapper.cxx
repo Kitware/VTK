@@ -15,9 +15,6 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkDataObject.h"
-#include "vtkDataSetAttributes.h"
-#include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPointGaussianMapper.h"
 #include "vtkProperty.h"
@@ -25,16 +22,16 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSphereSource.h"
 #include "vtkTimerLog.h"
 
 #include "vtkColorTransferFunction.h"
 #include "vtkPointSource.h"
 
 #include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
 
 #include "vtkPolyDataReader.h"
+
+#include <iostream>
 
 // #define TestPoints
 // #define TestFile
@@ -130,7 +127,7 @@ int TestPointGaussianMapper(int argc, char* argv[])
   renderWindow->Render();
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
-  cerr << "first render time: " << firstRender << endl;
+  std::cerr << "first render time: " << firstRender << std::endl;
 
   timer->StartTimer();
   int numRenders = 85;
@@ -144,15 +141,15 @@ int TestPointGaussianMapper(int argc, char* argv[])
   double elapsed = timer->GetElapsedTime();
 
   int numPts = mapper->GetInput()->GetPoints()->GetNumberOfPoints();
-  cerr << "interactive render time: " << elapsed / numRenders << endl;
-  cerr << "number of points: " << numPts << endl;
-  cerr << "points per second: " << numPts * (numRenders / elapsed) << endl;
+  std::cerr << "interactive render time: " << elapsed / numRenders << std::endl;
+  std::cerr << "number of points: " << numPts << std::endl;
+  std::cerr << "points per second: " << numPts * (numRenders / elapsed) << std::endl;
 
   renderer->GetActiveCamera()->SetPosition(0, 0, 1);
   renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);
   renderer->GetActiveCamera()->SetViewUp(0, 1, 0);
   renderer->ResetCamera();
-  //  renderer->GetActiveCamera()->Print(cerr);
+  //  renderer->GetActiveCamera()->Print(std::cerr);
 
   renderer->GetActiveCamera()->Zoom(10.0);
   renderWindow->Render();

@@ -29,6 +29,8 @@
 #include <functional>
 #include <set>
 
+#include <iostream>
+
 template <typename T, typename U, typename V>
 void prepareDisplayAttribute(
   T& expected, U attr, V mbds, std::function<std::pair<bool, bool>(int)> config)

@@ -2,16 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkActor.h"
-#include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
 #include "vtkCullerCollection.h"
-#include "vtkFloatArray.h"
 #include "vtkImageData.h"
 #include "vtkImageFlip.h"
 #include "vtkImageGridSource.h"
 #include "vtkInteractorStyleSwitch.h"
 #include "vtkJPEGReader.h"
-#include "vtkLight.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkOpenGLRenderer.h"
@@ -20,7 +17,6 @@
 #include "vtkPBRPrefilterTexture.h"
 #include "vtkPLYReader.h"
 #include "vtkPlaneSource.h"
-#include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -35,6 +31,7 @@
 #include "vtkOpenGLFluidMapper.h"
 
 #include <array>
+#include <iostream>
 
 // Define this to render blue color water, otherwise will render red (blood)
 // color
@@ -267,7 +264,7 @@ int TestFluidMapper(int argc, char* argv[])
     renderWindow->Render();
   }
   timer->StopTimer();
-  cerr << "Render time: " << timer->GetElapsedTime() << endl;
+  std::cerr << "Render time: " << timer->GetElapsedTime() << std::endl;
 
   int retVal = vtkRegressionTestImage(renderWindow);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

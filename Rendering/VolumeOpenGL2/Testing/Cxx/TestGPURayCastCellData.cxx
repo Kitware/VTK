@@ -32,6 +32,8 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
+#include <iostream>
+
 int TestGPURayCastCellData(int argc, char* argv[])
 {
   // Volume peeling is only supported through the dual depth peeling algorithm.
@@ -55,7 +57,7 @@ int TestGPURayCastCellData(int argc, char* argv[])
     return VTK_SKIP_RETURN_CODE;
   }
 
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   double scalarRange[2];
 

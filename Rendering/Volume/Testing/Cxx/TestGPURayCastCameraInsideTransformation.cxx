@@ -21,6 +21,8 @@
 #include "vtkVolume16Reader.h"
 #include "vtkVolumeProperty.h"
 
+#include <iostream>
+
 static const char* TestGPURayCastCameraInsideTransformationLog =
   "# StreamVersion 1\n"
   "EnterEvent 298 27 0 0 0 0 0\n"
@@ -29,7 +31,7 @@ static const char* TestGPURayCastCameraInsideTransformationLog =
 
 int TestGPURayCastCameraInsideTransformation(int argc, char* argv[])
 {
-  // cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  // std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // Load data
   vtkNew<vtkVolume16Reader> reader;

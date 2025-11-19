@@ -19,12 +19,13 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTestUtilities.h"
 #include "vtkVolumeProperty.h"
+
+#include <iostream>
 
 int TestGPURayCastAdditive(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // Create a spherical implicit function.
   vtkSphere* shape = vtkSphere::New();
@@ -141,7 +142,7 @@ int TestGPURayCastAdditive(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
   }
 
   volumeMapper->Delete();

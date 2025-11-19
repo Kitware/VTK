@@ -29,6 +29,8 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
+#include <iostream>
+
 // TODO Test geometry compositing with gl2. The only significant
 // differences appear to be along the box frame (outlineActor).
 
@@ -39,7 +41,7 @@ int TestGPURayCastVolumeScale(int argc, char* argv[])
   {
     if (!strcmp(argv[i], "-GL"))
     {
-      cerr << "GL" << endl;
+      std::cerr << "GL" << std::endl;
       useOSP = false;
     }
   }

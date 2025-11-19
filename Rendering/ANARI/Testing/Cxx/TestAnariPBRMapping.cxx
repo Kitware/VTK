@@ -31,6 +31,8 @@
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestAnariPBRMapping(int argc, char* argv[])
 {

@@ -27,6 +27,8 @@
 
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 char TISBeventLog[] = "# StreamVersion 1\n"
                       "CharEvent 153 168 0 0 105 1 i\n"
                       "KeyReleaseEvent 153 168 0 0 105 1 i\n"
@@ -377,12 +379,12 @@ public:
       if (ri->GetKeySym()[0] == 'u')
       {
         this->Lookup->SetIndexedLookup(!this->Lookup->GetIndexedLookup());
-        cout << "Index mode " << (this->Lookup->GetIndexedLookup() ? "ON" : "OFF") << "\n";
+        std::cout << "Index mode " << (this->Lookup->GetIndexedLookup() ? "ON" : "OFF") << "\n";
       }
       else if (ri->GetKeySym()[0] == 'd')
       {
         this->ScalarBar->SetDrawBackground(!this->ScalarBar->GetDrawBackground());
-        cout << "Background " << (this->ScalarBar->GetDrawBackground() ? "ON" : "OFF") << "\n";
+        std::cout << "Background " << (this->ScalarBar->GetDrawBackground() ? "ON" : "OFF") << "\n";
       }
       else if (ri->GetKeySym()[0] == 'k')
       {
@@ -390,11 +392,11 @@ public:
           this->ScalarBar->GetTextPosition() == vtkScalarBarActor::PrecedeScalarBar
             ? vtkScalarBarActor::SucceedScalarBar
             : vtkScalarBarActor::PrecedeScalarBar);
-        cout << "Text position "
-             << (this->ScalarBar->GetTextPosition() == vtkScalarBarActor::PrecedeScalarBar
-                    ? "PRECEDE"
-                    : "SUCCEED")
-             << "\n";
+        std::cout << "Text position "
+                  << (this->ScalarBar->GetTextPosition() == vtkScalarBarActor::PrecedeScalarBar
+                         ? "PRECEDE"
+                         : "SUCCEED")
+                  << "\n";
       }
       else if (ri->GetKeySym()[0] == 'h')
       {
@@ -408,23 +410,23 @@ public:
       else if (ri->GetKeySym()[0] == 't')
       {
         this->ScalarBar->SetDrawAnnotations(!this->ScalarBar->GetDrawAnnotations());
-        cout << "Draw annotation " << (this->ScalarBar->GetDrawAnnotations() ? "ON" : "OFF")
-             << "\n";
+        std::cout << "Draw annotation " << (this->ScalarBar->GetDrawAnnotations() ? "ON" : "OFF")
+                  << "\n";
       }
       else if (ri->GetKeySym()[0] == 'n')
       {
         this->ScalarBar->SetDrawNanAnnotation(!this->ScalarBar->GetDrawNanAnnotation());
-        cout << "Draw NaN annotation " << (this->ScalarBar->GetDrawNanAnnotation() ? "ON" : "OFF")
-             << "\n";
+        std::cout << "Draw NaN annotation "
+                  << (this->ScalarBar->GetDrawNanAnnotation() ? "ON" : "OFF") << "\n";
       }
       else if (ri->GetKeySym()[0] == 'l')
       {
         this->ScalarBar->SetFixedAnnotationLeaderLineColor(
           !this->ScalarBar->GetFixedAnnotationLeaderLineColor());
-        cout << "Use fixed leader line color for annotations "
-             << (this->ScalarBar->GetFixedAnnotationLeaderLineColor() ? "YES" : "NO") << "\n";
+        std::cout << "Use fixed leader line color for annotations "
+                  << (this->ScalarBar->GetFixedAnnotationLeaderLineColor() ? "YES" : "NO") << "\n";
       }
-      cout.flush();
+      std::cout.flush();
       this->RenderWindow->Render();
     }
   }
@@ -596,9 +598,9 @@ int TestIndexedLookupScalarBar(int argc, char* argv[])
   srep = vtkScalarBarRepresentation::SafeDownCast( scalarWidget->GetRepresentation() );
   double* foo;
   foo = srep->GetPosition();
-  cout << foo[0] << ", " << foo[1] << "\n";
+  std::cout << foo[0] << ", " << foo[1] << "\n";
   foo = srep->GetPosition2();
-  cout << foo[0] << ", " << foo[1] << "\n";
+  std::cout << foo[0] << ", " << foo[1] << "\n";
 #endif
   return EXIT_SUCCESS;
 }

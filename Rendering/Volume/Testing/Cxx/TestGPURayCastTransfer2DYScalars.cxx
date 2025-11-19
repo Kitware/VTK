@@ -7,13 +7,9 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkDataObject.h"
 #include "vtkExodusIIReader.h"
 #include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkImageData.h"
 #include "vtkNew.h"
-#include "vtkPointData.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -24,9 +20,11 @@
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
 
+#include <iostream>
+
 int TestGPURayCastTransfer2DYScalars(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // Load data
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/disk_out_ref.ex2");

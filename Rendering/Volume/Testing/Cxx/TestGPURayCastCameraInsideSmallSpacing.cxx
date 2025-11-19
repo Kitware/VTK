@@ -23,6 +23,8 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+#include <iostream>
+
 static const char* TestGPURayCastCameraInsideSmallSpacingLog =
   "# StreamVersion 1\n"
   "EnterEvent 188 3 0 0 0 0 0\n"
@@ -926,7 +928,7 @@ static const char* TestGPURayCastCameraInsideSmallSpacingLog =
 
 int TestGPURayCastCameraInsideSmallSpacing(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
   vtkNew<vtkStructuredPointsReader> reader;

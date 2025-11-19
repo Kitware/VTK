@@ -10,6 +10,8 @@
 
 #include <QCoreApplication>
 
+#include <iostream>
+
 int TestQtInitialization(int, char*[])
 {
   int error_count = 0;
@@ -21,7 +23,7 @@ int TestQtInitialization(int, char*[])
 
   if (QCoreApplication::instance())
   {
-    cerr << "Internal test error ... QCoreApplication already exists" << endl;
+    std::cerr << "Internal test error ... QCoreApplication already exists" << std::endl;
     ++error_count;
   }
 
@@ -29,7 +31,7 @@ int TestQtInitialization(int, char*[])
 
   if (!QCoreApplication::instance())
   {
-    cerr << "QCoreApplication not initialized" << endl;
+    std::cerr << "QCoreApplication not initialized" << std::endl;
     ++error_count;
   }
 

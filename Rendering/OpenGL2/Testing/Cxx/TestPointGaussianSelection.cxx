@@ -13,7 +13,6 @@
 #include "vtkNew.h"
 #include "vtkPointGaussianMapper.h"
 #include "vtkPointSource.h"
-#include "vtkProp3DCollection.h"
 #include "vtkRandomAttributeGenerator.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
@@ -21,6 +20,8 @@
 #include "vtkRenderer.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
+
+#include <iostream>
 
 int TestPointGaussianSelection(int argc, char* argv[])
 {
@@ -108,7 +109,7 @@ int TestPointGaussianSelection(int argc, char* argv[])
       for (vtkIdType i = 0; i < numIds; ++i)
       {
         vtkIdType curId = selIds->GetValue(i);
-        cerr << curId << "\n";
+        std::cerr << curId << "\n";
       }
     }
 
@@ -124,7 +125,7 @@ int TestPointGaussianSelection(int argc, char* argv[])
 
   if (!goodPick)
   {
-    cerr << "Incorrect splats picked!\n";
+    std::cerr << "Incorrect splats picked!\n";
     return EXIT_FAILURE;
   }
 

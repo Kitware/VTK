@@ -23,6 +23,8 @@
 #include <vtkRegressionTestImage.h>
 #include <vtkTestUtilities.h>
 
+#include <iostream>
+
 #define syntheticData
 #ifdef syntheticData
 #include "vtkCylinderSource.h"
@@ -160,7 +162,7 @@ int TestCompositePolyDataMapper(int argc, char* argv[])
   timer->StartTimer();
   win->Render();
   timer->StopTimer();
-  cout << "First frame time: " << timer->GetElapsedTime() << "\n";
+  std::cout << "First frame time: " << timer->GetElapsedTime() << "\n";
 
   timer->StartTimer();
 
@@ -177,7 +179,7 @@ int TestCompositePolyDataMapper(int argc, char* argv[])
   if (timeit)
   {
     double t = timer->GetElapsedTime();
-    cout << "Avg Frame time: " << t / numFrames << " Frame Rate: " << numFrames / t << "\n";
+    std::cout << "Avg Frame time: " << t / numFrames << " Frame Rate: " << numFrames / t << "\n";
   }
   int retVal = vtkRegressionTestImageThreshold(win.GetPointer(), 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

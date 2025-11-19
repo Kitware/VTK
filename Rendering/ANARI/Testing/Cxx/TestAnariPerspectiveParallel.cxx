@@ -4,10 +4,6 @@
 // This test volume renders a synthetic dataset with unsigned char values,
 // with the composite method.
 
-#include "vtkNew.h"
-#include "vtkSampleFunction.h"
-#include "vtkSphere.h"
-
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
@@ -15,18 +11,22 @@
 #include "vtkImageData.h"
 #include "vtkImageShiftScale.h"
 #include "vtkLogger.h"
+#include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTestUtilities.h"
+#include "vtkSampleFunction.h"
+#include "vtkSphere.h"
 #include "vtkVolumeProperty.h"
 
 #include "vtkAnariPass.h"
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
+
+#include <iostream>
 
 int TestAnariPerspectiveParallel(int argc, char* argv[])
 {

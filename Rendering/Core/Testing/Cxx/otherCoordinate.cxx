@@ -14,6 +14,8 @@
 
 #include "vtkDebugLeaks.h"
 
+#include <iostream>
+
 void ToAll(ostream& strm, vtkCoordinate* c1, vtkViewport* ren1, double* from)
 {
   double* value;
@@ -22,25 +24,25 @@ void ToAll(ostream& strm, vtkCoordinate* c1, vtkViewport* ren1, double* from)
 
   c1->SetValue(from);
 
-  strm << endl << "========" << endl;
+  strm << std::endl << "========" << std::endl;
   strm << *c1;
   value = c1->GetComputedWorldValue(ren1);
   strm << whichCoord << "(" << from[0] << ", " << from[1] << ", " << from[2] << ") -> World("
-       << value[0] << ", " << value[1] << ", " << value[2] << ")" << endl;
+       << value[0] << ", " << value[1] << ", " << value[2] << ")" << std::endl;
   ivalue = c1->GetComputedDisplayValue(ren1);
   strm << whichCoord << "(" << from[0] << ", " << from[1] << ", " << from[2] << ") -> Display("
-       << ivalue[0] << ", " << ivalue[1] << ")" << endl;
+       << ivalue[0] << ", " << ivalue[1] << ")" << std::endl;
   ivalue = c1->GetComputedLocalDisplayValue(ren1);
   strm << whichCoord << "(" << from[0] << ", " << from[1] << ", " << from[2] << ") -> LocalDisplay("
-       << ivalue[0] << ", " << ivalue[1] << ")" << endl;
+       << ivalue[0] << ", " << ivalue[1] << ")" << std::endl;
   ivalue = c1->GetComputedViewportValue(ren1);
   strm << whichCoord << "(" << from[0] << ", " << from[1] << ", " << from[2] << ") -> Viewport("
-       << ivalue[0] << ", " << ivalue[1] << ")" << endl;
+       << ivalue[0] << ", " << ivalue[1] << ")" << std::endl;
 }
 int Test(ostream& strm)
 {
   // actual test
-  strm << "Testing vtkCoordinate" << endl;
+  strm << "Testing vtkCoordinate" << std::endl;
   vtkCoordinate* c1 = vtkCoordinate::New();
   vtkCoordinate* c2 = vtkCoordinate::New();
   vtkRenderWindow* renWin = vtkRenderWindow::New();
@@ -52,10 +54,10 @@ int Test(ostream& strm)
   renWin->AddRenderer(ren1);
   renWin->SetSize(100, 100);
 
-  strm << "Origin: (" << ren1->GetOrigin()[0] << ", " << ren1->GetOrigin()[1] << ")" << endl;
-  strm << "Center: (" << ren1->GetCenter()[0] << ", " << ren1->GetOrigin()[1] << ")" << endl;
+  strm << "Origin: (" << ren1->GetOrigin()[0] << ", " << ren1->GetOrigin()[1] << ")" << std::endl;
+  strm << "Center: (" << ren1->GetCenter()[0] << ", " << ren1->GetOrigin()[1] << ")" << std::endl;
 
-  strm << endl << "********** A NULL Viewport **********" << endl;
+  strm << std::endl << "********** A NULL Viewport **********" << std::endl;
 
   c1->SetCoordinateSystemToWorld();
   from[0] = 0.0;
@@ -93,7 +95,7 @@ int Test(ostream& strm)
   from[2] = 0.0;
   ToAll(strm, c1, ren1, from);
 
-  strm << endl << "********** A specified Viewport **********" << endl;
+  strm << std::endl << "********** A specified Viewport **********" << std::endl;
   c1->SetViewport(ren1);
 
   c1->SetCoordinateSystemToWorld();
@@ -132,7 +134,7 @@ int Test(ostream& strm)
   from[2] = 0.0;
   ToAll(strm, c1, ren1, from);
 
-  strm << endl << "********** With a Reference Coordinate **********" << endl;
+  strm << std::endl << "********** With a Reference Coordinate **********" << std::endl;
 
   c2->SetCoordinateSystemToNormalizedDisplay();
   c2->SetCoordinateSystemToWorld();
@@ -183,7 +185,7 @@ int Test(ostream& strm)
   ren1->Delete();
   camera->Delete();
 
-  strm << "Testing completed" << endl;
+  strm << "Testing completed" << std::endl;
   return 0;
 }
 

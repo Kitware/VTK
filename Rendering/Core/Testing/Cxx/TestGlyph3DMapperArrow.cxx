@@ -28,6 +28,9 @@
 #include "vtkGlyph3D.h"
 #else
 #include "vtkGlyph3DMapper.h"
+
+#include <iostream>
+
 #endif
 
 // from Graphics/Testing/Python/glyphComb.py
@@ -51,14 +54,14 @@ int TestGlyph3DMapperArrow(int argc, char* argv[])
   eg->SetSampleRate(4, 4, 4);
   eg->Update();
 
-  cout << "eg pts=" << eg->GetOutput()->GetNumberOfPoints() << endl;
-  cout << "eg cells=" << eg->GetOutput()->GetNumberOfCells() << endl;
+  std::cout << "eg pts=" << eg->GetOutput()->GetNumberOfPoints() << std::endl;
+  std::cout << "eg cells=" << eg->GetOutput()->GetNumberOfCells() << std::endl;
 
   // create simple poly data so we can apply glyph
   vtkArrowSource* arrow = vtkArrowSource::New();
   arrow->Update();
-  cout << "pts=" << arrow->GetOutput()->GetNumberOfPoints() << endl;
-  cout << "cells=" << arrow->GetOutput()->GetNumberOfCells() << endl;
+  std::cout << "pts=" << arrow->GetOutput()->GetNumberOfPoints() << std::endl;
+  std::cout << "cells=" << arrow->GetOutput()->GetNumberOfCells() << std::endl;
 
 #ifdef USE_FILTER
   vtkGlyph3D* glypher = vtkGlyph3D::New();
@@ -111,13 +114,13 @@ int TestGlyph3DMapperArrow(int argc, char* argv[])
   timer->StartTimer();
   win->Render();
   timer->StopTimer();
-  cout << "first frame: " << timer->GetElapsedTime() << " seconds" << endl;
+  std::cout << "first frame: " << timer->GetElapsedTime() << " seconds" << std::endl;
 
   //  ren->GetActiveCamera()->Zoom(1.5);
   timer->StartTimer();
   win->Render();
   timer->StopTimer();
-  cout << "second frame: " << timer->GetElapsedTime() << " seconds" << endl;
+  std::cout << "second frame: " << timer->GetElapsedTime() << " seconds" << std::endl;
   timer->Delete();
 
   int retVal = vtkRegressionTestImage(win);

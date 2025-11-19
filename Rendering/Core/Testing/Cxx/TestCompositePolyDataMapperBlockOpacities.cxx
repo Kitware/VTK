@@ -24,6 +24,8 @@
 #include <cstdlib>
 #include <string>
 
+#include <iostream>
+
 int TestCompositePolyDataMapperBlockOpacities(int argc, char* argv[])
 {
   vtkNew<vtkGroupDataSetsFilter> spheres;
@@ -193,7 +195,7 @@ int TestCompositePolyDataMapperBlockOpacities(int argc, char* argv[])
     interactor->InvokeEvent(vtkCommand::KeyPressEvent);
     interactor->InvokeEvent(vtkCommand::CharEvent);
     interactor->InvokeEvent(vtkCommand::KeyReleaseEvent);
-    if (testing->RegressionTest(0.01, cout) == vtkTesting::FAILED)
+    if (testing->RegressionTest(0.01, std::cout) == vtkTesting::FAILED)
     {
       // store the result and continue.
       // do not exit here to ensure successive iterations will get a chance to perform the test and

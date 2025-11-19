@@ -29,9 +29,12 @@
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
-#include <sstream>
 #include <vtksys/CommandLineArguments.hxx>
 #include <vtksys/SystemTools.hxx>
+
+#include <iostream>
+#include <sstream>
+
 using std::ostringstream;
 
 //------------------------------------------------------------------------------
@@ -100,20 +103,20 @@ int ImageDataLIC2D(int argc, char* argv[])
 
   if (!arg.Parse() || filename.empty())
   {
-    cerr << "Problem parsing arguments." << endl;
-    cerr << arg.GetHelp() << endl;
+    std::cerr << "Problem parsing arguments." << std::endl;
+    std::cerr << arg.GetHelp() << std::endl;
     return -1;
   }
 
   if (magnification < 1)
   {
-    cerr << "WARNING: Magnification cannot be less than 1. Using 1" << endl;
+    std::cerr << "WARNING: Magnification cannot be less than 1. Using 1" << std::endl;
     magnification = 1;
   }
 
   if (num_steps < 0)
   {
-    cerr << "WARNING: Number of steps cannot be less than 0. Forcing 0." << endl;
+    std::cerr << "WARNING: Number of steps cannot be less than 0. Forcing 0." << std::endl;
     num_steps = 0;
   }
 
@@ -126,7 +129,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   }
   if (!tester->IsValidImageSpecified())
   {
-    cerr << "ERROR: Valid image not specified." << endl;
+    std::cerr << "ERROR: Valid image not specified." << std::endl;
     return -2;
   }
 
@@ -145,7 +148,7 @@ int ImageDataLIC2D(int argc, char* argv[])
       vtkArrayDownCast<vtkUnsignedCharArray>(noise->GetPointData()->GetScalars());
     if (!cVals)
     {
-      cerr << "Error: expected unsigned chars, test fails" << endl;
+      std::cerr << "Error: expected unsigned chars, test fails" << std::endl;
       return 1;
     }
 
@@ -179,7 +182,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   vtkDataSet* dataset = vtkDataSet::SafeDownCast(reader->GetOutput());
   if (!dataset)
   {
-    cerr << "Error: expected dataset, test fails" << endl;
+    std::cerr << "Error: expected dataset, test fails" << std::endl;
     return 1;
   }
   double bounds[6];
@@ -268,7 +271,7 @@ int ImageDataLIC2D(int argc, char* argv[])
 
   if (filter->SetContext(renWin) == 0)
   {
-    cerr << "WARNING: Required OpenGL not supported, test passes." << endl;
+    std::cerr << "WARNING: Required OpenGL not supported, test passes." << std::endl;
     return 0;
   }
   filter->SetSteps(num_steps);
@@ -356,7 +359,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   int retVal = (tester->RegressionTest(tp, 0.05) == vtkTesting::PASSED) ? 0 : -4;
   if (retVal)
   {
-    cerr << "ERROR: test failed." << endl;
+    std::cerr << "ERROR: test failed." << std::endl;
   }
 
   tp = nullptr;

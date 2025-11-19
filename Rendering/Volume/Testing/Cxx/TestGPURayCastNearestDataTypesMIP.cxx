@@ -19,14 +19,15 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextActor.h"
-#include "vtkTextProperty.h"
 #include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
 
+#include <iostream>
+
 int TestGPURayCastNearestDataTypesMIP(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
   char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
 
   vtkXMLImageDataReader* reader = vtkXMLImageDataReader::New();
@@ -223,7 +224,7 @@ int TestGPURayCastNearestDataTypesMIP(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
   }
 
   iren->Delete();

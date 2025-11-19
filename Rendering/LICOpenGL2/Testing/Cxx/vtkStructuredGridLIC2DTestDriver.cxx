@@ -25,8 +25,10 @@
 #include "vtkTexture.h"
 #include "vtkTimerLog.h"
 #include "vtkXMLStructuredGridReader.h"
-#include <string>
 #include <vtksys/CommandLineArguments.hxx>
+
+#include <iostream>
+#include <string>
 
 //------------------------------------------------------------------------------
 static inline int CLAMP(int a, int low, int high)
@@ -83,28 +85,28 @@ int vtkStructuredGridLIC2DTestDriver(int argc, char* argv[])
 
   if (!arg.Parse() || filename.empty())
   {
-    cerr << "Problem parsing arguments." << endl;
-    cerr << arg.GetHelp() << endl;
+    std::cerr << "Problem parsing arguments." << std::endl;
+    std::cerr << arg.GetHelp() << std::endl;
     return 1;
   }
 
   if (magnification < 1)
   {
-    cout << "WARNING: Magnification \'" << magnification
-         << "\' is invalid."
-            " Forcing a magnification of 1.";
+    std::cout << "WARNING: Magnification \'" << magnification
+              << "\' is invalid."
+                 " Forcing a magnification of 1.";
     magnification = 1;
   }
 
   if (num_steps < 1)
   {
-    cout << "WARNING: Number of steps cannot be less than 1. Forcing 10.";
+    std::cout << "WARNING: Number of steps cannot be less than 1. Forcing 10.";
     num_steps = 10;
   }
 
   if (slice_dir < 0 || slice_dir > 2)
   {
-    cout << "WARNING: Invalid slice-dir (" << slice_dir << "). Forcing Z slices";
+    std::cout << "WARNING: Invalid slice-dir (" << slice_dir << "). Forcing Z slices";
     slice_dir = 2;
   }
 
@@ -188,7 +190,7 @@ int vtkStructuredGridLIC2DTestDriver(int argc, char* argv[])
 
   if (filter->SetContext(renWin) == 0)
   {
-    cout << "Required OpenGL extensions / GPU not supported." << endl;
+    std::cout << "Required OpenGL extensions / GPU not supported." << std::endl;
     return 0;
   }
 
@@ -208,7 +210,7 @@ int vtkStructuredGridLIC2DTestDriver(int argc, char* argv[])
 
   for (int kk = 0; kk < num_partitions; kk++)
   {
-    cout << "*****************" << endl;
+    std::cout << "*****************" << std::endl;
     filter->UpdatePiece(kk, num_partitions, 0);
     if (filter->GetFBOSuccess() == 0 || filter->GetLICSuccess() == 0)
     {

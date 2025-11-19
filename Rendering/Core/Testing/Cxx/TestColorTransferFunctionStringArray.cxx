@@ -5,6 +5,8 @@
 #include <vtkStringArray.h>
 #include <vtkUnsignedCharArray.h>
 
+#include <iostream>
+
 int TestColorTransferFunctionStringArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkStringArray> sArray = vtkSmartPointer<vtkStringArray>::New();

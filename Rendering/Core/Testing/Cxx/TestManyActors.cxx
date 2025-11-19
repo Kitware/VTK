@@ -14,6 +14,8 @@
 #include "vtkStringScanner.h"
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 int TestManyActors(int argc, char* argv[])
 {
   int numActors = 512;
@@ -43,8 +45,8 @@ int TestManyActors(int argc, char* argv[])
       VTK_FROM_CHARS_IF_ERROR_RETURN(argv[i], numRenders, EXIT_FAILURE);
       continue;
     }
-    cerr << argv[0] << " options:" << endl;
-    cerr << " -N: Number of actors" << endl;
+    std::cerr << argv[0] << " options:" << std::endl;
+    std::cerr << " -N: Number of actors" << std::endl;
   }
   vtkSmartPointer<vtkSphereSource> source = vtkSmartPointer<vtkSphereSource>::New();
   source->Update();
@@ -94,8 +96,8 @@ int TestManyActors(int argc, char* argv[])
   win->SetInteractor(iren);
   iren->SetInteractorStyle(style);
 
-  cerr << "number of actors: " << numActors << endl;
-  cerr << "number of renders: " << numRenders << endl;
+  std::cerr << "number of actors: " << numActors << std::endl;
+  std::cerr << "number of renders: " << numRenders << std::endl;
 
   vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
   timer->StartTimer();
@@ -104,7 +106,7 @@ int TestManyActors(int argc, char* argv[])
   iren->InvokeEvent(vtkCommand::LeftButtonPressEvent, nullptr);
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
-  cerr << "first render time: " << firstRender << endl;
+  std::cerr << "first render time: " << firstRender << std::endl;
 
   timer->StartTimer();
   for (int i = 0; i < numRenders; ++i)
@@ -115,8 +117,8 @@ int TestManyActors(int argc, char* argv[])
   iren->InvokeEvent(vtkCommand::LeftButtonReleaseEvent, nullptr);
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
-  cerr << "interactive render time: " << elapsed / numRenders << endl;
-  cerr << "render time per actor: " << elapsed / numRenders / numActors << endl;
+  std::cerr << "interactive render time: " << elapsed / numRenders << std::endl;
+  std::cerr << "render time per actor: " << elapsed / numRenders / numActors << std::endl;
 
   if (interact)
   {

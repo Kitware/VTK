@@ -3,9 +3,6 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCompositeDataSet.h"
-#include "vtkInformation.h"
-#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointGaussianMapper.h"
@@ -13,15 +10,15 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
-#include "vtkTrivialProducer.h"
 
 #include <vtkRegressionTestImage.h>
 #include <vtkTestUtilities.h>
 
 #include "vtkCylinderSource.h"
+
+#include <iostream>
 
 int TestCompositeDataPointGaussian(int argc, char* argv[])
 {
@@ -101,7 +98,7 @@ int TestCompositeDataPointGaussian(int argc, char* argv[])
   timer->StartTimer();
   win->Render();
   timer->StopTimer();
-  cout << "First frame time: " << timer->GetElapsedTime() << "\n";
+  std::cout << "First frame time: " << timer->GetElapsedTime() << "\n";
 
   timer->StartTimer();
 
@@ -118,7 +115,7 @@ int TestCompositeDataPointGaussian(int argc, char* argv[])
   if (timeit)
   {
     double t = timer->GetElapsedTime();
-    cout << "Avg Frame time: " << t / numFrames << " Frame Rate: " << numFrames / t << "\n";
+    std::cout << "Avg Frame time: " << t / numFrames << " Frame Rate: " << numFrames / t << "\n";
   }
   int retVal = vtkRegressionTestImageThreshold(win.GetPointer(), 0.05);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

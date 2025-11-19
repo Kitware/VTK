@@ -19,6 +19,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+#include <iostream>
+
 int TestTranslucentImageActorDepthPeeling(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindowInteractor> iren;
@@ -59,11 +61,11 @@ int TestTranslucentImageActorDepthPeeling(int argc, char* argv[])
   renWin->Render();
   if (renderer->GetLastRenderingUsedDepthPeeling())
   {
-    cout << "depth peeling was used" << endl;
+    std::cout << "depth peeling was used" << std::endl;
   }
   else
   {
-    cout << "depth peeling was not used (alpha blending instead)" << endl;
+    std::cout << "depth peeling was not used (alpha blending instead)" << std::endl;
   }
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

@@ -17,6 +17,8 @@
 #include <system_error>
 #include <wrl/client.h> // For Microsoft::WRL::ComPtr
 
+#include <iostream>
+
 namespace
 { // anonymous namespace
 // Clear background using Direct3D and render the VTK scene in the same shared texture.
@@ -103,7 +105,8 @@ int TestWin32OpenGLDXRenderWindow(int argc, char* argv[])
     __uuidof(IDXGIDevice), reinterpret_cast<void**>(dxgiDevice.GetAddressOf()));
   if (err < 0 || !dxgiDevice)
   {
-    cerr << "Unable to get IDXGIDevice from ID3D11Device: " << std::system_category().message(err);
+    std::cerr << "Unable to get IDXGIDevice from ID3D11Device: "
+              << std::system_category().message(err);
   }
 
   // Get IDXGIAdapter from IDXGIDevice
@@ -111,7 +114,8 @@ int TestWin32OpenGLDXRenderWindow(int argc, char* argv[])
   err = dxgiDevice->GetAdapter(dxgiAdapter.GetAddressOf());
   if (err < 0 || !dxgiAdapter)
   {
-    cerr << "Unable to get IDXGIAdapter from IDXGIDevice: " << std::system_category().message(err);
+    std::cerr << "Unable to get IDXGIAdapter from IDXGIDevice: "
+              << std::system_category().message(err);
   }
 
   // Get IDXGIFactory from IDXGIAdapter
@@ -120,7 +124,8 @@ int TestWin32OpenGLDXRenderWindow(int argc, char* argv[])
     __uuidof(IDXGIFactory), reinterpret_cast<void**>(dxgiFactory.GetAddressOf()));
   if (err < 0 || !dxgiAdapter)
   {
-    cerr << "Unable to get IDXGIFactory from IDXGIAdapter: " << std::system_category().message(err);
+    std::cerr << "Unable to get IDXGIFactory from IDXGIAdapter: "
+              << std::system_category().message(err);
   }
 
   // SwapChain descriptor.
@@ -141,8 +146,8 @@ int TestWin32OpenGLDXRenderWindow(int argc, char* argv[])
   err = dxgiFactory->CreateSwapChain(d3dDevice.Get(), &swapChainDesc, d3dSwapChain.GetAddressOf());
   if (err < 0 || !d3dSwapChain)
   {
-    cerr << "Unable to get IDXGISwapChain from IDXGIFactory: "
-         << std::system_category().message(err);
+    std::cerr << "Unable to get IDXGISwapChain from IDXGIFactory: "
+              << std::system_category().message(err);
   }
 
   // Get ID3D11DeviceContext from ID3D11Device
@@ -154,15 +159,15 @@ int TestWin32OpenGLDXRenderWindow(int argc, char* argv[])
   err = d3dSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&d3dFramebufferTexture);
   if (err < 0 || !d3dFramebufferTexture)
   {
-    cerr << "Unable to get ID3D11Texture2D from IDXGISwapChain: "
-         << std::system_category().message(err);
+    std::cerr << "Unable to get ID3D11Texture2D from IDXGISwapChain: "
+              << std::system_category().message(err);
   }
 
   err = d3dDevice->CreateRenderTargetView(
     d3dFramebufferTexture.Get(), 0, d3DRenderTargetView.GetAddressOf());
   if (err < 0 || !d3DRenderTargetView)
   {
-    cerr << "Unable to create ID3D11RenderTargetView: " << std::system_category().message(err);
+    std::cerr << "Unable to create ID3D11RenderTargetView: " << std::system_category().message(err);
   }
 
   // Make sure our OpenGL-D3D texture has the same size as the test window.

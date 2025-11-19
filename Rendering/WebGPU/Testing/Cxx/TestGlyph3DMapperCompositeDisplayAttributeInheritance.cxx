@@ -25,6 +25,8 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 namespace
 {
 struct KeyCallbackBridgeData

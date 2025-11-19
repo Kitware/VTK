@@ -15,6 +15,8 @@
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPURenderWindow.h"
 
+#include <iostream>
+
 int TestLowPowerRenderWindow(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renWin;

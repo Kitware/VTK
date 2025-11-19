@@ -10,6 +10,8 @@
 #include "vtkRendererCollection.h"
 #include "vtkTesting.h"
 
+#include <iostream>
+
 namespace
 {
 constexpr int REALLY_FAST_TIME = 3;
@@ -93,7 +95,7 @@ public:
 
         if (this->QuitOnOneShotTimer)
         {
-          cout << "QuitOnOneShotTimer is true." << endl;
+          std::cout << "QuitOnOneShotTimer is true." << std::endl;
 
           vtkRenderWindowInteractor* iren = vtkRenderWindowInteractor::SafeDownCast(caller);
           if (iren)
@@ -101,14 +103,14 @@ public:
             iren->DestroyTimer(this->ReallyFastTimerId);
             iren->DestroyTimer(this->FastTimerId);
             iren->DestroyTimer(this->RenderTimerId);
-            cout << "Calling iren->ExitCallback()..." << endl;
+            std::cout << "Calling iren->ExitCallback()..." << std::endl;
             iren->ExitCallback();
           }
         }
         else
         {
-          cout << "QuitOnOneShotTimer is false." << endl;
-          cout << "Remaining interactive..." << endl;
+          std::cout << "QuitOnOneShotTimer is false." << std::endl;
+          std::cout << "Remaining interactive..." << std::endl;
         }
       }
     }
@@ -144,17 +146,17 @@ public:
 
   void Report()
   {
-    cout << "vtkTimerCallback::Report" << endl;
-    cout << "  ReallyFastTimerId: " << this->ReallyFastTimerId << endl;
-    cout << "  ReallyFastTimerCount: " << this->ReallyFastTimerCount << endl;
-    cout << "  FastTimerId: " << this->FastTimerId << endl;
-    cout << "  FastTimerCount: " << this->FastTimerCount << endl;
-    cout << "  RenderTimerId: " << this->RenderTimerId << endl;
-    cout << "  RenderTimerCount: " << this->RenderTimerCount << endl;
-    cout << "  SlowTimerId: " << this->RenderTimerId << endl;
-    cout << "  SlowTimerCount: " << this->SlowTimerCount << endl;
-    cout << "  OneShotTimerId: " << this->OneShotTimerId << endl;
-    cout << "  QuitOnOneShotTimer: " << this->QuitOnOneShotTimer << endl;
+    std::cout << "vtkTimerCallback::Report" << std::endl;
+    std::cout << "  ReallyFastTimerId: " << this->ReallyFastTimerId << std::endl;
+    std::cout << "  ReallyFastTimerCount: " << this->ReallyFastTimerCount << std::endl;
+    std::cout << "  FastTimerId: " << this->FastTimerId << std::endl;
+    std::cout << "  FastTimerCount: " << this->FastTimerCount << std::endl;
+    std::cout << "  RenderTimerId: " << this->RenderTimerId << std::endl;
+    std::cout << "  RenderTimerCount: " << this->RenderTimerCount << std::endl;
+    std::cout << "  SlowTimerId: " << this->RenderTimerId << std::endl;
+    std::cout << "  SlowTimerCount: " << this->SlowTimerCount << std::endl;
+    std::cout << "  OneShotTimerId: " << this->OneShotTimerId << std::endl;
+    std::cout << "  QuitOnOneShotTimer: " << this->QuitOnOneShotTimer << std::endl;
   }
 
   bool CheckTimerCount()
@@ -223,7 +225,7 @@ int TestInteractorTimers(int argc, char* argv[])
 
   // Initialize must be called prior to creating timer events.
   //
-  cout << "Calling iren->Initialize()..." << endl;
+  std::cout << "Calling iren->Initialize()..." << std::endl;
   iren->Initialize();
 
   // Sign up to receive TimerEvent:
@@ -260,7 +262,7 @@ int TestInteractorTimers(int argc, char* argv[])
 
   // Run event loop until the one shot timer fires:
   //
-  cout << "Calling iren->Start()..." << endl;
+  std::cout << "Calling iren->Start()..." << std::endl;
   iren->Start();
 
   bool ret = cb->CheckTimerCount();

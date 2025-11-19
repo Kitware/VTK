@@ -30,6 +30,8 @@
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
+#include <iostream>
+
 int TestAnariShadows(int argc, char* argv[])
 {
   vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);

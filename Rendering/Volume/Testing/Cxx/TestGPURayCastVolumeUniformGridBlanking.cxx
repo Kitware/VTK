@@ -10,19 +10,20 @@
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRTAnalyticSource.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTimerLog.h"
+#include "vtkTesting.h"
 #include "vtkUniformGrid.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+#include <iostream>
+
 //----------------------------------------------------------------------------------------
 int TestGPURayCastVolumeUniformGridBlanking(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-127, 128, -127, 128, -127, 128);

@@ -7,17 +7,15 @@
 #include "vtkLight.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
-#include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
-#include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
+
+#include <iostream>
 
 //------------------------------------------------------------------------------
 int TestCubeAxesIntersectionPoint(int argc, char* argv[])
@@ -89,10 +87,10 @@ int TestCubeAxesIntersectionPoint(int argc, char* argv[])
     iren->Start();
   }
 
-  cout << camera->GetFocalPoint()[0] << ", " << camera->GetFocalPoint()[1] << ", "
-       << camera->GetFocalPoint()[2] << endl;
-  cout << camera->GetPosition()[0] << ", " << camera->GetPosition()[1] << ", "
-       << camera->GetPosition()[2] << endl;
+  std::cout << camera->GetFocalPoint()[0] << ", " << camera->GetFocalPoint()[1] << ", "
+            << camera->GetFocalPoint()[2] << std::endl;
+  std::cout << camera->GetPosition()[0] << ", " << camera->GetPosition()[1] << ", "
+            << camera->GetPosition()[2] << std::endl;
 
   return !retVal;
 }

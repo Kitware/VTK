@@ -21,9 +21,11 @@
 #include "vtkTesting.h"
 #include "vtkTexture.h"
 
+#include <iostream>
+
 int TestTextureWrap(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.jpg");
 

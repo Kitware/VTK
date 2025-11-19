@@ -12,6 +12,8 @@
 #include "vtkPickingManager.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 #define VTK_VERIFY(test, errorStr) this->VTKVerify((test), (errorStr), __LINE__)
 
 class PickingManagerTest

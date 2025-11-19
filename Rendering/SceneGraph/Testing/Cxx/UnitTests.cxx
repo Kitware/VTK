@@ -17,7 +17,9 @@
 #include "vtkViewNodeFactory.h"
 #include "vtkWindowNode.h"
 
+#include <iostream>
 #include <string>
+
 namespace
 {
 std::string resultS;
@@ -34,7 +36,7 @@ public:
   {
     if (prepass)
     {
-      cerr << "Render " << this << " " << this->GetClassName() << endl;
+      std::cerr << "Render " << this << " " << this->GetClassName() << std::endl;
       resultS += "Render ";
       resultS += this->GetClassName();
       resultS += "\n";
@@ -54,7 +56,7 @@ public:
   {
     if (prepass)
     {
-      cerr << "Render " << this << " " << this->GetClassName() << endl;
+      std::cerr << "Render " << this << " " << this->GetClassName() << std::endl;
       resultS += "Render ";
       resultS += this->GetClassName();
       resultS += "\n";
@@ -74,7 +76,7 @@ public:
   {
     if (prepass)
     {
-      cerr << "Render " << this << " " << this->GetClassName() << endl;
+      std::cerr << "Render " << this << " " << this->GetClassName() << std::endl;
       resultS += "Render ";
       resultS += this->GetClassName();
       resultS += "\n";
@@ -94,7 +96,7 @@ public:
   {
     if (prepass)
     {
-      cerr << "Render " << this << " " << this->GetClassName() << endl;
+      std::cerr << "Render " << this << " " << this->GetClassName() << std::endl;
       resultS += "Render ";
       resultS += this->GetClassName();
       resultS += "\n";
@@ -114,7 +116,7 @@ public:
   {
     if (prepass)
     {
-      cerr << "Render " << this << " " << this->GetClassName() << endl;
+      std::cerr << "Render " << this << " " << this->GetClassName() << std::endl;
       resultS += "Render ";
       resultS += this->GetClassName();
       resultS += "\n";
@@ -134,7 +136,7 @@ public:
   {
     if (prepass)
     {
-      cerr << "Render " << this << " " << this->GetClassName() << endl;
+      std::cerr << "Render " << this << " " << this->GetClassName() << std::endl;
       resultS += "Render ";
       resultS += this->GetClassName();
       resultS += "\n";
@@ -151,7 +153,7 @@ vtkStandardNewMacro(vtkMyWindowNode);
 vtkViewNode* act_maker()
 {
   vtkMyActorNode* vn = vtkMyActorNode::New();
-  cerr << "make actor node " << vn << endl;
+  std::cerr << "make actor node " << vn << std::endl;
   resultS += "make actor\n";
   return vn;
 }
@@ -159,7 +161,7 @@ vtkViewNode* act_maker()
 vtkViewNode* cam_maker()
 {
   vtkMyCameraNode* vn = vtkMyCameraNode::New();
-  cerr << "make camera node " << vn << endl;
+  std::cerr << "make camera node " << vn << std::endl;
   resultS += "make camera\n";
   return vn;
 }
@@ -167,7 +169,7 @@ vtkViewNode* cam_maker()
 vtkViewNode* light_maker()
 {
   vtkMyLightNode* vn = vtkMyLightNode::New();
-  cerr << "make light node " << vn << endl;
+  std::cerr << "make light node " << vn << std::endl;
   resultS += "make light\n";
   return vn;
 }
@@ -175,7 +177,7 @@ vtkViewNode* light_maker()
 vtkViewNode* mapper_maker()
 {
   vtkMyMapperNode* vn = vtkMyMapperNode::New();
-  cerr << "make mapper node " << vn << endl;
+  std::cerr << "make mapper node " << vn << std::endl;
   resultS += "make mapper\n";
   return vn;
 }
@@ -183,7 +185,7 @@ vtkViewNode* mapper_maker()
 vtkViewNode* ren_maker()
 {
   vtkMyRendererNode* vn = vtkMyRendererNode::New();
-  cerr << "make renderer node " << vn << endl;
+  std::cerr << "make renderer node " << vn << std::endl;
   resultS += "make renderer\n";
   return vn;
 }
@@ -191,7 +193,7 @@ vtkViewNode* ren_maker()
 vtkViewNode* win_maker()
 {
   vtkMyWindowNode* vn = vtkMyWindowNode::New();
-  cerr << "make window node " << vn << endl;
+  std::cerr << "make window node " << vn << std::endl;
   resultS += "make window\n";
   return vn;
 }
@@ -200,32 +202,32 @@ vtkViewNode* win_maker()
 int UnitTests(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkWindowNode* wvn = vtkWindowNode::New();
-  cerr << "made " << wvn << endl;
+  std::cerr << "made " << wvn << std::endl;
   wvn->Delete();
 
   vtkViewNode* vn = nullptr;
   vtkViewNodeFactory* vnf = vtkViewNodeFactory::New();
-  cerr << "CREATE pre override" << endl;
+  std::cerr << "CREATE pre override" << std::endl;
   vn = vnf->CreateNode(nullptr);
   if (vn)
   {
-    cerr << "Shouldn't have made anything" << endl;
+    std::cerr << "Shouldn't have made anything" << std::endl;
     return 1;
   }
-  cerr << "factory made nothing as it should have" << endl;
+  std::cerr << "factory made nothing as it should have" << std::endl;
 
   vtkRenderWindow* rwin = vtkRenderWindow::New();
   vnf->RegisterOverride(rwin->GetClassName(), win_maker);
-  cerr << "CREATE node for renderwindow" << endl;
+  std::cerr << "CREATE node for renderwindow" << std::endl;
   vn = vnf->CreateNode(rwin);
 
-  cerr << "factory makes" << endl;
-  cerr << vn << endl;
-  cerr << "BUILD [" << endl;
+  std::cerr << "factory makes" << std::endl;
+  std::cerr << vn << std::endl;
+  std::cerr << "BUILD [" << std::endl;
   vn->Traverse(vtkViewNode::build);
-  cerr << "]" << endl;
+  std::cerr << "]" << std::endl;
 
-  cerr << "add renderer" << endl;
+  std::cerr << "add renderer" << std::endl;
   vtkRenderer* ren = vtkRenderer::New();
   vnf->RegisterOverride(ren->GetClassName(), ren_maker);
   rwin->AddRenderer(ren);
@@ -254,15 +256,15 @@ int UnitTests(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   sphere->Delete();
   pmap->Delete();
 
-  cerr << "BUILD [" << endl;
+  std::cerr << "BUILD [" << std::endl;
   vn->Traverse(vtkViewNode::build);
-  cerr << "]" << endl;
-  cerr << "SYNCHRONIZE [" << endl;
+  std::cerr << "]" << std::endl;
+  std::cerr << "SYNCHRONIZE [" << std::endl;
   vn->Traverse(vtkViewNode::synchronize);
-  cerr << "]" << endl;
-  cerr << "RENDER [" << endl;
+  std::cerr << "]" << std::endl;
+  std::cerr << "RENDER [" << std::endl;
   vn->Traverse(vtkViewNode::render);
-  cerr << "]" << endl;
+  std::cerr << "]" << std::endl;
 
   vn->Delete();
   ren->Delete();
@@ -270,16 +272,16 @@ int UnitTests(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
   vnf->Delete();
 
-  cerr << "Results is [" << endl;
-  cerr << resultS << "]" << endl;
+  std::cerr << "Results is [" << std::endl;
+  std::cerr << resultS << "]" << std::endl;
   std::string ok_res = "make window\nmake renderer\nmake light\nmake actor\nmake camera\nmake "
                        "mapper\nRender vtkMyWindowNode\nRender vtkMyRendererNode\nRender "
                        "vtkMyLightNode\nRender vtkMyActorNode\nRender vtkMyMapperNode\nRender "
                        "vtkMyCameraNode\n";
   if (resultS != ok_res)
   {
-    cerr << "Which does not match [" << endl;
-    cerr << ok_res << "]" << endl;
+    std::cerr << "Which does not match [" << std::endl;
+    std::cerr << ok_res << "]" << std::endl;
     return 1;
   }
   return 0;

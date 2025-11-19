@@ -17,6 +17,8 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 int TestGlyph3DMapperCulling(int argc, char* argv[])
 {
   int res = 10;
@@ -64,7 +66,7 @@ int TestGlyph3DMapperCulling(int argc, char* argv[])
   vtkIdType maxLOD = glypher->GetMaxNumberOfLOD();
   if (maxLOD < 2)
   {
-    cout << "This feature cannot be tested, this GPU only supports " << maxLOD << " LODs.\n";
+    std::cout << "This feature cannot be tested, this GPU only supports " << maxLOD << " LODs.\n";
     return EXIT_SUCCESS;
   }
 

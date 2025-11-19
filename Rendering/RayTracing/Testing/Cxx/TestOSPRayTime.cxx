@@ -20,6 +20,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTimeSourceExample.h"
 
+#include <iostream>
+
 int TestOSPRayTime(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -71,7 +73,7 @@ int TestOSPRayTime(int argc, char* argv[])
   for (int i = 0; i < 20; i++)
   {
     double updateTime = (double)(i % 10) / 10.0;
-    cerr << "t=" << updateTime << endl;
+    std::cerr << "t=" << updateTime << std::endl;
     renderer->SetActiveCamera(camera);
     vtkInformation* outInfo = dsf->GetExecutive()->GetOutputInformation(0);
     outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), updateTime);

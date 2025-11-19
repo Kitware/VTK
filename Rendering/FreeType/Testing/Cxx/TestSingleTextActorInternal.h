@@ -9,6 +9,8 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
+#include <iostream>
+
 namespace TestTextActor
 {
 inline std::string InputText()

@@ -18,6 +18,8 @@
 
 #include "vtkOSPRayTestInteractor.h"
 
+#include <iostream>
+
 static char OSPRayTSWeventLog[] = "# StreamVersion 1.1\n"
                                   "ExposeEvent 0 299 0 0 0 0\n"
                                   "EnterEvent 96 296 0 0 0 0\n"
@@ -96,7 +98,7 @@ static char OSPRayTSWeventLog[] = "# StreamVersion 1.1\n"
 
 int TestOSPRaySplineWidget2(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   vtkNew<vtkRenderer> renderer;
   vtkNew<vtkRenderWindow> renWin;

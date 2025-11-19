@@ -68,6 +68,9 @@
 #include "vtkImageShiftScale.h"
 
 #include "vtkSmartPointer.h"
+
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 namespace
@@ -445,7 +448,7 @@ int TestSimplePCompositeZPass(int argc, char* argv[])
   {
     if (me == 0)
     {
-      cout << "TestSimplePCompositeZPass test requires 2 processes" << endl;
+      std::cout << "TestSimplePCompositeZPass test requires 2 processes" << std::endl;
     }
     contr->Delete();
     return retVal;
@@ -455,7 +458,7 @@ int TestSimplePCompositeZPass(int argc, char* argv[])
   {
     if (me == 0)
     {
-      cout << "DistributedData test requires MPI" << endl;
+      std::cout << "DistributedData test requires MPI" << std::endl;
     }
     contr->Delete();
     return retVal;

@@ -42,13 +42,15 @@
 #include <vtkRegressionTestImage.h>
 #include <vtkTestUtilities.h>
 
+#include <iostream>
+
 /*
 void prtbds( const char* msg, const double* bds )
 {
-  cout << msg << ":";
+  std::cout << msg << ":";
   for ( int i = 0; i < 3; ++ i )
-    cout << " [ " << bds[2*i] << ", " << bds[2*i+1] << "]";
-  cout << "\n";
+    std::cout << " [ " << bds[2*i] << ", " << bds[2*i+1] << "]";
+  std::cout << "\n";
 }
 */
 
@@ -194,7 +196,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char* argv[])
   iren->SetRenderWindow(renWin);
 
   // labelPlacer->Update();
-  // cout << "Pre-reset-camera bounds of...\n";
+  // std::cout << "Pre-reset-camera bounds of...\n";
   // prtbds( "output 0", labelPlacer->GetOutput( 0 )->GetBounds() );
   // prtbds( "output 1", labelPlacer->GetOutput( 1 )->GetBounds() );
   // prtbds( "output 2", labelPlacer->GetOutput( 2 )->GetBounds() );
@@ -205,7 +207,7 @@ int TestLabelPlacerCoincidentPoints(int argc, char* argv[])
   renderer->ResetCamera();
   renWin->Render();
   */
-  // cout << "Post-reset-camera Bounds of...\n";
+  // std::cout << "Post-reset-camera Bounds of...\n";
   // prtbds( "output 0", labelPlacer->GetOutput( 0 )->GetBounds() );
   // prtbds( "output 1", labelPlacer->GetOutput( 1 )->GetBounds() );
   // prtbds( "output 2", labelPlacer->GetOutput( 2 )->GetBounds() );

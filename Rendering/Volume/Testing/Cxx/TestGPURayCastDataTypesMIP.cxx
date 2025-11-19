@@ -10,7 +10,6 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkCamera.h"
-#include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageShiftScale.h"
@@ -22,10 +21,11 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTextActor.h"
-#include "vtkTextProperty.h"
 #include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
+
+#include <iostream>
 
 namespace
 {
@@ -69,7 +69,7 @@ void RegisterVolumeToRender(VTKData& data, vtkRenderer* ren1, const int i, const
 
 int TestGPURayCastDataTypesMIP(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
   char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
 
   VTKData data;
@@ -350,7 +350,7 @@ int TestGPURayCastDataTypesMIP(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
   }
 
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))

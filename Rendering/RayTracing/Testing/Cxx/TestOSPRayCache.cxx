@@ -33,6 +33,8 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+#include <iostream>
+
 int TestOSPRayCache(int argc, char* argv[])
 {
   auto iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -139,7 +141,7 @@ int TestOSPRayCache(int argc, char* argv[])
   for (int i = 0; i < ntsteps; i += 5)
   {
     double updateTime = tsteps[i];
-    cout << "t=" << updateTime << endl;
+    std::cout << "t=" << updateTime << std::endl;
 
     info1->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), updateTime);
     info2->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), updateTime);
@@ -148,7 +150,7 @@ int TestOSPRayCache(int argc, char* argv[])
   }
   timer->StopTimer();
   double etime0 = timer->GetElapsedTime();
-  cout << "Elapsed time first renders " << etime0 << endl;
+  std::cout << "Elapsed time first renders " << etime0 << std::endl;
 
   // subsequent passes, expected to be faster
   timer->StartTimer();
@@ -157,7 +159,7 @@ int TestOSPRayCache(int argc, char* argv[])
     for (int i = 0; i < ntsteps; i += 5)
     {
       double updateTime = tsteps[i];
-      cout << "t=" << updateTime << endl;
+      std::cout << "t=" << updateTime << std::endl;
 
       info1->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), updateTime);
       info2->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), updateTime);
@@ -167,12 +169,12 @@ int TestOSPRayCache(int argc, char* argv[])
   }
   timer->StopTimer();
   double etime1 = timer->GetElapsedTime();
-  cout << "Elapsed time for 5 cached render loops " << etime1 << endl;
+  std::cout << "Elapsed time for 5 cached render loops " << etime1 << std::endl;
 
   if (etime1 > etime0 * 3)
   {
-    cerr << "Test failed, 5 rerenders are expected to be faster." << endl;
-    cerr << "first render " << etime0 << " vs " << etime1 << " for 5x rerender" << endl;
+    std::cerr << "Test failed, 5 rerenders are expected to be faster." << std::endl;
+    std::cerr << "first render " << etime0 << " vs " << etime1 << " for 5x rerender" << std::endl;
     return 1;
   }
   iren->Start();

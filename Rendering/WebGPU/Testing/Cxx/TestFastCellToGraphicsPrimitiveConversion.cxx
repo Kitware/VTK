@@ -6,6 +6,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 // This unit test exercises vtkWebGPUCellToPrimitiveConverter.
 // You can run this using the `--verify` argument to ensure the output of
 // conversion compute pipeline matches the expected triangle IDs.

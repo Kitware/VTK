@@ -17,6 +17,8 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 class CueAnimator
 {
 public:
@@ -31,7 +33,7 @@ public:
 
   void StartCue(vtkAnimationCue::AnimationCueInfo* vtkNotUsed(info), vtkRenderer* ren)
   {
-    cout << "*** IN StartCue " << endl;
+    std::cout << "*** IN StartCue " << std::endl;
     this->SphereSource = vtkSphereSource::New();
     this->SphereSource->SetRadius(0.5);
 
@@ -148,12 +150,12 @@ int TestAnimationScene(int argc, char* argv[])
   vtkAnimationScene* scene = vtkAnimationScene::New();
   if (argc >= 2 && strcmp(argv[1], "-real") == 0)
   {
-    cout << "real-time mode" << endl;
+    std::cout << "real-time mode" << std::endl;
     scene->SetModeToRealTime();
   }
   else
   {
-    cout << "sequence mode" << endl;
+    std::cout << "sequence mode" << std::endl;
     scene->SetModeToSequence();
   }
   scene->SetLoop(0);
