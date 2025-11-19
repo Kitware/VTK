@@ -160,11 +160,7 @@ int TestFastCellToGraphicsPrimitiveConversion(int argc, char* argv[])
         bool workDone = false;
         wgpuConfig->GetDevice().GetQueue().OnSubmittedWorkDone(
           wgpu::CallbackMode::AllowProcessEvents,
-#if defined(WGPU_BREAKING_CHANGE_QUEUE_WORK_DONE_CALLBACK_MESSAGE)
           [](wgpu::QueueWorkDoneStatus, wgpu::StringView, bool* userdata) { *userdata = true; },
-#else
-          [](wgpu::QueueWorkDoneStatus, bool* userdata) { *userdata = true; },
-#endif
           &workDone);
         while (!workDone)
         {
