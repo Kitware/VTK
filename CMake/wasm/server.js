@@ -95,8 +95,14 @@ if (OPERATION == OPERATIONS.START) {
 } else if (OPERATION == OPERATIONS.STOP) {
   console.log('stopping server process..');
   const vtkhttp = JSON.parse(fs.readFileSync(LOCK));
-  process.kill(vtkhttp.pid);
-  console.log(`killed ${vtkhttp.pid}`);
+  try
+  {
+    process.kill(vtkhttp.pid);
+    console.log(`killed ${vtkhttp.pid}`);
+  } catch (e)
+  {
+    console.warn(`failed to kill process ${vtkhttp.pid}: ${e.message}`);
+  }
   fs.rmSync(LOCK, { force: true, maxRetries: 10 });
 } else if (OPERATION == OPERATIONS.RUN) {
   // Create a local server to receive data from
