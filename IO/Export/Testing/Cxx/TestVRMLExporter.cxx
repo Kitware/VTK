@@ -13,6 +13,8 @@
 #include <vtkTesting.h>
 #include <vtkVRMLExporter.h>
 
+#include <iostream>
+
 int TestVRMLExporter(int argc, char* argv[])
 {
   // Parse command line arguments

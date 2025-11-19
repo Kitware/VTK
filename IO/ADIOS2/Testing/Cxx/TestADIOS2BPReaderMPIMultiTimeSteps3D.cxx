@@ -40,6 +40,8 @@
 
 #include <sstream> // istringstream
 
+#include <iostream>
+
 struct TestArgs
 {
   int* retval;

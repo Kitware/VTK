@@ -26,6 +26,8 @@
 #include "vtkWindows.h"
 #include <xaudio2.h>
 
+#include <iostream>
+
 namespace
 {
 template <typename dtype>
@@ -139,7 +141,7 @@ void setupAudioPlayback(vtkFFMPEGVideoSource* video)
       }
       if (STREAMING_BUFFER_SIZE < wfx.Format.nBlockAlign * acbd.NumberOfSamples)
       {
-        cerr << "buffer too small for audio data\n";
+        std::cerr << "buffer too small for audio data\n";
       }
 
       maxBufferSize = wfx.Format.nBlockAlign * acbd.NumberOfSamples;
@@ -150,14 +152,14 @@ void setupAudioPlayback(vtkFFMPEGVideoSource* video)
 
     if (maxBufferSize < destBytesPerSample * acbd.NumberOfSamples * acbd.NumberOfChannels)
     {
-      cerr << "buffer too small for new audio data\n";
+      std::cerr << "buffer too small for new audio data\n";
     }
 
     XAUDIO2_VOICE_STATE state;
     while (
       pSourceVoice->GetState(&state), static_cast<int>(state.BuffersQueued) >= maxBufferCount - 1)
     {
-      cerr << "audio blocked waiting\n";
+      std::cerr << "audio blocked waiting\n";
       WaitForSingleObject(aContext.hBufferEndEvent, INFINITE);
     }
 

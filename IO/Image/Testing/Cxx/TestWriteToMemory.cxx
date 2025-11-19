@@ -13,11 +13,13 @@
 
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
+
 int TestWriteToMemory(int argc, char* argv[])
 {
   if (argc <= 1)
   {
-    cout << "Usage: " << argv[0] << " <output file name>" << endl;
+    std::cout << "Usage: " << argv[0] << " <output file name>" << std::endl;
     return EXIT_FAILURE;
   }
 

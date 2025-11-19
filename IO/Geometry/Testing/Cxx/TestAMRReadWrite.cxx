@@ -9,10 +9,10 @@
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkOverlappingAMRMetaData.h"
-#include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkUniformGrid.h"
+
+#include <iostream>
 
 namespace
 {

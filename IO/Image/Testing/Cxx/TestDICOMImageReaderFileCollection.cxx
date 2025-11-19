@@ -14,6 +14,8 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestDICOMImageReaderFileCollection(int argc, char* argv[])
 {
 
@@ -25,61 +27,61 @@ int TestDICOMImageReaderFileCollection(int argc, char* argv[])
 
   // Read the input files
   DICOMReader->SetDirectoryName(directoryName.c_str());
-  cout << "Directory name: " << DICOMReader->GetDirectoryName() << endl;
+  std::cout << "Directory name: " << DICOMReader->GetDirectoryName() << std::endl;
 
   DICOMReader->Update();
 
   // Read and display the image properties
   const char* fileExtensions = DICOMReader->GetFileExtensions();
-  cout << "File extensions: " << fileExtensions << endl;
+  std::cout << "File extensions: " << fileExtensions << std::endl;
 
   const char* descriptiveName = DICOMReader->GetDescriptiveName();
-  cout << "Descriptive name: " << descriptiveName << endl;
+  std::cout << "Descriptive name: " << descriptiveName << std::endl;
 
   double* pixelSpacing = DICOMReader->GetPixelSpacing();
-  cout << "Pixel spacing: " << *pixelSpacing << endl;
+  std::cout << "Pixel spacing: " << *pixelSpacing << std::endl;
 
   int width = DICOMReader->GetWidth();
-  cout << "Image width: " << width << endl;
+  std::cout << "Image width: " << width << std::endl;
 
   int height = DICOMReader->GetHeight();
-  cout << "Image height: " << height << endl;
+  std::cout << "Image height: " << height << std::endl;
 
   float* imagePositionPatient = DICOMReader->GetImagePositionPatient();
-  cout << "Image position patient: " << *imagePositionPatient << endl;
+  std::cout << "Image position patient: " << *imagePositionPatient << std::endl;
 
   float* imageOrientationPatient = DICOMReader->GetImageOrientationPatient();
-  cout << "Image orientation patient: " << *imageOrientationPatient << endl;
+  std::cout << "Image orientation patient: " << *imageOrientationPatient << std::endl;
 
   int bitsAllocated = DICOMReader->GetBitsAllocated();
-  cout << "Bits allocated: " << bitsAllocated << endl;
+  std::cout << "Bits allocated: " << bitsAllocated << std::endl;
 
   int pixelRepresentation = DICOMReader->GetPixelRepresentation();
-  cout << "Pixel representation: " << pixelRepresentation << endl;
+  std::cout << "Pixel representation: " << pixelRepresentation << std::endl;
 
   int numberOfComponents = DICOMReader->GetNumberOfComponents();
-  cout << "Number of components: " << numberOfComponents << endl;
+  std::cout << "Number of components: " << numberOfComponents << std::endl;
 
   const char* transferSyntaxUID = DICOMReader->GetTransferSyntaxUID();
-  cout << "Transfer syntax UID: " << transferSyntaxUID << endl;
+  std::cout << "Transfer syntax UID: " << transferSyntaxUID << std::endl;
 
   float rescaleSlope = DICOMReader->GetRescaleSlope();
-  cout << "Rescale slope: " << rescaleSlope << endl;
+  std::cout << "Rescale slope: " << rescaleSlope << std::endl;
 
   float rescaleOffset = DICOMReader->GetRescaleOffset();
-  cout << "Rescale offset: " << rescaleOffset << endl;
+  std::cout << "Rescale offset: " << rescaleOffset << std::endl;
 
   const char* patientName = DICOMReader->GetPatientName();
-  cout << "Patient name: " << patientName << endl;
+  std::cout << "Patient name: " << patientName << std::endl;
 
   const char* studyUID = DICOMReader->GetStudyUID();
-  cout << "Study UID: " << studyUID << endl;
+  std::cout << "Study UID: " << studyUID << std::endl;
 
   const char* studyID = DICOMReader->GetStudyID();
-  cout << "Study ID: " << studyID << endl;
+  std::cout << "Study ID: " << studyID << std::endl;
 
   float gantryAngle = DICOMReader->GetGantryAngle();
-  cout << "Gantry angle: " << gantryAngle << endl;
+  std::cout << "Gantry angle: " << gantryAngle << std::endl;
 
   // Display the center slice
   int sliceNumber =

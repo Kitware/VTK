@@ -8,6 +8,7 @@
 #include "DatabaseSchemaWith2Tables.h"
 #include "vtkSQLDatabaseSchema.h"
 
+#include <iostream>
 #include <set>
 
 int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
@@ -33,14 +34,14 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
   int numPre = schema->GetNumberOfPreambles();
   if (numPre != 3)
   {
-    cerr << "Read " << numPre << " != 3 preamble in test schema.\n";
+    std::cerr << "Read " << numPre << " != 3 preamble in test schema.\n";
     status = false;
   }
 
   for (int preHandle = 0; preHandle < numPre; ++preHandle)
   {
     std::string preName = schema->GetPreambleNameFromHandle(preHandle);
-    cerr << "Preamble name: " << preName << "\n";
+    std::cerr << "Preamble name: " << preName << "\n";
 
     std::set<std::string>::iterator sit = preNames.find(preName);
     if (sit != preNames.end())
@@ -49,12 +50,12 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
     }
     else
     {
-      cerr << "Could not retrieve preamble name " << preName << " from test schema.\n";
+      std::cerr << "Could not retrieve preamble name " << preName << " from test schema.\n";
       status = false;
     }
 
     std::string preBackend = schema->GetPreambleBackendFromHandle(preHandle);
-    cerr << "Preamble backend: " << preBackend << "\n";
+    std::cerr << "Preamble backend: " << preBackend << "\n";
 
     std::multiset<std::string>::iterator mit = preBackends.find(preBackend);
     if (mit != preBackends.end())
@@ -63,7 +64,7 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
     }
     else
     {
-      cerr << "Could not retrieve preamble backend " << preBackend << " from test schema.\n";
+      std::cerr << "Could not retrieve preamble backend " << preBackend << " from test schema.\n";
       status = false;
     }
   }
@@ -83,14 +84,14 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
   int numCol = schema->GetNumberOfColumnsInTable(tblHandle);
   if (numCol != 3)
   {
-    cerr << "Read " << numCol << " != 3 columns in test schema.\n";
+    std::cerr << "Read " << numCol << " != 3 columns in test schema.\n";
     status = false;
   }
 
   for (int colHandle = 0; colHandle < numCol; ++colHandle)
   {
     std::string colName = schema->GetColumnNameFromHandle(tblHandle, colHandle);
-    cerr << "Column name: " << colName << "\n";
+    std::cerr << "Column name: " << colName << "\n";
 
     std::set<std::string>::iterator sit = colNames.find(colName);
     if (sit != colNames.end())
@@ -99,12 +100,12 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
     }
     else
     {
-      cerr << "Could not retrieve column name " << colName << " from test schema.\n";
+      std::cerr << "Could not retrieve column name " << colName << " from test schema.\n";
       status = false;
     }
 
     int colType = schema->GetColumnTypeFromHandle(tblHandle, colHandle);
-    cerr << "Column type: " << colType << "\n";
+    std::cerr << "Column type: " << colType << "\n";
 
     std::set<int>::iterator iit = colTypes.find(colType);
     if (iit != colTypes.end())
@@ -113,7 +114,7 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
     }
     else
     {
-      cerr << "Could not retrieve column type " << colType << " from test schema.\n";
+      std::cerr << "Could not retrieve column type " << colType << " from test schema.\n";
       status = false;
     }
   }
@@ -130,14 +131,14 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
   int numIdx = schema->GetNumberOfIndicesInTable(tblHandle);
   if (numIdx != 2)
   {
-    cerr << "Read " << numIdx << " != 2 indices in test schema.\n";
+    std::cerr << "Read " << numIdx << " != 2 indices in test schema.\n";
     status = false;
   }
 
   for (int idxHandle = 0; idxHandle < numIdx; ++idxHandle)
   {
     std::string idxName = schema->GetIndexNameFromHandle(tblHandle, idxHandle);
-    cerr << "Index name: " << idxName << "\n";
+    std::cerr << "Index name: " << idxName << "\n";
 
     std::set<std::string>::iterator sit = idxNames.find(idxName);
     if (sit != idxNames.end())
@@ -146,12 +147,12 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
     }
     else
     {
-      cerr << "Could not retrieve index name " << idxName << " from test schema.\n";
+      std::cerr << "Could not retrieve index name " << idxName << " from test schema.\n";
       status = false;
     }
 
     int idxType = schema->GetIndexTypeFromHandle(tblHandle, idxHandle);
-    cerr << "Index type: " << idxType << "\n";
+    std::cerr << "Index type: " << idxType << "\n";
 
     std::set<int>::iterator iit = idxTypes.find(idxType);
     if (iit != idxTypes.end())
@@ -160,7 +161,7 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
     }
     else
     {
-      cerr << "Could not retrieve index type " << idxType << " from test schema.\n";
+      std::cerr << "Could not retrieve index type " << idxType << " from test schema.\n";
       status = false;
     }
   }
@@ -190,14 +191,14 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
   int numTrg = schema->GetNumberOfTriggersInTable(tblHandle);
   if (numTrg != 3)
   {
-    cerr << "Read " << numTrg << " != 3 triggers in test schema.\n";
+    std::cerr << "Read " << numTrg << " != 3 triggers in test schema.\n";
     status = false;
   }
 
   for (int trgHandle = 0; trgHandle < numTrg; ++trgHandle)
   {
     std::string trgName = schema->GetTriggerNameFromHandle(tblHandle, trgHandle);
-    cerr << "Trigger name: " << trgName << "\n";
+    std::cerr << "Trigger name: " << trgName << "\n";
 
     std::multiset<std::string>::iterator sit = trgNames.find(trgName);
     if (sit != trgNames.end())
@@ -206,12 +207,12 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
     }
     else
     {
-      cerr << "Could not retrieve trigger name " << trgName << " from test schema.\n";
+      std::cerr << "Could not retrieve trigger name " << trgName << " from test schema.\n";
       status = false;
     }
 
     int trgType = schema->GetTriggerTypeFromHandle(tblHandle, trgHandle);
-    cerr << "Trigger type: " << trgType << "\n";
+    std::cerr << "Trigger type: " << trgType << "\n";
 
     std::multiset<int>::iterator iit = trgTypes.find(trgType);
     if (iit != trgTypes.end())
@@ -220,12 +221,12 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
     }
     else
     {
-      cerr << "Could not retrieve trigger type " << trgType << " from test schema.\n";
+      std::cerr << "Could not retrieve trigger type " << trgType << " from test schema.\n";
       status = false;
     }
 
     std::string trgAction = schema->GetTriggerActionFromHandle(tblHandle, trgHandle);
-    cerr << "Trigger action: " << trgAction << "\n";
+    std::cerr << "Trigger action: " << trgAction << "\n";
 
     sit = trgActions.find(trgAction);
     if (sit != trgActions.end())
@@ -234,12 +235,12 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
     }
     else
     {
-      cerr << "Could not retrieve trigger action " << trgAction << " from test schema.\n";
+      std::cerr << "Could not retrieve trigger action " << trgAction << " from test schema.\n";
       status = false;
     }
 
     std::string trgBackend = schema->GetTriggerBackendFromHandle(tblHandle, trgHandle);
-    cerr << "Trigger backend: " << trgBackend << "\n";
+    std::cerr << "Trigger backend: " << trgBackend << "\n";
 
     sit = trgBackends.find(trgBackend);
     if (sit != trgBackends.end())
@@ -248,7 +249,7 @@ int TestSQLDatabaseSchema(int /*argc*/, char* /*argv*/[])
     }
     else
     {
-      cerr << "Could not retrieve trigger backend " << trgBackend << " from test schema.\n";
+      std::cerr << "Could not retrieve trigger backend " << trgBackend << " from test schema.\n";
       status = false;
     }
   }

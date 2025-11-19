@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include <iostream>
+
 namespace
 {
 #define vtk_assert(x)                                                                              \
@@ -24,7 +26,7 @@ namespace
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      std::cerr << "ERROR: Condition FAILED!! : " << #x << endl;                                   \
+      std::cerr << "ERROR: Condition FAILED!! : " << #x << std::endl;                              \
       return false;                                                                                \
     }                                                                                              \
   } while (false)
@@ -52,9 +54,9 @@ bool ValidateOAMR(vtkOverlappingAMR* input, vtkOverlappingAMR* result)
   vtk_assert(input->GetOrigin()[1] == result->GetOrigin()[1]);
   vtk_assert(input->GetOrigin()[2] == result->GetOrigin()[2]);
 
-  std::cout << "Check input validity" << endl;
+  std::cout << "Check input validity" << std::endl;
   bool ret = input->CheckValidity();
-  std::cout << "Check output validity" << endl;
+  std::cout << "Check output validity" << std::endl;
   ret &= result->CheckValidity();
   return ret;
 }
@@ -157,7 +159,7 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   if (firstDataSet->GetCellData()->GetArray("Centroid") ||
     firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
   {
-    std::cerr << "Array status failure. Some disabled array are not available." << endl;
+    std::cerr << "Array status failure. Some disabled array are not available." << std::endl;
     return false;
   }
 
@@ -167,12 +169,12 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   firstDataSet = output->GetDataSetAsImageData(0, 0);
   if (!firstDataSet->GetCellData()->GetArray("Centroid"))
   {
-    std::cerr << "Array status failure. Enabled array, Centroid, is not available." << endl;
+    std::cerr << "Array status failure. Enabled array, Centroid, is not available." << std::endl;
     return false;
   }
   if (firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
   {
-    std::cerr << "Array status failure. Disabled array, Gaussian-Pulse, is available." << endl;
+    std::cerr << "Array status failure. Disabled array, Gaussian-Pulse, is available." << std::endl;
     return false;
   }
 
@@ -183,12 +185,13 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   firstDataSet = output->GetDataSetAsImageData(0, 0);
   if (!firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
   {
-    std::cerr << "Array status failure. Enabled array, Gaussian-Pulse, is not available." << endl;
+    std::cerr << "Array status failure. Enabled array, Gaussian-Pulse, is not available."
+              << std::endl;
     return false;
   }
   if (firstDataSet->GetCellData()->GetArray("Centroid"))
   {
-    std::cerr << "Array status failure. Disabled array, Centroid, is available." << endl;
+    std::cerr << "Array status failure. Disabled array, Centroid, is available." << std::endl;
     return false;
   }
 
@@ -200,7 +203,7 @@ bool TestAMRXMLIO_DataArraySelection(const std::string& output_dir)
   if (!firstDataSet->GetCellData()->GetArray("Centroid") ||
     !firstDataSet->GetCellData()->GetArray("Gaussian-Pulse"))
   {
-    std::cerr << "Array status failure. Some enabled arrays are not available." << endl;
+    std::cerr << "Array status failure. Some enabled arrays are not available." << std::endl;
     return false;
   }
   return true;
@@ -258,20 +261,20 @@ int TestAMRXMLIO(int argc, char* argv[])
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!temp_dir)
   {
-    std::cerr << "Could not determine temporary directory." << endl;
+    std::cerr << "Could not determine temporary directory." << std::endl;
     return VTK_FAILURE;
   }
 
   std::string output_dir = temp_dir;
   delete[] temp_dir;
 
-  std::cout << "Test Overlapping AMR (2D)" << endl;
+  std::cout << "Test Overlapping AMR (2D)" << std::endl;
   if (!TestAMRXMLIO_OverlappingAMR2D(output_dir))
   {
     return VTK_FAILURE;
   }
 
-  std::cout << "Test Overlapping AMR (3D)" << endl;
+  std::cout << "Test Overlapping AMR (3D)" << std::endl;
   if (!TestAMRXMLIO_OverlappingAMR3D(output_dir))
   {
     return VTK_FAILURE;
@@ -280,7 +283,7 @@ int TestAMRXMLIO(int argc, char* argv[])
   char* data_dir = vtkTestUtilities::GetDataRoot(argc, argv);
   if (!data_dir)
   {
-    std::cerr << "Could not determine data directory." << endl;
+    std::cerr << "Could not determine data directory." << std::endl;
     return VTK_FAILURE;
   }
 
@@ -288,31 +291,31 @@ int TestAMRXMLIO(int argc, char* argv[])
   input_dir += "/Data";
   delete[] data_dir;
 
-  std::cout << "Test NonOverlapping AMR (UG)" << endl;
+  std::cout << "Test NonOverlapping AMR (UG)" << std::endl;
   if (!TestAMRXMLIO_NonOverlappingAMR(input_dir, output_dir, "AMR/noamr_ug.vth"))
   {
     return VTK_FAILURE;
   }
 
-  std::cout << "Test NonOverlapping AMR (RG)" << endl;
+  std::cout << "Test NonOverlapping AMR (RG)" << std::endl;
   if (!TestAMRXMLIO_NonOverlappingAMR(input_dir, output_dir, "AMR/noamr_rg.vth"))
   {
     return VTK_FAILURE;
   }
 
-  std::cout << "Test Overlapping AMR (RG)" << endl;
+  std::cout << "Test Overlapping AMR (RG)" << std::endl;
   if (!TestAMRXMLIO_OverlappingAMR(input_dir, output_dir, "AMR/amr_rg.vth"))
   {
     return VTK_FAILURE;
   }
 
-  std::cout << "Test HierarchicalBox AMR (v1.1)" << endl;
+  std::cout << "Test HierarchicalBox AMR (v1.1)" << std::endl;
   if (!TestAMRXMLIO_HierarchicalBox(input_dir, output_dir))
   {
     return VTK_FAILURE;
   }
 
-  std::cout << "Test DataArraySelection" << endl;
+  std::cout << "Test DataArraySelection" << std::endl;
   if (!TestAMRXMLIO_DataArraySelection(output_dir))
   {
     return VTK_FAILURE;

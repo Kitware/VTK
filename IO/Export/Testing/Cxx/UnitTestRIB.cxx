@@ -20,6 +20,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 #define TEST_SET_GET_VALUE(variable, command)                                                      \
   do                                                                                               \
   {                                                                                                \

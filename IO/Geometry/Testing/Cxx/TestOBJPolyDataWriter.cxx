@@ -20,6 +20,7 @@
 #include <vtkTexture.h>
 #include <vtkTexturedSphereSource.h>
 
+#include <iostream>
 #include <string>
 
 int TestOBJPolyDataWriter(int argc, char* argv[])
@@ -55,7 +56,7 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
 
   if (polyInput->GetNumberOfPoints() != polyOutput->GetNumberOfPoints())
   {
-    cerr << "PolyData do not have the same number of points.\n";
+    std::cerr << "PolyData do not have the same number of points.\n";
     return EXIT_FAILURE;
   }
 
@@ -69,7 +70,7 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
   if (!positionsInput || !positionsOutput || !normalsInput || !normalsOutput || !tcoordsInput ||
     !tcoordsOutput)
   {
-    cerr << "One of the arrays is null.\n";
+    std::cerr << "One of the arrays is null.\n";
     return EXIT_FAILURE;
   }
 
@@ -86,9 +87,9 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
     positionsOutput->GetTuple(i, po);
     if (vtkMath::Distance2BetweenPoints(pi, po) > 0.0)
     {
-      cerr << "Point is different.\n";
-      cerr << vtk::format("  Input:  {} {} {}\n", pi[0], pi[1], pi[2]);
-      cerr << vtk::format("  Output: {} {} {}\n", po[0], po[1], po[2]);
+      std::cerr << "Point is different.\n";
+      std::cerr << vtk::format("  Input:  {} {} {}\n", pi[0], pi[1], pi[2]);
+      std::cerr << vtk::format("  Output: {} {} {}\n", po[0], po[1], po[2]);
       numberOfDifferentPoints++;
     }
 
@@ -97,9 +98,9 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
     normalsOutput->GetTuple(i, po);
     if (vtkMath::AngleBetweenVectors(pi, po) > 0)
     {
-      cerr << "Normal is different:\n";
-      cerr << vtk::format("  Input:  {} {} {}\n", pi[0], pi[1], pi[2]);
-      cerr << vtk::format("  Output: {} {} {}\n", po[0], po[1], po[2]);
+      std::cerr << "Normal is different:\n";
+      std::cerr << vtk::format("  Input:  {} {} {}\n", pi[0], pi[1], pi[2]);
+      std::cerr << vtk::format("  Output: {} {} {}\n", po[0], po[1], po[2]);
       numberOfDifferentNormals++;
     }
 
@@ -109,9 +110,9 @@ int TestOBJPolyDataWriter(int argc, char* argv[])
     pi[2] = po[2] = 0.0;
     if (vtkMath::Distance2BetweenPoints(pi, po) > 0.0)
     {
-      cerr << "Texture coord is different:\n";
-      cerr << vtk::format("  Input:  {} {} {}\n", pi[0], pi[1], pi[2]);
-      cerr << vtk::format("  Output: {} {} {}\n", po[0], po[1], po[2]);
+      std::cerr << "Texture coord is different:\n";
+      std::cerr << vtk::format("  Input:  {} {} {}\n", pi[0], pi[1], pi[2]);
+      std::cerr << vtk::format("  Output: {} {} {}\n", po[0], po[1], po[2]);
       numberOfDifferentTCoords++;
     }
   }

@@ -5,7 +5,6 @@
 #include "vtkOBJImporter.h"
 
 #include "vtkCamera.h"
-#include "vtkLightCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -13,7 +12,7 @@
 #include "vtksys/SystemTools.hxx"
 
 #include "vtkMapper.h"
-#include <sstream>
+#include <iostream>
 
 int TestOBJImporter(int argc, char* argv[])
 {

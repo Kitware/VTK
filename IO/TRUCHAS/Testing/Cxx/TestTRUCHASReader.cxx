@@ -15,13 +15,15 @@
 #include "vtkInformation.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <iostream>
+
 namespace
 {
 bool AE(double v1, double v2)
 {
   if (fabs(v2 - v1) > 0.001)
   {
-    cerr << v2 << "!=" << v1 << endl;
+    std::cerr << v2 << "!=" << v1 << std::endl;
     return false;
   }
   return true;
@@ -40,38 +42,38 @@ int TestTRUCHASReader(int argc, char* argv[])
   delete[] fileName;
   reader->UpdateInformation();
   int nb = reader->GetNumberOfBlockArrays();
-  cerr << nb << " BLOCKS" << endl;
+  std::cerr << nb << " BLOCKS" << std::endl;
   for (int b = 0; b < nb; b++)
   {
-    cerr << "BLOCK ID " << b << " named " << reader->GetBlockArrayName(b) << endl;
+    std::cerr << "BLOCK ID " << b << " named " << reader->GetBlockArrayName(b) << std::endl;
   }
   reader->SetBlockArrayStatus("1", 0); // block nums start at 1
   reader->SetBlockArrayStatus("2", 1); // block nums start at 1
   reader->SetBlockArrayStatus("3", 0); // block nums start at 1
 
   int nca = reader->GetNumberOfCellArrays();
-  cerr << nca << " CELL ARRAYS" << endl;
+  std::cerr << nca << " CELL ARRAYS" << std::endl;
   for (int a = 0; a < nca; a++)
   {
-    cerr << "ARRAY " << a << " named " << reader->GetCellArrayName(a) << endl;
+    std::cerr << "ARRAY " << a << " named " << reader->GetCellArrayName(a) << std::endl;
   }
-  cerr << "IGNORE VOF" << endl;
+  std::cerr << "IGNORE VOF" << std::endl;
   reader->SetCellArrayStatus("VOF", 0);
 
   int npa = reader->GetNumberOfPointArrays();
-  cerr << npa << " POINT ARRAYS" << endl;
+  std::cerr << npa << " POINT ARRAYS" << std::endl;
   for (int a = 0; a < npa; a++)
   {
-    cerr << "ARRAY " << a << " named " << reader->GetPointArrayName(a) << endl;
+    std::cerr << "ARRAY " << a << " named " << reader->GetPointArrayName(a) << std::endl;
   }
-  cerr << "IGNORE Displacement" << endl;
+  std::cerr << "IGNORE Displacement" << std::endl;
   reader->SetPointArrayStatus("Displacement", 0);
   reader->Update();
 
   vtkUnstructuredGrid* grid = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput()->GetBlock(1));
   if (!grid)
   {
-    cerr << "Could not open first block of known good file" << endl;
+    std::cerr << "Could not open first block of known good file" << std::endl;
     return EXIT_FAILURE;
   }
   int rnb = 0; // we produce empty blocks when deselected
@@ -84,61 +86,62 @@ int TestTRUCHASReader(int argc, char* argv[])
   }
   if ((rnb != 1) || (reader->GetOutput()->GetNumberOfBlocks() != 3))
   {
-    cerr << "Got unexpected number of blocks, found " << rnb << "/"
-         << reader->GetOutput()->GetNumberOfBlocks() << " instead of " << 1 << "/" << 3 << endl;
+    std::cerr << "Got unexpected number of blocks, found " << rnb << "/"
+              << reader->GetOutput()->GetNumberOfBlocks() << " instead of " << 1 << "/" << 3
+              << std::endl;
   }
 
-  cerr << "---- CELL ARRAYS ----" << endl;
+  std::cerr << "---- CELL ARRAYS ----" << std::endl;
   const int expectedNumCArrays = nca - 1;
   if (nca > 0 && grid->GetCellData()->GetNumberOfArrays() != expectedNumCArrays)
   {
-    cerr << "Got unexpected number of cell arrays, found "
-         << grid->GetCellData()->GetNumberOfArrays() << " instead of " << expectedNumCArrays
-         << endl;
+    std::cerr << "Got unexpected number of cell arrays, found "
+              << grid->GetCellData()->GetNumberOfArrays() << " instead of " << expectedNumCArrays
+              << std::endl;
     return EXIT_FAILURE;
   }
   for (int a = 0; a < grid->GetCellData()->GetNumberOfArrays(); a++)
   {
     vtkDataArray* da = grid->GetCellData()->GetArray(a);
-    cerr << da->GetName() << endl;
+    std::cerr << da->GetName() << std::endl;
   }
 
-  cerr << "---- POINT ARRAYS ----" << endl;
+  std::cerr << "---- POINT ARRAYS ----" << std::endl;
   const int expectedNumPArrays = npa - 1;
   if (npa > 0 && grid->GetPointData()->GetNumberOfArrays() != expectedNumPArrays)
   {
-    cerr << "Got unexpected number of point arrays, found "
-         << grid->GetPointData()->GetNumberOfArrays() << " instead of " << expectedNumPArrays
-         << endl;
+    std::cerr << "Got unexpected number of point arrays, found "
+              << grid->GetPointData()->GetNumberOfArrays() << " instead of " << expectedNumPArrays
+              << std::endl;
     return EXIT_FAILURE;
   }
   for (int a = 0; a < grid->GetPointData()->GetNumberOfArrays(); a++)
   {
     vtkDataArray* da = grid->GetPointData()->GetArray(a);
-    cerr << da->GetName() << endl;
+    std::cerr << da->GetName() << std::endl;
   }
 
   const int expectedNumPoints = 496;
   if (grid->GetNumberOfPoints() != expectedNumPoints)
   {
-    cerr << "Got unexpected number of points from file " << grid->GetNumberOfPoints()
-         << " instead of " << expectedNumPoints << endl;
+    std::cerr << "Got unexpected number of points from file " << grid->GetNumberOfPoints()
+              << " instead of " << expectedNumPoints << std::endl;
     return EXIT_FAILURE;
   }
   const int expectedNumCells = 180;
   if (grid->GetNumberOfCells() != expectedNumCells)
   {
-    cerr << "Got unexpected number of cells from file " << grid->GetNumberOfCells()
-         << " instead of " << expectedNumCells << endl;
+    std::cerr << "Got unexpected number of cells from file " << grid->GetNumberOfCells()
+              << " instead of " << expectedNumCells << std::endl;
     return EXIT_FAILURE;
   }
 
   vtkDoubleArray* da = vtkDoubleArray::SafeDownCast(grid->GetCellData()->GetArray("Grad_T"));
   if (!da)
   {
-    cerr << "Couldn't get "
-         << "Grad_T"
-         << " array" << endl;
+    std::cerr << "Couldn't get "
+              << "Grad_T"
+              << " array" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -147,24 +150,24 @@ int TestTRUCHASReader(int argc, char* argv[])
 
   if (!AE(*ptr, eVals[0]) || !AE(*(ptr + 1), eVals[1]) || !AE(*(ptr + 2), eVals[2]))
   {
-    cerr << "Got unexpected values from Grad_T array for cell 42 " << *ptr << "," << *(ptr + 1)
-         << "," << *(ptr + 2) << " instead of " << eVals[0] << "," << eVals[1] << "," << eVals[2]
-         << endl;
+    std::cerr << "Got unexpected values from Grad_T array for cell 42 " << *ptr << "," << *(ptr + 1)
+              << "," << *(ptr + 2) << " instead of " << eVals[0] << "," << eVals[1] << ","
+              << eVals[2] << std::endl;
     return EXIT_FAILURE;
   }
   reader->SetCellArrayStatus("VOF", 1);
   reader->Update();
   if (grid->GetCellData()->GetNumberOfArrays() != expectedNumCArrays + 1)
   {
-    cerr << "Got unexpected number of cell arrays, found "
-         << grid->GetCellData()->GetNumberOfArrays() << " instead of " << expectedNumCArrays + 1
-         << endl;
+    std::cerr << "Got unexpected number of cell arrays, found "
+              << grid->GetCellData()->GetNumberOfArrays() << " instead of "
+              << expectedNumCArrays + 1 << std::endl;
     return EXIT_FAILURE;
   }
 
   vtkInformation* inf = reader->GetExecutive()->GetOutputInformation(0);
   int numTimes = inf->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
-  cerr << "FOUND " << numTimes << " timesteps " << endl;
+  std::cerr << "FOUND " << numTimes << " timesteps " << std::endl;
   double tAlpha = inf->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), 0);
   double tOmega = inf->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS(), numTimes - 1);
   const int expectedNumTimes = 2;
@@ -172,10 +175,10 @@ int TestTRUCHASReader(int argc, char* argv[])
   const double expectedMaxT = 0.5;
   if (numTimes != 2 || !AE(tAlpha, expectedMinT) || !AE(tOmega, expectedMaxT))
   {
-    cerr << "Got unexpected times." << endl;
-    cerr << numTimes << " not " << expectedNumTimes << " times ";
-    cerr << tAlpha << " not " << expectedMinT << " first time";
-    cerr << tOmega << " not " << expectedMaxT << " last time";
+    std::cerr << "Got unexpected times." << std::endl;
+    std::cerr << numTimes << " not " << expectedNumTimes << " times ";
+    std::cerr << tAlpha << " not " << expectedMinT << " first time";
+    std::cerr << tOmega << " not " << expectedMaxT << " last time";
     return EXIT_FAILURE;
   }
   const int divs = 3;
@@ -192,11 +195,12 @@ int TestTRUCHASReader(int argc, char* argv[])
     grid = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput()->GetBlock(1));
     da = vtkDoubleArray::SafeDownCast(grid->GetCellData()->GetArray("dT/dt"));
     double* mM = da->GetRange();
-    cerr << "ts " << i << ":" << tNext << " got " << mM[0] << "," << mM[1] << endl;
+    std::cerr << "ts " << i << ":" << tNext << " got " << mM[0] << "," << mM[1] << std::endl;
     if (!AE(mM[0], expectedRanges[i][0]) || !AE(mM[1], expectedRanges[i][1]))
     {
-      cerr << "Got unexpected ranges at time " << tNext << " " << mM[0] << "," << mM[1]
-           << " instead of " << expectedRanges[i][0] << "," << expectedRanges[i][1] << endl;
+      std::cerr << "Got unexpected ranges at time " << tNext << " " << mM[0] << "," << mM[1]
+                << " instead of " << expectedRanges[i][0] << "," << expectedRanges[i][1]
+                << std::endl;
       return EXIT_FAILURE;
     }
   }

@@ -7,17 +7,17 @@
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkUnstructuredGrid.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 namespace
 {

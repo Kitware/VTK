@@ -4,6 +4,9 @@
 #include "vtkGenericDataObjectWriter.h"
 #include "vtkImageData.h"
 #include "vtkImageNoiseSource.h"
+
+#include <iostream>
+
 void InitializeData(vtkImageData* Data)
 {
   vtkImageNoiseSource* const source = vtkImageNoiseSource::New();
@@ -72,7 +75,7 @@ int TestDataObjectIO(int /*argc*/, char* /*argv*/[])
 
   if (!TestDataObjectSerialization<vtkImageData>())
   {
-    cerr << "Error: failure serializing vtkImageData" << endl;
+    std::cerr << "Error: failure serializing vtkImageData" << std::endl;
     result = 1;
   }
   return result;

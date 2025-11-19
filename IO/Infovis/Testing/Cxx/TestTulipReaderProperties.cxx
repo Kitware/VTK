@@ -11,6 +11,8 @@
 #include "vtkTulipReader.h"
 #include "vtkVariantArray.h"
 
+#include <iostream>
+
 template <typename value_t>
 void TestValue(const value_t& Value, const value_t& ExpectedValue,
   const std::string& ValueDescription, int& ErrorCount)
@@ -20,7 +22,8 @@ void TestValue(const value_t& Value, const value_t& ExpectedValue,
     return;
   }
 
-  cerr << ValueDescription << " is [" << Value << "] - expected [" << ExpectedValue << "]" << endl;
+  std::cerr << ValueDescription << " is [" << Value << "] - expected [" << ExpectedValue << "]"
+            << std::endl;
 
   ++ErrorCount;
 }
@@ -29,7 +32,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
 {
   char* file = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/clustered-graph.tlp");
 
-  cerr << "file: " << file << endl;
+  std::cerr << "file: " << file << std::endl;
 
   vtkSmartPointer<vtkTulipReader> reader = vtkSmartPointer<vtkTulipReader>::New();
   reader->SetFileName(file);
@@ -51,7 +54,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
   }
   else
   {
-    cerr << "Node pedigree id property not found." << endl;
+    std::cerr << "Node pedigree id property not found." << std::endl;
     ++error_count;
   }
 
@@ -69,7 +72,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
   }
   else
   {
-    cerr << "Node string property 'Node Name' not found." << endl;
+    std::cerr << "Node string property 'Node Name' not found." << std::endl;
     ++error_count;
   }
 
@@ -84,7 +87,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
   }
   else
   {
-    cerr << "Node int property 'Weight' not found." << endl;
+    std::cerr << "Node int property 'Weight' not found." << std::endl;
     ++error_count;
   }
 
@@ -99,7 +102,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
   }
   else
   {
-    cerr << "Node double property 'Betweenness Centrality' not found." << endl;
+    std::cerr << "Node double property 'Betweenness Centrality' not found." << std::endl;
     ++error_count;
   }
 
@@ -117,7 +120,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
   }
   else
   {
-    cerr << "Edge string property 'Edge Name' not found." << endl;
+    std::cerr << "Edge string property 'Edge Name' not found." << std::endl;
     ++error_count;
   }
 
@@ -132,7 +135,7 @@ int TestTulipReaderProperties(int argc, char* argv[])
   }
   else
   {
-    cerr << "Edge int property 'Weight' not found." << endl;
+    std::cerr << "Edge int property 'Weight' not found." << std::endl;
     ++error_count;
   }
 
@@ -148,10 +151,10 @@ int TestTulipReaderProperties(int argc, char* argv[])
   }
   else
   {
-    cerr << "Edge pedigree id property not found." << endl;
+    std::cerr << "Edge pedigree id property not found." << std::endl;
     ++error_count;
   }
 
-  cerr << error_count << " errors" << endl;
+  std::cerr << error_count << " errors" << std::endl;
   return error_count;
 }

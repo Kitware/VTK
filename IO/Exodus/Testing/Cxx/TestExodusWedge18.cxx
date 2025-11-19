@@ -2,13 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCellData.h"
 #include "vtkCompositePolyDataMapper.h"
-#include "vtkDataArray.h"
-#include "vtkDataSet.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkExodusIIReader.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
@@ -16,19 +12,21 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestExodusWedge18(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/wedge18.e");
   if (!fname)
   {
-    cout << "Could not obtain filename for test data.\n";
+    std::cout << "Could not obtain filename for test data.\n";
     return 1;
   }
 
   vtkNew<vtkExodusIIReader> rdr;
   if (!rdr->CanReadFile(fname))
   {
-    cout << "Cannot read \"" << fname << "\"\n";
+    std::cout << "Cannot read \"" << fname << "\"\n";
     return 1;
   }
   rdr->SetFileName(fname);

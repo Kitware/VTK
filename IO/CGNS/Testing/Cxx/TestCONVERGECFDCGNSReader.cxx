@@ -13,6 +13,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 namespace
 {
 float TOLF = 0.0001f;

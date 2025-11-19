@@ -1,9 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
-
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkExecutive.h"
@@ -16,6 +13,8 @@
 #include "vtkRenderer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVASPAnimationReader.h"
+
+#include <iostream>
 
 int TestVASPAnimationReader(int argc, char* argv[])
 {

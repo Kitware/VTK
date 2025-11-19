@@ -10,6 +10,8 @@
 #include "vtkStructuredGrid.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestCGNSReaderBCDirichlet(int argc, char* argv[])
 {
   // Structured dataset with Dirichlet boundary conditions

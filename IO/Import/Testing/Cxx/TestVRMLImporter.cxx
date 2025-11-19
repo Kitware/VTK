@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkLightCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkVRMLImporter.h"
 
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 // This is testing a bug in vtkVRMLImporter where the importer
 // would delete static data and any future importer would fail

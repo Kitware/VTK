@@ -27,8 +27,8 @@
 #include <vtkUniformGrid.h>
 
 // C++ includes
+#include <iostream>
 #include <iterator>
-#include <sstream>
 
 // Main program
 int TestGDALRasterReader(int argc, char* argv[])

@@ -19,6 +19,8 @@
 
 #include <string>
 
+#include <iostream>
+
 static const char* dispfile = "Data/mrc/emd_1056.mrc";
 
 static void TestDisplay(vtkRenderWindow* renwin, const char* infile)
@@ -73,7 +75,7 @@ int TestMRCReader(int argc, char* argv[])
   char* infile = vtkTestUtilities::ExpandDataFileName(argc, argv, dispfile);
   if (!infile)
   {
-    cerr << "Could not locate input file " << dispfile << "\n";
+    std::cerr << "Could not locate input file " << dispfile << "\n";
     return 1;
   }
   std::string inpath = infile;

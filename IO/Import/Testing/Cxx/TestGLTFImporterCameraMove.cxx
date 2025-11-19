@@ -12,6 +12,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkStringScanner.h>
 
+#include <iostream>
+
 int TestGLTFImporterCameraMove(int argc, char* argv[])
 {
 

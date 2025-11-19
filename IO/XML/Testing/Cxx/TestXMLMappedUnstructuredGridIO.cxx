@@ -23,6 +23,8 @@
 #include <fstream>
 #include <string>
 
+#include <iostream>
+
 bool compareFiles(const std::string& p1, const std::string& p2)
 {
   vtksys::ifstream f1(p1.c_str(), std::ios::binary | std::ios::ate);
@@ -59,7 +61,7 @@ int TestXMLMappedUnstructuredGridIO(int argc, char* argv[])
   std::string dir(tempDir);
   if (dir.empty())
   {
-    cerr << "Could not determine temporary directory." << endl;
+    std::cerr << "Could not determine temporary directory." << std::endl;
     return EXIT_FAILURE;
   }
 

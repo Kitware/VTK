@@ -7,6 +7,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkVariant.h"
 
+#include <iostream>
 #include <string>
 
 template <typename value_t>
@@ -16,7 +17,8 @@ void TestValue(const value_t& Value, const value_t& ExpectedValue,
   if (Value == ExpectedValue)
     return;
 
-  cerr << ValueDescription << " is [" << Value << "] - expected [" << ExpectedValue << "]" << endl;
+  std::cerr << ValueDescription << " is [" << Value << "] - expected [" << ExpectedValue << "]"
+            << std::endl;
 
   ++ErrorCount;
 }
@@ -25,7 +27,7 @@ int TestISIReader(int argc, char* argv[])
 {
   char* file = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/eg2.isi");
 
-  cerr << "file: " << file << endl;
+  std::cerr << "file: " << file << std::endl;
 
   vtkSmartPointer<vtkISIReader> reader = vtkSmartPointer<vtkISIReader>::New();
   reader->SetFileName(file);

@@ -21,6 +21,8 @@
 #include <vtkSEPReader.h>
 #include <vtkTestUtilities.h>
 
+#include <iostream>
+
 int TestSEPReader(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/small.H");

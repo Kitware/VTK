@@ -3,16 +3,13 @@
 
 #include "vtkOpenFOAMReader.h"
 
-#include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
-#include "vtkDataSetMapper.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
-#include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkUnstructuredGrid.h"
+
+#include <iostream>
 
 namespace
 {

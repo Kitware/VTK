@@ -15,6 +15,8 @@
 
 #include <string>
 
+#include <iostream>
+
 int TestXMLWriterWithDataArrayFallback(int argc, char* argv[])
 {
   char* temp_dir_c =
@@ -24,7 +26,7 @@ int TestXMLWriterWithDataArrayFallback(int argc, char* argv[])
 
   if (temp_dir.empty())
   {
-    cerr << "Could not determine temporary directory." << endl;
+    std::cerr << "Could not determine temporary directory." << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -60,7 +62,7 @@ int TestXMLWriterWithDataArrayFallback(int argc, char* argv[])
 
     if (!data || data->GetNumberOfTuples() != 6)
     {
-      cerr << "Could not read data array." << endl;
+      std::cerr << "Could not read data array." << std::endl;
       return EXIT_FAILURE;
     }
 
@@ -68,7 +70,7 @@ int TestXMLWriterWithDataArrayFallback(int argc, char* argv[])
     {
       if (data->GetValue(i) != i)
       {
-        cerr << "Incorrect value from data array." << endl;
+        std::cerr << "Incorrect value from data array." << std::endl;
         return EXIT_FAILURE;
       }
     }

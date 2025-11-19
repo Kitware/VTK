@@ -10,9 +10,10 @@
 #include "vtkPhyloXMLTreeReader.h"
 #include "vtkPhyloXMLTreeWriter.h"
 #include "vtkTestUtilities.h"
-#include "vtkTesting.h"
 #include "vtkTree.h"
 #include "vtkUnsignedCharArray.h"
+
+#include <iostream>
 
 //------------------------------------------------------------------------------
 bool VerifyArrayValue(vtkTree* tree, vtkIdType index, const char* arrayName, const char* baseline)
@@ -20,13 +21,14 @@ bool VerifyArrayValue(vtkTree* tree, vtkIdType index, const char* arrayName, con
   vtkAbstractArray* array = tree->GetVertexData()->GetAbstractArray(arrayName);
   if (!array)
   {
-    cout << "could not find " << arrayName << endl;
+    std::cout << "could not find " << arrayName << std::endl;
     return false;
   }
   std::string value = array->GetVariantValue(index).ToString();
   if (value != baseline)
   {
-    cout << "value for " << arrayName << " is " << value << ", should be " << baseline << endl;
+    std::cout << "value for " << arrayName << " is " << value << ", should be " << baseline
+              << std::endl;
     return false;
   }
   return true;
@@ -39,7 +41,7 @@ bool VerifyArrayAttribute(
   vtkAbstractArray* array = tree->GetVertexData()->GetAbstractArray(arrayName);
   if (!array)
   {
-    cout << "could not find " << arrayName << endl;
+    std::cout << "could not find " << arrayName << std::endl;
     return false;
   }
   vtkInformation* info = array->GetInformation();
@@ -57,13 +59,13 @@ bool VerifyArrayAttribute(
       }
       else
       {
-        cout << "found " << value << " for " << arrayName << "'s " << attributeName
-             << " attribute.  Expected " << baseline << endl;
+        std::cout << "found " << value << " for " << arrayName << "'s " << attributeName
+                  << " attribute.  Expected " << baseline << std::endl;
         return false;
       }
     }
   }
-  cout << "could not find " << attributeName << " for " << arrayName << endl;
+  std::cout << "could not find " << attributeName << " for " << arrayName << std::endl;
   return false;
 }
 
@@ -74,30 +76,30 @@ bool VerifyColor(vtkTree* tree, vtkIdType vertex, unsigned char r, unsigned char
     vtkArrayDownCast<vtkUnsignedCharArray>(tree->GetVertexData()->GetAbstractArray("color"));
   if (!array)
   {
-    cout << "could not find color array" << endl;
+    std::cout << "could not find color array" << std::endl;
     return false;
   }
   if (array->GetNumberOfComponents() != 3)
   {
-    cout << "color array does not have 3 components" << endl;
+    std::cout << "color array does not have 3 components" << std::endl;
   }
   double* color = array->GetTuple3(vertex);
   if (color[0] != r)
   {
-    cout << "red value " << color[0] << " found for vertex " << vertex << ".  Should be " << r
-         << endl;
+    std::cout << "red value " << color[0] << " found for vertex " << vertex << ".  Should be " << r
+              << std::endl;
     return false;
   }
   if (color[1] != g)
   {
-    cout << "green value " << color[1] << " found for vertex " << vertex << ".  Should be " << g
-         << endl;
+    std::cout << "green value " << color[1] << " found for vertex " << vertex << ".  Should be "
+              << g << std::endl;
     return false;
   }
   if (color[2] != b)
   {
-    cout << "blue value " << color[2] << " found for vertex " << vertex << ".  Should be " << b
-         << endl;
+    std::cout << "blue value " << color[2] << " found for vertex " << vertex << ".  Should be " << b
+              << std::endl;
     return false;
   }
   return true;
@@ -109,7 +111,7 @@ int TestPhyloXMLTreeReadWrite(int argc, char* argv[])
   // get the full path to the input file
   char* inputFile =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/XML/example_phylo.xml");
-  cout << "reading from a file: " << inputFile << endl;
+  std::cout << "reading from a file: " << inputFile << std::endl;
 
   // read the input file into a vtkTree
   vtkNew<vtkPhyloXMLTreeReader> reader;
@@ -122,7 +124,7 @@ int TestPhyloXMLTreeReadWrite(int argc, char* argv[])
   // 1: it exists
   if (!tree)
   {
-    cout << "No output tree" << endl;
+    std::cout << "No output tree" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -130,7 +132,7 @@ int TestPhyloXMLTreeReadWrite(int argc, char* argv[])
   vtkIdType numVertices = tree->GetNumberOfVertices();
   if (numVertices != 6)
   {
-    cout << "tree has " << numVertices << " vertices (should be 6)." << endl;
+    std::cout << "tree has " << numVertices << " vertices (should be 6)." << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -140,8 +142,9 @@ int TestPhyloXMLTreeReadWrite(int argc, char* argv[])
   {
     if (tree->GetNumberOfChildren(vertex) != numChildren[vertex])
     {
-      cout << "incorrect number of children for vertex " << vertex << "should be "
-           << numChildren[vertex] << ", found " << tree->GetNumberOfChildren(vertex) << endl;
+      std::cout << "incorrect number of children for vertex " << vertex << "should be "
+                << numChildren[vertex] << ", found " << tree->GetNumberOfChildren(vertex)
+                << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -308,7 +311,7 @@ int TestPhyloXMLTreeReadWrite(int argc, char* argv[])
   vtkAbstractArray* weightArray = tree->GetEdgeData()->GetAbstractArray("weight");
   if (!weightArray)
   {
-    cout << "could not find weight array" << endl;
+    std::cout << "could not find weight array" << std::endl;
     return EXIT_FAILURE;
   }
   for (vtkIdType edge = 0; edge < tree->GetNumberOfEdges(); ++edge)
@@ -316,8 +319,8 @@ int TestPhyloXMLTreeReadWrite(int argc, char* argv[])
     double value = weightArray->GetVariantValue(edge).ToDouble();
     if (value != weights[edge])
     {
-      cout << "weight " << value << " found for edge #" << edge << ", expected " << weights[edge]
-           << endl;
+      std::cout << "weight " << value << " found for edge #" << edge << ", expected "
+                << weights[edge] << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -349,7 +352,7 @@ int TestPhyloXMLTreeReadWrite(int argc, char* argv[])
   std::string phyloXML2 = writer2->GetOutputString();
   if (phyloXML != phyloXML2)
   {
-    cout << "output strings do not match." << endl;
+    std::cout << "output strings do not match." << std::endl;
     return EXIT_FAILURE;
   }
 

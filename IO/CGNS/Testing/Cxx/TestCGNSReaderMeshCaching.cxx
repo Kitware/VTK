@@ -5,21 +5,20 @@
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
-#include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointSet.h"
 #include "vtkTestUtilities.h"
 #include "vtkTimerLog.h"
 
-#include <string>
+#include <iostream>
 
 #define vtk_assert(x)                                                                              \
   do                                                                                               \
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << endl;             \
+      std::cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << std::endl;   \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
   } while (false)
@@ -69,7 +68,7 @@ int TestCGNSReaderMeshCaching(int argc, char* argv[])
   vtk_assert(da == db);
   // Check that caching mesh implies lower loading time
   // vtk_assert(hot_timing < cold_timing);
-  cout << "Expected timings: " << hot_timing << " < " << cold_timing << endl;
+  std::cout << "Expected timings: " << hot_timing << " < " << cold_timing << std::endl;
 
   return EXIT_SUCCESS;
 }

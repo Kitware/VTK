@@ -21,6 +21,8 @@
 #include "vtkUnstructuredGrid.h"
 #include <set>
 
+#include <iostream>
+
 int TestNetCDFCAMReader(int argc, char* argv[])
 {
   // Read file names.

@@ -27,6 +27,8 @@ then re-reading it to ensure that the contents are identical.
 
 #include <string>
 
+#include <iostream>
+
 static const char* testfiles[7][2] = { { "Data/minimal.nii.gz", "out_minimal.nii.gz" },
   { "Data/minimal.img.gz", "out_minimal.hdr" }, { "Data/planar_rgb.nii.gz", "out_planar_rgb.nii" },
   { "Data/nifti_rgb.nii.gz", "out_nifti_rgb.nii" },
@@ -201,8 +203,8 @@ static double TestReadWriteRead(
     }
     if (sqdiff > 1e-10)
     {
-      cerr << "Mismatched read/write QFormMatrix:\n";
-      m->Print(cerr);
+      std::cerr << "Mismatched read/write QFormMatrix:\n";
+      m->Print(std::cerr);
       differr = 1.0;
     }
   }
@@ -224,8 +226,8 @@ static double TestReadWriteRead(
     }
     if (sqdiff > 1e-10)
     {
-      cerr << "Mismatched read/write SFormMatrix:\n";
-      m->Print(cerr);
+      std::cerr << "Mismatched read/write SFormMatrix:\n";
+      m->Print(std::cerr);
       differr = 1.0;
     }
   }
@@ -307,7 +309,7 @@ int TestNIFTIReaderWriter(int argc, char* argv[])
   // perform the header test
   if (!TestNIFTIHeader())
   {
-    cerr << "Failed TestNIFTIHeader\n";
+    std::cerr << "Failed TestNIFTIHeader\n";
     return 1;
   }
 
@@ -323,7 +325,7 @@ int TestNIFTIReaderWriter(int argc, char* argv[])
     }
     if (!infile)
     {
-      cerr << "Could not locate input file " << testfiles[i][0] << "\n";
+      std::cerr << "Could not locate input file " << testfiles[i][0] << "\n";
       return 1;
     }
 
@@ -331,7 +333,7 @@ int TestNIFTIReaderWriter(int argc, char* argv[])
       vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
     if (!tempDir)
     {
-      cerr << "Could not determine temporary directory.\n";
+      std::cerr << "Could not determine temporary directory.\n";
       return 1;
     }
 
@@ -345,14 +347,14 @@ int TestNIFTIReaderWriter(int argc, char* argv[])
     testReader->GetDescriptiveName();
     if (!testReader->CanReadFile(infile))
     {
-      cerr << "CanReadFile() failed for " << infile << "\n";
+      std::cerr << "CanReadFile() failed for " << infile << "\n";
       return 1;
     }
 
     double err = TestReadWriteRead(infile, infile2, outpath.c_str(), planarRGB);
     if (err != 0.0)
     {
-      cerr << "Input " << infile << " differs from output " << outpath << "\n";
+      std::cerr << "Input " << infile << " differs from output " << outpath << "\n";
       return 1;
     }
     delete[] infile;
@@ -363,7 +365,7 @@ int TestNIFTIReaderWriter(int argc, char* argv[])
   char* infile = vtkTestUtilities::ExpandDataFileName(argc, argv, dispfile);
   if (!infile)
   {
-    cerr << "Could not locate input file " << dispfile << "\n";
+    std::cerr << "Could not locate input file " << dispfile << "\n";
     return 1;
   }
 

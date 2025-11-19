@@ -7,7 +7,6 @@
 // if the file exists and has non zero length.
 
 #include "vtkImageCast.h"
-#include "vtkImageData.h"
 #include "vtkImageMandelbrotSource.h"
 #include "vtkImageMapToColors.h"
 #include "vtkLookupTable.h"
@@ -15,6 +14,7 @@
 #include "vtkTestUtilities.h"
 
 #include "vtksys/SystemTools.hxx"
+#include <iostream>
 #include <string>
 
 int TestOggTheoraWriter(int argc, char* argv[])

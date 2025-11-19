@@ -11,6 +11,8 @@
 #include <vtkImageChangeInformation.h>
 #include <vtkImageEllipsoidSource.h>
 
+#include <iostream>
+
 // Compare 2 vtk Images, return true if they are the same.
 // 'Same' here implies contents and metadata values (spacing, origin) are equal.
 bool compareVtkImages(vtkImageData* p1, vtkImageData* p2);

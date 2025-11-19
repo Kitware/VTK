@@ -4,11 +4,12 @@
 #include "vtkCGNSReader.h"
 
 #include "vtkCellTypeUtilities.h"
-#include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
+
+#include <iostream>
 
 int TestCGNSReaderMixedElementNodes(int argc, char* argv[])
 {

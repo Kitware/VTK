@@ -12,13 +12,14 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <cmath>
+#include <iostream>
 
 #define vtk_assert(x)                                                                              \
   do                                                                                               \
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << endl;             \
+      std::cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << std::endl;   \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
   } while (false)
@@ -30,18 +31,18 @@ int TestField(vtkMultiBlockDataSet* mb, double value)
   vtk_assert(nBlocks > 0);
   for (unsigned int i = 0; i < nBlocks; ++i)
   {
-    cout << "Block #" << i << endl;
+    std::cout << "Block #" << i << std::endl;
     vtkMultiBlockDataSet* mb2 = vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(i));
     vtk_assert(mb2 != nullptr);
     for (unsigned int j = 0; j < mb2->GetNumberOfBlocks(); ++j)
     {
-      cout << " - Sub-block #" << j << endl;
+      std::cout << " - Sub-block #" << j << std::endl;
       vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(mb2->GetBlock(j));
       vtk_assert(ug != nullptr);
       vtkCellData* cd = ug->GetCellData();
       vtk_assert(cd != nullptr);
       vtkIdType na = cd->GetNumberOfArrays();
-      cout << "    - number of arrays: " << na << endl;
+      std::cout << "    - number of arrays: " << na << std::endl;
       vtk_assert(na == 1);
       for (vtkIdType k = 0; k < na; ++k)
       {
@@ -52,7 +53,7 @@ int TestField(vtkMultiBlockDataSet* mb, double value)
         vtk_assert(nt == 1);
         vtk_assert(nc == 1);
         double x = ar->GetComponent(0, 0);
-        cout << "    - field value: " << x << endl;
+        std::cout << "    - field value: " << x << std::endl;
         vtk_assert(std::fabs(x - value) < eps);
       }
     }
@@ -66,7 +67,7 @@ int TestCGNSUnsteadyFields(int argc, char* argv[])
   std::string fields = fname ? fname : "";
   delete[] fname;
 
-  cout << "Opening " << fields << endl;
+  std::cout << "Opening " << fields << std::endl;
   vtkNew<vtkCGNSReader> fieldsReader;
   fieldsReader->SetFileName(fields.c_str());
   fieldsReader->Update();
@@ -86,6 +87,6 @@ int TestCGNSUnsteadyFields(int argc, char* argv[])
     }
   }
 
-  cout << __FILE__ << " tests passed." << endl;
+  std::cout << __FILE__ << " tests passed." << std::endl;
   return EXIT_SUCCESS;
 }

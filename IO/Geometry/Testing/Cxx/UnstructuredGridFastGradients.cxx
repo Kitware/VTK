@@ -14,10 +14,12 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkTubeFilter.h"
 #include "vtkUnstructuredGridReader.h"
 
-#include "vtkSmartPointer.h"
+#include <iostream>
+
 #define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
 int UnstructuredGridFastGradients(int argc, char* argv[])
@@ -35,7 +37,7 @@ int UnstructuredGridFastGradients(int argc, char* argv[])
   }
   if (!data_root)
   {
-    cout << "Need to specify the directory to VTK_DATA_ROOT with -D <dir>." << endl;
+    std::cout << "Need to specify the directory to VTK_DATA_ROOT with -D <dir>." << std::endl;
     return 1;
   }
 
@@ -44,7 +46,7 @@ int UnstructuredGridFastGradients(int argc, char* argv[])
   std::string filename;
   filename = data_root;
   filename += "/Data/uGridEx.vtk";
-  cout << "Loading " << filename << endl;
+  std::cout << "Loading " << filename << std::endl;
   VTK_CREATE(vtkUnstructuredGridReader, reader);
   reader->SetFileName(filename.c_str());
 

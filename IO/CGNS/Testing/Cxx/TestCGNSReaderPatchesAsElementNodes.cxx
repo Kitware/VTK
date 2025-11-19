@@ -9,6 +9,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 int TestCGNSReaderPatchesAsElementNodes_checkblock(
   vtkMultiBlockDataSet* ds, const std::string name, int expected_ncells)
 {

@@ -26,6 +26,8 @@
 #include <unistd.h>
 #endif
 
+#include <iostream>
+
 #define NUMTESTS 20
 
 const char testobject[NUMTESTS][40] = {
@@ -80,19 +82,19 @@ bool DoDataObjectsDiffer(vtkDataObject* dobj1, vtkDataObject* dobj2)
 {
   if (strcmp(dobj1->GetClassName(), dobj2->GetClassName()) != 0)
   {
-    cerr << "Class name test failed " << dobj1->GetClassName() << " != " << dobj2->GetClassName()
-         << endl;
+    std::cerr << "Class name test failed " << dobj1->GetClassName()
+              << " != " << dobj2->GetClassName() << std::endl;
     // return true; //disable for now
   }
   if (dobj1->GetFieldData()->GetNumberOfArrays() != dobj2->GetFieldData()->GetNumberOfArrays())
   {
-    cerr << "Number of field arrays test failed" << endl;
+    std::cerr << "Number of field arrays test failed" << std::endl;
     return true;
   }
   if (!dobj1->IsA("vtkPolyData") && !dobj1->IsA("vtkMultiBlockDataSet") &&
     dobj1->GetActualMemorySize() != dobj2->GetActualMemorySize())
   {
-    cerr << "Mem size test failed" << endl;
+    std::cerr << "Mem size test failed" << std::endl;
     return true;
   }
   vtkDataSet* ds1 = vtkDataSet::SafeDownCast(dobj1);
@@ -102,7 +104,7 @@ bool DoDataObjectsDiffer(vtkDataObject* dobj1, vtkDataObject* dobj2)
     if ((ds1->GetNumberOfCells() != ds2->GetNumberOfCells()) ||
       (ds1->GetNumberOfPoints() != ds2->GetNumberOfPoints()))
     {
-      cerr << "Number of Cells/Points test failed" << endl;
+      std::cerr << "Number of Cells/Points test failed" << std::endl;
       return true;
     }
     const double* bds1 = ds1->GetBounds();
@@ -110,13 +112,13 @@ bool DoDataObjectsDiffer(vtkDataObject* dobj1, vtkDataObject* dobj2)
     if ((bds1[0] != bds2[0]) || (bds1[1] != bds2[1]) || (bds1[2] != bds2[2]) ||
       (bds1[3] != bds2[3]) || (bds1[4] != bds2[4]) || (bds1[5] != bds2[5]))
     {
-      cerr << "Bounds test failed" << endl;
+      std::cerr << "Bounds test failed" << std::endl;
       return true;
     }
     if ((ds1->GetPointData()->GetNumberOfArrays() != ds2->GetPointData()->GetNumberOfArrays()) ||
       (ds1->GetCellData()->GetNumberOfArrays() != ds2->GetCellData()->GetNumberOfArrays()))
     {
-      cerr << "Number of data arrays test failed" << endl;
+      std::cerr << "Number of data arrays test failed" << std::endl;
       return true;
     }
     // TODO:Check array names, types, widths and ranges
@@ -150,7 +152,7 @@ bool TestXDMFConversion(vtkDataObject* input, char* prefix)
 
   if (!DoFilesExist(xdmffile.c_str(), nullptr, false))
   {
-    cerr << "Writer did not create " << xdmffile << endl;
+    std::cerr << "Writer did not create " << xdmffile << std::endl;
     return true;
   }
 
@@ -192,7 +194,7 @@ int XdmfTestVTKIO(int ac, char* av[])
   while (!fail && i < NUMTESTS)
   {
     auto filename = vtk::format("xdmfIOtest_{:d}", i);
-    cerr << "Test vtk object " << testobject[i] << endl;
+    std::cerr << "Test vtk object " << testobject[i] << std::endl;
     dog->SetProgram(testobject[i]);
     dog->Update();
     fail = TestXDMFConversion(dog->GetOutput(), filename.data());
@@ -207,7 +209,7 @@ int XdmfTestVTKIO(int ac, char* av[])
   }
 
   // TEST SET 2
-  cerr << "Test temporal data" << endl;
+  std::cerr << "Test temporal data" << std::endl;
   vtkTimeSourceExample* tsrc = vtkTimeSourceExample::New();
   tsrc->GrowingOn();
   tsrc->SetXAmplitude(2.0);
@@ -225,7 +227,7 @@ int XdmfTestVTKIO(int ac, char* av[])
   fail = !DoFilesExist("xdmfIOtest_temporal_1.xmf", nullptr, true);
   if (fail)
   {
-    cerr << "Failed Temporal Test 1" << endl;
+    std::cerr << "Failed Temporal Test 1" << std::endl;
     return VTK_ERROR;
   }
 

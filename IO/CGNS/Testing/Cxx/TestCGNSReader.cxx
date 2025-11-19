@@ -5,16 +5,17 @@
 #include "vtkCell.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
-#include "vtkStructuredGrid.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
+
+#include <iostream>
 
 #define vtk_assert(x)                                                                              \
   do                                                                                               \
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << endl;             \
+      std::cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << std::endl;   \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
   } while (false)
@@ -47,7 +48,7 @@ int TestCGNSReader(int argc, char* argv[])
   std::string mixed = fname ? fname : "";
   delete[] fname;
 
-  cout << "Opening " << mixed << endl;
+  std::cout << "Opening " << mixed << std::endl;
   vtkNew<vtkCGNSReader> mixedReader;
   mixedReader->SetFileName(mixed.c_str());
   mixedReader->Update();
@@ -63,7 +64,7 @@ int TestCGNSReader(int argc, char* argv[])
   std::string nfacen = fname ? fname : "";
   delete[] fname;
 
-  cout << "Opening " << nfacen << endl;
+  std::cout << "Opening " << nfacen << std::endl;
   vtkNew<vtkCGNSReader> nfacenReader;
   nfacenReader->SetFileName(nfacen.c_str());
   nfacenReader->Update();
@@ -78,7 +79,7 @@ int TestCGNSReader(int argc, char* argv[])
   std::string ngonpe = fname ? fname : "";
   delete[] fname;
 
-  cout << "Opening " << ngonpe.c_str() << endl;
+  std::cout << "Opening " << ngonpe.c_str() << std::endl;
   vtkNew<vtkCGNSReader> ngonpeReader;
   ngonpeReader->SetFileName(ngonpe.c_str());
   ngonpeReader->Update();
@@ -93,7 +94,7 @@ int TestCGNSReader(int argc, char* argv[])
   std::string ngon_2d_base = fname ? fname : "";
   delete[] fname;
 
-  cout << "Opening " << ngon_2d_base.c_str() << endl;
+  std::cout << "Opening " << ngon_2d_base.c_str() << std::endl;
   vtkNew<vtkCGNSReader> ngonBaseReader;
   ngonBaseReader->SetFileName(ngon_2d_base.c_str());
   ngonBaseReader->UpdateInformation();
@@ -111,11 +112,11 @@ int TestCGNSReader(int argc, char* argv[])
   std::string bcfile = fname ? fname : "";
   delete[] fname;
 
-  cout << "Opening " << bcfile << endl;
+  std::cout << "Opening " << bcfile << std::endl;
   vtkNew<vtkCGNSReader> bcReader;
   bcReader->SetFileName(bcfile.c_str());
   bcReader->Update();
 
-  cout << __FILE__ << " tests passed." << endl;
+  std::cout << __FILE__ << " tests passed." << std::endl;
   return EXIT_SUCCESS;
 }

@@ -16,20 +16,22 @@
 #include "vtkPostgreSQLToTableReader.h"
 #include "vtkTableToPostgreSQLWriter.h"
 
+#include <iostream>
+
 int TestPostgreSQLTableReadWrite(int argc, char* argv[])
 {
   if (argc <= 1)
   {
-    cerr << "Usage: " << argv[0] << " <.vtk table file>" << endl;
+    std::cerr << "Usage: " << argv[0] << " <.vtk table file>" << std::endl;
     return 1;
   }
-  cerr << "reading a vtkTable from file" << endl;
+  std::cerr << "reading a vtkTable from file" << std::endl;
   vtkSmartPointer<vtkTableReader> tableFileReader = vtkSmartPointer<vtkTableReader>::New();
   tableFileReader->SetFileName(argv[1]);
   vtkTable* table = tableFileReader->GetOutput();
   tableFileReader->Update();
 
-  cerr << "opening a PostgreSQL database connection" << endl;
+  std::cerr << "opening a PostgreSQL database connection" << std::endl;
 
   vtkPostgreSQLDatabase* db =
     vtkPostgreSQLDatabase::SafeDownCast(vtkSQLDatabase::CreateFromURL(VTK_PSQL_TEST_URL));
@@ -38,22 +40,22 @@ int TestPostgreSQLTableReadWrite(int argc, char* argv[])
   bool status = db->Open();
   if (!status)
   {
-    cerr << "Couldn't open database.\n";
+    std::cerr << "Couldn't open database.\n";
     return 1;
   }
 
   if (!db->CreateDatabase(realDatabase.c_str(), true))
   {
-    cerr << "Error: " << db->GetLastErrorText() << endl;
+    std::cerr << "Error: " << db->GetLastErrorText() << std::endl;
   }
   db->SetDatabaseName(realDatabase.c_str());
   if (!db->Open())
   {
-    cerr << "Error: " << db->GetLastErrorText() << endl;
+    std::cerr << "Error: " << db->GetLastErrorText() << std::endl;
     return 1;
   }
 
-  cerr << "creating a PostgreSQL table from a vtkTable" << endl;
+  std::cerr << "creating a PostgreSQL table from a vtkTable" << std::endl;
   vtkSmartPointer<vtkTableToPostgreSQLWriter> writerToTest =
     vtkSmartPointer<vtkTableToPostgreSQLWriter>::New();
 
@@ -62,7 +64,7 @@ int TestPostgreSQLTableReadWrite(int argc, char* argv[])
   writerToTest->SetTableName("tabletest");
   writerToTest->Update();
 
-  cerr << "converting it back to a vtkTable" << endl;
+  std::cerr << "converting it back to a vtkTable" << std::endl;
   vtkSmartPointer<vtkPostgreSQLToTableReader> readerToTest =
     vtkSmartPointer<vtkPostgreSQLToTableReader>::New();
 
@@ -70,22 +72,22 @@ int TestPostgreSQLTableReadWrite(int argc, char* argv[])
   readerToTest->SetTableName("tabletest");
   readerToTest->Update();
 
-  cerr << "writing the table out to disk" << endl;
+  std::cerr << "writing the table out to disk" << std::endl;
   vtkSmartPointer<vtkTableWriter> tableFileWriter = vtkSmartPointer<vtkTableWriter>::New();
   tableFileWriter->SetFileName("TestPostgreSQLTableReadWrite.vtk");
   tableFileWriter->SetInputConnection(readerToTest->GetOutputPort());
   tableFileWriter->Update();
 
-  cerr << "verifying that it's the same as what we started with...";
+  std::cerr << "verifying that it's the same as what we started with...";
   int result = 0;
   if (vtksys::SystemTools::FilesDiffer(argv[1], "TestPostgreSQLTableReadWrite.vtk"))
   {
-    cerr << "it's not." << endl;
+    std::cerr << "it's not." << std::endl;
     result = 1;
   }
   else
   {
-    cerr << "it is!" << endl;
+    std::cerr << "it is!" << std::endl;
   }
 
   // drop the table we created
@@ -93,12 +95,12 @@ int TestPostgreSQLTableReadWrite(int argc, char* argv[])
   query->SetQuery("DROP TABLE tabletest");
   query->Execute();
 
-  cerr << "dropping the database...";
+  std::cerr << "dropping the database...";
 
   if (!db->DropDatabase(realDatabase.c_str()))
   {
-    cout << "Drop of \"" << realDatabase << "\" failed.\n";
-    cerr << "\"" << db->GetLastErrorText() << "\"" << endl;
+    std::cout << "Drop of \"" << realDatabase << "\" failed.\n";
+    std::cerr << "\"" << db->GetLastErrorText() << "\"" << std::endl;
   }
 
   // clean up memory

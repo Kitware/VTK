@@ -15,6 +15,8 @@
 
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
+
 int UnitTestSTLWriter(int argc, char* argv[])
 {
   int status = 0;
@@ -68,7 +70,7 @@ int UnitTestSTLWriter(int argc, char* argv[])
   reader->Update();
   if (shortTextHeader != reader->GetHeader())
   {
-    cerr << "Unexpected short text header: " << reader->GetHeader();
+    std::cerr << "Unexpected short text header: " << reader->GetHeader();
     ++status;
   }
 
@@ -84,12 +86,12 @@ int UnitTestSTLWriter(int argc, char* argv[])
   std::string readHeader = reader->GetHeader();
   if (readHeader.size() != 80)
   {
-    cerr << "Unexpected size of long text header: " << readHeader.size() << std::endl;
+    std::cerr << "Unexpected size of long text header: " << readHeader.size() << std::endl;
     ++status;
   }
   if (longTextHeader.compare(0, 80, readHeader) != 0)
   {
-    cerr << "Unexpected content of long text header: " << readHeader << std::endl;
+    std::cerr << "Unexpected content of long text header: " << readHeader << std::endl;
     ++status;
   }
 
@@ -108,8 +110,8 @@ int UnitTestSTLWriter(int argc, char* argv[])
   vtkUnsignedCharArray* readBinaryHeader = reader->GetBinaryHeader();
   if (readBinaryHeader->GetNumberOfValues() != 80)
   {
-    cerr << "Unexpected size of short binary header: " << readBinaryHeader->GetNumberOfValues()
-         << std::endl;
+    std::cerr << "Unexpected size of short binary header: " << readBinaryHeader->GetNumberOfValues()
+              << std::endl;
     ++status;
   }
   for (vtkIdType i = 0; i < 80; i++)
@@ -118,7 +120,7 @@ int UnitTestSTLWriter(int argc, char* argv[])
           readBinaryHeader->GetValue(i) != shortBinaryHeader->GetValue(i)) ||
       (i >= shortBinaryHeader->GetNumberOfValues() && readBinaryHeader->GetValue(i) != 0))
     {
-      cerr << "Unexpected content of binary header at position " << i << std::endl;
+      std::cerr << "Unexpected content of binary header at position " << i << std::endl;
       ++status;
       break;
     }
@@ -128,7 +130,7 @@ int UnitTestSTLWriter(int argc, char* argv[])
   FILE* fp = vtksys::SystemTools::Fopen(fileName, "rb");
   if (!fp)
   {
-    cerr << "Could not open file '" << fileName << "'" << std::endl;
+    std::cerr << "Could not open file '" << fileName << "'" << std::endl;
     ++status;
   }
   fseek(fp, 80, SEEK_SET);
@@ -136,12 +138,12 @@ int UnitTestSTLWriter(int argc, char* argv[])
   size_t bytesRead = fread(&numTriangles, 1, 4, fp);
   if (bytesRead != 4)
   {
-    cerr << "Could not read number of triangles." << std::endl;
+    std::cerr << "Could not read number of triangles." << std::endl;
     ++status;
   }
   if (numTriangles != 96)
   {
-    cerr << "Wrong number of triangles saved to STL file from polygon strips" << std::endl;
+    std::cerr << "Wrong number of triangles saved to STL file from polygon strips" << std::endl;
     ++status;
   }
   fclose(fp);
@@ -170,14 +172,14 @@ int UnitTestSTLWriter(int argc, char* argv[])
   readBinaryHeader = reader->GetBinaryHeader();
   if (readBinaryHeader->GetNumberOfValues() != 80)
   {
-    cerr << "Unexpected size of long short binary header: " << readHeader.size();
+    std::cerr << "Unexpected size of long short binary header: " << readHeader.size();
     ++status;
   }
   for (vtkIdType i = 0; i < 80; i++)
   {
     if (readBinaryHeader->GetValue(i) != longBinaryHeader->GetValue(i))
     {
-      cerr << "Unexpected content of long binary header at position " << i;
+      std::cerr << "Unexpected content of long binary header at position " << i;
       ++status;
       break;
     }
@@ -186,19 +188,19 @@ int UnitTestSTLWriter(int argc, char* argv[])
   fp = vtksys::SystemTools::Fopen(fileName, "rb");
   if (!fp)
   {
-    cerr << "Could not open file '" << fileName << "'" << std::endl;
+    std::cerr << "Could not open file '" << fileName << "'" << std::endl;
     ++status;
   }
   fseek(fp, 80, SEEK_SET);
   bytesRead = fread(&numTriangles, 1, 4, fp);
   if (bytesRead != 4)
   {
-    cerr << "Could not read number of triangles." << std::endl;
+    std::cerr << "Could not read number of triangles." << std::endl;
     ++status;
   }
   if (numTriangles != 2)
   {
-    cerr << "Wrong number of triangles saved to STL file from polygon strips" << std::endl;
+    std::cerr << "Wrong number of triangles saved to STL file from polygon strips" << std::endl;
     ++status;
   }
   fclose(fp);

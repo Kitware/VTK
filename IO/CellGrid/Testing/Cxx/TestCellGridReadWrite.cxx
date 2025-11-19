@@ -16,6 +16,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkVector.h"
 
+#include <iostream>
+
 namespace
 {
 

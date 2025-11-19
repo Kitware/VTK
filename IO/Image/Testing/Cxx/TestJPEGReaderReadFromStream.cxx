@@ -16,12 +16,14 @@
 
 #include <vector>
 
+#include <iostream>
+
 int TestJPEGReaderReadFromStream(int argc, char* argv[])
 {
 
   if (argc <= 1)
   {
-    cout << "Usage: " << argv[0] << " <jpeg file>" << endl;
+    std::cout << "Usage: " << argv[0] << " <jpeg file>" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -41,7 +43,7 @@ int TestJPEGReaderReadFromStream(int argc, char* argv[])
   // Check the image can be read
   if (!jpegReader->CanReadFile(filename.c_str()))
   {
-    cerr << "CanReadFile failed for " << filename << "\n";
+    std::cerr << "CanReadFile failed for " << filename << "\n";
     return EXIT_FAILURE;
   }
 

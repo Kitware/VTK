@@ -22,6 +22,7 @@
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include <iostream>
 #include <string>
 
 namespace

@@ -19,12 +19,14 @@
 #include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 #define ensure(x, msg)                                                                             \
   do                                                                                               \
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << "FAILED: " << msg << endl;                                                           \
+      std::cerr << "FAILED: " << msg << std::endl;                                                 \
       controller->Finalize();                                                                      \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \

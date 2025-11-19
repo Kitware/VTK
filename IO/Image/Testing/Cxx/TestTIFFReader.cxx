@@ -10,6 +10,8 @@
 #include <vtkRenderer.h>
 #include <vtkTIFFReader.h>
 
+#include <iostream>
+
 int TestTIFFReader(int argc, char* argv[])
 {
   // Verify input arguments

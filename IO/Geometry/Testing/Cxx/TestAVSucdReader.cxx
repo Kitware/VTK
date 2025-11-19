@@ -14,6 +14,8 @@
 #include <vtkRegressionTestImage.h>
 #include <vtkTestUtilities.h>
 
+#include <iostream>
+
 int TestAVSucdReader(int argc, char* argv[])
 {
   if (argc < 2)

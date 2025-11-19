@@ -46,6 +46,8 @@
 #include "vtkInformationStringVectorKey.h"
 #include "vtkInformationUnsignedLongKey.h"
 
+#include <iostream>
+
 namespace
 {
 

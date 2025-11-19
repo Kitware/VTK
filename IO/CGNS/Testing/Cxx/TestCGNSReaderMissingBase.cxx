@@ -6,10 +6,11 @@
 #include "vtkCellData.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
-#include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 int TestCGNSReaderMissingBase(int argc, char* argv[])
 {

@@ -10,12 +10,14 @@
 #include "vtkRenderer.h"
 #include "vtkTGAReader.h"
 
+#include <iostream>
+
 int TestTGAReaderReadFromStream(int argc, char* argv[])
 {
 
   if (argc <= 1)
   {
-    cout << "Usage: " << argv[0] << " <tga file>" << endl;
+    std::cout << "Usage: " << argv[0] << " <tga file>" << std::endl;
     return EXIT_FAILURE;
   }
 

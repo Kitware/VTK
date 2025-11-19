@@ -5,6 +5,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestDIMACSGraphReader(int argc, char* argv[])
@@ -41,14 +43,14 @@ int TestDIMACSGraphReader(int argc, char* argv[])
   vtkGraph* G = vtkGraph::SafeDownCast(src_pattern->GetOutput());
   if (G->GetNumberOfVertices() != 5)
   {
-    cout << "\tERROR: iso_pattern.gr vertex count wrong. "
-         << "Expected 5, Got " << G->GetNumberOfVertices() << endl;
+    std::cout << "\tERROR: iso_pattern.gr vertex count wrong. "
+              << "Expected 5, Got " << G->GetNumberOfVertices() << std::endl;
     return 1;
   }
   if (G->GetNumberOfEdges() != 5)
   {
-    cout << "\tERROR: iso_pattern.gr edge count wrong. "
-         << "Expected 5, Got " << G->GetNumberOfEdges() << endl;
+    std::cout << "\tERROR: iso_pattern.gr edge count wrong. "
+              << "Expected 5, Got " << G->GetNumberOfEdges() << std::endl;
     return 1;
   }
 

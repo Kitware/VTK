@@ -13,6 +13,7 @@
 #include "vtkTestUtilities.h"
 
 #include <cmath>
+#include <iostream>
 #include <limits>
 
 int TestPLYWriter(int argc, char* argv[])

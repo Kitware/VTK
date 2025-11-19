@@ -8,6 +8,7 @@
 #include "vtkTestUtilities.h"
 
 #include <cstdlib>
+#include <iostream>
 
 int TestDelimitedTextReaderWithBOM(int argc, char* argv[])
 {

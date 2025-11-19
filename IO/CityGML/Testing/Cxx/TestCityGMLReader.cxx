@@ -24,6 +24,8 @@
 #include "vtkTexture.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <iostream>
+
 void AddActors(vtkRenderer* renderer, vtkMultiBlockDataSet* mb, const char* fname)
 {
   vtkSmartPointer<vtkCompositeDataIterator> it;

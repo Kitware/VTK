@@ -27,13 +27,13 @@
 #include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
-#include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLPartitionedDataSetReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLUniformGridAMRReader.h"
 
 #include <cstdlib>
+#include <iostream>
 #include <map>
 #include <vector>
 

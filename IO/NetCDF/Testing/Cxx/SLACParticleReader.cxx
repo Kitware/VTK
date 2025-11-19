@@ -24,6 +24,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 int SLACParticleReader(int argc, char* argv[])
 {
   char* directoryName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/SLAC/pic-example/");
@@ -94,7 +96,7 @@ int SLACParticleReader(int argc, char* argv[])
   renwin->Render();
 
   double time = particleReader->GetOutput()->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
-  cout << "Time in particle reader: " << time << endl;
+  std::cout << "Time in particle reader: " << time << std::endl;
 
   // Change the time to test the time step field load and to have the field
   // match the particles in time.

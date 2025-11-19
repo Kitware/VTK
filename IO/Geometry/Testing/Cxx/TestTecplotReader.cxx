@@ -4,7 +4,6 @@
 // .SECTION Description
 //
 
-#include "vtkDebugLeaks.h"
 #include "vtkTecplotReader.h"
 
 #include "vtkActor.h"

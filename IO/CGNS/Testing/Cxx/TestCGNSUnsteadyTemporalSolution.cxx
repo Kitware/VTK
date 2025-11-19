@@ -12,6 +12,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestCGNSUnsteadyTemporalSolution(int argc, char* argv[])
 {
   // Dataset is a cube with three timesteps

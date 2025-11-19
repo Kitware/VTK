@@ -10,6 +10,8 @@
 #include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestOBJReaderMaterials(int argc, char* argv[])
 {
   int retVal = 0;

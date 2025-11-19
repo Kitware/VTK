@@ -14,6 +14,8 @@
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
 
+#include <iostream>
+
 namespace
 {
 

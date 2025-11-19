@@ -26,6 +26,8 @@
 #include <catalyst_conduit.hpp>
 #include <catalyst_conduit_blueprint.hpp>
 
+#include <iostream>
+
 namespace
 {
 constexpr int IMAGE_ID = 0, UG_ID = 1;

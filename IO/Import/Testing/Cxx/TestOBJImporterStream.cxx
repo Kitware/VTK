@@ -15,6 +15,8 @@
 #include "vtkMapper.h"
 #include <sstream>
 
+#include <iostream>
+
 int TestOBJImporter(int argc, char* argv[])
 {
   // note that the executable name is stripped out already

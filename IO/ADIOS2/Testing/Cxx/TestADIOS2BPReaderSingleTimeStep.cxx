@@ -30,6 +30,8 @@
 
 #include <sstream> // istringstream
 
+#include <iostream>
+
 int TestADIOS2BPReaderSingleTimeStep(int argc, char* argv[])
 {
   vtkNew<vtkADIOS2CoreImageReader> reader;

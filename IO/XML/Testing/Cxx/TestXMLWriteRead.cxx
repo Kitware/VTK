@@ -9,6 +9,8 @@
 #include "vtkTestUtilities.h"
 #include <string>
 
+#include <iostream>
+
 namespace
 {
 template <typename T>

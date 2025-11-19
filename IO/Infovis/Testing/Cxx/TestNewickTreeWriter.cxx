@@ -9,11 +9,13 @@
 #include "vtkTestUtilities.h"
 #include "vtkTree.h"
 
+#include <iostream>
+
 int TestNewickTreeWriter(int argc, char* argv[])
 {
   // get the full path to the input file
   char* file = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/rep_set.tre");
-  cout << "reading from a file: " << file << endl;
+  std::cout << "reading from a file: " << file << std::endl;
 
   // read the input file into a vtkTree
   vtkNew<vtkNewickTreeReader> reader1;
@@ -42,8 +44,8 @@ int TestNewickTreeWriter(int argc, char* argv[])
   vtkIdType numVerticesTree2 = tree2->GetNumberOfVertices();
   if (numVerticesTree1 != numVerticesTree2)
   {
-    cout << "number of vertices is not equal: " << numVerticesTree1 << " vs. " << numVerticesTree2
-         << endl;
+    std::cout << "number of vertices is not equal: " << numVerticesTree1 << " vs. "
+              << numVerticesTree2 << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -51,7 +53,8 @@ int TestNewickTreeWriter(int argc, char* argv[])
   vtkIdType numEdgesTree2 = tree2->GetNumberOfEdges();
   if (numEdgesTree1 != numEdgesTree2)
   {
-    cout << "number of edges is not equal: " << numEdgesTree1 << " vs. " << numEdgesTree2 << endl;
+    std::cout << "number of edges is not equal: " << numEdgesTree1 << " vs. " << numEdgesTree2
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -59,13 +62,13 @@ int TestNewickTreeWriter(int argc, char* argv[])
   {
     if (tree1->GetParent(vertex) != tree2->GetParent(vertex))
     {
-      cout << "tree1 and tree2 do not agree on the parent of vertex " << vertex << endl;
+      std::cout << "tree1 and tree2 do not agree on the parent of vertex " << vertex << std::endl;
       return EXIT_FAILURE;
     }
     if (tree1->GetNumberOfChildren(vertex) != tree2->GetNumberOfChildren(vertex))
     {
-      cout << "tree1 and tree2 do not agree on the number of children "
-           << "for vertex " << vertex << endl;
+      std::cout << "tree1 and tree2 do not agree on the number of children "
+                << "for vertex " << vertex << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -74,14 +77,14 @@ int TestNewickTreeWriter(int argc, char* argv[])
   vtkAbstractArray* names2 = tree2->GetVertexData()->GetAbstractArray("node name");
   if (names1->GetNumberOfTuples() != names2->GetNumberOfTuples())
   {
-    cout << "the names arrays are of different sizes" << endl;
+    std::cout << "the names arrays are of different sizes" << std::endl;
     return EXIT_FAILURE;
   }
   for (vtkIdType v = 0; v < names1->GetNumberOfTuples(); v++)
   {
     if (names1->GetVariantValue(v) != names2->GetVariantValue(v))
     {
-      cout << "tree1 and tree2 do not agree on the name of vertex " << v << endl;
+      std::cout << "tree1 and tree2 do not agree on the name of vertex " << v << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -90,14 +93,14 @@ int TestNewickTreeWriter(int argc, char* argv[])
   vtkAbstractArray* weights2 = tree2->GetEdgeData()->GetAbstractArray("weight");
   if (weights1->GetNumberOfTuples() != weights2->GetNumberOfTuples())
   {
-    cout << "the weights arrays are of different sizes" << endl;
+    std::cout << "the weights arrays are of different sizes" << std::endl;
     return EXIT_FAILURE;
   }
   for (vtkIdType e = 0; e < weights1->GetNumberOfTuples(); e++)
   {
     if (weights1->GetVariantValue(e) != weights2->GetVariantValue(e))
     {
-      cout << "tree1 and tree2 do not agree on the weight of edge " << e << endl;
+      std::cout << "tree1 and tree2 do not agree on the weight of edge " << e << std::endl;
       return EXIT_FAILURE;
     }
   }

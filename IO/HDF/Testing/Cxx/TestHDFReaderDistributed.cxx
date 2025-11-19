@@ -11,6 +11,8 @@
 #include "vtkSetGet.h"
 #include "vtkTesting.h"
 
+#include <iostream>
+
 namespace
 {
 

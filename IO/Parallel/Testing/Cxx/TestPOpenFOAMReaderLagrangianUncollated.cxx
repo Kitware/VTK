@@ -10,15 +10,14 @@
 #include "vtkPOpenFOAMReader.h"
 
 #include "vtkCompositeDataSet.h"
-#include "vtkDataSetMapper.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPolyData.h"
-#include "vtkSmartPointer.h"
 #include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
-#include "vtkUnstructuredGrid.h"
+
+#include <iostream>
 
 namespace
 {

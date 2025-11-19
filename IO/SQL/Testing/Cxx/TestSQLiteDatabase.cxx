@@ -18,23 +18,23 @@
 
 #include "vtkTestErrorObserver.h"
 
-#include <vector>
+#include <iostream>
 
 int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
 {
   bool status;
 
-  cerr << ">>>>> Testing bad input." << endl;
+  std::cerr << ">>>>> Testing bad input." << std::endl;
 
   vtkSQLDatabase* db0 = vtkSQLDatabase::CreateFromURL(nullptr);
   if (db0)
   {
-    cerr << "ERROR: Created a database from a nullptr URL! How?" << endl;
+    std::cerr << "ERROR: Created a database from a nullptr URL! How?" << std::endl;
     db0->Delete();
     return 1;
   }
 
-  cerr << ">>>>> Testing creation modes." << endl;
+  std::cerr << ">>>>> Testing creation modes." << std::endl;
 
   vtkSmartPointer<vtkTest::ErrorObserver> errorObserver =
     vtkSmartPointer<vtkTest::ErrorObserver>::New();
@@ -49,12 +49,12 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   query1->SetQuery("CREATE TABLE test (id INTEGER)");
   if (!query1->Execute())
   {
-    cerr << "Create query failed" << endl;
+    std::cerr << "Create query failed" << std::endl;
     return 1;
   }
   if (!status)
   {
-    cerr << "Couldn't open database using CREATE_OR_CLEAR.\n";
+    std::cerr << "Couldn't open database using CREATE_OR_CLEAR.\n";
     return 1;
   }
   db1->Delete();
@@ -66,14 +66,14 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   status = db2->Open("", vtkSQLiteDatabase::CREATE);
   if (status)
   {
-    cerr << "Using CREATE on an existing file should have failed but did not.\n";
+    std::cerr << "Using CREATE on an existing file should have failed but did not.\n";
     return 1;
   }
   int status1 =
     errorObserver->CheckErrorMessage("You specified creating a database but the file exists");
   if (status1 != 0)
   {
-    cerr << "Expected error message not found.\n";
+    std::cerr << "Expected error message not found.\n";
     return 1;
   }
   db2->Delete();
@@ -83,14 +83,14 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   status = db3->Open("", vtkSQLiteDatabase::USE_EXISTING_OR_CREATE);
   if (!status)
   {
-    cerr << "Using USE_EXISTING_OR_CREATE did not work.\n";
+    std::cerr << "Using USE_EXISTING_OR_CREATE did not work.\n";
     return 1;
   }
   vtkSQLQuery* query3 = db3->GetQueryInstance();
   query3->SetQuery("SELECT * from test");
   if (!query3->Execute())
   {
-    cerr << "Select query failed" << endl;
+    std::cerr << "Select query failed" << std::endl;
     return 1;
   }
   db3->Delete();
@@ -101,7 +101,7 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   status = db4->Open("", vtkSQLiteDatabase::CREATE_OR_CLEAR);
   if (!status)
   {
-    cerr << "Using CREATE_OR_CLEAR did not work.\n";
+    std::cerr << "Using CREATE_OR_CLEAR did not work.\n";
     return 1;
   }
   vtkSQLQuery* query4 = db4->GetQueryInstance();
@@ -109,7 +109,7 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   query4->SetQuery("SELECT * from test");
   if (query4->Execute())
   {
-    cerr << "Select query succeeded when it shouldn't have." << endl;
+    std::cerr << "Select query succeeded when it shouldn't have." << std::endl;
     return 1;
   }
   status1 = queryObserver->CheckErrorMessage("Query is not null but prepared statement is");
@@ -117,11 +117,11 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   query4->Delete();
   if (status1 != 0)
   {
-    cerr << "Expected error message not found.\n";
+    std::cerr << "Expected error message not found.\n";
     return 1;
   }
 
-  cerr << ">>>>> Testing database functions" << endl;
+  std::cerr << ">>>>> Testing database functions" << std::endl;
 
   vtkSQLiteDatabase* db =
     vtkSQLiteDatabase::SafeDownCast(vtkSQLDatabase::CreateFromURL("sqlite://:memory:"));
@@ -129,7 +129,7 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
 
   if (!status)
   {
-    cerr << "Couldn't open database.\n";
+    std::cerr << "Couldn't open database.\n";
     return 1;
   }
 
@@ -137,11 +137,11 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
 
   std::string createQuery(
     "CREATE TABLE IF NOT EXISTS people (name TEXT, age INTEGER, weight FLOAT)");
-  cout << createQuery << endl;
+  std::cout << createQuery << std::endl;
   query->SetQuery(createQuery.c_str());
   if (!query->Execute())
   {
-    cerr << "Create query failed" << endl;
+    std::cerr << "Create query failed" << std::endl;
     return 1;
   }
 
@@ -150,11 +150,11 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   {
     auto insertQuery = vtk::format(
       "INSERT INTO people (name, age, weight) VALUES('John Doe {:d}', {:d}, {:f})", i, i, 10.1 * i);
-    cout << insertQuery << endl;
+    std::cout << insertQuery << std::endl;
     query->SetQuery(insertQuery.c_str());
     if (!query->Execute())
     {
-      cerr << "Insert query " << i << " failed" << endl;
+      std::cerr << "Insert query " << i << " failed" << std::endl;
       return 1;
     }
   }
@@ -169,26 +169,26 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
     bool bind3 = query->BindParameter(2, 10.1 * i);
     if (!(bind1 && bind2 && bind3))
     {
-      cerr << "Parameter binding failed on query " << i << ": " << bind1 << " " << bind2 << " "
-           << bind3 << endl;
+      std::cerr << "Parameter binding failed on query " << i << ": " << bind1 << " " << bind2 << " "
+                << bind3 << std::endl;
       return 1;
     }
-    cout << query->GetQuery() << endl;
+    std::cout << query->GetQuery() << std::endl;
     if (!query->Execute())
     {
-      cerr << "Insert query " << i << " failed" << endl;
+      std::cerr << "Insert query " << i << " failed" << std::endl;
       return 1;
     }
   }
 
   const char* queryText = "SELECT name, age, weight FROM people WHERE age <= 20";
   query->SetQuery(queryText);
-  cerr << endl << "Running query: " << query->GetQuery() << endl;
+  std::cerr << std::endl << "Running query: " << query->GetQuery() << std::endl;
 
-  cerr << endl << "Using vtkSQLQuery directly to execute query:" << endl;
+  std::cerr << std::endl << "Using vtkSQLQuery directly to execute query:" << std::endl;
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     return 1;
   }
 
@@ -196,39 +196,39 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   {
     if (col > 0)
     {
-      cerr << ", ";
+      std::cerr << ", ";
     }
-    cerr << query->GetFieldName(col);
+    std::cerr << query->GetFieldName(col);
   }
-  cerr << endl;
+  std::cerr << std::endl;
   while (query->NextRow())
   {
     for (int field = 0; field < query->GetNumberOfFields(); field++)
     {
       if (field > 0)
       {
-        cerr << ", ";
+        std::cerr << ", ";
       }
-      cerr << query->DataValue(field).ToString();
+      std::cerr << query->DataValue(field).ToString();
     }
-    cerr << endl;
+    std::cerr << std::endl;
   }
 
-  cerr << endl << "Using vtkSQLQuery to execute query and retrieve by row:" << endl;
+  std::cerr << std::endl << "Using vtkSQLQuery to execute query and retrieve by row:" << std::endl;
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     return 1;
   }
   for (int col = 0; col < query->GetNumberOfFields(); col++)
   {
     if (col > 0)
     {
-      cerr << ", ";
+      std::cerr << ", ";
     }
-    cerr << query->GetFieldName(col);
+    std::cerr << query->GetFieldName(col);
   }
-  cerr << endl;
+  std::cerr << std::endl;
   vtkVariantArray* va = vtkVariantArray::New();
   while (query->NextRow(va))
   {
@@ -236,31 +236,31 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
     {
       if (field > 0)
       {
-        cerr << ", ";
+        std::cerr << ", ";
       }
-      cerr << va->GetValue(field).ToString();
+      std::cerr << va->GetValue(field).ToString();
     }
-    cerr << endl;
+    std::cerr << std::endl;
   }
   va->Delete();
 
-  cerr << endl << "Using vtkRowQueryToTable to execute query:" << endl;
+  std::cerr << std::endl << "Using vtkRowQueryToTable to execute query:" << std::endl;
   vtkRowQueryToTable* reader = vtkRowQueryToTable::New();
   reader->SetQuery(query);
   reader->Update();
   vtkTable* table = reader->GetOutput();
   for (vtkIdType col = 0; col < table->GetNumberOfColumns(); col++)
   {
-    table->GetColumn(col)->Print(cerr);
+    table->GetColumn(col)->Print(std::cerr);
   }
-  cerr << endl;
+  std::cerr << std::endl;
   for (vtkIdType row = 0; row < table->GetNumberOfRows(); row++)
   {
     for (vtkIdType col = 0; col < table->GetNumberOfColumns(); col++)
     {
       vtkVariant v = table->GetValue(row, col);
-      cerr << "row " << row << ", col " << col << " - " << v.ToString() << " ("
-           << vtkImageScalarTypeNameMacro(v.GetType()) << ")" << endl;
+      std::cerr << "row " << row << ", col " << col << " - " << v.ToString() << " ("
+                << vtkImageScalarTypeNameMacro(v.GetType()) << ")" << std::endl;
     }
   }
 
@@ -275,7 +275,7 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   DatabaseSchemaWith2Tables schema;
 
   // 2. Convert the schema into a SQLite database
-  cerr << "@@ Converting the schema into a SQLite database...";
+  std::cerr << "@@ Converting the schema into a SQLite database...";
 
   vtkSQLiteDatabase* dbSch =
     vtkSQLiteDatabase::SafeDownCast(vtkSQLDatabase::CreateFromURL("sqlite://:memory:"));
@@ -283,27 +283,27 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
 
   if (!status)
   {
-    cerr << "Couldn't open database.\n";
+    std::cerr << "Couldn't open database.\n";
     return 1;
   }
 
   status = dbSch->EffectSchema(schema.GetSchema());
   if (!status)
   {
-    cerr << "Could not effect test schema.\n";
+    std::cerr << "Could not effect test schema.\n";
     return 1;
   }
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // 3. Count tables of the newly created database
-  cerr << "@@ Fetching table names of the newly created database:\n";
+  std::cerr << "@@ Fetching table names of the newly created database:\n";
 
   query = dbSch->GetQueryInstance();
 
   query->SetQuery("SELECT name FROM sqlite_master WHERE type = \"table\"");
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     return 1;
   }
 
@@ -313,11 +313,11 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
   {
     std::string tblNameSch(schema->GetTableNameFromHandle(tblHandle));
     std::string tblNameDB(query->DataValue(0).ToString());
-    cerr << "     " << tblNameDB << "\n";
+    std::cerr << "     " << tblNameDB << "\n";
 
     if (tblNameDB != tblNameSch)
     {
-      cerr << "Fetched an incorrect name: " << tblNameDB << " != " << tblNameSch << endl;
+      std::cerr << "Fetched an incorrect name: " << tblNameDB << " != " << tblNameSch << std::endl;
       return 1;
     }
 
@@ -326,37 +326,37 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
 
   if (tblHandle != schema->GetNumberOfTables())
   {
-    cerr << "Found an incorrect number of tables: " << tblHandle
-         << " != " << schema->GetNumberOfTables() << endl;
+    std::cerr << "Found an incorrect number of tables: " << tblHandle
+              << " != " << schema->GetNumberOfTables() << std::endl;
     return 1;
   }
 
-  cerr << "   " << tblHandle << " found.\n";
+  std::cerr << "   " << tblHandle << " found.\n";
 
   // 4. Test EscapeString.
-  cerr << "@@ Escaping a naughty string...";
+  std::cerr << "@@ Escaping a naughty string...";
 
   std::string queryStr = "INSERT INTO atable (somename,somenmbr) VALUES ( " +
     query->EscapeString(vtkStdString("Str\"ang'eS\ntring"), true) + ", 2 )";
   query->SetQuery(queryStr.c_str());
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // 5. Read back the escaped string to verify it worked.
-  cerr << "@@ Reading it back... <";
+  std::cerr << "@@ Reading it back... <";
 
   queryStr = "SELECT somename FROM atable WHERE somenmbr=2";
   query->SetQuery(queryStr.c_str());
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
@@ -364,17 +364,17 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
 
   if (!query->NextRow())
   {
-    cerr << "Query returned no results" << endl;
+    std::cerr << "Query returned no results" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << query->DataValue(0).ToString() << "> ";
-  cerr << " done." << endl;
+  std::cerr << query->DataValue(0).ToString() << "> ";
+  std::cerr << " done." << std::endl;
 
   // 6. Drop tables
-  cerr << "@@ Dropping these tables...";
+  std::cerr << "@@ Dropping these tables...";
 
   for (std::vector<std::string>::iterator it = tables.begin(); it != tables.end(); ++it)
   {
@@ -384,12 +384,12 @@ int TestSQLiteDatabase(int /*argc*/, char* /*argv*/[])
 
     if (!query->Execute())
     {
-      cerr << "Query failed" << endl;
+      std::cerr << "Query failed" << std::endl;
       return 1;
     }
   }
 
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // Clean up
   dbSch->Delete();

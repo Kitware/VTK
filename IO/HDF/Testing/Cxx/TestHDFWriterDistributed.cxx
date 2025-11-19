@@ -39,6 +39,8 @@
 #include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPolyDataReader.h"
 
+#include <iostream>
+
 namespace HDFTestUtilities
 {
 vtkStandardNewMacro(vtkAddAssembly);

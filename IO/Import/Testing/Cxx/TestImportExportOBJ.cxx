@@ -15,6 +15,7 @@
 
 #include <algorithm> // For transform()
 #include <cctype>    // For to_lower
+#include <iostream>  // For std::cout, std::cerr
 #include <sstream>   // For stringstream
 #include <string>    // For find_last_of()
 

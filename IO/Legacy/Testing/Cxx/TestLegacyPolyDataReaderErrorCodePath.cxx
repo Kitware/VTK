@@ -5,6 +5,8 @@
 #include <vtkTestErrorObserver.h>
 #include <vtkTesting.h>
 
+#include <iostream>
+
 // A test for different error code path in the polydata reader
 int TestLegacyPolyDataReaderErrorCodePath(int argc, char* argv[])
 {

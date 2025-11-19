@@ -3,10 +3,11 @@
 
 #include "vtkCGNSReader.h"
 
-#include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 int TestCGNSReaderIgnoreMesh(int argc, char* argv[])
 {

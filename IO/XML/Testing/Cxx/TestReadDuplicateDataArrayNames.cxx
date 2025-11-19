@@ -12,6 +12,8 @@
 #include <cmath>
 #include <fstream>
 
+#include <iostream>
+
 #define NPOINTS 8
 #define NTIMESTEPS 8
 #define VTK_EPSILON 1.e-6

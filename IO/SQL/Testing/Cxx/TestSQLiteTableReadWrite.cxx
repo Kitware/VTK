@@ -17,6 +17,8 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
+#include <iostream>
+
 void PrintFile(const char* name, std::ostream& os);
 bool CompareAsciiFiles(const char* file1, const char* file2);
 

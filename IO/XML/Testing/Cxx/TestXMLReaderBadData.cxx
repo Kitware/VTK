@@ -6,6 +6,8 @@
 #include <vtkXMLDataParser.h>
 #include <vtkXMLGenericDataObjectReader.h>
 
+#include <iostream>
+
 int TestXMLReaderBadData(int argc, char* argv[])
 {
   // Verify input arguments

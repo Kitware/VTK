@@ -10,14 +10,11 @@
 #include "vtkCamera.h"
 #include "vtkCesiumB3DMReader.h"
 #include "vtkDataObjectTreeRange.h"
-#include "vtkFieldData.h"
 #include "vtkGLTFDocumentLoader.h"
 #include "vtkGLTFReader.h"
 #include "vtkGLTFTexture.h"
-#include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkPNGWriter.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
@@ -26,6 +23,8 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
+
+#include <iostream>
 
 void AddActors(vtkRenderer* renderer, vtkMultiBlockDataSet* mb, vtkGLTFReader* reader)
 {

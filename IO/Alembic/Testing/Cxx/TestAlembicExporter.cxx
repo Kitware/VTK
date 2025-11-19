@@ -21,6 +21,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 int TestAlembicExporter(int argc, char* argv[])
 {
   char* tempDir =

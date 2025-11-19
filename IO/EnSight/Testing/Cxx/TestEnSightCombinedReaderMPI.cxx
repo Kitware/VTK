@@ -23,6 +23,8 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 struct TestArgs
 {
   int* retval;

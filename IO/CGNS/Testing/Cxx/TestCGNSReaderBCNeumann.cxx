@@ -10,6 +10,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 int TestCGNSReaderBCNeumann(int argc, char* argv[])
 {
   // Unstructured dataset with Neumann boundary conditions

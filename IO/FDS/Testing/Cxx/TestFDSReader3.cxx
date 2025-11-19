@@ -13,6 +13,7 @@
 #include <vtkTesting.h>
 
 #include <cstdlib>
+#include <iostream>
 
 /**
  * This regression test ensures that empty slices names are correctly supported.

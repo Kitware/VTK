@@ -8,6 +8,8 @@
 #include "vtkNew.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestCGNSFaceMesh(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/BoxWithFaceData.cgns");

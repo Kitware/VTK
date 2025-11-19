@@ -14,6 +14,7 @@
 #include "vtkImageMapToColors.h"
 #include "vtkLookupTable.h"
 #include "vtksys/SystemTools.hxx"
+#include <iostream>
 #else
 #include "vtkTesting.h"
 #endif
@@ -50,11 +51,11 @@ int TestAVIWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkAVIWriter* w = vtkAVIWriter::New();
   w->SetInputConnection(colorize->GetOutputPort());
   w->SetFileName("TestAVIWriter.avi");
-  cout << "Writing file TestAVIWriter.avi..." << endl;
+  std::cout << "Writing file TestAVIWriter.avi..." << std::endl;
   w->Start();
   for (cc = 2; cc < 99; cc++)
   {
-    cout << ".";
+    std::cout << ".";
     Fractal0->SetMaximumNumberOfIterations(cc);
     table->SetTableRange(0, cc);
     table->SetNumberOfColors(cc);
@@ -63,23 +64,25 @@ int TestAVIWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     w->Write();
   }
   w->End();
-  cout << endl;
-  cout << "Done writing file TestAVIWriter.avi..." << endl;
+  std::cout << std::endl;
+  std::cout << "Done writing file TestAVIWriter.avi..." << std::endl;
   w->Delete();
 
   exists = (int)vtksys::SystemTools::FileExists("TestAVIWriter.avi");
   length = vtksys::SystemTools::FileLength("TestAVIWriter.avi");
-  cout << "TestAVIWriter.avi file exists: " << exists << endl;
-  cout << "TestAVIWriter.avi file length: " << length << endl;
+  std::cout << "TestAVIWriter.avi file exists: " << exists << std::endl;
+  std::cout << "TestAVIWriter.avi file length: " << length << std::endl;
   if (!exists)
   {
     err = 3;
-    cerr << "ERROR: 3 - Test failing because TestAVIWriter.avi file doesn't exist..." << endl;
+    std::cerr << "ERROR: 3 - Test failing because TestAVIWriter.avi file doesn't exist..."
+              << std::endl;
   }
   if (0 == length)
   {
     err = 4;
-    cerr << "ERROR: 4 - Test failing because TestAVIWriter.avi file has zero length..." << endl;
+    std::cerr << "ERROR: 4 - Test failing because TestAVIWriter.avi file has zero length..."
+              << std::endl;
   }
 
   colorize->Delete();

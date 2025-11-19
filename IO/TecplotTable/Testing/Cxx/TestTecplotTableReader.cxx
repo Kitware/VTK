@@ -5,6 +5,8 @@
 #include <vtkTecplotTableReader.h>
 #include <vtkTestUtilities.h>
 
+#include <iostream>
+
 // This tests the ability to read a Tecplot table. The test file contains residuals from a CFD
 // calculation.
 int TestTecplotTableReader(int argc, char* argv[])
@@ -18,17 +20,17 @@ int TestTecplotTableReader(int argc, char* argv[])
 
   vtkTable* table = reader->GetOutput();
   table->Dump();
-  cout << "Printing reader info..." << endl;
-  reader->Print(cout);
+  std::cout << "Printing reader info..." << std::endl;
+  reader->Print(std::cout);
 
   if (table->GetNumberOfRows() != 171)
   {
-    cout << "ERROR: Wrong number of rows: " << table->GetNumberOfRows() << endl;
+    std::cout << "ERROR: Wrong number of rows: " << table->GetNumberOfRows() << std::endl;
     return 1;
   }
   if (table->GetNumberOfColumns() != 11 + 1) // one extra for pedigree ids
   {
-    cout << "ERROR: Wrong number of columns: " << table->GetNumberOfColumns() << endl;
+    std::cout << "ERROR: Wrong number of columns: " << table->GetNumberOfColumns() << std::endl;
     return 1;
   }
 

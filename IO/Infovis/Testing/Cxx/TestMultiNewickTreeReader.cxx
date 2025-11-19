@@ -6,11 +6,13 @@
 #include "vtkTestUtilities.h"
 #include "vtkTree.h"
 
+#include <iostream>
+
 int TestMultiNewickTreeReader(int argc, char* argv[])
 {
   char* file = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/multi_tree.tre");
 
-  cerr << "file: " << file << endl;
+  std::cerr << "file: " << file << std::endl;
 
   vtkSmartPointer<vtkMultiNewickTreeReader> reader =
     vtkSmartPointer<vtkMultiNewickTreeReader>::New();
@@ -37,6 +39,6 @@ int TestMultiNewickTreeReader(int argc, char* argv[])
     }
   }
 
-  cerr << error_count << " errors" << endl;
+  std::cerr << error_count << " errors" << std::endl;
   return error_count;
 }

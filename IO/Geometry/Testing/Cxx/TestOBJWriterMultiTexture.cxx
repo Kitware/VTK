@@ -1,13 +1,14 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCellData.h"
-#include "vtkDebugLeaks.h"
 #include "vtkNew.h"
 #include "vtkOBJReader.h"
 #include "vtkOBJWriter.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 int CheckData(vtkPolyData* data)
 {

@@ -4,7 +4,6 @@
 // .SECTION Description
 //
 
-#include "vtkDebugLeaks.h"
 #include "vtkFileResourceStream.h"
 #include "vtkPLYReader.h"
 
@@ -17,7 +16,7 @@
 #include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
 
-#include "vtkWindowToImageFilter.h"
+#include <iostream>
 
 int TestPLYReader(int argc, char* argv[])
 {
@@ -41,13 +40,13 @@ int TestPLYReader(int argc, char* argv[])
   vtkStringArray* comments = reader->GetComments();
   if (comments->GetNumberOfValues() != 2)
   {
-    cerr << "Error: expected 2 comments, found " << comments->GetNumberOfValues() << endl;
+    std::cerr << "Error: expected 2 comments, found " << comments->GetNumberOfValues() << std::endl;
     return EXIT_FAILURE;
   }
   if (comments->GetValue(0) != "zipper output" || comments->GetValue(1) != "modified by flipply")
   {
-    cerr << "Error: comment strings differ from expected " << comments->GetValue(0) << "; "
-         << comments->GetValue(1) << endl;
+    std::cerr << "Error: comment strings differ from expected " << comments->GetValue(0) << "; "
+              << comments->GetValue(1) << std::endl;
     return EXIT_FAILURE;
   }
 

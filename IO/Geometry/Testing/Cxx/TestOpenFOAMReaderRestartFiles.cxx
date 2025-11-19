@@ -7,6 +7,8 @@
 #include <vtkSystemIncludes.h>
 #include <vtkTestUtilities.h>
 
+#include <iostream>
+
 // Simple RAII wrapper to ensure deletion of the filename and optionnaly the file itself at the end
 // of the scope.
 class RAIIFilename

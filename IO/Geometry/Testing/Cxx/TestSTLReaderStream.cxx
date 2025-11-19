@@ -12,13 +12,14 @@
 #include <vtkSTLReader.h>
 #include <vtkSmartPointer.h>
 
+#include <iostream>
 #include <string>
 
 int TestSTLReaderStream(int argc, char* argv[])
 {
   if (argc < 2)
   {
-    std::cerr << "Required parameters: <filename>" << endl;
+    std::cerr << "Required parameters: <filename>" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -52,7 +53,7 @@ int TestSTLReaderStream(int argc, char* argv[])
     if (nSolids != nHeaders)
     {
       std::cerr << "Number of Solid Names in Header does not match with the number of solids"
-                << endl;
+                << std::endl;
       return EXIT_FAILURE;
     }
 

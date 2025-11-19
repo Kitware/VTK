@@ -16,6 +16,8 @@
 #include <vtkRegressionTestImage.h>
 #include <vtkTestUtilities.h>
 
+#include <iostream>
+
 int TestOpenFOAMReader(int argc, char* argv[])
 {
   // Read file name.

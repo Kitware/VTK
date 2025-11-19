@@ -39,6 +39,8 @@
 
 #include <sstream> // istringstream
 
+#include <iostream>
+
 int TestADIOS2BPReaderMultiTimeSteps3D(int argc, char* argv[])
 {
   vtkNew<vtkADIOS2CoreImageReader> reader;

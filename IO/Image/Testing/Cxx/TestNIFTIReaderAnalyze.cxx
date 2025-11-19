@@ -24,6 +24,8 @@ Test compatibility of the vtkNIFTIImageReader with Analyze 7.5 files.
 
 #include <string>
 
+#include <iostream>
+
 static const char* dispfile = "Data/ANALYZE.HDR";
 
 static void TestDisplay(vtkRenderWindow* renwin, const char* infile)
@@ -31,7 +33,7 @@ static void TestDisplay(vtkRenderWindow* renwin, const char* infile)
   vtkNew<vtkNIFTIImageReader> reader;
   if (!reader->CanReadFile(infile))
   {
-    cerr << "CanReadFile failed for " << infile << "\n";
+    std::cerr << "CanReadFile failed for " << infile << "\n";
     exit(1);
   }
   reader->SetFileName(infile);
@@ -109,7 +111,7 @@ int TestNIFTIReaderAnalyze(int argc, char* argv[])
   char* infile = vtkTestUtilities::ExpandDataFileName(argc, argv, dispfile);
   if (!infile)
   {
-    cerr << "Could not locate input file " << dispfile << "\n";
+    std::cerr << "Could not locate input file " << dispfile << "\n";
     return 1;
   }
   std::string inpath = infile;

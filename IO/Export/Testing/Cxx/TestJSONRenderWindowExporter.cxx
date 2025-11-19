@@ -12,11 +12,12 @@
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkVolume.h"
-#include "vtkWindowNode.h"
 #include "vtksys/SystemTools.hxx"
 
 #include "vtkArchiver.h"
 #include "vtkJSONRenderWindowExporter.h"
+
+#include <iostream>
 
 int TestJSONRenderWindowExporter(int argc, char* argv[])
 {

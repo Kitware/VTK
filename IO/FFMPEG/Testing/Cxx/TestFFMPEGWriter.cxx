@@ -13,6 +13,8 @@
 #include "vtkLookupTable.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <iostream>
+
 int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int err = 0;
@@ -44,13 +46,13 @@ int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkFFMPEGWriter* w = vtkFFMPEGWriter::New();
   w->SetInputConnection(colorize->GetOutputPort());
   w->SetFileName("TestFFMPEGWriter.avi");
-  cout << "Writing file TestFFMPEGWriter.avi..." << endl;
+  std::cout << "Writing file TestFFMPEGWriter.avi..." << std::endl;
   w->SetBitRate(1024 * 1024 * 30);
   w->SetBitRateTolerance(1024 * 1024 * 3);
   w->Start();
   for (cc = 2; cc < 99; cc++)
   {
-    cout << ".";
+    std::cout << ".";
     Fractal0->SetMaximumNumberOfIterations(cc);
     table->SetTableRange(0, cc);
     table->SetNumberOfColors(cc);
@@ -59,18 +61,19 @@ int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     w->Write();
   }
   w->End();
-  cout << endl;
-  cout << "Done writing file TestFFMPEGWriter.avi..." << endl;
+  std::cout << std::endl;
+  std::cout << "Done writing file TestFFMPEGWriter.avi..." << std::endl;
   w->Delete();
 
   exists = (int)vtksys::SystemTools::FileExists("TestFFMPEGWriter.avi");
   length = vtksys::SystemTools::FileLength("TestFFMPEGWriter.avi");
-  cout << "TestFFMPEGWriter.avi file exists: " << exists << endl;
-  cout << "TestFFMPEGWriter.avi file length: " << length << endl;
+  std::cout << "TestFFMPEGWriter.avi file exists: " << exists << std::endl;
+  std::cout << "TestFFMPEGWriter.avi file length: " << length << std::endl;
   if (!exists)
   {
     err = 1;
-    cerr << "ERROR: 1 - Test failing because TestFFMPEGWriter.avi file doesn't exist..." << endl;
+    std::cerr << "ERROR: 1 - Test failing because TestFFMPEGWriter.avi file doesn't exist..."
+              << std::endl;
   }
   else
   {
@@ -79,7 +82,8 @@ int TestFFMPEGWriter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (0 == length)
   {
     err = 2;
-    cerr << "ERROR: 2 - Test failing because TestFFMPEGWriter.avi file has zero length..." << endl;
+    std::cerr << "ERROR: 2 - Test failing because TestFFMPEGWriter.avi file has zero length..."
+              << std::endl;
   }
 
   colorize->Delete();

@@ -9,12 +9,14 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+#include <iostream>
+
 int TestPNGReader(int argc, char* argv[])
 {
 
   if (argc <= 1)
   {
-    cout << "Usage: " << argv[0] << " <png file>" << endl;
+    std::cout << "Usage: " << argv[0] << " <png file>" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -25,7 +27,7 @@ int TestPNGReader(int argc, char* argv[])
   // Check the image can be read
   if (!pngReader->CanReadFile(filename.c_str()))
   {
-    cerr << "CanReadFile failed for " << filename << "\n";
+    std::cerr << "CanReadFile failed for " << filename << "\n";
     return EXIT_FAILURE;
   }
 
@@ -35,10 +37,10 @@ int TestPNGReader(int argc, char* argv[])
 
   // Read and display the image properties
   const char* fileExtensions = pngReader->GetFileExtensions();
-  cout << "File extensions: " << fileExtensions << endl;
+  std::cout << "File extensions: " << fileExtensions << std::endl;
 
   const char* descriptiveName = pngReader->GetDescriptiveName();
-  cout << "Descriptive name: " << descriptiveName << endl;
+  std::cout << "Descriptive name: " << descriptiveName << std::endl;
 
   // Visualize
   vtkNew<vtkImageViewer> imageViewer;

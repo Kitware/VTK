@@ -11,6 +11,8 @@
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 //----------------------------------------------------------------------------
 int TestPIOReaderHDF5(int argc, char* argv[])
 {

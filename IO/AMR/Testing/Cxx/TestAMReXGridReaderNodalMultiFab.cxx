@@ -1,24 +1,20 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkAMRBox.h"
 #include "vtkAMReXGridReader.h"
-#include "vtkAMReXParticlesReader.h"
-#include "vtkDataArraySelection.h"
-#include "vtkIdTypeArray.h"
-#include "vtkMultiPieceDataSet.h"
+#include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPointData.h"
-#include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
-#include "vtkUniformGrid.h"
+
+#include <iostream>
 
 #define ensure(x, msg)                                                                             \
   do                                                                                               \
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << "FAILED: " << msg << endl;                                                           \
+      std::cerr << "FAILED: " << msg << std::endl;                                                 \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
   } while (false)

@@ -9,6 +9,8 @@
 #include "vtkXMLDataObjectWriter.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include <iostream>
+
 bool CheckHasTimeValue(vtkUnstructuredGrid* output)
 {
   vtkFieldData* fd = output->GetFieldData();

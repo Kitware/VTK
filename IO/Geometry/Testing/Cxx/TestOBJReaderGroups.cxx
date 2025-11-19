@@ -6,6 +6,7 @@
 //
 
 #include <algorithm>
+#include <iostream>
 
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
