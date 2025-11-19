@@ -205,6 +205,11 @@ protected:
 private:
   vtkChartParallelCoordinates(const vtkChartParallelCoordinates&) = delete;
   void operator=(const vtkChartParallelCoordinates&) = delete;
+
+  /**
+   * Clear all axes selections
+   */
+  void ClearAllAxesSelections();
 };
 
 VTK_ABI_NAMESPACE_END
