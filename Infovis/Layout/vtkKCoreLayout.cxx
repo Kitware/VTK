@@ -139,7 +139,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
   float epsilon = this->Epsilon;
   float unit_radius = this->UnitRadius;
 
-  // cout << ">\tvtkKCoreLayout.RequestData()" << endl;
+  // std::cout << ">\tvtkKCoreLayout.RequestData()" << endl;
 
   // get the info objects
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
@@ -243,7 +243,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
       max_core_level < kcore_array->GetValue(i) ? kcore_array->GetValue(i) : max_core_level;
   }
 
-  // cout << "max core level: " << max_core_level << endl;
+  // std::cout << "max core level: " << max_core_level << endl;
 
   // Loop over each vertex and calculate its position
   for (vtkIdType vidx = 0; vidx < num_verts; vidx++)
@@ -254,7 +254,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
       radius = unit_radius;
       angle = float(rand() % 100000) / 100000 * 2.0 * vtkMath::Pi();
 
-      // cout << vidx << "\t(" << radius << "," << angle << ")" << endl;
+      // std::cout << vidx << "\t(" << radius << "," << angle << ")" << endl;
       if (this->Cartesian)
       {
         arrayX->SetValue(vidx, radius * cos(angle));
@@ -290,7 +290,7 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
       }
       it->Delete();
 
-      // cout << vidx << "\tneighbors_same_or_higher = " <<
+      // std::cout << vidx << "\tneighbors_same_or_higher = " <<
       // neighbors_same_or_higher->GetNumberOfTuples() << endl;
 
       int neighbor_average_ring = 0;
@@ -308,18 +308,18 @@ int vtkKCoreLayout::RequestData(vtkInformation* vtkNotUsed(request),
         // ring anyway.
         neighbor_average_ring = vertex_native_ring;
       }
-      // cout << vidx << "\tneighbor_average_ring = " << neighbor_average_ring << endl;
+      // std::cout << vidx << "\tneighbor_average_ring = " << neighbor_average_ring << endl;
 
       // Use epsilon as an interpolation factor between the two ring levels
       radius = (1 - epsilon) * vertex_native_ring + epsilon * neighbor_average_ring;
       radius *= unit_radius;
 
 #ifdef DEBUG_KCORELAYOUT
-      cout << "DEBUG: Vertex in shell level " << current_level << " (native ring "
-           << vertex_native_ring << ", max core level " << max_core_level
-           << ") and average neighbor ring " << neighbor_average_ring << " ("
-           << neighbors_same_or_higher->GetNumberOfTuples() << " neighbor(s)) is at radius "
-           << radius << " with epsilon " << epsilon << endl;
+      std::cout << "DEBUG: Vertex in shell level " << current_level << " (native ring "
+                << vertex_native_ring << ", max core level " << max_core_level
+                << ") and average neighbor ring " << neighbor_average_ring << " ("
+                << neighbors_same_or_higher->GetNumberOfTuples() << " neighbor(s)) is at radius "
+                << radius << " with epsilon " << epsilon << endl;
 #endif
 
       // Need the angle.

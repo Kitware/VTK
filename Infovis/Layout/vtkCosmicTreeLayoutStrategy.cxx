@@ -19,6 +19,9 @@
 
 #if VTK_MODULE_ENABLE_VTK_InfovisBoostGraphAlgorithms
 #include "vtkBoostBreadthFirstSearchTree.h"
+
+#include <iostream>
+
 #endif
 
 // Define to print debug showing convergence (or lack thereof) of loop to find enclosing radius, Re
@@ -365,27 +368,27 @@ void vtkCosmicTreeLayoutStrategy::Layout()
   this->OffsetChildren(tree, newPoints, radii, scale, metaRoot, currentRoot,
     this->LayoutDepth < 0 ? 0 : this->LayoutDepth, mode);
 #ifdef VTK_COSMIC_DBG
-  cout << "octr = [ ";
+  std::cout << "octr = [ ";
   for (vtkIdType k = 0; k < newPoints->GetNumberOfPoints(); ++k)
   {
     double* x = newPoints->GetPoint(k);
     // double r = radii->GetValue( k );
-    // cout << "k: " << k << "   x: " << x[0] << " y: " << x[1] << "  r: " << r <<  "\n";
-    cout << x[0] << " " << x[1] << "\n";
+    // std::cout << "k: " << k << "   x: " << x[0] << " y: " << x[1] << "  r: " << r <<  "\n";
+    std::cout << x[0] << " " << x[1] << "\n";
   }
-  cout << "]; orad = [ ";
+  std::cout << "]; orad = [ ";
 #endif // VTK_COSMIC_DBG
   for (vtkIdType k = 0; k < newPoints->GetNumberOfPoints(); ++k)
   {
     double r = radii->GetValue(k);
 #ifdef VTK_COSMIC_DBG
-    cout << r << "\n";
+    std::cout << r << "\n";
 #endif // VTK_COSMIC_DBG
     // FIXME: the GraphMapper expects a diameter. Make it accept radii instead.
     radii->SetValue(k, 2. * r);
   }
 #ifdef VTK_COSMIC_DBG
-  cout << "];\nplotbub( octr, orad );\n";
+  std::cout << "];\nplotbub( octr, orad );\n";
 #endif // VTK_COSMIC_DBG
 
   // Copy coordinates back into the original graph
@@ -488,7 +491,7 @@ void vtkCosmicTreeLayoutStrategy::OffsetChildren(vtkTree* tree, vtkPoints* pts,
   vtkDoubleArray* radii, vtkDoubleArray* scale, double parent[4], vtkIdType root, int depth,
   RadiusMode mode)
 {
-  // cout << "depth: " << depth << " LOD: " << this->LayoutDepth << "\n";
+  // std::cout << "depth: " << depth << " LOD: " << this->LayoutDepth << "\n";
   if (depth < 0 && this->LayoutDepth > 0)
     return;
 
