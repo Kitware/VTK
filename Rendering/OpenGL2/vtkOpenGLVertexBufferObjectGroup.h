@@ -158,6 +158,17 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
+  //@{
+  /**
+   * Specify if this VBO group is used for instancing.
+   * This will change the divisor value when calling AddAllAttributesToVAO.
+   * Default is disabled.
+   */
+  vtkSetMacro(Instancing, bool);
+  vtkGetMacro(Instancing, bool);
+  vtkBooleanMacro(Instancing, bool);
+  //@}
+
 protected:
   vtkOpenGLVertexBufferObjectGroup();
   ~vtkOpenGLVertexBufferObjectGroup() override;
@@ -170,6 +181,8 @@ protected:
 private:
   vtkOpenGLVertexBufferObjectGroup(const vtkOpenGLVertexBufferObjectGroup&) = delete;
   void operator=(const vtkOpenGLVertexBufferObjectGroup&) = delete;
+
+  bool Instancing = false;
 };
 
 VTK_ABI_NAMESPACE_END
