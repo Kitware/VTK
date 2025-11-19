@@ -8,7 +8,6 @@
 #include "vtkCaptionActor2D.h"
 #include "vtkCaptionRepresentation.h"
 #include "vtkCaptionWidget.h"
-#include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRenderWindow.h"
@@ -18,6 +17,8 @@
 #include "vtkSphereSource.h"
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
+
+#include <iostream>
 
 constexpr char eventLog[] = "# StreamVersion 1\n"
                             "EnterEvent 56 3 0 0 0 0 0\n"
@@ -956,7 +957,7 @@ int TestCaptionWidget(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   recorder->Off();
 #endif
 
-  cout << "Setting new caption\n";
+  std::cout << "Setting new caption\n";
   rep->GetCaptionActor2D()->SetCaption(
     "Okay the caption has now changed and the border should resize");
   rep->Modified();

@@ -6,23 +6,19 @@
 #include "vtkActor.h"
 #include "vtkAngleRepresentation3D.h"
 #include "vtkAngleWidget.h"
-#include "vtkAxisActor2D.h"
 #include "vtkCommand.h"
-#include "vtkCoordinate.h"
-#include "vtkHandleWidget.h"
 #include "vtkMath.h"
 #include "vtkPointHandleRepresentation3D.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
-#include "vtkTestUtilities.h"
 #include "vtkTesting.h"
-#include "vtkXMLPolyDataReader.h"
+
+#include <iostream>
 
 namespace
 {

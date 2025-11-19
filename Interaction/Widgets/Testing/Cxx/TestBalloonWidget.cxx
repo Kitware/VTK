@@ -11,7 +11,6 @@
 #include "vtkConeSource.h"
 #include "vtkCylinderSource.h"
 #include "vtkInteractorEventRecorder.h"
-#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPropPicker.h"
 #include "vtkRenderWindow.h"
@@ -21,6 +20,8 @@
 #include "vtkSphereSource.h"
 #include "vtkTIFFReader.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 class vtkBalloonCallback : public vtkCommand
 {

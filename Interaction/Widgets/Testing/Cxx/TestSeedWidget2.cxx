@@ -5,15 +5,11 @@
 
 // First include the required header files for the VTK classes we are using.
 #include "vtkActor.h"
-#include "vtkAxisActor2D.h"
 #include "vtkCommand.h"
-#include "vtkCoordinate.h"
-#include "vtkHandleWidget.h"
 #include "vtkImageActor.h"
 #include "vtkImageMapToColors.h"
 #include "vtkImageMapper3D.h"
 #include "vtkLookupTable.h"
-#include "vtkMath.h"
 #include "vtkPointHandleRepresentation2D.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty2D.h"
@@ -23,10 +19,11 @@
 #include "vtkSeedRepresentation.h"
 #include "vtkSeedWidget.h"
 #include "vtkSmartPointer.h"
-#include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkVolume16Reader.h"
+
+#include <iostream>
 
 constexpr char TestSeedWidget2Log[] = "# StreamVersion 1\n"
                                       "EnterEvent 292 47 0 0 0 0 0\n"

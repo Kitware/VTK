@@ -18,8 +18,9 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkTransform.h"
 #include "vtkVolume16Reader.h"
+
+#include <iostream>
 
 constexpr char BiDimensionalWidgetEventLog[] = "# StreamVersion 1\n"
                                                "RenderEvent 0 0 0 0 0 0 0\n"

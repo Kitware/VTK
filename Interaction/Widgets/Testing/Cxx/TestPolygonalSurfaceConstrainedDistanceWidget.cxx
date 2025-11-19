@@ -20,7 +20,6 @@
 #include "vtkImageData.h"
 #include "vtkImageDataGeometryFilter.h"
 #include "vtkImageResample.h"
-#include "vtkInteractorEventRecorder.h"
 #include "vtkLookupTable.h"
 #include "vtkPointHandleRepresentation3D.h"
 #include "vtkPolyData.h"
@@ -38,6 +37,8 @@
 #include "vtkTesting.h"
 #include "vtkTriangleFilter.h"
 #include "vtkWarpScalar.h"
+
+#include <iostream>
 
 constexpr char TestPolygonalSurfaceConstrainedDistanceWidgetLog[] =
   "# StreamVersion 1 i\n"

@@ -8,7 +8,6 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCellArray.h"
 #include "vtkDEMReader.h"
 #include "vtkHandleWidget.h"
 #include "vtkImageData.h"
@@ -16,9 +15,6 @@
 #include "vtkImageResample.h"
 #include "vtkLODActor.h"
 #include "vtkLookupTable.h"
-#include "vtkPoints.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataCollection.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkProperty.h"
@@ -31,8 +27,9 @@
 #include "vtkTriangleFilter.h"
 #include "vtkWarpScalar.h"
 
-#include "vtkDataSetWriter.h"
 #include "vtkMultiThreader.h"
+
+#include <iostream>
 
 constexpr char TestSphereHandleWidgetEventLog[] = "# StreamVersion 1\n"
                                                   "MouseMoveEvent 181 152 0 0 0 0 0\n"
@@ -262,7 +259,7 @@ int TestSphereHandleWidget(int argc, char* argv[])
   warp->SetNormal(0, 0, 1);
   warp->Update();
 
-  // cout << warp->GetOutput()->GetNumberOfCells() << endl;
+  // std::cout << warp->GetOutput()->GetNumberOfCells() << std::endl;
 
   // vtkSmartPointer<vtkDataSetWriter> writer =
   //   vtkSmartPointer<vtkDataSetWriter>::New();

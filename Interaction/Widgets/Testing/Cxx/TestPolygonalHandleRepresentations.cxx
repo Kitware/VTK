@@ -2,19 +2,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCellArray.h"
 #include "vtkDEMReader.h"
 #include "vtkGlyphSource2D.h"
 #include "vtkHandleWidget.h"
 #include "vtkImageData.h"
 #include "vtkImageDataGeometryFilter.h"
 #include "vtkImageResample.h"
-#include "vtkInteractorEventRecorder.h"
 #include "vtkLODActor.h"
 #include "vtkLookupTable.h"
 #include "vtkOrientedPolygonalHandleRepresentation3D.h"
 #include "vtkPointHandleRepresentation3D.h"
-#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataCollection.h"
 #include "vtkPolyDataMapper.h"
@@ -31,6 +28,9 @@
 #include "vtkWarpScalar.h"
 
 #include "vtkSmartPointer.h"
+
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 vtkSmartPointer<vtkHandleWidget> CreateWidget(vtkRenderWindowInteractor* iren, int shape, double x,

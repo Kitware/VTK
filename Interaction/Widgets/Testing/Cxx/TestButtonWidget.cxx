@@ -3,7 +3,6 @@
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"
 #include "vtkButtonWidget.h"
-#include "vtkColorTransferFunction.h"
 #include "vtkCommand.h"
 #include "vtkConeSource.h"
 #include "vtkEllipticalButtonSource.h"
@@ -12,7 +11,6 @@
 #include "vtkLookupTable.h"
 #include "vtkOutlineSource.h"
 #include "vtkPNGReader.h"
-#include "vtkPiecewiseFunction.h"
 #include "vtkPlatonicSolidSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProp3DButtonRepresentation.h"
@@ -22,11 +20,12 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
-#include "vtkStructuredPointsReader.h"
 #include "vtkTIFFReader.h"
 #include "vtkTestUtilities.h"
 #include "vtkTexturedButtonRepresentation.h"
 #include "vtkTexturedButtonRepresentation2D.h"
+
+#include <iostream>
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -452,7 +451,7 @@ public:
     vtkTexturedButtonRepresentation* rep =
       reinterpret_cast<vtkTexturedButtonRepresentation*>(buttonWidget->GetRepresentation());
     int state = rep->GetState();
-    cout << "State: " << state << "\n";
+    std::cout << "State: " << state << "\n";
     this->Glyph->SetScaleFactor(0.05 * (1 + state));
   }
   vtkButtonCallback()

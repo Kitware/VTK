@@ -5,6 +5,7 @@
 #include "vtkMathUtilities.h"
 
 #include <array>
+#include <iostream>
 
 bool areEquals(double p1[3], double p2[3])
 {

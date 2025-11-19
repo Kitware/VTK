@@ -36,9 +36,10 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkTesting.h"
+
+#include <iostream>
 
 //------------------------------------------------------------------------------
 class vtkBalloonPickCallback : public vtkCommand

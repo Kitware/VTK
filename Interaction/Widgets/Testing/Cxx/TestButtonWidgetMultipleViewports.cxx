@@ -3,10 +3,8 @@
 #include "vtkActor.h"
 #include "vtkAppendPolyData.h"
 #include "vtkButtonWidget.h"
-#include "vtkColorTransferFunction.h"
 #include "vtkCommand.h"
 #include "vtkConeSource.h"
-#include "vtkCoordinate.h"
 #include "vtkEllipticalButtonSource.h"
 #include "vtkGlyph3D.h"
 #include "vtkLookupTable.h"
@@ -20,12 +18,13 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkStructuredPointsReader.h"
 #include "vtkTIFFReader.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkTexturedButtonRepresentation.h"
 #include "vtkTexturedButtonRepresentation2D.h"
+
+#include <iostream>
 
 static char ButtonWidgetMultipleViewportsEventLog[] = "# StreamVersion 1\n"
                                                       "EnterEvent 198 290 0 0 0 0 0\n"
@@ -967,7 +966,7 @@ public:
     vtkTexturedButtonRepresentation* rep =
       reinterpret_cast<vtkTexturedButtonRepresentation*>(buttonWidget->GetRepresentation());
     int state = rep->GetState();
-    cout << "State: " << state << "\n";
+    std::cout << "State: " << state << "\n";
     this->Glyph->SetScaleFactor(0.05 * (1 + state));
   }
   vtkButtonWidgetMultipleViewportsCallback()

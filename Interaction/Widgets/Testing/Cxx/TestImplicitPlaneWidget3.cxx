@@ -21,6 +21,8 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 constexpr char eventLog3[] = "# StreamVersion 1\n"
                              "CharEvent 108 202 0 0 105 1 i\n"
                              "MouseWheelBackwardEvent 147 151 0 0 0 0 i\n"
