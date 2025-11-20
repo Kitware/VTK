@@ -2,6 +2,7 @@ vtk_module_test_data(
   Data/SurfaceVectors.vtk
   Data/noise.png
   Data/timestep_0_15.vts
+  Data/ex-blow_5.vtm
   Data/ex-blow_5/,REGEX:.*)
 
 add_subdirectory(Cxx)
