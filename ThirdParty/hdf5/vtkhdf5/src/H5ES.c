@@ -13,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:     H5ES.c
- *              Apr  6 2020
- *              Quincey Koziol
  *
  * Purpose:     Implements an "event set" for managing asynchronous
  *                      operations.
@@ -37,7 +35,6 @@
 #include "H5private.h"   /* Generic Functions			 */
 #include "H5Eprivate.h"  /* Error handling		  	 */
 #include "H5ESpkg.h"     /* Event Sets                           */
-#include "H5FLprivate.h" /* Free Lists                           */
 #include "H5Iprivate.h"  /* IDs                                  */
 #include "H5MMprivate.h" /* Memory management                    */
 
@@ -77,9 +74,6 @@
  * Return:      Success:    An ID for the event set
  *              Failure:    H5I_INVALID_HID
  *
- * Programmer:  Quincey Koziol
- *              Wednesday, April 8, 2020
- *
  *-------------------------------------------------------------------------
  */
 hid_t
@@ -89,15 +83,14 @@ H5EScreate(void)
     hid_t   ret_value = H5I_INVALID_HID; /* Return value */
 
     FUNC_ENTER_API(H5I_INVALID_HID)
-    H5TRACE0("i", "");
 
     /* Create the new event set object */
     if (NULL == (es = H5ES__create()))
-        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTCREATE, H5I_INVALID_HID, "can't create event set")
+        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTCREATE, H5I_INVALID_HID, "can't create event set");
 
     /* Register the new event set to get an ID for it */
-    if ((ret_value = H5I_register(H5I_EVENTSET, es, TRUE)) < 0)
-        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTREGISTER, H5I_INVALID_HID, "can't register event set")
+    if ((ret_value = H5I_register(H5I_EVENTSET, es, true)) < 0)
+        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTREGISTER, H5I_INVALID_HID, "can't register event set");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -113,9 +106,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:	Quincey Koziol
- *              Friday, December 11, 2020
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -126,28 +116,27 @@ H5ESinsert_request(hid_t es_id, hid_t connector_id, void *request)
     herr_t  ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "ii*x", es_id, connector_id, request);
 
     /* Check arguments */
     if (NULL == (es = H5I_object_verify(es_id, H5I_EVENTSET)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier");
     if (NULL == request)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL request pointer")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL request pointer");
 
     /* Create new VOL connector object, using the connector ID */
     if (NULL == (connector = H5VL_new_connector(connector_id)))
-        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTCREATE, FAIL, "can't create VOL connector object")
+        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTCREATE, FAIL, "can't create VOL connector object");
 
     /* Insert request into event set */
     if (H5ES__insert_request(es, connector, request) < 0)
-        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTINSERT, FAIL, "can't insert request into event set")
+        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTINSERT, FAIL, "can't insert request into event set");
 
 done:
     /* Clean up on error */
     if (ret_value < 0)
         /* Release newly created connector */
         if (connector && H5VL_conn_dec_rc(connector) < 0)
-            HDONE_ERROR(H5E_EVENTSET, H5E_CANTDEC, FAIL, "unable to decrement ref count on VOL connector")
+            HDONE_ERROR(H5E_EVENTSET, H5E_CANTDEC, FAIL, "unable to decrement ref count on VOL connector");
 
     FUNC_LEAVE_API(ret_value)
 } /* end H5ESinsert_request() */
@@ -161,9 +150,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:  Quincey Koziol
- *              Wednesday, April 8, 2020
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -172,7 +158,6 @@ H5ESget_count(hid_t es_id, size_t *count /*out*/)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", es_id, count);
 
     /* Passing H5ES_NONE is valid, but a no-op */
     if (H5ES_NONE != es_id) {
@@ -180,7 +165,7 @@ H5ESget_count(hid_t es_id, size_t *count /*out*/)
 
         /* Check arguments */
         if (NULL == (es = H5I_object_verify(es_id, H5I_EVENTSET)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier");
 
         /* Retrieve the count, if non-NULL */
         if (count)
@@ -205,9 +190,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:  Quincey Koziol
- *              Fiiday, November 6, 2020
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -216,7 +198,6 @@ H5ESget_op_counter(hid_t es_id, uint64_t *op_counter /*out*/)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", es_id, op_counter);
 
     /* Passing H5ES_NONE is valid, but a no-op */
     if (H5ES_NONE != es_id) {
@@ -224,7 +205,7 @@ H5ESget_op_counter(hid_t es_id, uint64_t *op_counter /*out*/)
 
         /* Check arguments */
         if (NULL == (es = H5I_object_verify(es_id, H5I_EVENTSET)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier");
 
         /* Retrieve the operation counter, if non-NULL */
         if (op_counter)
@@ -256,9 +237,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:  Neil Fortner
- *              Tuesday, November 23, 2021
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -269,18 +247,17 @@ H5ESget_requests(hid_t es_id, H5_iter_order_t order, hid_t *connector_ids, void 
     herr_t  ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE5("e", "iIo*i**xx", es_id, order, connector_ids, requests, count);
 
     /* Check arguments */
     if (NULL == (es = H5I_object_verify(es_id, H5I_EVENTSET)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier");
     if (order <= H5_ITER_UNKNOWN || order >= H5_ITER_N)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid iteration order specified")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid iteration order specified");
 
     /* Call internal routine */
     if (array_len > 0 && (requests || connector_ids))
         if (H5ES__get_requests(es, order, connector_ids, requests, array_len) < 0)
-            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTGET, FAIL, "can't get requests")
+            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTGET, FAIL, "can't get requests");
 
     /* Retrieve the count, if non-NULL */
     if (count)
@@ -313,9 +290,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:  Quincey Koziol
- *              Monday, July 13, 2020
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -324,7 +298,6 @@ H5ESwait(hid_t es_id, uint64_t timeout, size_t *num_in_progress /*out*/, hbool_t
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "iULxx", es_id, timeout, num_in_progress, op_failed);
 
     /* Passing H5ES_NONE is valid, but a no-op */
     if (H5ES_NONE != es_id) {
@@ -332,15 +305,15 @@ H5ESwait(hid_t es_id, uint64_t timeout, size_t *num_in_progress /*out*/, hbool_t
 
         /* Check arguments */
         if (NULL == (es = H5I_object_verify(es_id, H5I_EVENTSET)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier");
         if (NULL == num_in_progress)
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL num_in_progress pointer")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL num_in_progress pointer");
         if (NULL == op_failed)
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL op_failed pointer")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL op_failed pointer");
 
         /* Wait for operations */
         if (H5ES__wait(es, timeout, num_in_progress, op_failed) < 0)
-            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTWAIT, FAIL, "can't wait on operations")
+            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTWAIT, FAIL, "can't wait on operations");
     } /* end if */
 
 done:
@@ -356,9 +329,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:	Quincey Koziol
- *              Thursday, December 10, 2020
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -367,7 +337,6 @@ H5EScancel(hid_t es_id, size_t *num_not_canceled /*out*/, hbool_t *op_failed /*o
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "ixx", es_id, num_not_canceled, op_failed);
 
     /* Passing H5ES_NONE is valid, but a no-op */
     if (H5ES_NONE != es_id) {
@@ -375,15 +344,15 @@ H5EScancel(hid_t es_id, size_t *num_not_canceled /*out*/, hbool_t *op_failed /*o
 
         /* Check arguments */
         if (NULL == (es = H5I_object_verify(es_id, H5I_EVENTSET)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier");
         if (NULL == num_not_canceled)
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL num_not_canceled pointer")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL num_not_canceled pointer");
         if (NULL == op_failed)
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL op_failed pointer")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL op_failed pointer");
 
         /* Cancel operations */
         if (H5ES__cancel(es, num_not_canceled, op_failed) < 0)
-            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTCANCEL, FAIL, "can't cancel operations")
+            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTCANCEL, FAIL, "can't cancel operations");
     } /* end if */
 
 done:
@@ -399,9 +368,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:  Quincey Koziol
- *              Thursday, October 15, 2020
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -410,7 +376,6 @@ H5ESget_err_status(hid_t es_id, hbool_t *err_status /*out*/)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", es_id, err_status);
 
     /* Passing H5ES_NONE is valid, but a no-op */
     if (H5ES_NONE != es_id) {
@@ -418,7 +383,7 @@ H5ESget_err_status(hid_t es_id, hbool_t *err_status /*out*/)
 
         /* Check arguments */
         if (NULL == (es = H5I_object_verify(es_id, H5I_EVENTSET)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier");
 
         /* Retrieve the error flag, if non-NULL */
         if (err_status)
@@ -441,9 +406,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:  Quincey Koziol
- *              Thursday, October 15, 2020
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -452,7 +414,6 @@ H5ESget_err_count(hid_t es_id, size_t *num_errs /*out*/)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", es_id, num_errs);
 
     /* Passing H5ES_NONE is valid, but a no-op */
     if (H5ES_NONE != es_id) {
@@ -460,7 +421,7 @@ H5ESget_err_count(hid_t es_id, size_t *num_errs /*out*/)
 
         /* Check arguments */
         if (NULL == (es = H5I_object_verify(es_id, H5I_EVENTSET)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier");
 
         /* Retrieve the error flag, if non-NULL */
         if (num_errs) {
@@ -487,9 +448,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:  Quincey Koziol
- *              Friday, November 6, 2020
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -499,7 +457,6 @@ H5ESget_err_info(hid_t es_id, size_t num_err_info, H5ES_err_info_t err_info[] /*
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "izxx", es_id, num_err_info, err_info, num_cleared);
 
     /* Passing H5ES_NONE is valid, but a no-op */
     if (H5ES_NONE != es_id) {
@@ -507,17 +464,17 @@ H5ESget_err_info(hid_t es_id, size_t num_err_info, H5ES_err_info_t err_info[] /*
 
         /* Check arguments */
         if (NULL == (es = H5I_object_verify(es_id, H5I_EVENTSET)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier");
         if (0 == num_err_info)
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "err_info array size is 0")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "err_info array size is 0");
         if (NULL == err_info)
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL err_info array pointer")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL err_info array pointer");
         if (NULL == num_cleared)
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL errors cleared pointer")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL errors cleared pointer");
 
         /* Retrieve the error information */
         if (H5ES__get_err_info(es, num_err_info, err_info, num_cleared) < 0)
-            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTGET, FAIL, "can't retrieve error info for failed operation(s)")
+            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTGET, FAIL, "can't retrieve error info for failed operation(s)");
     } /* end if */
 
 done:
@@ -531,9 +488,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:  Quincey Koziol
- *              Friday, March 5, 2021
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -543,13 +497,12 @@ H5ESfree_err_info(size_t num_err_info, H5ES_err_info_t err_info[])
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "z*#", num_err_info, err_info);
 
     /* Check arguments */
     if (0 == num_err_info)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "err_info array size is 0")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "err_info array size is 0");
     if (NULL == err_info)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL err_info array pointer")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL err_info array pointer");
 
     /* Iterate over array, releasing error information */
     for (u = 0; u < num_err_info; u++) {
@@ -558,7 +511,7 @@ H5ESfree_err_info(size_t num_err_info, H5ES_err_info_t err_info[])
         H5MM_xfree(err_info[u].app_file_name);
         H5MM_xfree(err_info[u].app_func_name);
         if (H5I_dec_app_ref(err_info[u].err_stack_id) < 0)
-            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTDEC, FAIL, "can't close error stack for err_info #%zu", u)
+            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTDEC, FAIL, "can't close error stack for err_info #%zu", u);
     } /* end for */
 
 done:
@@ -578,9 +531,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:	Quincey Koziol
- *              Friday, December 11, 2020
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -589,7 +539,6 @@ H5ESregister_insert_func(hid_t es_id, H5ES_event_insert_func_t func, void *ctx)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "iEI*x", es_id, func, ctx);
 
     /* Passing H5ES_NONE is valid, but a no-op */
     if (H5ES_NONE != es_id) {
@@ -597,9 +546,9 @@ H5ESregister_insert_func(hid_t es_id, H5ES_event_insert_func_t func, void *ctx)
 
         /* Check arguments */
         if (NULL == (es = H5I_object_verify(es_id, H5I_EVENTSET)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier");
         if (NULL == func)
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL function callback pointer")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL function callback pointer");
 
         /* Set the event set's insert callback */
         es->ins_func = func;
@@ -623,9 +572,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:	Quincey Koziol
- *              Friday, December 11, 2020
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -634,7 +580,6 @@ H5ESregister_complete_func(hid_t es_id, H5ES_event_complete_func_t func, void *c
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "iEC*x", es_id, func, ctx);
 
     /* Passing H5ES_NONE is valid, but a no-op */
     if (H5ES_NONE != es_id) {
@@ -642,9 +587,9 @@ H5ESregister_complete_func(hid_t es_id, H5ES_event_complete_func_t func, void *c
 
         /* Check arguments */
         if (NULL == (es = H5I_object_verify(es_id, H5I_EVENTSET)))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "invalid event set identifier");
         if (NULL == func)
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL function callback pointer")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "NULL function callback pointer");
 
         /* Set the event set's completion callback */
         es->comp_func = func;
@@ -666,9 +611,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:  Quincey Koziol
- *              Wednesday, April 8, 2020
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -677,20 +619,19 @@ H5ESclose(hid_t es_id)
     herr_t ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE1("e", "i", es_id);
 
     /* Passing H5ES_NONE is valid, but a no-op */
     if (H5ES_NONE != es_id) {
         /* Check arguments */
         if (H5I_EVENTSET != H5I_get_type(es_id))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an event set")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not an event set");
 
         /*
          * Decrement the counter on the object.  It will be freed if the count
          * reaches zero.
          */
         if (H5I_dec_app_ref(es_id) < 0)
-            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTDEC, FAIL, "unable to decrement ref count on event set")
+            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTDEC, FAIL, "unable to decrement ref count on event set");
     } /* end if */
 
 done:

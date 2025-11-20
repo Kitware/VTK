@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -12,9 +11,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:      Quincey Koziol
- *                  Tuesday, June 17, 2008
- *
  * Purpose:         This file contains declarations which are visible only
  *                  within the H5EA package.  Source files outside the H5EA
  *                  package should include H5EAprivate.h instead.
@@ -31,6 +27,7 @@
 
 /* Other private headers needed by this file */
 #include "H5FLprivate.h" /* Free Lists                           */
+#include "H5VMprivate.h" /* Vectors and arrays 			*/
 
 /**************************/
 /* Package Private Macros */
@@ -55,7 +52,7 @@
 /* Size of the extensible array header on disk */
 #define H5EA_HEADER_SIZE(sizeof_addr, sizeof_size)                                                           \
     (/* General metadata fields */                                                                           \
-     H5EA_METADATA_PREFIX_SIZE(TRUE)                                                                         \
+     H5EA_METADATA_PREFIX_SIZE(true)                                                                         \
                                                                                                              \
      /* General array information */                                                                         \
      + 1 /* Element Size */                                                                                  \
@@ -87,7 +84,7 @@
 /* Size of the extensible array index block on disk */
 #define H5EA_IBLOCK_SIZE(i)                                                                                  \
     (/* General metadata fields */                                                                           \
-     H5EA_METADATA_PREFIX_SIZE(TRUE)                                                                         \
+     H5EA_METADATA_PREFIX_SIZE(true)                                                                         \
                                                                                                              \
      /* Sanity-checking fields */                                                                            \
      + (i)->hdr->sizeof_addr /* File address of array owning the block */                                    \
@@ -102,7 +99,7 @@
 /* Size of the extensible array super block on disk */
 #define H5EA_SBLOCK_SIZE(s)                                                                                  \
     (/* General metadata fields */                                                                           \
-     H5EA_METADATA_PREFIX_SIZE(TRUE)                                                                         \
+     H5EA_METADATA_PREFIX_SIZE(true)                                                                         \
                                                                                                              \
      /* Sanity-checking fields */                                                                            \
      + (s)->hdr->sizeof_addr  /* File address of array owning the block */                                   \
@@ -118,7 +115,7 @@
 /* Size of the extensible array data block prefix on disk */
 #define H5EA_DBLOCK_PREFIX_SIZE(d)                                                                           \
     (/* General metadata fields */                                                                           \
-     H5EA_METADATA_PREFIX_SIZE(TRUE)                                                                         \
+     H5EA_METADATA_PREFIX_SIZE(true)                                                                         \
                                                                                                              \
      /* Sanity-checking fields */                                                                            \
      + (d)->hdr->sizeof_addr  /* File address of array owning the block */                                   \
@@ -187,9 +184,9 @@ typedef struct H5EA_hdr_t {
     size_t        rc;             /* Reference count of heap's components using heap header */
     haddr_t       addr;           /* Address of header in file */
     size_t        size;           /* Size of header in file */
-    H5F_t *       f;              /* Pointer to file for extensible array */
+    H5F_t        *f;              /* Pointer to file for extensible array */
     size_t        file_rc;        /* Reference count of files using array header */
-    hbool_t       pending_delete; /* Array is pending deletion */
+    bool          pending_delete; /* Array is pending deletion */
     size_t        sizeof_addr;    /* Size of file addresses */
     size_t        sizeof_size;    /* Size of file sizes */
     unsigned char arr_off_size;   /* Size of array offsets (in bytes) */
@@ -205,9 +202,9 @@ typedef struct H5EA_hdr_t {
     void *cb_ctx; /* Callback context */
 
     /* SWMR / Flush dependency information (not stored) */
-    hbool_t             swmr_write; /* Flag indicating the file is opened with SWMR-write access */
+    bool                swmr_write; /* Flag indicating the file is opened with SWMR-write access */
     H5AC_proxy_entry_t *top_proxy;  /* 'Top' proxy cache entry for all array entries */
-    void *              parent;     /* Pointer to 'top' proxy flush dependency
+    void               *parent;     /* Pointer to 'top' proxy flush dependency
                                      * parent, if it exists, otherwise NULL.
                                      * If the extensible array is being used
                                      * to index a chunked dataset and the
@@ -233,7 +230,7 @@ typedef struct H5EA_iblock_t {
     H5AC_info_t cache_info;
 
     /* Extensible array information (stored) */
-    void *   elmts;      /* Buffer for elements stored in index block  */
+    void    *elmts;      /* Buffer for elements stored in index block  */
     haddr_t *dblk_addrs; /* Buffer for addresses of data blocks in index block */
     haddr_t *sblk_addrs; /* Buffer for addresses of super blocks in index block */
 
@@ -267,9 +264,9 @@ typedef struct H5EA_sblock_t {
     size_t      size; /* Size of index block on disk                  */
 
     /* SWMR / Flush dependency information (not stored) */
-    hbool_t             has_hdr_depend; /* Whether this object has a flush dependency on the header */
+    bool                has_hdr_depend; /* Whether this object has a flush dependency on the header */
     H5AC_proxy_entry_t *top_proxy;      /* "Top" proxy cache entry for all array entries */
-    H5EA_iblock_t *     parent;         /* Parent object for super block (index block)  */
+    H5EA_iblock_t      *parent;         /* Parent object for super block (index block)  */
 
     /* Computed/cached values (not stored) */
     unsigned idx;                 /* Super block index within the extensible array */
@@ -287,7 +284,7 @@ typedef struct H5EA_dblock_t {
 
     /* Extensible array information (stored) */
     hsize_t block_off; /* Offset of the block within the array's address space */
-    void *  elmts;     /* Buffer for elements stored in data block  */
+    void   *elmts;     /* Buffer for elements stored in data block  */
 
     /* Internal array information (not stored) */
     H5EA_hdr_t *hdr;  /* Shared array header info                             */
@@ -295,9 +292,9 @@ typedef struct H5EA_dblock_t {
     size_t      size; /* Size of data block on disk                           */
 
     /* SWMR / Flush dependency information (not stored) */
-    hbool_t             has_hdr_depend; /* Whether this object has a flush dependency on the header */
+    bool                has_hdr_depend; /* Whether this object has a flush dependency on the header */
     H5AC_proxy_entry_t *top_proxy;      /* 'Top' proxy cache entry for all array entries */
-    void *              parent;         /* Parent object for data block (index or super block)  */
+    void               *parent;         /* Parent object for data block (index or super block)  */
 
     /* Computed/cached values (not stored) */
     size_t nelmts; /* Number of elements in block                */
@@ -318,9 +315,9 @@ typedef struct H5EA_dbk_page_t {
     size_t      size; /* Size of data block page on disk                  */
 
     /* SWMR / Flush dependency information (not stored) */
-    hbool_t             has_hdr_depend; /* Whether this object has a flush dependency on the header */
+    bool                has_hdr_depend; /* Whether this object has a flush dependency on the header */
     H5AC_proxy_entry_t *top_proxy;      /* "Top" proxy cache entry for all array entries */
-    H5EA_sblock_t *     parent;         /* Parent object for data block page (super block)  */
+    H5EA_sblock_t      *parent;         /* Parent object for data block page (super block)  */
 
     /* Computed/cached values (not stored) */
     /* <none> */
@@ -329,21 +326,21 @@ typedef struct H5EA_dbk_page_t {
 /* Extensible array */
 struct H5EA_t {
     H5EA_hdr_t *hdr; /* Pointer to internal extensible array header info */
-    H5F_t *     f;   /* Pointer to file for extensible array */
+    H5F_t      *f;   /* Pointer to file for extensible array */
 };
 
 /* Metadata cache callback user data types */
 
 /* Info needed for loading header */
 typedef struct H5EA_hdr_cache_ud_t {
-    H5F_t * f;         /* Pointer to file for extensible array */
+    H5F_t  *f;         /* Pointer to file for extensible array */
     haddr_t addr;      /* Address of header on disk */
-    void *  ctx_udata; /* User context for class */
+    void   *ctx_udata; /* User context for class */
 } H5EA_hdr_cache_ud_t;
 
 /* Info needed for loading super block */
 typedef struct H5EA_sblock_cache_ud_t {
-    H5EA_hdr_t *   hdr;       /* Shared extensible array information */
+    H5EA_hdr_t    *hdr;       /* Shared extensible array information */
     H5EA_iblock_t *parent;    /* Pointer to parent object for super block (index block) */
     unsigned       sblk_idx;  /* Index of super block */
     haddr_t        sblk_addr; /* Address of super block */
@@ -352,14 +349,14 @@ typedef struct H5EA_sblock_cache_ud_t {
 /* Info needed for loading data block */
 typedef struct H5EA_dblock_cache_ud_t {
     H5EA_hdr_t *hdr;       /* Shared extensible array information */
-    void *      parent;    /* Pointer to parent object for data block (index or super block) */
+    void       *parent;    /* Pointer to parent object for data block (index or super block) */
     size_t      nelmts;    /* Number of elements in data block */
     haddr_t     dblk_addr; /* Address of data block */
 } H5EA_dblock_cache_ud_t;
 
 /* Info needed for loading data block page */
 typedef struct H5EA_dblk_page_cache_ud_t {
-    H5EA_hdr_t *   hdr;            /* Shared extensible array information */
+    H5EA_hdr_t    *hdr;            /* Shared extensible array information */
     H5EA_sblock_t *parent;         /* Pointer to parent object for data block page (super block) */
     haddr_t        dblk_page_addr; /* Address of data block page */
 } H5EA_dblk_page_cache_ud_t;
@@ -393,7 +390,7 @@ H5_DLL herr_t H5EA__destroy_flush_depend(H5AC_info_t *parent_entry, H5AC_info_t 
 H5_DLL H5EA_hdr_t *H5EA__hdr_alloc(H5F_t *f);
 H5_DLL herr_t      H5EA__hdr_init(H5EA_hdr_t *hdr, void *ctx_udata);
 H5_DLL haddr_t     H5EA__hdr_create(H5F_t *f, const H5EA_create_t *cparam, void *ctx_udata);
-H5_DLL void *      H5EA__hdr_alloc_elmts(H5EA_hdr_t *hdr, size_t nelmts);
+H5_DLL void       *H5EA__hdr_alloc_elmts(H5EA_hdr_t *hdr, size_t nelmts) H5_ATTR_MALLOC;
 H5_DLL herr_t      H5EA__hdr_free_elmts(H5EA_hdr_t *hdr, size_t nelmts, void *elmts);
 H5_DLL herr_t      H5EA__hdr_incr(H5EA_hdr_t *hdr);
 H5_DLL herr_t      H5EA__hdr_decr(H5EA_hdr_t *hdr);
@@ -407,7 +404,7 @@ H5_DLL herr_t      H5EA__hdr_dest(H5EA_hdr_t *hdr);
 
 /* Index block routines */
 H5_DLL H5EA_iblock_t *H5EA__iblock_alloc(H5EA_hdr_t *hdr);
-H5_DLL haddr_t        H5EA__iblock_create(H5EA_hdr_t *hdr, hbool_t *stats_changed);
+H5_DLL haddr_t        H5EA__iblock_create(H5EA_hdr_t *hdr, bool *stats_changed);
 H5_DLL H5EA_iblock_t *H5EA__iblock_protect(H5EA_hdr_t *hdr, unsigned flags);
 H5_DLL herr_t         H5EA__iblock_unprotect(H5EA_iblock_t *iblock, unsigned cache_flags);
 H5_DLL herr_t         H5EA__iblock_delete(H5EA_hdr_t *hdr);
@@ -415,7 +412,7 @@ H5_DLL herr_t         H5EA__iblock_dest(H5EA_iblock_t *iblock);
 
 /* Super block routines */
 H5_DLL H5EA_sblock_t *H5EA__sblock_alloc(H5EA_hdr_t *hdr, H5EA_iblock_t *parent, unsigned sblk_idx);
-H5_DLL haddr_t        H5EA__sblock_create(H5EA_hdr_t *hdr, H5EA_iblock_t *parent, hbool_t *stats_changed,
+H5_DLL haddr_t        H5EA__sblock_create(H5EA_hdr_t *hdr, H5EA_iblock_t *parent, bool *stats_changed,
                                           unsigned sblk_idx);
 H5_DLL H5EA_sblock_t *H5EA__sblock_protect(H5EA_hdr_t *hdr, H5EA_iblock_t *parent, haddr_t sblk_addr,
                                            unsigned sblk_idx, unsigned flags);
@@ -426,7 +423,7 @@ H5_DLL herr_t         H5EA__sblock_dest(H5EA_sblock_t *sblock);
 
 /* Data block routines */
 H5_DLL H5EA_dblock_t *H5EA__dblock_alloc(H5EA_hdr_t *hdr, void *parent, size_t nelmts);
-H5_DLL haddr_t  H5EA__dblock_create(H5EA_hdr_t *hdr, void *parent, hbool_t *stats_changed, hsize_t dblk_off,
+H5_DLL haddr_t  H5EA__dblock_create(H5EA_hdr_t *hdr, void *parent, bool *stats_changed, hsize_t dblk_off,
                                     size_t nelmts);
 H5_DLL unsigned H5EA__dblock_sblk_idx(const H5EA_hdr_t *hdr, hsize_t idx);
 H5_DLL H5EA_dblock_t *H5EA__dblock_protect(H5EA_hdr_t *hdr, void *parent, haddr_t dblk_addr,

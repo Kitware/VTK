@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:		H5HFprivate.h
- *			Feb 24 2006
- *			Quincey Koziol
  *
  * Purpose:		Private header for library accessible fractal heap routines.
  *
@@ -58,7 +55,7 @@ typedef struct H5HF_dtable_cparam_t {
 /* Fractal heap creation parameters */
 typedef struct H5HF_create_t {
     H5HF_dtable_cparam_t managed;          /* Mapped object doubling-table creation parameters */
-    hbool_t              checksum_dblocks; /* Whether the direct blocks should be checksummed */
+    bool                 checksum_dblocks; /* Whether the direct blocks should be checksummed */
     uint32_t             max_man_size;     /* Max. size of object to manage in doubling table */
                                            /* (i.e.  min. size of object to store standalone) */
     uint16_t id_len;                       /* Length of IDs to use for heap objects */
@@ -111,7 +108,7 @@ H5_DLL herr_t  H5HF_insert(H5HF_t *fh, size_t size, const void *obj, void *id /*
 H5_DLL herr_t  H5HF_get_obj_len(H5HF_t *fh, const void *id, size_t *obj_len_p /*out*/);
 H5_DLL herr_t  H5HF_get_obj_off(H5HF_t *fh, const void *_id, hsize_t *obj_off_p /*out*/);
 H5_DLL herr_t  H5HF_read(H5HF_t *fh, const void *id, void *obj /*out*/);
-H5_DLL herr_t  H5HF_write(H5HF_t *fh, void *id, hbool_t *id_changed, const void *obj);
+H5_DLL herr_t  H5HF_write(H5HF_t *fh, void *id, bool *id_changed, const void *obj);
 H5_DLL herr_t  H5HF_op(H5HF_t *fh, const void *id, H5HF_operator_t op, void *op_data);
 H5_DLL herr_t  H5HF_remove(H5HF_t *fh, const void *id);
 H5_DLL herr_t  H5HF_close(H5HF_t *fh);
@@ -128,13 +125,12 @@ H5_DLL herr_t H5HF_sects_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent,
 #endif /* H5HF_DEBUGGING */
 
 /* Debugging routines for dumping file structures */
-H5_DLL void   H5HF_hdr_print(const H5HF_hdr_t *hdr, hbool_t dump_internal, FILE *stream, int indent,
-                             int fwidth);
+H5_DLL void   H5HF_hdr_print(const H5HF_hdr_t *hdr, bool dump_internal, FILE *stream, int indent, int fwidth);
 H5_DLL herr_t H5HF_hdr_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth);
 H5_DLL herr_t H5HF_dblock_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
                                 haddr_t hdr_addr, size_t nrec);
-H5_DLL void H5HF_iblock_print(const H5HF_indirect_t *iblock, hbool_t dump_internal, FILE *stream, int indent,
-                              int fwidth);
+H5_DLL void   H5HF_iblock_print(const H5HF_indirect_t *iblock, bool dump_internal, FILE *stream, int indent,
+                                int fwidth);
 H5_DLL herr_t H5HF_iblock_debug(H5F_t *f, haddr_t addr, FILE *stream, int indent, int fwidth,
                                 haddr_t hdr_addr, unsigned nrows);
 

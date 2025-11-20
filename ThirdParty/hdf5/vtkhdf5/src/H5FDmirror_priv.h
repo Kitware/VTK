@@ -148,7 +148,7 @@ typedef struct H5FD_mirror_xmit_eoa_t {
  *
  * `rw` (uint64_t)
  *      The Read/Write mode flag passed into H5FDlock().
- *      (Natively `hbool_t`, an 'int') TODO: native int may be 64-bit?
+ *      (Natively `bool`, an 'int') TODO: native int may be 64-bit?
  *
  * ---------------------------------------------------------------------------
  */
@@ -300,13 +300,13 @@ H5_DLL size_t H5FD_mirror_xmit_encode_reply(unsigned char *dest, const H5FD_mirr
 H5_DLL size_t H5FD_mirror_xmit_encode_set_eoa(unsigned char *dest, const H5FD_mirror_xmit_eoa_t *x);
 H5_DLL size_t H5FD_mirror_xmit_encode_write(unsigned char *dest, const H5FD_mirror_xmit_write_t *x);
 
-H5_DLL hbool_t H5FD_mirror_xmit_is_close(const H5FD_mirror_xmit_t *xmit);
-H5_DLL hbool_t H5FD_mirror_xmit_is_lock(const H5FD_mirror_xmit_lock_t *xmit);
-H5_DLL hbool_t H5FD_mirror_xmit_is_open(const H5FD_mirror_xmit_open_t *xmit);
-H5_DLL hbool_t H5FD_mirror_xmit_is_reply(const H5FD_mirror_xmit_reply_t *xmit);
-H5_DLL hbool_t H5FD_mirror_xmit_is_set_eoa(const H5FD_mirror_xmit_eoa_t *xmit);
-H5_DLL hbool_t H5FD_mirror_xmit_is_write(const H5FD_mirror_xmit_write_t *xmit);
-H5_DLL hbool_t H5FD_mirror_xmit_is_xmit(const H5FD_mirror_xmit_t *xmit);
+H5_DLL bool H5FD_mirror_xmit_is_close(const H5FD_mirror_xmit_t *xmit);
+H5_DLL bool H5FD_mirror_xmit_is_lock(const H5FD_mirror_xmit_lock_t *xmit);
+H5_DLL bool H5FD_mirror_xmit_is_open(const H5FD_mirror_xmit_open_t *xmit);
+H5_DLL bool H5FD_mirror_xmit_is_reply(const H5FD_mirror_xmit_reply_t *xmit);
+H5_DLL bool H5FD_mirror_xmit_is_set_eoa(const H5FD_mirror_xmit_eoa_t *xmit);
+H5_DLL bool H5FD_mirror_xmit_is_write(const H5FD_mirror_xmit_write_t *xmit);
+H5_DLL bool H5FD_mirror_xmit_is_xmit(const H5FD_mirror_xmit_t *xmit);
 
 #ifdef __cplusplus
 }

@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -71,11 +70,11 @@ typedef struct H5A_attr_iter_op_t {
 /* General attribute routines */
 H5_DLL herr_t            H5A_init(void);
 H5_DLL struct H5O_loc_t *H5A_oloc(H5A_t *attr);
-H5_DLL H5G_name_t *H5A_nameof(H5A_t *attr);
-H5_DLL H5T_t *H5A_type(const H5A_t *attr);
-H5_DLL hid_t  H5A_get_space(H5A_t *attr);
-H5_DLL herr_t H5O_attr_iterate_real(hid_t loc_id, const H5O_loc_t *loc, H5_index_t idx_type,
-                                    H5_iter_order_t order, hsize_t skip, hsize_t *last_attr,
-                                    const H5A_attr_iter_op_t *attr_op, void *op_data);
+H5_DLL H5G_name_t       *H5A_nameof(H5A_t *attr);
+H5_DLL H5T_t            *H5A_type(const H5A_t *attr);
+H5_DLL hid_t             H5A_get_space(H5A_t *attr);
+H5_DLL herr_t            H5O_attr_iterate_real(hid_t loc_id, const H5O_loc_t *loc, H5_index_t idx_type,
+                                               H5_iter_order_t order, hsize_t skip, hsize_t *last_attr,
+                                               const H5A_attr_iter_op_t *attr_op, void *op_data);
 
 #endif /* H5Aprivate_H */

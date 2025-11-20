@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -12,9 +11,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer: James Laird
- *             Friday, December 1, 2005
- *
  * Purpose:     This file contains declarations which are visible
  *              only within the H5L package. Source files outside the
  *              H5L package should include H5Lprivate.h instead.
@@ -35,12 +31,6 @@
 /* Package Private Macros */
 /**************************/
 
-/* Version of external link format */
-#define H5L_EXT_VERSION 0
-
-/* Valid flags for external links */
-#define H5L_EXT_FLAGS_ALL 0
-
 /****************************/
 /* Package Private Typedefs */
 /****************************/
@@ -59,7 +49,7 @@ H5_DLL herr_t H5L__create_soft(const char *target_path, const H5G_loc_t *cur_loc
                                hid_t lcpl_id);
 H5_DLL herr_t H5L__create_ud(const H5G_loc_t *link_loc, const char *link_name, const void *ud_data,
                              size_t ud_data_size, H5L_type_t type, hid_t lcpl_id);
-H5_DLL herr_t H5L__exists(const H5G_loc_t *loc, const char *name, hbool_t *exists);
+H5_DLL herr_t H5L__exists(const H5G_loc_t *loc, const char *name, bool *exists);
 H5_DLL herr_t H5L__get_info_by_idx(const H5G_loc_t *loc, const char *name, H5_index_t idx_type,
                                    H5_iter_order_t order, hsize_t n, H5L_info2_t *linfo /*out*/);
 H5_DLL herr_t H5L__get_name_by_idx(const H5G_loc_t *loc, const char *group_name, H5_index_t idx_type,
@@ -69,7 +59,7 @@ H5_DLL herr_t H5L__get_val(const H5G_loc_t *loc, const char *name, void *buf /*o
 H5_DLL herr_t H5L__get_val_by_idx(const H5G_loc_t *loc, const char *name, H5_index_t idx_type,
                                   H5_iter_order_t order, hsize_t n, void *buf /*out*/, size_t size);
 H5_DLL herr_t H5L__move(const H5G_loc_t *src_loc, const char *src_name, const H5G_loc_t *dst_loc,
-                        const char *dst_name, hbool_t copy_flag, hid_t lcpl_id);
+                        const char *dst_name, bool copy_flag, hid_t lcpl_id);
 H5_DLL herr_t H5L__delete(const H5G_loc_t *loc, const char *name);
 H5_DLL herr_t H5L__delete_by_idx(const H5G_loc_t *loc, const char *name, H5_index_t idx_type,
                                  H5_iter_order_t order, hsize_t n);

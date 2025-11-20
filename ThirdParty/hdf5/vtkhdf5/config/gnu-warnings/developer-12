@@ -1,0 +1,4 @@
+# Enable GCC's static analyzer for GCC 12+
+# (Temporarily disabled as the analyzer currently adds significant
+# compile time overhead for a few test files like cache.c)
+# -fanalyzer

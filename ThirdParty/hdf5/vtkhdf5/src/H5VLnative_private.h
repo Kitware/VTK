@@ -42,10 +42,10 @@ extern "C" {
 #endif
 
 /* Attribute callbacks */
-H5_DLL void * H5VL__native_attr_create(void *obj, const H5VL_loc_params_t *loc_params, const char *attr_name,
+H5_DLL void  *H5VL__native_attr_create(void *obj, const H5VL_loc_params_t *loc_params, const char *attr_name,
                                        hid_t type_id, hid_t space_id, hid_t acpl_id, hid_t aapl_id,
                                        hid_t dxpl_id, void **req);
-void *        H5VL__native_attr_open(void *obj, const H5VL_loc_params_t *loc_params, const char *attr_name,
+void         *H5VL__native_attr_open(void *obj, const H5VL_loc_params_t *loc_params, const char *attr_name,
                                      hid_t aapl_id, hid_t dxpl_id, void **req);
 H5_DLL herr_t H5VL__native_attr_read(void *attr, hid_t dtype_id, void *buf, hid_t dxpl_id, void **req);
 H5_DLL herr_t H5VL__native_attr_write(void *attr, hid_t dtype_id, const void *buf, hid_t dxpl_id, void **req);
@@ -56,15 +56,15 @@ H5_DLL herr_t H5VL__native_attr_optional(void *obj, H5VL_optional_args_t *args, 
 H5_DLL herr_t H5VL__native_attr_close(void *attr, hid_t dxpl_id, void **req);
 
 /* Dataset callbacks */
-H5_DLL void * H5VL__native_dataset_create(void *obj, const H5VL_loc_params_t *loc_params, const char *name,
+H5_DLL void  *H5VL__native_dataset_create(void *obj, const H5VL_loc_params_t *loc_params, const char *name,
                                           hid_t lcpl_id, hid_t type_id, hid_t space_id, hid_t dcpl_id,
                                           hid_t dapl_id, hid_t dxpl_id, void **req);
-H5_DLL void * H5VL__native_dataset_open(void *obj, const H5VL_loc_params_t *loc_params, const char *name,
+H5_DLL void  *H5VL__native_dataset_open(void *obj, const H5VL_loc_params_t *loc_params, const char *name,
                                         hid_t dapl_id, hid_t dxpl_id, void **req);
-H5_DLL herr_t H5VL__native_dataset_read(void *dset, hid_t mem_type_id, hid_t mem_space_id,
-                                        hid_t file_space_id, hid_t plist_id, void *buf, void **req);
-H5_DLL herr_t H5VL__native_dataset_write(void *dset, hid_t mem_type_id, hid_t mem_space_id,
-                                         hid_t file_space_id, hid_t plist_id, const void *buf, void **req);
+H5_DLL herr_t H5VL__native_dataset_read(size_t count, void *obj[], hid_t mem_type_id[], hid_t mem_space_id[],
+                                        hid_t file_space_id[], hid_t dxpl_id, void *buf[], void **req);
+H5_DLL herr_t H5VL__native_dataset_write(size_t count, void *obj[], hid_t mem_type_id[], hid_t mem_space_id[],
+                                         hid_t file_space_id[], hid_t dxpl_id, const void *buf[], void **req);
 H5_DLL herr_t H5VL__native_dataset_get(void *dset, H5VL_dataset_get_args_t *args, hid_t dxpl_id, void **req);
 H5_DLL herr_t H5VL__native_dataset_specific(void *dset, H5VL_dataset_specific_args_t *args, hid_t dxpl_id,
                                             void **req);
@@ -73,10 +73,10 @@ H5_DLL herr_t H5VL__native_dataset_optional(void *dset, H5VL_optional_args_t *ar
 H5_DLL herr_t H5VL__native_dataset_close(void *dset, hid_t dxpl_id, void **req);
 
 /* Datatype callbacks */
-H5_DLL void * H5VL__native_datatype_commit(void *obj, const H5VL_loc_params_t *loc_params, const char *name,
+H5_DLL void  *H5VL__native_datatype_commit(void *obj, const H5VL_loc_params_t *loc_params, const char *name,
                                            hid_t type_id, hid_t lcpl_id, hid_t tcpl_id, hid_t tapl_id,
                                            hid_t dxpl_id, void **req);
-H5_DLL void * H5VL__native_datatype_open(void *obj, const H5VL_loc_params_t *loc_params, const char *name,
+H5_DLL void  *H5VL__native_datatype_open(void *obj, const H5VL_loc_params_t *loc_params, const char *name,
                                          hid_t tapl_id, hid_t dxpl_id, void **req);
 H5_DLL herr_t H5VL__native_datatype_get(void *dt, H5VL_datatype_get_args_t *args, hid_t dxpl_id, void **req);
 H5_DLL herr_t H5VL__native_datatype_specific(void *dt, H5VL_datatype_specific_args_t *args, hid_t dxpl_id,
@@ -84,9 +84,9 @@ H5_DLL herr_t H5VL__native_datatype_specific(void *dt, H5VL_datatype_specific_ar
 H5_DLL herr_t H5VL__native_datatype_close(void *dt, hid_t dxpl_id, void **req);
 
 /* File callbacks */
-H5_DLL void * H5VL__native_file_create(const char *name, unsigned flags, hid_t fcpl_id, hid_t fapl_id,
+H5_DLL void  *H5VL__native_file_create(const char *name, unsigned flags, hid_t fcpl_id, hid_t fapl_id,
                                        hid_t dxpl_id, void **req);
-H5_DLL void * H5VL__native_file_open(const char *name, unsigned flags, hid_t fapl_id, hid_t dxpl_id,
+H5_DLL void  *H5VL__native_file_open(const char *name, unsigned flags, hid_t fapl_id, hid_t dxpl_id,
                                      void **req);
 H5_DLL herr_t H5VL__native_file_get(void *file, H5VL_file_get_args_t *args, hid_t dxpl_id, void **req);
 H5_DLL herr_t H5VL__native_file_specific(void *file, H5VL_file_specific_args_t *args, hid_t dxpl_id,
@@ -95,10 +95,10 @@ H5_DLL herr_t H5VL__native_file_optional(void *file, H5VL_optional_args_t *args,
 H5_DLL herr_t H5VL__native_file_close(void *file, hid_t dxpl_id, void **req);
 
 /* Group callbacks */
-H5_DLL void * H5VL__native_group_create(void *obj, const H5VL_loc_params_t *loc_params, const char *name,
+H5_DLL void  *H5VL__native_group_create(void *obj, const H5VL_loc_params_t *loc_params, const char *name,
                                         hid_t lcpl_id, hid_t gcpl_id, hid_t gapl_id, hid_t dxpl_id,
                                         void **req);
-H5_DLL void * H5VL__native_group_open(void *obj, const H5VL_loc_params_t *loc_params, const char *name,
+H5_DLL void  *H5VL__native_group_open(void *obj, const H5VL_loc_params_t *loc_params, const char *name,
                                       hid_t gapl_id, hid_t dxpl_id, void **req);
 H5_DLL herr_t H5VL__native_group_get(void *obj, H5VL_group_get_args_t *args, hid_t dxpl_id, void **req);
 H5_DLL herr_t H5VL__native_group_specific(void *obj, H5VL_group_specific_args_t *args, hid_t dxpl_id,
@@ -138,7 +138,7 @@ H5_DLL herr_t H5VL__native_object_optional(void *obj, const H5VL_loc_params_t *l
 /* Connector/container introspection functions */
 H5_DLL herr_t H5VL__native_introspect_get_conn_cls(void *obj, H5VL_get_conn_lvl_t lvl,
                                                    const H5VL_class_t **conn_cls);
-H5_DLL herr_t H5VL__native_introspect_get_cap_flags(const void *info, unsigned *cap_flags);
+H5_DLL herr_t H5VL__native_introspect_get_cap_flags(const void *info, uint64_t *cap_flags);
 H5_DLL herr_t H5VL__native_introspect_opt_query(void *obj, H5VL_subclass_t cls, int opt_type,
                                                 uint64_t *flags);
 

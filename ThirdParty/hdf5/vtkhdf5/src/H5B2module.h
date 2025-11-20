@@ -11,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol
- *		Saturday, September 12, 2015
- *
- * Purpose:	This file contains declarations which define macros for the
- *		H5B2 package.  Including this header means that the source file
- *		is part of the H5B2 package.
+ * Purpose: This file contains declarations which define macros for the
+ *          H5B2 package.  Including this header means that the source file
+ *          is part of the H5B2 package.
  */
 #ifndef H5B2module_H
 #define H5B2module_H
@@ -25,8 +22,7 @@
  *      reporting macros.
  */
 #define H5B2_MODULE
-#define H5_MY_PKG      H5B2
-#define H5_MY_PKG_ERR  H5E_BTREE
-#define H5_MY_PKG_INIT NO
+#define H5_MY_PKG     H5B2
+#define H5_MY_PKG_ERR H5E_BTREE
 
 #endif /* H5B2module_H */

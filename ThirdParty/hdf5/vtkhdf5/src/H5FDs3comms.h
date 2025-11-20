@@ -24,7 +24,6 @@
  *     - Abstract away the REST API (HTTP,
  *       networked communications) behind a series of uniform function calls.
  *     - Handle AWS4 authentication, if appropriate.
- *     - Fail predictably in event of errors.
  *     - Eventually, support more S3 operations, such as creating, writing to,
  *       and removing Objects remotely.
  *
@@ -45,14 +44,10 @@
  *     ```
  *     ...in destination buffer.
  *
- * TODO: put documentation in a consistent place and point to it from here.
- *
- * Programmer: Jacob Smith
- *             2017-11-30
- *
  *****************************************************************************/
 
 #include "H5private.h" /* Generic Functions        */
+#include "H5FDros3.h"  /* ros3 VFD                 */
 
 #ifdef H5_HAVE_ROS3_VFD
 
@@ -62,9 +57,9 @@
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
 
-/*****************
- * PUBLIC MACROS *
- *****************/
+/**********
+ * MACROS *
+ **********/
 
 /* hexadecimal string of pre-computed sha256 checksum of the empty string
  * hex(sha256sum(""))
@@ -128,14 +123,13 @@
 #define S3COMMS_MAX_CREDENTIAL_SIZE 155
 
 /*---------------------------------------------------------------------------
- *
  * Macro: H5FD_S3COMMS_FORMAT_CREDENTIAL()
  *
  * Purpose:
  *
  *     Format "S3 Credential" string from inputs, for AWS4.
  *
- *     Wrapper for HDsnprintf().
+ *     Wrapper for snprintf().
  *
  *     _HAS NO ERROR-CHECKING FACILITIES_
  *     It is left to programmer to ensure that return value confers success.
@@ -154,24 +148,20 @@
  *     `date` must be of format "YYYYmmdd".
  *     `region` should be relevant AWS region, i.e. "us-east-1".
  *     `service` should be "s3".
- *
  *---------------------------------------------------------------------------
  */
 #define S3COMMS_FORMAT_CREDENTIAL(dest, access, iso8601_date, region, service)                               \
-    HDsnprintf((dest), S3COMMS_MAX_CREDENTIAL_SIZE, "%s/%s/%s/%s/aws4_request", (access), (iso8601_date),    \
-               (region), (service))
+    snprintf((dest), S3COMMS_MAX_CREDENTIAL_SIZE, "%s/%s/%s/%s/aws4_request", (access), (iso8601_date),      \
+             (region), (service))
 
 /*********************
  * PUBLIC STRUCTURES *
  *********************/
 
 /*----------------------------------------------------------------------------
- *
  * Structure: hrb_node_t
  *
  * HTTP Header Field Node
- *
- *
  *
  * Maintain a ordered (linked) list of HTTP Header fields.
  *
@@ -212,12 +202,6 @@
  * All data (`name`, `value`, `lowername`, and `cat`) are null-terminated
  * strings allocated specifically for their node.
  *
- *
- *
- * `magic` (unsigned long)
- *
- *     "unique" idenfier number for the structure type
- *
  * `name` (char *)
  *
  *     Case-meaningful name of the HTTP field.
@@ -244,26 +228,20 @@
  *
  *     Pointers to next node in the list, or NULL sentinel as end of list.
  *     Next node must have a greater `lowername` as determined by strcmp().
- *
  *----------------------------------------------------------------------------
  */
 typedef struct hrb_node_t {
-    unsigned long      magic;
-    char *             name;
-    char *             value;
-    char *             cat;
-    char *             lowername;
+    char              *name;
+    char              *value;
+    char              *cat;
+    char              *lowername;
     struct hrb_node_t *next;
 } hrb_node_t;
-#define S3COMMS_HRB_NODE_MAGIC 0x7F5757UL
 
 /*----------------------------------------------------------------------------
- *
  * Structure: hrb_t
  *
  * HTTP Request Buffer structure
- *
- *
  *
  * Logically represent an HTTP request
  *
@@ -284,14 +262,6 @@ typedef struct hrb_node_t {
  * "Host" and "Date" above, are created with a linked list of `hrb_node_t` and
  * included in the request by a pointer to the head of the list.
  *
- *
- *
- * `magic` (unsigned long)
- *
- *     "Magic" number confirming that this is an hrb_t structure and
- *     what operations are valid for it.
- *
- *     Must be S3COMMS_HRB_MAGIC to be valid.
  *
  * `body` (char *) :
  *
@@ -320,24 +290,19 @@ typedef struct hrb_node_t {
  * `version` (char *) :
  *
  *     Pointer to HTTP version string, e.g., "HTTP/1.1".
- *
  *----------------------------------------------------------------------------
  */
 typedef struct {
-    unsigned long magic;
-    char *        body;
-    size_t        body_len;
-    hrb_node_t *  first_header;
-    char *        resource;
-    char *        verb;
-    char *        version;
+    char       *body;
+    size_t      body_len;
+    hrb_node_t *first_header;
+    char       *resource;
+    char       *verb;
+    char       *version;
 } hrb_t;
-#define S3COMMS_HRB_MAGIC 0x6DCC84UL
 
 /*----------------------------------------------------------------------------
- *
  * Structure: parsed_url_t
- *
  *
  * Represent a URL with easily-accessed pointers to logical elements within.
  * These elements (components) are stored as null-terminated strings (or just
@@ -349,12 +314,6 @@ typedef struct {
  *  ^--^   ^-----------------------^ ^--^ ^---------^ ^-------------------^
  * Scheme             Host           Port  Resource        Query/-ies
  *
- *
- *
- * `magic` (unsigned long)
- *
- *     Structure identification and validation identifier.
- *     Identifies as `parsed_url_t` type.
  *
  * `scheme` (char *)
  *
@@ -383,24 +342,18 @@ typedef struct {
  *
  *     Single string of all query parameters in url (if any).
  *     "arg1=value1&arg2=value2"
- *
  *----------------------------------------------------------------------------
  */
 typedef struct {
-    unsigned long magic;
-    char *        scheme; /* required */
-    char *        host;   /* required */
-    char *        port;
-    char *        path;
-    char *        query;
+    char *scheme; /* required */
+    char *host;   /* required */
+    char *port;
+    char *path;
+    char *query;
 } parsed_url_t;
-#define S3COMMS_PARSED_URL_MAGIC 0x21D0DFUL
 
 /*----------------------------------------------------------------------------
- *
  * Structure: s3r_t
- *
- *
  *
  * S3 request structure "handle".
  *
@@ -408,7 +361,7 @@ typedef struct {
  *
  * Instantiated through `H5FD_s3comms_s3r_open()`, copies data into self.
  *
- * Intended to be re-used for operations on a remote object.
+ * Intended to be reused for operations on a remote object.
  *
  * Cleaned up through `H5FD_s3comms_s3r_close()`.
  *
@@ -416,26 +369,20 @@ typedef struct {
  * undefined behavior if called to perform in multiple threads.
  *
  *
+ * curlhandle
  *
- * `magic` (unsigned long)
+ *     Pointer to the curl_easy handle generated for the request
  *
- *     "magic" number identifying this structure as unique type.
- *     MUST equal `S3R_MAGIC` to be valid.
- *
- * `curlhandle` (CURL)
- *
- *     Pointer to the curl_easy handle generated for the request.
- *
- * `httpverb` (char *)
+ * http_verb
  *
  *     Pointer to NULL-terminated string. HTTP verb,
  *     e.g. "GET", "HEAD", "PUT", etc.
  *
- *     Default is NULL, resulting in a "GET" request.
+ *     Default is NULL, resulting in a "GET" request
  *
- * `purl` (parsed_url_t *)
+ * purl ("parsed url")
  *
- *     Pointer to structure holding the elements of URL for file open.
+ *     Pointer to structure holding the elements of URL for file open
  *
  *     e.g., "http://bucket.aws.com:8080/myfile.dat?q1=v1&q2=v2"
  *     parsed into...
@@ -446,46 +393,45 @@ typedef struct {
  *         query:  "q1=v1&q2=v2"
  *     }
  *
- *     Cannot be NULL.
+ *     Cannot be NULL
  *
- * `region` (char *)
+ * aws_region
  *
- *     Pointer to NULL-terminated string, specifying S3 "region",
+ *     Pointer to NULL-terminated string, specifying S3 "region"
  *     e.g., "us-east-1".
  *
- *     Required to authenticate.
+ *     Required to authenticate
  *
- * `secret_id` (char *)
+ * secret_id
  *
- *     Pointer to NULL-terminated string for "secret" access id to S3 resource.
+ *     Pointer to NULL-terminated string for "secret" access id to S3 resource
  *
- *     Required to authenticate.
+ *     Required to authenticate
  *
- * `signing_key` (unsigned char *)
+ * signing_key
  *
- *     Pointer to `SHA256_DIGEST_LENGTH`-long string for "re-usable" signing
+ *     Pointer to `SHA256_DIGEST_LENGTH`-long buffer for "reusable" signing
  *     key, generated via
  *     `HMAC-SHA256(HMAC-SHA256(HMAC-SHA256(HMAC-SHA256("AWS4<secret_key>",
  *         "<yyyyMMDD"), "<aws-region>"), "<aws-service>"), "aws4_request")`
- *     which may be re-used for several (up to seven (7)) days from creation?
+ *     which may be reused for several (up to seven (7)) days from creation?
  *     Computed once upon file open.
  *
- *     Required to authenticate.
+ *     Computed once upon file open from the secret key string in the fapl
  *
+ *     Required to authenticate
  *----------------------------------------------------------------------------
  */
 typedef struct {
-    unsigned long  magic;
-    CURL *         curlhandle;
+    CURL          *curlhandle;
     size_t         filesize;
-    char *         httpverb;
-    parsed_url_t * purl;
-    char *         region;
-    char *         secret_id;
+    char          *httpverb;
+    parsed_url_t  *purl;
+    char          *region;
+    char          *secret_id;
     unsigned char *signing_key;
+    char          *token;
 } s3r_t;
-
-#define S3COMMS_S3R_MAGIC 0x44d8d79
 
 #ifdef __cplusplus
 extern "C" {
@@ -514,7 +460,7 @@ H5_DLL herr_t H5FD_s3comms_s3r_close(s3r_t *handle);
 H5_DLL size_t H5FD_s3comms_s3r_get_filesize(s3r_t *handle);
 
 H5_DLL s3r_t *H5FD_s3comms_s3r_open(const char url[], const char region[], const char id[],
-                                    const unsigned char signing_key[]);
+                                    const unsigned char signing_key[], const char token[]);
 
 H5_DLL herr_t H5FD_s3comms_s3r_read(s3r_t *handle, haddr_t offset, size_t len, void *dest);
 
@@ -527,8 +473,7 @@ H5_DLL struct tm *gmnow(void);
 H5_DLL herr_t H5FD_s3comms_aws_canonical_request(char *canonical_request_dest, int cr_size,
                                                  char *signed_headers_dest, int sh_size, hrb_t *http_request);
 
-H5_DLL herr_t H5FD_s3comms_bytes_to_hex(char *dest, const unsigned char *msg, size_t msg_len,
-                                        hbool_t lowercase);
+H5_DLL herr_t H5FD_s3comms_bytes_to_hex(char *dest, const unsigned char *msg, size_t msg_len, bool lowercase);
 
 H5_DLL herr_t H5FD_s3comms_free_purl(parsed_url_t *purl);
 
@@ -538,23 +483,13 @@ H5_DLL herr_t H5FD_s3comms_HMAC_SHA256(const unsigned char *key, size_t key_len,
 H5_DLL herr_t H5FD_s3comms_load_aws_profile(const char *name, char *key_id_out, char *secret_access_key_out,
                                             char *aws_region_out);
 
-H5_DLL herr_t H5FD_s3comms_nlowercase(char *dest, const char *s, size_t len);
-
 H5_DLL herr_t H5FD_s3comms_parse_url(const char *str, parsed_url_t **purl);
-
-H5_DLL herr_t H5FD_s3comms_percent_encode_char(char *repr, const unsigned char c, size_t *repr_len);
 
 H5_DLL herr_t H5FD_s3comms_signing_key(unsigned char *md, const char *secret, const char *region,
                                        const char *iso8601now);
 
 H5_DLL herr_t H5FD_s3comms_tostringtosign(char *dest, const char *req_str, const char *now,
                                           const char *region);
-
-H5_DLL herr_t H5FD_s3comms_trim(char *dest, char *s, size_t s_len, size_t *n_written);
-
-H5_DLL herr_t H5FD_s3comms_uriencode(char *dest, const char *s, size_t s_len, hbool_t encode_slash,
-                                     size_t *n_written);
-
 #ifdef __cplusplus
 }
 #endif

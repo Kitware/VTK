@@ -13,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:     H5ESevent.c
- *              Nov  7 2020
- *              Quincey Koziol
  *
  * Purpose:     Operations on "events" for managing asynchronous
  *                      operations.
@@ -78,34 +76,31 @@ H5FL_DEFINE_STATIC(H5ES_event_t);
  *
  * Return:      Non-NULL pointer to new event on success, NULL on failure
  *
- * Programmer:  Quincey Koziol
- *              Saturday, November 7, 2020
- *
  *-------------------------------------------------------------------------
  */
 H5ES_event_t *
 H5ES__event_new(H5VL_t *connector, void *token)
 {
-    H5ES_event_t * ev        = NULL; /* New event */
+    H5ES_event_t  *ev        = NULL; /* New event */
     H5VL_object_t *request   = NULL; /* Async request token VOL object */
-    H5ES_event_t * ret_value = NULL; /* Return value */
+    H5ES_event_t  *ret_value = NULL; /* Return value */
 
     FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(connector);
-    HDassert(token);
+    assert(connector);
+    assert(token);
 
     /* Create vol object for token */
     if (NULL == (request = H5VL_create_object(token, connector))) {
         if (H5VL_request_free(token) < 0)
-            HDONE_ERROR(H5E_EVENTSET, H5E_CANTFREE, NULL, "can't free request")
-        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTINIT, NULL, "can't create vol object for request token")
+            HDONE_ERROR(H5E_EVENTSET, H5E_CANTFREE, NULL, "can't free request");
+        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTINIT, NULL, "can't create vol object for request token");
     } /* end if */
 
     /* Allocate space for new event */
     if (NULL == (ev = H5FL_CALLOC(H5ES_event_t)))
-        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTALLOC, NULL, "can't allocate event object")
+        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTALLOC, NULL, "can't allocate event object");
 
     /* Set request for event */
     ev->request = request;
@@ -114,7 +109,7 @@ H5ES__event_new(H5VL_t *connector, void *token)
     ret_value = ev;
 
 done:
-    FUNC_LEAVE_NOAPI(ret_value);
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5ES__event_new() */
 
 /*-------------------------------------------------------------------------
@@ -123,9 +118,6 @@ done:
  * Purpose:     Free an event
  *
  * Return:      SUCCEED / FAIL
- *
- * Programmer:  Quincey Koziol
- *              Saturday, November 7, 2020
  *
  *-------------------------------------------------------------------------
  */
@@ -137,7 +129,7 @@ H5ES__event_free(H5ES_event_t *ev)
     FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(ev);
+    assert(ev);
 
     /* The 'app_func_name', 'app_file_name', and 'api_name' strings are statically allocated (by the compiler)
      * and are not allocated, so there's no need to free them.
@@ -150,11 +142,11 @@ H5ES__event_free(H5ES_event_t *ev)
     if (ev->request) {
         /* Free the request */
         if (H5VL_request_free(ev->request) < 0)
-            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTFREE, FAIL, "unable to free request")
+            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTFREE, FAIL, "unable to free request");
 
         /* Free the VOL object for the request */
         if (H5VL_free_object(ev->request) < 0)
-            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTRELEASE, FAIL, "can't free VOL request object")
+            HGOTO_ERROR(H5E_EVENTSET, H5E_CANTRELEASE, FAIL, "can't free VOL request object");
     } /* end if */
 
     H5FL_FREE(H5ES_event_t, ev);
@@ -170,9 +162,6 @@ done:
  *
  * Return:      SUCCEED / FAIL
  *
- * Programmer:  Quincey Koziol
- *              Sunday, November 8, 2020
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -183,14 +172,14 @@ H5ES__event_completed(H5ES_event_t *ev, H5ES_event_list_t *el)
     FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(ev);
+    assert(ev);
 
     /* Remove the event from the event list */
     H5ES__list_remove(el, ev);
 
     /* Free the event */
     if (H5ES__event_free(ev) < 0)
-        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTFREE, FAIL, "unable to free event")
+        HGOTO_ERROR(H5E_EVENTSET, H5E_CANTFREE, FAIL, "unable to free event");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)

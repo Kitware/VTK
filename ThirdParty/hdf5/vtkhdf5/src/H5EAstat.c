@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:		H5EAstat.c
- *			Sep 11 2008
- *			Quincey Koziol
  *
  * Purpose:	        Extensible array metadata statistics functions.
  *
@@ -75,9 +72,6 @@
  *
  * Return:	SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		Aug 21 2008
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -86,8 +80,8 @@ H5EA_get_stats(const H5EA_t *ea, H5EA_stat_t *stats)
     FUNC_ENTER_NOAPI_NOERR
 
     /* Check arguments */
-    HDassert(ea);
-    HDassert(stats);
+    assert(ea);
+    assert(stats);
 
     /* Copy extensible array statistics */
     H5MM_memcpy(stats, &ea->hdr->stats, sizeof(ea->hdr->stats));

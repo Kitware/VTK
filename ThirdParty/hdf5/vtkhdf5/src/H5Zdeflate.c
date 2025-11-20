@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -10,11 +9,6 @@
  * If you do not have access to either file, you may request a copy from     *
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-/*
- * Programmer:  Robb Matzke
- *              Friday, August 27, 1999
- */
 
 #include "H5Zmodule.h" /* This source code file is part of the H5Z module */
 
@@ -48,8 +42,6 @@ const H5Z_class2_t H5Z_DEFLATE[1] = {{
     H5Z__filter_deflate, /* The actual filter function	*/
 }};
 
-#define H5Z_DEFLATE_SIZE_ADJUST(s) (HDceil(((double)(s)) * 1.001) + 12)
-
 /*-------------------------------------------------------------------------
  * Function:	H5Z__filter_deflate
  *
@@ -59,54 +51,64 @@ const H5Z_class2_t H5Z_DEFLATE[1] = {{
  * Return:	Success: Size of buffer filtered
  *		Failure: 0
  *
- * Programmer:	Robb Matzke
- *              Thursday, April 16, 1998
- *
  *-------------------------------------------------------------------------
  */
 static size_t
 H5Z__filter_deflate(unsigned flags, size_t cd_nelmts, const unsigned cd_values[], size_t nbytes,
                     size_t *buf_size, void **buf)
 {
-    void * outbuf = NULL; /* Pointer to new buffer */
+    void  *outbuf = NULL; /* Pointer to new buffer */
     int    status;        /* Status from zlib operation */
     size_t ret_value = 0; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(*buf_size > 0);
-    HDassert(buf);
-    HDassert(*buf);
+    assert(*buf_size > 0);
+    assert(buf);
+    assert(*buf);
 
     /* Check arguments */
     if (cd_nelmts != 1 || cd_values[0] > 9)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, 0, "invalid deflate aggression level")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, 0, "invalid deflate aggression level");
 
     if (flags & H5Z_FLAG_REVERSE) {
         /* Input; uncompress */
-        z_stream z_strm;             /* zlib parameters */
-        size_t   nalloc = *buf_size; /* Number of bytes for output (compressed) buffer */
+#if defined(H5_HAVE_ZLIBNG_H)
+        zng_stream z_strm; /* zlib parameters */
+#else
+        z_stream z_strm; /* zlib parameters */
+#endif
+        size_t nalloc = *buf_size; /* Number of bytes for output (compressed) buffer */
 
         /* Allocate space for the compressed buffer */
         if (NULL == (outbuf = H5MM_malloc(nalloc)))
-            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, 0, "memory allocation failed for deflate uncompression")
+            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, 0, "memory allocation failed for deflate uncompression");
 
         /* Set the uncompression parameters */
-        HDmemset(&z_strm, 0, sizeof(z_strm));
+        memset(&z_strm, 0, sizeof(z_strm));
         z_strm.next_in = (Bytef *)*buf;
         H5_CHECKED_ASSIGN(z_strm.avail_in, unsigned, nbytes, size_t);
         z_strm.next_out = (Bytef *)outbuf;
         H5_CHECKED_ASSIGN(z_strm.avail_out, unsigned, nalloc, size_t);
 
         /* Initialize the uncompression routines */
+#if defined(H5_HAVE_ZLIBNG_H)
+        if (Z_OK != zng_inflateInit(&z_strm))
+            HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "inflateInit() failed");
+#else
         if (Z_OK != inflateInit(&z_strm))
-            HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "inflateInit() failed")
+            HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "inflateInit() failed");
+#endif
 
         /* Loop to uncompress the buffer */
         do {
             /* Uncompress some data */
+#if defined(H5_HAVE_ZLIBNG_H)
+            status = zng_inflate(&z_strm, Z_SYNC_FLUSH);
+#else
             status = inflate(&z_strm, Z_SYNC_FLUSH);
+#endif
 
             /* Check if we are done uncompressing data */
             if (Z_STREAM_END == status)
@@ -114,8 +116,12 @@ H5Z__filter_deflate(unsigned flags, size_t cd_nelmts, const unsigned cd_values[]
 
             /* Check for error */
             if (Z_OK != status) {
+#if defined(H5_HAVE_ZLIBNG_H)
+                (void)zng_inflateEnd(&z_strm);
+#else
                 (void)inflateEnd(&z_strm);
-                HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "inflate() failed")
+#endif
+                HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "inflate() failed");
             }
             else {
                 /* If we're not done and just ran out of buffer space, get more */
@@ -125,9 +131,13 @@ H5Z__filter_deflate(unsigned flags, size_t cd_nelmts, const unsigned cd_values[]
                     /* Allocate a buffer twice as big */
                     nalloc *= 2;
                     if (NULL == (new_outbuf = H5MM_realloc(outbuf, nalloc))) {
+#if defined(H5_HAVE_ZLIBNG_H)
+                        (void)zng_inflateEnd(&z_strm);
+#else
                         (void)inflateEnd(&z_strm);
+#endif
                         HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, 0,
-                                    "memory allocation failed for deflate uncompression")
+                                    "memory allocation failed for deflate uncompression");
                     } /* end if */
                     outbuf = new_outbuf;
 
@@ -148,7 +158,11 @@ H5Z__filter_deflate(unsigned flags, size_t cd_nelmts, const unsigned cd_values[]
         ret_value = z_strm.total_out;
 
         /* Finish uncompressing the stream */
+#if defined(H5_HAVE_ZLIBNG_H)
+        (void)zng_inflateEnd(&z_strm);
+#else
         (void)inflateEnd(&z_strm);
+#endif
     } /* end if */
     else {
         /*
@@ -157,29 +171,37 @@ H5Z__filter_deflate(unsigned flags, size_t cd_nelmts, const unsigned cd_values[]
          * must allocate a separate buffer for the result.
          */
         const Bytef *z_src = (const Bytef *)(*buf);
-        Bytef *      z_dst; /*destination buffer		*/
-        uLongf       z_dst_nbytes = (uLongf)H5Z_DEFLATE_SIZE_ADJUST(nbytes);
-        uLong        z_src_nbytes = (uLong)nbytes;
-        int          aggression; /* Compression aggression setting */
+        Bytef       *z_dst; /*destination buffer		*/
+#if defined(H5_HAVE_ZLIBNG_H)
+        uLongf z_dst_nbytes = (uLongf)zng_compressBound(nbytes);
+#else
+        uLongf z_dst_nbytes = (uLongf)compressBound(nbytes);
+#endif
+        uLong z_src_nbytes = (uLong)nbytes;
+        int   aggression; /* Compression aggression setting */
 
         /* Set the compression aggression level */
         H5_CHECKED_ASSIGN(aggression, int, cd_values[0], unsigned);
 
         /* Allocate output (compressed) buffer */
         if (NULL == (outbuf = H5MM_malloc(z_dst_nbytes)))
-            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, 0, "unable to allocate deflate destination buffer")
+            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, 0, "unable to allocate deflate destination buffer");
         z_dst = (Bytef *)outbuf;
 
         /* Perform compression from the source to the destination buffer */
+#if defined(H5_HAVE_ZLIBNG_H)
+        status = zng_compress2(z_dst, &z_dst_nbytes, z_src, z_src_nbytes, aggression);
+#else
         status = compress2(z_dst, &z_dst_nbytes, z_src, z_src_nbytes, aggression);
+#endif
 
         /* Check for various zlib errors */
         if (Z_BUF_ERROR == status)
-            HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "overflow")
+            HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "overflow");
         else if (Z_MEM_ERROR == status)
-            HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "deflate memory error")
+            HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "deflate memory error");
         else if (Z_OK != status)
-            HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "other deflate error")
+            HGOTO_ERROR(H5E_PLINE, H5E_CANTINIT, 0, "other deflate error");
         /* Successfully uncompressed the buffer */
         else {
             /* Free the input buffer */

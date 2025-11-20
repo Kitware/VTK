@@ -11,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol
- *		Sunday, February 25, 2018
- *
- * Purpose:	This file contains declarations which define macros for the
- *		H5CX package.  Including this header means that the source file
- *		is part of the H5CX package.
+ * Purpose: This file contains declarations which define macros for the
+ *          H5CX package.  Including this header means that the source file
+ *          is part of the H5CX package.
  */
 #ifndef H5CXmodule_H
 #define H5CXmodule_H
@@ -25,8 +22,7 @@
  *      reporting macros.
  */
 #define H5CX_MODULE
-#define H5_MY_PKG      H5CX
-#define H5_MY_PKG_ERR  H5E_CONTEXT
-#define H5_MY_PKG_INIT YES
+#define H5_MY_PKG     H5CX
+#define H5_MY_PKG_ERR H5E_CONTEXT
 
 #endif /* H5CXmodule_H */

@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:		H5Pfcpl.c
- *			January  6 1998
- *			Robb Matzke
  *
  * Purpose:		File creation property list class routines
  *
@@ -105,10 +102,10 @@
 #define H5F_CRT_FILE_SPACE_STRATEGY_DEF   H5F_FILE_SPACE_STRATEGY_DEF
 #define H5F_CRT_FILE_SPACE_STRATEGY_ENC   H5P__fcrt_fspace_strategy_enc
 #define H5F_CRT_FILE_SPACE_STRATEGY_DEC   H5P__fcrt_fspace_strategy_dec
-#define H5F_CRT_FREE_SPACE_PERSIST_SIZE   sizeof(hbool_t)
+#define H5F_CRT_FREE_SPACE_PERSIST_SIZE   sizeof(bool)
 #define H5F_CRT_FREE_SPACE_PERSIST_DEF    H5F_FREE_SPACE_PERSIST_DEF
-#define H5F_CRT_FREE_SPACE_PERSIST_ENC    H5P__encode_hbool_t
-#define H5F_CRT_FREE_SPACE_PERSIST_DEC    H5P__decode_hbool_t
+#define H5F_CRT_FREE_SPACE_PERSIST_ENC    H5P__encode_bool
+#define H5F_CRT_FREE_SPACE_PERSIST_DEC    H5P__decode_bool
 #define H5F_CRT_FREE_SPACE_THRESHOLD_SIZE sizeof(hsize_t)
 #define H5F_CRT_FREE_SPACE_THRESHOLD_DEF  H5F_FREE_SPACE_THRESHOLD_DEF
 #define H5F_CRT_FREE_SPACE_THRESHOLD_ENC  H5P__encode_hsize_t
@@ -192,7 +189,7 @@ static const unsigned H5F_def_sohm_index_minsizes_g[H5O_SHMESG_MAX_NINDEXES] =
 static const unsigned              H5F_def_sohm_list_max_g        = H5F_CRT_SHMSG_LIST_MAX_DEF;
 static const unsigned              H5F_def_sohm_btree_min_g       = H5F_CRT_SHMSG_BTREE_MIN_DEF;
 static const H5F_fspace_strategy_t H5F_def_file_space_strategy_g  = H5F_CRT_FILE_SPACE_STRATEGY_DEF;
-static const hbool_t               H5F_def_free_space_persist_g   = H5F_CRT_FREE_SPACE_PERSIST_DEF;
+static const bool                  H5F_def_free_space_persist_g   = H5F_CRT_FREE_SPACE_PERSIST_DEF;
 static const hsize_t               H5F_def_free_space_threshold_g = H5F_CRT_FREE_SPACE_THRESHOLD_DEF;
 static const hsize_t               H5F_def_file_space_page_size_g = H5F_CRT_FILE_SPACE_PAGE_SIZE_DEF;
 
@@ -203,8 +200,6 @@ static const hsize_t               H5F_def_file_space_page_size_g = H5F_CRT_FILE
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Quincey Koziol
- *              October 31, 2006
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -212,94 +207,94 @@ H5P__fcrt_reg_prop(H5P_genclass_t *pclass)
 {
     herr_t ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Register the user block size */
     if (H5P__register_real(pclass, H5F_CRT_USER_BLOCK_NAME, H5F_CRT_USER_BLOCK_SIZE,
                            &H5F_def_userblock_size_g, NULL, NULL, NULL, H5F_CRT_USER_BLOCK_ENC,
                            H5F_CRT_USER_BLOCK_DEC, NULL, NULL, NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
     /* Register the 1/2 rank for symbol table leaf nodes */
     if (H5P__register_real(pclass, H5F_CRT_SYM_LEAF_NAME, H5F_CRT_SYM_LEAF_SIZE, &H5F_def_sym_leaf_k_g, NULL,
                            NULL, NULL, H5F_CRT_SYM_LEAF_ENC, H5F_CRT_SYM_LEAF_DEC, NULL, NULL, NULL,
                            NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
     /* Register the 1/2 rank for btree internal nodes */
     if (H5P__register_real(pclass, H5F_CRT_BTREE_RANK_NAME, H5F_CRT_BTREE_RANK_SIZE, H5F_def_btree_k_g, NULL,
                            NULL, NULL, H5F_CRT_BTREE_RANK_ENC, H5F_CRT_BTREE_RANK_DEC, NULL, NULL, NULL,
                            NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
     /* Register the byte number for an address */
     if (H5P__register_real(pclass, H5F_CRT_ADDR_BYTE_NUM_NAME, H5F_CRT_ADDR_BYTE_NUM_SIZE,
                            &H5F_def_sizeof_addr_g, NULL, NULL, NULL, H5F_CRT_ADDR_BYTE_NUM_ENC,
                            H5F_CRT_ADDR_BYTE_NUM_DEC, NULL, NULL, NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
     /* Register the byte number for object size */
     if (H5P__register_real(pclass, H5F_CRT_OBJ_BYTE_NUM_NAME, H5F_CRT_OBJ_BYTE_NUM_SIZE,
                            &H5F_def_sizeof_size_g, NULL, NULL, NULL, H5F_CRT_OBJ_BYTE_NUM_ENC,
                            H5F_CRT_OBJ_BYTE_NUM_DEC, NULL, NULL, NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
     /* Register the superblock version number */
     /* (Note: this property should not have an encode/decode callback -QAK) */
     if (H5P__register_real(pclass, H5F_CRT_SUPER_VERS_NAME, H5F_CRT_SUPER_VERS_SIZE,
                            &H5F_def_superblock_ver_g, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
                            NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
     /* Register the shared OH message information */
     if (H5P__register_real(pclass, H5F_CRT_SHMSG_NINDEXES_NAME, H5F_CRT_SHMSG_NINDEXES_SIZE,
                            &H5F_def_num_sohm_indexes_g, NULL, NULL, NULL, H5F_CRT_SHMSG_NINDEXES_ENC,
                            H5F_CRT_SHMSG_NINDEXES_DEC, NULL, NULL, NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
     if (H5P__register_real(pclass, H5F_CRT_SHMSG_INDEX_TYPES_NAME, H5F_CRT_SHMSG_INDEX_TYPES_SIZE,
                            &H5F_def_sohm_index_flags_g, NULL, NULL, NULL, H5F_CRT_SHMSG_INDEX_TYPES_ENC,
                            H5F_CRT_SHMSG_INDEX_TYPES_DEC, NULL, NULL, NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
     if (H5P__register_real(pclass, H5F_CRT_SHMSG_INDEX_MINSIZE_NAME, H5F_CRT_SHMSG_INDEX_MINSIZE_SIZE,
                            &H5F_def_sohm_index_minsizes_g, NULL, NULL, NULL, H5F_CRT_SHMSG_INDEX_MINSIZE_ENC,
                            H5F_CRT_SHMSG_INDEX_MINSIZE_DEC, NULL, NULL, NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
     /* Register the shared OH cutoff size information */
     if (H5P__register_real(pclass, H5F_CRT_SHMSG_LIST_MAX_NAME, H5F_CRT_SHMSG_LIST_MAX_SIZE,
                            &H5F_def_sohm_list_max_g, NULL, NULL, NULL, H5F_CRT_SHMSG_LIST_MAX_ENC,
                            H5F_CRT_SHMSG_LIST_MAX_DEC, NULL, NULL, NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
     if (H5P__register_real(pclass, H5F_CRT_SHMSG_BTREE_MIN_NAME, H5F_CRT_SHMSG_BTREE_MIN_SIZE,
                            &H5F_def_sohm_btree_min_g, NULL, NULL, NULL, H5F_CRT_SHMSG_BTREE_MIN_ENC,
                            H5F_CRT_SHMSG_BTREE_MIN_DEC, NULL, NULL, NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
     /* Register the file space handling strategy */
     if (H5P__register_real(pclass, H5F_CRT_FILE_SPACE_STRATEGY_NAME, H5F_CRT_FILE_SPACE_STRATEGY_SIZE,
                            &H5F_def_file_space_strategy_g, NULL, NULL, NULL, H5F_CRT_FILE_SPACE_STRATEGY_ENC,
                            H5F_CRT_FILE_SPACE_STRATEGY_DEC, NULL, NULL, NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
     /* Register the free-space persist flag */
     if (H5P__register_real(pclass, H5F_CRT_FREE_SPACE_PERSIST_NAME, H5F_CRT_FREE_SPACE_PERSIST_SIZE,
                            &H5F_def_free_space_persist_g, NULL, NULL, NULL, H5F_CRT_FREE_SPACE_PERSIST_ENC,
                            H5F_CRT_FREE_SPACE_PERSIST_DEC, NULL, NULL, NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
     /* Register the free space section threshold */
     if (H5P__register_real(pclass, H5F_CRT_FREE_SPACE_THRESHOLD_NAME, H5F_CRT_FREE_SPACE_THRESHOLD_SIZE,
                            &H5F_def_free_space_threshold_g, NULL, NULL, NULL,
                            H5F_CRT_FREE_SPACE_THRESHOLD_ENC, H5F_CRT_FREE_SPACE_THRESHOLD_DEC, NULL, NULL,
                            NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
     /* Register the file space page size */
     if (H5P__register_real(pclass, H5F_CRT_FILE_SPACE_PAGE_SIZE_NAME, H5F_CRT_FILE_SPACE_PAGE_SIZE_SIZE,
                            &H5F_def_file_space_page_size_g, NULL, NULL, NULL,
                            H5F_CRT_FILE_SPACE_PAGE_SIZE_ENC, H5F_CRT_FILE_SPACE_PAGE_SIZE_DEC, NULL, NULL,
                            NULL, NULL) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTINSERT, FAIL, "can't insert property into class");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -313,9 +308,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Tuesday, January  6, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -325,26 +317,25 @@ H5Pset_userblock(hid_t plist_id, hsize_t size)
     herr_t          ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ih", plist_id, size);
 
     /* Sanity check non-zero userblock sizes */
     if (size > 0) {
         /* Check that the userblock size is >=512 */
         if (size < 512)
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "userblock size is non-zero and less than 512")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "userblock size is non-zero and less than 512");
 
         /* Check that the userblock size is a power of two */
         if (!POWER_OF_TWO(size))
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "userblock size is non-zero and not a power of two")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "userblock size is non-zero and not a power of two");
     } /* end if */
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set value */
     if (H5P_set(plist, H5F_CRT_USER_BLOCK_NAME, &size) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set user block")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set user block");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -360,9 +351,6 @@ done:
  *
  *		Failure:	Negative
  *
- * Programmer:	Robb Matzke
- *		Wednesday, January  7, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -372,7 +360,6 @@ H5Pget_userblock(hid_t plist_id, hsize_t *size /*out*/)
     herr_t          ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", plist_id, size);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
@@ -396,9 +383,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Tuesday, January  6, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -408,34 +392,33 @@ H5Pset_sizes(hid_t plist_id, size_t sizeof_addr, size_t sizeof_size)
     herr_t          ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "izz", plist_id, sizeof_addr, sizeof_size);
 
     /* Check arguments */
     if (sizeof_addr) {
         if (sizeof_addr != 2 && sizeof_addr != 4 && sizeof_addr != 8 && sizeof_addr != 16)
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "file haddr_t size is not valid")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "file haddr_t size is not valid");
     } /* end if */
     if (sizeof_size) {
         if (sizeof_size != 2 && sizeof_size != 4 && sizeof_size != 8 && sizeof_size != 16)
-            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "file size_t size is not valid")
+            HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "file size_t size is not valid");
     } /* end if */
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set value */
     if (sizeof_addr) {
         uint8_t tmp_sizeof_addr = (uint8_t)sizeof_addr;
 
         if (H5P_set(plist, H5F_CRT_ADDR_BYTE_NUM_NAME, &tmp_sizeof_addr) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set byte number for an address")
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set byte number for an address");
     } /* end if */
     if (sizeof_size) {
         uint8_t tmp_sizeof_size = (uint8_t)sizeof_size;
 
         if (H5P_set(plist, H5F_CRT_OBJ_BYTE_NUM_NAME, &tmp_sizeof_size) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set byte number for object ")
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set byte number for object ");
     } /* end if */
 
 done:
@@ -452,9 +435,6 @@ done:
  * Return:	Success:	Non-negative, sizes returned through arguments.
  *		Failure:	Negative
  *
- * Programmer:	Robb Matzke
- *		Wednesday, January  7, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -464,25 +444,24 @@ H5Pget_sizes(hid_t plist_id, size_t *sizeof_addr /*out*/, size_t *sizeof_size /*
     herr_t          ret_value = SUCCEED; /* return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "ixx", plist_id, sizeof_addr, sizeof_size);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get values */
     if (sizeof_addr) {
         uint8_t tmp_sizeof_addr;
 
         if (H5P_get(plist, H5F_CRT_ADDR_BYTE_NUM_NAME, &tmp_sizeof_addr) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get byte number for an address")
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get byte number for an address");
         *sizeof_addr = tmp_sizeof_addr;
     } /* end if */
     if (sizeof_size) {
         uint8_t tmp_sizeof_size;
 
         if (H5P_get(plist, H5F_CRT_OBJ_BYTE_NUM_NAME, &tmp_sizeof_size) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get byte number for object ")
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get byte number for object ");
         *sizeof_size = tmp_sizeof_size;
     } /* end if */
 
@@ -510,9 +489,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Tuesday, January  6, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -523,7 +499,6 @@ H5Pset_sym_k(hid_t plist_id, unsigned ik, unsigned lk)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "iIuIu", plist_id, ik, lk);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
@@ -558,9 +533,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Wednesday, January  7, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -571,7 +543,6 @@ H5Pget_sym_k(hid_t plist_id, unsigned *ik /*out*/, unsigned *lk /*out*/)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "ixx", plist_id, ik, lk);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
@@ -600,9 +571,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Robb Matzke
- *		Tuesday, January  6, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -613,7 +581,6 @@ H5Pset_istore_k(hid_t plist_id, unsigned ik)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "iIu", plist_id, ik);
 
     /* Check arguments */
     if (ik == 0)
@@ -648,9 +615,6 @@ done:
  *
  *		Failure:	Negative
  *
- * Programmer:	Robb Matzke
- *		Wednesday, January  7, 1998
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -661,7 +625,6 @@ H5Pget_istore_k(hid_t plist_id, unsigned *ik /*out*/)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", plist_id, ik);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
@@ -682,13 +645,10 @@ done:
  * Function:       H5P__fcrt_btree_rank_enc
  *
  * Purpose:        Callback routine which is called whenever the index storage
- *                 btree in file creation property list is encoded.
+ *                 btree in a file creation property list is encoded.
  *
  * Return:	   Success:	Non-negative
  *		   Failure:	Negative
- *
- * Programmer:     Mohamad Chaarawi
- *                 August 7, 2012
  *
  *-------------------------------------------------------------------------
  */
@@ -696,13 +656,13 @@ static herr_t
 H5P__fcrt_btree_rank_enc(const void *value, void **_pp, size_t *size)
 {
     const unsigned *btree_k = (const unsigned *)value; /* Create local alias for values */
-    uint8_t **      pp      = (uint8_t **)_pp;
+    uint8_t       **pp      = (uint8_t **)_pp;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check */
-    HDassert(btree_k);
-    HDassert(size);
+    assert(btree_k);
+    assert(size);
 
     if (NULL != *pp) {
         unsigned u; /* Local index variable */
@@ -713,7 +673,7 @@ H5P__fcrt_btree_rank_enc(const void *value, void **_pp, size_t *size)
         /* Encode all the btree  */
         for (u = 0; u < H5B_NUM_BTREE_ID; u++) {
             /* Encode the left split value */
-            H5_ENCODE_UNSIGNED(*pp, *(const unsigned *)btree_k)
+            H5_ENCODE_UNSIGNED(*pp, *(const unsigned *)btree_k);
             btree_k++;
         } /* end for */
     }     /* end if */
@@ -728,40 +688,37 @@ H5P__fcrt_btree_rank_enc(const void *value, void **_pp, size_t *size)
  * Function:       H5P__fcrt_btree_rank_dec
  *
  * Purpose:        Callback routine which is called whenever the index storage
- *                 btree in file creation property list is decoded.
+ *                 btree in a file creation property list is decoded.
  *
  * Return:	   Success:	Non-negative
  *		   Failure:	Negative
- *
- * Programmer:     Mohamad Chaarawi
- *                 August 7, 2012
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5P__fcrt_btree_rank_dec(const void **_pp, void *_value)
 {
-    unsigned *      btree_k = (unsigned *)_value;
+    unsigned       *btree_k = (unsigned *)_value;
     const uint8_t **pp      = (const uint8_t **)_pp;
     unsigned        enc_size;            /* Size of encoded property */
     unsigned        u;                   /* Local index variable */
     herr_t          ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Sanity checks */
-    HDassert(pp);
-    HDassert(*pp);
-    HDassert(btree_k);
+    assert(pp);
+    assert(*pp);
+    assert(btree_k);
 
     /* Decode the size */
     enc_size = *(*pp)++;
     if (enc_size != sizeof(unsigned))
-        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "unsigned value can't be decoded")
+        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "unsigned value can't be decoded");
 
     /* Decode all the type flags */
     for (u = 0; u < H5B_NUM_BTREE_ID; u++)
-        H5_DECODE_UNSIGNED(*pp, btree_k[u])
+        H5_DECODE_UNSIGNED(*pp, btree_k[u]);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -781,9 +738,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	James Laird
- *		Monday, October 9, 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -793,7 +747,6 @@ H5Pset_shared_mesg_nindexes(hid_t plist_id, unsigned nindexes)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "iIu", plist_id, nindexes);
 
     /* Check argument */
     if (nindexes > H5O_SHMESG_MAX_NINDEXES)
@@ -819,9 +772,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	James Laird
- *		Monday, October 9, 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -831,7 +781,6 @@ H5Pget_shared_mesg_nindexes(hid_t plist_id, unsigned *nindexes /*out*/)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", plist_id, nindexes);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
@@ -856,9 +805,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	James Laird
- *		Wednesday, April 5, 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -871,19 +817,18 @@ H5Pset_shared_mesg_index(hid_t plist_id, unsigned index_num, unsigned mesg_type_
     herr_t          ret_value = SUCCEED;                 /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "iIuIuIu", plist_id, index_num, mesg_type_flags, min_mesg_size);
 
     /* Check arguments */
     if (mesg_type_flags > H5O_SHMESG_ALL_FLAG)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "unrecognized flags in mesg_type_flags")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "unrecognized flags in mesg_type_flags");
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Read the current number of indexes */
     if (H5P_get(plist, H5F_CRT_SHMSG_NINDEXES_NAME, &nindexes) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get number of indexes")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get number of indexes");
 
     /* Range check */
     if (index_num >= nindexes)
@@ -891,9 +836,9 @@ H5Pset_shared_mesg_index(hid_t plist_id, unsigned index_num, unsigned mesg_type_
 
     /* Get arrays of type flags and message sizes */
     if (H5P_get(plist, H5F_CRT_SHMSG_INDEX_TYPES_NAME, type_flags) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get current index type flags")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get current index type flags");
     if (H5P_get(plist, H5F_CRT_SHMSG_INDEX_MINSIZE_NAME, minsizes) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get current min sizes")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get current min sizes");
 
     /* Set values in arrays */
     type_flags[index_num] = mesg_type_flags;
@@ -901,9 +846,9 @@ H5Pset_shared_mesg_index(hid_t plist_id, unsigned index_num, unsigned mesg_type_
 
     /* Write arrays back to plist */
     if (H5P_set(plist, H5F_CRT_SHMSG_INDEX_TYPES_NAME, type_flags) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set index type flags")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set index type flags");
     if (H5P_set(plist, H5F_CRT_SHMSG_INDEX_MINSIZE_NAME, minsizes) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set min mesg sizes")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set min mesg sizes");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -918,9 +863,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	James Laird
- *		Wednesday, April 5, 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -934,25 +876,24 @@ H5Pget_shared_mesg_index(hid_t plist_id, unsigned index_num, unsigned *mesg_type
     herr_t          ret_value = SUCCEED;                 /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "iIuxx", plist_id, index_num, mesg_type_flags, min_mesg_size);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Read the current number of indexes */
     if (H5P_get(plist, H5F_CRT_SHMSG_NINDEXES_NAME, &nindexes) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get number of indexes")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get number of indexes");
 
     if (index_num >= nindexes)
         HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL,
-                    "index_num is greater than number of indexes in property list")
+                    "index_num is greater than number of indexes in property list");
 
     /* Get arrays of type flags and message sizes */
     if (H5P_get(plist, H5F_CRT_SHMSG_INDEX_TYPES_NAME, type_flags) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get current index type flags")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get current index type flags");
     if (H5P_get(plist, H5F_CRT_SHMSG_INDEX_MINSIZE_NAME, minsizes) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get current min sizes")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get current min sizes");
 
     /* Get values from arrays */
     if (mesg_type_flags)
@@ -968,14 +909,11 @@ done:
  * Function:       H5P__fcrt_shmsg_index_types_enc
  *
  * Purpose:        Callback routine which is called whenever the shared
- *                 message indec types in file creation property list
- *                 is encoded.
+ *                 message index types in a file creation property list
+ *                 are encoded.
  *
  * Return:	   Success:	Non-negative
  *		   Failure:	Negative
- *
- * Programmer:     Mohamad Chaarawi
- *                 August 7, 2012
  *
  *-------------------------------------------------------------------------
  */
@@ -983,13 +921,13 @@ static herr_t
 H5P__fcrt_shmsg_index_types_enc(const void *value, void **_pp, size_t *size)
 {
     const unsigned *type_flags = (const unsigned *)value; /* Create local alias for values */
-    uint8_t **      pp         = (uint8_t **)_pp;
+    uint8_t       **pp         = (uint8_t **)_pp;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check */
-    HDassert(type_flags);
-    HDassert(size);
+    assert(type_flags);
+    assert(size);
 
     if (NULL != *pp) {
         unsigned u; /* Local index variable */
@@ -1000,7 +938,7 @@ H5P__fcrt_shmsg_index_types_enc(const void *value, void **_pp, size_t *size)
         /* Encode all the type flags */
         for (u = 0; u < H5O_SHMESG_MAX_NINDEXES; u++) {
             /* Encode the left split value */
-            H5_ENCODE_UNSIGNED(*pp, *(const unsigned *)type_flags)
+            H5_ENCODE_UNSIGNED(*pp, *(const unsigned *)type_flags);
             type_flags++;
         } /* end for */
     }     /* end if */
@@ -1015,41 +953,38 @@ H5P__fcrt_shmsg_index_types_enc(const void *value, void **_pp, size_t *size)
  * Function:       H5P__fcrt_shmsg_index_types_dec
  *
  * Purpose:        Callback routine which is called whenever the shared
- *                 message indec types in file creation property list
- *                 is decoded.
+ *                 message index types in a file creation property list
+ *                 are decoded.
  *
  * Return:	   Success:	Non-negative
  *		   Failure:	Negative
- *
- * Programmer:     Mohamad Chaarawi
- *                 August 7, 2012
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5P__fcrt_shmsg_index_types_dec(const void **_pp, void *_value)
 {
-    unsigned *      type_flags = (unsigned *)_value;
+    unsigned       *type_flags = (unsigned *)_value;
     const uint8_t **pp         = (const uint8_t **)_pp;
     unsigned        enc_size;            /* Size of encoded property */
     unsigned        u;                   /* Local index variable */
     herr_t          ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Sanity checks */
-    HDassert(pp);
-    HDassert(*pp);
-    HDassert(type_flags);
+    assert(pp);
+    assert(*pp);
+    assert(type_flags);
 
     /* Decode the size */
     enc_size = *(*pp)++;
     if (enc_size != sizeof(unsigned))
-        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "unsigned value can't be decoded")
+        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "unsigned value can't be decoded");
 
     /* Decode all the type flags */
     for (u = 0; u < H5O_SHMESG_MAX_NINDEXES; u++)
-        H5_DECODE_UNSIGNED(*pp, type_flags[u])
+        H5_DECODE_UNSIGNED(*pp, type_flags[u]);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1059,14 +994,11 @@ done:
  * Function:       H5P__fcrt_shmsg_index_minsize_enc
  *
  * Purpose:        Callback routine which is called whenever the shared
- *                 message index minsize in file creation property list
+ *                 message index minsize in a file creation property list
  *                 is encoded.
  *
  * Return:	   Success:	Non-negative
  *		   Failure:	Negative
- *
- * Programmer:     Mohamad Chaarawi
- *                 August 7, 2012
  *
  *-------------------------------------------------------------------------
  */
@@ -1074,13 +1006,13 @@ static herr_t
 H5P__fcrt_shmsg_index_minsize_enc(const void *value, void **_pp, size_t *size)
 {
     const unsigned *minsizes = (const unsigned *)value; /* Create local alias for values */
-    uint8_t **      pp       = (uint8_t **)_pp;
+    uint8_t       **pp       = (uint8_t **)_pp;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check */
-    HDassert(minsizes);
-    HDassert(size);
+    assert(minsizes);
+    assert(size);
 
     if (NULL != *pp) {
         unsigned u; /* Local index variable */
@@ -1091,7 +1023,7 @@ H5P__fcrt_shmsg_index_minsize_enc(const void *value, void **_pp, size_t *size)
         /* Encode all the minsize values */
         for (u = 0; u < H5O_SHMESG_MAX_NINDEXES; u++) {
             /* Encode the left split value */
-            H5_ENCODE_UNSIGNED(*pp, *(const unsigned *)minsizes)
+            H5_ENCODE_UNSIGNED(*pp, *(const unsigned *)minsizes);
             minsizes++;
         } /* end for */
     }     /* end if */
@@ -1106,41 +1038,38 @@ H5P__fcrt_shmsg_index_minsize_enc(const void *value, void **_pp, size_t *size)
  * Function:       H5P__fcrt_shmsg_index_minsize_dec
  *
  * Purpose:        Callback routine which is called whenever the shared
- *                 message indec minsize in file creation property list
+ *                 message index minsize in a file creation property list
  *                 is decoded.
  *
  * Return:	   Success:	Non-negative
  *		   Failure:	Negative
- *
- * Programmer:     Mohamad Chaarawi
- *                 August 7, 2012
  *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5P__fcrt_shmsg_index_minsize_dec(const void **_pp, void *_value)
 {
-    unsigned *      minsizes = (unsigned *)_value;
+    unsigned       *minsizes = (unsigned *)_value;
     const uint8_t **pp       = (const uint8_t **)_pp;
     unsigned        enc_size;            /* Size of encoded property */
     unsigned        u;                   /* Local index variable */
     herr_t          ret_value = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Sanity checks */
-    HDassert(pp);
-    HDassert(*pp);
-    HDassert(minsizes);
+    assert(pp);
+    assert(*pp);
+    assert(minsizes);
 
     /* Decode the size */
     enc_size = *(*pp)++;
     if (enc_size != sizeof(unsigned))
-        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "unsigned value can't be decoded")
+        HGOTO_ERROR(H5E_PLIST, H5E_BADVALUE, FAIL, "unsigned value can't be decoded");
 
     /* Decode all the minsize values */
     for (u = 0; u < H5O_SHMESG_MAX_NINDEXES; u++)
-        H5_DECODE_UNSIGNED(*pp, minsizes[u])
+        H5_DECODE_UNSIGNED(*pp, minsizes[u]);
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1160,9 +1089,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	James Laird
- *		Wednesday, April 5, 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1172,7 +1098,6 @@ H5Pset_shared_mesg_phase_change(hid_t plist_id, unsigned max_list, unsigned min_
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "iIuIu", plist_id, max_list, min_btree);
 
     /* Check that values are sensible.  The min_btree value must be no greater
      * than the max list plus one.
@@ -1180,11 +1105,11 @@ H5Pset_shared_mesg_phase_change(hid_t plist_id, unsigned max_list, unsigned min_
      * Range check to make certain they will fit into encoded form.
      */
     if (max_list + 1 < min_btree)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "minimum B-tree value is greater than maximum list value")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "minimum B-tree value is greater than maximum list value");
     if (max_list > H5O_SHMESG_MAX_LIST_SIZE)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "max list value is larger than H5O_SHMESG_MAX_LIST_SIZE")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "max list value is larger than H5O_SHMESG_MAX_LIST_SIZE");
     if (min_btree > H5O_SHMESG_MAX_LIST_SIZE)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "min btree value is larger than H5O_SHMESG_MAX_LIST_SIZE")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "min btree value is larger than H5O_SHMESG_MAX_LIST_SIZE");
 
     /* Avoid the strange case where max_list == 0 and min_btree == 1, so deleting the
      * last message in a B-tree makes it become an empty list.
@@ -1213,9 +1138,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	James Laird
- *		Wednesday, April 5, 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1225,7 +1147,6 @@ H5Pget_shared_mesg_phase_change(hid_t plist_id, unsigned *max_list /*out*/, unsi
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE3("e", "ixx", plist_id, max_list, min_btree);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
@@ -1253,8 +1174,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi; June 10, 2009
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1264,27 +1183,26 @@ H5Pset_file_space_strategy(hid_t plist_id, H5F_fspace_strategy_t strategy, hbool
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "iFfbh", plist_id, strategy, persist, threshold);
 
     /* Check arguments */
     if (strategy >= H5F_FSPACE_STRATEGY_NTYPES)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid strategy")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, FAIL, "invalid strategy");
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Set value(s), if non-zero */
     if (H5P_set(plist, H5F_CRT_FILE_SPACE_STRATEGY_NAME, &strategy) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set file space strategy")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set file space strategy");
 
     /* Ignore persist and threshold settings for strategies that do not use FSM */
     if (strategy == H5F_FSPACE_STRATEGY_FSM_AGGR || strategy == H5F_FSPACE_STRATEGY_PAGE) {
         if (H5P_set(plist, H5F_CRT_FREE_SPACE_PERSIST_NAME, &persist) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set free-space persisting status")
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set free-space persisting status");
 
         if (H5P_set(plist, H5F_CRT_FREE_SPACE_THRESHOLD_NAME, &threshold) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set free-space threshold")
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTSET, FAIL, "can't set free-space threshold");
     } /* end if */
 
 done:
@@ -1299,8 +1217,6 @@ done:
  *
  * Return:	Non-negative on success/Negative on failure
  *
- * Programmer:	Vailin Choi; June 10, 2009
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1311,22 +1227,21 @@ H5Pget_file_space_strategy(hid_t plist_id, H5F_fspace_strategy_t *strategy /*out
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE4("e", "ixxx", plist_id, strategy, persist, threshold);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get value(s) */
     if (strategy)
         if (H5P_get(plist, H5F_CRT_FILE_SPACE_STRATEGY_NAME, strategy) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file space strategy")
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file space strategy");
     if (persist)
         if (H5P_get(plist, H5F_CRT_FREE_SPACE_PERSIST_NAME, persist) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get free-space persisting status")
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get free-space persisting status");
     if (threshold)
         if (H5P_get(plist, H5F_CRT_FREE_SPACE_THRESHOLD_NAME, threshold) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get free-space threshold")
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get free-space threshold");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1342,9 +1257,6 @@ done:
  * Return:	   Success:	Non-negative
  *		   Failure:	Negative
  *
- * Programmer:     Quincey Koziol
- *                 Friday, December 27, 2013
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -1354,11 +1266,11 @@ H5P__fcrt_fspace_strategy_enc(const void *value, void **_pp, size_t *size)
         (const H5F_fspace_strategy_t *)value; /* Create local alias for values */
     uint8_t **pp = (uint8_t **)_pp;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check */
-    HDassert(strategy);
-    HDassert(size);
+    assert(strategy);
+    assert(size);
 
     if (NULL != *pp)
         /* Encode free-space strategy */
@@ -1380,23 +1292,20 @@ H5P__fcrt_fspace_strategy_enc(const void *value, void **_pp, size_t *size)
  * Return:	   Success:	Non-negative
  *		   Failure:	Negative
  *
- * Programmer:     Quincey Koziol
- *                 Friday, December 27, 2013
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5P__fcrt_fspace_strategy_dec(const void **_pp, void *_value)
 {
     H5F_fspace_strategy_t *strategy = (H5F_fspace_strategy_t *)_value; /* Free-space strategy */
-    const uint8_t **       pp       = (const uint8_t **)_pp;
+    const uint8_t        **pp       = (const uint8_t **)_pp;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity checks */
-    HDassert(pp);
-    HDassert(*pp);
-    HDassert(strategy);
+    assert(pp);
+    assert(*pp);
+    assert(strategy);
 
     /* Decode free-space strategy */
     *strategy = (H5F_fspace_strategy_t) * (*pp)++;
@@ -1411,8 +1320,6 @@ H5P__fcrt_fspace_strategy_dec(const void **_pp, void *_value)
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Vailin Choi; August 2012
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1422,21 +1329,20 @@ H5Pset_file_space_page_size(hid_t plist_id, hsize_t fsp_size)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ih", plist_id, fsp_size);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     if (fsp_size < H5F_FILE_SPACE_PAGE_SIZE_MIN)
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "cannot set file space page size to less than 512")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "cannot set file space page size to less than 512");
 
     if (fsp_size > H5F_FILE_SPACE_PAGE_SIZE_MAX)
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "cannot set file space page size to more than 1GB")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "cannot set file space page size to more than 1GB");
 
     /* Set the value*/
     if (H5P_set(plist, H5F_CRT_FILE_SPACE_PAGE_SIZE_NAME, &fsp_size) < 0)
-        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't set file space page size")
+        HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't set file space page size");
 
 done:
     FUNC_LEAVE_API(ret_value)
@@ -1450,8 +1356,6 @@ done:
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Vailin Choi; August 2012
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -1461,16 +1365,15 @@ H5Pget_file_space_page_size(hid_t plist_id, hsize_t *fsp_size /*out*/)
     herr_t          ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_API(FAIL)
-    H5TRACE2("e", "ix", plist_id, fsp_size);
 
     /* Get the plist structure */
     if (NULL == (plist = H5P_object_verify(plist_id, H5P_FILE_CREATE)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get value */
     if (fsp_size)
         if (H5P_get(plist, H5F_CRT_FILE_SPACE_PAGE_SIZE_NAME, fsp_size) < 0)
-            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file space page size")
+            HGOTO_ERROR(H5E_PLIST, H5E_CANTGET, FAIL, "can't get file space page size");
 
 done:
     FUNC_LEAVE_API(ret_value)

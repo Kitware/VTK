@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -73,9 +72,6 @@
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Vailin Choi
- *              Thursday, April 30, 2009
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -84,12 +80,12 @@ H5FA_get_stats(const H5FA_t *fa, H5FA_stat_t *stats)
     FUNC_ENTER_NOAPI_NOERR
 
 #ifdef H5FA_DEBUG
-    HDfprintf(stderr, "%s: Called\n", __func__);
+    fprintf(stderr, "%s: Called\n", __func__);
 #endif /* H5FA_DEBUG */
 
     /* Check arguments */
-    HDassert(fa);
-    HDassert(stats);
+    assert(fa);
+    assert(stats);
 
     /* Copy fixed array statistics */
     H5MM_memcpy(stats, &fa->hdr->stats, sizeof(fa->hdr->stats));

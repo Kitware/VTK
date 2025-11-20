@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -12,12 +11,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Programmer:	Quincey Koziol
- *		Friday, February 24, 2006
- *
- * Purpose:	This file contains declarations which are visible only within
- *		the H5HF package.  Source files outside the H5HF package should
- *		include H5HFprivate.h instead.
+ * Purpose: This file contains declarations which are visible only within
+ *          the H5HF package.  Source files outside the H5HF package should
+ *          include H5HFprivate.h instead.
  */
 #if !(defined H5HF_FRIEND || defined H5HF_MODULE)
 #error "Do not include this file outside the H5HF package!"
@@ -70,7 +66,7 @@
  */
 #define H5HF_HEADER_SIZE(h)                                                                                  \
     (/* General metadata fields */                                                                           \
-     H5HF_METADATA_PREFIX_SIZE(TRUE)                                                                         \
+     H5HF_METADATA_PREFIX_SIZE(true)                                                                         \
                                                                                                              \
      /* Fractal Heap Header specific fields */                                                               \
                                                                                                              \
@@ -122,7 +118,7 @@
 /* Size of managed indirect block */
 #define H5HF_MAN_INDIRECT_SIZE(h, r)                                                                         \
     (/* General metadata fields */                                                                           \
-     H5HF_METADATA_PREFIX_SIZE(TRUE)                                                                         \
+     H5HF_METADATA_PREFIX_SIZE(true)                                                                         \
                                                                                                              \
      /* Fractal heap managed, absolutely mapped indirect block specific fields */                            \
      + (unsigned)(h)->sizeof_addr   /* File address of heap owning the block */                              \
@@ -158,9 +154,11 @@
 
 /* Decode a "managed" heap ID */
 #define H5HF_MAN_ID_DECODE(i, h, f, o, l)                                                                    \
-    f = *(uint8_t *)i++;                                                                                     \
-    UINT64DECODE_VAR((i), (o), (h)->heap_off_size);                                                          \
-    UINT64DECODE_VAR((i), (l), (h)->heap_len_size)
+    do {                                                                                                     \
+        f = *(uint8_t *)i++;                                                                                 \
+        UINT64DECODE_VAR((i), (o), (h)->heap_off_size);                                                      \
+        UINT64DECODE_VAR((i), (l), (h)->heap_len_size);                                                      \
+    } while (0)
 
 /* Free space section types for fractal heap */
 /* (values stored in free space data structures in file) */
@@ -230,13 +228,13 @@ typedef struct H5HF_block_loc_t {
     unsigned entry; /* Entry of block in doubling table           */
 
     /* Infrastructure */
-    H5HF_indirect_t *        context; /* Pointer to the indirect block containing the block */
+    H5HF_indirect_t         *context; /* Pointer to the indirect block containing the block */
     struct H5HF_block_loc_t *up;      /* Pointer to next level up in the stack of levels */
 } H5HF_block_loc_t;
 
 /* Fractal heap block iterator info */
 typedef struct H5HF_block_iter_t {
-    hbool_t           ready; /* Set if iterator is finished initializing   */
+    bool              ready; /* Set if iterator is finished initializing   */
     H5HF_block_loc_t *curr;  /* Pointer to the current level information for iterator */
 } H5HF_block_iter_t;
 
@@ -255,7 +253,7 @@ typedef struct H5HF_free_section_t {
             unsigned                    num_entries; /* Number of entries covered */
 
             /* Fields that aren't stored */
-            hbool_t checked_out; /* Flag to indicate that a row section is temporarily out of the free space
+            bool checked_out; /* Flag to indicate that a row section is temporarily out of the free space
                                     manager */
         } row;
         struct {
@@ -301,10 +299,10 @@ struct H5HF_hdr_t {
     unsigned filter_len; /* Size of I/O filter information (in bytes) */
 
     /* Flags for heap settings (stored in status byte in header) */
-    hbool_t debug_objs;       /* Is the heap storing objects in 'debug' format */
-    hbool_t write_once;       /* Is heap being written in "write once" mode? */
-    hbool_t huge_ids_wrapped; /* Have "huge" object IDs wrapped around? */
-    hbool_t checksum_dblocks; /* Should the direct blocks in the heap be checksummed? */
+    bool debug_objs;       /* Is the heap storing objects in 'debug' format */
+    bool write_once;       /* Is heap being written in "write once" mode? */
+    bool huge_ids_wrapped; /* Have "huge" object IDs wrapped around? */
+    bool checksum_dblocks; /* Should the direct blocks in the heap be checksummed? */
 
     /* Doubling table information (partially stored in header) */
     /* (Partially set by user, partially derived/updated internally) */
@@ -339,26 +337,26 @@ struct H5HF_hdr_t {
     haddr_t                 heap_addr;      /* Address of heap header in the file */
     size_t                  heap_size;      /* Size of heap header in the file */
     unsigned                mode;           /* Access mode for heap */
-    H5F_t *                 f;              /* Pointer to file for heap */
+    H5F_t                  *f;              /* Pointer to file for heap */
     size_t                  file_rc;        /* Reference count of files using heap header */
-    hbool_t                 pending_delete; /* Heap is pending deletion */
+    bool                    pending_delete; /* Heap is pending deletion */
     uint8_t                 sizeof_size;    /* Size of file sizes */
     uint8_t                 sizeof_addr;    /* Size of file addresses */
     struct H5HF_indirect_t *root_iblock;    /* Pointer to root indirect block */
     unsigned root_iblock_flags;     /* Flags to indicate whether root indirect block is pinned/protected */
-    H5FS_t * fspace;                /* Free space list for objects in heap */
+    H5FS_t  *fspace;                /* Free space list for objects in heap */
     H5HF_block_iter_t next_block;   /* Block iterator for searching for next block with space */
-    H5B2_t *          huge_bt2;     /* v2 B-tree handle for huge objects */
+    H5B2_t           *huge_bt2;     /* v2 B-tree handle for huge objects */
     hsize_t           huge_max_id;  /* Max. 'huge' heap ID before rolling 'huge' heap IDs over */
     uint8_t           huge_id_size; /* Size of 'huge' heap IDs (in bytes) */
-    hbool_t huge_ids_direct;   /* Flag to indicate that 'huge' object's offset & length are stored directly in
-                                  heap ID */
-    size_t  tiny_max_len;      /* Max. size of tiny objects for this heap */
-    hbool_t tiny_len_extended; /* Flag to indicate that 'tiny' object's length is stored in extended form
-                                  (i.e. w/extra byte) */
-    uint8_t heap_off_size;     /* Size of heap offsets (in bytes) */
-    uint8_t heap_len_size;     /* Size of heap ID lengths (in bytes) */
-    hbool_t checked_filters;   /* TRUE if pipeline passes can_apply checks */
+    bool huge_ids_direct;     /* Flag to indicate that 'huge' object's offset & length are stored directly in
+                                    heap ID */
+    size_t tiny_max_len;      /* Max. size of tiny objects for this heap */
+    bool   tiny_len_extended; /* Flag to indicate that 'tiny' object's length is stored in extended form
+                                    (i.e. w/extra byte) */
+    uint8_t heap_off_size;    /* Size of heap offsets (in bytes) */
+    uint8_t heap_len_size;    /* Size of heap ID lengths (in bytes) */
+    bool    checked_filters;  /* true if pipeline passes can_apply checks */
 };
 
 /* Common indirect block doubling table entry */
@@ -381,9 +379,9 @@ struct H5HF_indirect_t {
 
     /* Internal heap information (not stored) */
     size_t                  rc;        /* Reference count of objects using this block */
-    H5HF_hdr_t *            hdr;       /* Shared heap header info	              */
+    H5HF_hdr_t             *hdr;       /* Shared heap header info	              */
     struct H5HF_indirect_t *parent;    /* Shared parent indirect block info  */
-    void *                  fd_parent; /* Saved copy of the parent pointer -- this   */
+    void                   *fd_parent; /* Saved copy of the parent pointer -- this   */
     /* necessary as the parent field is sometimes */
     /* nulled out before the eviction notify call */
     /* is made from the metadata cache.  Since    */
@@ -397,14 +395,14 @@ struct H5HF_indirect_t {
     unsigned                 nchildren;          /* Number of child blocks                     */
     unsigned                 max_child;          /* Max. offset used in child entries          */
     struct H5HF_indirect_t **child_iblocks;      /* Array of pointers to pinned child indirect blocks */
-    hbool_t                  removed_from_cache; /* Flag that indicates the block has  */
+    bool                     removed_from_cache; /* Flag that indicates the block has  */
                                                  /* been removed from the metadata cache, but  */
                                                  /* is still 'live' due to a refcount (rc) > 0 */
                                                  /* (usually from free space sections)         */
 
     /* Stored values */
     hsize_t                   block_off; /* Offset of the block within the heap's address space */
-    H5HF_indirect_ent_t *     ents;      /* Pointer to block entry table               */
+    H5HF_indirect_ent_t      *ents;      /* Pointer to block entry table               */
     H5HF_indirect_filt_ent_t *filt_ents; /* Pointer to filtered information for direct blocks */
 };
 
@@ -414,9 +412,9 @@ typedef struct H5HF_direct_t {
     H5AC_info_t cache_info;
 
     /* Internal heap information */
-    H5HF_hdr_t *     hdr;       /* Shared heap header info	              */
+    H5HF_hdr_t      *hdr;       /* Shared heap header info	              */
     H5HF_indirect_t *parent;    /* Shared parent indirect block info          */
-    void *           fd_parent; /* Saved copy of the parent pointer -- this   */
+    void            *fd_parent; /* Saved copy of the parent pointer -- this   */
     /* necessary as the parent field is sometimes */
     /* nulled out before the eviction notify call */
     /* is made from the metadata cache.  Since    */
@@ -459,12 +457,12 @@ typedef struct H5HF_direct_t {
 /* Fractal heap */
 struct H5HF_t {
     H5HF_hdr_t *hdr; /* Pointer to internal fractal heap header info */
-    H5F_t *     f;   /* Pointer to file for heap */
+    H5F_t      *f;   /* Pointer to file for heap */
 };
 
 /* Fractal heap "parent info" (for loading a block) */
 typedef struct H5HF_parent_t {
-    H5HF_hdr_t *     hdr;    /* Pointer to heap header info */
+    H5HF_hdr_t      *hdr;    /* Pointer to heap header info */
     H5HF_indirect_t *iblock; /* Pointer to parent indirect block */
     unsigned         entry;  /* Location of block in parent's entry table */
 } H5HF_parent_t;
@@ -517,15 +515,15 @@ typedef struct H5HF_hdr_cache_ud_t {
 
 /* User data for fractal heap indirect block cache client callbacks */
 typedef struct H5HF_iblock_cache_ud_t {
-    H5HF_parent_t * par_info; /* Parent info */
-    H5F_t *         f;        /* File pointer */
+    H5HF_parent_t  *par_info; /* Parent info */
+    H5F_t          *f;        /* File pointer */
     const unsigned *nrows;    /* Number of rows */
 } H5HF_iblock_cache_ud_t;
 
 /* User data for fractal heap direct block cache client callbacks */
 typedef struct H5HF_dblock_cache_ud_t {
     H5HF_parent_t par_info; /* Parent info */
-    H5F_t *       f;        /* File pointer */
+    H5F_t        *f;        /* File pointer */
     size_t        odi_size; /* On disk image size of the direct block.
                              * Note that there is no necessary relation
                              * between this value, and the actual
@@ -651,8 +649,8 @@ H5_DLL herr_t H5HF__man_iblock_create(H5HF_hdr_t *hdr, H5HF_indirect_t *par_iblo
                                       unsigned nrows, unsigned max_rows, haddr_t *addr_p);
 H5_DLL H5HF_indirect_t *H5HF__man_iblock_protect(H5HF_hdr_t *hdr, haddr_t iblock_addr, unsigned iblock_nrows,
                                                  H5HF_indirect_t *par_iblock, unsigned par_entry,
-                                                 hbool_t must_protect, unsigned flags, hbool_t *did_protect);
-H5_DLL herr_t H5HF__man_iblock_unprotect(H5HF_indirect_t *iblock, unsigned cache_flags, hbool_t did_protect);
+                                                 bool must_protect, unsigned flags, bool *did_protect);
+H5_DLL herr_t H5HF__man_iblock_unprotect(H5HF_indirect_t *iblock, unsigned cache_flags, bool did_protect);
 H5_DLL herr_t H5HF__man_iblock_attach(H5HF_indirect_t *iblock, unsigned entry, haddr_t dblock_addr);
 H5_DLL herr_t H5HF__man_iblock_detach(H5HF_indirect_t *iblock, unsigned entry);
 H5_DLL herr_t H5HF__man_iblock_entry_addr(H5HF_indirect_t *iblock, unsigned entry, haddr_t *child_addr);
@@ -670,12 +668,12 @@ H5_DLL herr_t H5HF__man_dblock_new(H5HF_hdr_t *fh, size_t request, H5HF_free_sec
 H5_DLL herr_t H5HF__man_dblock_create(H5HF_hdr_t *hdr, H5HF_indirect_t *par_iblock, unsigned par_entry,
                                       haddr_t *addr_p, H5HF_free_section_t **ret_sec_node);
 H5_DLL herr_t H5HF__man_dblock_destroy(H5HF_hdr_t *hdr, H5HF_direct_t *dblock, haddr_t dblock_addr,
-                                       hbool_t *parent_removed);
+                                       bool *parent_removed);
 H5_DLL H5HF_direct_t *H5HF__man_dblock_protect(H5HF_hdr_t *hdr, haddr_t dblock_addr, size_t dblock_size,
                                                H5HF_indirect_t *par_iblock, unsigned par_entry,
                                                unsigned flags);
 H5_DLL herr_t         H5HF__man_dblock_locate(H5HF_hdr_t *hdr, hsize_t obj_off, H5HF_indirect_t **par_iblock,
-                                              unsigned *par_entry, hbool_t *par_did_protect, unsigned flags);
+                                              unsigned *par_entry, bool *par_did_protect, unsigned flags);
 H5_DLL herr_t         H5HF__man_dblock_delete(H5F_t *f, haddr_t dblock_addr, hsize_t dblock_size);
 H5_DLL herr_t         H5HF__man_dblock_dest(H5HF_direct_t *dblock);
 
@@ -718,21 +716,21 @@ H5_DLL herr_t H5HF__tiny_op(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t 
 H5_DLL herr_t H5HF__tiny_remove(H5HF_hdr_t *fh, const uint8_t *id);
 
 /* Block iteration routines */
-H5_DLL herr_t  H5HF__man_iter_init(H5HF_block_iter_t *biter);
-H5_DLL herr_t  H5HF__man_iter_start_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, hsize_t offset);
-H5_DLL herr_t  H5HF__man_iter_start_entry(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, H5HF_indirect_t *iblock,
-                                          unsigned start_entry);
-H5_DLL herr_t  H5HF__man_iter_set_entry(const H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, unsigned entry);
-H5_DLL herr_t  H5HF__man_iter_next(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, unsigned nentries);
-H5_DLL herr_t  H5HF__man_iter_up(H5HF_block_iter_t *biter);
-H5_DLL herr_t  H5HF__man_iter_down(H5HF_block_iter_t *biter, H5HF_indirect_t *iblock);
-H5_DLL herr_t  H5HF__man_iter_reset(H5HF_block_iter_t *biter);
-H5_DLL herr_t  H5HF__man_iter_curr(H5HF_block_iter_t *biter, unsigned *row, unsigned *col, unsigned *entry,
-                                   H5HF_indirect_t **block);
-H5_DLL hbool_t H5HF__man_iter_ready(H5HF_block_iter_t *biter);
+H5_DLL herr_t H5HF__man_iter_init(H5HF_block_iter_t *biter);
+H5_DLL herr_t H5HF__man_iter_start_offset(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, hsize_t offset);
+H5_DLL herr_t H5HF__man_iter_start_entry(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, H5HF_indirect_t *iblock,
+                                         unsigned start_entry);
+H5_DLL herr_t H5HF__man_iter_set_entry(const H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, unsigned entry);
+H5_DLL herr_t H5HF__man_iter_next(H5HF_hdr_t *hdr, H5HF_block_iter_t *biter, unsigned nentries);
+H5_DLL herr_t H5HF__man_iter_up(H5HF_block_iter_t *biter);
+H5_DLL herr_t H5HF__man_iter_down(H5HF_block_iter_t *biter, H5HF_indirect_t *iblock);
+H5_DLL herr_t H5HF__man_iter_reset(H5HF_block_iter_t *biter);
+H5_DLL herr_t H5HF__man_iter_curr(H5HF_block_iter_t *biter, unsigned *row, unsigned *col, unsigned *entry,
+                                  H5HF_indirect_t **block);
+H5_DLL bool   H5HF__man_iter_ready(H5HF_block_iter_t *biter);
 
 /* Free space manipulation routines */
-H5_DLL herr_t H5HF__space_start(H5HF_hdr_t *hdr, hbool_t may_create);
+H5_DLL herr_t H5HF__space_start(H5HF_hdr_t *hdr, bool may_create);
 H5_DLL herr_t H5HF__space_add(H5HF_hdr_t *hdr, H5HF_free_section_t *node, unsigned flags);
 H5_DLL htri_t H5HF__space_find(H5HF_hdr_t *hdr, hsize_t request, H5HF_free_section_t **node);
 H5_DLL herr_t H5HF__space_revert_root(const H5HF_hdr_t *hdr);
@@ -751,7 +749,7 @@ H5_DLL herr_t               H5HF__sect_single_dblock_info(H5HF_hdr_t *hdr, const
                                                           haddr_t *dblock_addr, size_t *dblock_size);
 H5_DLL herr_t               H5HF__sect_single_reduce(H5HF_hdr_t *hdr, H5HF_free_section_t *sect, size_t amt);
 H5_DLL herr_t               H5HF__sect_row_revive(H5HF_hdr_t *hdr, H5HF_free_section_t *sect);
-H5_DLL herr_t H5HF__sect_row_reduce(H5HF_hdr_t *hdr, H5HF_free_section_t *sect, unsigned *entry_p);
+H5_DLL herr_t           H5HF__sect_row_reduce(H5HF_hdr_t *hdr, H5HF_free_section_t *sect, unsigned *entry_p);
 H5_DLL H5HF_indirect_t *H5HF__sect_row_get_iblock(H5HF_free_section_t *sect);
 H5_DLL herr_t H5HF__sect_indirect_add(H5HF_hdr_t *hdr, H5HF_indirect_t *iblock, unsigned start_entry,
                                       unsigned nentries);
@@ -773,8 +771,8 @@ H5_DLL hsize_t  H5HF_get_dblock_size_test(const H5HF_t *fh, unsigned row);
 H5_DLL hsize_t  H5HF_get_dblock_free_test(const H5HF_t *fh, unsigned row);
 H5_DLL herr_t   H5HF_get_id_off_test(const H5HF_t *fh, const void *id, hsize_t *obj_off);
 H5_DLL herr_t   H5HF_get_id_type_test(const void *id, unsigned char *obj_type);
-H5_DLL herr_t   H5HF_get_tiny_info_test(const H5HF_t *fh, size_t *max_len, hbool_t *len_extended);
-H5_DLL herr_t   H5HF_get_huge_info_test(const H5HF_t *fh, hsize_t *next_id, hbool_t *ids_direct);
+H5_DLL herr_t   H5HF_get_tiny_info_test(const H5HF_t *fh, size_t *max_len, bool *len_extended);
+H5_DLL herr_t   H5HF_get_huge_info_test(const H5HF_t *fh, hsize_t *next_id, bool *ids_direct);
 #endif /* H5HF_TESTING */
 
 #endif /* H5HFpkg_H */

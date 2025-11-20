@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -12,14 +11,14 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /*
- * Purpose:    This file contains the framework for ensuring that the global
- *        library lock is held when an API routine is called.  This
- *              framework works in concert with the FUNC_ENTER_API / FUNC_LEAVE_API
- *        macros defined in H5private.h.
+ * Purpose: This file contains the framework for ensuring that the global
+ *          library lock is held when an API routine is called.  This
+ *          framework works in concert with the FUNC_ENTER_API / FUNC_LEAVE_API
+ *          macros defined in H5private.h.
  *
  * Note:    Because this threadsafety framework operates outside the library,
- *        it does not use the error stack and only uses the "namecheck only"
- *              FUNC_ENTER_* / FUNC_LEAVE_* macros.
+ *          it does not use the error stack and only uses the "namecheck only"
+ *          FUNC_ENTER_* / FUNC_LEAVE_* macros.
  */
 
 /****************/
@@ -56,7 +55,7 @@ typedef void *(*H5TS_thread_cb_t)(void *);
 /* Local Prototypes */
 /********************/
 static void   H5TS__key_destructor(void *key_val);
-static herr_t H5TS__mutex_acquire(H5TS_mutex_t *mutex, unsigned int lock_count, hbool_t *acquired);
+static herr_t H5TS__mutex_acquire(H5TS_mutex_t *mutex, unsigned int lock_count, bool *acquired);
 static herr_t H5TS__mutex_unlock(H5TS_mutex_t *mutex, unsigned int *lock_count);
 
 /*********************/
@@ -71,7 +70,7 @@ static herr_t H5TS__mutex_unlock(H5TS_mutex_t *mutex, unsigned int *lock_count);
 #ifdef H5_HAVE_WIN_THREADS
 H5TS_once_t H5TS_first_init_g;
 #else
-H5TS_once_t       H5TS_first_init_g = PTHREAD_ONCE_INIT;
+H5TS_once_t H5TS_first_init_g = PTHREAD_ONCE_INIT;
 #endif
 
 /* Thread-local keys, used by other interfaces */
@@ -79,7 +78,7 @@ H5TS_once_t       H5TS_first_init_g = PTHREAD_ONCE_INIT;
 #ifdef H5_HAVE_WIN_THREADS
 H5TS_key_t H5TS_errstk_key_g = TLS_OUT_OF_INDEXES;
 #else
-H5TS_key_t        H5TS_errstk_key_g;
+H5TS_key_t H5TS_errstk_key_g;
 #endif
 
 #ifdef H5_HAVE_CODESTACK
@@ -95,7 +94,7 @@ H5TS_key_t H5TS_funcstk_key_g;
 #ifdef H5_HAVE_WIN_THREADS
 H5TS_key_t H5TS_apictx_key_g = TLS_OUT_OF_INDEXES;
 #else
-H5TS_key_t        H5TS_apictx_key_g;
+H5TS_key_t H5TS_apictx_key_g;
 #endif
 
 /*******************/
@@ -149,20 +148,16 @@ static H5TS_key_t H5TS_tid_key;
  *   Frees the memory for a key.  Called by each thread as it exits.
  *   Currently all the thread-specific information for all keys are simple
  *   structures allocated with malloc, so we can free them all uniformly.
- *
- * PROGRAMMER: Quincey Koziol
- *             February 7, 2003
- *
  *--------------------------------------------------------------------------
  */
 static void
 H5TS__key_destructor(void *key_val)
 {
-    FUNC_ENTER_STATIC_NAMECHECK_ONLY
+    FUNC_ENTER_PACKAGE_NAMECHECK_ONLY
 
-    /* Use HDfree here instead of H5MM_xfree(), to avoid calling the H5CS routines */
+    /* Use free() here instead of H5MM_xfree(), to avoid calling the H5CS routines */
     if (key_val != NULL)
-        HDfree(key_val);
+        free(key_val);
 
     FUNC_LEAVE_NOAPI_VOID_NAMECHECK_ONLY
 } /* end H5TS__key_destructor() */
@@ -192,10 +187,10 @@ H5TS_tid_destructor(void *_v)
         return;
 
     /* TBD use an atomic CAS */
-    HDpthread_mutex_lock(&H5TS_tid_mtx);
+    pthread_mutex_lock(&H5TS_tid_mtx);
     tid->next          = H5TS_tid_next_free;
     H5TS_tid_next_free = tid;
-    HDpthread_mutex_unlock(&H5TS_tid_mtx);
+    pthread_mutex_unlock(&H5TS_tid_mtx);
 }
 
 /*--------------------------------------------------------------------------
@@ -215,8 +210,8 @@ H5TS_tid_destructor(void *_v)
 static void
 H5TS_tid_init(void)
 {
-    HDpthread_mutex_init(&H5TS_tid_mtx, NULL);
-    HDpthread_key_create(&H5TS_tid_key, H5TS_tid_destructor);
+    pthread_mutex_init(&H5TS_tid_mtx, NULL);
+    pthread_key_create(&H5TS_tid_key, H5TS_tid_destructor);
 }
 
 /*--------------------------------------------------------------------------
@@ -246,7 +241,7 @@ H5TS_tid_init(void)
 uint64_t
 H5TS_thread_id(void)
 {
-    H5TS_tid_t *tid = HDpthread_getspecific(H5TS_tid_key);
+    H5TS_tid_t *tid = pthread_getspecific(H5TS_tid_key);
     H5TS_tid_t  proto_tid;
 
     /* An ID is already assigned. */
@@ -260,18 +255,18 @@ H5TS_thread_id(void)
      * point `tid` at `proto_tid` if we need to allocate some
      * memory.
      */
-    HDpthread_mutex_lock(&H5TS_tid_mtx);
+    pthread_mutex_lock(&H5TS_tid_mtx);
     if ((tid = H5TS_tid_next_free) != NULL)
         H5TS_tid_next_free = tid->next;
     else if (H5TS_tid_next_id != UINT64_MAX) {
         tid     = &proto_tid;
         tid->id = ++H5TS_tid_next_id;
     }
-    HDpthread_mutex_unlock(&H5TS_tid_mtx);
+    pthread_mutex_unlock(&H5TS_tid_mtx);
 
     /* If a prototype ID record was established, copy it to the heap. */
     if (tid == &proto_tid)
-        if ((tid = HDmalloc(sizeof(*tid))) != NULL)
+        if ((tid = malloc(sizeof(*tid))) != NULL)
             *tid = proto_tid;
 
     if (tid == NULL)
@@ -281,7 +276,7 @@ H5TS_thread_id(void)
      * to it.
      */
     tid->next = NULL;
-    if (HDpthread_setspecific(H5TS_tid_key, tid) != 0) {
+    if (pthread_setspecific(H5TS_tid_key, tid) != 0) {
         H5TS_tid_destructor(tid);
         return 0;
     }
@@ -311,8 +306,8 @@ H5TS_thread_id(void)
 void
 H5TS_pthread_first_thread_init(void)
 {
-    H5_g.H5_libinit_g = FALSE; /* Library hasn't been initialized */
-    H5_g.H5_libterm_g = FALSE; /* Library isn't being shutdown */
+    H5_g.H5_libinit_g = false; /* Library hasn't been initialized */
+    H5_g.H5_libterm_g = false; /* Library isn't being shutdown */
 
     FUNC_ENTER_NOAPI_NAMECHECK_ONLY
 
@@ -323,29 +318,29 @@ H5TS_pthread_first_thread_init(void)
 #endif
 
     /* initialize global API mutex lock */
-    HDpthread_mutex_init(&H5_g.init_lock.atomic_lock, NULL);
-    HDpthread_cond_init(&H5_g.init_lock.cond_var, NULL);
+    pthread_mutex_init(&H5_g.init_lock.atomic_lock, NULL);
+    pthread_cond_init(&H5_g.init_lock.cond_var, NULL);
     H5_g.init_lock.lock_count = 0;
 
-    HDpthread_mutex_init(&H5_g.init_lock.atomic_lock2, NULL);
+    pthread_mutex_init(&H5_g.init_lock.atomic_lock2, NULL);
     H5_g.init_lock.attempt_lock_count = 0;
 
     /* Initialize integer thread identifiers. */
     H5TS_tid_init();
 
     /* initialize key for thread-specific error stacks */
-    HDpthread_key_create(&H5TS_errstk_key_g, H5TS__key_destructor);
+    pthread_key_create(&H5TS_errstk_key_g, H5TS__key_destructor);
 
 #ifdef H5_HAVE_CODESTACK
     /* initialize key for thread-specific function stacks */
-    HDpthread_key_create(&H5TS_funcstk_key_g, H5TS__key_destructor);
+    pthread_key_create(&H5TS_funcstk_key_g, H5TS__key_destructor);
 #endif /* H5_HAVE_CODESTACK */
 
     /* initialize key for thread-specific API contexts */
-    HDpthread_key_create(&H5TS_apictx_key_g, H5TS__key_destructor);
+    pthread_key_create(&H5TS_apictx_key_g, H5TS__key_destructor);
 
     /* initialize key for thread cancellability mechanism */
-    HDpthread_key_create(&H5TS_cancel_key_s, H5TS__key_destructor);
+    pthread_key_create(&H5TS_cancel_key_s, H5TS__key_destructor);
 
     FUNC_LEAVE_NOAPI_VOID_NAMECHECK_ONLY
 } /* end H5TS_pthread_first_thread_init() */
@@ -362,48 +357,44 @@ H5TS_pthread_first_thread_init(void)
  * Note:        The Windows threads code is very likely bogus.
  *
  * Return:      Non-negative on success / Negative on failure
- *
- * Programmer:  Quincey Koziol
- *              Februrary 27, 2019
- *
  *--------------------------------------------------------------------------
  */
 static herr_t
-H5TS__mutex_acquire(H5TS_mutex_t *mutex, unsigned int lock_count, hbool_t *acquired)
+H5TS__mutex_acquire(H5TS_mutex_t *mutex, unsigned int lock_count, bool *acquired)
 {
     herr_t ret_value = SUCCEED;
 
-    FUNC_ENTER_STATIC_NAMECHECK_ONLY
+    FUNC_ENTER_PACKAGE_NAMECHECK_ONLY
 
 #ifdef H5_HAVE_WIN_THREADS
     EnterCriticalSection(&mutex->CriticalSection);
-    *acquired = TRUE;
+    *acquired = true;
 #else  /* H5_HAVE_WIN_THREADS */
     /* Attempt to acquire the mutex lock */
-    if (0 == HDpthread_mutex_lock(&mutex->atomic_lock)) {
-        pthread_t my_thread_id = HDpthread_self();
+    if (0 == pthread_mutex_lock(&mutex->atomic_lock)) {
+        pthread_t my_thread_id = pthread_self();
 
         /* Check if locked already */
         if (mutex->lock_count) {
             /* Check for this thread already owning the lock */
-            if (HDpthread_equal(my_thread_id, mutex->owner_thread)) {
+            if (pthread_equal(my_thread_id, mutex->owner_thread)) {
                 /* Already owned by self - increment count */
                 mutex->lock_count += lock_count;
-                *acquired = TRUE;
-            } /* end if */
+                *acquired = true;
+            }
             else
-                *acquired = FALSE;
-        } /* end if */
+                *acquired = false;
+        }
         else {
             /* Take ownership of the mutex */
             mutex->owner_thread = my_thread_id;
             mutex->lock_count   = lock_count;
-            *acquired           = TRUE;
-        } /* end else */
+            *acquired           = true;
+        }
 
-        if (0 != HDpthread_mutex_unlock(&mutex->atomic_lock))
+        if (0 != pthread_mutex_unlock(&mutex->atomic_lock))
             ret_value = -1;
-    } /* end if */
+    }
     else
         ret_value = -1;
 #endif /* H5_HAVE_WIN_THREADS */
@@ -420,17 +411,15 @@ H5TS__mutex_acquire(H5TS_mutex_t *mutex, unsigned int lock_count, hbool_t *acqui
  *              global lock was acquired.
  *
  * Return:      Non-negative on success / Negative on failure
- *
- * Programmer:  Quincey Koziol
- *              Februrary 27, 2019
- *
  *--------------------------------------------------------------------------
  */
 herr_t
-H5TSmutex_acquire(unsigned int lock_count, hbool_t *acquired){
+H5TSmutex_acquire(unsigned int lock_count, bool *acquired)
+{
     FUNC_ENTER_API_NAMECHECK_ONLY
 
-        FUNC_LEAVE_API_NAMECHECK_ONLY(H5TS__mutex_acquire(&H5_g.init_lock, lock_count, acquired))}
+    FUNC_LEAVE_API_NAMECHECK_ONLY(H5TS__mutex_acquire(&H5_g.init_lock, lock_count, acquired))
+}
 /* end H5TSmutex_acquire() */
 
 /*--------------------------------------------------------------------------
@@ -453,7 +442,8 @@ H5TSmutex_acquire(unsigned int lock_count, hbool_t *acquired){
  *
  *--------------------------------------------------------------------------
  */
-herr_t H5TS_mutex_lock(H5TS_mutex_t *mutex)
+herr_t
+H5TS_mutex_lock(H5TS_mutex_t *mutex)
 {
     herr_t ret_value = SUCCEED;
 
@@ -463,35 +453,35 @@ herr_t H5TS_mutex_lock(H5TS_mutex_t *mutex)
     EnterCriticalSection(&mutex->CriticalSection);
 #else  /* H5_HAVE_WIN_THREADS */
     /* Acquire the "attempt" lock, increment the attempt lock count, release the lock */
-    ret_value = HDpthread_mutex_lock(&mutex->atomic_lock2);
+    ret_value = pthread_mutex_lock(&mutex->atomic_lock2);
     if (ret_value)
         HGOTO_DONE(ret_value);
     mutex->attempt_lock_count++;
-    ret_value = HDpthread_mutex_unlock(&mutex->atomic_lock2);
+    ret_value = pthread_mutex_unlock(&mutex->atomic_lock2);
     if (ret_value)
         HGOTO_DONE(ret_value);
 
     /* Acquire the library lock */
-    ret_value = HDpthread_mutex_lock(&mutex->atomic_lock);
+    ret_value = pthread_mutex_lock(&mutex->atomic_lock);
     if (ret_value)
         HGOTO_DONE(ret_value);
 
     /* Check if this thread already owns the lock */
-    if (mutex->lock_count && HDpthread_equal(HDpthread_self(), mutex->owner_thread))
+    if (mutex->lock_count && pthread_equal(pthread_self(), mutex->owner_thread))
         /* already owned by self - increment count */
         mutex->lock_count++;
     else {
         /* Wait until the lock is released by current owner thread */
         while (mutex->lock_count)
-            HDpthread_cond_wait(&mutex->cond_var, &mutex->atomic_lock);
+            pthread_cond_wait(&mutex->cond_var, &mutex->atomic_lock);
 
         /* After we've received the signal, take ownership of the mutex */
-        mutex->owner_thread = HDpthread_self();
+        mutex->owner_thread = pthread_self();
         mutex->lock_count   = 1;
-    } /* end else */
+    }
 
     /* Release the library lock */
-    ret_value = HDpthread_mutex_unlock(&mutex->atomic_lock);
+    ret_value = pthread_mutex_unlock(&mutex->atomic_lock);
 
 done:
 #endif /* H5_HAVE_WIN_THREADS */
@@ -530,12 +520,12 @@ H5TS__mutex_unlock(H5TS_mutex_t *mutex, unsigned int *lock_count)
 #else  /* H5_HAVE_WIN_THREADS */
 
     /* Reset the lock count for this thread */
-    ret_value = HDpthread_mutex_lock(&mutex->atomic_lock);
+    ret_value = pthread_mutex_lock(&mutex->atomic_lock);
     if (ret_value)
         HGOTO_DONE(ret_value);
     *lock_count       = mutex->lock_count;
     mutex->lock_count = 0;
-    ret_value         = HDpthread_mutex_unlock(&mutex->atomic_lock);
+    ret_value         = pthread_mutex_unlock(&mutex->atomic_lock);
 
     /* If the lock count drops to zero, signal the condition variable, to
      * wake another thread.
@@ -543,10 +533,10 @@ H5TS__mutex_unlock(H5TS_mutex_t *mutex, unsigned int *lock_count)
     if (mutex->lock_count == 0) {
         int err;
 
-        err = HDpthread_cond_signal(&mutex->cond_var);
+        err = pthread_cond_signal(&mutex->cond_var);
         if (err != 0)
             ret_value = err;
-    } /* end if */
+    }
 
 done:
 #endif /* H5_HAVE_WIN_THREADS */
@@ -586,11 +576,11 @@ H5TS_mutex_unlock(H5TS_mutex_t *mutex)
 #else  /* H5_HAVE_WIN_THREADS */
 
     /* Decrement the lock count for this thread */
-    ret_value = HDpthread_mutex_lock(&mutex->atomic_lock);
+    ret_value = pthread_mutex_lock(&mutex->atomic_lock);
     if (ret_value)
         HGOTO_DONE(ret_value);
     mutex->lock_count--;
-    ret_value = HDpthread_mutex_unlock(&mutex->atomic_lock);
+    ret_value = pthread_mutex_unlock(&mutex->atomic_lock);
 
     /* If the lock count drops to zero, signal the condition variable, to
      * wake another thread.
@@ -598,10 +588,10 @@ H5TS_mutex_unlock(H5TS_mutex_t *mutex)
     if (mutex->lock_count == 0) {
         int err;
 
-        err = HDpthread_cond_signal(&mutex->cond_var);
+        err = pthread_cond_signal(&mutex->cond_var);
         if (err != 0)
             ret_value = err;
-    } /* end if */
+    }
 
 done:
 #endif /* H5_HAVE_WIN_THREADS */
@@ -614,10 +604,6 @@ done:
  * Purpose:     Get the current count of the global lock attempt
  *
  * Return:      Non-negative on success / Negative on failure
- *
- * Programmer:  Houjun Tang
- *              June 24, 2019
- *
  *--------------------------------------------------------------------------
  */
 herr_t
@@ -630,13 +616,13 @@ H5TSmutex_get_attempt_count(unsigned int *count)
 #ifdef H5_HAVE_WIN_THREADS
     /* Add Win32 equivalent here when async is supported */
 #else  /* H5_HAVE_WIN_THREADS */
-    ret_value = HDpthread_mutex_lock(&H5_g.init_lock.atomic_lock2);
+    ret_value = pthread_mutex_lock(&H5_g.init_lock.atomic_lock2);
     if (ret_value)
         HGOTO_DONE(ret_value);
 
     *count = H5_g.init_lock.attempt_lock_count;
 
-    ret_value = HDpthread_mutex_unlock(&H5_g.init_lock.atomic_lock2);
+    ret_value = pthread_mutex_unlock(&H5_g.init_lock.atomic_lock2);
     if (ret_value)
         HGOTO_DONE(ret_value);
 
@@ -651,10 +637,6 @@ done:
  * Purpose:     Releases the HDF5 library global lock
  *
  * Return:      Non-negative on success / Negative on failure
- *
- * Programmer:  Quincey Koziol
- *              Februrary 27, 2019
- *
  *--------------------------------------------------------------------------
  */
 herr_t
@@ -717,25 +699,25 @@ H5TS_cancel_count_inc(void)
          * First time thread calls library - create new counter and associate
          * with key.
          *
-         * Don't use H5MM calls here since the destructor has to use HDfree in
+         * Don't use H5MM calls here since the destructor has to use free in
          * order to avoid codestack calls.
          */
-        cancel_counter = (H5TS_cancel_t *)HDcalloc(1, sizeof(H5TS_cancel_t));
+        cancel_counter = (H5TS_cancel_t *)calloc(1, sizeof(H5TS_cancel_t));
         if (NULL == cancel_counter)
             HGOTO_DONE(FAIL);
 
         /* Set the thread's cancellation counter with the new object */
-        ret_value = HDpthread_setspecific(H5TS_cancel_key_s, (void *)cancel_counter);
+        ret_value = pthread_setspecific(H5TS_cancel_key_s, (void *)cancel_counter);
         if (ret_value) {
-            HDfree(cancel_counter);
+            free(cancel_counter);
             HGOTO_DONE(FAIL);
-        } /* end if */
-    }     /* end if */
+        }
+    }
 
     /* Check if thread entering library */
     if (cancel_counter->cancel_count == 0)
         /* Set cancellation state to 'disable', and remember previous state */
-        ret_value = HDpthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cancel_counter->previous_state);
+        ret_value = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cancel_counter->previous_state);
 
     /* Increment # of times the library API was re-entered, to avoid resetting
      * previous cancellation state until the final API routine is returning.
@@ -788,7 +770,7 @@ H5TS_cancel_count_dec(void)
     /* Check for leaving last API routine */
     if (cancel_counter->cancel_count == 1)
         /* Reset to previous thread cancellation state, if last API */
-        ret_value = HDpthread_setcancelstate(cancel_counter->previous_state, NULL);
+        ret_value = pthread_setcancelstate(cancel_counter->previous_state, NULL);
 
     /* Decrement cancellation counter */
     --cancel_counter->cancel_count;
@@ -813,7 +795,7 @@ H5TS_cancel_count_dec(void)
 H5_DLL BOOL CALLBACK
 H5TS_win32_process_enter(PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContex)
 {
-    BOOL ret_value = TRUE;
+    BOOL ret_value = true;
 
     FUNC_ENTER_NOAPI_NAMECHECK_ONLY
 
@@ -822,15 +804,15 @@ H5TS_win32_process_enter(PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContex)
 
     /* Set up thread local storage */
     if (TLS_OUT_OF_INDEXES == (H5TS_errstk_key_g = TlsAlloc()))
-        ret_value = FALSE;
+        ret_value = false;
 
 #ifdef H5_HAVE_CODESTACK
     if (TLS_OUT_OF_INDEXES == (H5TS_funcstk_key_g = TlsAlloc()))
-        ret_value = FALSE;
+        ret_value = false;
 #endif /* H5_HAVE_CODESTACK */
 
     if (TLS_OUT_OF_INDEXES == (H5TS_apictx_key_g = TlsAlloc()))
-        ret_value = FALSE;
+        ret_value = false;
 
     FUNC_LEAVE_NOAPI_NAMECHECK_ONLY(ret_value)
 } /* H5TS_win32_process_enter() */
@@ -995,7 +977,7 @@ H5TS_create_thread(H5TS_thread_cb_t func, H5TS_attr_t *attr, void *udata)
 
 #else /* H5_HAVE_WIN_THREADS */
 
-    HDpthread_create(&ret_value, attr, (void *(*)(void *))func, udata);
+    pthread_create(&ret_value, attr, (void *(*)(void *))func, udata);
 
 #endif /* H5_HAVE_WIN_THREADS */
 

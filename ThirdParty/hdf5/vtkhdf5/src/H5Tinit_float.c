@@ -27,6 +27,7 @@
 #include "H5Eprivate.h"  /* Error handling                   */
 #include "H5FLprivate.h" /* Free Lists                       */
 #include "H5Iprivate.h"  /* IDs                              */
+#include "H5MMprivate.h" /* Memory management                        */
 #include "H5Tpkg.h"      /* Datatypes                        */
 
 /****************/
@@ -51,19 +52,23 @@
  * Function:    DETECT_F
  *
  * Purpose:     This macro takes a floating point type like `double' and
- *              a base name like `natd' and detects byte order, mantissa
- *              location, exponent location, sign bit location, presence or
- *              absence of implicit mantissa bit, and exponent bias and
- *              initializes a detected_t structure with those properties.
+ *              detects byte order, mantissa location, exponent location,
+ *              sign bit location, presence or absence of implicit mantissa
+ *              bit, and exponent bias and initializes a H5T_fpoint_det_t
+ *              structure with those properties.
+ *
+ *              Note that these operations can raise floating-point
+ *              exceptions and building with some compiler options
+ *              (especially Fortran) can cause problems.
  *-------------------------------------------------------------------------
  */
-#define DETECT_F(TYPE, VAR, INFO)                                                                            \
+#define DETECT_F(TYPE, INFO)                                                                                 \
     do {                                                                                                     \
-        TYPE          _v1, _v2, _v3;                                                                         \
-        unsigned char _buf1[sizeof(TYPE)], _buf3[sizeof(TYPE)];                                              \
-        unsigned char _pad_mask[sizeof(TYPE)];                                                               \
-        unsigned char _byte_mask;                                                                            \
-        int           _i, _j, _last = (-1);                                                                  \
+        TYPE    _v1, _v2, _v3;                                                                               \
+        uint8_t _buf1[sizeof(TYPE)], _buf3[sizeof(TYPE)];                                                    \
+        uint8_t _pad_mask[sizeof(TYPE)];                                                                     \
+        uint8_t _byte_mask;                                                                                  \
+        int     _i, _j, _last = -1;                                                                          \
                                                                                                              \
         memset(&INFO, 0, sizeof(INFO));                                                                      \
         INFO.size = sizeof(TYPE);                                                                            \
@@ -81,7 +86,7 @@
         _v1 = (TYPE)4.0L;                                                                                    \
         H5MM_memcpy(_buf1, (const void *)&_v1, sizeof(TYPE));                                                \
         for (_i = 0; _i < (int)sizeof(TYPE); _i++)                                                           \
-            for (_byte_mask = (unsigned char)1; _byte_mask; _byte_mask = (unsigned char)(_byte_mask << 1)) { \
+            for (_byte_mask = (uint8_t)1; _byte_mask; _byte_mask = (uint8_t)(_byte_mask << 1)) {             \
                 _buf1[_i] ^= _byte_mask;                                                                     \
                 H5MM_memcpy((void *)&_v2, (const void *)_buf1, sizeof(TYPE));                                \
                 H5_GCC_CLANG_DIAG_OFF("float-equal")                                                         \
@@ -118,7 +123,7 @@
         _v1 = (TYPE)1.0L;                                                                                    \
         _v2 = (TYPE)-1.0L;                                                                                   \
         if (H5T__bit_cmp(sizeof(TYPE), INFO.perm, &_v1, &_v2, _pad_mask, &(INFO.sign)) < 0)                  \
-            HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "failed to detect byte order");                    \
+            HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "failed to determine sign bit");                   \
                                                                                                              \
         /* Mantissa */                                                                                       \
         INFO.mpos = 0;                                                                                       \
@@ -126,12 +131,11 @@
         _v1 = (TYPE)1.0L;                                                                                    \
         _v2 = (TYPE)1.5L;                                                                                    \
         if (H5T__bit_cmp(sizeof(TYPE), INFO.perm, &_v1, &_v2, _pad_mask, &(INFO.msize)) < 0)                 \
-            HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "failed to detect byte order");                    \
+            HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "failed to determine mantissa");                   \
         INFO.msize += 1 + (unsigned)(INFO.imp ? 0 : 1) - INFO.mpos;                                          \
                                                                                                              \
         /* Exponent */                                                                                       \
-        INFO.epos = INFO.mpos + INFO.msize;                                                                  \
-                                                                                                             \
+        INFO.epos  = INFO.mpos + INFO.msize;                                                                 \
         INFO.esize = INFO.sign - INFO.epos;                                                                  \
                                                                                                              \
         _v1        = (TYPE)1.0L;                                                                             \
@@ -303,14 +307,17 @@ H5T__fix_order(int n, int last, int *perm, H5T_order_t *order)
     if (last <= 0)
         HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "failed to detect byte order");
 
-    /* We have at least three points to consider */
-    if (perm[last] < perm[last - 1] && perm[last - 1] < perm[last - 2]) {
+    if (perm[last] < perm[last - 1] &&
+        /* Only check perm[last - 2] if we have more than 2 points to consider */
+        ((last < 2) || (perm[last - 1] < perm[last - 2]))) {
         /* Little endian */
         *order = H5T_ORDER_LE;
         for (int i = 0; i < n; i++)
             perm[i] = i;
     }
-    else if (perm[last] > perm[last - 1] && perm[last - 1] > perm[last - 2]) {
+    else if (perm[last] > perm[last - 1] &&
+             /* Only check perm[last - 2] if we have more than 2 points to consider */
+             ((last < 2) || (perm[last - 1] > perm[last - 2]))) {
         /* Big endian */
         *order = H5T_ORDER_BE;
         for (int i = 0; i < n; i++)
@@ -355,7 +362,7 @@ done:
  * Return:      imp_bit will be set to 1 if the most significant bit
  *              of the mantissa is discarded (ie, the mantissa has an
  *              implicit `one' as the most significant bit). Otherwise,
- *              imp_bit will be set to zero zero.
+ *              imp_bit will be set to zero.
  *
  *              SUCCEED/FAIL
  *-------------------------------------------------------------------------
@@ -456,17 +463,28 @@ H5T__set_precision(H5T_fpoint_det_t *d)
 herr_t H5_NO_UBSAN
 H5T__init_native_float_types(void)
 {
+#if !defined(__EMSCRIPTEN__)
+    fenv_t           saved_fenv;
+#endif
     H5T_fpoint_det_t det;
     H5T_t           *dt        = NULL;
     herr_t           ret_value = SUCCEED;
 
     FUNC_ENTER_PACKAGE
 
+    /* Turn off floating-point exceptions while initializing to avoid
+     * tripping over signaling NaNs while looking at "don't care" bits.
+     */
+#if !defined(__EMSCRIPTEN__)
+    if (feholdexcept(&saved_fenv) != 0)
+        HSYS_GOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't save floating-point environment");
+#endif
+
     /* H5T_NATIVE_FLOAT */
 
     /* Get the type's characteristics */
     memset(&det, 0, sizeof(H5T_fpoint_det_t));
-    DETECT_F(float, FLOAT, det);
+    DETECT_F(float, det);
 
     /* Allocate and fill type structure */
     if (NULL == (dt = H5T__alloc()))
@@ -497,7 +515,7 @@ H5T__init_native_float_types(void)
 
     /* Get the type's characteristics */
     memset(&det, 0, sizeof(H5T_fpoint_det_t));
-    DETECT_F(double, DOUBLE, det);
+    DETECT_F(double, det);
 
     /* Allocate and fill type structure */
     if (NULL == (dt = H5T__alloc()))
@@ -528,7 +546,7 @@ H5T__init_native_float_types(void)
 
     /* Get the type's characteristics */
     memset(&det, 0, sizeof(H5T_fpoint_det_t));
-    DETECT_F(long double, LDOUBLE, det);
+    DETECT_F(long double, det);
 
     /* Allocate and fill type structure */
     if (NULL == (dt = H5T__alloc()))
@@ -560,7 +578,50 @@ H5T__init_native_float_types(void)
      */
     H5T_native_order_g = det.order;
 
+#ifdef H5_HAVE__FLOAT16
+    /* H5T_NATIVE_FLOAT16 */
+
+    /* Get the type's characteristics */
+    memset(&det, 0, sizeof(H5T_fpoint_det_t));
+    DETECT_F(H5__Float16, det);
+
+    /* Allocate and fill type structure */
+    if (NULL == (dt = H5T__alloc()))
+        HGOTO_ERROR(H5E_DATATYPE, H5E_NOSPACE, FAIL, "datatype allocation failed");
+    dt->shared->state              = H5T_STATE_IMMUTABLE;
+    dt->shared->type               = H5T_FLOAT;
+    dt->shared->size               = det.size;
+    dt->shared->u.atomic.order     = det.order;
+    dt->shared->u.atomic.offset    = det.offset;
+    dt->shared->u.atomic.prec      = det.prec;
+    dt->shared->u.atomic.lsb_pad   = H5T_PAD_ZERO;
+    dt->shared->u.atomic.msb_pad   = H5T_PAD_ZERO;
+    dt->shared->u.atomic.u.f.sign  = det.sign;
+    dt->shared->u.atomic.u.f.epos  = det.epos;
+    dt->shared->u.atomic.u.f.esize = det.esize;
+    dt->shared->u.atomic.u.f.ebias = det.ebias;
+    dt->shared->u.atomic.u.f.mpos  = det.mpos;
+    dt->shared->u.atomic.u.f.msize = det.msize;
+    dt->shared->u.atomic.u.f.norm  = det.norm;
+    dt->shared->u.atomic.u.f.pad   = H5T_PAD_ZERO;
+
+    /* Register the type and set global variables */
+    if ((H5T_NATIVE_FLOAT16_g = H5I_register(H5I_DATATYPE, dt, false)) < 0)
+        HGOTO_ERROR(H5E_DATATYPE, H5E_CANTINIT, FAIL, "can't register ID for built-in datatype");
+    H5T_NATIVE_FLOAT16_ALIGN_g = det.comp_align;
+#endif
+
 done:
+    /* Clear any FE_INVALID exceptions from NaN handling */
+#if !defined(__EMSCRIPTEN__)
+    if (feclearexcept(FE_INVALID) != 0)
+        HSYS_GOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't clear floating-point exceptions");
+
+    /* Restore the original environment */
+    if (feupdateenv(&saved_fenv) != 0)
+        HSYS_GOTO_ERROR(H5E_DATATYPE, H5E_CANTSET, FAIL, "can't restore floating-point environment");
+#endif
+
     if (ret_value < 0) {
         if (dt != NULL) {
             dt->shared = H5FL_FREE(H5T_shared_t, dt->shared);

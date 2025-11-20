@@ -3,7 +3,10 @@
 # circumstances, so ask the compiler to treat them as errors:
 #
 -Werror=bad-function-cast
+-Werror=cast-align
+-Werror=format
 -Werror=implicit-function-declaration
+-Werror=int-to-pointer-cast
 -Werror=missing-declarations
 -Werror=missing-prototypes
 -Werror=nested-externs
@@ -11,10 +14,11 @@
 -Werror=packed
 -Werror=pointer-sign
 -Werror=pointer-to-int-cast
--Werror=int-to-pointer-cast
 -Werror=redundant-decls
 -Werror=strict-prototypes
 -Werror=switch
+-Werror=unused-but-set-variable
+-Werror=unused-variable
 #
 #-Werror=discarded-qualifiers
 #
@@ -25,42 +29,10 @@
 #
 -Wunused-function
 #
-#     H5FDdrvr_module.h
-#       -Werror=unused-variable
-#
--Wunused-variable
-#
 #     H5VLpassthru.c
 #       -Werror=unused-parameter
 #
 -Wunused-parameter
-#
-#
-#
-# NOTE: Tools files are not compatible with these warnings as errors
-#     lib/h5tools.c
-#       -Werror=cast-align
-#
--Wcast-align
-#
-#     lib/h5diff_array.c
-#       -Werror=unused-but-set-variable
-#
--Wunused-but-set-variable
-#
-#     lib/h5tools_utils.c
-#       -Werror=unused-parameter
-#
-#
-# NOTE: JNI files are not compatible with these warnings as errors
-#     jni/h5pDCPLImp.c,jni/nativeData.c,jni/h5util.c,jni/h5rImp.c
-#     jni/h5sImp.c,jni/h5tImp.c
-#       -Werror=cast-align
-#     jni/h5util.c
-#       -Werror=format(-overflow)
-#
--Werror=format
-#
 #
 #Examples and tests do not use the same set of extensive warning flags as libraries
 # Here is a list of tests and examples that have issues with the stricter warnings as error

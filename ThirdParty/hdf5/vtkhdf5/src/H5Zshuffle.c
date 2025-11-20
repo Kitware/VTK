@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -50,44 +49,41 @@ const H5Z_class2_t H5Z_SHUFFLE[1] = {{
  * Return:	Success: Non-negative
  *		Failure: Negative
  *
- * Programmer:	Quincey Koziol
- *              Monday, April  7, 2003
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5Z__set_local_shuffle(hid_t dcpl_id, hid_t type_id, hid_t H5_ATTR_UNUSED space_id)
 {
     H5P_genplist_t *dcpl_plist;                          /* Property list pointer */
-    const H5T_t *   type;                                /* Datatype */
+    const H5T_t    *type;                                /* Datatype */
     unsigned        flags;                               /* Filter flags */
     size_t          cd_nelmts = H5Z_SHUFFLE_USER_NPARMS; /* Number of filter parameters */
     unsigned        cd_values[H5Z_SHUFFLE_TOTAL_NPARMS]; /* Filter parameters */
     herr_t          ret_value = SUCCEED;                 /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Get the plist structure */
     if (NULL == (dcpl_plist = H5P_object_verify(dcpl_id, H5P_DATASET_CREATE)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, FAIL, "can't find object for ID");
 
     /* Get datatype */
     if (NULL == (type = (const H5T_t *)H5I_object_verify(type_id, H5I_DATATYPE)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "not a datatype");
 
     /* Get the filter's current parameters */
     if (H5P_get_filter_by_id(dcpl_plist, H5Z_FILTER_SHUFFLE, &flags, &cd_nelmts, cd_values, (size_t)0, NULL,
                              NULL) < 0)
-        HGOTO_ERROR(H5E_PLINE, H5E_CANTGET, FAIL, "can't get shuffle parameters")
+        HGOTO_ERROR(H5E_PLINE, H5E_CANTGET, FAIL, "can't get shuffle parameters");
 
     /* Set "local" parameter for this dataset */
     if ((cd_values[H5Z_SHUFFLE_PARM_SIZE] = (unsigned)H5T_get_size(type)) == 0)
-        HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "bad datatype size")
+        HGOTO_ERROR(H5E_PLINE, H5E_BADTYPE, FAIL, "bad datatype size");
 
     /* Modify the filter's parameters for this dataset */
     if (H5P_modify_filter(dcpl_plist, H5Z_FILTER_SHUFFLE, flags, (size_t)H5Z_SHUFFLE_TOTAL_NPARMS,
                           cd_values) < 0)
-        HGOTO_ERROR(H5E_PLINE, H5E_CANTSET, FAIL, "can't set local shuffle parameters")
+        HGOTO_ERROR(H5E_PLINE, H5E_CANTSET, FAIL, "can't set local shuffle parameters");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -106,16 +102,13 @@ done:
  * Return:	Success: Size of buffer filtered
  *		Failure: 0
  *
- * Programmer:	Kent Yang
- *              Wednesday, November 13, 2002
- *
  *-------------------------------------------------------------------------
  */
 static size_t
 H5Z__filter_shuffle(unsigned flags, size_t cd_nelmts, const unsigned cd_values[], size_t nbytes,
                     size_t *buf_size, void **buf)
 {
-    void *         dest  = NULL;  /* Buffer to deposit [un]shuffled bytes into */
+    void          *dest  = NULL;  /* Buffer to deposit [un]shuffled bytes into */
     unsigned char *_src  = NULL;  /* Alias for source buffer */
     unsigned char *_dest = NULL;  /* Alias for destination buffer */
     unsigned       bytesoftype;   /* Number of bytes per element */
@@ -127,11 +120,11 @@ H5Z__filter_shuffle(unsigned flags, size_t cd_nelmts, const unsigned cd_values[]
     size_t leftover;      /* Extra bytes at end of buffer */
     size_t ret_value = 0; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Check arguments */
     if (cd_nelmts != H5Z_SHUFFLE_TOTAL_NPARMS || cd_values[H5Z_SHUFFLE_PARM_SIZE] == 0)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, 0, "invalid shuffle parameters")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, 0, "invalid shuffle parameters");
 
     /* Get the number of bytes per element from the parameter block */
     bytesoftype = cd_values[H5Z_SHUFFLE_PARM_SIZE];
@@ -146,7 +139,7 @@ H5Z__filter_shuffle(unsigned flags, size_t cd_nelmts, const unsigned cd_values[]
 
         /* Allocate the destination buffer */
         if (NULL == (dest = H5MM_malloc(nbytes)))
-            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, 0, "memory allocation failed for shuffle buffer")
+            HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, 0, "memory allocation failed for shuffle buffer");
 
         if (flags & H5Z_FLAG_REVERSE) {
             /* Get the pointer to the source buffer */
@@ -172,7 +165,7 @@ H5Z__filter_shuffle(unsigned flags, size_t cd_nelmts, const unsigned cd_values[]
                     duffs_index = (numofelements + 7) / 8;
                     switch (numofelements % 8) {
                         default:
-                            HDassert(0 && "This Should never be executed!");
+                            assert(0 && "This Should never be executed!");
                             break;
                         case 0:
                             do {
@@ -215,7 +208,7 @@ H5Z__filter_shuffle(unsigned flags, size_t cd_nelmts, const unsigned cd_values[]
             /* Add leftover to the end of data */
             if (leftover > 0) {
                 /* Adjust back to end of shuffled bytes */
-                _dest -= (bytesoftype - 1); /*lint !e794 _dest is initialized */
+                _dest -= (bytesoftype - 1);
                 H5MM_memcpy((void *)_dest, (void *)_src, leftover);
             }
         } /* end if */
@@ -243,7 +236,7 @@ H5Z__filter_shuffle(unsigned flags, size_t cd_nelmts, const unsigned cd_values[]
                     duffs_index = (numofelements + 7) / 8;
                     switch (numofelements % 8) {
                         default:
-                            HDassert(0 && "This Should never be executed!");
+                            assert(0 && "This Should never be executed!");
                             break;
                         case 0:
                             do {
@@ -286,7 +279,7 @@ H5Z__filter_shuffle(unsigned flags, size_t cd_nelmts, const unsigned cd_values[]
             /* Add leftover to the end of data */
             if (leftover > 0) {
                 /* Adjust back to end of shuffled bytes */
-                _src -= (bytesoftype - 1); /*lint !e794 _src is initialized */
+                _src -= (bytesoftype - 1);
                 H5MM_memcpy((void *)_dest, (void *)_src, leftover);
             }
         } /* end else */

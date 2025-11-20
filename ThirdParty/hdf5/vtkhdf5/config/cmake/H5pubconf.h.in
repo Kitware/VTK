@@ -14,13 +14,13 @@
 #ifndef H5_CONFIG_H_
 #define H5_CONFIG_H_
 
-/* Define if the Windows virtual file driver should be compiled */
+/* Define if this is a Windows machine */
 #cmakedefine H5_HAVE_WINDOWS @H5_HAVE_WINDOWS@
 
 /* Define if using MinGW */
 #cmakedefine H5_HAVE_MINGW @H5_HAVE_MINGW@
 
-/* Define if on the Windows platform and default WIN32 API */
+/* Define if on the Windows platform and using the Win32 API */
 #cmakedefine H5_HAVE_WIN32_API @H5_HAVE_WIN32_API@
 
 /* Define if using a Windows compiler (i.e. Visual Studio) */
@@ -53,6 +53,9 @@
 /* Define if Fortran C_LONG_DOUBLE is different from C_DOUBLE */
 #define H5_FORTRAN_C_LONG_DOUBLE_IS_UNIQUE @H5_FORTRAN_C_LONG_DOUBLE_IS_UNIQUE@
 
+/* Define if Fortran C_BOOL is different from default LOGICAL */
+#define H5_FORTRAN_C_BOOL_IS_UNIQUE @H5_FORTRAN_C_BOOL_IS_UNIQUE@
+
 /* Define if we have Fortran C_LONG_DOUBLE */
 #define H5_FORTRAN_HAVE_C_LONG_DOUBLE @H5_FORTRAN_HAVE_C_LONG_DOUBLE@
 
@@ -64,6 +67,9 @@
 
 /* Define if we have Fortran intrinsic STORAGE_SIZE */
 #cmakedefine H5_FORTRAN_HAVE_STORAGE_SIZE @H5_FORTRAN_HAVE_STORAGE_SIZE@
+
+/* Define if Fortran supports allocatable character */
+#cmakedefine H5_FORTRAN_HAVE_CHAR_ALLOC @H5_FORTRAN_HAVE_CHAR_ALLOC@
 
 /* Determine the size of C long double */
 #cmakedefine H5_FORTRAN_SIZEOF_LONG_DOUBLE @H5_FORTRAN_SIZEOF_LONG_DOUBLE@
@@ -98,15 +104,11 @@
 /* Define if the __attribute__(()) extension is present */
 #cmakedefine H5_HAVE_ATTRIBUTE @H5_HAVE_ATTRIBUTE@
 
-/* Define if the compiler understands C99 designated initialization of structs
-   and unions */
-#cmakedefine H5_HAVE_C99_DESIGNATED_INITIALIZER @H5_HAVE_C99_DESIGNATED_INITIALIZER@
-
 /* Define to 1 if you have the `clock_gettime' function. */
 #cmakedefine H5_HAVE_CLOCK_GETTIME @H5_HAVE_CLOCK_GETTIME@
 
-/* Define if the function stack tracing code is to be compiled in */
-#cmakedefine H5_HAVE_CODESTACK @H5_HAVE_CODESTACK@
+/* Define to 1 if CLOCK_MONOTONIC_COARSE is available */
+#cmakedefine H5_HAVE_CLOCK_MONOTONIC_COARSE @H5_HAVE_CLOCK_MONOTONIC_COARSE@
 
 /* Define to 1 if you have the <curl/curl.h> header file. */
 #cmakedefine H5_HAVE_CURL_CURL_H @H5_HAVE_CURL_H@
@@ -123,11 +125,11 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #cmakedefine H5_HAVE_DLFCN_H @H5_HAVE_DLFCN_H@
 
-/* Define to 1 if you have the <dmalloc.h> header file. */
-#cmakedefine H5_HAVE_DMALLOC_H @H5_HAVE_DMALLOC_H@
-
 /* Define if library information should be embedded in the executables */
 #cmakedefine H5_HAVE_EMBEDDED_LIBINFO @H5_HAVE_EMBEDDED_LIBINFO@
+
+/* Define to 1 if you have the `fabsf16' function. */
+#cmakedefine H5_HAVE_FABSF16 @H5_HAVE_FABSF16@
 
 /* Define to 1 if you have the `fcntl' function. */
 #cmakedefine H5_HAVE_FCNTL @H5_HAVE_FCNTL@
@@ -141,7 +143,10 @@
 /* Define if support for szip filter is enabled */
 #cmakedefine H5_HAVE_FILTER_SZIP @H5_HAVE_FILTER_SZIP@
 
-/* Determine if __float128 is available */
+/* Determine if _Float16 is available */
+#cmakedefine H5_HAVE__FLOAT16 @H5_HAVE__FLOAT16@
+
+/* Determine if __float128 will be used in the Fortran wrappers */
 #cmakedefine H5_HAVE_FLOAT128 @H5_HAVE_FLOAT128@
 
 /* Define to 1 if you have the `flock' function. */
@@ -162,9 +167,6 @@
 /* Define to 1 if you have the `gethostname' function. */
 #cmakedefine H5_HAVE_GETHOSTNAME @H5_HAVE_GETHOSTNAME@
 
-/* Define to 1 if you have the `getpwuid' function. */
-#cmakedefine H5_HAVE_GETPWUID @H5_HAVE_GETPWUID@
-
 /* Define to 1 if you have the `getrusage' function. */
 #cmakedefine H5_HAVE_GETRUSAGE @H5_HAVE_GETRUSAGE@
 
@@ -181,6 +183,9 @@
    optimization operation */
 #cmakedefine H5_HAVE_INSTRUMENTED_LIBRARY @H5_HAVE_INSTRUMENTED_LIBRARY@
 
+/* Define if IOC VFD is built */
+#cmakedefine H5_HAVE_IOC_VFD @H5_HAVE_IOC_VFD@
+
 /* Define to 1 if you have the `ioctl' function. */
 #cmakedefine H5_HAVE_IOCTL @H5_HAVE_IOCTL@
 
@@ -190,8 +195,8 @@
 /* Define to 1 if you have the `curl' library (-lcurl). */
 #cmakedefine H5_HAVE_LIBCURL @H5_HAVE_LIBCURL@
 
-/* Define to 1 if you have the `dmalloc' library (-ldmalloc). */
-#cmakedefine H5_HAVE_LIBDMALLOC @H5_HAVE_LIBDMALLOC@
+/* Define to 1 if you have the `dl' library (-ldl). */
+#cmakedefine H5_HAVE_LIBDL @H5_HAVE_LIBDL@
 
 /* Proceed to build with libhdfs */
 #cmakedefine H5_HAVE_LIBHDFS @H5_HAVE_LIBHDFS@
@@ -199,29 +204,26 @@
 /* Define to 1 if you have the `jvm' library (-ljvm). */
 #cmakedefine H5_HAVE_LIBJVM @H5_HAVE_LIBJVM@
 
+/* Define to 1 if you have the `m' library (-lm). */
+#cmakedefine H5_HAVE_LIBM @H5_HAVE_LIBM@
+
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #cmakedefine H5_HAVE_LIBPTHREAD @H5_HAVE_LIBPTHREAD@
 
 /* Define to 1 if you have the `sz' library (-lsz). */
 #cmakedefine H5_HAVE_LIBSZ @H5_HAVE_LIBSZ@
 
+/* Define to 1 if you have the `ws2_32' library (-lws2_32). */
+#cmakedefine H5_HAVE_LIBWS2_32 @H5_HAVE_LIBWS2_32@
+
 /* Define to 1 if you have the `z' library (-lz). */
 #cmakedefine H5_HAVE_LIBZ @H5_HAVE_LIBZ@
-
-/* Define to 1 if you have the `lseek64' function. */
-#cmakedefine H5_HAVE_LSEEK64 @H5_HAVE_LSEEK64@
 
 /* Define if the map API (H5M) should be compiled */
 #cmakedefine H5_HAVE_MAP_API @H5_HAVE_MAP_API@
 
 /* Define whether the Mirror virtual file driver (VFD) will be compiled */
 #cmakedefine H5_HAVE_MIRROR_VFD @H5_HAVE_MIRROR_VFD@
-
-/* Define if we have MPE support */
-#cmakedefine H5_HAVE_MPE @H5_HAVE_MPE@
-
-/* Define to 1 if you have the <mpe.h> header file. */
-#cmakedefine H5_HAVE_MPE_H @H5_HAVE_MPE_H@
 
 /* Define if MPI_Comm_c2f and MPI_Comm_f2c exist */
 #cmakedefine H5_HAVE_MPI_MULTI_LANG_Comm @H5_HAVE_MPI_MULTI_LANG_Comm@
@@ -247,6 +249,9 @@
 /* Define if we have parallel support */
 #cmakedefine H5_HAVE_PARALLEL @H5_HAVE_PARALLEL@
 
+/* Define if MPI Fortran supports mpi_f08 module */
+#cmakedefine H5_HAVE_MPI_F08 @H5_HAVE_MPI_F08@
+
 /* Define if we have support for writing to filtered datasets in parallel */
 #cmakedefine H5_HAVE_PARALLEL_FILTERED_WRITES @H5_HAVE_PARALLEL_FILTERED_WRITES@
 
@@ -256,39 +261,24 @@
 /* Define to 1 if you have the <pthread.h> header file. */
 #cmakedefine H5_HAVE_PTHREAD_H @H5_HAVE_PTHREAD_H@
 
+/* Define to 1 if 'pthread_condattr_setclock()' is available */
+#cmakedefine H5_HAVE_PTHREAD_CONDATTR_SETCLOCK @H5_HAVE_PTHREAD_CONDATTR_SETCLOCK@
+
+/* Define to 1 if PTHREAD_MUTEX_ADAPTIVE_NP is available */
+#cmakedefine H5_HAVE_PTHREAD_MUTEX_ADAPTIVE_NP @H5_HAVE_PTHREAD_MUTEX_ADAPTIVE_NP@
+
 /* Define to 1 if you have the <pwd.h> header file. */
 #cmakedefine H5_HAVE_PWD_H @H5_HAVE_PWD_H@
-
-/* Define to 1 if you have the <quadmath.h> header file. */
-#cmakedefine H5_HAVE_QUADMATH_H @H5_HAVE_QUADMATH_H@
-
-/* Define to 1 if you have the `random' function. */
-#cmakedefine H5_HAVE_RANDOM @H5_HAVE_RANDOM@
-
-/* Define to 1 if you have the `rand_r' function. */
-#cmakedefine H5_HAVE_RAND_R @H5_HAVE_RAND_R@
 
 /* Define whether the Read-Only S3 virtual file driver (VFD) should be
    compiled */
 #cmakedefine H5_HAVE_ROS3_VFD @H5_HAVE_ROS3_VFD@
 
-/* Define to 1 if you have the `setsysinfo' function. */
-#cmakedefine H5_HAVE_SETSYSINFO @H5_HAVE_SETSYSINFO@
-
-/* Define to 1 if you have the `siglongjmp' function. */
-#cmakedefine H5_HAVE_SIGLONGJMP @H5_HAVE_SIGLONGJMP@
-
-/* Define to 1 if you have the `sigprocmask' function. */
-#cmakedefine H5_HAVE_SIGPROCMASK @H5_HAVE_SIGPROCMASK@
-
-/* Define to 1 if you have the `sigsetjmp' function. */
-#cmakedefine H5_HAVE_SIGSETJMP @H5_HAVE_SIGSETJMP@
-
-/* Define to 1 if you have the `stat64' function. */
-#cmakedefine H5_HAVE_STAT64 @H5_HAVE_STAT64@
-
 /* Define if struct stat has the st_blocks field */
 #cmakedefine H5_HAVE_STAT_ST_BLOCKS @H5_HAVE_STAT_ST_BLOCKS@
+
+/* Define to 1 if you have the `strcasestr' function. */
+#cmakedefine H5_HAVE_STRCASESTR @H5_HAVE_STRCASESTR@
 
 /* Define to 1 if you have the `strdup' function. */
 #cmakedefine H5_HAVE_STRDUP @H5_HAVE_STRDUP@
@@ -298,6 +288,12 @@
 
 /* Define if struct videoconfig is defined */
 #cmakedefine H5_HAVE_STRUCT_VIDEOCONFIG @H5_HAVE_STRUCT_VIDEOCONFIG@
+
+/* Define if Subfiling VFD is built */
+#cmakedefine H5_HAVE_SUBFILING_VFD @H5_HAVE_SUBFILING_VFD@
+
+/* Define if have stdatomic.h for Subfiling VFD */
+#cmakedefine H5_HAVE_STDATOMIC_H @H5_HAVE_STDATOMIC_H@
 
 /* Define to 1 if you have the `symlink' function. */
 #cmakedefine H5_HAVE_SYMLINK @H5_HAVE_SYMLINK@
@@ -325,6 +321,9 @@
 
 /* Define to 1 if you have the <szlib.h> header file. */
 #cmakedefine H5_HAVE_SZLIB_H @H5_HAVE_SZLIB_H@
+
+/* Define to 1 if the compiler supports the __builtin_expect() extension */
+#cmakedefine H5_HAVE_BUILTIN_EXPECT @H5_HAVE_BUILTIN_EXPECT@
 
 #if defined(_WIN32) && !defined(H5_BUILT_AS_DYNAMIC_LIB)
 /* Not supported on WIN32 platforms with static linking */
@@ -358,14 +357,17 @@
 /* Define to 1 if you have the `waitpid' function. */
 #cmakedefine H5_HAVE_WAITPID @H5_HAVE_WAITPID@
 
-/* Define to 1 if you have the 'InitOnceExecuteOnce' function. */
+/* Define to 1 if you have Win32 threads */
 #cmakedefine H5_HAVE_WIN_THREADS @H5_HAVE_WIN_THREADS@
 
-/* Define if your system has window style path name. */
+/* Define if your system has Windows-style path name. */
 #cmakedefine H5_HAVE_WINDOW_PATH @H5_HAVE_WINDOW_PATH@
 
 /* Define to 1 if you have the <zlib.h> header file. */
 #cmakedefine H5_HAVE_ZLIB_H @H5_HAVE_ZLIB_H@
+
+/* Define to 1 if you have the <zlib.h> header file. */
+#cmakedefine H5_HAVE_ZLIBNG_H @H5_HAVE_ZLIBNG_H@
 
 /* Define to 1 if you have the `_getvideoconfig' function. */
 #cmakedefine H5_HAVE__GETVIDEOCONFIG @H5_HAVE__GETVIDEOCONFIG@
@@ -381,6 +383,9 @@
 
 /* Define if new-style references should be used with dimension scales */
 #cmakedefine H5_DIMENSION_SCALES_WITH_NEW_REF @H5_DIMENSION_SCALES_WITH_NEW_REF@
+
+/* Define if your system can convert long double to _Float16 values correctly. */
+#cmakedefine H5_LDOUBLE_TO_FLOAT16_CORRECT @H5_LDOUBLE_TO_FLOAT16_CORRECT@
 
 /* Define if your system can convert long double to (unsigned) long long
    values correctly. */
@@ -400,12 +405,6 @@
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #cmakedefine H5_LT_OBJDIR @H5_LT_OBJDIR@
-
-/* Define to enable internal memory allocation sanity checking. */
-#cmakedefine H5_MEMORY_ALLOC_SANITY_CHECK @H5_MEMORY_ALLOC_SANITY_CHECK@
-
-/* Define if we can violate pointer alignment restrictions */
-#cmakedefine H5_NO_ALIGNMENT_RESTRICTIONS @H5_NO_ALIGNMENT_RESTRICTIONS@
 
 /* Define if deprecated public API symbols are disabled */
 #cmakedefine H5_NO_DEPRECATED_SYMBOLS @H5_NO_DEPRECATED_SYMBOLS@
@@ -436,9 +435,6 @@
 
 /* Define Fortran Maximum Real Decimal Precision */
 #define H5_PAC_FC_MAX_REAL_PRECISION @H5_PAC_FC_MAX_REAL_PRECISION@
-
-/* Width for printf() for type `long long' or `__int64', use `ll' */
-#cmakedefine H5_PRINTF_LL_WIDTH @H5_PRINTF_LL_WIDTH@
 
 /* The size of `bool', as computed by sizeof. */
 #cmakedefine H5_SIZEOF_BOOL @H5_SIZEOF_BOOL@
@@ -532,16 +528,12 @@
 
 #endif
 
-/* Define size of long long and/or __int64 bit integer type only if the type
-   exists.  */
+/* The size of `long long', as computed by sizeof. */
 #if !defined(__APPLE__)
  #cmakedefine H5_SIZEOF_LONG_LONG @H5_SIZEOF_LONG_LONG@
 #else
  #define H5_SIZEOF_LONG_LONG 8
 #endif
-
-/* The size of `off64_t', as computed by sizeof. */
-#cmakedefine H5_SIZEOF_OFF64_T @H5_SIZEOF_OFF64_T@
 
 /* The size of `off_t', as computed by sizeof. */
 #cmakedefine H5_SIZEOF_OFF_T @H5_SIZEOF_OFF_T@
@@ -594,14 +586,8 @@
 /* The size of `unsigned', as computed by sizeof. */
 #cmakedefine H5_SIZEOF_UNSIGNED @H5_SIZEOF_UNSIGNED@
 
-/* The size of `_Quad', as computed by sizeof. */
-#define H5_SIZEOF__QUAD @H5_SIZEOF__QUAD@
-
-/* The size of `__float128', as computed by sizeof. */
-#define H5_SIZEOF___FLOAT128 @H5_SIZEOF___FLOAT128@
-
-/* The size of `__int64', as computed by sizeof. */
-#define H5_SIZEOF___INT64 @H5_SIZEOF___INT64@
+/* The size of `_Float16', as computed by sizeof. */
+#define H5_SIZEOF__FLOAT16 @H5_SIZEOF__FLOAT16@
 
 /* Define if strict file format checks are enabled */
 #cmakedefine H5_STRICT_FORMAT_CHECKS @H5_STRICT_FORMAT_CHECKS@
@@ -641,6 +627,9 @@
 
 /* Check exception handling functions during data conversions */
 #cmakedefine H5_WANT_DCONV_EXCEPTION @H5_WANT_DCONV_EXCEPTION@
+
+/* Define if showing all compiler warnings are desired (i.e. don't suppress them internally) */
+#cmakedefine H5_SHOW_ALL_WARNINGS @H5_SHOW_ALL_WARNINGS@
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */

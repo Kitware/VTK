@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,19 +13,12 @@
 /*-------------------------------------------------------------------------
  *
  * Created:		H5PBprivate.h
- *			June 2014
- *			Mohamad Chaarawi
  *
  *-------------------------------------------------------------------------
  */
 
 #ifndef H5PBprivate_H
 #define H5PBprivate_H
-
-/* Include package's public header */
-#ifdef NOT_YET
-#include "H5PBpublic.h"
-#endif /* NOT_YET */
 
 /* Private headers needed by this header */
 #include "H5private.h"   /* Generic Functions			*/
@@ -91,6 +83,7 @@ H5_DLL herr_t H5PB_update_entry(H5PB_t *page_buf, haddr_t addr, size_t size, con
 H5_DLL herr_t H5PB_remove_entry(const H5F_shared_t *f_sh, haddr_t addr);
 H5_DLL herr_t H5PB_read(H5F_shared_t *f_sh, H5FD_mem_t type, haddr_t addr, size_t size, void *buf /*out*/);
 H5_DLL herr_t H5PB_write(H5F_shared_t *f_sh, H5FD_mem_t type, haddr_t addr, size_t size, const void *buf);
+H5_DLL herr_t H5PB_enabled(H5F_shared_t *f_sh, H5FD_mem_t type, bool *enabled);
 
 /* Statistics routines */
 H5_DLL herr_t H5PB_reset_stats(H5PB_t *page_buf);

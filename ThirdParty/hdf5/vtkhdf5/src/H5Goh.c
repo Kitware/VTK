@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -23,6 +22,7 @@
 /***********/
 #include "H5private.h"   /* Generic Functions			*/
 #include "H5Eprivate.h"  /* Error handling		  	*/
+#include "H5FLprivate.h" /* Free Lists                               */
 #include "H5Gpkg.h"      /* Groups				*/
 #include "H5Iprivate.h"  /* IDs			  		*/
 #include "H5Opkg.h"      /* Object headers			*/
@@ -40,11 +40,11 @@
 /* Local Prototypes */
 /********************/
 
-static void *     H5O__group_get_copy_file_udata(void);
+static void      *H5O__group_get_copy_file_udata(void);
 static void       H5O__group_free_copy_file_udata(void *udata);
 static htri_t     H5O__group_isa(const H5O_t *loc);
-static void *     H5O__group_open(const H5G_loc_t *obj_loc, H5I_type_t *opened_type);
-static void *     H5O__group_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc);
+static void      *H5O__group_open(const H5G_loc_t *obj_loc, H5I_type_t *opened_type);
+static void      *H5O__group_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc);
 static H5O_loc_t *H5O__group_get_oloc(hid_t obj_id);
 static herr_t     H5O__group_bh_info(const H5O_loc_t *loc, H5O_t *oh, H5_ih_info_t *bh_info);
 
@@ -87,9 +87,6 @@ H5FL_DEFINE(H5G_copy_file_ud_t);
  *
  *		Failure:	NULL
  *
- * Programmer:	Neil Fortner
- *              Thursday, July 30, 2009
- *
  *-------------------------------------------------------------------------
  */
 static void *
@@ -97,13 +94,13 @@ H5O__group_get_copy_file_udata(void)
 {
     void *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Allocate space for the 'copy file' user data for copying groups.
      * Currently this is only a ginfo, so there is no specific struct type for
      * this operation. */
     if (NULL == (ret_value = H5FL_CALLOC(H5G_copy_file_ud_t)))
-        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed")
+        HGOTO_ERROR(H5E_RESOURCE, H5E_NOSPACE, NULL, "memory allocation failed");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -117,9 +114,6 @@ done:
  *
  * Return:	<none>
  *
- * Programmer:	Neil Fortner
- *              Thursday, July 30, 2009
- *
  *-------------------------------------------------------------------------
  */
 static void
@@ -127,10 +121,10 @@ H5O__group_free_copy_file_udata(void *_udata)
 {
     H5G_copy_file_ud_t *udata = (H5G_copy_file_ud_t *)_udata;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check */
-    HDassert(udata);
+    assert(udata);
 
     /* Free the ginfo struct (including nested data structs) */
     H5O_msg_free(H5O_PLINE_ID, udata->common.src_pline);
@@ -147,14 +141,11 @@ H5O__group_free_copy_file_udata(void *_udata)
  * Purpose:	Determines if an object has the requisite messages for being
  *		a group.
  *
- * Return:	Success:	TRUE if the required group messages are
- *				present; FALSE otherwise.
+ * Return:	Success:	true if the required group messages are
+ *				present; false otherwise.
  *
  *		Failure:	FAIL if the existence of certain messages
  *				cannot be determined.
- *
- * Programmer:	Robb Matzke
- *              Monday, November  2, 1998
  *
  *-------------------------------------------------------------------------
  */
@@ -165,15 +156,15 @@ H5O__group_isa(const H5O_t *oh)
     htri_t linfo_exists;     /* Whether the 'linfo' message is in the object header */
     htri_t ret_value = FAIL; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
-    HDassert(oh);
+    assert(oh);
 
     /* Check for any of the messages that indicate a group */
     if ((stab_exists = H5O_msg_exists_oh(oh, H5O_STAB_ID)) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to read object header")
+        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to read object header");
     if ((linfo_exists = H5O_msg_exists_oh(oh, H5O_LINFO_ID)) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to read object header")
+        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to read object header");
 
     ret_value = (stab_exists > 0 || linfo_exists > 0);
 
@@ -189,33 +180,30 @@ done:
  * Return:      Success:    Pointer to group data
  *              Failure:    NULL
  *
- * Programmer:	Quincey Koziol
- *              Monday, November  6, 2006
- *
  *-------------------------------------------------------------------------
  */
 static void *
 H5O__group_open(const H5G_loc_t *obj_loc, H5I_type_t *opened_type)
 {
     H5G_t *grp       = NULL; /* Group opened */
-    void * ret_value = NULL; /* Return value */
+    void  *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
-    HDassert(obj_loc);
+    assert(obj_loc);
 
     *opened_type = H5I_GROUP;
 
     /* Open the group */
     if (NULL == (grp = H5G_open(obj_loc)))
-        HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, NULL, "unable to open group")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, NULL, "unable to open group");
 
     ret_value = (void *)grp;
 
 done:
     if (NULL == ret_value)
         if (grp && H5G_close(grp) < 0)
-            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, NULL, "unable to release group")
+            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, NULL, "unable to release group");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O__group_open() */
@@ -228,34 +216,31 @@ done:
  * Return:	Success:	Pointer to the group data structure
  *		Failure:	NULL
  *
- * Programmer:	Quincey Koziol
- *              Tuesday, April 10, 2007
- *
  *-------------------------------------------------------------------------
  */
 static void *
 H5O__group_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc)
 {
     H5G_obj_create_t *crt_info  = (H5G_obj_create_t *)_crt_info; /* Group creation parameters */
-    H5G_t *           grp       = NULL;                          /* New group created */
-    void *            ret_value = NULL;                          /* Return value */
+    H5G_t            *grp       = NULL;                          /* New group created */
+    void             *ret_value = NULL;                          /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Sanity checks */
-    HDassert(f);
-    HDassert(crt_info);
-    HDassert(obj_loc);
+    assert(f);
+    assert(crt_info);
+    assert(obj_loc);
 
-    /* Create the the group */
+    /* Create the group */
     if (NULL == (grp = H5G__create(f, crt_info)))
-        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, NULL, "unable to create group")
+        HGOTO_ERROR(H5E_SYM, H5E_CANTINIT, NULL, "unable to create group");
 
     /* Set up the new group's location */
     if (NULL == (obj_loc->oloc = H5G_oloc(grp)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "unable to get object location of group")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "unable to get object location of group");
     if (NULL == (obj_loc->path = H5G_nameof(grp)))
-        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "unable to get path of group")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADVALUE, NULL, "unable to get path of group");
 
     /* Set the return value */
     ret_value = grp;
@@ -263,7 +248,7 @@ H5O__group_create(H5F_t *f, void *_crt_info, H5G_loc_t *obj_loc)
 done:
     if (ret_value == NULL)
         if (grp && H5G_close(grp) < 0)
-            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, NULL, "unable to release group")
+            HDONE_ERROR(H5E_SYM, H5E_CLOSEERROR, NULL, "unable to release group");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O__group_create() */
@@ -276,26 +261,23 @@ done:
  * Return:	Success:	Pointer to object header location
  *		Failure:	NULL
  *
- * Programmer:	Quincey Koziol
- *              Monday, November  6, 2006
- *
  *-------------------------------------------------------------------------
  */
 static H5O_loc_t *
 H5O__group_get_oloc(hid_t obj_id)
 {
-    H5G_t *    grp;              /* Group opened */
+    H5G_t     *grp;              /* Group opened */
     H5O_loc_t *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Get the group */
     if (NULL == (grp = (H5G_t *)H5VL_object(obj_id)))
-        HGOTO_ERROR(H5E_OHDR, H5E_BADID, NULL, "couldn't get object from ID")
+        HGOTO_ERROR(H5E_OHDR, H5E_BADID, NULL, "couldn't get object from ID");
 
     /* Get the group's object header location */
     if (NULL == (ret_value = H5G_oloc(grp)))
-        HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, NULL, "unable to get object location from object")
+        HGOTO_ERROR(H5E_OHDR, H5E_CANTGET, NULL, "unable to get object location from object");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -309,9 +291,6 @@ done:
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Vailin Choi
- *              July 12 2007
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
@@ -323,58 +302,58 @@ H5O__group_bh_info(const H5O_loc_t *loc, H5O_t *oh, H5_ih_info_t *bh_info)
     H5B2_t *bt2_corder = NULL;    /* v2 B-tree handle for creation order index */
     herr_t  ret_value  = SUCCEED; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(loc);
-    HDassert(loc->file);
-    HDassert(H5F_addr_defined(loc->addr));
-    HDassert(oh);
-    HDassert(bh_info);
+    assert(loc);
+    assert(loc->file);
+    assert(H5_addr_defined(loc->addr));
+    assert(oh);
+    assert(bh_info);
 
     /* Check for "new style" group info */
     if ((exists = H5O_msg_exists_oh(oh, H5O_LINFO_ID)) < 0)
-        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to read object header")
+        HGOTO_ERROR(H5E_SYM, H5E_NOTFOUND, FAIL, "unable to read object header");
     if (exists > 0) {
         H5O_linfo_t linfo; /* Link info message */
 
         /* Get "new style" group info */
         if (NULL == H5O_msg_read_oh(loc->file, oh, H5O_LINFO_ID, &linfo))
-            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't read LINFO message")
+            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't read LINFO message");
 
         /* Check if name index available */
-        if (H5F_addr_defined(linfo.name_bt2_addr)) {
+        if (H5_addr_defined(linfo.name_bt2_addr)) {
             /* Open the name index v2 B-tree */
             if (NULL == (bt2_name = H5B2_open(loc->file, linfo.name_bt2_addr, NULL)))
-                HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open v2 B-tree for name index")
+                HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open v2 B-tree for name index");
 
             /* Get name index B-tree size */
             if (H5B2_size(bt2_name, &bh_info->index_size) < 0)
-                HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve B-tree storage info for name index")
+                HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve B-tree storage info for name index");
         } /* end if */
 
         /* Check if creation order index available */
-        if (H5F_addr_defined(linfo.corder_bt2_addr)) {
+        if (H5_addr_defined(linfo.corder_bt2_addr)) {
             /* Open the creation order index v2 B-tree */
             if (NULL == (bt2_corder = H5B2_open(loc->file, linfo.corder_bt2_addr, NULL)))
                 HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL,
-                            "unable to open v2 B-tree for creation order index")
+                            "unable to open v2 B-tree for creation order index");
 
             /* Get creation order index B-tree size */
             if (H5B2_size(bt2_corder, &bh_info->index_size) < 0)
                 HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL,
-                            "can't retrieve B-tree storage info for creation order index")
+                            "can't retrieve B-tree storage info for creation order index");
         } /* end if */
 
         /* Get fractal heap size, if available */
-        if (H5F_addr_defined(linfo.fheap_addr)) {
+        if (H5_addr_defined(linfo.fheap_addr)) {
             /* Open the fractal heap for links */
             if (NULL == (fheap = H5HF_open(loc->file, linfo.fheap_addr)))
-                HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open fractal heap")
+                HGOTO_ERROR(H5E_SYM, H5E_CANTOPENOBJ, FAIL, "unable to open fractal heap");
 
             /* Get heap storage size */
             if (H5HF_size(fheap, &bh_info->heap_size) < 0)
-                HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve fractal heap storage info")
+                HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve fractal heap storage info");
         } /* end if */
     }     /* end if */
     else {
@@ -382,21 +361,21 @@ H5O__group_bh_info(const H5O_loc_t *loc, H5O_t *oh, H5_ih_info_t *bh_info)
 
         /* Must be "old style" group, get symbol table message */
         if (NULL == H5O_msg_read_oh(loc->file, oh, H5O_STAB_ID, &stab))
-            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't find LINFO nor STAB messages")
+            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't find LINFO nor STAB messages");
 
         /* Get symbol table size info */
         if (H5G__stab_bh_size(loc->file, &stab, bh_info) < 0)
-            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve symbol table size info")
+            HGOTO_ERROR(H5E_SYM, H5E_CANTGET, FAIL, "can't retrieve symbol table size info");
     } /* end else */
 
 done:
     /* Release resources */
     if (fheap && H5HF_close(fheap) < 0)
-        HDONE_ERROR(H5E_SYM, H5E_CANTCLOSEOBJ, FAIL, "can't close fractal heap")
+        HDONE_ERROR(H5E_SYM, H5E_CANTCLOSEOBJ, FAIL, "can't close fractal heap");
     if (bt2_name && H5B2_close(bt2_name) < 0)
-        HDONE_ERROR(H5E_SYM, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for name index")
+        HDONE_ERROR(H5E_SYM, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for name index");
     if (bt2_corder && H5B2_close(bt2_corder) < 0)
-        HDONE_ERROR(H5E_SYM, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for creation order index")
+        HDONE_ERROR(H5E_SYM, H5E_CANTCLOSEOBJ, FAIL, "can't close v2 B-tree for creation order index");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5O__group_bh_info() */

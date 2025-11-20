@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -25,7 +24,6 @@
 #include "H5ACprivate.h" /* Metadata cache			*/
 #include "H5Eprivate.h"  /* Error handling		  	*/
 #include "H5Fprivate.h"  /* File access                          */
-#include "H5FLprivate.h" /* Free Lists                           */
 #include "H5SMpkg.h"     /* Shared object header messages        */
 
 /****************/
@@ -59,9 +57,6 @@
  *
  * Return:      Non-negative on success/Negative on failure
  *
- * Programmer:  Quincey Koziol
- *              Wednesday, January  3, 2007
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -73,12 +68,12 @@ H5SM__get_mesg_count_test(H5F_t *f, unsigned type_id, size_t *mesg_count)
     FUNC_ENTER_PACKAGE_TAG(H5AC__SOHM_TAG)
 
     /* Sanity check */
-    HDassert(f);
-    HDassert(mesg_count);
+    assert(f);
+    assert(mesg_count);
 
     /* Check for shared messages being enabled */
-    if (H5F_addr_defined(H5F_SOHM_ADDR(f))) {
-        H5SM_index_header_t * header;      /* Index header for message type */
+    if (H5_addr_defined(H5F_SOHM_ADDR(f))) {
+        H5SM_index_header_t  *header;      /* Index header for message type */
         H5SM_table_cache_ud_t cache_udata; /* User-data for callback */
         ssize_t               index_num;   /* Table index for message type */
 
@@ -88,11 +83,13 @@ H5SM__get_mesg_count_test(H5F_t *f, unsigned type_id, size_t *mesg_count)
         /* Look up the master SOHM table */
         if (NULL == (table = (H5SM_master_table_t *)H5AC_protect(f, H5AC_SOHM_TABLE, H5F_SOHM_ADDR(f),
                                                                  &cache_udata, H5AC__READ_ONLY_FLAG)))
-            HGOTO_ERROR(H5E_SOHM, H5E_CANTPROTECT, FAIL, "unable to load SOHM master table")
+            HGOTO_ERROR(H5E_SOHM, H5E_CANTPROTECT, FAIL, "unable to load SOHM master table");
 
         /* Find the correct index for this message type */
-        if ((index_num = H5SM__get_index(table, type_id)) < 0)
-            HGOTO_ERROR(H5E_SOHM, H5E_NOTFOUND, FAIL, "unable to find correct SOHM index")
+        if (H5SM__get_index(table, type_id, &index_num) < 0)
+            HGOTO_ERROR(H5E_SOHM, H5E_CANTGET, FAIL, "unable to check for SOHM index");
+        if (index_num < 0)
+            HGOTO_ERROR(H5E_SOHM, H5E_NOTFOUND, FAIL, "unable to find correct SOHM index");
         header = &(table->indexes[index_num]);
 
         /* Set the message count for the type */
@@ -105,7 +102,7 @@ H5SM__get_mesg_count_test(H5F_t *f, unsigned type_id, size_t *mesg_count)
 done:
     /* Release resources */
     if (table && H5AC_unprotect(f, H5AC_SOHM_TABLE, H5F_SOHM_ADDR(f), table, H5AC__NO_FLAGS_SET) < 0)
-        HDONE_ERROR(H5E_SOHM, H5E_CANTUNPROTECT, FAIL, "unable to close SOHM master table")
+        HDONE_ERROR(H5E_SOHM, H5E_CANTUNPROTECT, FAIL, "unable to close SOHM master table");
 
     FUNC_LEAVE_NOAPI_TAG(ret_value)
 } /* end H5SM__get_mesg_count_test() */

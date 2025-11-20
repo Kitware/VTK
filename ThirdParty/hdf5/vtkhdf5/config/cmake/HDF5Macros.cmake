@@ -70,28 +70,45 @@ macro (H5_SET_VFD_LIST)
       split
       multi
       family
-      splitter
-      #log - log VFD currently has file space allocation bugs
+      # Splitter VFD currently can't be tested with the h5_fileaccess()
+      # approach due to it trying to lock the same W/O file when two
+      # files are created/opened with the same FAPL that has the VFD
+      # set on it. When tested with the environment variable and a
+      # default FAPL, the VFD appends "_wo" to the filename when the
+      # W/O path isn't specified, which works for all the tests.
+      #splitter
+      # Log VFD currently has file space allocation bugs
+      #log
+      # Onion VFD not currently tested with VFD tests
+      #onion
   )
 
   if (H5_HAVE_DIRECT)
-    set (VFD_LIST ${VFD_LIST} direct)
+    list (APPEND VFD_LIST direct)
   endif ()
   if (H5_HAVE_PARALLEL)
     # MPI I/O VFD is currently incompatible with too many tests in the VFD test set
-    # set (VFD_LIST ${VFD_LIST} mpio)
+    # list (APPEND VFD_LIST mpio)
   endif ()
   if (H5_HAVE_MIRROR_VFD)
-    set (VFD_LIST ${VFD_LIST} mirror)
+    # Mirror VFD needs network configuration, etc. and isn't easy to set
+    # reasonable defaults for that info.
+    # list (APPEND VFD_LIST mirror)
   endif ()
   if (H5_HAVE_ROS3_VFD)
-    set (VFD_LIST ${VFD_LIST} ros3)
+    # This would require a custom test suite
+    # list (APPEND VFD_LIST ros3)
   endif ()
   if (H5_HAVE_LIBHDFS)
-    set (VFD_LIST ${VFD_LIST} hdfs)
+    # This would require a custom test suite
+    # list (APPEND VFD_LIST hdfs)
+  endif ()
+  if (H5_HAVE_SUBFILING_VFD)
+    # Subfiling has a few VFD test failures to be resolved
+    # list (APPEND VFD_LIST subfiling)
   endif ()
   if (H5_HAVE_WINDOWS)
-    set (VFD_LIST ${VFD_LIST} windows)
+    list (APPEND VFD_LIST windows)
   endif ()
 endmacro ()
 

@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -14,8 +13,6 @@
 /*-------------------------------------------------------------------------
  *
  * Created:		H5HFman.c
- *			Feb 24 2006
- *			Quincey Koziol
  *
  * Purpose:		"Managed" object routines for fractal heaps.
  *
@@ -34,9 +31,7 @@
 #include "H5private.h"   /* Generic Functions			*/
 #include "H5Eprivate.h"  /* Error handling		  	*/
 #include "H5HFpkg.h"     /* Fractal heaps			*/
-#include "H5MFprivate.h" /* File memory management		*/
 #include "H5MMprivate.h" /* Memory management			*/
-#include "H5VMprivate.h" /* Vectors and arrays 			*/
 
 /****************/
 /* Local Macros */
@@ -49,9 +44,9 @@
         if (!((HDR)->checked_filters)) {                                                                     \
             if ((HDR)->pline.nused)                                                                          \
                 if (H5Z_can_apply_direct(&((HDR)->pline)) < 0)                                               \
-                    HGOTO_ERROR(H5E_ARGS, H5E_CANTINIT, FAIL, "I/O filters can't operate on this heap")      \
+                    HGOTO_ERROR(H5E_ARGS, H5E_CANTINIT, FAIL, "I/O filters can't operate on this heap");     \
                                                                                                              \
-            (HDR)->checked_filters = TRUE;                                                                   \
+            (HDR)->checked_filters = true;                                                                   \
         } /* end if */                                                                                       \
     }
 
@@ -88,19 +83,16 @@ static herr_t H5HF__man_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operato
  *
  * Return:	SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		Mar 13 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5HF__man_insert(H5HF_hdr_t *hdr, size_t obj_size, const void *obj, void *_id)
 {
     H5HF_free_section_t *sec_node    = NULL;        /* Pointer to free space section */
-    H5HF_direct_t *      dblock      = NULL;        /* Pointer to direct block to modify */
+    H5HF_direct_t       *dblock      = NULL;        /* Pointer to direct block to modify */
     haddr_t              dblock_addr = HADDR_UNDEF; /* Direct block address */
     size_t               dblock_size;               /* Direct block size */
-    uint8_t *            id = (uint8_t *)_id;       /* Pointer to ID buffer */
+    uint8_t             *id = (uint8_t *)_id;       /* Pointer to ID buffer */
     size_t               blk_off;                   /* Offset of object within block */
     htri_t               node_found;                /* Whether an existing free list node was found */
     herr_t               ret_value = SUCCEED;       /* Return value */
@@ -110,23 +102,23 @@ H5HF__man_insert(H5HF_hdr_t *hdr, size_t obj_size, const void *obj, void *_id)
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(obj_size > 0);
-    HDassert(obj);
-    HDassert(id);
+    assert(hdr);
+    assert(obj_size > 0);
+    assert(obj);
+    assert(id);
 
     /* Check pipeline */
     H5HF_MAN_WRITE_CHECK_PLINE(hdr)
 
     /* Look for free space */
     if ((node_found = H5HF__space_find(hdr, (hsize_t)obj_size, &sec_node)) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, FAIL, "can't locate free space in fractal heap")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, FAIL, "can't locate free space in fractal heap");
 
     /* If we didn't find a node, go create a direct block big enough to hold the requested block */
     if (!node_found)
         /* Allocate direct block big enough to hold requested size */
         if (H5HF__man_dblock_new(hdr, obj_size, &sec_node) < 0)
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTCREATE, FAIL, "can't create fractal heap direct block")
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTCREATE, FAIL, "can't create fractal heap direct block");
 
     /* Check for row section */
     if (sec_node->sect_info.type == H5HF_FSPACE_SECT_FIRST_ROW ||
@@ -134,24 +126,24 @@ H5HF__man_insert(H5HF_hdr_t *hdr, size_t obj_size, const void *obj, void *_id)
 
         /* Allocate 'single' selection out of 'row' selection */
         if (H5HF__man_iblock_alloc_row(hdr, &sec_node) < 0)
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, FAIL, "can't break up row section")
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTALLOC, FAIL, "can't break up row section");
     } /* end if */
-    HDassert(sec_node->sect_info.type == H5HF_FSPACE_SECT_SINGLE);
+    assert(sec_node->sect_info.type == H5HF_FSPACE_SECT_SINGLE);
 
     /* Check for 'single' section being serialized */
     if (sec_node->sect_info.state == H5FS_SECT_SERIALIZED)
         if (H5HF__sect_single_revive(hdr, sec_node) < 0)
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't revive single free section")
-    HDassert(sec_node->sect_info.state == H5FS_SECT_LIVE);
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't revive single free section");
+    assert(sec_node->sect_info.state == H5FS_SECT_LIVE);
 
     /* Retrieve direct block address from section */
     if (H5HF__sect_single_dblock_info(hdr, sec_node, &dblock_addr, &dblock_size) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve direct block information")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTGET, FAIL, "can't retrieve direct block information");
 
     /* Lock direct block */
     if (NULL == (dblock = H5HF__man_dblock_protect(hdr, dblock_addr, dblock_size, sec_node->u.single.parent,
                                                    sec_node->u.single.par_entry, H5AC__NO_FLAGS_SET)))
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to load fractal heap direct block")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to load fractal heap direct block");
 
     /* Insert object into block */
 
@@ -160,11 +152,11 @@ H5HF__man_insert(H5HF_hdr_t *hdr, size_t obj_size, const void *obj, void *_id)
     blk_off = (size_t)(sec_node->sect_info.addr - dblock->block_off);
 
     /* Sanity checks */
-    HDassert(sec_node->sect_info.size >= obj_size);
+    assert(sec_node->sect_info.size >= obj_size);
 
     /* Reduce (& possibly re-add) single section */
     if (H5HF__sect_single_reduce(hdr, sec_node, obj_size) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTSHRINK, FAIL, "can't reduce single section node")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTSHRINK, FAIL, "can't reduce single section node");
     sec_node = NULL;
 
     /* Encode the object in the block */
@@ -179,7 +171,7 @@ H5HF__man_insert(H5HF_hdr_t *hdr, size_t obj_size, const void *obj, void *_id)
         p += obj_size;
 
         /* Sanity check */
-        HDassert((size_t)(p - (dblock->blk + blk_off)) == obj_size);
+        assert((size_t)(p - (dblock->blk + blk_off)) == obj_size);
     } /* end block */
 
     /* Set the heap ID for the new object (heap offset & obj length) */
@@ -190,17 +182,17 @@ H5HF__man_insert(H5HF_hdr_t *hdr, size_t obj_size, const void *obj, void *_id)
 
     /* Reduce space available in heap (marks header dirty) */
     if (H5HF__hdr_adj_free(hdr, -(ssize_t)obj_size) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTDEC, FAIL, "can't adjust free space for heap")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTDEC, FAIL, "can't adjust free space for heap");
 
 done:
     /* Release section node on error */
     if (ret_value < 0)
         if (sec_node && H5HF__sect_single_free((H5FS_section_info_t *)sec_node) < 0)
-            HDONE_ERROR(H5E_HEAP, H5E_CANTFREE, FAIL, "unable to release section node")
+            HDONE_ERROR(H5E_HEAP, H5E_CANTFREE, FAIL, "unable to release section node");
 
     /* Release the direct block (marked as dirty) */
     if (dblock && H5AC_unprotect(hdr->f, H5AC_FHEAP_DBLOCK, dblock_addr, dblock, H5AC__DIRTIED_FLAG) < 0)
-        HDONE_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap direct block")
+        HDONE_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap direct block");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5HF__man_insert() */
@@ -211,9 +203,6 @@ done:
  * Purpose:     Get the size of a managed heap object
  *
  * Return:      SUCCEED (Can't fail)
- *
- * Programmer:  Dana Robinson
- *              August 2012
  *
  *-------------------------------------------------------------------------
  */
@@ -226,9 +215,9 @@ H5HF__man_get_obj_len(H5HF_hdr_t *hdr, const uint8_t *id, size_t *obj_len_p)
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(id);
-    HDassert(obj_len_p);
+    assert(hdr);
+    assert(id);
+    assert(obj_len_p);
 
     /* Skip over the flag byte */
     id++;
@@ -249,9 +238,6 @@ H5HF__man_get_obj_len(H5HF_hdr_t *hdr, const uint8_t *id, size_t *obj_len_p)
  *
  * Return:      SUCCEED (Can't fail)
  *
- * Programmer:	Quincey Koziol
- *		Aug 20 2015
- *
  *-------------------------------------------------------------------------
  */
 void
@@ -262,9 +248,9 @@ H5HF__man_get_obj_off(const H5HF_hdr_t *hdr, const uint8_t *id, hsize_t *obj_off
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(id);
-    HDassert(obj_off_p);
+    assert(hdr);
+    assert(id);
+    assert(obj_off_p);
 
     /* Skip over the flag byte */
     id++;
@@ -282,9 +268,6 @@ H5HF__man_get_obj_off(const H5HF_hdr_t *hdr, const uint8_t *id, hsize_t *obj_off
  *              object
  *
  * Return:	SUCCEED/FAIL
- *
- * Programmer:	Quincey Koziol
- *		Mar 17 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -306,14 +289,14 @@ H5HF__man_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op, void *
     uint8_t *p;                         /* Temporary pointer to obj info in block */
     herr_t   ret_value = SUCCEED;       /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(id);
-    HDassert(op);
+    assert(hdr);
+    assert(id);
+    assert(op);
 
     /* Set the access mode for the direct block */
     if (op_flags & H5HF_OP_MODIFY) {
@@ -337,15 +320,15 @@ H5HF__man_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op, void *
 
     /* Check for bad offset or length */
     if (obj_off == 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "invalid fractal heap offset")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "invalid fractal heap offset");
     if (obj_off > hdr->man_size)
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap object offset too large")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap object offset too large");
     if (obj_len == 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "invalid fractal heap object size")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "invalid fractal heap object size");
     if (obj_len > hdr->man_dtable.cparam.max_direct_size)
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap object size too large for direct block")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap object size too large for direct block");
     if (obj_len > hdr->max_man_size)
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap object should be standalone")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap object should be standalone");
 
     /* Check for root direct block */
     if (hdr->man_dtable.curr_root_rows == 0) {
@@ -356,16 +339,16 @@ H5HF__man_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op, void *
         /* Lock direct block */
         if (NULL ==
             (dblock = H5HF__man_dblock_protect(hdr, dblock_addr, dblock_size, NULL, 0, dblock_access_flags)))
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap direct block")
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap direct block");
     } /* end if */
     else {
         H5HF_indirect_t *iblock;      /* Pointer to indirect block */
-        hbool_t          did_protect; /* Whether we protected the indirect block or not */
+        bool             did_protect; /* Whether we protected the indirect block or not */
         unsigned         entry;       /* Entry of block */
 
         /* Look up indirect block containing direct block */
         if (H5HF__man_dblock_locate(hdr, obj_off, &iblock, &entry, &did_protect, H5AC__READ_ONLY_FLAG) < 0)
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTCOMPUTE, FAIL, "can't compute row & column of section")
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTCOMPUTE, FAIL, "can't compute row & column of section");
 
         /* Set direct block info */
         dblock_addr = iblock->ents[entry].addr;
@@ -374,13 +357,13 @@ H5HF__man_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op, void *
         dblock_size = (size_t)hdr->man_dtable.row_block_size[entry / hdr->man_dtable.cparam.width];
 
         /* Check for offset of invalid direct block */
-        if (!H5F_addr_defined(dblock_addr)) {
+        if (!H5_addr_defined(dblock_addr)) {
             /* Unlock indirect block */
             if (H5HF__man_iblock_unprotect(iblock, H5AC__NO_FLAGS_SET, did_protect) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL,
-                            "unable to release fractal heap indirect block")
+                            "unable to release fractal heap indirect block");
 
-            HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap ID not in allocated direct block")
+            HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap ID not in allocated direct block");
         } /* end if */
 
         /* Lock direct block */
@@ -389,40 +372,40 @@ H5HF__man_op_real(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op, void *
             /* Unlock indirect block */
             if (H5HF__man_iblock_unprotect(iblock, H5AC__NO_FLAGS_SET, did_protect) < 0)
                 HGOTO_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL,
-                            "unable to release fractal heap indirect block")
+                            "unable to release fractal heap indirect block");
 
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap direct block")
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTPROTECT, FAIL, "unable to protect fractal heap direct block");
         } /* end if */
 
         /* Unlock indirect block */
         if (H5HF__man_iblock_unprotect(iblock, H5AC__NO_FLAGS_SET, did_protect) < 0)
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap indirect block")
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap indirect block");
         iblock = NULL;
     } /* end else */
 
     /* Compute offset of object within block */
-    HDassert((obj_off - dblock->block_off) < (hsize_t)dblock_size);
+    assert((obj_off - dblock->block_off) < (hsize_t)dblock_size);
     blk_off = (size_t)(obj_off - dblock->block_off);
 
     /* Check for object's offset in the direct block prefix information */
     if (blk_off < (size_t)H5HF_MAN_ABS_DIRECT_OVERHEAD(hdr))
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "object located in prefix of direct block")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "object located in prefix of direct block");
 
     /* Check for object's length overrunning the end of the direct block */
     if ((blk_off + obj_len) > dblock_size)
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "object overruns end of direct block")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "object overruns end of direct block");
 
     /* Point to location for object */
     p = dblock->blk + blk_off;
 
     /* Call the user's 'op' callback */
     if (op(p, obj_len, op_data) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "application's callback failed")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "application's callback failed");
 
 done:
     /* Unlock direct block */
     if (dblock && H5AC_unprotect(hdr->f, H5AC_FHEAP_DBLOCK, dblock_addr, dblock, dblock_cache_flags) < 0)
-        HDONE_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap direct block")
+        HDONE_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap direct block");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5HF__man_op_real() */
@@ -433,9 +416,6 @@ done:
  * Purpose:	Read an object from a managed heap
  *
  * Return:	SUCCEED/FAIL
- *
- * Programmer:	Quincey Koziol
- *		Mar 17 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -449,13 +429,13 @@ H5HF__man_read(H5HF_hdr_t *hdr, const uint8_t *id, void *obj)
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(id);
-    HDassert(obj);
+    assert(hdr);
+    assert(id);
+    assert(obj);
 
     /* Call the internal 'op' routine routine */
     if (H5HF__man_op_real(hdr, id, H5HF__op_read, obj, 0) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -467,9 +447,6 @@ done:
  * Purpose:	Write an object to a managed heap
  *
  * Return:	SUCCEED/FAIL
- *
- * Programmer:	Quincey Koziol
- *		Dec 18 2006
  *
  *-------------------------------------------------------------------------
  */
@@ -483,9 +460,9 @@ H5HF__man_write(H5HF_hdr_t *hdr, const uint8_t *id, const void *obj)
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(id);
-    HDassert(obj);
+    assert(hdr);
+    assert(id);
+    assert(obj);
 
     /* Call the internal 'op' routine routine
      *
@@ -495,7 +472,7 @@ H5HF__man_write(H5HF_hdr_t *hdr, const uint8_t *id, const void *obj)
      */
     H5_GCC_CLANG_DIAG_OFF("cast-qual")
     if (H5HF__man_op_real(hdr, id, H5HF__op_write, (void *)obj, H5HF_OP_MODIFY) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object");
     H5_GCC_CLANG_DIAG_ON("cast-qual")
 
 done:
@@ -509,9 +486,6 @@ done:
  *
  * Return:	SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		Sept 11 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -524,13 +498,13 @@ H5HF__man_op(H5HF_hdr_t *hdr, const uint8_t *id, H5HF_operator_t op, void *op_da
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(id);
-    HDassert(op);
+    assert(hdr);
+    assert(id);
+    assert(op);
 
     /* Call the internal 'op' routine routine */
     if (H5HF__man_op_real(hdr, id, op, op_data, 0) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTOPERATE, FAIL, "unable to operate on heap object");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -543,17 +517,14 @@ done:
  *
  * Return:	SUCCEED/FAIL
  *
- * Programmer:	Quincey Koziol
- *		May 15 2006
- *
  *-------------------------------------------------------------------------
  */
 herr_t
 H5HF__man_remove(H5HF_hdr_t *hdr, const uint8_t *id)
 {
     H5HF_free_section_t *sec_node    = NULL;  /* Pointer to free space section for block */
-    H5HF_indirect_t *    iblock      = NULL;  /* Pointer to indirect block */
-    hbool_t              did_protect = FALSE; /* Whether we protected the indirect block or not */
+    H5HF_indirect_t     *iblock      = NULL;  /* Pointer to indirect block */
+    bool                 did_protect = false; /* Whether we protected the indirect block or not */
     hsize_t              obj_off;             /* Object's offset in heap */
     size_t               obj_len;             /* Object's length in heap */
     size_t               dblock_size;         /* Direct block size */
@@ -567,8 +538,8 @@ H5HF__man_remove(H5HF_hdr_t *hdr, const uint8_t *id)
     /*
      * Check arguments.
      */
-    HDassert(hdr);
-    HDassert(id);
+    assert(hdr);
+    assert(id);
 
     /* Check pipeline */
     H5HF_MAN_WRITE_CHECK_PLINE(hdr)
@@ -582,15 +553,15 @@ H5HF__man_remove(H5HF_hdr_t *hdr, const uint8_t *id)
 
     /* Check for bad offset or length */
     if (obj_off == 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "invalid fractal heap offset")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "invalid fractal heap offset");
     if (obj_off > hdr->man_size)
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap object offset too large")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap object offset too large");
     if (obj_len == 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "invalid fractal heap object size")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "invalid fractal heap object size");
     if (obj_len > hdr->man_dtable.cparam.max_direct_size)
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap object size too large for direct block")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap object size too large for direct block");
     if (obj_len > hdr->max_man_size)
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap object should be standalone")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap object should be standalone");
 
     /* Check for root direct block */
     if (hdr->man_dtable.curr_root_rows == 0) {
@@ -603,11 +574,11 @@ H5HF__man_remove(H5HF_hdr_t *hdr, const uint8_t *id)
         /* Look up indirect block containing direct block */
         if (H5HF__man_dblock_locate(hdr, obj_off, &iblock, &dblock_entry, &did_protect, H5AC__NO_FLAGS_SET) <
             0)
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTCOMPUTE, FAIL, "can't compute row & column of section")
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTCOMPUTE, FAIL, "can't compute row & column of section");
 
         /* Check for offset of invalid direct block */
-        if (!H5F_addr_defined(iblock->ents[dblock_entry].addr))
-            HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap ID not in allocated direct block")
+        if (!H5_addr_defined(iblock->ents[dblock_entry].addr))
+            HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "fractal heap ID not in allocated direct block");
 
         /* Set direct block info */
         H5_CHECK_OVERFLOW((hdr->man_dtable.row_block_size[dblock_entry / hdr->man_dtable.cparam.width]),
@@ -623,50 +594,50 @@ H5HF__man_remove(H5HF_hdr_t *hdr, const uint8_t *id)
     } /* end else */
 
     /* Compute offset of object within block */
-    HDassert((obj_off - dblock_block_off) < (hsize_t)dblock_size);
+    assert((obj_off - dblock_block_off) < (hsize_t)dblock_size);
     blk_off = (size_t)(obj_off - dblock_block_off);
 
     /* Check for object's offset in the direct block prefix information */
     if (blk_off < (size_t)H5HF_MAN_ABS_DIRECT_OVERHEAD(hdr))
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "object located in prefix of direct block")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "object located in prefix of direct block");
 
     /* Check for object's length overrunning the end of the direct block */
     if ((blk_off + obj_len) > dblock_size)
-        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "object overruns end of direct block")
+        HGOTO_ERROR(H5E_HEAP, H5E_BADRANGE, FAIL, "object overruns end of direct block");
 
     /* Create free space section node */
     if (NULL == (sec_node = H5HF__sect_single_new(obj_off, obj_len, iblock, dblock_entry)))
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't create section for direct block's free space")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't create section for direct block's free space");
 
     /* Unlock indirect block */
     if (iblock) {
         if (H5HF__man_iblock_unprotect(iblock, H5AC__NO_FLAGS_SET, did_protect) < 0)
-            HGOTO_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap indirect block")
+            HGOTO_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap indirect block");
         iblock = NULL;
     } /* end if */
 
     /* Increase space available in heap (marks header dirty) */
     if (H5HF__hdr_adj_free(hdr, (ssize_t)obj_len) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTDEC, FAIL, "can't adjust free space for heap")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTDEC, FAIL, "can't adjust free space for heap");
 
     /* Update statistics about heap */
     hdr->man_nobjs--;
 
     /* Return free space to the heap's list of space */
     if (H5HF__space_add(hdr, sec_node, H5FS_ADD_RETURNED_SPACE) < 0)
-        HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't add direct block free space to global list")
+        HGOTO_ERROR(H5E_HEAP, H5E_CANTINIT, FAIL, "can't add direct block free space to global list");
     sec_node = NULL;
 
 done:
     if (ret_value < 0) {
         /* Release section node */
         if (sec_node && H5HF__sect_single_free((H5FS_section_info_t *)sec_node) < 0)
-            HDONE_ERROR(H5E_HEAP, H5E_CANTFREE, FAIL, "unable to release section node")
+            HDONE_ERROR(H5E_HEAP, H5E_CANTFREE, FAIL, "unable to release section node");
     } /* end if */
 
     /* Unlock indirect block */
     if (iblock && H5HF__man_iblock_unprotect(iblock, H5AC__NO_FLAGS_SET, did_protect) < 0)
-        HDONE_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap indirect block")
+        HDONE_ERROR(H5E_HEAP, H5E_CANTUNPROTECT, FAIL, "unable to release fractal heap indirect block");
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5HF__man_remove() */

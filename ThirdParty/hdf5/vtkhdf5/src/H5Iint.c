@@ -1,6 +1,5 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Copyright by The HDF Group.                                               *
- * Copyright by the Board of Trustees of the University of Illinois.         *
  * All rights reserved.                                                      *
  *                                                                           *
  * This file is part of HDF5.  The full HDF5 copyright notice, including     *
@@ -37,7 +36,7 @@
 /****************/
 
 /* Combine a Type number and an ID index into an ID */
-#define H5I_MAKE(g, i) ((((hid_t)(g)&TYPE_MASK) << ID_BITS) | ((hid_t)(i)&ID_MASK))
+#define H5I_MAKE(g, i) ((((hid_t)(g) & TYPE_MASK) << ID_BITS) | ((hid_t)(i) & ID_MASK))
 
 /******************/
 /* Local Typedefs */
@@ -53,16 +52,16 @@ typedef struct {
 /* User data for iterator callback for ID iteration */
 typedef struct {
     H5I_search_func_t user_func;  /* 'User' function to invoke */
-    void *            user_udata; /* User data to pass to 'user' function */
-    hbool_t           app_ref;    /* Whether this is an appl. ref. call */
+    void             *user_udata; /* User data to pass to 'user' function */
+    bool              app_ref;    /* Whether this is an appl. ref. call */
     H5I_type_t        obj_type;   /* Type of object we are iterating over */
 } H5I_iterate_ud_t;
 
 /* User data for H5I__clear_type_cb */
 typedef struct {
     H5I_type_info_t *type_info; /* Pointer to the type's info to be cleared */
-    hbool_t          force;     /* Whether to always remove the ID */
-    hbool_t          app_ref;   /* Whether this is an appl. ref. call */
+    bool             force;     /* Whether to always remove the ID */
+    bool             app_ref;   /* Whether this is an appl. ref. call */
 } H5I_clear_type_ud_t;
 
 /********************/
@@ -73,9 +72,9 @@ typedef struct {
 /* Local Prototypes */
 /********************/
 
-static void * H5I__unwrap(void *object, H5I_type_t type);
+static void  *H5I__unwrap(void *object, H5I_type_t type);
 static herr_t H5I__mark_node(void *_id, void *key, void *udata);
-static void * H5I__remove_common(H5I_type_info_t *type_info, hid_t id);
+static void  *H5I__remove_common(H5I_type_info_t *type_info, hid_t id);
 static int    H5I__dec_ref(hid_t id, void **request);
 static int    H5I__dec_app_ref(hid_t id, void **request);
 static int    H5I__dec_app_ref_always_close(hid_t id, void **request);
@@ -93,7 +92,7 @@ int              H5I_next_type_g = (int)H5I_NTYPES;
 H5FL_DEFINE_STATIC(H5I_id_info_t);
 
 /* Whether deletes are actually marks (for mark-and-sweep) */
-hbool_t H5I_marking_g = FALSE;
+static bool H5I_marking_s = false;
 
 /*****************************/
 /* Library Private Variables */
@@ -137,7 +136,7 @@ H5I_term_package(void)
         for (i = 0; i < H5I_next_type_g; i++) {
             type_info = H5I_type_info_array_g[i];
             if (type_info) {
-                HDassert(NULL == type_info->hash_table);
+                assert(NULL == type_info->hash_table);
                 type_info                = H5MM_xfree(type_info);
                 H5I_type_info_array_g[i] = NULL;
                 in_use++;
@@ -168,14 +167,14 @@ H5I_register_type(const H5I_class_t *cls)
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Sanity check */
-    HDassert(cls);
-    HDassert(cls->type > 0 && (int)cls->type < H5I_MAX_NUM_TYPES);
+    assert(cls);
+    assert(cls->type > 0 && (int)cls->type < H5I_MAX_NUM_TYPES);
 
     /* Initialize the type */
     if (NULL == H5I_type_info_array_g[cls->type]) {
         /* Allocate the type information for new type */
         if (NULL == (type_info = (H5I_type_info_t *)H5MM_calloc(sizeof(H5I_type_info_t))))
-            HGOTO_ERROR(H5E_ID, H5E_CANTALLOC, FAIL, "ID type allocation failed")
+            HGOTO_ERROR(H5E_ID, H5E_CANTALLOC, FAIL, "ID type allocation failed");
         H5I_type_info_array_g[cls->type] = type_info;
     }
     else {
@@ -214,9 +213,6 @@ done:
  *
  *              Failure:    Negative
  *
- * Programmer:  Robb Matzke
- *              Wednesday, March 24, 1999
- *
  *-------------------------------------------------------------------------
  */
 int64_t
@@ -229,7 +225,7 @@ H5I_nmembers(H5I_type_t type)
 
     /* Validate parameter */
     if (type <= H5I_BADID || (int)type >= H5I_next_type_g)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid type number")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid type number");
     if (NULL == (type_info = H5I_type_info_array_g[type]) || type_info->init_count <= 0)
         HGOTO_DONE(0);
 
@@ -248,9 +244,6 @@ done:
  *
  * Return:      Pointer to the unwrapped pointer (can't fail)
  *
- * Programmer:  Quincey Koziol
- *              Friday, October 19, 2018
- *
  *-------------------------------------------------------------------------
  */
 static void *
@@ -258,10 +251,10 @@ H5I__unwrap(void *object, H5I_type_t type)
 {
     void *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity checks */
-    HDassert(object);
+    assert(object);
 
     /* The stored object pointer might be an H5VL_object_t, in which
      * case we'll need to get the wrapped object struct (H5F_t *, etc.).
@@ -291,28 +284,25 @@ H5I__unwrap(void *object, H5I_type_t type)
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Robb Matzke
- *              Wednesday, March 24, 1999
- *
  *-------------------------------------------------------------------------
  */
 herr_t
-H5I_clear_type(H5I_type_t type, hbool_t force, hbool_t app_ref)
+H5I_clear_type(H5I_type_t type, bool force, bool app_ref)
 {
     H5I_clear_type_ud_t udata; /* udata struct for callback */
-    H5I_id_info_t *     item      = NULL;
-    H5I_id_info_t *     tmp       = NULL;
+    H5I_id_info_t      *item      = NULL;
+    H5I_id_info_t      *tmp       = NULL;
     herr_t              ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Validate parameters */
     if (type <= H5I_BADID || (int)type >= H5I_next_type_g)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid type number")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid type number");
 
     udata.type_info = H5I_type_info_array_g[type];
     if (udata.type_info == NULL || udata.type_info->init_count <= 0)
-        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "invalid type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "invalid type");
 
     /* Finish constructing udata */
     udata.force   = force;
@@ -324,18 +314,18 @@ H5I_clear_type(H5I_type_t type, hbool_t force, hbool_t app_ref)
      */
 
     /* Set marking flag */
-    H5I_marking_g = TRUE;
+    H5I_marking_s = true;
 
     /* Mark nodes for deletion */
     HASH_ITER(hh, udata.type_info->hash_table, item, tmp)
     {
         if (!item->marked)
             if (H5I__mark_node((void *)item, NULL, (void *)&udata) < 0)
-                HGOTO_ERROR(H5E_ID, H5E_BADITER, FAIL, "iteration failed while clearing the ID type")
+                HGOTO_ERROR(H5E_ID, H5E_BADITER, FAIL, "iteration failed while clearing the ID type");
     }
 
     /* Unset marking flag */
-    H5I_marking_g = FALSE;
+    H5I_marking_s = false;
 
     /* Perform sweep */
     HASH_ITER(hh, udata.type_info->hash_table, item, tmp)
@@ -358,82 +348,59 @@ done:
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Neil Fortner
- *              Friday, July 10, 2015
- *
  *-------------------------------------------------------------------------
  */
 static herr_t
 H5I__mark_node(void *_info, void H5_ATTR_UNUSED *key, void *_udata)
 {
-    H5I_id_info_t *      info  = (H5I_id_info_t *)_info;        /* Current ID info being worked with */
+    H5I_id_info_t       *info  = (H5I_id_info_t *)_info;        /* Current ID info being worked with */
     H5I_clear_type_ud_t *udata = (H5I_clear_type_ud_t *)_udata; /* udata struct */
-    hbool_t              mark  = FALSE;
+    bool                 mark  = false;
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity checks */
-    HDassert(info);
-    HDassert(udata);
-    HDassert(udata->type_info);
+    assert(info);
+    assert(udata);
+    assert(udata->type_info);
 
     /* Do nothing to the object if the reference count is larger than
      * one and forcing is off.
      */
     if (udata->force || (info->count - (!udata->app_ref * info->app_count)) <= 1) {
         /* Check if this is an un-realized future object */
-        H5_GCC_CLANG_DIAG_OFF("cast-qual")
         if (info->is_future) {
             /* Discard the future object */
-            if ((info->discard_cb)((void *)info->object) < 0) {
+            if ((info->discard_cb)(info->u.object) < 0) {
                 if (udata->force) {
-#ifdef H5I_DEBUG
-                    if (H5DEBUG(I)) {
-                        HDfprintf(H5DEBUG(I),
-                                  "H5I: discard type=%d obj=0x%08lx "
-                                  "failure ignored\n",
-                                  (int)udata->type_info->cls->type, (unsigned long)(info->object));
-                    }
-#endif /* H5I_DEBUG */
-
                     /* Indicate node should be removed from list */
-                    mark = TRUE;
+                    mark = true;
                 }
             }
             else {
                 /* Indicate node should be removed from list */
-                mark = TRUE;
+                mark = true;
             }
         }
         else {
             /* Check for a 'free' function and call it, if it exists */
             if (udata->type_info->cls->free_func &&
-                (udata->type_info->cls->free_func)((void *)info->object, H5_REQUEST_NULL) < 0) {
+                (udata->type_info->cls->free_func)(info->u.object, H5_REQUEST_NULL) < 0) {
                 if (udata->force) {
-#ifdef H5I_DEBUG
-                    if (H5DEBUG(I)) {
-                        HDfprintf(H5DEBUG(I),
-                                  "H5I: free type=%d obj=0x%08lx "
-                                  "failure ignored\n",
-                                  (int)udata->type_info->cls->type, (unsigned long)(info->object));
-                    }
-#endif /* H5I_DEBUG */
-
                     /* Indicate node should be removed from list */
-                    mark = TRUE;
+                    mark = true;
                 }
             }
             else {
                 /* Indicate node should be removed from list */
-                mark = TRUE;
+                mark = true;
             }
         }
-        H5_GCC_CLANG_DIAG_ON("cast-qual")
 
         /* Remove ID if requested */
         if (mark) {
             /* Mark ID for deletion */
-            info->marked = TRUE;
+            info->marked = true;
 
             /* Decrement the number of IDs in the type */
             udata->type_info->id_count--;
@@ -453,9 +420,6 @@ H5I__mark_node(void *_info, void H5_ATTR_UNUSED *key, void *_udata)
  *
  * Return:      SUCCEED/FAIL
  *
- * Programmer:  Nathaniel Furrer
- *              James Laird
- *
  *-------------------------------------------------------------------------
  */
 herr_t
@@ -468,22 +432,19 @@ H5I__destroy_type(H5I_type_t type)
 
     /* Validate parameter */
     if (type <= H5I_BADID || (int)type >= H5I_next_type_g)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid type number")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid type number");
 
     type_info = H5I_type_info_array_g[type];
     if (type_info == NULL || type_info->init_count <= 0)
-        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "invalid type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "invalid type");
 
     /* Close/clear/destroy all IDs for this type */
-    H5E_BEGIN_TRY
-    {
-        H5I_clear_type(type, TRUE, FALSE);
-    }
-    H5E_END_TRY /* don't care about errors */
+    if (H5I_clear_type(type, true, false) < 0)
+        HGOTO_ERROR(H5E_ID, H5E_CANTRELEASE, FAIL, "unable to release IDs for type");
 
-        /* Check if we should release the ID class */
-        if (type_info->cls->flags & H5I_CLASS_IS_APPLICATION)
-            type_info->cls = H5MM_xfree_const(type_info->cls);
+    /* Check if we should release the ID class */
+    if (type_info->cls->flags & H5I_CLASS_IS_APPLICATION)
+        type_info->cls = H5MM_xfree_const(type_info->cls);
 
     HASH_CLEAR(hh, type_info->hash_table);
     type_info->hash_table = NULL;
@@ -516,11 +477,11 @@ done:
  *-------------------------------------------------------------------------
  */
 hid_t
-H5I__register(H5I_type_t type, const void *object, hbool_t app_ref, H5I_future_realize_func_t realize_cb,
+H5I__register(H5I_type_t type, const void *object, bool app_ref, H5I_future_realize_func_t realize_cb,
               H5I_future_discard_func_t discard_cb)
 {
     H5I_type_info_t *type_info = NULL;            /* Pointer to the type */
-    H5I_id_info_t *  info      = NULL;            /* Pointer to the new ID information */
+    H5I_id_info_t   *info      = NULL;            /* Pointer to the new ID information */
     hid_t            new_id    = H5I_INVALID_HID; /* New ID */
     hid_t            ret_value = H5I_INVALID_HID; /* Return value */
 
@@ -528,23 +489,23 @@ H5I__register(H5I_type_t type, const void *object, hbool_t app_ref, H5I_future_r
 
     /* Check arguments */
     if (type <= H5I_BADID || (int)type >= H5I_next_type_g)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, H5I_INVALID_HID, "invalid type number")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, H5I_INVALID_HID, "invalid type number");
     type_info = H5I_type_info_array_g[type];
     if ((NULL == type_info) || (type_info->init_count <= 0))
-        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, H5I_INVALID_HID, "invalid type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, H5I_INVALID_HID, "invalid type");
     if (NULL == (info = H5FL_CALLOC(H5I_id_info_t)))
-        HGOTO_ERROR(H5E_ID, H5E_NOSPACE, H5I_INVALID_HID, "memory allocation failed")
+        HGOTO_ERROR(H5E_ID, H5E_NOSPACE, H5I_INVALID_HID, "memory allocation failed");
 
     /* Create the struct & its ID */
     new_id           = H5I_MAKE(type, type_info->nextid);
     info->id         = new_id;
     info->count      = 1; /* initial reference count */
     info->app_count  = !!app_ref;
-    info->object     = object;
+    info->u.c_object = object;
     info->is_future  = (NULL != realize_cb);
     info->realize_cb = realize_cb;
     info->discard_cb = discard_cb;
-    info->marked     = FALSE;
+    info->marked     = false;
 
     /* Insert into the type */
     HASH_ADD(hh, type_info->hash_table, id, sizeof(hid_t), info);
@@ -552,7 +513,7 @@ H5I__register(H5I_type_t type, const void *object, hbool_t app_ref, H5I_future_r
     type_info->nextid++;
 
     /* Sanity check for the 'nextid' getting too large and wrapping around */
-    HDassert(type_info->nextid <= ID_MASK);
+    assert(type_info->nextid <= ID_MASK);
 
     /* Set the most recent ID to this object */
     type_info->last_id_info = info;
@@ -575,19 +536,19 @@ done:
  *-------------------------------------------------------------------------
  */
 hid_t
-H5I_register(H5I_type_t type, const void *object, hbool_t app_ref)
+H5I_register(H5I_type_t type, const void *object, bool app_ref)
 {
     hid_t ret_value = H5I_INVALID_HID; /* Return value */
 
     FUNC_ENTER_NOAPI(H5I_INVALID_HID)
 
     /* Sanity checks */
-    HDassert(type >= H5I_FILE && type < H5I_NTYPES);
-    HDassert(object);
+    assert(type >= H5I_FILE && type < H5I_NTYPES);
+    assert(object);
 
     /* Retrieve ID for object */
     if (H5I_INVALID_HID == (ret_value = H5I__register(type, object, app_ref, NULL, NULL)))
-        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register object")
+        HGOTO_ERROR(H5E_ID, H5E_CANTREGISTER, H5I_INVALID_HID, "unable to register object");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -612,51 +573,51 @@ done:
  *-------------------------------------------------------------------------
  */
 herr_t
-H5I_register_using_existing_id(H5I_type_t type, void *object, hbool_t app_ref, hid_t existing_id)
+H5I_register_using_existing_id(H5I_type_t type, void *object, bool app_ref, hid_t existing_id)
 {
     H5I_type_info_t *type_info = NULL;    /* Pointer to the type */
-    H5I_id_info_t *  info      = NULL;    /* Pointer to the new ID information */
+    H5I_id_info_t   *info      = NULL;    /* Pointer to the new ID information */
     herr_t           ret_value = SUCCEED; /* Return value */
 
     FUNC_ENTER_NOAPI(FAIL)
 
     /* Check arguments */
-    HDassert(object);
+    assert(object);
 
     /* Make sure ID is not already in use */
     if (NULL != (info = H5I__find_id(existing_id)))
-        HGOTO_ERROR(H5E_ID, H5E_BADRANGE, FAIL, "ID already in use")
+        HGOTO_ERROR(H5E_ID, H5E_BADRANGE, FAIL, "ID already in use");
 
     /* Make sure type number is valid */
     if (type <= H5I_BADID || (int)type >= H5I_next_type_g)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid type number")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid type number");
 
     /* Get type pointer from list of types */
     type_info = H5I_type_info_array_g[type];
 
     if (NULL == type_info || type_info->init_count <= 0)
-        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "invalid type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "invalid type");
 
     /* Make sure requested ID belongs to object's type */
     if (H5I_TYPE(existing_id) != type)
-        HGOTO_ERROR(H5E_ID, H5E_BADRANGE, FAIL, "invalid type for provided ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADRANGE, FAIL, "invalid type for provided ID");
 
     /* Allocate new structure to house this ID */
     if (NULL == (info = H5FL_CALLOC(H5I_id_info_t)))
-        HGOTO_ERROR(H5E_ID, H5E_NOSPACE, FAIL, "memory allocation failed")
+        HGOTO_ERROR(H5E_ID, H5E_NOSPACE, FAIL, "memory allocation failed");
 
     /* Create the struct & insert requested ID */
     info->id        = existing_id;
     info->count     = 1; /* initial reference count*/
     info->app_count = !!app_ref;
-    info->object    = object;
+    info->u.object  = object;
     /* This API call is only used by the native VOL connector, which is
      * not asynchronous.
      */
-    info->is_future  = FALSE;
+    info->is_future  = false;
     info->realize_cb = NULL;
     info->discard_cb = NULL;
-    info->marked     = FALSE;
+    info->marked     = false;
 
     /* Insert into the type */
     HASH_ADD(hh, type_info->hash_table, id, sizeof(hid_t), info);
@@ -678,30 +639,25 @@ done:
  *                          with the specified ID.
  *              Failure:    NULL
  *
- * Programmer:  Quincey Koziol
- *              Saturday, February 27, 2010
- *
  *-------------------------------------------------------------------------
  */
 void *
 H5I_subst(hid_t id, const void *new_object)
 {
     H5I_id_info_t *info      = NULL; /* Pointer to the ID's info */
-    void *         ret_value = NULL; /* Return value */
+    void          *ret_value = NULL; /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
     /* General lookup of the ID */
     if (NULL == (info = H5I__find_id(id)))
-        HGOTO_ERROR(H5E_ID, H5E_NOTFOUND, NULL, "can't get ID ref count")
+        HGOTO_ERROR(H5E_ID, H5E_NOTFOUND, NULL, "can't get ID ref count");
 
     /* Get the old object pointer to return */
-    H5_GCC_CLANG_DIAG_OFF("cast-qual")
-    ret_value = (void *)info->object; /* (Casting away const OK -QAK) */
-    H5_GCC_CLANG_DIAG_ON("cast-qual")
+    ret_value = info->u.object;
 
     /* Set the new object pointer for the ID */
-    info->object = new_object;
+    info->u.c_object = new_object;
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -723,17 +679,14 @@ void *
 H5I_object(hid_t id)
 {
     H5I_id_info_t *info      = NULL; /* Pointer to the ID info */
-    void *         ret_value = NULL; /* Return value */
+    void          *ret_value = NULL; /* Return value */
 
     FUNC_ENTER_NOAPI_NOERR
 
     /* General lookup of the ID */
-    if (NULL != (info = H5I__find_id(id))) {
+    if (NULL != (info = H5I__find_id(id)))
         /* Get the object pointer to return */
-        H5_GCC_CLANG_DIAG_OFF("cast-qual")
-        ret_value = (void *)info->object; /* (Casting away const OK -QAK) */
-        H5_GCC_CLANG_DIAG_ON("cast-qual")
-    }
+        ret_value = info->u.object;
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5I_object() */
@@ -748,28 +701,22 @@ H5I_object(hid_t id)
  *                          specified ID.
  *              Failure:    NULL
  *
- * Programmer:  Quincey Koziol
- *              Wednesday, July 31, 2002
- *
  *-------------------------------------------------------------------------
  */
 void *
 H5I_object_verify(hid_t id, H5I_type_t type)
 {
     H5I_id_info_t *info      = NULL; /* Pointer to the ID info */
-    void *         ret_value = NULL; /* Return value */
+    void          *ret_value = NULL; /* Return value */
 
     FUNC_ENTER_NOAPI_NOERR
 
-    HDassert(type >= 1 && (int)type < H5I_next_type_g);
+    assert(type >= 1 && (int)type < H5I_next_type_g);
 
     /* Verify that the type of the ID is correct & lookup the ID */
-    if (type == H5I_TYPE(id) && NULL != (info = H5I__find_id(id))) {
+    if (type == H5I_TYPE(id) && NULL != (info = H5I__find_id(id)))
         /* Get the object pointer to return */
-        H5_GCC_CLANG_DIAG_OFF("cast-qual")
-        ret_value = (void *)info->object; /* (Casting away const OK -QAK) */
-        H5_GCC_CLANG_DIAG_ON("cast-qual")
-    }
+        ret_value = info->u.object;
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* H5I_object_verify() */
@@ -787,9 +734,6 @@ H5I_object_verify(hid_t id, H5I_type_t type)
  *                          ID types).
  *              Failure:    H5I_BADID
  *
- * Programmer:  Robb Matzke
- *              Friday, February 19, 1999
- *
  *-------------------------------------------------------------------------
  */
 H5I_type_t
@@ -802,7 +746,7 @@ H5I_get_type(hid_t id)
     if (id > 0)
         ret_value = H5I_TYPE(id);
 
-    HDassert(ret_value >= H5I_BADID && (int)ret_value < H5I_next_type_g);
+    assert(ret_value >= H5I_BADID && (int)ret_value < H5I_next_type_g);
 
     FUNC_LEAVE_NOAPI(ret_value)
 } /* end H5I_get_type() */
@@ -817,7 +761,7 @@ H5I_get_type(hid_t id)
  *              the ID was of the correct class since there's no
  *              H5I_OBJECT ID class.
  *
- * Return:      Success:    TRUE/FALSE
+ * Return:      Success:    true/false
  *              Failure:    FAIL
  *
  *-------------------------------------------------------------------------
@@ -828,17 +772,17 @@ H5I_is_file_object(hid_t id)
     H5I_type_t type      = H5I_get_type(id);
     htri_t     ret_value = FAIL;
 
-    FUNC_ENTER_NOAPI(FAIL);
+    FUNC_ENTER_NOAPI(FAIL)
 
     /* Fail if the ID type is out of range */
     if (type < 1 || type >= H5I_NTYPES)
         HGOTO_ERROR(H5E_ARGS, H5E_BADTYPE, FAIL, "ID type out of range");
 
-    /* Return TRUE if the ID is a file object (dataset, group, map, or committed
-     * datatype), FALSE otherwise.
+    /* Return true if the ID is a file object (dataset, group, map, or committed
+     * datatype), false otherwise.
      */
     if (H5I_DATASET == type || H5I_GROUP == type || H5I_MAP == type)
-        ret_value = TRUE;
+        ret_value = true;
     else if (H5I_DATATYPE == type) {
 
         H5T_t *dt = NULL;
@@ -849,10 +793,10 @@ H5I_is_file_object(hid_t id)
         ret_value = H5T_is_named(dt);
     }
     else
-        ret_value = FALSE;
+        ret_value = false;
 
 done:
-    FUNC_LEAVE_NOAPI(ret_value);
+    FUNC_LEAVE_NOAPI(ret_value)
 } /* H5I_is_file_object() */
 
 /*-------------------------------------------------------------------------
@@ -866,9 +810,6 @@ done:
  *                          calling H5I_object().
  *              Failure:    NULL
  *
- * Programmer:  James Laird
- *              Nat Furrer
- *
  *-------------------------------------------------------------------------
  */
 void *
@@ -876,7 +817,7 @@ H5I__remove_verify(hid_t id, H5I_type_t type)
 {
     void *ret_value = NULL; /*return value            */
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Argument checking will be performed by H5I_remove() */
 
@@ -897,43 +838,38 @@ H5I__remove_verify(hid_t id, H5I_type_t type)
  *                          calling H5I_object().
  *              Failure:    NULL
  *
- * Programmer:  Quincey Koziol
- *              October 3, 2013
- *
  *-------------------------------------------------------------------------
  */
 static void *
 H5I__remove_common(H5I_type_info_t *type_info, hid_t id)
 {
     H5I_id_info_t *info      = NULL; /* Pointer to the current ID */
-    void *         ret_value = NULL; /* Return value */
+    void          *ret_value = NULL; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(type_info);
+    assert(type_info);
 
     /* Delete or mark the node */
     HASH_FIND(hh, type_info->hash_table, &id, sizeof(hid_t), info);
     if (info) {
-        HDassert(!info->marked);
-        if (!H5I_marking_g)
+        assert(!info->marked);
+        if (!H5I_marking_s)
             HASH_DELETE(hh, type_info->hash_table, info);
         else
-            info->marked = TRUE;
+            info->marked = true;
     }
     else
-        HGOTO_ERROR(H5E_ID, H5E_CANTDELETE, NULL, "can't remove ID node from hash table")
+        HGOTO_ERROR(H5E_ID, H5E_CANTDELETE, NULL, "can't remove ID node from hash table");
 
     /* Check if this ID was the last one accessed */
     if (type_info->last_id_info == info)
         type_info->last_id_info = NULL;
 
-    H5_GCC_CLANG_DIAG_OFF("cast-qual")
-    ret_value = (void *)info->object; /* (Casting away const OK -QAK) */
-    H5_GCC_CLANG_DIAG_ON("cast-qual")
+    ret_value = info->u.object;
 
-    if (!H5I_marking_g)
+    if (!H5I_marking_s)
         info = H5FL_FREE(H5I_id_info_t, info);
 
     /* Decrement the number of IDs in the type */
@@ -960,21 +896,21 @@ H5I_remove(hid_t id)
 {
     H5I_type_info_t *type_info = NULL;      /* Pointer to the ID type */
     H5I_type_t       type      = H5I_BADID; /* ID's type */
-    void *           ret_value = NULL;      /* Return value */
+    void            *ret_value = NULL;      /* Return value */
 
     FUNC_ENTER_NOAPI(NULL)
 
     /* Check arguments */
     type = H5I_TYPE(id);
     if (type <= H5I_BADID || (int)type >= H5I_next_type_g)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, NULL, "invalid type number")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, NULL, "invalid type number");
     type_info = H5I_type_info_array_g[type];
     if (type_info == NULL || type_info->init_count <= 0)
-        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, NULL, "invalid type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, NULL, "invalid type");
 
     /* Remove the node from the type */
     if (NULL == (ret_value = H5I__remove_common(type_info, id)))
-        HGOTO_ERROR(H5E_ID, H5E_CANTDELETE, NULL, "can't remove ID node")
+        HGOTO_ERROR(H5E_ID, H5E_CANTDELETE, NULL, "can't remove ID node");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1002,14 +938,14 @@ H5I__dec_ref(hid_t id, void **request)
     H5I_id_info_t *info      = NULL; /* Pointer to the ID */
     int            ret_value = 0;    /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(id >= 0);
+    assert(id >= 0);
 
     /* General lookup of the ID */
     if (NULL == (info = H5I__find_id(id)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "can't locate ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "can't locate ID");
 
     /* If this is the last reference to the object then invoke the type's
      * free method on the object. If the free method is undefined or
@@ -1031,17 +967,14 @@ H5I__dec_ref(hid_t id, void **request)
         /* Get the ID's type */
         type_info = H5I_type_info_array_g[H5I_TYPE(id)];
 
-        H5_GCC_CLANG_DIAG_OFF("cast-qual")
-        /* (Casting away const OK -QAK) */
-        if (!type_info->cls->free_func || (type_info->cls->free_func)((void *)info->object, request) >= 0) {
+        if (!type_info->cls->free_func || (type_info->cls->free_func)(info->u.object, request) >= 0) {
             /* Remove the node from the type */
             if (NULL == H5I__remove_common(type_info, id))
-                HGOTO_ERROR(H5E_ID, H5E_CANTDELETE, (-1), "can't remove ID node")
+                HGOTO_ERROR(H5E_ID, H5E_CANTDELETE, (-1), "can't remove ID node");
             ret_value = 0;
         } /* end if */
         else
             ret_value = -1;
-        H5_GCC_CLANG_DIAG_ON("cast-qual")
     } /* end if */
     else {
         --(info->count);
@@ -1070,11 +1003,11 @@ H5I_dec_ref(hid_t id)
     FUNC_ENTER_NOAPI((-1))
 
     /* Sanity check */
-    HDassert(id >= 0);
+    assert(id >= 0);
 
     /* Synchronously decrement refcount on ID */
     if ((ret_value = H5I__dec_ref(id, H5_REQUEST_NULL)) < 0)
-        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't decrement ID ref count")
+        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't decrement ID ref count");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1099,14 +1032,14 @@ H5I__dec_app_ref(hid_t id, void **request)
 {
     int ret_value = 0; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(id >= 0);
+    assert(id >= 0);
 
     /* Call regular decrement reference count routine */
     if ((ret_value = H5I__dec_ref(id, request)) < 0)
-        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't decrement ID ref count")
+        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't decrement ID ref count");
 
     /* Check if the ID still exists */
     if (ret_value > 0) {
@@ -1114,11 +1047,11 @@ H5I__dec_app_ref(hid_t id, void **request)
 
         /* General lookup of the ID */
         if (NULL == (info = H5I__find_id(id)))
-            HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "can't locate ID")
+            HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "can't locate ID");
 
         /* Adjust app_ref */
         --(info->app_count);
-        HDassert(info->count >= info->app_count);
+        assert(info->count >= info->app_count);
 
         /* Set return value */
         ret_value = (int)info->app_count;
@@ -1137,9 +1070,6 @@ done:
  * Return:      Success:    New app. reference count
  *              Failure:    -1
  *
- * Programmer:  Quincey Koziol
- *              Sept 16, 2010
- *
  *-------------------------------------------------------------------------
  */
 int
@@ -1150,11 +1080,11 @@ H5I_dec_app_ref(hid_t id)
     FUNC_ENTER_NOAPI((-1))
 
     /* Sanity check */
-    HDassert(id >= 0);
+    assert(id >= 0);
 
     /* Synchronously decrement refcount on ID */
     if ((ret_value = H5I__dec_app_ref(id, H5_REQUEST_NULL)) < 0)
-        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't decrement ID ref count")
+        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't decrement ID ref count");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1172,9 +1102,6 @@ done:
  * Return:      Success:    New app. reference count
  *              Failure:    -1
  *
- * Programmer:  Houjun Tang
- *              Oct 21, 2019
- *
  *-------------------------------------------------------------------------
  */
 int
@@ -1185,11 +1112,11 @@ H5I_dec_app_ref_async(hid_t id, void **token)
     FUNC_ENTER_NOAPI((-1))
 
     /* Sanity check */
-    HDassert(id >= 0);
+    assert(id >= 0);
 
-    /* [Possibly] aynchronously decrement refcount on ID */
+    /* [Possibly] asynchronously decrement refcount on ID */
     if ((ret_value = H5I__dec_app_ref(id, token)) < 0)
-        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't asynchronously decrement ID ref count")
+        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't asynchronously decrement ID ref count");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1214,10 +1141,10 @@ H5I__dec_app_ref_always_close(hid_t id, void **request)
 {
     int ret_value = 0; /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(id >= 0);
+    assert(id >= 0);
 
     /* Call application decrement reference count routine */
     ret_value = H5I__dec_app_ref(id, request);
@@ -1232,7 +1159,7 @@ H5I__dec_app_ref_always_close(hid_t id, void **request)
          */
         H5I_remove(id);
 
-        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't decrement ID ref count")
+        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't decrement ID ref count");
     } /* end if */
 
 done:
@@ -1258,11 +1185,11 @@ H5I_dec_app_ref_always_close(hid_t id)
     FUNC_ENTER_NOAPI((-1))
 
     /* Sanity check */
-    HDassert(id >= 0);
+    assert(id >= 0);
 
     /* Synchronously decrement refcount on ID */
     if ((ret_value = H5I__dec_app_ref_always_close(id, H5_REQUEST_NULL)) < 0)
-        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't decrement ID ref count")
+        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't decrement ID ref count");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1290,11 +1217,11 @@ H5I_dec_app_ref_always_close_async(hid_t id, void **token)
     FUNC_ENTER_NOAPI((-1))
 
     /* Sanity check */
-    HDassert(id >= 0);
+    assert(id >= 0);
 
-    /* [Possibly] aynchronously decrement refcount on ID */
+    /* [Possibly] asynchronously decrement refcount on ID */
     if ((ret_value = H5I__dec_app_ref_always_close(id, token)) < 0)
-        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't asynchronously decrement ID ref count")
+        HGOTO_ERROR(H5E_ID, H5E_CANTDEC, (-1), "can't asynchronously decrement ID ref count");
 
 done:
     FUNC_LEAVE_NOAPI(ret_value)
@@ -1311,7 +1238,7 @@ done:
  *-------------------------------------------------------------------------
  */
 int
-H5I_inc_ref(hid_t id, hbool_t app_ref)
+H5I_inc_ref(hid_t id, bool app_ref)
 {
     H5I_id_info_t *info      = NULL; /* Pointer to the ID info */
     int            ret_value = 0;    /* Return value */
@@ -1319,11 +1246,11 @@ H5I_inc_ref(hid_t id, hbool_t app_ref)
     FUNC_ENTER_NOAPI((-1))
 
     /* Sanity check */
-    HDassert(id >= 0);
+    assert(id >= 0);
 
     /* General lookup of the ID */
     if (NULL == (info = H5I__find_id(id)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "can't locate ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "can't locate ID");
 
     /* Adjust reference counts */
     ++(info->count);
@@ -1348,7 +1275,7 @@ done:
  *-------------------------------------------------------------------------
  */
 int
-H5I_get_ref(hid_t id, hbool_t app_ref)
+H5I_get_ref(hid_t id, bool app_ref)
 {
     H5I_id_info_t *info      = NULL; /* Pointer to the ID */
     int            ret_value = 0;    /* Return value */
@@ -1356,11 +1283,11 @@ H5I_get_ref(hid_t id, hbool_t app_ref)
     FUNC_ENTER_NOAPI((-1))
 
     /* Sanity check */
-    HDassert(id >= 0);
+    assert(id >= 0);
 
     /* General lookup of the ID */
     if (NULL == (info = H5I__find_id(id)))
-        HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "can't locate ID")
+        HGOTO_ERROR(H5E_ID, H5E_BADID, (-1), "can't locate ID");
 
     /* Set return value */
     ret_value = (int)(app_ref ? info->app_count : info->count);
@@ -1385,15 +1312,15 @@ H5I__inc_type_ref(H5I_type_t type)
     H5I_type_info_t *type_info = NULL; /* Pointer to the type */
     int              ret_value = -1;   /* Return value */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(type > 0 && (int)type < H5I_next_type_g);
+    assert(type > 0 && (int)type < H5I_next_type_g);
 
     /* Check arguments */
     type_info = H5I_type_info_array_g[type];
     if (NULL == type_info)
-        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, (-1), "invalid type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, (-1), "invalid type");
 
     /* Set return value */
     ret_value = (int)(++(type_info->init_count));
@@ -1430,11 +1357,11 @@ H5I_dec_type_ref(H5I_type_t type)
     FUNC_ENTER_NOAPI((-1))
 
     if (type <= H5I_BADID || (int)type >= H5I_next_type_g)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, (-1), "invalid type number")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, (-1), "invalid type number");
 
     type_info = H5I_type_info_array_g[type];
     if (type_info == NULL || type_info->init_count <= 0)
-        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, (-1), "invalid type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, (-1), "invalid type");
 
     /* Decrement the number of users of the ID type.  If this is the
      * last user of the type then release all IDs from the type and
@@ -1471,15 +1398,15 @@ H5I__get_type_ref(H5I_type_t type)
     H5I_type_info_t *type_info = NULL; /* Pointer to the type  */
     int              ret_value = -1;   /* Return value         */
 
-    FUNC_ENTER_STATIC
+    FUNC_ENTER_PACKAGE
 
     /* Sanity check */
-    HDassert(type >= 0);
+    assert(type >= 0);
 
     /* Check arguments */
     type_info = H5I_type_info_array_g[type];
     if (!type_info)
-        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, (-1), "invalid type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, (-1), "invalid type");
 
     /* Set return value */
     ret_value = (int)type_info->init_count;
@@ -1503,26 +1430,24 @@ done:
 static int
 H5I__iterate_cb(void *_item, void H5_ATTR_UNUSED *_key, void *_udata)
 {
-    H5I_id_info_t *   info      = (H5I_id_info_t *)_item;     /* Pointer to the ID info */
+    H5I_id_info_t    *info      = (H5I_id_info_t *)_item;     /* Pointer to the ID info */
     H5I_iterate_ud_t *udata     = (H5I_iterate_ud_t *)_udata; /* User data for callback */
     int               ret_value = H5_ITER_CONT;               /* Callback return value */
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Only invoke the callback function if this ID is visible externally and
      * its reference count is positive.
      */
     if ((!udata->app_ref) || (info->app_count > 0)) {
         H5I_type_t type = udata->obj_type;
-        void *     object;
+        void      *object;
         herr_t     cb_ret_val;
 
         /* The stored object pointer might be an H5VL_object_t, in which
          * case we'll need to get the wrapped object struct (H5F_t *, etc.).
          */
-        H5_GCC_CLANG_DIAG_OFF("cast-qual")
-        object = H5I__unwrap((void *)info->object, type); /* Casting away const OK */
-        H5_GCC_CLANG_DIAG_ON("cast-qual")
+        object = H5I__unwrap(info->u.object, type);
 
         /* Invoke callback function */
         cb_ret_val = (*udata->user_func)((void *)object, info->id, udata->user_udata);
@@ -1541,7 +1466,7 @@ H5I__iterate_cb(void *_item, void H5_ATTR_UNUSED *_key, void *_udata)
  * Function:    H5I_iterate
  *
  * Purpose:     Apply function FUNC to each member of type TYPE (with
- *              non-zero application reference count if app_ref is TRUE).
+ *              non-zero application reference count if app_ref is true).
  *              Stop if FUNC returns a non zero value (i.e. anything
  *              other than H5_ITER_CONT).
  *
@@ -1563,7 +1488,7 @@ H5I__iterate_cb(void *_item, void H5_ATTR_UNUSED *_key, void *_udata)
  *-------------------------------------------------------------------------
  */
 herr_t
-H5I_iterate(H5I_type_t type, H5I_search_func_t func, void *udata, hbool_t app_ref)
+H5I_iterate(H5I_type_t type, H5I_search_func_t func, void *udata, bool app_ref)
 {
     H5I_type_info_t *type_info = NULL;    /* Pointer to the type */
     herr_t           ret_value = SUCCEED; /* Return value */
@@ -1572,14 +1497,14 @@ H5I_iterate(H5I_type_t type, H5I_search_func_t func, void *udata, hbool_t app_re
 
     /* Check arguments */
     if (type <= H5I_BADID || (int)type >= H5I_next_type_g)
-        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid type number")
+        HGOTO_ERROR(H5E_ARGS, H5E_BADRANGE, FAIL, "invalid type number");
     type_info = H5I_type_info_array_g[type];
 
     /* Only iterate through ID list if it is initialized and there are IDs in type */
     if (type_info && type_info->init_count > 0 && type_info->id_count > 0) {
         H5I_iterate_ud_t iter_udata; /* User data for iteration callback */
-        H5I_id_info_t *  item = NULL;
-        H5I_id_info_t *  tmp  = NULL;
+        H5I_id_info_t   *item = NULL;
+        H5I_id_info_t   *tmp  = NULL;
 
         /* Set up iterator user data */
         iter_udata.user_func  = func;
@@ -1593,7 +1518,7 @@ H5I_iterate(H5I_type_t type, H5I_search_func_t func, void *udata, hbool_t app_re
             if (!item->marked) {
                 int ret = H5I__iterate_cb((void *)item, NULL, (void *)&iter_udata);
                 if (H5_ITER_ERROR == ret)
-                    HGOTO_ERROR(H5E_ID, H5E_BADITER, FAIL, "iteration failed")
+                    HGOTO_ERROR(H5E_ID, H5E_BADITER, FAIL, "iteration failed");
                 if (H5_ITER_STOP == ret)
                     break;
             }
@@ -1621,18 +1546,18 @@ H5I__find_id(hid_t id)
 {
     H5I_type_t       type;             /* ID's type */
     H5I_type_info_t *type_info = NULL; /* Pointer to the type */
-    H5I_id_info_t *  id_info   = NULL; /* ID's info */
-    H5I_id_info_t *  ret_value = NULL; /* Return value */
+    H5I_id_info_t   *id_info   = NULL; /* ID's info */
+    H5I_id_info_t   *ret_value = NULL; /* Return value */
 
     FUNC_ENTER_PACKAGE_NOERR
 
     /* Check arguments */
     type = H5I_TYPE(id);
     if (type <= H5I_BADID || (int)type >= H5I_next_type_g)
-        HGOTO_DONE(NULL)
+        HGOTO_DONE(NULL);
     type_info = H5I_type_info_array_g[type];
     if (!type_info || type_info->init_count <= 0)
-        HGOTO_DONE(NULL)
+        HGOTO_DONE(NULL);
 
     /* Check for same ID as we have looked up last time */
     if (type_info->last_id_info && type_info->last_id_info->id == id)
@@ -1645,39 +1570,37 @@ H5I__find_id(hid_t id)
     }
 
     /* Check if this is a future ID */
-    H5_GCC_CLANG_DIAG_OFF("cast-qual")
     if (id_info && id_info->is_future) {
         hid_t actual_id = H5I_INVALID_HID; /* ID for actual object */
         void *future_object;               /* Pointer to the future object */
         void *actual_object;               /* Pointer to the actual object */
 
         /* Invoke the realize callback, to get the actual object */
-        if ((id_info->realize_cb)((void *)id_info->object, &actual_id) < 0)
-            HGOTO_DONE(NULL)
+        if ((id_info->realize_cb)(id_info->u.object, &actual_id) < 0)
+            HGOTO_DONE(NULL);
 
         /* Verify that we received a valid ID, of the same type */
         if (H5I_INVALID_HID == actual_id)
-            HGOTO_DONE(NULL)
+            HGOTO_DONE(NULL);
         if (H5I_TYPE(id) != H5I_TYPE(actual_id))
-            HGOTO_DONE(NULL)
+            HGOTO_DONE(NULL);
 
         /* Swap the actual object in for the future object */
-        future_object = (void *)id_info->object;
+        future_object = id_info->u.object;
         actual_object = H5I__remove_common(type_info, actual_id);
-        HDassert(actual_object);
-        id_info->object = actual_object;
+        assert(actual_object);
+        id_info->u.object = actual_object;
 
         /* Discard the future object */
         if ((id_info->discard_cb)(future_object) < 0)
-            HGOTO_DONE(NULL)
+            HGOTO_DONE(NULL);
         future_object = NULL;
 
         /* Change the ID from 'future' to 'actual' */
-        id_info->is_future  = FALSE;
+        id_info->is_future  = false;
         id_info->realize_cb = NULL;
         id_info->discard_cb = NULL;
     }
-    H5_GCC_CLANG_DIAG_ON("cast-qual")
 
     /* Set return value */
     ret_value = id_info;
@@ -1699,22 +1622,20 @@ done:
 static int
 H5I__find_id_cb(void *_item, void H5_ATTR_UNUSED *_key, void *_udata)
 {
-    H5I_id_info_t *  info      = (H5I_id_info_t *)_item;    /* Pointer to the ID info */
+    H5I_id_info_t   *info      = (H5I_id_info_t *)_item;    /* Pointer to the ID info */
     H5I_get_id_ud_t *udata     = (H5I_get_id_ud_t *)_udata; /* Pointer to user data */
     H5I_type_t       type      = udata->obj_type;
-    const void *     object    = NULL;
+    const void      *object    = NULL;
     int              ret_value = H5_ITER_CONT; /* Return value */
 
-    FUNC_ENTER_STATIC_NOERR
+    FUNC_ENTER_PACKAGE_NOERR
 
     /* Sanity check */
-    HDassert(info);
-    HDassert(udata);
+    assert(info);
+    assert(udata);
 
     /* Get a pointer to the VOL connector's data */
-    H5_GCC_CLANG_DIAG_OFF("cast-qual")
-    object = H5I__unwrap((void *)info->object, type); /* Casting away const OK */
-    H5_GCC_CLANG_DIAG_ON("cast-qual")
+    object = H5I__unwrap(info->u.object, type);
 
     /* Check for a match */
     if (object == udata->object) {
@@ -1744,19 +1665,19 @@ H5I_find_id(const void *object, H5I_type_t type, hid_t *id)
 
     FUNC_ENTER_NOAPI(FAIL)
 
-    HDassert(id);
+    assert(id);
 
     *id = H5I_INVALID_HID;
 
     type_info = H5I_type_info_array_g[type];
     if (!type_info || type_info->init_count <= 0)
-        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "invalid type")
+        HGOTO_ERROR(H5E_ID, H5E_BADGROUP, FAIL, "invalid type");
 
     /* Only iterate through ID list if it is initialized and there are IDs in type */
     if (type_info->init_count > 0 && type_info->id_count > 0) {
         H5I_get_id_ud_t udata; /* User data */
-        H5I_id_info_t * item = NULL;
-        H5I_id_info_t * tmp  = NULL;
+        H5I_id_info_t  *item = NULL;
+        H5I_id_info_t  *tmp  = NULL;
 
         /* Set up iterator user data */
         udata.object   = object;
@@ -1768,7 +1689,7 @@ H5I_find_id(const void *object, H5I_type_t type, hid_t *id)
         {
             int ret = H5I__find_id_cb((void *)item, NULL, (void *)&udata);
             if (H5_ITER_ERROR == ret)
-                HGOTO_ERROR(H5E_ID, H5E_BADITER, FAIL, "iteration failed")
+                HGOTO_ERROR(H5E_ID, H5E_BADITER, FAIL, "iteration failed");
             if (H5_ITER_STOP == ret)
                 break;
         }

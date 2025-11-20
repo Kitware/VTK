@@ -15,18 +15,12 @@
 -Winit-self
 -Winvalid-pch
 -Wmissing-include-dirs
-#
+-Wshadow
+-Wundef
+-Wwrite-strings
+-pedantic
 # NOTE: Due to the divergence in the C and C++, we're dropping support for
 # compiling the C library with a C++ compiler and dropping the -Wc++-compat
 # warning.
 #
 -Wno-c++-compat
-#
-# NOTE: Disable the -Wformat-nonliteral from -Wformat=2 here and re-add
-# it to the developer flags.
-#
--Wno-format-nonliteral
--Wshadow
--Wundef
--Wwrite-strings
--pedantic
