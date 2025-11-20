@@ -408,6 +408,7 @@
     - cmake -P .gitlab/ci/download_python.cmake
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\python;$env:PATH"
     - Set-Item -Force -Path "env:PYTHONHOME" -Value "$pwdpath\.gitlab\python"
+    - Set-Item -Force -Path "env:EMSDK_PYTHON" -Value "$pwdpath\.gitlab\python\python.exe"
     - cmake -P .gitlab/ci/download_node.cmake
     - Set-Item -Force -Path "env:NODE_DIR" -Value "$pwdpath\.gitlab\node"
     - Set-Item -Force -Path "env:PATH" -Value "$pwdpath\.gitlab\node;$env:PATH"
