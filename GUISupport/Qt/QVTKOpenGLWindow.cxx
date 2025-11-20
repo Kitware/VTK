@@ -324,6 +324,13 @@ bool QVTKOpenGLWindow::event(QEvent* evt)
   if (this->RenderWindowAdapter)
   {
     this->RenderWindowAdapter->handleEvent(evt);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    const auto t = evt->type();
+    if (t == QEvent::TouchBegin || t == QEvent::TouchUpdate || t == QEvent::TouchEnd)
+    {
+      return true;
+    }
+#endif
   }
 
   return this->Superclass::event(evt);

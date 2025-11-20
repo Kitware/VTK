@@ -585,6 +585,14 @@ bool QQuickVTKItem::event(QEvent* ev)
     });
 #endif
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+  const auto t = ev->type();
+  if (t == QEvent::TouchBegin || t == QEvent::TouchUpdate || t == QEvent::TouchEnd)
+  {
+    return true;
+  }
+#endif
+
   ev->accept();
 
   return true;
