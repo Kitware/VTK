@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExprTkFunctionParser.h"
+
+#include "vtkAssume.h"
 #include "vtkObjectFactory.h"
 #include "vtkStringFormatter.h"
 
@@ -992,15 +994,11 @@ void vtkExprTkFunctionParser::SetScalarVariableValue(
 //------------------------------------------------------------------------------
 void vtkExprTkFunctionParser::SetScalarVariableValue(int i, double value)
 {
-  if (i < 0 || i >= this->GetNumberOfScalarVariables())
+  if (VTK_UNLIKELY(i < 0 || i >= this->GetNumberOfScalarVariables()))
   {
     return;
   }
-
-  if (*this->ScalarVariableValues[i] != value)
-  {
-    *this->ScalarVariableValues[i] = value;
-  }
+  *this->ScalarVariableValues[i] = value;
 }
 
 //------------------------------------------------------------------------------
@@ -1094,17 +1092,12 @@ void vtkExprTkFunctionParser::SetVectorVariableValue(
 //------------------------------------------------------------------------------
 void vtkExprTkFunctionParser::SetVectorVariableValue(int i, double* values, int size)
 {
-  if (i < 0 || i >= this->GetNumberOfVectorVariables())
+  if (VTK_UNLIKELY(i < 0 || i >= this->GetNumberOfVectorVariables()))
   {
     return;
   }
-  this->VectorVariableValues[i]->resize(size);
-  bool isEqual = std::equal(
-    this->VectorVariableValues[i]->begin(), this->VectorVariableValues[i]->end(), values);
-  if (!isEqual)
-  {
-    std::copy_n(values, size, this->VectorVariableValues[i]->begin());
-  }
+  assert(this->VectorVariableValues[i]->size() == static_cast<size_t>(size));
+  std::copy_n(values, size, this->VectorVariableValues[i]->begin());
 }
 
 //------------------------------------------------------------------------------
