@@ -1535,6 +1535,38 @@ void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned 
     attribs.GetPressureArray().data(), grid.GetNumberOfCells());
 }
 
+bool ValidateNullMesh()
+{
+  std::array<double, 0> points{};
+  conduit_cpp::Node mesh;
+  mesh["coordsets/coords_0/type"] = "explicit";
+  mesh["coordsets/coords_0/values/x"].set_float64_ptr(points.data(), 0);
+  mesh["coordsets/coords_0/values/y"].set_float64_ptr(points.data(), 0);
+  mesh["coordsets/coords_0/values/z"].set_float64_ptr(points.data(), 0);
+
+  std::array<int, 0> conn{};
+  mesh["topologies/mesh_0/type"] = "unstructured";
+  mesh["topologies/mesh_0/coordset"] = "coords_0";
+  mesh["topologies/mesh_0/elements/shape"] = "point";
+  mesh["topologies/mesh_0/elements/connectivity"].set_int32_ptr(conn.data(), 0);
+
+  auto data = Convert(mesh);
+  auto pds = vtkPartitionedDataSet::SafeDownCast(data);
+  VERIFY(pds != nullptr, "Incorrect data type, expected vtkPartitionedDataSet, got %s",
+    vtkLogIdentifier(data));
+  VERIFY(pds->GetNumberOfPartitions() == 1, "Incorrect number of partitions, got %i",
+    pds->GetNumberOfPartitions());
+  auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
+  VERIFY(ug != nullptr, "Incorrect data type, expected vtkUnstructuredGrid, got %s",
+    vtkLogIdentifier(ug));
+  VERIFY(ug->GetNumberOfPoints() == 0, "Incorrect number of points, expected 0, got %i",
+    static_cast<int>(ug->GetNumberOfPoints()));
+  VERIFY(ug->GetNumberOfCells() == 0, "Incorrect number of points, expected 0, got %i",
+    static_cast<int>(ug->GetNumberOfCells()));
+
+  return true;
+}
+
 bool ValidatePolyhedra()
 {
   conduit_cpp::Node mesh;
@@ -1609,7 +1641,8 @@ int TestConduitSource(int argc, char** argv)
       ValidateRectilinearGridWithDifferentDimensions() && Validate1DRectilinearGrid() &&
       ValidateMeshTypeMixed() && ValidateMeshTypeMixed2D() && ValidateMeshTypeAMR(amrFile) &&
       ValidateAscentGhostCellData() && ValidateAscentGhostPointData() && ValidateMeshTypePoints() &&
-      ValidateDistributedAMR() && ValidatePolyhedra() && ValidateInterlacedArrays()
+      ValidateDistributedAMR() && ValidatePolyhedra() && ValidateInterlacedArrays() &&
+      ValidateNullMesh()
     ? EXIT_SUCCESS
     : EXIT_FAILURE;
 

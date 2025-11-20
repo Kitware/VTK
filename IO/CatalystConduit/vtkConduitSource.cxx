@@ -119,7 +119,7 @@ bool vtkConduitSource::GeneratePartitionedDataSet(vtkDataObject* output)
   vtkNew<vtkPartitionedDataSet> pd_output;
   if (!vtkConduitToDataObject::FillPartitionedDataSet(pd_output, this->Internals->Node))
   {
-    vtkLogF(ERROR, "Failed reading mesh from '%s'", this->Internals->Node.name().c_str());
+    vtkLogF(ERROR, "Failed to read mesh from '%s'", this->Internals->Node.name().c_str());
     output->Initialize();
     return false;
   }

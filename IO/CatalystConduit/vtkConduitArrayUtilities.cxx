@@ -374,7 +374,8 @@ vtkSmartPointer<vtkDataArray> vtkConduitArrayUtilities::MCArrayToVTKArray(
   auto deviceAdapterId = viskores::cont::make_DeviceAdapterId(id);
 #endif
 
-  if (conduit_cpp::BlueprintMcArray::is_interleaved(mcarray))
+  auto numTuples = mcarray.child(0).dtype().number_of_elements();
+  if (conduit_cpp::BlueprintMcArray::is_interleaved(mcarray) || numTuples == 0)
   {
     if (isDevicePointer)
     {
