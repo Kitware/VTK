@@ -6,12 +6,14 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridBase.h"
 
+#include <iostream>
+
 #define vtk_assert(x)                                                                              \
   do                                                                                               \
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << endl;             \
+      std::cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << std::endl;   \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
   } while (false)

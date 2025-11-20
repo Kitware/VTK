@@ -16,6 +16,8 @@
 #include <vtkSphereSource.h>
 #include <vtkTriangleFilter.h>
 
+#include <iostream>
+
 int TestIntersectionPolyDataFilter3(int, char*[])
 {
   vtkSmartPointer<vtkCubeSource> cubeSource = vtkSmartPointer<vtkCubeSource>::New();

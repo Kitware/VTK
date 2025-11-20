@@ -15,6 +15,8 @@
 #include <limits>
 #include <vector>
 
+#include <iostream>
+
 namespace
 {
 void PrintError(const vtkBoundingBox& box1, const vtkBoundingBox& box2)
@@ -22,11 +24,11 @@ void PrintError(const vtkBoundingBox& box1, const vtkBoundingBox& box2)
   double bds1[6], bds2[6];
   box1.GetBounds(bds1);
   box2.GetBounds(bds2);
-  cerr << "Error comparing bounding boxes." << endl;
-  cerr << "Expected: " << bds1[0] << " " << bds1[1] << " " << bds1[2] << " " << bds1[3] << " "
-       << bds1[4] << " " << bds1[5] << " " << endl;
-  cerr << "Got: " << bds2[0] << " " << bds2[1] << " " << bds2[2] << " " << bds2[3] << " " << bds2[4]
-       << " " << bds2[5] << " " << endl;
+  std::cerr << "Error comparing bounding boxes." << std::endl;
+  std::cerr << "Expected: " << bds1[0] << " " << bds1[1] << " " << bds1[2] << " " << bds1[3] << " "
+            << bds1[4] << " " << bds1[5] << " " << std::endl;
+  std::cerr << "Got: " << bds2[0] << " " << bds2[1] << " " << bds2[2] << " " << bds2[3] << " "
+            << bds2[4] << " " << bds2[5] << " " << std::endl;
 }
 
 // Test if the reduced cuts equals the reduced dataObj bounding box, taking into account the given

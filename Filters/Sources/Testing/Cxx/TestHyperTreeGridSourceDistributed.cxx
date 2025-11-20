@@ -11,6 +11,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 namespace
 {
 constexpr int NB_PROCS = 3;

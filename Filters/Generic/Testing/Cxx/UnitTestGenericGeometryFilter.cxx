@@ -18,6 +18,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 static vtkSmartPointer<vtkBridgeDataSet> CreatePolyData(int xres, int yres);
 static vtkSmartPointer<vtkBridgeDataSet> CreateVertexData();
 static vtkSmartPointer<vtkBridgeDataSet> CreateTetraData();

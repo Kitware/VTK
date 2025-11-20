@@ -17,6 +17,8 @@
 #include <vtkUnsignedLongArray.h>
 #include <vtkUnsignedShortArray.h>
 
+#include <iostream>
+
 template <typename T>
 vtkSmartPointer<T> MakeArray(const std::string& name);
 

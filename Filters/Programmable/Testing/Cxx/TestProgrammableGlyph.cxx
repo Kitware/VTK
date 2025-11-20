@@ -16,6 +16,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
 
+#include <iostream>
+
 void CalcGlyph(void* arg)
 {
 

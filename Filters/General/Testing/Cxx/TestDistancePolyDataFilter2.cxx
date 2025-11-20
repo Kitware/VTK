@@ -16,6 +16,8 @@
 #include <vtkScalarBarActor.h>
 #include <vtkSphereSource.h>
 
+#include <iostream>
+
 int TestDistancePolyDataFilter2(int, char*[])
 {
   vtkNew<vtkNamedColors> colors;

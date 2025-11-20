@@ -10,6 +10,8 @@
 
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 // randomly sampled data
 constexpr int N_random_list = 100;
@@ -97,13 +99,14 @@ int TestExtractHistogram(int, char*[])
   // towards their tasks.
   if (!TestBasicHistogramExtraction(table))
   {
-    cout << "## Failure: Basic histogram extraction does not match solution data!" << endl;
+    std::cout << "## Failure: Basic histogram extraction does not match solution data!"
+              << std::endl;
     return EXIT_FAILURE;
   }
 
   if (!TestHistogramNormalization(table))
   {
-    cout << "## Failure: Histogram normalization failed!" << endl;
+    std::cout << "## Failure: Histogram normalization failed!" << std::endl;
     return EXIT_FAILURE;
   }
 

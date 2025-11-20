@@ -15,33 +15,36 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLPPolyDataReader.h>
 
+#include <iostream>
+
 bool CheckOutput(vtkDataSet* output)
 {
   for (int i = 0; i < output->GetPointData()->GetArray("RTData")->GetNumberOfTuples(); i++)
   {
     if (output->GetPointData()->GetArray("RTData")->GetTuple1(i) > 1000)
     {
-      cerr << output->GetClassName() << " ";
-      cerr << __LINE__ << ": "
-           << "Ghost value is used instead of master value !" << endl;
+      std::cerr << output->GetClassName() << " ";
+      std::cerr << __LINE__ << ": "
+                << "Ghost value is used instead of master value !" << std::endl;
       return false;
     }
   }
 
   if (output->GetNumberOfPoints() != 98)
   {
-    cerr << output->GetClassName() << " ";
-    cerr << __LINE__ << ": "
-         << "Invalid number of points. Expected 98 but got " << output->GetNumberOfPoints() << endl;
+    std::cerr << output->GetClassName() << " ";
+    std::cerr << __LINE__ << ": "
+              << "Invalid number of points. Expected 98 but got " << output->GetNumberOfPoints()
+              << std::endl;
     return false;
   }
 
   if (output->GetPointData()->GetArray("RTData")->GetNumberOfTuples() != 98)
   {
-    cerr << output->GetClassName() << " ";
-    cerr << __LINE__ << ": "
-         << "Invalid point data array size. Expected 98 but got "
-         << output->GetPointData()->GetArray("RTData")->GetNumberOfTuples() << endl;
+    std::cerr << output->GetClassName() << " ";
+    std::cerr << __LINE__ << ": "
+              << "Invalid point data array size. Expected 98 but got "
+              << output->GetPointData()->GetArray("RTData")->GetNumberOfTuples() << std::endl;
     return false;
   }
 
@@ -74,19 +77,19 @@ int TestCleanPolyDataWithGhostCells(int argc, char* argv[])
   vtkDataSet* output = reader->GetOutput();
   if (output->GetNumberOfPoints() != 212)
   {
-    cerr << output->GetClassName() << " ";
-    cerr << __LINE__ << ": "
-         << "Invalid number of points. Expected 212 but got " << output->GetNumberOfPoints()
-         << endl;
+    std::cerr << output->GetClassName() << " ";
+    std::cerr << __LINE__ << ": "
+              << "Invalid number of points. Expected 212 but got " << output->GetNumberOfPoints()
+              << std::endl;
     return false;
   }
 
   if (output->GetPointData()->GetArray("RTData")->GetNumberOfTuples() != 212)
   {
-    cerr << output->GetClassName() << " ";
-    cerr << __LINE__ << ": "
-         << "Invalid point data array size. Expected 212 but got "
-         << output->GetPointData()->GetArray("RTData")->GetNumberOfTuples() << endl;
+    std::cerr << output->GetClassName() << " ";
+    std::cerr << __LINE__ << ": "
+              << "Invalid point data array size. Expected 212 but got "
+              << output->GetPointData()->GetArray("RTData")->GetNumberOfTuples() << std::endl;
     return false;
   }
 

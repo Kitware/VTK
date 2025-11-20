@@ -21,6 +21,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTesting.h"
 
+#include <iostream>
+
 int TestContourTriangulatorMarching(int argc, char* argv[])
 {
   vtkSmartPointer<vtkTesting> testHelper = vtkSmartPointer<vtkTesting>::New();

@@ -7,6 +7,8 @@
 #include "vtkSmartPointer.h"
 #include <array>
 
+#include <iostream>
+
 namespace
 {
 void InitializePolyData(vtkPolyData* polyData)

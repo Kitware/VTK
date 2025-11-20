@@ -12,6 +12,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
 
+#include <iostream>
+
 int TestIntersectionPolyDataFilter(int, char*[])
 {
   vtkSmartPointer<vtkSphereSource> sphereSource1 = vtkSmartPointer<vtkSphereSource>::New();

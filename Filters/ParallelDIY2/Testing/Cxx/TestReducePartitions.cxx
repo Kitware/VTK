@@ -31,6 +31,8 @@
 #include <vtkGroupDataSetsFilter.h>
 #include <vtk_mpi.h>
 
+#include <iostream>
+
 namespace
 {
 

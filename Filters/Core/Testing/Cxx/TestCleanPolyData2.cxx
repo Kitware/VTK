@@ -5,6 +5,8 @@
 #include <vtkCleanPolyData.h>
 #include <vtkSmartPointer.h>
 
+#include <iostream>
+
 namespace
 {
 vtkSmartPointer<vtkPolyData> ConstructLines()

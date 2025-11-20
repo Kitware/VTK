@@ -20,6 +20,8 @@
 
 #include <vtk_mpi.h>
 
+#include <iostream>
+
 int DIYAggregateDataSet(int argc, char* argv[])
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
@@ -43,7 +45,7 @@ int DIYAggregateDataSet(int argc, char* argv[])
   {
     if (me == 0)
     {
-      cout << "DIYAggregateDataSet test requires MPI" << endl;
+      std::cout << "DIYAggregateDataSet test requires MPI" << std::endl;
     }
     contr->Delete();
     return EXIT_FAILURE;

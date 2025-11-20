@@ -10,6 +10,8 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 
+#include <iostream>
+
 int TestLagrangianParticleTrackerWithGravity(int, char*[])
 {
   // 1/3 flow data

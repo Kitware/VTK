@@ -18,12 +18,14 @@
 #include <sstream>
 #include <string>
 
+#include <iostream>
+
 #define expect(x, msg)                                                                             \
   do                                                                                               \
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << "rank=" << rank << ", line=" << __LINE__ << ": " msg << endl;                        \
+      std::cerr << "rank=" << rank << ", line=" << __LINE__ << ": " msg << std::endl;              \
       return false;                                                                                \
     }                                                                                              \
   } while (false)
@@ -158,7 +160,7 @@ int TestPExtractDataArraysOverTime(int argc, char* argv[])
   vtkMultiProcessController* contr = vtkMultiProcessController::GetGlobalController();
   if (contr == nullptr || contr->GetNumberOfProcesses() != 2)
   {
-    cerr << "TestPExtractDataArraysOverTime requires 2 ranks." << endl;
+    std::cerr << "TestPExtractDataArraysOverTime requires 2 ranks." << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -193,7 +195,7 @@ int TestPExtractDataArraysOverTime(int argc, char* argv[])
         ValidateStats(vtkMultiBlockDataSet::SafeDownCast(extractor->GetOutputDataObject(0)),
           num_timesteps, myrank)))
   {
-    cerr << "ERROR: Failed to validate dataset at line: " << __LINE__ << endl;
+    std::cerr << "ERROR: Failed to validate dataset at line: " << __LINE__ << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -215,7 +217,7 @@ int TestPExtractDataArraysOverTime(int argc, char* argv[])
         ValidateGID(vtkMultiBlockDataSet::SafeDownCast(extractor->GetOutputDataObject(0)),
           num_timesteps, "gid=100", myrank)))
   {
-    cerr << "Failed to validate dataset at line: " << __LINE__ << endl;
+    std::cerr << "Failed to validate dataset at line: " << __LINE__ << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -226,7 +228,7 @@ int TestPExtractDataArraysOverTime(int argc, char* argv[])
         ValidateID(vtkMultiBlockDataSet::SafeDownCast(extractor->GetOutputDataObject(0)),
           num_timesteps, "originalId=99 block=2", myrank)))
   {
-    cerr << "Failed to validate dataset at line: " << __LINE__ << endl;
+    std::cerr << "Failed to validate dataset at line: " << __LINE__ << std::endl;
     return EXIT_FAILURE;
   }
 

@@ -99,6 +99,9 @@
 
 #ifdef USE_SHRINK
 #include "vtkShrinkFilter.h"
+
+#include <iostream>
+
 #endif
 
 int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
@@ -3851,7 +3854,7 @@ int TestUnstructuredGridGeometryFilter(int argc, char* argv[])
   }
 
   auto actor = vtkSmartPointer<vtkActor>::New();
-//  cout<<"prop="<<actor->GetProperty()->GetBackfaceCulling()<<endl;
+//  std::cout<<"prop="<<actor->GetProperty()->GetBackfaceCulling()<<std::endl;
 #ifdef USE_CULLING
   actor->GetProperty()->SetBackfaceCulling(1);
 #endif

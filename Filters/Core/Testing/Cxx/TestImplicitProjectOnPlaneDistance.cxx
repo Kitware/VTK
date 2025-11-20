@@ -21,6 +21,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 int TestImplicitProjectOnPlaneDistance(int argc, char* argv[])
 {
   char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/CuspySurface.vtp");

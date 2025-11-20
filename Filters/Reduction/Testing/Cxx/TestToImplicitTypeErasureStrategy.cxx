@@ -10,6 +10,8 @@
 #include <cstdlib>
 #include <random>
 
+#include <iostream>
+
 int TestToImplicitTypeErasureStrategy(int, char*[])
 {
   vtkNew<vtkIntArray> base;

@@ -21,6 +21,8 @@
 
 #include <memory>
 
+#include <iostream>
+
 namespace details
 {
 std::array<int, 4> modifiedData = { 42, 43, 44, 45 };

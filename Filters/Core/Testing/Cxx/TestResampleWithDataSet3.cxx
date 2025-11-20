@@ -25,6 +25,8 @@
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 
+#include <iostream>
+
 namespace
 {
 

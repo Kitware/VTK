@@ -12,6 +12,8 @@
 #include <cmath>
 #include <limits>
 
+#include <iostream>
+
 template <class A>
 bool fuzzyCompare1D(A a, A b)
 {

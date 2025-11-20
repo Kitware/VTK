@@ -14,6 +14,8 @@
 #include <vtkTemporalInterpolator.h>
 #include <vtkTestUtilities.h>
 
+#include <iostream>
+
 int TestTemporalInterpolatorFactorMode(int argc, char* argv[])
 {
   vtkNew<vtkIOSSReader> reader;

@@ -13,6 +13,9 @@
 #include "vtkTable.h"
 
 #include "vtkSmartPointer.h"
+
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])

@@ -18,6 +18,8 @@
 
 #include <limits>
 
+#include <iostream>
+
 /**
  * Test the behavior of vtkHyperTreeGridAxisCut when the cutting plane is coincident with some faces
  * of the HTG cells geometry. In such cases, the plan should be considered as "inside" if it is
@@ -36,7 +38,7 @@ int TestHyperTreeGrid3DAxisCutCoincidentPlane(int argc, char* argv[])
   vtkHyperTreeGrid* htg = htgReader->GetOutput();
   if (!htg)
   {
-    cerr << "Unable to read input HTG (" + filename + ")";
+    std::cerr << "Unable to read input HTG (" + filename + ")";
     return EXIT_FAILURE;
   }
   std::array<double, 6> bounds;
@@ -66,13 +68,13 @@ int TestHyperTreeGrid3DAxisCutCoincidentPlane(int argc, char* argv[])
     vtkHyperTreeGrid* cut = cutter->GetHyperTreeGridOutput();
     if (!cut)
     {
-      std::cerr << "Unable to retrieve the HTG cut " << i << "." << endl;
+      std::cerr << "Unable to retrieve the HTG cut " << i << "." << std::endl;
       return EXIT_FAILURE;
     }
     if (cut->GetNumberOfCells() != expectedNbOfCutCells[i])
     {
-      cerr << "Wrong number of cells in the HTG slice. Expected 110, got "
-           << cut->GetNumberOfCells() << endl;
+      std::cerr << "Wrong number of cells in the HTG slice. Expected 110, got "
+                << cut->GetNumberOfCells() << std::endl;
       return EXIT_FAILURE;
     }
 

@@ -30,6 +30,8 @@
 #include <map>
 #include <sstream>
 
+#include <iostream>
+
 static vtkSmartPointer<vtkDataSet> CreatePolyData(int xres, int yres);
 static vtkSmartPointer<vtkDataSet> CreateTriangleStripData(int xres, int yres);
 static vtkSmartPointer<vtkDataSet> CreateTetraData();

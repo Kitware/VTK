@@ -21,6 +21,8 @@
 #include "vtkXMLHyperTreeGridReader.h"
 #include "vtkXMLPolyDataReader.h"
 
+#include <iostream>
+
 int TestHyperTreeGridBinary3DContourImplicitInteger(int argc, char* argv[])
 {
   // Hyper tree grid containing integer cell data array

@@ -15,7 +15,9 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkWeakPointer.h>
 
-#include <vtkXMLUnstructuredGridWriter.h>
+// #include <vtkXMLUnstructuredGridWriter.h>
+
+#include <iostream>
 
 //------------------------------------------------------------------------------
 namespace

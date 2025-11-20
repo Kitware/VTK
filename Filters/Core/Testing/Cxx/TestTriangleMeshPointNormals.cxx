@@ -17,6 +17,8 @@
 #include "vtkTriangleMeshPointNormals.h"
 #include "vtkXMLPolyDataReader.h"
 
+#include <iostream>
+
 int TestTriangleMeshPointNormals(int argc, char* argv[])
 {
   char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp");

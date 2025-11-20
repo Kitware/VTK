@@ -15,6 +15,8 @@
 #include "vtkTimerLog.h"
 #include "vtkXMLMultiBlockDataWriter.h"
 
+#include <iostream>
+
 constexpr int EXTENT = 100;
 static int WholeExtent[] = { -EXTENT, EXTENT, -EXTENT, EXTENT, -EXTENT, EXTENT };
 constexpr int NUMBER_OF_PIECES = 50;
@@ -62,7 +64,7 @@ int TestSMPPipelineContour(int, char*[])
   vtkSMPTools::For(0, NUMBER_OF_PIECES, cid);
   tl->StopTimer();
 
-  cout << "Creation time: " << tl->GetElapsedTime() << endl;
+  std::cout << "Creation time: " << tl->GetElapsedTime() << std::endl;
 
   vtkNew<vtkMultiBlockDataSet> mbds;
   for (int i = 0; i < NUMBER_OF_PIECES; i++)
@@ -82,7 +84,7 @@ int TestSMPPipelineContour(int, char*[])
   cf->Update();
   tl->StopTimer();
 
-  cout << "Execution time: " << tl->GetElapsedTime() << endl;
+  std::cout << "Execution time: " << tl->GetElapsedTime() << std::endl;
 
   vtkIdType numCells = 0;
   vtkSmartPointer<vtkCompositeDataIterator> iter;
@@ -95,7 +97,7 @@ int TestSMPPipelineContour(int, char*[])
     iter->GoToNextItem();
   }
 
-  cout << "Total num. cells: " << numCells << endl;
+  std::cout << "Total num. cells: " << numCells << std::endl;
 
   vtkNew<vtkRTAnalyticSource> rt;
   rt->SetWholeExtent(-EXTENT, EXTENT, -EXTENT, EXTENT, -EXTENT, EXTENT);
@@ -110,13 +112,13 @@ int TestSMPPipelineContour(int, char*[])
   st->Update();
   tl->StopTimer();
 
-  cout << "Serial execution time: " << tl->GetElapsedTime() << endl;
+  std::cout << "Serial execution time: " << tl->GetElapsedTime() << std::endl;
 
-  cout << "Serial num. cells: " << st->GetOutput()->GetNumberOfCells() << endl;
+  std::cout << "Serial num. cells: " << st->GetOutput()->GetNumberOfCells() << std::endl;
 
   if (st->GetOutput()->GetNumberOfCells() != numCells)
   {
-    cout << "Number of cells did not match." << endl;
+    std::cout << "Number of cells did not match." << std::endl;
     return EXIT_FAILURE;
   }
 

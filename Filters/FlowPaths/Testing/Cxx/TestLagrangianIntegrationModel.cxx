@@ -2,10 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkLagrangianMatidaIntegrationModel.h"
 
-#include "vtkActor.h"
-#include "vtkBilinearQuadIntersection.h"
 #include "vtkCellData.h"
-#include "vtkDataSetMapper.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkDoubleArray.h"
@@ -14,19 +11,17 @@
 #include "vtkLagrangianParticle.h"
 #include "vtkLagrangianParticleTracker.h"
 #include "vtkLagrangianThreadedData.h"
-#include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
 #include "vtkPolyDataNormals.h"
 #include "vtkRTAnalyticSource.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
 #include "vtkStaticCellLocator.h"
 #include "vtkStringArray.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
+
+#include <iostream>
 
 bool doubleEquals(double a, double b, double epsilon = 0.001)
 {

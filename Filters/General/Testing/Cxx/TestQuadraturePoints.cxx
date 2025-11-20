@@ -45,6 +45,8 @@
 #include <cstdlib>
 #include <string>
 
+#include <iostream>
+
 // Generate a vector to warp by.
 int GenerateWarpVector(vtkDataSet*);
 // Generate a scalar to threshold by.

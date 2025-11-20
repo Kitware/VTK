@@ -13,6 +13,8 @@
 #include <vtkStructuredGrid.h>
 #include <vtkUnstructuredGrid.h>
 
+#include <iostream>
+
 // Test to ensure that field data is copied for different data types in vtkDataSetSurface
 
 namespace

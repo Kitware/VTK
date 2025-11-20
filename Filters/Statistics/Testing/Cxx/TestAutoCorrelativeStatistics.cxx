@@ -15,6 +15,8 @@
 #include "vtkTimerLog.h"
 #include "vtkVariantArray.h"
 
+#include <iostream>
+
 //=============================================================================
 int TestAutoCorrelativeStatistics(int, char*[])
 {
@@ -139,9 +141,9 @@ int TestAutoCorrelativeStatistics(int, char*[])
   vtkAutoCorrelativeStatistics* as1 = vtkAutoCorrelativeStatistics::New();
 
   // First verify that absence of input does not cause trouble
-  cout << "\n## Verifying that absence of input does not cause trouble... ";
+  std::cout << "\n## Verifying that absence of input does not cause trouble... ";
   as1->Update();
-  cout << "done.\n";
+  std::cout << "done.\n";
 
   // Prepare first test with data
   as1->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1);
@@ -170,7 +172,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   vtkMultiBlockDataSet* outputModelAS1 = vtkMultiBlockDataSet::SafeDownCast(
     as1->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
-  cout << "\n## Calculated the following statistics for first data set:\n";
+  std::cout << "\n## Calculated the following statistics for first data set:\n";
   for (unsigned b = 0; b < outputModelAS1->GetNumberOfBlocks(); ++b)
   {
     std::string varName = outputModelAS1->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
@@ -180,18 +182,18 @@ int TestAutoCorrelativeStatistics(int, char*[])
     {
       if (modelTab->GetNumberOfRows())
       {
-        cout << "\n   Autocorrelation FFT:\n";
+        std::cout << "\n   Autocorrelation FFT:\n";
         modelTab->Dump();
         continue;
       }
     }
 
-    cout << "   Variable=" << varName << "\n";
+    std::cout << "   Variable=" << varName << "\n";
 
-    cout << "   ";
+    std::cout << "   ";
     for (int i = 0; i < modelTab->GetNumberOfColumns(); ++i)
     {
-      cout << modelTab->GetColumnName(i) << "=" << modelTab->GetValue(0, i).ToString() << "  ";
+      std::cout << modelTab->GetColumnName(i) << "=" << modelTab->GetValue(0, i).ToString() << "  ";
     }
 
     // Verify some of the calculated statistics
@@ -213,7 +215,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
       testStatus = 1;
     }
 
-    cout << "\n";
+    std::cout << "\n";
   }
 
   // Test with a slight variation of initial data set (to test model aggregation)
@@ -267,7 +269,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   vtkMultiBlockDataSet* outputModelAS2 = vtkMultiBlockDataSet::SafeDownCast(
     as2->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
-  cout << "\n## Calculated the following statistics for second data set:\n";
+  std::cout << "\n## Calculated the following statistics for second data set:\n";
   for (unsigned b = 0; b < outputModelAS2->GetNumberOfBlocks(); ++b)
   {
     std::string varName = outputModelAS2->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
@@ -277,21 +279,21 @@ int TestAutoCorrelativeStatistics(int, char*[])
     {
       if (modelTab->GetNumberOfRows())
       {
-        cout << "\n   Autocorrelation FFT:\n";
+        std::cout << "\n   Autocorrelation FFT:\n";
         modelTab->Dump();
         continue;
       }
     }
 
-    cout << "\n   Variable=" << varName << "\n";
+    std::cout << "\n   Variable=" << varName << "\n";
 
-    cout << "   ";
+    std::cout << "   ";
     for (int i = 0; i < modelTab->GetNumberOfColumns(); ++i)
     {
-      cout << modelTab->GetColumnName(i) << "=" << modelTab->GetValue(0, i).ToString() << "  ";
+      std::cout << modelTab->GetColumnName(i) << "=" << modelTab->GetValue(0, i).ToString() << "  ";
     }
 
-    cout << "\n";
+    std::cout << "\n";
   }
 
   // Test model aggregation by adding new data to engine which already has a model
@@ -321,7 +323,8 @@ int TestAutoCorrelativeStatistics(int, char*[])
   outputModelAS1 = vtkMultiBlockDataSet::SafeDownCast(
     as1->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
-  cout << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
+  std::cout
+    << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
   for (unsigned b = 0; b < outputModelAS1->GetNumberOfBlocks(); ++b)
   {
     std::string varName = outputModelAS1->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
@@ -331,18 +334,18 @@ int TestAutoCorrelativeStatistics(int, char*[])
     {
       if (modelTab->GetNumberOfRows())
       {
-        cout << "\n   Autocorrelation FFT:\n";
+        std::cout << "\n   Autocorrelation FFT:\n";
         modelTab->Dump();
         continue;
       }
     }
 
-    cout << "\n   Variable=" << varName << "\n";
+    std::cout << "\n   Variable=" << varName << "\n";
 
-    cout << "   ";
+    std::cout << "   ";
     for (int i = 0; i < modelTab->GetNumberOfColumns(); ++i)
     {
-      cout << modelTab->GetColumnName(i) << "=" << modelTab->GetValue(0, i).ToString() << "  ";
+      std::cout << modelTab->GetColumnName(i) << "=" << modelTab->GetValue(0, i).ToString() << "  ";
     }
 
     // Verify some of the calculated statistics
@@ -358,7 +361,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
       testStatus = 1;
     }
 
-    cout << "\n";
+    std::cout << "\n";
   }
 
   // Clean up
@@ -462,7 +465,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
   vtkMultiBlockDataSet* outputModelAS3 = vtkMultiBlockDataSet::SafeDownCast(
     as3->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
-  cout << "\n## Calculated the following statistics for third data set:\n";
+  std::cout << "\n## Calculated the following statistics for third data set:\n";
   for (unsigned b = 0; b < outputModelAS3->GetNumberOfBlocks(); ++b)
   {
     std::string varName = outputModelAS3->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
@@ -472,20 +475,21 @@ int TestAutoCorrelativeStatistics(int, char*[])
     {
       if (modelTab->GetNumberOfRows())
       {
-        cout << "\n   Autocorrelation FFT:\n";
+        std::cout << "\n   Autocorrelation FFT:\n";
         modelTab->Dump();
         continue;
       }
     }
 
-    cout << "\n   Variable=" << varName << "\n";
+    std::cout << "\n   Variable=" << varName << "\n";
 
     for (int r = 0; r < modelTab->GetNumberOfRows(); ++r)
     {
-      cout << "   ";
+      std::cout << "   ";
       for (int i = 0; i < modelTab->GetNumberOfColumns(); ++i)
       {
-        cout << modelTab->GetColumnName(i) << "=" << modelTab->GetValue(r, i).ToString() << "  ";
+        std::cout << modelTab->GetColumnName(i) << "=" << modelTab->GetValue(r, i).ToString()
+                  << "  ";
       }
 
       // Verify some of the calculated statistics
@@ -502,7 +506,7 @@ int TestAutoCorrelativeStatistics(int, char*[])
         testStatus = 1;
       }
 
-      cout << "\n";
+      std::cout << "\n";
     } // i
   }   // r
 

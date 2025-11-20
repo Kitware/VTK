@@ -13,6 +13,8 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 int TestThreshold(int, char*[])
 {
   //---------------------------------------------------

@@ -17,6 +17,8 @@
 #include <random>
 #include <sstream>
 
+#include <iostream>
+
 static vtkSmartPointer<vtkPolyData> MakePolyData(unsigned int numPoints);
 static vtkSmartPointer<vtkImageData> MakeImageData(unsigned int dim);
 

@@ -35,6 +35,8 @@
 #include <limits>
 #include <vector>
 
+#include <iostream>
+
 #define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
 // The 3D cell with the maximum number of points is VTK_LAGRANGE_HEXAHEDRON.

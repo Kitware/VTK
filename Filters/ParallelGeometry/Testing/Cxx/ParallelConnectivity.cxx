@@ -19,6 +19,8 @@
 
 #include <vtk_mpi.h>
 
+#include <iostream>
+
 int RunParallelConnectivity(
   const char* fname, vtkAlgorithm::DesiredOutputPrecision precision, vtkMPIController* contr)
 {

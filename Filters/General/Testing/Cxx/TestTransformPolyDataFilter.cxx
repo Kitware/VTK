@@ -7,6 +7,8 @@
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
 
+#include <iostream>
+
 namespace
 {
 void InitializePolyData(vtkPolyData* polyData, int dataType)

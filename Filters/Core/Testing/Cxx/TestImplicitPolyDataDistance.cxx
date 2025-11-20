@@ -5,7 +5,6 @@
 #include "vtkGlyph3D.h"
 #include "vtkImplicitPolyDataDistance.h"
 #include "vtkNew.h"
-#include "vtkPlaneSource.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
@@ -17,7 +16,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 
-#include <vector>
+#include <iostream>
 
 int TestImplicitPolyDataDistance(int argc, char* argv[])
 {

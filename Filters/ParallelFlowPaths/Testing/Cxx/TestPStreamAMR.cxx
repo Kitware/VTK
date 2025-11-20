@@ -21,6 +21,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkUniformGrid.h"
 
+#include <iostream>
+
 inline double ComputeLength(vtkIdList* poly, vtkPoints* pts)
 {
   int n = poly->GetNumberOfIds();
@@ -219,7 +221,7 @@ int TestPStreamAMR(int argc, char* argv[])
 
   if (Rank == 0)
   {
-    cout << "Trace Length: " << totalLengthAll << endl;
+    std::cout << "Trace Length: " << totalLengthAll << std::endl;
   }
   res = (totalLengthAll - 17.18) / 17.18 < 0.01;
 

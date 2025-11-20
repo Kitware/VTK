@@ -19,6 +19,8 @@
 #include <limits>
 #include <sstream>
 
+#include <iostream>
+
 //=============================================================================
 int TestKMeansStatistics(int, char*[])
 {
@@ -115,9 +117,9 @@ int TestKMeansStatistics(int, char*[])
   vtkKMeansStatistics* haruspex = vtkKMeansStatistics::New();
 
   // First verify that absence of input does not cause trouble
-  cout << "## Verifying that absence of input does not cause trouble... ";
+  std::cout << "## Verifying that absence of input does not cause trouble... ";
   haruspex->Update();
-  cout << "done.\n";
+  std::cout << "done.\n";
 
   // Prepare first test with data
   haruspex->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, inputData);
@@ -149,7 +151,7 @@ int TestKMeansStatistics(int, char*[])
         testIntValue += outputMeta->GetValueByName(r, "Cardinality").ToInt();
       }
 
-      cout << "## Computed clusters (cardinality: " << testIntValue << " / run):\n";
+      std::cout << "## Computed clusters (cardinality: " << testIntValue << " / run):\n";
 
       if (testIntValue != nVals - numberOfGhosts)
       {
@@ -160,20 +162,20 @@ int TestKMeansStatistics(int, char*[])
     }
     else
     {
-      cout << "## Ranked cluster: "
-           << "\n";
+      std::cout << "## Ranked cluster: "
+                << "\n";
     }
 
     outputMeta->Dump();
-    cout << "\n";
+    std::cout << "\n";
   }
 
   haruspex->SetInputData(vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData);
-  cout << "## Testing with input table:"
-       << "\n";
+  std::cout << "## Testing with input table:"
+            << "\n";
 
   paramData->Dump();
-  cout << "\n";
+  std::cout << "\n";
 
   // Test Assess option only
   haruspex->SetLearnOption(true);
@@ -208,7 +210,7 @@ int TestKMeansStatistics(int, char*[])
         testStatus = 1;
       }
 
-      cout << "## Computed clusters (cardinality: " << testIntValue << " / run):\n";
+      std::cout << "## Computed clusters (cardinality: " << testIntValue << " / run):\n";
 
       if (testIntValue != nVals - numberOfGhosts)
       {
@@ -219,15 +221,15 @@ int TestKMeansStatistics(int, char*[])
     }
     else
     {
-      cout << "## Ranked cluster: "
-           << "\n";
+      std::cout << "## Ranked cluster: "
+                << "\n";
     }
 
     outputMeta->Dump();
-    cout << "\n";
+    std::cout << "\n";
   }
 
-  cout << "=================== ASSESS ==================== " << endl;
+  std::cout << "=================== ASSESS ==================== " << std::endl;
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
   paramsTables->ShallowCopy(outputMetaDS);
 

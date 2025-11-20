@@ -18,6 +18,8 @@
 #include <vtkTexture.h>
 #include <vtkTubeFilter.h>
 
+#include <iostream>
+
 namespace
 {
 void InitializePolyData(vtkPolyData* polyData, int dataType)

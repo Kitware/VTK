@@ -19,6 +19,8 @@
 #include <cmath>
 #include <sstream>
 
+#include <iostream>
+
 // #define DEBUG
 
 double exponential_distribution(const int i, const double beta)

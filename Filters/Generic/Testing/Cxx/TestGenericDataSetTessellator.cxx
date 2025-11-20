@@ -19,10 +19,8 @@
 #include "vtkBridgeDataSet.h"
 #include "vtkCommand.h"
 #include "vtkDataSetMapper.h"
-#include "vtkDebugLeaks.h"
 #include "vtkGenericCellTessellator.h"
 #include "vtkGenericDataSetTessellator.h"
-#include "vtkGenericSubdivisionErrorMetric.h"
 #include "vtkGeometricErrorMetric.h"
 #include "vtkLabeledDataMapper.h"
 #include "vtkLookupTable.h"
@@ -36,7 +34,9 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
+
 #include <cassert>
+#include <iostream>
 
 #ifdef WITH_GEOMETRY_FILTER
 #include "vtkGeometryFilter.h"
@@ -126,11 +126,11 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
 
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
-  cout << "input unstructured grid: " << ds << endl;
+  std::cout << "input unstructured grid: " << ds << std::endl;
 
   static_cast<vtkSimpleCellTessellator*>(ds->GetTessellator())->SetSubdivisionLevels(0, 100);
   vtkIndent indent;
-  ds->PrintSelf(cout, indent);
+  ds->PrintSelf(std::cout, indent);
 
   // Create the filter
   vtkGenericDataSetTessellator* tessellator = vtkGenericDataSetTessellator::New();
@@ -216,7 +216,7 @@ int TestGenericDataSetTessellator(int argc, char* argv[])
   renWin->SetSize(300, 300);
   renWin->Render();
 
-  tessellator->GetOutput()->PrintSelf(cout, indent);
+  tessellator->GetOutput()->PrintSelf(std::cout, indent);
 
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

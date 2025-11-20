@@ -17,6 +17,8 @@
 #include "vtkTestErrorObserver.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 static void TestPrint();
 static int TestErrorsAndWarnings();
 static int TestFilter(int, int);

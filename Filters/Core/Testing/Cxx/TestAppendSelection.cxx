@@ -14,6 +14,8 @@
 #include "vtkSelectionSource.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int SelectionCompare(vtkSelectionNode* a, vtkSelectionNode* b)
 {
   int errors = 0;
@@ -21,24 +23,24 @@ int SelectionCompare(vtkSelectionNode* a, vtkSelectionNode* b)
   vtkIdTypeArray* blist = vtkArrayDownCast<vtkIdTypeArray>(b->GetSelectionList());
   if (a->GetContentType() != b->GetContentType())
   {
-    cerr << "ERROR: Content type does not match." << endl;
+    std::cerr << "ERROR: Content type does not match." << std::endl;
     errors++;
   }
   if (a->GetContentType() == vtkSelectionNode::VALUES)
   {
     if (!alist->GetName() || !blist->GetName() || strcmp(alist->GetName(), blist->GetName()) != 0)
     {
-      cerr << "ERROR: The array names do not match." << endl;
+      std::cerr << "ERROR: The array names do not match." << std::endl;
     }
   }
   if (a->GetFieldType() != b->GetFieldType())
   {
-    cerr << "ERROR: Field type does not match." << endl;
+    std::cerr << "ERROR: Field type does not match." << std::endl;
     errors++;
   }
   if ((alist && !blist) || (!alist && blist))
   {
-    cerr << "ERROR: One has a selection list while the other does not." << endl;
+    std::cerr << "ERROR: One has a selection list while the other does not." << std::endl;
     errors++;
   }
   if (alist && blist)
@@ -49,14 +51,14 @@ int SelectionCompare(vtkSelectionNode* a, vtkSelectionNode* b)
     vtkIdType bnumTuples = blist->GetNumberOfTuples();
     if (numTuples != bnumTuples)
     {
-      cerr << "ERROR: The number of tuples in the selection list do not match (" << numTuples
-           << "!=" << bnumTuples << ")." << endl;
+      std::cerr << "ERROR: The number of tuples in the selection list do not match (" << numTuples
+                << "!=" << bnumTuples << ")." << std::endl;
       errors++;
     }
     else if (numComps != bnumComps)
     {
-      cerr << "ERROR: The number of components in the selection list do not match (" << numComps
-           << "!=" << bnumComps << ")." << endl;
+      std::cerr << "ERROR: The number of components in the selection list do not match ("
+                << numComps << "!=" << bnumComps << ")." << std::endl;
       errors++;
     }
     else
@@ -65,8 +67,8 @@ int SelectionCompare(vtkSelectionNode* a, vtkSelectionNode* b)
       {
         if (alist->GetValue(i) != blist->GetValue(i))
         {
-          cerr << "ERROR: Selection lists do not match at sel " << i << "(" << alist->GetValue(i)
-               << " != " << blist->GetValue(i) << ")." << endl;
+          std::cerr << "ERROR: Selection lists do not match at sel " << i << "("
+                    << alist->GetValue(i) << " != " << blist->GetValue(i) << ")." << std::endl;
           errors++;
           break;
         }
@@ -81,7 +83,7 @@ int SelectionCompare(vtkSelection* a, vtkSelection* b)
   int errors = 0;
   if (a->GetNumberOfNodes() != b->GetNumberOfNodes())
   {
-    cerr << "ERROR: Number of nodes do not match." << endl;
+    std::cerr << "ERROR: Number of nodes do not match." << std::endl;
     errors++;
   }
   else
@@ -109,7 +111,7 @@ int TestAppendSelection(int argc, char* argv[])
   int errors = 0;
 
   {
-    cerr << "Testing appending cell-indices selections ..." << endl;
+    std::cerr << "Testing appending cell-indices selections ..." << std::endl;
     vtkNew<vtkSelection> sel1;
     vtkNew<vtkSelectionNode> sel1Node;
     vtkNew<vtkIdTypeArray> sel1Arr;
@@ -144,11 +146,11 @@ int TestAppendSelection(int argc, char* argv[])
     selAppendArr->InsertNextValue(4);
     selAppendArr->InsertNextValue(5);
     errors += TestAppendSelectionCase(sel1, sel2, selAppend);
-    cerr << "... done." << endl;
+    std::cerr << "... done." << std::endl;
   }
 
   {
-    cerr << "Testing appending cell-values selections ..." << endl;
+    std::cerr << "Testing appending cell-values selections ..." << std::endl;
     vtkNew<vtkSelection> sel1;
     vtkNew<vtkSelectionNode> sel1Node;
     vtkNew<vtkIdTypeArray> sel1Arr;
@@ -186,11 +188,12 @@ int TestAppendSelection(int argc, char* argv[])
     selAppendArr->InsertNextValue(4);
     selAppendArr->InsertNextValue(5);
     errors += TestAppendSelectionCase(sel1, sel2, selAppend);
-    cerr << "... done." << endl;
+    std::cerr << "... done." << std::endl;
   }
 
   {
-    cerr << "Testing appending cell-indices selections with different process ids..." << endl;
+    std::cerr << "Testing appending cell-indices selections with different process ids..."
+              << std::endl;
     vtkNew<vtkSelection> sel1;
     vtkNew<vtkSelectionNode> sel1Node;
     vtkNew<vtkIdTypeArray> sel1Arr;
@@ -217,11 +220,11 @@ int TestAppendSelection(int argc, char* argv[])
     selAppend->AddNode(sel1Node);
     selAppend->AddNode(sel2Node);
     errors += TestAppendSelectionCase(sel1, sel2, selAppend);
-    cerr << "... done." << endl;
+    std::cerr << "... done." << std::endl;
   }
 
   {
-    cerr << "Testing appending cell-indices selections with expression..." << endl;
+    std::cerr << "Testing appending cell-indices selections with expression..." << std::endl;
     // create first selection
     vtkNew<vtkSelectionSource> sel1;
     sel1->SetNumberOfNodes(2);
@@ -284,7 +287,7 @@ int TestAppendSelection(int argc, char* argv[])
     extract->Update();
     auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(extract->GetOutput());
     errors += pdc->GetNumberOfCells() != 6;
-    cerr << "... done." << endl;
+    std::cerr << "... done." << std::endl;
   }
 
   return errors;

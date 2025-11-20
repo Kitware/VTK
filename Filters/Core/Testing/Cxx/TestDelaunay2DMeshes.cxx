@@ -16,6 +16,8 @@
 #include "vtkTriangle.h"
 #include "vtkXMLPolyDataReader.h"
 
+#include <iostream>
+
 #define VTK_FAILURE 1
 
 bool CompareMeshes(vtkPolyData* p1, vtkPolyData* p2)
@@ -185,7 +187,7 @@ int TestDelaunay2DMeshes(int argc, char* argv[])
   char* data_dir = vtkTestUtilities::GetDataRoot(argc, argv);
   if (!data_dir)
   {
-    cerr << "Could not determine data directory." << endl;
+    std::cerr << "Could not determine data directory." << std::endl;
     return VTK_FAILURE;
   }
 

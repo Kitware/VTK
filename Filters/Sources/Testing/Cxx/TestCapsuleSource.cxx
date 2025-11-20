@@ -9,6 +9,8 @@
 
 #include <cassert>
 
+#include <iostream>
+
 int TestCapsuleSource(int, char*[])
 {
   vtkSmartPointer<vtkCylinderSource> capsuleSource = vtkSmartPointer<vtkCylinderSource>::New();

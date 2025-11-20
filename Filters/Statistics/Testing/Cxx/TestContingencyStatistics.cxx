@@ -13,6 +13,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 //=============================================================================
 int TestContingencyStatistics(int, char*[])
 {
@@ -92,9 +94,9 @@ int TestContingencyStatistics(int, char*[])
   vtkContingencyStatistics* cs = vtkContingencyStatistics::New();
 
   // First verify that absence of input does not cause trouble
-  cout << "## Verifying that absence of input does not cause trouble... ";
+  std::cout << "## Verifying that absence of input does not cause trouble... ";
   cs->Update();
-  cout << "done.\n";
+  std::cout << "done.\n";
 
   // Prepare first test with data
   cs->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, datasetTable);
@@ -130,7 +132,7 @@ int TestContingencyStatistics(int, char*[])
   double testDoubleValue = 0;
 
   vtkIdType n = outputContingency->GetValueByName(0, "Cardinality").ToInt();
-  cout << "## Calculated the following information entropies (grand total: " << n << "):\n";
+  std::cout << "## Calculated the following information entropies (grand total: " << n << "):\n";
 
   testIntValue = outputSummary->GetNumberOfColumns();
 
@@ -146,17 +148,17 @@ int TestContingencyStatistics(int, char*[])
     for (vtkIdType r = 0; r < outputSummary->GetNumberOfRows(); ++r)
     {
       // Variable names
-      cout << "   (X,Y) = (" << outputSummary->GetValue(r, 0).ToString() << ", "
-           << outputSummary->GetValue(r, 1).ToString() << ")";
+      std::cout << "   (X,Y) = (" << outputSummary->GetValue(r, 0).ToString() << ", "
+                << outputSummary->GetValue(r, 1).ToString() << ")";
 
       // Information entropies
       for (vtkIdType c = 0; c < nEntropies; ++c)
       {
         H[c] = outputSummary->GetValue(r, iEntropies[c]).ToDouble();
 
-        cout << ", " << outputSummary->GetColumnName(iEntropies[c]) << "=" << H[c];
+        std::cout << ", " << outputSummary->GetColumnName(iEntropies[c]) << "=" << H[c];
       }
-      cout << "\n";
+      std::cout << "\n";
 
       // Make sure that H(X,Y) > H(Y|X)+ H(X|Y)
       testDoubleValue = H[1] + H[2]; // H(Y|X)+ H(X|Y)
@@ -169,12 +171,13 @@ int TestContingencyStatistics(int, char*[])
       }
     }
   }
-  cout << "   where H(X,Y) = - Sum_{x,y} p(x,y) log p(x,y) and H(X|Y) = - Sum_{x,y} p(x,y) log "
-          "p(x|y).\n";
+  std::cout
+    << "   where H(X,Y) = - Sum_{x,y} p(x,y) log p(x,y) and H(X|Y) = - Sum_{x,y} p(x,y) log "
+       "p(x|y).\n";
 
-  cout << "\n";
+  std::cout << "\n";
 
-  cout
+  std::cout
     << "## Calculated the following joint and conditional probabilities and mutual information:\n";
   testIntValue = 0;
 
@@ -183,18 +186,18 @@ int TestContingencyStatistics(int, char*[])
   for (vtkIdType r = 1; r < outputContingency->GetNumberOfRows(); ++r)
   {
     key = outputContingency->GetValue(r, 0).ToInt();
-    cout << "   (" << outputSummary->GetValue(key, 0).ToString() << ","
-         << outputSummary->GetValue(key, 1).ToString() << ") = ("
-         << outputContingency->GetValue(r, 1).ToString() << ","
-         << outputContingency->GetValue(r, 2).ToString() << ")";
+    std::cout << "   (" << outputSummary->GetValue(key, 0).ToString() << ","
+              << outputSummary->GetValue(key, 1).ToString() << ") = ("
+              << outputContingency->GetValue(r, 1).ToString() << ","
+              << outputContingency->GetValue(r, 2).ToString() << ")";
 
     for (vtkIdType c = 3; c < outputContingency->GetNumberOfColumns(); ++c)
     {
-      cout << ", " << outputContingency->GetColumnName(c) << "="
-           << outputContingency->GetValue(r, c).ToDouble();
+      std::cout << ", " << outputContingency->GetColumnName(c) << "="
+                << outputContingency->GetValue(r, c).ToDouble();
     }
 
-    cout << "\n";
+    std::cout << "\n";
 
     // Update total cardinality
     testIntValue += outputContingency->GetValueByName(r, "Cardinality").ToInt();
@@ -206,9 +209,9 @@ int TestContingencyStatistics(int, char*[])
       << testIntValue << " != " << nVals * nMetricPairs << ".");
     testStatus = 1;
   }
-  cout << "\n";
+  std::cout << "\n";
 
-  cout << "## Calculated the following marginal probabilities:\n";
+  std::cout << "## Calculated the following marginal probabilities:\n";
   testIntValue = 0;
 
   for (unsigned int b = 2; b < outputModelDS->GetNumberOfBlocks(); ++b)
@@ -217,14 +220,14 @@ int TestContingencyStatistics(int, char*[])
 
     for (vtkIdType r = 0; r < outputContingency->GetNumberOfRows(); ++r)
     {
-      cout << "   " << outputContingency->GetColumnName(0) << " = "
-           << outputContingency->GetValue(r, 0).ToString() << ", "
-           << outputContingency->GetColumnName(1) << "="
-           << outputContingency->GetValue(r, 1).ToDouble() << ", "
-           << outputContingency->GetColumnName(2) << "="
-           << outputContingency->GetValue(r, 2).ToDouble() << "\n";
+      std::cout << "   " << outputContingency->GetColumnName(0) << " = "
+                << outputContingency->GetValue(r, 0).ToString() << ", "
+                << outputContingency->GetColumnName(1) << "="
+                << outputContingency->GetValue(r, 1).ToDouble() << ", "
+                << outputContingency->GetColumnName(2) << "="
+                << outputContingency->GetValue(r, 2).ToDouble() << "\n";
     }
-    cout << "\n";
+    std::cout << "\n";
 
     // Update total cardinality
     testIntValue += 0; // outputContingency->GetValueByName( r, "Cardinality" ).ToInt();
@@ -248,8 +251,8 @@ int TestContingencyStatistics(int, char*[])
   {
     std::string colName = outlierColumn[i] + "(" + varX + "," + varY + ")";
 
-    cout << "## Found the following outliers such that " << colName << " < " << threshold[i]
-         << ":\n";
+    std::cout << "## Found the following outliers such that " << colName << " < " << threshold[i]
+              << ":\n";
 
     double val;
     testIntValue = 0;
@@ -263,9 +266,9 @@ int TestContingencyStatistics(int, char*[])
 
       ++testIntValue;
 
-      cout << "   " << outlierColumn[i] << "("
-           << outputData->GetValueByName(r, varX.c_str()).ToString() << ","
-           << outputData->GetValueByName(r, varY.c_str()).ToString() << ") = " << val << "\n";
+      std::cout << "   " << outlierColumn[i] << "("
+                << outputData->GetValueByName(r, varX.c_str()).ToString() << ","
+                << outputData->GetValueByName(r, varY.c_str()).ToString() << ") = " << val << "\n";
     }
 
     if (testIntValue != nOutliers[i])
@@ -274,11 +277,11 @@ int TestContingencyStatistics(int, char*[])
                                                                           << nOutliers[i] << ".");
       testStatus = 1;
     }
-    cout << "\n";
+    std::cout << "\n";
   }
 
   // Last, check some results of the Test option
-  cout << "## Chi square statistics:\n";
+  std::cout << "## Chi square statistics:\n";
 
   // Reference values
   double testValues[] = {
@@ -310,13 +313,13 @@ int TestContingencyStatistics(int, char*[])
   // Loop over Test table
   for (vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++r)
   {
-    cout << "   (" << outputSummary->GetValue(r, 0).ToString() << ","
-         << outputSummary->GetValue(r, 1).ToString() << ")";
+    std::cout << "   (" << outputSummary->GetValue(r, 0).ToString() << ","
+              << outputSummary->GetValue(r, 1).ToString() << ")";
 
     for (vtkIdType c = 0; c < nv; ++c)
     {
       double x = outputTest->GetValue(r, c).ToDouble();
-      cout << ", " << outputTest->GetColumnName(c) << "=" << x;
+      std::cout << ", " << outputTest->GetColumnName(c) << "=" << x;
 
       // Verify calculated results
       if (fabs(x - testValues[r * nv + c]) > 1.e-4 * x)
@@ -333,11 +336,12 @@ int TestContingencyStatistics(int, char*[])
     // Must verify that p value is valid (it is set to -1 if R has failed)
     if (p > -1 && p < alpha)
     {
-      cout << ", Null hypothesis (independence) rejected at " << alpha << " significance level";
+      std::cout << ", Null hypothesis (independence) rejected at " << alpha
+                << " significance level";
     }
 #endif // USE_GNU_R
 
-    cout << "\n";
+    std::cout << "\n";
   }
 
   // Clean up

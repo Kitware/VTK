@@ -9,6 +9,8 @@
 #include <vtkSphereSource.h>
 #include <vtkStreamingDemandDrivenPipeline.h>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 // Program main
 int TestGenerateTimeSteps(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])

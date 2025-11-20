@@ -26,6 +26,8 @@
 #include "vtkTexture.h"
 #include <vtk_mpi.h>
 
+#include <iostream>
+
 namespace
 {
 
@@ -64,7 +66,7 @@ void MyProcess::Execute()
   this->ReturnValue = 1;
   int numProcs = this->Controller->GetNumberOfProcesses();
   int me = this->Controller->GetLocalProcessId();
-  cout << "Nb process found: " << numProcs << endl;
+  std::cout << "Nb process found: " << numProcs << std::endl;
 
   vtkNew<vtkCompositeRenderManager> prm;
   vtkNew<vtkSuperquadricSource> superquadric;
@@ -167,7 +169,7 @@ int PTextureMapToSphere(int argc, char* argv[])
   {
     if (me == 0)
     {
-      cout << "DistributedData test requires MPI" << endl;
+      std::cout << "DistributedData test requires MPI" << std::endl;
     }
     return retVal; // is this the right error val?   TODO
   }

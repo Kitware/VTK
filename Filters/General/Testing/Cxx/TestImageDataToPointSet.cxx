@@ -9,6 +9,8 @@
 
 #include <vtkNew.h>
 
+#include <iostream>
+
 int TestImageDataToPointSet(int, char*[])
 {
   vtkNew<vtkRTAnalyticSource> wavelet;

@@ -23,6 +23,8 @@
 
 #include <map>
 
+#include <iostream>
+
 template <typename T>
 int CompareArrays(T* a, T* b, vtkIdType n)
 {
@@ -31,8 +33,8 @@ int CompareArrays(T* a, T* b, vtkIdType n)
   {
     if (a[i] != b[i])
     {
-      cerr << "ERROR: Arrays do not match at index " << i << " (" << a[i] << "!=" << b[i] << ")"
-           << endl;
+      std::cerr << "ERROR: Arrays do not match at index " << i << " (" << a[i] << "!=" << b[i]
+                << ")" << std::endl;
       errors++;
     }
   }
@@ -44,51 +46,51 @@ int CompareSelections(vtkSelectionNode* a, vtkSelectionNode* b)
   int errors = 0;
   if (!a || !b)
   {
-    cerr << "ERROR: Empty Selection Node(s)" << endl;
+    std::cerr << "ERROR: Empty Selection Node(s)" << std::endl;
     errors++;
     return errors;
   }
   if (a->GetContentType() != b->GetContentType())
   {
-    cerr << "ERROR: Content type " << vtkSelectionNode::GetContentTypeAsString(a->GetContentType())
-         << " does not match " << vtkSelectionNode::GetContentTypeAsString(b->GetContentType())
-         << endl;
+    std::cerr << "ERROR: Content type "
+              << vtkSelectionNode::GetContentTypeAsString(a->GetContentType()) << " does not match "
+              << vtkSelectionNode::GetContentTypeAsString(b->GetContentType()) << std::endl;
     errors++;
   }
   if (a->GetFieldType() != b->GetFieldType())
   {
-    cerr << "ERROR: Field type " << a->GetFieldType() << " does not match " << b->GetFieldType()
-         << endl;
+    std::cerr << "ERROR: Field type " << a->GetFieldType() << " does not match "
+              << b->GetFieldType() << std::endl;
     errors++;
   }
   vtkAbstractArray* arra = a->GetSelectionList();
   vtkAbstractArray* arrb = b->GetSelectionList();
   if (arra->GetName() && !arrb->GetName())
   {
-    cerr << "ERROR: Array name a is not null but b is" << endl;
+    std::cerr << "ERROR: Array name a is not null but b is" << std::endl;
     errors++;
   }
   else if (!arra->GetName() && arrb->GetName())
   {
-    cerr << "ERROR: Array name a is null but b is not" << endl;
+    std::cerr << "ERROR: Array name a is null but b is not" << std::endl;
     errors++;
   }
   else if (arra->GetName() && strcmp(arra->GetName(), arrb->GetName()) != 0)
   {
-    cerr << "ERROR: Array name " << arra->GetName() << " does not match " << arrb->GetName()
-         << endl;
+    std::cerr << "ERROR: Array name " << arra->GetName() << " does not match " << arrb->GetName()
+              << std::endl;
     errors++;
   }
   if (arra->GetDataType() != arrb->GetDataType())
   {
-    cerr << "ERROR: Array type " << arra->GetDataType() << " does not match " << arrb->GetDataType()
-         << endl;
+    std::cerr << "ERROR: Array type " << arra->GetDataType() << " does not match "
+              << arrb->GetDataType() << std::endl;
     errors++;
   }
   else if (arra->GetNumberOfTuples() != arrb->GetNumberOfTuples())
   {
-    cerr << "ERROR: Array tuples " << arra->GetNumberOfTuples() << " does not match "
-         << arrb->GetNumberOfTuples() << endl;
+    std::cerr << "ERROR: Array tuples " << arra->GetNumberOfTuples() << " does not match "
+              << arrb->GetNumberOfTuples() << std::endl;
     errors++;
   }
   else
@@ -108,8 +110,9 @@ int TestConvertSelectionType(std::map<int, vtkSmartPointer<vtkSelection>>& selMa
   vtkDataObject* data, int inputType, int outputType, vtkStringArray* arr = nullptr,
   bool allowMissingArray = false)
 {
-  cerr << "Testing conversion from type " << vtkSelectionNode::GetContentTypeAsString(inputType)
-       << " to " << vtkSelectionNode::GetContentTypeAsString(outputType) << "..." << endl;
+  std::cerr << "Testing conversion from type "
+            << vtkSelectionNode::GetContentTypeAsString(inputType) << " to "
+            << vtkSelectionNode::GetContentTypeAsString(outputType) << "..." << std::endl;
   vtkSelection* s = vtkConvertSelection::ToSelectionType(
     selMap[inputType], data, outputType, arr, -1, allowMissingArray);
   int errors = 0;
@@ -118,7 +121,7 @@ int TestConvertSelectionType(std::map<int, vtkSmartPointer<vtkSelection>>& selMa
     errors = CompareSelections(selMap[outputType]->GetNode(0), s->GetNode(0));
   }
   s->Delete();
-  cerr << "...done." << endl;
+  std::cerr << "...done." << std::endl;
   return errors;
 }
 

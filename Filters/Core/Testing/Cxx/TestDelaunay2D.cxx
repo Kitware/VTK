@@ -17,11 +17,14 @@
 #include "vtkRenderer.h"
 #include "vtkShrinkPolyData.h"
 
+#include <iostream>
+
 // #define WRITE_IMAGE
 
 #ifdef WRITE_IMAGE
 #include "vtkPNGWriter.h"
 #include "vtkWindowToImageFilter.h"
+
 #endif
 
 int TestDelaunay2D(int argc, char* argv[])
@@ -45,7 +48,7 @@ int TestDelaunay2D(int argc, char* argv[])
   newPts->InsertNextPoint(12.639533789072001, -12.639533638347073, 0.0);
 
   vtkIdType inNumPts = newPts->GetNumberOfPoints();
-  cout << "input numPts= " << inNumPts << endl;
+  std::cout << "input numPts= " << inNumPts << std::endl;
 
   vtkPolyData* pointCloud = vtkPolyData::New();
   // quick test with empty data.
@@ -70,45 +73,45 @@ int TestDelaunay2D(int argc, char* argv[])
   vtkIdType outNumLines = triangulation->GetNumberOfLines();
   vtkIdType outNumVerts = triangulation->GetNumberOfVerts();
 
-  cout << "output numPts= " << outNumPts << endl;
-  cout << "output numCells= " << outNumCells << endl;
-  cout << "output numPolys= " << outNumPolys << endl;
-  cout << "output numLines= " << outNumLines << endl;
-  cout << "output numVerts= " << outNumVerts << endl;
+  std::cout << "output numPts= " << outNumPts << std::endl;
+  std::cout << "output numCells= " << outNumCells << std::endl;
+  std::cout << "output numPolys= " << outNumPolys << std::endl;
+  std::cout << "output numLines= " << outNumLines << std::endl;
+  std::cout << "output numVerts= " << outNumVerts << std::endl;
 
   if (outNumPts != inNumPts)
   {
-    cout << "ERROR: output numPts " << outNumPts << " doesn't match input numPts=" << inNumPts
-         << endl;
+    std::cout << "ERROR: output numPts " << outNumPts << " doesn't match input numPts=" << inNumPts
+              << std::endl;
     delaunay2D->Delete();
     return EXIT_FAILURE;
   }
 
   if (!outNumCells)
   {
-    cout << "ERROR: output numCells= " << outNumCells << endl;
+    std::cout << "ERROR: output numCells= " << outNumCells << std::endl;
     delaunay2D->Delete();
     return EXIT_FAILURE;
   }
 
   if (outNumPolys != outNumCells)
   {
-    cout << "ERROR: output numPolys= " << outNumPolys
-         << " doesn't match output numCells= " << outNumCells << endl;
+    std::cout << "ERROR: output numPolys= " << outNumPolys
+              << " doesn't match output numCells= " << outNumCells << std::endl;
     delaunay2D->Delete();
     return EXIT_FAILURE;
   }
 
   if (outNumLines)
   {
-    cout << "ERROR: output numLines= " << outNumLines << endl;
+    std::cout << "ERROR: output numLines= " << outNumLines << std::endl;
     delaunay2D->Delete();
     return EXIT_FAILURE;
   }
 
   if (outNumVerts)
   {
-    cout << "ERROR: output numVerts= " << outNumVerts << endl;
+    std::cout << "ERROR: output numVerts= " << outNumVerts << std::endl;
     delaunay2D->Delete();
     return EXIT_FAILURE;
   }
@@ -130,11 +133,12 @@ int TestDelaunay2D(int argc, char* argv[])
 
   cellIds->Delete();
 
-  cout << "Triangulation has " << numUnconnectedPts << " unconnected points" << endl;
+  std::cout << "Triangulation has " << numUnconnectedPts << " unconnected points" << std::endl;
 
   if (numUnconnectedPts)
   {
-    cout << "ERROR: Triangulation has " << numUnconnectedPts << " unconnected points" << endl;
+    std::cout << "ERROR: Triangulation has " << numUnconnectedPts << " unconnected points"
+              << std::endl;
     delaunay2D->Delete();
     return EXIT_FAILURE;
   }

@@ -12,7 +12,7 @@
 #include "vtkUniformGrid.h"
 
 #include <cassert>
-#include <sstream>
+#include <iostream>
 
 namespace AMRVisibilityTests
 {

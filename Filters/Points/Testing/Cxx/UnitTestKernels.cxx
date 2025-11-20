@@ -18,6 +18,7 @@
 #include "vtkVoronoiKernel.h"
 
 #include <cmath>
+#include <iostream>
 #include <sstream>
 #include <string>
 

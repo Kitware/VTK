@@ -9,6 +9,8 @@
 #include <vtkTransform.h>
 #include <vtkTransformFilter.h>
 
+#include <iostream>
+
 namespace
 {
 void InitializePointSet(vtkPointSet* pointSet, int dataType)

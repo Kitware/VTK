@@ -19,6 +19,8 @@
 
 #include "vtksys/SystemTools.hxx"
 
+#include <iostream>
+
 int TestPCA(int argc, char* argv[]);
 int TestPCARobust(int argc, char* argv[]);
 int TestPCAPart(int argc, char* argv[], bool RobustPCA);
@@ -37,11 +39,11 @@ int TestPCAStatistics(int argc, char* argv[])
 
   if (result == EXIT_FAILURE)
   {
-    cout << "FAILURE" << endl;
+    std::cout << "FAILURE" << std::endl;
   }
   else
   {
-    cout << "SUCCESS" << endl;
+    std::cout << "SUCCESS" << std::endl;
   }
 
   return result;
@@ -209,9 +211,9 @@ int TestPCAPart(int argc, char* argv[], bool robustPCA)
   pcas->SetMedianAbsoluteDeviation(robustPCA);
 
   // First verify that absence of input does not cause trouble
-  cout << "## Verifying that absence of input does not cause trouble... ";
+  std::cout << "## Verifying that absence of input does not cause trouble... ";
   pcas->Update();
-  cout << "done.\n";
+  std::cout << "done.\n";
 
   // Prepare first test with data
   pcas->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, datasetTable);
@@ -250,45 +252,46 @@ int TestPCAPart(int argc, char* argv[], bool robustPCA)
     pcas->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
   vtkTable* outputTest = pcas->GetOutput(vtkStatisticsAlgorithm::OUTPUT_TEST);
 
-  cout << "## Calculated the following statistics for data set:\n";
+  std::cout << "## Calculated the following statistics for data set:\n";
   for (unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++b)
   {
     vtkTable* outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(b));
 
     if (b == 0)
     {
-      cout << "Primary Statistics\n";
+      std::cout << "Primary Statistics\n";
     }
     else
     {
-      cout << "Derived Statistics " << (b - 1) << "\n";
+      std::cout << "Derived Statistics " << (b - 1) << "\n";
     }
 
     outputMeta->Dump();
   }
 
   // Check some results of the Test option
-  cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics for pseudo-random "
-          "variables (n="
-       << nVals;
+  std::cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics for pseudo-random "
+               "variables (n="
+            << nVals;
 
 #ifdef USE_GNU_R
   int nNonGaussian = 1;
   int nRejected = 0;
   double alpha = .01;
 
-  cout << ", null hypothesis: binormality, significance level=" << alpha;
+  std::cout << ", null hypothesis: binormality, significance level=" << alpha;
 #endif // USE_GNU_R
 
-  cout << "):\n";
+  std::cout << "):\n";
 
   // Loop over Test table
   for (vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++r)
   {
-    cout << "   ";
+    std::cout << "   ";
     for (int i = 0; i < outputTest->GetNumberOfColumns(); ++i)
     {
-      cout << outputTest->GetColumnName(i) << "=" << outputTest->GetValue(r, i).ToString() << "  ";
+      std::cout << outputTest->GetColumnName(i) << "=" << outputTest->GetValue(r, i).ToString()
+                << "  ";
     }
 
 #ifdef USE_GNU_R
@@ -297,13 +300,13 @@ int TestPCAPart(int argc, char* argv[], bool robustPCA)
     // Must verify that p value is valid (it is set to -1 if R has failed)
     if (p > -1 && p < alpha)
     {
-      cout << "N.H. rejected";
+      std::cout << "N.H. rejected";
 
       ++nRejected;
     }
 #endif // USE_GNU_R
 
-    cout << "\n";
+    std::cout << "\n";
   }
 
 #ifdef USE_GNU_R
@@ -330,7 +333,7 @@ int TestPCAPart(int argc, char* argv[], bool robustPCA)
   pcas->SetAssessOption(true);
   pcas->Update();
 
-  cout << "\n## Assessment results:\n";
+  std::cout << "\n## Assessment results:\n";
   vtkTable* outputData = pcas->GetOutput();
   outputData->Dump();
 

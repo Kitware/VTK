@@ -12,6 +12,8 @@
 #include <vtkRedistributeDataSetFilter.h>
 #include <vtkSpatioTemporalHarmonicsSource.h>
 
+#include <iostream>
+
 int TestAppendFilterDistributed(int argc, char* argv[])
 {
   // Initialize MPI Controller

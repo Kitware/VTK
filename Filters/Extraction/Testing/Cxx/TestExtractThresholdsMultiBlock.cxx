@@ -14,6 +14,8 @@
 #include "vtkSphereSource.h"
 #include "vtkTable.h"
 
+#include <iostream>
+
 int TestExtractThresholdsMultiBlock(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkSphereSource> sphere;

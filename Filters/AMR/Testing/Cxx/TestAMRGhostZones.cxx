@@ -19,7 +19,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #include <cassert>
-#include <sstream>
+#include <iostream>
 
 namespace
 {

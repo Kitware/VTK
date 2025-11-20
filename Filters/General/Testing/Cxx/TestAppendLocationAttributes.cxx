@@ -12,6 +12,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 int TestAppendLocationAttributes(int, char*[])
 {
   // Reference dataset

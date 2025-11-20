@@ -19,6 +19,7 @@
 #include "vtkUnstructuredGridReader.h"
 #include "vtkUnstructuredGridWriter.h"
 
+#include <iostream>
 #include <sstream>
 
 // Reference values
@@ -53,11 +54,11 @@ static int CheckExtractedUGrid(
 
   // Initialize test status
   int testStatus = 0;
-  cerr << endl;
+  std::cerr << std::endl;
 
   // Verify selection cardinality
   vtkIdType nCells = ugrid->GetNumberOfCells();
-  cout << tag << " contains " << nCells << " cells." << endl;
+  std::cout << tag << " contains " << nCells << " cells." << std::endl;
 
   if (nCells != cardCellDistanceSelection3D[testIdx])
   {
@@ -67,14 +68,14 @@ static int CheckExtractedUGrid(
   }
 
   // Verify selection cells
-  cerr << "Original cell Ids: ";
+  std::cerr << "Original cell Ids: ";
   ugrid->GetCellData()->SetActiveScalars("vtkOriginalCellIds");
   vtkDataArray* oCellIds = ugrid->GetCellData()->GetScalars();
   for (vtkIdType i = 0; i < oCellIds->GetNumberOfTuples(); ++i)
   {
-    cerr << oCellIds->GetTuple1(i) << " ";
+    std::cerr << oCellIds->GetTuple1(i) << " ";
   }
-  cerr << endl;
+  std::cerr << std::endl;
 
   // If requested, write mesh
   if (writeGrid)
@@ -86,7 +87,7 @@ static int CheckExtractedUGrid(
     writer->SetFileName(fileNameSS.str().c_str());
     writer->SetInputData(ugrid);
     writer->Write();
-    cerr << "Wrote file " << fileNameSS.str() << endl;
+    std::cerr << "Wrote file " << fileNameSS.str() << std::endl;
   }
 
   return testStatus;

@@ -9,6 +9,8 @@
 #include "vtkUnstructuredGridGeometryFilter.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include <iostream>
+
 int TestUnstructuredGridGeometryFilterGhostCells(int argc, char* argv[])
 {
   char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ghost_cells.vtu");

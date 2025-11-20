@@ -9,6 +9,8 @@
 #include "vtkOverlappingAMRLevelIdScalars.h"
 #include "vtkUniformGrid.h"
 
+#include <iostream>
+
 int TestOverlappingAMRLevelIdScalars(int, char*[])
 {
   // Create overlapping AMR with 2 levels

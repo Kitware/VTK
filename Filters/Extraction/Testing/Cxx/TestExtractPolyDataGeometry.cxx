@@ -8,6 +8,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 
+#include <iostream>
+
 int TestExtractPolyDataGeometry(int argc, char* argv[])
 {
   // Construct clipping box

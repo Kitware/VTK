@@ -17,6 +17,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLHyperTreeGridReader.h"
 
+#include <iostream>
+
 namespace
 {
 template <typename T1, typename T2>
@@ -51,7 +53,7 @@ int TestHyperTreeGridBinary3DFeatureEdges(int argc, char* argv[])
   vtkPolyData* geometry = featureEdgesFilter->GetPolyDataOutput();
   if (!geometry)
   {
-    std::cerr << "Unable to retrieve htg geometry." << endl;
+    std::cerr << "Unable to retrieve htg geometry." << std::endl;
     return EXIT_FAILURE;
   }
 

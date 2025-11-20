@@ -13,6 +13,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestConvertToPointCloud(int argc, char* argv[])
 {

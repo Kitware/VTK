@@ -16,6 +16,8 @@
 
 #include <string>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 /**
  * Ensure that cell ids array is present and has been filled correctly
@@ -25,21 +27,22 @@ bool TestIdArray(vtkCellData* cellData, vtkIdType expectedSize)
   auto idArray = vtkIdTypeArray::SafeDownCast(cellData->GetAbstractArray("vtkCellIds"));
   if (!idArray)
   {
-    std::cerr << "Unable to retrieve the cell IDs array." << endl;
+    std::cerr << "Unable to retrieve the cell IDs array." << std::endl;
     return false;
   }
 
   if (idArray->GetNumberOfTuples() != expectedSize)
   {
     std::cerr << "Wrong number of tuples in the generated cell IDs array."
-              << "Expected " << expectedSize << ", got " << idArray->GetNumberOfTuples() << endl;
+              << "Expected " << expectedSize << ", got " << idArray->GetNumberOfTuples()
+              << std::endl;
     return false;
   }
 
   if (idArray->GetNumberOfComponents() != 1)
   {
     std::cerr << "Wrong number of tuples in the generated cell IDs array."
-              << "Expected 1, got " << idArray->GetNumberOfComponents() << endl;
+              << "Expected 1, got " << idArray->GetNumberOfComponents() << std::endl;
     return false;
   }
 
@@ -48,7 +51,7 @@ bool TestIdArray(vtkCellData* cellData, vtkIdType expectedSize)
     if (idArray->GetValue(id) != id)
     {
       std::cerr << "Wrong cell ID at index " << id << "."
-                << "Expected" << id << ", got " << idArray->GetValue(id) << endl;
+                << "Expected" << id << ", got " << idArray->GetValue(id) << std::endl;
       return false;
     }
   }

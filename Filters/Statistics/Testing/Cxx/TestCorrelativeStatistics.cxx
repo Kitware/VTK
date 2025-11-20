@@ -16,6 +16,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 //=============================================================================
 int TestCorrelativeStatistics(int, char*[])
 {
@@ -146,9 +148,9 @@ int TestCorrelativeStatistics(int, char*[])
   vtkCorrelativeStatistics* cs1 = vtkCorrelativeStatistics::New();
 
   // First verify that absence of input does not cause trouble
-  cout << "## Verifying that absence of input does not cause trouble... ";
+  std::cout << "## Verifying that absence of input does not cause trouble... ";
   cs1->Update();
-  cout << "done.\n";
+  std::cout << "done.\n";
 
   // Prepare first test with data
   cs1->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1);
@@ -179,14 +181,14 @@ int TestCorrelativeStatistics(int, char*[])
   vtkTable* outputDerived1 = vtkTable::SafeDownCast(outputMetaDS1->GetBlock(1));
   vtkTable* outputTest1 = cs1->GetOutput(vtkStatisticsAlgorithm::OUTPUT_TEST);
 
-  cout << "## Calculated the following primary statistics for first data set:\n";
+  std::cout << "## Calculated the following primary statistics for first data set:\n";
   for (vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++r)
   {
-    cout << "   ";
+    std::cout << "   ";
     for (int i = 0; i < outputPrimary1->GetNumberOfColumns(); ++i)
     {
-      cout << outputPrimary1->GetColumnName(i) << "=" << outputPrimary1->GetValue(r, i).ToString()
-           << "  ";
+      std::cout << outputPrimary1->GetColumnName(i) << "="
+                << outputPrimary1->GetValue(r, i).ToString() << "  ";
     }
 
     // Verify some of the calculated primary statistics
@@ -203,17 +205,17 @@ int TestCorrelativeStatistics(int, char*[])
       vtkGenericWarningMacro("Incorrect mean for Y");
       testStatus = 1;
     }
-    cout << "\n";
+    std::cout << "\n";
   }
 
-  cout << "\n## Calculated the following derived statistics for first data set:\n";
+  std::cout << "\n## Calculated the following derived statistics for first data set:\n";
   for (vtkIdType r = 0; r < outputDerived1->GetNumberOfRows(); ++r)
   {
-    cout << "   ";
+    std::cout << "   ";
     for (int i = 0; i < outputDerived1->GetNumberOfColumns(); ++i)
     {
-      cout << outputDerived1->GetColumnName(i) << "=" << outputDerived1->GetValue(r, i).ToString()
-           << "  ";
+      std::cout << outputDerived1->GetColumnName(i) << "="
+                << outputDerived1->GetValue(r, i).ToString() << "  ";
     }
 
     // Verify some of the calculated derived statistics
@@ -279,31 +281,31 @@ int TestCorrelativeStatistics(int, char*[])
       }
     }
 
-    cout << "\n";
+    std::cout << "\n";
   }
 
   // Check some results of the Test option
-  cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics:\n";
+  std::cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics:\n";
   for (vtkIdType r = 0; r < outputTest1->GetNumberOfRows(); ++r)
   {
-    cout << "   ";
+    std::cout << "   ";
     for (int i = 0; i < outputTest1->GetNumberOfColumns(); ++i)
     {
-      cout << outputTest1->GetColumnName(i) << "=" << outputTest1->GetValue(r, i).ToString()
-           << "  ";
+      std::cout << outputTest1->GetColumnName(i) << "=" << outputTest1->GetValue(r, i).ToString()
+                << "  ";
     }
 
-    cout << "\n";
+    std::cout << "\n";
   }
 
   // Search for outliers to check results of Assess option
-  cout << "\n## Searching for outliers with respect to various criteria:\n";
+  std::cout << "\n## Searching for outliers with respect to various criteria:\n";
   int assessIdx[] = { 3, 4, 5 };
   int testIntValue[] = { 3, 3, 4 };
   for (int i = 0; i < 3; ++i)
   {
-    cerr << "   For |" << outputData1->GetColumnName(assessIdx[i]) << "| > " << threshold[i]
-         << ", found the following outliers:\n";
+    std::cerr << "   For |" << outputData1->GetColumnName(assessIdx[i]) << "| > " << threshold[i]
+              << ", found the following outliers:\n";
 
     int nOutliers = 0;
 
@@ -314,9 +316,9 @@ int TestCorrelativeStatistics(int, char*[])
       {
         ++nOutliers;
 
-        cout << "     (" << outputData1->GetValueByName(r, columnPairs[0].c_str()).ToDouble() << ","
-             << outputData1->GetValueByName(r, columnPairs[1].c_str()).ToDouble()
-             << "): " << assessed << "\n";
+        std::cout << "     (" << outputData1->GetValueByName(r, columnPairs[0].c_str()).ToDouble()
+                  << "," << outputData1->GetValueByName(r, columnPairs[1].c_str()).ToDouble()
+                  << "): " << assessed << "\n";
       }
     } // r
 
@@ -382,16 +384,16 @@ int TestCorrelativeStatistics(int, char*[])
     cs2->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
   vtkTable* outputPrimary2 = vtkTable::SafeDownCast(outputMetaDS2->GetBlock(0));
 
-  cout << "\n## Calculated the following primary statistics for second data set:\n";
+  std::cout << "\n## Calculated the following primary statistics for second data set:\n";
   for (vtkIdType r = 0; r < outputPrimary2->GetNumberOfRows(); ++r)
   {
-    cout << "   ";
+    std::cout << "   ";
     for (int i = 0; i < outputPrimary2->GetNumberOfColumns(); ++i)
     {
-      cout << outputPrimary2->GetColumnName(i) << "=" << outputPrimary2->GetValue(r, i).ToString()
-           << "  ";
+      std::cout << outputPrimary2->GetColumnName(i) << "="
+                << outputPrimary2->GetValue(r, i).ToString() << "  ";
     }
-    cout << "\n";
+    std::cout << "\n";
   }
 
   // Test model aggregation by adding new data to engine which already has a model
@@ -430,15 +432,16 @@ int TestCorrelativeStatistics(int, char*[])
   outputPrimary1 = vtkTable::SafeDownCast(outputMetaDS1->GetBlock(0));
   outputDerived1 = vtkTable::SafeDownCast(outputMetaDS1->GetBlock(1));
 
-  cout << "\n## Calculated the following primary statistics for aggregated (first + second) data "
-          "set:\n";
+  std::cout
+    << "\n## Calculated the following primary statistics for aggregated (first + second) data "
+       "set:\n";
   for (vtkIdType r = 0; r < outputPrimary1->GetNumberOfRows(); ++r)
   {
-    cout << "   ";
+    std::cout << "   ";
     for (int i = 0; i < outputPrimary1->GetNumberOfColumns(); ++i)
     {
-      cout << outputPrimary1->GetColumnName(i) << "=" << outputPrimary1->GetValue(r, i).ToString()
-           << "  ";
+      std::cout << outputPrimary1->GetColumnName(i) << "="
+                << outputPrimary1->GetValue(r, i).ToString() << "  ";
     }
 
     // Verify some of the calculated primary statistics
@@ -459,18 +462,19 @@ int TestCorrelativeStatistics(int, char*[])
       vtkGenericWarningMacro("Incorrect mean for Y");
       testStatus = 1;
     }
-    cout << "\n";
+    std::cout << "\n";
   }
 
-  cout << "\n## Calculated the following derived statistics for aggregated (first + second) data "
-          "set:\n";
+  std::cout
+    << "\n## Calculated the following derived statistics for aggregated (first + second) data "
+       "set:\n";
   for (vtkIdType r = 0; r < outputDerived1->GetNumberOfRows(); ++r)
   {
-    cout << "   ";
+    std::cout << "   ";
     for (int i = 0; i < outputDerived1->GetNumberOfColumns(); ++i)
     {
-      cout << outputDerived1->GetColumnName(i) << "=" << outputDerived1->GetValue(r, i).ToString()
-           << "  ";
+      std::cout << outputDerived1->GetColumnName(i) << "="
+                << outputDerived1->GetValue(r, i).ToString() << "  ";
     }
 
     // Verify some of the calculated derived statistics
@@ -491,7 +495,7 @@ int TestCorrelativeStatistics(int, char*[])
       vtkGenericWarningMacro("Incorrect correlation coefficient");
       testStatus = 1;
     }
-    cout << "\n";
+    std::cout << "\n";
   }
 
   // Clean up
@@ -604,57 +608,57 @@ int TestCorrelativeStatistics(int, char*[])
   vtkTable* outputDerived4 = vtkTable::SafeDownCast(outputMetaCS4->GetBlock(1));
   vtkTable* outputTest4 = cs4->GetOutput(vtkStatisticsAlgorithm::OUTPUT_TEST);
 
-  cout << "\n## Calculated the following primary statistics for pseudo-random variables (n="
-       << nVals << "):\n";
+  std::cout << "\n## Calculated the following primary statistics for pseudo-random variables (n="
+            << nVals << "):\n";
   for (vtkIdType r = 0; r < outputPrimary4->GetNumberOfRows(); ++r)
   {
-    cout << "   ";
+    std::cout << "   ";
     for (int i = 0; i < outputPrimary4->GetNumberOfColumns(); ++i)
     {
-      cout << outputPrimary4->GetColumnName(i) << "=" << outputPrimary4->GetValue(r, i).ToString()
-           << "  ";
+      std::cout << outputPrimary4->GetColumnName(i) << "="
+                << outputPrimary4->GetValue(r, i).ToString() << "  ";
     }
 
-    cout << "\n";
+    std::cout << "\n";
   }
 
-  cout << "\n## Calculated the following derived statistics for pseudo-random variables (n="
-       << nVals << "):\n";
+  std::cout << "\n## Calculated the following derived statistics for pseudo-random variables (n="
+            << nVals << "):\n";
   for (vtkIdType r = 0; r < outputDerived4->GetNumberOfRows(); ++r)
   {
-    cout << "   ";
+    std::cout << "   ";
     for (int i = 0; i < outputDerived4->GetNumberOfColumns(); ++i)
     {
-      cout << outputDerived4->GetColumnName(i) << "=" << outputDerived4->GetValue(r, i).ToString()
-           << "  ";
+      std::cout << outputDerived4->GetColumnName(i) << "="
+                << outputDerived4->GetValue(r, i).ToString() << "  ";
     }
 
-    cout << "\n";
+    std::cout << "\n";
   }
 
   // Check some results of the Test option
-  cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics for pseudo-random "
-          "variables (n="
-       << nVals;
+  std::cout << "\n## Calculated the following Jarque-Bera-Srivastava statistics for pseudo-random "
+               "variables (n="
+            << nVals;
 
 #ifdef USE_GNU_R
   int nNonGaussian = 3;
   int nRejected = 0;
   double alpha = .01;
 
-  cout << ", null hypothesis: binormality, significance level=" << alpha;
+  std::cout << ", null hypothesis: binormality, significance level=" << alpha;
 #endif // USE_GNU_R
 
-  cout << "):\n";
+  std::cout << "):\n";
 
   // Loop over Test table
   for (vtkIdType r = 0; r < outputTest4->GetNumberOfRows(); ++r)
   {
-    cout << "   ";
+    std::cout << "   ";
     for (int c = 0; c < outputTest4->GetNumberOfColumns(); ++c)
     {
-      cout << outputTest4->GetColumnName(c) << "=" << outputTest4->GetValue(r, c).ToString()
-           << "  ";
+      std::cout << outputTest4->GetColumnName(c) << "=" << outputTest4->GetValue(r, c).ToString()
+                << "  ";
     }
 
 #ifdef USE_GNU_R
@@ -663,13 +667,13 @@ int TestCorrelativeStatistics(int, char*[])
     // Must verify that p value is valid (it is set to -1 if R has failed)
     if (p > -1 && p < alpha)
     {
-      cout << "N.H. rejected";
+      std::cout << "N.H. rejected";
 
       ++nRejected;
     }
 #endif // USE_GNU_R
 
-    cout << "\n";
+    std::cout << "\n";
   }
 
 #ifdef USE_GNU_R

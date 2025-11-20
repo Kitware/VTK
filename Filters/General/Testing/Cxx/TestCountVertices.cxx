@@ -11,6 +11,8 @@
 #include "vtkPoints.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 int TestCountVerticesMode(bool useImplicitArray)
 {
   vtkNew<vtkUnstructuredGrid> data;

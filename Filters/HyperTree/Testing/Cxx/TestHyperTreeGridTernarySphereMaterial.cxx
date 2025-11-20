@@ -21,6 +21,8 @@
 #include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 int TestHyperTreeGridTernarySphereMaterial(int argc, char* argv[])
 {
   // Hyper tree grid
@@ -40,12 +42,12 @@ int TestHyperTreeGridTernarySphereMaterial(int argc, char* argv[])
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
   htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
   timer->StopTimer();
-  cerr << "Creation time : " << timer->GetElapsedTime() << endl;
+  std::cerr << "Creation time : " << timer->GetElapsedTime() << std::endl;
   timer->StartTimer();
   vtkNew<vtkHyperTreeGrid> htgCopy;
   htgCopy->ShallowCopy(htg);
   timer->StopTimer();
-  cerr << "Copy time : " << timer->GetElapsedTime() << endl;
+  std::cerr << "Copy time : " << timer->GetElapsedTime() << std::endl;
   // Geometry
   timer->StartTimer();
   vtkNew<vtkHyperTreeGridGeometry> geometry;
@@ -53,7 +55,7 @@ int TestHyperTreeGridTernarySphereMaterial(int argc, char* argv[])
   geometry->Update();
   vtkPolyData* pd = geometry->GetPolyDataOutput();
   timer->StopTimer();
-  cerr << "Geometry time : " << timer->GetElapsedTime() << endl;
+  std::cerr << "Geometry time : " << timer->GetElapsedTime() << std::endl;
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();

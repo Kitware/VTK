@@ -18,6 +18,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLImageDataReader.h"
 
+#include <iostream>
+
 namespace details
 {
 bool CheckOutput(vtkDataSet* input, vtkPartitionedDataSetCollection* output, unsigned int nbOfParts,
@@ -51,7 +53,7 @@ bool CheckOutput(vtkDataSet* input, vtkPartitionedDataSetCollection* output, uns
     auto name = output->GetMetaData(cc)->Get(vtkCompositeDataSet::NAME());
     if (name == nullptr || blockname != name)
     {
-      cerr << "Mismatched block names" << endl;
+      std::cerr << "Mismatched block names" << std::endl;
       return false;
     }
 

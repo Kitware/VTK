@@ -10,6 +10,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
 
+#include <iostream>
+
 namespace
 {
 void InitializePolyData(vtkPolyData* polyData, int dataType)

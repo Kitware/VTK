@@ -16,7 +16,6 @@
 #include "vtkAttributesErrorMetric.h"
 #include "vtkBridgeDataSet.h"
 #include "vtkCamera.h"
-#include "vtkDebugLeaks.h"
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAttributeCollection.h"
 #include "vtkGenericCellTessellator.h"
@@ -24,7 +23,6 @@
 #include "vtkGenericStreamTracer.h"
 #include "vtkGenericSubdivisionErrorMetric.h"
 #include "vtkGeometricErrorMetric.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
@@ -37,7 +35,9 @@
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridReader.h"
 #include "vtkTestUtilities.h"
+
 #include <cassert>
+#include <iostream>
 
 #ifdef WRITE_GENERIC_RESULT
 #include "vtkXMLPolyDataWriter.h"
@@ -80,10 +80,10 @@ int TestGenericStreamTracer(int argc, char* argv[])
 
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
-  cout << "input unstructured grid: " << ds << endl;
+  std::cout << "input unstructured grid: " << ds << std::endl;
 
   vtkIndent indent;
-  ds->PrintSelf(cout, indent);
+  ds->PrintSelf(std::cout, indent);
 
   vtkGenericOutlineFilter* outline = vtkGenericOutlineFilter::New();
   outline->SetInputData(ds);
@@ -146,7 +146,7 @@ int TestGenericStreamTracer(int argc, char* argv[])
   renderer->SetBackground(0.4, 0.4, 0.5);
   renWin->SetSize(300, 200);
   renWin->Render();
-  streamer->GetOutput()->PrintSelf(cout, indent);
+  streamer->GetOutput()->PrintSelf(std::cout, indent);
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

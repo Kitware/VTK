@@ -18,6 +18,8 @@
 
 #include "UnstructuredGhostZonesCommon.h"
 
+#include <iostream>
+
 double global::Origin[3] = { 0.0, 0.0, 0.0 };
 double global::Spacing[3] = { 0.5, 0.5, 0.5 };
 int global::Dims[3] = { 50, 50, 50 };

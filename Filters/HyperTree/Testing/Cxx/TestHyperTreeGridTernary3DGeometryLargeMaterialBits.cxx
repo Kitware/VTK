@@ -24,6 +24,8 @@
 #include "vtkTimerLog.h"
 #include <vtkObjectFactory.h>
 
+#include <iostream>
+
 // Define interaction style
 class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
 {
@@ -45,11 +47,12 @@ public:
       double* focal = this->Renderer->GetActiveCamera()->GetFocalPoint();
       double* clip = this->Renderer->GetActiveCamera()->GetClippingRange();
       double* up = this->Renderer->GetActiveCamera()->GetViewUp();
-      cout << "----" << endl;
-      cout << "Camera position " << pos[0] << ", " << pos[1] << ", " << pos[2] << endl;
-      cout << "Camera focalpoint " << focal[0] << ", " << focal[1] << ", " << focal[2] << endl;
-      cout << "Camera viewup " << up[0] << ", " << up[1] << ", " << up[2] << endl;
-      cout << "Camera range " << clip[0] << ", " << clip[1] << endl;
+      std::cout << "----" << std::endl;
+      std::cout << "Camera position " << pos[0] << ", " << pos[1] << ", " << pos[2] << std::endl;
+      std::cout << "Camera focalpoint " << focal[0] << ", " << focal[1] << ", " << focal[2]
+                << std::endl;
+      std::cout << "Camera viewup " << up[0] << ", " << up[1] << ", " << up[2] << std::endl;
+      std::cout << "Camera range " << clip[0] << ", " << clip[1] << std::endl;
     }
 
     // Forward events
@@ -114,7 +117,7 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits(int argc, char* argv[])
   timer->StartTimer();
   htGrid->Update();
   timer->StopTimer();
-  cout << "Tree created in " << timer->GetElapsedTime() << "s" << endl;
+  std::cout << "Tree created in " << timer->GetElapsedTime() << "s" << std::endl;
   // DDM htGrid->GetHyperTreeGridOutput()->GetNumberOfCells();
 
   timer->StartTimer();
@@ -124,7 +127,7 @@ int TestHyperTreeGridTernary3DGeometryLargeMaterialBits(int argc, char* argv[])
   geometry->Update();
   vtkPolyData* pd = geometry->GetPolyDataOutput();
   timer->StopTimer();
-  cout << "Geometry computed in " << timer->GetElapsedTime() << "s" << endl;
+  std::cout << "Geometry computed in " << timer->GetElapsedTime() << "s" << std::endl;
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();

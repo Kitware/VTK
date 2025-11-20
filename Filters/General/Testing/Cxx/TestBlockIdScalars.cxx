@@ -9,6 +9,8 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 
+#include <iostream>
+
 namespace
 {
 bool CheckExpectedIds(vtkDataObjectTree* output, const std::array<int, 3>& expectedIds)

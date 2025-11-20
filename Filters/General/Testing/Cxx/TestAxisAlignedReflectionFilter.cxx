@@ -31,6 +31,8 @@
 #include "vtkXMLStructuredGridReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include <iostream>
+
 #define AssertMacro(b, data, reason)                                                               \
   if (!(b))                                                                                        \
   {                                                                                                \

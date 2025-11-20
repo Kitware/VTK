@@ -34,11 +34,11 @@ int ArrayAPIDenseCoordinates(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkDenseArray<double>* const array =
       vtkDenseArray<double>::SafeDownCast(source->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
 
-    cout << "dense diagonal matrix:\n";
-    vtkPrintMatrixFormat(cout, array);
+    std::cout << "dense diagonal matrix:\n";
+    vtkPrintMatrixFormat(std::cout, array);
 
-    cout << "dense diagonal coordinates:\n";
-    vtkPrintCoordinateFormat(cout, array);
+    std::cout << "dense diagonal coordinates:\n";
+    vtkPrintCoordinateFormat(std::cout, array);
 
     test_expression(array);
     test_expression(array->GetValue(vtkArrayCoordinates(0, 0)) == 1.0);
@@ -74,7 +74,7 @@ int ArrayAPIDenseCoordinates(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   catch (std::exception& e)
   {
-    cerr << e.what() << endl;
+    std::cerr << e.what() << std::endl;
     return 1;
   }
 }

@@ -15,6 +15,8 @@
 
 #include <string>
 
+#include <iostream>
+
 static const std::string RANDOM_POINT_SCALARS_NAME = "RandomPointScalars";
 static const std::string RANDOM_POINT_VECTORS_NAME = "RandomPointVectors";
 static const std::string RANDOM_CELL_SCALARS_NAME = "RandomCellScalars";

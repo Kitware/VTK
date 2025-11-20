@@ -20,6 +20,8 @@
 
 #include <cstring>
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestAssignAttribute(int, char*[])
@@ -70,7 +72,7 @@ int TestAssignAttribute(int, char*[])
   vtkGraph* output = vtkGraph::SafeDownCast(assign->GetOutput());
   if (output->GetVertexData()->GetScalars() != scalars.GetPointer())
   {
-    cerr << "Vertex scalars not set properly" << endl;
+    std::cerr << "Vertex scalars not set properly" << std::endl;
     ++errors;
   }
   assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::EDGE_DATA);
@@ -78,7 +80,7 @@ int TestAssignAttribute(int, char*[])
   output = vtkGraph::SafeDownCast(assign->GetOutput());
   if (output->GetEdgeData()->GetScalars() != scalars.GetPointer())
   {
-    cerr << "Edge scalars not set properly" << endl;
+    std::cerr << "Edge scalars not set properly" << std::endl;
     ++errors;
   }
 
@@ -88,7 +90,7 @@ int TestAssignAttribute(int, char*[])
   vtkPolyData* outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
   if (outputPoly->GetPointData()->GetScalars() != scalars.GetPointer())
   {
-    cerr << "Point scalars not set properly" << endl;
+    std::cerr << "Point scalars not set properly" << std::endl;
     ++errors;
   }
   assign->Assign("scalars", vtkDataSetAttributes::SCALARS, vtkAssignAttribute::CELL_DATA);
@@ -96,7 +98,7 @@ int TestAssignAttribute(int, char*[])
   outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
   if (outputPoly->GetCellData()->GetScalars() != scalars.GetPointer())
   {
-    cerr << "Cell scalars not set properly" << endl;
+    std::cerr << "Cell scalars not set properly" << std::endl;
     ++errors;
   }
 
@@ -106,7 +108,7 @@ int TestAssignAttribute(int, char*[])
   outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
   if (outputPoly->GetPointData()->GetTensors() != tensors.GetPointer())
   {
-    cerr << "Point scalar not set when name is empty" << endl;
+    std::cerr << "Point scalar not set when name is empty" << std::endl;
     ++errors;
   }
   assign->Assign(
@@ -115,7 +117,7 @@ int TestAssignAttribute(int, char*[])
   outputPoly = vtkPolyData::SafeDownCast(assign->GetOutput());
   if (outputPoly->GetCellData()->GetTensors() != tensors.GetPointer())
   {
-    cerr << "Cell scalar not set when name is empty" << endl;
+    std::cerr << "Cell scalar not set when name is empty" << std::endl;
     ++errors;
   }
   vtkInformation* inInfo =
@@ -138,7 +140,7 @@ int TestAssignAttribute(int, char*[])
     outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES()) != scalars->GetNumberOfTuples() ||
     outFieldInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != scalars->GetDataType())
   {
-    cerr << "Scalar information not passed when attribute is assigned by name." << endl;
+    std::cerr << "Scalar information not passed when attribute is assigned by name." << std::endl;
     ++errors;
   }
   outInfo->Clear();
@@ -161,7 +163,7 @@ int TestAssignAttribute(int, char*[])
     outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES()) != scalars->GetNumberOfTuples() ||
     outFieldInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != scalars->GetDataType())
   {
-    cerr << "Scalar information not passed when attribute is assigned by type." << endl;
+    std::cerr << "Scalar information not passed when attribute is assigned by type." << std::endl;
     ++errors;
   }
   outInfo->Clear();
@@ -185,7 +187,7 @@ int TestAssignAttribute(int, char*[])
     outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES()) != tensors->GetNumberOfTuples() ||
     outFieldInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != tensors->GetDataType())
   {
-    cerr << "Tensor information not passed when attribute is assigned by name." << endl;
+    std::cerr << "Tensor information not passed when attribute is assigned by name." << std::endl;
     ++errors;
   }
   outInfo->Clear();
@@ -208,7 +210,7 @@ int TestAssignAttribute(int, char*[])
     outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES()) != tensors->GetNumberOfTuples() ||
     outFieldInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) != tensors->GetDataType())
   {
-    cerr << "Tensor information not passed when attribute is assigned by type." << endl;
+    std::cerr << "Tensor information not passed when attribute is assigned by type." << std::endl;
     ++errors;
   }
   if (errors > 0)

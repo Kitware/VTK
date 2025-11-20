@@ -24,6 +24,8 @@
 #include "vtkRenderer.h"
 #include "vtkShrinkFilter.h"
 
+#include <iostream>
+
 int TestHyperTreeGridTernary3DAxisCutMaterial(int argc, char* argv[])
 {
   // Hyper tree grid

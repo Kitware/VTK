@@ -16,6 +16,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLImageDataReader.h"
 
+#include <iostream>
+
 int TestSplitByCellScalarFilter(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/waveletMaterial.vti");
@@ -61,7 +63,7 @@ int TestSplitByCellScalarFilter(int argc, char* argv[])
     auto blockname = std::string("Material_") + vtk::to_string(static_cast<int>(r[0]));
     if (name == nullptr || blockname != name)
     {
-      cerr << "Mismatched block names" << endl;
+      std::cerr << "Mismatched block names" << std::endl;
       return EXIT_FAILURE;
     }
   }

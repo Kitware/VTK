@@ -18,6 +18,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 template <typename T>
 int TestSubdivision();
 

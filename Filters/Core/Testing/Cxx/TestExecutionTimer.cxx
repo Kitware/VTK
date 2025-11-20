@@ -15,6 +15,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 int TestExecutionTimer(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkPoints* newPts = vtkPoints::New();

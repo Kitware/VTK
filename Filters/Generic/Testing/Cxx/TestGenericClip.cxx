@@ -16,15 +16,12 @@
 #include "vtkAttributesErrorMetric.h"
 #include "vtkBridgeDataSet.h"
 #include "vtkDataSetMapper.h"
-#include "vtkDebugLeaks.h"
 #include "vtkGenericCellTessellator.h"
 #include "vtkGenericClip.h"
-#include "vtkGenericSubdivisionErrorMetric.h"
 #include "vtkGeometricErrorMetric.h"
 #include "vtkLookupTable.h"
 #include "vtkPlane.h"
 #include "vtkPointData.h"
-#include "vtkPolyData.h"
 #include "vtkProperty.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
@@ -34,8 +31,9 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
-#include "vtkXMLUnstructuredGridWriter.h"
+
 #include <cassert>
+#include <iostream>
 
 #ifdef WITH_GEOMETRY_FILTER
 #include "vtkGeometryFilter.h"
@@ -81,12 +79,12 @@ int TestGenericClip(int argc, char* argv[])
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
 
-  cout << "input unstructured grid: " << ds << endl;
+  std::cout << "input unstructured grid: " << ds << std::endl;
 
   static_cast<vtkSimpleCellTessellator*>(ds->GetTessellator())->SetSubdivisionLevels(0, 100);
 
   vtkIndent indent;
-  ds->PrintSelf(cout, indent);
+  ds->PrintSelf(std::cout, indent);
 
   // Create the filter
 

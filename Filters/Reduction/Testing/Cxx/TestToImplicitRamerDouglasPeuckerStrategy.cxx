@@ -8,6 +8,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 namespace
 {
 constexpr double TEST_TOL = 1e-8;

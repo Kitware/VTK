@@ -16,6 +16,8 @@
 #include <numeric>
 #include <vector>
 
+#include <iostream>
+
 namespace
 {
 constexpr int MAX_DEPTH = 7;

@@ -35,6 +35,8 @@
 #include "vtkSelectionNode.h"
 #include "vtkSelectionSource.h"
 
+#include <iostream>
+
 // #define TESTING_LOOP
 
 int TestBSPTree(int argc, char* argv[])

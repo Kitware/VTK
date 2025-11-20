@@ -8,6 +8,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLPolyDataReader.h"
 
+#include <iostream>
+
 int TestExtractValues(int vtkNotUsed(argc), char* argv[])
 {
   vtkNew<vtkXMLPolyDataReader> reader;
@@ -35,7 +37,7 @@ int TestExtractValues(int vtkNotUsed(argc), char* argv[])
     return EXIT_SUCCESS;
   }
 
-  cerr << "There is " << nbCells << " cells instead of 88 cells." << endl;
+  std::cerr << "There is " << nbCells << " cells instead of 88 cells." << std::endl;
 
   return EXIT_FAILURE;
 }

@@ -13,6 +13,8 @@
 
 #include <ctime>
 
+#include <iostream>
+
 static vtkSmartPointer<vtkDataArray> MonotonicValues(vtkIdType numValues)
 {
   vtkSmartPointer<vtkDoubleArray> values = vtkSmartPointer<vtkDoubleArray>::New();

@@ -18,6 +18,8 @@
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkUnstructuredGrid.h>
 
+#include <iostream>
+
 class vtkTimeRTAnalyticSource : public vtkRTAnalyticSource
 {
 public:

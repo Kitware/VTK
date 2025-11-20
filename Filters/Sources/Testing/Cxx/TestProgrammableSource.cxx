@@ -11,6 +11,8 @@
 #include <vtkTable.h>
 #include <vtkUnstructuredGrid.h>
 
+#include <iostream>
+
 #define EXECUTE_METHOD(_type)                                                                      \
   void _type##ExecuteMethod(void* args)                                                            \
   {                                                                                                \

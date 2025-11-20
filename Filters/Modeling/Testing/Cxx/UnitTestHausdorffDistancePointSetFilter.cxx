@@ -9,6 +9,8 @@
 #include "vtkSphereSource.h"
 #include "vtkTestErrorObserver.h"
 
+#include <iostream>
+
 int UnitTestHausdorffDistancePointSetFilter(int, char*[])
 {
   int status = 0;

@@ -11,6 +11,8 @@
 #include <vtkXMLImageDataReader.h>
 #include <vtkXMLPolyDataReader.h>
 
+#include <iostream>
+
 int TestArrayCalculator(int argc, char* argv[])
 {
   for (int i = 0; i < vtkArrayCalculator::NumberOfFunctionParserTypes; ++i)

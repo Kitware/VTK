@@ -29,9 +29,11 @@
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 int TestBSPTreeWithGhostArrays(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);

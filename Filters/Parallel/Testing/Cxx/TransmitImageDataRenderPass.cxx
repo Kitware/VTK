@@ -38,6 +38,8 @@
 
 #include <vtk_mpi.h>
 
+#include <iostream>
+
 namespace
 {
 
@@ -99,7 +101,7 @@ void MyProcess::Execute()
     {
       if (sp)
       {
-        cout << "Failure: input file has no cells" << endl;
+        std::cout << "Failure: input file has no cells" << std::endl;
       }
       go = 0;
     }
@@ -248,7 +250,7 @@ int TransmitImageDataRenderPass(int argc, char* argv[])
   {
     if (me == 0)
     {
-      cout << "DistributedData test requires 2 processes" << endl;
+      std::cout << "DistributedData test requires 2 processes" << std::endl;
     }
     return retVal;
   }
@@ -257,7 +259,7 @@ int TransmitImageDataRenderPass(int argc, char* argv[])
   {
     if (me == 0)
     {
-      cout << "DistributedData test requires MPI" << endl;
+      std::cout << "DistributedData test requires MPI" << std::endl;
     }
     contr->Delete();
     return retVal; // is this the right error val?   TODO

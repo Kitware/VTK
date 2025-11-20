@@ -7,6 +7,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 
+#include <iostream>
+
 namespace
 {
 void DecimatePro(vtkPolyData* inputPolyData, double targetReduction, bool preserveTopology,
@@ -28,7 +30,7 @@ int TestDecimateProDegenerateTriangles(int argc, char* argv[])
   char* data_dir = vtkTestUtilities::GetDataRoot(argc, argv);
   if (!data_dir)
   {
-    cerr << "Could not determine data directory." << endl;
+    std::cerr << "Could not determine data directory." << std::endl;
     return EXIT_FAILURE;
   }
 
