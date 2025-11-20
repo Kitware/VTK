@@ -61,7 +61,6 @@ void vtkCellQuality::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 class vtkCellQualityFunctor
 {
-private:
   vtkSMPThreadLocalObject<vtkGenericCell> Cell;
   vtkCellQuality* CellQuality;
   vtkDataSet* Output;
@@ -82,12 +81,11 @@ public:
   void operator()(vtkIdType begin, vtkIdType end)
   {
     auto& genericCell = this->Cell.Local();
-    vtkCell* cell;
     double q;
     for (vtkIdType i = begin; i < end; ++i)
     {
       this->Output->GetCell(i, genericCell);
-      cell = genericCell->GetRepresentativeCell();
+      vtkCell* cell = genericCell->GetRepresentativeCell();
       switch (cell->GetCellType())
       {
         default:
@@ -147,6 +145,13 @@ int vtkCellQuality::RequestData(vtkInformation* vtkNotUsed(request),
   auto quality = vtkSmartPointer<vtkDoubleArray>::New();
   quality->SetName("CellQuality");
   quality->SetNumberOfValues(nCells);
+
+  if (this->GetQualityMeasure() == QualityMeasureTypes::RELATIVE_SIZE_SQUARED ||
+    this->GetQualityMeasure() == QualityMeasureTypes::SHAPE_AND_SIZE ||
+    this->GetQualityMeasure() == QualityMeasureTypes::SHEAR_AND_SIZE)
+  {
+    vtkMeshQuality::ComputeAverageCellSize(out);
+  }
 
   // Set the output quality array
   vtkCellQualityFunctor cellQualityFunctor(this, out, quality);

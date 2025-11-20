@@ -98,6 +98,13 @@ public:
   ///@}
 
   /**
+   * Compute the average cell size for each cell type in the mesh, and store it in field data arrays
+   * (TriArea, QuadArea, TetVolume, PyrVolume, WedgeVolume, and HexVolume)
+   * and in static variables for use in quality measures that require it.
+   */
+  static void ComputeAverageCellSize(vtkDataSet* dataset);
+
+  /**
    * Enum which lists the Quality Measures Types.
    *
    * - AREA: Element area computed via Jacobian.

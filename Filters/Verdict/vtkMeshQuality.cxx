@@ -1167,6 +1167,109 @@ vtkMeshQuality::CellQualityType vtkMeshQuality::GetTriQuadraticHexQualityMeasure
 }
 
 //----------------------------------------------------------------------------
+void vtkMeshQuality::ComputeAverageCellSize(vtkDataSet* dataset)
+{
+  vtkDataArray* triAreaHint = dataset->GetFieldData()->GetArray("TriArea");
+  vtkDataArray* quadAreaHint = dataset->GetFieldData()->GetArray("QuadArea");
+  vtkDataArray* tetVolHint = dataset->GetFieldData()->GetArray("TetVolume");
+  vtkDataArray* pyrVolHint = dataset->GetFieldData()->GetArray("PyrVolume");
+  vtkDataArray* wedgeVolHint = dataset->GetFieldData()->GetArray("WedgeVolume");
+  vtkDataArray* hexVolHint = dataset->GetFieldData()->GetArray("HexVolume");
+
+  double triAreaTuple[5];
+  double quadAreaTuple[5];
+  double tetVolTuple[5];
+  double pyrVolTuple[5];
+  double wedgeVolTuple[5];
+  double hexVolTuple[5];
+
+  if (triAreaHint && triAreaHint->GetNumberOfTuples() > 0 &&
+    triAreaHint->GetNumberOfComponents() == 5 && quadAreaHint &&
+    quadAreaHint->GetNumberOfTuples() > 0 && quadAreaHint->GetNumberOfComponents() == 5 &&
+    tetVolHint && tetVolHint->GetNumberOfTuples() > 0 && tetVolHint->GetNumberOfComponents() == 5 &&
+    pyrVolHint && pyrVolHint->GetNumberOfTuples() > 0 && pyrVolHint->GetNumberOfComponents() == 5 &&
+    wedgeVolHint && wedgeVolHint->GetNumberOfTuples() > 0 &&
+    wedgeVolHint->GetNumberOfComponents() == 5 && hexVolHint &&
+    hexVolHint->GetNumberOfTuples() > 0 && hexVolHint->GetNumberOfComponents() == 5)
+  {
+    triAreaHint->GetTuple(0, triAreaTuple);
+    quadAreaHint->GetTuple(0, quadAreaTuple);
+    tetVolHint->GetTuple(0, tetVolTuple);
+    pyrVolHint->GetTuple(0, pyrVolTuple);
+    wedgeVolHint->GetTuple(0, wedgeVolTuple);
+    hexVolHint->GetTuple(0, hexVolTuple);
+    vtkMeshQuality::TriangleAverageSize = triAreaTuple[1] / triAreaTuple[4];
+    vtkMeshQuality::QuadAverageSize = quadAreaTuple[1] / quadAreaTuple[4];
+    vtkMeshQuality::TetAverageSize = tetVolTuple[1] / tetVolTuple[4];
+    vtkMeshQuality::PyramidAverageSize = pyrVolTuple[1] / pyrVolTuple[4];
+    vtkMeshQuality::WedgeAverageSize = wedgeVolTuple[1] / wedgeVolTuple[4];
+    vtkMeshQuality::HexAverageSize = hexVolTuple[1] / hexVolTuple[4];
+  }
+  else
+  {
+    vtkSizeFunctor sizeFunctor(dataset);
+    vtkSMPTools::For(0, dataset->GetNumberOfCells(), sizeFunctor);
+
+    sizeFunctor.GetTriangleStats().GetStats(triAreaTuple);
+    sizeFunctor.GetQuadStats().GetStats(quadAreaTuple);
+    sizeFunctor.GetTetStats().GetStats(tetVolTuple);
+    sizeFunctor.GetPyrStats().GetStats(pyrVolTuple);
+    sizeFunctor.GetWedgeStats().GetStats(wedgeVolTuple);
+    sizeFunctor.GetHexStats().GetStats(hexVolTuple);
+
+    vtkMeshQuality::TriangleAverageSize = triAreaTuple[1] / triAreaTuple[4];
+    vtkMeshQuality::QuadAverageSize = quadAreaTuple[1] / quadAreaTuple[4];
+    vtkMeshQuality::TetAverageSize = tetVolTuple[1] / tetVolTuple[4];
+    vtkMeshQuality::PyramidAverageSize = pyrVolTuple[1] / pyrVolTuple[4];
+    vtkMeshQuality::WedgeAverageSize = wedgeVolTuple[1] / wedgeVolTuple[4];
+    vtkMeshQuality::HexAverageSize = hexVolTuple[1] / hexVolTuple[4];
+
+    // Save info as field data for downstream filters
+    triAreaHint = vtkDoubleArray::New();
+    triAreaHint->SetName("TriArea");
+    triAreaHint->SetNumberOfComponents(5);
+    triAreaHint->InsertNextTuple(triAreaTuple);
+    dataset->GetFieldData()->AddArray(triAreaHint);
+    triAreaHint->Delete();
+
+    quadAreaHint = vtkDoubleArray::New();
+    quadAreaHint->SetName("QuadArea");
+    quadAreaHint->SetNumberOfComponents(5);
+    quadAreaHint->InsertNextTuple(quadAreaTuple);
+    dataset->GetFieldData()->AddArray(quadAreaHint);
+    quadAreaHint->Delete();
+
+    tetVolHint = vtkDoubleArray::New();
+    tetVolHint->SetName("TetVolume");
+    tetVolHint->SetNumberOfComponents(5);
+    tetVolHint->InsertNextTuple(tetVolTuple);
+    dataset->GetFieldData()->AddArray(tetVolHint);
+    tetVolHint->Delete();
+
+    pyrVolHint = vtkDoubleArray::New();
+    pyrVolHint->SetName("PyrVolume");
+    pyrVolHint->SetNumberOfComponents(5);
+    pyrVolHint->InsertNextTuple(pyrVolTuple);
+    dataset->GetFieldData()->AddArray(pyrVolHint);
+    pyrVolHint->Delete();
+
+    wedgeVolHint = vtkDoubleArray::New();
+    wedgeVolHint->SetName("WedgeVolume");
+    wedgeVolHint->SetNumberOfComponents(5);
+    wedgeVolHint->InsertNextTuple(wedgeVolTuple);
+    dataset->GetFieldData()->AddArray(wedgeVolHint);
+    wedgeVolHint->Delete();
+
+    hexVolHint = vtkDoubleArray::New();
+    hexVolHint->SetName("HexVolume");
+    hexVolHint->SetNumberOfComponents(5);
+    hexVolHint->InsertNextTuple(hexVolTuple);
+    dataset->GetFieldData()->AddArray(hexVolHint);
+    hexVolHint->Delete();
+  }
+}
+
+//----------------------------------------------------------------------------
 int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
@@ -1211,105 +1314,7 @@ int vtkMeshQuality::RequestData(vtkInformation* vtkNotUsed(request),
     this->GetHexQualityMeasure() == QualityMeasureTypes::SHAPE_AND_SIZE ||
     this->GetHexQualityMeasure() == QualityMeasureTypes::SHEAR_AND_SIZE)
   {
-    vtkDataArray* triAreaHint = in->GetFieldData()->GetArray("TriArea");
-    vtkDataArray* quadAreaHint = in->GetFieldData()->GetArray("QuadArea");
-    vtkDataArray* tetVolHint = in->GetFieldData()->GetArray("TetVolume");
-    vtkDataArray* pyrVolHint = in->GetFieldData()->GetArray("PyrVolume");
-    vtkDataArray* wedgeVolHint = in->GetFieldData()->GetArray("WedgeVolume");
-    vtkDataArray* hexVolHint = in->GetFieldData()->GetArray("HexVolume");
-
-    double triAreaTuple[5];
-    double quadAreaTuple[5];
-    double tetVolTuple[5];
-    double pyrVolTuple[5];
-    double wedgeVolTuple[5];
-    double hexVolTuple[5];
-
-    if (triAreaHint && triAreaHint->GetNumberOfTuples() > 0 &&
-      triAreaHint->GetNumberOfComponents() == 5 && quadAreaHint &&
-      quadAreaHint->GetNumberOfTuples() > 0 && quadAreaHint->GetNumberOfComponents() == 5 &&
-      tetVolHint && tetVolHint->GetNumberOfTuples() > 0 &&
-      tetVolHint->GetNumberOfComponents() == 5 && pyrVolHint &&
-      pyrVolHint->GetNumberOfTuples() > 0 && pyrVolHint->GetNumberOfComponents() == 5 &&
-      wedgeVolHint && wedgeVolHint->GetNumberOfTuples() > 0 &&
-      wedgeVolHint->GetNumberOfComponents() == 5 && hexVolHint &&
-      hexVolHint->GetNumberOfTuples() > 0 && hexVolHint->GetNumberOfComponents() == 5)
-    {
-      triAreaHint->GetTuple(0, triAreaTuple);
-      quadAreaHint->GetTuple(0, quadAreaTuple);
-      tetVolHint->GetTuple(0, tetVolTuple);
-      pyrVolHint->GetTuple(0, pyrVolTuple);
-      wedgeVolHint->GetTuple(0, wedgeVolTuple);
-      hexVolHint->GetTuple(0, hexVolTuple);
-      vtkMeshQuality::TriangleAverageSize = triAreaTuple[1] / triAreaTuple[4];
-      vtkMeshQuality::QuadAverageSize = quadAreaTuple[1] / quadAreaTuple[4];
-      vtkMeshQuality::TetAverageSize = tetVolTuple[1] / tetVolTuple[4];
-      vtkMeshQuality::PyramidAverageSize = pyrVolTuple[1] / pyrVolTuple[4];
-      vtkMeshQuality::WedgeAverageSize = wedgeVolTuple[1] / wedgeVolTuple[4];
-      vtkMeshQuality::HexAverageSize = hexVolTuple[1] / hexVolTuple[4];
-    }
-    else
-    {
-      vtkSizeFunctor sizeFunctor(out);
-      vtkSMPTools::For(0, numberOfCells, sizeFunctor);
-
-      sizeFunctor.GetTriangleStats().GetStats(triAreaTuple);
-      sizeFunctor.GetQuadStats().GetStats(quadAreaTuple);
-      sizeFunctor.GetTetStats().GetStats(tetVolTuple);
-      sizeFunctor.GetPyrStats().GetStats(pyrVolTuple);
-      sizeFunctor.GetWedgeStats().GetStats(wedgeVolTuple);
-      sizeFunctor.GetHexStats().GetStats(hexVolTuple);
-
-      vtkMeshQuality::TriangleAverageSize = triAreaTuple[1] / triAreaTuple[4];
-      vtkMeshQuality::QuadAverageSize = quadAreaTuple[1] / quadAreaTuple[4];
-      vtkMeshQuality::TetAverageSize = tetVolTuple[1] / tetVolTuple[4];
-      vtkMeshQuality::PyramidAverageSize = pyrVolTuple[1] / pyrVolTuple[4];
-      vtkMeshQuality::WedgeAverageSize = wedgeVolTuple[1] / wedgeVolTuple[4];
-      vtkMeshQuality::HexAverageSize = hexVolTuple[1] / hexVolTuple[4];
-
-      // Save info as field data for downstream filters
-      triAreaHint = vtkDoubleArray::New();
-      triAreaHint->SetName("TriArea");
-      triAreaHint->SetNumberOfComponents(5);
-      triAreaHint->InsertNextTuple(triAreaTuple);
-      out->GetFieldData()->AddArray(triAreaHint);
-      triAreaHint->Delete();
-
-      quadAreaHint = vtkDoubleArray::New();
-      quadAreaHint->SetName("QuadArea");
-      quadAreaHint->SetNumberOfComponents(5);
-      quadAreaHint->InsertNextTuple(quadAreaTuple);
-      out->GetFieldData()->AddArray(quadAreaHint);
-      quadAreaHint->Delete();
-
-      tetVolHint = vtkDoubleArray::New();
-      tetVolHint->SetName("TetVolume");
-      tetVolHint->SetNumberOfComponents(5);
-      tetVolHint->InsertNextTuple(tetVolTuple);
-      out->GetFieldData()->AddArray(tetVolHint);
-      tetVolHint->Delete();
-
-      pyrVolHint = vtkDoubleArray::New();
-      pyrVolHint->SetName("PyrVolume");
-      pyrVolHint->SetNumberOfComponents(5);
-      pyrVolHint->InsertNextTuple(pyrVolTuple);
-      out->GetFieldData()->AddArray(pyrVolHint);
-      pyrVolHint->Delete();
-
-      wedgeVolHint = vtkDoubleArray::New();
-      wedgeVolHint->SetName("WedgeVolume");
-      wedgeVolHint->SetNumberOfComponents(5);
-      wedgeVolHint->InsertNextTuple(wedgeVolTuple);
-      out->GetFieldData()->AddArray(wedgeVolHint);
-      wedgeVolHint->Delete();
-
-      hexVolHint = vtkDoubleArray::New();
-      hexVolHint->SetName("HexVolume");
-      hexVolHint->SetNumberOfComponents(5);
-      hexVolHint->InsertNextTuple(hexVolTuple);
-      out->GetFieldData()->AddArray(hexVolHint);
-      hexVolHint->Delete();
-    }
+    vtkMeshQuality::ComputeAverageCellSize(out);
   }
 
   vtkMeshQualityFunctor meshQualityFunctor(
