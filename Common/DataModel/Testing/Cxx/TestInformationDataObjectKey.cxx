@@ -5,6 +5,8 @@
 #include "vtkInformationDataObjectKey.h"
 #include "vtkPolyData.h"
 
+#include <iostream>
+
 //----------------------------------------------------------------
 // The vtkInformationDataObjectKey uses reinterpret_cast to cast between
 // vtkDataObject* and vtkObjectBase*, instead of using static_cast.  See

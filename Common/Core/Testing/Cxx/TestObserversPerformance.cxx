@@ -15,6 +15,8 @@
 #include <map>
 #include <vector>
 
+#include <iostream>
+
 // How many times the tests are run to average the elapsed time.
 static constexpr int STRESS_COUNT = 5;
 

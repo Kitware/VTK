@@ -6,6 +6,8 @@
 #include "vtkPolygonBuilder.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 int TestPolygonBuilder4(int, char*[])
 {
 

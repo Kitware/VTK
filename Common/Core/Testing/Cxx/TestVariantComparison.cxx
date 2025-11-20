@@ -7,6 +7,8 @@
 #include <cstdio>
 #include <map>
 
+#include <iostream>
+
 int TestVariantComparison(int, char*[])
 {
   signed char positiveChar = 100;
@@ -86,7 +88,7 @@ int TestVariantComparison(int, char*[])
     if ((expr))                                                                                    \
     {                                                                                              \
       ++errorCount;                                                                                \
-      cerr << "TEST FAILED: " << #expr << " should have been false\n\n";                           \
+      std::cerr << "TEST FAILED: " << #expr << " should have been false\n\n";                      \
     }                                                                                              \
   } while (false)
 
@@ -96,11 +98,11 @@ int TestVariantComparison(int, char*[])
     if (!(expr))                                                                                   \
     {                                                                                              \
       ++errorCount;                                                                                \
-      cerr << "TEST FAILED: " << #expr << " should have been true\n\n";                            \
+      std::cerr << "TEST FAILED: " << #expr << " should have been true\n\n";                       \
     }                                                                                              \
   } while (false)
 
-  cerr << "Testing same-type comparisons... ";
+  std::cerr << "Testing same-type comparisons... ";
   CHECK_EXPRESSION_FALSE(positiveCharVariant < negativeCharVariant);
   CHECK_EXPRESSION_FALSE(unsignedCharVariant < positiveCharVariant);
   CHECK_EXPRESSION_FALSE(unsignedCharVariant < negativeCharVariant);
@@ -128,16 +130,16 @@ int TestVariantComparison(int, char*[])
 
   if (errorCount == 0)
   {
-    cerr << "Test succeeded.\n";
+    std::cerr << "Test succeeded.\n";
   }
   else
   {
-    cerr << errorCount << " error(s) found!\n";
+    std::cerr << errorCount << " error(s) found!\n";
   }
   overallErrorCount += errorCount;
   errorCount = 0;
 
-  cerr << "Testing cross-type comparisons... ";
+  std::cerr << "Testing cross-type comparisons... ";
 
   CHECK_EXPRESSION_FALSE(positiveShortVariant < positiveCharVariant);
   CHECK_EXPRESSION_FALSE(positiveIntVariant < positiveCharVariant);
@@ -179,16 +181,16 @@ int TestVariantComparison(int, char*[])
 
   if (errorCount == 0)
   {
-    cerr << "Test succeeded.\n";
+    std::cerr << "Test succeeded.\n";
   }
   else
   {
-    cerr << errorCount << " error(s) found!\n";
+    std::cerr << errorCount << " error(s) found!\n";
   }
   overallErrorCount += errorCount;
   errorCount = 0;
 
-  cerr << "Testing cross-type equality...";
+  std::cerr << "Testing cross-type equality...";
 
   char c = 100;
   short s = 100;
@@ -235,16 +237,16 @@ int TestVariantComparison(int, char*[])
 
   if (errorCount == 0)
   {
-    cerr << " Test succeeded.\n";
+    std::cerr << " Test succeeded.\n";
   }
   else
   {
-    cerr << errorCount << " error(s) found!\n";
+    std::cerr << errorCount << " error(s) found!\n";
   }
   overallErrorCount += errorCount;
   errorCount = 0;
 
-  cerr << "Testing vtkVariant as STL map key... ";
+  std::cerr << "Testing vtkVariant as STL map key... ";
 
   std::map<vtkVariant, std::string> TestMap;
 
@@ -262,16 +264,16 @@ int TestVariantComparison(int, char*[])
 
   if (errorCount == 0)
   {
-    cerr << " Test succeeded.\n";
+    std::cerr << " Test succeeded.\n";
   }
   else
   {
-    cerr << errorCount << " error(s) found!\n";
+    std::cerr << errorCount << " error(s) found!\n";
   }
   overallErrorCount += errorCount;
   errorCount = 0;
 
-  cerr << "Testing vtkVariant as STL map key with strict weak ordering (fast comparator)...";
+  std::cerr << "Testing vtkVariant as STL map key with strict weak ordering (fast comparator)...";
 
   // This one should treat variants containing different types as
   // unequal.
@@ -313,42 +315,42 @@ int TestVariantComparison(int, char*[])
 
   if (errorCount == 0)
   {
-    cerr << " Test succeeded.\n";
+    std::cerr << " Test succeeded.\n";
   }
   else
   {
-    cerr << errorCount << " error(s) found!\n";
+    std::cerr << errorCount << " error(s) found!\n";
   }
   overallErrorCount += errorCount;
 
   if (overallErrorCount == 0)
   {
-    cerr << "All tests succeeded.\n";
+    std::cerr << "All tests succeeded.\n";
   }
   else
   {
-    cerr << "Some tests failed!  Overall error count: " << overallErrorCount << "\n";
-    cerr << "Debug information:\n";
-    cerr << "CHAR(" << sizeof(char) << "): "
-         << "positive " << positiveChar << ", "
-         << "negative " << negativeChar << ", "
-         << "unsigned " << unsignedChar << "\n";
-    cerr << "SHORT(" << sizeof(short) << "): "
-         << "positive " << positiveShort << ", "
-         << "negative " << negativeShort << ", "
-         << "unsigned " << unsignedShort << "\n";
-    cerr << "INT(" << sizeof(int) << "): "
-         << "positive " << positiveInt << ", "
-         << "negative " << negativeInt << ", "
-         << "unsigned " << unsignedInt << "\n";
-    cerr << "LONG(" << sizeof(long) << "): "
-         << "positive " << positiveLong << ", "
-         << "negative " << negativeLong << ", "
-         << "unsigned " << unsignedLong << "\n";
-    cerr << "INT64(" << sizeof(vtkTypeInt64) << "): "
-         << "positive " << positive64 << ", "
-         << "negative " << negative64 << ", "
-         << "unsigned " << unsigned64 << "\n";
+    std::cerr << "Some tests failed!  Overall error count: " << overallErrorCount << "\n";
+    std::cerr << "Debug information:\n";
+    std::cerr << "CHAR(" << sizeof(char) << "): "
+              << "positive " << positiveChar << ", "
+              << "negative " << negativeChar << ", "
+              << "unsigned " << unsignedChar << "\n";
+    std::cerr << "SHORT(" << sizeof(short) << "): "
+              << "positive " << positiveShort << ", "
+              << "negative " << negativeShort << ", "
+              << "unsigned " << unsignedShort << "\n";
+    std::cerr << "INT(" << sizeof(int) << "): "
+              << "positive " << positiveInt << ", "
+              << "negative " << negativeInt << ", "
+              << "unsigned " << unsignedInt << "\n";
+    std::cerr << "LONG(" << sizeof(long) << "): "
+              << "positive " << positiveLong << ", "
+              << "negative " << negativeLong << ", "
+              << "unsigned " << unsignedLong << "\n";
+    std::cerr << "INT64(" << sizeof(vtkTypeInt64) << "): "
+              << "positive " << positive64 << ", "
+              << "negative " << negative64 << ", "
+              << "unsigned " << unsigned64 << "\n";
   }
 
   fooObject->Delete();

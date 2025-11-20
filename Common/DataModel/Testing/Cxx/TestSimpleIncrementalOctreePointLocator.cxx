@@ -7,6 +7,8 @@
 
 #include <array>
 
+#include <iostream>
+
 int TestSimpleIncrementalOctreePointLocator(int, char** const)
 {
   std::array<double, 6> bb = { 0, 1, 0, 1, 0, 1 };

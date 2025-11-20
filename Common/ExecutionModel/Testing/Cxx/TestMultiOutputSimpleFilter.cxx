@@ -15,6 +15,8 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkXMLGenericDataObjectReader.h"
 
+#include <iostream>
+
 #define VTK_SUCCESS 0
 #define VTK_FAILURE 1
 namespace

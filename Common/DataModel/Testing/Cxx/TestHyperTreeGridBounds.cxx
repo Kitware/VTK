@@ -14,6 +14,8 @@
 #include <cstdlib>
 #include <numeric>
 
+#include <iostream>
+
 namespace
 {
 constexpr double EPSILON = 0.1;

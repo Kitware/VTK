@@ -7,11 +7,13 @@
 #include "vtkPoints2D.h"
 #include "vtkTransform2D.h"
 
+#include <iostream>
+
 int TestMatrix3x3(int, char*[])
 {
   // Instantiate a vtkMatrix3x3 and test out the functions.
   vtkNew<vtkMatrix3x3> matrix;
-  cout << "Testing vtkMatrix3x3..." << endl;
+  std::cout << "Testing vtkMatrix3x3..." << std::endl;
   if (!matrix->IsIdentity())
   {
     vtkGenericWarningMacro("Matrix should be initialized to identity.");

@@ -6,6 +6,8 @@
 #include "vtkPolygonBuilder.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 int TestPolygonBuilder2(int, char*[])
 {
 
@@ -45,7 +47,7 @@ int TestPolygonBuilder2(int, char*[])
 
   if (polys->GetNumberOfItems() != 2) // expect abcd and efgh
   {
-    cout << "number of items is " << polys->GetNumberOfItems() << endl;
+    std::cout << "number of items is " << polys->GetNumberOfItems() << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -54,7 +56,7 @@ int TestPolygonBuilder2(int, char*[])
   if (poly->GetNumberOfIds() != expected)
   {
     vtkGenericWarningMacro(<< "number of ids is " << poly->GetNumberOfIds() << " but expected "
-                           << expected << endl);
+                           << expected << "\n");
     return EXIT_FAILURE;
   }
   poly->Delete();
@@ -62,7 +64,7 @@ int TestPolygonBuilder2(int, char*[])
   if (poly->GetNumberOfIds() != expected)
   {
     vtkGenericWarningMacro(<< "number of ids is " << poly->GetNumberOfIds() << " but expected "
-                           << expected << endl);
+                           << expected << "\n");
     return EXIT_FAILURE;
   }
   poly->Delete();

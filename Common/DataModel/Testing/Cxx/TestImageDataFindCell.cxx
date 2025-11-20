@@ -14,6 +14,8 @@
 #include "vtkMatrix4x4.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 inline int DoTest(int extent[6], double origin[3], double spacing[3], double direction[9])
 {
   vtkSmartPointer<vtkImageData> image = vtkSmartPointer<vtkImageData>::New();
@@ -49,9 +51,10 @@ inline int DoTest(int extent[6], double origin[3], double spacing[3], double dir
 
       if (cellId < 0)
       {
-        cerr << "point (" << x[0] << ", " << x[1] << ", " << x[2] << ")"
-             << " should be in bounds (" << bounds[0] << ", " << bounds[1] << ", " << bounds[2]
-             << ", " << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << ") with tol 0.0\n";
+        std::cerr << "point (" << x[0] << ", " << x[1] << ", " << x[2] << ")"
+                  << " should be in bounds (" << bounds[0] << ", " << bounds[1] << ", " << bounds[2]
+                  << ", " << bounds[3] << ", " << bounds[4] << ", " << bounds[5]
+                  << ") with tol 0.0\n";
         return 1;
       }
 
@@ -64,9 +67,10 @@ inline int DoTest(int extent[6], double origin[3], double spacing[3], double dir
 
       if (cellId >= 0)
       {
-        cerr << "point (" << x[0] << ", " << x[1] << ", " << x[2] << ")"
-             << " should be out of bounds (" << bounds[0] << ", " << bounds[1] << ", " << bounds[2]
-             << ", " << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << ") with tol 0.0\n";
+        std::cerr << "point (" << x[0] << ", " << x[1] << ", " << x[2] << ")"
+                  << " should be out of bounds (" << bounds[0] << ", " << bounds[1] << ", "
+                  << bounds[2] << ", " << bounds[3] << ", " << bounds[4] << ", " << bounds[5]
+                  << ") with tol 0.0\n";
         return 1;
       }
 
@@ -78,10 +82,10 @@ inline int DoTest(int extent[6], double origin[3], double spacing[3], double dir
 
       if (cellId < 0)
       {
-        cerr << "point (" << x[0] << ", " << x[1] << ", " << x[2] << ")"
-             << " should be inside bounds (" << bounds[0] << ", " << bounds[1] << ", " << bounds[2]
-             << ", " << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << ") with tol " << tol
-             << "\n";
+        std::cerr << "point (" << x[0] << ", " << x[1] << ", " << x[2] << ")"
+                  << " should be inside bounds (" << bounds[0] << ", " << bounds[1] << ", "
+                  << bounds[2] << ", " << bounds[3] << ", " << bounds[4] << ", " << bounds[5]
+                  << ") with tol " << tol << "\n";
         return 1;
       }
 
@@ -92,7 +96,7 @@ inline int DoTest(int extent[6], double origin[3], double spacing[3], double dir
       {
         if (pcoords[i] != 1.0)
         {
-          cerr << "at upper bounds, pcoord should be 1, but is " << pcoords[i] << "\n";
+          std::cerr << "at upper bounds, pcoord should be 1, but is " << pcoords[i] << "\n";
           return 1;
         }
       }
@@ -100,8 +104,8 @@ inline int DoTest(int extent[6], double origin[3], double spacing[3], double dir
       {
         if (pcoords[i] != 0.0)
         {
-          cerr << "at lower bounds and for 0,1,2D cells, pcoord should be 0, "
-               << "but is " << pcoords[i] << "\n";
+          std::cerr << "at lower bounds and for 0,1,2D cells, pcoord should be 0, "
+                    << "but is " << pcoords[i] << "\n";
           return 1;
         }
       }
@@ -113,16 +117,16 @@ inline int DoTest(int extent[6], double origin[3], double spacing[3], double dir
       int idx[3];
       if (image->ComputeStructuredCoordinates(x, idx, pcoords2) == 0)
       {
-        cerr << "ComputeStructuredCoordinates failed for "
-             << "point (" << x[0] << ", " << x[1] << ", " << x[2] << ")"
-             << " and bounds (" << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-             << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << ")\n";
+        std::cerr << "ComputeStructuredCoordinates failed for "
+                  << "point (" << x[0] << ", " << x[1] << ", " << x[2] << ")"
+                  << " and bounds (" << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
+                  << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << ")\n";
         return 1;
       }
 
       if (image->ComputeCellId(idx) != cellId)
       {
-        cerr << "cellId = " << cellId << ", should be " << image->ComputeCellId(idx) << "\n";
+        std::cerr << "cellId = " << cellId << ", should be " << image->ComputeCellId(idx) << "\n";
         return 1;
       }
 
@@ -130,7 +134,8 @@ inline int DoTest(int extent[6], double origin[3], double spacing[3], double dir
       double dist = pcoords[i] - pcoords2[i];
       if (dist * dist > 1e-29)
       {
-        cerr << "pcoords[" << i << "] = " << pcoords[i] << ", should be " << pcoords2[i] << "\n";
+        std::cerr << "pcoords[" << i << "] = " << pcoords[i] << ", should be " << pcoords2[i]
+                  << "\n";
         return 1;
       }
 
@@ -141,10 +146,10 @@ inline int DoTest(int extent[6], double origin[3], double spacing[3], double dir
       y[2] = x[2];
       if (image->ComputeStructuredCoordinates(y, idx, pcoords2, 1e-8) == 0)
       {
-        cerr << "ComputeStructuredCoordinates with tolerance failed for "
-             << "point (" << y[0] << ", " << y[1] << ", " << y[2] << ")"
-             << " and bounds (" << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-             << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << ")\n";
+        std::cerr << "ComputeStructuredCoordinates with tolerance failed for "
+                  << "point (" << y[0] << ", " << y[1] << ", " << y[2] << ")"
+                  << " and bounds (" << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
+                  << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << ")\n";
         return 1;
       }
     }

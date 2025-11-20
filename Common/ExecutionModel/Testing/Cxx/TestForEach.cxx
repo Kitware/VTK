@@ -13,6 +13,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 namespace
 {
 

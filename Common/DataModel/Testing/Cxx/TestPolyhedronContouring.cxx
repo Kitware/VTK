@@ -10,6 +10,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include <iostream>
+
 int TestPolyhedronContouring(int argc, char* argv[])
 {
   vtkObject::GlobalWarningDisplayOff();
@@ -32,7 +34,8 @@ int TestPolyhedronContouring(int argc, char* argv[])
     vtkPolyData* polys = cf->GetOutput();
     if (polys->GetNumberOfCells() != 2)
     {
-      cerr << "Number of polys not 2 (as expected), but " << polys->GetNumberOfCells() << endl;
+      std::cerr << "Number of polys not 2 (as expected), but " << polys->GetNumberOfCells()
+                << std::endl;
       return EXIT_FAILURE;
     }
     cf->GenerateTrianglesOn();
@@ -40,8 +43,8 @@ int TestPolyhedronContouring(int argc, char* argv[])
     vtkPolyData* triangles = cf->GetOutput();
     if (triangles->GetNumberOfCells() != 4)
     {
-      cerr << "Number of triangles is not 4 (as expected), but " << triangles->GetNumberOfCells()
-           << endl;
+      std::cerr << "Number of triangles is not 4 (as expected), but "
+                << triangles->GetNumberOfCells() << std::endl;
       return EXIT_FAILURE;
     }
 
@@ -56,8 +59,8 @@ int TestPolyhedronContouring(int argc, char* argv[])
     vtkUnstructuredGrid* clip = cd->GetOutput();
     if (clip->GetNumberOfCells() != 2)
     {
-      cerr << "Number of 'less' clipped cells not 2 (as expected), but " << clip->GetNumberOfCells()
-           << endl;
+      std::cerr << "Number of 'less' clipped cells not 2 (as expected), but "
+                << clip->GetNumberOfCells() << std::endl;
       return EXIT_FAILURE;
     }
 
@@ -65,8 +68,8 @@ int TestPolyhedronContouring(int argc, char* argv[])
     int nFaces0 = clipCell0->GetNumberOfFaces();
     if (nFaces0 != 4 && nFaces0 != 6)
     {
-      cerr << "Expected one clipped cell with 4 and one with 10 faces, got " << nFaces0 << " faces."
-           << endl;
+      std::cerr << "Expected one clipped cell with 4 and one with 10 faces, got " << nFaces0
+                << " faces." << std::endl;
       return EXIT_FAILURE;
     }
 
@@ -74,8 +77,8 @@ int TestPolyhedronContouring(int argc, char* argv[])
     int nFaces1 = clipCell1->GetNumberOfFaces();
     if (nFaces1 != 4 && nFaces1 != 6)
     {
-      cerr << "Expected one clipped cell with 4 and one with 10 faces, got " << nFaces1 << " faces."
-           << endl;
+      std::cerr << "Expected one clipped cell with 4 and one with 10 faces, got " << nFaces1
+                << " faces." << std::endl;
       return EXIT_FAILURE;
     }
 
@@ -85,16 +88,16 @@ int TestPolyhedronContouring(int argc, char* argv[])
     clip = cd->GetOutput();
     if (clip->GetNumberOfCells() != 1)
     {
-      cerr << "Number of 'greater' clipped cells not 1 (as expected), but "
-           << clip->GetNumberOfCells() << endl;
+      std::cerr << "Number of 'greater' clipped cells not 1 (as expected), but "
+                << clip->GetNumberOfCells() << std::endl;
       return EXIT_FAILURE;
     }
 
     vtkCell* clipCell = clip->GetCell(0);
     if (clipCell->GetNumberOfFaces() != 10)
     {
-      cerr << "Expected one clipped cell with 10 faces, got " << clipCell->GetNumberOfFaces()
-           << "faces." << endl;
+      std::cerr << "Expected one clipped cell with 10 faces, got " << clipCell->GetNumberOfFaces()
+                << "faces." << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -150,14 +153,14 @@ int TestPolyhedronContouring(int argc, char* argv[])
     vtkPolyData* result = cf->GetOutput();
     if (result->GetNumberOfCells() != 1)
     {
-      cerr << "Expected 1 contour polyhedron, got " << result->GetNumberOfCells() << endl;
+      std::cerr << "Expected 1 contour polyhedron, got " << result->GetNumberOfCells() << std::endl;
       return EXIT_FAILURE;
     }
 
     vtkCell* contour = result->GetCell(0);
     if (contour->GetNumberOfPoints() != 7)
     {
-      cerr << "Expected 7 contour points, got " << contour->GetNumberOfPoints() << endl;
+      std::cerr << "Expected 7 contour points, got " << contour->GetNumberOfPoints() << std::endl;
       return EXIT_FAILURE;
     }
 
@@ -166,7 +169,8 @@ int TestPolyhedronContouring(int argc, char* argv[])
     vtkPolyData* triangles = cf->GetOutput();
     if (triangles->GetNumberOfCells() != 5)
     {
-      cerr << "Expected 5 contour triangles, got " << triangles->GetNumberOfCells() << endl;
+      std::cerr << "Expected 5 contour triangles, got " << triangles->GetNumberOfCells()
+                << std::endl;
       return EXIT_FAILURE;
     }
 
@@ -184,15 +188,16 @@ int TestPolyhedronContouring(int argc, char* argv[])
 
     if (cell_12851_contour->GetNumberOfCells() != 1)
     {
-      cerr << "cell_12851: Expected 1 contour polyhedron, got "
-           << cell_12851_contour->GetNumberOfCells() << endl;
+      std::cerr << "cell_12851: Expected 1 contour polyhedron, got "
+                << cell_12851_contour->GetNumberOfCells() << std::endl;
       return EXIT_FAILURE;
     }
 
     contour = cell_12851_contour->GetCell(0);
     if (contour->GetNumberOfPoints() != 3)
     {
-      cerr << "cell_12851: Expected 3 contour points, got " << contour->GetNumberOfPoints() << endl;
+      std::cerr << "cell_12851: Expected 3 contour points, got " << contour->GetNumberOfPoints()
+                << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -243,14 +248,15 @@ int TestPolyhedronContouring(int argc, char* argv[])
     vtkPolyData* result = cf->GetOutput();
     if (!result || result->GetNumberOfCells() != 1)
     {
-      cerr << "Contouring failed for polyhedron cell" << endl;
+      std::cerr << "Contouring failed for polyhedron cell" << std::endl;
       return EXIT_FAILURE;
     }
     vtkCell* contourCell = result->GetCell(0);
 
     if (contourCell->GetNumberOfPoints() != 7)
     {
-      cerr << "Expected contour with 7 points, got " << contourCell->GetNumberOfPoints() << endl;
+      std::cerr << "Expected contour with 7 points, got " << contourCell->GetNumberOfPoints()
+                << std::endl;
       return EXIT_FAILURE;
     }
   }

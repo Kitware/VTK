@@ -13,11 +13,13 @@
 
 #include <sstream>
 
+#include <iostream>
+
 int TestOID(ostream& strm)
 {
   int i, j, k;
   // actual test
-  strm << "Testing vtkImageData" << endl;
+  strm << "Testing vtkImageData" << std::endl;
   vtkImageData* id0D = vtkImageData::New();
   vtkImageData* id1Dx = vtkImageData::New();
   vtkImageData* id1Dy = vtkImageData::New();
@@ -129,7 +131,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   i = 10;
   j = 15;
@@ -142,7 +144,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   i = 10;
   j = 15;
@@ -155,7 +157,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   i = 10;
   j = 15;
@@ -168,7 +170,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   i = 10;
   cellId = i;
@@ -180,7 +182,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   i = 10;
   cellId = i;
@@ -192,7 +194,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   i = 10;
   cellId = i;
@@ -204,7 +206,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   cellId = 0;
   vtkCell* cell0D = id0D->GetCell(0);
@@ -215,7 +217,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
   i = 10;
@@ -241,7 +243,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   i = 10;
   j = 15;
@@ -272,7 +274,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   i = 10;
   j = 15;
@@ -302,7 +304,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   i = 10;
   j = 15;
@@ -332,7 +334,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   i = 10;
   cellId = i;
@@ -366,7 +368,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   i = 10;
   cellId = i;
@@ -400,7 +402,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   i = 10;
   cellId = i;
@@ -434,7 +436,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   cellId = 0;
   cell0D = id0D->GetCell(0, 0, 0);
@@ -456,7 +458,7 @@ int TestOID(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkGenericCell* gcell3D = vtkGenericCell::New();
@@ -508,62 +510,62 @@ int TestOID(ostream& strm)
   // Test GetCellBounds
   id3D->GetCellBounds(k * (19 * 19) + j * 19 + i, bounds);
   strm << "GetCellBounds(id3D): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   id2Dxy->GetCellBounds(j * 19 + i, bounds);
   strm << "GetCellBounds(id2Dxy): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   id2Dxz->GetCellBounds(j * 19 + i, bounds);
   strm << "GetCellBounds(id2Dxz): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   id2Dyz->GetCellBounds(j * 19 + i, bounds);
   strm << "GetCellBounds(id2Dyz): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   id1Dx->GetCellBounds(i, bounds);
   strm << "GetCellBounds(rg1x): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   id1Dy->GetCellBounds(i, bounds);
   strm << "GetCellBounds(id1Dy): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   id1Dz->GetCellBounds(i, bounds);
   strm << "GetCellBounds(id1Dz): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   id0D->GetCellBounds(i, bounds);
   strm << "GetCellBounds(id0D): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
   id3D->GetPoint(k * (20 * 20) + j * 20 + i, point);
-  strm << "GetPoint(id3D): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(id3D): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   id2Dxy->GetPoint(j * 20 + i, point);
-  strm << "GetPoint(id2Dxy): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(id2Dxy): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   id2Dxz->GetPoint(j * 20 + i, point);
-  strm << "GetPoint(id2Dxz): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(id2Dxz): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   id2Dyz->GetPoint(j * 20 + i, point);
-  strm << "GetPoint(id2Dyz): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(id2Dyz): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   id1Dx->GetPoint(i, point);
-  strm << "GetPoint(rg1x): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(rg1x): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   id1Dy->GetPoint(i, point);
-  strm << "GetPoint(id1Dy): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(id1Dy): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   id1Dz->GetPoint(i, point);
-  strm << "GetPoint(id1Dz): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(id1Dz): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   id0D->GetPoint(0, point);
-  strm << "GetPoint(id0D): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(id0D): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -571,49 +573,49 @@ int TestOID(ostream& strm)
 
   id3D->GetPoint(id3D->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   point3D[0] = 10;
   point3D[1] = 12;
   point3D[2] = 0;
   id2Dxy->GetPoint(id2Dxy->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   point3D[0] = 10;
   point3D[1] = 0;
   point3D[2] = 14;
   id2Dxz->GetPoint(id2Dxz->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   point3D[0] = 0;
   point3D[1] = 12;
   point3D[2] = 14;
   id2Dyz->GetPoint(id2Dyz->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   point3D[0] = 10;
   point3D[1] = 0;
   point3D[2] = 0;
   id1Dx->GetPoint(id1Dx->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   point3D[0] = 0;
   point3D[1] = 12;
   point3D[2] = 0;
   id1Dy->GetPoint(id1Dy->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   point3D[0] = 0;
   point3D[1] = 0;
   point3D[2] = 14;
   id1Dz->GetPoint(id1Dz->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -627,10 +629,10 @@ int TestOID(ostream& strm)
 
   strm << "FindAndGetCell(id3D): "
        << *id3D->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << ", " << pcoords[2] << endl;
+  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << ", " << pcoords[2] << std::endl;
   strm << "weights: " << weights[0] << ", " << weights[1] << ", " << weights[2] << ", "
        << weights[3] << ", " << weights[4] << ", " << weights[5] << ", " << weights[6] << ", "
-       << weights[7] << endl;
+       << weights[7] << std::endl;
 
   point3D[0] = 10.5;
   point3D[1] = 12.1;
@@ -640,14 +642,14 @@ int TestOID(ostream& strm)
   vtkCell* found = id2Dxy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(id2Dxy) not found!" << endl;
+    strm << "FindAndGetCell(id2Dxy) not found!" << std::endl;
     return 1;
   }
 
   strm << "FindAndGetCell(id2Dxy): " << *found;
-  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << endl;
+  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << std::endl;
   strm << "weights: " << weights[0] << ", " << weights[1] << ", " << weights[2] << ", "
-       << weights[3] << endl;
+       << weights[3] << std::endl;
 
   point3D[0] = 10.5;
   point3D[1] = 0.0;
@@ -658,14 +660,14 @@ int TestOID(ostream& strm)
   found = id2Dxz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(id2Dxz) not found!" << endl;
+    strm << "FindAndGetCell(id2Dxz) not found!" << std::endl;
     return 1;
   }
 
   strm << "FindAndGetCell(id2Dxz): " << *found;
-  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << endl;
+  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << std::endl;
   strm << "weights: " << weights[0] << ", " << weights[1] << ", " << weights[2] << ", "
-       << weights[3] << endl;
+       << weights[3] << std::endl;
 
   point3D[0] = 0.0;
   point3D[1] = 12.1;
@@ -676,14 +678,14 @@ int TestOID(ostream& strm)
   found = id2Dyz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(id2Dyz) not found!" << endl;
+    strm << "FindAndGetCell(id2Dyz) not found!" << std::endl;
     return 1;
   }
 
   strm << "FindAndGetCell(id2Dyz): " << *found;
-  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << endl;
+  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << std::endl;
   strm << "weights: " << weights[0] << ", " << weights[1] << ", " << weights[2] << ", "
-       << weights[3] << endl;
+       << weights[3] << std::endl;
 
   point3D[0] = 10.5;
   point3D[1] = 0.0;
@@ -692,13 +694,13 @@ int TestOID(ostream& strm)
   found = id1Dx->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(id1Dx) not found!" << endl;
+    strm << "FindAndGetCell(id1Dx) not found!" << std::endl;
     return 1;
   }
 
   strm << "FindAndGetCell(id1Dx): " << *found;
-  strm << "pcoords: " << pcoords[0] << endl;
-  strm << "weights: " << weights[0] << ", " << weights[1] << endl;
+  strm << "pcoords: " << pcoords[0] << std::endl;
+  strm << "weights: " << weights[0] << ", " << weights[1] << std::endl;
 
   point3D[0] = 0.0;
   point3D[1] = 12.1;
@@ -707,13 +709,13 @@ int TestOID(ostream& strm)
   found = id1Dy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(id1Dy) not found!" << endl;
+    strm << "FindAndGetCell(id1Dy) not found!" << std::endl;
     return 1;
   }
 
   strm << "FindAndGetCell(id1Dy): " << *found;
-  strm << "pcoords: " << pcoords[0] << endl;
-  strm << "weights: " << weights[0] << ", " << weights[1] << endl;
+  strm << "pcoords: " << pcoords[0] << std::endl;
+  strm << "weights: " << weights[0] << ", " << weights[1] << std::endl;
 
   point3D[0] = 0.0;
   point3D[1] = 0.0;
@@ -722,35 +724,35 @@ int TestOID(ostream& strm)
   found = id1Dz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(id1Dz) not found!" << endl;
+    strm << "FindAndGetCell(id1Dz) not found!" << std::endl;
     return 1;
   }
 
   strm << "FindAndGetCell(id1Dz): " << *found;
-  strm << "pcoords: " << pcoords[0] << endl;
-  strm << "weights: " << weights[0] << ", " << weights[1] << endl;
+  strm << "pcoords: " << pcoords[0] << std::endl;
+  strm << "weights: " << weights[0] << ", " << weights[1] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(id3D): " << id3D->GetCellType(0) << endl;
-  strm << "GetCellType(id2Dxy): " << id2Dxy->GetCellType(0) << endl;
-  strm << "GetCellType(id2Dxz): " << id2Dxz->GetCellType(0) << endl;
-  strm << "GetCellType(id2Dyz): " << id2Dyz->GetCellType(0) << endl;
-  strm << "GetCellType(id1Dx): " << id1Dx->GetCellType(0) << endl;
-  strm << "GetCellType(id1Dy): " << id1Dy->GetCellType(0) << endl;
-  strm << "GetCellType(id1Dz): " << id1Dz->GetCellType(0) << endl;
-  strm << "GetCellType(id0D): " << id0D->GetCellType(0) << endl;
+  strm << "GetCellType(id3D): " << id3D->GetCellType(0) << std::endl;
+  strm << "GetCellType(id2Dxy): " << id2Dxy->GetCellType(0) << std::endl;
+  strm << "GetCellType(id2Dxz): " << id2Dxz->GetCellType(0) << std::endl;
+  strm << "GetCellType(id2Dyz): " << id2Dyz->GetCellType(0) << std::endl;
+  strm << "GetCellType(id1Dx): " << id1Dx->GetCellType(0) << std::endl;
+  strm << "GetCellType(id1Dy): " << id1Dy->GetCellType(0) << std::endl;
+  strm << "GetCellType(id1Dz): " << id1Dz->GetCellType(0) << std::endl;
+  strm << "GetCellType(id0D): " << id0D->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(id3D): " << id3D->GetActualMemorySize() << endl;
-  strm << "GetActualMemorySize(id2Dxy): " << id2Dxy->GetActualMemorySize() << endl;
-  strm << "GetActualMemorySize(id2Dxz): " << id2Dxz->GetActualMemorySize() << endl;
-  strm << "GetActualMemorySize(id2Dyz): " << id2Dyz->GetActualMemorySize() << endl;
-  strm << "GetActualMemorySize(id1Dx): " << id1Dx->GetActualMemorySize() << endl;
-  strm << "GetActualMemorySize(id1Dy): " << id1Dy->GetActualMemorySize() << endl;
-  strm << "GetActualMemorySize(id1Dz): " << id1Dz->GetActualMemorySize() << endl;
-  strm << "GetActualMemorySize(id0D): " << id0D->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(id3D): " << id3D->GetActualMemorySize() << std::endl;
+  strm << "GetActualMemorySize(id2Dxy): " << id2Dxy->GetActualMemorySize() << std::endl;
+  strm << "GetActualMemorySize(id2Dxz): " << id2Dxz->GetActualMemorySize() << std::endl;
+  strm << "GetActualMemorySize(id2Dyz): " << id2Dyz->GetActualMemorySize() << std::endl;
+  strm << "GetActualMemorySize(id1Dx): " << id1Dx->GetActualMemorySize() << std::endl;
+  strm << "GetActualMemorySize(id1Dy): " << id1Dy->GetActualMemorySize() << std::endl;
+  strm << "GetActualMemorySize(id1Dz): " << id1Dz->GetActualMemorySize() << std::endl;
+  strm << "GetActualMemorySize(id0D): " << id0D->GetActualMemorySize() << std::endl;
 
   // Cleanup
   id0D->Delete();
@@ -769,7 +771,7 @@ int TestOID(ostream& strm)
   gcell1D->Delete();
   gcell0D->Delete();
 
-  strm << "Testing completed" << endl;
+  strm << "Testing completed" << std::endl;
   return 0;
 }
 

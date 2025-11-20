@@ -8,6 +8,8 @@
 
 #include <chrono>
 
+#include <iostream>
+
 // Test that exceptions are thrown for improper parameters and not thrown for proper parameters.
 int TestReservoirSamplerExceptions()
 {

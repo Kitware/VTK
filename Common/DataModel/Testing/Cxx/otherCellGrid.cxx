@@ -9,6 +9,8 @@
 #include "vtkLogger.h"
 #include "vtkNew.h"
 
+#include <iostream>
+
 int otherCellGrid(int, char*[])
 {
   std::string space;

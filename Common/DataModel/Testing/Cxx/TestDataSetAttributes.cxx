@@ -6,6 +6,8 @@
 #include "vtkNew.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <iostream>
+
 int TestDataSetAttributes(int, char*[])
 {
   int retVal = EXIT_SUCCESS;

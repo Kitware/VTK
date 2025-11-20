@@ -11,6 +11,8 @@
 #include <random>
 #include <sstream>
 
+#include <iostream>
+
 namespace
 {
 template <typename T>

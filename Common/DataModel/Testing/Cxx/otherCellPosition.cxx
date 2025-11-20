@@ -26,6 +26,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 void test_Vertex(ostream& strm)
 {
   double dist2;
@@ -45,14 +47,14 @@ void test_Vertex(ostream& strm)
     vertex->EvaluatePosition(
       &vertexPoint[j][0], &vertexClosest[0], subId, &vertexCoords[0], dist2, &vertexWeights[0]);
     strm << "vtkVertex (" << vertexPoint[j][0] << ", " << vertexPoint[j][1] << ", "
-         << vertexPoint[j][2] << ")" << endl;
+         << vertexPoint[j][2] << ")" << std::endl;
     strm << "\tclosest: " << vertexClosest[0] << ", " << vertexClosest[1] << ", "
-         << vertexClosest[2] << endl;
-    strm << "\tcoords: " << vertexCoords[0] << endl;
-    strm << "\tweights: " << vertexWeights[0] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
-    strm << endl;
+         << vertexClosest[2] << std::endl;
+    strm << "\tcoords: " << vertexCoords[0] << std::endl;
+    strm << "\tweights: " << vertexWeights[0] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -80,14 +82,14 @@ void test_PolyVertex(ostream& strm)
     polyVertex->EvaluatePosition(&polyVertexPoint[j][0], &polyVertexClosest[0], subId,
       &polyVertexCoords[0], dist2, &polyVertexWeights[0]);
     strm << "vtkPolyVertex (" << polyVertexPoint[j][0] << ", " << polyVertexPoint[j][1] << ", "
-         << polyVertexPoint[j][2] << ")" << endl;
+         << polyVertexPoint[j][2] << ")" << std::endl;
     strm << "\tclosest: " << polyVertexClosest[0] << ", " << polyVertexClosest[1] << ", "
-         << polyVertexClosest[2] << endl;
-    strm << "\tcoords: " << polyVertexCoords[0] << endl;
-    strm << "\tweights: " << polyVertexWeights[0] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
-    strm << endl;
+         << polyVertexClosest[2] << std::endl;
+    strm << "\tcoords: " << polyVertexCoords[0] << std::endl;
+    strm << "\tweights: " << polyVertexWeights[0] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -112,14 +114,14 @@ void test_Line(ostream& strm)
     line->EvaluatePosition(
       &linePoint[j][0], &lineClosest[0], subId, &lineCoords[0], dist2, &lineWeights[0]);
     strm << "vtkLine (" << linePoint[j][0] << ", " << linePoint[j][1] << ", " << linePoint[j][2]
-         << ")" << endl;
+         << ")" << std::endl;
     strm << "\tclosest: " << lineClosest[0] << ", " << lineClosest[1] << ", " << lineClosest[2]
-         << endl;
-    strm << "\tcoords: " << lineCoords[0] << endl;
-    strm << "\tweights: " << lineWeights[0] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
-    strm << endl;
+         << std::endl;
+    strm << "\tcoords: " << lineCoords[0] << std::endl;
+    strm << "\tweights: " << lineWeights[0] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -150,14 +152,14 @@ void test_PolyLine(ostream& strm)
     polyLine->EvaluatePosition(&polyLinePoint[j][0], &polyLineClosest[0], subId, &polyLineCoords[0],
       dist2, &polyLineWeights[0]);
     strm << "vtkPolyLine (" << polyLinePoint[j][0] << ", " << polyLinePoint[j][1] << ", "
-         << polyLinePoint[j][2] << ")" << endl;
+         << polyLinePoint[j][2] << ")" << std::endl;
     strm << "\tclosest: " << polyLineClosest[0] << ", " << polyLineClosest[1] << ", "
-         << polyLineClosest[2] << endl;
-    strm << "\tcoords: " << polyLineCoords[0] << endl;
-    strm << "\tweights: " << polyLineWeights[0] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
-    strm << endl;
+         << polyLineClosest[2] << std::endl;
+    strm << "\tcoords: " << polyLineCoords[0] << std::endl;
+    strm << "\tweights: " << polyLineWeights[0] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -186,19 +188,19 @@ void test_Triangle(ostream& strm)
     triangle->EvaluatePosition(&trianglePoint[j][0], &triangleClosest[0], subId, &triangleCoords[0],
       dist2, &triangleWeights[0]);
     strm << "vtkTriangle (" << trianglePoint[j][0] << ", " << trianglePoint[j][1] << ", "
-         << trianglePoint[j][2] << ")" << endl;
+         << trianglePoint[j][2] << ")" << std::endl;
     strm << "\tclosest: " << triangleClosest[0] << ", " << triangleClosest[1] << ", "
-         << triangleClosest[2] << endl;
+         << triangleClosest[2] << std::endl;
     strm << "\tcoords: " << triangleCoords[0] << ", " << triangleCoords[1] << ", "
-         << triangleCoords[2] << endl;
+         << triangleCoords[2] << std::endl;
     strm << "\tweights: " << triangleWeights[0] << ", " << triangleWeights[1] << ", "
-         << triangleWeights[2] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
+         << triangleWeights[2] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
     triangle->EvaluateLocation(subId, triangleCoords, trianglePosition, triangleWeights);
     strm << "\tposition: " << trianglePosition[0] << ", " << trianglePosition[1] << ", "
-         << trianglePosition[2] << endl;
-    strm << endl;
+         << trianglePosition[2] << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -231,20 +233,20 @@ void test_TriangleStrip(ostream& strm)
     triangleStrip->EvaluatePosition(&triangleStripPoint[j][0], &triangleStripClosest[0], subId,
       &triangleStripCoords[0], dist2, &triangleStripWeights[0]);
     strm << "vtkTriangleStrip (" << triangleStripPoint[j][0] << ", " << triangleStripPoint[j][1]
-         << ", " << triangleStripPoint[j][2] << ")" << endl;
+         << ", " << triangleStripPoint[j][2] << ")" << std::endl;
     strm << "\tclosest: " << triangleStripClosest[0] << ", " << triangleStripClosest[1] << ", "
-         << triangleStripClosest[2] << endl;
+         << triangleStripClosest[2] << std::endl;
     strm << "\tcoords: " << triangleStripCoords[0] << ", " << triangleStripCoords[1] << ", "
-         << triangleStripCoords[2] << endl;
+         << triangleStripCoords[2] << std::endl;
     strm << "\tweights: " << triangleStripWeights[0] << ", " << triangleStripWeights[1] << ", "
-         << triangleStripWeights[2] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
+         << triangleStripWeights[2] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
     triangleStrip->EvaluateLocation(
       subId, triangleStripCoords, triangleStripPosition, triangleStripWeights);
     strm << "\tposition: " << triangleStripPosition[0] << ", " << triangleStripPosition[1] << ", "
-         << triangleStripPosition[2] << endl;
-    strm << endl;
+         << triangleStripPosition[2] << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -275,18 +277,18 @@ void test_Quad(ostream& strm)
     quad->EvaluatePosition(
       &quadPoint[j][0], &quadClosest[0], subId, &quadCoords[0], dist2, &quadWeights[0]);
     strm << "vtkQuad (" << quadPoint[j][0] << ", " << quadPoint[j][1] << ", " << quadPoint[j][2]
-         << ")" << endl;
+         << ")" << std::endl;
     strm << "\tclosest: " << quadClosest[0] << ", " << quadClosest[1] << ", " << quadClosest[2]
-         << endl;
-    strm << "\tcoords: " << quadCoords[0] << ", " << quadCoords[1] << endl;
+         << std::endl;
+    strm << "\tcoords: " << quadCoords[0] << ", " << quadCoords[1] << std::endl;
     strm << "\tweights: " << quadWeights[0] << ", " << quadWeights[1] << ", " << quadWeights[2]
-         << ", " << quadWeights[3] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
+         << ", " << quadWeights[3] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
     quad->EvaluateLocation(subId, quadCoords, quadPosition, quadWeights);
     strm << "\tposition: " << quadPosition[0] << ", " << quadPosition[1] << ", " << quadPosition[2]
-         << endl;
-    strm << endl;
+         << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -317,18 +319,18 @@ void test_Pixel(ostream& strm)
     pixel->EvaluatePosition(
       &pixelPoint[j][0], &pixelClosest[0], subId, &pixelCoords[0], dist2, &pixelWeights[0]);
     strm << "vtkPixel (" << pixelPoint[j][0] << ", " << pixelPoint[j][1] << ", " << pixelPoint[j][2]
-         << ")" << endl;
+         << ")" << std::endl;
     strm << "\tclosest: " << pixelClosest[0] << ", " << pixelClosest[1] << ", " << pixelClosest[2]
-         << endl;
-    strm << "\tcoords: " << pixelCoords[0] << ", " << pixelCoords[1] << endl;
+         << std::endl;
+    strm << "\tcoords: " << pixelCoords[0] << ", " << pixelCoords[1] << std::endl;
     strm << "\tweights: " << pixelWeights[0] << ", " << pixelWeights[1] << ", " << pixelWeights[2]
-         << ", " << pixelWeights[3] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
+         << ", " << pixelWeights[3] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
     pixel->EvaluateLocation(subId, pixelCoords, pixelPosition, pixelWeights);
     strm << "\tposition: " << pixelPosition[0] << ", " << pixelPosition[1] << ", "
-         << pixelPosition[2] << endl;
-    strm << endl;
+         << pixelPosition[2] << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -361,18 +363,18 @@ void test_Polygon(ostream& strm)
     polygon->EvaluatePosition(
       &polygonPoint[j][0], &polygonClosest[0], subId, &polygonCoords[0], dist2, &polygonWeights[0]);
     strm << "vtkPolygon (" << polygonPoint[j][0] << ", " << polygonPoint[j][1] << ", "
-         << polygonPoint[j][2] << ")" << endl;
+         << polygonPoint[j][2] << ")" << std::endl;
     strm << "\tclosest: " << polygonClosest[0] << ", " << polygonClosest[1] << ", "
-         << polygonClosest[2] << endl;
-    strm << "\tcoords: " << polygonCoords[0] << ", " << polygonCoords[1] << endl;
+         << polygonClosest[2] << std::endl;
+    strm << "\tcoords: " << polygonCoords[0] << ", " << polygonCoords[1] << std::endl;
     strm << "\tweights: " << polygonWeights[0] << ", " << polygonWeights[1] << ", "
-         << polygonWeights[2] << ", " << polygonWeights[3] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
+         << polygonWeights[2] << ", " << polygonWeights[3] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
     polygon->EvaluateLocation(subId, polygonCoords, polygonPosition, polygonWeights);
     strm << "\tposition: " << polygonPosition[0] << ", " << polygonPosition[1] << ", "
-         << polygonPosition[2] << endl;
-    strm << endl;
+         << polygonPosition[2] << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -403,19 +405,19 @@ void test_Tetra(ostream& strm)
     tetra->EvaluatePosition(
       &tetraPoint[j][0], &tetraClosest[0], subId, &tetraCoords[0], dist2, &tetraWeights[0]);
     strm << "vtkTetra (" << tetraPoint[j][0] << ", " << tetraPoint[j][1] << ", " << tetraPoint[j][2]
-         << ")" << endl;
+         << ")" << std::endl;
     strm << "\tclosest: " << tetraClosest[0] << ", " << tetraClosest[1] << ", " << tetraClosest[2]
-         << endl;
+         << std::endl;
     strm << "\tcoords: " << tetraCoords[0] << ", " << tetraCoords[1] << ", " << tetraCoords[2]
-         << endl;
+         << std::endl;
     strm << "\tweights: " << tetraWeights[0] << ", " << tetraWeights[1] << ", " << tetraWeights[2]
-         << ", " << tetraWeights[3] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
+         << ", " << tetraWeights[3] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
     tetra->EvaluateLocation(subId, tetraCoords, tetraPosition, tetraWeights);
     strm << "\tposition: " << tetraPosition[0] << ", " << tetraPosition[1] << ", "
-         << tetraPosition[2] << endl;
-    strm << endl;
+         << tetraPosition[2] << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -455,19 +457,19 @@ void test_Voxel(ostream& strm)
     voxel->EvaluatePosition(
       &voxelPoint[j][0], &voxelClosest[0], subId, &voxelCoords[0], dist2, &voxelWeights[0]);
     strm << "vtkVoxel (" << voxelPoint[j][0] << ", " << voxelPoint[j][1] << ", " << voxelPoint[j][2]
-         << ")" << endl;
+         << ")" << std::endl;
     strm << "\tclosest: " << voxelClosest[0] << ", " << voxelClosest[1] << ", " << voxelClosest[2]
-         << endl;
+         << std::endl;
     strm << "\tcoords: " << voxelCoords[0] << ", " << voxelCoords[1] << ", " << voxelCoords[2]
-         << endl;
+         << std::endl;
     strm << "\tweights: " << voxelWeights[0] << ", " << voxelWeights[1] << ", " << voxelWeights[2]
-         << ", " << voxelWeights[3] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
+         << ", " << voxelWeights[3] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
     voxel->EvaluateLocation(subId, voxelCoords, voxelPosition, voxelWeights);
     strm << "\tposition: " << voxelPosition[0] << ", " << voxelPosition[1] << ", "
-         << voxelPosition[2] << endl;
-    strm << endl;
+         << voxelPosition[2] << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -503,19 +505,19 @@ void test_Wedge(ostream& strm)
     wedge->EvaluatePosition(
       &wedgePoint[j][0], &wedgeClosest[0], subId, &wedgeCoords[0], dist2, &wedgeWeights[0]);
     strm << "vtkWedge (" << wedgePoint[j][0] << ", " << wedgePoint[j][1] << ", " << wedgePoint[j][2]
-         << ")" << endl;
+         << ")" << std::endl;
     strm << "\tclosest: " << wedgeClosest[0] << ", " << wedgeClosest[1] << ", " << wedgeClosest[2]
-         << endl;
+         << std::endl;
     strm << "\tcoords: " << wedgeCoords[0] << ", " << wedgeCoords[1] << ", " << wedgeCoords[2]
-         << endl;
+         << std::endl;
     strm << "\tweights: " << wedgeWeights[0] << ", " << wedgeWeights[1] << ", " << wedgeWeights[2]
-         << ", " << wedgeWeights[3] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
+         << ", " << wedgeWeights[3] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
     wedge->EvaluateLocation(subId, wedgeCoords, wedgePosition, wedgeWeights);
     strm << "\tposition: " << wedgePosition[0] << ", " << wedgePosition[1] << ", "
-         << wedgePosition[2] << endl;
-    strm << endl;
+         << wedgePosition[2] << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -555,19 +557,19 @@ void test_Hexahedron(ostream& strm)
     hexahedron->EvaluatePosition(&hexahedronPoint[j][0], &hexahedronClosest[0], subId,
       &hexahedronCoords[0], dist2, &hexahedronWeights[0]);
     strm << "vtkHexahedron (" << hexahedronPoint[j][0] << ", " << hexahedronPoint[j][1] << ", "
-         << hexahedronPoint[j][2] << ")" << endl;
+         << hexahedronPoint[j][2] << ")" << std::endl;
     strm << "\tclosest: " << hexahedronClosest[0] << ", " << hexahedronClosest[1] << ", "
-         << hexahedronClosest[2] << endl;
+         << hexahedronClosest[2] << std::endl;
     strm << "\tcoords: " << hexahedronCoords[0] << ", " << hexahedronCoords[1] << ", "
-         << hexahedronCoords[2] << endl;
+         << hexahedronCoords[2] << std::endl;
     strm << "\tweights: " << hexahedronWeights[0] << ", " << hexahedronWeights[1] << ", "
-         << hexahedronWeights[2] << ", " << hexahedronWeights[3] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
+         << hexahedronWeights[2] << ", " << hexahedronWeights[3] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
     hexahedron->EvaluateLocation(subId, hexahedronCoords, hexahedronPosition, hexahedronWeights);
     strm << "\tposition: " << hexahedronPosition[0] << ", " << hexahedronPosition[1] << ", "
-         << hexahedronPosition[2] << endl;
-    strm << endl;
+         << hexahedronPosition[2] << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -612,19 +614,19 @@ void test_PentagonalPrism(ostream& strm)
     penta->EvaluatePosition(
       &pentaPoint[j][0], &pentaClosest[0], subId, &pentaCoords[0], dist2, &pentaWeights[0]);
     strm << "vtkPentagonalPrism (" << pentaPoint[j][0] << ", " << pentaPoint[j][1] << ", "
-         << pentaPoint[j][2] << ")" << endl;
+         << pentaPoint[j][2] << ")" << std::endl;
     strm << "\tclosest: " << pentaClosest[0] << ", " << pentaClosest[1] << ", " << pentaClosest[2]
-         << endl;
+         << std::endl;
     strm << "\tcoords: " << pentaCoords[0] << ", " << pentaCoords[1] << ", " << pentaCoords[2]
-         << endl;
+         << std::endl;
     strm << "\tweights: " << pentaWeights[0] << ", " << pentaWeights[1] << ", " << pentaWeights[2]
-         << ", " << pentaWeights[3] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
+         << ", " << pentaWeights[3] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
     penta->EvaluateLocation(subId, pentaCoords, pentaPosition, pentaWeights);
     strm << "\tposition: " << pentaPosition[0] << ", " << pentaPosition[1] << ", "
-         << pentaPosition[2] << endl;
-    strm << endl;
+         << pentaPosition[2] << std::endl;
+    strm << std::endl;
   }
 }
 
@@ -673,24 +675,25 @@ void test_HexagonalPrism(ostream& strm)
     hexa->EvaluatePosition(
       &hexaPoint[j][0], &hexaClosest[0], subId, &hexaCoords[0], dist2, &hexaWeights[0]);
     strm << "vtkHexagonalPrism (" << hexaPoint[j][0] << ", " << hexaPoint[j][1] << ", "
-         << hexaPoint[j][2] << ")" << endl;
+         << hexaPoint[j][2] << ")" << std::endl;
     strm << "\tclosest: " << hexaClosest[0] << ", " << hexaClosest[1] << ", " << hexaClosest[2]
-         << endl;
-    strm << "\tcoords: " << hexaCoords[0] << ", " << hexaCoords[1] << ", " << hexaCoords[2] << endl;
+         << std::endl;
+    strm << "\tcoords: " << hexaCoords[0] << ", " << hexaCoords[1] << ", " << hexaCoords[2]
+         << std::endl;
     strm << "\tweights: " << hexaWeights[0] << ", " << hexaWeights[1] << ", " << hexaWeights[2]
-         << ", " << hexaWeights[3] << endl;
-    strm << "\tsubid: " << subId << endl;
-    strm << "\tdist2: " << dist2 << endl;
+         << ", " << hexaWeights[3] << std::endl;
+    strm << "\tsubid: " << subId << std::endl;
+    strm << "\tdist2: " << dist2 << std::endl;
     hexa->EvaluateLocation(subId, hexaCoords, hexaPosition, hexaWeights);
     strm << "\tposition: " << hexaPosition[0] << ", " << hexaPosition[1] << ", " << hexaPosition[2]
-         << endl;
-    strm << endl;
+         << std::endl;
+    strm << std::endl;
   }
 }
 
 int TestOCP(ostream& strm)
 {
-  strm << "Test vtkCell::EvaluatePosition Start" << endl;
+  strm << "Test vtkCell::EvaluatePosition Start" << std::endl;
 
   test_Vertex(strm);
   test_PolyVertex(strm);
@@ -708,7 +711,7 @@ int TestOCP(ostream& strm)
   test_PentagonalPrism(strm);
   test_HexagonalPrism(strm);
 
-  strm << "Test vtkCell::CellPosition Complete" << endl;
+  strm << "Test vtkCell::CellPosition Complete" << std::endl;
   return 0;
 }
 

@@ -17,6 +17,8 @@
 
 #include <cstdio> // For EXIT_SUCCESS
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestColorSeries(int argc, char* argv[])
@@ -91,7 +93,7 @@ int TestColorSeries(int argc, char* argv[])
     palettes->SetColorScheme(p);
     int nc = palettes->GetNumberOfColors(); // in the current scheme
     /*
-    cout
+    std::cout
       << "  " << palettes->GetColorSchemeName()
       << ", " << palettes->GetNumberOfColors() << " colors\n";
       */
@@ -105,7 +107,7 @@ int TestColorSeries(int argc, char* argv[])
         {
           vtkIdType coord = (((yoff + i) * mps + c) * 5 + j) * 3;
           /*
-          cout
+          std::cout
             << "i " << i << " j " << j << " c " << c << " p " << p
             << " off " << coord << " poff " << coord/3 <<  "\n";
             */

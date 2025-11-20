@@ -22,6 +22,8 @@
 #include <algorithm>
 #include <fstream>
 
+#include <iostream>
+
 int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
 {
   vtkUnstructuredGrid* original;
@@ -55,7 +57,7 @@ int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
 
     if (cIt->GetCellType() != oIt->GetCellType())
     {
-      cerr << "Cell types do not match" << endl;
+      std::cerr << "Cell types do not match" << std::endl;
       return EXIT_FAILURE;
     }
 
@@ -66,18 +68,18 @@ int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
 
       if (cFaces->GetNumberOfIds() != oFaces->GetNumberOfIds())
       {
-        cerr << "Face id list length does not match" << endl;
-        cerr << "Original: ";
+        std::cerr << "Face id list length does not match" << std::endl;
+        std::cerr << "Original: ";
         for (vtkIdType i = 0; i < oFaces->GetNumberOfIds(); ++i)
         {
-          cerr << oFaces->GetId(i) << " ";
+          std::cerr << oFaces->GetId(i) << " ";
         }
-        cerr << endl;
+        std::cerr << std::endl;
 
-        cerr << "Copied:   ";
+        std::cerr << "Copied:   ";
         for (vtkIdType i = 0; i < cFaces->GetNumberOfIds(); ++i)
-          cerr << cFaces->GetId(i) << " ";
-        cerr << endl;
+          std::cerr << cFaces->GetId(i) << " ";
+        std::cerr << std::endl;
 
         return EXIT_FAILURE;
       }
@@ -89,7 +91,7 @@ int TestMappedGridDeepCopy(int vtkNotUsed(argc), char*[] vtkNotUsed(argv))
 
         if (c != o)
         {
-          cerr << "Face id list content does not match at" << i << endl;
+          std::cerr << "Face id list content does not match at" << i << std::endl;
           return EXIT_FAILURE;
         }
       }

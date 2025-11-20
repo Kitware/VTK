@@ -15,6 +15,8 @@
 #include <map>
 #include <string>
 
+#include <iostream>
+
 namespace
 {
 
@@ -92,7 +94,7 @@ bool TestPartitionedDataSetCollection()
     vtkLogF(ERROR, "vtkDataAssemblyUtilities::GenerateHierarchy should return true.");
     return false;
   }
-  hierarchy->Print(cout);
+  hierarchy->Print(std::cout);
 
   const auto root = vtkDataAssembly::GetRootNode();
   vtkLogIfF(ERROR,
@@ -176,7 +178,7 @@ bool TestMultiBlockDataSet(int numPieces)
     vtkLogF(ERROR, "vtkDataAssemblyUtilities::GenerateHierarchy should return true.");
     return false;
   }
-  hierarchy->Print(cout);
+  hierarchy->Print(std::cout);
 
   auto XPath = [&hierarchy](const std::string& path)
   {

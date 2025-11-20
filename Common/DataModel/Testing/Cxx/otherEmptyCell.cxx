@@ -14,6 +14,8 @@
 
 #include "vtkDebugLeaks.h"
 
+#include <iostream>
+
 void TestOEC(ostream& strm)
 {
   vtkEmptyCell* cell = vtkEmptyCell::New();
@@ -41,27 +43,27 @@ void TestOEC(ostream& strm)
   double w[3];
   int s;
 
-  strm << "Testing EmptyCell" << endl;
-  strm << "Cell Type is: " << cell2->GetCellType() << endl;
-  strm << "Cell Dimension is: " << cell2->GetCellDimension() << endl;
-  strm << "Cell NumberOfEdges is: " << cell2->GetNumberOfEdges() << endl;
-  strm << "Cell NumberOfFaces is: " << cell2->GetNumberOfFaces() << endl;
-  strm << "Cell GetEdge(0) is: " << cell2->GetEdge(0) << endl;
-  strm << "Cell GetFace(0) is: " << cell2->GetFace(0) << endl;
-  strm << "Cell CellBoundary(0,p,ids) is: " << cell2->CellBoundary(0, p, ids) << endl;
-  strm << "Cell EvaluatePosition(x, c, s, p, d, w)" << endl;
+  strm << "Testing EmptyCell" << std::endl;
+  strm << "Cell Type is: " << cell2->GetCellType() << std::endl;
+  strm << "Cell Dimension is: " << cell2->GetCellDimension() << std::endl;
+  strm << "Cell NumberOfEdges is: " << cell2->GetNumberOfEdges() << std::endl;
+  strm << "Cell NumberOfFaces is: " << cell2->GetNumberOfFaces() << std::endl;
+  strm << "Cell GetEdge(0) is: " << cell2->GetEdge(0) << std::endl;
+  strm << "Cell GetFace(0) is: " << cell2->GetFace(0) << std::endl;
+  strm << "Cell CellBoundary(0,p,ids) is: " << cell2->CellBoundary(0, p, ids) << std::endl;
+  strm << "Cell EvaluatePosition(x, c, s, p, d, w)" << std::endl;
   cell2->EvaluatePosition(x, c, s, p, d, w);
-  strm << "Cell EvaluateLocation(s, p, x, w)" << endl;
+  strm << "Cell EvaluateLocation(s, p, x, w)" << std::endl;
   cell2->EvaluateLocation(s, p, x, w);
-  strm << "Cell Contour" << endl;
+  strm << "Cell Contour" << std::endl;
   cell2->Contour(v, cellScalars, locator, verts, lines, polys, inPd, outPd, inCd, cellId, outCd);
-  strm << "Cell Clip" << endl;
+  strm << "Cell Clip" << std::endl;
   cell2->Clip(v, cellScalars, locator, verts, inPd, outPd, inCd, cellId, outCd, inOut);
-  strm << "Cell IntersectWithLine" << endl;
+  strm << "Cell IntersectWithLine" << std::endl;
   cell2->IntersectWithLine(x, x, tol, t, x, p, s);
-  strm << "Cell Triangulate" << endl;
+  strm << "Cell Triangulate" << std::endl;
   cell2->Triangulate(s, ids, pts);
-  strm << "Cell Derivatives" << endl;
+  strm << "Cell Derivatives" << std::endl;
   cell2->Derivatives(s, p, x, inOut, w);
 
   // clean up
@@ -78,7 +80,7 @@ void TestOEC(ostream& strm)
   outPd->Delete();
   inCd->Delete();
   outCd->Delete();
-  strm << "Testing EmptyCell Complete" << endl;
+  strm << "Testing EmptyCell Complete" << std::endl;
 }
 
 int otherEmptyCell(int, char*[])

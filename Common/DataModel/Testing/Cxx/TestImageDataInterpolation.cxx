@@ -19,6 +19,8 @@
 #include <cmath>
 #include <limits>
 
+#include <iostream>
+
 // Description:
 // Performs safe division a/b which also checks for underflow & overflow
 double SafeDiv(const double a, const double b)

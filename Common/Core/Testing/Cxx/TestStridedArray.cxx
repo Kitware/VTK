@@ -23,6 +23,8 @@ struct DispatcherCheckerWorker
 #include <cstdlib>
 #include <vector>
 
+#include <iostream>
+
 namespace
 {
 /**

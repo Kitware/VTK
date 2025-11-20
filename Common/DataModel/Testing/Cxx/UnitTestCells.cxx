@@ -53,6 +53,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 static vtkSmartPointer<vtkEmptyCell> MakeEmptyCell();
 static vtkSmartPointer<vtkVertex> MakeVertex();
 static vtkSmartPointer<vtkPolyVertex> MakePolyVertex();

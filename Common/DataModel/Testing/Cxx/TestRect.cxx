@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkRect.h"
 
+#include <iostream>
+
 namespace
 {
 

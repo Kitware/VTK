@@ -13,6 +13,8 @@
 
 #include "vtkTestErrorObserver.h"
 
+#include <iostream>
+
 void TestPrint();
 int TestSetGet();
 int TestConstraints();

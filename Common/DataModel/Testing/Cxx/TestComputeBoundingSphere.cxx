@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <vector>
 
+#include <iostream>
+
 int TestComputeBoundingSphere(int, char*[])
 {
   int status = 0;

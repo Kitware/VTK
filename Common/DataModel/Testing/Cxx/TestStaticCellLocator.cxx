@@ -12,6 +12,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkStaticCellLocator.h"
 
+#include <iostream>
+
 int TestStaticCellLocator(int, char*[])
 {
   auto source = vtkSmartPointer<vtkCylinderSource>::New();

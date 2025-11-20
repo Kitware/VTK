@@ -7,6 +7,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 // Note that this may evaluate args twice. Use wisely.
 #define TEST_ASSERT_FUZZY_EQUAL(expect, actual)                                                    \
   do                                                                                               \

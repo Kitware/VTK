@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <numeric>
 
+#include <iostream>
+
 int TestCompositeImplicitBackend(int, char*[])
 {
   // Setup branches

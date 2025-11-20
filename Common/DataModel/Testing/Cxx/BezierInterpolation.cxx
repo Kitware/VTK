@@ -34,6 +34,8 @@
 
 #include "vtkTestConditionals.txx"
 
+#include <iostream>
+
 using namespace vtk;
 
 template <int N, typename T, typename U>
@@ -581,8 +583,8 @@ int BezierInterpolation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     ok &= testNearlyEqual(coeffs[3], 0.0, "Simplex lf 3");
     ok &= testNearlyEqual(coeffs[4], 0.0, "Simplex lf 4");
     ok &= testNearlyEqual(coeffs[5], 0.0, "Simplex lf 5");
-    cout << "coeffs " << coeffs[0] << ", " << coeffs[1] << ", " << coeffs[2] << ", " << coeffs[3]
-         << ", " << coeffs[4] << ", " << coeffs[5] << endl;
+    std::cout << "coeffs " << coeffs[0] << ", " << coeffs[1] << ", " << coeffs[2] << ", "
+              << coeffs[3] << ", " << coeffs[4] << ", " << coeffs[5] << std::endl;
   }
 
   {
@@ -594,8 +596,8 @@ int BezierInterpolation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     ok &= testNearlyEqual(coeffs[3], 0.0, "Simplex lf 3");
     ok &= testNearlyEqual(coeffs[4], 0.0, "Simplex lf 4");
     ok &= testNearlyEqual(coeffs[5], 1.0, "Simplex lf 5");
-    cout << "coeffs " << coeffs[0] << ", " << coeffs[1] << ", " << coeffs[2] << ", " << coeffs[3]
-         << ", " << coeffs[4] << ", " << coeffs[5] << endl;
+    std::cout << "coeffs " << coeffs[0] << ", " << coeffs[1] << ", " << coeffs[2] << ", "
+              << coeffs[3] << ", " << coeffs[4] << ", " << coeffs[5] << std::endl;
   }
 
   {
@@ -607,8 +609,8 @@ int BezierInterpolation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     ok &= testNearlyEqual(coeffs[3], 0.0, "Simplex lf 3");
     ok &= testNearlyEqual(coeffs[4], 0.0, "Simplex lf 4");
     ok &= testNearlyEqual(coeffs[5], 0.0, "Simplex lf 5");
-    cout << "coeffs " << coeffs[0] << ", " << coeffs[1] << ", " << coeffs[2] << ", " << coeffs[3]
-         << ", " << coeffs[4] << ", " << coeffs[5] << endl;
+    std::cout << "coeffs " << coeffs[0] << ", " << coeffs[1] << ", " << coeffs[2] << ", "
+              << coeffs[3] << ", " << coeffs[4] << ", " << coeffs[5] << std::endl;
   }
 
   {
@@ -620,8 +622,8 @@ int BezierInterpolation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     ok &= testNearlyEqual(coeffs[3], 0.0, "Simplex lf 3");
     ok &= testNearlyEqual(coeffs[4], 0.5, "Simplex lf 4");
     ok &= testNearlyEqual(coeffs[5], 0.25, "Simplex lf 5");
-    cout << "coeffs " << coeffs[0] << ", " << coeffs[1] << ", " << coeffs[2] << ", " << coeffs[3]
-         << ", " << coeffs[4] << ", " << coeffs[5] << endl;
+    std::cout << "coeffs " << coeffs[0] << ", " << coeffs[1] << ", " << coeffs[2] << ", "
+              << coeffs[3] << ", " << coeffs[4] << ", " << coeffs[5] << std::endl;
   }
 
   return ok ? 0 : 1;

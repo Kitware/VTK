@@ -13,6 +13,8 @@
 
 #include "vtkTestNewVar.h"
 
+#include <iostream>
+
 int TestNew(int, char*[])
 {
   bool error = false;
@@ -21,9 +23,9 @@ int TestNew(int, char*[])
   if (a->GetReferenceCount() != 1)
   {
     error = true;
-    cerr << "Error, reference count should be 1, was " << a->GetReferenceCount() << endl;
+    std::cerr << "Error, reference count should be 1, was " << a->GetReferenceCount() << std::endl;
   }
-  cout << "vtkNew streaming " << a << endl;
+  std::cout << "vtkNew streaming " << a << std::endl;
 
   vtkWeakPointer<vtkFloatArray> wf;
   // Test scoping, and deletion.
@@ -35,7 +37,7 @@ int TestNew(int, char*[])
   if (wf != nullptr)
   {
     error = true;
-    cerr << "Error, vtkNew failed to delete the object it contained." << endl;
+    std::cerr << "Error, vtkNew failed to delete the object it contained." << std::endl;
   }
   // Test implicit conversion vtkNew::operator T* () const
   if (wf == nullptr)
@@ -46,8 +48,9 @@ int TestNew(int, char*[])
   if (wf != nullptr)
   {
     error = true;
-    cerr << "Error, vtkNew failed to delete the object it contained (implicit cast to raw pointer)."
-         << endl;
+    std::cerr
+      << "Error, vtkNew failed to delete the object it contained (implicit cast to raw pointer)."
+      << std::endl;
   }
 
   // Now test interaction with the smart pointer.
@@ -60,9 +63,9 @@ int TestNew(int, char*[])
   if (si->GetReferenceCount() != 1)
   {
     error = true;
-    cerr << "Error, vtkNew failed to delete the object it contained, "
-         << "or the smart pointer failed to increment it. Reference count: "
-         << si->GetReferenceCount() << endl;
+    std::cerr << "Error, vtkNew failed to delete the object it contained, "
+              << "or the smart pointer failed to increment it. Reference count: "
+              << si->GetReferenceCount() << std::endl;
   }
 
   // Test raw object reference
@@ -70,34 +73,34 @@ int TestNew(int, char*[])
   if (p.GetReferenceCount() != 1)
   {
     error = true;
-    cerr << "Error, vtkNew failed to keep the object it contained, "
-         << "or setting a raw reference incremented it. Reference count: " << p.GetReferenceCount()
-         << endl;
+    std::cerr << "Error, vtkNew failed to keep the object it contained, "
+              << "or setting a raw reference incremented it. Reference count: "
+              << p.GetReferenceCount() << std::endl;
   }
 
   vtkNew<vtkTestNewVar> newVarObj;
   if (newVarObj->GetPointsRefCount() != 1)
   {
     error = true;
-    cerr << "The member pointer failed to set the correct reference count: "
-         << newVarObj->GetPointsRefCount() << endl;
+    std::cerr << "The member pointer failed to set the correct reference count: "
+              << newVarObj->GetPointsRefCount() << std::endl;
   }
 
   vtkSmartPointer<vtkObject> points = newVarObj->GetPoints();
   if (points->GetReferenceCount() != 2)
   {
     error = true;
-    cerr << "Error, vtkNew failed to keep the object it contained, "
-         << "or the smart pointer failed to increment it. Reference count: "
-         << points->GetReferenceCount() << endl;
+    std::cerr << "Error, vtkNew failed to keep the object it contained, "
+              << "or the smart pointer failed to increment it. Reference count: "
+              << points->GetReferenceCount() << std::endl;
   }
   vtkSmartPointer<vtkObject> points2 = newVarObj->GetPoints2();
   if (points2->GetReferenceCount() != 3)
   {
     error = true;
-    cerr << "Error, vtkNew failed to keep the object it contained, "
-         << "or the smart pointer failed to increment it. Reference count: "
-         << points->GetReferenceCount() << endl;
+    std::cerr << "Error, vtkNew failed to keep the object it contained, "
+              << "or the smart pointer failed to increment it. Reference count: "
+              << points->GetReferenceCount() << std::endl;
   }
 
   vtkNew<vtkIntArray> intarray;
@@ -105,7 +108,7 @@ int TestNew(int, char*[])
   if (intarrayp != intarray || intarray != intarrayp)
   {
     error = true;
-    cerr << "Error, comparison of vtkNew object to it's raw pointer fails\n";
+    std::cerr << "Error, comparison of vtkNew object to it's raw pointer fails\n";
   }
 
   {

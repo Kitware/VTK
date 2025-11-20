@@ -5,6 +5,8 @@
 #include "vtkQuaternion.h"
 #include "vtkSetGet.h"
 
+#include <iostream>
+
 // Pre-declarations of the test functions
 static int TestQuaternionSetGet();
 static int TestQuaternionNormalization();

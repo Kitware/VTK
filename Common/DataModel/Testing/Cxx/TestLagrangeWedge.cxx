@@ -42,6 +42,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 namespace
 {
 vtkSmartPointer<vtkLagrangeWedge> CreateWedge(int nPoints)

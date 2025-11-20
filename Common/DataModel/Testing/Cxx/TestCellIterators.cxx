@@ -12,6 +12,8 @@
 #include <sstream>
 #include <string>
 
+#include <iostream>
+
 // Enable/disable code that helps/hinders profiling.
 #undef PROFILE
 // #define PROFILE
@@ -30,14 +32,14 @@ bool testCellIterator(vtkCellIterator* iter, vtkUnstructuredGrid* grid)
 
     if (iter->GetCellType() != cell->GetCellType())
     {
-      cerr << "Type mismatch for cell " << cellId << endl;
+      std::cerr << "Type mismatch for cell " << cellId << std::endl;
       return false;
     }
 
     vtkIdType numPoints = iter->GetNumberOfPoints();
     if (numPoints != cell->GetNumberOfPoints())
     {
-      cerr << "Number of points mismatch for cell " << cellId << endl;
+      std::cerr << "Number of points mismatch for cell " << cellId << std::endl;
       return false;
     }
 
@@ -45,7 +47,7 @@ bool testCellIterator(vtkCellIterator* iter, vtkUnstructuredGrid* grid)
     {
       if (iter->GetPointIds()->GetId(pointInd) != cell->PointIds->GetId(pointInd))
       {
-        cerr << "Point id mismatch in cell " << cellId << endl;
+        std::cerr << "Point id mismatch in cell " << cellId << std::endl;
         return false;
       }
 
@@ -56,7 +58,7 @@ bool testCellIterator(vtkCellIterator* iter, vtkUnstructuredGrid* grid)
       if (iterPoint[0] != cellPoint[0] || iterPoint[1] != cellPoint[1] ||
         iterPoint[2] != cellPoint[2])
       {
-        cerr << "Point mismatch in cell " << cellId << endl;
+        std::cerr << "Point mismatch in cell " << cellId << std::endl;
         return false;
       }
     }
@@ -68,12 +70,12 @@ bool testCellIterator(vtkCellIterator* iter, vtkUnstructuredGrid* grid)
   // ensure that we checked all of the cells
   if (cellId != grid->GetNumberOfCells())
   {
-    cerr << "Iterator did not cover all cells in the dataset!" << endl;
+    std::cerr << "Iterator did not cover all cells in the dataset!" << std::endl;
     return false;
   }
 
-  //  cout << "Verified " << cellId << " cells with a " << iter->GetClassName()
-  //       << "." << endl;
+  //  std::cout << "Verified " << cellId << " cells with a " << iter->GetClassName()
+  //       << "." << std::endl;
   return true;
 }
 
@@ -82,20 +84,20 @@ bool testCellIterator(vtkCellIterator* iter, vtkUnstructuredGrid* grid)
   {                                                                                                \
     if (std::string(#className_) != std::string(iter->GetClassName()))                             \
     {                                                                                              \
-      cerr << "Unexpected iterator type (expected " #className_ ", got "                           \
-           << (iter_)->GetClassName() << ")" << endl;                                              \
+      std::cerr << "Unexpected iterator type (expected " #className_ ", got "                      \
+                << (iter_)->GetClassName() << ")" << std::endl;                                    \
       return false;                                                                                \
     }                                                                                              \
                                                                                                    \
     if (!testCellIterator(iter_, grid))                                                            \
     {                                                                                              \
-      cerr << #className_ << " test failed." << endl;                                              \
+      std::cerr << #className_ << " test failed." << std::endl;                                    \
       return false;                                                                                \
     }                                                                                              \
                                                                                                    \
     if (!testCellIterator(iter_, grid))                                                            \
     {                                                                                              \
-      cerr << #className_ << " test failed after rewind." << endl;                                 \
+      std::cerr << #className_ << " test failed after rewind." << std::endl;                       \
       return false;                                                                                \
     }                                                                                              \
   } while (false)
@@ -133,7 +135,7 @@ int TestCellIterators(int argc, char* argv[])
   vtkUnstructuredGrid* grid(reader->GetOutput());
   if (!grid)
   {
-    cerr << "Error reading file: " << fileName << endl;
+    std::cerr << "Error reading file: " << fileName << std::endl;
     return EXIT_FAILURE;
   }
 

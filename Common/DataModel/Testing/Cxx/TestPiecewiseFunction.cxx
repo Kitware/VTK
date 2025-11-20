@@ -8,6 +8,8 @@
 #include <cmath>
 #include <vector>
 
+#include <iostream>
+
 #define TEST_ASSERT_FUZZY_EQUAL(expect, actual)                                                    \
   do                                                                                               \
   {                                                                                                \

@@ -5,6 +5,8 @@
 #include "vtkPolynomialSolversUnivariate.h"
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 static int vtkRunPolynomial(double* poly, int degree, double* rootInt, double* upperBnds,
   double tolSturm, double divtol, double* expected, int expectedLength, double expectedTol,
   const char* name, bool divideGCD, bool useHabichtSolver, int intType)
@@ -30,13 +32,13 @@ static int vtkRunPolynomial(double* poly, int degree, double* rootInt, double* u
   }
 
   int trueexp = expectedLength;
-  cout << "divtol is: " << divtol << ", " << timer->GetElapsedTime() << "s" << endl;
+  std::cout << "divtol is: " << divtol << ", " << timer->GetElapsedTime() << "s" << std::endl;
   timer->Delete();
 
   int j = 0;
   for (int i = 0; i < rootcount; i++, j++)
   {
-    cout << upperBnds[i] << endl;
+    std::cout << upperBnds[i] << std::endl;
     while (j < expectedLength &&
       ((((intType & 1) == 0) && expected[j] == rootInt[0]) ||
         (((intType & 2) == 0) && expected[j] == rootInt[1]) || expected[j] < rootInt[0] ||
@@ -91,7 +93,7 @@ static int vtkTestPolynomials(double* poly, int degree, double* rootInt, double*
   int rval = 0;
   if (methods & 1)
   {
-    cout << endl << name << " (Sturm)" << endl;
+    std::cout << std::endl << name << " (Sturm)" << std::endl;
     for (int i = 0; i < len; ++i)
     {
       rval |= vtkRunPolynomial(poly, degree, rootInt, upperBnds, tolSturm, divtols[i], expected,
@@ -101,7 +103,7 @@ static int vtkTestPolynomials(double* poly, int degree, double* rootInt, double*
 
   if (methods & 2)
   {
-    cout << endl << name << " (Habicht)" << endl;
+    std::cout << std::endl << name << " (Habicht)" << std::endl;
     for (int i = 0; i < len; ++i)
     {
       rval |= vtkRunPolynomial(poly, degree, rootInt, upperBnds, tolSturm, divtols[i], expected,
@@ -126,8 +128,8 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
   vtkTimerLog* timer = vtkTimerLog::New();
   vtkTimerLog::SetMaxEntries(100);
 
-  cout << "------Testing set 'Jenkins Traub'------" << endl;
-  cout << 13 << " polynomials in the set." << endl;
+  std::cout << "------Testing set 'Jenkins Traub'------" << std::endl;
+  std::cout << 13 << " polynomials in the set." << std::endl;
   // Testing mul(x-i, i=1..19)
   double JT2[] = { 1.000000000000000e+00, -1.900000000000000e+02, 1.681500000000000e+04,
     -9.205500000000000e+05, 3.491694600000000e+07, -9.739419000000000e+08, 2.069293363000000e+10,
@@ -241,8 +243,8 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
     1.000000e-07, "(x-10^9)*(x-1)*(x-10^(-9))", false, 3, 0);
 
   rootInt[1] = 28.1;
-  cout << "------Testing set 'Igarashi Ympa'------" << endl;
-  cout << 2 << " polynomials in the set." << endl;
+  std::cout << "------Testing set 'Igarashi Ympa'------" << std::endl;
+  std::cout << 2 << " polynomials in the set." << std::endl;
   // Testing (x-2.35)*(x-2.37)*(x-2.39)
   double igyp00[] = { 1.000000000000000e+00, -7.110000000000000e+00, 1.685030000000000e+01,
     -1.331110500000000e+01 };
@@ -257,8 +259,8 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
   stat |= vtkTestPolynomials(igyp01, 4, rootInt, roots, tolSturm, divtol + 1, limit, igyp01RTS, 2,
     1.000000e-07, "(x-2.35)^3*(x-2.37)", true, 3, 0);
 
-  cout << "------Testing set 'Iliev'------" << endl;
-  cout << 2 << " polynomials in the set." << endl;
+  std::cout << "------Testing set 'Iliev'------" << std::endl;
+  std::cout << 2 << " polynomials in the set." << std::endl;
   // Testing (x-1)*(x+2)^2*(x+3)^3
   double iliev01[] = { 1.000000000000000e+00, 1.200000000000000e+01, 5.400000000000000e+01,
     1.040000000000000e+02, 4.500000000000000e+01, -1.080000000000000e+02, -1.080000000000000e+02 };
@@ -275,7 +277,7 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
   stat |= vtkTestPolynomials(iliev02, 12, rootInt, roots, tolSturm, divtol, limit - 1, iliev02RTS,
     3, 1.000000e-07, "(x-1)^2*(x-2)^4*(x-3)^6", true, 3, 0);
 
-  cout << "------Testing other sets------" << endl;
+  std::cout << "------Testing other sets------" << std::endl;
   // High multiplicities
   // (x-1)^6(x-2)^6(x-3)^6
   double polymult[] = { 1., -36., 606., -6336., 46095., -247716., 1018816., -3278016., 8361951.,
@@ -312,7 +314,7 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
   stat |= vtkTestPolynomials(toh06a, 20, rootInt, roots, tolSturm, divtol + 4, 1, nullptr, 0, 1e-7,
     "1+x+x^2+\\cdots+x^20", false, 2);
 
-  cout << "Test non-Sequence solvers" << endl;
+  std::cout << "Test non-Sequence solvers" << std::endl;
   // 1. find the roots of a degree 4 polynomial with a 1 double root (1) and 2
   // simple roots (2 and 3) using:
   // 1.a FerrariSolve
@@ -321,7 +323,7 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
   double tolDirectSolvers = VTK_DBL_EPSILON;
   int mult[4];
   double P4[] = { 1., -7., 17., -17., 6. };
-  vtkPolynomialSolversUnivariate::PrintPolynomial(cout, P4, 4);
+  vtkPolynomialSolversUnivariate::PrintPolynomial(std::cout, P4, 4);
 
   // 1.a FerrariSolve
   timer->StartTimer();
@@ -336,16 +338,16 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
     timer->Delete();
     return 1;
   }
-  cout << "Ferrari tol=" << tolDirectSolvers << ", " << testIntValue << " "
-       << timer->GetElapsedTime() << "s\n";
+  std::cout << "Ferrari tol=" << tolDirectSolvers << ", " << testIntValue << " "
+            << timer->GetElapsedTime() << "s\n";
   for (int i = 0; i < testIntValue; ++i)
   {
-    cout << roots[i];
+    std::cout << roots[i];
     if (mult[i] > 1)
     {
-      cout << "(" << mult[i] << ")";
+      std::cout << "(" << mult[i] << ")";
     }
-    cout << "\n";
+    std::cout << "\n";
   }
   double actualRoots[] = { 1., 2., 3. };
   int actualMult[] = { 2, 1, 1 };
@@ -375,7 +377,7 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
 
   // 2. find the roots of a degree 5 polynomial with LinBairstowSolve
   double P5[] = { 1., -10., 35., -50., 24., 0. };
-  vtkPolynomialSolversUnivariate::PrintPolynomial(cout, P5, 5);
+  vtkPolynomialSolversUnivariate::PrintPolynomial(std::cout, P5, 5);
 
   timer->StartTimer();
   testIntValue = vtkPolynomialSolversUnivariate::LinBairstowSolve(P5, 5, roots, tolLinBairstow);
@@ -388,10 +390,10 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
     timer->Delete();
     return 1;
   }
-  cout << "LinBairstow tol=" << tolLinBairstow << ", " << testIntValue << " "
-       << timer->GetElapsedTime() << "s\n";
+  std::cout << "LinBairstow tol=" << tolLinBairstow << ", " << testIntValue << " "
+            << timer->GetElapsedTime() << "s\n";
   for (int i = 0; i < testIntValue; ++i)
-    cout << roots[i] << "\n";
+    std::cout << roots[i] << "\n";
 
   // 3. find the roots of a quadratic trinomial with the BisectionSolvers
   double P2[] = { 1., -2., 1. };
@@ -407,7 +409,7 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
   // 4.b SturmBisectionSolve
 
   double P4_2[] = { 1., 0., -32., 0., 256. };
-  vtkPolynomialSolversUnivariate::PrintPolynomial(cout, P4_2, 4);
+  vtkPolynomialSolversUnivariate::PrintPolynomial(std::cout, P4_2, 4);
 
   // 4.a FerrariSolve
   timer->StartTimer();
@@ -421,14 +423,14 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
     timer->Delete();
     return 1;
   }
-  cout << "Ferrari tol=" << tolDirectSolvers << ", " << testIntValue << " "
-       << timer->GetElapsedTime() << "s\n";
+  std::cout << "Ferrari tol=" << tolDirectSolvers << ", " << testIntValue << " "
+            << timer->GetElapsedTime() << "s\n";
   for (int i = 0; i < testIntValue; ++i)
   {
-    cout << roots[i];
+    std::cout << roots[i];
     if (mult[i] > 1)
-      cout << "(" << mult[i] << ")";
-    cout << "\n";
+      std::cout << "(" << mult[i] << ")";
+    std::cout << "\n";
   }
   for (int i = 0; i < testIntValue; ++i)
   {
@@ -500,10 +502,10 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
     timer->Delete();
     return 1;
   }
-  cout << "LinBairstow tol=" << tolLinBairstow << ", " << testIntValue << " "
-       << timer->GetElapsedTime() << "s\n";
+  std::cout << "LinBairstow tol=" << tolLinBairstow << ", " << testIntValue << " "
+            << timer->GetElapsedTime() << "s\n";
   for (int i = 0; i < testIntValue; ++i)
-    cout << roots[i] << "\n";
+    std::cout << roots[i] << "\n";
 
   // 7. Solving x^4 + 3x^3 - 4x + 1e-18 = 0 illustrates how the Ferrari solver
   // filters some numerical noise by noticing there is a double root.
@@ -521,14 +523,14 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
     timer->Delete();
     return 1;
   }
-  cout << "Ferrari tol=" << tolDirectSolvers << ", " << testIntValue << " "
-       << timer->GetElapsedTime() << "s\n";
+  std::cout << "Ferrari tol=" << tolDirectSolvers << ", " << testIntValue << " "
+            << timer->GetElapsedTime() << "s\n";
   for (int i = 0; i < testIntValue; ++i)
   {
-    cout << roots[i];
+    std::cout << roots[i];
     if (mult[i] > 1)
-      cout << "(" << mult[i] << ")";
-    cout << "\n";
+      std::cout << "(" << mult[i] << ")";
+    std::cout << "\n";
   }
 
   // 8. Solving x(x - 10^-4)^2 = 0 illustrates how the Tartaglia-Cardan solver
@@ -559,14 +561,14 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
     timer->Delete();
     return 1;
   }
-  cout << "TartagliaCardan tol=" << tolDirectSolvers << ", " << testIntValue << " "
-       << timer->GetElapsedTime() << "s\n";
+  std::cout << "TartagliaCardan tol=" << tolDirectSolvers << ", " << testIntValue << " "
+            << timer->GetElapsedTime() << "s\n";
   for (int i = 0; i < testIntValue; ++i)
   {
-    cout << roots[i];
+    std::cout << roots[i];
     if (mult[i] > 1)
-      cout << "(" << mult[i] << ")";
-    cout << "\n";
+      std::cout << "(" << mult[i] << ")";
+    std::cout << "\n";
   }
 
   // 9. Solving x^3+x^2+x+1 = 0 to exercise a case not otherwise tested.
@@ -595,14 +597,14 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
     timer->Delete();
     return 1;
   }
-  cout << "TartagliaCardan tol=" << tolDirectSolvers << ", " << testIntValue << " "
-       << timer->GetElapsedTime() << "s\n";
+  std::cout << "TartagliaCardan tol=" << tolDirectSolvers << ", " << testIntValue << " "
+            << timer->GetElapsedTime() << "s\n";
   for (int i = 0; i < testIntValue; ++i)
   {
-    cout << roots[i];
+    std::cout << roots[i];
     if (mult[i] > 1)
-      cout << "(" << mult[i] << ")";
-    cout << "\n";
+      std::cout << "(" << mult[i] << ")";
+    std::cout << "\n";
   }
 
   // 10. Solving x^3 - 2e-6 x^2 + 0.999999999999999e-12 x = 0 to test a nearly degenerate case.
@@ -631,15 +633,15 @@ int TestPolynomialSolversUnivariate(int len, char* c[])
     timer->Delete();
     return 1;
   }
-  cout << "TartagliaCardan tol=" << tolDirectSolvers << ", " << testIntValue << " "
-       << timer->GetElapsedTime() << "s\n";
-  cout.precision(9);
+  std::cout << "TartagliaCardan tol=" << tolDirectSolvers << ", " << testIntValue << " "
+            << timer->GetElapsedTime() << "s\n";
+  std::cout.precision(9);
   for (int i = 0; i < testIntValue; ++i)
   {
-    cout << roots[i];
+    std::cout << roots[i];
     if (mult[i] > 1)
-      cout << "(" << mult[i] << ")";
-    cout << "\n";
+      std::cout << "(" << mult[i] << ")";
+    std::cout << "\n";
   }
 
   // 11. Find the roots of a sparse degree 10 polynomial with SturmBisectionSolve to exercise a

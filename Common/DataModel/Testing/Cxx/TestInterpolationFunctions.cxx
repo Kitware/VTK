@@ -48,6 +48,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 template <class TCell>
 int TestOneInterpolationFunction(double eps = VTK_EPSILON)
 {

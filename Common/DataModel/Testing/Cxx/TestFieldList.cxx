@@ -8,6 +8,8 @@
 
 #include <string>
 
+#include <iostream>
+
 namespace
 {
 template <typename T>
@@ -26,7 +28,8 @@ vtkSmartPointer<T> CreateArray(const char* aname, int num_comps, vtkIdType numTu
   {                                                                                                \
     if ((v) != (m))                                                                                \
     {                                                                                              \
-      cerr << "FAILED at line " << __LINE__ << ": \n     " << #v << " must match " << #m << endl;  \
+      std::cerr << "FAILED at line " << __LINE__ << ": \n     " << #v << " must match " << #m      \
+                << std::endl;                                                                      \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
   } while (false)
@@ -76,7 +79,7 @@ int TestFieldList(int, char*[])
     EXPECT_THAT(output->GetScalars() != nullptr, true);
 
     // just to increase coverage.
-    fl.PrintSelf(cout, vtkIndent());
+    fl.PrintSelf(std::cout, vtkIndent());
   }
 
   {

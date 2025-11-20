@@ -10,6 +10,8 @@
 
 #include <set>
 
+#include <iostream>
+
 int TestPolyhedronCutter(int argc, char* argv[])
 {
   vtkObject::GlobalWarningDisplayOff();
@@ -57,8 +59,8 @@ int TestPolyhedronCutter(int argc, char* argv[])
 
   if (cell->GetNumberOfEdges() != 5)
   {
-    cerr << "The resulting polygon consists of " << cell->GetNumberOfEdges()
-         << " edges instead of the expected 5 edges." << endl;
+    std::cerr << "The resulting polygon consists of " << cell->GetNumberOfEdges()
+              << " edges instead of the expected 5 edges." << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -72,7 +74,7 @@ int TestPolyhedronCutter(int argc, char* argv[])
 
   if (uniqueIds.size() != 5)
   {
-    cerr << "The resulting polygon consists of invalid edges" << endl;
+    std::cerr << "The resulting polygon consists of invalid edges" << std::endl;
     return EXIT_FAILURE;
   }
 

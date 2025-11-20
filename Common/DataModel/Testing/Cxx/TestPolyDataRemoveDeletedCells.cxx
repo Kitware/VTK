@@ -9,6 +9,8 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 #define VTK_SUCCESS 0
 #define VTK_FAILURE 1
 

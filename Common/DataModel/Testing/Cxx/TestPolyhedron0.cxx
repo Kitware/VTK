@@ -29,6 +29,8 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 #define compare_doublevec(x, y, e)                                                                 \
   (((x[0] - y[0]) < (e)) && ((x[0] - y[0]) > -(e)) && ((x[1] - y[1]) < (e)) &&                     \
     ((x[1] - y[1]) > -(e)) && ((x[2] - y[2]) < (e)) && ((x[2] - y[2]) > -(e)))
@@ -135,7 +137,7 @@ int TestPolyhedron0(int argc, char* argv[])
   int hit = polyhedron->IntersectWithLine(p1, p2, tol, t, x, pc, subId); // should hit
   if (!hit)
   {
-    cerr << "Expected  intersection, but missed." << std::endl;
+    std::cerr << "Expected  intersection, but missed." << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -143,8 +145,8 @@ int TestPolyhedron0(int argc, char* argv[])
   int inside = polyhedron->IsInside(p1, tol); // should be out
   if (inside)
   {
-    cerr << "Expect point [" << p1[0] << ", " << p1[1] << ", " << p1[2]
-         << "] to be outside the polyhedral, but it's inside." << std::endl;
+    std::cerr << "Expect point [" << p1[0] << ", " << p1[1] << ", " << p1[2]
+              << "] to be outside the polyhedral, but it's inside." << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -154,8 +156,8 @@ int TestPolyhedron0(int argc, char* argv[])
   inside = polyhedron->IsInside(p2, tol); // should be in
   if (!inside)
   {
-    cerr << "Expect point [" << p2[0] << ", " << p2[1] << ", " << p2[2]
-         << "] to be inside the polyhedral, but it's outside." << std::endl;
+    std::cerr << "Expect point [" << p2[0] << ", " << p2[1] << ", " << p2[2]
+              << "] to be inside the polyhedral, but it's outside." << std::endl;
     return EXIT_FAILURE;
   }
 

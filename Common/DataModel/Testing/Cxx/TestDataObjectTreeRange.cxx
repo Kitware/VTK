@@ -10,6 +10,8 @@
 
 #include <algorithm>
 
+#include <iostream>
+
 #define TEST_FAIL(msg)                                                                             \
   std::cerr << "Test failed! " msg << "\n";                                                        \
   return false

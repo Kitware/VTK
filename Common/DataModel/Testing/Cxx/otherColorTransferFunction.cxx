@@ -10,13 +10,15 @@
 
 #include <sstream>
 
+#include <iostream>
+
 int Test(ostream& strm)
 {
   int i, j, k;
   vtkColorTransferFunction* ctf1 = vtkColorTransferFunction::New();
 
   // actual test
-  strm << "Test vtkColorTransferFunction Start" << endl;
+  strm << "Test vtkColorTransferFunction Start" << std::endl;
 
   ctf1->AddRGBPoint(0.0, 1, 0, 0);
   ctf1->AddHSVPoint(1.0, 1, 1, .6);
@@ -26,31 +28,31 @@ int Test(ostream& strm)
 
   double rgb[3];
   ctf1->GetColor(.5, rgb);
-  strm << "GetColor(.5) = " << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << endl;
+  strm << "GetColor(.5) = " << rgb[0] << ", " << rgb[1] << ", " << rgb[2] << std::endl;
 
-  strm << "GetRedValue(.5) = " << ctf1->GetRedValue(.5) << endl;
-  strm << "GetGreenValue(.5) = " << ctf1->GetGreenValue(.5) << endl;
-  strm << "GetBlueValue(.5) = " << ctf1->GetBlueValue(.5) << endl;
+  strm << "GetRedValue(.5) = " << ctf1->GetRedValue(.5) << std::endl;
+  strm << "GetGreenValue(.5) = " << ctf1->GetGreenValue(.5) << std::endl;
+  strm << "GetBlueValue(.5) = " << ctf1->GetBlueValue(.5) << std::endl;
 
   strm << "MapValue(12) = " << (int)ctf1->MapValue(12)[0] << ", " << (int)ctf1->MapValue(12)[1]
-       << ", " << (int)ctf1->MapValue(12)[2] << endl;
+       << ", " << (int)ctf1->MapValue(12)[2] << std::endl;
 
-  strm << "GetRange = " << ctf1->GetRange()[0] << "," << ctf1->GetRange()[1] << endl;
+  strm << "GetRange = " << ctf1->GetRange()[0] << "," << ctf1->GetRange()[1] << std::endl;
 
   double table[3][256];
 
   ctf1->GetTable(0, 15, 256, &table[0][0]);
-  strm << "GetTable(0, 15, 256, &table[0][0])" << endl;
+  strm << "GetTable(0, 15, 256, &table[0][0])" << std::endl;
   for (i = 0; i < 256; i++)
   {
     for (j = 0; j < 3; j++)
     {
       strm << table[j][i] << " ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
-  strm << "BuildFunctionFrom(0, 15, 256, &table[0][0])" << endl;
+  strm << "BuildFunctionFrom(0, 15, 256, &table[0][0])" << std::endl;
   vtkColorTransferFunction* ctf2 = vtkColorTransferFunction::New();
   ctf2->BuildFunctionFromTable(0, 15, 256, &table[0][0]);
 
@@ -61,7 +63,7 @@ int Test(ostream& strm)
   ctf2->GetTable(0, 15, 512);
 
   ctf1->DeepCopy(ctf2);
-  strm << "ctf1->DeepCopy(ctf2)" << endl;
+  strm << "ctf1->DeepCopy(ctf2)" << std::endl;
   strm << *ctf1;
 
   ctf1->RemovePoint(10);
@@ -125,7 +127,7 @@ int Test(ostream& strm)
   delete[] fData;
   delete[] dData;
 
-  strm << "Test vtkColorTransferFunction End" << endl;
+  strm << "Test vtkColorTransferFunction End" << std::endl;
   return 0;
 }
 

@@ -6,6 +6,8 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 static bool TestRange()
 {
@@ -17,7 +19,7 @@ static bool TestRange()
   const double* range = lut->GetRange();
   if (range[0] != 0.0 || range[1] != 255.0)
   {
-    cerr << "Default range wrong\n";
+    std::cerr << "Default range wrong\n";
     success = false;
   }
 
@@ -26,7 +28,7 @@ static bool TestRange()
   range = lut->GetRange();
   if (range[0] != 0.0 || range[1] != 255.0)
   {
-    cerr << "nop range change failed\n";
+    std::cerr << "nop range change failed\n";
     success = false;
   }
 
@@ -35,7 +37,7 @@ static bool TestRange()
   range = lut->GetRange();
   if (range[0] != 100.0 || range[1] != 200.0)
   {
-    cerr << "range change failed\n";
+    std::cerr << "range change failed\n";
     success = false;
   }
 
@@ -53,7 +55,7 @@ static bool TestAlpha()
   double alpha = lut->GetAlpha();
   if (alpha != 1.0)
   {
-    cerr << "Default alpha wrong\n";
+    std::cerr << "Default alpha wrong\n";
     success = false;
   }
 
@@ -62,7 +64,7 @@ static bool TestAlpha()
   alpha = lut->GetAlpha();
   if (alpha != 0.0)
   {
-    cerr << "Alpha clamp fail\n";
+    std::cerr << "Alpha clamp fail\n";
     success = false;
   }
 
@@ -70,7 +72,7 @@ static bool TestAlpha()
   alpha = lut->GetAlpha();
   if (alpha != 1.0)
   {
-    cerr << "Alpha clamp fail\n";
+    std::cerr << "Alpha clamp fail\n";
     success = false;
   }
 
@@ -94,12 +96,12 @@ static bool TestGetColorAndMapValue()
 
   if (rgb[0] != 0.5 || rgb[1] != 0.5 || rgb[2] != 0.5)
   {
-    cerr << "GetColor result wrong\n";
+    std::cerr << "GetColor result wrong\n";
     success = false;
   }
   if (rgba[0] != 128 || rgba[1] != 128 || rgba[2] != 128 || rgba[3] != 255)
   {
-    cerr << "MapValue result wrong\n";
+    std::cerr << "MapValue result wrong\n";
     success = false;
   }
 
@@ -110,12 +112,12 @@ static bool TestGetColorAndMapValue()
 
   if (rgb[0] != 1e-62 || rgb[1] != 1e-62 || rgb[2] != 1e-62)
   {
-    cerr << "GetColor result wrong\n";
+    std::cerr << "GetColor result wrong\n";
     success = false;
   }
   if (rgba[0] != 0 || rgba[1] != 0 || rgba[2] != 0 || rgba[3] != 255)
   {
-    cerr << "MapValue result wrong\n";
+    std::cerr << "MapValue result wrong\n";
     success = false;
   }
 
@@ -147,18 +149,18 @@ static bool TestDeepCopy()
   vtkAbstractArray* val2 = copy2->GetAnnotatedValues();
   if (!ann2 || !val2)
   {
-    cerr << "Annotations not copied\n";
+    std::cerr << "Annotations not copied\n";
     success = false;
   }
   if (ann == ann2 || val == val2)
   {
-    cerr << "Annotations only shallow copied\n";
+    std::cerr << "Annotations only shallow copied\n";
     success = false;
   }
   int idx = lut->GetAnnotatedValueIndex(123.4);
   if (idx != 0)
   {
-    cerr << "Could not find annotated value 123.4.\n";
+    std::cerr << "Could not find annotated value 123.4.\n";
     success = false;
   }
 
@@ -177,7 +179,7 @@ static bool TestGeneral()
   vtkAbstractArray* val2 = lut->GetAnnotatedValues();
   if (ann2 || val2)
   {
-    cerr << "Annotations set to nullptr but didn't return nullptr\n";
+    std::cerr << "Annotations set to nullptr but didn't return nullptr\n";
     success = false;
   }
 
@@ -190,21 +192,21 @@ static bool TestGeneral()
   val2 = lut->GetAnnotatedValues();
   if (!ann2 || !val2)
   {
-    cerr << "Annotations set to non-nullptr but returned nullptr\n";
+    std::cerr << "Annotations set to non-nullptr but returned nullptr\n";
     success = false;
   }
 
   int idx = lut->GetAnnotatedValueIndex(10.3);
   if (idx != 0)
   {
-    cerr << "Could not find annotated value 10.3.\n";
+    std::cerr << "Could not find annotated value 10.3.\n";
     success = false;
   }
 
   idx = lut->GetAnnotatedValueIndex("Narf");
   if (idx >= 0)
   {
-    cerr << "Found unexpected annotated value \"Narf\".\n";
+    std::cerr << "Found unexpected annotated value \"Narf\".\n";
     success = false;
   }
 
@@ -217,7 +219,7 @@ static bool TestGeneral()
   idx = lut->GetAnnotatedValueIndex("Narf");
   if (idx != 1)
   {
-    cerr << "Couldn't find newly-annotated value (\"Narf\").\n";
+    std::cerr << "Couldn't find newly-annotated value (\"Narf\").\n";
     success = false;
   }
 
@@ -226,7 +228,7 @@ static bool TestGeneral()
   val2 = lut->GetAnnotatedValues();
   if (ann2 || val2)
   {
-    cerr << "Annotations again set to nullptr but didn't return nullptr\n";
+    std::cerr << "Annotations again set to nullptr but didn't return nullptr\n";
     success = false;
   }
 

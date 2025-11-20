@@ -12,6 +12,8 @@
 #include "vtkTriangle.h"
 #include <limits>
 
+#include <iostream>
+
 int TestTriangle(int, char*[])
 {
   // three vertices making a triangle
@@ -76,21 +78,21 @@ int TestTriangle(int, char*[])
 
     if (inside && i < 17)
     {
-      cerr << "ERROR:  point #" << i
-           << ", an outside-point, considered to be inside the triangle!!!" << endl;
-      cerr << "Squared error tolerance: 0.00000001" << endl;
+      std::cerr << "ERROR:  point #" << i
+                << ", an outside-point, considered to be inside the triangle!!!" << std::endl;
+      std::cerr << "Squared error tolerance: 0.00000001" << std::endl;
       return EXIT_FAILURE;
     }
     else if (!inside && i > 16)
     {
-      cerr << "ERROR:  point #" << i
-           << ", an inside-point, considered to be outside the triangle!!!" << endl;
-      cerr << "Squared error tolerance: 0.00000001" << endl;
+      std::cerr << "ERROR:  point #" << i
+                << ", an inside-point, considered to be outside the triangle!!!" << std::endl;
+      std::cerr << "Squared error tolerance: 0.00000001" << std::endl;
       return EXIT_FAILURE;
     }
   }
 
-  cout << "Passed: 17 points outside and 14 points inside the triangle." << endl;
+  std::cout << "Passed: 17 points outside and 14 points inside the triangle." << std::endl;
 
   vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
   triangle->GetPoints()->SetPoint(0, 0.0, 0.0, 0.0);
@@ -100,7 +102,7 @@ int TestTriangle(int, char*[])
   double area = triangle->ComputeArea();
   if (!vtkMathUtilities::NearlyEqual<double>(area, 0.5))
   {
-    cerr << "ERROR:  triangle area is " << area << ", should be 0.5" << endl;
+    std::cerr << "ERROR:  triangle area is " << area << ", should be 0.5" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -129,14 +131,14 @@ int TestTriangle(int, char*[])
     !vtkMathUtilities::NearlyEqual<double>(pcoords[1], 0.55) ||
     !vtkMathUtilities::NearlyEqual<double>(pcoords[2], 0.0))
   {
-    cerr << "Error while intersecting degenerated triangle" << endl;
+    std::cerr << "Error while intersecting degenerated triangle" << std::endl;
     return EXIT_FAILURE;
   }
   double p1b[3] = { 0, 1, 10.001 };
   double p2b[3] = { 0, -1, 10.001 };
   if (triangleDeg->IntersectWithLine(p1b, p2b, dEpsilon, t, x, pcoords, subId) != 0)
   {
-    cerr << "Error while intersecting degenerated triangle" << endl;
+    std::cerr << "Error while intersecting degenerated triangle" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -159,13 +161,13 @@ int TestTriangle(int, char*[])
   // Verify correct output values
   if (res != 1)
   {
-    cerr << "Line intersection with coplanar triangle not detected" << endl;
+    std::cerr << "Line intersection with coplanar triangle not detected" << std::endl;
     return EXIT_FAILURE;
   }
   else if (x[0] != 0 || x[1] != 1 || x[2] != 5 || t != 0.0 || pcoords[0] != 0.1 ||
     pcoords[1] != 0.5 || pcoords[2] != 0.0)
   {
-    cerr << "Output coordinates of intersecting point incorrect" << endl;
+    std::cerr << "Output coordinates of intersecting point incorrect" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -181,13 +183,13 @@ int TestTriangle(int, char*[])
   // Verify correct output values
   if (res != 1)
   {
-    cerr << "Line intersection with coplanar triangle not detected" << endl;
+    std::cerr << "Line intersection with coplanar triangle not detected" << std::endl;
     return EXIT_FAILURE;
   }
   else if (x[0] != 0 || x[1] != 0 || x[2] != 5 || t != 0.1 || pcoords[0] != 0.0 ||
     pcoords[1] != 0.5 || pcoords[2] != 0.0)
   {
-    cerr << "Output coordinates of intersecting point incorrect" << endl;
+    std::cerr << "Output coordinates of intersecting point incorrect" << std::endl;
     return EXIT_FAILURE;
   }
 

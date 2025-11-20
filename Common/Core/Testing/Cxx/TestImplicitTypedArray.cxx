@@ -8,6 +8,8 @@
 
 #include "vtkNew.h"
 
+#include <iostream>
+
 //-------------------------------------------------------------------------------------------------
 bool CheckNewInstance(vtkDataArray* sourceArray, int arrayType)
 {

@@ -12,6 +12,8 @@
 #include "vtkSmartPointer.h"
 #include <limits>
 
+#include <iostream>
+
 int TestPolygon(int, char*[])
 {
   vtkSmartPointer<vtkPolygon> polygon = vtkSmartPointer<vtkPolygon>::New();
@@ -32,7 +34,7 @@ int TestPolygon(int, char*[])
 
   if (!vtkMathUtilities::NearlyEqual<double>(area, 4.0))
   {
-    cerr << "ERROR:  polygon area is " << area << ", should be 4.0" << endl;
+    std::cerr << "ERROR:  polygon area is " << area << ", should be 4.0" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -54,7 +56,7 @@ int TestPolygon(int, char*[])
 
     if (!convex)
     {
-      cerr << "ERROR:  polygon should be classified as convex" << endl;
+      std::cerr << "ERROR:  polygon should be classified as convex" << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -80,7 +82,7 @@ int TestPolygon(int, char*[])
 
     if (!nonconvex)
     {
-      cerr << "ERROR:  polygon should be classified as nonconvex" << endl;
+      std::cerr << "ERROR:  polygon should be classified as nonconvex" << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -105,7 +107,7 @@ int TestPolygon(int, char*[])
 
     if (!convex)
     {
-      cerr << "ERROR:  polygon should be classified as convex" << endl;
+      std::cerr << "ERROR:  polygon should be classified as convex" << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -130,7 +132,7 @@ int TestPolygon(int, char*[])
 
     if (!convex)
     {
-      cerr << "ERROR:  polygon should be classified as convex" << endl;
+      std::cerr << "ERROR:  polygon should be classified as convex" << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -156,8 +158,8 @@ int TestPolygon(int, char*[])
     !vtkMathUtilities::NearlyEqual<double>(normal[1], 0.0) ||
     !vtkMathUtilities::NearlyEqual<double>(normal[2], 1.0))
   {
-    cerr << "ERROR: The normal (" << normal[0] << ", " << normal[1] << ", " << normal[2]
-         << " is incorrect (should be (0,0,1))" << endl;
+    std::cerr << "ERROR: The normal (" << normal[0] << ", " << normal[1] << ", " << normal[2]
+              << " is incorrect (should be (0,0,1))" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -172,8 +174,8 @@ int TestPolygon(int, char*[])
     !vtkMathUtilities::NearlyEqual<double>(normal[1], 0.0) ||
     !vtkMathUtilities::NearlyEqual<double>(normal[2], 1.0))
   {
-    cerr << "ERROR: The normal (" << normal[0] << ", " << normal[1] << ", " << normal[2]
-         << " is incorrect (should be (0,0,1))" << endl;
+    std::cerr << "ERROR: The normal (" << normal[0] << ", " << normal[1] << ", " << normal[2]
+              << " is incorrect (should be (0,0,1))" << std::endl;
     return EXIT_FAILURE;
   }
 

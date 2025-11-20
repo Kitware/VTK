@@ -13,6 +13,8 @@
 #include "vtkUnstructuredGridReader.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
+#include <iostream>
+
 constexpr char inputDataStream[] =
   "# vtk DataFile Version 3.0\n"
   "vtk output\n"

@@ -7,6 +7,8 @@
 
 #include <limits>
 
+#include <iostream>
+
 #define TestBoundingBoxFailMacro(b, msg)                                                           \
   do                                                                                               \
   {                                                                                                \

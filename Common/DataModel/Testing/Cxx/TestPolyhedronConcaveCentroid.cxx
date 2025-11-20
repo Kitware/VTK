@@ -9,6 +9,8 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridReader.h>
 
+#include <iostream>
+
 int TestPolyhedronConcaveCentroid(int argc, char* argv[])
 {
   char* filename = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/concavePolyhedron.vtu");

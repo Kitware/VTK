@@ -8,6 +8,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestErrorObserver.h"
 
+#include <iostream>
+
 int TestGenericCell(int, char*[])
 {
   int rval = 0;
@@ -25,7 +27,7 @@ int TestGenericCell(int, char*[])
     int numEdges = cell->GetNumberOfEdges();
     int numFaces = cell->GetNumberOfFaces();
 
-    cell->Print(cout);
+    cell->Print(std::cout);
 
     double center[3];
     int a = cell->GetParametricCenter(center);
@@ -59,9 +61,9 @@ int TestGenericCell(int, char*[])
         if (fabs(center[0] - m[0]) > 1e-6 || fabs(center[1] - m[1]) > 1e-6 ||
           fabs(center[2] - m[2]) > 1e-6)
         {
-          cerr << "Cell: " << i << endl;
-          cerr << "Center: " << center[0] << "," << center[1] << "," << center[2] << endl;
-          cerr << "M     : " << m[0] << "," << m[1] << "," << m[2] << endl;
+          std::cerr << "Cell: " << i << std::endl;
+          std::cerr << "Center: " << center[0] << "," << center[1] << "," << center[2] << std::endl;
+          std::cerr << "M     : " << m[0] << "," << m[1] << "," << m[2] << std::endl;
           ++rval;
         }
       }
@@ -76,12 +78,12 @@ int TestGenericCell(int, char*[])
     for (int e = 0; e < numEdges; ++e)
     {
       vtkCell* c = cell->GetEdge(e);
-      c->Print(cout);
+      c->Print(std::cout);
     }
     for (int f = 0; f < numFaces; ++f)
     {
       vtkCell* c = cell->GetFace(f);
-      c->Print(cout);
+      c->Print(std::cout);
     }
     if (cell->GetCellType() != i && cell->GetCellType() != VTK_EMPTY_CELL)
     {

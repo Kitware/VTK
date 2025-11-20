@@ -18,6 +18,8 @@
 #include <numeric>
 #include <vector>
 
+#include <iostream>
+
 static int TestPi();
 static int TestDegreesFromRadians();
 static int TestRound();

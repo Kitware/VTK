@@ -16,6 +16,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 #define SIZE 1000
 
 template <class T, class A, class V>
@@ -29,45 +31,45 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
 
   strm << "\tResize(0)...";
   ptr->Resize(0);
-  strm << "OK" << endl;
+  strm << "OK" << std::endl;
 
   strm << "\tResize(10)...";
   ptr->Resize(10);
-  strm << "OK" << endl;
+  strm << "OK" << std::endl;
 
   strm << "\tResize(5)...";
   ptr->Resize(5);
-  strm << "OK" << endl;
+  strm << "OK" << std::endl;
 
   strm << "\tResize(size)...";
   ptr->Resize(size);
-  strm << "OK" << endl;
+  strm << "OK" << std::endl;
 
   strm << "\tSetNumberOfTuples...";
   ptr->SetNumberOfTuples(100);
   if (ptr->GetNumberOfTuples() == 100)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
   strm << "\tSetNumberOfComponents...";
   ptr->SetNumberOfComponents(10);
   if (ptr->GetNumberOfComponents() == 10)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tSetVoidArray...";
   int vtkDeletesMemory = (vtkFree) ? 0 : 1;
   ptr->SetVoidArray(array, size, vtkDeletesMemory, vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
-  strm << "OK" << endl;
+  strm << "OK" << std::endl;
 
-  strm << "CreateDefaultLookupTable" << endl;
+  strm << "CreateDefaultLookupTable" << std::endl;
   ptr->CreateDefaultLookupTable();
   strm << *ptr;
 
@@ -87,11 +89,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     }
   }
   if (passed)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tGetTuple(i, double *tuple)...";
@@ -108,11 +110,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     }
   }
   if (passed)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tvtkDataArray::GetTuple(i, double *tuple)...";
@@ -128,50 +130,50 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     }
   }
   if (passed)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tSetValue(i, value)...";
   ptr->SetValue(99, value);
   if (ptr->GetValue(99) == value)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertValue(i, value)...";
   ptr->InsertValue(500, value);
   if (ptr->GetValue(500) == value)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertNextValue(value)...";
   if (ptr->GetValue(ptr->InsertNextValue(static_cast<char>(22.0))) == 22.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertComponent(i, j, 5.0)...";
   ptr->InsertComponent(500, 9, 5.0);
   if (ptr->GetComponent(500, 9) == 5.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tSetTuple(i, float *tuple)...";
@@ -190,11 +192,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     }
   }
   if (passed)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tSetTuple(i, double *tuple)...";
@@ -213,11 +215,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     }
   }
   if (passed)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertTuple(i, float *tuple)...";
@@ -236,11 +238,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     }
   }
   if (passed)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertTuple(i, double *tuple)...";
@@ -259,11 +261,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     }
   }
   if (passed)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertNextTuple(float *tuple)...";
@@ -282,11 +284,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     }
   }
   if (passed)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertNextTuple(double *tuple)...";
@@ -305,11 +307,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     }
   }
   if (passed)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tvtkDataArray::GetData...";
@@ -327,11 +329,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     }
   }
   if (passed)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tSetTuple1...";
@@ -339,11 +341,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
   ptr->SetNumberOfTuples(100);
   ptr->SetTuple1(50, 10.0);
   if (ptr->GetTuple1(50) == 10.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tSetTuple2...";
@@ -351,11 +353,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
   ptr->SetNumberOfTuples(100);
   ptr->SetTuple2(50, 10.0, 20.0);
   if (ptr->GetTuple2(50)[0] == 10.0 && ptr->GetTuple2(50)[1] == 20.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tSetTuple3...";
@@ -364,11 +366,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
   ptr->SetTuple3(50, 10.0, 20.0, 30.0);
   if (ptr->GetTuple3(50)[0] == 10.0 && ptr->GetTuple3(50)[1] == 20.0 &&
     ptr->GetTuple3(50)[2] == 30.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tSetTuple4...";
@@ -377,11 +379,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
   ptr->SetTuple4(50, 10.0, 20.0, 30.0, 40.0);
   if (ptr->GetTuple4(50)[0] == 10.0 && ptr->GetTuple4(50)[1] == 20.0 &&
     ptr->GetTuple4(50)[2] == 30.0 && ptr->GetTuple4(50)[3] == 40.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tSetTuple9...";
@@ -392,11 +394,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     ptr->GetTuple9(50)[2] == 30.0 && ptr->GetTuple9(50)[3] == 40.0 &&
     ptr->GetTuple9(50)[4] == 50.0 && ptr->GetTuple9(50)[5] == 60.0 &&
     ptr->GetTuple9(50)[6] == 70.0 && ptr->GetTuple9(50)[7] == 80.0 && ptr->GetTuple9(50)[8] == 90.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertTuple1...";
@@ -404,11 +406,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
   ptr->SetNumberOfTuples(100);
   ptr->InsertTuple1(502, 10.0);
   if (ptr->GetTuple1(502) == 10.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertTuple2...";
@@ -416,11 +418,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
   ptr->SetNumberOfTuples(100);
   ptr->InsertTuple2(502, 10.0, 20.0);
   if (ptr->GetTuple2(502)[0] == 10.0 && ptr->GetTuple2(502)[1] == 20.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertTuple3...";
@@ -429,11 +431,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
   ptr->InsertTuple3(502, 10.0, 20.0, 30.0);
   if (ptr->GetTuple3(502)[0] == 10.0 && ptr->GetTuple3(502)[1] == 20.0 &&
     ptr->GetTuple3(502)[2] == 30.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertTuple4...";
@@ -442,11 +444,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
   ptr->InsertTuple4(502, 10.0, 20.0, 30.0, 40.0);
   if (ptr->GetTuple4(502)[0] == 10.0 && ptr->GetTuple4(502)[1] == 20.0 &&
     ptr->GetTuple4(502)[2] == 30.0 && ptr->GetTuple4(502)[3] == 40.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertTuple9...";
@@ -458,11 +460,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     ptr->GetTuple9(502)[4] == 50.0 && ptr->GetTuple9(502)[5] == 60.0 &&
     ptr->GetTuple9(502)[6] == 70.0 && ptr->GetTuple9(502)[7] == 80.0 &&
     ptr->GetTuple9(502)[8] == 90.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertNextTuple1...";
@@ -470,22 +472,22 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
   ptr->SetNumberOfTuples(100);
   ptr->InsertNextTuple1(10.0);
   if (ptr->GetTuple1(100) == 10.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << " FAILED" << endl;
+    strm << " FAILED" << std::endl;
   }
   strm << "\tInsertNextTuple2...";
   ptr->SetNumberOfComponents(2);
   ptr->SetNumberOfTuples(100);
   ptr->InsertNextTuple2(10.0, 20.0);
   if (ptr->GetTuple2(100)[0] == 10.0 && ptr->GetTuple2(100)[1] == 20.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertNextTuple3...";
@@ -494,11 +496,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
   ptr->InsertNextTuple3(10.0, 20.0, 30.0);
   if (ptr->GetTuple3(100)[0] == 10.0 && ptr->GetTuple3(100)[1] == 20.0 &&
     ptr->GetTuple3(100)[2] == 30.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertNextTuple4...";
@@ -507,11 +509,11 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
   ptr->InsertNextTuple4(10.0, 20.0, 30.0, 40.0);
   if (ptr->GetTuple4(100)[0] == 10.0 && ptr->GetTuple4(100)[1] == 20.0 &&
     ptr->GetTuple4(100)[2] == 30.0 && ptr->GetTuple4(100)[3] == 40.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertNextTuple9...";
@@ -523,16 +525,16 @@ int doArrayTest(ostream& strm, T* ptr, A* array, V value, int size, bool vtkFree
     ptr->GetTuple9(100)[4] == 50.0 && ptr->GetTuple9(100)[5] == 60.0 &&
     ptr->GetTuple9(100)[6] == 70.0 && ptr->GetTuple9(100)[7] == 80.0 &&
     ptr->GetTuple9(100)[8] == 90.0)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     errors++;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   farray->Delete();
 
-  strm << "PrintSelf..." << endl;
+  strm << "PrintSelf..." << std::endl;
   strm << *ptr;
 
   return errors;
@@ -542,7 +544,7 @@ int otherArraysTest(ostream& strm)
 {
   int errors = 0;
   {
-    strm << "Test CharArray" << endl;
+    strm << "Test CharArray" << std::endl;
     vtkCharArray* ptr = vtkCharArray::New();
     char* array = new char[SIZE];
     char value = static_cast<char>(1);
@@ -556,7 +558,7 @@ int otherArraysTest(ostream& strm)
   }
 
   {
-    strm << "Test UnsignedCharArray" << endl;
+    strm << "Test UnsignedCharArray" << std::endl;
     vtkUnsignedCharArray* ptr = vtkUnsignedCharArray::New();
     unsigned char* array = new unsigned char[SIZE];
     unsigned char value = static_cast<unsigned char>(1);
@@ -569,7 +571,7 @@ int otherArraysTest(ostream& strm)
   }
 
   {
-    strm << "Test IntArray" << endl;
+    strm << "Test IntArray" << std::endl;
     vtkIntArray* ptr = vtkIntArray::New();
     int* array = new int[SIZE];
     int value = 1;
@@ -583,7 +585,7 @@ int otherArraysTest(ostream& strm)
   }
 
   {
-    strm << "Test UnsignedIntArray" << endl;
+    strm << "Test UnsignedIntArray" << std::endl;
     vtkUnsignedIntArray* ptr = vtkUnsignedIntArray::New();
     unsigned int* array = new unsigned int[SIZE];
     unsigned int value = static_cast<unsigned int>(1);
@@ -596,7 +598,7 @@ int otherArraysTest(ostream& strm)
   }
 
   {
-    strm << "Test LongArray" << endl;
+    strm << "Test LongArray" << std::endl;
     vtkLongArray* ptr = vtkLongArray::New();
     long* array = new long[SIZE];
     long value = static_cast<long>(1);
@@ -610,7 +612,7 @@ int otherArraysTest(ostream& strm)
   }
 
   {
-    strm << "Test UnsignedLongArray" << endl;
+    strm << "Test UnsignedLongArray" << std::endl;
     vtkUnsignedLongArray* ptr = vtkUnsignedLongArray::New();
     unsigned long* array = new unsigned long[SIZE];
     unsigned long value = static_cast<unsigned long>(1);
@@ -623,7 +625,7 @@ int otherArraysTest(ostream& strm)
   }
 
   {
-    strm << "Test ShortArray" << endl;
+    strm << "Test ShortArray" << std::endl;
     vtkShortArray* ptr = vtkShortArray::New();
     short* array = new short[SIZE];
     short value = static_cast<short>(1);
@@ -637,7 +639,7 @@ int otherArraysTest(ostream& strm)
   }
 
   {
-    strm << "Test UnsignedShortArray" << endl;
+    strm << "Test UnsignedShortArray" << std::endl;
     vtkUnsignedShortArray* ptr = vtkUnsignedShortArray::New();
     unsigned short* array = new unsigned short[SIZE];
     unsigned short value = static_cast<unsigned short>(1);
@@ -650,7 +652,7 @@ int otherArraysTest(ostream& strm)
   }
 
   {
-    strm << "Test FloatArray" << endl;
+    strm << "Test FloatArray" << std::endl;
     vtkFloatArray* ptr = vtkFloatArray::New();
     float* array = new float[SIZE];
     float value = static_cast<float>(1);
@@ -664,7 +666,7 @@ int otherArraysTest(ostream& strm)
   }
 
   {
-    strm << "Test DoubleArray" << endl;
+    strm << "Test DoubleArray" << std::endl;
     vtkDoubleArray* ptr = vtkDoubleArray::New();
     double* array = new double[SIZE];
     double value = static_cast<double>(1);
@@ -677,7 +679,7 @@ int otherArraysTest(ostream& strm)
   }
 
   {
-    strm << "Test IdTypeArray" << endl;
+    strm << "Test IdTypeArray" << std::endl;
     vtkIdTypeArray* ptr = vtkIdTypeArray::New();
     vtkIdType* array = new vtkIdType[SIZE];
     vtkIdType value = static_cast<vtkIdType>(1);
@@ -694,5 +696,5 @@ int otherArraysTest(ostream& strm)
 
 int otherArrays(int, char*[])
 {
-  return otherArraysTest(cerr);
+  return otherArraysTest(std::cerr);
 }

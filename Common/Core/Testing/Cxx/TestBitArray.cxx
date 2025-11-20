@@ -9,6 +9,8 @@
 #include <bitset>
 #include <string>
 
+#include <iostream>
+
 // This test makes sure that the unused reachable bits of the last byte are set
 // to zero.
 int TestBitArray(int, char*[])

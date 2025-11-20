@@ -9,6 +9,8 @@
 #include <cstdlib>
 #include <memory>
 
+#include <iostream>
+
 namespace
 {
 

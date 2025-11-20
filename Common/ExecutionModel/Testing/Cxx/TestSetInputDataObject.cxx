@@ -5,6 +5,8 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataNormals.h"
 
+#include <iostream>
+
 #define TEST_SUCCESS 0
 #define TEST_FAILURE 1
 
@@ -23,7 +25,8 @@ int TestSetInputDataObject(int, char*[])
   vtkMTimeType changed_mtime = filter->GetMTime();
   if (changed_mtime <= mtime)
   {
-    cerr << __LINE__ << ": ERROR: SetInputDataObject() did not change the Mtime!!!" << endl;
+    std::cerr << __LINE__ << ": ERROR: SetInputDataObject() did not change the Mtime!!!"
+              << std::endl;
     return TEST_FAILURE;
   }
 
@@ -31,7 +34,7 @@ int TestSetInputDataObject(int, char*[])
   filter->SetInputDataObject(inputData);
   if (changed_mtime != filter->GetMTime())
   {
-    cerr << __LINE__ << ": ERROR: SetInputDataObject() changed the Mtime!!!" << endl;
+    std::cerr << __LINE__ << ": ERROR: SetInputDataObject() changed the Mtime!!!" << std::endl;
     return TEST_FAILURE;
   }
 
@@ -39,7 +42,8 @@ int TestSetInputDataObject(int, char*[])
   filter->SetInputDataObject(inputData2);
   if (filter->GetMTime() <= changed_mtime)
   {
-    cerr << __LINE__ << ": ERROR: SetInputDataObject() did not change the Mtime!!!" << endl;
+    std::cerr << __LINE__ << ": ERROR: SetInputDataObject() did not change the Mtime!!!"
+              << std::endl;
     return TEST_FAILURE;
   }
 
@@ -49,7 +53,8 @@ int TestSetInputDataObject(int, char*[])
   filter->SetInputDataObject(nullptr);
   if (filter->GetMTime() <= changed_mtime)
   {
-    cerr << __LINE__ << ": ERROR: SetInputDataObject() did not change the Mtime!!!" << endl;
+    std::cerr << __LINE__ << ": ERROR: SetInputDataObject() did not change the Mtime!!!"
+              << std::endl;
     return TEST_FAILURE;
   }
 
@@ -59,7 +64,7 @@ int TestSetInputDataObject(int, char*[])
   filter->SetInputDataObject(nullptr);
   if (filter->GetMTime() != changed_mtime)
   {
-    cerr << __LINE__ << ": ERROR: SetInputDataObject() changed the Mtime!!!" << endl;
+    std::cerr << __LINE__ << ": ERROR: SetInputDataObject() changed the Mtime!!!" << std::endl;
     return TEST_FAILURE;
   }
 

@@ -11,6 +11,8 @@
 #include <numeric>
 #include <random>
 
+#include <iostream>
+
 int TestIndexedArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int res = EXIT_SUCCESS;

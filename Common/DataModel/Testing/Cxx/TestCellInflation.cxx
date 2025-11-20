@@ -12,6 +12,8 @@
 #include "vtkTriangle.h"
 #include "vtkVoxel.h"
 
+#include <iostream>
+
 int TestCellInflation(int, char*[])
 {
   {

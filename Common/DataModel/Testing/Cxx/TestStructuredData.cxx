@@ -4,6 +4,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkStructuredData.h"
 
+#include <iostream>
+
 static int TestGridExtent(int ext[6]);
 static int TestCellIds();
 static int TestPointIds();

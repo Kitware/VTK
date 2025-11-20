@@ -16,18 +16,20 @@
 #include "vtkTree.h"
 #include "vtkVertexListIterator.h"
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 void TestGraphIterators(vtkGraph* g, int& errors)
 {
   if (g->GetNumberOfVertices() != 10)
   {
-    cerr << "ERROR: Wrong number of vertices." << endl;
+    std::cerr << "ERROR: Wrong number of vertices." << std::endl;
     ++errors;
   }
   if (g->GetNumberOfEdges() != 9)
   {
-    cerr << "ERROR: Wrong number of edges." << endl;
+    std::cerr << "ERROR: Wrong number of edges." << std::endl;
     ++errors;
   }
   VTK_CREATE(vtkVertexListIterator, vertices);
@@ -40,7 +42,7 @@ void TestGraphIterators(vtkGraph* g, int& errors)
   }
   if (numVertices != 10)
   {
-    cerr << "ERROR: Vertex list iterator failed." << endl;
+    std::cerr << "ERROR: Vertex list iterator failed." << std::endl;
     ++errors;
   }
   VTK_CREATE(vtkEdgeListIterator, edges);
@@ -51,21 +53,21 @@ void TestGraphIterators(vtkGraph* g, int& errors)
     vtkEdgeType e = edges->Next();
     if (g->GetSourceVertex(e.Id) != e.Source)
     {
-      cerr << "ERROR: Source does not match (" << g->GetSourceVertex(e.Id) << "!=" << e.Source
-           << ")" << endl;
+      std::cerr << "ERROR: Source does not match (" << g->GetSourceVertex(e.Id) << "!=" << e.Source
+                << ")" << std::endl;
       ++errors;
     }
     if (g->GetTargetVertex(e.Id) != e.Target)
     {
-      cerr << "ERROR: Target does not match (" << g->GetTargetVertex(e.Id) << "!=" << e.Target
-           << ")" << endl;
+      std::cerr << "ERROR: Target does not match (" << g->GetTargetVertex(e.Id) << "!=" << e.Target
+                << ")" << std::endl;
       ++errors;
     }
     ++numEdges;
   }
   if (numEdges != 9)
   {
-    cerr << "ERROR: Edge list iterator failed." << endl;
+    std::cerr << "ERROR: Edge list iterator failed." << std::endl;
     ++errors;
   }
   numEdges = 0;
@@ -88,13 +90,14 @@ void TestGraphIterators(vtkGraph* g, int& errors)
       }
       if (e.Id != e2.Id)
       {
-        cerr << "ERROR: Random-access id != iterator id " << e.Id << "!=" << e2.Id << endl;
+        std::cerr << "ERROR: Random-access id != iterator id " << e.Id << "!=" << e2.Id
+                  << std::endl;
         ++errors;
       }
       if (e.Target != e2.Target)
       {
-        cerr << "ERROR: Random-access target != iterator target " << e.Target << "!=" << e2.Target
-             << endl;
+        std::cerr << "ERROR: Random-access target != iterator target " << e.Target
+                  << "!=" << e2.Target << std::endl;
         ++errors;
       }
       ++index;
@@ -102,12 +105,12 @@ void TestGraphIterators(vtkGraph* g, int& errors)
   }
   if (vtkDirectedGraph::SafeDownCast(g) && numEdges != 9)
   {
-    cerr << "ERROR: Out edge iterator failed." << endl;
+    std::cerr << "ERROR: Out edge iterator failed." << std::endl;
     ++errors;
   }
   if (vtkUndirectedGraph::SafeDownCast(g) && numEdges != 18)
   {
-    cerr << "ERROR: Undirected out edge iterator failed." << endl;
+    std::cerr << "ERROR: Undirected out edge iterator failed." << std::endl;
     ++errors;
   }
   numEdges = 0;
@@ -130,13 +133,14 @@ void TestGraphIterators(vtkGraph* g, int& errors)
       }
       if (e.Id != e2.Id)
       {
-        cerr << "ERROR: Random-access id != iterator id " << e.Id << "!=" << e2.Id << endl;
+        std::cerr << "ERROR: Random-access id != iterator id " << e.Id << "!=" << e2.Id
+                  << std::endl;
         ++errors;
       }
       if (e.Source != e2.Source)
       {
-        cerr << "ERROR: Random-access source != iterator source " << e.Source << "!=" << e2.Source
-             << endl;
+        std::cerr << "ERROR: Random-access source != iterator source " << e.Source
+                  << "!=" << e2.Source << std::endl;
         ++errors;
       }
       ++index;
@@ -144,12 +148,12 @@ void TestGraphIterators(vtkGraph* g, int& errors)
   }
   if (vtkDirectedGraph::SafeDownCast(g) && numEdges != 9)
   {
-    cerr << "ERROR: In edge iterator failed." << endl;
+    std::cerr << "ERROR: In edge iterator failed." << std::endl;
     ++errors;
   }
   if (vtkUndirectedGraph::SafeDownCast(g) && numEdges != 18)
   {
-    cerr << "ERROR: Undirected in edge iterator failed." << endl;
+    std::cerr << "ERROR: Undirected in edge iterator failed." << std::endl;
     ++errors;
   }
   numEdges = 0;
@@ -172,12 +176,12 @@ void TestGraphIterators(vtkGraph* g, int& errors)
   }
   if (vtkDirectedGraph::SafeDownCast(g) && numEdges != 9)
   {
-    cerr << "ERROR: In edge iterator failed." << endl;
+    std::cerr << "ERROR: In edge iterator failed." << std::endl;
     ++errors;
   }
   if (vtkUndirectedGraph::SafeDownCast(g) && numEdges != 18)
   {
-    cerr << "ERROR: Undirected in edge iterator failed." << endl;
+    std::cerr << "ERROR: Undirected in edge iterator failed." << std::endl;
     ++errors;
   }
 }
@@ -223,12 +227,12 @@ void TestGraphDeletion(int& errors)
   mdg->Dump();
   if (mdg->GetNumberOfEdges() != 5 || mdg->GetSourceVertex(0) != 1 || mdg->GetTargetVertex(0) != 0)
   {
-    cerr << "ERROR: Did not remove edge correctly." << endl;
+    std::cerr << "ERROR: Did not remove edge correctly." << std::endl;
     ++errors;
   }
   if (earr->GetNumberOfTuples() != 5 || earr->GetValue(0) != 5)
   {
-    cerr << "ERROR: Did not remove edge property correctly." << endl;
+    std::cerr << "ERROR: Did not remove edge property correctly." << std::endl;
     ++errors;
   }
 
@@ -237,12 +241,12 @@ void TestGraphDeletion(int& errors)
   mdg->Dump();
   if (mdg->GetNumberOfEdges() != 4 || mdg->GetSourceVertex(0) != 0 || mdg->GetTargetVertex(0) != 0)
   {
-    cerr << "ERROR: Did not remove loop correctly." << endl;
+    std::cerr << "ERROR: Did not remove loop correctly." << std::endl;
     ++errors;
   }
   if (earr->GetNumberOfTuples() != 4 || earr->GetValue(0) != 4)
   {
-    cerr << "ERROR: Did not remove loop property correctly." << endl;
+    std::cerr << "ERROR: Did not remove loop property correctly." << std::endl;
     ++errors;
   }
 
@@ -252,12 +256,12 @@ void TestGraphDeletion(int& errors)
   if (mdg->GetNumberOfVertices() != 2 || mdg->GetNumberOfEdges() != 2 ||
     mdg->GetSourceVertex(0) != 0 || mdg->GetTargetVertex(0) != 0)
   {
-    cerr << "ERROR: Did not remove vertex correctly." << endl;
+    std::cerr << "ERROR: Did not remove vertex correctly." << std::endl;
     ++errors;
   }
   if (varr->GetNumberOfTuples() != 2 || varr->GetValue(0) != 2 || varr->GetValue(1) != 1)
   {
-    cerr << "ERROR: Did not remove vertex property correctly." << endl;
+    std::cerr << "ERROR: Did not remove vertex property correctly." << std::endl;
     ++errors;
   }
 
@@ -269,7 +273,7 @@ void TestGraphDeletion(int& errors)
   mdg->Dump();
   if (mdg->GetNumberOfVertices() != 0 || mdg->GetNumberOfEdges() != 0)
   {
-    cerr << "ERROR: Remove vertices did not work properly." << endl;
+    std::cerr << "ERROR: Remove vertices did not work properly." << std::endl;
     ++errors;
   }
 
@@ -309,12 +313,12 @@ void TestGraphDeletion(int& errors)
   mug->Dump();
   if (mug->GetNumberOfVertices() != 3 || mug->GetNumberOfEdges() != 0)
   {
-    cerr << "ERROR: Remove edges did not work properly." << endl;
+    std::cerr << "ERROR: Remove edges did not work properly." << std::endl;
     ++errors;
   }
   if (earr2->GetNumberOfTuples() != 0)
   {
-    cerr << "ERROR: Remove edges properties did not work properly." << endl;
+    std::cerr << "ERROR: Remove edges properties did not work properly." << std::endl;
     ++errors;
   }
 }
@@ -372,100 +376,102 @@ int TestGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   mug->AddEdge(6, 7);
   mug->AddEdge(7, 7);
 
-  cerr << "Testing graph conversions ..." << endl;
+  std::cerr << "Testing graph conversions ..." << std::endl;
   if (!t->CheckedShallowCopy(mdgTree))
   {
-    cerr << "ERROR: Cannot set valid tree." << endl;
+    std::cerr << "ERROR: Cannot set valid tree." << std::endl;
     ++errors;
   }
   if (t->CheckedShallowCopy(mdgNotTree))
   {
-    cerr << "ERROR: Can set invalid directed tree." << endl;
+    std::cerr << "ERROR: Can set invalid directed tree." << std::endl;
     ++errors;
   }
   if (t->CheckedShallowCopy(mug))
   {
-    cerr << "ERROR: Can set invalid undirected tree." << endl;
+    std::cerr << "ERROR: Can set invalid undirected tree." << std::endl;
     ++errors;
   }
   if (!dg->CheckedShallowCopy(mdgTree))
   {
-    cerr << "ERROR: Cannot set valid directed graph." << endl;
+    std::cerr << "ERROR: Cannot set valid directed graph." << std::endl;
     ++errors;
   }
   if (!dg->CheckedShallowCopy(t))
   {
-    cerr << "ERROR: Cannot set tree to directed graph." << endl;
+    std::cerr << "ERROR: Cannot set tree to directed graph." << std::endl;
     ++errors;
   }
   if (dg->CheckedShallowCopy(mug))
   {
-    cerr << "ERROR: Can set undirected graph to directed graph." << endl;
+    std::cerr << "ERROR: Can set undirected graph to directed graph." << std::endl;
     ++errors;
   }
   if (!ug->CheckedShallowCopy(mug))
   {
-    cerr << "ERROR: Cannot set valid undirected graph." << endl;
+    std::cerr << "ERROR: Cannot set valid undirected graph." << std::endl;
     ++errors;
   }
   if (ug->CheckedShallowCopy(t))
   {
-    cerr << "ERROR: Can set tree to undirected graph." << endl;
+    std::cerr << "ERROR: Can set tree to undirected graph." << std::endl;
     ++errors;
   }
   if (ug->CheckedShallowCopy(mdgTree))
   {
-    cerr << "ERROR: Can set directed graph to undirected graph." << endl;
+    std::cerr << "ERROR: Can set directed graph to undirected graph." << std::endl;
     ++errors;
   }
   if (!dag->CheckedShallowCopy(mdgTree))
   {
-    cerr << "ERROR: Cannot set valid DAG." << endl;
+    std::cerr << "ERROR: Cannot set valid DAG." << std::endl;
     ++errors;
   }
   if (dag->CheckedShallowCopy(mdgNotTree))
   {
-    cerr << "ERROR: Can set invalid DAG." << endl;
+    std::cerr << "ERROR: Can set invalid DAG." << std::endl;
     ++errors;
   }
   if (dag->CheckedShallowCopy(mug))
   {
-    cerr << "ERROR: Can set undirected graph to DAG." << endl;
+    std::cerr << "ERROR: Can set undirected graph to DAG." << std::endl;
     ++errors;
   }
-  cerr << "... done." << endl;
+  std::cerr << "... done." << std::endl;
 
-  cerr << "Testing basic graph structure ..." << endl;
+  std::cerr << "Testing basic graph structure ..." << std::endl;
   TestGraphIterators(mdgTree, errors);
   TestGraphIterators(mdgNotTree, errors);
   TestGraphIterators(mug, errors);
   TestGraphIterators(dg, errors);
   TestGraphIterators(ug, errors);
   TestGraphIterators(t, errors);
-  cerr << "... done." << endl;
+  std::cerr << "... done." << std::endl;
 
-  cerr << "Testing copy on write ..." << endl;
+  std::cerr << "Testing copy on write ..." << std::endl;
   if (!t->IsSameStructure(mdgTree))
   {
-    cerr << "ERROR: Tree and directed graph should be sharing the same structure." << endl;
+    std::cerr << "ERROR: Tree and directed graph should be sharing the same structure."
+              << std::endl;
     ++errors;
   }
   mdgTree->AddVertex();
   if (t->IsSameStructure(mdgTree))
   {
-    cerr << "ERROR: Tree and directed graph should not be sharing the same structure." << endl;
+    std::cerr << "ERROR: Tree and directed graph should not be sharing the same structure."
+              << std::endl;
     ++errors;
   }
   if (t->GetNumberOfVertices() != 10)
   {
-    cerr << "ERROR: Tree changed when modifying directed graph." << endl;
+    std::cerr << "ERROR: Tree changed when modifying directed graph." << std::endl;
     ++errors;
   }
-  cerr << "... done." << endl;
+  std::cerr << "... done." << std::endl;
 
-  cerr << "Testing graph deletion ..." << endl;
+  std::cerr << "Testing graph deletion ..." << std::endl;
   TestGraphDeletion(errors);
-  cerr << "... done." << endl;
+  std::cerr << "... done." << std::endl;
 
   return errors;
 }

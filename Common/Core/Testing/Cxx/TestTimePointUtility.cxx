@@ -9,6 +9,8 @@
 #include <sstream>
 #include <string>
 
+#include <iostream>
+
 static int TestSpecialDates();
 static void TestBadFormatWarning();
 static void TestPrintSelf();

@@ -12,6 +12,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 static vtkSmartPointer<vtkImageData> MakeImage(int, int, int);
 
 int UnitTestSimpleScalarTree(int, char*[])

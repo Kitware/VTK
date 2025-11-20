@@ -24,6 +24,9 @@
 #ifdef VTK_DBG_TEST
 #include "vtkGenericDataObjectWriter.h"
 #include <sstream>
+
+#include <iostream>
+
 #endif
 
 using namespace vtk::literals;

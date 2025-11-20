@@ -7,6 +7,8 @@
 
 #include <limits>
 
+#include <iostream>
+
 int TestAngularPeriodicDataArray(int, char*[])
 {
   vtkNew<vtkDoubleArray> array;
@@ -53,17 +55,17 @@ int TestAngularPeriodicDataArray(int, char*[])
     std::abs(range[2] - 9.1344434349507945825) >= dEpsilon ||
     std::abs(range[4] - 8.29182990260197883) >= dEpsilon)
   {
-    cerr.precision(20);
-    cerr << "Error in vtkAngularPeriodicDataArray : " << endl
-         << "Double Array : " << endl
-         << std::abs(pTmp[0] - 7.77777777777) << " " << std::abs(pTmp[1] - 9.13444343495079) << " "
-         << std::abs(pTmp[2] - 8.29182990260198) << endl
-         << "Float Array : " << std::abs(pTmp2[0] - 5.180415) << " " << std::abs(pTmp2[1] - 12.3)
-         << " " << std::abs(pTmp2[2] - -5.878743) << endl
-         << "Range : " << endl
-         << std::abs(range[0] - 7.77777777777) << std::abs(range[2] - 9.13444343495079) << " "
-         << std::abs(range[4] - 8.29182990260198) << endl
-         << "Epsilon : " << fEpsilon << " " << dEpsilon << endl;
+    std::cerr.precision(20);
+    std::cerr << "Error in vtkAngularPeriodicDataArray : " << std::endl
+              << "Double Array : " << std::endl
+              << std::abs(pTmp[0] - 7.77777777777) << " " << std::abs(pTmp[1] - 9.13444343495079)
+              << " " << std::abs(pTmp[2] - 8.29182990260198) << std::endl
+              << "Float Array : " << std::abs(pTmp2[0] - 5.180415) << " "
+              << std::abs(pTmp2[1] - 12.3) << " " << std::abs(pTmp2[2] - -5.878743) << std::endl
+              << "Range : " << std::endl
+              << std::abs(range[0] - 7.77777777777) << std::abs(range[2] - 9.13444343495079) << " "
+              << std::abs(range[4] - 8.29182990260198) << std::endl
+              << "Epsilon : " << fEpsilon << " " << dEpsilon << std::endl;
     return 1;
   }
 
@@ -80,17 +82,17 @@ int TestAngularPeriodicDataArray(int, char*[])
     std::abs(range[2] - 9.1344434349507945825) >= dEpsilon ||
     std::abs(range[4] - 8.29182990260197883) >= dEpsilon)
   {
-    cerr.precision(20);
-    cerr << "Error in vtkAngularPeriodicDataArray : " << endl
-         << "Double Array : " << endl
-         << std::abs(pTmp[0] - 7.77777777777) << " " << std::abs(pTmp[1] - 9.13444343495079) << " "
-         << std::abs(pTmp[2] - 8.29182990260198) << endl
-         << "Float Array : " << std::abs(pTmp2[0] - 5.180415) << " " << std::abs(pTmp2[1] - 12.3)
-         << " " << std::abs(pTmp2[2] - -5.878743) << endl
-         << "Range : " << endl
-         << std::abs(range[0] - 7.77777777777) << std::abs(range[2] - 9.13444343495079) << " "
-         << std::abs(range[4] - 8.29182990260198) << endl
-         << "Epsilon : " << fEpsilon << " " << dEpsilon << endl;
+    std::cerr.precision(20);
+    std::cerr << "Error in vtkAngularPeriodicDataArray : " << std::endl
+              << "Double Array : " << std::endl
+              << std::abs(pTmp[0] - 7.77777777777) << " " << std::abs(pTmp[1] - 9.13444343495079)
+              << " " << std::abs(pTmp[2] - 8.29182990260198) << std::endl
+              << "Float Array : " << std::abs(pTmp2[0] - 5.180415) << " "
+              << std::abs(pTmp2[1] - 12.3) << " " << std::abs(pTmp2[2] - -5.878743) << std::endl
+              << "Range : " << std::endl
+              << std::abs(range[0] - 7.77777777777) << std::abs(range[2] - 9.13444343495079) << " "
+              << std::abs(range[4] - 8.29182990260198) << std::endl
+              << "Epsilon : " << fEpsilon << " " << dEpsilon << std::endl;
     return 1;
   }
 
@@ -103,10 +105,10 @@ int TestAngularPeriodicDataArray(int, char*[])
   if (std::abs(pTmp2[0] - 4.7902297) >= fEpsilon || std::abs(pTmp2[1] - 12.3) >= fEpsilon ||
     std::abs(pTmp2[2] - -4.6191568) >= fEpsilon)
   {
-    cerr << "Error in vtkAngularPeriodicDataArray : " << endl
-         << "Non Zero origin rotation : " << endl
-         << std::abs(pTmp2[0] - 4.7902297) << " " << std::abs(pTmp2[1] - 12.3) << " "
-         << std::abs(pTmp2[2] - -4.6191568) << endl;
+    std::cerr << "Error in vtkAngularPeriodicDataArray : " << std::endl
+              << "Non Zero origin rotation : " << std::endl
+              << std::abs(pTmp2[0] - 4.7902297) << " " << std::abs(pTmp2[1] - 12.3) << " "
+              << std::abs(pTmp2[2] - -4.6191568) << std::endl;
     return 1;
   }
 
@@ -144,16 +146,16 @@ int TestAngularPeriodicDataArray(int, char*[])
     std::abs(pTmp3[7] - 2136.7724473977045818) >= dEpsilon ||
     std::abs(pTmp3[8] - 19.19191919) >= dEpsilon)
   {
-    cerr.precision(20);
-    cerr << "Error while rotating tensor : " << std::abs(pTmp3[0] - 2.0096597239047708783) << " "
-         << std::abs(pTmp3[1] - 13.555918489185591724) << " "
-         << std::abs(pTmp3[2] - -8.6693107531410973365) << " "
-         << std::abs(pTmp3[3] - -3.0690815108144087198) << " "
-         << std::abs(pTmp3[4] - 5.7678880538652288479) << " "
-         << std::abs(pTmp3[5] - 15.666523260298440334) << " "
-         << std::abs(pTmp3[6] - 3417.4749403678183626) << " "
-         << std::abs(pTmp3[7] - 2136.7724473977045818) << " " << std::abs(pTmp3[8] - 19.19191919)
-         << " " << dEpsilon << endl;
+    std::cerr.precision(20);
+    std::cerr << "Error while rotating tensor : " << std::abs(pTmp3[0] - 2.0096597239047708783)
+              << " " << std::abs(pTmp3[1] - 13.555918489185591724) << " "
+              << std::abs(pTmp3[2] - -8.6693107531410973365) << " "
+              << std::abs(pTmp3[3] - -3.0690815108144087198) << " "
+              << std::abs(pTmp3[4] - 5.7678880538652288479) << " "
+              << std::abs(pTmp3[5] - 15.666523260298440334) << " "
+              << std::abs(pTmp3[6] - 3417.4749403678183626) << " "
+              << std::abs(pTmp3[7] - 2136.7724473977045818) << " "
+              << std::abs(pTmp3[8] - 19.19191919) << " " << dEpsilon << std::endl;
     return 1;
   }
 
@@ -185,13 +187,14 @@ int TestAngularPeriodicDataArray(int, char*[])
     std::abs(pTmp4[4] - 12.300000000000000711) >= dEpsilon ||
     std::abs(pTmp4[5] - 1.2642876728319649704) >= dEpsilon)
   {
-    cerr.precision(20);
-    cerr << "Error while rotating symmetric tensor : " << std::abs(pTmp4[0] - 17.192500160355802308)
-         << " " << std::abs(pTmp4[1] - -4.1360853150322141047) << " "
-         << std::abs(pTmp4[2] - 12.914169357382020209) << " "
-         << std::abs(pTmp4[3] - -4.1360853150322141047) << " "
-         << std::abs(pTmp4[4] - 12.300000000000000711) << " "
-         << std::abs(pTmp4[5] - 1.2642876728319649704) << " " << dEpsilon << endl;
+    std::cerr.precision(20);
+    std::cerr << "Error while rotating symmetric tensor : "
+              << std::abs(pTmp4[0] - 17.192500160355802308) << " "
+              << std::abs(pTmp4[1] - -4.1360853150322141047) << " "
+              << std::abs(pTmp4[2] - 12.914169357382020209) << " "
+              << std::abs(pTmp4[3] - -4.1360853150322141047) << " "
+              << std::abs(pTmp4[4] - 12.300000000000000711) << " "
+              << std::abs(pTmp4[5] - 1.2642876728319649704) << " " << dEpsilon << std::endl;
     return 1;
   }
 

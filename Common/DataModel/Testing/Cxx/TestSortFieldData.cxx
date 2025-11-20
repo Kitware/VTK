@@ -11,6 +11,8 @@
 #include <locale>  // C++ locale
 #include <sstream> // to_string chokes some compilers
 
+#include <iostream>
+
 // A simple test sorts on one of the components of a 3-tuple array, and then
 // orders all of the arrays based on the sort indices.
 int TestSortFieldData(int, char*[])
@@ -65,70 +67,70 @@ int TestSortFieldData(int, char*[])
   vtkIdType* idx = vtkSortFieldData::Sort(fd, "Int Array", 1, 1, 0);
 
   // Now test the result
-  cout << "Ordering:\n\t( ";
+  std::cout << "Ordering:\n\t( ";
   for (int i = 0; i < 10; ++i)
   {
-    cout << idx[i] << " ";
+    std::cout << idx[i] << " ";
     if (idx[i] != permute[i])
     {
-      cout << "Bad sort order!\n";
+      std::cout << "Bad sort order!\n";
       delete[] idx;
       return 1;
     }
   }
   delete[] idx;
-  cout << ")";
+  std::cout << ")";
 
-  cout << "\n\nInteger Array (sorted by component==1):\n";
+  std::cout << "\n\nInteger Array (sorted by component==1):\n";
   for (int i = 0; i < 10; ++i)
   {
-    cout << "\t(" << iArray->GetComponent(i, 0) << "," << iArray->GetComponent(i, 1) << ","
-         << iArray->GetComponent(i, 2) << ")\n";
+    std::cout << "\t(" << iArray->GetComponent(i, 0) << "," << iArray->GetComponent(i, 1) << ","
+              << iArray->GetComponent(i, 2) << ")\n";
     if (iArray->GetComponent(i, 1) != i)
     {
-      cout << "Bad sort order!\n";
+      std::cout << "Bad sort order!\n";
       return 1;
     }
   }
 
-  cout << "\nDouble Array:\n";
+  std::cout << "\nDouble Array:\n";
   for (int i = 0; i < 10; ++i)
   {
-    cout << "\t(" << dArray->GetComponent(i, 0) << "," << dArray->GetComponent(i, 1) << ")\n";
+    std::cout << "\t(" << dArray->GetComponent(i, 0) << "," << dArray->GetComponent(i, 1) << ")\n";
     if (dArray->GetComponent(i, 1) != i)
     {
-      cout << "Bad sort order!\n";
+      std::cout << "Bad sort order!\n";
       return 1;
     }
   }
 
-  cout << "\nString Array:\n\t( ";
+  std::cout << "\nString Array:\n\t( ";
   for (int i = 0; i < 10; ++i)
   {
-    cout << sArray->GetValue(i) << " ";
+    std::cout << sArray->GetValue(i) << " ";
     ostr.str(""); // clear it out
     ostr << i;
     if (sArray->GetValue(i) != ostr.str())
     {
-      cout << "Bad sort order!\n";
+      std::cout << "Bad sort order!\n";
       return 1;
     }
   }
-  cout << ")\n";
+  std::cout << ")\n";
 
-  cout << "\nVariant Array:\n\t( ";
+  std::cout << "\nVariant Array:\n\t( ";
   for (int i = 0; i < 10; ++i)
   {
-    cout << vArray->GetValue(i).ToString() << " ";
+    std::cout << vArray->GetValue(i).ToString() << " ";
     ostr.str(""); // clear it out
     ostr << i;
     if (vArray->GetValue(i).ToString() != ostr.str())
     {
-      cout << "Bad sort order!\n";
+      std::cout << "Bad sort order!\n";
       return 1;
     }
   }
-  cout << ")\n";
+  std::cout << ")\n";
 
   // Clean up
   iArray->Delete();

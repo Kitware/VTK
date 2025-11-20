@@ -8,14 +8,16 @@
 #include "vtkMathUtilities.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 // simple macro for performing tests
 #define TestAssert(t)                                                                              \
   do                                                                                               \
   {                                                                                                \
     if (!(t))                                                                                      \
     {                                                                                              \
-      cerr << "In " << __FILE__ << ":";                                                            \
-      cerr << " Test assertion failed line " << __LINE__ << ": " << #t << "\n";                    \
+      std::cerr << "In " << __FILE__ << ":";                                                       \
+      std::cerr << " Test assertion failed line " << __LINE__ << ": " << #t << "\n";               \
       rval |= 1;                                                                                   \
     }                                                                                              \
   } while (false)

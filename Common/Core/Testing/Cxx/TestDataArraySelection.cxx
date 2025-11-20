@@ -3,12 +3,14 @@
 #include "vtkDataArraySelection.h"
 #include "vtkNew.h"
 
+#include <iostream>
+
 #define TASSERT(x)                                                                                 \
   do                                                                                               \
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << "ERROR: failed at " << __LINE__ << "!" << endl; /*return EXIT_FAILURE;*/             \
+      std::cerr << "ERROR: failed at " << __LINE__ << "!" << std::endl; /*return EXIT_FAILURE;*/   \
     }                                                                                              \
   } while (false)
 
@@ -18,7 +20,7 @@ int TestDataArraySelection(int, char*[])
   sel->EnableArray("Temperature");
   sel->EnableArray("Pressure");
   sel->DisableArray("Pressure");
-  sel->Print(cout);
+  sel->Print(std::cout);
 
   TASSERT(sel->ArrayExists("Temperature") && sel->ArrayIsEnabled("Temperature"));
   TASSERT(!sel->ArrayExists("Temperature2") && !sel->ArrayIsEnabled("Temperature2"));
@@ -28,7 +30,7 @@ int TestDataArraySelection(int, char*[])
   sel2->EnableArray("Pressure");
   sel2->EnableArray("Voltage");
   sel2->Union(sel);
-  sel2->Print(cout);
+  sel2->Print(std::cout);
 
   TASSERT(sel2->ArrayExists("Temperature") && sel2->ArrayIsEnabled("Temperature"));
   TASSERT(!sel2->ArrayExists("Temperature2") && !sel2->ArrayIsEnabled("Temperature2"));

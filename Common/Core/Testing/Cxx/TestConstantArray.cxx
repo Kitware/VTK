@@ -13,6 +13,8 @@
 #include <cstdlib>
 #include <memory>
 
+#include <iostream>
+
 #ifdef VTK_DISPATCH_CONSTANT_ARRAYS
 namespace
 {

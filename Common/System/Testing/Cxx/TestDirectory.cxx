@@ -8,6 +8,8 @@
 #include "vtkDebugLeaks.h"
 #include "vtkDirectory.h"
 
+#include <iostream>
+
 int TestDirectory(int, char*[])
 {
   vtkDirectory* myDir = vtkDirectory::New();
@@ -15,12 +17,12 @@ int TestDirectory(int, char*[])
   myDir->Open(".");
   char buf[1024];
   vtkDirectory::GetCurrentWorkingDirectory(buf, 1024);
-  cout << "Working Directory: " << buf << endl;
+  std::cout << "Working Directory: " << buf << std::endl;
   // Get each file name in the directory
   for (int i = 0; i < myDir->GetNumberOfFiles(); i++)
   {
-    cout << (testDir->Open(myDir->GetFile(i)) == 0 ? "file: " : "dir:  ") << myDir->GetFile(i)
-         << endl;
+    std::cout << (testDir->Open(myDir->GetFile(i)) == 0 ? "file: " : "dir:  ") << myDir->GetFile(i)
+              << std::endl;
   }
 
   myDir->Delete();

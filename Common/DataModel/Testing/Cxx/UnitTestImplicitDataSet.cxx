@@ -10,6 +10,8 @@
 #include <cstdio>
 #include <sstream>
 
+#include <iostream>
+
 static vtkSmartPointer<vtkImageData> MakeVolume(int, int, int);
 
 int UnitTestImplicitDataSet(int, char*[])

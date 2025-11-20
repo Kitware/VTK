@@ -15,6 +15,8 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 
+#include <iostream>
+
 inline int DoOrientationTest(
   int extent[6], double origin[3], double spacing[3], double direction[9])
 {

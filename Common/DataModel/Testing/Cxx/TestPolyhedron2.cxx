@@ -12,6 +12,8 @@
 #include "vtkXMLUnstructuredGridReader.h"
 #include "vtkXMLUnstructuredGridWriter.h"
 
+#include <iostream>
+
 // Test of contour/clip of vtkPolyhedron. uses input from
 // https://gitlab.kitware.com/vtk/vtk/-/issues/14485
 int TestPolyhedron2(int argc, char* argv[])

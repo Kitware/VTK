@@ -6,6 +6,8 @@
 
 #include "vtkObjectFactory.h"
 
+#include <iostream>
+
 vtkStandardNewMacro(vtkTestNewVar);
 
 vtkTestNewVar::vtkTestNewVar() = default;
@@ -32,6 +34,6 @@ vtkObject* vtkTestNewVar::GetPoints2()
 void vtkTestNewVar::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Points: " << endl;
+  os << indent << "Points: " << std::endl;
   this->Points->PrintSelf(os, indent.GetNextIndent());
 }

@@ -8,6 +8,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 #define SIZE 1000
 
 namespace
@@ -18,7 +20,7 @@ ostream& printStrings(ostream& os, const vtkStringArray* list)
 
   for (vtkIdType i = 0; i < len; ++i)
   {
-    os << "\t\tValue " << i << ": " << list->GetValue(i) << endl;
+    os << "\t\tValue " << i << ": " << list->GetValue(i) << std::endl;
   }
 
   return os;
@@ -39,44 +41,44 @@ int doStringArrayTest(ostream& strm, int size)
 
   strm << "\tResize(0)...";
   ptr->Resize(0);
-  strm << "OK" << endl;
+  strm << "OK" << std::endl;
 
   strm << "\tResize(10)...";
   ptr->Resize(10);
-  strm << "OK" << endl;
+  strm << "OK" << std::endl;
 
   strm << "\tResize(5)...";
   ptr->Resize(5);
-  strm << "OK" << endl;
+  strm << "OK" << std::endl;
 
   strm << "\tResize(size)...";
   ptr->Resize(size);
-  strm << "OK" << endl;
+  strm << "OK" << std::endl;
 
   strm << "\tSetNumberOfValues...";
   ptr->SetNumberOfValues(100);
   if (ptr->GetNumberOfValues() == 100)
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   else
   {
     ++errors;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tSetVoidArray...";
   ptr->SetVoidArray(strings, size, 1);
-  strm << "OK" << endl;
+  strm << "OK" << std::endl;
 
   strm << "\tGetValue...";
   vtkStdString value = ptr->GetValue(123);
   if (value == "string entry 123")
   {
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   }
   else
   {
     ++errors;
-    strm << "FAILED.  Expected 'string entry 123', got '" << value << "'" << endl;
+    strm << "FAILED.  Expected 'string entry 123', got '" << value << "'" << std::endl;
     bool dump = false;
 #ifdef DUMP_VALUES
     dump = true;
@@ -91,35 +93,35 @@ int doStringArrayTest(ostream& strm, int size)
   ptr->SetValue(124, "jabberwocky");
   if (ptr->GetValue(124) == "jabberwocky")
   {
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   }
   else
   {
     ++errors;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertValue...";
   ptr->InsertValue(500, "There and Back Again");
   if (ptr->GetValue(500) == "There and Back Again")
   {
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   }
   else
   {
     ++errors;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tInsertNextValue...";
   if (ptr->GetValue(ptr->InsertNextValue("3.141592653589")) == "3.141592653589")
   {
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   }
   else
   {
     ++errors;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tvtkAbstractArray::GetTuples(vtkIdList)...";
@@ -135,15 +137,18 @@ int doStringArrayTest(ostream& strm, int size)
   if (newValues->GetValue(0) == "string entry 10" && newValues->GetValue(1) == "string entry 20" &&
     newValues->GetValue(2) == "string entry 314")
   {
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   }
   else
   {
     ++errors;
-    strm << "FAILED.  Results:" << endl;
-    strm << "\tExpected: 'string entry 10'\tActual: '" << newValues->GetValue(0) << "'" << endl;
-    strm << "\tExpected: 'string entry 20'\tActual: '" << newValues->GetValue(1) << "'" << endl;
-    strm << "\tExpected: 'string entry 314'\tActual: '" << newValues->GetValue(2) << "'" << endl;
+    strm << "FAILED.  Results:" << std::endl;
+    strm << "\tExpected: 'string entry 10'\tActual: '" << newValues->GetValue(0) << "'"
+         << std::endl;
+    strm << "\tExpected: 'string entry 20'\tActual: '" << newValues->GetValue(1) << "'"
+         << std::endl;
+    strm << "\tExpected: 'string entry 314'\tActual: '" << newValues->GetValue(2) << "'"
+         << std::endl;
   }
 
   newValues->Reset();
@@ -154,27 +159,27 @@ int doStringArrayTest(ostream& strm, int size)
   if (newValues->GetValue(0) == "string entry 30" && newValues->GetValue(1) == "string entry 31" &&
     newValues->GetValue(2) == "string entry 32")
   {
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   }
   else
   {
     ++errors;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
   strm << "\tvtkAbstractArray::InsertTuple...";
   ptr->InsertTuple(150, 2, newValues);
   if (ptr->GetValue(150) == "string entry 32")
   {
-    strm << "OK" << endl;
+    strm << "OK" << std::endl;
   }
   else
   {
     ++errors;
-    strm << "FAILED" << endl;
+    strm << "FAILED" << std::endl;
   }
 
-  strm << "PrintSelf..." << endl;
+  strm << "PrintSelf..." << std::endl;
   strm << *ptr;
 
   delete[] strings;
@@ -185,7 +190,7 @@ int otherStringArrayTest(ostream& strm)
 {
   int errors = 0;
   {
-    strm << "Test StringArray" << endl;
+    strm << "Test StringArray" << std::endl;
     errors += doStringArrayTest(strm, SIZE);
   }
 
@@ -194,5 +199,5 @@ int otherStringArrayTest(ostream& strm)
 
 int otherStringArray(int, char*[])
 {
-  return otherStringArrayTest(cerr);
+  return otherStringArrayTest(std::cerr);
 }

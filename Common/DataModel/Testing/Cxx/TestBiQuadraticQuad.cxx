@@ -11,6 +11,8 @@
 #include "vtkProbeFilter.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestBiQuadraticQuad(int, char*[])
 {
@@ -71,12 +73,12 @@ int TestBiQuadraticQuad(int, char*[])
   }
   else
   {
-    cout << "Failed to downcast prober scalars." << endl;
+    std::cout << "Failed to downcast prober scalars." << std::endl;
   }
   if (!vtkMathUtilities::FuzzyCompare(interpolated, probeX, 1.0e-6))
   {
-    cout << "Interpolated value of " << interpolated << " with probe value " << probeX
-         << " difference of " << (interpolated - probeX) << endl;
+    std::cout << "Interpolated value of " << interpolated << " with probe value " << probeX
+              << " difference of " << (interpolated - probeX) << std::endl;
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

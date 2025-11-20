@@ -11,6 +11,8 @@
 #include <memory>
 #include <numeric>
 
+#include <iostream>
+
 static bool FuzzyCompare(const vtkFFT::ComplexNumber& result, const vtkFFT::ComplexNumber& test,
   vtkFFT::ScalarNumber epsilon)
 {

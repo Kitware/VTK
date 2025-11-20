@@ -25,21 +25,21 @@ static void PrintSelectionNodes(vtkSmartPointer<vtkSelection>& sel, const char* 
 
   if (tag)
   {
-    cout << tag << endl;
+    std::cout << tag << std::endl;
   }
 
   for (int iNode = 0; iNode < numNodes; iNode++)
   {
     if (tag)
-      cout << "\t";
-    cout << "Node: " << iNode << endl;
+      std::cout << "\t";
+    std::cout << "Node: " << iNode << std::endl;
     vtkIdType listSize = sel->GetNode(iNode)->GetSelectionList()->GetNumberOfTuples();
     for (int iVal = 0; iVal < listSize; iVal++)
     {
       if (tag)
-        cout << "\t";
-      cout << "\t" << iVal << "\t" << sel->GetNode(iNode)->GetSelectionList()->GetVariantValue(iVal)
-           << endl;
+        std::cout << "\t";
+      std::cout << "\t" << iVal << "\t"
+                << sel->GetNode(iNode)->GetSelectionList()->GetVariantValue(iVal) << std::endl;
     }
   }
 }
@@ -79,7 +79,7 @@ int TestSelectionSubtract(int, char*[])
 
   // Subtract sel2 from sel1
 #if DEBUG
-  cout << endl << "Subtract sel2 from sel1 ..." << endl << endl;
+  std::cout << std::endl << "Subtract sel2 from sel1 ..." << std::endl << std::endl;
 #endif
   sel1->Subtract(sel2);
 
@@ -90,37 +90,37 @@ int TestSelectionSubtract(int, char*[])
 
   // Correctness check.
   bool failed = false;
-  cout << "Check # of nodes == 1 ....... ";
+  std::cout << "Check # of nodes == 1 ....... ";
   if (sel1->GetNumberOfNodes() != 1)
   {
-    cout << "FAILED" << endl;
+    std::cout << "FAILED" << std::endl;
     failed = true;
   }
   else
   {
-    cout << "OK" << endl;
+    std::cout << "OK" << std::endl;
   }
 
-  cout << "Check # of tuples == 1 ...... ";
+  std::cout << "Check # of tuples == 1 ...... ";
   if (sel1->GetNode(0)->GetSelectionList()->GetNumberOfTuples() != 1)
   {
-    cout << "FAILED" << endl;
+    std::cout << "FAILED" << std::endl;
     failed = true;
   }
   else
   {
-    cout << "OK" << endl;
+    std::cout << "OK" << std::endl;
   }
 
-  cout << "Check selection value is 2 .. ";
+  std::cout << "Check selection value is 2 .. ";
   if (sel1->GetNode(0)->GetSelectionList()->GetVariantValue(0) != 2)
   {
-    cout << "FAILED" << endl;
+    std::cout << "FAILED" << std::endl;
     failed = true;
   }
   else
   {
-    cout << "OK" << endl;
+    std::cout << "OK" << std::endl;
   }
 
   return failed ? EXIT_FAILURE : EXIT_SUCCESS;
