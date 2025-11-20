@@ -1838,12 +1838,8 @@ fedora42-x86_64-tidy:build:
         - .rules
     variables:
         VTK_CI_RUN_MANUALLY: "true"
-    # Use fast builder tag as tidy can takes a very long time on slow machine
-    # Move it to the test stage so that the build stage can be required to be
-    # green. `clang-tidy` just takes too long to require for every MR prior to
-    # merging. See https://github.com/ejfitzgerald/clang-tidy-cache/issues/5
-    # which should help performance immensely.
-    stage: test
+    # Use fast builder tag as tidy can take a very long time on slow machine
+    stage: quick
     needs: []
     # clang-tidy really hampers compilation cache improvements, so it takes
     # longer.
