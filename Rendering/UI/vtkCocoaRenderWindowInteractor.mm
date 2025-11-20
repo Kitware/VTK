@@ -202,6 +202,13 @@ vtkCocoaRenderWindowInteractor::vtkCocoaRenderWindowInteractor()
 //----------------------------------------------------------------------------
 vtkCocoaRenderWindowInteractor::~vtkCocoaRenderWindowInteractor()
 {
+  NSMutableDictionary* timerDict = (NSMutableDictionary*)(this->GetTimerDictionary());
+  for (NSString* key in timerDict)
+  {
+    vtkCocoaTimer* cocoaTimer = [timerDict objectForKey:key];
+    [cocoaTimer stopTimer];
+  }
+
   this->Enabled = 0;
   this->SetTimerDictionary(nullptr);
   this->SetCocoaManager(nullptr);
