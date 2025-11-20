@@ -1,3 +1,4 @@
+# Ensures that -pthreads is disabled for WebAssembly builds.
 set(VTK_WEBASSEMBLY_THREADS OFF CACHE BOOL "")
 # Prevent file lock issues during linking by limiting to 1 job at a time.
 # Upstream issue: https://github.com/emscripten-core/emscripten/issues/24609
