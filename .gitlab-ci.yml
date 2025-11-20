@@ -1913,6 +1913,7 @@ fedora42-x86_64-tidy:build:
 ## Documentation
 
 documentation:build:
+    stage: quick
     extends:
         - .fedora42_x86_64_doxygen_mpi_python_qt_tbb
         - .cmake_build_linux
