@@ -18,22 +18,19 @@
  *
  */
 
-#include "VerdictVector.hpp"
 #include "verdict.h"
+#include "VerdictVector.hpp"
+#include "verdict_defines.hpp"
 
-#include <algorithm>
-#include <cmath> // for std::isnan
+#include <math.h>
 
 namespace VERDICT_NAMESPACE
 {
-extern double tri_equiangle_skew(int num_nodes, const double coordinates[][3]);
-extern double quad_equiangle_skew(int num_nodes, const double coordinates[][3]);
-
-static const double one_third = 1.0 / 3.0;
-static const double two_thirds = 2.0 / 3.0;
+VERDICT_HOST_DEVICE extern double tri_equiangle_skew(int num_nodes, const double coordinates[][3]);
+VERDICT_HOST_DEVICE extern double quad_equiangle_skew(int num_nodes, const double coordinates[][3]);
 
 // local methods
-void make_wedge_faces(const double coordinates[][3], double tri1[][3], double tri2[][3],
+VERDICT_HOST_DEVICE void make_wedge_faces(const double coordinates[][3], double tri1[][3], double tri2[][3],
   double quad1[][3], double quad2[][3], double quad3[][3]);
 
 /*
@@ -52,13 +49,17 @@ void make_wedge_faces(const double coordinates[][3], double tri1[][3], double tr
 
  */
 
-static const double WEDGE21_node_local_coord[21][3] = { { 0, 0, -1 }, { 1.0, 0, -1 },
-  { 0, 1.0, -1 }, { 0, 0, 1.0 }, { 1.0, 0, 1.0 }, { 0, 1.0, 1.0 }, { 0.5, 0, -1 }, { 0.5, 0.5, -1 },
-  { 0, 0.5, -1 }, { 0.0, 0.0, 0 }, { 1.0, 0, 0 }, { 0, 1.0, 0 }, { 0.5, 0, 1.0 }, { 0.5, 0.5, 1.0 },
-  { 0, 0.5, 1.0 }, { one_third, one_third, 0 }, { one_third, one_third, -1 },
-  { one_third, one_third, 1.0 }, { 0.5, 0.5, 0 }, { 0, 0.5, 0 }, { 0.5, 0, 0 } };
+VERDICT_HOST_DEVICE static const double* WEDGE21_node_local_coord(int i)
+{
+  static constexpr double sWEDGE21_node_local_coord[21][3] = { { 0, 0, -1 }, { 1.0, 0, -1 },
+    { 0, 1.0, -1 }, { 0, 0, 1.0 }, { 1.0, 0, 1.0 }, { 0, 1.0, 1.0 }, { 0.5, 0, -1 }, { 0.5, 0.5, -1 },
+    { 0, 0.5, -1 }, { 0.0, 0.0, 0 }, { 1.0, 0, 0 }, { 0, 1.0, 0 }, { 0.5, 0, 1.0 }, { 0.5, 0.5, 1.0 },
+    { 0, 0.5, 1.0 }, { one_third, one_third, 0 }, { one_third, one_third, -1 },
+    { one_third, one_third, 1.0 }, { 0.5, 0.5, 0 }, { 0, 0.5, 0 }, { 0.5, 0, 0 } };
+  return sWEDGE21_node_local_coord[i];
+}
 
-static void WEDGE21_gradients_of_the_shape_functions_for_RST(
+VERDICT_HOST_DEVICE static void WEDGE21_gradients_of_the_shape_functions_for_RST(
   const double rst[3], double dhdr[21], double dhds[21], double dhdt[21])
 {
   double RSM = 1.0 - rst[0] - rst[1];
@@ -155,7 +156,7 @@ static void WEDGE21_gradients_of_the_shape_functions_for_RST(
   dhdt[15] = -2.0 * 27.0 * rst[2] * RSM * RS;
 }
 
-double wedge_equiangle_skew(int /*num_nodes*/, const double coordinates[][3])
+VERDICT_HOST_DEVICE double wedge_equiangle_skew(int /*num_nodes*/, const double coordinates[][3])
 {
   double tri1[3][3];
   double tri2[3][3];
@@ -187,7 +188,7 @@ double wedge_equiangle_skew(int /*num_nodes*/, const double coordinates[][3])
   and summing the volume of each tet
 
  */
-double wedge_volume(int /*num_nodes*/, const double coordinates[][3])
+VERDICT_HOST_DEVICE double wedge_volume(int /*num_nodes*/, const double coordinates[][3])
 {
   // We need to divide the wedge into 11 tets.
   // This is a better solution than 3 tets or 3 hexes because
@@ -391,7 +392,7 @@ double wedge_volume(int /*num_nodes*/, const double coordinates[][3])
    q for right, unit wedge : 1
    Reference : -
    */
-double wedge_edge_ratio(int /*num_nodes*/, const double coordinates[][3])
+VERDICT_HOST_DEVICE double wedge_edge_ratio(int /*num_nodes*/, const double coordinates[][3])
 {
   VerdictVector a, b, c, d, e, f, g, h, i;
 
@@ -506,9 +507,9 @@ double wedge_edge_ratio(int /*num_nodes*/, const double coordinates[][3])
     min = i2;
   }
 
-  double edge_ratio = std::sqrt(max / min);
+  double edge_ratio = sqrt(max / min);
 
-  if (std::isnan(edge_ratio))
+  if (isnan(edge_ratio))
   {
     return VERDICT_DBL_MAX;
   }
@@ -516,10 +517,10 @@ double wedge_edge_ratio(int /*num_nodes*/, const double coordinates[][3])
   {
     return 1.;
   }
-  return (double)std::min(edge_ratio, VERDICT_DBL_MAX);
+  return (double)fmin(edge_ratio, VERDICT_DBL_MAX);
 }
 
-static void aspects(int num_nodes, const double coordinates[][3], double& aspect1, double& aspect2,
+VERDICT_HOST_DEVICE static void aspects(int num_nodes, const double coordinates[][3], double& aspect1, double& aspect2,
   double& aspect3, double& aspect4, double& aspect5, double& aspect6)
 {
   if (num_nodes < 6)
@@ -673,19 +674,19 @@ static void aspects(int num_nodes, const double coordinates[][3], double& aspect
  Reference : Adapted from section 7.7
  Verdict Function : wedge_max_aspect_frobenius or wedge_condition
  */
-double wedge_max_aspect_frobenius(int num_nodes, const double coordinates[][3])
+VERDICT_HOST_DEVICE double wedge_max_aspect_frobenius(int num_nodes, const double coordinates[][3])
 {
   double aspect1, aspect2, aspect3, aspect4, aspect5, aspect6;
   aspects(num_nodes, coordinates, aspect1, aspect2, aspect3, aspect4, aspect5, aspect6);
 
-  double max_aspect = std::max({ aspect1, aspect2, aspect3, aspect4, aspect5, aspect6 });
+  double max_aspect = fmax( aspect1, fmax(aspect2, fmax(aspect3, fmax(aspect4, fmax(aspect5, aspect6 )))));
 
   if (max_aspect >= VERDICT_DBL_MAX)
   {
     return VERDICT_DBL_MAX;
   }
   max_aspect /= 1.16477;
-  return std::max(max_aspect, 1.);
+  return fmax(max_aspect, 1.);
 }
 
 /*
@@ -704,7 +705,7 @@ double wedge_max_aspect_frobenius(int num_nodes, const double coordinates[][3])
    Reference : Adapted from section 7.8
    Verdict Function : wedge_mean_aspect_frobenius
    */
-double wedge_mean_aspect_frobenius(int num_nodes, const double coordinates[][3])
+VERDICT_HOST_DEVICE double wedge_mean_aspect_frobenius(int num_nodes, const double coordinates[][3])
 {
   double aspect1, aspect2, aspect3, aspect4, aspect5, aspect6;
   aspects(num_nodes, coordinates, aspect1, aspect2, aspect3, aspect4, aspect5, aspect6);
@@ -716,7 +717,7 @@ double wedge_mean_aspect_frobenius(int num_nodes, const double coordinates[][3])
   }
 
   mean_aspect /= (6. * 1.16477);
-  return std::max(mean_aspect, 1.);
+  return fmax(mean_aspect, 1.);
 }
 
 /* This is the minimum determinant of the Jacobian matrix evaluated at each
@@ -735,7 +736,7 @@ double wedge_mean_aspect_frobenius(int num_nodes, const double coordinates[][3])
  Reference : Adapted from section 6.10
  Verdict Function : wedge_jacobian
  */
-double wedge_jacobian(int num_nodes, const double coordinates[][3])
+VERDICT_HOST_DEVICE double wedge_jacobian(int num_nodes, const double coordinates[][3])
 {
   if (num_nodes == 21)
   {
@@ -747,7 +748,7 @@ double wedge_jacobian(int num_nodes, const double coordinates[][3])
     for (int i = 0; i < 15; i++)
     {
       WEDGE21_gradients_of_the_shape_functions_for_RST(
-        WEDGE21_node_local_coord[i], dhdr, dhds, dhdt);
+        WEDGE21_node_local_coord(i), dhdr, dhds, dhdt);
       double jacobian[3][3] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
 
       for (int j = 0; j < 21; j++)
@@ -764,7 +765,7 @@ double wedge_jacobian(int num_nodes, const double coordinates[][3])
       }
       double det =
         (VerdictVector(jacobian[0]) * VerdictVector(jacobian[1])) % VerdictVector(jacobian[2]);
-      min_determinant = std::min(det, min_determinant);
+      min_determinant = fmin(det, min_determinant);
     }
     return min_determinant;
   }
@@ -797,7 +798,7 @@ double wedge_jacobian(int num_nodes, const double coordinates[][3])
       coordinates[0][2] - coordinates[1][2]);
 
     current_jacobian = vec2 % (vec1 * vec3);
-    min_jacobian = std::min(current_jacobian, min_jacobian);
+    min_jacobian = fmin(current_jacobian, min_jacobian);
 
     // node 2
     vec1.set(coordinates[0][0] - coordinates[2][0], coordinates[0][1] - coordinates[2][1],
@@ -810,7 +811,7 @@ double wedge_jacobian(int num_nodes, const double coordinates[][3])
       coordinates[1][2] - coordinates[2][2]);
 
     current_jacobian = vec2 % (vec1 * vec3);
-    min_jacobian = std::min(current_jacobian, min_jacobian);
+    min_jacobian = fmin(current_jacobian, min_jacobian);
 
     // node 3
     vec1.set(coordinates[0][0] - coordinates[3][0], coordinates[0][1] - coordinates[3][1],
@@ -823,7 +824,7 @@ double wedge_jacobian(int num_nodes, const double coordinates[][3])
       coordinates[5][2] - coordinates[3][2]);
 
     current_jacobian = vec2 % (vec1 * vec3);
-    min_jacobian = std::min(current_jacobian, min_jacobian);
+    min_jacobian = fmin(current_jacobian, min_jacobian);
 
     // node 4
     vec1.set(coordinates[1][0] - coordinates[4][0], coordinates[1][1] - coordinates[4][1],
@@ -836,7 +837,7 @@ double wedge_jacobian(int num_nodes, const double coordinates[][3])
       coordinates[3][2] - coordinates[4][2]);
 
     current_jacobian = vec2 % (vec1 * vec3);
-    min_jacobian = std::min(current_jacobian, min_jacobian);
+    min_jacobian = fmin(current_jacobian, min_jacobian);
 
     // node 5
     vec1.set(coordinates[3][0] - coordinates[5][0], coordinates[3][1] - coordinates[5][1],
@@ -849,13 +850,13 @@ double wedge_jacobian(int num_nodes, const double coordinates[][3])
       coordinates[2][2] - coordinates[5][2]);
 
     current_jacobian = vec2 % (vec1 * vec3);
-    min_jacobian = std::min(current_jacobian, min_jacobian);
+    min_jacobian = fmin(current_jacobian, min_jacobian);
 
     if (min_jacobian > 0)
     {
-      return (double)std::min(min_jacobian, VERDICT_DBL_MAX);
+      return (double)fmin(min_jacobian, VERDICT_DBL_MAX);
     }
-    return (double)std::max(min_jacobian, -VERDICT_DBL_MAX);
+    return (double)fmax(min_jacobian, -VERDICT_DBL_MAX);
   }
 }
 
@@ -880,16 +881,16 @@ double wedge_jacobian(int num_nodes, const double coordinates[][3])
  Reference : Adapted from section 7.3
  Verdict Function : wedge_distortion
  */
-double wedge_distortion(int num_nodes, const double coordinates[][3])
+VERDICT_HOST_DEVICE double wedge_distortion(int num_nodes, const double coordinates[][3])
 {
   double jacobian = wedge_jacobian(num_nodes, coordinates);
   double master_volume = 0.433013;
   double current_volume = wedge_volume(num_nodes, coordinates);
   double distortion = VERDICT_DBL_MAX;
-  if (std::abs(current_volume) > 0.0)
+  if (fabs(current_volume) > 0.0)
     distortion = jacobian * master_volume / current_volume / 0.866025;
 
-  if (std::isnan(distortion))
+  if (isnan(distortion))
   {
     return VERDICT_DBL_MAX;
   }
@@ -917,7 +918,7 @@ double wedge_distortion(int num_nodes, const double coordinates[][3])
    Reference : Adapted from section 5.21
    Verdict Function : wedge_max_stretch
    */
-double wedge_max_stretch(int /*num_nodes*/, const double coordinates[][3])
+VERDICT_HOST_DEVICE double wedge_max_stretch(int /*num_nodes*/, const double coordinates[][3])
 {
   // This function finds the stretch of the 3 quadrilateral faces and returns the maximum value
 
@@ -981,13 +982,13 @@ double wedge_max_stretch(int /*num_nodes*/, const double coordinates[][3])
   }
   stretch3 = quad_stretch(4, quad_face);
 
-  stretch = std::max({ stretch1, stretch2, stretch3 });
+  stretch = fmax( stretch1, fmax(stretch2, stretch3 ));
 
   if (stretch > 0)
   {
-    return (double)std::min(stretch, VERDICT_DBL_MAX);
+    return (double)fmin(stretch, VERDICT_DBL_MAX);
   }
-  return (double)std::max(stretch, -VERDICT_DBL_MAX);
+  return (double)fmax(stretch, -VERDICT_DBL_MAX);
 }
 
 /*
@@ -1007,7 +1008,7 @@ double wedge_max_stretch(int /*num_nodes*/, const double coordinates[][3])
    Reference : Adapted from section 6.14 and 7.11
    Verdict Function : wedge_scaled_jacobian
    */
-double wedge_scaled_jacobian(int /*num_nodes*/, const double coordinates[][3])
+VERDICT_HOST_DEVICE double wedge_scaled_jacobian(int /*num_nodes*/, const double coordinates[][3])
 {
   double min_jacobian = 0, current_jacobian = 0, lengths = 42;
   VerdictVector vec1, vec2, vec3;
@@ -1022,7 +1023,7 @@ double wedge_scaled_jacobian(int /*num_nodes*/, const double coordinates[][3])
   vec3.set(coordinates[2][0] - coordinates[0][0], coordinates[2][1] - coordinates[0][1],
     coordinates[2][2] - coordinates[0][2]);
 
-  lengths = std::sqrt(vec1.length_squared() * vec2.length_squared() * vec3.length_squared());
+  lengths = sqrt(vec1.length_squared() * vec2.length_squared() * vec3.length_squared());
 
   current_jacobian = (vec2 % (vec1 * vec3));
   min_jacobian = current_jacobian / lengths;
@@ -1037,10 +1038,10 @@ double wedge_scaled_jacobian(int /*num_nodes*/, const double coordinates[][3])
   vec3.set(coordinates[0][0] - coordinates[1][0], coordinates[0][1] - coordinates[1][1],
     coordinates[0][2] - coordinates[1][2]);
 
-  lengths = std::sqrt(vec1.length_squared() * vec2.length_squared() * vec3.length_squared());
+  lengths = sqrt(vec1.length_squared() * vec2.length_squared() * vec3.length_squared());
 
   current_jacobian = vec2 % (vec1 * vec3);
-  min_jacobian = std::min(current_jacobian / lengths, min_jacobian);
+  min_jacobian = fmin(current_jacobian / lengths, min_jacobian);
 
   // node 2
   vec1.set(coordinates[0][0] - coordinates[2][0], coordinates[0][1] - coordinates[2][1],
@@ -1052,10 +1053,10 @@ double wedge_scaled_jacobian(int /*num_nodes*/, const double coordinates[][3])
   vec3.set(coordinates[1][0] - coordinates[2][0], coordinates[1][1] - coordinates[2][1],
     coordinates[1][2] - coordinates[2][2]);
 
-  lengths = std::sqrt(vec1.length_squared() * vec2.length_squared() * vec3.length_squared());
+  lengths = sqrt(vec1.length_squared() * vec2.length_squared() * vec3.length_squared());
 
   current_jacobian = vec2 % (vec1 * vec3);
-  min_jacobian = std::min(current_jacobian / lengths, min_jacobian);
+  min_jacobian = fmin(current_jacobian / lengths, min_jacobian);
 
   // node 3
   vec1.set(coordinates[0][0] - coordinates[3][0], coordinates[0][1] - coordinates[3][1],
@@ -1067,10 +1068,10 @@ double wedge_scaled_jacobian(int /*num_nodes*/, const double coordinates[][3])
   vec3.set(coordinates[5][0] - coordinates[3][0], coordinates[5][1] - coordinates[3][1],
     coordinates[5][2] - coordinates[3][2]);
 
-  lengths = std::sqrt(vec1.length_squared() * vec2.length_squared() * vec3.length_squared());
+  lengths = sqrt(vec1.length_squared() * vec2.length_squared() * vec3.length_squared());
 
   current_jacobian = vec2 % (vec1 * vec3);
-  min_jacobian = std::min(current_jacobian / lengths, min_jacobian);
+  min_jacobian = fmin(current_jacobian / lengths, min_jacobian);
 
   // node 4
   vec1.set(coordinates[1][0] - coordinates[4][0], coordinates[1][1] - coordinates[4][1],
@@ -1082,10 +1083,10 @@ double wedge_scaled_jacobian(int /*num_nodes*/, const double coordinates[][3])
   vec3.set(coordinates[3][0] - coordinates[4][0], coordinates[3][1] - coordinates[4][1],
     coordinates[3][2] - coordinates[4][2]);
 
-  lengths = std::sqrt(vec1.length_squared() * vec2.length_squared() * vec3.length_squared());
+  lengths = sqrt(vec1.length_squared() * vec2.length_squared() * vec3.length_squared());
 
   current_jacobian = vec2 % (vec1 * vec3);
-  min_jacobian = std::min(current_jacobian / lengths, min_jacobian);
+  min_jacobian = fmin(current_jacobian / lengths, min_jacobian);
 
   // node 5
   vec1.set(coordinates[3][0] - coordinates[5][0], coordinates[3][1] - coordinates[5][1],
@@ -1097,18 +1098,18 @@ double wedge_scaled_jacobian(int /*num_nodes*/, const double coordinates[][3])
   vec3.set(coordinates[2][0] - coordinates[5][0], coordinates[2][1] - coordinates[5][1],
     coordinates[2][2] - coordinates[5][2]);
 
-  lengths = std::sqrt(vec1.length_squared() * vec2.length_squared() * vec3.length_squared());
+  lengths = sqrt(vec1.length_squared() * vec2.length_squared() * vec3.length_squared());
 
   current_jacobian = vec2 % (vec1 * vec3);
-  min_jacobian = std::min(current_jacobian / lengths, min_jacobian);
+  min_jacobian = fmin(current_jacobian / lengths, min_jacobian);
 
-  min_jacobian *= 2 / std::sqrt(3.0);
+  min_jacobian *= 2 / sqrt3;
 
   if (min_jacobian > 0)
   {
-    return (double)std::min(min_jacobian, VERDICT_DBL_MAX);
+    return (double)fmin(min_jacobian, VERDICT_DBL_MAX);
   }
-  return (double)std::max(min_jacobian, -VERDICT_DBL_MAX);
+  return (double)fmax(min_jacobian, -VERDICT_DBL_MAX);
 }
 
 /*
@@ -1126,11 +1127,13 @@ double wedge_scaled_jacobian(int /*num_nodes*/, const double coordinates[][3])
    Reference : Adapted from section 7.12
    Verdict Function : wedge_shape
    */
-double wedge_shape(int /*num_nodes*/, const double coordinates[][3])
+VERDICT_HOST_DEVICE double wedge_shape(int num_nodes, const double coordinates[][3])
 {
   double current_jacobian = 0, current_shape, norm_jacobi = 0;
   double min_shape = 1.0;
   VerdictVector vec1, vec2, vec3;
+
+  double char_size = elem_scaling(num_nodes, coordinates).scale;
 
   // Node 0
   vec1.set(coordinates[1][0] - coordinates[0][0], coordinates[1][1] - coordinates[0][1],
@@ -1142,13 +1145,17 @@ double wedge_shape(int /*num_nodes*/, const double coordinates[][3])
   vec3.set(coordinates[2][0] - coordinates[0][0], coordinates[2][1] - coordinates[0][1],
     coordinates[2][2] - coordinates[0][2]);
 
+  vec1 /= char_size;
+  vec2 /= char_size;
+  vec3 /= char_size;
+
   current_jacobian = vec2 % (vec1 * vec3);
   if (current_jacobian > VERDICT_DBL_MIN)
   {
-    norm_jacobi = current_jacobian * 2.0 / std::sqrt(3.0);
-    current_shape = 3 * std::pow(norm_jacobi, two_thirds) /
+    norm_jacobi = current_jacobian * 2.0 / sqrt3;
+    current_shape = 3. * pow(norm_jacobi, two_thirds) /
       (vec1.length_squared() + vec2.length_squared() + vec3.length_squared());
-    min_shape = std::min(current_shape, min_shape);
+    min_shape = fmin(current_shape, min_shape);
   }
   else
   {
@@ -1165,13 +1172,17 @@ double wedge_shape(int /*num_nodes*/, const double coordinates[][3])
   vec3.set(coordinates[0][0] - coordinates[1][0], coordinates[0][1] - coordinates[1][1],
     coordinates[0][2] - coordinates[1][2]);
 
+  vec1 /= char_size;
+  vec2 /= char_size;
+  vec3 /= char_size;
+
   current_jacobian = vec2 % (vec1 * vec3);
   if (current_jacobian > VERDICT_DBL_MIN)
   {
-    norm_jacobi = current_jacobian * 2.0 / std::sqrt(3.0);
-    current_shape = 3 * std::pow(norm_jacobi, two_thirds) /
+    norm_jacobi = current_jacobian * 2.0 / sqrt3;
+    current_shape = 3. * pow(norm_jacobi, two_thirds) /
       (vec1.length_squared() + vec2.length_squared() + vec3.length_squared());
-    min_shape = std::min(current_shape, min_shape);
+    min_shape = fmin(current_shape, min_shape);
   }
   else
   {
@@ -1188,13 +1199,17 @@ double wedge_shape(int /*num_nodes*/, const double coordinates[][3])
   vec3.set(coordinates[1][0] - coordinates[2][0], coordinates[1][1] - coordinates[2][1],
     coordinates[1][2] - coordinates[2][2]);
 
+  vec1 /= char_size;
+  vec2 /= char_size;
+  vec3 /= char_size;
+
   current_jacobian = vec2 % (vec1 * vec3);
   if (current_jacobian > VERDICT_DBL_MIN)
   {
-    norm_jacobi = current_jacobian * 2.0 / std::sqrt(3.0);
-    current_shape = 3 * std::pow(norm_jacobi, two_thirds) /
+    norm_jacobi = current_jacobian * 2.0 / sqrt3;
+    current_shape = 3. * pow(norm_jacobi, two_thirds) /
       (vec1.length_squared() + vec2.length_squared() + vec3.length_squared());
-    min_shape = std::min(current_shape, min_shape);
+    min_shape = fmin(current_shape, min_shape);
   }
   else
   {
@@ -1211,13 +1226,17 @@ double wedge_shape(int /*num_nodes*/, const double coordinates[][3])
   vec3.set(coordinates[5][0] - coordinates[3][0], coordinates[5][1] - coordinates[3][1],
     coordinates[5][2] - coordinates[3][2]);
 
+  vec1 /= char_size;
+  vec2 /= char_size;
+  vec3 /= char_size;
+
   current_jacobian = vec2 % (vec1 * vec3);
   if (current_jacobian > VERDICT_DBL_MIN)
   {
-    norm_jacobi = current_jacobian * 2.0 / std::sqrt(3.0);
-    current_shape = 3 * std::pow(norm_jacobi, two_thirds) /
+    norm_jacobi = current_jacobian * 2.0 / sqrt3;
+    current_shape = 3. * pow(norm_jacobi, two_thirds) /
       (vec1.length_squared() + vec2.length_squared() + vec3.length_squared());
-    min_shape = std::min(current_shape, min_shape);
+    min_shape = fmin(current_shape, min_shape);
   }
   else
   {
@@ -1234,13 +1253,17 @@ double wedge_shape(int /*num_nodes*/, const double coordinates[][3])
   vec3.set(coordinates[3][0] - coordinates[4][0], coordinates[3][1] - coordinates[4][1],
     coordinates[3][2] - coordinates[4][2]);
 
+  vec1 /= char_size;
+  vec2 /= char_size;
+  vec3 /= char_size;
+
   current_jacobian = vec2 % (vec1 * vec3);
   if (current_jacobian > VERDICT_DBL_MIN)
   {
-    norm_jacobi = current_jacobian * 2.0 / std::sqrt(3.0);
-    current_shape = 3 * std::pow(norm_jacobi, two_thirds) /
+    norm_jacobi = current_jacobian * 2.0 / sqrt3;
+    current_shape = 3. * pow(norm_jacobi, two_thirds) /
       (vec1.length_squared() + vec2.length_squared() + vec3.length_squared());
-    min_shape = std::min(current_shape, min_shape);
+    min_shape = fmin(current_shape, min_shape);
   }
   else
   {
@@ -1257,13 +1280,17 @@ double wedge_shape(int /*num_nodes*/, const double coordinates[][3])
   vec3.set(coordinates[2][0] - coordinates[5][0], coordinates[2][1] - coordinates[5][1],
     coordinates[2][2] - coordinates[5][2]);
 
+  vec1 /= char_size;
+  vec2 /= char_size;
+  vec3 /= char_size;
+
   current_jacobian = vec2 % (vec1 * vec3);
   if (current_jacobian > VERDICT_DBL_MIN)
   {
-    norm_jacobi = current_jacobian * 2.0 / std::sqrt(3.0);
-    current_shape = 3 * std::pow(norm_jacobi, two_thirds) /
+    norm_jacobi = current_jacobian * 2.0 / sqrt3;
+    current_shape = 3. * pow(norm_jacobi, two_thirds) /
       (vec1.length_squared() + vec2.length_squared() + vec3.length_squared());
-    min_shape = std::min(current_shape, min_shape);
+    min_shape = fmin(current_shape, min_shape);
   }
   else
   {
@@ -1294,12 +1321,12 @@ double wedge_shape(int /*num_nodes*/, const double coordinates[][3])
  Reference : Adapted from section 7.7
  Verdict Function : wedge_max_aspect_frobenius or wedge_condition
  */
-double wedge_condition(int /*num_nodes*/, const double coordinates[][3])
+VERDICT_HOST_DEVICE double wedge_condition(int /*num_nodes*/, const double coordinates[][3])
 {
   return wedge_max_aspect_frobenius(6, coordinates);
 }
 
-void make_wedge_faces(const double coordinates[][3], double tri1[][3], double tri2[][3],
+VERDICT_HOST_DEVICE void make_wedge_faces(const double coordinates[][3], double tri1[][3], double tri2[][3],
   double quad1[][3], double quad2[][3], double quad3[][3])
 {
   // tri1
