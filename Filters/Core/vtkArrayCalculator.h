@@ -22,6 +22,7 @@
  * /
  * ^
  * . (only by vtkFunctionParser)
+ * build constants: inf, pi (only by vtkExprTkFunctionParser)
  * build unit vectors: iHat, jHat, kHat (ie (1,0,0), (0,1,0), (0,0,1))
  * abs
  * acos
