@@ -1,15 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkCellData.h"
 #include "vtkCompositeDataPipeline.h"
-#include "vtkCompositeDataSet.h"
 #include "vtkDataSetSurfaceFilter.h"
 #include "vtkGenericDataObjectReader.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
-#include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 #include "vtkSurfaceLICTestDriver.h"
+#include "vtkTestUtilities.h"
 #include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPolyDataReader.h"
 
@@ -56,6 +53,8 @@ int TestSurfaceLIC(int argc, char* argv[])
   int mask_on_surface = 0;
   double mask_threshold = 0.0;
   double mask_intensity = 0.0;
+  int interpolate_scalars_before_mapping = 0;
+  int num_discrete_colors = 256;
   std::vector<double> mask_color_rgb;
   std::string vectors;
 
@@ -67,7 +66,8 @@ int TestSurfaceLIC(int argc, char* argv[])
   typedef vtksys::CommandLineArguments argT;
 
   arg.AddArgument("--data", argT::EQUAL_ARGUMENT, &filename,
-    "(required) Enter dataset to load (currently only *.[vtk|vtp] files are supported");
+    "(required) Enter dataset to load. The full path will be computed relative to VTK_DATA_ROOT "
+    "using vtkTestUtilities::ExpandDataFileName. (currently only *.[vtk|vtp] files are supported");
   arg.AddArgument("--num-steps", argT::EQUAL_ARGUMENT, &num_steps,
     "(optional: default 40) Number of steps in each direction");
   arg.AddArgument(
@@ -134,13 +134,22 @@ int TestSurfaceLIC(int argc, char* argv[])
     "(optional: default pink=1.0 0.0 0.84705) mask color");
   arg.AddArgument("--camera-config", argT::EQUAL_ARGUMENT, &camera_config,
     "(optional: default 1) use a preset camera configuration");
-
+  arg.AddArgument("--interpolate-scalars-before-mapping", argT::EQUAL_ARGUMENT,
+    &interpolate_scalars_before_mapping,
+    "(optional: default 0) interpolate scalars before mapping to colors");
+  arg.AddArgument("--num-discrete-colors", argT::EQUAL_ARGUMENT, &num_discrete_colors,
+    "(optional: default 256) number of discrete colors to use when mapping scalars to colors");
   if (!arg.Parse() || filename.empty())
   {
     cerr << "Usage: " << endl;
     cerr << arg.GetHelp() << endl;
     return 1;
   }
+
+  // Expand the filename to a full path.
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, filename.c_str());
+  filename = fname;
+  delete[] fname;
 
   if (mask_color_rgb.empty())
   {
@@ -209,7 +218,8 @@ int TestSurfaceLIC(int argc, char* argv[])
     impulse_noise_bg_value, noise_gen_seed, enhance_contrast, low_lic_contrast_enhancement_factor,
     high_lic_contrast_enhancement_factor, low_color_contrast_enhancement_factor,
     high_color_contrast_enhancement_factor, anti_alias, color_mode, lic_intensity, map_mode_bias,
-    color_by_mag, mask_on_surface, mask_threshold, mask_intensity, mask_color_rgb, vectors);
+    color_by_mag, mask_on_surface, mask_threshold, mask_intensity,
+    interpolate_scalars_before_mapping, num_discrete_colors, mask_color_rgb, vectors);
 
   vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
 

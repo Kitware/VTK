@@ -3,12 +3,12 @@
 
 #include "vtkCamera.h"
 #include "vtkCellData.h"
-#include "vtkColorTransferFunction.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
+#include "vtkDiscretizableColorTransferFunction.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -98,8 +98,8 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
   double high_lic_contrast_enhancement_factor, double low_color_contrast_enhancement_factor,
   double high_color_contrast_enhancement_factor, int anti_alias, int color_mode,
   double lic_intensity, double map_mode_bias, int color_by_mag, int mask_on_surface,
-  double mask_threshold, double mask_intensity, std::vector<double>& mask_color_rgb,
-  std::string& vectors)
+  double mask_threshold, double mask_intensity, int interpolate_scalars_before_mapping,
+  int num_discrete_colors, std::vector<double>& mask_color_rgb, std::string& vectors)
 {
   // Set up the render window, renderer, interactor.
   vtkSmartPointer<vtkRenderWindow> renWin = vtkSmartPointer<vtkRenderWindow>::New();
@@ -226,18 +226,21 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
       vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
       return 1;
     }
-    vtkColorTransferFunction* lut = vtkColorTransferFunction::New();
+    vtkDiscretizableColorTransferFunction* lut = vtkDiscretizableColorTransferFunction::New();
     lut->SetColorSpaceToRGB();
     lut->AddRGBPoint(range[0], 0.0, 0.0, 1.0);
     lut->AddRGBPoint(range[1], 1.0, 0.0, 0.0);
     lut->SetColorSpaceToDiverging();
     lut->Build();
+    lut->SetDiscretize(true);
+    lut->SetNumberOfValues(num_discrete_colors);
     mapper->SetLookupTable(lut);
     mapper->SetScalarModeToUsePointData();
     mapper->SetScalarVisibility(1);
     mapper->SelectColorArray(magVName);
     mapper->SetUseLookupTableScalarRange(1);
     mapper->SetScalarMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA);
+    mapper->SetInterpolateScalarsBeforeMapping(interpolate_scalars_before_mapping);
     lut->Delete();
   }
 
