@@ -12,6 +12,7 @@
 #include "vtkFieldData.h"
 #include "vtkFunctionParser.h"
 #include "vtkGraph.h"
+#include "vtkHyperTreeGrid.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMolecule.h"
@@ -855,7 +856,9 @@ int vtkArrayCalculator::RequestData(vtkInformation* vtkNotUsed(request),
 int vtkArrayCalculator::GetAttributeTypeFromInput(vtkDataObject* input)
 {
   vtkDataSet* dsInput = vtkDataSet::SafeDownCast(input);
+  vtkHyperTreeGrid* htgInput = vtkHyperTreeGrid::SafeDownCast(input);
   vtkGraph* graphInput = vtkGraph::SafeDownCast(input);
+  vtkTable* tableInput = vtkTable::SafeDownCast(input);
 
   int attribute = this->AttributeType;
   if (attribute == DEFAULT_ATTRIBUTE_TYPE)
@@ -864,13 +867,22 @@ int vtkArrayCalculator::GetAttributeTypeFromInput(vtkDataObject* input)
     {
       attribute = vtkDataObject::POINT;
     }
+    else if (htgInput)
+    {
+      attribute = vtkDataObject::CELL;
+    }
     else if (graphInput)
     {
       attribute = vtkDataObject::VERTEX;
     }
-    else
+    else if (tableInput)
     {
       attribute = vtkDataObject::ROW;
+    }
+    else
+    {
+      vtkErrorMacro("Unsupported input type");
+      return 1;
     }
   }
 
