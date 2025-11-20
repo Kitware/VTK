@@ -15,6 +15,8 @@
 // C++ includes
 #include <sstream>
 
+#include <iostream>
+
 // Main program
 int TestOpenSlideReaderPartial(int argc, char** argv)
 {

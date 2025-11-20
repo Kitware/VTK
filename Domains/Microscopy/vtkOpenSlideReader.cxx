@@ -10,6 +10,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenSlideReader);
 
@@ -27,7 +29,7 @@ void vtkOpenSlideReader::ExecuteInformation()
 
   int64_t w, h;
   openslide_get_level0_dimensions(this->openslide_handle, &w, &h);
-  // cout << "OpenSlideInfDims: " << w << ", " << h << endl;
+  // std::cout << "OpenSlideInfDims: " << w << ", " << h << endl;
 
   this->vtkImageReader2::ExecuteInformation();
 

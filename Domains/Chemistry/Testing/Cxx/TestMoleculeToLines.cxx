@@ -12,13 +12,15 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+#include <iostream>
+
 #define CheckNumbers(name, first, second)                                                          \
   do                                                                                               \
   {                                                                                                \
     if (first != second)                                                                           \
     {                                                                                              \
-      cerr << "Error : wrong number of " << #name << ". Got " << first << " but expects "          \
-           << second << endl;                                                                      \
+      std::cerr << "Error : wrong number of " << #name << ". Got " << first << " but expects "     \
+                << second << std::endl;                                                            \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
   } while (false)

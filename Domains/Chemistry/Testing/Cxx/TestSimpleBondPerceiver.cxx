@@ -5,6 +5,8 @@
 #include "vtkNew.h"
 #include "vtkSimpleBondPerceiver.h"
 
+#include <iostream>
+
 int TestSimpleBondPerceiver(int, char*[])
 {
   vtkIdType numBonds;
@@ -34,7 +36,7 @@ int TestSimpleBondPerceiver(int, char*[])
 
   if (numBonds != 13)
   {
-    cout << "Number of bonds in test molecule: " << numBonds << " (should be 13)\n";
+    std::cout << "Number of bonds in test molecule: " << numBonds << " (should be 13)\n";
     return EXIT_FAILURE;
   }
 
