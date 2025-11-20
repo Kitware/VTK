@@ -23,6 +23,8 @@
 
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int ImageResliceOriented(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindowInteractor> iren;

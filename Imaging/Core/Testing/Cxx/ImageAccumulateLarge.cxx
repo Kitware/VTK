@@ -7,6 +7,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkStringScanner.h"
 
+#include <iostream>
+
 int ImageAccumulateLarge(int argc, char* argv[])
 {
   vtkIdType dim;

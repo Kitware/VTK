@@ -18,6 +18,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 int ImageHistogramStatistics(int argc, char* argv[])
 {
   vtkNew<vtkPNGReader> reader;
@@ -67,32 +69,32 @@ int ImageHistogramStatistics(int argc, char* argv[])
 
   if (fabs((minVal - minValTest) / maxValTest) > tol)
   {
-    cout.precision(16);
-    cout << "minVal " << minVal << " should be " << minValTest << endl;
+    std::cout.precision(16);
+    std::cout << "minVal " << minVal << " should be " << minValTest << std::endl;
     retVal = false;
   }
   if (fabs((maxVal - maxValTest) / maxValTest) > tol)
   {
-    cout.precision(16);
-    cout << "maxVal " << maxVal << " should be " << maxValTest << endl;
+    std::cout.precision(16);
+    std::cout << "maxVal " << maxVal << " should be " << maxValTest << std::endl;
     retVal = false;
   }
   if (fabs((meanVal - meanValTest) / maxValTest) > tol)
   {
-    cout.precision(16);
-    cout << "meanVal " << meanVal << " should be " << meanValTest << endl;
+    std::cout.precision(16);
+    std::cout << "meanVal " << meanVal << " should be " << meanValTest << std::endl;
     retVal = false;
   }
   if (fabs((median - medianTest) / maxValTest) > tol)
   {
-    cout.precision(16);
-    cout << "median " << median << " should be " << medianTest << endl;
+    std::cout.precision(16);
+    std::cout << "median " << median << " should be " << medianTest << std::endl;
     retVal = false;
   }
   if (fabs((stdev - stdevTest) / maxValTest) > tol)
   {
-    cout.precision(16);
-    cout << "stdev " << stdev << " should be " << stdevTest << endl;
+    std::cout.precision(16);
+    std::cout << "stdev " << stdev << " should be " << stdevTest << std::endl;
     retVal = false;
   }
 
@@ -120,14 +122,16 @@ int ImageHistogramStatistics(int argc, char* argv[])
   // so do not divide by range original[0] here
   if (fabs(rangeOriginal[0] - rangeWithNaN[0]) > tol)
   {
-    cout.precision(16);
-    cout << "rangeWithNaN[0] " << rangeWithNaN[0] << " should be " << rangeOriginal[0] << endl;
+    std::cout.precision(16);
+    std::cout << "rangeWithNaN[0] " << rangeWithNaN[0] << " should be " << rangeOriginal[0]
+              << std::endl;
     retVal = false;
   }
   if (fabs((rangeOriginal[1] - rangeWithNaN[1]) / rangeOriginal[1]) > tol)
   {
-    cout.precision(16);
-    cout << "rangeWithNaN[1] " << rangeWithNaN[1] << " should be " << rangeOriginal[1] << endl;
+    std::cout.precision(16);
+    std::cout << "rangeWithNaN[1] " << rangeWithNaN[1] << " should be " << rangeOriginal[1]
+              << std::endl;
     retVal = false;
   }
 
@@ -139,32 +143,32 @@ int ImageHistogramStatistics(int argc, char* argv[])
   // (exact same tests as above)
   if (fabs((minVal - minValTest) / maxValTest) > tol)
   {
-    cout.precision(16);
-    cout << "minVal " << minVal << " should be " << minValTest << endl;
+    std::cout.precision(16);
+    std::cout << "minVal " << minVal << " should be " << minValTest << std::endl;
     retVal = false;
   }
   if (fabs((maxVal - maxValTest) / maxValTest) > tol)
   {
-    cout.precision(16);
-    cout << "maxVal " << maxVal << " should be " << maxValTest << endl;
+    std::cout.precision(16);
+    std::cout << "maxVal " << maxVal << " should be " << maxValTest << std::endl;
     retVal = false;
   }
   if (fabs((meanVal - meanValTest) / maxValTest) > tol)
   {
-    cout.precision(16);
-    cout << "meanVal " << meanVal << " should be " << meanValTest << endl;
+    std::cout.precision(16);
+    std::cout << "meanVal " << meanVal << " should be " << meanValTest << std::endl;
     retVal = false;
   }
   if (fabs((median - medianTest) / maxValTest) > tol)
   {
-    cout.precision(16);
-    cout << "median " << median << " should be " << medianTest << endl;
+    std::cout.precision(16);
+    std::cout << "median " << median << " should be " << medianTest << std::endl;
     retVal = false;
   }
   if (fabs((stdev - stdevTest) / maxValTest) > tol)
   {
-    cout.precision(16);
-    cout << "stdev " << stdev << " should be " << stdevTest << endl;
+    std::cout.precision(16);
+    std::cout << "stdev " << stdev << " should be " << stdevTest << std::endl;
     retVal = false;
   }
 

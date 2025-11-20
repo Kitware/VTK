@@ -22,6 +22,8 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTrivialProducer.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 static vtkSmartPointer<vtkImageStencilData> CreateBoxStencilData(double d1, double d2)
 {

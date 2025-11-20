@@ -10,6 +10,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 // Test functions
 namespace
 {

@@ -12,6 +12,8 @@
 
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int ImageWeightedSum(int argc, char* argv[])
 {
   int rval = 0;
@@ -35,7 +37,7 @@ int ImageWeightedSum(int argc, char* argv[])
   sum->GetOutput()->GetScalarRange(range);
   if (range[0] != 0 || range[1] != 0)
   {
-    cerr << "Range: " << range[0] << "," << range[1] << endl;
+    std::cerr << "Range: " << range[0] << "," << range[1] << std::endl;
     rval++;
   }
 
@@ -67,7 +69,7 @@ int ImageWeightedSum(int argc, char* argv[])
   math->GetOutput()->GetScalarRange(range);
   if (range[0] != 0 || range[1] != 0)
   {
-    cerr << "Range: " << range[0] << "," << range[1] << endl;
+    std::cerr << "Range: " << range[0] << "," << range[1] << std::endl;
     rval++;
   }
 

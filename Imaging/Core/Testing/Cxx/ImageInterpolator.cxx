@@ -10,6 +10,8 @@
 #include "vtkNew.h"
 #include "vtkPointData.h"
 
+#include <iostream>
+
 // Test functions
 namespace
 {

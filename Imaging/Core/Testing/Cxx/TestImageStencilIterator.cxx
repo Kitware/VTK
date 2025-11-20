@@ -9,6 +9,8 @@
 #include "vtkNew.h"
 #include "vtkTesting.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 // Provides a pseudo-random value at each position
 static unsigned char VoxelValue(int i, int j, int k)

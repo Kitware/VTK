@@ -12,6 +12,7 @@
 #include "vtkTestUtilities.h"
 
 #include <cmath>
+#include <iostream>
 
 int ImageQuantizeToIndex(int argc, char* argv[])
 {

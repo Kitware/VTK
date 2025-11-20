@@ -22,6 +22,8 @@
 
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int ImageBSplineCoefficients(int argc, char* argv[])
 {
   int retVal = EXIT_SUCCESS;
@@ -124,9 +126,9 @@ int ImageBSplineCoefficients(int argc, char* argv[])
         double e = (v0 - v1) / (range[1] - range[0]);
         if (fabs(e) > tol)
         {
-          cerr << "Bad interpolation, error is " << e << " k = " << k << " degree = " << j
-               << " mode = " << mode << "\n";
-          cerr << v0 << " " << v1 << "\n";
+          std::cerr << "Bad interpolation, error is " << e << " k = " << k << " degree = " << j
+                    << " mode = " << mode << "\n";
+          std::cerr << v0 << " " << v1 << "\n";
           retVal = EXIT_FAILURE;
         }
       }

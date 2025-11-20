@@ -24,6 +24,8 @@
 
 #include <algorithm>
 
+#include <iostream>
+
 // Test functions
 namespace
 {
