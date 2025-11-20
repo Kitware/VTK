@@ -7,6 +7,8 @@
 #include "vtkPoints.h"
 #include "vtkRandomGraphSource.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestIncrementalForceLayout(int, char*[])
 {

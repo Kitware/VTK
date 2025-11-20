@@ -23,6 +23,9 @@
 #include "vtkTestUtilities.h"
 
 #include "vtkSmartPointer.h"
+
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 void RenderGraph(
@@ -57,7 +60,7 @@ int TestExtractSelectedGraph(int argc, char* argv[])
 {
   VTK_CREATE(vtkRenderer, ren);
 
-  cerr << "Creating test graph..." << endl;
+  std::cerr << "Creating test graph..." << std::endl;
   VTK_CREATE(vtkMutableUndirectedGraph, graph);
   graph->AddVertex();
   graph->AddVertex();
@@ -82,9 +85,9 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   VTK_CREATE(vtkCircularLayoutStrategy, circular);
   layout->SetLayoutStrategy(circular);
   RenderGraph(layout, ren, 1, 1, 1, 0.01, 2.0f);
-  cerr << "...done." << endl;
+  std::cerr << "...done." << std::endl;
 
-  cerr << "Testing threshold selection..." << endl;
+  std::cerr << "Testing threshold selection..." << std::endl;
   VTK_CREATE(vtkSelection, threshold);
   VTK_CREATE(vtkSelectionNode, thresholdNode);
   threshold->AddNode(thresholdNode);
@@ -100,9 +103,9 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   extractThreshold->SetInputConnection(0, layout->GetOutputPort());
   extractThreshold->SetInputData(1, threshold);
   RenderGraph(extractThreshold, ren, 1, 0, 0, -0.01, 5.0f);
-  cerr << "...done." << endl;
+  std::cerr << "...done." << std::endl;
 
-  cerr << "Testing indices selection..." << endl;
+  std::cerr << "Testing indices selection..." << std::endl;
   VTK_CREATE(vtkSelection, indices);
   VTK_CREATE(vtkSelectionNode, indicesNode);
   indices->AddNode(indicesNode);
@@ -118,7 +121,7 @@ int TestExtractSelectedGraph(int argc, char* argv[])
   extractIndices->SetInputConnection(0, layout->GetOutputPort());
   extractIndices->SetInputData(1, indices);
   RenderGraph(extractIndices, ren, 0, 1, 0, -0.02, 9.0f);
-  cerr << "...done." << endl;
+  std::cerr << "...done." << std::endl;
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
   VTK_CREATE(vtkRenderWindow, win);

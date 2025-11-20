@@ -12,6 +12,8 @@
 #include <vtkVariant.h>
 #include <vtkVariantArray.h>
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestMergeTables(int argc, char* argv[])
@@ -35,10 +37,10 @@ int TestMergeTables(int argc, char* argv[])
 
   vtkTable* table2 = reader2->GetOutput();
 
-  cout << "Table 1:" << endl;
+  std::cout << "Table 1:" << std::endl;
   table1->Dump(10);
 
-  cout << "Table 2:" << endl;
+  std::cout << "Table 2:" << std::endl;
   table2->Dump(10);
 
   VTK_CREATE(vtkMergeTables, merge);
@@ -49,15 +51,15 @@ int TestMergeTables(int argc, char* argv[])
 
   vtkTable* mergedTable = merge->GetOutput();
 
-  cout << "Merged Table:" << endl;
+  std::cout << "Merged Table:" << std::endl;
   mergedTable->Dump(10);
 
   // Test # of columns
   // - There should be 3: Col1, Col2, Col3
   if (mergedTable->GetNumberOfColumns() != 3)
   {
-    cout << "ERROR: Wrong number of columns!" << endl
-         << "       Expected 3, got " << mergedTable->GetNumberOfColumns() << endl;
+    std::cout << "ERROR: Wrong number of columns!" << std::endl
+              << "       Expected 3, got " << mergedTable->GetNumberOfColumns() << std::endl;
     return 1;
   }
 

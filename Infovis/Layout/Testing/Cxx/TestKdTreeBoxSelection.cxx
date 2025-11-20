@@ -36,6 +36,8 @@
 #include "vtkTreeLevelsFilter.h"
 #include "vtkTreeMapToPolyData.h"
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //
@@ -73,9 +75,9 @@ int TestKdTreeBoxSelection(int argc, char* argv[])
       continue;
     }
 
-    cerr << argv[0] << " options:\n"
-         << "  -I run interactively\n"
-         << "  -d three-dimensional\n";
+    std::cerr << argv[0] << " options:\n"
+              << "  -I run interactively\n"
+              << "  -d three-dimensional\n";
     return 0;
   }
 
@@ -184,7 +186,7 @@ int TestKdTreeBoxSelection(int argc, char* argv[])
   VTK_CREATE(vtkTree, realTree);
   if (!realTree->CheckedShallowCopy(tree))
   {
-    cerr << "Invalid tree structure." << endl;
+    std::cerr << "Invalid tree structure." << std::endl;
   }
 
   VTK_CREATE(vtkTreeLevelsFilter, treeLevels);

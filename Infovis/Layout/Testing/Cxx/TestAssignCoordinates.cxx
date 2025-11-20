@@ -13,11 +13,13 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestAssignCoordinates(int argc, char* argv[])
 {
-  cerr << "Generating graph ..." << endl;
+  std::cerr << "Generating graph ..." << std::endl;
   VTK_CREATE(vtkMutableDirectedGraph, g);
   VTK_CREATE(vtkDoubleArray, x);
   x->SetName("x");
@@ -38,16 +40,16 @@ int TestAssignCoordinates(int argc, char* argv[])
   g->GetVertexData()->AddArray(x);
   g->GetVertexData()->AddArray(y);
   g->GetVertexData()->AddArray(z);
-  cerr << "... done" << endl;
+  std::cerr << "... done" << std::endl;
 
-  cerr << "Sending graph through vtkAssignCoordinates ..." << endl;
+  std::cerr << "Sending graph through vtkAssignCoordinates ..." << std::endl;
   VTK_CREATE(vtkAssignCoordinates, assign);
   assign->SetInputData(g);
   assign->SetXCoordArrayName("x");
   assign->SetYCoordArrayName("y");
   assign->SetZCoordArrayName("z");
   assign->Update();
-  cerr << "... done" << endl;
+  std::cerr << "... done" << std::endl;
 
   VTK_CREATE(vtkGraphMapper, mapper);
   mapper->SetInputConnection(assign->GetOutputPort());

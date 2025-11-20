@@ -15,6 +15,8 @@
 
 #include <string>
 
+#include <iostream>
+
 template <typename T, size_t Cols>
 void BuildTable(vtkTable* table, T values[][Cols], int rows)
 {
@@ -40,14 +42,15 @@ bool CheckTable(vtkTable* expected, vtkTable* output)
       vtkArrayDownCast<vtkStringArray>(output->GetColumnByName(exp_arr->GetName()));
     if (!out_arr)
     {
-      cerr << "Output array " << exp_arr->GetName() << " does not exist" << endl;
+      std::cerr << "Output array " << exp_arr->GetName() << " does not exist" << std::endl;
       ok = false;
       continue;
     }
     if (out_arr->GetNumberOfTuples() != exp_arr->GetNumberOfTuples())
     {
-      cerr << "Output array " << exp_arr->GetName() << " has " << out_arr->GetNumberOfTuples()
-           << " tuples when " << exp_arr->GetNumberOfTuples() << " were expected." << endl;
+      std::cerr << "Output array " << exp_arr->GetName() << " has " << out_arr->GetNumberOfTuples()
+                << " tuples when " << exp_arr->GetNumberOfTuples() << " were expected."
+                << std::endl;
       ok = false;
       continue;
     }
@@ -55,9 +58,9 @@ bool CheckTable(vtkTable* expected, vtkTable* output)
     {
       if (exp_arr->GetValue(row) != out_arr->GetValue(row))
       {
-        cerr << "Output array " << exp_arr->GetName() << " has " << out_arr->GetValue(row)
-             << " at position " << row << " when " << exp_arr->GetValue(row) << " was expected."
-             << endl;
+        std::cerr << "Output array " << exp_arr->GetName() << " has " << out_arr->GetValue(row)
+                  << " at position " << row << " when " << exp_arr->GetValue(row)
+                  << " was expected." << std::endl;
         ok = false;
       }
     }

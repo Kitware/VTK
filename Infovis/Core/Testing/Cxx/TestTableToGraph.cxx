@@ -34,7 +34,8 @@
 #include "vtkTextProperty.h"
 #include "vtkTransform.h"
 #include "vtkUndirectedGraph.h"
-#include "vtkVariant.h"
+
+#include <iostream>
 
 // Uncomment the following line to show Qt tables of
 // the vertex and edge tables.
@@ -91,7 +92,7 @@ void TestTableToGraphRender(vtkRenderer* ren, vtkGraphAlgorithm* alg, int test, 
   vertexMapper->SelectColorArray("category");
   double rng[2] = { 0, 0 };
   graph->GetVertexData()->GetArray("category")->GetRange(rng);
-  cerr << rng[0] << "," << rng[1] << endl;
+  std::cerr << rng[0] << "," << rng[1] << std::endl;
   vertexMapper->SetScalarRange(rng[0], rng[1]);
   VTK_CREATE(vtkActor, vertexActor);
   vertexActor->SetMapper(vertexMapper);

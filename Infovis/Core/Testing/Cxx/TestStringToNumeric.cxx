@@ -13,6 +13,8 @@
 
 #include "vtkNew.h"
 
+#include <iostream>
+
 namespace
 {
 
@@ -32,31 +34,31 @@ int ArrayTypesTest(int argc, char* argv[])
 
   vtkTable* table = vtkTable::SafeDownCast(numeric->GetOutput());
 
-  cerr << "Testing array types..." << endl;
+  std::cerr << "Testing array types..." << std::endl;
   int errors = 0;
   if (!vtkArrayDownCast<vtkStringArray>(table->GetColumnByName("Author")))
   {
-    cerr << "ERROR: Author array missing" << endl;
+    std::cerr << "ERROR: Author array missing" << std::endl;
     ++errors;
   }
   if (!vtkArrayDownCast<vtkStringArray>(table->GetColumnByName("Affiliation")))
   {
-    cerr << "ERROR: Affiliation array missing" << endl;
+    std::cerr << "ERROR: Affiliation array missing" << std::endl;
     ++errors;
   }
   if (!vtkArrayDownCast<vtkStringArray>(table->GetColumnByName("Alma Mater")))
   {
-    cerr << "ERROR: Alma Mater array missing" << endl;
+    std::cerr << "ERROR: Alma Mater array missing" << std::endl;
     ++errors;
   }
   if (!vtkArrayDownCast<vtkStringArray>(table->GetColumnByName("Categories")))
   {
-    cerr << "ERROR: Categories array missing" << endl;
+    std::cerr << "ERROR: Categories array missing" << std::endl;
     ++errors;
   }
   if (!vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("Age")))
   {
-    cerr << "ERROR: Age array missing or not converted to int" << endl;
+    std::cerr << "ERROR: Age array missing or not converted to int" << std::endl;
     ++errors;
   }
   else
@@ -69,13 +71,13 @@ int ArrayTypesTest(int argc, char* argv[])
     }
     if (sum != 181)
     {
-      cerr << "ERROR: Age sum is incorrect" << endl;
+      std::cerr << "ERROR: Age sum is incorrect" << std::endl;
       ++errors;
     }
   }
   if (!vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("Coolness")))
   {
-    cerr << "ERROR: Coolness array missing or not converted to double" << endl;
+    std::cerr << "ERROR: Coolness array missing or not converted to double" << std::endl;
     ++errors;
   }
   else
@@ -90,18 +92,18 @@ int ArrayTypesTest(int argc, char* argv[])
     double diff = (2.35 > sum) ? (2.35 - sum) : (sum - 2.35);
     if (diff > eps)
     {
-      cerr << "ERROR: Coolness sum is incorrect" << endl;
+      std::cerr << "ERROR: Coolness sum is incorrect" << std::endl;
       ++errors;
     }
   }
 
-  cerr << "Testing force double..." << endl;
+  std::cerr << "Testing force double..." << std::endl;
   numeric->ForceDoubleOn();
   numeric->Update();
   table = vtkTable::SafeDownCast(numeric->GetOutput());
   if (!vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("Age")))
   {
-    cerr << "ERROR: Arrays should have been forced to double" << endl;
+    std::cerr << "ERROR: Arrays should have been forced to double" << std::endl;
     ++errors;
   }
 
@@ -138,11 +140,11 @@ int WhitespaceAndEmptyCellsTest()
   vtkTable* table = vtkTable::SafeDownCast(numeric->GetOutput());
   table->Dump();
 
-  cerr << "Testing handling whitespace and empty cells..." << endl;
+  std::cerr << "Testing handling whitespace and empty cells..." << std::endl;
   int errors = 0;
   if (!vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("IntegerColumn")))
   {
-    cerr << "ERROR: IntegerColumn array missing or not converted to int" << endl;
+    std::cerr << "ERROR: IntegerColumn array missing or not converted to int" << std::endl;
     ++errors;
   }
   else
@@ -150,20 +152,21 @@ int WhitespaceAndEmptyCellsTest()
     vtkIntArray* column = vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("IntegerColumn"));
     if (defaultIntValue != column->GetValue(0))
     {
-      cerr << "ERROR: Empty cell value is: " << column->GetValue(0)
-           << ". Expected: " << defaultIntValue;
+      std::cerr << "ERROR: Empty cell value is: " << column->GetValue(0)
+                << ". Expected: " << defaultIntValue;
       ++errors;
     }
     if (1 != column->GetValue(1))
     {
-      cerr << "ERROR: Cell with whitespace value is: " << column->GetValue(1) << ". Expected: 1";
+      std::cerr << "ERROR: Cell with whitespace value is: " << column->GetValue(1)
+                << ". Expected: 1";
       ++errors;
     }
   }
 
   if (!vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("DoubleColumn")))
   {
-    cerr << "ERROR: DoubleColumn array missing or not converted to double" << endl;
+    std::cerr << "ERROR: DoubleColumn array missing or not converted to double" << std::endl;
     ++errors;
   }
   else
@@ -172,13 +175,14 @@ int WhitespaceAndEmptyCellsTest()
       vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("DoubleColumn"));
     if (!vtkMath::IsNan(column->GetValue(0)))
     {
-      cerr << "ERROR: Empty cell value is: " << column->GetValue(0)
-           << ". Expected: " << vtkMath::Nan();
+      std::cerr << "ERROR: Empty cell value is: " << column->GetValue(0)
+                << ". Expected: " << vtkMath::Nan();
       ++errors;
     }
     if (1.1 != column->GetValue(1))
     {
-      cerr << "ERROR: Cell with whitespace value is: " << column->GetValue(1) << ". Expected: 1.1";
+      std::cerr << "ERROR: Cell with whitespace value is: " << column->GetValue(1)
+                << ". Expected: 1.1";
       ++errors;
     }
   }
@@ -191,8 +195,8 @@ int TestStringToNumeric(int argc, char* argv[])
   int errors = ArrayTypesTest(argc, argv);
   errors += WhitespaceAndEmptyCellsTest();
 
-  cerr << "...done testing" << endl;
-  cerr << errors << " errors found." << endl;
+  std::cerr << "...done testing" << std::endl;
+  std::cerr << errors << " errors found." << std::endl;
 
   return errors;
 }

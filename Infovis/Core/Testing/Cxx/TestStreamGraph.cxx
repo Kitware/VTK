@@ -8,6 +8,8 @@
 #include "vtkTable.h"
 #include "vtkTableToGraph.h"
 
+#include <iostream>
+
 int TestStreamGraph(int, char*[])
 {
   vtkSmartPointer<vtkIntArray> src = vtkSmartPointer<vtkIntArray>::New();
@@ -50,7 +52,7 @@ int TestStreamGraph(int, char*[])
   vtkGraph* output = stream->GetOutput();
   if (output->GetNumberOfVertices() != 11 || output->GetNumberOfEdges() != 6)
   {
-    cerr << "ERROR: Incorrect number of vertices/edges." << endl;
+    std::cerr << "ERROR: Incorrect number of vertices/edges." << std::endl;
     return 1;
   }
   vtkDataArray* outputTime = output->GetEdgeData()->GetArray("time");
@@ -58,7 +60,7 @@ int TestStreamGraph(int, char*[])
   outputTime->GetRange(timeRange);
   if (timeRange[0] != 4 || timeRange[1] != 9)
   {
-    cerr << "ERROR: Incorrect time range." << endl;
+    std::cerr << "ERROR: Incorrect time range." << std::endl;
     return 1;
   }
 

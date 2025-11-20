@@ -21,6 +21,8 @@
 #include "vtkTree.h"
 #include "vtkTreeLayoutStrategy.h"
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestGroupLeafVertices(int argc, char* argv[])
@@ -34,9 +36,9 @@ int TestGroupLeafVertices(int argc, char* argv[])
       continue;
     }
 
-    cerr << argv[0] << " Options:\n  "
-         << " -h (prints this message)\n  "
-         << " -I (run interactively)\n  ";
+    std::cerr << argv[0] << " Options:\n  "
+              << " -h (prints this message)\n  "
+              << " -I (run interactively)\n  ";
     return 0;
   }
 
@@ -98,7 +100,7 @@ int TestGroupLeafVertices(int argc, char* argv[])
   vtkTree* tree = tableToTree->GetOutput();
   for (vtkIdType i = 0; i < tree->GetNumberOfVertices(); i++)
   {
-    cerr << i << " has parent " << tree->GetParent(i) << endl;
+    std::cerr << i << " has parent " << tree->GetParent(i) << std::endl;
   }
 
   VTK_CREATE(vtkGroupLeafVertices, group);
@@ -109,7 +111,7 @@ int TestGroupLeafVertices(int argc, char* argv[])
   tree = group->GetOutput();
   for (vtkIdType i = 0; i < tree->GetNumberOfVertices(); i++)
   {
-    cerr << i << " has parent " << tree->GetParent(i) << endl;
+    std::cerr << i << " has parent " << tree->GetParent(i) << std::endl;
   }
 
   VTK_CREATE(vtkGroupLeafVertices, group2);
@@ -120,7 +122,7 @@ int TestGroupLeafVertices(int argc, char* argv[])
   tree = group2->GetOutput();
   for (vtkIdType i = 0; i < tree->GetNumberOfVertices(); i++)
   {
-    cerr << i << " has parent " << tree->GetParent(i) << endl;
+    std::cerr << i << " has parent " << tree->GetParent(i) << std::endl;
   }
 
   //

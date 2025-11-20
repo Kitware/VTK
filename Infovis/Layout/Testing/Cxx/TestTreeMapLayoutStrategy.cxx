@@ -15,11 +15,12 @@
 #include "vtkSliceAndDiceLayoutStrategy.h"
 #include "vtkSmartPointer.h"
 #include "vtkSquarifyLayoutStrategy.h"
-#include "vtkTestUtilities.h"
 #include "vtkTree.h"
 #include "vtkTreeFieldAggregator.h"
 #include "vtkTreeMapLayout.h"
 #include "vtkTreeMapToPolyData.h"
+
+#include <iostream>
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -76,7 +77,7 @@ int TestTreeMapLayoutStrategy(int argc, char* argv[])
   VTK_CREATE(vtkTree, tree);
   if (!tree->CheckedShallowCopy(builder))
   {
-    cerr << "Invalid tree structure." << endl;
+    std::cerr << "Invalid tree structure." << std::endl;
   }
 
   VTK_CREATE(vtkTreeFieldAggregator, agg);

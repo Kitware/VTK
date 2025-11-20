@@ -14,6 +14,8 @@
 
 #include "vtk_utf8.h"
 
+#include <iostream>
+
 int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int errors = 0;
@@ -52,15 +54,15 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // Check that the arrays are the same
   if (strcmp(sourceArray->GetName(), sinkArray->GetName()) != 0)
   {
-    cerr << "Sink array has name \"" << sinkArray->GetName() << "\", should be \""
-         << sourceArray->GetName() << "\".\n";
+    std::cerr << "Sink array has name \"" << sinkArray->GetName() << "\", should be \""
+              << sourceArray->GetName() << "\".\n";
     ++errors;
   }
 
   if (sourceArray->GetNumberOfTuples() != sinkArray->GetNumberOfTuples())
   {
-    cerr << "Sink array has " << sinkArray->GetNumberOfTuples() << " of elements, should be "
-         << sourceArray->GetNumberOfTuples() << ".\n";
+    std::cerr << "Sink array has " << sinkArray->GetNumberOfTuples() << " of elements, should be "
+              << sourceArray->GetNumberOfTuples() << ".\n";
     ++errors;
     return errors;
   }
@@ -69,8 +71,9 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   {
     if (sourceArray->GetValue(i).GetType() != sinkArray->GetValue(i).GetType())
     {
-      cerr << "Sink array value at index " << i << " has type " << sinkArray->GetValue(i).GetType()
-           << ", should be" << sourceArray->GetValue(i).GetType() << ".\n";
+      std::cerr << "Sink array value at index " << i << " has type "
+                << sinkArray->GetValue(i).GetType() << ", should be"
+                << sourceArray->GetValue(i).GetType() << ".\n";
       ++errors;
       return errors;
     }
@@ -81,8 +84,8 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   {                                                                                                \
     if (sourceArray->GetValue(Index).Function() != sinkArray->GetValue(Index).Function())          \
     {                                                                                              \
-      cerr << Kind << " mismatch: \"" << sourceArray->GetValue(Index).Function() << "\" vs. \""    \
-           << sinkArray->GetValue(Index).Function() << "\".\n";                                    \
+      std::cerr << Kind << " mismatch: \"" << sourceArray->GetValue(Index).Function()              \
+                << "\" vs. \"" << sinkArray->GetValue(Index).Function() << "\".\n";                \
       ++errors;                                                                                    \
     }                                                                                              \
   } while (false)
@@ -94,7 +97,7 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   const char* sink = sinkArray->GetValue(3).ToString().c_str();
   if (strcmp(source, sink) != 0)
   {
-    cerr << "String mismatch: \"" << source << "\" vs. \"" << sink << "\".\n";
+    std::cerr << "String mismatch: \"" << source << "\" vs. \"" << sink << "\".\n";
     ++errors;
   }
   VTK_VARIANT_ARRAY_DATA_CHECK(4, ToInt, "Int");
@@ -103,7 +106,7 @@ int TestVariantSerialization(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   sink = sinkArray->GetValue(6).ToString().c_str();
   if (strcmp(source, sink) != 0)
   {
-    cerr << "String mismatch: \"" << source << "\" vs. \"" << sink << "\".\n";
+    std::cerr << "String mismatch: \"" << source << "\" vs. \"" << sink << "\".\n";
     ++errors;
   }
 #undef VTK_VARIANT_ARRAY_DATA_CHECK

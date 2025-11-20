@@ -18,6 +18,8 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridReader.h>
 
+#include <iostream>
+
 int TestContinuousScatterPlot(int argc, char* argv[])
 {
   std::string outputString;
@@ -241,10 +243,10 @@ int TestContinuousScatterPlot(int argc, char* argv[])
 
   if (pass)
   {
-    cout << "\nTest Successful!!!" << endl;
+    std::cout << "\nTest Successful!!!" << std::endl;
     return EXIT_SUCCESS;
   }
 
-  cout << "\nTest Unsuccessful." << endl;
+  std::cout << "\nTest Unsuccessful." << std::endl;
   return EXIT_FAILURE;
 }
