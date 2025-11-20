@@ -24,9 +24,9 @@
 
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkTuple.h" // needed for vtkTuple
-#include <string>     // needed for string.
-#include <vector>     // needed for vector
+
+#include <string> // needed for string.
+#include <vector> // needed for vector
 
 // forward declarations for ExprTk tools
 VTK_ABI_NAMESPACE_BEGIN
@@ -35,18 +35,25 @@ struct vtkExprTkTools;
 class VTKCOMMONMISC_EXPORT vtkExprTkFunctionParser : public vtkObject
 {
 public:
-  static vtkExprTkFunctionParser* New();
   vtkTypeMacro(vtkExprTkFunctionParser, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  static vtkExprTkFunctionParser* New();
 
   /**
    * Return parser's MTime
    */
   vtkMTimeType GetMTime() override;
 
+  /**
+   * Get the size of the result.
+   */
+  vtkGetMacro(ResultSize, int);
+
   ///@{
   /**
    * Set/Get input string to evaluate.
+   *
+   * @note To define a vector of arbitrary size use the {x, y, z, ...} syntax.
    */
   void SetFunction(const char* function);
   const char* GetFunction() { return this->Function.c_str(); }
@@ -79,13 +86,14 @@ public:
    * If ReplaceInvalidValues is not set, then the error value
    * that will be return is [NaN, NaN, NaN].
    */
-  double* GetVectorResult() VTK_SIZEHINT(3);
-  void GetVectorResult(double result[3])
+  double* GetVectorResult() VTK_SIZEHINT(this->GetResultSize());
+  void GetVectorResult(double* result)
   {
     double* r = this->GetVectorResult();
-    result[0] = r[0];
-    result[1] = r[1];
-    result[2] = r[2];
+    for (int i = 0; i < this->ResultSize; ++i)
+    {
+      result[i] = r[i];
+    }
   }
   ///@}
 
@@ -124,16 +132,18 @@ public:
    * @note A sanitized variable name is accepted by the following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
    */
   void SetVectorVariableValue(
-    const std::string& variableName, double xValue, double yValue, double zValue);
-  void SetVectorVariableValue(const std::string& variableName, double values[3])
+    const std::string& variableName, double xValue, double yValue, double zValue)
   {
-    this->SetVectorVariableValue(variableName, values[0], values[1], values[2]);
+    double values[3] = { xValue, yValue, zValue };
+    this->SetVectorVariableValue(variableName, values, 3);
   }
-  void SetVectorVariableValue(int i, double xValue, double yValue, double zValue);
-  void SetVectorVariableValue(int i, double values[3])
+  void SetVectorVariableValue(const std::string& variableName, double* values, int size = 3);
+  void SetVectorVariableValue(int i, double xValue, double yValue, double zValue)
   {
-    this->SetVectorVariableValue(i, values[0], values[1], values[2]);
+    double values[3] = { xValue, yValue, zValue };
+    this->SetVectorVariableValue(i, values, 3);
   }
+  void SetVectorVariableValue(int i, double values[3], int size = 3);
   ///@}
 
   ///@{
@@ -331,7 +341,7 @@ protected:
   // resizing of their container (std::vector), ExprTk requires the
   // memory address of the given variable to remain the same.
   std::vector<double*> ScalarVariableValues;
-  std::vector<vtkTuple<double, 3>*> VectorVariableValues;
+  std::vector<std::vector<double>*> VectorVariableValues;
   std::vector<bool> ScalarVariableNeeded;
   std::vector<bool> VectorVariableNeeded;
 
@@ -344,11 +354,41 @@ protected:
   vtkExprTkTools* ExprTkTools;
 
   int ResultType;
-  vtkTuple<double, 3> Result;
+  std::vector<double> Result;
+  std::vector<double> ParserErrorResult;
 
 private:
   vtkExprTkFunctionParser(const vtkExprTkFunctionParser&) = delete;
   void operator=(const vtkExprTkFunctionParser&) = delete;
+
+  enum SizeModes
+  {
+    AutoDetected = 0,
+    VectorDefined = 1
+  };
+
+  int SizeMode;
+  int ResultSize;
+
+  /**
+   * Determine size mode from function string.
+   */
+  static SizeModes DetermineSizeMode(const std::string& function);
+
+  /**
+   * Get the size mode.
+   *
+   * The available modes are AutoDetected and VectorDefined. In both cases, the final size of the
+   * result will be determined by the parser.
+   *
+   * In AutoDetected mode, users may create variables (scalar or vector) whose size is inferred
+   * automatically based on how they are used and associated with other variables in the function.
+   *
+   * In VectorDefined mode, users may create vectors explicitly using the {x, y, z, ...} syntax and
+   * NOTHING ELSE before or after it. The size of the resulting vector is determined by counting the
+   * number of elements inside the braces.
+   */
+  vtkGetMacro(SizeMode, int);
 };
 
 VTK_ABI_NAMESPACE_END

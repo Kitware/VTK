@@ -10,6 +10,7 @@
 #include "vtkTestErrorObserver.h"
 
 #include <algorithm>
+#include <array>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -72,6 +73,7 @@ static bool TestVectors();
 static bool TestMinMax();
 static bool TestScalarLogic();
 static bool TestVectorLogic();
+static bool TestVectorArbitrarySize();
 static bool TestMiscFunctions();
 static bool TestErrors();
 
@@ -105,6 +107,7 @@ int UnitTestExprTkFunctionParser(int, char*[])
   status &= TestMinMax();
   status &= TestScalarLogic();
   status &= TestVectorLogic();
+  status &= TestVectorArbitrarySize();
 
   status &= TestMiscFunctions();
   status &= TestErrors();
@@ -694,6 +697,74 @@ bool TestVectorLogic()
       std::cout << "\n";
       std::cout << x << " == " << y << " Expected " << expected << " but got " << result
                 << std::endl;
+      status = STATUS_FAILURE;
+    }
+  }
+
+  if (status == STATUS_SUCCESS)
+  {
+    std::cout << "PASSED\n";
+  }
+  else
+  {
+    std::cout << "FAILED\n";
+  }
+
+  return status;
+}
+
+bool TestVectorArbitrarySize()
+{
+  bool status = STATUS_SUCCESS;
+  std::cout << "Testing VectorArbitrarySize...";
+
+  auto parser = vtkSmartPointer<vtkExprTkFunctionParser>::New();
+
+  auto rand = vtkSmartPointer<vtkMinimalStandardRandomSequence>::New();
+  parser->SetFunction("{sin(a),cos(b),sin(c),cos(d),sin(e),cos(f),sin(g)}");
+  for (unsigned int i = 0; i < 1000; ++i)
+  {
+    double a = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double b = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double c = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double d = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double e = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double f = rand->GetNextRangeValue(-1000.0, 1000.0);
+    double g = rand->GetNextRangeValue(-1000.0, 1000.0);
+    parser->SetScalarVariableValue("a", a);
+    parser->SetScalarVariableValue("b", b);
+    parser->SetScalarVariableValue("c", c);
+    parser->SetScalarVariableValue("d", d);
+    parser->SetScalarVariableValue("e", e);
+    parser->SetScalarVariableValue("f", f);
+    parser->SetScalarVariableValue("g", g);
+
+    double* result = parser->GetVectorResult();
+    if (parser->GetResultSize() != 7)
+    {
+      std::cerr << " Expected ResultSize to be 7 and not " << parser->GetResultSize() << "."
+                << std::endl;
+      status = STATUS_FAILURE;
+      continue;
+    }
+    std::array<double, 7> expected = { std::sin(a), std::cos(b), std::sin(c), std::cos(d),
+      std::sin(e), std::cos(f), std::sin(g) };
+    bool isEqual = std::equal(expected.begin(), expected.end(), result);
+    if (!isEqual)
+    {
+      std::cout << "\n";
+      std::cout << "{sin(a),cos(b),sin(c),sin(d),sin(e),sin(f),sin(g)}"
+                   " Expected ";
+      for (size_t j = 0; j < expected.size(); ++j)
+      {
+        std::cout << expected[j] << " ";
+      }
+      std::cout << " but got ";
+      for (size_t j = 0; j < expected.size(); ++j)
+      {
+        std::cout << result[j] << " ";
+      }
+      std::cout << std::endl;
       status = STATUS_FAILURE;
     }
   }

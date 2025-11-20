@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkExprTkFunctionParser.h"
 #include "vtkObjectFactory.h"
+#include "vtkStringFormatter.h"
 
 #include <algorithm>
 #include <cctype>
@@ -65,7 +66,7 @@ public:
     {
       return std::numeric_limits<T>::quiet_NaN();
     }
-    else if (exprtk::rtl::vecops::helper::invalid_range(x, r0, r1))
+    if (exprtk::rtl::vecops::helper::invalid_range(x, r0, r1))
     {
       return std::numeric_limits<T>::quiet_NaN();
     }
@@ -120,8 +121,13 @@ public:
     {
       return std::numeric_limits<T>::quiet_NaN();
     }
-    else if (exprtk::rtl::vecops::helper::invalid_range(y, r0, r1))
+    if (exprtk::rtl::vecops::helper::invalid_range(y, r0, r1))
     {
+      return std::numeric_limits<T>::quiet_NaN();
+    }
+    if (x.size() != 3 || y.size() != 3)
+    {
+      // cross product is only defined for 3D vectors
       return std::numeric_limits<T>::quiet_NaN();
     }
 
@@ -169,8 +175,13 @@ public:
     {
       return std::numeric_limits<T>::quiet_NaN();
     }
-    else if (exprtk::rtl::vecops::helper::invalid_range(y, r0, r1))
+    if (exprtk::rtl::vecops::helper::invalid_range(y, r0, r1))
     {
+      return std::numeric_limits<T>::quiet_NaN();
+    }
+    if (x.size() != 3 || y.size() != 3)
+    {
+      // cross product is only defined for 3D vectors
       return std::numeric_limits<T>::quiet_NaN();
     }
 
@@ -218,8 +229,13 @@ public:
     {
       return std::numeric_limits<T>::quiet_NaN();
     }
-    else if (exprtk::rtl::vecops::helper::invalid_range(y, r0, r1))
+    if (exprtk::rtl::vecops::helper::invalid_range(y, r0, r1))
     {
+      return std::numeric_limits<T>::quiet_NaN();
+    }
+    if (x.size() != 3 || y.size() != 3)
+    {
+      // cross product is only defined for 3D vectors
       return std::numeric_limits<T>::quiet_NaN();
     }
 
@@ -261,11 +277,6 @@ mag<double> magnitude;
 crossX<double> crossXProduct;
 crossY<double> crossYProduct;
 crossZ<double> crossZProduct;
-
-// the value that is returned as a result if there is an error
-double vtkParserErrorResult = std::numeric_limits<double>::quiet_NaN();
-double vtkParserVectorErrorResult[3] = { vtkParserErrorResult, vtkParserErrorResult,
-  vtkParserErrorResult };
 
 //------------------------------------------------------------------------------
 std::string RemoveSpacesFrom(std::string str)
@@ -350,6 +361,9 @@ vtkExprTkFunctionParser::vtkExprTkFunctionParser()
   this->ExprTkTools->Expression.register_symbol_table(this->ExprTkTools->SymbolTable);
   // enable the collection of variables, which will be used in UpdateNeededVariables
   this->ExprTkTools->Parser.dec().collect_variables() = true;
+  this->SizeMode = SizeModes::AutoDetected;
+  this->ResultType = ExprTkResultType::e_scalar;
+  this->ResultSize = 1;
 }
 
 //------------------------------------------------------------------------------
@@ -383,6 +397,16 @@ void vtkExprTkFunctionParser::SetFunction(const char* function)
   this->ScalarVariableNeeded.clear();
   this->VectorVariableNeeded.clear();
   this->Modified();
+}
+
+//------------------------------------------------------------------------------
+vtkExprTkFunctionParser::SizeModes vtkExprTkFunctionParser::DetermineSizeMode(
+  const std::string& function)
+{
+  // if first charachter is { and last is }, then VectorDefined
+  const std::string funcNoSpaces = RemoveSpacesFrom(function);
+  return funcNoSpaces.front() == '{' && funcNoSpaces.back() == '}' ? SizeModes::VectorDefined
+                                                                   : SizeModes::AutoDetected;
 }
 
 //------------------------------------------------------------------------------
@@ -443,24 +467,48 @@ int vtkExprTkFunctionParser::Parse(ParseMode mode)
   {
     // ExprTK, in order to extract vector and scalar results, and identify the result type,
     // it requires to "return results" instead of just evaluating an expression
-    this->ExpressionString = "return [" + this->FunctionWithUsedVariableNames + "];";
+    auto function = this->FunctionWithUsedVariableNames;
+    if (this->SizeMode == SizeModes::VectorDefined)
+    {
+      // remove { and } to extract the number of vector components as the number of results returned
+      vtksys::SystemTools::ReplaceString(function, "{", "");
+      vtksys::SystemTools::ReplaceString(function, "}", "");
+    }
+    this->ExpressionString = "return [" + function + "];";
   }
   else
   {
     // Since we know now the return type, we can assign the result to a result scalar/vector
-    std::string resultName = GenerateRandomAlphabeticString(10);
-    if (this->ResultType == ExprTkResultType::e_scalar)
+    const std::string resultName =
+      GenerateUniqueVariableName(this->UsedScalarVariableNames, "res_");
+    assert(this->ExprTkTools->SymbolTable.symbol_exists(resultName) == false);
+    if (this->SizeMode == SizeModes::AutoDetected)
     {
-      assert(this->ExprTkTools->SymbolTable.symbol_exists(resultName) == false);
-      this->ExprTkTools->SymbolTable.add_variable(resultName, this->Result[0]);
+      if (this->ResultType == ExprTkResultType::e_scalar)
+      {
+        this->ExprTkTools->SymbolTable.add_variable(resultName, this->Result[0]);
+      }
+      else
+      {
+        this->ExprTkTools->SymbolTable.add_vector(resultName, this->Result);
+      }
       this->ExpressionString = resultName + " := " + this->FunctionWithUsedVariableNames + ";";
     }
-    else
+    else // (this->SizeMode == SizeModes::VectorDefined)
     {
-      assert(this->ExprTkTools->SymbolTable.symbol_exists(resultName) == false);
-      this->ExprTkTools->SymbolTable.add_vector(
-        resultName, this->Result.GetData(), this->Result.GetSize());
-      this->ExpressionString = resultName + " := [" + this->FunctionWithUsedVariableNames + "];";
+      const std::string varName =
+        GenerateUniqueVariableName(this->UsedVectorVariableNames, "res_temp_");
+      assert(this->ExprTkTools->SymbolTable.symbol_exists(varName) == false);
+      if (this->ResultType == ExprTkResultType::e_scalar)
+      {
+        this->ExprTkTools->SymbolTable.add_variable(resultName, this->Result[0]);
+      }
+      else
+      {
+        this->ExprTkTools->SymbolTable.add_vector(resultName, this->Result);
+      }
+      this->ExpressionString = "var " + varName + "[" + vtk::to_string(this->ResultSize) +
+        "] := " + this->FunctionWithUsedVariableNames + "; " + resultName + " := " + varName + ";";
     }
   }
 
@@ -726,6 +774,7 @@ bool vtkExprTkFunctionParser::Evaluate()
 {
   if (this->FunctionMTime.GetMTime() > this->ParseMTime.GetMTime())
   {
+    this->SizeMode = DetermineSizeMode(this->FunctionWithUsedVariableNames);
     // compile with mode 0 to identify return type
     if (this->Parse(ParseMode::DetectReturnType) == 0)
     {
@@ -733,7 +782,38 @@ bool vtkExprTkFunctionParser::Evaluate()
     }
     // perform evaluation to identify the return type
     this->ExprTkTools->Expression.value();
-    this->ResultType = this->ExprTkTools->Expression.results()[0].type;
+    const auto& results = this->ExprTkTools->Expression.results();
+    if (this->SizeMode == SizeModes::AutoDetected)
+    {
+      auto result = results[0];
+      this->ResultType = result.type;
+      if (result.size != 0)
+      {
+        this->ResultSize = static_cast<int>(result.size);
+      }
+      else
+      {
+        // if the parser could not identify the size, set it to 3 for vector and 1 for scalar
+        this->ResultSize = this->ResultType == ExprTkResultType::e_vector ? 3 : 1;
+      }
+    }
+    else // (this->SizeMode == SizeModes::VectorDefined)
+    {
+      this->ResultSize = static_cast<int>(results.count());
+      this->ResultType =
+        this->ResultSize > 1 ? ExprTkResultType::e_vector : ExprTkResultType::e_scalar;
+      // assert that all results have type e_scalar and size 1
+      for (size_t i = 0; i < results.count(); ++i)
+      {
+        if (results[i].type != ExprTkResultType::e_scalar || results[i].size != 1)
+        {
+          vtkErrorMacro("In VectorDefined size mode, all components must be scalars of size 1.");
+          this->ResultType = ExprTkResultType::e_unknown;
+        }
+      }
+    }
+    this->Result.resize(this->ResultSize);
+    this->ParserErrorResult.resize(this->ResultSize, std::numeric_limits<double>::quiet_NaN());
 
     // compile with mode 1 to save results in the result array
     if (this->Parse(ParseMode::SaveResultInVariable) == 0)
@@ -743,6 +823,11 @@ bool vtkExprTkFunctionParser::Evaluate()
   }
   // perform evaluation
   this->ExprTkTools->Expression.value();
+  // check for invalid results
+  if (this->ResultType == ExprTkResultType::e_unknown)
+  {
+    return false;
+  }
 
   switch (this->ResultType)
   {
@@ -761,7 +846,7 @@ bool vtkExprTkFunctionParser::Evaluate()
       }
       break;
     case ExprTkResultType::e_vector:
-      for (int i = 0; i < 3; i++)
+      for (int i = 0; i < this->ResultSize; i++)
       {
         if (std::isnan(this->Result[i]) || std::isinf(this->Result[i]))
         {
@@ -801,7 +886,7 @@ double vtkExprTkFunctionParser::GetScalarResult()
   if (!(this->IsScalarResult()))
   {
     vtkErrorMacro("GetScalarResult: no valid scalar result");
-    return vtkParserErrorResult;
+    return this->ParserErrorResult[0];
   }
   return this->Result[0];
 }
@@ -822,9 +907,9 @@ double* vtkExprTkFunctionParser::GetVectorResult()
   if (!(this->IsVectorResult()))
   {
     vtkErrorMacro("GetVectorResult: no valid vector result");
-    return vtkParserVectorErrorResult;
+    return this->ParserErrorResult.data();
   }
-  return this->Result.GetData();
+  return this->Result.data();
 }
 
 //------------------------------------------------------------------------------
@@ -930,7 +1015,7 @@ double vtkExprTkFunctionParser::GetScalarVariableValue(const std::string& inVari
   }
   vtkErrorMacro(
     "GetScalarVariableValue: scalar variable name " << inVariableName << " does not exist");
-  return vtkParserErrorResult;
+  return this->ParserErrorResult[0];
 }
 
 //------------------------------------------------------------------------------
@@ -939,7 +1024,7 @@ double vtkExprTkFunctionParser::GetScalarVariableValue(int i)
   if (i < 0 || i >= this->GetNumberOfScalarVariables())
   {
     vtkErrorMacro("GetScalarVariableValue: scalar variable number " << i << " does not exist");
-    return vtkParserErrorResult;
+    return this->ParserErrorResult[0];
   }
 
   return *this->ScalarVariableValues[i];
@@ -947,7 +1032,7 @@ double vtkExprTkFunctionParser::GetScalarVariableValue(int i)
 
 //------------------------------------------------------------------------------
 void vtkExprTkFunctionParser::SetVectorVariableValue(
-  const std::string& inVariableName, double xValue, double yValue, double zValue)
+  const std::string& inVariableName, double* values, int size)
 {
   if (inVariableName.empty())
   {
@@ -968,23 +1053,21 @@ void vtkExprTkFunctionParser::SetVectorVariableValue(
   {
     if (this->OriginalVectorVariableNames[i] == inVariableName)
     {
-      if ((*this->VectorVariableValues[i])[0] != xValue ||
-        (*this->VectorVariableValues[i])[1] != yValue ||
-        (*this->VectorVariableValues[i])[2] != zValue)
+      this->VectorVariableValues[i]->resize(size);
+      bool isEqual = std::equal(
+        this->VectorVariableValues[i]->begin(), this->VectorVariableValues[i]->end(), values);
+      if (!isEqual)
       {
-        (*this->VectorVariableValues[i])[0] = xValue;
-        (*this->VectorVariableValues[i])[1] = yValue;
-        (*this->VectorVariableValues[i])[2] = zValue;
+        std::copy_n(values, size, this->VectorVariableValues[i]->begin());
         this->Modified();
       }
       return;
     }
   }
 
-  vtkTuple<double, 3>* vector = new vtkTuple<double, 3>();
-  (*vector)[0] = xValue;
-  (*vector)[1] = yValue;
-  (*vector)[2] = zValue;
+  std::vector<double>* vector = new std::vector<double>();
+  vector->resize(size);
+  std::copy_n(values, size, vector->begin());
 
   // if variable name is not sanitized, create a unique sanitized string and set it as variable name
   std::string variableName = vtkExprTkFunctionParser::SanitizeName(inVariableName.c_str());
@@ -993,8 +1076,7 @@ void vtkExprTkFunctionParser::SetVectorVariableValue(
     variableName = GenerateUniqueVariableName(this->UsedVectorVariableNames, inVariableName);
   }
   // check if variable is a registered keyword, e.g. sin().
-  bool additionResult =
-    this->ExprTkTools->SymbolTable.add_vector(variableName, vector->GetData(), vector->GetSize());
+  bool additionResult = this->ExprTkTools->SymbolTable.add_vector(variableName, *vector);
   if (additionResult)
   {
     this->VectorVariableValues.push_back(vector);
@@ -1010,19 +1092,18 @@ void vtkExprTkFunctionParser::SetVectorVariableValue(
 }
 
 //------------------------------------------------------------------------------
-void vtkExprTkFunctionParser::SetVectorVariableValue(
-  int i, double xValue, double yValue, double zValue)
+void vtkExprTkFunctionParser::SetVectorVariableValue(int i, double* values, int size)
 {
   if (i < 0 || i >= this->GetNumberOfVectorVariables())
   {
     return;
   }
-  if ((*this->VectorVariableValues[i])[0] != xValue ||
-    (*this->VectorVariableValues[i])[1] != yValue || (*this->VectorVariableValues[i])[2] != zValue)
+  this->VectorVariableValues[i]->resize(size);
+  bool isEqual = std::equal(
+    this->VectorVariableValues[i]->begin(), this->VectorVariableValues[i]->end(), values);
+  if (!isEqual)
   {
-    (*this->VectorVariableValues[i])[0] = xValue;
-    (*this->VectorVariableValues[i])[1] = yValue;
-    (*this->VectorVariableValues[i])[2] = zValue;
+    std::copy_n(values, size, this->VectorVariableValues[i]->begin());
   }
 }
 
@@ -1033,12 +1114,12 @@ double* vtkExprTkFunctionParser::GetVectorVariableValue(const std::string& inVar
   {
     if (this->OriginalVectorVariableNames[i] == inVariableName)
     {
-      return this->VectorVariableValues[i]->GetData();
+      return this->VectorVariableValues[i]->data();
     }
   }
   vtkErrorMacro(
     "GetVectorVariableValue: vector variable name " << inVariableName << " does not exist");
-  return vtkParserVectorErrorResult;
+  return this->ParserErrorResult.data();
 }
 
 //------------------------------------------------------------------------------
@@ -1047,9 +1128,9 @@ double* vtkExprTkFunctionParser::GetVectorVariableValue(int i)
   if (i < 0 || i >= this->GetNumberOfVectorVariables())
   {
     vtkErrorMacro("GetVectorVariableValue: vector variable number " << i << " does not exist");
-    return vtkParserVectorErrorResult;
+    return this->ParserErrorResult.data();
   }
-  return this->VectorVariableValues[i]->GetData();
+  return this->VectorVariableValues[i]->data();
 }
 
 //------------------------------------------------------------------------------
@@ -1106,6 +1187,9 @@ void vtkExprTkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
+  os << indent << "SizeMode: "
+     << (this->GetSizeMode() == SizeModes::AutoDetected ? "AutoDetected" : "UserProvided") << endl;
+  os << indent << "ResultSize: " << this->ResultSize << endl;
   os << indent << "Function: " << (this->GetFunction() ? this->GetFunction() : "(none)") << endl;
 
   os << indent << "FunctionWithUsedVariableNames: "
@@ -1125,9 +1209,16 @@ void vtkExprTkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
   for (size_t i = 0; i < this->OriginalVectorVariableNames.size(); i++)
   {
     os << indent << "  " << this->OriginalVectorVariableNames[i] << " / "
-       << this->UsedVectorVariableNames[i] << ": (" << (*this->VectorVariableValues[i])[0] << ", "
-       << (*this->VectorVariableValues[i])[1] << ", " << (*this->VectorVariableValues[i])[2] << ")"
-       << endl;
+       << this->UsedVectorVariableNames[i] << ": (";
+    for (size_t j = 0; j < this->VectorVariableValues[i]->size(); j++)
+    {
+      if (j > 0)
+      {
+        os << ", ";
+      }
+      os << (*this->VectorVariableValues[i])[j];
+    }
+    os << ")" << endl;
   }
 
   if (!this->Function.empty() && this->ExprTkTools->Expression.results().count() > 0)
@@ -1142,9 +1233,16 @@ void vtkExprTkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
     {
       os << indent << "ScalarResult: "
          << "(none)" << endl;
-      os << indent << "VectorResult: "
-         << "(" << this->GetVectorResult()[0] << ", " << this->GetVectorResult()[1] << ", "
-         << this->GetVectorResult()[2] << ")" << endl;
+      os << indent << "VectorResult: (";
+      for (int i = 0; i < this->ResultSize; i++)
+      {
+        if (i > 0)
+        {
+          os << ", ";
+        }
+        os << this->Result[i];
+      }
+      os << ")" << endl;
     }
   }
   else
