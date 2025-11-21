@@ -57,6 +57,11 @@ public:
   vtkGetMacro(SocketDescriptor, int);
 
   /**
+   * The address the socket is bound to.
+   */
+  vtkGetMacro(BoundAddress, std::string);
+
+  /**
    * Selects set of sockets. Returns 0 on timeout, -1 on error.
    * 1 on success. Selected socket's index is returned through
    * selected_index
@@ -123,6 +128,8 @@ protected:
   int GetPort(int socketdescriptor);
 
 private:
+  std::string BoundAddress;
+
   vtkSocket(const vtkSocket&) = delete;
   void operator=(const vtkSocket&) = delete;
 };
