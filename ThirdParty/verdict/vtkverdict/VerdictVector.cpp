@@ -21,22 +21,22 @@
 #include "VerdictVector.hpp"
 #include "verdict.h"
 
-#include <cmath>
+#include <math.h>
 
 namespace VERDICT_NAMESPACE
 {
 
 // scale the length of the vector to be the new_length
-VerdictVector& VerdictVector::length(const double new_length)
+VERDICT_HOST_DEVICE VerdictVector& VerdictVector::length(const double new_length)
 {
   double len = this->length();
-  xVal *= new_length / len;
-  yVal *= new_length / len;
-  zVal *= new_length / len;
+  Val[0] *= new_length / len;
+  Val[1] *= new_length / len;
+  Val[2] *= new_length / len;
   return *this;
 }
 
-double VerdictVector::interior_angle(const VerdictVector& otherVector)
+VERDICT_HOST_DEVICE double VerdictVector::interior_angle(const VerdictVector& otherVector)
 {
   double cosAngle = 0., angleRad = 0., len1, len2 = 0.;
 
@@ -46,37 +46,51 @@ double VerdictVector::interior_angle(const VerdictVector& otherVector)
   }
   else
   {
+#ifndef __HIP_DEVICE_COMPILE__
     assert(len1 > 0);
     assert(len2 > 0);
+#endif
   }
 
   if ((cosAngle > 1.0) && (cosAngle < 1.0001))
   {
     cosAngle = 1.0;
-    angleRad = std::acos(cosAngle);
+    angleRad = acos(cosAngle);
   }
   else if (cosAngle < -1.0 && cosAngle > -1.0001)
   {
     cosAngle = -1.0;
-    angleRad = std::acos(cosAngle);
+    angleRad = acos(cosAngle);
   }
   else if (cosAngle >= -1.0 && cosAngle <= 1.0)
   {
-    angleRad = std::acos(cosAngle);
+    angleRad = acos(cosAngle);
   }
   else
   {
+#ifndef __HIP_DEVICE_COMPILE__
     assert(cosAngle < 1.0001 && cosAngle > -1.0001);
+#endif
   }
 
   return ((angleRad * 180.) / VERDICT_PI);
 }
 
-VerdictVector::VerdictVector(const double xyz[3])
-  : xVal(xyz[0])
-  , yVal(xyz[1])
-  , zVal(xyz[2])
+VERDICT_HOST_DEVICE double VerdictVector::normalize()
 {
+  double mag = length();
+  if (mag > VERDICT_DBL_MIN*2.0)
+  {
+    Val[0] = Val[0] / mag;
+    Val[1] = Val[1] / mag;
+    Val[2] = Val[2] / mag;
+    return mag;
+  }
+  Val[0] = 0.0;
+  Val[1] = 0.0;
+  Val[2] = 0.0;
+  return 0;
 }
+
 
 } // namespace verdict

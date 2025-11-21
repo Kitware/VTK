@@ -23,7 +23,7 @@
 
 namespace VERDICT_NAMESPACE
 {
-void GaussIntegration::initialize(int n, int m, int dim, int tri)
+VERDICT_HOST_DEVICE void GaussIntegration::initialize(int n, int m, int dim, int tri)
 {
   numberGaussPoints = n;
   numberNodes = m;
@@ -54,7 +54,7 @@ void GaussIntegration::initialize(int n, int m, int dim, int tri)
   }
 }
 
-void GaussIntegration::get_shape_func(double shape_function[], double dndy1_at_gauss_pts[],
+VERDICT_HOST_DEVICE void GaussIntegration::get_shape_func(double shape_function[], double dndy1_at_gauss_pts[],
   double dndy2_at_gauss_pts[], double gauss_weight[])
 {
   int i, j;
@@ -74,7 +74,7 @@ void GaussIntegration::get_shape_func(double shape_function[], double dndy1_at_g
   }
 }
 
-void GaussIntegration::get_shape_func(double shape_function[], double dndy1_at_gauss_pts[],
+VERDICT_HOST_DEVICE void GaussIntegration::get_shape_func(double shape_function[], double dndy1_at_gauss_pts[],
   double dndy2_at_gauss_pts[], double dndy3_at_gauss_pts[], double gauss_weight[])
 {
   int i, j;
@@ -95,7 +95,7 @@ void GaussIntegration::get_shape_func(double shape_function[], double dndy1_at_g
   }
 }
 
-void GaussIntegration::get_gauss_pts_and_weight()
+VERDICT_HOST_DEVICE void GaussIntegration::get_gauss_pts_and_weight()
 {
 
   switch (numberGaussPoints)
@@ -121,7 +121,7 @@ void GaussIntegration::get_gauss_pts_and_weight()
   }
 }
 
-void GaussIntegration::calculate_shape_function_2d_quad()
+VERDICT_HOST_DEVICE void GaussIntegration::calculate_shape_function_2d_quad()
 {
   int ife = 0, i, j;
   double y1, y2;
@@ -200,7 +200,7 @@ void GaussIntegration::calculate_shape_function_2d_quad()
   }
 }
 
-void GaussIntegration::calculate_shape_function_3d_hex()
+VERDICT_HOST_DEVICE void GaussIntegration::calculate_shape_function_3d_hex()
 {
   int ife = 0, i, j, k, node_id;
   double y1, y2, y3, sign_node_y1, sign_node_y2, sign_node_y3;
@@ -327,7 +327,7 @@ void GaussIntegration::calculate_shape_function_3d_hex()
   }
 }
 
-void GaussIntegration::calculate_derivative_at_nodes(
+VERDICT_HOST_DEVICE void GaussIntegration::calculate_derivative_at_nodes(
   double dndy1_at_nodes[][maxNumberNodes], double dndy2_at_nodes[][maxNumberNodes])
 {
   double y1 = 0., y2 = 0.;
@@ -419,7 +419,7 @@ void GaussIntegration::calculate_derivative_at_nodes(
   }
 }
 
-void GaussIntegration::calculate_derivative_at_nodes_3d(double dndy1_at_nodes[][maxNumberNodes],
+VERDICT_HOST_DEVICE void GaussIntegration::calculate_derivative_at_nodes_3d(double dndy1_at_nodes[][maxNumberNodes],
   double dndy2_at_nodes[][maxNumberNodes], double dndy3_at_nodes[][maxNumberNodes])
 {
   double y1, y2, y3, sign_node_y1, sign_node_y2, sign_node_y3;
@@ -514,7 +514,7 @@ void GaussIntegration::calculate_derivative_at_nodes_3d(double dndy1_at_nodes[][
   }
 }
 
-void GaussIntegration::get_signs_for_node_local_coord_hex(
+VERDICT_HOST_DEVICE void GaussIntegration::get_signs_for_node_local_coord_hex(
   int node_id, double& sign_node_y1, double& sign_node_y2, double& sign_node_y3)
 {
   switch (node_id)
@@ -629,7 +629,7 @@ void GaussIntegration::get_signs_for_node_local_coord_hex(
   }
 }
 
-void GaussIntegration::get_tri_rule_pts_and_weight()
+VERDICT_HOST_DEVICE void GaussIntegration::get_tri_rule_pts_and_weight()
 {
   // get triangular rule integration points and weight
   switch (numberGaussPoints)
@@ -666,7 +666,7 @@ void GaussIntegration::get_tri_rule_pts_and_weight()
   }
 }
 
-void GaussIntegration::calculate_shape_function_2d_tri()
+VERDICT_HOST_DEVICE void GaussIntegration::calculate_shape_function_2d_tri()
 {
   int ife;
   double y1, y2, y3;
@@ -704,7 +704,7 @@ void GaussIntegration::calculate_shape_function_2d_tri()
   }
 }
 
-void GaussIntegration::calculate_derivative_at_nodes_2d_tri(
+VERDICT_HOST_DEVICE void GaussIntegration::calculate_derivative_at_nodes_2d_tri(
   double dndy1_at_nodes[][maxNumberNodes], double dndy2_at_nodes[][maxNumberNodes])
 {
   double y1 = 0., y2 = 0., y3;
@@ -759,7 +759,7 @@ void GaussIntegration::calculate_derivative_at_nodes_2d_tri(
   }
 }
 
-void GaussIntegration::get_tet_rule_pts_and_weight()
+VERDICT_HOST_DEVICE void GaussIntegration::get_tet_rule_pts_and_weight()
 {
   // get tetrahedron rule integration points and weight
   double a, b;
@@ -807,7 +807,7 @@ void GaussIntegration::get_tet_rule_pts_and_weight()
   }
 }
 
-void GaussIntegration::calculate_shape_function_3d_tet()
+VERDICT_HOST_DEVICE void GaussIntegration::calculate_shape_function_3d_tet()
 {
   int ife;
   double y1, y2, y3, y4;
@@ -913,7 +913,7 @@ void GaussIntegration::calculate_shape_function_3d_tet()
   }
 }
 
-void GaussIntegration::calculate_derivative_at_nodes_3d_tet(double dndy1_at_nodes[][maxNumberNodes],
+VERDICT_HOST_DEVICE void GaussIntegration::calculate_derivative_at_nodes_3d_tet(double dndy1_at_nodes[][maxNumberNodes],
   double dndy2_at_nodes[][maxNumberNodes], double dndy3_at_nodes[][maxNumberNodes])
 {
   double y1, y2, y3, y4;
@@ -989,7 +989,7 @@ void GaussIntegration::calculate_derivative_at_nodes_3d_tet(double dndy1_at_node
   }
 }
 
-void GaussIntegration::get_node_local_coord_tet(
+VERDICT_HOST_DEVICE void GaussIntegration::get_node_local_coord_tet(
   int node_id, double& y1, double& y2, double& y3, double& y4)
 {
   switch (node_id)
