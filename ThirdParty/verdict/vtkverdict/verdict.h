@@ -24,7 +24,15 @@
 #ifndef __verdict_h
 #define __verdict_h
 
+#include <math.h>
+#include <limits>
 #include "verdict_config.h"
+
+#if defined(__CUDACC__) || defined(__HIPCC__)
+#define VERDICT_HOST_DEVICE __host__ __device__
+#else
+#define VERDICT_HOST_DEVICE
+#endif
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 #define VERDICT_ABI_IMPORT __declspec(dllimport)
@@ -39,12 +47,12 @@
 
 #if defined(VERDICT_SHARED_LIB)
 #ifdef verdict_EXPORTS
-#define VERDICT_EXPORT VERDICT_ABI_EXPORT
+#define VERDICT_EXPORT VERDICT_ABI_EXPORT VERDICT_HOST_DEVICE
 #else
-#define VERDICT_EXPORT VERDICT_ABI_IMPORT
+#define VERDICT_EXPORT VERDICT_ABI_IMPORT VERDICT_HOST_DEVICE
 #endif
 #else
-#define VERDICT_EXPORT
+#define VERDICT_EXPORT VERDICT_HOST_DEVICE
 #endif
 
 #ifndef VERDICT_NAMESPACE
@@ -119,9 +127,9 @@ using namespace VERDICT_NAMESPACE;
 
 namespace VERDICT_NAMESPACE
 {
-const double VERDICT_DBL_MIN = 1.0E-30;
-const double VERDICT_DBL_MAX = 1.0E+30;
-const double VERDICT_PI = 3.1415926535897932384626;
+static constexpr double VERDICT_DBL_MIN = 2.2204460492503131e-015;  // DBL_EPSILON * 10
+static constexpr double VERDICT_DBL_MAX = 1.0E+30;
+static constexpr double VERDICT_PI = 3.1415926535897932384626;
 
 /* quality functions for hex elements */
 

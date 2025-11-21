@@ -24,7 +24,7 @@
 #include "verdict.h"
 
 #include <cassert>
-#include <cmath>
+#include <math.h>
 
 namespace VERDICT_NAMESPACE
 {
@@ -32,7 +32,7 @@ namespace VERDICT_NAMESPACE
 //  Compute jacobian at each of the eight hex corner nodes
 //
 template <typename T>
-void hex_nodal_jacobians(const T coords[24], T Jdet8x[8])
+VERDICT_HOST_DEVICE void hex_nodal_jacobians(const T coords[24], T Jdet8x[8])
 {
   T x0 = coords[0];
   T y0 = coords[1];

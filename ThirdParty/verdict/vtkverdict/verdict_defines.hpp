@@ -22,10 +22,21 @@
 
 #include "VerdictVector.hpp"
 
-#include <cmath>
+#include <math.h>
 
 namespace VERDICT_NAMESPACE
 {
+
+  static constexpr double sqrt2 = 1.414213562373095048801689;
+  static constexpr double sqrt3 = 1.732050807568877293527446;
+  static constexpr double sqrt6 = 2.449489742783178098197284;
+  static constexpr double sqrt2_2 = sqrt2 / 2.0;
+
+  static constexpr double one_third = 1.0 / 3.0;
+  static constexpr double two_thirds = 2.0 / 3.0;
+  static constexpr double one_fourth = 1.0 / 4.0;
+  static constexpr double four_ninths = 4.0 / 9.0;
+
 
 enum VerdictBoolean
 {
@@ -33,19 +44,17 @@ enum VerdictBoolean
   VERDICT_TRUE = 1
 };
 
-inline double determinant(double a, double b, double c, double d)
+VERDICT_HOST_DEVICE inline double determinant(double a, double b, double c, double d)
 {
   return ((a) * (d) - (b) * (c));
 }
 
-inline double determinant(VerdictVector v1, VerdictVector v2, VerdictVector v3)
+VERDICT_HOST_DEVICE inline double determinant(VerdictVector v1, VerdictVector v2, VerdictVector v3)
 {
   return VerdictVector::Dot(v1, (v2 * v3));
 }
 
-static const double sqrt_2 = std::sqrt(2.0);
-
-inline double normalize_jacobian(
+VERDICT_HOST_DEVICE inline double normalize_jacobian(
   double jacobi, VerdictVector& v1, VerdictVector& v2, VerdictVector& v3, int tet_flag = 0)
 {
   double return_value = 0.0;
@@ -60,18 +69,18 @@ inline double normalize_jacobian(
     l1 = v1.length_squared();
     l2 = v2.length_squared();
     l3 = v3.length_squared();
-    length_product = std::sqrt(l1 * l2 * l3);
+    length_product = sqrt(l1 * l2 * l3);
 
     // if some numerical scaling problem, or just plain roundoff,
     // then push back into range [-1,1].
-    if (length_product < std::abs(jacobi))
+    if (length_product < fabs(jacobi))
     {
-      length_product = std::abs(jacobi);
+      length_product = fabs(jacobi);
     }
 
     if (tet_flag == 1)
     {
-      return_value = sqrt_2 * jacobi / length_product;
+      return_value = sqrt2 * jacobi / length_product;
     }
     else
     {
@@ -81,15 +90,15 @@ inline double normalize_jacobian(
   return return_value;
 }
 
-inline double norm_squared(double m11, double m21, double m12, double m22)
+VERDICT_HOST_DEVICE inline double norm_squared(double m11, double m21, double m12, double m22)
 {
   return m11 * m11 + m21 * m21 + m12 * m12 + m22 * m22;
 }
 
-inline int skew_matrix(double gm11, double gm12, double gm22, double det, double& qm11,
+VERDICT_HOST_DEVICE inline int skew_matrix(double gm11, double gm12, double gm22, double det, double& qm11,
   double& qm21, double& qm12, double& qm22)
 {
-  double tmp = std::sqrt(gm11 * gm22);
+  double tmp = sqrt(gm11 * gm22);
   if (tmp == 0)
   {
     return false;
@@ -102,7 +111,7 @@ inline int skew_matrix(double gm11, double gm12, double gm22, double det, double
   return true;
 }
 
-inline void inverse(VerdictVector x1, VerdictVector x2, VerdictVector x3, VerdictVector& u1,
+VERDICT_HOST_DEVICE inline void inverse(VerdictVector x1, VerdictVector x2, VerdictVector x3, VerdictVector& u1,
   VerdictVector& u2, VerdictVector& u3)
 {
   double detx = determinant(x1, x2, x3);
@@ -121,7 +130,7 @@ inline void inverse(VerdictVector x1, VerdictVector x2, VerdictVector x3, Verdic
   u3 /= detx;
 }
 
-inline void form_Q(const VerdictVector& v1, const VerdictVector& v2, const VerdictVector& v3,
+VERDICT_HOST_DEVICE inline void form_Q(const VerdictVector& v1, const VerdictVector& v2, const VerdictVector& v3,
   VerdictVector& q1, VerdictVector& q2, VerdictVector& q3)
 {
   double g11, g12, g13, g22, g23, g33;
@@ -133,14 +142,14 @@ inline void form_Q(const VerdictVector& v1, const VerdictVector& v2, const Verdi
   g23 = VerdictVector::Dot(v2, v3);
   g33 = VerdictVector::Dot(v3, v3);
 
-  double rtg11 = std::sqrt(g11);
-  double rtg22 = std::sqrt(g22);
-  double rtg33 = std::sqrt(g33);
+  double rtg11 = sqrt(g11);
+  double rtg22 = sqrt(g22);
+  double rtg33 = sqrt(g33);
   VerdictVector temp1;
 
   temp1 = v1 * v2;
 
-  double cross = std::sqrt(VerdictVector::Dot(temp1, temp1));
+  double cross = sqrt(VerdictVector::Dot(temp1, temp1));
 
   double q11, q21, q31;
   double q12, q22, q32;
@@ -164,7 +173,7 @@ inline void form_Q(const VerdictVector& v1, const VerdictVector& v2, const Verdi
   q3.set(q13, q23, q33);
 }
 
-inline void product(VerdictVector& a1, VerdictVector& a2, VerdictVector& a3, VerdictVector& b1,
+VERDICT_HOST_DEVICE inline void product(VerdictVector& a1, VerdictVector& a2, VerdictVector& a3, VerdictVector& b1,
   VerdictVector& b2, VerdictVector& b3, VerdictVector& c1, VerdictVector& c2, VerdictVector& c3)
 {
   VerdictVector x1, x2, x3;
@@ -178,13 +187,13 @@ inline void product(VerdictVector& a1, VerdictVector& a2, VerdictVector& a3, Ver
   c3.set(VerdictVector::Dot(x1, b3), VerdictVector::Dot(x2, b3), VerdictVector::Dot(x3, b3));
 }
 
-inline double norm_squared(VerdictVector& x1, VerdictVector& x2, VerdictVector& x3)
+VERDICT_HOST_DEVICE inline double norm_squared(VerdictVector& x1, VerdictVector& x2, VerdictVector& x3)
 
 {
   return VerdictVector::Dot(x1, x1) + VerdictVector::Dot(x2, x2) + VerdictVector::Dot(x3, x3);
 }
 
-inline double skew_x(VerdictVector& q1, VerdictVector& q2, VerdictVector& q3, VerdictVector& qw1,
+VERDICT_HOST_DEVICE inline double skew_x(VerdictVector& q1, VerdictVector& q2, VerdictVector& q3, VerdictVector& qw1,
   VerdictVector& qw2, VerdictVector& qw3)
 {
   double normsq1, normsq2, kappa;
@@ -196,7 +205,7 @@ inline double skew_x(VerdictVector& q1, VerdictVector& q2, VerdictVector& q3, Ve
   inverse(x1, x2, x3, u1, u2, u3);
   normsq1 = norm_squared(x1, x2, x3);
   normsq2 = norm_squared(u1, u2, u3);
-  kappa = std::sqrt(normsq1 * normsq2);
+  kappa = sqrt(normsq1 * normsq2);
 
   double skew = 0;
   if (kappa > VERDICT_DBL_MIN)

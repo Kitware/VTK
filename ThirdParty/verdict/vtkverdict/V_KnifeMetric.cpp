@@ -50,7 +50,7 @@ namespace VERDICT_NAMESPACE
   this is done by dividing the knife into 4 tets
   and summing the volumes of each.
  */
-double knife_volume(int num_nodes, const double coordinates[][3])
+VERDICT_HOST_DEVICE double knife_volume(int num_nodes, const double coordinates[][3])
 {
   double volume = 0;
   VerdictVector side1, side2, side3;
