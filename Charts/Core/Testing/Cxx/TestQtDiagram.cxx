@@ -17,6 +17,8 @@
 
 #include <QApplication>
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //------------------------------------------------------------------------------
@@ -53,7 +55,7 @@ int TestQtDiagram(int argc, char* argv[])
   {
     // This should never happen as this test is only compiled when VTK_USE_QT
     // is defined.
-    cerr << "Qt label rendering not available." << endl;
+    std::cerr << "Qt label rendering not available." << std::endl;
     return 1;
   }
 

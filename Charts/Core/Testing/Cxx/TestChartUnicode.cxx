@@ -11,10 +11,10 @@
 #include "vtkPlot.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
 
+#include <iostream>
 #include <string>
 
 //------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ int TestChartUnicode(int argc, char* argv[])
 {
   if (argc < 2)
   {
-    cout << "Missing font filename." << endl;
+    std::cout << "Missing font filename." << std::endl;
     return EXIT_FAILURE;
   }
 

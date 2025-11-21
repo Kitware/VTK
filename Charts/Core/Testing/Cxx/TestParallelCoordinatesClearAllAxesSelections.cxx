@@ -19,6 +19,8 @@
 #include <vtkRenderer.h>
 #include <vtkTable.h>
 
+#include <iostream>
+
 static const char* eventLog = "# StreamVersion 1.2\n"
                               "ExposeEvent 0 399 0 0 0 0 0\n"
                               "TimerEvent 0 399 0 0 0 0 0\n"
