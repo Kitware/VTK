@@ -787,7 +787,8 @@ int MeshQuality(int argc, char* argv[])
     VTK_HIGHER_ORDER_TRIANGLE, VTK_LAGRANGE_TRIANGLE, VTK_BEZIER_TRIANGLE };
   constexpr vtkMeshQuality::QualityMeasureTypes QuadraticTriangleMetrics[] = {
     vtkMeshQuality::QualityMeasureTypes::AREA, vtkMeshQuality::QualityMeasureTypes::DISTORTION,
-    vtkMeshQuality::QualityMeasureTypes::NORMALIZED_INRADIUS
+    vtkMeshQuality::QualityMeasureTypes::NORMALIZED_INRADIUS,
+    vtkMeshQuality::QualityMeasureTypes::SCALED_JACOBIAN
   };
   constexpr vtkMeshQuality::QualityMeasureTypes BiQuadraticTriangleMetrics[] = {
     vtkMeshQuality::QualityMeasureTypes::AREA, vtkMeshQuality::QualityMeasureTypes::DISTORTION
@@ -807,8 +808,10 @@ int MeshQuality(int argc, char* argv[])
   constexpr vtkMeshQuality::QualityMeasureTypes QuadraticTetraMetrics[] = {
     vtkMeshQuality::QualityMeasureTypes::DISTORTION,
     vtkMeshQuality::QualityMeasureTypes::EQUIVOLUME_SKEW,
-    vtkMeshQuality::QualityMeasureTypes::INRADIUS, vtkMeshQuality::QualityMeasureTypes::MEAN_RATIO,
+    vtkMeshQuality::QualityMeasureTypes::INRADIUS, vtkMeshQuality::QualityMeasureTypes::JACOBIAN,
+    vtkMeshQuality::QualityMeasureTypes::MEAN_RATIO,
     vtkMeshQuality::QualityMeasureTypes::NORMALIZED_INRADIUS,
+    vtkMeshQuality::QualityMeasureTypes::SCALED_JACOBIAN,
     vtkMeshQuality::QualityMeasureTypes::VOLUME
   };
 

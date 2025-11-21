@@ -752,7 +752,7 @@ public:
   /**
    * Calculate the scaled Jacobian of a triangle.
    *
-   * @note Supports only vtkTriangle.
+   * @note Supports only vtkTriangle, vtkQuadraticTriangle.
    */
   static double TriangleScaledJacobian(vtkCell* cell, bool linearApproximation = false);
 
@@ -1102,7 +1102,7 @@ public:
    * Calculate the Jacobian of a tetrahedron.
    * The jacobian of a tetrahedron is the minimum point-wise volume at any corner.
    *
-   * @note Supports only vtkTetra.
+   * @note Supports only vtkTetra, vtkQuadraticTetra.
    */
   static double TetJacobian(vtkCell* cell, bool linearApproximation = false);
 
@@ -1160,7 +1160,7 @@ public:
    * The scaled jacobian of a tetrahedron is the minimum Jacobian divided
    * by the lengths of 3 edge vectors.
    *
-   * @note Supports only vtkTetra.
+   * @note Supports only vtkTetra and vtkQuadraticTetra.
    */
   static double TetScaledJacobian(vtkCell* cell, bool linearApproximation = false);
 

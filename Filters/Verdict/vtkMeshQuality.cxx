@@ -819,6 +819,8 @@ vtkMeshQuality::CellQualityType vtkMeshQuality::GetQuadraticTriangleQualityMeasu
       return TriangleDistortion;
     case QualityMeasureTypes::NORMALIZED_INRADIUS:
       return TriangleNormalizedInradius;
+    case QualityMeasureTypes::SCALED_JACOBIAN:
+      return TriangleScaledJacobian;
     default:
       vtkWarningMacro(
         << "Quadratic Triangle does not support metric ("
@@ -999,10 +1001,14 @@ vtkMeshQuality::CellQualityType vtkMeshQuality::GetQuadraticTetQualityMeasureFun
       return TetEquivolumeSkew;
     case QualityMeasureTypes::INRADIUS:
       return TetInradius;
+    case QualityMeasureTypes::JACOBIAN:
+      return TetJacobian;
     case QualityMeasureTypes::MEAN_RATIO:
       return TetMeanRatio;
     case QualityMeasureTypes::NORMALIZED_INRADIUS:
       return TetNormalizedInradius;
+    case QualityMeasureTypes::SCALED_JACOBIAN:
+      return TetScaledJacobian;
     case QualityMeasureTypes::VOLUME:
       return TetVolume;
     default:
@@ -1495,12 +1501,14 @@ double vtkMeshQuality::TriangleRelativeSizeSquared(
 }
 
 //----------------------------------------------------------------------------
-double vtkMeshQuality::TriangleScaledJacobian(vtkCell* cell, bool vtkNotUsed(linearApproximation))
+double vtkMeshQuality::TriangleScaledJacobian(vtkCell* cell, bool linearApproximation)
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
   auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
-
-  return verdict::tri_scaled_jacobian(3, pc);
+  const int ct = cell->GetCellType();
+  const int numPts =
+    ct == VTK_QUADRATIC_TRIANGLE && !linearApproximation ? points->GetNumberOfTuples() : 3;
+  return verdict::tri_scaled_jacobian(numPts, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1833,11 +1841,14 @@ double vtkMeshQuality::TetInradius(vtkCell* cell, bool linearApproximation)
 }
 
 //----------------------------------------------------------------------------
-double vtkMeshQuality::TetJacobian(vtkCell* cell, bool vtkNotUsed(linearApproximation))
+double vtkMeshQuality::TetJacobian(vtkCell* cell, bool linearApproximation)
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
   auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
-  return verdict::tet_jacobian(4, pc);
+  const int ct = cell->GetCellType();
+  const int numPts =
+    ct == VTK_QUADRATIC_TETRA && !linearApproximation ? points->GetNumberOfTuples() : 4;
+  return verdict::tet_jacobian(numPts, pc);
 }
 
 //----------------------------------------------------------------------------
@@ -1892,11 +1903,14 @@ double vtkMeshQuality::TetRelativeSizeSquared(vtkCell* cell, bool vtkNotUsed(lin
 }
 
 //----------------------------------------------------------------------------
-double vtkMeshQuality::TetScaledJacobian(vtkCell* cell, bool vtkNotUsed(linearApproximation))
+double vtkMeshQuality::TetScaledJacobian(vtkCell* cell, bool linearApproximation)
 {
   auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
   auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
-  return verdict::tet_scaled_jacobian(4, pc);
+  const int ct = cell->GetCellType();
+  const int numPts =
+    ct == VTK_QUADRATIC_TETRA && !linearApproximation ? points->GetNumberOfTuples() : 4;
+  return verdict::tet_scaled_jacobian(numPts, pc);
 }
 
 //----------------------------------------------------------------------------
