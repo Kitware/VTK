@@ -19,6 +19,8 @@
 // MPI
 #include <vtk_mpi.h>
 
+#include <iostream>
+
 void FillArray(const int rank, const int size, double array[])
 {
   for (int i = 0; i < size; ++i)
@@ -44,7 +46,7 @@ int TestNonBlockingCommunication(int argc, char* argv[])
   int SendRank = (Rank == 0) ? 1 : 0;
   if (N != 2)
   {
-    cerr << "This test must be run with 2 MPI processes!\n";
+    std::cerr << "This test must be run with 2 MPI processes!\n";
     myController->Finalize();
     myController->Delete();
     return (-1);
@@ -52,26 +54,26 @@ int TestNonBlockingCommunication(int argc, char* argv[])
   assert("pre: N must be 2" && (N == 2));
   assert("pre: Rank is out-of-bounds" && (Rank >= 0) && (Rank < N));
 
-  cout << "Filling arrays...";
-  cout.flush();
+  std::cout << "Filling arrays...";
+  std::cout.flush();
   FillArray(Rank, 10, sndarray);
   FillArray(SendRank, 10, expected);
-  cout << "[DONE]\n";
-  cout.flush();
+  std::cout << "[DONE]\n";
+  std::cout.flush();
 
   // Post receives
-  cout << "Posting receives....\n";
-  cout.flush();
+  std::cout << "Posting receives....\n";
+  std::cout.flush();
   myController->NoBlockReceive(rcvarray, 10, SendRank, 0, requests[0]);
 
   // Post sends
-  cout << "Posting sends...\n";
-  cout.flush();
+  std::cout << "Posting sends...\n";
+  std::cout.flush();
   myController->NoBlockSend(sndarray, 10, SendRank, 0, requests[1]);
 
   // Wait all
-  cout << "Do a wait all!\n";
-  cout.flush();
+  std::cout << "Do a wait all!\n";
+  std::cout.flush();
   myController->WaitAll(2, requests);
 
   bool arraysMatch = true;
@@ -85,13 +87,13 @@ int TestNonBlockingCommunication(int argc, char* argv[])
   }
   if (arraysMatch)
   {
-    cout << "RcvArray matches expected data!\n";
-    cout.flush();
+    std::cout << "RcvArray matches expected data!\n";
+    std::cout.flush();
   }
   else
   {
-    cout << "ERROR: rcvarray does not match expected data!\n";
-    cout.flush();
+    std::cout << "ERROR: rcvarray does not match expected data!\n";
+    std::cout.flush();
   }
   myController->Barrier();
 

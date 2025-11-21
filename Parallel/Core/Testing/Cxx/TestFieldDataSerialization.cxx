@@ -18,6 +18,8 @@
 #include <cassert>
 #include <sstream>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 vtkPointData* GetEmptyField()
 {
@@ -141,29 +143,29 @@ bool AreArraysEqual(vtkDataArray* A1, vtkDataArray* A2)
 
   if (A1->GetDataType() != A2->GetDataType())
   {
-    cerr << "ERROR: array datatype mismatch!\n";
+    std::cerr << "ERROR: array datatype mismatch!\n";
     return false;
   }
 
   if (strcmp(A1->GetName(), A2->GetName()) != 0)
   {
-    cerr << "ERROR: array name mismatch!\n";
-    cerr << "A1: " << A1->GetName() << endl;
-    cerr << "A2: " << A2->GetName() << endl;
+    std::cerr << "ERROR: array name mismatch!\n";
+    std::cerr << "A1: " << A1->GetName() << std::endl;
+    std::cerr << "A2: " << A2->GetName() << std::endl;
     return false;
   }
 
   if (A1->GetNumberOfTuples() != A2->GetNumberOfTuples())
   {
-    cerr << "ERROR: number of tuples mismatch for array ";
-    cerr << A1->GetName() << endl;
+    std::cerr << "ERROR: number of tuples mismatch for array ";
+    std::cerr << A1->GetName() << std::endl;
     return false;
   }
 
   if (A1->GetNumberOfComponents() != A2->GetNumberOfComponents())
   {
-    cerr << "ERROR: number of tuples mismatch for array ";
-    cerr << A1->GetName() << endl;
+    std::cerr << "ERROR: number of tuples mismatch for array ";
+    std::cerr << A1->GetName() << std::endl;
     return false;
   }
 
@@ -183,8 +185,8 @@ bool AreArraysEqual(vtkDataArray* A1, vtkDataArray* A2)
           int idx = i * N + j;
           if (!vtkMathUtilities::FuzzyCompare(a1[idx], a2[idx]))
           {
-            cerr << "INFO:" << a1[idx] << " != " << a2[idx] << endl;
-            cerr << "ERROR: float array mismatch!\n";
+            std::cerr << "INFO:" << a1[idx] << " != " << a2[idx] << std::endl;
+            std::cerr << "ERROR: float array mismatch!\n";
             return false;
           } // END if not equal
         }   // END for all N
@@ -202,8 +204,8 @@ bool AreArraysEqual(vtkDataArray* A1, vtkDataArray* A2)
           int idx = i * N + j;
           if (!vtkMathUtilities::FuzzyCompare(a1[idx], a2[idx]))
           {
-            cerr << "INFO:" << a1[idx] << " != " << a2[idx] << endl;
-            cerr << "ERROR: float array mismatch!\n";
+            std::cerr << "INFO:" << a1[idx] << " != " << a2[idx] << std::endl;
+            std::cerr << "ERROR: float array mismatch!\n";
             return false;
           } // END if not equal
         }   // END for all N
@@ -221,8 +223,8 @@ bool AreArraysEqual(vtkDataArray* A1, vtkDataArray* A2)
           int idx = i * N + j;
           if (a1[idx] != a2[idx])
           {
-            cerr << "INFO:" << a1[idx] << " != " << a2[idx] << endl;
-            cerr << "ERROR: int array mismatch!\n";
+            std::cerr << "INFO:" << a1[idx] << " != " << a2[idx] << std::endl;
+            std::cerr << "ERROR: int array mismatch!\n";
             return false;
           }
         } // END for N
@@ -230,7 +232,7 @@ bool AreArraysEqual(vtkDataArray* A1, vtkDataArray* A2)
     }
     break;
     default:
-      cerr << "ERROR: unhandled case! Code should not reach here!\n";
+      std::cerr << "ERROR: unhandled case! Code should not reach here!\n";
       return false;
   }
 
@@ -245,7 +247,7 @@ bool AreFieldsEqual(vtkFieldData* F1, vtkFieldData* F2)
 
   if (F1->GetNumberOfArrays() != F2->GetNumberOfArrays())
   {
-    cerr << "ERROR: number of arrays mismatch between fields!\n";
+    std::cerr << "ERROR: number of arrays mismatch between fields!\n";
     return false;
   }
 
@@ -256,14 +258,14 @@ bool AreFieldsEqual(vtkFieldData* F1, vtkFieldData* F2)
     vtkDataArray* a2 = F2->GetArray(array);
     if (!AreArraysEqual(a1, a2))
     {
-      cerr << "ERROR: array " << a1->GetName() << " and " << a2->GetName();
-      cerr << " do not match!\n";
+      std::cerr << "ERROR: array " << a1->GetName() << " and " << a2->GetName();
+      std::cerr << " do not match!\n";
       status = false;
     }
     else
     {
-      cout << "INFO: " << a1->GetName() << " fields are equal!\n";
-      cout.flush();
+      std::cout << "INFO: " << a1->GetName() << " fields are equal!\n";
+      std::cout.flush();
     }
   } // END for all arrays
   return (status);
@@ -299,8 +301,8 @@ int TestFieldDataMetaData()
   if (NumberOfArrays != field->GetNumberOfArrays())
   {
     ++rc;
-    cerr << "ERROR: NumberOfArrays=" << NumberOfArrays
-         << " expected val=" << field->GetNumberOfArrays() << "\n";
+    std::cerr << "ERROR: NumberOfArrays=" << NumberOfArrays
+              << " expected val=" << field->GetNumberOfArrays() << "\n";
   }
   assert("pre: names arrays is nullptr" && (names != nullptr));
   assert("pre: datatypes is nullptr" && (datatypes != nullptr));
@@ -312,22 +314,22 @@ int TestFieldDataMetaData()
     if (dataArray->GetName() != names[i])
     {
       rc++;
-      cerr << "ERROR: Array name mismatch!\n";
+      std::cerr << "ERROR: Array name mismatch!\n";
     }
     if (dataArray->GetDataType() != datatypes[i])
     {
       rc++;
-      cerr << "ERROR: Array data type mismatch!\n";
+      std::cerr << "ERROR: Array data type mismatch!\n";
     }
     if (dataArray->GetNumberOfTuples() != dimensions[i * 2])
     {
       rc++;
-      cerr << "ERROR: Array number of tuples mismatch!\n";
+      std::cerr << "ERROR: Array number of tuples mismatch!\n";
     }
     if (dataArray->GetNumberOfComponents() != dimensions[i * 2 + 1])
     {
       rc++;
-      cerr << "ERROR: Array number of components mismatch!\n";
+      std::cerr << "ERROR: Array number of components mismatch!\n";
     }
   } // END for all arrays
 
@@ -352,7 +354,7 @@ int TestFieldData()
   vtkFieldDataSerializer::Serialize(field, bytestream);
   if (bytestream.Empty())
   {
-    cerr << "ERROR: failed to serialize field data, bytestream is empty!\n";
+    std::cerr << "ERROR: failed to serialize field data, bytestream is empty!\n";
     rc++;
     return (rc);
   }
@@ -361,14 +363,14 @@ int TestFieldData()
   vtkFieldDataSerializer::Deserialize(bytestream, field2);
   if (!AreFieldsEqual(field, field2))
   {
-    cerr << "ERROR: fields are not equal!\n";
+    std::cerr << "ERROR: fields are not equal!\n";
     rc++;
     return (rc);
   }
   else
   {
-    cout << "Fields are equal!\n";
-    cout.flush();
+    std::cout << "Fields are equal!\n";
+    std::cout.flush();
   }
 
   field->Delete();
@@ -386,8 +388,8 @@ int TestFieldDataSerialization(int argc, char* argv[])
   int rc = 0;
   rc += TestFieldData();
 
-  cout << "Testing metadata serialization...";
+  std::cout << "Testing metadata serialization...";
   rc += TestFieldDataMetaData();
-  cout << "[DONE]\n";
+  std::cout << "[DONE]\n";
   return (rc);
 }

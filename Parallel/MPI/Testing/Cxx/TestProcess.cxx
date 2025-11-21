@@ -8,6 +8,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkProcess.h"
 
+#include <iostream>
+
 namespace
 {
 
@@ -48,9 +50,9 @@ void MyProcess::Execute()
   int numProcs = this->Controller->GetNumberOfProcesses();
   int me = this->Controller->GetLocalProcessId();
 
-  cout << "numProcs=" << numProcs << " me=" << me << endl;
-  cout << "executable=" << this->Argv[0] << endl;
-  cout << "argc=" << this->Argc << endl;
+  std::cout << "numProcs=" << numProcs << " me=" << me << std::endl;
+  std::cout << "executable=" << this->Argv[0] << std::endl;
+  std::cout << "argc=" << this->Argc << std::endl;
 
   const int MY_RETURN_VALUE_MESSAGE = 0x11;
 
@@ -99,7 +101,7 @@ int TestProcess(int argc, char* argv[])
   {
     if (me == 0)
     {
-      cout << "DistributedData test requires 2 processes" << endl;
+      std::cout << "DistributedData test requires 2 processes" << std::endl;
     }
     c->Delete();
     return retVal;
@@ -109,7 +111,7 @@ int TestProcess(int argc, char* argv[])
   {
     if (me == 0)
     {
-      cout << "TestProcess test requires MPI" << endl;
+      std::cout << "TestProcess test requires MPI" << std::endl;
     }
     c->Delete();
     return retVal;
