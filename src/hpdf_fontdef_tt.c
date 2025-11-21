@@ -168,7 +168,7 @@ CleanFunc (HPDF_FontDef   fontdef);
 
 
 static HPDF_STATUS
-CheckCompositGryph  (HPDF_FontDef   fontdef,
+CheckCompositGlyph  (HPDF_FontDef   fontdef,
                      HPDF_UINT16    gid);
 
 
@@ -1218,7 +1218,7 @@ HPDF_TTFontDef_GetCharWidth  (HPDF_FontDef   fontdef,
         attr->glyph_tbl.flgs[gid] = 1;
 
         if (attr->embedding)
-            CheckCompositGryph (fontdef, gid);
+            CheckCompositGlyph (fontdef, gid);
     }
 
     advance_width = (HPDF_UINT16)((HPDF_UINT)hmetrics.advance_width * 1000 /
@@ -1229,7 +1229,7 @@ HPDF_TTFontDef_GetCharWidth  (HPDF_FontDef   fontdef,
 
 
 static HPDF_STATUS
-CheckCompositGryph  (HPDF_FontDef   fontdef,
+CheckCompositGlyph  (HPDF_FontDef   fontdef,
                      HPDF_UINT16    gid)
 {
     HPDF_TTFontDefAttr attr = (HPDF_TTFontDefAttr)fontdef->attr;
@@ -1237,7 +1237,7 @@ CheckCompositGryph  (HPDF_FontDef   fontdef,
     /* HPDF_UINT len = attr->glyph_tbl.offsets[gid + 1] - offset; */
     HPDF_STATUS ret;
 
-    HPDF_PTRACE ((" CheckCompositGryph\n"));
+    HPDF_PTRACE ((" CheckCompositGlyph\n"));
 
     if (attr->header.index_to_loc_format == 0)
         offset *= 2;
@@ -1263,7 +1263,7 @@ CheckCompositGryph  (HPDF_FontDef   fontdef,
         if (num_of_contours != -1)
             return HPDF_OK;
 
-        HPDF_PTRACE ((" CheckCompositGryph composite font gid=%u\n", gid));
+        HPDF_PTRACE ((" CheckCompositGlyph composite font gid=%u\n", gid));
 
         if ((ret = HPDF_Stream_Seek (attr->stream, 8, HPDF_SEEK_CUR))
             != HPDF_OK)
@@ -1306,7 +1306,7 @@ CheckCompositGryph  (HPDF_FontDef   fontdef,
 
                 attr->glyph_tbl.flgs[glyph_index] = 1;
                 next_glyph = HPDF_Stream_Tell (attr->stream);
-                CheckCompositGryph (fontdef, glyph_index);
+                CheckCompositGlyph (fontdef, glyph_index);
                 HPDF_Stream_Seek (attr->stream, next_glyph, HPDF_SEEK_SET);
             }
 

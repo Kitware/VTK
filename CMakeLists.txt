@@ -60,7 +60,6 @@ endif ()
 # look for headers and libraries
 # =======================================================================
 if (FALSE)
-include(haru)
 include(summary)
 endif ()
 
@@ -89,20 +88,15 @@ endif(MSVC_VERSION GREATER 1399)
 # Will export symbols to a .lib file on Windows
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS 1)
 
-# Just set to 1, we'll assume they are always available.
-# If not, then someone will have to add some tests in here to correctly determine
-# the headers existence.
-set (LIBHPDF_STDC_HEADERS 1)
-
 if (FALSE) # XXX(kitware): hardcode settings
-  # support all of the different variations of LIBPNG defines in HARU
-  set (LIBHPDF_HAVE_LIBPNG ${PNG_FOUND})
+# support all of the different variations of LIBPNG defines in HARU
+set (LIBHPDF_HAVE_LIBPNG ${PNG_FOUND})
 
-  # support different zlib defines
-  set (LIBHPDF_HAVE_LIBZ ${ZLIB_FOUND})
+# support different zlib defines
+set (LIBHPDF_HAVE_LIBZ ${ZLIB_FOUND})
 else ()
-  set(LIBHPDF_HAVE_LIBPNG 1)
-  set(LIBHPDF_HAVE_LIBZ 1)
+set(LIBHPDF_HAVE_LIBPNG 1)
+set(LIBHPDF_HAVE_LIBZ 1)
 endif ()
 
 # create hpdf_config.h

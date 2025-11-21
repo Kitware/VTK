@@ -93,7 +93,7 @@ if (ZLIB_FOUND)
 endif()
 
 # Math library
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     target_link_libraries (hpdf ${M_LIB})
 endif()
 
@@ -115,4 +115,5 @@ else ()
     PUBLIC
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>"
       "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>")
+  vtk_module_set_property(VTK::libharu PROPERTY C_STANDARD VALUE 99)
 endif ()
