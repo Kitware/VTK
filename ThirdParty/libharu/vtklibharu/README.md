@@ -132,7 +132,7 @@ to the following restrictions:
    We wish to thank all users of Haru.
    In particular, we thank Thomas Nimstad, LeslieM, Par Hogberg, adenelson, 
    Riccardo Cohen, sea_sbs, Andrew. 
-   They gave me very useful advices.
+   They gave me very useful advice.
 
 3. Adobe Systems Inc.
    We thank Adobe Systems Inc. for publishing PDF specification.
