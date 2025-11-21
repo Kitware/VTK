@@ -11,6 +11,8 @@
 #include <gdalwarper.h>
 #include <ogr_spatialref.h>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGDALRasterReprojection);
 //------------------------------------------------------------------------------
