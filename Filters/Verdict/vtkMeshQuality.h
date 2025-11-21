@@ -683,6 +683,7 @@ public:
    * Calculate the distortion of a triangle.
    *
    * @note Supports only vtkTriangle, vtkQuadraticTriangle, and vtkBiQuadraticTriangle.
+   * @warning For vtkTriangle is will always return 1.0  because it's a 2-simplex.
    */
   static double TriangleDistortion(vtkCell* cell, bool linearApproximation = false);
 
@@ -1062,6 +1063,7 @@ public:
    * parent volume = 1 / 6 for a tetrahedron.
    *
    * @note Supports only vtkTetra and vtkQuadraticTetra.
+   * @warning For vtkTetra is will always return 1.0 because it's a 3-simplex.
    */
   static double TetDistortion(vtkCell* cell, bool linearApproximation = false);
 
