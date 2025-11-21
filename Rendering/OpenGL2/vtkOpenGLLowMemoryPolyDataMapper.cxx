@@ -1682,21 +1682,25 @@ uniform int vertex_pass;)";
           colorDec += "uniform float intensity_specular_bf; // the material specular intensity\n"
                       "uniform vec3 color_specular_bf; // intensity weighted color\n"
                       "uniform float power_specular_bf;\n";
-          colorImpl +=
-            "  if (gl_FrontFacing == false && vertex_pass != 1 && primitiveSize != 1) {\n"
-            "    ambientColor = intensity_ambient_bf * color_ambient_bf;\n"
-            "    diffuseColor = intensity_diffuse_bf * color_diffuse_bf;\n"
-            "    specularColor = intensity_specular_bf * color_specular_bf;\n"
-            "    specularPower = power_specular_bf;\n"
-            "    opacity = intensity_opacity_bf; }\n";
+          colorImpl += "  if (vertex_pass != 1 && primitiveSize > 2) {\n"
+                       "    if (gl_FrontFacing == false) {\n"
+                       "      ambientColor = intensity_ambient_bf * color_ambient_bf;\n"
+                       "      diffuseColor = intensity_diffuse_bf * color_diffuse_bf;\n"
+                       "      specularColor = intensity_specular_bf * color_specular_bf;\n"
+                       "      specularPower = power_specular_bf;\n"
+                       "      opacity = intensity_opacity_bf;\n"
+                       "   }\n"
+                       " }\n";
         }
         else
         {
-          colorImpl +=
-            "  if (gl_FrontFacing == false && vertex_pass != 1 && primitiveSize != 1) {\n"
-            "    ambientColor = intensity_ambient_bf * color_ambient_bf;\n"
-            "    diffuseColor = intensity_diffuse_bf * color_diffuse_bf;\n"
-            "    opacity = intensity_opacity_bf; }\n";
+          colorImpl += "  if (vertex_pass != 1 && primitiveSize > 2) {\n"
+                       "    if (gl_FrontFacing == false) {\n"
+                       "      ambientColor = intensity_ambient_bf * color_ambient_bf;\n"
+                       "      diffuseColor = intensity_diffuse_bf * color_diffuse_bf;\n"
+                       "      opacity = intensity_opacity_bf;\n"
+                       "   }\n"
+                       " }\n";
         }
       }
       vtkShaderProgram::Substitute(fsSource, "//VTK::Color::Dec", colorDec);
@@ -2360,8 +2364,11 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderTCoord(
     {
       vtkShaderProgram::Substitute(fsSource, "//VTK::TCoord::Impl",
         tCoordImpFS +
-          "if (gl_FrontFacing == true || showTexturesOnBackface) {"
-          "gl_FragData[0] = gl_FragData[0] * tcolor; }");
+          "if (primitiveSize > 2) {\n"
+          "  if (gl_FrontFacing == true || showTexturesOnBackface) {\n"
+          "    gl_FragData[0] = gl_FragData[0] * tcolor;\n"
+          "  }\n"
+          "}\n");
     }
   }
 }

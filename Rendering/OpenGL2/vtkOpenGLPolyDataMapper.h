@@ -456,6 +456,7 @@ protected:
   bool DrawingSpheres(vtkOpenGLHelper& cellBO, vtkActor* actor);
   bool DrawingTubes(vtkOpenGLHelper& cellBO, vtkActor* actor);
   bool DrawingTubesOrSpheres(vtkOpenGLHelper& cellBO, vtkActor* actor);
+  bool DrawingPoints(vtkOpenGLHelper& cellBO, vtkActor* actor);
 
   // get which opengl mode to use to draw the primitive
   int GetOpenGLMode(int representation, int primType);

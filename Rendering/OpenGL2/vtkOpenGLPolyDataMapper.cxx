@@ -1813,7 +1813,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderTCoord(
     tCoordImpFS += ss.str();
   }
 
-  if (nbTex2d > 0)
+  if (nbTex2d > 0 && !this->DrawingPoints(*this->LastBoundBO, actor))
   {
     vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl",
       tCoordImpFS +
@@ -2104,10 +2104,13 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
         "uniform mat3 normalMatrix;\n"
         "in vec3 normalVCVSOutput;");
 
-      toString << "vec3 normalVCVSOutput = normalize(normalVCVSOutput);\n"
-                  //  if (!gl_FrontFacing) does not work in intel hd4000 mac
-                  //  if (int(gl_FrontFacing) == 0) does not work on mesa
-                  "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n";
+      toString << "vec3 normalVCVSOutput = normalize(normalVCVSOutput);\n";
+      //  if (!gl_FrontFacing) does not work in intel hd4000 mac
+      //  if (int(gl_FrontFacing) == 0) does not work on mesa
+      if (!this->DrawingPoints(*this->LastBoundBO, actor))
+      {
+        toString << "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n";
+      }
       //"normalVC = normalVCVarying;";
       if (hasClearCoat)
       {
@@ -2255,16 +2258,18 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
       {
         toString << "vec3 normalVCVSOutput = \n"
                     "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz;\n"
-                    "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n"
-                    "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n";
+                    "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n";
       }
       else
       {
         toString << "vec3 normalVCVSOutput = \n"
                     "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz;\n"
                     "normalVCVSOutput = normalVCVSOutput * 255.0/127.0 - 1.0;\n"
-                    "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n"
-                    "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n";
+                    "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n";
+      }
+      if (!this->DrawingPoints(*this->LastBoundBO, actor))
+      {
+        toString << "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n";
       }
 
       if (hasClearCoat)
@@ -2484,6 +2489,13 @@ bool vtkOpenGLPolyDataMapper::DrawingTubes(vtkOpenGLHelper& cellBO, vtkActor* ac
     actor->GetProperty()->GetLineWidth() > 1.0 &&
     this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(), cellBO.PrimitiveType) ==
       GL_LINES);
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLPolyDataMapper::DrawingPoints(vtkOpenGLHelper& cellBO, vtkActor* actor)
+{
+  return (this->GetOpenGLMode(actor->GetProperty()->GetRepresentation(), cellBO.PrimitiveType) ==
+    GL_POINTS);
 }
 
 //------------------------------------------------------------------------------
