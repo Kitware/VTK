@@ -114,6 +114,7 @@ public:
    * - EDGE_RATIO: Ratio between the longest and the shortest edge.
    * - EQUIANGLE_SKEW: Angular deviation from ideal equiangle configuration.
    * - EQUIVOLUME_SKEW: Volume-based skewness measure.
+   * - INRADIUS: The radius of the largest sphere that fits snugly inside it.
    * - JACOBIAN: Minimum point-wise volume at corners or element center.
    * - MAX_ANGLE: Maximal (nonoriented) angle, expressed in degrees.
    * - MAX_ASPECT_FROBENIUS: Maximum Frobenius aspect of corner triangles or tetrahedra.
@@ -163,6 +164,7 @@ public:
     EQUIANGLE_SKEW = 29,
     EQUIVOLUME_SKEW = 30,
     JACOBIAN = 25,
+    INRADIUS = 37,
     MAX_ANGLE = 8,
     MAX_ASPECT_FROBENIUS = 5,
     MAX_EDGE_RATIO = 16,
@@ -187,7 +189,7 @@ public:
     TAPER = 18,
     VOLUME = 19,
     WARPAGE = 26,
-    TOTAL_QUALITY_MEASURE_TYPES = 37,
+    TOTAL_QUALITY_MEASURE_TYPES = 38,
     NONE = TOTAL_QUALITY_MEASURE_TYPES
   };
 
@@ -400,6 +402,10 @@ public:
   void SetTetQualityMeasureToAspectFrobenius()
   {
     this->SetTetQualityMeasure(QualityMeasureTypes::ASPECT_FROBENIUS);
+  }
+  void SetTetQualityMeasureToInradius()
+  {
+    this->SetTetQualityMeasure(QualityMeasureTypes::INRADIUS);
   }
   void SetTetQualityMeasureToMinAngle()
   {
@@ -1085,6 +1091,14 @@ public:
   static double TetEquivolumeSkew(vtkCell* cell, bool linearApproximation = false);
 
   /**
+   * Calculate the inradius of a tetrahedron.
+   * The inradius of a tetrahedron is the radius of the largest sphere that fits snugly inside it.
+   *
+   * @note Supports only vtkTetra, vtkQuadraticTetra.
+   */
+  static double TetInradius(vtkCell* cell, bool linearApproximation = false);
+
+  /**
    * Calculate the Jacobian of a tetrahedron.
    * The jacobian of a tetrahedron is the minimum point-wise volume at any corner.
    *
@@ -1506,7 +1520,6 @@ public:
    * @note Supports only vtkHexahedron.
    */
   static double HexTaper(vtkCell* cell, bool linearApproximation = false);
-
   /**
    * Calculate the volume of a hexahedron.
    * The volume of a hexahedron is the Jacobian at the hexahedron center.

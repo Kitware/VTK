@@ -957,6 +957,8 @@ vtkMeshQuality::CellQualityType vtkMeshQuality::GetTetQualityMeasureFunction() c
       return TetEquiangleSkew;
     case QualityMeasureTypes::EQUIVOLUME_SKEW:
       return TetEquivolumeSkew;
+    case QualityMeasureTypes::INRADIUS:
+      return TetInradius;
     case QualityMeasureTypes::JACOBIAN:
       return TetJacobian;
     case QualityMeasureTypes::MEAN_RATIO:
@@ -995,6 +997,8 @@ vtkMeshQuality::CellQualityType vtkMeshQuality::GetQuadraticTetQualityMeasureFun
       return TetDistortion;
     case QualityMeasureTypes::EQUIVOLUME_SKEW:
       return TetEquivolumeSkew;
+    case QualityMeasureTypes::INRADIUS:
+      return TetInradius;
     case QualityMeasureTypes::MEAN_RATIO:
       return TetMeanRatio;
     case QualityMeasureTypes::NORMALIZED_INRADIUS:
@@ -1815,6 +1819,17 @@ double vtkMeshQuality::TetEquivolumeSkew(vtkCell* cell, bool linearApproximation
   const int numPts =
     ct == VTK_QUADRATIC_TETRA && !linearApproximation ? points->GetNumberOfTuples() : 4;
   return verdict::tet_equivolume_skew(numPts, pc);
+}
+
+//----------------------------------------------------------------------------
+double vtkMeshQuality::TetInradius(vtkCell* cell, bool linearApproximation)
+{
+  auto points = static_cast<vtkDoubleArray*>(cell->GetPoints()->GetData());
+  auto pc = reinterpret_cast<double(*)[3]>(points->GetPointer(0));
+  const int ct = cell->GetCellType();
+  const int numPts =
+    ct == VTK_QUADRATIC_TETRA && !linearApproximation ? points->GetNumberOfTuples() : 4;
+  return verdict::tet_inradius(numPts, pc);
 }
 
 //----------------------------------------------------------------------------

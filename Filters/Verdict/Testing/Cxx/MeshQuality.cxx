@@ -533,6 +533,12 @@ int MeshQuality(int argc, char* argv[])
     DumpQualityStats(iq, "Mesh Tetrahedron Quality");
     cout << endl;
 
+    iq->SetTetQualityMeasureToInradius();
+    iq->Update();
+    cout << " Inradius:" << endl;
+    DumpQualityStats(iq, "Mesh Tetrahedron Quality");
+    cout << endl;
+
     iq->SetTetQualityMeasureToMeanRatio();
     iq->Update();
     cout << " Mean Ratio:" << endl;
@@ -801,7 +807,7 @@ int MeshQuality(int argc, char* argv[])
   constexpr vtkMeshQuality::QualityMeasureTypes QuadraticTetraMetrics[] = {
     vtkMeshQuality::QualityMeasureTypes::DISTORTION,
     vtkMeshQuality::QualityMeasureTypes::EQUIVOLUME_SKEW,
-    vtkMeshQuality::QualityMeasureTypes::MEAN_RATIO,
+    vtkMeshQuality::QualityMeasureTypes::INRADIUS, vtkMeshQuality::QualityMeasureTypes::MEAN_RATIO,
     vtkMeshQuality::QualityMeasureTypes::NORMALIZED_INRADIUS,
     vtkMeshQuality::QualityMeasureTypes::VOLUME
   };
