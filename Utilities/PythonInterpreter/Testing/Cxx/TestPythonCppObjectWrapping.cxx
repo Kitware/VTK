@@ -7,6 +7,8 @@
 #include <vtkPythonUtil.h>
 #include <vtkSmartPyObject.h>
 
+#include <iostream>
+
 int TestPythonCppObjectWrapping(int, char*[])
 {
   // Create a C++ object

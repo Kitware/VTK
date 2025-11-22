@@ -19,6 +19,8 @@
 #include "vtkRenderWindow.h"
 #include "vtkTable.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 void vtkRTTestSequence::GetSequenceNumbers(int& xdim)
 {
@@ -281,13 +283,13 @@ int vtkRenderTimings::RunTests()
 
 void vtkRenderTimings::ReportResults()
 {
-  // report the summary results to cout
-  cout << "Summary results: (detailed results written to " << this->DetailedResultsFileName << ")"
-       << endl;
+  // report the summary results to std::cout
+  std::cout << "Summary results: (detailed results written to " << this->DetailedResultsFileName
+            << ")" << endl;
   std::vector<vtkRTTestSequence*>::iterator tsItr;
   for (tsItr = this->TestSequences.begin(); tsItr != this->TestSequences.end(); ++tsItr)
   {
-    (*tsItr)->ReportSummaryResults(cout);
+    (*tsItr)->ReportSummaryResults(std::cout);
   }
 
   // then the detailed to a csv file
@@ -344,18 +346,18 @@ int vtkRenderTimings::ParseCommandLineArguments(int argc, char* argv[])
 
   if (!this->Arguments.Parse())
   {
-    cerr << "Problem parsing arguments" << endl;
+    std::cerr << "Problem parsing arguments" << endl;
     return 1;
   }
 
   if (this->DisplayHelp)
   {
-    cerr << "Usage" << endl
-         << endl
-         << "  VTKRenderTimings [options]" << endl
-         << endl
-         << "Options" << endl;
-    cerr << this->Arguments.GetHelp();
+    std::cerr << "Usage" << endl
+              << endl
+              << "  VTKRenderTimings [options]" << endl
+              << endl
+              << "Options" << endl;
+    std::cerr << this->Arguments.GetHelp();
     return 0;
   }
 
@@ -373,14 +375,15 @@ int vtkRenderTimings::ParseCommandLineArguments(int argc, char* argv[])
     {
       if (!useRegex || re.find((*testItr)->GetName()))
       {
-        cerr << (*testItr)->GetName() << endl;
+        std::cerr << (*testItr)->GetName() << endl;
       }
     }
     return 0;
   }
 
   // run the tests
-  cout << "Starting tests, maximum time allowed is " << this->TargetTime << " seconds." << endl;
+  std::cout << "Starting tests, maximum time allowed is " << this->TargetTime << " seconds."
+            << endl;
   this->RunTests();
   this->ReportResults();
 

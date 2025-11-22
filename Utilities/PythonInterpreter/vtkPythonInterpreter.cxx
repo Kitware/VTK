@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <csignal>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -742,7 +743,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
     {
       // print out VTK version and let argument pass to Py_RunMain(). At which
       // point, Python will print its version and exit.
-      cout << vtkVersion::GetVTKSourceVersion() << endl;
+      std::cout << vtkVersion::GetVTKSourceVersion() << std::endl;
     }
 
     OwnedCString argCopy(strdup(argv[i]), &std::free);
@@ -944,7 +945,7 @@ vtkStdString vtkPythonInterpreter::ReadStdin()
   if (!vtkPythonInterpreter::CaptureStdin)
   {
     vtkStdString string;
-    cin >> string;
+    std::cin >> string;
     return string;
   }
   vtkStdString string;
