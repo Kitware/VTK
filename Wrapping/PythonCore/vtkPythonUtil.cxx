@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <atomic>
 #include <cstring>
+#include <iostream>
 #include <map>
 #include <sstream>
 #include <string>
@@ -1204,7 +1205,7 @@ void vtkPythonVoidFunc(void* arg)
   {
     if (PyErr_ExceptionMatches(PyExc_KeyboardInterrupt))
     {
-      cerr << "Caught a Ctrl-C within python, exiting program.\n";
+      std::cerr << "Caught a Ctrl-C within python, exiting program.\n";
       Py_Exit(1);
     }
     PyErr_Print();

@@ -6,6 +6,8 @@
 #include "vtkObject.h"
 #include "vtkPythonUtil.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkPythonCommand::vtkPythonCommand()
 {
@@ -229,7 +231,7 @@ void vtkPythonCommand::Execute(vtkObject* ptr, unsigned long eventtype, void* ca
   {
     if (PyErr_ExceptionMatches(PyExc_KeyboardInterrupt))
     {
-      cerr << "Caught a Ctrl-C within python, exiting program.\n";
+      std::cerr << "Caught a Ctrl-C within python, exiting program.\n";
       Py_Exit(1);
     }
     PyErr_Print();
