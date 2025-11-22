@@ -26,6 +26,9 @@
 #endif
 #if VTK_MODULE_ENABLE_VTK_RenderingVolumeOpenGL2
 #include "vtkRenderingVolumeOpenGL2Module.h"
+
+#include <iostream>
+
 #endif
 
 VTK_ABI_NAMESPACE_BEGIN

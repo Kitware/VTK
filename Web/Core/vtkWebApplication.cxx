@@ -29,6 +29,8 @@
 #include <map>
 #include <sstream>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkWebApplication::vtkInternals
 {
@@ -176,7 +178,7 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
     return value.Data;
   }
 
-  // cout <<  "Regenerating " << endl;
+  // std::cout <<  "Regenerating " << endl;
   // vtkTimerLog::ResetLog();
   // vtkTimerLog::CleanupLog();
   // vtkTimerLog::MarkStartEvent("StillRenderToString");
@@ -200,16 +202,16 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
   // vtkTimerLog::MarkEndEvent("CaptureWindow");
 
   // vtkTimerLog::MarkEndEvent("StillRenderToString");
-  // vtkTimerLog::DumpLogWithIndents(&cout, 0.0);
+  // vtkTimerLog::DumpLogWithIndents(&std::cout, 0.0);
 
   this->Internals->Encoder->Push(viewID, image, quality, this->ImageEncoding);
 
   if (value.Data == nullptr)
   {
     // we need to wait till output is processed.
-    // cout << "Flushing" << endl;
+    // std::cout << "Flushing" << endl;
     this->Internals->Encoder->Flush(viewID);
-    // cout << "Done Flushing" << endl;
+    // std::cout << "Done Flushing" << endl;
   }
 
   bool latest = this->Internals->Encoder->GetLatestOutput(viewID, value.Data);
@@ -226,7 +228,7 @@ const char* vtkWebApplication::StillRenderToString(
   if (array && array->GetMTime() != time)
   {
     this->LastStillRenderToMTime = array->GetMTime();
-    // cout << "Image size: " << array->GetNumberOfTuples() << endl;
+    // std::cout << "Image size: " << array->GetNumberOfTuples() << endl;
     return reinterpret_cast<char*>(array->GetPointer(0));
   }
   return nullptr;
