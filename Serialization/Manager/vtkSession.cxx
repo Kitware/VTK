@@ -19,6 +19,8 @@
 #include <set>
 #include <string>
 
+#include <iostream>
+
 struct vtkSessionImpl
 {
   vtkNew<vtkObjectManager> Manager;
