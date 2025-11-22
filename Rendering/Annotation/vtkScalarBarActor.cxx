@@ -33,6 +33,7 @@
 #include "vtkViewport.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
 #include <map>
 #include <vector>
 
@@ -77,16 +78,16 @@ vtkScalarBarActor::vtkScalarBarActor()
 
   this->LabelTextProperty = vtkTextProperty::New();
   this->LabelTextProperty->SetFontSize(12);
-  this->LabelTextProperty->SetBold(1);
-  this->LabelTextProperty->SetItalic(1);
-  this->LabelTextProperty->SetShadow(1);
+  this->LabelTextProperty->SetBold(true);
+  this->LabelTextProperty->SetItalic(true);
+  this->LabelTextProperty->SetShadow(true);
   this->LabelTextProperty->SetFontFamilyToArial();
 
   this->AnnotationTextProperty = vtkTextProperty::New();
   this->AnnotationTextProperty->SetFontSize(12);
-  this->AnnotationTextProperty->SetBold(1);
-  this->AnnotationTextProperty->SetItalic(1);
-  this->AnnotationTextProperty->SetShadow(1);
+  this->AnnotationTextProperty->SetBold(true);
+  this->AnnotationTextProperty->SetItalic(true);
+  this->AnnotationTextProperty->SetShadow(true);
   this->AnnotationTextProperty->SetFontFamilyToArial();
 
   this->TitleTextProperty = vtkTextProperty::New();
@@ -110,10 +111,10 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->LastSize[0] = 0;
   this->LastSize[1] = 0;
 
-  this->DrawAnnotations = 1;
-  this->DrawNanAnnotation = 0;
-  this->AnnotationTextScaling = 0;
-  this->FixedAnnotationLeaderLineColor = 0;
+  this->DrawAnnotations = true;
+  this->DrawNanAnnotation = false;
+  this->AnnotationTextScaling = false;
+  this->FixedAnnotationLeaderLineColor = false;
   this->NanAnnotation = nullptr;
   this->SetNanAnnotation("NaN");
   this->P->NanSwatch = vtkPolyData::New();
@@ -169,7 +170,7 @@ vtkScalarBarActor::vtkScalarBarActor()
 
   // If opacity is on, a jail like texture is displayed behind it..
 
-  this->UseOpacity = 0;
+  this->UseOpacity = false;
   this->TextureGridWidth = 10.0;
 
   this->TexturePolyData = vtkPolyData::New();
@@ -235,7 +236,7 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->BackgroundProperty = vtkProperty2D::New();
   this->FrameProperty = vtkProperty2D::New();
 
-  this->DrawBackground = 0;
+  this->DrawBackground = false;
   this->Background = vtkPolyData::New();
   this->BackgroundMapper = vtkPolyDataMapper2D::New();
   this->BackgroundMapper->SetInputData(this->Background);
@@ -246,7 +247,7 @@ vtkScalarBarActor::vtkScalarBarActor()
 #ifdef VTK_DBG_LAYOUT
   this->DrawFrame = 1;
 #else  // VTK_DBG_LAYOUT
-  this->DrawFrame = 0;
+  this->DrawFrame = false;
 #endif // VTK_DBG_LAYOUT
   this->Frame = vtkPolyData::New();
   this->FrameMapper = vtkPolyDataMapper2D::New();
@@ -255,8 +256,8 @@ vtkScalarBarActor::vtkScalarBarActor()
   this->FrameActor->SetMapper(this->FrameMapper);
   this->FrameActor->GetPositionCoordinate()->SetReferenceCoordinate(this->PositionCoordinate);
 
-  this->DrawColorBar = 1;
-  this->DrawTickLabels = 1;
+  this->DrawColorBar = true;
+  this->DrawTickLabels = true;
   this->UnconstrainedFontSize = false;
 
   this->ForceVerticalTitle = false;
@@ -626,7 +627,7 @@ vtkTypeBool vtkScalarBarActor::HasTranslucentPolygonalGeometry()
   // have an alpha value, as the color swatches drawn by
   // this->P->AnnotationBoxesActor have 1 translucent triangle for each
   // alpha-swatch.
-  return 0;
+  return false;
 }
 
 //------------------------------------------------------------------------------
@@ -1444,13 +1445,44 @@ void vtkScalarBarActor::LayoutTicks()
       // Ticks span the entire width of the frame
       this->P->TickBox.Size[1] = this->P->ScalarBarBox.Size[1];
       // Ticks share vertical space with title and scalar bar.
-      this->P->TickBox.Size[0] = this->P->Frame.Size[0] - this->P->ScalarBarBox.Size[0] -
-        4 * this->TextPad - this->P->TitleBox.Size[0];
+      // Calculate the original heights for the bar (already computed) and ticks.
+      double originalBarHeight = this->P->ScalarBarBox.Size[0];
+      double originalTickHeight =
+        this->P->Frame.Size[0] - originalBarHeight - 4 * this->TextPad - this->P->TitleBox.Size[0];
 
+      // This is the total height used by bar + ticks
+      double originalTotal = originalBarHeight + originalTickHeight;
+      originalTotal = std::max(originalTotal, 1.0); // Avoid division by zero
+
+      // This is the new total height we want them to occupy
+      // (subtracting the vertical separation)
+      double newTotal = originalTotal - this->VerticalTitleSeparation;
+
+      // Avoid negative sizes
+      newTotal = std::max(newTotal, 1.0);
+
+      // Calculate scaling factor
+      double scale = newTotal / originalTotal;
+
+      // Scale both heights
+      double newBarHeight = originalBarHeight * scale;
+      double newTickHeight = originalTickHeight * scale;
+
+      // If text precedes bar, we must also adjust the bar's Y-position
       if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
       {
-        this->P->TickBox.Posn[1] =
-          this->P->TitleBox.Size[0] + 2 * this->TextPad + this->P->TitleBox.Posn[1];
+        // Bar Y-pos was FrameHeight - originalBarHeight. Adjust for new height.
+        double heightDelta = originalBarHeight - newBarHeight;
+        this->P->ScalarBarBox.Posn[1] += heightDelta; // Move bar "down"
+      }
+
+      // Now, assign the new heights
+      this->P->ScalarBarBox.Size[0] = static_cast<int>(newBarHeight);
+      this->P->TickBox.Size[0] = static_cast<int>(newTickHeight);
+      if (this->TextPosition == vtkScalarBarActor::PrecedeScalarBar)
+      {
+        this->P->TickBox.Posn[1] = this->P->TitleBox.Size[0] + this->VerticalTitleSeparation +
+          2 * this->TextPad + this->P->TitleBox.Posn[1];
       }
       else
       {

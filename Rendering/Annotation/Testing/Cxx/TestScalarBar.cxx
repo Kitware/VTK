@@ -90,6 +90,7 @@ int TestScalarBar(int argc, char* argv[])
   scalarBar2->SetOrientationToHorizontal();
   scalarBar2->SetWidth(0.5);
   scalarBar2->SetHeight(0.15);
+  scalarBar2->SetVerticalTitleSeparation(10);
   scalarBar2->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
   scalarBar2->GetPositionCoordinate()->SetValue(0.05, 0.05);
   scalarBar2->SetTextPositionToPrecedeScalarBar();
@@ -109,6 +110,7 @@ int TestScalarBar(int argc, char* argv[])
   scalarBar3->SetWidth(0.15);
   scalarBar3->SetHeight(0.5);
   scalarBar3->SetTextPositionToSucceedScalarBar();
+  scalarBar3->SetVerticalTitleSeparation(15);
   scalarBar3->GetTitleTextProperty()->SetColor(0., 0., 1.);
   scalarBar3->GetLabelTextProperty()->SetColor(0., 0., 1.);
   scalarBar3->SetDrawFrame(1);
