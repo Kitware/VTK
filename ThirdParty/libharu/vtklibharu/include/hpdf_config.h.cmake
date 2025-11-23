@@ -2,12 +2,6 @@
 
 #include "vtk_haru_mangle.h" // XXX(kitware): mangle symbols
 
-/* Define to 1 if you have the <dlfcn.h> header file. */
-#cmakedefine LIBHPDF_HAVE_DLFCN_H
-
-/* Define to 1 if you have the <inttypes.h> header file. */
-#cmakedefine LIBHPDF_HAVE_INTTYPES_H
-
 /* Define to 1 if you have the `png' library (-lpng). */
 #cmakedefine LIBHPDF_HAVE_LIBPNG
 
