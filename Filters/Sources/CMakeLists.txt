@@ -18,6 +18,7 @@ set(classes
   vtkHyperTreeGridPreConfiguredSource
   vtkHyperTreeGridSource
   vtkLineSource
+  vtkLissajousPointCloud
   vtkOutlineCornerFilter
   vtkOutlineCornerSource
   vtkOutlineSource
