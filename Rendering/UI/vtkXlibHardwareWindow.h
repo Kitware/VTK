@@ -32,24 +32,29 @@ public:
    * If unset, windows will open the default display (":0.0" unless
    * the DISPLAY environment variable is provided).
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   Display* GetDisplayId();
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void SetDisplayId(Display* display);
   ///@}
 
   /**
    * Sets the parent of the window that WILL BE created.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void SetParentId(Window);
 
   /**
    * Get this RenderWindow's X window id.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   Window GetWindowId();
 
   ///@{
   /**
    * Set this RenderWindow's X window id to a pre-existing window.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   void SetWindowId(Window);
   void SetWindowId(void*) override;
   ///@}
