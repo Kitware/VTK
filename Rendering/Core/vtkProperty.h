@@ -131,7 +131,7 @@ public:
   {
     RoundCapRoundJoin,
     MiterJoin,
-    None,
+    NoJoin,
   };
 
   /**
@@ -800,7 +800,7 @@ protected:
   bool Lighting;
   Point2DShapeType Point2DShape = Point2DShapeType::Square;
   bool RenderPointsAsSpheres;
-  LineJoinType LineJoin = LineJoinType::None;
+  LineJoinType LineJoin = LineJoinType::NoJoin;
   bool RenderLinesAsTubes;
   bool ShowTexturesOnBackface;
 

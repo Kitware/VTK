@@ -556,7 +556,7 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
         break;
       case GFX_PIPELINE_LINES_THICK:
       case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
-        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::None);
+        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::NoJoin);
         break;
       case GFX_PIPELINE_LINES_MITER_JOIN:
       case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
@@ -787,7 +787,7 @@ void vtkWebGPUPolyDataMapper::RecordDrawCommands(
         break;
       case GFX_PIPELINE_LINES_THICK:
       case GFX_PIPELINE_LINES_THICK_HOMOGENEOUS_CELL_SIZE:
-        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::None);
+        skip = (lineWidth <= 1) || (lineJoinType != vtkProperty::LineJoinType::NoJoin);
         break;
       case GFX_PIPELINE_LINES_MITER_JOIN:
       case GFX_PIPELINE_LINES_MITER_JOIN_HOMOGENEOUS_CELL_SIZE:
