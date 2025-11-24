@@ -15,6 +15,8 @@
 #include "vtkTree.h"
 #include "vtkViewTheme.h"
 
+#include <iostream>
+
 int main(int, char*[])
 {
   vtkMutableDirectedGraph* graph = vtkMutableDirectedGraph::New();

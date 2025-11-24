@@ -18,11 +18,13 @@
 #include <vtkVolume16Reader.h>
 #include <vtkVolumeProperty.h>
 
+#include <iostream>
+
 int main(int argc, char* argv[])
 {
   if (argc < 2)
   {
-    cout << "Usage: " << argv[0] << " DATADIR/headsq/quarter" << endl;
+    std::cout << "Usage: " << argv[0] << " DATADIR/headsq/quarter" << endl;
     return EXIT_FAILURE;
   }
 

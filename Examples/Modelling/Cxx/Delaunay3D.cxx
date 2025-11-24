@@ -13,11 +13,13 @@
 #include <vtkXMLDataSetWriter.h>
 #include <vtkXMLPolyDataReader.h>
 
+#include <iostream>
+
 int main(int argc, char* argv[])
 {
   if (argc != 3)
   {
-    cout << "Usage: " << argv[0] << " InputPolyDataFile OutputDataSetFile" << endl;
+    std::cout << "Usage: " << argv[0] << " InputPolyDataFile OutputDataSetFile" << endl;
     return EXIT_FAILURE;
   }
 

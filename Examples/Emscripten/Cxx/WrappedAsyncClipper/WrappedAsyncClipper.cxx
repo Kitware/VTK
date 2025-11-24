@@ -22,6 +22,8 @@
 #include <emscripten/stack.h>
 #include <emscripten/threading.h>
 
+#include <iostream>
+
 #define LOG(msg)                                                                                   \
   do                                                                                               \
   {                                                                                                \

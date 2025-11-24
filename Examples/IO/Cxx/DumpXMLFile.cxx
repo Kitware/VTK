@@ -30,6 +30,8 @@
 
 #include <map>
 
+#include <iostream>
+
 template <class TReader>
 vtkDataSet* ReadAnXMLFile(const char* fileName)
 {

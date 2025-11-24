@@ -52,6 +52,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 // By default, the entry point is "main" (stand-alone program)
 #ifndef IMAGE_BENCHMARK_MAIN
 #define IMAGE_BENCHMARK_MAIN main
@@ -919,7 +921,7 @@ static vtkThreadedImageAlgorithm* CreateFilter(const std::string& filterName, co
     return filter;
   }
 
-  cerr << "unrecognized option for --filter\n";
+  std::cerr << "unrecognized option for --filter\n";
 
   return nullptr;
 }
@@ -990,7 +992,7 @@ static vtkImageData* CreateData(
   }
   else
   {
-    cerr << "unrecognized option for --source\n";
+    std::cerr << "unrecognized option for --source\n";
     return nullptr;
   }
 
