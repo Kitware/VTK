@@ -23,6 +23,8 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 int TestVTKMWarpScalar(int argc, char* argv[])
 {
   vtkNew<vtkRenderer> xyplaneRen, dataNormalRen, customNormalRen;

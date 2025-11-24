@@ -17,6 +17,8 @@
 #include "vtkRenderer.h"
 #include "vtkmContour.h"
 
+#include <iostream>
+
 namespace
 {
 template <typename T>

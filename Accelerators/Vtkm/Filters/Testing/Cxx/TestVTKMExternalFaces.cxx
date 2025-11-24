@@ -26,6 +26,8 @@
 #include "vtkDataArray.h"
 #include "vtkPointData.h"
 
+#include <iostream>
+
 namespace
 {
 

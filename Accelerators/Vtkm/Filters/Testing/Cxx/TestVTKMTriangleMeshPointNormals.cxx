@@ -17,6 +17,8 @@
 #include "vtkXMLPolyDataReader.h"
 #include "vtkmTriangleMeshPointNormals.h"
 
+#include <iostream>
+
 int TestVTKMTriangleMeshPointNormals(int argc, char* argv[])
 {
   vtkSmartPointer<vtkTesting> testHelper = vtkSmartPointer<vtkTesting>::New();

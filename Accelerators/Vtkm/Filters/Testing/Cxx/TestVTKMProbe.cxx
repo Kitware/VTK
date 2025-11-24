@@ -12,6 +12,8 @@
 #include "vtkPointData.h"
 #include "vtkmProbe.h"
 
+#include <iostream>
+
 namespace
 {
 int inputDim = 9;
