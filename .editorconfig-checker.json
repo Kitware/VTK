@@ -1,0 +1,19 @@
+{
+  "Verbose": false,
+  "Debug": false,
+  "IgnoreDefaults": false,
+  "SpacesAfterTabs": false,
+  "NoColor": false,
+  "Exclude": ["ThirdParty", "\\.storyboard", "\\.pfb"],
+  "AllowedContentTypes": [],
+  "PassedFiles": [],
+  "Disable": {
+    "EndOfLine": true,
+    "Indentation": true,
+    "IndentSize": true,
+    "InsertFinalNewline": false,
+    "TrimTrailingWhitespace": true,
+    "MaxLineLength": true,
+    "Charset": false
+  }
+}

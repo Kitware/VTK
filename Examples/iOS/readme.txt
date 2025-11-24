@@ -50,4 +50,4 @@ to them for the original example file and framework.
 
 The VolumeRender and PlaneView examples require OpenGL ES3 so it will only
 work on devices that support ES3, which includes iphone 5s or later and
-ipad Air or later
+ipad Air or later.
