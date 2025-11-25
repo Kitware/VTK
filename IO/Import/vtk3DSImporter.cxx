@@ -7,6 +7,7 @@
 #include "vtkByteSwap.h"
 #include "vtkCamera.h"
 #include "vtkCellArray.h"
+#include "vtkCommand.h"
 #include "vtkFileResourceStream.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
@@ -624,6 +625,10 @@ static void parse_mdata(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
   vtk3DSChunk chunk;
   vtk3DSColour bgnd_colour;
 
+  unsigned long progress = 0.0;
+  unsigned long totalProgress = mainchunk->length;
+  unsigned int chunkNr = 0;
+
   do
   {
     start_chunk(importer->GetTempStream(), &chunk);
@@ -654,7 +659,21 @@ static void parse_mdata(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
     }
 
     end_chunk(importer->GetTempStream(), &chunk);
+
+    progress += chunk.length;
+    chunkNr += 1;
+
+    if (chunkNr % 100 == 0)
+    {
+      double progressRate = static_cast<double>(progress) / totalProgress;
+      importer->InvokeEvent(vtkCommand::ProgressEvent, &progressRate);
+    }
   } while (chunk.end <= mainchunk->end);
+
+  progress = totalProgress;
+  double progressRate = 1.0;
+
+  importer->InvokeEvent(vtkCommand::ProgressEvent, static_cast<void*>(&progressRate));
 }
 
 static void parse_fog(vtk3DSImporter* importer, vtk3DSChunk* mainchunk)
