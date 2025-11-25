@@ -101,6 +101,8 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestMultipleRenderers.cxx
   TestMultipleScalarsToColors.cxx
   TestParallelCoordinates.cxx
+  TestParallelCoordinatesClearAllAxesSelections.cxx,NO_VALID
+  TestParallelCoordinatesClearAxisSelection.cxx,NO_VALID
   TestParallelCoordinatesDouble.cxx
   TestParallelCoordinatesLegend.cxx
   TestParallelCoordinatesSelection.cxx,NO_VALID

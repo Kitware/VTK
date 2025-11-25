@@ -741,7 +741,12 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(const vtkContextMouseE
 {
   if (mouse.GetButton() == this->Actions.Select())
   {
-    if (this->Storage->CurrentAxis >= 0)
+    if (this->Storage->CurrentAxis < 0)
+    {
+      this->ClearAllAxesSelections();
+      this->Storage->Plot->ResetSelectionRange();
+    }
+    else
     {
       std::array<float, 2>& range = this->Storage->CurrentSelection;
 
@@ -764,7 +769,7 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(const vtkContextMouseE
       }
 
       // Update all range stored based on the new selection
-      UpdateCurrentAxisSelection(this->Storage->CurrentAxis);
+      this->UpdateCurrentAxisSelection(this->Storage->CurrentAxis);
 
       // To support multiple selection, we need to recalculate all the selection
       this->ResetSelection();
@@ -789,9 +794,11 @@ bool vtkChartParallelCoordinates::MouseButtonReleaseEvent(const vtkContextMouseE
         selection->Delete();
         node->Delete();
       }
-      this->InvokeEvent(vtkCommand::SelectionChangedEvent);
-      this->Scene->SetDirty(true);
     }
+
+    this->InvokeEvent(vtkCommand::SelectionChangedEvent);
+    this->Scene->SetDirty(true);
+
     return true;
   }
   else if (mouse.GetButton() == this->Actions.Pan())
@@ -880,13 +887,14 @@ void vtkChartParallelCoordinates::UpdateCurrentAxisSelection(int axisId)
   std::array<float, 2> currentSelection = this->Storage->CurrentSelection;
   float minCurrentSelection = std::min(currentSelection[0], currentSelection[1]);
   float maxCurrentSelection = std::max(currentSelection[0], currentSelection[1]);
+  bool isSelectionEmpty = minCurrentSelection == maxCurrentSelection;
 
   if (this->GetSelectionMode() == vtkContextScene::SELECTION_DEFAULT)
   {
     // in this context, only single selection should be done, clear the previous one.
     this->Storage->ClearSelectedAxisSelection(axisId);
 
-    if (minCurrentSelection == maxCurrentSelection)
+    if (isSelectionEmpty)
     {
       return;
     }
@@ -898,6 +906,12 @@ void vtkChartParallelCoordinates::UpdateCurrentAxisSelection(int axisId)
 
   bool isANewRange = true;
   bool startAMerge = false;
+
+  if (isSelectionEmpty)
+  {
+    this->Storage->ClearSelectedAxisSelection(axisId);
+    return;
+  }
 
   // Invalid range will be set to -1
   size_t size = this->Storage->AxesSelections[axisId].size();
@@ -1016,4 +1030,14 @@ void vtkChartParallelCoordinates::UpdateCurrentAxisSelection(int axisId)
 
   this->Storage->SortAxisSelection(axisId);
 }
+
+//------------------------------------------------------------------------------
+void vtkChartParallelCoordinates::ClearAllAxesSelections()
+{
+  for (std::size_t axisIdx = 0; axisIdx < this->Storage->AxesSelections.size(); axisIdx++)
+  {
+    this->Storage->ClearSelectedAxisSelection(static_cast<int>(axisIdx));
+  }
+}
+
 VTK_ABI_NAMESPACE_END
