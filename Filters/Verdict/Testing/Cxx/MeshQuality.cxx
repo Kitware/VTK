@@ -39,7 +39,7 @@ int DumpQualityStats(vtkMeshQuality* iq, const char* arrayname)
 }
 
 //------------------------------------------------------------------------------
-bool TestNonLinearCells(int linearType, const int cellTypes[], int numberOfCellTypes)
+bool TestNonLinearCellsApprox(int linearType, const int cellTypes[], int numberOfCellTypes)
 {
   vtkNew<vtkCellTypeSource> ref, nonLinearCells;
 
@@ -73,7 +73,7 @@ bool TestNonLinearCells(int linearType, const int cellTypes[], int numberOfCellT
 
     for (vtkIdType cellId = 0; cellId < NaNQuality->GetNumberOfValues(); ++cellId)
     {
-      if (NaNQuality->GetValue(cellId) == NaNQuality->GetValue(cellId))
+      if (!std::isnan(NaNQuality->GetValue(cellId)))
       {
         vtkLog(ERROR, "Non linear cells should be tagged NaN");
         return false;
@@ -81,6 +81,77 @@ bool TestNonLinearCells(int linearType, const int cellTypes[], int numberOfCellT
       if (approxQuality->GetValue(cellId) != refQualityArray->GetValue(cellId))
       {
         vtkLog(ERROR, "Linear approximation failed for non linear cells");
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool TestNonLinearCells(int linearType, int nonLinearType,
+  const vtkMeshQuality::QualityMeasureTypes metrics[], int numberOfMetrics)
+{
+  vtkNew<vtkCellTypeSource> ref, nonLinearCells;
+  ref->SetBlocksDimensions(1, 1, 1);
+  ref->SetCellType(linearType);
+  ref->Update();
+  nonLinearCells->SetBlocksDimensions(1, 1, 1);
+  nonLinearCells->SetCellType(nonLinearType);
+  nonLinearCells->Update();
+
+  for (int metricId = 0; metricId < numberOfMetrics; ++metricId)
+  {
+    vtkNew<vtkMeshQuality> refQuality, nonLinearQuality;
+    refQuality->SetInputConnection(ref->GetOutputPort());
+    nonLinearQuality->SetInputConnection(nonLinearCells->GetOutputPort());
+    switch (linearType)
+    {
+      case VTK_TRIANGLE:
+        refQuality->SetTriangleQualityMeasure(metrics[metricId]);
+        nonLinearQuality->SetTriangleQualityMeasure(metrics[metricId]);
+        break;
+      case VTK_QUAD:
+        refQuality->SetQuadQualityMeasure(metrics[metricId]);
+        nonLinearQuality->SetQuadQualityMeasure(metrics[metricId]);
+        break;
+      case VTK_TETRA:
+        refQuality->SetTetQualityMeasure(metrics[metricId]);
+        nonLinearQuality->SetTetQualityMeasure(metrics[metricId]);
+        break;
+      case VTK_PYRAMID:
+        refQuality->SetPyramidQualityMeasure(metrics[metricId]);
+        nonLinearQuality->SetPyramidQualityMeasure(metrics[metricId]);
+        break;
+      case VTK_WEDGE:
+        refQuality->SetWedgeQualityMeasure(metrics[metricId]);
+        nonLinearQuality->SetWedgeQualityMeasure(metrics[metricId]);
+        break;
+      case VTK_HEXAHEDRON:
+        refQuality->SetHexQualityMeasure(metrics[metricId]);
+        nonLinearQuality->SetHexQualityMeasure(metrics[metricId]);
+        break;
+      default:
+        vtkLog(ERROR, "Unsupported cell type");
+        return false;
+    }
+    refQuality->Update();
+    nonLinearQuality->Update();
+
+    auto refUG = vtkUnstructuredGrid::SafeDownCast(refQuality->GetOutputDataObject(0));
+    auto refQualityArray =
+      vtkArrayDownCast<vtkDoubleArray>(refUG->GetCellData()->GetAbstractArray("Quality"));
+    auto nonLinearUG = vtkUnstructuredGrid::SafeDownCast(nonLinearQuality->GetOutputDataObject(0));
+    auto nonLinearQualityArray =
+      vtkArrayDownCast<vtkDoubleArray>(nonLinearUG->GetCellData()->GetAbstractArray("Quality"));
+
+    for (vtkIdType cellId = 0; cellId < nonLinearQualityArray->GetNumberOfValues(); ++cellId)
+    {
+      if (std::isnan(nonLinearQualityArray->GetValue(cellId)) &&
+        std::isnan(refQualityArray->GetValue(cellId)))
+      {
+        vtkLog(ERROR, "Non linear cells should not be nan");
         return false;
       }
     }
@@ -462,6 +533,12 @@ int MeshQuality(int argc, char* argv[])
     DumpQualityStats(iq, "Mesh Tetrahedron Quality");
     cout << endl;
 
+    iq->SetTetQualityMeasureToInradius();
+    iq->Update();
+    cout << " Inradius:" << endl;
+    DumpQualityStats(iq, "Mesh Tetrahedron Quality");
+    cout << endl;
+
     iq->SetTetQualityMeasureToMeanRatio();
     iq->Update();
     cout << " Mean Ratio:" << endl;
@@ -708,12 +785,35 @@ int MeshQuality(int argc, char* argv[])
 
   constexpr int TriangleTypes[] = { VTK_QUADRATIC_TRIANGLE, VTK_BIQUADRATIC_TRIANGLE,
     VTK_HIGHER_ORDER_TRIANGLE, VTK_LAGRANGE_TRIANGLE, VTK_BEZIER_TRIANGLE };
+  constexpr vtkMeshQuality::QualityMeasureTypes QuadraticTriangleMetrics[] = {
+    vtkMeshQuality::QualityMeasureTypes::AREA, vtkMeshQuality::QualityMeasureTypes::DISTORTION,
+    vtkMeshQuality::QualityMeasureTypes::NORMALIZED_INRADIUS,
+    vtkMeshQuality::QualityMeasureTypes::SCALED_JACOBIAN
+  };
+  constexpr vtkMeshQuality::QualityMeasureTypes BiQuadraticTriangleMetrics[] = {
+    vtkMeshQuality::QualityMeasureTypes::AREA, vtkMeshQuality::QualityMeasureTypes::DISTORTION
+  };
 
   constexpr int QuadTypes[] = { VTK_QUADRATIC_QUAD, VTK_QUADRATIC_LINEAR_QUAD, VTK_BIQUADRATIC_QUAD,
     VTK_HIGHER_ORDER_QUAD, VTK_LAGRANGE_QUADRILATERAL, VTK_BEZIER_QUADRILATERAL };
+  constexpr vtkMeshQuality::QualityMeasureTypes QuadraticQuadMetrics[] = {
+    vtkMeshQuality::QualityMeasureTypes::AREA, vtkMeshQuality::QualityMeasureTypes::DISTORTION
+  };
+  constexpr vtkMeshQuality::QualityMeasureTypes BiQuadraticQuadMetrics[] = {
+    vtkMeshQuality::QualityMeasureTypes::AREA
+  };
 
   constexpr int TetraTypes[] = { VTK_QUADRATIC_TETRA, VTK_HIGHER_ORDER_TETRAHEDRON,
     VTK_LAGRANGE_TETRAHEDRON, VTK_BEZIER_TETRAHEDRON };
+  constexpr vtkMeshQuality::QualityMeasureTypes QuadraticTetraMetrics[] = {
+    vtkMeshQuality::QualityMeasureTypes::DISTORTION,
+    vtkMeshQuality::QualityMeasureTypes::EQUIVOLUME_SKEW,
+    vtkMeshQuality::QualityMeasureTypes::INRADIUS, vtkMeshQuality::QualityMeasureTypes::JACOBIAN,
+    vtkMeshQuality::QualityMeasureTypes::MEAN_RATIO,
+    vtkMeshQuality::QualityMeasureTypes::NORMALIZED_INRADIUS,
+    vtkMeshQuality::QualityMeasureTypes::SCALED_JACOBIAN,
+    vtkMeshQuality::QualityMeasureTypes::VOLUME
+  };
 
   constexpr int PyramidTypes[] = { VTK_QUADRATIC_PYRAMID, VTK_TRIQUADRATIC_PYRAMID,
     VTK_HIGHER_ORDER_PYRAMID, VTK_LAGRANGE_PYRAMID, VTK_BEZIER_PYRAMID };
@@ -724,19 +824,40 @@ int MeshQuality(int argc, char* argv[])
   constexpr int HexaTypes[] = { VTK_QUADRATIC_HEXAHEDRON, VTK_TRIQUADRATIC_HEXAHEDRON,
     VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON, VTK_HIGHER_ORDER_HEXAHEDRON, VTK_LAGRANGE_HEXAHEDRON,
     VTK_BEZIER_HEXAHEDRON };
+  constexpr vtkMeshQuality::QualityMeasureTypes QuadraticHexMetrics[] = {
+    vtkMeshQuality::QualityMeasureTypes::DISTORTION, vtkMeshQuality::QualityMeasureTypes::VOLUME
+  };
+  constexpr vtkMeshQuality::QualityMeasureTypes TriQuadraticHexMetrics[] = {
+    vtkMeshQuality::QualityMeasureTypes::DISTORTION, vtkMeshQuality::QualityMeasureTypes::JACOBIAN,
+    vtkMeshQuality::QualityMeasureTypes::VOLUME
+  };
 
   vtkLog(INFO, "Testing non linear triangles");
-  TestNonLinearCells(VTK_TRIANGLE, TriangleTypes, sizeof(TriangleTypes) / sizeof(int));
+  TestNonLinearCellsApprox(VTK_TRIANGLE, TriangleTypes, sizeof(TriangleTypes) / sizeof(int));
+  TestNonLinearCells(VTK_TRIANGLE, VTK_QUADRATIC_TRIANGLE, QuadraticTriangleMetrics,
+    sizeof(QuadraticTriangleMetrics) / sizeof(vtkMeshQuality::QualityMeasureTypes));
+  TestNonLinearCells(VTK_TRIANGLE, VTK_BIQUADRATIC_TRIANGLE, BiQuadraticTriangleMetrics,
+    sizeof(BiQuadraticTriangleMetrics) / sizeof(vtkMeshQuality::QualityMeasureTypes));
   vtkLog(INFO, "Testing non linear quads");
-  TestNonLinearCells(VTK_QUAD, QuadTypes, sizeof(QuadTypes) / sizeof(int));
+  TestNonLinearCellsApprox(VTK_QUAD, QuadTypes, sizeof(QuadTypes) / sizeof(int));
+  TestNonLinearCells(VTK_QUAD, VTK_QUADRATIC_QUAD, QuadraticQuadMetrics,
+    sizeof(QuadraticQuadMetrics) / sizeof(vtkMeshQuality::QualityMeasureTypes));
+  TestNonLinearCells(VTK_QUAD, VTK_BIQUADRATIC_QUAD, BiQuadraticQuadMetrics,
+    sizeof(BiQuadraticQuadMetrics) / sizeof(vtkMeshQuality::QualityMeasureTypes));
   vtkLog(INFO, "Testing non linear tetras");
-  TestNonLinearCells(VTK_TETRA, TetraTypes, sizeof(TetraTypes) / sizeof(int));
+  TestNonLinearCellsApprox(VTK_TETRA, TetraTypes, sizeof(TetraTypes) / sizeof(int));
+  TestNonLinearCells(VTK_TETRA, VTK_QUADRATIC_TETRA, QuadraticTetraMetrics,
+    sizeof(QuadraticTetraMetrics) / sizeof(vtkMeshQuality::QualityMeasureTypes));
   vtkLog(INFO, "Testing non linear pyramids");
-  TestNonLinearCells(VTK_PYRAMID, PyramidTypes, sizeof(PyramidTypes) / sizeof(int));
+  TestNonLinearCellsApprox(VTK_PYRAMID, PyramidTypes, sizeof(PyramidTypes) / sizeof(int));
   vtkLog(INFO, "Testing non linear wedges");
-  TestNonLinearCells(VTK_WEDGE, WedgeTypes, sizeof(WedgeTypes) / sizeof(int));
+  TestNonLinearCellsApprox(VTK_WEDGE, WedgeTypes, sizeof(WedgeTypes) / sizeof(int));
   vtkLog(INFO, "Testing non linear hexahedrons");
-  TestNonLinearCells(VTK_HEXAHEDRON, HexaTypes, sizeof(HexaTypes) / sizeof(int));
+  TestNonLinearCellsApprox(VTK_HEXAHEDRON, HexaTypes, sizeof(HexaTypes) / sizeof(int));
+  TestNonLinearCells(VTK_HEXAHEDRON, VTK_QUADRATIC_HEXAHEDRON, QuadraticHexMetrics,
+    sizeof(QuadraticHexMetrics) / sizeof(vtkMeshQuality::QualityMeasureTypes));
+  TestNonLinearCells(VTK_HEXAHEDRON, VTK_TRIQUADRATIC_HEXAHEDRON, TriQuadraticHexMetrics,
+    sizeof(TriQuadraticHexMetrics) / sizeof(vtkMeshQuality::QualityMeasureTypes));
 
   // Exercise remaining methods for coverage
   iq->Print(cout);

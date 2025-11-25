@@ -184,10 +184,18 @@ int TestCellTypeSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     cerr << "Error with VTK_HEXAHEDRON\n";
     return EXIT_FAILURE;
   }
+  size[0] = size[1] = 1. / 12.;
   if (CheckCells(VTK_QUADRATIC_HEXAHEDRON, dims, vtkAlgorithm::DOUBLE_PRECISION, 733,
         dims[0] * dims[1] * dims[2], size, 4.387482193696061, 16.) == EXIT_FAILURE)
   {
     cerr << "Error with VTK_QUADRATIC_HEXAHEDRON\n";
+    return EXIT_FAILURE;
+  }
+  size[0] = size[1] = -(1. / 48.);
+  if (CheckCells(VTK_TRIQUADRATIC_HEXAHEDRON, dims, vtkAlgorithm::DOUBLE_PRECISION, 1287,
+        dims[0] * dims[1] * dims[2], size, 4.387482193696061, 16.) == EXIT_FAILURE)
+  {
+    cerr << "Error with VTK_TRIQUADRATIC_HEXAHEDRON\n";
     return EXIT_FAILURE;
   }
   size[0] = size[1] = .5;
