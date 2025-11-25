@@ -72,7 +72,7 @@ void vtkSMPToolsImpl<BackendType::OpenMP>::Initialize(int numThreads)
 //------------------------------------------------------------------------------
 int GetNumberOfThreadsOpenMP()
 {
-  return specifiedNumThreadsOMP
+  return (specifiedNumThreadsOMP > 0)
     ? specifiedNumThreadsOMP
     : vtkSMPToolsImpl<BackendType::OpenMP>::GetEstimatedDefaultNumberOfThreads();
 }
