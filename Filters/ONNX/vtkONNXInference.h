@@ -23,7 +23,7 @@
 #include "vtkFiltersONNXModule.h" // For export macro
 #include "vtkPassInputTypeAlgorithm.h"
 
-#include "vtkDataObject.h" // for AttributeTypes
+#include "vtkDataObject.h" // For AttributeTypes
 
 #include <memory> // For std::unique_ptr
 #include <vector> // For std::vector
@@ -84,16 +84,12 @@ public:
    */
   void ClearTimeStepValues();
 
+  ///@{
   /**
-   * Set the index of time value in the array of input parameters.
+   * Set/Get the index of time value in the array of input parameters.
    * (default: -1, meaning no input parameter correspond to time)
    */
   vtkSetMacro(TimeStepIndex, int);
-
-  /**
-   * Get the index of time value in the array of input parameters.
-   * (default: -1, meaning no input parameter correspond to time)
-   */
   vtkGetMacro(TimeStepIndex, int);
   ///@}
 
@@ -105,7 +101,6 @@ public:
    * replaced by the current time value based on requested time and on TimeStepValues
    * @see SetTimeStepValues
    */
-  ///@{
   /**
    * Set the input parameters that will be forwarded to the inference model.
    */
@@ -117,22 +112,37 @@ public:
    */
   void SetInputParameter(vtkIdType idx, float InputParameter);
 
+  ///@{
   /**
-   * Set the number of input parameters. This basically allocates the vector
-   * of parameters and sets the input dimension.
+   * Set/Get the shape of the input. Also, the first element of the shape defines the shape of
+   * InputParameters (default: {0})
    */
-  void SetNumberOfInputParameters(vtkIdType nb);
-
-  /**
-   * Set/Get the number of input elements. (default: 0)
-   */
-  vtkGetMacro(InputSize, int);
+  void SetInputShape(const std::vector<int64_t>& shape);
+  const std::vector<int64_t>& GetInputShape() const;
+  ///@}
 
   /**
    * Clear the input parameters vector. Useful when loading a new model to reset the
    * internal state.
    */
   void ClearInputParameters();
+
+  ///@{
+  /**
+   * Set/Get whether the model input comes from prescribed parameters given through the
+   * SetInputParameters API or if an existing cell/point data is used. (default: false)
+   */
+  vtkSetMacro(FieldArrayInput, bool);
+  vtkGetMacro(FieldArrayInput, bool);
+  vtkBooleanMacro(FieldArrayInput, bool);
+  ///@}
+
+  ///@{
+  /**
+   * Set/Get the name of the input array to be processed. (default: "")
+   */
+  vtkSetMacro(ProcessedFieldArrayName, const std::string&);
+  vtkGetMacro(ProcessedFieldArrayName, const std::string&);
   ///@}
 
   ///@{
@@ -187,6 +197,20 @@ private:
   bool ShouldGenerateTimeSteps();
 
   /**
+   * Create the input tensor in the format required by the ONNX Runtime API.
+   * This is generated from the parameters given through SetInputParameters.
+   */
+  bool GenerateInputTensorFromParameters(
+    std::vector<float>& parameters, Ort::Value& inputTensor, double timeValue);
+
+  /**
+   * Create the input tensor in the format required by the ONNX Runtime API.
+   * This is generated from the field array specified by ProcessedFieldArrayName.
+   */
+  bool GenerateInputTensorFromFieldArray(
+    Ort::Value& inputTensor, vtkDataSetAttributes* inAttributes);
+
+  /**
    * Run the ONNX model with the provided input parameters. The ONNX session
    * must be initialized first.
    */
@@ -194,10 +218,12 @@ private:
 
   // Input related parameters
   std::string ModelFile;
-  int64_t InputSize = 0;
+  std::vector<int64_t> InputShape = { 0 };
   std::vector<float> InputParameters;
   std::vector<double> TimeStepValues;
   int TimeStepIndex = -1;
+  bool FieldArrayInput = false;
+  std::string ProcessedFieldArrayName;
 
   // Output related parameters
   int OutputDimension = 1;

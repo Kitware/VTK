@@ -12,6 +12,7 @@
 #include "vtkLogger.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <numeric>
 #include <onnxruntime_cxx_api.h>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -22,11 +23,13 @@ vtkStandardNewMacro(vtkONNXInference);
 namespace
 {
 //------------------------------------------------------------------------------
-Ort::Value VecToTensor(std::vector<float>& data, int64_t shape)
+Ort::Value RawToTensor(float* data, const std::vector<int64_t>& shape)
 {
+  int64_t numberElements = std::accumulate(shape.begin(), shape.end(), 1LL, std::multiplies<>());
   Ort::MemoryInfo memInfo =
     Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
-  Ort::Value tensor = Ort::Value::CreateTensor<float>(memInfo, data.data(), data.size(), &shape, 1);
+  Ort::Value tensor =
+    Ort::Value::CreateTensor<float>(memInfo, data, numberElements, shape.data(), shape.size());
   return tensor;
 }
 } // anonymous namespace
@@ -44,7 +47,16 @@ void vtkONNXInference::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Path to ONNX model: " << this->ModelFile << endl;
   os << indent << "OutputDimension: " << this->OutputDimension << endl;
   os << indent << "ArrayAssociation: " << this->ArrayAssociation << endl;
-  os << indent << "InputSize: " << this->InputSize << endl;
+  os << indent << "InputShape: (";
+  for (size_t i = 0; i < this->InputShape.size(); ++i)
+  {
+    if (i > 0)
+    {
+      os << ", ";
+    }
+    os << this->InputShape[i];
+  }
+  os << ")" << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -153,12 +165,24 @@ void vtkONNXInference::SetInputParameter(vtkIdType idx, float inputParameter)
 }
 
 //------------------------------------------------------------------------------
-void vtkONNXInference::SetNumberOfInputParameters(vtkIdType nb)
+void vtkONNXInference::SetInputShape(const std::vector<int64_t>& shape)
 {
-  this->InputParameters.resize(nb);
-  vtkDebugMacro("setting NumberOfInputParameters to " << nb);
-  this->InputSize = nb;
-  this->Modified();
+  if (this->InputShape != shape)
+  {
+    vtkDebugMacro("setting InputShape");
+    this->InputShape = shape;
+    if (!this->FieldArrayInput)
+    {
+      this->InputParameters.resize(shape[0]);
+    }
+    this->Modified();
+  }
+}
+
+//------------------------------------------------------------------------------
+const std::vector<int64_t>& vtkONNXInference::GetInputShape() const
+{
+  return this->InputShape;
 }
 
 //------------------------------------------------------------------------------
@@ -299,37 +323,42 @@ int vtkONNXInference::ExecuteData(vtkDataObject* input, vtkDataObject* output, d
     return 0;
   }
 
-  // Prepare and run model
-  std::vector<float> parameters = this->InputParameters;
-  if (this->TimeStepIndex >= 0 && this->TimeStepIndex < this->InputSize)
+  // Prepare model input
+  Ort::Value inputTensor;
+  std::vector<float> parameters;
+  if (this->FieldArrayInput)
   {
-    parameters[this->TimeStepIndex] = timeValue;
+    if (!this->GenerateInputTensorFromFieldArray(
+          inputTensor, output->GetAttributes(this->ArrayAssociation)))
+    {
+      vtkErrorMacro("Could not generate the input tensor for ONNX Runtime.");
+      return 0;
+    }
   }
-
+  else
+  {
+    if (!this->GenerateInputTensorFromParameters(parameters, inputTensor, timeValue))
+    {
+      return 0;
+    }
+  }
   int64_t numElements = input->GetNumberOfElements(this->ArrayAssociation);
   float* outData = nullptr;
 
   try
   {
-    Ort::Value inputTensor = ::VecToTensor(parameters, this->InputSize);
     std::vector<Ort::Value> outputTensors = this->RunModel(inputTensor);
 
     // Retrieve output
     outData = outputTensors[0].GetTensorMutableData<float>();
     Ort::TensorTypeAndShapeInfo shapeInfo = outputTensors[0].GetTensorTypeAndShapeInfo();
     std::vector<int64_t> outputShape = shapeInfo.GetShape();
+    int64_t outputNumElements =
+      std::accumulate(outputShape.begin(), outputShape.end(), 1LL, std::multiplies<>());
 
-    if (outputShape.size() == 1)
+    if (numElements != outputNumElements / this->OutputDimension)
     {
-      if (numElements != outputShape[0] / this->OutputDimension)
-      {
-        vtkErrorMacro("Model output number of elements does not match number of cells or points.");
-        return 0;
-      }
-    }
-    else
-    {
-      vtkErrorMacro("Output shape size should be 1. Here it is: " << outputShape.size());
+      vtkErrorMacro("Model output number of elements does not match number of cells or points.");
       return 0;
     }
   }
@@ -360,6 +389,62 @@ int vtkONNXInference::ExecuteData(vtkDataObject* input, vtkDataObject* output, d
 bool vtkONNXInference::ShouldGenerateTimeSteps()
 {
   return !this->TimeStepValues.empty() && this->TimeStepIndex > -1;
+}
+
+//------------------------------------------------------------------------------
+bool vtkONNXInference::GenerateInputTensorFromParameters(
+  std::vector<float>& parameters, Ort::Value& inputTensor, double timeValue)
+{
+  parameters = this->InputParameters;
+  if (this->TimeStepIndex >= 0 && this->TimeStepIndex < this->InputShape[0])
+  {
+    parameters[this->TimeStepIndex] = timeValue;
+  }
+  try
+  {
+    inputTensor = ::RawToTensor(parameters.data(), { this->InputShape[0] });
+  }
+  catch (const Ort::Exception& exception)
+  {
+    vtkErrorMacro(<< "Error during the input tensor creation. " << exception.what());
+    return false;
+  }
+  return true;
+}
+
+//------------------------------------------------------------------------------
+bool vtkONNXInference::GenerateInputTensorFromFieldArray(
+  Ort::Value& inputTensor, vtkDataSetAttributes* inAttributes)
+{
+  vtkDataArray* modelInput = inAttributes->GetArray(this->ProcessedFieldArrayName.c_str());
+  if (!modelInput)
+  {
+    vtkErrorMacro(<< "No array named \"" << this->ProcessedFieldArrayName
+                  << "\" was found in the input.");
+    return false;
+  }
+  vtkFloatArray* floatModelInput = vtkFloatArray::SafeDownCast(modelInput);
+  float* modelInputData;
+  if (floatModelInput)
+  {
+    modelInputData = floatModelInput->GetPointer(0);
+  }
+  else
+  {
+    vtkErrorMacro(<< "Only input field of type vtkFloatArray can be used for prediction.");
+    return false;
+  }
+
+  try
+  {
+    inputTensor = ::RawToTensor(modelInputData, this->InputShape);
+  }
+  catch (const Ort::Exception& exception)
+  {
+    vtkErrorMacro(<< "Error during the input tensor creation. " << exception.what());
+    return false;
+  }
+  return true;
 }
 
 VTK_ABI_NAMESPACE_END
