@@ -6,10 +6,12 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkRenderWindow.h"
+#include "vtkStringScanner.h"
 #include "vtksys/SystemTools.hxx"
 
 // STL includes
 #include <assert.h>
+#include <string_view>
 
 VTK_ABI_NAMESPACE_BEGIN
 //-------------------------------------------------------------------------------------------------
@@ -213,8 +215,8 @@ void vtkXlibHardwareWindow::Create()
   if ((this->Position[0] >= 0) && (this->Position[1] >= 0))
   {
     xsh.flags |= USPosition;
-    xsh.x = static_cast<int>(this->Position[0]);
-    xsh.y = static_cast<int>(this->Position[1]);
+    xsh.x = this->Position[0];
+    xsh.y = this->Position[1];
   }
 
   x = this->Position[0];
@@ -813,7 +815,7 @@ void vtkXlibHardwareWindow::SetWindowInfo(const char* info)
     }
   }
 
-  sscanf(info, "%i", &tmp);
+  tmp = vtk::scan_int<int>(std::string_view(info))->value();
 
   this->SetWindowId(static_cast<Window>(tmp));
 }
