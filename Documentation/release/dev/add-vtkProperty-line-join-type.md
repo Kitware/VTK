@@ -5,6 +5,6 @@ the `vtkProperty::SetLineJoin(LineJoinType)` method. The possible values for the
 are:
 1. RoundCapRoundJoin
 2. MiterJoin
-3. None (default)
+3. NoJoin (default)
 
 This feature is only supported in the upcoming experimental webgpu rendering backend.
