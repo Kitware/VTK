@@ -111,6 +111,8 @@ if (OPERATION == OPERATIONS.START) {
       'Access-Control-Allow-Origin': '*', /* @dev First, read about security */
       'Access-Control-Allow-Methods': 'OPTIONS, POST, GET',
       'Access-Control-Max-Age': 2592000, // 30 days
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
       /** add other headers as per requirement */
     };
     const url = new URL(incomingMesssage.url, `http://${incomingMesssage.headers.host}/`);
