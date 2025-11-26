@@ -7,6 +7,10 @@ if(VTK_SOURCE_DIR OR VTK_BINARY_DIR)
   message(FATAL_ERROR "This directory may build only outside VTK!")
 endif()
 
+# Set up our directory structure for output binaries
+include(GNUInstallDirs)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
+
 include(CTest)
 # Find the top of the main VTK source tree.
 get_filename_component(VTK_TOP_DIR "${VTKTestExternalWasm_SOURCE_DIR}/../.." ABSOLUTE)

@@ -274,6 +274,7 @@ else ()
   elseif (VTK_USE_WIN32_OPENGL) # FIXME: We need a VTK_USE_WIN32_WINDOW flag here
     # TODO
   endif ()
+  find_package(Threads REQUIRED)
   vtk_module_find_package(PACKAGE Dawn)
   vtk_module_link(VTK::RenderingWebGPU
     PUBLIC

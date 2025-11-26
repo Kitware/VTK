@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en-us">
 <head>
-  <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <style>
     .vtk_test_suite {
@@ -107,8 +106,6 @@
       arguments: "@test_args@".split(";") // Comes in as a stringified cmake list
     };
   </script>
-  <script type="text/javascript">
-    @javascript@
-  </script>
+  <script src="@js_filename@"></script>
 </body>
 </html>

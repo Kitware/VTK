@@ -34,12 +34,17 @@ const OPERATIONS =
 };
 
 const {
-  values: { directory, port, operation },
+  values: { directory, binaryDirectory, port, operation },
 } = parseArgs({
   options: {
     directory: {
       type: 'string',
       short: 'd',
+      default: process.cwd()
+    },
+    binaryDirectory: {
+      type: 'string',
+      short: 'b',
       default: process.cwd()
     },
     port: {
@@ -58,6 +63,8 @@ const HOST = '127.0.0.1';
 const PORT = Number.parseInt(port, 10);
 const OPERATION = operation;
 const LOCK = path.join(directory, 'vtkhttp.lock');
+const HTML_REGEX = new RegExp('.html$');
+const JS_REGEX = new RegExp('.js$');
 
 if (OPERATION == OPERATIONS.START) {
   console.log('starting server process..');
@@ -66,7 +73,7 @@ if (OPERATION == OPERATIONS.START) {
     process.exit(1);
   }
   fork(process.argv[1],
-    ['-d', directory, '-p', port, '-o', OPERATIONS.RUN],
+    ['-d', directory, '-b', binaryDirectory, '-p', port, '-o', OPERATIONS.RUN],
     {
       detached: true,
       stdio: [
@@ -88,8 +95,14 @@ if (OPERATION == OPERATIONS.START) {
 } else if (OPERATION == OPERATIONS.STOP) {
   console.log('stopping server process..');
   const vtkhttp = JSON.parse(fs.readFileSync(LOCK));
-  process.kill(vtkhttp.pid);
-  console.log(`killed ${vtkhttp.pid}`);
+  try
+  {
+    process.kill(vtkhttp.pid);
+    console.log(`killed ${vtkhttp.pid}`);
+  } catch (e)
+  {
+    console.warn(`failed to kill process ${vtkhttp.pid}: ${e.message}`);
+  }
   fs.rmSync(LOCK, { force: true, maxRetries: 10 });
 } else if (OPERATION == OPERATIONS.RUN) {
   // Create a local server to receive data from
@@ -139,8 +152,67 @@ if (OPERATION == OPERATIONS.START) {
           })
           .end(body);
       }
-    } else {
-      response.writeHead(403, 'Forbidden').end();
+    } else if (
+      incomingMesssage.method === 'GET'
+    ) {
+      if (url.pathname.includes('/preload')) {
+        const query = new URLSearchParams(url.search);
+        if (query.has('file')) {
+          const filePath = path.join(query.get('file'));
+          console.debug(`preloading ${filePath}`);
+          if (fs.existsSync(filePath)) {
+            const fileStream = fs.createReadStream(filePath);
+            response.writeHead(200, {
+              ...headers,
+              'Content-Type': 'application/octet-stream',
+            });
+            fileStream.pipe(response);
+          }
+          else {
+            console.error(`File not found: ${filePath}`);
+            response.writeHead(404, 'File not found').end();
+          }
+        } else {
+          response.writeHead(400, 'Bad Request').end();
+        }
+      }
+      else if (HTML_REGEX.test(url.pathname)) {
+        const filePath = path.join(directory, url.pathname);
+        console.debug(`serving ${filePath}`);
+        if (fs.existsSync(filePath)) {
+          const fileStream = fs.createReadStream(filePath);
+          response.writeHead(200, {
+            ...headers,
+            'Content-Type': 'text/html',
+          });
+          fileStream.pipe(response);
+        } else {
+          console.error(`File not found: ${filePath}`);
+          response.writeHead(404, 'File not found').end();
+        }
+      }
+      else if (JS_REGEX.test(url.pathname)) {
+        const fileName = path.basename(url.pathname);
+        const filePath = path.join(binaryDirectory, fileName);
+        console.debug(`serving ${filePath}`);
+        if (fs.existsSync(filePath)) {
+          const fileStream = fs.createReadStream(filePath);
+          const contentType = 'application/javascript';
+          response.writeHead(200, {
+            ...headers,
+            'Content-Type': contentType,
+          });
+          fileStream.pipe(response);
+        } else {
+          response.writeHead(404, 'File not found').end();
+        }
+      }
+      else if (url.pathname === '/favicon.ico') {
+        response.writeHead(200, {...headers, 'Content-Type': 'image/png'}).end("");
+      }
+    }
+    if (!response.writableEnded) {
+      // response.writeHead(403, 'Forbidden').end();
     }
   });
 
