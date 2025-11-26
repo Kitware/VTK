@@ -308,7 +308,10 @@ set(nowrap_headers
   vtkCompositeDataSetRange.h
   vtkDataObjectImplicitBackendInterface.h
   vtkDataObjectTreeRange.h
-  vtkPolyDataInternals.h)
+  vtkLocatorInterface.h
+  vtkPolyDataInternals.h
+  vtkStaticPointLocator2DPrivate.h
+  vtkStaticPointLocatorPrivate.h)
 
 set(templates
   vtkCompositeDataSet.txx)

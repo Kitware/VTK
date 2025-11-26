@@ -8,6 +8,7 @@ vtk_add_test_python(
   PerlinNoise.py
   SelectionLoop.py
   TestBoxPlaneIntersection.py
+  TestBoxSphereIntersection.py,NO_VALID
   TestCellGrid.py,NO_VALID
   TestComputeBounds.py,NO_DATA,NO_VALID
   TestCopyStructuredData.py,NO_DATA,NO_VALID

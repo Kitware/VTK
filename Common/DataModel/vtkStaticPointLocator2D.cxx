@@ -5,9 +5,11 @@
 #include "vtkBoundingBox.h"
 #include "vtkBox.h"
 #include "vtkCellArray.h"
+#include "vtkDoubleArray.h"
 #include "vtkIdList.h"
 #include "vtkIntArray.h"
 #include "vtkLine.h"
+#include "vtkLocatorInterface.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPlane.h"
@@ -15,6 +17,13 @@
 #include "vtkPolyData.h"
 #include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
+
+//------------------------------------------------------------------------------
+// Parts of the locator and related classes are made visible through the
+// included private include file (to satisfy the one definition rule). This
+// include files declares internal classes.  Definitions follow in this .cxx
+// file.
+#include "vtkStaticPointLocator2DPrivate.h"
 
 #include <algorithm>
 #include <vector>
@@ -25,108 +34,6 @@ vtkStandardNewMacro(vtkStaticPointLocator2D);
 // There are stack-allocated bucket neighbor lists. This is the initial
 // value. Too small and heap allocation kicks in.
 constexpr size_t VTK_INITIAL_BUCKET_SIZE = 10000;
-
-#define Distance2BetweenPoints2D(p1, p2)                                                           \
-  (p1[0] - p2[0]) * (p1[0] - p2[0]) + (p1[1] - p2[1]) * (p1[1] - p2[1])
-
-//------------------------------------------------------------------------------
-// The following code supports threaded point locator construction. The locator
-// is assumed to be constructed once (i.e., it does not allow incremental point
-// insertion). The algorithm proceeds in three steps:
-// 1) All points are assigned a bucket index (combined i-j-k bucket location).
-// The index is computed in parallel. This requires a one time allocation of an
-// index array (which is also associated with the originating point ids).
-// 2) vtkSMPTools::Sort() is used to sort the index array. Note that the sort
-// carries along the point ids as well. This creates contiguous runs of points
-// all resident in the same bucket.
-// 3) The bucket offsets are updated to refer to the right entry location into
-// the sorted point ids array. This enables quick access, and an indirect count
-// of the number of points in each bucket.
-
-// Believe it or not I had to change the name because MS Visual Studio was
-// mistakenly linking the hidden, scoped classes (vtkNeighborBuckets) found
-// in vtkPointLocator and vtkStaticPointLocator2D and causing weird faults.
-struct NeighborBuckets2D;
-
-//------------------------------------------------------------------------------
-// The bucketed points, including the sorted map. This is just a PIMPLd
-// wrapper around the classes that do the real work.
-struct vtkBucketList2D
-{
-  vtkStaticPointLocator2D* Locator; // locater
-  vtkIdType NumPts;                 // the number of points to bucket
-  vtkIdType NumBuckets;
-  int BatchSize;
-
-  // These are internal data members used for performance reasons
-  vtkDataSet* DataSet;
-  int Divisions[3];
-  double Bounds[6];
-  double H[3];
-  double hX, hY;
-  double fX, fY, bX, bY;
-  vtkIdType xD, yD, zD;
-
-  // Construction
-  vtkBucketList2D(vtkStaticPointLocator2D* loc, vtkIdType numPts, int numBuckets)
-  {
-    this->Locator = loc;
-    this->NumPts = numPts;
-    this->NumBuckets = numBuckets;
-    this->BatchSize = 10000; // building the offset array
-    this->DataSet = loc->GetDataSet();
-
-    // Setup internal data members for more efficient processing. Remember this is
-    // a 2D locator so just processing (x,y) points.
-    double spacing[3], bounds[6];
-    loc->GetDivisions(this->Divisions);
-    loc->GetSpacing(spacing);
-    loc->GetBounds(bounds);
-    this->hX = this->H[0] = spacing[0];
-    this->hY = this->H[1] = spacing[1];
-    this->fX = 1.0 / spacing[0];
-    this->fY = 1.0 / spacing[1];
-    this->bX = this->Bounds[0] = bounds[0];
-    this->Bounds[1] = bounds[1];
-    this->bY = this->Bounds[2] = bounds[2];
-    this->Bounds[3] = bounds[3];
-    this->xD = this->Divisions[0];
-    this->yD = this->Divisions[1];
-    this->zD = 1;
-  }
-
-  // Virtuals for templated subclasses
-  virtual ~vtkBucketList2D() = default;
-  virtual void BuildLocator() = 0;
-
-  // place points in appropriate buckets
-  void GetBucketNeighbors(
-    NeighborBuckets2D* buckets, const int ij[2], const int ndivs[2], int level);
-  void GenerateFace(int face, int i, int j, int k, vtkPoints* pts, vtkCellArray* polys);
-  double Distance2ToBucket(const double x[3], const int nei[3]);
-  double Distance2ToBounds(const double x[3], const double bounds[6]);
-
-  //-----------------------------------------------------------------------------
-  // Inlined for performance. These function invocations must be called after
-  // BuildLocator() is invoked, otherwise the output is indeterminate.
-  void GetBucketIndices(const double* x, int ij[2]) const
-  {
-    // Compute point index. Make sure it lies within range of locator.
-    vtkIdType tmp0 = static_cast<vtkIdType>(((x[0] - bX) * fX));
-    vtkIdType tmp1 = static_cast<vtkIdType>(((x[1] - bY) * fY));
-
-    ij[0] = std::min(std::max<vtkIdType>(tmp0, 0), xD - 1);
-    ij[1] = std::min(std::max<vtkIdType>(tmp1, 0), yD - 1);
-  }
-
-  //-----------------------------------------------------------------------------
-  vtkIdType GetBucketIndex(const double* x) const
-  {
-    int ij[2];
-    this->GetBucketIndices(x, ij);
-    return ij[0] + ij[1] * xD;
-  }
-};
 
 //------------------------------------------------------------------------------
 // Utility class to store an array of ij values
@@ -188,7 +95,7 @@ struct NeighborBuckets2D
     this->Count++;
     return this->Count - 1;
   }
-};
+}; // NeighborBuckets2D
 
 //------------------------------------------------------------------------------
 //  Internal function to get bucket neighbors at specified level
@@ -333,379 +240,6 @@ double vtkBucketList2D::Distance2ToBounds(const double x[3], const double bounds
 }
 
 //------------------------------------------------------------------------------
-// The following tuple is what is sorted in the map. Note that it is templated
-// because depending on the number of points / buckets to process we may want
-// to use vtkIdType. Otherwise for performance reasons it's best to use an int
-// (or other integral type). Typically sort() is 25-30% faster on smaller
-// integral types, plus it takes a heck less memory (when vtkIdType is 64-bit
-// and int is 32-bit).
-template <typename TTuple>
-struct LocatorTuple
-{
-  TTuple PtId;   // originating point id
-  TTuple Bucket; // i-j-k index into bucket space
-
-  // Operator< used to support the subsequent sort operation.
-  bool operator<(const LocatorTuple& tuple) const { return Bucket < tuple.Bucket; }
-};
-
-//------------------------------------------------------------------------------
-// This templated class manages the creation of the static locator
-// structures. It also implements the operator() functors which are supplied
-// to vtkSMPTools for threaded processesing.
-template <typename TIds>
-struct BucketList2D : public vtkBucketList2D
-{
-  // Okay the various ivars
-  LocatorTuple<TIds>* Map; // the map to be sorted
-  TIds* Offsets;           // offsets for each bucket into the map
-
-  // Construction
-  BucketList2D(vtkStaticPointLocator2D* loc, vtkIdType numPts, int numBuckets)
-    : vtkBucketList2D(loc, numPts, numBuckets)
-  {
-    // one extra to simplify traversal
-    this->Map = new LocatorTuple<TIds>[numPts + 1];
-    this->Map[numPts].Bucket = numBuckets;
-    this->Offsets = new TIds[numBuckets + 1];
-    this->Offsets[numBuckets] = numPts;
-  }
-
-  // Release allocated memory
-  ~BucketList2D() override
-  {
-    delete[] this->Map;
-    delete[] this->Offsets;
-  }
-
-  // The number of point ids in a bucket is determined by computing the
-  // difference between the offsets into the sorted points array.
-  vtkIdType GetNumberOfIds(vtkIdType bucketNum)
-  {
-    return (this->Offsets[bucketNum + 1] - this->Offsets[bucketNum]);
-  }
-
-  // Given a bucket number, return the point ids in that bucket.
-  const LocatorTuple<TIds>* GetIds(vtkIdType bucketNum)
-  {
-    return this->Map + this->Offsets[bucketNum];
-  }
-
-  // Given a bucket number, return the point ids in that bucket.
-  void GetIds(vtkIdType bucketNum, vtkIdList* bList)
-  {
-    const LocatorTuple<TIds>* ids = this->GetIds(bucketNum);
-    vtkIdType numIds = this->GetNumberOfIds(bucketNum);
-    bList->SetNumberOfIds(numIds);
-    for (int i = 0; i < numIds; i++)
-    {
-      bList->SetId(i, ids[i].PtId);
-    }
-  }
-
-  // Templated implementations of the locator
-  vtkIdType FindClosestPoint(const double x[3]);
-  vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double inputDataLength, double& dist2);
-  void FindClosestNPoints(int N, const double x[3], vtkIdList* result);
-  void FindPointsWithinRadius(double R, const double x[3], vtkIdList* result);
-  int IntersectWithLine(double a0[3], double a1[3], double tol, double& t, double lineX[3],
-    double ptX[3], vtkIdType& ptId);
-  double FindCloseNBoundedPoints(int N, const double x[3], vtkIdList* result);
-
-  void MergePoints(double tol, vtkIdType* pointMap);
-  void GenerateRepresentation(int vtkNotUsed(level), vtkPolyData* pd);
-
-  // Internal methods
-  bool BucketIntersectsCircle(int i, int j, const double center[3], double R2);
-  void GetOverlappingBuckets(
-    NeighborBuckets2D* buckets, const double x[3], const int ij[2], double dist, int level);
-  void GetOverlappingBuckets(NeighborBuckets2D* buckets, const double x[3], double dist,
-    int prevMinLevel[2], int prevMaxLevel[2]);
-
-  // Implicit point representation, slower path
-  template <typename T>
-  struct MapDataSet
-  {
-    BucketList2D<T>* BList;
-    vtkDataSet* DataSet;
-
-    MapDataSet(BucketList2D<T>* blist, vtkDataSet* ds)
-      : BList(blist)
-      , DataSet(ds)
-    {
-    }
-
-    void operator()(vtkIdType ptId, vtkIdType end)
-    {
-      double p[3];
-      LocatorTuple<T>* t = this->BList->Map + ptId;
-      for (; ptId < end; ++ptId, ++t)
-      {
-        this->DataSet->GetPoint(ptId, p);
-        t->PtId = ptId;
-        t->Bucket = this->BList->GetBucketIndex(p);
-      } // for all points in this batch
-    }
-  };
-
-  // Explicit point representation (e.g., vtkPointSet), faster path
-  template <typename T, typename TPts>
-  struct MapPointsArray
-  {
-    BucketList2D<T>* BList;
-    const TPts* Points;
-
-    MapPointsArray(BucketList2D<T>* blist, const TPts* pts)
-      : BList(blist)
-      , Points(pts)
-    {
-    }
-
-    void operator()(vtkIdType ptId, vtkIdType end)
-    {
-      double p[3];
-      const TPts* x = this->Points + 3 * ptId;
-      LocatorTuple<T>* t = this->BList->Map + ptId;
-      for (; ptId < end; ++ptId, x += 3, ++t)
-      {
-        p[0] = static_cast<double>(x[0]);
-        p[1] = static_cast<double>(x[1]);
-        t->PtId = ptId;
-        t->Bucket = this->BList->GetBucketIndex(p);
-      } // for all points in this batch
-    }
-  };
-
-  // A clever way to build offsets in parallel. Basically each thread builds
-  // offsets across a range of the sorted map. Recall that offsets are an
-  // integral value referring to the locations of the sorted points that
-  // reside in each bucket.
-  template <typename T>
-  struct MapOffsets
-  {
-    BucketList2D<T>* BList;
-    vtkIdType NumPts;
-    int NumBuckets;
-
-    MapOffsets(BucketList2D<T>* blist)
-      : BList(blist)
-    {
-      this->NumPts = this->BList->NumPts;
-      this->NumBuckets = this->BList->NumBuckets;
-    }
-
-    // Traverse sorted points (i.e., tuples) and update bucket offsets.
-    void operator()(vtkIdType batch, vtkIdType batchEnd)
-    {
-      T* offsets = this->BList->Offsets;
-      const LocatorTuple<T>* curPt = this->BList->Map + batch * this->BList->BatchSize;
-      const LocatorTuple<T>* endBatchPt = this->BList->Map + batchEnd * this->BList->BatchSize;
-      const LocatorTuple<T>* endPt = this->BList->Map + this->NumPts;
-      const LocatorTuple<T>* prevPt;
-      endBatchPt = (endBatchPt > endPt ? endPt : endBatchPt);
-
-      // Special case at the very beginning of the mapped points array.  If
-      // the first point is in bucket# N, then all buckets up and including
-      // N must refer to the first point.
-      if (curPt == this->BList->Map)
-      {
-        prevPt = this->BList->Map;
-        std::fill_n(offsets, curPt->Bucket + 1, 0); // point to the first points
-      } // at the very beginning of the map (sorted points array)
-
-      // We are entering this functor somewhere in the interior of the
-      // mapped points array. All we need to do is point to the entry
-      // position because we are interested only in prevPt->Bucket.
-      else
-      {
-        prevPt = curPt;
-      } // else in the middle of a batch
-
-      // Okay we have a starting point for a bucket run. Now we can begin
-      // filling in the offsets in this batch. A previous thread should
-      // have/will have completed the previous and subsequent runs outside
-      // of the [batch,batchEnd) range
-      for (curPt = prevPt; curPt < endBatchPt;)
-      {
-        for (; curPt->Bucket == prevPt->Bucket && curPt <= endBatchPt; ++curPt)
-        {
-          // advance
-        }
-        // Fill in any gaps in the offset array
-        std::fill_n(
-          offsets + prevPt->Bucket + 1, curPt->Bucket - prevPt->Bucket, curPt - this->BList->Map);
-        prevPt = curPt;
-      } // for all batches in this range
-    }   // operator()
-  };
-
-  // Merge points that are pecisely coincident. Operates in parallel on
-  // locator buckets. Does not need to check neighbor buckets.
-  template <typename T>
-  struct MergePrecise
-  {
-    BucketList2D<T>* BList;
-    vtkDataSet* DataSet;
-    vtkIdType* MergeMap;
-
-    MergePrecise(BucketList2D<T>* blist, vtkIdType* mergeMap)
-      : BList(blist)
-      , MergeMap(mergeMap)
-    {
-      this->DataSet = blist->DataSet;
-    }
-
-    void operator()(vtkIdType bucket, vtkIdType endBucket)
-    {
-      BucketList2D<T>* bList = this->BList;
-      vtkIdType* mergeMap = this->MergeMap;
-      int i, j;
-      const LocatorTuple<TIds>* ids;
-      double p[3], p2[3];
-      vtkIdType ptId, ptId2, numIds;
-
-      for (; bucket < endBucket; ++bucket)
-      {
-        if ((numIds = bList->GetNumberOfIds(bucket)) > 0)
-        {
-          ids = bList->GetIds(bucket);
-          for (i = 0; i < numIds; i++)
-          {
-            ptId = ids[i].PtId;
-            if (mergeMap[ptId] < 0)
-            {
-              mergeMap[ptId] = ptId;
-              this->DataSet->GetPoint(ptId, p);
-              for (j = i + 1; j < numIds; j++)
-              {
-                ptId2 = ids[j].PtId;
-                if (mergeMap[ptId2] < 0)
-                {
-                  this->DataSet->GetPoint(ptId2, p2);
-                  if (p[0] == p2[0] && p[1] == p2[1])
-                  {
-                    mergeMap[ptId2] = ptId;
-                  }
-                }
-              }
-            } // if point not yet visited
-          }
-        }
-      }
-    }
-  };
-
-  // Merge points that are coincident within a tolerance. Operates in
-  // parallel on points. Needs to check neighbor buckets which slows it down
-  // considerably. Note that merging is one direction: larger ids are merged
-  // to lower.
-  template <typename T>
-  struct MergeClose
-  {
-    BucketList2D<T>* BList;
-    vtkDataSet* DataSet;
-    vtkIdType* MergeMap;
-    double Tol;
-
-    vtkSMPThreadLocalObject<vtkIdList> PIds;
-
-    MergeClose(BucketList2D<T>* blist, double tol, vtkIdType* mergeMap)
-      : BList(blist)
-      , MergeMap(mergeMap)
-      , Tol(tol)
-    {
-      this->DataSet = blist->DataSet;
-    }
-
-    // Just allocate a little bit of memory to get started.
-    void Initialize()
-    {
-      vtkIdList*& pIds = this->PIds.Local();
-      pIds->Allocate(128); // allocate some memory
-    }
-
-    void operator()(vtkIdType ptId, vtkIdType endPtId)
-    {
-      BucketList2D<T>* bList = this->BList;
-      vtkIdType* mergeMap = this->MergeMap;
-      int i;
-      double p[3];
-      vtkIdType nearId, numIds;
-      vtkIdList*& nearby = this->PIds.Local();
-
-      for (; ptId < endPtId; ++ptId)
-      {
-        if (mergeMap[ptId] < 0)
-        {
-          mergeMap[ptId] = ptId;
-          this->DataSet->GetPoint(ptId, p);
-          bList->FindPointsWithinRadius(this->Tol, p, nearby);
-          if ((numIds = nearby->GetNumberOfIds()) > 0)
-          {
-            for (i = 0; i < numIds; i++)
-            {
-              nearId = nearby->GetId(i);
-              if (ptId < nearId && (mergeMap[nearId] < 0 || ptId < mergeMap[nearId]))
-              {
-                mergeMap[nearId] = ptId;
-              }
-            }
-          }
-        } // if point not yet processed
-      }   // for all points in this batch
-    }
-
-    void Reduce() {}
-  };
-
-  // Build the map and other structures to support locator operations
-  void BuildLocator() override
-  {
-    // Place each point in a bucket
-    //
-    vtkPointSet* ps = static_cast<vtkPointSet*>(this->DataSet);
-    int mapped = 0;
-    if (ps)
-    { // map points array: explicit points representation
-      int dataType = ps->GetPoints()->GetDataType();
-      void* pts = ps->GetPoints()->GetVoidPointer(0);
-      if (dataType == VTK_FLOAT)
-      {
-        MapPointsArray<TIds, float> mapper(this, static_cast<float*>(pts));
-        vtkSMPTools::For(0, this->NumPts, mapper);
-        mapped = 1;
-      }
-      else if (dataType == VTK_DOUBLE)
-      {
-        MapPointsArray<TIds, double> mapper(this, static_cast<double*>(pts));
-        vtkSMPTools::For(0, this->NumPts, mapper);
-        mapped = 1;
-      }
-    }
-
-    if (!mapped)
-    { // map dataset points: non-float points or implicit points representation
-      MapDataSet<TIds> mapper(this, this->DataSet);
-      vtkSMPTools::For(0, this->NumPts, mapper);
-    }
-
-    // Now gather the points into contiguous runs in buckets
-    //
-    vtkSMPTools::Sort(this->Map, this->Map + this->NumPts);
-
-    // Build the offsets into the Map. The offsets are the positions of
-    // each bucket into the sorted list. They mark the beginning of the
-    // list of points in each bucket. Amazingly, this can be done in
-    // parallel.
-    //
-    int numBatches = static_cast<int>(ceil(static_cast<double>(this->NumPts) / this->BatchSize));
-    MapOffsets<TIds> offMapper(this);
-    vtkSMPTools::For(0, numBatches, offMapper);
-  }
-};
-
-//------------------------------------------------------------------------------
 // Given a position x, return the id of the point closest to it.
 template <typename TIds>
 vtkIdType BucketList2D<TIds>::FindClosestPoint(const double x[3])
@@ -718,7 +252,7 @@ vtkIdType BucketList2D<TIds>::FindClosestPoint(const double x[3])
   vtkIdType ptId, cno, numIds;
   int ij[2], *nei;
   NeighborBuckets2D buckets;
-  const LocatorTuple<TIds>* ids;
+  const vtkLocatorTuple<TIds>* ids;
 
   //  Find bucket point is in.
   //
@@ -804,7 +338,7 @@ vtkIdType BucketList2D<TIds>::FindClosestPointWithinRadius(
   double distance2ToDataBounds, maxDistance;
   int ii, radiusLevels[2], radiusLevel, prevMinLevel[2], prevMaxLevel[2];
   NeighborBuckets2D buckets;
-  const LocatorTuple<TIds>* ids;
+  const vtkLocatorTuple<TIds>* ids;
 
   // Initialize
   dist2 = -1.0;
@@ -942,29 +476,6 @@ vtkIdType BucketList2D<TIds>::FindClosestPointWithinRadius(
   return closest;
 }
 
-namespace
-{
-//------------------------------------------------------------------------------
-// Obtaining closest points requires sorting nearby points
-struct IdTuple
-{
-  vtkIdType PtId;
-  double Dist2;
-
-  IdTuple(vtkIdType ptId, double dist2)
-    : PtId(ptId)
-    , Dist2(dist2)
-  {
-  }
-
-  bool operator<(const IdTuple& tuple) const { return Dist2 < tuple.Dist2; }
-};
-
-typedef std::vector<IdTuple> IdTupleType;
-typedef std::vector<IdTuple>::iterator IdTupleIterator;
-
-}
-
 //------------------------------------------------------------------------------
 template <typename TIds>
 void BucketList2D<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList* result)
@@ -976,7 +487,7 @@ void BucketList2D<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList*
   vtkIdType ptId, cno, numIds;
   int ij[2], *nei;
   NeighborBuckets2D buckets;
-  const LocatorTuple<TIds>* ids;
+  const vtkLocatorTuple<TIds>* ids;
 
   //  Find the bucket the point is in.
   this->GetBucketIndices(x, ij);
@@ -985,7 +496,7 @@ void BucketList2D<TIds>::FindClosestNPoints(int N, const double x[3], vtkIdList*
   // points.
   level = 0;
   double maxDist2 = 0.0;
-  IdTupleType sortedPts;
+  vtkDist2TupleType sortedPts;
   sortedPts.reserve(128);
 
   // Start in the current bucket and expand out to grab the first N
@@ -1069,12 +580,386 @@ FOUND_N:
   result->SetNumberOfIds(N);
   for (i = 0; i < N; i++)
   {
-    result->SetId(i, sortedPts.at(i).PtId);
+    result->SetId(i, sortedPts.at(i).Id);
   }
 }
 
+namespace // anonymous
+{
 //------------------------------------------------------------------------------
-// The Radius defines a block of buckets which the sphere of radius R may
+// These classes and methods are in support of FindNPointsInAnnulus().
+
+// Iterate over the boundary of a footprint of bins. Takes into account both
+// inner and outer radius, i.e. culling bins that are not within the annulus.
+template <typename TIds>
+struct AnnulusIterator
+{
+  vtkDataSet* DataSet; // access dataset points
+  double* FastPoints;  // fast path for points access
+  BucketList2D<TIds>* Bins;
+  int Divs[2];          // Locator divisions
+  double R;             // Bin circumradius
+  int Level;            // The level of iterator expansion, level==0 is center
+  double X[2];          // The center of the iterator in physical space
+  int Center[2];        // The center of the iterator in index space
+  vtkIdType NumCircles; // The number of inclusive circles
+  double* Circles;      // The circles, 3 tuples with (x,y,r2)
+
+  // Keep track of iteration
+  int I, J;
+  int Min[2], Max[2];
+
+  // Use to enable / disable bin culling
+  int LEVEL_QUERY_THRESHOLD = 4;
+
+  AnnulusIterator(vtkDataSet* ds, BucketList2D<TIds>* bins, int divs[2], double binCircumRadius,
+    vtkDoubleArray* circles, const double x[2], int center[2])
+    : DataSet(ds)
+    , FastPoints(bins->FastPoints)
+    , Bins(bins)
+    , Divs{ divs[0], divs[1] }
+    , R(binCircumRadius)
+    , X{ x[0], x[1] }
+    , Center{ center[0], center[1] }
+    , NumCircles(0)
+    , Circles(nullptr)
+  {
+    if (circles)
+    {
+      this->NumCircles = circles->GetNumberOfTuples();
+      this->Circles = circles->GetPointer(0);
+    }
+  }
+
+  // Fast path for double points.
+  double* GetPoint(vtkIdType ptId) { return (this->FastPoints + 3 * ptId); }
+
+  // Initialize iterator and return starting bin idx. Also return the
+  // starting level of iteration (i.e., non-zero minR2 means that
+  // some inner bins may be skipped).
+  vtkIdType Initialize(int level, int& i, int& j)
+  {
+    // Prepare for traversal at level > 0
+    this->Level = level;
+
+    // Set the extents
+    for (int ii = 0; ii < 2; ++ii)
+    {
+      this->Min[ii] = this->Center[ii] - level;
+      this->Max[ii] = this->Center[ii] + level;
+      this->Min[ii] = this->Min[ii] < 0 ? 0 : this->Min[ii];
+      this->Max[ii] = this->Max[ii] >= this->Divs[ii] ? this->Divs[ii] - 1 : this->Max[ii];
+    }
+
+    // Initial iteration position
+    this->I = this->Min[0];
+    this->J = this->Min[1];
+
+    // Fast path for the common case level==0
+    if (level <= 0)
+    {
+      return (this->I + this->J * this->Divs[0]);
+    }
+
+    // Begin iteration until first bin on the annulus is discovered.
+    for (this->J = this->Min[1]; this->J <= this->Max[1]; ++this->J)
+    {
+      const vtkIdType jOffset = this->J * this->Divs[0];
+      const int jmCenter = std::abs(this->J - this->Center[1]);
+      for (this->I = this->Min[0]; this->I <= this->Max[0]; ++this->I)
+      {
+        const int imCenter = std::abs(this->I - this->Center[0]);
+        // We are iterating over the annulus at current level. The annulus
+        // circle requires one of I,J to have a value == level.
+        if (imCenter == this->Level || jmCenter == this->Level)
+        {
+          i = this->I;
+          j = this->J;
+          return (this->I + jOffset);
+        }
+      } // over I
+    }   // over J
+
+    i = j = (-1);
+    return -1;
+  }
+
+  // Return the next bin in the iteration sequence over the annulus at the
+  // current level.
+  vtkIdType NextBin(int& i, int& j)
+  {
+    // There is no next bin at level 0
+    if (this->Level <= 0)
+    {
+      i = j = (-1);
+      return (-1);
+    }
+
+    // Begin iteration until a bin on the annulus is discovered. Note that
+    // I,J should have been previously set. However, we need to move to the
+    // next possible bin, meaning incrementing I,J.
+    while (this->J <= this->Max[1])
+    {
+      // Forward increment
+      this->I++;
+      if (this->I > this->Max[0])
+      {
+        this->I = this->Min[0];
+        this->J++;
+      }
+      // Check if on annulus boundary
+      if (this->J <= this->Max[1] &&
+        (this->I == (this->Center[0] + this->Level) || this->I == (this->Center[0] - this->Level) ||
+          this->J == (this->Center[1] + this->Level) || this->J == (this->Center[1] - this->Level)))
+      {
+        i = this->I;
+        j = this->J;
+        return (this->I + this->J * this->Divs[0]);
+      }
+    }
+
+    // Completed traversal
+    i = j = (-1);
+    return (-1); // nothing found
+  }
+
+  // Return true if the bin can be culled: if the bin specified by
+  // (i,j) is completely outside of the annulus request; and completely
+  // outside any of the optional circle petals, then the bin can be
+  // eliminated from further processing. Otherwise, false is returned.
+  bool CanCullBin(bool gathering, double minR2, double maxR2, int i, int j, int level)
+  {
+    // Bin culling is generally not worth it for smaller levels.
+    // If seeking the maxR2, need to examine all of the bins.
+    if (level < this->LEVEL_QUERY_THRESHOLD || gathering)
+    {
+      return false;
+    }
+
+    // Obtain the bucket bounding box
+    double min[3], max[3];
+    this->Bins->GetBucketBounds(i, j, min, max);
+
+    // Cull the bin if fully outside the (minR2,maxR2] footprint.
+    // Greater than the annulus request outer radius, and maxR2 determined.
+    if (!IntersectsCircle(min, max, this->X, maxR2))
+    {
+      return true;
+    }
+
+    // If strictly less than the annulus request inner radius,
+    // minR2 is always known.
+    if (InsideCircle(min, max, this->X, minR2))
+    {
+      return true;
+    }
+
+    // At this point, the bin overlaps the shell request. Cull the bin if not
+    // in any of the provided Voronoi tile circles (petals).
+    if (this->NumCircles > 0)
+    {
+      const double* circle = this->Circles;
+      for (int cNum = 0; cNum < this->NumCircles; ++cNum, circle += 3)
+      {
+        if (IntersectsCircle(min, max, circle, circle[2]))
+        {
+          return false;
+        }
+      }
+      return true; // not in any Voronoi flower petal
+    }
+
+    // The bin cannot be culled.
+    return false;
+  }
+
+  // Gather nearby points in the bin binIdx. Initially, we gather N points
+  // in order to define the circle S with center x and radius**2 maxR2.
+  // Then, after N points are defined, switch the gathering mode to all points
+  // in the circle (inclusive). Points are placed into the results vector,
+  // maxR2 is updated and returned.
+  double GatherPoints(int i, int j, vtkIdType binIdx, int level, int N, double minR2, double maxR2,
+    vtkDist2TupleArray& res)
+  {
+    bool gathering = true;
+
+    vtkIdType numIds = this->Bins->GetNumberOfIds(binIdx);
+    if (numIds <= 0 || this->CanCullBin(gathering, minR2, maxR2, i, j, level))
+    {
+      return maxR2;
+    }
+
+    const vtkLocatorTuple<TIds>* ids = this->Bins->GetIds(binIdx);
+    double* pt;
+    for (vtkIdType ii = 0; ii < numIds; ++ii)
+    {
+      vtkIdType ptId = ids[ii].PtId;
+      pt = this->GetPoint(ptId);
+      double d2 = Distance2BetweenPoints2D(this->X, pt);
+      if (d2 > minR2) // not culled by minimum annulus radius
+      {
+        // If not yet found N points, maxR2 may still be increasing
+        if (static_cast<int>(res.size()) < N)
+        {
+          res.emplace_back(vtkDist2Tuple(ptId, d2));
+          maxR2 = (d2 > maxR2 ? d2 : maxR2);
+        }
+        // maxR2 is determined, so gather points in circle
+        else if (d2 <= maxR2)
+        {
+          gathering = false;
+          res.emplace_back(vtkDist2Tuple(ptId, d2));
+        }
+      } // if potential candidate
+    }   // for all points in this bin
+
+    return maxR2;
+  }
+
+  // Add points in the bin binIdx. Like GatherPoints(), except at this point
+  // maxR2 has been determined. Also will cull entire bins if they are not
+  // within the (minR2,MaxR2] query footprint.
+  void AddPoints(
+    int i, int j, vtkIdType binIdx, int level, double minR2, double maxR2, vtkDist2TupleArray& res)
+  {
+    bool gathering = false;
+
+    // If there is nothing in the bin, or the bin is outside of the
+    // search annulus, skip processing the bin.
+    vtkIdType numIds = this->Bins->GetNumberOfIds(binIdx);
+    if (numIds <= 0 || this->CanCullBin(gathering, minR2, maxR2, i, j, level))
+    {
+      return;
+    }
+
+    // Okay, process the points in the bin.
+    const vtkLocatorTuple<TIds>* ids = this->Bins->GetIds(binIdx);
+    double* pt;
+    for (vtkIdType ii = 0; ii < numIds; ++ii)
+    {
+      vtkIdType ptId = ids[ii].PtId;
+      pt = this->GetPoint(ptId);
+      double d2 = Distance2BetweenPoints2D(this->X, pt);
+      if (d2 > minR2 && d2 <= maxR2)
+      {
+        res.emplace_back(ptId, d2);
+      } // if within annulus footprint
+    }   // for all points in this bin
+  }
+}; // AnnulusIterator
+
+} // anonymous namespace
+
+//------------------------------------------------------------------------------
+// This algorithm works by grabbing the first N points it finds (using an
+// expanding wave across nearby bins so this initial set of points is
+// reasonably close to the query point). This operation also determines a
+// maximum maxR2 defining the radius of the initial nearby set around the query
+// point. Then, resuming the traversal after grabbing this initial set of >=N
+// points, all remaining points whose dist2 <= maxR2 are added to the results
+// list.  Finally, if requested a radial sort operation is performed if
+// requested. The optional circles parameter can be used to cull bins outside
+// of the circles.
+template <typename TIds>
+double BucketList2D<TIds>::FindNPointsInAnnulus(int N, const double x[3],
+  vtkDist2TupleArray& results, double minR2, bool sort, vtkDoubleArray* circles)
+{
+  // Clear out any previous results
+  results.clear();
+
+  // Find the bucket the point is in. This is the center of the request
+  // footprint.
+  int center[2];
+  this->GetBucketIndices(x, center);
+
+  // Traverse and gather points in the bucket/bins contained in the annulus
+  // request. We hold the information in the results vector.
+  double minR = sqrt(minR2);
+  double maxR = 0, maxR2 = 0;
+
+  // Determine absolue limits of iteration (based on possible number of points).
+  vtkIdType numPts = this->DataSet->GetNumberOfPoints();
+  N = (numPts < N ? numPts : N);
+
+  // Gather N points if possible and determine maxR2. Make sure all points
+  // within maxR2 have been found. We use a annulus iterator to grow a
+  // "rectangular" annulus from the center bin. Skip over bins inside the
+  // inner radius minR2. The bin index is updated during iteration,  binIdx<0
+  // is returned when the iteration is exhausted.
+  vtkIdType binIdx;
+  int currentLevel = (minR <= 0 ? 0 : static_cast<int>(std::floor(minR / (2.0 * this->BinRadius))));
+  AnnulusIterator<TIds> aiter(
+    this->DataSet, this, this->Divisions, this->BinRadius, circles, x, center);
+
+  // Loop across levels, gathering points as we go. This will determine the maxR2. It also
+  // carves out some inner levels (based on current level) that do not have to be revisited.
+  while (static_cast<int>(results.size()) < N && currentLevel < this->MaxLevel)
+  {
+    int i, j;
+    binIdx = aiter.Initialize(currentLevel, i, j);
+    // Basically iterating over a "rectangular" footprint defined from
+    // the current level.
+    while (binIdx >= 0)
+    {
+      maxR2 = aiter.GatherPoints(i, j, binIdx, currentLevel, N, minR2, maxR2, results);
+      binIdx = aiter.NextBin(i, j);
+    }
+    ++currentLevel;
+  }
+  // Reset the level to the last successfully processed
+  int level = currentLevel - 1;
+
+  // We have determined maxR2 and ~N points in the request annulus
+  // (minR2 < p_d2 <= maxR2). Now gather any other remaining points
+  // within the request. It's typical that the number of points
+  // returned is >N.
+  maxR = sqrt(maxR2);
+
+  // Determine the range of indices in each direction based on radius maxR.
+  // This block of bins is processed to gather any additional points with
+  // radius <=maxR2.
+  double xMin[2], xMax[2];
+  xMin[0] = x[0] - maxR;
+  xMin[1] = x[1] - maxR;
+  xMax[0] = x[0] + maxR;
+  xMax[1] = x[1] + maxR;
+
+  // Find the rectangular footprint in the locator
+  int ijMin[2], ijMax[2];
+  this->GetBucketIndices(xMin, ijMin);
+  this->GetBucketIndices(xMax, ijMax);
+
+  // Add points within the footprint (defined by (center,level) and the
+  // annulus (minR2,maxR2].  Points within the (center+level)
+  // footprint have already been processed, so don't add them again.
+  vtkIdType jOffset;
+  vtkIdType icmLevel = (center[0] - level), icpLevel = (center[0] + level);
+  vtkIdType jcmLevel = (center[1] - level), jcpLevel = (center[1] + level);
+  for (int j = ijMin[1]; j <= ijMax[1]; ++j)
+  {
+    jOffset = j * this->xD;
+    for (int i = ijMin[0]; i <= ijMax[0]; ++i)
+    {
+      // Any bin outside the level processed earlier should be visited.
+      if ((i > icpLevel || i < icmLevel) || (j > jcpLevel || j < jcmLevel))
+      {
+        binIdx = i + jOffset;
+        aiter.AddPoints(i, j, binIdx, level, minR2, maxR2, results);
+      }
+    } // i-footprint
+  }   // j-footprint
+
+  // Sort if requested
+  if (sort)
+  {
+    std::sort(results.begin(), results.end());
+  }
+
+  return maxR2;
+}
+
+//------------------------------------------------------------------------------
+// The radius R defines a block of buckets which the circle of radius R may
 // touch.
 template <typename TIds>
 void BucketList2D<TIds>::FindPointsWithinRadius(double R, const double x[3], vtkIdList* result)
@@ -1083,7 +968,7 @@ void BucketList2D<TIds>::FindPointsWithinRadius(double R, const double x[3], vtk
   double pt[3];
   vtkIdType ptId, cno, numIds;
   double R2 = R * R;
-  const LocatorTuple<TIds>* ids;
+  const vtkLocatorTuple<TIds>* ids;
   double xMin[2], xMax[2];
   int i, j, ii, jOffset, ijMin[2], ijMax[2];
 
@@ -1222,12 +1107,12 @@ int BucketList2D<TIds>::IntersectWithLine(double a0[3], double a1[3], double tol
     tDelta[0] = (rayDir[0] != 0.0) ? (h[0] / rayDir[0]) * step[0] : VTK_FLOAT_MAX;
     tDelta[1] = (rayDir[1] != 0.0) ? (h[1] / rayDir[1]) * step[1] : VTK_FLOAT_MAX;
 
-    // Process current position including the bins in the sphere
+    // Process current position including the bins in the circle
     // footprint. Note there is a rare pathological case where the footprint
     // on voxel exit must also be considered.
     for (bestPtId = (-1), enterExitCount = 0; bestPtId < 0 || enterExitCount < 2;)
     {
-      // Get the "footprint" of bins containing the sphere defined by the
+      // Get the "footprint" of bins containing the circle defined by the
       // current position and a radius of tol.
       xmin[0] = curPos[0] - tol;
       xmin[1] = curPos[1] - tol;
@@ -1251,7 +1136,7 @@ int BucketList2D<TIds>::IntersectWithLine(double a0[3], double a1[3], double tol
             bucketHasBeenVisited[idx] = 1;
             if ((numPtsInBin = this->GetNumberOfIds(idx)) > 0) // there are some points here
             {
-              const LocatorTuple<TIds>* ptIds = this->GetIds(idx);
+              const vtkLocatorTuple<TIds>* ptIds = this->GetIds(idx);
               for (ii = 0; ii < numPtsInBin; ii++)
               {
                 pId = ptIds[ii].PtId;
@@ -1331,7 +1216,7 @@ double BucketList2D<TIds>::FindCloseNBoundedPoints(int N, const double x[3], vtk
   vtkIdType ptId, cno, numIds;
   int ij[2], *nei;
   NeighborBuckets2D buckets;
-  const LocatorTuple<TIds>* ids;
+  const vtkLocatorTuple<TIds>* ids;
 
   //  Find the bucket the point is in.
   this->GetBucketIndices(x, ij);
@@ -1339,7 +1224,7 @@ double BucketList2D<TIds>::FindCloseNBoundedPoints(int N, const double x[3], vtk
   // Gather points keeping track of maximum radius
   level = 0;
   double maxDist2 = 0.0;
-  IdTupleType sortedPts;
+  vtkDist2TupleType sortedPts;
   sortedPts.reserve(128);
 
   // Start in the current bucket and expand out to grab first N points. Keep
@@ -1431,10 +1316,10 @@ FOUND_N:
   result->SetNumberOfIds(N);
   for (i = 0; i < N; i++)
   {
-    result->SetId(i, sortedPts.at(i).PtId);
+    result->SetId(i, sortedPts.at(i).Id);
   }
 
-  return sqrt(maxDist2);
+  return maxDist2;
 }
 
 //------------------------------------------------------------------------------
@@ -1699,6 +1584,7 @@ vtkStaticPointLocator2D::vtkStaticPointLocator2D()
   this->Buckets = nullptr;
   this->MaxNumberOfBuckets = VTK_INT_MAX;
   this->LargeIds = false;
+  this->Static = false;
 }
 
 //------------------------------------------------------------------------------
@@ -1726,6 +1612,11 @@ void vtkStaticPointLocator2D::FreeSearchStructure()
 //------------------------------------------------------------------------------
 void vtkStaticPointLocator2D::BuildLocator()
 {
+  // Short circuit mtime query process in tight loops
+  if (this->Static)
+  {
+    return;
+  }
   // don't rebuild if build time is newer than modified and dataset modified time
   if (this->Buckets && this->BuildTime > this->MTime && this->BuildTime > this->DataSet->GetMTime())
   {
@@ -1911,6 +1802,28 @@ void vtkStaticPointLocator2D::FindClosestNPoints(int N, const double x[3], vtkId
 }
 
 //------------------------------------------------------------------------------
+double vtkStaticPointLocator2D::FindNPointsInAnnulus(int N, const double x[3],
+  vtkDist2TupleArray& results, double minDist2, bool sort, vtkDoubleArray* petals)
+{
+  this->BuildLocator(); // will subdivide if modified; otherwise returns
+  if (!this->Buckets)
+  {
+    return 0.0;
+  }
+
+  if (this->LargeIds)
+  {
+    return static_cast<BucketList2D<vtkIdType>*>(this->Buckets)
+      ->FindNPointsInAnnulus(N, x, results, minDist2, sort, petals);
+  }
+  else
+  {
+    return static_cast<BucketList2D<int>*>(this->Buckets)
+      ->FindNPointsInAnnulus(N, x, results, minDist2, sort, petals);
+  }
+}
+
+//------------------------------------------------------------------------------
 void vtkStaticPointLocator2D::FindPointsWithinRadius(double R, const double x[3], vtkIdList* result)
 {
   this->BuildLocator(); // will subdivide if modified; otherwise returns
@@ -1997,7 +1910,7 @@ void vtkStaticPointLocator2D::GenerateRepresentation(int level, vtkPolyData* pd)
 }
 
 //------------------------------------------------------------------------------
-// Given a position x, return the id of the point closest to it.
+// Given a bin/bucket number, return the number of points in the bin/bucket.
 vtkIdType vtkStaticPointLocator2D::GetNumberOfPointsInBucket(vtkIdType bNum)
 {
   if (this->LargeIds)
@@ -2011,7 +1924,8 @@ vtkIdType vtkStaticPointLocator2D::GetNumberOfPointsInBucket(vtkIdType bNum)
 }
 
 //------------------------------------------------------------------------------
-// Given a position x, return the id of the point closest to it.
+// Given a bin/bucket number, return an array of point ids in the bucket. Use
+// this method in conjunction with GetNumberOfPointsInBucket().
 void vtkStaticPointLocator2D::GetBucketIds(vtkIdType bNum, vtkIdList* bList)
 {
   if (this->LargeIds)
@@ -2068,5 +1982,7 @@ void vtkStaticPointLocator2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Max Number Of Buckets: " << this->MaxNumberOfBuckets << "\n";
 
   os << indent << "Large IDs: " << this->LargeIds << "\n";
+
+  os << indent << "Static: " << (this->Static ? "On\n" : "Off\n");
 }
 VTK_ABI_NAMESPACE_END
