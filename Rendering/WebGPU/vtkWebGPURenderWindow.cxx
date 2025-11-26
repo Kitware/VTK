@@ -2246,8 +2246,7 @@ void vtkWebGPURenderWindow::CreateAWindow()
 {
   if (!this->HardwareWindow)
   {
-    this->HardwareWindow = vtkHardwareWindow::New();
-    this->HardwareWindow->Register(this);
+    this->SetHardwareWindow(vtk::TakeSmartPointer(vtkHardwareWindow::New()));
     if (this->Interactor)
     {
       this->HardwareWindow->SetInteractor(this->Interactor);
