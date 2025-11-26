@@ -51,11 +51,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
       target_link_options(vtkplatform
         INTERFACE
           "-pthread")
-      if (VTK_WEBASSEMBLY_THREAD_POOL_SIZE GREATER 0)
-        target_compile_definitions(vtkplatform
-          INTERFACE
-            VTK_WEBASSEMBLY_THREAD_POOL_SIZE=${VTK_WEBASSEMBLY_THREAD_POOL_SIZE})
-      endif()
     endif ()
   endif ()
   if (VTK_WEBASSEMBLY_64_BIT)
