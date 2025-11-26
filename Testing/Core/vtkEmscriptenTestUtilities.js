@@ -62,7 +62,7 @@ var vtkEmscriptenTestUtilities = {
       body: new Uint8Array(HEAPU8.subarray(data, data + nbytes)),
       keepAlive: true,
     };
-    if (typeof window == 'undefined') {
+    if (typeof window === 'undefined') {
       const req = new XMLHttpRequest;
       req.open("POST", url, false);
       try {
