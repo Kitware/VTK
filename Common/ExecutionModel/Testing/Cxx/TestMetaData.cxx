@@ -15,6 +15,8 @@
 #include "vtkPolyDataAlgorithm.h"
 #include "vtkPolyDataNormals.h"
 
+#include <iostream>
+
 #define TEST_SUCCESS 0
 #define TEST_FAILURE 1
 
@@ -101,15 +103,28 @@ int TestMetaData(int, char*[])
   filter->GetOutputInformation(0)->Set(MySource::REQUEST(), 2);
   mySource->Result = 2;
 
-  filter->Update();
+  if (!filter->Update())
+  {
+    std::cerr << "Unexpected failure on Update() on first execution" << std::endl;
+    return TEST_FAILURE;
+  }
+
   // Nothing changed. This should not cause re-execution
-  filter->Update();
+  if (!filter->Update())
+  {
+    std::cerr << "Unexpected failure on Update() on skipped execution" << std::endl;
+    return TEST_FAILURE;
+  }
 
   filter->GetOutputInformation(0)->Set(MySource::REQUEST(), 3);
   mySource->Result = 3;
 
   // Request changed. This should cause re-execution
-  filter->Update();
+  if (!filter->Update())
+  {
+    std::cerr << "Unexpected failure on Update() on re-execution" << std::endl;
+    return TEST_FAILURE;
+  }
 
   if (mySource->NumberOfExecutions != 2)
   {
