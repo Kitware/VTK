@@ -1,0 +1,13 @@
+NAME
+  VTK::h5hut
+LIBRARY_NAME
+  vtkh5hut
+SPDX_LICENSE_IDENTIFIER
+  BSD-3-Clause
+SPDX_COPYRIGHT_TEXT
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+DEPENDS
+  VTK::hdf5
+TEST_DEPENDS
+  VTK::TestingCore
+THIRD_PARTY
