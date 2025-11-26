@@ -104,6 +104,8 @@ set(classes
   vtkMagnifierRepresentation
   vtkMagnifierWidget
   vtkMeasurementCubeHandleRepresentation3D
+  vtkMultiLineRepresentation
+  vtkMultiLineWidget
   vtkOrientationMarkerWidget
   vtkOrientationRepresentation
   vtkOrientationWidget
