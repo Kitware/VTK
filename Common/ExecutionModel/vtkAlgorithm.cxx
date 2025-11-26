@@ -1648,20 +1648,20 @@ vtkAlgorithmOutput* vtkAlgorithm::GetInputConnection(int port, int index)
 }
 
 //------------------------------------------------------------------------------
-void vtkAlgorithm::Update()
+bool vtkAlgorithm::Update()
 {
   int port = -1;
   if (this->GetNumberOfOutputPorts())
   {
     port = 0;
   }
-  this->Update(port);
+  return this->Update(port);
 }
 
 //------------------------------------------------------------------------------
-void vtkAlgorithm::Update(int port)
+bool vtkAlgorithm::Update(int port)
 {
-  this->GetExecutive()->Update(port);
+  return this->GetExecutive()->Update(port);
 }
 
 //------------------------------------------------------------------------------
