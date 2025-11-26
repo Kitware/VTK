@@ -225,23 +225,23 @@ int vtkPolyDataMapper::FillInputPortInformation(int vtkNotUsed(port), vtkInforma
 }
 
 //------------------------------------------------------------------------------
-void vtkPolyDataMapper::Update(int port)
+bool vtkPolyDataMapper::Update(int port)
 {
   if (this->Static)
   {
-    return;
+    return true;
   }
-  this->Superclass::Update(port);
+  return this->Superclass::Update(port);
 }
 
 //------------------------------------------------------------------------------
-void vtkPolyDataMapper::Update()
+bool vtkPolyDataMapper::Update()
 {
   if (this->Static)
   {
-    return;
+    return true;
   }
-  this->Superclass::Update();
+  return this->Superclass::Update();
 }
 
 //------------------------------------------------------------------------------

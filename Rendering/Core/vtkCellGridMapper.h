@@ -59,8 +59,8 @@ public:
   /**
    * Bring this algorithm's outputs up-to-date.
    */
-  void Update(int port) override;
-  void Update() override;
+  bool Update(int port) override;
+  bool Update() override;
   vtkTypeBool Update(int port, vtkInformationVector* requests) override;
   vtkTypeBool Update(vtkInformation* requests) override;
   ///@}
