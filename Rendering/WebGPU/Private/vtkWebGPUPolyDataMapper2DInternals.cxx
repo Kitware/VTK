@@ -12,16 +12,20 @@
 #include "vtkWebGPUCommandEncoderDebugGroup.h"
 #include "vtkWebGPUComputePass.h"
 #include "vtkWebGPUPolyDataMapper2D.h"
+#include "vtkWebGPURenderPipelineCache.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
 
-#include "PolyData2D.h"
+#include "vtkPolyData2DFSWGSL.h"
+#include "vtkPolyData2DVSWGSL.h"
 
 #include "Private/vtkWebGPUBindGroupInternals.h"
 #include "Private/vtkWebGPUBindGroupLayoutInternals.h"
 #include "Private/vtkWebGPUPipelineLayoutInternals.h"
 #include "Private/vtkWebGPUPolyDataMapper2DInternals.h"
 #include "Private/vtkWebGPURenderPipelineDescriptorInternals.h"
+
+#include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -71,7 +75,7 @@ wgpu::BindGroupLayout vtkWebGPUPolyDataMapper2DInternals::CreateMeshAttributeBin
       // clang-format off
       // state
       { 0, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::ReadOnlyStorage },
-      // mesh_descriptor
+      // mesh_attributes
       { 1, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::ReadOnlyStorage },
       // mesh_data
       { 2, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
@@ -155,6 +159,486 @@ bool vtkWebGPUPolyDataMapper2DInternals::IsPipelineForHomogeneousCellSize(
 }
 
 //------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ApplyShaderReplacements(
+  GraphicsPipeline2DType pipelineType, std::string& vss, std::string& fss,
+  vtkWebGPURenderWindow* wgpuRenderWindow, vtkActor2D* actor)
+{
+  // Vertex and Fragment shader replacements
+  this->ReplaceShaderVertexOutputDef(vss, fss);
+  this->ReplaceShaderMapperBindings(vss);
+
+  // Vertex Shader replacements
+  this->ReplaceVertexShaderConstantsDef(pipelineType, vss);
+  this->ReplaceVertexShaderMapper2DStateDef(vss);
+  this->ReplaceVertexShaderMeshArraysDescriptorDef(vss);
+  this->ReplaceVertexShaderTopologyBindings(vss);
+  this->ReplaceVertexShaderVertexInputDef(vss);
+  this->ReplaceVertexShaderUtilityMethodsDef(pipelineType, vss);
+  this->ReplaceVertexShaderVertexMainStart(vss);
+  this->ReplaceVertexShaderVertexIdImpl(pipelineType, vss);
+  this->ReplaceVertexShaderPrimitiveIdImpl(pipelineType, vss);
+  this->ReplaceVertexShaderCellIdImpl(pipelineType, vss);
+  this->ReplaceVertexShaderPositionImpl(pipelineType, vss);
+  this->ReplaceVertexShaderPickingImpl(vss);
+  this->ReplaceVertexShaderColorsImpl(vss);
+  this->ReplaceVertexShaderUVsImpl(vss);
+  this->ReplaceVertexShaderVertexMainEnd(vss);
+
+  // Fragment Shader replacements
+  this->ReplaceFragmentShaderFragmentOutputDef(fss);
+  this->ReplaceFragmentShaderFragmentMainStart(fss);
+  this->ReplaceFragmentShaderPickingImpl(fss);
+  this->ReplaceFragmentShaderColorImpl(fss);
+  this->ReplaceFragmentShaderFragmentMainEnd(fss);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceShaderVertexOutputDef(
+  std::string& vss, std::string& fss)
+{
+  for (auto& shaderSource : { &vss, &fss })
+  {
+    vtkWebGPURenderPipelineCache::Substitute(*shaderSource, "//VTK::VertexOutput::Def",
+      R"(struct VertexOutput
+{
+  @builtin(position) position: vec4<f32>,
+  @location(0) color: vec4<f32>,
+  @location(1) uv: vec2<f32>,
+  @location(2) @interpolate(flat) cell_id: u32,
+})",
+      true);
+  }
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderConstantsDef(
+  GraphicsPipeline2DType pipelineType, std::string& vss)
+{
+  std::ostringstream codeStream;
+  codeStream << "const BIT_POSITION_USE_CELL_COLOR: u32 = " << BIT_POSITION_USE_CELL_COLOR
+             << "u;\n";
+  codeStream << "const BIT_POSITION_USE_POINT_COLOR: u32 = " << BIT_POSITION_USE_POINT_COLOR
+             << "u;\n";
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_2D_POINTS:
+    case GFX_PIPELINE_2D_POINTS_HOMOGENEOUS_CELL_SIZE:
+      codeStream << R"(///
+// (-1, 1) |-------------------------------|(1, 1)
+//         |-                              |
+//         |    -                          |
+//         |        -                      |
+// (-1, 0) |              -                |
+//         |                   -           |
+//         |                        -      |
+//         |                              -|
+// (-1,-1) |-------------------------------|(1, -1)
+///
+// this triangle strip describes a quad spanning a bi-unit domain.
+const VERTEX_PARAMETRIC_COORDS = array(
+  vec2f(-1, -1),
+  vec2f(1, -1),
+  vec2f(-1, 1),
+  vec2f(1, 1),
+);)";
+      break;
+    case GFX_PIPELINE_2D_LINES:
+    case GFX_PIPELINE_2D_LINES_HOMOGENEOUS_CELL_SIZE:
+      codeStream << R"(///
+// (0, 0.5) |-------------------------------|(1, 0.5)
+//          |-                              |
+//          |    -                          |
+//          |        -                      |
+// (0, 0)   |              -                |
+//          |                   -           |
+//          |                        -      |
+//          |                              -|
+// (0,-0.5) |-------------------------------|(1, -0.5)
+///
+const LINE_PARAMETRIC_COORDS = array(
+  vec2(0, -0.5),
+  vec2(1, -0.5),
+  vec2(0, 0.5),
+  vec2(1, 0.5),
+);)";
+      break;
+    default:
+      break;
+  }
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Constants::Def", codeStream.str(), true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderMapper2DStateDef(std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Mapper2DState::Def",
+    R"(struct Mapper2DState
+{
+  wcvc_matrix: mat4x4<f32>,
+  color: vec4<f32>,
+  point_size: f32,
+  line_width: f32,
+  flags: u32,
+})",
+    true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderMeshArraysDescriptorDef(
+  std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::MeshArraysDescriptor::Def",
+    R"(struct AttributeArrayDescriptor
+{
+  start: u32,
+  num_tuples: u32,
+  num_components: u32,
+}
+struct MeshAttributes
+{
+  positions: AttributeArrayDescriptor,
+  uvs: AttributeArrayDescriptor,
+  colors: AttributeArrayDescriptor,
+})",
+    true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceShaderMapperBindings(std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Mapper::Bindings",
+    R"(@group(0) @binding(0) var<storage, read> state: Mapper2DState;
+@group(0) @binding(1) var<storage, read> mesh_attributes: MeshAttributes;
+@group(0) @binding(2) var<storage, read> mesh_data: array<f32>;
+  )",
+    true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderTopologyBindings(std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Topology::Bindings",
+    R"(@group(1) @binding(0) var<storage, read> connectivity: array<u32>;
+@group(1) @binding(1) var<storage, read> cell_ids: array<u32>;
+@group(1) @binding(2) var<uniform> cell_id_offset: u32;)",
+    true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderVertexInputDef(std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexInput::Def",
+    R"(struct VertexInput
+{
+  @builtin(instance_index) instance_id: u32,
+  @builtin(vertex_index) vertex_id: u32,
+})",
+    true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderUtilityMethodsDef(
+  GraphicsPipeline2DType pipelineType, std::string& vss)
+{
+  std::ostringstream codeStream;
+  codeStream << R"(fn getUseCellColor(flags: u32) -> bool
+{
+  let result: u32 = (flags >> BIT_POSITION_USE_CELL_COLOR) & 0x1;
+  return select(false, true, result == 1u);
+}
+
+fn getUsePointColor(flags: u32) -> bool
+{
+  let result: u32 = (flags >> BIT_POSITION_USE_POINT_COLOR) & 0x1;
+  return select(false, true, result == 1u);
+}
+
+fn getVertexColor(point_id: u32, cell_id: u32) -> vec4f
+{
+  if getUsePointColor(state.flags)
+  {
+    // Smooth shading
+    return vec4f(
+      mesh_data[mesh_attributes.colors.start + 4u * point_id],
+      mesh_data[mesh_attributes.colors.start + 4u * point_id + 1u],
+      mesh_data[mesh_attributes.colors.start + 4u * point_id + 2u],
+      mesh_data[mesh_attributes.colors.start + 4u * point_id + 3u]
+    );
+  }
+  if getUseCellColor(state.flags)
+  {
+    // Flat shading
+    return vec4f(
+      mesh_data[mesh_attributes.colors.start + 4u * cell_id],
+      mesh_data[mesh_attributes.colors.start + 4u * cell_id + 1u],
+      mesh_data[mesh_attributes.colors.start + 4u * cell_id + 2u],
+      mesh_data[mesh_attributes.colors.start + 4u * cell_id + 3u]
+    );
+  }
+  return state.color;
+}
+
+fn getVertexCoordinates(point_id: u32) -> vec4f
+{
+  return vec4f(
+    mesh_data[mesh_attributes.positions.start + 3u * point_id],
+    mesh_data[mesh_attributes.positions.start + 3u * point_id + 1u],
+    mesh_data[mesh_attributes.positions.start + 3u * point_id + 2u], 1.0
+  );
+}
+
+fn getVertexUVs(point_id: u32) -> vec2f
+{
+  return vec2f(
+    mesh_data[mesh_attributes.uvs.start + 2u * point_id],
+    mesh_data[mesh_attributes.uvs.start + 2u * point_id + 1u]
+  );
+})";
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_2D_LINES:
+    case GFX_PIPELINE_2D_LINES_HOMOGENEOUS_CELL_SIZE:
+      codeStream <<
+        R"(
+fn getLinePointWorldCoordinate(line_segment_id: u32, parametric_id: u32, out_point_id: ptr<function, u32>) -> vec4f
+{
+  var width = state.line_width;
+  // The point rendering algorithm is unstable for line_width < 1.0
+  if width < 1.0
+  {
+    width = 1.0;
+  }
+
+  let local_position = LINE_PARAMETRIC_COORDS[parametric_id];
+  let p0_vertex_id: u32 = 2 * line_segment_id;
+  let p1_vertex_id = p0_vertex_id + 1;
+
+  let p0_point_id: u32 = connectivity[p0_vertex_id];
+  let p1_point_id: u32 = connectivity[p1_vertex_id];
+  let p = select(2 * line_segment_id, 2 * line_segment_id + 1, local_position.x == 1);
+  // compute point id based on the x component of the parametric coordinate.
+  *out_point_id = u32(mix(f32(p0_point_id), f32(p1_point_id), local_position.x));
+
+  let p0_vertex_wc = getVertexCoordinates(p0_point_id);
+  let p1_vertex_wc = getVertexCoordinates(p1_point_id);
+
+  let x_basis = normalize(p1_vertex_wc.xy - p1_vertex_wc.xy);
+  let y_basis = vec2(-x_basis.y, x_basis.x);
+
+  var vertex_wc = mix(p0_vertex_wc, p1_vertex_wc, local_position.x);
+  return vec4(vertex_wc.x, vertex_wc.y + local_position.y * width, vertex_wc.zw);
+      })";
+      break;
+    default:
+      break;
+  }
+  vtkWebGPURenderPipelineCache::Substitute(
+    vss, "//VTK::UtilityMethods::Def", codeStream.str(), true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderVertexMainStart(std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexMain::Start",
+    R"(@vertex
+fn main(vertex: VertexInput) -> VertexOutput
+{
+  var output: VertexOutput;)",
+    true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderVertexIdImpl(
+  GraphicsPipeline2DType pipelineType, std::string& vss)
+{
+  std::ostringstream codeStream;
+  codeStream << "let pull_vertex_id: u32 =";
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_2D_POINTS:
+    case GFX_PIPELINE_2D_POINTS_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_2D_LINES:
+    case GFX_PIPELINE_2D_LINES_HOMOGENEOUS_CELL_SIZE:
+      codeStream << " vertex.instance_id;";
+      break;
+    case GFX_PIPELINE_2D_TRIANGLES:
+    case GFX_PIPELINE_2D_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      codeStream << " vertex.vertex_id;";
+      break;
+    default:
+      break;
+  }
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::VertexId::Impl", codeStream.str(), true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderPrimitiveIdImpl(
+  GraphicsPipeline2DType pipelineType, std::string& vss)
+{
+  std::ostringstream codeStream;
+  codeStream << "let primitive_id: u32 =";
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_2D_POINTS:
+    case GFX_PIPELINE_2D_POINTS_HOMOGENEOUS_CELL_SIZE:
+      codeStream << " pull_vertex_id;";
+      break;
+    case GFX_PIPELINE_2D_LINES:
+    case GFX_PIPELINE_2D_LINES_HOMOGENEOUS_CELL_SIZE:
+      codeStream << " pull_vertex_id >> 1u;";
+      break;
+    case GFX_PIPELINE_2D_TRIANGLES:
+    case GFX_PIPELINE_2D_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      codeStream << " pull_vertex_id / 3u;";
+      break;
+    default:
+      break;
+  }
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::PrimitiveId::Impl", codeStream.str(), true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderCellIdImpl(
+  GraphicsPipeline2DType pipelineType, std::string& vss)
+{
+  std::ostringstream codeStream;
+  codeStream << "let cell_id: u32 =";
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_2D_POINTS:
+    case GFX_PIPELINE_2D_LINES:
+    case GFX_PIPELINE_2D_TRIANGLES:
+      codeStream << " cell_ids[primitive_id];";
+      break;
+    case GFX_PIPELINE_2D_POINTS_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_2D_LINES_HOMOGENEOUS_CELL_SIZE:
+    case GFX_PIPELINE_2D_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      codeStream << " primitive_id + cell_id_offset;";
+      break;
+    default:
+      break;
+  }
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::CellId::Impl", codeStream.str(), true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderPositionImpl(
+  GraphicsPipeline2DType pipelineType, std::string& vss)
+{
+  std::ostringstream codeStream;
+  switch (pipelineType)
+  {
+    case GFX_PIPELINE_2D_POINTS:
+    case GFX_PIPELINE_2D_POINTS_HOMOGENEOUS_CELL_SIZE:
+      codeStream << R"(// pull the point id
+  let point_id = connectivity[pull_vertex_id];
+  // pull the position for this vertex.
+  var vertex_wc = getVertexCoordinates(point_id);
+  var point_size = state.point_size;
+  // The point rendering algorithm is unstable for point_size < 1.0
+  if point_size < 1.0
+  {
+    point_size = 1.0;
+  }
+  let local_position = VERTEX_PARAMETRIC_COORDS[vertex.vertex_id];
+  vertex_wc = vec4f(vertex_wc.xy + 0.5 * point_size * local_position, vertex_wc.zw);
+  output.position = state.wcvc_matrix * vertex_wc;)";
+      break;
+    case GFX_PIPELINE_2D_LINES:
+    case GFX_PIPELINE_2D_LINES_HOMOGENEOUS_CELL_SIZE:
+      codeStream << R"(let line_segment_id = vertex.instance_id;
+  let parametric_id = vertex.vertex_id;
+  var point_id: u32;
+  let vertex_wc = getLinePointWorldCoordinate(line_segment_id, parametric_id, &point_id);
+  output.position = state.wcvc_matrix * vertex_wc;)";
+      break;
+    case GFX_PIPELINE_2D_TRIANGLES:
+    case GFX_PIPELINE_2D_TRIANGLES_HOMOGENEOUS_CELL_SIZE:
+      codeStream << R"(// pull the point id
+  let point_id = connectivity[pull_vertex_id];
+  // pull the position for this vertex.
+  let vertex_wc = getVertexCoordinates(point_id);
+  output.position = state.wcvc_matrix * vertex_wc;)";
+      break;
+    default:
+      break;
+  }
+  vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Position::Impl", codeStream.str(), true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderPickingImpl(std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(
+    vss, "//VTK::Picking::Impl", "output.cell_id = cell_id;", true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderColorsImpl(std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(
+    vss, "//VTK::Colors::Impl", "output.color = getVertexColor(point_id, cell_id);", true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderUVsImpl(std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(
+    vss, "//VTK::UVs::Impl", "output.uv = getVertexUVs(point_id);", true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceVertexShaderVertexMainEnd(std::string& vss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(
+    vss, "//VTK::VertexMain::End", "  return output;\n}", true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceFragmentShaderFragmentOutputDef(std::string& fss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::FragmentOutput::Def",
+    R"(struct FragmentOutput
+{
+  @location(0) color: vec4<f32>,
+  @location(1) ids: vec4<u32>, // cell_id, prop_id, composite_id, process_id
+})",
+    true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceFragmentShaderFragmentMainStart(std::string& fss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::FragmentMain::Start",
+    R"(@fragment
+fn main(input: VertexOutput) -> FragmentOutput
+{
+  var output: FragmentOutput;)",
+    true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceFragmentShaderPickingImpl(std::string& fss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(
+    fss, "//VTK::Picking::Impl", "output.ids = vec4<u32>(input.cell_id, 0u, 0u, 0u);", true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceFragmentShaderColorImpl(std::string& fss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(
+    fss, "//VTK::Colors::Impl", "output.color = input.color;", true);
+}
+
+//------------------------------------------------------------------------------
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceFragmentShaderFragmentMainEnd(std::string& fss)
+{
+  vtkWebGPURenderPipelineCache::Substitute(
+    fss, "//VTK::FragmentMain::End", "  return output;\n}", true);
+}
+
+//------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper2DInternals::ReleaseGraphicsResources(vtkWindow* w)
 {
   this->CellConverter->ReleaseGraphicsResources(w);
@@ -183,8 +667,33 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
   }
 
   auto* wgpuRenderer = vtkWebGPURenderer::SafeDownCast(viewport);
+  if (!wgpuRenderer)
+  {
+    vtkErrorWithObjectMacro(
+      mapper, << "vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers: no vtkWebGPURenderer");
+    return;
+  }
   auto* wgpuRenderWindow = vtkWebGPURenderWindow::SafeDownCast(viewport->GetVTKWindow());
+  if (!wgpuRenderWindow)
+  {
+    vtkErrorWithObjectMacro(
+      mapper, << "vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers: no vtkWebGPURenderWindow");
+    return;
+  }
   auto* wgpuConfiguration = wgpuRenderWindow->GetWGPUConfiguration();
+  if (!wgpuConfiguration)
+  {
+    vtkErrorWithObjectMacro(
+      mapper, << "vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers: no vtkWebGPUConfiguration");
+    return;
+  }
+  auto* wgpuTextureCache = wgpuRenderWindow->GetWGPUTextureCache();
+  if (!wgpuTextureCache)
+  {
+    vtkErrorWithObjectMacro(
+      mapper, << "vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers: no vtkWebGPUTextureCache");
+    return;
+  }
 
   bool recreateMeshBindGroup = false;
   if (this->Mapper2DStateData.Buffer == nullptr)
@@ -278,8 +787,8 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
 
     this->State.LineWidth = actor->GetProperty()->GetLineWidth();
 
-    this->State.Flags = (this->UseCellScalarMapping ? 1 : 0);
-    this->State.Flags |= ((this->UsePointScalarMapping ? 1 : 0) << 1);
+    this->State.Flags = (this->UseCellScalarMapping ? 1 : 0) << BIT_POSITION_USE_CELL_COLOR;
+    this->State.Flags |= ((this->UsePointScalarMapping ? 1 : 0) << BIT_POSITION_USE_POINT_COLOR);
     wgpuConfiguration->WriteBuffer(
       this->Mapper2DStateData.Buffer, 0, &(this->State), sizeof(Mapper2DState), "Mapper2DState");
   }
@@ -538,7 +1047,8 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
 
     vtkWebGPURenderPipelineDescriptorInternals descriptor;
     descriptor.vertex.bufferCount = 0;
-    descriptor.cFragment.entryPoint = "fragmentMain";
+    descriptor.vertex.entryPoint = "main";
+    descriptor.cFragment.entryPoint = "main";
     descriptor.EnableBlending(0);
     descriptor.cTargets[0].format = wgpuRenderWindow->GetPreferredSurfaceTextureFormat();
     ///@{ TODO: Only for valid depth stencil formats
@@ -567,15 +1077,20 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         device, "TopologyBindGroupLayout", homogeneousCellSize));
       descriptor.layout = vtkWebGPUPipelineLayoutInternals::MakePipelineLayout(
         device, bgls, "vtkPolyDataMapper2DPipelineLayout");
-      descriptor.vertex.entryPoint = this->VertexShaderEntryPoints[i].c_str();
       descriptor.label = this->GetGraphicsPipelineTypeAsString(pipelineType);
       descriptor.primitive.topology = this->GraphicsPipeline2DPrimitiveTypes[i];
+      std::string vertexShaderSource = vtkPolyData2DVSWGSL;
+      std::string fragmentShaderSource = vtkPolyData2DFSWGSL;
+      this->ApplyShaderReplacements(
+        pipelineType, vertexShaderSource, fragmentShaderSource, wgpuRenderer, actor);
       // generate a unique key for the pipeline descriptor and shader source pointer
-      this->GraphicsPipeline2DKeys[i] = wgpuPipelineCache->GetPipelineKey(&descriptor, PolyData2D);
+      this->GraphicsPipeline2DKeys[i] = wgpuPipelineCache->GetPipelineKey(
+        &descriptor, vertexShaderSource.c_str(), fragmentShaderSource.c_str());
       // create a pipeline if it does not already exist
       if (wgpuPipelineCache->GetRenderPipeline(this->GraphicsPipeline2DKeys[i]) == nullptr)
       {
-        wgpuPipelineCache->CreateRenderPipeline(&descriptor, wgpuRenderWindow, PolyData2D);
+        wgpuPipelineCache->CreateRenderPipeline(
+          &descriptor, wgpuRenderWindow, vertexShaderSource.c_str(), fragmentShaderSource.c_str());
       }
     }
     // Invalidate render bundle because pipeline was recreated.

@@ -121,11 +121,12 @@ set(private_shader_files
   wgsl/PointCloudMapperCopyDepthFromWindow.wgsl
   wgsl/PointCloudMapperCopyDepthToWindow.wgsl
   wgsl/PointCloudMapperShader.wgsl
-  wgsl/PolyData2D.wgsl
   wgsl/SceneLight.wgsl
   wgsl/SceneTransform.wgsl
   wgsl/Utilities.wgsl
   wgsl/VTKCellToGraphicsPrimitive.wgsl
+  wgsl/vtkPolyData2DFSWGSL.wgsl
+  wgsl/vtkPolyData2DVSWGSL.wgsl
   wgsl/vtkPolyDataVSWGSL.wgsl
   wgsl/vtkPolyDataFSWGSL.wgsl)
 

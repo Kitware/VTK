@@ -19,6 +19,8 @@ class vtkMatrix4x4;
 class vtkViewport;
 class vtkActor2D;
 class vtkWebGPUPolyDataMapper2D;
+class vtkWebGPURenderer;
+class vtkWebGPURenderWindow;
 
 /**
  * Internal implementation details of vtkWebGPUPolyDataMapper2D
@@ -53,6 +55,8 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
     vtkTypeUInt32 Flags;
     vtkTypeUInt32 Padding;
   };
+  static constexpr int BIT_POSITION_USE_CELL_COLOR = 0;
+  static constexpr int BIT_POSITION_USE_POINT_COLOR = 1;
 
   struct MeshAttributeArrayDescriptor
   {
@@ -111,10 +115,6 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
       wgpu::PrimitiveTopology::TriangleStrip, wgpu::PrimitiveTopology::TriangleStrip,
       wgpu::PrimitiveTopology::TriangleStrip, wgpu::PrimitiveTopology::TriangleList,
       wgpu::PrimitiveTopology::TriangleList };
-  const std::array<std::string, NUM_GFX_PIPELINE_2D_NB_TYPES> VertexShaderEntryPoints = {
-    "pointVertexMain", "pointVertexMainHomogeneousCellSize", "lineVertexMain",
-    "lineVertexMainHomogeneousCellSize", "polygonVertexMain", "polygonVertexMainHomogeneousCellSize"
-  };
 
   std::string GraphicsPipeline2DKeys[NUM_GFX_PIPELINE_2D_NB_TYPES];
 
@@ -153,6 +153,34 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
   static const char* GetGraphicsPipelineTypeAsString(GraphicsPipeline2DType graphicsPipelineType);
 
   static bool IsPipelineForHomogeneousCellSize(GraphicsPipeline2DType graphicsPipelineType);
+
+  void ApplyShaderReplacements(GraphicsPipeline2DType pipelineType, std::string& vss,
+    std::string& fss, vtkWebGPURenderWindow* wgpuRenderWindow, vtkActor2D* actor);
+
+  void ReplaceShaderVertexOutputDef(std::string& vss, std::string& fss);
+  void ReplaceShaderMapperBindings(std::string& vss);
+
+  void ReplaceVertexShaderConstantsDef(GraphicsPipeline2DType pipelineType, std::string& vss);
+  void ReplaceVertexShaderMapper2DStateDef(std::string& vss);
+  void ReplaceVertexShaderMeshArraysDescriptorDef(std::string& vss);
+  void ReplaceVertexShaderTopologyBindings(std::string& vss);
+  void ReplaceVertexShaderVertexInputDef(std::string& vss);
+  void ReplaceVertexShaderUtilityMethodsDef(GraphicsPipeline2DType pipelineType, std::string& vss);
+  void ReplaceVertexShaderVertexMainStart(std::string& vss);
+  void ReplaceVertexShaderVertexIdImpl(GraphicsPipeline2DType pipelineType, std::string& vss);
+  void ReplaceVertexShaderPrimitiveIdImpl(GraphicsPipeline2DType pipelineType, std::string& vss);
+  void ReplaceVertexShaderCellIdImpl(GraphicsPipeline2DType pipelineType, std::string& vss);
+  void ReplaceVertexShaderPositionImpl(GraphicsPipeline2DType pipelineType, std::string& vss);
+  void ReplaceVertexShaderPickingImpl(std::string& vss);
+  void ReplaceVertexShaderColorsImpl(std::string& vss);
+  void ReplaceVertexShaderUVsImpl(std::string& vss);
+  void ReplaceVertexShaderVertexMainEnd(std::string& vss);
+
+  void ReplaceFragmentShaderFragmentOutputDef(std::string& fss);
+  void ReplaceFragmentShaderFragmentMainStart(std::string& fss);
+  void ReplaceFragmentShaderPickingImpl(std::string& fss);
+  void ReplaceFragmentShaderColorImpl(std::string& fss);
+  void ReplaceFragmentShaderFragmentMainEnd(std::string& fss);
 
 public:
   vtkWebGPUPolyDataMapper2DInternals();
