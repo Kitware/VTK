@@ -37,27 +37,15 @@ static void CreateInitFile(
   fprintf(fout, "\nstatic PyMethodDef Py%s_Methods[] = {\n", libName);
   fprintf(fout, "  { nullptr, nullptr, 0, nullptr }\n};\n");
 
-  fprintf(fout, "\nstatic PyModuleDef Py%s_Module = {\n", libName);
-  fprintf(fout, "  PyModuleDef_HEAD_INIT,\n");
-  fprintf(fout, "  \"%s\", // m_name\n", libName);
-  fprintf(fout, "  nullptr, // m_doc\n");
-  fprintf(fout, "  0, // m_size\n");
-  fprintf(fout, "  Py%s_Methods, //m_methods\n", libName);
-  fprintf(fout, "  nullptr, // m_reload\n");
-  fprintf(fout, "  nullptr, // m_traverse\n");
-  fprintf(fout, "  nullptr, // m_clear\n");
-  fprintf(fout, "  nullptr  // m_free\n");
-  fprintf(fout, "};\n");
-
-  /* module init function */
-  fprintf(fout, "\nPyObject *PyInit_%s()\n", libName);
+  /* module exec function for multi-phase initialization */
+  fprintf(fout, "\nstatic int Py%s_Exec(PyObject *m)\n", libName);
   fprintf(fout, "{\n");
-  fprintf(fout, "  PyObject *m = PyModule_Create(&Py%s_Module);\n", libName);
-
   fprintf(fout, "  PyObject *d = PyModule_GetDict(m);\n");
   fprintf(fout, "  if (!d)\n");
   fprintf(fout, "  {\n");
-  fprintf(fout, "    Py_FatalError(\"can't get dictionary for module %s\");\n", libName);
+  fprintf(fout, "    PyErr_SetString(PyExc_ImportError, \"can't get dictionary for module %s\");\n",
+    libName);
+  fprintf(fout, "    return -1;\n");
   fprintf(fout, "  }\n\n");
 
   /* import all the modules that we depend on */
@@ -73,24 +61,24 @@ static void CreateInitFile(
     fprintf(fout, "  {\n");
     fprintf(fout, "    if (!vtkPythonUtil::ImportModule(depends[i], d))\n");
     fprintf(fout, "    {\n");
-    fprintf(fout, "      Py_DECREF(m);\n");
     fprintf(fout,
-      "      return PyErr_Format(PyExc_ImportError,\n"
+      "      PyErr_Format(PyExc_ImportError,\n"
       "        \"Failed to load %s: No module named %%s\",\n"
       "        depends[i]);\n",
       libName);
+    fprintf(fout, "      return -1;\n");
     fprintf(fout, "    }\n");
     fprintf(fout, "  }\n\n");
 
     /* vtkPythonUtil should have been initialized by one of our dependencies */
     fprintf(fout, "  if (!vtkPythonUtil::IsInitialized())\n");
     fprintf(fout, "  {\n");
-    fprintf(fout, "    Py_DECREF(m);\n");
     fprintf(fout,
-      "    return PyErr_Format(PyExc_ImportError,\n"
+      "    PyErr_Format(PyExc_ImportError,\n"
       "      \"Initialization failed for %s, not compatible with %%s\",\n"
       "      depends[0]);\n",
       libName);
+    fprintf(fout, "    return -1;\n");
     fprintf(fout, "  }\n\n");
   }
   else
@@ -106,7 +94,35 @@ static void CreateInitFile(
 
   fprintf(fout, "\n");
   fprintf(fout, "  vtkPythonUtil::AddModule(\"%s\");\n\n", libName);
-  fprintf(fout, "  return m;\n");
+  fprintf(fout, "  return 0;\n");
+  fprintf(fout, "}\n");
+
+  /* module slots for multi-phase initialization */
+  fprintf(fout, "\nstatic PyModuleDef_Slot Py%s_Slots[] = {\n", libName);
+  fprintf(fout, "#ifdef Py_GIL_DISABLED\n");
+  fprintf(fout, "  {Py_mod_gil, Py_MOD_GIL_NOT_USED},\n");
+  fprintf(fout, "#endif\n");
+  fprintf(fout, "  {Py_mod_exec, (void*)Py%s_Exec},\n", libName);
+  fprintf(fout, "  {0, nullptr}\n");
+  fprintf(fout, "};\n");
+
+  /* module definition */
+  fprintf(fout, "\nstatic PyModuleDef Py%s_Module = {\n", libName);
+  fprintf(fout, "  PyModuleDef_HEAD_INIT,\n");
+  fprintf(fout, "  \"%s\", // m_name\n", libName);
+  fprintf(fout, "  nullptr, // m_doc\n");
+  fprintf(fout, "  0, // m_size\n");
+  fprintf(fout, "  Py%s_Methods, // m_methods\n", libName);
+  fprintf(fout, "  Py%s_Slots, // m_slots\n", libName);
+  fprintf(fout, "  nullptr, // m_traverse\n");
+  fprintf(fout, "  nullptr, // m_clear\n");
+  fprintf(fout, "  nullptr  // m_free\n");
+  fprintf(fout, "};\n");
+
+  /* module init function - returns module definition for multi-phase init */
+  fprintf(fout, "\nPyObject *PyInit_%s()\n", libName);
+  fprintf(fout, "{\n");
+  fprintf(fout, "  return PyModuleDef_Init(&Py%s_Module);\n", libName);
   fprintf(fout, "}\n");
 }
 

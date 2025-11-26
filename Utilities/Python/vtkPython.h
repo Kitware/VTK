@@ -90,8 +90,8 @@ they are system headers.  Do NOT add any #undef lines here.  */
 #undef toupper
 #endif
 
-/* This logic is borrowed from mpi4py/vtkmpi4py/src/pycompat.h */
-#ifdef VTK_NO_PYTHON_THREADS
+/* This logic is roughly borrowed from mpi4py/vtkmpi4py/src/pycompat.h */
+#if defined(VTK_NO_PYTHON_THREADS) || defined(Py_GIL_DISABLED)
 #undef PyGILState_Ensure
 #define PyGILState_Ensure() ((PyGILState_STATE)0)
 #undef PyGILState_Release

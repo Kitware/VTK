@@ -151,3 +151,18 @@ workflow:
     variables:
         VTK_CI_MERGED_ONLY: "true"
         VTK_CI_NIGHTLY_ONLY: "true"
+
+.rules_variables_wheel_weekly_build:
+    extends:
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+
+.rules_variables_wheel_weekly_test:
+    extends:
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"

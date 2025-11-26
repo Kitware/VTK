@@ -20,6 +20,12 @@ if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "macos")
   endif ()
 endif ()
 
+# Is this a free-threading python dist?
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "(linux|macos|windows)[0-9]+t")
+  # Python xarray deps not available yet for free threading
+  set(VTK_MODULE_ENABLE_VTK_IONetCDF NO CACHE STRING "")
+endif()
+
 set(VTK_WHEEL_BUILD ON CACHE BOOL "")
 set(VTK_INSTALL_SDK ON CACHE BOOL "")
 

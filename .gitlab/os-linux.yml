@@ -183,6 +183,30 @@
     variables:
         CMAKE_CONFIGURATION: wheel_linux314_x86_64_egl
 
+.wheel_linux314t_x86_64:
+    extends: .manylinux2014_x86_64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux314t_x86_64
+        PYTHON_PREFIX: /opt/python/cp314-cp314t
+
+.wheel_linux314t_x86_64_osmesa:
+    extends:
+        - .wheel_linux314t_x86_64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux314t_x86_64_osmesa
+
+.wheel_linux314t_x86_64_egl:
+    extends:
+        - .wheel_linux314t_x86_64
+        - .manylinux_2_28_x86_64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux314t_x86_64_egl
+
 .wheel_linux39_aarch64:
     extends: .manylinux_2_28_aarch64
 
@@ -320,6 +344,29 @@
 
     variables:
         CMAKE_CONFIGURATION: wheel_linux314_aarch64_egl
+
+.wheel_linux314t_aarch64:
+    extends: .manylinux_2_28_aarch64
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux314t_aarch64
+        PYTHON_PREFIX: /opt/python/cp314-cp314t
+
+.wheel_linux314t_aarch64_osmesa:
+    extends:
+        - .wheel_linux314t_aarch64
+        - .wheel_linux_osmesa_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux314t_aarch64_osmesa
+
+.wheel_linux314t_aarch64_egl:
+    extends:
+        - .wheel_linux314t_aarch64
+        - .wheel_linux_egl_addon
+
+    variables:
+        CMAKE_CONFIGURATION: wheel_linux314t_aarch64_egl
 
 .fedora42:
     extends: .linux
@@ -852,8 +899,7 @@
         - "$PYTHON_PREFIX/bin/python -m venv venv"
         - . venv/bin/activate
         - PYTHON_VERSION_SUFFIX=`python -c 'import sys;print(f"{sys.version_info[0]}.{sys.version_info[1]}")'`
-        # Prebuilt wheels for Python 3.8 on aarch64 don't exist, so skip installing them.
-        - '[[ "$CMAKE_CONFIGURATION" =~ "wheel_linux38_aarch64" ]] || pip install -r $PWD/.gitlab/ci/requirements-wheel$PYTHON_VERSION_SUFFIX-test.txt'
+        - '[[ "$CMAKE_CONFIGURATION" =~ linux[[:digit:]]{2,3}t ]] || pip install -r $PWD/.gitlab/ci/requirements-wheel$PYTHON_VERSION_SUFFIX-test.txt'
         - pip install twine
         - twine check build/dist/*.whl
         - pip install build/dist/*.whl
