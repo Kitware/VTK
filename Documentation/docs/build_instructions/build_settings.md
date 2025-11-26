@@ -52,7 +52,7 @@ Less common, but variables which may be of interest to some:
     this also runs unit tests in web workers, which is the only way for the tests
     to reliably load data files without having to embed entire datasets inside
     the test binaries.
-  * `VTK_WEBASSEMBLY_SMP_THREAD_POOL_SIZE` (default `0`, means unlimited): This option can
+  * `VTK_WEBASSEMBLY_SMP_THREAD_POOL_SIZE` (default `0`, means runtime hardware concurrency): This option can
     be used for limiting the number of webassembly threads consumed by
     SMP tools. By setting this you can reserve threads for your application to use.
   * `VTK_TESTING_WASM_ENGINE` (default ``):
