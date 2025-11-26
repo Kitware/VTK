@@ -937,7 +937,7 @@ protected:
       [](size_t sum, const std::vector<vtkIdType>& ids) { return sum + ids.size(); });
 
     using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
-    const bool createAOS = numComponents <= 3;
+    const bool createAOS = numComponents <= 3 || numComponents == 6;
     PutFieldWorker<T> worker(numComponents, totalSize, createAOS);
     for (size_t dsIndex = 0; dsIndex < datasets.size(); ++dsIndex)
     {
@@ -992,6 +992,11 @@ protected:
         case 3:
         {
           block->field_add(Ioss::Field(name, type, IOSS_VECTOR_3D(), role, elementCount));
+          break;
+        }
+        case 6:
+        {
+          block->field_add(Ioss::Field(name, type, IOSS_SYM_TENSOR(), role, elementCount));
           break;
         }
         default:
