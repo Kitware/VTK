@@ -17,10 +17,10 @@ endif ()
 
 option(VTK_WEBASSEMBLY_THREADS "Enable threading support in wasm. Adds -pthread compile and link flags." OFF)
 if (VTK_WEBASSEMBLY_THREADS)
-  set(VTK_WEBASSEMBLY_THREAD_POOL_SIZE 0 CACHE STRING "Limit the maximum number of threads in the WASM backend (default:0, unlimited).")
+  set(VTK_WEBASSEMBLY_SMP_THREAD_POOL_SIZE 0 CACHE STRING "Limit the maximum number of threads in the WASM backend (default:0, unlimited).")
 endif ()
-if (NOT VTK_WEBASSEMBLY_THREAD_POOL_SIZE MATCHES "^[0-9]+$")
-  message(FATAL_ERROR "VTK_WEBASSEMBLY_THREAD_POOL_SIZE must be a non-negative integer")
+if (NOT VTK_WEBASSEMBLY_SMP_THREAD_POOL_SIZE MATCHES "^[0-9]+$")
+  message(FATAL_ERROR "VTK_WEBASSEMBLY_SMP_THREAD_POOL_SIZE must be a non-negative integer")
 endif()
 
 include(ProcessorCount)

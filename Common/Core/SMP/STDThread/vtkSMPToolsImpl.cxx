@@ -66,8 +66,8 @@ int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedNumberOfThreads()
 template <>
 int vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedDefaultNumberOfThreads()
 {
-#if defined(__EMSCRIPTEN_PTHREADS__) && (VTK_WEBASSEMBLY_THREAD_POOL_SIZE > 0)
-  int maxThreads = VTK_WEBASSEMBLY_THREAD_POOL_SIZE;
+#if defined(__EMSCRIPTEN_PTHREADS__) && (VTK_WEBASSEMBLY_SMP_THREAD_POOL_SIZE > 0)
+  int maxThreads = VTK_WEBASSEMBLY_SMP_THREAD_POOL_SIZE;
 #else
   int maxThreads = std::thread::hardware_concurrency();
 #endif
