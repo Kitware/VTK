@@ -797,8 +797,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     float bottom = -yoff;
     float top = -yoff + size[1];
 
-    // it's an error to call glOrtho with
-    // either left==right or top==bottom
+    // it's an error when either left==right or top==bottom
     if (left == right)
     {
       right = left + 1.0;
@@ -808,12 +807,13 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       top = bottom + 1.0;
     }
 
+    float yAxisSign = -1.0f; // in webgpu, the y axis of window increases downwards.
     // compute the combined ModelView matrix and send it down to save time in the shader
-    this->WCVCMatrix->Identity();
+    this->WCVCMatrix->Zero();
     this->WCVCMatrix->SetElement(0, 0, 2.0 / (right - left));
-    this->WCVCMatrix->SetElement(1, 1, -2.0 / (top - bottom));
+    this->WCVCMatrix->SetElement(1, 1, yAxisSign * 2.0 / (top - bottom));
     this->WCVCMatrix->SetElement(0, 3, -1.0 * (right + left) / (right - left));
-    this->WCVCMatrix->SetElement(1, 3, 1.0 * (top + bottom) / (top - bottom));
+    this->WCVCMatrix->SetElement(1, 3, yAxisSign * -1.0 * (top + bottom) / (top - bottom));
     this->WCVCMatrix->SetElement(2, 2, 0.0);
     this->WCVCMatrix->SetElement(
       2, 3, actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION ? 0.0 : 1.0);
