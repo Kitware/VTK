@@ -143,6 +143,7 @@ public:
    * The traversal only gives the view prop for the active layer.
    */
   void InitPathTraversal() override;
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   vtkAssemblyPath* GetNextPath() override;
   int GetNumberOfPaths() override;
   ///@}

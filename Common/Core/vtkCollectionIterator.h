@@ -22,7 +22,6 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCollection;
-class vtkCollectionElement;
 
 class VTK_DEPRECATED_IN_9_7_0("Use vtk::Range instead.") VTKCOMMONCORE_EXPORT vtkCollectionIterator
   : public vtkObject
@@ -74,12 +73,12 @@ protected:
   // The collection over which we are iterating.
   vtkCollection* Collection;
 
-  // The current iterator position.
-  vtkCollectionElement* Element;
-
   vtkObject* GetObjectInternal();
 
 private:
+  // The current iterator position.
+  std::vector<vtkObject*>::iterator Iterator;
+
   vtkCollectionIterator(const vtkCollectionIterator&) = delete;
   void operator=(const vtkCollectionIterator&) = delete;
 };

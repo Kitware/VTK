@@ -44,7 +44,15 @@ vtkRenderPass* vtkRenderPassCollection::GetNextRenderPass()
 //------------------------------------------------------------------------------
 vtkRenderPass* vtkRenderPassCollection::GetLastRenderPass()
 {
-  return (this->Bottom) ? static_cast<vtkRenderPass*>(this->Bottom->Item) : nullptr;
+  int numItems = this->GetNumberOfItems();
+  if (numItems == 0)
+  {
+    return nullptr;
+  }
+  else
+  {
+    return static_cast<vtkRenderPass*>(this->GetItemAsObject(numItems - 1));
+  }
 }
 
 //------------------------------------------------------------------------------

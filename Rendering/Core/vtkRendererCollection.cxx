@@ -54,13 +54,13 @@ void vtkRendererCollection::Render()
 
 vtkRenderer* vtkRendererCollection::GetFirstRenderer()
 {
-  if (this->Top == nullptr)
+  if (this->GetNumberOfItems() == 0)
   {
     return nullptr;
   }
   else
   {
-    return static_cast<vtkRenderer*>(this->Top->Item);
+    return static_cast<vtkRenderer*>(this->GetItemAsObject(0));
   }
 }
 

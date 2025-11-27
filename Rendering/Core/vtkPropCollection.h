@@ -85,13 +85,14 @@ inline vtkProp* vtkPropCollection::GetNextProp()
 
 inline vtkProp* vtkPropCollection::GetLastProp()
 {
-  if (this->Bottom == nullptr)
+  int numItems = this->GetNumberOfItems();
+  if (numItems == 0)
   {
     return nullptr;
   }
   else
   {
-    return static_cast<vtkProp*>(this->Bottom->Item);
+    return static_cast<vtkProp*>(this->GetItemAsObject(numItems - 1));
   }
 }
 

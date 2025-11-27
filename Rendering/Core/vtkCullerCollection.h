@@ -66,13 +66,14 @@ private:
 
 inline vtkCuller* vtkCullerCollection::GetLastItem()
 {
-  if (this->Bottom == nullptr)
+  int numItems = this->GetNumberOfItems();
+  if (numItems == 0)
   {
     return nullptr;
   }
   else
   {
-    return static_cast<vtkCuller*>(this->Bottom->Item);
+    return static_cast<vtkCuller*>(this->GetItemAsObject(numItems - 1));
   }
 }
 

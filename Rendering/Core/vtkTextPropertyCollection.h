@@ -82,13 +82,14 @@ inline vtkTextProperty* vtkTextPropertyCollection::GetItem(int idx)
 
 inline vtkTextProperty* vtkTextPropertyCollection::GetLastItem()
 {
-  if (this->Bottom == nullptr)
+  int numItems = this->GetNumberOfItems();
+  if (numItems == 0)
   {
     return nullptr;
   }
   else
   {
-    return static_cast<vtkTextProperty*>(this->Bottom->Item);
+    return static_cast<vtkTextProperty*>(this->GetItemAsObject(numItems - 1));
   }
 }
 

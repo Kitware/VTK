@@ -137,6 +137,7 @@ public:
    * GetNextPath() returns a NULL pointer when the list is exhausted.
    */
   virtual void InitPathTraversal();
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_NOT_SUPPORTED)
   virtual vtkAssemblyPath* GetNextPath();
   virtual int GetNumberOfPaths() { return 1; }
   ///@}

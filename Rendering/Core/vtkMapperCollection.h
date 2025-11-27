@@ -44,7 +44,15 @@ public:
    */
   vtkMapper* GetLastItem()
   {
-    return this->Bottom ? static_cast<vtkMapper*>(this->Bottom->Item) : nullptr;
+    int numItems = this->GetNumberOfItems();
+    if (numItems == 0)
+    {
+      return nullptr;
+    }
+    else
+    {
+      return static_cast<vtkMapper*>(this->GetItemAsObject(numItems - 1));
+    }
   }
 
   /**
