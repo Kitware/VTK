@@ -19,7 +19,7 @@ class vtkMatrix4x4;
 class vtkViewport;
 class vtkActor2D;
 class vtkWebGPUPolyDataMapper2D;
-class vtkWebGPURenderer;
+class vtkWebGPURenderTextureDeviceResource;
 class vtkWebGPURenderWindow;
 
 /**
@@ -132,14 +132,17 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
     TopologyBindGroupInfos[vtkWebGPUCellToPrimitiveConverter::NUM_TOPOLOGY_SOURCE_TYPES] = {};
 
   wgpu::BindGroup MeshAttributeBindGroup;
+  vtkTimeStamp TextureBindTime;
+  int ActorTextureUnit = -1;
+  wgpu::BindGroupLayout MeshAttributeBindGroupLayout;
 
   vtkNew<vtkWebGPUCellToPrimitiveConverter> CellConverter;
 
   /**
    * Create a bind group layout for the mesh attribute bind group.
    */
-  static wgpu::BindGroupLayout CreateMeshAttributeBindGroupLayout(
-    const wgpu::Device& device, const std::string& label);
+  static wgpu::BindGroupLayout CreateMeshAttributeBindGroupLayout(const wgpu::Device& device,
+    const std::string& label, vtkWebGPURenderTextureDeviceResource* textureDevRc = nullptr);
 
   /**
    * Create a bind group layout for the `TopologyRenderInfo::BindGroup`
@@ -158,7 +161,8 @@ class VTKRENDERINGWEBGPU_NO_EXPORT vtkWebGPUPolyDataMapper2DInternals
     std::string& fss, vtkWebGPURenderWindow* wgpuRenderWindow, vtkActor2D* actor);
 
   void ReplaceShaderVertexOutputDef(std::string& vss, std::string& fss);
-  void ReplaceShaderMapperBindings(std::string& vss);
+  void ReplaceShaderMapperBindings(
+    std::string& vss, std::string& fss, vtkWebGPURenderWindow* wgpuRenderWindow, vtkActor2D* actor);
 
   void ReplaceVertexShaderConstantsDef(GraphicsPipeline2DType pipelineType, std::string& vss);
   void ReplaceVertexShaderMapper2DStateDef(std::string& vss);

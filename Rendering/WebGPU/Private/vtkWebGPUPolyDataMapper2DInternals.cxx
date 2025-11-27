@@ -4,6 +4,7 @@
 #include "vtkActor2D.h"
 #include "vtkArrayDispatch.h"
 #include "vtkDataArray.h"
+#include "vtkInformation.h"
 #include "vtkMatrix4x4.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -13,6 +14,7 @@
 #include "vtkWebGPUComputePass.h"
 #include "vtkWebGPUPolyDataMapper2D.h"
 #include "vtkWebGPURenderPipelineCache.h"
+#include "vtkWebGPURenderTextureDeviceResource.h"
 #include "vtkWebGPURenderWindow.h"
 #include "vtkWebGPURenderer.h"
 
@@ -68,20 +70,32 @@ vtkWebGPUPolyDataMapper2DInternals::~vtkWebGPUPolyDataMapper2DInternals() = defa
 
 //------------------------------------------------------------------------------
 wgpu::BindGroupLayout vtkWebGPUPolyDataMapper2DInternals::CreateMeshAttributeBindGroupLayout(
-  const wgpu::Device& device, const std::string& label)
+  const wgpu::Device& device, const std::string& label,
+  vtkWebGPURenderTextureDeviceResource* deviceTextureRc)
 {
-  return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device,
-    {
-      // clang-format off
-      // state
-      { 0, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::ReadOnlyStorage },
-      // mesh_attributes
-      { 1, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment, wgpu::BufferBindingType::ReadOnlyStorage },
-      // mesh_data
-      { 2, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage },
-      // clang-format on
-    },
-    label);
+  using BGLEntryInitializer = vtkWebGPUBindGroupLayoutInternals::LayoutEntryInitializationHelper;
+  std::vector<wgpu::BindGroupLayoutEntry> entries;
+  // Mapper2Dstate
+  entries.emplace_back(
+    BGLEntryInitializer{ 0, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
+      wgpu::BufferBindingType::ReadOnlyStorage });
+  // mesh_attributes
+  entries.emplace_back(
+    BGLEntryInitializer{ 1, wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment,
+      wgpu::BufferBindingType::ReadOnlyStorage });
+  // mesh_data
+  entries.emplace_back(
+    BGLEntryInitializer{ 2, wgpu::ShaderStage::Vertex, wgpu::BufferBindingType::ReadOnlyStorage });
+  if (deviceTextureRc)
+  {
+    // texture sampler
+    entries.emplace_back(
+      deviceTextureRc->MakeSamplerBindGroupLayoutEntry(3, wgpu::ShaderStage::Fragment));
+    // texture data
+    entries.emplace_back(
+      deviceTextureRc->MakeTextureViewBindGroupLayoutEntry(4, wgpu::ShaderStage::Fragment));
+  }
+  return vtkWebGPUBindGroupLayoutInternals::MakeBindGroupLayout(device, entries, label);
 }
 
 //------------------------------------------------------------------------------
@@ -165,7 +179,7 @@ void vtkWebGPUPolyDataMapper2DInternals::ApplyShaderReplacements(
 {
   // Vertex and Fragment shader replacements
   this->ReplaceShaderVertexOutputDef(vss, fss);
-  this->ReplaceShaderMapperBindings(vss);
+  this->ReplaceShaderMapperBindings(vss, fss, wgpuRenderWindow, actor);
 
   // Vertex Shader replacements
   this->ReplaceVertexShaderConstantsDef(pipelineType, vss);
@@ -304,14 +318,40 @@ struct MeshAttributes
 }
 
 //------------------------------------------------------------------------------
-void vtkWebGPUPolyDataMapper2DInternals::ReplaceShaderMapperBindings(std::string& vss)
+void vtkWebGPUPolyDataMapper2DInternals::ReplaceShaderMapperBindings(
+  std::string& vss, std::string& fss, vtkWebGPURenderWindow* wgpuRenderWindow, vtkActor2D* actor)
 {
   vtkWebGPURenderPipelineCache::Substitute(vss, "//VTK::Mapper::Bindings",
     R"(@group(0) @binding(0) var<storage, read> state: Mapper2DState;
 @group(0) @binding(1) var<storage, read> mesh_attributes: MeshAttributes;
-@group(0) @binding(2) var<storage, read> mesh_data: array<f32>;
-  )",
+@group(0) @binding(2) var<storage, read> mesh_data: array<f32>;)",
     true);
+  if (wgpuRenderWindow && actor)
+
+  {
+    if (auto* propertyKeys = actor->GetPropertyKeys())
+    {
+      if (propertyKeys->Has(vtkProp::GENERAL_TEXTURE_UNIT()))
+      {
+        const int textureUnit = propertyKeys->Get(vtkProp::GENERAL_TEXTURE_UNIT());
+        if (auto devRc = wgpuRenderWindow->GetWGPUTextureCache()->GetRenderTexture(textureUnit))
+        {
+          const auto textureSampleTypeStr =
+            vtkWebGPURenderTextureDeviceResource::GetTextureSampleTypeString(
+              devRc->GetSampleType());
+          std::ostringstream codeStream;
+          // It is okay to not place the other bindings 0, 1, and 2 here again, as they are not used
+          // in the fragment shader. However, we need to declare bindings 3 and 4 for the texture
+          // sampler and texture data.
+          codeStream << R"(@group(0) @binding(3) var texture_sampler: sampler;
+@group(0) @binding(4) var texture_data: texture_2d<)"
+                     << textureSampleTypeStr << ">;";
+          vtkWebGPURenderPipelineCache::Substitute(
+            fss, "//VTK::Mapper::Bindings", codeStream.str(), true);
+        }
+      }
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -627,8 +667,18 @@ void vtkWebGPUPolyDataMapper2DInternals::ReplaceFragmentShaderPickingImpl(std::s
 //------------------------------------------------------------------------------
 void vtkWebGPUPolyDataMapper2DInternals::ReplaceFragmentShaderColorImpl(std::string& fss)
 {
-  vtkWebGPURenderPipelineCache::Substitute(
-    fss, "//VTK::Colors::Impl", "output.color = input.color;", true);
+  if (this->ActorTextureUnit >= 0)
+  {
+    vtkWebGPURenderPipelineCache::Substitute(fss, "//VTK::Colors::Impl",
+      R"(let texture_color = textureSample(texture_data, texture_sampler, input.uv);
+  output.color = input.color * texture_color;)",
+      true);
+  }
+  else
+  {
+    vtkWebGPURenderPipelineCache::Substitute(
+      fss, "//VTK::Colors::Impl", "output.color = input.color;", true);
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -942,20 +992,53 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     this->AttributeDescriptorData.BuildTimeStamp.Modified();
     this->MeshData.BuildTimeStamp.Modified();
 
+    vtkSmartPointer<vtkWebGPURenderTextureDeviceResource> deviceTextureRc;
+    if (auto* propertyKeys = actor->GetPropertyKeys())
+    {
+      if (propertyKeys->Has(vtkProp::GENERAL_TEXTURE_UNIT()))
+      {
+        const int textureUnit = propertyKeys->Get(vtkProp::GENERAL_TEXTURE_UNIT());
+        if (this->ActorTextureUnit != textureUnit)
+        {
+          vtkLogF(TRACE, "Texture unit changed from %d to %d", this->ActorTextureUnit, textureUnit);
+          this->TextureBindTime.Modified();
+          // Update last used texture unit
+          this->ActorTextureUnit = textureUnit;
+          recreateMeshBindGroup = true;
+        }
+      }
+    }
+    deviceTextureRc = wgpuTextureCache->GetRenderTexture(this->ActorTextureUnit);
+    if (deviceTextureRc && (this->TextureBindTime < deviceTextureRc->GetMTime()))
+    {
+      vtkLogF(TRACE, "Texture %d modified, updating bind group", this->ActorTextureUnit);
+      this->TextureBindTime.Modified();
+      recreateMeshBindGroup = true;
+    }
     if (recreateMeshBindGroup)
     {
       const auto& device = wgpuConfiguration->GetDevice();
-      auto layout =
-        this->CreateMeshAttributeBindGroupLayout(device, "MeshAttributeBindGroup_LAYOUT");
-      this->MeshAttributeBindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(device, layout,
-        {
-          // clang-format off
-        { 0, this->Mapper2DStateData.Buffer, 0 },
-        { 1, this->AttributeDescriptorData.Buffer, 0 },
-        { 2, this->MeshData.Buffer, 0 },
-          // clang-format on
-        },
-        "MeshAttributeBindGroup");
+      const auto& layout = this->MeshAttributeBindGroupLayout =
+        this->CreateMeshAttributeBindGroupLayout(
+          device, "MeshAttributeBindGroup_LAYOUT", deviceTextureRc);
+      std::vector<wgpu::BindGroupEntry> entries;
+      const vtkWebGPUBindGroupInternals::BindingInitializationHelper mapper2DStateInitializer{ 0,
+        this->Mapper2DStateData.Buffer, 0 };
+      entries.push_back(mapper2DStateInitializer.GetAsBinding());
+      const vtkWebGPUBindGroupInternals::BindingInitializationHelper attributeDescriptorInitializer{
+        1, this->AttributeDescriptorData.Buffer, 0
+      };
+      entries.push_back(attributeDescriptorInitializer.GetAsBinding());
+      const vtkWebGPUBindGroupInternals::BindingInitializationHelper meshDataInitializer{ 2,
+        this->MeshData.Buffer, 0 };
+      entries.push_back(meshDataInitializer.GetAsBinding());
+      if (deviceTextureRc)
+      {
+        entries.push_back(deviceTextureRc->MakeSamplerBindGroupEntry(3));
+        entries.push_back(deviceTextureRc->MakeTextureViewBindGroupEntry(4));
+      }
+      this->MeshAttributeBindGroup = vtkWebGPUBindGroupInternals::MakeBindGroup(
+        device, layout, entries, "MeshAttributeBindGroup");
       this->RebuildGraphicsPipelines = true;
       // Invalidate render bundle because bindgroup was recreated.
       wgpuRenderer->InvalidateBundle();
@@ -1065,8 +1148,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     this->RebuildGraphicsPipelines = false;
     descriptor.primitive.cullMode = wgpu::CullMode::None;
 
-    std::vector<wgpu::BindGroupLayout> basicBGLayouts = { this->CreateMeshAttributeBindGroupLayout(
-      device, "MeshAttributeBindGroupLayout") };
+    std::vector<wgpu::BindGroupLayout> basicBGLayouts = { this->MeshAttributeBindGroupLayout };
 
     for (int i = 0; i < GraphicsPipeline2DType::NUM_GFX_PIPELINE_2D_NB_TYPES; ++i)
     {
@@ -1082,7 +1164,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       std::string vertexShaderSource = vtkPolyData2DVSWGSL;
       std::string fragmentShaderSource = vtkPolyData2DFSWGSL;
       this->ApplyShaderReplacements(
-        pipelineType, vertexShaderSource, fragmentShaderSource, wgpuRenderer, actor);
+        pipelineType, vertexShaderSource, fragmentShaderSource, wgpuRenderWindow, actor);
       // generate a unique key for the pipeline descriptor and shader source pointer
       this->GraphicsPipeline2DKeys[i] = wgpuPipelineCache->GetPipelineKey(
         &descriptor, vertexShaderSource.c_str(), fragmentShaderSource.c_str());
