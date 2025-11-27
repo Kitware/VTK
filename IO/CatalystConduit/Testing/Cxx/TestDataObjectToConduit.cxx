@@ -10,6 +10,11 @@
 #include "vtkGenericDataArray.txx"
 #include "vtkImageData.h"
 #include "vtkLogger.h"
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+#include "vtkMPIController.h"
+#else
+#include "vtkDummyController.h"
+#endif
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
@@ -41,6 +46,22 @@ void FillCoordsNode(conduit_cpp::Node& coords_node)
   coords_node["values/z"] = std::vector<float>{ 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3,
     3, 4, 4, 4, 5, 5, 5, 6, 6, 6 };
 }
+
+//----------------------------------------------------------------------------
+void FillShapeMap(conduit_cpp::Node& shape_map)
+{
+  shape_map["hex"] = VTK_HEXAHEDRON;
+  shape_map["tet"] = VTK_TETRA;
+  shape_map["polygonal"] = VTK_POLYGON;
+  shape_map["quad"] = VTK_QUAD;
+  shape_map["tri"] = VTK_TRIANGLE;
+  shape_map["line"] = VTK_HEXAHEDRON;
+  shape_map["point"] = VTK_VERTEX;
+  shape_map["line"] = VTK_LINE;
+  shape_map["pyramid"] = VTK_PYRAMID;
+  shape_map["wedge"] = VTK_WEDGE;
+}
+
 //----------------------------------------------------------------------------
 bool TestNonDataSetObject()
 {
@@ -375,11 +396,10 @@ bool TestMixedShapedUnstructuredGrid()
   topologies_node0["type"] = "unstructured";
   topologies_node0["coordset"] = "coords";
   topologies_node0["elements/shape"] = "mixed";
-  topologies_node0["elements/shape_map/hex"] = VTK_HEXAHEDRON;
-  topologies_node0["elements/shape_map/tet"] = VTK_TETRA;
-  topologies_node0["elements/shape_map/quad"] = VTK_QUAD;
-  topologies_node0["elements/shape_map/tri"] = VTK_TRIANGLE;
-  topologies_node0["elements/shape_map/polygonal"] = VTK_POLYGON;
+
+  auto shape_map = topologies_node0["elements/shape_map"];
+  ::FillShapeMap(shape_map);
+
   topologies_node0["elements/shapes"] = std::vector<conduit_uint8>{ 12, 10, 7, 9, 5 };
 
   if (unstructured_grid->GetCells()->IsStorage64Bit())
@@ -1066,10 +1086,8 @@ bool TestMixedShapePolyData()
   topologies_node["type"] = "unstructured";
   topologies_node["coordset"] = "coords";
   topologies_node["elements/shape"] = "mixed";
-  topologies_node["elements/shape_map/point"] = VTK_VERTEX;
-  topologies_node["elements/shape_map/line"] = VTK_LINE;
-  topologies_node["elements/shape_map/tri"] = VTK_TRIANGLE;
-  topologies_node["elements/shape_map/polygonal"] = VTK_POLYGON;
+  auto shape_map = topologies_node["elements/shape_map"];
+  ::FillShapeMap(shape_map);
   topologies_node["elements/shapes"] =
     std::vector<conduit_uint8>{ 1, 1, 1, 1, 3, 3, 3, 3, 7, 7, 5, 5, 5 };
   topologies_node["elements/offsets"] =
@@ -1477,8 +1495,16 @@ bool TestSOAPoints()
 }
 
 //----------------------------------------------------------------------------
-int TestDataObjectToConduit(int, char*[])
+int TestDataObjectToConduit(int argc, char* argv[])
 {
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+  vtkNew<vtkMPIController> controller;
+#else
+  vtkNew<vtkDummyController> controller;
+#endif
+  controller->Initialize(&argc, &argv, 0);
+  vtkMultiProcessController::SetGlobalController(controller);
+
   bool is_success = true;
 
   is_success &= ::TestNonDataSetObject();
@@ -1493,6 +1519,8 @@ int TestDataObjectToConduit(int, char*[])
   is_success &= ::TestComposite();
   is_success &= ::TestAssembly();
   is_success &= ::TestSOAPoints();
+
+  controller->Finalize();
 
   return is_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }

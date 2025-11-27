@@ -6,6 +6,11 @@
 #include "vtkDataObjectToConduit.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+#include "vtkMPIController.h"
+#else
+#include "vtkDummyController.h"
+#endif
 #include "vtkNew.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPointData.h"
@@ -91,11 +96,22 @@ bool TestGhostCellsAndGhostPoints()
 }
 
 //----------------------------------------------------------------------------
-int TestDataObjectToConduitToDataObject(int, char*[])
+int TestDataObjectToConduitToDataObject(int argc, char* argv[])
 {
-  bool is_success = true;
+  bool ret = true;
 
-  is_success &= ::TestGhostCellsAndGhostPoints();
+#if VTK_MODULE_ENABLE_VTK_ParallelMPI
+  vtkNew<vtkMPIController> controller;
+#else
+  vtkNew<vtkDummyController> controller;
+#endif
 
-  return is_success ? EXIT_SUCCESS : EXIT_FAILURE;
+  controller->Initialize(&argc, &argv, 0);
+  vtkMultiProcessController::SetGlobalController(controller);
+
+  ret &= ::TestGhostCellsAndGhostPoints();
+
+  controller->Finalize();
+
+  return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }
