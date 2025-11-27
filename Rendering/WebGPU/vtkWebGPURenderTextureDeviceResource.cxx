@@ -274,6 +274,7 @@ void vtkWebGPURenderTextureDeviceResource::SendToWebGPUDevice(std::vector<void*>
     this->TextureViewDescriptor.dimension = wgpu::TextureViewDimension::Cube;
   }
   this->TextureView = this->Texture.CreateView(&this->TextureViewDescriptor);
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------
