@@ -8,6 +8,7 @@
 #include "vtkCellType.h"
 #include "vtkCellTypeUtilities.h"
 #include "vtkCellTypes.h"
+#include "vtkCommunicator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataAssembly.h"
@@ -20,6 +21,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
+#include "vtkMultiProcessController.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
@@ -102,18 +104,42 @@ std::string GetPartitionedDSName(vtkPartitionedDataSetCollection* pdc, unsigned 
 }
 
 //----------------------------------------------------------------------------
-bool IsMixedShape(vtkUnstructuredGrid* unstructured_grid)
+int GetNumShapes(vtkUnstructuredGrid* unstructured_grid)
 {
   auto* cell_types = unstructured_grid->GetDistinctCellTypesArray();
-  return cell_types->GetNumberOfTuples() > 1;
+  return cell_types->GetNumberOfTuples();
 }
 
 //----------------------------------------------------------------------------
-bool IsMixedShape(vtkPolyData* grid)
+int GetNumShapes(vtkPolyData* grid)
 {
   return (grid->GetNumberOfVerts() > 0) + (grid->GetNumberOfLines() > 0) +
-    (grid->GetNumberOfStrips() > 0) + (grid->GetNumberOfPolys() > 0) >
-    1;
+    (grid->GetNumberOfStrips() > 0) + (grid->GetNumberOfPolys() > 0);
+}
+
+//----------------------------------------------------------------------------
+template <typename T>
+bool IsMixedShape(T* grid)
+{
+  int numShapes = GetNumShapes(grid);
+
+  int maxNumShapes = 0;
+  vtkMultiProcessController::GetGlobalController()->AllReduce(
+    &numShapes, &maxNumShapes, 1, vtkCommunicator::MAX_OP);
+  return maxNumShapes > 1;
+}
+
+//----------------------------------------------------------------------------
+void FillShapeMap(conduit_cpp::Node& shape_map_node)
+{
+  for (const auto& shape : VTK_DATATYPE_TO_CONDUIT_SHAPE)
+  {
+    if (shape.first != VTK_POLY_VERTEX && shape.first != VTK_POLY_LINE &&
+      shape.first != VTK_TRIANGLE_STRIP)
+    {
+      shape_map_node[shape.second] = shape.first;
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -122,15 +148,21 @@ bool HasMultiCells(vtkPointSet* grid)
   // Return true if the grid has cells that are serialized to multiple in the Conduit node.
   // This can happen for poly vertex/lines or strips.
   // grid->GetDistinctCellTypes(vtkCellTypes *types)
+  int localMultiCell = 0;
   for (vtkIdType i = 0; i < grid->GetNumberOfCells(); i++)
   {
     auto type = grid->GetCellType(i);
     if (type == VTK_TRIANGLE_STRIP || type == VTK_POLY_LINE || type == VTK_POLY_VERTEX)
     {
-      return true;
+      localMultiCell = 1;
+      break;
     }
   }
-  return false;
+
+  int maxMultiCells = 0;
+  vtkMultiProcessController::GetGlobalController()->AllReduce(
+    &localMultiCell, &maxMultiCells, 1, vtkCommunicator::MAX_OP);
+  return maxMultiCells;
 }
 
 //----------------------------------------------------------------------------
@@ -348,6 +380,8 @@ bool FillMixedShape(vtkPolyData* dataset, conduit_cpp::Node& topologies_node)
     { VTK_TRIANGLE, 3 }, { VTK_POLYGON, -1 } };
 
   auto shape_map = topologies_node["elements/shape_map"];
+  ::FillShapeMap(shape_map);
+
   vtkNew<vtkIdTypeArray> offsets, connectivity;
   vtkNew<vtkUnsignedCharArray> shapes;
   vtkNew<vtkIdTypeArray> sizes;
@@ -365,8 +399,6 @@ bool FillMixedShape(vtkPolyData* dataset, conduit_cpp::Node& topologies_node)
     {
       continue;
     }
-
-    shape_map[::VTK_DATATYPE_TO_CONDUIT_SHAPE.at(topo.first)] = topo.first;
 
     for (vtkIdType cellId = 0; cellId < numCells; cellId++)
     {
@@ -436,11 +468,7 @@ bool FillMixedShape(vtkUnstructuredGrid* dataset, conduit_cpp::Node& topologies_
   for (vtkIdType i = 0; i < cell_types->GetNumberOfTuples(); i++)
   {
     auto type = cell_types->GetValue(i);
-    if (::VTK_DATATYPE_TO_CONDUIT_SHAPE.find(type) != ::VTK_DATATYPE_TO_CONDUIT_SHAPE.end())
-    {
-      shape_map[VTK_DATATYPE_TO_CONDUIT_SHAPE.at(type)] = static_cast<conduit_int32>(type);
-    }
-    else
+    if (::VTK_DATATYPE_TO_CONDUIT_SHAPE.find(type) == ::VTK_DATATYPE_TO_CONDUIT_SHAPE.end())
     {
       vtkLogF(ERROR,
         "Unsupported cell type %s found in vtkUnstructuredGrid. Cannot proceed further.",
@@ -448,6 +476,8 @@ bool FillMixedShape(vtkUnstructuredGrid* dataset, conduit_cpp::Node& topologies_
       return false;
     }
   }
+
+  ::FillShapeMap(shape_map);
 
   auto offsets = dataset->GetCells()->GetOffsetsArray();
   auto connectivity = dataset->GetCells()->GetConnectivityArray();
@@ -781,15 +811,48 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
 {
   bool is_success = true;
   auto dataset_attributes = vtkDataSetAttributes::SafeDownCast(field_data);
-  int array_count = field_data->GetNumberOfArrays();
-  for (int array_index = 0; is_success && array_index < array_count; ++array_index)
+  int arrayCount = field_data ? field_data->GetNumberOfArrays() : 0;
+
+  // All process need to have the same node structure and fields.
+  // Rank 0 broadcasts
+  auto* controller = vtkMultiProcessController::GetGlobalController();
+  const int localProcess = controller->GetLocalProcessId();
+  const int SOURCE_PROCESS = 0;
+  controller->Broadcast(&arrayCount, 1, SOURCE_PROCESS);
+
+  for (int array_index = 0; is_success && array_index < arrayCount; ++array_index)
   {
-    auto array = field_data->GetAbstractArray(array_index);
-    std::string name = array->GetName();
+    std::string name;
+    int dataType, numComp;
+    if (localProcess == SOURCE_PROCESS)
+    {
+      auto array = field_data->GetAbstractArray(array_index);
+      dataType = array->GetDataType();
+      numComp = array->GetNumberOfComponents();
+      name = array->GetName();
+    }
+
+    int arrayNameSize = name.size();
+    controller->Broadcast(&arrayNameSize, 1, SOURCE_PROCESS);
+
+    name.resize(arrayNameSize);
+    controller->Broadcast(name.data(), arrayNameSize, SOURCE_PROCESS);
+    controller->Broadcast(&dataType, 1, SOURCE_PROCESS);
+    controller->Broadcast(&numComp, 1, SOURCE_PROCESS);
+
     if (name.empty())
     {
       vtkLogF(WARNING, "Unnamed array, it will be ignored.");
       continue;
+    }
+
+    vtkSmartPointer<vtkAbstractArray> array = field_data->GetAbstractArray(name.c_str());
+    if (!array)
+    {
+      array = vtk::TakeSmartPointer(vtkDataArray::CreateArray(dataType));
+      array->SetName(name.c_str());
+      array->SetNumberOfComponents(numComp);
+      array->SetNumberOfTuples(0);
     }
 
     if (association.empty())
@@ -892,31 +955,23 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
 bool FillFields(
   vtkDataSet* data_set, conduit_cpp::Node& conduit_node, const std::string& topology_name)
 {
-  if (auto cell_data = data_set->GetCellData())
+
+  if (!FillFields(data_set, data_set->GetCellData(), "element", conduit_node, topology_name))
   {
-    if (!FillFields(data_set, cell_data, "element", conduit_node, topology_name))
-    {
-      vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with element failed.");
-      return false;
-    }
+    vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with element failed.");
+    return false;
   }
 
-  if (auto point_data = data_set->GetPointData())
+  if (!FillFields(data_set, data_set->GetPointData(), "vertex", conduit_node, topology_name))
   {
-    if (!FillFields(data_set, point_data, "vertex", conduit_node, topology_name))
-    {
-      vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with vertex failed.");
-      return false;
-    }
+    vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with vertex failed.");
+    return false;
   }
 
-  if (auto field_data = data_set->GetFieldData())
+  if (!FillFields(data_set, data_set->GetFieldData(), "", conduit_node, topology_name))
   {
-    if (!FillFields(data_set, field_data, "", conduit_node, topology_name))
-    {
-      vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with field data failed.");
-      return false;
-    }
+    vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with field data failed.");
+    return false;
   }
 
   return true;
