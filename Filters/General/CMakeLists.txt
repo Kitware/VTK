@@ -85,6 +85,7 @@ set(classes
   vtkPassArrays
   vtkPassSelectedArrays
   vtkPointConnectivityFilter
+  vtkPointsMatchingTransformFilter
   vtkPolyDataStreamer
   vtkPolyDataToReebGraphFilter
   vtkProbePolyhedron
