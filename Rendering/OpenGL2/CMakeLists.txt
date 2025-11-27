@@ -117,7 +117,7 @@ set(headers
 
 set(nowrap_headers
   vtkOpenGLPointGaussianMapperHelper.h
-  vtkOpenGLResourceFreeCallback.h	
+  vtkOpenGLResourceFreeCallback.h
   vtkOpenGLShaderDeclaration.h
 )
 

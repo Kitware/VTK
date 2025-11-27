@@ -20,7 +20,7 @@ int TestCellArrayGeneric6(int, char*[])
     ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeInt16>, vtkAffineArray<vtkTypeUInt64>>();
     ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeInt32>, vtkAffineArray<vtkTypeUInt64>>();
     ::RunTests<vtkCellArray::Generic, true, MockDataArray<vtkTypeInt64>, vtkAffineArray<vtkTypeUInt64>>();
-    // clang-format on    
+    // clang-format on
   }
   catch (std::exception& err)
   {

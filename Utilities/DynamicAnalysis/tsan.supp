@@ -111,7 +111,7 @@ race:vtkDiscreteClipperAlgorithm<short>::ClassifyYEdges
 race:CellPlaneCandidates<int>::operator()
 
 # test: CommonExecutionModelCxx-TestAbortSMPFilter
-# a race of checking and setting `AbortOutput` 
+# a race of checking and setting `AbortOutput`
 race:vtkAlgorithm::CheckAbort()
 
 # test: CommonExecutionModelCxx-TestAbortSMPFilter

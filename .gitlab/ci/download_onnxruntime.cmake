@@ -67,7 +67,7 @@ file(RENAME
 # The linux and osx binaries are broken and require some renaming and moving
 # Moving files from onnxruntime/include to onnxruntime/include/onnxruntime
 # Issue here : https://github.com/microsoft/onnxruntime/issues/25242
-if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR 
+if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "fedora" OR
     "$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_x86_64" OR
     "$ENV{CMAKE_CONFIGURATION}" MATCHES "macos_arm64")
   file(GLOB include_files
