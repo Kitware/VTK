@@ -1,11 +1,10 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkCaptionActor2D.h"
+#include "vtkActor2D.h"
 #include "vtkCellArray.h"
 #include "vtkCoordinate.h"
 #include "vtkElevationFilter.h"
-#include "vtkLookupTable.h"
 #include "vtkNew.h"
 #include "vtkPointDataToCellData.h"
 #include "vtkPolyData.h"
@@ -15,7 +14,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTextActor.h"
 
 int TestPolyDataMapper2D(int argc, char* argv[])
 {
