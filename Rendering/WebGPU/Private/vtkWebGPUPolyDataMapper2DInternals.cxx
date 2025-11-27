@@ -37,6 +37,7 @@ template <typename DestT>
 struct WriteTypedArray
 {
   std::size_t ByteOffset = 0;
+  std::size_t NumberOfBytesWritten = 0;
   const wgpu::Buffer& DstBuffer;
   vtkSmartPointer<vtkWebGPUConfiguration> WGPUConfiguration;
   float Denominator = 1.0;
@@ -58,6 +59,7 @@ struct WriteTypedArray
     this->WGPUConfiguration->WriteBuffer(
       this->DstBuffer, this->ByteOffset, data->GetPointer(0), nbytes, description);
     this->ByteOffset += nbytes;
+    this->NumberOfBytesWritten += nbytes;
   }
 };
 }
@@ -898,6 +900,8 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         }
       }
       pointPositions = this->TransformedPoints->GetData();
+      // Flag as modified so that we re-upload the transformed positions.
+      pointPositions->Modified();
     }
     vtkDataArray* pointColors =
       this->UsePointScalarMapping ? vtkDataArray::SafeDownCast(mapper->Colors) : nullptr;
@@ -912,9 +916,21 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         requiredBufferSize += sizeof(vtkTypeFloat32) * array->GetDataSize();
       }
     }
+    const std::string meshAttrDescriptorLabel =
+      "MeshAttributeDescriptor-" + input->GetObjectDescription();
+    if (this->AttributeDescriptorData.Buffer == nullptr)
+    {
+      recreateMeshBindGroup = true;
+      this->AttributeDescriptorData.Buffer = wgpuConfiguration->CreateBuffer(
+        sizeof(this->MeshArraysDescriptor), wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage,
+        false, meshAttrDescriptorLabel.c_str());
+      this->AttributeDescriptorData.Size = sizeof(this->MeshArraysDescriptor);
+    }
     if (requiredBufferSize != this->MeshData.Size)
     {
       this->MeshData.Buffer = nullptr;
+      // reset the build timestamp so that all data arrays are uploaded.
+      this->MeshData.BuildTimeStamp = vtkTimeStamp();
     }
 
     if (this->MeshData.Buffer == nullptr)
@@ -923,21 +939,37 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
       const auto label = "MeshAttributes-" + input->GetObjectDescription();
       this->MeshData.Buffer = wgpuConfiguration->CreateBuffer(requiredBufferSize,
         wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage, false, label.c_str());
-      using DispatchT = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
-      ::WriteTypedArray<vtkTypeFloat32> meshDataWriter{ 0, this->MeshData.Buffer, wgpuConfiguration,
-        1. };
-
-      // Upload positions
-      this->MeshArraysDescriptor.Positions.Start =
-        meshDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
-      if (!DispatchT::Execute(pointPositions, meshDataWriter, "Positions"))
+      this->MeshData.Size = requiredBufferSize;
+    }
+    using DispatchT = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllArrays>;
+    ::WriteTypedArray<vtkTypeFloat32> meshDataWriter{ 0, 0, this->MeshData.Buffer,
+      wgpuConfiguration, 1. };
+    // Only write data that has changed since last build.
+    // Upload positions
+    if (pointPositions != nullptr)
+    {
+      if (pointPositions->GetMTime() > this->MeshData.BuildTimeStamp)
       {
-        meshDataWriter(pointPositions, "Positions");
+        this->MeshArraysDescriptor.Positions.Start =
+          meshDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
+        if (!DispatchT::Execute(pointPositions, meshDataWriter, "Positions"))
+        {
+          meshDataWriter(pointPositions, "Positions");
+        }
+        this->MeshArraysDescriptor.Positions.NumComponents =
+          pointPositions->GetNumberOfComponents();
+        this->MeshArraysDescriptor.Positions.NumTuples = pointPositions->GetNumberOfTuples();
       }
-      this->MeshArraysDescriptor.Positions.NumComponents = pointPositions->GetNumberOfComponents();
-      this->MeshArraysDescriptor.Positions.NumTuples = pointPositions->GetNumberOfTuples();
-      // Upload point UVs
-      if (pointUVs)
+      else
+      {
+        vtkDebugWithObjectMacro(mapper, << "Skipping point positions upload");
+        meshDataWriter.ByteOffset += sizeof(vtkTypeFloat32) * pointPositions->GetDataSize();
+      }
+    }
+    // Upload point UVs
+    if (pointUVs != nullptr)
+    {
+      if (pointUVs->GetMTime() > this->MeshData.BuildTimeStamp)
       {
         this->MeshArraysDescriptor.UVs.Start = meshDataWriter.ByteOffset / sizeof(vtkTypeFloat32);
         if (!DispatchT::Execute(pointUVs, meshDataWriter, "UVs"))
@@ -947,8 +979,16 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         this->MeshArraysDescriptor.UVs.NumComponents = pointUVs->GetNumberOfComponents();
         this->MeshArraysDescriptor.UVs.NumTuples = pointUVs->GetNumberOfTuples();
       }
-      // Upload point colors
-      if (pointColors && this->UsePointScalarMapping)
+      else
+      {
+        vtkDebugWithObjectMacro(mapper, << "Skipping point positions upload");
+        meshDataWriter.ByteOffset += sizeof(vtkTypeFloat32) * pointUVs->GetDataSize();
+      }
+    }
+    // Upload point colors
+    if (this->UsePointScalarMapping && pointColors != nullptr)
+    {
+      if (pointColors->GetMTime() > this->MeshData.BuildTimeStamp)
       {
         meshDataWriter.Denominator = 255.0;
         this->MeshArraysDescriptor.Colors.Start =
@@ -961,8 +1001,16 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         this->MeshArraysDescriptor.Colors.NumComponents = pointColors->GetNumberOfComponents();
         this->MeshArraysDescriptor.Colors.NumTuples = pointColors->GetNumberOfTuples();
       }
-      // Upload cell colors
-      else if (cellColors && this->UseCellScalarMapping)
+      else
+      {
+        vtkDebugWithObjectMacro(mapper, << "Skipping point colors upload");
+        meshDataWriter.ByteOffset += sizeof(vtkTypeFloat32) * pointColors->GetDataSize();
+      }
+    }
+    // Upload cell colors
+    else if (this->UseCellScalarMapping && cellColors != nullptr)
+    {
+      if (cellColors->GetMTime() > this->MeshData.BuildTimeStamp)
       {
         meshDataWriter.Denominator = 255.0;
         this->MeshArraysDescriptor.Colors.Start =
@@ -975,23 +1023,21 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
         this->MeshArraysDescriptor.Colors.NumComponents = cellColors->GetNumberOfComponents();
         this->MeshArraysDescriptor.Colors.NumTuples = cellColors->GetNumberOfTuples();
       }
-      this->MeshData.Size = requiredBufferSize;
+      else
+      {
+        vtkDebugWithObjectMacro(mapper, << "Skipping cell colors upload");
+        meshDataWriter.ByteOffset += sizeof(vtkTypeFloat32) * cellColors->GetDataSize();
+      }
     }
-    const std::string meshAttrDescriptorLabel =
-      "MeshAttributeDescriptor-" + input->GetObjectDescription();
-    if (this->AttributeDescriptorData.Buffer == nullptr)
+    if (meshDataWriter.NumberOfBytesWritten > 0)
     {
-      recreateMeshBindGroup = true;
-      this->AttributeDescriptorData.Buffer = wgpuConfiguration->CreateBuffer(
-        sizeof(this->MeshArraysDescriptor), wgpu::BufferUsage::CopyDst | wgpu::BufferUsage::Storage,
-        false, meshAttrDescriptorLabel.c_str());
-      this->AttributeDescriptorData.Size = sizeof(this->MeshArraysDescriptor);
+      // This means something was actually written into a WebGPU buffer.
+      this->MeshData.BuildTimeStamp.Modified();
     }
     wgpuConfiguration->WriteBuffer(this->AttributeDescriptorData.Buffer, 0,
       &this->MeshArraysDescriptor, sizeof(this->MeshArraysDescriptor),
       meshAttrDescriptorLabel.c_str());
     this->AttributeDescriptorData.BuildTimeStamp.Modified();
-    this->MeshData.BuildTimeStamp.Modified();
 
     vtkSmartPointer<vtkWebGPURenderTextureDeviceResource> deviceTextureRc;
     if (auto* propertyKeys = actor->GetPropertyKeys())
