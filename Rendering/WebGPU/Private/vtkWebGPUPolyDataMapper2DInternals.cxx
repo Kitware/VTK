@@ -856,6 +856,7 @@ void vtkWebGPUPolyDataMapper2DInternals::UpdateBuffers(
     {
       this->UsePointScalarMapping = true;
     }
+    this->UseCellScalarMapping = false;
     if (mapper->ScalarVisibility)
     {
       // We must figure out how the scalars should be mapped to the polydata.
