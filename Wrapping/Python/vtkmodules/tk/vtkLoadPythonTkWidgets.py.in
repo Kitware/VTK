@@ -1,6 +1,5 @@
 import sys, os
 import vtkmodules
-from vtkmodules.vtkCommonCore import vtkVersion
 
 def vtkLoadPythonTkWidgets(interp):
     """vtkLoadPythonTkWidgets(interp) -- load vtk-tk widget extensions
@@ -10,18 +9,7 @@ def vtkLoadPythonTkWidgets(interp):
     the python path and the tcl path are searched.
     """
     modname = 'vtkRenderingTk'
-    VTK_WHEEL_BUILD = "@VTK_WHEEL_BUILD@"
-    VTK_VERSIONED_INSTALL = "@VTK_VERSIONED_INSTALL@"
-    VTK_CUSTOM_LIBRARY_VERSION = "@VTK_CUSTOM_LIBRARY_VERSION@"
-    if ((VTK_WHEEL_BUILD.upper() in ("1", "ON", "YES", "TRUE", "Y")) or
-        (VTK_VERSIONED_INSTALL.upper() in ("0", "OFF", "NO", "FALSE", "N"))):
-        name = modname
-    elif VTK_CUSTOM_LIBRARY_VERSION:
-        name = '%s-%s' % (modname,VTK_CUSTOM_LIBRARY_VERSION)
-    else:
-        X = vtkVersion.GetVTKMajorVersion()
-        Y = vtkVersion.GetVTKMinorVersion()
-        name = '%s-%d.%d' % (modname,X,Y)
+    name = '@_renderingtk_output_name@'
     pkgname = modname.lower().capitalize()
 
     # find out if the module is already loaded
