@@ -209,7 +209,7 @@ To read the data for its rank a node reads the information about all
 partitions, compute the correct offset and then read data from that
 offset.
 
-In VTK, Unstructured Grids support a large variety of cell types. Most VTK cell types are supported, with the exception of `VTK_POLYHEDRON`.
+In VTK, Unstructured Grids support a large variety of cell types. Most VTK cell types are supported, with the exception of `VTK_POLYHEDRON`
 which is different from other cell types.
 
 ## Poly data
@@ -801,10 +801,6 @@ Not all blocks need to define a `Steps` group, if a block doesn't have it, a tem
 :::
 
 ## Limitations
-
-This specification and the reader available in VTK currently only supports `ImageData`,
-`UnstructuredGrid`, `PolyData`, `Overlapping AMR`, `MultiBlockDataSet` and `Partitioned
-DataSet Collection`. Other dataset types may be added later depending on interest and funding.
 
 Unlike XML formats, VTKHDF does not support field names containing `/` and `.` characters,
 because of a limitation in the HDF5 format specification.

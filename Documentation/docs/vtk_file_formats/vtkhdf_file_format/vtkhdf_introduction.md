@@ -7,8 +7,6 @@ It currently supports basic types: `PolyData`, `UnstructuredGrid`, `ImageData`, 
 
 The current file format version is **2.4**.
 
-Note: This development is iterative and still ongoing as of 7/25/25. The format is expected to grow in its support for more and more use cases.
-
 ---
 ## Python examples and tutorial
 
@@ -37,11 +35,11 @@ vs. distributed data or static vs. temporal data.
 
 ### How to stay informed?
 
-We keep a [status](vtkhdf_status.md) page up to date, that tracks current work and implementation status of the specification in the `vtkHDFReader` and `vtkHDFWriter`. Bug tracking and proposals are tracked in a [Gitlab issue](https://gitlab.kitware.com/vtk/vtk/-/issues/19243). Additionally, all VTKHDF issues are [tagged appropriately](https://gitlab.kitware.com/vtk/vtk/-/issues/?sort=created_date&state=opened&label_name%5B%5D=area%3AVTKHDF&first_page_size=20) as `area:VTKHDF`.
+We keep a [status](vtkhdf_status.md) page up to date, that tracks current status of the VTKHDF specification and implementation in the `vtkHDFReader` and `vtkHDFWriter`. Bug tracking and proposals are tracked in a [Gitlab issue](https://gitlab.kitware.com/vtk/vtk/-/issues/19243). Additionally, all VTKHDF issues are [tagged appropriately](https://gitlab.kitware.com/vtk/vtk/-/issues/?sort=created_date&state=opened&label_name%5B%5D=area%3AVTKHDF&first_page_size=20) as `area:VTKHDF`.
 
 ### Where should we create a proposal for the file format?
 
-The VTKHDF File Format is not considered complete, and lacks support for many VTK data types. This specification is led by the community; please post ideas and design for new data types on the [VTK discourse](https://discourse.vtk.org/). This Discourse will be made into a Gitlab issue once VTKHDF contributors have agreed on a design.
+The VTKHDF File Format is not considered complete, and lacks support for some VTK data types. This specification is led by the community; please post ideas and design for new data types on the [VTK discourse](https://discourse.vtk.org/). This Discourse will be made into a Gitlab issue once VTKHDF contributors have agreed on a design.
 
 ### Who maintains this specification?
 
