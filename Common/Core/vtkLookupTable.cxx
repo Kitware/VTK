@@ -664,7 +664,6 @@ vtkIdType vtkLookupTable::GetIndex(double v)
   //   First, check whether we have a number...
   if (vtkMath::IsNan(v))
   {
-    // For backwards compatibility
     return -1;
   }
 

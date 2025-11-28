@@ -30,6 +30,7 @@ vtkLookupTableWithEnabling::~vtkLookupTableWithEnabling()
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkLookupTableWithEnabling::DisableColor(unsigned char r, unsigned char g, unsigned char b,
   unsigned char* rd, unsigned char* gd, unsigned char* bd)
 {

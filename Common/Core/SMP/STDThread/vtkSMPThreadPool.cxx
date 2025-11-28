@@ -355,11 +355,11 @@ std::thread vtkSMPThreadPool::MakeThread()
       {
         std::unique_lock<std::mutex> lock{ threadData.Mutex };
 
-        // Job stealing could be implemented but it will requires some changes in the process
-        // A thread that as no longer work to do could look at other threads jobs to "steal" a job
-        // from them and thus increase parallelism. This must take care of not generating deadlocks
+        // Job stealing could be implemented but it would require some changes in the process
+        // A thread that no longer has work to do could look at other threads' jobs to "steal" a job
+        // from them and thus increase parallelism. This must take care to not generate deadlocks
         // and should not increase Proxy parallelism above requested thread count.
-        // This goes out of the scope of current implementation.
+        // This goes out of the scope of the current implementation.
         threadData.ConditionVariable.wait(lock,
           [this, &threadData]
           { return !threadData.Jobs.empty() || this->Joining.load(std::memory_order_acquire); });
