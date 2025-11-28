@@ -258,6 +258,8 @@ def zipAllTimeSteps(directoryPath):
         zf.writestr(
             "index.json", json.dumps(rootIndexObj, indent=2), compress_type=compression
         )
+
+        rootIndexFile.close()
         os.remove(rootIndexPath)
 
     finally:
