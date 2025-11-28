@@ -103,17 +103,14 @@ vtkImageStencilData* vtkImageBlend::GetStencil()
 //------------------------------------------------------------------------------
 void vtkImageBlend::SetOpacity(int idx, double opacity)
 {
-  int i;
-  int newLength;
-  double* newArray;
-
   opacity = std::max(opacity, 0.0);
   opacity = std::min(opacity, 1.0);
 
   if (idx >= this->OpacityArrayLength)
   {
-    newLength = idx + 1;
-    newArray = new double[newLength];
+    int newLength = idx + 1;
+    double* newArray = new double[newLength];
+    int i;
     for (i = 0; i < this->OpacityArrayLength; i++)
     {
       newArray[i] = this->Opacity[i];
@@ -156,10 +153,8 @@ void vtkImageBlend::InternalComputeInputUpdateExtent(
 {
   memcpy(inExt, outExt, sizeof(int) * 6);
 
-  int i;
-
   // clip with the whole extent
-  for (i = 0; i < 3; i++)
+  for (int i = 0; i < 3; ++i)
   {
     inExt[2 * i] = std::max(inExt[2 * i], wholeExtent[2 * i]);
     inExt[2 * i + 1] = std::min(inExt[2 * i + 1], wholeExtent[2 * i + 1]);
@@ -177,12 +172,10 @@ int vtkImageBlend::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
   int inExt[6];
   int* outExt = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 
-  int whichInput;
-  for (whichInput = 0; whichInput < this->GetNumberOfInputConnections(0); whichInput++)
+  for (int whichInput = 0; whichInput < this->GetNumberOfInputConnections(0); whichInput++)
   {
-    int* inWextent;
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(whichInput);
-    inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    int* inWextent = inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
     this->InternalComputeInputUpdateExtent(inExt, outExt, inWextent);
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
   }
@@ -567,34 +560,31 @@ void vtkImageBlendExecuteChar(vtkImageBlend* self, int extent[6], vtkImageData* 
 //------------------------------------------------------------------------------
 static void vtkImageBlendCopyData(vtkImageData* inData, vtkImageData* outData, int* ext)
 {
-  int idxY, idxZ, maxY, maxZ;
-  vtkIdType inIncX, inIncY, inIncZ;
-  vtkIdType outIncX, outIncY, outIncZ;
-  int rowLength;
-  unsigned char *inPtr, *inPtr1, *outPtr, *outPtr1;
-
-  inPtr = static_cast<unsigned char*>(inData->GetScalarPointerForExtent(ext));
-  outPtr = static_cast<unsigned char*>(outData->GetScalarPointerForExtent(ext));
+  unsigned char* inPtr =
+    static_cast<unsigned char*>(inData->GetScalarPointerForExtent(ext)); // here
+  unsigned char* outPtr = static_cast<unsigned char*>(outData->GetScalarPointerForExtent(ext));
 
   // Get increments to march through inData
+  vtkIdType inIncX, inIncY, inIncZ;
+  vtkIdType outIncX, outIncY, outIncZ;
   inData->GetIncrements(inIncX, inIncY, inIncZ);
   outData->GetIncrements(outIncX, outIncY, outIncZ);
 
   // find the region to loop over
-  rowLength = (ext[1] - ext[0] + 1) * inIncX * inData->GetScalarSize();
-  maxY = ext[3] - ext[2];
-  maxZ = ext[5] - ext[4];
+  int rowLength = (ext[1] - ext[0] + 1) * inIncX * inData->GetScalarSize();
+  int maxY = ext[3] - ext[2];
+  int maxZ = ext[5] - ext[4];
 
   inIncY *= inData->GetScalarSize();
   inIncZ *= inData->GetScalarSize();
   outIncY *= outData->GetScalarSize();
   outIncZ *= outData->GetScalarSize();
   // Loop through outData pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  for (int idxZ = 0; idxZ <= maxZ; idxZ++)
   {
-    inPtr1 = inPtr + idxZ * inIncZ;
-    outPtr1 = outPtr + idxZ * outIncZ;
-    for (idxY = 0; idxY <= maxY; idxY++)
+    unsigned char* inPtr1 = inPtr + idxZ * inIncZ;
+    unsigned char* outPtr1 = outPtr + idxZ * outIncZ;
+    for (int idxY = 0; idxY <= maxY; idxY++)
     {
       memcpy(outPtr1, inPtr1, rowLength);
       inPtr1 += inIncY;
@@ -611,7 +601,6 @@ void vtkImageBlendCompoundExecute(vtkImageBlend* self, int extent[6], vtkImageDa
 {
   // Opacity
   double minA, maxA;
-  double r;
 
   if (inData->GetScalarType() == VTK_DOUBLE || inData->GetScalarType() == VTK_FLOAT)
   {
@@ -624,7 +613,7 @@ void vtkImageBlendCompoundExecute(vtkImageBlend* self, int extent[6], vtkImageDa
     maxA = inData->GetScalarTypeMax();
   }
 
-  r = opacity;
+  double r = opacity;
   opacity = opacity / (maxA - minA);
 
   int inC = inData->GetNumberOfScalarComponents();
@@ -905,8 +894,6 @@ void vtkImageBlend::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   void* inPtr;
   void* outPtr;
 
-  double opacity;
-
   vtkImageData* tmpData = nullptr;
   vtkImageData* alphaWeightSum = nullptr;
 
@@ -1004,7 +991,7 @@ void vtkImageBlend::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
         continue;
       }
 
-      opacity = this->GetOpacity(idx1);
+      double opacity = this->GetOpacity(idx1);
 
       inPtr = inData[0][idx1]->GetScalarPointerForExtent(extent);
 
@@ -1083,8 +1070,7 @@ void vtkImageBlend::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
 void vtkImageBlend::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  int i;
-  for (i = 0; i < this->OpacityArrayLength; i++)
+  for (int i = 0; i < this->OpacityArrayLength; i++)
   {
     os << indent << "Opacity(" << i << "): " << this->GetOpacity(i) << endl;
   }
