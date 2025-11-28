@@ -158,8 +158,8 @@ template <class F, class T>
 void vtkImageNLCInterpolate<F, T>::Nearest(vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
   const T* inPtr = static_cast<const T*>(info->Pointer);
-  int* inExt = info->Extent;
-  vtkIdType* inInc = info->Increments;
+  const int* inExt = info->Extent;
+  const vtkIdType* inInc = info->Increments;
   int numscalars = info->NumberOfComponents;
 
   int inIdX0 = vtkInterpolationMath::Round(point[0]);
@@ -200,8 +200,8 @@ void vtkImageNLCInterpolate<F, T>::Trilinear(
   vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
   const T* inPtr = static_cast<const T*>(info->Pointer);
-  int* inExt = info->Extent;
-  vtkIdType* inInc = info->Increments;
+  const int* inExt = info->Extent;
+  const vtkIdType* inInc = info->Increments;
   int numscalars = info->NumberOfComponents;
 
   F fx, fy, fz;
@@ -305,8 +305,8 @@ template <class F, class T>
 void vtkImageNLCInterpolate<F, T>::Tricubic(vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
   const T* inPtr = static_cast<const T*>(info->Pointer);
-  int* inExt = info->Extent;
-  vtkIdType* inInc = info->Increments;
+  const int* inExt = info->Extent;
+  const vtkIdType* inInc = info->Increments;
   int numscalars = info->NumberOfComponents;
 
   F fx, fy, fz;

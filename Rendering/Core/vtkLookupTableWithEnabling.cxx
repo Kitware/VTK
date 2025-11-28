@@ -51,7 +51,7 @@ void vtkLookupTableWithEnabling::DisableColor(unsigned char r, unsigned char g, 
 // There is a little more to this than simply taking the log10 of the
 // two range values: we do conversion of negative ranges to positive
 // ranges, and conversion of zero to a 'very small number'
-static void vtkLookupTableWithEnablingLogRange(double range[2], double logRange[2])
+static void vtkLookupTableWithEnablingLogRange(const double range[2], double logRange[2])
 {
   double rmin = range[0];
   double rmax = range[1];
@@ -91,7 +91,7 @@ static void vtkLookupTableWithEnablingLogRange(double range[2], double logRange[
 
 //------------------------------------------------------------------------------
 // Apply log to value, with appropriate constraints.
-inline double vtkApplyLogScale(double v, double range[2], double logRange[2])
+inline double vtkApplyLogScale(double v, const double range[2], const double logRange[2])
 {
   // is the range set for negative numbers?
   if (range[0] < 0)
@@ -129,8 +129,8 @@ inline double vtkApplyLogScale(double v, double range[2], double logRange[2])
 
 //------------------------------------------------------------------------------
 // Apply shift/scale to the scalar value v and do table lookup.
-inline unsigned char* vtkLinearLookup(
-  double v, unsigned char* table, double maxIndex, double shift, double scale)
+inline const unsigned char* vtkLinearLookup(
+  double v, const unsigned char* table, double maxIndex, double shift, double scale)
 {
   double findx = (v + shift) * scale;
   findx = std::max<double>(findx, 0);
@@ -145,15 +145,15 @@ inline unsigned char* vtkLinearLookup(
 // accelerate the mapping by copying the data in 32-bit chunks instead
 // of 8-bit chunks
 template <class T>
-void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling* self, T* input,
+void vtkLookupTableWithEnablingMapData(vtkLookupTableWithEnabling* self, const T* input,
   unsigned char* output, int length, int inIncr, int outFormat)
 {
   int i = length;
-  double* range = self->GetTableRange();
+  const double* range = self->GetTableRange();
   double maxIndex = self->GetNumberOfColors() - 1;
   double shift, scale;
-  unsigned char* table = self->GetPointer(0);
-  unsigned char* cptr;
+  const unsigned char* table = self->GetPointer(0);
+  const unsigned char* cptr;
   double alpha;
   unsigned char r, g, b;
 

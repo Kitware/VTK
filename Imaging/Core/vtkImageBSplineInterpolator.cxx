@@ -253,8 +253,8 @@ void vtkImageBSplineInterpolate<F, T>::BSpline(
   vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
   const T* inPtr = static_cast<const T*>(info->Pointer);
-  int* inExt = info->Extent;
-  vtkIdType* inInc = info->Increments;
+  const int* inExt = info->Extent;
+  const vtkIdType* inInc = info->Increments;
   int numscalars = info->NumberOfComponents;
 
 #ifdef VTK_BSPLINE_USE_KERNEL_TABLE
