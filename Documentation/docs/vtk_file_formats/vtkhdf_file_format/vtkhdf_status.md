@@ -7,23 +7,23 @@ The following list only showcases complete and planned developments.
 
 ### Data Types
 
-VTKHDF File Format should support at some point every data type of VTK (e.g. `vtkTable`, `vtkMolecule`,...).
-
-The following list shows the VTK data types currently supported, at least partially.
+The following list shows the VTK data types currently specified, at least partially.
+Any data type not listed here is also not yet specified, the one that are listed has not specified
+have ongoing discussions and may be specified when possible.
 
 | VTK Data Type                   | Status          |
 | ------------------------------- | --------------- |
-| vtkCellGrid                     | [not implemented](https://discourse.vtk.org/t/vtkhdf-roadmap/13257/19) |
-| vtkHyperTreeGrid                | supported       |
-| vtkImageData                    | supported       |
-| vtkMultiBlockDataSet            | supported       |
-| vtkPartitionedDataSet           | supported       |
-| vtkPartitionedDataSetCollection | supported       |
-| vtkOverlappingAMR               | supported       |
-| vtkPolyData                     | supported       |
-| vtkRectilinearGrid              | [not implemented](https://gitlab.kitware.com/vtk/vtk/-/issues/19379) |
-| vtkStructuredGrid               | [not implemented](https://discourse.vtk.org/t/vtkhdf-vtkstructuredgrid-support/15920) |
-| vtkUnstructuredGrid             | [partially supported](https://gitlab.kitware.com/vtk/vtk/-/issues/19237) |
+| vtkCellGrid                     | [not specified](https://discourse.vtk.org/t/vtkhdf-roadmap/13257/19) |
+| vtkHyperTreeGrid                | specified       |
+| vtkImageData                    | specified       |
+| vtkMultiBlockDataSet            | specified       |
+| vtkPartitionedDataSet           | specified       |
+| vtkPartitionedDataSetCollection | specified       |
+| vtkOverlappingAMR               | specified       |
+| vtkPolyData                     | specified       |
+| vtkRectilinearGrid              | [not specified](https://gitlab.kitware.com/vtk/vtk/-/issues/19379) |
+| vtkStructuredGrid               | [not specified](https://discourse.vtk.org/t/vtkhdf-vtkstructuredgrid-support/15920) |
+| vtkUnstructuredGrid             | [partially specified](https://gitlab.kitware.com/vtk/vtk/-/issues/19237) |
 
 ### Additional Features
 
@@ -47,7 +47,6 @@ Here is the list of supported feature which doesn't depends on a VTK data type:
 | vtkPartitionedDataSetCollection | supported       | supported      |
 | vtkOverlappingAMR               | supported       | not supported  |
 | vtkPolyData                     | supported       | supported      |
-| vtkStructuredGrid               | not supported   | not supported  |
 | vtkUnstructuredGrid             | supported       | supported      |
 
 ### Additional Features
@@ -55,7 +54,7 @@ Here is the list of supported feature which doesn't depends on a VTK data type:
 | Features                        | vtkHDFReader    |vtkHDFWriter    |
 | ------------------------------- | --------------- |--------------- |
 | Compression                     | supported       |supported       |
-| Static*                          | [partially supported](https://gitlab.kitware.com/vtk/vtk/-/issues/19746)       |not supported |
+| Static*                         | [partially supported](https://gitlab.kitware.com/vtk/vtk/-/issues/19746)       |not supported |
 | Temporal                        | supported       |supported       |
 
 *: ability to reuse dataset from another place to save disk space and performance.
