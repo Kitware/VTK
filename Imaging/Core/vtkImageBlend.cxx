@@ -23,7 +23,7 @@ vtkImageBlend::vtkImageBlend()
   this->OpacityArrayLength = 0;
   this->BlendMode = VTK_IMAGE_BLEND_MODE_NORMAL;
   this->CompoundThreshold = 0.0;
-  this->DataWasPassed = 0;
+  this->DataWasPassed = false;
   this->BlendAlpha = 0;
   this->CompoundAlpha = 0;
 
@@ -206,7 +206,7 @@ int vtkImageBlend::RequestData(
 
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
-    this->DataWasPassed = 1;
+    this->DataWasPassed = true;
   }
   else // multiple inputs
   {
@@ -215,7 +215,7 @@ int vtkImageBlend::RequestData(
     if (this->DataWasPassed)
     {
       outData->GetPointData()->SetScalars(nullptr);
-      this->DataWasPassed = 0;
+      this->DataWasPassed = false;
     }
     return this->Superclass::RequestData(request, inputVector, outputVector);
   }

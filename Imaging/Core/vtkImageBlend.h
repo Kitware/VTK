@@ -214,7 +214,7 @@ protected:
   int OpacityArrayLength;
   int BlendMode;
   double CompoundThreshold;
-  int DataWasPassed;
+  vtkTypeBool DataWasPassed;
   vtkTypeBool BlendAlpha;
   vtkTypeBool CompoundAlpha;
 
