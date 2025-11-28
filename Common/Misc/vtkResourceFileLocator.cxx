@@ -24,6 +24,15 @@
 #include <dlfcn.h>
 #endif
 
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>
+#endif
+
+#if !defined(_WIN32) || defined(__CYGWIN__)
+#include <limits.h>
+#include <unistd.h>
+#endif
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkResourceFileLocator);
 //------------------------------------------------------------------------------
@@ -75,42 +84,86 @@ std::string vtkResourceFileLocator::Locate(const std::string& anchor,
 }
 
 //------------------------------------------------------------------------------
-std::string vtkResourceFileLocator::GetLibraryPathForSymbolUnix(const char* symbolname)
-{
-#if defined(_WIN32) && !defined(__CYGWIN__)
-  (void)symbolname;
-  return std::string();
-#else
-  void* handle = dlsym(RTLD_DEFAULT, symbolname);
-  if (!handle)
-  {
-    return std::string();
-  }
-
-  Dl_info di;
-  int ret = dladdr(handle, &di);
-  if (ret == 0 || !di.dli_saddr || !di.dli_fname)
-  {
-    return std::string();
-  }
-
-  return std::string(di.dli_fname);
-#endif
-}
-
-//------------------------------------------------------------------------------
-std::string vtkResourceFileLocator::GetLibraryPathForSymbolWin32(const void* fptr)
+VTK_FILEPATH std::string vtkResourceFileLocator::GetLibraryPathForAddress(const void* ptr)
 {
 #if defined(_WIN32) && !defined(__CYGWIN__)
   MEMORY_BASIC_INFORMATION mbi;
-  VirtualQuery(fptr, &mbi, sizeof(mbi));
-  wchar_t pathBuf[16384];
-  if (!GetModuleFileNameW(static_cast<HMODULE>(mbi.AllocationBase), pathBuf, sizeof(pathBuf)))
+  if (!VirtualQuery(ptr, &mbi, sizeof(mbi)))
+  {
+    return std::string();
+  }
+
+  wchar_t pathBuf[MAX_PATH];
+  if (!GetModuleFileNameW(static_cast<HMODULE>(mbi.AllocationBase), pathBuf, MAX_PATH))
   {
     return std::string();
   }
 
   return vtksys::Encoding::ToNarrow(pathBuf);
+
+#else
+  Dl_info info;
+  if (dladdr(ptr, &info) && info.dli_fname)
+  {
+    return std::string(info.dli_fname);
+  }
+  return std::string();
+#endif
+}
+
+//------------------------------------------------------------------------------
+VTK_FILEPATH std::string vtkResourceFileLocator::GetCurrentExecutablePath()
+{
+#if defined(_WIN32) && !defined(__CYGWIN__)
+  wchar_t buf[MAX_PATH];
+  DWORD size = GetModuleFileNameW(nullptr, buf, MAX_PATH);
+  if (size == 0)
+  {
+    return {};
+  }
+  return vtksys::Encoding::ToNarrow(buf);
+
+#elif defined(__linux__)
+  char buf[PATH_MAX];
+  ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+  if (len == -1)
+  {
+    return {};
+  }
+  buf[len] = '\0';
+  return std::string(buf);
+
+#elif defined(__APPLE__)
+  char buf[PATH_MAX];
+  uint32_t size = sizeof(buf);
+  if (_NSGetExecutablePath(buf, &size) != 0)
+  {
+    return {};
+  }
+  return std::string(buf);
+
+#else
+  return std::string(); // fallback for unsupported platforms
+#endif
+}
+
+//------------------------------------------------------------------------------
+VTK_FILEPATH std::string vtkResourceFileLocator::GetLibraryPathForSymbolUnix(const char* symbolname)
+{
+#if !defined(_WIN32) || defined(__CYGWIN__)
+  void* ptr = dlsym(RTLD_DEFAULT, symbolname);
+  return vtkResourceFileLocator::GetLibraryPathForAddress(ptr);
+#else
+  (void)symbolname;
+  return std::string();
+#endif
+}
+
+//------------------------------------------------------------------------------
+VTK_FILEPATH std::string vtkResourceFileLocator::GetLibraryPathForSymbolWin32(const void* fptr)
+{
+#if defined(_WIN32) && !defined(__CYGWIN__)
+  return vtkResourceFileLocator::GetLibraryPathForAddress(fptr);
 #else
   (void)fptr;
   return std::string();
