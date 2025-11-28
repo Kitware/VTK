@@ -64,6 +64,7 @@ class vtkUnstructuredGrid;
 namespace vtkHDFUtilities
 {
 struct TemporalHyperTreeGridOffsets;
+struct TemporalGeometryOffsets;
 }
 
 class VTKIOHDF_EXPORT vtkHDFReader : public vtkDataObjectAlgorithm
@@ -253,9 +254,12 @@ protected:
    */
   int Read(const std::vector<vtkIdType>& numberOfPoints,
     const std::vector<vtkIdType>& numberOfCells,
-    const std::vector<vtkIdType>& numberOfConnectivityIds, vtkIdType partOffset,
-    vtkIdType startingPointOffset, vtkIdType startingCellOffset,
-    vtkIdType startingConnectctivityIdOffset, int filePiece, vtkUnstructuredGrid* pieceData);
+    const std::vector<vtkIdType>& numberOfConnectivityIds,
+    const std::vector<vtkIdType>& numberOfFaces,
+    const std::vector<vtkIdType>& numberOfPolyhedronToFaceIds,
+    const std::vector<vtkIdType>& numberOfFaceConnectivityIds,
+    vtkHDFUtilities::TemporalGeometryOffsets& geoOffsets, int filePiece,
+    vtkUnstructuredGrid* pieceData);
 
   /**
    * Read the field arrays from the file and add them to the dataset.

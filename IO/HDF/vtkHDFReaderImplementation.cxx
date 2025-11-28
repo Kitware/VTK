@@ -286,6 +286,11 @@ bool vtkHDFReader::Implementation::HasAttribute(const char* groupName, const cha
   }
   return H5Aexists(groupID, attributeName) > 0;
 }
+//------------------------------------------------------------------------------
+bool vtkHDFReader::Implementation::HasDataset(const char* datasetName)
+{
+  return H5Lexists(this->VTKGroup, datasetName, H5P_DEFAULT) > 0;
+}
 
 //------------------------------------------------------------------------------
 std::vector<std::string> vtkHDFReader::Implementation::GetArrayNames(int attributeType)
