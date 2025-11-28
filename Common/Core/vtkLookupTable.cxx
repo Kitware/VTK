@@ -230,7 +230,7 @@ void vtkLookupTable::ForceBuild()
   }
 
   double rgba[4];
-  for (vtkIdType i = 0; i <= maxIndex; i++)
+  for (vtkIdType i = 0; i <= maxIndex; ++i)
   {
     double hue = this->HueRange[0] + i * hinc;
     double sat = this->SaturationRange[0] + i * sinc;
@@ -1198,7 +1198,7 @@ void vtkLookupTable::MapScalarsThroughTable2(void* input, unsigned char* output,
         bitArray->SetVoidArray(input, numberOfValues, 1);
         vtkUnsignedCharArray* newInput = vtkUnsignedCharArray::New();
         newInput->SetNumberOfValues(numberOfValues);
-        for (id = i = 0; i < numberOfValues; i++, id += inputIncrement)
+        for (id = i = 0; i < numberOfValues; ++i, id += inputIncrement)
         {
           newInput->SetValue(i, bitArray->GetValue(id));
         }
@@ -1236,7 +1236,7 @@ void vtkLookupTable::MapScalarsThroughTable2(void* input, unsigned char* output,
         bitArray->SetVoidArray(input, numberOfValues, 1);
         vtkUnsignedCharArray* newInput = vtkUnsignedCharArray::New();
         newInput->SetNumberOfValues(numberOfValues);
-        for (id = i = 0; i < numberOfValues; i++, id += inputIncrement)
+        for (id = i = 0; i < numberOfValues; ++i, id += inputIncrement)
         {
           newInput->SetValue(i, bitArray->GetValue(id));
         }

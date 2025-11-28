@@ -889,7 +889,7 @@ namespace
 
 int vtkIsPermutationMatrix(vtkMatrix4x4* matrix)
 {
-  for (int i = 0; i < 3; i++)
+  for (int i = 0; i < 3; ++i)
   {
     if (matrix->GetElement(3, i) != 0)
     {
@@ -1866,7 +1866,7 @@ void vtkImageResliceRescaleScalars(
   m *= components;
   F shift = static_cast<F>(scalarShift);
   F scale = static_cast<F>(scalarScale);
-  for (vtkIdType i = 0; i < m; i++)
+  for (vtkIdType i = 0; i < m; ++i)
   {
     *floatData = (*floatData + shift) * scale;
     floatData++;
@@ -2923,7 +2923,7 @@ void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
               composite(floatPtr, floatSumPtr, inComponents, span, isample, nsamples1);
             }
 
-            idZ1++;
+            ++idZ1;
           }
 
           if (rescaleScalars)
