@@ -289,10 +289,14 @@ void vtkOrderIndependentTranslucentPass::Render(const vtkRenderState* s)
 
   bool blitDepthBuffer = true; // by default, attempt to blit the depth buffer.
 #if defined(__APPLE__)
-  // apple fails if not the upper left corenr of the window
-  // blit on apple is fubar, so rerender opaque
-  // to get a good depth buffer
-  blitDepthBuffer = false;
+  std::string vendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+  if (vendor.find("NVIDIA") != std::string::npos)
+  {
+    // Apple fails if not the upper left corner of the window
+    // blit on Apple is fubar, so rerender opaque
+    // to get a good depth buffer
+    blitDepthBuffer = false;
+  }
 #elif (defined(GL_ES_VERSION_3_0) || defined(GL_ES_VERSION_2_0))
   // in OpenGL ES, depth buffer blits from a multisampled read framebuffer don't work.
   blitDepthBuffer = !s->GetRenderer()->GetRenderWindow()->GetMultiSamples();
