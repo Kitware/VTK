@@ -15,18 +15,18 @@
 namespace
 {
 //----------------------------------------------------------------------------
-void FillShapeMap(conduit_cpp::Node& shape_map)
+void FillShapeMap(conduit_cpp::Node& shapeMap)
 {
-  shape_map["hex"] = VTK_HEXAHEDRON;
-  shape_map["tet"] = VTK_TETRA;
-  shape_map["polygonal"] = VTK_POLYGON;
-  shape_map["quad"] = VTK_QUAD;
-  shape_map["tri"] = VTK_TRIANGLE;
-  shape_map["line"] = VTK_HEXAHEDRON;
-  shape_map["point"] = VTK_VERTEX;
-  shape_map["line"] = VTK_LINE;
-  shape_map["pyramid"] = VTK_PYRAMID;
-  shape_map["wedge"] = VTK_WEDGE;
+  shapeMap["hex"] = VTK_HEXAHEDRON;
+  shapeMap["tet"] = VTK_TETRA;
+  shapeMap["polygonal"] = VTK_POLYGON;
+  shapeMap["quad"] = VTK_QUAD;
+  shapeMap["tri"] = VTK_TRIANGLE;
+  shapeMap["line"] = VTK_HEXAHEDRON;
+  shapeMap["point"] = VTK_VERTEX;
+  shapeMap["line"] = VTK_LINE;
+  shapeMap["pyramid"] = VTK_PYRAMID;
+  shapeMap["wedge"] = VTK_WEDGE;
 }
 
 //----------------------------------------------------------------------------
@@ -39,8 +39,8 @@ bool TestParallelUG()
     { 1, 2, 3, 4 } };
   const std::array<std::array<double, 3>, 4> point_pos{ std::array<double, 3>{ { 0.0, 1.0, 2.0 } },
     { { 3.0, 4.0, 5.0 } }, { { 6.0, 7.0, 8.0 } }, { { 9.0, 10.0, 11.0 } } };
-  std::vector<double> pd_vals{ 0.5, 0.2, 1.4, 2.5 };
-  std::vector<unsigned char> cd_vals{ 3, 4 };
+  std::vector<double> pdVals{ 0.5, 0.2, 1.4, 2.5 };
+  std::vector<unsigned char> cdVals{ 3, 4 };
 
   if (rank == 0)
   {
@@ -59,12 +59,12 @@ bool TestParallelUG()
     ug->InsertNextCell(VTK_QUAD, 4, connectivities.at(1).data());
 
     vtkNew<vtkDoubleArray> pd;
-    pd->SetArray(pd_vals.data(), 4, 1);
+    pd->SetArray(pdVals.data(), 4, 1);
     pd->SetName("PointD");
     ug->GetPointData()->AddArray(pd);
 
     vtkNew<vtkUnsignedCharArray> cd;
-    cd->SetArray(cd_vals.data(), 2, 1);
+    cd->SetArray(cdVals.data(), 2, 1);
     cd->SetName("CellD");
     ug->GetCellData()->AddArray(cd);
   }
@@ -91,8 +91,8 @@ bool TestParallelUG()
     sizes.clear();
     offsets.clear();
     connectivity.clear();
-    pd_vals.clear();
-    cd_vals.clear();
+    pdVals.clear();
+    cdVals.clear();
     pt_x.clear();
     pt_y.clear();
     pt_z.clear();
@@ -117,12 +117,12 @@ bool TestParallelUG()
   fieldsNode["PointD/association"] = "vertex";
   fieldsNode["PointD/topology"] = "mesh";
   fieldsNode["PointD/volume_dependent"] = "false";
-  fieldsNode["PointD/values"] = pd_vals;
+  fieldsNode["PointD/values"] = pdVals;
 
   fieldsNode["CellD/association"] = "element";
   fieldsNode["CellD/topology"] = "mesh";
   fieldsNode["CellD/volume_dependent"] = "false";
-  fieldsNode["CellD/values"] = cd_vals;
+  fieldsNode["CellD/values"] = cdVals;
 
   topologiesNode["elements/shapes"] = shapes;
 
@@ -143,13 +143,13 @@ bool TestParallelUG()
   }
 
   conduit_cpp::Node diff_info;
-  bool are_nodes_different = node.diff(expectedNode, diff_info, 1e-6);
-  if (are_nodes_different)
+  bool areNodesDifferent = node.diff(expectedNode, diff_info, 1e-6);
+  if (areNodesDifferent)
   {
     diff_info.print();
   }
 
-  return !are_nodes_different;
+  return !areNodesDifferent;
 }
 }
 
