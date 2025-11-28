@@ -337,6 +337,7 @@ set(classes
   vtkObjectFactoryCollection
   vtkOldStyleCallbackCommand
   vtkOutputWindow
+  vtkOverrideAttribute
   vtkOverrideInformation
   vtkOverrideInformationCollection
   vtkPoints

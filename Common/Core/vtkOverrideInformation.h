@@ -17,7 +17,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkObjectFactory;
-
+class vtkOverrideAttribute;
 class VTKCOMMONCORE_EXPORT vtkOverrideInformation : public vtkObject
 {
 public:
@@ -53,6 +53,11 @@ public:
    */
   vtkObjectFactory* GetObjectFactory() { return this->ObjectFactory; }
 
+  /**
+   * Get the override attributes if any.
+   */
+  vtkOverrideAttribute* GetOverrideAttributes() { return this->OverrideAttributes; }
+
   ///@{
   /**
    * Set the class override name
@@ -72,6 +77,7 @@ public:
 
 protected:
   virtual void SetObjectFactory(vtkObjectFactory*);
+  virtual void SetOverrideAttributes(vtkOverrideAttribute* attrs);
 
 private:
   vtkOverrideInformation();
@@ -85,6 +91,7 @@ private:
   char* ClassOverrideWithName;
   char* Description;
   vtkObjectFactory* ObjectFactory;
+  vtkOverrideAttribute* OverrideAttributes;
 
   vtkOverrideInformation(const vtkOverrideInformation&) = delete;
   void operator=(const vtkOverrideInformation&) = delete;

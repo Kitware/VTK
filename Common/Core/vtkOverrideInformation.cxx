@@ -3,10 +3,12 @@
 #include "vtkOverrideInformation.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkOverrideAttribute.h"
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOverrideInformation);
 vtkCxxSetObjectMacro(vtkOverrideInformation, ObjectFactory, vtkObjectFactory);
+vtkCxxSetObjectMacro(vtkOverrideInformation, OverrideAttributes, vtkOverrideAttribute);
 
 vtkOverrideInformation::vtkOverrideInformation()
 {
@@ -14,6 +16,7 @@ vtkOverrideInformation::vtkOverrideInformation()
   this->ClassOverrideWithName = nullptr;
   this->Description = nullptr;
   this->ObjectFactory = nullptr;
+  this->OverrideAttributes = nullptr;
 }
 
 vtkOverrideInformation::~vtkOverrideInformation()
@@ -24,6 +27,10 @@ vtkOverrideInformation::~vtkOverrideInformation()
   if (this->ObjectFactory)
   {
     this->ObjectFactory->Delete();
+  }
+  if (this->OverrideAttributes)
+  {
+    this->OverrideAttributes->Delete();
   }
 }
 
@@ -46,6 +53,17 @@ void vtkOverrideInformation::PrintSelf(ostream& os, vtkIndent indent)
   if (this->ObjectFactory)
   {
     this->ObjectFactory->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    vtkIndent n = indent.GetNextIndent();
+    os << n << "(none)\n";
+  }
+
+  os << indent << "Override Attributes:\n";
+  if (this->OverrideAttributes)
+  {
+    this->OverrideAttributes->PrintSelf(os, indent.GetNextIndent());
   }
   else
   {

@@ -164,7 +164,17 @@ function (vtk_object_factory_configure)
     string(APPEND _vtk_object_factory_functions
       "VTK_CREATE_CREATE_FUNCTION(${_vtk_object_factory_override})\n")
     string(APPEND _vtk_object_factory_calls
-      "this->RegisterOverride(\"${_vtk_object_factory_base}\", \"${_vtk_object_factory_override}\", \"${_vtk_object_factory_doc}\", 1, vtkObjectFactoryCreate${_vtk_object_factory_override});\n")
+      "this->RegisterOverride(\"${_vtk_object_factory_base}\",
+      \"${_vtk_object_factory_override}\",
+      \"${_vtk_object_factory_doc}\",
+      1,
+      vtkObjectFactoryCreate${_vtk_object_factory_override},
+      #if defined(${_vtk_object_factory_override}_OVERRIDE_ATTRIBUTES)
+      ${_vtk_object_factory_override}_OVERRIDE_ATTRIBUTES
+      #else
+      nullptr
+      #endif
+      );\n")
   endforeach ()
 
   get_property(_vtk_object_factory_library_name GLOBAL
