@@ -27,6 +27,10 @@ vtk_add_test_cxx(vtkIOImageCxxTests tests
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/dicom/prostate.IMG}")
 
 vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestDICOMImageReaderStream.cxx,NO_OUTPUT
+    "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/dicom/prostate.IMG}")
+
+vtk_add_test_cxx(vtkIOImageCxxTests tests
   TestBMPReader.cxx,NO_OUTPUT
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/masonry.bmp}")
 

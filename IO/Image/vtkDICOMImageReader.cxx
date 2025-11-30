@@ -101,11 +101,28 @@ int vtkDICOMImageReader::CanReadFile(const char* fname)
 //------------------------------------------------------------------------------
 void vtkDICOMImageReader::ExecuteInformation()
 {
-  if (this->FileName == nullptr && this->DirectoryName == nullptr)
+  if (!this->GetStream() && this->FileName == nullptr && this->DirectoryName == nullptr)
   {
     return;
   }
 
+  const auto parseInformation = [this]()
+  {
+    this->DICOMFileNames->clear();
+    this->AppHelper->Clear();
+    this->AppHelper->RegisterCallbacks(this->Parser);
+    this->Parser->ReadHeader();
+    this->SetupOutputInformation(1);
+  };
+
+  if (this->GetStream())
+  {
+    this->Parser->ClearAllDICOMTagCallbacks();
+    this->Streambuf = this->GetStream()->ToStreambuf();
+    std::istream* iStream = new std::istream(this->Streambuf.get());
+    this->Parser->OpenStream(iStream);
+    parseInformation();
+  }
   if (this->FileName)
   {
     vtksys::SystemTools::Stat_t fs;
@@ -114,16 +131,9 @@ void vtkDICOMImageReader::ExecuteInformation()
       vtkErrorMacro("Unable to open file " << this->FileName);
       return;
     }
-
-    this->DICOMFileNames->clear();
-    this->AppHelper->Clear();
     this->Parser->ClearAllDICOMTagCallbacks();
-
     this->Parser->OpenFile(this->FileName);
-    this->AppHelper->RegisterCallbacks(this->Parser);
-
-    this->Parser->ReadHeader();
-    this->SetupOutputInformation(1);
+    parseInformation();
   }
   else if (this->DirectoryName)
   {
@@ -221,7 +231,7 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkI
 {
   vtkImageData* data = this->AllocateOutputData(output, outInfo);
 
-  if (!this->FileName && this->DICOMFileNames->empty())
+  if (!this->GetStream() && !this->FileName && this->DICOMFileNames->empty())
   {
     vtkErrorMacro(<< "Either a filename was not specified or the specified directory does not "
                      "contain any DICOM images.");
@@ -233,11 +243,8 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkI
 
   this->ComputeDataIncrements();
 
-  if (this->FileName)
+  const auto parseData = [this, data]() -> bool
   {
-    vtkDebugMacro(<< "Single file : " << this->FileName);
-    this->Parser->ClearAllDICOMTagCallbacks();
-    this->Parser->OpenFile(this->FileName);
     this->AppHelper->Clear();
     this->AppHelper->RegisterCallbacks(this->Parser);
     this->AppHelper->RegisterPixelDataCallback(this->Parser);
@@ -255,17 +262,17 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkI
       std::string uid = this->AppHelper->GetTransferSyntaxUID();
       std::string info = this->AppHelper->TransferSyntaxUIDDescription(uid.c_str());
 
-      vtkErrorMacro(<< "Unable to get PixelData from " << this->FileName
-                    << " which has TransferSyntaxUID=" << uid << " (" << info << ")");
+      vtkErrorMacro(<< "Unable to get PixelData from stream which has TransferSyntaxUID=" << uid
+                    << " (" << info << ")");
       this->SetErrorCode(vtkErrorCode::FileFormatError);
-      return;
+      return false;
     }
 
     void* buffer = data->GetScalarPointer();
     if (buffer == nullptr)
     {
       vtkErrorMacro(<< "No memory allocated for image data!");
-      return;
+      return false;
     }
     // DICOM stores the upper left pixel as the first pixel in an
     // image. VTK stores the lower left pixel as the first pixel in
@@ -280,6 +287,31 @@ void vtkDICOMImageReader::ExecuteDataWithInformation(vtkDataObject* output, vtkI
       memcpy(b, iData, rowLength);
       b += rowLength;
       iData -= rowLength;
+    }
+    return true;
+  };
+
+  if (this->GetStream())
+  {
+    vtkDebugMacro(<< "Reading Stream");
+    this->Parser->ClearAllDICOMTagCallbacks();
+
+    this->Streambuf = this->GetStream()->ToStreambuf();
+    std::istream* iStream = new std::istream(this->Streambuf.get());
+    this->Parser->OpenStream(iStream);
+    if (!parseData())
+    {
+      return;
+    }
+  }
+  else if (this->FileName)
+  {
+    vtkDebugMacro(<< "Single file : " << this->FileName);
+    this->Parser->ClearAllDICOMTagCallbacks();
+    this->Parser->OpenFile(this->FileName);
+    if (!parseData())
+    {
+      return;
     }
   }
   else if (!this->DICOMFileNames->empty())
