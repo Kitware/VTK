@@ -55,7 +55,11 @@ public:
   bool OpenFile(const std::string& filename);
 
   //
-  // Closes the currently open file.
+  // Open a stream and initializes the parser
+  bool OpenStream(std::istream* stream);
+
+  //
+  // Closes the currently open file and stream.
   //
   void CloseFile();
 
