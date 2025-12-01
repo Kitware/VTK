@@ -8,6 +8,7 @@
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkImageMapToColors.h"
+#include "vtkImageShiftScale.h"
 #include "vtkLinearExtrusionFilter.h"
 #include "vtkLookupTable.h"
 #include "vtkNew.h"
@@ -162,10 +163,17 @@ void TestLUTRange(
   lut->SetRange(level - 0.5 * window, level + 0.5 * window);
   lut->Build();
 
+  // Test large data types
+  vtkNew<vtkImageShiftScale> cast;
+  cast->SetOutputScalarTypeToInt();
+  cast->SetInputData(volumeData);
+  cast->SetEnableSMP(false);
+  cast->Update();
+
   vtkNew<vtkOpenGLSurfaceProbeVolumeMapper> probeMapper;
   probeMapper->SetInputData(input);
   probeMapper->SetProbeInputData(probe);
-  probeMapper->SetSourceData(volumeData);
+  probeMapper->SetSourceData(cast->GetOutput());
   probeMapper->SetLookupTable(lut);
   probeMapper->UseLookupTableScalarRangeOn();
 
