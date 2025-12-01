@@ -6,7 +6,7 @@
  *
  * vtkStaticPointLocator is a spatial search object to quickly locate points
  * in 3D.  vtkStaticPointLocator works by dividing a specified region of
- * space into a regular array of cuboid buckets, and then keeping a
+ * space into a regular array of cuboid buckets (or bins), and then keeping a
  * list of points that lie in each bucket. Typical operation involves giving
  * a position in 3D and finding the closest point; or finding the N closest
  * points.
@@ -17,8 +17,17 @@
  * incrementally insert points, use the vtkPointLocator or its kin to do so.
  *
  * @warning
- * This class is templated. It may run slower than serial execution if the code
- * is not optimized during compilation. Build in Release or ReleaseWithDebugInfo.
+ * Iterators (e.g., vtkShellBinIterator) over locator bins are available for
+ * advanced usage. This can be used for example to locate points in proximity
+ * to a query point.
+ *
+ * @warning
+ * The internals of this class are templated. It may run slow if the code is
+ * not optimized during compilation. Build in Release or
+ * ReleaseWithDebugInfo.  Also note that while the vtkStaticPointLocator is
+ * internally templated, it provides a non-templated API - this is done to
+ * ensure that the class can be easily used by interpreted, wrapped languages
+ * (e.g., Python).
  *
  * @warning
  * Make sure that you review the documentation for the superclasses
@@ -39,7 +48,9 @@
  * of points, vtkPointLocator is just as fast as vtkStaticPointLocator.
  *
  * @sa
- * vtkPointLocator vtkCellLocator vtkLocator vtkAbstractPointLocator
+ * vtkPointLocator vtkStaticPointLocator2D vtkCellLocator vtkLocator
+ * vtkAbstractPointLocator vtkLocatorInterface vtkShellBinIterator
+ * vtkAnnularBinIterator vtkVoronoiCore3D vtkVoronoi3D
  */
 
 #ifndef vtkStaticPointLocator_h
@@ -49,9 +60,11 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDoubleArray;
 class vtkIdList;
 struct vtkBucketList;
 class vtkDataArray;
+struct vtkDist2TupleArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkStaticPointLocator : public vtkAbstractPointLocator
 {
@@ -123,13 +136,36 @@ public:
 
   /**
    * Find the closest N points to a position. This returns the closest N
-   * points to a position. A faster method could be created that returned N
-   * close points to a position, but necessarily the exact N closest.  The
-   * returned points are sorted from closest to farthest.  These methods are
-   * thread safe if BuildLocator() is directly or indirectly called from a
-   * single thread first.
+   * points to a position (unless N is greater than the number of points in
+   * the locator). Note that if some points are precisely the same distance
+   * from the query point, then some equidistance points may not be included
+   * in the result. The returned points are sorted from closest to farthest.
+   * This method is thread safe if BuildLocator() is directly or indirectly
+   * called from a single thread first.
    */
   void FindClosestNPoints(int N, const double x[3], vtkIdList* result) override;
+
+  /**
+   * Find approximately N close points which are strictly greater than
+   * >minDist2 away from the query point x (minDist2 is the square of the
+   * distance). (Note: if minDist2==0.0, then no points coincident to x are
+   * returned. To obtain coincident points, set minDist2<0.) The number of
+   * points returned may != N either because there are fewer than N points in
+   * the locator, the query region >minDist2 defines a subset of <N points,
+   * or >N points may be returned because 1) its computationally simpler to
+   * do so, and 2) *all* points of distance maxDist2 are returned. The method
+   * returns the maximum distance squared (maxDist2) of the points, the point
+   * ids in the vtkIdList result, and the point's r**2 from x in radii2.
+   * Optionally, the points can be sorted by distance from the query point
+   * (sorted from closest to farthest).  This method is thread safe if
+   * BuildLocator() is directly or indirectly called from a single thread
+   * first. Finally, a powerful feature of this method in that it's possible
+   * to identify disjoint sets of points within nested spherical shells,
+   * with optional spherical petals. (The petals are represented by a
+   * four tuple of (x,y,z,r2).)
+   */
+  double FindNPointsInShell(int N, const double x[3], vtkDist2TupleArray& results,
+    double minDist2 = (-0.1), bool sort = true, vtkDoubleArray* petals = nullptr);
 
   /**
    * Find all points within a specified radius R of position x.
@@ -207,6 +243,12 @@ public:
    */
   void GetBucketIds(vtkIdType bNum, vtkIdList* bList);
 
+  /**
+   * Given a bucket/bin located at position (i,j,k), compute the center
+   * of the bucket.
+   */
+  void GetBucketCenter(int i, int j, int k, double center[3]);
+
   ///@{
   /**
    * Set the maximum number of buckets in the locator. By default the value
@@ -282,6 +324,32 @@ public:
   void SetTraversalOrderToBinOrder() { this->SetTraversalOrder(vtkStaticPointLocator::BIN_ORDER); }
   ///@}
 
+  ///@{
+  /**
+   * The bounding box / size of the locator can be increased by specifying padding. If >0, then
+   * the locator bounds extent will be increased by +/- padding in the z-y-z directions.
+   */
+  vtkSetMacro(Padding, double);
+  vtkGetMacro(Padding, double);
+  ///@}
+
+  ///@{
+  /**
+   * Turn on/off flag to control whether the locator checks modified time after it
+   * is built. These methods are generally used to accelerate the use of methods
+   * in tight loops and avoid MTime checks. Typically, StaticOn() is invoked after
+   * BuildLocator(), and then StaticOff() is invoked after the end of processing.
+   */
+  void StaticOn() { this->Static = true; }
+  void StaticOff() { this->Static = false; }
+  vtkGetMacro(Static, vtkTypeBool);
+  ///@}
+
+  /**
+   * This method is useful for accessing the raw binned data. Call this after BuildLocator().
+   */
+  vtkBucketList* GetBuckets() { return this->Buckets; }
+
 protected:
   vtkStaticPointLocator();
   ~vtkStaticPointLocator() override;
@@ -293,8 +361,10 @@ protected:
   double H[3];                  // Width of each bucket in x-y-z directions
   vtkBucketList* Buckets;       // Lists of point ids in each bucket
   vtkIdType MaxNumberOfBuckets; // Maximum number of buckets in locator
-  bool LargeIds;                // indicate whether integer ids are small or large
+  bool LargeIds;                // Integer point ids are small (32-bit) or large (64-bit)
   int TraversalOrder;           // Control traversal order when threading
+  double Padding;               // Pad out the bounding box of the locator
+  vtkTypeBool Static;           // Control whether to repeatedly check modified time
 
 private:
   vtkStaticPointLocator(const vtkStaticPointLocator&) = delete;

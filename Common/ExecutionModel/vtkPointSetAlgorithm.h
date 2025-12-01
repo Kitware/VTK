@@ -2,19 +2,20 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /**
  * @class   vtkPointSetAlgorithm
- * @brief   Superclass for algorithms that produce output of the same type as input
+ * @brief   Superclass for algorithms that process vtkPointSet input
  *
  * vtkPointSetAlgorithm is a convenience class to make writing algorithms
- * easier. It is also designed to help transition old algorithms to the new
- * pipeline architecture. There are some assumptions and defaults made by this
- * class you should be aware of. This class defaults such that your filter
- * will have one input port and one output port. If that is not the case
- * simply change it with SetNumberOfInputPorts etc. See this classes
- * constructor for the default. This class also provides a FillInputPortInfo
- * method that by default says that all inputs will be PointSet. If that
- * isn't the case then please override this method in your subclass.
- * You should implement the subclass's algorithm into
- * RequestData( request, inputVec, outputVec).
+ * easier. Filter subclasses of vtkPointSetAlgorithm take vtkPointSet (and
+ * derived classes) as input to the filter, and produce vtkPointSet as
+ * output. (Note that overriding FillInputPortInformation() and
+ * FillOutputPortInformation() can be used to change this behavior.)
+ *
+ * There are some assumptions and defaults made by this class you should be
+ * aware of. This class defaults such that your filter will have one input
+ * port and one output port. If that is not the case simply change it with
+ * SetNumberOfInputPorts() etc. See this classes constructor for the
+ * default. To implement a filter, developers should implement the subclass's
+ * algorithm in the RequestData(request,inputVec,outputVec) method.
  */
 
 #ifndef vtkPointSetAlgorithm_h
@@ -33,9 +34,15 @@ class vtkUnstructuredGrid;
 class VTKCOMMONEXECUTIONMODEL_EXPORT VTK_MARSHALAUTO vtkPointSetAlgorithm : public vtkAlgorithm
 {
 public:
+  ///@{
+  /**
+   * Standard methods for instantiation, obtaining type information, and
+   * printing instances of the class.
+   */
   static vtkPointSetAlgorithm* New();
   vtkTypeMacro(vtkPointSetAlgorithm, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+  ///@}
 
   ///@{
   /**
@@ -84,12 +91,12 @@ public:
   void AddInputData(int, vtkDataObject*);
   ///@}
 
-  // this method is not recommended for use, but lots of old style filters
+  // This method is not recommended for use, but lots of old style filters
   // use it
   vtkDataObject* GetInput();
 
   /**
-   * see vtkAlgorithm for details
+   * See vtkAlgorithm for details.
    */
   vtkTypeBool ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector) override;

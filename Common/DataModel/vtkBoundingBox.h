@@ -17,7 +17,9 @@
 #define vtkBoundingBox_h
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
-#include <atomic> // For threaded bounding box computation
+
+#include <algorithm> // For std::min, std::max
+#include <atomic>    // For threaded bounding box computation
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkPoints;
@@ -39,6 +41,10 @@ public:
    * Construct a bounding box with given bounds.
    */
   vtkBoundingBox(double xMin, double xMax, double yMin, double yMax, double zMin, double zMax);
+  /**
+   * Construct a bounding box with (min,max) points defining the bounds.
+   */
+  vtkBoundingBox(const double min[3], const double max[3]);
   /**
    * Construct a bounding box around center, inflated by delta (so final length is 2*delta)
    */
@@ -192,10 +198,73 @@ public:
   bool IntersectPlane(double origin[3], double normal[3]);
 
   /**
-   * Intersect this box with a sphere.
-   * Parameters involve the center of the sphere and the squared radius.
+   * Performant method to intersect box with a sphere. The box is defined
+   * by (min,max) corners; the sphere by (center,radius**2). Inspired by
+   * Graphics Gems 1.
    */
-  bool IntersectsSphere(double center[3], double squaredRadius) const;
+  static bool IntersectsSphere(
+    const double min[3], const double max[3], const double center[3], double r2)
+  {
+    double d2 = 0.0;
+    for (int i = 0; i < 3; ++i)
+    {
+      if (center[i] < min[i])
+      {
+        d2 += (center[i] - min[i]) * (center[i] - min[i]);
+      }
+      else if (center[i] > max[i])
+      {
+        d2 += (center[i] - max[i]) * (center[i] - max[i]);
+      }
+    }
+    return (d2 <= r2);
+  }
+
+  /**
+   * Intersect this box with a sphere. Parameters involve the
+   * center of the sphere and the sphere radius.
+   */
+  bool IntersectsSphere(double center[3], double radius) const;
+
+  /**
+   * Intersect this box with a sphere. This alternative method uses
+   * the sphere radius**2.
+   */
+  bool IntersectsSphere2(double center[3], double radius2) const
+  {
+    return vtkBoundingBox::IntersectsSphere(this->MinPnt, this->MaxPnt, center, radius2);
+  }
+
+  /**
+   * Performant method to determine if box if fully inside a sphere. The
+   * box is defined by (min,max) corners; the sphere by (center,radius**2).
+   * Inspired by Graphics Gems 1.
+   */
+  static bool InsideSphere(
+    const double min[3], const double max[3], const double center[3], double r2)
+  {
+    double dmin = 0.0, dmax = 0.0;
+    for (int i = 0; i < 3; ++i)
+    {
+      double a = (center[i] - min[i]) * (center[i] - min[i]);
+      double b = (center[i] - max[i]) * (center[i] - max[i]);
+      dmax += std::max(a, b);
+      if (min[i] <= center[i] && center[i] <= max[i])
+      {
+        dmin += std::min(a, b);
+      }
+    }
+    return (!(dmin <= r2 && r2 <= dmax));
+  }
+
+  /**
+   * Determine if this bounding box is completely contained by a sphere.
+   * Parameters provided include the sphere center and radius**2.
+   */
+  bool InsideSphere(double center[3], double radius2) const
+  {
+    return vtkBoundingBox::InsideSphere(this->MinPnt, this->MaxPnt, center, radius2);
+  }
 
   /**
    * Returns true if any part of segment [p1,p2] lies inside the bounding box, as well as on its
@@ -522,6 +591,17 @@ inline vtkBoundingBox::vtkBoundingBox(const vtkBoundingBox& bbox)
   this->MaxPnt[0] = bbox.MaxPnt[0];
   this->MaxPnt[1] = bbox.MaxPnt[1];
   this->MaxPnt[2] = bbox.MaxPnt[2];
+}
+
+inline vtkBoundingBox::vtkBoundingBox(const double min[3], const double max[3])
+{
+  this->MinPnt[0] = min[0];
+  this->MinPnt[1] = min[1];
+  this->MinPnt[2] = min[2];
+
+  this->MaxPnt[0] = max[0];
+  this->MaxPnt[1] = max[1];
+  this->MaxPnt[2] = max[2];
 }
 
 inline vtkBoundingBox::vtkBoundingBox(double center[3], double delta)

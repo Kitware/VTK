@@ -4,13 +4,14 @@
  * @class   vtkStaticPointLocator2D
  * @brief   quickly locate points in 2-space
  *
- * vtkStaticPointLocator2D is a spatial search object to quickly locate points
- * in 2D.  vtkStaticPointLocator2D works by dividing a specified region of
- * space into a regular array of rectilinear buckets, and then keeping a
- * list of points that lie in each bucket. Typical operation involves giving
- * a position in 2D and finding the closest point; or finding the N closest
- * points. (Note that the more general vtkStaticPointLocator is available
- * for 3D operations.) Other specialized methods for 2D have also been provided.
+ * vtkStaticPointLocator2D is a spatial search object to quickly locate
+ * points in 2D.  vtkStaticPointLocator2D works by dividing a specified
+ * region of space into a regular array of rectilinear buckets (or bins(, and
+ * then keeping a list of points that lie in each bin. Typical operation
+ * involves giving a position in 2D and finding the closest point; or finding
+ * the N closest points. (Note that the more general vtkStaticPointLocator is
+ * available for 3D operations.) Other specialized methods for 2D have also
+ * been provided.
  *
  * vtkStaticPointLocator2D is an accelerated version of vtkPointLocator. It is
  * threaded (via vtkSMPTools), and supports one-time static construction
@@ -20,6 +21,11 @@
  * Note that to satisfy the superclass's API, methods often assume a 3D point
  * is provided. However, only the x,y values are used for processing. The
  * z-value is only used to define location of the 2D plane.
+ *
+ * @note
+ * Iterators (e.g., vtkAnnularBinIterator) over locator bins are available
+ * for advanced usage. This can be used for example to locate points in
+ * proximity to a query point.
  *
  * @warning
  * This class is templated. It may run slower than serial execution if the code
@@ -38,7 +44,8 @@
  *
  * @sa
  * vtkStaticPointLocator vtkPointLocator vtkCellLocator vtkLocator
- * vtkAbstractPointLocator
+ * vtkAbstractPointLocator vtkAnnularBinIterator vtkShellBinIterator
+ * vtkVoronoiCore2D vtkVoronoi2D
  */
 
 #ifndef vtkStaticPointLocator2D_h
@@ -48,8 +55,10 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkDoubleArray;
 class vtkIdList;
 struct vtkBucketList2D;
+struct vtkDist2TupleArray;
 
 class VTKCOMMONDATAMODEL_EXPORT vtkStaticPointLocator2D : public vtkAbstractPointLocator
 {
@@ -129,6 +138,26 @@ public:
   void FindClosestNPoints(int N, const double x[3], vtkIdList* result) override;
 
   /**
+   * Find approximately N close points which are strictly greater than
+   * >minDist2 away from the query point x (minDist2 is the square of the
+   * distance). (Note: if minDist2==0.0, then no points coincident to x are
+   * returned. To obtain coincident points, set minDist2<0.) The number of
+   * points returned may != N either because there are fewer than N points in
+   * the locator, the query region >minDist2 defines a subset of <N points,
+   * or >N points may be returned because 1) its computationally simpler to
+   * do so, and 2) *all* points of distance maxDist2 are returned. The method
+   * returns the maximum distance squared (maxDist2) of the points, the point
+   * ids in the vtkIdList result, and the point's r**2 from x in radii2.
+   * Optionally, the points can be sorted by distance from the query point
+   * (sorted from closest to farthest).  This method is thread safe if
+   * BuildLocator() is directly or indirectly called from a single thread
+   * first. Finally, a powerful feature of this method in that it's possible
+   * to identify disjoint sets of points within nested annuli.
+   */
+  double FindNPointsInAnnulus(int N, const double x[3], vtkDist2TupleArray& results,
+    double minDist2 = (-0.1), bool sort = true, vtkDoubleArray* petals = nullptr);
+
+  /**
    * Find all points within a specified radius R of position x.
    * The result is not sorted in any specific manner.
    * These methods are thread safe if BuildLocator() is directly or
@@ -151,9 +180,10 @@ public:
   ///@{
   /**
    * Special method for 2D operations (e.g., vtkVoronoi2D). The method
-   * returns the approximate number of points requested, returning the radius
-   * R of the furthest point, with the guarantee that all points are included
-   * that are closer than <=R.
+   * obtains the approximate number of points requested and places them in
+   * the result vtkIdList, returning the radius squared R**2 of the furthest
+   * point, with the guarantee that all points are included that are closer
+   * than <=R.
    */
   double FindCloseNBoundedPoints(int N, const double x[3], vtkIdList* result);
   ///@}
@@ -258,6 +288,23 @@ public:
   vtkIdType GetBucketIndex(const double* x) const;
   ///@}
 
+  ///@{
+  /**
+   * Turn on/off flag to control whether the locator checks modified time after it
+   * is built. These methods are generally used to accelerate the use of methods
+   * in tight loops and avoid MTime checks. Typically, StaticOn() is invoked after
+   * BuildLocator(), and then StaticOff() is invoked after the end of processing.
+   */
+  void StaticOn() { this->Static = true; }
+  void StaticOff() { this->Static = false; }
+  vtkGetMacro(Static, vtkTypeBool);
+  ///@}
+
+  /**
+   * This method is useful for accessing the raw binned data. Call this after BuildLocator().
+   */
+  vtkBucketList2D* GetBuckets() { return this->Buckets; }
+
   /**
    * Populate a polydata with the faces of the bins that potentially contain cells.
    * Note that the level parameter has no effect on this method as there is no
@@ -277,6 +324,7 @@ protected:
   vtkBucketList2D* Buckets;     // Lists of point ids in each bucket
   vtkIdType MaxNumberOfBuckets; // Maximum number of buckets in locator
   bool LargeIds;                // indicate whether integer ids are small or large
+  vtkTypeBool Static;           // Control whether to repeatedly check modified time
 
 private:
   vtkStaticPointLocator2D(const vtkStaticPointLocator2D&) = delete;
