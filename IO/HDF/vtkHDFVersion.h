@@ -11,8 +11,8 @@
 #include "vtkABINamespace.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-const int vtkHDFMajorVersion = 2;
-const int vtkHDFMinorVersion = 4;
+constexpr int vtkHDFMajorVersion = 2;
+constexpr int vtkHDFMinorVersion = 5;
 
 VTK_ABI_NAMESPACE_END
 #endif // vtkHDFVersion_h

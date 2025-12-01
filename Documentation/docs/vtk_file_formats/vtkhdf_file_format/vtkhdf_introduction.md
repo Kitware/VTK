@@ -5,7 +5,7 @@ It is meant to provide good I/O performance as well as robust and flexible paral
 
 It currently supports basic types: `PolyData`, `UnstructuredGrid`, `ImageData`, `HyperTreeGrid` and composite types such as `OverlappingAMR`, `MultiBlockDataSet` and the `PartitionedDataSetCollection`.
 
-The current file format version is **2.4**.
+The current file format version is **2.5**.
 
 ---
 ## Python examples and tutorial
@@ -52,6 +52,10 @@ Do not hesitate to reach out on [discourse](https://discourse.vtk.org/) or [gitl
 
 ---
 ## Changelog
+
+### VTKHDF - 2.5
+
+- add specification for Unstructured Grid polyhedrons
 
 ### VTKHDF - 2.4
 
