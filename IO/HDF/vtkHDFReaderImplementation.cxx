@@ -286,6 +286,7 @@ bool vtkHDFReader::Implementation::HasAttribute(const char* groupName, const cha
   }
   return H5Aexists(groupID, attributeName) > 0;
 }
+
 //------------------------------------------------------------------------------
 bool vtkHDFReader::Implementation::HasDataset(const char* datasetName)
 {

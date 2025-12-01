@@ -247,19 +247,12 @@ protected:
   int ReadRecursively(vtkInformation* outInfo, vtkMultiBlockDataSet* data, const std::string& path);
   ///@}
 
-  /**
-   * Read 'pieceData' specified by 'filePiece' where
-   * number of points, cells and connectivity ids
-   * store those numbers for all pieces.
-   */
+  VTK_DEPRECATED_IN_9_6_0("This method is deprecated, do not use")
   int Read(const std::vector<vtkIdType>& numberOfPoints,
     const std::vector<vtkIdType>& numberOfCells,
-    const std::vector<vtkIdType>& numberOfConnectivityIds,
-    const std::vector<vtkIdType>& numberOfFaces,
-    const std::vector<vtkIdType>& numberOfPolyhedronToFaceIds,
-    const std::vector<vtkIdType>& numberOfFaceConnectivityIds,
-    vtkHDFUtilities::TemporalGeometryOffsets& geoOffsets, int filePiece,
-    vtkUnstructuredGrid* pieceData);
+    const std::vector<vtkIdType>& numberOfConnectivityIds, vtkIdType partOffset,
+    vtkIdType startingPointOffset, vtkIdType startingCellOffset,
+    vtkIdType startingConnectctivityIdOffset, int filePiece, vtkUnstructuredGrid* pieceData);
 
   /**
    * Read the field arrays from the file and add them to the dataset.
@@ -358,6 +351,20 @@ private:
    * following the type of 'data'.
    */
   bool ReadData(vtkInformation* outInfo, vtkDataObject* data);
+
+  /**
+   * Read 'pieceData' specified by 'filePiece' where
+   * number of points, cells and connectivity ids
+   * store those numbers for all pieces.
+   */
+  int Read(const std::vector<vtkIdType>& numberOfPoints,
+    const std::vector<vtkIdType>& numberOfCells,
+    const std::vector<vtkIdType>& numberOfConnectivityIds,
+    const std::vector<vtkIdType>& numberOfFaces,
+    const std::vector<vtkIdType>& numberOfPolyhedronToFaceIds,
+    const std::vector<vtkIdType>& numberOfFaceConnectivityIds,
+    vtkHDFUtilities::TemporalGeometryOffsets& geoOffsets, int filePiece,
+    vtkUnstructuredGrid* pieceData);
 
   /**
    * Read a single HyperTreeGrid piece from the file.
