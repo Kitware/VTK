@@ -4,6 +4,7 @@ set(VTK_MODULE_ENABLE_VTK_IOOCCT NO CACHE STRING "") # occt
 # FindOpenVDB is not installed.
 # https://bugzilla.redhat.com/show_bug.cgi?id=1997321
 set(VTK_MODULE_ENABLE_VTK_IOOpenVDB NO CACHE STRING "") # openvdb
+set(VTK_MODULE_ENABLE_VTK_IOUSD NO CACHE STRING "") # usd
 
 if ("$ENV{CMAKE_CONFIGURATION}" MATCHES "offscreen")
   set(VTK_USE_X OFF CACHE BOOL "")
