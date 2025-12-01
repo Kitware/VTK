@@ -209,8 +209,44 @@ To read the data for its rank a node reads the information about all
 partitions, compute the correct offset and then read data from that
 offset.
 
-In VTK, Unstructured Grids support a large variety of cell types. Most VTK cell types are supported, with the exception of `VTK_POLYHEDRON`
-which is different from other cell types.
+### Polyhedron support
+
+Unstructured grids can define polyhedron cells.
+In VTK, polyhedrons are defined differently than other cells,
+using a collection of faces in addition to vertices.
+
+VTKHDF uses new fields to handle polyhedral cells.
+These fields should be defined as long as the dataset has one or more polyhedral cell.
+
+Faces are defined using a separate array of surfacic (2D) cells,
+using offsets `FaceOffsets` and connectivity `FaceConnectivity` arrays.
+
+These faces are tied to 3D polyhedral cells using `PolyhedronToFaces` and `PolyhedronOffsets`.
+`PolyhedronToFaces` gives the ids of the face cells defined before, for each polyhedron.
+`PolyhedronOffsets` defines the read offset into this array for each polyhedron,
+which also gives away the number of faces for the current polyhedron
+by reading the very next value in the array and substracting it to the current one.
+This means that a single (oriented) face can be used by multiple polyhedrons.
+
+When mixing polyhedral and non-polyhedral cells in the same dataset,
+the value of `PolyhedronOffsets` should stay the same as the previous one when the cell is non-polyhedral,
+and be incremented when the cell is a polyhedron and defines faces.
+
+We also define new metadata fields: `NumberOfFaces`, `NumberOfPolyhedronToFaceIds` and `NumberOfFaceConnectivityIds`. Those are used for managing multiple partitions and/or time steps.
+These arrays have one value for each partition/time step,
+and give the number of faces/face connectivity ids/polyhedron to face ids to be read for the current part.
+
+The table below summarizes the new non-metadata fields required for polyhedral cells in VTKHDF,
+in addition to the ones used by the "classic" Unstructured Grid model.
+
+|                     | Size of partition i                                                    |
+|:--                  |:--                                                                     |
+| FaceConnectivity    | NumberOfFaceConnectivityIds[i] * sizeof(FaceConnectivity[i])           |
+| FaceOffsets         | (NumberOfPolygonalFaces[i] + 1) * sizeof(FaceOffsets[i])               |
+| PolyhedronToFaces   | NumberOfPolyhedronToFaceIds[i] * sizeof(PolyhedronToFaces[0])          |
+| PolyhedronOffsets   | (NumberOfCells[i] + 1) * sizeof(PolyhedronOffsets[0])                  |
+
+
 
 ## Poly data
 
@@ -668,21 +704,30 @@ Writing incrementally to `VTKHDF` temporal datasets is relatively straightforwar
 appending functionality of `HDF5` chunked data sets
 ([Chunking in HDF5](https://davis.lbl.gov/Manuals/HDF5-1.8.7/Advanced/Chunking/index.html)).
 
-### Particularity regarding UnstructuredGrid and PolyData
+### Temporal UnstructuredGrid and PolyData
 
 Adding data for a new time step works the same way as adding a data for a new partition: data is added
 at the end of existing datasets, and a new value is added to "count" elements for `NumberOfPoints`, `NumberOfCells`
 and `NumberOfConnectivityIds`. For instance, given an object of 2 partitions changing over 10 time steps,
 `NumberOf...` datasets would contain 20 total values.
 
-### Particularity regarding ImageData
+### Temporal UnstructuredGrid with polyhedrons
+
+Polyhedrons define face cells and a `PolyhedronToFaces` field that links faces to polyhedrons.
+When writing a temporal UnstructuredGrid that uses polyhedrons, you need to define additional fields
+`Steps/FaceConnectivityOffsets`, `Steps/FaceOffsetsOffsets` and `Steps/PolyhedronToFaceIdOffsets`.
+
+These fields dictate, for each time step, what the read offset should be respectively for
+`FaceConnectivity`, `FaceOffsets` and `PolyhedronToFaceIds`.
+
+### Temporal ImageData
 
 A particularity of temporal `Image Data` in the format is that the reader expects an additional
 prepended dimension considering the time to be the first dimension in the multidimensional arrays.
 As such, arrays described in temporal `Image Data` should have dimensions ordered as
 `(time, z, y, x)`.
 
-### Particularity regarding OverlappingAMR
+### Temporal OverlappingAMR
 
 Currently only `AMRBox` and `Point/Cell/Field data` can be temporal, not the `Spacing`. Due to the
 structure of the OverlappingAMR format, the format specify an intermediary group between the `Steps`
@@ -745,7 +790,7 @@ digraph G {
 Figure 8. - Temporal OverlappingAMR VTKHDF File Format
 </div>
 
-### Particularity regarding composite dataset
+### Temporal composite dataset
 
 For temporal composite datasets, there is no top-level `/VTKHDF/Steps` group,
 but each block defines its time and offset values in its own `Steps` group,
