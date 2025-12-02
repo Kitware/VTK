@@ -3,11 +3,11 @@
 
 #define VTK_DEPRECATION_LEVEL 0
 
+#include "vtkHDFReader.h"
 #include "vtkAMRUtilities.h"
 #include "vtkAffineArray.h"
-#include "vtkArrayIteratorIncludes.h"
 #include "vtkCallbackCommand.h"
-#include "vtkCellData.h"
+#include "vtkCellArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataAssembly.h"
@@ -21,6 +21,7 @@
 #include "vtkHDFVersion.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkImageData.h"
+#include "vtkIndent.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMatrix3x3.h"

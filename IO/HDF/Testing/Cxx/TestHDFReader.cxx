@@ -3,7 +3,6 @@
 
 #include "vtkAppendDataSets.h"
 #include "vtkFileResourceStream.h"
-#include "vtkFloatArray.h"
 #include "vtkHDFReader.h"
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridSource.h"
@@ -12,7 +11,6 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
-#include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkTestUtilities.h"
@@ -553,6 +551,38 @@ int TestHyperTreeGridWithInterfaces(const std::string& dataRoot)
 }
 
 //------------------------------------------------------------------------------
+int TestUnstructuredGridPolyhedron(const std::string& dataRoot)
+{
+  const std::vector<std::string> testFiles = { "hexahedron", "polyhedron" };
+  for (const auto& file : testFiles)
+  {
+
+    std::string hdfFile = dataRoot + "/Data/vtkHDF/" + file + ".vtkhdf";
+    std::string vtuFile = dataRoot + "/Data/vtkHDF/" + file + ".vtu";
+    std::cout << "Testing: " << hdfFile << std::endl;
+
+    vtkNew<vtkHDFReader> reader;
+    reader->SetFileName(hdfFile.c_str());
+    reader->SetStep(1);
+    reader->Update();
+    vtkUnstructuredGrid* readData = vtkUnstructuredGrid::SafeDownCast(reader->GetOutput());
+
+    vtkNew<vtkXMLUnstructuredGridReader> readerXML;
+    readerXML->SetFileName(vtuFile.c_str());
+    readerXML->Update();
+    vtkUnstructuredGrid* readDataXML = vtkUnstructuredGrid::SafeDownCast(readerXML->GetOutput());
+
+    if (!vtkTestUtilities::CompareDataObjects(readData, readDataXML))
+    {
+      std::cerr << "Unstructured grids with polyhedrons are not the same" << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+
+  return EXIT_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
 int TestHDFReader(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testHelper;
@@ -575,6 +605,10 @@ int TestHDFReader(int argc, char* argv[])
   }
 
   if (TestUnstructuredGrid(dataRoot, false))
+  {
+    return EXIT_FAILURE;
+  }
+  if (TestUnstructuredGridPolyhedron(dataRoot))
   {
     return EXIT_FAILURE;
   }

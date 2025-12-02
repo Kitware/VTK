@@ -105,6 +105,15 @@ vtk_module_test_data(
   Data/vtkHDF/utf8_string.vtkhdf
   Data/vtkHDF/test_multiblock_static_multipiece.vtkhdf
 
+  Data/vtkHDF/polyhedron.vtu
+  Data/vtkHDF/polyhedron.vtkhdf
+  Data/vtkHDF/hexahedron.vtu
+  Data/vtkHDF/hexahedron.vtkhdf
+  
+  Data/vtkHDF/polyhedron_temporal.vtkhdf
+  Data/vtkHDF/polyhedron_temporal_0.vtu
+  Data/vtkHDF/polyhedron_temporal_1.vtu
+  
   Data/vtkHDF/distributed.vtm
   Data/vtkHDF/distributed/cone1.vtu
   Data/vtkHDF/distributed/sphere1.vtu
