@@ -28,7 +28,6 @@ framework described in the [UPDATING](UPDATING.md) document:
   * [gl2ps](gl2ps/update.sh)
   * [glad](glad/update.sh)
   * [h5hut](h5hut/update.sh)
-* [h5part](h5part/update.sh)
   * [hdf5](hdf5/update.sh)
   * [ioss](ioss/update.sh)
   * [jpeg](jpeg/update.sh)
