@@ -5,20 +5,26 @@
 #include "vtkH5PartReader.h"
 
 #include "vtkCellArray.h"
-#include "vtkCharArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMathUtilities.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkSOATypeFloat32Array.h"
+#include "vtkSOATypeFloat64Array.h"
+#include "vtkSOATypeInt32Array.h"
+#include "vtkSOATypeInt64Array.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
-#include "vtkUnsignedShortArray.h"
+#include "vtkTypeFloat32Array.h"
+#include "vtkTypeFloat64Array.h"
+#include "vtkTypeInt32Array.h"
+#include "vtkTypeInt64Array.h"
 
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
@@ -26,70 +32,12 @@
 #include <algorithm>
 #include <vector>
 
-#include "vtk_h5part.h"
+#include "vtk_h5hut.h"
 // clang-format off
-#include VTK_H5PART(H5Part.h)
+#include VTK_H5HUT(H5hut.h)
 // clang-format on
 
-//------------------------------------------------------------------------------
-/*!
-  \ingroup h5part_utility
-
-  This function can be used to query the Type of a dataset
-  It is not used by the core H5Part library but is useful when
-  reading generic data from the file.
-  An example of usage would be (H5Tequal(datatype,H5T_NATIVE_FLOAT))
-  any NATIVE type can be used to test.
-
-  \return  \c an hdf5 handle to the native type of the data
-*/
 VTK_ABI_NAMESPACE_BEGIN
-static hid_t H5PartGetNativeDatasetType(H5PartFile* f, const char* name)
-{
-  hid_t dataset, datatype, datatypen;
-  if (!f->timegroup)
-  {
-    H5PartSetStep(f, f->timestep); /* choose current step */
-  }
-  dataset = H5Dopen(f->timegroup, name);
-  datatype = H5Dget_type(dataset);
-  datatypen = H5Tget_native_type(datatype, H5T_DIR_DEFAULT);
-  H5Tclose(datatype);
-  H5Dclose(dataset);
-  return datatypen;
-}
-
-//------------------------------------------------------------------------------
-static hid_t H5PartGetDiskShape(H5PartFile* f, hid_t dataset)
-{
-  hid_t space = H5Dget_space(dataset);
-  if (H5PartHasView(f))
-  {
-    int r;
-    hsize_t stride, count;
-    hsize_t range[2];
-    /* so, is this selection inclusive or exclusive? */
-    range[0] = f->viewstart;
-    range[1] = f->viewend;
-    count = range[1] - range[0]; /* to be inclusive */
-    stride = 1;
-    /* now we select a subset */
-    if (f->diskshape > 0)
-    {
-      r = H5Sselect_hyperslab(f->diskshape, H5S_SELECT_SET, range /* only using first element */,
-        &stride, &count, nullptr);
-    }
-    /* now we select a subset */
-    r = H5Sselect_hyperslab(space, H5S_SELECT_SET, range, &stride, &count, nullptr);
-    if (r < 0)
-    {
-      vtk::print(stderr, "Abort: Selection Failed!\n");
-      return space;
-    }
-  }
-  return space;
-}
-
 static void vtkPickArray(char*& arrayPtr, const std::initializer_list<const char*>& values,
   vtkDataArraySelection* selection)
 {
@@ -126,7 +74,7 @@ vtkH5PartReader::vtkH5PartReader()
   this->CombineVectorComponents = 1;
   this->GenerateVertexCells = 0;
   this->FileName = nullptr;
-  this->H5FileId = nullptr;
+  this->H5FileId = 0;
   this->Xarray = nullptr;
   this->Yarray = nullptr;
   this->Zarray = nullptr;
@@ -179,10 +127,10 @@ void vtkH5PartReader::SetFileName(char* filename)
 //------------------------------------------------------------------------------
 void vtkH5PartReader::CloseFile()
 {
-  if (this->H5FileId != nullptr)
+  if (this->H5FileId != 0)
   {
-    H5PartCloseFile(this->H5FileId);
-    this->H5FileId = nullptr;
+    H5CloseFile(this->H5FileId);
+    this->H5FileId = 0;
   }
 }
 //------------------------------------------------------------------------------
@@ -201,7 +149,7 @@ int vtkH5PartReader::OpenFile()
 
   if (!this->H5FileId)
   {
-    this->H5FileId = H5PartOpenFile(this->FileName, H5PART_READ);
+    this->H5FileId = H5OpenFile(this->FileName, H5_O_RDONLY, H5_PROP_DEFAULT);
     this->FileOpenedTime.Modified();
   }
 
@@ -262,8 +210,8 @@ int vtkH5PartReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   // bool NeedToReadInformation = (FileModifiedTime > FileOpenedTime || !this->H5FileId);
   // if (1 || NeedToReadInformation)
   {
-    this->NumberOfTimeSteps = H5PartGetNumSteps(this->H5FileId);
-    H5PartSetStep(this->H5FileId, 0);
+    this->NumberOfTimeSteps = H5GetNumSteps(this->H5FileId);
+    H5SetStep(this->H5FileId, 0);
     int nds = H5PartGetNumDatasets(this->H5FileId);
     char name[512];
     for (int i = 0; i < nds; i++)
@@ -277,25 +225,26 @@ int vtkH5PartReader::RequestInformation(vtkInformation* vtkNotUsed(request),
     int validTimes = 0;
     for (int i = 0; i < this->NumberOfTimeSteps; ++i)
     {
-      H5PartSetStep(this->H5FileId, i);
+      H5SetStep(this->H5FileId, i);
       // Get the time value if it exists
-      h5part_int64_t numAttribs = H5PartGetNumStepAttribs(this->H5FileId);
+      h5_int64_t numAttribs = H5GetNumStepAttribs(this->H5FileId);
       if (numAttribs > 0)
       {
         char attribName[128];
-        h5part_int64_t attribNameLength = 128;
-        h5part_int64_t attribType = 0;
-        h5part_int64_t attribNelem = 0;
-        for (h5part_int64_t a = 0; a < numAttribs; a++)
+        h5_int64_t attribNameLength = 128;
+        h5_int64_t attribType = 0;
+        h5_size_t attribNelem = 0;
+        for (h5_int64_t a = 0; a < numAttribs; a++)
         {
-          h5part_int64_t status = H5PartGetStepAttribInfo(
+          h5_int64_t status = H5GetStepAttribInfo(
             this->H5FileId, a, attribName, attribNameLength, &attribType, &attribNelem);
-          if (status == H5PART_SUCCESS && !strncmp("TimeValue", attribName, attribNameLength))
+          if (status == H5_SUCCESS && !strncmp("TimeValue", attribName, attribNameLength))
           {
             if (H5Tequal(attribType, H5T_NATIVE_DOUBLE) > 0 && attribNelem == 1)
             {
-              status = H5PartReadStepAttrib(this->H5FileId, attribName, &this->TimeStepValues[i]);
-              if (status == H5PART_SUCCESS)
+              status =
+                H5ReadStepAttribFloat64(this->H5FileId, attribName, &this->TimeStepValues[i]);
+              if (status == H5_SUCCESS)
               {
                 validTimes++;
               }
@@ -304,7 +253,7 @@ int vtkH5PartReader::RequestInformation(vtkInformation* vtkNotUsed(request),
         }
       }
     }
-    H5PartSetStep(this->H5FileId, 0);
+    H5SetStep(this->H5FileId, 0);
 
     if (this->NumberOfTimeSteps == 0)
     {
@@ -344,75 +293,74 @@ int vtkH5PartReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
-int GetVTKDataType(hid_t datatype)
+//------------------------------------------------------------------------------
+int GetVTKDataType(h5_int64_t h5hut_datatype)
 {
-  if (H5Tequal(datatype, H5T_NATIVE_FLOAT) > 0)
+  switch (h5hut_datatype)
   {
-    return VTK_FLOAT;
+    case H5_FLOAT32_T:
+      return VTK_TYPE_FLOAT32;
+    case H5_FLOAT64_T:
+      return VTK_TYPE_FLOAT64;
+    case H5_INT32_T:
+      return VTK_TYPE_INT32;
+    case H5_INT64_T:
+      return VTK_TYPE_INT64;
+    default:
+      return VTK_VOID;
   }
-  else if (H5Tequal(datatype, H5T_NATIVE_DOUBLE) > 0)
-  {
-    return VTK_DOUBLE;
-  }
-  else if (H5Tequal(datatype, H5T_NATIVE_SCHAR) > 0)
-  {
-    return VTK_CHAR;
-  }
-  else if (H5Tequal(datatype, H5T_NATIVE_UCHAR) > 0)
-  {
-    return VTK_UNSIGNED_CHAR;
-  }
-  else if (H5Tequal(datatype, H5T_NATIVE_SHORT) > 0)
-  {
-    return VTK_SHORT;
-  }
-  else if (H5Tequal(datatype, H5T_NATIVE_USHORT) > 0)
-  {
-    return VTK_UNSIGNED_SHORT;
-  }
-  else if (H5Tequal(datatype, H5T_NATIVE_INT) > 0)
-  {
-    return VTK_INT;
-  }
-  else if (H5Tequal(datatype, H5T_NATIVE_UINT) > 0)
-  {
-    return VTK_UNSIGNED_INT;
-  }
-  else if (H5Tequal(datatype, H5T_NATIVE_LONG) > 0)
-  {
-#if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
-    return VTK_INT;
-#else
-    return VTK_LONG_LONG;
-#endif
-  }
-  else if (H5Tequal(datatype, H5T_NATIVE_ULONG) > 0)
-  {
-#if VTK_SIZEOF_LONG == VTK_SIZEOF_INT
-    return VTK_UNSIGNED_INT;
-#else
-    return VTK_UNSIGNED_LONG_LONG;
-#endif
-  }
-  else if (H5Tequal(datatype, H5T_NATIVE_LLONG) > 0)
-  {
-    return VTK_LONG_LONG;
-  }
-  else if (H5Tequal(datatype, H5T_NATIVE_ULLONG) > 0)
-  {
-    return VTK_UNSIGNED_LONG_LONG;
-  }
-  return VTK_VOID;
 }
 
-class H5PartToleranceCheck
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkDataArray> CreateDataArray(
+  int dataType, std::vector<void*>& compPtrs, vtkIdType numTuples, const std::string& rootname)
 {
-public:
-  H5PartToleranceCheck(double tol) { this->tolerance = tol; }
-  double tolerance;
-  //
-  bool operator()(double a, double b) const { return (fabs(a - b) <= (this->tolerance)); }
-};
+#define HANDLE_TYPE(VTK_TYPE, SOA_CLASS, AOS_CLASS)                                                \
+  case VTK_TYPE:                                                                                   \
+  {                                                                                                \
+    const int numComponents = static_cast<int>(compPtrs.size());                                   \
+    if (numComponents != 1)                                                                        \
+    {                                                                                              \
+      using ValueType = typename SOA_CLASS::ValueType;                                             \
+      auto soaArray = vtkSmartPointer<SOA_CLASS>::New();                                           \
+      soaArray->SetNumberOfComponents(numComponents);                                              \
+      soaArray->SetName(rootname.c_str());                                                         \
+                                                                                                   \
+      soaArray->SetArray(0, static_cast<ValueType*>(compPtrs[0]), numTuples, true, false,          \
+        vtkAbstractArray::VTK_DATA_ARRAY_DELETE);                                                  \
+      for (int c = 1; c < numComponents; ++c)                                                      \
+      {                                                                                            \
+        soaArray->SetArray(c, static_cast<ValueType*>(compPtrs[c]), numTuples, false, false,       \
+          vtkAbstractArray::VTK_DATA_ARRAY_DELETE);                                                \
+      }                                                                                            \
+                                                                                                   \
+      return soaArray;                                                                             \
+    }                                                                                              \
+    else                                                                                           \
+    {                                                                                              \
+      using ValueType = typename AOS_CLASS::ValueType;                                             \
+      auto array = vtkSmartPointer<AOS_CLASS>::New();                                              \
+      array->SetNumberOfComponents(1);                                                             \
+      array->SetName(rootname.c_str());                                                            \
+      array->SetArray(static_cast<ValueType*>(compPtrs[0]), numTuples, false,                      \
+        vtkAbstractArray::VTK_DATA_ARRAY_DELETE);                                                  \
+                                                                                                   \
+      return array;                                                                                \
+    }                                                                                              \
+  }
+  switch (dataType)
+  {
+    HANDLE_TYPE(VTK_TYPE_FLOAT32, vtkSOATypeFloat32Array, vtkTypeFloat32Array)
+    HANDLE_TYPE(VTK_TYPE_FLOAT64, vtkSOATypeFloat64Array, vtkTypeFloat64Array)
+    HANDLE_TYPE(VTK_TYPE_INT32, vtkSOATypeInt32Array, vtkTypeInt32Array)
+    HANDLE_TYPE(VTK_TYPE_INT64, vtkSOATypeInt64Array, vtkTypeInt64Array)
+
+    default:
+      return nullptr;
+  }
+#undef HANDLE_TYPE
+}
+
 //------------------------------------------------------------------------------
 int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
@@ -526,10 +474,12 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP()))
   {
     double requestedTimeValue = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP());
-    auto toleranceCheck = H5PartToleranceCheck(this->TimeStepTolerance);
     this->ActualTimeStep = std::find_if(this->TimeStepValues.begin(), this->TimeStepValues.end(),
-                             [&toleranceCheck, &requestedTimeValue](double timeStepValue)
-                             { return toleranceCheck(timeStepValue, requestedTimeValue); }) -
+                             [this, &requestedTimeValue](double timeStepValue)
+                             {
+                               return vtkMathUtilities::FuzzyCompare(
+                                 timeStepValue, requestedTimeValue, this->TimeStepTolerance);
+                             }) -
       this->TimeStepValues.begin();
     //
     if (requestedTimeValue < this->TimeStepValues.front() ||
@@ -561,7 +511,7 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Set the TimeStep on the H5 file
-  H5PartSetStep(this->H5FileId, this->ActualTimeStep);
+  H5SetStep(this->H5FileId, this->ActualTimeStep);
   // Get the number of points for this step
   vtkIdType Nt = H5PartGetNumParticles(this->H5FileId);
   if (piece < Nt)
@@ -573,7 +523,7 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
 
       vtkIdType myNt = piece < rem ? div + 1 : div;
       vtkIdType myOffset = piece < rem ? (div + 1) * piece : (div + 1) * rem + div * (piece - rem);
-      H5PartSetView(this->H5FileId, myOffset, myOffset + myNt);
+      H5PartSetView(this->H5FileId, myOffset, myOffset + myNt - 1);
       Nt = myNt;
     }
     else
@@ -590,93 +540,86 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Setup arrays for reading data
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
   vtkSmartPointer<vtkDataArray> coords = nullptr;
-  for (FieldMap::iterator it = scalarFields.begin(); it != scalarFields.end(); it++)
+  for (const auto& [scalarName, arraylist] : scalarFields)
   {
     // use the type of the first array for all if it is a vector field
-    std::vector<std::string>& arraylist = (*it).second;
     const char* array_name = arraylist[0].c_str();
     std::string rootname = this->NameOfVectorComponent(array_name);
     int Nc = static_cast<int>(arraylist.size());
-    //
-    vtkSmartPointer<vtkDataArray> dataarray = nullptr;
-    hid_t datatype = H5PartGetNativeDatasetType(H5FileId, array_name);
+
+    h5_int64_t datatype, datatype_comp;
+    h5_size_t nelem, nelem_comp;
+    if (H5PartGetDatasetInfoByName(this->H5FileId, array_name, &datatype, &nelem) != H5_SUCCESS)
+    {
+      vtkErrorMacro("Could not get dataset info for array " << array_name);
+      return 0;
+    }
     int vtk_datatype = GetVTKDataType(datatype);
 
     if (vtk_datatype != VTK_VOID)
     {
-      dataarray.TakeReference(vtkDataArray::CreateDataArray(vtk_datatype));
-      assert(dataarray->HasStandardMemoryLayout() && "Array must have standard memory layout");
-      dataarray->SetNumberOfComponents(Nc);
-      dataarray->SetNumberOfTuples(Nt);
-      dataarray->SetName(rootname.c_str());
-
       // now read the data components.
-      hsize_t count1_mem[] = { static_cast<hsize_t>(Nt * Nc) };
-      hsize_t count2_mem[] = { static_cast<hsize_t>(Nt) };
-      hsize_t offset_mem[] = { 0 };
-      hsize_t stride_mem[] = { static_cast<hsize_t>(Nc) };
+      std::vector<void*> componentPtrs(Nc, nullptr);
       for (int c = 0; c < Nc; c++)
       {
-        const char* name = arraylist[c].c_str();
-        hid_t dataset = H5Dopen(H5FileId->timegroup, name);
-        hid_t diskshape = H5PartGetDiskShape(H5FileId, dataset);
-        hid_t memspace = H5Screate_simple(1, count1_mem, nullptr);
-        hid_t component_datatype = H5PartGetNativeDatasetType(H5FileId, name);
-        offset_mem[0] = c;
-        H5Sselect_hyperslab(memspace, H5S_SELECT_SET, offset_mem, stride_mem, count2_mem, nullptr);
-
-        if (H5Tequal(component_datatype, datatype) > 0)
+        const char* name_comp = arraylist[c].c_str();
+        if (H5PartGetDatasetInfoByName(this->H5FileId, name_comp, &datatype_comp, &nelem_comp) !=
+          H5_SUCCESS)
         {
-          H5Dread( // NOLINTNEXTLINE(bugprone-unsafe-functions)
-            dataset, datatype, memspace, diskshape, H5P_DEFAULT, dataarray->GetVoidPointer(0));
+          vtkErrorMacro("Could not get dataset info for array " << array_name);
+          return 0;
         }
-        else
+        if (datatype_comp != datatype)
         {
-          // read data into a temporary array of the right type and then copy it
-          // over to the "dataarray".
-          // This can be optimized to create a single component array. But I
-          // don't understand the stride/offset stuff too well to fix that.
-          vtkDataArray* temparray =
-            vtkDataArray::CreateDataArray(GetVTKDataType(component_datatype));
-          assert(temparray->HasStandardMemoryLayout() && "Array must have standard memory layout");
-          temparray->SetNumberOfComponents(Nc);
-          temparray->SetNumberOfTuples(Nt);
-          H5Sselect_hyperslab(
-            memspace, H5S_SELECT_SET, offset_mem, stride_mem, count2_mem, nullptr);
-          H5Dread(dataset, component_datatype, memspace, diskshape, H5P_DEFAULT,
-            temparray->GetVoidPointer(0)); // NOLINT(bugprone-unsafe-functions)
-          dataarray->CopyComponent(c, temparray, c);
-          temparray->Delete();
+          vtkErrorMacro("Inconsistent data types for vector components of " << rootname);
+          return 0;
         }
-        if (memspace != H5S_ALL)
+        // Read using H5hut's high-level API based on type
+        h5_err_t status;
+        switch (datatype)
         {
-          H5Sclose(memspace);
+          case H5_FLOAT64_T:
+            componentPtrs[c] = new h5_float64_t[Nt];
+            status = H5PartReadDataFloat64(
+              this->H5FileId, name_comp, static_cast<h5_float64_t*>(componentPtrs[c]));
+            break;
+          case H5_FLOAT32_T:
+            componentPtrs[c] = new h5_float32_t[Nt];
+            status = H5PartReadDataFloat32(
+              this->H5FileId, name_comp, static_cast<h5_float32_t*>(componentPtrs[c]));
+            break;
+          case H5_INT64_T:
+            componentPtrs[c] = new h5_int64_t[Nt];
+            status = H5PartReadDataInt64(
+              this->H5FileId, name_comp, static_cast<h5_int64_t*>(componentPtrs[c]));
+            break;
+          case H5_INT32_T:
+            componentPtrs[c] = new h5_int32_t[Nt];
+            status = H5PartReadDataInt32(
+              this->H5FileId, name_comp, static_cast<h5_int32_t*>(componentPtrs[c]));
+            break;
+          default:
+            vtkErrorMacro("Unsupported data type for component " << name_comp);
+            return 0;
         }
-        if (diskshape != H5S_ALL)
+        if (status != H5_SUCCESS)
         {
-          H5Sclose(diskshape);
+          vtkErrorMacro("Failed to read component " << name_comp);
+          return 0;
         }
-        H5Dclose(dataset);
       }
-    }
-    else
-    {
-      H5Tclose(datatype);
-      vtkErrorMacro("An unexpected data type was encountered");
-      return 0;
-    }
-    H5Tclose(datatype);
-    //
-    if (dataarray)
-    {
-      if ((*it).first == "Coords")
-        coords = dataarray;
+      vtkSmartPointer<vtkDataArray> dataArray =
+        CreateDataArray(vtk_datatype, componentPtrs, Nt, rootname);
+      if (scalarName == "Coords")
+      {
+        coords = dataArray;
+      }
       else
       {
-        output->GetPointData()->AddArray(dataarray);
+        output->GetPointData()->AddArray(dataArray);
         if (!output->GetPointData()->GetScalars())
         {
-          output->GetPointData()->SetActiveScalars(dataarray->GetName());
+          output->GetPointData()->SetActiveScalars(dataArray->GetName());
         }
       }
     }
@@ -684,15 +627,13 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (this->GenerateVertexCells)
   {
-    vtkSmartPointer<vtkCellArray> vertices = vtkSmartPointer<vtkCellArray>::New();
-    vertices->AllocateEstimate(Nt, 1);
-    for (vtkIdType i = 0; i < Nt; ++i)
-    {
-      vertices->InsertNextCell(1, &i);
-    }
+    vtkNew<vtkTypeInt64Array> connectivity;
+    connectivity->SetNumberOfValues(Nt);
+    std::iota(connectivity->Begin(), connectivity->End(), 0);
+    vtkNew<vtkCellArray> vertices;
+    vertices->SetData(1, connectivity);
     output->SetVerts(vertices);
   }
-  //
   coords->SetName("Points");
   points->SetData(coords);
   output->SetPoints(points);

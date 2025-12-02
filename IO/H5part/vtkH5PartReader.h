@@ -22,8 +22,6 @@
 #include <string> // for string
 #include <vector> // for vector
 
-struct H5PartFile;
-
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataArraySelection;
 class VTKIOH5PART_EXPORT vtkH5PartReader : public vtkPolyDataAlgorithm
@@ -170,7 +168,7 @@ protected:
   double TimeStepTolerance;
   int CombineVectorComponents;
   int GenerateVertexCells;
-  H5PartFile* H5FileId;
+  uintptr_t H5FileId;
   vtkTimeStamp FileModifiedTime;
   vtkTimeStamp FileOpenedTime;
   int MaskOutOfTimeRangeOutput;
