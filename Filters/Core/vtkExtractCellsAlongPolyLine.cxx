@@ -223,7 +223,11 @@ struct IntersectLinesWorker
     std::unordered_set<vtkIdType>& intersectedCellIds = this->IntersectedCellIds.Local();
     std::unordered_set<vtkIdType>& intersectedCellPointIds = this->IntersectedCellPointIds.Local();
     vtkIdType& connectivitySize = this->ConnectivitySize.Local();
-    auto cellTypes = vtk::DataArrayValueRange<1, unsigned char>(this->LineCellTypes);
+    decltype(vtk::DataArrayValueRange<1, unsigned char>(this->LineCellTypes)) cellTypes;
+    if (this->LineCellTypes)
+    {
+      cellTypes = vtk::DataArrayValueRange<1, unsigned char>(this->LineCellTypes);
+    }
 
     bool isFirst = vtkSMPTools::GetSingleThread();
     vtkIdType checkAbortInterval = std::min((endId - startId) / 10 + 1, (vtkIdType)1000);
