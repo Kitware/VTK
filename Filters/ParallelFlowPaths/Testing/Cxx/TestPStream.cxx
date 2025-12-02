@@ -25,6 +25,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkTrivialProducer.h"
 
+#include <iostream>
+
 struct PStreamArgs_tmp
 {
   int* retVal;
@@ -206,13 +208,13 @@ void MyMain(vtkMultiProcessController* controller, void* arg)
       auto id = seedIds->GetTypedComponent(cc, 0);
       if (id >= numPts)
       {
-        cerr << "ERROR: invalid seed id received: " << id << endl;
+        std::cerr << "ERROR: invalid seed id received: " << id << std::endl;
       }
     }
   }
   else
   {
-    cerr << "ERROR: missing 'SeedIds' array!" << endl;
+    std::cerr << "ERROR: missing 'SeedIds' array!" << std::endl;
   }
 
   renWin->Delete();

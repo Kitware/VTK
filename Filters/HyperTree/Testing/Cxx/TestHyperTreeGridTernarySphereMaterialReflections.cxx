@@ -22,6 +22,8 @@
 #include "vtkRenderer.h"
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 // #define HYPERTREEGRID_GETRUSAGE
 #ifdef HYPERTREEGRID_GETRUSAGE
 #include <sys/resource.h>
@@ -59,12 +61,13 @@ int TestHyperTreeGridTernarySphereMaterialReflections(int argc, char* argv[])
   vtkHyperTreeGrid* H = vtkHyperTreeGrid::SafeDownCast(htg);
   vtkIdType nC = H->GetNumberOfCells();
   vtkIdType nL = H->GetNumberOfLeaves();
-  cerr << "Time for 1 HyperTreeGridSource: " << timer->GetElapsedTime() << endl;
-  cerr << "  number of tree vertices: " << nC << endl;
-  cerr << "  number of tree leaves: " << nL << " (" << (double)nL / (double)nC * 100.00 << "%)\n";
+  std::cerr << "Time for 1 HyperTreeGridSource: " << timer->GetElapsedTime() << std::endl;
+  std::cerr << "  number of tree vertices: " << nC << std::endl;
+  std::cerr << "  number of tree leaves: " << nL << " (" << (double)nL / (double)nC * 100.00
+            << "%)\n";
 #ifdef HYPERTREEGRID_GETRUSAGE
-  cerr << "  increase in max. resident set size: " << (usage1.ru_maxrss - usage0.ru_maxrss) / 1024
-       << " kiB\n";
+  std::cerr << "  increase in max. resident set size: "
+            << (usage1.ru_maxrss - usage0.ru_maxrss) / 1024 << " kiB\n";
 #endif
 
   // Axis reflections
@@ -98,12 +101,12 @@ int TestHyperTreeGridTernarySphereMaterialReflections(int argc, char* argv[])
   reflection7->SetPlaneToYMax();
   reflection7->Update();
   timer->StopTimer();
-  cerr << "Time for 7 axis-aligned reflections: " << timer->GetElapsedTime() << endl;
+  std::cerr << "Time for 7 axis-aligned reflections: " << timer->GetElapsedTime() << std::endl;
 #ifdef HYPERTREEGRID_GETRUSAGE
   struct rusage usage2;
   getrusage(RUSAGE_SELF, &usage2);
-  cerr << "  increase in max. resident set size: " << (usage2.ru_maxrss - usage1.ru_maxrss) / 1024
-       << " kiB\n";
+  std::cerr << "  increase in max. resident set size: "
+            << (usage2.ru_maxrss - usage1.ru_maxrss) / 1024 << " kiB\n";
 #endif
 
   // Geometries
@@ -135,12 +138,12 @@ int TestHyperTreeGridTernarySphereMaterialReflections(int argc, char* argv[])
   geometry7->SetInputConnection(reflection7->GetOutputPort());
   geometry7->Update();
   timer->StopTimer();
-  cerr << "Time for 8 geometry filters: " << timer->GetElapsedTime() << endl;
+  std::cerr << "Time for 8 geometry filters: " << timer->GetElapsedTime() << std::endl;
 #ifdef HYPERTREEGRID_GETRUSAGE
   struct rusage usage3;
   getrusage(RUSAGE_SELF, &usage3);
-  cerr << "  increase in max. resident set size: " << (usage3.ru_maxrss - usage2.ru_maxrss) / 1024
-       << " kiB\n";
+  std::cerr << "  increase in max. resident set size: "
+            << (usage3.ru_maxrss - usage2.ru_maxrss) / 1024 << " kiB\n";
 #endif
 
   // Mappers

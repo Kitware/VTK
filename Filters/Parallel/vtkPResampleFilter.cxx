@@ -18,6 +18,8 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPResampleFilter);
 
@@ -86,8 +88,8 @@ double* vtkPResampleFilter::CalculateBounds(vtkDataSet* input)
     }
   }
 
-  cout << "Bounds: " << localBounds[0] << " " << localBounds[1] << " " << localBounds[2] << " "
-       << localBounds[3] << " " << localBounds[4] << " " << localBounds[5] << " " << endl;
+  std::cout << "Bounds: " << localBounds[0] << " " << localBounds[1] << " " << localBounds[2] << " "
+            << localBounds[3] << " " << localBounds[4] << " " << localBounds[5] << " " << std::endl;
   return this->Bounds;
 }
 
@@ -167,16 +169,16 @@ int vtkPResampleFilter::FillInputPortInformation(int port, vtkInformation* info)
 void vtkPResampleFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
-  os << indent << "Controller " << this->Controller << endl;
-  os << indent << "UseInputBounds " << this->UseInputBounds << endl;
+  os << indent << "Controller " << this->Controller << std::endl;
+  os << indent << "UseInputBounds " << this->UseInputBounds << std::endl;
   if (this->UseInputBounds == 0)
   {
     os << indent << "CustomSamplingBounds [" << this->CustomSamplingBounds[0] << ", "
        << this->CustomSamplingBounds[1] << ", " << this->CustomSamplingBounds[2] << ", "
        << this->CustomSamplingBounds[3] << ", " << this->CustomSamplingBounds[4] << ", "
-       << this->CustomSamplingBounds[5] << "]" << endl;
+       << this->CustomSamplingBounds[5] << "]" << std::endl;
   }
   os << indent << "SamplingDimension " << this->SamplingDimension[0] << " x "
-     << this->SamplingDimension[1] << " x " << this->SamplingDimension[2] << endl;
+     << this->SamplingDimension[1] << " x " << this->SamplingDimension[2] << std::endl;
 }
 VTK_ABI_NAMESPACE_END

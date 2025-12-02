@@ -10,6 +10,8 @@
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
+
 void vtkSystemInformationPrintFile(const char* name, ostream& os)
 {
   os << "================================================================\n";
@@ -57,7 +59,7 @@ int TestSystemInformation(int argc, char* argv[])
 {
   if (argc != 2)
   {
-    cerr << "Usage: TestSystemInformation <top-of-build-tree>\n";
+    std::cerr << "Usage: TestSystemInformation <top-of-build-tree>\n";
     return 1;
   }
   std::string build_dir = argv[1];
@@ -70,12 +72,12 @@ int TestSystemInformation(int argc, char* argv[])
     "Common/Core/vtkSMP.h", "Common/Core/vtkThreads.h", "VTKConfig.cmake",
     "Testing/Temporary/ConfigSummary.txt", nullptr };
 
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   for (const char** f = files; *f; ++f)
   {
     std::string fname = build_dir + *f;
-    vtkSystemInformationPrintFile(fname.c_str(), cout);
+    vtkSystemInformationPrintFile(fname.c_str(), std::cout);
   }
 
   return 0;

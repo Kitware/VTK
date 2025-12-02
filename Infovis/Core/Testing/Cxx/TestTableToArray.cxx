@@ -15,6 +15,8 @@
 
 #include <stdexcept>
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 #define test_expression(expression)                                                                \
@@ -84,7 +86,7 @@ int TestTableToArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   catch (std::exception& e)
   {
-    cerr << e.what() << endl;
+    std::cerr << e.what() << std::endl;
     return 1;
   }
 }

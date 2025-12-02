@@ -35,6 +35,8 @@
 
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 int TestPDBBallAndStickShadowsDOFSSAA(int argc, char* argv[])
 {
   char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2LYZ.pdb");
@@ -163,7 +165,7 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char* argv[])
   win->Render();
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
-  cerr << "first render time: " << firstRender << endl;
+  std::cerr << "first render time: " << firstRender << std::endl;
 
   // this example will suck the life out of your fragment shaders
   // until we provide some optimizations. The DOF pass is a brute force
@@ -183,7 +185,7 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char* argv[])
   }
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
-  cerr << "interactive render time: " << elapsed / numRenders << endl;
+  std::cerr << "interactive render time: " << elapsed / numRenders << std::endl;
 
   ren->GetActiveCamera()->SetPosition(0, 0, 1);
   ren->GetActiveCamera()->SetFocalPoint(0, 0, 0);

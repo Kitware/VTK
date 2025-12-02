@@ -18,6 +18,8 @@
 
 #include <string>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 class ContextUnicode : public vtkContextItem
 {
@@ -34,7 +36,7 @@ int TestContextUnicode(int argc, char* argv[])
 {
   if (argc < 2)
   {
-    cout << "Missing font filename." << endl;
+    std::cout << "Missing font filename." << std::endl;
     return EXIT_FAILURE;
   }
 

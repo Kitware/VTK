@@ -9,6 +9,8 @@
 #include "vtkSelectionNode.h"
 #include "vtkTable.h"
 
+#include <iostream>
+
 #define ROWS 15
 #define COLUMNS 4
 

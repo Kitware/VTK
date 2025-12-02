@@ -10,6 +10,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include <iostream>
+
 int TestResampleToImage2D(int argc, char* argv[])
 {
   vtkNew<vtkXMLUnstructuredGridReader> reader;
@@ -30,7 +32,7 @@ int TestResampleToImage2D(int argc, char* argv[])
   range = resample->GetOutput()->GetPointData()->GetArray("BrownianVectors")->GetRange();
   if (range[1] - range[0] < 0.01)
   {
-    cerr << "Error resampling along X" << endl;
+    std::cerr << "Error resampling along X" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -41,7 +43,7 @@ int TestResampleToImage2D(int argc, char* argv[])
   range = resample->GetOutput()->GetPointData()->GetArray("BrownianVectors")->GetRange();
   if (range[1] - range[0] < 0.01)
   {
-    cerr << "Error resampling along Y" << endl;
+    std::cerr << "Error resampling along Y" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -52,7 +54,7 @@ int TestResampleToImage2D(int argc, char* argv[])
   range = resample->GetOutput()->GetPointData()->GetArray("BrownianVectors")->GetRange();
   if (range[1] - range[0] < 0.01)
   {
-    cerr << "Error resampling along Z" << endl;
+    std::cerr << "Error resampling along Z" << std::endl;
     return EXIT_FAILURE;
   }
 

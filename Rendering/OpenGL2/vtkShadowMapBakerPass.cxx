@@ -32,6 +32,8 @@
 // debugging
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 // to be able to dump intermediate passes into png files for debugging.
 // only for vtkShadowMapBakerPass developers.
 // #define VTK_SHADOW_MAP_BAKER_PASS_DEBUG
@@ -343,7 +345,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState* s)
     if (this->NeedUpdate) // create or re-create the shadow maps.
     {
 #ifdef VTK_SHADOW_MAP_BAKER_PASS_DEBUG
-      cout << "update the shadow maps" << endl;
+      std::cout << "update the shadow maps" << endl;
 #endif
 
       realCamera->Register(this);
@@ -543,7 +545,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState* s)
           r->SetActiveCamera(realCamera); // reset the camera
 
 #ifdef VTK_SHADOW_MAP_BAKER_PASS_DEBUG
-          cout << "finish1 lightIndex=" << lightIndex << endl;
+          std::cout << "finish1 lightIndex=" << lightIndex << endl;
           glFinish();
 #endif
 

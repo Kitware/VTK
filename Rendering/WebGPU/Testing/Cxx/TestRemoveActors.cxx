@@ -12,6 +12,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+#include <iostream>
+
 int TestRemoveActors(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renWin;

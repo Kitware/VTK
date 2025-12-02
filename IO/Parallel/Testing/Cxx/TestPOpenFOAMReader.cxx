@@ -27,6 +27,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 int TestPOpenFOAMReader(int argc, char* argv[])
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI

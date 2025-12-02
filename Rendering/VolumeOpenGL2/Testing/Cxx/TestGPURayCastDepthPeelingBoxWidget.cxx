@@ -39,6 +39,7 @@
 #include <vtkXMLImageDataReader.h>
 
 #include <cassert>
+#include <iostream>
 
 namespace
 {

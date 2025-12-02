@@ -18,6 +18,8 @@
 
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
+
 class MyProcess : public vtkProcess
 {
 public:
@@ -43,9 +45,9 @@ public:
     this->Reader->SetFileName(this->InFileName.c_str());
     if (my_id == 0)
     {
-      cerr << my_id << "/" << num_procs << endl;
-      cerr << "IFILE " << this->InFileName << endl;
-      cerr << "OFILE " << this->OutFileName << endl;
+      std::cerr << my_id << "/" << num_procs << std::endl;
+      std::cerr << "IFILE " << this->InFileName << std::endl;
+      std::cerr << "OFILE " << this->OutFileName << std::endl;
     }
 
     this->Writer = vtkXdmf3Writer::New();
@@ -103,7 +105,7 @@ int TestXdmf3Parallel(int argc, char** argv)
 
   if (numProcs < 2)
   {
-    cout << "This test requires at least 2 processes" << endl;
+    std::cout << "This test requires at least 2 processes" << std::endl;
     return EXIT_FAILURE;
   }
 

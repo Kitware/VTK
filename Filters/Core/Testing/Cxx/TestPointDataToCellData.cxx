@@ -14,6 +14,8 @@
 #include <vtkThreshold.h>
 #include <vtkUnstructuredGrid.h>
 
+#include <iostream>
+
 int TestPointDataToCellData(int, char*[])
 {
   constexpr char name[] = "RTData";

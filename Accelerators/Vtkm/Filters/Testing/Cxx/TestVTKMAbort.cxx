@@ -12,6 +12,8 @@
 
 #include <viskores/cont/Initialize.h>
 
+#include <iostream>
+
 int TestVTKMAbort(int, char*[])
 {
   vtkNew<vtkRTAnalyticSource> wavelet;

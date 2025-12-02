@@ -10,6 +10,8 @@
 #include "vtkStaticPointLocator.h"
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 int TimePointLocators(int, char*[])
 {
   int nPts = 100000;
@@ -24,7 +26,7 @@ int TimePointLocators(int, char*[])
     buildTime[i] = cpTime[i] = cnpTime[i] = crpTime[i] = 0.0;
   }
 
-  cout << "\nTiming for " << nPts << " points, " << nQ << " queries\n";
+  std::cout << "\nTiming for " << nPts << " points, " << nQ << " queries\n";
 
   // Populate a list of points and query locations
   vtkPoints* points = vtkPoints::New();
@@ -206,35 +208,35 @@ int TimePointLocators(int, char*[])
 
   //---------------------------------------------------------------------------
   // Print out the statistics
-  cout << "Build and delete tree\n";
-  cout << "\tUniform: " << buildTime[0] << "\n";
-  cout << "\tStatic: " << buildTime[1] << "\n";
-  cout << "\tOctree: " << buildTime[2] << "\n";
-  cout << "\tKD Tree: " << buildTime[3] << "\n";
+  std::cout << "Build and delete tree\n";
+  std::cout << "\tUniform: " << buildTime[0] << "\n";
+  std::cout << "\tStatic: " << buildTime[1] << "\n";
+  std::cout << "\tOctree: " << buildTime[2] << "\n";
+  std::cout << "\tKD Tree: " << buildTime[3] << "\n";
 
-  cout << "Closest point queries\n";
-  cout << "\tUniform: " << cpTime[0] << "\n";
-  cout << "\tStatic: " << cpTime[1] << "\n";
-  cout << "\tOctree: " << cpTime[2] << "\n";
-  cout << "\tKD Tree: " << cpTime[3] << "\n";
+  std::cout << "Closest point queries\n";
+  std::cout << "\tUniform: " << cpTime[0] << "\n";
+  std::cout << "\tStatic: " << cpTime[1] << "\n";
+  std::cout << "\tOctree: " << cpTime[2] << "\n";
+  std::cout << "\tKD Tree: " << cpTime[3] << "\n";
 
-  cout << "Closest N points queries\n";
-  cout << "\tUniform: " << cnpTime[0] << "\n";
-  cout << "\tStatic: " << cnpTime[1] << "\n";
-  cout << "\tOctree: " << cnpTime[2] << "\n";
-  cout << "\tKD Tree: " << cnpTime[3] << "\n";
+  std::cout << "Closest N points queries\n";
+  std::cout << "\tUniform: " << cnpTime[0] << "\n";
+  std::cout << "\tStatic: " << cnpTime[1] << "\n";
+  std::cout << "\tOctree: " << cnpTime[2] << "\n";
+  std::cout << "\tKD Tree: " << cnpTime[3] << "\n";
 
-  cout << "Closest points within radius queries\n";
-  cout << "\tUniform: " << crpTime[0] << "\n";
-  cout << "\tStatic: " << crpTime[1] << "\n";
-  cout << "\tOctree: " << crpTime[2] << "\n";
-  cout << "\tKD Tree: " << crpTime[3] << "\n";
+  std::cout << "Closest points within radius queries\n";
+  std::cout << "\tUniform: " << crpTime[0] << "\n";
+  std::cout << "\tStatic: " << crpTime[1] << "\n";
+  std::cout << "\tOctree: " << crpTime[2] << "\n";
+  std::cout << "\tKD Tree: " << crpTime[3] << "\n";
 
-  cout << "Total time\n";
-  cout << "\tUniform: " << (buildTime[0] + cpTime[0] + cnpTime[0] + crpTime[0]) << "\n";
-  cout << "\tStatic: " << (buildTime[1] + cpTime[1] + cnpTime[1] + crpTime[1]) << "\n";
-  cout << "\tOctree: " << (buildTime[2] + cpTime[2] + cnpTime[2] + crpTime[2]) << "\n";
-  cout << "\tKD Tree: " << (buildTime[3] + cpTime[3] + cnpTime[3] + crpTime[3]) << "\n";
+  std::cout << "Total time\n";
+  std::cout << "\tUniform: " << (buildTime[0] + cpTime[0] + cnpTime[0] + crpTime[0]) << "\n";
+  std::cout << "\tStatic: " << (buildTime[1] + cpTime[1] + cnpTime[1] + crpTime[1]) << "\n";
+  std::cout << "\tOctree: " << (buildTime[2] + cpTime[2] + cnpTime[2] + crpTime[2]) << "\n";
+  std::cout << "\tKD Tree: " << (buildTime[3] + cpTime[3] + cnpTime[3] + crpTime[3]) << "\n";
 
   timer->Delete();
   points->Delete();

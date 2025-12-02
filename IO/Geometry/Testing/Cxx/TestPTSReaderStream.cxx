@@ -11,11 +11,13 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 
+#include <iostream>
+
 int TestPTSReaderStream(int argc, char* argv[])
 {
   if (argc < 2)
   {
-    std::cerr << "Required parameters: <filename> maxNumberOfPoints(optional)" << endl;
+    std::cerr << "Required parameters: <filename> maxNumberOfPoints(optional)" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -31,7 +33,7 @@ int TestPTSReaderStream(int argc, char* argv[])
   reader->Update();
   if (reader->GetOutput()->GetNumberOfPoints() != 446)
   {
-    std::cerr << "Unexpected number of points" << endl;
+    std::cerr << "Unexpected number of points" << std::endl;
     return EXIT_FAILURE;
   }
 

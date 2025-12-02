@@ -9,6 +9,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXdmfReader.h"
 
+#include <iostream>
+
 int TestQuadraticHexaXdmfReader(int argc, char* argv[])
 {
   // Read the input data file

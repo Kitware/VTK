@@ -13,6 +13,8 @@
 #include <cstdlib>
 #include <numeric>
 
+#include <iostream>
+
 int TestAttributeDataToTableHyperTreeGrid(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkHyperTreeGridPreConfiguredSource> source;

@@ -40,6 +40,8 @@
 
 #include "vtkTestConditionals.txx"
 
+#include <iostream>
+
 using namespace vtk;
 
 static int expectedDOFIndices1[] = {

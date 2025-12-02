@@ -38,6 +38,7 @@
 #endif
 
 #include <algorithm>
+#include <iostream>
 #include <map>
 #include <set>
 #include <string>
@@ -1349,10 +1350,10 @@ int vtkYoungsMaterialInterface::RequestData(vtkInformation* vtkNotUsed(request),
             {
               //                       for(int myi = 0;myi<nextCell.np;myi++)
               //                       {
-              //                                cerr<<"p["<<myi<<"]=("<<nextCell.points[myi][0]<<','<<nextCell.points[myi][1]<<','<<nextCell.points[myi][2]<<")
+              //                                std::cerr<<"p["<<myi<<"]=("<<nextCell.points[myi][0]<<','<<nextCell.points[myi][1]<<','<<nextCell.points[myi][2]<<")
               //                                ";
               //                       }
-              //                       cerr<<endl;
+              //                       std::cerr<<endl;
 
               vtkcell->Initialize();
               nextCell.nf = vtkcell->GetNumberOfFaces();

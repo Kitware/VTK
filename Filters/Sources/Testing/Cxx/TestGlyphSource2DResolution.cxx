@@ -20,9 +20,11 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestGlyphSource2DResolution(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   vtkNew<vtkPolyData> pd;
   vtkNew<vtkPoints> pts;

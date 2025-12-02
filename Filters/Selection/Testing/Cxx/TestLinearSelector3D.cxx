@@ -3,15 +3,11 @@
 // .SECTION Thanks
 // This test was written by Philippe Pebay, Kitware SAS 2011
 
-#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkExtractSelection.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkLinearSelector.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkPointData.h"
-#include "vtkSelection.h"
 #include "vtkSelectionNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
@@ -19,6 +15,7 @@
 #include "vtkUnstructuredGridReader.h"
 #include "vtkUnstructuredGridWriter.h"
 
+#include <iostream>
 #include <sstream>
 
 // Reference values
@@ -53,11 +50,11 @@ static int CheckExtractedUGrid(
 
   // Initialize test status
   int testStatus = 0;
-  cerr << endl;
+  std::cerr << std::endl;
 
   // Verify selection cardinality
   vtkIdType nCells = ugrid->GetNumberOfCells();
-  cout << tag << " contains " << nCells << " cells." << endl;
+  std::cout << tag << " contains " << nCells << " cells." << std::endl;
 
   if (nCells != cardSelection[testIdx])
   {
@@ -66,14 +63,14 @@ static int CheckExtractedUGrid(
   }
 
   // Verify selection cells
-  cerr << "Original cell Ids (types): ";
+  std::cerr << "Original cell Ids (types): ";
   ugrid->GetCellData()->SetActiveScalars("vtkOriginalCellIds");
   vtkDataArray* oCellIds = ugrid->GetCellData()->GetScalars();
   for (vtkIdType i = 0; i < oCellIds->GetNumberOfTuples(); ++i)
   {
-    cerr << oCellIds->GetTuple1(i) << " ";
+    std::cerr << oCellIds->GetTuple1(i) << " ";
   }
-  cerr << endl;
+  std::cerr << std::endl;
 
   // If requested, write mesh
   if (writeGrid)
@@ -85,7 +82,7 @@ static int CheckExtractedUGrid(
     writer->SetFileName(fileNameSS.str().c_str());
     writer->SetInputData(ugrid);
     writer->Write();
-    cerr << "Wrote file " << fileNameSS.str() << endl;
+    std::cerr << "Wrote file " << fileNameSS.str() << std::endl;
   }
 
   return testStatus;

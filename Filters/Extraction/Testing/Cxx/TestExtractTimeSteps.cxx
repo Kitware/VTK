@@ -11,6 +11,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 enum
 {
   TEST_PASSED_RETVAL = 0,

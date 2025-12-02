@@ -27,6 +27,8 @@
 #include "vtkAnariTestUtilities.h"
 #include "vtkAnariVolumeMapper.h"
 
+#include <iostream>
+
 int TestAnariVolumeRenderer(int argc, char* argv[])
 {
   vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);

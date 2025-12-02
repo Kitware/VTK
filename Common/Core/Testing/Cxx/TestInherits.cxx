@@ -11,6 +11,8 @@
 #include <set>
 #include <vector>
 
+#include <iostream>
+
 namespace
 {
 struct Foo

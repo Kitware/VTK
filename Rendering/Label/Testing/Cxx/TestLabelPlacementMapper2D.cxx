@@ -22,8 +22,9 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
-#include "vtkTestUtilities.h"
 #include "vtkTextProperty.h"
+
+#include <iostream>
 
 #define PTSMULT 10
 #define TXTMULT (PTSMULT * PTSMULT)
@@ -2394,7 +2395,7 @@ int TestLabelPlacementMapper2D(int argc, char* argv[])
   priorities->SetNumberOfTuples(TXTMULT * vtkTextLabelListLength);
   pts->SetNumberOfPoints(TXTMULT * vtkTextLabelListLength);
 #ifdef GENERATE_TEST_POINTS
-  cout << "static double vtkLabelPlacer2DTestPoints[] =\n{\n";
+  std::cout << "static double vtkLabelPlacer2DTestPoints[] =\n{\n";
 #else
   double* ptsrc = vtkLabelPlacer2DTestPoints;
 #endif
@@ -2404,7 +2405,7 @@ int TestLabelPlacementMapper2D(int argc, char* argv[])
     priorities->SetValue(i, i);
 #ifdef GENERATE_TEST_POINTS
     double x = vtkMath::Random(), y = vtkMath::Random();
-    cout << "   " << x << ", " << y << ",\n";
+    std::cout << "   " << x << ", " << y << ",\n";
     pts->SetPoint(i, x, y, -1.); // 2-D
     // pts->SetPoint( i, vtkMath::Random(), vtkMath::Random(), vtkMath::Random() ); // 3-D
 #else  // GENERATE_TEST_POINTS
@@ -2419,7 +2420,7 @@ int TestLabelPlacementMapper2D(int argc, char* argv[])
 #endif // GENERATE_TEST_POINTS
   }
 #ifdef GENERATE_TEST_POINTS
-  cout << "};\n";
+  std::cout << "};\n";
 #endif
   polyData->SetPoints(pts);
   polyData->GetPointData()->AddArray(labelText);
@@ -2462,7 +2463,7 @@ int TestLabelPlacementMapper2D(int argc, char* argv[])
 
   // labelPlacer->Update();
 
-  cout << "Set of " << pts->GetNumberOfPoints() << " labels\n";
+  std::cout << "Set of " << pts->GetNumberOfPoints() << " labels\n";
 
   // rr->ResetCamera();
   vtkCamera* cam = rr->GetActiveCamera();
@@ -2480,7 +2481,7 @@ int TestLabelPlacementMapper2D(int argc, char* argv[])
     ri->Start();
 #ifdef GENERATE_TEST_POINTS
     vtkIndent indent;
-    cam->PrintSelf(cout, indent);
+    cam->PrintSelf(std::cout, indent);
 #endif // GENERATE_TEST_POINTS
   }
 

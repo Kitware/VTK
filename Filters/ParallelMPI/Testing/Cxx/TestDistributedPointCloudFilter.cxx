@@ -21,6 +21,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 int TestDistributedPointCloudFilter(int argc, char* argv[])
 {
   vtkNew<vtkMPIController> controller;
@@ -102,14 +104,14 @@ int TestDistributedPointCloudFilter(int argc, char* argv[])
   int nbOfLocallyReceivedPoints = outputPoly->GetNumberOfPoints();
   if (nbOfLocallyReceivedPoints != finalNumberOfPointsPerRank)
   {
-    cerr << "No point on the node " << rank << "\n";
+    std::cerr << "No point on the node " << rank << "\n";
     // do not exit here so MPI can end correctly
     error = true;
   }
 
   if (outputPoly->GetPointData()->GetNumberOfArrays() != 5)
   {
-    cerr << "Incorrect number of point data arrays on rank " << rank << "\n";
+    std::cerr << "Incorrect number of point data arrays on rank " << rank << "\n";
     error = true;
   }
 
@@ -119,7 +121,7 @@ int TestDistributedPointCloudFilter(int argc, char* argv[])
   if (!bbox.IsValid() || bbox.GetLength(0) == 0. || bbox.GetLength(1) == 0. ||
     bbox.GetLength(2) == 0.)
   {
-    cerr << "Incorrect bounding box of output points on rank " << rank << "\n";
+    std::cerr << "Incorrect bounding box of output points on rank " << rank << "\n";
     error = true;
   }
 
@@ -135,14 +137,14 @@ int TestDistributedPointCloudFilter(int argc, char* argv[])
 
   if (totalNumberOfReceivedPoints != totalNumberOfPoints)
   {
-    cerr << "Wrong total of points: " << totalNumberOfReceivedPoints << " instead of "
-         << totalNumberOfPoints << "\n";
-    cerr << "Rank " << rank << ":";
+    std::cerr << "Wrong total of points: " << totalNumberOfReceivedPoints << " instead of "
+              << totalNumberOfPoints << "\n";
+    std::cerr << "Rank " << rank << ":";
     for (int i = 0; i < nbOfLocallyReceivedPoints; i++)
     {
-      cout << " " << outputPoly->GetPoints()->GetPoint(i)[0];
+      std::cout << " " << outputPoly->GetPoints()->GetPoint(i)[0];
     }
-    cerr << endl;
+    std::cerr << std::endl;
     error = true;
   }
 

@@ -14,6 +14,8 @@
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkStringScanner.h>
 
+#include <iostream>
+
 int TestGLTFReaderAnimation(int argc, char* argv[])
 {
   if (argc <= 2)

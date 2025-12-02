@@ -11,6 +11,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 namespace
 {
 int TestCompressible()

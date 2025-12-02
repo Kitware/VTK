@@ -12,6 +12,8 @@
 
 #include <limits>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 namespace vtkOSPRayMaterialHelpers
 {
@@ -224,7 +226,7 @@ void MakeMaterials(
   vtkOSPRayMaterialLibrary* ml = vtkOSPRayRendererNode::GetMaterialLibrary(orn->GetRenderer());
   if (!ml)
   {
-    cout << "No material Library in this renderer." << endl;
+    std::cout << "No material Library in this renderer." << endl;
     return;
   }
   std::set<std::string> nicknames = ml->GetMaterialNames();

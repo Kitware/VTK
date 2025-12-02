@@ -3,7 +3,9 @@
 #ifndef vtkTestErrorObserver_h
 #define vtkTestErrorObserver_h
 
-#include <string> // Needed for std::string
+#include <iostream> // Needed for std::cout
+#include <string>   // Needed for std::string
+
 #include <vtkCommand.h>
 
 namespace vtkTest

@@ -22,6 +22,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include <iostream>
+
 int TestAngularPeriodicFilter(int argc, char* argv[])
 {
   vtkNew<vtkXMLUnstructuredGridReader> reader;

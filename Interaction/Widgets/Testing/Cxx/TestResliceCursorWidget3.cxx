@@ -4,25 +4,20 @@
 #include "vtkSmartPointer.h"
 
 #include "vtkActor.h"
-#include "vtkBiDimensionalWidget.h"
 #include "vtkCamera.h"
 #include "vtkCellPicker.h"
 #include "vtkCommand.h"
-#include "vtkDICOMImageReader.h"
 #include "vtkImageActor.h"
 #include "vtkImageData.h"
 #include "vtkImageMapToColors.h"
 #include "vtkImagePlaneWidget.h"
-#include "vtkImageReader.h"
 #include "vtkImageReslice.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkInteractorStyleImage.h"
-#include "vtkLookupTable.h"
 #include "vtkMathUtilities.h"
 #include "vtkOutlineFilter.h"
 #include "vtkPlane.h"
 #include "vtkPlaneSource.h"
-#include "vtkPointData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
@@ -37,6 +32,8 @@
 #include "vtkVolume16Reader.h"
 
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 //------------------------------------------------------------------------------
 class vtkResliceCursorCallback3 : public vtkCommand
@@ -87,8 +84,8 @@ public:
         //  rc->GetPlane(i)->GetNormal()[0] << " " <<
         //  rc->GetPlane(i)->GetNormal()[1] << " " <<
         //  rc->GetPlane(i)->GetNormal()[2] << std::endl;
-        // this->IPW[i]->GetReslice()->Print(cout);
-        // rep->GetReslice()->Print(cout);
+        // this->IPW[i]->GetReslice()->Print(std::cout);
+        // rep->GetReslice()->Print(std::cout);
         // std::cout << "---------------------" << std::endl;
       }
     }

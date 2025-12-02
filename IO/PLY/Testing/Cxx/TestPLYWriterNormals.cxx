@@ -12,15 +12,11 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
-#include "vtksys/FStream.hxx"
 
 #include "vtkPolyDataNormals.h"
 #include "vtkSphereSource.h"
 
-#include <cmath>
-#include <fstream>
-#include <limits>
-#include <streambuf>
+#include <iostream>
 
 int TestPLYWriterNormals(int argc, char* argv[])
 {

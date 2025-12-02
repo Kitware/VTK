@@ -4,12 +4,13 @@
 #include "vtkCGNSReader.h"
 
 #include "vtkFieldData.h"
-#include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 int TestCGNSReaderUserDefinedData(int argc, char* argv[])
 {

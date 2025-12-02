@@ -22,6 +22,7 @@
 #include "vtkTree.h"
 #include "vtkVariantArray.h"
 
+#include <iostream>
 #include <map>
 
 //------------------------------------------------------------------------------
@@ -271,9 +272,9 @@ int vtkTransferAttributes::RequestData(vtkInformation* vtkNotUsed(request),
   {
     if (sourceArray->GetVariantValue(i) < 0)
     {
-      cout << sourceIndexToTargetIndex[i] << " " << sourceArray->GetVariantValue(i).ToString()
-           << " " << sourceArray->GetNumberOfTuples() << " " << sourceIdArray->GetNumberOfTuples()
-           << " " << i << endl;
+      std::cout << sourceIndexToTargetIndex[i] << " " << sourceArray->GetVariantValue(i).ToString()
+                << " " << sourceArray->GetNumberOfTuples() << " "
+                << sourceIdArray->GetNumberOfTuples() << " " << i << endl;
 
       vtkErrorMacro("Bad value...");
       continue;

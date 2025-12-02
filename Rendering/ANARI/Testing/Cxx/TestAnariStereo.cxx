@@ -21,6 +21,8 @@
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
+#include <iostream>
+
 int TestAnariStereo(int argc, char* argv[])
 {
   vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
@@ -35,57 +37,57 @@ int TestAnariStereo(int argc, char* argv[])
     }
     if (!strcmp("VTK_STEREO_CRYSTAL_EYES", argv[i]))
     {
-      cerr << "VTK_STEREO_CRYSTAL_EYES" << endl;
+      std::cerr << "VTK_STEREO_CRYSTAL_EYES" << std::endl;
       stereoType = VTK_STEREO_CRYSTAL_EYES;
     }
     if (!strcmp("VTK_STEREO_INTERLACED", argv[i]))
     {
-      cerr << "VTK_STEREO_INTERLACED" << endl;
+      std::cerr << "VTK_STEREO_INTERLACED" << std::endl;
       stereoType = VTK_STEREO_INTERLACED;
     }
     if (!strcmp("VTK_STEREO_RED_BLUE", argv[i]))
     {
-      cerr << "VTK_STEREO_RED_BLUE" << endl;
+      std::cerr << "VTK_STEREO_RED_BLUE" << std::endl;
       stereoType = VTK_STEREO_RED_BLUE;
     }
     if (!strcmp("VTK_STEREO_LEFT", argv[i]))
     {
-      cerr << "VTK_STEREO_LEFT" << endl;
+      std::cerr << "VTK_STEREO_LEFT" << std::endl;
       stereoType = VTK_STEREO_LEFT;
     }
     if (!strcmp("VTK_STEREO_RIGHT", argv[i]))
     {
-      cerr << "VTK_STEREO_RIGHT" << endl;
+      std::cerr << "VTK_STEREO_RIGHT" << std::endl;
       stereoType = VTK_STEREO_RIGHT;
     }
     if (!strcmp("VTK_STEREO_DRESDEN", argv[i]))
     {
-      cerr << "VTK_STEREO_DRESDEN" << endl;
+      std::cerr << "VTK_STEREO_DRESDEN" << std::endl;
       stereoType = VTK_STEREO_DRESDEN;
     }
     if (!strcmp("VTK_STEREO_ANAGLYPH", argv[i]))
     {
-      cerr << "VTK_STEREO_ANAGLYPH" << endl;
+      std::cerr << "VTK_STEREO_ANAGLYPH" << std::endl;
       stereoType = VTK_STEREO_ANAGLYPH;
     }
     if (!strcmp("VTK_STEREO_CHECKERBOARD", argv[i]))
     {
-      cerr << "VTK_STEREO_CHECKERBOARD" << endl;
+      std::cerr << "VTK_STEREO_CHECKERBOARD" << std::endl;
       stereoType = VTK_STEREO_CHECKERBOARD;
     }
     if (!strcmp("VTK_STEREO_SPLITVIEWPORT_HORIZONTAL", argv[i]))
     {
-      cerr << "VTK_STEREO_SPLITVIEWPORT_HORIZONTAL" << endl;
+      std::cerr << "VTK_STEREO_SPLITVIEWPORT_HORIZONTAL" << std::endl;
       stereoType = VTK_STEREO_SPLITVIEWPORT_HORIZONTAL;
     }
     if (!strcmp("VTK_STEREO_FAKE", argv[i]))
     {
-      cerr << "VTK_STEREO_FAKE" << endl;
+      std::cerr << "VTK_STEREO_FAKE" << std::endl;
       stereoType = VTK_STEREO_FAKE;
     }
     if (!strcmp("NOSTEREO", argv[i]))
     {
-      cerr << "NO STEREO" << endl;
+      std::cerr << "NO STEREO" << std::endl;
       stereoType = 0;
     }
   }
@@ -142,7 +144,7 @@ int TestAnariStereo(int argc, char* argv[])
   }
   else
   {
-    cerr << "NOT STEREO" << endl;
+    std::cerr << "NOT STEREO" << std::endl;
     renwin->SetStereoRender(0);
   }
   renwin->SetMultiSamples(0);

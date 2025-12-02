@@ -5,7 +5,11 @@
 
 #include <cassert>
 #include <cmath>
+#include <iostream>
 #include <vector>
+
+using std::cerr;
+using std::cout;
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericEdgeTable);
@@ -51,7 +55,7 @@ void vtkEdgeTablePoints::Resize(vtkIdType newSize)
     PointVector.resize(newSize);
     int index = static_cast<int>(log(static_cast<double>(newSize)) / log(2.));
     this->Modulo = PRIME_NUMBERS[index];
-    // cout << "this->Modulo:" << newSize << "," << index << ","
+    // std::cout << "this->Modulo:" << newSize << "," << index << ","
     //     << this->Modulo << endl;
   }
 
@@ -67,16 +71,16 @@ void vtkEdgeTablePoints::LoadFactor()
   vtkIdType numBins = 0;
 
   vtkIdType size = static_cast<vtkIdType>(PointVector.size());
-  cerr << "EdgeTablePoints:\n";
+  std::cerr << "EdgeTablePoints:\n";
   for (int i = 0; i < size; i++)
   {
     numEntries += static_cast<vtkIdType>(PointVector[i].size());
     if (!PointVector[i].empty())
       numBins++;
-    cerr << PointVector[i].size() << ",";
+    std::cerr << PointVector[i].size() << ",";
   }
-  cerr << "\n";
-  cout << size << "," << numEntries << "," << numBins << "," << Modulo << "\n";
+  std::cerr << "\n";
+  std::cout << size << "," << numEntries << "," << numBins << "," << Modulo << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -89,8 +93,8 @@ void vtkEdgeTablePoints::DumpPoints()
     for (VectorPointTableType::iterator it = v.begin(); it != v.end(); ++it)
     {
       // PointEntry
-      cout << "PointEntry: " << it->PointId << " " << it->Reference << ":(" << it->Coord[0] << ","
-           << it->Coord[1] << "," << it->Coord[2] << ")" << endl;
+      std::cout << "PointEntry: " << it->PointId << " " << it->Reference << ":(" << it->Coord[0]
+                << "," << it->Coord[1] << "," << it->Coord[2] << ")" << endl;
     }
   }
 }
@@ -120,7 +124,7 @@ void vtkEdgeTableEdge::Resize(vtkIdType newSize)
     Vector.resize(newSize);
     int index = static_cast<int>(log(static_cast<double>(newSize)) / log(2.));
     this->Modulo = PRIME_NUMBERS[index];
-    cout << "this->Modulo:" << index << ":" << this->Modulo << endl;
+    std::cout << "this->Modulo:" << index << ":" << this->Modulo << endl;
   }
 
   // For now you are not supposed to use this method
@@ -134,7 +138,7 @@ void vtkEdgeTableEdge::LoadFactor()
   vtkIdType numBins = 0;
 
   vtkIdType size = static_cast<vtkIdType>(Vector.size());
-  cerr << "EdgeTableEdge:\n";
+  std::cerr << "EdgeTableEdge:\n";
   for (int i = 0; i < size; i++)
   {
     VectorEdgeTableType v = Vector[i];
@@ -142,8 +146,8 @@ void vtkEdgeTableEdge::LoadFactor()
     if (!v.empty())
       numBins++;
   }
-  cerr << "\n";
-  cerr << size << "," << numEntry << "," << numBins << "," << Modulo << "\n";
+  std::cerr << "\n";
+  std::cerr << size << "," << numEntry << "," << numBins << "," << Modulo << "\n";
 }
 
 //------------------------------------------------------------------------------
@@ -156,8 +160,8 @@ void vtkEdgeTableEdge::DumpEdges()
     for (VectorEdgeTableType::iterator it = v.begin(); it != v.end(); ++it)
     {
       // EdgeEntry
-      cout << "EdgeEntry: (" << it->E1 << "," << it->E2 << ") " << it->Reference << ","
-           << it->ToSplit << "," << it->PtId << endl;
+      std::cout << "EdgeEntry: (" << it->E1 << "," << it->E2 << ") " << it->Reference << ","
+                << it->ToSplit << "," << it->PtId << endl;
     }
   }
 }

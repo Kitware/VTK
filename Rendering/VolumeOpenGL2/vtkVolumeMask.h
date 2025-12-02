@@ -11,7 +11,8 @@
 #include <vtkRenderer.h>
 #include <vtkTextureObject.h>
 
-#include <map> // STL required
+#include <iostream> // STL required
+#include <map>      // STL required
 
 //----------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -101,11 +102,11 @@ public:
       int scalarType = scalars->GetDataType();
       if (scalarType != VTK_UNSIGNED_CHAR)
       {
-        cout << "Mask should be VTK_UNSIGNED_CHAR." << endl;
+        std::cout << "Mask should be VTK_UNSIGNED_CHAR." << std::endl;
       }
       if (scalars->GetNumberOfComponents() != 1)
       {
-        cout << "Mask should be a one-component scalar field." << endl;
+        std::cout << "Mask should be a one-component scalar field." << std::endl;
       }
 
       GLint internalFormat = GL_R8;

@@ -16,6 +16,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
+#include <iostream>
+
 int TestPLYReaderTextureUV(int argc, char* argv[])
 {
   // Read file name.

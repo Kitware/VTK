@@ -12,6 +12,8 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 
+#include <iostream>
+
 bool CheckNumbers(std::string name, int first, int second)
 {
   if (first != second)

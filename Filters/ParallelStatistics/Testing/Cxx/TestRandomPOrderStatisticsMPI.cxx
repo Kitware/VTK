@@ -22,6 +22,8 @@
 #include "vtksys/CommandLineArguments.hxx"
 #include <map>
 
+#include <iostream>
+
 namespace
 {
 
@@ -173,19 +175,19 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
 
   if (myRank == args->ioRank)
   {
-    cout << "\n## Generated pseudo-random samples with following ranges:\n";
+    std::cout << "\n## Generated pseudo-random samples with following ranges:\n";
     for (int i = 0; i < nVariables; ++i)
     {
-      cout << "   " << columnNames[i] << ": ";
+      std::cout << "   " << columnNames[i] << ": ";
       if (isVariableAString[i])
       {
-        cout << static_cast<char>(min_g[i]) << " to " << static_cast<char>(max_g[i]);
+        std::cout << static_cast<char>(min_g[i]) << " to " << static_cast<char>(max_g[i]);
       }
       else
       {
-        cout << min_g[i] << " to " << max_g[i];
+        std::cout << min_g[i] << " to " << max_g[i];
       }
-      cout << "\n";
+      std::cout << "\n";
     } // i
   }   // if ( myRank == args->ioRank )
 
@@ -234,8 +236,8 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
 
   if (myRank == args->ioRank)
   {
-    cout << "\n## Completed parallel calculation of order statistics (with assessment):\n"
-         << "   Wall time: " << timer->GetElapsedTime() << " sec.\n";
+    std::cout << "\n## Completed parallel calculation of order statistics (with assessment):\n"
+              << "   Wall time: " << timer->GetElapsedTime() << " sec.\n";
   }
 
   // If no variables were requested, terminate here (only made sure that empty input worked)
@@ -254,7 +256,8 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
   // Verify that all processes have the same grand total and histograms size
   if (myRank == args->ioRank)
   {
-    cout << "\n## Verifying that all processes have the same grand total and histograms size.\n";
+    std::cout
+      << "\n## Verifying that all processes have the same grand total and histograms size.\n";
   }
 
   // Gather all cardinalities
@@ -271,7 +274,7 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
   {
     if (myRank == args->ioRank)
     {
-      cout << "   " << columnNames[i] << ":\n";
+      std::cout << "   " << columnNames[i] << ":\n";
     } // if ( myRank == args->ioRank )
 
     vtkTable* outputHistogram = vtkTable::SafeDownCast(outputModelDS->GetBlock(i));
@@ -280,8 +283,8 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
     {
       for (int p = 0; p < numProcs; ++p)
       {
-        cout << "     On process " << p << ", cardinality = " << card_g[p]
-             << ", histogram size = " << outputHistogram->GetNumberOfRows() << "\n";
+        std::cout << "     On process " << p << ", cardinality = " << card_g[p]
+                  << ", histogram size = " << outputHistogram->GetNumberOfRows() << "\n";
 
         if (card_g[p] != testIntValue)
         {
@@ -297,7 +300,7 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
   vtkTable* outputQuantiles = vtkTable::SafeDownCast(outputModelDS->GetBlock(nVariables + 1));
   if (myRank == args->ioRank)
   {
-    cout << "\n## Verifying that calculated global ranges are correct:\n";
+    std::cout << "\n## Verifying that calculated global ranges are correct:\n";
     for (int i = 0; i < nVariables; ++i)
     {
       vtkVariant min_c = outputQuantiles->GetValue(0, i + 1);
@@ -305,7 +308,7 @@ void RandomOrderStatistics(vtkMultiProcessController* controller, void* arg)
       vtkVariant max_c = outputQuantiles->GetValue(outputQuantiles->GetNumberOfRows() - 1, i + 1);
 
       // Print out computed range
-      cout << "   " << columnNames[i] << ": " << min_c << " to " << max_c << "\n";
+      std::cout << "   " << columnNames[i] << ": " << min_c << " to " << max_c << "\n";
 
       // Check minimum
       if (min_c.IsString())
@@ -457,7 +460,7 @@ int TestRandomPOrderStatisticsMPI(int argc, char* argv[])
   {
     if (com->GetLocalProcessId() == ioRank)
     {
-      cerr << "Usage: " << clArgs.GetHelp() << "\n";
+      std::cerr << "Usage: " << clArgs.GetHelp() << "\n";
     }
 
     controller->Finalize();
@@ -469,7 +472,7 @@ int TestRandomPOrderStatisticsMPI(int argc, char* argv[])
   // ************************** Initialize test *********************************
   if (com->GetLocalProcessId() == ioRank)
   {
-    cout << "\n# Process " << ioRank << " will be the I/O node.\n";
+    std::cout << "\n# Process " << ioRank << " will be the I/O node.\n";
   }
 
   // Parameters for regression test.
@@ -488,9 +491,9 @@ int TestRandomPOrderStatisticsMPI(int argc, char* argv[])
   int numProcs = controller->GetNumberOfProcesses();
   if (controller->GetLocalProcessId() == ioRank)
   {
-    cout << "\n# Running test with " << numProcs
-         << " processes and standard deviation = " << args.stdev
-         << " for rounded Gaussian variable.\n";
+    std::cout << "\n# Running test with " << numProcs
+              << " processes and standard deviation = " << args.stdev
+              << " for rounded Gaussian variable.\n";
   }
 
   // Execute the function named "process" on both processes
@@ -500,7 +503,7 @@ int TestRandomPOrderStatisticsMPI(int argc, char* argv[])
   // Clean up and exit
   if (com->GetLocalProcessId() == ioRank)
   {
-    cout << "\n# Test completed.\n\n";
+    std::cout << "\n# Test completed.\n\n";
   }
 
   controller->Finalize();

@@ -56,6 +56,8 @@
 
 #include <algorithm>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 std::vector<int> vtkIOSSReaderInternal::GetFileIds(

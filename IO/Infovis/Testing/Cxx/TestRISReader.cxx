@@ -7,6 +7,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkVariant.h"
 
+#include <iostream>
+
 template <typename value_t>
 void TestValue(const value_t& Value, const value_t& ExpectedValue,
   const std::string& ValueDescription, int& ErrorCount)
@@ -14,7 +16,8 @@ void TestValue(const value_t& Value, const value_t& ExpectedValue,
   if (Value == ExpectedValue)
     return;
 
-  cerr << ValueDescription << " is [" << Value << "] - expected [" << ExpectedValue << "]" << endl;
+  std::cerr << ValueDescription << " is [" << Value << "] - expected [" << ExpectedValue << "]"
+            << std::endl;
 
   ++ErrorCount;
 }
@@ -23,7 +26,7 @@ int TestRISReader(int argc, char* argv[])
 {
   char* file = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/eg1.ris");
 
-  cerr << "file: " << file << endl;
+  std::cerr << "file: " << file << std::endl;
 
   vtkSmartPointer<vtkRISReader> reader = vtkSmartPointer<vtkRISReader>::New();
   reader->SetFileName(file);

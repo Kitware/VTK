@@ -13,6 +13,8 @@
 
 #include <set>
 
+#include <iostream>
+
 namespace
 {
 int mpiTag = 5678;

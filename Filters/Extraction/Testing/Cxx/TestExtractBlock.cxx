@@ -15,6 +15,8 @@
 #include <vtkSelectionSource.h>
 #include <vtkSphereSource.h>
 
+#include <iostream>
+
 namespace
 {
 vtkSmartPointer<vtkDataObject> GetSphere(double x, double y, double z)

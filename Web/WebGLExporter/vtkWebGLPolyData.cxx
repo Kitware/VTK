@@ -31,6 +31,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWebGLPolyData);
 //*****************************************************************************
@@ -291,7 +293,7 @@ void vtkWebGLPolyData::GenerateBinaryData()
     this->MD5 = localMD5;
   }
   else
-    cout << "Warning: GenerateBinaryData() @ vtkWebGLObject: This isn\'t supposed to happen.";
+    std::cout << "Warning: GenerateBinaryData() @ vtkWebGLObject: This isn\'t supposed to happen.";
 }
 
 int vtkWebGLPolyData::GetNumberOfParts()

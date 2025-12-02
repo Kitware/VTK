@@ -7,6 +7,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestGLTFImporterInvalid(int argc, char* argv[])
 {

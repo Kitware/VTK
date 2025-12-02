@@ -23,9 +23,11 @@
 #include "vtkTesting.h"
 #include "vtkTexture.h"
 
+#include <iostream>
+
 int TestCoincidentFloor(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   vtkNew<vtkRenderer> renderer;
 

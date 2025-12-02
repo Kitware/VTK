@@ -12,6 +12,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTable.h"
 
+#include <iostream>
+
 // clang-format off
 constexpr double densities[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2.5e-005, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -79,7 +81,7 @@ int TestBagPlot(int, char*[])
       double d = densities[i + j * numDataI];
       table->SetValue(i + j * numDataI, 2, d); // Density
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   vtkNew<vtkPlotBag> bagPlot;

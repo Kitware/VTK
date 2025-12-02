@@ -6,6 +6,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkPoints.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkThinPlateSplineTransform);
 
@@ -468,12 +470,12 @@ void vtkThinPlateSplineTransform::InternalUpdate()
 
   // left in for debug purposes
   /*
-  cerr << "W =\n";
+  std::cerr << "W =\n";
   for (int i = 0; i < N+1+D; i++)
     {
-    cerr << W[i][0] << ' ' << W[i][1] << ' ' << W[i][2] << '\n';
+    std::cerr << W[i][0] << ' ' << W[i][1] << ' ' << W[i][2] << '\n';
     }
-  cerr << "\n";
+  std::cerr << "\n";
   */
 
   if (this->MatrixW)

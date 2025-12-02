@@ -14,6 +14,8 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestNrrdReader(int argc, char* argv[])
 {
   char* filename1 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.nrrd");
@@ -21,14 +23,14 @@ int TestNrrdReader(int argc, char* argv[])
   char* filename3 = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach_gzip.nrrd");
   if ((filename1 == nullptr) || (filename2 == nullptr) || (filename3 == nullptr))
   {
-    cerr << "Could not get file names.";
+    std::cerr << "Could not get file names.";
     return 1;
   }
 
   vtkNew<vtkNrrdReader> reader1;
   if (!reader1->CanReadFile(filename1))
   {
-    cerr << "Reader reports " << filename1 << " cannot be read.";
+    std::cerr << "Reader reports " << filename1 << " cannot be read.";
     return 1;
   }
   reader1->SetFileName(filename1);
@@ -48,7 +50,7 @@ int TestNrrdReader(int argc, char* argv[])
   vtkNew<vtkNrrdReader> reader2;
   if (!reader2->CanReadFile(filename2))
   {
-    cerr << "Reader reports " << filename2 << " cannot be read.";
+    std::cerr << "Reader reports " << filename2 << " cannot be read.";
     return 1;
   }
   reader2->SetFileName(filename2);
@@ -68,7 +70,7 @@ int TestNrrdReader(int argc, char* argv[])
   vtkNew<vtkNrrdReader> reader3;
   if (!reader3->CanReadFile(filename3))
   {
-    cerr << "Reader reports " << filename3 << " cannot be read.";
+    std::cerr << "Reader reports " << filename3 << " cannot be read.";
     return 1;
   }
   reader3->SetFileName(filename3);

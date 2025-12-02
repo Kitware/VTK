@@ -7,10 +7,8 @@
 #include "vtkCompositeDataWriter.h"
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
-#include "vtkSetGet.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
-#include "vtkUniformGrid.h"
 
 int TestAMRReadWrite(int argc, char* argv[])
 {

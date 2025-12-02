@@ -7,10 +7,8 @@
 #include "vtkActor.h"
 #include "vtkAxisActor2D.h"
 #include "vtkCommand.h"
-#include "vtkCoordinate.h"
 #include "vtkDistanceRepresentation2D.h"
 #include "vtkDistanceWidget.h"
-#include "vtkHandleWidget.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkMath.h"
 #include "vtkPointHandleRepresentation2D.h"
@@ -23,6 +21,8 @@
 #include "vtkSphereSource.h"
 #include "vtkStringFormatter.h"
 #include "vtkTextProperty.h"
+
+#include <iostream>
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 

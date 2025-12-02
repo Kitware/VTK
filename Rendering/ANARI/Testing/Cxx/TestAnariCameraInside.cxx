@@ -27,6 +27,8 @@
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
+#include <iostream>
+
 static const char* TestAnariCameraInsideLog = "# StreamVersion 1\n"
                                               "EnterEvent 298 27 0 0 0 0 0\n"
                                               "MouseMoveEvent 200 142 0 0 0 0 0\n"

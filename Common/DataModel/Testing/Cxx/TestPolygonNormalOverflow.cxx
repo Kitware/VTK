@@ -10,6 +10,8 @@
 
 #include <type_traits>
 
+#include <iostream>
+
 // Test ComputeNormal for very large and very small polygons.
 int TestPolygonNormalOverflow(int, char*[])
 {

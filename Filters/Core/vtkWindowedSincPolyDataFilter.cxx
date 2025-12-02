@@ -20,10 +20,10 @@
 #include "vtkSMPThreadLocal.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
-#include "vtkTriangle.h"
 #include "vtkTriangleFilter.h"
 
 #include <atomic>
+#include <iostream>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -1170,7 +1170,7 @@ struct CoefficientsWorker
     }
     if (fabs(f_kpb - 1.0) >= errorTolerance)
     {
-      cout << "An optimal offset for the smoothing filter could not be found.\n";
+      std::cout << "An optimal offset for the smoothing filter could not be found.\n";
     }
   }
 }; // CoefficientsWorker

@@ -7,7 +7,6 @@
 // dependent and applying a gradient opacity function
 
 #include "vtkCamera.h"
-#include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
@@ -20,9 +19,11 @@
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
 
+#include <iostream>
+
 int TestGPURayCastFourComponentsDependentGradient(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_4comp.vti");
 

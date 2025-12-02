@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <atomic>
 
+#include <iostream>
+
 static std::atomic<int32_t> TotalAtomic(0);
 static std::atomic<int64_t> TotalAtomic64(0);
 static constexpr int Target = 1000000;
@@ -122,24 +124,24 @@ int TestAtomic(int, char*[])
   // 1 to Target to be 2.
   if (Values32[0] != 0)
   {
-    cout << "Expecting Values32[0] to be 0. Got " << Values32[0] << endl;
+    std::cout << "Expecting Values32[0] to be 0. Got " << Values32[0] << std::endl;
     return 1;
   }
   if (Values64[0] != 0)
   {
-    cout << "Expecting Values64[0] to be 0. Got " << Values64[0] << endl;
+    std::cout << "Expecting Values64[0] to be 0. Got " << Values64[0] << std::endl;
     return 1;
   }
   for (int i = 1; i <= Target; i++)
   {
     if (Values32[i] != 2)
     {
-      cout << "Expecting Values32[" << i << "] to be 2. Got " << Values32[i] << endl;
+      std::cout << "Expecting Values32[" << i << "] to be 2. Got " << Values32[i] << std::endl;
       return 1;
     }
     if (Values64[i] != 2)
     {
-      cout << "Expecting Values64[" << i << "] to be 2. Got " << Values64[i] << endl;
+      std::cout << "Expecting Values64[" << i << "] to be 2. Got " << Values64[i] << std::endl;
       return 1;
     }
   }
@@ -148,7 +150,7 @@ int TestAtomic(int, char*[])
   std::sort(from, to);
   if (std::unique(from, to) != to)
   {
-    cout << "Found duplicate MTime Values" << endl;
+    std::cout << "Found duplicate MTime Values" << std::endl;
     return 1;
   }
 
@@ -156,8 +158,8 @@ int TestAtomic(int, char*[])
   mt->SingleMethodExecute();
 
 #ifdef SHOW_DIFFERENCE
-  cout << Total << " " << TotalAtomic.load() << endl;
-  cout << Total64 << " " << TotalAtomic64.load() << endl;
+  std::cout << Total << " " << TotalAtomic.load() << std::endl;
+  std::cout << Total64 << " " << TotalAtomic64.load() << std::endl;
 #endif
 
   if (TotalAtomic.load() != Target)

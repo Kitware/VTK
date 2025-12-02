@@ -26,6 +26,7 @@
 
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
 #include <map>
 #include <new>
 #include <string>
@@ -37,8 +38,6 @@
 #define strcasecmp _stricmp
 #define getcwd _getcwd
 #endif
-
-using std::string;
 
 vtkStandardNewMacro(vtkNek5000Reader);
 
@@ -227,7 +226,7 @@ bool vtkNek5000Reader::GetAllTimesAndVariableNames(vtkInformationVector* outputV
   char dummy[64];
   double t;
   int c;
-  string v;
+  std::string v;
 
   char dfName[265];
   char firstTags[32];
@@ -695,7 +694,7 @@ void vtkNek5000Reader::readData(char* dfName)
   }
   else
   {
-    std::cerr << "Error opening datafile : " << dfName << endl;
+    std::cerr << "Error opening datafile : " << dfName << std::endl;
     exit(1);
   }
 } // vtkNek5000Reader::readData(char* dfName)
@@ -706,7 +705,7 @@ void vtkNek5000Reader::partitionAndReadMesh()
 {
   std::ifstream dfPtr;
   int i;
-  string buf2, tag;
+  std::string buf2, tag;
   std::map<long, long> blockMap;
 
   int my_rank;
@@ -730,14 +729,15 @@ void vtkNek5000Reader::partitionAndReadMesh()
 
   if ((dfPtr.rdstate() & std::ifstream::failbit) != 0)
   {
-    std::cerr << "Error opening : " << dfName << endl;
+    std::cerr << "Error opening : " << dfName << std::endl;
     exit(1);
   }
 
   dfPtr >> tag;
   if (tag != "#std")
   {
-    cerr << "Error reading the header.  Expected it to start with #std " << dfName << endl;
+    std::cerr << "Error reading the header.  Expected it to start with #std " << dfName
+              << std::endl;
     exit(1);
   }
   dfPtr >> this->precision;
@@ -775,7 +775,8 @@ void vtkNek5000Reader::partitionAndReadMesh()
       this->swapEndian = true;
     else
     {
-      std::cerr << "Error reading file, while trying to determine endianness : " << dfName << endl;
+      std::cerr << "Error reading file, while trying to determine endianness : " << dfName
+                << std::endl;
       exit(1);
     }
   }
@@ -873,8 +874,8 @@ void vtkNek5000Reader::partitionAndReadMesh()
       {
         if (this->myBlockPositions[i] == this->myBlockPositions[j])
         {
-          cerr << "********my_rank: " << my_rank << " : Hey (this->myBlockPositions[" << i
-               << "] and [" << j << "] both == " << this->myBlockPositions[j] << endl;
+          std::cerr << "********my_rank: " << my_rank << " : Hey (this->myBlockPositions[" << i
+                    << "] and [" << j << "] both == " << this->myBlockPositions[j] << std::endl;
         }
       }
     }
@@ -981,7 +982,7 @@ void vtkNek5000Reader::partitionAndReadMesh()
 int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
-  string tag;
+  std::string tag;
   char buf[2048];
 #ifndef NDEBUG
   int my_rank;
@@ -1031,14 +1032,14 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
       {
         // This tag is deprecated.  There's a float written into each binary file
         // from which endianness can be determined.
-        string dummy_endianness;
+        std::string dummy_endianness;
         inPtr >> dummy_endianness;
       }
       else if (strcasecmp("version:", tag.c_str()) == 0)
       {
         // This tag is deprecated.  There's a float written into each binary file
         // from which endianness can be determined.
-        string dummy_version;
+        std::string dummy_version;
         inPtr >> dummy_version;
         vtkDebugMacro(<< "vtkNek5000Reader::RequestInformation:  version: " << dummy_version);
       }
@@ -1064,7 +1065,7 @@ int vtkNek5000Reader::RequestInformation(vtkInformation* vtkNotUsed(request),
       {
         auto result = vtk::format_to_n(buf, 2048, "Error parsing file.  Unknown tag {:s}", tag);
         *result.out = '\0';
-        cerr << buf << endl;
+        std::cerr << buf << std::endl;
         exit(1);
       }
     } // while (inPtr.good())
@@ -1697,7 +1698,7 @@ void vtkNek5000Reader::copyContinuumData(vtkUnstructuredGrid* pv_ugrid)
         {
           // for every point in this element/block
 #ifndef NDEBUG
-          cerr << "rank= " << my_rank << " : b_index= " << b_index << endl;
+          std::cerr << "rank= " << my_rank << " : b_index= " << b_index << std::endl;
 #endif
           int mag_block_offset = b_index * this->totalBlockSize;
           int comp_block_offset = mag_block_offset * 3;

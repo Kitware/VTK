@@ -14,7 +14,9 @@
 
 #include <cstdlib>
 
-#define PRINT(x) cout << "(" << myRank << ")" << x << endl;
+#include <iostream>
+
+#define PRINT(x) std::cout << "(" << myRank << ")" << x << std::endl;
 
 namespace Vec3
 {

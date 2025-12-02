@@ -31,6 +31,9 @@
 #include <QFileDialog>
 
 #include "vtkSmartPointer.h"
+
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // Constructor
@@ -75,7 +78,7 @@ void StatsView::slotOpenSQLiteDB()
 
   if (fileName.isNull())
   {
-    cerr << "Could not open file" << endl;
+    std::cerr << "Could not open file" << endl;
     return;
   }
 
@@ -86,7 +89,7 @@ void StatsView::slotOpenSQLiteDB()
   bool status = db->Open("");
   if (!status)
   {
-    cerr << "Couldn't open database.\n";
+    std::cerr << "Couldn't open database.\n";
     return;
   }
 

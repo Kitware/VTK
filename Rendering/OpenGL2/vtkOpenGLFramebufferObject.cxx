@@ -16,7 +16,10 @@
 #include "vtkTextureObject.h"
 
 #include <cassert>
+#include <iostream>
 #include <vector>
+
+using std::cout;
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkFOInfo
@@ -954,11 +957,11 @@ void vtkOpenGLFramebufferObject::DisplayFrameBufferAttachments()
   vtkOpenGLCheckErrorMacro("after getting FRAMEBUFFER_BINDING");
   if (framebufferBinding == 0)
   {
-    cout << "Current framebuffer is bind to the system one" << endl;
+    std::cout << "Current framebuffer is bind to the system one" << endl;
   }
   else
   {
-    cout << "Current framebuffer is bind to framebuffer object " << framebufferBinding << endl;
+    std::cout << "Current framebuffer is bind to framebuffer object " << framebufferBinding << endl;
 
     GLint maxColorAttachments;
     glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &maxColorAttachments);
@@ -966,13 +969,13 @@ void vtkOpenGLFramebufferObject::DisplayFrameBufferAttachments()
     int i = 0;
     while (i < maxColorAttachments)
     {
-      cout << "color attachment " << i << ":" << endl;
+      std::cout << "color attachment " << i << ":" << endl;
       this->DisplayFrameBufferAttachment(GL_COLOR_ATTACHMENT0 + i);
       ++i;
     }
-    cout << "depth attachment :" << endl;
+    std::cout << "depth attachment :" << endl;
     this->DisplayFrameBufferAttachment(GL_DEPTH_ATTACHMENT);
-    cout << "stencil attachment :" << endl;
+    std::cout << "stencil attachment :" << endl;
     this->DisplayFrameBufferAttachment(GL_STENCIL_ATTACHMENT);
   }
 }
@@ -993,27 +996,28 @@ void vtkOpenGLFramebufferObject::DisplayFrameBufferAttachment(unsigned int uatta
   switch (params)
   {
     case GL_NONE:
-      cout << " this attachment is empty" << endl;
+      std::cout << " this attachment is empty" << endl;
       break;
     case GL_TEXTURE:
       glGetFramebufferAttachmentParameteriv(
         GL_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &params);
       vtkOpenGLCheckErrorMacro("after getting FRAMEBUFFER_ATTACHMENT_OBJECT_NAME");
-      cout << " this attachment is a texture with name: " << params << endl;
+      std::cout << " this attachment is a texture with name: " << params << endl;
       glGetFramebufferAttachmentParameteriv(
         GL_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL, &params);
       vtkOpenGLCheckErrorMacro("after getting FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL");
-      cout << " its mipmap level is: " << params << endl;
+      std::cout << " its mipmap level is: " << params << endl;
       glGetFramebufferAttachmentParameteriv(
         GL_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE, &params);
       vtkOpenGLCheckErrorMacro("after getting FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE");
       if (params == 0)
       {
-        cout << " this is not a cube map texture." << endl;
+        std::cout << " this is not a cube map texture." << endl;
       }
       else
       {
-        cout << " this is a cube map texture and the image is contained in face " << params << endl;
+        std::cout << " this is a cube map texture and the image is contained in face " << params
+                  << endl;
       }
 #ifdef GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET
       glGetFramebufferAttachmentParameteriv(
@@ -1022,19 +1026,20 @@ void vtkOpenGLFramebufferObject::DisplayFrameBufferAttachment(unsigned int uatta
       vtkOpenGLCheckErrorMacro("after getting FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET");
       if (params == 0)
       {
-        cout << " this is not 3D texture." << endl;
+        std::cout << " this is not 3D texture." << endl;
       }
       else
       {
-        cout << " this is a 3D texture and the zoffset of the attached image is " << params << endl;
+        std::cout << " this is a 3D texture and the zoffset of the attached image is " << params
+                  << endl;
       }
       break;
     case GL_RENDERBUFFER:
-      cout << " this attachment is a renderbuffer" << endl;
+      std::cout << " this attachment is a renderbuffer" << endl;
       glGetFramebufferAttachmentParameteriv(
         GL_FRAMEBUFFER, attachment, GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME, &params);
       //      this->PrintError("after getting FRAMEBUFFER_ATTACHMENT_OBJECT_NAME");
-      cout << " this attachment is a renderbuffer with name: " << params << endl;
+      std::cout << " this attachment is a renderbuffer with name: " << params << endl;
 
       glBindRenderbuffer(GL_RENDERBUFFER, params);
       //      this->PrintError(
@@ -1042,36 +1047,36 @@ void vtkOpenGLFramebufferObject::DisplayFrameBufferAttachment(unsigned int uatta
 
       glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &params);
       //      this->PrintError("after getting RENDERBUFFER_WIDTH");
-      cout << " renderbuffer width=" << params << endl;
+      std::cout << " renderbuffer width=" << params << endl;
       glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &params);
       //      this->PrintError("after getting RENDERBUFFER_HEIGHT");
-      cout << " renderbuffer height=" << params << endl;
+      std::cout << " renderbuffer height=" << params << endl;
       glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_INTERNAL_FORMAT, &params);
       //      this->PrintError("after getting RENDERBUFFER_INTERNAL_FORMAT");
 
-      cout << " renderbuffer internal format=0x" << std::hex << params << std::dec << endl;
+      std::cout << " renderbuffer internal format=0x" << std::hex << params << std::dec << endl;
 
       glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_RED_SIZE, &params);
       //      this->PrintError("after getting RENDERBUFFER_RED_SIZE");
-      cout << " renderbuffer actual resolution for the red component=" << params << endl;
+      std::cout << " renderbuffer actual resolution for the red component=" << params << endl;
       glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_GREEN_SIZE, &params);
       //      this->PrintError("after getting RENDERBUFFER_GREEN_SIZE");
-      cout << " renderbuffer actual resolution for the green component=" << params << endl;
+      std::cout << " renderbuffer actual resolution for the green component=" << params << endl;
       glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_BLUE_SIZE, &params);
       //      this->PrintError("after getting RENDERBUFFER_BLUE_SIZE");
-      cout << " renderbuffer actual resolution for the blue component=" << params << endl;
+      std::cout << " renderbuffer actual resolution for the blue component=" << params << endl;
       glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_ALPHA_SIZE, &params);
       //      this->PrintError("after getting RENDERBUFFER_ALPHA_SIZE");
-      cout << " renderbuffer actual resolution for the alpha component=" << params << endl;
+      std::cout << " renderbuffer actual resolution for the alpha component=" << params << endl;
       glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_DEPTH_SIZE, &params);
       //      this->PrintError("after getting RENDERBUFFER_DEPTH_SIZE");
-      cout << " renderbuffer actual resolution for the depth component=" << params << endl;
+      std::cout << " renderbuffer actual resolution for the depth component=" << params << endl;
       glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_STENCIL_SIZE, &params);
       //      this->PrintError("after getting RENDERBUFFER_STENCIL_SIZE");
-      cout << " renderbuffer actual resolution for the stencil component=" << params << endl;
+      std::cout << " renderbuffer actual resolution for the stencil component=" << params << endl;
       break;
     default:
-      cout << " unexcepted value." << endl;
+      std::cout << " unexcepted value." << endl;
       break;
   }
 }
@@ -1084,21 +1089,21 @@ void vtkOpenGLFramebufferObject::DisplayDrawBuffers()
   GLint ivalue = 1;
   glGetIntegerv(GL_MAX_DRAW_BUFFERS, &ivalue);
 
-  cout << "there ";
+  std::cout << "there ";
   if (ivalue == 1)
   {
-    cout << "is ";
+    std::cout << "is ";
   }
   else
   {
-    cout << "are ";
+    std::cout << "are ";
   }
-  cout << ivalue << " draw buffer";
+  std::cout << ivalue << " draw buffer";
   if (ivalue != 1)
   {
-    cout << "s";
+    std::cout << "s";
   }
-  cout << ". " << endl;
+  std::cout << ". " << endl;
 
   GLint i = 0;
   int c = ivalue;
@@ -1106,9 +1111,9 @@ void vtkOpenGLFramebufferObject::DisplayDrawBuffers()
   {
     glGetIntegerv(GL_DRAW_BUFFER0 + i, &ivalue);
 
-    cout << "draw buffer[" << i << "]=";
+    std::cout << "draw buffer[" << i << "]=";
     this->DisplayBuffer(ivalue);
-    cout << endl;
+    std::cout << endl;
     ++i;
   }
 }
@@ -1120,9 +1125,9 @@ void vtkOpenGLFramebufferObject::DisplayReadBuffer()
 {
   GLint ivalue;
   glGetIntegerv(GL_READ_BUFFER, &ivalue);
-  cout << "read buffer=";
+  std::cout << "read buffer=";
   this->DisplayBuffer(ivalue);
-  cout << endl;
+  std::cout << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -1132,7 +1137,7 @@ void vtkOpenGLFramebufferObject::DisplayBuffer(int value)
 {
   if (value >= GL_COLOR_ATTACHMENT0 && value <= GL_COLOR_ATTACHMENT0 + 15)
   {
-    cout << "GL_COLOR_ATTACHMENT" << (value - GL_COLOR_ATTACHMENT0);
+    std::cout << "GL_COLOR_ATTACHMENT" << (value - GL_COLOR_ATTACHMENT0);
   }
   else
   {
@@ -1146,12 +1151,12 @@ void vtkOpenGLFramebufferObject::DisplayBuffer(int value)
       glGetIntegerv(GL_AUX_BUFFERS, &ivalue);
       if (b < ivalue)
       {
-        cout << "GL_AUX" << b;
+        std::cout << "GL_AUX" << b;
       }
       else
       {
-        cout << "invalid aux buffer: " << b << ", upper limit is " << (ivalue - 1)
-             << ", raw value is 0x" << std::hex << (GL_AUX0 + b) << std::dec;
+        std::cout << "invalid aux buffer: " << b << ", upper limit is " << (ivalue - 1)
+                  << ", raw value is 0x" << std::hex << (GL_AUX0 + b) << std::dec;
       }
     }
     else
@@ -1159,37 +1164,37 @@ void vtkOpenGLFramebufferObject::DisplayBuffer(int value)
       switch (value)
       {
         case GL_NONE:
-          cout << "GL_NONE";
+          std::cout << "GL_NONE";
           break;
         case GL_FRONT_LEFT:
-          cout << "GL_FRONT_LEFT";
+          std::cout << "GL_FRONT_LEFT";
           break;
         case GL_FRONT_RIGHT:
-          cout << "GL_FRONT_RIGHT";
+          std::cout << "GL_FRONT_RIGHT";
           break;
         case GL_BACK_LEFT:
-          cout << "GL_BACK_LEFT";
+          std::cout << "GL_BACK_LEFT";
           break;
         case GL_BACK_RIGHT:
-          cout << "GL_BACK_RIGHT";
+          std::cout << "GL_BACK_RIGHT";
           break;
         case GL_FRONT:
-          cout << "GL_FRONT";
+          std::cout << "GL_FRONT";
           break;
         case GL_BACK:
-          cout << "GL_BACK";
+          std::cout << "GL_BACK";
           break;
         case GL_LEFT:
-          cout << "GL_LEFT";
+          std::cout << "GL_LEFT";
           break;
         case GL_RIGHT:
-          cout << "GL_RIGHT";
+          std::cout << "GL_RIGHT";
           break;
         case GL_FRONT_AND_BACK:
-          cout << "GL_FRONT_AND_BACK";
+          std::cout << "GL_FRONT_AND_BACK";
           break;
         default:
-          cout << "unknown 0x" << std::hex << value << std::dec;
+          std::cout << "unknown 0x" << std::hex << value << std::dec;
           break;
       }
     }
@@ -1211,8 +1216,8 @@ void vtkOpenGLFramebufferObject::RenderQuad(int minX, int maxX, int minY, int ma
   assert("pre valid_maxY" && maxY < this->LastSize[1]);
 
 #ifdef VTK_FBO_DEBUG
-  cout << "render quad: minX=" << minX << " maxX=" << maxX << " minY=" << minY << " maxY=" << maxY
-       << endl;
+  std::cout << "render quad: minX=" << minX << " maxX=" << maxX << " minY=" << minY
+            << " maxY=" << maxY << endl;
 
   GLuint queryId;
   GLuint nbPixels = 0;
@@ -1245,7 +1250,7 @@ void vtkOpenGLFramebufferObject::RenderQuad(int minX, int maxX, int minY, int ma
 #ifdef VTK_FBO_DEBUG
   glEndQuery(GL_SAMPLES_PASSED);
   glGetQueryObjectuiv(queryId, GL_QUERY_RESULT, &nbPixels);
-  cout << nbPixels << " have been modified." << endl;
+  std::cout << nbPixels << " have been modified." << endl;
 #endif
 }
 

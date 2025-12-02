@@ -15,6 +15,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <iostream>
+
 template <class A>
 bool fuzzyCompare(const A& a, const A& b, const std::string& msg, double tol = 1e-4);
 

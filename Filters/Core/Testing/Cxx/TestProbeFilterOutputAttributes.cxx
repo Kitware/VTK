@@ -14,6 +14,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestProbeFilterOutputAttributes(int, char*[])
 {

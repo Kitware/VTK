@@ -20,6 +20,8 @@
 #include "vtkTetra.h"
 #include "vtkTriangle.h"
 
+#include <iostream>
+
 #define VTK_DATASET_GRADIENT_TETRA_OPTIMIZATION
 #define VTK_DATASET_GRADIENT_TRIANGLE_OPTIMIZATION
 // #define DEBUG
@@ -320,8 +322,8 @@ int vtkDataSetGradientPrecompute::GradientPrecompute(vtkDataSet* ds, vtkDataSetA
 
     if (vtkMath::Norm(checkZero) > VTK_CQS_EPSILON || fabs(size - checkVolume) > VTK_CQS_EPSILON)
     {
-      cout << "Bad CQS sum at cell #" << c << ", Sum=" << vtkMath::Norm(checkZero)
-           << ", volume=" << size << ", ratio Vol=" << size / checkVolume << "\n";
+      std::cout << "Bad CQS sum at cell #" << c << ", Sum=" << vtkMath::Norm(checkZero)
+                << ", volume=" << size << ", ratio Vol=" << size / checkVolume << "\n";
     }
 #endif
 

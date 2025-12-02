@@ -20,6 +20,8 @@
 
 #include "vtkRenderWindowInteractor.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestVBOPLYMapper(int argc, char* argv[])
 {
@@ -44,9 +46,9 @@ int TestVBOPLYMapper(int argc, char* argv[])
 
   if (!renderWindow->SupportsOpenGL())
   {
-    cerr << "The platform does not support OpenGL as required\n";
-    cerr << vtkOpenGLRenderWindow::SafeDownCast(renderWindow)->GetOpenGLSupportMessage();
-    cerr << renderWindow->ReportCapabilities();
+    std::cerr << "The platform does not support OpenGL as required\n";
+    std::cerr << vtkOpenGLRenderWindow::SafeDownCast(renderWindow)->GetOpenGLSupportMessage();
+    std::cerr << renderWindow->ReportCapabilities();
     return 1;
   }
 
@@ -81,10 +83,10 @@ int TestVBOPLYMapper(int argc, char* argv[])
   renderWindow->Render();
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
-  cerr << "first render time: " << firstRender << endl;
+  std::cerr << "first render time: " << firstRender << std::endl;
   int major, minor;
   vtkOpenGLRenderWindow::SafeDownCast(renderWindow)->GetOpenGLVersion(major, minor);
-  cerr << "opengl version " << major << "." << minor << "\n";
+  std::cerr << "opengl version " << major << "." << minor << "\n";
 
   timer->StartTimer();
   int numRenders = timeit ? 600 : 8;
@@ -96,10 +98,10 @@ int TestVBOPLYMapper(int argc, char* argv[])
   }
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
-  cerr << "interactive render time: " << elapsed / numRenders << endl;
+  std::cerr << "interactive render time: " << elapsed / numRenders << std::endl;
   unsigned int numTris = reader->GetOutput()->GetPolys()->GetNumberOfCells();
-  cerr << "number of triangles: " << numTris << endl;
-  cerr << "triangles per second: " << numTris * (numRenders / elapsed) << endl;
+  std::cerr << "number of triangles: " << numTris << std::endl;
+  std::cerr << "triangles per second: " << numTris * (numRenders / elapsed) << std::endl;
 
   renderer->GetActiveCamera()->SetPosition(0, 0, 1);
   renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);

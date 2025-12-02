@@ -26,6 +26,8 @@
 #include <sstream>
 #include <vector>
 
+#include <iostream>
+
 // Print debug info
 #define VTK_FTFC_DEBUG 0
 
@@ -956,9 +958,9 @@ bool vtkFreeTypeTools::LookupFace(vtkTextProperty* tprop, FT_Library lib, FT_Fac
   else
   {
 #if VTK_FTFC_DEBUG
-    cout << "Requested: " << *face << " (F: " << tprop->GetFontFamily()
-         << ", B: " << tprop->GetBold() << ", I: " << tprop->GetItalic()
-         << ", O: " << tprop->GetOrientation() << ")" << endl;
+    std::cout << "Requested: " << *face << " (F: " << tprop->GetFontFamily()
+              << ", B: " << tprop->GetBold() << ", I: " << tprop->GetItalic()
+              << ", O: " << tprop->GetOrientation() << ")" << endl;
 #endif
   }
 

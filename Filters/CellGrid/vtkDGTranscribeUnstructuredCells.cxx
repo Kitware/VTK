@@ -19,6 +19,8 @@
 #include <sstream>
 #include <type_traits>
 
+#include <iostream>
+
 // Define the macro below to debug transcription
 #undef VTK_DBG_TRANSCRIBE
 

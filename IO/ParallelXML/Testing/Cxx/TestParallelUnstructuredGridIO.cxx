@@ -25,14 +25,15 @@
 
 #include "vtksys/FStream.hxx"
 
+#include <iostream>
 #include <string>
 
 bool CompareGrids(vtkUnstructuredGrid* s, vtkUnstructuredGrid* t)
 {
   if (s->GetNumberOfCells() != t->GetNumberOfCells())
   {
-    cerr << "The number of cells does not match: " << s->GetNumberOfCells()
-         << " != " << t->GetNumberOfCells() << endl;
+    std::cerr << "The number of cells does not match: " << s->GetNumberOfCells()
+              << " != " << t->GetNumberOfCells() << std::endl;
     return false;
   }
   vtkStringArray* helloArrayS =
@@ -49,8 +50,8 @@ bool CompareGrids(vtkUnstructuredGrid* s, vtkUnstructuredGrid* t)
     }
     if (s->GetCellType(i) != t->GetCellType(i))
     {
-      cerr << "The cell type does not match: " << s->GetCellType(i) << " != " << t->GetCellType(i)
-           << endl;
+      std::cerr << "The cell type does not match: " << s->GetCellType(i)
+                << " != " << t->GetCellType(i) << std::endl;
       return false;
     }
     vtkNew<vtkIdList> sIds, tIds;
@@ -66,9 +67,9 @@ bool CompareGrids(vtkUnstructuredGrid* s, vtkUnstructuredGrid* t)
     }
     if (sIds->GetNumberOfIds() != tIds->GetNumberOfIds())
     {
-      cerr << "Cell type : " << s->GetCellType(i) << endl;
-      cerr << "The number of ids does not match: " << sIds->GetNumberOfIds()
-           << " != " << tIds->GetNumberOfIds() << endl;
+      std::cerr << "Cell type : " << s->GetCellType(i) << std::endl;
+      std::cerr << "The number of ids does not match: " << sIds->GetNumberOfIds()
+                << " != " << tIds->GetNumberOfIds() << std::endl;
       return false;
     }
 
@@ -79,8 +80,9 @@ bool CompareGrids(vtkUnstructuredGrid* s, vtkUnstructuredGrid* t)
 
       if (sId != tId)
       {
-        cerr << "Cell type : " << s->GetCellType(i) << endl;
-        cerr << "The id at position " << j << " does not match: " << sId << " != " << tId << endl;
+        std::cerr << "Cell type : " << s->GetCellType(i) << std::endl;
+        std::cerr << "The id at position " << j << " does not match: " << sId << " != " << tId
+                  << std::endl;
         return false;
       }
     }

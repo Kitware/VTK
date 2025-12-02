@@ -10,6 +10,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include <iostream>
+
 int TestDataSetSurfaceFilterQuadraticTetsGhostCells(int argc, char* argv[])
 {
   char* cfname =

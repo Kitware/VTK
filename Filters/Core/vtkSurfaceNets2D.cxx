@@ -14,11 +14,10 @@
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <memory>
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSurfaceNets2D);
@@ -391,7 +390,7 @@ struct SurfaceNets
   {
     T label = this->LabelValues[0];
     T background = this->BackgroundLabel;
-    cout << "Background Label: " << background << "\n";
+    std::cout << "Background Label: " << background << "\n";
     T* s = this->NewScalars;
     for (auto i = 0; i < numScalars; ++i)
     {

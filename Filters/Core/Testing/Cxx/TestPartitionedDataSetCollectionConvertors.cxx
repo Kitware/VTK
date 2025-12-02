@@ -13,6 +13,9 @@
 #include "vtkTestUtilities.h"
 
 #include <vector>
+
+#include <iostream>
+
 #define VERIFY(x)                                                                                  \
   do                                                                                               \
   {                                                                                                \
@@ -64,7 +67,7 @@ int TestPartitionedDataSetCollectionConvertors(int argc, char* argv[])
 
   auto ptc = vtkPartitionedDataSetCollection::SafeDownCast(m2p->GetOutputDataObject(0));
   VERIFY(ptc->GetNumberOfPartitionedDataSets() == 5);
-  // ptc->Print(cout);
+  // ptc->Print(std::cout);
   auto assembly = ptc->GetDataAssembly();
   VERIFY(assembly != nullptr);
   vtkLogF(INFO, "Assembly XML:\n%s", assembly->SerializeToXML(vtkIndent(2)).c_str());
@@ -91,7 +94,7 @@ int TestPartitionedDataSetCollectionConvertors(int argc, char* argv[])
   p2m->Update();
 
   auto mb = p2m->GetOutput();
-  // mb->Print(cout);
+  // mb->Print(std::cout);
   VERIFY(mb != nullptr);
   VERIFY(mb->GetNumberOfBlocks() == 5);
   VERIFY(vtkMultiPieceDataSet::SafeDownCast(mb->GetBlock(0))->GetNumberOfPieces() == 1);

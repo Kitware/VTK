@@ -6,6 +6,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 int TestPrintArrayValues(int, char*[])
 {
   {

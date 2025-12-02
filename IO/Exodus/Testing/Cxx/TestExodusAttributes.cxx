@@ -8,19 +8,21 @@
 #include "vtkNew.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestExodusAttributes(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/edgeFaceElem.exii");
   if (!fname)
   {
-    cout << "Could not obtain filename for test data.\n";
+    std::cout << "Could not obtain filename for test data.\n";
     return 1;
   }
 
   vtkNew<vtkExodusIIReader> rdr;
   if (!rdr->CanReadFile(fname))
   {
-    cout << "Cannot read \"" << fname << "\"\n";
+    std::cout << "Cannot read \"" << fname << "\"\n";
     return 1;
   }
   rdr->SetFileName(fname);
@@ -37,17 +39,17 @@ int TestExodusAttributes(int argc, char* argv[])
                       ->GetCellData();
   if (!cd)
   {
-    cout << "Could not obtain cell data\n";
+    std::cout << "Could not obtain cell data\n";
     return 1;
   }
   int na = cd->GetNumberOfArrays();
   for (int i = 0; i < na; ++i)
   {
     vtkDataArray* arr = cd->GetArray(i);
-    cout << "Cell array " << i << " \"" << arr->GetName() << "\"\n";
+    std::cout << "Cell array " << i << " \"" << arr->GetName() << "\"\n";
     for (int j = 0; j <= arr->GetMaxId(); ++j)
     {
-      cout << " " << arr->GetTuple1(j) << "\n";
+      std::cout << " " << arr->GetTuple1(j) << "\n";
     }
   }
   vtkDataArray* spaghetti = cd->GetArray("SPAGHETTI");
@@ -55,17 +57,17 @@ int TestExodusAttributes(int argc, char* argv[])
   if (!spaghetti || !western || spaghetti->GetNumberOfTuples() != 2 ||
     western->GetNumberOfTuples() != 2)
   {
-    cout << "Attribute arrays not read or are wrong length.\n";
+    std::cout << "Attribute arrays not read or are wrong length.\n";
     return 1;
   }
   if (spaghetti->GetTuple1(0) != 127. || spaghetti->GetTuple1(1) != 137)
   {
-    cout << "Bad spaghetti\n";
+    std::cout << "Bad spaghetti\n";
     return 1;
   }
   if (western->GetTuple1(0) != 101. || western->GetTuple1(1) != 139)
   {
-    cout << "Wrong western\n";
+    std::cout << "Wrong western\n";
     return 1;
   }
   return 0;

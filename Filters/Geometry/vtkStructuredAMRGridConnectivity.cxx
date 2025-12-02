@@ -12,6 +12,8 @@
 #include <cmath>
 #include <cstdlib>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 #define IMIN(ext) ext[0]
 #define IMAX(ext) ext[1]

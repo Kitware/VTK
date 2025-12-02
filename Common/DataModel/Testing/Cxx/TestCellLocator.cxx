@@ -23,8 +23,9 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkTriangleFilter.h"
 
-#include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"
+
+#include <iostream>
 
 // This test reproduces the cell locator bug in FindCellsAlongLine
 int TestFindCellsAlongLine()

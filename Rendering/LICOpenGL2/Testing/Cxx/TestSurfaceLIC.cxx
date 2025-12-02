@@ -10,6 +10,7 @@
 #include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLPolyDataReader.h"
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <vtksys/CommandLineArguments.hxx>
@@ -141,8 +142,8 @@ int TestSurfaceLIC(int argc, char* argv[])
     "(optional: default 256) number of discrete colors to use when mapping scalars to colors");
   if (!arg.Parse() || filename.empty())
   {
-    cerr << "Usage: " << endl;
-    cerr << arg.GetHelp() << endl;
+    std::cerr << "Usage: " << std::endl;
+    std::cerr << arg.GetHelp() << std::endl;
     return 1;
   }
 
@@ -200,14 +201,14 @@ int TestSurfaceLIC(int argc, char* argv[])
   }
   else
   {
-    cerr << "Error: Unknown extension: '" << ext << "'" << endl;
+    std::cerr << "Error: Unknown extension: '" << ext << "'" << std::endl;
     vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
     return 1;
   }
 
   if (!dataObj) // || dataObj->GetNumberOfElements(vtkDataObject::POINT) == 0)
   {
-    cerr << "Error reading file: '" << filename << "'" << endl;
+    std::cerr << "Error reading file: '" << filename << "'" << std::endl;
     vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
     return 1;
   }

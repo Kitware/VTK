@@ -28,6 +28,8 @@
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
+#include <iostream>
+
 int TestAnariPassVisibility(int argc, char* argv[])
 {
   vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
@@ -75,12 +77,12 @@ int TestAnariPassVisibility(int argc, char* argv[])
   {
     if (i % 2)
     {
-      cerr << "Render visible" << endl;
+      std::cerr << "Render visible" << std::endl;
       actor->SetVisibility(true);
     }
     else
     {
-      cerr << "Render invisible" << endl;
+      std::cerr << "Render invisible" << std::endl;
       actor->SetVisibility(false);
     }
     renWin->Render();

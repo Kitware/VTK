@@ -20,6 +20,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
 
+#include <iostream>
+
 vtkSmartPointer<vtkUnstructuredGrid> ConstructDelaunay3DSphere(
   vtkIdType numberOfPoints, vtkMersenneTwister* seq, bool sampleShellOnly)
 {
@@ -119,23 +121,23 @@ int TestBinCellDataFilter(int, char*[])
 
     if (!binnedData)
     {
-      cerr << "No binned data!" << endl;
+      std::cerr << "No binned data!" << std::endl;
       return 1;
     }
 
     for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
     {
-      cout << "cell # " << i << endl;
-      cout << "[ < " << binDataFilter->GetValue(0) << " ]:\t\t"
-           << binnedData->GetTypedComponent(i, 0) << endl;
+      std::cout << "cell # " << i << std::endl;
+      std::cout << "[ < " << binDataFilter->GetValue(0) << " ]:\t\t"
+                << binnedData->GetTypedComponent(i, 0) << std::endl;
       for (vtkIdType j = 1; j < binDataFilter->GetNumberOfBins(); j++)
       {
-        cout << "[ " << binDataFilter->GetValue(j - 1) << " - " << binDataFilter->GetValue(j)
-             << " ]:\t" << binnedData->GetTypedComponent(i, j) << endl;
+        std::cout << "[ " << binDataFilter->GetValue(j - 1) << " - " << binDataFilter->GetValue(j)
+                  << " ]:\t" << binnedData->GetTypedComponent(i, j) << std::endl;
       }
-      cout << "[ > " << binDataFilter->GetValue(binDataFilter->GetNumberOfBins()) << " ]:\t\t"
-           << binnedData->GetTypedComponent(i, binDataFilter->GetNumberOfBins()) << endl;
-      cout << endl;
+      std::cout << "[ > " << binDataFilter->GetValue(binDataFilter->GetNumberOfBins()) << " ]:\t\t"
+                << binnedData->GetTypedComponent(i, binDataFilter->GetNumberOfBins()) << std::endl;
+      std::cout << std::endl;
     }
 
     vtkIdType expectedBins[18][4] = { { 0, 0, 223, 257 }, { 432, 2268, 1660, 137 },
@@ -146,14 +148,14 @@ int TestBinCellDataFilter(int, char*[])
 
     if (binnedData->GetNumberOfTuples() != 18)
     {
-      cerr << "Number of cells (" << binnedData->GetNumberOfTuples()
-           << ") has deviated from expected value " << 18 << endl;
+      std::cerr << "Number of cells (" << binnedData->GetNumberOfTuples()
+                << ") has deviated from expected value " << 18 << std::endl;
       return 1;
     }
 
     if (binnedData->GetNumberOfComponents() != 4)
     {
-      cerr << "Number of bin values has deviated from expected value " << 4 << endl;
+      std::cerr << "Number of bin values has deviated from expected value " << 4 << std::endl;
       return 1;
     }
 
@@ -163,8 +165,8 @@ int TestBinCellDataFilter(int, char*[])
       {
         if (binnedData->GetTypedComponent(i, j) != expectedBins[i][j])
         {
-          cerr << "Bin value (" << i << "," << j << ") has deviated from expected value "
-               << expectedBins[i][j] << endl;
+          std::cerr << "Bin value (" << i << "," << j << ") has deviated from expected value "
+                    << expectedBins[i][j] << std::endl;
           return 1;
         }
       }
@@ -180,23 +182,23 @@ int TestBinCellDataFilter(int, char*[])
 
     if (!binnedData)
     {
-      cerr << "No binned data!" << endl;
+      std::cerr << "No binned data!" << std::endl;
       return 1;
     }
 
     for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
     {
-      cout << "cell # " << i << endl;
-      cout << "[ < " << binDataFilter->GetValue(0) << " ]:\t\t"
-           << binnedData->GetTypedComponent(i, 0) << endl;
+      std::cout << "cell # " << i << std::endl;
+      std::cout << "[ < " << binDataFilter->GetValue(0) << " ]:\t\t"
+                << binnedData->GetTypedComponent(i, 0) << std::endl;
       for (vtkIdType j = 1; j < binDataFilter->GetNumberOfBins(); j++)
       {
-        cout << "[ " << binDataFilter->GetValue(j - 1) << " - " << binDataFilter->GetValue(j)
-             << " ]:\t" << binnedData->GetTypedComponent(i, j) << endl;
+        std::cout << "[ " << binDataFilter->GetValue(j - 1) << " - " << binDataFilter->GetValue(j)
+                  << " ]:\t" << binnedData->GetTypedComponent(i, j) << std::endl;
       }
-      cout << "[ > " << binDataFilter->GetValue(binDataFilter->GetNumberOfBins()) << " ]:\t\t"
-           << binnedData->GetTypedComponent(i, binDataFilter->GetNumberOfBins()) << endl;
-      cout << endl;
+      std::cout << "[ > " << binDataFilter->GetValue(binDataFilter->GetNumberOfBins()) << " ]:\t\t"
+                << binnedData->GetTypedComponent(i, binDataFilter->GetNumberOfBins()) << std::endl;
+      std::cout << std::endl;
     }
 
     vtkIdType expectedBins[18][4] = { { 0, 0, 430, 533 }, { 445, 2837, 2388, 258 },
@@ -207,14 +209,14 @@ int TestBinCellDataFilter(int, char*[])
 
     if (binnedData->GetNumberOfTuples() != 18)
     {
-      cerr << "Number of cells (" << binnedData->GetNumberOfTuples()
-           << ") has deviated from expected value " << 18 << endl;
+      std::cerr << "Number of cells (" << binnedData->GetNumberOfTuples()
+                << ") has deviated from expected value " << 18 << std::endl;
       return 1;
     }
 
     if (binnedData->GetNumberOfComponents() != 4)
     {
-      cerr << "Number of bin values has deviated from expected value " << 4 << endl;
+      std::cerr << "Number of bin values has deviated from expected value " << 4 << std::endl;
       return 1;
     }
 
@@ -224,8 +226,8 @@ int TestBinCellDataFilter(int, char*[])
       {
         if (binnedData->GetTypedComponent(i, j) != expectedBins[i][j])
         {
-          cerr << "Bin value (" << i << "," << j << ") has deviated from expected value "
-               << expectedBins[i][j] << endl;
+          std::cerr << "Bin value (" << i << "," << j << ") has deviated from expected value "
+                    << expectedBins[i][j] << std::endl;
           return 1;
         }
       }

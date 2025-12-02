@@ -29,6 +29,8 @@
 
 #include <vtksys/CommandLineArguments.hxx>
 
+#include <iostream>
+
 namespace vtk
 {
 class BenchmarkTest
@@ -117,9 +119,9 @@ bool runTest(vtkRenderer* renderer, vtkTable* results, int seq, int row, double 
   results->SetValue(row, 3, triangles / subsequentFrameTime * 1e-6);
   results->Modified();
 
-  cout << "First frame:\t" << firstFrameTime << "\nAverage frame:\t" << subsequentFrameTime
-       << "\nTriangles (M):\t" << triangles * 1e-6 << "\nMtris/sec:\t"
-       << triangles / subsequentFrameTime * 1e-6 << "\nRow:\t" << row << endl;
+  std::cout << "First frame:\t" << firstFrameTime << "\nAverage frame:\t" << subsequentFrameTime
+            << "\nTriangles (M):\t" << triangles * 1e-6 << "\nMtris/sec:\t"
+            << triangles / subsequentFrameTime * 1e-6 << "\nRow:\t" << row << endl;
 
   return subsequentFrameTime <= timeout;
 }
@@ -149,12 +151,12 @@ public:
 
     if (!this->Args.Parse())
     {
-      cerr << "Problem parsing arguments" << endl;
+      std::cerr << "Problem parsing arguments" << endl;
     }
 
     if (this->DisplayHelp)
     {
-      cout << "Usage" << endl << endl << this->Args.GetHelp() << endl;
+      std::cout << "Usage" << endl << endl << this->Args.GetHelp() << endl;
     }
   }
 
@@ -222,7 +224,7 @@ int main(int argc, char* argv[])
   int row = 0;
   for (int i = startSeq; i <= endSeq; ++i)
   {
-    cout << "Running sequence point " << i << endl;
+    std::cout << "Running sequence point " << i << endl;
     results->SetNumberOfRows(i - startSeq + 1);
     window->Render();
     renderer->RemoveAllViewProps();

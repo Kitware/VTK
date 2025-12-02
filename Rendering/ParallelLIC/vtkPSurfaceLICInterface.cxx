@@ -8,6 +8,8 @@
 #include "vtkPainterCommunicator.h"
 #include "vtkParallelTimer.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkPSurfaceLICInterface);
@@ -19,7 +21,7 @@ vtkPSurfaceLICInterface::vtkPSurfaceLICInterface() = default;
 #ifdef vtkPSurfaceLICInterfaceDEBUG
 vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface()
 {
-  cerr << "=====vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface" << endl;
+  std::cerr << "=====vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface" << endl;
 }
 #else
 vtkPSurfaceLICInterface::~vtkPSurfaceLICInterface() = default;

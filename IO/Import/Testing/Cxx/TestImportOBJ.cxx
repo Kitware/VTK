@@ -10,6 +10,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkTexture.h>
 
+#include <iostream>
+
 int TestImportOBJ(int argc, char* argv[])
 {
   if (argc < 4)

@@ -15,6 +15,8 @@
 
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 #define compare_id(x, y) ((x) - (y) == 0)
 
 // Test of vtkPolyhedron directly set with backward compatible SetCells

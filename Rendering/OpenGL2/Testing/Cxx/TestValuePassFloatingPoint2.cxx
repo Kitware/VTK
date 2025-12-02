@@ -26,9 +26,6 @@
 #include "vtkSuperquadricSource.h"
 #include "vtkValuePass.h"
 
-#include <iostream>
-#include <string>
-
 int TestValuePassFloatingPoint2(int, char*[])
 {
   vtkNew<vtkSuperquadricSource> torusSource;

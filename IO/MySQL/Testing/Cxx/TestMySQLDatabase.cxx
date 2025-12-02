@@ -32,6 +32,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 int TestMySQLDatabase(int, char** const)
 {
   vtkMySQLDatabase* db =
@@ -44,18 +46,18 @@ int TestMySQLDatabase(int, char** const)
 
   if (!status)
   {
-    cerr << "Couldn't open database.\n";
+    std::cerr << "Couldn't open database.\n";
     return 1;
   }
 
   vtkSQLQuery* query = db->GetQueryInstance();
   std::string createQuery(
     "CREATE TABLE IF NOT EXISTS people (name TEXT, age INTEGER, weight FLOAT)");
-  cout << createQuery << endl;
+  std::cout << createQuery << std::endl;
   query->SetQuery(createQuery.c_str());
   if (!query->Execute())
   {
-    cerr << "Create query failed" << endl;
+    std::cerr << "Create query failed" << std::endl;
     return 1;
   }
 
@@ -63,23 +65,23 @@ int TestMySQLDatabase(int, char** const)
   {
     auto insertQuery =
       vtk::format("INSERT INTO people VALUES('John Doe {:d}', {:d}, {:d})", i, i, 10 * i);
-    cout << insertQuery << endl;
+    std::cout << insertQuery << std::endl;
     query->SetQuery(insertQuery);
     if (!query->Execute())
     {
-      cerr << "Insert query " << i << " failed" << endl;
+      std::cerr << "Insert query " << i << " failed" << std::endl;
       return 1;
     }
   }
 
   const char* queryText = "SELECT name, age, weight FROM people WHERE age <= 20";
   query->SetQuery(queryText);
-  cerr << endl << "Running query: " << query->GetQuery() << endl;
+  std::cerr << std::endl << "Running query: " << query->GetQuery() << std::endl;
 
-  cerr << endl << "Using vtkSQLQuery directly to execute query:" << endl;
+  std::cerr << std::endl << "Using vtkSQLQuery directly to execute query:" << std::endl;
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     return 1;
   }
 
@@ -87,39 +89,39 @@ int TestMySQLDatabase(int, char** const)
   {
     if (col > 0)
     {
-      cerr << ", ";
+      std::cerr << ", ";
     }
-    cerr << query->GetFieldName(col);
+    std::cerr << query->GetFieldName(col);
   }
-  cerr << endl;
+  std::cerr << std::endl;
   while (query->NextRow())
   {
     for (int field = 0; field < query->GetNumberOfFields(); ++field)
     {
       if (field > 0)
       {
-        cerr << ", ";
+        std::cerr << ", ";
       }
-      cerr << query->DataValue(field).ToString();
+      std::cerr << query->DataValue(field).ToString();
     }
-    cerr << endl;
+    std::cerr << std::endl;
   }
 
-  cerr << endl << "Using vtkSQLQuery to execute query and retrieve by row:" << endl;
+  std::cerr << std::endl << "Using vtkSQLQuery to execute query and retrieve by row:" << std::endl;
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     return 1;
   }
   for (int col = 0; col < query->GetNumberOfFields(); ++col)
   {
     if (col > 0)
     {
-      cerr << ", ";
+      std::cerr << ", ";
     }
-    cerr << query->GetFieldName(col);
+    std::cerr << query->GetFieldName(col);
   }
-  cerr << endl;
+  std::cerr << std::endl;
   vtkVariantArray* va = vtkVariantArray::New();
   while (query->NextRow(va))
   {
@@ -127,38 +129,38 @@ int TestMySQLDatabase(int, char** const)
     {
       if (field > 0)
       {
-        cerr << ", ";
+        std::cerr << ", ";
       }
-      cerr << va->GetValue(field).ToString();
+      std::cerr << va->GetValue(field).ToString();
     }
-    cerr << endl;
+    std::cerr << std::endl;
   }
   va->Delete();
 
-  cerr << endl << "Using vtkRowQueryToTable to execute query:" << endl;
+  std::cerr << std::endl << "Using vtkRowQueryToTable to execute query:" << std::endl;
   vtkRowQueryToTable* reader = vtkRowQueryToTable::New();
   reader->SetQuery(query);
   reader->Update();
   vtkTable* table = reader->GetOutput();
   for (vtkIdType col = 0; col < table->GetNumberOfColumns(); ++col)
   {
-    table->GetColumn(col)->Print(cerr);
+    table->GetColumn(col)->Print(std::cerr);
   }
-  cerr << endl;
+  std::cerr << std::endl;
   for (vtkIdType row = 0; row < table->GetNumberOfRows(); ++row)
   {
     for (vtkIdType col = 0; col < table->GetNumberOfColumns(); ++col)
     {
       vtkVariant v = table->GetValue(row, col);
-      cerr << "row " << row << ", col " << col << " - " << v.ToString() << " ( "
-           << vtkImageScalarTypeNameMacro(v.GetType()) << " )" << endl;
+      std::cerr << "row " << row << ", col " << col << " - " << v.ToString() << " ( "
+                << vtkImageScalarTypeNameMacro(v.GetType()) << " )" << std::endl;
     }
   }
 
   query->SetQuery("DROP TABLE people");
   if (!query->Execute())
   {
-    cerr << "DROP TABLE people query failed" << endl;
+    std::cerr << "DROP TABLE people query failed" << std::endl;
     return 1;
   }
 
@@ -173,33 +175,33 @@ int TestMySQLDatabase(int, char** const)
   DatabaseSchemaWith2Tables schema;
 
   // 2. Convert the schema into a MySQL database
-  cerr << "@@ Converting the schema into a MySQL database...";
+  std::cerr << "@@ Converting the schema into a MySQL database...";
 
   db = vtkMySQLDatabase::SafeDownCast(vtkSQLDatabase::CreateFromURL(VTK_MYSQL_TEST_URL));
   status = db->Open("vtktest");
 
   if (!status)
   {
-    cerr << "Couldn't open database.\n";
+    std::cerr << "Couldn't open database.\n";
     return 1;
   }
 
   status = db->EffectSchema(schema.GetSchema());
   if (!status)
   {
-    cerr << "Could not effect test schema.\n";
+    std::cerr << "Could not effect test schema.\n";
     return 1;
   }
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // 3. Count tables of the newly created database
-  cerr << "@@ Counting tables of the newly created database... ";
+  std::cerr << "@@ Counting tables of the newly created database... ";
 
   query = db->GetQueryInstance();
   query->SetQuery("SHOW TABLES");
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     return 1;
   }
 
@@ -213,16 +215,16 @@ int TestMySQLDatabase(int, char** const)
 
   if (numTbl != schema->GetNumberOfTables())
   {
-    cerr << "Found an incorrect number of tables: " << numTbl
-         << " != " << schema->GetNumberOfTables() << endl;
+    std::cerr << "Found an incorrect number of tables: " << numTbl
+              << " != " << schema->GetNumberOfTables() << std::endl;
     return 1;
   }
 
-  cerr << numTbl << " found.\n";
+  std::cerr << numTbl << " found.\n";
 
   // 4. Inspect these tables
-  cerr << "@@ Inspecting these tables..."
-       << "\n";
+  std::cerr << "@@ Inspecting these tables..."
+            << "\n";
 
   std::string queryStr;
   int tblHandle = schema.GetTableBHandle();
@@ -230,11 +232,12 @@ int TestMySQLDatabase(int, char** const)
   for (tblHandle = 0; tblHandle < numTbl; ++tblHandle)
   {
     std::string tblName(schema->GetTableNameFromHandle(tblHandle));
-    cerr << "   Table: " << tblName << "\n";
+    std::cerr << "   Table: " << tblName << "\n";
 
     if (tblName != tables[tblHandle])
     {
-      cerr << "Fetched an incorrect name: " << tables[tblHandle] << " != " << tblName << endl;
+      std::cerr << "Fetched an incorrect name: " << tables[tblHandle] << " != " << tblName
+                << std::endl;
       return 1;
     }
 
@@ -244,7 +247,7 @@ int TestMySQLDatabase(int, char** const)
     query->SetQuery(queryStr);
     if (!query->Execute())
     {
-      cerr << "Query failed" << endl;
+      std::cerr << "Query failed" << std::endl;
       return 1;
     }
 
@@ -256,28 +259,28 @@ int TestMySQLDatabase(int, char** const)
       {
         if (field)
         {
-          cerr << ", ";
+          std::cerr << ", ";
         }
         else // if ( field )
         {
           std::string colName(schema->GetColumnNameFromHandle(tblHandle, colHandle));
           if (colName != query->DataValue(field).ToString())
           {
-            cerr << "Found an incorrect column name: " << query->DataValue(field).ToString()
-                 << " != " << colName << endl;
+            std::cerr << "Found an incorrect column name: " << query->DataValue(field).ToString()
+                      << " != " << colName << std::endl;
             return 1;
           }
-          cerr << "     Column: ";
+          std::cerr << "     Column: ";
         }
-        cerr << query->DataValue(field).ToString();
+        std::cerr << query->DataValue(field).ToString();
       }
-      cerr << endl;
+      std::cerr << std::endl;
     }
 
     if (colHandle != schema->GetNumberOfColumnsInTable(tblHandle))
     {
-      cerr << "Found an incorrect number of columns: " << colHandle
-           << " != " << schema->GetNumberOfColumnsInTable(tblHandle) << endl;
+      std::cerr << "Found an incorrect number of columns: " << colHandle
+                << " != " << schema->GetNumberOfColumnsInTable(tblHandle) << std::endl;
       return 1;
     }
 
@@ -287,7 +290,7 @@ int TestMySQLDatabase(int, char** const)
     query->SetQuery(queryStr);
     if (!query->Execute())
     {
-      cerr << "Query failed" << endl;
+      std::cerr << "Query failed" << std::endl;
       return 1;
     }
 
@@ -307,40 +310,40 @@ int TestMySQLDatabase(int, char** const)
       {
         if (field)
         {
-          cerr << ", ";
+          std::cerr << ", ";
         }
         else // if ( field )
         {
-          cerr << "     Index: ";
+          std::cerr << "     Index: ";
         }
-        cerr << query->DataValue(field).ToString();
+        std::cerr << query->DataValue(field).ToString();
       }
-      cerr << endl;
+      std::cerr << std::endl;
 
       if (colName != query->DataValue(4).ToString())
       {
-        cerr << "Fetched an incorrect column name: " << query->DataValue(4).ToString()
-             << " != " << colName << endl;
+        std::cerr << "Fetched an incorrect column name: " << query->DataValue(4).ToString()
+                  << " != " << colName << std::endl;
         return 1;
       }
     }
 
     if (idxHandle + 1 != schema->GetNumberOfIndicesInTable(tblHandle))
     {
-      cerr << "Found an incorrect number of indices: " << idxHandle + 1
-           << " != " << schema->GetNumberOfIndicesInTable(tblHandle) << endl;
+      std::cerr << "Found an incorrect number of indices: " << idxHandle + 1
+                << " != " << schema->GetNumberOfIndicesInTable(tblHandle) << std::endl;
       return 1;
     }
   }
 
   // 5. Populate these tables using the trigger mechanism
-  cerr << "@@ Populating table atable...";
+  std::cerr << "@@ Populating table atable...";
 
   queryStr = "INSERT INTO atable (somename,somenmbr) VALUES ( 'Bas-Rhin', 67 )";
   query->SetQuery(queryStr);
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
@@ -350,7 +353,7 @@ int TestMySQLDatabase(int, char** const)
   query->SetQuery(queryStr);
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
@@ -360,77 +363,77 @@ int TestMySQLDatabase(int, char** const)
   query->SetQuery(queryStr);
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // 6. Check that the trigger-dependent table has indeed been populated
-  cerr << "@@ Checking trigger-dependent table btable...\n";
+  std::cerr << "@@ Checking trigger-dependent table btable...\n";
 
   queryStr = "SELECT somevalue FROM btable ORDER BY somevalue DESC";
   query->SetQuery(queryStr);
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << "   Entries in column somevalue of table btable, in descending order:\n";
+  std::cerr << "   Entries in column somevalue of table btable, in descending order:\n";
   static const char* dpts[] = { "88", "67", "65" };
   int numDpt = 0;
   for (; query->NextRow(); ++numDpt)
   {
     if (query->DataValue(0).ToString() != dpts[numDpt])
     {
-      cerr << "Found an incorrect value: " << query->DataValue(0).ToString()
-           << " != " << dpts[numDpt] << endl;
+      std::cerr << "Found an incorrect value: " << query->DataValue(0).ToString()
+                << " != " << dpts[numDpt] << std::endl;
       query->Delete();
       db->Delete();
       return 1;
     }
-    cerr << "     " << query->DataValue(0).ToString() << "\n";
+    std::cerr << "     " << query->DataValue(0).ToString() << "\n";
   }
 
   if (numDpt != 3)
   {
-    cerr << "Found an incorrect number of entries: " << numDpt << " != " << 3 << endl;
+    std::cerr << "Found an incorrect number of entries: " << numDpt << " != " << 3 << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // 7. Test EscapeString.
-  cerr << "@@ Escaping a naughty string...";
+  std::cerr << "@@ Escaping a naughty string...";
 
   queryStr = "INSERT INTO atable (somename,somenmbr) VALUES ( " +
     query->EscapeString(std::string("Str\"ang'eS\ntring"), true) + ", 2 )";
   query->SetQuery(queryStr);
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // 8. Read back the escaped string to verify it worked.
-  cerr << "@@ Reading it back... <";
+  std::cerr << "@@ Reading it back... <";
 
   queryStr = "SELECT somename FROM atable WHERE somenmbr=2";
   query->SetQuery(queryStr);
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
@@ -438,17 +441,17 @@ int TestMySQLDatabase(int, char** const)
 
   if (!query->NextRow())
   {
-    cerr << "Query returned no results" << endl;
+    std::cerr << "Query returned no results" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << query->DataValue(0).ToString() << "> ";
-  cerr << " done." << endl;
+  std::cerr << query->DataValue(0).ToString() << "> ";
+  std::cerr << " done." << std::endl;
 
   // 8. Drop tables
-  cerr << "@@ Dropping these tables...";
+  std::cerr << "@@ Dropping these tables...";
 
   for (std::vector<std::string>::iterator it = tables.begin(); it != tables.end(); ++it)
   {
@@ -458,37 +461,37 @@ int TestMySQLDatabase(int, char** const)
 
     if (!query->Execute())
     {
-      cerr << "Query failed" << endl;
+      std::cerr << "Query failed" << std::endl;
       return 1;
     }
   }
 
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // ----------------------------------------------------------------------
   // Testing time values in database
-  cerr << "@@ Testing time values" << endl;
+  std::cerr << "@@ Testing time values" << std::endl;
   query->SetQuery("create table if not exists time (_date DATE, _time TIME, _timestamp TIMESTAMP, "
                   "_datetime DATETIME, _year YEAR);");
-  cerr << query->GetQuery() << endl;
+  std::cerr << query->GetQuery() << std::endl;
   if (!query->Execute())
   {
-    cerr << "Time table creation failed" << endl;
+    std::cerr << "Time table creation failed" << std::endl;
     return 1;
   }
   query->SetQuery("insert into time values ('2008-01-01', '01:23:45', '2008-01-01 01:23:45', "
                   "'2008-01-01 01:23:45', 2008);");
-  cerr << query->GetQuery() << endl;
+  std::cerr << query->GetQuery() << std::endl;
   if (!query->Execute())
   {
-    cerr << "Time table insert failed" << endl;
+    std::cerr << "Time table insert failed" << std::endl;
     return 1;
   }
   query->SetQuery("select * from time");
-  cerr << query->GetQuery() << endl;
+  std::cerr << query->GetQuery() << std::endl;
   if (!query->Execute())
   {
-    cerr << "Time table select failed" << endl;
+    std::cerr << "Time table select failed" << std::endl;
     return 1;
   }
   query->NextRow();
@@ -500,38 +503,38 @@ int TestMySQLDatabase(int, char** const)
   vtkTimePointUtility::GetDate(date, year, month, day);
   if (year != 2008 || month != 1 || day != 1)
   {
-    cerr << "Date read incorrectly" << endl;
+    std::cerr << "Date read incorrectly" << std::endl;
     return 1;
   }
   vtkTimePointUtility::GetTime(time, hour, minute, second, msec);
   if (hour != 1 || minute != 23 || second != 45)
   {
-    cerr << "Time read incorrectly" << endl;
+    std::cerr << "Time read incorrectly" << std::endl;
     return 1;
   }
   vtkTimePointUtility::GetDateTime(timestamp, year, month, day, hour, minute, second, msec);
   if (year != 2008 || month != 1 || day != 1 || hour != 1 || minute != 23 || second != 45)
   {
-    cerr << "Timestamp read incorrectly" << endl;
+    std::cerr << "Timestamp read incorrectly" << std::endl;
     return 1;
   }
   vtkTimePointUtility::GetDateTime(datetime, year, month, day, hour, minute, second, msec);
   if (year != 2008 || month != 1 || day != 1 || hour != 1 || minute != 23 || second != 45)
   {
-    cerr << "Datetime read incorrectly" << endl;
+    std::cerr << "Datetime read incorrectly" << std::endl;
     return 1;
   }
   year = query->DataValue(4).ToInt();
   if (year != 2008)
   {
-    cerr << "Year read incorrectly" << endl;
+    std::cerr << "Year read incorrectly" << std::endl;
     return 1;
   }
   query->SetQuery("drop table time;");
-  cerr << query->GetQuery() << endl;
+  std::cerr << query->GetQuery() << std::endl;
   if (!query->Execute())
   {
-    cerr << "Time table drop failed" << endl;
+    std::cerr << "Time table drop failed" << std::endl;
     return 1;
   }
 

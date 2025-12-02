@@ -9,6 +9,8 @@
 
 #include <array>
 
+#include <iostream>
+
 namespace details
 {
 // ----------------------------------------------------------------------------

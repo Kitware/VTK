@@ -12,6 +12,8 @@
 #include <vtkVariant.h>
 #include <vtkVariantArray.h>
 
+#include <iostream>
+
 int TestFixedWidthTextReader(int argc, char* argv[])
 {
   std::cout << "### Pass 1: No headers, field width 10, do not strip whitespace" << std::endl;

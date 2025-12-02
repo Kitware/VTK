@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 constexpr bool STATUS_SUCCESS = true;
 constexpr bool STATUS_FAILURE = false;
 

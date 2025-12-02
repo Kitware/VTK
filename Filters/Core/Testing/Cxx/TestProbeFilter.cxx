@@ -11,6 +11,8 @@
 #include "vtkProbeFilter.h"
 #include "vtkRTAnalyticSource.h"
 
+#include <iostream>
+
 // Gets the number of points the probe filter counted as valid.
 // The parameter should be the output of the probe filter
 vtkIdType GetNumberOfValidPoints(vtkDataSet* pd)

@@ -19,6 +19,8 @@
 #include <cassert>
 #include <sstream>
 
+#include <iostream>
+
 // Some useful extent macros
 #define EMIN(ext, dim) (ext[2 * dim])
 #define EMAX(ext, dim) (ext[2 * dim + 1])

@@ -12,6 +12,8 @@
 
 #include <cassert>
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -30,9 +32,9 @@ public:
   {
     if (this->Controller && vtkMPIController::Initialized)
     {
-      cout << "Process id: " << this->Controller->GetLocalProcessId() << " >> ";
+      std::cout << "Process id: " << this->Controller->GetLocalProcessId() << " >> ";
     }
-    cout << t;
+    std::cout << t;
   }
 
   vtkMPIOutputWindow() { this->Controller = nullptr; }

@@ -24,6 +24,8 @@
 #include <cstdlib>
 #include <string>
 
+#include <iostream>
+
 int TestCompositePolyDataMapperToggleScalarVisibilities(int argc, char* argv[])
 {
   vtkNew<vtkGroupDataSetsFilter> spheres;
@@ -191,7 +193,7 @@ int TestCompositePolyDataMapperToggleScalarVisibilities(int argc, char* argv[])
     interactor->InvokeEvent(vtkCommand::KeyPressEvent);
     interactor->InvokeEvent(vtkCommand::CharEvent);
     interactor->InvokeEvent(vtkCommand::KeyReleaseEvent);
-    if (testing->RegressionTest(0.05, cout) == vtkTesting::FAILED)
+    if (testing->RegressionTest(0.05, std::cout) == vtkTesting::FAILED)
     {
       return EXIT_FAILURE;
     }

@@ -10,6 +10,8 @@
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 
+#include <iostream>
+
 int TestPathTracerGLTFImporter(int argc, char* argv[])
 {
   if (argc <= 1)

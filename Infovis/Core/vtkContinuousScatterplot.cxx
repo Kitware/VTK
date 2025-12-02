@@ -26,6 +26,8 @@
 #include "vtkTriangleFilter.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkContinuousScatterplot);
 
@@ -362,10 +364,10 @@ int vtkContinuousScatterplot::RequestData(
     }
 
     /*
-    cout << "ARRAY SUMMARY:\n" << endl;
+    std::cout << "ARRAY SUMMARY:\n" << endl;
     for (int i = 0; i < tetraPD->GetNumberOfTuples(); i++)
     {
-    cout << i << "\t" << inPD->GetArray(this->Fields[0])->GetComponent(i,0)
+    std::cout << i << "\t" << inPD->GetArray(this->Fields[0])->GetComponent(i,0)
               << "\t" << inPD->GetArray(this->Fields[1])->GetComponent(i,0)
               << "\t" << newPointsPD->GetArray(0)->GetComponent(i,0)
               << "\t" << newPointsPD->GetArray(1)->GetComponent(i,0) << endl;
@@ -420,24 +422,24 @@ int vtkContinuousScatterplot::RequestData(
       minCell = maxField;
       maxCell = minField;
 
-      ////cout << "tet " << tetraIndex << ", field " << fieldNr << ", pnr: " <<
+      ////std::cout << "tet " << tetraIndex << ", field " << fieldNr << ", pnr: " <<
       /// newPointsPD->GetNumberOfTuples() << endl;
-      ////cout << "min/max init: " << minCell << ", " << maxCell << endl;
+      ////std::cout << "min/max init: " << minCell << ", " << maxCell << endl;
 
       // obtain the minimal and maximal scalar values of the cell.
       for (int pnr = 0; pnr < newPointsPD->GetNumberOfTuples(); pnr++)
       {
         double fval = newPointsPD->GetArray((int)fieldNr)->GetComponent(pnr, 0);
 
-        ////cout << "    fval: " << fval << endl;
+        ////std::cout << "    fval: " << fval << endl;
         maxCell = std::max<double>(maxCell, fval);
         minCell = std::min<double>(minCell, fval);
       }
 
-      ////cout << "D"  << endl;
-      ////cout << "Cell min/max: " << minCell << " " << maxCell << endl;
-      ////cout << "field min/max[0] " << minField << " " << maxField << endl;
-      ////cout << "field widths " << fragWidth[0] << " " << fragWidth[1] << endl;
+      ////std::cout << "D"  << endl;
+      ////std::cout << "Cell min/max: " << minCell << " " << maxCell << endl;
+      ////std::cout << "field min/max[0] " << minField << " " << maxField << endl;
+      ////std::cout << "field widths " << fragWidth[0] << " " << fragWidth[1] << endl;
 
       // in each field, the smallest threshold of cutting plane to start with.
       // since each field is sliced uniformly, in other words, the interval between
@@ -509,7 +511,8 @@ int vtkContinuousScatterplot::RequestData(
               // get scalar value of the current point
               thisScalar = newPointsPD->GetArray((int)fieldNr)->GetComponent(thisPointId, 0);
 
-              ////cout <<  ">>> " << thisPointId << " " << thisScalar << " " << prevPointId << " "
+              ////std::cout <<  ">>> " << thisPointId << " " << thisScalar << " " << prevPointId <<
+              ///" "
               ///<< prevScalar << endl;
 
               // zero bitweise or to any value equals that value
@@ -841,7 +844,8 @@ int vtkContinuousScatterplot::RequestData(
       binIndexSecond = (int)(this->ResY - 1) *
         (fragRangeValue[1] - inPD->GetArray(this->Fields[1])->GetRange()[0]) / fieldInterval[1];
 
-      ////cout << "biF: " << binIndexFirst << "\tbiS: " << binIndexSecond << "\t" << fragVolume <<
+      ////std::cout << "biF: " << binIndexFirst << "\tbiS: " << binIndexSecond << "\t" << fragVolume
+      ///<<
       /// endl;
 
       // aggregate the fragment volumes in each bin

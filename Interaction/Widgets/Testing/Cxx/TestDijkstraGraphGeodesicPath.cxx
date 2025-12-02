@@ -5,7 +5,6 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkCellArray.h"
 #include "vtkContourWidget.h"
 #include "vtkDEMReader.h"
 #include "vtkImageData.h"
@@ -28,6 +27,8 @@
 #include "vtkTesting.h"
 #include "vtkTriangleFilter.h"
 #include "vtkWarpScalar.h"
+
+#include <iostream>
 
 static char TestDijkstraGraphGeodesicPathLog[] = "# StreamVersion 1\n"
                                                  "EnterEvent 260 15 0 0 0 0 0 i\n"

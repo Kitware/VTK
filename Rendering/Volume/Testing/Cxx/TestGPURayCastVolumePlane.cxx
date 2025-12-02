@@ -23,6 +23,8 @@
 #include <vtkVolume.h>
 #include <vtkVolumeProperty.h>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 static const char* TestGPURayCastVolumePlaneLog = "# StreamVersion 1\n"
                                                   "EnterEvent 169 9 0 0 0 0 0\n"
@@ -1123,7 +1125,7 @@ static const char* TestGPURayCastVolumePlaneLog = "# StreamVersion 1\n"
 //------------------------------------------------------------------------------
 int TestGPURayCastVolumePlane(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   vtkNew<vtkRTAnalyticSource> source;
   source->SetWholeExtent(-49, 50, -49, 50, 0, 1);

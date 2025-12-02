@@ -9,6 +9,8 @@
 #include "vtkMinimalStandardRandomSequence.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 namespace
 {
 constexpr double EPSILON = 1.e-6;

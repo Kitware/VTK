@@ -12,6 +12,8 @@
 #include <unordered_set>
 #include <vector>
 
+#include <iostream>
+
 int TestSmartPointer(int, char*[])
 {
   int rval = 0;
@@ -52,7 +54,7 @@ int TestSmartPointer(int, char*[])
     {
       if (((diffbits >> (bitcount - ib - 1)) & 1) != 0)
       {
-        cerr << "comparison (" << tests[ib] << ") failed!\n";
+        std::cerr << "comparison (" << tests[ib] << ") failed!\n";
       }
     }
     rval = 1;
@@ -65,8 +67,8 @@ int TestSmartPointer(int, char*[])
   }
   if (!da2)
   {
-    cerr << "da2 is nullptr!"
-         << "\n";
+    std::cerr << "da2 is nullptr!"
+              << "\n";
     rval = 1;
   }
   da1 = vtkSmartPointer<vtkDataArray>::NewInstance(ia);
@@ -83,7 +85,7 @@ int TestSmartPointer(int, char*[])
   }
   if (intarrays[0]->GetReferenceCount() != 1)
   {
-    cerr << "Didn't properly add vtkNew object to stl vector of smart pointers\n";
+    std::cerr << "Didn't properly add vtkNew object to stl vector of smart pointers\n";
     rval = 1;
   }
 

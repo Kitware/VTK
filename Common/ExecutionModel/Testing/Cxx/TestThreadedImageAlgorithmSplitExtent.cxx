@@ -7,6 +7,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkThreadedImageAlgorithm.h"
 
+#include <iostream>
+
 #define TEST_SUCCESS 0
 #define TEST_FAILURE 1
 

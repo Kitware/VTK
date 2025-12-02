@@ -9,6 +9,8 @@
 #include "vtkPeriodicTable.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <iostream>
+
 int TestPSimpleBondPerceiver(int argc, char* argv[])
 {
   vtkNew<vtkMPIController> controller;

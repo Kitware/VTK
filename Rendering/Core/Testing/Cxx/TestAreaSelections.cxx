@@ -30,6 +30,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 static vtkSmartPointer<vtkRenderer> renderer;
 static vtkSmartPointer<vtkSphereSource> SS1;
 static vtkSmartPointer<vtkDataSetMapper> sMap;
@@ -51,16 +53,16 @@ static void EndPick(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(even
   res.TakeReference(sel->Select());
   if (!res)
   {
-    cerr << "Selection not supported." << endl;
+    std::cerr << "Selection not supported." << std::endl;
     return;
   }
 
   /*
-  cerr << "x0 " << x0 << " y0 " << y0 << "\t";
-  cerr << "x1 " << x1 << " y1 " << y1 << endl;
+  std::cerr << "x0 " << x0 << " y0 " << y0 << "\t";
+  std::cerr << "x1 " << x1 << " y1 " << y1 << std::endl;
   vtkIdTypeArray *a = vtkIdTypeArray::New();
   sel->GetSelectedIds(a);
-  cerr << "numhits = " << a->GetNumberOfTuples() << endl;
+  std::cerr << "numhits = " << a->GetNumberOfTuples() << std::endl;
   sel->PrintSelectedIds(a);
   a->Delete();
   */
@@ -78,8 +80,8 @@ static void EndPick(vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(even
   }
   else
   {
-    cerr << "Empty color buffer selection -" << endl;
-    cerr << "Check display color depth. Must be at least 24 bit." << endl;
+    std::cerr << "Empty color buffer selection -" << std::endl;
+    std::cerr << "Check display color depth. Must be at least 24 bit." << std::endl;
     sMap->SetInputData(emptyPD);
   }
 }
@@ -181,8 +183,8 @@ int TestAreaSelections(int argc, char* argv[])
   renWin->GetColorBufferSizes(rgba);
   if (rgba[0] < 8 || rgba[1] < 8 || rgba[2] < 8)
   {
-    cout << "Color buffer depth must be at least 8 bit. Currently: " << rgba[0] << ", " << rgba[1]
-         << ", " << rgba[2] << endl;
+    std::cout << "Color buffer depth must be at least 8 bit. Currently: " << rgba[0] << ", "
+              << rgba[1] << ", " << rgba[2] << std::endl;
     return 0;
   }
 

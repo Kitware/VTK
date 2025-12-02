@@ -9,6 +9,8 @@
 #include <vtkXMLMultiBlockDataReader.h>
 #include <vtkXMLMultiBlockDataWriter.h>
 
+#include <iostream>
+
 int TestMultiBlockXMLIOWithPartialArraysTable(int argc, char* argv[])
 {
   // Create a table with some points in it...
@@ -64,7 +66,7 @@ int TestMultiBlockXMLIOWithPartialArraysTable(int argc, char* argv[])
     vtkTable::SafeDownCast(inMB->GetBlock(1))->GetRowData()->GetArray("Sine") != nullptr ||
     vtkTable::SafeDownCast(inMB->GetBlock(1))->GetRowData()->GetArray("NewSine") == nullptr)
   {
-    cerr << "ERROR: In/out data mismatched!" << endl;
+    std::cerr << "ERROR: In/out data mismatched!" << std::endl;
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

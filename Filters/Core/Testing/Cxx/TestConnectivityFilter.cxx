@@ -11,6 +11,8 @@
 #include <vtkTestUtilities.h>
 #include <vtkUnstructuredGrid.h>
 
+#include <iostream>
+
 namespace
 {
 //------------------------------------------------------------------------------

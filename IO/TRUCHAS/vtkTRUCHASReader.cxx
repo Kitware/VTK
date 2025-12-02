@@ -22,6 +22,8 @@
 #include <set>
 #include <sstream>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 class vtkTRUCHASReader::Internal
@@ -473,7 +475,7 @@ public:
           *(cptr + 5), *(cptr + 6), *(cptr + 7) };
         if (list[0] == list[1])
         { /* tet element */
-          // cerr << "T" << endl;
+          // std::cerr << "T" << endl;
           for (i = 0; i < 4; i++)
           {
             list[i] = list[1 + i] - 1;
@@ -482,7 +484,7 @@ public:
         }
         else if (list[4] == list[5])
         { /* pyramid element */
-          // cerr << "P" << endl;
+          // std::cerr << "P" << endl;
           for (i = 0; i < 5; i++)
           {
             list[i] = list[i] - 1;
@@ -491,7 +493,7 @@ public:
         }
         else if (list[5] == list[6])
         { /* wedge element */
-          // cerr << "W" << endl;
+          // std::cerr << "W" << endl;
           i = list[1];
           list[1] = list[3];
           list[3] = i; /* swap 1 and 3 */
@@ -513,7 +515,7 @@ public:
         }
         else
         { /* hex element */
-          // cerr << "H" << endl;
+          // std::cerr << "H" << endl;
           for (i = 0; i < 8; i++)
           {
             list[i] = list[i] - 1;

@@ -14,9 +14,8 @@
 #include "vtksys/FStream.hxx"
 
 #include <cmath>
-#include <fstream>
+#include <iostream>
 #include <limits>
-#include <streambuf>
 
 int TestPLYWriterString(int argc, char* argv[])
 {

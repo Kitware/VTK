@@ -18,6 +18,8 @@
 #include <cstdlib>
 #include <numeric>
 
+#include <iostream>
+
 namespace
 {
 /**
@@ -647,22 +649,22 @@ int TestTemporalHelpers(int, char*[])
 {
   if (!::TestNaiveImplementation())
   {
-    std::cerr << "Errors in TestNaiveImplementation" << endl;
+    std::cerr << "Errors in TestNaiveImplementation" << std::endl;
     return EXIT_FAILURE;
   }
   if (!::TestMultiTimeStep())
   {
-    std::cerr << "Errors in TestMultiTimeStep" << endl;
+    std::cerr << "Errors in TestMultiTimeStep" << std::endl;
     return EXIT_FAILURE;
   }
   if (!::TestTemporalAlgo())
   {
-    std::cerr << "Errors in TestTemporalAlgo" << endl;
+    std::cerr << "Errors in TestTemporalAlgo" << std::endl;
     return EXIT_FAILURE;
   }
   if (!::TestTemporalAlgoInSitu())
   {
-    std::cerr << "Errors in TestTemporalAlgoInSitu" << endl;
+    std::cerr << "Errors in TestTemporalAlgoInSitu" << std::endl;
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

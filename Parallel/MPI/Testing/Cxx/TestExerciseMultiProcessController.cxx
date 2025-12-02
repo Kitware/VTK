@@ -36,6 +36,8 @@
 #include <time.h>
 #include <vector>
 
+#include <iostream>
+
 // Update progress only on root node.
 #define COUT(msg)                                                                                  \
   do                                                                                               \
@@ -397,9 +399,9 @@ void ExerciseType(vtkMultiProcessController* controller)
     {
       for (int j = 0; j < arraySize; j++)
       {
-        cout << setw(9) << static_cast<printType>(sourceArrays[i]->GetValue(j));
+        std::cout << setw(9) << static_cast<printType>(sourceArrays[i]->GetValue(j));
       }
-      cout << endl;
+      std::cout << std::endl;
     }
   }
 
@@ -1215,8 +1217,8 @@ int TestExerciseMultiProcessController(vtkMultiProcessController* controller)
   subcontroller2 = controller->CreateSubController(group2);
   if (subcontroller1 && subcontroller2)
   {
-    cout << "**** ERROR: Process " << controller->GetLocalProcessId()
-         << " belongs to both subgroups! ****" << endl;
+    std::cout << "**** ERROR: Process " << controller->GetLocalProcessId()
+              << " belongs to both subgroups! ****" << std::endl;
     subcontroller1->Delete();
     subcontroller2->Delete();
     return 1;
@@ -1235,8 +1237,8 @@ int TestExerciseMultiProcessController(vtkMultiProcessController* controller)
   }
   else
   {
-    cout << "**** Error: Process " << controller->GetLocalProcessId()
-         << " does not belong to either subgroup! ****" << endl;
+    std::cout << "**** Error: Process " << controller->GetLocalProcessId()
+              << " does not belong to either subgroup! ****" << std::endl;
   }
   try
   {

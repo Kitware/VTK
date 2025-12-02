@@ -24,6 +24,8 @@
 #include <cstring>
 #include <fstream>
 
+#include <iostream>
+
 // Construct a scene and write it to disk and to buffer. Decompress the buffer
 // and compare its contents to the files on disk.
 int TestPartitionedRenderWindowExporter(int argc, char* argv[])

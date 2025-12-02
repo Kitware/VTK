@@ -14,6 +14,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 namespace
 {
 int CheckCells(int cellType, int blocksDimensions[3], int precision, int expectedNumberOfPoints,
@@ -31,24 +33,24 @@ int CheckCells(int cellType, int blocksDimensions[3], int precision, int expecte
     (precision == vtkAlgorithm::DOUBLE_PRECISION &&
       output->GetPoints()->GetDataType() != VTK_DOUBLE))
   {
-    cerr << "Wrong points precision\n";
+    std::cerr << "Wrong points precision\n";
     return EXIT_FAILURE;
   }
   if (output->GetCellType(0) != cellType)
   {
-    cerr << "Wrong cell type\n";
+    std::cerr << "Wrong cell type\n";
     return EXIT_FAILURE;
   }
   if (output->GetNumberOfPoints() != expectedNumberOfPoints)
   {
-    cerr << "Expected " << expectedNumberOfPoints << " points but got "
-         << output->GetNumberOfPoints() << endl;
+    std::cerr << "Expected " << expectedNumberOfPoints << " points but got "
+              << output->GetNumberOfPoints() << std::endl;
     return EXIT_FAILURE;
   }
   if (output->GetNumberOfCells() != expectedNumberOfCells)
   {
-    cerr << "Expected " << expectedNumberOfCells << " cells but got " << output->GetNumberOfCells()
-         << endl;
+    std::cerr << "Expected " << expectedNumberOfCells << " cells but got "
+              << output->GetNumberOfCells() << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -57,16 +59,16 @@ int CheckCells(int cellType, int blocksDimensions[3], int precision, int expecte
   output->GetPointData()->GetArray("DistanceToCenter")->GetRange(fieldRange);
   if (std::abs(fieldRange[1] - maxDistanceToCenter) > .0001)
   {
-    cerr << "Expected DistanceToCenter max value of " << maxDistanceToCenter << " but got "
-         << fieldRange[1] << endl;
+    std::cerr << "Expected DistanceToCenter max value of " << maxDistanceToCenter << " but got "
+              << fieldRange[1] << std::endl;
     return EXIT_FAILURE;
   }
 
   output->GetPointData()->GetArray("Polynomial")->GetRange(fieldRange);
   if (std::abs(fieldRange[1] - maxPolynomial) > .0001)
   {
-    cerr << "Expected Polynomial max value of " << maxPolynomial << " but got " << fieldRange[1]
-         << endl;
+    std::cerr << "Expected Polynomial max value of " << maxPolynomial << " but got "
+              << fieldRange[1] << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -97,8 +99,9 @@ int CheckCells(int cellType, int blocksDimensions[3], int precision, int expecte
     if (std::abs(sizeRange[0] - expectedSizeRange[0]) > .0001 ||
       std::abs(sizeRange[1] - expectedSizeRange[1]) > .0001)
     {
-      cerr << "Expected size range of " << expectedSizeRange[0] << " to " << expectedSizeRange[1]
-           << " but got " << sizeRange[0] << " to " << sizeRange[1] << endl;
+      std::cerr << "Expected size range of " << expectedSizeRange[0] << " to "
+                << expectedSizeRange[1] << " but got " << sizeRange[0] << " to " << sizeRange[1]
+                << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -115,19 +118,19 @@ int TestCellTypeSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (CheckCells(VTK_LINE, dims, vtkAlgorithm::SINGLE_PRECISION, dims[0] + 1, dims[0], size, 2.,
         5.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_LINE\n";
+    std::cerr << "Error with VTK_LINE\n";
     return EXIT_FAILURE;
   }
   if (CheckCells(VTK_QUADRATIC_EDGE, dims, vtkAlgorithm::SINGLE_PRECISION, dims[0] * 2 + 1, dims[0],
         size, 2., 5.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_QUADRATIC_LINE\n";
+    std::cerr << "Error with VTK_QUADRATIC_LINE\n";
     return EXIT_FAILURE;
   }
   if (CheckCells(VTK_CUBIC_LINE, dims, vtkAlgorithm::SINGLE_PRECISION, dims[0] * 3 + 1, dims[0],
         size, 2., 5.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_CUBIC_EDGE\n";
+    std::cerr << "Error with VTK_CUBIC_EDGE\n";
     return EXIT_FAILURE;
   }
 
@@ -136,28 +139,28 @@ int TestCellTypeSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   if (CheckCells(VTK_TRIANGLE, dims, vtkAlgorithm::DOUBLE_PRECISION, (dims[0] + 1) * (dims[1] + 1),
         dims[0] * dims[1] * 2, size, 3.2015621187164243, 10.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_TRIANGLE\n";
+    std::cerr << "Error with VTK_TRIANGLE\n";
     return EXIT_FAILURE;
   }
   if (CheckCells(VTK_QUADRATIC_TRIANGLE, dims, vtkAlgorithm::DOUBLE_PRECISION,
         (dims[0] * 2 + 1) * (dims[1] * 2 + 1), dims[0] * dims[1] * 2, size, 3.2015621187164243,
         10.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_QUADRATIC_TRIANGLE\n";
+    std::cerr << "Error with VTK_QUADRATIC_TRIANGLE\n";
     return EXIT_FAILURE;
   }
   size[0] = size[1] = 1;
   if (CheckCells(VTK_QUAD, dims, vtkAlgorithm::DOUBLE_PRECISION, (dims[0] + 1) * (dims[1] + 1),
         dims[0] * dims[1], size, 3.2015621187164243, 10.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_QUAD\n";
+    std::cerr << "Error with VTK_QUAD\n";
     return EXIT_FAILURE;
   }
   if (CheckCells(VTK_QUADRATIC_QUAD, dims, vtkAlgorithm::DOUBLE_PRECISION,
         (dims[0] * 2 + 1) * (dims[1] * 2 + 1) - dims[0] * dims[1], dims[0] * dims[1], size,
         3.2015621187164243, 10.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_QUADRATIC_QUAD\n";
+    std::cerr << "Error with VTK_QUADRATIC_QUAD\n";
     return EXIT_FAILURE;
   }
 
@@ -167,13 +170,13 @@ int TestCellTypeSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         (dims[0] + 1) * (dims[1] + 1) * (dims[2] + 1) + dims[0] * dims[1] * dims[2],
         dims[0] * dims[1] * dims[2] * 12, size, 4.387482193696061, 16.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_TETRA\n";
+    std::cerr << "Error with VTK_TETRA\n";
     return EXIT_FAILURE;
   }
   if (CheckCells(VTK_QUADRATIC_TETRA, dims, vtkAlgorithm::DOUBLE_PRECISION, 2247,
         dims[0] * dims[1] * dims[2] * 12, size, 4.387482193696061, 16.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_QUADRATIC_TETRA\n";
+    std::cerr << "Error with VTK_QUADRATIC_TETRA\n";
     return EXIT_FAILURE;
   }
   size[0] = size[1] = 1.;
@@ -181,21 +184,21 @@ int TestCellTypeSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         (dims[0] + 1) * (dims[1] + 1) * (dims[2] + 1), dims[0] * dims[1] * dims[2], size,
         4.387482193696061, 16.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_HEXAHEDRON\n";
+    std::cerr << "Error with VTK_HEXAHEDRON\n";
     return EXIT_FAILURE;
   }
   size[0] = size[1] = 1. / 12.;
   if (CheckCells(VTK_QUADRATIC_HEXAHEDRON, dims, vtkAlgorithm::DOUBLE_PRECISION, 733,
         dims[0] * dims[1] * dims[2], size, 4.387482193696061, 16.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_QUADRATIC_HEXAHEDRON\n";
+    std::cerr << "Error with VTK_QUADRATIC_HEXAHEDRON\n";
     return EXIT_FAILURE;
   }
   size[0] = size[1] = -(1. / 48.);
   if (CheckCells(VTK_TRIQUADRATIC_HEXAHEDRON, dims, vtkAlgorithm::DOUBLE_PRECISION, 1287,
         dims[0] * dims[1] * dims[2], size, 4.387482193696061, 16.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_TRIQUADRATIC_HEXAHEDRON\n";
+    std::cerr << "Error with VTK_TRIQUADRATIC_HEXAHEDRON\n";
     return EXIT_FAILURE;
   }
   size[0] = size[1] = .5;
@@ -203,14 +206,14 @@ int TestCellTypeSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         (dims[0] + 1) * (dims[1] + 1) * (dims[2] + 1), dims[0] * dims[1] * dims[2] * 2, size,
         4.387482193696061, 16.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_WEDGE\n";
+    std::cerr << "Error with VTK_WEDGE\n";
     return EXIT_FAILURE;
   }
   if (CheckCells(VTK_QUADRATIC_WEDGE, dims, vtkAlgorithm::DOUBLE_PRECISION,
         733 + dims[0] * dims[1] * (dims[2] + 1), dims[0] * dims[1] * dims[2] * 2, size,
         4.387482193696061, 16.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_QUADRATIC_WEDGE\n";
+    std::cerr << "Error with VTK_QUADRATIC_WEDGE\n";
     return EXIT_FAILURE;
   }
   size[0] = size[1] = 1. / 6.;
@@ -218,21 +221,21 @@ int TestCellTypeSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         (dims[0] + 1) * (dims[1] + 1) * (dims[2] + 1) + dims[0] * dims[1] * dims[2],
         dims[0] * dims[1] * dims[2] * 6, size, 4.387482193696061, 16.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_PYRAMID\n";
+    std::cerr << "Error with VTK_PYRAMID\n";
     return EXIT_FAILURE;
   }
   if (CheckCells(VTK_QUADRATIC_PYRAMID, dims, vtkAlgorithm::DOUBLE_PRECISION,
         733 + 9 * dims[0] * dims[1] * dims[2], dims[0] * dims[1] * dims[2] * 6, size,
         4.387482193696061, 16.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_QUADRATIC_PYRAMID\n";
+    std::cerr << "Error with VTK_QUADRATIC_PYRAMID\n";
     return EXIT_FAILURE;
   }
   if (CheckCells(VTK_TRIQUADRATIC_PYRAMID, dims, vtkAlgorithm::DOUBLE_PRECISION,
         3327 + 9 * dims[0] * dims[1] * dims[2], dims[0] * dims[1] * dims[2] * 6, size,
         4.387482193696061, 16.) == EXIT_FAILURE)
   {
-    cerr << "Error with VTK_TRIQUADRATIC_PYRAMID\n";
+    std::cerr << "Error with VTK_TRIQUADRATIC_PYRAMID\n";
     return EXIT_FAILURE;
   }
 

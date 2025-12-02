@@ -34,6 +34,8 @@
 
 #include <adios2.h>
 
+#include <iostream>
+
 namespace
 {
 #if VTK_MODULE_ENABLE_VTK_ParallelMPI

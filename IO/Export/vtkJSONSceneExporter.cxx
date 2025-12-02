@@ -41,7 +41,7 @@
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
-#include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
 

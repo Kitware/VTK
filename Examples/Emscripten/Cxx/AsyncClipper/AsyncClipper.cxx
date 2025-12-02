@@ -31,6 +31,8 @@
 #include <algorithm>
 #include <array>
 
+#include <iostream>
+
 namespace
 {
 // Callback for the interaction

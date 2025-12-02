@@ -22,7 +22,8 @@
 #include "vtkPolyData.h"
 #include "vtkStringFormatter.h"
 #include "vtkTestUtilities.h"
-#include "vtkUnstructuredGrid.h"
+
+#include <iostream>
 
 namespace
 {

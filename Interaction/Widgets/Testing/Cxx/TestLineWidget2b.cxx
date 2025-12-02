@@ -17,6 +17,8 @@
 
 #include <vtkInteractorEventRecorder.h>
 
+#include <iostream>
+
 static const char* eventLog = "# StreamVersion 1.1\n"
                               "ExposeEvent 0 189 0 0 0 0\n"
                               "LeftButtonPressEvent 379 253 0 0 0 0\n"

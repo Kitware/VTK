@@ -18,6 +18,8 @@
 #include VTKLIBXML2_HEADER(parser.h)
 #include VTKLIBXML2_HEADER(tree.h)
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXMLTreeReader);
 
@@ -76,12 +78,12 @@ static void vtkXMLTreeReaderProcessElement(
   vtkStdString content;
   for (xmlNode* curNode = node; curNode; curNode = curNode->next)
   {
-    // cerr << "type=" << curNode->type << ",name=" << curNode->name << endl;
+    // std::cerr << "type=" << curNode->type << ",name=" << curNode->name << endl;
     if (curNode->content)
     {
       const char* curContent = reinterpret_cast<const char*>(curNode->content);
       content += curContent;
-      // cerr << "content=" << curNode->content << endl;
+      // std::cerr << "content=" << curNode->content << endl;
     }
 
     if (curNode->type != XML_ELEMENT_NODE)
@@ -139,7 +141,7 @@ static void vtkXMLTreeReaderProcessElement(
         }
         bitArr->InsertNextValue(true);
       }
-      // cerr << "attname=" << name << ",value=" << value << endl;
+      // std::cerr << "attname=" << name << ",value=" << value << endl;
       delete[] validName;
     }
 

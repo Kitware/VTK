@@ -31,6 +31,8 @@
 #include <cmath>
 #include <sstream>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkZSpaceInteractorStyle);
@@ -299,7 +301,7 @@ void vtkZSpaceInteractorStyle::EndPickCallback(vtkSelection* sel)
   // vtkActor* actor = vtkActor::SafeDownCast(node->GetProperties()->Get(vtkSelectionNode::PROP()));
   // if (!actor)
   // {
-  //   cout << "Cannot downcast prop to actor !" << endl;
+  //   std::cout << "Cannot downcast prop to actor !" << endl;
   //   return;
   // }
 

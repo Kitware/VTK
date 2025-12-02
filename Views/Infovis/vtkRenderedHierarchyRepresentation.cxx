@@ -27,6 +27,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderedHierarchyRepresentation::Internals
 {
@@ -222,7 +224,7 @@ vtkSelection* vtkRenderedHierarchyRepresentation::ConvertSelection(vtkView* view
       conv->Delete();
     }
   }
-  // cerr << "Tree converted: " << endl;
+  // std::cerr << "Tree converted: " << endl;
   // converted->Dump();
 
   return converted;

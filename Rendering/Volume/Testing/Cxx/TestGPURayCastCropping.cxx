@@ -6,7 +6,6 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
-#include "vtkContourFilter.h"
 #include "vtkCuller.h"
 #include "vtkCullerCollection.h"
 #include "vtkFrustumCoverageCuller.h"
@@ -17,12 +16,12 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSLCReader.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsReader.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransform.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+
+#include <iostream>
 
 int TestGPURayCastCropping(int argc, char* argv[])
 {
@@ -146,7 +145,7 @@ int TestGPURayCastCropping(int argc, char* argv[])
   }
   else
   {
-    cout << "culler is not a vtkFrustumCoverageCuller" << endl;
+    std::cout << "culler is not a vtkFrustumCoverageCuller" << std::endl;
   }
 
   // First test if mapper is supported
@@ -170,7 +169,7 @@ int TestGPURayCastCropping(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
   }
 
   // Clean up.

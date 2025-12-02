@@ -23,6 +23,8 @@
 #include <sstream>
 #include <vector>
 
+#include <iostream>
+
 namespace
 {
 
@@ -182,8 +184,8 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
     vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
       pks->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
-    cout << "\n## Completed parallel calculation of kmeans statistics (with assessment):\n"
-         << "   Wall time: " << timer->GetElapsedTime() << " sec.\n";
+    std::cout << "\n## Completed parallel calculation of kmeans statistics (with assessment):\n"
+              << "   Wall time: " << timer->GetElapsedTime() << " sec.\n";
     for (unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++b)
     {
       vtkTable* outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(b));
@@ -195,7 +197,7 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
           testIntValue += outputMeta->GetValueByName(r, "Cardinality").ToInt();
         }
 
-        cout << "\n## Computed clusters (cardinality: " << testIntValue << " / run):\n";
+        std::cout << "\n## Computed clusters (cardinality: " << testIntValue << " / run):\n";
 
         if (testIntValue != nVals * args->nProcs)
         {
@@ -206,8 +208,8 @@ void RandomSampleStatistics(vtkMultiProcessController* controller, void* arg)
       }
       else
       {
-        cout << "   Ranked cluster: "
-             << "\n";
+        std::cout << "   Ranked cluster: "
+                  << "\n";
       }
       outputMeta->Dump();
     }
@@ -275,14 +277,14 @@ int TestRandomPKMeansStatisticsMPI(int argc, char* argv[])
 
   if (com->GetLocalProcessId() == ioRank)
   {
-    cout << "\n# Process " << ioRank << " will be the I/O node.\n";
+    std::cout << "\n# Process " << ioRank << " will be the I/O node.\n";
   }
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
   if (controller->GetLocalProcessId() == ioRank)
   {
-    cout << "\n# Running test with " << numProcs << " processes...\n";
+    std::cout << "\n# Running test with " << numProcs << " processes...\n";
   }
 
   // **************************** Parse command line ***************************
@@ -323,7 +325,7 @@ int TestRandomPKMeansStatisticsMPI(int argc, char* argv[])
   {
     if (com->GetLocalProcessId() == ioRank)
     {
-      cerr << "Usage: " << clArgs.GetHelp() << "\n";
+      std::cerr << "Usage: " << clArgs.GetHelp() << "\n";
     }
 
     controller->Finalize();
@@ -352,7 +354,7 @@ int TestRandomPKMeansStatisticsMPI(int argc, char* argv[])
   // Clean up and exit
   if (com->GetLocalProcessId() == ioRank)
   {
-    cout << "\n# Test completed.\n\n";
+    std::cout << "\n# Test completed.\n\n";
   }
 
   controller->Finalize();

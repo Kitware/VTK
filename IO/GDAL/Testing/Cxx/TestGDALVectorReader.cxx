@@ -23,7 +23,7 @@
 #include <vtkTestUtilities.h>
 
 // C++ includes
-#include <sstream>
+#include <iostream>
 
 // Main program
 int TestGDALVectorReader(int argc, char* argv[])
@@ -43,8 +43,8 @@ int TestGDALVectorReader(int argc, char* argv[])
   for (int i = 0; i < nl; ++i)
   {
     reader->SetActiveLayer(i);
-    cout << "Layer " << i << " Type " << reader->GetActiveLayerType() << " FeatureCount "
-         << reader->GetActiveLayerFeatureCount() << "\n";
+    std::cout << "Layer " << i << " Type " << reader->GetActiveLayerType() << " FeatureCount "
+              << reader->GetActiveLayerFeatureCount() << "\n";
   }
   reader->SetActiveLayer(0); // Read only layer 0, which is the only layer.
   reader->Update();
@@ -64,7 +64,7 @@ int TestGDALVectorReader(int argc, char* argv[])
     {
       if (!cd->GetPedigreeIds())
       {
-        cerr << "Unable to find pedigree IDs even though AddFeatureIds was ON\n";
+        std::cerr << "Unable to find pedigree IDs even though AddFeatureIds was ON\n";
         return 1;
       }
     }

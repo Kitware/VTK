@@ -25,6 +25,7 @@
 
 #include "vtk_glad.h"
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -64,7 +65,7 @@ static vtkDataArray* Magnitude(vtkDataArray* V)
                                     pMagV[i] = sqrt(mag);
                                   });
     default:
-      cerr << "ERROR: vectors must be float or double" << endl;
+      std::cerr << "ERROR: vectors must be float or double" << std::endl;
       break;
   }
   return magV;
@@ -78,7 +79,7 @@ static vtkDataArray* Magnitude(vtkDataSet* ds, std::string& vectors)
   V = ds->GetPointData()->GetArray(vectors.c_str());
   if (V == nullptr)
   {
-    cerr << "ERROR: point vectors " << vectors << " not found" << endl;
+    std::cerr << "ERROR: point vectors " << vectors << " not found" << std::endl;
     return nullptr;
   }
   vtkDataArray* magV = Magnitude(V);
@@ -132,7 +133,8 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
 
   if (!vtkSurfaceLICInterface::IsSupported(renWin))
   {
-    cerr << "WARNING: The rendering context does not support required extensions." << endl;
+    std::cerr << "WARNING: The rendering context does not support required extensions."
+              << std::endl;
     dataObj = nullptr;
     renWin = nullptr;
     renderer = nullptr;
@@ -165,7 +167,7 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
     std::string(vtkGLRenderer ? vtkGLRenderer : "unknown") + std::string("\n") +
     std::string("    ") + std::string(vtkGLVendor ? vtkGLVendor : "unknown") + std::string("\n") +
     std::string("====================================================================\n\n\n");
-  cerr << details << endl;
+  std::cerr << details << std::endl;
 
   // If user chose a vector field, select it.
   if (!vectors.empty())
@@ -175,7 +177,7 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
   }
   else
   {
-    cerr << "ERROR: vectors must be set using --vectors." << endl;
+    std::cerr << "ERROR: vectors must be set using --vectors." << std::endl;
     return 1;
   }
 
@@ -186,7 +188,7 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
   {
     if (vectors.empty())
     {
-      cerr << "ERROR: color by mag requires using --vectors." << endl;
+      std::cerr << "ERROR: color by mag requires using --vectors." << std::endl;
       vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
       return 1;
     }
@@ -222,7 +224,7 @@ int vtkSurfaceLICTestDriver(int argc, char** argv, vtkDataObject* dataObj, int n
     }
     if (!magVName)
     {
-      cerr << "ERROR: color by mag could not generate magV." << endl;
+      std::cerr << "ERROR: color by mag could not generate magV." << std::endl;
       vtkAlgorithm::SetDefaultExecutivePrototype(nullptr);
       return 1;
     }

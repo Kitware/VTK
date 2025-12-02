@@ -8,9 +8,6 @@
 #include "vtkHyperTreeGrid.h"
 #include "vtkHyperTreeGridSource.h"
 #include "vtkImageData.h"
-#include "vtkLogger.h"
-#include "vtkMathUtilities.h"
-#include "vtkMergeBlocks.h"
 #include "vtkNew.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkPartitionedDataSet.h"
@@ -20,7 +17,6 @@
 #include "vtkRandomHyperTreeGridSource.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
-#include "vtkUniformGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLHyperTreeGridReader.h"
 #include "vtkXMLImageDataReader.h"
@@ -31,7 +27,7 @@
 #include "vtkXMLUnstructuredGridReader.h"
 
 #include <cstdlib>
-#include <iterator>
+#include <iostream>
 #include <string>
 
 //----------------------------------------------------------------------------

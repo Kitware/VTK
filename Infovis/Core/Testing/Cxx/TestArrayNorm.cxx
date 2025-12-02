@@ -28,7 +28,7 @@ static bool close_enough(const double lhs, const double rhs)
 
 int TestArrayNorm(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  cout << setprecision(17);
+  std::cout << setprecision(17);
 
   try
   {
@@ -41,8 +41,8 @@ int TestArrayNorm(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     source->SetSubDiagonal(-0.5);
     source->Update();
 
-    cout << "diagonal source:\n";
-    vtkPrintMatrixFormat(cout,
+    std::cout << "diagonal source:\n";
+    vtkPrintMatrixFormat(std::cout,
       vtkSparseArray<double>::SafeDownCast(
         source->GetOutput()->GetArray(static_cast<vtkIdType>(0))));
 
@@ -55,8 +55,8 @@ int TestArrayNorm(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkDenseArray<double>* const l2_norm = vtkDenseArray<double>::SafeDownCast(
       vector_norm->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
 
-    cout << "L2-norm:\n";
-    vtkPrintVectorFormat(cout, l2_norm);
+    std::cout << "L2-norm:\n";
+    vtkPrintVectorFormat(std::cout, l2_norm);
 
     test_expression(l2_norm);
     test_expression(close_enough(l2_norm->GetValueN(0), 1.1180339887498949));
@@ -69,8 +69,8 @@ int TestArrayNorm(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkDenseArray<double>* const l1_norm = vtkDenseArray<double>::SafeDownCast(
       vector_norm->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
 
-    cout << "L1-norm:\n";
-    vtkPrintVectorFormat(cout, l1_norm);
+    std::cout << "L1-norm:\n";
+    vtkPrintVectorFormat(std::cout, l1_norm);
 
     test_expression(l1_norm);
     test_expression(close_enough(l1_norm->GetValueN(0), 0.5));
@@ -83,8 +83,8 @@ int TestArrayNorm(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkDenseArray<double>* const inverse_l1_norm = vtkDenseArray<double>::SafeDownCast(
       vector_norm->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
 
-    cout << "Inverse L1-norm:\n";
-    vtkPrintVectorFormat(cout, inverse_l1_norm);
+    std::cout << "Inverse L1-norm:\n";
+    vtkPrintVectorFormat(std::cout, inverse_l1_norm);
 
     test_expression(inverse_l1_norm);
     test_expression(close_enough(inverse_l1_norm->GetValueN(0), 2.0));
@@ -98,8 +98,8 @@ int TestArrayNorm(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkDenseArray<double>* const window_l1_norm = vtkDenseArray<double>::SafeDownCast(
       vector_norm->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
 
-    cout << "Windowed L1-norm:\n";
-    vtkPrintVectorFormat(cout, window_l1_norm);
+    std::cout << "Windowed L1-norm:\n";
+    vtkPrintVectorFormat(std::cout, window_l1_norm);
 
     test_expression(window_l1_norm);
     test_expression(close_enough(window_l1_norm->GetValueN(0), 0.5));
@@ -109,7 +109,7 @@ int TestArrayNorm(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   catch (std::exception& e)
   {
-    cerr << e.what() << endl;
+    std::cerr << e.what() << std::endl;
     return 1;
   }
 }

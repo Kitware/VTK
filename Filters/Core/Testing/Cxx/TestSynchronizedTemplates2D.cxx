@@ -10,6 +10,8 @@
 #include "vtkTesting.h"
 #include "vtkXMLPolyDataReader.h"
 
+#include <iostream>
+
 int TestSynchronizedTemplates2D(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testHelper;

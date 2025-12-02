@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 int TestStringToken(int, char*[])
 {
   using namespace vtk::literals; // for ""_token().

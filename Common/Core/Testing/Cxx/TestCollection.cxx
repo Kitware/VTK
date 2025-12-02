@@ -9,6 +9,8 @@
 
 #include <algorithm>
 
+#include <iostream>
+
 bool TestRegister();
 bool TestRemoveItem(int index, bool removeIndex);
 

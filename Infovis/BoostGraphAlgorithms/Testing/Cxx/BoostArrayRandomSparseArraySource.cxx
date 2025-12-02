@@ -41,10 +41,10 @@ int BoostArrayRandomSparseArraySource(int vtkNotUsed(argc), char* vtkNotUsed(arg
     vtkSparseArray<double>* const sparse_array =
       vtkSparseArray<double>::SafeDownCast(source->GetOutput()->GetArray(0));
 
-    cout << "sparse random source:\n";
+    std::cout << "sparse random source:\n";
 
-    cout << setprecision(17);
-    vtkPrintCoordinateFormat(cout, sparse_array);
+    std::cout << setprecision(17);
+    vtkPrintCoordinateFormat(std::cout, sparse_array);
 
     test_expression(sparse_array);
     test_expression(sparse_array->GetValue(vtkArrayCoordinates(0, 0, 0)) == 0.0);
@@ -64,7 +64,7 @@ int BoostArrayRandomSparseArraySource(int vtkNotUsed(argc), char* vtkNotUsed(arg
   }
   catch (std::exception& e)
   {
-    cerr << e.what() << endl;
+    std::cerr << e.what() << std::endl;
     return 1;
   }
 }

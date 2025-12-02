@@ -26,6 +26,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <iostream>
+
 // Construct a render window and write it to disk and to buffer. Decompress the
 // buffer and compare its contents to the files on disk.
 int TestBufferedRenderWindowExporter(int argc, char* argv[])

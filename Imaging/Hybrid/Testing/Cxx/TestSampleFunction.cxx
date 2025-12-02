@@ -11,6 +11,8 @@
 
 #include "vtkTestErrorObserver.h"
 
+#include <iostream>
+
 int TestSampleFunction(int, char*[])
 {
   // First test for errors and warnings

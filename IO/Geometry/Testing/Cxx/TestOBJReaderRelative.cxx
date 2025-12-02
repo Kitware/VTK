@@ -4,13 +4,14 @@
 // .SECTION Description
 //
 
-#include "vtkDebugLeaks.h"
 #include "vtkOBJReader.h"
 
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 //------------------------------------------------------------------------------
 int CheckArrayPointData(vtkDataArray* firstArray, vtkDataArray* secondArray, int idx)
@@ -20,9 +21,9 @@ int CheckArrayPointData(vtkDataArray* firstArray, vtkDataArray* secondArray, int
   {
     if (firstArray->GetComponent(idx, compIdx) != secondArray->GetComponent(idx, compIdx))
     {
-      cerr << "Error: different values for "
-              "["
-           << (idx) << "]_" << compIdx << endl;
+      std::cerr << "Error: different values for "
+                   "["
+                << (idx) << "]_" << compIdx << std::endl;
       return 1;
     }
   }
@@ -56,7 +57,7 @@ int TestOBJReaderRelative(int argc, char* argv[])
   {                                                                                                \
     if (obj##_rel->method != obj##_abs->method)                                                    \
     {                                                                                              \
-      cerr << "Error: different values for " #obj "->" #method << endl;                            \
+      std::cerr << "Error: different values for " #obj "->" #method << std::endl;                  \
       retVal = 1;                                                                                  \
     }                                                                                              \
   } while (false)
@@ -65,7 +66,7 @@ int TestOBJReaderRelative(int argc, char* argv[])
   {                                                                                                \
     if (obj##_rel[idx] != obj##_abs[idx])                                                          \
     {                                                                                              \
-      cerr << "Error: different values for " #obj "[" << (idx) << "]" << endl;                     \
+      std::cerr << "Error: different values for " #obj "[" << (idx) << "]" << std::endl;           \
       retVal = 1;                                                                                  \
     }                                                                                              \
   } while (false)
@@ -74,7 +75,7 @@ int TestOBJReaderRelative(int argc, char* argv[])
   {                                                                                                \
     if (obj##_rel != obj##_abs)                                                                    \
     {                                                                                              \
-      cerr << "Error: different values for " #obj << endl;                                         \
+      std::cerr << "Error: different values for " #obj << std::endl;                               \
       retVal = 1;                                                                                  \
     }                                                                                              \
   } while (false)
@@ -84,7 +85,7 @@ int TestOBJReaderRelative(int argc, char* argv[])
   {                                                                                                \
     if (!(array))                                                                                  \
     {                                                                                              \
-      cerr << "Array does not exist." << endl;                                                     \
+      std::cerr << "Array does not exist." << std::endl;                                           \
       retVal = 1;                                                                                  \
     }                                                                                              \
   } while (false)

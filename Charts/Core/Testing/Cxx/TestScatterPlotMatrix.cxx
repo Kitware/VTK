@@ -16,6 +16,8 @@
 #include "vtkScatterPlotMatrix.h"
 #include "vtkTable.h"
 
+#include <iostream>
+
 namespace
 {
 

@@ -25,10 +25,12 @@
 #include "vtkTubeFilter.h"
 #include "vtkVersion.h"
 
+#include <iostream>
+
 int TestTubeBender(int argc, char* argv[])
 {
   std::ostringstream strm;
-  strm << "TestTubeBender Start" << endl;
+  strm << "TestTubeBender Start" << std::endl;
 
   vtkNew<vtkPolyData> line;
   {
@@ -98,7 +100,7 @@ int TestTubeBender(int argc, char* argv[])
     tubeActor->GetProperty()->SetOpacity(0.5);
   }
 
-  strm << "TestTubeBender End" << endl;
+  strm << "TestTubeBender End" << std::endl;
 
   vtkNew<vtkRenderer> renderer;
   renderer->AddActor(lineActor);

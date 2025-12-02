@@ -8,6 +8,8 @@
 
 #include "vtkTreeDFSIterator.h"
 
+#include <iostream>
+
 int TestTreeDFSIterator(int, char*[])
 {
   vtkNew<vtkMutableDirectedGraph> g;
@@ -47,7 +49,7 @@ int TestTreeDFSIterator(int, char*[])
 
   if (dfsIterator->GetStartVertex() != tree->GetRoot())
   {
-    cout << "StartVertex is not defaulting to root" << endl;
+    std::cout << "StartVertex is not defaulting to root" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -56,14 +58,15 @@ int TestTreeDFSIterator(int, char*[])
   {
     if (!dfsIterator->HasNext())
     {
-      cout << "HasNext() returned false before the end of the tree" << endl;
+      std::cout << "HasNext() returned false before the end of the tree" << std::endl;
       return EXIT_FAILURE;
     }
 
     vtkIdType nextVertex = dfsIterator->Next();
     if (nextVertex != correctSequence[i])
     {
-      cout << "Next vertex should be " << correctSequence[i] << " but it is " << nextVertex << endl;
+      std::cout << "Next vertex should be " << correctSequence[i] << " but it is " << nextVertex
+                << std::endl;
       return EXIT_FAILURE;
     }
   }

@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <vector>
 
 int TestQtPicking(int argc, char* argv[])

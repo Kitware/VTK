@@ -15,7 +15,6 @@
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkOBJReader.h"
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
@@ -27,6 +26,7 @@
 
 #include "vtksys/SystemTools.hxx"
 
+#include <iostream>
 #include <sstream>
 
 //------------------------------------------------------------------------------

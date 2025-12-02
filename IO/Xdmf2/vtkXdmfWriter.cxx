@@ -54,6 +54,8 @@
 #include "vtk_libxml2.h"
 #include VTKLIBXML2_HEADER(tree.h) // always after std::blah stuff
 
+#include <iostream>
+
 #ifdef VTK_USE_64BIT_IDS
 typedef XdmfInt64 vtkXdmfIdType;
 #else
@@ -378,8 +380,8 @@ int vtkXdmfWriter::RequestData(vtkInformation* request, vtkInformationVector** i
   {
     // I am assuming we are not given a temporal data object and getting just one time.
     this->CurrentTime = input->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
-    // cerr << "Writing timestep" << this->CurrentTimeIndex << " (" << this->CurrentTime << ")" <<
-    // endl;
+    // std::cerr << "Writing timestep" << this->CurrentTimeIndex << " (" << this->CurrentTime << ")"
+    // << endl;
 
     XdmfTime* xT = grid->GetTime();
     xT->SetDeleteOnGridDelete(true);
@@ -434,7 +436,7 @@ int vtkXdmfWriter::WriteDataSet(vtkDataObject* dobj, xdmf2::XdmfGrid* grid)
 //------------------------------------------------------------------------------
 int vtkXdmfWriter::WriteCompositeDataSet(vtkCompositeDataSet* dobj, xdmf2::XdmfGrid* grid)
 {
-  // cerr << "internal node " << dobj << " is a " << dobj->GetClassName() << endl;
+  // std::cerr << "internal node " << dobj << " is a " << dobj->GetClassName() << endl;
   if (dobj->IsA("vtkMultiPieceDataSet"))
   {
     grid->SetGridType(XDMF_GRID_COLLECTION);
@@ -699,7 +701,7 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet* ds, xdmf2::XdmfGrid* grid, vtkIdTy
       // and the extra code path is bound to cause problems eventually.
       if (cellTypes.size() == 1)
       {
-        // cerr << "Homogeneous topology" << endl;
+        // std::cerr << "Homogeneous topology" << endl;
         t->SetNumberOfElements(ds->GetNumberOfCells());
         const vtkXdmfWriterInternal::CellType* ct = &cellTypes.begin()->first;
         vtkIdType ppCell = ct->NumPoints;
@@ -797,7 +799,7 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet* ds, xdmf2::XdmfGrid* grid, vtkIdTy
       } // homogeneous
       else
       {
-        // cerr << "Nonhomogeneous topology" << endl;
+        // std::cerr << "Nonhomogeneous topology" << endl;
         // Non Homogeneous, used mixed topology type to dump them all
         t->SetTopologyType(XDMF_MIXED);
         vtkIdType numCells = ds->GetNumberOfCells();
@@ -1072,7 +1074,7 @@ int vtkXdmfWriter::CreateGeometry(vtkDataSet* ds, xdmf2::XdmfGrid* grid, void* s
 //------------------------------------------------------------------------------
 int vtkXdmfWriter::WriteAtomicDataSet(vtkDataObject* dobj, xdmf2::XdmfGrid* grid)
 {
-  // cerr << "Writing " << dobj << " a " << dobj->GetClassName() << endl;
+  // std::cerr << "Writing " << dobj << " a " << dobj->GetClassName() << endl;
   vtkDataSet* ds = vtkDataSet::SafeDownCast(dobj);
   if (!ds)
   {

@@ -28,6 +28,8 @@
 // Our fragment shader:
 #include "vtkFXAAFilterFS.h"
 
+#include <iostream>
+
 // Define to perform/dump benchmarking info:
 // #define FXAA_BENCHMARK
 

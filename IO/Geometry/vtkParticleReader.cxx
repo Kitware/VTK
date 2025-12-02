@@ -24,6 +24,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkParticleReader);
 
@@ -280,7 +282,7 @@ int vtkParticleReader::DetermineFileType()
   }
 
   size_t sampleSize = fileLength < 5000 ? fileLength : 5000;
-  // cout << "File length: " << fileLength << " Sample size: " << sampleSize << endl;
+  // std::cout << "File length: " << fileLength << " Sample size: " << sampleSize << endl;
   std::vector<unsigned char> s;
   for (size_t i = 0; i < sampleSize; ++i)
   {
@@ -293,7 +295,7 @@ int vtkParticleReader::DetermineFileType()
   // Assume that the file type is undetermined in this case.
   if (s.size() != sampleSize)
   {
-    // cout << "Premature termination" << endl;
+    // std::cout << "Premature termination" << endl;
     return FILE_TYPE_IS_UNKNOWN;
   }
 

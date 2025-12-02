@@ -30,7 +30,10 @@
 #include "vtkTrivialProducer.h"
 
 #include <cassert>
+#include <iostream>
 #include <vector>
+
+using std::cerr;
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace
@@ -788,7 +791,7 @@ void vtkGlyph3DMapper::GetBounds(double bounds[6])
 //------------------------------------------------------------------------------
 void vtkGlyph3DMapper::Render(vtkRenderer*, vtkActor*)
 {
-  cerr << "Calling wrong render method!!\n";
+  std::cerr << "Calling wrong render method!!\n";
 }
 
 //------------------------------------------------------------------------------

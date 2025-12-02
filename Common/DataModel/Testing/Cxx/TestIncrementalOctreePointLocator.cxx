@@ -11,6 +11,8 @@
 #include "vtkUnstructuredGridReader.h"
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
+
 // TODO: Convert this test to use C++-based RAII memory management instead.
 // NOLINTBEGIN(bugprone-suspicious-realloc-usage)
 
@@ -290,7 +292,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
         n = fread(&numInsrt, sizeof(int), 1, diskFile);
         if (n != 1)
         {
-          cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+          std::cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
           return 1;
         }
 #ifdef VTK_WORDS_BIGENDIAN
@@ -303,7 +305,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
           n = fread(truthIds, sizeof(vtkIdType), numInsrt, diskFile);
           if (n != static_cast<size_t>(numInsrt))
           {
-            cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+            std::cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
             return 1;
           }
 #ifdef VTK_WORDS_BIGENDIAN
@@ -386,7 +388,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
   n = fread(&nLocPnts, sizeof(int), 1, pntsFile);
   if (n != 1)
   {
-    cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+    std::cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
     fclose(pntsFile);
     free(pDataPts);
     return 1;
@@ -400,7 +402,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
   n = fread(pLocPnts, sizeof(double), nLocPnts * 3, pntsFile);
   if (n != static_cast<size_t>(nLocPnts * 3))
   {
-    cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+    std::cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
     fclose(pntsFile);
     free(pLocPnts);
     free(minDist2);
@@ -477,7 +479,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
     n = fread(&nLocPnts, sizeof(int), 1, diskFile);
     if (n != 1)
     {
-      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      std::cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
       return 1;
     }
 #ifdef VTK_WORDS_BIGENDIAN
@@ -487,7 +489,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
     n = fread(truthIds, sizeof(vtkIdType), nLocPnts, diskFile);
     if (n != static_cast<size_t>(nLocPnts))
     {
-      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      std::cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
       return 1;
     }
 #ifdef VTK_WORDS_BIGENDIAN
@@ -516,7 +518,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
     n = fread(&numInsrt, sizeof(int), 1, diskFile);
     if (n != 1)
     {
-      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      std::cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
       return 1;
     }
 #ifdef VTK_WORDS_BIGENDIAN
@@ -526,7 +528,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
     n = fread(truthIds, sizeof(vtkIdType), numInsrt, diskFile);
     if (n != static_cast<size_t>(numInsrt))
     {
-      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      std::cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
       return 1;
     }
 #ifdef VTK_WORDS_BIGENDIAN
@@ -648,7 +650,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
     n = fread(&numInsrt, sizeof(int), 1, diskFile);
     if (n != 1)
     {
-      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      std::cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
       return 1;
     }
 #ifdef VTK_WORDS_BIGENDIAN
@@ -659,7 +661,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
     n = fread(truthIds, sizeof(vtkIdType), numInsrt, diskFile);
     if (n != static_cast<size_t>(numInsrt))
     {
-      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      std::cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
       return 1;
     }
 #ifdef VTK_WORDS_BIGENDIAN
@@ -806,7 +808,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
     n = fread(&numInsrt, sizeof(int), 1, diskFile);
     if (n != 1)
     {
-      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      std::cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
       return 1;
     }
 #ifdef VTK_WORDS_BIGENDIAN
@@ -817,7 +819,7 @@ int TestIncrementalOctreePointLocator(int argc, char* argv[])
     n = fread(truthIds, sizeof(vtkIdType), numInsrt, diskFile);
     if (n != static_cast<size_t>(numInsrt))
     {
-      cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
+      std::cerr << "IO error " << __FILE__ << ":" << __LINE__ << "\n";
       return 1;
     }
 #ifdef VTK_WORDS_BIGENDIAN

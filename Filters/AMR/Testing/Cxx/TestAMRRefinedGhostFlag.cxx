@@ -16,6 +16,8 @@
 #include "vtkXMLUniformGridAMRReader.h"
 #include "vtkXMLUniformGridAMRWriter.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestAMRRefinedGhostFlag(int argc, char* argv[])
 {

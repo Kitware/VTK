@@ -12,6 +12,8 @@
 #include "vtkSmartPointer.h"
 #include <cassert>
 
+#include <iostream>
+
 bool TestStructured(int type)
 {
   vtkSmartPointer<vtkRTAnalyticSource> imageSource = vtkSmartPointer<vtkRTAnalyticSource>::New();
@@ -99,14 +101,14 @@ int TestCutter(int, char*[])
   {
     if (!TestStructured(type))
     {
-      cerr << "Cutting Structured failed" << endl;
+      std::cerr << "Cutting Structured failed" << std::endl;
       return EXIT_FAILURE;
     }
   }
 
   if (!TestUnstructured())
   {
-    cerr << "Cutting Unstructured failed" << endl;
+    std::cerr << "Cutting Unstructured failed" << std::endl;
     return EXIT_FAILURE;
   }
 

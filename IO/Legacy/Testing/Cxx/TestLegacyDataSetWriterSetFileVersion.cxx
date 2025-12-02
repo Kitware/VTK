@@ -8,6 +8,8 @@
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 int TestLegacyDataSetWriterSetFileVersion(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testing;

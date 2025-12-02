@@ -15,6 +15,8 @@
 #include "vtkSphereSource.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestPLYWriterAlpha(int argc, char* argv[])
 {
   // Test temporary directory

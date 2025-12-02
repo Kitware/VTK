@@ -20,6 +20,8 @@
 
 #include "vtk_glad.h"
 
+#include <iostream>
+
 class vtkStartRenderObserver : public vtkCommand
 {
 public:
@@ -173,9 +175,9 @@ int TestWindowBlits(int argc, char* argv[])
 
   if (!renderWindow->SupportsOpenGL())
   {
-    cerr << "The platform does not support OpenGL as required\n";
-    cerr << vtkOpenGLRenderWindow::SafeDownCast(renderWindow)->GetOpenGLSupportMessage();
-    cerr << renderWindow->ReportCapabilities();
+    std::cerr << "The platform does not support OpenGL as required\n";
+    std::cerr << vtkOpenGLRenderWindow::SafeDownCast(renderWindow)->GetOpenGLSupportMessage();
+    std::cerr << renderWindow->ReportCapabilities();
     return 1;
   }
 
@@ -209,7 +211,7 @@ int TestWindowBlits(int argc, char* argv[])
 
   int major, minor;
   vtkOpenGLRenderWindow::SafeDownCast(renderWindow)->GetOpenGLVersion(major, minor);
-  cerr << "opengl version " << major << "." << minor << "\n";
+  std::cerr << "opengl version " << major << "." << minor << "\n";
 
   vtkNew<vtkStartRenderObserver> startObserver;
   startObserver->SetRenderWindow(renderWindow);

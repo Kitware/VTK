@@ -15,6 +15,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 using ExpectSides = std::set<std::array<vtkIdType, 2>>;
 
 namespace

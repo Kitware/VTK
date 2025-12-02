@@ -15,6 +15,8 @@
 
 #include "PipelineParallelism.h"
 
+#include <iostream>
+
 int main(int argc, char* argv[])
 {
 
@@ -35,7 +37,7 @@ int main(int argc, char* argv[])
 
   if (numProcs != 2)
   {
-    cerr << "This example requires two processes." << endl;
+    std::cerr << "This example requires two processes." << endl;
     controller->Finalize();
     controller->Delete();
     return 1;

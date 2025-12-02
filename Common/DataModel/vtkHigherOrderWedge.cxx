@@ -21,6 +21,8 @@
 
 #include <array>
 
+#include <iostream>
+
 // VTK_21_POINT_WEDGE is defined (or not) in vtkHigherOrderInterpolation.h
 #ifdef VTK_21_POINT_WEDGE
 VTK_ABI_NAMESPACE_BEGIN

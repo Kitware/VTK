@@ -16,6 +16,8 @@
 #include "vtkRenderer.h"
 #include "vtkmContour.h"
 
+#include <iostream>
+
 const int EXTENT = 30;
 int TestVTKMMarchingCubes2(int argc, char* argv[])
 {

@@ -15,6 +15,8 @@
 #include <vtkTestErrorObserver.h>
 #include <vtkTestUtilities.h>
 
+#include <iostream>
+
 int TestMFIXReader(int argc, char* argv[])
 {
   // Read file name.

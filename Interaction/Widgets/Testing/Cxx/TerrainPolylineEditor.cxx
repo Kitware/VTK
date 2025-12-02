@@ -27,6 +27,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkWarpScalar.h"
 
+#include <iostream>
+
 constexpr char TerrainPolylineEditorLog[] = "# StreamVersion 1\n"
                                             "EnterEvent 522 259 0 0 0 0 0 i\n"
                                             "MouseMoveEvent 446 277 0 0 0 0 0 i\n"

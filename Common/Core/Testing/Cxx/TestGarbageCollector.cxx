@@ -7,6 +7,8 @@
 #include "vtkObject.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 // A class that simulates a reference loop and participates in garbage
 // collection.
 class vtkTestReferenceLoop : public vtkObject
@@ -76,7 +78,7 @@ int TestGarbageCollector(int, char*[])
   obj->Delete();
   if (!called)
   {
-    cerr << "Object not immediately collected." << endl;
+    std::cerr << "Object not immediately collected." << std::endl;
     return 1;
   }
 
@@ -89,7 +91,7 @@ int TestGarbageCollector(int, char*[])
   obj->Delete();
   if (called)
   {
-    cerr << "Object collection not deferred." << endl;
+    std::cerr << "Object collection not deferred." << std::endl;
     return 1;
   }
 
@@ -97,7 +99,7 @@ int TestGarbageCollector(int, char*[])
   vtkGarbageCollector::DeferredCollectionPop();
   if (!called)
   {
-    cerr << "Deferred collection did not collect object." << endl;
+    std::cerr << "Deferred collection did not collect object." << std::endl;
     return 1;
   }
 

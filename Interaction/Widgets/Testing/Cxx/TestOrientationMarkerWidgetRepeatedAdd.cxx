@@ -8,6 +8,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+#include <iostream>
+
 int TestOrientationMarkerWidgetRepeatedAdd(int, char*[])
 {
   vtkNew<vtkRenderer> renderer;

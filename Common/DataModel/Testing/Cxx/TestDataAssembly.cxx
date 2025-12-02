@@ -13,6 +13,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include <iostream>
+
 namespace
 {
 
@@ -77,7 +79,7 @@ int TestDataAssembly(int, char*[])
   assembly->AddDataSetIndices(elem_sets[1], { 6, 7, 8 });
   // add dataset on a non-leaf node.
   assembly->AddDataSetIndices(groups[1], { 11 });
-  assembly->Print(cout);
+  assembly->Print(std::cout);
 
   try
   {
@@ -107,14 +109,14 @@ int TestDataAssembly(int, char*[])
     VERIFY((assembly->SelectNodes({ "//sets" }) == std::vector<int>{ 2 }));
     VERIFY(assembly->SelectNodes({ "/sets" }).empty());
     VERIFY((assembly->SelectNodes({ "//sets/*" }) == std::vector<int>{ 6, 7, 8 }));
-    assembly->Print(cout);
+    assembly->Print(std::cout);
 
     vtkNew<vtkDataAssembly> subset;
     subset->SubsetCopy(assembly, { 6 });
-    subset->Print(cout);
+    subset->Print(std::cout);
 
     subset->RemapDataSetIndices({ { 11, 0 }, { 6, 1 } }, /*remove_unmapped=*/true);
-    subset->Print(cout);
+    subset->Print(std::cout);
     VERIFY((subset->GetDataSetIndices(0) == std::vector<unsigned int>{ 0, 1 }));
     VERIFY(subset->GetDataSetIndices(14).empty());
     VERIFY((subset->GetDataSetIndices(15) == std::vector<unsigned int>{ 1 }));

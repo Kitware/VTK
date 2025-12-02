@@ -33,10 +33,13 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
+
 #include <cassert>
+#include <iostream>
 
 #ifdef WRITE_GENERIC_RESULT
 #include "vtkXMLPolyDataWriter.h"
+
 #endif // #ifdef WRITE_GENERIC_RESULT
 
 // Remark about the lookup tables that seem different between the
@@ -85,12 +88,12 @@ int TestSmoothErrorMetric(int argc, char* argv[])
   //  ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   //  attributesError->Delete();
 
-  cout << "input unstructured grid: " << ds << endl;
+  std::cout << "input unstructured grid: " << ds << std::endl;
 
   static_cast<vtkSimpleCellTessellator*>(ds->GetTessellator())->SetMaxSubdivisionLevel(100);
 
   vtkIndent indent;
-  ds->PrintSelf(cout, indent);
+  ds->PrintSelf(std::cout, indent);
 
   // Create the filter
   vtkSmartPointer<vtkGenericGeometryFilter> geom = vtkSmartPointer<vtkGenericGeometryFilter>::New();

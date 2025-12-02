@@ -25,6 +25,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVoxel.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtractSelectedFrustum);
 vtkCxxSetObjectMacro(vtkExtractSelectedFrustum, Frustum, vtkPlanes);
@@ -305,7 +307,7 @@ int vtkExtractSelectedFrustum::RequestData(vtkInformation* vtkNotUsed(request),
   /*
   int NUMCELLS = 0;
   int NUMPTS = 0;
-  cerr << "{" << endl;
+  std::cerr << "{" << endl;
   vtkTimerLog *timer = vtkTimerLog::New();
   timer->StartTimer();
   */
@@ -403,7 +405,7 @@ int vtkExtractSelectedFrustum::RequestData(vtkInformation* vtkNotUsed(request),
 
     /*
     timer->StopTimer();
-    cerr << "  PTINIT " << timer->GetElapsedTime() << endl;
+    std::cerr << "  PTINIT " << timer->GetElapsedTime() << endl;
     timer->StartTimer();
     */
     // Loop over all cells to see whether they are inside.
@@ -493,9 +495,9 @@ int vtkExtractSelectedFrustum::RequestData(vtkInformation* vtkNotUsed(request),
 
     /*
     timer->StopTimer();
-    cerr << "  CLIN " << timer->GetElapsedTime() << endl;
+    std::cerr << "  CLIN " << timer->GetElapsedTime() << endl;
     timer->StartTimer();
-    cerr << "  AFTERCELL NUMPTS = " << NUMPTS << endl;
+    std::cerr << "  AFTERCELL NUMPTS = " << NUMPTS << endl;
     */
 
     // there could be some points that are not used by any cell
@@ -567,7 +569,7 @@ int vtkExtractSelectedFrustum::RequestData(vtkInformation* vtkNotUsed(request),
 
     /*
     timer->StopTimer();
-    cerr << "  PTIN " << timer->GetElapsedTime() << endl;
+    std::cerr << "  PTIN " << timer->GetElapsedTime() << endl;
     timer->StartTimer();
     */
 
@@ -672,18 +674,18 @@ int vtkExtractSelectedFrustum::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   /*
-  cerr << "  REJECTS " << this->NumRejects << " ";
+  std::cerr << "  REJECTS " << this->NumRejects << " ";
   this->NumRejects = 0;
-  cerr << "  ACCEPTS " << this->NumAccepts << " ";
+  std::cerr << "  ACCEPTS " << this->NumAccepts << " ";
   this->NumAccepts = 0;
-  cerr << "  ISECTS " << this->NumIsects << endl;
+  std::cerr << "  ISECTS " << this->NumIsects << endl;
   this->NumIsects = 0;
-  cerr << "  @END NUMPTS = " << NUMPTS << endl;
-  cerr << "  @END NUMCELLS = " << NUMCELLS << endl;
+  std::cerr << "  @END NUMPTS = " << NUMPTS << endl;
+  std::cerr << "  @END NUMCELLS = " << NUMCELLS << endl;
   timer->StopTimer();
-  cerr << "  " << timer->GetElapsedTime() << endl;
+  std::cerr << "  " << timer->GetElapsedTime() << endl;
   timer->Delete();
-  cerr << "}" << endl;
+  std::cerr << "}" << endl;
   */
 
   // Update ourselves and release memory

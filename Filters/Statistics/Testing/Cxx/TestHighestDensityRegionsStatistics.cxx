@@ -11,6 +11,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestHighestDensityRegionsStatistics(int, char*[])
 {
@@ -64,9 +66,9 @@ int TestHighestDensityRegionsStatistics(int, char*[])
   vtkNew<vtkHighestDensityRegionsStatistics> hdrs;
 
   // First verify that absence of input does not cause trouble
-  cout << "## Verifying that absence of input does not cause trouble... ";
+  std::cout << "## Verifying that absence of input does not cause trouble... ";
   hdrs->Update();
-  cout << "done.\n";
+  std::cout << "done.\n";
 
   hdrs->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, table);
   // Select Column Pairs of Interest ( Learn Mode )
@@ -83,7 +85,7 @@ int TestHighestDensityRegionsStatistics(int, char*[])
   hdrs->SetTestOption(false);
   hdrs->Update();
 
-  cout << "\n## Result:\n";
+  std::cout << "\n## Result:\n";
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
     hdrs->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
@@ -96,10 +98,10 @@ int TestHighestDensityRegionsStatistics(int, char*[])
     vtkArrayDownCast<vtkDoubleArray>(outputMetaLearn->GetColumnByName(ss.str().c_str()));
   if (!HDRArray)
   {
-    cout << "Fail! The HDR column is missing from the result table!" << endl;
+    std::cout << "Fail! The HDR column is missing from the result table!" << std::endl;
     return EXIT_FAILURE;
   }
-  cout << "## Done." << endl;
+  std::cout << "## Done." << std::endl;
 
   return EXIT_SUCCESS;
 }

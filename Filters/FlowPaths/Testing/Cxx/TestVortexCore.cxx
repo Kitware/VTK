@@ -18,6 +18,7 @@
 #include "vtkXMLUnstructuredGridWriter.h"
 
 #include <array>
+#include <iostream>
 
 namespace
 {

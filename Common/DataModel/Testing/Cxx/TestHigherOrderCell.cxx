@@ -3,6 +3,8 @@
 #include "vtkGenericCell.h"
 #include "vtkPoints.h"
 
+#include <iostream>
+
 static constexpr unsigned int depth = 5;
 static unsigned char HigherOrderCell[][depth] = {
   { VTK_LINE, VTK_QUADRATIC_EDGE, VTK_NUMBER_OF_CELL_TYPES, VTK_NUMBER_OF_CELL_TYPES,
@@ -34,7 +36,7 @@ void InitializeACell(vtkCell* cell)
     {
       double* point = pcoords + 3 * i;
       cell->GetPointIds()->SetId(i, i);
-      // cerr << point[0] << "," << point[1] << "," << point[2] << endl;
+      // std::cerr << point[0] << "," << point[1] << "," << point[2] << std::endl;
       cell->GetPoints()->SetPoint(i, point);
     }
   }
@@ -47,8 +49,8 @@ void InitializeACell(vtkCell* cell)
 int CompareHigherOrderCell(vtkCell* c1, vtkCell* c2)
 {
   int rval = 0;
-  // c1->Print( cout );
-  // c2->Print( cout );
+  // c1->Print( std::cout );
+  // c2->Print( std::cout );
   int c1numPts = c1->GetNumberOfPoints();
   int c2numPts = c2->GetNumberOfPoints();
   int numPts = c1numPts < c2numPts ? c1numPts : c2numPts;
@@ -58,17 +60,17 @@ int CompareHigherOrderCell(vtkCell* c1, vtkCell* c2)
     vtkIdType pid2 = c2->GetPointId(p);
     if (pid1 != pid2)
     {
-      cerr << "Problem with pid:" << pid1 << " != " << pid2 << " in cell #" << c1->GetCellType()
-           << " and #" << c2->GetCellType() << endl;
+      std::cerr << "Problem with pid:" << pid1 << " != " << pid2 << " in cell #"
+                << c1->GetCellType() << " and #" << c2->GetCellType() << std::endl;
       ++rval;
     }
     double* pt1 = c1->Points->GetPoint(p);
     double* pt2 = c2->Points->GetPoint(p);
     if (pt1[0] != pt2[0] || pt1[1] != pt2[1] || pt1[2] != pt2[2])
     {
-      cerr << "Problem with points coord:" << pt1[0] << "," << pt1[1] << "," << pt1[2]
-           << " != " << pt2[0] << "," << pt2[1] << "," << pt2[2] << " in cell #"
-           << c1->GetCellType() << " and #" << c2->GetCellType() << endl;
+      std::cerr << "Problem with points coord:" << pt1[0] << "," << pt1[1] << "," << pt1[2]
+                << " != " << pt2[0] << "," << pt2[1] << "," << pt2[2] << " in cell #"
+                << c1->GetCellType() << " and #" << c2->GetCellType() << std::endl;
       ++rval;
     }
   }
@@ -81,8 +83,8 @@ int TestHigherOrderCell(int, char*[])
   int rval = 0;
   if (sizeof(HigherOrderCell[0]) != depth)
   {
-    cerr << sizeof(HigherOrderCell[0]) << endl;
-    cerr << "Problem in the test" << endl;
+    std::cerr << sizeof(HigherOrderCell[0]) << std::endl;
+    std::cerr << "Problem in the test" << std::endl;
     return 1;
   }
 
@@ -98,9 +100,9 @@ int TestHigherOrderCell(int, char*[])
   for (unsigned int i = 0; i < nCells; ++i)
   {
     orderCell = HigherOrderCell[i];
-    // cerr << "Higher : " << (int)orderCell[0] << "," << (int)orderCell[1]
+    // std::cerr << "Higher : " << (int)orderCell[0] << "," << (int)orderCell[1]
     // << "," << (int)orderCell[2] << "," << (int)orderCell[3] << ","
-    // << (int)orderCell[4] << endl;
+    // << (int)orderCell[4] << std::endl;
     for (unsigned int c = 0; c < depth; ++c)
     {
       const int cellType = orderCell[c];
@@ -124,22 +126,22 @@ int TestHigherOrderCell(int, char*[])
       {
         if (cell->GetCellType() != (int)orderCell[c])
         {
-          cerr << "Problem in the test" << endl;
+          std::cerr << "Problem in the test" << std::endl;
           ++rval;
         }
         if (cell->GetCellDimension() != dim)
         {
-          cerr << "Wrong dim for cellId #" << cell->GetCellType() << endl;
+          std::cerr << "Wrong dim for cellId #" << cell->GetCellType() << std::endl;
           ++rval;
         }
         if (cell->GetNumberOfEdges() != numEdges)
         {
-          cerr << "Wrong numEdges for cellId #" << cell->GetCellType() << endl;
+          std::cerr << "Wrong numEdges for cellId #" << cell->GetCellType() << std::endl;
           ++rval;
         }
         if (cell->GetNumberOfFaces() != numFaces)
         {
-          cerr << "Wrong numFace for cellId #" << cell->GetCellType() << endl;
+          std::cerr << "Wrong numFace for cellId #" << cell->GetCellType() << std::endl;
           ++rval;
         }
         // Make sure that edge across all different cell are identical
@@ -147,15 +149,15 @@ int TestHigherOrderCell(int, char*[])
         {
           vtkCell* c1 = linCell->GetEdge(e);
           vtkCell* c2 = cell->GetEdge(e);
-          cerr << "Doing Edge: #" << e << " comp:" << linCell->GetCellType() << " vs "
-               << cell->GetCellType() << endl;
+          std::cerr << "Doing Edge: #" << e << " comp:" << linCell->GetCellType() << " vs "
+                    << cell->GetCellType() << std::endl;
           if (cell->GetCellType() != VTK_TRIQUADRATIC_PYRAMID)
           {
             rval += CompareHigherOrderCell(c1, c2);
           }
           vtkCell* qc1 = quadCell->GetEdge(e);
-          cerr << "Doing Edge: #" << e << " comp:" << quadCell->GetCellType() << " vs "
-               << cell->GetCellType() << endl;
+          std::cerr << "Doing Edge: #" << e << " comp:" << quadCell->GetCellType() << " vs "
+                    << cell->GetCellType() << std::endl;
           if (cell->GetCellType() != VTK_QUADRATIC_LINEAR_QUAD &&
             cell->GetCellType() != VTK_QUADRATIC_LINEAR_WEDGE &&
             cell->GetCellType() != VTK_TRIQUADRATIC_PYRAMID)
@@ -168,16 +170,16 @@ int TestHigherOrderCell(int, char*[])
         {
           vtkCell* f1 = linCell->GetFace(f);
           vtkCell* f2 = cell->GetFace(f);
-          cerr << "Doing Face: #" << f << " comp:" << linCell->GetCellType() << " vs "
-               << cell->GetCellType() << endl;
+          std::cerr << "Doing Face: #" << f << " comp:" << linCell->GetCellType() << " vs "
+                    << cell->GetCellType() << std::endl;
           if ((!isQuadraticWedge(cell->GetCellType())) &&
             cell->GetCellType() != VTK_TRIQUADRATIC_PYRAMID)
           {
             rval += CompareHigherOrderCell(f1, f2);
           }
           vtkCell* qf1 = quadCell->GetFace(f);
-          cerr << "Doing Face: #" << f << " comp:" << quadCell->GetCellType() << " vs "
-               << cell->GetCellType() << endl;
+          std::cerr << "Doing Face: #" << f << " comp:" << quadCell->GetCellType() << " vs "
+                    << cell->GetCellType() << std::endl;
           if (cell->GetCellType() != VTK_QUADRATIC_LINEAR_QUAD &&
             (!isQuadraticWedge(cell->GetCellType())) &&
             cell->GetCellType() != VTK_TRIQUADRATIC_PYRAMID)

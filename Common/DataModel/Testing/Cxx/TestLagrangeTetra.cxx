@@ -42,6 +42,8 @@
 #include <cmath>
 #include <vector>
 
+#include <iostream>
+
 namespace
 {
 vtkSmartPointer<vtkLagrangeTetra> CreateTetra(int nPoints)

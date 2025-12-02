@@ -37,6 +37,8 @@
 #include <sstream>
 #include <string>
 
+#include <iostream>
+
 // Define this to work around "glommed" point/cell data in the reference data.
 #undef GLOM_WORKAROUND
 // #define GLOM_WORKAROUND
@@ -45,11 +47,11 @@
 #define vtkContourFilter_IS_FIXED 0
 
 #define FAIL(x)                                                                                    \
-  cerr << x << endl;                                                                               \
+  std::cerr << x << std::endl;                                                                     \
   return EXIT_FAILURE;
 
 #define FAILB(x)                                                                                   \
-  cerr << x << endl;                                                                               \
+  std::cerr << x << std::endl;                                                                     \
   return false;
 
 bool readExodusCopy(std::string fileName, vtkMultiBlockDataSet* mbds)
@@ -151,10 +153,11 @@ bool compareDataSets(vtkDataSet* ref, vtkDataSet* test)
   if (refNumPointDataArrays != testNumPointDataArrays)
   {
 #ifdef GLOM_WORKAROUND
-    cerr << "Warning: "
-            "Point data array count mismatch. This may not be an error, as "
-            "the reference data combines multicomponent arrays. "
-         << "Reference: " << refNumPointDataArrays << " Actual: " << testNumPointDataArrays << endl;
+    std::cerr << "Warning: "
+                 "Point data array count mismatch. This may not be an error, as "
+                 "the reference data combines multicomponent arrays. "
+              << "Reference: " << refNumPointDataArrays << " Actual: " << testNumPointDataArrays
+              << std::endl;
 #else
     FAILB("Point data array count mismatch. This may not be an error, as "
           "the reference data combines multicomponent arrays. "
@@ -171,11 +174,11 @@ bool compareDataSets(vtkDataSet* ref, vtkDataSet* test)
     if (refArray == nullptr)
     {
 #ifdef GLOM_WORKAROUND
-      cerr << "Warning: "
-           << "Testing point data array '" << arrayName
-           << "' does not exist in the reference data set. This may not be an "
-           << "error if the reference data has probably made this into a "
-           << "multicomponent array. " << endl;
+      std::cerr << "Warning: "
+                << "Testing point data array '" << arrayName
+                << "' does not exist in the reference data set. This may not be an "
+                << "error if the reference data has probably made this into a "
+                << "multicomponent array. " << std::endl;
       continue;
 #else
       FAILB("Testing point data array '"
@@ -296,10 +299,11 @@ bool compareDataSets(vtkDataSet* ref, vtkDataSet* test)
   if (refNumCellDataArrays != testNumCellDataArrays)
   {
 #ifdef GLOM_WORKAROUND
-    cerr << "Warning: "
-         << "Cell data array count mismatch. This may not be an error, as "
-            "the reference data combines multicomponent arrays. "
-         << "Reference: " << refNumCellDataArrays << " Actual: " << testNumCellDataArrays << endl;
+    std::cerr << "Warning: "
+              << "Cell data array count mismatch. This may not be an error, as "
+                 "the reference data combines multicomponent arrays. "
+              << "Reference: " << refNumCellDataArrays << " Actual: " << testNumCellDataArrays
+              << std::endl;
 #else
     FAILB("Cell data array count mismatch. This may not be an error, as "
           "the reference data combines multicomponent arrays. "
@@ -316,11 +320,11 @@ bool compareDataSets(vtkDataSet* ref, vtkDataSet* test)
     if (refArray == nullptr)
     {
 #ifdef GLOM_WORKAROUND
-      cerr << "Warning: "
-           << "Testing cell data array '" << arrayName
-           << "' does not exist in the reference data set. But it's cool -- "
-           << "the reference data has probably made this into a multicomponent "
-           << "array." << endl;
+      std::cerr << "Warning: "
+                << "Testing cell data array '" << arrayName
+                << "' does not exist in the reference data set. But it's cool -- "
+                << "the reference data has probably made this into a multicomponent "
+                << "array." << std::endl;
       continue;
 #else
       FAILB("Testing cell data array '"
@@ -605,8 +609,8 @@ bool validateFilterOutput(const std::string& name, vtkDataSet*& refOutput, vtkDa
   {
     FAILB(name << " output mismatch.")
   }
-  cout << name << " produced " << refOutput->GetNumberOfPoints() << " points and "
-       << refOutput->GetNumberOfCells() << " cells." << endl;
+  std::cout << name << " produced " << refOutput->GetNumberOfPoints() << " points and "
+            << refOutput->GetNumberOfCells() << " cells." << std::endl;
   refOutput->Delete();
   refOutput = nullptr;
   testOutput->Delete();
@@ -647,16 +651,17 @@ void printTimingInfo(
   refStdev = std::sqrt(refStdev / static_cast<double>(ref.size()));
   testStdev = std::sqrt(testStdev / static_cast<double>(test.size()));
 
-  cout << "Timing info for test '" << name << "', " << ref.size() << " sample(s):\n\t"
-       << "Average (ref | test | %slowdown): " << std::setprecision(6) << std::setw(9) << refAverage
-       << std::setw(0) << " | " << std::setw(9) << testAverage << std::setw(0) << " | "
-       << std::setw(9) << ((testAverage / refAverage) - 1.0) * 100 << std::setw(0) << "%\n\t"
-       << "Std Dev (ref | test): " << std::setw(9) << refStdev << std::setw(0) << " | "
-       << std::setw(9) << testStdev << std::setw(0) << "\n\t"
-       << "Minimum (ref | test): " << std::setw(9) << refMin << std::setw(0) << " | "
-       << std::setw(9) << testMin << std::setw(0) << "\n\t"
-       << "Maximum (ref | test): " << std::setw(9) << refMax << std::setw(0) << " | "
-       << std::setw(9) << testMax << std::setw(0) << endl;
+  std::cout << "Timing info for test '" << name << "', " << ref.size() << " sample(s):\n\t"
+            << "Average (ref | test | %slowdown): " << std::setprecision(6) << std::setw(9)
+            << refAverage << std::setw(0) << " | " << std::setw(9) << testAverage << std::setw(0)
+            << " | " << std::setw(9) << ((testAverage / refAverage) - 1.0) * 100 << std::setw(0)
+            << "%\n\t"
+            << "Std Dev (ref | test): " << std::setw(9) << refStdev << std::setw(0) << " | "
+            << std::setw(9) << testStdev << std::setw(0) << "\n\t"
+            << "Minimum (ref | test): " << std::setw(9) << refMin << std::setw(0) << " | "
+            << std::setw(9) << testMin << std::setw(0) << "\n\t"
+            << "Maximum (ref | test): " << std::setw(9) << refMax << std::setw(0) << " | "
+            << std::setw(9) << testMax << std::setw(0) << std::endl;
 }
 
 // The test to run while profiling or benchmarking:
@@ -672,8 +677,8 @@ void printTimingInfo(
 
 bool testFilters(vtkUnstructuredGridBase* ref, vtkUnstructuredGridBase* test)
 {
-  cout << "Number of points: " << ref->GetNumberOfPoints() << endl;
-  cout << "Number of cells:  " << ref->GetNumberOfCells() << endl;
+  std::cout << "Number of points: " << ref->GetNumberOfPoints() << std::endl;
+  std::cout << "Number of cells:  " << ref->GetNumberOfCells() << std::endl;
 
   // Number of times to run each benchmark. Don't commit a value greater than
   // 1 to keep the dashboards fast, but this can be increased while benchmarking
@@ -815,7 +820,7 @@ bool testFilters(vtkUnstructuredGridBase* ref, vtkUnstructuredGridBase* test)
   // Ensure that the mapped test produced a mapped output:
   if (!testOutput->IsA("vtkCPExodusIIElementBlock"))
   {
-    cerr << "Pipeline test did not produce a mapped output object!" << endl;
+    std::cerr << "Pipeline test did not produce a mapped output object!" << std::endl;
     return false;
   }
   if (!validateFilterOutput("Pipeline test", refOutput, testOutput))
@@ -936,7 +941,7 @@ int TestInSituExodus(int argc, char* argv[])
 
   timer->StopTimer();
   double time = timer->GetElapsedTime();
-  cout << "Test took " << static_cast<int>(time / 60) << "m " << std::fmod(time, 60.0) << "s."
-       << endl;
+  std::cout << "Test took " << static_cast<int>(time / 60) << "m " << std::fmod(time, 60.0) << "s."
+            << std::endl;
   return EXIT_SUCCESS;
 }

@@ -9,6 +9,8 @@
 #include <string>
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
+
 #define VTK_SUCCESS 0
 #define VTK_FAILURE 1
 int TestXMLHierarchicalBoxDataFileConverter(int argc, char* argv[])
@@ -17,7 +19,7 @@ int TestXMLHierarchicalBoxDataFileConverter(int argc, char* argv[])
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!temp_dir)
   {
-    std::cerr << "Could not determine temporary directory." << endl;
+    std::cerr << "Could not determine temporary directory." << std::endl;
     return VTK_FAILURE;
   }
   std::string tempDirStr = temp_dir;
@@ -26,7 +28,7 @@ int TestXMLHierarchicalBoxDataFileConverter(int argc, char* argv[])
   char* data_dir = vtkTestUtilities::GetDataRoot(argc, argv);
   if (!data_dir)
   {
-    std::cerr << "Could not determine data directory." << endl;
+    std::cerr << "Could not determine data directory." << std::endl;
     return VTK_FAILURE;
   }
   std::string dataDirStr = data_dir;
@@ -54,7 +56,7 @@ int TestXMLHierarchicalBoxDataFileConverter(int argc, char* argv[])
   vtksys::SystemTools::RemoveADirectory(outputDir);
   if (!vtksys::SystemTools::CopyADirectory(inputDir, outputDir))
   {
-    std::cerr << "Failed to copy image data files over for testing." << endl;
+    std::cerr << "Failed to copy image data files over for testing." << std::endl;
     return VTK_FAILURE;
   }
 
@@ -63,7 +65,7 @@ int TestXMLHierarchicalBoxDataFileConverter(int argc, char* argv[])
   reader->Update();
   if (!vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0))->CheckValidity())
   {
-    std::cerr << "Failed to CheckValidity." << endl;
+    std::cerr << "Failed to CheckValidity." << std::endl;
     return VTK_FAILURE;
   }
   return VTK_SUCCESS;

@@ -15,17 +15,13 @@
 #include "vtkAttributesErrorMetric.h"
 #include "vtkBridgeDataSet.h"
 #include "vtkDataSetMapper.h"
-#include "vtkDebugLeaks.h"
 #include "vtkGenericCellTessellator.h"
 #include "vtkGenericGeometryFilter.h"
 #include "vtkGenericProbeFilter.h"
-#include "vtkGenericSubdivisionErrorMetric.h"
 #include "vtkGeometricErrorMetric.h"
 #include "vtkLookupTable.h"
-#include "vtkPlane.h"
 #include "vtkPlaneSource.h"
 #include "vtkPointData.h"
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProbeFilter.h" // std probe filter, to compare
 #include "vtkProperty.h"
@@ -39,7 +35,9 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
+
 #include <cassert>
+#include <iostream>
 
 int TestGenericProbeFilter(int argc, char* argv[])
 {
@@ -82,12 +80,12 @@ int TestGenericProbeFilter(int argc, char* argv[])
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
 
-  cout << "input unstructured grid: " << ds << endl;
+  std::cout << "input unstructured grid: " << ds << std::endl;
 
   static_cast<vtkSimpleCellTessellator*>(ds->GetTessellator())->SetMaxSubdivisionLevel(10);
 
   vtkIndent indent;
-  ds->PrintSelf(cout, indent);
+  ds->PrintSelf(std::cout, indent);
 
 #ifdef ADD_GEOMETRY
   // Geometry

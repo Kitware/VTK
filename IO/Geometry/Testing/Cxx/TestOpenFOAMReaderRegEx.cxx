@@ -12,6 +12,7 @@
 
 #include "vtkTestUtilities.h"
 
+#include <iostream>
 #include <map>
 
 int TestOpenFOAMReaderRegEx(int argc, char* argv[])

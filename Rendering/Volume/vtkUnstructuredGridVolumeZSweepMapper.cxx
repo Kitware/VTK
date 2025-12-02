@@ -35,6 +35,8 @@
 #include <list>
 #include <vector>
 
+#include <iostream>
+
 // do not remove the following line:
 // #define BACK_TO_FRONT
 
@@ -3286,7 +3288,7 @@ void vtkUnstructuredGridVolumeZSweepMapper::MainLoop(vtkRenderWindow* renWin)
       {
 //        if(face->GetRendered())
 //          {
-//          cout<<"FACE ALREADY RENDERED!!!!"<<endl;
+//          std::cout<<"FACE ALREADY RENDERED!!!!"<<endl;
 //          }
         this->RasterizeFace(vids);
 //        face->SetRendered(1);

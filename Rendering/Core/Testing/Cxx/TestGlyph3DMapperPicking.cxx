@@ -32,6 +32,8 @@
 #include "vtkSphereSource.h"
 #include <cassert>
 
+#include <iostream>
+
 static vtkRenderer* renderer = nullptr;
 
 class MyEndPickCommand : public vtkCommand
@@ -65,9 +67,9 @@ public:
     vtkSelection* res = sel->Select();
 
 #if 1
-    cerr << "x0 " << x0 << " y0 " << y0 << "\t";
-    cerr << "x1 " << x1 << " y1 " << y1 << endl;
-    res->Print(cout);
+    std::cerr << "x0 " << x0 << " y0 " << y0 << "\t";
+    std::cerr << "x1 " << x1 << " y1 " << y1 << std::endl;
+    res->Print(std::cout);
 #endif
 
     // Reset the mask to false.
@@ -83,12 +85,12 @@ public:
       vtkAbstractArray* abs = glyphids->GetSelectionList();
       if (abs == nullptr)
       {
-        cout << "abs is null" << endl;
+        std::cout << "abs is null" << std::endl;
       }
       vtkIdTypeArray* ids = vtkArrayDownCast<vtkIdTypeArray>(abs);
       if (ids == nullptr)
       {
-        cout << "ids is null" << endl;
+        std::cout << "ids is null" << std::endl;
       }
       else
       {
@@ -99,12 +101,12 @@ public:
           vtkIdType value = ids->GetValue(i);
           if (value >= 0 && value < numPoints)
           {
-            cout << "Turn On: " << value << endl;
+            std::cout << "Turn On: " << value << std::endl;
             this->Mask->SetValue(value, true);
           }
           else
           {
-            cout << "Ignoring: " << value << endl;
+            std::cout << "Ignoring: " << value << std::endl;
           }
         }
       }

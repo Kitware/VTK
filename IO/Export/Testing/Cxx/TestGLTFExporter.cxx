@@ -13,6 +13,7 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <cstdlib>
+#include <iostream>
 
 namespace
 {
@@ -71,7 +72,7 @@ int TestGLTFExporter(int argc, char* argv[])
   exporter->InlineDataOn();
   // for debugging uncomment below
   // std::string estring = exporter->WriteToString();
-  // cout << estring;
+  // std::cout << estring;
   exporter->Write();
 
   size_t correctSize = fileSize(filename);

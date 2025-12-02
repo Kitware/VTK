@@ -20,6 +20,8 @@
 #include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 
+#include <iostream>
+
 const char eventLog[] = "o";
 
 int TestAxesTransformWidget(int, char*[])
@@ -54,8 +56,8 @@ int TestAxesTransformWidget(int, char*[])
   widget->SetRepresentation(rep);
 
   // Print the widget and its representation
-  rep->Print(cout);
-  widget->Print(cout);
+  rep->Print(std::cout);
+  widget->Print(std::cout);
 
   // Add the actors to the renderer, set the background and size
   //

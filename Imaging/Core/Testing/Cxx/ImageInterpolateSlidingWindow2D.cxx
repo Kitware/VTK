@@ -24,6 +24,8 @@
 
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int ImageInterpolateSlidingWindow2D(int argc, char* argv[])
 {
   auto iren = vtkSmartPointer<vtkRenderWindowInteractor>::New();

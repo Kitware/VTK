@@ -25,10 +25,12 @@
 #include <set>
 #include <vector>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 // This class manages topological information for a parallelopiped with a
 // chair etched out at any node.
-// README : Uncomment the line that reads "PrintTopology(cout) to
+// README : Uncomment the line that reads "PrintTopology(std::cout) to
 //          understand what the class does. The goal of the class is succinctly
 //          described in that one line.
 VTK_ABI_NAMESPACE_BEGIN
@@ -128,7 +130,7 @@ public:
     }
 
     // README : The goal of the class is succinctly described by the line below
-    // PrintTopology( cout );
+    // PrintTopology( std::cout );
   }
 
   // Populate topology into a vtkCellArray.

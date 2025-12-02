@@ -21,6 +21,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkTexture.h"
 
+#include <iostream>
+
 int TestTextureRGBADepthPeeling(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renWin;
@@ -68,11 +70,11 @@ int TestTextureRGBADepthPeeling(int argc, char* argv[])
   renWin->Render();
   if (renderer->GetLastRenderingUsedDepthPeeling())
   {
-    cout << "depth peeling was used" << endl;
+    std::cout << "depth peeling was used" << std::endl;
   }
   else
   {
-    cout << "depth peeling was not used (alpha blending instead)" << endl;
+    std::cout << "depth peeling was not used (alpha blending instead)" << std::endl;
   }
 
   interactor->Initialize();

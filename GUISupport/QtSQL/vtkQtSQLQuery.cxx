@@ -19,6 +19,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 #define vtk_qSqlFieldMetaType(sqlfield) sqlfield.type()
 #define vtk_qVariantType(variant) variant.type()
@@ -153,7 +155,7 @@ int QVariantTypeToVTKType(vtk_qMetaType(Type) t)
       break;
     case vtk_qMetaType_UnknownType:
     default:
-      cerr << "Found unknown variant type: " << t << endl;
+      std::cerr << "Found unknown variant type: " << t << endl;
       type = -1;
   }
   return type;

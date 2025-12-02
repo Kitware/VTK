@@ -40,6 +40,8 @@
 
 #include <algorithm>
 
+#include <iostream>
+
 #undef ONLY_WIRE
 #undef FOR_PAPER
 /// Define this and the test will generate arrays of values which you can paste into the code and

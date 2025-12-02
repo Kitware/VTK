@@ -9,6 +9,8 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestReduceTable(int, char*[])
 {
@@ -67,47 +69,47 @@ int TestReduceTable(int, char*[])
 
   if (output->GetValue(0, 1) != 1)
   {
-    cout << "ERROR: incorrect value encountered at (0, 1)" << endl;
+    std::cout << "ERROR: incorrect value encountered at (0, 1)" << std::endl;
     return EXIT_FAILURE;
   }
   if (output->GetValue(1, 1) != 2)
   {
-    cout << "ERROR: incorrect value encountered at (1, 1)" << endl;
+    std::cout << "ERROR: incorrect value encountered at (1, 1)" << std::endl;
     return EXIT_FAILURE;
   }
   if (output->GetValue(2, 1) != 3)
   {
-    cout << "ERROR: incorrect value encountered at (2, 1)" << endl;
+    std::cout << "ERROR: incorrect value encountered at (2, 1)" << std::endl;
     return EXIT_FAILURE;
   }
   if (output->GetValue(0, 2) != 2)
   {
-    cout << "ERROR: incorrect value encountered at (0, 2)" << endl;
+    std::cout << "ERROR: incorrect value encountered at (0, 2)" << std::endl;
     return EXIT_FAILURE;
   }
   if (output->GetValue(1, 2) != 4)
   {
-    cout << "ERROR: incorrect value encountered at (1, 2)" << endl;
+    std::cout << "ERROR: incorrect value encountered at (1, 2)" << std::endl;
     return EXIT_FAILURE;
   }
   if (output->GetValue(2, 2) != 6)
   {
-    cout << "ERROR: incorrect value encountered at (2, 2)" << endl;
+    std::cout << "ERROR: incorrect value encountered at (2, 2)" << std::endl;
     return EXIT_FAILURE;
   }
   if (output->GetValue(0, 3) != "a")
   {
-    cout << "ERROR: incorrect value encountered at (0, 3)" << endl;
+    std::cout << "ERROR: incorrect value encountered at (0, 3)" << std::endl;
     return EXIT_FAILURE;
   }
   if (output->GetValue(1, 3) != "b")
   {
-    cout << "ERROR: incorrect value encountered at (1, 3)" << endl;
+    std::cout << "ERROR: incorrect value encountered at (1, 3)" << std::endl;
     return EXIT_FAILURE;
   }
   if (output->GetValue(2, 3) != "c")
   {
-    cout << "ERROR: incorrect value encountered at (2, 3)" << endl;
+    std::cout << "ERROR: incorrect value encountered at (2, 3)" << std::endl;
     return EXIT_FAILURE;
   }
 

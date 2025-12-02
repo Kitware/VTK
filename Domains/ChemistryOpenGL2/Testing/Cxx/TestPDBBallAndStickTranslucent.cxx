@@ -18,7 +18,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
-#include "vtkTimerLog.h"
+#include <iostream>
 
 int TestPDBBallAndStickTranslucent(int argc, char* argv[])
 {
@@ -34,9 +34,9 @@ int TestPDBBallAndStickTranslucent(int argc, char* argv[])
   vtkNew<vtkMoleculeMapper> molmapper;
   molmapper->SetInputConnection(reader->GetOutputPort(1));
 
-  cerr << "Class: " << molmapper->GetClassName() << endl;
-  cerr << "Atoms: " << molmapper->GetInput()->GetNumberOfAtoms() << endl;
-  cerr << "Bonds: " << molmapper->GetInput()->GetNumberOfBonds() << endl;
+  std::cerr << "Class: " << molmapper->GetClassName() << std::endl;
+  std::cerr << "Atoms: " << molmapper->GetInput()->GetNumberOfAtoms() << std::endl;
+  std::cerr << "Bonds: " << molmapper->GetInput()->GetNumberOfBonds() << std::endl;
 
   molmapper->UseBallAndStickSettings();
 

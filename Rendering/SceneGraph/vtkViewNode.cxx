@@ -7,6 +7,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkViewNodeFactory.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 const char* vtkViewNode::operation_type_strings[] = { "noop", "build", "synchronize", "render",
@@ -191,7 +193,7 @@ void vtkViewNode::SetRenderable(vtkObject* obj)
 //------------------------------------------------------------------------------
 void vtkViewNode::Apply(int operation, bool prepass)
 {
-  // cerr << this->GetClassName() << "(" << this << ") Apply("
+  // std::cerr << this->GetClassName() << "(" << this << ") Apply("
   //     << vtkViewNode::operation_type_strings[operation] << ")" << endl;
   switch (operation)
   {

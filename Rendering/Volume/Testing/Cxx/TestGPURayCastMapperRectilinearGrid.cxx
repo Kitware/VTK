@@ -27,6 +27,8 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+#include <iostream>
+
 namespace TestGPURayCastMapperRectilinearGridNS
 {
 //----------------------------------------------------------------------------
@@ -103,7 +105,7 @@ vtkSmartPointer<vtkRectilinearGrid> ModifyDataType(
 //----------------------------------------------------------------------------
 int TestGPURayCastMapperRectilinearGrid(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/RectGrid2.vtk");
 

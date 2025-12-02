@@ -32,6 +32,8 @@
 #include "vtkTriQuadraticHexahedron.h"
 #include "vtkTriQuadraticPyramid.h"
 
+#include <iostream>
+
 static void ComputeDataValues(vtkPoints* pts, double* edgeValues);
 
 void ComputeDataValues(vtkPoints* pts, double* edgeValues)
@@ -61,7 +63,7 @@ int TestQE(ostream& strm)
   double* paramcoor;
 
   //-----------------------------------------------------------
-  strm << "Test instantiation New() and NewInstance() Start" << endl;
+  strm << "Test instantiation New() and NewInstance() Start" << std::endl;
   auto edge = vtkSmartPointer<vtkQuadraticEdge>::New();
   auto edge2 = vtk::TakeSmartPointer(edge->NewInstance());
 
@@ -112,10 +114,10 @@ int TestQE(ostream& strm)
   auto culine = vtkSmartPointer<vtkCubicLine>::New();
   auto culine2 = vtk::TakeSmartPointer(culine->NewInstance());
 
-  strm << "Test instantiation New() and NewInstance() End" << endl;
+  strm << "Test instantiation New() and NewInstance() End" << std::endl;
 
   //-------------------------------------------------------------
-  strm << "Test vtkCell::EvaluatePosition Start" << endl;
+  strm << "Test vtkCell::EvaluatePosition Start" << std::endl;
 
   // vtkQuadraticEdge
   double edgePCoords[3], edgeWeights[3], edgePosition[3];
@@ -457,10 +459,10 @@ int TestQE(ostream& strm)
   culine->EvaluatePosition(
     culinePoint[0], culineClosest, subId, culinePCoords, dist2, culineWeights);
 
-  strm << "Test vtkCell::EvaluatePosition End" << endl;
+  strm << "Test vtkCell::EvaluatePosition End" << std::endl;
 
   //-------------------------------------------------------------
-  strm << "Test vtkCell::EvaluateLocation Start" << endl;
+  strm << "Test vtkCell::EvaluateLocation Start" << std::endl;
   // vtkQuadraticEdge
   edge->EvaluateLocation(subId, edgePCoords, edgePosition, edgeWeights);
 
@@ -508,10 +510,10 @@ int TestQE(ostream& strm)
   // vtkBiQuadraticTriangle
   bitri->EvaluateLocation(subId, bitriPCoords, bitriPosition, bitriWeights);
 
-  strm << "Test vtkCell::EvaluateLocation End" << endl;
+  strm << "Test vtkCell::EvaluateLocation End" << std::endl;
 
   //-------------------------------------------------------------
-  strm << "Test vtkCell::CellDerivs Start" << endl;
+  strm << "Test vtkCell::CellDerivs Start" << std::endl;
 
   // vtkQuadraticEdge - temporarily commented out
   // double edgeValues[3], edgeDerivs[3];
@@ -590,7 +592,7 @@ int TestQE(ostream& strm)
   ComputeDataValues(bitri->Points, bitriValues);
   bitri->Derivatives(subId, bitriPCoords, bitriValues, 1, bitriDerivs);
 
-  strm << "Test vtkCell::CellDerivs End" << endl;
+  strm << "Test vtkCell::CellDerivs End" << std::endl;
 
   return 0;
 }

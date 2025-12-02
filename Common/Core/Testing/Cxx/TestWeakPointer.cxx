@@ -8,6 +8,8 @@
 #include "vtkIntArray.h"
 #include "vtkWeakPointer.h"
 
+#include <iostream>
+
 int TestWeakPointer(int, char*[])
 {
   int rval = 0;
@@ -48,7 +50,7 @@ int TestWeakPointer(int, char*[])
     {
       if (((diffbits >> (bitcount - ib - 1)) & 1) != 0)
       {
-        cerr << "comparison (" << tests[ib] << ") failed!\n";
+        std::cerr << "comparison (" << tests[ib] << ") failed!\n";
       }
     }
     rval = 1;
@@ -61,20 +63,20 @@ int TestWeakPointer(int, char*[])
   }
   if (!da2)
   {
-    cerr << "da2 is nullptr!"
-         << "\n";
+    std::cerr << "da2 is nullptr!"
+              << "\n";
     rval = 1;
   }
-  cout << "IntArray: " << da2 << "\n";
+  std::cout << "IntArray: " << da2 << "\n";
 
   if (da1 == nullptr)
   {
-    cerr << "da1 is nullptr\n";
+    std::cerr << "da1 is nullptr\n";
     rval = 1;
   }
   if (da2 == nullptr)
   {
-    cerr << "da2 is nullptr\n";
+    std::cerr << "da2 is nullptr\n";
     rval = 1;
   }
 
@@ -83,7 +85,7 @@ int TestWeakPointer(int, char*[])
 
   if (da1 != nullptr)
   {
-    cerr << "da1 is not nullptr\n";
+    std::cerr << "da1 is not nullptr\n";
     rval = 1;
   }
 

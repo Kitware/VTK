@@ -19,12 +19,14 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartVolumeMapper.h"
-#include "vtkTestUtilities.h"
+#include "vtkTesting.h"
 #include "vtkVolumeProperty.h"
+
+#include <iostream>
 
 int TestSmartVolumeMapper(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // Create a spherical implicit function.
   vtkSphere* shape = vtkSphere::New();

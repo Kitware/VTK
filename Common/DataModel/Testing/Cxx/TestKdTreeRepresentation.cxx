@@ -18,6 +18,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestKdTreeFunctions()
@@ -51,7 +53,7 @@ int TestKdTreeFunctions()
   vtkIdType id = kd->FindClosestPoint(0.5, 0.5, 0.5, distance);
   if (id != 3)
   {
-    cerr << "FindClosestPoint failed" << endl;
+    std::cerr << "FindClosestPoint failed" << std::endl;
     retVal++;
   }
 
@@ -65,7 +67,7 @@ int TestKdTreeFunctions()
   vtkIdType count = ids->GetNumberOfValues();
   if (count != 2)
   {
-    cerr << "FindPointsInArea failed" << endl;
+    std::cerr << "FindPointsInArea failed" << std::endl;
     retVal++;
   }
 
@@ -75,7 +77,7 @@ int TestKdTreeFunctions()
   vtkIdType n = idList->GetNumberOfIds();
   if (n != 10)
   {
-    cerr << "FindPointsWithinRadius failed" << endl;
+    std::cerr << "FindPointsWithinRadius failed" << std::endl;
     retVal++;
   }
 

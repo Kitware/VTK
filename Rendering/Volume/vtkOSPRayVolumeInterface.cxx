@@ -4,6 +4,8 @@
 
 #include "vtkObjectFactory.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkObjectFactoryNewMacro(vtkOSPRayVolumeInterface);
 
@@ -22,6 +24,6 @@ void vtkOSPRayVolumeInterface::PrintSelf(ostream& os, vtkIndent indent)
 //------------------------------------------------------------------------------
 void vtkOSPRayVolumeInterface::Render(vtkRenderer* vtkNotUsed(ren), vtkVolume* vtkNotUsed(vol))
 {
-  cerr << "Warning VTK is not linked to OSPRay so can not VolumeRender with it" << endl;
+  std::cerr << "Warning VTK is not linked to OSPRay so can not VolumeRender with it\n";
 }
 VTK_ABI_NAMESPACE_END

@@ -33,6 +33,8 @@
 #include "vtkOutlineGlowUpscalePassFS.h"
 #include "vtkTextureObjectVS.h" // a pass through shader
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOutlineGlowPass);
 
@@ -194,7 +196,7 @@ void vtkOutlineGlowPass::Render(const vtkRenderState* s)
     this->FrameBufferObject->Start(widthHalfTarget, heightHalfTarget);
 
 #ifdef VTK_OUTLINE_GLOW_PASS_DEBUG
-    cout << "outline finish2" << endl;
+    std::cout << "outline finish2" << endl;
     glFinish();
 #endif
 
@@ -275,7 +277,7 @@ void vtkOutlineGlowPass::Render(const vtkRenderState* s)
     this->BlurProgram->Program->SetUniformf("offsety", fvalues[0]);
 
 #ifdef VTK_OUTLINE_GLOW_PASS_DEBUG
-    cout << "outline finish3-" << endl;
+    std::cout << "outline finish3-" << endl;
     glFinish();
 #endif
 
@@ -286,7 +288,7 @@ void vtkOutlineGlowPass::Render(const vtkRenderState* s)
       this->BlurProgram->Program, this->BlurProgram->VAO);
 
 #ifdef VTK_OUTLINE_GLOW_PASS_DEBUG
-    cout << "outline finish3" << endl;
+    std::cout << "outline finish3" << endl;
     glFinish();
 #endif
 
@@ -431,7 +433,7 @@ void vtkOutlineGlowPass::Render(const vtkRenderState* s)
     this->BlurPass2->Deactivate();
 
 #ifdef VTK_OUTLINE_GLOW_PASS_DEBUG
-    cout << "outline finish4" << endl;
+    std::cout << "outline finish4" << endl;
     glFinish();
 #endif
   }

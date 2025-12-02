@@ -29,6 +29,8 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+#include <iostream>
+
 namespace TestGPURayCastLabelMapNS
 {
 
@@ -89,7 +91,7 @@ void CreateMaskForImage(vtkImageData* input, vtkImageData* mask)
 
 int TestGPURayCastLabelMap(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tooth.nhdr");
   vtkNew<vtkNrrdReader> reader;

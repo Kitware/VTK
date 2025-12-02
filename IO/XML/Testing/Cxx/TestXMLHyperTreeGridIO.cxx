@@ -18,6 +18,8 @@ and writer and ensure that they work.
 
 #include <string>
 
+#include <iostream>
+
 #define VTK_SUCCESS 0
 #define VTK_FAILURE 1
 int TestXMLHyperTreeGridIO(int argc, char* argv[])
@@ -26,7 +28,7 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!temp_dir)
   {
-    cerr << "Could not determine temporary directory." << endl;
+    std::cerr << "Could not determine temporary directory." << std::endl;
     return VTK_FAILURE;
   }
 
@@ -34,7 +36,7 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
   if (!data_dir)
   {
     delete[] temp_dir;
-    cerr << "Could not determine data directory." << endl;
+    std::cerr << "Could not determine data directory." << std::endl;
     return VTK_FAILURE;
   }
 
@@ -42,7 +44,7 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
 
   std::string ifname = std::string(data_dir) + std::string("/Data/") + fname;
 
-  cout << "- READ INPUT --------------------------------" << endl;
+  std::cout << "- READ INPUT --------------------------------" << std::endl;
   vtkNew<vtkXMLHyperTreeGridReader> reader;
   reader->SetFileName(ifname.c_str());
   reader->Update();
@@ -78,7 +80,7 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
   read1 += "#LEVELS " + vtk::to_string(read_in->GetNumberOfLevels()) + "\n";
   read1 += "#VERTS " + vtk::to_string(read_in->GetNumberOfCells()) + "\n";
   read1 += "#LEAVES " + vtk::to_string(read_in->GetNumberOfLeaves()) + "\n";
-  cout << read1 << endl;
+  std::cout << read1 << std::endl;
 
   std::string output_dir = temp_dir;
   output_dir += "/HTG";
@@ -87,7 +89,7 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
 
   std::string ofname = output_dir + "/" + fname;
 
-  cout << "- WRITE BINARY --------------------------------" << endl;
+  std::cout << "- WRITE BINARY --------------------------------" << std::endl;
 
   vtkNew<vtkXMLHyperTreeGridWriter> writer;
   writer->SetFileName(ofname.c_str());
@@ -125,9 +127,9 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
   read2 += "#LEVELS " + vtk::to_string(wrote_out->GetNumberOfLevels()) + "\n";
   read2 += "#VERTS " + vtk::to_string(wrote_out->GetNumberOfCells()) + "\n";
   read2 += "#LEAVES " + vtk::to_string(wrote_out->GetNumberOfLeaves()) + "\n";
-  cout << read2 << endl;
+  std::cout << read2 << std::endl;
 
-  cout << "- WRITE APPENDED --------------------------------" << endl;
+  std::cout << "- WRITE APPENDED --------------------------------" << std::endl;
 
   writer->SetDataModeToAppended();
   writer->Write();
@@ -160,7 +162,7 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
   read3 += "#LEVELS " + vtk::to_string(wrote_out->GetNumberOfLevels()) + "\n";
   read3 += "#VERTS " + vtk::to_string(wrote_out->GetNumberOfCells()) + "\n";
   read3 += "#LEAVES " + vtk::to_string(wrote_out->GetNumberOfLeaves()) + "\n";
-  cout << read3 << endl;
+  std::cout << read3 << std::endl;
 
   bool ret = VTK_FAILURE;
   if (read1 == read2 && read1 == read3)
@@ -170,7 +172,7 @@ int TestXMLHyperTreeGridIO(int argc, char* argv[])
   }
   else
   {
-    cerr << "Problem: Written file does not match read in file." << endl;
+    std::cerr << "Problem: Written file does not match read in file." << std::endl;
   }
 
   delete[] temp_dir;

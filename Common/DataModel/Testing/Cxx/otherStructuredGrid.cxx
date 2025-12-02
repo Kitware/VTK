@@ -21,6 +21,8 @@
 #include <cstdlib>
 #include <sstream>
 
+#include <iostream>
+
 int TestOSG_0d(ostream& strm)
 {
   int i, k;
@@ -72,7 +74,7 @@ int TestOSG_0d(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
 
@@ -96,7 +98,7 @@ int TestOSG_0d(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell0D;
@@ -110,22 +112,22 @@ int TestOSG_0d(ostream& strm)
   double bounds[6];
   sg0D->GetCellBounds(i, bounds);
   strm << "GetCellBounds(sg0D): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   sg0D->GetPoint(0, point);
-  strm << "GetPoint(sg0D): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(sg0D): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(sg0D): " << sg0D->GetCellType(0) << endl;
+  strm << "GetCellType(sg0D): " << sg0D->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(sg0D): " << sg0D->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(sg0D): " << sg0D->GetActualMemorySize() << std::endl;
 
   return EXIT_SUCCESS;
 }
@@ -177,7 +179,7 @@ int TestOSG_1dx(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
 
@@ -214,7 +216,7 @@ int TestOSG_1dx(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell1D;
@@ -227,14 +229,14 @@ int TestOSG_1dx(ostream& strm)
 
   sg1Dx->GetCellBounds(i, bounds);
   strm << "GetCellBounds(sg1x): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   sg1Dx->GetPoint(i, point);
-  strm << "GetPoint(sg1x): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(sg1x): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -245,7 +247,7 @@ int TestOSG_1dx(ostream& strm)
   point3D[2] = 0;
   sg1Dx->GetPoint(sg1Dx->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -260,21 +262,21 @@ int TestOSG_1dx(ostream& strm)
   vtkCell* found = sg1Dx->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(sg1Dx) not found!" << endl;
+    strm << "FindAndGetCell(sg1Dx) not found!" << std::endl;
     return EXIT_FAILURE;
   }
 
   strm << "FindAndGetCell(sg1Dx): " << *found;
-  strm << "pcoords: " << pcoords[0] << endl;
-  strm << "weights: " << weights[0] << ", " << weights[1] << endl;
+  strm << "pcoords: " << pcoords[0] << std::endl;
+  strm << "weights: " << weights[0] << ", " << weights[1] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(sg1Dx): " << sg1Dx->GetCellType(0) << endl;
+  strm << "GetCellType(sg1Dx): " << sg1Dx->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(sg1Dx): " << sg1Dx->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(sg1Dx): " << sg1Dx->GetActualMemorySize() << std::endl;
 
   return EXIT_SUCCESS;
 }
@@ -327,7 +329,7 @@ int TestOSG_1dy(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
 
@@ -364,7 +366,7 @@ int TestOSG_1dy(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell1D;
@@ -377,14 +379,14 @@ int TestOSG_1dy(ostream& strm)
 
   sg1Dy->GetCellBounds(i, bounds);
   strm << "GetCellBounds(sg1Dy): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   sg1Dy->GetPoint(i, point);
-  strm << "GetPoint(sg1Dy): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(sg1Dy): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -395,7 +397,7 @@ int TestOSG_1dy(ostream& strm)
   point3D[2] = 0;
   sg1Dy->GetPoint(sg1Dy->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -410,21 +412,21 @@ int TestOSG_1dy(ostream& strm)
   vtkCell* found = sg1Dy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(sg1Dy) not found!" << endl;
+    strm << "FindAndGetCell(sg1Dy) not found!" << std::endl;
     return EXIT_FAILURE;
   }
 
   strm << "FindAndGetCell(sg1Dy): " << *found;
-  strm << "pcoords: " << pcoords[0] << endl;
-  strm << "weights: " << weights[0] << ", " << weights[1] << endl;
+  strm << "pcoords: " << pcoords[0] << std::endl;
+  strm << "weights: " << weights[0] << ", " << weights[1] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(sg1Dy): " << sg1Dy->GetCellType(0) << endl;
+  strm << "GetCellType(sg1Dy): " << sg1Dy->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(sg1Dy): " << sg1Dy->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(sg1Dy): " << sg1Dy->GetActualMemorySize() << std::endl;
 
   return EXIT_SUCCESS;
 }
@@ -476,7 +478,7 @@ int TestOSG_1dz(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
 
@@ -513,7 +515,7 @@ int TestOSG_1dz(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell1D;
@@ -526,14 +528,14 @@ int TestOSG_1dz(ostream& strm)
 
   sg1Dz->GetCellBounds(i, bounds);
   strm << "GetCellBounds(sg1Dz): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   sg1Dz->GetPoint(i, point);
-  strm << "GetPoint(sg1Dz): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(sg1Dz): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -544,7 +546,7 @@ int TestOSG_1dz(ostream& strm)
   point3D[2] = 14;
   sg1Dz->GetPoint(sg1Dz->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -559,21 +561,21 @@ int TestOSG_1dz(ostream& strm)
   vtkCell* found = sg1Dz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(sg1Dz) not found!" << endl;
+    strm << "FindAndGetCell(sg1Dz) not found!" << std::endl;
     return EXIT_FAILURE;
   }
 
   strm << "FindAndGetCell(sg1Dz): " << *found;
-  strm << "pcoords: " << pcoords[0] << endl;
-  strm << "weights: " << weights[0] << ", " << weights[1] << endl;
+  strm << "pcoords: " << pcoords[0] << std::endl;
+  strm << "weights: " << weights[0] << ", " << weights[1] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(sg1Dz): " << sg1Dz->GetCellType(0) << endl;
+  strm << "GetCellType(sg1Dz): " << sg1Dz->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(sg1Dz): " << sg1Dz->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(sg1Dz): " << sg1Dz->GetActualMemorySize() << std::endl;
 
   return EXIT_SUCCESS;
 }
@@ -633,7 +635,7 @@ int TestOSG_2dxy(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
 
@@ -666,7 +668,7 @@ int TestOSG_2dxy(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell2D;
@@ -680,14 +682,14 @@ int TestOSG_2dxy(ostream& strm)
 
   sg2Dxy->GetCellBounds(j * 19 + i, bounds);
   strm << "GetCellBounds(sg2Dxy): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   sg2Dxy->GetPoint(j * 20 + i, point);
-  strm << "GetPoint(sg2Dxy): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(sg2Dxy): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -698,7 +700,7 @@ int TestOSG_2dxy(ostream& strm)
   point3D[2] = 0;
   sg2Dxy->GetPoint(sg2Dxy->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -714,22 +716,22 @@ int TestOSG_2dxy(ostream& strm)
   vtkCell* found = sg2Dxy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(sg2Dxy) not found!" << endl;
+    strm << "FindAndGetCell(sg2Dxy) not found!" << std::endl;
     return EXIT_FAILURE;
   }
 
   strm << "FindAndGetCell(sg2Dxy): " << *found;
-  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << endl;
+  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << std::endl;
   strm << "weights: " << weights[0] << ", " << weights[1] << ", " << weights[2] << ", "
-       << weights[3] << endl;
+       << weights[3] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(sg2Dxy): " << sg2Dxy->GetCellType(0) << endl;
+  strm << "GetCellType(sg2Dxy): " << sg2Dxy->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(sg2Dxy): " << sg2Dxy->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(sg2Dxy): " << sg2Dxy->GetActualMemorySize() << std::endl;
 
   return EXIT_SUCCESS;
 }
@@ -789,7 +791,7 @@ int TestOSG_2dxz(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
 
@@ -822,7 +824,7 @@ int TestOSG_2dxz(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell2D;
@@ -836,14 +838,14 @@ int TestOSG_2dxz(ostream& strm)
 
   sg2Dxz->GetCellBounds(j * 19 + i, bounds);
   strm << "GetCellBounds(sg2Dxz): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   sg2Dxz->GetPoint(j * 20 + i, point);
-  strm << "GetPoint(sg2Dxz): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(sg2Dxz): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -854,7 +856,7 @@ int TestOSG_2dxz(ostream& strm)
   point3D[2] = 14;
   sg2Dxz->GetPoint(sg2Dxz->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -871,22 +873,22 @@ int TestOSG_2dxz(ostream& strm)
   vtkCell* found = sg2Dxz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(sg2Dxz) not found!" << endl;
+    strm << "FindAndGetCell(sg2Dxz) not found!" << std::endl;
     return EXIT_FAILURE;
   }
 
   strm << "FindAndGetCell(sg2Dxz): " << *found;
-  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << endl;
+  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << std::endl;
   strm << "weights: " << weights[0] << ", " << weights[1] << ", " << weights[2] << ", "
-       << weights[3] << endl;
+       << weights[3] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(sg2Dxz): " << sg2Dxz->GetCellType(0) << endl;
+  strm << "GetCellType(sg2Dxz): " << sg2Dxz->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(sg2Dxz): " << sg2Dxz->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(sg2Dxz): " << sg2Dxz->GetActualMemorySize() << std::endl;
 
   return EXIT_SUCCESS;
 }
@@ -946,7 +948,7 @@ int TestOSG_2dyz(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
 
@@ -979,7 +981,7 @@ int TestOSG_2dyz(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell2D;
@@ -993,14 +995,14 @@ int TestOSG_2dyz(ostream& strm)
 
   sg2Dyz->GetCellBounds(j * 19 + i, bounds);
   strm << "GetCellBounds(sg2Dyz): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   sg2Dyz->GetPoint(j * 20 + i, point);
-  strm << "GetPoint(sg2Dyz): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(sg2Dyz): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -1011,7 +1013,7 @@ int TestOSG_2dyz(ostream& strm)
   point3D[2] = 14;
   sg2Dyz->GetPoint(sg2Dyz->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -1028,22 +1030,22 @@ int TestOSG_2dyz(ostream& strm)
   vtkCell* found = sg2Dyz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(sg2Dyz) not found!" << endl;
+    strm << "FindAndGetCell(sg2Dyz) not found!" << std::endl;
     return EXIT_FAILURE;
   }
 
   strm << "FindAndGetCell(sg2Dyz): " << *found;
-  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << endl;
+  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << std::endl;
   strm << "weights: " << weights[0] << ", " << weights[1] << ", " << weights[2] << ", "
-       << weights[3] << endl;
+       << weights[3] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(sg2Dyz): " << sg2Dyz->GetCellType(0) << endl;
+  strm << "GetCellType(sg2Dyz): " << sg2Dyz->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(sg2Dyz): " << sg2Dyz->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(sg2Dyz): " << sg2Dyz->GetActualMemorySize() << std::endl;
 
   return EXIT_SUCCESS;
 }
@@ -1123,7 +1125,7 @@ int TestOSG_3d(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
   i = 10;
@@ -1149,7 +1151,7 @@ int TestOSG_3d(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell3D;
@@ -1164,13 +1166,13 @@ int TestOSG_3d(ostream& strm)
   double bounds[6];
   sg3D->GetCellBounds(k * (19 * 19) + j * 19 + i, bounds);
   strm << "GetCellBounds(sg3D): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
   sg3D->GetPoint(k * (20 * 20) + j * 20 + i, point);
-  strm << "GetPoint(sg3D): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(sg3D): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -1178,7 +1180,7 @@ int TestOSG_3d(ostream& strm)
 
   sg3D->GetPoint(sg3D->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -1192,18 +1194,18 @@ int TestOSG_3d(ostream& strm)
 
   strm << "FindAndGetCell(sg3D): "
        << *sg3D->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << ", " << pcoords[2] << endl;
+  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << ", " << pcoords[2] << std::endl;
   strm << "weights: " << weights[0] << ", " << weights[1] << ", " << weights[2] << ", "
        << weights[3] << ", " << weights[4] << ", " << weights[5] << ", " << weights[6] << ", "
-       << weights[7] << endl;
+       << weights[7] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(sg3D): " << sg3D->GetCellType(0) << endl;
+  strm << "GetCellType(sg3D): " << sg3D->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(sg3D): " << sg3D->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(sg3D): " << sg3D->GetActualMemorySize() << std::endl;
 
   return EXIT_SUCCESS;
 }
@@ -1212,7 +1214,7 @@ int TestOSG(ostream& strm)
 {
   int ret = EXIT_SUCCESS;
 
-  strm << "Testing vtkStructuredGrid" << endl;
+  strm << "Testing vtkStructuredGrid" << std::endl;
 
   ret = TestOSG_0d(strm);
   if (ret != EXIT_SUCCESS)
@@ -1262,7 +1264,7 @@ int TestOSG(ostream& strm)
     return ret;
   }
 
-  strm << "Testing completed" << endl;
+  strm << "Testing completed" << std::endl;
   return ret;
 }
 

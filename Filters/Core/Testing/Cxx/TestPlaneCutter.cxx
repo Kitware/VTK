@@ -12,19 +12,21 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridBase.h"
 
+#include <iostream>
+
 #define Compare(output, expected)                                                                  \
   do                                                                                               \
   {                                                                                                \
     if (output->GetNumberOfCells() != expected)                                                    \
     {                                                                                              \
-      cerr << "Test " << __FUNCTION__ << " expected " << expected << " cells, got "                \
-           << output->GetNumberOfCells() << endl;                                                  \
+      std::cerr << "Test " << __FUNCTION__ << " expected " << expected << " cells, got "           \
+                << output->GetNumberOfCells() << std::endl;                                        \
       return false;                                                                                \
     }                                                                                              \
     else                                                                                           \
     {                                                                                              \
-      cout << "Test " << __FUNCTION__ << " succeeded with " << output->GetNumberOfCells()          \
-           << " cells." << endl;                                                                   \
+      std::cout << "Test " << __FUNCTION__ << " succeeded with " << output->GetNumberOfCells()     \
+                << " cells." << std::endl;                                                         \
     }                                                                                              \
   } while (false)
 
@@ -159,26 +161,26 @@ int TestPlaneCutter(int, char*[])
   {
     if (!TestPlaneCutterStructured(type, 4))
     {
-      cerr << "Cutting Structured failed" << endl;
+      std::cerr << "Cutting Structured failed" << std::endl;
       return EXIT_FAILURE;
     }
   }
 
   if (!TestPlaneCutterUnstructured(10))
   {
-    cerr << "Cutting Unstructured failed" << endl;
+    std::cerr << "Cutting Unstructured failed" << std::endl;
     return EXIT_FAILURE;
   }
 
   if (!TestPlaneCutterUnmapped(6))
   {
-    cerr << "Cutting Mapped Unstructured failed" << endl;
+    std::cerr << "Cutting Mapped Unstructured failed" << std::endl;
     return EXIT_FAILURE;
   }
 
   if (!TestPlaneCutterMapped(6))
   {
-    cerr << "Cutting Mapped Unstructured failed" << endl;
+    std::cerr << "Cutting Mapped Unstructured failed" << std::endl;
     return EXIT_FAILURE;
   }
 

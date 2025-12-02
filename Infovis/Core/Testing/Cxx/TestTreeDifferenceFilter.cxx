@@ -9,6 +9,8 @@
 #include "vtkTree.h"
 #include "vtkTreeDifferenceFilter.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestTreeDifferenceFilter(int, char*[])
 {

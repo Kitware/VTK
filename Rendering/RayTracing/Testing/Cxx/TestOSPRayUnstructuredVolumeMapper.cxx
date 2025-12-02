@@ -23,6 +23,8 @@
 #include "vtkVolumeProperty.h"
 #include <vtkTestUtilities.h>
 
+#include <iostream>
+
 namespace
 {
 
@@ -44,7 +46,7 @@ int TestOSPRayUnstructuredVolumeMapper(int argc, char* argv[])
   {
     if (!strcmp(argv[i], "-GL"))
     {
-      cerr << "GL" << endl;
+      std::cerr << "GL" << std::endl;
       useOSP = false;
     }
   }

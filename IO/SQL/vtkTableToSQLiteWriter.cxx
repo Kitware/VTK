@@ -5,11 +5,12 @@
 #include "vtkObjectFactory.h"
 #include "vtkSQLiteDatabase.h"
 #include "vtkSQLiteQuery.h"
-#include "vtkSmartPointer.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 
 #include "vtkTableToSQLiteWriter.h"
+
+#include <iostream>
 
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -97,7 +98,7 @@ void vtkTableToSQLiteWriter::WriteData()
   vtkSQLiteQuery* query = static_cast<vtkSQLiteQuery*>(this->Database->GetQueryInstance());
 
   query->SetQuery(createTableQuery.c_str());
-  cout << "creating the table" << endl;
+  std::cout << "creating the table" << std::endl;
   if (!query->Execute())
   {
     vtkErrorMacro(<< "Error performing 'create table' query");

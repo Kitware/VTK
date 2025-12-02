@@ -12,6 +12,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTransmitUnstructuredGridPiece);
 
@@ -58,12 +60,12 @@ int vtkTransmitUnstructuredGridPiece::RequestData(vtkInformation* vtkNotUsed(req
   procId = this->Controller->GetLocalProcessId();
   if (procId == 0)
   {
-    // cerr << "Root Execute\n";
+    // std::cerr << "Root Execute\n";
     this->RootExecute(input, output, outInfo);
   }
   else
   {
-    // cerr << "Satellite Execute " << procId << endl;
+    // std::cerr << "Satellite Execute " << procId << endl;
     this->SatelliteExecute(procId, output, outInfo);
   }
 

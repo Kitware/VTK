@@ -16,6 +16,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 #define LONGSTRING "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 
 int TestODBCDatabase(int, char** const)
@@ -26,18 +28,18 @@ int TestODBCDatabase(int, char** const)
 
   if (!status)
   {
-    cerr << "Couldn't open database.  Error message: " << db->GetLastErrorText() << "\n";
+    std::cerr << "Couldn't open database.  Error message: " << db->GetLastErrorText() << "\n";
     return 1;
   }
 
   vtkSQLQuery* query = db->GetQueryInstance();
 
   std::string createQuery("CREATE TABLE people (name VARCHAR(1024), age INTEGER, weight FLOAT)");
-  cout << createQuery << endl;
+  std::cout << createQuery << std::endl;
   query->SetQuery(createQuery.c_str());
   if (!query->Execute())
   {
-    cerr << "Create query failed.  Error message: " << query->GetLastErrorText() << endl;
+    std::cerr << "Create query failed.  Error message: " << query->GetLastErrorText() << std::endl;
     return 1;
   }
 
@@ -48,12 +50,12 @@ int TestODBCDatabase(int, char** const)
 
     queryBuf << "INSERT INTO people VALUES('John Doe " << i << "', " << i << ", " << 10 * i + 0.5
              << ")";
-    cout << queryBuf.str() << endl;
+    std::cout << queryBuf.str() << std::endl;
     query->SetQuery(queryBuf.str().c_str());
     if (!query->Execute())
     {
-      cerr << "Insert query " << i << " failed.  Error message: " << query->GetLastErrorText()
-           << endl;
+      std::cerr << "Insert query " << i << " failed.  Error message: " << query->GetLastErrorText()
+                << std::endl;
       return 1;
     }
   }
@@ -68,70 +70,70 @@ int TestODBCDatabase(int, char** const)
     bool bind3 = query->BindParameter(2, 10.1 * i);
     if (!(bind1 && bind2 && bind3))
     {
-      cerr << "Parameter binding failed on query " << i << ": " << bind1 << " " << bind2 << " "
-           << bind3 << endl;
+      std::cerr << "Parameter binding failed on query " << i << ": " << bind1 << " " << bind2 << " "
+                << bind3 << std::endl;
       return 1;
     }
-    cout << query->GetQuery() << endl;
+    std::cout << query->GetQuery() << std::endl;
     if (!query->Execute())
     {
-      cerr << "Insert query " << i << " failed" << endl;
+      std::cerr << "Insert query " << i << " failed" << std::endl;
       return 1;
     }
   }
 
   const char* queryText = "SELECT name, age, weight FROM people WHERE age <= 30";
   query->SetQuery(queryText);
-  cerr << endl << "Running query: " << query->GetQuery() << endl;
+  std::cerr << std::endl << "Running query: " << query->GetQuery() << std::endl;
 
-  cerr << endl << "Using vtkSQLQuery directly to execute query:" << endl;
+  std::cerr << std::endl << "Using vtkSQLQuery directly to execute query:" << std::endl;
   if (!query->Execute())
   {
-    cerr << "Query failed with error message " << query->GetLastErrorText() << endl;
+    std::cerr << "Query failed with error message " << query->GetLastErrorText() << std::endl;
     return 1;
   }
 
-  cerr << "Fields returned by query: ";
+  std::cerr << "Fields returned by query: ";
   for (int col = 0; col < query->GetNumberOfFields(); ++col)
   {
     if (col > 0)
     {
-      cerr << ", ";
+      std::cerr << ", ";
     }
-    cerr << query->GetFieldName(col);
+    std::cerr << query->GetFieldName(col);
   }
-  cerr << endl;
+  std::cerr << std::endl;
   int thisRow = 0;
   while (query->NextRow())
   {
-    cerr << "Row " << thisRow << ": ";
+    std::cerr << "Row " << thisRow << ": ";
     ++thisRow;
     for (int field = 0; field < query->GetNumberOfFields(); ++field)
     {
       if (field > 0)
       {
-        cerr << ", ";
+        std::cerr << ", ";
       }
-      cerr << query->DataValue(field).ToString();
+      std::cerr << query->DataValue(field).ToString();
     }
-    cerr << endl;
+    std::cerr << std::endl;
   }
 
-  cerr << endl << "Using vtkSQLQuery to execute query and retrieve by row:" << endl;
+  std::cerr << std::endl << "Using vtkSQLQuery to execute query and retrieve by row:" << std::endl;
   if (!query->Execute())
   {
-    cerr << "Query failed with error message " << query->GetLastErrorText() << endl;
+    std::cerr << "Query failed with error message " << query->GetLastErrorText() << std::endl;
     return 1;
   }
   for (int col = 0; col < query->GetNumberOfFields(); ++col)
   {
     if (col > 0)
     {
-      cerr << ", ";
+      std::cerr << ", ";
     }
-    cerr << query->GetFieldName(col);
+    std::cerr << query->GetFieldName(col);
   }
-  cerr << endl;
+  std::cerr << std::endl;
   vtkVariantArray* va = vtkVariantArray::New();
   while (query->NextRow(va))
   {
@@ -139,24 +141,24 @@ int TestODBCDatabase(int, char** const)
     {
       if (field > 0)
       {
-        cerr << ", ";
+        std::cerr << ", ";
       }
-      cerr << va->GetValue(field).ToString();
+      std::cerr << va->GetValue(field).ToString();
     }
-    cerr << endl;
+    std::cerr << std::endl;
   }
   va->Delete();
 
-  cerr << endl << "Using vtkRowQueryToTable to execute query:" << endl;
+  std::cerr << std::endl << "Using vtkRowQueryToTable to execute query:" << std::endl;
   vtkRowQueryToTable* reader = vtkRowQueryToTable::New();
   reader->SetQuery(query);
   reader->Update();
   vtkTable* table = reader->GetOutput();
   for (vtkIdType col = 0; col < table->GetNumberOfColumns(); ++col)
   {
-    table->GetColumn(col)->Print(cerr);
+    table->GetColumn(col)->Print(std::cerr);
   }
-  cerr << endl;
+  std::cerr << std::endl;
 
 #if defined(PRINT_TABLE_CONTENTS)
   for (vtkIdType row = 0; row < table->GetNumberOfRows(); ++row)
@@ -164,8 +166,8 @@ int TestODBCDatabase(int, char** const)
     for (vtkIdType col = 0; col < table->GetNumberOfColumns(); ++col)
     {
       vtkVariant v = table->GetValue(row, col);
-      cerr << "row " << row << ", col " << col << " - " << v.ToString() << " ( "
-           << vtkImageScalarTypeNameMacro(v.GetType()) << " )" << endl;
+      std::cerr << "row " << row << ", col " << col << " - " << v.ToString() << " ( "
+                << vtkImageScalarTypeNameMacro(v.GetType()) << " )" << std::endl;
     }
   }
 #endif

@@ -22,6 +22,8 @@
 
 #include "vtkDataSetWriter.h"
 
+#include <iostream>
+
 int TestHyperTreeGridToDualGrid(int argc, char* argv[])
 {
   // Writer for debug
@@ -45,7 +47,7 @@ int TestHyperTreeGridToDualGrid(int argc, char* argv[])
   dualfilter->SetInputConnection(htGrid->GetOutputPort());
   dualfilter->Update();
   vtkUnstructuredGrid* dual = vtkUnstructuredGrid::SafeDownCast(dualfilter->GetOutput());
-  // dual->PrintSelf(cerr, vtkIndent(0));
+  // dual->PrintSelf(std::cerr, vtkIndent(0));
   // writer->SetFileName("fooDual.vtk");
   // writer->SetInputData(dual);
   // writer->Write();

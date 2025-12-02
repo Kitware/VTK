@@ -5,7 +5,6 @@
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -16,9 +15,11 @@
 #include "vtkVolume16Reader.h"
 #include "vtkVolumeProperty.h"
 
+#include <iostream>
+
 int TestGPURayCastMIPBinaryMask(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
@@ -129,7 +130,7 @@ int TestGPURayCastMIPBinaryMask(int argc, char* argv[])
 
   if (!mapper->IsRenderSupported(renWin, property))
   {
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
     return EXIT_SUCCESS;
   }
 

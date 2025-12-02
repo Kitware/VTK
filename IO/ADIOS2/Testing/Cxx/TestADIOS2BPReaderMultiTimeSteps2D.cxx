@@ -31,6 +31,8 @@
 
 #include <sstream> // istringstream
 
+#include <iostream>
+
 int TestADIOS2BPReaderMultiTimeSteps2D(int argc, char* argv[])
 {
 

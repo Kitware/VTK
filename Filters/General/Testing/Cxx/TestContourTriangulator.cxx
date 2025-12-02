@@ -23,6 +23,8 @@
 
 #include <string>
 
+#include <iostream>
+
 int TestContourTriangulator(int argc, char* argv[])
 {
   vtkSmartPointer<vtkTesting> testHelper = vtkSmartPointer<vtkTesting>::New();

@@ -17,6 +17,8 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkUnstructuredGridReader.h"
 
+#include <iostream>
+
 namespace
 {
 } // anonymous namespace

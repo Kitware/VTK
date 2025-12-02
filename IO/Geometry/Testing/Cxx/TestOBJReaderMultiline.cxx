@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkDebugLeaks.h"
 #include "vtkFileResourceStream.h"
 #include "vtkOBJReader.h"
 
 #include "vtkNew.h"
-#include "vtkPointData.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 //------------------------------------------------------------------------------
 int TestOBJReaderMultiline(int argc, char* argv[])

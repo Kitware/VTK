@@ -3,6 +3,8 @@
 
 #include "vtkGLTFReader.h"
 
+#include <iostream>
+
 int TestGLTFReaderGeometryNoBin(int argc, char* argv[])
 {
 

@@ -13,6 +13,8 @@
 #include <functional>
 #include <thread>
 
+#include <iostream>
+
 namespace
 {
 //-----------------------------------------------------------------------------

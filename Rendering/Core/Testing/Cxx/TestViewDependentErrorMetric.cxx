@@ -46,6 +46,9 @@
 
 #ifdef WRITE_GENERIC_RESULT
 #include "vtkXMLUnstructuredGridWriter.h"
+
+#include <iostream>
+
 #endif // #ifdef WRITE_GENERIC_RESULT
 
 // Remark about the lookup tables that seem different between the
@@ -140,12 +143,12 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   ds->GetTessellator()->GetErrorMetrics()->AddItem(viewError2);
   viewError2->Delete();
 
-  cout << "input unstructured grid: " << ds << endl;
+  std::cout << "input unstructured grid: " << ds << std::endl;
 
   static_cast<vtkSimpleCellTessellator*>(ds->GetTessellator())->SetMaxSubdivisionLevel(10);
 
   vtkIndent indent;
-  ds->PrintSelf(cout, indent);
+  ds->PrintSelf(std::cout, indent);
 
 #if 0
   // Create the filter
@@ -266,7 +269,7 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
 
 #endif // #ifdef WRITE_GENERIC_RESULT
 
-  tessellator->GetOutput()->PrintSelf(cout, indent);
+  tessellator->GetOutput()->PrintSelf(std::cout, indent);
 
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

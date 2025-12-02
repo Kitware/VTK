@@ -8,11 +8,13 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+#include <iostream>
+
 int TestHDRReader(int argc, char* argv[])
 {
   if (argc <= 1)
   {
-    cout << "Usage: " << argv[0] << " <hdr file>" << endl;
+    std::cout << "Usage: " << argv[0] << " <hdr file>" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -23,7 +25,7 @@ int TestHDRReader(int argc, char* argv[])
   // Check the image can be read
   if (!reader->CanReadFile(filename.c_str()))
   {
-    cerr << "CanReadFile failed for " << filename << "\n";
+    std::cerr << "CanReadFile failed for " << filename << "\n";
     return EXIT_FAILURE;
   }
 

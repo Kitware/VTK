@@ -11,6 +11,8 @@
 #include "vtkExecutive.h"
 #include "vtkTestErrorObserver.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestComputeQuartiles(int, char*[])
 {
@@ -85,7 +87,7 @@ int TestComputeQuartiles(int, char*[])
 
   if (ret != EXIT_SUCCESS)
   {
-    cout << "Failure!" << endl;
+    std::cout << "Failure!" << std::endl;
     outTable->Dump();
   }
 

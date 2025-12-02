@@ -24,6 +24,8 @@
 #include "vtkTestUtilities.h"
 #include <vtk_mpi.h>
 
+#include <iostream>
+
 namespace
 {
 
@@ -62,7 +64,7 @@ void MyProcess::Execute()
   this->ReturnValue = 1;
   int numProcs = this->Controller->GetNumberOfProcesses();
   int me = this->Controller->GetLocalProcessId();
-  cout << "Nb process found: " << numProcs << endl;
+  std::cout << "Nb process found: " << numProcs << std::endl;
 
   // Create and execute pipeline
   vtkNew<vtkRTAnalyticSource> wavelet;
@@ -83,10 +85,10 @@ void MyProcess::Execute()
   mapper->SetNumberOfPieces(numProcs);
   mapper->Update();
 
-  cout << "Got for Wavelet " << wavelet->GetOutput()->GetNumberOfPoints() << " points on process "
-       << me << endl;
-  cout << "Got for Surface " << toPolyData->GetOutput()->GetNumberOfPoints()
-       << " points on process " << me << endl;
+  std::cout << "Got for Wavelet " << wavelet->GetOutput()->GetNumberOfPoints()
+            << " points on process " << me << std::endl;
+  std::cout << "Got for Surface " << toPolyData->GetOutput()->GetNumberOfPoints()
+            << " points on process " << me << std::endl;
 
   if (me == 0)
   {
@@ -153,7 +155,7 @@ int ParallelResampling(int argc, char* argv[])
   {
     if (me == 0)
     {
-      cout << "DistributedData test requires MPI" << endl;
+      std::cout << "DistributedData test requires MPI" << std::endl;
     }
     contr->Delete();
     return retVal; // is this the right error val?   TODO

@@ -13,7 +13,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTestUtilities.h"
 
 int TestPointGaussianMapperAnisotropic(int argc, char* argv[])
 {

@@ -24,6 +24,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 
+#include <iostream>
+
 // A function to point an actor along a vector
 void PointCone(vtkActor* actor, double nx, double ny, double nz)
 {
@@ -147,12 +149,12 @@ int TestCellPickerImage(int argc, char* argv[])
     picker->GetPickNormal(n);
     if (vtkImageSlice::SafeDownCast(picker->GetProp3D()) == nullptr)
     {
-      cerr << "Pick did not get an image.\n";
+      std::cerr << "Pick did not get an image.\n";
       pickSuccess = false;
     }
     if (vtkImageSliceMapper::SafeDownCast(picker->GetMapper()) == nullptr)
     {
-      cerr << "Pick did not get a mapper.\n";
+      std::cerr << "Pick did not get a mapper.\n";
       pickSuccess = false;
     }
 

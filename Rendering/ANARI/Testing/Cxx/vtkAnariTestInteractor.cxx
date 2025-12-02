@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 namespace
 {
 static std::vector<std::string> ActorNames;
@@ -102,13 +104,13 @@ void vtkAnariTestInteractor::OnKeyPress()
 
     if (current == this->G)
     {
-      cerr << "ANARI rendering " << this->O << endl;
+      std::cerr << "ANARI rendering " << this->O << std::endl;
       this->GLRenderer->SetPass(this->O);
       this->GLRenderer->GetRenderWindow()->Render();
     }
     else if (current == this->O)
     {
-      cerr << "GL rendering " << this->G << endl;
+      std::cerr << "GL rendering " << this->G << std::endl;
       this->GLRenderer->SetPass(this->G);
       this->GLRenderer->GetRenderWindow()->Render();
     }
@@ -119,7 +121,7 @@ void vtkAnariTestInteractor::OnKeyPress()
     vtkActorCollection* actors = this->GLRenderer->GetActors();
 
     this->VisibleActor++;
-    cerr << "VISIBLE " << this->VisibleActor;
+    std::cerr << "VISIBLE " << this->VisibleActor;
     if (this->VisibleActor == actors->GetNumberOfItems())
     {
       this->VisibleActor = -1;
@@ -130,7 +132,7 @@ void vtkAnariTestInteractor::OnKeyPress()
       {
         if (i < static_cast<int>(ActorNames.size()))
         {
-          cerr << " : " << ActorNames[i] << " ";
+          std::cerr << " : " << ActorNames[i] << " ";
         }
         vtkActor::SafeDownCast(actors->GetItemAsObject(i))->SetVisibility(1);
       }
@@ -139,7 +141,7 @@ void vtkAnariTestInteractor::OnKeyPress()
         vtkActor::SafeDownCast(actors->GetItemAsObject(i))->SetVisibility(0);
       }
     }
-    cerr << endl;
+    std::cerr << std::endl;
     this->GLRenderer->ResetCamera();
     this->GLRenderer->GetRenderWindow()->Render();
   }
@@ -153,7 +155,7 @@ void vtkAnariTestInteractor::OnKeyPress()
     {
       this->VisibleLight = -1;
     }
-    cerr << "LIGHT " << this->VisibleLight << "/" << lights->GetNumberOfItems() << endl;
+    std::cerr << "LIGHT " << this->VisibleLight << "/" << lights->GetNumberOfItems() << std::endl;
     for (int i = 0; i < lights->GetNumberOfItems(); i++)
     {
       if (this->VisibleLight == -1 || this->VisibleLight == i)
@@ -177,7 +179,7 @@ void vtkAnariTestInteractor::OnKeyPress()
       vtkLight* light = vtkLight::SafeDownCast(lights->GetItemAsObject(i));
       double intens = vtkAnariLightNode::GetLightScale(light) * 1.5;
       vtkAnariLightNode::SetLightScale(intens, light);
-      cerr << "intensity " << intens << endl;
+      std::cerr << "intensity " << intens << std::endl;
     }
 
     this->GLRenderer->GetRenderWindow()->Render();

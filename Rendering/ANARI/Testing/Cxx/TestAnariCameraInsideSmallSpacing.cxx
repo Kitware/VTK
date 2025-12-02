@@ -30,6 +30,8 @@
 #include "vtkAnariSceneGraph.h"
 #include "vtkAnariTestUtilities.h"
 
+#include <iostream>
+
 static const char* TestAnariCameraInsideSmallSpacingLog =
   "# StreamVersion 1\n"
   "EnterEvent 188 3 0 0 0 0 0\n"

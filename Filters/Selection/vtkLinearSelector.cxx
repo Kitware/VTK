@@ -3,23 +3,19 @@
 #include "vtkLinearSelector.h"
 
 #include "vtkCell.h"
-#include "vtkCellData.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkCompositeDataSetRange.h"
 #include "vtkDataSet.h"
-#include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
-#include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
-#include "vtkSmartPointer.h"
 
-#include <vector>
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkLinearSelector);
@@ -160,8 +156,8 @@ void vtkLinearSelector::SeekIntersectingCells(vtkDataSet* input, vtkIdTypeArray*
         vtkIdType offset = 3 * i;
         this->Points->GetPoint(i, startPoints + offset);
         this->Points->GetPoint(i + 1, endPoints + offset);
-        cerr << i - 1 << ": " << startPoints[offset] << " " << startPoints[offset + 1] << " "
-             << startPoints[offset + 2] << endl;
+        std::cerr << i - 1 << ": " << startPoints[offset] << " " << startPoints[offset + 1] << " "
+                  << startPoints[offset + 2] << "\n";
       }
     } // if ( this->IncludeVertices )
     else

@@ -13,6 +13,8 @@
 #include "vtkSphereSource.h"
 #include "vtkWorldPointPicker.h"
 
+#include <iostream>
+
 int TestWorldPointPicker(int argc, char* argv[])
 {
 
@@ -56,12 +58,12 @@ int TestWorldPointPicker(int argc, char* argv[])
   double* coords = picker->GetPickPosition();
   double expected[3] = { -0.246502, -0.246502, 0.347118 };
   double epsilon = 0.0001;
-  cout << "\nPicked Coords: (" << coords[0] << ", " << coords[1] << ", " << coords[2] << ")\n";
+  std::cout << "\nPicked Coords: (" << coords[0] << ", " << coords[1] << ", " << coords[2] << ")\n";
   if (fabs(expected[0] - coords[0]) > epsilon || fabs(expected[1] - coords[1]) > epsilon ||
     fabs(expected[2] - coords[2]) > epsilon)
   {
-    cerr << "Incorrect pick coordinates! (if any picks were performed inter"
-            "actively this could be ignored).\n";
+    std::cerr << "Incorrect pick coordinates! (if any picks were performed inter"
+                 "actively this could be ignored).\n";
     return EXIT_FAILURE;
   }
 

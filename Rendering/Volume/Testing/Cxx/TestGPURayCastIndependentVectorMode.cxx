@@ -26,9 +26,11 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+#include <iostream>
+
 int TestGPURayCastIndependentVectorMode(int argc, char* argv[])
 {
-  // cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  // std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   int dims[3] = { 20, 20, 20 };
 

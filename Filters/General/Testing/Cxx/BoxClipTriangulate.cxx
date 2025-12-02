@@ -28,6 +28,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 constexpr int NumPoints = 13;
 constexpr double PointData[NumPoints * 3] = {
   0.0, 0.0, 0.0, //

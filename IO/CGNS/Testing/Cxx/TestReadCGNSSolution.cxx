@@ -4,12 +4,12 @@
 #include "vtkCGNSReader.h"
 #include "vtkCell.h"
 #include "vtkCellData.h"
-#include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
 #include <string>
 
 #define vtk_assert(x)                                                                              \
@@ -17,7 +17,7 @@
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << endl;             \
+      std::cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << std::endl;   \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
   } while (false)
@@ -73,6 +73,6 @@ int TestReadCGNSSolution(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  cout << __FILE__ << " tests passed." << endl;
+  std::cout << __FILE__ << " tests passed." << std::endl;
   return EXIT_SUCCESS;
 }

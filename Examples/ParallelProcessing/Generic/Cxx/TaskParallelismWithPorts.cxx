@@ -11,6 +11,8 @@
 
 #include "TaskParallelismWithPorts.h"
 
+#include <iostream>
+
 // This function sets up properties common to both processes
 // and executes the task corresponding to the current process
 void process(vtkMultiProcessController* controller, void* vtkNotUsed(arg))
@@ -52,7 +54,7 @@ int main(int argc, char* argv[])
 
   if (numProcs != 2)
   {
-    cerr << "This example requires two processes." << endl;
+    std::cerr << "This example requires two processes." << endl;
     controller->Finalize();
     controller->Delete();
     return 1;

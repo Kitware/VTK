@@ -12,6 +12,8 @@
 #include "vtkPolyData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTransmitPolyDataPiece);
 
@@ -56,12 +58,12 @@ int vtkTransmitPolyDataPiece::RequestData(vtkInformation* vtkNotUsed(request),
   if (procId == 0)
   {
     // It is important to synchronize these calls (all processes execute)
-    // cerr << "Root Execute\n";
+    // std::cerr << "Root Execute\n";
     this->RootExecute(input, output, outInfo);
   }
   else
   {
-    // cerr << "Satellite Execute " << procId << endl;
+    // std::cerr << "Satellite Execute " << procId << endl;
     this->SatelliteExecute(procId, output, outInfo);
   }
 

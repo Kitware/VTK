@@ -13,6 +13,8 @@
 #include "vtkRandomPool.h"
 #include <vtkMath.h>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 // Test the first four moments to ensure our random number generator conforms
 // to a flat random distribution between 0 and 1.

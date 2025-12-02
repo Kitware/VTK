@@ -25,6 +25,8 @@
 // STL includes
 #include <algorithm>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRasterReprojectionFilter);
 

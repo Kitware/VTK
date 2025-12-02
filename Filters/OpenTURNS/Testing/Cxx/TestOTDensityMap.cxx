@@ -64,7 +64,7 @@ int TestOTDensityMap(int, char*[])
 
   if (mbTable->GetNumberOfBlocks() != 3)
   {
-    cout << "Unexpected Number of Contour Blocks" << std::endl;
+    std::cout << "Unexpected Number of Contour Blocks" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -81,7 +81,7 @@ int TestOTDensityMap(int, char*[])
     vtkMultiBlockDataSet* childBlock = vtkMultiBlockDataSet::SafeDownCast(mbTable->GetBlock(i));
     if (!childBlock || childBlock->GetNumberOfBlocks() != childsNBlock[i])
     {
-      cout << "Unexpected Child Block format" << std::endl;
+      std::cout << "Unexpected Child Block format" << std::endl;
       return EXIT_FAILURE;
     }
     for (unsigned int j = 0; j < childsNBlock[i]; j++)
@@ -89,13 +89,13 @@ int TestOTDensityMap(int, char*[])
       vtkTable* childTable = vtkTable::SafeDownCast(childBlock->GetBlock(j));
       if (!childTable || childTable->GetNumberOfColumns() != 2)
       {
-        cout << "Unexpected Table format" << std::endl;
+        std::cout << "Unexpected Table format" << std::endl;
         return EXIT_FAILURE;
       }
       if (childTable->GetNumberOfRows() != tablesNRows[nTable])
       {
-        cout << "Unexpected Number of rows : " << childTable->GetNumberOfRows()
-             << " Expecting : " << tablesNRows[nTable] << std::endl;
+        std::cout << "Unexpected Number of rows : " << childTable->GetNumberOfRows()
+                  << " Expecting : " << tablesNRows[nTable] << std::endl;
         return EXIT_FAILURE;
       }
       vtkVariant tableYValue = childTable->GetValue(0, 1);

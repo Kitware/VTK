@@ -29,7 +29,7 @@ static bool close_enough(const double lhs, const double rhs)
 
 int ArrayDotProductSimilarity(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  cout << setprecision(17);
+  std::cout << setprecision(17);
 
   try
   {
@@ -142,7 +142,7 @@ int ArrayDotProductSimilarity(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   catch (std::exception& e)
   {
-    cerr << e.what() << endl;
+    std::cerr << e.what() << std::endl;
     return 1;
   }
 }

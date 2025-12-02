@@ -12,6 +12,8 @@
 #include <vtkPolyData.h>
 #include <vtkPolyDataNormals.h>
 
+#include <iostream>
+
 namespace
 {
 

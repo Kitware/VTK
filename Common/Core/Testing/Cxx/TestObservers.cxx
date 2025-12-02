@@ -8,6 +8,8 @@
 #include "vtkSmartPointer.h"
 #include <map>
 
+#include <iostream>
+
 class vtkHandler : public vtkObject
 {
 public:
@@ -81,7 +83,7 @@ public:
     {
       std::cerr << " " << e;
     }
-    std::cerr << " }" << endl;
+    std::cerr << " }" << std::endl;
 
     return false;
   }
@@ -141,11 +143,11 @@ int TestObservers(int, char*[])
   if (vtkHandler::VoidEventCounts == 2 && vtkHandler::EventCounts[1000] == 0 &&
     vtkHandler::EventCounts[1001] == 2 && vtkHandler::EventCounts[1002] == 1)
   {
-    cout << "All vtkObject callback counts as expected." << endl;
+    std::cout << "All vtkObject callback counts as expected." << std::endl;
   }
   else
   {
-    cerr << "Mismatched callback counts for VTK observer." << endl;
+    std::cerr << "Mismatched callback counts for VTK observer." << std::endl;
     volcano->Delete();
     return 1;
   }
@@ -193,11 +195,11 @@ int TestObservers(int, char*[])
   if (vtkHandler::VoidEventCounts == 2 && vtkHandler::EventCounts[1003] == 0 &&
     vtkHandler::EventCounts[1004] == 2 && vtkHandler::EventCounts[1005] == 1)
   {
-    cout << "All smart pointer callback counts as expected." << endl;
+    std::cout << "All smart pointer callback counts as expected." << std::endl;
   }
   else
   {
-    cerr << "Mismatched callback counts for smart pointer observer." << endl;
+    std::cerr << "Mismatched callback counts for smart pointer observer." << std::endl;
     volcano->Delete();
     return 1;
   }
@@ -236,11 +238,11 @@ int TestObservers(int, char*[])
   if (OtherHandler::VoidEventCounts == 2 && OtherHandler::EventCounts[1006] == 0 &&
     OtherHandler::EventCounts[1007] == 2 && OtherHandler::EventCounts[1008] == 1)
   {
-    cout << "All non-VTK observer callback counts as expected." << endl;
+    std::cout << "All non-VTK observer callback counts as expected." << std::endl;
   }
   else
   {
-    cerr << "Mismatched callback counts for non-VTK observer." << endl;
+    std::cerr << "Mismatched callback counts for non-VTK observer." << std::endl;
     return 1;
   }
 
@@ -256,7 +258,7 @@ int TestObservers(int, char*[])
   oobject->InvokeEvent(1000);
   if (!ohandler.match({ 2, 3, 4, 1 }))
   {
-    cerr << "Incorrect legacy single-priority ordering." << endl;
+    std::cerr << "Incorrect legacy single-priority ordering." << std::endl;
     return 1;
   }
 
@@ -267,7 +269,7 @@ int TestObservers(int, char*[])
   oobject->InvokeEvent(1000);
   if (!ohandler.match({ 5, 6, 2, 3, 4, 1 }))
   {
-    cerr << "Incorrect legacy high-priority ordering." << endl;
+    std::cerr << "Incorrect legacy high-priority ordering." << std::endl;
     return 1;
   }
 
@@ -278,7 +280,7 @@ int TestObservers(int, char*[])
   oobject->InvokeEvent(1000);
   if (!ohandler.match({ 5, 6, 2, 3, 4, 1, 8, 7 }))
   {
-    cerr << "Incorrect legacy low-priority ordering." << endl;
+    std::cerr << "Incorrect legacy low-priority ordering." << std::endl;
     return 1;
   }
 
@@ -290,7 +292,7 @@ int TestObservers(int, char*[])
   oobject->InvokeEvent(1000);
   if (!ohandler.match({ 5, 6, 9, 2, 3, 4, 1, 10, 8, 11, 7 }))
   {
-    cerr << "Low-priority events should release pin on middle-priority observer." << endl;
+    std::cerr << "Low-priority events should release pin on middle-priority observer." << std::endl;
     return 1;
   }
 
@@ -301,7 +303,7 @@ int TestObservers(int, char*[])
   oobject->InvokeEvent(1000);
   if (!ohandler.match({ 5, 6, 9, 2, 3, 4, 10, 8, 11 }))
   {
-    cerr << "RemoveObserver should not change existing order." << endl;
+    std::cerr << "RemoveObserver should not change existing order." << std::endl;
     return 1;
   }
 
@@ -313,11 +315,11 @@ int TestObservers(int, char*[])
   oobject->InvokeEvent(1000);
   if (!ohandler.match({ 5, 6, 9, 12, 2, 3, 4, 10, 13, 8, 14, 11 }))
   {
-    cerr << "RemoveObserver should add pin to low-priority observer." << endl;
+    std::cerr << "RemoveObserver should add pin to low-priority observer." << std::endl;
     return 1;
   }
 
-  cout << "Legacy priority order as expected." << endl;
+  std::cout << "Legacy priority order as expected." << std::endl;
 
   return 0;
 }

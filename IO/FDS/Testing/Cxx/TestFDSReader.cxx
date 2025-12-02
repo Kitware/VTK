@@ -16,6 +16,7 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 
 /**
  * This tests the core features of the FDS reader, i.e. the parsing of:

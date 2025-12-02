@@ -7,6 +7,8 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 int TestPolyDataRemoveCell(int, char*[])
 {
   int rval = 0;
@@ -97,7 +99,7 @@ int TestPolyDataRemoveCell(int, char*[])
 
   if (poly->GetNumberOfCells() != numCells - 4)
   {
-    cout << "Wrong number of cells after removal.\n";
+    std::cout << "Wrong number of cells after removal.\n";
     return 1;
   }
 
@@ -110,7 +112,7 @@ int TestPolyDataRemoveCell(int, char*[])
   {
     if (cellTypes->GetValue(i) != poly->GetCellType(i))
     {
-      cout << "Problem with cell type for cell " << i << endl;
+      std::cout << "Problem with cell type for cell " << i << std::endl;
       return 1;
     }
   }
@@ -125,14 +127,14 @@ int TestPolyDataRemoveCell(int, char*[])
     cellPoints->GetTypedTuple(i, data);
     if (data[0] != npts)
     {
-      cout << "Problem with the number of points for cell " << i << endl;
+      std::cout << "Problem with the number of points for cell " << i << std::endl;
       return 1;
     }
     for (vtkIdType j = 0; j < npts; j++)
     {
       if (pts[j] != data[j + 1])
       {
-        cout << "Problem with point " << j << " for cell " << i << endl;
+        std::cout << "Problem with point " << j << " for cell " << i << std::endl;
         return 1;
       }
     }

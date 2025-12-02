@@ -8,8 +8,6 @@
 #include "vtkDataSetTriangleFilter.h"
 #include "vtkElevationFilter.h"
 #include "vtkNew.h"
-#include "vtkNonMergingPointLocator.h"
-#include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
 #include "vtkPolyData.h"
 #include "vtkRTAnalyticSource.h"
@@ -17,8 +15,9 @@
 #include "vtkSMPTools.h"
 #include "vtkTimerLog.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkXMLMultiBlockDataWriter.h"
 #include "vtkXMLPolyDataWriter.h"
+
+#include <iostream>
 
 #define WRITE_DEBUG 0
 
@@ -53,9 +52,9 @@ int TestSMPContour(int, char*[])
   tetraFilter->GetOutput()->GetCellData()->ShallowCopy(p2c->GetOutput()->GetCellData());
 
   tl->StopTimer();
-  cout << "Data generation time: " << tl->GetElapsedTime() << endl;
+  std::cout << "Data generation time: " << tl->GetElapsedTime() << std::endl;
 
-  cout << "Contour grid: " << endl;
+  std::cout << "Contour grid: " << std::endl;
   vtkNew<vtkContourGrid> cg;
   cg->SetInputData(tetraFilter->GetOutput());
   cg->SetInputArrayToProcess(0, 0, 0, 0, "RTData");
@@ -67,11 +66,11 @@ int TestSMPContour(int, char*[])
 
   vtkIdType baseNumCells = cg->GetOutput()->GetNumberOfCells();
 
-  cout << "Number of cells: " << cg->GetOutput()->GetNumberOfCells() << endl;
-  cout << "NUmber of points: " << cg->GetOutput()->GetNumberOfPoints() << endl;
-  cout << "Time: " << tl->GetElapsedTime() << endl;
+  std::cout << "Number of cells: " << cg->GetOutput()->GetNumberOfCells() << std::endl;
+  std::cout << "NUmber of points: " << cg->GetOutput()->GetNumberOfPoints() << std::endl;
+  std::cout << "Time: " << tl->GetElapsedTime() << std::endl;
 
-  cout << "Contour filter: " << endl;
+  std::cout << "Contour filter: " << std::endl;
   vtkNew<vtkContourFilter> cf;
   cf->SetInputData(tetraFilter->GetOutput());
   cf->SetInputArrayToProcess(0, 0, 0, 0, "RTData");
@@ -81,10 +80,10 @@ int TestSMPContour(int, char*[])
   cf->Update();
   tl->StopTimer();
 
-  cout << "Number of cells: " << cf->GetOutput()->GetNumberOfCells() << endl;
-  cout << "Time: " << tl->GetElapsedTime() << endl;
+  std::cout << "Number of cells: " << cf->GetOutput()->GetNumberOfCells() << std::endl;
+  std::cout << "Time: " << tl->GetElapsedTime() << std::endl;
 
-  cout << "SMP Contour grid: " << endl;
+  std::cout << "SMP Contour grid: " << std::endl;
   vtkNew<vtkSMPContourGrid> cg2;
   cg2->SetInputData(tetraFilter->GetOutput());
   cg2->SetInputArrayToProcess(0, 0, 0, 0, "RTData");
@@ -94,7 +93,7 @@ int TestSMPContour(int, char*[])
   cg2->Update();
   tl->StopTimer();
 
-  cout << "Time: " << tl->GetElapsedTime() << endl;
+  std::cout << "Time: " << tl->GetElapsedTime() << std::endl;
 
 #if WRITE_DEBUG
   vtkNew<vtkXMLPolyDataWriter> pdwriter;
@@ -106,19 +105,19 @@ int TestSMPContour(int, char*[])
 
   if (cg2->GetOutput()->GetNumberOfCells() != baseNumCells)
   {
-    cout << "Error in vtkSMPContourGrid (MergePieces = true) output." << endl;
-    cout << "Number of cells does not match expected, " << cg2->GetOutput()->GetNumberOfCells()
-         << " vs. " << baseNumCells << endl;
+    std::cout << "Error in vtkSMPContourGrid (MergePieces = true) output." << std::endl;
+    std::cout << "Number of cells does not match expected, " << cg2->GetOutput()->GetNumberOfCells()
+              << " vs. " << baseNumCells << std::endl;
     return EXIT_FAILURE;
   }
 
-  cout << "SMP Contour grid: " << endl;
+  std::cout << "SMP Contour grid: " << std::endl;
   cg2->MergePiecesOff();
   tl->StartTimer();
   cg2->Update();
   tl->StopTimer();
 
-  cout << "Time: " << tl->GetElapsedTime() << endl;
+  std::cout << "Time: " << tl->GetElapsedTime() << std::endl;
 
   vtkIdType numCells = 0;
 
@@ -141,9 +140,9 @@ int TestSMPContour(int, char*[])
 
   if (numCells != baseNumCells)
   {
-    cout << "Error in vtkSMPContourGrid (MergePieces = false) output." << endl;
-    cout << "Number of cells does not match expected, " << numCells << " vs. " << baseNumCells
-         << endl;
+    std::cout << "Error in vtkSMPContourGrid (MergePieces = false) output." << std::endl;
+    std::cout << "Number of cells does not match expected, " << numCells << " vs. " << baseNumCells
+              << std::endl;
     return EXIT_FAILURE;
   }
 

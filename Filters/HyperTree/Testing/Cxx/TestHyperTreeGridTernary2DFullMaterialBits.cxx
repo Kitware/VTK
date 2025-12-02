@@ -29,6 +29,8 @@
 #include "vtkTimerLog.h"
 #include <sstream>
 
+#include <iostream>
+
 void GenerateDescriptorAndMaterial(
   int depth, int sx, int sy, int sz, int branch, std::stringstream& d, std::stringstream& m)
 {
@@ -122,28 +124,28 @@ int TestHyperTreeGridTernary2DFullMaterialBits(int argc, char* argv[])
   vtkNew<vtkBitArray> desc;
   vtkNew<vtkBitArray> mat;
   timer->StartTimer();
-  cout << "Generating descriptors..." << endl;
+  std::cout << "Generating descriptors..." << std::endl;
   GenerateDescriptorAndMaterial(depth, sx, sy, 1, branch, desc, mat);
   timer->StopTimer();
   htGrid->SetDescriptorBits(desc);
   htGrid->SetMaskBits(mat);
-  cout << " Done in " << timer->GetElapsedTime() << "s (" << desc->GetNumberOfTuples() << " nodes)"
-       << endl;
+  std::cout << " Done in " << timer->GetElapsedTime() << "s (" << desc->GetNumberOfTuples()
+            << " nodes)" << std::endl;
 
-  cout << "Constructing HTG " << sx << "x" << sy << "x" << 1 << "  branch: " << branch
-       << "  depth: " << depth << "..." << endl;
+  std::cout << "Constructing HTG " << sx << "x" << sy << "x" << 1 << "  branch: " << branch
+            << "  depth: " << depth << "..." << std::endl;
   timer->StartTimer();
   htGrid->Update();
   vtkHyperTreeGrid* htg = vtkHyperTreeGrid::SafeDownCast(htGrid->GetOutput());
   htg->GetCellData()->SetScalars(htg->GetCellData()->GetArray("Depth"));
   timer->StopTimer();
   vtkHyperTreeGrid* ht = htGrid->GetHyperTreeGridOutput();
-  cout << " Done in " << timer->GetElapsedTime() << "s" << endl;
-  cout << "#cells " << ht->GetNumberOfCells() << endl;
+  std::cout << " Done in " << timer->GetElapsedTime() << "s" << std::endl;
+  std::cout << "#cells " << ht->GetNumberOfCells() << std::endl;
   timer->StartTimer();
   timer->StopTimer();
 
-  cout << "HTG takes " << htg->GetActualMemorySize() << "KB in memory." << endl;
+  std::cout << "HTG takes " << htg->GetActualMemorySize() << "KB in memory." << std::endl;
 
   // Prepare an array of ids
   vtkNew<vtkIdTypeArray> idArray;
@@ -158,14 +160,14 @@ int TestHyperTreeGridTernary2DFullMaterialBits(int argc, char* argv[])
   ht->GetCellData()->SetScalars(idArray);
 
   // Geometry
-  cout << "Constructing geometry..." << endl;
+  std::cout << "Constructing geometry..." << std::endl;
   timer->StartTimer();
   vtkNew<vtkHyperTreeGridGeometry> geometry;
   geometry->SetInputData(htg);
   geometry->Update();
   vtkPolyData* pd = geometry->GetPolyDataOutput();
   timer->StopTimer();
-  cout << " Done in " << timer->GetElapsedTime() << "s" << endl;
+  std::cout << " Done in " << timer->GetElapsedTime() << "s" << std::endl;
 
   vtkNew<vtkHyperTreeGridToDualGrid> h2ug;
   h2ug->SetInputData(htg);

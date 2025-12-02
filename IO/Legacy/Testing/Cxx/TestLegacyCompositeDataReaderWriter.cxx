@@ -7,6 +7,8 @@
 #include "vtkOverlappingAMR.h"
 #include "vtkTesting.h"
 
+#include <iostream>
+
 #define TEST_SUCCESS 0
 #define TEST_FAILED 1
 
@@ -15,7 +17,7 @@
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      std::cerr << "ERROR: Condition FAILED!! : " << #x << endl;                                   \
+      std::cerr << "ERROR: Condition FAILED!! : " << #x << std::endl;                              \
       return TEST_FAILED;                                                                          \
     }                                                                                              \
   } while (false)
@@ -32,9 +34,9 @@ bool Validate(vtkOverlappingAMR* input, vtkOverlappingAMR* result)
     vtk_assert(input->GetNumberOfBlocks(level) == result->GetNumberOfBlocks(level));
   }
 
-  std::cout << "Check input validity" << endl;
+  std::cout << "Check input validity" << std::endl;
   bool ret = input->CheckValidity();
-  std::cout << "Check output validity" << endl;
+  std::cout << "Check output validity" << std::endl;
   ret &= result->CheckValidity();
   return ret;
 }
@@ -66,7 +68,7 @@ int TestLegacyCompositeDataReaderWriter(int argc, char* argv[])
     return TEST_FAILED;
   }
 
-  std::cout << "Test Binary IO" << endl;
+  std::cout << "Test Binary IO" << std::endl;
 
   writer->SetFileTypeToBinary();
   writer->Write();

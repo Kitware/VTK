@@ -13,6 +13,8 @@
 #include <locale> // C++ locale
 #include <sstream>
 
+#include <iostream>
+
 // #define ARRAY_SIZE (2*1024*1024)
 #define ARRAY_SIZE 2048
 
@@ -24,7 +26,7 @@ int TestSortDataArray(int, char*[])
 
   //---------------------------------------------------------------------------
   // Sort data array
-  cout << "Building array----------" << endl;
+  std::cout << "Building array----------" << std::endl;
   vtkIntArray* keys = vtkIntArray::New();
   keys->SetNumberOfComponents(1);
   keys->SetNumberOfTuples(ARRAY_SIZE);
@@ -33,45 +35,45 @@ int TestSortDataArray(int, char*[])
     keys->SetComponent(i, 0, static_cast<int>(vtkMath::Random(0, ARRAY_SIZE * 4)));
   }
 
-  cout << "Sorting array" << endl;
+  std::cout << "Sorting array" << std::endl;
   timer->StartTimer();
   vtkSortDataArray::Sort(keys);
   timer->StopTimer();
 
-  cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << endl;
+  std::cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << std::endl;
 
   for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
     if (keys->GetComponent(i, 0) > keys->GetComponent(i + 1, 0))
     {
-      cout << "Array not properly sorted!" << endl;
+      std::cout << "Array not properly sorted!" << std::endl;
       retVal = 1;
       break;
     }
   }
-  cout << "Array consistency check finished\n" << endl;
+  std::cout << "Array consistency check finished\n" << std::endl;
 
-  cout << "Sorting sorted array" << endl;
+  std::cout << "Sorting sorted array" << std::endl;
   timer->StartTimer();
   vtkSortDataArray::Sort(keys);
   timer->StopTimer();
 
-  cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << endl;
+  std::cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << std::endl;
 
   for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
     if (keys->GetComponent(i, 0) > keys->GetComponent(i + 1, 0))
     {
-      cout << "Array not properly sorted!" << endl;
+      std::cout << "Array not properly sorted!" << std::endl;
       retVal = 1;
       break;
     }
   }
-  cout << "Array consistency check finished\n" << endl;
+  std::cout << "Array consistency check finished\n" << std::endl;
 
   //---------------------------------------------------------------------------
   // Sort id list (ascending)
-  cout << "Building id list (ascending order)----------" << endl;
+  std::cout << "Building id list (ascending order)----------" << std::endl;
   vtkIdList* ids = vtkIdList::New();
   ids->SetNumberOfIds(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
@@ -79,54 +81,54 @@ int TestSortDataArray(int, char*[])
     ids->SetId(i, static_cast<vtkIdType>(vtkMath::Random(0, ARRAY_SIZE * 4)));
   }
 
-  cout << "Sorting ids" << endl;
+  std::cout << "Sorting ids" << std::endl;
   timer->StartTimer();
   vtkSortDataArray::Sort(ids);
   timer->StopTimer();
 
-  cout << "Time to sort ids: " << timer->GetElapsedTime() << " sec" << endl;
+  std::cout << "Time to sort ids: " << timer->GetElapsedTime() << " sec" << std::endl;
 
   for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
     if (ids->GetId(i) > ids->GetId(i + 1))
     {
-      cout << "Id list not properly sorted!" << endl;
+      std::cout << "Id list not properly sorted!" << std::endl;
       retVal = 1;
       break;
     }
   }
-  cout << "Id list consistency check finished\n" << endl;
+  std::cout << "Id list consistency check finished\n" << std::endl;
 
   //---------------------------------------------------------------------------
   // Sort id list (descending)
-  cout << "Building id list (descending order)----------" << endl;
+  std::cout << "Building id list (descending order)----------" << std::endl;
   ids->SetNumberOfIds(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; i++)
   {
     ids->SetId(i, static_cast<vtkIdType>(vtkMath::Random(0, ARRAY_SIZE * 4)));
   }
 
-  cout << "Sorting ids" << endl;
+  std::cout << "Sorting ids" << std::endl;
   timer->StartTimer();
   vtkSortDataArray::Sort(ids, 1);
   timer->StopTimer();
 
-  cout << "Time to sort ids: " << timer->GetElapsedTime() << " sec" << endl;
+  std::cout << "Time to sort ids: " << timer->GetElapsedTime() << " sec" << std::endl;
 
   for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
     if (ids->GetId(i) < ids->GetId(i + 1))
     {
-      cout << "Id list not properly sorted!" << endl;
+      std::cout << "Id list not properly sorted!" << std::endl;
       retVal = 1;
       break;
     }
   }
-  cout << "Id list consistency check finished\n" << endl;
+  std::cout << "Id list consistency check finished\n" << std::endl;
 
   //---------------------------------------------------------------------------
   // Sort key/value pairs
-  cout << "Building key/value arrays----------\n" << endl;
+  std::cout << "Building key/value arrays----------\n" << std::endl;
   vtkIntArray* values = vtkIntArray::New();
   values->SetNumberOfComponents(2);
   values->SetNumberOfTuples(ARRAY_SIZE);
@@ -141,71 +143,71 @@ int TestSortDataArray(int, char*[])
   vtkIntArray* saveValues = vtkIntArray::New();
   saveValues->DeepCopy(values);
 
-  cout << "Sorting arrays" << endl;
+  std::cout << "Sorting arrays" << std::endl;
   timer->StartTimer();
   vtkSortDataArray::Sort(keys, values);
   timer->StopTimer();
 
-  cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << endl;
+  std::cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << std::endl;
 
   for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
     int lookup = static_cast<int>(values->GetComponent(i, 0));
     if (keys->GetComponent(i, 0) > keys->GetComponent(i + 1, 0))
     {
-      cout << "Array not properly sorted!" << endl;
+      std::cout << "Array not properly sorted!" << std::endl;
       retVal = 1;
       break;
     }
     if (keys->GetComponent(i, 0) != saveKeys->GetComponent(lookup, 0))
     {
-      cout << "Values array not consistent with keys array!" << endl;
+      std::cout << "Values array not consistent with keys array!" << std::endl;
       retVal = 1;
       break;
     }
     if (values->GetComponent(i, 1) != saveValues->GetComponent(lookup, 1))
     {
-      cout << "Values array not consistent with keys array!" << endl;
+      std::cout << "Values array not consistent with keys array!" << std::endl;
       retVal = 1;
       break;
     }
   }
-  cout << "Array consistency check finished\n" << endl;
+  std::cout << "Array consistency check finished\n" << std::endl;
 
-  cout << "Sorting sorted arrays" << endl;
+  std::cout << "Sorting sorted arrays" << std::endl;
   timer->StartTimer();
   vtkSortDataArray::Sort(keys, values);
   timer->StopTimer();
 
-  cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << endl;
+  std::cout << "Time to sort array: " << timer->GetElapsedTime() << " sec" << std::endl;
 
   for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
     int lookup = static_cast<int>(values->GetComponent(i, 0));
     if (keys->GetComponent(i, 0) > keys->GetComponent(i + 1, 0))
     {
-      cout << "Array not properly sorted!" << endl;
+      std::cout << "Array not properly sorted!" << std::endl;
       retVal = 1;
       break;
     }
     if (keys->GetComponent(i, 0) != saveKeys->GetComponent(lookup, 0))
     {
-      cout << "Values array not consistent with keys array!" << endl;
+      std::cout << "Values array not consistent with keys array!" << std::endl;
       retVal = 1;
       break;
     }
     if (values->GetComponent(i, 1) != saveValues->GetComponent(lookup, 1))
     {
-      cout << "Values array not consistent with keys array!" << endl;
+      std::cout << "Values array not consistent with keys array!" << std::endl;
       retVal = 1;
       break;
     }
   }
-  cout << "Array consistency check finished\n" << endl;
+  std::cout << "Array consistency check finished\n" << std::endl;
 
   //---------------------------------------------------------------------------
   // Sort data array on component value pairs
-  cout << "Building data array----------\n" << endl;
+  std::cout << "Building data array----------\n" << std::endl;
   vtkFloatArray* fvalues = vtkFloatArray::New();
   fvalues->SetNumberOfComponents(3);
   fvalues->SetNumberOfTuples(ARRAY_SIZE);
@@ -218,35 +220,35 @@ int TestSortDataArray(int, char*[])
   vtkFloatArray* saveFValues = vtkFloatArray::New();
   saveFValues->DeepCopy(fvalues);
 
-  cout << "Sorting data array with component #1" << endl;
+  std::cout << "Sorting data array with component #1" << std::endl;
   timer->StartTimer();
   vtkSortDataArray::SortArrayByComponent(fvalues, 1);
   timer->StopTimer();
 
-  cout << "Time to sort data array: " << timer->GetElapsedTime() << " sec" << endl;
+  std::cout << "Time to sort data array: " << timer->GetElapsedTime() << " sec" << std::endl;
 
   for (i = 0; i < ARRAY_SIZE - 1; i++)
   {
     if (fvalues->GetComponent(i, 1) > fvalues->GetComponent(i + 1, 1))
     {
-      cout << "Data array sorted incorrectly!" << endl;
+      std::cout << "Data array sorted incorrectly!" << std::endl;
       retVal = 1;
       break;
     }
     if (fvalues->GetComponent(i, 0) != fvalues->GetComponent(i, 2))
     {
-      cout << "Data array tuples inconsistent!" << endl;
+      std::cout << "Data array tuples inconsistent!" << std::endl;
       retVal = 1;
       break;
     }
   }
-  cout << "Data array consistency check finished\n" << endl;
+  std::cout << "Data array consistency check finished\n" << std::endl;
 
   //---------------------------------------------------------------------------
   // Sort string array
   std::ostringstream ostr;
   ostr.imbue(std::locale::classic());
-  cout << "Building string array----------\n" << endl;
+  std::cout << "Building string array----------\n" << std::endl;
   vtkStringArray* sarray = vtkStringArray::New();
   sarray->SetNumberOfTuples(ARRAY_SIZE);
   for (i = 0; i < ARRAY_SIZE; ++i)
@@ -256,11 +258,11 @@ int TestSortDataArray(int, char*[])
     sarray->SetValue(i, ostr.str());
   }
 
-  cout << "Sorting string array" << endl;
+  std::cout << "Sorting string array" << std::endl;
   timer->StartTimer();
   vtkSortDataArray::Sort(sarray, 1);
   timer->StopTimer();
-  cout << "Time to sort strings: " << timer->GetElapsedTime() << " sec" << endl;
+  std::cout << "Time to sort strings: " << timer->GetElapsedTime() << " sec" << std::endl;
 
   std::string s1, s2;
   for (i = 0; i < ARRAY_SIZE - 1; ++i)
@@ -269,12 +271,12 @@ int TestSortDataArray(int, char*[])
     s2 = sarray->GetValue(i + 1);
     if (s1 < s2)
     {
-      cout << "String array sorted incorrectly!" << endl;
+      std::cout << "String array sorted incorrectly!" << std::endl;
       retVal = 1;
       break;
     }
   }
-  cout << "String array consistency check finished\n" << endl;
+  std::cout << "String array consistency check finished\n" << std::endl;
 
   timer->Delete();
   keys->Delete();

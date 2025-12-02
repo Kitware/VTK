@@ -26,6 +26,8 @@
 #include "vtkPointData.h"
 
 #include "vtkStreamingDemandDrivenPipeline.h"
+
+#include <iostream>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -125,15 +127,15 @@ public:
   {
     for (int i = 0; i < level; i++)
     {
-      cerr << " ";
+      std::cerr << " ";
     }
     if (type >= 0)
     {
-      cerr << vtkDataObjectGeneratorTokenStrings[type] << endl;
+      std::cerr << vtkDataObjectGeneratorTokenStrings[type] << std::endl;
     }
     else
     {
-      cerr << "HOLDER" << endl;
+      std::cerr << "HOLDER\n";
     }
     std::vector<vtkInternalStructureCache*>::iterator it;
     for (it = this->children.begin(); it != this->children.end(); ++it)
@@ -144,18 +146,18 @@ public:
     {
       for (int i = 0; i < level; i++)
       {
-        cerr << " ";
+        std::cerr << " ";
       }
       switch (type)
       {
         case GS:
-          cerr << vtkDataObjectGeneratorTokenStrings[GE] << endl;
+          std::cerr << vtkDataObjectGeneratorTokenStrings[GE] << std::endl;
           break;
         case HBS:
-          cerr << vtkDataObjectGeneratorTokenStrings[HBE] << endl;
+          std::cerr << vtkDataObjectGeneratorTokenStrings[HBE] << std::endl;
           break;
         case MBS:
-          cerr << vtkDataObjectGeneratorTokenStrings[MBE] << endl;
+          std::cerr << vtkDataObjectGeneratorTokenStrings[MBE] << std::endl;
           break;
       }
     }
@@ -354,10 +356,10 @@ vtkDataObject* vtkDataObjectGenerator::CreateOutputDataObjects(vtkInternalStruct
     case UG4:
     {
       /*
-      cerr
+      std::cerr
         << "Creating "
         << vtkDataObjectGeneratorTypeStrings[structure->type]
-        << endl;
+        << std::endl;
       */
       outData =
         vtkDataObjectTypes::NewDataObject(vtkDataObjectGeneratorTypeStrings[structure->type]);
@@ -369,10 +371,10 @@ vtkDataObject* vtkDataObjectGenerator::CreateOutputDataObjects(vtkInternalStruct
       // only create top level struct in RequestDataObject, do not recurse
       // the contents of the structure is cleared before RequestData anyway
       /*
-      cerr
+      std::cerr
         << "Creating "
         << vtkDataObjectGeneratorTypeStrings[structure->type]
-        << endl;
+        << std::endl;
       */
       outData =
         vtkDataObjectTypes::NewDataObject(vtkDataObjectGeneratorTypeStrings[structure->type]);
@@ -383,7 +385,7 @@ vtkDataObject* vtkDataObjectGenerator::CreateOutputDataObjects(vtkInternalStruct
     case GS:  // should be skipped over by MBS
     case GE:  // should never be created
     default:
-      // cerr << "UH OH" << endl;
+      // std::cerr << "UH OH" << std::endl;
       return nullptr;
   }
 }
@@ -556,20 +558,20 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
       // stripes of the data sets within the groups in the first level of
       // composite data sets
       /*
-      cerr << this->Rank << "/" << this->Processors
+      std::cerr << this->Rank << "/" << this->Processors
            << " Ignoring "
            << stripe << "->"
            << vtkDataObjectGeneratorTypeStrings[t]
-           << endl;
+           << std::endl;
       */
       return nullptr;
     }
     else
     {
       /*
-      cerr << "Filling "
+      std::cerr << "Filling "
            << vtkDataObjectGeneratorTypeStrings[t]
-           << endl;
+           << std::endl;
       */
       outData = vtkDataObjectTypes::NewDataObject(vtkDataObjectGeneratorTypeStrings[t]);
     }
@@ -664,7 +666,7 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
       vtkIdType checkAbortInterval = 0;
       for (git = structure->children.begin(); git != structure->children.end() && !abort; ++git)
       {
-        // cerr << "LVL=" << gcnt  << endl;
+        // std::cerr << "LVL=" << gcnt  << std::endl;
 
         vtkInternalStructureCache* gptr = *git;
         // gptr->type should be a group
@@ -697,7 +699,7 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
             break;
           }
           progressCounter++;
-          // cerr << "DS=" << dcnt  << endl;
+          // std::cerr << "DS=" << dcnt  << std::endl;
           vtkInternalStructureCache* dptr = *dit;
           // dptr->type should be UF1
 
@@ -713,8 +715,8 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
             dcnt % r2 * 2 + 1 };
 
           /*
-          cerr << "LO=" << lo[0] << "," << lo[1] << "," << lo[2] << " "
-               << "HI=" << hi[0] << "," << hi[1] << "," << hi[2] << endl;
+          std::cerr << "LO=" << lo[0] << "," << lo[1] << "," << lo[2] << " "
+               << "HI=" << hi[0] << "," << hi[1] << "," << hi[2] << std::endl;
           */
           vtkDataObject* dobj = nullptr;
           double spacing = pow(0.5, static_cast<double>(gcnt + 1)); //==1.0/(2*r2)
@@ -731,11 +733,11 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
             uf->SetSpacing(spacing, spacing, spacing);
             double spa[3];
             uf->GetSpacing(spa);
-            // cerr << "SPACE=" <<spa[0] <<"," <<spa[1] <<"," <<spa[2] <<endl;
+            // std::cerr << "SPACE=" <<spa[0] <<"," <<spa[1] <<"," <<spa[2] << std::endl;
             double org[3];
             uf->SetOrigin(lo[0] * spacing, lo[1] * spacing, lo[2] * spacing);
             uf->GetOrigin(org);
-            // cerr << "ORIGIN=" <<org[0] <<"," <<org[1] <<"," <<org[2] <<endl;
+            // std::cerr << "ORIGIN=" <<org[0] <<"," <<org[1] <<"," <<org[2] << std::endl;
             uf->SetExtent(0, 2, 0, 2, 0, 2); // octrees, 2 cells == 3 points across
             int ex[6];
             uf->GetExtent(ex);
@@ -809,7 +811,7 @@ vtkDataObject* vtkDataObjectGenerator::FillOutputDataObjects(
     case GS:  // should be skipped over by MBS
     case GE:  // should never be created
     default:
-      // cerr << "UH OH" << endl;
+      // std::cerr << "UH OH" << std::endl;
       return nullptr;
   }
 }

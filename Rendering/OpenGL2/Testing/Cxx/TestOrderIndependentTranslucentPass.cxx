@@ -27,6 +27,8 @@
 #include "vtkOrderIndependentTranslucentPass.h"
 #include "vtkRenderStepsPass.h"
 
+#include <iostream>
+
 int TestOrderIndependentTranslucentPass(int argc, char* argv[])
 {
   // Standard rendering classes
@@ -150,11 +152,11 @@ int TestOrderIndependentTranslucentPass(int argc, char* argv[])
 
   if (renderer->GetLastRenderingUsedDepthPeeling())
   {
-    cout << "depth peeling was used" << endl;
+    std::cout << "depth peeling was used" << std::endl;
   }
   else
   {
-    cout << "depth peeling was not used (alpha blending instead)" << endl;
+    std::cout << "depth peeling was not used (alpha blending instead)" << std::endl;
   }
   int retVal = vtkRegressionTestImage(renWin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)

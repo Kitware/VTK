@@ -6,6 +6,8 @@
 #include "vtkColor.h"
 #include "vtkMathUtilities.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestColor(int, char*[])
 {
@@ -23,15 +25,15 @@ int TestColor(int, char*[])
     {
       if (color[i][j] != 0)
       {
-        cerr << "Initializer problem in vtkColor3ub - should be zero, but = " << color[i][j]
-             << endl;
+        std::cerr << "Initializer problem in vtkColor3ub - should be zero, but = " << color[i][j]
+                  << std::endl;
         ++retVal;
       }
       if (color[i][j] != colorPtr[i * 3 + j])
       {
-        cerr << "Error: color[i][j] != colorPtr[i*3+j]" << endl
-             << "color[i][j] = " << color[i][j] << endl
-             << "colorPtr[i*3+j] = " << colorPtr[i * 3 + j] << endl;
+        std::cerr << "Error: color[i][j] != colorPtr[i*3+j]" << std::endl
+                  << "color[i][j] = " << color[i][j] << std::endl
+                  << "colorPtr[i*3+j] = " << colorPtr[i * 3 + j] << std::endl;
         ++retVal;
       }
       color[i][j] = static_cast<unsigned char>(i * 2 + i);
@@ -44,9 +46,9 @@ int TestColor(int, char*[])
     {
       if (color[i][j] != colorPtr[i * 3 + j])
       {
-        cerr << "Error: color[i][j] != colorPtr[i*3+j]" << endl
-             << "color[i][j] = " << color[i][j] << endl
-             << "colorPtr[i*3+j] = " << colorPtr[i * 3 + j] << endl;
+        std::cerr << "Error: color[i][j] != colorPtr[i*3+j]" << std::endl
+                  << "color[i][j] = " << color[i][j] << std::endl
+                  << "colorPtr[i*3+j] = " << colorPtr[i * 3 + j] << std::endl;
         ++retVal;
       }
     }
@@ -58,14 +60,14 @@ int TestColor(int, char*[])
   vtkColor3ub blue2(0, 0, 255);
   if (blue != blue2)
   {
-    cerr << "Error: blue != blue2 -> " << blue << " != " << blue2 << endl;
+    std::cerr << "Error: blue != blue2 -> " << blue << " != " << blue2 << std::endl;
     ++retVal;
   }
 
   vtkColor4ub blueA2(7, 6, 255, 102);
   if (blueA != blueA2)
   {
-    cerr << "Error: blueA != blueA2 -> " << blueA << " != " << blueA2 << endl;
+    std::cerr << "Error: blueA != blueA2 -> " << blueA << " != " << blueA2 << std::endl;
     ++retVal;
   }
 

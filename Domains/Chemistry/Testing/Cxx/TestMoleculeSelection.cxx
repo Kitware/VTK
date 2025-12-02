@@ -21,6 +21,8 @@
 #include "vtkSelection.h"
 #include "vtkTrivialProducer.h"
 
+#include <iostream>
+
 class MoleculePickCommand : public vtkCommand
 {
 protected:
@@ -87,19 +89,20 @@ public:
     vtkMolecule* mol = this->MoleculeMapper->GetInput();
 
     // Print selection
-    cerr << "\n### Selection ###\n";
-    cerr << "Atoms: ";
+    std::cerr << "\n### Selection ###\n";
+    std::cerr << "Atoms: ";
     for (vtkIdType i = 0; i < this->AtomIds->GetNumberOfTuples(); i++)
     {
-      cerr << this->AtomIds->GetValue(i) << " ";
+      std::cerr << this->AtomIds->GetValue(i) << " ";
     }
-    cerr << "\nBonds: ";
+    std::cerr << "\nBonds: ";
     for (vtkIdType i = 0; i < this->BondIds->GetNumberOfTuples(); i++)
     {
       vtkBond bond = mol->GetBond(this->BondIds->GetValue(i));
-      cerr << bond.GetId() << " (" << bond.GetBeginAtomId() << "-" << bond.GetEndAtomId() << ") ";
+      std::cerr << bond.GetId() << " (" << bond.GetBeginAtomId() << "-" << bond.GetEndAtomId()
+                << ") ";
     }
-    cerr << endl;
+    std::cerr << std::endl;
   }
 };
 
@@ -215,8 +218,8 @@ int TestMoleculeSelection(int argc, char* argv[])
     com->GetBondIds()->GetValue(4) != 12 || com->GetBondIds()->GetValue(5) != 13 ||
     com->GetBondIds()->GetValue(6) != 16 || com->GetBondIds()->GetValue(7) != 17)
   {
-    cerr << "Incorrect atoms/bonds picked! (if any picks were performed inter"
-            "actively this could be ignored).\n";
+    std::cerr << "Incorrect atoms/bonds picked! (if any picks were performed inter"
+                 "actively this could be ignored).\n";
     return EXIT_FAILURE;
   }
 

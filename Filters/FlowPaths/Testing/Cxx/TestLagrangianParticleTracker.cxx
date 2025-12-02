@@ -27,6 +27,8 @@
 #include "vtkRungeKutta2.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 int TestLagrangianParticleTracker(int, char*[])
 {
   // Create a point source
@@ -199,7 +201,7 @@ int TestLagrangianParticleTracker(int, char*[])
   vtkNew<vtkLagrangianParticleTracker> tracker;
   tracker->SetIntegrator(nullptr);
   tracker->SetIntegrationModel(nullptr);
-  tracker->Print(cout);
+  tracker->Print(std::cout);
   if (tracker->GetSource() != nullptr || tracker->GetSurface() != nullptr)
   {
     std::cerr << "Incorrect Input Initialization" << std::endl;
@@ -293,7 +295,7 @@ int TestLagrangianParticleTracker(int, char*[])
     std::cerr << "Incorrect GetForcePManualShift" << std::endl;
     return EXIT_FAILURE;
   }
-  tracker->Print(cout);
+  tracker->Print(std::cout);
   if (tracker->GetSource() != seedPD)
   {
     std::cerr << "Incorrect Source" << std::endl;

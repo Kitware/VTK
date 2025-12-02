@@ -7,6 +7,8 @@
 #include "vtkLZMADataCompressor.h"
 #include "vtkObjectFactory.h"
 
+#include <iostream>
+
 int TestCompressLZMA(int argc, char* argv[])
 {
   int res = 1;
@@ -36,8 +38,8 @@ int TestCompressLZMA(int argc, char* argv[])
     rlen = compressor->Uncompress(cbuffer, rlen, ucbuffer, start_size);
     if (rlen == start_size)
     {
-      cout << argv[0] << " Works " << argc << endl;
-      cout << ucbuffer[0] << ucbuffer[1] << ucbuffer[2] << endl;
+      std::cout << argv[0] << " Works " << argc << std::endl;
+      std::cout << ucbuffer[0] << ucbuffer[1] << ucbuffer[2] << std::endl;
       res = 0;
     }
     delete[] ucbuffer;

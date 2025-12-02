@@ -11,6 +11,8 @@
 #include <random>
 #include <string>
 
+#include <iostream>
+
 vtkSmartPointer<vtkSignedCharArray> NewArray(vtkIdType numVals)
 {
   std::random_device rd;  // Will be used to obtain a seed for the random number engine
@@ -38,7 +40,7 @@ void ValidateIternal(vtkSignedCharArray* result, const Functor& f)
     bool rval = get(result, cc);
     if (val != rval)
     {
-      cerr << "ERROR: failed at index '" << cc << "'." << endl;
+      std::cerr << "ERROR: failed at index '" << cc << "'." << std::endl;
       throw std::runtime_error("value mismatch");
     }
   }

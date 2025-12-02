@@ -14,6 +14,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestAxes(int, char*[])
 {
@@ -100,7 +102,7 @@ int TestAxes(int, char*[])
   if (!axesHorizontal[0]->GetLogScaleActive() || fabs(range[0]) > 1e-8 ||
     fabs(range[1] - 2.) > 1e-8)
   {
-    cerr << "ERROR: did not transition to log scaling when range changed.\n";
+    std::cerr << "ERROR: did not transition to log scaling when range changed.\n";
     status = EXIT_FAILURE;
   }
   // Now change the axis limits in log-space...
@@ -110,14 +112,14 @@ int TestAxes(int, char*[])
   if (fabs(axesHorizontal[0]->GetUnscaledMinimumLimit() - 0.1) > 1e-8 ||
     fabs(axesHorizontal[0]->GetUnscaledMaximumLimit() - 1000.0) > 1e-8)
   {
-    cerr << "ERROR: did not update unscaled limits when scaled limits changed.\n";
+    std::cerr << "ERROR: did not update unscaled limits when scaled limits changed.\n";
     status = EXIT_FAILURE;
   }
   axesHorizontal[0]->LogScaleOff();
   if (axesHorizontal[0]->GetLogScaleActive() ||
     -axesHorizontal[0]->GetMinimumLimit() == axesHorizontal[0]->GetMaximumLimit())
   {
-    cerr << "ERROR: did not transition from log scaling or reset limits.\n";
+    std::cerr << "ERROR: did not transition from log scaling or reset limits.\n";
     status = EXIT_FAILURE;
   }
   axesHorizontal[0]->AutoScale();

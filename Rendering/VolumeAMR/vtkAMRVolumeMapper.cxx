@@ -24,6 +24,8 @@
 #include "vtkNew.h"
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRVolumeMapper);
 

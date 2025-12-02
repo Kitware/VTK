@@ -19,7 +19,7 @@
 
 #include <cassert>
 #include <cctype> // for isspace, isdigit
-#include <fstream>
+#include <iostream>
 #include <map>
 #include <sstream>
 
@@ -45,7 +45,7 @@ void vtkXGMLReader::PrintSelf(std::ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << endl;
+  os << indent << "FileName: " << (this->FileName ? this->FileName : "(none)") << std::endl;
 }
 
 #define MAX_NR_PROPERTIES 50
@@ -286,7 +286,7 @@ int vtkXGMLReader::RequestData(vtkInformation* vtkNotUsed(request),
         if (i == nr_of_properties)
         {
           vtkErrorMacro(<< "Undefined node property ");
-          cout << tok.StringValue << "\n";
+          std::cout << tok.StringValue << "\n";
           return 0;
         }
         vtkXGMLReaderNextToken(fin, tok);

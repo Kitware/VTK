@@ -7,7 +7,6 @@
 #include "vtkSmartPointer.h"
 
 #include "vtkActor.h"
-#include "vtkCommand.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkPlaybackRepresentation.h"
 #include "vtkPlaybackWidget.h"
@@ -16,6 +15,8 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
+
+#include <iostream>
 
 class vtkSubclassPlaybackRepresentation : public vtkPlaybackRepresentation
 {

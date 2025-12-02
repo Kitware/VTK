@@ -29,6 +29,8 @@
 #include "vtkTimerLog.h"
 #include "vtkTransformCoordinateSystems.h"
 
+#include <iostream>
+
 // From: http://www.flipcode.com/archives/2D_OBB_Intersection.shtml
 VTK_ABI_NAMESPACE_BEGIN
 class LabelRect
@@ -855,7 +857,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport* viewport, vtkActor2D* v
   timer->StopTimer();
   vtkDebugMacro("Iteration time: " << timer->GetElapsedTime());
   log->StopTimer();
-  // cerr << log->GetElapsedTime() << endl;
+  // std::cerr << log->GetElapsedTime() << endl;
 }
 
 //------------------------------------------------------------------------------

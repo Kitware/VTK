@@ -19,12 +19,14 @@
 
 #include "vtkWindows.h" // for Sleep
 
+#include <iostream>
+
 void otherTimerLogTest(ostream& strm)
 {
   // actual test
   float a = 1.0;
   int i, j;
-  strm << "Test vtkTimerLog Start" << endl;
+  strm << "Test vtkTimerLog Start" << std::endl;
   vtkTimerLog* timer1 = vtkTimerLog::New();
 
   vtkTimerLog::SetMaxEntries(8);
@@ -46,15 +48,15 @@ void otherTimerLogTest(ostream& strm)
   }
   timer1->StopTimer();
   strm << *timer1;
-  strm << "GetElapsedTime: " << timer1->GetElapsedTime() << endl;
-  strm << "GetCPUTime: " << vtkTimerLog::GetCPUTime() << endl;
+  strm << "GetElapsedTime: " << timer1->GetElapsedTime() << std::endl;
+  strm << "GetCPUTime: " << vtkTimerLog::GetCPUTime() << std::endl;
   vtkTimerLog::DumpLog("timing");
-  vtkTimerLog::DumpLogWithIndents(&cerr, 0);
+  vtkTimerLog::DumpLogWithIndents(&std::cerr, 0);
   vtkTimerLog::ResetLog();
   vtkTimerLog::CleanupLog();
   unlink("timing");
 
-  cerr << "============== timer separator ================\n";
+  std::cerr << "============== timer separator ================\n";
 
   vtkTimerLog::ResetLog();
   vtkTimerLog::SetMaxEntries(5);
@@ -76,11 +78,11 @@ void otherTimerLogTest(ostream& strm)
   }
   timer1->StopTimer();
   strm << *timer1;
-  strm << "GetElapsedTime: " << timer1->GetElapsedTime() << endl;
-  strm << "GetCPUTime: " << vtkTimerLog::GetCPUTime() << endl;
+  strm << "GetElapsedTime: " << timer1->GetElapsedTime() << std::endl;
+  strm << "GetCPUTime: " << vtkTimerLog::GetCPUTime() << std::endl;
   vtkTimerLog::DumpLog("timing2");
-  vtkTimerLog::DumpLogWithIndents(&cerr, 0);
-  timer1->PrintSelf(cerr, vtkIndent());
+  vtkTimerLog::DumpLogWithIndents(&std::cerr, 0);
+  timer1->PrintSelf(std::cerr, vtkIndent());
   vtkTimerLog::ResetLog();
   vtkTimerLog::CleanupLog();
   unlink("timing2");
@@ -88,7 +90,7 @@ void otherTimerLogTest(ostream& strm)
   vtkTimerLog::SetMaxEntries(50);
 
   timer1->Delete();
-  strm << "Test vtkTimerLog End" << endl;
+  strm << "Test vtkTimerLog End" << std::endl;
 }
 
 void timerLogScopeTest()
@@ -109,7 +111,7 @@ void timerLogScopeTest()
     Sleep(1000);
 #endif
   }
-  vtkTimerLog::DumpLogWithIndents(&cerr, 0);
+  vtkTimerLog::DumpLogWithIndents(&std::cerr, 0);
 }
 
 int otherTimerLog(int, char*[])

@@ -8,6 +8,8 @@
 #include "vtkOutputWindow.h"
 #include "vtkXMLParser.h"
 
+#include <iostream>
+
 class vtkMyXML : public vtkXMLParser
 {
 public:
@@ -32,7 +34,7 @@ int TestXML(int argc, char* argv[])
   vtkOutputWindow::GetInstance()->PromptUserOn();
   if (argc <= 1)
   {
-    cout << "Usage: " << argv[0] << " <xml file>" << endl;
+    std::cout << "Usage: " << argv[0] << " <xml file>" << std::endl;
     return 1;
   }
 
@@ -40,14 +42,14 @@ int TestXML(int argc, char* argv[])
   parser->SetFileName(argv[1]);
   if (!parser->Parse())
   {
-    cout << "Cannot parse the file: " << argv[1] << endl;
+    std::cout << "Cannot parse the file: " << argv[1] << std::endl;
     res = 1;
   }
   parser->SetFileName(nullptr);
 
   if (!parser->Parse("<xml>This is an XML file</xml>"))
   {
-    cout << "Cannot parse message" << endl;
+    std::cout << "Cannot parse message" << std::endl;
     res = 1;
   }
 

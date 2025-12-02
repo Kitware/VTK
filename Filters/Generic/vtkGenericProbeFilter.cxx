@@ -4,7 +4,7 @@
 
 #include "vtkCell.h"
 #include "vtkCellData.h"
-#include "vtkDoubleArray.h"
+#include "vtkExecutive.h"
 #include "vtkGenericAdaptorCell.h"
 #include "vtkGenericAttribute.h"
 #include "vtkGenericAttributeCollection.h"
@@ -16,7 +16,8 @@
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
+
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGenericProbeFilter);
@@ -153,7 +154,7 @@ int vtkGenericProbeFilter::RequestData(vtkInformation* vtkNotUsed(request),
   //
   tol2 = source->GetLength();
   tol2 = tol2 ? tol2 * tol2 / 1000.0 : 0.001;
-  cout << "tol2=" << tol2 << endl;
+  std::cout << "tol2=" << tol2 << "\n";
   // Loop over all input points, interpolating source data
   //
   bool abort = false;

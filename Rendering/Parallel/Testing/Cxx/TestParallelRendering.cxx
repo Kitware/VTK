@@ -21,6 +21,8 @@
 #include "vtkSynchronizedRenderWindows.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 namespace
 {
 
@@ -162,7 +164,7 @@ int TestParallelRendering(int argc, char* argv[])
 
   if (numProcs < 2)
   {
-    cout << "This test requires at least 2 processes" << endl;
+    std::cout << "This test requires at least 2 processes" << std::endl;
     contr->Delete();
     return EXIT_FAILURE;
   }

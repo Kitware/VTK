@@ -7,6 +7,7 @@
 #include "vtkObjectFactory.h"
 
 #include <algorithm>
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSubGroup);
@@ -535,100 +536,101 @@ int vtkSubGroup::Barrier()
 void vtkSubGroup::PrintSubGroup() const
 {
   int i;
-  cout << "(Fan In setup ) nFrom: " << this->nFrom << ", nTo: " << this->nTo << endl;
+  std::cout << "(Fan In setup ) nFrom: " << this->nFrom << ", nTo: " << this->nTo << std::endl;
   if (this->nFrom > 0)
   {
     for (i = 0; i < nFrom; i++)
     {
-      cout << "fanInFrom[" << i << "] = " << this->fanInFrom[i] << endl;
+      std::cout << "fanInFrom[" << i << "] = " << this->fanInFrom[i] << std::endl;
     }
   }
   if (this->nTo > 0)
   {
-    cout << "fanInTo = " << this->fanInTo << endl;
+    std::cout << "fanInTo = " << this->fanInTo << std::endl;
   }
 
-  cout << "(Gather setup ) nRecv: " << this->nRecv << ", nSend: " << this->nSend << endl;
+  std::cout << "(Gather setup ) nRecv: " << this->nRecv << ", nSend: " << this->nSend << std::endl;
   if (this->nRecv > 0)
   {
     for (i = 0; i < nRecv; i++)
     {
-      cout << "recvId[" << i << "] = " << this->recvId[i];
-      cout << ", recvOffset[" << i << "] = " << this->recvOffset[i];
-      cout << ", recvLength[" << i << "] = " << this->recvLength[i] << endl;
+      std::cout << "recvId[" << i << "] = " << this->recvId[i];
+      std::cout << ", recvOffset[" << i << "] = " << this->recvOffset[i];
+      std::cout << ", recvLength[" << i << "] = " << this->recvLength[i] << std::endl;
     }
   }
   if (nSend > 0)
   {
-    cout << "sendId = " << this->sendId;
-    cout << ", sendOffset = " << this->sendOffset;
-    cout << ", sendLength = " << this->sendLength << endl;
+    std::cout << "sendId = " << this->sendId;
+    std::cout << ", sendOffset = " << this->sendOffset;
+    std::cout << ", sendLength = " << this->sendLength << std::endl;
   }
-  cout << "gatherRoot " << this->gatherRoot;
-  cout << ", gatherLength " << this->gatherLength << endl;
+  std::cout << "gatherRoot " << this->gatherRoot;
+  std::cout << ", gatherLength " << this->gatherLength << std::endl;
 
-  cout << "nmembers: " << this->nmembers << endl;
-  cout << "myLocalRank: " << this->myLocalRank << endl;
+  std::cout << "nmembers: " << this->nmembers << std::endl;
+  std::cout << "myLocalRank: " << this->myLocalRank << std::endl;
   for (i = 0; i < this->nmembers; i++)
   {
-    cout << "  " << this->members[i];
+    std::cout << "  " << this->members[i];
     if (i && (i % 20 == 0))
     {
-      cout << endl;
+      std::cout << std::endl;
     }
   }
-  cout << endl;
-  cout << "comm: " << this->comm;
-  cout << endl;
+  std::cout << std::endl;
+  std::cout << "comm: " << this->comm;
+  std::cout << std::endl;
 }
 
 void vtkSubGroup::PrintSelf(ostream& os, vtkIndent indent)
 {
   int i;
-  os << indent << "(Fan In setup ) nFrom: " << this->nFrom << ", nTo: " << this->nTo << endl;
+  os << indent << "(Fan In setup ) nFrom: " << this->nFrom << ", nTo: " << this->nTo << std::endl;
   if (this->nFrom > 0)
   {
     for (i = 0; i < nFrom; i++)
     {
-      os << indent << "fanInFrom[" << i << "] = " << this->fanInFrom[i] << endl;
+      os << indent << "fanInFrom[" << i << "] = " << this->fanInFrom[i] << std::endl;
     }
   }
   if (this->nTo > 0)
   {
-    os << indent << "fanInTo = " << this->fanInTo << endl;
+    os << indent << "fanInTo = " << this->fanInTo << std::endl;
   }
 
-  os << indent << "(Gather setup ) nRecv: " << this->nRecv << ", nSend: " << this->nSend << endl;
+  os << indent << "(Gather setup ) nRecv: " << this->nRecv << ", nSend: " << this->nSend
+     << std::endl;
   if (this->nRecv > 0)
   {
     for (i = 0; i < nRecv; i++)
     {
       os << indent << "recvId[" << i << "] = " << this->recvId[i];
       os << indent << ", recvOffset[" << i << "] = " << this->recvOffset[i];
-      os << indent << ", recvLength[" << i << "] = " << this->recvLength[i] << endl;
+      os << indent << ", recvLength[" << i << "] = " << this->recvLength[i] << std::endl;
     }
   }
   if (this->nSend > 0)
   {
     os << indent << "sendId = " << this->sendId;
     os << indent << ", sendOffset = " << this->sendOffset;
-    os << indent << ", sendLength = " << this->sendLength << endl;
+    os << indent << ", sendLength = " << this->sendLength << std::endl;
   }
   os << indent << "gatherRoot " << this->gatherRoot;
-  os << indent << ", gatherLength " << this->gatherLength << endl;
+  os << indent << ", gatherLength " << this->gatherLength << std::endl;
 
-  os << indent << "nmembers: " << this->nmembers << endl;
-  os << indent << "myLocalRank: " << this->myLocalRank << endl;
+  os << indent << "nmembers: " << this->nmembers << std::endl;
+  os << indent << "myLocalRank: " << this->myLocalRank << std::endl;
   for (i = 0; i < this->nmembers; i++)
   {
     os << indent << "  " << this->members[i];
     if (i && (i % 20 == 0))
     {
-      os << indent << endl;
+      os << indent << std::endl;
     }
   }
-  os << indent << endl;
+  os << indent << std::endl;
   os << indent << "comm: " << this->comm;
-  os << indent << endl;
+  os << indent << std::endl;
 }
 VTK_ABI_NAMESPACE_END

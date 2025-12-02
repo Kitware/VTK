@@ -14,6 +14,8 @@
 #include <cstdint>
 #include <cstdio>
 
+#include <iostream>
+
 // Forward declare the test function:
 namespace
 {

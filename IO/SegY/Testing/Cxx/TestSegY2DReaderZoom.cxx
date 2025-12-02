@@ -9,9 +9,9 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
+#include "vtkDataSet.h"
 #include "vtkDataSetMapper.h"
 #include "vtkFloatArray.h"
-#include "vtkIdList.h"
 #include "vtkMathUtilities.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
@@ -19,8 +19,9 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkStructuredGrid.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 int TestSegY2DReaderZoom(int argc, char* argv[])
 {

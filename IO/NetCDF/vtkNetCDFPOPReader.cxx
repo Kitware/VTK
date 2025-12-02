@@ -17,6 +17,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkNetCDFPOPReader);
 
@@ -215,14 +217,14 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
     //necessary?
     if ((pid = vtkMultiThreader::GetCurrentThreadID()) == 0)
       {
-      cerr<< "unable to get pid" << endl;
+      std::cerr<< "unable to get pid" << endl;
       }
     else
       {
-      cerr << "The process id is " << pid << endl;
+      std::cerr << "The process id is " << pid << endl;
      }
 
-     cerr << "subext " << subext[0] << " " << subext[1]
+     std::cerr << "subext " << subext[0] << " " << subext[1]
           << " " << subext[2] << " " << subext[3] << " "
            << subext[4] << " " << subext[5] << endl;
   */

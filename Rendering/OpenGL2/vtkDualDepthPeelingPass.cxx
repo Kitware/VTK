@@ -27,6 +27,8 @@
 
 #include <algorithm>
 
+#include <iostream>
+
 // Define to output details about each peel:
 // #define DEBUG_PEEL
 

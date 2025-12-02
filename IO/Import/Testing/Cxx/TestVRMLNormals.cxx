@@ -9,6 +9,8 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestVRMLNormals(int argc, char* argv[])
 {
   // Now create the RenderWindow, Renderer and Interactor

@@ -27,6 +27,8 @@
 #include "vtkTransform.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 int TestPicker(vtkRenderWindow* renWin, vtkRenderer* renderer);
 
 vtkIdType GetCellIdFromPickerPosition(vtkRenderer* ren, int x, int y);
@@ -240,9 +242,9 @@ int TestPicker(vtkRenderWindow* renWin, vtkRenderer* renderer)
   {
     if (GetCellIdFromPickerPosition(renderer, values[i], values[i + 1]) != values[i + 2])
     {
-      cerr << "ERROR:  selected cell type is "
-           << GetCellIdFromPickerPosition(renderer, values[i], values[i + 1]) << ", should be "
-           << values[i + 2] << endl;
+      std::cerr << "ERROR:  selected cell type is "
+                << GetCellIdFromPickerPosition(renderer, values[i], values[i + 1]) << ", should be "
+                << values[i + 2] << std::endl;
       return EXIT_FAILURE;
     }
   }

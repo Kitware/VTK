@@ -22,6 +22,8 @@
 #include <sstream>
 #include <vector>
 
+#include <iostream>
+
 namespace vtkTestBillboardTextActor3D
 {
 void setupBillboardTextActor3D(vtkBillboardTextActor3D* actor, vtkPolyData* anchor)

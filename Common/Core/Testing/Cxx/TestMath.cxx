@@ -8,6 +8,8 @@
 #include <cmath>
 #include <limits>
 
+#include <iostream>
+
 template <class A>
 bool fuzzyCompare1DWeak(A a, A b)
 {
@@ -539,7 +541,7 @@ int TestMath(int, char*[])
   if (!fuzzyCompare3D(cf, ans1f))
   {
     vtkGenericWarningMacro("Float addition failed.");
-    cout << "Result: { " << cf[0] << ", " << cf[1] << ", " << cf[2] << " }" << endl;
+    std::cout << "Result: { " << cf[0] << ", " << cf[1] << ", " << cf[2] << " }" << std::endl;
     return 1;
   }
   vtkMath::Subtract(af, bf, cf);
@@ -739,12 +741,12 @@ int TestMath(int, char*[])
 static int TestColorConvert(
   const Triple& rgb, const Triple& hsv, const Triple& xyz, const Triple& lab, const Triple& prolab)
 {
-  cout << "Ensuring the following colors are consistent: " << endl;
-  cout << "   RGB:      " << rgb << endl;
-  cout << "   HSV:      " << hsv << endl;
-  cout << "   CIE XYZ:  " << xyz << endl;
-  cout << "   CIE-L*ab: " << lab << endl;
-  cout << "   ProLAB:   " << prolab << endl;
+  std::cout << "Ensuring the following colors are consistent: " << std::endl;
+  std::cout << "   RGB:      " << rgb << std::endl;
+  std::cout << "   HSV:      " << hsv << std::endl;
+  std::cout << "   CIE XYZ:  " << xyz << std::endl;
+  std::cout << "   CIE-L*ab: " << lab << std::endl;
+  std::cout << "   ProLAB:   " << prolab << std::endl;
 
   Triple result1;
 
@@ -830,20 +832,20 @@ static int TestColorConvert(
 
 static int TestSpecialDoublesReal(double value, const char* name, bool inftest, bool nantest)
 {
-  cout << "Testing comparison of " << name << " to non-finite values." << endl;
-  cout << "  * IsNan test." << endl;
+  std::cout << "Testing comparison of " << name << " to non-finite values." << std::endl;
+  std::cout << "  * IsNan test." << std::endl;
   if (vtkMath::IsNan(value) != static_cast<int>(nantest))
   {
-    cout << value << " failed the IsNan test." << endl;
+    std::cout << value << " failed the IsNan test." << std::endl;
     return 0;
   }
-  cout << "  * IsInf test." << endl;
+  std::cout << "  * IsInf test." << std::endl;
   if (vtkMath::IsInf(value) != static_cast<int>(inftest))
   {
-    cout << value << " failed the IsInf test." << endl;
+    std::cout << value << " failed the IsInf test." << std::endl;
     return 0;
   }
-  cout << "  * Tests passed." << endl;
+  std::cout << "  * Tests passed." << std::endl;
 
   return 1;
 }

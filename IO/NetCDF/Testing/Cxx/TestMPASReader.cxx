@@ -25,6 +25,8 @@
 #include "vtkDataArray.h"
 #include "vtkPointData.h"
 
+#include <iostream>
+
 int TestMPASReader(int argc, char* argv[])
 {
   // Basic visualisation.
@@ -121,6 +123,6 @@ int TestMPASReader(int argc, char* argv[])
     iren->Start();
   }
 
-  cerr << !retVal << " is the return val\n";
+  std::cerr << !retVal << " is the return val\n";
   return !retVal;
 }

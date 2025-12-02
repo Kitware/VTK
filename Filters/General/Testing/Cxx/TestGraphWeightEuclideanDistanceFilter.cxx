@@ -8,6 +8,8 @@
 
 #include "vtkGraphWeightEuclideanDistanceFilter.h"
 
+#include <iostream>
+
 template <typename T>
 static bool FuzzyCompare(T a, T b);
 

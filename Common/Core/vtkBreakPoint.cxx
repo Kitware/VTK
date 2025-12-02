@@ -6,6 +6,8 @@
 #include <unistd.h> // gethostname(), sleep()
 #endif
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 void vtkBreakPoint::Break()
@@ -14,7 +16,7 @@ void vtkBreakPoint::Break()
   int i = 0;
   char hostname[256];
   gethostname(hostname, sizeof(hostname));
-  cout << "PID " << getpid() << " on " << hostname << " ready for attach" << endl;
+  std::cout << "PID " << getpid() << " on " << hostname << " ready for attach" << std::endl;
   while (i == 0)
   {
     sleep(5);

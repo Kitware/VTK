@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <vector>
 
 namespace impl
@@ -34,7 +35,7 @@ struct ClientData
 
   void GoToNext()
   {
-    cout << "Go to next" << endl;
+    std::cout << "Go to next" << std::endl;
     this->CurrentIndex =
       std::min(static_cast<int>(this->TimeSteps.size()) - 1, this->CurrentIndex + 1);
     this->Render();
@@ -42,22 +43,22 @@ struct ClientData
 
   void GoToPrev()
   {
-    cout << "Go to prev" << endl;
+    std::cout << "Go to prev" << std::endl;
     this->CurrentIndex = std::max(0, this->CurrentIndex - 1);
     this->Render();
   }
 
   void Play()
   {
-    cout << "Playing";
+    std::cout << "Playing";
     for (size_t cc = 0; cc < this->TimeSteps.size(); ++cc)
     {
-      cout << ".";
-      cout.flush();
+      std::cout << ".";
+      std::cout.flush();
       this->CurrentIndex = static_cast<int>(cc);
       this->Render();
     }
-    cout << endl;
+    std::cout << std::endl;
   }
 
   void Render()
@@ -110,7 +111,7 @@ int Test(int argc, char* argv[], const char* dfile, const InitializationCallback
 
   if (numTimeSteps != 100)
   {
-    cerr << "ERROR: missing timesteps. Potential issue reading the CFG file." << endl;
+    std::cerr << "ERROR: missing timesteps. Potential issue reading the CFG file." << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -155,12 +156,12 @@ int Test(int argc, char* argv[], const char* dfile, const InitializationCallback
     observer->SetCallback(&CharEventCallback);
     iren->AddObserver(vtkCommand::CharEvent, observer);
 
-    cout << "Entering interactive mode......" << endl
-         << "Supported operations:" << endl
-         << "   'z' or 'Z' : go to next time step" << endl
-         << "   'x' or 'X' : go to previous time step" << endl
-         << "   'c' or 'C' : play animation from start to end" << endl
-         << "   'q' or 'Q' : quit" << endl;
+    std::cout << "Entering interactive mode......" << std::endl
+              << "Supported operations:" << std::endl
+              << "   'z' or 'Z' : go to next time step" << std::endl
+              << "   'x' or 'X' : go to previous time step" << std::endl
+              << "   'c' or 'C' : play animation from start to end" << std::endl
+              << "   'q' or 'Q' : quit" << std::endl;
     iren->Start();
     return EXIT_SUCCESS;
   }

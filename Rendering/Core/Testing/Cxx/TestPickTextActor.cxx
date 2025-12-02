@@ -12,6 +12,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 int TestPickTextActor(int, char*[])
 {
   vtkNew<vtkTextActor> actor1;

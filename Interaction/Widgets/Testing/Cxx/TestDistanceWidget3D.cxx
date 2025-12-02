@@ -7,12 +7,9 @@
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCommand.h"
-#include "vtkCoordinate.h"
-#include "vtkDebugLeaks.h"
 #include "vtkDistanceRepresentation3D.h"
 #include "vtkDistanceWidget.h"
 #include "vtkFollower.h"
-#include "vtkHandleWidget.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkMath.h"
 #include "vtkPointHandleRepresentation3D.h"
@@ -24,6 +21,8 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
+
+#include <iostream>
 
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
@@ -920,7 +919,7 @@ int TestDistanceWidget3D(int argc, char* argv[])
   rep->SetGlyphScale(0.1);
   if (rep->GetGlyphScale() != 0.1)
   {
-    cerr << "Error setting glyph scale to 0.1, returned " << rep->GetGlyphScale() << std::endl;
+    std::cerr << "Error setting glyph scale to 0.1, returned " << rep->GetGlyphScale() << std::endl;
     return EXIT_FAILURE;
   }
 

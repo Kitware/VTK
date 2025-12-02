@@ -11,6 +11,8 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkSplineGraphEdges);
 vtkCxxSetObjectMacro(vtkSplineGraphEdges, Spline, vtkSpline);
@@ -402,7 +404,7 @@ void vtkSplineGraphEdges::GenerateBSpline(vtkGraph* g, vtkIdType e)
       xNew[1] += x[1] * b;
       xNew[2] += x[2] * b;
     }
-    // cerr << "bsum: " << bsum << endl;
+    // std::cerr << "bsum: " << bsum << endl;
   }
   g->SetEdgePoints(e, numNewPoints, newPoints);
 

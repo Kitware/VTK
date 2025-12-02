@@ -6,6 +6,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataWriter.h>
 
+#include <iostream>
+
 int TestAppendPolyData(int, char*[])
 {
   vtkSmartPointer<vtkPoints> pointsArray0 = vtkSmartPointer<vtkPoints>::New();

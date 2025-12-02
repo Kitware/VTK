@@ -16,6 +16,8 @@
 #include "vtkRenderer.h"
 #include "vtkWindow.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkCellGridRenderRequest);

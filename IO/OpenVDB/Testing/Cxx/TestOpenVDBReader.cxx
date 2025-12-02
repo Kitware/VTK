@@ -13,19 +13,21 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestOpenVDBReader(int argc, char* argv[])
 {
   char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/sphere_points.vdb");
   if (fileName == nullptr)
   {
-    cerr << "Could not get file names.";
+    std::cerr << "Could not get file names.";
     return EXIT_FAILURE;
   }
 
   vtkNew<vtkOpenVDBReader> reader;
   if (!reader->CanReadFile(fileName))
   {
-    cerr << "Reader reports " << fileName << " cannot be read.";
+    std::cerr << "Reader reports " << fileName << " cannot be read.";
     return EXIT_FAILURE;
   }
 

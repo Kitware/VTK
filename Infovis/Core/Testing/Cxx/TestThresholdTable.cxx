@@ -12,6 +12,8 @@
 
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestIntArrayBetween(vtkThresholdTable* threshold)
 {
@@ -27,25 +29,25 @@ int TestIntArrayBetween(vtkThresholdTable* threshold)
   // Perform error checking
   if (!intArrOut)
   {
-    cerr << "int array undefined in output" << endl;
+    std::cerr << "int array undefined in output" << std::endl;
     errors++;
   }
   else if (intArrOut->GetNumberOfTuples() != 2)
   {
-    cerr << "int threshold should have 2 tuples, instead has " << intArrOut->GetNumberOfTuples()
-         << endl;
+    std::cerr << "int threshold should have 2 tuples, instead has "
+              << intArrOut->GetNumberOfTuples() << std::endl;
     errors++;
   }
   else
   {
     if (intArrOut->GetValue(0) != 3)
     {
-      cerr << "int array [0] should be 3 but is " << intArrOut->GetValue(0) << endl;
+      std::cerr << "int array [0] should be 3 but is " << intArrOut->GetValue(0) << std::endl;
       errors++;
     }
     if (intArrOut->GetValue(1) != 4)
     {
-      cerr << "int array [1] should be 4 but is " << intArrOut->GetValue(1) << endl;
+      std::cerr << "int array [1] should be 4 but is " << intArrOut->GetValue(1) << std::endl;
       errors++;
     }
   }
@@ -67,30 +69,33 @@ int TestDoubleArrayLess(vtkThresholdTable* threshold)
   // Perform error checking
   if (!doubleArrOut)
   {
-    cerr << "double array undefined in output" << endl;
+    std::cerr << "double array undefined in output" << std::endl;
     errors++;
   }
   else if (doubleArrOut->GetNumberOfTuples() != 3)
   {
-    cerr << "double threshold should have 3 tuples, instead has "
-         << doubleArrOut->GetNumberOfTuples() << endl;
+    std::cerr << "double threshold should have 3 tuples, instead has "
+              << doubleArrOut->GetNumberOfTuples() << std::endl;
     errors++;
   }
   else
   {
     if (doubleArrOut->GetValue(0) != 1.0)
     {
-      cerr << "double array [0] should be 1.0 but is " << doubleArrOut->GetValue(0) << endl;
+      std::cerr << "double array [0] should be 1.0 but is " << doubleArrOut->GetValue(0)
+                << std::endl;
       errors++;
     }
     if (doubleArrOut->GetValue(1) != 1.1)
     {
-      cerr << "double array [1] should be 1.1 but is " << doubleArrOut->GetValue(1) << endl;
+      std::cerr << "double array [1] should be 1.1 but is " << doubleArrOut->GetValue(1)
+                << std::endl;
       errors++;
     }
     if (doubleArrOut->GetValue(2) != 1.2)
     {
-      cerr << "double array [2] should be 1.2 but is " << doubleArrOut->GetValue(2) << endl;
+      std::cerr << "double array [2] should be 1.2 but is " << doubleArrOut->GetValue(2)
+                << std::endl;
       errors++;
     }
   }
@@ -114,30 +119,33 @@ int TestStringArrayOutside(vtkThresholdTable* threshold)
   // Perform error checking
   if (!stringArrOut)
   {
-    cerr << "string array undefined in output" << endl;
+    std::cerr << "string array undefined in output" << std::endl;
     errors++;
   }
   else if (stringArrOut->GetNumberOfTuples() != 3)
   {
-    cerr << "string threshold should have 3 tuples, instead has "
-         << stringArrOut->GetNumberOfTuples() << endl;
+    std::cerr << "string threshold should have 3 tuples, instead has "
+              << stringArrOut->GetNumberOfTuples() << std::endl;
     errors++;
   }
   else
   {
     if (stringArrOut->GetValue(0) != "10")
     {
-      cerr << "string array [0] should be 10 but is " << stringArrOut->GetValue(0) << endl;
+      std::cerr << "string array [0] should be 10 but is " << stringArrOut->GetValue(0)
+                << std::endl;
       errors++;
     }
     if (stringArrOut->GetValue(1) != "13")
     {
-      cerr << "string array [1] should be 13 but is " << stringArrOut->GetValue(1) << endl;
+      std::cerr << "string array [1] should be 13 but is " << stringArrOut->GetValue(1)
+                << std::endl;
       errors++;
     }
     if (stringArrOut->GetValue(2) != "14")
     {
-      cerr << "string array [2] should be 14 but is " << stringArrOut->GetValue(2) << endl;
+      std::cerr << "string array [2] should be 14 but is " << stringArrOut->GetValue(2)
+                << std::endl;
       errors++;
     }
   }
@@ -159,30 +167,30 @@ int TestImplicitArrayGreater(vtkThresholdTable* threshold)
   // Perform error checking
   if (!intArrOut)
   {
-    cerr << "affine array undefined in output" << endl;
+    std::cerr << "affine array undefined in output" << std::endl;
     errors++;
   }
   else if (intArrOut->GetNumberOfTuples() != 3)
   {
-    cerr << "affine threshold should have 3 tuples, instead has " << intArrOut->GetNumberOfTuples()
-         << endl;
+    std::cerr << "affine threshold should have 3 tuples, instead has "
+              << intArrOut->GetNumberOfTuples() << std::endl;
     errors++;
   }
   else
   {
     if (intArrOut->GetValue(0) != 5)
     {
-      cerr << "affine array [0] should be 5 but is " << intArrOut->GetValue(0) << endl;
+      std::cerr << "affine array [0] should be 5 but is " << intArrOut->GetValue(0) << std::endl;
       errors++;
     }
     if (intArrOut->GetValue(1) != 7)
     {
-      cerr << "affine array [1] should be 7 but is " << intArrOut->GetValue(1) << endl;
+      std::cerr << "affine array [1] should be 7 but is " << intArrOut->GetValue(1) << std::endl;
       errors++;
     }
     if (intArrOut->GetValue(2) != 9)
     {
-      cerr << "affine array [2] should be 9 but is " << intArrOut->GetValue(2) << endl;
+      std::cerr << "affine array [2] should be 9 but is " << intArrOut->GetValue(2) << std::endl;
       errors++;
     }
   }

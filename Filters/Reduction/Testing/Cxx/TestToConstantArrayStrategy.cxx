@@ -7,6 +7,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 int TestToConstantArrayStrategy(int, char*[])
 {
   vtkNew<vtkCharArray> baseArr;

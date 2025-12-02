@@ -16,6 +16,8 @@
 #include <cstdio>
 #include <sstream>
 
+#include <iostream>
+
 static vtkSmartPointer<vtkPointData> MakePointData(unsigned int numberOfPoints);
 static vtkSmartPointer<vtkCellData> MakeCellData(unsigned int numberOfCells);
 

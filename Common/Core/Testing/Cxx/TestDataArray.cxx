@@ -4,6 +4,8 @@
 #include "vtkIntArray.h"
 #include "vtkMathUtilities.h"
 
+#include <iostream>
+
 // Define this to run benchmarking tests on some vtkDataArray methods:
 #undef BENCHMARK
 // #define BENCHMARK
@@ -12,8 +14,6 @@
 #include "vtkIdList.h"
 #include "vtkNew.h"
 #include "vtkTimerLog.h"
-
-#include <iostream>
 #include <map>
 #include <string>
 
@@ -44,16 +44,16 @@ int TestDataArray(int, char*[])
   array->GetRange(range, 0);
   if (range[0] != VTK_DOUBLE_MAX || range[1] != VTK_DOUBLE_MIN)
   {
-    cerr << "Getting range of empty array failed, min: " << range[0] << " max: " << range[1]
-         << "\n";
+    std::cerr << "Getting range of empty array failed, min: " << range[0] << " max: " << range[1]
+              << "\n";
     array->Delete();
     return 1;
   }
   array->GetFiniteRange(range, 0);
   if (range[0] != VTK_DOUBLE_MAX || range[1] != VTK_DOUBLE_MIN)
   {
-    cerr << "Getting finite range of empty array failed, min: " << range[0] << " max: " << range[1]
-         << "\n";
+    std::cerr << "Getting finite range of empty array failed, min: " << range[0]
+              << " max: " << range[1] << "\n";
     array->Delete();
     return 1;
   }
@@ -66,37 +66,37 @@ int TestDataArray(int, char*[])
   array->GetRange(range, 0); // Range is now 0-9. Used to check MTimes.
   if (range[0] != 0 || range[1] != 9)
   {
-    cerr << "Getting range (" << range[0] << "-" << range[1]
-         << ") of array marked for modified didn't cause recomputation of range!";
+    std::cerr << "Getting range (" << range[0] << "-" << range[1]
+              << ") of array marked for modified didn't cause recomputation of range!";
     array->Delete();
     return 1;
   }
   array->GetFiniteRange(range, 0); // Range is now 0-9. Used to check MTimes.
   if (range[0] != 0 || range[1] != 9)
   {
-    cerr << "Getting finite range (" << range[0] << "-" << range[1]
-         << ") of array marked for modified didn't cause recomputation of range!";
+    std::cerr << "Getting finite range (" << range[0] << "-" << range[1]
+              << ") of array marked for modified didn't cause recomputation of range!";
     array->Delete();
     return 1;
   }
 
-  cerr << "Getting range (" << range[0] << "-" << range[1] << ")" << std::endl;
+  std::cerr << "Getting range (" << range[0] << "-" << range[1] << ")" << std::endl;
   array->RemoveFirstTuple();
   array->RemoveTuple(3);
   array->RemoveTuple(4);
   array->GetRange(range, 0);
   if (range[0] != 0 || range[1] != 9)
   {
-    cerr << "Getting range (" << range[0] << "-" << range[1]
-         << ") of array not marked as modified caused recomputation of range!";
+    std::cerr << "Getting range (" << range[0] << "-" << range[1]
+              << ") of array not marked as modified caused recomputation of range!";
     array->Delete();
     return 1;
   }
   array->GetFiniteRange(range, 0);
   if (range[0] != 0 || range[1] != 9)
   {
-    cerr << "Getting finite range (" << range[0] << "-" << range[1]
-         << ") of array not marked as modified caused recomputation of range!";
+    std::cerr << "Getting finite range (" << range[0] << "-" << range[1]
+              << ") of array not marked as modified caused recomputation of range!";
     array->Delete();
     return 1;
   }
@@ -104,16 +104,16 @@ int TestDataArray(int, char*[])
   array->GetRange(range, 0);
   if (range[0] != 1. || range[1] != 9.)
   {
-    cerr << "Getting range of array {1,2,3,5,7,8,9} failed, min: " << range[0]
-         << " max: " << range[1] << "\n";
+    std::cerr << "Getting range of array {1,2,3,5,7,8,9} failed, min: " << range[0]
+              << " max: " << range[1] << "\n";
     array->Delete();
     return 1;
   }
   array->GetFiniteRange(range, 0);
   if (range[0] != 1. || range[1] != 9.)
   {
-    cerr << "Getting finite range of array {1,2,3,5,7,8,9} failed, min: " << range[0]
-         << " max: " << range[1] << "\n";
+    std::cerr << "Getting finite range of array {1,2,3,5,7,8,9} failed, min: " << range[0]
+              << " max: " << range[1] << "\n";
     array->Delete();
     return 1;
   }
@@ -123,32 +123,32 @@ int TestDataArray(int, char*[])
   array->GetRange(range, 0);
   if (range[0] != 1. || range[1] != 8.)
   {
-    cerr << "Getting range of array {1,2,3,5,7,8} failed, min: " << range[0] << " max: " << range[1]
-         << "\n";
+    std::cerr << "Getting range of array {1,2,3,5,7,8} failed, min: " << range[0]
+              << " max: " << range[1] << "\n";
     array->Delete();
     return 1;
   }
   array->GetFiniteRange(range, 0);
   if (range[0] != 1. || range[1] != 8.)
   {
-    cerr << "Getting finite range of array {1,2,3,5,7,8} failed, min: " << range[0]
-         << " max: " << range[1] << "\n";
+    std::cerr << "Getting finite range of array {1,2,3,5,7,8} failed, min: " << range[0]
+              << " max: " << range[1] << "\n";
     array->Delete();
     return 1;
   }
   int ca[] = { 1, 2, 3, 5, 7, 8 };
-  cout << "Array:";
+  std::cout << "Array:";
   for (cc = 0; cc < array->GetNumberOfTuples(); ++cc)
   {
     if (array->GetTuple1(cc) != ca[cc])
     {
-      cerr << "Problem with array: " << array->GetTuple1(cc) << " <> " << ca[cc] << endl;
+      std::cerr << "Problem with array: " << array->GetTuple1(cc) << " <> " << ca[cc] << std::endl;
       array->Delete();
       return 1;
     }
-    cout << " " << array->GetTuple1(cc);
+    std::cout << " " << array->GetTuple1(cc);
   }
-  cout << endl;
+  std::cout << std::endl;
   array->Delete();
 
   // Ensure GetFiniteRange ignores Inf and Nan.
@@ -163,8 +163,8 @@ int TestDataArray(int, char*[])
   farray->GetRange(range, 0);
   if (range[0] != vtkMath::NegInf() || range[1] != vtkMath::Inf())
   {
-    cerr << "Getting range (" << range[0] << "-" << range[1]
-         << ") of array containing infinity and NaN" << std::endl;
+    std::cerr << "Getting range (" << range[0] << "-" << range[1]
+              << ") of array containing infinity and NaN" << std::endl;
     farray->Delete();
     return 1;
   }
@@ -172,8 +172,8 @@ int TestDataArray(int, char*[])
   if (!vtkMathUtilities::FuzzyCompare(range[0], 0.0) ||
     !vtkMathUtilities::FuzzyCompare(range[1], 9.0))
   {
-    cerr << "Getting finite range (" << range[0] << "-" << range[1]
-         << ") of array containing infinity and NaN" << std::endl;
+    std::cerr << "Getting finite range (" << range[0] << "-" << range[1]
+              << ") of array containing infinity and NaN" << std::endl;
     farray->Delete();
     return 1;
   }
@@ -189,7 +189,7 @@ int TestDataArray(int, char*[])
   farray->RemoveTuple(3);
   farray->RemoveTuple(4);
   farray->RemoveLastTuple();
-  cout << "Array:";
+  std::cout << "Array:";
   for (cc = 0; cc < farray->GetNumberOfTuples(); ++cc)
   {
     double* fa = farray->GetTuple3(cc);
@@ -201,14 +201,14 @@ int TestDataArray(int, char*[])
     {
       if (fa[i] != fc[i])
       {
-        cerr << "Problem with array: " << fa[i] << " <> " << fc[i] << endl;
+        std::cerr << "Problem with array: " << fa[i] << " <> " << fc[i] << std::endl;
         farray->Delete();
         return 1;
       }
     }
-    cout << " " << fa[0] << "," << fa[1] << "," << fa[2];
+    std::cout << " " << fa[0] << "," << fa[1] << "," << fa[2];
   }
-  cout << endl;
+  std::cout << std::endl;
   farray->Delete();
   return 0;
 }

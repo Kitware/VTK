@@ -18,6 +18,8 @@
 #include <cassert>
 #include <vector>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAMRGaussianPulseSource);
 

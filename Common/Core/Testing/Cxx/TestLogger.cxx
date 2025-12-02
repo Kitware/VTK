@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 namespace
 {
 void log_handler(void* user_data, const vtkLogger::Message& message)
@@ -39,10 +41,10 @@ int TestLogger(int, char*[])
     vtkLogIfF(2, true, "And %s's lease hath all too short a date;", "summers");
   }
 
-  cerr << "--------------------------------------------" << endl
-       << lines << endl
-       << endl
-       << "--------------------------------------------" << endl;
+  std::cerr << "--------------------------------------------" << std::endl
+            << lines << std::endl
+            << std::endl
+            << "--------------------------------------------" << std::endl;
 
   vtkGenericWarningMacro("testing generic warning -- should only show up in the log");
 

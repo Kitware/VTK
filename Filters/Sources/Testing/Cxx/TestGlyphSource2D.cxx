@@ -5,6 +5,8 @@
 #include <vtkMinimalStandardRandomSequence.h>
 #include <vtkSmartPointer.h>
 
+#include <iostream>
+
 int TestGlyphSource2D(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkMinimalStandardRandomSequence> randomSequence =

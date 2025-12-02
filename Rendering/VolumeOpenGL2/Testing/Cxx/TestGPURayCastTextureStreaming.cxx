@@ -30,9 +30,11 @@
 #include "vtkOutlineFilter.h"
 #include "vtkPolyDataMapper.h"
 
+#include <iostream>
+
 int TestGPURayCastTextureStreaming(int argc, char* argv[])
 {
-  // cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  // std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // Load data
   vtkNew<vtkVolume16Reader> reader;

@@ -30,6 +30,8 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
+#include <iostream>
+
 int TestGPURayCastDepthPeelingTransVol(int argc, char* argv[])
 {
   // Volume peeling is only supported through the dual depth peeling algorithm.

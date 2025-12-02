@@ -12,6 +12,8 @@
 #include <limits>
 #include <math.h>
 
+#include <iostream>
+
 namespace
 {
 constexpr int numValues = 5;

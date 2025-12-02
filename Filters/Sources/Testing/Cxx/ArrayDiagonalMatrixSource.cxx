@@ -34,8 +34,8 @@ int ArrayDiagonalMatrixSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkSparseArray<double>* const sparse_array = vtkSparseArray<double>::SafeDownCast(
       source->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
 
-    cout << "sparse diagonal matrix:\n";
-    vtkPrintMatrixFormat(cout, sparse_array);
+    std::cout << "sparse diagonal matrix:\n";
+    vtkPrintMatrixFormat(std::cout, sparse_array);
 
     test_expression(sparse_array);
     test_expression(sparse_array->GetValue(vtkArrayCoordinates(0, 0)) == 1.0);
@@ -54,8 +54,8 @@ int ArrayDiagonalMatrixSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     vtkDenseArray<double>* const dense_array =
       vtkDenseArray<double>::SafeDownCast(source->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
 
-    cout << "dense diagonal matrix:\n";
-    vtkPrintMatrixFormat(cout, dense_array);
+    std::cout << "dense diagonal matrix:\n";
+    vtkPrintMatrixFormat(std::cout, dense_array);
 
     test_expression(dense_array);
     test_expression(dense_array->GetValue(vtkArrayCoordinates(0, 0)) == 1.0);
@@ -72,7 +72,7 @@ int ArrayDiagonalMatrixSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   catch (std::exception& e)
   {
-    cerr << e.what() << endl;
+    std::cerr << e.what() << std::endl;
     return 1;
   }
 }

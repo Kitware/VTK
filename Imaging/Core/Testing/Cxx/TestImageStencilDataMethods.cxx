@@ -7,6 +7,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTesting.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestImageStencilDataMethods(int argc, char* argv[])
 {
@@ -33,7 +35,7 @@ int TestImageStencilDataMethods(int argc, char* argv[])
         int* expected = ((idY == 0 && idZ == 0) ? expectedIn : expectedOut);
         if (stencil3->IsInside(idX, idY, idZ) != expected[idX])
         {
-          cerr << "IsInside(" << idX << ", " << idY << ", " << idZ << ") failed\n";
+          std::cerr << "IsInside(" << idX << ", " << idY << ", " << idZ << ") failed\n";
           return EXIT_FAILURE;
         }
       }

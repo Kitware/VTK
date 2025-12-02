@@ -9,6 +9,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 namespace
 {
 bool RedistributeImageData(vtkMultiProcessController* controller);

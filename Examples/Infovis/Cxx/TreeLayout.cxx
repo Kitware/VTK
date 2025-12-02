@@ -24,15 +24,17 @@
 #include "vtkTreeLayoutStrategy.h"
 #include "vtkXMLTreeReader.h"
 
+#include <iostream>
+
 void usage()
 {
-  cerr << endl;
-  cerr << "usage: TreeLayout filename [label_attribute] [color_attribute]" << endl;
-  cerr << "  filename is an xml file" << endl;
-  cerr << "  label_attribute is the attribute to use as labels." << endl;
-  cerr << "    Default is .tagname which labels using the element tag." << endl;
-  cerr << "  color_attribute is the attribute to color by (numeric)." << endl;
-  cerr << "    Default is no color." << endl;
+  std::cerr << endl;
+  std::cerr << "usage: TreeLayout filename [label_attribute] [color_attribute]" << endl;
+  std::cerr << "  filename is an xml file" << endl;
+  std::cerr << "  label_attribute is the attribute to use as labels." << endl;
+  std::cerr << "    Default is .tagname which labels using the element tag." << endl;
+  std::cerr << "  color_attribute is the attribute to color by (numeric)." << endl;
+  std::cerr << "    Default is no color." << endl;
 }
 
 int main(int argc, char* argv[])
@@ -74,7 +76,8 @@ int main(int argc, char* argv[])
   vtkTree* tree = vtkTree::SafeDownCast(stringToNumeric->GetOutput());
   if (tree->GetVertexData()->GetAbstractArray(labelArray) == nullptr)
   {
-    cerr << "ERROR: The label attribute " << labelArray << " is not defined in the file." << endl;
+    std::cerr << "ERROR: The label attribute " << labelArray << " is not defined in the file."
+              << endl;
     reader->Delete();
     stringToNumeric->Delete();
     usage();
@@ -82,7 +85,8 @@ int main(int argc, char* argv[])
   }
   if (colorArray && tree->GetVertexData()->GetAbstractArray(colorArray) == nullptr)
   {
-    cerr << "ERROR: The color attribute " << colorArray << " is not defined in the file." << endl;
+    std::cerr << "ERROR: The color attribute " << colorArray << " is not defined in the file."
+              << endl;
     reader->Delete();
     stringToNumeric->Delete();
     usage();
@@ -91,7 +95,8 @@ int main(int argc, char* argv[])
   if (colorArray &&
     vtkArrayDownCast<vtkDataArray>(tree->GetVertexData()->GetAbstractArray(colorArray)) == nullptr)
   {
-    cerr << "ERROR: The color attribute " << colorArray << " does not have numeric values." << endl;
+    std::cerr << "ERROR: The color attribute " << colorArray << " does not have numeric values."
+              << endl;
     reader->Delete();
     stringToNumeric->Delete();
     usage();

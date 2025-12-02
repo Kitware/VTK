@@ -60,11 +60,14 @@
 #include "vtkCellGridShaderUtil.h"
 #include "vtkCellGridShaderVertex.h"
 
-// Uncomment to print shader/color info to cout
+// Uncomment to print shader/color info to std::cout
 // #define vtkDGRenderResponder_DEBUG
 
 #ifdef vtkDGRenderResponder_DEBUG
 #include <sstream>
+
+#include <iostream>
+
 #endif
 
 VTK_ABI_NAMESPACE_BEGIN

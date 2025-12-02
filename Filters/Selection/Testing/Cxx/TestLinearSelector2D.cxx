@@ -21,6 +21,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 #if 0
 // Reference value
 const vtkIdType cardSelectionLinearSelector2D  = 20;
@@ -51,15 +53,15 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
 
   // Initialize test status
   int testStatus = 0;
-  cerr << endl;
+  std::cerr << std::endl;
 
   // Verify selection cardinality
   vtkIdType nCells = ugrid->GetNumberOfCells();
-  cout << tag
+  std::cout << tag
        << " contains "
        << nCells
        << " cells."
-       << endl;
+       << std::endl;
 
   if ( nCells != cardSelectionLinearSelector2D )
   {
@@ -71,15 +73,15 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
   }
 
   // Verify selection cells
-  cerr << "Original cell Ids (types): ";
+  std::cerr << "Original cell Ids (types): ";
   ugrid->GetCellData()->SetActiveScalars( "vtkOriginalCellIds" );
   vtkDataArray* oCellIds = ugrid->GetCellData()->GetScalars();
   for ( vtkIdType i = 0; i < oCellIds->GetNumberOfTuples(); ++ i )
   {
-    cerr << oCellIds->GetTuple1( i )
+    std::cerr << oCellIds->GetTuple1( i )
          << " ";
   }
-  cerr << endl;
+  std::cerr << std::endl;
 
   // If requested, write mesh
   if ( writeGrid )
@@ -92,9 +94,9 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
     writer->SetFileName( fileNameSS.str().c_str() );
     writer->SetInputData( ugrid );
     writer->Write();
-    cerr << "Wrote file "
+    std::cerr << "Wrote file "
          << fileNameSS.str()
-         << endl;
+         << std::endl;
   }
 
   return testStatus;

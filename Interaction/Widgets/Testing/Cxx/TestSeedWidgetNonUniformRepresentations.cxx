@@ -9,19 +9,13 @@
 // programmatically).
 
 #include "vtkActor.h"
-#include "vtkAxisActor2D.h"
 #include "vtkCommand.h"
-#include "vtkCoordinate.h"
 #include "vtkGlyphSource2D.h"
 #include "vtkHandleWidget.h"
-#include "vtkInteractorEventRecorder.h"
-#include "vtkMath.h"
 #include "vtkOrientedPolygonalHandleRepresentation3D.h"
 #include "vtkPointHandleRepresentation3D.h"
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
-#include "vtkProperty2D.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -30,6 +24,9 @@
 #include "vtkSphereSource.h"
 
 #include "vtkSmartPointer.h"
+
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // This callback is responsible for setting the seed label.

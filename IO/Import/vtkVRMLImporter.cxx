@@ -46,6 +46,7 @@
 
 #include <cassert>
 #include <exception>
+#include <iostream>
 #include <sstream>
 
 #include "vtkVRMLImporter_Yacc.h"
@@ -131,13 +132,13 @@ void vtkVRMLImporter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << "Defined names in File:" << endl;
+  os << "Defined names in File:" << std::endl;
   if (this->Parser->useList)
   {
     for (int i = 0; i < this->Parser->useList->Count(); i++)
     {
       os << "\tName: " << (*this->Parser->useList)[i]->defName << " is a "
-         << (*this->Parser->useList)[i]->defObject->GetClassName() << endl;
+         << (*this->Parser->useList)[i]->defObject->GetClassName() << std::endl;
     }
   }
 }

@@ -18,6 +18,8 @@
 #include <cstdlib>
 #include <numeric>
 
+#include <iostream>
+
 namespace
 {
 

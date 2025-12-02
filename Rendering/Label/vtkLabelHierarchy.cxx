@@ -34,6 +34,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 // WORKAROUND:
 //
 // This is the "comment near declaration of Current"
@@ -868,7 +870,7 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(vtkLabelHierarchy* hier, vtkCame
 #if 0
   if ( cam->GetParallelProjection() )
   { // Compute threshold for quadtree nodes too small to visit using parallel projection
-    //cout << "SizeLimit ParallelProj ps: " << cam->GetParallelScale() << "\n";
+    //std::cout << "SizeLimit ParallelProj ps: " << cam->GetParallelScale() << "\n";
     //this->SizeLimit = 0.0001 * cam->GetParallelScale(); // FIXME: Should be set using cam->ParallelScale and pixel size
   }
   else
@@ -887,7 +889,7 @@ void vtkLabelHierarchyQuadtreeIterator::Prepare(vtkLabelHierarchy* hier, vtkCame
       vsr = this->BucketSize[1] ? ( vs / this->BucketSize[1] ) : VTK_DOUBLE_MAX;
     }
     //double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
-    //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
+    //std::cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
   }
 #endif
@@ -977,7 +979,7 @@ void vtkLabelHierarchyQuadtreeIterator::Next()
   else
   {
     /* *
-    cout << "Label: " << *this->LabelIterator << "\n";
+    std::cout << "Label: " << *this->LabelIterator << "\n";
     * */
   }
 }
@@ -1185,7 +1187,7 @@ void vtkLabelHierarchyOctreeQueueIterator::Prepare(vtkLabelHierarchy* hier, vtkC
 #if 0
   if ( cam->GetParallelProjection() )
   { // Compute threshold for quadtree nodes too small to visit using parallel projection
-    //cout << "SizeLimit ParallelProj ps: " << cam->GetParallelScale() << "\n";
+    //std::cout << "SizeLimit ParallelProj ps: " << cam->GetParallelScale() << "\n";
     //this->SizeLimit = 0.0001 * cam->GetParallelScale(); // FIXME: Should be set using cam->ParallelScale and pixel size
   }
   else
@@ -1204,7 +1206,7 @@ void vtkLabelHierarchyOctreeQueueIterator::Prepare(vtkLabelHierarchy* hier, vtkC
       vsr = this->BucketSize[1] ? ( vs / this->BucketSize[1] ) : VTK_DOUBLE_MAX;
     }
     //double fac = vsr ? ( 0.1 * tva / vsr ) : 0.;
-    //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
+    //std::cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
   }
 #endif
@@ -1345,7 +1347,7 @@ void vtkLabelHierarchyOctreeQueueIterator::Next()
   else
   {
     /* *
-    cout << "Label: " << *this->LabelIterator << "\n";
+    std::cout << "Label: " << *this->LabelIterator << "\n";
     * */
   }
 }
@@ -1433,7 +1435,7 @@ void vtkLabelHierarchyOctreeQueueIterator::QueueChildren()
   int i;
   vtkOctreeNodeDistCompare dcomp;
   dcomp.SetEye(this->Camera->GetPosition());
-  // cout << "Eye " << dcomp.Eye[0] << ", " << dcomp.Eye[1] << ", " << dcomp.Eye[2] << "\n";
+  // std::cout << "Eye " << dcomp.Eye[0] << ", " << dcomp.Eye[1] << ", " << dcomp.Eye[2] << "\n";
   vtkOctreeOrderedChildren children(dcomp);
   for (i = 0; i < nc; ++i)
   {
@@ -1457,7 +1459,7 @@ void vtkLabelHierarchyOctreeQueueIterator::QueueChildren()
       dx = dcomp.Eye[i] - xa[i];
       dst += dx * dx;
     }
-    cout << "  " << this->NodesQueued << ": " << dst << " to " << xa[0] << ", " << xa[1] << ", " << xa[2] << "\n";
+    std::cout << "  " << this->NodesQueued << ": " << dst << " to " << xa[0] << ", " << xa[1] << ", " << xa[2] << "\n";
 #endif // 0
     this->Queue.push_back(*cit);
     ++this->NodesQueued;
@@ -1554,7 +1556,7 @@ void vtkLabelHierarchy3DepthFirstIterator::Prepare(vtkLabelHierarchy* hier, vtkC
 #if 0
   if ( cam->GetParallelProjection() )
   { // Compute threshold for quadtree nodes too small to visit using parallel projection
-    //cout << "SizeLimit ParallelProj ps: " << cam->GetParallelScale() << "\n";
+    //std::cout << "SizeLimit ParallelProj ps: " << cam->GetParallelScale() << "\n";
     //this->SizeLimit = 0.0001; // FIXME: Should be set using cam->ParallelScale
   }
   else
@@ -1573,7 +1575,7 @@ void vtkLabelHierarchy3DepthFirstIterator::Prepare(vtkLabelHierarchy* hier, vtkC
       vsr = vs / this->BucketSize[1];
     }
     //double fac = 0.1 * tva / vsr;
-    //cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
+    //std::cout << "SizeLimit  va: " << va << " tva: " << tva << " vsr: " << vsr << " fac: " << fac << " slim: " << fac * fac << "\n";
     //this->SizeLimit = fac * fac;
   }
 #endif
@@ -1637,11 +1639,11 @@ void vtkLabelHierarchy3DepthFirstIterator::Next()
           if (this->LabelIterator != this->Cursor->value().end())
           { // We found a non-empty node.
             /* *
-            cout << "Path:";
+            std::cout << "Path:";
             for ( unsigned p = 0; p < this->Path.size(); ++ p )
-              cout << " " << this->Path[p];
-            cout << "\n";
-            cout << "Label: " << *this->LabelIterator << "\n";
+              std::cout << " " << this->Path[p];
+            std::cout << "\n";
+            std::cout << "Label: " << *this->LabelIterator << "\n";
             * */
             return;
           }
@@ -1679,11 +1681,11 @@ void vtkLabelHierarchy3DepthFirstIterator::Next()
           if (this->LabelIterator != this->Cursor->value().end())
           { // We found a non-empty node.
             /* *
-            cout << "Path:";
+            std::cout << "Path:";
             for ( unsigned p = 0; p < this->Path.size(); ++ p )
-              cout << " " << this->Path[p];
-            cout << "\n";
-            cout << "Label: " << *this->LabelIterator << "\n";
+              std::cout << " " << this->Path[p];
+            std::cout << "\n";
+            std::cout << "Label: " << *this->LabelIterator << "\n";
             * */
             return;
           }
@@ -1696,7 +1698,7 @@ void vtkLabelHierarchy3DepthFirstIterator::Next()
   else
   {
     /* *
-    cout << "Label: " << *this->LabelIterator << "\n";
+    std::cout << "Label: " << *this->LabelIterator << "\n";
     * */
   }
 }
@@ -1915,7 +1917,7 @@ void vtkLabelHierarchyBuildCoincidenceMap(
   typename T::cursor curs( hier );
   int setCount = 0;
   double scale = curs->value().GetSize() / ( 1 << lh->GetMaximumDepth() );
-  //cout << "Scale: " << scale << endl;
+  //std::cout << "Scale: " << scale << endl;
   double point[3];
   std::vector<std::pair<double,double> > offsets;
 
@@ -1939,7 +1941,7 @@ void vtkLabelHierarchyBuildCoincidenceMap(
           point[0] + offsets[setCount + 1].first * scale,
           point[1] + offsets[setCount + 1].second * scale,
           point[2] );
-        //cout << "Point: " << point[0] + offsets[setCount].first*scale << " " <<
+        //std::cout << "Point: " << point[0] + offsets[setCount].first*scale << " " <<
         //  point[1] + offsets[setCount].second*scale << endl;
         ++setCount;
       }

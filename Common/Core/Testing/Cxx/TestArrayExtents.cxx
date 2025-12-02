@@ -36,7 +36,7 @@ int TestArrayExtents(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     for (vtkArrayExtents::SizeT n = 0; n != slice.GetSize(); ++n)
     {
       slice.GetLeftToRightCoordinatesN(n, coordinates);
-      cerr << coordinates << endl;
+      std::cerr << coordinates << std::endl;
     }
 
     slice.GetLeftToRightCoordinatesN(0, coordinates);
@@ -59,7 +59,7 @@ int TestArrayExtents(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   catch (std::exception& e)
   {
-    cerr << e.what() << endl;
+    std::cerr << e.what() << std::endl;
     return 1;
   }
 }

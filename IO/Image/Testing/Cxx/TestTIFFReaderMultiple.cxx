@@ -6,13 +6,16 @@
 
 #ifndef _WIN32
 #include <fcntl.h>
+
+#include <iostream>
+
 #endif
 
 int TestTIFFReaderMultiple(int argc, char* argv[])
 {
   if (argc <= 1)
   {
-    std::cout << "Usage: " << argv[0] << " <meta image file>" << endl;
+    std::cout << "Usage: " << argv[0] << " <meta image file>" << std::endl;
     return EXIT_FAILURE;
   }
 

@@ -4,6 +4,8 @@
 
 #include "vtkObjectFactory.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkX3DExporterWriter::vtkX3DExporterWriter()

@@ -35,6 +35,8 @@
 #include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
 
+#include <iostream>
+
 // About this test:
 //
 // This test runs a battery of unit tests that exercise the vtkGenericDataArray

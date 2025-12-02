@@ -9,8 +9,6 @@
 #include "vtkAngleWidget.h"
 #include "vtkAxisActor2D.h"
 #include "vtkCommand.h"
-#include "vtkCoordinate.h"
-#include "vtkHandleWidget.h"
 #include "vtkLeaderActor2D.h"
 #include "vtkMath.h"
 #include "vtkPointHandleRepresentation2D.h"
@@ -23,6 +21,8 @@
 #include "vtkSphereSource.h"
 #include "vtkTesting.h"
 #include "vtkTextProperty.h"
+
+#include <iostream>
 
 namespace
 {

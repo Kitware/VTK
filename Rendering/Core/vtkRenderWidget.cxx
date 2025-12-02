@@ -7,6 +7,10 @@
 #include "vtkObjectFactory.h"
 #include "vtkRect.h"
 
+#include <iostream>
+
+using std::cout;
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRenderWidget);
 
@@ -49,7 +53,7 @@ void vtkRenderWidget::SetName(const std::string& name)
 void vtkRenderWidget::Render()
 {
   assert(this->RenderDevice != nullptr);
-  cout << "Render called!!!" << endl;
+  std::cout << "Render called!!!" << endl;
 }
 
 void vtkRenderWidget::MakeCurrent()

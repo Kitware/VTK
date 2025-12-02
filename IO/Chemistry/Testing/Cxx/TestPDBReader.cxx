@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkPDBReader.h"
-#include "vtkPolyData.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 int TestPdb(
   const char* pdbFileName, unsigned int validNumberOfAtoms, unsigned int validNumberOfModels);

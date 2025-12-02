@@ -21,10 +21,9 @@
 #include "vtkUnstructuredGridAlgorithm.h"
 
 #include "vtkSmartPointer.h"
+#include <iostream>
 #include <sstream>
 #include <string>
-using std::ostringstream;
-using std::string;
 
 // Here are some default shape functions weights which
 // we will use to create dictionaries in a given data set.
@@ -169,10 +168,10 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkDataSet* usgOut)
 
   // create the offset array and store the dictionary within
   vtkIdTypeArray* offsets = vtkIdTypeArray::New();
-  string basename = "QuadratureOffset";
-  string finalname = basename;
+  std::string basename = "QuadratureOffset";
+  std::string finalname = basename;
   vtkDataArray* data = usgOut->GetCellData()->GetArray(basename.c_str());
-  ostringstream interpolatedName;
+  std::ostringstream interpolatedName;
   int i = 0;
   while (data != nullptr)
   {
@@ -224,9 +223,9 @@ int vtkQuadratureSchemeDictionaryGenerator::Generate(vtkDataSet* usgOut)
         def->Initialize(VTK_QUADRATIC_TETRA, 10, 4, W_QE_42_A);
         break;
       default:
-        cerr << "Error: Cell type " << cellType << " found "
-             << "with no definition provided. Add a definition "
-             << " in " << __FILE__ << ". Aborting." << endl;
+        std::cerr << "Error: Cell type " << cellType << " found "
+                  << "with no definition provided. Add a definition "
+                  << " in " << __FILE__ << ". Aborting.\n";
         return 0;
     }
 

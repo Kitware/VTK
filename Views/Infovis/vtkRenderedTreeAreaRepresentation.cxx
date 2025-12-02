@@ -60,6 +60,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkRenderedTreeAreaRepresentation::Internals
 {
@@ -875,7 +877,7 @@ vtkSelection* vtkRenderedTreeAreaRepresentation::ConvertSelection(vtkView* view,
       conv->Delete();
     }
   }
-  // cerr << "Tree converted: " << endl;
+  // std::cerr << "Tree converted: " << endl;
   // converted->Dump();
 
   return converted;

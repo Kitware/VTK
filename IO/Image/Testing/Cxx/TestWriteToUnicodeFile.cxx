@@ -20,11 +20,13 @@
 
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
+
 int TestWriteToUnicodeFile(int argc, char* argv[])
 {
   if (argc <= 1)
   {
-    cout << "Usage: " << argv[0] << " <output file name>" << endl;
+    std::cout << "Usage: " << argv[0] << " <output file name>" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -107,7 +109,7 @@ int TestWriteToUnicodeFile(int argc, char* argv[])
   {
     if (!reader->CanReadFile(filename.c_str()))
     {
-      cerr << "CanReadFile failed for " << filename << "\n";
+      std::cerr << "CanReadFile failed for " << filename << "\n";
       return EXIT_FAILURE;
     }
 
@@ -116,10 +118,10 @@ int TestWriteToUnicodeFile(int argc, char* argv[])
     reader->Update();
 
     const char* fileExtensions = reader->GetFileExtensions();
-    cout << "File extensions: " << fileExtensions << endl;
+    std::cout << "File extensions: " << fileExtensions << std::endl;
 
     const char* descriptiveName = reader->GetDescriptiveName();
-    cout << "Descriptive name: " << descriptiveName << endl;
+    std::cout << "Descriptive name: " << descriptiveName << std::endl;
 
     return EXIT_SUCCESS;
   }

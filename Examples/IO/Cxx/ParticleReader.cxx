@@ -5,11 +5,13 @@
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataWriter.h>
 
+#include <iostream>
+
 int main(int argc, char* argv[])
 {
   if (argc != 3)
   {
-    cerr << "Usage: " << argv[0] << " InputFile(csv) OutputFile(vtp)." << endl;
+    std::cerr << "Usage: " << argv[0] << " InputFile(csv) OutputFile(vtp)." << endl;
     return EXIT_FAILURE;
   }
 

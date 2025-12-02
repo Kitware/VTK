@@ -31,6 +31,8 @@
 #include <sql.h>
 #include <sqlext.h>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkODBCDatabase);
@@ -137,7 +139,7 @@ static std::string odbcGetString(SQLHANDLE statement, int column, int columnSize
     }
     else
     {
-      cerr << "odbcGetString: Error " << status << " in SQLGetData\n";
+      std::cerr << "odbcGetString: Error " << status << " in SQLGetData\n";
 
       break;
     }

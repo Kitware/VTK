@@ -27,6 +27,8 @@
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
+#include <iostream>
+
 //----------------------------------------------------------------------------
 int TestAnariPBRMaterialsCoat(int argc, char* argv[])
 {

@@ -5,7 +5,7 @@
 #include "vtkTesting.h"
 #include "vtkTestingInteractor.h"
 
-#include <cstdio> // For remove
+#include <iostream>
 #include <string>
 
 int PNGCompare(int argc, char* argv[])
@@ -23,7 +23,7 @@ int PNGCompare(int argc, char* argv[])
 
   if (testImageFileName.empty())
   {
-    cout << "Error: No reference image specified (use --test-file <png file>)" << endl;
+    std::cout << "Error: No reference image specified (use --test-file <png file>)" << std::endl;
     return EXIT_FAILURE;
   }
 

@@ -7,6 +7,8 @@
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 
+#include <iostream>
+
 int TestDelaunay2DConstrained(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   // Define initial set of points to triangulate

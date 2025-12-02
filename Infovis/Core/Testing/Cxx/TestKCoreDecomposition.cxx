@@ -8,6 +8,8 @@
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
@@ -72,8 +74,8 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   {
     if (da->GetVariantValue(i).ToInt() != kCores[i])
     {
-      cerr << "Incorrect k-core value found in directed graph! k-core value is "
-           << da->GetVariantValue(i).ToInt() << ", should be " << kCores[i] << endl;
+      std::cerr << "Incorrect k-core value found in directed graph! k-core value is "
+                << da->GetVariantValue(i).ToInt() << ", should be " << kCores[i] << std::endl;
       return 1;
     }
   }
@@ -123,8 +125,8 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   {
     if (da->GetVariantValue(i).ToInt() != kCores[i])
     {
-      cerr << "Incorrect k-core value found in undirected graph! k-core value is "
-           << da->GetVariantValue(i).ToInt() << ", should be " << kCores[i] << endl;
+      std::cerr << "Incorrect k-core value found in undirected graph! k-core value is "
+                << da->GetVariantValue(i).ToInt() << ", should be " << kCores[i] << std::endl;
       return 1;
     }
   }
@@ -156,8 +158,9 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   {
     if (da->GetVariantValue(i).ToInt() != undirected_kCores[i])
     {
-      cerr << "Incorrect k-core value found in small undirected graph! k-core value is "
-           << da->GetVariantValue(i).ToInt() << ", should be " << undirected_kCores[i] << endl;
+      std::cerr << "Incorrect k-core value found in small undirected graph! k-core value is "
+                << da->GetVariantValue(i).ToInt() << ", should be " << undirected_kCores[i]
+                << std::endl;
       return 1;
     }
   }
@@ -189,8 +192,9 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   {
     if (da->GetVariantValue(i).ToInt() != directed_kCores[i])
     {
-      cerr << "Incorrect k-core value found in small directed graph! k-core value is "
-           << da->GetVariantValue(i).ToInt() << ", should be " << directed_kCores[i] << endl;
+      std::cerr << "Incorrect k-core value found in small directed graph! k-core value is "
+                << da->GetVariantValue(i).ToInt() << ", should be " << directed_kCores[i]
+                << std::endl;
       return 1;
     }
   }
@@ -207,9 +211,9 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   {
     if (da->GetVariantValue(i).ToInt() != no_out_edges_directed_kCores[i])
     {
-      cerr << "Incorrect k-core value found in small directed graph! k-core value is "
-           << da->GetVariantValue(i).ToInt() << ", should be " << no_out_edges_directed_kCores[i]
-           << endl;
+      std::cerr << "Incorrect k-core value found in small directed graph! k-core value is "
+                << da->GetVariantValue(i).ToInt() << ", should be "
+                << no_out_edges_directed_kCores[i] << std::endl;
       return 1;
     }
   }
@@ -227,9 +231,9 @@ int TestKCoreDecomposition(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   {
     if (da->GetVariantValue(i).ToInt() != no_in_edges_directed_kCores[i])
     {
-      cerr << "Incorrect k-core value found in small directed graph! k-core value is "
-           << da->GetVariantValue(i).ToInt() << ", should be " << no_in_edges_directed_kCores[i]
-           << endl;
+      std::cerr << "Incorrect k-core value found in small directed graph! k-core value is "
+                << da->GetVariantValue(i).ToInt() << ", should be "
+                << no_in_edges_directed_kCores[i] << std::endl;
       return 1;
     }
   }

@@ -13,6 +13,9 @@
 #include "vtkTable.h"
 
 #include "vtkSmartPointer.h"
+
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 namespace
@@ -27,7 +30,7 @@ int TestAttributeDataToTableFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[
 {
   VTK_CREATE(vtkAttributeDataToTableFilter, toTable);
 
-  cerr << "Creating a simple polydata ..." << endl;
+  std::cerr << "Creating a simple polydata ..." << std::endl;
   VTK_CREATE(vtkPolyData, pd);
   VTK_CREATE(vtkIntArray, col1);
   col1->SetName("column1");
@@ -53,64 +56,64 @@ int TestAttributeDataToTableFilter(int vtkNotUsed(argc), char* vtkNotUsed(argv)[
   vtkFieldData* fieldData = pd->GetFieldData();
   fieldData->AddArray(col1);
   fieldData->AddArray(col2);
-  cerr << "... done" << endl;
+  std::cerr << "... done" << std::endl;
 
   int errors = 0;
   toTable->SetInputData(pd);
   toTable->SetGenerateCellConnectivity(true);
   for (int type = 0; type < 3; type++)
   {
-    cerr << "Converting ";
+    std::cerr << "Converting ";
     switch (type)
     {
       case 0:
-        cerr << "field data";
+        std::cerr << "field data";
         break;
       case 1:
-        cerr << "point data";
+        std::cerr << "point data";
         break;
       case 2:
-        cerr << "cell data";
+        std::cerr << "cell data";
         break;
     }
-    cerr << " to a table ..." << endl;
+    std::cerr << " to a table ..." << std::endl;
     toTable->SetFieldAssociation(::FIELD_ASSOCIATION_MAP.at(type));
     toTable->Update();
     vtkTable* table = toTable->GetOutput();
-    cerr << "... done" << endl;
+    std::cerr << "... done" << std::endl;
 
-    cerr << "Checking table ..." << endl;
+    std::cerr << "Checking table ..." << std::endl;
     // Check the table
     vtkIntArray* out1 = vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("column1"));
     if (!out1)
     {
       errors++;
-      cerr << "ERROR: column1 not found when extracting field type " << type << endl;
+      std::cerr << "ERROR: column1 not found when extracting field type " << type << std::endl;
     }
     vtkIntArray* out2 = vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("column2"));
     if (!out2)
     {
       errors++;
-      cerr << "ERROR: column1 not found when extracting field type " << type << endl;
+      std::cerr << "ERROR: column1 not found when extracting field type " << type << std::endl;
     }
     for (vtkIdType j = 0; j < 10; j++)
     {
       if (out1->GetValue(j) != col1->GetValue(j))
       {
         errors++;
-        cerr << "ERROR: column1 output does not match input " << out1->GetValue(j)
-             << "!=" << col1->GetValue(j) << " for field type " << type << endl;
+        std::cerr << "ERROR: column1 output does not match input " << out1->GetValue(j)
+                  << "!=" << col1->GetValue(j) << " for field type " << type << std::endl;
         break;
       }
       if (out2->GetValue(j) != col2->GetValue(j))
       {
         errors++;
-        cerr << "ERROR: column2 output does not match input " << out2->GetValue(j)
-             << "!=" << col2->GetValue(j) << " for field type " << type << endl;
+        std::cerr << "ERROR: column2 output does not match input " << out2->GetValue(j)
+                  << "!=" << col2->GetValue(j) << " for field type " << type << std::endl;
         break;
       }
     }
-    cerr << "... done" << endl;
+    std::cerr << "... done" << std::endl;
   }
 
   return errors;

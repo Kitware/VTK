@@ -26,6 +26,7 @@
 #include "vtkUniformGrid.h"
 
 #include <algorithm>
+#include <iostream>
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN

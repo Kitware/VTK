@@ -28,6 +28,8 @@
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestAnariPBRMaterials(int argc, char* argv[])
 {

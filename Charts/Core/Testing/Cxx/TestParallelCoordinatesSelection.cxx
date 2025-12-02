@@ -19,6 +19,8 @@
 #include <vtkRenderer.h>
 #include <vtkTable.h>
 
+#include <iostream>
+
 static constexpr int expectedValues[] = { 23, 24, 25, 26, 49, 50, 51, 52, 53, 54, 55, 56, 57, 110,
   111, 112, 113, 114, 115, 116, 117, 118, 126, 140, 141, 142, 143, 190, 191, 192, 193 };
 

@@ -12,6 +12,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 int TestThreadedCopy(int ac, char* av[])
 {
   double GB = 0.01;
@@ -42,14 +44,14 @@ int TestThreadedCopy(int ac, char* av[])
 
   if (write)
   {
-    cout << "Populate it." << endl;
+    std::cout << "Populate it." << std::endl;
     int* ptr = static_cast<int*>(hugeImage->GetScalarPointer());
     for (int k = 0; k < edge; ++k)
     {
       double z = (double)k / edge - 0.5;
       if (k % (edge / 10) == 0)
       {
-        cout << (z + 0.5) * 100 << "% done" << endl;
+        std::cout << (z + 0.5) * 100 << "% done" << std::endl;
       }
       for (int j = 0; j < edge; ++j)
       {
@@ -78,7 +80,7 @@ int TestThreadedCopy(int ac, char* av[])
   dsw->SetFileName("dest.vtk");
   if (write)
   {
-    cout << "Write them." << endl;
+    std::cout << "Write them." << std::endl;
     dsw->Write();
     dsw->Write();
   }

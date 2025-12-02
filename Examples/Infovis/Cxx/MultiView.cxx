@@ -19,6 +19,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 class ViewUpdater : public vtkCommand
 {
 public:

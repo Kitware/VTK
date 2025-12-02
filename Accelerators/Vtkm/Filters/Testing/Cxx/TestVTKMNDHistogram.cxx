@@ -17,6 +17,8 @@
 #include "vtkSparseArray.h"
 #include "vtkTable.h"
 
+#include <iostream>
+
 namespace
 {
 const std::vector<std::string> arrayNames = { "temperature0", "temperature1", "temperature2",

@@ -13,12 +13,14 @@
 #include "vtkTable.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 #define expect(x, msg)                                                                             \
   do                                                                                               \
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << __LINE__ << ": " msg << endl;                                                        \
+      std::cerr << __LINE__ << ": " msg << std::endl;                                              \
       return false;                                                                                \
     }                                                                                              \
   } while (false)
@@ -127,7 +129,7 @@ int TestExtractSelectedArraysOverTime(int argc, char* argv[])
   if (!Validate0(
         vtkMultiBlockDataSet::SafeDownCast(extractor->GetOutputDataObject(0)), num_timesteps))
   {
-    cerr << "Failed to validate dataset at line: " << __LINE__ << endl;
+    std::cerr << "Failed to validate dataset at line: " << __LINE__ << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -137,7 +139,7 @@ int TestExtractSelectedArraysOverTime(int argc, char* argv[])
   if (!Validate1(
         vtkMultiBlockDataSet::SafeDownCast(extractor->GetOutputDataObject(0)), num_timesteps))
   {
-    cerr << "Failed to validate dataset at line: " << __LINE__ << endl;
+    std::cerr << "Failed to validate dataset at line: " << __LINE__ << std::endl;
     return EXIT_FAILURE;
   }
 

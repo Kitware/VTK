@@ -26,8 +26,8 @@
 #include <QPainter>
 #include <QPen>
 #include <QPixmap>
-#include <algorithm>
 
+#include <iostream>
 #include <set>
 #include <sstream>
 
@@ -95,7 +95,7 @@ void vtkQtTreeModelAdapter::SetVTKDataObject(vtkDataObject* obj)
   vtkTree* t = vtkTree::SafeDownCast(obj);
   if (obj && !t)
   {
-    cerr << "vtkQtTreeModelAdapter needs a vtkTree for SetVTKDataObject" << endl;
+    std::cerr << "vtkQtTreeModelAdapter needs a vtkTree for SetVTKDataObject" << std::endl;
     return;
   }
 

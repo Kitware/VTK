@@ -12,6 +12,8 @@
 #include <vtkRenderer.h>
 #include <vtkSphereSource.h>
 
+#include <iostream>
+
 int TestAssemblyBounds(int, char*[])
 {
   vtkSmartPointer<vtkSphereSource> source1 = vtkSmartPointer<vtkSphereSource>::New();

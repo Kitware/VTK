@@ -35,6 +35,8 @@
 #include <QTextDocument>
 #include <QTextStream>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQtLabelRenderStrategy);
 
@@ -162,7 +164,7 @@ void vtkQtLabelRenderStrategy::StartFrame()
   // start_frame_iter++;
   // if (start_frame_iter % 10 == 0)
   //  {
-  //  cerr << "StartFrame time: " << (start_frame_time / start_frame_iter) << endl;
+  //  std::cerr << "StartFrame time: " << (start_frame_time / start_frame_iter) << endl;
   //  }
 }
 
@@ -261,7 +263,8 @@ void vtkQtLabelRenderStrategy::ComputeLabelBounds(
   // compute_bounds_iter++;
   // if (compute_bounds_iter % 10000 == 0)
   //  {
-  //  cerr << "ComputeLabelBounds time: " << (compute_bounds_time / compute_bounds_iter) << endl;
+  //  std::cerr << "ComputeLabelBounds time: " << (compute_bounds_time / compute_bounds_iter) <<
+  //  endl;
   //  }
 }
 
@@ -368,7 +371,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(
   // render_label_iter++;
   // if (render_label_iter % 100 == 0)
   //  {
-  //  cerr << "RenderLabel time: " << (render_label_time / render_label_iter) << endl;
+  //  std::cerr << "RenderLabel time: " << (render_label_time / render_label_iter) << endl;
   //  }
 }
 
@@ -511,7 +514,7 @@ void vtkQtLabelRenderStrategy::RenderLabel(int x[2], vtkTextProperty* tprop, vtk
   // render_label_iter++;
   // if (render_label_iter % 100 == 0)
   //  {
-  //  cerr << "RenderLabel time: " << (render_label_time / render_label_iter) << endl;
+  //  std::cerr << "RenderLabel time: " << (render_label_time / render_label_iter) << endl;
   //  }
 }
 
@@ -528,7 +531,7 @@ void vtkQtLabelRenderStrategy::EndFrame()
   // end_frame_iter++;
   // if (end_frame_iter % 10 == 0)
   //  {
-  //  cerr << "EndFrame time: " << (end_frame_time / end_frame_iter) << endl;
+  //  std::cerr << "EndFrame time: " << (end_frame_time / end_frame_iter) << endl;
   //  }
 }
 

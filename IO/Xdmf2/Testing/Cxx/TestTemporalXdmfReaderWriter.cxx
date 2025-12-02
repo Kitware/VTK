@@ -16,6 +16,8 @@
 #include "vtkXdmfWriter.h"
 #include "vtksys/SystemTools.hxx"
 
+#include <iostream>
+
 #define ASSERT_TEST(_cond_, _msg_)                                                                 \
   do                                                                                               \
   {                                                                                                \

@@ -7,22 +7,23 @@
 
 #include <algorithm>
 #include <array>
+#include <iostream>
 #include <iterator>
 
 int TestGeoProjection(int, char*[])
 {
   int np = vtkGeoProjection::GetNumberOfProjections();
-  cout << "Supported projections:\n";
+  std::cout << "Supported projections:\n";
   for (int i = 0; i < np; ++i)
   {
-    cout << "Projection: " << vtkGeoProjection::GetProjectionName(i) << "\n";
-    cout << "\t" << vtkGeoProjection::GetProjectionDescription(i) << "\n";
+    std::cout << "Projection: " << vtkGeoProjection::GetProjectionName(i) << "\n";
+    std::cout << "\t" << vtkGeoProjection::GetProjectionDescription(i) << "\n";
   }
-  cout << "-------\n";
+  std::cout << "-------\n";
   vtkGeoProjection* proj = vtkGeoProjection::New();
   const char* projName = "rouss";
   proj->SetName(projName);
-  cout << projName << " is " << proj->GetDescription() << "\n";
+  std::cout << projName << " is " << proj->GetDescription() << "\n";
   proj->Delete();
 
   std::array<double, 3> galatiCart{ 3960080.027008516, 2102195.367671419, 4521336.196173832 };

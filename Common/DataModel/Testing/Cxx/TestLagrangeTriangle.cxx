@@ -34,6 +34,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 namespace
 {
 vtkSmartPointer<vtkLagrangeTriangle> CreateTriangle(int nPoints)

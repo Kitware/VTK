@@ -19,6 +19,8 @@
 #include "vtkNew.h"
 #include "vtkPoints.h"
 
+#include <iostream>
+
 namespace testhtggeomlocator
 {
 

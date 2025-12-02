@@ -1,17 +1,16 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkContextMouseEvent.h"
 #include "vtkContextScene.h"
 #include "vtkContextTransform.h"
 #include "vtkContextView.h"
 #include "vtkEqualizerContextItem.h"
-#include "vtkFloatArray.h"
 #include "vtkInteractorEventRecorder.h"
 #include "vtkNew.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+
+#include <iostream>
 
 constexpr const char* testingEvents1 = "# StreamVersion 1.1\n"
                                        // Move camera

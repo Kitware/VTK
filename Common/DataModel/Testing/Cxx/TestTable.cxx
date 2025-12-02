@@ -12,6 +12,8 @@
 #include <ctime>
 #include <vector>
 
+#include <iostream>
+
 constexpr int size = 100;
 constexpr double prob = 1.0 - 1.0 / size;
 constexpr double highProb = 1.0 - 1.0 / (size * size);
@@ -22,16 +24,16 @@ void CheckEqual(
   // Check sizes
   if (table->GetNumberOfRows() != static_cast<vtkIdType>(stdTable[0].size()))
   {
-    cout << "TestTable CheckEqual() fails after operation '" << info << "()':" << endl;
-    cout << "Number of rows is incorrect (" << table->GetNumberOfRows() << " != " << stdTable.size()
-         << ")" << endl;
+    std::cout << "TestTable CheckEqual() fails after operation '" << info << "()':" << std::endl;
+    std::cout << "Number of rows is incorrect (" << table->GetNumberOfRows()
+              << " != " << stdTable.size() << ")" << std::endl;
     exit(EXIT_FAILURE);
   }
   if (table->GetNumberOfColumns() != static_cast<vtkIdType>(stdTable.size()))
   {
-    cout << "TestTable CheckEqual() fails after operation '" << info << "()':" << endl;
-    cout << "Number of columns is incorrect (" << table->GetNumberOfColumns()
-         << " != " << stdTable.size() << ")" << endl;
+    std::cout << "TestTable CheckEqual() fails after operation '" << info << "()':" << std::endl;
+    std::cout << "Number of columns is incorrect (" << table->GetNumberOfColumns()
+              << " != " << stdTable.size() << ")" << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -44,9 +46,10 @@ void CheckEqual(
       double stdTableVal = stdTable[j][i];
       if (stdTableVal && tableVal != stdTableVal)
       {
-        cout << "TestTable CheckEqual() fails after operation '" << info << "()':" << endl;
-        cout << "Values not equal at row " << i << " column " << j << ": ";
-        cout << "(" << tableVal << " != " << stdTableVal << ")" << endl;
+        std::cout << "TestTable CheckEqual() fails after operation '" << info
+                  << "()':" << std::endl;
+        std::cout << "Values not equal at row " << i << " column " << j << ": ";
+        std::cout << "(" << tableVal << " != " << stdTableVal << ")" << std::endl;
         exit(EXIT_FAILURE);
       }
     }
@@ -82,16 +85,18 @@ void CheckEqual(
       }
       else
       {
-        cout << "TestTable CheckEqual() fails after operation '" << info << "()':" << endl;
-        cout << "Unknown array type" << endl;
+        std::cout << "TestTable CheckEqual() fails after operation '" << info
+                  << "()':" << std::endl;
+        std::cout << "Unknown array type" << std::endl;
         exit(EXIT_FAILURE);
       }
       double stdTableVal = stdTable[j][i];
       if (stdTableVal && val != stdTableVal)
       {
-        cout << "TestTable CheckEqual() fails after operation '" << info << "()':" << endl;
-        cout << "Values not equal at row " << i << " column " << j << ": ";
-        cout << "(" << val << " != " << stdTableVal << ")" << endl;
+        std::cout << "TestTable CheckEqual() fails after operation '" << info
+                  << "()':" << std::endl;
+        std::cout << "Values not equal at row " << i << " column " << j << ": ";
+        std::cout << "(" << val << " != " << stdTableVal << ")" << std::endl;
         exit(EXIT_FAILURE);
       }
     }
@@ -107,9 +112,10 @@ void CheckEqual(
       double stdTableVal = stdTable[j][i];
       if (stdTableVal && val != stdTableVal)
       {
-        cout << "TestTable CheckEqual() fails after operation '" << info << "()':" << endl;
-        cout << "Values not equal at row " << i << " column " << j << ": ";
-        cout << "(" << val << " != " << stdTableVal << ")" << endl;
+        std::cout << "TestTable CheckEqual() fails after operation '" << info
+                  << "()':" << std::endl;
+        std::cout << "Values not equal at row " << i << " column " << j << ": ";
+        std::cout << "(" << val << " != " << stdTableVal << ")" << std::endl;
         exit(EXIT_FAILURE);
       }
     }
@@ -118,7 +124,7 @@ void CheckEqual(
 
 void FillTable(vtkTable* table, std::vector<std::vector<double>>& stdTable)
 {
-  cout << "Creating columns." << endl;
+  std::cout << "Creating columns." << std::endl;
   vtkIdType columnId = 0;
   bool noColumns = true;
   while (noColumns || vtkMath::Random() < prob)
@@ -212,7 +218,7 @@ void InsertImplicitArray(vtkTable* table, std::vector<std::vector<double>>& stdT
 void InsertRows(
   vtkTable* table, std::vector<std::vector<double>>& stdTable, const vtkIdType r0, const int n)
 {
-  cout << "Inserting rows in middle of table." << endl;
+  std::cout << "Inserting rows in middle of table." << std::endl;
   const int ncols = table->GetNumberOfColumns();
 
   // insert rows in middle of stdTable, fill with 0.0
@@ -241,7 +247,7 @@ void InsertRows(
 
 void InsertEmptyRows(vtkTable* table, std::vector<std::vector<double>>& stdTable)
 {
-  cout << "Inserting empty rows." << endl;
+  std::cout << "Inserting empty rows." << std::endl;
   bool noRows = true;
   while (noRows || vtkMath::Random() < prob)
   {
@@ -257,7 +263,7 @@ void InsertEmptyRows(vtkTable* table, std::vector<std::vector<double>>& stdTable
 
 void InsertFullRows(vtkTable* table, std::vector<std::vector<double>>& stdTable)
 {
-  cout << "Inserting full rows." << endl;
+  std::cout << "Inserting full rows." << std::endl;
   while (vtkMath::Random() < prob)
   {
     vtkVariantArray* rowArray = vtkVariantArray::New();
@@ -274,7 +280,7 @@ void InsertFullRows(vtkTable* table, std::vector<std::vector<double>>& stdTable)
 
 void RandomizeValues(vtkTable* table, std::vector<std::vector<double>>& stdTable)
 {
-  cout << "Performing all kinds of inserts." << endl;
+  std::cout << "Performing all kinds of inserts." << std::endl;
   int id = 0;
   while (vtkMath::Random() < highProb)
   {
@@ -312,17 +318,17 @@ void RandomizeValues(vtkTable* table, std::vector<std::vector<double>>& stdTable
 
 void RemoveHalfOfRows(vtkTable* table, std::vector<std::vector<double>>& stdTable)
 {
-  cout << "Removing half of the rows." << endl;
+  std::cout << "Removing half of the rows." << std::endl;
   int numRowsToRemove = table->GetNumberOfRows() / 2;
   for (int i = 0; i < numRowsToRemove; i++)
   {
     vtkIdType row = static_cast<vtkIdType>(vtkMath::Random(0, table->GetNumberOfRows()));
-    cout << "Removing row " << row << " from vtkTable with " << table->GetNumberOfRows() << " rows"
-         << endl;
+    std::cout << "Removing row " << row << " from vtkTable with " << table->GetNumberOfRows()
+              << " rows" << std::endl;
     table->RemoveRow(row);
 
-    cout << "Removing row " << row << " from std::vector< std::vector<double> > with "
-         << stdTable[0].size() << " rows " << endl;
+    std::cout << "Removing row " << row << " from std::vector< std::vector<double> > with "
+              << stdTable[0].size() << " rows " << std::endl;
     for (unsigned int j = 0; j < stdTable.size(); j++)
     {
       std::vector<double>::iterator rowIt = stdTable[j].begin() + row;
@@ -340,7 +346,7 @@ void SqueezeRows(vtkTable* table, std::vector<std::vector<double>>& stdTable)
 
 void RemoveHalfOfColumns(vtkTable* table, std::vector<std::vector<double>>& stdTable)
 {
-  cout << "Removing half of the columns." << endl;
+  std::cout << "Removing half of the columns." << std::endl;
   int numColsToRemove = table->GetNumberOfColumns() / 2;
   for (int i = 0; i < numColsToRemove; i++)
   {
@@ -362,10 +368,10 @@ void RemoveHalfOfColumns(vtkTable* table, std::vector<std::vector<double>>& stdT
 
 int TestTable(int, char*[])
 {
-  cout << "CTEST_FULL_OUTPUT" << endl;
+  std::cout << "CTEST_FULL_OUTPUT" << std::endl;
 
   long seed = time(nullptr);
-  cout << "Seed: " << seed << endl;
+  std::cout << "Seed: " << seed << std::endl;
   vtkMath::RandomSeed(seed);
 
   // Make a table and a parallel vector of vectors containing the same data

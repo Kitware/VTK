@@ -15,6 +15,8 @@
 #include "vtkStringArray.h"
 #include "vtkTree.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestExtractSelectedTree(int, char*[])
 {

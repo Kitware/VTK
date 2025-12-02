@@ -34,6 +34,8 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkEDLShadeFS.h"
 #include "vtkTextureObjectVS.h"
 
+#include <iostream>
+
 // #define VTK_EDL_SHADING_DEBUG
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -288,7 +290,7 @@ void vtkEDLShading::EDLInitializeFramebuffers(vtkRenderState& s)
 void vtkEDLShading::EDLInitializeShaders(vtkOpenGLRenderWindow* renWin)
 {
 #ifdef VTK_EDL_SHADING_DEBUG
-  cout << "EDL: INITIALIZE SHADERS" << endl;
+  std::cout << "EDL: INITIALIZE SHADERS" << endl;
 #endif
 
   //  EDL SHADE
@@ -316,7 +318,7 @@ void vtkEDLShading::EDLInitializeShaders(vtkOpenGLRenderWindow* renWin)
   }
 
 #ifdef VTK_EDL_SHADING_DEBUG
-  cout << "... done" << endl;
+  std::cout << "... done" << endl;
 #endif
 }
 
@@ -647,7 +649,7 @@ void vtkEDLShading::Render(const vtkRenderState* s)
     r->GetActiveCamera()->GetClippingRange(znear, zfar);
     this->Zf = zfar;
     this->Zn = znear;
-    // cout << " -- ZNEAR/ZFAR : " << Zn << " || " << Zf << endl;
+    // std::cout << " -- ZNEAR/ZFAR : " << Zn << " || " << Zf << endl;
     renWin->GetState()->PushFramebufferBindings();
     this->ProjectionFBO->Bind();
     annotate("Start vtkEDLShading::RenderDelegate");

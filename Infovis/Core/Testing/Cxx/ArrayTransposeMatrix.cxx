@@ -20,7 +20,7 @@
 
 int ArrayTransposeMatrix(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  cout << setprecision(17);
+  std::cout << setprecision(17);
 
   try
   {
@@ -30,8 +30,8 @@ int ArrayTransposeMatrix(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     source->AddValue(vtkArrayCoordinates(1, 0), 2);
     source->AddValue(vtkArrayCoordinates(2, 0), 3);
 
-    cout << "source matrix:\n";
-    vtkPrintMatrixFormat(cout, source.GetPointer());
+    std::cout << "source matrix:\n";
+    vtkPrintMatrixFormat(std::cout, source.GetPointer());
 
     vtkSmartPointer<vtkArrayData> source_data = vtkSmartPointer<vtkArrayData>::New();
     source_data->AddArray(source);
@@ -42,8 +42,8 @@ int ArrayTransposeMatrix(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
     vtkSparseArray<double>* const output = vtkSparseArray<double>::SafeDownCast(
       transpose->GetOutput()->GetArray(static_cast<vtkIdType>(0)));
-    cout << "output matrix:\n";
-    vtkPrintMatrixFormat(cout, output);
+    std::cout << "output matrix:\n";
+    vtkPrintMatrixFormat(std::cout, output);
 
     test_expression(output);
     test_expression(output->GetExtent(0).GetSize() == 2);
@@ -60,7 +60,7 @@ int ArrayTransposeMatrix(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   catch (std::exception& e)
   {
-    cerr << e.what() << endl;
+    std::cerr << e.what() << std::endl;
     return 1;
   }
 }

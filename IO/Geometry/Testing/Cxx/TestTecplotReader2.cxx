@@ -4,28 +4,15 @@
 // .SECTION Description
 //
 
-#include "vtkDebugLeaks.h"
 #include "vtkTecplotReader.h"
 
-#include "vtkActor.h"
-#include "vtkArrayIterator.h"
-#include "vtkArrayIteratorTemplate.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCamera.h"
-#include "vtkCompositeDataGeometryFilter.h"
-#include "vtkCompositeDataPipeline.h"
-#include "vtkDirectory.h"
-#include "vtkPointData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkRegressionTestImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
-#include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
-#include <string>
 #include <vtksys/SystemTools.hxx>
+
+#include <iostream>
+#include <string>
 
 class vtkErrorObserver
 {
@@ -86,20 +73,20 @@ int TestTecplotReader2(int argc, char* argv[])
   vtkMultiBlockDataSet* ds = r->GetOutput();
   if (ds == nullptr)
   {
-    cerr << "Failed to read data set from " << filename << endl;
+    std::cerr << "Failed to read data set from " << filename << std::endl;
     return EXIT_FAILURE;
   }
   if (vtkErrorObserver::HasError)
   {
-    cerr << "Failed to read from " << filename << endl;
+    std::cerr << "Failed to read from " << filename << std::endl;
     if (!vtkErrorObserver::ErrorMessage.empty())
     {
-      cerr << "Error message: " << vtkErrorObserver::ErrorMessage << endl;
+      std::cerr << "Error message: " << vtkErrorObserver::ErrorMessage << std::endl;
     }
     return EXIT_FAILURE;
   }
 
-  cout << filename << " was read without errors." << endl;
+  std::cout << filename << " was read without errors." << std::endl;
   delete[] dataRoot;
   return EXIT_SUCCESS;
 }

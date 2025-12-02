@@ -27,6 +27,8 @@
 #include <openqube/basisset.h>
 #include <openqube/basissetloader.h>
 
+#include <iostream>
+
 int TestOpenQubeMOPACDensity(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2h2o.aux");
@@ -43,12 +45,12 @@ int TestOpenQubeMOPACDensity(int argc, char* argv[])
   // If there aren't any bonds, attempt to perceive them
   if (mol->GetNumberOfBonds() == 0)
   {
-    cout << "No bonds found. Running simple bond perception...\n";
+    std::cout << "No bonds found. Running simple bond perception...\n";
     vtkNew<vtkSimpleBondPerceiver> bonder;
     bonder->SetInputData(mol);
     bonder->Update();
     mol = bonder->GetOutput();
-    cout << "Bonds found: " << mol->GetNumberOfBonds() << "\n";
+    std::cout << "Bonds found: " << mol->GetNumberOfBonds() << "\n";
   }
 
   vtkNew<vtkMoleculeMapper> molMapper;
@@ -63,24 +65,24 @@ int TestOpenQubeMOPACDensity(int argc, char* argv[])
   vtkAbstractElectronicData* edata = oq->GetOutput()->GetElectronicData();
   if (!edata)
   {
-    cout << "null vtkAbstractElectronicData returned from "
-            "vtkOpenQubeElectronicData.\n";
+    std::cout << "null vtkAbstractElectronicData returned from "
+                 "vtkOpenQubeElectronicData.\n";
     return EXIT_FAILURE;
   }
 
-  cout << "Num electrons: " << edata->GetNumberOfElectrons() << "\n";
+  std::cout << "Num electrons: " << edata->GetNumberOfElectrons() << "\n";
 
   vtkSmartPointer<vtkImageData> data = vtkSmartPointer<vtkImageData>::New();
   data = edata->GetElectronDensity();
   if (!data)
   {
-    cout << "null vtkImageData returned from vtkOpenQubeElectronicData.\n";
+    std::cout << "null vtkImageData returned from vtkOpenQubeElectronicData.\n";
     return EXIT_FAILURE;
   }
 
   double range[2];
   data->GetScalarRange(range);
-  cout << "ImageData range: " << range[0] << " " << range[1] << "\n";
+  std::cout << "ImageData range: " << range[0] << " " << range[1] << "\n";
 
   vtkNew<vtkImageShiftScale> t;
   t->SetInputData(data);
@@ -91,11 +93,11 @@ int TestOpenQubeMOPACDensity(int argc, char* argv[])
   t->SetScale(255.0 / magnitude);
   t->SetOutputScalarTypeToDouble();
 
-  cout << "magnitude: " << magnitude << "\n";
+  std::cout << "magnitude: " << magnitude << "\n";
 
   t->Update();
   t->GetOutput()->GetScalarRange(range);
-  cout << "Shifted min/max: " << range[0] << " " << range[1] << "\n";
+  std::cout << "Shifted min/max: " << range[0] << " " << range[1] << "\n";
 
   vtkNew<vtkPiecewiseFunction> compositeOpacity;
   compositeOpacity->AddPoint(0.000, 0.00);
@@ -143,6 +145,6 @@ int TestOpenQubeMOPACDensity(int argc, char* argv[])
   win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();
   win->GetInteractor()->Start();
-  cout << volumeMapper->GetLastUsedRenderMode() << "\n";
+  std::cout << volumeMapper->GetLastUsedRenderMode() << "\n";
   return EXIT_SUCCESS;
 }

@@ -5,14 +5,12 @@
 // This is a basic test that creates and volume renders the wavelet dataset.
 
 #include "vtkCamera.h"
-#include "vtkColorTransferFunction.h"
 #include "vtkFloatArray.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkLight.h"
 #include "vtkNew.h"
 #include "vtkNrrdReader.h"
-#include "vtkPiecewiseFunction.h"
 #include "vtkPointData.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
@@ -21,9 +19,10 @@
 #include "vtkTestErrorObserver.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
-#include "vtkTimerLog.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+
+#include <iostream>
 
 typedef vtkSmartPointer<vtkImageData> Transfer2DPtr;
 Transfer2DPtr Create2DTransferTooth()
@@ -64,7 +63,7 @@ Transfer2DPtr Create2DTransferTooth()
 //-----------------------------------------------------
 int TestGPUVolumeRayCastMapperManyLights(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // Load data
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/tooth.nhdr");

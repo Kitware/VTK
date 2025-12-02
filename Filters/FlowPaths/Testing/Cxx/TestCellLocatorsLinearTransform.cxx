@@ -4,19 +4,18 @@
 #include "vtkCellLocator.h"
 #include "vtkCellTreeLocator.h"
 #include "vtkDataSetTriangleFilter.h"
-#include "vtkDebugLeaks.h"
 #include "vtkLinearTransformCellLocator.h"
 #include "vtkModifiedBSPTree.h"
 #include "vtkNew.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 #include "vtkRTAnalyticSource.h"
-#include "vtkSmartPointer.h"
 #include "vtkStaticCellLocator.h"
 #include "vtkTransform.h"
 #include "vtkTransformFilter.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
 #include <random>
 
 void GenerateRandomPoints(vtkIdType npts, vtkPoints* points, double bound)

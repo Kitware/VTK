@@ -16,6 +16,8 @@
 #include <array>
 #include <vector>
 
+#include <iostream>
+
 namespace
 {
 
@@ -209,7 +211,7 @@ int TestSMPFeatures(int, char*[])
   mt->SetSingleMethod(MyFunction, nullptr);
   mt->SetNumberOfThreads(NumThreads);
   mt->SingleMethodExecute();
-  std::cout << TotalAtomic.load() << endl;
+  std::cout << TotalAtomic.load() << std::endl;
 
   return EXIT_SUCCESS;
 }

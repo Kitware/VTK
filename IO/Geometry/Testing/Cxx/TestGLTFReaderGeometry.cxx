@@ -11,6 +11,8 @@
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 
+#include <iostream>
+
 int TestGLTFReaderGeometry(int argc, char* argv[])
 {
 

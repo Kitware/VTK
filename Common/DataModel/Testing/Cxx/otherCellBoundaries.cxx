@@ -26,12 +26,14 @@
 
 #include <sstream>
 
+#include <iostream>
+
 int TestOCB(ostream& strm)
 {
   // actual test
   vtkIdList* ids = vtkIdList::New();
   int i, j, k;
-  strm << "Test vtkCell::CellBoundary Start" << endl;
+  strm << "Test vtkCell::CellBoundary Start" << std::endl;
 
   // Vertex
   vtkVertex* vertex = vtkVertex::New();
@@ -49,7 +51,7 @@ int TestOCB(ostream& strm)
     {
       strm << ids->GetId(i) << ", ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
   // Poly Vertex
@@ -72,7 +74,7 @@ int TestOCB(ostream& strm)
       {
         strm << ids->GetId(i) << ", ";
       }
-      strm << endl;
+      strm << std::endl;
     }
   }
 
@@ -94,7 +96,7 @@ int TestOCB(ostream& strm)
     {
       strm << ids->GetId(i) << ", ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
   // Poly Line
@@ -119,7 +121,7 @@ int TestOCB(ostream& strm)
       {
         strm << ids->GetId(i) << ", ";
       }
-      strm << endl;
+      strm << std::endl;
     }
   }
 
@@ -146,7 +148,7 @@ int TestOCB(ostream& strm)
     {
       strm << ids->GetId(i) << ", ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
   // Triangle Strip
@@ -177,7 +179,7 @@ int TestOCB(ostream& strm)
       {
         strm << ids->GetId(i) << ", ";
       }
-      strm << endl;
+      strm << std::endl;
     }
   }
 
@@ -207,7 +209,7 @@ int TestOCB(ostream& strm)
     {
       strm << ids->GetId(i) << ", ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
   // Pixel
@@ -236,7 +238,7 @@ int TestOCB(ostream& strm)
     {
       strm << ids->GetId(i) << ", ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
   // Polygon
@@ -272,7 +274,7 @@ int TestOCB(ostream& strm)
     {
       strm << ids->GetId(i) << ", ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
   // Tetra
@@ -307,7 +309,7 @@ int TestOCB(ostream& strm)
     {
       strm << ids->GetId(i) << ", ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
   // Voxel
@@ -352,7 +354,7 @@ int TestOCB(ostream& strm)
     {
       strm << ids->GetId(i) << ", ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
   // Wedge
@@ -395,7 +397,7 @@ int TestOCB(ostream& strm)
     {
       strm << ids->GetId(i) << ", ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
   // Hexahedron
@@ -446,7 +448,7 @@ int TestOCB(ostream& strm)
     {
       strm << ids->GetId(i) << ", ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
   // Pentagonal Prism
@@ -505,7 +507,7 @@ int TestOCB(ostream& strm)
     {
       strm << ids->GetId(i) << ", ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
   // Hexagonal Prism
@@ -572,7 +574,7 @@ int TestOCB(ostream& strm)
     {
       strm << ids->GetId(i) << ", ";
     }
-    strm << endl;
+    strm << std::endl;
   }
 
   ids->Delete();
@@ -592,7 +594,7 @@ int TestOCB(ostream& strm)
   penta->Delete();
   hexa->Delete();
 
-  strm << "Test vtkCell::CellBoundary Complete" << endl;
+  strm << "Test vtkCell::CellBoundary Complete" << std::endl;
 
   return 0;
 }

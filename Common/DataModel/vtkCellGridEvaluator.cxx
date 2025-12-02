@@ -15,6 +15,8 @@
 
 #include <algorithm>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 vtkStandardNewMacro(vtkCellGridEvaluator);

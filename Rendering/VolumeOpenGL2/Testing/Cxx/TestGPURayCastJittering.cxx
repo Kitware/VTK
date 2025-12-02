@@ -57,7 +57,7 @@ int TestGPURayCastJittering(int argc, char* argv[])
     return VTK_SKIP_RETURN_CODE;
   }
 
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   char* volumeFile = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ironProt.vtk");
   vtkNew<vtkStructuredPointsReader> reader;

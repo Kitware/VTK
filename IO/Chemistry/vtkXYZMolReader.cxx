@@ -14,6 +14,8 @@
 
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkXYZMolReader);
@@ -40,7 +42,7 @@ char* vtkXYZMolReader::GetNextLine(FILE* fp, char* line, int maxlen)
     comment = 0;
     if (!fgets(line, maxlen, fp))
     {
-      // cout << "Problem when reading. EOF?" << endl;
+      // std::cout << "Problem when reading. EOF?" << endl;
       return nullptr;
     }
     len = static_cast<int>(strlen(line));
@@ -62,7 +64,7 @@ char* vtkXYZMolReader::GetNextLine(FILE* fp, char* line, int maxlen)
       comment = 1;
     }
   } while (comment);
-  // cout << "Have line that is not a comment: [" << line << "]" << endl;
+  // std::cout << "Have line that is not a comment: [" << line << "]" << endl;
   len = static_cast<int>(strlen(line));
   int ft = 0;
   ptr = line;
@@ -273,7 +275,7 @@ void vtkXYZMolReader::ReadSpecificMolecule(FILE* fp)
     {
       if (this->GetAtom(lptr, atom, pos))
       {
-        // cout << "Found atom: " << atom << endl;
+        // std::cout << "Found atom: " << atom << endl;
         if (ccnt >= num)
         {
           vtkErrorMacro("Expecting " << num << " atoms, found: " << ccnt);
@@ -284,7 +286,7 @@ void vtkXYZMolReader::ReadSpecificMolecule(FILE* fp)
           if (selectstep == timestep - 1)
           {
             // Got atom with full signature
-            // cout << "Insert atom: " << atom << endl;
+            // std::cout << "Insert atom: " << atom << endl;
             this->InsertAtom(atom, pos);
             rcnt++;
           }

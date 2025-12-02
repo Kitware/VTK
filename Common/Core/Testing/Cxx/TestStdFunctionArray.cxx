@@ -14,6 +14,8 @@
 #include <cstdlib>
 #include <memory>
 
+#include <iostream>
+
 #ifdef VTK_DISPATCH_STD_FUNCTION_ARRAYS
 namespace
 {

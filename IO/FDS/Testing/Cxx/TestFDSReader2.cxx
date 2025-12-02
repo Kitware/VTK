@@ -13,6 +13,7 @@
 #include <vtkTesting.h>
 
 #include <cstdlib>
+#include <iostream>
 
 /**
  * This regression test ensures that slices names with a a space between the name and the

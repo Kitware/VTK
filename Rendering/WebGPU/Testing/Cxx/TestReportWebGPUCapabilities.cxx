@@ -5,6 +5,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 /**
  * This test is to give an insight into the adapter that is used to run the rest of the webgpu test
  * suite.

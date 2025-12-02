@@ -6,20 +6,19 @@
 // with the composite method.
 
 #include "vtkColorTransferFunction.h"
-#include "vtkDataArray.h"
-#include "vtkImageData.h"
 #include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkMetaImageReader.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
-#include "vtkPointData.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSmartVolumeMapper.h"
 #include "vtkTestUtilities.h"
+#include "vtkTesting.h"
 #include "vtkVolumeProperty.h"
+
+#include <iostream>
 
 static const char* TestSmartVolumeMapperWindowLevelLog =
   "# StreamVersion 1\n"
@@ -577,7 +576,7 @@ static const char* TestSmartVolumeMapperWindowLevelLog =
 
 int TestSmartVolumeMapperWindowLevel(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetSize(400, 401);

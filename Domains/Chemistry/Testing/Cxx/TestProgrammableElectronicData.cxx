@@ -6,13 +6,15 @@
 #include "vtkNew.h"
 #include "vtkProgrammableElectronicData.h"
 
+#include <iostream>
+
 #define CHECK_MO(num)                                                                              \
   do                                                                                               \
   {                                                                                                \
     if (ed->GetMO(num) != mo##num)                                                                 \
     {                                                                                              \
-      cerr << "MO number " << (num) << " has changed since being set: "                            \
-           << "Expected @" << mo##num << ", got @" << ed->GetMO(num) << ".\n";                     \
+      std::cerr << "MO number " << (num) << " has changed since being set: "                       \
+                << "Expected @" << mo##num << ", got @" << ed->GetMO(num) << ".\n";                \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
   } while (false)
@@ -53,7 +55,7 @@ int TestProgrammableElectronicData(int, char*[])
 
   if (ed->GetElectronDensity() != density)
   {
-    cerr << "Electron density has changed since being set.";
+    std::cerr << "Electron density has changed since being set.";
     return EXIT_FAILURE;
   }
 

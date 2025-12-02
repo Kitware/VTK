@@ -14,6 +14,8 @@
 #include <array>
 #include <functional>
 
+#include <iostream>
+
 namespace
 {
 

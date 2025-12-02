@@ -18,6 +18,8 @@
 
 #include <string>
 
+#include <iostream>
+
 static const char* testXML1 = R"==(<?xml version="1.0"?>
 <VTKFile type="UnstructuredGrid"  version="0.1" >
   <UnstructuredGrid>
@@ -112,7 +114,7 @@ int TestXMLUnstructuredGridReader(int argc, char* argv[])
   }
   if (!data_root)
   {
-    cout << "Need to specify the directory to VTK_DATA_ROOT with -D <dir>." << endl;
+    std::cout << "Need to specify the directory to VTK_DATA_ROOT with -D <dir>." << std::endl;
     return 1;
   }
 
@@ -163,7 +165,7 @@ int TestXMLUnstructuredGridReader(int argc, char* argv[])
   std::string filename;
   filename = data_root;
   filename += "/Data/many_time_steps.vtu";
-  cout << "Loading " << filename << endl;
+  std::cout << "Loading " << filename << std::endl;
   vtkNew<vtkXMLUnstructuredGridReader> reader1;
   reader1->SetFileName(filename.c_str());
   reader1->Update();
@@ -179,7 +181,7 @@ int TestXMLUnstructuredGridReader(int argc, char* argv[])
   // and each piece contains a pyramid cell and a polyhedron cell.
   filename = data_root;
   filename += "/Data/polyhedron2pieces.vtu";
-  cout << "Loading " << filename << endl;
+  std::cout << "Loading " << filename << std::endl;
   vtkNew<vtkXMLUnstructuredGridReader> reader2;
   reader2->SetFileName(filename.c_str());
 

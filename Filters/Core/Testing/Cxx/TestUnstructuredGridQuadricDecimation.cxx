@@ -11,6 +11,8 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkUnstructuredGridQuadricDecimation.h>
 
+#include <iostream>
+
 int TestUnstructuredGridQuadricDecimation(int, char*[])
 {
   // This test constructs a tetrahedrally meshed sphere by first generating

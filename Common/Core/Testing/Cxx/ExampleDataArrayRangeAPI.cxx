@@ -18,6 +18,8 @@
 #include <numeric>  // for std::iota
 #include <vector>
 
+#include <iostream>
+
 namespace
 {
 

@@ -22,6 +22,8 @@
 #include <cmath>
 #include <cstring>
 
+#include <iostream>
+
 // Make a dummy image filter that does nothing but call CopyAttributeData.
 class vtkDummyImageFilter : public vtkImageAlgorithm
 {
@@ -141,7 +143,7 @@ int TestCopyAttributeData(int, char*[])
           outPointVectors->GetTuple(outIdx, v2);
           if (v1[0] != v2[0] || v1[1] != v2[1] || v1[2] != v2[2])
           {
-            cerr << "point attribute value mismatch ";
+            std::cerr << "point attribute value mismatch ";
             return 1;
           }
         }
@@ -166,12 +168,12 @@ int TestCopyAttributeData(int, char*[])
           outCellScalars->GetTuple(outIdx, &s2);
           if (s1 != s2)
           {
-            cerr << "cell attribute value mismatch\n";
+            std::cerr << "cell attribute value mismatch\n";
             return 1;
           }
           if (cellStrings->GetValue(inIdx) != outCellStrings->GetValue(outIdx))
           {
-            cerr << "cell attribute string mismatch\n";
+            std::cerr << "cell attribute string mismatch\n";
             return 1;
           }
         }

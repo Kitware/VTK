@@ -16,6 +16,8 @@
 #include "vtkTypeFloat32Array.h"
 #include "vtkTypeInt32Array.h"
 
+#include <iostream>
+
 namespace
 {
 

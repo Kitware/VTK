@@ -11,13 +11,14 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <cmath>
+#include <iostream>
 
 #define vtk_assert(x)                                                                              \
   do                                                                                               \
   {                                                                                                \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << endl;             \
+      std::cerr << "On line " << __LINE__ << " ERROR: Condition FAILED!! : " << #x << std::endl;   \
       return EXIT_FAILURE;                                                                         \
     }                                                                                              \
   } while (false)
@@ -26,21 +27,21 @@ int TestOutput(vtkMultiBlockDataSet* mb, double size)
 {
   constexpr double eps = 1e-5;
   unsigned int nBlocks = mb->GetNumberOfBlocks();
-  cout << "nBlocks = " << nBlocks << endl;
+  std::cout << "nBlocks = " << nBlocks << std::endl;
   vtk_assert(nBlocks > 0);
   for (unsigned int i = 0; i < nBlocks; ++i)
   {
-    cout << "Block #" << i << endl;
+    std::cout << "Block #" << i << std::endl;
     vtkMultiBlockDataSet* mb2 = vtkMultiBlockDataSet::SafeDownCast(mb->GetBlock(i));
     for (unsigned int j = 0; j < mb2->GetNumberOfBlocks(); ++j)
     {
-      cout << " - Sub-block #" << j << endl;
+      std::cout << " - Sub-block #" << j << std::endl;
       vtkUnstructuredGrid* ug = vtkUnstructuredGrid::SafeDownCast(mb2->GetBlock(j));
       int nc = ug->GetNumberOfCells();
       vtk_assert(nc == 1);
       for (vtkIdType k = 0; k < ug->GetNumberOfCells(); ++k)
       {
-        cout << "    - cell #" << k << endl;
+        std::cout << "    - cell #" << k << std::endl;
         vtkCell* cell = ug->GetCell(k);
         vtkPoints* points = cell->GetPoints();
         vtk_assert(cell->GetCellType() == VTK_HEXAHEDRON);
@@ -48,8 +49,8 @@ int TestOutput(vtkMultiBlockDataSet* mb, double size)
         {
           double x[3];
           points->GetPoint(cell->GetPointId(l), x);
-          cout << "       - point #" << l << ": [ " << x[0] << ", " << x[1] << ", " << x[2] << " ]"
-               << endl;
+          std::cout << "       - point #" << l << ": [ " << x[0] << ", " << x[1] << ", " << x[2]
+                    << " ]" << std::endl;
           vtk_assert(std::fabs(std::fabs(x[0]) - size) < eps);
           vtk_assert(std::fabs(std::fabs(x[1]) - size) < eps);
           vtk_assert(std::fabs(std::fabs(x[2]) - size) < eps);
@@ -66,7 +67,7 @@ int TestCGNSUnsteadyGrid(int argc, char* argv[])
   std::string grids = fname ? fname : "";
   delete[] fname;
 
-  cout << "Opening " << grids << endl;
+  std::cout << "Opening " << grids << std::endl;
   vtkNew<vtkCGNSReader> gridsReader;
   gridsReader->SetFileName(grids.c_str());
   gridsReader->Update();
@@ -89,6 +90,6 @@ int TestCGNSUnsteadyGrid(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  cout << __FILE__ << " tests passed." << endl;
+  std::cout << __FILE__ << " tests passed." << std::endl;
   return EXIT_SUCCESS;
 }

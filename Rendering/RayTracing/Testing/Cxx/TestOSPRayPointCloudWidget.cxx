@@ -21,6 +21,8 @@
 
 #include "vtkOSPRayTestInteractor.h"
 
+#include <iostream>
+
 // Callback for the interaction
 class vtkOSPRayPCCallback : public vtkCommand
 {
@@ -86,7 +88,7 @@ const char TestOSPRayPointCloudWidgetLog[] = "# StreamVersion 1.1\n"
 
 int TestOSPRayPointCloudWidget(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // Control the size of the test
   int npts = 10000;

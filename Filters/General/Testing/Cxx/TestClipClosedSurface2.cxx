@@ -19,9 +19,11 @@
 #include "vtkSuperquadricSource.h"
 #include "vtkTransform.h"
 
+#include <iostream>
+
 int TestClipClosedSurface2(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // Initialize the render window
   vtkNew<vtkRenderWindow> renWin;

@@ -13,6 +13,9 @@
 #include "vtkTetra.h"
 
 #include <sstream>
+
+#include <iostream>
+
 static vtkSmartPointer<vtkTetra> MakeTetra();
 
 int UnitTestPlanesIntersection(int, char*[])

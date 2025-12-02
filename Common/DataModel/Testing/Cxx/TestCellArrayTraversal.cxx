@@ -9,6 +9,8 @@
 #include "vtkTimerLog.h"
 #include "vtkTypeUInt8Array.h"
 
+#include <iostream>
+
 namespace
 {
 
@@ -22,20 +24,20 @@ void RunTest(vtkCellArray::StorageTypes storageType)
   {
     case vtkCellArray::Int32:
     {
-      cout << "\n=== Test performance of new vtkCellArray: 32-bit storage ===\n";
+      std::cout << "\n=== Test performance of new vtkCellArray: 32-bit storage ===\n";
       ca->Use32BitStorage();
       break;
     }
     case vtkCellArray::Int64:
     {
-      cout << "\n=== Test performance of new vtkCellArray: 64-bit storage ===\n";
+      std::cout << "\n=== Test performance of new vtkCellArray: 64-bit storage ===\n";
       ca->Use64BitStorage();
       break;
     }
     case vtkCellArray::Generic:
     default:
     {
-      cout << "\n=== Test performance of new vtkCellArray: generic storage ===\n";
+      std::cout << "\n=== Test performance of new vtkCellArray: generic storage ===\n";
       // By passing array types which are NOT in vtkArrayDispatch::InputConnectivityArrays,
       // vtkCellArray can be put into the "Generic" storage mode.
       vtkNew<vtkTypeUInt8Array> placeholderConn;
@@ -61,9 +63,9 @@ void RunTest(vtkCellArray::StorageTypes storageType)
     ++num;
   }
   timer->StopTimer();
-  cout << "Insert triangles: " << timer->GetElapsedTime() << "\n";
-  cout << "   " << num << " triangles inserted\n";
-  cout << "   Memory used: " << ca->GetActualMemorySize() << " kb\n";
+  std::cout << "Insert triangles: " << timer->GetElapsedTime() << "\n";
+  std::cout << "   " << num << " triangles inserted\n";
+  std::cout << "   Memory used: " << ca->GetActualMemorySize() << " kb\n";
 
   // Iterate directly over cell array
   num = 0;
@@ -74,8 +76,8 @@ void RunTest(vtkCellArray::StorageTypes storageType)
     ++num;
   }
   timer->StopTimer();
-  cout << "Traverse cell array (legacy GetNextCell()): " << timer->GetElapsedTime() << "\n";
-  cout << "   " << num << " triangles visited\n";
+  std::cout << "Traverse cell array (legacy GetNextCell()): " << timer->GetElapsedTime() << "\n";
+  std::cout << "   " << num << " triangles visited\n";
 
   // Iterate directly over cell array
   num = 0;
@@ -88,9 +90,9 @@ void RunTest(vtkCellArray::StorageTypes storageType)
     ++num;
   }
   timer->StopTimer();
-  cout << "Traverse cell array (new GetCellAtId(vtkIdType, vtkIdType&, vtkIdType const*&)): "
-       << timer->GetElapsedTime() << "\n";
-  cout << "   " << num << " triangles visited\n";
+  std::cout << "Traverse cell array (new GetCellAtId(vtkIdType, vtkIdType&, vtkIdType const*&)): "
+            << timer->GetElapsedTime() << "\n";
+  std::cout << "   " << num << " triangles visited\n";
 
   // Iterate directly over cell array such that point ids are copied
   num = 0;
@@ -106,9 +108,9 @@ void RunTest(vtkCellArray::StorageTypes storageType)
     ++num;
   }
   timer->StopTimer();
-  cout << "Traverse cell array (new GetCellAtId(vtkIdType, vtkIdList*)): "
-       << timer->GetElapsedTime() << "\n";
-  cout << "   " << num << " triangles visited\n";
+  std::cout << "Traverse cell array (new GetCellAtId(vtkIdType, vtkIdList*)): "
+            << timer->GetElapsedTime() << "\n";
+  std::cout << "   " << num << " triangles visited\n";
 
   // Iterate using iterator
   num = 0;
@@ -121,14 +123,14 @@ void RunTest(vtkCellArray::StorageTypes storageType)
     ++num;
   }
   timer->StopTimer();
-  cout << "Iterator traversal: " << timer->GetElapsedTime() << "\n";
-  cout << "   " << num << " triangles visited\n";
+  std::cout << "Iterator traversal: " << timer->GetElapsedTime() << "\n";
+  std::cout << "   " << num << " triangles visited\n";
 } // RunTest
 
 void RunTests()
 {
   // What is the size of vtkIdType?
-  cout << "=== vtkIdType is: " << (sizeof(vtkIdType) * 8) << " bits ===\n";
+  std::cout << "=== vtkIdType is: " << (sizeof(vtkIdType) * 8) << " bits ===\n";
 
   RunTest(vtkCellArray::StorageTypes::Int32); // 32-bit
   RunTest(vtkCellArray::StorageTypes::Int64); // 64-bit

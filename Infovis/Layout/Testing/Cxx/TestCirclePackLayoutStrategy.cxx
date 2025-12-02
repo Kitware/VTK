@@ -19,6 +19,8 @@
 #include "vtkTree.h"
 #include "vtkTreeFieldAggregator.h"
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input, double posX,
@@ -37,7 +39,7 @@ void TestStrategy(vtkCirclePackLayoutStrategy* strategy, vtkTreeAlgorithm* input
   pnt[1] = cinfo[1];
   if (((int)layout->FindVertex(pnt)) != (vda->GetNumberOfTuples() - 1))
   {
-    cout << "GetBoundingCircle() and FindVertex() returned incorrect id" << endl;
+    std::cout << "GetBoundingCircle() and FindVertex() returned incorrect id" << std::endl;
     exit(1);
   }
 
@@ -85,7 +87,7 @@ int TestCirclePackLayoutStrategy(int argc, char* argv[])
   VTK_CREATE(vtkTree, tree);
   if (!tree->CheckedShallowCopy(builder))
   {
-    cerr << "Invalid tree structure." << endl;
+    std::cerr << "Invalid tree structure." << std::endl;
   }
 
   VTK_CREATE(vtkTreeFieldAggregator, agg);

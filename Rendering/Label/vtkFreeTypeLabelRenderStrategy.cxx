@@ -13,6 +13,8 @@
 #include "vtkTimerLog.h"
 #include "vtkWindow.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFreeTypeLabelRenderStrategy);
 
@@ -120,7 +122,8 @@ void vtkFreeTypeLabelRenderStrategy::ComputeLabelBounds(
   // compute_bounds_iter1++;
   // if (compute_bounds_iter1 % 10000 == 0)
   //  {
-  //  cerr << "ComputeLabelBounds time: " << (compute_bounds_time1 / compute_bounds_iter1) << endl;
+  //  std::cerr << "ComputeLabelBounds time: " << (compute_bounds_time1 / compute_bounds_iter1) <<
+  //  endl;
   //  }
 }
 
@@ -152,7 +155,7 @@ void vtkFreeTypeLabelRenderStrategy::RenderLabel(
   // render_label_iter1++;
   // if (render_label_iter1 % 100 == 0)
   //  {
-  //  cerr << "RenderLabel time: " << (render_label_time1 / render_label_iter1) << endl;
+  //  std::cerr << "RenderLabel time: " << (render_label_time1 / render_label_iter1) << endl;
   //  }
 }
 

@@ -10,6 +10,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 int ImageAccumulate(int, char*[])
 {
   int rval = 0;
@@ -32,18 +34,18 @@ int ImageAccumulate(int, char*[])
   // acc->IgnoreZeroOn();
   acc->Update();
 
-  acc->Print(cout);
+  acc->Print(std::cout);
   double min[3], max[3];
   acc->GetMin(min);
   acc->GetMax(max);
   if (min[0] != 0)
   {
-    cerr << "Min: " << min[0] << endl;
+    std::cerr << "Min: " << min[0] << std::endl;
     rval++;
   }
   if (max[0] != 5)
   {
-    cerr << "Max: " << max[0] << endl;
+    std::cerr << "Max: " << max[0] << std::endl;
     rval++;
   }
   double mean[3];
@@ -53,32 +55,32 @@ int ImageAccumulate(int, char*[])
   double m = double(1 + 2 + 3 + 4 + 5) / voxcount;
   if (fabs(mean[0] - m) > 1e-10)
   {
-    cerr << "Mean: " << mean[0] << endl;
+    std::cerr << "Mean: " << mean[0] << std::endl;
     rval++;
   }
 
   // Test IgnoreZero option
   acc->IgnoreZeroOn();
   acc->Update();
-  acc->Print(cout);
+  acc->Print(std::cout);
 
   // Simple test
   acc->GetMin(min);
   acc->GetMax(max);
   if (min[0] != 1)
   {
-    cerr << "Min: " << min[0] << endl;
+    std::cerr << "Min: " << min[0] << std::endl;
     rval++;
   }
   if (max[0] != 5)
   {
-    cerr << "Max: " << max[0] << endl;
+    std::cerr << "Max: " << max[0] << std::endl;
     rval++;
   }
   acc->GetMean(mean);
   if (mean[0] != double(1 + 2 + 3 + 4 + 5) / 5)
   {
-    cerr << "Mean: " << mean[0] << endl;
+    std::cerr << "Mean: " << mean[0] << std::endl;
     rval++;
   }
 

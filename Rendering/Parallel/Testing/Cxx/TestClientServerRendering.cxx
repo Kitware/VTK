@@ -43,6 +43,8 @@
 
 #include <vtksys/CommandLineArguments.hxx>
 
+#include <iostream>
+
 namespace
 {
 
@@ -265,7 +267,7 @@ int main(int argc, char* argv[])
   contr->Initialize(&argc, &argv);
   if (is_server)
   {
-    cout << "Waiting for client on " << port << endl;
+    std::cout << "Waiting for client on " << port << std::endl;
     contr->WaitForConnection(port);
   }
   else

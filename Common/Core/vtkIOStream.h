@@ -14,15 +14,15 @@
 #pragma warning(push, 3)
 #endif
 
-#include <fstream>  // Include real ansi ifstream and ofstream.
-#include <iomanip>  // Include real ansi io manipulators.
-#include <iostream> // Include real ansi istream and ostream.
+#include <fstream>   // Include real ansi ifstream and ofstream.
+#include <iomanip>   // Include real ansi io manipulators.
+#include <ios>       // Ala <iostream>.
+#include <istream>   // Include real ansi istream.
+#include <ostream>   // Include real ansi ostream.
+#include <streambuf> // Ala <iostream>.
 
 // Need these in global namespace so the same code will work with ansi
 // and old-style streams.
-using std::cerr;
-using std::cin;
-using std::cout;
 using std::dec;
 using std::endl;
 using std::ends;

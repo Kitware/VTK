@@ -3,12 +3,10 @@
 #include "vtkActor.h"
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkConeSource.h"
-#include "vtkDebugLeaks.h"
 #include "vtkGlyph3D.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
-#include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
@@ -16,6 +14,8 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 #include "vtkX3DExporter.h"
+
+#include <iostream>
 
 int X3DTest(int argc, char* argv[])
 {

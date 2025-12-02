@@ -22,6 +22,8 @@
 #include <algorithm>
 #include <unordered_set>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 using namespace vtk::literals;

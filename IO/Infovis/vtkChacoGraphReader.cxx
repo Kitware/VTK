@@ -38,6 +38,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // I need a safe way to read a line of arbitrary length.  It exists on
@@ -105,8 +107,8 @@ int vtkChacoGraphReader::RequestData(vtkInformation* vtkNotUsed(request),
   // Create the weight arrays
   int vertWeights = type % 10;
   int edgeWeights = (type / 10) % 10;
-  // cerr << "type=" << type << ",vertWeights=" << vertWeights << ",edgeWeights=" << edgeWeights <<
-  // endl;
+  // std::cerr << "type=" << type << ",vertWeights=" << vertWeights << ",edgeWeights=" <<
+  // edgeWeights << endl;
   vtkIntArray** vertArr = new vtkIntArray*[vertWeights];
   for (int vw = 0; vw < vertWeights; vw++)
   {
@@ -140,7 +142,7 @@ int vtkChacoGraphReader::RequestData(vtkInformation* vtkNotUsed(request),
     my_getline(fin, line);
     std::stringstream stream;
     stream << line;
-    // cerr << "read line " << stream.str() << endl;
+    // std::cerr << "read line " << stream.str() << endl;
     int weight;
     for (int vw = 0; vw < vertWeights; vw++)
     {
@@ -151,7 +153,7 @@ int vtkChacoGraphReader::RequestData(vtkInformation* vtkNotUsed(request),
     while (stream.good())
     {
       stream >> v;
-      // cerr << "read adjacent vertex " << v << endl;
+      // std::cerr << "read adjacent vertex " << v << endl;
 
       // vtkGraph ids are 1 less than Chaco graph ids
       v--;

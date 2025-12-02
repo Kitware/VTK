@@ -27,6 +27,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <iostream>
+
 // The mouse motion callback, to turn "Slicing" on and off
 class vtkImageInteractionCallback : public vtkCommand
 {
@@ -118,7 +120,7 @@ int main(int argc, char* argv[])
 {
   if (argc < 2)
   {
-    cout << "Usage: " << argv[0] << " DATADIR/headsq/quarter" << endl;
+    std::cout << "Usage: " << argv[0] << " DATADIR/headsq/quarter" << endl;
     return 1;
   }
 

@@ -29,6 +29,8 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
+#include <iostream>
+
 int TestGPURayCastVolumePolyData(int argc, char* argv[])
 {
   bool useOSP = true;
@@ -36,7 +38,7 @@ int TestGPURayCastVolumePolyData(int argc, char* argv[])
   {
     if (!strcmp(argv[i], "-GL"))
     {
-      cerr << "GL" << endl;
+      std::cerr << "GL" << std::endl;
       useOSP = false;
     }
   }

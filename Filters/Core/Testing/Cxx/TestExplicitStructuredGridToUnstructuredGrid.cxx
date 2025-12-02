@@ -20,6 +20,8 @@
 #include "vtkTesting.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 int TestExplicitStructuredGridToUnstructuredGrid(int argc, char* argv[])
 {
   // Create the sample dataset

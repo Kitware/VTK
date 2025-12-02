@@ -7,13 +7,12 @@
 #include "vtkCellSizeFilter.h"
 #include "vtkCellTypeUtilities.h"
 #include "vtkDataSet.h"
-#include "vtkFloatArray.h"
-#include "vtkMathUtilities.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
-#include "vtkPointData.h"
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
+
+#include <iostream>
 
 #define compare_double(x, y, e) ((x) - (y) < (e) && (x) - (y) > -(e))
 

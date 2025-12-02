@@ -11,6 +11,8 @@
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 
+#include <iostream>
+
 int TestIntersectionPolyDataFilter2(int, char*[])
 {
   // Set up two polydata representing two triangles that share a vertex

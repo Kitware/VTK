@@ -4,12 +4,13 @@
 
 #include "vtkStreamingStatistics.h"
 
-#include "vtkDataObjectCollection.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkStatisticsAlgorithm.h"
 #include "vtkTable.h"
+
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkStreamingStatistics);
@@ -115,7 +116,7 @@ int vtkStreamingStatistics::RequestData(
   if (!this->StatisticsAlgorithm)
   {
     vtkErrorMacro("StatisticsAlgorithm not set! Punting!");
-    cerr << "StatisticsAlgorithm not set! Punting!" << endl;
+    std::cerr << "StatisticsAlgorithm not set! Punting!\n";
     return 0;
   }
 

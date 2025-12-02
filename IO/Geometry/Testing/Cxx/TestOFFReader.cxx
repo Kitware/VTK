@@ -11,7 +11,7 @@
 #include <vtkPointData.h>
 #include <vtkTestUtilities.h>
 
-#include <cmath>
+#include <iostream>
 
 //------------------------------------------------------------------------------
 int TestOFFReader(int /*argc*/, char** const /*argv*/)

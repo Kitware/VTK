@@ -51,6 +51,8 @@
 #include <iomanip>
 #include <sstream>
 
+#include <iostream>
+
 /*
  * This test has benchmarking code as well as a unit test.
  *

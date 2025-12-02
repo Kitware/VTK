@@ -12,6 +12,7 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <cstdlib>
+#include <iostream>
 
 size_t fileSize(const std::string& filename);
 

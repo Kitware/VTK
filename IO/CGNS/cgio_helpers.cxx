@@ -4,6 +4,8 @@
 
 #include "cgio_helpers.h"
 
+#include <iostream>
+
 namespace CGNSRead
 {
 VTK_ABI_NAMESPACE_BEGIN

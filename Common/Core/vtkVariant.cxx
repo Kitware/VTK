@@ -20,8 +20,11 @@
 
 #include <cassert>
 #include <cctype> // std::isspace
+#include <iostream>
 #include <locale> // C++ locale
 #include <sstream>
+
+using std::cerr;
 
 //------------------------------------------------------------------------------
 
@@ -101,7 +104,7 @@ bool vtkVariantStrictWeakOrder::operator()(const vtkVariant& s1, const vtkVarian
       return (s1.Data.Double < s2.Data.Double);
 
     default:
-      cerr << "ERROR: Unhandled type " << s1.Type << " in vtkVariantStrictWeakOrder\n";
+      std::cerr << "ERROR: Unhandled type " << s1.Type << " in vtkVariantStrictWeakOrder\n";
       return false;
   }
 }
@@ -113,14 +116,14 @@ bool vtkVariantStrictEquality::operator()(const vtkVariant& s1, const vtkVariant
   // First sort on type if they are different
   if (s1.Type != s2.Type)
   {
-    cerr << "Types differ: " << s1.Type << " and " << s2.Type << "\n";
+    std::cerr << "Types differ: " << s1.Type << " and " << s2.Type << "\n";
     return false;
   }
 
   // Next check for nulls
   if (!(s1.Valid && s2.Valid))
   {
-    cerr << "Validity may differ: " << s1.Valid << " and " << s2.Valid << "\n";
+    std::cerr << "Validity may differ: " << s1.Valid << " and " << s2.Valid << "\n";
     return (s1.Valid == s2.Valid);
   }
 
@@ -131,7 +134,8 @@ bool vtkVariantStrictEquality::operator()(const vtkVariant& s1, const vtkVariant
     {
       if (*(s1.Data.String) != *(s2.Data.String))
       {
-        cerr << "Strings differ: '" << *(s1.Data.String) << "' and '" << *(s2.Data.String) << "'\n";
+        std::cerr << "Strings differ: '" << *(s1.Data.String) << "' and '" << *(s2.Data.String)
+                  << "'\n";
       }
       return (*(s1.Data.String) == *(s2.Data.String));
     }
@@ -179,7 +183,7 @@ bool vtkVariantStrictEquality::operator()(const vtkVariant& s1, const vtkVariant
       return (s1.Data.Double == s2.Data.Double);
 
     default:
-      cerr << "ERROR: Unhandled type " << s1.Type << " in vtkVariantStrictEquality\n";
+      std::cerr << "ERROR: Unhandled type " << s1.Type << " in vtkVariantStrictEquality\n";
       return false;
   }
 }

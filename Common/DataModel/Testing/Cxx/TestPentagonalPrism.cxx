@@ -15,6 +15,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 vtkSmartPointer<vtkPentagonalPrism> MakePentagonalPrism();
 vtkSmartPointer<vtkHexagonalPrism> MakeHexagonalPrism();
 

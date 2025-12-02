@@ -11,6 +11,8 @@
 #include "vtkTestUtilities.h"
 #include <string>
 
+#include <iostream>
+
 vtkSmartPointer<vtkUnstructuredGrid> generateIcosidodecaheron()
 {
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();

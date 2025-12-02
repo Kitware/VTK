@@ -25,6 +25,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 bool ValidTessellation(vtkPolygon* polygon, vtkIdList* outTris)
 {
   // Check that there are enough triangles
@@ -98,7 +100,8 @@ int TestPolygonBoundedTriangulate(int, char*[])
 
   if (!success || !ValidTessellation(polygon, outTris))
   {
-    cerr << "ERROR:  vtkPolygon::BoundedTriangulate should triangulate this polygon" << endl;
+    std::cerr << "ERROR:  vtkPolygon::BoundedTriangulate should triangulate this polygon"
+              << std::endl;
     return EXIT_FAILURE;
   }
 

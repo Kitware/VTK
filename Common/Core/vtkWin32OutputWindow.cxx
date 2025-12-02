@@ -11,6 +11,8 @@
 
 #include <mutex>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkWin32OutputWindow);
 
@@ -44,7 +46,7 @@ LRESULT APIENTRY vtkWin32OutputWindowWndProc(HWND hWnd, UINT message, WPARAM wPa
 //------------------------------------------------------------------------------
 vtkWin32OutputWindow::vtkWin32OutputWindow()
 {
-  // Default to sending output to stderr/cerr when running a dashboard
+  // Default to sending output to stderr/std::cerr when running a dashboard
   // and logging is not enabled.
   if (getenv("DART_TEST_FROM_DART") || getenv("DASHBOARD_TEST_FROM_CTEST"))
   {
@@ -94,10 +96,10 @@ void vtkWin32OutputWindow::DisplayText(const char* someText)
       switch (streamtype)
       {
         case StreamType::StdOutput:
-          cout << someText;
+          std::cout << someText;
           break;
         case StreamType::StdError:
-          cerr << someText;
+          std::cerr << someText;
           break;
         default:
           break;
@@ -118,12 +120,12 @@ void vtkWin32OutputWindow::DisplayText(const char* someText)
       switch (streamtype)
       {
         case StreamType::StdOutput:
-          cout << buffer;
-          cout << "\r\n";
+          std::cout << buffer;
+          std::cout << "\r\n";
           break;
         case StreamType::StdError:
-          cerr << buffer;
-          cerr << "\r\n";
+          std::cerr << buffer;
+          std::cerr << "\r\n";
           break;
         default:
           break;

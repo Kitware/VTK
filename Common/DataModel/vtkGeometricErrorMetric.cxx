@@ -9,6 +9,9 @@
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include <cassert>
+#include <iostream>
+
+using std::cout;
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGeometricErrorMetric);
@@ -79,7 +82,7 @@ void vtkGeometricErrorMetric::SetRelativeGeometricTolerance(double value, vtkGen
   }
   double tmp = value * smallest;
   this->SmallestSize = smallest;
-  cout << "this->SmallestSize=" << this->SmallestSize << endl;
+  std::cout << "this->SmallestSize=" << this->SmallestSize << endl;
   this->Relative = 1;
   tmp = tmp * tmp;
 

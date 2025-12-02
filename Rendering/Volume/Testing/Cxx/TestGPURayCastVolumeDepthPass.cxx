@@ -21,9 +21,11 @@
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
 
+#include <iostream>
+
 int TestGPURayCastVolumeDepthPass(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   double scalarRange[2];
 
@@ -101,7 +103,7 @@ int TestGPURayCastVolumeDepthPass(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported" << endl;
+    std::cout << "Required extensions not supported" << std::endl;
   }
 
   return !retVal;

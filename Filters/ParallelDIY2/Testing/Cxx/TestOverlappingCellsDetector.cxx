@@ -24,6 +24,8 @@
 #include "vtkXMLMultiBlockDataReader.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
+#include <iostream>
+
 namespace
 {
 constexpr vtkIdType Collisions[72] = { 6, 0, 6, 0, 4, 4, 6, 0, 10, 7, // 0

@@ -10,16 +10,16 @@
 #include "vtkFieldData.h"
 #include "vtkModelMetadata.h"
 #include "vtkMultiBlockDataSet.h"
-#include "vtkPNGWriter.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
+#include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
-#include "vtkWindowToImageFilter.h"
 
-#include "vtkSmartPointer.h"
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestMultiBlockExodusWrite(int argc, char* argv[])
@@ -61,13 +61,13 @@ int TestMultiBlockExodusWrite(int argc, char* argv[])
   int index;
   if (ifieldData->GetArray("CALIBER", index) == nullptr)
   {
-    cerr << "Expected to find array CALIBER in original data set" << endl;
+    std::cerr << "Expected to find array CALIBER in original data set" << std::endl;
     return 1;
   }
 
   if (ifieldData->GetArray("GUNPOWDER", index) == nullptr)
   {
-    cerr << "Expected to find array GUNPOWDER in original data set" << endl;
+    std::cerr << "Expected to find array GUNPOWDER in original data set" << std::endl;
     return 1;
   }
 
@@ -120,13 +120,13 @@ int TestMultiBlockExodusWrite(int argc, char* argv[])
   ifieldData = elems->GetBlock(0)->GetFieldData();
   if (ifieldData->GetArray("CALIBER", index) == nullptr)
   {
-    cerr << "Array CALIBER was not written to output" << endl;
+    std::cerr << "Array CALIBER was not written to output" << std::endl;
     return 1;
   }
 
   if (ifieldData->GetArray("GUNPOWDER", index) == nullptr)
   {
-    cerr << "Array GUNPOWDER was not written to output" << endl;
+    std::cerr << "Array GUNPOWDER was not written to output" << std::endl;
     return 1;
   }
 

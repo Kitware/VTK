@@ -13,12 +13,14 @@
 #include "vtkRenderer.h"
 #include "vtkTextProperty.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestFreeTypeTextMapperNoMath(int argc, char* argv[])
 {
   if (argc < 2)
   {
-    cerr << "Missing font filename." << endl;
+    std::cerr << "Missing font filename." << std::endl;
     return EXIT_FAILURE;
   }
 

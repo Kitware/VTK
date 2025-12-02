@@ -17,6 +17,8 @@
 
 #include "vtkLight.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestSRGB(int argc, char* argv[])
 {
@@ -104,8 +106,9 @@ int TestSRGB(int argc, char* argv[])
   }
 
   renderWindow->Render();
-  cout << "Render window sRGB status: "
-       << static_cast<vtkOpenGLRenderWindow*>(renderWindow.Get())->GetUsingSRGBColorSpace() << "\n";
+  std::cout << "Render window sRGB status: "
+            << static_cast<vtkOpenGLRenderWindow*>(renderWindow.Get())->GetUsingSRGBColorSpace()
+            << "\n";
   int retVal = vtkRegressionTestImage(renderWindow.Get());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
   {

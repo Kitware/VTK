@@ -29,6 +29,9 @@
 #include <QTreeView>
 
 #include "vtkSmartPointer.h"
+
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 // Constructor
@@ -127,7 +130,7 @@ void CustomLinkView::slotOpenXMLFile()
 
   if (fileName.isNull())
   {
-    cerr << "Could not open file" << endl;
+    std::cerr << "Could not open file" << endl;
     return;
   }
 

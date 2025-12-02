@@ -6,6 +6,8 @@
 #include <vtkPolyPointSource.h>
 #include <vtkSmartPointer.h>
 
+#include <iostream>
+
 int TestPolyPointSource(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkSmartPointer<vtkPolyPointSource> source = vtkSmartPointer<vtkPolyPointSource>::New();

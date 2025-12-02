@@ -5,6 +5,8 @@
 #include "vtkRenderer.h"
 #include "vtkStringScanner.h"
 
+#include <iostream>
+
 /**
  * This unit test exercises many render windows can be created
  * and destroyed in succession. It is developed to prevent

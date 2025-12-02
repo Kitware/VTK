@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <iostream>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -155,7 +156,7 @@ int vtkAMRResampleFilter::RequestInformation(vtkInformation* vtkNotUsed(rqst),
 int vtkAMRResampleFilter::RequestData(vtkInformation* vtkNotUsed(rqst),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  cerr << "Running Resampler\n";
+  std::cerr << "Running Resampler\n";
 
   // STEP 0: Get input object
   vtkInformation* input = inputVector[0]->GetInformationObject(0);
@@ -884,8 +885,8 @@ void vtkAMRResampleFilter::ComputeAMRBlocksToLoad(vtkOverlappingAMR* metadata)
   }     // END for all levels
 
   std::sort(this->BlocksToLoad.begin(), this->BlocksToLoad.end());
-  cerr << "Number Levels Loaded = " << maxLevelToLoad
-       << " Number of Blocks = " << BlocksToLoad.size() << "\n";
+  std::cerr << "Number Levels Loaded = " << maxLevelToLoad
+            << " Number of Blocks = " << BlocksToLoad.size() << "\n";
 }
 
 //------------------------------------------------------------------------------

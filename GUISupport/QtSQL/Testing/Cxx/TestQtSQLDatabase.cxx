@@ -18,13 +18,15 @@
 #include <QStringList>
 #include <QTableView>
 
+#include <iostream>
+
 int TestQtSQLDatabase(int argc, char* argv[])
 {
   QApplication app(argc, argv);
   // QCoreApplication app(argc, argv);
   // for (int i = 0; i < QCoreApplication::libraryPaths().count(); i++)
   //  {
-  //  cerr << QCoreApplication::libraryPaths().at(i).toUtf8().data() << endl;
+  //  std::cerr << QCoreApplication::libraryPaths().at(i).toUtf8().data() << endl;
   //  }
 
   bool interactive = false;
@@ -95,15 +97,15 @@ int TestQtSQLDatabase(int argc, char* argv[])
       continue;
     }
 
-    cerr << argv[0] << " Options:\n"
-         << " -I (interactive, shows Qt table with query result)\n"
-         << " -t database type (QSQLITE, QMYSQL, etc.; default: QSQLITE)\n"
-         << " -h host (default: :memory:)\n"
-         << " -p port (default: empty)\n"
-         << " -d database (default: test)\n"
-         << " -u username (default: empty)\n"
-         << " -w (password required; default: no password required)\n"
-         << " -q (query; default: select * from people ...)\n";
+    std::cerr << argv[0] << " Options:\n"
+              << " -I (interactive, shows Qt table with query result)\n"
+              << " -t database type (QSQLITE, QMYSQL, etc.; default: QSQLITE)\n"
+              << " -h host (default: :memory:)\n"
+              << " -p port (default: empty)\n"
+              << " -d database (default: test)\n"
+              << " -u username (default: empty)\n"
+              << " -w (password required; default: no password required)\n"
+              << " -q (query; default: select * from people ...)\n";
     return 0;
   }
 
@@ -120,7 +122,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
   db->SetDbPort(port);
   if (!db->Open(password.toUtf8().data()))
   {
-    cerr << "Unable to open database" << endl;
+    std::cerr << "Unable to open database" << endl;
     return 1;
   }
   vtkSQLQuery* query = db->GetQueryInstance();
@@ -136,11 +138,11 @@ int TestQtSQLDatabase(int argc, char* argv[])
   if (!dataExists)
   {
     QString createQuery("CREATE TABLE IF NOT EXISTS people (name TEXT, age INTEGER, weight FLOAT)");
-    cout << createQuery.toUtf8().data() << endl;
+    std::cout << createQuery.toUtf8().data() << endl;
     query->SetQuery(createQuery.toUtf8().data());
     if (!query->Execute())
     {
-      cerr << "Create query failed" << endl;
+      std::cerr << "Create query failed" << endl;
       return 1;
     }
 
@@ -148,62 +150,62 @@ int TestQtSQLDatabase(int argc, char* argv[])
     {
       QString insertQuery =
         QString("INSERT INTO people VALUES('John Doe %1', %1, %2)").arg(i).arg(10 * i);
-      cout << insertQuery.toUtf8().data() << endl;
+      std::cout << insertQuery.toUtf8().data() << endl;
       query->SetQuery(insertQuery.toUtf8().data());
       if (!query->Execute())
       {
-        cerr << "Insert query failed" << endl;
+        std::cerr << "Insert query failed" << endl;
         return 1;
       }
     }
   }
 
   query->SetQuery(queryText.toUtf8().data());
-  cerr << endl << "Running query: " << query->GetQuery() << endl;
+  std::cerr << endl << "Running query: " << query->GetQuery() << endl;
 
-  cerr << endl << "Using vtkSQLQuery directly to execute query:" << endl;
+  std::cerr << endl << "Using vtkSQLQuery directly to execute query:" << endl;
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << endl;
     return 1;
   }
   for (int col = 0; col < query->GetNumberOfFields(); col++)
   {
     if (col > 0)
     {
-      cerr << ", ";
+      std::cerr << ", ";
     }
-    cerr << query->GetFieldName(col);
+    std::cerr << query->GetFieldName(col);
   }
-  cerr << endl;
+  std::cerr << endl;
   while (query->NextRow())
   {
     for (int field = 0; field < query->GetNumberOfFields(); field++)
     {
       if (field > 0)
       {
-        cerr << ", ";
+        std::cerr << ", ";
       }
-      cerr << query->DataValue(field).ToString();
+      std::cerr << query->DataValue(field).ToString();
     }
-    cerr << endl;
+    std::cerr << endl;
   }
 
-  cerr << endl << "Using vtkSQLQuery to execute query and retrieve by row:" << endl;
+  std::cerr << endl << "Using vtkSQLQuery to execute query and retrieve by row:" << endl;
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << endl;
     return 1;
   }
   for (int col = 0; col < query->GetNumberOfFields(); col++)
   {
     if (col > 0)
     {
-      cerr << ", ";
+      std::cerr << ", ";
     }
-    cerr << query->GetFieldName(col);
+    std::cerr << query->GetFieldName(col);
   }
-  cerr << endl;
+  std::cerr << endl;
   vtkVariantArray* va = vtkVariantArray::New();
   while (query->NextRow(va))
   {
@@ -211,31 +213,31 @@ int TestQtSQLDatabase(int argc, char* argv[])
     {
       if (field > 0)
       {
-        cerr << ", ";
+        std::cerr << ", ";
       }
-      cerr << va->GetValue(field).ToString();
+      std::cerr << va->GetValue(field).ToString();
     }
-    cerr << endl;
+    std::cerr << endl;
   }
   va->Delete();
 
-  cerr << endl << "Using vtkRowQueryToTable to execute query:" << endl;
+  std::cerr << endl << "Using vtkRowQueryToTable to execute query:" << endl;
   vtkRowQueryToTable* reader = vtkRowQueryToTable::New();
   reader->SetQuery(query);
   reader->Update();
   vtkTable* table = reader->GetOutput();
   for (vtkIdType col = 0; col < table->GetNumberOfColumns(); col++)
   {
-    table->GetColumn(col)->Print(cerr);
+    table->GetColumn(col)->Print(std::cerr);
   }
-  cerr << endl;
+  std::cerr << endl;
   for (vtkIdType row = 0; row < table->GetNumberOfRows(); row++)
   {
     for (vtkIdType col = 0; col < table->GetNumberOfColumns(); col++)
     {
       vtkVariant v = table->GetValue(row, col);
-      cerr << "row " << row << ", col " << col << " - " << v.ToString() << " ("
-           << vtkImageScalarTypeNameMacro(v.GetType()) << ")" << endl;
+      std::cerr << "row " << row << ", col " << col << " - " << v.ToString() << " ("
+                << vtkImageScalarTypeNameMacro(v.GetType()) << ")" << endl;
     }
   }
 

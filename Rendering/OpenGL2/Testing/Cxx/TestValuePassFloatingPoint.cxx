@@ -36,6 +36,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkValuePass.h"
 
+#include <iostream>
+
 void GenerateElevationArray(vtkSmartPointer<vtkPolyDataAlgorithm> source)
 {
   vtkPolyData* data = source->GetOutput();

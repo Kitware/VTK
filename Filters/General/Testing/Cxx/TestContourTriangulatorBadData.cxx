@@ -22,6 +22,8 @@
 
 #include <string>
 
+#include <iostream>
+
 int TestContourTriangulatorBadData(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testHelper;

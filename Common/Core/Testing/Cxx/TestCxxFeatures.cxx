@@ -96,13 +96,13 @@ int TestFullySpecializedFunction()
   int should_be_0 = FullySpecializedFunction(static_cast<float*>(0));
   if (should_be_0 != 0)
   {
-    cerr << "FullySpecializedFunction<float*>() returned " << should_be_0 << ", not 0.\n";
+    std::cerr << "FullySpecializedFunction<float*>() returned " << should_be_0 << ", not 0.\n";
     result = 0;
   }
   int should_be_1 = FullySpecializedFunction(static_cast<int*>(0));
   if (should_be_1 != 1)
   {
-    cerr << "FullySpecializedFunction(int*) returned " << should_be_1 << ", not 1.\n";
+    std::cerr << "FullySpecializedFunction(int*) returned " << should_be_1 << ", not 1.\n";
     result = 0;
   }
   return result;
@@ -206,18 +206,18 @@ int TestFullySpecializedClass()
   int should_be_0 = FullySpecializedClass<int>::Method();
   if (should_be_0 != 0)
   {
-    cerr << "FullySpecializedClass<int>::Method() returned " << should_be_0 << ", not 0.\n";
+    std::cerr << "FullySpecializedClass<int>::Method() returned " << should_be_0 << ", not 0.\n";
     result = 0;
   }
   int should_be_1 = FullySpecializedClass<float>::Method();
   if (should_be_1 != 1)
   {
-    cerr << "FullySpecializedClass<float>::Method() returned " << should_be_1 << ", not 1.\n";
+    std::cerr << "FullySpecializedClass<float>::Method() returned " << should_be_1 << ", not 1.\n";
     result = 0;
   }
   if (!TestFullySpecializedClassTrait(static_cast<float*>(0)))
   {
-    cerr << "Trait lookup of float didn't produce int.";
+    std::cerr << "Trait lookup of float didn't produce int.";
     result = 0;
   }
   return result;
@@ -234,7 +234,7 @@ int TestIfScopeHelper(int i)
   {
     if (x != i)
     {
-      cerr << "TestIfScope: x != " << i << "\n";
+      std::cerr << "TestIfScope: x != " << i << "\n";
       result = 0;
     }
   }
@@ -242,7 +242,7 @@ int TestIfScopeHelper(int i)
   {
     if (x != i)
     {
-      cerr << "TestIfScope: x != " << i << "\n";
+      std::cerr << "TestIfScope: x != " << i << "\n";
       result = 0;
     }
   }
@@ -279,17 +279,17 @@ int TestNonTypeTemplate()
   int result = 1;
   if (NonTypeTemplate<0>::GetValue() != 0)
   {
-    cerr << "NonTypeTemplate<0>::GetValue() != 0\n";
+    std::cerr << "NonTypeTemplate<0>::GetValue() != 0\n";
     result = 0;
   }
   if (NonTypeTemplate<1>::GetValue() != 1)
   {
-    cerr << "NonTypeTemplate<1>::GetValue() != 1\n";
+    std::cerr << "NonTypeTemplate<1>::GetValue() != 1\n";
     result = 0;
   }
   if (NonTypeTemplate<2>::GetValue() != 2)
   {
-    cerr << "NonTypeTemplate<2>::GetValue() != 2\n";
+    std::cerr << "NonTypeTemplate<2>::GetValue() != 2\n";
     result = 0;
   }
   return result;
@@ -311,12 +311,12 @@ int TestMixedTypeTemplate()
   int result = 1;
   if (TestMixedTypeTemplateFunction(&x2) != 2)
   {
-    cerr << "TestMixedTypeTemplateFunction(&x2) != 2\n";
+    std::cerr << "TestMixedTypeTemplateFunction(&x2) != 2\n";
     result = 0;
   }
   if (TestMixedTypeTemplateFunction(&x3) != 3)
   {
-    cerr << "TestMixedTypeTemplateFunction(&x3) != 3\n";
+    std::cerr << "TestMixedTypeTemplateFunction(&x3) != 3\n";
     result = 0;
   }
   return result;
@@ -355,17 +355,17 @@ int TestSafeBoolIdiom()
   }
   else
   {
-    cerr << "if(cTrue) evaluates to false.\n";
+    std::cerr << "if(cTrue) evaluates to false.\n";
     result = 0;
   }
   if (!cTrue)
   {
-    cerr << "if(!cTrue) evaluates to true.\n";
+    std::cerr << "if(!cTrue) evaluates to true.\n";
     result = 0;
   }
   if (cFalse)
   {
-    cerr << "if(cFalse) evaluates to true.\n";
+    std::cerr << "if(cFalse) evaluates to true.\n";
     result = 0;
   }
   if (!cFalse)
@@ -373,7 +373,7 @@ int TestSafeBoolIdiom()
   }
   else
   {
-    cerr << "if(!cFalse) evaluates to false.\n";
+    std::cerr << "if(!cFalse) evaluates to false.\n";
     result = 0;
   }
   return result;
@@ -427,16 +427,16 @@ int TestException()
     }
     else
     {
-      cerr << "TestExceptionUnwind object not destroyed!" << endl;
+      std::cerr << "TestExceptionUnwind object not destroyed!" << std::endl;
       return 0;
     }
   }
   catch (...)
   {
-    cerr << "ExceptionClass not caught!" << endl;
+    std::cerr << "ExceptionClass not caught!" << std::endl;
     return 0;
   }
-  cerr << "No exception caught!" << endl;
+  std::cerr << "No exception caught!" << std::endl;
   return 0;
 }
 
@@ -462,6 +462,9 @@ static int TestDriverDebugReport(int type, char* message, int* retVal)
 
 /* Test setlocale  */
 #include <locale.h>
+
+#include <iostream>
+
 int TestSetLocale()
 {
   char* oldLocale = strdup(setlocale(LC_NUMERIC, nullptr));
@@ -482,11 +485,11 @@ int TestSetLocale()
 #define DO_TEST(x)                                                                                 \
   if (x())                                                                                         \
   {                                                                                                \
-    cout << "Passed: " #x "\n";                                                                    \
+    std::cout << "Passed: " #x "\n";                                                               \
   }                                                                                                \
   else                                                                                             \
   {                                                                                                \
-    cout << "Failed: " #x "\n";                                                                    \
+    std::cout << "Failed: " #x "\n";                                                               \
     result = 1;                                                                                    \
   }
 

@@ -15,6 +15,8 @@
 #include "vtkSelectVisiblePoints.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 int GetNumberOfVisiblePoints(vtkSelectVisiblePoints* selectVisiblePoints, vtkPoints* points)
 {
   // Points on the back side of the sphere should not be visible

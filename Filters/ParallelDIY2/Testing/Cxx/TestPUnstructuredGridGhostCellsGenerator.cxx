@@ -20,6 +20,8 @@
 #include <sstream>
 #include <string>
 
+#include <iostream>
+
 namespace
 {
 // An RTAnalyticSource that generates GlobalNodeIds
@@ -80,7 +82,7 @@ bool CheckFieldData(vtkFieldData* fd)
   vtkUnsignedCharArray* fdArray = vtkUnsignedCharArray::SafeDownCast(fd->GetArray("FieldData"));
   if (!fdArray || fdArray->GetValue(0) != 2)
   {
-    cerr << "Field data array value is not the same as the input" << endl;
+    std::cerr << "Field data array value is not the same as the input" << std::endl;
     return false;
   }
 
@@ -91,12 +93,12 @@ bool CheckCellDataArray(vtkUnstructuredGrid* unstructuredGrid, vtkDataArray* da)
 {
   if (!da)
   {
-    cerr << "Cell data not found." << endl;
+    std::cerr << "Cell data not found." << std::endl;
     return false;
   }
   if (da->GetNumberOfTuples() <= 0)
   {
-    cerr << "Cell data has no data." << endl;
+    std::cerr << "Cell data has no data." << std::endl;
     return false;
   }
 
@@ -180,7 +182,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
 
   if (!CheckCellData(initialGrid))
   {
-    cerr << "Cell data was not initialized correctly" << std::endl;
+    std::cerr << "Cell data was not initialized correctly" << std::endl;
     ret = EXIT_FAILURE;
   }
 
@@ -196,8 +198,8 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   if (!vtkUnstructuredGrid::SafeDownCast(ghostGenerator->GetOutputDataObject(0))
          ->GetCellGhostArray())
   {
-    cerr << "Ghost were not generated but were explicitly requested on process "
-         << controller->GetLocalProcessId() << endl;
+    std::cerr << "Ghost were not generated but were explicitly requested on process "
+              << controller->GetLocalProcessId() << std::endl;
     ret = EXIT_FAILURE;
   }
 
@@ -207,8 +209,8 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   if (vtkUnstructuredGrid::SafeDownCast(ghostGenerator->GetOutputDataObject(0))
         ->GetCellGhostArray())
   {
-    cerr << "Ghost were generated but were not requested on process "
-         << controller->GetLocalProcessId() << endl;
+    std::cerr << "Ghost were generated but were not requested on process "
+              << controller->GetLocalProcessId() << std::endl;
     ret = EXIT_FAILURE;
   }
 
@@ -216,14 +218,14 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
   ghostGenerator->Update();
   if (!CheckFieldData(ghostGenerator->GetOutput()->GetFieldData()))
   {
-    cerr << "Field data was not copied correctly" << std::endl;
+    std::cerr << "Field data was not copied correctly" << std::endl;
     ret = EXIT_FAILURE;
   }
 
   auto recievedGrid = vtkUnstructuredGrid::SafeDownCast(ghostGenerator->GetOutputDataObject(0));
   if (!CheckCellData(recievedGrid))
   {
-    cerr << "Cell data was not copied correctly" << std::endl;
+    std::cerr << "Cell data was not copied correctly" << std::endl;
     ret = EXIT_FAILURE;
   }
 
@@ -257,12 +259,12 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
 
       if (!CheckFieldData(outGrids[step]->GetFieldData()))
       {
-        cerr << "Field data was not copied" << std::endl;
+        std::cerr << "Field data was not copied" << std::endl;
         ret = EXIT_FAILURE;
       }
       if (!CheckCellData(outGrids[step]))
       {
-        cerr << "Cell data was not copied" << std::endl;
+        std::cerr << "Cell data was not copied" << std::endl;
         ret = EXIT_FAILURE;
       }
 
@@ -278,8 +280,8 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
       avgGhostUpdateTime /= static_cast<double>(nbRanks);
       if (controller->GetLocalProcessId() == 0)
       {
-        cerr << "-- Ghost Level: " << ghostLevel << " Elapsed Time: min=" << minGhostUpdateTime
-             << ", avg=" << avgGhostUpdateTime << ", max=" << maxGhostUpdateTime << endl;
+        std::cerr << "-- Ghost Level: " << ghostLevel << " Elapsed Time: min=" << minGhostUpdateTime
+                  << ", avg=" << avgGhostUpdateTime << ", max=" << maxGhostUpdateTime << std::endl;
       }
     }
 
@@ -306,8 +308,8 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
       {
         if (outGrids[step]->GetNumberOfCells() != correctCellCounts[ghostLevel - 1])
         {
-          cerr << "Wrong number of cells on process " << myRank << " for " << ghostLevel
-               << " ghost levels!\n";
+          std::cerr << "Wrong number of cells on process " << myRank << " for " << ghostLevel
+                    << " ghost levels!\n";
           ret = EXIT_FAILURE;
         }
         double bounds[6];
@@ -316,7 +318,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
         {
           if (std::abs(bounds[i] - correctBounds[ghostLevel - 1][myRank][i]) > .001)
           {
-            cerr << "Wrong bounds for " << ghostLevel << " ghost levels!\n";
+            std::cerr << "Wrong bounds for " << ghostLevel << " ghost levels!\n";
             ret = EXIT_FAILURE;
           }
         }
@@ -326,14 +328,14 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
         vtkArrayDownCast<vtkUnsignedCharArray>(outGrids[step]->GetCellGhostArray());
       if (initialNbOfCells >= outGrids[step]->GetNumberOfCells())
       {
-        cerr << "Obtained grids for ghost level " << ghostLevel
-             << " has less or as many cells as the input grid!\n";
+        std::cerr << "Obtained grids for ghost level " << ghostLevel
+                  << " has less or as many cells as the input grid!\n";
         ret = EXIT_FAILURE;
       }
       if (!ghosts)
       {
-        cerr << "Ghost cells array not found at ghost level " << ghostLevel << ", step " << step
-             << "!\n";
+        std::cerr << "Ghost cells array not found at ghost level " << ghostLevel << ", step "
+                  << step << "!\n";
         ret = EXIT_FAILURE;
         continue;
       }
@@ -343,15 +345,15 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
         unsigned char val = ghosts->GetValue(i);
         if (i < initialNbOfCells && val != 0)
         {
-          cerr << "Ghost Level " << ghostLevel << " Cell " << i
-               << " is not supposed to be a ghost cell but it is!\n";
+          std::cerr << "Ghost Level " << ghostLevel << " Cell " << i
+                    << " is not supposed to be a ghost cell but it is!\n";
           ret = EXIT_FAILURE;
           break;
         }
         if (i >= initialNbOfCells && val != 1)
         {
-          cerr << "Ghost Level " << ghostLevel << " Cell " << i
-               << " is supposed to be a ghost cell but it's not!\n";
+          std::cerr << "Ghost Level " << ghostLevel << " Cell " << i
+                    << " is supposed to be a ghost cell but it's not!\n";
           ret = EXIT_FAILURE;
           break;
         }

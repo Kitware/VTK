@@ -6,6 +6,9 @@
 // clang-format off
 #include "vtk_xdmf3.h"
 #include VTKXDMF3_HEADER(core/XdmfArray.hpp)
+
+#include <iostream>
+
 // clang-format on
 
 //------------------------------------------------------------------------------
@@ -51,6 +54,6 @@ void vtkXdmf3ArrayKeeper::Release(bool force)
       // cnt++;
     }
   }
-  // cerr << "released " << cnt << "/" << total << " arrays" << endl;
+  // std::cerr << "released " << cnt << "/" << total << " arrays" << endl;
 }
 VTK_ABI_NAMESPACE_END

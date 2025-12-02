@@ -11,6 +11,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkXMLPolyDataReader.h"
 
+#include <iostream>
+
 static bool TestCell(vtkDataSet* ds, vtkIdType cellId, double x1[3], double x2[3], double tol)
 {
   double t = 0.0;

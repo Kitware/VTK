@@ -13,8 +13,10 @@
 #include "vtkPointData.h"
 #include "vtkTextureObject.h"
 #include "vtkXMLMultiBlockDataWriter.h"
+
 #include <cstddef>
 #include <deque>
+#include <iostream>
 #include <sstream>
 
 using std::deque;
@@ -87,7 +89,7 @@ void vtkTextureIO::Write(
   ta->Delete();
 
   vtkDataSetWriter* w = vtkDataSetWriter::New();
-  cerr << "writing to: " << filename << endl;
+  std::cerr << "writing to: " << filename << std::endl;
   w->SetFileName(filename);
   w->SetInputData(id);
   w->Write();
@@ -137,7 +139,7 @@ void vtkTextureIO::Write(const char* filename, vtkTextureObject* texture,
   }
 
   vtkXMLMultiBlockDataWriter* w = vtkXMLMultiBlockDataWriter::New();
-  cerr << "writing to: " << filename << endl;
+  std::cerr << "writing to: " << filename << std::endl;
   w->SetFileName(filename);
   w->SetInputData(mb);
   w->Write();

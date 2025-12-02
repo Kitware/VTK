@@ -18,6 +18,8 @@
 #include "vtkVariantArray.h"
 #include <vector>
 
+#include <iostream>
+
 int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
 {
   // This test requires the user in VTK_PSQL_TEST_URL to have
@@ -33,21 +35,21 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   bool status = db->Open();
   if (!status)
   {
-    cerr << "Couldn't open database.\nError message: \"" << db->GetLastErrorText() << "\"\n";
+    std::cerr << "Couldn't open database.\nError message: \"" << db->GetLastErrorText() << "\"\n";
     db->Delete();
     return 1;
   }
 
   vtkStringArray* dbNames = db->GetDatabases();
-  cout << "Database list:\n";
+  std::cout << "Database list:\n";
   for (int dbi = 0; dbi < dbNames->GetNumberOfValues(); ++dbi)
   {
-    cout << "+ " << dbNames->GetValue(dbi) << endl;
+    std::cout << "+ " << dbNames->GetValue(dbi) << std::endl;
   }
   dbNames->Delete();
   if (!db->CreateDatabase(realDatabase.c_str(), true))
   {
-    cerr << "Error: " << db->GetLastErrorText() << endl;
+    std::cerr << "Error: " << db->GetLastErrorText() << std::endl;
   }
 
   vtkSQLQuery* query = db->GetQueryInstance();
@@ -60,31 +62,31 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
 
   if (!db->Open())
   {
-    cerr << "Error: " << db->GetLastErrorText() << endl;
+    std::cerr << "Error: " << db->GetLastErrorText() << std::endl;
   }
 
   // Test that bad queries fail without segfaulting...
   std::string dropQuery("DROP TABLE people");
-  cout << dropQuery << endl;
+  std::cout << dropQuery << std::endl;
   query->SetQuery(dropQuery.c_str());
   if (!query->Execute())
   {
-    cout << "Drop query did not succeed (this result *** was *** expected). The last message: "
-         << endl;
-    cout << "   " << query->GetLastErrorText() << endl;
+    std::cout << "Drop query did not succeed (this result *** was *** expected). The last message: "
+              << std::endl;
+    std::cout << "   " << query->GetLastErrorText() << std::endl;
   }
   else
   {
-    cerr << "The query \"DROP TABLE people\" succeeded when it should not have.\n";
+    std::cerr << "The query \"DROP TABLE people\" succeeded when it should not have.\n";
   }
 
   // Test table creation, insertion, queries
   std::string createQuery("CREATE TABLE people (name TEXT, age INTEGER, weight FLOAT)");
-  cout << createQuery << endl;
+  std::cout << createQuery << std::endl;
   query->SetQuery(createQuery.c_str());
   if (!query->Execute())
   {
-    cerr << "Create query failed" << endl;
+    std::cerr << "Create query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
@@ -94,11 +96,11 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   {
     auto insertQuery =
       vtk::format("INSERT INTO people VALUES('John Manyjars {:d}', {:d}, {:d})", i, i, 10 * i);
-    cout << insertQuery << endl;
+    std::cout << insertQuery << std::endl;
     query->SetQuery(insertQuery);
     if (!query->Execute())
     {
-      cerr << "Insert query " << i << " failed" << endl;
+      std::cerr << "Insert query " << i << " failed" << std::endl;
       query->Delete();
       db->Delete();
       return 1;
@@ -107,12 +109,12 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
 
   const char* queryText = "SELECT name, age, weight FROM people WHERE age <= 20";
   query->SetQuery(queryText);
-  cerr << endl << "Running query: " << query->GetQuery() << endl;
+  std::cerr << std::endl << "Running query: " << query->GetQuery() << std::endl;
 
-  cerr << endl << "Using vtkSQLQuery directly to execute query:" << endl;
+  std::cerr << std::endl << "Using vtkSQLQuery directly to execute query:" << std::endl;
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
@@ -122,28 +124,28 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   {
     if (col > 0)
     {
-      cerr << ", ";
+      std::cerr << ", ";
     }
-    cerr << query->GetFieldName(col);
+    std::cerr << query->GetFieldName(col);
   }
-  cerr << endl;
+  std::cerr << std::endl;
   while (query->NextRow())
   {
     for (int field = 0; field < query->GetNumberOfFields(); ++field)
     {
       if (field > 0)
       {
-        cerr << ", ";
+        std::cerr << ", ";
       }
-      cerr << query->DataValue(field).ToString();
+      std::cerr << query->DataValue(field).ToString();
     }
-    cerr << endl;
+    std::cerr << std::endl;
   }
 
-  cerr << endl << "Using vtkSQLQuery to execute query and retrieve by row:" << endl;
+  std::cerr << std::endl << "Using vtkSQLQuery to execute query and retrieve by row:" << std::endl;
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
@@ -152,11 +154,11 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   {
     if (col > 0)
     {
-      cerr << ", ";
+      std::cerr << ", ";
     }
-    cerr << query->GetFieldName(col);
+    std::cerr << query->GetFieldName(col);
   }
-  cerr << endl;
+  std::cerr << std::endl;
   vtkVariantArray* va = vtkVariantArray::New();
   while (query->NextRow(va))
   {
@@ -164,38 +166,38 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
     {
       if (field > 0)
       {
-        cerr << ", ";
+        std::cerr << ", ";
       }
-      cerr << va->GetValue(field).ToString();
+      std::cerr << va->GetValue(field).ToString();
     }
-    cerr << endl;
+    std::cerr << std::endl;
   }
   va->Delete();
 
-  cerr << endl << "Using vtkRowQueryToTable to execute query:" << endl;
+  std::cerr << std::endl << "Using vtkRowQueryToTable to execute query:" << std::endl;
   vtkRowQueryToTable* reader = vtkRowQueryToTable::New();
   reader->SetQuery(query);
   reader->Update();
   vtkTable* table = reader->GetOutput();
   for (vtkIdType col = 0; col < table->GetNumberOfColumns(); ++col)
   {
-    table->GetColumn(col)->Print(cerr);
+    table->GetColumn(col)->Print(std::cerr);
   }
-  cerr << endl;
+  std::cerr << std::endl;
   for (vtkIdType row = 0; row < table->GetNumberOfRows(); ++row)
   {
     for (vtkIdType col = 0; col < table->GetNumberOfColumns(); ++col)
     {
       vtkVariant v = table->GetValue(row, col);
-      cerr << "row " << row << ", col " << col << " - " << v.ToString() << " ("
-           << vtkImageScalarTypeNameMacro(v.GetType()) << ")" << endl;
+      std::cerr << "row " << row << ", col " << col << " - " << v.ToString() << " ("
+                << vtkImageScalarTypeNameMacro(v.GetType()) << ")" << std::endl;
     }
   }
 
   query->SetQuery("DROP TABLE people");
   if (!query->Execute())
   {
-    cerr << "DROP TABLE people query failed" << endl;
+    std::cerr << "DROP TABLE people query failed" << std::endl;
     reader->Delete();
     query->Delete();
     db->Delete();
@@ -213,14 +215,14 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   DatabaseSchemaWith2Tables schema;
 
   // 2. Convert the schema into a PostgreSQL database
-  cerr << "@@ Converting the schema into a PostgreSQL database...";
+  std::cerr << "@@ Converting the schema into a PostgreSQL database...";
 
   db = vtkPostgreSQLDatabase::SafeDownCast(vtkSQLDatabase::CreateFromURL(VTK_PSQL_TEST_URL));
   status = db->Open();
 
   if (!status)
   {
-    cerr << "Couldn't open database.\nError: \"" << db->GetLastErrorText() << "\"\n";
+    std::cerr << "Couldn't open database.\nError: \"" << db->GetLastErrorText() << "\"\n";
     db->Delete();
     return 1;
   }
@@ -228,20 +230,20 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   status = db->EffectSchema(schema.GetSchema());
   if (!status)
   {
-    cerr << "Could not effect test schema.\n";
+    std::cerr << "Could not effect test schema.\n";
     db->Delete();
     return 1;
   }
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // 3. Count tables of the newly created database
-  cerr << "@@ Counting tables of the newly created database... ";
+  std::cerr << "@@ Counting tables of the newly created database... ";
 
   query = db->GetQueryInstance();
   query->SetQuery("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'");
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
@@ -257,28 +259,29 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
 
   if (numTbl != schema->GetNumberOfTables())
   {
-    cerr << "Found an incorrect number of tables: " << numTbl
-         << " != " << schema->GetNumberOfTables() << endl;
+    std::cerr << "Found an incorrect number of tables: " << numTbl
+              << " != " << schema->GetNumberOfTables() << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << numTbl << " found.\n";
+  std::cerr << numTbl << " found.\n";
 
   // 4. Inspect these tables
-  cerr << "@@ Inspecting these tables..."
-       << "\n";
+  std::cerr << "@@ Inspecting these tables..."
+            << "\n";
   int tblHandle = schema.GetTableBHandle();
   std::string queryStr;
   for (tblHandle = 0; tblHandle < numTbl; ++tblHandle)
   {
     std::string tblName(schema->GetTableNameFromHandle(tblHandle));
-    cerr << "   Table: " << tblName << "\n";
+    std::cerr << "   Table: " << tblName << "\n";
 
     if (tblName != tables[tblHandle])
     {
-      cerr << "Fetched an incorrect name: " << tables[tblHandle] << " != " << tblName << endl;
+      std::cerr << "Fetched an incorrect name: " << tables[tblHandle] << " != " << tblName
+                << std::endl;
       query->Delete();
       db->Delete();
       return 1;
@@ -292,7 +295,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
     query->SetQuery(queryStr);
     if (!query->Execute())
     {
-      cerr << "Query failed" << endl;
+      std::cerr << "Query failed" << std::endl;
       query->Delete();
       db->Delete();
       return 1;
@@ -306,30 +309,30 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
       {
         if (field)
         {
-          cerr << ", ";
+          std::cerr << ", ";
         }
         else // if ( field )
         {
           std::string colName(schema->GetColumnNameFromHandle(tblHandle, colHandle));
           if (colName != query->DataValue(field).ToString())
           {
-            cerr << "Found an incorrect column name: " << query->DataValue(field).ToString()
-                 << " != " << colName << endl;
+            std::cerr << "Found an incorrect column name: " << query->DataValue(field).ToString()
+                      << " != " << colName << std::endl;
             query->Delete();
             db->Delete();
             return 1;
           }
-          cerr << "     Column: ";
+          std::cerr << "     Column: ";
         }
-        cerr << query->DataValue(field).ToString();
+        std::cerr << query->DataValue(field).ToString();
       }
-      cerr << endl;
+      std::cerr << std::endl;
     }
 
     if (colHandle != schema->GetNumberOfColumnsInTable(tblHandle))
     {
-      cerr << "Found an incorrect number of columns: " << colHandle
-           << " != " << schema->GetNumberOfColumnsInTable(tblHandle) << endl;
+      std::cerr << "Found an incorrect number of columns: " << colHandle
+                << " != " << schema->GetNumberOfColumnsInTable(tblHandle) << std::endl;
       query->Delete();
       db->Delete();
       return 1;
@@ -337,13 +340,13 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   }
 
   // 5. Populate these tables using the trigger mechanism
-  cerr << "@@ Populating table atable...";
+  std::cerr << "@@ Populating table atable...";
 
   queryStr = "INSERT INTO atable (somename,somenmbr) VALUES ( 'Bas-Rhin', 67 )";
   query->SetQuery(queryStr);
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
@@ -353,7 +356,7 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   query->SetQuery(queryStr);
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
@@ -363,77 +366,77 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
   query->SetQuery(queryStr);
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // 6. Check that the trigger-dependent table has indeed been populated
-  cerr << "@@ Checking trigger-dependent table btable...\n";
+  std::cerr << "@@ Checking trigger-dependent table btable...\n";
 
   queryStr = "SELECT somevalue FROM btable ORDER BY somevalue DESC";
   query->SetQuery(queryStr);
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << "   Entries in column somevalue of table btable, in descending order:\n";
+  std::cerr << "   Entries in column somevalue of table btable, in descending order:\n";
   static const char* dpts[] = { "88", "67", "65" };
   int numDpt = 0;
   for (; query->NextRow(); ++numDpt)
   {
     if (query->DataValue(0).ToString() != dpts[numDpt])
     {
-      cerr << "Found an incorrect value: " << query->DataValue(0).ToString()
-           << " != " << dpts[numDpt] << endl;
+      std::cerr << "Found an incorrect value: " << query->DataValue(0).ToString()
+                << " != " << dpts[numDpt] << std::endl;
       query->Delete();
       db->Delete();
       return 1;
     }
-    cerr << "     " << query->DataValue(0).ToString() << "\n";
+    std::cerr << "     " << query->DataValue(0).ToString() << "\n";
   }
 
   if (numDpt != 3)
   {
-    cerr << "Found an incorrect number of entries: " << numDpt << " != " << 3 << endl;
+    std::cerr << "Found an incorrect number of entries: " << numDpt << " != " << 3 << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // 7. Test EscapeString.
-  cerr << "@@ Escaping a naughty string...";
+  std::cerr << "@@ Escaping a naughty string...";
 
   queryStr = "INSERT INTO atable (somename,somenmbr) VALUES ( " +
     query->EscapeString(std::string("Str\"ang'eS\ntring"), true) + ", 2 )";
   query->SetQuery(queryStr);
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // 8. Read back the escaped string to verify it worked.
-  cerr << "@@ Reading it back... <";
+  std::cerr << "@@ Reading it back... <";
 
   queryStr = "SELECT somename FROM atable WHERE somenmbr=2";
   query->SetQuery(queryStr);
   if (!query->Execute())
   {
-    cerr << "Query failed" << endl;
+    std::cerr << "Query failed" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
@@ -441,17 +444,17 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
 
   if (!query->NextRow())
   {
-    cerr << "Query returned no results" << endl;
+    std::cerr << "Query returned no results" << std::endl;
     query->Delete();
     db->Delete();
     return 1;
   }
 
-  cerr << query->DataValue(0).ToString() << "> ";
-  cerr << " done." << endl;
+  std::cerr << query->DataValue(0).ToString() << "> ";
+  std::cerr << " done." << std::endl;
 
   // 9. Drop tables
-  cerr << "@@ Dropping these tables...";
+  std::cerr << "@@ Dropping these tables...";
 
   for (std::vector<std::string>::iterator it = tables.begin(); it != tables.end(); ++it)
   {
@@ -461,25 +464,25 @@ int TestPostgreSQLDatabase(int /*argc*/, char* /*argv*/[])
 
     if (!query->Execute())
     {
-      cerr << "Query failed" << endl;
+      std::cerr << "Query failed" << std::endl;
       query->Delete();
       db->Delete();
       return 1;
     }
   }
 
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // 10. Delete the database until we run the test again
-  cerr << "@@ Dropping the database...";
+  std::cerr << "@@ Dropping the database...";
 
   if (!db->DropDatabase(realDatabase.c_str()))
   {
-    cout << "Drop of \"" << realDatabase << "\" failed.\n";
-    cerr << "\"" << db->GetLastErrorText() << "\"" << endl;
+    std::cout << "Drop of \"" << realDatabase << "\" failed.\n";
+    std::cerr << "\"" << db->GetLastErrorText() << "\"" << std::endl;
   }
 
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 
   // Clean up
   db->Delete();

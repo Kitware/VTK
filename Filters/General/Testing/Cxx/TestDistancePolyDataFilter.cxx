@@ -12,6 +12,8 @@
 #include <vtkScalarBarActor.h>
 #include <vtkSphereSource.h>
 
+#include <iostream>
+
 int TestDistancePolyDataFilter(int, char*[])
 {
   vtkSmartPointer<vtkSphereSource> model1 = vtkSmartPointer<vtkSphereSource>::New();

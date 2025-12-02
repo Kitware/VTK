@@ -22,6 +22,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkVertex.h"
 #include <cassert>
+#include <iostream>
 #include <sstream>
 #include <string>
 
@@ -52,11 +53,11 @@ int TestAssertion(ostream& strm, vtkIndent indent, const char* label, int assert
   strm << indent << "Test `" << label << "\': ";
   if (assertion)
   {
-    strm << "passed." << endl;
+    strm << "passed." << std::endl;
   }
   else
   {
-    strm << "FAILED!" << endl;
+    strm << "FAILED!" << std::endl;
   }
   return assertion;
 }
@@ -78,19 +79,19 @@ int TestEmpty(ostream& strm)
   vtkIndent indent;
 
   // actual test
-  strm << "Test vtkBridgeDataSet Start" << endl;
+  strm << "Test vtkBridgeDataSet Start" << std::endl;
 
-  strm << "Create an empty vtkUnstructuredGrid" << endl;
+  strm << "Create an empty vtkUnstructuredGrid" << std::endl;
   vtkUnstructuredGrid* g = vtkUnstructuredGrid::New();
-  strm << "Empty unstructured grid created" << endl;
+  strm << "Empty unstructured grid created" << std::endl;
 
-  strm << "Create a vtkBridgeDataSet" << endl;
+  strm << "Create a vtkBridgeDataSet" << std::endl;
   vtkBridgeDataSet* ds = vtkBridgeDataSet::New();
-  strm << "vtkBridgeDataSet created" << endl;
+  strm << "vtkBridgeDataSet created" << std::endl;
 
-  strm << "Init the vtkBridgeDataSet with the empty unstructured grid" << endl;
+  strm << "Init the vtkBridgeDataSet with the empty unstructured grid" << std::endl;
   ds->SetDataSet(g);
-  strm << "vtkBridgeDataSet initialized with the empty unstructured grid" << endl;
+  strm << "vtkBridgeDataSet initialized with the empty unstructured grid" << std::endl;
 
   MacroTest(strm, indent, "number of points", ds->GetNumberOfPoints() == 0);
   MacroTest(strm, indent, "number of cells -1", ds->GetNumberOfCells(-1) == 0);
@@ -100,14 +101,14 @@ int TestEmpty(ostream& strm)
   MacroTest(strm, indent, "number of cells  3", ds->GetNumberOfCells(3) == 0);
   MacroTest(strm, indent, "cell dimension", ds->GetCellDimension() == -1);
 
-  strm << "GetCellTypes() start" << endl;
+  strm << "GetCellTypes() start" << std::endl;
   vtkCellTypes* types = vtkCellTypes::New();
   ds->GetDistinctCellTypes(types);
   MacroTest(strm, indent, "cell types", types->GetNumberOfTypes() == 0);
   types->Delete();
-  strm << "GetCellTypes() end" << endl;
+  strm << "GetCellTypes() end" << std::endl;
 
-  strm << "NewCellIterator() start" << endl;
+  strm << "NewCellIterator() start" << std::endl;
   vtkGenericCellIterator* it = ds->NewCellIterator(-1);
   MacroTest(strm, indent, "empty cell iterator -1 exists", it != nullptr);
   it->Begin();
@@ -133,22 +134,22 @@ int TestEmpty(ostream& strm)
   it->Begin();
   MacroTest(strm, indent, "empty cell iterator 3", it->IsAtEnd());
   it->Delete();
-  strm << "NewCellIterator() end" << endl;
+  strm << "NewCellIterator() end" << std::endl;
 
-  strm << "NewPointIterator() start" << endl;
+  strm << "NewPointIterator() start" << std::endl;
   vtkGenericPointIterator* pit = ds->NewPointIterator();
   MacroTest(strm, indent, "empty point iterator exists", pit != nullptr);
   pit->Begin();
   MacroTest(strm, indent, "empty point iterator", pit->IsAtEnd());
   pit->Delete();
-  strm << "NewPointIterator() end" << endl;
+  strm << "NewPointIterator() end" << std::endl;
 
   double bounds[6];
   double center[3];
   double* c;
   constexpr double epsilon = 0.000001; // 10^{-6}
 
-  strm << "GetBounds() start" << endl;
+  strm << "GetBounds() start" << std::endl;
 
   const double* b = ds->GetBounds();
   MacroTest(strm, indent, "volatile bounds exist", b != nullptr);
@@ -167,7 +168,7 @@ int TestEmpty(ostream& strm)
 
   MacroTest(strm, indent, "diagonal length", fabs(ds->GetLength() - 2 * sqrt(3.0)) < epsilon);
 
-  strm << "GetBounds() end" << endl;
+  strm << "GetBounds() end" << std::endl;
 
   vtkGenericAttributeCollection* attributes;
   attributes = ds->GetAttributes();
@@ -178,7 +179,7 @@ int TestEmpty(ostream& strm)
   MacroTest(strm, indent, "empty attributes", attributes->GetMaxNumberOfComponents() == 0);
 
 #if 0
-   strm<<"NewBoundaryIterator() start"<<endl;
+   strm<<"NewBoundaryIterator() start"<<std::endl;
   it=ds->NewBoundaryIterator(-1,0);
   MacroTest(strm,indent,"empty boundary iterator -1,false exists",it!=0);
   it->Begin();
@@ -229,17 +230,17 @@ int TestEmpty(ostream& strm)
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator 3,true",it->IsAtEnd());
   it->Delete();
-  strm<<"NewBoundaryIterator() end"<<endl;
+  strm<<"NewBoundaryIterator() end"<<std::endl;
 #endif
-  strm << "Delete the vtkBridgeDataSet" << endl;
+  strm << "Delete the vtkBridgeDataSet" << std::endl;
   ds->Delete();
-  strm << "vtkBridgeDataSet deleted" << endl;
+  strm << "vtkBridgeDataSet deleted" << std::endl;
 
-  strm << "Delete the empty vtkUnstructuredGrid" << endl;
+  strm << "Delete the empty vtkUnstructuredGrid" << std::endl;
   g->Delete();
-  strm << "Empty vtkUnstructuredGrid deleted" << endl;
+  strm << "Empty vtkUnstructuredGrid deleted" << std::endl;
 
-  strm << "Test vtkBridgeDataSet creation End" << endl;
+  strm << "Test vtkBridgeDataSet creation End" << std::endl;
 
   // Do the same thing for:
   // 1. a dataset with points but no cells, and no pointdata and no celldata
@@ -259,26 +260,26 @@ int TestWithPoints(ostream& strm)
   vtkPoints* pts;
 
   // actual test
-  strm << "Test vtkBridgeDataSet Start" << endl;
+  strm << "Test vtkBridgeDataSet Start" << std::endl;
 
-  strm << "Create an empty vtkUnstructuredGrid" << endl;
+  strm << "Create an empty vtkUnstructuredGrid" << std::endl;
   vtkUnstructuredGrid* g = vtkUnstructuredGrid::New();
-  strm << "Empty unstructured grid created" << endl;
+  strm << "Empty unstructured grid created" << std::endl;
 
   pts = vtkPoints::New();
   pts->InsertNextPoint(-1, -2, -3);
   pts->InsertNextPoint(4, 5, 6);
-  strm << "Add points to the vtkUnstructuredGrid" << endl;
+  strm << "Add points to the vtkUnstructuredGrid" << std::endl;
   g->SetPoints(pts);
-  strm << "Points added to the vtkUnstructuredGrid" << endl;
+  strm << "Points added to the vtkUnstructuredGrid" << std::endl;
 
-  strm << "Create a vtkBridgeDataSet" << endl;
+  strm << "Create a vtkBridgeDataSet" << std::endl;
   vtkBridgeDataSet* ds = vtkBridgeDataSet::New();
-  strm << "vtkBridgeDataSet created" << endl;
+  strm << "vtkBridgeDataSet created" << std::endl;
 
-  strm << "Init the vtkBridgeDataSet with the unstructured grid" << endl;
+  strm << "Init the vtkBridgeDataSet with the unstructured grid" << std::endl;
   ds->SetDataSet(g);
-  strm << "vtkBridgeDataSet initialized with the unstructured grid" << endl;
+  strm << "vtkBridgeDataSet initialized with the unstructured grid" << std::endl;
 
   MacroTest(strm, indent, "number of points", ds->GetNumberOfPoints() == 2);
   MacroTest(strm, indent, "number of cells -1", ds->GetNumberOfCells(-1) == 0);
@@ -288,14 +289,14 @@ int TestWithPoints(ostream& strm)
   MacroTest(strm, indent, "number of cells  3", ds->GetNumberOfCells(3) == 0);
   MacroTest(strm, indent, "cell dimension", ds->GetCellDimension() == -1);
 
-  strm << "GetCellTypes() start" << endl;
+  strm << "GetCellTypes() start" << std::endl;
   vtkCellTypes* types = vtkCellTypes::New();
   ds->GetDistinctCellTypes(types);
   MacroTest(strm, indent, "cell types", types->GetNumberOfTypes() == 0);
   types->Delete();
-  strm << "GetCellTypes() end" << endl;
+  strm << "GetCellTypes() end" << std::endl;
 
-  strm << "NewCellIterator() start" << endl;
+  strm << "NewCellIterator() start" << std::endl;
   vtkGenericCellIterator* it = ds->NewCellIterator(-1);
   MacroTest(strm, indent, "empty cell iterator -1 exists", it != nullptr);
   it->Begin();
@@ -321,11 +322,11 @@ int TestWithPoints(ostream& strm)
   it->Begin();
   MacroTest(strm, indent, "empty cell iterator 3", it->IsAtEnd());
   it->Delete();
-  strm << "NewCellIterator() end" << endl;
+  strm << "NewCellIterator() end" << std::endl;
 
   double x[3];
 
-  strm << "NewPointIterator() start" << endl;
+  strm << "NewPointIterator() start" << std::endl;
   vtkGenericPointIterator* pit = ds->NewPointIterator();
   MacroTest(strm, indent, "point iterator exists", pit != nullptr);
   pit->Begin();
@@ -341,19 +342,19 @@ int TestWithPoints(ostream& strm)
   pit->Next();
   MacroTest(strm, indent, "point iterator", pit->IsAtEnd());
   pit->Delete();
-  strm << "NewPointIterator() end" << endl;
+  strm << "NewPointIterator() end" << std::endl;
 
   double bounds[6];
   double center[3];
   double* c;
   constexpr double epsilon = 0.000001; // 10^{-6}
 
-  strm << "GetBounds() start" << endl;
+  strm << "GetBounds() start" << std::endl;
 
   const double* b = ds->GetBounds();
   MacroTest(strm, indent, "volatile bounds exist", b != nullptr);
 
-  // strm<<"bounds=("<<b[0]<<','<<b[1]<<','<<b[2]<<','<<b[3]<<','<<b[4]<<','<<b[5]<<')'<<endl;
+  // strm<<"bounds=("<<b[0]<<','<<b[1]<<','<<b[2]<<','<<b[3]<<','<<b[4]<<','<<b[5]<<')'<<std::endl;
 
   MacroTest(strm, indent, "valid volatile bounds",
     (b[0] == -1) && (b[1] == 4) && (b[2] == -2) && (b[3] == 5) && (b[4] == -3) && (b[5] == 6));
@@ -372,7 +373,7 @@ int TestWithPoints(ostream& strm)
     (fabs(center[0] - 1.5) < epsilon) && (fabs(center[1] - 1.5) < epsilon) &&
       (fabs(center[2] - 1.5) < epsilon));
   MacroTest(strm, indent, "diagonal length", fabs(ds->GetLength() - sqrt(155.0)) < epsilon);
-  strm << "GetBounds() end" << endl;
+  strm << "GetBounds() end" << std::endl;
 
   vtkGenericAttributeCollection* attributes;
   attributes = ds->GetAttributes();
@@ -383,7 +384,7 @@ int TestWithPoints(ostream& strm)
   MacroTest(strm, indent, "empty attributes", attributes->GetMaxNumberOfComponents() == 0);
 
 #if 0
-   strm<<"NewBoundaryIterator() start"<<endl;
+   strm<<"NewBoundaryIterator() start"<<std::endl;
   it=ds->NewBoundaryIterator(-1,0);
   MacroTest(strm,indent,"empty boundary iterator -1,false exists",it!=0);
   it->Begin();
@@ -434,19 +435,19 @@ int TestWithPoints(ostream& strm)
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator 3,true",it->IsAtEnd());
   it->Delete();
-  strm<<"NewBoundaryIterator() end"<<endl;
+  strm<<"NewBoundaryIterator() end"<<std::endl;
 #endif
   pts->Delete();
 
-  strm << "Delete the vtkBridgeDataSet" << endl;
+  strm << "Delete the vtkBridgeDataSet" << std::endl;
   ds->Delete();
-  strm << "vtkBridgeDataSet deleted" << endl;
+  strm << "vtkBridgeDataSet deleted" << std::endl;
 
-  strm << "Delete the vtkUnstructuredGrid" << endl;
+  strm << "Delete the vtkUnstructuredGrid" << std::endl;
   g->Delete();
-  strm << "vtkUnstructuredGrid deleted" << endl;
+  strm << "vtkUnstructuredGrid deleted" << std::endl;
 
-  strm << "Test vtkBridgeDataSet creation End" << endl;
+  strm << "Test vtkBridgeDataSet creation End" << std::endl;
 
   // Do the same thing for:
   // 2. a dataset with points and cells, and no pointdata and no celldata
@@ -465,13 +466,13 @@ int TestWithPointsAndCells(ostream& strm)
   vtkPoints* pts;
 
   // actual test
-  strm << "----------------------------------------------------------" << endl;
-  strm << "TestWithPointsAndCells Start" << endl;
-  strm << "----------------------------------------------------------" << endl;
+  strm << "----------------------------------------------------------" << std::endl;
+  strm << "TestWithPointsAndCells Start" << std::endl;
+  strm << "----------------------------------------------------------" << std::endl;
 
-  strm << "Create an empty vtkUnstructuredGrid" << endl;
+  strm << "Create an empty vtkUnstructuredGrid" << std::endl;
   vtkUnstructuredGrid* g = vtkUnstructuredGrid::New();
-  strm << "Empty unstructured grid created" << endl;
+  strm << "Empty unstructured grid created" << std::endl;
 
   pts = vtkPoints::New();
   pts->InsertNextPoint(0, 0, 0);   // 0
@@ -499,9 +500,9 @@ int TestWithPointsAndCells(ostream& strm)
 
   pts->InsertNextPoint(14, 0, 0); // extra point
 
-  strm << "Add points to the vtkUnstructuredGrid" << endl;
+  strm << "Add points to the vtkUnstructuredGrid" << std::endl;
   g->SetPoints(pts);
-  strm << "Points added to the vtkUnstructuredGrid" << endl;
+  strm << "Points added to the vtkUnstructuredGrid" << std::endl;
 
   vtkTetra* tetra = vtkTetra::New();
   tetra->GetPointIds()->SetId(0, 0);
@@ -563,13 +564,13 @@ int TestWithPointsAndCells(ostream& strm)
   g->InsertNextCell(vertex->GetCellType(), vertex->GetPointIds());
   vertex->Delete();
 
-  strm << "Create a vtkBridgeDataSet" << endl;
+  strm << "Create a vtkBridgeDataSet" << std::endl;
   vtkBridgeDataSet* ds = vtkBridgeDataSet::New();
-  strm << "vtkBridgeDataSet created" << endl;
+  strm << "vtkBridgeDataSet created" << std::endl;
 
-  strm << "Init the vtkBridgeDataSet with the unstructured grid" << endl;
+  strm << "Init the vtkBridgeDataSet with the unstructured grid" << std::endl;
   ds->SetDataSet(g);
-  strm << "vtkBridgeDataSet initialized with the unstructured grid" << endl;
+  strm << "vtkBridgeDataSet initialized with the unstructured grid" << std::endl;
 
   MacroTest(strm, indent, "number of points", ds->GetNumberOfPoints() == 17);
   MacroTest(strm, indent, "number of cells -1", ds->GetNumberOfCells(-1) == 8);
@@ -579,14 +580,14 @@ int TestWithPointsAndCells(ostream& strm)
   MacroTest(strm, indent, "number of cells  3", ds->GetNumberOfCells(3) == 2);
   MacroTest(strm, indent, "cell dimension", ds->GetCellDimension() == -1);
 
-  strm << "GetCellTypes() start" << endl;
+  strm << "GetCellTypes() start" << std::endl;
   vtkCellTypes* types = vtkCellTypes::New();
   ds->GetDistinctCellTypes(types);
   MacroTest(strm, indent, "cell types", types->GetNumberOfTypes() == 4);
   types->Delete();
-  strm << "GetCellTypes() end" << endl;
+  strm << "GetCellTypes() end" << std::endl;
 
-  strm << "NewCellIterator() start" << endl;
+  strm << "NewCellIterator() start" << std::endl;
 
   int itNum = -1;
   int itCount = 4;
@@ -626,12 +627,12 @@ int TestWithPointsAndCells(ostream& strm)
     it->Delete();
     ++itNum;
   }
-  strm << "NewCellIterator() end" << endl;
+  strm << "NewCellIterator() end" << std::endl;
 
   double x[3];
   double y[3];
 
-  strm << "NewPointIterator() start" << endl;
+  strm << "NewPointIterator() start" << std::endl;
   vtkGenericPointIterator* pit = ds->NewPointIterator();
   MacroTest(strm, indent, "point iterator exists", pit != nullptr);
   pit->Begin();
@@ -650,9 +651,9 @@ int TestWithPointsAndCells(ostream& strm)
     pit->Next();
   }
   pit->Delete();
-  strm << "NewPointIterator() end" << endl;
+  strm << "NewPointIterator() end" << std::endl;
 
-  strm << " cell::GetPointIterator() start" << endl;
+  strm << " cell::GetPointIterator() start" << std::endl;
   vtkGenericCellIterator* it = ds->NewCellIterator(-1);
   it->Begin();
   count = 0;
@@ -800,20 +801,20 @@ int TestWithPointsAndCells(ostream& strm)
   }
   pit->Delete();
   it->Delete();
-  strm << " cell::GetPointIterator() end" << endl;
+  strm << " cell::GetPointIterator() end" << std::endl;
 
   double bounds[6];
   double center[3];
   double* c;
   constexpr double epsilon = 0.000001; // 10^{-6}
 
-  strm << "GetBounds() start" << endl;
+  strm << "GetBounds() start" << std::endl;
 
   const double* b = ds->GetBounds();
   MacroTest(strm, indent, "volatile bounds exist", b != nullptr);
 
   strm << "bounds=(" << b[0] << ',' << b[1] << ',' << b[2] << ',' << b[3] << ',' << b[4] << ','
-       << b[5] << ')' << endl;
+       << b[5] << ')' << std::endl;
 
   MacroTest(strm, indent, "valid volatile bounds",
     (b[0] == 0) && (b[1] == 14) && (b[2] == -1) && (b[3] == 1) && (b[4] == 0) && (b[5] == 1));
@@ -832,7 +833,7 @@ int TestWithPointsAndCells(ostream& strm)
     (fabs(center[0] - 7) < epsilon) && (fabs(center[1]) < epsilon) &&
       (fabs(center[2] - 0.5) < epsilon));
   MacroTest(strm, indent, "diagonal length", fabs(ds->GetLength() - sqrt(201.0)) < epsilon);
-  strm << "GetBounds() end" << endl;
+  strm << "GetBounds() end" << std::endl;
 
   vtkGenericAttributeCollection* attributes = nullptr;
   attributes = ds->GetAttributes();
@@ -842,7 +843,7 @@ int TestWithPointsAndCells(ostream& strm)
   MacroTest(strm, indent, "empty attributes", attributes->GetNumberOfComponents() == 0);
   MacroTest(strm, indent, "empty attributes", attributes->GetMaxNumberOfComponents() == 0);
 
-  strm << "vtkBridgeCell::GetBoundaryIterator() test start" << endl;
+  strm << "vtkBridgeCell::GetBoundaryIterator() test start" << std::endl;
 
   // iterate over dataset cell
   // for each cell, get the boundaries of each dimension less than the cell
@@ -895,10 +896,10 @@ int TestWithPointsAndCells(ostream& strm)
   boundaries->Delete();
   it->Delete();
 
-  strm << "vtkBridgeCell::GetBoundaryIterator() test end" << endl;
+  strm << "vtkBridgeCell::GetBoundaryIterator() test end" << std::endl;
 
 #if 0
-   strm<<"NewBoundaryIterator() start"<<endl;
+   strm<<"NewBoundaryIterator() start"<<std::endl;
   it=ds->NewBoundaryIterator(-1,0);
   MacroTest(strm,indent,"empty boundary iterator -1,false exists",it!=0);
   it->Begin();
@@ -949,20 +950,20 @@ int TestWithPointsAndCells(ostream& strm)
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator 3,true",it->IsAtEnd());
   it->Delete();
-  strm<<"NewBoundaryIterator() end"<<endl;
+  strm<<"NewBoundaryIterator() end"<<std::endl;
 #endif
 
   pts->Delete();
 
-  strm << "Delete the vtkBridgeDataSet" << endl;
+  strm << "Delete the vtkBridgeDataSet" << std::endl;
   ds->Delete();
-  strm << "vtkBridgeDataSet deleted" << endl;
+  strm << "vtkBridgeDataSet deleted" << std::endl;
 
-  strm << "Delete the vtkUnstructuredGrid" << endl;
+  strm << "Delete the vtkUnstructuredGrid" << std::endl;
   g->Delete();
-  strm << "vtkUnstructuredGrid deleted" << endl;
+  strm << "vtkUnstructuredGrid deleted" << std::endl;
 
-  strm << "Test vtkBridgeDataSet creation End" << endl;
+  strm << "Test vtkBridgeDataSet creation End" << std::endl;
 
   // Do the same thing for:
   // 3. a dataset with points and cells, and pointdata but  no celldata
@@ -980,13 +981,13 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   vtkPoints* pts;
 
   // actual test
-  strm << "----------------------------------------------------------" << endl;
-  strm << "TestWithPointsAndCellsAndPointData Start" << endl;
-  strm << "----------------------------------------------------------" << endl;
+  strm << "----------------------------------------------------------" << std::endl;
+  strm << "TestWithPointsAndCellsAndPointData Start" << std::endl;
+  strm << "----------------------------------------------------------" << std::endl;
 
-  strm << "Create an empty vtkUnstructuredGrid" << endl;
+  strm << "Create an empty vtkUnstructuredGrid" << std::endl;
   vtkUnstructuredGrid* g = vtkUnstructuredGrid::New();
-  strm << "Empty unstructured grid created" << endl;
+  strm << "Empty unstructured grid created" << std::endl;
 
   pts = vtkPoints::New();
   pts->InsertNextPoint(0, 0, 0);   // 0
@@ -1014,9 +1015,9 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
 
   pts->InsertNextPoint(14, 0, 0); // extra point
 
-  strm << "Add points to the vtkUnstructuredGrid" << endl;
+  strm << "Add points to the vtkUnstructuredGrid" << std::endl;
   g->SetPoints(pts);
-  strm << "Points added to the vtkUnstructuredGrid" << endl;
+  strm << "Points added to the vtkUnstructuredGrid" << std::endl;
 
   vtkTetra* tetra = vtkTetra::New();
   tetra->GetPointIds()->SetId(0, 0);
@@ -1078,7 +1079,7 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   g->InsertNextCell(vertex->GetCellType(), vertex->GetPointIds());
   vertex->Delete();
 
-  strm << "Add point data to the vtkUnstructuredGrid" << endl;
+  strm << "Add point data to the vtkUnstructuredGrid" << std::endl;
   int m = 0;
   vtkDoubleArray* attrib = vtkDoubleArray::New();
   while (m < 17)
@@ -1091,15 +1092,15 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   g->GetPointData()->SetScalars(attrib);
   attrib->Delete();
   attrib = nullptr;
-  strm << "Point data added to the vtkUnstructuredGrid" << endl;
+  strm << "Point data added to the vtkUnstructuredGrid" << std::endl;
 
-  strm << "Create a vtkBridgeDataSet" << endl;
+  strm << "Create a vtkBridgeDataSet" << std::endl;
   vtkBridgeDataSet* ds = vtkBridgeDataSet::New();
-  strm << "vtkBridgeDataSet created" << endl;
+  strm << "vtkBridgeDataSet created" << std::endl;
 
-  strm << "Init the vtkBridgeDataSet with the unstructured grid" << endl;
+  strm << "Init the vtkBridgeDataSet with the unstructured grid" << std::endl;
   ds->SetDataSet(g);
-  strm << "vtkBridgeDataSet initialized with the unstructured grid" << endl;
+  strm << "vtkBridgeDataSet initialized with the unstructured grid" << std::endl;
 
   MacroTest(strm, indent, "number of points", ds->GetNumberOfPoints() == 17);
   MacroTest(strm, indent, "number of cells -1", ds->GetNumberOfCells(-1) == 8);
@@ -1109,14 +1110,14 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   MacroTest(strm, indent, "number of cells  3", ds->GetNumberOfCells(3) == 2);
   MacroTest(strm, indent, "cell dimension", ds->GetCellDimension() == -1);
 
-  strm << "GetCellTypes() start" << endl;
+  strm << "GetCellTypes() start" << std::endl;
   vtkCellTypes* types = vtkCellTypes::New();
   ds->GetDistinctCellTypes(types);
   MacroTest(strm, indent, "cell types", types->GetNumberOfTypes() == 4);
   types->Delete();
-  strm << "GetCellTypes() end" << endl;
+  strm << "GetCellTypes() end" << std::endl;
 
-  strm << "NewCellIterator() start" << endl;
+  strm << "NewCellIterator() start" << std::endl;
 
   int itNum = -1;
   int itCount = 4;
@@ -1156,12 +1157,12 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
     it->Delete();
     ++itNum;
   }
-  strm << "NewCellIterator() end" << endl;
+  strm << "NewCellIterator() end" << std::endl;
 
   double x[3];
   double y[3];
 
-  strm << "NewPointIterator() start" << endl;
+  strm << "NewPointIterator() start" << std::endl;
   vtkGenericPointIterator* pit = ds->NewPointIterator();
   MacroTest(strm, indent, "point iterator exists", pit != nullptr);
   pit->Begin();
@@ -1180,20 +1181,20 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
     pit->Next();
   }
   pit->Delete();
-  strm << "NewPointIterator() end" << endl;
+  strm << "NewPointIterator() end" << std::endl;
 
   double bounds[6];
   double center[3];
   double* c = nullptr;
   constexpr double epsilon = 0.000001; // 10^{-6}
 
-  strm << "GetBounds() start" << endl;
+  strm << "GetBounds() start" << std::endl;
 
   const double* b = ds->GetBounds();
   MacroTest(strm, indent, "volatile bounds exist", b != nullptr);
 
   strm << "bounds=(" << b[0] << ',' << b[1] << ',' << b[2] << ',' << b[3] << ',' << b[4] << ','
-       << b[5] << ')' << endl;
+       << b[5] << ')' << std::endl;
 
   MacroTest(strm, indent, "valid volatile bounds",
     (b[0] == 0) && (b[1] == 14) && (b[2] == -1) && (b[3] == 1) && (b[4] == 0) && (b[5] == 1));
@@ -1212,7 +1213,7 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
     (fabs(center[0] - 7) < epsilon) && (fabs(center[1]) < epsilon) &&
       (fabs(center[2] - 0.5) < epsilon));
   MacroTest(strm, indent, "diagonal length", fabs(ds->GetLength() - sqrt(201.0)) < epsilon);
-  strm << "GetBounds() end" << endl;
+  strm << "GetBounds() end" << std::endl;
 
   vtkGenericAttributeCollection* attributes = nullptr;
   attributes = ds->GetAttributes();
@@ -1234,7 +1235,7 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
 
   g->GetPointData()->GetScalars()->SetName("pressure");
   attribId = attributes->FindAttribute("pressure");
-  strm << "attribId=" << attribId << endl;
+  strm << "attribId=" << attribId << std::endl;
 
   MacroTest(strm, indent, "attribute found", attribId == 0);
 
@@ -1257,7 +1258,7 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
 
   MacroTest(strm, indent, "attribute max norm", fabs(attribute->GetMaxNorm() - 116) < 0.0001);
 
-  strm << "vtkBridgeCell::GetBoundaryIterator() test start" << endl;
+  strm << "vtkBridgeCell::GetBoundaryIterator() test start" << std::endl;
 
   // iterate over dataset cell
   // for each cell, get the boundaries of each dimension less than the cell
@@ -1310,7 +1311,7 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   boundaries->Delete();
   it->Delete();
 
-  strm << "vtkBridgeCell::GetBoundaryIterator() test end" << endl;
+  strm << "vtkBridgeCell::GetBoundaryIterator() test end" << std::endl;
 
   // Description:
   // Attribute at all points of cell `c'.
@@ -1319,7 +1320,7 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   // \post result_exists: result!=0
   // \post valid_result: sizeof(result)==GetNumberOfComponents()*c->GetCell()->GetNumberOfPoints()
 
-  strm << "GetTuple() on cell iterator start" << endl;
+  strm << "GetTuple() on cell iterator start" << std::endl;
   it = ds->NewCellIterator(-1);
 
   // tetra1
@@ -1428,8 +1429,8 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   MacroTest(strm, indent, "vertex2, pt0", myTuples[0] == 115);
 
   it->Delete();
-  strm << "GetTuple() on cell iterator end" << endl;
-  strm << "GetTuple() on point iterator start" << endl;
+  strm << "GetTuple() on cell iterator end" << std::endl;
+  strm << "GetTuple() on point iterator start" << std::endl;
   pit = ds->NewPointIterator();
   pit->Begin();
   m = 100;
@@ -1444,9 +1445,9 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   }
 
   pit->Delete();
-  strm << "GetTuple() on point iterator end" << endl;
+  strm << "GetTuple() on point iterator end" << std::endl;
 
-  strm << "GetComponent() on cell iterator start" << endl;
+  strm << "GetComponent() on cell iterator start" << std::endl;
   it = ds->NewCellIterator(-1);
 
   // tetra1
@@ -1510,9 +1511,9 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   MacroTest(strm, indent, "vertex2, pt0", myTuples[0] == 115);
 
   it->Delete();
-  strm << "GetComponent() on cell iterator end" << endl;
+  strm << "GetComponent() on cell iterator end" << std::endl;
 
-  strm << "GetComponent() on point iterator start" << endl;
+  strm << "GetComponent() on point iterator start" << std::endl;
   pit = ds->NewPointIterator();
   pit->Begin();
   m = 100;
@@ -1524,10 +1525,10 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   }
 
   pit->Delete();
-  strm << "GetComponent() on point iterator end" << endl;
+  strm << "GetComponent() on point iterator end" << std::endl;
 
   // InterpolateTuple()
-  strm << "InterpolateTuple() start" << endl;
+  strm << "InterpolateTuple() start" << std::endl;
   it = ds->NewCellIterator(-1);
 
   // tetra1
@@ -1596,10 +1597,10 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   MacroTest(strm, indent, "valid interpolation mid p2p3", myTuples[0] == 102.5);
 
   it->Delete();
-  strm << "InterpolateTuple() end" << endl;
+  strm << "InterpolateTuple() end" << std::endl;
 
 #if 0
-   strm<<"NewBoundaryIterator() start"<<endl;
+   strm<<"NewBoundaryIterator() start"<<std::endl;
   it=ds->NewBoundaryIterator(-1,0);
   MacroTest(strm,indent,"empty boundary iterator -1,false exists",it!=0);
   it->Begin();
@@ -1650,20 +1651,20 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
   it->Begin();
   MacroTest(strm,indent,"empty cell iterator 3,true",it->IsAtEnd());
   it->Delete();
-  strm<<"NewBoundaryIterator() end"<<endl;
+  strm<<"NewBoundaryIterator() end"<<std::endl;
 #endif
 
   pts->Delete();
 
-  strm << "Delete the vtkBridgeDataSet" << endl;
+  strm << "Delete the vtkBridgeDataSet" << std::endl;
   ds->Delete();
-  strm << "vtkBridgeDataSet deleted" << endl;
+  strm << "vtkBridgeDataSet deleted" << std::endl;
 
-  strm << "Delete the vtkUnstructuredGrid" << endl;
+  strm << "Delete the vtkUnstructuredGrid" << std::endl;
   g->Delete();
-  strm << "vtkUnstructuredGrid deleted" << endl;
+  strm << "vtkUnstructuredGrid deleted" << std::endl;
 
-  strm << "Test vtkBridgeDataSet creation End" << endl;
+  strm << "Test vtkBridgeDataSet creation End" << std::endl;
 
   // Do the same thing for:
   // 4. a dataset with points and cells, and celldata but not pointdata
@@ -1674,22 +1675,22 @@ int TestWithPointsAndCellsAndPointData(ostream& strm)
 
 int otherCreation(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
-  if (TestEmpty(cout))
+  if (TestEmpty(std::cout))
   {
     return 1;
   }
 
-  if (TestWithPoints(cout))
+  if (TestWithPoints(std::cout))
   {
     return 1;
   }
 
-  if (TestWithPointsAndCells(cout))
+  if (TestWithPointsAndCells(std::cout))
   {
     return 1;
   }
 
-  if (TestWithPointsAndCellsAndPointData(cout))
+  if (TestWithPointsAndCellsAndPointData(std::cout))
   {
     return 1;
   }

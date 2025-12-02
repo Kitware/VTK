@@ -7,12 +7,14 @@
 
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
+
 int TestResourceFileLocator(int, char*[])
 {
   auto vtklib = vtkGetLibraryPathForSymbol(GetVTKVersion);
   if (vtklib.empty())
   {
-    cerr << "FAILED to locate `GetVTKVersion`." << endl;
+    std::cerr << "FAILED to locate `GetVTKVersion`." << std::endl;
     return EXIT_FAILURE;
   }
   const std::string vtkdir = vtksys::SystemTools::GetFilenamePath(vtklib);
@@ -22,7 +24,7 @@ int TestResourceFileLocator(int, char*[])
   auto path = locator->Locate(vtkdir, "Testing/Temporary");
   if (path.empty())
   {
-    cerr << "FAILED to locate 'Testing/Temporary' dir." << endl;
+    std::cerr << "FAILED to locate 'Testing/Temporary' dir." << std::endl;
     return EXIT_FAILURE;
   }
 

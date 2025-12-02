@@ -18,6 +18,8 @@
 #include "vtkTexture.h"
 #include "vtkTexturedSphereSource.h"
 
+#include <iostream>
+
 static vtkSmartPointer<vtkRIBProperty> cloth(const char* freq, const char* depth);
 static vtkSmartPointer<vtkRIBProperty> dented(const char* Km);
 static vtkSmartPointer<vtkRIBProperty> stippled(const char* grainsize, const char* stippling);

@@ -16,6 +16,7 @@
 #include "vtkType.h"
 #include "vtkUndirectedGraph.h"
 
+#include <iostream>
 #include <unordered_map>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -138,8 +139,9 @@ public:
   {
     if (idx < 1 || idx > this->_array->GetNumberOfTuples())
     {
-      cerr << "Write Number of tuples = " << this->_array->GetNumberOfTuples() << endl;
-      cerr << "Array index out out bounds in tableVert operator [], index: " << idx << endl;
+      std::cerr << "Write Number of tuples = " << this->_array->GetNumberOfTuples() << std::endl;
+      std::cerr << "Array index out out bounds in tableVert operator [], index: " << idx
+                << std::endl;
       return (static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
     }
 
@@ -188,8 +190,9 @@ public:
   {
     if (idx < 0 || idx >= this->_array->GetNumberOfTuples())
     {
-      cerr << "Read Number of tuples = " << this->_array->GetNumberOfTuples() << endl;
-      cerr << "Array index out out bounds in tableDeg operator [], index: " << idx << endl;
+      std::cerr << "Read Number of tuples = " << this->_array->GetNumberOfTuples() << std::endl;
+      std::cerr << "Array index out out bounds in tableDeg operator [], index: " << idx
+                << std::endl;
       return (static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
     }
 
@@ -439,9 +442,11 @@ void vtkKCoreDecomposition::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "OutputArrayName: " << (this->OutputArrayName ? this->OutputArrayName : "(none)")
-     << endl;
-  os << indent << "UseInDegreeNeighbors: " << (this->UseInDegreeNeighbors ? "on" : "off") << endl;
-  os << indent << "UseOutDegreeNeighbors: " << (this->UseOutDegreeNeighbors ? "on" : "off") << endl;
-  os << indent << "CheckInputGraph: " << (this->CheckInputGraph ? "on" : "off") << endl;
+     << std::endl;
+  os << indent << "UseInDegreeNeighbors: " << (this->UseInDegreeNeighbors ? "on" : "off")
+     << std::endl;
+  os << indent << "UseOutDegreeNeighbors: " << (this->UseOutDegreeNeighbors ? "on" : "off")
+     << std::endl;
+  os << indent << "CheckInputGraph: " << (this->CheckInputGraph ? "on" : "off") << std::endl;
 }
 VTK_ABI_NAMESPACE_END

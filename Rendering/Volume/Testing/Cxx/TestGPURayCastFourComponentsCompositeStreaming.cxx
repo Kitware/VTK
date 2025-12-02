@@ -5,24 +5,23 @@
 // composite method with no shading.
 
 #include "vtkCamera.h"
-#include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkImageMagnify.h"
-#include "vtkImageShiftScale.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
-#include "vtkTransform.h"
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
 
+#include <iostream>
+
 int TestGPURayCastFourComponentsCompositeStreaming(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
   char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_4comp.vti");
 
   vtkXMLImageDataReader* reader = vtkXMLImageDataReader::New();
@@ -38,9 +37,9 @@ int TestGPURayCastFourComponentsCompositeStreaming(int argc, char* argv[])
   mag->Update();
   mag->GetOutput()->GetDimensions(dims);
   unsigned long sizekb = mag->GetOutput()->GetActualMemorySize();
-  cout << "Memory usage for the ImageData=" << (sizekb / 1024) << "Mb" << endl;
-  cout << "Dims of the ImageData=" << dims[0] << "x" << dims[1] << "x" << dims[2] << "="
-       << (dims[0] * dims[1] * dims[2]) / 1024 / 1024 << "Mb" << endl;
+  std::cout << "Memory usage for the ImageData=" << (sizekb / 1024) << "Mb" << std::endl;
+  std::cout << "Dims of the ImageData=" << dims[0] << "x" << dims[1] << "x" << dims[2] << "="
+            << (dims[0] * dims[1] * dims[2]) / 1024 / 1024 << "Mb" << std::endl;
 
   vtkRenderer* ren1 = vtkRenderer::New();
   vtkRenderWindow* renWin = vtkRenderWindow::New();
@@ -92,7 +91,7 @@ int TestGPURayCastFourComponentsCompositeStreaming(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
   }
 
   iren->Delete();

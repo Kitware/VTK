@@ -12,10 +12,6 @@
 #include <sstream>
 #include <string>
 
-using std::istringstream;
-using std::ostringstream;
-using std::string;
-
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkQuadratureSchemeDefinition);
 
@@ -381,7 +377,7 @@ int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement* root)
   if ((this->NumberOfNodes > 0) && (this->NumberOfQuadraturePoints > 0))
   {
     // Write shape function weights
-    ostringstream ssShapeWts;
+    std::ostringstream ssShapeWts;
     ssShapeWts.setf(ios::floatfield, ios::scientific);
     ssShapeWts.precision(16);
     ssShapeWts << this->ShapeFunctionWeights[0];
@@ -390,11 +386,11 @@ int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement* root)
     {
       ssShapeWts << " " << this->ShapeFunctionWeights[id];
     }
-    string sShapeWts = ssShapeWts.str();
+    std::string sShapeWts = ssShapeWts.str();
     eShapeWts->SetCharacterData(sShapeWts.c_str(), static_cast<int>(sShapeWts.size()));
 
     // Write quadrature weights
-    ostringstream ssQuadWts;
+    std::ostringstream ssQuadWts;
     ssQuadWts.setf(ios::floatfield, ios::scientific);
     ssQuadWts.precision(16);
     ssQuadWts << this->QuadratureWeights[0];
@@ -402,7 +398,7 @@ int vtkQuadratureSchemeDefinition::SaveState(vtkXMLDataElement* root)
     {
       ssQuadWts << " " << this->QuadratureWeights[id];
     }
-    string sQuadWts = ssQuadWts.str();
+    std::string sQuadWts = ssQuadWts.str();
     eQuadWts->SetCharacterData(sQuadWts.c_str(), static_cast<int>(sQuadWts.size()));
   }
   else
@@ -460,7 +456,7 @@ int vtkQuadratureSchemeDefinition::RestoreState(vtkXMLDataElement* root)
   // Extract the weights.
   if (this->SecureResources())
   {
-    istringstream issWts;
+    std::istringstream issWts;
     //
     e = root->FindNestedElementWithName("ShapeFunctionWeights");
     if (e == nullptr)

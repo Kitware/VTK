@@ -24,6 +24,9 @@
 
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 #include "vtkTimerLog.h"
+
+#include <iostream>
+
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -146,9 +149,9 @@ void vtkPContingencyStatistics::Learn(
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timers->StopTimer();
 
-  cout << "## Process " << this->Controller->GetCommunicator()->GetLocalProcessId()
-       << " serial engine executed in " << timers->GetElapsedTime() << " seconds."
-       << "\n";
+  std::cout << "## Process " << this->Controller->GetCommunicator()->GetLocalProcessId()
+            << " serial engine executed in " << timers->GetElapsedTime() << " seconds."
+            << "\n";
 
   timers->Delete();
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
@@ -325,8 +328,9 @@ void vtkPContingencyStatistics::Learn(
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timerB->StopTimer();
 
-  cout << "## Process " << myRank << " broadcasted in " << timerB->GetElapsedTime() << " seconds."
-       << "\n";
+  std::cout << "## Process " << myRank << " broadcasted in " << timerB->GetElapsedTime()
+            << " seconds."
+            << "\n";
 
   timerB->Delete();
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
@@ -376,9 +380,9 @@ void vtkPContingencyStatistics::Learn(
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   timer->StopTimer();
 
-  cout << "## Process " << myRank << " parallel Learn took " << timer->GetElapsedTime()
-       << " seconds."
-       << "\n";
+  std::cout << "## Process " << myRank << " parallel Learn took " << timer->GetElapsedTime()
+            << " seconds."
+            << "\n";
 
   timer->Delete();
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS

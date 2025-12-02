@@ -18,10 +18,11 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+
+#include <iostream>
 
 namespace TestGPURayCastLabelMapValidityNS
 {
@@ -318,7 +319,7 @@ void CreateMaskData(vtkSmartPointer<vtkImageData> mask, int testcase)
 
 int TestGPURayCastLabelMapValidity(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);

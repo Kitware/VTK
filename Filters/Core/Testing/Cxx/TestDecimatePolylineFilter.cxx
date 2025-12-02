@@ -27,6 +27,8 @@
 #include <vtkRenderer.h>
 #include <vtkTestErrorObserver.h>
 
+#include <iostream>
+
 namespace
 {
 

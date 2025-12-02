@@ -16,6 +16,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 int TestBareScalarsToColors(int argc, char* argv[])
 {
   // Cases to check:
@@ -110,8 +112,9 @@ int TestBareScalarsToColors(int argc, char* argv[])
     const unsigned char* color = table->MapValue(0.5 * (range[0] + range[1]));
     if (color[0] != 128)
     {
-      cout << "Expected greyscale 128: ";
-      cout << color[0] << ", " << color[1] << ", " << color[2] << ", " << color[3] << std::endl;
+      std::cout << "Expected greyscale 128: ";
+      std::cout << color[0] << ", " << color[1] << ", " << color[2] << ", " << color[3]
+                << std::endl;
     }
 
     outputs[i] = vtkSmartPointer<vtkUnsignedCharArray>::New();

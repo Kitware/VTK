@@ -4,6 +4,8 @@
 #include "vtkDiscretizableColorTransferFunction.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestDiscretizableColorTransferFunction(int, char*[])
 {

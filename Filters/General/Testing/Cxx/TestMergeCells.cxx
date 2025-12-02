@@ -18,6 +18,8 @@ At last, vtkMergeCells is tested with a tolerance bigger than the perturbation's
 #include "vtkUnstructuredGrid.h"
 #include <cstdlib>
 
+#include <iostream>
+
 static vtkNew<vtkHexahedron> MakeHexahedron(double origin[3], double length);
 
 vtkNew<vtkHexahedron> MakeHexahedron(double origin[3], double length)
@@ -129,7 +131,7 @@ int TestMergeCells(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     int finalPoints = mergeCells->GetUnstructuredGrid()->GetNumberOfPoints();
     if (finalPoints != 16)
     {
-      cerr << "Found " << finalPoints << " after merge, expected 16" << endl;
+      std::cerr << "Found " << finalPoints << " after merge, expected 16" << std::endl;
       return EXIT_FAILURE;
     }
   }
@@ -156,7 +158,7 @@ int TestMergeCells(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     int finalPoints = mergeCells->GetUnstructuredGrid()->GetNumberOfPoints();
     if (finalPoints != 12)
     {
-      cerr << "Found " << finalPoints << " after merge, expected 12" << endl;
+      std::cerr << "Found " << finalPoints << " after merge, expected 12" << std::endl;
       return EXIT_FAILURE;
     }
   }

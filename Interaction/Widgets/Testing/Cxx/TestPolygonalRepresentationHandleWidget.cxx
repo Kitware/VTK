@@ -9,7 +9,6 @@
 #include "vtkImageData.h"
 #include "vtkImageDataGeometryFilter.h"
 #include "vtkImageResample.h"
-#include "vtkInteractorEventRecorder.h"
 #include "vtkLookupTable.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataCollection.h"
@@ -26,6 +25,8 @@
 #include "vtkTestUtilities.h"
 #include "vtkTriangleFilter.h"
 #include "vtkWarpScalar.h"
+
+#include <iostream>
 
 int TestPolygonalRepresentationHandleWidget(int argc, char* argv[])
 {

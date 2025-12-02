@@ -27,6 +27,8 @@
 
 #include "vtkOSPRayTestInteractor.h"
 
+#include <iostream>
+
 int TestOSPRayPass(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -72,12 +74,12 @@ int TestOSPRayPass(int argc, char* argv[])
   {
     if (i % 2)
     {
-      cerr << "Render via OSPRAY" << endl;
+      std::cerr << "Render via OSPRAY" << std::endl;
       renderer->SetPass(ospray);
     }
     else
     {
-      cerr << "Render via GL" << endl;
+      std::cerr << "Render via GL" << std::endl;
       renderer->SetPass(nullptr);
     }
     renWin->Render();

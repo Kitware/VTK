@@ -7,6 +7,8 @@
 #include "vtkPointData.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestOBJReaderMultiTexture(int argc, char* argv[])
 {

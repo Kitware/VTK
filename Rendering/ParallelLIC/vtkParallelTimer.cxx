@@ -11,7 +11,8 @@
 #include "vtkObjectFactory.h"
 #include "vtksys/FStream.hxx"
 
-using std::cerr;
+#include <iostream>
+
 using std::endl;
 using std::ostringstream;
 using std::string;
@@ -25,6 +26,7 @@ using std::vector;
 #include <Winsock2.h>
 #include <ctime>
 #include <process.h>
+
 VTK_ABI_NAMESPACE_BEGIN
 static int gettimeofday(struct timeval* tv, void*)
 {
@@ -274,7 +276,7 @@ vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator>>(ostringstream& s)
       break;
 
       default:
-        cerr << "Bad case at " << i - 1 << " " << c << ", " << (int)c;
+        std::cerr << "Bad case at " << i - 1 << " " << c << ", " << (int)c;
         return *this;
     }
   }
@@ -377,7 +379,7 @@ vtkParallelTimer::vtkParallelTimer()
   , Log(nullptr)
 {
 #if vtkParallelTimerDEBUG > 1
-  cerr << "=====vtkParallelTimer::vtkParallelTimer" << endl;
+  std::cerr << "=====vtkParallelTimer::vtkParallelTimer" << endl;
 #endif
 
   MPI_Initialized(&this->Initialized);
@@ -393,7 +395,7 @@ vtkParallelTimer::vtkParallelTimer()
 vtkParallelTimer::~vtkParallelTimer()
 {
 #if vtkParallelTimerDEBUG > 1
-  cerr << "=====vtkParallelTimer::~vtkParallelTimer" << endl;
+  std::cerr << "=====vtkParallelTimer::~vtkParallelTimer" << endl;
 #endif
 
   // Alert the user that he left events on the stack,
@@ -410,7 +412,7 @@ vtkParallelTimer::~vtkParallelTimer()
     vtkErrorMacro(<< "Event id stack has " << nIds << " remaining.");
     for (size_t i = 0; i < nIds; ++i)
     {
-      cerr << "EventId[" << i << "]=" << this->EventId[i] << endl;
+      std::cerr << "EventId[" << i << "]=" << this->EventId[i] << endl;
     }
   }
 #endif
@@ -424,7 +426,7 @@ vtkParallelTimer::~vtkParallelTimer()
 vtkParallelTimer* vtkParallelTimer::GetGlobalInstance()
 {
 #if vtkParallelTimerDEBUG > 1
-  cerr << "=====vtkParallelTimer::GetGlobalInstance" << endl;
+  std::cerr << "=====vtkParallelTimer::GetGlobalInstance" << endl;
 #endif
 
   if (vtkParallelTimer::GlobalInstance == nullptr)
@@ -448,7 +450,7 @@ vtkParallelTimer* vtkParallelTimer::GetGlobalInstance()
 void vtkParallelTimer::DeleteGlobalInstance()
 {
 #if vtkParallelTimerDEBUG > 1
-  cerr << "=====vtkParallelTimer::GetGlobalInstance" << endl;
+  std::cerr << "=====vtkParallelTimer::GetGlobalInstance" << endl;
 #endif
 
   if (vtkParallelTimer::GlobalInstance)
@@ -464,7 +466,7 @@ void vtkParallelTimer::DeleteGlobalInstance()
 void vtkParallelTimer::Clear()
 {
 #if vtkParallelTimerDEBUG > 1
-  cerr << "=====vtkParallelTimer::Clear" << endl;
+  std::cerr << "=====vtkParallelTimer::Clear" << endl;
 #endif
 
   this->Log->Clear();
@@ -475,7 +477,7 @@ void vtkParallelTimer::Clear()
 void vtkParallelTimer::StartEvent(int rank, const char* event)
 {
 #if vtkParallelTimerDEBUG > 2
-  cerr << "=====vtkParallelTimer::StartEvent" << endl;
+  std::cerr << "=====vtkParallelTimer::StartEvent" << endl;
 #endif
 
   if (this->WorldRank != rank)
@@ -489,7 +491,7 @@ void vtkParallelTimer::StartEvent(int rank, const char* event)
 void vtkParallelTimer::StartEvent(const char* event)
 {
 #if vtkParallelTimerDEBUG > 1
-  cerr << "=====vtkParallelTimer::StartEvent" << endl;
+  std::cerr << "=====vtkParallelTimer::StartEvent" << endl;
 #endif
 
   timeval wallt;
@@ -507,7 +509,7 @@ void vtkParallelTimer::StartEvent(const char* event)
 void vtkParallelTimer::EndEvent(int rank, const char* event)
 {
 #if vtkParallelTimerDEBUG > 2
-  cerr << "=====vtkParallelTimer::EndEvent" << endl;
+  std::cerr << "=====vtkParallelTimer::EndEvent" << endl;
 #endif
 
   if (this->WorldRank != rank)
@@ -521,7 +523,7 @@ void vtkParallelTimer::EndEvent(int rank, const char* event)
 void vtkParallelTimer::EndEvent(const char* event)
 {
 #if vtkParallelTimerDEBUG > 1
-  cerr << "=====vtkParallelTimer::EndEvent" << endl;
+  std::cerr << "=====vtkParallelTimer::EndEvent" << endl;
 #endif
 
   timeval wallt;
@@ -557,7 +559,7 @@ void vtkParallelTimer::EndEvent(const char* event)
 void vtkParallelTimer::EndEventSynch(int rank, const char* event)
 {
 #if vtkParallelTimerDEBUG > 1
-  cerr << "=====vtkParallelTimer::EndEventSynch" << endl;
+  std::cerr << "=====vtkParallelTimer::EndEventSynch" << endl;
 #endif
 
   if (this->Initialized)
@@ -575,7 +577,7 @@ void vtkParallelTimer::EndEventSynch(int rank, const char* event)
 void vtkParallelTimer::EndEventSynch(const char* event)
 {
 #if vtkParallelTimerDEBUG > 1
-  cerr << "=====vtkParallelTimer::EndEventSynch" << endl;
+  std::cerr << "=====vtkParallelTimer::EndEventSynch" << endl;
 #endif
 
   if (this->Initialized)
@@ -589,7 +591,7 @@ void vtkParallelTimer::EndEventSynch(const char* event)
 void vtkParallelTimer::Update()
 {
 #if vtkParallelTimerDEBUG > 1
-  cerr << "=====vtkParallelTimer::Update" << endl;
+  std::cerr << "=====vtkParallelTimer::Update" << endl;
 #endif
 
   if (this->Initialized)
@@ -602,12 +604,12 @@ void vtkParallelTimer::Update()
 int vtkParallelTimer::Write()
 {
 #if vtkParallelTimerDEBUG > 1
-  cerr << "=====vtkParallelTimer::Write" << endl;
+  std::cerr << "=====vtkParallelTimer::Write" << endl;
 #endif
 
   if ((this->WorldRank == this->WriterRank) && this->Log->GetSize())
   {
-    cerr << "Wrote " << this->FileName << endl;
+    std::cerr << "Wrote " << this->FileName << endl;
 
     ostringstream oss;
     *this->Log >> oss;

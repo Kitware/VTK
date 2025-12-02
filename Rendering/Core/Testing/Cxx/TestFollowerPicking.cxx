@@ -26,6 +26,8 @@
 #include "vtkStructuredPointsReader.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 //------------------------------------------------------------------------------
@@ -42,7 +44,7 @@ public:
     vtkCellPicker* picker = reinterpret_cast<vtkCellPicker*>(caller);
     if (picker->GetViewProp() != nullptr)
     {
-      cout << "Picked\n";
+      std::cout << "Picked\n";
     }
   }
 

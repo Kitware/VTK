@@ -18,6 +18,8 @@
 
 #include <QApplication>
 
+#include <iostream>
+
 namespace
 {
 struct MyVtkItem : QQuickVTKItem
@@ -52,7 +54,7 @@ vtkStandardNewMacro(MyVtkItem::Data);
 
 int TestQQuickVTKItem_1(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   QQuickVTKItem::setGraphicsApi();
   QApplication app(argc, argv);

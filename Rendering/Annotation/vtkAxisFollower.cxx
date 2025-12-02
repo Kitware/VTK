@@ -17,6 +17,7 @@
 #include "vtkTransform.h"
 
 #include <cmath>
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkAxisFollower);

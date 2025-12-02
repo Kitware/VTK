@@ -10,6 +10,8 @@
 #include <vtkStaticCellLocator.h>
 #include <vtkXMLPolyDataReader.h>
 
+#include <iostream>
+
 static int TestCell(vtkDataSet* ds, int cellId, double x1[3], double x2[3], double tol)
 {
   double t = 0.0;

@@ -8,6 +8,8 @@
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
 
+#include <iostream>
+
 namespace
 {
 std::string expectedScene = R"(<?xml version="1.0"?>

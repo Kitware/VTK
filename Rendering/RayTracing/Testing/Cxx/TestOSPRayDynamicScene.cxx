@@ -22,6 +22,8 @@
 
 #include <map>
 
+#include <iostream>
+
 int TestOSPRayDynamicScene(int argc, char* argv[])
 {
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -51,7 +53,7 @@ int TestOSPRayDynamicScene(int argc, char* argv[])
   camera->SetPosition(GRIDDIM * 3, GRIDDIM * 3, GRIDDIM * 4);
   renderer->SetActiveCamera(camera);
 
-  cerr << "ADD" << endl;
+  std::cerr << "ADD" << std::endl;
   std::map<int, vtkActor*> actors;
   for (int i = 0; i < GRIDDIM; i++)
   {
@@ -74,7 +76,7 @@ int TestOSPRayDynamicScene(int argc, char* argv[])
     }
   }
 
-  cerr << "HIDE" << endl;
+  std::cerr << "HIDE" << std::endl;
   for (int i = 0; i < GRIDDIM; i++)
   {
     for (int j = 0; j < GRIDDIM; j++)
@@ -88,7 +90,7 @@ int TestOSPRayDynamicScene(int argc, char* argv[])
     }
   }
 
-  cerr << "SHOW" << endl;
+  std::cerr << "SHOW" << std::endl;
   for (int i = 0; i < GRIDDIM; i++)
   {
     for (int j = 0; j < GRIDDIM; j++)
@@ -102,7 +104,7 @@ int TestOSPRayDynamicScene(int argc, char* argv[])
     }
   }
 
-  cerr << "REMOVE" << endl;
+  std::cerr << "REMOVE" << std::endl;
   for (int i = 0; i < GRIDDIM; i++)
   {
     for (int j = 0; j < GRIDDIM; j++)

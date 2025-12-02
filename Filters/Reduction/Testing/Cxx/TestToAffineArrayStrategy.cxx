@@ -8,6 +8,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 int TestToAffineArrayStrategy(int, char*[])
 {
   vtkNew<vtkUnsignedLongArray> base;

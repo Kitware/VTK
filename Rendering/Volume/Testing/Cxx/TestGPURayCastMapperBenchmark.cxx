@@ -5,7 +5,6 @@
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
-#include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRTAnalyticSource.h"
@@ -17,10 +16,12 @@
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-127, 128, -127, 128, -127, 128);
@@ -68,7 +69,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
     renderWindow->Render();
     timer->StopTimer();
     double firstRender = timer->GetElapsedTime();
-    cerr << "First Render Time: " << firstRender << endl;
+    std::cerr << "First Render Time: " << firstRender << std::endl;
 
     int numRenders = 20;
     for (int i = 0; i < numRenders; ++i)
@@ -89,7 +90,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
     }
     timer->StopTimer();
     double elapsed = timer->GetElapsedTime();
-    cerr << "Interactive Render Time: " << elapsed / numRenders << endl;
+    std::cerr << "Interactive Render Time: " << elapsed / numRenders << std::endl;
 
     renderer->GetActiveCamera()->SetPosition(0, 0, 1);
     renderer->GetActiveCamera()->SetFocalPoint(0, 0, 0);
@@ -110,7 +111,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
   }
 
   return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));

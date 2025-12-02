@@ -26,6 +26,8 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkRenderer.h>
 
+#include <iostream>
+
 namespace
 {
 void DrawTriangles(double* p1, double* q1, double* r1, double* p2, double* q2, double* r2)

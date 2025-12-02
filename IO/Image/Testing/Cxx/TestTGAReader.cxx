@@ -9,12 +9,14 @@
 #include "vtkRenderer.h"
 #include "vtkTGAReader.h"
 
+#include <iostream>
+
 int TestTGAReader(int argc, char* argv[])
 {
 
   if (argc <= 1)
   {
-    cout << "Usage: " << argv[0] << " <tga file>" << endl;
+    std::cout << "Usage: " << argv[0] << " <tga file>" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -25,7 +27,7 @@ int TestTGAReader(int argc, char* argv[])
   // Check the image can be read
   if (!tgaReader->CanReadFile(filename.c_str()))
   {
-    cerr << "CanReadFile failed for " << filename << "\n";
+    std::cerr << "CanReadFile failed for " << filename << "\n";
     return EXIT_FAILURE;
   }
 
@@ -35,10 +37,10 @@ int TestTGAReader(int argc, char* argv[])
 
   // Read and display the image properties
   const char* fileExtensions = tgaReader->GetFileExtensions();
-  cout << "File extensions: " << fileExtensions << endl;
+  std::cout << "File extensions: " << fileExtensions << std::endl;
 
   const char* descriptiveName = tgaReader->GetDescriptiveName();
-  cout << "Descriptive name: " << descriptiveName << endl;
+  std::cout << "Descriptive name: " << descriptiveName << std::endl;
 
   // Visualize
   vtkNew<vtkImageViewer> imageViewer;

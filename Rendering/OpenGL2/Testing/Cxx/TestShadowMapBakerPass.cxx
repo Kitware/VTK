@@ -27,6 +27,8 @@
 #include "vtkTextureObject.h"
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestShadowMapBakerPass(int argc, char* argv[])
 {
@@ -75,7 +77,7 @@ int TestShadowMapBakerPass(int argc, char* argv[])
   renderWindow->Render();
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
-  cerr << "baking time: " << firstRender << endl;
+  std::cerr << "baking time: " << firstRender << std::endl;
 
   // get a shadow map
   vtkTextureObject* to = (*bakerPass->GetShadowMaps())[2];

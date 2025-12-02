@@ -7,7 +7,6 @@
 #include "vtkHardwareSelector.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
-#include "vtkMath.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointGaussianMapper.h"
@@ -24,6 +23,8 @@
 #include <vtkTestUtilities.h>
 
 #include "vtkCylinderSource.h"
+
+#include <iostream>
 
 int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
 {
@@ -100,15 +101,16 @@ int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
 
   bool goodPick = false;
 
-  cerr << "numnodes: " << result->GetNumberOfNodes() << "\n";
+  std::cerr << "numnodes: " << result->GetNumberOfNodes() << "\n";
   if (result->GetNumberOfNodes() == 5)
   {
     for (unsigned int nodenum = 0; nodenum < result->GetNumberOfNodes(); ++nodenum)
     {
       vtkSelectionNode* node = result->GetNode(nodenum);
 
-      cerr << "Node: " << nodenum
-           << " comp: " << node->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX()) << "\n";
+      std::cerr << "Node: " << nodenum
+                << " comp: " << node->GetProperties()->Get(vtkSelectionNode::COMPOSITE_INDEX())
+                << "\n";
 
       vtkIdTypeArray* selIds = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
       if (selIds)
@@ -117,7 +119,7 @@ int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
         for (vtkIdType i = 0; i < numIds; ++i)
         {
           vtkIdType curId = selIds->GetValue(i);
-          cerr << curId << "\n";
+          std::cerr << curId << "\n";
         }
       }
     }
@@ -137,7 +139,7 @@ int TestCompositeDataPointGaussianSelection(int argc, char* argv[])
 
   if (!goodPick)
   {
-    cerr << "Incorrect splats picked!\n";
+    std::cerr << "Incorrect splats picked!\n";
     return EXIT_FAILURE;
   }
 

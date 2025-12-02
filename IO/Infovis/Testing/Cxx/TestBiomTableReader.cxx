@@ -5,11 +5,13 @@
 #include "vtkTable.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestBiomTableReader(int argc, char* argv[])
 {
   char* file = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/Infovis/otu_table.biom");
 
-  cerr << "file: " << file << endl;
+  std::cerr << "file: " << file << std::endl;
 
   vtkSmartPointer<vtkBiomTableReader> reader = vtkSmartPointer<vtkBiomTableReader>::New();
   reader->SetFileName(file);
@@ -29,6 +31,6 @@ int TestBiomTableReader(int argc, char* argv[])
     ++error_count;
   }
 
-  cerr << error_count << " errors" << endl;
+  std::cerr << error_count << " errors" << std::endl;
   return error_count;
 }

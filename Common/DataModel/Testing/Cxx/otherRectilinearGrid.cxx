@@ -19,11 +19,13 @@
 
 #include <sstream>
 
+#include <iostream>
+
 int test_rg3d(ostream& strm)
 {
   int i, j, k;
   // actual test
-  strm << "Testing vtkRectilinearGrid 3D" << endl;
+  strm << "Testing vtkRectilinearGrid 3D" << std::endl;
   vtkNew<vtkRectilinearGrid> rg3D;
 
   if (!rg3D->SupportsGhostArray(vtkDataObject::POINT) ||
@@ -105,7 +107,7 @@ int test_rg3d(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
   double bounds[6];
@@ -133,7 +135,7 @@ int test_rg3d(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell3D;
@@ -146,13 +148,13 @@ int test_rg3d(ostream& strm)
   // Test GetCellBounds
   rg3D->GetCellBounds(k * (19 * 19) + j * 19 + i, bounds);
   strm << "GetCellBounds(rg3D): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
   rg3D->GetPoint(k * (20 * 20) + j * 20 + i, point);
-  strm << "GetPoint(rg3D): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(rg3D): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -160,7 +162,7 @@ int test_rg3d(ostream& strm)
 
   rg3D->GetPoint(rg3D->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -174,18 +176,18 @@ int test_rg3d(ostream& strm)
 
   strm << "FindAndGetCell(rg3D): "
        << *rg3D->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
-  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << ", " << pcoords[2] << endl;
+  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << ", " << pcoords[2] << std::endl;
   strm << "weights: " << weights[0] << ", " << weights[1] << ", " << weights[2] << ", "
        << weights[3] << ", " << weights[4] << ", " << weights[5] << ", " << weights[6] << ", "
-       << weights[7] << endl;
+       << weights[7] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(rg3D): " << rg3D->GetCellType(0) << endl;
+  strm << "GetCellType(rg3D): " << rg3D->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(rg3D): " << rg3D->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(rg3D): " << rg3D->GetActualMemorySize() << std::endl;
 
   return EXIT_SUCCESS;
 }
@@ -194,7 +196,7 @@ int test_rg2d_xy(ostream& strm)
 {
   int i, j;
   // actual test
-  strm << "Testing vtkRectilinearGrid 2D (xy)" << endl;
+  strm << "Testing vtkRectilinearGrid 2D (xy)" << std::endl;
   vtkNew<vtkRectilinearGrid> rg2Dxy;
 
   vtkNew<vtkDoubleArray> xdata;
@@ -251,7 +253,7 @@ int test_rg2d_xy(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
   double bounds[6];
@@ -284,7 +286,7 @@ int test_rg2d_xy(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell2D;
@@ -298,14 +300,14 @@ int test_rg2d_xy(ostream& strm)
 
   rg2Dxy->GetCellBounds(j * 19 + i, bounds);
   strm << "GetCellBounds(rg2Dxy): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   rg2Dxy->GetPoint(j * 20 + i, point);
-  strm << "GetPoint(rg2Dxy): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(rg2Dxy): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -316,7 +318,7 @@ int test_rg2d_xy(ostream& strm)
   point3D[2] = 0;
   rg2Dxy->GetPoint(rg2Dxy->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -332,24 +334,24 @@ int test_rg2d_xy(ostream& strm)
   vtkCell* found = rg2Dxy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(rg2Dxy) not found!" << endl;
+    strm << "FindAndGetCell(rg2Dxy) not found!" << std::endl;
     return 1;
   }
 
   strm << "FindAndGetCell(rg2Dxy): " << *found;
-  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << endl;
+  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << std::endl;
   strm << "weights: " << weights[0] << ", " << weights[1] << ", " << weights[2] << ", "
-       << weights[3] << endl;
+       << weights[3] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(rg2Dxy): " << rg2Dxy->GetCellType(0) << endl;
+  strm << "GetCellType(rg2Dxy): " << rg2Dxy->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(rg2Dxy): " << rg2Dxy->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(rg2Dxy): " << rg2Dxy->GetActualMemorySize() << std::endl;
 
-  strm << "Testing completed" << endl;
+  strm << "Testing completed" << std::endl;
   return EXIT_SUCCESS;
 }
 
@@ -357,7 +359,7 @@ int test_rg2d_xz(ostream& strm)
 {
   int i, j;
   // actual test
-  strm << "Testing vtkRectilinearGrid" << endl;
+  strm << "Testing vtkRectilinearGrid" << std::endl;
   vtkNew<vtkRectilinearGrid> rg2Dxz;
 
   vtkNew<vtkDoubleArray> xdata;
@@ -414,7 +416,7 @@ int test_rg2d_xz(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
   double bounds[6];
@@ -447,7 +449,7 @@ int test_rg2d_xz(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell2D;
@@ -461,14 +463,14 @@ int test_rg2d_xz(ostream& strm)
 
   rg2Dxz->GetCellBounds(j * 19 + i, bounds);
   strm << "GetCellBounds(rg2Dxz): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   rg2Dxz->GetPoint(j * 20 + i, point);
-  strm << "GetPoint(rg2Dxz): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(rg2Dxz): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -479,7 +481,7 @@ int test_rg2d_xz(ostream& strm)
   point3D[2] = 14;
   rg2Dxz->GetPoint(rg2Dxz->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -496,24 +498,24 @@ int test_rg2d_xz(ostream& strm)
   vtkCell* found = rg2Dxz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(rg2Dxz) not found!" << endl;
+    strm << "FindAndGetCell(rg2Dxz) not found!" << std::endl;
     return 1;
   }
 
   strm << "FindAndGetCell(rg2Dxz): " << *found;
-  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << endl;
+  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << std::endl;
   strm << "weights: " << weights[0] << ", " << weights[1] << ", " << weights[2] << ", "
-       << weights[3] << endl;
+       << weights[3] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(rg2Dxz): " << rg2Dxz->GetCellType(0) << endl;
+  strm << "GetCellType(rg2Dxz): " << rg2Dxz->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(rg2Dxz): " << rg2Dxz->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(rg2Dxz): " << rg2Dxz->GetActualMemorySize() << std::endl;
 
-  strm << "Testing completed" << endl;
+  strm << "Testing completed" << std::endl;
   return EXIT_SUCCESS;
 }
 
@@ -521,7 +523,7 @@ int test_rg2d_yz(ostream& strm)
 {
   int i, j;
   // actual test
-  strm << "Testing vtkRectilinearGrid" << endl;
+  strm << "Testing vtkRectilinearGrid" << std::endl;
   vtkNew<vtkRectilinearGrid> rg2Dyz;
 
   vtkNew<vtkDoubleArray> ydata;
@@ -578,7 +580,7 @@ int test_rg2d_yz(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
   double bounds[6];
@@ -611,7 +613,7 @@ int test_rg2d_yz(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell2D;
@@ -625,14 +627,14 @@ int test_rg2d_yz(ostream& strm)
 
   rg2Dyz->GetCellBounds(j * 19 + i, bounds);
   strm << "GetCellBounds(rg2Dyz): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   rg2Dyz->GetPoint(j * 20 + i, point);
-  strm << "GetPoint(rg2Dyz): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(rg2Dyz): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -643,7 +645,7 @@ int test_rg2d_yz(ostream& strm)
   point3D[2] = 14;
   rg2Dyz->GetPoint(rg2Dyz->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -660,24 +662,24 @@ int test_rg2d_yz(ostream& strm)
   vtkCell* found = rg2Dyz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(rg2Dyz) not found!" << endl;
+    strm << "FindAndGetCell(rg2Dyz) not found!" << std::endl;
     return 1;
   }
 
   strm << "FindAndGetCell(rg2Dyz): " << *found;
-  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << endl;
+  strm << "pcoords: " << pcoords[0] << ", " << pcoords[1] << std::endl;
   strm << "weights: " << weights[0] << ", " << weights[1] << ", " << weights[2] << ", "
-       << weights[3] << endl;
+       << weights[3] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(rg2Dyz): " << rg2Dyz->GetCellType(0) << endl;
+  strm << "GetCellType(rg2Dyz): " << rg2Dyz->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(rg2Dyz): " << rg2Dyz->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(rg2Dyz): " << rg2Dyz->GetActualMemorySize() << std::endl;
 
-  strm << "Testing completed" << endl;
+  strm << "Testing completed" << std::endl;
   return EXIT_SUCCESS;
 }
 
@@ -685,7 +687,7 @@ int test_rg1d_x(ostream& strm)
 {
   int i;
   // actual test
-  strm << "Testing vtkRectilinearGrid" << endl;
+  strm << "Testing vtkRectilinearGrid" << std::endl;
   vtkNew<vtkRectilinearGrid> rg1Dx;
 
   vtkNew<vtkDoubleArray> xdata;
@@ -734,7 +736,7 @@ int test_rg1d_x(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
   double bounds[6];
@@ -771,7 +773,7 @@ int test_rg1d_x(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell1D;
@@ -784,14 +786,14 @@ int test_rg1d_x(ostream& strm)
 
   rg1Dx->GetCellBounds(i, bounds);
   strm << "GetCellBounds(rg1x): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   rg1Dx->GetPoint(i, point);
-  strm << "GetPoint(rg1x): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(rg1x): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -802,7 +804,7 @@ int test_rg1d_x(ostream& strm)
   point3D[2] = 0;
   rg1Dx->GetPoint(rg1Dx->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -817,23 +819,23 @@ int test_rg1d_x(ostream& strm)
   vtkCell* found = rg1Dx->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(rg1Dx) not found!" << endl;
+    strm << "FindAndGetCell(rg1Dx) not found!" << std::endl;
     return 1;
   }
 
   strm << "FindAndGetCell(rg1Dx): " << *found;
-  strm << "pcoords: " << pcoords[0] << endl;
-  strm << "weights: " << weights[0] << ", " << weights[1] << endl;
+  strm << "pcoords: " << pcoords[0] << std::endl;
+  strm << "weights: " << weights[0] << ", " << weights[1] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(rg1Dx): " << rg1Dx->GetCellType(0) << endl;
+  strm << "GetCellType(rg1Dx): " << rg1Dx->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(rg1Dx): " << rg1Dx->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(rg1Dx): " << rg1Dx->GetActualMemorySize() << std::endl;
 
-  strm << "Testing completed" << endl;
+  strm << "Testing completed" << std::endl;
   return EXIT_SUCCESS;
 }
 
@@ -841,7 +843,7 @@ int test_rg1d_y(ostream& strm)
 {
   int i;
   // actual test
-  strm << "Testing vtkRectilinearGrid" << endl;
+  strm << "Testing vtkRectilinearGrid" << std::endl;
   vtkNew<vtkRectilinearGrid> rg1Dy;
 
   vtkNew<vtkDoubleArray> ydata;
@@ -891,7 +893,7 @@ int test_rg1d_y(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
   double bounds[6];
@@ -928,7 +930,7 @@ int test_rg1d_y(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell1D;
@@ -941,14 +943,14 @@ int test_rg1d_y(ostream& strm)
 
   rg1Dy->GetCellBounds(i, bounds);
   strm << "GetCellBounds(rg1Dy): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   rg1Dy->GetPoint(i, point);
-  strm << "GetPoint(rg1Dy): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(rg1Dy): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -959,7 +961,7 @@ int test_rg1d_y(ostream& strm)
   point3D[2] = 0;
   rg1Dy->GetPoint(rg1Dy->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -974,23 +976,23 @@ int test_rg1d_y(ostream& strm)
   vtkCell* found = rg1Dy->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(rg1Dy) not found!" << endl;
+    strm << "FindAndGetCell(rg1Dy) not found!" << std::endl;
     return 1;
   }
 
   strm << "FindAndGetCell(rg1Dy): " << *found;
-  strm << "pcoords: " << pcoords[0] << endl;
-  strm << "weights: " << weights[0] << ", " << weights[1] << endl;
+  strm << "pcoords: " << pcoords[0] << std::endl;
+  strm << "weights: " << weights[0] << ", " << weights[1] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(rg1Dy): " << rg1Dy->GetCellType(0) << endl;
+  strm << "GetCellType(rg1Dy): " << rg1Dy->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(rg1Dy): " << rg1Dy->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(rg1Dy): " << rg1Dy->GetActualMemorySize() << std::endl;
 
-  strm << "Testing completed" << endl;
+  strm << "Testing completed" << std::endl;
   return EXIT_SUCCESS;
 }
 
@@ -998,7 +1000,7 @@ int test_rg1d_z(ostream& strm)
 {
   int i;
   // actual test
-  strm << "Testing vtkRectilinearGrid" << endl;
+  strm << "Testing vtkRectilinearGrid" << std::endl;
   vtkNew<vtkRectilinearGrid> rg1Dz;
 
   vtkNew<vtkDoubleArray> zdata;
@@ -1047,7 +1049,7 @@ int test_rg1d_z(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
   double bounds[6];
@@ -1084,7 +1086,7 @@ int test_rg1d_z(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell1D;
@@ -1097,14 +1099,14 @@ int test_rg1d_z(ostream& strm)
 
   rg1Dz->GetCellBounds(i, bounds);
   strm << "GetCellBounds(rg1Dz): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   rg1Dz->GetPoint(i, point);
-  strm << "GetPoint(rg1Dz): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(rg1Dz): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindPoint
 
@@ -1115,7 +1117,7 @@ int test_rg1d_z(ostream& strm)
   point3D[2] = 14;
   rg1Dz->GetPoint(rg1Dz->FindPoint(point3D), point);
   strm << "FindPoint(" << point3D[0] << ", " << point3D[1] << ", " << point3D[2]
-       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+       << ") = " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test FindAndGetCell
 
@@ -1130,23 +1132,23 @@ int test_rg1d_z(ostream& strm)
   vtkCell* found = rg1Dz->FindAndGetCell(point3D, dummyCell, 0, 0, subId, pcoords, weights);
   if (found == nullptr)
   {
-    strm << "FindAndGetCell(rg1Dz) not found!" << endl;
+    strm << "FindAndGetCell(rg1Dz) not found!" << std::endl;
     return 1;
   }
 
   strm << "FindAndGetCell(rg1Dz): " << *found;
-  strm << "pcoords: " << pcoords[0] << endl;
-  strm << "weights: " << weights[0] << ", " << weights[1] << endl;
+  strm << "pcoords: " << pcoords[0] << std::endl;
+  strm << "weights: " << weights[0] << ", " << weights[1] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(rg1Dz): " << rg1Dz->GetCellType(0) << endl;
+  strm << "GetCellType(rg1Dz): " << rg1Dz->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(rg1Dz): " << rg1Dz->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(rg1Dz): " << rg1Dz->GetActualMemorySize() << std::endl;
 
-  strm << "Testing completed" << endl;
+  strm << "Testing completed" << std::endl;
   return EXIT_SUCCESS;
 }
 
@@ -1154,7 +1156,7 @@ int test_rg0d(ostream& strm)
 {
   int i;
   // actual test
-  strm << "Testing vtkRectilinearGrid" << endl;
+  strm << "Testing vtkRectilinearGrid" << std::endl;
   vtkNew<vtkRectilinearGrid> rg0D;
 
   rg0D->SetDimensions(1, 1, 1);
@@ -1190,7 +1192,7 @@ int test_rg0d(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test GetCell(i,j,k)
   double bounds[6];
@@ -1215,7 +1217,7 @@ int test_rg0d(ostream& strm)
   {
     strm << ids->GetId(ii) << " ";
   }
-  strm << endl << endl;
+  strm << std::endl << std::endl;
 
   // Test Thread Safe GetCell
   vtkNew<vtkGenericCell> gcell0D;
@@ -1228,24 +1230,24 @@ int test_rg0d(ostream& strm)
 
   rg0D->GetCellBounds(i, bounds);
   strm << "GetCellBounds(rg0D): " << bounds[0] << ", " << bounds[1] << ", " << bounds[2] << ", "
-       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << endl;
+       << bounds[3] << ", " << bounds[4] << ", " << bounds[5] << std::endl;
 
   // Test GetPoint
 
   double point[6];
 
   rg0D->GetPoint(0, point);
-  strm << "GetPoint(rg0D): " << point[0] << ", " << point[1] << ", " << point[2] << endl;
+  strm << "GetPoint(rg0D): " << point[0] << ", " << point[1] << ", " << point[2] << std::endl;
 
   // Test GetCellType
 
-  strm << "GetCellType(rg0D): " << rg0D->GetCellType(0) << endl;
+  strm << "GetCellType(rg0D): " << rg0D->GetCellType(0) << std::endl;
 
   // Test GetActualMemorySize
 
-  strm << "GetActualMemorySize(rg0D): " << rg0D->GetActualMemorySize() << endl;
+  strm << "GetActualMemorySize(rg0D): " << rg0D->GetActualMemorySize() << std::endl;
 
-  strm << "Testing completed" << endl;
+  strm << "Testing completed" << std::endl;
   return EXIT_SUCCESS;
 }
 
@@ -1253,7 +1255,7 @@ int TestORG(ostream& strm)
 {
   int ret = EXIT_SUCCESS;
   // actual test
-  strm << "Testing vtkRectilinearGrid" << endl;
+  strm << "Testing vtkRectilinearGrid" << std::endl;
 
   ret = test_rg3d(strm);
   if (ret != EXIT_SUCCESS)
@@ -1303,7 +1305,7 @@ int TestORG(ostream& strm)
     return ret;
   }
 
-  strm << "Testing completed" << endl;
+  strm << "Testing completed" << std::endl;
   return ret;
 }
 

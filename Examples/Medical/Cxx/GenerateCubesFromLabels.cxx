@@ -30,11 +30,13 @@
 #include <vtkTransform.h>
 #include <vtkUnstructuredGrid.h>
 
+#include <iostream>
+
 int main(int argc, char* argv[])
 {
   if (argc < 4)
   {
-    cout << "Usage: " << argv[0] << " InputVolume StartLabel EndLabel" << endl;
+    std::cout << "Usage: " << argv[0] << " InputVolume StartLabel EndLabel" << endl;
     return EXIT_FAILURE;
   }
 
@@ -126,7 +128,7 @@ int main(int argc, char* argv[])
     // output the polydata
     std::stringstream ss;
     ss << filePrefix << i << ".vtp";
-    cout << argv[0] << " writing " << ss.str() << endl;
+    std::cout << argv[0] << " writing " << ss.str() << endl;
 
     writer->SetFileName(ss.str().c_str());
     writer->Write();

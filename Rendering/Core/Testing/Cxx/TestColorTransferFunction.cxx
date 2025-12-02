@@ -5,6 +5,8 @@
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 
+#include <iostream>
+
 bool TestColorSpace()
 {
   vtkNew<vtkColorTransferFunction> ctf;
@@ -13,7 +15,7 @@ bool TestColorSpace()
   const unsigned char* rgba = ctf->MapValue(0.5);
   if (rgba[0] != 128 || rgba[1] != 0 || rgba[2] != 128)
   {
-    cerr << "ERROR: ColorSpace == VTK_CTF_RGB failed!" << endl;
+    std::cerr << "ERROR: ColorSpace == VTK_CTF_RGB failed!" << std::endl;
     return false;
   }
 
@@ -21,7 +23,7 @@ bool TestColorSpace()
   rgba = ctf->MapValue(0.5);
   if (rgba[0] != 196 || rgba[1] != 16 || rgba[2] != 123)
   {
-    cerr << "ERROR: ColorSpace == VTK_CTF_LAB_CIEDE2000 failed!" << endl;
+    std::cerr << "ERROR: ColorSpace == VTK_CTF_LAB_CIEDE2000 failed!" << std::endl;
     return false;
   }
 
@@ -29,7 +31,7 @@ bool TestColorSpace()
   rgba = ctf->MapValue(0.5);
   if (rgba[0] != 0 || rgba[1] != 0 || rgba[2] != 255)
   {
-    cerr << "ERROR: ColorSpace == VTK_CTF_STEP failed!" << endl;
+    std::cerr << "ERROR: ColorSpace == VTK_CTF_STEP failed!" << std::endl;
     return false;
   }
 
@@ -37,7 +39,7 @@ bool TestColorSpace()
   rgba = ctf->MapValue(0.5);
   if (rgba[0] != 199 || rgba[1] != 0 || rgba[2] != 175)
   {
-    cerr << "ERROR: ColorSpace == VTK_CTF_LAB_Prolab failed!" << endl;
+    std::cerr << "ERROR: ColorSpace == VTK_CTF_LAB_Prolab failed!" << std::endl;
     return false;
   }
 

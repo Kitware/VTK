@@ -5,7 +5,6 @@
 #include "vtkCellData.h"
 #include "vtkDataObject.h"
 #include "vtkDataSet.h"
-#include "vtkDataSetAttributes.h"
 #include "vtkFieldData.h"
 #include "vtkGraph.h"
 #include "vtkInformation.h"
@@ -14,13 +13,12 @@
 #include "vtkLabelHierarchy.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkPointSet.h"
 #include "vtkSmartPointer.h"
-#include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTextProperty.h"
 #include "vtkTextRenderer.h"
 
+#include <iostream>
 #include <map>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -146,7 +144,7 @@ int vtkLabelSizeCalculator::RequestData(vtkInformation* vtkNotUsed(request),
 
   vtkIntArray* lsz = this->LabelSizesForArray(inArr, typeArr);
 #if 0
-  cout
+  std::cout
     << "Input array... port: " << port << " connection: " << connection
     << " field association: " << fieldAssoc << " attribute type: " << attribType << "\n";
 #endif // 0
@@ -237,8 +235,8 @@ vtkIntArray* vtkLabelSizeCalculator::LabelSizesForArray(
 
     if (this->GetDebug())
     {
-      cout << "LSC: " << bds[0] << " " << bds[1] << " " << bds[2] << " " << bds[3] << " \""
-           << labels->GetVariantValue(i).ToString() << "\"\n";
+      std::cout << "LSC: " << bds[0] << " " << bds[1] << " " << bds[2] << " " << bds[3] << " \""
+                << labels->GetVariantValue(i).ToString() << "\"\n";
     }
 
     bds += 4;

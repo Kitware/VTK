@@ -11,7 +11,9 @@
 
 #include <sstream>
 
-#define MESSAGE(x) cout << (is_server ? "SERVER" : "CLIENT") << ":" x << endl;
+#include <iostream>
+
+#define MESSAGE(x) std::cout << (is_server ? "SERVER" : "CLIENT") << ":" x << std::endl;
 
 //-----------------------------------------------------------------------------
 // This unit test make sure that we can Send/Receive a int, vtkDataArray and a vtkDataSet

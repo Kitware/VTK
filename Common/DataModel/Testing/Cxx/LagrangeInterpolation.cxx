@@ -36,6 +36,8 @@
 
 #include "vtkTestConditionals.txx"
 
+#include <iostream>
+
 using namespace vtk;
 
 template <int N, typename T, typename U>

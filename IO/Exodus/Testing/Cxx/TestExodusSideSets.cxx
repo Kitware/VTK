@@ -9,19 +9,21 @@
 #include "vtkNew.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int TestExodusSideSets(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/edgeFaceElem.exii");
   if (!fname)
   {
-    cout << "Could not obtain filename for test data.\n";
+    std::cout << "Could not obtain filename for test data.\n";
     return 1;
   }
 
   vtkNew<vtkExodusIIReader> rdr;
   if (!rdr->CanReadFile(fname))
   {
-    cout << "Cannot read \"" << fname << "\"\n";
+    std::cout << "Cannot read \"" << fname << "\"\n";
     return 1;
   }
   rdr->SetFileName(fname);
@@ -50,7 +52,7 @@ int TestExodusSideSets(int argc, char* argv[])
 
   if (cd == nullptr)
   {
-    cerr << "Can't find proper data set\n";
+    std::cerr << "Can't find proper data set\n";
     return 1;
   }
 
@@ -62,14 +64,14 @@ int TestExodusSideSets(int argc, char* argv[])
 
   if (!sourceelementsides || !sourceelementids)
   {
-    cerr << "Can't find proper cell data arrays\n";
+    std::cerr << "Can't find proper cell data arrays\n";
     return 1;
   }
   else
   {
     if (sourceelementids->GetNumberOfTuples() != 5)
     {
-      cerr << "Wrong number of cell array tuples\n";
+      std::cerr << "Wrong number of cell array tuples\n";
       return 1;
     }
     // correct values
@@ -80,12 +82,12 @@ int TestExodusSideSets(int argc, char* argv[])
     {
       if (sourceelementids->GetValue(i) != ids[i])
       {
-        cerr << "Source element id is wrong\n";
+        std::cerr << "Source element id is wrong\n";
         return 1;
       }
       if (sourceelementsides->GetValue(i) != sides[i])
       {
-        cerr << "Source element side is wrong\n";
+        std::cerr << "Source element side is wrong\n";
         return 1;
       }
     }

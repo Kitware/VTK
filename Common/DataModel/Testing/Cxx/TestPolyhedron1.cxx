@@ -25,6 +25,8 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 // Test of vtkPolyhedron. A dodecahedron is created for testing clip and contour
 int TestPolyhedron1(int argc, char* argv[])
 {
@@ -105,7 +107,7 @@ int TestPolyhedron1(int argc, char* argv[])
   pointDataArray->Initialize();
   for (int i = 0; i < 20; i++)
   {
-    cout << plane->EvaluateFunction(dodechedronPoint[i]) << endl;
+    std::cout << plane->EvaluateFunction(dodechedronPoint[i]) << std::endl;
     pointDataArray->InsertNextValue(plane->EvaluateFunction(dodechedronPoint[i]) + 0.01);
   }
 

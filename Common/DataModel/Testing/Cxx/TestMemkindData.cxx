@@ -22,6 +22,8 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 int TestMemkindData(int ac, char* av[])
 {
   std::string home = ".";
@@ -38,50 +40,50 @@ int TestMemkindData(int ac, char* av[])
       VTK_FROM_CHARS_IF_ERROR_RETURN(av[a + 1], GB, EXIT_FAILURE);
     }
   }
-  cout << "Extended memory is backed by " << home << endl;
+  std::cout << "Extended memory is backed by " << home << std::endl;
   vtkObjectBase::SetMemkindDirectory(home.c_str());
 
-  cout << "*****************************************" << endl;
-  cout << "Test allocation of " << GB << " gigabytes." << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "Test allocation of " << GB << " gigabytes." << std::endl;
   // This is expected to succeed as long as the file system has at least this much free space.
   vtkFloatArray* extArray = vtkFloatArray::ExtendedNew();
-  cout << "In extended memory ... " << endl;
+  std::cout << "In extended memory ... " << std::endl;
   extArray->Allocate(1024l * 1024 * 1024 * GB / sizeof(float));
-  cout << "OK!" << endl;
+  std::cout << "OK!" << std::endl;
 
   // This is expected to succeed as long as the RAM has at least this much capacity.
   vtkFloatArray* normalArray = vtkFloatArray::New();
-  cout << "In standard memory ... " << endl;
+  std::cout << "In standard memory ... " << std::endl;
   normalArray->Allocate(1024l * 1024 * 1024 * GB / sizeof(float));
-  cout << "OK!" << endl;
+  std::cout << "OK!" << std::endl;
 
-  cout << "Delete extended memory ... " << endl;
+  std::cout << "Delete extended memory ... " << std::endl;
   extArray->Delete();
-  cout << "Delete standard memory ... " << endl;
+  std::cout << "Delete standard memory ... " << std::endl;
   normalArray->Delete();
 
   // Demonstrate that it works with smart pointers too.
   vtkSmartPointer<vtkFloatArray> extArray2 = vtkSmartPointer<vtkFloatArray>::ExtendedNew();
-  cout << "Another in extended memory ... " << endl;
+  std::cout << "Another in extended memory ... " << std::endl;
   extArray->Allocate(1024l * 1024 * 1024 * GB / sizeof(float));
-  cout << "OK!" << endl;
+  std::cout << "OK!" << std::endl;
 
-  cout << "*****************************************" << endl;
-  cout << "Make a big ImageData in extended memory. " << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "Make a big ImageData in extended memory. " << std::endl;
   vtkImageData* hugeImage = vtkImageData::ExtendedNew();
   assert(hugeImage->GetIsInMemkind() == true);
   int edge = static_cast<int>(std::cbrt(1024l * 1024 * 1024 * GB / VTK_SIZEOF_SHORT));
-  cout << "Each edge is " << edge << endl;
+  std::cout << "Each edge is " << edge << std::endl;
   hugeImage->SetDimensions(edge, edge, edge);
   hugeImage->AllocateScalars(VTK_UNSIGNED_SHORT, 1);
-  cout << "Populate it." << endl;
+  std::cout << "Populate it." << std::endl;
   unsigned short* ptr = static_cast<unsigned short*>(hugeImage->GetScalarPointer());
   for (int k = 0; k < edge; ++k)
   {
     double z = (double)k / edge - 0.5;
     if (k % (edge / 10) == 0)
     {
-      cout << (z + 0.5) * 100 << "% done" << endl;
+      std::cout << (z + 0.5) * 100 << "% done" << std::endl;
     }
     for (int j = 0; j < edge; ++j)
     {
@@ -96,7 +98,7 @@ int TestMemkindData(int ac, char* av[])
   }
   assert(hugeImage->GetPointData()->GetArray(0)->GetIsInMemkind() == true);
 
-  cout << "Apply a filter." << endl;
+  std::cout << "Apply a filter." << std::endl;
   vtkSmartPointer<vtkExtractVOI> slice = vtkSmartPointer<vtkExtractVOI>::New();
   slice->SetVOI(0, edge - 1, 0, edge - 1, edge / 4.0, edge / 4.0);
   slice->SetInputData(hugeImage);
@@ -108,8 +110,8 @@ int TestMemkindData(int ac, char* av[])
   assert(slice->GetOutput()->GetIsInMemkind() == false);
   hugeImage->Delete();
 
-  cout << "*****************************************" << endl;
-  cout << "array tests" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "array tests" << std::endl;
   // make an extended array
   vtkDoubleArray* da = vtkDoubleArray::ExtendedNew();
   assert(da->GetIsInMemkind() == true);
@@ -131,8 +133,8 @@ int TestMemkindData(int ac, char* av[])
   da->Delete();
   db->Delete();
 
-  cout << "*****************************************" << endl;
-  cout << "field tests" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "field tests" << std::endl;
   // make a extended set of arrays
   vtkFieldData* fda = vtkFieldData::ExtendedNew();
   assert(fda->GetIsInMemkind() == true);
@@ -158,14 +160,14 @@ int TestMemkindData(int ac, char* av[])
   // shouldn't crash on delete despite container holding mixed contents
   fda->AddArray(db);
   fdb->AddArray(ia);
-  fda->PrintSelf(cout, vtkIndent(0));
-  fdb->PrintSelf(cout, vtkIndent(0));
+  fda->PrintSelf(std::cout, vtkIndent(0));
+  fdb->PrintSelf(std::cout, vtkIndent(0));
 
   fda->Delete();
   fdb->Delete();
 
-  cout << "*****************************************" << endl;
-  cout << "table tests" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "table tests" << std::endl;
   vtkTable* ta = vtkTable::ExtendedNew();
   assert(ta->GetIsInMemkind() == true);
   vtkTable* tb = vtkTable::New();
@@ -173,8 +175,8 @@ int TestMemkindData(int ac, char* av[])
   ta->Delete();
   tb->Delete();
 
-  cout << "*****************************************" << endl;
-  cout << "imagedata tests" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "imagedata tests" << std::endl;
   vtkSmartPointer<vtkImageData> ida = vtkSmartPointer<vtkImageData>::ExtendedNew();
   assert(ida->GetIsInMemkind() == true);
 
@@ -211,8 +213,8 @@ int TestMemkindData(int ac, char* av[])
     false); // resize doesn't shallow copy input, so container should be normal
   assert(resize->GetOutput()->GetPointData()->GetArray(0)->GetIsInMemkind() == false);
 
-  cout << "*****************************************" << endl;
-  cout << "unstructuredgrid tests" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "unstructuredgrid tests" << std::endl;
   vtkUnstructuredGrid* uga = vtkUnstructuredGrid::ExtendedNew();
   assert(uga->GetIsInMemkind() == true);
   vtkUnstructuredGrid* ugb = vtkUnstructuredGrid::New();
@@ -220,8 +222,8 @@ int TestMemkindData(int ac, char* av[])
   uga->Delete();
   ugb->Delete();
 
-  cout << "*****************************************" << endl;
-  cout << "polydata tests" << endl;
+  std::cout << "*****************************************" << std::endl;
+  std::cout << "polydata tests" << std::endl;
   vtkPolyData* pda = vtkPolyData::ExtendedNew();
   assert(pda->GetIsInMemkind() == true);
   vtkPolyData* pdb = vtkPolyData::New();

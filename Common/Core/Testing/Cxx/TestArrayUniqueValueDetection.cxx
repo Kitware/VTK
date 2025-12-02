@@ -7,6 +7,8 @@
 #include "vtkStringArray.h"
 #include "vtkVariantArray.h"
 
+#include <iostream>
+
 static double testTuplesDouble[] = {
   // A simple test where every component *and* the
   // tuples as a whole behave discretely.
@@ -256,7 +258,7 @@ static bool CheckUniques(
     return ok;
   }
 
-  cout << arr->GetName() << endl;
+  std::cout << arr->GetName() << std::endl;
 
   int nc = arr->GetNumberOfComponents();
   vtkNew<vtkVariantArray> uniques;
@@ -264,16 +266,16 @@ static bool CheckUniques(
   {
     arr->GetProminentComponentValues(c, uniques, uncertainty, minProminence);
     int numUniques = static_cast<int>(uniques->GetNumberOfTuples());
-    cout << "  comp " << c << " (" << numUniques << "): ";
+    std::cout << "  comp " << c << " (" << numUniques << "): ";
     for (int n = 0; n <= uniques->GetMaxId(); ++n)
     {
-      cout << (n > 0 ? ", " : " ") << uniques->GetVariantValue(n).ToString();
+      std::cout << (n > 0 ? ", " : " ") << uniques->GetVariantValue(n).ToString();
     }
-    cout << endl;
+    std::cout << std::endl;
     if (uniqueSizeBds[2 * c] > numUniques || uniqueSizeBds[2 * c + 1] < numUniques)
     {
-      cout << "    ** ERROR: Expected between " << uniqueSizeBds[2 * c] << " and "
-           << uniqueSizeBds[2 * c + 1] << " values\n";
+      std::cout << "    ** ERROR: Expected between " << uniqueSizeBds[2 * c] << " and "
+                << uniqueSizeBds[2 * c + 1] << " values\n";
       ok = false;
     }
   }
@@ -281,16 +283,16 @@ static bool CheckUniques(
   {
     arr->GetProminentComponentValues(-1, uniques, uncertainty, minProminence);
     int numUniques = static_cast<int>(uniques->GetNumberOfTuples());
-    cout << "  tuples (" << numUniques << "): ";
+    std::cout << "  tuples (" << numUniques << "): ";
     for (int n = 0; n <= uniques->GetMaxId(); ++n)
     {
-      cout << (n > 0 && n % nc == 0 ? ", " : " ") << uniques->GetVariantValue(n).ToString();
+      std::cout << (n > 0 && n % nc == 0 ? ", " : " ") << uniques->GetVariantValue(n).ToString();
     }
-    cout << endl;
+    std::cout << std::endl;
     if (uniqueSizeBds[2 * nc] > numUniques || uniqueSizeBds[2 * nc + 1] < numUniques)
     {
-      cout << "    ** ERROR: Expected between " << uniqueSizeBds[2 * nc] << " and "
-           << uniqueSizeBds[2 * nc + 1] << " values\n";
+      std::cout << "    ** ERROR: Expected between " << uniqueSizeBds[2 * nc] << " and "
+                << uniqueSizeBds[2 * nc + 1] << " values\n";
       ok = false;
     }
   }

@@ -13,8 +13,10 @@
 #include "vtkTesting.h"
 
 #include <QApplication>
+#include <QMainWindow>
 #include <QSurfaceFormat>
-#include <qmainwindow.h>
+
+#include <iostream>
 
 int TestQtWidget(int argc, char* argv[])
 {

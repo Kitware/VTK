@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 #define test_expression(expression)                                                                \
   do                                                                                               \
   {                                                                                                \
@@ -377,7 +379,7 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   catch (std::exception& e)
   {
-    std::cerr << e.what() << endl;
+    std::cerr << e.what() << std::endl;
     return 1;
   }
 }

@@ -13,6 +13,8 @@
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 int TestPointPicker(int argc, char* argv[])
 {
 
@@ -53,11 +55,11 @@ int TestPointPicker(int argc, char* argv[])
   }
 
   // Verify pick
-  cout << "\nPicked Point ID: " << picker->GetPointId() << '\n';
+  std::cout << "\nPicked Point ID: " << picker->GetPointId() << '\n';
   if (picker->GetPointId() != 33)
   {
-    cerr << "Incorrect point picked! (if any picks were performed inter"
-            "actively this could be ignored).\n";
+    std::cerr << "Incorrect point picked! (if any picks were performed inter"
+                 "actively this could be ignored).\n";
     return EXIT_FAILURE;
   }
 

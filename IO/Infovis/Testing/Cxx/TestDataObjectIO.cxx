@@ -1,6 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkDataObjectWriter.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDirectedGraph.h"
 #include "vtkEdgeListIterator.h"
@@ -8,11 +7,12 @@
 #include "vtkGenericDataObjectWriter.h"
 #include "vtkGraph.h"
 #include "vtkMutableDirectedGraph.h"
+#include "vtkPoints.h"
 #include "vtkRandomGraphSource.h"
-#include "vtkSmartPointer.h"
 #include "vtkTree.h"
 #include "vtkUndirectedGraph.h"
-#include "vtkUnstructuredGrid.h"
+
+#include <iostream>
 
 void InitializeData(vtkDirectedGraph* Data)
 {
@@ -103,7 +103,7 @@ void InitializeData(vtkTree* Data)
 
   if (!Data->CheckedShallowCopy(g))
   {
-    cerr << "Invalid tree structure." << endl;
+    std::cerr << "Invalid tree structure." << std::endl;
   }
 
   g->Delete();
@@ -185,17 +185,17 @@ int TestDataObjectIO(int /*argc*/, char* /*argv*/[])
 
   if (!TestDataObjectSerialization<vtkDirectedGraph>())
   {
-    cerr << "Error: failure serializing vtkDirectedGraph" << endl;
+    std::cerr << "Error: failure serializing vtkDirectedGraph" << std::endl;
     result = 1;
   }
   if (!TestDataObjectSerialization<vtkUndirectedGraph>())
   {
-    cerr << "Error: failure serializing vtkUndirectedGraph" << endl;
+    std::cerr << "Error: failure serializing vtkUndirectedGraph" << std::endl;
     result = 1;
   }
   if (!TestDataObjectSerialization<vtkTree>())
   {
-    cerr << "Error: failure serializing vtkTree" << endl;
+    std::cerr << "Error: failure serializing vtkTree" << std::endl;
     result = 1;
   }
   return result;

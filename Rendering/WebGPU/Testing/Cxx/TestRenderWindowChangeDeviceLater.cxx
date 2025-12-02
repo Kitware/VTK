@@ -14,6 +14,8 @@
 #include "vtkWebGPUConfiguration.h"
 #include "vtkWebGPURenderWindow.h"
 
+#include <iostream>
+
 int TestRenderWindowChangeDeviceLater(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindow> renWin;

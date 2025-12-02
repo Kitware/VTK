@@ -10,6 +10,8 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 
+#include <iostream>
+
 int TestPointCellData()
 {
   int errors = 0;

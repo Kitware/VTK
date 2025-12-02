@@ -11,6 +11,8 @@
 #include "vtkTestUtilities.h"
 #include <string>
 
+#include <iostream>
+
 int TestXMLLargeUnstructuredGrid(int argc, char* argv[])
 {
   char* tempDir =

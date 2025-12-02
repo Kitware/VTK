@@ -24,6 +24,8 @@
 #include <vtkVolume.h>
 #include <vtkVolumeProperty.h>
 
+#include <iostream>
+
 namespace TestGPURayCastLabelMap1LabelNS
 {
 void CreateImageData(vtkImageData* a_image)
@@ -66,7 +68,7 @@ void CreateImageData(vtkImageData* a_image)
 
 int TestGPURayCastLabelMap1Label(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // Create a sphere volume
   vtkNew<vtkImageData> imageData;

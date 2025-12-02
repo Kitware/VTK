@@ -28,6 +28,8 @@
 #include "vtkThresholdPoints.h"
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 int TestSelectEnclosedPoints(int argc, char* argv[])
 {
   // Standard rendering classes
@@ -73,7 +75,7 @@ int TestSelectEnclosedPoints(int argc, char* argv[])
   select->Update();
   timer->StopTimer();
   double time = timer->GetElapsedTime();
-  cout << "Time to extract points: " << time << "\n";
+  std::cout << "Time to extract points: " << time << "\n";
 
   // Now extract points
   vtkThresholdPoints* thresh = vtkThresholdPoints::New();

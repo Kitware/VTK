@@ -22,6 +22,8 @@
 
 #include <cassert>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOSPRayAMRVolumeMapperNode);
 

@@ -10,7 +10,7 @@
 #include "vtkTestUtilities.h"
 
 #include <cmath>
-#include <cstdio>
+#include <iostream>
 #include <vector>
 
 int TestExodusIgnoreFileTime(int argc, char* argv[])
@@ -18,14 +18,14 @@ int TestExodusIgnoreFileTime(int argc, char* argv[])
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can.ex2");
   if (!fname)
   {
-    cout << "Could not obtain filename for test data.\n";
+    std::cout << "Could not obtain filename for test data.\n";
     return 1;
   }
 
   vtkNew<vtkExodusIIReader> reader;
   if (!reader->CanReadFile(fname))
   {
-    cout << "Cannot read \"" << fname << "\"\n";
+    std::cout << "Cannot read \"" << fname << "\"\n";
     return 1;
   }
   reader->SetFileName(fname);
@@ -62,7 +62,7 @@ int TestExodusIgnoreFileTime(int argc, char* argv[])
   if (reader->GetNumberOfElementBlockArrays() == 0 ||
     strcmp(reader->GetElementBlockArrayName(0), "Unnamed block ID: 1") != 0)
   {
-    cerr << "Error! Invalid block names!" << endl;
+    std::cerr << "Error! Invalid block names!" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -73,9 +73,9 @@ int TestExodusIgnoreFileTime(int argc, char* argv[])
   if (reader2->GetNumberOfElementBlockArrays() == 0 ||
     strcmp(reader2->GetElementBlockArrayName(0), "Unnamed block ID: 1 Type: HEX") != 0)
   {
-    cerr << "Error! Invalid block names. "
-            "Expected 'Unnamed block ID: 1 Type: HEX', got '"
-         << reader2->GetElementBlockArrayName(0) << "'" << endl;
+    std::cerr << "Error! Invalid block names. "
+                 "Expected 'Unnamed block ID: 1 Type: HEX', got '"
+              << reader2->GetElementBlockArrayName(0) << "'" << std::endl;
     return EXIT_FAILURE;
   }
 

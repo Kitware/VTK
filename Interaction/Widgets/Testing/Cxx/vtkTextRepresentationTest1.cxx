@@ -1,18 +1,11 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
+#include "WidgetTestingMacros.h"
+#include "vtkTextActor.h"
 #include "vtkTextRepresentation.h"
 
 #include <cstdlib>
 #include <iostream>
-
-#include "vtkImageData.h"
-#include "vtkProperty2D.h"
-#include "vtkTextProperty.h"
-
-#include "WidgetTestingMacros.h"
-
-#include "vtkPointHandleRepresentation3D.h"
-#include "vtkTextActor.h"
 
 int vtkTextRepresentationTest1(int, char*[])
 {

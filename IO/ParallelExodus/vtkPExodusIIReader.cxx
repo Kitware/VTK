@@ -29,6 +29,8 @@
 #include <cctype>
 #include <vector>
 
+#include <iostream>
+
 #undef DBG_PEXOIIRDR
 #define vtkPExodusIIReaderMAXPATHLEN 2048
 
@@ -441,7 +443,7 @@ int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
 #ifdef DBG_PEXOIIRDR
-  cout << "\n\n ************************************* Parallel master reader dump\n";
+  std::cout << "\n\n ************************************* Parallel master reader dump\n";
   this->Dump();
 #endif // DBG_PEXOIIRDR
 
@@ -565,7 +567,7 @@ int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
 
     this->ReaderList[reader_idx]->UpdateInformation();
 #ifdef DBG_PEXOIIRDR
-    cout << "\n\n ************************************* Reader " << reader_idx << " dump\n";
+    std::cout << "\n\n ************************************* Reader " << reader_idx << " dump\n";
     this->ReaderList[reader_idx]->Dump();
 #endif // DBG_PEXOIIRDR
 

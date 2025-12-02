@@ -13,6 +13,8 @@
 #include <QStandardItemModel>
 #include <QTableView>
 
+#include <iostream>
+
 #define fail(msg)                                                                                  \
   std::cout << msg << std::endl;                                                                   \
   return EXIT_FAILURE

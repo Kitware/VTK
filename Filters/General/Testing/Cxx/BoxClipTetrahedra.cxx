@@ -35,6 +35,9 @@
 #include "vtkUnstructuredGrid.h"
 
 #include "vtkSmartPointer.h"
+
+#include <iostream>
+
 #define VTK_CREATE(type, var) vtkSmartPointer<type> var = vtkSmartPointer<type>::New()
 
 static double tetrahedraPoints[4 * 3] = {

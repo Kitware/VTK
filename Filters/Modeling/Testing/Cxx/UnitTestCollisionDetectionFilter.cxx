@@ -12,6 +12,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 #define ERROR_OBSERVER_ENHANCEMENTS 0
 
 int UnitTestCollisionDetectionFilter(int, char*[])

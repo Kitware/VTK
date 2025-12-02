@@ -8,6 +8,8 @@
 #include <X11/Xlib.h> // Needed for X types used in the public interface
 #include <map>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkLessThanWindowId
 {
@@ -80,7 +82,7 @@ void vtkTDxQtUnixDevices::ProcessEvent(vtkTDxUnixDeviceXEvent* e)
       }
       else
       {
-        cout << "device initialized on window" << winId << hex << winId << dec;
+        std::cout << "device initialized on window" << winId << hex << winId << dec;
         Q_EMIT CreateDevice(device);
       }
     }

@@ -5,12 +5,10 @@
 #include "vtkCommand.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkCompositePolyDataMapper.h"
-#include "vtkContourFilter.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRegressionTestImage.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -18,9 +16,10 @@
 #include "vtkSphereSource.h"
 #include "vtkTemporalDataSetCache.h"
 #include "vtkTemporalInterpolator.h"
-#include "vtkThreshold.h"
 #include <algorithm>
 #include <vector>
+
+#include <iostream>
 
 //
 // This test is intended to test the ability of the temporal pipeline
@@ -136,7 +135,7 @@ int vtkTemporalSphereSource::RequestData(
     doOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timevalue);
   }
 
-  cout << "this->ActualTimeStep : " << this->ActualTimeStep << endl;
+  std::cout << "this->ActualTimeStep : " << this->ActualTimeStep << std::endl;
 
   return Superclass::RequestData(request, inputVector, outputVector);
 }

@@ -24,6 +24,7 @@
 
 // My STL containers
 #include <cassert>
+#include <iostream>
 
 //------------------------------------------------------------------------------
 // Minimal storage class for STL containers etc.
@@ -328,13 +329,13 @@ vtkTransform2D* vtkContextScene::GetTransform()
 //------------------------------------------------------------------------------
 bool vtkContextScene::ProcessSelectionEvent(unsigned int rect[5])
 {
-  cout << "ProcessSelectionEvent called! " << endl;
-  cout << "Rect:";
+  std::cout << "ProcessSelectionEvent called! \n";
+  std::cout << "Rect:";
   for (int i = 0; i < 5; ++i)
   {
-    cout << "\t" << rect[i];
+    std::cout << "\t" << rect[i];
   }
-  cout << endl;
+  std::cout << "\n";
   return false;
 }
 
@@ -450,11 +451,11 @@ bool vtkContextScene::MouseMoveEvent(const vtkContextMouseEvent& e)
 #if 0
   if (newItemPicked)
   {
-    cerr << "picked a " << newItemPicked->GetClassName() << endl;
+    std::cerr << "picked a " << newItemPicked->GetClassName() << endl;
   }
   else
   {
-    cerr << "picked nothing" << endl;
+    std::cerr << "picked nothing" << endl;
   }
 #endif
   if (this->Storage->itemPicked != newItemPicked)

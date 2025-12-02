@@ -23,6 +23,8 @@
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
+
 namespace
 {
 const int xVerts = 20;

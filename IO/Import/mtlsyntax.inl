@@ -300,7 +300,7 @@ _eof_trans:
   break;
   case 13:
 #line 79 "..\\vtk3\\vtk\\io\\import\\mtlsyntax.rl"
-  {te = p;p--;{ std::string value = "Error unknown text: "; value += std::string(ts, te-ts); cerr << value << "\n"; }}
+  {te = p;p--;{ std::string value = "Error unknown text: "; value += std::string(ts, te-ts); std::cerr << value << "\n"; }}
   break;
   case 14:
 #line 22 "..\\vtk3\\vtk\\io\\import\\mtlsyntax.rl"

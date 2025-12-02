@@ -6,6 +6,8 @@
 #include "vtksys/FStream.hxx"
 #include <string>
 
+#include <iostream>
+
 int TestXMLFileOutputWindow(int argc, char* argv[])
 {
   if (argc < 2)

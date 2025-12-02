@@ -10,6 +10,8 @@
 #include "vtkObjectFactory.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiBlockMergeFilter);
 //------------------------------------------------------------------------------
@@ -56,7 +58,7 @@ int vtkMultiBlockMergeFilter::RequestData(vtkInformation* vtkNotUsed(request),
       if (first)
       {
         // shallow copy first input to output to start off with
-        // cerr << "Copy first input" << endl;
+        // std::cerr << "Copy first input" << endl;
         output->CompositeShallowCopy(vtkMultiBlockDataSet::SafeDownCast(input));
         first = 0;
       }
@@ -76,7 +78,7 @@ int vtkMultiBlockMergeFilter::RequestData(vtkInformation* vtkNotUsed(request),
             {
             dsId = idx;
             }
-          //cerr << "Copying blk " << blk << " index " << idx << endl;
+          //std::cerr << "Copying blk " << blk << " index " << idx << endl;
           vtkDataObject* inblk = input->GetDataSet(blk, dsId);
           vtkDataObject* dsCopy = inblk->NewInstance();
           dsCopy->ShallowCopy(inblk);

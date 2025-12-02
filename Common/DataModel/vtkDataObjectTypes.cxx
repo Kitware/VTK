@@ -49,7 +49,10 @@
 #include "vtkUniformHyperTreeGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
 #include <map>
+
+using std::cerr;
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkDataObjectTypes);
@@ -314,15 +317,16 @@ int vtkDataObjectTypes::Validate()
 
     if (strcmp(vtkDataObjectTypesStrings[type], cls) != 0)
     {
-      cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << endl;
-      cerr << "Type mismatch for: " << cls << endl;
-      cerr << "The value looked up in vtkDataObjectTypesStrings using ";
-      cerr << "the index returned by GetDataObjectType() does not match the object type." << endl;
-      cerr << "Value from vtkDataObjectTypesStrings[obj->GetDataObjectType()]): ";
-      cerr << vtkDataObjectTypesStrings[type] << endl;
-      cerr << "Check that the correct value is being returned by GetDataObjectType() ";
-      cerr << "for this object type. Also check that the values in vtkDataObjectTypesStrings ";
-      cerr << "are in the same order as the #define's in vtkType.h.";
+      std::cerr << "ERROR: In " __FILE__ ", line " << __LINE__ << endl;
+      std::cerr << "Type mismatch for: " << cls << endl;
+      std::cerr << "The value looked up in vtkDataObjectTypesStrings using ";
+      std::cerr << "the index returned by GetDataObjectType() does not match the object type."
+                << endl;
+      std::cerr << "Value from vtkDataObjectTypesStrings[obj->GetDataObjectType()]): ";
+      std::cerr << vtkDataObjectTypesStrings[type] << endl;
+      std::cerr << "Check that the correct value is being returned by GetDataObjectType() ";
+      std::cerr << "for this object type. Also check that the values in vtkDataObjectTypesStrings ";
+      std::cerr << "are in the same order as the #define's in vtkType.h.";
       return EXIT_FAILURE;
     }
   }

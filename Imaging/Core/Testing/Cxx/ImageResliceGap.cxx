@@ -20,6 +20,8 @@
 
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 int ImageResliceGap(int, char*[])
 {
   // create a solid input image, two slices thick

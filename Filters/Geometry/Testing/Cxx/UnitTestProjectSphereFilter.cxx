@@ -22,6 +22,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 static int ComparePolyData(vtkPolyData* p1, vtkPolyData* p2);
 int UnitTestProjectSphereFilter(int, char*[])
 {

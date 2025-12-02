@@ -12,6 +12,7 @@
 #include <vtksys/SystemTools.hxx>
 
 #include <cstdlib>
+#include <iostream>
 
 namespace
 {

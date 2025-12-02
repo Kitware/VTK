@@ -11,6 +11,7 @@
 #include <vtkXMLPartitionedDataSetReader.h>
 #include <vtkXMLPartitionedDataSetWriter.h>
 
+#include <iostream>
 #include <string>
 
 int TestPolyDataPoints(vtkPolyData* data, vtkPolyData* expectedData, unsigned int partitionId)
@@ -151,7 +152,7 @@ int TestReadData(
   if (reader->GetErrorCode() != 0)
   {
     std::cerr << "Got an error when updating the reader: "
-              << vtkErrorCode::GetStringFromErrorCode(reader->GetErrorCode()) << endl;
+              << vtkErrorCode::GetStringFromErrorCode(reader->GetErrorCode()) << std::endl;
     return EXIT_FAILURE;
   }
   vtkPartitionedDataSet* pds = reader->GetOutput();
@@ -163,7 +164,8 @@ int TestReadData(
   if (expectedDataReader->GetErrorCode() != 0)
   {
     std::cerr << "Got an error when updating the comparison reader: "
-              << vtkErrorCode::GetStringFromErrorCode(expectedDataReader->GetErrorCode()) << endl;
+              << vtkErrorCode::GetStringFromErrorCode(expectedDataReader->GetErrorCode())
+              << std::endl;
     WriteDataToTemporary(pds, tempDir);
     return EXIT_FAILURE;
   }

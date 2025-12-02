@@ -39,6 +39,8 @@
 #include <vtkSelection.h>
 #include <vtkSelectionNode.h>
 
+#include <iostream>
+
 #define XCELLS 3
 #define YCELLS 3
 #define ZCELLS 3
@@ -437,8 +439,8 @@ int TestExtraction(int argc, char* argv[])
   insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
   if (insideArray)
   {
-    cerr << "ERROR: Extract point global id without containing cells made cell inside array."
-         << endl;
+    std::cerr << "ERROR: Extract point global id without containing cells made cell inside array."
+              << std::endl;
   }
   insideArray = extIData->GetPointData()->GetArray("vtkInsidedness");
   showMe(extIData, 6, 0, COLORBYPOINT, insideArray);
@@ -571,7 +573,8 @@ int TestExtraction(int argc, char* argv[])
   insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
   if (insideArray)
   {
-    cerr << "ERROR: Extract point indices without containing cells made cell inside array." << endl;
+    std::cerr << "ERROR: Extract point indices without containing cells made cell inside array."
+              << std::endl;
   }
   insideArray = extIData->GetPointData()->GetArray("vtkInsidedness");
   showMe(extIData, 6, 1, COLORBYPOINT, insideArray);
@@ -705,7 +708,8 @@ int TestExtraction(int argc, char* argv[])
   insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
   if (insideArray)
   {
-    cerr << "ERROR: Extract point values without containing cells made cell inside array." << endl;
+    std::cerr << "ERROR: Extract point values without containing cells made cell inside array."
+              << std::endl;
   }
   insideArray = extIData->GetPointData()->GetArray("vtkInsidedness");
   showMe(extIData, 6, 2, COLORBYPOINT, insideArray);
@@ -830,7 +834,8 @@ int TestExtraction(int argc, char* argv[])
   insideArray = extIData->GetCellData()->GetArray("vtkInsidedness");
   if (insideArray)
   {
-    cerr << "ERROR: Extract point thresh without containing cells made cell inside array." << endl;
+    std::cerr << "ERROR: Extract point thresh without containing cells made cell inside array."
+              << std::endl;
   }
   insideArray = extIData->GetPointData()->GetArray("vtkInsidedness");
   showMe(extIData, 6, 3, COLORBYPOINT, insideArray);

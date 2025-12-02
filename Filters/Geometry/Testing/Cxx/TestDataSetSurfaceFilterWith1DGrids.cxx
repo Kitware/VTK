@@ -13,6 +13,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 vtkSmartPointer<vtkDataSet> CreateRectilinearGrid()
 {
   vtkSmartPointer<vtkRectilinearGrid> grid = vtkSmartPointer<vtkRectilinearGrid>::New();

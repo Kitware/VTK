@@ -2,21 +2,19 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCellData.h"
 #include "vtkCubeSource.h"
-#include "vtkDataObjectWriter.h"
 #include "vtkDelaunay3D.h"
-#include "vtkEdgeListIterator.h"
 #include "vtkGenericDataObjectReader.h"
 #include "vtkGenericDataObjectWriter.h"
 #include "vtkIntArray.h"
-#include "vtkMultiPieceDataSet.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
-#include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkTable.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkVariant.h"
+
+#include <iostream>
 
 void InitializeData(vtkPolyData* Data)
 {
@@ -172,27 +170,27 @@ int TestDataObjectIO(int /*argc*/, char* /*argv*/[])
 
   if (!TestDataObjectSerialization<vtkPolyData>())
   {
-    cerr << "Error: failure serializing vtkPolyData" << endl;
+    std::cerr << "Error: failure serializing vtkPolyData" << std::endl;
     result = 1;
   }
   if (!TestDataObjectSerialization<vtkRectilinearGrid>())
   {
-    cerr << "Error: failure serializing vtkRectilinearGrid" << endl;
+    std::cerr << "Error: failure serializing vtkRectilinearGrid" << std::endl;
     result = 1;
   }
   if (!TestDataObjectSerialization<vtkStructuredGrid>())
   {
-    cerr << "Error: failure serializing vtkStructuredGrid" << endl;
+    std::cerr << "Error: failure serializing vtkStructuredGrid" << std::endl;
     result = 1;
   }
   if (!TestDataObjectSerialization<vtkTable>())
   {
-    cerr << "Error: failure serializing vtkTable" << endl;
+    std::cerr << "Error: failure serializing vtkTable" << std::endl;
     result = 1;
   }
   if (!TestDataObjectSerialization<vtkUnstructuredGrid>())
   {
-    cerr << "Error: failure serializaing vtkUnstructuredGrid" << endl;
+    std::cerr << "Error: failure serializaing vtkUnstructuredGrid" << std::endl;
     result = 1;
   }
 

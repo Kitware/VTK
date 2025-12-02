@@ -8,6 +8,8 @@
 #include "vtkPassThrough.h"
 #include "vtkSmartPointer.h"
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 bool CompareData(vtkGraph* Output, vtkGraph* Input)

@@ -5,6 +5,8 @@
 #include <vtkRemoveIsolatedVertices.h>
 #include <vtkSmartPointer.h>
 
+#include <iostream>
+
 int TestRemoveIsolatedVertices(int, char*[])
 {
   vtkSmartPointer<vtkMutableUndirectedGraph> g = vtkSmartPointer<vtkMutableUndirectedGraph>::New();

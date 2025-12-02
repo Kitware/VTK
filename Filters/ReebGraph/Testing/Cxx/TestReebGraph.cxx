@@ -40,6 +40,8 @@
 
 #include <map>
 
+#include <iostream>
+
 // loading code generated automatically.
 // put whatever mesh you like here.
 int LoadVolumeMesh(vtkUnstructuredGrid* vMesh)
@@ -805,20 +807,21 @@ int DisplayReebGraph(vtkReebGraph* g)
   if (!edgeInfo)
     return 2;
 
-  cout << "   Reeb graph nodes:" << endl;
+  std::cout << "   Reeb graph nodes:" << std::endl;
   for (int i = 0; i < vertexInfo->GetNumberOfTuples(); i++)
-    cout << "      Node #" << i << ") VertexMeshId: " << ((int)*(vertexInfo->GetTuple(i))) << endl;
+    std::cout << "      Node #" << i << ") VertexMeshId: " << ((int)*(vertexInfo->GetTuple(i)))
+              << std::endl;
 
-  cout << "   Reeb graph arcs:" << endl;
+  std::cout << "   Reeb graph arcs:" << std::endl;
   vtkEdgeListIterator* eIt = vtkEdgeListIterator::New();
   g->GetEdges(eIt);
   do
   {
     vtkEdgeType e = eIt->Next();
     vtkAbstractArray* deg2NodeList = edgeInfo->GetPointer(e.Id)->ToArray();
-    cout << "     Arc #" << e.Id << ": " << *(vertexInfo->GetTuple(e.Source)) << " -> "
-         << *(vertexInfo->GetTuple(e.Target)) << " (" << deg2NodeList->GetNumberOfTuples()
-         << " degree-2 nodes)" << endl;
+    std::cout << "     Arc #" << e.Id << ": " << *(vertexInfo->GetTuple(e.Source)) << " -> "
+              << *(vertexInfo->GetTuple(e.Target)) << " (" << deg2NodeList->GetNumberOfTuples()
+              << " degree-2 nodes)" << std::endl;
   } while (eIt->HasNext());
   eIt->Delete();
 
@@ -1067,7 +1070,8 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   int errorCode;
 
-  cout << endl << "Reeb Graph Tests ========================== Surface Mesh Tests" << endl;
+  std::cout << std::endl
+            << "Reeb Graph Tests ========================== Surface Mesh Tests" << std::endl;
 
   // Loading the mesh
   vtkPolyData* surfaceMesh = vtkPolyData::New();
@@ -1090,22 +1094,22 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   surfaceMesh->GetPointData()->SetScalars(surfaceScalarField);
 
-  cout << "   Test 2D.1 Reeb graph computation... " << endl;
+  std::cout << "   Test 2D.1 Reeb graph computation... " << std::endl;
   vtkPolyDataToReebGraphFilter* surfaceReebGraphFilter = vtkPolyDataToReebGraphFilter::New();
   surfaceReebGraphFilter->SetInputData(surfaceMesh);
   surfaceReebGraphFilter->Update();
   vtkReebGraph* surfaceReebGraph = surfaceReebGraphFilter->GetOutput();
-  cout << "      Test 2D.1 ";
+  std::cout << "      Test 2D.1 ";
 
   if (surfaceReebGraph->GetNumberOfEdges() == 12)
-    cout << "OK!" << endl;
+    std::cout << "OK!" << std::endl;
   else
   {
-    cout << "Failed!" << endl;
+    std::cout << "Failed!" << std::endl;
     return EXIT_FAILURE;
   }
 
-  cout << "   Test 2D.2 Customized Reeb graph simplification... " << endl;
+  std::cout << "   Test 2D.2 Customized Reeb graph simplification... " << std::endl;
   vtkReebGraphSimplificationFilter* surfaceSimplification = vtkReebGraphSimplificationFilter::New();
 
   AreaSimplificationMetric* metric = AreaSimplificationMetric::New();
@@ -1126,27 +1130,27 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkReebGraph* simplifiedSurfaceReebGraph = surfaceSimplification->GetOutput();
   metric->Delete();
 
-  cout << "      Test 2D.2 ";
+  std::cout << "      Test 2D.2 ";
   if (simplifiedSurfaceReebGraph->GetNumberOfEdges() == 12)
-    cout << "OK!" << endl;
+    std::cout << "OK!" << std::endl;
   else
   {
-    cout << "Failed!" << endl;
+    std::cout << "Failed!" << std::endl;
     return EXIT_FAILURE;
   }
 
-  cout << "   Test 2D.3 Reeb graph traversal..." << endl;
+  std::cout << "   Test 2D.3 Reeb graph traversal..." << std::endl;
   errorCode = DisplayReebGraph(simplifiedSurfaceReebGraph);
-  cout << "      Test 2D.3 ";
+  std::cout << "      Test 2D.3 ";
   if (!errorCode)
-    cout << "OK!" << endl;
+    std::cout << "OK!" << std::endl;
   else
   {
-    cout << "Failed! (code " << errorCode << ")" << endl;
+    std::cout << "Failed! (code " << errorCode << ")" << std::endl;
     return EXIT_FAILURE;
   }
 
-  cout << "   Test 2D.4 Reeb graph based surface skeleton... " << endl;
+  std::cout << "   Test 2D.4 Reeb graph based surface skeleton... " << std::endl;
   vtkReebGraphSurfaceSkeletonFilter* surfaceSkeletonFilter =
     vtkReebGraphSurfaceSkeletonFilter::New();
   surfaceSkeletonFilter->SetInputData(0, surfaceMesh);
@@ -1155,33 +1159,33 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   surfaceSkeletonFilter->Update();
   vtkTable* surfaceSkeleton = surfaceSkeletonFilter->GetOutput();
   errorCode = DisplaySurfaceSkeleton(surfaceMesh, surfaceSkeleton);
-  cout << "      Test 2D.4 ";
+  std::cout << "      Test 2D.4 ";
   if (surfaceSkeleton->GetNumberOfColumns() == 12)
-    cout << "OK!" << endl;
+    std::cout << "OK!" << std::endl;
   else
   {
-    cout << "Failed!" << endl;
+    std::cout << "Failed!" << std::endl;
     return EXIT_FAILURE;
   }
 
-  cout << "   Test 2D.5 Area contour spectrum..." << endl;
+  std::cout << "   Test 2D.5 Area contour spectrum..." << std::endl;
   vtkAreaContourSpectrumFilter* areaSpectrumFilter = vtkAreaContourSpectrumFilter::New();
   areaSpectrumFilter->SetInputData(0, surfaceMesh);
   areaSpectrumFilter->SetInputConnection(1, surfaceSimplification->GetOutputPort());
   areaSpectrumFilter->SetArcId(0);
   areaSpectrumFilter->Update();
   vtkTable* areaSpectrum = areaSpectrumFilter->GetOutput();
-  cout << "      Test 2D.5 ";
+  std::cout << "      Test 2D.5 ";
   if (areaSpectrum->GetNumberOfRows() == 100)
-    cout << "OK!" << endl;
+    std::cout << "OK!" << std::endl;
   else
   {
-    cout << "Failed!" << endl;
+    std::cout << "Failed!" << std::endl;
     return EXIT_FAILURE;
   }
 
-  cout << "   Test 2D.6 Reeb graph to split tree filter..." << endl;
-  cout << "      Not currently tested..." << endl;
+  std::cout << "   Test 2D.6 Reeb graph to split tree filter..." << std::endl;
+  std::cout << "      Not currently tested..." << std::endl;
   //   vtkReebGraphToJoinSplitTreeFilter *splitTreeFilter =
   //     vtkReebGraphToJoinSplitTreeFilter::New();
   //   splitTreeFilter->SetInput(0, surfaceMesh);
@@ -1190,12 +1194,12 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   //   splitTreeFilter->Update();
   //   vtkReebGraph *splitTree = splitTreeFilter->GetOutput();
   //   DisplayReebGraph(splitTree);
-  //   cout << "      Test 2D.6 ";
+  //   std::cout << "      Test 2D.6 ";
   //   if(splitTree->GetNumberOfEdges() == 3)
-  //     cout << "OK!" << endl;
+  //     std::cout << "OK!" << std::endl;
   //   else
   //     {
-  //     cout << "Failed!" << endl;
+  //     std::cout << "Failed!" << std::endl;
   //     return EXIT_FAILURE;
   //     }
 
@@ -1207,10 +1211,10 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   surfaceScalarField->Delete();
   surfaceMesh->Delete();
 
-  cout << endl
-       << endl
-       << endl
-       << "Reeb Graph Tests ========================== Volume Mesh Tests" << endl;
+  std::cout << std::endl
+            << std::endl
+            << std::endl
+            << "Reeb Graph Tests ========================== Volume Mesh Tests" << std::endl;
 
   // Loading the mesh
   vtkUnstructuredGrid* volumeMesh = vtkUnstructuredGrid::New();
@@ -1228,22 +1232,22 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   }
   volumeMesh->GetPointData()->SetScalars(volumeScalarField);
 
-  cout << "   Test 3D.1 Reeb graph computation... " << endl;
+  std::cout << "   Test 3D.1 Reeb graph computation... " << std::endl;
   vtkUnstructuredGridToReebGraphFilter* volumeReebGraphFilter =
     vtkUnstructuredGridToReebGraphFilter::New();
   volumeReebGraphFilter->SetInputData(volumeMesh);
   volumeReebGraphFilter->Update();
   vtkReebGraph* volumeReebGraph = volumeReebGraphFilter->GetOutput();
-  cout << "      Test 3D.1 ";
+  std::cout << "      Test 3D.1 ";
   if (volumeReebGraph->GetNumberOfEdges() == 10)
-    cout << "OK!" << endl;
+    std::cout << "OK!" << std::endl;
   else
   {
-    cout << "Failed!" << endl;
+    std::cout << "Failed!" << std::endl;
     return EXIT_FAILURE;
   }
 
-  cout << "   Test 3D.2 Customized Reeb graph simplification... " << endl;
+  std::cout << "   Test 3D.2 Customized Reeb graph simplification... " << std::endl;
   // in this example, we don't define any custom simplification metric and use
   // the default one (persistence).
   vtkReebGraphSimplificationFilter* volumeSimplification = vtkReebGraphSimplificationFilter::New();
@@ -1251,60 +1255,60 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   volumeSimplification->SetSimplificationThreshold(0.05);
   volumeSimplification->Update();
   vtkReebGraph* simplifiedVolumeReebGraph = volumeSimplification->GetOutput();
-  cout << "      Test 3D.2 ";
+  std::cout << "      Test 3D.2 ";
   if (simplifiedVolumeReebGraph->GetNumberOfEdges() == 10)
-    cout << "OK!" << endl;
+    std::cout << "OK!" << std::endl;
   else
   {
-    cout << "Failed!" << endl;
+    std::cout << "Failed!" << std::endl;
     return EXIT_FAILURE;
   }
 
-  cout << "   Test 3D.3 Reeb graph traversal..." << endl;
+  std::cout << "   Test 3D.3 Reeb graph traversal..." << std::endl;
   errorCode = DisplayReebGraph(simplifiedVolumeReebGraph);
-  cout << "      Test 3D.3 ";
+  std::cout << "      Test 3D.3 ";
   if (!errorCode)
-    cout << "OK!" << endl;
+    std::cout << "OK!" << std::endl;
   else
   {
-    cout << "Failed! (code " << errorCode << ")" << endl;
+    std::cout << "Failed! (code " << errorCode << ")" << std::endl;
     return EXIT_FAILURE;
   }
 
-  cout << "   Test 3D.4 Reeb graph based volume skeleton... " << endl;
+  std::cout << "   Test 3D.4 Reeb graph based volume skeleton... " << std::endl;
   vtkReebGraphVolumeSkeletonFilter* volumeSkeletonFilter = vtkReebGraphVolumeSkeletonFilter::New();
   volumeSkeletonFilter->SetInputData(0, volumeMesh);
   volumeSkeletonFilter->SetInputConnection(1, volumeSimplification->GetOutputPort());
   volumeSkeletonFilter->Update();
   vtkTable* volumeSkeleton = volumeSkeletonFilter->GetOutput();
   errorCode = DisplayVolumeSkeleton(volumeMesh, volumeSkeleton);
-  cout << "      Test 3D.4 ";
+  std::cout << "      Test 3D.4 ";
   if (volumeSkeleton->GetNumberOfColumns() == 10)
-    cout << "OK!" << endl;
+    std::cout << "OK!" << std::endl;
   else
   {
-    cout << "Failed!" << endl;
+    std::cout << "Failed!" << std::endl;
     return EXIT_FAILURE;
   }
 
-  cout << "   Test 3D.5 Volume contour spectrum..." << endl;
+  std::cout << "   Test 3D.5 Volume contour spectrum..." << std::endl;
   vtkVolumeContourSpectrumFilter* volumeSpectrumFilter = vtkVolumeContourSpectrumFilter::New();
   volumeSpectrumFilter->SetInputData(0, volumeMesh);
   volumeSpectrumFilter->SetInputConnection(1, volumeSimplification->GetOutputPort());
   volumeSpectrumFilter->SetArcId(0);
   volumeSpectrumFilter->Update();
   vtkTable* volumeSpectrum = volumeSpectrumFilter->GetOutput();
-  cout << "      Test 3D.5 ";
+  std::cout << "      Test 3D.5 ";
   if (volumeSpectrum->GetNumberOfRows() == 100)
-    cout << "OK!" << endl;
+    std::cout << "OK!" << std::endl;
   else
   {
-    cout << "Failed!" << endl;
+    std::cout << "Failed!" << std::endl;
     return EXIT_FAILURE;
   }
 
-  cout << "   Test 3D.6 Reeb graph to join tree filter..." << endl;
-  cout << "      Not currently tested..." << endl;
+  std::cout << "   Test 3D.6 Reeb graph to join tree filter..." << std::endl;
+  std::cout << "      Not currently tested..." << std::endl;
   //   vtkReebGraphToJoinSplitTreeFilter *joinTreeFilter =
   //     vtkReebGraphToJoinSplitTreeFilter::New();
   //   joinTreeFilter->SetInput(0, volumeMesh);
@@ -1313,12 +1317,12 @@ int TestReebGraph(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   //   joinTreeFilter->Update();
   //   vtkReebGraph *joinTree = joinTreeFilter->GetOutput();
   //   DisplayReebGraph(joinTree);
-  //   cout << "      Test 3D.6 ";
+  //   std::cout << "      Test 3D.6 ";
   //   if(joinTree->GetNumberOfEdges() == 1)
-  //     cout << "OK!" << endl;
+  //     std::cout << "OK!" << std::endl;
   //   else
   //     {
-  //     cout << "Failed!" << endl;
+  //     std::cout << "Failed!" << std::endl;
   //     return EXIT_FAILURE;
   //     }
 

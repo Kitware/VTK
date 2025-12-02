@@ -45,6 +45,8 @@
 
 #include <numeric>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
@@ -162,7 +164,7 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderColor(
   }
 
   this->Superclass::ReplaceShaderColor(shaders, ren, actor);
-  // cerr << shaders[vtkShader::Fragment]->GetSource() << endl;
+  // std::cerr << shaders[vtkShader::Fragment]->GetSource() << endl;
 }
 
 //------------------------------------------------------------------------------

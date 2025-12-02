@@ -13,11 +13,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkWendlandQuinticKernel.h"
 
-#include "vtkMath.h"
-#include "vtkMathUtilities.h"
-
 #include <cmath>
-#include <sstream>
+#include <iostream>
 #include <string>
 
 //------------------------------------------------------------------------------

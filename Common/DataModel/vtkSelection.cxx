@@ -20,11 +20,15 @@
 #include <atomic>
 #include <cassert>
 #include <cctype>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
+
+using std::cerr;
+using std::cout;
 
 //============================================================================
 namespace parser
@@ -757,14 +761,14 @@ vtkSmartPointer<vtkSignedCharArray> vtkSelection::Evaluate(vtkSignedCharArray* c
 //------------------------------------------------------------------------------
 void vtkSelection::Dump()
 {
-  this->Dump(cout);
+  this->Dump(std::cout);
 }
 
 //------------------------------------------------------------------------------
 void vtkSelection::Dump(ostream& os)
 {
   vtkSmartPointer<vtkTable> tmpTable = vtkSmartPointer<vtkTable>::New();
-  cerr << "==Selection==" << endl;
+  std::cerr << "==Selection==" << endl;
   size_t counter = 0;
   for (const auto& nodePair : this->Internals->Items)
   {

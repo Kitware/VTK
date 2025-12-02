@@ -19,6 +19,8 @@
 
 #include <viskores/testing/Testing.h>
 
+#include <iostream>
+
 namespace
 {
 double Tolerance = 0.00001;

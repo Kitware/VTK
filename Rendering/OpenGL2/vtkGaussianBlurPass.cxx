@@ -31,6 +31,8 @@
 #include "vtkGaussianBlurPassFS.h"
 #include "vtkGaussianBlurPassVS.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGaussianBlurPass);
 
@@ -178,7 +180,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState* s)
     this->FrameBufferObject->Start(w, h);
 
 #ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
-    cout << "gauss finish2" << endl;
+    std::cout << "gauss finish2" << endl;
     glFinish();
 #endif
 
@@ -255,7 +257,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState* s)
     this->BlurProgram->Program->SetUniformf("offsety", fvalues[0]);
 
 #ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
-    cout << "gauss finish3-" << endl;
+    std::cout << "gauss finish3-" << endl;
     glFinish();
 #endif
 
@@ -266,7 +268,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState* s)
       0, w - 1, 0, h - 1, this->BlurProgram->Program, this->BlurProgram->VAO);
 
 #ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
-    cout << "gauss finish3" << endl;
+    std::cout << "gauss finish3" << endl;
     glFinish();
 #endif
 
@@ -332,7 +334,7 @@ void vtkGaussianBlurPass::Render(const vtkRenderState* s)
     this->Pass2->Deactivate();
 
 #ifdef VTK_GAUSSIAN_BLUR_PASS_DEBUG
-    cout << "gauss finish4" << endl;
+    std::cout << "gauss finish4" << endl;
     glFinish();
 #endif
   }

@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 #ifdef MPI_Comm
 #error MPI_Comm is #define'd somewhere!  That's BAD!  (Try checking netcdf.h.)
 #endif
@@ -412,8 +414,8 @@ int vtkPNetCDFPOPReader::RequestData(vtkInformation* request,
         float* depthStart =
           data + ((curDepth - subext[4]) * oneDepthSize); // Where this data should start
         int sourceRank = ReaderForDepth(curDepth);
-        //      cerr << "Rank " << mpiRank << ": Expecting depth " << curDepth << " from rank " <<
-        //      sourceRank << endl;
+        //      std::cerr << "Rank " << mpiRank << ": Expecting depth " << curDepth << " from rank "
+        //      << sourceRank << endl;
 
         vtkMPICommunicator::Request recvReq;
         this->Controller->NoBlockReceive(depthStart, oneDepthSize, sourceRank, curDepth, recvReq);
@@ -584,7 +586,8 @@ int vtkPNetCDFPOPReader::ReadAndSend(vtkInformation* outInfo, int varID)
           MPI_Type_create_subarray(2, subarray_sizes, subarray_subsizes, subarray_starts,
             MPI_ORDER_C, MPI_FLOAT, &subArrayType);
           MPI_Type_commit(&subArrayType);
-          // cerr << "Rank " << mpiRank << ": Sending depth " << curDepth << " to rank " << destRank
+          // std::cerr << "Rank " << mpiRank << ": Sending depth " << curDepth << " to rank " <<
+          // destRank
           // << endl;
 
           // using the depth value as the tag

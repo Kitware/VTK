@@ -10,6 +10,9 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <iostream>
+
+using std::cout;
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkExtentRCBPartitioner);
@@ -404,12 +407,12 @@ void vtkExtentRCBPartitioner::AcquireDataDescription()
 //------------------------------------------------------------------------------
 void vtkExtentRCBPartitioner::PrintExtent(const std::string& name, int ext[6])
 {
-  cout << name << ": [";
+  std::cout << name << ": [";
   for (int i = 0; i < 6; ++i)
   {
-    cout << ext[i] << " ";
+    std::cout << ext[i] << " ";
   }
-  cout << "]\n";
-  cout.flush();
+  std::cout << "]\n";
+  std::cout.flush();
 }
 VTK_ABI_NAMESPACE_END

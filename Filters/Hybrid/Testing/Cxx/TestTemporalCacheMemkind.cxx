@@ -17,6 +17,7 @@
 #include <vtkTemporalInterpolator.h>
 
 #include <cassert>
+#include <iostream>
 #include <vector>
 
 namespace
@@ -119,7 +120,7 @@ int vtkTemporalSphereSource2::RequestData(
     doOutput->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(), timevalue);
   }
 
-  cout << "this->ActualTimeStep : " << this->ActualTimeStep << endl;
+  std::cout << "this->ActualTimeStep : " << this->ActualTimeStep << std::endl;
   return Superclass::RequestData(request, inputVector, outputVector);
 }
 
@@ -153,10 +154,10 @@ int TestTemporalCacheMemkind(int ac, char* av[])
       home = std::string(av[a + 1]);
     }
   }
-  cout << "Extended memory is backed by " << home << endl;
+  std::cout << "Extended memory is backed by " << home << std::endl;
   vtkObjectBase::SetMemkindDirectory(home.c_str());
 
-  cout << "******************** Test cachefilter ********************" << endl;
+  std::cout << "******************** Test cachefilter ********************" << std::endl;
   // create temporal data
   vtkSmartPointer<vtkTemporalSphereSource2> sphere =
     vtkSmartPointer<vtkTemporalSphereSource2>::New();
@@ -192,8 +193,8 @@ int TestTemporalCacheMemkind(int ac, char* av[])
 #ifdef VTK_USE_MEMKIND
   expect_extended = true;
 #endif
-  cout << "Expecting extended in this run ? " << (expect_extended ? "YES" : "NO")
-       << endl; // reference to avoid comp warns
+  std::cout << "Expecting extended in this run ? " << (expect_extended ? "YES" : "NO")
+            << std::endl; // reference to avoid comp warns
   for (j = 0; j < 5; ++j)
   {
     for (i = 0; i < 9; ++i)
@@ -213,13 +214,13 @@ int TestTemporalCacheMemkind(int ac, char* av[])
 
   if (executecb->Count == 11)
   {
-    cout << "Executed expected number of times." << endl;
+    std::cout << "Executed expected number of times." << std::endl;
     return 0;
   }
   else
   {
-    cerr << "Upstream executed the wrong number of times " << executecb->Count << " instead of 11."
-         << endl;
+    std::cerr << "Upstream executed the wrong number of times " << executecb->Count
+              << " instead of 11." << std::endl;
   }
 
   return 1;

@@ -25,6 +25,8 @@
 #include "vtkNew.h"
 #include "vtkPolyDataMapper.h"
 
+#include <iostream>
+
 int TestTranslucentLUTTextureDepthPeeling(int argc, char* argv[])
 {
   vtkNew<vtkRenderWindowInteractor> iren;
@@ -84,11 +86,11 @@ int TestTranslucentLUTTextureDepthPeeling(int argc, char* argv[])
   renWin->Render();
   if (renderer->GetLastRenderingUsedDepthPeeling())
   {
-    cout << "depth peeling was used" << endl;
+    std::cout << "depth peeling was used" << std::endl;
   }
   else
   {
-    cout << "depth peeling was not used (alpha blending instead)" << endl;
+    std::cout << "depth peeling was not used (alpha blending instead)" << std::endl;
   }
   vtkCamera* camera = renderer->GetActiveCamera();
   camera->Azimuth(-40.0);

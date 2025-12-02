@@ -20,6 +20,7 @@
 #include <cmath>
 #include <cstdarg>
 #include <iomanip>
+#include <iostream>
 #include <iterator>
 #include <string>
 #include <vector>
@@ -35,6 +36,8 @@
 #include <sys/types.h>
 #endif
 #include "vtkObjectFactory.h"
+
+using std::cerr;
 
 //==============================================================================
 VTK_ABI_NAMESPACE_BEGIN
@@ -314,7 +317,7 @@ vtkTimerLogEntry* vtkTimerLog::GetEvent(int idx)
 
   if (idx < 0 || idx >= num)
   {
-    cerr << "Bad entry index " << idx << endl;
+    std::cerr << "Bad entry index " << idx << endl;
     return nullptr;
   }
   idx = (idx + start) % vtkTimerLog::MaxEntries;

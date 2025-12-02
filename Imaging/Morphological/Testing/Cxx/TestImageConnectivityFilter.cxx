@@ -23,10 +23,10 @@
 #include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkUnsignedCharArray.h"
-#include "vtkVersion.h"
 
 #include "vtkTestUtilities.h"
 
+#include <iostream>
 #include <string>
 
 int TestImageConnectivityFilter(int argc, char* argv[])

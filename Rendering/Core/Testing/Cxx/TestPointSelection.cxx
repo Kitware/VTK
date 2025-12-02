@@ -24,6 +24,8 @@
 #include "vtkSelectionNode.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 class PointPickCommand : public vtkCommand
 {
 protected:
@@ -104,13 +106,13 @@ public:
   void DumpPointSelection()
   {
     // Print selection
-    cerr << "\n### Selection ###\n";
-    cerr << "Points: ";
+    std::cerr << "\n### Selection ###\n";
+    std::cerr << "Points: ";
     for (std::vector<int>::iterator i = this->PointIds.begin(); i != this->PointIds.end(); ++i)
     {
-      cerr << *i << " ";
+      std::cerr << *i << " ";
     }
-    cerr << endl;
+    std::cerr << std::endl;
   }
 };
 
@@ -175,8 +177,8 @@ int TestPointSelection(int argc, char* argv[])
     std::find(pIds.begin(), pIds.end(), 38) == pIds.end() ||
     std::find(pIds.begin(), pIds.end(), 39) == pIds.end())
   {
-    cerr << "Incorrect atoms/bonds picked! (if any picks were performed inter"
-            "actively this could be ignored).\n";
+    std::cerr << "Incorrect atoms/bonds picked! (if any picks were performed inter"
+                 "actively this could be ignored).\n";
     return EXIT_FAILURE;
   }
 

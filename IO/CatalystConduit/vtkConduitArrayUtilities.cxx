@@ -59,6 +59,8 @@
 #include <typeinfo>
 #include <vector>
 
+#include <iostream>
+
 namespace internals
 {
 VTK_ABI_NAMESPACE_BEGIN

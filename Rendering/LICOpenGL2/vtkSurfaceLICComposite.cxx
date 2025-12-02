@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include <iostream>
+
 using std::deque;
 using std::vector;
 
@@ -69,7 +71,7 @@ int vtkSurfaceLICComposite::VectorMax(
   const deque<vtkPixelExtent>& exts, float* vectors, vector<float>& vMax)
 {
 #if vtkSurfaceLICCompositeDEBUG >= 2
-  cerr << "=====vtkSurfaceLICComposite::VectorMax" << endl;
+  std::cerr << "=====vtkSurfaceLICComposite::VectorMax" << endl;
 #endif
 
   // find the max on each extent
@@ -106,7 +108,7 @@ int vtkSurfaceLICComposite::VectorMax(
 float vtkSurfaceLICComposite::VectorMax(const vtkPixelExtent& ext, float* vectors)
 {
 #if vtkSurfaceLICCompositeDEBUG >= 2
-  cerr << "=====vtkSurfaceLICComposite::VectorMax" << endl;
+  std::cerr << "=====vtkSurfaceLICComposite::VectorMax" << endl;
 #endif
 
   int nx[2];
@@ -139,7 +141,7 @@ int vtkSurfaceLICComposite::MakeDecompDisjoint(
   const deque<vtkPixelExtent>& in, deque<vtkPixelExtent>& out, float* vectors)
 {
 #if vtkSurfaceLICCompositeDEBUG >= 2
-  cerr << "=====vtkSurfaceLICComposite::MakeDecompDisjoint" << endl;
+  std::cerr << "=====vtkSurfaceLICComposite::MakeDecompDisjoint" << endl;
 #endif
 
   // serial implementation
@@ -236,7 +238,7 @@ int vtkSurfaceLICComposite::AddGuardPixels(const deque<vtkPixelExtent>& exts,
   deque<vtkPixelExtent>& guardExts, deque<vtkPixelExtent>& disjointGuardExts, float* vectors)
 {
 #if vtkSurfaceLICCompositeDEBUG >= 2
-  cerr << "=====vtkSurfaceLICComposite::AddGuardPixles" << endl;
+  std::cerr << "=====vtkSurfaceLICComposite::AddGuardPixles" << endl;
 #endif
 
   int nx[2];
@@ -250,7 +252,7 @@ int vtkSurfaceLICComposite::AddGuardPixels(const deque<vtkPixelExtent>& exts,
     // same number of guard cells.
     int ng = static_cast<int>(arc) + this->NumberOfEEGuardPixels + this->NumberOfAAGuardPixels;
     ng = ng < 2 ? 2 : ng;
-    // cerr << "ng=" << ng << endl;
+    // std::cerr << "ng=" << ng << endl;
     deque<vtkPixelExtent> tmpExts(exts);
     size_t nExts = tmpExts.size();
     // add guard pixels
@@ -271,7 +273,7 @@ int vtkSurfaceLICComposite::AddGuardPixels(const deque<vtkPixelExtent>& exts,
     // of guard cells.
     vector<float> vectorMax;
     this->VectorMax(exts, vectors, vectorMax);
-    // cerr << "ng=";
+    // std::cerr << "ng=";
     deque<vtkPixelExtent> tmpExts(exts);
     size_t nExts = tmpExts.size();
     // add guard pixels
@@ -280,12 +282,12 @@ int vtkSurfaceLICComposite::AddGuardPixels(const deque<vtkPixelExtent>& exts,
       int ng = static_cast<int>(
         vectorMax[b] * arc + this->NumberOfEEGuardPixels + this->NumberOfAAGuardPixels);
       ng = ng < 2 ? 2 : ng;
-      // cerr << " " << ng;
+      // std::cerr << " " << ng;
       tmpExts[b].Grow(ng);
       tmpExts[b] &= this->DataSetExt;
     }
     guardExts = tmpExts;
-    // cerr << endl;
+    // std::cerr << endl;
     // make sure it's disjoint
     disjointGuardExts.clear();
     this->MakeDecompDisjoint(tmpExts, disjointGuardExts);

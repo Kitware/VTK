@@ -1,7 +1,6 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
-#include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
 #include "vtkActor.h"
@@ -20,6 +19,8 @@
 
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 int TestPDBBallAndStickShadows(int argc, char* argv[])
 {
   char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2LYZ.pdb");
@@ -34,9 +35,9 @@ int TestPDBBallAndStickShadows(int argc, char* argv[])
   vtkNew<vtkMoleculeMapper> molmapper;
   molmapper->SetInputConnection(reader->GetOutputPort(1));
 
-  cerr << "Class: " << molmapper->GetClassName() << endl;
-  cerr << "Atoms: " << molmapper->GetInput()->GetNumberOfAtoms() << endl;
-  cerr << "Bonds: " << molmapper->GetInput()->GetNumberOfBonds() << endl;
+  std::cerr << "Class: " << molmapper->GetClassName() << std::endl;
+  std::cerr << "Atoms: " << molmapper->GetInput()->GetNumberOfAtoms() << std::endl;
+  std::cerr << "Bonds: " << molmapper->GetInput()->GetNumberOfBonds() << std::endl;
 
   molmapper->UseBallAndStickSettings();
 
@@ -92,7 +93,7 @@ int TestPDBBallAndStickShadows(int argc, char* argv[])
   win->Render();
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
-  cerr << "first render time: " << firstRender << endl;
+  std::cerr << "first render time: " << firstRender << std::endl;
 
   /*
     int numRenders = 500;
@@ -105,7 +106,7 @@ int TestPDBBallAndStickShadows(int argc, char* argv[])
       }
     timer->StopTimer();
     double elapsed = timer->GetElapsedTime();
-    cerr << "interactive render time: " << elapsed / numRenders << endl;
+    std::cerr << "interactive render time: " << elapsed / numRenders << std::endl;
   */
 
   ren->GetActiveCamera()->SetPosition(0, 0, 1);

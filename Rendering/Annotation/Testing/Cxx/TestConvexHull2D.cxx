@@ -4,10 +4,9 @@
 #include "vtkMath.h"
 #include "vtkPoints.h"
 #include "vtkSmartPointer.h"
-#include "vtkTestUtilities.h"
 
 #include <cmath>
-#include <limits>
+#include <iostream>
 
 template <class A>
 bool fuzzyCompare1Dweak(A a, A b)

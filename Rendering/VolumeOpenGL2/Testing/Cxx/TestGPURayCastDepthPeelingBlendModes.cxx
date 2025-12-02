@@ -27,9 +27,10 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
 #include "vtkSphereSource.h"
-#include "vtkTestingObjectFactory.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
+
+#include <iostream>
 
 int TestGPURayCastDepthPeelingBlendModes(int argc, char* argv[])
 {
@@ -55,7 +56,7 @@ int TestGPURayCastDepthPeelingBlendModes(int argc, char* argv[])
   }
   renWin->RemoveRenderer(ren);
 
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   int dims[3] = { 100, 100, 100 };
   int boundary[3] = { 10, 10, 10 };

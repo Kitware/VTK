@@ -13,7 +13,6 @@
 #include "vtkDataSetEdgeSubdivisionCriterion.h"
 #include "vtkEdgeSubdivisionCriterion.h"
 #include "vtkFieldData.h"
-#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMergePoints.h"
@@ -22,6 +21,8 @@
 #include "vtkStreamingTessellator.h"
 #include "vtkTessellatorFilter.h"
 #include "vtkUnstructuredGrid.h"
+
+#include <iostream>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkTessellatorFilter);
@@ -48,7 +49,7 @@ public:
   void Execute(vtkObject*, unsigned long, void* callData) override
   {
     double subprogress = *(static_cast<double*>(callData));
-    cout << "  ++ <" << ((subprogress / 2. + 0.5) * 100.) << ">\n";
+    std::cout << "  ++ <" << ((subprogress / 2. + 0.5) * 100.) << ">\n";
     this->Tessellator->UpdateProgress(subprogress / 2. + 0.5);
   }
 

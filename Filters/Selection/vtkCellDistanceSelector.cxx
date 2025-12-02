@@ -21,6 +21,7 @@
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 
+#include <iostream>
 #include <map>
 #include <vector>
 
@@ -332,7 +333,7 @@ int vtkCellDistanceSelector::RequestData(vtkInformation* vtkNotUsed(request),
         if ((!this->Distance && this->IncludeSeed) || this->Distance > 0)
         {
           int ni = outIndices->GetNumberOfTuples();
-          cerr << "There are " << ni << " tuples\n";
+          std::cerr << "There are " << ni << " tuples\n";
           for (int i = 0; i < ni; ++i)
           {
             cellDistance->InsertNextTuple1(this->Distance);

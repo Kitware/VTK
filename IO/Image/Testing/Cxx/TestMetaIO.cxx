@@ -14,22 +14,24 @@
 
 #include <cmath>
 
+#include <iostream>
+
 int TestMetaIO(int argc, char* argv[])
 {
   vtkOutputWindow::GetInstance()->PromptUserOn();
   if (argc <= 1)
   {
-    cout << "Usage: " << argv[0] << " <meta image file>" << endl;
+    std::cout << "Usage: " << argv[0] << " <meta image file>" << std::endl;
     return 1;
   }
 
   vtkMetaImageReader* reader = vtkMetaImageReader::New();
   reader->SetFileName(argv[1]);
   reader->Update();
-  cout << "10, 10, 10 : (1) : " << reader->GetOutput()->GetScalarComponentAsFloat(10, 10, 10, 0)
-       << endl;
-  cout << "24, 37, 10 : (168) : " << reader->GetOutput()->GetScalarComponentAsFloat(24, 37, 10, 0)
-       << endl;
+  std::cout << "10, 10, 10 : (1) : "
+            << reader->GetOutput()->GetScalarComponentAsFloat(10, 10, 10, 0) << std::endl;
+  std::cout << "24, 37, 10 : (168) : "
+            << reader->GetOutput()->GetScalarComponentAsFloat(24, 37, 10, 0) << std::endl;
 
   vtkMetaImageWriter* writer = vtkMetaImageWriter::New();
   writer->SetFileName("TestMetaIO.mha");
@@ -66,11 +68,11 @@ int TestMetaIO(int argc, char* argv[])
 
   if (error > 1)
   {
-    cerr << "Error: Image difference on read/write = " << error << endl;
+    std::cerr << "Error: Image difference on read/write = " << error << std::endl;
     return 1;
   }
 
-  cout << "Success!  Error = " << error << endl;
+  std::cout << "Success!  Error = " << error << std::endl;
 
   return 0;
 }

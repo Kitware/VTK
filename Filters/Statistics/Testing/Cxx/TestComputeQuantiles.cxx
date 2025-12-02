@@ -10,6 +10,8 @@
 
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 // randomly sampled data
 constexpr int N_random_list = 100;
@@ -66,13 +68,13 @@ int TestComputeQuantiles(int, char*[])
 
   if (!ComputeQuantiles(table, 4, quartile_solution))
   {
-    cout << "## Failure: Computation of quartiles does not match solution data!" << endl;
+    std::cout << "## Failure: Computation of quartiles does not match solution data!" << std::endl;
     return EXIT_FAILURE;
   }
 
   if (!ComputeQuantiles(table, 10, decile_solution))
   {
-    cout << "## Failure: Computation of deciles does not match solution data!" << endl;
+    std::cout << "## Failure: Computation of deciles does not match solution data!" << std::endl;
     return EXIT_FAILURE;
   }
 

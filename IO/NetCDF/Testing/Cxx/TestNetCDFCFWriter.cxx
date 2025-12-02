@@ -25,6 +25,8 @@
 #include "vtkUniformGrid.h"
 #include "vtkXMLImageDataReader.h"
 
+#include <iostream>
+
 int TestNetCDFCFWriter(int argc, char* argv[])
 {
   vtkNew<vtkTesting> testHelper;

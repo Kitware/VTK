@@ -8,6 +8,8 @@
 
 #include "vtkBoostExtractLargestComponent.h"
 
+#include <iostream>
+
 namespace
 {
 int TestNormal(vtkMutableUndirectedGraph* g);

@@ -25,13 +25,15 @@
 #include "vtkRenderer.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 #define vtk_assert(x)                                                                              \
   do                                                                                               \
   {                                                                                                \
     int success = 1;                                                                               \
     if (!(x))                                                                                      \
     {                                                                                              \
-      cerr << "ERROR: Condition FAILED!! : " << #x << endl;                                        \
+      std::cerr << "ERROR: Condition FAILED!! : " << #x << std::endl;                              \
       success = 0;                                                                                 \
     }                                                                                              \
     int allSuccess;                                                                                \

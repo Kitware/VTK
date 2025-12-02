@@ -4,13 +4,13 @@
 // .SECTION Description
 //
 
-#include "vtkDebugLeaks.h"
 #include "vtkOBJReader.h"
 
-#include "vtkCellArray.h"
 #include "vtkPointData.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 int TestOBJReaderNormalsTCoords(int argc, char* argv[])
 {

@@ -12,6 +12,8 @@
 
 #include <cmath>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkRTAnalyticSource);
 
@@ -161,8 +163,8 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(
 
   if (piece == 0)
     {
-    cout << "Piece:" << piece << " " << numPieces << " " << numGhosts << endl;
-    cout << "Extent: "
+    std::cout << "Piece:" << piece << " " << numPieces << " " << numGhosts << endl;
+    std::cout << "Extent: "
          << execExt[0] << " "
          << execExt[1] << " "
          << execExt[2] << " "

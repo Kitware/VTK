@@ -9,6 +9,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 using std::vector;
 
 // use PImpl to avoid MPI types in public API.
@@ -244,9 +246,9 @@ bool vtkPPainterCommunicator::GetIsNull()
 void vtkPPainterCommunicator::SubsetCommunicator(vtkMPICommunicatorOpaqueComm* comm, int include)
 {
 #if defined(vtkPPainterCommunicatorDEBUG)
-  cerr << "=====vtkPPainterCommunicator::SubsetCommunicator" << endl
-       << "creating communicator " << (include ? "with" : "WITHOUT") << this->GetWorldRank()
-       << endl;
+  std::cerr << "=====vtkPPainterCommunicator::SubsetCommunicator" << endl
+            << "creating communicator " << (include ? "with" : "WITHOUT") << this->GetWorldRank()
+            << endl;
 #endif
 
   if (this->MPIInitialized() && !this->MPIFinalized())

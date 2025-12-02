@@ -42,6 +42,8 @@
 #include <vtkRenderer.h>
 #include <vtkVersion.h>
 
+#include <iostream>
+
 void ViewportRange(int testNum, double* range)
 {
   range[0] = 0.2 * (testNum % 5);
@@ -137,7 +139,7 @@ void IntersectWithCell(unsigned nTest, vtkMinimalStandardRandomSequence* sequenc
 int TestIntersectWithLine(int argc, char* argv[])
 {
   std::ostringstream strm;
-  strm << "Test vtkCell::IntersectWithLine Start" << endl;
+  strm << "Test vtkCell::IntersectWithLine Start" << std::endl;
 
   auto renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
   renderWindow->SetMultiSamples(0);
@@ -457,7 +459,7 @@ int TestIntersectWithLine(int argc, char* argv[])
 
   IntersectWithCell(nTest, sequence, false, radius, center, culine, renderWindow);
 
-  strm << "Test vtkCell::IntersectWithLine End" << endl;
+  strm << "Test vtkCell::IntersectWithLine End" << std::endl;
 
   renderWindowInteractor->Initialize();
 

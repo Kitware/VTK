@@ -11,6 +11,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkStringScanner.h>
 
+#include <iostream>
+
 int TestGLTFImporter(int argc, char* argv[])
 {
   if (argc < 8)

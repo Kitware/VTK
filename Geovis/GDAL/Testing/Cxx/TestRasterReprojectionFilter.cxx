@@ -19,9 +19,11 @@
 #include "vtkTestUtilities.h"
 #include "vtkTesting.h"
 
+#include <iostream>
+
 int TestRasterReprojectionFilter(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/GIS/sa052483.tif");
 

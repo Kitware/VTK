@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 /**
  * Ensure that cell ids array is present and has been filled correctly
@@ -27,7 +29,7 @@ bool TestRandomUnsignedCharCellArray(vtkCellData* cellData, const char* arrayNam
   auto randomArray = vtkUnsignedCharArray::SafeDownCast(cellData->GetAbstractArray(arrayName));
   if (!randomArray)
   {
-    std::cerr << "Unable to retrieve the " << arrayName << " array." << endl;
+    std::cerr << "Unable to retrieve the " << arrayName << " array." << std::endl;
     return false;
   }
 
@@ -35,7 +37,7 @@ bool TestRandomUnsignedCharCellArray(vtkCellData* cellData, const char* arrayNam
   {
     std::cerr << "Wrong number of tuples in the generated " << arrayName << " array."
               << "Expected " << expectedNbOfTuples << ", got " << randomArray->GetNumberOfTuples()
-              << endl;
+              << std::endl;
     return false;
   }
 
@@ -43,7 +45,7 @@ bool TestRandomUnsignedCharCellArray(vtkCellData* cellData, const char* arrayNam
   {
     std::cerr << "Wrong number of tuples in the generated " << arrayName << " array."
               << "Expected" << expectedNbOfComponents << ", got "
-              << randomArray->GetNumberOfComponents() << endl;
+              << randomArray->GetNumberOfComponents() << std::endl;
     return false;
   }
 
@@ -54,7 +56,7 @@ bool TestRandomUnsignedCharCellArray(vtkCellData* cellData, const char* arrayNam
     {
       std::cerr << "Wrong random value in the " << arrayName << "array at index " << id
                 << ". Expected value between " << min << " and " << max << ", got "
-                << randomArray->GetValue(id) << endl;
+                << randomArray->GetValue(id) << std::endl;
       return false;
     }
   }

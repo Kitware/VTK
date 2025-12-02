@@ -12,6 +12,8 @@
 
 #include <openqube/basissetloader.h>
 
+#include <iostream>
+
 int TestOpenQubeElectronicData(int argc, char* argv[])
 {
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/2h2o.aux");
@@ -25,7 +27,7 @@ int TestOpenQubeElectronicData(int argc, char* argv[])
 
   if (!oqed)
   {
-    cerr << "Molecule's electronic data is not from OpenQube.\n";
+    std::cerr << "Molecule's electronic data is not from OpenQube.\n";
     return EXIT_FAILURE;
   }
 
@@ -45,16 +47,16 @@ int TestOpenQubeElectronicData(int argc, char* argv[])
   ++expectedNumberOfImages;
   if (oqed->GetImages()->GetNumberOfItems() != expectedNumberOfImages)
   {
-    cerr << "Number of cached images (" << oqed->GetImages()->GetNumberOfItems()
-         << ") not equal to the "
-            "number of expected images ("
-         << expectedNumberOfImages << ")\n";
+    std::cerr << "Number of cached images (" << oqed->GetImages()->GetNumberOfItems()
+              << ") not equal to the "
+                 "number of expected images ("
+              << expectedNumberOfImages << ")\n";
     return EXIT_FAILURE;
   }
   if (oqed->GetHOMO() != testImage11)
   {
-    cerr << "(Test11) New orbital calculated when cached image is "
-            "available\n";
+    std::cerr << "(Test11) New orbital calculated when cached image is "
+                 "available\n";
     return EXIT_FAILURE;
   }
 
@@ -64,16 +66,16 @@ int TestOpenQubeElectronicData(int argc, char* argv[])
   ++expectedNumberOfImages;
   if (oqed->GetImages()->GetNumberOfItems() != expectedNumberOfImages)
   {
-    cerr << "Number of cached images (" << oqed->GetImages()->GetNumberOfItems()
-         << ") not equal to the "
-            "number of expected images ("
-         << expectedNumberOfImages << ")\n";
+    std::cerr << "Number of cached images (" << oqed->GetImages()->GetNumberOfItems()
+              << ") not equal to the "
+                 "number of expected images ("
+              << expectedNumberOfImages << ")\n";
     return EXIT_FAILURE;
   }
   if (oqed->GetHOMO() != testImage12)
   {
-    cerr << "(Test12) New orbital calculated when cached image is "
-            "available\n";
+    std::cerr << "(Test12) New orbital calculated when cached image is "
+                 "available\n";
     return EXIT_FAILURE;
   }
 
@@ -83,16 +85,16 @@ int TestOpenQubeElectronicData(int argc, char* argv[])
   ++expectedNumberOfImages;
   if (oqed->GetImages()->GetNumberOfItems() != expectedNumberOfImages)
   {
-    cerr << "Number of cached images (" << oqed->GetImages()->GetNumberOfItems()
-         << ") not equal to the "
-            "number of expected images ("
-         << expectedNumberOfImages << ")\n";
+    std::cerr << "Number of cached images (" << oqed->GetImages()->GetNumberOfItems()
+              << ") not equal to the "
+                 "number of expected images ("
+              << expectedNumberOfImages << ")\n";
     return EXIT_FAILURE;
   }
   if (oqed->GetHOMO() != testImage21)
   {
-    cerr << "(Test21) New orbital calculated when cached image is "
-            "available\n";
+    std::cerr << "(Test21) New orbital calculated when cached image is "
+                 "available\n";
     return EXIT_FAILURE;
   }
 
@@ -102,16 +104,16 @@ int TestOpenQubeElectronicData(int argc, char* argv[])
   ++expectedNumberOfImages;
   if (oqed->GetImages()->GetNumberOfItems() != expectedNumberOfImages)
   {
-    cerr << "Number of cached images (" << oqed->GetImages()->GetNumberOfItems()
-         << ") not equal to the "
-            "number of expected images ("
-         << expectedNumberOfImages << ")\n";
+    std::cerr << "Number of cached images (" << oqed->GetImages()->GetNumberOfItems()
+              << ") not equal to the "
+                 "number of expected images ("
+              << expectedNumberOfImages << ")\n";
     return EXIT_FAILURE;
   }
   if (oqed->GetHOMO() != testImage22)
   {
-    cerr << "(Test22) New orbital calculated when cached image is "
-            "available\n";
+    std::cerr << "(Test22) New orbital calculated when cached image is "
+                 "available\n";
     return EXIT_FAILURE;
   }
 

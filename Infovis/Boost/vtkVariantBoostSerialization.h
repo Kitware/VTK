@@ -22,6 +22,8 @@
 #include "vtkVariant.h"
 #include "vtkVariantArray.h"
 
+#include <iostream>
+
 // This include fixes header-ordering issues in Boost.Serialization
 // prior to Boost 1.35.0.
 #include <boost/archive/binary_oarchive.hpp>
@@ -101,7 +103,7 @@ void save(Archiver& ar, const vtkVariant& variant, const unsigned int vtkNotUsed
     VTK_VARIANT_SAVE(VTK_LONG_LONG, long long, ToLongLong);
     VTK_VARIANT_SAVE(VTK_UNSIGNED_LONG_LONG, unsigned long long, ToUnsignedLongLong);
     default:
-      cerr << "cannot serialize variant with type " << variant.GetType() << '\n';
+      std::cerr << "cannot serialize variant with type " << variant.GetType() << '\n';
   }
 #undef VTK_VARIANT_SAVE
 }
@@ -140,7 +142,8 @@ void load(Archiver& ar, vtkVariant& variant, const unsigned int vtkNotUsed(versi
       VTK_VARIANT_LOAD(VTK_LONG_LONG, long long);
       VTK_VARIANT_LOAD(VTK_UNSIGNED_LONG_LONG, unsigned long long);
     default:
-      cerr << "cannot deserialize variant with type " << static_cast<unsigned int>(Type) << '\n';
+      std::cerr << "cannot deserialize variant with type " << static_cast<unsigned int>(Type)
+                << '\n';
       variant = vtkVariant();
   }
 #undef VTK_VARIANT_LOAD

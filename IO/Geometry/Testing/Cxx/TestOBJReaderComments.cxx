@@ -6,8 +6,9 @@
 
 #include "vtkOBJReader.h"
 
-#include "vtkStringArray.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 int TestOBJReaderComments(int argc, char* argv[])
 {

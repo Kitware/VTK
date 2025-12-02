@@ -15,6 +15,8 @@
 #include <cstdint>
 #include <limits>
 
+#include <iostream>
+
 // If the Viskores devices share memory with the host, then we can provide VTK with efficient
 // memory structures without unnecessary copies.
 // TODO: Provide a better way for Viskores to declare whether device arrays are unified.

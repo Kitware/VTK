@@ -37,6 +37,8 @@
 
 #include "vtk_glad.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompositeRGBAPass);
 vtkCxxSetObjectMacro(vtkCompositeRGBAPass, Controller, vtkMultiProcessController);
@@ -218,7 +220,8 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
   vtkImageShiftScale* converter;
   vtkPNGWriter* writer;
 
-  cout << "me=" << me << " TID=" << syscall(SYS_gettid) << " thread=" << pthread_self() << endl;
+  std::cout << "me=" << me << " TID=" << syscall(SYS_gettid) << " thread=" << pthread_self()
+            << endl;
   timer->StartTimer();
 #endif
 
@@ -240,9 +243,9 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
 
     this->PBO->Bind(vtkPixelBufferObject::PACKED_BUFFER);
     glReadPixels(0, 0, w, h, GL_RGBA, GL_FLOAT, static_cast<GLfloat*>(nullptr));
-    cout << "after readpixel." << endl;
+    std::cout << "after readpixel." << endl;
     this->PBO->Download2D(VTK_FLOAT, this->RawRGBABuffer, dims, 4, continuousInc);
-    cout << "after pbodownload." << endl;
+    std::cout << "after pbodownload." << endl;
     importer = vtkImageImport::New();
     importer->CopyImportVoidPointer(this->RawRGBABuffer, static_cast<int>(byteSize));
     importer->SetDataScalarTypeToFloat();
@@ -251,7 +254,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
     importer->SetDataExtentToWholeExtent();
 
     importer->Update();
-    cout << "after importer update" << endl;
+    std::cout << "after importer update" << endl;
     converter = vtkImageShiftScale::New();
     converter->SetInputConnection(importer->GetOutputPort());
     converter->SetOutputScalarTypeToUnsignedChar();
@@ -274,9 +277,9 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
     converter->Delete();
     importer->Delete();
     //    rgbaToRgb->Delete();
-    cout << "Writing " << writer->GetFileName() << endl;
+    std::cout << "Writing " << writer->GetFileName() << endl;
     writer->Write();
-    cout << "Wrote " << writer->GetFileName() << endl;
+    std::cout << "Wrote " << writer->GetFileName() << endl;
     //    sleep(30);
     writer->Delete();
 #endif // #ifdef VTK_COMPOSITE_RGBAPASS_DEBUG
@@ -300,7 +303,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
     int i = 0;
     while (i < numProcs)
     {
-      cout << "frontToBackList[" << i << "]=" << frontToBackList->GetValue(i) << endl;
+      std::cout << "frontToBackList[" << i << "]=" << frontToBackList->GetValue(i) << endl;
       ++i;
     }
 #endif
@@ -424,9 +427,9 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
     converter->Delete();
     importer->Delete();
     //    rgbaToRgb->Delete();
-    cout << "Writing " << writer->GetFileName() << endl;
+    std::cout << "Writing " << writer->GetFileName() << endl;
     writer->Write();
-    cout << "Wrote " << writer->GetFileName() << endl;
+    std::cout << "Wrote " << writer->GetFileName() << endl;
     //    sleep(30);
     writer->Delete();
 #endif
@@ -481,9 +484,9 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState* s)
     converter->Delete();
     importer->Delete();
     //    rgbaToRgb->Delete();
-    cout << "Writing " << writer->GetFileName() << endl;
+    std::cout << "Writing " << writer->GetFileName() << endl;
     writer->Write();
-    cout << "Wrote " << writer->GetFileName() << endl;
+    std::cout << "Wrote " << writer->GetFileName() << endl;
     //    sleep(30);
     writer->Delete();
 #endif

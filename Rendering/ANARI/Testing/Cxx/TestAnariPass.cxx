@@ -28,6 +28,8 @@
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
+#include <iostream>
+
 int TestAnariPass(int argc, char* argv[])
 {
   vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
@@ -78,12 +80,12 @@ int TestAnariPass(int argc, char* argv[])
   {
     if (i % 2)
     {
-      cerr << "Render via ANARI" << endl;
+      std::cerr << "Render via ANARI" << std::endl;
       renderer->SetPass(anariPass);
     }
     else
     {
-      cerr << "Render via GL" << endl;
+      std::cerr << "Render via GL" << std::endl;
       renderer->SetPass(nullptr);
     }
 

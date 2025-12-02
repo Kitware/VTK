@@ -24,6 +24,9 @@
 #endif
 #include "vtkWindows.h" // OK on UNix etc
 #include <sstream>
+
+#include <iostream>
+
 #endif
 
 #define ID_OFFSET 1

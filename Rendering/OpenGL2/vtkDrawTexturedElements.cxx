@@ -30,7 +30,9 @@
 
 #include "vtk_glad.h"
 
-// Uncomment to print shader/color info to cout
+#include <iostream>
+
+// Uncomment to print shader/color info to std::cout
 // #define vtkDrawTexturedElements_DEBUG
 
 VTK_ABI_NAMESPACE_BEGIN

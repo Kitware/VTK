@@ -21,6 +21,7 @@
 #include "vtkXMLDataParser.h"
 
 #include <algorithm>
+#include <iostream>
 #include <limits>
 #include <numeric>
 #include <vtkStringScanner.h>
@@ -788,8 +789,8 @@ void vtkXMLHyperTreeGridReader::ReadTrees_1(vtkXMLDataElement* elem)
     AccImpl accFunctor(this->GetFixedLevelOfThisHT(numberOfLevels, treeIndxInHTG));
     if (!vtkArrayDispatch::Dispatch::Execute(nbVerticesByLevelArray, accFunctor))
     {
-      cerr << "Should not happen: could not dispatch nbVerticesByLevel array" << endl;
-      cerr << "Falling back to vtkDataArray, can pose problems on windows" << endl;
+      std::cerr << "Should not happen: could not dispatch nbVerticesByLevel array\n";
+      std::cerr << "Falling back to vtkDataArray, can pose problems on windows\n";
       accFunctor(nbVerticesByLevelArray.GetPointer());
     }
     tree->InitializeForReader(accFunctor.LimitedLevel, accFunctor.FixedNbVertices,

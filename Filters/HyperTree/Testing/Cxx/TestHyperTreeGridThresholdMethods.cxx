@@ -12,6 +12,8 @@
 
 #include <chrono>
 
+#include <iostream>
+
 /**
  * Test that all 3 methods for HTG thresholding give an equivalent analytic result
  */

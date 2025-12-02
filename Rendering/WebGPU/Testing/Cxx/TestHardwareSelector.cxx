@@ -33,6 +33,8 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 // This unit test exercises using a hardware selector
 // to pick geometry rendered by `vtkPolyDataMapper`,
 // `vtkCompositePolyDataMapper`, and `vtkGlyph3DMapper`.
@@ -157,7 +159,7 @@ int TestHardwareSelector(int argc, char* argv[])
         _selector->SetArea(
           static_cast<int>(x0), static_cast<int>(y0), static_cast<int>(x1), static_cast<int>(y1));
         auto selection = vtk::TakeSmartPointer(_selector->Select());
-        selection->Print(cout);
+        selection->Print(std::cout);
       });
     iren->AddObserver(vtkCommand::EndPickEvent, onEndPick);
     iren->Start();

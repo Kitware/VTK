@@ -14,6 +14,8 @@
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 
+#include <iostream>
+
 //=============================================================================
 int TestMultiCorrelativeStatistics(int, char*[])
 {
@@ -135,9 +137,9 @@ int TestMultiCorrelativeStatistics(int, char*[])
   vtkMultiCorrelativeStatistics* mcs = vtkMultiCorrelativeStatistics::New();
 
   // First verify that absence of input does not cause trouble
-  cout << "## Verifying that absence of input does not cause trouble... ";
+  std::cout << "## Verifying that absence of input does not cause trouble... ";
   mcs->Update();
-  cout << "done.\n";
+  std::cout << "done.\n";
 
   // Prepare first test with data
   mcs->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, datasetTable);
@@ -171,18 +173,18 @@ int TestMultiCorrelativeStatistics(int, char*[])
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
     mcs->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
-  cout << "## Calculated the following statistics for data set:\n";
+  std::cout << "## Calculated the following statistics for data set:\n";
   for (unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++b)
   {
     vtkTable* outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(b));
 
     if (b == 0)
     {
-      cout << "Primary Statistics\n";
+      std::cout << "Primary Statistics\n";
     }
     else
     {
-      cout << "Derived Statistics " << (b - 1) << "\n";
+      std::cout << "Derived Statistics " << (b - 1) << "\n";
     }
 
     outputMeta->Dump();
@@ -209,15 +211,15 @@ int TestMultiCorrelativeStatistics(int, char*[])
   int nOutliers = 0;
   int tableIdx[] = { 0, 1, 3 };
 
-  cout << "## Searching for outliers such that " << outputData->GetColumnName(tableIdx[2]) << " > "
-       << threshold << "\n";
+  std::cout << "## Searching for outliers such that " << outputData->GetColumnName(tableIdx[2])
+            << " > " << threshold << "\n";
 
-  cout << "   Found the following outliers:\n";
+  std::cout << "   Found the following outliers:\n";
   for (int i = 0; i < 3; ++i)
   {
-    cout << "   " << outputData->GetColumnName(tableIdx[i]);
+    std::cout << "   " << outputData->GetColumnName(tableIdx[i]);
   }
-  cout << "\n";
+  std::cout << "\n";
 
   for (vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++r)
   {
@@ -227,9 +229,9 @@ int TestMultiCorrelativeStatistics(int, char*[])
 
       for (int i = 0; i < 3; ++i)
       {
-        cout << "     " << outputData->GetValue(r, tableIdx[i]).ToString() << "    ";
+        std::cout << "     " << outputData->GetValue(r, tableIdx[i]).ToString() << "    ";
       }
-      cout << "\n";
+      std::cout << "\n";
     }
   }
 

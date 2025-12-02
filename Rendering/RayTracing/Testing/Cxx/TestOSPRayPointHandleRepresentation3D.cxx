@@ -22,6 +22,8 @@
 
 #include "vtkOSPRayTestInteractor.h"
 
+#include <iostream>
+
 const char TestOSPRayPointHandleRepresentation3DLog[] = "# StreamVersion 1.1\n"
                                                         "ExposeEvent 0 299 0 0 0 0\n"
                                                         "MouseMoveEvent 269 268 0 0 0 0\n"
@@ -140,7 +142,7 @@ const char TestOSPRayPointHandleRepresentation3DLog[] = "# StreamVersion 1.1\n"
 
 int TestOSPRayPointHandleRepresentation3D(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // Create the RenderWindow, Renderer and both Actors
   //

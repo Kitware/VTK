@@ -13,6 +13,8 @@
 
 #include "vtksys/SystemTools.hxx"
 
+#include <iostream>
+
 namespace
 {
 

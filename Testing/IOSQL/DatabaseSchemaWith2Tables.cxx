@@ -7,6 +7,7 @@
 
 #include "DatabaseSchemaWith2Tables.h"
 
+#include <iostream>
 #include <stdexcept>
 
 #include "vtkSQLDatabaseSchema.h"
@@ -28,7 +29,7 @@ DatabaseSchemaWith2Tables::~DatabaseSchemaWith2Tables()
 
 void DatabaseSchemaWith2Tables::Create()
 {
-  cerr << "@@ Creating a schema...";
+  std::cerr << "@@ Creating a schema...";
 
   this->Schema = vtkSQLDatabaseSchema::New();
   this->Schema->SetName("TestSchema");
@@ -78,6 +79,6 @@ void DatabaseSchemaWith2Tables::Create()
   {
     throw std::runtime_error("Could not create test schema: Failed to create btable");
   }
-  cerr << " done." << endl;
+  std::cerr << " done." << std::endl;
 }
 VTK_ABI_NAMESPACE_END

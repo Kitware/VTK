@@ -19,6 +19,7 @@
 #include "vtkTestUtilities.h"
 #include "vtkTexturedButtonRepresentation.h"
 
+#include <iostream>
 #include <string>
 #include <vector>
 

@@ -38,6 +38,8 @@
 #include <numeric>
 #include <vector>
 
+#include <iostream>
+
 #ifndef NDEBUG
 // #define DEBUGTRACE
 // #define LOGTRACE
@@ -47,20 +49,20 @@
 #ifdef DEBUGTRACE
 #define PRINT(x)                                                                                   \
   {                                                                                                \
-    cout << this->Rank << ")" << x << endl;                                                        \
+    std::cout << this->Rank << ")" << x << endl;                                                   \
   }
 #define ALLPRINT(x)                                                                                \
   for (int rank = 0; rank < NumProcs; rank++)                                                      \
   {                                                                                                \
     Controller->Barrier();                                                                         \
     if (rank == Rank)                                                                              \
-      cout << "(" << this->Rank << ")" << x << endl;                                               \
+      std::cout << "(" << this->Rank << ")" << x << endl;                                          \
   }
 #define Assert(a, msg)                                                                             \
   {                                                                                                \
     if (!a)                                                                                        \
     {                                                                                              \
-      cerr << msg << endl;                                                                         \
+      std::cerr << msg << endl;                                                                    \
       assert(false);                                                                               \
     }                                                                                              \
   }
@@ -69,7 +71,7 @@
   {                                                                                                \
     if (a != b)                                                                                    \
     {                                                                                              \
-      cerr << a << " != " << b << endl;                                                            \
+      std::cerr << a << " != " << b << endl;                                                       \
       assert(false);                                                                               \
     }                                                                                              \
   }
@@ -78,7 +80,7 @@
   {                                                                                                \
     if (a == b)                                                                                    \
     {                                                                                              \
-      cerr << a << " == " << b << endl;                                                            \
+      std::cerr << a << " == " << b << endl;                                                       \
       assert(false);                                                                               \
     }                                                                                              \
   }
@@ -87,7 +89,7 @@
   {                                                                                                \
     if (a < b)                                                                                     \
     {                                                                                              \
-      cerr << a << " < " << b << endl;                                                             \
+      std::cerr << a << " < " << b << endl;                                                        \
       assert(false);                                                                               \
     }                                                                                              \
   }
@@ -96,7 +98,7 @@
   {                                                                                                \
     if (a <= b)                                                                                    \
     {                                                                                              \
-      cerr << a << " < " << b << endl;                                                             \
+      std::cerr << a << " < " << b << endl;                                                        \
       assert(false);                                                                               \
     }                                                                                              \
   }
@@ -456,14 +458,14 @@ public:
     this->Controller->AllGather(bb, this->BoundingBoxes.data(), 6);
 
 #ifdef DEBUGTRACE
-    cout << "(" << Rank << ") BoundingBoxes: ";
+    std::cout << "(" << Rank << ") BoundingBoxes: ";
     for (int i = 0; i < NumProcs; i++)
     {
       double* box = this->GetBoundingBox(i);
-      cout << box[0] << " " << box[1] << " " << box[2] << " " << box[3] << " " << box[4] << " "
-           << box[5] << ";  ";
+      std::cout << box[0] << " " << box[1] << " " << box[2] << " " << box[3] << " " << box[4] << " "
+                << box[5] << ";  ";
     }
-    cout << endl;
+    std::cout << endl;
 #endif
   }
 
@@ -883,8 +885,8 @@ inline bool SameShape(vtkPointData* a, vtkPointData* b)
 
   if (a->GetNumberOfArrays() != b->GetNumberOfArrays())
   {
-    PrintNames(cerr, a);
-    PrintNames(cerr, b);
+    PrintNames(std::cerr, a);
+    PrintNames(std::cerr, b);
     return false;
   }
 

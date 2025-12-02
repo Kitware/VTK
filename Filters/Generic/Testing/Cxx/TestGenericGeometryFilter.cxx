@@ -14,10 +14,8 @@
 #include "vtkActor.h"
 #include "vtkAttributesErrorMetric.h"
 #include "vtkBridgeDataSet.h"
-#include "vtkDebugLeaks.h"
 #include "vtkGenericCellTessellator.h"
 #include "vtkGenericGeometryFilter.h"
-#include "vtkGenericSubdivisionErrorMetric.h"
 #include "vtkGeometricErrorMetric.h"
 #include "vtkLookupTable.h"
 #include "vtkPointData.h"
@@ -32,7 +30,9 @@
 #include "vtkTestUtilities.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLUnstructuredGridReader.h"
+
 #include <cassert>
+#include <iostream>
 
 #ifdef WRITE_GENERIC_RESULT
 #include "vtkXMLPolyDataWriter.h"
@@ -85,12 +85,12 @@ int TestGenericGeometryFilter(int argc, char* argv[])
   ds->GetTessellator()->GetErrorMetrics()->AddItem(attributesError);
   attributesError->Delete();
 
-  cout << "input unstructured grid: " << ds << endl;
+  std::cout << "input unstructured grid: " << ds << std::endl;
 
   static_cast<vtkSimpleCellTessellator*>(ds->GetTessellator())->SetMaxSubdivisionLevel(10);
 
   vtkIndent indent;
-  ds->PrintSelf(cout, indent);
+  ds->PrintSelf(std::cout, indent);
 
   // Create the filter
   vtkGenericGeometryFilter* geom = vtkGenericGeometryFilter::New();

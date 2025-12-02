@@ -30,6 +30,8 @@
 #include <sql.h>
 #include <sqlext.h>
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -158,7 +160,7 @@ void vtkODBCQueryInternals::FreeStatement()
       std::ostringstream errorBuf;
       errorBuf << "vtkODBCQuery: Unable to close SQL cursor.  Error: "
                << GetErrorMessage(SQL_HANDLE_STMT, this->Statement);
-      cerr << errorBuf.str() << "\n";
+      std::cerr << errorBuf.str() << "\n";
     }
 
     status = SQLFreeHandle(SQL_HANDLE_STMT, this->Statement);
@@ -167,7 +169,7 @@ void vtkODBCQueryInternals::FreeStatement()
       std::ostringstream errorBuf;
       errorBuf << "Unable to free statement handle.  Memory leak will occur. Error: "
                << GetErrorMessage(SQL_HANDLE_STMT, this->Statement);
-      cerr << errorBuf.str() << "\n";
+      std::cerr << errorBuf.str() << "\n";
     }
     this->Statement = nullptr;
   }
@@ -1343,7 +1345,7 @@ bool vtkODBCQuery::CacheStringColumn(int column)
     status = SQLGetData(this->Internals->Statement, column + 1, SQL_C_CHAR,
       static_cast<SQLPOINTER>(buffer.data()), bufferLength, &indicator);
     /*
-        cerr << "once around the read loop for column " << column << ": status "
+        std::cerr << "once around the read loop for column " << column << ": status "
         << status << ", indicator " << indicator << "\n";
     */
 
@@ -1357,7 +1359,7 @@ bool vtkODBCQuery::CacheStringColumn(int column)
       }
       else if (indicator == SQL_NULL_DATA)
       {
-        //        cerr << "Wide string value for column " << column << " is null\n";
+        //        std::cerr << "Wide string value for column " << column << " is null\n";
         break;
       }
       // If we get to this point then there's data to read.
@@ -1374,7 +1376,7 @@ bool vtkODBCQuery::CacheStringColumn(int column)
         bytesToWrite = indicator;
       }
 
-      //      cerr << "Writing " << bytesToWrite << " characters in string column\n";
+      //      std::cerr << "Writing " << bytesToWrite << " characters in string column\n";
 
       if (status == SQL_SUCCESS_WITH_INFO)
       {
@@ -1395,7 +1397,7 @@ bool vtkODBCQuery::CacheStringColumn(int column)
       errbuf << "Error while reading wide string column " << column << ": "
              << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
       this->SetLastErrorText(errbuf.str().c_str());
-      cerr << errbuf.str() << "\n";
+      std::cerr << errbuf.str() << "\n";
       this->Internals->CurrentRow->SetValue(column, vtkVariant());
       return false;
     }
@@ -1459,7 +1461,7 @@ bool vtkODBCQuery::CacheBinaryColumn(int column)
     status = SQLGetData(this->Internals->Statement, column + 1, SQL_C_CHAR,
       static_cast<SQLPOINTER>(buffer.data()), columnSize, &indicator);
     /*
-        cerr << "once around the read loop for column " << column << ": status "
+        std::cerr << "once around the read loop for column " << column << ": status "
         << status << ", indicator " << indicator << "\n";
     */
 
@@ -1473,7 +1475,7 @@ bool vtkODBCQuery::CacheBinaryColumn(int column)
       }
       else if (indicator == SQL_NULL_DATA)
       {
-        //        cerr << "Wide string value for column " << column << " is null\n";
+        //        std::cerr << "Wide string value for column " << column << " is null\n";
         break;
       }
       // If we get to this point then there's data to read.
@@ -1490,7 +1492,7 @@ bool vtkODBCQuery::CacheBinaryColumn(int column)
         bytesToWrite = indicator;
       }
 
-      //      cerr << "Writing " << bytesToWrite << " characters in string column\n";
+      //      std::cerr << "Writing " << bytesToWrite << " characters in string column\n";
 
       if (status == SQL_SUCCESS_WITH_INFO)
       {
@@ -1511,7 +1513,7 @@ bool vtkODBCQuery::CacheBinaryColumn(int column)
       errbuf << "Error while reading binary column " << column << ": "
              << GetErrorMessage(SQL_HANDLE_STMT, this->Internals->Statement);
       this->SetLastErrorText(errbuf.str().c_str());
-      cerr << errbuf.str() << "\n";
+      std::cerr << errbuf.str() << "\n";
       this->Internals->CurrentRow->SetValue(column, vtkVariant());
       return false;
     }

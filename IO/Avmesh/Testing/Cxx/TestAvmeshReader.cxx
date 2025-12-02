@@ -12,6 +12,8 @@
 #include <vtkTestUtilities.h>
 #include <vtkUnstructuredGrid.h>
 
+#include <iostream>
+
 #define vtk_assert(x)                                                                              \
   do                                                                                               \
   {                                                                                                \

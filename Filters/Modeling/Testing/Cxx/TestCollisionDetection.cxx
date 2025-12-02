@@ -19,8 +19,8 @@
 #include "vtkTransform.h"
 
 #include <chrono>
+#include <iostream>
 #include <sstream>
-#include <string>
 #include <thread>
 
 int TestCollisionDetection(int argc, char* argv[])

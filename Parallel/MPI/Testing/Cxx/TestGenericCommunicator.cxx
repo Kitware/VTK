@@ -25,6 +25,8 @@
 
 #include "vtkRegressionTestImage.h"
 
+#include <iostream>
+
 static const int scMsgLength = 10;
 
 struct GenericCommunicatorArgs_tmp
@@ -44,14 +46,14 @@ void Process2(vtkMultiProcessController* contr, void* vtkNotUsed(arg))
   vtkIntArray* ia = vtkIntArray::New();
   if (!comm->Receive(ia, 0, 11))
   {
-    cerr << "Server error: Error receiving data." << endl;
+    std::cerr << "Server error: Error receiving data." << std::endl;
     retVal = 0;
   }
   for (i = 0; i < ia->GetNumberOfTuples(); i++)
   {
     if (ia->GetValue(i) != i)
     {
-      cerr << "Server error: Corrupt integer array." << endl;
+      std::cerr << "Server error: Corrupt integer array." << std::endl;
       retVal = 0;
       break;
     }
@@ -61,14 +63,14 @@ void Process2(vtkMultiProcessController* contr, void* vtkNotUsed(arg))
   vtkUnsignedLongArray* ula = vtkUnsignedLongArray::New();
   if (!comm->Receive(ula, 0, 22))
   {
-    cerr << "Server error: Error receiving data." << endl;
+    std::cerr << "Server error: Error receiving data." << std::endl;
     retVal = 0;
   }
   for (i = 0; i < ula->GetNumberOfTuples(); i++)
   {
     if (ula->GetValue(i) != static_cast<unsigned long>(i))
     {
-      cerr << "Server error: Corrupt unsigned long array." << endl;
+      std::cerr << "Server error: Corrupt unsigned long array." << std::endl;
       retVal = 0;
       break;
     }
@@ -78,14 +80,14 @@ void Process2(vtkMultiProcessController* contr, void* vtkNotUsed(arg))
   vtkCharArray* ca = vtkCharArray::New();
   if (!comm->Receive(ca, 0, 33))
   {
-    cerr << "Server error: Error receiving data." << endl;
+    std::cerr << "Server error: Error receiving data." << std::endl;
     retVal = 0;
   }
   for (i = 0; i < ca->GetNumberOfTuples(); i++)
   {
     if (ca->GetValue(i) != static_cast<char>(i))
     {
-      cerr << "Server error: Corrupt char array." << endl;
+      std::cerr << "Server error: Corrupt char array." << std::endl;
       retVal = 0;
       break;
     }
@@ -95,14 +97,14 @@ void Process2(vtkMultiProcessController* contr, void* vtkNotUsed(arg))
   vtkUnsignedCharArray* uca = vtkUnsignedCharArray::New();
   if (!comm->Receive(uca, 0, 44))
   {
-    cerr << "Server error: Error receiving data." << endl;
+    std::cerr << "Server error: Error receiving data." << std::endl;
     retVal = 0;
   }
   for (i = 0; i < uca->GetNumberOfTuples(); i++)
   {
     if (uca->GetValue(i) != static_cast<unsigned char>(i))
     {
-      cerr << "Server error: Corrupt unsigned char array." << endl;
+      std::cerr << "Server error: Corrupt unsigned char array." << std::endl;
       retVal = 0;
       break;
     }
@@ -112,14 +114,14 @@ void Process2(vtkMultiProcessController* contr, void* vtkNotUsed(arg))
   vtkFloatArray* fa = vtkFloatArray::New();
   if (!comm->Receive(fa, 0, 7))
   {
-    cerr << "Server error: Error receiving data." << endl;
+    std::cerr << "Server error: Error receiving data." << std::endl;
     retVal = 0;
   }
   for (i = 0; i < fa->GetNumberOfTuples(); i++)
   {
     if (fa->GetValue(i) != static_cast<float>(i))
     {
-      cerr << "Server error: Corrupt float array." << endl;
+      std::cerr << "Server error: Corrupt float array." << std::endl;
       retVal = 0;
       break;
     }
@@ -129,14 +131,14 @@ void Process2(vtkMultiProcessController* contr, void* vtkNotUsed(arg))
   vtkDoubleArray* da = vtkDoubleArray::New();
   if (!comm->Receive(da, 0, 7))
   {
-    cerr << "Server error: Error receiving data." << endl;
+    std::cerr << "Server error: Error receiving data." << std::endl;
     retVal = 0;
   }
   for (i = 0; i < da->GetNumberOfTuples(); i++)
   {
     if (da->GetValue(i) != static_cast<double>(i))
     {
-      cerr << "Server error: Corrupt double array." << endl;
+      std::cerr << "Server error: Corrupt double array." << std::endl;
       retVal = 0;
       break;
     }
@@ -146,14 +148,14 @@ void Process2(vtkMultiProcessController* contr, void* vtkNotUsed(arg))
   vtkIdTypeArray* ita = vtkIdTypeArray::New();
   if (!comm->Receive(ita, 0, 7))
   {
-    cerr << "Server error: Error receiving data." << endl;
+    std::cerr << "Server error: Error receiving data." << std::endl;
     retVal = 0;
   }
   for (i = 0; i < ita->GetNumberOfTuples(); i++)
   {
     if (ita->GetValue(i) != static_cast<vtkIdType>(i))
     {
-      cerr << "Server error: Corrupt vtkIdType array." << endl;
+      std::cerr << "Server error: Corrupt vtkIdType array." << std::endl;
       retVal = 0;
       break;
     }
@@ -165,13 +167,13 @@ void Process2(vtkMultiProcessController* contr, void* vtkNotUsed(arg))
   std::vector<vtkSmartPointer<vtkDataObject>> rdata;
   if (!comm->Gather(sphereSource->GetOutputDataObject(0), rdata, 0))
   {
-    cerr << "Server error: Error gathering data." << endl;
+    std::cerr << "Server error: Error gathering data." << std::endl;
     retVal = 0;
   }
   rdata.clear();
   if (!comm->Gather(sphereSource->GetOutputDataObject(0), rdata, 0))
   {
-    cerr << "Server error: Error gathering data." << endl;
+    std::cerr << "Server error: Error gathering data." << std::endl;
     retVal = 0;
   }
 
@@ -196,7 +198,7 @@ void Process1(vtkMultiProcessController* contr, void* arg)
   ia->SetArray(datai, 10, 1);
   if (!comm->Send(ia, 1, 11))
   {
-    cerr << "Client error: Error sending data." << endl;
+    std::cerr << "Client error: Error sending data." << std::endl;
     *(args->retVal) = 0;
   }
   ia->Delete();
@@ -210,7 +212,7 @@ void Process1(vtkMultiProcessController* contr, void* arg)
   ula->SetArray(dataul, 10, 1);
   if (!comm->Send(ula, 1, 22))
   {
-    cerr << "Client error: Error sending data." << endl;
+    std::cerr << "Client error: Error sending data." << std::endl;
     *(args->retVal) = 0;
   }
   ula->Delete();
@@ -224,7 +226,7 @@ void Process1(vtkMultiProcessController* contr, void* arg)
   ca->SetArray(datac, 10, 1);
   if (!comm->Send(ca, 1, 33))
   {
-    cerr << "Client error: Error sending data." << endl;
+    std::cerr << "Client error: Error sending data." << std::endl;
     *(args->retVal) = 0;
   }
   ca->Delete();
@@ -238,7 +240,7 @@ void Process1(vtkMultiProcessController* contr, void* arg)
   uca->SetArray(datauc, 10, 1);
   if (!comm->Send(uca, 1, 44))
   {
-    cerr << "Client error: Error sending data." << endl;
+    std::cerr << "Client error: Error sending data." << std::endl;
     *(args->retVal) = 0;
   }
   uca->Delete();
@@ -252,7 +254,7 @@ void Process1(vtkMultiProcessController* contr, void* arg)
   fa->SetArray(dataf, 10, 1);
   if (!comm->Send(fa, 1, 7))
   {
-    cerr << "Client error: Error sending data." << endl;
+    std::cerr << "Client error: Error sending data." << std::endl;
     *(args->retVal) = 0;
   }
   fa->Delete();
@@ -266,7 +268,7 @@ void Process1(vtkMultiProcessController* contr, void* arg)
   da->SetArray(datad, 10, 1);
   if (!comm->Send(da, 1, 7))
   {
-    cerr << "Client error: Error sending data." << endl;
+    std::cerr << "Client error: Error sending data." << std::endl;
     *(args->retVal) = 0;
   }
   da->Delete();
@@ -280,7 +282,7 @@ void Process1(vtkMultiProcessController* contr, void* arg)
   ita->SetArray(datait, 10, 1);
   if (!comm->Send(ita, 1, 7))
   {
-    cerr << "Client error: Error sending data." << endl;
+    std::cerr << "Client error: Error sending data." << std::endl;
     *(args->retVal) = 0;
   }
   ita->Delete();
@@ -290,7 +292,7 @@ void Process1(vtkMultiProcessController* contr, void* arg)
   std::vector<vtkSmartPointer<vtkDataObject>> rdata;
   if (!comm->Gather(sphereSource->GetOutputDataObject(0), rdata, 0))
   {
-    cerr << "Client error: Error gathering data." << endl;
+    std::cerr << "Client error: Error gathering data." << std::endl;
     *(args->retVal) = 0;
   }
   if (rdata.size() == 2 && vtkPolyData::SafeDownCast(rdata[0]) &&
@@ -299,13 +301,13 @@ void Process1(vtkMultiProcessController* contr, void* arg)
   }
   else
   {
-    cerr << "Client error: Error gathering data (invalid data received)." << endl;
+    std::cerr << "Client error: Error gathering data (invalid data received)." << std::endl;
     *(args->retVal) = 0;
   }
   rdata.clear();
   if (!comm->Gather(nullptr, rdata, 0))
   {
-    cerr << "Client error: Error gathering data." << endl;
+    std::cerr << "Client error: Error gathering data." << std::endl;
     *(args->retVal) = 0;
   }
   if (rdata.size() == 2 && rdata[0] == nullptr && vtkPolyData::SafeDownCast(rdata[1]))
@@ -313,7 +315,7 @@ void Process1(vtkMultiProcessController* contr, void* arg)
   }
   else
   {
-    cerr << "Client error: Error gathering data (invalid data received)." << endl;
+    std::cerr << "Client error: Error gathering data (invalid data received)." << std::endl;
     *(args->retVal) = 0;
   }
 

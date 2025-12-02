@@ -24,6 +24,8 @@ Test NIFTI-2 support in VTK.
 
 #include <string>
 
+#include <iostream>
+
 static const char* dispfile = "Data/avg152T1_RL_nifti2.nii.gz";
 
 static void TestDisplay(vtkRenderWindow* renwin, const char* infile, const char* tempDir)
@@ -35,7 +37,7 @@ static void TestDisplay(vtkRenderWindow* renwin, const char* infile, const char*
   vtkNew<vtkNIFTIImageReader> reader1;
   if (!reader1->CanReadFile(infile))
   {
-    cerr << "CanReadFile failed for " << infile << "\n";
+    std::cerr << "CanReadFile failed for " << infile << "\n";
     exit(1);
   }
 
@@ -58,7 +60,7 @@ static void TestDisplay(vtkRenderWindow* renwin, const char* infile, const char*
   std::string magic = header->GetMagic();
   if (magic != "n+2")
   {
-    cerr << "File is not a NIFTIv2 file\n";
+    std::cerr << "File is not a NIFTIv2 file\n";
     exit(1);
   }
 
@@ -134,7 +136,7 @@ int TestNIFTI2(int argc, char* argv[])
   char* infile = vtkTestUtilities::ExpandDataFileName(argc, argv, dispfile);
   if (!infile)
   {
-    cerr << "Could not locate input file " << dispfile << "\n";
+    std::cerr << "Could not locate input file " << dispfile << "\n";
     return 1;
   }
   std::string inpath = infile;
@@ -144,7 +146,7 @@ int TestNIFTI2(int argc, char* argv[])
     vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv, "VTK_TEMP_DIR", "Testing/Temporary");
   if (!tempDir)
   {
-    cerr << "Could not determine temporary directory.\n";
+    std::cerr << "Could not determine temporary directory.\n";
     return 1;
   }
   std::string tmppath = tempDir;

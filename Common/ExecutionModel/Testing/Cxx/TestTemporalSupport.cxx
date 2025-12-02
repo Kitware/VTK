@@ -11,12 +11,14 @@
 
 #include <cstdlib>
 
+#include <iostream>
+
 #define CHECK(b)                                                                                   \
   do                                                                                               \
   {                                                                                                \
     if (!(b))                                                                                      \
     {                                                                                              \
-      cerr << "Error on Line " << __LINE__ << ":" << endl;                                         \
+      std::cerr << "Error on Line " << __LINE__ << ":" << std::endl;                               \
       return false;                                                                                \
     }                                                                                              \
   } while (false)
@@ -195,10 +197,10 @@ public:
   int RequestData(
     vtkInformation* request, vtkInformationVector** in, vtkInformationVector*) override
   {
-    cout << "Has TD: "
-         << in[0]->GetInformationObject(0)->Get(
-              vtkStreamingDemandDrivenPipeline::TIME_DEPENDENT_INFORMATION())
-         << endl;
+    std::cout << "Has TD: "
+              << in[0]->GetInformationObject(0)->Get(
+                   vtkStreamingDemandDrivenPipeline::TIME_DEPENDENT_INFORMATION())
+              << std::endl;
     this->TimeIndex++;
     if (this->TimeIndex < this->TimeIterations)
     {
@@ -301,12 +303,12 @@ int TestTemporalSupport(int, char*[])
 {
   if (!::TestTimeDependentInformationExecution())
   {
-    cerr << "Errors in TestTimeDependentInformationExecution" << endl;
+    std::cerr << "Errors in TestTimeDependentInformationExecution" << std::endl;
     return EXIT_FAILURE;
   }
   if (!::TestContinueExecution())
   {
-    cerr << "Errors in TestContinueExecution" << endl;
+    std::cerr << "Errors in TestContinueExecution" << std::endl;
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

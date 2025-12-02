@@ -29,6 +29,8 @@
 #include "vtkAnariTestInteractor.h"
 #include "vtkAnariTestUtilities.h"
 
+#include <iostream>
+
 int TestAnariRendererType(int argc, char* argv[])
 {
   vtkLogger::SetStderrVerbosity(vtkLogger::Verbosity::VERBOSITY_WARNING);
@@ -75,12 +77,12 @@ int TestAnariRendererType(int argc, char* argv[])
   {
     if (i % 2)
     {
-      cerr << "Render via default" << endl;
+      std::cerr << "Render via default" << std::endl;
       ar->SetSubtype("default");
     }
     else
     {
-      cerr << "Render via raycast" << endl;
+      std::cerr << "Render via raycast" << std::endl;
       ar->SetSubtype("raycast");
     }
 

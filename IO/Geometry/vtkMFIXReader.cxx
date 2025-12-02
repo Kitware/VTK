@@ -31,6 +31,8 @@
 
 #include <string>
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMFIXReader);
 
@@ -903,7 +905,7 @@ void vtkMFIXReader::ReadRestartFile()
 
   if (!in)
   {
-    // cout << "could not open file" << endl;
+    // std::cout << "could not open file" << endl;
     return;
   }
 

@@ -24,6 +24,8 @@
 #include <sstream>
 #include <vector>
 
+#include <iostream>
+
 // Preprocessor directive enable/disable row inversion (y-flip)
 // Although vtkImageData and GDALDataset have different origin position,
 // reprojection of NLCD imagery only "works" if row inversion is not

@@ -10,6 +10,8 @@
 #include "vtkInformationIntegerKey.h"
 #include "vtkInformationVariantVectorKey.h"
 
+#include <iostream>
+
 // Lookup a key and test that it matches what it should.
 namespace
 {

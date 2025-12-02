@@ -6,6 +6,8 @@
 #include "vtkNew.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 int TestDijkstraGraphGeodesicPath(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 {
   vtkNew<vtkSphereSource> sphere1;

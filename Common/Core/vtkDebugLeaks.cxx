@@ -12,6 +12,7 @@
 #include <vtksys/SystemInformation.hxx>
 #include <vtksys/SystemTools.hxx>
 
+#include <iostream>
 #include <map>
 #include <mutex>
 #include <set>
@@ -319,8 +320,8 @@ int vtkDebugLeaks::PrintCurrentLeaks()
   std::string leaks;
   std::string msg = "vtkDebugLeaks has detected LEAKS!\n";
   vtkDebugLeaks::MemoryTable->PrintTable(leaks);
-  cerr << msg;
-  cerr << leaks << endl << std::flush;
+  std::cerr << msg;
+  std::cerr << leaks << std::endl << std::flush;
 
   vtkDebugLeaks::TraceManager->PrintObjects(std::cerr);
 

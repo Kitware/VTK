@@ -10,7 +10,6 @@
 
 #include "vtkAlgorithmOutput.h"
 #include "vtkCamera.h"
-#include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
 #include "vtkImageShiftScale.h"
@@ -28,6 +27,8 @@
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
 #include "vtkPointData.h"
+
+#include <iostream>
 
 namespace
 {
@@ -70,7 +71,7 @@ void RegisterVolumeToRender(VTKData& data, vtkRenderer* ren1, const int i, const
 
 int TestGPURayCastDataTypesMinIP(int argc, char* argv[])
 {
-  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
   char* cfname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/vase_1comp.vti");
 
   vtkNew<vtkXMLImageDataReader> reader;
@@ -88,7 +89,7 @@ int TestGPURayCastDataTypesMinIP(int argc, char* argv[])
   data.algoOut[0][0] = data.shiftScale[0][0]->GetOutputPort();
   double range[2];
   data.shiftScale[0][0]->GetOutput()->GetPointData()->GetScalars()->GetRange(range);
-  cout << "range=" << range[0] << "," << range[1] << endl;
+  std::cout << "range=" << range[0] << "," << range[1] << std::endl;
 
   data.color[0][0] = vtkSmartPointer<vtkColorTransferFunction>::New();
   data.color[0][0]->AddRGBPoint(0, 0, 0, 1);
@@ -359,7 +360,7 @@ int TestGPURayCastDataTypesMinIP(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
   }
 
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))

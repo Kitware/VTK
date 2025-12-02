@@ -39,6 +39,7 @@
 #include "vtkTrivialProducer.h"
 
 #include <array>
+#include <iostream>
 
 namespace
 {
@@ -324,7 +325,7 @@ public:
     vtkNew<vtkTextProperty> p;
     p->SetBackgroundColor(0.5, 0.5, 0.5);
 
-    cout << "Font Change: ";
+    std::cout << "Font Change: ";
     switch (cnt)
     {
       case 0:
@@ -455,10 +456,10 @@ public:
         {
           auto n = selection->GetNode(cnt);
           vtkIdTypeArray *da = vtkIdTypeArray::SafeDownCast(n->GetSelectionData()->GetArray("SelectedIds"));
-          cout << da->GetClassName() << endl;
+          std::cout << da->GetClassName() << std::endl;
           for (int tup = 0; tup < da->GetNumberOfTuples(); tup++)
           {
-            cout << "  ID[" << tup << "]=" << da->GetValue(tup) << endl;
+            std::cout << "  ID[" << tup << "]=" << da->GetValue(tup) << std::endl;
           }
         }
 #endif

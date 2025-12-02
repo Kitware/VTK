@@ -21,6 +21,8 @@
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
 
+#include <iostream>
+
 //------------------------------------------------------------------------------
 int TestGPURayCastMapperSampleDistance(int argc, char* argv[])
 {
@@ -29,7 +31,7 @@ int TestGPURayCastMapperSampleDistance(int argc, char* argv[])
   {
     if (!strcmp(argv[i], "-GL"))
     {
-      cerr << "GL" << endl;
+      std::cerr << "GL" << std::endl;
       useOSP = false;
     }
   }
@@ -95,7 +97,7 @@ int TestGPURayCastMapperSampleDistance(int argc, char* argv[])
   else
   {
     retVal = vtkTesting::PASSED;
-    cout << "Required extensions not supported." << endl;
+    std::cout << "Required extensions not supported." << std::endl;
   }
 
   return !((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR));

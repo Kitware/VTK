@@ -3,7 +3,6 @@
 
 #include "vtkOpenFOAMReader.h"
 
-#include "vtkCellData.h"
 #include "vtkInformation.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
@@ -14,10 +13,11 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkUnstructuredGrid.h"
 
 #include "vtkRegressionTestImage.h"
 #include "vtkTestUtilities.h"
+
+#include <iostream>
 
 namespace
 {

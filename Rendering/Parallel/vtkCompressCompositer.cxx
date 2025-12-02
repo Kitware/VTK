@@ -35,6 +35,8 @@
 
 #include "vtkTimerLog.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkCompressCompositer);
 
@@ -629,7 +631,7 @@ void vtkCompressCompositer::CompositeBuffer(
 
   // this->Timer->StopTimer();
   // float time = this->Timer->GetElapsedTime();
-  // cerr << "Composite " << " took " << time << " seconds.\n";
+  // std::cerr << "Composite " << " took " << time << " seconds.\n";
 }
 
 //------------------------------------------------------------------------------

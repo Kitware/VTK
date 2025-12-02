@@ -5,6 +5,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkStaticCleanPolyData.h>
 
+#include <iostream>
+
 namespace
 {
 

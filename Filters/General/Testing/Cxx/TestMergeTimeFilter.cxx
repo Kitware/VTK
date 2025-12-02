@@ -12,6 +12,8 @@
 
 #include <limits>
 
+#include <iostream>
+
 int TestMergeTimeFilter(int argc, char* argv[])
 {
   // use full precision for outputting timesteps values.

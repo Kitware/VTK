@@ -15,7 +15,7 @@ int TestPixelExtent(int argc, char* argv[])
   (void)argc;
   (void)argv;
 
-  cerr << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  std::cerr << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << std::endl;
 
   // small extent in the middle of the region of interest
   vtkPixelExtent A(4, 8, 4, 8);
@@ -45,11 +45,11 @@ int TestPixelExtent(int argc, char* argv[])
 
   tmp1 &= tmp2;
 
-  cerr << C << " & " << D << " = " << tmp1 << endl;
+  std::cerr << C << " & " << D << " = " << tmp1 << std::endl;
 
   if (!tmp1.Empty())
   {
-    cerr << "Test empty intersection failed" << endl;
+    std::cerr << "Test empty intersection failed" << std::endl;
     testPass = false;
   }
 
@@ -64,11 +64,11 @@ int TestPixelExtent(int argc, char* argv[])
   tmp3 = tmp1;
   tmp3 &= tmp2;
 
-  cerr << tmp1 << " & " << tmp2 << " = " << tmp3 << endl;
+  std::cerr << tmp1 << " & " << tmp2 << " = " << tmp3 << std::endl;
 
   if (!(tmp3 == vtkPixelExtent(6, 6, 6, 6)))
   {
-    cerr << "Test intersection failed" << endl;
+    std::cerr << "Test intersection failed" << std::endl;
     testPass = false;
   }
 
@@ -78,11 +78,11 @@ int TestPixelExtent(int argc, char* argv[])
   tmp3 = tmp1;
   tmp3 |= tmp2;
 
-  cerr << tmp1 << " | " << tmp2 << " = " << tmp3 << endl;
+  std::cerr << tmp1 << " | " << tmp2 << " = " << tmp3 << std::endl;
 
   if (!(tmp3 == B))
   {
-    cerr << "Test union fails" << endl;
+    std::cerr << "Test union fails" << std::endl;
     testPass = false;
   }
 
@@ -105,29 +105,29 @@ int TestPixelExtent(int argc, char* argv[])
   {
     if (!(tmp4[i] == tmp5[i]))
     {
-      cerr << "Test subtraction failed" << endl;
+      std::cerr << "Test subtraction failed" << std::endl;
       testPass = false;
       break;
     }
   }
 
-  cerr << B << " - " << A << " = ";
+  std::cerr << B << " - " << A << " = ";
   if (n)
   {
-    cerr << tmp4[0];
+    std::cerr << tmp4[0];
     for (size_t i = 1; i < n; ++i)
     {
-      cerr << ", " << tmp4[i];
+      std::cerr << ", " << tmp4[i];
     }
   }
-  cerr << endl;
+  std::cerr << std::endl;
 
   if (!testPass)
   {
-    cerr << "Test fails" << endl;
+    std::cerr << "Test fails" << std::endl;
     return 1;
   }
 
-  cerr << "Test passes" << endl;
+  std::cerr << "Test passes" << std::endl;
   return 0;
 }

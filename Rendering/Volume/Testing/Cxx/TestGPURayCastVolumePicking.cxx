@@ -39,6 +39,8 @@
 #include "vtkSelectionNode.h"
 #include "vtkSphereSource.h"
 
+#include <iostream>
+
 namespace
 {
 class VolumePickingCommand : public vtkCommand

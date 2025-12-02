@@ -10,7 +10,6 @@
 #include "vtkGlyph3D.h"
 #include "vtkImplicitPlaneRepresentation.h"
 #include "vtkImplicitPlaneWidget2.h"
-#include "vtkInteractorEventRecorder.h"
 #include "vtkLODActor.h"
 #include "vtkPlane.h"
 #include "vtkPolyData.h"
@@ -21,6 +20,8 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 #include "vtkSphereSource.h"
+
+#include <iostream>
 
 static double TestImplicitPlaneWidget2bPlaneOrigins[3][3] = { { 0, 10, 0 }, { 10, 0, 0 },
   { 0, 0, 0 } };

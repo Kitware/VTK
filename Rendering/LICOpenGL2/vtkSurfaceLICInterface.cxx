@@ -48,6 +48,9 @@ typedef vtkLineIntegralConvolution2D vtkLIC2D;
 #if vtkSurfaceLICInterfaceDEBUG >= 2
 #include "vtkTextureIO.h"
 #include <sstream>
+
+#include <iostream>
+
 using std::ostringstream;
 //------------------------------------------------------------------------------
 VTK_ABI_NAMESPACE_BEGIN
@@ -112,7 +115,7 @@ vtkSurfaceLICInterface::vtkSurfaceLICInterface()
 vtkSurfaceLICInterface::~vtkSurfaceLICInterface()
 {
 #if vtkSurfaceLICInterfaceDEBUG >= 1
-  cerr << "=====vtkSurfaceLICInterface::~vtkSurfaceLICInterface" << endl;
+  std::cerr << "=====vtkSurfaceLICInterface::~vtkSurfaceLICInterface" << endl;
 #endif
   this->ReleaseGraphicsResources(this->Internals->Context);
   delete this->Internals;
@@ -908,7 +911,7 @@ bool vtkSurfaceLICInterface::CanRenderSurfaceLIC(vtkActor* actor)
   }
 
 #if vtkSurfaceLICInterfaceDEBUG >= 1
-  cerr << this->Internals->Communicator->GetWorldRank() << " CanRender " << canRender << endl;
+  std::cerr << this->Internals->Communicator->GetWorldRank() << " CanRender " << canRender << endl;
 #endif
 
   return canRender;
@@ -1023,8 +1026,8 @@ bool vtkSurfaceLICInterface::NeedToUpdateCommunicator()
   }
 
 #if vtkSurfaceLICInterfaceDEBUG >= 1
-  cerr << this->Internals->Communicator->GetWorldRank() << " NeedToUpdateCommunicator "
-       << this->Internals->CommunicatorNeedsUpdate << endl;
+  std::cerr << this->Internals->Communicator->GetWorldRank() << " NeedToUpdateCommunicator "
+            << this->Internals->CommunicatorNeedsUpdate << endl;
 #endif
 
   return this->Internals->CommunicatorNeedsUpdate;
@@ -1071,8 +1074,8 @@ void vtkSurfaceLICInterface::ValidateContext(vtkRenderer* renderer)
   }
 
 #if vtkSurfaceLICInterfaceDEBUG >= 1
-  cerr << this->Internals->Communicator->GetWorldRank() << " NeedToUpdatContext " << modified
-       << endl;
+  std::cerr << this->Internals->Communicator->GetWorldRank() << " NeedToUpdatContext " << modified
+            << endl;
 #endif
 }
 
@@ -1115,7 +1118,8 @@ void vtkSurfaceLICInterface::CreateCommunicator(
   this->Internals->Communicator = this->CreateCommunicator(includeRank);
 
 #if vtkSurfaceLICInterfaceDEBUG >= 1
-  cerr << this->Internals->Communicator->GetWorldRank() << " is rendering " << includeRank << endl;
+  std::cerr << this->Internals->Communicator->GetWorldRank() << " is rendering " << includeRank
+            << endl;
 #endif
 }
 

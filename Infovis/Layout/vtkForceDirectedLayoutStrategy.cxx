@@ -19,6 +19,8 @@
 #include "vtkSmartPointer.h"
 #include "vtkTree.h"
 
+#include <iostream>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkForceDirectedLayoutStrategy);
 
@@ -138,24 +140,24 @@ void vtkForceDirectedLayoutStrategy::Initialize()
   while (edges->HasNext())
   {
     vtkEdgeType edge = edges->Next();
-    // cerr << edge.Id << ": " << edge.Source << "," << edge.Target << endl;
+    // std::cerr << edge.Id << ": " << edge.Source << "," << edge.Target << endl;
     e[edge.Id].t = edge.Source;
     e[edge.Id].u = edge.Target;
   }
 
-  // cerr << endl << endl;
+  // std::cerr << endl << endl;
   // vtkSmartPointer<vtkOutEdgeIterator> it =
   //  vtkSmartPointer<vtkOutEdgeIterator>::New();
   // for (vtkIdType i = 0; i < this->Graph->GetNumberOfVertices(); ++i)
   //  {
   //  this->Graph->GetOutEdges(i, it);
-  //  cerr << i << ": ";
+  //  std::cerr << i << ": ";
   //  while (it->HasNext())
   //    {
   //    vtkOutEdgeType edge = it->Next();
-  //    cerr << edge.Target << " ";
+  //    std::cerr << edge.Target << " ";
   //    }
-  //  cerr << endl;
+  //  std::cerr << endl;
   //  }
 
   // More variable definitions

@@ -16,6 +16,8 @@
 
 #include <sstream>
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestSQLGraphReader(int argc, char* argv[])
@@ -29,8 +31,8 @@ int TestSQLGraphReader(int argc, char* argv[])
   bool ok = database->Open("");
   if (!ok)
   {
-    cerr << "Could not open database!" << endl;
-    cerr << database->GetLastErrorText() << endl;
+    std::cerr << "Could not open database!" << std::endl;
+    std::cerr << database->GetLastErrorText() << std::endl;
     return 1;
   }
 
@@ -49,7 +51,7 @@ int TestSQLGraphReader(int argc, char* argv[])
     oss.str("");
     oss << "INSERT INTO vertices VALUES(" << i << ", "
         << 0.5 * cos(i * 2.0 * vtkMath::Pi() / vertices) << ", "
-        << 0.5 * sin(i * 2.0 * vtkMath::Pi() / vertices) << ")" << endl;
+        << 0.5 * sin(i * 2.0 * vtkMath::Pi() / vertices) << ")" << std::endl;
     q->SetQuery(oss.str().c_str());
     q->Execute();
   }
@@ -63,12 +65,12 @@ int TestSQLGraphReader(int argc, char* argv[])
   {
     oss.str("");
     oss << "INSERT INTO edges VALUES(" << 2 * i + 0 << ", " << i << ", " << (i + 1) % vertices
-        << ")" << endl;
+        << ")" << std::endl;
     q->SetQuery(oss.str().c_str());
     q->Execute();
     oss.str("");
     oss << "INSERT INTO edges VALUES(" << 2 * i + 1 << ", " << (i + 3) % vertices << ", " << i
-        << ")" << endl;
+        << ")" << std::endl;
     q->SetQuery(oss.str().c_str());
     q->Execute();
   }

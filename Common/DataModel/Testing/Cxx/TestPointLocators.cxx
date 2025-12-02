@@ -9,6 +9,8 @@
 #include "vtkPoints.h"
 #include "vtkStructuredGrid.h"
 
+#include <iostream>
+
 // returns true if 2 points are equidistant from x, within a tolerance
 bool ArePointsEquidistant(double x[3], vtkIdType id1, vtkIdType id2, vtkPointSet* grid)
 {
@@ -27,8 +29,8 @@ bool ArePointsEquidistant(double x[3], vtkIdType id1, vtkIdType id2, vtkPointSet
 
   if (differenceDist2 / (firstDist2 + secondDist2) > .00001)
   {
-    cerr << "Results do not match (first dist2=" << firstDist2 << " , second dist2=" << secondDist2
-         << ") ";
+    std::cerr << "Results do not match (first dist2=" << firstDist2
+              << " , second dist2=" << secondDist2 << ") ";
     return false;
   }
   return true;
@@ -128,7 +130,7 @@ int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLoca
     vtkIdType locator2Pt = locator2->FindClosestPoint(point);
     if (!ArePointsEquidistant(point, locator1Pt, locator2Pt, sgrid))
     {
-      cerr << " from FindClosestPoint.\n";
+      std::cerr << " from FindClosestPoint.\n";
       rval++;
     }
     int N = 1 + i * 250 / numSearchPoints; // test different amounts of points to search for
@@ -136,13 +138,13 @@ int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLoca
     locator2->FindClosestNPoints(N, point, locator2List);
     if (!ArePointsEquidistant(point, locator1Pt, locator1List->GetId(0), sgrid))
     {
-      cerr
+      std::cerr
         << "for comparing FindClosestPoint and first result of FindClosestNPoints for locator1.\n";
       rval++;
     }
     if (!ArePointsEquidistant(point, locator2Pt, locator2List->GetId(0), sgrid))
     {
-      cerr
+      std::cerr
         << "for comparing FindClosestPoint and first result of FindClosestNPoints for locator2.\n";
       rval++;
     }
@@ -151,7 +153,7 @@ int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLoca
     {
       if (!ArePointsEquidistant(point, locator2List->GetId(j), locator1List->GetId(j), sgrid))
       {
-        cerr << "for point " << j << " for ClosestNPoints search.\n";
+        std::cerr << "for point " << j << " for ClosestNPoints search.\n";
         rval++;
       }
     }
@@ -161,7 +163,7 @@ int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLoca
     if (!DoesListHaveProperPoints(point, locator1List, locator2List, sgrid) ||
       !DoesListHaveProperPoints(point, locator2List, locator1List, sgrid))
     {
-      cerr << "Problem with FindPointsWithinRadius\n";
+      std::cerr << "Problem with FindPointsWithinRadius\n";
       rval++;
     }
 
@@ -172,13 +174,13 @@ int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLoca
     {
       if (locator1Pt >= 0 || locator2Pt >= 0)
       {
-        cerr << "Inconsistent results for FindClosestPointWithinRadius\n";
+        std::cerr << "Inconsistent results for FindClosestPointWithinRadius\n";
         rval++;
       }
     }
     else if (!ArePointsEquidistant(point, locator1Pt, locator2Pt, sgrid))
     {
-      cerr << "Incorrect result for FindClosestPointWithinRadius.\n";
+      std::cerr << "Incorrect result for FindClosestPointWithinRadius.\n";
       rval++;
     }
     if (locator1Pt >= 0)
@@ -187,7 +189,8 @@ int ComparePointLocators(vtkAbstractPointLocator* locator1, vtkAbstractPointLoca
       locator1List->InsertNextId(locator1Pt);
       if (!DoesListHaveProperPoints(point, locator1List, locator2List, sgrid))
       {
-        cerr << "Inconsistent results for FindClosestPointWithinRadius and FindPointsWithRadius\n";
+        std::cerr
+          << "Inconsistent results for FindClosestPointWithinRadius and FindPointsWithRadius\n";
         rval++;
       }
     }
@@ -262,8 +265,9 @@ int TestKdTreePointLocator()
     }
     if ((idA != closest_id) && (diff / ld2 > .00001))
     {
-      cerr << "KdTree found the closest point to be " << ld2
-           << " away but a brute force method returned a closer distance of " << min_dist2 << endl;
+      std::cerr << "KdTree found the closest point to be " << ld2
+                << " away but a brute force method returned a closer distance of " << min_dist2
+                << std::endl;
       rval++;
     }
   }
@@ -279,12 +283,12 @@ int TestPointLocators(int, char*[])
   vtkKdTreePointLocator* kdTreeLocator = vtkKdTreePointLocator::New();
   vtkPointLocator* uniformLocator = vtkPointLocator::New();
 
-  cout << "Comparing vtkPointLocator to vtkKdTreePointLocator.\n";
+  std::cout << "Comparing vtkPointLocator to vtkKdTreePointLocator.\n";
   int rval = ComparePointLocators(uniformLocator, kdTreeLocator);
 
   vtkOctreePointLocator* octreeLocator = vtkOctreePointLocator::New();
 
-  cout << "Comparing vtkOctreePointLocator to vtkKdTreePointLocator.\n";
+  std::cout << "Comparing vtkOctreePointLocator to vtkKdTreePointLocator.\n";
   rval += ComparePointLocators(octreeLocator, kdTreeLocator);
 
   kdTreeLocator->Delete();
