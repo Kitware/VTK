@@ -1530,6 +1530,11 @@ wheel:pypi:upload:
           artifacts: false
         - job: wheel-linux-python314-x86_64:test-x11
           artifacts: false
+        - wheel-linux-python314t-x86_64:build
+        - job: wheel-linux-python314t-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64:test-x11
+          artifacts: false
         - wheel-linux-python39-aarch64:build
         - job: wheel-linux-python39-aarch64:test
           artifacts: false
@@ -1559,6 +1564,11 @@ wheel:pypi:upload:
         - job: wheel-linux-python314-aarch64:test
           artifacts: false
         - job: wheel-linux-python314-aarch64:test-x11
+          artifacts: false
+        - wheel-linux-python314t-aarch64:build
+        - job: wheel-linux-python314t-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python314t-aarch64:test-x11
           artifacts: false
 #        - wheel-macos-python39-arm64:build
 #        - job: wheel-macos-python39-arm64:test
@@ -1701,6 +1711,19 @@ wheel:vtk:upload:
           artifacts: false
         - job: wheel-linux-python314-x86_64-egl:test-x11
           artifacts: false
+        - wheel-linux-python314t-x86_64:build
+        - job: wheel-linux-python314t-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-egl:test-x11
+          artifacts: false
         - wheel-linux-python39-aarch64:build
         - job: wheel-linux-python39-aarch64:test
           artifacts: false
@@ -1730,6 +1753,11 @@ wheel:vtk:upload:
         - job: wheel-linux-python314-aarch64:test
           artifacts: false
         - job: wheel-linux-python314-aarch64:test-x11
+          artifacts: false
+        - wheel-linux-python314t-aarch64:build
+        - job: wheel-linux-python314t-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python314t-aarch64:test-x11
           artifacts: false
 #        - wheel-macos-python39-arm64:build
 #        - job: wheel-macos-python39-arm64:test
@@ -1902,6 +1930,11 @@ wheel-sdk:upload:
         - job: wheel-linux-python314-aarch64:test
           artifacts: false
         - job: wheel-linux-python314-aarch64:test-x11
+          artifacts: false
+        - wheel-linux-python314t-aarch64:build
+        - job: wheel-linux-python314t-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python314t-aarch64:test-x11
           artifacts: false
 #        - wheel-macos-python39-arm64:build
 #        - job: wheel-macos-python39-arm64:test
@@ -2180,6 +2213,19 @@ release-artifacts:upload:
           artifacts: false
         - job: wheel-linux-python314-x86_64-egl:test-x11
           artifacts: false
+        - wheel-linux-python314t-x86_64:build
+        - job: wheel-linux-python314t-x86_64:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64:test-x11
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-egl:test
+          artifacts: false
+        - job: wheel-linux-python314t-x86_64-egl:test-x11
+          artifacts: false
         - wheel-linux-python39-aarch64:build
         - job: wheel-linux-python39-aarch64:test
           artifacts: false
@@ -2257,6 +2303,19 @@ release-artifacts:upload:
         - job: wheel-linux-python314-aarch64-egl:test
           artifacts: false
         - job: wheel-linux-python314-aarch64-egl:test-x11
+          artifacts: false
+        - wheel-linux-python314t-aarch64:build
+        - job: wheel-linux-python314t-aarch64:test
+          artifacts: false
+        - job: wheel-linux-python314t-aarch64:test-x11
+          artifacts: false
+        - job: wheel-linux-python314t-aarch64-osmesa:test
+          artifacts: false
+        - job: wheel-linux-python314t-aarch64-osmesa:test-x11
+          artifacts: false
+        - job: wheel-linux-python314t-aarch64-egl:test
+          artifacts: false
+        - job: wheel-linux-python314t-aarch64-egl:test-x11
           artifacts: false
 #        - wheel-macos-python39-arm64:build
 #        - job: wheel-macos-python39-arm64:test
