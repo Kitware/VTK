@@ -8,6 +8,7 @@
 #include "vtkCellType.h"
 #include "vtkCellTypeUtilities.h"
 #include "vtkCellTypes.h"
+#include "vtkCommunicator.h"
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataAssembly.h"
@@ -20,6 +21,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkLogger.h"
+#include "vtkMultiProcessController.h"
 #include "vtkPartitionedDataSet.h"
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
@@ -43,7 +45,7 @@
 
 #define conduit_set_array(node, arr, type, native_type, num_elem, offset, stride, external)        \
   {                                                                                                \
-    auto arraySOA = vtkSOADataArrayTemplate<native_type>::FastDownCast(data_array);                \
+    auto arraySOA = vtkSOADataArrayTemplate<native_type>::FastDownCast(dataArray);                 \
     if (arraySOA && arraySOA->GetStorageType() == arraySOA->StorageTypeEnum::SOA)                  \
     {                                                                                              \
       if (external)                                                                                \
@@ -102,18 +104,42 @@ std::string GetPartitionedDSName(vtkPartitionedDataSetCollection* pdc, unsigned 
 }
 
 //----------------------------------------------------------------------------
-bool IsMixedShape(vtkUnstructuredGrid* unstructured_grid)
+int GetNumShapes(vtkUnstructuredGrid* ug)
 {
-  auto* cell_types = unstructured_grid->GetDistinctCellTypesArray();
-  return cell_types->GetNumberOfTuples() > 1;
+  auto* cellTypes = ug->GetDistinctCellTypesArray();
+  return cellTypes->GetNumberOfTuples();
 }
 
 //----------------------------------------------------------------------------
-bool IsMixedShape(vtkPolyData* grid)
+int GetNumShapes(vtkPolyData* grid)
 {
   return (grid->GetNumberOfVerts() > 0) + (grid->GetNumberOfLines() > 0) +
-    (grid->GetNumberOfStrips() > 0) + (grid->GetNumberOfPolys() > 0) >
-    1;
+    (grid->GetNumberOfStrips() > 0) + (grid->GetNumberOfPolys() > 0);
+}
+
+//----------------------------------------------------------------------------
+template <typename T>
+bool IsMixedShape(T* grid)
+{
+  int numShapes = ::GetNumShapes(grid);
+
+  int maxNumShapes = 0;
+  vtkMultiProcessController::GetGlobalController()->AllReduce(
+    &numShapes, &maxNumShapes, 1, vtkCommunicator::MAX_OP);
+  return maxNumShapes > 1;
+}
+
+//----------------------------------------------------------------------------
+void FillShapeMap(conduit_cpp::Node& shapeMapNode)
+{
+  for (const auto& shape : VTK_DATATYPE_TO_CONDUIT_SHAPE)
+  {
+    if (shape.first != VTK_POLY_VERTEX && shape.first != VTK_POLY_LINE &&
+      shape.first != VTK_TRIANGLE_STRIP)
+    {
+      shapeMapNode[shape.second] = shape.first;
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -122,15 +148,21 @@ bool HasMultiCells(vtkPointSet* grid)
   // Return true if the grid has cells that are serialized to multiple in the Conduit node.
   // This can happen for poly vertex/lines or strips.
   // grid->GetDistinctCellTypes(vtkCellTypes *types)
+  int localMultiCell = 0;
   for (vtkIdType i = 0; i < grid->GetNumberOfCells(); i++)
   {
     auto type = grid->GetCellType(i);
     if (type == VTK_TRIANGLE_STRIP || type == VTK_POLY_LINE || type == VTK_POLY_VERTEX)
     {
-      return true;
+      localMultiCell = 1;
+      break;
     }
   }
-  return false;
+
+  int maxMultiCells = 0;
+  vtkMultiProcessController::GetGlobalController()->AllReduce(
+    &localMultiCell, &maxMultiCells, 1, vtkCommunicator::MAX_OP);
+  return maxMultiCells;
 }
 
 //----------------------------------------------------------------------------
@@ -164,131 +196,131 @@ vtkCellArray* GetCells(vtkPolyData* polydata, int cellType)
 }
 
 //----------------------------------------------------------------------------
-bool IsSignedIntegralType(int data_type)
+bool IsSignedIntegralType(int dataType)
 {
   constexpr bool is_char_type_signed = (CHAR_MIN == SCHAR_MIN) && (CHAR_MAX == SCHAR_MAX);
 
-  return (is_char_type_signed && (data_type == VTK_CHAR)) || (data_type == VTK_SIGNED_CHAR) ||
-    (data_type == VTK_SHORT) || (data_type == VTK_INT) || (data_type == VTK_LONG) ||
-    (data_type == VTK_ID_TYPE) || (data_type == VTK_LONG_LONG);
+  return (is_char_type_signed && (dataType == VTK_CHAR)) || (dataType == VTK_SIGNED_CHAR) ||
+    (dataType == VTK_SHORT) || (dataType == VTK_INT) || (dataType == VTK_LONG) ||
+    (dataType == VTK_ID_TYPE) || (dataType == VTK_LONG_LONG);
 }
 
 //----------------------------------------------------------------------------
-bool IsUnsignedIntegralType(int data_type)
+bool IsUnsignedIntegralType(int dataType)
 {
   constexpr bool is_char_type_signed = (CHAR_MIN == SCHAR_MIN) && (CHAR_MAX == SCHAR_MAX);
 
-  return (!is_char_type_signed && (data_type == VTK_CHAR)) || (data_type == VTK_UNSIGNED_CHAR) ||
-    (data_type == VTK_UNSIGNED_SHORT) || (data_type == VTK_UNSIGNED_INT) ||
-    (data_type == VTK_UNSIGNED_LONG) || (data_type == VTK_ID_TYPE) ||
-    (data_type == VTK_UNSIGNED_LONG_LONG);
+  return (!is_char_type_signed && (dataType == VTK_CHAR)) || (dataType == VTK_UNSIGNED_CHAR) ||
+    (dataType == VTK_UNSIGNED_SHORT) || (dataType == VTK_UNSIGNED_INT) ||
+    (dataType == VTK_UNSIGNED_LONG) || (dataType == VTK_ID_TYPE) ||
+    (dataType == VTK_UNSIGNED_LONG_LONG);
 }
 
 //----------------------------------------------------------------------------
-bool IsFloatType(int data_type)
+bool IsFloatType(int dataType)
 {
-  return ((data_type == VTK_FLOAT) || (data_type == VTK_DOUBLE));
+  return ((dataType == VTK_FLOAT) || (dataType == VTK_DOUBLE));
 }
 
 //----------------------------------------------------------------------------
-bool ConvertDataArrayToMCArray(vtkDataArray* data_array, int offset, int stride,
-  conduit_cpp::Node& conduit_node, int array_size = -1, bool external = true)
+bool ConvertDataArrayToMCArray(vtkDataArray* dataArray, int offset, int stride,
+  conduit_cpp::Node& conduitNode, int arraySize = -1, bool external = true)
 {
   stride = std::max(stride, 1);
 
-  conduit_index_t number_of_elements;
-  if (array_size == -1)
+  conduit_index_t numberOfElements;
+  if (arraySize == -1)
   {
-    number_of_elements = data_array->GetNumberOfValues() / stride;
+    numberOfElements = dataArray->GetNumberOfValues() / stride;
   }
   else
   {
-    number_of_elements = array_size / stride;
+    numberOfElements = arraySize / stride;
   }
 
-  int data_type = data_array->GetDataType();
-  int data_type_size = data_array->GetDataTypeSize();
-  int array_type = data_array->GetArrayType();
+  int dataType = dataArray->GetDataType();
+  int dataTypeSize = dataArray->GetDataTypeSize();
+  int arrayType = dataArray->GetArrayType();
 
-  if (array_type != vtkArrayTypes::VTK_AOS_DATA_ARRAY &&
-    array_type != vtkArrayTypes::VTK_SOA_DATA_ARRAY)
+  if (arrayType != vtkArrayTypes::VTK_AOS_DATA_ARRAY &&
+    arrayType != vtkArrayTypes::VTK_SOA_DATA_ARRAY)
   {
     vtkLog(ERROR,
-      "Unsupported data array type: " << data_array->GetArrayTypeAsString() << " for array "
-                                      << data_array->GetName());
+      "Unsupported data array type: " << dataArray->GetArrayTypeAsString() << " for array "
+                                      << dataArray->GetName());
     return false;
   }
 
   // The code below uses the legacy GetVoidPointer on purpose to get zero copy.
   bool is_supported = true;
-  if (IsSignedIntegralType(data_type))
+  if (::IsSignedIntegralType(dataType))
   {
-    switch (data_type_size)
+    switch (dataTypeSize)
     {
       case 1:
         conduit_set_array(
-          conduit_node, data_array, int8, int8_t, number_of_elements, offset, stride, external);
+          conduitNode, dataArray, int8, int8_t, numberOfElements, offset, stride, external);
         break;
 
       case 2:
         conduit_set_array(
-          conduit_node, data_array, int16, int16_t, number_of_elements, offset, stride, external);
+          conduitNode, dataArray, int16, int16_t, numberOfElements, offset, stride, external);
         break;
 
       case 4:
         conduit_set_array(
-          conduit_node, data_array, int32, int32_t, number_of_elements, offset, stride, external);
+          conduitNode, dataArray, int32, int32_t, numberOfElements, offset, stride, external);
         break;
 
       case 8:
         conduit_set_array(
-          conduit_node, data_array, int64, int64_t, number_of_elements, offset, stride, external);
+          conduitNode, dataArray, int64, int64_t, numberOfElements, offset, stride, external);
         break;
 
       default:
         is_supported = false;
     }
   }
-  else if (IsUnsignedIntegralType(data_type))
+  else if (::IsUnsignedIntegralType(dataType))
   {
-    switch (data_type_size)
+    switch (dataTypeSize)
     {
       case 1:
         conduit_set_array(
-          conduit_node, data_array, uint8, uint8_t, number_of_elements, offset, stride, external);
+          conduitNode, dataArray, uint8, uint8_t, numberOfElements, offset, stride, external);
         break;
 
       case 2:
         conduit_set_array(
-          conduit_node, data_array, uint16, uint16_t, number_of_elements, offset, stride, external);
+          conduitNode, dataArray, uint16, uint16_t, numberOfElements, offset, stride, external);
         break;
 
       case 4:
         conduit_set_array(
-          conduit_node, data_array, int32, uint32_t, number_of_elements, offset, stride, external);
+          conduitNode, dataArray, int32, uint32_t, numberOfElements, offset, stride, external);
         break;
 
       case 8:
         conduit_set_array(
-          conduit_node, data_array, int64, uint64_t, number_of_elements, offset, stride, external);
+          conduitNode, dataArray, int64, uint64_t, numberOfElements, offset, stride, external);
         break;
 
       default:
         is_supported = false;
     }
   }
-  else if (IsFloatType(data_type))
+  else if (::IsFloatType(dataType))
   {
-    switch (data_type_size)
+    switch (dataTypeSize)
     {
       case 4:
         conduit_set_array(
-          conduit_node, data_array, float32, float, number_of_elements, offset, stride, external);
+          conduitNode, dataArray, float32, float, numberOfElements, offset, stride, external);
         break;
 
       case 8:
         conduit_set_array(
-          conduit_node, data_array, float64, double, number_of_elements, offset, stride, external);
+          conduitNode, dataArray, float64, double, numberOfElements, offset, stride, external);
         break;
 
       default:
@@ -299,47 +331,47 @@ bool ConvertDataArrayToMCArray(vtkDataArray* data_array, int offset, int stride,
   if (!is_supported)
   {
     vtkLog(ERROR,
-      "Unsupported data array type: " << data_array->GetDataTypeAsString()
-                                      << " size: " << data_type_size << " type: " << array_type);
+      "Unsupported data array type: " << dataArray->GetDataTypeAsString()
+                                      << " size: " << dataTypeSize << " type: " << arrayType);
   }
 
   return is_supported;
 }
 
 //----------------------------------------------------------------------------
-bool ConvertDataArrayToMCArray(vtkDataArray* data_array, conduit_cpp::Node& conduit_node,
+bool ConvertDataArrayToMCArray(vtkDataArray* dataArray, conduit_cpp::Node& conduitNode,
   const std::vector<std::string> names = std::vector<std::string>(), bool external = true)
 {
-  size_t nComponents = data_array->GetNumberOfComponents();
+  size_t nComponents = dataArray->GetNumberOfComponents();
   if (nComponents > 1)
   {
     bool success = true;
     for (size_t i = 0; i < nComponents; ++i)
     {
-      conduit_cpp::Node component_node;
+      conduit_cpp::Node componentNode;
       if (i < names.size())
       {
-        component_node = conduit_node[names[i]];
+        componentNode = conduitNode[names[i]];
       }
       else
       {
-        component_node = conduit_node[vtk::to_string(i)];
+        componentNode = conduitNode[vtk::to_string(i)];
       }
       success = success &&
-        ConvertDataArrayToMCArray(data_array, i, nComponents, component_node, -1, external);
+        ::ConvertDataArrayToMCArray(dataArray, i, nComponents, componentNode, -1, external);
     }
     return success;
   }
   else
   {
-    return ConvertDataArrayToMCArray(data_array, 0, 0, conduit_node, -1, external);
+    return ::ConvertDataArrayToMCArray(dataArray, 0, 0, conduitNode, -1, external);
   }
 }
 
 //----------------------------------------------------------------------------
-bool FillMixedShape(vtkPolyData* dataset, conduit_cpp::Node& topologies_node)
+bool FillMixedShape(vtkPolyData* dataset, conduit_cpp::Node& topologiesNode)
 {
-  topologies_node["elements/shape"].set("mixed");
+  topologiesNode["elements/shape"].set("mixed");
 
   const std::vector<std::pair<int, vtkCellArray*>> topos = { { VTK_VERTEX, dataset->GetVerts() },
     { VTK_LINE, dataset->GetLines() }, { VTK_POLYGON, dataset->GetPolys() },
@@ -347,7 +379,9 @@ bool FillMixedShape(vtkPolyData* dataset, conduit_cpp::Node& topologies_node)
   const std::map<int, int> topo_num_vertices{ { VTK_VERTEX, 1 }, { VTK_LINE, 2 },
     { VTK_TRIANGLE, 3 }, { VTK_POLYGON, -1 } };
 
-  auto shape_map = topologies_node["elements/shape_map"];
+  auto shape_map = topologiesNode["elements/shape_map"];
+  ::FillShapeMap(shape_map);
+
   vtkNew<vtkIdTypeArray> offsets, connectivity;
   vtkNew<vtkUnsignedCharArray> shapes;
   vtkNew<vtkIdTypeArray> sizes;
@@ -365,8 +399,6 @@ bool FillMixedShape(vtkPolyData* dataset, conduit_cpp::Node& topologies_node)
     {
       continue;
     }
-
-    shape_map[::VTK_DATATYPE_TO_CONDUIT_SHAPE.at(topo.first)] = topo.first;
 
     for (vtkIdType cellId = 0; cellId < numCells; cellId++)
     {
@@ -401,21 +433,21 @@ bool FillMixedShape(vtkPolyData* dataset, conduit_cpp::Node& topologies_node)
     }
   }
 
-  auto connectivity_node = topologies_node["elements/connectivity"];
-  auto offsets_node = topologies_node["elements/offsets"];
-  auto shapes_node = topologies_node["elements/shapes"];
-  auto sizes_node = topologies_node["elements/sizes"];
+  auto connectivityNode = topologiesNode["elements/connectivity"];
+  auto offsetsNode = topologiesNode["elements/offsets"];
+  auto shapesNode = topologiesNode["elements/shapes"];
+  auto sizesNode = topologiesNode["elements/sizes"];
 
-  bool convert_connectivity =
-    ConvertDataArrayToMCArray(connectivity, connectivity_node, std::vector<std::string>(), false);
-  bool convert_offsets =
-    ConvertDataArrayToMCArray(offsets, offsets_node, std::vector<std::string>(), false);
-  bool convert_shapes =
-    ConvertDataArrayToMCArray(shapes, shapes_node, std::vector<std::string>(), false);
-  bool convert_sizes =
-    ConvertDataArrayToMCArray(sizes, sizes_node, std::vector<std::string>(), false);
+  bool convertConnectivity =
+    ::ConvertDataArrayToMCArray(connectivity, connectivityNode, std::vector<std::string>(), false);
+  bool convertOffsets =
+    ::ConvertDataArrayToMCArray(offsets, offsetsNode, std::vector<std::string>(), false);
+  bool convertShapes =
+    ::ConvertDataArrayToMCArray(shapes, shapesNode, std::vector<std::string>(), false);
+  bool convertSizes =
+    ::ConvertDataArrayToMCArray(sizes, sizesNode, std::vector<std::string>(), false);
 
-  if (!convert_offsets || !convert_shapes || !convert_connectivity || !convert_sizes)
+  if (!convertOffsets || !convertShapes || !convertConnectivity || !convertSizes)
   {
     vtkLogF(ERROR, "ConvertDataArrayToMCArray failed for mixed shapes polydata.");
     return false;
@@ -425,22 +457,18 @@ bool FillMixedShape(vtkPolyData* dataset, conduit_cpp::Node& topologies_node)
 }
 
 //----------------------------------------------------------------------------
-bool FillMixedShape(vtkUnstructuredGrid* dataset, conduit_cpp::Node& topologies_node)
+bool FillMixedShape(vtkUnstructuredGrid* dataset, conduit_cpp::Node& topologiesNode)
 {
   const auto number_of_cells = dataset->GetNumberOfCells();
-  topologies_node["elements/shape"].set("mixed");
+  topologiesNode["elements/shape"].set("mixed");
 
-  auto shape_map = topologies_node["elements/shape_map"];
+  auto shape_map = topologiesNode["elements/shape_map"];
 
   vtkUnsignedCharArray* cell_types = dataset->GetDistinctCellTypesArray();
   for (vtkIdType i = 0; i < cell_types->GetNumberOfTuples(); i++)
   {
     auto type = cell_types->GetValue(i);
-    if (::VTK_DATATYPE_TO_CONDUIT_SHAPE.find(type) != ::VTK_DATATYPE_TO_CONDUIT_SHAPE.end())
-    {
-      shape_map[VTK_DATATYPE_TO_CONDUIT_SHAPE.at(type)] = static_cast<conduit_int32>(type);
-    }
-    else
+    if (::VTK_DATATYPE_TO_CONDUIT_SHAPE.find(type) == ::VTK_DATATYPE_TO_CONDUIT_SHAPE.end())
     {
       vtkLogF(ERROR,
         "Unsupported cell type %s found in vtkUnstructuredGrid. Cannot proceed further.",
@@ -448,6 +476,8 @@ bool FillMixedShape(vtkUnstructuredGrid* dataset, conduit_cpp::Node& topologies_
       return false;
     }
   }
+
+  ::FillShapeMap(shape_map);
 
   auto offsets = dataset->GetCells()->GetOffsetsArray();
   auto connectivity = dataset->GetCells()->GetConnectivityArray();
@@ -460,16 +490,16 @@ bool FillMixedShape(vtkUnstructuredGrid* dataset, conduit_cpp::Node& topologies_
     sizes->SetValue(i, dataset->GetCellSize(i));
   }
 
-  auto offsets_node = topologies_node["elements/offsets"];
-  auto shapes_node = topologies_node["elements/shapes"];
-  auto sizes_node = topologies_node["elements/sizes"];
-  auto connectivity_node = topologies_node["elements/connectivity"];
+  auto offsets_node = topologiesNode["elements/offsets"];
+  auto shapes_node = topologiesNode["elements/shapes"];
+  auto sizes_node = topologiesNode["elements/sizes"];
+  auto connectivity_node = topologiesNode["elements/connectivity"];
 
-  bool convert_offsets = ConvertDataArrayToMCArray(offsets, 0, 0, offsets_node, number_of_cells);
-  bool convert_shapes = ConvertDataArrayToMCArray(shapes, shapes_node);
-  bool convert_connectivity = ConvertDataArrayToMCArray(connectivity, connectivity_node);
+  bool convert_offsets = ::ConvertDataArrayToMCArray(offsets, 0, 0, offsets_node, number_of_cells);
+  bool convert_shapes = ::ConvertDataArrayToMCArray(shapes, shapes_node);
+  bool convert_connectivity = ::ConvertDataArrayToMCArray(connectivity, connectivity_node);
   bool convert_sizes =
-    ConvertDataArrayToMCArray(sizes, sizes_node, std::vector<std::string>(), false);
+    ::ConvertDataArrayToMCArray(sizes, sizes_node, std::vector<std::string>(), false);
 
   if (!convert_offsets || !convert_shapes || !convert_connectivity || !convert_sizes)
   {
@@ -496,7 +526,7 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node, const std::string
 
   if (points)
   {
-    if (!ConvertDataArrayToMCArray(points->GetData(), values_node, { "x", "y", "z" }))
+    if (!::ConvertDataArrayToMCArray(points->GetData(), values_node, { "x", "y", "z" }))
     {
       vtkLogF(ERROR, "ConvertPoints failed for %s.", datasetType);
       return false;
@@ -515,9 +545,9 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node, const std::string
 
   int cell_type = VTK_VERTEX;
 
-  if (IsMixedShape(dataset))
+  if (::IsMixedShape(dataset))
   {
-    if (!FillMixedShape(dataset, topologies_node))
+    if (!::FillMixedShape(dataset, topologies_node))
     {
       vtkLogF(ERROR, "%s with mixed shape type failed.", datasetType);
       return false;
@@ -564,14 +594,14 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node, const std::string
       }
       auto offsets_array = cell_array->GetOffsetsArray();
 
-      if (!ConvertDataArrayToMCArray(offsets_array, 0, 0, offsets_node, number_of_cells) ||
-        !ConvertDataArrayToMCArray(sizes, sizes_node, std::vector<std::string>(), false))
+      if (!::ConvertDataArrayToMCArray(offsets_array, 0, 0, offsets_node, number_of_cells) ||
+        !::ConvertDataArrayToMCArray(sizes, sizes_node, std::vector<std::string>(), false))
       {
         vtkLogF(ERROR, "ConvertDataArrayToMCArray failed for %s.", datasetType);
         return false;
       }
     }
-    else if (HasMultiCells(dataset))
+    else if (::HasMultiCells(dataset))
     {
       // "Multi-cells" need to be handled separately,
       // because they correspond to multiple cells in Conduit
@@ -590,7 +620,7 @@ bool FillTopology(T* dataset, conduit_cpp::Node& conduit_node, const std::string
     }
 
     auto connectivity_node = topologies_node["elements/connectivity"];
-    if (!ConvertDataArrayToMCArray(cell_array->GetConnectivityArray(), connectivity_node))
+    if (!::ConvertDataArrayToMCArray(cell_array->GetConnectivityArray(), connectivity_node))
     {
       vtkLogF(ERROR, "ConvertDataArrayToMCArray failed for %s.", datasetType);
       return false;
@@ -636,21 +666,21 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node,
     coords_node["type"] = "rectilinear";
 
     auto x_values_node = coords_node["values/x"];
-    if (!ConvertDataArrayToMCArray(rectilinear_grid->GetXCoordinates(), x_values_node))
+    if (!::ConvertDataArrayToMCArray(rectilinear_grid->GetXCoordinates(), x_values_node))
     {
       vtkLog(ERROR, "Failed ConvertDataArrayToMCArray for values/x");
       return false;
     }
 
     auto y_values_node = coords_node["values/y"];
-    if (!ConvertDataArrayToMCArray(rectilinear_grid->GetYCoordinates(), y_values_node))
+    if (!::ConvertDataArrayToMCArray(rectilinear_grid->GetYCoordinates(), y_values_node))
     {
       vtkLog(ERROR, "Failed ConvertDataArrayToMCArray for values/y");
       return false;
     }
 
     auto z_values_node = coords_node["values/z"];
-    if (!ConvertDataArrayToMCArray(rectilinear_grid->GetZCoordinates(), z_values_node))
+    if (!::ConvertDataArrayToMCArray(rectilinear_grid->GetZCoordinates(), z_values_node))
     {
       vtkLog(ERROR, "Failed ConvertDataArrayToMCArray for values/z");
       return false;
@@ -667,7 +697,7 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node,
     coords_node["type"] = "explicit";
 
     auto values_node = coords_node["values"];
-    if (!ConvertDataArrayToMCArray(
+    if (!::ConvertDataArrayToMCArray(
           structured_grid->GetPoints()->GetData(), values_node, { "x", "y", "z" }))
     {
       vtkLog(ERROR, "Failed ConvertPoints for structured grid");
@@ -685,11 +715,11 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node,
   }
   else if (auto unstructured_grid = vtkUnstructuredGrid::SafeDownCast(data_set))
   {
-    return FillTopology(unstructured_grid, conduit_node, coordset_name, topology_name);
+    return ::FillTopology(unstructured_grid, conduit_node, coordset_name, topology_name);
   }
   else if (auto polydata = vtkPolyData::SafeDownCast(data_set))
   {
-    return FillTopology(polydata, conduit_node, coordset_name, topology_name);
+    return ::FillTopology(polydata, conduit_node, coordset_name, topology_name);
   }
   else if (auto pointset = vtkPointSet::SafeDownCast(data_set))
   {
@@ -700,7 +730,7 @@ bool FillTopology(vtkDataSet* data_set, conduit_cpp::Node& conduit_node,
       coords_node["type"] = "explicit";
 
       auto values_node = coords_node["values"];
-      if (!ConvertDataArrayToMCArray(
+      if (!::ConvertDataArrayToMCArray(
             pointset->GetPoints()->GetData(), values_node, { "x", "y", "z" }))
       {
         vtkLog(ERROR, "Failed ConvertPoints for point set");
@@ -765,11 +795,11 @@ bool FillFieldArrayValues(vtkDataSet* data_set, conduit_cpp::Node& values_node,
 
     // Array is not owned in this case, hard copy it
     is_success =
-      ConvertDataArrayToMCArray(newArray, values_node, std::vector<std::string>(), false);
+      ::ConvertDataArrayToMCArray(newArray, values_node, std::vector<std::string>(), false);
   }
   else
   {
-    is_success = ConvertDataArrayToMCArray(data_array, values_node);
+    is_success = ::ConvertDataArrayToMCArray(data_array, values_node);
   }
 
   return is_success;
@@ -781,15 +811,48 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
 {
   bool is_success = true;
   auto dataset_attributes = vtkDataSetAttributes::SafeDownCast(field_data);
-  int array_count = field_data->GetNumberOfArrays();
-  for (int array_index = 0; is_success && array_index < array_count; ++array_index)
+  int arrayCount = field_data ? field_data->GetNumberOfArrays() : 0;
+
+  // All process need to have the same node structure and fields.
+  // Rank 0 broadcasts
+  auto* controller = vtkMultiProcessController::GetGlobalController();
+  const int localProcess = controller->GetLocalProcessId();
+  const int SOURCE_PROCESS = 0;
+  controller->Broadcast(&arrayCount, 1, SOURCE_PROCESS);
+
+  for (int array_index = 0; is_success && array_index < arrayCount; ++array_index)
   {
-    auto array = field_data->GetAbstractArray(array_index);
-    std::string name = array->GetName();
+    std::string name;
+    int dataType, numComp;
+    if (localProcess == SOURCE_PROCESS)
+    {
+      auto array = field_data->GetAbstractArray(array_index);
+      dataType = array->GetDataType();
+      numComp = array->GetNumberOfComponents();
+      name = array->GetName();
+    }
+
+    int arrayNameSize = name.size();
+    controller->Broadcast(&arrayNameSize, 1, SOURCE_PROCESS);
+
+    name.resize(arrayNameSize);
+    controller->Broadcast(name.data(), arrayNameSize, SOURCE_PROCESS);
+    controller->Broadcast(&dataType, 1, SOURCE_PROCESS);
+    controller->Broadcast(&numComp, 1, SOURCE_PROCESS);
+
     if (name.empty())
     {
       vtkLogF(WARNING, "Unnamed array, it will be ignored.");
       continue;
+    }
+
+    vtkSmartPointer<vtkAbstractArray> array = field_data->GetAbstractArray(name.c_str());
+    if (!array)
+    {
+      array = vtk::TakeSmartPointer(vtkDataArray::CreateArray(dataType));
+      array->SetName(name.c_str());
+      array->SetNumberOfComponents(numComp);
+      array->SetNumberOfTuples(0);
     }
 
     if (association.empty())
@@ -813,7 +876,7 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
       }
       else if (auto data_array = vtkDataArray::SafeDownCast(array))
       {
-        is_success = ConvertDataArrayToMCArray(data_array, field_node);
+        is_success = ::ConvertDataArrayToMCArray(data_array, field_node);
       }
       else
       {
@@ -892,31 +955,23 @@ bool FillFields(vtkDataSet* data_set, vtkFieldData* field_data, const std::strin
 bool FillFields(
   vtkDataSet* data_set, conduit_cpp::Node& conduit_node, const std::string& topology_name)
 {
-  if (auto cell_data = data_set->GetCellData())
+
+  if (!::FillFields(data_set, data_set->GetCellData(), "element", conduit_node, topology_name))
   {
-    if (!FillFields(data_set, cell_data, "element", conduit_node, topology_name))
-    {
-      vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with element failed.");
-      return false;
-    }
+    vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with element failed.");
+    return false;
   }
 
-  if (auto point_data = data_set->GetPointData())
+  if (!::FillFields(data_set, data_set->GetPointData(), "vertex", conduit_node, topology_name))
   {
-    if (!FillFields(data_set, point_data, "vertex", conduit_node, topology_name))
-    {
-      vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with vertex failed.");
-      return false;
-    }
+    vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with vertex failed.");
+    return false;
   }
 
-  if (auto field_data = data_set->GetFieldData())
+  if (!::FillFields(data_set, data_set->GetFieldData(), "", conduit_node, topology_name))
   {
-    if (!FillFields(data_set, field_data, "", conduit_node, topology_name))
-    {
-      vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with field data failed.");
-      return false;
-    }
+    vtkVLog(vtkLogger::VERBOSITY_ERROR, "FillFields with field data failed.");
+    return false;
   }
 
   return true;
@@ -926,7 +981,7 @@ bool FillFields(
 bool FillConduitNodeFromDataSet(vtkDataSet* data_set, conduit_cpp::Node& conduit_node,
   const std::string& coordset_name, const std::string& topology_name)
 {
-  return FillFields(data_set, conduit_node, topology_name) &&
+  return ::FillFields(data_set, conduit_node, topology_name) &&
     FillTopology(data_set, conduit_node, coordset_name, topology_name);
 }
 
@@ -974,7 +1029,7 @@ bool FillConduitMultiMeshNode(vtkPartitionedDataSetCollection* pdc, conduit_cpp:
       auto obj = pds->GetPartition(partId);
       const std::string mesh_name = "mesh_" + vtk::to_string(partId);
       const std::string coords_name = "coords_" + vtk::to_string(partId);
-      FillConduitNodeFromDataSet(obj, node, coords_name, mesh_name);
+      ::FillConduitNodeFromDataSet(obj, node, coords_name, mesh_name);
     }
   }
 
@@ -993,11 +1048,11 @@ bool FillConduitNode(vtkDataObject* data_object, conduit_cpp::Node& conduit_node
   auto pdc = vtkPartitionedDataSetCollection::SafeDownCast(data_object);
   if (data_set)
   {
-    return FillConduitNodeFromDataSet(data_set, conduit_node, "coords", "mesh");
+    return ::FillConduitNodeFromDataSet(data_set, conduit_node, "coords", "mesh");
   }
   else if (pdc)
   {
-    return FillConduitMultiMeshNode(pdc, conduit_node);
+    return ::FillConduitMultiMeshNode(pdc, conduit_node);
   }
   else
   {
