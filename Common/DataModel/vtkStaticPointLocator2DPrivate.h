@@ -537,6 +537,12 @@ struct BucketList2D : public vtkBucketList2D
       worker(points, this);
     }
 
+    // Provide accelerated access to points. Needed for Voronoi bin iterators.
+    if (vtkDoubleArray::SafeDownCast(points))
+    {
+      this->FastPoints = static_cast<double*>(vtkDoubleArray::SafeDownCast(points)->GetPointer(0));
+    }
+
     // Now gather the points into contiguous runs in buckets
     //
     vtkSMPTools::Sort(this->Map, this->Map + this->NumPts);

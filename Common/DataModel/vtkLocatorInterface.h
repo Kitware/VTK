@@ -18,6 +18,7 @@
 #define vtkLocatorInterface_h
 
 #include "vtkABINamespace.h"
+#include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
 #include <vector>
@@ -58,7 +59,7 @@ struct vtkDist2Tuple
  * vtkDist2TupleArray is shorthand for std::vector<vtkDist2Tuple>. It can be
  * readily used in wrapped VTK interfaces.
  */
-struct vtkDist2TupleArray : public std::vector<vtkDist2Tuple>
+struct VTKCOMMONDATAMODEL_EXPORT vtkDist2TupleArray : public std::vector<vtkDist2Tuple>
 {
 };
 typedef std::vector<vtkDist2Tuple> vtkDist2TupleType;
