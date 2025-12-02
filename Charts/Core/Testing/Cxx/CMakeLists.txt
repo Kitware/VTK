@@ -109,6 +109,7 @@ vtk_add_test_cxx(vtkChartsCoreCxxTests tests
   TestPieChart.cxx
   TestPlotBarRangeHandlesItem.cxx,NO_DATA,NO_VALID
   TestPlotMatrix.cxx,LOOSE_VALID
+  TestPlotPoints.cxx
   TestPlotRangeHandlesItem.cxx,NO_DATA,NO_VALID
   TestPropItem.cxx
   TestRangeHandlesItemEvents.cxx,NO_DATA,NO_VALID
