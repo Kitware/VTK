@@ -530,8 +530,21 @@ void vtkOpenGLSurfaceProbeVolumeMapper::UpdateShadersProbePass(
   cellBO.Program->SetUniformMatrix4x4("in_inverseTextureDatasetMatrix", InvTexMatVec.data());
   cellBO.Program->SetUniformMatrix4x4("in_cellToPoint", CellToPointVec.data());
 
-  cellBO.Program->SetUniform4f("in_volume_scale", this->VolumeTexture->Scale);
-  cellBO.Program->SetUniform4f("in_volume_bias", this->VolumeTexture->Bias);
+  // LargeDataTypes have been already biased and scaled in vtkVolumeTexture
+  std::array<float, 4> volume_scale = { 1.0f, 1.0f, 1.0f, 1.0f };
+  std::array<float, 4> volume_bias = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+  int nbOfComponents = this->GetSource()->GetNumberOfScalarComponents();
+  if (!this->VolumeTexture->HandleLargeDataTypes && nbOfComponents < 3)
+  {
+    std::copy(std::begin(this->VolumeTexture->Scale), std::end(this->VolumeTexture->Scale),
+      volume_scale.begin());
+    std::copy(std::begin(this->VolumeTexture->Bias), std::end(this->VolumeTexture->Bias),
+      volume_bias.begin());
+  }
+
+  cellBO.Program->SetUniform4f("in_volume_scale", volume_scale.data());
+  cellBO.Program->SetUniform4f("in_volume_bias", volume_bias.data());
 
   if (this->GetBlendMode() != BlendModes::NONE)
   {
