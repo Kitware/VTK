@@ -2599,15 +2599,15 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(GraphicsPipelineType p
       width = 1.0;
     }
     let p_coord = TRIANGLE_VERTS[p_coord_id];
-  
+
     let pull_vertex_id = select(2 * primitive_id, 2 * primitive_id + 1, p_coord.x == 1);
     let vertex_MC = vec4<f32>(point_coordinates[3u * connectivity[pull_vertex_id]],
       point_coordinates[3u * connectivity[pull_vertex_id] + 1u],
       point_coordinates[3u * connectivity[pull_vertex_id] + 2u], 1);
-  
+
     // pull the point id
     let point_id = connectivity[pull_vertex_id];
-  
+
     let p0_id: u32 = 2 * primitive_id;
     let p1_id = p0_id + 1;
 
@@ -2627,7 +2627,7 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(GraphicsPipelineType p
     let p1_screen = resolution * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
 
     // Expand the line segment into a quad by moving the vertices along X, and Y dimension
-    // of the parametric space. 
+    // of the parametric space.
     let x_basis = normalize(p1_screen - p0_screen);
     let y_basis = vec2(-x_basis.y, x_basis.x);
 
@@ -2786,7 +2786,7 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(GraphicsPipelineType p
 
     let p0_MC = vec4<f32>(point_coordinates[3u * p0_point_id], point_coordinates[3u * p0_point_id + 1u], point_coordinates[3u * p0_point_id + 2u], 1);
     let p1_MC = vec4<f32>(point_coordinates[3u * p1_point_id], point_coordinates[3u * p1_point_id + 1u], point_coordinates[3u * p1_point_id + 2u], 1);
-    
+
     // transform to view and then to clip space.
     let p0_DC = model_view_projection * p0_MC;
     let p1_DC = model_view_projection * p1_MC;
@@ -2797,7 +2797,7 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(GraphicsPipelineType p
     let p1_screen = resolution * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
 
     // Expand the line segment into a quad by moving the vertices along X, and Y dimension
-    // of the parametric space. 
+    // of the parametric space.
     let x_basis = normalize(p1_screen - p0_screen);
     let y_basis = vec2(-x_basis.y, x_basis.x);
     let adjusted_p1 = p0_screen + p_coord.x * x_basis + p_coord.y * y_basis * width;
@@ -2850,7 +2850,7 @@ void vtkWebGPUPolyDataMapper::ReplaceVertexShaderPosition(GraphicsPipelineType p
   let p1_screen = resolution * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
 
   // Expand the line segment into a quad by moving the vertices along X, and Y dimension
-  // of the parametric space. 
+  // of the parametric space.
   let x_basis = normalize(p1_screen - p0_screen);
   let y_basis = vec2(-x_basis.y, x_basis.x);
   let adjusted_p1 = p0_screen + p_coord.x * x_basis + p_coord.y * y_basis * width;

@@ -634,7 +634,7 @@ if(!RegisterClasses_${_vtk_serdes_library_name}(serializer, deserializer, invoke
     "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_serdes_OUTPUT_NAME}Bindings.cxx"
     "${_vtk_serdes_EXTRA_SOURCES}")
 
-  file(CONFIGURE 
+  file(CONFIGURE
     OUTPUT  "${CMAKE_CURRENT_BINARY_DIR}/${_vtk_serdes_OUTPUT_NAME}.post.js"
     CONTENT "globalThis.createVTKWASM = ${_vtk_serdes_OUTPUT_NAME};\n")
   set(emscripten_link_options)

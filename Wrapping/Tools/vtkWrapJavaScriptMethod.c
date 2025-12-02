@@ -794,9 +794,9 @@ void vtkWrapJavaScript_GenerateOneMethod(FILE* fp, const char* classname,
     // an overload will be selected with
     // clang-format off
     // emscripten::select_overload<ReturnType(Arg...)>([](Arg...) -> ReturnType {return self.Func(...arg); })
-    // if this bucket has more than one items 
+    // if this bucket has more than one items
     // or
-    // if there is only one item in this bucket and there are more buckets 
+    // if there is only one item in this bucket and there are more buckets
     // or
     // if there are non-zero number of occurrences which cannot be wrapped.
     // clang-format on

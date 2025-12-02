@@ -135,7 +135,7 @@ $<$<BOOL:${_vtk_javascript_hierarchy_files}>:\n--types \'$<JOIN:${_vtk_javascrip
     set(_vtk_javascript_depfile_genex
       "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_javascript_library_name}/${_vtk_javascript_basename}Embinding.cxx.$<CONFIG>.d")
     set(_vtk_javascript_depfile_nogenex
-      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_javascript_library_name}/${_vtk_javascript_basename}Embinding.cxx.d")  
+      "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${_vtk_javascript_library_name}/${_vtk_javascript_basename}Embinding.cxx.d")
     list(APPEND _vtk_javascript_library_sources
       "${_vtk_javascript_source_output}")
 
@@ -224,15 +224,15 @@ endfunction ()
 .. cmake:command:: vtk_module_wrap_javascript
 
   Wrap a set of modules for use in JavaScript.|module-wrapping-javascript|
-  
+
   .. code-block:: cmake
-  
+
      vtk_module_wrap_javascript(
        MODULES <module>...
        TARGET_NAME <name>
        [WRAPPED_MODULES <varname>]
        [UTILITY_TARGET <target>]
-       [EXTRA_BINDING_SOURCES <sources_list>]      
+       [EXTRA_BINDING_SOURCES <sources_list>]
        [MODULE_EXPORT_NAME <name>]
        [INSTALL_EXPORT <export>]
        [COMPONENT <component>]
@@ -241,7 +241,7 @@ endfunction ()
        [OPTIMIZATION <optimization>]
        [MEMORY64 <ON|OFF>]
      )
-    
+
   * ``MODULES``: (Required) The list of modules to wrap.
   * ``TARGET_NAME``: (Required) The name of the generated js/wasm files.
   * ``WRAPPED_MODULES``: (Recommended) Not all modules are wrappable. This
@@ -280,14 +280,14 @@ endfunction ()
     Defaults to ``OFF``
 
   The set of modules is compiled to a single ``<TARGET_NAME>.wasm/.js`` file.
-  
+
   For each wrapped module, a ``vtk<module>WebObjects`` object library will be created.
   If the object library already exists for a given module, $<TARGET_OBJECTS:...> is used to
   automatically retrieve the list of pregenerated wrapped sources.
   Pregenerated sources can be filtered by specifying a list of class names in the following target
   properties prior to calling this macro:
   - vtk_module_wrap_javascript_exclude: Exclude the specified list of class names
-  - vtk_module_wrap_javascript_include: Only include the specified list of class names 
+  - vtk_module_wrap_javascript_include: Only include the specified list of class names
 #]==]
 function (vtk_module_wrap_javascript)
   cmake_parse_arguments(PARSE_ARGV 0 _vtk_javascript
@@ -359,7 +359,7 @@ function (vtk_module_wrap_javascript)
 
   set(_vtk_javascript_binding_sources)
   set(_vtk_javascript_binding_classes)
-  
+
   include(vtkModuleWrapJavaScriptExclusions OPTIONAL)
 
   foreach (_vtk_javascript_module IN LISTS _vtk_javascript_MODULES)
@@ -370,7 +370,7 @@ function (vtk_module_wrap_javascript)
     if (_vtk_javascript_exclude_wrap)
       continue ()
     endif ()
-    
+
     # Generate binding source code
     _vtk_module_get_module_property(${_vtk_javascript_module}
       PROPERTY "library_name"
@@ -404,7 +404,7 @@ function (vtk_module_wrap_javascript)
       endif ()
 
       # Add object library to compile generated binding sources
-      add_library("${_vtk_javascript_module_objects}" OBJECT 
+      add_library("${_vtk_javascript_module_objects}" OBJECT
         ${_vtk_javascript_library_binding_sources})
 
       target_link_libraries("${_vtk_javascript_module_objects}"
@@ -416,7 +416,7 @@ function (vtk_module_wrap_javascript)
         MODULES ${_vtk_javascript_module}
         TARGETS "${_vtk_javascript_module_objects}")
 
-      # Get link dependencies    
+      # Get link dependencies
       _vtk_module_get_module_property("${_vtk_javascript_module}"
         PROPERTY  "private_depends"
         VARIABLE  _vtk_javascript_module_private_depends)
@@ -469,7 +469,7 @@ function (vtk_module_wrap_javascript)
     PRIVATE
       VTK::WrappingJavaScript
       ${_vtk_javascript_MODULES})
-  
+
   if (_vtk_javascript_INSTALL_EXPORT)
     install(
       TARGETS "${_vtk_javascript_target}"

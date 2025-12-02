@@ -5,6 +5,11 @@ root = true
 [*]
 insert_final_newline = true
 charset = utf-8
+trim_trailing_whitespace = true
+
+# In markdown, extra whitespace is syntactic, used to force a line break.
+[*.md]
+trim_trailing_whitespace = false
 
 # one tab/indent is 2 spaces
 [*]

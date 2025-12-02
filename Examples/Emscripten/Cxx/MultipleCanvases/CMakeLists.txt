@@ -56,7 +56,7 @@ target_link_options(MultipleCanvases
     ${emscripten_link_options}
 )
 set_target_properties(MultipleCanvases
-PROPERTIES 
+PROPERTIES
   OUTPUT_NAME "index"
   SUFFIX ".html")
 

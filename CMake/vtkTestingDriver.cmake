@@ -12,7 +12,7 @@ SET(CMAKE_TESTDRIVER_BEFORE_TESTMAIN
 SET(CMAKE_TESTDRIVER_AFTER_TESTMAIN
 "
 #if defined(__EMSCRIPTEN__)
-  // When asyncify is used, emscripten sets up the wasm module 
+  // When asyncify is used, emscripten sets up the wasm module
   // such that the `main` function always returns 1.
   // Explicitly post the test's exit code back to the server.
   if (emscripten_has_asyncify())
