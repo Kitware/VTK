@@ -678,10 +678,10 @@ void vtkMultiLineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  std::cout << "Line Count : " << this->LineCount << '\n';
+  os << indent << "Line Count : " << this->LineCount << '\n';
   for (int i = 0; i < this->LineCount; i++)
   {
-    os << "Line " << i << ":" << '\n';
+    os << indent << "Line " << i << ":" << '\n';
     this->LineRepresentationVector[i]->PrintSelf(os, indent);
   }
   os << "\n";
