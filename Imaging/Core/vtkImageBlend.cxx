@@ -13,6 +13,8 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
+#include <algorithm>
+
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkImageBlend);
 
@@ -35,7 +37,6 @@ vtkImageBlend::vtkImageBlend()
 vtkImageBlend::~vtkImageBlend()
 {
   delete[] this->Opacity;
-  this->OpacityArrayLength = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -103,8 +104,7 @@ vtkImageStencilData* vtkImageBlend::GetStencil()
 //------------------------------------------------------------------------------
 void vtkImageBlend::SetOpacity(int idx, double opacity)
 {
-  opacity = std::max(opacity, 0.0);
-  opacity = std::min(opacity, 1.0);
+  opacity = std::clamp(opacity, 0.0, 1.0);
 
   if (idx >= this->OpacityArrayLength)
   {
@@ -558,7 +558,7 @@ void vtkImageBlendExecuteChar(vtkImageBlend* self, int extent[6], vtkImageData* 
 //------------------------------------------------------------------------------
 // This function simply does a copy (for the first input)
 //------------------------------------------------------------------------------
-static void vtkImageBlendCopyData(vtkImageData* inData, vtkImageData* outData, int* ext)
+static void vtkImageBlendCopyData(vtkImageData* inData, vtkImageData* outData, int ext[6])
 {
   unsigned char* inPtr =
     static_cast<unsigned char*>(inData->GetScalarPointerForExtent(ext)); // here

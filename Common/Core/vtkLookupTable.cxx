@@ -469,9 +469,9 @@ inline void vtkLookupTableLogRange(const double range[2], double logRange[2])
 double vtkApplyLogScaleMain(double v, const double range[2], const double logRange[2])
 {
   // is the range set for negative numbers?
-  if (range[0] < 0)
+  if (range[0] < 0.0)
   {
-    if (v < 0)
+    if (v < 0.0)
     {
       v = -log10(-v);
     }
@@ -486,7 +486,7 @@ double vtkApplyLogScaleMain(double v, const double range[2], const double logRan
   }
   else
   {
-    if (v > 0)
+    if (v > 0.0)
     {
       v = log10(v);
     }
