@@ -209,11 +209,11 @@ void vtkMultiLineWidget::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
-  os << "Line Count : " << this->LineCount << '\n';
+  os << indent << "Line Count : " << this->LineCount << '\n';
 
   for (int i = 0; i < this->LineCount; i++)
   {
-    os << "Line " << i << " :" << '\n';
+    os << indent << "Line " << i << " :" << '\n';
     this->LineWidgetVector[i]->PrintSelf(os, indent);
   }
 }
