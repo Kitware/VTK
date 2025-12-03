@@ -390,9 +390,584 @@ All of the data and geometry specifications use _PDataArray_ elements to describ
       <PDataArray type="Float32" Name="vectors" NumberOfComponents="3"/>
 ```
 
-## XML File Example
+## **XML File Examples**
+
+Below are some examples for valid XML files for the different file formats. Each example includes a minimal dataset along with point and cell attributes to illustrate typical structure, data arrays, and element organization.
+
+### ImageData
+
+This example shows a 2D image stored as vtkImageData with three pieces. Each piece defines its own Extent, while Origin and Spacing are shared across the dataset. Both point and cell scalar fields are included to demonstrate element layout.
+
+```{image} images/ImageData_example.png
+:alt: ImageData Example
+:align: center
+```
+
+```xml
+<VTKFile type="ImageData"  version="0.1" byte_order="LittleEndian">
+  <ImageData WholeExtent="0 26 0 14 0 0"
+             Origin="0 0 0" Spacing="1 1 1">
+    <Piece Extent="0 11 0 14 0 0">
+      <PointData Scalars="point_scalars">
+        <DataArray type="Float32" Name="point_scalars" format="ascii">
+          0 0 0 0 0 0 0 0 0 0 0 0
+          0 0 0 0 0 0 0 0 0 0 0 0
+          0 0 0 0 0 0 0 0 0 0 0 0
+          0 0 0 0 0 1 1 1 0 0 0 0
+          0 0 0 0 0 1 1 1 0 0 0 0
+          0 0 0 0 1 1 1 1 1 0 0 0
+          0 0 0 0 1 1 1 1 1 0 0 0
+          0 0 0 1 1 1 1 1 1 1 0 0
+          0 0 0 1 1 1 0 1 1 1 0 0
+          0 0 1 1 1 1 0 1 1 1 1 0
+          0 0 1 1 1 0 0 0 1 1 1 0
+          0 1 1 1 1 0 0 0 1 1 1 0
+          0 1 1 1 0 0 0 0 1 1 1 0
+          0 1 1 1 0 0 0 0 0 0 0 0
+          0 0 0 0 0 0 0 0 0 0 0 0
+        </DataArray>
+      </PointData>
+      <CellData Scalars="cell_scalars">
+        <DataArray type="Float32" Name="cell_scalars" format="ascii">
+          0 0 0 0 0 0 0 0 0 0 0
+          0 0 0 0 0 0 0 0 0 0 0
+          0 0 0 0 0 0 0 0 0 0 0
+          0 0 0 0 0 1 1 0 0 0 0
+          0 0 0 0 0 1 1 0 0 0 0
+          0 0 0 0 1 1 1 1 0 0 0
+          0 0 0 0 1 1 1 1 0 0 0
+          0 0 0 1 1 0 0 1 1 0 0
+          0 0 0 1 1 0 0 1 1 0 0
+          0 0 1 1 0 0 0 0 1 1 0
+          0 0 1 1 0 0 0 0 1 1 0
+          0 1 1 0 0 0 0 0 1 1 0
+          0 1 1 0 0 0 0 0 0 0 0
+          0 0 0 0 0 0 0 0 0 0 0
+        </DataArray>
+      </CellData>
+    </Piece>
+    <Piece Extent="11 18 0 14 0 0">
+      <PointData Scalars="point_scalars">
+        <DataArray type="Float32" Name="point_scalars" format="ascii">
+          0 0 0 0 0 0 0 0
+          0 0 0 0 0 0 0 0
+          0 0 0 0 0 0 0 0
+          0 0 2 2 2 0 0 0
+          0 0 2 2 2 0 0 0
+          0 0 2 2 2 0 0 0
+          0 0 2 2 2 0 0 0
+          0 0 2 2 2 0 0 0
+          0 0 2 2 2 0 0 0
+          0 0 2 2 2 0 0 0
+          2 2 2 2 2 2 2 0
+          2 2 2 2 2 2 2 0
+          2 2 2 2 2 2 2 0
+          0 0 0 0 0 0 0 0
+          0 0 0 0 0 0 0 0
+        </DataArray>
+      </PointData>
+      <CellData Scalars="cell_scalars">
+        <DataArray type="Float32" Name="cell_scalars" format="ascii">
+          0 0 0 0 0 0 0
+          0 0 0 0 0 0 0
+          0 0 0 0 0 0 0
+          0 0 2 2 0 0 0
+          0 0 2 2 0 0 0
+          0 0 2 2 0 0 0
+          0 0 2 2 0 0 0
+          0 0 2 2 0 0 0
+          0 0 2 2 0 0 0
+          0 0 2 2 0 0 0
+          2 2 2 2 2 2 0
+          2 2 2 2 2 2 0
+          0 0 0 0 0 0 0
+          0 0 0 0 0 0 0
+        </DataArray>
+      </CellData>
+    </Piece>
+    <Piece Extent="18 26 0 14 0 0">
+      <PointData Scalars="point_scalars">
+        <DataArray type="Float32" Name="point_scalars" format="ascii">
+          0 0 0 0 0 0 0 0 0
+          0 0 0 0 0 3 3 3 0
+          0 0 0 0 0 3 3 3 0
+          3 3 3 0 3 3 3 3 0
+          3 3 3 0 3 3 3 0 0
+          3 3 3 3 3 3 3 0 0
+          3 3 3 3 3 3 0 0 0
+          3 3 3 3 3 0 0 0 0
+          3 3 3 3 3 3 0 0 0
+          3 3 3 3 3 3 0 0 0
+          3 3 3 3 3 3 3 0 0
+          3 3 3 0 3 3 3 0 0
+          3 3 3 0 3 3 3 0 0
+          0 0 0 0 0 0 0 0 0
+          0 0 0 0 0 0 0 0 0
+        </DataArray>
+      </PointData>
+      <CellData Scalars="cell_scalars">
+        <DataArray type="Float32" Name="cell_scalars" format="ascii">
+          0 0 0 0 0 0 0 0
+          0 0 0 0 0 3 3 0
+          0 0 0 0 0 3 3 0
+          3 3 0 0 3 3 0 0
+          3 3 0 0 3 3 0 0
+          3 3 0 3 3 0 0 0
+          3 3 0 3 3 0 0 0
+          3 3 3 3 0 0 0 0
+          3 3 3 3 3 0 0 0
+          3 3 0 3 3 0 0 0
+          3 3 0 0 3 3 0 0
+          3 3 0 0 3 3 0 0
+          0 0 0 0 0 0 0 0
+          0 0 0 0 0 0 0 0
+        </DataArray>
+      </CellData>
+    </Piece>
+  </ImageData>
+</VTKFile>
+```
+
+### RectilinearGrid
+
+This example demonstrates a vtkRectilinearGrid with independent X, Y, and Z coordinate arrays, and it includes scalar fields on both points and cells.
+
+```{image} images/RectilinearGrid_example.png
+:alt: RectilinearGrid Example
+:align: center
+```
+
+```xml
+<VTKFile type="RectilinearGrid" version="0.1" byte_order="LittleEndian">
+  <RectilinearGrid WholeExtent="0 3 0 5 0 3">
+    <Piece Extent="0 3 0 5 0 3">
+      <PointData Scalars="point_scalar">
+        <DataArray type="Float32" Name="point_scalar" format="ascii">
+          0 1 2 3 4 5 6 7 8 9 10 11
+          12 13 14 15 16 17 18 19 20 21 22 23
+          24 25 26 27 28 29 30 31 32 33 34 35
+          36 37 38 39 40 41 42 43 44 45 46 47
+
+          48 49 50 51 52 53 54 55 56 57 58 59
+          60 61 62 63 64 65 66 67 68 69 70 71
+          72 73 74 75 76 77 78 79 80 81 82 83
+          84 85 86 87 88 89 90 91 92 93 94 95
+        </DataArray>
+      </PointData>
+      <CellData Scalars="cell_scalar">
+        <DataArray type="Float32" Name="cell_scalar" format="ascii">
+          0 1 2 3 4
+          5 6 7 8 9
+          10 11 12 13 14
+          15 16 17 18 19
+          20 21 22 23 24
+
+          25 26 27 28 29
+          30 31 32 33 34
+          35 36 37 38 39
+          40 41 42 43 44
+        </DataArray>
+      </CellData>
+      <Coordinates>
+        <DataArray type="Float32" Name="X" NumberOfComponents="1" format="ascii">
+          0.0 1.0 2.0 3.0
+        </DataArray>
+        <DataArray type="Float32" Name="Y" NumberOfComponents="1" format="ascii">
+          0.0 1.5 3.0 4.5 6.0 7.5
+        </DataArray>
+        <DataArray type="Float32" Name="Z" NumberOfComponents="1" format="ascii">
+          0.0 1.0 2.0 3.0
+        </DataArray>
+      </Coordinates>
+    </Piece>
+  </RectilinearGrid>
+</VTKFile>
+```
+
+### StructuredGrid
+
+A vtkStructuredGrid example with explicit point coordinates. The grid is 6×6×2 in extent, with varying Z-coordinates. Point and cell scalar data are included.
+
+```{image} images/StructuredGrid_example.png
+:alt: StructuredGrid Example
+:align: center
+```
+
+```xml
+<VTKFile type="StructuredGrid" version="0.1" byte_order="LittleEndian">
+  <StructuredGrid WholeExtent="0 5 0 5 0 1">
+    <Piece Extent="0 5 0 5 0 1">
+      <PointData Scalars="temperature">
+        <DataArray type="Float32" Name="temperature" format="ascii">
+          1 2 3 4 5 6
+          7 8 9 10 11 12
+          13 14 15 16 17 18
+          19 20 21 22 23 24
+          25 26 27 28 29 30
+          31 32 33 34 35 36
+
+          37 38 39 40 41 42
+          43 44 45 46 47 48
+          49 50 51 52 53 54
+          55 56 57 58 59 60
+          61 62 63 64 65 66
+          67 68 69 70 71 72
+        </DataArray>
+      </PointData>
+      <CellData Scalars="cell_val">
+        <DataArray type="Float32" Name="cell_val" format="ascii">
+          100 101 102 103 104
+          105 106 107 108 109
+          110 111 112 113 114
+          115 116 117 118 119
+          120 121 122 123 124
+        </DataArray>
+      </CellData>
+      <Points>
+        <DataArray type="Float32" NumberOfComponents="3" format="ascii">
+          0 0 0  1 0 0  2 0 0  3 0 0  4 0 0  5 0 0
+          0 1 0  1 1 0  2 1 0  3 1 0  4 1 0  5 1 0
+          0 2 0  1 2 0  2 2 0  3 2 0  4 2 0  5 2 0
+          0 3 0  1 3 0  2 3 0  3 3 0  4 3 0  5 3 0
+          0 4 0  1 4 0  2 4 0  3 4 0  4 4 0  5 4 0
+          0 5 0  1 5 0  2 5 0  3 5 0  4 5 0  5 5 0
+
+          0 0 1.0  1 0 1.2  2 0 1.4  3 0 1.2  4 0 1.0  5 0 1.2
+          0 1 1.1  1 1 1.3  2 1 1.6  3 1 1.5  4 1 1.2  5 1 1.1
+          0 2 1.3  1 2 1.6  2 2 1.9  3 2 1.7  4 2 1.4  5 2 1.2
+          0 3 1.2  1 3 1.5  2 3 1.7  3 3 1.6  4 3 1.3  5 3 1.1
+          0 4 1.1  1 4 1.3  2 4 1.4  3 4 1.3  4 4 1.1  5 4 1.0
+          0 5 1.0  1 5 1.2  2 5 1.3  3 5 1.2  4 5 1.0  5 5 1.0
+        </DataArray>
+      </Points>
+    </Piece>
+  </StructuredGrid>
+</VTKFile>
+```
+
+### PolyData
+
+Demonstrated is a 2D polygonal mesh with 13 points and 6 polygons, including point-based scalars and vectors, and cell scalar values.
+
+```{image} images/PolyData_example.png
+:alt: PolyData Example
+:align: center
+```
+
+```xml
+<VTKFile type="PolyData" version="0.1" byte_order="LittleEndian">
+  <PolyData>
+    <Piece NumberOfPoints="13" NumberOfPolys="6">
+      <Points>
+        <DataArray type="Float32" NumberOfComponents="3" format="ascii">
+          0.0 0.0 0.0   0.5 0.0 0.0   1.0 0.0 0.0
+          0.0 0.3 0.0   0.4 0.5 0.0   0.75 0.35 0.0  1.0 0.4 0.0
+          0.0 0.7 0.0   0.55 0.8 0.0  1.0 0.75 0.0
+          0.0 1.0 0.0   0.5 1.0 0.0   1.0 1.0 0.0
+        </DataArray>
+      </Points>
+      <Polys>
+        <DataArray type="Int32" Name="connectivity" format="ascii">
+          0 1 4 3
+          1 2 6 5 4
+          3 4 8 7
+          4 5 6 9 8
+          7 8 11 10
+          8 9 12 11
+        </DataArray>
+        <DataArray type="Int32" Name="offsets" format="ascii">
+          4 9 13 18 22 26
+        </DataArray>
+      </Polys>
+      <PointData Scalars="PointValue" Vectors="PointVector">
+        <DataArray type="Float32" Name="PointValue" NumberOfComponents="1" format="ascii">
+          0.0 0.1 0.2
+          0.3 0.4 0.5 0.6
+          0.7 0.8 0.9
+          1.0 1.1 1.2
+        </DataArray>
+        <DataArray type="Float32" Name="PointVector" NumberOfComponents="3" format="ascii">
+          0.0 0.0 0.0   0.1 0.0 0.0   0.2 0.0 0.0
+          0.0 0.1 0.0   0.1 0.1 0.0   0.2 0.1 0.0  0.3 0.1 0.0
+          0.0 0.2 0.0   0.1 0.2 0.0   0.2 0.2 0.0
+          0.0 0.3 0.0   0.1 0.3 0.0   0.2 0.3 0.0
+        </DataArray>
+      </PointData>
+      <CellData Scalars="CellValues">
+        <DataArray type="Float32" Name="CellValues" NumberOfComponents="1" format="ascii">
+          0.95 0.88 0.90 0.85 0.99 0.92
+        </DataArray>
+      </CellData>
+    </Piece>
+  </PolyData>
+</VTKFile>
+```
+
+### UnstructuredGrid
+
+This example shows a 3D mesh with 20 points and 12 mixed-type cells (wedges and pyramids), featuring point scalars and cell-based scalars and normals.
+
+```{image} images/UnstructuredGrid_example.png
+:alt: UnstructuredGrid Example
+:align: center
+```
+
+```xml
+<VTKFile type="UnstructuredGrid" version="1.0" byte_order="LittleEndian">
+  <UnstructuredGrid>
+    <Piece NumberOfPoints="20" NumberOfCells="12">
+      <PointData Scalars="pointVals">
+        <DataArray type="Float32" Name="pointVals" format="ascii">
+          1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 14.0 15.0 16.0 17.0 18.0 19.0 20.0
+        </DataArray>
+      </PointData>
+      <CellData Scalars="cellVals" Normals="cellNormals">
+        <DataArray type="Int32" Name="cellVals" format="ascii">
+          0 1 2 3 4 5 6 7 8 9 10 11
+        </DataArray>
+        <DataArray type="Float32" Name="cellNormals" NumberOfComponents="3" format="ascii">
+          1.0 0.5 1.0
+          0.0 1.0 1.0
+          -1.0 0.5 1.0
+          -1.0 -0.5 1.0
+          0.0 -1.0 1.0
+          1.0 -0.5 1.0
+          1.0 0.5 2.0
+          0.0 1.0 2.0
+          -1.0 0.5 2.0
+          -1.0 -0.5 2.0
+          0.0 -1.0 2.0
+          1.0 -0.5 2.0
+        </DataArray>
+      </CellData>
+      <Points>
+        <DataArray type="Float32" NumberOfComponents="3" format="ascii">
+          2.0 0.0 0.0
+          1.0 2.0 0.0
+          -1.0 2.0 0.0
+          -2.0 0.0 0.0
+          -1.0 -2.0 0.0
+          1.0 -2.0 0.0
+          0.0 0.0 0.0
+          2.0 0.0 2.0
+          1.0 2.0 2.0
+          -1.0 2.0 2.0
+          -2.0 0.0 2.0
+          -1.0 -2.0 2.0
+          1.0 -2.0 2.0
+          0.0 0.0 2.0
+          2.0 0.0 4.0
+          1.0 2.0 4.0
+          -1.0 2.0 4.0
+          -2.0 0.0 4.0
+          -1.0 -2.0 4.0
+          1.0 -2.0 4.0
+        </DataArray>
+      </Points>
+      <Cells>
+        <DataArray type="Int32" Name="connectivity" format="ascii">
+          0 1 6 7 8 13
+          1 2 6 8 9 13
+          2 3 6 9 10 13
+          3 4 6 10 11 13
+          4 5 6 11 12 13
+          5 0 6 12 7 13
+          7 8 15 14 13
+          8 9 16 15 13
+          9 10 17 16 13
+          10 11 18 17 13
+          11 12 19 18 13
+          12 7 14 19 13
+        </DataArray>
+        <DataArray type="Int32" Name="offsets" format="ascii">
+          6 12 18 24 30 36 41 46 51 56 61 66
+        </DataArray>
+        <DataArray type="UInt8" Name="types" format="ascii">
+          13 13 13 13 13 13 14 14 14 14 14 14
+        </DataArray>
+      </Cells>
+    </Piece>
+  </UnstructuredGrid>
+</VTKFile>
+```
+
+Below is another unstructured grid example, which uses polyhedron cell types.
+
+```{image} images/UnstructuredGrid_Polyhedra_example.png
+:alt: UnstructuredGrid Example with Polyhedron Cell Types
+:align: center
+```
+
+Here we see a few additional ``DataArray`` types:
+
+- The ``faces`` array specifies the faces of all the cells. The description for each cell must first specify the total number of faces, then list each face, starting with the number of points and followed by the point IDs.
+  ```
+  cell0_nFaces
+  cell0_face0_npts p0 p1 ...
+  cell0_face1_npts p0 p1 ...
+  ...
+
+  cell1_nFaces
+  cell1_face0_npts p0 p1 ...
+  cell1_face1_npts p0 p1 ...
+  ...
+
+  cell2_nFaces
+  ...
+  ```
+
+- ``faceoffsets`` contains the offsets into the ``faces`` array for the end of each cell.
+
+- ``connectivity`` in this case lists all unique point IDs referenced in each cell.
+
+- ``offsets`` describes where each cell entry ends in the ``connectivity`` array.
+
+```xml
+<?xml version="1.0"?>
+<VTKFile type="UnstructuredGrid" version="0.1" byte_order="LittleEndian">
+  <UnstructuredGrid>
+    <Piece NumberOfPoints="32" NumberOfCells="9">
+      <PointData Scalars="pointVals">
+        <DataArray type="Float32" Name="pointVals" format="ascii">
+           1.0  2.0  3.0  4.0  5.0  6.0  7.0  8.0  9.0 10.0
+           11.0  12.0  13.0  14.0  15.0  16.0  17.0  18.0  19.0 20.0
+           21.0  22.0  23.0  24.0  25.0  26.0  27.0  28.0  29.0 30.0
+           31.0 32.0
+        </DataArray>
+      </PointData>
+      <CellData Scalars="cellVals">
+        <DataArray type="Float32" Name="cellVals" format="ascii">
+           0.37 -0.88 0.12 0.64 -0.27 0.91 -0.53 -0.05 0.78
+        </DataArray>
+      </CellData>
+      <Points>
+        <DataArray type="Float32" NumberOfComponents="3" format="ascii">
+          -1 -1 0  -1 0 0  -1 1 0
+          0 -1 0  0 0 0  0 1 0
+          1 -1 0  1 0 0  1 1 0
+          -1 -1 1  -1 0 1  -1 1 1
+          0 -1 1  0 1 1  1 -1 1
+          1 0 1  1 1 1
+          0 0 0.5  -0.5 0 1  0 -0.5 1
+          0 0.5 1  0.5 0 1  0 0 1.5
+          -1 -1 2  -1 0 2  -1 1 2
+          0 -1 2  0 0 2  0 1 2
+          1 -1 2  1 0 2  1 1 2
+        </DataArray>
+      </Points>
+      <Cells>
+        <DataArray type="Int32" Name="faces" format="ascii">
+          7
+          4 0 1 4 3
+          4 0 3 12 9
+          5 3 4 17 19 12
+          5 4 1 10 18 17
+          4 1 0 9 10
+          3 17 18 19
+          5 9 12 19 18 10
+          7
+          4 3 4 7 6
+          4 6 7 15 14
+          5 7 4 17 21 15
+          5 4 3 12 19 17
+          4 3 6 14 12
+          3 17 19 21
+          5 14 15 21 19 12
+          7
+          4 8 7 4 5
+          4 8 5 13 16
+          5 5 4 17 20 13
+          5 4 7 15 21 17
+          4 7 8 16 15
+          3 17 21 20
+          5 16 13 20 21 15
+          7
+          4 2 5 4 1
+          4 2 1 10 11
+          5 1 4 17 18 10
+          5 4 5 13 20 17
+          4 5 2 11 13
+          3 17 20 18
+          5 11 10 18 20 13
+          8
+          3 17 19 18
+          3 17 21 19
+          3 17 20 21
+          3 17 18 20
+          3 22 18 19
+          3 22 19 21
+          3 22 21 20
+          3 22 20 18
+          7
+          4 23 26 27 24
+          4 26 23 9 12
+          5 27 26 12 19 22
+          5 24 27 22 18 10
+          4 23 24 10 9
+          3 22 19 18
+          5 9 10 18 19 12
+          7
+          4 29 30 27 26
+          4 30 29 14 15
+          5 27 30 15 21 22
+          5 26 27 22 19 12
+          4 29 26 12 14
+          3 22 21 19
+          5 14 12 19 21 15
+          7
+          4 31 28 27 30
+          4 28 31 16 13
+          5 27 28 13 20 22
+          5 30 27 22 21 15
+          4 31 30 15 16
+          3 22 20 21
+          5 16 15 21 20 13
+          7
+          4 25 24 27 28
+          4 24 25 11 10
+          5 27 24 10 18 22
+          5 28 27 22 20 13
+          4 25 28 13 11
+          3 22 18 20
+          5 11 13 20 18 10
+        </DataArray>
+        <DataArray type="Int64" Name="faceoffsets" format="ascii">
+          38 76 114 152 185 223 261 299 337
+        </DataArray>
+        <DataArray type="Int64" Name="connectivity" format="ascii">
+          0 1 3 4 9 10 12 17 18 19
+          3 4 5 6 7 12 14 15 17 19 21
+          4 5 7 8 13 15 16 17 20 21
+          1 2 4 5 10 11 13 17 18 20
+          17 18 19 20 21 22
+          9 10 11 12 18 19 22 23 24 26 27
+          11 12 14 15 19 21 22 26 27 29 30
+          13 15 16 20 21 22 27 28 30 31
+          10 11 13 18 20 22 24 25 27 28
+        </DataArray>
+        <DataArray type="Int32" Name="offsets" format="ascii">
+          10 21 31 41 47 58 69 79 89
+        </DataArray>
+        <DataArray type="UInt8" Name="types" format="ascii">
+          42 42 42 42 42 42 42 42 42
+        </DataArray>
+      </Cells>
+    </Piece>
+  </UnstructuredGrid>
+</VTKFile>
+```
+
+### PPolyData
+
 The following is a complete example specifying a vtkPolyData representing a cube with some scalar data on its points and faces. <sup>[1](https://kitware.com/products/books/VTKUsersGuide.pdf)</sup>
 
+
+```{image} images/PPolyData_example.png
+:alt: PPolyData Cube Example
+:align: center
+```
+
+``polyEx.pvtp``:
 ```xml
 <?xml version="1.0"?>
 <VTKFile type="PPolyData" version="0.1" byte_order="LittleEndian">
@@ -410,8 +985,10 @@ The following is a complete example specifying a vtkPolyData representing a cube
     <Piece Source="polyEx0.vtp"/>
   </PPolyData>
 </VTKFile>
+```
 
-
+``polyEx0.vtp``:
+```xml
 <?xml version="1.0"?>
 <VTKFile type="PolyData" version="0.1" byte_order="LittleEndian">
   <PolyData>
