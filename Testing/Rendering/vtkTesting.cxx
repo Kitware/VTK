@@ -1114,6 +1114,9 @@ int vtkTesting::Test(int argc, char* argv[], vtkRenderWindow* rw, double thresh)
         {
           return PASSED;
         }
+        // Render should be called before serialization,
+        // it may not have when skipping the regular regression test
+        rw->Render();
         return testing->SerDesTest(thresh);
       }
       doSerDesTest = !strcmp(serdesTestingStr, "ON");
