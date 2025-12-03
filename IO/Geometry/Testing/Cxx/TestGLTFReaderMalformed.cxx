@@ -8,7 +8,7 @@
 //------------------------------------------------------------------------------
 int TestGLTFReaderMalformed(int argc, char* argv[])
 {
-  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/malformed.glb");
+  char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/malformed.gltf");
 
   // Just not segfaulting is considered a success
   vtkNew<vtkGLTFReader> reader;

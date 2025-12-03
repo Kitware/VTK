@@ -76,7 +76,7 @@ vtk_module_test_data(
   Data/flow.tec
   Data/flow.tec.gz
   Data/malformed.obj
-  Data/malformed.glb
+  Data/malformed.gltf
   Data/checkerboard_colorful.obj # Copyright Michael Migliore, Mathieu Westphal under BSD-3 license.
   Data/obj_double_sphere.obj
   Data/obj_multiline.obj
