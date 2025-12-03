@@ -2063,6 +2063,8 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
   F inPoint0[4] = { 0.0, 0.0, 0.0, 0.0 };
   F inPoint1[4] = { 0.0, 0.0, 0.0, 0.0 };
 
+  int floatType = vtkTypeTraits<F>::VTKTypeID();
+
   // create an iterator to march through the data
   vtkImagePointDataIterator iter(outData, outExt, stencil, self, threadId);
   char* outPtr0 = static_cast<char*>(vtkImagePointDataIterator::GetVoidPointer(outData));
@@ -2196,9 +2198,8 @@ void vtkImageResliceExecute(vtkImageReslice* self, vtkDataArray* scalars,
 
             if (convertScalars)
             {
-              (self->*convertScalars)(tmpPtr - inComponents * (idX - startIdX), outPtr,
-                vtkTypeTraits<F>::VTKTypeID(), inComponents, numpixels, startIdX, idY, idZ,
-                threadId);
+              (self->*convertScalars)(tmpPtr - inComponents * (idX - startIdX), outPtr, floatType,
+                inComponents, numpixels, startIdX, idY, idZ, threadId);
 
               outPtr = static_cast<char*>(outPtr) + numpixels * outComponents * scalarSize;
             }
@@ -2781,6 +2782,8 @@ void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
     doConversion = false;
   }
 
+  int floatType = vtkTypeTraits<F>::VTKTypeID();
+
   // useful information from the interpolator
   int inComponents = interpolator->GetNumberOfComponents();
 
@@ -2912,13 +2915,15 @@ void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
           upperSkip = (upperSkip >= 0 ? upperSkip : 0);
           int idZ1 = idZ + lowerSkip;
           int nsamples1 = nsamples - lowerSkip - upperSkip;
+          bool hasManySamples = (nsamples1 > 1);
+          bool hasCompositeAndManySamples = (composite && hasManySamples);
 
           for (int isample = 0; isample < nsamples1; ++isample)
           {
-            F* tmpPtr = ((nsamples1 > 1) ? floatSumPtr : floatPtr);
+            F* tmpPtr = (hasManySamples ? floatSumPtr : floatPtr);
             interpolator->InterpolateRow(weights, idX, idY, idZ1, tmpPtr, span);
 
-            if (composite && (nsamples1 > 1))
+            if (hasCompositeAndManySamples)
             {
               composite(floatPtr, floatSumPtr, inComponents, span, isample, nsamples1);
             }
@@ -2933,8 +2938,8 @@ void vtkReslicePermuteExecute(vtkImageReslice* self, vtkDataArray* scalars,
 
           if (convertScalars)
           {
-            (self->*convertScalars)(floatPtr, outPtr, vtkTypeTraits<F>::VTKTypeID(), inComponents,
-              span, idXmin, idY, idZ, threadId);
+            (self->*convertScalars)(
+              floatPtr, outPtr, floatType, inComponents, span, idXmin, idY, idZ, threadId);
 
             outPtr =
               (static_cast<char*>(outPtr) + static_cast<size_t>(span) * outComponents * scalarSize);
