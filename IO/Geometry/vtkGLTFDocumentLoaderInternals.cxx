@@ -68,6 +68,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadBuffers(bool firstBufferIsGLB)
     nlohmann::json bufferRoot =
       nlohmann::json::parse(this->Self->GetInternalModel()->BufferMetaData);
     // Load buffers from disk
+    int bufferIndex = 0;
     for (const auto& glTFBuffer : bufferRoot)
     {
       std::vector<char> buffer;
@@ -79,20 +80,24 @@ bool vtkGLTFDocumentLoaderInternals::LoadBuffers(bool firstBufferIsGLB)
             "Invalid first buffer value for glb file. No buffer was loaded from the file.");
           return false;
         }
-        if (firstBufferIsGLB && this->Self->GetInternalModel()->Buffers.size() == 1 &&
-          !buffer.empty())
+        if (firstBufferIsGLB && bufferIndex == 0 && !buffer.empty())
         {
           vtkErrorWithObjectMacro(
             this->Self, "Invalid first buffer value for glb file. buffer.uri should be undefined");
           return false;
         }
-        this->Self->GetInternalModel()->Buffers.emplace_back(std::move(buffer));
+
+        if (!firstBufferIsGLB || bufferIndex > 0)
+        {
+          this->Self->GetInternalModel()->Buffers.emplace_back(std::move(buffer));
+        }
       }
       else
       {
         vtkErrorWithObjectMacro(this->Self, "Could not load Buffer from JSON.");
         return false;
       }
+      bufferIndex++;
     }
   }
   catch (nlohmann::json::parse_error& e)
