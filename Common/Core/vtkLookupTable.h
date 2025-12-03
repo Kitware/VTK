@@ -299,24 +299,28 @@ public:
    * Build() method or used SetNumberOfTableValues() prior to using this
    * method.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetTableValue(vtkIdType indx, const double rgba[4]);
 
   /**
    * Directly load color into lookup table. Use [0,1] double values for color
    * component specification. Alpha defaults to 1 if unspecified.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   virtual void SetTableValue(vtkIdType indx, double r, double g, double b, double a = 1.0);
 
   /**
    * Return an RGBA color value for the given index into the lookup table. Color
    * components are expressed as [0,1] double values.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   double* GetTableValue(vtkIdType indx) VTK_SIZEHINT(4);
 
   /**
    * Return an RGBA color value for the given index into the lookup table. Color
    * components are expressed as [0,1] double values.
    */
+  VTK_MARSHALEXCLUDE(VTK_MARSHAL_EXCLUDE_REASON_IS_REDUNDANT)
   void GetTableValue(vtkIdType indx, double rgba[4]);
 
   /**
