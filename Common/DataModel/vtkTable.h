@@ -63,8 +63,11 @@ public:
    * is printed out (Default).  If rowLimit is 0 then only the
    * header row will be displayed.  Otherwise, if rowLimit > 0
    * then Dump will print the first rowLimit rows of data.
+   *
+   * If \a indent is non-zero, the table will be printed with
+   * the given number of leading spaces.
    */
-  void Dump(unsigned int colWidth = 16, int rowLimit = -1);
+  void Dump(unsigned int colWidth = 16, int rowLimit = -1, unsigned int indent = 0);
 
   /**
    * Return what type of dataset this is.

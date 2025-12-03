@@ -66,7 +66,7 @@ void vtkTable::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkTable::Dump(unsigned int colWidth, int rowLimit)
+void vtkTable::Dump(unsigned int colWidth, int rowLimit, unsigned int indent)
 
 {
   if (!this->GetNumberOfColumns())
@@ -75,7 +75,7 @@ void vtkTable::Dump(unsigned int colWidth, int rowLimit)
     return;
   }
 
-  std::string lineStr;
+  std::string lineStr(indent, ' ');
   for (int c = 0; c < this->GetNumberOfColumns(); ++c)
   {
     lineStr += "+-";
@@ -89,6 +89,7 @@ void vtkTable::Dump(unsigned int colWidth, int rowLimit)
 
   std::cout << lineStr;
 
+  std::cout << std::string(indent, ' ');
   for (int c = 0; c < this->GetNumberOfColumns(); ++c)
   {
     std::cout << "| ";
@@ -115,6 +116,7 @@ void vtkTable::Dump(unsigned int colWidth, int rowLimit)
   {
     for (vtkIdType r = 0; r < this->GetNumberOfRows(); ++r)
     {
+      std::cout << std::string(indent, ' ');
       for (int c = 0; c < this->GetNumberOfColumns(); ++c)
       {
         std::cout << "| ";
