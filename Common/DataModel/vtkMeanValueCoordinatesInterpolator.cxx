@@ -550,9 +550,9 @@ void vtkMeanValueCoordinatesInterpolator::ComputeInterpolationWeights(
   if (canFastPath)
   {
 #ifdef VTK_USE_64BIT_IDS
-    vtkIdType* t = reinterpret_cast<vtkIdType*>(cells->GetConnectivityArray64()->GetPointer(0));
+    vtkIdType* t = reinterpret_cast<vtkIdType*>(cells->GetConnectivityAOSArray64()->GetPointer(0));
 #else  // 32 bit ids
-    vtkIdType* t = reinterpret_cast<vtkIdType*>(cells->GetConnectivityArray32()->GetPointer(0));
+    vtkIdType* t = reinterpret_cast<vtkIdType*>(cells->GetConnectivityAOSArray32()->GetPointer(0));
 #endif // VTK_USE_64BIT_IDS
 
     vtkMVCTriIterator iter(cells->GetNumberOfConnectivityIds(), 3, t);

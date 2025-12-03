@@ -463,9 +463,9 @@ void vtkPolyLine::Clip(double value, vtkDataArray* cellScalars, vtkIncrementalPo
     // copy the previous lines to the output
     const auto numberOfPointsOfPolyLine = numberOfCurrentLines + 1;
 #ifdef VTK_USE_64BIT_IDS
-    const auto linesConnectivity = lines->GetConnectivityArray64()->GetPointer(0);
+    const auto linesConnectivity = lines->GetConnectivityAOSArray64()->GetPointer(0);
 #else  // VTK_USE_64BIT_IDS
-    const auto linesConnectivity = lines->GetConnectivityArray32()->GetPointer(0);
+    const auto linesConnectivity = lines->GetConnectivityAOSArray32()->GetPointer(0);
 #endif // VTK_USE_64BIT_IDS
     const auto newCellId = polyLines->InsertNextCell(numberOfPointsOfPolyLine);
     polyLines->InsertCellPoint(linesConnectivity[0]);

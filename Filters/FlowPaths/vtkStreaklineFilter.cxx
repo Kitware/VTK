@@ -170,7 +170,7 @@ int vtkStreaklineFilter::Finalize(
   {
     verts->ConvertTo32BitStorage();
     lines->ConvertTo32BitStorage();
-    FillCellArrays<vtkCellArray::ArrayType32>(streaks, verts, lines);
+    FillCellArrays<vtkCellArray::AOSArray32>(streaks, verts, lines);
   }
 #else
   if (false)
@@ -179,7 +179,7 @@ int vtkStreaklineFilter::Finalize(
 #endif
   else
   {
-    FillCellArrays<vtkCellArray::ArrayType64>(streaks, verts, lines);
+    FillCellArrays<vtkCellArray::AOSArray64>(streaks, verts, lines);
   }
 
   output->SetVerts(verts);

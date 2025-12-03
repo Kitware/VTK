@@ -1137,7 +1137,7 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
     // Create a dispatcher that also handles vtkBitArray:
     using AllArrays = vtkTypeList::Append<vtkArrayDispatch::AllArrays, vtkBitArray>::Result;
     using PointCellArrays = vtkTypeList::Append<vtkArrayDispatch::AllPointArrays,
-      vtkArrayDispatch::StorageOffsetsArrays, vtkArrayDispatch::CellTypesArrays>::Result;
+      vtkArrayDispatch::OffsetsArrays, vtkArrayDispatch::CellTypesArrays>::Result;
     using XMLArrays =
       vtkTypeList::Unique<vtkTypeList::Append<AllArrays, PointCellArrays>::Result>::Result;
     using Dispatcher = vtkArrayDispatch::DispatchByArray<XMLArrays>;

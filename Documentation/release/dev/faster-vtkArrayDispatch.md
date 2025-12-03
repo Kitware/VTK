@@ -134,7 +134,5 @@ Finally, the following `vtkArrayDispatch` related updates have been made:
       processing `vtkDataSet::GetPoints()`.
    4. `vtkArrayDispatch::CellTypesArrays` has been added to enable dispatching of `vtkUnstructuredGrid`s cell types
       arrays.
-   5. `vtkArrayDispatch::InputOffsetsArrays|InputConnectivityArrays` have been added to enable dispatching of
-      `vtkCellArray`'s input offsets and connectivity arrays.
-   6. `vtkArrayDispatch::StorageConnectivityArrays|StorageOffsetsArrays` have been added to enable dispatching of
-      `vtkCellArray`'s storage offsets and connectivity arrays.
+   5. `vtkArrayDispatch::OffsetsArrays|ConnectivityArrays` have been added to enable dispatching of
+      `vtkCellArray`'s offsets and connectivity arrays.

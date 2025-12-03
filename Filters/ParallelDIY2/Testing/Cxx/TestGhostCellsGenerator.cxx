@@ -1970,11 +1970,11 @@ vtkSmartPointer<vtkUnstructuredGrid> Convert3DImageToUnstructuredGrid(
 
   vtkIdType numberOfCells = input->GetNumberOfCells();
 
-  using ArrayType32 = vtkCellArray::ArrayType32;
+  using ArrayType32 = vtkCellArray::AOSArray32;
   vtkNew<vtkCellArray> cells;
   cells->Use32BitStorage();
 
-  ArrayType32* offsets = cells->GetOffsetsArray32();
+  ArrayType32* offsets = cells->GetOffsetsAOSArray32();
   offsets->SetNumberOfValues(numberOfCells + 1);
   for (vtkIdType id = 0; id < offsets->GetNumberOfValues(); ++id)
   {
@@ -1992,7 +1992,7 @@ vtkSmartPointer<vtkUnstructuredGrid> Convert3DImageToUnstructuredGrid(
   vtkNew<vtkUnsignedCharArray> types;
   types->SetNumberOfValues(numberOfCells);
 
-  ArrayType32* connectivity = cells->GetConnectivityArray32();
+  ArrayType32* connectivity = cells->GetConnectivityAOSArray32();
   connectivity->SetNumberOfValues(8 * numberOfCells);
   int ijkCell[3];
   int ijkPoint[3];
@@ -2104,13 +2104,13 @@ vtkSmartPointer<vtkPolyData> Convert2DImageToPolyData(
 
   vtkIdType numberOfCells = input->GetNumberOfCells();
 
-  using ArrayType32 = vtkCellArray::ArrayType32;
+  using ArrayType32 = vtkCellArray::AOSArray32;
   vtkNew<vtkCellArray> polys, strips;
   polys->Use32BitStorage();
   strips->Use32BitStorage();
 
   {
-    ArrayType32* offsets = polys->GetOffsetsArray32();
+    ArrayType32* offsets = polys->GetOffsetsAOSArray32();
     offsets->SetNumberOfValues(
       produceStrips ? numberOfCells / 2 + numberOfCells % 2 + 1 : numberOfCells + 1);
     for (vtkIdType id = 0; id < offsets->GetNumberOfValues(); ++id)
@@ -2119,7 +2119,7 @@ vtkSmartPointer<vtkPolyData> Convert2DImageToPolyData(
     }
   }
   {
-    ArrayType32* offsets = strips->GetOffsetsArray32();
+    ArrayType32* offsets = strips->GetOffsetsAOSArray32();
     offsets->SetNumberOfValues(produceStrips ? numberOfCells / 2 + 1 : 0);
     for (vtkIdType id = 0; id < offsets->GetNumberOfValues(); ++id)
     {
@@ -2130,9 +2130,9 @@ vtkSmartPointer<vtkPolyData> Convert2DImageToPolyData(
   const int* extent = input->GetExtent();
   constexpr vtkIdType pixel2hexMap[4] = { 0, 1, 3, 2 };
 
-  ArrayType32* polyConnectivity = polys->GetConnectivityArray32();
+  ArrayType32* polyConnectivity = polys->GetConnectivityAOSArray32();
   polyConnectivity->SetNumberOfValues((polys->GetOffsetsArray()->GetNumberOfValues() - 1) * 4);
-  ArrayType32* stripConnectivity = strips->GetConnectivityArray32();
+  ArrayType32* stripConnectivity = strips->GetConnectivityAOSArray32();
   stripConnectivity->SetNumberOfValues(
     produceStrips ? (strips->GetOffsetsArray()->GetNumberOfValues() - 1) * 4 : 0);
 
@@ -2197,18 +2197,18 @@ vtkSmartPointer<vtkPolyData> Convert1DImageToPolyData(vtkImageData* input)
 
   vtkIdType numberOfCells = input->GetNumberOfCells();
 
-  using ArrayType32 = vtkCellArray::ArrayType32;
+  using ArrayType32 = vtkCellArray::AOSArray32;
   vtkNew<vtkCellArray> lines;
   lines->Use32BitStorage();
 
-  ArrayType32* offsets = lines->GetOffsetsArray32();
+  ArrayType32* offsets = lines->GetOffsetsAOSArray32();
   offsets->SetNumberOfValues(numberOfCells + 1);
   for (vtkIdType id = 0; id < offsets->GetNumberOfValues(); ++id)
   {
     offsets->SetValue(id, 2 * id);
   }
 
-  ArrayType32* connectivity = lines->GetConnectivityArray32();
+  ArrayType32* connectivity = lines->GetConnectivityAOSArray32();
   connectivity->SetNumberOfValues(numberOfCells * 2);
 
   for (vtkIdType cellId = 0; cellId < numberOfCells; ++cellId)

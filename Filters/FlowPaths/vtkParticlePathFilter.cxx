@@ -21,7 +21,7 @@ constexpr int TAG = 45902;
 void FillCellArrays(vtkCellArray* verts, vtkCellArray* lines,
   const std::map<vtkIdType, std::vector<vtkIdType>>& paths)
 {
-  using ArrayType64 = vtkCellArray::ArrayType64;
+  using ArrayType64 = vtkCellArray::AOSArray64;
   vtkNew<ArrayType64> vertsConnectivity, vertsOffsets, linesConnectivity, linesOffsets;
   vertsOffsets->InsertNextValue(0);
   linesOffsets->InsertNextValue(0);

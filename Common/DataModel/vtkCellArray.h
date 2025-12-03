@@ -113,7 +113,7 @@
  * There is no method to explicitly use generic storage mode.
  * vtkCellArray will automatically switch over to using generic
  * storage when any overload of vtkCellArray::SetData is invoked with array types that
- * are NOT in vtkArrayDispatch::InputConnectivityArrays.
+ * are NOT in vtkArrayDispatch::ConnectivityArrays.
  *
  * @sa vtkAbstractCellArray vtkStructuredCellArray vtkCellTypes vtkCellLinks
  */
@@ -125,8 +125,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkWrappingHints.h"         // For VTK_MARSHALMANUAL
 
-#include "vtkAffineTypeInt32Array.h" // Needed for inline methods
-#include "vtkAffineTypeInt64Array.h" // Needed for inline methods
+#include "vtkAOSDataArrayTemplate.h" // Needed for inline methods
+#include "vtkAffineArray.h"          // Needed for inline methods
 #include "vtkCell.h"                 // Needed for inline methods
 #include "vtkDataArrayRange.h"       // Needed for inline methods
 #include "vtkDeprecation.h"          // For VTK_DEPRECATED_IN_9_6_0
@@ -148,10 +148,12 @@ class vtkIdTypeArray;
 class VTKCOMMONDATAMODEL_EXPORT VTK_MARSHALMANUAL vtkCellArray : public vtkAbstractCellArray
 {
 public:
-  using ArrayType32 = vtkTypeInt32Array;
-  using ArrayType64 = vtkTypeInt64Array;
-  using AffineArrayType32 = vtkAffineTypeInt32Array;
-  using AffineArrayType64 = vtkAffineTypeInt64Array;
+  using ArrayType32 VTK_DEPRECATED_IN_9_6_0("Use AOSArray32 instead.") = vtkTypeInt32Array;
+  using ArrayType64 VTK_DEPRECATED_IN_9_6_0("Use AOSArray64 instead.") = vtkTypeInt64Array;
+  using AOSArray32 = vtkAOSDataArrayTemplate<vtkTypeInt32>;
+  using AOSArray64 = vtkAOSDataArrayTemplate<vtkTypeInt64>;
+  using AffineArray32 = vtkAffineArray<vtkTypeInt32>;
+  using AffineArray64 = vtkAffineArray<vtkTypeInt64>;
 
   ///@{
   /**
@@ -174,8 +176,8 @@ public:
    * @sa vtkCellArray::Dispatch() for a simpler mechanism.
    */
   using StorageArrayList VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayDispatch::StorageOffsetsArrays/StorageConnectivityArrays instead.") =
-    vtkTypeList::Create<ArrayType32, ArrayType64>;
+    "Use vtkArrayDispatch::OffsetsArrays/ConnectivityArrays instead.") =
+    vtkTypeList::Create<vtkTypeInt32Array, vtkTypeInt64Array>;
   ///@}
 
   ///@{
@@ -188,9 +190,8 @@ public:
    * check input arrays before assigning them to a cell array.
    */
   using InputArrayList VTK_DEPRECATED_IN_9_6_0(
-    "Use vtkArrayDispatch::InputOffsetsArrays/InputConnectivityArrays instead.") =
-    vtkTypeList::Unique<vtkTypeList::Create<vtkAOSDataArrayTemplate<int>,
-      vtkAOSDataArrayTemplate<long>, vtkAOSDataArrayTemplate<long long>>>::Result;
+    "No longer relevant.") = vtkTypeList::Unique<vtkTypeList::Create<vtkAOSDataArrayTemplate<int>,
+    vtkAOSDataArrayTemplate<long>, vtkAOSDataArrayTemplate<long long>>>::Result;
   ///@}
 
   /**
@@ -333,41 +334,34 @@ public:
    * Set the internal data arrays to the supplied offsets and connectivity
    * arrays.
    *
-   * Note that the input arrays may be copied and not used directly. To avoid
-   * copying, use vtkIdTypeArray, vtkCellArray::ArrayType32, or
-   * vtkCellArray::ArrayType64 for connectivity, and vtkIdTypeArray,
-   * vtkCellArray::ArrayType32, vtkCellArray::ArrayType64,
-   * vtkCellArray::AffineArrayType32, or vtkCellArray::AffineArrayType64
-   * for offsets.
+   * For connectivity use vtkCellArray::AOSArray32, or vtkCellArray::AOSArray64, which are part of
+   * vtkArrayDispatch::ConnectivityArrays.
+   *
+   * For offsets use vtkCellArray::AOSArray32, vtkCellArray::AOSArray64,
+   * vtkCellArray::AffineArray32 or vtkCellArray::AffineArray64, which are part of
+   * vtkArrayDispatch::OffsetsArrays.
+   *
+   * If the arrays are nullptr, or they don't have 1 component, an error is logged.
    */
-  void SetData(vtkIdTypeArray* offsets, vtkIdTypeArray* connectivity);
-  void SetData(vtkAOSDataArrayTemplate<int>* offsets, vtkAOSDataArrayTemplate<int>* connectivity);
-  void SetData(vtkAOSDataArrayTemplate<long>* offsets, vtkAOSDataArrayTemplate<long>* connectivity);
-  void SetData(
-    vtkAOSDataArrayTemplate<long long>* offsets, vtkAOSDataArrayTemplate<long long>* connectivity);
-  void SetData(vtkTypeInt32Array* offsets, vtkTypeInt32Array* connectivity);
-  void SetData(vtkTypeInt64Array* offsets, vtkTypeInt64Array* connectivity);
-  void SetData(vtkAffineArray<vtkIdType>* offsets, vtkIdTypeArray* connectivity);
-  void SetData(vtkAffineArray<int>* offsets, vtkAOSDataArrayTemplate<int>* connectivity);
-  void SetData(vtkAffineArray<long>* offsets, vtkAOSDataArrayTemplate<long>* connectivity);
-  void SetData(
-    vtkAffineArray<long long>* offsets, vtkAOSDataArrayTemplate<long long>* connectivity);
-  void SetData(vtkAffineTypeInt32Array* offsets, vtkTypeInt32Array* connectivity);
-  void SetData(vtkAffineTypeInt64Array* offsets, vtkTypeInt64Array* connectivity);
+  void SetData(AOSArray32*, AOSArray32* connectivity);
+  void SetData(AOSArray64*, AOSArray64* connectivity);
+  void SetData(AffineArray32*, AOSArray32* connectivity);
+  void SetData(AffineArray64*, AOSArray64* connectivity);
   ///@}
 
   /**
-   * Sets the internal arrays to the supplied offsets and connectivity arrays.
+   * Set the internal data arrays to the supplied offsets and connectivity
+   * arrays.
    *
-   * This is a convenience method, and may fail if the following conditions
-   * are not met:
+   * When the passed arrays are one of the supported types or a subclass thereof,
+   * the storage type will be one of Int64, Int32, FixedSizeInt64 or FixedSizeInt32, which
+   * leads to better performance for most operations.
    *
-   * - Both arrays must be of the same type.
-   * - The offsets array type must be one of the types in InputOffsetsArrays.
-   * - The connectivity array type must be one of the types in InputConnectivityArrays.
+   * Otherwise, the storage type will be Generic, which leads to slower performance for most
+   * operations.
    *
-   * If invalid arrays are passed in, an error is logged and the function
-   * will return false.
+   * If the arrays are nullptr, or they don't have 1 component, an error is logged
+   * and the function will return false, otherwise true.
    */
   bool SetData(vtkDataArray* offsets, vtkDataArray* connectivity);
 
@@ -378,7 +372,7 @@ public:
    * This is a convenience method, and may fail if the following conditions
    * are not met:
    *
-   * - The `connectivity` array must be one of the types in InputConnectivityArrays.
+   * - The `connectivity` array must be one of the types in ConnectivityArrays.
    * - The `connectivity` array size must be a multiple of `cellSize`.
    *
    * If invalid arrays are passed in, an error is logged and the function
@@ -556,15 +550,25 @@ public:
    * @{
    */
   vtkDataArray* GetOffsetsArray() const { return this->Offsets; }
-  ArrayType32* GetOffsetsArray32() const { return ArrayType32::FastDownCast(this->Offsets); }
-  ArrayType64* GetOffsetsArray64() const { return ArrayType64::FastDownCast(this->Offsets); }
-  AffineArrayType32* GetOffsetsAffineArray32()
+  VTK_DEPRECATED_IN_9_6_0("Use GetOffsetsAOSArray32() instead.")
+  vtkTypeInt32Array* GetOffsetsArray32() const
   {
-    return AffineArrayType32::FastDownCast(this->Offsets);
+    return vtkTypeInt32Array::FastDownCast(this->Offsets);
   }
-  AffineArrayType64* GetOffsetsAffineArray64()
+  AOSArray32* GetOffsetsAOSArray32() const { return AOSArray32::FastDownCast(this->Offsets); }
+  VTK_DEPRECATED_IN_9_6_0("Use GetOffsetsAOSArray64() instead.")
+  vtkTypeInt64Array* GetOffsetsArray64() const
   {
-    return AffineArrayType64::FastDownCast(this->Offsets);
+    return vtkTypeInt64Array::FastDownCast(this->Offsets);
+  }
+  AOSArray64* GetOffsetsAOSArray64() const { return AOSArray64::FastDownCast(this->Offsets); }
+  AffineArray32* GetOffsetsAffineArray32() const
+  {
+    return AffineArray32::FastDownCast(this->Offsets);
+  }
+  AffineArray64* GetOffsetsAffineArray64() const
+  {
+    return AffineArray64::FastDownCast(this->Offsets);
   }
   /**@}*/
 
@@ -575,13 +579,23 @@ public:
    * @{
    */
   vtkDataArray* GetConnectivityArray() const { return this->Connectivity; }
-  ArrayType32* GetConnectivityArray32() const
+  VTK_DEPRECATED_IN_9_6_0("Use GetConnectivityAOSArray32() instead.")
+  vtkTypeInt32Array* GetConnectivityArray32() const
   {
-    return ArrayType32::FastDownCast(this->Connectivity);
+    return vtkTypeInt32Array::FastDownCast(this->Connectivity);
   }
-  ArrayType64* GetConnectivityArray64() const
+  AOSArray32* GetConnectivityAOSArray32() const
   {
-    return ArrayType64::FastDownCast(this->Connectivity);
+    return AOSArray32::FastDownCast(this->Connectivity);
+  }
+  VTK_DEPRECATED_IN_9_6_0("Use GetConnectivityAOSArray64() instead.")
+  vtkTypeInt64Array* GetConnectivityArray64() const
+  {
+    return vtkTypeInt64Array::FastDownCast(this->Connectivity);
+  }
+  AOSArray64* GetConnectivityAOSArray64() const
+  {
+    return AOSArray64::FastDownCast(this->Connectivity);
   }
   /**@}*/
 
@@ -976,20 +990,20 @@ public:
     switch (this->StorageType)
     {
       case StorageTypes::Int32:
-        functor(static_cast<ArrayType32*>(this->Offsets.Get()),
-          static_cast<ArrayType32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        functor(static_cast<AOSArray32*>(this->Offsets.Get()),
+          static_cast<AOSArray32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
         break;
       case StorageTypes::Int64:
-        functor(static_cast<ArrayType64*>(this->Offsets.Get()),
-          static_cast<ArrayType64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        functor(static_cast<AOSArray64*>(this->Offsets.Get()),
+          static_cast<AOSArray64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
         break;
       case StorageTypes::FixedSizeInt32:
-        functor(static_cast<AffineArrayType32*>(this->Offsets.Get()),
-          static_cast<ArrayType32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        functor(static_cast<AffineArray32*>(this->Offsets.Get()),
+          static_cast<AOSArray32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
         break;
       case StorageTypes::FixedSizeInt64:
-        functor(static_cast<AffineArrayType64*>(this->Offsets.Get()),
-          static_cast<ArrayType64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        functor(static_cast<AffineArray64*>(this->Offsets.Get()),
+          static_cast<AOSArray64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
         break;
       case StorageTypes::Generic:
       default:
@@ -1003,20 +1017,20 @@ public:
     switch (this->StorageType)
     {
       case StorageTypes::Int32:
-        functor(static_cast<ArrayType32*>(this->Offsets.Get()),
-          static_cast<ArrayType32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        functor(static_cast<AOSArray32*>(this->Offsets.Get()),
+          static_cast<AOSArray32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
         break;
       case StorageTypes::Int64:
-        functor(static_cast<ArrayType64*>(this->Offsets.Get()),
-          static_cast<ArrayType64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        functor(static_cast<AOSArray64*>(this->Offsets.Get()),
+          static_cast<AOSArray64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
         break;
       case StorageTypes::FixedSizeInt32:
-        functor(static_cast<AffineArrayType32*>(this->Offsets.Get()),
-          static_cast<ArrayType32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        functor(static_cast<AffineArray32*>(this->Offsets.Get()),
+          static_cast<AOSArray32*>(this->Connectivity.Get()), std::forward<Args>(args)...);
         break;
       case StorageTypes::FixedSizeInt64:
-        functor(static_cast<AffineArrayType64*>(this->Offsets.Get()),
-          static_cast<ArrayType64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
+        functor(static_cast<AffineArray64*>(this->Offsets.Get()),
+          static_cast<AOSArray64*>(this->Connectivity.Get()), std::forward<Args>(args)...);
         break;
       case StorageTypes::Generic:
       default:
@@ -1112,7 +1126,7 @@ public:
 private: // Helpers that allow Visit to return a value:
   template <typename Functor, typename... Args>
   using GetReturnType = decltype(std::declval<Functor>()(
-    std::declval<VisitState<ArrayType32>&>(), std::declval<Args>()...));
+    std::declval<VisitState<AOSArray32>&>(), std::declval<Args>()...));
 
   template <typename Functor, typename... Args>
   struct ReturnsVoid : std::is_same<GetReturnType<Functor, Args...>, void>
@@ -1198,17 +1212,17 @@ public:
     {
       case StorageTypes::Int32:
       {
-        VisitState<ArrayType32> state;
-        state.Offsets = ArrayType32::FastDownCast(this->Offsets);
-        state.Connectivity = ArrayType32::FastDownCast(this->Connectivity);
+        VisitState<AOSArray32> state;
+        state.Offsets = AOSArray32::FastDownCast(this->Offsets);
+        state.Connectivity = AOSArray32::FastDownCast(this->Connectivity);
         functor(state, std::forward<Args>(args)...);
         break;
       }
       case StorageTypes::Int64:
       {
-        VisitState<ArrayType64> state;
-        state.Offsets = ArrayType64::FastDownCast(this->Offsets);
-        state.Connectivity = ArrayType64::FastDownCast(this->Connectivity);
+        VisitState<AOSArray64> state;
+        state.Offsets = AOSArray64::FastDownCast(this->Offsets);
+        state.Connectivity = AOSArray64::FastDownCast(this->Connectivity);
         functor(state, std::forward<Args>(args)...);
         break;
       }
@@ -1232,17 +1246,17 @@ public:
     {
       case StorageTypes::Int32:
       {
-        VisitState<ArrayType32> state;
-        state.Offsets = ArrayType32::FastDownCast(this->Offsets);
-        state.Connectivity = ArrayType32::FastDownCast(this->Connectivity);
+        VisitState<AOSArray32> state;
+        state.Offsets = AOSArray32::FastDownCast(this->Offsets);
+        state.Connectivity = AOSArray32::FastDownCast(this->Connectivity);
         functor(state, std::forward<Args>(args)...);
         break;
       }
       case StorageTypes::Int64:
       {
-        VisitState<ArrayType64> state;
-        state.Offsets = ArrayType64::FastDownCast(this->Offsets);
-        state.Connectivity = ArrayType64::FastDownCast(this->Connectivity);
+        VisitState<AOSArray64> state;
+        state.Offsets = AOSArray64::FastDownCast(this->Offsets);
+        state.Connectivity = AOSArray64::FastDownCast(this->Connectivity);
         functor(state, std::forward<Args>(args)...);
         break;
       }
@@ -1266,16 +1280,16 @@ public:
     {
       case StorageTypes::Int32:
       {
-        VisitState<ArrayType32> state;
-        state.Offsets = ArrayType32::FastDownCast(this->Offsets);
-        state.Connectivity = ArrayType32::FastDownCast(this->Connectivity);
+        VisitState<AOSArray32> state;
+        state.Offsets = AOSArray32::FastDownCast(this->Offsets);
+        state.Connectivity = AOSArray32::FastDownCast(this->Connectivity);
         return functor(state, std::forward<Args>(args)...);
       }
       case StorageTypes::Int64:
       {
-        VisitState<ArrayType64> state;
-        state.Offsets = ArrayType64::FastDownCast(this->Offsets);
-        state.Connectivity = ArrayType64::FastDownCast(this->Connectivity);
+        VisitState<AOSArray64> state;
+        state.Offsets = AOSArray64::FastDownCast(this->Offsets);
+        state.Connectivity = AOSArray64::FastDownCast(this->Connectivity);
         return functor(state, std::forward<Args>(args)...);
       }
       case StorageTypes::FixedSizeInt32:
@@ -1297,16 +1311,16 @@ public:
     {
       case StorageTypes::Int32:
       {
-        VisitState<ArrayType32> state;
-        state.Offsets = ArrayType32::FastDownCast(this->Offsets);
-        state.Connectivity = ArrayType32::FastDownCast(this->Connectivity);
+        VisitState<AOSArray32> state;
+        state.Offsets = AOSArray32::FastDownCast(this->Offsets);
+        state.Connectivity = AOSArray32::FastDownCast(this->Connectivity);
         return functor(state, std::forward<Args>(args)...);
       }
       case StorageTypes::Int64:
       {
-        VisitState<ArrayType64> state;
-        state.Offsets = ArrayType64::FastDownCast(this->Offsets);
-        state.Connectivity = ArrayType64::FastDownCast(this->Connectivity);
+        VisitState<AOSArray64> state;
+        state.Offsets = AOSArray64::FastDownCast(this->Offsets);
+        state.Connectivity = AOSArray64::FastDownCast(this->Connectivity);
         return functor(state, std::forward<Args>(args)...);
       }
       case StorageTypes::FixedSizeInt32:
