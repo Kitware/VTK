@@ -68,7 +68,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadBuffers(bool firstBufferIsGLB)
     nlohmann::json bufferRoot =
       nlohmann::json::parse(this->Self->GetInternalModel()->BufferMetaData);
     // Load buffers from disk
-    int bufferIndex = 0;
+    unsigned int bufferIndex = 0;
     for (const auto& glTFBuffer : bufferRoot)
     {
       std::vector<char> buffer;
@@ -87,6 +87,7 @@ bool vtkGLTFDocumentLoaderInternals::LoadBuffers(bool firstBufferIsGLB)
           return false;
         }
 
+        // skip if buffer has already been loaded from the GLB BIN chunk
         if (!firstBufferIsGLB || bufferIndex > 0)
         {
           this->Self->GetInternalModel()->Buffers.emplace_back(std::move(buffer));
