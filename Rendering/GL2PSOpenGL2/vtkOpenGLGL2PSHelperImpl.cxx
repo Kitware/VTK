@@ -21,6 +21,8 @@
 #include "vtkTextRenderer.h"
 #include "vtkTransformFeedback.h"
 
+#include "vtk_glad.h"
+// gl2ps.h must come after glad.h
 #include "vtk_gl2ps.h"
 
 #include <algorithm>
