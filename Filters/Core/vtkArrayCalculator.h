@@ -22,6 +22,7 @@
  * /
  * ^
  * . (only by vtkFunctionParser)
+ * build constants: inf, pi (only by vtkExprTkFunctionParser)
  * build unit vectors: iHat, jHat, kHat (ie (1,0,0), (0,1,0), (0,0,1))
  * abs
  * acos
@@ -65,7 +66,8 @@
 #include "vtkPassInputTypeAlgorithm.h"
 #include "vtkTuple.h"         // needed for vtkTuple
 #include "vtkWrappingHints.h" // For VTK_MARSHALAUTO
-#include <vector>             // needed for vector
+
+#include <vector> // needed for vector
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSet;
@@ -75,12 +77,13 @@ class VTKFILTERSCORE_EXPORT VTK_MARSHALAUTO vtkArrayCalculator : public vtkPassI
 public:
   vtkTypeMacro(vtkArrayCalculator, vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
-
   static vtkArrayCalculator* New();
 
   ///@{
   /**
    * Set/Get the function to be evaluated.
+   *
+   * @note To define a vector of arbitrary size use the {x, y, z, ...} syntax.
    */
   vtkSetStringMacro(Function);
   vtkGetStringMacro(Function);
@@ -98,8 +101,16 @@ public:
    * @note A sanitized variable name is accepted by the following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
    */
   void AddScalarArrayName(const char* arrayName, int component = 0);
+  void AddVectorArrayName(const char* arrayName);
+  VTK_DEPRECATED_IN_9_6_0("Use AddVectorArrayName(const char* arrayName) instead")
   void AddVectorArrayName(
-    const char* arrayName, int component0 = 0, int component1 = 1, int component2 = 2);
+    const char* arrayName, int component0, int component1 = 1, int component2 = 2)
+  {
+    static_cast<void>(component0); // to avoid unused parameter warning
+    static_cast<void>(component1); // to avoid unused parameter warning
+    static_cast<void>(component2); // to avoid unused parameter warning
+    this->AddVectorArrayName(arrayName);
+  }
   ///@}
 
   ///@{
@@ -110,8 +121,17 @@ public:
    * @note A sanitized variable name is accepted by the following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
    */
   void AddScalarVariable(const char* variableName, const char* arrayName, int component = 0);
-  void AddVectorVariable(const char* variableName, const char* arrayName, int component0 = 0,
-    int component1 = 1, int component2 = 2);
+  void AddVectorVariable(const char* variableName, const char* arrayName);
+  VTK_DEPRECATED_IN_9_6_0(
+    "Use AddVectorVariable(const char* variableName, const char* arrayName) instead")
+  void AddVectorVariable(const char* variableName, const char* arrayName, int component0,
+    int component1 = 1, int component2 = 2)
+  {
+    static_cast<void>(component0); // to avoid unused parameter warning
+    static_cast<void>(component1); // to avoid unused parameter warning
+    static_cast<void>(component2); // to avoid unused parameter warning
+    this->AddVectorVariable(variableName, arrayName);
+  }
   ///@}
 
   ///@{
@@ -122,8 +142,16 @@ public:
    * @note A sanitized variable name is accepted by the following regex: ^[a-zA-Z][a-zA-Z_0-9]*.
    */
   void AddCoordinateScalarVariable(const char* variableName, int component = 0);
+  void AddCoordinateVectorVariable(const char* variableName);
+  VTK_DEPRECATED_IN_9_6_0("Use AddCoordinateVectorVariable(const char* variableName) instead")
   void AddCoordinateVectorVariable(
-    const char* variableName, int component0 = 0, int component1 = 1, int component2 = 2);
+    const char* variableName, int component0, int component1 = 1, int component2 = 2)
+  {
+    static_cast<void>(component0); // to avoid unused parameter warning
+    static_cast<void>(component1); // to avoid unused parameter warning
+    static_cast<void>(component2); // to avoid unused parameter warning
+    this->AddCoordinateVectorVariable(variableName);
+  }
   ///@}
 
   ///@{
@@ -242,13 +270,35 @@ public:
   std::string GetVectorVariableName(int i);
   const std::vector<int>& GetSelectedScalarComponents() { return this->SelectedScalarComponents; }
   int GetSelectedScalarComponent(int i);
-  const std::vector<vtkTuple<int, 3>>& GetSelectedVectorComponents()
-  {
-    return this->SelectedVectorComponents;
-  }
-  vtkTuple<int, 3> GetSelectedVectorComponents(int i);
+  VTK_DEPRECATED_IN_9_6_0("This method no longer returns valid data")
+  const std::vector<vtkTuple<int, 3>>& GetSelectedVectorComponents();
+  VTK_DEPRECATED_IN_9_6_0("This method no longer returns valid data")
+  vtkTuple<int, 3> GetSelectedVectorComponents(int) { return {}; }
   int GetNumberOfScalarArrays() { return static_cast<int>(this->ScalarArrayNames.size()); }
   int GetNumberOfVectorArrays() { return static_cast<int>(this->VectorArrayNames.size()); }
+  const std::vector<std::string>& GetCoordinateScalarVariableNames()
+  {
+    return this->CoordinateScalarVariableNames;
+  }
+  std::string GetCoordinateScalarVariableName(int i);
+  const std::vector<std::string>& GetCoordinateVectorVariableNames()
+  {
+    return this->CoordinateVectorVariableNames;
+  }
+  std::string GetCoordinateVectorVariableName(int i);
+  const std::vector<int>& GetSelectedCoordinateScalarComponents()
+  {
+    return this->SelectedCoordinateScalarComponents;
+  }
+  int GetSelectedCoordinateScalarComponent(int i);
+  int GetNumberOfCoordinateScalarVariables()
+  {
+    return static_cast<int>(this->CoordinateScalarVariableNames.size());
+  }
+  int GetNumberOfCoordinateVectorVariables()
+  {
+    return static_cast<int>(this->CoordinateVectorVariableNames.size());
+  }
   ///@}
 
   ///@{
@@ -322,7 +372,7 @@ protected:
   /**
    * Get the attribute type for the input.
    */
-  int GetAttributeTypeFromInput(vtkDataObject* input);
+  int GetAttributeTypeFromInput(vtkDataObject* input) const;
 
   /**
    * A variable name is valid if it's sanitized or enclosed in quotes.
@@ -343,7 +393,6 @@ protected:
   std::vector<std::string> VectorVariableNames;
   int AttributeType;
   std::vector<int> SelectedScalarComponents;
-  std::vector<vtkTuple<int, 3>> SelectedVectorComponents;
 
   vtkTypeBool ReplaceInvalidValues;
   double ReplacementValue;
@@ -355,13 +404,27 @@ protected:
   std::vector<std::string> CoordinateScalarVariableNames;
   std::vector<std::string> CoordinateVectorVariableNames;
   std::vector<int> SelectedCoordinateScalarComponents;
-  std::vector<vtkTuple<int, 3>> SelectedCoordinateVectorComponents;
 
   int ResultArrayType;
 
 private:
   vtkArrayCalculator(const vtkArrayCalculator&) = delete;
   void operator=(const vtkArrayCalculator&) = delete;
+
+  enum ResultTypes
+  {
+    SCALAR,
+    VECTOR
+  };
+
+  template <typename TFunctionParser, typename TResultArray>
+  class vtkArrayCalculatorFunctor;
+
+  template <typename TFunctionParser>
+  struct vtkArrayCalculatorWorker;
+
+  template <typename TFunctionParser>
+  vtkSmartPointer<TFunctionParser> InitializeFunctionParser(vtkDataObject* input) const;
 
   // Do the bulk of the work
   template <typename TFunctionParser>

@@ -131,6 +131,8 @@ public:
    */
   vtkMTimeType GetMTime() override;
 
+  int GetResultSize() { return 3; }
+
   ///@{
   /**
    * Set/Get input string to evaluate.
@@ -211,16 +213,17 @@ public:
   {
     this->SetVectorVariableValue(variableName.c_str(), xValue, yValue, zValue);
   }
-  void SetVectorVariableValue(const char* variableName, const double values[3])
+  void SetVectorVariableValue(const char* variableName, const double* values, int vtkNotUsed(size))
   {
     this->SetVectorVariableValue(variableName, values[0], values[1], values[2]);
   }
-  void SetVectorVariableValue(const std::string& variableName, const double values[3])
+  void SetVectorVariableValue(
+    const std::string& variableName, const double* values, int vtkNotUsed(size))
   {
     this->SetVectorVariableValue(variableName.c_str(), values[0], values[1], values[2]);
   }
   void SetVectorVariableValue(int i, double xValue, double yValue, double zValue);
-  void SetVectorVariableValue(int i, const double values[3])
+  void SetVectorVariableValue(int i, const double* values, int vtkNotUsed(size))
   {
     this->SetVectorVariableValue(i, values[0], values[1], values[2]);
   }
