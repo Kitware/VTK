@@ -15,6 +15,8 @@
 #include <QTimer>
 #include <QWidget>
 
+#include <iostream>
+
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
 int TestVtkQtTableView(int argc, char* argv[])
