@@ -151,6 +151,17 @@ bool TestOwnedMemoryResource()
   return true;
 }
 
+bool TestStreambuf()
+{
+  const std::string str{ "Hello world!" };
+  vtkNew<vtkMemoryResourceStream> memory;
+  memory->SetBuffer(str.data(), str.size());
+  auto strbuf = memory->ToStreambuf();
+  std::istream buffer(strbuf.get());
+  std::string res(std::istreambuf_iterator<char>(buffer), {});
+  Check(res == str, "Cannot read str through stream buffer");
+  return true;
+}
 }
 
 int TestResourceStreams(int argc, char* argv[])
@@ -169,6 +180,11 @@ int TestResourceStreams(int argc, char* argv[])
   }
 
   if (!TestOwnedMemoryResource())
+  {
+    return 1;
+  }
+
+  if (!TestStreambuf())
   {
     return 1;
   }

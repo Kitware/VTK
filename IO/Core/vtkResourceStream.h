@@ -5,9 +5,11 @@
 
 #include "vtkIOCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
-#include <cstdlib> // for std::size_t
-#include <memory>  // for std::unique_ptr
+#include <cstdlib>   // for std::size_t
+#include <memory>    // for std::unique_ptr
+#include <streambuf> // for std::basic_streambuf
 
 VTK_ABI_NAMESPACE_BEGIN
 
@@ -97,6 +99,16 @@ public:
    * @return true if Seek and Tell functions are supported.
    */
   bool SupportSeek() const;
+
+#ifndef __VTK_WRAP__
+  /**
+   * Create a new std::streambuf from this stream,
+   * which can be used to create an istream.
+   * This should be used only when an external API requires an istream,
+   * for actual parsing, use vtkResourceParser.
+   */
+  std::unique_ptr<std::streambuf> ToStreambuf();
+#endif
 
 protected:
   /**
