@@ -10,6 +10,7 @@ vtk_add_test_cxx(vtkFiltersStatisticsCxxTests no_data_tests
   TestContingencyStatistics.cxx
   TestCorrelativeStatistics.cxx
   TestDescriptiveStatistics.cxx
+  TestDescriptiveStatisticsNaN.cxx
   TestExtractFunctionalBagPlot.cxx
   TestExtractHistogram.cxx
   TestHighestDensityRegionsStatistics.cxx

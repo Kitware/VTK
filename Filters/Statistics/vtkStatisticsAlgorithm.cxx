@@ -97,6 +97,7 @@ vtkStatisticsAlgorithm::vtkStatisticsAlgorithm()
   this->AssessNames = vtkStringArray::New();
   this->GhostsToSkip = 0xff;
   this->NumberOfGhosts = 0;
+  this->SkipInvalidValues = true;
   this->Internals = new vtkStatisticsAlgorithmPrivate;
 }
 
@@ -123,6 +124,7 @@ void vtkStatisticsAlgorithm::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GhostsToSkip: " << std::hex << this->GhostsToSkip << " (" << std::dec
      << this->GhostsToSkip << ")\n";
   os << indent << "NumberOfGhosts: " << this->NumberOfGhosts << "\n";
+  os << indent << "SkipInvalidValues: " << (this->SkipInvalidValues ? "on" : "off") << "\n";
   os << indent << "Internals: " << this->Internals << endl;
 }
 
@@ -194,6 +196,7 @@ void vtkStatisticsAlgorithm::AppendAlgorithmParameters(std::string& algorithmPar
     }
     algorithmParameters += ")";
   }
+  // Only specify non-default values for GhostsToSkip, SkipInvalidValues:
   if (this->GhostsToSkip != 0xff)
   {
     if (!algorithmParameters.empty() && algorithmParameters.back() != '(')
@@ -201,6 +204,15 @@ void vtkStatisticsAlgorithm::AppendAlgorithmParameters(std::string& algorithmPar
       algorithmParameters += ",";
     }
     algorithmParameters += "ghosts_to_skip=" + vtk::to_string(static_cast<int>(this->GhostsToSkip));
+  }
+  if (!this->SkipInvalidValues)
+  {
+    if (!algorithmParameters.empty() && algorithmParameters.back() != '(')
+    {
+      algorithmParameters += ",";
+    }
+    algorithmParameters +=
+      "skip_invalid_values=" + vtk::to_string(static_cast<int>(this->SkipInvalidValues));
   }
 }
 
@@ -229,6 +241,15 @@ std::size_t vtkStatisticsAlgorithm::ConsumeNextAlgorithmParameter(
       if ((consumed = this->ConsumeInt(algorithmParameters, value)))
       {
         this->SetGhostsToSkip(static_cast<unsigned char>(value));
+      }
+    }
+    break;
+    case "skip_invalid_values"_hash:
+    {
+      int value;
+      if ((consumed = this->ConsumeInt(algorithmParameters, value)))
+      {
+        this->SetSkipInvalidValues(static_cast<bool>(value));
       }
     }
     break;

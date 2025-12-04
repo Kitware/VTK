@@ -328,6 +328,21 @@ public:
 
   ///@{
   /**
+   * If set, invalid values (NaN or, depending on the circumstances, positive
+   * and negative infinity) should cause input samples to be skipped during the
+   * Learn phase (i.e., the construction of a model).
+   *
+   * Not all statistics algorithms use this setting yet.
+   *
+   * The default is true (skip invalid values).
+   */
+  vtkSetMacro(SkipInvalidValues, bool);
+  vtkGetMacro(SkipInvalidValues, bool);
+  vtkBooleanMacro(SkipInvalidValues, bool);
+  ///@}
+
+  ///@{
+  /**
    * Provide a serialization of this object's internal state so it can be
    * recreated by a vtkStatisticalModel as needed.
    *
@@ -516,6 +531,7 @@ protected:
   vtkStringArray* AssessNames;
   unsigned char GhostsToSkip;
   vtkIdType NumberOfGhosts;
+  bool SkipInvalidValues;
   vtkStatisticsAlgorithmPrivate* Internals;
 
 private:

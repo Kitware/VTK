@@ -337,10 +337,10 @@ void vtkDescriptiveStatistics::Learn(
       mom4 = 0.;
     }
 
+    vtkIdType numberOfSkippedElements = 0;
     if (numberOfGhostlessRow)
     {
       double n, inv_n, val, delta, A, B;
-      vtkIdType numberOfSkippedElements = 0;
       for (vtkIdType r = 0; r < nRow; ++r)
       {
         if (ghosts && (ghosts->GetValue(r) & this->GhostsToSkip))
@@ -348,10 +348,15 @@ void vtkDescriptiveStatistics::Learn(
           ++numberOfSkippedElements;
           continue;
         }
+        val = inData->GetValueByName(r, varName.c_str()).ToDouble();
+        if (this->SkipInvalidValues && std::isnan(val))
+        {
+          ++numberOfSkippedElements;
+          continue;
+        }
         n = r + 1. - numberOfSkippedElements;
         inv_n = 1. / n;
 
-        val = inData->GetValueByName(r, varName.c_str()).ToDouble();
         delta = val - mean;
 
         A = delta * inv_n;
@@ -374,7 +379,7 @@ void vtkDescriptiveStatistics::Learn(
     row->SetNumberOfValues(8);
 
     row->SetValue(0, varName);
-    row->SetValue(1, numberOfGhostlessRow);
+    row->SetValue(1, nRow - numberOfSkippedElements);
     row->SetValue(2, minVal);
     row->SetValue(3, maxVal);
     row->SetValue(4, mean);
