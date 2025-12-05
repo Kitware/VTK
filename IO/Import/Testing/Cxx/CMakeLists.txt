@@ -173,6 +173,10 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterMultipleBuffers,TestGLTFImporter.cxx DATA{../Data/glTF/world.glb} 0 -1 1 0 0 0
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
   NO_VALID
   TestImportGLFTExportOBJ,TestImportExportOBJ.cxx
   DATA{../Data/glTF/Avocado/Avocado.glb}
