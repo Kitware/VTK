@@ -62,7 +62,17 @@ var vtkEmscriptenTestUtilities = {
       body: new Uint8Array(HEAPU8.subarray(data, data + nbytes)),
       keepAlive: true,
     };
-    window.pendingVTKPostRequests.push(fetch(url, payload));
+    if (typeof window === 'undefined') {
+      const req = new XMLHttpRequest;
+      req.open("POST", url, false);
+      try {
+        req.send(payload.body);
+      } catch (e){
+        console.error(`Failed to send data to ${url}: ${e}`);
+      }
+    } else {
+      window.pendingVTKPostRequests.push(fetch(url, payload));
+    }
   },
 
   /**

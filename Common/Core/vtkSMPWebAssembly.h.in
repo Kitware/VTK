@@ -1,0 +1,18 @@
+// SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+// SPDX-License-Identifier: BSD-3-Clause
+
+/**
+ * @file vtkSMPWebAssembly.h
+ * @brief Settings that control behavior of vtkSMPTools when built with WebAssembly threads support
+ */
+
+#ifndef vtkSMPWebAssembly_h
+#define vtkSMPWebAssembly_h
+
+/* Are WebAssembly threads enabled? */
+#cmakedefine01 VTK_WEBASSEMBLY_THREADS
+
+/* Maximum number of threads made available to VTK SMP thread pool when VTK_WEBASSEMBLY_THREADS is enabled */
+#cmakedefine VTK_WEBASSEMBLY_SMP_THREAD_POOL_SIZE @VTK_WEBASSEMBLY_SMP_THREAD_POOL_SIZE@
+
+#endif

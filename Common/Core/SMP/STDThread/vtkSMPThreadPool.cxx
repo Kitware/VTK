@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "SMP/STDThread/vtkSMPThreadPool.h"
+#include "SMP/Common/vtkSMPToolsImpl.h"
 
 #include <vtkObject.h>
 
@@ -213,8 +214,8 @@ bool vtkSMPThreadPool::Proxy::IsTopLevel() const noexcept
 
 vtkSMPThreadPool::vtkSMPThreadPool()
 {
-  const auto threadCount = static_cast<std::size_t>(std::thread::hardware_concurrency());
-
+  const std::size_t threadCount = static_cast<std::size_t>(
+    vtkSMPToolsImpl<BackendType::STDThread>::GetEstimatedDefaultNumberOfThreads());
   this->Threads.reserve(threadCount);
   for (std::size_t i{}; i < threadCount; ++i)
   {

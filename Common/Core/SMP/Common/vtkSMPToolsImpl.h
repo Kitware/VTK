@@ -53,7 +53,7 @@ public:
   int GetEstimatedNumberOfThreads();
 
   //--------------------------------------------------------------------------------
-  int GetEstimatedDefaultNumberOfThreads();
+  static int GetEstimatedDefaultNumberOfThreads();
 
   //--------------------------------------------------------------------------------
   void SetNestedParallelism(bool isNested);

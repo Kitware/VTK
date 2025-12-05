@@ -833,6 +833,10 @@ if (VTK_BUILD_TESTING)
         "-sEXPORTED_RUNTIME_METHODS=['ENV']"
         # tests dynamically allocate memory, can easily go over the preset limit.
         "-sALLOW_MEMORY_GROWTH=1")
+      if (VTK_WEBASSEMBLY_THREADS)
+        target_link_options(vtkWebAssemblyTestLinkOptions INTERFACE
+          "-sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency")
+      endif ()
       install(TARGETS vtkWebAssemblyTestLinkOptions EXPORT "${vtk_install_export}")
     endif ()
   endif ()

@@ -646,6 +646,10 @@ set(generated_headers
   vtkVersionFull.h
   vtkVersionMacros.h
   vtkVersionQuick.h)
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  list(APPEND generated_headers
+    vtkSMPWebAssembly.h)
+endif()
 foreach (generated_header IN LISTS generated_headers)
   configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/${generated_header}.in"

@@ -468,6 +468,17 @@ if (APPLE_IOS)
   vtk_module_link(VTK::RenderingOpenGL2 PUBLIC "-framework UIKit")
 endif ()
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  if (VTK_WEBASSEMBLY_THREADS)
+    # Proxy to pthreads is required to ensure threads can be created asynchronously.
+    # OffscreenCanvas is required when using pthreads.
+    vtk_module_link_options(VTK::RenderingOpenGL2
+      INTERFACE
+        "-sPROXY_TO_PTHREAD=1"
+        "-sOFFSCREENCANVAS_SUPPORT=1")
+  endif ()
+endif ()
+
 if (NOT ANDROID AND
     NOT APPLE_IOS AND
     NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten" AND

@@ -256,6 +256,12 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   vtk_module_link_options(VTK::RenderingWebGPU
     PUBLIC
       "--use-port=emdawnwebgpu")
+  if (VTK_WEBASSEMBLY_THREADS)
+    # Proxy to pthreads is required to ensure threads can be created asynchronously.
+    vtk_module_link_options(VTK::RenderingWebGPU
+      INTERFACE
+        "-sPROXY_TO_PTHREAD=1")
+  endif ()
 else ()
   if (VTK_USE_X)
     vtk_module_find_package(PACKAGE X11)
