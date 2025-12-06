@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 
+#include <vtkDoubleArray.h>
 #include <vtkFileResourceStream.h>
 #include <vtkGLTFImporter.h>
 #include <vtkLightCollection.h>
@@ -19,8 +20,9 @@ int TestGLTFImporter(int argc, char* argv[])
   {
     std::cout << "Usage: " << argv[0]
               << " <gltf file> <use_stream> <camera index> <expected nb of actors> <expected nb of "
-                 "lights> <expected nb of animations>"
-                 "<expected nb of cameras>"
+                 "lights> <expected nb of cameras> <expected nb of animations>"
+                 "<expected nb of timesteps in first animation>"
+                 "<time value to load>"
               << std::endl;
     return EXIT_FAILURE;
   }
@@ -110,6 +112,36 @@ int TestGLTFImporter(int argc, char* argv[])
     std::cerr << "ERROR: Unexpected number of imported animations: "
               << importer->GetNumberOfAnimations() << "\n";
     return EXIT_FAILURE;
+  }
+
+  if (numberOfAnimations > 0)
+  {
+    int expectedNumberOfTimeSteps;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(argv[8], expectedNumberOfTimeSteps, EXIT_FAILURE);
+
+    double timeRange[2];
+    int nbTimeSteps;
+    vtkNew<vtkDoubleArray> timeSteps;
+    if (!importer->GetTemporalInformation(0, timeRange, nbTimeSteps, timeSteps))
+    {
+      std::cerr << "ERROR: Unexpected GetTemporalInformation failure\n";
+      return EXIT_FAILURE;
+    }
+    if (nbTimeSteps != expectedNumberOfTimeSteps)
+    {
+      std::cerr << "ERROR: Unexpected number of time steps: " << nbTimeSteps << "\n";
+      return EXIT_FAILURE;
+    }
+
+    double timeValue;
+    VTK_FROM_CHARS_IF_ERROR_RETURN(argv[9], timeValue, EXIT_FAILURE);
+
+    importer->EnableAnimation(0);
+    if (!importer->UpdateAtTimeValue(1))
+    {
+      std::cerr << "ERROR: Unexpected UpdateAtTimeValue failure\n";
+      return EXIT_FAILURE;
+    }
   }
 
   std::cout << importer->GetImportedActors()->GetNumberOfItems() << std::endl;

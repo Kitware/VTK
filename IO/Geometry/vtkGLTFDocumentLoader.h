@@ -429,7 +429,7 @@ public:
     };
 
     float Duration;                // In seconds
-    std::set<float> AllTimeStamps; // In seconds;
+    std::set<float> AllTimestamps; // In seconds
     std::vector<Animation::Channel> Channels;
     std::vector<Animation::Sampler> Samplers;
     std::string Name;

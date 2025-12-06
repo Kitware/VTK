@@ -140,7 +140,11 @@ vtk_add_test_cxx(vtkIOImportCxxTests tests
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests
-  TestGLTFImporterArmature,TestGLTFImporter.cxx DATA{../Data/glTF/Armature.gltf} 0 -1 1 0 0 1
+  TestGLTFImporterAnimation,TestGLTFImporter.cxx DATA{../Data/glTF/BoxAnimated/BoxAnimated.gltf,BoxAnimated0.bin} 0 -1 2 0 0 1 4 1
+)
+
+vtk_add_test_cxx(vtkIOImportCxxTests tests
+  TestGLTFImporterArmature,TestGLTFImporter.cxx DATA{../Data/glTF/Armature.gltf} 0 -1 1 0 0 1 2 0.5
 )
 
 vtk_add_test_cxx(vtkIOImportCxxTests tests

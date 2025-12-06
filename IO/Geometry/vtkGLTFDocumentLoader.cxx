@@ -765,7 +765,7 @@ bool vtkGLTFDocumentLoader::LoadAnimationData()
   for (Animation& animation : this->InternalModel->Animations)
   {
     float maxDuration = 0;
-    std::set<float> allTimeStamps;
+    std::set<float> allTimestamps;
     for (Animation::Sampler& sampler : animation.Samplers)
     {
       // Create arrays
@@ -785,10 +785,10 @@ bool vtkGLTFDocumentLoader::LoadAnimationData()
       float duration = sampler.InputData->GetValueRange()[1];
       maxDuration = vtkMath::Max(maxDuration, duration);
 
-      // fill allTimeStamps
+      // fill allTimestamps
       for (vtkIdType i = 0; i < sampler.InputData->GetNumberOfValues(); i++)
       {
-        allTimeStamps.emplace(sampler.InputData->GetValue(i));
+        allTimestamps.emplace(sampler.InputData->GetValue(i));
       }
 
       // Load outputs (frame data)
@@ -827,7 +827,7 @@ bool vtkGLTFDocumentLoader::LoadAnimationData()
       sampler.OutputData->SetNumberOfComponents(numberOfComponents);
     }
     animation.Duration = maxDuration;
-    animation.AllTimeStamps = allTimeStamps;
+    animation.AllTimestamps = std::move(allTimestamps);
   }
   return true;
 }
