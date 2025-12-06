@@ -49,19 +49,6 @@ static nlohmann::json Serialize_vtkCellArray(vtkObjectBase* object, vtkSerialize
   }
 }
 
-namespace
-{
-struct SetDataGenericImpl
-{
-  vtkCellArray* CellArray;
-  template <typename OffsetsT, typename ConnectivityT>
-  void operator()(OffsetsT* offsets, ConnectivityT* connectivity)
-  {
-    this->CellArray->SetData(offsets, connectivity);
-  }
-};
-} // end anon namespace
-
 static void Deserialize_vtkCellArray(
   const nlohmann::json& state, vtkObjectBase* object, vtkDeserializer* deserializer)
 {
@@ -105,18 +92,7 @@ static void Deserialize_vtkCellArray(
     }
     else
     {
-      // vtkCellArray::SetData dispatches over the InputOffsetsArrays/InputConnectivityArrays
-      // Here we dispatch over the StorageArrayList/StorageArrayList to avoid
-      // the internal shallow copy which would change the MTime of the cellArray.
-      SetDataGenericImpl worker{ cellArray };
-      using Dispatcher =
-        vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
-          vtkArrayDispatch::StorageConnectivityArrays>;
-      if (!Dispatcher::Execute(offsets, connectivity, worker))
-      {
-        // Fallback to generic storage
-        cellArray->SetData(offsets, connectivity);
-      }
+      cellArray->SetData(offsets, connectivity);
     }
   }
 }

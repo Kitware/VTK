@@ -552,16 +552,16 @@ vtkCellArray::vtkCellArray()
   // Default can be changed, to save memory
   if (vtkCellArray::GetDefaultStorageIs64Bit())
   {
-    this->Offsets = vtkSmartPointer<ArrayType64>::New();
-    this->Connectivity = vtkSmartPointer<ArrayType64>::New();
-    this->GetOffsetsArray64()->InsertNextValue(0);
+    this->Offsets = vtkSmartPointer<AOSArray64>::New();
+    this->Connectivity = vtkSmartPointer<AOSArray64>::New();
+    this->GetOffsetsAOSArray64()->InsertNextValue(0);
     this->StorageType = StorageTypes::Int64;
   }
   else
   {
-    this->Offsets = vtkSmartPointer<ArrayType32>::New();
-    this->Connectivity = vtkSmartPointer<ArrayType32>::New();
-    this->GetOffsetsArray32()->InsertNextValue(0);
+    this->Offsets = vtkSmartPointer<AOSArray32>::New();
+    this->Connectivity = vtkSmartPointer<AOSArray32>::New();
+    this->GetOffsetsAOSArray32()->InsertNextValue(0);
     this->StorageType = StorageTypes::Int32;
   }
 }
@@ -744,7 +744,7 @@ void vtkCellArray::DeepCopy(vtkAbstractCellArray* ca)
     {
       this->UseFixedSize32BitStorage(1 /*dummy, ImplicitDeepCopy will fix it*/);
       this->GetOffsetsAffineArray32()->ImplicitDeepCopy(
-        AffineArrayType32::FastDownCast(other->Offsets));
+        AffineArray32::FastDownCast(other->Offsets));
       this->Connectivity->DeepCopy(other->Connectivity);
       this->Modified();
       break;
@@ -753,7 +753,7 @@ void vtkCellArray::DeepCopy(vtkAbstractCellArray* ca)
     {
       this->UseFixedSize64BitStorage(1 /*dummy, ImplicitDeepCopy will fix it*/);
       this->GetOffsetsAffineArray64()->ImplicitDeepCopy(
-        AffineArrayType64::FastDownCast(other->Offsets));
+        AffineArray64::FastDownCast(other->Offsets));
       this->Connectivity->DeepCopy(other->Connectivity);
       this->Modified();
       break;
@@ -828,8 +828,13 @@ vtkCellArrayIterator* vtkCellArray::NewIterator()
 }
 
 //------------------------------------------------------------------------------
-void vtkCellArray::SetData(vtkTypeInt32Array* offsets, vtkTypeInt32Array* connectivity)
+void vtkCellArray::SetData(AOSArray32* offsets, AOSArray32* connectivity)
 {
+  if (!offsets || !connectivity)
+  {
+    vtkErrorMacro("Empty offsets or connectivity array.");
+    return;
+  }
   if (offsets->GetNumberOfComponents() != 1 || connectivity->GetNumberOfComponents() != 1)
   {
     vtkErrorMacro("Only single component arrays may be used for vtkCellArray "
@@ -851,8 +856,13 @@ void vtkCellArray::SetData(vtkTypeInt32Array* offsets, vtkTypeInt32Array* connec
 }
 
 //------------------------------------------------------------------------------
-void vtkCellArray::SetData(vtkTypeInt64Array* offsets, vtkTypeInt64Array* connectivity)
+void vtkCellArray::SetData(AOSArray64* offsets, AOSArray64* connectivity)
 {
+  if (!offsets || !connectivity)
+  {
+    vtkErrorMacro("Empty offsets or connectivity array.");
+    return;
+  }
   if (offsets->GetNumberOfComponents() != 1 || connectivity->GetNumberOfComponents() != 1)
   {
     vtkErrorMacro("Only single component arrays may be used for vtkCellArray "
@@ -874,77 +884,13 @@ void vtkCellArray::SetData(vtkTypeInt64Array* offsets, vtkTypeInt64Array* connec
 }
 
 //------------------------------------------------------------------------------
-void vtkCellArray::SetData(vtkIdTypeArray* offsets, vtkIdTypeArray* connectivity)
+void vtkCellArray::SetData(AffineArray32* offsets, AOSArray32* connectivity)
 {
-#ifdef VTK_USE_64BIT_IDS
-  vtkNew<vtkTypeInt64Array> o;
-  vtkNew<vtkTypeInt64Array> c;
-  o->ShallowCopy(offsets);
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#else  // VTK_USE_64BIT_IDS
-  vtkNew<vtkTypeInt32Array> o;
-  vtkNew<vtkTypeInt32Array> c;
-  o->ShallowCopy(offsets);
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#endif // VTK_USE_64BIT_IDS
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::SetData(
-  vtkAOSDataArrayTemplate<int>* offsets, vtkAOSDataArrayTemplate<int>* connectivity)
-{
-#if VTK_SIZEOF_INT == 4
-  vtkNew<vtkTypeInt32Array> o;
-  vtkNew<vtkTypeInt32Array> c;
-  o->ShallowCopy(offsets);
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#else
-  vtkErrorMacro("`int` type is not 32 bits.");
-#endif
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::SetData(
-  vtkAOSDataArrayTemplate<long>* offsets, vtkAOSDataArrayTemplate<long>* connectivity)
-{
-#if VTK_SIZEOF_LONG == 4
-  vtkNew<vtkTypeInt32Array> o;
-  vtkNew<vtkTypeInt32Array> c;
-  o->ShallowCopy(offsets);
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#elif VTK_SIZEOF_LONG == 8
-  vtkNew<vtkTypeInt64Array> o;
-  vtkNew<vtkTypeInt64Array> c;
-  o->ShallowCopy(offsets);
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#else
-  vtkErrorMacro("`long` type is neither 32 nor 64 bits.");
-#endif
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::SetData(
-  vtkAOSDataArrayTemplate<long long>* offsets, vtkAOSDataArrayTemplate<long long>* connectivity)
-{
-#if VTK_SIZEOF_LONG_LONG == 8
-  vtkNew<vtkTypeInt64Array> o;
-  vtkNew<vtkTypeInt64Array> c;
-  o->ShallowCopy(offsets);
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#else
-  vtkErrorMacro("`long long` type is not 64 bits.");
-#endif
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::SetData(vtkAffineTypeInt32Array* offsets, vtkTypeInt32Array* connectivity)
-{
+  if (!offsets || !connectivity)
+  {
+    vtkErrorMacro("Empty offsets or connectivity array.");
+    return;
+  }
   if (offsets->GetNumberOfComponents() != 1 || connectivity->GetNumberOfComponents() != 1)
   {
     vtkErrorMacro("Only single component arrays may be used for vtkCellArray "
@@ -966,8 +912,13 @@ void vtkCellArray::SetData(vtkAffineTypeInt32Array* offsets, vtkTypeInt32Array* 
 }
 
 //------------------------------------------------------------------------------
-void vtkCellArray::SetData(vtkAffineTypeInt64Array* offsets, vtkTypeInt64Array* connectivity)
+void vtkCellArray::SetData(AffineArray64* offsets, AOSArray64* connectivity)
 {
+  if (!offsets || !connectivity)
+  {
+    vtkErrorMacro("Empty offsets or connectivity array.");
+    return;
+  }
   if (offsets->GetNumberOfComponents() != 1 || connectivity->GetNumberOfComponents() != 1)
   {
     vtkErrorMacro("Only single component arrays may be used for vtkCellArray "
@@ -986,80 +937,6 @@ void vtkCellArray::SetData(vtkAffineTypeInt64Array* offsets, vtkTypeInt64Array* 
     this->Modified();
   }
   this->StorageType = StorageTypes::FixedSizeInt64;
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::SetData(vtkAffineArray<vtkIdType>* offsets, vtkIdTypeArray* connectivity)
-{
-#ifdef VTK_USE_64BIT_IDS
-  vtkNew<vtkAffineTypeInt64Array> o;
-  vtkNew<vtkTypeInt64Array> c;
-  o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
-  o->SetNumberOfValues(offsets->GetNumberOfValues());
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#else  // VTK_USE_64BIT_IDS
-  vtkNew<vtkAffineTypeInt32Array> o;
-  vtkNew<vtkTypeInt32Array> c;
-  o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
-  o->SetNumberOfValues(offsets->GetNumberOfValues());
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#endif // VTK_USE_64BIT_IDS
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::SetData(vtkAffineArray<int>* offsets, vtkAOSDataArrayTemplate<int>* connectivity)
-{
-#if VTK_SIZEOF_INT == 4
-  vtkNew<vtkAffineTypeInt32Array> o;
-  vtkNew<vtkTypeInt32Array> c;
-  o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
-  o->SetNumberOfValues(offsets->GetNumberOfValues());
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#else
-  vtkErrorMacro("`int` type is not 32 bits.");
-#endif
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::SetData(
-  vtkAffineArray<long>* offsets, vtkAOSDataArrayTemplate<long>* connectivity)
-{
-#if VTK_SIZEOF_LONG == 4
-  vtkNew<vtkAffineTypeInt32Array> o;
-  vtkNew<vtkTypeInt32Array> c;
-  o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
-  o->SetNumberOfValues(offsets->GetNumberOfValues());
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#elif VTK_SIZEOF_LONG == 8
-  vtkNew<vtkAffineTypeInt64Array> o;
-  vtkNew<vtkTypeInt64Array> c;
-  o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
-  o->SetNumberOfValues(offsets->GetNumberOfValues());
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#else
-  vtkErrorMacro("`long` type is neither 32 nor 64 bits.");
-#endif
-}
-
-//------------------------------------------------------------------------------
-void vtkCellArray::SetData(
-  vtkAffineArray<long long>* offsets, vtkAOSDataArrayTemplate<long long>* connectivity)
-{
-#if VTK_SIZEOF_LONG_LONG == 8
-  vtkNew<vtkAffineTypeInt64Array> o;
-  vtkNew<vtkTypeInt64Array> c;
-  o->ConstructBackend(offsets->GetBackend()->Slope, offsets->GetBackend()->Intercept);
-  o->SetNumberOfValues(offsets->GetNumberOfValues());
-  c->ShallowCopy(connectivity);
-  this->SetData(o, c);
-#else
-  vtkErrorMacro("`long long` type is not 64 bits.");
-#endif
 }
 
 VTK_ABI_NAMESPACE_END
@@ -1094,8 +971,8 @@ bool vtkCellArray::SetData(vtkDataArray* offsets, vtkDataArray* connectivity)
   }
   SetDataGenericImpl worker{ this };
   using Dispatcher =
-    vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::InputOffsetsArrays,
-      vtkArrayDispatch::InputConnectivityArrays>;
+    vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::OffsetsArrays,
+      vtkArrayDispatch::ConnectivityArrays>;
   if (!Dispatcher::Execute(offsets, connectivity, worker))
   {
     if (this->Offsets.Get() != offsets)
@@ -1160,9 +1037,9 @@ void vtkCellArray::Use32BitStorage()
     this->Initialize();
     return;
   }
-  this->Offsets = vtkSmartPointer<ArrayType32>::New();
-  this->Connectivity = vtkSmartPointer<ArrayType32>::New();
-  this->GetOffsetsArray32()->InsertNextValue(0);
+  this->Offsets = vtkSmartPointer<AOSArray32>::New();
+  this->Connectivity = vtkSmartPointer<AOSArray32>::New();
+  this->GetOffsetsAOSArray32()->InsertNextValue(0);
   this->StorageType = StorageTypes::Int32;
   this->Modified();
 }
@@ -1175,9 +1052,9 @@ void vtkCellArray::Use64BitStorage()
     this->Initialize();
     return;
   }
-  this->Offsets = vtkSmartPointer<ArrayType64>::New();
-  this->Connectivity = vtkSmartPointer<ArrayType64>::New();
-  this->GetOffsetsArray64()->InsertNextValue(0);
+  this->Offsets = vtkSmartPointer<AOSArray64>::New();
+  this->Connectivity = vtkSmartPointer<AOSArray64>::New();
+  this->GetOffsetsAOSArray64()->InsertNextValue(0);
   this->StorageType = StorageTypes::Int64;
   this->Modified();
 }
@@ -1204,9 +1081,9 @@ void vtkCellArray::UseFixedSize32BitStorage(vtkIdType cellSize)
     this->Initialize();
     return;
   }
-  this->Offsets = vtkSmartPointer<AffineArrayType32>::New();
+  this->Offsets = vtkSmartPointer<AffineArray32>::New();
   this->GetOffsetsAffineArray32()->ConstructBackend(cellSize, 0);
-  this->Connectivity = vtkSmartPointer<ArrayType32>::New();
+  this->Connectivity = vtkSmartPointer<AOSArray32>::New();
   this->GetOffsetsAffineArray32()->InsertNextValue(0);
   this->StorageType = StorageTypes::FixedSizeInt32;
   this->Modified();
@@ -1221,9 +1098,9 @@ void vtkCellArray::UseFixedSize64BitStorage(vtkIdType cellSize)
     this->Initialize();
     return;
   }
-  this->Offsets = vtkSmartPointer<AffineArrayType64>::New();
+  this->Offsets = vtkSmartPointer<AffineArray64>::New();
   this->GetOffsetsAffineArray64()->ConstructBackend(cellSize, 0);
-  this->Connectivity = vtkSmartPointer<ArrayType64>::New();
+  this->Connectivity = vtkSmartPointer<AOSArray64>::New();
   this->GetOffsetsAffineArray64()->InsertNextValue(0);
   this->StorageType = StorageTypes::FixedSizeInt64;
   this->Modified();
@@ -1250,7 +1127,7 @@ bool vtkCellArray::CanConvertTo32BitStorage() const
     return true;
   }
   bool canConvert;
-  this->Dispatch(CanConvert<ArrayType32::ValueType>{}, canConvert);
+  this->Dispatch(CanConvert<AOSArray32::ValueType>{}, canConvert);
   return canConvert;
 }
 
@@ -1271,7 +1148,7 @@ bool vtkCellArray::CanConvertToFixedSize32BitStorage() const
   if (homogeneousCellSize >= 0)
   {
     bool result;
-    this->Dispatch(CanConvert<ArrayType32::ValueType>{}, result);
+    this->Dispatch(CanConvert<AOSArray32::ValueType>{}, result);
     return result;
   }
   return false;
@@ -1307,8 +1184,8 @@ bool vtkCellArray::ConvertTo32BitStorage()
   {
     return true;
   }
-  vtkNew<ArrayType32> offsets;
-  vtkNew<ArrayType32> conn;
+  vtkNew<AOSArray32> offsets;
+  vtkNew<AOSArray32> conn;
   bool result;
   this->Dispatch(ExtractAndInitialize{}, offsets.Get(), conn.Get(), result);
   if (!result)
@@ -1327,8 +1204,8 @@ bool vtkCellArray::ConvertTo64BitStorage()
   {
     return true;
   }
-  vtkNew<ArrayType64> offsets;
-  vtkNew<ArrayType64> conn;
+  vtkNew<AOSArray64> offsets;
+  vtkNew<AOSArray64> conn;
   bool result;
   this->Dispatch(ExtractAndInitialize{}, offsets.Get(), conn.Get(), result);
   if (!result)
@@ -1373,10 +1250,10 @@ bool vtkCellArray::ConvertToFixedSize32BitStorage()
   {
     return true;
   }
-  vtkNew<AffineArrayType32> offsets;
+  vtkNew<AffineArray32> offsets;
   offsets->ConstructBackend(this->GetCellSize(0), 0);
   offsets->SetNumberOfValues(this->GetNumberOfCells() + 1);
-  vtkNew<ArrayType32> conn;
+  vtkNew<AOSArray32> conn;
   bool result;
   this->Dispatch(ExtractAndInitialize{}, conn.Get(), result);
   if (!result)
@@ -1395,10 +1272,10 @@ bool vtkCellArray::ConvertToFixedSize64BitStorage()
   {
     return true;
   }
-  vtkNew<AffineArrayType64> offsets;
+  vtkNew<AffineArray64> offsets;
   offsets->ConstructBackend(this->GetCellSize(0), 0);
   offsets->SetNumberOfValues(this->GetNumberOfCells() + 1);
-  vtkNew<ArrayType64> conn;
+  vtkNew<AOSArray64> conn;
   bool result;
   this->Dispatch(ExtractAndInitialize{}, conn.Get(), result);
   if (!result)

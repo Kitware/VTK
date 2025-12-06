@@ -58,7 +58,7 @@ void vtkWebGPUComputeBufferInternals::UploadFromDataArray(
   vtkIdType byteOffset, vtkDataArray* dataArray, const char* description /*=nullptr*/)
 {
   using ArrayTypes = vtkTypeList::Unique<vtkTypeList::Append<vtkArrayDispatch::AllArrays,
-    vtkArrayDispatch::StorageOffsetsArrays>::Result>::Result;
+    vtkArrayDispatch::OffsetsArrays>::Result>::Result;
   using Dispatcher = vtkArrayDispatch::DispatchByArray<ArrayTypes>;
 
   DispatchDataWriter dispatchDataWriter(wgpuConfiguration, buffer, byteOffset);

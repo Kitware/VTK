@@ -509,7 +509,7 @@ void vtkPolyhedron::GenerateFaces()
     case vtkCellArray::Int64:
     case vtkCellArray::FixedSizeInt64:
     {
-      vtkTypeInt64* c = this->Faces->GetConnectivityArray64()->GetPointer(0);
+      vtkTypeInt64* c = this->Faces->GetConnectivityAOSArray64()->GetPointer(0);
       for (vtkIdType id = 0; id < numConn; ++id)
       {
         c[id] = this->PointIdMap[c[id]];
@@ -519,7 +519,7 @@ void vtkPolyhedron::GenerateFaces()
     case vtkCellArray::Int32:
     case vtkCellArray::FixedSizeInt32:
     {
-      vtkTypeInt32* c = this->Faces->GetConnectivityArray32()->GetPointer(0);
+      vtkTypeInt32* c = this->Faces->GetConnectivityAOSArray32()->GetPointer(0);
       for (vtkIdType id = 0; id < numConn; ++id)
       {
         c[id] = this->PointIdMap[c[id]];

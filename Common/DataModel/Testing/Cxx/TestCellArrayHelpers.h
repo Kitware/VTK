@@ -10,14 +10,12 @@
 #include "vtkDataArrayRange.h"
 #include "vtkIdList.h"
 #include "vtkIdTypeArray.h"
-#include "vtkImplicitArray.h"
 #include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkLongArray.h"
 #include "vtkLongLongArray.h"
 #include "vtkNew.h"
 #include "vtkPolyData.h"
-#include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
 #include "vtkTriangle.h"
 
@@ -132,8 +130,8 @@ struct CellArrayFactory<vtkCellArray::StorageTypes::Generic, ConnectivityArrayT,
     cellArray->SetData(placeholderOffsets, placeholderConn);
     DummyWorker worker;
     using Dispatcher =
-      vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::StorageOffsetsArrays,
-        vtkArrayDispatch::StorageConnectivityArrays>;
+      vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::OffsetsArrays,
+        vtkArrayDispatch::ConnectivityArrays>;
     // Ensure that the arrays are indeed not in the InputArrayList
     if (!Dispatcher::Execute(
           cellArray->GetOffsetsArray(), cellArray->GetConnectivityArray(), worker))
@@ -495,12 +493,18 @@ void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray, bool checkNoCopy)
       conn->InsertNextValue(ids->GetId(j));
     }
   }
+  auto offsetsMTtime = offsets->GetMTime();
+  auto connMTtime = conn->GetMTime();
   test->SetData(offsets, conn);
 
+  TEST_ASSERT(test->GetOffsetsArray() == offsets && offsets->GetMTime() == offsetsMTtime);
+  TEST_ASSERT(test->GetConnectivityArray() == conn && conn->GetMTime() == connMTtime);
+
   if (std::is_base_of_v<vtkAOSDataArrayTemplate<OffsetsValueType>, OffsetsArrayType> &&
-    std::is_base_of_v<vtkAOSDataArrayTemplate<ConnectivityValueType>, ConnectivityArrayType>)
+    std::is_base_of_v<vtkAOSDataArrayTemplate<ConnectivityValueType>, ConnectivityArrayType> &&
+    std::is_same_v<OffsetsValueType, ConnectivityValueType>)
   {
-    if (sizeof(OffsetsValueType) == 4 && sizeof(ConnectivityValueType) == 4)
+    if (std::is_same_v<OffsetsValueType, vtkTypeInt32>)
     {
       TEST_ASSERT(!test->IsStorage64Bit());
       TEST_ASSERT(test->IsStorage32Bit());
@@ -508,7 +512,7 @@ void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray, bool checkNoCopy)
       TEST_ASSERT(!test->IsStorageFixedSize32Bit());
       TEST_ASSERT(!test->IsStorageGeneric());
     }
-    else
+    else if (std::is_same_v<OffsetsValueType, vtkTypeInt64>)
     {
       TEST_ASSERT(test->IsStorage64Bit());
       TEST_ASSERT(!test->IsStorage32Bit());
@@ -516,11 +520,20 @@ void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray, bool checkNoCopy)
       TEST_ASSERT(!test->IsStorageFixedSize32Bit());
       TEST_ASSERT(!test->IsStorageGeneric());
     }
+    else
+    {
+      TEST_ASSERT(!test->IsStorage64Bit());
+      TEST_ASSERT(!test->IsStorage32Bit());
+      TEST_ASSERT(!test->IsStorageFixedSize64Bit());
+      TEST_ASSERT(!test->IsStorageFixedSize32Bit());
+      TEST_ASSERT(test->IsStorageGeneric());
+    }
   }
   else if (std::is_base_of_v<vtkAffineArray<OffsetsValueType>, OffsetsArrayType> &&
-    std::is_base_of_v<vtkAOSDataArrayTemplate<ConnectivityValueType>, ConnectivityArrayType>)
+    std::is_base_of_v<vtkAOSDataArrayTemplate<ConnectivityValueType>, ConnectivityArrayType> &&
+    std::is_same_v<OffsetsValueType, ConnectivityValueType>)
   {
-    if (sizeof(OffsetsValueType) == 4 && sizeof(ConnectivityValueType) == 4)
+    if (std::is_same_v<OffsetsValueType, vtkTypeInt32>)
     {
       TEST_ASSERT(!test->IsStorage64Bit());
       TEST_ASSERT(!test->IsStorage32Bit());
@@ -528,13 +541,21 @@ void TestSetDataImpl(vtkSmartPointer<vtkCellArray> cellArray, bool checkNoCopy)
       TEST_ASSERT(!test->IsStorageFixedSize64Bit());
       TEST_ASSERT(!test->IsStorageGeneric());
     }
-    else
+    else if (std::is_same_v<OffsetsValueType, vtkTypeInt64>)
     {
       TEST_ASSERT(!test->IsStorage64Bit());
       TEST_ASSERT(!test->IsStorage32Bit());
       TEST_ASSERT(test->IsStorageFixedSize64Bit());
       TEST_ASSERT(!test->IsStorageFixedSize32Bit());
       TEST_ASSERT(!test->IsStorageGeneric());
+    }
+    else
+    {
+      TEST_ASSERT(!test->IsStorage64Bit());
+      TEST_ASSERT(!test->IsStorage32Bit());
+      TEST_ASSERT(!test->IsStorageFixedSize64Bit());
+      TEST_ASSERT(!test->IsStorageFixedSize32Bit());
+      TEST_ASSERT(test->IsStorageGeneric());
     }
   }
   else
@@ -567,15 +588,13 @@ void TestSetData(vtkSmartPointer<vtkCellArray> cellArray)
 {
   vtkLogScopeFunction(INFO);
 
-  // These are documented to not deep copy the input arrays.
-  TestSetDataImpl<vtkCellArray::ArrayType32, vtkCellArray::ArrayType32>(cellArray, true);
-  TestSetDataImpl<vtkCellArray::ArrayType64, vtkCellArray::ArrayType64>(cellArray, true);
+  // These are documented to not shallow copy or deep copy the input arrays.
+  TestSetDataImpl<vtkCellArray::AOSArray32, vtkCellArray::AOSArray32>(cellArray, true);
+  TestSetDataImpl<vtkCellArray::AOSArray64, vtkCellArray::AOSArray64>(cellArray, true);
   TestSetDataImpl<vtkIdTypeArray, vtkIdTypeArray>(cellArray, true);
-  TestSetDataImpl<vtkCellArray::AffineArrayType32, vtkCellArray::ArrayType32>(cellArray, true);
-  TestSetDataImpl<vtkCellArray::AffineArrayType64, vtkCellArray::ArrayType64>(cellArray, true);
+  TestSetDataImpl<vtkCellArray::AffineArray32, vtkCellArray::AOSArray32>(cellArray, true);
+  TestSetDataImpl<vtkCellArray::AffineArray64, vtkCellArray::AOSArray64>(cellArray, true);
   TestSetDataImpl<vtkAffineArray<vtkIdType>, vtkIdTypeArray>(cellArray, true);
-
-  // These should work, but may deep copy:
   TestSetDataImpl<vtkTypeInt32Array, vtkTypeInt32Array>(cellArray, false);
   TestSetDataImpl<vtkTypeInt64Array, vtkTypeInt64Array>(cellArray, false);
   TestSetDataImpl<vtkIntArray, vtkIntArray>(cellArray, false);
@@ -1052,10 +1071,10 @@ void TestGetOffsetsArray(vtkSmartPointer<vtkCellArray> cellArray)
   switch (cellArray->GetStorageType())
   {
     case vtkCellArray::Int64:
-      TEST_ASSERT(cellArray->GetOffsetsArray() == cellArray->GetOffsetsArray64());
+      TEST_ASSERT(cellArray->GetOffsetsArray() == cellArray->GetOffsetsAOSArray64());
       break;
     case vtkCellArray::Int32:
-      TEST_ASSERT(cellArray->GetOffsetsArray() == cellArray->GetOffsetsArray32());
+      TEST_ASSERT(cellArray->GetOffsetsArray() == cellArray->GetOffsetsAOSArray32());
       break;
     case vtkCellArray::FixedSizeInt64:
       TEST_ASSERT(cellArray->GetOffsetsArray() == cellArray->GetOffsetsAffineArray64());
@@ -1077,16 +1096,16 @@ void TestGetConnectivityArray(vtkSmartPointer<vtkCellArray> cellArray)
   switch (cellArray->GetStorageType())
   {
     case vtkCellArray::Int64:
-      TEST_ASSERT(cellArray->GetConnectivityArray() == cellArray->GetConnectivityArray64());
+      TEST_ASSERT(cellArray->GetConnectivityArray() == cellArray->GetConnectivityAOSArray64());
       break;
     case vtkCellArray::Int32:
-      TEST_ASSERT(cellArray->GetConnectivityArray() == cellArray->GetConnectivityArray32());
+      TEST_ASSERT(cellArray->GetConnectivityArray() == cellArray->GetConnectivityAOSArray32());
       break;
     case vtkCellArray::FixedSizeInt64:
-      TEST_ASSERT(cellArray->GetConnectivityArray() == cellArray->GetConnectivityArray64());
+      TEST_ASSERT(cellArray->GetConnectivityArray() == cellArray->GetConnectivityAOSArray64());
       break;
     case vtkCellArray::FixedSizeInt32:
-      TEST_ASSERT(cellArray->GetConnectivityArray() == cellArray->GetConnectivityArray32());
+      TEST_ASSERT(cellArray->GetConnectivityArray() == cellArray->GetConnectivityAOSArray32());
       break;
     case vtkCellArray::Generic:
     default:

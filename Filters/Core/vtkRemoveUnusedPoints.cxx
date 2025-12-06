@@ -107,7 +107,7 @@ bool CopyConnectivity(vtkUnstructuredGrid* input, vtkUnstructuredGrid* output,
   outConnectivity->SetNumberOfTuples(inConnectivity->GetNumberOfTuples());
 
   RemapPointIdsWorker worker;
-  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::StorageConnectivityArrays>;
+  using Dispatcher = vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::ConnectivityArrays>;
   if (!Dispatcher::Execute(inConnectivity, worker, outConnectivity, pointMap, filter))
   {
     return false;

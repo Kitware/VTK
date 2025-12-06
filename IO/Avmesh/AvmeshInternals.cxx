@@ -383,7 +383,7 @@ void Read3DVolumeConnFast(
   cells->AllocateExact(ncell, connSize);
 
   // Get pointer to the cell offsets
-  auto offsetsArr = cells->GetOffsetsArray32();
+  auto offsetsArr = cells->GetOffsetsAOSArray32();
   offsetsArr->SetNumberOfTuples(ncell + 1);
   int* offsets = offsetsArr->GetPointer(0);
 
@@ -417,7 +417,7 @@ void Read3DVolumeConnFast(
   }
 
   // Now read the heavy connectivity data in one big chunk
-  auto connArr = cells->GetConnectivityArray32();
+  auto connArr = cells->GetConnectivityAOSArray32();
   connArr->SetNumberOfTuples(connSize);
   int* conn = connArr->GetPointer(0);
   fin.ReadArray(conn, connSize);

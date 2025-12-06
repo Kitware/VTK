@@ -1892,8 +1892,8 @@ void vtkUnstructuredGrid::RemoveGhostCells()
   vtkNew<vtkCellArray> newCells;
   this->Connectivity->IsStorage64Bit() ? newCells->Use64BitStorage() : newCells->Use32BitStorage();
 
-  using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::StorageOffsetsArrays,
-    vtkArrayDispatch::StorageOffsetsArrays, vtkArrayDispatch::StorageOffsetsArrays>;
+  using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::OffsetsArrays,
+    vtkArrayDispatch::OffsetsArrays, vtkArrayDispatch::OffsetsArrays>;
   ::RemoveGhostCellsWorker worker;
 
   if (!Dispatcher::Execute(this->Connectivity->GetOffsetsArray(), FacesOffset.Get(),

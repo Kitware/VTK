@@ -3909,12 +3909,12 @@ void vtkFoamEntryValue::ReadLabelListList(vtkFoamIOobject& io)
         void* sublist;
         if (this->Superclass::LabelListListPtr->IsStorage64Bit())
         {
-          sublist = this->Superclass::LabelListListPtr->GetConnectivityArray64()->WritePointer(
+          sublist = this->Superclass::LabelListListPtr->GetConnectivityAOSArray64()->WritePointer(
             nTotalElems, sublistLen);
         }
         else
         {
-          sublist = this->Superclass::LabelListListPtr->GetConnectivityArray32()->WritePointer(
+          sublist = this->Superclass::LabelListListPtr->GetConnectivityAOSArray32()->WritePointer(
             nTotalElems, sublistLen);
         }
 
@@ -3951,12 +3951,12 @@ void vtkFoamEntryValue::ReadLabelListList(vtkFoamIOobject& io)
           }
           if (this->Superclass::LabelListListPtr->IsStorage64Bit())
           {
-            this->Superclass::LabelListListPtr->GetConnectivityArray64()->InsertValue(
+            this->Superclass::LabelListListPtr->GetConnectivityAOSArray64()->InsertValue(
               nTotalElems++, currToken.To<int>());
           }
           else
           {
-            this->Superclass::LabelListListPtr->GetConnectivityArray32()->InsertValue(
+            this->Superclass::LabelListListPtr->GetConnectivityAOSArray32()->InsertValue(
               nTotalElems++, currToken.To<int>());
           }
           ++nTotalElems;
@@ -7135,11 +7135,11 @@ vtkSmartPointer<vtkCellArray> vtkOpenFOAMReaderPrivate::CreateCellFaces()
       tmpAddr->SetOffset(celli, next + 1);
       if (meshCells->IsStorage64Bit())
       {
-        meshCells->GetConnectivityArray64()->SetValue(next, facei);
+        meshCells->GetConnectivityAOSArray64()->SetValue(next, facei);
       }
       else
       {
-        meshCells->GetConnectivityArray32()->SetValue(next, facei);
+        meshCells->GetConnectivityAOSArray32()->SetValue(next, facei);
       }
     }
     // neighbour
@@ -7149,11 +7149,11 @@ vtkSmartPointer<vtkCellArray> vtkOpenFOAMReaderPrivate::CreateCellFaces()
       tmpAddr->SetOffset(celli, next + 1);
       if (meshCells->IsStorage64Bit())
       {
-        meshCells->GetConnectivityArray64()->SetValue(next, facei);
+        meshCells->GetConnectivityAOSArray64()->SetValue(next, facei);
       }
       else
       {
-        meshCells->GetConnectivityArray32()->SetValue(next, facei);
+        meshCells->GetConnectivityAOSArray32()->SetValue(next, facei);
       }
     }
   }
@@ -7167,11 +7167,11 @@ vtkSmartPointer<vtkCellArray> vtkOpenFOAMReaderPrivate::CreateCellFaces()
       tmpAddr->SetOffset(celli, next + 1);
       if (meshCells->IsStorage64Bit())
       {
-        meshCells->GetConnectivityArray64()->SetValue(next, facei);
+        meshCells->GetConnectivityAOSArray64()->SetValue(next, facei);
       }
       else
       {
-        meshCells->GetConnectivityArray32()->SetValue(next, facei);
+        meshCells->GetConnectivityAOSArray32()->SetValue(next, facei);
       }
     }
   }

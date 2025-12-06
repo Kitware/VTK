@@ -759,7 +759,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
 
   // Validate the offsets
   ValidateOffsets offsetValidator;
-  using SupportedArrays = vtkArrayDispatch::InputOffsetsArrays;
+  using SupportedArrays = vtkArrayDispatch::OffsetsArrays;
 
   // Convert array to supported type if necessary
   using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
@@ -767,8 +767,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
   if (offsetsNeedConversion)
   {
     // Use a vtkCellArray::ArrayType64 to ensure we can represent the incoming offset array type.
-    vtkSmartPointer<vtkCellArray::ArrayType64> newArray =
-      vtkSmartPointer<vtkCellArray::ArrayType64>::New();
+    auto newArray = vtkSmartPointer<vtkCellArray::AOSArray64>::New();
 
     // DeepCopy takes care of the type conversion.
     newArray->DeepCopy(cellOffsets);
@@ -999,7 +998,7 @@ int vtkXMLUnstructuredDataReader::ReadPolyhedronCellArray(vtkIdType numberOfCell
 
   // Validate the offsets
   ValidateOffsets offsetValidator;
-  using SupportedArrays = vtkArrayDispatch::InputOffsetsArrays;
+  using SupportedArrays = vtkArrayDispatch::OffsetsArrays;
 
   // Convert array to supported type if necessary
   using Dispatch = vtkArrayDispatch::DispatchByArray<SupportedArrays>;
@@ -1007,8 +1006,7 @@ int vtkXMLUnstructuredDataReader::ReadPolyhedronCellArray(vtkIdType numberOfCell
   if (offsetsNeedConversion)
   {
     // Use a vtkCellArray::ArrayType64 to ensure we can represent the incoming offset array type.
-    vtkSmartPointer<vtkCellArray::ArrayType64> newArray =
-      vtkSmartPointer<vtkCellArray::ArrayType64>::New();
+    auto newArray = vtkSmartPointer<vtkCellArray::AOSArray64>::New();
 
     // DeepCopy takes care of the type conversion.
     newArray->DeepCopy(polyhedronCellOffsets);
@@ -1208,8 +1206,7 @@ int vtkXMLUnstructuredDataReader::ReadPolyhedronCellArray(vtkIdType numberOfCell
   if (faceOffsetsNeedConversion)
   {
     // Use a vtkCellArray::ArrayType64 to ensure we can represent the incoming offset array type.
-    vtkSmartPointer<vtkCellArray::ArrayType64> newArray =
-      vtkSmartPointer<vtkCellArray::ArrayType64>::New();
+    auto newArray = vtkSmartPointer<vtkCellArray::AOSArray64>::New();
 
     // DeepCopy takes care of the type conversion.
     newArray->DeepCopy(faceOffsets);
