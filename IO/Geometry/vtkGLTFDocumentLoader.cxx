@@ -765,6 +765,7 @@ bool vtkGLTFDocumentLoader::LoadAnimationData()
   for (Animation& animation : this->InternalModel->Animations)
   {
     float maxDuration = 0;
+    std::set<float> allTimeStamps;
     for (Animation::Sampler& sampler : animation.Samplers)
     {
       // Create arrays
@@ -783,6 +784,12 @@ bool vtkGLTFDocumentLoader::LoadAnimationData()
       // Get max duration
       float duration = sampler.InputData->GetValueRange()[1];
       maxDuration = vtkMath::Max(maxDuration, duration);
+
+      // fill allTimeStamps
+      for (vtkIdType i = 0; i < sampler.InputData->GetNumberOfValues(); i++)
+      {
+        allTimeStamps.emplace(sampler.InputData->GetValue(i));
+      }
 
       // Load outputs (frame data)
       worker.Setup(sampler.Output, this->InternalModel->Accessors[sampler.Output].Type);
@@ -820,6 +827,7 @@ bool vtkGLTFDocumentLoader::LoadAnimationData()
       sampler.OutputData->SetNumberOfComponents(numberOfComponents);
     }
     animation.Duration = maxDuration;
+    animation.AllTimeStamps = allTimeStamps;
   }
   return true;
 }
@@ -1403,38 +1411,44 @@ void vtkGLTFDocumentLoader::Node::UpdateTransform()
 }
 
 //------------------------------------------------------------------------------
-void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(float t,
+void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(float timeValue,
   size_t numberOfComponents, std::vector<float>* output, bool forceStep, bool isRotation) const
 {
-  // linear or spline interpolation
-  if (this->Interpolation != Animation::Sampler::InterpolationMode::STEP && !forceStep)
+  // Find the previous and following keyframes
+  vtkIdType prevKeyFrameId = 0;
+
+  vtkIdType nextKeyFrameId =
+    std::lower_bound(this->InputData->Begin(), this->InputData->End(), timeValue) -
+    this->InputData->Begin();
+
+  // If we didn't find the next keyframe, that means t is over the animation's duration.
+  vtkIdType numberOfKeyFrames = this->InputData->GetNumberOfTuples();
+  if (nextKeyFrameId == numberOfKeyFrames)
   {
-    vtkIdType numberOfKeyFrames = this->InputData->GetNumberOfTuples();
+    nextKeyFrameId = numberOfKeyFrames - 1;
+    prevKeyFrameId = nextKeyFrameId;
+  }
 
-    // Find the previous and following keyframes
-    vtkIdType nextKeyFrameId =
-      std::lower_bound(this->InputData->Begin(), this->InputData->End(), t) -
-      this->InputData->Begin();
-    vtkIdType prevKeyFrameId = 0;
+  // Animation hasn't started yet.
+  else if (nextKeyFrameId == 0)
+  {
+    prevKeyFrameId = 0;
+  }
+  else
+  {
+    prevKeyFrameId = nextKeyFrameId - 1;
+  }
 
-    // If we didn't find the next keyframe, that means t is over the animation's duration.
-    if (nextKeyFrameId == numberOfKeyFrames)
-    {
-      nextKeyFrameId = numberOfKeyFrames - 1;
-      prevKeyFrameId = nextKeyFrameId;
-    }
-    // Animation hasn't started yet.
-    else if (nextKeyFrameId == 0)
-    {
-      prevKeyFrameId = 0;
-    }
-    else
-    {
-      prevKeyFrameId = nextKeyFrameId - 1;
-    }
+  // Check if we are on an exact time stamp
+  bool exact = false;
+  if (this->InputData->GetValue(prevKeyFrameId) == timeValue)
+  {
+    exact = true;
+  }
 
-    // Get time values
-
+  // linear or spline interpolation
+  if (this->Interpolation != Animation::Sampler::InterpolationMode::STEP && !exact && !forceStep)
+  {
     // Normalize t. Set to zero when at the first keyframe, and set to one when at the last keyframe
     float tNorm = 0;
     float tDelta = 0;
@@ -1451,7 +1465,7 @@ void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(float t,
       const float prevTime = this->InputData->GetValue(prevKeyFrameId);
       const float nextTime = this->InputData->GetValue(nextKeyFrameId);
       tDelta = nextTime - prevTime;
-      tNorm = (t - prevTime) / tDelta;
+      tNorm = (timeValue - prevTime) / tDelta;
     }
 
     if (this->Interpolation == Animation::Sampler::InterpolationMode::LINEAR)
@@ -1528,16 +1542,8 @@ void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(float t,
   }
   else
   {
-    // step interpolation
-    // get frame index
-    size_t lower = std::lower_bound(this->InputData->Begin(), this->InputData->End(), t) -
-      this->InputData->Begin();
-    if (lower > 0)
-    {
-      lower--;
-    }
-
-    for (size_t i = lower * numberOfComponents; i < numberOfComponents * (lower + 1); i++)
+    for (size_t i = prevKeyFrameId * numberOfComponents;
+         i < numberOfComponents * (prevKeyFrameId + 1); i++)
     {
       output->push_back(this->OutputData->GetValue(static_cast<vtkIdType>(i)));
     }
