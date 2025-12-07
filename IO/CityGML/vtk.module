@@ -17,6 +17,7 @@ PRIVATE_DEPENDS
   VTK::CommonDataModel
   VTK::FiltersGeneral
   VTK::FiltersModeling
+  VTK::IOCore
   VTK::pugixml
   VTK::vtksys
 TEST_DEPENDS

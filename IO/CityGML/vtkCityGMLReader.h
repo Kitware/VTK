@@ -40,8 +40,11 @@
  * grp::CityObjectGroup (forest), veg:SolitaryVegetationObject,
  * brid:Bridge, run:Tunel, tran:Railway, tran:Road, bldg:Building,
  * gen:GenericCityObject, luse:LandUse. These nodes also have a gml_id field array.
-*/
+ *
+ * This reader supports reading any vtkResourceStream, but is more efficient with a vtkMemoryStream.
+ */
 VTK_ABI_NAMESPACE_BEGIN
+class vtkResourceStream;
 class VTKIOCITYGML_EXPORT vtkCityGMLReader : public vtkMultiBlockDataSetAlgorithm
 {
 public:
@@ -55,6 +58,15 @@ public:
    */
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
+  ///@}
+
+  ///@{
+  /**
+   * Specify stream to read from
+   * When both `Stream` and `Filename` are set, stream is used.
+   */
+  void SetStream(vtkResourceStream* stream);
+  vtkResourceStream* GetStream();
   ///@}
 
   ///@{
@@ -112,6 +124,11 @@ public:
     vtkDataObject* obj, const char* name, double* value, vtkIdType numberOfComponents);
   ///@}
 
+  /**
+   * Overridden to take into account mtime from the internal vtkResourceStream.
+   */
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkCityGMLReader();
   ~vtkCityGMLReader() override;
@@ -128,6 +145,11 @@ protected:
 private:
   vtkCityGMLReader(const vtkCityGMLReader&) = delete;
   void operator=(const vtkCityGMLReader&) = delete;
+
+  /**
+   * The input stream.
+   */
+  vtkSmartPointer<vtkResourceStream> Stream;
 
   class Implementation;
   Implementation* Impl;
