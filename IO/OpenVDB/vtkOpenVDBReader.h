@@ -10,6 +10,8 @@
  * It is also possible to merge all image volumes into a single vtkImageData, and independently
  * merge all point clouds into a single vtkPolyData (cf vtkOpenVDBReader::SetMergeImageVolumes
  * and vtkOpenVDBReader::SetMergePointSets).
+ *
+ * This reader supports reading streams.
  */
 
 #ifndef vtkOpenVDBReader_h
@@ -21,6 +23,7 @@
 #include "vtkSmartPointer.h" // needed for smart pointers
 
 VTK_ABI_NAMESPACE_BEGIN
+class vtkResourceStream;
 class vtkOpenVDBReaderInternals;
 
 class VTKIOOPENVDB_EXPORT vtkOpenVDBReader : public vtkPartitionedDataSetCollectionAlgorithm
@@ -49,6 +52,15 @@ public:
    */
   vtkSetFilePathMacro(FileName);
   vtkGetFilePathMacro(FileName);
+  ///@}
+
+  ///@{
+  /**
+   * Specify stream to read from
+   * When both `Stream` and `Filename` are set, stream is used.
+   */
+  void SetStream(vtkResourceStream* stream);
+  vtkResourceStream* GetStream() const;
   ///@}
 
   /**
@@ -128,6 +140,11 @@ public:
    */
   int NumberOfGrids();
 
+  /**
+   * Overridden to take into account mtime from the internal vtkResourceStream.
+   */
+  vtkMTimeType GetMTime() override;
+
 protected:
   vtkOpenVDBReader();
   ~vtkOpenVDBReader() override;
@@ -161,6 +178,8 @@ protected:
 private:
   vtkOpenVDBReader(const vtkOpenVDBReader&) = delete;
   void operator=(const vtkOpenVDBReader&) = delete;
+
+  vtkSmartPointer<vtkResourceStream> Stream;
 
   std::unique_ptr<vtkOpenVDBReaderInternals> Internals;
 };

@@ -17,17 +17,20 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPolyData.h"
+#include "vtkResourceStream.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkType.h"
 
 #include <openvdb/Types.h>
+#include <openvdb/io/Stream.h>
 #include <openvdb/openvdb.h>
 #include <openvdb/points/PointCount.h>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenVDBReader);
+vtkCxxSetSmartPointerMacro(vtkOpenVDBReader, Stream, vtkResourceStream);
 
 //------------------------------------------------------------------------
 /*
@@ -595,6 +598,10 @@ void vtkOpenVDBReaderInternals::UpdateGridInformation(
     return;
   }
 
+  // Needed only when reading from stream
+  // This is overriden when reading from file
+  gridInfo->Grid = grid;
+
   gridInfo->Name = grid->getName();
   // go through metadata
   openvdb::Vec3i bBoxMin;
@@ -815,12 +822,18 @@ vtkOpenVDBReader::~vtkOpenVDBReader()
   this->SetFileName(nullptr);
 }
 
+//----------------------------------------------------------------------------
+vtkResourceStream* vtkOpenVDBReader::GetStream() const
+{
+  return this->Stream;
+}
+
 //------------------------------------------------------------------------
 bool vtkOpenVDBReader::LoadFile()
 {
-  if (this->FileName == nullptr)
+  if (this->FileName == nullptr && this->Stream == nullptr)
   {
-    vtkErrorMacro(<< "No file name has been set.");
+    vtkErrorMacro(<< "No file name or stream has been set.");
     return false;
   }
 
@@ -828,30 +841,51 @@ bool vtkOpenVDBReader::LoadFile()
 
   this->DataCorrect = true;
 
-  vtkOpenVDBReaderInternals::VdbFileContext resCtx = this->Internals->OpenFile(this->FileName);
-
-  if (resCtx.File == nullptr)
+  if (this->Stream)
   {
-    return false;
-  }
+    // Encapsulate resource stream into an istream
+    auto strbuf = this->Stream->ToStreambuf();
+    std::istream buffer(strbuf.get());
 
-  // then try to read the metadata
-  try
-  {
-    // it creates the pointers to the metadata of the grids
-    this->Internals->GridsVdbMetadata = resCtx.File->readAllGridMetadata();
+    try
+    {
+      // Read the istream using OpenVDB
+      this->Internals->GridsVdbMetadata = openvdb::io::Stream(buffer, false).getGrids();
+    }
+    catch (openvdb::IoError& e)
+    {
+      // happens when the strean is not a VDB file
+      vtkErrorMacro("Error while loading grids from stream: " << e.what());
+      return false;
+    }
   }
-  catch (openvdb::IoError& e)
+  else
   {
-    vtkErrorMacro(<< "Error while loading metadata from " << this->FileName << ": " << e.what());
-    resCtx.File = nullptr;
-    resCtx.FileName = "";
-    return false;
-  }
+    vtkOpenVDBReaderInternals::VdbFileContext resCtx = this->Internals->OpenFile(this->FileName);
 
-  // if everything went well, copy it into CurrentlyOpenedFile
-  this->Internals->CurrentlyOpenedFile.File = resCtx.File;
-  this->Internals->CurrentlyOpenedFile.FileName = resCtx.FileName;
+    if (resCtx.File == nullptr)
+    {
+      return false;
+    }
+
+    // then try to read the metadata
+    try
+    {
+      // it creates the pointers to the metadata of the grids
+      this->Internals->GridsVdbMetadata = resCtx.File->readAllGridMetadata();
+    }
+    catch (openvdb::IoError& e)
+    {
+      vtkErrorMacro(<< "Error while loading metadata from " << this->FileName << ": " << e.what());
+      resCtx.File = nullptr;
+      resCtx.FileName = "";
+      return false;
+    }
+
+    // if everything went well, copy it into CurrentlyOpenedFile
+    this->Internals->CurrentlyOpenedFile.File = resCtx.File;
+    this->Internals->CurrentlyOpenedFile.FileName = resCtx.FileName;
+  }
 
   return true;
 }
@@ -953,8 +987,12 @@ int vtkOpenVDBReader::RequestData(vtkInformation* vtkNotUsed(request),
   for (const unsigned int& gridIdx : reqGrids)
   {
     OpenVDBGridInformation& gridInfo = this->Internals->GetGridInformation(gridIdx);
-    // this is where the grid's data is actually loaded
-    gridInfo.Grid = this->Internals->CurrentlyOpenedFile.File->readGrid(gridInfo.Name);
+
+    if (this->Internals->CurrentlyOpenedFile.File)
+    {
+      // this is where the grid's data is actually loaded when reading from file
+      gridInfo.Grid = this->Internals->CurrentlyOpenedFile.File->readGrid(gridInfo.Name);
+    }
     if (gridInfo.Grid == nullptr)
     {
       vtkErrorMacro(<< "Unknown requested grid name: " << gridInfo.Name);
@@ -1253,4 +1291,16 @@ void vtkOpenVDBReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "MergePointSets: " << this->MergePointSets << endl;
   this->GridSelection->PrintSelf(os, indent.GetNextIndent());
 }
+
+//----------------------------------------------------------------------------
+vtkMTimeType vtkOpenVDBReader::GetMTime()
+{
+  auto mtime = this->Superclass::GetMTime();
+  if (this->Stream)
+  {
+    mtime = std::max(mtime, this->Stream->GetMTime());
+  }
+  return mtime;
+}
+
 VTK_ABI_NAMESPACE_END
