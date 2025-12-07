@@ -43,6 +43,14 @@ vtk_add_test_cxx(vtkIOImageCxxTests tests
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/gradient_xyz.hdr}")
 
 vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestHDRReaderRGBEStream,TestHDRReaderStream.cxx,NO_OUTPUT
+    "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/spiaggia_di_mondello_1k.hdr}")
+
+vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestHDRReaderXYZStream,TestHDRReaderStream.cxx,NO_OUTPUT
+    "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/gradient_xyz.hdr}")
+
+vtk_add_test_cxx(vtkIOImageCxxTests tests
   TestSEPReader.cxx,NO_OUTPUT)
 
 vtk_add_test_cxx(vtkIOImageCxxTests tests

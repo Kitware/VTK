@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHDRReader.h"
 
+#include "vtkFileResourceStream.h"
 #include "vtkImageData.h"
 #include "vtkImageFlip.h"
 #include "vtkImagePermute.h"
@@ -10,6 +11,8 @@
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
+#include "vtkResourceParser.h"
+#include "vtkStringScanner.h"
 #include "vtksys/FStream.hxx"
 #include "vtksys/SystemTools.hxx"
 
@@ -213,11 +216,20 @@ void vtkHDRReader::ConvertAllDataFromRGBToXYZ(float* outPtr, int size)
 // templated to handle different data types.
 bool vtkHDRReader::HDRReaderUpdateSlice(float* outPtr, int* outExt)
 {
-  this->OpenFile();
-  std::istream* is = this->GetFile();
+  vtkResourceStream* stream = this->GetStream();
+  vtkNew<vtkFileResourceStream> fileStream;
+  if (!stream)
+  {
+    if (!fileStream->Open(this->InternalFileName))
+    {
+      vtkErrorMacro("Could not open file " << this->InternalFileName);
+      return false;
+    }
+    stream = fileStream;
+  }
 
   // Ignore header
-  is->ignore(this->HeaderSize);
+  stream->Seek(this->HeaderSize, vtkResourceStream::SeekDirection::Begin);
 
   // Even if we have a smaller extent, the RLE encoding forces us to read all the line width
   const int width = this->GetWidth();
@@ -241,7 +253,7 @@ bool vtkHDRReader::HDRReaderUpdateSlice(float* outPtr, int* outExt)
   if ((width < 8) || (width > 0x7fff))
   {
     // File not run length encoded
-    this->ReadAllFileNoRLE(is, outPtr2, decrPtr, outExt);
+    this->ReadAllFileNoRLE(stream, outPtr2, decrPtr, outExt);
     this->CloseFile();
     return true;
   }
@@ -250,7 +262,7 @@ bool vtkHDRReader::HDRReaderUpdateSlice(float* outPtr, int* outExt)
   int nbSkipLines = outExt[2];
 
   // Store the position in case of a non RLE encoded file
-  std::streampos afterHeader = is->tellg();
+  vtkTypeInt64 afterHeader = stream->Tell();
 
   // rgbe will hold the value of each channels
   unsigned char rgbe[4];
@@ -259,11 +271,7 @@ bool vtkHDRReader::HDRReaderUpdateSlice(float* outPtr, int* outExt)
   std::vector<unsigned char> lineBuffer(width * 4);
   while (nbLinesLeft > 0)
   {
-    is->read(reinterpret_cast<char*>(rgbe), sizeof(unsigned char) * 4);
-    if (this->HasError(is))
-    {
-      return false;
-    }
+    stream->Read(rgbe, sizeof(unsigned char) * 4);
 
     // New RLE encoding.
     // First 4 bytes -> rgbe
@@ -286,14 +294,12 @@ bool vtkHDRReader::HDRReaderUpdateSlice(float* outPtr, int* outExt)
       }
       // else, it means that the file not run length encoded
 
-      // Restore position
-      is->seekg(afterHeader);
-
-      // Skip beginning lines
-      is->ignore(outExt[2] * this->GetWidth() * 4);
+      // Restore position and skip beginning lines
+      stream->Seek(
+        afterHeader + (outExt[2] * this->GetWidth() * 4), vtkResourceStream::SeekDirection::Begin);
 
       // Read all the file with no RLE encoding
-      if (!this->ReadAllFileNoRLE(is, outPtr2, decrPtr, outExt))
+      if (!this->ReadAllFileNoRLE(stream, outPtr2, decrPtr, outExt))
       {
         vtkErrorMacro(<< "HDRReader : Bad line data");
         this->CloseFile();
@@ -312,7 +318,7 @@ bool vtkHDRReader::HDRReaderUpdateSlice(float* outPtr, int* outExt)
 
     // File is run length encoded, read line by line
     // Read each of the four channel into the lineBuffer
-    if (!this->ReadLineRLE(is, lineBuffer.data()))
+    if (!this->ReadLineRLE(stream, lineBuffer.data()))
     {
       vtkErrorMacro(<< "HDRReader : Bad line data");
       this->CloseFile();
@@ -341,6 +347,7 @@ bool vtkHDRReader::HDRReaderUpdateSlice(float* outPtr, int* outExt)
 }
 
 //------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_6_0
 bool vtkHDRReader::HasError(std::istream* is)
 {
   if (!*is)
@@ -352,11 +359,13 @@ bool vtkHDRReader::HasError(std::istream* is)
   return false;
 }
 
+//------------------------------------------------------------------------------
 int vtkHDRReader::GetWidth() const
 {
   return this->DataExtent[1] - this->DataExtent[0] + 1;
 }
 
+//------------------------------------------------------------------------------
 int vtkHDRReader::GetHeight() const
 {
   return this->DataExtent[3] - this->DataExtent[2] + 1;
@@ -365,83 +374,87 @@ int vtkHDRReader::GetHeight() const
 //------------------------------------------------------------------------------
 bool vtkHDRReader::ReadHeaderData()
 {
-  // Precondition:CanReadFile return true
-
-  if (!this->OpenFile())
+  vtkResourceStream* stream = this->GetStream();
+  vtkNew<vtkFileResourceStream> fileStream;
+  if (!stream)
   {
-    vtkErrorMacro("Unable to open file " << this->InternalFileName);
-    return false;
+    if (!fileStream->Open(this->InternalFileName))
+    {
+      vtkErrorMacro("Could not open file " << this->InternalFileName);
+      return false;
+    }
+    stream = fileStream;
   }
+  stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
 
   int headersize = 0;
 
-  std::istream* is = this->File;
-  char buffer[128];
+  vtkNew<vtkResourceParser> parser;
+  parser->SetStream(stream);
 
-  // First line: program type
-  is->getline(buffer, 128);
-  if (this->HasError(is))
+  std::string str;
+  vtkTypeInt64 cur = parser->Tell();
+  vtkParseResult res = parser->ReadLine(str);
+  if (res == vtkParseResult::Error)
   {
+    vtkErrorMacro("Error reading program type");
     return false;
   }
-  headersize += is->gcount();
-  std::istringstream iss(buffer);
-  iss.ignore(2);
-  iss >> this->ProgramType;
+  headersize += parser->Tell() - cur;
 
-  std::string format;
+  this->ProgramType = str.substr(2);
 
   // Read header
   while (true)
   {
-    is->getline(buffer, 128);
-    if (this->HasError(is))
+    cur = parser->Tell();
+    res = parser->ReadLine(str);
+    if (res == vtkParseResult::Error)
     {
+      vtkErrorMacro("Error reading program type");
       return false;
     }
+    headersize += parser->Tell() - cur;
 
-    headersize += is->gcount();
-
-    // skip comments
-    if (buffer[0] == '#')
-    {
-      continue;
-    }
-
-    // Header end with a blank line
-    if (buffer[0] == 0 || buffer[0] == '\r' || buffer[0] == '\n')
+    // EOL
+    if (str.empty())
     {
       break;
     }
 
-    iss.str(buffer);
-    iss.clear();
-
-    iss.getline(buffer, 128, '=');
-    if (strcmp(buffer, "FORMAT") == 0)
+    // skip comments
+    if (str.front() == '#')
     {
-      iss >> format;
+      continue;
+    }
 
-      if (format == "32-bit_rle_rgbe")
+    // Split by '='
+    std::string::size_type equalChar = str.find_first_of('=');
+    std::string key = str.substr(0, equalChar);
+    std::string value = str.substr(equalChar + 1);
+
+    if (key == "FORMAT")
+    {
+      if (value == "32-bit_rle_rgbe")
       {
         this->Format = vtkHDRReader::FORMAT_32BIT_RLE_RGBE;
       }
-      else if (format == "32-bit_rle_xyze")
+      else if (value == "32-bit_rle_xyze")
       {
         this->Format = vtkHDRReader::FORMAT_32BIT_RLE_XYZE;
       }
     }
-    else if (strcmp(buffer, "GAMMA") == 0)
+    else if (key == "GAMMA")
     {
-      iss >> this->Gamma;
+      this->Gamma = vtk::scan_value<double>(value)->value();
     }
-    else if (strcmp(buffer, "EXPOSURE") == 0)
+    else if (key == "EXPOSURE")
     {
-      iss >> this->Exposure;
+      this->Exposure = vtk::scan_value<double>(value)->value();
     }
-    else if (strcmp(buffer, "PIXASPECT") == 0)
+    else if (key == "PIXASPECT")
     {
-      iss >> this->PixelAspect;
+      this->PixelAspect = vtk::scan_value<double>(value)->value();
     }
   }
   // End of header
@@ -450,16 +463,18 @@ bool vtkHDRReader::ReadHeaderData()
   // The X and Y are immediately preceded by a sign which can be used to indicate flipping,
   // the order of the X and Y indicate rotation
 
-  is->getline(buffer, 128);
-  headersize += is->gcount();
+  cur = parser->Tell();
+  res = parser->ReadLine(str);
+  if (res == vtkParseResult::Error)
+  {
+    vtkErrorMacro("Error reading program type");
+    return false;
+  }
+  headersize += parser->Tell() - cur;
 
-  iss.str(buffer);
-  iss.clear();
-  iss >> std::skipws;
-
+  std::istringstream iss(str);
   char x, y, signX, signY;
   int h, w;
-
   iss >> std::skipws >> signY >> y >> h >> signX >> x >> w;
 
   if (y == 'X')
@@ -534,17 +549,18 @@ void vtkHDRReader::FillOutPtrNoRLE(
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDRReader::ReadAllFileNoRLE(std::istream* is, float* outPtr, int decrPtr, int* outExt)
+bool vtkHDRReader::ReadAllFileNoRLE(
+  vtkResourceStream* stream, float* outPtr, int decrPtr, int* outExt)
 {
   std::vector<unsigned char> lineBuffer(this->GetWidth() * 4);
 
   int nbLinesLeft = outExt[3] - outExt[2] + 1;
   while (nbLinesLeft > 0)
   {
-    // Read a line
-    is->read(reinterpret_cast<char*>(lineBuffer.data()), sizeof(unsigned char) * lineBuffer.size());
-    if (this->HasError(is))
+    std::size_t size = sizeof(unsigned char) * lineBuffer.size();
+    if (stream->Read(lineBuffer.data(), size) != size)
     {
+      vtkErrorMacro("Unable to read as expected");
       return false;
     }
 
@@ -562,7 +578,7 @@ bool vtkHDRReader::ReadAllFileNoRLE(std::istream* is, float* outPtr, int decrPtr
 }
 
 //------------------------------------------------------------------------------
-bool vtkHDRReader::ReadLineRLE(std::istream* is, unsigned char* lineBufferPtr)
+bool vtkHDRReader::ReadLineRLE(vtkResourceStream* stream, unsigned char* lineBufferPtr)
 {
   // A line in RLE is sorted by channels, ie. it begins by all the red, then green, blue, and
   // exponent It means that we need to read all the line even if we have an smaller extent
@@ -575,9 +591,10 @@ bool vtkHDRReader::ReadLineRLE(std::istream* is, unsigned char* lineBufferPtr)
     unsigned char* ptrEnd = lineBufferPtr + width;
     while (lineBufferPtr < ptrEnd)
     {
-      is->read(reinterpret_cast<char*>(buffer), sizeof(unsigned char) * 2);
-      if (this->HasError(is))
+      std::size_t size = sizeof(unsigned char) * 2;
+      if (stream->Read(buffer, size) != size)
       {
+        vtkErrorMacro("Unable to read as expected");
         return false;
       }
 
@@ -607,12 +624,13 @@ bool vtkHDRReader::ReadLineRLE(std::istream* is, unsigned char* lineBufferPtr)
         // Read count bytes into output
         if (--count > 0)
         {
-          is->read(reinterpret_cast<char*>(lineBufferPtr), sizeof(unsigned char) * count);
-          if (this->HasError(is))
+
+          size = sizeof(unsigned char) * count;
+          if (stream->Read(lineBufferPtr, size) != size)
           {
+            vtkErrorMacro("Unable to read as expected");
             return false;
           }
-
           lineBufferPtr += count;
         }
       }
