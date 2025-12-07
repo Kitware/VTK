@@ -41,10 +41,9 @@ int TestPlotPoints(int, char*[])
   arrS->SetName("Sine");
   table->AddColumn(arrS);
   // Test charting with a few more points...
-  int numPoints = NPOINTS;
-  float inc = INCX / (numPoints - 1);
-  table->SetNumberOfRows(numPoints);
-  for (int i = 0; i < numPoints; ++i)
+  const float inc = INCX / (NPOINTS - 1);
+  table->SetNumberOfRows(NPOINTS);
+  for (int i = 0; i < NPOINTS; ++i)
   {
     table->SetValue(i, 0, i * inc);
     table->SetValue(i, 1, cos(i * inc) + 0.0);
