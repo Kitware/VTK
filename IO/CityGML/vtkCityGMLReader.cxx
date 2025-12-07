@@ -14,11 +14,13 @@
 #include "vtkLine.h"
 #include "vtkMathUtilities.h"
 #include "vtkMatrix4x4.h"
+#include "vtkMemoryResourceStream.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkPolygon.h"
+#include "vtkResourceStream.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkStringFormatter.h"
@@ -41,6 +43,7 @@
 #include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
+vtkCxxSetSmartPointerMacro(vtkCityGMLReader, Stream, vtkResourceStream);
 class vtkCityGMLReader::Implementation
 {
 public:
@@ -948,6 +951,9 @@ public:
     }
   }
 
+  // used to copy stream into memStream when needed
+  vtkNew<vtkMemoryResourceStream> LocalMemStream;
+
 private:
   struct TextureInfo
   {
@@ -1003,6 +1009,12 @@ vtkCityGMLReader::~vtkCityGMLReader()
   delete[] this->FileName;
 }
 
+//----------------------------------------------------------------------------
+vtkResourceStream* vtkCityGMLReader::GetStream()
+{
+  return this->Stream;
+}
+
 //------------------------------------------------------------------------------
 int vtkCityGMLReader::RequestData(
   vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
@@ -1024,9 +1036,41 @@ int vtkCityGMLReader::RequestData(
     endBuildingIndex = this->EndBuildingIndex;
   }
 
+  if (!this->FileName && !this->Stream)
+  {
+    vtkErrorMacro("Requires valid input file name or stream");
+    return 0;
+  }
+
   this->Impl->Initialize(this, this->LOD, this->UseTransparencyAsOpacity);
   pugi::xml_document doc;
-  pugi::xml_parse_result result = doc.load_file(this->FileName);
+  pugi::xml_parse_result result;
+
+  if (this->Stream)
+  {
+    this->Stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+
+    auto memStream = vtkMemoryResourceStream::SafeDownCast(this->Stream);
+    if (!memStream)
+    {
+      // Copy to a mem stream if needed
+      this->Stream->Seek(0, vtkResourceStream::SeekDirection::End);
+      std::size_t size = this->Stream->Tell();
+      this->Stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+      std::vector<std::byte> tempBuffer;
+      tempBuffer.resize(size);
+      this->Stream->Read(tempBuffer.data(), size);
+      this->Impl->LocalMemStream->SetBuffer(std::move(tempBuffer));
+      memStream = this->Impl->LocalMemStream;
+    }
+
+    result = doc.load_buffer(memStream->GetBuffer(), memStream->GetSize());
+  }
+  else
+  {
+    result = doc.load_file(this->FileName);
+  }
+
   this->UpdateProgress(0.2);
 
   if (!result)
@@ -1089,6 +1133,16 @@ int vtkCityGMLReader::RequestData(
 void vtkCityGMLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+  if (this->Stream)
+  {
+    os << indent << "Stream: "
+       << "\n";
+    this->Stream->PrintSelf(os, indent.GetNextIndent());
+  }
+  else
+  {
+    os << indent << "Stream: (none)\n";
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1124,4 +1178,16 @@ void vtkCityGMLReader::SetField(
   da->SetName(name);
   fd->AddArray(da);
 }
+
+//----------------------------------------------------------------------------
+vtkMTimeType vtkCityGMLReader::GetMTime()
+{
+  auto mtime = this->Superclass::GetMTime();
+  if (this->Stream)
+  {
+    mtime = std::max(mtime, this->Stream->GetMTime());
+  }
+  return mtime;
+}
+
 VTK_ABI_NAMESPACE_END

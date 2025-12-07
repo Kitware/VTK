@@ -4,13 +4,14 @@
 // .NAME Test of an RGBA texture on a vtkActor.
 // .SECTION Description
 // this program tests the CityGML Reader and setting of textures to
-// individual datasets of the multiblock tree.
+// individual datasets of the multiblock tree while reader a stream
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
 #include "vtkCityGMLReader.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkFieldData.h"
+#include "vtkFileResourceStream.h"
 #include "vtkJPEGReader.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkPolyData.h"
@@ -36,7 +37,6 @@ void AddActors(vtkRenderer* renderer, vtkMultiBlockDataSet* mb, const char* fnam
     vtkPolyData* poly = vtkPolyData::SafeDownCast(it->GetCurrentDataObject());
     if (poly)
     {
-
       vtkNew<vtkPolyDataMapper> mapper;
       mapper->SetInputDataObject(poly);
 
@@ -65,12 +65,11 @@ void AddActors(vtkRenderer* renderer, vtkMultiBlockDataSet* mb, const char* fnam
 }
 }
 
-int TestCityGMLReader(int argc, char* argv[])
+int TestCityGMLReaderStream(int argc, char* argv[])
 {
   char* fname =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/CityGML/Part-4-Buildings-V4-one.gml");
 
-  std::cout << fname << std::endl;
   vtkNew<vtkRenderer> renderer;
   renderer->SetBackground(0.5, 0.7, 0.7);
 
@@ -80,8 +79,11 @@ int TestCityGMLReader(int argc, char* argv[])
   vtkNew<vtkRenderWindowInteractor> interactor;
   interactor->SetRenderWindow(renWin);
 
+  vtkNew<vtkFileResourceStream> fileStream;
+  fileStream->Open(fname);
+
   vtkNew<vtkCityGMLReader> reader;
-  reader->SetFileName(fname);
+  reader->SetStream(fileStream);
   reader->Update();
   vtkMultiBlockDataSet* mb = reader->GetOutput();
 
