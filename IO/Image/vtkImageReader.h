@@ -69,6 +69,12 @@ public:
 
   int OpenAndSeekFile(int extent[6], int slice);
 
+  /**
+   * Return an offset to seek with a stream depending
+   * on provided data extent, idx and current header size
+   */
+  vtkTypeInt64 ComputeStartOffset(int dataExtent[6], int idx);
+
   ///@{
   /**
    * Set/get the scalar array name for this data set.

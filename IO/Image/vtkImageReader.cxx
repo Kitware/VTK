@@ -72,6 +72,7 @@ void vtkImageReader::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 // This method returns the largest data that can be generated.
+//------------------------------------------------------------------------------
 int vtkImageReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
 {
@@ -112,6 +113,7 @@ int vtkImageReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   return 1;
 }
 
+//------------------------------------------------------------------------------
 int vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
 {
   std::streamoff startOffset;
@@ -127,6 +129,29 @@ int vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
   {
     return 0;
   }
+  startOffset = this->ComputeStartOffset(dataExtent, idx);
+
+  // error checking
+  this->File->seekg(startOffset, ios::beg);
+  if (this->File->fail())
+  {
+    vtkErrorMacro(<< "File operation failed: " << startOffset << ", ext: " << dataExtent[0] << ", "
+                  << dataExtent[1] << ", " << dataExtent[2] << ", " << dataExtent[3] << ", "
+                  << dataExtent[4] << ", " << dataExtent[5]);
+    vtkErrorMacro(<< "Header size: " << this->GetHeaderSize(idx)
+                  << ", file ext: " << this->DataExtent[0] << ", " << this->DataExtent[1] << ", "
+                  << this->DataExtent[2] << ", " << this->DataExtent[3] << ", "
+                  << this->DataExtent[4] << ", " << this->DataExtent[5]);
+    return 0;
+  }
+  return 1;
+}
+
+//------------------------------------------------------------------------------
+vtkTypeInt64 vtkImageReader::ComputeStartOffset(int dataExtent[6], int idx)
+{
+  vtkTypeInt64 startOffset;
+
   // convert data extent into constants that can be used to seek.
   startOffset =
     static_cast<std::streamoff>(dataExtent[0] - this->DataExtent[0]) * this->DataIncrements[0];
@@ -152,20 +177,7 @@ int vtkImageReader::OpenAndSeekFile(int dataExtent[6], int idx)
 
   startOffset += this->GetHeaderSize(idx);
 
-  // error checking
-  this->File->seekg(startOffset, ios::beg);
-  if (this->File->fail())
-  {
-    vtkErrorMacro(<< "File operation failed: " << startOffset << ", ext: " << dataExtent[0] << ", "
-                  << dataExtent[1] << ", " << dataExtent[2] << ", " << dataExtent[3] << ", "
-                  << dataExtent[4] << ", " << dataExtent[5]);
-    vtkErrorMacro(<< "Header size: " << this->GetHeaderSize(idx)
-                  << ", file ext: " << this->DataExtent[0] << ", " << this->DataExtent[1] << ", "
-                  << this->DataExtent[2] << ", " << this->DataExtent[3] << ", "
-                  << this->DataExtent[4] << ", " << this->DataExtent[5]);
-    return 0;
-  }
-  return 1;
+  return startOffset;
 }
 
 //------------------------------------------------------------------------------
