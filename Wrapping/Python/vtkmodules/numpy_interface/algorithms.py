@@ -775,9 +775,6 @@ def where(*args):
     """
     return npalgs.where(*args)
 
-in1d = deprecated(version="9.6", message="Use np.in1d() instead of algs.in1d().")(npalgs.in1d)
-in1d.__doc__ = "Test whether each element of a 1-D array is also present in a second array."
-
 isin = deprecated(version="9.6", message="Use np.isin() instead of algs.isin().")(npalgs.isin)
 isin.__doc__ = "Test whether each element of a 1-D array is also present in a second array."
 
