@@ -5,6 +5,7 @@ vtkImageReader2::Get/SetStream methods have been added and implemented in:
  - vtkTGAReader
  - vtkJPEGReader
  - vtkHDRReader
+ - vtkBMPReader
 
 vtkImageReader2::SetMemoryBuffer have been deprecated in favor of SetStream.
 
