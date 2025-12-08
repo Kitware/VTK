@@ -7,7 +7,7 @@ VTK_ABI_NAMESPACE_BEGIN
 
 //------------------------------------------------------------------------------
 template <class T>
-vtkHDFUtilities::TemporalGeometryOffsets::TemporalGeometryOffsets(T* impl, vtkIdType step)
+bool vtkHDFUtilities::TemporalGeometryOffsets::GetOffsets(T* impl, vtkIdType step)
 {
   auto getMultiOffset = [&](std::string path, std::vector<vtkIdType>& val)
   {
@@ -15,7 +15,7 @@ vtkHDFUtilities::TemporalGeometryOffsets::TemporalGeometryOffsets(T* impl, vtkId
     if (val.empty())
     {
       vtkErrorWithObjectMacro(
-        nullptr, << path.c_str() << " array cannot be empty when there is temporal data");
+        impl->GetReader(), << path.c_str() << " array cannot be empty when there is temporal data");
       return false;
     }
     return true;
@@ -32,24 +32,50 @@ vtkHDFUtilities::TemporalGeometryOffsets::TemporalGeometryOffsets(T* impl, vtkId
   };
   if (!getSingleOffset("Steps/PartOffsets", this->PartOffset))
   {
-    this->Success = false;
-    return;
+    return false;
   }
   if (!getSingleOffset("Steps/PointOffsets", this->PointOffset))
   {
-    this->Success = false;
-    return;
+    return false;
   }
   if (!getMultiOffset("Steps/CellOffsets", this->CellOffsets))
   {
-    this->Success = false;
-    return;
+    return false;
   }
   if (!getMultiOffset("Steps/ConnectivityIdOffsets", this->ConnectivityOffsets))
   {
-    this->Success = false;
-    return;
+    return false;
   }
+
+  bool HasFaceConnOffsets = impl->HasDataset("Steps/FaceConnectivityOffsets");
+  bool HasPolyToFaceOffsets = impl->HasDataset("Steps/PolyhedronToFaceIdOffsets");
+  bool HasFaceOffsets = impl->HasDataset("Steps/FaceOffsetsOffsets");
+
+  if (HasFaceConnOffsets && HasPolyToFaceOffsets && HasFaceOffsets)
+  {
+    this->HasPolyhedron = true;
+    if (!getSingleOffset("Steps/FaceConnectivityOffsets", this->FaceConnectivityOffset))
+    {
+      return false;
+    }
+    if (!getSingleOffset("Steps/PolyhedronToFaceIdOffsets", this->PolyhedronToFaceIdOffset))
+    {
+      return false;
+    }
+    if (!getSingleOffset("Steps/FaceOffsetsOffsets", this->FaceOffset))
+    {
+      return false;
+    }
+  }
+  else if (HasFaceConnOffsets || HasPolyToFaceOffsets || HasFaceOffsets)
+  {
+    vtkErrorWithObjectMacro(impl->GetReader(),
+      "Time-dependent polyhedrons require 'Steps/FaceConnectivityOffsets', "
+      "'Steps/PolyhedronToFaceIdOffsets' and 'Steps/FaceOffsetsOffsets'.");
+    return false;
+  }
+
+  return true;
 }
 
 //------------------------------------------------------------------------------

@@ -103,14 +103,22 @@ VTKIOHDF_EXPORT hid_t getH5TypeFromVtkType(int dataType);
 struct VTKIOHDF_EXPORT TemporalGeometryOffsets
 {
 public:
+  VTK_DEPRECATED_IN_9_6_0("Member is deprecated. Please use GetOffsets instead.")
   bool Success = true;
+
   vtkIdType PartOffset = 0;
   vtkIdType PointOffset = 0;
   std::vector<vtkIdType> CellOffsets;
   std::vector<vtkIdType> ConnectivityOffsets;
 
+  // Polyhedron
+  vtkIdType FaceConnectivityOffset = 0;
+  vtkIdType PolyhedronToFaceIdOffset = 0;
+  vtkIdType FaceOffset = 0;
+  bool HasPolyhedron = false;
+
   template <class T>
-  TemporalGeometryOffsets(T* impl, vtkIdType step);
+  bool GetOffsets(T* impl, vtkIdType step);
 };
 
 /*

@@ -23,7 +23,7 @@ have ongoing discussions and may be specified when possible.
 | vtkPolyData                     | specified       |
 | vtkRectilinearGrid              | [not specified](https://gitlab.kitware.com/vtk/vtk/-/issues/19379) |
 | vtkStructuredGrid               | [not specified](https://discourse.vtk.org/t/vtkhdf-vtkstructuredgrid-support/15920) |
-| vtkUnstructuredGrid             | [partially specified](https://gitlab.kitware.com/vtk/vtk/-/issues/19237) |
+| vtkUnstructuredGrid             | specified |
 
 ### Additional Features
 

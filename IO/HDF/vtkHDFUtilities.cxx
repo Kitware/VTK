@@ -186,10 +186,18 @@ bool NewArray(
   // read hyperslab
   if (H5Dread(dataset, nativeType, memspace, filespace, H5P_DEFAULT, data) < 0)
   {
+    std::stringstream starts;
+    for (auto& val : start)
+    {
+      starts << val << ", ";
+    }
+    std::stringstream counts;
+    for (auto& val : count)
+    {
+      counts << val << " ";
+    }
     vtkErrorWithObjectMacro(nullptr, << "Error H5Dread "
-                                     << "start: " << start[0] << ", " << start[1] << ", "
-                                     << start[2] << " count: " << count[0] << ", " << count[1]
-                                     << ", " << count[2]);
+                                     << "start: " << starts.str() << " count: " << counts.str());
     return false;
   }
 

@@ -288,6 +288,12 @@ bool vtkHDFReader::Implementation::HasAttribute(const char* groupName, const cha
 }
 
 //------------------------------------------------------------------------------
+bool vtkHDFReader::Implementation::HasDataset(const char* datasetName)
+{
+  return H5Lexists(this->VTKGroup, datasetName, H5P_DEFAULT) > 0;
+}
+
+//------------------------------------------------------------------------------
 std::vector<std::string> vtkHDFReader::Implementation::GetArrayNames(int attributeType)
 {
   return vtkHDFUtilities::GetArrayNames(this->AttributeDataGroup, attributeType);

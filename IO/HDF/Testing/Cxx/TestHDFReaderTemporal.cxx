@@ -31,10 +31,12 @@
 #include "vtkXMLPartitionedDataSetReader.h"
 #include "vtkXMLPolyDataReader.h"
 #include "vtkXMLUniformGridAMRReader.h"
+#include "vtkXMLUnstructuredGridReader.h"
 
 #include <cstdlib>
 #include <iostream>
 #include <map>
+#include <string>
 #include <vector>
 
 namespace
@@ -69,6 +71,7 @@ int TestImageDataTemporal(const std::string& dataRoot);
 int TestPolyDataTemporal(const std::string& dataRoot);
 int TestPolyDataTemporalWithOffset(const std::string& dataRoot);
 int TestUGTemporalWithCachePartitioned(const std::string& dataRoot);
+int TestUGTemporalPolyhedron(const std::string& dataRoot);
 int TestUGTemporalPartitionedNoCache(const std::string& dataRoot);
 int TestImageDataTemporalWithCache(const std::string& dataRoot);
 int TestPolyDataTemporalWithCache(const std::string& dataRoot);
@@ -92,6 +95,7 @@ int TestHDFReaderTemporal(int argc, char* argv[])
   res |= ::TestPolyDataTemporalWithOffset(dataRoot);
   res |= ::TestUGTemporalPartitionedNoCache(dataRoot);
   res |= ::TestUGTemporalWithCachePartitioned(dataRoot);
+  res |= ::TestUGTemporalPolyhedron(dataRoot);
   res |= ::TestImageDataTemporalWithCache(dataRoot);
   res |= ::TestPolyDataTemporalWithCache(dataRoot);
   res |= ::TestPolyDataTemporalFieldData(dataRoot);
@@ -607,6 +611,35 @@ int TestUGTemporalWithCachePartitioned(const std::string& dataRoot)
   OpenerWorklet opener(dataRoot + "/Data/transient_sphere.hdf", false);
   opener.GetReader()->UseCacheOn();
   return TestUGTemporalPartitioned(opener, dataRoot, true);
+}
+
+//------------------------------------------------------------------------------
+int TestUGTemporalPolyhedron(const std::string& dataRoot)
+{
+  OpenerWorklet opener(dataRoot + "/Data/vtkHDF/polyhedron_temporal.vtkhdf", false);
+  opener.GetReader()->UseCacheOn();
+
+  for (int step = 0; step <= 1; step++)
+  {
+    vtkUnstructuredGrid* readData = vtkUnstructuredGrid::SafeDownCast(opener(step));
+
+    std::string vtuFile =
+      dataRoot + "/Data/vtkHDF/polyhedron_temporal_" + vtk::to_string(step) + ".vtu";
+    vtkNew<vtkXMLUnstructuredGridReader> readerXML;
+    readerXML->SetFileName(vtuFile.c_str());
+    readerXML->Update();
+    vtkUnstructuredGrid* readDataXML = vtkUnstructuredGrid::SafeDownCast(readerXML->GetOutput());
+    vtkNew<vtkFieldData> fd;
+    readDataXML->SetFieldData(fd);
+
+    if (!vtkTestUtilities::CompareDataObjects(readDataXML, readData))
+    {
+      std::cerr << "Unstructured grids with polyhedrons are not the same for timestep " << step
+                << std::endl;
+      return EXIT_FAILURE;
+    }
+  }
+  return EXIT_SUCCESS;
 }
 
 //------------------------------------------------------------------------------

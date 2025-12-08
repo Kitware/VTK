@@ -55,6 +55,10 @@ public:
    */
   int GetDataSetType() { return this->DataSetType; }
   /**
+   * Return the reader this impl is associated to
+   */
+  vtkHDFReader* GetReader() { return this->Reader; }
+  /**
    * Returns the version of the VTK HDF implementation.
    */
   const std::array<int, 2>& GetVersion() { return this->Version; }
@@ -67,6 +71,10 @@ public:
    * Return true if the attribute exists in the specified group
    */
   bool HasAttribute(const char* groupName, const char* attributeName);
+  /**
+   * Return true if the dataset exists in the specified group root group
+   */
+  bool HasDataset(const char* datasetName);
   /**
    * Returns the number of partitions for this dataset at the time step
    * `step` if applicable.
