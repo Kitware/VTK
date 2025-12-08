@@ -44,6 +44,7 @@ class vtkTetra;
 class vtkQuad;
 class vtkHexahedron;
 class vtkPyramid;
+class vtkUnstructuredGrid;
 class vtkWedge;
 
 class VTKIOFLUENTCFF_EXPORT vtkFLUENTCFFReader : public vtkMultiBlockDataSetAlgorithm
@@ -312,6 +313,12 @@ protected:
 private:
   vtkFLUENTCFFReader(const vtkFLUENTCFFReader&) = delete;
   void operator=(const vtkFLUENTCFFReader&) = delete;
+
+  /**
+   * UDM arrays of N components must be split in N scalar arrays
+   */
+  void ParseUDMData(std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& grid,
+    const VectorDataChunk& vectorDataChunk);
 };
 VTK_ABI_NAMESPACE_END
 #endif
