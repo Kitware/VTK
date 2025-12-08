@@ -2443,19 +2443,31 @@ int vtkFLUENTCFFReader::GetData()
                 this->ScalarDataChunks.back().scalarData.push_back(data[j - 1]);
               }
             }
-            else if (ndims <= 3) // Maximum number of component for vector (2 or 3)
+            else if (ndims <= 3) // Maximum number of dimensions for data (2 or 3)
             {
-              this->NumberOfVectors++;
-              this->VectorDataChunks.emplace_back();
-              this->VectorDataChunks.back().dim = ndims;
-              this->VectorDataChunks.back().variableName = strSectionName;
-              for (size_t k = 0; k < static_cast<size_t>(ndims); k++)
+              if (dims[1] > 9)
               {
-                for (size_t j = minId; j <= maxId; j++)
+                vtkWarningMacro("The field " << strSectionName
+                                             << " has more than 9 components, it can't be parsed.");
+              }
+              else
+              {
+                this->NumberOfVectors++;
+                this->VectorDataChunks.emplace_back();
+                this->VectorDataChunks.back().dim = dims[1];
+                this->VectorDataChunks.back().variableName = strSectionName;
+                for (size_t k = 0; k < static_cast<size_t>(dims[1]); k++)
                 {
-                  this->VectorDataChunks.back().vectorData.push_back(data[dims[1] * (j - 1) + k]);
+                  for (size_t j = minId; j <= maxId; j++)
+                  {
+                    this->VectorDataChunks.back().vectorData.push_back(data[k * maxId + (j - 1)]);
+                  }
                 }
               }
+            }
+            else
+            {
+              vtkWarningMacro("The field " << strSectionName << " has more than 3 dimensions");
             }
 
             CHECK_HDF(H5Sclose(space));
