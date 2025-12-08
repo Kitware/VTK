@@ -284,6 +284,7 @@ if (NOT "$ENV{CI}" STREQUAL "")
       "note: destination object '.*' of size .*"
 
       "Wstringop-overread"
+      "allocated by 'operator new'"
       "note: source object '.*' of size .*"
       "note: at offset .* into source object '.*' of size .*"
       )
