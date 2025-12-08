@@ -119,7 +119,7 @@ compare(randomVecSlice[:, 0:2] - npa[:, 0:2], 1E-6)
 # Test ufunc
 compare(algs.cos(randomVec) - numpy.cos(npa), 1E-7)
 assert algs.cos(randomVec).DataSet is randomVec.DataSet
-assert numpy.all(numpy.asarray(numpy.in1d(elev, [0,1])) == [item in [0, 1] for item in elev])
+assert numpy.all(numpy.asarray(numpy.isin(elev, [0,1])) == [item in [0, 1] for item in elev])
 
 # Various numerical ops implemented in VTK
 g = algs.gradient(elev)
