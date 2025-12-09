@@ -447,6 +447,8 @@ vtkXMLWriter::vtkXMLWriter()
   this->OutFile = nullptr;
   this->OutStringStream = nullptr;
 
+  this->Precision = 11;
+
   // Time support
   this->NumberOfTimeSteps = 1;
   this->CurrentTimeIndex = 0;
@@ -597,7 +599,7 @@ int vtkXMLWriter::OpenStream()
 
   // Make sure sufficient precision is used in the ascii
   // representation of data and meta-data.
-  this->Stream->precision(11);
+  this->Stream->precision(this->Precision);
 
   // Setup the output streams.
   this->DataStream->SetStream(this->Stream);
@@ -1743,13 +1745,14 @@ void prepElementForInfo(vtkInformationKey* key, vtkXMLDataElement* element)
 }
 
 template <class KeyType>
-void writeScalarInfo(KeyType* key, vtkInformation* info, std::ostream& os, vtkIndent indent)
+void writeScalarInfo(
+  KeyType* key, vtkInformation* info, std::ostream& os, vtkIndent indent, int precision = 11)
 {
   vtkNew<vtkXMLDataElement> element;
   prepElementForInfo(key, element);
 
   std::ostringstream str;
-  str.precision(11); // Same used for ASCII array data.
+  str.precision(precision); // Same used for ASCII array data.
   str << key->Get(info);
 
   str.str("");
@@ -1760,13 +1763,14 @@ void writeScalarInfo(KeyType* key, vtkInformation* info, std::ostream& os, vtkIn
 }
 
 template <class KeyType>
-void writeVectorInfo(KeyType* key, vtkInformation* info, std::ostream& os, vtkIndent indent)
+void writeVectorInfo(
+  KeyType* key, vtkInformation* info, std::ostream& os, vtkIndent indent, int precision = 11)
 {
   vtkNew<vtkXMLDataElement> element;
   prepElementForInfo(key, element);
 
   std::ostringstream str;
-  str.precision(11); // Same used for ASCII array data.
+  str.precision(precision); // Same used for ASCII array data.
   int length = key->Length(info);
   str << length;
   element->SetAttribute("length", str.str().c_str());
@@ -1816,42 +1820,42 @@ bool vtkXMLWriter::WriteInformation(vtkInformation* info, vtkIndent indent)
     QuadDictKey* qdKey = nullptr;
     if ((dKey = vtkInformationDoubleKey::SafeDownCast(key)))
     {
-      writeScalarInfo(dKey, info, *this->Stream, nextIndent);
+      writeScalarInfo(dKey, info, *this->Stream, nextIndent, this->Precision);
       result = true;
     }
     else if ((dvKey = vtkInformationDoubleVectorKey::SafeDownCast(key)))
     {
-      writeVectorInfo(dvKey, info, *this->Stream, nextIndent);
+      writeVectorInfo(dvKey, info, *this->Stream, nextIndent, this->Precision);
       result = true;
     }
     else if ((idKey = vtkInformationIdTypeKey::SafeDownCast(key)))
     {
-      writeScalarInfo(idKey, info, *this->Stream, nextIndent);
+      writeScalarInfo(idKey, info, *this->Stream, nextIndent, this->Precision);
       result = true;
     }
     else if ((iKey = vtkInformationIntegerKey::SafeDownCast(key)))
     {
-      writeScalarInfo(iKey, info, *this->Stream, nextIndent);
+      writeScalarInfo(iKey, info, *this->Stream, nextIndent, this->Precision);
       result = true;
     }
     else if ((ivKey = vtkInformationIntegerVectorKey::SafeDownCast(key)))
     {
-      writeVectorInfo(ivKey, info, *this->Stream, nextIndent);
+      writeVectorInfo(ivKey, info, *this->Stream, nextIndent, this->Precision);
       result = true;
     }
     else if ((sKey = vtkInformationStringKey::SafeDownCast(key)))
     {
-      writeScalarInfo(sKey, info, *this->Stream, nextIndent);
+      writeScalarInfo(sKey, info, *this->Stream, nextIndent, this->Precision);
       result = true;
     }
     else if ((svKey = vtkInformationStringVectorKey::SafeDownCast(key)))
     {
-      writeVectorInfo(svKey, info, *this->Stream, nextIndent);
+      writeVectorInfo(svKey, info, *this->Stream, nextIndent, this->Precision);
       result = true;
     }
     else if ((ulKey = vtkInformationUnsignedLongKey::SafeDownCast(key)))
     {
-      writeScalarInfo(ulKey, info, *this->Stream, nextIndent);
+      writeScalarInfo(ulKey, info, *this->Stream, nextIndent, this->Precision);
       result = true;
     }
     else if ((qdKey = QuadDictKey::SafeDownCast(key)))

@@ -55,9 +55,8 @@ void vtkLegacyStatisticalModelWriter::WriteData()
   std::string encodedData;
   vtkNew<vtkTableWriter> tableWriter;
   tableWriter->WriteToOutputStringOn();
-  // TODO: Turn this on so table values are exact:
-  //       It currently causes issues for the reader.
-  // tableWriter->SetFileTypeToBinary();
+  // Set this on so table values are exact:
+  tableWriter->SetPrecision(17);
 
   // Write stuff specific to statistical models.
   //

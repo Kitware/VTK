@@ -315,6 +315,7 @@ void vtkXMLStatisticalModelWriter::WriteModelDataInline(vtkStatisticalModel* ds,
   os << i2 << "<AlgorithmParameters>" << params << "</AlgorithmParameters>\n";
   vtkNew<vtkXMLTableWriter> tableSerializer;
   tableSerializer->SetDataModeToAscii();
+  tableSerializer->SetPrecision(17);
   tableSerializer->WriteToOutputStringOn();
   for (int ttype = vtkStatisticalModel::Learned; ttype <= vtkStatisticalModel::Derived; ++ttype)
   {
