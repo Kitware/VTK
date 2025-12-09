@@ -291,7 +291,6 @@ vtkSmartPointer<TFunctionParser> vtkArrayCalculator::InitializeFunctionParser(
   vtkGraph* graphInput = vtkGraph::SafeDownCast(input);
 
   int attributeType = this->GetAttributeTypeFromInput(input);
-
   vtkDataSetAttributes* inFD = input->GetAttributes(attributeType);
   vtkIdType numTuples = input->GetNumberOfElements(attributeType);
 
@@ -410,7 +409,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
   auto functionParser = this->InitializeFunctionParser<TFunctionParser>(input);
   if (!functionParser)
   {
-    return 0;
+    return 1;
   }
 
   int attributeType = this->GetAttributeTypeFromInput(input);
@@ -435,7 +434,7 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
     // Error occurred in FunctionParser.
     vtkWarningMacro(
       "An error occurred when parsing the calculator's function.  See previous errors.");
-    return 0;
+    return 1;
   }
 
   if (resultType == SCALAR && this->ResultNormals)
@@ -448,17 +447,29 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
     strcmp(this->ResultArrayName, moleculeInput->GetAtomicNumberArrayName()) == 0)
   {
     vtkErrorMacro("Cannot override atomic numbers array");
-    return 0;
+    return 1;
   }
 
   if (moleculeInput && attributeType == vtkDataObject::EDGE &&
     strcmp(this->ResultArrayName, moleculeInput->GetBondOrdersArrayName()) == 0)
   {
     vtkErrorMacro("Cannot override bond orders array");
-    return 0;
+    return 1;
   }
 
   auto resultArray = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(this->ResultArrayType));
+  if (resultType == SCALAR)
+  {
+    resultArray->SetNumberOfComponents(1);
+    resultArray->SetNumberOfTuples(numTuples);
+    resultArray->SetComponent(0, 0, functionParser->GetScalarResult());
+  }
+  else
+  {
+    resultArray->SetNumberOfComponents(functionParser->GetResultSize());
+    resultArray->SetNumberOfTuples(numTuples);
+    resultArray->SetTuple(0, functionParser->GetVectorResult());
+  }
   vtkSmartPointer<vtkPoints> resultPoints;
   if (resultType == VECTOR && this->CoordinateResults != 0 &&
     (psOutput || vtkGraph::SafeDownCast(output)))
@@ -479,18 +490,6 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
                     "but output is not polydata or unstructured grid");
     }
     return 1;
-  }
-  if (resultType == SCALAR)
-  {
-    resultArray->SetNumberOfComponents(1);
-    resultArray->SetNumberOfTuples(numTuples);
-    resultArray->SetComponent(0, 0, functionParser->GetScalarResult());
-  }
-  else
-  {
-    resultArray->SetNumberOfComponents(functionParser->GetResultSize());
-    resultArray->SetNumberOfTuples(numTuples);
-    resultArray->SetTuple(0, functionParser->GetVectorResult());
   }
 
   // Save array pointers to avoid looking them up for each tuple.
@@ -625,15 +624,11 @@ int vtkArrayCalculator::ProcessDataObject(vtkDataObject* input, vtkDataObject* o
 int vtkArrayCalculator::RequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* outputVector)
 {
-  // get the info objects
-  vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
-  vtkInformation* outInfo = outputVector->GetInformationObject(0);
-
   // get the input and output
-  vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-  vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject* input = vtkDataObject::GetData(inputVector[0], 0);
+  vtkDataObject* output = vtkDataObject::GetData(outputVector, 0);
 
-  vtkCompositeDataSet* inputCD = vtkCompositeDataSet::GetData(inputVector[0], 0);
+  vtkCompositeDataSet* inputCD = vtkCompositeDataSet::SafeDownCast(input);
   vtkCompositeDataSet* outputCD = vtkCompositeDataSet::SafeDownCast(output);
   if (inputCD && outputCD)
   {
