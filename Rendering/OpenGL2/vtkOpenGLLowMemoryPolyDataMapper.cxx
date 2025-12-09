@@ -1855,7 +1855,7 @@ if (cellType == 3 && primitiveSize == 3) // VTK_LINE rendered as 2 triangle prim
 
 //------------------------------------------------------------------------------
 void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderEdges(
-  vtkRenderer* renderer, vtkActor* actor, std::string& vsSource, std::string& fsSource)
+  vtkRenderer*, vtkActor*, std::string& vsSource, std::string& fsSource)
 {
   // Edges and wireframe.
   vtkShaderProgram::Substitute(vsSource, "//VTK::EdgesGLES30::Dec",
