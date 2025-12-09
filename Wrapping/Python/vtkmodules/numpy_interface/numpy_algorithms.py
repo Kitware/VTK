@@ -481,9 +481,6 @@ array([3])
 """
 
 
-in1d = (dsa._override_numpy(numpy.in1d)(_make_ufunc(numpy.in1d)))
-in1d.__doc__ = "Test whether each element of a 1-D array is also present in a second array."
-
 isin = (dsa._override_numpy(numpy.isin)(_make_ufunc(numpy.isin)))
 isin.__doc__ = "Test whether each element of a 1-D array is also present in a second array."
 
