@@ -6,12 +6,13 @@
  *
  * vtkHDRReader is a source object that reads Radiance HDR files.
  * HDR files are converted into 32 bit images.
- * This reader doesn't support reading from memory.
+ * This reader supports reading streams.
  */
 
 #ifndef vtkHDRReader_h
 #define vtkHDRReader_h
 
+#include "vtkDeprecation.h"   // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader.h"
 #include <string> // for std::string
@@ -109,6 +110,7 @@ protected:
    * If the stream has an error, close the file and return true.
    * Else return false.
    */
+  VTK_DEPRECATED_IN_9_6_0("Do not use, use Streams instead")
   bool HasError(istream* is);
 
   int GetWidth() const;
@@ -126,18 +128,6 @@ protected:
   void FillOutPtrNoRLE(int* outExt, float*& outPtr, std::vector<unsigned char>& lineBuffer);
 
   /**
-   * Read the file from is into outPtr with no RLE encoding.
-   * Return false if a reading error occurred, else true.
-   */
-  bool ReadAllFileNoRLE(istream* is, float* outPtr, int decrPtr, int* outExt);
-
-  /**
-   * Read a line of the file from is into lineBuffer with RLE encoding.
-   * Return false if a reading error occurred, else true.
-   */
-  bool ReadLineRLE(istream* is, unsigned char* lineBufferPtr);
-
-  /**
    * Standard conversion from rgbe to float pixels
    */
   void RGBE2Float(unsigned char rgbe[4], float& r, float& g, float& b);
@@ -152,6 +142,18 @@ protected:
 private:
   vtkHDRReader(const vtkHDRReader&) = delete;
   void operator=(const vtkHDRReader&) = delete;
+
+  /**
+   * Read the file from the provided stream into outPtr with no RLE encoding.
+   * Return false if a reading error occurred, else true.
+   */
+  bool ReadAllFileNoRLE(vtkResourceStream* stream, float* outPtr, int decrPtr, int* outExt);
+
+  /**
+   * Read a line of the provided into lineBuffer with RLE encoding.
+   * Return false if a reading error occurred, else true.
+   */
+  bool ReadLineRLE(vtkResourceStream* stream, unsigned char* lineBufferPtr);
 };
 VTK_ABI_NAMESPACE_END
 #endif
