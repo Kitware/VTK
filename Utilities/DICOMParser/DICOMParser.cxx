@@ -67,6 +67,13 @@ const std::string& DICOMParser::GetFileName()
   return this->FileName;
 }
 
+bool DICOMParser::OpenStream(std::istream* stream)
+{
+  delete this->DataFile;
+  this->DataFile = new DICOMFile();
+  return this->DataFile->SetStream(stream);
+}
+
 bool DICOMParser::OpenFile(const std::string& filename)
 {
   // Deleting the DataFile closes any previously opened file

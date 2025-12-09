@@ -82,23 +82,37 @@ bool DICOMFile::Open(const std::string& filename)
 #ifdef _WIN32
   mode |= std::ios::binary;
 #endif
-  delete InputStream; // ensure any old streams are closed
-  InputStream = new vtksys::ifstream(filename.c_str(), mode);
+  this->Close(); // ensure any old streams are closed
+  this->InputStream = new vtksys::ifstream(filename.c_str(), mode);
 
-  if (InputStream && !InputStream->fail())
+  if (this->InputStream && !this->InputStream->fail())
   {
     return true;
   }
 
-  delete InputStream;
-  InputStream = nullptr;
+  this->Close();
   return false;
 }
 
 void DICOMFile::Close()
 {
-  delete InputStream;
-  InputStream = nullptr;
+  delete this->InputStream;
+  this->InputStream = nullptr;
+}
+
+bool DICOMFile::SetStream(std::istream* stream)
+{
+  this->Close(); // ensure any old streams are closed
+
+  this->InputStream = stream;
+
+  if (this->InputStream && !this->InputStream->fail())
+  {
+    return true;
+  }
+
+  this->Close();
+  return false;
 }
 
 long DICOMFile::Tell()

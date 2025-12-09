@@ -33,14 +33,23 @@ public:
   virtual ~DICOMFile();
 
   //
-  // Open a file with filename.  Returns a bool
+  // Close any opened file or stream and
+  // open a file with filename. Returns a bool
   // that is true if the file is successfully
   // opened.
   //
   bool Open(const std::string& filename);
 
   //
-  // Close a file.
+  // Close any opened file or stream and
+  // set provided strean. Returns a bool
+  // that is true if the stream is usable
+  //
+  //
+  bool SetStream(std::istream* stream);
+
+  //
+  // Close file and stream.
   //
   void Close();
 
