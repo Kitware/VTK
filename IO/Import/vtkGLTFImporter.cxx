@@ -990,7 +990,8 @@ bool vtkGLTFImporter::UpdateAtTimeValue(double timeValue)
   {
     if (this->EnabledAnimations[animationId])
     {
-      if (!this->Loader->ApplyAnimation(static_cast<float>(timeValue), animationId))
+      if (!this->Loader->ApplyAnimation(
+            static_cast<float>(timeValue), animationId, !this->GetInterpolateBetweenTimeSteps()))
       {
         vtkErrorMacro("Error applying animation");
         return false;
@@ -1171,6 +1172,7 @@ bool vtkGLTFImporter::IsAnimationEnabled(vtkIdType animationIndex)
 }
 
 //----------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_6_0
 bool vtkGLTFImporter::GetTemporalInformation(vtkIdType animationIndex, double frameRate,
   int& nbTimeSteps, double timeRange[2], vtkDoubleArray* timeSteps)
 {
@@ -1195,6 +1197,30 @@ bool vtkGLTFImporter::GetTemporalInformation(vtkIdType animationIndex, double fr
         timeSteps->InsertNextTuple(&i);
         nbTimeSteps++;
       }
+    }
+    return true;
+  }
+  return false;
+}
+
+//----------------------------------------------------------------------------
+bool vtkGLTFImporter::GetTemporalInformation(
+  vtkIdType animationIndex, double timeRange[2], int& nbTimeStep, vtkDoubleArray* timeSteps)
+{
+  if (animationIndex < this->GetNumberOfAnimations())
+  {
+    const auto& model = this->Loader->GetInternalModel();
+    assert(model);
+
+    timeRange[0] = 0;
+    timeRange[1] = model->Animations[animationIndex].Duration;
+
+    nbTimeStep = static_cast<int>(model->Animations[animationIndex].AllTimestamps.size());
+    timeSteps->Initialize();
+    timeSteps->Allocate(nbTimeStep);
+    for (const float& Timestamp : model->Animations[animationIndex].AllTimestamps)
+    {
+      timeSteps->InsertNextValue(Timestamp);
     }
     return true;
   }

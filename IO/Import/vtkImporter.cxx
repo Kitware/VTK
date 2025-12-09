@@ -224,8 +224,17 @@ vtkIdType vtkImporter::GetNumberOfAnimations()
 }
 
 //------------------------------------------------------------------------------
+// VTK_DEPRECATED_IN_9_6_0
 bool vtkImporter::GetTemporalInformation(vtkIdType vtkNotUsed(animationIdx),
   double vtkNotUsed(frameRate), int& vtkNotUsed(nbTimeSteps), double vtkNotUsed(timeRange)[2],
+  vtkDoubleArray* vtkNotUsed(timeSteps))
+{
+  return false;
+}
+
+//------------------------------------------------------------------------------
+bool vtkImporter::GetTemporalInformation(vtkIdType vtkNotUsed(animationIdx),
+  double vtkNotUsed(timeRange)[2], int& vtkNotUsed(nbTimeSteps),
   vtkDoubleArray* vtkNotUsed(timeSteps))
 {
   return false;

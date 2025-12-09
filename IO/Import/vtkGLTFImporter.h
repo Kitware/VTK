@@ -162,6 +162,7 @@ public:
   void SetCamera(vtkIdType camIndex) override;
 
   /**
+   * DEPRECATED, use the version without framerate
    * Get temporal information for the provided animationIndex and frameRate.
    * frameRate is used to define the number of frames for one second of simulation,
    * set to zero if timeSteps are not needed.
@@ -169,8 +170,27 @@ public:
    * If animation is present and frameRate > 0, nbTimeSteps and timeSteps will also be set, return
    * true. If animation is not present, return false.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use GetTemporalInformation without framerate parameter instead.")
   bool GetTemporalInformation(vtkIdType animationIndex, double frameRate, int& nbTimeSteps,
     double timeRange[2], vtkDoubleArray* timeSteps) override;
+
+  /**
+   * Get temporal information for the provided animationIndex.
+   * If animation is present in the dataset, timeRange, nbTimeSteps and timeSteps
+   * will be set by this method and then returns true.
+   * If animation is not present, return false.
+   */
+  bool GetTemporalInformation(vtkIdType animationIndex, double timeRange[2], int& nbTimeSteps,
+    vtkDoubleArray* timeSteps) override;
+
+  /**
+   * Get the level of interpolation animation support in this importer, which is always
+   * InterpolationAnimationSupportLevel::CAPABLE
+   */
+  InterpolateAnimationSupportLevel GetInterpolateAnimationSupportLevel() override
+  {
+    return InterpolateAnimationSupportLevel::CAPABLE;
+  }
 
 protected:
   vtkGLTFImporter() = default;
