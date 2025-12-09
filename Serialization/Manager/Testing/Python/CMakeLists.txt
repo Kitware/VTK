@@ -11,6 +11,7 @@ vtk_add_test_python(
   TestInitialize.py,NO_VALID
   TestLabelMapper.py
   TestPolyDataMapperMTime.py,NO_VALID
+  TestRendererActorCollection.py,NO_VALID
   TestScalarBarWidget.py
   # TestSilhouette.py,NO_VALID vtkPolyDataSilhouette.cxx needs to mark cells as modified.
   TestSingleUpdate.py

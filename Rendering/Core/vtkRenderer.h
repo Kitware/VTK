@@ -937,13 +937,10 @@ public:
   /**
    * Set/Get the environment rotation matrix.
    *
-   * Default is identity matrix.
+   * Default is identity matrix. The setter avoids modifying the renderer MTime.
    */
-  vtkMatrix3x3* GetEnvironmentRotationMatrix() { return this->EnvironmentRotationMatrix; }
-  void SetEnvironmentRotationMatrix(vtkMatrix3x3* matrix)
-  {
-    this->EnvironmentRotationMatrix->SetData(matrix->GetData());
-  }
+  vtkGetSmartPointerMacro(EnvironmentRotationMatrix, vtkMatrix3x3);
+  void SetEnvironmentRotationMatrix(vtkMatrix3x3* matrix);
   ///@}
 
   ///@{
@@ -1291,7 +1288,7 @@ private:
   /**
    * Rotation matrix of the environment.
    */
-  vtkNew<vtkMatrix3x3> EnvironmentRotationMatrix;
+  vtkSmartPointer<vtkMatrix3x3> EnvironmentRotationMatrix;
 
   /**
    * Tmp members to allow returning double* in GetEnvironmentUp/Right methods.
