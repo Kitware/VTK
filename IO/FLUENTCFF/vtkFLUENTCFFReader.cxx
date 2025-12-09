@@ -162,7 +162,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   for (auto& cell : this->Cells)
   {
-    size_t location = std::find(this->CellZones.begin(), this->CellZones.end(), cell.zone) -
+    std::size_t location = std::find(this->CellZones.begin(), this->CellZones.end(), cell.zone) -
       this->CellZones.begin();
 
     if (cell.type == 1)
@@ -220,7 +220,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
       nodes->SetArray(cell.nodes.data(), cell.nodes.size(), 1);
       nodesOffset->SetArray(cell.nodesOffset.data(), cell.nodesOffset.size(), 1);
       faces->SetData(nodesOffset, nodes);
-      for (size_t j = 0; j < cell.nodes.size(); j++)
+      for (std::size_t j = 0; j < cell.nodes.size(); j++)
       {
         pointIds->InsertUniqueId(static_cast<vtkIdType>(cell.nodes[j]));
       }
@@ -236,11 +236,11 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     {
       continue;
     }
-    for (size_t location = 0; location < this->CellZones.size(); location++)
+    for (std::size_t location = 0; location < this->CellZones.size(); location++)
     {
       vtkNew<vtkDoubleArray> doubleArray;
       unsigned int currentCellIdx = 0;
-      for (size_t cellIdx = 0; cellIdx < scalarDataChunk.scalarData.size(); cellIdx++)
+      for (std::size_t cellIdx = 0; cellIdx < scalarDataChunk.scalarData.size(); cellIdx++)
       {
         if (this->Cells[cellIdx].zone == this->CellZones[location])
         {
@@ -294,7 +294,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
   }
   this->VectorDataChunks.clear();
 
-  for (size_t location = 0; location < this->CellZones.size(); location++)
+  for (std::size_t location = 0; location < this->CellZones.size(); location++)
   {
     grid[location]->SetPoints(this->Points);
     output->SetBlock(static_cast<unsigned int>(location), grid[location]);
@@ -1293,7 +1293,7 @@ void vtkFLUENTCFFReader::GetFaces()
   }
   CHECK_HDF(H5Aread(attr, H5T_NATIVE_UINT64, &nSections));
   CHECK_HDF(H5Aclose(attr));
-  for (size_t i = 0; i < this->Faces.size(); i++)
+  for (std::size_t i = 0; i < this->Faces.size(); i++)
   {
     this->Faces[i].c1 = -1;
   }
@@ -1707,7 +1707,7 @@ void vtkFLUENTCFFReader::CleanCells()
 
       // Copy faces
       t.clear();
-      for (size_t j = 0; j < cell.faces.size(); j++)
+      for (std::size_t j = 0; j < cell.faces.size(); j++)
       {
         t.push_back(cell.faces[j]);
       }
@@ -1716,7 +1716,7 @@ void vtkFLUENTCFFReader::CleanCells()
       cell.faces.clear();
 
       // Copy the faces that are not flagged back into the cell
-      for (size_t j = 0; j < t.size(); j++)
+      for (std::size_t j = 0; j < t.size(); j++)
       {
         if ((this->Faces[t[j]].child == 0) && (this->Faces[t[j]].ncgChild == 0) &&
           (this->Faces[t[j]].interfaceFaceChild == 0))
@@ -1740,7 +1740,7 @@ void vtkFLUENTCFFReader::PopulateCellTree()
       {
         double data = 0.0;
         int ncell = 0;
-        for (size_t j = 0; j < cell.childId.size(); j++)
+        for (std::size_t j = 0; j < cell.childId.size(); j++)
         {
           if (this->Cells[cell.childId[j]].parent == 0)
           {
@@ -1753,11 +1753,11 @@ void vtkFLUENTCFFReader::PopulateCellTree()
       }
       for (auto& vectorDataChunk : this->VectorDataChunks)
       {
-        for (size_t k = 0; k < vectorDataChunk.dim; k++)
+        for (std::size_t k = 0; k < vectorDataChunk.dim; k++)
         {
           double data = 0.0;
           int ncell = 0;
-          for (size_t j = 0; j < cell.childId.size(); j++)
+          for (std::size_t j = 0; j < cell.childId.size(); j++)
           {
             if (this->Cells[cell.childId[j]].parent == 0)
             {
@@ -1776,7 +1776,7 @@ void vtkFLUENTCFFReader::PopulateCellTree()
 //------------------------------------------------------------------------------
 void vtkFLUENTCFFReader::PopulateCellNodes()
 {
-  for (size_t i = 0; i < this->Cells.size(); i++)
+  for (std::size_t i = 0; i < this->Cells.size(); i++)
   {
     const vtkIdType id = static_cast<vtkIdType>(i);
     switch (this->Cells[i].type)
@@ -1965,7 +1965,7 @@ void vtkFLUENTCFFReader::PopulateHexahedronCell(int i)
   }
 
   //  Look for opposite face of hexahedron
-  for (size_t j = 1; j < this->Cells[i].faces.size(); j++)
+  for (std::size_t j = 1; j < this->Cells[i].faces.size(); j++)
   {
     int flag = 0;
     for (int k = 0; k < 4; k++)
@@ -1999,7 +1999,7 @@ void vtkFLUENTCFFReader::PopulateHexahedronCell(int i)
 
   //  Find the face with points 0 and 1 in them.
   int f01[4] = { -1, -1, -1, -1 };
-  for (size_t j = 1; j < this->Cells[i].faces.size(); j++)
+  for (std::size_t j = 1; j < this->Cells[i].faces.size(); j++)
   {
     int flag0 = 0;
     int flag1 = 0;
@@ -2035,7 +2035,7 @@ void vtkFLUENTCFFReader::PopulateHexahedronCell(int i)
 
   //  Find the face with points 0 and 3 in them.
   int f03[4] = { -1, -1, -1, -1 };
-  for (size_t j = 1; j < this->Cells[i].faces.size(); j++)
+  for (std::size_t j = 1; j < this->Cells[i].faces.size(); j++)
   {
     int flag0 = 0;
     int flag1 = 0;
@@ -2122,7 +2122,7 @@ void vtkFLUENTCFFReader::PopulatePyramidCell(int i)
 {
   this->Cells[i].nodes.resize(5);
   //  The quad face will be the base of the pyramid
-  for (size_t j = 0; j < this->Cells[i].faces.size(); j++)
+  for (std::size_t j = 0; j < this->Cells[i].faces.size(); j++)
   {
     if (this->Faces[this->Cells[i].faces[j]].nodes.size() == 4)
     {
@@ -2144,7 +2144,7 @@ void vtkFLUENTCFFReader::PopulatePyramidCell(int i)
   }
 
   // Just need to find point 4
-  for (size_t j = 0; j < this->Cells[i].faces.size(); j++)
+  for (std::size_t j = 0; j < this->Cells[i].faces.size(); j++)
   {
     if (this->Faces[this->Cells[i].faces[j]].nodes.size() == 3)
     {
@@ -2170,7 +2170,7 @@ void vtkFLUENTCFFReader::PopulateWedgeCell(int i)
   //  Find the first triangle face and make it the base.
   int base = 0;
   int first = 0;
-  for (size_t j = 0; j < this->Cells[i].faces.size(); j++)
+  for (std::size_t j = 0; j < this->Cells[i].faces.size(); j++)
   {
     if ((this->Faces[this->Cells[i].faces[j]].type == 3) && (first == 0))
     {
@@ -2182,7 +2182,7 @@ void vtkFLUENTCFFReader::PopulateWedgeCell(int i)
   //  Find the second triangle face and make it the top.
   int top = 0;
   int second = 0;
-  for (size_t j = 0; j < this->Cells[i].faces.size(); j++)
+  for (std::size_t j = 0; j < this->Cells[i].faces.size(); j++)
   {
     if ((this->Faces[this->Cells[i].faces[j]].type == 3) && (second == 0) &&
       (this->Cells[i].faces[j] != base))
@@ -2225,7 +2225,7 @@ void vtkFLUENTCFFReader::PopulateWedgeCell(int i)
 
   //  Find the quad face with points 0 and 1 in them.
   int w01[4] = { -1, -1, -1, -1 };
-  for (size_t j = 0; j < this->Cells[i].faces.size(); j++)
+  for (std::size_t j = 0; j < this->Cells[i].faces.size(); j++)
   {
     if (this->Cells[i].faces[j] != base && this->Cells[i].faces[j] != top)
     {
@@ -2254,7 +2254,7 @@ void vtkFLUENTCFFReader::PopulateWedgeCell(int i)
 
   //  Find the quad face with points 0 and 2 in them.
   int w02[4] = { -1, -1, -1, -1 };
-  for (size_t j = 0; j < this->Cells[i].faces.size(); j++)
+  for (std::size_t j = 0; j < this->Cells[i].faces.size(); j++)
   {
     if (this->Cells[i].faces[j] != base && this->Cells[i].faces[j] != top)
     {
@@ -2328,14 +2328,14 @@ void vtkFLUENTCFFReader::PopulatePolyhedronCell(int i)
   // nodes stores the nodeIds while nodesOffset stores the node Offset for each faces
   int currentOffset = 0;
   this->Cells[i].nodesOffset.push_back(currentOffset);
-  for (size_t j = 0; j < this->Cells[i].faces.size(); j++)
+  for (std::size_t j = 0; j < this->Cells[i].faces.size(); j++)
   {
-    size_t numFacePts = this->Faces[this->Cells[i].faces[j]].nodes.size();
+    std::size_t numFacePts = this->Faces[this->Cells[i].faces[j]].nodes.size();
     if (numFacePts != 0)
     {
       currentOffset += static_cast<int>(numFacePts);
       this->Cells[i].nodesOffset.push_back(currentOffset);
-      for (size_t k = 0; k < numFacePts; k++)
+      for (std::size_t k = 0; k < numFacePts; k++)
       {
         this->Cells[i].nodes.push_back(this->Faces[this->Cells[i].faces[j]].nodes[k]);
       }
@@ -2372,7 +2372,7 @@ int vtkFLUENTCFFReader::GetData()
       dset = H5Dopen(groupcell, "fields", H5P_DEFAULT);
       space = H5Dget_space(dset);
       dataType = H5Dget_type(dset);
-      size_t stringLength = H5Tget_size(dataType);
+      std::size_t stringLength = H5Tget_size(dataType);
       strchar = new char[stringLength];
       CHECK_HDF(H5Dread(dset, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, strchar));
       CHECK_HDF(H5Dclose(dset));
@@ -2381,7 +2381,7 @@ int vtkFLUENTCFFReader::GetData()
       std::string str(strchar);
       delete[] strchar;
       std::vector<std::string> v_str;
-      size_t npos = 0;
+      std::size_t npos = 0;
       while (npos < str.length())
       {
         v_str.push_back(str.substr(npos, str.find(';', npos) - npos));
@@ -2467,7 +2467,7 @@ int vtkFLUENTCFFReader::GetData()
               std::vector<float> dataf(total_dim);
               CHECK_HDF(
                 H5Dread(dset, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, dataf.data()));
-              for (size_t j = 0; j < total_dim; j++)
+              for (std::size_t j = 0; j < total_dim; j++)
               {
                 data[j] = static_cast<double>(dataf[j]);
               }
@@ -2478,7 +2478,7 @@ int vtkFLUENTCFFReader::GetData()
               this->NumberOfScalars++;
               this->ScalarDataChunks.emplace_back();
               this->ScalarDataChunks.back().variableName = strSectionName;
-              for (size_t j = minId; j <= maxId; j++)
+              for (std::size_t j = minId; j <= maxId; j++)
               {
                 this->ScalarDataChunks.back().scalarData.push_back(data[j - 1]);
               }
@@ -2496,9 +2496,9 @@ int vtkFLUENTCFFReader::GetData()
                 this->VectorDataChunks.emplace_back();
                 this->VectorDataChunks.back().dim = dims[1];
                 this->VectorDataChunks.back().variableName = strSectionName;
-                for (size_t k = 0; k < static_cast<size_t>(dims[1]); k++)
+                for (std::size_t k = 0; k < static_cast<std::size_t>(dims[1]); k++)
                 {
-                  for (size_t j = minId; j <= maxId; j++)
+                  for (std::size_t j = minId; j <= maxId; j++)
                   {
                     this->VectorDataChunks.back().vectorData.push_back(data[k * maxId + (j - 1)]);
                   }
@@ -2559,7 +2559,7 @@ int vtkFLUENTCFFReader::GetMetaData()
       }
       space = H5Dget_space(dset);
       dataType = H5Dget_type(dset);
-      size_t stringLength = H5Tget_size(dataType);
+      std::size_t stringLength = H5Tget_size(dataType);
       strchar = new char[stringLength];
       CHECK_HDF(H5Dread(dset, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, strchar));
       CHECK_HDF(H5Dclose(dset));
@@ -2568,7 +2568,7 @@ int vtkFLUENTCFFReader::GetMetaData()
       std::string str(strchar);
       delete[] strchar;
       std::vector<std::string> v_str;
-      size_t npos = 0;
+      std::size_t npos = 0;
       while (npos < str.length())
       {
         v_str.push_back(str.substr(npos, str.find(';', npos) - npos));
