@@ -89,6 +89,7 @@ void vtkPicker::MarkPicked(vtkAssemblyPath* path, vtkProp3D* vtkNotUsed(prop3D),
   }
 }
 
+//------------------------------------------------------------------------------
 void vtkPicker::MarkPickedData(vtkAssemblyPath* path, double tMin,
   VTK_FUTURE_CONST double mapperPos[3], vtkAbstractMapper3D* mapper, vtkDataSet* input,
   vtkIdType flatIndex)
@@ -110,6 +111,7 @@ void vtkPicker::MarkPickedData(vtkAssemblyPath* path, double tMin,
   this->FlatBlockIndex = flatIndex;
 }
 
+//------------------------------------------------------------------------------
 int vtkPicker::Pick3DPoint(VTK_FUTURE_CONST double pos[3], vtkRenderer* renderer)
 {
   double windowLowerLeft[4], windowUpperRight[4];
@@ -465,6 +467,7 @@ int vtkPicker::Pick3DRay(
   return result;
 }
 
+//------------------------------------------------------------------------------
 int vtkPicker::Pick3DInternal(
   vtkRenderer* renderer, VTK_FUTURE_CONST double p1World[4], VTK_FUTURE_CONST double p2World[4])
 {
@@ -800,6 +803,7 @@ double vtkPicker::IntersectWithLine(const double p1[3], const double p2[3], doub
   return t;
 }
 
+//------------------------------------------------------------------------------
 bool vtkPicker::CalculateRay(
   const double p1[3], const double p2[3], double ray[3], double& rayFactor)
 {
