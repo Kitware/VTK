@@ -90,6 +90,13 @@ vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestSTLReaderMultiplePatches,TestSTLReader.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/multiple_patches.stl}
 )
 
+# This binary STL file is malformed in 2 ways:
+# - it has the 80 byte header, but it incorrectly starts with the ASCII keyword `solid`
+# - it claims to have 30886 triangles, but the file is too short and actually has just 1 triangle
+vtk_add_test_cxx(vtkIOGeometryCxxTests tests
+  TestSTLReaderMalformedBinary,TestSTLReader.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/malformed_binary.stl}
+)
+
 vtk_add_test_cxx(vtkIOGeometryCxxTests tests
   TestSTLReaderStreamSinglePatch,TestSTLReaderStream.cxx DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/42400-IDGH.stl}
 )

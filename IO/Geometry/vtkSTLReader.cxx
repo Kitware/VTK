@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 #include <cstdlib>
 #include <string>
 #include <vtksys/SystemTools.hxx>
@@ -35,15 +36,7 @@ vtkCxxSetObjectMacro(vtkSTLReader, Locator, vtkIncrementalPointLocator);
 vtkCxxSetObjectMacro(vtkSTLReader, BinaryHeader, vtkUnsignedCharArray);
 
 //------------------------------------------------------------------------------
-// Construct object with merging set to true.
-vtkSTLReader::vtkSTLReader()
-{
-  this->Merging = 1;
-  this->ScalarTags = 0;
-  this->Locator = nullptr;
-  this->Header = nullptr;
-  this->BinaryHeader = nullptr;
-}
+vtkSTLReader::vtkSTLReader() = default;
 
 //------------------------------------------------------------------------------
 vtkSTLReader::~vtkSTLReader()
@@ -118,7 +111,7 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
 
   if (solid == "solid")
   {
-    // First word is "solid", which means the data is ASCII
+    // First word is "solid", which means the data should be ASCII.
     newPts->Allocate(5000);
     newPolys->AllocateEstimate(10000, 1);
     if (this->ScalarTags)
@@ -131,8 +124,17 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
     parser->SetStream(stream);
     if (!this->ReadASCIISTL(parser, newPts.Get(), newPolys.Get(), newScalars))
     {
-      vtkErrorMacro("Error reading a ASCII STL. Aborting.");
-      return 0;
+      // In relaxed mode, fallback to try reading as binary (because we have seen malformed STL
+      // files in the wild that have the 80 byte header but start with `solid`).
+      if (this->GetRelaxedConformance())
+      {
+        stream->Seek(0, vtkResourceStream::SeekDirection::Begin);
+        if (!this->ReadBinarySTL(stream, newPts.Get(), newPolys.Get()))
+        {
+          vtkErrorMacro("Fallback reading as binary STL failed too. Aborting.");
+          return 0;
+        }
+      }
     }
   }
   else
@@ -170,7 +172,7 @@ int vtkSTLReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
     locator->InitPointInsertion(mergedPts, newPts->GetBounds());
 
-    int nextCell = 0;
+    vtkIdType nextCell = 0;
     const vtkIdType* pts = nullptr;
     vtkIdType npts;
     for (newPolys->InitTraversal(); newPolys->GetNextCell(npts, pts);)
@@ -224,7 +226,7 @@ bool vtkSTLReader::ReadBinarySTL(
   struct facet_t_t
   {
     float n[3], v1[3], v2[3], v3[3];
-    unsigned short junk;
+    uint16_t attrByteCount;
   };
   using facet_t = struct facet_t_t;
 
@@ -238,7 +240,7 @@ bool vtkSTLReader::ReadBinarySTL(
     this->SetBinaryHeader(binaryHeader);
   }
   constexpr int headerSize = 80;                         // fixed in STL file format
-  this->BinaryHeader->SetNumberOfValues(headerSize + 1); // allocate +1 byte for zero termination)
+  this->BinaryHeader->SetNumberOfValues(headerSize + 1); // allocate +1 byte for zero termination
   this->BinaryHeader->FillValue(0);
   if (stream->Read(this->BinaryHeader->GetVoidPointer(0), headerSize) != headerSize)
   {
@@ -249,55 +251,80 @@ bool vtkSTLReader::ReadBinarySTL(
   // Remove extra zero termination from binary header
   this->BinaryHeader->Resize(headerSize);
 
-  unsigned long ulint;
-  if (stream->Read(&ulint, 4) != 4)
+  uint32_t numTrisField;
+  if (stream->Read(&numTrisField, sizeof(numTrisField)) != sizeof(numTrisField))
   {
-    vtkErrorMacro("STLReader error reading file. Premature EOF while reading header.");
+    vtkErrorMacro("STLReader error reading file. Premature EOF while reading triangle count.");
     return false;
   }
-  vtkByteSwap::Swap4LE(&ulint);
+  vtkByteSwap::Swap4LE(&numTrisField);
 
-  // Many .stl files contain bogus count.  Hence we will ignore and read
-  //   until end of file.
-  //
-  int numTris = static_cast<int>(ulint);
-  if (numTris <= 0)
-  {
-    vtkDebugMacro(<< "Bad binary count: attempting to correct(" << numTris << ")");
-  }
+  // twelve 32-bit-floating point numbers + 2 byte for attribute byte count = 50 bytes.
+  vtkTypeInt64 triSize = 12 * sizeof(float) + sizeof(uint16_t);
 
-  // Verify the numTris with the length of the file
+  // How many bytes are remaining in the file?
   vtkTypeInt64 current = stream->Tell();
   vtkTypeInt64 ulFileLength = stream->Seek(0, vtkResourceStream::SeekDirection::End);
   stream->Seek(current, vtkResourceStream::SeekDirection::Begin);
-  ulFileLength -= (80 + 4); // 80 byte - header, 4 byte - tringle count
-  ulFileLength /=
-    50; // 50 byte - twelve 32-bit-floating point numbers + 2 byte for attribute byte count
+  ulFileLength -= headerSize + sizeof(uint32_t); // 80 byte - header, 4 byte - triangle count
+  if (ulFileLength < 0 || ulFileLength % triSize != 0)
+  {
+    vtkErrorMacro("STLReader error reading file. Remaining file length bad.");
+    return false;
+  }
+  vtkTypeInt64 numTrisFile = ulFileLength / triSize;
 
-  numTris = std::max<int>(numTris, ulFileLength);
+  // Many .stl files contain bogus triangle count. Let's compare to the remaining file size. If
+  // we're being strict, they should match.
+  if (numTrisFile != numTrisField && !this->GetRelaxedConformance())
+  {
+    vtkErrorMacro("STLReader error reading file. Triangle count / file size mismatch.");
+    return false;
+  }
 
-  // now we can allocate the memory we need for this STL file
-  newPts->Allocate(numTris * 3);
-  newPolys->AllocateEstimate(numTris, 3);
+  // now allocate the memory we need for the triangles.
+  // note we ignore the triangle count field and read until end of file.
+  newPts->Allocate(numTrisFile * 3);
+  newPolys->AllocateEstimate(numTrisFile, 3);
 
   facet_t facet;
-  for (int i = 0; stream->Read(&facet, 50) > 0; i++)
+  for (size_t i = 0; stream->Read(&facet, triSize) > 0; ++i)
   {
     vtkByteSwap::Swap4LE(facet.n);
     vtkByteSwap::Swap4LE(facet.n + 1);
     vtkByteSwap::Swap4LE(facet.n + 2);
+    if (!std::isfinite(facet.n[0]) || !std::isfinite(facet.n[1]) || !std::isfinite(facet.n[2]))
+    {
+      vtkErrorMacro("Normal vector non-finite.");
+      return false;
+    }
 
     vtkByteSwap::Swap4LE(facet.v1);
     vtkByteSwap::Swap4LE(facet.v1 + 1);
     vtkByteSwap::Swap4LE(facet.v1 + 2);
+    if (!std::isfinite(facet.v1[0]) || !std::isfinite(facet.v1[1]) || !std::isfinite(facet.v1[2]))
+    {
+      vtkErrorMacro("vertex 1 non-finite.");
+      return false;
+    }
 
     vtkByteSwap::Swap4LE(facet.v2);
     vtkByteSwap::Swap4LE(facet.v2 + 1);
     vtkByteSwap::Swap4LE(facet.v2 + 2);
+    if (!std::isfinite(facet.v2[0]) || !std::isfinite(facet.v2[1]) || !std::isfinite(facet.v2[2]))
+    {
+      vtkErrorMacro("vertex 2 non-finite.");
+      return false;
+    }
 
     vtkByteSwap::Swap4LE(facet.v3);
     vtkByteSwap::Swap4LE(facet.v3 + 1);
     vtkByteSwap::Swap4LE(facet.v3 + 2);
+    if (!std::isfinite(facet.v3[0]) || !std::isfinite(facet.v3[1]) || !std::isfinite(facet.v3[2]))
+    {
+      vtkErrorMacro("vertex 3 non-finite.");
+      return false;
+    }
 
     vtkIdType pts[3];
     pts[0] = newPts->InsertNextPoint(facet.v1);
@@ -309,7 +336,7 @@ bool vtkSTLReader::ReadBinarySTL(
     if ((i % 100000) == 0 && i != 0)
     {
       vtkDebugMacro(<< "triangle# " << i);
-      this->UpdateProgress(static_cast<double>(i) / numTris);
+      this->UpdateProgress(static_cast<double>(i) / numTrisFile);
     }
   }
 
@@ -391,7 +418,7 @@ bool vtkSTLReader::ReadASCIISTL(
   int vertOff = 0;
 
   int solidId = -1;
-  int lineNum = 0;
+  size_t lineNum = 0;
 
   enum StlAsciiScanState
   {
@@ -645,7 +672,7 @@ bool vtkSTLReader::ReadASCIISTL(
 
   if (!errorMessage.empty())
   {
-    vtkErrorMacro("STLReader: error while reading at line " << lineNum << ": " << errorMessage);
+    vtkDebugMacro("STLReader: unable to read line " << lineNum << ": " << errorMessage);
     return false;
   }
 
@@ -665,6 +692,7 @@ void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
+  os << indent << "RelaxedConformance: " << (this->RelaxedConformance ? "On\n" : "Off\n");
   os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
   os << indent << "ScalarTags: " << (this->ScalarTags ? "On\n" : "Off\n");
   os << indent << "Locator: ";
