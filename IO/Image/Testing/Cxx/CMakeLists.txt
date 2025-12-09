@@ -35,6 +35,10 @@ vtk_add_test_cxx(vtkIOImageCxxTests tests
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/masonry.bmp}")
 
 vtk_add_test_cxx(vtkIOImageCxxTests tests
+  TestBMPReaderStream.cxx,NO_OUTPUT
+    "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/masonry.bmp}")
+
+vtk_add_test_cxx(vtkIOImageCxxTests tests
   TestBMPReaderDoNotAllow8BitBMP.cxx,NO_OUTPUT
     "DATA{${_vtk_build_TEST_INPUT_DATA_DIRECTORY}/Data/masonry.bmp}")
 
