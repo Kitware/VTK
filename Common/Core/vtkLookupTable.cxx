@@ -806,8 +806,8 @@ void vtkLookupTableMapData(vtkLookupTable* self, T* input, unsigned char* output
 
   // Resize the internal table to hold the special colors at the
   // end. When this function is called repeatedly with the same size
-  // lookup table, memory reallocation will be done only one the first
-  // call if at all.
+  // lookup table, memory reallocation will be done only on the first
+  // call, if at all.
 
   vtkUnsignedCharArray* lookupTable = self->GetTable();
 

@@ -90,7 +90,7 @@ vtkMTimeType vtkImageResliceToColors::GetMTime()
 }
 
 //------------------------------------------------------------------------------
-void vtkImageResliceToColors::SetBypass(int bypass)
+void vtkImageResliceToColors::SetBypass(vtkTypeBool bypass)
 {
   bypass = (bypass != 0);
   if (bypass != this->Bypass)
