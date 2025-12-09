@@ -2849,9 +2849,11 @@ void vtkFLUENTReader::ParseZones(bool areCellsEnabled)
 {
   this->FluentFile->clear();
   this->FluentFile->seekg(0, ios::beg);
+  std::size_t parsedZones = 0;
 
   for (auto& zone : this->Zones)
   {
+    parsedZones += 1;
     // because of interdependency, if any cell section is enabled, we need to parse all the zones
     if (zone.isParsed || (!areCellsEnabled && !zone.isEnabled) ||
       (zone.zoneId == 12 && !areCellsEnabled))
@@ -2863,6 +2865,7 @@ void vtkFLUENTReader::ParseZones(bool areCellsEnabled)
     this->GetCaseChunk();
     this->ParseZone(zone.zoneId);
     zone.isParsed = true;
+    this->UpdateProgress(double(parsedZones) / this->Zones.size());
   }
 }
 
