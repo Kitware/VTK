@@ -47,90 +47,101 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
 
   /**
-   * Construct with empty list.
+   * Construct an empty collection.
    */
   static vtkCollection* New();
 
   /**
-   * Add an object to the bottom of the list. Does not prevent duplicate entries.
-   * Given object must not be nullptr.
+   * Add given item to the bottom (end) of the collection. Does not prevent duplicate entries.
+   * Given item must not be nullptr.
+   *
+   * Note: it is undefined behaviour to invoke this during traversal of the collection.
    */
   void AddItem(vtkObject*);
 
   /**
-   * Insert item into the list after the i'th item. Does not prevent duplicate entries.
-   * If i < 0 the item is placed at the top of the list.
-   * Given object must not be nullptr.
+   * Insert given item into the collection after the i'th item. Does not prevent duplicate entries.
+   * If the collection is empty, does nothing (regardless of parameters).
+   * If i < 0 the given item is placed at the top (beginning) of the collection.
+   * Given item must not be nullptr.
+   *
+   * Note: it is undefined behaviour to invoke this during traversal of the collection.
    */
   void InsertItem(int i, vtkObject*);
 
   /**
-   * Replace the i'th item in the collection with another item.
-   * Given object must not be nullptr.
+   * Replace the i'th item in the collection with the given item.
+   * If i is out-of-range, this function does nothing.
+   * Given item must not be nullptr.
+   *
+   * Note: It is well-defined to replace an item during traversal of the collection.
    */
   void ReplaceItem(int i, vtkObject*);
 
   /**
-   * Remove the i'th item in the list. If i is out-of-range, this function does nothing.
-   * Be careful if using this function during traversal of the list using
-   * GetNextItemAsObject (or GetNextItem in derived class).  The list WILL
-   * be shortened if a valid index is given!  If this->Current is equal to the
-   * element being removed, have it point to then next element in the list.
+   * Remove the i'th item in the collection. If i is out-of-range, this function does nothing.
+   *
+   * Note: It is well-defined to remove items during traversal of the collection.
    */
   void RemoveItem(int i);
 
   /**
-   * Remove an object from the list. Removes the first object found, not
-   * all occurrences. If no object found, list is unaffected.  See warning
-   * in description of RemoveItem(int).
-   * If given object is nullptr, does nothing.
+   * Remove the first occurrence of the given item from the collection.
+   * Removes only the first occurrence found, not all occurrences.
+   * If no occurrence is found, the collection is unaffected.
+   * If given item is nullptr, does nothing.
+   *
+   * Note: It is well-defined to remove items during traversal of the collection.
    */
   void RemoveItem(vtkObject*);
 
   /**
-   * Remove all objects from the list.
+   * Remove all items from the collection.
+   *
+   * Note: It is well-defined to remove items during traversal of the collection.
    */
   void RemoveAllItems();
 
   /**
-   * Search for an object and return location in list. If the return value is
-   * 0, the object was not found. If the object was found, the location is
-   * the return value-1.
-   * If given object is nullptr, returns 0.
+   * Search for the given item and return the 1-based index of its first occurrence in the
+   * collection. If the item is not found, the return value is 0. If the item is found, the return
+   * value is its first location + 1 (a 1-based index). If given item is nullptr, returns 0.
    */
   int IsItemPresent(vtkObject* a) VTK_FUTURE_CONST;
 
   /**
-   * Search for an object and return location in list. If the return value is
-   * -1, the object was not found. If the object was found, the location is
-   * at the returned (0-based) index.
-   * If given object is nullptr, returns -1.
+   * Just calls IndexOfFirstOccurrence.
    */
   VTK_DEPRECATED_IN_9_6_0("Use correctly spelled IndexOfFirstOccurrence instead.")
   int IndexOfFirstOccurence(vtkObject* a) VTK_FUTURE_CONST;
 
   /**
-   * Search for an object and return location in list. If the return value is
-   * -1, the object was not found. If the object was found, the location is
-   * at the returned (0-based) index.
-   * If given object is nullptr, returns -1.
+   * Search for the given item and return the 0-based index of its first occurrence in the
+   * collection. If the item is not found, the return value is -1. If the item is found, the return
+   * value is its first location (a 0-based index). If given item is nullptr, returns -1.
    */
   int IndexOfFirstOccurrence(vtkObject* a) const;
 
   /**
-   * Return the number of objects in the list.
+   * Return the number of items in the collection.
    */
   int GetNumberOfItems() VTK_FUTURE_CONST { return this->NumberOfItems; }
 
   /**
-   * Initialize the traversal of the collection. This means the data pointer
-   * is set at the beginning of the list.
+   * Get the i'th item in the collection. nullptr is returned if i is out
+   * of range.
+   */
+  vtkObject* GetItemAsObject(int i) VTK_FUTURE_CONST;
+
+  /**
+   * Initialize the traversal of the collection. This means the next call to GetNextItemAsObject()
+   * will return the first object in the collection.
    */
   void InitTraversal() { this->Current = this->Top; }
 
   /**
    * A reentrant safe way to iterate through a collection.
-   * Just pass the same cookie value around each time
+   * Just pass the same cookie value around each time.
    */
   void InitTraversal(vtkCollectionSimpleIterator& cookie)
   {
@@ -144,19 +155,13 @@ public:
   vtkObject* GetNextItemAsObject();
 
   /**
-   * Get the i'th item in the collection. nullptr is returned if i is out
-   * of range
-   */
-  vtkObject* GetItemAsObject(int i) VTK_FUTURE_CONST;
-
-  /**
-   * A reentrant safe way to get the next object as a collection. Just pass the
+   * A reentrant safe way to get the next item as a collection. Just pass the
    * same cookie back and forth.
    */
   vtkObject* GetNextItemAsObject(vtkCollectionSimpleIterator& cookie) VTK_FUTURE_CONST;
 
   /**
-   * Get an iterator to traverse the objects in this collection.
+   * Get an iterator to traverse the items in this collection.
    */
   VTK_NEWINSTANCE vtkCollectionIterator* NewIterator();
 
@@ -203,13 +208,14 @@ inline vtkObject* vtkCollection::GetNextItemAsObject()
   }
 }
 
-inline vtkObject* vtkCollection::GetNextItemAsObject(void*& cookie) VTK_FUTURE_CONST
+inline vtkObject* vtkCollection::GetNextItemAsObject(
+  vtkCollectionSimpleIterator& cookie) VTK_FUTURE_CONST
 {
   vtkCollectionElement* elem = static_cast<vtkCollectionElement*>(cookie);
 
   if (elem != nullptr)
   {
-    cookie = static_cast<void*>(elem->Next);
+    cookie = static_cast<vtkCollectionSimpleIterator>(elem->Next);
     return elem->Item;
   }
   else
