@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 #include "vtkCellData.h"
+#include "vtkDataArraySelection.h"
+#include "vtkFieldData.h"
 #include "vtkHDF5ScopedHandle.h"
 #include "vtkHDFReader.h"
 #include "vtkHDFWriter.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
+#include "vtkIntArray.h"
 #include "vtkLogger.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
@@ -419,6 +422,57 @@ bool TestPartitionedDataSetCollection(const std::string& tempDir, const std::str
 }
 
 //----------------------------------------------------------------------------
+bool TestFieldDataReadWrite(const std::string& tempDir)
+{
+  vtkNew<vtkIntArray> arr;
+  std::string arrayName = "MyAwesomeFieldData";
+  arr->SetName(arrayName.c_str());
+  arr->SetNumberOfComponents(3);
+  arr->SetNumberOfTuples(2);
+  std::array<int, 3> tup1{ 1, 2, 3 };
+  arr->InsertNextTypedTuple(tup1.data());
+  std::array<int, 3> tup2{ 2, 3, 4 };
+  arr->InsertNextTypedTuple(tup2.data());
+
+  vtkNew<vtkFieldData> fd;
+  fd->AddArray(arr);
+
+  vtkNew<vtkUnstructuredGrid> ug;
+  ug->SetFieldData(fd);
+
+  std::string tempPath = tempDir + "/HDFWriter_field_data.vtkhdf";
+  vtkNew<vtkHDFWriter> writer;
+  writer->SetInputData(ug);
+  writer->SetFileName(tempPath.c_str());
+  writer->Write();
+
+  vtkNew<vtkHDFReader> reader;
+  reader->SetFileName(tempPath.c_str());
+  reader->Update();
+
+  vtkUnstructuredGrid* ug_read = vtkUnstructuredGrid::SafeDownCast(reader->GetOutputAsDataSet());
+
+  if (!vtkTestUtilities::CompareFieldData(ug_read->GetFieldData(), ug->GetFieldData()))
+  {
+    std::cerr << "vtkDataObject does not match: " << tempPath << std::endl;
+    return false;
+  }
+
+  vtkDataArraySelection* select = reader->GetFieldDataArraySelection();
+  select->DisableArray(arrayName.c_str());
+  reader->Update();
+
+  ug_read = vtkUnstructuredGrid::SafeDownCast(reader->GetOutputAsDataSet());
+  if (ug_read->GetFieldData()->GetNumberOfArrays() != 0)
+  {
+    std::cerr << "vtkDataObject does not match: " << tempPath << std::endl;
+    return false;
+  }
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 int TestHDFWriter(int argc, char* argv[])
 {
   // Get temporary testing directory
@@ -449,6 +503,7 @@ int TestHDFWriter(int argc, char* argv[])
   testPasses &= TestPartitionedDataSetCollection(tempDir, dataRoot);
   testPasses &= TestMultiBlock(tempDir, dataRoot);
   testPasses &= TestMultiBlockIdenticalBlockNames(tempDir, dataRoot);
+  testPasses &= TestFieldDataReadWrite(tempDir);
 
   return testPasses ? EXIT_SUCCESS : EXIT_FAILURE;
 }

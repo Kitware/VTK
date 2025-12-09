@@ -854,6 +854,10 @@ int vtkHDFReader::AddFieldArrays(vtkDataObject* data)
   const std::vector<std::string> names = this->Impl->GetArrayNames(vtkDataObject::FIELD);
   for (const std::string& name : names)
   {
+    if (!this->DataArraySelection[vtkDataObject::FIELD]->ArrayIsEnabled(name.c_str()))
+    {
+      continue;
+    }
     vtkSmartPointer<vtkAbstractArray> array;
     vtkIdType offset = -1;
     std::array<vtkIdType, 2> size = { -1, -1 };
