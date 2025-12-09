@@ -30,6 +30,7 @@
 #define vtkPicker_h
 
 #include "vtkAbstractPropPicker.h"
+#include "vtkDeprecation.h"         // For VTK_DEPRECATED_9_7_0
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkWrappingHints.h"       // For VTK_MARSHALAUTO
 
@@ -110,6 +111,7 @@ public:
    * This collection is not sorted. (This is a convenience method
    * to maintain backward compatibility.)
    */
+  VTK_DEPRECATED_IN_9_7_0("Use GetProp3Ds instead.")
   vtkActorCollection* GetActors();
 
   /**
