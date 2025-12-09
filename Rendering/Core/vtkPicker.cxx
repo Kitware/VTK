@@ -65,7 +65,7 @@ vtkPicker::~vtkPicker()
 //------------------------------------------------------------------------------
 // Update state when prop3D is picked.
 void vtkPicker::MarkPicked(vtkAssemblyPath* path, vtkProp3D* vtkNotUsed(prop3D),
-  vtkAbstractMapper3D* m, double tMin, double mapperPos[3])
+  vtkAbstractMapper3D* m, double tMin, VTK_FUTURE_CONST double mapperPos[3])
 {
   vtkMapper* mapper;
   vtkAbstractVolumeMapper* volumeMapper;
@@ -89,8 +89,9 @@ void vtkPicker::MarkPicked(vtkAssemblyPath* path, vtkProp3D* vtkNotUsed(prop3D),
   }
 }
 
-void vtkPicker::MarkPickedData(vtkAssemblyPath* path, double tMin, double mapperPos[3],
-  vtkAbstractMapper3D* mapper, vtkDataSet* input, vtkIdType flatIndex)
+void vtkPicker::MarkPickedData(vtkAssemblyPath* path, double tMin,
+  VTK_FUTURE_CONST double mapperPos[3], vtkAbstractMapper3D* mapper, vtkDataSet* input,
+  vtkIdType flatIndex)
 {
   this->SetPath(path);
   this->GlobalTMin = tMin;
@@ -109,7 +110,7 @@ void vtkPicker::MarkPickedData(vtkAssemblyPath* path, double tMin, double mapper
   this->FlatBlockIndex = flatIndex;
 }
 
-int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
+int vtkPicker::Pick3DPoint(VTK_FUTURE_CONST double pos[3], vtkRenderer* renderer)
 {
   int i;
   vtkProp* prop;
@@ -292,7 +293,8 @@ int vtkPicker::Pick3DPoint(double pos[3], vtkRenderer* renderer)
 }
 
 //------------------------------------------------------------------------------
-int vtkPicker::Pick3DPoint(double selectionPt[3], double focalPt[3], vtkRenderer* ren)
+int vtkPicker::Pick3DPoint(
+  VTK_FUTURE_CONST double selectionPt[3], VTK_FUTURE_CONST double focalPt[3], vtkRenderer* ren)
 {
   // Initialize the picking process
   this->Initialize();
@@ -429,7 +431,9 @@ int vtkPicker::Pick(double selectionX, double selectionY, double selectionZ, vtk
   return result;
 }
 
-int vtkPicker::Pick3DRay(double pos[3], double wori[4], vtkRenderer* renderer)
+//------------------------------------------------------------------------------
+int vtkPicker::Pick3DRay(
+  VTK_FUTURE_CONST double pos[3], VTK_FUTURE_CONST double wori[4], vtkRenderer* renderer)
 {
   //  Initialize picking process
   this->Initialize();
@@ -464,7 +468,8 @@ int vtkPicker::Pick3DRay(double pos[3], double wori[4], vtkRenderer* renderer)
   return result;
 }
 
-int vtkPicker::Pick3DInternal(vtkRenderer* renderer, double p1World[4], double p2World[4])
+int vtkPicker::Pick3DInternal(
+  vtkRenderer* renderer, VTK_FUTURE_CONST double p1World[4], VTK_FUTURE_CONST double p2World[4])
 {
   int i;
   vtkProp* prop;

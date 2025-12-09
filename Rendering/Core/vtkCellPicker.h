@@ -73,7 +73,8 @@ public:
    * selectionPt is in world coordinates.
    * Return non-zero if something was successfully picked.
    */
-  int Pick3DRay(double selectionPt[3], double orient[4], vtkRenderer* ren) override;
+  int Pick3DRay(VTK_FUTURE_CONST double selectionPt[3], VTK_FUTURE_CONST double orient[4],
+    vtkRenderer* ren) override;
 
   /**
    * Add a locator for one of the data sets that will be included in the
