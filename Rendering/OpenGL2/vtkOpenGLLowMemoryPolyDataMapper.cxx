@@ -28,6 +28,7 @@
 #include "vtkOpenGLLowMemoryVerticesAgent.h"
 #include "vtkOpenGLRenderPass.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLShaderDeclaration.h"
 #include "vtkOpenGLShaderProperty.h"
@@ -1032,7 +1033,13 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderValues(
     "uniform int enable_lights;\n");
   vtkShaderProgram::Substitute(fsSource, "//VTK::Light::Impl",
     "  gl_FragData[0] = vec4(ambientColor + diffuseColor, opacity);\n"
-    "   if (enable_lights == 1)\n"
+    "   int vtkEnableLights = enable_lights;\n"
+    "   if (vtkEnableLights == 0 && renderLinesAsTubes == 1 && primitiveSize == 3 && "
+    "hasTubeBasisVS == 1)\n"
+    "   {\n"
+    "     vtkEnableLights = 1;\n"
+    "   }\n"
+    "   if (vtkEnableLights == 1)\n"
     "   {\n"
     "   //VTK::Light::Impl\n"
     "   }\n");
@@ -1147,7 +1154,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderNormal(
     "uniform float ZCalcS;\n"
     "uniform float ZCalcR;\n"
     "in vec3 tubeBasis1VS;\n"
-    "in vec3 tubeBasis2VS;\n");
+    "in vec3 tubeBasis2VS;\n"
+    "flat in int hasTubeBasisVS;\n");
   // Assign normal vector outputs.
   switch (this->ShaderNormalSource)
   {
@@ -1183,7 +1191,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderNormal(
       vertexNormalVCVS = normalize(vec3(sphereCoord, lenZ));
     }
   }
-  else if (renderLinesAsTubes == 1 && primitiveSize == 3)
+  else if (renderLinesAsTubes == 1 && primitiveSize == 3 && hasTubeBasisVS == 1)
   {
     float len2 = dot(tubeBasis1VS.xy, tubeBasis1VS.xy);
     float lenZ = clamp(sqrt(max(0.0, 1.0 - len2)), 0.0, 1.0);
@@ -1348,7 +1356,7 @@ if (renderPointsAsSpheres == 1 && primitiveSize == 1)
     vertexNormalVCVS = normalize(vec3(sphereCoord, lenZ));
   }
 }
-else if (renderLinesAsTubes == 1 && primitiveSize == 3)
+else if (renderLinesAsTubes == 1 && primitiveSize == 3 && hasTubeBasisVS == 1)
 {
   float len2 = dot(tubeBasis1VS.xy, tubeBasis1VS.xy);
   float lenZ = clamp(sqrt(max(0.0, 1.0 - len2)), 0.0, 1.0);
@@ -1424,7 +1432,7 @@ vec3 normalVCVSOutput = vertexNormalVCVS;
       // the camera view and the line, result is (lineVec.y, -lineVec.x, 0).
       // Cross this vector with the line vector again to get a normal that
       // is orthogonal to the line and maximally aligned with the camera.
-      fsImpl << "else if (renderLinesAsTubes == 1 && primitiveSize == 3)\n"
+      fsImpl << "else if (renderLinesAsTubes == 1 && primitiveSize == 3 && hasTubeBasisVS == 1)\n"
                 "{\n"
                 "  float len2 = dot(tubeBasis1VS.xy, tubeBasis1VS.xy);\n"
                 "  float lenZ = clamp(sqrt(max(0.0, 1.0 - len2)), 0.0, 1.0);\n"
@@ -1498,7 +1506,7 @@ if (renderPointsAsSpheres == 1 && primitiveSize == 1)
     }
   }
 }
-else if (renderLinesAsTubes == 1 && primitiveSize == 3)
+else if (renderLinesAsTubes == 1 && primitiveSize == 3 && hasTubeBasisVS == 1)
 {
   float len2 = dot(tubeBasis1VS.xy, tubeBasis1VS.xy);
   float lenZ = clamp(sqrt(max(0.0, 1.0 - len2)), 0.0, 1.0);
@@ -1565,7 +1573,7 @@ if (renderPointsAsSpheres == 1 && primitiveSize == 1)
     }
   }
 }
-else if (renderLinesAsTubes == 1 && primitiveSize == 3)
+else if (renderLinesAsTubes == 1 && primitiveSize == 3 && hasTubeBasisVS == 1)
 {
   float len2 = dot(tubeBasis1VS.xy, tubeBasis1VS.xy);
   float lenZ = clamp(sqrt(max(0.0, 1.0 - len2)), 0.0, 1.0);
@@ -1753,7 +1761,8 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderWideLines(
   vtkShaderProgram::Substitute(vsSource, "//VTK::Normal::Dec",
     "//VTK::Normal::Dec\n"
     "out vec3 tubeBasis1VS;\n"
-    "out vec3 tubeBasis2VS;\n");
+    "out vec3 tubeBasis2VS;\n"
+    "flat out int hasTubeBasisVS;\n");
   // Wide lines only when primitiveSize == 2
   vtkShaderProgram::Substitute(vsSource, "//VTK::LineWidthGLES30::Dec",
     "uniform vec4 viewportDimensions;\n"
@@ -1762,6 +1771,7 @@ void vtkOpenGLLowMemoryPolyDataMapper::ReplaceShaderWideLines(
     R"(
 tubeBasis1VS = vec3(0.0);
 tubeBasis2VS = vec3(0.0);
+hasTubeBasisVS = 0;
 if (cellType == 3 && primitiveSize == 3) // VTK_LINE rendered as 2 triangle primitives
 {
   if (lineWidth > 1.0)
@@ -1800,8 +1810,9 @@ if (cellType == 3 && primitiveSize == 3) // VTK_LINE rendered as 2 triangle prim
     vec4 p0_DC = MCDCMatrix * p0MC;
     vec4 p1_DC = MCDCMatrix * p1MC;
     // transform to 2-D screen plane.
-    vec2 p0Screen = (viewportDimensions.xy + viewportDimensions.zw) * (0.5 * p0_DC.xy / p0_DC.w + 0.5);
-    vec2 p1Screen = (viewportDimensions.xy + viewportDimensions.zw) * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
+    // Convert from clip space to window coordinates: win = vpMin + vpSize * ((ndc*0.5)+0.5)
+    vec2 p0Screen = viewportDimensions.xy + viewportDimensions.zw * (0.5 * p0_DC.xy / p0_DC.w + 0.5);
+    vec2 p1Screen = viewportDimensions.xy + viewportDimensions.zw * (0.5 * p1_DC.xy / p1_DC.w + 0.5);
     // compute the line direction vector.
     vec2 dirScreen = p1Screen - p0Screen;
     float dirLen = length(dirScreen);
@@ -1814,8 +1825,9 @@ if (cellType == 3 && primitiveSize == 3) // VTK_LINE rendered as 2 triangle prim
     vec2 p1Offset = p1Screen + pCoord.x * xBasis + pCoord.y * yBasis * lineWidth;
     vec2 p = mix(p0Offset, p1Offset, pCoord.x);
     vec4 p_DC = mix(p0_DC, p1_DC, pCoord.x);
-    // compute the final position in clip space.
-    gl_Position = vec4(p_DC.w * ((2.0 * p / (viewportDimensions.zw + viewportDimensions.xy)) - 1.0), p_DC.z, p_DC.w);
+    // compute the final position in clip space: convert window -> NDC
+    vec2 ndcPos = ((p - viewportDimensions.xy) / viewportDimensions.zw) * 2.0 - 1.0;
+    gl_Position = vec4(p_DC.w * ndcPos, p_DC.z, p_DC.w);
     vertexVCVSOutput = mix(p0VC, p1VC, pCoord.x);
     vec3 lineDirVec = p1VC.xyz - p0VC.xyz;
     float lineDirLen = length(lineDirVec);
@@ -1835,8 +1847,10 @@ if (cellType == 3 && primitiveSize == 3) // VTK_LINE rendered as 2 triangle prim
     }
     tubeBasis1VS = vec3(2.0 * pCoord.y * normal2D, 0.0);
     tubeBasis2VS = tubeBasis2Tmp;
+    hasTubeBasisVS = 1;
   }
-})");
+}
+)");
 }
 
 //------------------------------------------------------------------------------
@@ -1866,8 +1880,7 @@ uniform highp int edgeVisibility;)");
     pos[2] = gl_Position.xy/gl_Position.w;
     for(int i = 0; i < 3; ++i)
     {
-      pos[i] = pos[i]*vec2(0.5) + vec2(0.5);
-      pos[i] = pos[i]*(viewportDimensions.zw + viewportDimensions.xy);
+      pos[i] = viewportDimensions.xy + viewportDimensions.zw * (pos[i]*vec2(0.5) + vec2(0.5));
     }
     pos[3] = pos[0];
     float ccw = sign(cross(vec3(pos[1] - pos[0], 0.0), vec3(pos[2] - pos[0], 0.0)).z);
@@ -1919,6 +1932,8 @@ uniform float edgeWidth;
       edist[1] += edgeEqn[1].z;
       edist[2] += edgeEqn[2].z;
     }
+    // Legacy-consistent edge band: rely on signed edge distances with a
+    // half-width offset so edges look uniform and thin.
     float emix = clamp(0.5 + 0.5 * edgeWidth - min(min(edist[0], edist[1]), edist[2]), 0.0, 1.0);
     if (wireframe == 1)
     {
@@ -1928,8 +1943,28 @@ uniform float edgeWidth;
     {
       diffuseColor = mix(diffuseColor, vec3(0.0), emix * edgeOpacity);
       ambientColor = mix(ambientColor, edgeColor, emix * edgeOpacity);
+      // When lighting is enabled and tubes are requested, add a subtle
+      // color-only highlight that mimics a rounded tube without touching
+      // normals (safe for WebGL/ES). This matches the legacy look.
+      if (enable_lights == 1 && renderLinesAsTubes == 1)
+      {
+        float cdist = min(edist[0], edist[1]);
+        vec4 cedge = mix(edgeEqn[0], edgeEqn[1], 0.5 + 0.5 * sign(edist[0] - edist[1]));
+        cedge = mix(cedge, edgeEqn[2], 0.5 + 0.5 * sign(cdist - edist[2]));
+        // Small bias to match legacy rasterization steps on diagonals
+        float rdist = 2.0 * min(cdist, edist[2]) / (max(edgeWidth, 1e-3) + 0.15);
+        float lenZ = clamp(sqrt(max(0.0, 1.0 - rdist * rdist)), 0.0, 1.0);
+        float tubeLambert = 0.3 + 0.7 * lenZ; // soften highlight to better match legacy
+        vec3 tubeDiffuse = intensity_diffuse * edgeColor * tubeLambert;
+        vec3 tubeAmbient = intensity_ambient * edgeColor;
+        diffuseColor = mix(diffuseColor, tubeDiffuse, emix * edgeOpacity);
+        ambientColor = mix(ambientColor, tubeAmbient, emix * edgeOpacity);
+      }
+      // Note: Avoid adjusting fragment normals here. In some normal paths,
+      // normalVCVSOutput is an input varying and cannot be assigned on WebGL/ES.
     }
-  })";
+  }
+)";
   vtkShaderProgram::Substitute(fsSource, "//VTK::Edges::Impl", fsImpl.str());
 }
 
@@ -2454,6 +2489,10 @@ void vtkOpenGLLowMemoryPolyDataMapper::SetShaderParameters(vtkRenderer* renderer
   this->ShaderProgram->SetUniformi("edgeVisibility", actor->GetProperty()->GetEdgeVisibility());
   this->ShaderProgram->SetUniformi(
     "wireframe", actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME);
+  // Always drive edge overlay thickness from screen-space lineWidth and clamp it
+  // to a modest range to avoid saturating entire faces due to numerical differences
+  // across backends (WebGL vs desktop). The tube look will be layered by color; we
+  // do not need very large overlay widths here.
   if (actor->GetProperty()->GetUseLineWidthForEdgeThickness())
   {
     this->ShaderProgram->SetUniformf("edgeWidth", lineWidth);
