@@ -207,10 +207,11 @@ public:
    * VTK_RGB (3 components), VTK_LUMINANCE (1 component, greyscale),
    * or VTK_LUMINANCE_ALPHA (2 components)
    */
-  void MapVectorsThroughTable(void* input, unsigned char* output, int inputDataType,
-    int numberOfValues, int inputIncrement, int outputFormat, int vectorComponent, int vectorSize);
-  void MapVectorsThroughTable(void* input, unsigned char* output, int inputDataType,
-    int numberOfValues, int inputIncrement, int outputFormat)
+  void MapVectorsThroughTable(VTK_FUTURE_CONST void* input, unsigned char* output,
+    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat,
+    int vectorComponent, int vectorSize);
+  void MapVectorsThroughTable(VTK_FUTURE_CONST void* input, unsigned char* output,
+    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat)
   {
     this->MapVectorsThroughTable(
       input, output, inputDataType, numberOfValues, inputIncrement, outputFormat, -1, -1);
@@ -229,8 +230,8 @@ public:
   {
     this->MapScalarsThroughTable(scalars, output, VTK_RGBA);
   }
-  void MapScalarsThroughTable(void* input, unsigned char* output, int inputDataType,
-    int numberOfValues, int inputIncrement, int outputFormat)
+  void MapScalarsThroughTable(VTK_FUTURE_CONST void* input, unsigned char* output,
+    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat)
   {
     this->MapScalarsThroughTable2(
       input, output, inputDataType, numberOfValues, inputIncrement, outputFormat);
@@ -241,8 +242,8 @@ public:
    * be a protected function, but it must be kept public for backwards
    * compatibility.  Never call this method directly.
    */
-  virtual void MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
-    int numberOfValues, int inputIncrement, int outputFormat);
+  virtual void MapScalarsThroughTable2(VTK_FUTURE_CONST void* input, unsigned char* output,
+    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat);
 
   /**
    * Copy the contents from another object.
@@ -399,8 +400,8 @@ protected:
    * then the components will be combined to compute the luminance.
    * Any components past the fourth component will be ignored.
    */
-  void MapColorsToColors(void* input, unsigned char* output, int inputDataType, int numberOfValues,
-    int numberOfComponents, int vectorSize, int outputFormat);
+  void MapColorsToColors(VTK_FUTURE_CONST void* input, unsigned char* output, int inputDataType,
+    int numberOfValues, int numberOfComponents, int vectorSize, int outputFormat);
 
   /**
    * An internal method used to convert a color array to RGBA. The
@@ -414,8 +415,8 @@ protected:
    * An internal method for converting vectors to magnitudes, used as
    * a preliminary step before doing magnitude mapping.
    */
-  void MapVectorsToMagnitude(void* input, double* output, int inputDataType, int numberOfValues,
-    int numberOfComponents, int vectorSize);
+  void MapVectorsToMagnitude(VTK_FUTURE_CONST void* input, double* output, int inputDataType,
+    int numberOfValues, int numberOfComponents, int vectorSize);
 
   /**
    * Allocate annotation arrays if needed, then return the index of

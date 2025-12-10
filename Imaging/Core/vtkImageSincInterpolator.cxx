@@ -733,12 +733,13 @@ void vtkRenormalizeKernel(T* kernel, int m, int n)
 template <class F, class T>
 struct vtkImageSincInterpolate
 {
-  static void General(vtkInterpolationInfo* info, const F point[3], F* outPtr);
+  static void General(VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr);
 };
 
 //------------------------------------------------------------------------------
 template <class F, class T>
-void vtkImageSincInterpolate<F, T>::General(vtkInterpolationInfo* info, const F point[3], F* outPtr)
+void vtkImageSincInterpolate<F, T>::General(
+  VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
   const T* inPtr = static_cast<const T*>(info->Pointer);
   const int* inExt = info->Extent;
@@ -902,7 +903,7 @@ void vtkImageSincInterpolate<F, T>::General(vtkInterpolationInfo* info, const F 
 // Get the interpolation function for the specified data types
 template <class F>
 void vtkImageSincInterpolatorGetInterpolationFunc(
-  void (**interpolate)(vtkInterpolationInfo*, const F[3], F*), int dataType,
+  void (**interpolate)(VTK_FUTURE_CONST vtkInterpolationInfo*, const F[3], F*), int dataType,
   int vtkNotUsed(interpolationMode))
 {
   switch (dataType)
@@ -1200,7 +1201,7 @@ void vtkImageSincInterpolatorPrecomputeWeights(const F newmat[16], const int out
 
 //------------------------------------------------------------------------------
 void vtkImageSincInterpolator::GetInterpolationFunc(
-  void (**func)(vtkInterpolationInfo*, const double[3], double*))
+  void (**func)(VTK_FUTURE_CONST vtkInterpolationInfo*, const double[3], double*))
 {
   vtkImageSincInterpolatorGetInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->WindowFunction);
@@ -1208,7 +1209,7 @@ void vtkImageSincInterpolator::GetInterpolationFunc(
 
 //------------------------------------------------------------------------------
 void vtkImageSincInterpolator::GetInterpolationFunc(
-  void (**func)(vtkInterpolationInfo*, const float[3], float*))
+  void (**func)(VTK_FUTURE_CONST vtkInterpolationInfo*, const float[3], float*))
 {
   vtkImageSincInterpolatorGetInterpolationFunc(
     func, this->InterpolationInfo->ScalarType, this->WindowFunction);

@@ -280,9 +280,9 @@ protected:
    * Get the interpolation functions.
    */
   virtual void GetInterpolationFunc(
-    void (**doublefunc)(vtkInterpolationInfo*, const double[3], double*));
+    void (**doublefunc)(VTK_FUTURE_CONST vtkInterpolationInfo*, const double[3], double*));
   virtual void GetInterpolationFunc(
-    void (**floatfunc)(vtkInterpolationInfo*, const float[3], float*));
+    void (**floatfunc)(VTK_FUTURE_CONST vtkInterpolationInfo*, const float[3], float*));
   ///@}
 
   ///@{
@@ -325,8 +325,9 @@ protected:
   vtkInterpolationInfo* InterpolationInfo;
 
   void (*InterpolationFuncDouble)(
-    vtkInterpolationInfo* info, const double point[3], double* outPtr);
-  void (*InterpolationFuncFloat)(vtkInterpolationInfo* info, const float point[3], float* outPtr);
+    VTK_FUTURE_CONST vtkInterpolationInfo* info, const double point[3], double* outPtr);
+  void (*InterpolationFuncFloat)(
+    VTK_FUTURE_CONST vtkInterpolationInfo* info, const float point[3], float* outPtr);
 
   void (*RowInterpolationFuncDouble)(
     vtkInterpolationWeights* weights, int idX, int idY, int idZ, double* outPtr, int n);

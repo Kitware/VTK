@@ -165,8 +165,8 @@ public:
    * Overridden to map the opacity value. This internal method is inherited
    * from vtkScalarsToColors and should never be called directly.
    */
-  void MapScalarsThroughTable2(void* input, unsigned char* output, int inputDataType,
-    int numberOfValues, int inputIncrement, int outputFormat) override;
+  void MapScalarsThroughTable2(VTK_FUTURE_CONST void* input, unsigned char* output,
+    int inputDataType, int numberOfValues, int inputIncrement, int outputFormat) override;
 
   /**
    * Specify an additional opacity (alpha) value to blend with. Values

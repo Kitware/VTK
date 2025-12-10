@@ -45,16 +45,17 @@ namespace
 template <class F, class T>
 struct vtkImageNLCInterpolate
 {
-  static void Nearest(vtkInterpolationInfo* info, const F point[3], F* outPtr);
+  static void Nearest(VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr);
 
-  static void Trilinear(vtkInterpolationInfo* info, const F point[3], F* outPtr);
+  static void Trilinear(VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr);
 
-  static void Tricubic(vtkInterpolationInfo* info, const F point[3], F* outPtr);
+  static void Tricubic(VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr);
 };
 
 //------------------------------------------------------------------------------
 template <class F, class T>
-void vtkImageNLCInterpolate<F, T>::Nearest(vtkInterpolationInfo* info, const F point[3], F* outPtr)
+void vtkImageNLCInterpolate<F, T>::Nearest(
+  VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
   // const T* inPtr = static_cast<const T*>(info->Pointer);
   vtkDataArrayAccessor<T> array(static_cast<T*>(info->Array));
@@ -100,7 +101,7 @@ void vtkImageNLCInterpolate<F, T>::Nearest(vtkInterpolationInfo* info, const F p
 //------------------------------------------------------------------------------
 template <class F, class T>
 void vtkImageNLCInterpolate<F, T>::Trilinear(
-  vtkInterpolationInfo* info, const F point[3], F* outPtr)
+  VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
   vtkDataArrayAccessor<T> array(static_cast<T*>(info->Array));
   vtkIdType inIdx = info->Index;
@@ -209,7 +210,8 @@ inline void vtkTricubicInterpWeights(T F[4], T f)
 //------------------------------------------------------------------------------
 // tricubic interpolation
 template <class F, class T>
-void vtkImageNLCInterpolate<F, T>::Tricubic(vtkInterpolationInfo* info, const F point[3], F* outPtr)
+void vtkImageNLCInterpolate<F, T>::Tricubic(
+  VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr)
 {
   vtkDataArrayAccessor<T> array(static_cast<T*>(info->Array));
   vtkIdType inIdx = info->Index;
@@ -356,7 +358,7 @@ using vtkDefaultImageNLCInterpolate = vtkImageNLCInterpolate<F, vtkDataArray>;
 template <class F>
 struct GetNearestFuncWorker
 {
-  void (*interpolate)(vtkInterpolationInfo*, const F[3], F*);
+  void (*interpolate)(VTK_FUTURE_CONST vtkInterpolationInfo*, const F[3], F*);
   template <typename ArrayType>
   void operator()(ArrayType*)
   {
@@ -367,7 +369,7 @@ struct GetNearestFuncWorker
 template <class F>
 struct GetTrilinearFuncWorker
 {
-  void (*interpolate)(vtkInterpolationInfo*, const F[3], F*);
+  void (*interpolate)(VTK_FUTURE_CONST vtkInterpolationInfo*, const F[3], F*);
   template <typename ArrayType>
   void operator()(ArrayType*)
   {
@@ -378,7 +380,7 @@ struct GetTrilinearFuncWorker
 template <class F>
 struct GetTricubicFuncWorker
 {
-  void (*interpolate)(vtkInterpolationInfo*, const F[3], F*);
+  void (*interpolate)(VTK_FUTURE_CONST vtkInterpolationInfo*, const F[3], F*);
   template <typename ArrayType>
   void operator()(ArrayType*)
   {
@@ -390,7 +392,7 @@ struct GetTricubicFuncWorker
 // Get the interpolation function for the specified data types
 template <class F>
 void vtkGenericImageInterpolatorGetInterpolationFunc(
-  void (**interpolate)(vtkInterpolationInfo*, const F[3], F*), vtkDataArray* array,
+  void (**interpolate)(VTK_FUTURE_CONST vtkInterpolationInfo*, const F[3], F*), vtkDataArray* array,
   int interpolationMode)
 {
   using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
@@ -809,7 +811,7 @@ void vtkGenericImageInterpolatorGetRowInterpolationFunc(
 
 //------------------------------------------------------------------------------
 void vtkGenericImageInterpolator::GetInterpolationFunc(
-  void (**func)(vtkInterpolationInfo*, const double[3], double*))
+  void (**func)(VTK_FUTURE_CONST vtkInterpolationInfo*, const double[3], double*))
 {
   vtkGenericImageInterpolatorGetInterpolationFunc(
     func, this->InterpolationInfo->Array, this->InterpolationMode);
@@ -817,7 +819,7 @@ void vtkGenericImageInterpolator::GetInterpolationFunc(
 
 //------------------------------------------------------------------------------
 void vtkGenericImageInterpolator::GetInterpolationFunc(
-  void (**func)(vtkInterpolationInfo*, const float[3], float*))
+  void (**func)(VTK_FUTURE_CONST vtkInterpolationInfo*, const float[3], float*))
 {
   vtkGenericImageInterpolatorGetInterpolationFunc(
     func, this->InterpolationInfo->Array, this->InterpolationMode);
@@ -847,14 +849,15 @@ namespace
 template <class F>
 struct vtkInterpolateNOP
 {
-  static void InterpolationFunc(vtkInterpolationInfo* info, const F point[3], F* outPtr);
+  static void InterpolationFunc(
+    VTK_FUTURE_CONST vtkInterpolationInfo* info, const F point[3], F* outPtr);
 
   static void RowInterpolationFunc(
     vtkInterpolationWeights* weights, int idX, int idY, int idZ, F* outPtr, int n);
 };
 
 template <class F>
-void vtkInterpolateNOP<F>::InterpolationFunc(vtkInterpolationInfo*, const F[3], F*)
+void vtkInterpolateNOP<F>::InterpolationFunc(VTK_FUTURE_CONST vtkInterpolationInfo*, const F[3], F*)
 {
 }
 

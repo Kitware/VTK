@@ -388,7 +388,7 @@ static void vtkDiscretizableColorTransferFunctionMapOpacity(
 }
 
 //------------------------------------------------------------------------------
-void vtkDiscretizableColorTransferFunction::MapScalarsThroughTable2(void* input,
+void vtkDiscretizableColorTransferFunction::MapScalarsThroughTable2(VTK_FUTURE_CONST void* input,
   unsigned char* output, int inputDataType, int numberOfValues, int inputIncrement,
   int outputFormat)
 {
@@ -410,8 +410,9 @@ void vtkDiscretizableColorTransferFunction::MapScalarsThroughTable2(void* input,
   {
     switch (inputDataType)
     {
-      vtkTemplateMacro(vtkDiscretizableColorTransferFunctionMapOpacity(
-        this, static_cast<VTK_TT*>(input), output, numberOfValues, inputIncrement, outputFormat));
+      vtkTemplateMacro(vtkDiscretizableColorTransferFunctionMapOpacity(this,
+        static_cast<VTK_FUTURE_CONST VTK_TT*>(input), output, numberOfValues, inputIncrement,
+        outputFormat));
       default:
         vtkErrorMacro(<< "MapImageThroughTable: Unknown input ScalarType");
         return;
