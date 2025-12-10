@@ -1109,6 +1109,29 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
     }
   }
 
+  if (actor->GetProperty()->GetInterpolation() == VTK_PBR && !isLightingUsed)
+  {
+    // disable default behavior with textures
+    vtkShaderProgram::Substitute(FSSource, "//VTK::TCoord::Impl", "");
+
+    // get color and material from textures
+    std::vector<texinfo> textures = this->GetTextures(actor);
+
+    for (auto& t : textures)
+    {
+      if (t.second == "albedoTex")
+      {
+        toString << "  diffuseColor *= texture(albedoTex, tcoordVCVSOutput).rgb;\n";
+      }
+    }
+
+    toString << "//VTK::Light::Impl\n";
+
+    vtkShaderProgram::Substitute(FSSource, "//VTK::Light::Impl", toString.str(), false);
+    toString.clear();
+    toString.str("");
+  }
+
   // get Standard Lighting Decls
   vtkShaderProgram::Substitute(
     FSSource, "//VTK::Light::Dec", static_cast<vtkOpenGLRenderer*>(ren)->GetLightingUniforms());
