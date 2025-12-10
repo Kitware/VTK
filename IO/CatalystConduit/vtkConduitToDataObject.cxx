@@ -10,6 +10,7 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellArrayIterator.h"
 #include "vtkConduitArrayUtilities.h"
+#include "vtkConstantUnsignedCharArray.h"
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
 #include "vtkConduitArrayUtilitiesDevice.h"
 #endif
@@ -882,17 +883,11 @@ vtkSmartPointer<vtkDataSet> CreateMonoShapedUnstructuredGrid(
 void SetMixedPolyhedralCells(
   vtkUnstructuredGrid* ug, vtkDataArray* shapes, vtkCellArray* elements, vtkCellArray* subelements)
 {
-  auto cellTypes = vtk::MakeSmartPointer(vtkUnsignedCharArray::SafeDownCast(shapes));
-  if (!cellTypes)
-  {
-    cellTypes = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    cellTypes->DeepCopy(shapes);
-  }
   // if there are no subelements
   if (!subelements || subelements->GetNumberOfCells() == 0)
   {
     // This is a simple case where we have a mixed cell type, but no polyhedra.
-    ug->SetPolyhedralCells(cellTypes, elements, nullptr, nullptr);
+    ug->SetPolyhedralCells(shapes, elements, nullptr, nullptr);
     return;
   }
 
@@ -912,10 +907,10 @@ void SetMixedPolyhedralCells(
   const vtkIdType *cellGlobalFaceIDs, *facePointIDs, *cellPointIDs;
   std::set<vtkIdType> cellPointIDsSet;
   vtkIdType globalFaceId = 0;
-  auto cellTypesRange = vtk::DataArrayValueRange<1>(cellTypes);
+  auto cellTypes = vtk::DataArrayValueRange<1, unsigned char>(shapes);
   for (vtkIdType i = 0, numCells = elements->GetNumberOfCells(); i < numCells; ++i)
   {
-    const unsigned char& cellType = cellTypesRange[i];
+    const unsigned char& cellType = cellTypes[i];
     if (cellType == VTK_POLYHEDRON)
     {
       cellPointIDsSet.clear();
@@ -959,7 +954,7 @@ void SetMixedPolyhedralCells(
   faces->Squeeze();
   faceLocations->Squeeze();
 
-  ug->SetPolyhedralCells(cellTypes, connectivity, faceLocations, faces);
+  ug->SetPolyhedralCells(shapes, connectivity, faceLocations, faces);
 }
 
 //----------------------------------------------------------------------------
@@ -1146,9 +1141,9 @@ vtkSmartPointer<vtkPoints> CreatePoints(const conduit_cpp::Node& coords)
 void SetPolyhedralCells(
   vtkUnstructuredGrid* grid, vtkCellArray* elements, vtkCellArray* subelements)
 {
-  vtkNew<vtkUnsignedCharArray> cellTypes;
+  vtkNew<vtkConstantUnsignedCharArray> cellTypes;
   cellTypes->SetNumberOfTuples(elements->GetNumberOfCells());
-  cellTypes->FillValue(static_cast<unsigned char>(VTK_POLYHEDRON));
+  cellTypes->ConstructBackend(VTK_POLYHEDRON);
   SetMixedPolyhedralCells(grid, cellTypes, elements, subelements);
 }
 
