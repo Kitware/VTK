@@ -120,7 +120,7 @@ public:
 
   ///@{
   /**
-   * Set/Get the std::format style format with which to print the labels on the axis.
+   * Set/Get the std::format or printf style format with which to print the labels on the axis.
    */
   void SetLabelFormat(const char* format);
   vtkGetStringMacro(LabelFormat);
