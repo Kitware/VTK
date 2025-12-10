@@ -12,12 +12,10 @@
 
 #include "vtkFLUENTCFFReader.h"
 
-#include "vtkByteSwap.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDoubleArray.h"
-#include "vtkErrorCode.h"
 #include "vtkFieldData.h"
 #include "vtkHexahedron.h"
 #include "vtkIdList.h"
@@ -39,9 +37,6 @@
 
 #include <algorithm>
 #include <cctype>
-#include <fstream>
-#include <set>
-#include <sstream>
 #include <string>
 #include <sys/stat.h>
 #include <vector>
@@ -115,8 +110,7 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     return 0;
   }
 
-  this->NumberOfScalars = 0;
-  this->NumberOfVectors = 0;
+  this->NumberOfArrays = 0;
   if (this->FileState == DataState::AVAILABLE)
   {
     int flagData = 0;
@@ -229,70 +223,42 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
     }
   }
 
-  // Scalar Data
-  for (const auto& scalarDataChunk : this->ScalarDataChunks)
+  for (const auto& dataChunk : DataChunks)
   {
-    if (!this->CellDataArraySelection->ArrayIsEnabled(scalarDataChunk.variableName.c_str()))
+    if (!this->CellDataArraySelection->ArrayIsEnabled(dataChunk.variableName.c_str()))
     {
       continue;
     }
-    for (std::size_t location = 0; location < this->CellZones.size(); location++)
+    if (dataChunk.variableName.find("UDM") != std::string::npos)
     {
-      vtkNew<vtkDoubleArray> doubleArray;
-      unsigned int currentCellIdx = 0;
-      for (std::size_t cellIdx = 0; cellIdx < scalarDataChunk.scalarData.size(); cellIdx++)
-      {
-        if (this->Cells[cellIdx].zone == this->CellZones[location])
-        {
-          doubleArray->InsertValue(
-            static_cast<vtkIdType>(currentCellIdx), scalarDataChunk.scalarData[cellIdx]);
-          currentCellIdx++;
-        }
-      }
-      doubleArray->SetName(scalarDataChunk.variableName.c_str());
-      grid[location]->GetCellData()->AddArray(doubleArray);
-    }
-  }
-  this->ScalarDataChunks.clear();
-
-  // Vector Data
-  for (const auto& vectorDataChunk : VectorDataChunks)
-  {
-    if (!this->CellDataArraySelection->ArrayIsEnabled(vectorDataChunk.variableName.c_str()))
-    {
-      continue;
-    }
-    if (vectorDataChunk.variableName.find("UDM") != std::string::npos)
-    {
-      this->ParseUDMData(grid, vectorDataChunk);
+      this->ParseUDMData(grid, dataChunk);
     }
     else
     {
       for (std::size_t location = 0; location < this->CellZones.size(); location++)
       {
         vtkNew<vtkDoubleArray> doubleArray;
-        doubleArray->SetNumberOfComponents(static_cast<int>(vectorDataChunk.dim));
-        for (std::size_t dim = 0; dim < vectorDataChunk.dim; dim++)
+        doubleArray->SetNumberOfComponents(static_cast<int>(dataChunk.dim));
+        for (std::size_t dim = 0; dim < dataChunk.dim; dim++)
         {
           unsigned int currentCellIdx = 0;
-          for (std::size_t idxCell = 0;
-               idxCell < vectorDataChunk.vectorData.size() / vectorDataChunk.dim; idxCell++)
+          for (std::size_t idxCell = 0; idxCell < dataChunk.dataVector.size() / dataChunk.dim;
+               idxCell++)
           {
             if (this->Cells[idxCell].zone == this->CellZones[location])
             {
               doubleArray->InsertComponent(static_cast<vtkIdType>(currentCellIdx),
-                static_cast<int>(dim),
-                vectorDataChunk.vectorData[dim + vectorDataChunk.dim * idxCell]);
+                static_cast<int>(dim), dataChunk.dataVector[dim + dataChunk.dim * idxCell]);
               currentCellIdx++;
             }
           }
         }
-        doubleArray->SetName(vectorDataChunk.variableName.c_str());
+        doubleArray->SetName(dataChunk.variableName.c_str());
         grid[location]->GetCellData()->AddArray(doubleArray);
       }
     }
   }
-  this->VectorDataChunks.clear();
+  this->DataChunks.clear();
 
   for (std::size_t location = 0; location < this->CellZones.size(); location++)
   {
@@ -308,27 +274,27 @@ int vtkFLUENTCFFReader::RequestData(vtkInformation* vtkNotUsed(request),
 
 //------------------------------------------------------------------------------
 void vtkFLUENTCFFReader::ParseUDMData(
-  std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& grid, const VectorDataChunk& vectorDataChunk)
+  std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& grid, const DataChunk& dataChunk)
 {
   for (std::size_t location = 0; location < this->CellZones.size(); location++)
   {
-    for (std::size_t dim = 0; dim < vectorDataChunk.dim; dim++)
+    for (std::size_t dim = 0; dim < dataChunk.dim; dim++)
     {
       vtkNew<vtkDoubleArray> doubleArray;
       doubleArray->SetNumberOfComponents(1);
 
       unsigned int currentCellIdx = 0;
-      for (std::size_t idxCell = 0;
-           idxCell < vectorDataChunk.vectorData.size() / vectorDataChunk.dim; idxCell++)
+      for (std::size_t idxCell = 0; idxCell < dataChunk.dataVector.size() / dataChunk.dim;
+           idxCell++)
       {
         if (this->Cells[idxCell].zone == this->CellZones[location])
         {
           doubleArray->InsertTuple1(static_cast<vtkIdType>(currentCellIdx),
-            vectorDataChunk.vectorData[dim + vectorDataChunk.dim * idxCell]);
+            dataChunk.dataVector[dim + dataChunk.dim * idxCell]);
           currentCellIdx++;
         }
       }
-      doubleArray->SetName((vectorDataChunk.variableName + "_" + vtk::to_string(dim)).c_str());
+      doubleArray->SetName((dataChunk.variableName + "_" + vtk::to_string(dim)).c_str());
       grid[location]->GetCellData()->AddArray(doubleArray);
     }
   }
@@ -343,23 +309,13 @@ void vtkFLUENTCFFReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of cell Zone: " << this->CellZones.size() << endl;
   if (this->FileState != DataState::NOT_LOADED)
   {
-    os << indent << "List Of Scalar Value : " << this->ScalarDataChunks.size() << endl;
-    if (!this->ScalarDataChunks.empty())
+    os << indent << "List Of Value : " << this->DataChunks.size() << endl;
+    if (!this->DataChunks.empty())
     {
       os << indent;
-      for (const auto& DataChunk : this->ScalarDataChunks)
+      for (const auto& dataChunk : this->DataChunks)
       {
-        os << DataChunk.variableName;
-      }
-      os << endl;
-    }
-    os << indent << "List Of Vector Value : " << this->VectorDataChunks.size() << endl;
-    if (!this->VectorDataChunks.empty())
-    {
-      os << indent;
-      for (const auto& DataChunk : this->VectorDataChunks)
-      {
-        os << DataChunk.variableName;
+        os << dataChunk.variableName;
       }
       os << endl;
     }
@@ -417,11 +373,7 @@ int vtkFLUENTCFFReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       return 0;
     }
     // Create CellDataArraySelection from pre-read variable name
-    for (const auto& variableName : this->PreReadScalarData)
-    {
-      this->CellDataArraySelection->AddArray(variableName.c_str());
-    }
-    for (const auto& variableName : this->PreReadVectorData)
+    for (const auto& variableName : this->PreReadData)
     {
       this->CellDataArraySelection->AddArray(variableName.c_str());
     }
@@ -1736,24 +1688,9 @@ void vtkFLUENTCFFReader::PopulateCellTree()
     // If cell is parent cell -> interpolate data from children
     if (cell.parent == 1)
     {
-      for (auto& scalarDataChunk : this->ScalarDataChunks)
+      for (auto& dataChunk : this->DataChunks)
       {
-        double data = 0.0;
-        int ncell = 0;
-        for (std::size_t j = 0; j < cell.childId.size(); j++)
-        {
-          if (this->Cells[cell.childId[j]].parent == 0)
-          {
-            data += scalarDataChunk.scalarData[cell.childId[j]];
-            ncell++;
-          }
-        }
-        scalarDataChunk.scalarData.emplace_back(
-          (ncell != 0 ? data / static_cast<double>(ncell) : 0.0));
-      }
-      for (auto& vectorDataChunk : this->VectorDataChunks)
-      {
-        for (std::size_t k = 0; k < vectorDataChunk.dim; k++)
+        for (std::size_t k = 0; k < dataChunk.dim; k++)
         {
           double data = 0.0;
           int ncell = 0;
@@ -1761,12 +1698,11 @@ void vtkFLUENTCFFReader::PopulateCellTree()
           {
             if (this->Cells[cell.childId[j]].parent == 0)
             {
-              data += vectorDataChunk.vectorData[k + vectorDataChunk.dim * cell.childId[j]];
+              data += dataChunk.dataVector[k + dataChunk.dim * cell.childId[j]];
               ncell++;
             }
           }
-          vectorDataChunk.vectorData.emplace_back(
-            (ncell != 0 ? data / static_cast<double>(ncell) : 0.0));
+          dataChunk.dataVector.emplace_back((ncell != 0 ? data / static_cast<double>(ncell) : 0.0));
         }
       }
     }
@@ -2473,34 +2409,31 @@ int vtkFLUENTCFFReader::GetData()
               }
             }
 
-            if (ndims == 1)
+            if (ndims <= 3)
             {
-              this->NumberOfScalars++;
-              this->ScalarDataChunks.emplace_back();
-              this->ScalarDataChunks.back().variableName = strSectionName;
-              for (std::size_t j = minId; j <= maxId; j++)
+              int numberOfComponents = 1;
+
+              // If the array has more than one dimensions, it means its data has multipe components
+              if (ndims > 1)
               {
-                this->ScalarDataChunks.back().scalarData.push_back(data[j - 1]);
+                numberOfComponents = dims[1];
               }
-            }
-            else if (ndims <= 3) // Maximum number of dimensions for data (2 or 3)
-            {
-              if (dims[1] > 9)
+              if (numberOfComponents > 9)
               {
                 vtkWarningMacro("The field " << strSectionName
                                              << " has more than 9 components, it can't be parsed.");
               }
               else
               {
-                this->NumberOfVectors++;
-                this->VectorDataChunks.emplace_back();
-                this->VectorDataChunks.back().dim = dims[1];
-                this->VectorDataChunks.back().variableName = strSectionName;
-                for (std::size_t k = 0; k < static_cast<std::size_t>(dims[1]); k++)
+                this->NumberOfArrays++;
+                this->DataChunks.emplace_back();
+                this->DataChunks.back().dim = numberOfComponents;
+                this->DataChunks.back().variableName = strSectionName;
+                for (std::size_t k = 0; k < static_cast<std::size_t>(numberOfComponents); k++)
                 {
                   for (std::size_t j = minId; j <= maxId; j++)
                   {
-                    this->VectorDataChunks.back().vectorData.push_back(data[k * maxId + (j - 1)]);
+                    this->DataChunks.back().dataVector.push_back(data[k * maxId + (j - 1)]);
                   }
                 }
               }
@@ -2604,19 +2537,8 @@ int vtkFLUENTCFFReader::GetMetaData()
           {
             throw std::runtime_error("Unable to open HDF dataset (GetMetaData data iSection).");
           }
-          space = H5Dget_space(dset);
-          hid_t ndims = H5Sget_simple_extent_ndims(space);
+          this->PreReadData.push_back(strSectionName);
 
-          if (ndims == 1)
-          {
-            this->PreReadScalarData.push_back(strSectionName);
-          }
-          else
-          {
-            this->PreReadVectorData.push_back(strSectionName);
-          }
-
-          CHECK_HDF(H5Sclose(space));
           CHECK_HDF(H5Dclose(dset));
         }
 

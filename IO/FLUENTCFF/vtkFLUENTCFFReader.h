@@ -4,8 +4,9 @@
  * @class   vtkFLUENTCFFReader
  * @brief   reads a dataset in Fluent CFF file format
  *
- * vtkFLUENTCFFReader creates an unstructured grid dataset. It reads .cas.h5 and
- * .dat.h5 files stored in FLUENT CFF format (hdf5).
+ * vtkFLUENTCFFReader creates a multiblock dataset containing for each group cell
+ * an unstructured grid dataset. It reads .cas.h5 and .dat.h5 files stored in FLUENT
+ * CFF format (hdf5).
  *
  * @par Thanks:
  * Original author : Arthur Piquet
@@ -127,19 +128,6 @@ public:
     int interfaceFaceChild;
     int ncgParent;
     int ncgChild;
-  };
-  struct ScalarDataChunk
-  {
-    std::string variableName;
-    vtkIdType zoneId;
-    std::vector<double> scalarData;
-  };
-  struct VectorDataChunk
-  {
-    std::string variableName;
-    vtkIdType zoneId;
-    size_t dim;
-    std::vector<double> vectorData;
   };
   //@}
 
@@ -299,26 +287,32 @@ protected:
   std::vector<Cell> Cells;
   std::vector<Face> Faces;
   std::vector<int> CellZones;
-  std::vector<ScalarDataChunk> ScalarDataChunks;
-  std::vector<VectorDataChunk> VectorDataChunks;
-  std::vector<std::string> PreReadScalarData;
-  std::vector<std::string> PreReadVectorData;
 
   vtkTypeBool SwapBytes = 0;
   int GridDimension = 0;
   DataState FileState = DataState::NOT_LOADED;
-  int NumberOfScalars = 0;
-  int NumberOfVectors = 0;
 
 private:
   vtkFLUENTCFFReader(const vtkFLUENTCFFReader&) = delete;
   void operator=(const vtkFLUENTCFFReader&) = delete;
 
+  struct DataChunk
+  {
+    std::string variableName;
+    vtkIdType zoneId;
+    size_t dim;
+    std::vector<double> dataVector;
+  };
+
+  std::vector<DataChunk> DataChunks;
+  std::vector<std::string> PreReadData;
+  int NumberOfArrays = 0;
+
   /**
    * UDM arrays of N components must be split in N scalar arrays
    */
-  void ParseUDMData(std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& grid,
-    const VectorDataChunk& vectorDataChunk);
+  void ParseUDMData(
+    std::vector<vtkSmartPointer<vtkUnstructuredGrid>>& grid, const DataChunk& vectorDataChunk);
 };
 VTK_ABI_NAMESPACE_END
 #endif
