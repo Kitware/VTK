@@ -12,6 +12,7 @@
 #include "vtkDataArrayRange.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
@@ -1158,14 +1159,33 @@ int GetCellParametricData(
     return 0;
   }
 
+  double* parametricCoords = cell->GetParametricCoords();
+  // check because some cells return nullptr for parametric coords
+  if (parametricCoords)
+  {
+    // the given point is a cell point so we can quickly return its parametric coords
+    // use float epsilon to avoid issues with double precision
+    constexpr double epsilon = std::numeric_limits<float>::epsilon();
+    auto points = vtkDoubleArray::FastDownCast(cell->GetPoints()->GetData())->GetPointer(0);
+    for (int i = 0; i < cell->GetNumberOfPoints(); i++)
+    {
+      const double* point = points + 3 * i;
+      if (vtkMath::Distance2BetweenPoints(point, pointCoord) < epsilon)
+      {
+        subId = 0;
+        std::copy_n(parametricCoords + 3 * i, 3, parametricCoord);
+        return 1;
+      }
+    }
+  }
+  // Fallback: use EvaluatePosition to get parametric coords.
   double dummy;
   int numpoints = cell->GetNumberOfPoints();
   std::vector<double> values(numpoints);
   // Get parametric position of point.
-  cell->EvaluatePosition(
+  int result = cell->EvaluatePosition(
     pointCoord, nullptr, subId, parametricCoord, dummy, values.data() /*Really another dummy.*/);
-
-  return 1;
+  return result == 1 ? 1 : 0;
 }
 
 //------------------------------------------------------------------------------
