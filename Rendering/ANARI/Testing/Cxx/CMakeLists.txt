@@ -1,4 +1,6 @@
-vtk_add_test_cxx(vtkRenderingAnariCxxTests tests
+vtk_add_test_cxx(
+  vtkRenderingAnariCxxTests
+  tests
   # Surface Rendering Tests
   TestAnariPass.cxx,NO_SERDES
   TestAnariPassVisibility.cxx,NO_SERDES
@@ -22,6 +24,8 @@ vtk_add_test_cxx(vtkRenderingAnariCxxTests tests
   TestAnariPBRMaterials.cxx
   TestAnariPBRMapping.cxx
   TestAnariPBRMaterialsCoat.cxx
+  TestAnariPolyDataTexture.cxx,NO_SERDES
+  TestAnariPositionalLights.cxx,
   # Volume Rendering Tests
   TestAnariVolumeRenderer.cxx,NO_SERDES
   TestAnariSmartVolumeMapper.cxx,NO_SERDES
@@ -32,11 +36,14 @@ vtk_add_test_cxx(vtkRenderingAnariCxxTests tests
   TestAnariCellData.cxx,NO_SERDES
   TestAnariVolumeLightKit.cxx,NO_SERDES
   TestAnariPerspectiveParallel.cxx,NO_SERDES
-  TestAnariPositionalLights.cxx
-  TestAnariRendererParameters.cxx,NO_DATA,NO_VALID)
+  TestAnariRendererParameters.cxx,NO_DATA,NO_VALID
+)
 
-vtk_test_cxx_executable(vtkRenderingAnariCxxTests tests RENDERING_FACTORY
+vtk_test_cxx_executable(
+  vtkRenderingAnariCxxTests
+  tests
+  RENDERING_FACTORY
   DISABLE_FLOATING_POINT_EXCEPTIONS
   vtkAnariTestInteractor.cxx
   vtkAnariTestUtilities.cxx
-  )
+)
