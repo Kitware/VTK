@@ -284,6 +284,12 @@ VTKCOMMONCORE_EXPORT bool is_printf_format(const std::string& format);
  */
 VTKCOMMONCORE_EXPORT std::string printf_to_std_format(const std::string& printf_format);
 
+/**
+ * Convert printf and std::format style format strings. If a printf style
+ * string is passed in, convert it and return a std::format string.
+ */
+VTKCOMMONCORE_EXPORT std::string to_std_format(const std::string& format);
+
 VTK_ABI_NAMESPACE_END
 }
 

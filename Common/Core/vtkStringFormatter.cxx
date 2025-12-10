@@ -836,5 +836,15 @@ std::string printf_to_std_format(const std::string& format)
   }
   return std_format;
 }
+
+std::string to_std_format(const std::string& format)
+{
+  if (is_printf_format(format))
+  {
+    return printf_to_std_format(format);
+  }
+  return format; // Already in std::format style
+}
+
 VTK_ABI_NAMESPACE_END
 };
