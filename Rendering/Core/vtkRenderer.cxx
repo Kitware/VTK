@@ -134,6 +134,9 @@ vtkRenderer::vtkRenderer()
   this->UseImageBasedLighting = false;
   this->EnvironmentTexture = nullptr;
 
+  this->EnvironmentRotationMatrix = vtk::TakeSmartPointer(vtkMatrix3x3::New());
+  this->EnvironmentRotationMatrix->Identity();
+
   vtkMatrix4x4::Identity(this->CompositeProjectionTransformationMatrix.data());
   this->LastCompositeProjectionTransformationMatrixTiledAspectRatio = VTK_DOUBLE_MIN;
   this->LastCompositeProjectionTransformationMatrixCameraModified = 0;
@@ -2229,6 +2232,17 @@ void vtkRenderer::SetEnvironmentRight(double vectorRightX, double vectorRightY, 
 void vtkRenderer::SetEnvironmentRight(double vectorRight[3])
 {
   this->SetEnvironmentRight(vectorRight[0], vectorRight[1], vectorRight[2]);
+}
+
+//------------------------------------------------------------------------------
+void vtkRenderer::SetEnvironmentRotationMatrix(vtkMatrix3x3* rotationMatrix)
+{
+  if (!rotationMatrix)
+  {
+    vtkErrorMacro("SetEnvironmentRotationMatrix: rotationMatrix is nullptr");
+    return;
+  }
+  this->EnvironmentRotationMatrix = rotationMatrix;
 }
 
 //------------------------------------------------------------------------------
