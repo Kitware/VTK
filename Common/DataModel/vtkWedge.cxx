@@ -938,9 +938,10 @@ int vtkWedge::JacobianInverse(const double pcoords[3], double** inverse, double 
   // now find the inverse
   if (vtkMath::InvertMatrix(m, inverse, 3) == 0)
   {
-    vtkErrorMacro(<< "Jacobian inverse not found"
-                  << "Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2] << m[1][0] << " "
-                  << m[1][1] << " " << m[1][2] << m[2][0] << " " << m[2][1] << " " << m[2][2]);
+    vtkErrorMacro(<< "Jacobian inverse not found: "
+                  << "Matrix:" << m[0][0] << " " << m[0][1] << " " << m[0][2] << " " << m[1][0]
+                  << " " << m[1][1] << " " << m[1][2] << " " << m[2][0] << " " << m[2][1] << " "
+                  << m[2][2]);
     return 0;
   }
 
