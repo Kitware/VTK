@@ -422,7 +422,7 @@ vtkShaderProgram* vtkOpenGLShaderCache::GetShaderProgram(
     sps->SetGeometryShader(shaders[vtkShader::Geometry]);
     sps->SetTessControlShader(shaders[vtkShader::TessControl]);
     sps->SetTessEvaluationShader(shaders[vtkShader::TessEvaluation]);
-    sps->SetMD5Hash(result); // needed?
+    sps->SetHash(result); // needed?
     this->Internal->ShaderPrograms.insert(std::make_pair(result, sps));
     return sps;
   }
@@ -462,7 +462,7 @@ vtkShaderProgram* vtkOpenGLShaderCache::GetShaderProgram(const char* vertexCode,
     {
       sps->GetTessEvaluationShader()->SetSource(tessEvalCode);
     }
-    sps->SetMD5Hash(result); // needed?
+    sps->SetHash(result); // needed?
     this->Internal->ShaderPrograms.insert(std::make_pair(result, sps));
     return sps;
   }
