@@ -8,6 +8,7 @@ set(private_headers
 
 set(nowrap_classes
   vtkmDataArray
+  vtkmDataArrayUtilities
   vtkmlib/DataArrayConverters
   vtkmlib/DataSetUtils
   vtkmlib/Portals
@@ -54,6 +55,9 @@ if (TARGET viskores::cuda)
   string(APPEND CMAKE_CUDA_FLAGS " -Xnvlink -w")
   set_source_files_properties(${device_sources} PROPERTIES LANGUAGE CUDA)
   vtk_module_set_properties(VTK::AcceleratorsVTKmCore CUDA_SEPARABLE_COMPILATION ON)
+
+  find_package(CUDAToolkit REQUIRED)
+  vtk_module_link(VTK::AcceleratorsVTKmCore PRIVATE CUDA::cudart)
 
 elseif (TARGET viskores::kokkos_cuda)
   set_source_files_properties(${device_sources} PROPERTIES LANGUAGE CUDA)
