@@ -238,9 +238,10 @@ public:
 
   ///@{
   /**
-   * Get/Set the label format. Default is "{:.4f}, {:.4f}".
+   * Get/Set the label format. Default is "{:.4f}, {:.4f}". printf or std::format
+   * style formatting strings are supported.
    */
-  virtual void SetLabelFormat(const char* formatArg);
+  vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
   ///@}
 

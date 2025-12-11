@@ -35,10 +35,10 @@ public:
   ///@{
   /**
    * You can specify your own format to parse dates by. This string
-   * follows the formatting conventions of std::format
+   * follows the formatting conventions of std::format or std::get_time.
    */
+  vtkSetStringMacro(DateFormat);
   vtkGetStringMacro(DateFormat);
-  virtual void SetDateFormat(const char* formatArg);
   ///@}
 
 protected:

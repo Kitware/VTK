@@ -52,8 +52,8 @@ These functions should be replaced by:
 
 1. vtk::print, vtk::println
 
-It should also be noted that the following functions (including subclasses that use them)
-need to be provided with strings that use the std::format style format instead of the printf one:
+It should also be noted that the following member functions can be provided with strings
+that use the std::format style format in addition to the printf style:
 
 1. `void vtkControlPointsItem::SetLabelFormat(const char* formatArg)`
 2. `void vtkTimerLog::FormatAndMarkEvent(const char* formatArg, T&&... args)`

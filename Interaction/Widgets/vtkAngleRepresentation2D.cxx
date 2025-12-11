@@ -254,7 +254,8 @@ void vtkAngleRepresentation2D::BuildRepresentation()
   const double angle = vtkMath::DegreesFromRadians(std::acos(vector1.Dot(vector2))) * this->Scale;
 
   // Construct label
-  const std::string string = vtk::format(this->LabelFormat, angle);
+  std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
+  const std::string string = vtk::format(labelFormat, angle);
   if (string.empty())
   {
     this->ArcVisibility = 0;

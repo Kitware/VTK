@@ -537,8 +537,9 @@ void vtkSliderRepresentation3D::BuildRepresentation()
     }
     else
     {
+      std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
       char label[256];
-      auto result = vtk::format_to_n(label, sizeof(label), this->LabelFormat, this->Value);
+      auto result = vtk::format_to_n(label, sizeof(label), labelFormat, this->Value);
       *result.out = '\0';
       double bounds[6];
       this->LabelActor->VisibilityOn();

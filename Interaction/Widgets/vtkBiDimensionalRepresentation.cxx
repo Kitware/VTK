@@ -97,21 +97,6 @@ void vtkBiDimensionalRepresentation ::SetHandleRepresentation(vtkHandleRepresent
 }
 
 //------------------------------------------------------------------------------
-void vtkBiDimensionalRepresentation::SetLabelFormat(const char* formatArg)
-{
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    // VTK_DEPRECATED_IN_9_6_0
-    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
-                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(LabelFormat, formatStr);
-}
-
-//------------------------------------------------------------------------------
 void vtkBiDimensionalRepresentation::GetPoint1WorldPosition(double pos[3]) VTK_FUTURE_CONST
 {
   this->Point1Representation->GetWorldPosition(pos);

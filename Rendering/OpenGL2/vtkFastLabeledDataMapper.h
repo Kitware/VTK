@@ -45,7 +45,7 @@ public:
 
   ///@{
   /**
-   * Set/Get the std::format style format with which to print the labels.
+   * Set/Get the std::format or printf style format with which to print the labels.
 
    * By default, the mapper will try to print each component of the
    * tuple using a sane format: {:d} for integers, {:f} for floats, {:g} for

@@ -142,14 +142,7 @@ vtkResliceCursorRepresentation::~vtkResliceCursorRepresentation()
 //------------------------------------------------------------------------------
 void vtkResliceCursorRepresentation::SetThicknessLabelFormat(const char* formatArg)
 {
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    // VTK_DEPRECATED_IN_9_6_0
-    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
-                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
-    format = vtk::printf_to_std_format(format);
-  }
+  std::string format = formatArg ? vtk::to_std_format(formatArg) : "";
   const char* formatStr = format.c_str();
   vtkSetStringBodyMacro(ThicknessLabelFormat, formatStr);
 }

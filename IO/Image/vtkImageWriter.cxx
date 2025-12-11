@@ -70,16 +70,7 @@ void vtkImageWriter::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkImageWriter::SetFilePattern(const char* formatArg)
 {
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    // VTK_DEPRECATED_IN_9_6_0
-    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
-                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(FilePattern, formatStr);
+  vtkSetStringBodyMacro(FilePattern, formatArg);
 }
 
 //------------------------------------------------------------------------------
@@ -182,16 +173,17 @@ void vtkImageWriter::RecursiveWrite(
     }
     else
     {
+      std::string filePattern = this->FilePattern ? vtk::to_std_format(this->FilePattern) : "";
       if (this->FilePrefix)
       {
         auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
-          this->FilePattern, this->FilePrefix, this->FileNumber);
+          filePattern.c_str(), this->FilePrefix, this->FileNumber);
         *result.out = '\0';
       }
       else
       {
         auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
-          this->FilePattern, "", this->FileNumber);
+          filePattern.c_str(), "", this->FileNumber);
         *result.out = '\0';
       }
       if (this->FileNumber < this->MinimumFileNumber)
@@ -298,16 +290,17 @@ void vtkImageWriter::RecursiveWrite(
     }
     else
     {
+      std::string filePattern = this->FilePattern ? vtk::to_std_format(this->FilePattern) : "";
       if (this->FilePrefix)
       {
         auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
-          this->FilePattern, this->FilePrefix, this->FileNumber);
+          filePattern.c_str(), this->FilePrefix, this->FileNumber);
         *result.out = '\0';
       }
       else
       {
         auto result = vtk::format_to_n(this->InternalFileName, this->InternalFileNameSize,
-          this->FilePattern, "", this->FileNumber);
+          filePattern.c_str(), "", this->FileNumber);
         *result.out = '\0';
       }
       if (this->FileNumber < this->MinimumFileNumber)
@@ -498,26 +491,27 @@ void vtkImageWriter::DeleteFiles()
   }
   else
   {
+    std::string filePattern = this->FilePattern ? vtk::to_std_format(this->FilePattern) : "";
     if (this->FilePrefix)
     {
-      size_t fileNameLength = strlen(this->FilePrefix) + strlen(this->FilePattern) + 10;
+      size_t fileNameLength = strlen(this->FilePrefix) + filePattern.size() + 10;
       std::vector<char> fileName(fileNameLength);
 
       for (int i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
       {
         VTK_ASSUME(fileName.data() != nullptr); // silence warning.
-        vtk::format_to_n(fileName.data(), fileName.size(), this->FilePattern, this->FilePrefix, i);
+        vtk::format_to_n(fileName.data(), fileName.size(), filePattern, this->FilePrefix, i);
         vtksys::SystemTools::RemoveFile(fileName.data());
       }
     }
     else
     {
-      size_t fileNameLength = strlen(this->FilePattern) + 10;
+      size_t fileNameLength = filePattern.size() + 10;
       std::vector<char> fileName(fileNameLength);
 
       for (int i = this->MinimumFileNumber; i <= this->MaximumFileNumber; i++)
       {
-        vtk::format_to_n(fileName.data(), fileName.size(), this->FilePattern, i);
+        vtk::format_to_n(fileName.data(), fileName.size(), filePattern, i);
         vtksys::SystemTools::RemoveFile(fileName.data());
       }
     }

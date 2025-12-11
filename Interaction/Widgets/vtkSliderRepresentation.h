@@ -119,9 +119,9 @@ public:
 
   ///@{
   /**
-   * Set/Get the std::format style format with which to print the slider value.
+   * Set/Get the std::format or printf style format with which to print the slider value.
    */
-  void SetLabelFormat(const char* format);
+  vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
   ///@}
 

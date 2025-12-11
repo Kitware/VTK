@@ -427,7 +427,9 @@ void vtkSliderRepresentation2D::BuildRepresentation()
       this->LabelActor->VisibilityOn();
       int labelSize[2];
       char label[256];
-      auto result = vtk::format_to_n(label, sizeof(label), this->LabelFormat, this->Value);
+
+      std::string labelFormat = this->LabelFormat ? vtk::to_std_format(this->LabelFormat) : "";
+      auto result = vtk::format_to_n(label, sizeof(label), labelFormat, this->Value);
       *result.out = '\0';
       this->LabelMapper->SetInput(label);
       this->LabelProperty->SetFontSize(static_cast<int>(this->LabelHeight * size[1]));

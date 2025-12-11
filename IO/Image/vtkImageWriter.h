@@ -47,7 +47,7 @@ public:
 
   ///@{
   /**
-   * The std::format style format used to build filename from FilePrefix and number.
+   * The std::format or printf style format used to build filename from FilePrefix and number.
    */
   virtual void SetFilePattern(VTK_FILEPATH const char*);
   vtkGetFilePathMacro(FilePattern);

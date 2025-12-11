@@ -37,11 +37,7 @@ template <typename... T>
 VTK_DEPRECATED_IN_9_6_0("Use vtkMPIUtilities::Print instead")
 void Printf(vtkMPIController* comm, const char* formatArg, T&&... args)
 {
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
+  std::string format = formatArg ? vtk::to_std_format(formatArg) : "";
   assert(comm != nullptr);
   vtkMPIUtilities::Print(comm, format.c_str(), std::forward<T>(args)...);
 }
@@ -111,11 +107,7 @@ template <typename... T>
 VTK_DEPRECATED_IN_9_6_0("Use vtkMPIUtilities::SynchronizedPrint instead")
 void SynchronizedPrintf(vtkMPIController* comm, const char* formatArg, T&&... args)
 {
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    format = vtk::printf_to_std_format(format);
-  }
+  std::string format = formatArg ? vtk::to_std_format(formatArg) : "";
   assert(comm != nullptr);
   vtkMPIUtilities::SynchronizedPrint(comm, format.c_str(), std::forward<T>(args)...);
 }

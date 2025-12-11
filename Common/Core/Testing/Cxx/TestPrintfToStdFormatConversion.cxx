@@ -702,6 +702,32 @@ static int run_comprehensive_format_tests()
               std_format_result.c_str());
             std::exit(EXIT_FAILURE);
           }
+          // Test unconditional converstion to std::format
+          const std::string converted_format = vtk::to_std_format(test.printf_format);
+          if (converted_format != test.expected_std_format)
+          {
+            vtkLogF(ERROR, "Unconditional conversion failed for %s. Expected %s, got %s.",
+              test.printf_format.c_str(), test.expected_std_format.c_str(),
+              converted_format.c_str());
+            std::exit(EXIT_FAILURE);
+          }
+        }
+        else
+        {
+          // Check that std::format strings remain unchanged when passed to vtk::to_std_format.
+          // Only try test cases that produce a valid std::format string.
+          if (test.expected_valid)
+          {
+            const std::string converted_format = vtk::to_std_format(test.expected_std_format);
+            if (converted_format != test.expected_std_format)
+            {
+              vtkLogF(ERROR,
+                "Unconditional conversion failed for std::format string %s. Expected %s, got %s.",
+                test.expected_std_format.c_str(), test.expected_std_format.c_str(),
+                converted_format.c_str());
+              std::exit(EXIT_FAILURE);
+            }
+          }
         }
       }
       catch (const std::exception& e)

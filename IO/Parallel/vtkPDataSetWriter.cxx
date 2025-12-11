@@ -48,16 +48,8 @@ vtkPDataSetWriter::~vtkPDataSetWriter()
 //------------------------------------------------------------------------------
 void vtkPDataSetWriter::SetFilePattern(const char* formatArg)
 {
-  std::string format = formatArg ? formatArg : "";
-  if (vtk::is_printf_format(format))
-  {
-    // VTK_DEPRECATED_IN_9_6_0
-    vtkWarningMacro(<< "The given format " << format << " is a printf format. The format will be "
-                    << "converted to std::format. This conversion has been deprecated in 9.6.0");
-    format = vtk::printf_to_std_format(format);
-  }
-  const char* formatStr = format.c_str();
-  vtkSetStringBodyMacro(FilePattern, formatStr);
+  vtkSetStringBodyMacro(FilePattern, formatArg);
+  this->FilePatternStdFormat = formatArg ? vtk::to_std_format(formatArg) : "";
 }
 
 //------------------------------------------------------------------------------
@@ -109,7 +101,7 @@ int vtkPDataSetWriter::Write()
   // Lets compute the file root from the file name supplied by the user.
   length = static_cast<int>(strlen(this->FileName));
   std::vector<char> fileRoot(length + 1);
-  size_t fileNameSize = length + strlen(this->FilePattern) + 20;
+  size_t fileNameSize = length + this->FilePatternStdFormat.size() + 20;
   std::vector<char> fileName(fileNameSize);
   strncpy(fileRoot.data(), this->FileName, length);
   fileRoot[length] = '\0';
@@ -171,8 +163,8 @@ int vtkPDataSetWriter::Write()
   vtkDataObject* copy;
   for (i = this->StartPiece; i <= this->EndPiece; ++i)
   {
-    auto result =
-      vtk::format_to_n(fileName.data(), fileNameSize, this->FilePattern, fileRoot.data(), i);
+    auto result = vtk::format_to_n(
+      fileName.data(), fileNameSize, this->FilePatternStdFormat, fileRoot.data(), i);
     *result.out = '\0';
     writer->SetFileName(fileName.data());
     inputAlg->UpdatePiece(i, this->NumberOfPieces, this->GhostLevel);
@@ -305,7 +297,7 @@ int vtkPDataSetWriter::WriteUnstructuredMetaData(
   *fptr << "      numberOfPieces=\"" << this->NumberOfPieces << "\" >" << endl;
   for (int i = 0; i < this->NumberOfPieces; ++i)
   {
-    auto result = vtk::format_to_n(str, strSize, this->FilePattern, root, i);
+    auto result = vtk::format_to_n(str, strSize, this->FilePatternStdFormat, root, i);
     *result.out = '\0';
     *fptr << "  <Piece fileName=\"" << str << "\" />" << endl;
   }
@@ -414,7 +406,7 @@ int vtkPDataSetWriter::WriteImageMetaData(
   for (int i = 0; i < this->NumberOfPieces; ++i)
   {
     pi = this->Extents[i].data();
-    auto result = vtk::format_to_n(str, strSize, this->FilePattern, root, i);
+    auto result = vtk::format_to_n(str, strSize, this->FilePatternStdFormat, root, i);
     *result.out = '\0';
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " " << pi[3] << " "
@@ -449,7 +441,7 @@ int vtkPDataSetWriter::WriteRectilinearGridMetaData(
   for (i = 0; i < this->NumberOfPieces; ++i)
   {
     pi = this->Extents[i].data();
-    auto result = vtk::format_to_n(str, strSize, this->FilePattern, root, i);
+    auto result = vtk::format_to_n(str, strSize, this->FilePatternStdFormat, root, i);
     *result.out = '\0';
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " " << pi[3] << " "
@@ -485,7 +477,7 @@ int vtkPDataSetWriter::WriteStructuredGridMetaData(
   for (i = 0; i < this->NumberOfPieces; ++i)
   {
     pi = this->Extents[i].data();
-    auto result = vtk::format_to_n(str, strSize, this->FilePattern, root, i);
+    auto result = vtk::format_to_n(str, strSize, this->FilePatternStdFormat, root, i);
     *result.out = '\0';
     *fptr << "  <Piece fileName=\"" << str << "\"" << endl
           << "      extent=\"" << pi[0] << " " << pi[1] << " " << pi[2] << " " << pi[3] << " "
@@ -524,7 +516,7 @@ void vtkPDataSetWriter::DeleteFiles()
   int i;
   int length = static_cast<int>(strlen(this->FileName));
   std::vector<char> fileRoot(length + 1);
-  size_t fileNameSize = length + strlen(this->FilePattern) + 20;
+  size_t fileNameSize = length + this->FilePatternStdFormat.size() + 20;
   std::vector<char> fileName(fileNameSize);
 
   strncpy(fileRoot.data(), this->FileName, length);
@@ -568,8 +560,8 @@ void vtkPDataSetWriter::DeleteFiles()
 
   for (i = this->StartPiece; i <= this->EndPiece; i++)
   {
-    auto result =
-      vtk::format_to_n(fileName.data(), fileNameSize, this->FilePattern, fileRoot.data(), i);
+    auto result = vtk::format_to_n(
+      fileName.data(), fileNameSize, this->FilePatternStdFormat, fileRoot.data(), i);
     *result.out = '\0';
     remove(fileName.data());
   }

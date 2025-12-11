@@ -103,7 +103,8 @@ public:
 
   /**
    * Record a timing event.  The event is represented by a formatted
-   * string.  The internal buffer is 4096 bytes and will truncate anything longer.
+   * string in either printf or std::format style. The internal buffer is
+   * 4096 bytes and will truncate anything longer.
    */
 #ifndef __VTK_WRAP__
   template <typename... T>
@@ -113,16 +114,7 @@ public:
     {
       return;
     }
-    std::string format = formatArg ? formatArg : "";
-    if (vtk::is_printf_format(format))
-    {
-      // VTK_DEPRECATED_IN_9_6_0
-      vtkWarningWithObjectMacro(nullptr,
-        "The given format "
-          << format << " is a printf format. The format will be "
-          << "converted to std::format. This conversion has been deprecated in 9.6.0");
-      format = vtk::printf_to_std_format(format);
-    }
+    std::string format = formatArg ? vtk::to_std_format(formatArg) : "";
     static char event[4096];
     auto result = vtk::format_to_n(event, sizeof(event), format, std::forward<T>(args)...);
     *result.out = '\0';

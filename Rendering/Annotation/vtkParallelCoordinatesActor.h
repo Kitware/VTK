@@ -111,9 +111,9 @@ public:
 
   ///@{
   /**
-   * Set/Get the std::format style format with which to print the labels on the axes.
+   * Set/Get the std::format or printf style format with which to print the labels on the axes.
    */
-  void SetLabelFormat(const char* format);
+  vtkSetStringMacro(LabelFormat);
   vtkGetStringMacro(LabelFormat);
   ///@}
 
