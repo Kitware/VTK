@@ -580,6 +580,24 @@ public:
    */
   int GetArrayType() const override { return vtkDataArray::ArrayTypeTag::value; }
 
+  enum MemorySpace
+  {
+    HostMemory,       // CPU memory
+    CudaDeviceMemory, // NVIDIA GPU via CUDA
+    HipDeviceMemory,  // AMD GPU via HIP
+  };
+
+  /**
+   * Return the MemorySpace of where the data is stored.
+   */
+  virtual MemorySpace GetMemorySpace() { return MemorySpace::HostMemory; }
+
+  /**
+   * Return a pointer to the data that live on a device (CUDA or HIP).
+   * Returns nullptr if the data is not on a device.
+   */
+  virtual void* GetDeviceVoidPointer(vtkIdType vtkNotUsed(valueIdx)) { return nullptr; }
+
 protected:
   friend class vtkPoints;
   friend class vtkFieldData;
