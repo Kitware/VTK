@@ -1396,12 +1396,6 @@ void vtkPolyhedron::Derivatives(
 }
 
 //------------------------------------------------------------------------------
-double* vtkPolyhedron::GetParametricCoords()
-{
-  return nullptr;
-}
-
-//------------------------------------------------------------------------------
 void vtkPolyhedron::InterpolateFunctions(const double x[3], double* sf)
 {
   // construct polydata, the result is stored in this->PolyData,

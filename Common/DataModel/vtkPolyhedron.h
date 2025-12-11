@@ -200,11 +200,6 @@ public:
   ///@}
 
   /**
-   * See vtkCell3D API for description of this method.
-   */
-  double* GetParametricCoords() override;
-
-  /**
    * See the vtkCell API for descriptions of these methods.
    */
   int GetCellType() override { return VTK_POLYHEDRON; }
