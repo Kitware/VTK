@@ -13,7 +13,7 @@ vtk_module_third_party(
     STANDARD_INCLUDE_DIRS
   EXTERNAL
     PACKAGE SQLite3
-    TARGETS SQLite::SQLite3
+    TARGETS SQLite3::SQLite3
     STANDARD_INCLUDE_DIRS)
 
 configure_file(
