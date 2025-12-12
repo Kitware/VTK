@@ -21,6 +21,7 @@
 #define vtkResourceFileLocator_h
 
 #include "vtkCommonMiscModule.h" // For export macro
+#include "vtkDeprecation.h"      // For VTK_DEPRECATED_IN_9_6_0
 #include "vtkObject.h"
 
 #include <string> // needed for std::string
@@ -43,7 +44,6 @@ public:
   vtkGetMacro(LogVerbosity, int);
   ///@}
 
-  ///@{
   /**
    * Given a starting anchor directory, look for the landmark file relative to
    * the anchor. If found return the anchor. If not found, go one directory up
@@ -51,9 +51,7 @@ public:
    */
   virtual std::string Locate(const std::string& anchor, const std::string& landmark,
     const std::string& defaultDir = std::string());
-  ///@}
 
-  ///@{
   /**
    * This variant is used to look for landmark relative to the anchor using
    * additional prefixes for the landmark file. For example, if you're looking for
@@ -65,7 +63,16 @@ public:
   virtual std::string Locate(const std::string& anchor,
     const std::vector<std::string>& landmark_prefixes, const std::string& landmark,
     const std::string& defaultDir = std::string());
-  ///@}
+
+  /**
+   * Return the path to the library containing the given pointer.
+   */
+  static VTK_FILEPATH std::string GetLibraryPathForAddress(const void* ptr);
+
+  /**
+   * Return the path to the current executable.
+   */
+  static VTK_FILEPATH std::string GetCurrentExecutablePath();
 
   ///@{
   /**
@@ -76,7 +83,9 @@ public:
    * can simply use the `vtkGetLibraryPathForSymbol(GetVTKVersion)` macro
    * that makes the appropriate call as per the current platform.
    */
+  VTK_DEPRECATED_IN_9_6_0("Use GetLibraryPathForAddress() instead")
   static VTK_FILEPATH std::string GetLibraryPathForSymbolUnix(const char* symbolname);
+  VTK_DEPRECATED_IN_9_6_0("Use GetLibraryPathForAddress() instead")
   static VTK_FILEPATH std::string GetLibraryPathForSymbolWin32(const void* fptr);
   ///@}
 
@@ -91,21 +100,8 @@ private:
   int LogVerbosity;
 };
 
-// Wrap the input as an argument, this will force expansion
-// if the input is a macro itself
-#define _vtkGetSymbolNameAsString(x) _vtkGetSymbolNameAsString_I((x))
-// Unwrap the expanded input
-#define _vtkGetSymbolNameAsString_I(x) _vtkGetSymbolNameAsString_II x
-// Stringify the epanded contents
-#define _vtkGetSymbolNameAsString_II(...) #__VA_ARGS__
-
-#if defined(_WIN32) && !defined(__CYGWIN__)
 #define vtkGetLibraryPathForSymbol(function)                                                       \
-  vtkResourceFileLocator::GetLibraryPathForSymbolWin32(reinterpret_cast<const void*>(&function))
-#else
-#define vtkGetLibraryPathForSymbol(function)                                                       \
-  vtkResourceFileLocator::GetLibraryPathForSymbolUnix(_vtkGetSymbolNameAsString(function))
-#endif
+  vtkResourceFileLocator::GetLibraryPathForAddress(reinterpret_cast<const void*>(&function))
 
 VTK_ABI_NAMESPACE_END
 #endif

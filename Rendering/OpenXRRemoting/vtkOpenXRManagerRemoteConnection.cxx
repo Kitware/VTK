@@ -23,16 +23,21 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOpenXRManagerRemoteConnection);
 
+static bool vtkOpenXRManagerRemoteConnectionInitializeSymbol()
+{
+  return true;
+}
+
 //------------------------------------------------------------------------------
 bool vtkOpenXRManagerRemoteConnection::Initialize()
 {
   // Get the path for the library
   std::string libPath =
-    vtkResourceFileLocator::GetLibraryPathForSymbolWin32("vtkOpenXRManagerRemoteConnection");
+    vtkGetLibraryPathForSymbol(vtkOpenXRManagerRemoteConnectionInitializeSymbol);
   std::string libDir = vtksys::SystemTools::GetFilenamePath(libPath);
 
   // Get the path for the current executable
-  std::string exePath = vtkResourceFileLocator::GetLibraryPathForSymbolWin32(nullptr);
+  std::string exePath = vtkResourceFileLocator::GetCurrentExecutablePath();
   std::string exeDir = vtksys::SystemTools::GetFilenamePath(exePath);
 
   // Look for the RemotingXR.json file provided by the microsoft.holographic.remoting.openxr
