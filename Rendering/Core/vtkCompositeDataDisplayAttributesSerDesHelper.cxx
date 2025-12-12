@@ -5,6 +5,7 @@
 #include "vtkDeserializer.h"
 #include "vtkScalarsToColors.h"
 #include "vtkSerializer.h"
+#include "vtkTexture.h"
 
 // clang-format off
 #include "vtk_nlohmannjson.h"
@@ -101,6 +102,7 @@ public:
     SERIALIZE_MAP_SIMPLE(ArrayNames);
     SERIALIZE_MAP_OF_VTK_OBJECTS(LookupTables);
     SERIALIZE_MAP_SIMPLE(FieldDataTupleIds);
+    SERIALIZE_MAP_OF_VTK_OBJECTS(Textures);
     fullState.insert(state.begin(), state.end());
     return fullState;
   }
@@ -218,6 +220,7 @@ public:
     DESERIALIZE_MAP_SIMPLE(ArrayNames, std::string);
     DESERIALIZE_MAP_OF_VTK_OBJECTS(LookupTables, vtkScalarsToColors);
     DESERIALIZE_MAP_SIMPLE(FieldDataTupleIds, vtkIdType);
+    DESERIALIZE_MAP_OF_VTK_OBJECTS(Textures, vtkTexture);
   }
 };
 
