@@ -5,6 +5,6 @@ vtk_add_test_cxx(vtkFiltersOpenTURNSCxxTests tests
   )
 
 vtk_add_test_cxx(vtkFiltersOpenTURNSCxxTests tests
-  TestScatterPlotMatrixVehiclesDensity.cxx)
+  TestScatterPlotMatrixVehiclesDensity.cxx,NO_SERDES)
 
 vtk_test_cxx_executable(vtkFiltersOpenTURNSCxxTests tests)
