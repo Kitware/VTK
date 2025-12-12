@@ -15,6 +15,7 @@ set(classes
 
   # Queries
   vtkCellGridElevationQuery
+  vtkCellGridSampleQuery
 
   # Responders
   vtkDGBoundsResponder
