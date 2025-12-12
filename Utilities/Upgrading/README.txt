@@ -12,17 +12,6 @@ AttributeChanges.pdf:
  It focuses on the removal of vtkAttributeData and it's subclasses
  (vtkScalars, vtkVectors, vtkNormals, vtkTCoords, vtkTensors).
 
-DiagAttribute.pl :
- This script tries to find deprecated attribute data classes and
- methods and warns the user whenever it finds them. It also suggests
- possible modification to bring code up to date.
-
-UpgradeFrom32.pl:
- This script tries to find deprecated classes and methods and replace
- them with new classes/methods. Please note that it can not fix all
- possible problems. However, it should be relatively easy to trace
- those problems from compilation errors.
-
 
 Here is the related entry from VTK FAQ at
 http://public.kitware.com/cgi-bin/vtkfaq :

@@ -1,7 +1,7 @@
 # This is the topmost EditorConfig file.
 root = true
 
-# General defaults: newline ending every file, UTF-8 encoding.
+# General defaults: newline ending every file, UTF-8 encoding, no trailing whitespace.
 [*]
 insert_final_newline = true
 charset = utf-8
@@ -20,3 +20,7 @@ indent_size = 2
 [*.py]
 indent_style = space
 indent_size = 4
+
+# this format requires tabs.
+[{Makefile,make.bat}]
+indent_style = tab
