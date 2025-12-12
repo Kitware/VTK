@@ -61,6 +61,7 @@ vtkTableBasedClipDataSet::vtkTableBasedClipDataSet(vtkImplicitFunction* cf)
   this->MergeTolerance = 0.01;
   this->UseValueAsOffset = true;
   this->GenerateClipScalars = 0;
+  this->GenerateClipPointTypes = false;
   this->GenerateClippedOutput = 0;
 
   this->OutputPointsPrecision = DEFAULT_PRECISION;
@@ -1372,6 +1373,23 @@ vtkSmartPointer<vtkUnstructuredGrid> vtkTableBasedClipDataSet::ClipTDataSet(
     extractPointsWorker(inputPoints->GetData(), outputPoints->GetData(), pointBatches,
       pointsMap.Get(), pointDataArrays, edges, centroids, numberOfKeptPoints, numberOfEdges,
       numberOfCentroids, this);
+  }
+  if (this->GetGenerateClipPointTypes())
+  {
+    vtkNew<vtkUnsignedCharArray> clipPointTypes;
+    clipPointTypes->SetName("vtkClipPointTypes");
+    clipPointTypes->SetNumberOfTuples(outputPoints->GetNumberOfPoints());
+    auto clipPointTypePtr = clipPointTypes->GetPointer(0);
+    // Mark kept points
+    vtkSMPTools::Fill(
+      clipPointTypePtr, clipPointTypePtr + numberOfKeptPoints, static_cast<unsigned char>(0));
+    // Mark edge points
+    vtkSMPTools::Fill(clipPointTypePtr + numberOfKeptPoints,
+      clipPointTypePtr + numberOfKeptPoints + numberOfEdges, static_cast<unsigned char>(1));
+    // Mark centroid points
+    vtkSMPTools::Fill(clipPointTypePtr + numberOfKeptPoints + numberOfEdges,
+      clipPointTypePtr + outputPoints->GetNumberOfPoints(), static_cast<unsigned char>(2));
+    outputPointData->AddArray(clipPointTypes);
   }
 
   // create outputClippedCells

@@ -158,6 +158,20 @@ public:
 
   ///@{
   /**
+   * Set/Get whether to generate the class of output points.
+   * 0 -> input point
+   * 1 -> edge point
+   * 2 -> centroid point
+   *
+   * Default is false.
+   */
+  vtkSetMacro(GenerateClipPointTypes, bool);
+  vtkGetMacro(GenerateClipPointTypes, bool);
+  vtkBooleanMacro(GenerateClipPointTypes, bool);
+  ///@}
+
+  ///@{
+  /**
    * Set/Get the tolerance used for merging duplicate points near the clipping
    * intersection cells. This tolerance may prevent the generation of degenerate
    * primitives. Note that only 3D cells actually use this IVAR when vtkClipDataSet
@@ -283,6 +297,8 @@ protected:
 private:
   vtkTableBasedClipDataSet(const vtkTableBasedClipDataSet&) = delete;
   void operator=(const vtkTableBasedClipDataSet&) = delete;
+
+  bool GenerateClipPointTypes;
 };
 
 VTK_ABI_NAMESPACE_END
