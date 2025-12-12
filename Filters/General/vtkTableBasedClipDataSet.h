@@ -25,7 +25,7 @@
  *
  *  You can also specify a scalar (iso-)value, which is used to decide what is
  *  inside and outside the implicit function. You can also reverse the sense of
- *  what inside/outside is by setting IVAR InsideOut. The clipping algorithm
+ *  what inside/outside is by setting the InsideOut variable. The clipping algorithm
  *  proceeds by computing an implicit function value or using the input scalar
  *  point data value for each point in the dataset. This is compared against the
  *  scalar (iso-)value to determine the inside/outside status.
@@ -44,17 +44,16 @@
  *  proposed by VisIt.
  *
  * @warning
- *  vtkTableBasedClipDataSet makes use of a hash table (that is provided by class
- *  maintained by internal class vtkTableBasedClipperDataSetFromVolume) to achieve
- *  rapid removal of duplicate points. The hash-based mechanism simply compares the
- *  point Ids, without considering the actual inter-point distance (vtkClipDataSet
- *  adopts vtkMergePoints that though considers the inter-point distance for robust
- *  points merging ). As a result, some duplicate points may be present in the output.
- *  This problem occurs when some boundary (cut-through cells) happen to have faces
- *  EXACTLY aligned with the clipping plane (such as Plane, Box, or other implicit
- *  functions with planar shapes). The occurrence (though very rare) of duplicate
- *  points produces degenerate cells, which can be fixed by post-processing the
- *  output with a filter like vtkCleanGrid.
+ *  vtkTableBasedClipDataSet makes use of an hash table for edges using the
+ *  vtkStaticEdgeLocatorTemplate class to detect unique edges and eliminate duplicate
+ *  points. The hash-based mechanism simply compares the point Ids, without considering
+ *  the actual inter-point distance (vtkClipDataSet adopts vtkMergePoints that though
+ *  considers the inter-point distance for robust points merging ). As a result, some
+ *  duplicate points may be present in the output. This problem occurs when some boundary
+ *  (cut-through cells) happen to have faces EXACTLY aligned with the clipping plane
+ *  (such as Plane, Box, or other implicit functions with planar shapes). The occurrence
+ *  (though very rare) of duplicate points produces degenerate cells, which can be fixed
+ *  by post-processing the output with a filter like vtkCleanGrid.
  *
  * @warning
  * This class has been threaded with vtkSMPTools. Using TBB or other
@@ -63,6 +62,10 @@
  *
  * @par Thanks:
  *  This filter was adapted from the VisIt clipper (vtkVisItClipper).
+ *
+ * @par An Accelerated Clip Algorithm for Unstructured Meshes: A Batch-Driven Approach,
+ * Tsalikis, Spiros and Schroeder, Will and Szafir, Daniel and Moreland, Kenneth,
+ * Eurographics Symposium on Parallel Graphics and Visualization, 2024
  *
  * @sa
  *  vtkClipDataSet vtkClipVolume vtkClipPolyData vtkCutter vtkImplicitFunction
