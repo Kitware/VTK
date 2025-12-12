@@ -215,3 +215,8 @@ if (VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
       VTK_DEFAULT_RENDER_WINDOW_OFFSCREEN)
 endif()
 vtk_add_test_mangling(VTK::RenderingCore)
+
+# Add precompiled header to improve build performance
+if(VTK_USE_PCH)
+  vtk_module_precompile_headers(VTK::RenderingCore PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/vtkRenderingCorePCH.h>")
+endif()

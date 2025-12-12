@@ -92,3 +92,8 @@ vtk_module_add_module(VTK::CommonExecutionModel
   SOURCES ${serialization_helper_sources}
   TEMPLATE_CLASSES ${template_classes})
 vtk_add_test_mangling(VTK::CommonExecutionModel)
+
+# Add precompiled header to improve build performance
+if(VTK_USE_PCH)
+  vtk_module_precompile_headers(VTK::CommonExecutionModel PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/vtkCommonExecutionModelPCH.h>")
+endif()

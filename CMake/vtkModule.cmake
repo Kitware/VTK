@@ -1269,6 +1269,7 @@ library as well where necessary.
 * :cmake:command:`vtk_module_compile_features`
 * :cmake:command:`vtk_module_link`
 * :cmake:command:`vtk_module_link_options`
+* :cmake:command:`vtk_module_precompile_headers`
 #]==]
 
 #[==[.rst:
@@ -1941,6 +1942,54 @@ function (vtk_module_link module)
     ${_vtk_link_INTERFACE_args}
     ${_vtk_link_PUBLIC_args}
     ${_vtk_link_PRIVATE_args})
+endfunction ()
+
+#[==[.rst:
+.. cmake:command:: vtk_module_precompile_headers
+
+  Add precompiled headers to a target
+  |module|
+
+  Validate arguments and call ``target_precompile_headers`` with values.
+
+  .. code-block:: cmake
+
+    vtk_module_precompile_headers(<target>
+      [PUBLIC <headers>...]
+      [PRIVATE <headers>...]
+      [INTERFACE <header>...])
+#]==]
+function (vtk_module_precompile_headers target_module)
+  cmake_parse_arguments(PARSE_ARGV 1 _vtk_module_precompile
+    ""
+    ""
+    "INTERFACE;PUBLIC;PRIVATE")
+
+  if (_vtk_module_precompile_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR
+      "Unparsed arguments for vtk_module_precompile_headers: "
+      "${_vtk_module_precompile_UNPARSED_ARGUMENTS}.")
+  endif ()
+
+  _vtk_module_real_target(_vtk_pch_target_type "${target_module}")
+  _vtk_module_target_function(_vtk_module_precompile)
+
+  # PCH support requires CMake 3.16+
+  if (CMAKE_VERSION VERSION_LESS "3.16")
+    return ()
+  endif ()
+
+  if (NOT _vtk_module_precompile_INTERFACE_args AND
+      NOT _vtk_module_precompile_PUBLIC_args AND
+      NOT _vtk_module_precompile_PRIVATE_args)
+    return ()
+  endif ()
+
+  target_precompile_headers("${_vtk_pch_target_type}"
+    ${_vtk_module_precompile_INTERFACE_args}
+    ${_vtk_module_precompile_PUBLIC_args}
+    ${_vtk_module_precompile_PRIVATE_args})
+
 endfunction ()
 
 #[==[.rst:

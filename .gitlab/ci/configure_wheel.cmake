@@ -72,6 +72,11 @@ set(VTK_MODULE_ENABLE_VTK_InfovisBoostGraphAlgorithms NO CACHE STRING "") # Boos
 set(VTK_MODULE_ENABLE_VTK_RenderingFreeTypeFontConfig NO CACHE STRING "") # fontconfig
 set(VTK_MODULE_ENABLE_VTK_RenderingOpenVR NO CACHE STRING "") # OpenVR
 
+# PCH causes issues on macOS CI due to issues from sccache.
+# sccache issue: https://github.com/mozilla/sccache/issues/2558
+# vtk issue: https://gitlab.kitware.com/vtk/vtk/-/issues/19903
+set(VTK_USE_PCH OFF CACHE BOOL "")
+
 if(NOT WIN32)
   set(VTK_MODULE_ENABLE_VTK_RenderingOpenXR NO CACHE STRING "") # OpenXR disable on every system except Windows
 endif()
