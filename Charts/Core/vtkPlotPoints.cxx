@@ -3,6 +3,7 @@
 
 #include "vtkPlotPoints.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkAxis.h"
 #include "vtkBrush.h"
 #include "vtkCharArray.h"
@@ -10,6 +11,7 @@
 #include "vtkContextDevice2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkContextScene.h"
+#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
@@ -124,7 +126,8 @@ bool vtkPlotPoints::Paint(vtkContext2D* painter)
     painter->ApplyBrush(this->Brush);
     painter->GetPen()->SetWidth(width);
 
-    float* points = static_cast<float*>(this->Points->GetVoidPointer(0));
+    float* points =
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
     unsigned char* colors = nullptr;
     int nColorComponents = 0;
     if (this->ScalarVisibility && this->Colors)
@@ -258,7 +261,8 @@ void vtkPlotPoints::CreateSortedPoints()
   if (!this->Sorted)
   {
     vtkIdType n = this->Points->GetNumberOfPoints();
-    vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    vtkVector2f* data = reinterpret_cast<vtkVector2f*>(
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0));
     this->Sorted = new VectorPIMPL(data, n);
     std::sort(this->Sorted->begin(), this->Sorted->end(), compVector3fX);
   }
@@ -348,7 +352,7 @@ bool vtkPlotPoints::SelectPoints(const vtkVector2f& min, const vtkVector2f& max)
     ++low;
   }
   this->Selection->SetNumberOfTuples(static_cast<vtkIdType>(selected.size()));
-  vtkIdType* ptr = static_cast<vtkIdType*>(this->Selection->GetVoidPointer(0));
+  vtkIdType* ptr = this->Selection->GetPointer(0);
   for (size_t i = 0; i < selected.size(); ++i)
   {
     ptr[i] = selected[i];
@@ -400,83 +404,64 @@ namespace
 {
 
 // Find any bad points in the supplied array.
-template <typename T>
-void SetBadPoints(T* data, vtkIdType n, std::set<vtkIdType>& bad)
+struct SetBadPointsFunctor
 {
-  for (vtkIdType i = 0; i < n; ++i)
+  template <typename TArray>
+  void operator()(TArray* array, vtkIdType n, std::set<vtkIdType>& bad)
   {
-    if (vtkMath::IsInf(data[i]) || vtkMath::IsNan(data[i]))
+    auto data = vtk::DataArrayValueRange<1>(array);
+    for (vtkIdType i = 0; i < n; ++i)
     {
-      bad.insert(i);
+      if (vtkMath::IsInf(data[i]) || vtkMath::IsNan(data[i]))
+      {
+        bad.insert(i);
+      }
     }
   }
-}
+};
 
-// Calculate the bounds from the original data.
-template <typename A>
-void ComputeBounds(A* a, int n, double bounds[2])
+struct ComputeBoundsFunctor
 {
-  bounds[0] = std::numeric_limits<double>::max();
-  bounds[1] = -std::numeric_limits<double>::max();
-  for (int i = 0; i < n; ++a, ++i)
+  // Calculate the bounds from the original data.
+  template <typename TArray>
+  void operator()(TArray* array, int n, double bounds[2])
   {
-    bounds[0] = bounds[0] < *a ? bounds[0] : *a;
-    bounds[1] = bounds[1] > *a ? bounds[1] : *a;
-  }
-}
-
-template <typename A>
-void ComputeBounds(A* a, int n, vtkIdTypeArray* bad, double bounds[2])
-{
-  // If possible, use the simpler code without any bad points.
-  if (!bad || bad->GetNumberOfTuples() == 0)
-  {
-    ComputeBounds(a, n, bounds);
-    return;
-  }
-
-  // Initialize the first range of points.
-  vtkIdType start = 0;
-  vtkIdType end = 0;
-  vtkIdType i = 0;
-  vtkIdType nBad = bad->GetNumberOfTuples();
-  if (bad->GetValue(i) == 0)
-  {
-    while (i < nBad && i == bad->GetValue(i))
+    bounds[0] = std::numeric_limits<double>::max();
+    bounds[1] = -std::numeric_limits<double>::max();
+    auto a = vtk::DataArrayValueRange<1>(array).begin();
+    for (int i = 0; i < n; ++a, ++i)
     {
-      start = bad->GetValue(i++) + 1;
+      bounds[0] = bounds[0] < *a ? bounds[0] : *a;
+      bounds[1] = bounds[1] > *a ? bounds[1] : *a;
     }
-    if (start >= n)
+  }
+
+  template <typename TArray>
+  void operator()(TArray* array, int n, vtkIdTypeArray* bad, double bounds[2])
+  {
+    // If possible, use the simpler code without any bad points.
+    if (!bad || bad->GetNumberOfTuples() == 0)
     {
-      // They are all bad points, return early.
+      this->operator()(array, n, bounds);
       return;
     }
-  }
-  if (i < nBad)
-  {
-    end = bad->GetValue(i++);
-  }
-  else
-  {
-    end = n;
-  }
 
-  bounds[0] = std::numeric_limits<double>::max();
-  bounds[1] = -std::numeric_limits<double>::max();
-  while (start < n)
-  {
-    // Calculate the min/max in this range.
-    while (start < end)
+    // Initialize the first range of points.
+    vtkIdType start = 0;
+    vtkIdType end = 0;
+    vtkIdType i = 0;
+    vtkIdType nBad = bad->GetNumberOfTuples();
+    if (bad->GetValue(i) == 0)
     {
-      bounds[0] = bounds[0] < a[start] ? bounds[0] : a[start];
-      bounds[1] = bounds[1] > a[start] ? bounds[1] : a[start];
-      ++start;
-    }
-    // Now figure out the next range to be evaluated.
-    start = end + 1;
-    while (i < nBad && start == bad->GetValue(i))
-    {
-      start = bad->GetValue(i++) + 1;
+      while (i < nBad && i == bad->GetValue(i))
+      {
+        start = bad->GetValue(i++) + 1;
+      }
+      if (start >= n)
+      {
+        // They are all bad points, return early.
+        return;
+      }
     }
     if (i < nBad)
     {
@@ -486,55 +471,75 @@ void ComputeBounds(A* a, int n, vtkIdTypeArray* bad, double bounds[2])
     {
       end = n;
     }
-  }
-}
 
-// Dispatch this call off to the right function.
-template <typename A>
-void ComputeBounds(A* a, vtkDataArray* b, int n, vtkIdTypeArray* bad, double bounds[4])
-{
-  ComputeBounds(a, n, bad, bounds);
-  switch (b->GetDataType())
-  {
-    vtkTemplateMacro(ComputeBounds(static_cast<VTK_TT*>(b->GetVoidPointer(0)), n, bad, &bounds[2]));
+    bounds[0] = std::numeric_limits<double>::max();
+    bounds[1] = -std::numeric_limits<double>::max();
+    auto a = vtk::DataArrayValueRange<1>(array);
+    while (start < n)
+    {
+      // Calculate the min/max in this range.
+      while (start < end)
+      {
+        bounds[0] = bounds[0] < a[start] ? bounds[0] : a[start];
+        bounds[1] = bounds[1] > a[start] ? bounds[1] : a[start];
+        ++start;
+      }
+      // Now figure out the next range to be evaluated.
+      start = end + 1;
+      while (i < nBad && start == bad->GetValue(i))
+      {
+        start = bad->GetValue(i++) + 1;
+      }
+      if (i < nBad)
+      {
+        end = bad->GetValue(i++);
+      }
+      else
+      {
+        end = n;
+      }
+    }
   }
-}
 
-// Copy the two arrays into the points array
-template <typename A, typename B>
-void CopyToPoints(vtkPoints2D* points, A* a, B* b, int n, const vtkRectd& ss)
-{
-  points->SetNumberOfPoints(n);
-  float* data = static_cast<float*>(points->GetVoidPointer(0));
-  for (int i = 0; i < n; ++i)
+  template <typename TArray0, typename TArray1>
+  void operator()(TArray0* array0, TArray1* array1, int n, vtkIdTypeArray* bad, double bounds[4])
   {
-    data[2 * i] = static_cast<float>((a[i] + ss[0]) * ss[2]);
-    data[2 * i + 1] = static_cast<float>((b[i] + ss[1]) * ss[3]);
+    this->operator()(array0, n, bad, bounds);
+    this->operator()(array1, n, bad, &bounds[2]);
   }
-}
+};
 
-// Copy one array into the points array, use the index of that array as x
-template <typename A>
-void CopyToPoints(vtkPoints2D* points, A* a, int n, const vtkRectd& ss)
+struct CopyToPointsFunctor
 {
-  points->SetNumberOfPoints(n);
-  float* data = static_cast<float*>(points->GetVoidPointer(0));
-  for (int i = 0; i < n; ++i)
+  // Copy the two arrays into the points array
+  template <typename TArrayA, typename TArrayB>
+  void operator()(TArrayA* arrayA, TArrayB* arrayB, vtkPoints2D* points, int n, const vtkRectd& ss)
   {
-    data[2 * i] = static_cast<float>((i + ss[0]) * ss[2]);
-    data[2 * i + 1] = static_cast<float>((a[i] + ss[1]) * ss[3]);
+    points->SetNumberOfPoints(n);
+    float* data = vtkAOSDataArrayTemplate<float>::FastDownCast(points->GetData())->GetPointer(0);
+    auto a = vtk::DataArrayValueRange<1>(arrayA);
+    auto b = vtk::DataArrayValueRange<1>(arrayB);
+    for (int i = 0; i < n; ++i)
+    {
+      data[2 * i] = static_cast<float>((a[i] + ss[0]) * ss[2]);
+      data[2 * i + 1] = static_cast<float>((b[i] + ss[1]) * ss[3]);
+    }
   }
-}
 
-// Copy the two arrays into the points array
-template <typename A>
-void CopyToPointsSwitch(vtkPoints2D* points, A* a, vtkDataArray* b, int n, const vtkRectd& ss)
-{
-  switch (b->GetDataType())
+  // Copy one array into the points array, use the index of that array as x
+  template <typename TArray>
+  void operator()(TArray* array, vtkPoints2D* points, int n, const vtkRectd& ss)
   {
-    vtkTemplateMacro(CopyToPoints(points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n, ss));
+    points->SetNumberOfPoints(n);
+    float* data = vtkAOSDataArrayTemplate<float>::FastDownCast(points->GetData())->GetPointer(0);
+    auto a = vtk::DataArrayValueRange<1>(array);
+    for (int i = 0; i < n; ++i)
+    {
+      data[2 * i] = static_cast<float>((i + ss[0]) * ss[2]);
+      data[2 * i + 1] = static_cast<float>((a[i] + ss[1]) * ss[3]);
+    }
   }
-}
+};
 
 }
 
@@ -602,20 +607,21 @@ bool vtkPlotPoints::UpdateCache()
   vtkDataArray* y = array[1];
 
   // Now copy the components into their new columns
+  CopyToPointsFunctor functor;
   if (this->UseIndexForXSeries)
   {
-    switch (y->GetDataType())
+    if (!vtkArrayDispatch::Dispatch::Execute(
+          y, functor, this->Points, y->GetNumberOfTuples(), this->ShiftScale))
     {
-      vtkTemplateMacro(CopyToPoints(this->Points, static_cast<VTK_TT*>(y->GetVoidPointer(0)),
-        y->GetNumberOfTuples(), this->ShiftScale));
+      functor(y, this->Points, y->GetNumberOfTuples(), this->ShiftScale);
     }
   }
   else
   {
-    switch (x->GetDataType())
+    if (!vtkArrayDispatch::Dispatch2::Execute(
+          x, y, functor, this->Points, x->GetNumberOfTuples(), this->ShiftScale))
     {
-      vtkTemplateMacro(CopyToPointsSwitch(this->Points, static_cast<VTK_TT*>(x->GetVoidPointer(0)),
-        y, x->GetNumberOfTuples(), this->ShiftScale));
+      functor(x, y, this->Points, x->GetNumberOfTuples(), this->ShiftScale);
     }
   }
   this->CalculateLogSeries();
@@ -695,22 +701,25 @@ void vtkPlotPoints::CalculateUnscaledInputBounds()
     return;
   }
   // Now copy the components into their new columns
+  ComputeBoundsFunctor functor;
   if (this->UseIndexForXSeries)
   {
     this->UnscaledInputBounds[0] = 0.0;
     this->UnscaledInputBounds[1] = array[1]->GetNumberOfTuples() - 1;
-    switch (array[1]->GetDataType())
+    if (!vtkArrayDispatch::Dispatch::Execute(array[1], functor, array[1]->GetNumberOfTuples(),
+          this->BadPoints, &this->UnscaledInputBounds[2]))
     {
-      vtkTemplateMacro(ComputeBounds(static_cast<VTK_TT*>(array[1]->GetVoidPointer(0)),
-        array[1]->GetNumberOfTuples(), this->BadPoints, &this->UnscaledInputBounds[2]));
+      functor(
+        array[1], array[1]->GetNumberOfTuples(), this->BadPoints, &this->UnscaledInputBounds[2]);
     }
   }
   else
   {
-    switch (array[0]->GetDataType())
+    if (!vtkArrayDispatch::Dispatch2::Execute(array[0], array[1], functor,
+          array[0]->GetNumberOfTuples(), this->BadPoints, &this->UnscaledInputBounds[0]))
     {
-      vtkTemplateMacro(ComputeBounds(static_cast<VTK_TT*>(array[0]->GetVoidPointer(0)), array[1],
-        array[0]->GetNumberOfTuples(), this->BadPoints, this->UnscaledInputBounds));
+      functor(array[0], array[1], array[0]->GetNumberOfTuples(), this->BadPoints,
+        &this->UnscaledInputBounds[0]);
     }
   }
 }
@@ -724,7 +733,8 @@ void vtkPlotPoints::CalculateLogSeries()
   }
   this->LogX = this->XAxis->GetLogScaleActive();
   this->LogY = this->YAxis->GetLogScaleActive();
-  float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
+  float* data =
+    vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
   vtkIdType n = this->Points->GetNumberOfPoints();
   if (this->LogX)
   {
@@ -776,16 +786,17 @@ void vtkPlotPoints::FindBadPoints()
     return;
   }
   std::set<vtkIdType> bad;
+  SetBadPointsFunctor functor;
   if (!this->UseIndexForXSeries)
   {
-    switch (array[0]->GetDataType())
+    if (!vtkArrayDispatch::Dispatch::Execute(array[0], functor, array[0]->GetNumberOfTuples(), bad))
     {
-      vtkTemplateMacro(SetBadPoints(static_cast<VTK_TT*>(array[0]->GetVoidPointer(0)), n, bad));
+      functor(array[0], array[0]->GetNumberOfTuples(), bad);
     }
   }
-  switch (array[1]->GetDataType())
+  if (!vtkArrayDispatch::Dispatch::Execute(array[1], functor, array[1]->GetNumberOfTuples(), bad))
   {
-    vtkTemplateMacro(SetBadPoints(static_cast<VTK_TT*>(array[1]->GetVoidPointer(0)), n, bad));
+    functor(array[1], array[1]->GetNumberOfTuples(), bad);
   }
 
   // add points from the ValidPointMask

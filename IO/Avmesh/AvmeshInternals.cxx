@@ -5,6 +5,7 @@
 #include "AvmeshMetadata.h"
 #include "BinaryFile.h"
 
+#include <vtkAOSDataArrayTemplate.h>
 #include <vtkCellType.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
@@ -230,7 +231,7 @@ vtkSmartPointer<vtkPoints> ReadVolumeVerts(BinaryFile& fin, int nNodes)
   auto points = vtkSmartPointer<vtkPoints>::New();
   points->SetDataTypeToDouble();
   points->SetNumberOfPoints(nNodes);
-  double* buff = (double*)(points->GetVoidPointer(0));
+  double* buff = vtkAOSDataArrayTemplate<double>::FastDownCast(points->GetData())->GetPointer(0);
   size_t nitems = (size_t)nNodes * 3;
   fin.ReadArray(buff, nitems);
   return points;

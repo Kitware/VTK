@@ -1288,13 +1288,14 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
     }
     double cgioVarId = solChildId[ff];
     const char* fieldDataType = get_data_type(cgnsVars[ff].dt);
+    assert(vtkVars[ff]->HasStandardMemoryLayout() && "Array must have standard memory layout");
 
     // quick transfer of data because data types is given by cgns database
     if (!cgnsVars[ff].isComponent)
     {
       if (cgio_read_data_type(self->cgioNum, cgioVarId, fieldSrcStart, fieldSrcEnd, fieldSrcStride,
             fieldDataType, cellDim, fieldMemDims, fieldMemStart, fieldMemEnd, fieldMemStride,
-            vtkVars[ff]->GetVoidPointer(0)) != CG_OK)
+            vtkVars[ff]->GetVoidPointer(0)) != CG_OK) // NOLINT(bugprone-unsafe-functions)
       {
         char message[81];
         cgio_error_message(message);
@@ -1305,7 +1306,8 @@ int vtkCGNSReader::vtkPrivate::readSolution(const std::string& solutionNameStr, 
     {
       if (cgio_read_data_type(self->cgioNum, cgioVarId, fieldSrcStart, fieldSrcEnd, fieldSrcStride,
             fieldDataType, cellDim, fieldVectMemDims, fieldVectMemStart, fieldVectMemEnd,
-            fieldVectMemStride, vtkVars[ff]->GetVoidPointer(cgnsVars[ff].xyzIndex - 1)) != CG_OK)
+            fieldVectMemStride, // NOLINTNEXTLINE(bugprone-unsafe-functions)
+            vtkVars[ff]->GetVoidPointer(cgnsVars[ff].xyzIndex - 1)) != CG_OK)
       {
         char message[81];
         cgio_error_message(message);
@@ -1550,6 +1552,8 @@ int vtkCGNSReader::vtkPrivate::readBCData(double nodeId, int cellDim, int physic
           }
           double cgioVarId = varIds[ff];
           const char* fieldDataType = get_data_type(cgnsVars[ff].dt);
+          assert(
+            vtkVars[ff]->HasStandardMemoryLayout() && "Array must have standard memory layout");
 
           cgsize_t dataSize = 1;
           cgsize_t dimVals[12];
@@ -1577,7 +1581,7 @@ int vtkCGNSReader::vtkPrivate::readBCData(double nodeId, int cellDim, int physic
             if (!cgnsVars[ff].isComponent)
             {
               if (cgio_read_all_data_type(self->cgioNum, cgioVarId, fieldDataType,
-                    vtkVars[ff]->GetVoidPointer(0)) != CG_OK)
+                    vtkVars[ff]->GetVoidPointer(0)) != CG_OK) // NOLINT(bugprone-unsafe-functions)
               {
                 char message[81];
                 cgio_error_message(message);
@@ -1614,7 +1618,8 @@ int vtkCGNSReader::vtkPrivate::readBCData(double nodeId, int cellDim, int physic
 
               if (cgio_read_data_type(self->cgioNum, cgioVarId, fieldSrcStart, fieldSrcEnd,
                     fieldSrcStride, fieldDataType, 1, fieldVectMemDims, fieldVectMemStart,
-                    fieldVectMemEnd, fieldVectMemStride,
+                    fieldVectMemEnd,
+                    fieldVectMemStride, // NOLINTNEXTLINE(bugprone-unsafe-functions)
                     vtkVars[ff]->GetVoidPointer(cgnsVars[ff].xyzIndex - 1)) != CG_OK)
               {
                 char message[81];

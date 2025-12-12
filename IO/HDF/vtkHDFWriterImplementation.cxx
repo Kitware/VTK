@@ -475,11 +475,11 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateDatasetFromDataArray
     vtkErrorWithObjectMacro(this->Writer, "Could not create Dataset");
     return H5I_INVALID_HID;
   }
-  // Get the data pointer
-  void* data = dataArray->GetVoidPointer(0);
-  // If there is no data pointer, return either an invalid id or the dataset depending on the number
+
+  auto da = vtkDataArray::FastDownCast(dataArray);
+  // If it is not a vtkDataArray, return either an invalid id or the dataset depending on the number
   // of values in the dataArray
-  if (data == nullptr)
+  if (da == nullptr)
   {
     if (dataArray->GetNumberOfValues() == 0)
     {
@@ -501,7 +501,8 @@ vtkHDF::ScopedH5DHandle vtkHDFWriter::Implementation::CreateDatasetFromDataArray
     return H5I_INVALID_HID;
   }
   // Write vtkAbstractArray data to the HDF dataset
-  if (H5Dwrite(dataset, source_type, H5S_ALL, dataspace, H5P_DEFAULT, data) < 0)
+  auto aos = da->ToAOSDataArray(); // NOLINTNEXTLINE(bugprone-unsafe-functions)
+  if (H5Dwrite(dataset, source_type, H5S_ALL, dataspace, H5P_DEFAULT, aos->GetVoidPointer(0)) < 0)
   {
     vtkErrorWithObjectMacro(this->Writer, "Could not write dataset " << name);
     return H5I_INVALID_HID;
@@ -737,18 +738,9 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
     return false;
   }
 
-  // Get raw array data
-  void* rawArrayData = dataArray ? dataArray->GetVoidPointer(0) : nullptr;
-  if (rawArrayData == nullptr)
+  if (dataArray->GetNumberOfValues() == 0)
   {
-    if (dataArray->GetNumberOfValues() == 0)
-    {
-      return true;
-    }
-    else
-    {
-      return false;
-    }
+    return true;
   }
 
   hid_t source_type =
@@ -814,22 +806,16 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
     count.emplace_back(addedDims[1]);
   }
 
-  if (dataArray->GetDataType() == VTK_STRING)
+  if (auto sa = vtkStringArray::SafeDownCast(dataArray))
   {
-    auto vtkStrArray = vtkStringArray::SafeDownCast(dataArray);
-    if (vtkStrArray == nullptr)
-    {
-      return false;
-    }
-
     hid_t datatype = H5Tcopy(H5T_C_S1);
     H5Tset_size(datatype, H5T_VARIABLE);
 
     std::vector<const char*> strArray;
-    strArray.resize(vtkStrArray->GetNumberOfValues());
-    for (vtkIdType i = 0; i < vtkStrArray->GetNumberOfValues(); i++)
+    strArray.resize(sa->GetNumberOfValues());
+    for (vtkIdType i = 0; i < sa->GetNumberOfValues(); i++)
     {
-      strArray[i] = vtkStrArray->GetPointer(i)->c_str();
+      strArray[i] = sa->GetPointer(i)->c_str();
     }
 
     if (strArray.empty())
@@ -847,16 +833,23 @@ bool vtkHDFWriter::Implementation::AddArrayToDataset(
       return false;
     }
   }
-  else
+  else if (auto da = vtkDataArray::SafeDownCast(dataArray))
   {
     H5Sselect_hyperslab(
       currentDataspace, H5S_SELECT_SET, start.data(), nullptr, count.data(), nullptr);
 
     // Write new data to the dataset
-    if (H5Dwrite(dataset, source_type, dataspace, currentDataspace, H5P_DEFAULT, rawArrayData) < 0)
+    auto aos = da->ToAOSDataArray();
+    if (H5Dwrite(dataset, source_type, dataspace, currentDataspace, H5P_DEFAULT,
+          aos->GetVoidPointer(0)) < 0) // NOLINT(bugprone-unsafe-functions)
     {
       return false;
     }
+  }
+  else
+  {
+    vtkErrorWithObjectMacro(this->Writer, << "Unsupported array type" << dataArray->GetClassName());
+    return false;
   }
 
   return true;

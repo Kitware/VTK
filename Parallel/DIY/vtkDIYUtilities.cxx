@@ -17,7 +17,6 @@
 #include "vtkNew.h"
 #include "vtkRectilinearGrid.h"
 #include "vtkRectilinearGridToPointSet.h"
-#include "vtkSOADataArrayTemplate.h"
 #include "vtkSmartPointer.h"
 #include "vtkStringArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -56,8 +55,8 @@ struct SaveArrayWorker
   {
     switch (array->GetDataType())
     {
-      vtkTemplateMacro(vtkNew<vtkAOSDataArrayTemplate<VTK_TT>> aosArray; aosArray->DeepCopy(array);
-                       this->operator()(aosArray.Get()));
+      vtkTemplateMacro(auto aosArray = array->ToAOSDataArray(); this->operator()(
+        vtkAOSDataArrayTemplate<VTK_TT>::FastDownCast(aosArray.Get())));
     }
   }
 
@@ -92,17 +91,18 @@ struct LoadArrayWorker
       array->SetName(name.c_str());
     }
 
-    ValueType* data(nullptr);
+    vtkNew<vtkAOSDataArrayTemplate<ValueType>> aosArray;
     if (array->HasStandardMemoryLayout())
     {
-      // get the void pointer, this is OK for standard memory layout
-      data = static_cast<ValueType*>(array->GetVoidPointer(0));
+      aosArray->ShallowCopy(array);
     }
     else
     {
       // create a temporary array for loading
-      data = new ValueType[numberOfComponents * numberOfTuples];
+      aosArray->SetNumberOfComponents(numberOfComponents);
+      aosArray->SetNumberOfTuples(numberOfTuples);
     }
+    ValueType* data = aosArray->GetPointer(0);
 
     if (array->GetNumberOfValues())
     {
@@ -127,7 +127,6 @@ struct LoadArrayWorker
       }
 
       assert(i == numberOfComponents * numberOfTuples);
-      delete[] data;
     }
   }
 

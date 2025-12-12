@@ -460,7 +460,7 @@ int get_XYZ_mesh(int cgioNum, const std::vector<double>& gridChildId,
   const cgsize_t* srcEnd, const cgsize_t* srcStride, const cgsize_t* memStart,
   const cgsize_t* memEnd, const cgsize_t* memStride, const cgsize_t* memDims, vtkPoints* points)
 {
-  T* coords = static_cast<T*>(points->GetVoidPointer(0));
+  T* coords = vtkAOSDataArrayTemplate<T>::FastDownCast(points->GetData())->GetPointer(0);
   T* currentCoord = static_cast<T*>(&(coords[0]));
 
   CGNSRead::char_33 coordName;

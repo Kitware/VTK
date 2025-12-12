@@ -3,7 +3,7 @@
 #include "vtkJSONDataSetWriter.h"
 
 #include "vtkArchiver.h"
-#include "vtkCellArray.h"
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
@@ -17,10 +17,7 @@
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
-#include "vtkTypeInt32Array.h"
-#include "vtkTypeInt64Array.h"
-#include "vtkTypeUInt32Array.h"
-#include "vtkTypeUInt64Array.h"
+
 #include "vtksys/FStream.hxx"
 #include "vtksys/MD5.h"
 #include "vtksys/SystemTools.hxx"
@@ -305,62 +302,51 @@ void vtkJSONDataSetWriter::WriteData()
 }
 
 //------------------------------------------------------------------------------
+struct vtkJSONDataSetWriterFunctor
+{
+  template <class TArray>
+  void operator()(TArray* input, vtkJSONDataSetWriter* self, const char* filePath)
+  {
+    using ValueType = typename TArray::ValueType;
+    // Check if we need to convert the (u)int64 to (u)int32
+    if (std::is_integral_v<ValueType> && sizeof(ValueType) > 4)
+    {
+      if (std::is_signed_v<ValueType>)
+      {
+        vtkNew<vtkAOSDataArrayTemplate<unsigned int>> uint32;
+        uint32->DeepCopy(input);
+        const char* content = reinterpret_cast<const char*>(uint32->GetPointer(0));
+        size_t size = uint32->GetNumberOfValues() * uint32->GetDataTypeSize();
+        self->GetArchiver()->InsertIntoArchive(filePath, content, size);
+      }
+      else
+      {
+        vtkNew<vtkAOSDataArrayTemplate<int>> int32;
+        int32->DeepCopy(input);
+        const char* content = reinterpret_cast<const char*>(int32->GetPointer(0));
+        size_t size = int32->GetNumberOfValues() * int32->GetDataTypeSize();
+        self->GetArchiver()->InsertIntoArchive(filePath, content, size);
+      }
+    }
+    else
+    {
+      const char* content = reinterpret_cast<const char*>(input->GetPointer(0));
+      size_t size = input->GetNumberOfValues() * input->GetDataTypeSize();
+      self->GetArchiver()->InsertIntoArchive(filePath, content, size);
+    }
+  }
+};
+
+//------------------------------------------------------------------------------
 bool vtkJSONDataSetWriter::WriteArrayContents(vtkDataArray* input, const char* filePath)
 {
-  if (input->GetDataTypeSize() == 0)
+  auto aos = input->ToAOSDataArray();
+  vtkJSONDataSetWriterFunctor functor;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(
+        aos, functor, this, filePath))
   {
-    // Skip BIT arrays
     return false;
   }
-
-  // Check if we need to convert the (u)int64 to (u)int32
-  vtkSmartPointer<vtkDataArray> arrayToWrite = input;
-  vtkIdType arraySize = input->GetNumberOfTuples() * input->GetNumberOfComponents();
-  switch (input->GetDataType())
-  {
-    case VTK_UNSIGNED_CHAR:
-    case VTK_UNSIGNED_LONG:
-    case VTK_UNSIGNED_LONG_LONG:
-      if (input->GetDataTypeSize() > 4)
-      {
-        vtkNew<vtkTypeUInt64Array> srcUInt64;
-        srcUInt64->ShallowCopy(input);
-        vtkNew<vtkTypeUInt32Array> uint32;
-        uint32->SetNumberOfValues(arraySize);
-        uint32->SetName(input->GetName());
-        for (vtkIdType i = 0; i < arraySize; i++)
-        {
-          uint32->SetValue(i, srcUInt64->GetValue(i));
-        }
-        arrayToWrite = uint32;
-      }
-      break;
-    case VTK_LONG:
-    case VTK_LONG_LONG:
-    case VTK_ID_TYPE:
-      if (input->GetDataTypeSize() > 4)
-      {
-        vtkNew<vtkTypeInt64Array> srcInt64;
-        srcInt64->ShallowCopy(input);
-        vtkNew<vtkTypeInt32Array> int32;
-        int32->SetNumberOfTuples(arraySize);
-        int32->SetName(input->GetName());
-        for (vtkIdType i = 0; i < arraySize; i++)
-        {
-          int32->SetValue(i, srcInt64->GetValue(i));
-        }
-        arrayToWrite = int32;
-      }
-      break;
-    default:
-      arrayToWrite = input;
-      break;
-  }
-
-  const char* content = (const char*)arrayToWrite->GetVoidPointer(0);
-  size_t size = arrayToWrite->GetNumberOfValues() * arrayToWrite->GetDataTypeSize();
-
-  this->GetArchiver()->InsertIntoArchive(filePath, content, size);
   return true;
 }
 
@@ -507,7 +493,9 @@ std::string vtkJSONDataSetWriter::GetShortType(vtkDataArray* input, bool& needCo
 
 std::string vtkJSONDataSetWriter::GetUID(vtkDataArray* input, bool& needConversion)
 {
-  const unsigned char* content = (const unsigned char*)input->GetVoidPointer(0);
+  auto aosInput = input->ToAOSDataArray();
+  // NOLINTNEXTLINE(bugprone-unsafe-functions)
+  const unsigned char* content = (const unsigned char*)aosInput->GetVoidPointer(0);
   int size = input->GetNumberOfValues() * input->GetDataTypeSize();
   std::string hash;
   vtkJSONDataSetWriter::ComputeMD5(content, size, hash);

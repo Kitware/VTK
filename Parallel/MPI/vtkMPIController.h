@@ -33,6 +33,7 @@
 
 #include "vtkMultiProcessController.h"
 #include "vtkParallelMPIModule.h" // For export macro
+#include "vtkTypeList.h"          // For vtkTypeList
 // Do not remove this header file. This class contains methods
 // which take arguments defined in  vtkMPICommunicator.h by
 // reference.
@@ -48,6 +49,12 @@ public:
   static vtkMPIController* New();
   vtkTypeMacro(vtkMPIController, vtkMultiProcessController);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /**
+   * The list of value types supported by MPIController.
+   */
+  using ValueTypes =
+    vtkTypeList::Create<float, double, char, int, vtkTypeInt64, unsigned char, unsigned long>;
 
   /**
    * This method is for setting up the processes.

@@ -40,6 +40,7 @@ class vtkDataSet;
 class vtkDataArray;
 class vtkDataSetAttributes;
 class vtkArchiver;
+struct vtkJSONDataSetWriterFunctor;
 
 class VTKIOEXPORT_EXPORT vtkJSONDataSetWriter : public vtkWriter
 {
@@ -155,6 +156,8 @@ private:
 
   vtkNew<vtkDataArraySelection> PointArraySelection;
   vtkNew<vtkDataArraySelection> CellArraySelection;
+
+  friend struct vtkJSONDataSetWriterFunctor;
 };
 
 VTK_ABI_NAMESPACE_END

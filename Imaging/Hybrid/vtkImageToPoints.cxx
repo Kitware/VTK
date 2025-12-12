@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageToPoints.h"
 
+#include <vtkArrayDispatch.h>
+#include <vtkArrayDispatchDataSetArrayList.h>
+#include <vtkDataArrayRange.h>
 #include <vtkImageData.h>
 #include <vtkImagePointIterator.h>
 #include <vtkImageStencilData.h>
@@ -136,38 +139,43 @@ vtkIdType vtkImageToPointsCount(
 
 //------------------------------------------------------------------------------
 // The execute method is templated over the point type (float or double)
-template <class T>
-void vtkImageToPointsExecute(vtkImageToPoints* self, vtkImageData* inData, const int extent[6],
-  vtkImageStencilData* stencil, T* outPoints, vtkPointData* outPD)
+struct vtkImageToPointsWorker
 {
-  vtkPointData* inPD = inData->GetPointData();
-  vtkImagePointIterator inIter(inData, extent, stencil, self, 0);
-  vtkIdType outId = 0;
-
-  // iterate over all spans for the stencil
-  while (!inIter.IsAtEnd())
+  template <class TArray, typename T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* outPoints, vtkImageToPoints* self, vtkImageData* inData,
+    const int extent[6], vtkImageStencilData* stencil, vtkPointData* outPD)
   {
-    if (inIter.IsInStencil())
+    vtkPointData* inPD = inData->GetPointData();
+    vtkImagePointIterator inIter(inData, extent, stencil, self, 0);
+    vtkIdType outId = 0;
+    T p[3];
+
+    auto out = vtk::DataArrayTupleRange<3>(outPoints).begin();
+    // iterate over all spans for the stencil
+    while (!inIter.IsAtEnd())
     {
-      // if span is inside stencil, generate points
-      vtkIdType n = inIter.SpanEndId() - inIter.GetId();
-      outPD->CopyData(inPD, outId, n, inIter.GetId());
-      outId += n;
-      for (vtkIdType i = 0; i < n; i++)
+      if (inIter.IsInStencil())
       {
-        inIter.GetPosition(outPoints);
-        outPoints += 3;
-        inIter.Next();
+        // if span is inside stencil, generate points
+        vtkIdType n = inIter.SpanEndId() - inIter.GetId();
+        outPD->CopyData(inPD, outId, n, inIter.GetId());
+        outId += n;
+        for (vtkIdType i = 0; i < n; i++)
+        {
+          inIter.GetPosition(p);
+          out->SetTuple(p);
+          ++out;
+          inIter.Next();
+        }
+      }
+      else
+      {
+        // if span is outside stencil, skip to next span
+        inIter.NextSpan();
       }
     }
-    else
-    {
-      // if span is outside stencil, skip to next span
-      inIter.NextSpan();
-    }
   }
-}
-
+};
 }
 
 //------------------------------------------------------------------------------
@@ -202,7 +210,7 @@ int vtkImageToPoints::RequestData(
   vtkIdType numPoints = vtkImageToPointsCount(inData, stencil, extent);
 
   // create the points
-  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  vtkNew<vtkPoints> points;
   points->SetDataType(pointsType);
   points->SetNumberOfPoints(numPoints);
   outData->SetPoints(points);
@@ -212,14 +220,11 @@ int vtkImageToPoints::RequestData(
   outPD->CopyAllocate(inData->GetPointData(), numPoints);
 
   // iterate over the input and create the point data
-  void* ptr = points->GetVoidPointer(0);
-  if (pointsType == VTK_FLOAT)
+  vtkImageToPointsWorker worker;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSPointArrays>::Execute(
+        points->GetData(), worker, this, inData, extent, stencil, outPD))
   {
-    vtkImageToPointsExecute(this, inData, extent, stencil, static_cast<float*>(ptr), outPD);
-  }
-  else
-  {
-    vtkImageToPointsExecute(this, inData, extent, stencil, static_cast<double*>(ptr), outPD);
+    worker(points->GetData(), this, inData, extent, stencil, outPD);
   }
 
   return 1;

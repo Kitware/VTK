@@ -24,7 +24,6 @@
 #endif
 
 #include "vtkDataArray.h"
-#include "vtkIdTypeArray.h"
 #include "vtkSmartPointer.h"
 
 #include <vtk_pugixml.h>
@@ -147,12 +146,6 @@ types::DataSet XMLInitDataSet(
  */
 template <class T>
 vtkSmartPointer<vtkDataArray> NewDataArray();
-
-/**
- * Special type for vtkIdTypeArray
- * @return smart pointer of type vtkIdTypeArray
- */
-vtkSmartPointer<vtkIdTypeArray> NewDataArrayIdType();
 
 /**
  * Simple partition to load balance shape across viz processes

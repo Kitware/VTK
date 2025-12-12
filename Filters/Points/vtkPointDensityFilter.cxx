@@ -3,7 +3,9 @@
 #include "vtkPointDensityFilter.h"
 
 #include "vtkAbstractPointLocator.h"
+#include "vtkArrayDispatch.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
@@ -120,13 +122,13 @@ struct ComputePointDensity
 
 //------------------------------------------------------------------------------
 // The threaded core of the algorithm; processes weighted points.
-template <typename T>
+template <typename TArray>
 struct ComputeWeightedDensity : public ComputePointDensity
 {
-  const T* Weights;
+  TArray* Weights;
 
-  ComputeWeightedDensity(T* weights, int dims[3], double origin[3], double spacing[3], float* dens,
-    vtkAbstractPointLocator* loc, double radius, int form)
+  ComputeWeightedDensity(TArray* weights, int dims[3], double origin[3], double spacing[3],
+    float* dens, vtkAbstractPointLocator* loc, double radius, int form)
     : ComputePointDensity(dims, origin, spacing, dens, loc, radius, form)
     , Weights(weights)
   {
@@ -146,7 +148,7 @@ struct ComputeWeightedDensity : public ComputePointDensity
     vtkAbstractPointLocator* locator = this->Locator;
     int form = this->Form;
     double d;
-    const T* weights = this->Weights;
+    auto weights = vtk::DataArrayValueRange<1>(this->Weights);
 
     for (; slice < sliceEnd; ++slice)
     {
@@ -162,7 +164,7 @@ struct ComputeWeightedDensity : public ComputePointDensity
           numPts = pIds->GetNumberOfIds();
           for (d = 0.0, sample = 0; sample < numPts; ++sample)
           {
-            d += *(weights + pIds->GetId(sample));
+            d += weights[pIds->GetId(sample)];
           }
 
           if (form == VTK_DENSITY_FORM_NPTS)
@@ -179,15 +181,19 @@ struct ComputeWeightedDensity : public ComputePointDensity
   }
 
   void Reduce() {}
+}; // ComputeWeightedDensity
 
-  static void Execute(vtkPointDensityFilter* self, T* weights, int dims[3], double origin[3],
+struct ComputeWeightedDensityWorker
+{
+  template <typename TArray>
+  void operator()(TArray* weights, vtkPointDensityFilter* self, int dims[3], double origin[3],
     double spacing[3], float* density, double radius, int form)
   {
-    ComputeWeightedDensity compDens(
+    ComputeWeightedDensity<TArray> compDens(
       weights, dims, origin, spacing, density, self->GetLocator(), radius, form);
     vtkSMPTools::For(0, dims[2], compDens);
   }
-}; // ComputeWeightedDensity
+};
 
 //------------------------------------------------------------------------------
 // Optional kernel to compute gradient of density function. Also the gradient
@@ -549,11 +555,7 @@ int vtkPointDensityFilter::RequestData(vtkInformation* vtkNotUsed(request),
 
   // If weighting points
   vtkDataArray* weights = this->GetInputArrayToProcess(0, inputVector);
-  void* w = nullptr;
-  if (weights && this->ScalarWeighting)
-  {
-    w = weights->GetVoidPointer(0);
-  }
+  weights = this->ScalarWeighting ? weights : nullptr;
 
   // Grab the density array and process it.
   output->AllocateScalars(outInfo);
@@ -565,16 +567,17 @@ int vtkPointDensityFilter::RequestData(vtkInformation* vtkNotUsed(request),
   output->GetDimensions(dims);
   output->GetOrigin(origin);
   output->GetSpacing(spacing);
-  if (!w)
+  if (!weights)
   {
     ComputePointDensity::Execute(this, dims, origin, spacing, d, radius, this->DensityForm);
   }
   else
   {
-    switch (weights->GetDataType())
+    ComputeWeightedDensityWorker worker;
+    if (!vtkArrayDispatch::Dispatch::Execute(
+          weights, worker, this, dims, origin, spacing, d, radius, this->DensityForm))
     {
-      vtkTemplateMacro(ComputeWeightedDensity<VTK_TT>::Execute(
-        this, (VTK_TT*)w, dims, origin, spacing, d, radius, this->DensityForm));
+      worker(weights, this, dims, origin, spacing, d, radius, this->DensityForm);
     }
   }
 
@@ -590,7 +593,7 @@ int vtkPointDensityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     gradients->SetNumberOfTuples(num);
     gradients->SetName("Gradient");
     output->GetPointData()->AddArray(gradients);
-    float* grad = static_cast<float*>(gradients->GetVoidPointer(0));
+    float* grad = gradients->GetPointer(0);
     gradients->Delete();
 
     vtkFloatArray* magnitude = vtkFloatArray::New();
@@ -598,7 +601,7 @@ int vtkPointDensityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     magnitude->SetNumberOfTuples(num);
     magnitude->SetName("Gradient Magnitude");
     output->GetPointData()->AddArray(magnitude);
-    float* mag = static_cast<float*>(magnitude->GetVoidPointer(0));
+    float* mag = magnitude->GetPointer(0);
     magnitude->Delete();
 
     vtkUnsignedCharArray* fclassification = vtkUnsignedCharArray::New();
@@ -606,7 +609,7 @@ int vtkPointDensityFilter::RequestData(vtkInformation* vtkNotUsed(request),
     fclassification->SetNumberOfTuples(num);
     fclassification->SetName("Classification");
     output->GetPointData()->AddArray(fclassification);
-    unsigned char* fclass = static_cast<unsigned char*>(fclassification->GetVoidPointer(0));
+    unsigned char* fclass = fclassification->GetPointer(0);
     fclassification->Delete();
 
     // Thread the computation over slices

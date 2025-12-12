@@ -582,13 +582,13 @@ struct StructuredGrid
     // Effectively, shallow copy the coordinate arrays and maintain ownership
     // of these arrays in the caller.
     this->X_Coords = vtkDataArray::CreateDataArray(x_coords->GetDataType());
-    this->X_Coords->SetVoidArray(x_coords->GetVoidPointer(0), x_coords->GetNumberOfTuples(), 1);
+    this->X_Coords->ShallowCopy(x_coords);
 
     this->Y_Coords = vtkDataArray::CreateDataArray(y_coords->GetDataType());
-    this->Y_Coords->SetVoidArray(y_coords->GetVoidPointer(0), y_coords->GetNumberOfTuples(), 1);
+    this->Y_Coords->ShallowCopy(y_coords);
 
     this->Z_Coords = vtkDataArray::CreateDataArray(z_coords->GetDataType());
-    this->Z_Coords->SetVoidArray(z_coords->GetVoidPointer(0), z_coords->GetNumberOfTuples(), 1);
+    this->Z_Coords->ShallowCopy(z_coords);
 
     if (fields != nullptr)
     {

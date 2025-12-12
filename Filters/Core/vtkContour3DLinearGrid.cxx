@@ -5,6 +5,7 @@
 
 #include "vtk3DLinearGridInternal.h"
 #include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -27,8 +28,6 @@
 #include "vtkSpanSpace.h"
 #include "vtkStaticCellLinksTemplate.h"
 #include "vtkStaticEdgeLocatorTemplate.h"
-#include "vtkStaticPointLocator.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTriangle.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnstructuredGrid.h"
@@ -1129,8 +1128,8 @@ int ProcessMerged(vtkContour3DLinearGrid* filter, vtkPoints* inPts, vtkPoints* o
   outPts->GetData()->WriteVoidPointer(0, 3 * (numPts + totalPts));
   ProduceMergedPointsWorker<TIds> produceMergedPointsWorker;
 
-  using DispatcherProducePoints =
-    vtkArrayDispatch::Dispatch2ByValueType<vtkArrayDispatch::Reals, vtkArrayDispatch::Reals>;
+  using DispatcherProducePoints = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays,
+    vtkArrayDispatch::AOSPointArrays>;
   if (!DispatcherProducePoints::Execute(inPts->GetData(), outPts->GetData(),
         produceMergedPointsWorker, filter, mergeEdges, offsets, totalPts, numPts))
   {
@@ -1511,9 +1510,10 @@ void vtkContour3DLinearGrid::ProcessPiece(
     {
       value = values[vidx];
       // process these scalar types, others could easily be added
-      using ScalarsList = vtkTypeList::Create<unsigned int, int, float, double>;
-      using Dispatcher = vtkArrayDispatch::Dispatch3ByValueType<vtkArrayDispatch::Reals,
-        vtkArrayDispatch::Reals, ScalarsList>;
+      using ScalarsList = vtkArrayDispatch::FilterArraysByValueType<vtkArrayDispatch::Arrays,
+        vtkTypeList::Create<unsigned int, int, float, double>>::Result;
+      using Dispatcher = vtkArrayDispatch::Dispatch3ByArray<vtkArrayDispatch::PointArrays,
+        vtkArrayDispatch::AOSPointArrays, ScalarsList>;
 
       ProcessFastPathWorker worker;
       if (!Dispatcher::Execute(inPts->GetData(), outPts->GetData(), inScalars, worker, this,

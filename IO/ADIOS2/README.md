@@ -19,11 +19,6 @@ Extensions:
 
 - **vtkADIOS2VTXReader .h/.cxx** : multiblock reader for ImageData and UnstructuredData types using VTK ADIOS2 Readers (VTX) implementation developed at Oak Ridge National Laboratory (ORNL). Reads bp files/streams with a vtk.xml attribute schema that uses the [VTK XML file formats schemas](https://vtk.org/wp-content/uploads/2015/04/file-formats.pdf). For more comprehensive documentation refer [to this section in the ADIOS2 User Guide.](https://adios2.readthedocs.io/en/latest/ecosystem/visualization.html)
 
-## **Core: VTK ADIOS2 CORE READERS**
-
-Developed at Kitware Inc
-- **vtkADIOS2CoreTypeTraits.h** TypeTraits from adios2 type to vtk type
-
 ## **VTX: VTK ADIOS2 READERS**
 
 Developed at Oak Ridge National Laboratory. Reads node (image and unstructured) and cell (unstructured) centered data.

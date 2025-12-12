@@ -256,9 +256,8 @@ int TestValuePass2(int argc, char* argv[])
   vtkImageData* id = grabber->GetOutput();
   // id->PrintSelf(std::cerr, vtkIndent(0));
 
-  vtkUnsignedCharArray* ar =
-    vtkArrayDownCast<vtkUnsignedCharArray>(id->GetPointData()->GetArray("ImageScalars"));
-  unsigned char* ptr = static_cast<unsigned char*>(ar->GetVoidPointer(0));
+  auto* ar = vtkUnsignedCharArray::FastDownCast(id->GetPointData()->GetArray("ImageScalars"));
+  unsigned char* ptr = ar->GetPointer(0);
   std::set<double> found;
   double value;
   for (int i = 0; i < id->GetNumberOfPoints(); i++)

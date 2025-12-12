@@ -3,6 +3,7 @@
 
 #include "vtkPlotStacked.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkAxis.h"
 #include "vtkBrush.h"
 #include "vtkChartXY.h"
@@ -10,6 +11,7 @@
 #include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkImageData.h"
@@ -37,60 +39,58 @@ bool compVector2fX(const vtkVector2f& v1, const vtkVector2f& v2)
   return v1.GetX() < v2.GetX();
 }
 
-// Copy the two arrays into the points array
-template <class A, class B>
-void CopyToPoints(
-  vtkPoints2D* points, vtkPoints2D* previous_points, A* a, B* b, int n, double bds[4])
+struct CopyToPointsFunctor
 {
-  points->SetNumberOfPoints(n);
-  for (int i = 0; i < n; ++i)
+  // Copy the two arrays into the points array
+  template <class TArrayA, class TArrayB>
+  void operator()(TArrayA* arrayA, TArrayB* arrayB, vtkPoints2D* points,
+    vtkPoints2D* previous_points, int n, double bds[4])
   {
-    double prev[] = { 0.0, 0.0 };
-    if (previous_points)
-      previous_points->GetPoint(i, prev);
-    double yi = b[i] + prev[1];
-    points->SetPoint(i, a[i], yi);
+    points->SetNumberOfPoints(n);
+    auto a = vtk::DataArrayValueRange<1>(arrayA);
+    auto b = vtk::DataArrayValueRange<1>(arrayB);
+    for (int i = 0; i < n; ++i)
+    {
+      double prev[] = { 0.0, 0.0 };
+      if (previous_points)
+      {
+        previous_points->GetPoint(i, prev);
+      }
+      double yi = b[i] + prev[1];
+      points->SetPoint(i, a[i], yi);
 
-    bds[0] = bds[0] < a[i] ? bds[0] : a[i];
-    bds[1] = bds[1] > a[i] ? bds[1] : a[i];
+      bds[0] = bds[0] < a[i] ? bds[0] : a[i];
+      bds[1] = bds[1] > a[i] ? bds[1] : a[i];
 
-    bds[2] = bds[2] < yi ? bds[2] : yi;
-    bds[3] = bds[3] > yi ? bds[3] : yi;
+      bds[2] = bds[2] < yi ? bds[2] : yi;
+      bds[3] = bds[3] > yi ? bds[3] : yi;
+    }
   }
-}
 
-// Copy one array into the points array, use the index of that array as x
-template <class A>
-void CopyToPoints(vtkPoints2D* points, vtkPoints2D* previous_points, A* a, int n, double bds[4])
-{
-  bds[0] = 0.;
-  bds[1] = n - 1.;
-  points->SetNumberOfPoints(n);
-  for (int i = 0; i < n; ++i)
+  // Copy one array into the points array, use the index of that array as x
+  template <class TArray>
+  void operator()(
+    TArray* array, vtkPoints2D* points, vtkPoints2D* previous_points, int n, double bds[4])
   {
-    double prev[] = { 0.0, 0.0 };
-    if (previous_points)
-      previous_points->GetPoint(i, prev);
-    double yi = a[i] + prev[1];
-    points->SetPoint(i, i, yi);
+    bds[0] = 0.;
+    bds[1] = n - 1.;
+    points->SetNumberOfPoints(n);
+    auto a = vtk::DataArrayValueRange<1>(array);
+    for (int i = 0; i < n; ++i)
+    {
+      double prev[] = { 0.0, 0.0 };
+      if (previous_points)
+      {
+        previous_points->GetPoint(i, prev);
+      }
+      double yi = a[i] + prev[1];
+      points->SetPoint(i, i, yi);
 
-    bds[2] = bds[2] < yi ? bds[2] : yi;
-    bds[3] = bds[3] > yi ? bds[3] : yi;
+      bds[2] = bds[2] < yi ? bds[2] : yi;
+      bds[3] = bds[3] > yi ? bds[3] : yi;
+    }
   }
-}
-
-// Copy the two arrays into the points array
-template <class A>
-void CopyToPointsSwitch(
-  vtkPoints2D* points, vtkPoints2D* previous_points, A* a, vtkDataArray* b, int n, double bds[4])
-{
-  switch (b->GetDataType())
-  {
-    vtkTemplateMacro(
-      CopyToPoints(points, previous_points, a, static_cast<VTK_TT*>(b->GetVoidPointer(0)), n, bds));
-  }
-}
-
+};
 } // namespace
 
 class vtkPlotStackedSegment : public vtkObject
@@ -120,29 +120,30 @@ public:
       this->Points = vtkSmartPointer<vtkPoints2D>::New();
     }
 
+    CopyToPointsFunctor functor;
     if (x_array)
     {
-      switch (x_array->GetDataType())
+      if (!vtkArrayDispatch::Dispatch2::Execute(x_array, y_array, functor, this->Points,
+            this->Previous ? this->Previous->Points : nullptr, x_array->GetNumberOfTuples(), bds))
       {
-        vtkTemplateMacro(
-          CopyToPointsSwitch(this->Points, this->Previous ? this->Previous->Points : nullptr,
-            static_cast<VTK_TT*>(x_array->GetVoidPointer(0)), y_array, x_array->GetNumberOfTuples(),
-            bds));
+        functor(x_array, y_array, this->Points, this->Previous ? this->Previous->Points : nullptr,
+          x_array->GetNumberOfTuples(), bds);
       }
     }
     else
     { // Using Index for X Series
-      switch (y_array->GetDataType())
+      if (!vtkArrayDispatch::Dispatch::Execute(y_array, functor, this->Points,
+            this->Previous ? this->Previous->Points : nullptr, y_array->GetNumberOfTuples(), bds))
       {
-        vtkTemplateMacro(
-          CopyToPoints(this->Points, this->Previous ? this->Previous->Points : nullptr,
-            static_cast<VTK_TT*>(y_array->GetVoidPointer(0)), y_array->GetNumberOfTuples(), bds));
+        functor(y_array, this->Points, this->Previous ? this->Previous->Points : nullptr,
+          y_array->GetNumberOfTuples(), bds);
       }
     }
 
     // Nothing works if we're not sorted on the X access
     vtkIdType n = this->Points->GetNumberOfPoints();
-    vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    vtkVector2f* data = reinterpret_cast<vtkVector2f*>(
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0));
     std::vector<vtkVector2f> v(data, data + n);
     std::sort(v.begin(), v.end(), compVector2fX);
 
@@ -163,7 +164,8 @@ public:
     bool logX = xAxis->GetLogScaleActive();
     bool logY = yAxis->GetLogScaleActive();
 
-    float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
+    float* data =
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
 
     vtkIdType n = this->Points->GetNumberOfPoints();
     if (logX)
@@ -185,7 +187,8 @@ public:
   void FindBadPoints()
   {
     // This should be run after CalculateLogSeries as a final step.
-    float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
+    float* data =
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0);
     vtkIdType n = this->Points->GetNumberOfPoints();
     if (!this->BadPoints)
     {
@@ -262,7 +265,8 @@ public:
     {
       end = nPoints;
     }
-    vtkVector2f* pts = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    vtkVector2f* pts = reinterpret_cast<vtkVector2f*>(
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0));
 
     // Initialize our min/max
     bounds[0] = bounds[1] = pts[start].GetX();
@@ -366,7 +370,8 @@ public:
     std::vector<vtkVector2f>::iterator low;
     vtkVector2f lowPoint(point.GetX() - tol.GetX(), 0.0f);
 
-    vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    vtkVector2f* data = reinterpret_cast<vtkVector2f*>(
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0));
     std::vector<vtkVector2f> v(data, data + n);
 
     low = std::lower_bound(v.begin(), v.end(), lowPoint, compVector2fX);
@@ -402,7 +407,8 @@ public:
     }
 
     // Iterate through all points and check whether any are in range
-    vtkVector2f* data = static_cast<vtkVector2f*>(this->Points->GetVoidPointer(0));
+    vtkVector2f* data = reinterpret_cast<vtkVector2f*>(
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Points->GetData())->GetPointer(0));
     vtkIdType n = this->Points->GetNumberOfPoints();
 
     for (vtkIdType i = 0; i < n; ++i)

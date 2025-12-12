@@ -3,10 +3,8 @@
 
 #include "TestExerciseMultiProcessController.h"
 
-#include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCharArray.h"
-#include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
@@ -20,19 +18,18 @@
 #include "vtkPartitionedDataSetCollection.h"
 #include "vtkPartitionedDataSetCollectionSource.h"
 #include "vtkPointData.h"
-#include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProcessGroup.h"
 #include "vtkSMPTools.h"
 #include "vtkSmartPointer.h"
 #include "vtkSphereSource.h"
 #include "vtkStringFormatter.h"
+#include "vtkTestUtilities.h"
 #include "vtkTypeTraits.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedLongArray.h"
 
 #include <cmath>
-#include <string.h>
 #include <time.h>
 #include <vector>
 
@@ -74,26 +71,6 @@ void MatrixMultArray(const T* A, T* B, vtkIdType length)
     A += 4;
     B += 4;
   }
-}
-
-// Specialize for floats for greater precision.
-template <>
-void MatrixMultArray(const float* A, float* B, vtkIdType length)
-{
-  double* tmpA = new double[length];
-  double* tmpB = new double[length];
-  for (vtkIdType i = 0; i < length; i++)
-  {
-    tmpA[i] = static_cast<double>(A[i]);
-    tmpB[i] = static_cast<double>(B[i]);
-  }
-  MatrixMultArray(tmpA, tmpB, length);
-  for (vtkIdType i = 0; i < length; i++)
-  {
-    B[i] = static_cast<float>(tmpB[i]);
-  }
-  delete[] tmpA;
-  delete[] tmpB;
 }
 
 class MatrixMultOperation : public vtkCommunicator::Operation
@@ -147,213 +124,6 @@ static void CheckSuccess(vtkMultiProcessController* controller, int success)
 }
 
 //------------------------------------------------------------------------------
-template <class T>
-int CompareArrays(const T* A, const T* B, vtkIdType length)
-{
-  for (vtkIdType i = 0; i < length; i++)
-  {
-    if (A[i] != B[i])
-    {
-      vtkGenericWarningMacro("Encountered mismatched arrays.");
-      return 0;
-    }
-  }
-  return 1;
-}
-
-int CompareDataArrays(vtkDataArray* A, vtkDataArray* B)
-{
-  if (A == B)
-    return 1;
-
-  int type = A->GetDataType();
-  int numComponents = A->GetNumberOfComponents();
-  vtkIdType numTuples = A->GetNumberOfTuples();
-  if (type != B->GetDataType())
-  {
-    vtkGenericWarningMacro("Arrays have different types.");
-    return 0;
-  }
-  if (numComponents != B->GetNumberOfComponents())
-  {
-    vtkGenericWarningMacro("Arrays have different numbers of components.");
-    return 0;
-  }
-  if (numTuples != B->GetNumberOfTuples())
-  {
-    vtkGenericWarningMacro("Arrays have different numbers of tuples.");
-    return 0;
-  }
-  if (A->GetName() && (strcmp(A->GetName(), B->GetName()) != 0))
-  {
-    vtkGenericWarningMacro("Arrays have different names.");
-    return 0;
-  }
-  switch (type)
-  {
-    vtkTemplateMacro(return CompareArrays(
-      (VTK_TT*)A->GetVoidPointer(0), (VTK_TT*)B->GetVoidPointer(0), numComponents * numTuples));
-    default:
-      vtkGenericWarningMacro("Invalid type?");
-  }
-  return 0;
-}
-
-static int CompareFieldData(vtkFieldData* fd1, vtkFieldData* fd2)
-{
-  if (fd1->GetNumberOfArrays() != fd2->GetNumberOfArrays())
-  {
-    vtkGenericWarningMacro(<< "Different number of arrays in " << fd1->GetClassName());
-    return 0;
-  }
-  for (int i = 0; i < fd1->GetNumberOfArrays(); i++)
-  {
-    vtkAbstractArray* array1 = fd1->GetAbstractArray(i);
-    // If the array does not have a name, then there is no good way to get
-    // the equivalent array on the other end since the arrays may not be in
-    // the same order.
-    if (!array1->GetName())
-      continue;
-    vtkAbstractArray* array2 = fd2->GetAbstractArray(array1->GetName());
-    if (!CompareDataArrays(
-          vtkArrayDownCast<vtkDataArray>(array1), vtkArrayDownCast<vtkDataArray>(array2)))
-      return 0;
-  }
-
-  return 1;
-}
-
-static int CompareDataSetAttributes(vtkDataSetAttributes* dsa1, vtkDataSetAttributes* dsa2)
-{
-  if (!CompareDataArrays(dsa1->GetScalars(), dsa2->GetScalars()))
-    return 0;
-
-  return CompareFieldData(dsa1, dsa2);
-}
-
-// This is not a complete comparison.  There are plenty of things not actually
-// checked.  It only checks vtkImageData and vtkPolyData in detail.
-static int CompareDataObjects(vtkDataObject* obj1, vtkDataObject* obj2)
-{
-  if (obj1->GetDataObjectType() != obj2->GetDataObjectType())
-  {
-    if (obj2->IsA(obj1->GetClassName()))
-    {
-      vtkLogF(WARNING,
-        "Data type was elevated in this transfer. "
-        "`vtkImageData` is known to have this issue :(");
-    }
-    else
-    {
-      vtkLogF(WARNING, "Data objects are not of the same type: '%s' != '%s'", obj1->GetClassName(),
-        obj2->GetClassName());
-      return 0;
-    }
-  }
-
-  if (!CompareFieldData(obj1->GetFieldData(), obj2->GetFieldData()))
-  {
-    return 0;
-  }
-
-  if (vtkCompositeDataSet::SafeDownCast(obj1))
-  {
-    auto datasets1 = vtkCompositeDataSet::GetDataSets(obj1);
-    auto datasets2 = vtkCompositeDataSet::GetDataSets(obj2);
-
-    if (datasets1.size() != datasets2.size())
-    {
-      vtkLogF(ERROR, "Composite dataset leaf nodes don't agree!");
-      return 0;
-    }
-
-    for (size_t cc = 0; cc < datasets1.size(); ++cc)
-    {
-      if (!::CompareDataObjects(datasets1[cc], datasets2[cc]))
-      {
-        return 0;
-      }
-    }
-
-    return 1;
-  }
-
-  vtkDataSet* ds1 = vtkDataSet::SafeDownCast(obj1);
-  vtkDataSet* ds2 = vtkDataSet::SafeDownCast(obj2);
-
-  if (ds1->GetNumberOfPoints() != ds2->GetNumberOfPoints())
-  {
-    vtkLogF(ERROR, "Point counts do not agree.");
-    return 0;
-  }
-  if (ds1->GetNumberOfCells() != ds2->GetNumberOfCells())
-  {
-    vtkLogF(ERROR, "Cell counts do not agree.");
-    return 0;
-  }
-
-  if (!CompareDataSetAttributes(ds1->GetPointData(), ds2->GetPointData()))
-  {
-    return 0;
-  }
-  if (!CompareDataSetAttributes(ds1->GetCellData(), ds2->GetCellData()))
-  {
-    return 0;
-  }
-
-  vtkImageData* id1 = vtkImageData::SafeDownCast(ds1);
-  vtkImageData* id2 = vtkImageData::SafeDownCast(ds1);
-  if (id1 && id2)
-  {
-    if ((id1->GetDataDimension() != id2->GetDataDimension()) ||
-      (id1->GetDimensions()[0] != id2->GetDimensions()[0]) ||
-      (id1->GetDimensions()[1] != id2->GetDimensions()[1]) ||
-      (id1->GetDimensions()[2] != id2->GetDimensions()[2]))
-    {
-      vtkLogF(ERROR, "Dimensions of image data do not agree.");
-      return 0;
-    }
-
-    if (!CompareArrays(id1->GetExtent(), id2->GetExtent(), 6))
-      return 0;
-    if (!CompareArrays(id1->GetSpacing(), id2->GetSpacing(), 3))
-      return 0;
-    if (!CompareArrays(id1->GetOrigin(), id2->GetOrigin(), 3))
-      return 0;
-  }
-
-  vtkPointSet* ps1 = vtkPointSet::SafeDownCast(ds1);
-  vtkPointSet* ps2 = vtkPointSet::SafeDownCast(ds2);
-  if (ps1 && ps2)
-  {
-    if (!CompareDataArrays(ps1->GetPoints()->GetData(), ps2->GetPoints()->GetData()))
-      return 0;
-
-    vtkPolyData* pd1 = vtkPolyData::SafeDownCast(ps1);
-    vtkPolyData* pd2 = vtkPolyData::SafeDownCast(ps2);
-
-    auto compareCellArrays = [](vtkCellArray* ca1, vtkCellArray* ca2) -> bool
-    {
-      return (CompareDataArrays(ca1->GetOffsetsArray(), ca2->GetOffsetsArray()) &&
-        CompareDataArrays(ca1->GetConnectivityArray(), ca2->GetConnectivityArray()));
-    };
-
-    if (pd1 && pd2)
-    {
-      if (!compareCellArrays(pd1->GetVerts(), pd2->GetVerts()) ||
-        !compareCellArrays(pd1->GetLines(), pd2->GetLines()) ||
-        !compareCellArrays(pd1->GetPolys(), pd2->GetPolys()) ||
-        !compareCellArrays(pd1->GetStrips(), pd2->GetStrips()))
-      {
-        return 0;
-      }
-    }
-  }
-
-  return 1;
-}
-
-//------------------------------------------------------------------------------
 template <class baseType, class arrayType>
 void ExerciseType(vtkMultiProcessController* controller)
 {
@@ -364,7 +134,6 @@ void ExerciseType(vtkMultiProcessController* controller)
   const int rank = controller->GetLocalProcessId();
   const int numProc = controller->GetNumberOfProcesses();
   int i;
-  int result;
   int srcProcessId;
   int destProcessId;
   vtkIdType length;
@@ -409,7 +178,7 @@ void ExerciseType(vtkMultiProcessController* controller)
   vtkNew<arrayType> tmpSource;
 
   COUT("Basic send and receive.");
-  result = 1;
+  bool result = true;
   buffer->Initialize();
   buffer->SetNumberOfComponents(1);
   buffer->SetNumberOfTuples(arraySize);
@@ -418,14 +187,14 @@ void ExerciseType(vtkMultiProcessController* controller)
     if (i < rank)
     {
       controller->Receive(buffer->GetPointer(0), arraySize, i, 9876);
-      result &= CompareArrays(sourceArrays[i]->GetPointer(0), buffer->GetPointer(0), arraySize);
+      result &= vtkTestUtilities::CompareAbstractArray(sourceArrays[i], buffer);
       controller->Send(sourceArrays[rank]->GetPointer(0), arraySize, i, 5432);
     }
     else if (i > rank)
     {
       controller->Send(sourceArrays[rank]->GetPointer(0), arraySize, i, 9876);
       controller->Receive(buffer->GetPointer(0), arraySize, i, 5432);
-      result &= CompareArrays(sourceArrays[i]->GetPointer(0), buffer->GetPointer(0), arraySize);
+      result &= vtkTestUtilities::CompareAbstractArray(sourceArrays[i], buffer);
     }
   }
   CheckSuccess(controller, result);
@@ -437,14 +206,13 @@ void ExerciseType(vtkMultiProcessController* controller)
     buffer->DeepCopy(sourceArrays[srcProcessId]);
   }
   controller->Broadcast(buffer->GetPointer(0), arraySize, srcProcessId);
-  result =
-    CompareArrays(sourceArrays[srcProcessId]->GetPointer(0), buffer->GetPointer(0), arraySize);
+  result = vtkTestUtilities::CompareAbstractArray(sourceArrays[srcProcessId], buffer, arraySize);
   CheckSuccess(controller, result);
 
   COUT("Gather");
   destProcessId = static_cast<int>(vtkMath::Random(0.0, numProc - 0.99));
   buffer->SetNumberOfTuples(numProc * arraySize);
-  result = 1;
+  result = true;
   if (rank == destProcessId)
   {
     controller->Gather(
@@ -456,7 +224,7 @@ void ExerciseType(vtkMultiProcessController* controller)
         if (sourceArrays[i]->GetValue(j) != buffer->GetValue(i * arraySize + j))
         {
           vtkGenericWarningMacro("Gathered array from " << i << " incorrect at " << j << ".");
-          result = 0;
+          result = false;
           break;
         }
       }
@@ -469,7 +237,7 @@ void ExerciseType(vtkMultiProcessController* controller)
   CheckSuccess(controller, result);
 
   COUT("All Gather");
-  result = 1;
+  result = true;
   controller->AllGather(sourceArrays[rank]->GetPointer(0), buffer->GetPointer(0), arraySize);
   for (i = 0; i < numProc; i++)
   {
@@ -478,7 +246,7 @@ void ExerciseType(vtkMultiProcessController* controller)
       if (sourceArrays[i]->GetValue(j) != buffer->GetValue(i * arraySize + j))
       {
         vtkGenericWarningMacro("Gathered array from " << i << " incorrect at " << j << ".");
-        result = 0;
+        result = false;
         break;
       }
     }
@@ -496,7 +264,7 @@ void ExerciseType(vtkMultiProcessController* controller)
   }
   destProcessId = static_cast<int>(vtkMath::Random(0.0, numProc - 0.01));
   buffer->SetNumberOfTuples(offsets[numProc - 1] + lengths[numProc - 1]);
-  result = 1;
+  result = true;
   if (rank == destProcessId)
   {
     controller->GatherV(sourceArrays[rank]->GetPointer(0), buffer->GetPointer(0), lengths[rank],
@@ -508,7 +276,7 @@ void ExerciseType(vtkMultiProcessController* controller)
         if (sourceArrays[i]->GetValue(j) != buffer->GetValue(offsets[i] + j))
         {
           vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
-          result = 0;
+          result = false;
           break;
         }
       }
@@ -532,7 +300,7 @@ void ExerciseType(vtkMultiProcessController* controller)
   }
   buffer->SetNumberOfTuples(offsets[numProc - 1] + lengths[numProc - 1]);
   buffer->Fill(0.);
-  result = 1;
+  result = true;
   controller->AllGatherV(sourceArrays[rank]->GetPointer(0), buffer->GetPointer(0), lengths[rank],
     lengths.data(), offsets.data());
   for (i = 0; i < numProc; i++)
@@ -542,7 +310,7 @@ void ExerciseType(vtkMultiProcessController* controller)
       if (sourceArrays[i]->GetValue(j) != buffer->GetValue(offsets[i] + j))
       {
         vtkGenericWarningMacro("Gathered array from " << i << " incorrect at " << j << ".");
-        result = 0;
+        result = false;
         break;
       }
     }
@@ -562,14 +330,14 @@ void ExerciseType(vtkMultiProcessController* controller)
   {
     controller->Scatter(nullptr, buffer->GetPointer(0), length, srcProcessId);
   }
-  result = 1;
+  result = true;
   for (i = 0; i < length; i++)
   {
     if (sourceArrays[srcProcessId]->GetValue(rank * length + i) != buffer->GetValue(i))
     {
       vtkGenericWarningMacro(<< "Scattered array from " << srcProcessId << " incorrect at " << i
                              << ".");
-      result = 0;
+      result = false;
       break;
     }
   }
@@ -593,13 +361,13 @@ void ExerciseType(vtkMultiProcessController* controller)
     controller->ScatterV(
       nullptr, buffer->GetPointer(0), lengths.data(), offsets.data(), lengths[rank], srcProcessId);
   }
-  result = 1;
+  result = true;
   for (i = 0; i < lengths[rank]; i++)
   {
     if (sourceArrays[srcProcessId]->GetValue(offsets[rank] + i) != buffer->GetValue(i))
     {
       vtkGenericWarningMacro(<< "Scattered array from " << srcProcessId << " incorrect.");
-      result = 0;
+      result = false;
       break;
     }
   }
@@ -611,7 +379,7 @@ void ExerciseType(vtkMultiProcessController* controller)
     COUT("Reduce");
     destProcessId = static_cast<int>(vtkMath::Random(0.0, numProc - 0.01));
     buffer->SetNumberOfTuples(arraySize);
-    result = 1;
+    result = true;
     controller->Reduce(sourceArrays[rank]->GetPointer(0), buffer->GetPointer(0), arraySize,
       vtkCommunicator::SUM_OP, destProcessId);
     if (rank == destProcessId)
@@ -625,7 +393,7 @@ void ExerciseType(vtkMultiProcessController* controller)
         {
           vtkGenericWarningMacro(<< "Unequal computation in reduce: " << total << " vs. "
                                  << buffer->GetValue(i));
-          result = 0;
+          result = false;
           break;
         }
       }
@@ -637,7 +405,7 @@ void ExerciseType(vtkMultiProcessController* controller)
   MatrixMultOperation operation;
   destProcessId = static_cast<int>(vtkMath::Random(0.0, numProc - 0.01));
   buffer->SetNumberOfTuples(arraySize);
-  result = 1;
+  result = true;
   controller->Reduce(
     sourceArrays[rank]->GetPointer(0), buffer->GetPointer(0), arraySize, &operation, destProcessId);
   vtkNew<arrayType> totalArray;
@@ -648,15 +416,9 @@ void ExerciseType(vtkMultiProcessController* controller)
   }
   if (rank == destProcessId)
   {
-    for (i = 0; i < arraySize; i++)
+    if (!vtkTestUtilities::CompareAbstractArray(totalArray, buffer))
     {
-      if (!AreEqual(totalArray->GetValue(i), buffer->GetValue(i)))
-      {
-        vtkGenericWarningMacro(<< "Unequal computation in reduce: " << totalArray->GetValue(i)
-                               << " vs. " << buffer->GetValue(i));
-        result = 0;
-        break;
-      }
+      result = false;
     }
   }
   CheckSuccess(controller, result);
@@ -666,7 +428,7 @@ void ExerciseType(vtkMultiProcessController* controller)
     // Sum operation not defined for char/byte in some MPI implementations.
     COUT("All Reduce");
     buffer->SetNumberOfTuples(arraySize);
-    result = 1;
+    result = true;
     controller->AllReduce(
       sourceArrays[rank]->GetPointer(0), buffer->GetPointer(0), arraySize, vtkCommunicator::SUM_OP);
     for (i = 0; i < arraySize; i++)
@@ -678,7 +440,7 @@ void ExerciseType(vtkMultiProcessController* controller)
       {
         vtkGenericWarningMacro(<< "Unequal computation in reduce: " << total << " vs. "
                                << buffer->GetValue(i));
-        result = 0;
+        result = false;
         break;
       }
     }
@@ -687,39 +449,33 @@ void ExerciseType(vtkMultiProcessController* controller)
 
   COUT("Custom All Reduce");
   buffer->SetNumberOfTuples(arraySize);
-  result = 1;
+  result = true;
   controller->AllReduce(
     sourceArrays[rank]->GetPointer(0), buffer->GetPointer(0), arraySize, &operation);
-  for (i = 0; i < arraySize; i++)
+  if (!vtkTestUtilities::CompareAbstractArray(totalArray, buffer))
   {
-    if (!AreEqual(totalArray->GetValue(i), buffer->GetValue(i)))
-    {
-      vtkGenericWarningMacro(<< "Unequal computation in reduce: " << totalArray->GetValue(i)
-                             << " vs. " << buffer->GetValue(i));
-      result = 0;
-      break;
-    }
+    result = false;
   }
   CheckSuccess(controller, result);
 
   //------------------------------------------------------------------
   // Repeat all the tests, but this time passing the vtkDataArray directly.
   COUT("Basic send and receive with vtkDataArray.");
-  result = 1;
+  result = true;
   buffer->Initialize();
   for (i = 0; i < numProc; i++)
   {
     if (i < rank)
     {
       controller->Receive(buffer, i, 9876);
-      result &= CompareDataArrays(sourceArrays[i], buffer);
+      result &= vtkTestUtilities::CompareAbstractArray(sourceArrays[i], buffer);
       controller->Send(sourceArrays[rank], i, 5432);
     }
     else if (i > rank)
     {
       controller->Send(sourceArrays[rank], i, 9876);
       controller->Receive(buffer, i, 5432);
-      result &= CompareDataArrays(sourceArrays[i], buffer);
+      result &= vtkTestUtilities::CompareAbstractArray(sourceArrays[i], buffer);
     }
   }
   CheckSuccess(controller, result);
@@ -731,7 +487,7 @@ void ExerciseType(vtkMultiProcessController* controller)
     {
       buffer->Initialize();
       controller->Receive(buffer, vtkMultiProcessController::ANY_SOURCE, 7127);
-      result &= CompareDataArrays(sourceArrays[0], buffer);
+      result &= vtkTestUtilities::CompareAbstractArray(sourceArrays[0], buffer);
     }
   }
   else
@@ -749,13 +505,13 @@ void ExerciseType(vtkMultiProcessController* controller)
     buffer->SetName(sourceArrays[srcProcessId]->GetName());
   }
   controller->Broadcast(buffer, srcProcessId);
-  result = CompareDataArrays(sourceArrays[srcProcessId], buffer);
+  result = vtkTestUtilities::CompareAbstractArray(sourceArrays[srcProcessId], buffer);
   CheckSuccess(controller, result);
 
   COUT("Gather with vtkDataArray");
   destProcessId = static_cast<int>(vtkMath::Random(0.0, numProc - 0.99));
   buffer->Initialize();
-  result = 1;
+  result = true;
   if (rank == destProcessId)
   {
     controller->Gather(sourceArrays[rank], buffer, destProcessId);
@@ -766,7 +522,7 @@ void ExerciseType(vtkMultiProcessController* controller)
         if (sourceArrays[i]->GetValue(j) != buffer->GetValue(i * arraySize + j))
         {
           vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
-          result = 0;
+          result = false;
           break;
         }
       }
@@ -791,7 +547,7 @@ void ExerciseType(vtkMultiProcessController* controller)
   tmpSource->DeepCopy(sourceArrays[rank]);
   tmpSource->SetNumberOfTuples(lengths[rank]);
   buffer->SetNumberOfTuples(offsets[numProc - 1] + lengths[numProc - 1]);
-  result = 1;
+  result = true;
   controller->GatherV(tmpSource, buffer, lengths.data(), offsets.data(), destProcessId);
   if (rank == destProcessId)
   {
@@ -802,7 +558,7 @@ void ExerciseType(vtkMultiProcessController* controller)
         if (sourceArrays[i]->GetValue(j) != buffer->GetValue(offsets[i] + j))
         {
           vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
-          result = 0;
+          result = false;
           break;
         }
       }
@@ -820,7 +576,7 @@ void ExerciseType(vtkMultiProcessController* controller)
   tmpSource->DeepCopy(sourceArrays[rank]);
   tmpSource->SetNumberOfTuples(lengths[rank]);
   buffer->Initialize();
-  result = 1;
+  result = true;
   if (rank == destProcessId)
   {
     controller->GatherV(tmpSource, buffer, destProcessId);
@@ -832,7 +588,7 @@ void ExerciseType(vtkMultiProcessController* controller)
         if (sourceArrays[i]->GetValue(j) != buffer->GetValue(k++))
         {
           vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
-          result = 0;
+          result = false;
           break;
         }
       }
@@ -846,7 +602,7 @@ void ExerciseType(vtkMultiProcessController* controller)
 
   COUT("All Gather with vtkDataArray");
   buffer->Initialize();
-  result = 1;
+  result = true;
   controller->AllGather(sourceArrays[rank], buffer);
   for (i = 0; i < numProc; i++)
   {
@@ -855,7 +611,7 @@ void ExerciseType(vtkMultiProcessController* controller)
       if (sourceArrays[i]->GetValue(j) != buffer->GetValue(i * arraySize + j))
       {
         vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
-        result = 0;
+        result = false;
         break;
       }
     }
@@ -874,7 +630,7 @@ void ExerciseType(vtkMultiProcessController* controller)
   tmpSource->DeepCopy(sourceArrays[rank]);
   tmpSource->SetNumberOfTuples(lengths[rank]);
   buffer->SetNumberOfTuples(offsets[numProc - 1] + lengths[numProc - 1]);
-  result = 1;
+  result = true;
   controller->AllGatherV(tmpSource, buffer, lengths.data(), offsets.data());
   for (i = 0; i < numProc; i++)
   {
@@ -883,7 +639,7 @@ void ExerciseType(vtkMultiProcessController* controller)
       if (sourceArrays[i]->GetValue(j) != buffer->GetValue(offsets[i] + j))
       {
         vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
-        result = 0;
+        result = false;
         break;
       }
     }
@@ -899,7 +655,7 @@ void ExerciseType(vtkMultiProcessController* controller)
   tmpSource->DeepCopy(sourceArrays[rank]);
   tmpSource->SetNumberOfTuples(lengths[rank]);
   buffer->Initialize();
-  result = 1;
+  result = true;
   controller->AllGatherV(tmpSource, buffer);
   int k = 0;
   for (i = 0; i < numProc; i++)
@@ -909,7 +665,7 @@ void ExerciseType(vtkMultiProcessController* controller)
       if (sourceArrays[i]->GetValue(j) != buffer->GetValue(k++))
       {
         vtkGenericWarningMacro("Gathered array from " << i << " incorrect.");
-        result = 0;
+        result = false;
         break;
       }
     }
@@ -928,13 +684,13 @@ void ExerciseType(vtkMultiProcessController* controller)
   {
     controller->Scatter(nullptr, buffer, srcProcessId);
   }
-  result = 1;
+  result = true;
   for (i = 0; i < length; i++)
   {
     if (sourceArrays[srcProcessId]->GetValue(rank * length + i) != buffer->GetValue(i))
     {
       vtkGenericWarningMacro(<< "Scattered array from " << srcProcessId << " incorrect.");
-      result = 0;
+      result = false;
       break;
     }
   }
@@ -946,7 +702,7 @@ void ExerciseType(vtkMultiProcessController* controller)
     COUT("Reduce with vtkDataArray");
     destProcessId = static_cast<int>(vtkMath::Random(0.0, numProc - 0.01));
     buffer->Initialize();
-    result = 1;
+    result = true;
     controller->Reduce(sourceArrays[rank], buffer, vtkCommunicator::SUM_OP, destProcessId);
     if (rank == destProcessId)
     {
@@ -959,7 +715,7 @@ void ExerciseType(vtkMultiProcessController* controller)
         {
           vtkGenericWarningMacro(<< "Unequal computation in reduce: " << total << " vs. "
                                  << buffer->GetValue(i));
-          result = 0;
+          result = false;
           break;
         }
       }
@@ -970,19 +726,13 @@ void ExerciseType(vtkMultiProcessController* controller)
   COUT("Custom Reduce with vtkDataArray");
   destProcessId = static_cast<int>(vtkMath::Random(0.0, numProc - 0.01));
   buffer->Initialize();
-  result = 1;
+  result = true;
   controller->Reduce(sourceArrays[rank], buffer, &operation, destProcessId);
   if (rank == destProcessId)
   {
-    for (i = 0; i < arraySize; i++)
+    if (!vtkTestUtilities::CompareAbstractArray(totalArray, buffer))
     {
-      if (!AreEqual(totalArray->GetValue(i), buffer->GetValue(i)))
-      {
-        vtkGenericWarningMacro(<< "Unequal computation in reduce: " << totalArray->GetValue(i)
-                               << " vs. " << buffer->GetValue(i));
-        result = 0;
-        break;
-      }
+      result = false;
     }
   }
   CheckSuccess(controller, result);
@@ -992,7 +742,7 @@ void ExerciseType(vtkMultiProcessController* controller)
     // Sum operation not defined for char/byte in some MPI implementations.
     COUT("All Reduce with vtkDataArray");
     buffer->Initialize();
-    result = 1;
+    result = true;
     controller->AllReduce(sourceArrays[rank], buffer, vtkCommunicator::SUM_OP);
     for (i = 0; i < arraySize; i++)
     {
@@ -1003,7 +753,7 @@ void ExerciseType(vtkMultiProcessController* controller)
       {
         vtkGenericWarningMacro(<< "Unequal computation in reduce: " << total << " vs. "
                                << buffer->GetValue(i));
-        result = 0;
+        result = false;
         break;
       }
     }
@@ -1012,17 +762,11 @@ void ExerciseType(vtkMultiProcessController* controller)
 
   COUT("Custom All Reduce with vtkDataArray");
   buffer->Initialize();
-  result = 1;
+  result = true;
   controller->AllReduce(sourceArrays[rank], buffer, &operation);
-  for (i = 0; i < arraySize; i++)
+  if (!vtkTestUtilities::CompareAbstractArray(totalArray, buffer))
   {
-    if (!AreEqual(totalArray->GetValue(i), buffer->GetValue(i)))
-    {
-      vtkGenericWarningMacro(<< "Unequal computation in reduce: " << totalArray->GetValue(i)
-                             << " vs. " << buffer->GetValue(i));
-      result = 0;
-      break;
-    }
+    result = false;
   }
   CheckSuccess(controller, result);
 }
@@ -1036,17 +780,16 @@ static void ExerciseDataObject(
 
   const int rank = controller->GetLocalProcessId();
   const int numProc = controller->GetNumberOfProcesses();
-  int result;
+  bool result = true;
 
   COUT("Basic send and receive with vtkDataObject.");
-  result = 1;
   for (int i = 0; i < numProc; i++)
   {
     if (i < rank)
     {
       buffer->Initialize();
       controller->Receive(buffer, i, 9876);
-      result &= CompareDataObjects(source, buffer);
+      result &= vtkTestUtilities::CompareDataObjects(source, buffer);
       controller->Send(source, i, 5432);
     }
     else if (i > rank)
@@ -1054,7 +797,7 @@ static void ExerciseDataObject(
       controller->Send(source, i, 9876);
       buffer->Initialize();
       controller->Receive(buffer, i, 5432);
-      result &= CompareDataObjects(source, buffer);
+      result &= vtkTestUtilities::CompareDataObjects(source, buffer);
     }
   }
   CheckSuccess(controller, result);
@@ -1066,7 +809,7 @@ static void ExerciseDataObject(
     {
       buffer->Initialize();
       controller->Receive(buffer, vtkMultiProcessController::ANY_SOURCE, 3462);
-      result &= CompareDataObjects(source, buffer);
+      result &= vtkTestUtilities::CompareDataObjects(source, buffer);
     }
   }
   else
@@ -1083,7 +826,7 @@ static void ExerciseDataObject(
     buffer->DeepCopy(source);
   }
   controller->Broadcast(buffer, srcProcessId);
-  result = CompareDataObjects(source, buffer);
+  result = vtkTestUtilities::CompareDataObjects(source, buffer);
   CheckSuccess(controller, result);
 
   COUT("AllGather with vtkDataObject");
@@ -1098,7 +841,7 @@ static void ExerciseDataObject(
   {
     for (auto& dobj : bufferVec)
     {
-      result &= CompareDataObjects(source, dobj);
+      result &= vtkTestUtilities::CompareDataObjects(source, dobj);
     }
   }
 
@@ -1117,7 +860,7 @@ static void ExerciseDataObject(
     {
       for (auto& dobj : bufferVec)
       {
-        result &= CompareDataObjects(source, dobj);
+        result &= vtkTestUtilities::CompareDataObjects(source, dobj);
       }
     }
   }

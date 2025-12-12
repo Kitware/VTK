@@ -274,7 +274,8 @@ vtkSmartPointer<vtkDataArray> GetData(const Ioss::GroupingEntity* entity,
   // vtkLogF(TRACE, "%s: size: %d * %d", fieldname.c_str(), (int)field.raw_count(),
   //  (int)field.raw_storage()->component_count());
   auto array = vtkIOSSUtilities::CreateArray(field);
-  auto count = -1;
+  assert(array->HasStandardMemoryLayout() && "Array must have standard memory layout");
+  int64_t count;
   if (field.zero_copy_enabled())
   {
     void* data;
@@ -284,7 +285,7 @@ vtkSmartPointer<vtkDataArray> GetData(const Ioss::GroupingEntity* entity,
   }
   else
   {
-    count = entity->get_field_data(
+    count = entity->get_field_data( // NOLINTNEXTLINE(bugprone-unsafe-functions)
       fieldname, array->GetVoidPointer(0), array->GetDataSize() * array->GetDataTypeSize());
   }
 
@@ -295,7 +296,7 @@ vtkSmartPointer<vtkDataArray> GetData(const Ioss::GroupingEntity* entity,
   if (transform)
   {
     field.add_transform(transform); // The raw pointer is stored as a shared pointer internally
-    field.transform(array->GetVoidPointer(0));
+    field.transform(array->GetVoidPointer(0)); // NOLINT(bugprone-unsafe-functions)
   }
 
   // Check for Transient 2D data that should be 3D for WarpByVector/Glyphs

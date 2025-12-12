@@ -22,6 +22,7 @@
 #include "vtkOpenGLState.h"
 #include "vtkPNGWriter.h"
 #include "vtkParallelRenderManager.h"
+#include "vtkPointData.h"
 #include "vtkRenderWindow.h"
 #include "vtkSynchronizableActors.h"
 #include "vtkSynchronizableAvatars.h"
@@ -702,18 +703,17 @@ void vtkSynchronizedRenderers::vtkRawImage::SaveAsPNG(const char* filename)
     return;
   }
 
-  vtkImageData* img = vtkImageData::New();
+  vtkNew<vtkImageData> img;
   img->SetDimensions(this->Size[0], this->Size[1], 1);
   img->AllocateScalars(VTK_UNSIGNED_CHAR, this->Data->GetNumberOfComponents());
-  memcpy(img->GetScalarPointer(), this->GetRawPtr()->GetVoidPointer(0),
-    sizeof(unsigned char) * this->Size[0] * this->Size[1] * this->Data->GetNumberOfComponents());
+  auto scalars = vtkUnsignedCharArray::FastDownCast(img->GetPointData()->GetScalars());
+  std::copy_n(this->GetRawPtr()->GetPointer(0),
+    this->Size[0] * this->Size[1] * this->Data->GetNumberOfComponents(), scalars->GetPointer(0));
 
-  vtkPNGWriter* writer = vtkPNGWriter::New();
+  vtkNew<vtkPNGWriter> writer;
   writer->SetFileName(filename);
   writer->SetInputData(img);
   writer->Write();
-  writer->Delete();
-  img->Delete();
 }
 
 //------------------------------------------------------------------------------
@@ -779,7 +779,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::PushToFrameBuffer(vtkRenderer* ren, 
   renWin->DrawPixels(low_point[0], low_point[1], low_point[0] + size[0] - 1,
     low_point[1] + size[1] - 1, 0, 0, this->GetWidth() - 1, this->GetHeight() - 1, this->GetWidth(),
     this->GetHeight(), this->Data->GetNumberOfComponents(), VTK_UNSIGNED_CHAR,
-    this->GetRawPtr()->GetVoidPointer(0));
+    this->GetRawPtr()->GetPointer(0));
 
   vtkOpenGLStaticCheckErrorMacro("failed after PushToFrameBuffer");
   vtkOpenGLRenderUtilities::MarkDebugEvent("vtkRawImage::PushToViewport end");
@@ -822,7 +822,7 @@ bool vtkSynchronizedRenderers::vtkRawImage::Capture(vtkRenderer* ren)
   if (sel)
   {
     unsigned char* passdata = sel->GetPixelBuffer(sel->GetCurrentPass());
-    unsigned char* destdata = static_cast<unsigned char*>(this->GetRawPtr()->GetVoidPointer(0));
+    unsigned char* destdata = this->GetRawPtr()->GetPointer(0);
     if (passdata && destdata)
     {
       unsigned int* area = sel->GetArea();

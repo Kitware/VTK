@@ -4,13 +4,12 @@
 
 #include "vtkAMRBox.h"
 #include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkImageData.h"
-#include "vtkOSPRayCache.h"
 #include "vtkOSPRayRendererNode.h"
 #include "vtkObjectFactory.h"
 #include "vtkOverlappingAMR.h"
 #include "vtkOverlappingAMRMetaData.h"
-#include "vtkRenderer.h"
 #include "vtkSmartPointer.h"
 #include "vtkUniformGridAMRIterator.h"
 #include "vtkVolume.h"
@@ -144,22 +143,11 @@ void vtkOSPRayAMRVolumeMapperNode::Render(bool prepass)
         }
 
         OSPData odata;
-        if (cellArray->GetDataType() != VTK_FLOAT)
-        {
-          std::vector<float> fdata(dim[0] * dim[1] * dim[2]);
-          for (int i = 0; i < dim[0] * dim[1] * dim[2]; i++)
-          {
-            fdata[i] = static_cast<float>(cellArray->GetTuple(i)[0]);
-          }
-          odata = ospNewCopyData1D(fdata.data(), OSP_FLOAT, dim[0] * dim[1] * dim[2]);
-          ospCommit(odata);
-        }
-        else
-        {
-          odata = ospNewSharedData1D(reinterpret_cast<float*>(cellArray->GetVoidPointer(0)),
-            OSP_FLOAT, dim[0] * dim[1] * dim[2]);
-          ospCommit(odata);
-        }
+        vtkNew<vtkFloatArray> floatCellArray;
+        floatCellArray->ShallowCopy(cellArray); // convert if needed
+        odata =
+          ospNewSharedData1D(floatCellArray->GetPointer(0), OSP_FLOAT, dim[0] * dim[1] * dim[2]);
+        ospCommit(odata);
 
         brickDataArray.push_back(odata);
         blockLevelArray.push_back(level);

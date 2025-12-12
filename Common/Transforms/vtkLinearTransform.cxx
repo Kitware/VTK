@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkLinearTransform.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkDataArray.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
@@ -77,66 +79,69 @@ inline void vtkLinearTransformNormal(T1 mat[4][4], T2 in[3], T3 out[3])
 }
 
 //------------------------------------------------------------------------------
-template <class T1, class T2, class T3>
-inline void vtkLinearTransformPoints(T1 matrix[4][4], T2* in, T3* out, vtkIdType n)
+struct vtkLinearTransformPointsWorker
 {
-  // We use THRESHOLD to test if the data size is small enough
-  // to execute the functor serially. It's faster for a smaller number of transformation.
-  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
-    [&](vtkIdType ptId, vtkIdType endPtId)
-    {
-      T2* pin = in + 3 * ptId;
-      T3* pout = out + 3 * ptId;
-      for (; ptId < endPtId; ++ptId)
+  template <class TArrayIn, class TArrayOut, class T>
+  void operator()(TArrayIn* inArray, TArrayOut* outArray, vtkIdType outBeginTuple, T matrix[4][4])
+  {
+    // We use THRESHOLD to test if the data size is small enough
+    // to execute the functor serially. It's faster for a smaller number of transformation.
+    vtkSMPTools::For(0, inArray->GetNumberOfTuples(), vtkSMPTools::THRESHOLD,
+      [&](vtkIdType ptId, vtkIdType endPtId)
       {
-        vtkLinearTransformPoint(matrix, pin, pout);
-        pin += 3;
-        pout += 3;
-      }
-    });
-}
+        auto pin = inArray->GetPointer(3 * ptId);
+        auto pout = outArray->GetPointer(3 * (outBeginTuple + ptId));
+        for (; ptId < endPtId; ++ptId, pin += 3, pout += 3)
+        {
+          vtkLinearTransformPoint(matrix, pin, pout);
+        }
+      });
+  }
+};
 
 //------------------------------------------------------------------------------
-template <class T1, class T2, class T3>
-inline void vtkLinearTransformVectors(T1 matrix[4][4], T2* in, T3* out, vtkIdType n)
+struct vtkLinearTransformVectorsWorker
 {
-  // We use THRESHOLD to test if the data size is small enough
-  // to execute the functor serially. It's faster for a smaller number of transformation.
-  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
-    [&](vtkIdType ptId, vtkIdType endPtId)
-    {
-      T2* pin = in + 3 * ptId;
-      T3* pout = out + 3 * ptId;
-      for (; ptId < endPtId; ++ptId)
+  template <class TArrayIn, class TArrayOut, class T>
+  void operator()(TArrayIn* inArray, TArrayOut* outArray, vtkIdType outBeginTuple, T matrix[4][4])
+  {
+    // We use THRESHOLD to test if the data size is small enough
+    // to execute the functor serially. It's faster for a smaller number of transformation.
+    vtkSMPTools::For(0, inArray->GetNumberOfTuples(), vtkSMPTools::THRESHOLD,
+      [&](vtkIdType ptId, vtkIdType endPtId)
       {
-        vtkLinearTransformVector(matrix, pin, pout);
-        pin += 3;
-        pout += 3;
-      }
-    });
-}
+        auto pin = inArray->GetPointer(3 * ptId);
+        auto pout = outArray->GetPointer(3 * (outBeginTuple + ptId));
+        for (; ptId < endPtId; ++ptId, pin += 3, pout += 3)
+        {
+          vtkLinearTransformVector(matrix, pin, pout);
+        }
+      });
+  }
+};
 
 //------------------------------------------------------------------------------
-template <class T1, class T2, class T3>
-inline void vtkLinearTransformNormals(T1 matrix[4][4], T2* in, T3* out, vtkIdType n)
+struct vtkLinearTransformNormalsWorker
 {
-  // We use THRESHOLD to test if the data size is small enough
-  // to execute the functor serially. It's faster for a smaller number of transformation.
-  vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
-    [&](vtkIdType ptId, vtkIdType endPtId)
-    {
-      T2* pin = in + 3 * ptId;
-      T3* pout = out + 3 * ptId;
-      for (; ptId < endPtId; ++ptId)
+  template <class TArrayIn, class TArrayOut, class T>
+  void operator()(TArrayIn* inArray, TArrayOut* outArray, vtkIdType outBeginTuple, T matrix[4][4])
+  {
+    // We use THRESHOLD to test if the data size is small enough
+    // to execute the functor serially. It's faster for a smaller number of transformation.
+    vtkSMPTools::For(0, inArray->GetNumberOfTuples(), vtkSMPTools::THRESHOLD,
+      [&](vtkIdType ptId, vtkIdType endPtId)
       {
-        // matrix has been transposed & inverted, so use TransformVector
-        vtkLinearTransformVector(matrix, pin, pout);
-        vtkMath::Normalize(pout);
-        pin += 3;
-        pout += 3;
-      }
-    });
-}
+        auto pin = inArray->GetPointer(3 * ptId);
+        auto pout = outArray->GetPointer(3 * (outBeginTuple + ptId));
+        for (; ptId < endPtId; ++ptId, pin += 3, pout += 3)
+        {
+          // matrix has been transposed & inverted, so use TransformVector
+          vtkLinearTransformVector(matrix, pin, pout);
+          vtkMath::Normalize(pout);
+        }
+      });
+  }
+};
 
 } // anonymous namespace
 
@@ -231,28 +236,11 @@ void vtkLinearTransform::TransformPoints(vtkPoints* inPts, vtkPoints* outPts)
   // operate directly on the memory to avoid GetPoint()/SetPoint() calls.
   vtkDataArray* inArray = inPts->GetData();
   vtkDataArray* outArray = outPts->GetData();
-  int inType = inArray->GetDataType();
-  int outType = outArray->GetDataType();
-  void* inPtr = inArray->GetVoidPointer(0);
-  void* outPtr = outArray->WriteVoidPointer(3 * m, 3 * n);
+  outArray->WriteVoidPointer(3 * m, 3 * n);
 
-  if (inType == VTK_FLOAT && outType == VTK_FLOAT)
-  {
-    vtkLinearTransformPoints(matrix, static_cast<float*>(inPtr), static_cast<float*>(outPtr), n);
-  }
-  else if (inType == VTK_FLOAT && outType == VTK_DOUBLE)
-  {
-    vtkLinearTransformPoints(matrix, static_cast<float*>(inPtr), static_cast<double*>(outPtr), n);
-  }
-  else if (inType == VTK_DOUBLE && outType == VTK_FLOAT)
-  {
-    vtkLinearTransformPoints(matrix, static_cast<double*>(inPtr), static_cast<float*>(outPtr), n);
-  }
-  else if (inType == VTK_DOUBLE && outType == VTK_DOUBLE)
-  {
-    vtkLinearTransformPoints(matrix, static_cast<double*>(inPtr), static_cast<double*>(outPtr), n);
-  }
-  else
+  vtkLinearTransformPointsWorker worker;
+  if (!vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::AOSPointArrays,
+        vtkArrayDispatch::AOSPointArrays>::Execute(inArray, outArray, worker, m, matrix))
   {
     // for anything that isn't float or double
     vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
@@ -284,28 +272,11 @@ void vtkLinearTransform::TransformNormals(vtkDataArray* inNms, vtkDataArray* out
   vtkMatrix4x4::Transpose(*matrix, *matrix);
 
   // operate directly on the memory to avoid GetTuple()/SetPoint() calls.
-  int inType = inNms->GetDataType();
-  int outType = outNms->GetDataType();
-  void* inPtr = inNms->GetVoidPointer(0);
-  void* outPtr = outNms->WriteVoidPointer(3 * m, 3 * n);
+  outNms->WriteVoidPointer(3 * m, 3 * n);
 
-  if (inType == VTK_FLOAT && outType == VTK_FLOAT)
-  {
-    vtkLinearTransformNormals(matrix, static_cast<float*>(inPtr), static_cast<float*>(outPtr), n);
-  }
-  else if (inType == VTK_FLOAT && outType == VTK_DOUBLE)
-  {
-    vtkLinearTransformNormals(matrix, static_cast<float*>(inPtr), static_cast<double*>(outPtr), n);
-  }
-  else if (inType == VTK_DOUBLE && outType == VTK_FLOAT)
-  {
-    vtkLinearTransformNormals(matrix, static_cast<double*>(inPtr), static_cast<float*>(outPtr), n);
-  }
-  else if (inType == VTK_DOUBLE && outType == VTK_DOUBLE)
-  {
-    vtkLinearTransformNormals(matrix, static_cast<double*>(inPtr), static_cast<double*>(outPtr), n);
-  }
-  else
+  vtkLinearTransformNormalsWorker worker;
+  if (!vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::AOSPointArrays,
+        vtkArrayDispatch::AOSPointArrays>::Execute(inNms, outNms, worker, m, matrix))
   {
     // for anything that isn't float or double
     vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,
@@ -335,28 +306,11 @@ void vtkLinearTransform::TransformVectors(vtkDataArray* inVrs, vtkDataArray* out
   this->Update();
 
   // operate directly on the memory to avoid GetTuple()/SetTuple() calls.
-  int inType = inVrs->GetDataType();
-  int outType = outVrs->GetDataType();
-  void* inPtr = inVrs->GetVoidPointer(0);
-  void* outPtr = outVrs->WriteVoidPointer(3 * m, 3 * n);
+  outVrs->WriteVoidPointer(3 * m, 3 * n);
 
-  if (inType == VTK_FLOAT && outType == VTK_FLOAT)
-  {
-    vtkLinearTransformVectors(matrix, static_cast<float*>(inPtr), static_cast<float*>(outPtr), n);
-  }
-  else if (inType == VTK_FLOAT && outType == VTK_DOUBLE)
-  {
-    vtkLinearTransformVectors(matrix, static_cast<float*>(inPtr), static_cast<double*>(outPtr), n);
-  }
-  else if (inType == VTK_DOUBLE && outType == VTK_FLOAT)
-  {
-    vtkLinearTransformVectors(matrix, static_cast<double*>(inPtr), static_cast<float*>(outPtr), n);
-  }
-  else if (inType == VTK_DOUBLE && outType == VTK_DOUBLE)
-  {
-    vtkLinearTransformVectors(matrix, static_cast<double*>(inPtr), static_cast<double*>(outPtr), n);
-  }
-  else
+  vtkLinearTransformVectorsWorker worker;
+  if (!vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::AOSPointArrays,
+        vtkArrayDispatch::AOSPointArrays>::Execute(inVrs, outVrs, worker, m, matrix))
   {
     // for anything that isn't float or double
     vtkSMPTools::For(0, n, vtkSMPTools::THRESHOLD,

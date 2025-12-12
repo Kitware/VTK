@@ -2,13 +2,13 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkHierarchicalBinningFilter.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
-#include "vtkFieldData.h"
-#include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
@@ -309,16 +309,9 @@ struct BinTree : public vtkBinTree
     // one extra allocation to simplify traversal
     this->Map = new BinTuple<TIds>[this->NumPts + 1];
     this->Map[this->NumPts].Bin = this->NumBins;
-    if (offsetsType == VTK_INT)
-    {
-      this->OffsetsArray = vtkIntArray::New();
-    }
-    else
-    {
-      this->OffsetsArray = vtkIdTypeArray::New();
-    }
+    this->OffsetsArray = vtkAOSDataArrayTemplate<TIds>::New();
     this->OffsetsArray->SetNumberOfTuples(this->NumBins + 1);
-    this->Offsets = static_cast<TIds*>(this->OffsetsArray->GetVoidPointer(0));
+    this->Offsets = vtkAOSDataArrayTemplate<TIds>::FastDownCast(this->OffsetsArray)->GetPointer(0);
     this->Offsets[this->NumBins] = this->NumPts;
   }
 
@@ -341,14 +334,14 @@ struct BinTree : public vtkBinTree
 
   // Explicit point representation (e.g., vtkPointSet), faster path
   template <typename T, typename TPts>
-  class MapPoints
+  class MapPointsFunctor
   {
   public:
     BinTree<T>* Tree;
-    const TPts* Points;
+    TPts* Points;
     int Thresh[VTK_MAX_LEVEL];
 
-    MapPoints(BinTree<T>* tree, const TPts* pts)
+    MapPointsFunctor(BinTree<T>* tree, TPts* pts)
       : Tree(tree)
       , Points(pts)
     {
@@ -361,16 +354,15 @@ struct BinTree : public vtkBinTree
     void operator()(vtkIdType ptId, vtkIdType end)
     {
       double p[3];
-      const TPts* x = this->Points + 3 * ptId;
+      auto points = vtk::DataArrayTupleRange<3>(this->Points);
+      auto x = points.begin() + ptId;
       BinTuple<T>* t = this->Tree->Map + ptId;
       int numLevels = this->Tree->NumLevels;
       int level, idx, numBins = this->Tree->NumBins;
-      for (; ptId < end; ++ptId, x += 3, ++t)
+      for (; ptId < end; ++ptId, ++x, ++t)
       {
         t->PtId = ptId;
-        p[0] = static_cast<double>(x[0]);
-        p[1] = static_cast<double>(x[1]);
-        p[2] = static_cast<double>(x[2]);
+        x->GetTuple(p);
         idx = ptId % numBins;
 
         for (level = numLevels - 1; idx < this->Thresh[level]; --level)
@@ -378,6 +370,16 @@ struct BinTree : public vtkBinTree
         }
         t->Bin = this->Tree->Tree[level]->GetBinIndex(p);
       } // for all points in this batch
+    }
+  };
+
+  struct MapPointsWorker
+  {
+    template <typename TPts>
+    void operator()(TPts* inPts, BinTree<TIds>* tree)
+    {
+      MapPointsFunctor<TIds, TPts> functor(tree, inPts);
+      vtkSMPTools::For(0, tree->NumPts, functor);
     }
   };
 
@@ -482,19 +484,16 @@ struct BinTree : public vtkBinTree
 
   //----------------------------------------------------------------------------
   // Copy data arrays to output
-  template <typename T, typename TA>
-  struct ShuffleArray
+  template <typename T, typename TInArray, typename TOutArray,
+    int TupleSize = vtk::detail::DynamicTupleSize>
+  struct ShuffleArrayFunctor
   {
     BinTree<T>* Tree;
-    vtkIdType NumPts;
-    int NumComp;
-    TA* InArray;
-    TA* OutArray;
+    TInArray* InArray;
+    TOutArray* OutArray;
 
-    ShuffleArray(BinTree<T>* tree, vtkIdType numPts, int numComp, TA* in, TA* out)
+    ShuffleArrayFunctor(BinTree<T>* tree, TInArray* in, TOutArray* out)
       : Tree(tree)
-      , NumPts(numPts)
-      , NumComp(numComp)
       , InArray(in)
       , OutArray(out)
     {
@@ -503,50 +502,40 @@ struct BinTree : public vtkBinTree
     void operator()(vtkIdType ptId, vtkIdType endPtId)
     {
       BinTuple<TIds>* map = this->Tree->Map + ptId;
-      TA* y = this->OutArray + this->NumComp * ptId;
-      TA* x;
-      int i;
+      auto in = vtk::DataArrayTupleRange<TupleSize>(this->InArray);
+      auto out = vtk::DataArrayTupleRange<TupleSize>(this->OutArray);
+      auto y = out.begin() + ptId;
 
-      for (; ptId < endPtId; ++ptId, ++map)
+      for (; ptId < endPtId; ++ptId, ++map, ++y)
       {
-        x = this->InArray + this->NumComp * map->PtId;
-        for (i = 0; i < this->NumComp; ++i)
-        {
-          *y++ = *x++;
-        }
+        auto x = in.begin() + map->PtId;
+        *y = *x;
       }
     }
+  }; // ShuffleArrayFunctor
 
-    static void Execute(BinTree<TIds>* tree, vtkIdType numPts, int numComp, TA* in, TA* out)
+  template <typename T, int TupleSize = vtk::detail::DynamicTupleSize>
+  struct ShuffleArrayWorker
+  {
+    template <typename TInArray, typename TOutArray>
+    void operator()(TInArray* inArray, TOutArray* outArray, BinTree<T>* tree)
     {
-      ShuffleArray<TIds, TA> shuffle(tree, numPts, numComp, in, out);
-      vtkSMPTools::For(0, numPts, shuffle);
+      ShuffleArrayFunctor<T, TInArray, TOutArray, TupleSize> functor(tree, inArray, outArray);
+      vtkSMPTools::For(0, outArray->GetNumberOfTuples(), functor);
     }
-
-  }; // ShuffleArray
+  };
 
   // Bin the points, produce output
   void Execute(vtkPointSet* input, vtkPolyData* output) override
   {
-    vtkPoints* inPts = input->GetPoints();
-    void* pts = inPts->GetVoidPointer(0);
-    vtkPoints* outPts = output->GetPoints();
-    int dataType = inPts->GetDataType();
+    vtkDataArray* inPts = input->GetPoints()->GetData();
+    vtkDataArray* outPts = output->GetPoints()->GetData();
 
-    if (dataType == VTK_FLOAT)
+    MapPointsWorker mapWorker;
+    if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
+          inPts, mapWorker, this))
     {
-      MapPoints<TIds, float> mapper(this, static_cast<float*>(pts));
-      vtkSMPTools::For(0, this->NumPts, mapper);
-    }
-    else if (dataType == VTK_DOUBLE)
-    {
-      MapPoints<TIds, double> mapper(this, static_cast<double*>(pts));
-      vtkSMPTools::For(0, this->NumPts, mapper);
-    }
-    else
-    {
-      vtkGenericWarningMacro("Type not supported\n");
-      return;
+      mapWorker(inPts, this);
     }
 
     // Now gather the points into contiguous runs in bins
@@ -567,19 +556,11 @@ struct BinTree : public vtkBinTree
     this->ExportMetaData(output);
 
     // Shuffle the points around
-    if (dataType == VTK_FLOAT)
+    ShuffleArrayWorker<TIds, 3> pointsWorker;
+    if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::PointArrays,
+          vtkArrayDispatch::AOSPointArrays>::Execute(inPts, outPts, pointsWorker, this))
     {
-      ShufflePoints<TIds, float> shuffle(this, this->NumPts,
-        static_cast<float*>(inPts->GetVoidPointer(0)),
-        static_cast<float*>(outPts->GetVoidPointer(0)));
-      vtkSMPTools::For(0, this->NumPts, shuffle);
-    }
-    else if (dataType == VTK_DOUBLE)
-    {
-      ShufflePoints<TIds, double> shuffle(this, this->NumPts,
-        static_cast<double*>(inPts->GetVoidPointer(0)),
-        static_cast<double*>(outPts->GetVoidPointer(0)));
-      vtkSMPTools::For(0, this->NumPts, shuffle);
+      pointsWorker(inPts, outPts, this);
     }
 
     // Now shuffle the data arrays
@@ -587,60 +568,26 @@ struct BinTree : public vtkBinTree
     vtkPointData* outPD = output->GetPointData();
     outPD->CopyAllocate(inPD, this->NumPts);
 
-    const char* name;
-    vtkDataArray *iArray, *oArray;
-    void *iD, *oD;
-    int i, numComp, numArrays = inPD->GetNumberOfArrays();
-    for (i = 0; i < numArrays; ++i)
+    for (int i = 0, numArrays = inPD->GetNumberOfArrays(); i < numArrays; ++i)
     {
-      iArray = inPD->GetArray(i);
+      vtkDataArray* iArray = inPD->GetArray(i);
       if (iArray)
       {
-        name = iArray->GetName();
-        numComp = iArray->GetNumberOfComponents();
-        oArray = outPD->GetArray(name);
+        const char* name = iArray->GetName();
+        vtkDataArray* oArray = outPD->GetArray(name);
         if (!oArray)
         {
           continue;
         }
         oArray->SetNumberOfTuples(this->NumPts);
-        iD = iArray->GetVoidPointer(0);
-        oD = oArray->GetVoidPointer(0);
-        switch (iArray->GetDataType()) // template macro burps on multiple template parameters
+        ShuffleArrayWorker<TIds> arrayWorker;
+        if (!vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::PointArrays,
+              vtkArrayDispatch::AOSPointArrays>::Execute(iArray, oArray, arrayWorker, this))
         {
-          case VTK_FLOAT:
-            ShuffleArray<TIds, float>::Execute(this, this->NumPts, numComp, (float*)iD, (float*)oD);
-            break;
-          case VTK_DOUBLE:
-            ShuffleArray<TIds, double>::Execute(
-              this, this->NumPts, numComp, (double*)iD, (double*)oD);
-            break;
-          case VTK_INT:
-            ShuffleArray<TIds, int>::Execute(this, this->NumPts, numComp, (int*)iD, (int*)oD);
-            break;
-          case VTK_UNSIGNED_INT:
-            ShuffleArray<TIds, unsigned int>::Execute(
-              this, this->NumPts, numComp, (unsigned int*)iD, (unsigned int*)oD);
-            break;
-          case VTK_CHAR:
-            ShuffleArray<TIds, char>::Execute(this, this->NumPts, numComp, (char*)iD, (char*)oD);
-            break;
-          case VTK_UNSIGNED_CHAR:
-            ShuffleArray<TIds, unsigned char>::Execute(
-              this, this->NumPts, numComp, (unsigned char*)iD, (unsigned char*)oD);
-            break;
-          case VTK_SHORT:
-            ShuffleArray<TIds, short>::Execute(this, this->NumPts, numComp, (short*)iD, (short*)oD);
-            break;
-          case VTK_UNSIGNED_SHORT:
-            ShuffleArray<TIds, unsigned short>::Execute(
-              this, this->NumPts, numComp, (unsigned short*)iD, (unsigned short*)oD);
-            break;
-          default:
-            vtkGenericWarningMacro("Unsupported attribute type");
-        } // over all VTK types
-      }   // have valid array
-    }     // for each candidate array
+          arrayWorker(iArray, oArray, this);
+        }
+      } // have valid array
+    }   // for each candidate array
   }
 
   vtkIdType GetLevelOffset(int level, vtkIdType& npts) override

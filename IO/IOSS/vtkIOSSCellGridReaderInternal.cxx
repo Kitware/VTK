@@ -240,6 +240,7 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetSide
 
     auto side_raw = sideBlock->get_field("element_side_raw");
     auto sideConn = vtkIOSSUtilities::CreateArray(side_raw);
+    assert(sideConn->HasStandardMemoryLayout() && "Array must have standard memory layout");
     if (side_raw.zero_copy_enabled())
     {
       void* values;
@@ -249,6 +250,7 @@ std::vector<vtkSmartPointer<vtkCellGrid>> vtkIOSSCellGridReaderInternal::GetSide
     }
     else
     {
+      // NOLINTNEXTLINE(bugprone-unsafe-functions)
       sideBlock->get_field_data("element_side_raw", sideConn->GetVoidPointer(0),
         sideConn->GetDataSize() * sideConn->GetDataTypeSize());
     }

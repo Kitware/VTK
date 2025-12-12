@@ -132,12 +132,7 @@ void vtkQtRecordView::Update()
     int numRecords = indexArr->GetNumberOfTuples() > 2 ? 2 : indexArr->GetNumberOfTuples();
     for (vtkIdType i = 0; i < numRecords; ++i)
     {
-      vtkVariant v(0);
-      switch (indexArr->GetDataType())
-      {
-        vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(indexArr->GetVoidPointer(i)));
-      }
-
+      vtkVariant v = indexArr->GetVariantValue(i);
       for (vtkIdType j = 0; j != column_count; ++j)
       {
         html += "<b>";

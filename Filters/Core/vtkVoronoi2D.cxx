@@ -759,7 +759,8 @@ struct VoronoiTiles
     // offsets to reference the correct global point id.
     double z = this->Points[2];
     this->NewPoints->SetNumberOfPoints(totalPoints);
-    double* pts = static_cast<double*>(this->NewPoints->GetVoidPointer(0));
+    double* pts =
+      vtkAOSDataArrayTemplate<double>::FastDownCast(this->NewPoints->GetData())->GetPointer(0);
     std::vector<TileVertex>::iterator tvItr, tvEnd;
     this->Tiles->AllocateExact(totalTiles, connSize - totalTiles);
     std::vector<vtkIdType>::iterator sItr, sEnd;
@@ -767,7 +768,7 @@ struct VoronoiTiles
     if (this->Scalars)
     {
       this->Scalars->SetNumberOfTuples(totalTiles);
-      scalars = static_cast<vtkIdType*>(this->Scalars->GetVoidPointer(0));
+      scalars = this->Scalars->GetPointer(0);
     }
 
     vtkIdType threadId = 0;
@@ -958,7 +959,7 @@ int vtkVoronoi2D::RequestData(vtkInformation* vtkNotUsed(request),
   double padding = this->Padding * length;
 
   // Process the points to generate Voronoi tiles
-  double* inPtr = static_cast<double*>(tPoints->GetVoidPointer(0));
+  double* inPtr = vtkAOSDataArrayTemplate<double>::FastDownCast(tPoints->GetData())->GetPointer(0);
   this->NumberOfThreadsUsed = VoronoiTiles::Execute(this->Locator, numPts, inPtr, padding, tol,
     output, this->GenerateScalars, this->PointOfInterest, this->MaximumNumberOfTileClips, this);
 

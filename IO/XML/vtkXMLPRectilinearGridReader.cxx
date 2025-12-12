@@ -194,15 +194,11 @@ vtkXMLDataReader* vtkXMLPRectilinearGridReader::CreatePieceReader()
 void vtkXMLPRectilinearGridReader::CopySubCoordinates(
   int* inBounds, int* outBounds, int* subBounds, vtkDataArray* inArray, vtkDataArray* outArray)
 {
-  unsigned int components = inArray->GetNumberOfComponents();
-  unsigned int tupleSize = inArray->GetDataTypeSize() * components;
-
   int destStartIndex = subBounds[0] - outBounds[0];
   int sourceStartIndex = subBounds[0] - inBounds[0];
   int length = subBounds[1] - subBounds[0] + 1;
 
-  memcpy(outArray->GetVoidPointer(destStartIndex * components),
-    inArray->GetVoidPointer(sourceStartIndex * components), length * tupleSize);
+  outArray->InsertTuples(destStartIndex, length, sourceStartIndex, inArray);
 }
 
 int vtkXMLPRectilinearGridReader::FillOutputPortInformation(int, vtkInformation* info)

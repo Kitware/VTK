@@ -3,6 +3,9 @@
 #include "vtkStatisticalOutlierRemoval.h"
 
 #include "vtkAbstractPointLocator.h"
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
+#include "vtkDataArrayRange.h"
 #include "vtkIdList.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
@@ -23,10 +26,10 @@ namespace
 
 //------------------------------------------------------------------------------
 // The threaded core of the algorithm (first pass)
-template <typename T>
-struct ComputeMeanDistance
+template <typename TArray>
+struct ComputeMeanDistanceFunctor
 {
-  const T* Points;
+  TArray* Points;
   vtkAbstractPointLocator* Locator;
   int SampleSize;
   float* Distance;
@@ -38,7 +41,7 @@ struct ComputeMeanDistance
   vtkSMPThreadLocal<double> ThreadMean;
   vtkSMPThreadLocal<vtkIdType> ThreadCount;
 
-  ComputeMeanDistance(T* points, vtkAbstractPointLocator* loc, int size, float* d)
+  ComputeMeanDistanceFunctor(TArray* points, vtkAbstractPointLocator* loc, int size, float* d)
     : Points(points)
     , Locator(loc)
     , SampleSize(size)
@@ -64,18 +67,16 @@ struct ComputeMeanDistance
   // mean distances and count (for averaging in the Reduce() method).
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const T* px = this->Points + 3 * ptId;
-    const T* py;
+    auto points = vtk::DataArrayTupleRange<3>(this->Points);
+    auto px = points.begin() + ptId;
     double x[3], y[3];
     vtkIdList*& pIds = this->PIds.Local();
     double& threadMean = this->ThreadMean.Local();
     vtkIdType& threadCount = this->ThreadCount.Local();
 
-    for (; ptId < endPtId; ++ptId)
+    for (; ptId < endPtId; ++ptId, ++px)
     {
-      x[0] = static_cast<double>(*px++);
-      x[1] = static_cast<double>(*px++);
-      x[2] = static_cast<double>(*px++);
+      px->GetTuple(x);
 
       // The method FindClosestNPoints will include the current point, so
       // we increase the sample size by one.
@@ -89,10 +90,8 @@ struct ComputeMeanDistance
         nei = pIds->GetId(sample);
         if (nei != ptId) // exclude ourselves
         {
-          py = this->Points + 3 * nei;
-          y[0] = static_cast<double>(*py++);
-          y[1] = static_cast<double>(*py++);
-          y[2] = static_cast<double>(*py);
+          auto py = points[nei];
+          py.GetTuple(y);
           sum += sqrt(vtkMath::Distance2BetweenPoints(x, y));
         }
       } // sum the lengths of all samples excluding current point
@@ -134,16 +133,20 @@ struct ComputeMeanDistance
     count = (count < 1 ? 1 : count);
     this->Mean = mean / static_cast<double>(count);
   }
+}; // ComputeMeanDistanceFunctor
 
-  static void Execute(
-    vtkStatisticalOutlierRemoval* self, vtkIdType numPts, T* points, float* distances, double& mean)
+struct ComputeMeanDistanceWorker
+{
+  template <typename TArray>
+  void operator()(
+    TArray* points, vtkStatisticalOutlierRemoval* self, float* distances, double& mean)
   {
-    ComputeMeanDistance compute(points, self->GetLocator(), self->GetSampleSize(), distances);
-    vtkSMPTools::For(0, numPts, compute);
-    mean = compute.Mean;
+    ComputeMeanDistanceFunctor<TArray> meanDist(
+      points, self->GetLocator(), self->GetSampleSize(), distances);
+    vtkSMPTools::For(0, points->GetNumberOfTuples(), meanDist);
+    mean = meanDist.Mean;
   }
-
-}; // ComputeMeanDistance
+};
 
 //------------------------------------------------------------------------------
 // Now that the mean is known, compute the standard deviation
@@ -300,12 +303,12 @@ int vtkStatisticalOutlierRemoval::FilterPoints(vtkPointSet* input)
   // mean distance to N closest neighbors.
   vtkIdType numPts = input->GetNumberOfPoints();
   float* dist = new float[numPts];
-  void* inPtr = input->GetPoints()->GetVoidPointer(0);
   double mean = 0.0, sigma = 0.0;
-  switch (input->GetPoints()->GetDataType())
+  ComputeMeanDistanceWorker worker;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
+        input->GetPoints()->GetData(), worker, this, dist, mean))
   {
-    vtkTemplateMacro(
-      ComputeMeanDistance<VTK_TT>::Execute(this, numPts, (VTK_TT*)inPtr, dist, mean));
+    worker(input->GetPoints()->GetData(), this, dist, mean);
   }
 
   // At this point the mean distance for each point, and across the point

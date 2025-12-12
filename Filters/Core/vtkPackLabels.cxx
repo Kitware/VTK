@@ -266,13 +266,12 @@ int vtkPackLabels::RequestData(
   // could use a std::set or std::map. But these are not threaded. So instead
   // we use a threaded sort, and then build the array of labels from that.
   // We'll have to use a typed dispatch.
-  using AllTypes = vtkArrayDispatch::AllTypes;
-  using BuildDispatch = vtkArrayDispatch::DispatchByValueType<AllTypes>;
   BuildLabels buildLabels;
-  if (!BuildDispatch::Execute(
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(
         sortScalars, buildLabels, this->LabelsArray.Get(), this->LabelsCount.Get(), this->SortBy))
   { // Fallback should never happen
-    vtkErrorMacro("Data array not supported");
+    vtkErrorMacro(
+      "Data array " << sortScalars->GetClassName() << " not supported for building labels array.");
     return 1;
   }
 
@@ -323,7 +322,8 @@ int vtkPackLabels::RequestData(
   // Map the input data to output data using the new labels.
   using LabelTypes =
     vtkTypeList::Create<unsigned char, unsigned short, unsigned int, unsigned long>;
-  using MapDispatch = vtkArrayDispatch::Dispatch2ByValueType<AllTypes, LabelTypes>;
+  using MapDispatch = vtkArrayDispatch::Dispatch2ByArrayAndValueType<vtkArrayDispatch::AOSArrays,
+    vtkArrayDispatch::AOSArrays, vtkArrayDispatch::AllTypes, LabelTypes>;
   MapLabels mapLabels;
   MapDispatch::Execute(inScalars, outScalars.Get(), mapLabels, this->LabelsArray.Get(), maxLabels,
     this->BackgroundValue);

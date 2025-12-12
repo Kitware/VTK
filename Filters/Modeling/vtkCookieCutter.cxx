@@ -3,6 +3,7 @@
 #include "vtkCookieCutter.h"
 
 #include "vtkCellData.h"
+#include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -1147,7 +1148,7 @@ void vtkCookieCutterHelper::CropPoly(vtkIdType cellId, vtkIdType cellOffset, vtk
   // (eventually sorted) arrays. These sorted arrays will alternate inside
   // paths with outside paths, sort of like a "braid". To construct polygon
   // loops, the braid is woven together to form the loops.
-  double* p = static_cast<double*>(poly->Points->GetVoidPointer(0));
+  double* p = vtkDoubleArray::FastDownCast(poly->Points->GetData())->GetPointer(0);
   vtkIdType i, j, newCellId, numPts = 0;
   double t, u, v, x[3], x0[3], x1[3], y0[3], y1[3];
   int result;
@@ -1516,7 +1517,7 @@ int vtkCookieCutter::RequestData(vtkInformation* vtkNotUsed(request),
     bbox.Inflate(tol); // Handle exactly aligned x-y plane numerical fuzz
     bbox.GetBounds(bds);
     vtkPolygon::ComputeNormal(loop->Points, n);
-    double* l = static_cast<double*>(loop->Points->GetVoidPointer(0));
+    double* l = vtkDoubleArray::FastDownCast(loop->Points->GetData())->GetPointer(0);
 
     // Start by processing the verts. A simple in/out check.
     if (inVerts->GetNumberOfCells() > 0)

@@ -286,17 +286,17 @@ void vtkOpenGLStickMapperCreateVBO(vtkPolyData* poly, vtkIdType numPts, unsigned
   vtkFloatArray* orientDA = vtkFloatArray::New();
   orientDA->SetNumberOfComponents(3);
   orientDA->SetNumberOfTuples(numPts);
-  float* orPtr = static_cast<float*>(orientDA->GetVoidPointer(0));
+  float* orPtr = orientDA->GetPointer(0);
 
   vtkFloatArray* radiusDA = vtkFloatArray::New();
   radiusDA->SetNumberOfComponents(1);
   radiusDA->SetNumberOfTuples(numPts);
-  float* radPtr = static_cast<float*>(radiusDA->GetVoidPointer(0));
+  float* radPtr = radiusDA->GetPointer(0);
 
   vtkUnsignedCharArray* ucolors = vtkUnsignedCharArray::New();
   ucolors->SetNumberOfComponents(4);
   ucolors->SetNumberOfTuples(numPts);
-  unsigned char* cPtr = static_cast<unsigned char*>(ucolors->GetVoidPointer(0));
+  unsigned char* cPtr = ucolors->GetPointer(0);
 
   float* orientPtr;
   unsigned char* colorPtr;
@@ -383,7 +383,7 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* vtkNot
   bool picking = (selector != nullptr);
 
   vtkOpenGLStickMapperCreateVBO(poly, poly->GetPoints()->GetNumberOfPoints(),
-    this->Colors ? (unsigned char*)this->Colors->GetVoidPointer(0) : nullptr,
+    this->Colors ? this->Colors->GetPointer(0) : nullptr,
     this->Colors ? this->Colors->GetNumberOfComponents() : 0,
     static_cast<float*>(poly->GetPointData()->GetArray(this->OrientationArray)->GetVoidPointer(0)),
     static_cast<float*>(poly->GetPointData()->GetArray(this->ScaleArray)->GetVoidPointer(0)),

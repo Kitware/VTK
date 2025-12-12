@@ -98,6 +98,8 @@ int vtkNetCDFAccessor::get_vars(int ncid, int varid, const size_t* startp, const
 {
   dataArray->SetNumberOfComponents(numberOfComponents);
   dataArray->SetNumberOfTuples(numberOfTuples);
+  assert(dataArray->HasStandardMemoryLayout() && "Array must have standard memory layout");
+  // NOLINTNEXTLINE(bugprone-unsafe-functions)
   return nc_get_vars(ncid, varid, startp, countp, stridep, dataArray->GetVoidPointer(0));
 }
 

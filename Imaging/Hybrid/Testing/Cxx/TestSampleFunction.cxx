@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
 #include <vtkDataArray.h>
+#include <vtkDoubleArray.h>
 #include <vtkImageData.h>
 #include <vtkPointData.h>
 #include <vtkSampleFunction.h>
@@ -93,7 +94,7 @@ int TestSampleFunction(int, char*[])
   sf4->Update();
 
   vtkDataArray* sa = sf4->GetOutput()->GetPointData()->GetScalars();
-  double* s4 = static_cast<double*>(sa->GetVoidPointer(0));
+  double* s4 = vtkDoubleArray::FastDownCast(sa)->GetPointer(0);
 
   vtkSmartPointer<vtkSampleFunction> sf5 = vtkSmartPointer<vtkSampleFunction>::New();
   sf5->SetSampleDimensions(dims);
@@ -103,7 +104,7 @@ int TestSampleFunction(int, char*[])
   sf5->UpdateExtent(extent);
 
   sa = sf5->GetOutput()->GetPointData()->GetScalars();
-  double* s5 = static_cast<double*>(sa->GetVoidPointer(0));
+  double* s5 = vtkDoubleArray::FastDownCast(sa)->GetPointer(0);
 
   // Now ensure that within the extent the difference between
   // the data is zero.

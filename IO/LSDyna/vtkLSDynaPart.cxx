@@ -765,7 +765,22 @@ void vtkLSDynaPart::GetPropertyData(const char* name, const vtkIdType& numComps,
       data = this->Points->GetData();
     }
   }
-  this->CurrentPointPropInfo->ptr = data->GetVoidPointer(0);
+  if (auto floatData = vtkFloatArray::FastDownCast(data))
+  {
+    this->CurrentPointPropInfo->ptr = floatData->GetPointer(0);
+  }
+  else if (auto doubleData = vtkDoubleArray::FastDownCast(data))
+  {
+    this->CurrentPointPropInfo->ptr = doubleData->GetPointer(0);
+  }
+  else if (auto idData = vtkIdTypeArray::FastDownCast(data))
+  {
+    this->CurrentPointPropInfo->ptr = idData->GetPointer(0);
+  }
+  else if (data)
+  {
+    vtkErrorMacro(<< "Unsupported data array " << data->GetClassName() << " for point property");
+  }
 }
 
 //------------------------------------------------------------------------------

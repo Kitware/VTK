@@ -21,7 +21,6 @@
 
 namespace
 {
-using Dispatcher = vtkArrayDispatch::DispatchByValueType<vtkArrayDispatch::AllTypes>;
 
 /**
  * Worker to compute magnitude of vector array.
@@ -60,13 +59,7 @@ struct OffsetWorker
   template <typename ArrayT>
   void operator()(ArrayT* input, void*& output, int offset)
   {
-    const auto inputRange = vtk::DataArrayTupleRange(input);
-    using ValueType = typename decltype(inputRange)::ComponentType;
-
-    ValueType* offsetOutput = static_cast<ValueType*>(output);
-    offsetOutput += offset;
-
-    output = static_cast<void*>(offsetOutput);
+    output = input->GetPointer(offset);
   }
 };
 
@@ -354,24 +347,25 @@ void* vtkPlotHistogram2D::GetInputArrayPointer(vtkDataArray*& inputArray)
     MagnitudeWorker worker;
     this->MagnitudeArray->SetNumberOfTuples(selectedArray->GetNumberOfTuples());
 
-    if (!Dispatcher::Execute(selectedArray, worker, this->MagnitudeArray))
+    if (!vtkArrayDispatch::Dispatch::Execute(selectedArray, worker, this->MagnitudeArray))
     {
       // Otherwise fallback to using the vtkDataArray API.
       worker(selectedArray, this->MagnitudeArray);
     }
 
     inputArray = this->MagnitudeArray;
-    return this->MagnitudeArray->GetVoidPointer(0);
+    return this->MagnitudeArray->GetPointer(0);
   }
 
   OffsetWorker worker;
-  void* array = selectedArray->GetVoidPointer(0);
+  void* array = nullptr;
   int vectorComponent = this->TransferFunction->GetVectorComponent();
 
-  if (!Dispatcher::Execute(selectedArray, worker, array, vectorComponent))
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(
+        selectedArray, worker, array, vectorComponent))
   {
-    // Otherwise fallback to using the vtkDataArray API.
-    worker(selectedArray, array, vectorComponent);
+    vtkErrorMacro(<< "Not support selected array of type : " << selectedArray->GetClassName());
+    return nullptr;
   }
 
   inputArray = selectedArray;

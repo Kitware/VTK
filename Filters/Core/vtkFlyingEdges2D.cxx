@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkFlyingEdges2D.h"
 
+#include "vtkArrayComponents.h"
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkFloatArray.h"
 #include "vtkImageData.h"
@@ -14,15 +16,13 @@
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <cmath>
-
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkFlyingEdges2D);
 
 // This templated class is the heart of the algorithm. Templated across
 // scalar type T. vtkFlyingEdges2D populates the information in this class
 // and then invokes ContourImage() to actually initiate executions.
-template <class T>
+template <class TArray>
 class vtkFlyingEdges2DAlgorithm
 {
 public:
@@ -89,8 +89,10 @@ public:
   int Axis2;
 
   // Output data. Threads write to partitioned memory.
-  T* Scalars;
-  T* NewScalars;
+  using TPtr = typename vtk::detail::ValueRange<TArray, 1>::iterator;
+  using T = vtk::GetAPIType<TArray>;
+  TPtr Scalars;
+  TPtr NewScalars;
   vtkCellArray* NewLines;
   float* NewPoints;
 
@@ -98,9 +100,9 @@ public:
   vtkFlyingEdges2DAlgorithm();
 
   // The three passes of the algorithm.
-  void ProcessXEdge(double value, T* inPtr, vtkIdType row);   // PASS 1
-  void ProcessYEdges(vtkIdType row);                          // PASS 2
-  void GenerateOutput(double value, T* inPtr, vtkIdType row); // PASS 4
+  void ProcessXEdge(double value, TPtr inPtr, vtkIdType row);   // PASS 1
+  void ProcessYEdges(vtkIdType row);                            // PASS 2
+  void GenerateOutput(double value, TPtr inPtr, vtkIdType row); // PASS 4
 
   // Place holder for now in case fancy bit fiddling is needed later.
   void SetXEdge(unsigned char* ePtr, unsigned char edgeCase) { *ePtr = edgeCase; }
@@ -156,7 +158,7 @@ public:
   }
 
   // Interpolate along a pixel axes edge.
-  void InterpolateAxesEdge(double value, T* s0, int ijk0[3], T* s1, int ijk1[3], vtkIdType vId)
+  void InterpolateAxesEdge(double value, TPtr s0, int ijk0[3], TPtr s1, int ijk1[3], vtkIdType vId)
   {
     double t = (value - *s0) / (*s1 - *s0);
     float* x = this->NewPoints + 3 * vId;
@@ -168,12 +170,12 @@ public:
   // Interpolate along an arbitrary edge, typically one that may be on the
   // volume boundary. This means careful computation of stuff requiring
   // neighborhood information (e.g., gradients).
-  void InterpolateEdge(double value, T* s, int ijk[3], unsigned char edgeNum,
+  void InterpolateEdge(double value, TPtr s, int ijk[3], unsigned char edgeNum,
     unsigned char edgeUses[4], vtkIdType* eIds);
 
   // Produce the output points on the pixel axes for this pixel cell.
-  void GeneratePoints(
-    double value, unsigned char loc, T* sPtr, int ijk[3], unsigned char* edgeUses, vtkIdType* eIds);
+  void GeneratePoints(double value, unsigned char loc, TPtr sPtr, int ijk[3],
+    unsigned char* edgeUses, vtkIdType* eIds);
 
   // Helper function to set up the point ids on pixel edges.
   unsigned char InitPixelIds(
@@ -197,22 +199,21 @@ public:
   }
 
   // Threading integration via SMPTools
-  template <class TT>
   class Pass1
   {
   public:
-    Pass1(vtkFlyingEdges2DAlgorithm<TT>* algo, double value, vtkFlyingEdges2D* filter)
+    Pass1(vtkFlyingEdges2DAlgorithm* algo, double value, vtkFlyingEdges2D* filter)
       : Filter(filter)
     {
       this->Algo = algo;
       this->Value = value;
     }
-    vtkFlyingEdges2DAlgorithm<TT>* Algo;
+    vtkFlyingEdges2DAlgorithm* Algo;
     vtkFlyingEdges2D* Filter;
     double Value;
     void operator()(vtkIdType row, vtkIdType end)
     {
-      TT* rowPtr = this->Algo->Scalars + row * this->Algo->Inc1;
+      TPtr rowPtr = this->Algo->Scalars + row * this->Algo->Inc1;
       bool isFirst = vtkSMPTools::GetSingleThread();
       vtkIdType checkAbortInterval = std::min((end - row) / 10 + 1, (vtkIdType)1000);
       for (; row < end; ++row)
@@ -234,16 +235,15 @@ public:
       } // for all rows in this batch
     }
   };
-  template <class TT>
   class Pass2
   {
   public:
-    Pass2(vtkFlyingEdges2DAlgorithm<TT>* algo, vtkFlyingEdges2D* filter)
+    Pass2(vtkFlyingEdges2DAlgorithm* algo, vtkFlyingEdges2D* filter)
       : Filter(filter)
     {
       this->Algo = algo;
     }
-    vtkFlyingEdges2DAlgorithm<TT>* Algo;
+    vtkFlyingEdges2DAlgorithm* Algo;
     vtkFlyingEdges2D* Filter;
     void operator()(vtkIdType row, vtkIdType end)
     {
@@ -266,22 +266,21 @@ public:
       } // for all rows in this batch
     }
   };
-  template <class TT>
   class Pass4
   {
   public:
-    Pass4(vtkFlyingEdges2DAlgorithm<TT>* algo, double value, vtkFlyingEdges2D* filter)
+    Pass4(vtkFlyingEdges2DAlgorithm* algo, double value, vtkFlyingEdges2D* filter)
       : Filter(filter)
     {
       this->Algo = algo;
       this->Value = value;
     }
-    vtkFlyingEdges2DAlgorithm<TT>* Algo;
+    vtkFlyingEdges2DAlgorithm* Algo;
     double Value;
     vtkFlyingEdges2D* Filter;
     void operator()(vtkIdType row, vtkIdType end)
     {
-      T* rowPtr = this->Algo->Scalars + row * this->Algo->Inc1;
+      TPtr rowPtr = this->Algo->Scalars + row * this->Algo->Inc1;
       bool isFirst = vtkSMPTools::GetSingleThread();
       vtkIdType checkAbortInterval = std::min((end - row) / 10 + 1, (vtkIdType)1000);
       for (; row < end; ++row)
@@ -304,14 +303,14 @@ public:
   };
 
   // Interface between VTK and templated functions
-  static void ContourImage(vtkFlyingEdges2D* self, T* scalars, vtkPoints* newPts,
+  static void ContourImage(vtkFlyingEdges2D* self, TArray* scalars, vtkPoints* newPts,
     vtkDataArray* newScalars, vtkCellArray* newLines, vtkImageData* input, int* updateExt);
 };
 
 //------------------------------------------------------------------------------
 // Specify the points that define each edge.
-template <class T>
-const unsigned char vtkFlyingEdges2DAlgorithm<T>::VertMap[4][2] = {
+template <class TArray>
+const unsigned char vtkFlyingEdges2DAlgorithm<TArray>::VertMap[4][2] = {
   { 0, 1 },
   { 2, 3 },
   { 0, 2 },
@@ -320,8 +319,8 @@ const unsigned char vtkFlyingEdges2DAlgorithm<T>::VertMap[4][2] = {
 
 //------------------------------------------------------------------------------
 // The offsets of each vertex (in index space) from the pixel axes origin.
-template <class T>
-const unsigned char vtkFlyingEdges2DAlgorithm<T>::VertOffsets[4][2] = {
+template <class TArray>
+const unsigned char vtkFlyingEdges2DAlgorithm<TArray>::VertOffsets[4][2] = {
   { 0, 0 },
   { 1, 0 },
   { 0, 1 },
@@ -330,8 +329,8 @@ const unsigned char vtkFlyingEdges2DAlgorithm<T>::VertOffsets[4][2] = {
 
 // Initialize case array. Format for each line is:
 // numLine segments, (id0,id1), (id2,id3).
-template <class T>
-const unsigned char vtkFlyingEdges2DAlgorithm<T>::EdgeCases[16][5] = {
+template <class TArray>
+const unsigned char vtkFlyingEdges2DAlgorithm<TArray>::EdgeCases[16][5] = {
   { 0, 0, 0, 0, 0 }, // case 0
   { 1, 0, 2, 0, 0 }, // 1
   { 1, 3, 0, 0, 0 }, // 2
@@ -353,12 +352,10 @@ const unsigned char vtkFlyingEdges2DAlgorithm<T>::EdgeCases[16][5] = {
 //------------------------------------------------------------------------------
 // Instantiate and initialize key data members. Mostly we build some
 // acceleration structures from the case table.
-template <class T>
-vtkFlyingEdges2DAlgorithm<T>::vtkFlyingEdges2DAlgorithm()
+template <class TArray>
+vtkFlyingEdges2DAlgorithm<TArray>::vtkFlyingEdges2DAlgorithm()
   : XCases(nullptr)
   , EdgeMetaData(nullptr)
-  , Scalars(nullptr)
-  , NewScalars(nullptr)
   , NewLines(nullptr)
   , NewPoints(nullptr)
 {
@@ -394,9 +391,9 @@ vtkFlyingEdges2DAlgorithm<T>::vtkFlyingEdges2DAlgorithm()
 //------------------------------------------------------------------------------
 // Interpolate a new point along a boundary edge. Make sure to consider
 // proximity to boundary when computing gradients, etc.
-template <class T>
-void vtkFlyingEdges2DAlgorithm<T>::InterpolateEdge(
-  double value, T* s, int ijk[3], unsigned char edgeNum, unsigned char edgeUses[4], vtkIdType* eIds)
+template <class TArray>
+void vtkFlyingEdges2DAlgorithm<TArray>::InterpolateEdge(double value, TPtr s, int ijk[3],
+  unsigned char edgeNum, unsigned char edgeUses[4], vtkIdType* eIds)
 {
   // if this edge is not used then get out
   if (!edgeUses[edgeNum])
@@ -406,7 +403,7 @@ void vtkFlyingEdges2DAlgorithm<T>::InterpolateEdge(
 
   // build the edge information
   const unsigned char* vertMap = this->VertMap[edgeNum];
-  T *s0, *s1;
+  TPtr s0, s1;
   float x0[3], x1[3];
   vtkIdType vId = eIds[edgeNum];
 
@@ -431,9 +428,9 @@ void vtkFlyingEdges2DAlgorithm<T>::InterpolateEdge(
 //------------------------------------------------------------------------------
 // Generate the output points and optionally normals, gradients and
 // interpolate attributes.
-template <class T>
-void vtkFlyingEdges2DAlgorithm<T>::GeneratePoints(
-  double value, unsigned char loc, T* sPtr, int ijk[3], unsigned char* edgeUses, vtkIdType* eIds)
+template <class TArray>
+void vtkFlyingEdges2DAlgorithm<TArray>::GeneratePoints(
+  double value, unsigned char loc, TPtr sPtr, int ijk[3], unsigned char* edgeUses, vtkIdType* eIds)
 {
   // Create a slightly faster path for pixel axes interior to the image.
   int ijk1[3];
@@ -488,8 +485,8 @@ void vtkFlyingEdges2DAlgorithm<T>::GeneratePoints(
 // the row).  Start building cell contour case table, determine the number of
 // intersections, figure out where intersections along row begin and end
 // (computational trimming).
-template <class T>
-void vtkFlyingEdges2DAlgorithm<T>::ProcessXEdge(double value, T* inPtr, vtkIdType row)
+template <class TArray>
+void vtkFlyingEdges2DAlgorithm<TArray>::ProcessXEdge(double value, TPtr inPtr, vtkIdType row)
 {
   vtkIdType nxcells = this->Dims[0] - 1;
   vtkIdType minInt = nxcells, maxInt = 0;
@@ -533,8 +530,8 @@ void vtkFlyingEdges2DAlgorithm<T>::ProcessXEdge(double value, T* inPtr, vtkIdTyp
 // x-row.  Continue building cell contour case table, and determine the
 // number of cell y-edge intersections. Use computational trimming to reduce
 // work.
-template <class T>
-void vtkFlyingEdges2DAlgorithm<T>::ProcessYEdges(vtkIdType row)
+template <class TArray>
+void vtkFlyingEdges2DAlgorithm<TArray>::ProcessYEdges(vtkIdType row)
 {
   // Grab the two edge cases bounding this pixel x-row.
   unsigned char *ePtr0, *ePtr1, ec0, ec1, xInts = 1;
@@ -633,8 +630,8 @@ void vtkFlyingEdges2DAlgorithm<T>::ProcessYEdges(vtkIdType row)
 // PASS 4: Process the x-row cells to generate output primitives, including
 // point coordinates and line segments. This is the fourth pass of the
 // algorithm.
-template <class T>
-void vtkFlyingEdges2DAlgorithm<T>::GenerateOutput(double value, T* rowPtr, vtkIdType row)
+template <class TArray>
+void vtkFlyingEdges2DAlgorithm<TArray>::GenerateOutput(double value, TPtr rowPtr, vtkIdType row)
 {
   vtkIdType* eMD0 = this->EdgeMetaData + row * 5;
   vtkIdType* eMD1 = this->EdgeMetaData + (row + 1) * 5;
@@ -674,7 +671,7 @@ void vtkFlyingEdges2DAlgorithm<T>::GenerateOutput(double value, T* rowPtr, vtkId
   // Run along pixels in x-row direction and generate output primitives. Note
   // that active pixel axes edges are interpolated to produce points and
   // possibly interpolate attribute data.
-  T* sPtr;
+  TPtr sPtr;
   int ijk[3];
   ijk[1] = row;
   ijk[2] = this->K;
@@ -719,8 +716,8 @@ void vtkFlyingEdges2DAlgorithm<T>::GenerateOutput(double value, T* rowPtr, vtkId
 // vtkFlyingEdges2D class with the templated algorithm class. It also invokes
 // the three passes of the Flying Edges algorithm.
 //
-template <class T>
-void vtkFlyingEdges2DAlgorithm<T>::ContourImage(vtkFlyingEdges2D* self, T* scalars,
+template <class TArray>
+void vtkFlyingEdges2DAlgorithm<TArray>::ContourImage(vtkFlyingEdges2D* self, TArray* scalars,
   vtkPoints* newPts, vtkDataArray* newScalars, vtkCellArray* newLines, vtkImageData* input,
   int* updateExt)
 {
@@ -737,11 +734,10 @@ void vtkFlyingEdges2DAlgorithm<T>::ContourImage(vtkFlyingEdges2D* self, T* scala
   // eliminated.
   vtkIdType incs[3];
   input->GetIncrements(incs);
-  int* ext = input->GetExtent();
 
   // Figure out which 2D plane the image lies in. Capture information for
   // subsequent processing.
-  vtkFlyingEdges2DAlgorithm<T> algo;
+  vtkFlyingEdges2DAlgorithm<TArray> algo;
   if (updateExt[4] == updateExt[5])
   { // z collapsed
     algo.Axis0 = 0;
@@ -801,8 +797,8 @@ void vtkFlyingEdges2DAlgorithm<T>::ContourImage(vtkFlyingEdges2D* self, T* scala
 
   // Compute the starting location for scalar data.  We may be operating
   // on a part of the image.
-  algo.Scalars = scalars + incs[0] * (updateExt[0] - ext[0]) + incs[1] * (updateExt[2] - ext[2]) +
-    incs[2] * (updateExt[4] - ext[4]) + self->GetArrayComponent();
+  algo.Scalars = vtk::DataArrayValueRange<1>(scalars).begin() +
+    input->GetValueIndexForExtent(scalars, updateExt);
 
   // The algorithm is separated into multiple passes. The first pass
   // computes intersections on row edges, counting the number of intersected edges
@@ -824,13 +820,13 @@ void vtkFlyingEdges2DAlgorithm<T>::ContourImage(vtkFlyingEdges2D* self, T* scala
     // PASS 1: Traverse all rows generating intersection points and building
     // the case table. Also accumulate information necessary for later allocation.
     // For example the number of output points is computed.
-    Pass1<T> pass1(&algo, value, self);
+    Pass1 pass1(&algo, value, self);
     vtkSMPTools::For(0, algo.Dims[1], pass1);
 
     // PASS 2: Traverse all rows and process cell y edges. Continue building
     // case table from y contributions (using computational trimming to reduce
     // work) and keep track of cell y intersections.
-    Pass2<T> pass2(&algo, self);
+    Pass2 pass2(&algo, self);
     vtkSMPTools::For(0, algo.Dims[1] - 1, pass2);
 
     // PASS 3: Now allocate and generate output. First we have to update the
@@ -861,7 +857,8 @@ void vtkFlyingEdges2DAlgorithm<T>::ContourImage(vtkFlyingEdges2D* self, T* scala
     if (totalPts > 0)
     {
       newPts->GetData()->WriteVoidPointer(0, 3 * totalPts);
-      algo.NewPoints = static_cast<float*>(newPts->GetVoidPointer(0));
+      algo.NewPoints =
+        vtkAOSDataArrayTemplate<float>::FastDownCast(newPts->GetData())->GetPointer(0);
       newLines->ResizeExact(numOutLines, 2 * numOutLines);
       algo.NewLines = newLines;
       if (newScalars)
@@ -869,13 +866,13 @@ void vtkFlyingEdges2DAlgorithm<T>::ContourImage(vtkFlyingEdges2D* self, T* scala
         vtkIdType numPrevPts = newScalars->GetNumberOfTuples();
         vtkIdType numNewPts = totalPts - numPrevPts;
         newScalars->WriteVoidPointer(0, totalPts);
-        algo.NewScalars = static_cast<T*>(newScalars->GetVoidPointer(0));
+        algo.NewScalars = vtk::DataArrayValueRange<1>(TArray::FastDownCast(newScalars)).begin();
         T TValue = static_cast<T>(value);
         std::fill_n(algo.NewScalars + numPrevPts, numNewPts, TValue);
       }
 
       // PASS 4: Now process each x-row and produce the output primitives.
-      Pass4<T> pass4(&algo, value, self);
+      Pass4 pass4(&algo, value, self);
       vtkSMPTools::For(0, algo.Dims[1] - 1, pass4);
     } // if output generated
 
@@ -889,6 +886,17 @@ void vtkFlyingEdges2DAlgorithm<T>::ContourImage(vtkFlyingEdges2D* self, T* scala
   delete[] algo.XCases;
   delete[] algo.EdgeMetaData;
 }
+
+struct vtkFlyingEdges2DWorker
+{
+  template <typename TArray>
+  void operator()(TArray* array, vtkFlyingEdges2D* filter, vtkPoints* newPts,
+    vtkDataArray* newScalars, vtkCellArray* newLines, vtkImageData* input, int* updateExt) const
+  {
+    vtkFlyingEdges2DAlgorithm<TArray>::ContourImage(
+      filter, array, newPts, newScalars, newLines, input, updateExt);
+  }
+};
 
 //------------------------------------------------------------------------------
 // Here is the VTK class proper.
@@ -936,12 +944,10 @@ int vtkFlyingEdges2D::RequestData(vtkInformation* vtkNotUsed(request),
   vtkImageData* input = vtkImageData::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData* output = vtkPolyData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDataArray* inScalars;
-
   vtkDebugMacro(<< "Executing 2D Flying Edges");
 
   int* ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-  inScalars = this->GetInputArrayToProcess(0, inputVector);
+  vtkSmartPointer<vtkDataArray> inScalars = this->GetInputArrayToProcess(0, inputVector);
   if (inScalars == nullptr)
   {
     vtkErrorMacro(<< "Scalars must be defined for contouring");
@@ -956,6 +962,10 @@ int vtkFlyingEdges2D::RequestData(vtkInformation* vtkNotUsed(request),
                                      "ArrayComponent must be smaller than "
                                   << numComps);
     return 1;
+  }
+  if (numComps > 1)
+  {
+    inScalars = vtk::ComponentOrNormAsDataArray(inScalars, this->ArrayComponent);
   }
 
   // Create necessary objects to hold output. We will defer the
@@ -974,12 +984,12 @@ int vtkFlyingEdges2D::RequestData(vtkInformation* vtkNotUsed(request),
   }
 
   // Check data type and execute appropriate function
-  void* scalars = inScalars->GetVoidPointer(0);
-  switch (inScalars->GetDataType())
+  vtkFlyingEdges2DWorker worker;
+  if (!vtkArrayDispatch::Dispatch::Execute(
+        inScalars.Get(), worker, this, newPts, newScalars, newLines, input, ext))
   {
-    vtkTemplateMacro(vtkFlyingEdges2DAlgorithm<VTK_TT>::ContourImage(
-      this, (VTK_TT*)scalars, newPts, newScalars, newLines, input, ext));
-  } // switch
+    worker(inScalars.Get(), this, newPts, newScalars, newLines, input, ext);
+  }
 
   vtkDebugMacro(<< "Created: " << newPts->GetNumberOfPoints() << " points, "
                 << newLines->GetNumberOfCells() << " lines");

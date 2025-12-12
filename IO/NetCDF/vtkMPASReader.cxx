@@ -23,6 +23,7 @@
 
 #include "vtkMPASReader.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCallbackCommand.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
@@ -33,7 +34,6 @@
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationVector.h"
-#include "vtkIntArray.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
@@ -46,11 +46,9 @@
 #include "vtk_netcdf.h"
 
 #include <algorithm>
-#include <cfloat>
 #include <cmath>
 #include <cstdarg>
 #include <cstdlib>
-#include <fstream>
 #include <iostream>
 #include <map>
 #include <set>
@@ -58,26 +56,8 @@
 #include <string>
 #include <vector>
 
-// Restricted to the supported NcType-convertible types.
-#define vtkNcTemplateMacro(call)                                                                   \
-  vtkTemplateMacroCase(VTK_DOUBLE, double, call);                                                  \
-  vtkTemplateMacroCase(VTK_FLOAT, float, call);                                                    \
-  vtkTemplateMacroCase(VTK_INT, int, call);                                                        \
-  vtkTemplateMacroCase(VTK_SHORT, short, call);                                                    \
-  vtkTemplateMacroCase(VTK_CHAR, char, call);                                                      \
-  vtkTemplateMacroCase(VTK_SIGNED_CHAR, signed char, call) /* ncbyte */
-
-#define vtkNcDispatch(type, call)                                                                  \
-  do                                                                                               \
-  {                                                                                                \
-    switch (type)                                                                                  \
-    {                                                                                              \
-      vtkNcTemplateMacro(call);                                                                    \
-      default:                                                                                     \
-        vtkErrorMacro(<< "Unsupported data type: " << (type));                                     \
-        abort();                                                                                   \
-    }                                                                                              \
-  } while (false)
+using MPASDispatcher = vtkArrayDispatch::DispatchByArrayAndValueType<vtkArrayDispatch::AOSArrays,
+  vtkTypeList::Create<double, float, int, short, char, signed char>>;
 
 VTK_ABI_NAMESPACE_BEGIN
 namespace
@@ -200,14 +180,22 @@ public:
   long InitializeDimension(int nc_dim);
   vtkIdType ComputeNumberOfTuples(int nc_var) const;
 
-  template <typename ValueType>
-  bool LoadDataArray(int nc_var, vtkDataArray* array, bool resize = true);
+  template <typename TArray>
+  bool LoadDataArray(int nc_var, TArray* array, bool resize = true);
 
-  template <typename ValueType>
-  int LoadPointVarDataImpl(int nc_var, vtkDataArray* array);
+  struct Point
+  {
+  };
+  int PointResult;
+  template <typename TArray>
+  void operator()(TArray* array, int nc_var, Point);
 
-  template <typename ValueType>
-  int LoadCellVarDataImpl(int nc_var, vtkDataArray* array);
+  struct Cell
+  {
+  };
+  int CellResult;
+  template <typename TArray>
+  void operator()(TArray* array, int nc_var, Cell);
 
   int nc_var_id(const char* name, bool msg_on_err = true) const;
   int nc_dim_id(const char* name, bool msg_on_err = true) const;
@@ -485,8 +473,8 @@ vtkIdType vtkMPASReader::Internal::ComputeNumberOfTuples(int nc_var) const
 }
 
 //------------------------------------------------------------------------------
-template <typename ValueType>
-bool vtkMPASReader::Internal::LoadDataArray(int nc_var, vtkDataArray* array, bool resize)
+template <typename TArray>
+bool vtkMPASReader::Internal::LoadDataArray(int nc_var, TArray* array, bool resize)
 {
   nc_type var_type;
   if (nc_err(nc_inq_vartype(ncFile, nc_var, &var_type)))
@@ -549,10 +537,11 @@ bool vtkMPASReader::Internal::LoadDataArray(int nc_var, vtkDataArray* array, boo
     }
   }
 
-  ValueType* dataBlock = static_cast<ValueType*>(array->GetVoidPointer(0));
+  using ValueType = typename TArray::ValueType;
+  ValueType* dataBlock = array->GetPointer(0);
   if (!dataBlock)
   {
-    vtkWarningWithObjectMacro(reader, "GetVoidPointer returned nullptr.");
+    vtkWarningWithObjectMacro(reader, "GetPointer returned nullptr.");
     return false;
   }
 
@@ -566,13 +555,14 @@ bool vtkMPASReader::Internal::LoadDataArray(int nc_var, vtkDataArray* array, boo
 }
 
 //------------------------------------------------------------------------------
-template <typename ValueType>
-int vtkMPASReader::Internal::LoadPointVarDataImpl(int nc_var, vtkDataArray* array)
+template <typename TArray>
+void vtkMPASReader::Internal::operator()(TArray* array, int nc_var, Point)
 {
-  // Don't resize, we've preallocated extra room for multilayer (if needed):
-  if (!LoadDataArray<ValueType>(nc_var, array, /*resize=*/false))
+  // Don't resize, we've pre-allocated extra room for multilayer (if needed):
+  if (!LoadDataArray(nc_var, array, /*resize=*/false))
   {
-    return 0;
+    this->PointResult = 0;
+    return;
   }
 
   // Check if this variable contains the vertical dimension:
@@ -580,7 +570,8 @@ int vtkMPASReader::Internal::LoadPointVarDataImpl(int nc_var, vtkDataArray* arra
   int numDims;
   if (nc_err(nc_inq_varndims(ncFile, nc_var, &numDims)))
   {
-    return 0;
+    this->PointResult = 0;
+    return;
   }
   if (reader->ShowMultilayerView)
   {
@@ -588,13 +579,15 @@ int vtkMPASReader::Internal::LoadPointVarDataImpl(int nc_var, vtkDataArray* arra
     int dims[NC_MAX_VAR_DIMS];
     if (nc_err(nc_inq_vardimid(ncFile, nc_var, dims)))
     {
-      return 0;
+      this->PointResult = 0;
+      return;
     }
     for (int d = 0; d < numDims; ++d)
     {
       if (nc_err(nc_inq_dimname(ncFile, dims[d], name)))
       {
-        return 0;
+        this->PointResult = 0;
+        return;
       }
       if (reader->VerticalDimension == name)
       {
@@ -605,7 +598,14 @@ int vtkMPASReader::Internal::LoadPointVarDataImpl(int nc_var, vtkDataArray* arra
   }
 
   vtkIdType varSize = ComputeNumberOfTuples(nc_var);
-  ValueType* dataBlock = static_cast<ValueType*>(array->GetVoidPointer(0));
+  using ValueType = typename TArray::ValueType;
+  ValueType* dataBlock = array->GetPointer(0);
+  if (!dataBlock)
+  {
+    vtkWarningWithObjectMacro(reader, "GetPointer returned nullptr.");
+    this->PointResult = 0;
+    return;
+  }
   std::vector<ValueType> tempData; // Used for Multilayer
 
   // singlelayer
@@ -636,7 +636,8 @@ int vtkMPASReader::Internal::LoadPointVarDataImpl(int nc_var, vtkDataArray* arra
   { // multilayer
     if (reader->MaximumPoints == 0)
     {
-      return 0; // No points
+      this->PointResult = 0;
+      return;
     }
 
     tempData.resize(reader->MaximumPoints);
@@ -740,20 +741,28 @@ int vtkMPASReader::Internal::LoadPointVarDataImpl(int nc_var, vtkDataArray* arra
   }
 
   vtkDebugWithObjectMacro(reader, << "wrote extra point data.");
-  return 1;
+  this->PointResult = 1;
 }
 
 //------------------------------------------------------------------------------
-template <typename ValueType>
-int vtkMPASReader::Internal::LoadCellVarDataImpl(int nc_var, vtkDataArray* array)
+template <typename TArray>
+void vtkMPASReader::Internal::operator()(TArray* array, int nc_var, Cell)
 {
   // Don't resize, we've preallocated extra room for multilayer (if needed):
-  if (!LoadDataArray<ValueType>(nc_var, array, /*resize=*/false))
+  if (!LoadDataArray(nc_var, array, /*resize=*/false))
   {
-    return 0;
+    this->CellResult = 0;
+    return;
   }
 
-  ValueType* dataBlock = static_cast<ValueType*>(array->GetVoidPointer(0));
+  using ValueType = typename TArray::ValueType;
+  ValueType* dataBlock = array->GetPointer(0);
+  if (!dataBlock)
+  {
+    vtkWarningWithObjectMacro(reader, "GetPointer returned nullptr.");
+    this->CellResult = 0;
+    return;
+  }
 
   // put out data for extra cells
   for (size_t j = reader->CellOffset + reader->NumberOfCells; j < reader->CurrentExtraCell; j++)
@@ -781,7 +790,7 @@ int vtkMPASReader::Internal::LoadCellVarDataImpl(int nc_var, vtkDataArray* array
 
   vtkDebugWithObjectMacro(reader, << "Stored data.");
 
-  return 1;
+  this->CellResult = 1;
 }
 
 //------------------------------------------------------------------------------
@@ -2501,10 +2510,13 @@ vtkDataArray* vtkMPASReader::LoadPointVarData(int variableIndex)
   array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(this->MaximumPoints);
 
-  int success = false;
-  vtkNcDispatch(typeVtk, success = this->Internals->LoadPointVarDataImpl<VTK_TT>(varid, array););
+  if (!MPASDispatcher::Execute(array, *this->Internals, varid, vtkMPASReader::Internal::Point{}))
+  {
+    vtkErrorMacro(<< "Unsupported data type for variable: " << varname);
+    return nullptr;
+  }
 
-  if (success)
+  if (this->Internals->PointResult)
   {
     this->Internals->pointArrays[variableIndex] = array;
     return array;
@@ -2547,9 +2559,12 @@ vtkDataArray* vtkMPASReader::LoadCellVarData(int variableIndex)
   array->SetNumberOfComponents(1);
   array->SetNumberOfTuples(this->MaximumCells);
 
-  int success = false;
-  vtkNcDispatch(typeVtk, success = this->Internals->LoadCellVarDataImpl<VTK_TT>(varid, array););
-  if (success)
+  if (!MPASDispatcher::Execute(array, *this->Internals, varid, vtkMPASReader::Internal::Cell{}))
+  {
+    vtkErrorMacro(<< "Unsupported data type for variable: " << varname);
+    return nullptr;
+  }
+  if (this->Internals->CellResult)
   {
     this->Internals->cellArrays[variableIndex] = array;
     return array;

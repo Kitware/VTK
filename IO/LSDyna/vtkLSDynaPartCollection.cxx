@@ -576,7 +576,7 @@ void vtkLSDynaPartCollection::SetCellDeadFlags(
   this->Storage->InitCellIteration(partType);
   vtkIdType numCells, startId;
   vtkLSDynaPart* part;
-  unsigned char* dead = static_cast<unsigned char*>(death->GetVoidPointer(0));
+  unsigned char* dead = death->GetPointer(0);
   while (this->Storage->GetNextCellPart(startId, numCells, part))
   {
     // perfectly valid to have a nullptr part being returned

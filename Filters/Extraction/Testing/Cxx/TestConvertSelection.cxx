@@ -7,39 +7,21 @@
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
-#include "vtkIntArray.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkSelection.h"
 #include "vtkSelectionNode.h"
-#include "vtkSortDataArray.h"
 #include "vtkStringArray.h"
+#include "vtkTestUtilities.h"
 #include "vtkVariant.h"
 
 #include "vtkSmartPointer.h"
 #define VTK_CREATE(type, name) vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <map>
-
 #include <iostream>
-
-template <typename T>
-int CompareArrays(T* a, T* b, vtkIdType n)
-{
-  int errors = 0;
-  for (vtkIdType i = 0; i < n; i++)
-  {
-    if (a[i] != b[i])
-    {
-      std::cerr << "ERROR: Arrays do not match at index " << i << " (" << a[i] << "!=" << b[i]
-                << ")" << std::endl;
-      errors++;
-    }
-  }
-  return errors;
-}
+#include <map>
 
 int CompareSelections(vtkSelectionNode* a, vtkSelectionNode* b)
 {
@@ -65,44 +47,8 @@ int CompareSelections(vtkSelectionNode* a, vtkSelectionNode* b)
   }
   vtkAbstractArray* arra = a->GetSelectionList();
   vtkAbstractArray* arrb = b->GetSelectionList();
-  if (arra->GetName() && !arrb->GetName())
-  {
-    std::cerr << "ERROR: Array name a is not null but b is" << std::endl;
-    errors++;
-  }
-  else if (!arra->GetName() && arrb->GetName())
-  {
-    std::cerr << "ERROR: Array name a is null but b is not" << std::endl;
-    errors++;
-  }
-  else if (arra->GetName() && strcmp(arra->GetName(), arrb->GetName()) != 0)
-  {
-    std::cerr << "ERROR: Array name " << arra->GetName() << " does not match " << arrb->GetName()
-              << std::endl;
-    errors++;
-  }
-  if (arra->GetDataType() != arrb->GetDataType())
-  {
-    std::cerr << "ERROR: Array type " << arra->GetDataType() << " does not match "
-              << arrb->GetDataType() << std::endl;
-    errors++;
-  }
-  else if (arra->GetNumberOfTuples() != arrb->GetNumberOfTuples())
-  {
-    std::cerr << "ERROR: Array tuples " << arra->GetNumberOfTuples() << " does not match "
-              << arrb->GetNumberOfTuples() << std::endl;
-    errors++;
-  }
-  else
-  {
-    vtkSortDataArray::Sort(arra);
-    vtkSortDataArray::Sort(arrb);
-    switch (arra->GetDataType())
-    {
-      vtkExtendedTemplateMacro(errors += CompareArrays((VTK_TT*)arra->GetVoidPointer(0),
-                                 (VTK_TT*)arrb->GetVoidPointer(0), arra->GetNumberOfTuples()));
-    }
-  }
+  errors += !vtkTestUtilities::CompareAbstractArray(arra, arrb);
+
   return errors;
 }
 

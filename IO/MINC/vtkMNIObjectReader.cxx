@@ -4,30 +4,29 @@
 
 #include "vtkMNIObjectReader.h"
 
-#include "vtkObjectFactory.h"
-
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-
+#include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkFloatArray.h"
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
+#include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
 #include "vtkProperty.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkStringScanner.h"
 #include "vtkUnsignedCharArray.h"
 
-#include <cctype>
-
-#include <string>
-#include <vector>
 #include <vtksys/FStream.hxx>
 #include <vtksys/SystemTools.hxx>
+
+#include <cctype>
+#include <string>
+#include <vector>
 
 #ifndef VTK_BINARY
 #define VTK_ASCII 1
@@ -182,96 +181,109 @@ int vtkMNIObjectReader::SkipWhitespace()
 }
 
 //------------------------------------------------------------------------------
+struct vtkMNIObjectReaderFunctor
+{
+  int Result;
+  template <class TArray>
+  void operator()(TArray* array, vtkMNIObjectReader* self, vtkIdType n)
+  {
+    using ValueType = typename TArray::ValueType;
+    array->SetNumberOfTuples(n / array->GetNumberOfComponents());
+
+    if (self->FileType == VTK_BINARY)
+    {
+      auto* data = array->GetPointer(0);
+      // The .obj files use native machine endianness
+      self->InputStream->read(reinterpret_cast<char*>(data), n * array->GetDataTypeSize());
+
+      // Switch ABGR to RGBA colors
+      if (std::is_same_v<ValueType, unsigned char> && array->GetNumberOfComponents() == 4)
+      {
+        for (vtkIdType i = 0; i < n; i += 4)
+        {
+          unsigned char abgr[4];
+          abgr[0] = data[0];
+          abgr[1] = data[1];
+          abgr[2] = data[2];
+          abgr[3] = data[3];
+          data[0] = abgr[3];
+          data[1] = abgr[2];
+          data[2] = abgr[1];
+          data[3] = abgr[0];
+
+          data += 4;
+        }
+      }
+
+      this->Result = !self->InputStream->fail();
+    }
+    else
+    {
+      // The rest of the code is for ASCII files
+      for (vtkIdType i = 0; i < n; i++)
+      {
+        if (!self->SkipWhitespace())
+        {
+          vtkErrorWithObjectMacro(
+            self, "Unexpected end of file " << self->FileName << ":" << self->LineNumber);
+          this->Result = 0;
+          return;
+        }
+
+        char* cp = self->CharPointer;
+
+        if (!std::is_same_v<ValueType, unsigned char>)
+        {
+          auto result = vtk::scan_value<ValueType>(std::string_view(cp));
+          auto val = result ? result->value() : 0;
+          cp = const_cast<char*>(result->range().data());
+          array->SetValue(i, val);
+        }
+        else
+        {
+          auto result = vtk::scan_value<double>(std::string_view(cp));
+          auto val = result ? result->value() : 0;
+          cp = const_cast<char*>(result->range().data());
+          if (val < 0.0 || val > 1.0)
+          {
+            vtkErrorWithObjectMacro(
+              self, "Color value must be [0..1] " << self->FileName << ":" << self->LineNumber);
+            this->Result = 0;
+            return;
+          }
+          unsigned char color = static_cast<unsigned char>(val * 255.0);
+          array->SetValue(i, color);
+        }
+
+        // If nothing was read, there was a syntax error
+        if (cp == self->CharPointer)
+        {
+          vtkErrorWithObjectMacro(
+            self, "Syntax error " << self->FileName << ":" << self->LineNumber);
+          this->Result = 0;
+          return;
+        }
+
+        self->CharPointer = cp;
+      }
+      this->Result = 1;
+    }
+  }
+};
+
+//------------------------------------------------------------------------------
 // Read floating-point values into a vtkFloatArray.
 int vtkMNIObjectReader::ParseValues(vtkDataArray* array, vtkIdType n)
 {
-  int dataType = array->GetDataType();
-  array->SetNumberOfTuples(n / array->GetNumberOfComponents());
-
-  if (this->FileType == VTK_BINARY)
+  auto aos = array->ToAOSDataArray();
+  vtkMNIObjectReaderFunctor functor;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AOSArrays>::Execute(
+        aos, functor, this, n))
   {
-    // The .obj files use native machine endianness
-    this->InputStream->read((char*)array->GetVoidPointer(0), n * array->GetDataTypeSize());
-
-    // Switch ABGR to RGBA colors
-    if (dataType == VTK_UNSIGNED_CHAR && array->GetNumberOfComponents() == 4)
-    {
-      unsigned char* data = (unsigned char*)array->GetVoidPointer(0);
-      for (vtkIdType i = 0; i < n; i += 4)
-      {
-        unsigned char abgr[4];
-        abgr[0] = data[0];
-        abgr[1] = data[1];
-        abgr[2] = data[2];
-        abgr[3] = data[3];
-        data[0] = abgr[3];
-        data[1] = abgr[2];
-        data[2] = abgr[1];
-        data[3] = abgr[0];
-
-        data += 4;
-      }
-    }
-
-    return !this->InputStream->fail();
+    vtkErrorMacro(<< "WriteValues: Array " << array->GetClassName() << " not supported.");
+    return 0;
   }
-
-  // The rest of the code is for ASCII files
-  for (vtkIdType i = 0; i < n; i++)
-  {
-    if (!this->SkipWhitespace())
-    {
-      vtkErrorMacro("Unexpected end of file " << this->FileName << ":" << this->LineNumber);
-      return 0;
-    }
-
-    char* cp = this->CharPointer;
-
-    switch (dataType)
-    {
-      case VTK_FLOAT:
-      {
-        auto result = vtk::scan_value<float>(std::string_view(cp));
-        auto val = result ? result->value() : 0;
-        cp = const_cast<char*>(result->range().data());
-        static_cast<vtkFloatArray*>(array)->SetValue(i, val);
-      }
-      break;
-      case VTK_INT:
-      {
-        auto result = vtk::scan_int<int>(std::string_view(cp));
-        auto val = result ? result->value() : 0;
-        cp = const_cast<char*>(result->range().data());
-        static_cast<vtkIntArray*>(array)->SetValue(i, val);
-      }
-      break;
-      case VTK_UNSIGNED_CHAR:
-      {
-        auto result = vtk::scan_value<double>(std::string_view(cp));
-        auto val = result ? result->value() : 0;
-        cp = const_cast<char*>(result->range().data());
-        if (val < 0.0 || val > 1.0)
-        {
-          vtkErrorMacro("Color value must be [0..1] " << this->FileName << ":" << this->LineNumber);
-          return 0;
-        }
-        unsigned char color = static_cast<unsigned char>(val * 255.0);
-        static_cast<vtkUnsignedCharArray*>(array)->SetValue(i, color);
-      }
-      break;
-    }
-
-    // If nothing was read, there was a syntax error
-    if (cp == this->CharPointer)
-    {
-      vtkErrorMacro("Syntax error " << this->FileName << ":" << this->LineNumber);
-      return 0;
-    }
-
-    this->CharPointer = cp;
-  }
-
-  return 1;
+  return functor.Result;
 }
 
 //------------------------------------------------------------------------------

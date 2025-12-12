@@ -123,15 +123,14 @@ void WriteMesh(
   OPolyMeshSchema& mesh = meshObj.getSchema();
 
   // write the point locations
-  vtkDataArray* pointData = nullptr;
+  vtkNew<vtkFloatArray> pointData;
+  if (auto floatArray = vtkFloatArray::FastDownCast(tris->GetPoints()->GetData()))
   {
-    pointData = tris->GetPoints()->GetData();
-    // Alembic polymesh does not support doubles so handle that
-    if (pointData->GetDataType() == VTK_DOUBLE)
-    {
-      pointData = vtkFloatArray::New();
-      pointData->DeepCopy(tris->GetPoints()->GetData());
-    }
+    pointData->ShallowCopy(floatArray);
+  }
+  else
+  {
+    pointData->DeepCopy(tris->GetPoints()->GetData());
   }
 
   // if we have vertex colors then retrieve them
@@ -200,7 +199,7 @@ void WriteMesh(
   if (tcoords)
   {
     uvsamp.setVals(
-      V2fArraySample((const V2f*)tcoords->GetVoidPointer(0), tcoords->GetNumberOfTuples()));
+      V2fArraySample((const V2f*)tcoords->GetPointer(0), tcoords->GetNumberOfTuples()));
     // this means per-vertex, vtkFaceVaryingScope means per-vertex-per-face.
     uvsamp.setScope(kVertexScope);
   }
@@ -208,7 +207,7 @@ void WriteMesh(
   if (!ia.empty())
   {
     OPolyMeshSchema::Sample meshSamp(
-      V3fArraySample((const V3f*)pointData->GetVoidPointer(0), pointData->GetNumberOfTuples()),
+      V3fArraySample((const V3f*)pointData->GetPointer(0), pointData->GetNumberOfTuples()),
       Int32ArraySample(ia.data(), ia.size()), Int32ArraySample(counts.data(), counts.size()),
       uvsamp, ON3fGeomParam::Sample());
     mesh.set(meshSamp);

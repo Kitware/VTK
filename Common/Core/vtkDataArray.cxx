@@ -15,7 +15,6 @@
 #include "vtkInformationVector.h"
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
-#include "vtkSOADataArrayTemplate.h" // For fast paths
 #include "vtkTypeTraits.h"
 
 #include <algorithm> // for min(), max()
@@ -706,6 +705,21 @@ vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
     aa->Delete();
   }
   return da;
+}
+
+//------------------------------------------------------------------------------
+vtkSmartPointer<vtkDataArray> vtkDataArray::ToAOSDataArray()
+{
+  if (this->HasStandardMemoryLayout())
+  {
+    return this;
+  }
+  else
+  {
+    auto aos = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(this->GetDataType()));
+    aos->DeepCopy(this);
+    return aos;
+  }
 }
 
 //------------------------------------------------------------------------------

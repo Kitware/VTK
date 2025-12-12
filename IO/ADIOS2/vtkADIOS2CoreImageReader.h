@@ -233,7 +233,7 @@ protected:
   void CalculateWorkDistribution(const std::string& varName);
 
   // Helper function for ReadImageBlocks to populate vtk data array from adios variable
-  template <typename T, template <typename...> class U>
+  template <typename T>
   vtkSmartPointer<vtkAbstractArray> PopulateDataArrayFromVar(
     const std::string& varName, size_t blockIndex);
 

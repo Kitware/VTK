@@ -561,7 +561,9 @@ Json::Value vtkVtkJSSceneGraphSerializer::ToJson(vtkDataArray* array)
   Json::Value val;
   std::string hash;
   {
-    const unsigned char* content = (const unsigned char*)array->GetVoidPointer(0);
+    auto aos = array->ToAOSDataArray();
+    // NOLINTNEXTLINE(bugprone-unsafe-functions)
+    const unsigned char* content = (const unsigned char*)aos->GetVoidPointer(0);
     int size = array->GetNumberOfValues() * array->GetDataTypeSize();
     computeMD5(content, size, hash);
   }

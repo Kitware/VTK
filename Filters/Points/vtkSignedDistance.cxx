@@ -3,12 +3,14 @@
 #include "vtkSignedDistance.h"
 
 #include "vtkAbstractPointLocator.h"
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPolyData.h"
@@ -27,10 +29,10 @@ namespace
 {
 
 // The threaded core of the algorithm
-template <typename T>
-struct SignedDistance
+template <typename TArray>
+struct SignedDistanceFunctor
 {
-  T* Pts;
+  TArray* Pts;
   float* Normals;
   vtkIdType Dims[3];
   double Origin[3];
@@ -43,8 +45,8 @@ struct SignedDistance
   // so make them thread local.
   vtkSMPThreadLocalObject<vtkIdList> PIds;
 
-  SignedDistance(T* pts, float* normals, int dims[3], double origin[3], double spacing[3],
-    double radius, vtkAbstractPointLocator* loc, float* scalars)
+  SignedDistanceFunctor(TArray* pts, float* normals, int dims[3], double origin[3],
+    double spacing[3], double radius, vtkAbstractPointLocator* loc, float* scalars)
     : Pts(pts)
     , Normals(normals)
     , Radius(radius)
@@ -69,7 +71,7 @@ struct SignedDistance
   // Threaded interpolation method
   void operator()(vtkIdType slice, vtkIdType sliceEnd)
   {
-    T* p;
+    auto points = vtk::DataArrayTupleRange<3>(this->Pts);
     float* n;
     double x[3], dist;
     vtkIdType numPts;
@@ -103,7 +105,7 @@ struct SignedDistance
           {
             for (dist = 0.0, ii = 0; ii < numPts; ++ii)
             {
-              p = this->Pts + 3 * pIds->GetId(ii);
+              auto p = points[pIds->GetId(ii)];
               n = this->Normals + 3 * pIds->GetId(ii);
               dist += n[0] * (p[0] - x[0]) + n[1] * (p[1] - x[1]) + n[2] * (p[2] - x[2]);
             }
@@ -115,16 +117,19 @@ struct SignedDistance
   }
 
   void Reduce() {}
+}; // SignedDistanceFunctor
 
-  static void Execute(vtkSignedDistance* self, T* pts, float* normals, int dims[3],
+struct SignedDistanceWorker
+{
+  template <typename TArray>
+  void operator()(TArray* inPts, vtkSignedDistance* self, float* normals, int dims[3],
     double origin[3], double spacing[3], float* scalars)
   {
-    SignedDistance dist(
-      pts, normals, dims, origin, spacing, self->GetRadius(), self->GetLocator(), scalars);
-    vtkSMPTools::For(0, dims[2], dist);
+    SignedDistanceFunctor<TArray> func(
+      inPts, normals, dims, origin, spacing, self->GetRadius(), self->GetLocator(), scalars);
+    vtkSMPTools::For(0, dims[2], func);
   }
-
-}; // SignedDistance
+};
 
 } // anonymous namespace
 
@@ -171,13 +176,9 @@ void vtkSignedDistance::StartAppend()
 
   vtkDebugMacro(<< "Initializing data");
   this->AllocateOutputData(this->GetOutput(), this->GetOutputInformation(0));
-  vtkIdType numPts = static_cast<vtkIdType>(this->Dimensions[0]) *
-    static_cast<vtkIdType>(this->Dimensions[1]) * static_cast<vtkIdType>(this->Dimensions[2]);
 
   // initialize output to initial empty value at each location
-  float* newScalars =
-    static_cast<float*>(this->GetOutput()->GetPointData()->GetScalars()->GetVoidPointer(0));
-  std::fill_n(newScalars, numPts, -(this->Radius));
+  this->GetOutput()->GetPointData()->GetScalars()->Fill(-(this->Radius));
 
   // Compute the initial bounds
   double bounds[6];
@@ -237,14 +238,16 @@ void vtkSignedDistance::Append(vtkPolyData* input)
   // Make sure that there are normals and output scalars
   vtkPoints* pts = input->GetPoints();
   float* scalars =
-    static_cast<float*>(this->GetOutput()->GetPointData()->GetScalars()->GetVoidPointer(0));
-  vtkDataArray* normalArray = input->GetPointData()->GetNormals();
-  if (!normalArray || normalArray->GetDataType() != VTK_FLOAT)
+    vtkAOSDataArrayTemplate<float>::FastDownCast(this->GetOutput()->GetPointData()->GetScalars())
+      ->GetPointer(0);
+  auto normalArray =
+    vtkAOSDataArrayTemplate<float>::FastDownCast(input->GetPointData()->GetNormals());
+  if (!normalArray)
   {
     vtkErrorMacro(<< "Float normals required!");
     return;
   }
-  float* normals = static_cast<float*>(normalArray->GetVoidPointer(0));
+  float* normals = normalArray->GetPointer(0);
 
   // Build the locator
   if (!this->Locator)
@@ -257,11 +260,13 @@ void vtkSignedDistance::Append(vtkPolyData* input)
 
   // Finally: compute the signed distance function
   vtkImageData* output = this->GetOutput();
-  void* inPtr = pts->GetVoidPointer(0);
-  switch (pts->GetDataType())
+  SignedDistanceWorker worker;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(pts->GetData(),
+        worker, this, normals, this->Dimensions, output->GetOrigin(), output->GetSpacing(),
+        scalars))
   {
-    vtkTemplateMacro(SignedDistance<VTK_TT>::Execute(this, (VTK_TT*)inPtr, normals,
-      this->Dimensions, output->GetOrigin(), output->GetSpacing(), scalars));
+    worker(pts->GetData(), this, normals, this->Dimensions, output->GetOrigin(),
+      output->GetSpacing(), scalars);
   }
 }
 

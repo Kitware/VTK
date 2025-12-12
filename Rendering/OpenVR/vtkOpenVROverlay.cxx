@@ -12,6 +12,7 @@
 #include "vtkPointData.h"
 #include "vtkRendererCollection.h"
 #include "vtkTextureObject.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLUtilities.h"
 #include "vtksys/FStream.hxx"
@@ -297,7 +298,7 @@ void vtkOpenVROverlay::Create(vtkOpenVRRenderWindow* win)
   this->CurrentTextureData = new unsigned char[dims[0] * dims[1] * 4];
   unsigned char* dataPtr = this->OriginalTextureData;
   unsigned char* inPtr =
-    static_cast<unsigned char*>(id->GetPointData()->GetScalars()->GetVoidPointer(0));
+    vtkUnsignedCharArray::FastDownCast(id->GetPointData()->GetScalars())->GetPointer(0);
   for (int j = 0; j < dims[1]; j++)
   {
     for (int i = 0; i < dims[0]; i++)

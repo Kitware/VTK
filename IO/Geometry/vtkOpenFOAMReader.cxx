@@ -3333,12 +3333,11 @@ struct vtkFoamRead
       }
       else
       {
-        auto* fileData = vtkDataArray::CreateDataArray(vtkTypeTraits<primitiveT>::VTKTypeID());
+        vtkNew<vtkAOSDataArrayTemplate<primitiveT>> fileData;
         // nComponents == 1
         fileData->SetNumberOfTuples(nTuples);
-        io.Read(reinterpret_cast<unsigned char*>(fileData->GetVoidPointer(0)), nbytes);
+        io.Read(reinterpret_cast<unsigned char*>(fileData->GetPointer(0)), nbytes);
         this->Ptr->DeepCopy(fileData);
-        fileData->Delete();
       }
     }
   };
@@ -4029,8 +4028,19 @@ void vtkFoamEntryValue::ReadCompactLabelListList(vtkFoamIOobject& io)
         // Non-empty (binary) list - only read parentheses only when size > 0
 
         io.ReadExpecting('('); // Begin list
-        io.Read(reinterpret_cast<unsigned char*>(array->GetVoidPointer(0)),
-          static_cast<vtkTypeInt64>(listLen * array->GetDataTypeSize()));
+        if (use64BitLabels)
+        {
+          io.Read(reinterpret_cast<unsigned char*>(
+                    vtkAOSDataArrayTemplate<vtkTypeInt64>::FastDownCast(array)->GetPointer(0)),
+            static_cast<vtkTypeInt64>(listLen * array->GetDataTypeSize()));
+        }
+        else
+        {
+          io.Read(reinterpret_cast<unsigned char*>(
+                    vtkAOSDataArrayTemplate<vtkTypeInt32>::FastDownCast(array)->GetPointer(0)),
+            static_cast<vtkTypeInt64>(listLen * array->GetDataTypeSize()));
+        }
+
         io.ReadExpecting(')'); // End list
       }
     }

@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkPointOccupancyFilter.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
+#include "vtkDataArrayRange.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkSMPThreadLocalObject.h"
 #include "vtkSMPTools.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
@@ -25,18 +26,18 @@ namespace
 
 //------------------------------------------------------------------------------
 // The threaded core of the algorithm. Operator() processes templated points.
-template <typename T>
-struct ComputeOccupancy
+template <typename TArray>
+struct ComputeOccupancyFunctor
 {
-  T* Points;
+  TArray* Points;
   double hX, hY, hZ; // internal data members for performance
   double fX, fY, fZ, bX, bY, bZ;
   vtkIdType xD, yD, zD, xyD;
   unsigned char OccupiedValue;
   unsigned char* Occupancy;
 
-  ComputeOccupancy(T* pts, int dims[3], double origin[3], double spacing[3], unsigned char empty,
-    unsigned char occupied, unsigned char* occ)
+  ComputeOccupancyFunctor(TArray* pts, int dims[3], double origin[3], double spacing[3],
+    unsigned char empty, unsigned char occupied, unsigned char* occ)
     : Points(pts)
     , OccupiedValue(occupied)
     , Occupancy(occ)
@@ -62,17 +63,17 @@ struct ComputeOccupancy
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    T* x = this->Points + 3 * ptId;
+    auto x = vtk::DataArrayTupleRange<3>(this->Points, ptId, endPtId).begin();
     unsigned char* o = this->Occupancy;
     unsigned char ov = this->OccupiedValue;
     int i, j, k;
 
-    for (; ptId < endPtId; ++ptId, x += 3)
+    for (; ptId < endPtId; ++ptId, ++x)
     {
 
-      i = static_cast<int>(((x[0] - this->bX) * this->fX));
-      j = static_cast<int>(((x[1] - this->bY) * this->fY));
-      k = static_cast<int>(((x[2] - this->bZ) * this->fZ));
+      i = static_cast<int>((((*x)[0] - this->bX) * this->fX));
+      j = static_cast<int>((((*x)[1] - this->bY) * this->fY));
+      k = static_cast<int>((((*x)[2] - this->bZ) * this->fZ));
 
       // If not inside image then skip
       if (i < 0 || i >= this->xD || j < 0 || j >= this->yD || k < 0 || k >= this->zD)
@@ -84,15 +85,18 @@ struct ComputeOccupancy
 
     } // over points
   }
+}; // ComputeOccupancyFunctor
 
-  static void Execute(vtkIdType npts, T* pts, int dims[3], double origin[3], double spacing[3],
-    unsigned char ev, unsigned char ov, unsigned char* o)
+struct ComputeOccupancyWorker
+{
+  template <typename TArray>
+  void operator()(TArray* inPts, int dims[3], double origin[3], double spacing[3],
+    unsigned char empty, unsigned char occupied, unsigned char* occ)
   {
-    ComputeOccupancy compOcc(pts, dims, origin, spacing, ev, ov, o);
-    vtkSMPTools::For(0, npts, compOcc);
+    ComputeOccupancyFunctor<TArray> functor(inPts, dims, origin, spacing, empty, occupied, occ);
+    vtkSMPTools::For(0, inPts->GetNumberOfTuples(), functor);
   }
-}; // ComputeOccupancy
-
+};
 } // anonymous namespace
 
 //================= Begin class proper =======================================
@@ -290,9 +294,6 @@ int vtkPointOccupancyFilter::RequestData(vtkInformation* vtkNotUsed(request),
     return 1;
   }
 
-  // Grab the raw point data
-  void* pts = input->GetPoints()->GetVoidPointer(0);
-
   // Grab the occupancy image and process it.
   output->AllocateScalars(outInfo);
   vtkDataArray* occ = output->GetPointData()->GetScalars();
@@ -306,10 +307,11 @@ int vtkPointOccupancyFilter::RequestData(vtkInformation* vtkNotUsed(request),
   unsigned char ev = this->EmptyValue;
   unsigned char ov = this->OccupiedValue;
 
-  switch (input->GetPoints()->GetDataType())
+  ComputeOccupancyWorker worker;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
+        input->GetPoints()->GetData(), worker, dims, origin, spacing, ev, ov, o))
   {
-    vtkTemplateMacro(
-      ComputeOccupancy<VTK_TT>::Execute(npts, (VTK_TT*)pts, dims, origin, spacing, ev, ov, o));
+    worker(input->GetPoints()->GetData(), dims, origin, spacing, ev, ov, o);
   }
 
   return 1;

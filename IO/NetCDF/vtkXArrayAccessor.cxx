@@ -453,6 +453,7 @@ int vtkXArrayAccessor::get_vars(int vtkNotUsed(ncid), int varid, const size_t* s
   }
 
   dataArray->SetNumberOfComponents(numberOfComponents);
+  assert(dataArray->HasStandardMemoryLayout() && "Array must have standard memory layout");
   if (this->IsContiguous(varid, startp, countp))
   {
     this->GetContiguousStartSize(varid, startp, countp, arrayStart, arraySize);
@@ -466,7 +467,7 @@ int vtkXArrayAccessor::get_vars(int vtkNotUsed(ncid), int varid, const size_t* s
   }
   else
   {
-    dataArray->SetNumberOfTuples(numberOfTuples);
+    dataArray->SetNumberOfTuples(numberOfTuples); // NOLINTNEXTLINE(bugprone-unsafe-functions)
     char* dst = static_cast<char*>(dataArray->GetVoidPointer(0));
     this->Copy(varid, startp, countp, dst);
   }

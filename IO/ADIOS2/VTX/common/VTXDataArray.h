@@ -40,10 +40,6 @@ public:
   /** key: blockID, value: block count */
   std::map<size_t, adios2::Dims> BlockCounts;
 
-  /** true : uses the special vtkIdType for indexing
-   *  false : uses other VTK supported type */
-  bool IsIdType = false;
-
   /** true: tuples > 1, false: tuples = 1 */
   bool HasTuples = false;
 

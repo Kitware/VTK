@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkAlgorithm.h"
 #include "vtkDataArray.h"
 #include "vtkDemandDrivenPipeline.h"
@@ -200,8 +201,9 @@ private:
     vtkUnstructuredGrid* unstructuredGrid =
       vtkUnstructuredGrid::SafeDownCast(multiPiece->GetPiece(0));
 
-    double* psol = reinterpret_cast<double*>(
-      unstructuredGrid->GetPointData()->GetArray("sol")->GetVoidPointer(0));
+    double* psol = vtkAOSDataArrayTemplate<double>::FastDownCast(
+      unstructuredGrid->GetPointData()->GetArray("sol"))
+                     ->GetPointer(0);
     const size_t size =
       static_cast<size_t>(unstructuredGrid->GetPointData()->GetArray("sol")->GetDataSize());
 
@@ -211,7 +213,8 @@ private:
     }
 
     const double* pvertices =
-      reinterpret_cast<double*>(unstructuredGrid->GetPoints()->GetVoidPointer(0));
+      vtkAOSDataArrayTemplate<double>::FastDownCast(unstructuredGrid->GetPoints()->GetData())
+        ->GetPointer(0);
 
     if (!std::equal(vertices.begin(), vertices.end(), pvertices))
     {

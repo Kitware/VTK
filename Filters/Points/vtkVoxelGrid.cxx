@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkVoxelGrid.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
 #include "vtkArrayListTemplate.h" // For processing attribute data
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -29,30 +32,30 @@ namespace
 
 //------------------------------------------------------------------------------
 // The threaded core of the algorithm (first pass)
-template <typename T>
-struct Subsample
+template <typename TInArray, typename TOutArray>
+struct SubsampleFunctor
 {
-  T* InPoints;
+  TInArray* InPoints;
   vtkStaticPointLocator* Locator;
   vtkInterpolationKernel* Kernel;
   const vtkIdType* BinMap;
   ArrayList Arrays;
-  T* OutPoints;
+  TOutArray* OutPoints;
 
   // Don't want to allocate working arrays on every thread invocation. Thread local
   // storage prevents lots of new/delete.
   vtkSMPThreadLocalObject<vtkIdList> PIds;
   vtkSMPThreadLocalObject<vtkDoubleArray> Weights;
 
-  Subsample(T* inPts, vtkPointData* inPD, vtkPointData* outPD, vtkStaticPointLocator* loc,
-    vtkInterpolationKernel* k, vtkIdType numOutPts, vtkIdType* binMap, T* outPts)
+  SubsampleFunctor(TInArray* inPts, vtkPointData* inPD, vtkPointData* outPD,
+    vtkStaticPointLocator* loc, vtkInterpolationKernel* k, vtkIdType* binMap, TOutArray* outPts)
     : InPoints(inPts)
     , Locator(loc)
     , Kernel(k)
     , BinMap(binMap)
     , OutPoints(outPts)
   {
-    this->Arrays.AddArrays(numOutPts, inPD, outPD);
+    this->Arrays.AddArrays(outPts->GetNumberOfTuples(), inPD, outPD);
   }
 
   // Just allocate a little bit of memory to get started.
@@ -66,8 +69,8 @@ struct Subsample
 
   void operator()(vtkIdType pointId, vtkIdType endPointId)
   {
-    T* px;
-    T* py = this->OutPoints + 3 * pointId;
+    auto inPoints = vtk::DataArrayTupleRange<3>(this->InPoints);
+    auto py = vtk::DataArrayTupleRange<3>(this->OutPoints, pointId, endPointId).begin();
     const vtkIdType* map = this->BinMap;
     vtkIdList*& pIds = this->PIds.Local();
     vtkIdType numWeights;
@@ -76,7 +79,7 @@ struct Subsample
     vtkIdType numIds, id;
     vtkStaticPointLocator* loc = this->Locator;
 
-    for (; pointId < endPointId; ++pointId)
+    for (; pointId < endPointId; ++pointId, ++py)
     {
       vtkIdType binId = map[pointId];
 
@@ -85,18 +88,18 @@ struct Subsample
       numIds = pIds->GetNumberOfIds();
       for (id = 0; id < numIds; ++id)
       {
-        px = this->InPoints + 3 * pIds->GetId(id);
-        y[0] += *px++;
-        y[1] += *px++;
-        y[2] += *px;
+        auto px = inPoints[pIds->GetId(id)];
+        y[0] += px[0];
+        y[1] += px[1];
+        y[2] += px[2];
       }
       count = static_cast<double>(numIds);
       y[0] /= count;
       y[1] /= count;
       y[2] /= count;
-      *py++ = y[0];
-      *py++ = y[1];
-      *py++ = y[2];
+      (*py)[0] = y[0];
+      (*py)[1] = y[1];
+      (*py)[2] = y[2];
 
       // Now interpolate attributes
       numWeights = this->Kernel->ComputeWeights(y, pIds, weights);
@@ -106,14 +109,18 @@ struct Subsample
 
   void Reduce() {}
 
-  static void Execute(T* inPts, vtkPointData* inPD, vtkPointData* outPD, vtkStaticPointLocator* loc,
-    vtkInterpolationKernel* k, vtkIdType numOutPts, vtkIdType* binMap, T* outPts)
-  {
-    Subsample subsample(inPts, inPD, outPD, loc, k, numOutPts, binMap, outPts);
-    vtkSMPTools::For(0, numOutPts, subsample);
-  }
+}; // SubsampleFunctor
 
-}; // Subsample
+struct SubsampleWorker
+{
+  template <typename TInArray, typename TOutArray>
+  void operator()(TInArray* inPts, TOutArray* outPts, vtkPointData* inPD, vtkPointData* outPD,
+    vtkStaticPointLocator* loc, vtkInterpolationKernel* k, vtkIdType* binMap)
+  {
+    SubsampleFunctor<TInArray, TOutArray> subsample(inPts, inPD, outPD, loc, k, binMap, outPts);
+    vtkSMPTools::For(0, outPts->GetNumberOfTuples(), subsample);
+  }
+};
 
 } // anonymous namespace
 
@@ -230,12 +237,13 @@ int vtkVoxelGrid::RequestData(vtkInformation* vtkNotUsed(request),
   points->SetNumberOfPoints(numOutPts);
   output->SetPoints(points);
 
-  void* inPtr = input->GetPoints()->GetVoidPointer(0);
-  void* outPtr = output->GetPoints()->GetVoidPointer(0);
-  switch (output->GetPoints()->GetDataType())
+  SubsampleWorker worker;
+  if (vtkArrayDispatch::Dispatch2ByArrayWithSameValueType<vtkArrayDispatch::PointArrays,
+        vtkArrayDispatch::AOSPointArrays>::Execute(input->GetPoints()->GetData(), points->GetData(),
+        worker, inPD, outPD, this->Locator, this->Kernel, binMap.data()))
   {
-    vtkTemplateMacro(Subsample<VTK_TT>::Execute((VTK_TT*)inPtr, inPD, outPD, this->Locator,
-      this->Kernel, numOutPts, binMap.data(), (VTK_TT*)outPtr));
+    worker(input->GetPoints()->GetData(), points->GetData(), inPD, outPD, this->Locator,
+      this->Kernel, binMap.data());
   }
 
   // Send attributes to output

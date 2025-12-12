@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkFitImplicitFunction.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
+#include "vtkDataArrayRange.h"
 #include "vtkImplicitFunction.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointSet.h"
@@ -19,15 +22,15 @@ namespace
 
 //------------------------------------------------------------------------------
 // The threaded core of the algorithm
-template <typename T>
-struct ExtractPoints
+template <typename TArray>
+struct ExtractPointsFunctor
 {
-  const T* Points;
+  TArray* Points;
   vtkImplicitFunction* Function;
   double Threshold;
   vtkIdType* PointMap;
 
-  ExtractPoints(T* points, vtkImplicitFunction* f, double thresh, vtkIdType* map)
+  ExtractPointsFunctor(TArray* points, vtkImplicitFunction* f, double thresh, vtkIdType* map)
     : Points(points)
     , Function(f)
     , Threshold(thresh)
@@ -37,32 +40,32 @@ struct ExtractPoints
 
   void operator()(vtkIdType ptId, vtkIdType endPtId)
   {
-    const T* p = this->Points + 3 * ptId;
+    auto p = vtk::DataArrayTupleRange<3>(this->Points, ptId).begin();
     vtkIdType* map = this->PointMap + ptId;
     vtkImplicitFunction* f = this->Function;
     double x[3], val;
     double tMin = (-this->Threshold);
     double tMax = this->Threshold;
 
-    for (; ptId < endPtId; ++ptId)
+    for (; ptId < endPtId; ++ptId, ++p)
     {
-      x[0] = static_cast<double>(*p++);
-      x[1] = static_cast<double>(*p++);
-      x[2] = static_cast<double>(*p++);
-
+      p->GetTuple(x);
       val = f->FunctionValue(x);
       *map++ = ((val >= tMin && val < tMax) ? 1 : -1);
     }
   }
-
-  static void Execute(vtkFitImplicitFunction* self, vtkIdType numPts, T* points, vtkIdType* map)
-  {
-    ExtractPoints extract(points, self->GetImplicitFunction(), self->GetThreshold(), map);
-    vtkSMPTools::For(0, numPts, extract);
-  }
-
 }; // ExtractPoints
 
+struct ExtractPointsWorker
+{
+  template <typename TArray>
+  void operator()(TArray* inPts, vtkFitImplicitFunction* self, vtkIdType* pointMap)
+  {
+    ExtractPointsFunctor<TArray> functor(
+      inPts, self->GetImplicitFunction(), self->GetThreshold(), pointMap);
+    vtkSMPTools::For(0, inPts->GetNumberOfTuples(), functor);
+  }
+};
 } // anonymous namespace
 
 //================= Begin class proper =======================================
@@ -110,11 +113,11 @@ int vtkFitImplicitFunction::FilterPoints(vtkPointSet* input)
 
   // Determine which points, if any, should be removed. We create a map
   // to keep track. The bulk of the algorithmic work is done in this pass.
-  vtkIdType numPts = input->GetNumberOfPoints();
-  void* inPtr = input->GetPoints()->GetVoidPointer(0);
-  switch (input->GetPoints()->GetDataType())
+  ExtractPointsWorker worker;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::PointArrays>::Execute(
+        input->GetPoints()->GetData(), worker, this, this->PointMap))
   {
-    vtkTemplateMacro(ExtractPoints<VTK_TT>::Execute(this, numPts, (VTK_TT*)inPtr, this->PointMap));
+    worker(input->GetPoints()->GetData(), this, this->PointMap);
   }
 
   return 1;

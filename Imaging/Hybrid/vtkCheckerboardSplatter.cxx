@@ -2,18 +2,19 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkCheckerboardSplatter.h"
 
-#include "vtkCompositeDataIterator.h"
-#include "vtkCompositeDataSet.h"
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkSMPTools.h"
+#include "vtkSOADataArrayTemplate.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
 #include <algorithm>
@@ -24,7 +25,7 @@ vtkStandardNewMacro(vtkCheckerboardSplatter);
 
 //------------------------------------------------------------------------------
 // Algorithm and integration with vtkSMPTools
-template <typename TPoints, typename TScalars>
+template <typename TPointArray, typename TScalarArray>
 class vtkCheckerboardSplatterAlgorithm
 {
 public:
@@ -35,8 +36,11 @@ public:
   // Information from the VTK class
   vtkCheckerboardSplatter* Splatter;
   vtkIdType NPts;
-  TPoints* Pts;
-  TScalars* Scalars;
+  using TPointPtr = typename vtk::detail::ValueRange<TPointArray, 3>::iterator;
+  using TScalarPtr = typename vtk::detail::ValueRange<TScalarArray, 1>::iterator;
+  using TScalar = vtk::GetAPIType<TScalarArray>;
+  TPointPtr Pts;
+  TScalarPtr Scalars;
   vtkDataArray *InScalars, *InNormals;
   vtkIdType Dims[3], SliceSize;
   double *Origin, *Spacing;
@@ -44,7 +48,7 @@ public:
   double ExponentFactor;      // scale the gaussian exponent
   double ScaleFactor;         // scale the gaussian
   int AccumulationMode;       // how to combine scalar values
-  TScalars InitialValue;      // initial value of scalars before splatting
+  TScalar InitialValue;       // initial value of scalars before splatting
   int ParallelSplatCrossover; // at which point to parallelize splatting
 
   // Points are grouped according to their checkerboard square address
@@ -88,9 +92,9 @@ public:
   vtkCheckerboardSplatterAlgorithm() = default;
 
   // Integration between VTK and templated algorithm
-  static void SplatPoints(vtkCheckerboardSplatter* self, vtkIdType npts, TPoints* points,
+  static void SplatPoints(vtkCheckerboardSplatter* self, vtkIdType npts, TPointArray* points,
     vtkDataArray* inScalars, vtkDataArray* inNormals, vtkImageData* output, int extent[6],
-    TScalars* scalars);
+    TScalarArray* scalars, vtkIdType index);
 
   // Various sampling functions centered around point p. These returns a
   // distance value (depending on eccentricity). Eccentric splats are available
@@ -141,7 +145,7 @@ public:
     {
       vtkIdType addr;
       unsigned char i, j, k, oct;
-      TPoints* x;
+      TPointPtr x;
       for (; ptId < end; ++ptId)
       {
         // First, map the point prior to sorting
@@ -192,6 +196,8 @@ public:
   template <typename TTPoints>
   class Splat
   {
+    using TPointPtr = typename vtk::detail::ValueRange<TTPoints, 3>::iterator;
+
   public:
     vtkCheckerboardSplatterAlgorithm* Algo;
     vtkIdType XMin, XMax, YMin, YMax, PtId;
@@ -204,7 +210,7 @@ public:
       this->YMin = min[1];
       this->YMax = max[1];
     }
-    void SetSplatPoint(vtkIdType ptId, TTPoints p[3])
+    void SetSplatPoint(vtkIdType ptId, TPointPtr p)
     {
       this->PtId = ptId;
       this->PD[0] = static_cast<double>(p[0]);
@@ -237,12 +243,12 @@ public:
   };
 
   // Accumulate scalar values as appropriate
-  void SetScalar(vtkIdType ptId, double pd[3], double x[3], TScalars* sPtr)
+  void SetScalar(vtkIdType ptId, double pd[3], double x[3], TScalarPtr sPtr)
   {
     double dist2 = (this->*Sample)(ptId, x, pd);
     double v = (this->*SampleFactor)(ptId)*exp(this->ExponentFactor * (dist2) / (this->R2));
 
-    TScalars Tv = static_cast<TScalars>(v);
+    TScalar Tv = static_cast<TScalar>(v);
     switch (this->AccumulationMode)
     {
       case VTK_ACCUMULATION_MODE_MIN:
@@ -264,19 +270,19 @@ public:
   }
 
   // Cap the boundary if requested.
-  void Cap(TScalars* s, TScalars capValue);
+  void Cap(TScalarPtr s, TScalar capValue);
 };
 
 //------------------------------------------------------------------------------
 // This is where the work is actually done and the points are splatted. Note
 // that splatting is only parallelized when the splat footprint is large
 // enough (to avoid multithreading overhead).
-template <typename TPoints, typename TScalars>
-void vtkCheckerboardSplatterAlgorithm<TPoints, TScalars>::SplatPoint(vtkIdType ptId)
+template <typename TPoints, typename TScalar>
+void vtkCheckerboardSplatterAlgorithm<TPoints, TScalar>::SplatPoint(vtkIdType ptId)
 {
   // Configure the parallel splat
   Splat<TPoints> splat(this);
-  TPoints* p = this->Pts + 3 * ptId;
+  TPointPtr p = this->Pts + 3 * ptId;
   splat.SetSplatPoint(ptId, p); // casts the point into double precision
 
   // Determine which voxel the point lies in
@@ -301,8 +307,9 @@ void vtkCheckerboardSplatterAlgorithm<TPoints, TScalars>::SplatPoint(vtkIdType p
 
 //------------------------------------------------------------------------------
 // Cap the boundaries with a specific value (the capValue).
-template <typename TPoints, typename TScalars>
-void vtkCheckerboardSplatterAlgorithm<TPoints, TScalars>::Cap(TScalars* s, TScalars capValue)
+template <typename TPointArray, typename TScalarArray>
+void vtkCheckerboardSplatterAlgorithm<TPointArray, TScalarArray>::Cap(
+  TScalarPtr s, TScalar capValue)
 {
   vtkIdType i, j, k, jOffset, kOffset;
 
@@ -369,19 +376,20 @@ void vtkCheckerboardSplatterAlgorithm<TPoints, TScalars>::Cap(TScalars* s, TScal
 
 //------------------------------------------------------------------------------
 // The algorithm driver method.
-template <typename TPoints, typename TScalars>
-void vtkCheckerboardSplatterAlgorithm<TPoints, TScalars>::SplatPoints(vtkCheckerboardSplatter* self,
-  vtkIdType npts, TPoints* pts, vtkDataArray* inScalars, vtkDataArray* inNormals,
-  vtkImageData* output, int extent[6], TScalars* scalars)
+template <typename TPointArray, typename TScalarArray>
+void vtkCheckerboardSplatterAlgorithm<TPointArray, TScalarArray>::SplatPoints(
+  vtkCheckerboardSplatter* self, vtkIdType npts, TPointArray* pts, vtkDataArray* inScalars,
+  vtkDataArray* inNormals, vtkImageData* output, int extent[6], TScalarArray* scalars,
+  vtkIdType index)
 {
   int i;
 
   // Populate the algorithm with relevant information from the VTK class
-  vtkCheckerboardSplatterAlgorithm<TPoints, TScalars> algo;
+  vtkCheckerboardSplatterAlgorithm<TPointArray, TScalarArray> algo;
   algo.Splatter = self;
   algo.NPts = npts;
-  algo.Pts = pts;
-  algo.Scalars = scalars;
+  algo.Pts = vtk::DataArrayValueRange<3>(pts).begin();
+  algo.Scalars = vtk::DataArrayValueRange<1>(scalars).begin() + index;
   algo.InScalars = inScalars;
   algo.InNormals = inNormals;
   algo.Origin = output->GetOrigin();
@@ -405,7 +413,7 @@ void vtkCheckerboardSplatterAlgorithm<TPoints, TScalars>::SplatPoints(vtkChecker
   algo.ScaleFactor = self->GetScaleFactor();
   algo.ExponentFactor = self->GetExponentFactor();
   algo.AccumulationMode = self->GetAccumulationMode();
-  algo.InitialValue = static_cast<TScalars>(self->GetNullValue());
+  algo.InitialValue = static_cast<TScalar>(self->GetNullValue());
   algo.ParallelSplatCrossover = self->GetParallelSplatCrossover();
 
   //  Set up function pointers to sample functions
@@ -480,7 +488,7 @@ void vtkCheckerboardSplatterAlgorithm<TPoints, TScalars>::SplatPoints(vtkChecker
   // belongs to (i.e., each point is associated with one of eight spatially
   // distinct groups). The (i,j,k) indicate which checkerboard square the
   // point is contained.
-  AssignSquares<TPoints> assign(&algo);
+  AssignSquares<TPointArray> assign(&algo);
   vtkSMPTools::For(0, npts, assign);
 
   // Now sort points based on checkerboard address. This will separate
@@ -506,8 +514,8 @@ void vtkCheckerboardSplatterAlgorithm<TPoints, TScalars>::SplatPoints(vtkChecker
   // Finally we can process the 8-way checkerboard, where we process in
   // parallel all squares in a particular color/group. Need to initialize the
   // output with the fill operation.
-  std::fill_n(scalars, algo.Dims[0] * algo.Dims[1] * algo.Dims[2], algo.InitialValue);
-  SplatSquares<TPoints> splatSquares(&algo);
+  std::fill_n(algo.Scalars, algo.Dims[0] * algo.Dims[1] * algo.Dims[2], algo.InitialValue);
+  SplatSquares<TPointArray> splatSquares(&algo);
   for (i = 0; i < 8; ++i) // loop over all eight checkerboard colors
   {
     vtkSMPTools::For(algo.Offsets[i], algo.Offsets[i + 1], splatSquares);
@@ -516,13 +524,25 @@ void vtkCheckerboardSplatterAlgorithm<TPoints, TScalars>::SplatPoints(vtkChecker
   // Cap the boundary if requested
   if (self->GetCapping())
   {
-    algo.Cap(algo.Scalars, static_cast<TScalars>(self->GetCapValue()));
+    algo.Cap(algo.Scalars, static_cast<TScalar>(self->GetCapValue()));
   }
 
   // Free up memory
   delete[] algo.CBoard;
   delete[] algo.SPts;
 }
+
+struct vtkCheckerboardSplatterFunctor
+{
+  template <typename TPointArray, typename TScalarArray>
+  void operator()(TPointArray* points, TScalarArray* scalars, vtkCheckerboardSplatter* self,
+    vtkDataArray* inScalars, vtkDataArray* inNormals, vtkImageData* output, int extent[6],
+    vtkIdType index)
+  {
+    vtkCheckerboardSplatterAlgorithm<TPointArray, TScalarArray>::SplatPoints(self,
+      points->GetNumberOfTuples(), points, inScalars, inNormals, output, extent, scalars, index);
+  }
+};
 
 //------------------------------------------------------------------------------
 // Create the VTK class proper.  Construct object with dimensions=(50,50,50);
@@ -657,48 +677,15 @@ int vtkCheckerboardSplatter::RequestData(vtkInformation* vtkNotUsed(request),
   // stuff. Note that the output types are currently limited to
   // (float,double) to manage precision. The point type is also limited
   // to real types but could be easily extended to other types.
-  void* ptsPtr = points->GetVoidPointer(0);
-  void* scalarPtr = output->GetArrayPointerForExtent(outScalars, extent);
-
-  if (this->OutputScalarType == VTK_FLOAT)
+  vtkIdType index = output->GetValueIndexForExtent(outScalars, extent);
+  using FloatArrays = vtkArrayDispatch::FilterArraysByValueType<vtkArrayDispatch::Arrays,
+    vtkArrayDispatch::Reals>::Result;
+  vtkCheckerboardSplatterFunctor functor;
+  using Dispatcher = vtkArrayDispatch::Dispatch2ByArray<vtkArrayDispatch::PointArrays, FloatArrays>;
+  if (!Dispatcher::Execute(
+        points->GetData(), outScalars, functor, this, inScalars, inNormals, output, extent, index))
   {
-    switch (points->GetDataType())
-    {
-      case VTK_DOUBLE:
-        vtkCheckerboardSplatterAlgorithm<double, float>::SplatPoints(this, npts,
-          static_cast<double*>(ptsPtr), inScalars, inNormals, output, extent,
-          static_cast<float*>(scalarPtr));
-        break;
-      case VTK_FLOAT:
-        vtkCheckerboardSplatterAlgorithm<float, float>::SplatPoints(this, npts,
-          static_cast<float*>(ptsPtr), inScalars, inNormals, output, extent,
-          static_cast<float*>(scalarPtr));
-        break;
-      default:
-        vtkWarningMacro(<< "Undefined input point type");
-    }
-  }
-  else if (this->OutputScalarType == VTK_DOUBLE)
-  {
-    switch (points->GetDataType())
-    {
-      case VTK_DOUBLE:
-        vtkCheckerboardSplatterAlgorithm<double, double>::SplatPoints(this, npts,
-          static_cast<double*>(ptsPtr), inScalars, inNormals, output, extent,
-          static_cast<double*>(scalarPtr));
-        break;
-      case VTK_FLOAT:
-        vtkCheckerboardSplatterAlgorithm<float, double>::SplatPoints(this, npts,
-          static_cast<float*>(ptsPtr), inScalars, inNormals, output, extent,
-          static_cast<double*>(scalarPtr));
-        break;
-      default:
-        vtkWarningMacro(<< "Undefined input point type");
-    }
-  }
-  else // warning output type not supported
-  {
-    vtkWarningMacro(<< "Only FLOAT or DOUBLE output scalar type is supported");
+    functor(points->GetData(), outScalars, this, inScalars, inNormals, output, extent, index);
   }
 
   return 1;

@@ -265,6 +265,8 @@ protected:
 private:
   vtkLabeledDataMapper(const vtkLabeledDataMapper&) = delete;
   void operator=(const vtkLabeledDataMapper&) = delete;
+
+  struct vtkLabeledDataMapperFunctor;
 };
 
 VTK_ABI_NAMESPACE_END

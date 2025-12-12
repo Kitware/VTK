@@ -874,6 +874,7 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char* varName, double time, vt
   if (vtkType < 1)
     return 0;
   auto dataArray = vtk::TakeSmartPointer(vtkDataArray::CreateDataArray(vtkType));
+  assert(dataArray->HasStandardMemoryLayout() && "Array must have standard memory layout");
   // Read the array from the file.
   CALL_NETCDF_INT(
     this->Accessor->get_vars(ncFD, varId, start, count, nullptr, vtkType, 1, arraySize, dataArray));
@@ -890,17 +891,17 @@ int vtkNetCDFReader::LoadVariable(int ncFD, const char* varName, double time, vt
       {
         float fillValue;
         this->Accessor->get_att_float(ncFD, varId, "_FillValue", &fillValue);
-        std::replace(reinterpret_cast<float*>(dataArray->GetVoidPointer(0)),
-          reinterpret_cast<float*>(dataArray->GetVoidPointer(dataArray->GetNumberOfTuples())),
-          fillValue, static_cast<float>(vtkMath::Nan()));
+        auto aos = vtkAOSDataArrayTemplate<float>::FastDownCast(dataArray);
+        std::replace(aos->GetPointer(0), aos->GetPointer(dataArray->GetNumberOfTuples()), fillValue,
+          static_cast<float>(vtkMath::Nan()));
       }
       else if (dataArray->GetDataType() == VTK_DOUBLE)
       {
         double fillValue;
         this->Accessor->get_att_double(ncFD, varId, "_FillValue", &fillValue);
-        std::replace(reinterpret_cast<double*>(dataArray->GetVoidPointer(0)),
-          reinterpret_cast<double*>(dataArray->GetVoidPointer(dataArray->GetNumberOfTuples())),
-          fillValue, vtkMath::Nan());
+        auto aos = vtkAOSDataArrayTemplate<double>::FastDownCast(dataArray);
+        std::replace(aos->GetPointer(0), aos->GetPointer(dataArray->GetNumberOfTuples()), fillValue,
+          vtkMath::Nan());
       }
       else
       {

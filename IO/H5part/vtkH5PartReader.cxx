@@ -3,7 +3,9 @@
 // SPDX-FileCopyrightText: Copyright (c) Kitware, Inc.
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkH5PartReader.h"
-//
+
+#include "vtkCellArray.h"
+#include "vtkCharArray.h"
 #include "vtkDataArray.h"
 #include "vtkDataArraySelection.h"
 #include "vtkInformation.h"
@@ -12,31 +14,17 @@
 #include "vtkPointData.h"
 #include "vtkPoints.h"
 #include "vtkPolyData.h"
+#include "vtkSmartPointer.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-//
-#include "vtkCellArray.h"
-#include "vtkCharArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkFloatArray.h"
-#include "vtkIntArray.h"
-#include "vtkLongArray.h"
-#include "vtkLongLongArray.h"
-#include "vtkShortArray.h"
 #include "vtkStringFormatter.h"
 #include "vtkStringScanner.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
-//
-#include <vector>
+
 #include <vtksys/RegularExpression.hxx>
 #include <vtksys/SystemTools.hxx>
-//
-#include "vtkSmartPointer.h"
 
 #include <algorithm>
+#include <vector>
 
 #include "vtk_h5part.h"
 // clang-format off
@@ -417,34 +405,6 @@ int GetVTKDataType(hid_t datatype)
   return VTK_VOID;
 }
 
-//------------------------------------------------------------------------------
-// A Convenience Macro which does what we want for any dataset type
-#define H5PartReadDataArray(nullptr, T2)                                                           \
-  dataarray->SetNumberOfComponents(Nc);                                                            \
-  dataarray->SetNumberOfTuples(Nt);                                                                \
-  dataarray->SetName(rootname.c_str());                                                            \
-  herr_t r;                                                                                        \
-  hsize_t count1_mem[] = { Nt * Nc };                                                              \
-  hsize_t count2_mem[] = { Nt };                                                                   \
-  hsize_t offset_mem[] = { 0 };                                                                    \
-  hsize_t stride_mem[] = { Nc };                                                                   \
-  for (c = 0; c < Nc; c++)                                                                         \
-  {                                                                                                \
-    const char* name = arraylist[c].c_str();                                                       \
-    hid_t dataset = H5Dopen(H5FileId->timegroup, name);                                            \
-    hid_t diskshape = H5PartGetDiskShape(H5FileId, dataset);                                       \
-    hid_t memspace = H5Screate_simple(1, count1_mem, nullptr);                                     \
-    offset_mem[0] = c;                                                                             \
-    r =                                                                                            \
-      H5Sselect_hyperslab(memspace, H5S_SELECT_SET, offset_mem, stride_mem, count2_mem, nullptr);  \
-    H5Dread(dataset, nullptr##T2, memspace, diskshape, H5P_DEFAULT, dataarray->GetVoidPointer(0)); \
-    if (memspace != H5S_ALL)                                                                       \
-      H5Sclose(memspace);                                                                          \
-    if (diskshape != H5S_ALL)                                                                      \
-      H5Sclose(diskshape);                                                                         \
-    H5Dclose(dataset);                                                                             \
-  }
-
 class H5PartToleranceCheck
 {
 public:
@@ -645,6 +605,7 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
     if (vtk_datatype != VTK_VOID)
     {
       dataarray.TakeReference(vtkDataArray::CreateDataArray(vtk_datatype));
+      assert(dataarray->HasStandardMemoryLayout() && "Array must have standard memory layout");
       dataarray->SetNumberOfComponents(Nc);
       dataarray->SetNumberOfTuples(Nt);
       dataarray->SetName(rootname.c_str());
@@ -666,7 +627,7 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
 
         if (H5Tequal(component_datatype, datatype) > 0)
         {
-          H5Dread(
+          H5Dread( // NOLINTNEXTLINE(bugprone-unsafe-functions)
             dataset, datatype, memspace, diskshape, H5P_DEFAULT, dataarray->GetVoidPointer(0));
         }
         else
@@ -677,12 +638,13 @@ int vtkH5PartReader::RequestData(vtkInformation* vtkNotUsed(request),
           // don't understand the stride/offset stuff too well to fix that.
           vtkDataArray* temparray =
             vtkDataArray::CreateDataArray(GetVTKDataType(component_datatype));
+          assert(temparray->HasStandardMemoryLayout() && "Array must have standard memory layout");
           temparray->SetNumberOfComponents(Nc);
           temparray->SetNumberOfTuples(Nt);
           H5Sselect_hyperslab(
             memspace, H5S_SELECT_SET, offset_mem, stride_mem, count2_mem, nullptr);
           H5Dread(dataset, component_datatype, memspace, diskshape, H5P_DEFAULT,
-            temparray->GetVoidPointer(0));
+            temparray->GetVoidPointer(0)); // NOLINT(bugprone-unsafe-functions)
           dataarray->CopyComponent(c, temparray, c);
           temparray->Delete();
         }

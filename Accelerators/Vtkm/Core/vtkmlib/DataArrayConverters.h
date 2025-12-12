@@ -70,14 +70,14 @@ viskores::cont::ArrayHandleBasic<T> vtkAOSDataArrayToFlatArrayHandle(
                        viskores::BufferSizeType newSize)
   {
     vtkAOSDataArrayTemplate<T>* vtkArray = reinterpret_cast<vtkAOSDataArrayTemplate<T>*>(container);
-    if ((vtkArray->GetVoidPointer(0) != memory) || (vtkArray->GetNumberOfValues() != oldSize))
+    if ((vtkArray->GetPointer(0) != memory) || (vtkArray->GetNumberOfValues() != oldSize))
     {
       vtkLog(ERROR,
         "Dangerous inconsistency found between pointers for VTK and Viskores. "
         "Was the VTK array resized outside of Viskores?");
     }
     vtkArray->SetNumberOfValues(newSize);
-    memory = vtkArray->GetVoidPointer(0);
+    memory = vtkArray->GetPointer(0);
   };
 
   return viskores::cont::ArrayHandleBasic<T>(

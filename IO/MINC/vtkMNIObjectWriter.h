@@ -32,6 +32,7 @@ class vtkPolyData;
 class vtkFloatArray;
 class vtkIntArray;
 class vtkPoints;
+struct vtkMNIObjectWriterFunctor;
 
 class VTKIOMINC_EXPORT vtkMNIObjectWriter : public vtkWriter
 {
@@ -144,6 +145,8 @@ protected:
 private:
   vtkMNIObjectWriter(const vtkMNIObjectWriter&) = delete;
   void operator=(const vtkMNIObjectWriter&) = delete;
+
+  friend struct vtkMNIObjectWriterFunctor;
 };
 
 VTK_ABI_NAMESPACE_END

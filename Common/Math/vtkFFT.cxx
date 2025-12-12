@@ -86,7 +86,7 @@ vtkSmartPointer<vtkFFT::vtkScalarNumberArray> vtkFFT::Fft(vtkScalarNumberArray* 
     return vtkSmartPointer<vtkScalarNumberArray>::New();
   }
 
-  ComplexNumber* rawInput = static_cast<ComplexNumber*>(input->GetVoidPointer(0));
+  ComplexNumber* rawInput = reinterpret_cast<ComplexNumber*>(input->GetPointer(0));
   const std::size_t size = static_cast<std::size_t>(input->GetNumberOfTuples());
   if (input->GetNumberOfComponents() == 1)
   {
@@ -193,7 +193,7 @@ vtkSmartPointer<vtkFFT::vtkScalarNumberArray> vtkFFT::RFft(vtkScalarNumberArray*
   // to do like so
   const std::size_t size = static_cast<std::size_t>(input->GetNumberOfTuples());
   const std::size_t outSize = size / 2 + 1;
-  ScalarNumber* rawInput = static_cast<ScalarNumber*>(input->GetVoidPointer(0));
+  ScalarNumber* rawInput = static_cast<ScalarNumber*>(input->GetPointer(0));
   ComplexNumber* rawResult = new ComplexNumber[outSize];
   vtkFFT::RFft(rawInput, size, rawResult);
 

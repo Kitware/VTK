@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageMedian3D.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -95,169 +97,172 @@ T vtkComputeMedianOfArray(T* aBegin, T* aEnd)
 //------------------------------------------------------------------------------
 // This method contains the second switch statement that calls the correct
 // templated function for the mask types.
-template <class T>
-void vtkImageMedian3DExecute(vtkImageMedian3D* self, vtkImageData* inData, T* inPtr,
-  vtkImageData* outData, T* outPtr, int outExt[6], int id, vtkDataArray* inArray)
+struct vtkImageMedian3DWorker
 {
-  int *kernelMiddle, *kernelSize;
-  // For looping though output (and input) pixels.
-  int outIdx0, outIdx1, outIdx2;
-  vtkIdType inInc0, inInc1, inInc2;
-  int outIdxC;
-  vtkIdType outIncX, outIncY, outIncZ;
-  T *inPtr0, *inPtr1, *inPtr2;
-  // For looping through hood pixels
-  int hoodMin0, hoodMax0, hoodMin1, hoodMax1, hoodMin2, hoodMax2;
-  int hoodStartMin0, hoodStartMax0, hoodStartMin1, hoodStartMax1;
-  int hoodIdx0, hoodIdx1, hoodIdx2;
-  T *tmpPtr0, *tmpPtr1, *tmpPtr2;
-  // The portion of the out image that needs no boundary processing.
-  int middleMin0, middleMax0, middleMin1, middleMax1, middleMin2, middleMax2;
-  int numComp;
-  int* inExt;
-  unsigned long count = 0;
-  unsigned long target;
-
-  if (!inArray)
+  template <class TInArray, class TOutArray, typename T = vtk::GetAPIType<TInArray>>
+  void operator()(TInArray* inArray, TOutArray* outArray, vtkImageMedian3D* self,
+    vtkImageData* inData, vtkImageData* outData, int outExt[6], int id)
   {
-    return;
-  }
+    int *kernelMiddle, *kernelSize;
+    // For looping though output (and input) pixels.
+    int outIdx0, outIdx1, outIdx2;
+    vtkIdType inInc0, inInc1, inInc2;
+    int outIdxC;
+    vtkIdType outIncX, outIncY, outIncZ;
+    // For looping through hood pixels
+    int hoodMin0, hoodMax0, hoodMin1, hoodMax1, hoodMin2, hoodMax2;
+    int hoodStartMin0, hoodStartMax0, hoodStartMin1, hoodStartMax1;
+    int hoodIdx0, hoodIdx1, hoodIdx2;
+    // The portion of the out image that needs no boundary processing.
+    int middleMin0, middleMax0, middleMin1, middleMax1, middleMin2, middleMax2;
+    int numComp;
+    int* inExt;
+    unsigned long count = 0;
+    unsigned long target;
 
-  // Array used to compute the median
-  T* workArray = new T[self->GetNumberOfElements()];
-
-  // Get information to march through data
-  inData->GetIncrements(inInc0, inInc1, inInc2);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-  kernelMiddle = self->GetKernelMiddle();
-  kernelSize = self->GetKernelSize();
-
-  numComp = inArray->GetNumberOfComponents();
-
-  hoodMin0 = outExt[0] - kernelMiddle[0];
-  hoodMin1 = outExt[2] - kernelMiddle[1];
-  hoodMin2 = outExt[4] - kernelMiddle[2];
-  hoodMax0 = kernelSize[0] + hoodMin0 - 1;
-  hoodMax1 = kernelSize[1] + hoodMin1 - 1;
-  hoodMax2 = kernelSize[2] + hoodMin2 - 1;
-
-  // Clip by the input image extent
-  inExt = inData->GetExtent();
-  hoodMin0 = (hoodMin0 > inExt[0]) ? hoodMin0 : inExt[0];
-  hoodMin1 = (hoodMin1 > inExt[2]) ? hoodMin1 : inExt[2];
-  hoodMin2 = (hoodMin2 > inExt[4]) ? hoodMin2 : inExt[4];
-  hoodMax0 = (hoodMax0 < inExt[1]) ? hoodMax0 : inExt[1];
-  hoodMax1 = (hoodMax1 < inExt[3]) ? hoodMax1 : inExt[3];
-  hoodMax2 = (hoodMax2 < inExt[5]) ? hoodMax2 : inExt[5];
-
-  // Save the starting neighborhood dimensions (2 loops only once)
-  hoodStartMin0 = hoodMin0;
-  hoodStartMax0 = hoodMax0;
-  hoodStartMin1 = hoodMin1;
-  hoodStartMax1 = hoodMax1;
-
-  // The portion of the output that needs no boundary computation.
-  middleMin0 = inExt[0] + kernelMiddle[0];
-  middleMax0 = inExt[1] - (kernelSize[0] - 1) + kernelMiddle[0];
-  middleMin1 = inExt[2] + kernelMiddle[1];
-  middleMax1 = inExt[3] - (kernelSize[1] - 1) + kernelMiddle[1];
-  middleMin2 = inExt[4] + kernelMiddle[2];
-  middleMax2 = inExt[5] - (kernelSize[2] - 1) + kernelMiddle[2];
-
-  target =
-    static_cast<unsigned long>((outExt[5] - outExt[4] + 1) * (outExt[3] - outExt[2] + 1) / 50.0);
-  target++;
-
-  // loop through pixel of output
-  inPtr = static_cast<T*>(inArray->GetVoidPointer((hoodMin0 - inExt[0]) * inInc0 +
-    (hoodMin1 - inExt[2]) * inInc1 + (hoodMin2 - inExt[4]) * inInc2));
-  inPtr2 = inPtr;
-  for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
-  {
-    inPtr1 = inPtr2;
-    hoodMin1 = hoodStartMin1;
-    hoodMax1 = hoodStartMax1;
-    for (outIdx1 = outExt[2]; !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
+    if (!inArray)
     {
-      if (!id)
-      {
-        if (!(count % target))
-        {
-          self->UpdateProgress(count / (50.0 * target));
-        }
-        count++;
-      }
-      inPtr0 = inPtr1;
-      hoodMin0 = hoodStartMin0;
-      hoodMax0 = hoodStartMax0;
-      for (outIdx0 = outExt[0]; outIdx0 <= outExt[1]; ++outIdx0)
-      {
-        for (outIdxC = 0; outIdxC < numComp; outIdxC++)
-        {
-          // Compute median of neighborhood
-          T* workEnd = workArray;
+      return;
+    }
 
-          // loop through neighborhood pixels
-          tmpPtr2 = inPtr0 + outIdxC;
-          for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
+    // Array used to compute the median
+    T* workArray = new T[self->GetNumberOfElements()];
+
+    // Get information to march through data
+    inData->GetIncrements(inInc0, inInc1, inInc2);
+    outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+    kernelMiddle = self->GetKernelMiddle();
+    kernelSize = self->GetKernelSize();
+
+    numComp = inArray->GetNumberOfComponents();
+
+    hoodMin0 = outExt[0] - kernelMiddle[0];
+    hoodMin1 = outExt[2] - kernelMiddle[1];
+    hoodMin2 = outExt[4] - kernelMiddle[2];
+    hoodMax0 = kernelSize[0] + hoodMin0 - 1;
+    hoodMax1 = kernelSize[1] + hoodMin1 - 1;
+    hoodMax2 = kernelSize[2] + hoodMin2 - 1;
+
+    // Clip by the input image extent
+    inExt = inData->GetExtent();
+    hoodMin0 = (hoodMin0 > inExt[0]) ? hoodMin0 : inExt[0];
+    hoodMin1 = (hoodMin1 > inExt[2]) ? hoodMin1 : inExt[2];
+    hoodMin2 = (hoodMin2 > inExt[4]) ? hoodMin2 : inExt[4];
+    hoodMax0 = (hoodMax0 < inExt[1]) ? hoodMax0 : inExt[1];
+    hoodMax1 = (hoodMax1 < inExt[3]) ? hoodMax1 : inExt[3];
+    hoodMax2 = (hoodMax2 < inExt[5]) ? hoodMax2 : inExt[5];
+
+    // Save the starting neighborhood dimensions (2 loops only once)
+    hoodStartMin0 = hoodMin0;
+    hoodStartMax0 = hoodMax0;
+    hoodStartMin1 = hoodMin1;
+    hoodStartMax1 = hoodMax1;
+
+    // The portion of the output that needs no boundary computation.
+    middleMin0 = inExt[0] + kernelMiddle[0];
+    middleMax0 = inExt[1] - (kernelSize[0] - 1) + kernelMiddle[0];
+    middleMin1 = inExt[2] + kernelMiddle[1];
+    middleMax1 = inExt[3] - (kernelSize[1] - 1) + kernelMiddle[1];
+    middleMin2 = inExt[4] + kernelMiddle[2];
+    middleMax2 = inExt[5] - (kernelSize[2] - 1) + kernelMiddle[2];
+
+    target =
+      static_cast<unsigned long>((outExt[5] - outExt[4] + 1) * (outExt[3] - outExt[2] + 1) / 50.0);
+    target++;
+
+    // loop through pixel of output
+    auto inPtr = vtk::DataArrayValueRange<1>(inArray).begin() + (hoodMin0 - inExt[0]) * inInc0 +
+      (hoodMin1 - inExt[2]) * inInc1 + (hoodMin2 - inExt[4]) * inInc2;
+    auto outPtr = vtk::DataArrayValueRange<1>(outArray).begin() +
+      outData->GetValueIndexForExtent(outArray, outExt);
+    auto inPtr2 = inPtr;
+    for (outIdx2 = outExt[4]; outIdx2 <= outExt[5]; ++outIdx2)
+    {
+      auto inPtr1 = inPtr2;
+      hoodMin1 = hoodStartMin1;
+      hoodMax1 = hoodStartMax1;
+      for (outIdx1 = outExt[2]; !self->AbortExecute && outIdx1 <= outExt[3]; ++outIdx1)
+      {
+        if (!id)
+        {
+          if (!(count % target))
           {
-            tmpPtr1 = tmpPtr2;
-            for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
+            self->UpdateProgress(count / (50.0 * target));
+          }
+          count++;
+        }
+        auto inPtr0 = inPtr1;
+        hoodMin0 = hoodStartMin0;
+        hoodMax0 = hoodStartMax0;
+        for (outIdx0 = outExt[0]; outIdx0 <= outExt[1]; ++outIdx0)
+        {
+          for (outIdxC = 0; outIdxC < numComp; outIdxC++)
+          {
+            // Compute median of neighborhood
+            T* workEnd = workArray;
+
+            // loop through neighborhood pixels
+            auto tmpPtr2 = inPtr0 + outIdxC;
+            for (hoodIdx2 = hoodMin2; hoodIdx2 <= hoodMax2; ++hoodIdx2)
             {
-              tmpPtr0 = tmpPtr1;
-              for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
+              auto tmpPtr1 = tmpPtr2;
+              for (hoodIdx1 = hoodMin1; hoodIdx1 <= hoodMax1; ++hoodIdx1)
               {
-                // Add this pixel to the median
-                *workEnd++ = *tmpPtr0;
-                tmpPtr0 += inInc0;
+                auto tmpPtr0 = tmpPtr1;
+                for (hoodIdx0 = hoodMin0; hoodIdx0 <= hoodMax0; ++hoodIdx0)
+                {
+                  // Add this pixel to the median
+                  *workEnd++ = *tmpPtr0;
+                  tmpPtr0 += inInc0;
+                }
+                tmpPtr1 += inInc1;
               }
-              tmpPtr1 += inInc1;
+              tmpPtr2 += inInc2;
             }
-            tmpPtr2 += inInc2;
+
+            // Replace this pixel with the hood median
+            *outPtr++ = vtkComputeMedianOfArray(workArray, workEnd);
           }
 
-          // Replace this pixel with the hood median
-          *outPtr++ = vtkComputeMedianOfArray(workArray, workEnd);
+          // shift neighborhood considering boundaries
+          if (outIdx0 >= middleMin0)
+          {
+            inPtr0 += inInc0;
+            ++hoodMin0;
+          }
+          if (outIdx0 < middleMax0)
+          {
+            ++hoodMax0;
+          }
         }
-
         // shift neighborhood considering boundaries
-        if (outIdx0 >= middleMin0)
+        if (outIdx1 >= middleMin1)
         {
-          inPtr0 += inInc0;
-          ++hoodMin0;
+          inPtr1 += inInc1;
+          ++hoodMin1;
         }
-        if (outIdx0 < middleMax0)
+        if (outIdx1 < middleMax1)
         {
-          ++hoodMax0;
+          ++hoodMax1;
         }
+        outPtr += outIncY;
       }
       // shift neighborhood considering boundaries
-      if (outIdx1 >= middleMin1)
+      if (outIdx2 >= middleMin2)
       {
-        inPtr1 += inInc1;
-        ++hoodMin1;
+        inPtr2 += inInc2;
+        ++hoodMin2;
       }
-      if (outIdx1 < middleMax1)
+      if (outIdx2 < middleMax2)
       {
-        ++hoodMax1;
+        ++hoodMax2;
       }
-      outPtr += outIncY;
+      outPtr += outIncZ;
     }
-    // shift neighborhood considering boundaries
-    if (outIdx2 >= middleMin2)
-    {
-      inPtr2 += inInc2;
-      ++hoodMin2;
-    }
-    if (outIdx2 < middleMax2)
-    {
-      ++hoodMax2;
-    }
-    outPtr += outIncZ;
-  }
 
-  delete[] workArray;
-}
+    delete[] workArray;
+  }
+};
 
 //------------------------------------------------------------------------------
 // This method contains the first switch statement that calls the correct
@@ -266,10 +271,8 @@ void vtkImageMedian3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
   vtkInformationVector** inputVector, vtkInformationVector* vtkNotUsed(outputVector),
   vtkImageData*** inData, vtkImageData** outData, int outExt[6], int id)
 {
-  void* inPtr;
-  void* outPtr = outData[0]->GetScalarPointerForExtent(outExt);
-
   vtkDataArray* inArray = this->GetInputArrayToProcess(0, inputVector);
+  vtkDataArray* outArray = outData[0]->GetPointData()->GetScalars();
   if (!inArray)
   {
     vtkErrorMacro("Array to compute median on has not been set, aborting");
@@ -280,23 +283,19 @@ void vtkImageMedian3D::ThreadedRequestData(vtkInformation* vtkNotUsed(request),
     outData[0]->GetPointData()->GetScalars()->SetName(inArray->GetName());
   }
 
-  inPtr = inArray->GetVoidPointer(0);
-
   // this filter expects that input is the same type as output.
-  if (inArray->GetDataType() != outData[0]->GetScalarType())
+  if (inArray->GetDataType() != outArray->GetDataType())
   {
     vtkErrorMacro(<< "Execute: input data type, " << inArray->GetDataType()
-                  << ", must match out ScalarType " << outData[0]->GetScalarType());
+                  << ", must match out ScalarType " << outArray->GetDataType());
     return;
   }
 
-  switch (inArray->GetDataType())
+  vtkImageMedian3DWorker worker;
+  if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
+        inArray, outArray, worker, this, inData[0][0], outData[0], outExt, id))
   {
-    vtkTemplateMacro(vtkImageMedian3DExecute(this, inData[0][0], static_cast<VTK_TT*>(inPtr),
-      outData[0], static_cast<VTK_TT*>(outPtr), outExt, id, inArray));
-    default:
-      vtkErrorMacro(<< "Execute: Unknown input ScalarType");
-      return;
+    worker(inArray, outArray, this, inData[0][0], outData[0], outExt, id);
   }
 }
 VTK_ABI_NAMESPACE_END

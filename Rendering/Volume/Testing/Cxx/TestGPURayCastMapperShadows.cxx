@@ -152,8 +152,7 @@ int TestGPURayCastMapperShadows(int argc, char* argv[])
   dataArray->SetNumberOfTuples(static_cast<vtkIdType>(dimension[0] * dimension[1] * dimension[2]));
 
   // init to zero
-  memset(dataArray->GetVoidPointer(0), 0,
-    static_cast<long>(dimension[0] * dimension[1] * dimension[2]) * sizeof(float));
+  dataArray->FillValue(0.0);
 
   vtkNew<vtkUniformGrid> grid;
   grid->SetOrigin(origin);

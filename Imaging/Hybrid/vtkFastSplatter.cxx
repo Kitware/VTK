@@ -4,11 +4,15 @@
 
 #include "vtkFastSplatter.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkArrayDispatchDataSetArrayList.h"
+#include "vtkDataArrayRange.h"
 #include "vtkGraph.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkObjectFactory.h"
+#include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
@@ -184,121 +188,250 @@ int vtkFastSplatter::RequestUpdateExtent(vtkInformation* vtkNotUsed(request),
 }
 
 //------------------------------------------------------------------------------
-
-template <class T>
-void vtkFastSplatterBucketPoints(const T* points, vtkIdType numPoints, unsigned int* buckets,
-  const int dimensions[3], const double origin[3], const double spacing[3])
+struct vtkFastSplatterBucketPointsWorker
 {
-  // Clear out the buckets.
-  std::fill_n(buckets, dimensions[0] * dimensions[1] * dimensions[2], 0);
-
-  // Iterate over all the points.
-  for (vtkIdType i = 0; i < numPoints; i++)
+  template <class TArray>
+  void operator()(TArray* pointArray, vtkIdType numPoints, unsigned int* buckets,
+    const int dimensions[3], const double origin[3], const double spacing[3])
   {
-    const T* p = points + 3 * i;
+    // Clear out the buckets.
+    std::fill_n(buckets, dimensions[0] * dimensions[1] * dimensions[2], 0);
+    auto points = vtk::DataArrayTupleRange<3>(pointArray);
 
-    // Find the bucket.
-    vtkIdType loc[3];
-    loc[0] = static_cast<vtkIdType>(((p[0] - origin[0]) / spacing[0]) + 0.5);
-    loc[1] = static_cast<vtkIdType>(((p[1] - origin[1]) / spacing[1]) + 0.5);
-    loc[2] = static_cast<vtkIdType>(((p[2] - origin[2]) / spacing[2]) + 0.5);
-    if ((loc[0] < 0) || (loc[0] >= dimensions[0]) || (loc[1] < 0) || (loc[1] >= dimensions[1]) ||
-      (loc[2] < 0) || (loc[2] >= dimensions[2]))
+    // Iterate over all the points.
+    for (vtkIdType i = 0; i < numPoints; i++)
     {
-      // Point outside of splatting region.
-      continue;
-    }
-    vtkIdType bucketId = (loc[2] * dimensions[0] * dimensions[1] + loc[1] * dimensions[0] + loc[0]);
+      auto p = points[i];
 
-    // Increment the bucket.
-    buckets[bucketId]++;
+      // Find the bucket.
+      vtkIdType loc[3];
+      loc[0] = static_cast<vtkIdType>(((p[0] - origin[0]) / spacing[0]) + 0.5);
+      loc[1] = static_cast<vtkIdType>(((p[1] - origin[1]) / spacing[1]) + 0.5);
+      loc[2] = static_cast<vtkIdType>(((p[2] - origin[2]) / spacing[2]) + 0.5);
+      if ((loc[0] < 0) || (loc[0] >= dimensions[0]) || (loc[1] < 0) || (loc[1] >= dimensions[1]) ||
+        (loc[2] < 0) || (loc[2] >= dimensions[2]))
+      {
+        // Point outside of splatting region.
+        continue;
+      }
+      vtkIdType bucketId =
+        (loc[2] * dimensions[0] * dimensions[1] + loc[1] * dimensions[0] + loc[0]);
+
+      // Increment the bucket.
+      buckets[bucketId]++;
+    }
   }
-}
+};
 
 //------------------------------------------------------------------------------
-
-template <class T>
-void vtkFastSplatterConvolve(T* splat, const int splatDims[3], unsigned int* buckets, T* output,
-  int* numPointsSplatted, const int imageDims[3])
+struct vtkFastSplatterConvolveWorker
 {
-  int numPoints = 0;
-
-  // First, clear out the output image.
-  std::fill_n(output, imageDims[0] * imageDims[1] * imageDims[2], static_cast<T>(0));
-
-  int splatCenter[3];
-  splatCenter[0] = splatDims[0] / 2;
-  splatCenter[1] = splatDims[1] / 2;
-  splatCenter[2] = splatDims[2] / 2;
-
-  // Iterate over all entries in buckets and splat anything that is nonzero.
-  unsigned int* b = buckets;
-  for (int k = 0; k < imageDims[2]; k++)
+  template <class TInArray, class TOutArray>
+  void operator()(TInArray* splatArray, TOutArray* outputArray, const int splatDims[3],
+    unsigned int* buckets, int* numPointsSplatted, const int imageDims[3])
   {
-    // Figure out how splat projects on image in this slab, taking into
-    // account overlap.
-    int splatProjMinZ = k - splatCenter[2];
-    int splatProjMaxZ = splatProjMinZ + splatDims[2];
-    splatProjMinZ = std::max(splatProjMinZ, 0);
-    splatProjMaxZ = std::min(splatProjMaxZ, imageDims[2]);
+    using T = vtk::GetAPIType<TInArray>;
+    int numPoints = 0;
 
-    for (int j = 0; j < imageDims[1]; j++)
+    // First, clear out the output image.
+    outputArray->Fill(0);
+    auto splat = vtk::DataArrayValueRange<1>(splatArray);
+    auto output = vtk::DataArrayValueRange<1>(outputArray);
+
+    int splatCenter[3];
+    splatCenter[0] = splatDims[0] / 2;
+    splatCenter[1] = splatDims[1] / 2;
+    splatCenter[2] = splatDims[2] / 2;
+
+    // Iterate over all entries in buckets and splat anything that is nonzero.
+    unsigned int* b = buckets;
+    for (int k = 0; k < imageDims[2]; k++)
     {
       // Figure out how splat projects on image in this slab, taking into
       // account overlap.
-      int splatProjMinY = j - splatCenter[1];
-      int splatProjMaxY = splatProjMinY + splatDims[1];
-      splatProjMinY = std::max(splatProjMinY, 0);
-      splatProjMaxY = std::min(splatProjMaxY, imageDims[1]);
+      int splatProjMinZ = k - splatCenter[2];
+      int splatProjMaxZ = splatProjMinZ + splatDims[2];
+      splatProjMinZ = std::max(splatProjMinZ, 0);
+      splatProjMaxZ = std::min(splatProjMaxZ, imageDims[2]);
 
-      for (int i = 0; i < imageDims[0]; i++)
+      for (int j = 0; j < imageDims[1]; j++)
       {
-        // No need to splat 0.
-        if (*b == 0)
-        {
-          b++;
-          continue;
-        }
-
-        T value = static_cast<T>(*b);
-        numPoints += static_cast<int>(*b);
-        b++;
-
-        // Figure out how splat projects on image in this pixel, taking into
+        // Figure out how splat projects on image in this slab, taking into
         // account overlap.
-        int splatProjMinX = i - splatCenter[0];
-        int splatProjMaxX = splatProjMinX + splatDims[0];
-        splatProjMinX = std::max(splatProjMinX, 0);
-        splatProjMaxX = std::min(splatProjMaxX, imageDims[0]);
+        int splatProjMinY = j - splatCenter[1];
+        int splatProjMaxY = splatProjMinY + splatDims[1];
+        splatProjMinY = std::max(splatProjMinY, 0);
+        splatProjMaxY = std::min(splatProjMaxY, imageDims[1]);
 
-        // Do the splat.
-        for (int imageZ = splatProjMinZ; imageZ < splatProjMaxZ; imageZ++)
+        for (int i = 0; i < imageDims[0]; i++)
         {
-          int imageZOffset = imageZ * imageDims[0] * imageDims[1];
-          int splatZ = imageZ - k + splatCenter[2];
-          int splatZOffset = splatZ * splatDims[0] * splatDims[1];
-          for (int imageY = splatProjMinY; imageY < splatProjMaxY; imageY++)
+          // No need to splat 0.
+          if (*b == 0)
           {
-            int imageYOffset = imageZOffset + imageY * imageDims[0];
-            int splatY = imageY - j + splatCenter[1];
-            int splatYOffset = splatZOffset + splatY * splatDims[0];
-            for (int imageX = splatProjMinX; imageX < splatProjMaxX; imageX++)
+            b++;
+            continue;
+          }
+
+          T value = static_cast<T>(*b);
+          numPoints += static_cast<int>(*b);
+          b++;
+
+          // Figure out how splat projects on image in this pixel, taking into
+          // account overlap.
+          int splatProjMinX = i - splatCenter[0];
+          int splatProjMaxX = splatProjMinX + splatDims[0];
+          splatProjMinX = std::max(splatProjMinX, 0);
+          splatProjMaxX = std::min(splatProjMaxX, imageDims[0]);
+
+          // Do the splat.
+          for (int imageZ = splatProjMinZ; imageZ < splatProjMaxZ; imageZ++)
+          {
+            int imageZOffset = imageZ * imageDims[0] * imageDims[1];
+            int splatZ = imageZ - k + splatCenter[2];
+            int splatZOffset = splatZ * splatDims[0] * splatDims[1];
+            for (int imageY = splatProjMinY; imageY < splatProjMaxY; imageY++)
             {
-              int imageOffset = imageYOffset + imageX;
-              int splatX = imageX - i + splatCenter[0];
-              int splatOffset = splatYOffset + splatX;
-              output[imageOffset] += value * splat[splatOffset];
+              int imageYOffset = imageZOffset + imageY * imageDims[0];
+              int splatY = imageY - j + splatCenter[1];
+              int splatYOffset = splatZOffset + splatY * splatDims[0];
+              for (int imageX = splatProjMinX; imageX < splatProjMaxX; imageX++)
+              {
+                int imageOffset = imageYOffset + imageX;
+                int splatX = imageX - i + splatCenter[0];
+                int splatOffset = splatYOffset + splatX;
+                output[imageOffset] += value * splat[splatOffset];
+              }
             }
           }
         }
       }
     }
+    *numPointsSplatted = numPoints;
   }
-  *numPointsSplatted = numPoints;
-}
+};
 
 //------------------------------------------------------------------------------
+struct vtkFastSplatterClampWorker
+{
+  template <class TArray, typename T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* array, T minValue, T maxValue)
+  {
+    auto a = vtk::DataArrayValueRange(array);
+    for (vtkIdType i = 0; i < array->GetNumberOfValues(); i++)
+    {
+      a[i] = std::clamp<T>(a[i], minValue, maxValue);
+    }
+  }
+};
 
+//-----------------------------------------------------------------------------
+struct vtkFastSplatterFrozenScaleWorker
+{
+  template <class TArray, typename T = vtk::GetAPIType<TArray>>
+  void operator()(TArray* scalarArray, T minValue, T maxValue, double min, double max)
+  {
+    auto array = vtk::DataArrayValueRange(scalarArray).begin();
+    decltype(array) a;
+
+    int numComponents = scalarArray->GetNumberOfComponents();
+    vtkIdType numTuples = scalarArray->GetNumberOfTuples();
+    vtkIdType t;
+    for (int c = 0; c < numComponents; c++)
+    {
+      // Bias everything so that 0 is really the minimum.
+      if (min != 0)
+      {
+        for (t = 0, a = array + c; t < numTuples; t++, a += numComponents)
+        {
+          *a -= static_cast<T>(min);
+        }
+      }
+
+      // Scale the values.
+      if (max != min)
+      {
+        for (t = 0, a = array + c; t < numTuples; t++, a += numComponents)
+        {
+          *a = static_cast<T>(((maxValue - minValue) * (*a)) / (max - min));
+        }
+      }
+
+      // Bias everything again so that it lies in the correct range.
+      if (minValue != 0)
+      {
+        for (t = 0, a = array + c; t < numTuples; t++, a += numComponents)
+        {
+          *a += minValue;
+        }
+      }
+    }
+  }
+};
+
+//-----------------------------------------------------------------------------
+struct vtkFastSplatterScaleWorker
+{
+  template <class TArray, typename T = vtk::GetAPIType<TArray>>
+  void operator()(
+    TArray* scalarArray, T minValue, T maxValue, double* dataMinValue, double* dataMaxValue)
+  {
+    auto array = vtk::DataArrayValueRange(scalarArray).begin();
+    T min, max;
+    *dataMinValue = 0;
+    *dataMaxValue = 0;
+    vtkIdType t;
+    int numComponents = scalarArray->GetNumberOfComponents();
+    vtkIdType numTuples = scalarArray->GetNumberOfTuples();
+    for (int c = 0; c < numComponents; c++)
+    {
+      // Find the min and max values in the array.
+      auto a = array + c;
+      min = max = *a;
+      a += numComponents;
+      for (t = 1; t < numTuples; t++, a += numComponents)
+      {
+        if (min > *a)
+          min = *a;
+        if (max < *a)
+          max = *a;
+      }
+
+      // Bias everything so that 0 is really the minimum.
+      if (min != 0)
+      {
+        for (t = 0, a = array + c; t < numTuples; t++, a += numComponents)
+        {
+          *a -= min;
+        }
+      }
+
+      // Scale the values.
+      if (max != min)
+      {
+        for (t = 0, a = array + c; t < numTuples; t++, a += numComponents)
+        {
+          *a = ((maxValue - minValue) * (*a)) / (max - min);
+        }
+      }
+
+      // Bias everything again so that it lies in the correct range.
+      if (minValue != 0)
+      {
+        for (t = 0, a = array + c; t < numTuples; t++, a += numComponents)
+        {
+          *a += minValue;
+        }
+      }
+      if (c == 0)
+      {
+        *dataMinValue = min;
+        *dataMaxValue = max;
+      }
+    }
+  }
+};
+
+//------------------------------------------------------------------------------
 // For those of you familiar with the old pipeline, this is equivalent to the
 // Execute method.
 int vtkFastSplatter::RequestData(vtkInformation* vtkNotUsed(request),
@@ -377,24 +510,30 @@ int vtkFastSplatter::RequestData(vtkInformation* vtkNotUsed(request),
   this->Buckets->AllocateScalars(VTK_UNSIGNED_INT, 1);
 
   // Get array for buckets.
-  unsigned int* buckets = static_cast<unsigned int*>(this->Buckets->GetScalarPointer());
+  unsigned int* buckets =
+    vtkAOSDataArrayTemplate<unsigned int>::FastDownCast(this->Buckets->GetPointData()->GetScalars())
+      ->GetPointer(0);
 
   // Count how many points in the input lie in each pixel of the output image.
-  void* p = points->GetVoidPointer(0);
-  switch (points->GetDataType())
+  vtkFastSplatterBucketPointsWorker pointsWorker;
+  if (!vtkArrayDispatch::DispatchByArray<vtkArrayDispatch::AllPointArrays>::Execute(
+        points->GetData(), pointsWorker, points->GetNumberOfPoints(), buckets,
+        this->OutputDimensions, this->Origin, this->Spacing))
   {
-    vtkTemplateMacro(vtkFastSplatterBucketPoints(static_cast<VTK_TT*>(p),
-      points->GetNumberOfPoints(), buckets, this->OutputDimensions, this->Origin, this->Spacing));
+    pointsWorker(points->GetData(), points->GetNumberOfPoints(), buckets, this->OutputDimensions,
+      this->Origin, this->Spacing);
   }
 
   // Now convolve the splat image with the bucket image.
-  void* splat = splatImage->GetScalarPointer();
-  void* o = output->GetScalarPointer();
-  switch (output->GetScalarType())
+  auto splatArray = splatImage->GetPointData()->GetScalars();
+  auto outputArray = output->GetPointData()->GetScalars();
+  vtkFastSplatterConvolveWorker convolveWorker;
+  if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(splatArray, outputArray, convolveWorker,
+        splatImage->GetDimensions(), buckets, &this->NumberOfPointsSplatted,
+        this->OutputDimensions))
   {
-    vtkTemplateMacro(
-      vtkFastSplatterConvolve(static_cast<VTK_TT*>(splat), splatImage->GetDimensions(), buckets,
-        static_cast<VTK_TT*>(o), &(this->NumberOfPointsSplatted), this->OutputDimensions));
+    convolveWorker(splatArray, outputArray, splatImage->GetDimensions(), buckets,
+      &this->NumberOfPointsSplatted, this->OutputDimensions);
   }
 
   // Do any appropriate limiting.
@@ -403,32 +542,38 @@ int vtkFastSplatter::RequestData(vtkInformation* vtkNotUsed(request),
     case NoneLimit:
       break;
     case ClampLimit:
-      switch (output->GetScalarType())
+    {
+      vtkFastSplatterClampWorker clampWorker;
+      if (!vtkArrayDispatch::Dispatch::Execute(
+            outputArray, clampWorker, this->MinValue, this->MaxValue))
       {
-        vtkTemplateMacro(vtkFastSplatterClamp(static_cast<VTK_TT*>(o),
-          output->GetNumberOfPoints() * output->GetNumberOfScalarComponents(),
-          static_cast<VTK_TT>(this->MinValue), static_cast<VTK_TT>(this->MaxValue)));
+        clampWorker(outputArray, this->MinValue, this->MaxValue);
       }
       break;
+    }
     case FreezeScaleLimit:
-      switch (output->GetScalarType())
+    {
+      vtkFastSplatterFrozenScaleWorker frozenScaleWorker;
+      if (!vtkArrayDispatch::Dispatch::Execute(outputArray, frozenScaleWorker, this->MinValue,
+            this->MaxValue, this->LastDataMinValue, this->LastDataMaxValue))
       {
-        vtkTemplateMacro(
-          vtkFastSplatterFrozenScale(static_cast<VTK_TT*>(o), output->GetNumberOfScalarComponents(),
-            output->GetNumberOfPoints(), static_cast<VTK_TT>(this->MinValue),
-            static_cast<VTK_TT>(this->MaxValue), this->LastDataMinValue, this->LastDataMaxValue));
+        frozenScaleWorker(outputArray, this->MinValue, this->MaxValue, this->LastDataMinValue,
+          this->LastDataMaxValue);
       }
       break;
+    }
 
     case ScaleLimit:
-      switch (output->GetScalarType())
+    {
+      vtkFastSplatterScaleWorker scaleWorker;
+      if (!vtkArrayDispatch::Dispatch::Execute(outputArray, scaleWorker, this->MinValue,
+            this->MaxValue, &this->LastDataMinValue, &this->LastDataMaxValue))
       {
-        vtkTemplateMacro(
-          vtkFastSplatterScale(static_cast<VTK_TT*>(o), output->GetNumberOfScalarComponents(),
-            output->GetNumberOfPoints(), static_cast<VTK_TT>(this->MinValue),
-            static_cast<VTK_TT>(this->MaxValue), &this->LastDataMinValue, &this->LastDataMaxValue));
+        scaleWorker(outputArray, this->MinValue, this->MaxValue, &this->LastDataMinValue,
+          &this->LastDataMaxValue);
       }
       break;
+    }
   }
 
   return 1;

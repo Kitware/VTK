@@ -13,6 +13,8 @@
 
 #include "VTXSchema.h"
 
+#include "vtkAOSDataArrayTemplate.h"
+
 #include <stdexcept>
 
 #include "VTX/common/VTXHelper.h"
@@ -65,7 +67,7 @@ void VTXSchema::GetDataArrayGlobal(
   const size_t elements = helper::TotalElements(dataArray.Count);
   // TODO: enable vectors
   InitDataArray<T>(variable.Name(), elements, 1, dataArray);
-  T* ptr = reinterpret_cast<T*>(dataArray.Data->GetVoidPointer(0));
+  T* ptr = vtkAOSDataArrayTemplate<T>::FastDownCast(dataArray.Data)->GetPointer(0);
   this->Engine.Get(variable, ptr);
 }
 
@@ -105,7 +107,7 @@ void VTXSchema::GetDataArrayLocal(
   for (const auto& blockPair : dataArray.BlockCounts)
   {
     variable.SetBlockSelection(blockPair.first);
-    T* ptr = reinterpret_cast<T*>(dataArray.Data->GetVoidPointer(offset));
+    T* ptr = vtkAOSDataArrayTemplate<T>::FastDownCast(dataArray.Data)->GetPointer(offset);
     this->Engine.Get(variable, ptr);
     offset += helper::TotalElements(blockPair.second);
   }
@@ -116,7 +118,7 @@ void VTXSchema::GetDataValueGlobal(
   adios2::Variable<T> variable, types::DataArray& dataArray, size_t /*step*/)
 {
   InitDataArray<T>(variable.Name(), 1, 1, dataArray);
-  T* ptr = reinterpret_cast<T*>(dataArray.Data->GetVoidPointer(0));
+  T* ptr = vtkAOSDataArrayTemplate<T>::FastDownCast(dataArray.Data)->GetPointer(0);
   this->Engine.Get(variable, ptr);
 }
 
@@ -124,15 +126,7 @@ template <class T>
 void VTXSchema::InitDataArray(
   const std::string& name, size_t elements, size_t components, types::DataArray& dataArray)
 {
-  if (dataArray.IsIdType)
-  {
-    dataArray.Data = helper::NewDataArrayIdType();
-  }
-  else
-  {
-    dataArray.Data = helper::NewDataArray<T>();
-  }
-
+  dataArray.Data = helper::NewDataArray<T>();
   dataArray.Data->Allocate(elements);
   dataArray.Data->SetNumberOfComponents(static_cast<int>(components));
   dataArray.Data->SetNumberOfTuples(elements / components);

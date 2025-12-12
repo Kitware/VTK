@@ -687,7 +687,7 @@ vtkFloatArray* vtkValuePass::GetFloatImageDataArray(vtkRenderer* ren)
   vtkRenderWindow* renWin = ren->GetRenderWindow();
   renWin->MakeCurrent();
   this->GetFloatImageData(
-    GL_RED, size[0], size[1], this->ImplFloat->OutputFloatArray->GetVoidPointer(0));
+    GL_RED, size[0], size[1], this->ImplFloat->OutputFloatArray->GetPointer(0));
 
   return this->ImplFloat->OutputFloatArray;
 }
@@ -830,7 +830,7 @@ void vtkValuePass::RenderPieceStart(vtkDataArray* dataArr, vtkMapper* mapper)
     this->ImplFloat->ComponentBuffer->SetNumberOfTuples(numTuples);
     this->ImplFloat->ComponentBuffer->CopyComponent(0, dataArr, comp);
     this->ImplFloat->ComponentBuffer->Modified();
-    float const* data = static_cast<float*>(this->ImplFloat->ComponentBuffer->GetVoidPointer(0));
+    float const* data = this->ImplFloat->ComponentBuffer->GetPointer(0);
 
     // Upload array data
     if (this->PassState->ArrayMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)

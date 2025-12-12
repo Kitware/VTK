@@ -51,7 +51,7 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, int iteration)
   out.str("");
   err.str("");
   double pnt[3];
-  double* ptr = static_cast<double*>(nodeXYZ->GetVoidPointer(0));
+  double* ptr = nodeXYZ->GetPointer(0);
   for (vtkIdType nodeIdx = 0; nodeIdx < ghostGrid->GetNumberOfPoints(); ++nodeIdx)
   {
     ghostGrid->GetPoint(nodeIdx, pnt);
@@ -86,7 +86,7 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, int iteration)
   out.str("");
   err.str("");
   double centroid[3];
-  double* cptr = static_cast<double*>(cellXYZ->GetVoidPointer(0));
+  double* cptr = cellXYZ->GetPointer(0);
   vtkIdList* ptIds = vtkIdList::New();
   for (vtkIdType cellIdx = 0; cellIdx < ghostGrid->GetNumberOfCells(); ++cellIdx)
   {
@@ -142,7 +142,7 @@ void UpdateGrid(int iteration)
     (global::Grid->GetNumberOfPoints() == nodeXYZ->GetNumberOfTuples()));
   assert("pre: nodeXYZ numcomponents mismatch!" && (nodeXYZ->GetNumberOfComponents() == 3));
 
-  double* ptr = static_cast<double*>(nodeXYZ->GetVoidPointer(0));
+  double* ptr = nodeXYZ->GetPointer(0);
   for (vtkIdType nodeIdx = 0; nodeIdx < global::Grid->GetNumberOfPoints(); ++nodeIdx)
   {
     ptr[nodeIdx * 3] += static_cast<double>(iteration);
@@ -157,7 +157,7 @@ void UpdateGrid(int iteration)
     (global::Grid->GetNumberOfCells() == cellXYZ->GetNumberOfTuples()));
   assert("pre: nodeXYZ numcomponents mismatch!" && (cellXYZ->GetNumberOfComponents() == 3));
 
-  double* cptr = static_cast<double*>(cellXYZ->GetVoidPointer(0));
+  double* cptr = cellXYZ->GetPointer(0);
   for (vtkIdType cellIdx = 0; cellIdx < global::Grid->GetNumberOfCells(); ++cellIdx)
   {
     cptr[cellIdx * 3] += static_cast<double>(iteration);
@@ -173,7 +173,7 @@ void SetXYZCellField()
   centerXYZ->SetName("CentroidXYZ");
   centerXYZ->SetNumberOfComponents(3);
   centerXYZ->SetNumberOfTuples(global::Grid->GetNumberOfCells());
-  double* ptr = static_cast<double*>(centerXYZ->GetVoidPointer(0));
+  double* ptr = centerXYZ->GetPointer(0);
 
   double centroid[3];
   vtkIdList* ptIds = vtkIdList::New();
@@ -207,7 +207,7 @@ void SetXYZNodeField()
   nodeXYZ->SetName("NodeXYZ");
   nodeXYZ->SetNumberOfComponents(3);
   nodeXYZ->SetNumberOfTuples(global::Grid->GetNumberOfPoints());
-  double* ptr = static_cast<double*>(nodeXYZ->GetVoidPointer(0));
+  double* ptr = nodeXYZ->GetPointer(0);
 
   for (vtkIdType node = 0; node < global::Grid->GetNumberOfPoints(); ++node)
   {
@@ -279,13 +279,13 @@ void GenerateDataSet()
   vtkPoints* nodes = vtkPoints::New();
   nodes->SetDataTypeToDouble();
   nodes->SetNumberOfPoints(numNodes);
-  double* nodesPtr = static_cast<double*>(nodes->GetVoidPointer(0));
+  double* nodesPtr = vtkDoubleArray::FastDownCast(nodes->GetData())->GetPointer(0);
 
   vtkIdTypeArray* globalIds = vtkIdTypeArray::New();
   globalIds->SetName("GlobalID");
   globalIds->SetNumberOfComponents(1);
   globalIds->SetNumberOfTuples(numNodes);
-  vtkIdType* globalIdxPtr = static_cast<vtkIdType*>(globalIds->GetVoidPointer(0));
+  vtkIdType* globalIdxPtr = globalIds->GetPointer(0);
 
   global::Grid->Allocate(numCells, 8);
 

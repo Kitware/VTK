@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkProjectSphereFilter.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCell.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
+#include "vtkDataArrayRange.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCell.h"
 #include "vtkIdList.h"
@@ -34,19 +36,24 @@ void ConvertXYZToLatLonDepth(double xyz[3], double lonLatDepth[3], double center
   lonLatDepth[1] = 90. - acos((xyz[2] - center[2]) / lonLatDepth[2]) * 180. / vtkMath::Pi();
 }
 
-template <class data_type>
-void TransformVector(double* transformMatrix, data_type* data)
+struct vtkTransformVectorFunctor
 {
-  double d0 = static_cast<double>(data[0]);
-  double d1 = static_cast<double>(data[1]);
-  double d2 = static_cast<double>(data[2]);
-  data[0] = static_cast<data_type>(
-    transformMatrix[0] * d0 + transformMatrix[1] * d1 + transformMatrix[2] * d2);
-  data[1] = static_cast<data_type>(
-    transformMatrix[3] * d0 + transformMatrix[4] * d1 + transformMatrix[5] * d2);
-  data[2] = static_cast<data_type>(
-    transformMatrix[6] * d0 + transformMatrix[7] * d1 + transformMatrix[8] * d2);
-}
+  template <class TArray>
+  void operator()(TArray* array, vtkIdType index, double* transformMatrix)
+  {
+    using T = vtk::GetAPIType<TArray>;
+    auto data = vtk::DataArrayTupleRange<3>(array)[index];
+    double d0 = static_cast<double>(data[0]);
+    double d1 = static_cast<double>(data[1]);
+    double d2 = static_cast<double>(data[2]);
+    data[0] =
+      static_cast<T>(transformMatrix[0] * d0 + transformMatrix[1] * d1 + transformMatrix[2] * d2);
+    data[1] =
+      static_cast<T>(transformMatrix[3] * d0 + transformMatrix[4] * d1 + transformMatrix[5] * d2);
+    data[2] =
+      static_cast<T>(transformMatrix[6] * d0 + transformMatrix[7] * d1 + transformMatrix[8] * d2);
+  }
+};
 } // end anonymous namespace
 
 vtkStandardNewMacro(vtkProjectSphereFilter);
@@ -413,10 +420,10 @@ void vtkProjectSphereFilter::TransformTensors(
     vtkDataArray* array = dataArrays->GetArray(i);
     if (array->GetNumberOfComponents() == 3)
     {
-      switch (array->GetDataType())
+      vtkTransformVectorFunctor functor;
+      if (!vtkArrayDispatch::Dispatch::Execute(array, functor, pointId, transformMatrix))
       {
-        vtkTemplateMacro(TransformVector(transformMatrix,
-          static_cast<VTK_TT*>(array->GetVoidPointer(pointId * array->GetNumberOfComponents()))));
+        functor(array, pointId, transformMatrix);
       }
     }
   }

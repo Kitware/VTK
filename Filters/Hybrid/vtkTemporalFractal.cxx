@@ -7,6 +7,7 @@
 #include "vtkCompositeDataIterator.h"
 #include "vtkCompositeDataPipeline.h"
 #include "vtkDoubleArray.h"
+#include "vtkFloatArray.h"
 #include "vtkImageMandelbrotSource.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -1130,9 +1131,9 @@ void vtkTemporalFractal::AddFractalArray(vtkCompositeDataSet* output)
         origin[2] + (spacing[2] * 0.5), this->CurrentTime / 10.0);
       fractalSource->SetSampleCX(spacing[0], spacing[1], spacing[2], 0.1);
       fractalSource->Update();
-      vtkDataArray* fractal;
-      fractal = fractalSource->GetOutput()->GetPointData()->GetScalars();
-      float* fractalPtr = static_cast<float*>(fractal->GetVoidPointer(0));
+      auto* fractal =
+        vtkFloatArray::FastDownCast(fractalSource->GetOutput()->GetPointData()->GetScalars());
+      float* fractalPtr = fractal->GetPointer(0);
 
       for (int i = 0; i < fractal->GetNumberOfTuples(); ++i)
       {
@@ -1264,7 +1265,7 @@ void vtkTemporalFractal::AddGhostLevelArray(vtkDataSet* grid, int dim[3], int on
   int iLevel, jLevel, kLevel, tmp;
   unsigned char* ptr;
 
-  ptr = (unsigned char*)(array->GetVoidPointer(0));
+  ptr = array->GetPointer(0);
 
   for (k = 0; k < dims[2]; ++k)
   {

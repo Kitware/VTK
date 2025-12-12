@@ -14,6 +14,7 @@
 #include "vtkMultiProcessStream.h"
 #include "vtkPointData.h"
 #include "vtkStringArray.h"
+#include "vtkTestUtilities.h"
 
 #include <cassert>
 #include <sstream>
@@ -41,7 +42,7 @@ vtkIntArray* GetSampleIntArray(const int numTuples, const int numComp)
   oss << "SampleIntArray-" << numComp;
   array->SetName(oss.str().c_str());
 
-  int* ptr = static_cast<int*>(array->GetVoidPointer(0));
+  int* ptr = array->GetPointer(0);
   int idx = 0;
   for (int i = 0; i < numTuples; ++i)
   {
@@ -69,7 +70,7 @@ vtkDoubleArray* GetSampleDoubleArray(const int numTuples, const int numComp)
   oss << "SampleDoubleArray-" << numComp;
   array->SetName(oss.str().c_str());
 
-  double* ptr = static_cast<double*>(array->GetVoidPointer(0));
+  double* ptr = array->GetPointer(0);
   double val = 0.5;
   for (int i = 0; i < numTuples; ++i)
   {
@@ -97,7 +98,7 @@ vtkFloatArray* GetSampleFloatArray(const int numTuples, const int numComp)
   oss << "SampleFloatArray-" << numComp;
   array->SetName(oss.str().c_str());
 
-  float* ptr = static_cast<float*>(array->GetVoidPointer(0));
+  float* ptr = array->GetPointer(0);
   float val = 0.5;
   for (int i = 0; i < numTuples; ++i)
   {
@@ -136,142 +137,6 @@ vtkPointData* GetSamplePointData(const int numTuples)
 }
 
 //------------------------------------------------------------------------------
-bool AreArraysEqual(vtkDataArray* A1, vtkDataArray* A2)
-{
-  assert("pre: array 1 is nullptr!" && (A1 != nullptr));
-  assert("pre: array 2 is nullptr!" && (A2 != nullptr));
-
-  if (A1->GetDataType() != A2->GetDataType())
-  {
-    std::cerr << "ERROR: array datatype mismatch!\n";
-    return false;
-  }
-
-  if (strcmp(A1->GetName(), A2->GetName()) != 0)
-  {
-    std::cerr << "ERROR: array name mismatch!\n";
-    std::cerr << "A1: " << A1->GetName() << std::endl;
-    std::cerr << "A2: " << A2->GetName() << std::endl;
-    return false;
-  }
-
-  if (A1->GetNumberOfTuples() != A2->GetNumberOfTuples())
-  {
-    std::cerr << "ERROR: number of tuples mismatch for array ";
-    std::cerr << A1->GetName() << std::endl;
-    return false;
-  }
-
-  if (A1->GetNumberOfComponents() != A2->GetNumberOfComponents())
-  {
-    std::cerr << "ERROR: number of tuples mismatch for array ";
-    std::cerr << A1->GetName() << std::endl;
-    return false;
-  }
-
-  int M = A1->GetNumberOfTuples();
-  int N = A1->GetNumberOfComponents();
-
-  switch (A1->GetDataType())
-  {
-    case VTK_FLOAT:
-    {
-      float* a1 = static_cast<float*>(A1->GetVoidPointer(0));
-      float* a2 = static_cast<float*>(A2->GetVoidPointer(0));
-      for (int i = 0; i < M; ++i)
-      {
-        for (int j = 0; j < N; ++j)
-        {
-          int idx = i * N + j;
-          if (!vtkMathUtilities::FuzzyCompare(a1[idx], a2[idx]))
-          {
-            std::cerr << "INFO:" << a1[idx] << " != " << a2[idx] << std::endl;
-            std::cerr << "ERROR: float array mismatch!\n";
-            return false;
-          } // END if not equal
-        }   // END for all N
-      }     // END for all M
-    }
-    break;
-    case VTK_DOUBLE:
-    {
-      double* a1 = static_cast<double*>(A1->GetVoidPointer(0));
-      double* a2 = static_cast<double*>(A2->GetVoidPointer(0));
-      for (int i = 0; i < M; ++i)
-      {
-        for (int j = 0; j < N; ++j)
-        {
-          int idx = i * N + j;
-          if (!vtkMathUtilities::FuzzyCompare(a1[idx], a2[idx]))
-          {
-            std::cerr << "INFO:" << a1[idx] << " != " << a2[idx] << std::endl;
-            std::cerr << "ERROR: float array mismatch!\n";
-            return false;
-          } // END if not equal
-        }   // END for all N
-      }     // END for all M
-    }
-    break;
-    case VTK_INT:
-    {
-      int* a1 = static_cast<int*>(A1->GetVoidPointer(0));
-      int* a2 = static_cast<int*>(A2->GetVoidPointer(0));
-      for (int i = 0; i < M; ++i)
-      {
-        for (int j = 0; j < N; ++j)
-        {
-          int idx = i * N + j;
-          if (a1[idx] != a2[idx])
-          {
-            std::cerr << "INFO:" << a1[idx] << " != " << a2[idx] << std::endl;
-            std::cerr << "ERROR: int array mismatch!\n";
-            return false;
-          }
-        } // END for N
-      }   // END for all M
-    }
-    break;
-    default:
-      std::cerr << "ERROR: unhandled case! Code should not reach here!\n";
-      return false;
-  }
-
-  return true;
-}
-
-//------------------------------------------------------------------------------
-bool AreFieldsEqual(vtkFieldData* F1, vtkFieldData* F2)
-{
-  assert("pre: field 1 is nullptr!" && (F1 != nullptr));
-  assert("pre: field 2 is nullptr!" && (F2 != nullptr));
-
-  if (F1->GetNumberOfArrays() != F2->GetNumberOfArrays())
-  {
-    std::cerr << "ERROR: number of arrays mismatch between fields!\n";
-    return false;
-  }
-
-  bool status = true;
-  for (int array = 0; array < F1->GetNumberOfArrays(); ++array)
-  {
-    vtkDataArray* a1 = F1->GetArray(array);
-    vtkDataArray* a2 = F2->GetArray(array);
-    if (!AreArraysEqual(a1, a2))
-    {
-      std::cerr << "ERROR: array " << a1->GetName() << " and " << a2->GetName();
-      std::cerr << " do not match!\n";
-      status = false;
-    }
-    else
-    {
-      std::cout << "INFO: " << a1->GetName() << " fields are equal!\n";
-      std::cout.flush();
-    }
-  } // END for all arrays
-  return (status);
-}
-
-//------------------------------------------------------------------------------
 int TestFieldDataMetaData()
 {
   int rc = 0;
@@ -293,9 +158,9 @@ int TestFieldDataMetaData()
     bytestream, namesArray, datatypesArray, dimensionsArray);
 
   vtkIdType NumberOfArrays = namesArray->GetNumberOfValues();
-  std::string* names = static_cast<std::string*>(namesArray->GetVoidPointer(0));
-  int* datatypes = static_cast<int*>(datatypesArray->GetVoidPointer(0));
-  int* dimensions = static_cast<int*>(dimensionsArray->GetVoidPointer(0));
+  std::string* names = static_cast<std::string*>(namesArray->GetPointer(0));
+  int* datatypes = datatypesArray->GetPointer(0);
+  int* dimensions = dimensionsArray->GetPointer(0);
 
   // STEP 3: Check deserialized data with expected values
   if (NumberOfArrays != field->GetNumberOfArrays())
@@ -361,7 +226,7 @@ int TestFieldData()
 
   vtkPointData* field2 = vtkPointData::New();
   vtkFieldDataSerializer::Deserialize(bytestream, field2);
-  if (!AreFieldsEqual(field, field2))
+  if (!vtkTestUtilities::CompareFieldData(field, field2))
   {
     std::cerr << "ERROR: fields are not equal!\n";
     rc++;

@@ -184,11 +184,7 @@ types::DataSet XMLInitDataSet(
     if (isSpecialName)
     {
       const std::string& specialName = *itSpecialName;
-      if (specialName == "connectivity")
-      {
-        dataArray.IsIdType = true;
-      }
-      else if (specialName == "vertices")
+      if (specialName == "vertices")
       {
         dataArray.HasTuples = true;
 
@@ -320,11 +316,6 @@ size_t LinearizePoint(const adios2::Dims& shape, const adios2::Dims& point) noex
   const size_t Nz = shape[2];
 
   return i * Ny * Nz + j * Nz + k;
-}
-
-vtkSmartPointer<vtkIdTypeArray> NewDataArrayIdType()
-{
-  return vtkSmartPointer<vtkIdTypeArray>::New();
 }
 
 std::string GetFileName(const std::string& fileName) noexcept

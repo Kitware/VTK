@@ -526,6 +526,13 @@ public:
   static vtkDataArray* CreateDataArray(int dataType);
 
   /**
+   * If the array is not already in AOS format, return a new array that is with the same data.
+   * If the array is already in AOS format, then a reference to this array is returned
+   * and no new array is created.
+   */
+  vtkSmartPointer<vtkDataArray> ToAOSDataArray();
+
+  /**
    * This key is used to hold tight bounds on the range of
    * one component over all tuples of the array.
    * Two values (a minimum and maximum) are stored for each component.

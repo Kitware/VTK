@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkImageGradient.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkDataArray.h"
+#include "vtkDataArrayRange.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
@@ -10,7 +12,6 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <cmath>
 #include <sstream>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -116,106 +117,110 @@ int vtkImageGradient::RequestUpdateExtent(
 // This execute method handles boundaries.
 // it handles boundaries. Pixels are just replicated to get values
 // out of extent.
-template <class T>
-void vtkImageGradientExecute(vtkImageGradient* self, vtkImageData* inData, T* inPtr,
-  vtkImageData* outData, double* outPtr, int outExt[6], int id)
+struct vtkImageGradientFunctor
 {
-  int idxX, idxY, idxZ;
-  int maxX, maxY, maxZ;
-  vtkIdType inIncX, inIncY, inIncZ;
-  vtkIdType outIncX, outIncY, outIncZ;
-  unsigned long count = 0;
-  unsigned long target;
-  int axesNum;
-  int* inExt = inData->GetExtent();
-  int* wholeExtent;
-  vtkIdType inIncs[3];
-  double r[3], d;
-  int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
-
-  // find the region to loop over
-  maxX = outExt[1] - outExt[0];
-  maxY = outExt[3] - outExt[2];
-  maxZ = outExt[5] - outExt[4];
-  target = static_cast<unsigned long>((maxZ + 1) * (maxY + 1) / 50.0);
-  target++;
-
-  // Get the dimensionality of the gradient.
-  axesNum = self->GetDimensionality();
-
-  // Get increments to march through data
-  inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
-
-  // The data spacing is important for computing the gradient.
-  // central differences (2 * ratio).
-  // Negative because below we have (min - max) for dx ...
-  inData->GetSpacing(r);
-  r[0] = -0.5 / r[0];
-  r[1] = -0.5 / r[1];
-  r[2] = -0.5 / r[2];
-
-  // get some other info we need
-  inData->GetIncrements(inIncs);
-  wholeExtent = inData->GetExtent();
-
-  // Move the pointer to the correct starting position.
-  inPtr += (outExt[0] - inExt[0]) * inIncs[0] + (outExt[2] - inExt[2]) * inIncs[1] +
-    (outExt[4] - inExt[4]) * inIncs[2];
-
-  // Loop through output pixels
-  for (idxZ = 0; idxZ <= maxZ; idxZ++)
+  template <class TArray>
+  void operator()(TArray* scalars, vtkImageGradient* self, vtkImageData* inData,
+    vtkImageData* outData, double* outPtr, int outExt[6], int id)
   {
-    useZMin = ((idxZ + outExt[4]) <= wholeExtent[4]) ? 0 : -inIncs[2];
-    useZMax = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
-    for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
+    auto inPtr = vtk::DataArrayValueRange<1>(scalars).begin();
+    int idxX, idxY, idxZ;
+    int maxX, maxY, maxZ;
+    vtkIdType inIncX, inIncY, inIncZ;
+    vtkIdType outIncX, outIncY, outIncZ;
+    unsigned long count = 0;
+    unsigned long target;
+    int axesNum;
+    int* inExt = inData->GetExtent();
+    int* wholeExtent;
+    vtkIdType inIncs[3];
+    double r[3], d;
+    int useZMin, useZMax, useYMin, useYMax, useXMin, useXMax;
+
+    // find the region to loop over
+    maxX = outExt[1] - outExt[0];
+    maxY = outExt[3] - outExt[2];
+    maxZ = outExt[5] - outExt[4];
+    target = static_cast<unsigned long>((maxZ + 1) * (maxY + 1) / 50.0);
+    target++;
+
+    // Get the dimensionality of the gradient.
+    axesNum = self->GetDimensionality();
+
+    // Get increments to march through data
+    inData->GetContinuousIncrements(outExt, inIncX, inIncY, inIncZ);
+    outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+
+    // The data spacing is important for computing the gradient.
+    // central differences (2 * ratio).
+    // Negative because below we have (min - max) for dx ...
+    inData->GetSpacing(r);
+    r[0] = -0.5 / r[0];
+    r[1] = -0.5 / r[1];
+    r[2] = -0.5 / r[2];
+
+    // get some other info we need
+    inData->GetIncrements(inIncs);
+    wholeExtent = inData->GetExtent();
+
+    // Move the pointer to the correct starting position.
+    inPtr += (outExt[0] - inExt[0]) * inIncs[0] + (outExt[2] - inExt[2]) * inIncs[1] +
+      (outExt[4] - inExt[4]) * inIncs[2];
+
+    // Loop through output pixels
+    for (idxZ = 0; idxZ <= maxZ; idxZ++)
     {
-      if (!id)
+      useZMin = ((idxZ + outExt[4]) <= wholeExtent[4]) ? 0 : -inIncs[2];
+      useZMax = ((idxZ + outExt[4]) >= wholeExtent[5]) ? 0 : inIncs[2];
+      for (idxY = 0; !self->AbortExecute && idxY <= maxY; idxY++)
       {
-        if (!(count % target))
+        if (!id)
         {
-          self->UpdateProgress(count / (50.0 * target));
+          if (!(count % target))
+          {
+            self->UpdateProgress(count / (50.0 * target));
+          }
+          count++;
         }
-        count++;
-      }
-      useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
-      useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
-      for (idxX = 0; idxX <= maxX; idxX++)
-      {
-        useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
-        useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
-
-        // do X axis
-        d = static_cast<double>(inPtr[useXMin]);
-        d -= static_cast<double>(inPtr[useXMax]);
-        d *= r[0]; // multiply by the data spacing
-        *outPtr = d;
-        outPtr++;
-
-        // do y axis
-        d = static_cast<double>(inPtr[useYMin]);
-        d -= static_cast<double>(inPtr[useYMax]);
-        d *= r[1]; // multiply by the data spacing
-        *outPtr = d;
-        outPtr++;
-        if (axesNum == 3)
+        useYMin = ((idxY + outExt[2]) <= wholeExtent[2]) ? 0 : -inIncs[1];
+        useYMax = ((idxY + outExt[2]) >= wholeExtent[3]) ? 0 : inIncs[1];
+        for (idxX = 0; idxX <= maxX; idxX++)
         {
-          // do z axis
-          d = static_cast<double>(inPtr[useZMin]);
-          d -= static_cast<double>(inPtr[useZMax]);
-          d *= r[2]; // multiply by the data spacing
+          useXMin = ((idxX + outExt[0]) <= wholeExtent[0]) ? 0 : -inIncs[0];
+          useXMax = ((idxX + outExt[0]) >= wholeExtent[1]) ? 0 : inIncs[0];
+
+          // do X axis
+          d = static_cast<double>(inPtr[useXMin]);
+          d -= static_cast<double>(inPtr[useXMax]);
+          d *= r[0]; // multiply by the data spacing
           *outPtr = d;
           outPtr++;
+
+          // do y axis
+          d = static_cast<double>(inPtr[useYMin]);
+          d -= static_cast<double>(inPtr[useYMax]);
+          d *= r[1]; // multiply by the data spacing
+          *outPtr = d;
+          outPtr++;
+          if (axesNum == 3)
+          {
+            // do z axis
+            d = static_cast<double>(inPtr[useZMin]);
+            d -= static_cast<double>(inPtr[useZMax]);
+            d *= r[2]; // multiply by the data spacing
+            *outPtr = d;
+            outPtr++;
+          }
+          inPtr++;
         }
-        inPtr++;
+        outPtr += outIncY;
+        inPtr += inIncY;
       }
-      outPtr += outIncY;
-      inPtr += inIncY;
+      outPtr += outIncZ;
+      inPtr += inIncZ;
     }
-    outPtr += outIncZ;
-    inPtr += inIncZ;
   }
-}
+};
 
 int vtkImageGradient::RequestData(
   vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
@@ -280,10 +285,11 @@ void vtkImageGradient::ThreadedRequestData(vtkInformation*, vtkInformationVector
   vtkImageData* output = outData[0];
 
   // The output scalar type must be double to store proper gradients.
-  if (output->GetScalarType() != VTK_DOUBLE)
+  auto outScalars =
+    vtkAOSDataArrayTemplate<double>::FastDownCast(output->GetPointData()->GetScalars());
+  if (!outScalars)
   {
-    vtkErrorMacro(
-      "Execute: output ScalarType is " << output->GetScalarType() << "but must be double.");
+    vtkErrorMacro("Execute: output ScalarType must be double.");
     return;
   }
 
@@ -306,15 +312,12 @@ void vtkImageGradient::ThreadedRequestData(vtkInformation*, vtkInformationVector
     return;
   }
 
-  void* inPtr = inputArray->GetVoidPointer(0);
-  double* outPtr = static_cast<double*>(output->GetScalarPointerForExtent(outExt));
-  switch (inputArray->GetDataType())
+  double* scalarsPtr = outScalars->GetPointer(output->GetValueIndexForExtent(outScalars, outExt));
+  vtkImageGradientFunctor functor;
+  if (!vtkArrayDispatch::Dispatch::Execute(
+        inputArray, functor, this, input, output, scalarsPtr, outExt, threadId))
   {
-    vtkTemplateMacro(vtkImageGradientExecute(
-      this, input, static_cast<VTK_TT*>(inPtr), output, outPtr, outExt, threadId));
-    default:
-      vtkErrorMacro("Execute: Unknown ScalarType " << input->GetScalarType());
-      return;
+    functor(inputArray, this, input, output, scalarsPtr, outExt, threadId);
   }
 }
 VTK_ABI_NAMESPACE_END

@@ -34,8 +34,7 @@ Transfer2DPtr Create2DTransferTooth()
   vtkFloatArray* arr = vtkFloatArray::SafeDownCast(image->GetPointData()->GetScalars());
 
   // Initialize to zero
-  void* dataPtr = arr->GetVoidPointer(0);
-  memset(dataPtr, 0, bins[0] * bins[1] * 4 * sizeof(float));
+  arr->FillValue(0.0);
 
   // Setting RGBA [1.0, 0,0, 0.05] for a square in the histogram (known)
   // containing some of the interesting edges (e.g. tooth root).

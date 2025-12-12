@@ -1330,21 +1330,23 @@ void vtkXdmfWriter::ConvertVToXArray(vtkDataArray* vda, XdmfArray* xda, vtkIdTyp
 
   // TODO: if we can make xdmf write out immediately, then wouldn't have to keep around
   // arrays when working with temporal data
-  if ((allocStrategy == 0 && !this->TopTemporalGrid) || allocStrategy == 1)
+  if (vda->HasStandardMemoryLayout() &&
+    ((allocStrategy == 0 && !this->TopTemporalGrid) || allocStrategy == 1))
   {
     // Do not let xdmf allocate its own buffer. xdmf just borrows vtk's and doesn't double mem size.
     xda->SetAllowAllocate(0);
     xda->SetShape(lRank, lDims.data());
-    xda->SetDataPointer(vda->GetVoidPointer(0));
+    xda->SetDataPointer(vda->GetVoidPointer(0)); // NOLINT(bugprone-unsafe-functions)
   }
   else //(allocStrategy==0 && this->TopTemporalGrid) || allocStrategy==2)
   {
     // Unfortunately data doesn't stick around with temporal updates, which is exactly when you want
     // it most.
+    auto aos = vda->ToAOSDataArray();
     xda->SetAllowAllocate(1);
     xda->SetShape(lRank, lDims.data());
-    memcpy(xda->GetDataPointer(), vda->GetVoidPointer(0),
-      vda->GetNumberOfTuples() * vda->GetNumberOfComponents() * vda->GetElementComponentSize());
+    memcpy(xda->GetDataPointer(), aos->GetVoidPointer(0), // NOLINT(bugprone-unsafe-functions)
+      aos->GetNumberOfTuples() * aos->GetNumberOfComponents() * aos->GetElementComponentSize());
   }
 }
 VTK_ABI_NAMESPACE_END

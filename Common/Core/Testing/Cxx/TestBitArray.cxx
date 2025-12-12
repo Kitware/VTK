@@ -22,9 +22,8 @@ int TestBitArray(int, char*[])
 
   // [1]
   array->SetValue(0, 1);
-  unsigned char* data = static_cast<unsigned char*>(array->GetVoidPointer(0));
-  std::string str;
-  str = std::bitset<8>(data[0]).to_string();
+  unsigned char* data = array->GetPointer(0);
+  std::string str = std::bitset<8>(data[0]).to_string();
   if (str != "10000000")
   {
     std::cerr << "Bit array not initialized as expected. The raw data is " << str
@@ -47,7 +46,7 @@ int TestBitArray(int, char*[])
   array->InsertNextValue(0);
   array->InsertNextValue(1);
 
-  data = static_cast<unsigned char*>(array->GetVoidPointer(0));
+  data = array->GetPointer(0);
   str = std::bitset<8>(data[0]).to_string() + " " + std::bitset<8>(data[1]).to_string();
   if (str != std::string("11111011 10100000"))
   {
@@ -60,7 +59,7 @@ int TestBitArray(int, char*[])
   // [1111 1011 | 1111 0011 | 10]
   ptr[1] = 0xf3;
   ptr[2] = (ptr[2] & 0x3f) | 0x80;
-  data = static_cast<unsigned char*>(array->GetVoidPointer(0));
+  data = array->GetPointer(0);
   str = std::bitset<8>(data[0]).to_string() + std::string(" ") +
     std::bitset<8>(data[1]).to_string() + std::string(" ") + std::bitset<8>(data[2]).to_string();
   if (str != "11111011 11110011 10000000")
@@ -71,7 +70,7 @@ int TestBitArray(int, char*[])
   }
 
   array->Resize(2);
-  data = static_cast<unsigned char*>(array->GetVoidPointer(0));
+  data = array->GetPointer(0);
   str = std::bitset<8>(data[0]).to_string();
   if (str != "11000000")
   {

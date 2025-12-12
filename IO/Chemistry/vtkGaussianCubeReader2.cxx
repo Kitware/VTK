@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkGaussianCubeReader2.h"
 
+#include "vtkAOSDataArrayTemplate.h"
 #include "vtkDataObject.h"
-#include "vtkExecutive.h"
 #include "vtkFieldData.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
@@ -11,10 +11,8 @@
 #include "vtkMolecule.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkPeriodicTable.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
-#include "vtkSimpleBondPerceiver.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 #include "vtksys/FStream.hxx"
@@ -22,7 +20,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <vector>
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkGaussianCubeReader2);
@@ -270,7 +267,8 @@ int vtkGaussianCubeReader2::RequestData(
 
   grid->GetPointData()->GetScalars()->SetName(title);
 
-  cubedata = (float*)grid->GetPointData()->GetScalars()->GetVoidPointer(0);
+  cubedata =
+    vtkAOSDataArrayTemplate<float>::FastDownCast(grid->GetPointData()->GetScalars())->GetPointer(0);
   int N1N2 = n1 * n2;
 
   for (int i = 0; i < n1; i++)

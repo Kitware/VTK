@@ -255,7 +255,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellAr
   {
     // Use binary header
     if (this->BinaryHeader->GetNumberOfValues() >= 5 &&
-      memcmp(this->BinaryHeader->GetVoidPointer(0), "solid", 5) == 0)
+      memcmp(this->BinaryHeader->GetPointer(0), "solid", 5) == 0)
     {
       vtkErrorMacro(
         "Invalid header for Binary STL file. Cannot start with \"solid\". Changing header to\n"
@@ -268,7 +268,7 @@ void vtkSTLWriter::WriteBinarySTL(vtkPoints* pts, vtkCellArray* polys, vtkCellAr
         (this->BinaryHeader->GetNumberOfValues() <= vtkSTLWriterBinaryHeaderSize
             ? this->BinaryHeader->GetNumberOfValues()
             : vtkSTLWriterBinaryHeaderSize);
-      memcpy(binaryFileHeader, this->BinaryHeader->GetVoidPointer(0), numberOfValues);
+      memcpy(binaryFileHeader, this->BinaryHeader->GetPointer(0), numberOfValues);
       if (numberOfValues < vtkSTLWriterBinaryHeaderSize)
       {
         memset(binaryFileHeader + numberOfValues, 0, vtkSTLWriterBinaryHeaderSize - numberOfValues);

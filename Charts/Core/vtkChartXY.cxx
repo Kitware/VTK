@@ -2371,8 +2371,7 @@ bool vtkChartXY::MouseButtonReleaseEvent(const vtkContextMouseEvent& mouse)
           }
         }
       }
-      vtkIdType* ptrSelection =
-        reinterpret_cast<vtkIdType*>(accumulateSelection->GetVoidPointer(0));
+      vtkIdType* ptrSelection = accumulateSelection->GetPointer(0);
       std::sort(ptrSelection, ptrSelection + accumulateSelection->GetNumberOfTuples());
       // Now add the accumulated selection to the old selection
       vtkChartXY::BuildSelection(
@@ -2688,8 +2687,8 @@ void vtkChartXY::MinusSelection(vtkIdTypeArray* selection, vtkIdTypeArray* oldSe
 {
   // We rely on the selection id arrays being sorted.
   std::vector<vtkIdType> output;
-  vtkIdType* ptrSelection = static_cast<vtkIdType*>(selection->GetVoidPointer(0));
-  vtkIdType* ptrOldSelection = static_cast<vtkIdType*>(oldSelection->GetVoidPointer(0));
+  vtkIdType* ptrSelection = selection->GetPointer(0);
+  vtkIdType* ptrOldSelection = oldSelection->GetPointer(0);
   vtkIdType oldSize = oldSelection->GetNumberOfTuples();
   vtkIdType size = selection->GetNumberOfTuples();
   vtkIdType iOld = 0;
@@ -2717,7 +2716,7 @@ void vtkChartXY::MinusSelection(vtkIdTypeArray* selection, vtkIdTypeArray* oldSe
     output.push_back(ptrOldSelection[iOld++]);
   }
   selection->SetNumberOfTuples(static_cast<vtkIdType>(output.size()));
-  ptrSelection = static_cast<vtkIdType*>(selection->GetVoidPointer(0));
+  ptrSelection = selection->GetPointer(0);
   for (std::vector<vtkIdType>::iterator it = output.begin(); it != output.end();
        ++it, ++ptrSelection)
   {
@@ -2729,15 +2728,15 @@ void vtkChartXY::MinusSelection(vtkIdTypeArray* selection, vtkIdTypeArray* oldSe
 void vtkChartXY::AddSelection(vtkIdTypeArray* selection, vtkIdTypeArray* oldSelection)
 {
   // Add all unique array indices to create a new combined array.
-  vtkIdType* ptrSelection = static_cast<vtkIdType*>(selection->GetVoidPointer(0));
-  vtkIdType* ptrOldSelection = static_cast<vtkIdType*>(oldSelection->GetVoidPointer(0));
+  vtkIdType* ptrSelection = selection->GetPointer(0);
+  vtkIdType* ptrOldSelection = oldSelection->GetPointer(0);
   std::vector<vtkIdType> output(selection->GetNumberOfTuples() + oldSelection->GetNumberOfTuples());
   std::vector<vtkIdType>::iterator it;
   it = std::set_union(ptrSelection, ptrSelection + selection->GetNumberOfTuples(), ptrOldSelection,
     ptrOldSelection + oldSelection->GetNumberOfTuples(), output.begin());
   int newSize = static_cast<int>(it - output.begin());
   selection->SetNumberOfTuples(newSize);
-  ptrSelection = static_cast<vtkIdType*>(selection->GetVoidPointer(0));
+  ptrSelection = selection->GetPointer(0);
   for (std::vector<vtkIdType>::iterator i = output.begin(); i != it; ++i, ++ptrSelection)
   {
     *ptrSelection = *i;
@@ -2749,8 +2748,8 @@ void vtkChartXY::ToggleSelection(vtkIdTypeArray* selection, vtkIdTypeArray* oldS
 {
   // We rely on the selection id arrays being sorted.
   std::vector<vtkIdType> output;
-  vtkIdType* ptrSelection = static_cast<vtkIdType*>(selection->GetVoidPointer(0));
-  vtkIdType* ptrOldSelection = static_cast<vtkIdType*>(oldSelection->GetVoidPointer(0));
+  vtkIdType* ptrSelection = selection->GetPointer(0);
+  vtkIdType* ptrOldSelection = oldSelection->GetPointer(0);
   vtkIdType oldSize = oldSelection->GetNumberOfTuples();
   vtkIdType size = selection->GetNumberOfTuples();
   vtkIdType i = 0;
@@ -2780,7 +2779,7 @@ void vtkChartXY::ToggleSelection(vtkIdTypeArray* selection, vtkIdTypeArray* oldS
     output.push_back(ptrOldSelection[iOld++]);
   }
   selection->SetNumberOfTuples(static_cast<vtkIdType>(output.size()));
-  ptrSelection = static_cast<vtkIdType*>(selection->GetVoidPointer(0));
+  ptrSelection = selection->GetPointer(0);
   for (std::vector<vtkIdType>::iterator it = output.begin(); it != output.end();
        ++it, ++ptrSelection)
   {

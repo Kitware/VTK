@@ -802,10 +802,13 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da, vtkXMLDataParser* xml
     return 0;
   }
   vtkAbstractArray* array = iter->GetArray();
+  // XML Reader only creates AOS arrays.
+  auto aosArray = vtkAOSDataArrayTemplate<typename iterT::ValueType>::FastDownCast(array);
+  assert(aosArray != nullptr);
   // Number of expected words:
   size_t numWords = array->GetDataType() != VTK_BIT ? numValues : ((numValues + 7) / 8);
   int result;
-  void* data = array->GetVoidPointer(arrayIndex);
+  void* data = aosArray->GetPointer(arrayIndex);
   if (da->GetAttribute("offset"))
   {
     vtkTypeInt64 offset = 0;
@@ -849,7 +852,7 @@ int vtkXMLDataReaderReadArrayValues(vtkXMLDataElement* da, vtkXMLDataParser* xml
   tmp->SetNumberOfValues(numValues + bitShift);
   tmp->SetNumberOfComponents(array->GetNumberOfComponents());
 
-  void* data = tmp->GetVoidPointer(0);
+  void* data = tmp->GetPointer(0);
   if (da->GetAttribute("offset"))
   {
     vtkTypeInt64 offset = 0;

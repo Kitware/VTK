@@ -1105,10 +1105,10 @@ int vtkVideoSource::RequestData(vtkInformation* vtkNotUsed(request),
       outputExtent[5] = finalOutputExtent5;
     }
 
-    vtkDataArray* frameBuffer =
-      reinterpret_cast<vtkDataArray*>(this->FrameBuffer[(index + frame) % this->FrameBufferSize]);
+    auto* frameBuffer = static_cast<vtkUnsignedCharArray*>(
+      this->FrameBuffer[(index + frame) % this->FrameBufferSize]);
 
-    char* inPtr = reinterpret_cast<char*>(frameBuffer->GetVoidPointer(0));
+    char* inPtr = reinterpret_cast<char*>(frameBuffer->GetPointer(0));
     char* inPtrTmp;
 
     extentZ = outputExtent[5] - outputExtent[4] + 1;

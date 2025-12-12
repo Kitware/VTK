@@ -83,7 +83,7 @@ int vtkBoundedPointSource::RequestData(vtkInformation* vtkNotUsed(request),
     vtkFloatArray* scalars = vtkFloatArray::New();
     scalars->SetName("RandomScalars");
     scalars->SetNumberOfTuples(this->NumberOfPoints);
-    float* s = static_cast<float*>(scalars->GetVoidPointer(0));
+    float* s = scalars->GetPointer(0);
     double sMin =
       (this->ScalarRange[0] < this->ScalarRange[1] ? this->ScalarRange[0] : this->ScalarRange[1]);
     double sMax =

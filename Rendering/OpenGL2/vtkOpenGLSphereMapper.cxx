@@ -195,12 +195,12 @@ void vtkOpenGLSphereMapper::CreateVBO(vtkPolyData* poly, vtkIdType numPts, unsig
   vtkFloatArray* offsets = vtkFloatArray::New();
   offsets->SetNumberOfComponents(1);
   offsets->SetNumberOfTuples(numPts);
-  float* oPtr = static_cast<float*>(offsets->GetVoidPointer(0));
+  float* oPtr = offsets->GetPointer(0);
 
   vtkUnsignedCharArray* ucolors = vtkUnsignedCharArray::New();
   ucolors->SetNumberOfComponents(4);
   ucolors->SetNumberOfTuples(numPts);
-  unsigned char* cPtr = static_cast<unsigned char*>(ucolors->GetVoidPointer(0));
+  unsigned char* cPtr = ucolors->GetPointer(0);
 
   unsigned char* colorPtr;
 
@@ -249,7 +249,7 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(vtkRenderer* ren, vtkActor* act)
   vtkIdType nc;
   if (this->Colors)
   {
-    c = (unsigned char*)this->Colors->GetVoidPointer(0);
+    c = this->Colors->GetPointer(0);
     nc = numPts;
     cc = this->Colors->GetNumberOfComponents();
   }

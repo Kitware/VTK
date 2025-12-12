@@ -160,7 +160,8 @@ bool vtkPlotBag::UpdateCache()
     this->MedianPoints->SetDataTypeToFloat();
     this->MedianPoints->SetNumberOfPoints(size + 1);
     medianPoints->GetCCWHullZ(
-      static_cast<float*>(this->MedianPoints->GetData()->GetVoidPointer(0)), size);
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->MedianPoints->GetData())->GetPointer(0),
+      size);
     double x[3];
     this->MedianPoints->GetPoint(0, x);
     this->MedianPoints->SetPoint(size, x);
@@ -183,7 +184,8 @@ bool vtkPlotBag::UpdateCache()
     int size = q3Points->GetSizeCCWHullZ();
     this->Q3Points->SetDataTypeToFloat();
     this->Q3Points->SetNumberOfPoints(size + 1);
-    q3Points->GetCCWHullZ(static_cast<float*>(this->Q3Points->GetData()->GetVoidPointer(0)), size);
+    q3Points->GetCCWHullZ(
+      vtkAOSDataArrayTemplate<float>::FastDownCast(this->Q3Points->GetData())->GetPointer(0), size);
     double x[3];
     this->Q3Points->GetPoint(0, x);
     this->Q3Points->SetPoint(size, x);

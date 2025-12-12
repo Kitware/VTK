@@ -788,10 +788,10 @@ void vtkHyperTreeGridRedistribute::BuildOutputTrees(vtkBitArray* descriptorSendB
   vtkNew<vtkBitArray> descriptorRecv;
   descriptorRecv->SetNumberOfTuples(totalRecvSize * 8);
 
-  this->MPIComm->AllToAllVVoidArray(descriptorSendBuffer->GetVoidPointer(0),
+  this->MPIComm->AllToAllVVoidArray(descriptorSendBuffer->GetPointer(0),
     this->NbDescriptorsBytesPerPart.data(), descriptorsByteOffsets.data(),
-    descriptorRecv->GetVoidPointer(0), descriptorRecvSizePerPart.data(),
-    descriptorRecvOffsets.data(), VTK_UNSIGNED_CHAR);
+    descriptorRecv->GetPointer(0), descriptorRecvSizePerPart.data(), descriptorRecvOffsets.data(),
+    VTK_UNSIGNED_CHAR);
 
   for (int part = 0, currentTreeId = 0, descriptorReadOffset = 0; part < this->NumPartitions;
        part++)
@@ -892,8 +892,8 @@ void vtkHyperTreeGridRedistribute::ExchangeMask(
   maskRecvBuffer->SetNumberOfValues(totalNbMaskBytesReceived * 8);
 
   // Exchange masks
-  this->MPIComm->AllToAllVVoidArray(maskSendBuffer->GetVoidPointer(0), maskSendBytesPerPart.data(),
-    maskSendOffsetsPerPart.data(), maskRecvBuffer->GetVoidPointer(0), maskRecvBytesPerPart.data(),
+  this->MPIComm->AllToAllVVoidArray(maskSendBuffer->GetPointer(0), maskSendBytesPerPart.data(),
+    maskSendOffsetsPerPart.data(), maskRecvBuffer->GetPointer(0), maskRecvBytesPerPart.data(),
     maskRecvOffsetsPerPart.data(), VTK_UNSIGNED_CHAR);
 
   int recvMaskOffset = 0;

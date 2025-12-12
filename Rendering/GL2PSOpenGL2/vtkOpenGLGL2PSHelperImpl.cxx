@@ -507,8 +507,14 @@ void vtkOpenGLGL2PSHelperImpl::DrawImage(vtkImageData* input, double pos[3])
   int dims[3];
   input->GetDimensions(dims);
 
+  auto scalarsAOS = vtkAOSDataArrayTemplate<float>::FastDownCast(inScalars);
+  if (!scalarsAOS)
+  {
+    vtkErrorMacro("Invalid image format: Expected AOS float scalars.");
+    return;
+  }
   gl2psForceRasterPos(&gl2psRasterPos);
-  gl2psDrawPixels(dims[0], dims[1], 0, 0, format, GL_FLOAT, inScalars->GetVoidPointer(0));
+  gl2psDrawPixels(dims[0], dims[1], 0, 0, format, GL_FLOAT, scalarsAOS->GetPointer(0));
 }
 
 //------------------------------------------------------------------------------

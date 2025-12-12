@@ -120,6 +120,8 @@ protected:
 private:
   vtkDynamic2DLabelMapper(const vtkDynamic2DLabelMapper&) = delete;
   void operator=(const vtkDynamic2DLabelMapper&) = delete;
+
+  struct vtkDynamic2DLabelMapperFunctor;
 };
 
 VTK_ABI_NAMESPACE_END

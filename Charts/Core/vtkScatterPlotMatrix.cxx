@@ -255,7 +255,7 @@ bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, in
         extents->SetName((name + "_extents").c_str());
       }
       extents->SetNumberOfTuples(NumberOfBins);
-      float* centers = static_cast<float*>(extents->GetVoidPointer(0));
+      float* centers = extents->GetPointer(0);
       double min = minmax[0] - 0.0005 * inc + halfInc;
       for (int j = 0; j < NumberOfBins; ++j)
       {
@@ -269,7 +269,7 @@ bool PopulateHistograms(vtkTable* input, vtkTable* output, vtkStringArray* s, in
         populations->SetName((name + "_pops").c_str());
       }
       populations->SetNumberOfTuples(NumberOfBins);
-      int* pops = static_cast<int*>(populations->GetVoidPointer(0));
+      int* pops = populations->GetPointer(0);
       for (int k = 0; k < NumberOfBins; ++k)
       {
         pops[k] = 0;

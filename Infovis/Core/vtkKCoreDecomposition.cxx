@@ -142,10 +142,10 @@ public:
       std::cerr << "Write Number of tuples = " << this->_array->GetNumberOfTuples() << std::endl;
       std::cerr << "Array index out out bounds in tableVert operator [], index: " << idx
                 << std::endl;
-      return (static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
+      return this->_array->GetPointer(0)[0];
     }
 
-    return (static_cast<int*>(this->_array->GetVoidPointer(0))[idx - 1]);
+    return this->_array->GetPointer(0)[idx - 1];
   }
 
 private:
@@ -193,10 +193,10 @@ public:
       std::cerr << "Read Number of tuples = " << this->_array->GetNumberOfTuples() << std::endl;
       std::cerr << "Array index out out bounds in tableDeg operator [], index: " << idx
                 << std::endl;
-      return (static_cast<int*>(this->_array->GetVoidPointer(0))[0]);
+      return this->_array->GetPointer(0)[0];
     }
 
-    return (static_cast<int*>(this->_array->GetVoidPointer(0))[idx]);
+    return this->_array->GetPointer(0)[idx];
   }
 
 private:

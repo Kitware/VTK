@@ -58,11 +58,11 @@ void vtkOSPRayWindowNode::Render(bool prepass)
     // composite all renderers framebuffers together
     this->ColorBuffer->SetNumberOfComponents(4);
     this->ColorBuffer->SetNumberOfTuples(this->Size[0] * this->Size[1]);
-    unsigned char* rgba = static_cast<unsigned char*>(this->ColorBuffer->GetVoidPointer(0));
+    unsigned char* rgba = this->ColorBuffer->GetPointer(0);
 
     this->ZBuffer->SetNumberOfComponents(1);
     this->ZBuffer->SetNumberOfTuples(this->Size[0] * this->Size[1]);
-    float* z = static_cast<float*>(this->ZBuffer->GetVoidPointer(0));
+    float* z = this->ZBuffer->GetPointer(0);
 
     auto const& renderers = this->GetChildren();
 
