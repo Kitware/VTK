@@ -610,7 +610,7 @@ static int vtkTkImageViewerWidget_MakeImageViewer(struct vtkTkImageViewerWidget*
     {
       auto result = vtk::scan<void*>(std::string_view(self->IV + 5), "{:p}");
       void* temp = result->value();
-      imgViewer = (vtkImageViewer*)tmp;
+      imgViewer = (vtkImageViewer*)temp;
     }
     else
     {
