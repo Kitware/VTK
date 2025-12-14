@@ -52,7 +52,7 @@ protected:
   vtkMultiProcessController* Controller;
 
   // Execute the parallel calculations required by the Learn option.
-  void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta) override;
+  void Learn(vtkTable* inData, vtkTable* inParameters, vtkStatisticalModel* outMeta) override;
 
   vtkOrderStatistics* CreateOrderStatisticsInstance() override;
 

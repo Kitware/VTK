@@ -87,6 +87,20 @@ public:
   void WriteNextTime(double time);
   ///@}
 
+  ///@{
+  /**
+   * Set/get the precision with which ASCII (and non-binary appended data) floating-point
+   * numbers will be written.
+   *
+   * The default precision is 11 digits, which is acceptable in many cases.
+   * If expanded to the full precision of 17 digits (which will exactly reproduce all
+   * double-precision values), file sizes can become untenable. You should not
+   * change this default unless you are sure of what you are doing.
+   */
+  vtkSetClampMacro(Precision, int, 0, 17);
+  vtkGetMacro(Precision, int);
+  ///@}
+
 protected:
   vtkXMLWriter();
   ~vtkXMLWriter() override;
@@ -286,6 +300,7 @@ protected:
   int UserContinueExecuting; // can only be -1 = invalid, 0 = stop, 1 = start
 
   vtkTypeInt64* NumberOfTimeValues; // one per piece / per timestep
+  int Precision;
 
   friend class vtkXMLWriterHelper;
 

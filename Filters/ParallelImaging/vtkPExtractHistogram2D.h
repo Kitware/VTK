@@ -28,7 +28,7 @@
 
 VTK_ABI_NAMESPACE_BEGIN
 class vtkDataSetAttributes;
-class vtkMultiBlockDataSet;
+class vtkStatisticalModel;
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELIMAGING_EXPORT vtkPExtractHistogram2D : public vtkExtractHistogram2D
@@ -51,7 +51,7 @@ protected:
     vtkDataSetAttributes* rowData, vtkDataArray* col1, vtkDataArray* col2) override;
 
   // Execute the calculations required by the Learn option.
-  void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta) override;
+  void Learn(vtkTable* inData, vtkTable* inParameters, vtkStatisticalModel* outMeta) override;
 
 private:
   vtkPExtractHistogram2D(const vtkPExtractHistogram2D&) = delete;

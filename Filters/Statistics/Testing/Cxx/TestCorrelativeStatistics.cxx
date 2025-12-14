@@ -9,7 +9,7 @@
 #include "vtkDataObjectCollection.h"
 #include "vtkDoubleArray.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
@@ -175,10 +175,10 @@ int TestCorrelativeStatistics(int, char*[])
 
   // Get output data and meta tables
   vtkTable* outputData1 = cs1->GetOutput(vtkStatisticsAlgorithm::OUTPUT_DATA);
-  vtkMultiBlockDataSet* outputMetaDS1 = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputMetaDS1 = vtkStatisticalModel::SafeDownCast(
     cs1->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  vtkTable* outputPrimary1 = vtkTable::SafeDownCast(outputMetaDS1->GetBlock(0));
-  vtkTable* outputDerived1 = vtkTable::SafeDownCast(outputMetaDS1->GetBlock(1));
+  vtkTable* outputPrimary1 = outputMetaDS1->GetTable(vtkStatisticalModel::Learned, 0);
+  vtkTable* outputDerived1 = outputMetaDS1->GetTable(vtkStatisticalModel::Derived, 0);
   vtkTable* outputTest1 = cs1->GetOutput(vtkStatisticsAlgorithm::OUTPUT_TEST);
 
   std::cout << "## Calculated the following primary statistics for first data set:\n";
@@ -380,9 +380,9 @@ int TestCorrelativeStatistics(int, char*[])
   cs2->Update();
 
   // Get output meta tables
-  vtkMultiBlockDataSet* outputMetaDS2 = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputMetaDS2 = vtkStatisticalModel::SafeDownCast(
     cs2->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  vtkTable* outputPrimary2 = vtkTable::SafeDownCast(outputMetaDS2->GetBlock(0));
+  vtkTable* outputPrimary2 = outputMetaDS2->GetTable(vtkStatisticalModel::Learned, 0);
 
   std::cout << "\n## Calculated the following primary statistics for second data set:\n";
   for (vtkIdType r = 0; r < outputPrimary2->GetNumberOfRows(); ++r)
@@ -398,7 +398,7 @@ int TestCorrelativeStatistics(int, char*[])
 
   // Test model aggregation by adding new data to engine which already has a model
   cs1->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2);
-  vtkMultiBlockDataSet* model = vtkMultiBlockDataSet::New();
+  auto* model = vtkStatisticalModel::New();
   model->ShallowCopy(outputMetaDS1);
   cs1->SetInputData(vtkStatisticsAlgorithm::INPUT_MODEL, model);
 
@@ -427,10 +427,10 @@ int TestCorrelativeStatistics(int, char*[])
   double correlations0[] = { 0.895327, 0. };
 
   // Get output meta tables
-  outputMetaDS1 = vtkMultiBlockDataSet::SafeDownCast(
+  outputMetaDS1 = vtkStatisticalModel::SafeDownCast(
     cs1->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  outputPrimary1 = vtkTable::SafeDownCast(outputMetaDS1->GetBlock(0));
-  outputDerived1 = vtkTable::SafeDownCast(outputMetaDS1->GetBlock(1));
+  outputPrimary1 = outputMetaDS1->GetTable(vtkStatisticalModel::Learned, 0);
+  outputDerived1 = outputMetaDS1->GetTable(vtkStatisticalModel::Derived, 0);
 
   std::cout
     << "\n## Calculated the following primary statistics for aggregated (first + second) data "
@@ -602,10 +602,10 @@ int TestCorrelativeStatistics(int, char*[])
   cs4->Update();
 
   // Get output data and meta tables
-  vtkMultiBlockDataSet* outputMetaCS4 = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputMetaCS4 = vtkStatisticalModel::SafeDownCast(
     cs4->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  vtkTable* outputPrimary4 = vtkTable::SafeDownCast(outputMetaCS4->GetBlock(0));
-  vtkTable* outputDerived4 = vtkTable::SafeDownCast(outputMetaCS4->GetBlock(1));
+  vtkTable* outputPrimary4 = outputMetaCS4->GetTable(vtkStatisticalModel::Learned, 0);
+  vtkTable* outputDerived4 = outputMetaCS4->GetTable(vtkStatisticalModel::Derived, 0);
   vtkTable* outputTest4 = cs4->GetOutput(vtkStatisticsAlgorithm::OUTPUT_TEST);
 
   std::cout << "\n## Calculated the following primary statistics for pseudo-random variables (n="

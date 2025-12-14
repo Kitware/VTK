@@ -20,6 +20,7 @@
 #include "vtkOrderStatistics.h"
 #include "vtkSmartPointer.h"
 #include "vtkSplitColumnComponents.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTable.h"
 
@@ -440,11 +441,11 @@ vtkSmartPointer<vtkDataObject> vtkExtractDataArraysOverTime::vtkInternal::Summar
     orderStats->ResetRequests();
     orderStats->AddColumn(cname);
     orderStats->Update();
-    vtkMultiBlockDataSet* order = vtkMultiBlockDataSet::SafeDownCast(
+    auto* order = vtkStatisticalModel::SafeDownCast(
       orderStats->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-    if (order && order->GetNumberOfBlocks() >= 3)
+    if (order && order->GetNumberOfTables() >= 3)
     {
-      vtkTable* model = vtkTable::SafeDownCast(order->GetBlock(2));
+      vtkTable* model = order->GetTable(vtkStatisticalModel::Derived, 0);
       std::ostringstream minName;
       std::ostringstream medName;
       std::ostringstream maxName;
@@ -466,12 +467,12 @@ vtkSmartPointer<vtkDataObject> vtkExtractDataArraysOverTime::vtkInternal::Summar
       descrStats->ResetRequests();
       descrStats->AddColumn(cname);
       descrStats->Update();
-      vtkMultiBlockDataSet* descr = vtkMultiBlockDataSet::SafeDownCast(
+      auto* descr = vtkStatisticalModel::SafeDownCast(
         descrStats->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-      if (descr && descr->GetNumberOfBlocks() >= 2)
+      if (descr && descr->GetNumberOfTables() >= 2)
       { // block 0: raw model; block 1: derived model
-        vtkTable* rawModel = vtkTable::SafeDownCast(descr->GetBlock(0));
-        vtkTable* drvModel = vtkTable::SafeDownCast(descr->GetBlock(1));
+        vtkTable* rawModel = descr->GetTable(vtkStatisticalModel::Learned, 0);
+        vtkTable* drvModel = descr->GetTable(vtkStatisticalModel::Derived, 0);
         std::ostringstream avgName;
         std::ostringstream stdName;
         std::ostringstream sumName;

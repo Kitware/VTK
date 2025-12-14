@@ -12,9 +12,10 @@
 #include "vtkImageData.h"
 #include "vtkImageMedian3D.h"
 #include "vtkInformation.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkPartitionedDataSetCollection.h"
 #include "vtkPointData.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
@@ -69,7 +70,7 @@ void vtkPairwiseExtractHistogram2D::PrintSelf(ostream& os, vtkIndent indent)
 }
 //------------------------------------------------------------------------------
 void vtkPairwiseExtractHistogram2D::Learn(
-  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkStatisticalModel* outMeta)
 {
   if (!outMeta)
   {
@@ -233,18 +234,18 @@ void vtkPairwiseExtractHistogram2D::Learn(
   }
 
   // build the composite image data set
-  vtkMultiBlockDataSet* outImages = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outImages = vtkPartitionedDataSetCollection::SafeDownCast(
     this->GetOutputDataObject(vtkPairwiseExtractHistogram2D::HISTOGRAM_IMAGE));
 
   if (outImages)
   {
-    outImages->SetNumberOfBlocks(numHistograms);
+    outImages->SetNumberOfPartitionedDataSets(numHistograms);
     for (int i = 0; i < numHistograms; i++)
     {
       vtkExtractHistogram2D* f = this->GetHistogramFilter(i);
       if (f)
       {
-        outImages->SetBlock(i, f->GetOutputHistogramImage());
+        outImages->SetPartition(i, 0, f->GetOutputHistogramImage());
       }
     }
   }
@@ -262,11 +263,9 @@ void vtkPairwiseExtractHistogram2D::Learn(
     }
   }
 
-  // Finally set first block of output meta port to primary statistics table
-  outMeta->SetNumberOfBlocks(1);
-  outMeta->GetMetaData(static_cast<unsigned>(0))
-    ->Set(vtkCompositeDataSet::NAME(), "Primary Statistics");
-  outMeta->SetBlock(0, primaryTab);
+  // Finally set first partition of output meta port to primary statistics table
+  outMeta->SetNumberOfTables(vtkStatisticalModel::Learned, 1);
+  outMeta->SetTable(vtkStatisticalModel::Learned, 0, primaryTab, "Primary Statistics");
 
   // Clean up
   primaryTab->Delete();
@@ -346,12 +345,12 @@ vtkImageData* vtkPairwiseExtractHistogram2D::GetOutputHistogramImage(int idx)
     this->BuildTime < this->GetInputDataObject(0, 0)->GetMTime())
     this->Update();
 
-  vtkMultiBlockDataSet* mbds = vtkMultiBlockDataSet::SafeDownCast(
+  auto* pdsc = vtkPartitionedDataSetCollection::SafeDownCast(
     this->GetOutputDataObject(vtkPairwiseExtractHistogram2D::HISTOGRAM_IMAGE));
 
-  if (mbds)
+  if (pdsc)
   {
-    return vtkImageData::SafeDownCast(mbds->GetBlock(idx));
+    return vtkImageData::SafeDownCast(pdsc->GetPartitionAsDataObject(idx, 0));
   }
   return nullptr;
 }
@@ -418,7 +417,7 @@ int vtkPairwiseExtractHistogram2D::FillOutputPortInformation(int port, vtkInform
 {
   if (port == vtkPairwiseExtractHistogram2D::HISTOGRAM_IMAGE)
   {
-    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkMultiBlockDataSet");
+    info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkPartitionedDataSetCollection");
     return 1;
   }
   else

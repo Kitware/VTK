@@ -20,7 +20,7 @@
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkMultiBlockDataSet;
+class vtkStatisticalModel;
 class vtkMultiProcessController;
 
 class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPCorrelativeStatistics
@@ -43,13 +43,13 @@ public:
   /**
    * Execute the parallel calculations required by the Learn option.
    */
-  void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta) override;
+  void Learn(vtkTable* inData, vtkTable* inParameters, vtkStatisticalModel* outMeta) override;
 
   /**
    * Execute the calculations required by the Test option.
    * NB: Not implemented for more than 1 processor
    */
-  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override;
+  void Test(vtkTable*, vtkStatisticalModel*, vtkTable*) override;
 
 protected:
   vtkPCorrelativeStatistics();

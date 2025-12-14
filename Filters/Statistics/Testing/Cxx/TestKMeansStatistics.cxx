@@ -5,12 +5,13 @@
 // Thanks to Janine Bennett, Philippe Pebay, and David Thompson from Sandia National Laboratories
 // for implementing this test.
 
+#include "vtkDataAssembly.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkKMeansStatistics.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
@@ -137,38 +138,30 @@ int TestKMeansStatistics(int, char*[])
   haruspex->Update();
 
   // Get output data and meta tables
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputMetaDS = vtkStatisticalModel::SafeDownCast(
     haruspex->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  for (unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++b)
+  vtkTable* outputLearned = outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0);
+  vtkIdType testIntValue = 0;
+  vtkIdType r;
+  for (r = 0; r < outputLearned->GetNumberOfRows(); r++)
   {
-    vtkTable* outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(b));
-    if (!b)
-    {
-
-      vtkIdType testIntValue = 0;
-      for (vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); r++)
-      {
-        testIntValue += outputMeta->GetValueByName(r, "Cardinality").ToInt();
-      }
-
-      std::cout << "## Computed clusters (cardinality: " << testIntValue << " / run):\n";
-
-      if (testIntValue != nVals - numberOfGhosts)
-      {
-        vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
-          << testIntValue << " != " << nVals - numberOfGhosts << ".");
-        testStatus = 1;
-      }
-    }
-    else
-    {
-      std::cout << "## Ranked cluster: "
-                << "\n";
-    }
-
-    outputMeta->Dump();
-    std::cout << "\n";
+    testIntValue += outputLearned->GetValueByName(r, "Cardinality").ToInt();
   }
+
+  std::cout << "## Computed clusters (cardinality: " << testIntValue << " / run):\n";
+
+  if (testIntValue != nVals - numberOfGhosts)
+  {
+    vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
+      << testIntValue << " != " << nVals - numberOfGhosts << ".");
+    testStatus = 1;
+  }
+  outputLearned->Dump();
+
+  vtkTable* outputDerived = outputMetaDS->GetTable(vtkStatisticalModel::Derived, 0);
+  std::cout << "## Ranked cluster:\n";
+  outputDerived->Dump();
+  std::cout << "\n";
 
   haruspex->SetInputData(vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData);
   std::cout << "## Testing with input table:"
@@ -184,53 +177,42 @@ int TestKMeansStatistics(int, char*[])
   haruspex->SetAssessOption(false);
 
   haruspex->Update();
-  outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
+  outputMetaDS = vtkStatisticalModel::SafeDownCast(
     haruspex->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  for (unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++b)
+  outputLearned = outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0);
+  r = 0;
+  for (int curRun = 0; curRun < numRuns; curRun++)
   {
-    vtkTable* outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(b));
-    if (b == 0)
+    testIntValue = 0;
+    for (int nInRun = 0; nInRun < numClustersInRun[curRun]; nInRun++)
     {
-      vtkIdType r = 0;
-      vtkIdType testIntValue = 0;
-      for (int curRun = 0; curRun < numRuns; curRun++)
-      {
-        testIntValue = 0;
-        for (int nInRun = 0; nInRun < numClustersInRun[curRun]; nInRun++)
-        {
-          testIntValue += outputMeta->GetValueByName(r, "Cardinality").ToInt();
-          r++;
-        }
-      }
-
-      if (r != outputMeta->GetNumberOfRows())
-      {
-        vtkGenericWarningMacro("Inconsistency in number of rows: "
-          << r << " != " << outputMeta->GetNumberOfRows() << ".");
-        testStatus = 1;
-      }
-
-      std::cout << "## Computed clusters (cardinality: " << testIntValue << " / run):\n";
-
-      if (testIntValue != nVals - numberOfGhosts)
-      {
-        vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
-          << testIntValue << " != " << nVals - numberOfGhosts << ".");
-        testStatus = 1;
-      }
+      testIntValue += outputLearned->GetValueByName(r, "Cardinality").ToInt();
+      r++;
     }
-    else
-    {
-      std::cout << "## Ranked cluster: "
-                << "\n";
-    }
-
-    outputMeta->Dump();
-    std::cout << "\n";
   }
 
-  std::cout << "=================== ASSESS ==================== " << std::endl;
-  vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
+  if (r != outputLearned->GetNumberOfRows())
+  {
+    vtkGenericWarningMacro("Inconsistency in number of rows: "
+      << r << " != " << outputLearned->GetNumberOfRows() << ".");
+    testStatus = 1;
+  }
+
+  std::cout << "## Computed clusters (cardinality: " << testIntValue << " / run):\n";
+
+  if (testIntValue != nVals - numberOfGhosts)
+  {
+    vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
+      << testIntValue << " != " << nVals - numberOfGhosts << ".");
+    testStatus = 1;
+  }
+  outputDerived = outputMetaDS->GetTable(vtkStatisticalModel::Derived, 0);
+  std::cout << "## Ranked cluster:\n";
+  outputDerived->Dump();
+  std::cout << "\n";
+
+  std::cout << "=================== ASSESS ==================== " << endl;
+  auto* paramsTables = vtkStatisticalModel::New();
   paramsTables->ShallowCopy(outputMetaDS);
 
   haruspex->SetInputData(vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables);

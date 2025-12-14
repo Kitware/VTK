@@ -10,16 +10,20 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOrderStatistics.h"
 #include "vtkSMPTools.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStatisticsAlgorithmPrivate.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
+#include "vtkStringToken.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
+
+#include "vtksys/SystemTools.hxx"
 
 #include <map>
 #include <sstream>
@@ -34,52 +38,12 @@
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkMultiCorrelativeStatistics);
 
-namespace
-{
-//==============================================================================
-struct GhostsCounter
-{
-  GhostsCounter(vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip)
-    : Ghosts(ghosts)
-    , GhostsToSkip(ghostsToSkip)
-    , GlobalNumberOfGhosts(0)
-  {
-  }
-
-  void Initialize() { this->NumberOfGhosts.Local() = 0; }
-
-  void operator()(vtkIdType startId, vtkIdType endId)
-  {
-    vtkIdType& numberOfGhosts = this->NumberOfGhosts.Local();
-    for (vtkIdType id = startId; id < endId; ++id)
-    {
-      numberOfGhosts += (this->Ghosts->GetValue(id) & this->GhostsToSkip) != 0;
-    }
-  }
-
-  void Reduce()
-  {
-    for (vtkIdType numberOfGhosts : this->NumberOfGhosts)
-    {
-      this->GlobalNumberOfGhosts += numberOfGhosts;
-    }
-  }
-
-  vtkUnsignedCharArray* Ghosts;
-  unsigned char GhostsToSkip;
-  vtkIdType GlobalNumberOfGhosts;
-  vtkSMPThreadLocal<vtkIdType> NumberOfGhosts;
-};
-} // anonymous namespace
-
 //------------------------------------------------------------------------------
 vtkMultiCorrelativeStatistics::vtkMultiCorrelativeStatistics()
 {
   this->AssessNames->SetNumberOfValues(1);
   this->AssessNames->SetValue(0, "d^2"); // Squared Mahalanobis distance
   this->MedianAbsoluteDeviation = false;
-  this->NumberOfGhosts = 0;
-  this->GhostsToSkip = 0xff;
 }
 
 //------------------------------------------------------------------------------
@@ -92,26 +56,44 @@ void vtkMultiCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-int vtkMultiCorrelativeStatistics::RequestData(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+void vtkMultiCorrelativeStatistics::AppendAlgorithmParameters(
+  std::string& algorithmParameters) const
 {
-  if (vtkTable* inData = vtkTable::GetData(inputVector[INPUT_DATA], 0))
+  this->Superclass::AppendAlgorithmParameters(algorithmParameters);
+  if (algorithmParameters.back() != '(')
   {
-    vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
-
-    if (ghosts)
-    {
-      ::GhostsCounter counter(ghosts, this->GhostsToSkip);
-      vtkSMPTools::For(0, ghosts->GetNumberOfValues(), counter);
-      this->NumberOfGhosts = counter.GlobalNumberOfGhosts;
-    }
-    else
-    {
-      this->NumberOfGhosts = 0;
-    }
+    algorithmParameters += ",";
   }
+  // clang-format off
+  algorithmParameters +=
+    "median_absolute_deviation=" + vtk::to_string(static_cast<int>(this->MedianAbsoluteDeviation))
+    ;
+  // clang-format on
+}
 
-  return this->Superclass::RequestData(request, inputVector, outputVector);
+//------------------------------------------------------------------------------
+std::size_t vtkMultiCorrelativeStatistics::ConsumeNextAlgorithmParameter(
+  vtkStringToken parameterName, const std::string& algorithmParameters)
+{
+  using namespace vtk::literals;
+  std::size_t consumed = 0;
+  switch (parameterName.GetHash())
+  {
+    case "median_absolute_deviation"_hash:
+    {
+      int value;
+      if ((consumed = this->ConsumeInt(algorithmParameters, value)))
+      {
+        this->SetMedianAbsoluteDeviation(value);
+      }
+    }
+    break;
+    default:
+      consumed =
+        this->Superclass::ConsumeNextAlgorithmParameter(parameterName, algorithmParameters);
+      break;
+  }
+  return consumed;
 }
 
 //------------------------------------------------------------------------------
@@ -207,38 +189,41 @@ void vtkMultiCorrelativeAssessFunctor::operator()(vtkDoubleArray* result, vtkIdT
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiCorrelativeStatistics::Aggregate(
-  vtkDataObjectCollection* inMetaColl, vtkMultiBlockDataSet* outMeta)
+bool vtkMultiCorrelativeStatistics::Aggregate(
+  vtkDataObjectCollection* inMetaColl, vtkStatisticalModel* outMeta)
 {
   if (!outMeta)
   {
-    return;
+    return false;
   }
+  // Do not call outMeta->Initialize() as it is allowed to be a member of inMetaColl.
+  outMeta->SetAlgorithmParameters(this->GetAlgorithmParameters());
 
   // Get hold of the first model (data object) in the collection
-  vtkCollectionSimpleIterator it;
-  inMetaColl->InitTraversal(it);
-  vtkDataObject* inMetaDO = inMetaColl->GetNextDataObject(it);
-
-  // Verify that the first input model is indeed contained in a multiblock data set
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast(inMetaDO);
-  if (!inMeta)
+  int itemIndex;
+  int numItems = inMetaColl->GetNumberOfItems();
+  // Skip collection entries until we find one with a primary table:
+  vtkTable* inCov = nullptr;
+  for (itemIndex = 0; itemIndex < numItems; ++itemIndex)
   {
-    return;
+    // Verify that the first primary statistics are present
+    auto* inMeta = vtkStatisticalModel::SafeDownCast(inMetaColl->GetItemAsObject(itemIndex));
+    inCov = inMeta ? inMeta->GetTable(vtkStatisticalModel::Learned, 0) : nullptr;
+    if (inCov)
+    {
+      break;
+    }
   }
-
-  // Verify that the first covariance matrix is indeed contained in a table
-  vtkTable* inCov = vtkTable::SafeDownCast(inMeta->GetBlock(0));
   if (!inCov)
   {
-    return;
+    return false;
   }
 
   vtkIdType nRow = inCov->GetNumberOfRows();
   if (!nRow)
   {
-    // No statistics were calculated.
-    return;
+    // No statistics were calculated, so there is no work to do.
+    return true;
   }
 
   // Use this first model to initialize the aggregated one
@@ -246,32 +231,20 @@ void vtkMultiCorrelativeStatistics::Aggregate(
   outCov->DeepCopy(inCov);
 
   // Now, loop over all remaining models and update aggregated each time
-  while ((inMetaDO = inMetaColl->GetNextDataObject(it)))
+  for (++itemIndex; itemIndex < numItems; ++itemIndex)
   {
-    // Verify that the current model is indeed contained in a multiblock data set
-    inMeta = vtkMultiBlockDataSet::SafeDownCast(inMetaDO);
-    if (!inMeta)
-    {
-      outCov->Delete();
-
-      return;
-    }
-
-    // Verify that the current covariance matrix is indeed contained in a table
-    inCov = vtkTable::SafeDownCast(inMeta->GetBlock(0));
+    // Verify that the current primary statistics are indeed contained in a table
+    auto* inMeta = vtkStatisticalModel::SafeDownCast(inMetaColl->GetItemAsObject(itemIndex));
+    inCov = inMeta ? inMeta->GetTable(vtkStatisticalModel::Learned, 0) : nullptr;
     if (!inCov)
     {
-      outCov->Delete();
-
-      return;
+      continue;
     }
 
     if (inCov->GetNumberOfRows() != nRow)
     {
-      // Models do not match
-      outCov->Delete();
-
-      return;
+      vtkErrorMacro("Model " << itemIndex << " has mismatched number of rows. Skipping.");
+      continue;
     }
 
     // Iterate over all model rows
@@ -289,10 +262,10 @@ void vtkMultiCorrelativeStatistics::Aggregate(
         inCov->GetValueByName(r, VTK_MULTICORRELATIVE_KEYCOLUMN2) !=
           outCov->GetValueByName(r, VTK_MULTICORRELATIVE_KEYCOLUMN2))
       {
-        // Models do not match
+        vtkErrorMacro("Model " << itemIndex << " variables (row " << r << ") do not match.");
+        // Models do not match. This is fatal since we may have partially processed data.
         outCov->Delete();
-
-        return;
+        return false;
       }
 
       // Update each model parameter
@@ -331,16 +304,18 @@ void vtkMultiCorrelativeStatistics::Aggregate(
     }
   }
 
-  // Replace covariance block of output model with updated one
-  outMeta->SetBlock(0, outCov);
+  // Replace covariance partition of output model with updated one
+  outMeta->SetNumberOfTables(vtkStatisticalModel::Learned, 1);
+  outMeta->SetTable(vtkStatisticalModel::Learned, 0, outCov, "Raw Sparse Covariance Data");
 
   // Clean up
   outCov->Delete();
+  return true;
 }
 
 //------------------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::Learn(
-  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkStatisticalModel* outMeta)
 {
   if (!inData)
   {
@@ -559,10 +534,10 @@ void vtkMultiCorrelativeStatistics::Learn(
     }
   }
 
-  outMeta->SetNumberOfBlocks(1);
-  outMeta->SetBlock(0, sparseCov);
-  outMeta->GetMetaData(static_cast<unsigned>(0))
-    ->Set(vtkCompositeDataSet::NAME(), "Raw Sparse Covariance Data");
+  outMeta->Initialize();
+  outMeta->SetAlgorithmParameters(this->GetAlgorithmParameters());
+  outMeta->SetNumberOfTables(vtkStatisticalModel::Learned, 1);
+  outMeta->SetTable(vtkStatisticalModel::Learned, 0, sparseCov, "Raw Sparse Covariance Data");
   sparseCov->Delete();
 }
 
@@ -603,13 +578,13 @@ static void vtkMultiCorrelativeCholesky(std::vector<double*>& a, vtkIdType m)
 }
 
 //------------------------------------------------------------------------------
-void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
+void vtkMultiCorrelativeStatistics::Derive(vtkStatisticalModel* outMeta)
 {
   vtkTable* sparseCov;
   vtkStringArray* col1;
   vtkStringArray* col2;
   vtkDoubleArray* col3;
-  if (!outMeta || !(sparseCov = vtkTable::SafeDownCast(outMeta->GetBlock(0))) ||
+  if (!outMeta || !(sparseCov = outMeta->GetTable(vtkStatisticalModel::Learned, 0)) ||
     !(col1 = vtkArrayDownCast<vtkStringArray>(
         sparseCov->GetColumnByName(VTK_MULTICORRELATIVE_KEYCOLUMN1))) ||
     !(col2 = vtkArrayDownCast<vtkStringArray>(
@@ -645,10 +620,12 @@ void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
   // Create an output table for each request and fill it in using the col3 array (the first table in
   // outMeta and which is presumed to exist upon entry to Derive).
   // Note that these tables are normalized by the number of samples.
-  outMeta->SetNumberOfBlocks(1 + static_cast<unsigned int>(this->Internals->Requests.size()));
+  outMeta->SetNumberOfTables(
+    vtkStatisticalModel::Derived, static_cast<unsigned int>(this->Internals->Requests.size()));
+  outMeta->SetAlgorithmParameters(this->GetAlgorithmParameters());
 
-  // Keep track of last current block
-  unsigned int b = 1;
+  // Keep track of last current partition
+  unsigned int b = 0;
 
   // Loop over requests
   double scale = 1. / (n - 1); // n -1 for unbiased variance estimators
@@ -699,12 +676,11 @@ void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
     vtkIdType reqCovSize = colNames->GetNumberOfTuples();
     colAvgs->SetNumberOfTuples(reqCovSize);
 
-    // Prepare covariance table and store it as last current block
+    // Prepare covariance table and store it as last current partition
     vtkTable* covariance = vtkTable::New();
     covariance->AddColumn(colNames);
     covariance->AddColumn(colAvgs);
-    outMeta->GetMetaData(b)->Set(vtkCompositeDataSet::NAME(), reqNameStr.str().c_str());
-    outMeta->SetBlock(b, covariance);
+    outMeta->SetTable(vtkStatisticalModel::Derived, b, covariance, reqNameStr.str());
 
     // Clean up
     covariance->Delete();
@@ -745,7 +721,7 @@ void vtkMultiCorrelativeStatistics::Derive(vtkMultiBlockDataSet* outMeta)
 
 //------------------------------------------------------------------------------
 void vtkMultiCorrelativeStatistics::Assess(
-  vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outData)
+  vtkTable* inData, vtkStatisticalModel* inMeta, vtkTable* outData)
 {
   if (!inData)
   {
@@ -766,11 +742,11 @@ void vtkMultiCorrelativeStatistics::Assess(
   // The output columns will be named "this->AssessNames->GetValue(0)(A,B,C)",
   // where "A", "B", and "C" are the column names specified in the per-request metadata tables.
   vtkIdType nRow = inData->GetNumberOfRows();
-  int nb = static_cast<int>(inMeta->GetNumberOfBlocks());
+  int nb = inMeta->GetNumberOfTables(vtkStatisticalModel::Derived);
   AssessFunctor* dfunc = nullptr;
-  for (int req = 1; req < nb; ++req)
+  for (int req = 0; req < nb; ++req)
   {
-    vtkTable* reqModel = vtkTable::SafeDownCast(inMeta->GetBlock(req));
+    vtkTable* reqModel = inMeta->GetTable(vtkStatisticalModel::Derived, req);
     if (!reqModel)
     {
       // Silently skip invalid entries
@@ -854,10 +830,10 @@ void vtkMultiCorrelativeStatistics::ComputeMedian(vtkTable* inData, vtkTable* ou
   orderStats->Update();
 
   // Get the Median
-  vtkMultiBlockDataSet* outputOrderStats = vtkMultiBlockDataSet::SafeDownCast(
+  vtkStatisticalModel* outputOrderStats = vtkStatisticalModel::SafeDownCast(
     orderStats->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
   outData->ShallowCopy(
-    vtkTable::SafeDownCast(outputOrderStats->GetBlock(outputOrderStats->GetNumberOfBlocks() - 1)));
+    outputOrderStats->FindTableByName(vtkStatisticalModel::Derived, "Quantiles"));
 
   orderStats->Delete();
 }

@@ -5,7 +5,6 @@
 #include "vtkExtractFunctionalBagPlot.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"

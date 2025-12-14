@@ -6,15 +6,17 @@
 #include "vtkStatisticsAlgorithmPrivate.h"
 
 #include "vtkDataObjectCollection.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
+#include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
 
 #include <set>
@@ -43,38 +45,37 @@ void vtkCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-void vtkCorrelativeStatistics::Aggregate(
-  vtkDataObjectCollection* inMetaColl, vtkMultiBlockDataSet* outMeta)
+bool vtkCorrelativeStatistics::Aggregate(
+  vtkDataObjectCollection* inMetaColl, vtkStatisticalModel* outMeta)
 {
   if (!outMeta)
   {
-    return;
+    return false;
   }
 
-  // Get hold of the first model (data object) in the collection
-  vtkCollectionSimpleIterator it;
-  inMetaColl->InitTraversal(it);
-  vtkDataObject* inMetaDO = inMetaColl->GetNextDataObject(it);
-
-  // Verify that the first input model is indeed contained in a multiblock data set
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast(inMetaDO);
-  if (!inMeta)
+  // Get hold of the first model in the collection
+  int itemIndex;
+  int numItems = inMetaColl->GetNumberOfItems();
+  // Skip collection entries until we find one with a primary table:
+  vtkStatisticalModel* inMeta0 = nullptr;
+  vtkTable* primaryTab = nullptr;
+  vtkIdType nRow = 0;
+  for (itemIndex = 0; itemIndex < numItems; ++itemIndex)
   {
-    return;
+    // Verify that the first primary statistics are present
+    inMeta0 = vtkStatisticalModel::SafeDownCast(inMetaColl->GetItemAsObject(itemIndex));
+    primaryTab = inMeta0 ? inMeta0->GetTable(vtkStatisticalModel::Learned, 0) : nullptr;
+    nRow = primaryTab ? primaryTab->GetNumberOfRows() : 0;
+    if (primaryTab && nRow > 0)
+    {
+      ++itemIndex;
+      break;
+    }
   }
-
-  // Verify that the first primary statistics are indeed contained in a table
-  vtkTable* primaryTab = vtkTable::SafeDownCast(inMeta->GetBlock(0));
-  if (!primaryTab)
+  if (itemIndex >= numItems)
   {
-    return;
-  }
-
-  vtkIdType nRow = primaryTab->GetNumberOfRows();
-  if (!nRow)
-  {
-    // No statistics were calculated.
-    return;
+    // No models to aggregate. Leave the output model in an empty state.
+    return true;
   }
 
   // Use this first model to initialize the aggregated one
@@ -82,32 +83,23 @@ void vtkCorrelativeStatistics::Aggregate(
   aggregatedTab->DeepCopy(primaryTab);
 
   // Now, loop over all remaining models and update aggregated each time
-  while ((inMetaDO = inMetaColl->GetNextDataObject(it)))
+  for (int ii = itemIndex; ii < numItems; ++ii)
   {
-    // Verify that the model is indeed contained in a table
-    inMeta = vtkMultiBlockDataSet::SafeDownCast(inMetaDO);
-    if (!inMeta)
-    {
-      aggregatedTab->Delete();
-
-      return;
-    }
-
     // Verify that the current primary statistics are indeed contained in a table
-    primaryTab = vtkTable::SafeDownCast(inMeta->GetBlock(0));
+    auto* inMeta = vtkStatisticalModel::SafeDownCast(inMetaColl->GetItemAsObject(ii));
+    primaryTab = inMeta ? inMeta->GetTable(vtkStatisticalModel::Learned, 0) : nullptr;
     if (!primaryTab)
     {
-      aggregatedTab->Delete();
-
-      return;
+      continue;
     }
 
     if (primaryTab->GetNumberOfRows() != nRow)
     {
+      vtkErrorMacro("Model " << ii << " has mismatched row count " << primaryTab->GetNumberOfRows()
+                             << " vs " << nRow << ".");
       // Models do not match
       aggregatedTab->Delete();
-
-      return;
+      return false;
     }
 
     // Iterate over all model rows
@@ -119,10 +111,10 @@ void vtkCorrelativeStatistics::Aggregate(
         primaryTab->GetValueByName(r, "Variable Y") !=
           aggregatedTab->GetValueByName(r, "Variable Y"))
       {
+        vtkErrorMacro("Model " << ii << " variables mismatched.");
         // Models do not match
         aggregatedTab->Delete();
-
-        return;
+        return false;
       }
 
       // Get aggregated statistics
@@ -174,19 +166,19 @@ void vtkCorrelativeStatistics::Aggregate(
     }
   }
 
-  // Finally set first block of aggregated model to primary statistics table
-  outMeta->SetNumberOfBlocks(1);
-  outMeta->GetMetaData(static_cast<unsigned>(0))
-    ->Set(vtkCompositeDataSet::NAME(), "Primary Statistics");
-  outMeta->SetBlock(0, aggregatedTab);
+  // Finally set first partition of aggregated model to primary statistics table
+  outMeta->SetAlgorithmParameters(this->GetAlgorithmParameters());
+  outMeta->SetNumberOfTables(vtkStatisticalModel::Learned, 1);
+  outMeta->SetTable(vtkStatisticalModel::Learned, 0, aggregatedTab, "Primary Statistics");
 
   // Clean up
   aggregatedTab->Delete();
+  return true;
 }
 
 //------------------------------------------------------------------------------
 void vtkCorrelativeStatistics::Learn(
-  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkStatisticalModel* outMeta)
 {
   if (!inData)
   {
@@ -241,6 +233,8 @@ void vtkCorrelativeStatistics::Learn(
   primaryTab->AddColumn(doubleCol);
   doubleCol->Delete();
 
+  auto* ghosts = this->GhostsToSkip ? inData->GetRowData()->GetGhostArray() : nullptr;
+
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
   for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
@@ -273,6 +267,11 @@ void vtkCorrelativeStatistics::Learn(
     double inv_n, x, y, delta, deltaXn;
     for (vtkIdType r = 0; r < nRow; ++r)
     {
+      if (ghosts && (ghosts->GetValue(r) & this->GhostsToSkip))
+      {
+        continue;
+      }
+
       inv_n = 1. / (r + 1.);
 
       x = inData->GetValueByName(r, colX.c_str()).ToDouble();
@@ -295,7 +294,7 @@ void vtkCorrelativeStatistics::Learn(
 
     row->SetValue(0, colX);
     row->SetValue(1, colY);
-    row->SetValue(2, nRow);
+    row->SetValue(2, nRow - this->NumberOfGhosts);
     row->SetValue(3, meanX);
     row->SetValue(4, meanY);
     row->SetValue(5, mom2X);
@@ -307,25 +306,24 @@ void vtkCorrelativeStatistics::Learn(
     row->Delete();
   } // rit
 
-  // Finally set first block of output meta port to primary statistics table
-  outMeta->SetNumberOfBlocks(1);
-  outMeta->GetMetaData(static_cast<unsigned>(0))
-    ->Set(vtkCompositeDataSet::NAME(), "Primary Statistics");
-  outMeta->SetBlock(0, primaryTab);
+  // Finally set first partition of output meta port to primary statistics table
+  outMeta->SetNumberOfTables(vtkStatisticalModel::Learned, 1);
+  outMeta->SetTable(vtkStatisticalModel::Learned, 0, primaryTab, "Primary Statistics");
+  outMeta->SetAlgorithmParameters(this->GetAlgorithmParameters());
 
   // Clean up
   primaryTab->Delete();
 }
 
 //------------------------------------------------------------------------------
-void vtkCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
+void vtkCorrelativeStatistics::Derive(vtkStatisticalModel* inMeta)
 {
-  if (!inMeta || inMeta->GetNumberOfBlocks() < 1)
+  if (!inMeta || inMeta->GetNumberOfTables(vtkStatisticalModel::Learned) < 1)
   {
     return;
   }
 
-  vtkTable* primaryTab = vtkTable::SafeDownCast(inMeta->GetBlock(0));
+  vtkTable* primaryTab = inMeta->GetTable(vtkStatisticalModel::Learned, 0);
   if (!primaryTab)
   {
     return;
@@ -429,11 +427,10 @@ void vtkCorrelativeStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     }
   } // nRow
 
-  // Finally set second block of output meta port to derived statistics table
-  inMeta->SetNumberOfBlocks(2);
-  inMeta->GetMetaData(static_cast<unsigned>(0))
-    ->Set(vtkCompositeDataSet::NAME(), "Derived Statistics");
-  inMeta->SetBlock(1, derivedTab);
+  // Finally set second partition of output meta port to derived statistics table
+  inMeta->SetNumberOfTables(vtkStatisticalModel::Derived, 1);
+  inMeta->SetTable(vtkStatisticalModel::Derived, 0, derivedTab, "Derived Statistics");
+  inMeta->SetAlgorithmParameters(this->GetAlgorithmParameters());
 
   // Clean up
   derivedTab->Delete();
@@ -457,21 +454,16 @@ vtkDoubleArray* vtkCorrelativeStatistics::CalculatePValues(vtkDoubleArray* statC
 
 //------------------------------------------------------------------------------
 void vtkCorrelativeStatistics::Test(
-  vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
+  vtkTable* inData, vtkStatisticalModel* inMeta, vtkTable* outMeta)
 {
   if (!inMeta)
   {
     return;
   }
 
-  vtkTable* primaryTab = vtkTable::SafeDownCast(inMeta->GetBlock(0));
-  if (!primaryTab)
-  {
-    return;
-  }
-
-  vtkTable* derivedTab = vtkTable::SafeDownCast(inMeta->GetBlock(1));
-  if (!derivedTab)
+  vtkTable* primaryTab = inMeta->GetTable(vtkStatisticalModel::Learned, 0);
+  vtkTable* derivedTab = inMeta->GetTable(vtkStatisticalModel::Derived, 0);
+  if (!primaryTab || !derivedTab)
   {
     return;
   }
@@ -521,6 +513,7 @@ void vtkCorrelativeStatistics::Test(
   vtkStringArray* varsY =
     vtkArrayDownCast<vtkStringArray>(primaryTab->GetColumnByName("Variable Y"));
 
+  auto* ghosts = (this->GhostsToSkip ? inData->GetRowData()->GetGhostArray() : nullptr);
   // Loop over requests
   vtkIdType nRowData = inData->GetNumberOfRows();
   for (std::set<std::set<vtkStdString>>::const_iterator rit = this->Internals->Requests.begin();
@@ -560,10 +553,10 @@ void vtkCorrelativeStatistics::Test(
     }
 
     // Retrieve model statistics necessary for Jarque-Bera-Srivastava testing
-    if (primaryTab->GetValueByName(r, "Cardinality").ToInt() != nRowData)
+    if (primaryTab->GetValueByName(r, "Cardinality").ToInt() != nRowData - this->NumberOfGhosts)
     {
       vtkWarningMacro("Inconsistent input: input data has "
-        << nRowData << " rows but primary model has cardinality "
+        << nRowData - this->NumberOfGhosts << " rows but primary model has cardinality "
         << primaryTab->GetValueByName(r, "Cardinality").ToDouble() << " for pair " << varNameX
         << ", " << varNameY << ". Cannot test.");
       continue;
@@ -610,6 +603,11 @@ void vtkCorrelativeStatistics::Test(
         double x, y;
         for (vtkIdType j = 0; j < nRowData; ++j)
         {
+          // Skip ghosted rows
+          if (ghosts && (ghosts->GetValue(j) & this->GhostsToSkip))
+          {
+            continue;
+          }
           // Read and center observation
           x = inData->GetValueByName(j, varNameX.c_str()).ToDouble() - mX;
           y = inData->GetValueByName(j, varNameY.c_str()).ToDouble() - mY;
@@ -656,6 +654,11 @@ void vtkCorrelativeStatistics::Test(
         double x, y, t1, t2;
         for (vtkIdType j = 0; j < nRowData; ++j)
         {
+          // Skip ghosted rows
+          if (ghosts && (ghosts->GetValue(j) & this->GhostsToSkip))
+          {
+            continue;
+          }
           // Read and center observation
           x = inData->GetValueByName(j, varNameX.c_str()).ToDouble() - mX;
           y = inData->GetValueByName(j, varNameY.c_str()).ToDouble() - mY;
@@ -691,7 +694,7 @@ void vtkCorrelativeStatistics::Test(
 
       // Finally, calculate Jarque-Bera-Srivastava statistic
       tmp = bS2 - 3.;
-      jbs = static_cast<double>(nRowData) * (bS1 / 3. + (tmp * tmp) / 12.);
+      jbs = static_cast<double>(nRowData - this->NumberOfGhosts) * (bS1 / 3. + (tmp * tmp) / 12.);
     }
 
     // Insert variable name and calculated Jarque-Bera-Srivastava statistic
@@ -798,20 +801,10 @@ void vtkCorrelativeStatistics::SelectAssessFunctor(
   vtkTable* outData, vtkDataObject* inMetaDO, vtkStringArray* rowNames, AssessFunctor*& dfunc)
 {
   dfunc = nullptr;
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast(inMetaDO);
-  if (!inMeta || inMeta->GetNumberOfBlocks() < 2)
-  {
-    return;
-  }
-
-  vtkTable* primaryTab = vtkTable::SafeDownCast(inMeta->GetBlock(0));
-  if (!primaryTab)
-  {
-    return;
-  }
-
-  vtkTable* derivedTab = vtkTable::SafeDownCast(inMeta->GetBlock(1));
-  if (!derivedTab)
+  vtkStatisticalModel* inMeta = vtkStatisticalModel::SafeDownCast(inMetaDO);
+  vtkTable* primaryTab = inMeta ? inMeta->GetTable(vtkStatisticalModel::Learned, 0) : nullptr;
+  vtkTable* derivedTab = inMeta ? inMeta->GetTable(vtkStatisticalModel::Derived, 0) : nullptr;
+  if (!primaryTab || !derivedTab)
   {
     return;
   }

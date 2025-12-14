@@ -5,10 +5,10 @@
 #include "vtkDoubleArray.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiCorrelativeStatisticsAssessFunctor.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
@@ -41,7 +41,7 @@ const char* vtkPCAStatistics::BasisSchemeEnumNames[NUM_BASIS_SCHEMES + 1] = { "F
 //------------------------------------------------------------------------------
 void vtkPCAStatistics::GetEigenvalues(int request, vtkDoubleArray* eigenvalues)
 {
-  vtkSmartPointer<vtkMultiBlockDataSet> outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
+  vtkSmartPointer<vtkStatisticalModel> outputMetaDS = vtkStatisticalModel::SafeDownCast(
     this->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
   if (!outputMetaDS)
@@ -50,7 +50,7 @@ void vtkPCAStatistics::GetEigenvalues(int request, vtkDoubleArray* eigenvalues)
   }
 
   vtkSmartPointer<vtkTable> outputMeta =
-    vtkTable::SafeDownCast(outputMetaDS->GetBlock(request + 1));
+    outputMetaDS->GetTable(vtkStatisticalModel::Derived, request);
 
   if (!outputMetaDS)
   {
@@ -107,7 +107,7 @@ void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors
   this->GetEigenvalues(request, eigenvalues);
   vtkIdType numberOfEigenvalues = eigenvalues->GetNumberOfTuples();
 
-  vtkSmartPointer<vtkMultiBlockDataSet> outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
+  vtkSmartPointer<vtkStatisticalModel> outputMetaDS = vtkStatisticalModel::SafeDownCast(
     this->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
   if (!outputMetaDS)
@@ -116,7 +116,7 @@ void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors
   }
 
   vtkSmartPointer<vtkTable> outputMeta =
-    vtkTable::SafeDownCast(outputMetaDS->GetBlock(request + 1));
+    outputMetaDS->GetTable(vtkStatisticalModel::Derived, request);
 
   if (!outputMeta)
   {
@@ -608,7 +608,7 @@ static void vtkPCAStatisticsNormalizeVariance(vtkVariantArray* normData, Eigen::
 }
 
 //------------------------------------------------------------------------------
-void vtkPCAStatistics::Derive(vtkMultiBlockDataSet* inMeta)
+void vtkPCAStatistics::Derive(vtkStatisticalModel* inMeta)
 {
   if (!inMeta)
   {
@@ -619,10 +619,10 @@ void vtkPCAStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   this->Superclass::Derive(inMeta);
 
   // Now that we have the covariance matrices, compute the SVD of each.
-  vtkIdType nb = static_cast<vtkIdType>(inMeta->GetNumberOfBlocks());
-  for (vtkIdType b = 1; b < nb; ++b)
+  vtkIdType nb = static_cast<vtkIdType>(inMeta->GetNumberOfTables(vtkStatisticalModel::Derived));
+  for (vtkIdType b = 0; b < nb; ++b)
   {
-    vtkTable* reqModel = vtkTable::SafeDownCast(inMeta->GetBlock(b));
+    vtkTable* reqModel = inMeta->GetTable(vtkStatisticalModel::Derived, b);
     if (!reqModel)
     {
       continue;
@@ -730,6 +730,7 @@ void vtkPCAStatistics::Derive(vtkMultiBlockDataSet* inMeta)
     row->Delete();
   }
 }
+
 // Use the invalid value of -1 for p-values if R is absent
 vtkDoubleArray* vtkPCAStatistics::CalculatePValues(
   vtkIdTypeArray* vtkNotUsed(dimCol), vtkDoubleArray* statCol)
@@ -749,7 +750,7 @@ vtkDoubleArray* vtkPCAStatistics::CalculatePValues(
 }
 
 //------------------------------------------------------------------------------
-void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
+void vtkPCAStatistics::Test(vtkTable* inData, vtkStatisticalModel* inMeta, vtkTable* outMeta)
 
 {
   if (!inMeta)
@@ -763,7 +764,7 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
   }
 
   // Prepare columns for the test:
-  // 0: (derived) model block index
+  // 0: (derived) model partition index
   // 1: multivariate Srivastava skewness
   // 2: multivariate Srivastava kurtosis
   // 3: multivariate Jarque-Bera-Srivastava statistic
@@ -771,8 +772,8 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
   // -1 otherwise) 5: number of degrees of freedom of Chi square distribution NB: These are not
   // added to the output table yet, for they will be filled individually first
   //     in order that R be invoked only once.
-  vtkIdTypeArray* blockCol = vtkIdTypeArray::New();
-  blockCol->SetName("Block");
+  vtkIdTypeArray* partitionCol = vtkIdTypeArray::New();
+  partitionCol->SetName("Partition");
 
   vtkDoubleArray* bS1Col = vtkDoubleArray::New();
   bS1Col->SetName("Srivastava Skewness");
@@ -789,13 +790,13 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
   // Retain data cardinality to check that models are applicable
   vtkIdType nRowData = inData->GetNumberOfRows();
 
-  // Now iterate over model blocks
-  unsigned int nBlocks = inMeta->GetNumberOfBlocks();
-  for (unsigned int b = 1; b < nBlocks; ++b)
+  // Now iterate over model partitions
+  int nParts = inMeta->GetNumberOfTables(vtkStatisticalModel::Derived);
+  for (int b = 0; b < nParts; ++b)
   {
-    vtkTable* derivedTab = vtkTable::SafeDownCast(inMeta->GetBlock(b));
+    vtkTable* derivedTab = inMeta->GetTable(vtkStatisticalModel::Derived, b);
 
-    // Silently ignore empty blocks
+    // Silently ignore empty partitions
     if (!derivedTab)
     {
       continue;
@@ -810,7 +811,8 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
     {
       vtkWarningMacro("Inconsistent input: input data has "
         << nRowData << " rows but primary model has cardinality "
-        << derivedTab->GetValueByName(p, "Mean").ToInt() << " for block " << b << ". Cannot test.");
+        << derivedTab->GetValueByName(p, "Mean").ToInt() << " for partition " << b
+        << ". Cannot test.");
       continue;
     }
 
@@ -894,7 +896,7 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
     double jbs = static_cast<double>(nRowData * p) * (bS1 / 6. + (tmp * tmp) / 24.);
 
     // Insert variable name and calculated Jarque-Bera-Srivastava statistic
-    blockCol->InsertNextValue(b);
+    partitionCol->InsertNextValue(b);
     bS1Col->InsertNextTuple1(bS1);
     bS2Col->InsertNextTuple1(bS2);
     statCol->InsertNextTuple1(jbs);
@@ -902,7 +904,7 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
   } // b
 
   // Now, add the already prepared columns to the output table
-  outMeta->AddColumn(blockCol);
+  outMeta->AddColumn(partitionCol);
   outMeta->AddColumn(bS1Col);
   outMeta->AddColumn(bS2Col);
   outMeta->AddColumn(statCol);
@@ -919,14 +921,14 @@ void vtkPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkT
   testCol->Delete();
 
   // Clean up
-  blockCol->Delete();
+  partitionCol->Delete();
   bS1Col->Delete();
   bS2Col->Delete();
   statCol->Delete();
   dimCol->Delete();
 }
 //------------------------------------------------------------------------------
-void vtkPCAStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outData)
+void vtkPCAStatistics::Assess(vtkTable* inData, vtkStatisticalModel* inMeta, vtkTable* outData)
 {
   if (!inData)
   {
@@ -943,11 +945,11 @@ void vtkPCAStatistics::Assess(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vt
   // The output columns will be named "RelDevSq(A,B,C)" where "A", "B", and "C" are the column names
   // specified in the per-request metadata tables.
   vtkIdType nRow = inData->GetNumberOfRows();
-  int nb = static_cast<int>(inMeta->GetNumberOfBlocks());
+  int nb = inMeta->GetNumberOfTables(vtkStatisticalModel::Derived);
   AssessFunctor* dfunc = nullptr;
-  for (int req = 1; req < nb; ++req)
+  for (int req = 0; req < nb; ++req)
   {
-    vtkTable* reqModel = vtkTable::SafeDownCast(inMeta->GetBlock(req));
+    vtkTable* reqModel = inMeta->GetTable(vtkStatisticalModel::Derived, req);
     if (!reqModel)
     { // silently skip invalid entries. Note we leave assessValues column in output data even when
       // it's empty.

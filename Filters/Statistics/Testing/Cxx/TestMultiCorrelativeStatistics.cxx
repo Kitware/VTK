@@ -7,9 +7,9 @@
 
 #include "vtkDataSetAttributes.h"
 #include "vtkDoubleArray.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiCorrelativeStatistics.h"
 #include "vtkNew.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
@@ -170,28 +170,24 @@ int TestMultiCorrelativeStatistics(int, char*[])
   mcs->SetAssessOption(false);
 
   mcs->Update();
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputMetaDS = vtkStatisticalModel::SafeDownCast(
     mcs->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
   std::cout << "## Calculated the following statistics for data set:\n";
-  for (unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++b)
+  auto* primary = outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0);
+  std::cout << "Primary Statistics\n";
+  primary->Dump();
+
+  for (int b = 0; b < outputMetaDS->GetNumberOfTables(vtkStatisticalModel::Derived); ++b)
   {
-    vtkTable* outputMeta = vtkTable::SafeDownCast(outputMetaDS->GetBlock(b));
+    vtkTable* outputMeta = outputMetaDS->GetTable(vtkStatisticalModel::Derived, b);
 
-    if (b == 0)
-    {
-      std::cout << "Primary Statistics\n";
-    }
-    else
-    {
-      std::cout << "Derived Statistics " << (b - 1) << "\n";
-    }
-
+    std::cout << "Derived Statistics " << b << "\n";
     outputMeta->Dump();
   }
 
   // Test Assess Mode
-  vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
+  auto* paramsTables = vtkStatisticalModel::New();
   paramsTables->ShallowCopy(outputMetaDS);
 
   mcs->SetInputData(vtkStatisticsAlgorithm::INPUT_MODEL, paramsTables);

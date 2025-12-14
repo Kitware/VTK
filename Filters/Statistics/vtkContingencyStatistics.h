@@ -31,7 +31,7 @@
 #include "vtkStatisticsAlgorithm.h"
 
 VTK_ABI_NAMESPACE_BEGIN
-class vtkMultiBlockDataSet;
+class vtkStatisticalModel;
 class vtkStringArray;
 class vtkTable;
 class vtkVariant;
@@ -45,11 +45,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) override;
   static vtkContingencyStatistics* New();
 
+  /// Contingency statistics requests are bivariate.
+  int GetMaximumNumberOfColumnsPerRequest() const override { return 2; }
+
   /**
    * Given a collection of models, calculate aggregate model
    * NB: not implemented
    */
-  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override {}
+  bool Aggregate(vtkDataObjectCollection*, vtkStatisticalModel*) override { return false; }
 
 protected:
   vtkContingencyStatistics();
@@ -58,22 +61,22 @@ protected:
   /**
    * Execute the calculations required by the Learn option.
    */
-  void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) override;
+  void Learn(vtkTable*, vtkTable*, vtkStatisticalModel*) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive(vtkMultiBlockDataSet*) override;
+  void Derive(vtkStatisticalModel*) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override;
+  void Test(vtkTable*, vtkStatisticalModel*, vtkTable*) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  void Assess(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override;
+  void Assess(vtkTable*, vtkStatisticalModel*, vtkTable*) override;
 
   /**
    * Calculate p-value. This will be overridden using the object factory with an
@@ -92,7 +95,7 @@ protected:
    * Provide the appropriate assessment functor.
    * This one is the one that is actually used.
    */
-  virtual void SelectAssessFunctor(vtkTable* outData, vtkMultiBlockDataSet* inMeta,
+  virtual void SelectAssessFunctor(vtkTable* outData, vtkStatisticalModel* inMeta,
     vtkIdType pairKey, vtkStringArray* rowNames, AssessFunctor*& dfunc);
 
 private:

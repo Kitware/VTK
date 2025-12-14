@@ -112,6 +112,7 @@ set(classes
   vtkSplitColumnComponents
   vtkSplitField
   vtkStructuredGridClip
+  vtkSumTables
   vtkSubPixelPositionEdgels
   vtkSubdivisionFilter
   vtkSynchronizeTimeFilter

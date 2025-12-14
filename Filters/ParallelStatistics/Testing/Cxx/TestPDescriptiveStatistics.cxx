@@ -9,9 +9,9 @@
 #include "vtkLogger.h"
 #include "vtkMPIController.h"
 #include "vtkMathUtilities.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
+#include "vtkStatisticalModel.h"
 #include "vtkTable.h"
 
 #include <math.h>
@@ -126,17 +126,17 @@ int TestPDescriptiveStatistics(int argc, char* argv[])
   refStats->Update();
 
   auto outData = vtkTable::SafeDownCast(stats->GetOutputDataObject(0));
-  auto outModel = vtkMultiBlockDataSet::SafeDownCast(stats->GetOutputDataObject(1));
+  auto outModel = stats->GetOutputModel();
   auto outTests = vtkTable::SafeDownCast(stats->GetOutputDataObject(2));
 
   auto outRefData = vtkTable::SafeDownCast(refStats->GetOutputDataObject(0));
-  auto outRefModel = vtkMultiBlockDataSet::SafeDownCast(refStats->GetOutputDataObject(1));
+  auto outRefModel = refStats->GetOutputModel();
   auto outRefTests = vtkTable::SafeDownCast(refStats->GetOutputDataObject(2));
 
   vtkLog(INFO, "Testing Model");
 
-  auto outPrimaryTable = vtkTable::SafeDownCast(outModel->GetBlock(0));
-  auto outRefPrimaryTable = vtkTable::SafeDownCast(outRefModel->GetBlock(0));
+  auto outPrimaryTable = outModel->GetTable(vtkStatisticalModel::Learned, 0);
+  auto outRefPrimaryTable = outRefModel->GetTable(vtkStatisticalModel::Learned, 0);
 
   if (!TablesAreSame(outPrimaryTable, outRefPrimaryTable))
   {

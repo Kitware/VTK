@@ -342,6 +342,16 @@ public:
 
   ///@{
   /**
+   * When set to true (default), the reader will add a point-data array with
+   * ghost markings (if one is available).
+   */
+  vtkSetMacro(IncludeGhostNodes, bool);
+  vtkGetMacro(IncludeGhostNodes, bool);
+  vtkBooleanMacro(IncludeGhostNodes, bool);
+  ///@}
+
+  ///@{
+  /**
    * Node related data, including point coordinates, point field data etc. is
    * typically shared between all blocks and sets. By default, the reader will
    * remove unused points for each block or set. To avoid this, set this flag to
@@ -705,6 +715,7 @@ private:
   char* DatabaseTypeOverride;
   int FileRange[2];
   int FileStride;
+  bool IncludeGhostNodes;
 };
 
 VTK_ABI_NAMESPACE_END

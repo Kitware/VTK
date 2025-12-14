@@ -11,10 +11,12 @@
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkObjectFactory.h"
 #include "vtkSMPTools.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
+#include "vtkStringFormatter.h"
+#include "vtkStringToken.h"
 #include "vtkTable.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkVariantArray.h"
@@ -24,44 +26,6 @@
 #include <map>
 #include <set>
 #include <vector>
-
-namespace
-{
-//==============================================================================
-struct GhostsCounter
-{
-  GhostsCounter(vtkUnsignedCharArray* ghosts, unsigned char ghostsToSkip)
-    : Ghosts(ghosts)
-    , GhostsToSkip(ghostsToSkip)
-    , GlobalNumberOfGhosts(0)
-  {
-  }
-
-  void Initialize() { this->NumberOfGhosts.Local() = 0; }
-
-  void operator()(vtkIdType startId, vtkIdType endId)
-  {
-    vtkIdType& numberOfGhosts = this->NumberOfGhosts.Local();
-    for (vtkIdType id = startId; id < endId; ++id)
-    {
-      numberOfGhosts += (this->Ghosts->GetValue(id) & this->GhostsToSkip) != 0;
-    }
-  }
-
-  void Reduce()
-  {
-    for (vtkIdType numberOfGhosts : this->NumberOfGhosts)
-    {
-      this->GlobalNumberOfGhosts += numberOfGhosts;
-    }
-  }
-
-  vtkUnsignedCharArray* Ghosts;
-  unsigned char GhostsToSkip;
-  vtkIdType GlobalNumberOfGhosts;
-  vtkSMPThreadLocal<vtkIdType> NumberOfGhosts;
-};
-} // anonymous namespace
 
 VTK_ABI_NAMESPACE_BEGIN
 vtkStandardNewMacro(vtkOrderStatistics);
@@ -78,9 +42,6 @@ vtkOrderStatistics::vtkOrderStatistics()
 
   this->AssessNames->SetNumberOfValues(1);
   this->AssessNames->SetValue(0, "Quantile");
-
-  this->NumberOfGhosts = 0;
-  this->GhostsToSkip = 0xff;
 }
 
 //------------------------------------------------------------------------------
@@ -97,26 +58,73 @@ void vtkOrderStatistics::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //------------------------------------------------------------------------------
-int vtkOrderStatistics::RequestData(
-  vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+void vtkOrderStatistics::AppendAlgorithmParameters(std::string& algorithmParameters) const
 {
-  if (vtkTable* inData = vtkTable::GetData(inputVector[INPUT_DATA], 0))
+  this->Superclass::AppendAlgorithmParameters(algorithmParameters);
+  if (algorithmParameters.back() != '(')
   {
-    vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
-
-    if (ghosts)
-    {
-      ::GhostsCounter counter(ghosts, this->GhostsToSkip);
-      vtkSMPTools::For(0, ghosts->GetNumberOfValues(), counter);
-      this->NumberOfGhosts = counter.GlobalNumberOfGhosts;
-    }
-    else
-    {
-      this->NumberOfGhosts = 0;
-    }
+    algorithmParameters += ",";
   }
+  // clang-format off
+  algorithmParameters +=
+    "number_of_intervals=" + vtk::to_string(this->NumberOfIntervals) + ","
+    "quantile_definition=" + vtk::to_string(static_cast<int>(this->QuantileDefinition)) + ","
+    "quantize=" + vtk::to_string(static_cast<int>(this->Quantize)) + ","
+    "maximum_histogram_size=" + vtk::to_string(this->MaximumHistogramSize)
+    ;
+  // clang-format on
+}
 
-  return this->Superclass::RequestData(request, inputVector, outputVector);
+//------------------------------------------------------------------------------
+std::size_t vtkOrderStatistics::ConsumeNextAlgorithmParameter(
+  vtkStringToken parameterName, const std::string& algorithmParameters)
+{
+  using namespace vtk::literals;
+  std::size_t consumed = 0;
+  switch (parameterName.GetHash())
+  {
+    case "number_of_intervals"_hash:
+    {
+      int value;
+      if ((consumed = this->ConsumeInt(algorithmParameters, value)))
+      {
+        this->SetNumberOfIntervals(value);
+      }
+    }
+    break;
+    case "quantile_definition"_hash:
+    {
+      int value;
+      if ((consumed = this->ConsumeInt(algorithmParameters, value)))
+      {
+        this->SetQuantileDefinition(value);
+      }
+    }
+    break;
+    case "quantize"_hash:
+    {
+      int value;
+      if ((consumed = this->ConsumeInt(algorithmParameters, value)))
+      {
+        this->SetQuantize(value);
+      }
+    }
+    break;
+    case "maximum_histogram_size"_hash:
+    {
+      int value;
+      if ((consumed = this->ConsumeInt(algorithmParameters, value)))
+      {
+        this->SetMaximumHistogramSize(value);
+      }
+    }
+    break;
+    default:
+      consumed =
+        this->Superclass::ConsumeNextAlgorithmParameter(parameterName, algorithmParameters);
+      break;
+  }
+  return consumed;
 }
 
 //------------------------------------------------------------------------------
@@ -160,7 +168,7 @@ bool vtkOrderStatistics::SetParameter(
 
 //------------------------------------------------------------------------------
 void vtkOrderStatistics::Learn(
-  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* vtkNotUsed(inParameters), vtkStatisticalModel* outMeta)
 {
   if (!inData)
   {
@@ -172,12 +180,19 @@ void vtkOrderStatistics::Learn(
     return;
   }
 
+  outMeta->Initialize();
+  outMeta->SetAlgorithmParameters(this->GetAlgorithmParameters());
+  // Store 1 "learned" model table per request
+  outMeta->SetNumberOfTables(
+    vtkStatisticalModel::Learned, static_cast<int>(this->Internals->Requests.size()));
+
   vtkUnsignedCharArray* ghosts = inData->GetRowData()->GetGhostArray();
 
   // Loop over requests
   vtkIdType nRow = inData->GetNumberOfRows();
+  int requestIndex = 0;
   for (std::set<std::set<vtkStdString>>::iterator rit = this->Internals->Requests.begin();
-       rit != this->Internals->Requests.end(); ++rit)
+       rit != this->Internals->Requests.end(); ++rit, ++requestIndex)
   {
     // Each request contains only one column of interest (if there are others, they are ignored)
     std::set<vtkStdString>::const_iterator it = rit->begin();
@@ -349,11 +364,8 @@ void vtkOrderStatistics::Learn(
       continue;
     } // else
 
-    // Resize output meta so histogram table can be appended
-    unsigned int nBlocks = outMeta->GetNumberOfBlocks();
-    outMeta->SetNumberOfBlocks(nBlocks + 1);
-    outMeta->GetMetaData(nBlocks)->Set(vtkCompositeDataSet::NAME(), col);
-    outMeta->SetBlock(nBlocks, histogramTab);
+    // Add the histogram to the output model:
+    outMeta->SetTable(vtkStatisticalModel::Learned, requestIndex, histogramTab, col);
 
     // Clean up
     histogramTab->Delete();
@@ -362,12 +374,14 @@ void vtkOrderStatistics::Learn(
 }
 
 //------------------------------------------------------------------------------
-void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
+void vtkOrderStatistics::Derive(vtkStatisticalModel* inMeta)
 {
-  if (!inMeta || inMeta->GetNumberOfBlocks() < 1)
+  if (!inMeta || inMeta->GetNumberOfTables(vtkStatisticalModel::Learned) < 1)
   {
     return;
   }
+  inMeta->SetAlgorithmParameters(this->GetAlgorithmParameters());
+  inMeta->SetNumberOfTables(vtkStatisticalModel::Derived, 2);
 
   // Create cardinality table
   vtkTable* cardinalityTab = vtkTable::New();
@@ -433,10 +447,10 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
   row->SetNumberOfValues(2);
 
   // Iterate over primary tables
-  unsigned int nBlocks = inMeta->GetNumberOfBlocks();
-  for (unsigned int b = 0; b < nBlocks; ++b)
+  int nParts = inMeta->GetNumberOfTables(vtkStatisticalModel::Learned);
+  for (int b = 0; b < nParts; ++b)
   {
-    vtkTable* histogramTab = vtkTable::SafeDownCast(inMeta->GetBlock(b));
+    vtkTable* histogramTab = inMeta->GetTable(vtkStatisticalModel::Learned, b);
     if (!histogramTab)
     {
       continue;
@@ -462,11 +476,11 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
       cdf[r] = n;
     }
 
-    // Get block variable name
-    vtkStdString varName = inMeta->GetMetaData(b)->Get(vtkCompositeDataSet::NAME());
+    // Get partition variable name
+    std::string varName = inMeta->GetTableName(vtkStatisticalModel::Learned, b);
 
     // Store cardinality
-    row->SetValue(0, varName);
+    row->SetValue(0, varName.c_str());
     row->SetValue(1, n);
     cardinalityTab->InsertNextRow(row);
 
@@ -680,20 +694,11 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
       continue;
     } // else
 
-  } // for ( unsigned int b = 0; b < nBlocks; ++ b )
+  } // for ( unsigned int b = 0; b < nParts; ++ b )
 
-  // Resize output meta so cardinality and quantile tables can be appended
-  nBlocks = inMeta->GetNumberOfBlocks();
-  inMeta->SetNumberOfBlocks(nBlocks + 2);
-
-  // Append cardinality table at block nBlocks
-  inMeta->GetMetaData(nBlocks)->Set(vtkCompositeDataSet::NAME(), "Cardinalities");
-  inMeta->SetBlock(nBlocks, cardinalityTab);
-
-  // Increment number of blocks and append quantile table at the end
-  ++nBlocks;
-  inMeta->GetMetaData(nBlocks)->Set(vtkCompositeDataSet::NAME(), "Quantiles");
-  inMeta->SetBlock(nBlocks, quantileTab);
+  // Add cardinality and quantile tables.
+  inMeta->SetTable(vtkStatisticalModel::Derived, 0, cardinalityTab, "Cardinalities");
+  inMeta->SetTable(vtkStatisticalModel::Derived, 1, quantileTab, "Quantiles");
 
   // Clean up
   row->Delete();
@@ -702,22 +707,21 @@ void vtkOrderStatistics::Derive(vtkMultiBlockDataSet* inMeta)
 }
 
 //------------------------------------------------------------------------------
-void vtkOrderStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
+void vtkOrderStatistics::Test(vtkTable* inData, vtkStatisticalModel* inMeta, vtkTable* outMeta)
 {
   if (!inMeta)
   {
     return;
   }
 
-  unsigned nBlocks = inMeta->GetNumberOfBlocks();
-  if (nBlocks < 1)
+  int nParts = inMeta->GetNumberOfTables(vtkStatisticalModel::Learned);
+  if (nParts < 1)
   {
     return;
   }
 
-  vtkTable* quantileTab = vtkTable::SafeDownCast(inMeta->GetBlock(nBlocks - 1));
-  if (!quantileTab ||
-    inMeta->GetMetaData(nBlocks - 1)->Get(vtkCompositeDataSet::NAME()) != vtkStdString("Quantiles"))
+  auto* quantileTab = inMeta->FindTableByName(vtkStatisticalModel::Derived, "Quantiles");
+  if (!quantileTab)
   {
     return;
   }
@@ -979,21 +983,20 @@ void vtkOrderStatistics::SelectAssessFunctor(
   vtkTable* outData, vtkDataObject* inMetaDO, vtkStringArray* rowNames, AssessFunctor*& dfunc)
 {
   dfunc = nullptr;
-  vtkMultiBlockDataSet* inMeta = vtkMultiBlockDataSet::SafeDownCast(inMetaDO);
+  auto* inMeta = vtkStatisticalModel::SafeDownCast(inMetaDO);
   if (!inMeta)
   {
     return;
   }
 
-  unsigned nBlocks = inMeta->GetNumberOfBlocks();
-  if (nBlocks < 1)
+  int nParts = inMeta->GetNumberOfTables(vtkStatisticalModel::Learned);
+  if (nParts < 1)
   {
     return;
   }
 
-  vtkTable* quantileTab = vtkTable::SafeDownCast(inMeta->GetBlock(nBlocks - 1));
-  if (!quantileTab ||
-    inMeta->GetMetaData(nBlocks - 1)->Get(vtkCompositeDataSet::NAME()) != vtkStdString("Quantiles"))
+  auto* quantileTab = inMeta->FindTableByName(vtkStatisticalModel::Derived, "Quantiles");
+  if (!quantileTab)
   {
     return;
   }

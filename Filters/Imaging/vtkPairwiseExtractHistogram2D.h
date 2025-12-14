@@ -3,9 +3,7 @@
 // SPDX-License-Identifier: LicenseRef-BSD-3-Clause-Sandia-USGov
 /**
  * @class   vtkPairwiseExtractHistogram2D
- * @brief   compute a 2D histogram between
- *  all adjacent columns of an input vtkTable.
- *
+ * @brief   compute a 2D histogram between all adjacent columns of an input vtkTable.
  *
  *  This class computes a 2D histogram between all adjacent pairs of columns
  *  of an input vtkTable. Internally it creates multiple vtkExtractHistogram2D
@@ -15,7 +13,7 @@
  *
  *  Note that there are two different outputs from this filter.  One is a
  *  table for which each column contains a flattened 2D histogram array.
- *  The other is a vtkMultiBlockDataSet for which each block is a
+ *  The other is a vtkPartitionedDataSetCollection for which each block is a
  *  vtkImageData representation of the 2D histogram.
  *
  * @sa
@@ -37,7 +35,6 @@ class vtkCollection;
 class vtkExtractHistogram2D;
 class vtkImageData;
 class vtkIdTypeArray;
-class vtkMultiBlockDataSet;
 
 class VTKFILTERSIMAGING_EXPORT vtkPairwiseExtractHistogram2D : public vtkStatisticsAlgorithm
 {
@@ -45,6 +42,9 @@ public:
   static vtkPairwiseExtractHistogram2D* New();
   vtkTypeMacro(vtkPairwiseExtractHistogram2D, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent) override;
+
+  /// This filter requires bivariate requests.
+  int GetMaximumNumberOfColumnsPerRequest() const override { return 2; }
 
   ///@{
   /**
@@ -138,7 +138,7 @@ public:
   /**
    * Given a collection of models, calculate aggregate model.  Not used
    */
-  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override {}
+  bool Aggregate(vtkDataObjectCollection*, vtkStatisticalModel*) override { return false; }
 
 protected:
   vtkPairwiseExtractHistogram2D();
@@ -157,22 +157,22 @@ protected:
    * Execute the calculations required by the Learn option.
    * Does the actual histogram computation works.
    */
-  void Learn(vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta) override;
+  void Learn(vtkTable* inData, vtkTable* inParameters, vtkStatisticalModel* outMeta) override;
 
   /**
    * Execute the calculations required by the Derive option. Not used.
    */
-  void Derive(vtkMultiBlockDataSet*) override {}
+  void Derive(vtkStatisticalModel*) override {}
 
   /**
    * Execute the assess option. Not implemented.
    */
-  void Assess(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
+  void Assess(vtkTable*, vtkStatisticalModel*, vtkTable*) override {}
 
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
+  void Test(vtkTable*, vtkStatisticalModel*, vtkTable*) override {}
 
   /**
    * Provide the appropriate assessment functor.

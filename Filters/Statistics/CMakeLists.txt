@@ -8,6 +8,7 @@ set(classes
   vtkDescriptiveStatistics
   vtkExtractFunctionalBagPlot
   vtkExtractHistogram
+  vtkExtractStatisticalModelTables
   vtkHighestDensityRegionsStatistics
   vtkKMeansDistanceFunctor
   vtkKMeansDistanceFunctorCalculator
@@ -18,12 +19,16 @@ set(classes
   vtkPCAStatistics
   vtkStatisticsAlgorithm
   vtkStrahlerMetric
-  vtkStreamingStatistics)
+  vtkStreamingStatistics
+  vtkVisualStatistics
+)
 
 set(nowrap_headers
-  vtkStatisticsAlgorithmPrivate.h)
+  vtkStatisticsAlgorithmPrivate.h
+)
 
 vtk_module_add_module(VTK::FiltersStatistics
   CLASSES ${classes}
-  NOWRAP_HEADERS ${nowrap_headers})
+  NOWRAP_HEADERS ${nowrap_headers}
+)
 vtk_add_test_mangling(VTK::FiltersStatistics)

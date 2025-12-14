@@ -95,6 +95,7 @@ protected:
    * working with the current node for improved performance.
    */
   const char* GetCurrentNodeName() const;
+  std::vector<std::string> GetCurrentNodePath() const;
   std::vector<unsigned int> GetCurrentDataSetIndices() const;
   ///@}
 

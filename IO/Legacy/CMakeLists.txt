@@ -13,6 +13,8 @@ set(classes
   vtkGraphWriter
   vtkLegacyCellGridReader
   vtkLegacyCellGridWriter
+  vtkLegacyStatisticalModelReader
+  vtkLegacyStatisticalModelWriter
   vtkPixelExtentIO
   vtkPolyDataReader
   vtkPolyDataWriter

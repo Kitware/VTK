@@ -50,6 +50,18 @@ const char* vtkDataAssemblyVisitor::GetCurrentNodeName() const
 }
 
 //------------------------------------------------------------------------------
+std::vector<std::string> vtkDataAssemblyVisitor::GetCurrentNodePath() const
+{
+  std::vector<std::string> path;
+  for (pugi::xml_node node = this->Internals->CurrentNode; node; node = node.parent())
+  {
+    path.emplace_back(node.name());
+  }
+  std::reverse(path.begin(), path.end());
+  return path;
+}
+
+//------------------------------------------------------------------------------
 std::vector<unsigned int> vtkDataAssemblyVisitor::GetCurrentDataSetIndices() const
 {
   std::vector<unsigned int> indices;
@@ -694,6 +706,58 @@ int vtkDataAssembly::GetFirstNodeByPath(const char* path) const
   const auto& internals = (*this->Internals);
   auto node = internals.FindNode(vtkDataAssembly::GetRootNode()).first_element_by_path(path);
   return node ? node.attribute("id").as_int() : -1;
+}
+
+//------------------------------------------------------------------------------
+int vtkDataAssembly::FindOrCreateNodeAtPath(const char* path, int parent)
+{
+  if (!path || !path[0])
+  {
+    // An empty/invalid path returns the "root" node.
+    return parent;
+  }
+
+  auto it = this->Internals->NodeMap.find(parent);
+  if (it == this->Internals->NodeMap.end())
+  {
+    return -1;
+  }
+
+  // The parent node exists.
+  int node = parent;
+  auto pathNames = vtksys::SystemTools::SplitString(path, '/');
+  for (std::size_t ii = 0; ii < pathNames.size(); ++ii)
+  {
+    std::string childName = pathNames[ii];
+    auto children = this->GetChildNodes(node, /*traverse_subtree*/ false, /*traversal_order*/ 0);
+    bool foundChild = false;
+    for (const auto& child : children)
+    {
+      it = this->Internals->NodeMap.find(child);
+      if (it == this->Internals->NodeMap.end())
+      {
+        // Inconsistent node map!
+        return -1;
+      }
+      if (it->second.name() == childName)
+      {
+        node = child;
+        foundChild = true;
+        break;
+      }
+    }
+    if (!foundChild)
+    {
+      // Create all remaining entries
+      for (; ii < pathNames.size(); ++ii)
+      {
+        childName = pathNames[ii];
+        node = this->AddNode(childName.c_str(), node);
+      }
+      return node;
+    }
+  }
+  return node;
 }
 
 //------------------------------------------------------------------------------

@@ -81,6 +81,9 @@ vtkDataWriter::vtkDataWriter()
   this->PedigreeIdsName = nullptr;
   this->EdgeFlagsName = nullptr;
 
+  this->Precision = 11;
+  this->PrecisionFormat = "{:.11g} ";
+
   this->LookupTableName = new char[13];
   strcpy(this->LookupTableName, "lookup_table");
 
@@ -1304,7 +1307,7 @@ int vtkDataWriter::WriteArray(ostream* fp, int dataType, vtkAbstractArray* data,
       *result.out = '\0';
       *fp << str;
       double* s = GetArrayRawPointer<double, vtkDoubleArray>(data, isAOSArray);
-      vtkWriteDataArray(fp, s, this->FileType, "{:.11g} ", num, numComp);
+      vtkWriteDataArray(fp, s, this->FileType, this->PrecisionFormat.c_str(), num, numComp);
       if (!isAOSArray)
       {
         delete[] s;
@@ -2325,6 +2328,22 @@ void vtkDataWriter::CloseVTKFile(ostream* fp)
     }
     delete fp;
   }
+}
+
+//------------------------------------------------------------------------------
+void vtkDataWriter::SetPrecision(int precision)
+{
+  vtkDebugMacro(<< " setting Precision to " << precision);
+  if (this->Precision == precision || precision < 0 || precision > 17)
+  {
+    return;
+  }
+
+  this->Precision = precision;
+  std::ostringstream numberFmt;
+  numberFmt << "{:." << this->Precision << "g} ";
+  this->PrecisionFormat = numberFmt.str();
+  this->Modified();
 }
 
 //------------------------------------------------------------------------------

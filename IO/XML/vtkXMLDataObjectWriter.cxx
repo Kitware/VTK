@@ -17,6 +17,7 @@
 #include "vtkXMLImageDataWriter.h"
 #include "vtkXMLPolyDataWriter.h"
 #include "vtkXMLRectilinearGridWriter.h"
+#include "vtkXMLStatisticalModelWriter.h"
 #include "vtkXMLStructuredGridWriter.h"
 #include "vtkXMLTableWriter.h"
 #include "vtkXMLUnstructuredGridWriter.h"
@@ -73,6 +74,8 @@ vtkXMLWriter* vtkXMLDataObjectWriter::NewWriter(int dataset_type)
       return vtkXMLTableWriter::New();
     case VTK_HYPER_TREE_GRID:
       return vtkXMLHyperTreeGridWriter::New();
+    case VTK_STATISTICAL_MODEL:
+      return vtkXMLStatisticalModelWriter::New();
   }
   return nullptr;
 }

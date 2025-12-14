@@ -5,14 +5,15 @@
 // Thanks to Philippe Pebay and David Thompson from Sandia National Laboratories
 // for implementing this test.
 
+#include "vtkDataAssembly.h"
 #include "vtkDataObjectCollection.h"
 #include "vtkDataSetAttributes.h"
 #include "vtkDescriptiveStatistics.h"
 #include "vtkDoubleArray.h"
 #include "vtkLogger.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkTimerLog.h"
@@ -165,10 +166,10 @@ int TestDescriptiveStatistics(int, char*[])
 
   // Get output data and meta tables
   vtkTable* outputData1 = ds1->GetOutput(vtkStatisticsAlgorithm::OUTPUT_DATA);
-  vtkMultiBlockDataSet* outputMetaDS1 = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputMetaDS1 = vtkStatisticalModel::SafeDownCast(
     ds1->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  vtkTable* outputPrimary1 = vtkTable::SafeDownCast(outputMetaDS1->GetBlock(0));
-  vtkTable* outputDerived1 = vtkTable::SafeDownCast(outputMetaDS1->GetBlock(1));
+  vtkTable* outputPrimary1 = outputMetaDS1->GetTable(vtkStatisticalModel::Learned, 0);
+  vtkTable* outputDerived1 = outputMetaDS1->GetTable(vtkStatisticalModel::Derived, 0);
   vtkTable* outputTest1 = ds1->GetOutput(vtkStatisticsAlgorithm::OUTPUT_TEST);
 
   std::cout << "\n## Calculated the following primary statistics for first data set:\n";
@@ -302,10 +303,13 @@ int TestDescriptiveStatistics(int, char*[])
   modifiedDerived->ShallowCopy(outputDerived1);
   modifiedDerived->SetValueByName(1, "Standard Deviation", 0.);
 
-  vtkMultiBlockDataSet* modifiedModel = vtkMultiBlockDataSet::New();
-  modifiedModel->SetNumberOfBlocks(2);
-  modifiedModel->SetBlock(0, modifiedPrimary);
-  modifiedModel->SetBlock(1, modifiedDerived);
+  auto* modifiedModel = vtkStatisticalModel::New();
+  modifiedModel->SetNumberOfTables(vtkStatisticalModel::Learned, 1);
+  modifiedModel->SetNumberOfTables(vtkStatisticalModel::Derived, 1);
+  modifiedModel->SetTable(vtkStatisticalModel::Learned, 0, modifiedPrimary,
+    outputMetaDS1->GetTableName(vtkStatisticalModel::Learned, 0));
+  modifiedModel->SetTable(vtkStatisticalModel::Derived, 0, modifiedDerived,
+    outputMetaDS1->GetTableName(vtkStatisticalModel::Derived, 0));
 
   // Run with Assess option only (do not recalculate nor rederive a model)
   ds1->SetInputData(vtkStatisticsAlgorithm::INPUT_MODEL, modifiedModel);
@@ -401,9 +405,9 @@ int TestDescriptiveStatistics(int, char*[])
   ds2->Update();
 
   // Get output meta tables
-  vtkMultiBlockDataSet* outputMetaDS2 = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputMetaDS2 = vtkStatisticalModel::SafeDownCast(
     ds2->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  vtkTable* outputPrimary2 = vtkTable::SafeDownCast(outputMetaDS2->GetBlock(0));
+  vtkTable* outputPrimary2 = outputMetaDS2->GetTable(vtkStatisticalModel::Learned, 0);
 
   std::cout << "\n## Calculated the following primary statistics for second data set:\n";
   for (vtkIdType r = 0; r < outputPrimary2->GetNumberOfRows(); ++r)
@@ -419,7 +423,7 @@ int TestDescriptiveStatistics(int, char*[])
 
   // Test model aggregation by adding new data to engine which already has a model
   ds1->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2);
-  vtkMultiBlockDataSet* model = vtkMultiBlockDataSet::New();
+  auto* model = vtkStatisticalModel::New();
   model->ShallowCopy(outputMetaDS1);
   ds1->SetInputData(vtkStatisticsAlgorithm::INPUT_MODEL, model);
 
@@ -443,10 +447,10 @@ int TestDescriptiveStatistics(int, char*[])
   double stdevs0[] = { sqrt(6.1418651), sqrt(7.548397 * 62. / 63.), sqrt(64. / 63.) };
 
   // Get output data and meta tables
-  outputMetaDS1 = vtkMultiBlockDataSet::SafeDownCast(
+  outputMetaDS1 = vtkStatisticalModel::SafeDownCast(
     ds1->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  outputPrimary1 = vtkTable::SafeDownCast(outputMetaDS1->GetBlock(0));
-  outputDerived1 = vtkTable::SafeDownCast(outputMetaDS1->GetBlock(1));
+  outputPrimary1 = outputMetaDS1->GetTable(vtkStatisticalModel::Learned, 0);
+  outputDerived1 = outputMetaDS1->GetTable(vtkStatisticalModel::Derived, 0);
 
   std::cout
     << "\n## Calculated the following primary statistics for updated (first + second) data set:\n";
@@ -576,10 +580,10 @@ int TestDescriptiveStatistics(int, char*[])
   vtkLog(INFO, "### Testing Sample Statistics ###");
 
   // Get output data and meta tables
-  vtkMultiBlockDataSet* outputMetaDS3 = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputMetaDS3 = vtkStatisticalModel::SafeDownCast(
     ds3->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  vtkTable* outputPrimary3 = vtkTable::SafeDownCast(outputMetaDS3->GetBlock(0));
-  vtkTable* outputDerived3 = vtkTable::SafeDownCast(outputMetaDS3->GetBlock(1));
+  vtkTable* outputPrimary3 = outputMetaDS3->GetTable(vtkStatisticalModel::Learned, 0);
+  vtkTable* outputDerived3 = outputMetaDS3->GetTable(vtkStatisticalModel::Derived, 0);
 
   std::cout << "\n## Calculated the following primary statistics for {0,...9} sequence:\n";
   std::cout << "   ";
@@ -638,9 +642,9 @@ int TestDescriptiveStatistics(int, char*[])
   ds3->SampleEstimateOff();
   ds3->SetGhostsToSkip(1);
   ds3->Update();
-  outputMetaDS3 = vtkMultiBlockDataSet::SafeDownCast(
+  outputMetaDS3 = vtkStatisticalModel::SafeDownCast(
     ds3->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  outputDerived3 = vtkTable::SafeDownCast(outputMetaDS3->GetBlock(1));
+  outputDerived3 = outputMetaDS3->GetTable(vtkStatisticalModel::Derived, 0);
 
   variance = 12.96;
   standardDeviation = 3.6;
@@ -747,10 +751,10 @@ int TestDescriptiveStatistics(int, char*[])
   ds4->Update();
 
   // Get output data and meta tables
-  vtkMultiBlockDataSet* outputMetaDS4 = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputMetaDS4 = vtkStatisticalModel::SafeDownCast(
     ds4->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
-  vtkTable* outputPrimary4 = vtkTable::SafeDownCast(outputMetaDS4->GetBlock(0));
-  vtkTable* outputDerived4 = vtkTable::SafeDownCast(outputMetaDS4->GetBlock(1));
+  vtkTable* outputPrimary4 = outputMetaDS4->GetTable(vtkStatisticalModel::Learned, 0);
+  vtkTable* outputDerived4 = outputMetaDS4->GetTable(vtkStatisticalModel::Derived, 0);
   vtkTable* outputTest4 = ds4->GetOutput(vtkStatisticsAlgorithm::OUTPUT_TEST);
 
   std::cout << "\n## Calculated the following primary statistics for pseudo-random variables (n="

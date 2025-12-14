@@ -316,6 +316,18 @@ public:
    */
   void CloseVTKFile(ostream* fp);
 
+  ///@{
+  /**
+   * Set/get the number of decimal digits of precision to use for floating-point numbers.
+   *
+   * The default is 11. The maximum is 17 (enough to exactly reproduce double-precision values).
+   * You should not modify this unless you are sure you know what you are doing as it can have
+   * a significant impact on file size.
+   */
+  virtual void SetPrecision(int precision);
+  vtkGetMacro(Precision, int);
+  ///@}
+
 protected:
   vtkDataWriter();
   ~vtkDataWriter() override;
@@ -347,6 +359,9 @@ protected:
   char* EdgeFlagsName;
 
   std::locale CurrentLocale;
+
+  int Precision;
+  std::string PrecisionFormat;
 
   int WriteArray(ostream* fp, int dataType, vtkAbstractArray* data, const char* format,
     vtkIdType num, vtkIdType numComp);

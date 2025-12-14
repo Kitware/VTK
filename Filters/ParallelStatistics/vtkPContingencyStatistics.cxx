@@ -8,9 +8,9 @@
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
@@ -124,7 +124,7 @@ static void StringBufferToStringVector(
 
 //------------------------------------------------------------------------------
 void vtkPContingencyStatistics::Learn(
-  vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* inParameters, vtkStatisticalModel* outMeta)
 {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
   vtkTimerLog* timer = vtkTimerLog::New();
@@ -157,7 +157,7 @@ void vtkPContingencyStatistics::Learn(
 #endif // DEBUG_PARALLEL_CONTINGENCY_STATISTICS
 
   // Get a hold of the summary table
-  vtkTable* summaryTab = vtkTable::SafeDownCast(outMeta->GetBlock(0));
+  vtkTable* summaryTab = outMeta->GetTable(vtkStatisticalModel::Learned, 0);
   if (!summaryTab)
   {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS
@@ -180,7 +180,7 @@ void vtkPContingencyStatistics::Learn(
   }
 
   // Get a hold of the contingency table
-  vtkTable* contingencyTab = vtkTable::SafeDownCast(outMeta->GetBlock(1));
+  vtkTable* contingencyTab = outMeta->GetTable(vtkStatisticalModel::Learned, 1);
   if (!contingencyTab)
   {
 #if DEBUG_PARALLEL_CONTINGENCY_STATISTICS

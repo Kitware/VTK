@@ -7,9 +7,9 @@
 #include "vtkCommunicator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkStatisticalModel.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
 
@@ -38,7 +38,7 @@ void vtkPCorrelativeStatistics::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 void vtkPCorrelativeStatistics::Learn(
-  vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* inParameters, vtkStatisticalModel* outMeta)
 {
   if (!outMeta)
   {
@@ -48,7 +48,7 @@ void vtkPCorrelativeStatistics::Learn(
   // First calculate correlative statistics on local data set
   this->Superclass::Learn(inData, inParameters, outMeta);
 
-  vtkTable* primaryTab = vtkTable::SafeDownCast(outMeta->GetBlock(0));
+  vtkTable* primaryTab = outMeta->GetTable(vtkStatisticalModel::Learned, 0);
   if (!primaryTab)
   {
     return;
@@ -153,7 +153,7 @@ void vtkPCorrelativeStatistics::Learn(
 
 //------------------------------------------------------------------------------
 void vtkPCorrelativeStatistics::Test(
-  vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
+  vtkTable* inData, vtkStatisticalModel* inMeta, vtkTable* outMeta)
 {
   if (this->Controller->GetNumberOfProcesses() > 1)
   {

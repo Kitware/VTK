@@ -11,7 +11,7 @@
  * @sa
  * vtkXMLImageDataWriter vtkXMLStructuredGridWriter
  * vtkXMLRectilinearGridWriter vtkXMLPolyDataWriter
- * vtkXMLUnstructuredGridWriter
+ * vtkXMLUnstructuredGridWriter vtkXMLStatisticalModelWriter
  */
 
 #ifndef vtkXMLDataObjectWriter_h

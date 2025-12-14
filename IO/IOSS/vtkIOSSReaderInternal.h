@@ -497,6 +497,11 @@ protected:
    * the name of the entity block (or set) which provided the cells to determine
    * which points to extract.
    *
+   * If (1) \a field_data is non-null, and (2) the \a group_entity corresponds to an
+   * element block, and (3) the data in the \a region borders data from other files;
+   * then an array will be added to \a field_data containing the list of sides which
+   * are in communication with other files and the ID of the file for each side.
+   *
    * Returns true on success.
    *
    * On error, `std::runtime_error` is thrown.
@@ -504,7 +509,7 @@ protected:
   bool GetFields(vtkDataSetAttributes* dsa, vtkDataArraySelection* selection, Ioss::Region* region,
     Ioss::GroupingEntity* group_entity, const DatabaseHandle& handle, int timestep,
     bool read_ioss_ids, vtkIdTypeArray* ids_to_extract = nullptr,
-    const std::string& cache_key_suffix = std::string());
+    const std::string& cache_key_suffix = std::string(), vtkFieldData* field_data = nullptr);
 
   /**
    * This reads node fields for an entity block or set.

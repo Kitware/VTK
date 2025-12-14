@@ -5,6 +5,7 @@
 #include "vtkDataObject.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
+#include "vtkStatisticalModel.h"
 #include "vtkXMLDataObjectWriter.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -36,6 +37,11 @@ std::string vtkXMLCompositeDataSetWriterHelper::WriteDataSet(
        attrType < vtkDataObject::NUMBER_OF_ATTRIBUTE_TYPES && isEmpty; ++attrType)
   {
     isEmpty = (data->GetNumberOfElements(attrType) == 0);
+  }
+
+  if (auto* statModel = vtkStatisticalModel::SafeDownCast(data))
+  {
+    isEmpty &= statModel->IsEmpty();
   }
 
   if (isEmpty)

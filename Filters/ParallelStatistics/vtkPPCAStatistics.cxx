@@ -8,12 +8,12 @@
 #include "vtkCommunicator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPMultiCorrelativeStatistics.h"
 #include "vtkPOrderStatistics.h"
+#include "vtkStatisticalModel.h"
 #include "vtkTable.h"
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -41,7 +41,7 @@ void vtkPPCAStatistics::PrintSelf(ostream& os, vtkIndent indent)
 
 //------------------------------------------------------------------------------
 void vtkPPCAStatistics::Learn(
-  vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* inParameters, vtkStatisticalModel* outMeta)
 {
   if (!outMeta)
   {
@@ -52,7 +52,7 @@ void vtkPPCAStatistics::Learn(
   this->Superclass::Learn(inData, inParameters, outMeta);
 
   // Get a hold of the (sparse) covariance matrix
-  vtkTable* sparseCov = vtkTable::SafeDownCast(outMeta->GetBlock(0));
+  auto* sparseCov = outMeta->GetTable(vtkStatisticalModel::Learned, 0);
   if (!sparseCov)
   {
     return;
@@ -65,7 +65,7 @@ void vtkPPCAStatistics::Learn(
 }
 
 //------------------------------------------------------------------------------
-void vtkPPCAStatistics::Test(vtkTable* inData, vtkMultiBlockDataSet* inMeta, vtkTable* outMeta)
+void vtkPPCAStatistics::Test(vtkTable* inData, vtkStatisticalModel* inMeta, vtkTable* outMeta)
 {
   if (this->Controller->GetNumberOfProcesses() > 1)
   {

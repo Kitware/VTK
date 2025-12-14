@@ -4,9 +4,9 @@
 #include "vtkDoubleArray.h"
 #include "vtkHighestDensityRegionsStatistics.h"
 #include "vtkIntArray.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
+#include "vtkStatisticalModel.h"
 #include "vtkTable.h"
 
 #include <sstream>
@@ -86,10 +86,10 @@ int TestHighestDensityRegionsStatistics(int, char*[])
   hdrs->Update();
 
   std::cout << "\n## Result:\n";
-  vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
+  auto* outputMetaDS = vtkStatisticalModel::SafeDownCast(
     hdrs->GetOutputDataObject(vtkStatisticsAlgorithm::OUTPUT_MODEL));
 
-  vtkTable* outputMetaLearn = vtkTable::SafeDownCast(outputMetaDS->GetBlock(0));
+  vtkTable* outputMetaLearn = outputMetaDS->GetTable(vtkStatisticalModel::Learned, 0);
   outputMetaLearn->Dump();
 
   std::stringstream ss;

@@ -89,7 +89,7 @@ class vtkIdTypeArray;
 class vtkIntArray;
 class vtkDoubleArray;
 class vtkKMeansDistanceFunctor;
-class vtkMultiBlockDataSet;
+class vtkStatisticalModel;
 
 class VTKFILTERSSTATISTICS_EXPORT vtkKMeansStatistics : public vtkStatisticsAlgorithm
 {
@@ -144,53 +144,43 @@ public:
    * Given a collection of models, calculate aggregate model
    * NB: not implemented
    */
-  void Aggregate(vtkDataObjectCollection*, vtkMultiBlockDataSet*) override {}
+  bool Aggregate(vtkDataObjectCollection*, vtkStatisticalModel*) override { return false; }
 
   /**
    * A convenience method for setting properties by name.
    */
   bool SetParameter(const char* parameter, int index, vtkVariant value) override;
 
-  ///@{
-  /**
-   * If there is a ghost array in the input, then ghosts matching `GhostsToSkip` mask
-   * will be skipped. It is set to 0xff by default (every ghosts types are skipped).
-   *
-   * @sa
-   * vtkDataSetAttributes
-   * vtkFieldData
-   * vtkPointData
-   * vtkCellData
-   */
-  vtkSetMacro(GhostsToSkip, unsigned char);
-  vtkGetMacro(GhostsToSkip, unsigned char);
-  ///@}
+  /// Provide a string that can be used to recreate an instance of this algorithm.
+  void AppendAlgorithmParameters(std::string& algorithmParameters) const override;
+
+  /// Implement the inverse of AppendAlgorithmParameters(): given parameters, update this algorithm.
+  std::size_t ConsumeNextAlgorithmParameter(
+    vtkStringToken parameterName, const std::string& algorithmParameters) override;
 
 protected:
   vtkKMeansStatistics();
   ~vtkKMeansStatistics() override;
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
-
   /**
    * Execute the calculations required by the Learn option.
    */
-  void Learn(vtkTable*, vtkTable*, vtkMultiBlockDataSet*) override;
+  void Learn(vtkTable*, vtkTable*, vtkStatisticalModel*) override;
 
   /**
    * Execute the calculations required by the Derive option.
    */
-  void Derive(vtkMultiBlockDataSet*) override;
+  void Derive(vtkStatisticalModel*) override;
 
   /**
    * Execute the calculations required by the Assess option.
    */
-  void Assess(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override;
+  void Assess(vtkTable*, vtkStatisticalModel*, vtkTable*) override;
 
   /**
    * Execute the calculations required by the Test option.
    */
-  void Test(vtkTable*, vtkMultiBlockDataSet*, vtkTable*) override {}
+  void Test(vtkTable*, vtkStatisticalModel*, vtkTable*) override {}
 
   /**
    * Provide the appropriate assessment functor.
@@ -258,13 +248,6 @@ protected:
    * overridden.
    */
   vtkKMeansDistanceFunctor* DistanceFunctor;
-
-  /**
-   * Number of ghosts in input data.
-   */
-  vtkIdType NumberOfGhosts;
-
-  unsigned char GhostsToSkip;
 
 private:
   vtkKMeansStatistics(const vtkKMeansStatistics&) = delete;

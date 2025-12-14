@@ -67,6 +67,7 @@ vtkIOSSReader::vtkIOSSReader()
   , DatabaseTypeOverride(nullptr)
   , FileRange{ 0, -1 }
   , FileStride{ 1 }
+  , IncludeGhostNodes(true)
 {
   this->SetController(vtkMultiProcessController::GetGlobalController());
   // default - treat numeric suffixes as separate vtk data arrays.

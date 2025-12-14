@@ -9,9 +9,9 @@
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
 #include "vtkMath.h"
-#include "vtkMultiBlockDataSet.h"
 #include "vtkMultiProcessController.h"
 #include "vtkObjectFactory.h"
+#include "vtkStatisticalModel.h"
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariantArray.h"
@@ -113,7 +113,7 @@ static void StringBufferToStringVector(const std::string& buffer, std::vector<st
 
 //------------------------------------------------------------------------------
 void vtkPOrderStatistics::Learn(
-  vtkTable* inData, vtkTable* inParameters, vtkMultiBlockDataSet* outMeta)
+  vtkTable* inData, vtkTable* inParameters, vtkStatisticalModel* outMeta)
 {
   if (!outMeta)
   {
@@ -123,7 +123,7 @@ void vtkPOrderStatistics::Learn(
   // First calculate order statistics on local data set
   this->Superclass::Learn(inData, inParameters, outMeta);
 
-  if (!outMeta || outMeta->GetNumberOfBlocks() < 1)
+  if (!outMeta || outMeta->GetNumberOfTables(vtkStatisticalModel::Learned) < 1)
   {
     // No statistics were calculated.
     return;
@@ -150,15 +150,16 @@ void vtkPOrderStatistics::Learn(
   vtkIdType rProc = 0;
 
   // Iterate over primary tables
-  unsigned int nBlocks = outMeta->GetNumberOfBlocks();
-  for (unsigned int b = 0; b < nBlocks; ++b)
+  int nParts = outMeta->GetNumberOfTables(vtkStatisticalModel::Learned);
+  for (int b = 0; b < nParts; ++b)
   {
     // Fetch histogram table
-    vtkTable* histoTab = vtkTable::SafeDownCast(outMeta->GetBlock(b));
+    vtkTable* histoTab = outMeta->GetTable(vtkStatisticalModel::Learned, b);
     if (!histoTab)
     {
       continue;
     }
+    std::string histoTabName = outMeta->GetTableName(vtkStatisticalModel::Learned, b);
 
     // Downcast columns to typed arrays for efficient data access
     vtkAbstractArray* vals = histoTab->GetColumnByName("Value");
@@ -334,12 +335,12 @@ void vtkPOrderStatistics::Learn(
     histoTab_g->AddColumn(card_g);
 
     // Replace local histogram table with globally reduced one
-    outMeta->SetBlock(b, histoTab_g);
+    outMeta->SetTable(vtkStatisticalModel::Learned, b, histoTab_g, histoTabName);
 
     // Clean up
     card_g->Delete();
     histoTab_g->Delete();
-  } // for ( unsigned int b = 0; b < nBlocks; ++ b )
+  } // for ( unsigned int b = 0; b < nParts; ++ b )
 }
 
 //------------------------------------------------------------------------------
