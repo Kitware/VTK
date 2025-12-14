@@ -1418,7 +1418,7 @@ void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(float timeVa
   vtkIdType prevKeyFrameId = 0;
 
   vtkIdType nextKeyFrameId =
-    std::lower_bound(this->InputData->Begin(), this->InputData->End(), timeValue) -
+    std::upper_bound(this->InputData->Begin(), this->InputData->End(), timeValue) -
     this->InputData->Begin();
 
   // If we didn't find the next keyframe, that means t is over the animation's duration.
@@ -1427,12 +1427,14 @@ void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(float timeVa
   {
     nextKeyFrameId = numberOfKeyFrames - 1;
     prevKeyFrameId = nextKeyFrameId;
+    timeValue = this->InputData->GetValue(nextKeyFrameId);
   }
 
   // Animation hasn't started yet.
   else if (nextKeyFrameId == 0)
   {
     prevKeyFrameId = 0;
+    timeValue = this->InputData->GetValue(prevKeyFrameId);
   }
   else
   {
@@ -1440,12 +1442,7 @@ void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(float timeVa
   }
 
   // Check if we are on an exact time stamp
-  bool exact = false;
-  if (this->InputData->GetValue(prevKeyFrameId) == timeValue)
-  {
-    exact = true;
-  }
-
+  const bool exact = this->InputData->GetValue(prevKeyFrameId) == timeValue;
   // linear or spline interpolation
   if (this->Interpolation != Animation::Sampler::InterpolationMode::STEP && !exact && !forceStep)
   {
@@ -1542,8 +1539,11 @@ void vtkGLTFDocumentLoader::Animation::Sampler::GetInterpolatedData(float timeVa
   }
   else
   {
-    for (size_t i = prevKeyFrameId * numberOfComponents;
-         i < numberOfComponents * (prevKeyFrameId + 1); i++)
+    // Cubic spline implementation for timestamp hit
+    const size_t index = this->Interpolation == Animation::Sampler::InterpolationMode::CUBICSPLINE
+      ? (3 * prevKeyFrameId + 1) * numberOfComponents
+      : prevKeyFrameId * numberOfComponents;
+    for (size_t i = index; i < index + numberOfComponents; i++)
     {
       output->push_back(this->OutputData->GetValue(static_cast<vtkIdType>(i)));
     }
