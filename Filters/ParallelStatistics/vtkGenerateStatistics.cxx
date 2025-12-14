@@ -1439,7 +1439,12 @@ void vtkGenerateStatistics::ComputeCellToPointWeights(
     for (vtkIdType cc = 0; cc < numberOfCells; ++cc)
     {
       dataSet->GetCellPoints(cc, npts, conn, stupid);
-      double weight = (this->WeightByCellMeasure ? weights->GetTuple1(cc) : 1.) / npts;
+      double weight = 1. / npts;
+      if (this->WeightByCellMeasure)
+      {
+        weights->GetTuple(cc, &weight);
+        weight = weight / npts;
+      }
       for (vtkIdType jj = 0; jj < npts; ++jj)
       {
         cellsToPointsToWeights[cc][conn[jj]] = weight;
@@ -1449,6 +1454,7 @@ void vtkGenerateStatistics::ComputeCellToPointWeights(
   else
   {
     // Compute only weights for point IDs listed in subset.
+    double weight;
     for (const auto& entry : subset)
     {
       auto pointId = entry.first;
@@ -1456,7 +1462,15 @@ void vtkGenerateStatistics::ComputeCellToPointWeights(
       for (const auto& cellId : *stupid)
       {
         auto npts = dataSet->GetCellSize(cellId);
-        double weight = (this->WeightByCellMeasure ? weights->GetTuple1(cellId) : 1.) / npts;
+        if (this->WeightByCellMeasure)
+        {
+          weights->GetTuple(cellId, &weight);
+          weight = weight / npts;
+        }
+        else
+        {
+          weight = 1. / npts;
+        }
         cellsToPointsToWeights[cellId][entry.second] = weight;
       }
     }
@@ -1518,36 +1532,26 @@ vtkSmartPointer<vtkAbstractArray> vtkGenerateStatistics::CellToPointSamples(
   weightSum->SetNumberOfTuples(
     subset.empty() ? data->GetNumberOfPoints() : static_cast<vtkIdType>(subset.size()));
   weightSum->FillComponent(0, 0.);
-  if (subset.empty())
+  double cellValue;
+  double resultValue;
+  double currentWeight;
+  // Since cellsToPointsToWeights only contains entries for
+  // points in the \a subset (if \a subset is non-empty) and
+  // contains values for all points (if \a subset is empty),
+  // we can just loop over cellsToPointsToWeights to splat
+  // exactly what is needed.
+  for (const auto& entry : cellsToPointsToWeights)
   {
-    // Splat every cell's value onto all of its points
-    for (const auto& entry : cellsToPointsToWeights)
+    auto cellId = entry.first;
+    cellArray->GetTuple(cellId, &cellValue);
+    for (const auto& pointToWeight : entry.second)
     {
-      auto cellId = entry.first;
-      double cellValue = cellArray->GetTuple1(cellId);
-      for (const auto& pointToWeight : entry.second)
-      {
-        result->SetTuple1(pointToWeight.first,
-          result->GetTuple1(pointToWeight.first) + pointToWeight.second * cellValue);
-        weightSum->SetTuple1(
-          pointToWeight.first, weightSum->GetTuple1(pointToWeight.first) + pointToWeight.second);
-      }
-    }
-  }
-  else
-  {
-    // Splat only points in \a subset belonging to cells onto the output.
-    for (const auto& entry : cellsToPointsToWeights)
-    {
-      auto cellId = entry.first;
-      double cellValue = cellArray->GetTuple1(cellId);
-      for (const auto& pointToWeight : entry.second)
-      {
-        result->SetTuple1(pointToWeight.first,
-          result->GetTuple1(pointToWeight.first) + pointToWeight.second * cellValue);
-        weightSum->SetTuple1(
-          pointToWeight.first, weightSum->GetTuple1(pointToWeight.first) + pointToWeight.second);
-      }
+      result->GetTuple(pointToWeight.first, &resultValue);
+      resultValue += pointToWeight.second * cellValue;
+      result->SetTuple(pointToWeight.first, &resultValue);
+      weightSum->GetTuple(pointToWeight.first, &currentWeight);
+      currentWeight += pointToWeight.second;
+      weightSum->SetTuple(pointToWeight.first, &currentWeight);
     }
   }
   // Now divide each point's value by its matching weightSum.
@@ -1557,14 +1561,14 @@ vtkSmartPointer<vtkAbstractArray> vtkGenerateStatistics::CellToPointSamples(
   vtkSMPTools::For(0, result->GetNumberOfTuples(),
     [&](vtkIdType begin, vtkIdType end)
     {
-      double value;
-      double weight;
+      double vv;
+      double ww;
       for (vtkIdType ii = begin; ii < end; ++ii)
       {
-        result->GetTuple(ii, &value);
-        weightSum->GetTuple(ii, &weight);
-        value = value / weight;
-        result->SetTuple(ii, &value);
+        result->GetTuple(ii, &vv);
+        weightSum->GetTuple(ii, &ww);
+        vv = vv / ww;
+        result->SetTuple(ii, &vv);
       }
     });
   return result;
@@ -1593,7 +1597,9 @@ vtkSmartPointer<vtkAbstractArray> vtkGenerateStatistics::FieldDataToSamples(
   }
   vtkIdType tableSize = subset.empty() ? numberOfSamples : static_cast<vtkIdType>(subset.size());
   vtkSmartPointer<vtkConstantArray<double>> arr = vtkSmartPointer<vtkConstantArray<double>>::New();
-  arr->SetBackend(std::make_shared<vtkConstantImplicitBackend<double>>(dataArray->GetTuple1(0)));
+  double value;
+  dataArray->GetTuple(0, &value);
+  arr->SetBackend(std::make_shared<vtkConstantImplicitBackend<double>>(value));
   arr->SetNumberOfComponents(1);
   arr->SetNumberOfTuples(tableSize);
   arr->SetName(dataArray->GetName());
