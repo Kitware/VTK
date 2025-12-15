@@ -36,3 +36,8 @@ As of VTK 9.4, OSMesa and EGL support are included by default in the `vtk` wheel
 ```{note}
 conda-forge packages are also [available](https://anaconda.org/conda-forge/vtk) and maintained by the community.
 ```
+
+## VTK wheel SDKs
+
+VTK wheel SDKs can be accessed from the [GitLab Package Registry](https://gitlab.kitware.com/vtk/vtk/-/packages).
+For more information about the VTK wheel SDKs, please refer to [Wheel SDKs section](wheel_sdks).

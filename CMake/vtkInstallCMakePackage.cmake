@@ -16,6 +16,8 @@ endif ()
 
 string(REPLACE "VTK::" "" vtk_all_components "${vtk_modules}")
 # Components that are not modules.
+# Same list is used in ./wheels_sdks/tests/packages/find_package/CMakeLists.txt,
+# if you modify this list, please also make the same changes in wheels_sdks file!
 set(_vtk_non_module_components
   WrapHierarchy
 

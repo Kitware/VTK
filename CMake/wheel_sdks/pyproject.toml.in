@@ -1,0 +1,60 @@
+[build-system]
+requires = ["pybind11", "scikit-build-core"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "vtk-sdk"
+version = "@VTK_WHEEL_SDK_VERSION@"
+authors = [
+  { name = "Alexy Pellegrini", email = "alexy.pellegrini@kitware.com" },
+  { name = "Jean-Christophe Fillion-Robin", email = "jcfr@lab78.xyz" },
+]
+description = "Distribution of the VTK wheel SDKs as first-class Python wheels"
+readme = "README.md"
+license.file = "LICENSE"
+requires-python = ">=3.10"
+classifiers = [
+  "Development Status :: 1 - Planning",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering",
+  "Typing :: Typed",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://gitlab.kitware.com/vtk/vtk"
+"Bug Tracker" = "https://gitlab.kitware.com/vtk/vtk/issues"
+Discussions = "https://discourse.vtk.org"
+Changelog = "https://gitlab.kitware.com/vtk/vtk/-/tree/master/Documentation/release"
+
+[project.entry-points."cmake.prefix"]
+any = "vtk_sdk.cmake"
+
+[project.optional-dependencies]
+test = [
+  "pytest >=6",
+  "pytest-cov >=3",
+  "virtualenv",
+]
+
+[tool.scikit-build]
+minimum-version = "0.8.2"
+build-dir = "build/{wheel_tag}"
+wheel.packages = ["src/vtk_sdk"]
+
+[tool.scikit-build.cmake.define]
+VTK_INSTALL_DIR = "@VTK_WHEEL_SDK_VTK_INSTALL_DIR@"
+
+[tool.setuptools.packages.find]
+where = ["@CMAKE_SOURCE_DIR@/.gitlab/ci/wheel_sdks"]

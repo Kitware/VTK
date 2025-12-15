@@ -1,0 +1,1 @@
+include(${CMAKE_CURRENT_LIST_DIR}/../@VTK_SDK_INSTALL_DIR@/vtk-@SKBUILD_PROJECT_VERSION@.data/headers/cmake/vtk-config.cmake)

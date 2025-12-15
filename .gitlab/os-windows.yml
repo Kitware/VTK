@@ -376,6 +376,9 @@
         - pip install wheel
         - python setup.py bdist_wheel
         - python "$env:GIT_CLONE_PATH\.gitlab\ci\create_wheel_sdk_archive.py"
+        - cd wheel_sdks # wheel sdk is built in a subdirectory to prevent any clash with normal wheel process
+        - python -m pip wheel .
+        - cd ..
         - pip install delvewheel
         - delvewheel show --add-path "bin" (Get-ChildItem dist\*.whl | % FullName) | Out-File -FilePath "$env:GIT_CLONE_PATH\wheel_output.log"
         - $no_mangle = (Get-ChildItem -Path ".\bin" -Filter "*.dll" -File -Name) -join ';'
@@ -414,7 +417,13 @@
         # Force osmesa render window and verify it worked.
         - Set-Item -Force -Path "env:VTK_DEFAULT_OPENGL_WINDOW" -Value "vtkOSOpenGLRenderWindow"
         - python -c "import vtk; assert(vtk.vtkRenderWindow().GetClassName() == 'vtkOSOpenGLRenderWindow')"
-        - .gitlab\ci\check_warnings.ps1 -BuildPath ./Testing/ExternalWheel # This will call exit in case of warnings
+        # Run vtk-sdk tests
+        - cd build/wheel_sdks
+        - pip install --find-links . vtk-sdk virtualenv pytest
+        - python -m pytest -ra
+        - cd ../..
+        # This will call exit in case of warnings
+        - .gitlab\ci\check_warnings.ps1 -BuildPath ./Testing/ExternalWheel
     interruptible: true
 
 .before_script_windows_emscripten: &before_script_windows_emscripten

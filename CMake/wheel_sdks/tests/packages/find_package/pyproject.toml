@@ -1,0 +1,12 @@
+[build-system]
+requires = ["scikit-build-core", "vtk-sdk"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "vtk-sdk-test"
+version = "1.0.0"
+authors = [
+  { name = "Alexy Pellegrini", email = "alexy.pellegrini@kitware.com" },
+  { name = "Jean-Christophe Fillion-Robin", email = "jcfr@lab78.xyz" },
+]
+dependencies = []
