@@ -586,6 +586,11 @@ bool vtkPlotPoints::CacheRequiresUpdate()
 //------------------------------------------------------------------------------
 bool vtkPlotPoints::UpdateCache()
 {
+  if (this->Scene)
+  {
+    this->ReleaseGraphicsCache();
+  }
+
   if (!this->Superclass::UpdateCache())
   {
     return false;
