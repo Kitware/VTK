@@ -149,6 +149,23 @@ std::string vtkIOSSReader::GetFieldSuffixSeparator()
 }
 
 //----------------------------------------------------------------------------
+void vtkIOSSReader::SetCatalystConduitChannelName(const std::string& newString)
+{
+  this->AddProperty("CATALYST_INPUT_NAME", newString.c_str());
+}
+
+//----------------------------------------------------------------------------
+std::string vtkIOSSReader::GetCatalystConduitChannelName()
+{
+  std::string retVal;
+  if (this->Internals->DatabaseProperties.exists("CATALYST_INPUT_NAME"))
+  {
+    retVal = this->Internals->DatabaseProperties.get("CATALYST_INPUT_NAME").get_string();
+  }
+  return retVal;
+}
+
+//----------------------------------------------------------------------------
 void vtkIOSSReader::SetScanForRelatedFiles(bool val)
 {
   if (this->ScanForRelatedFiles != val)

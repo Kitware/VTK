@@ -44,6 +44,7 @@ if (TARGET VTK::FiltersParallel AND TARGET VTK::RenderingParallel AND TARGET VTK
   if (TARGET VTK::catalyst)
     vtk_add_test_mpi(vtkIOIOSSCxxTests tests
       TestIOSSCatalystExodus.cxx,TESTING_DATA
+      TestIOSSCatalystOneCell.cxx,NO_VALID,TESTING_DATA
     )
   endif ()
 endif()
