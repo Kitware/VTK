@@ -39,10 +39,6 @@ int TestAxesActor(int argc, char* argv[])
   vtkNew<vtkAxesActor> axes;
   axes->SetShaftTypeToCylinder();
   axes->SetNormalizedTipLength(0.4, 0.4, 0.4);
-  // FIXME: the vtkCaptionActor2D does not render text with webgpu. An override for
-  // vtkPolyDataMapper2D must be implemented in webgpu.
-  // https://gitlab.kitware.com/vtk/vtk/-/issues/19551
-  axes->SetAxisLabels(false);
   vtkNew<vtkOrientationMarkerWidget> om;
   om->SetOrientationMarker(axes);
   om->SetInteractor(iren);

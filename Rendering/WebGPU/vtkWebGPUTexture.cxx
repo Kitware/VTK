@@ -151,7 +151,7 @@ void vtkWebGPUTexture::Load(vtkRenderer* renderer)
   doReload |= (inputTime > this->LoadTime.GetMTime());          // if the input changed
   doReload |= (this->GetLookupTable() &&
     this->GetLookupTable()->GetMTime() > this->LoadTime.GetMTime()); // if the LUT changed
-  doReload = (this->RenderWindow == nullptr ||
+  doReload |= (this->RenderWindow == nullptr ||
     (wgpuRenderWindow->GetGenericContext() !=
       this->RenderWindow->GetGenericContext())); // if the render window changed
   doReload |= (wgpuRenderWindow->GetWGPUConfiguration()->GetMTime() >
