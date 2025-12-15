@@ -71,9 +71,17 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
         if (auto result = vtk::scan<std::string_view>(lineBuffer.substr(76), "{:2s}"))
         {
           auto elemSymbol = result->value();
-          elem[0] = elemSymbol[0];
-          elem[1] = elemSymbol[1];
-          elem[2] = '\0';
+          if (elemSymbol.size() == 1)
+          {
+            elem[0] = elemSymbol[0];
+            elem[1] = '\0';
+          }
+          else
+          {
+            elem[0] = elemSymbol[0];
+            elem[1] = elemSymbol[1];
+            elem[2] = '\0';
+          }
         }
       }
       if (elem[0] == '\0')
