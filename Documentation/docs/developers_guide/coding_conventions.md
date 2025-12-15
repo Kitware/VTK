@@ -187,7 +187,7 @@ rules that say "All code".
 
    Rationale: Default function arguments in C++ are a tempting way to add an argument to a function while maintaining easy backwards compatibility. However, if you later want to add another argument to the list in a way that preserves backwards compatibility, it, too, must be a default argument. To supply the second of these arguments in a call forces you to also supply the first argument, even if it is the default value. As a result, this is not a clean way to add a argument to a function. Instead, function overloading should be preferred.
 
-2. VTK classes (header and source file) must be defined in the VTK_ABI_NAMESPACE, using VTK_ABI_NAMESPACE_BEGIN and VTK_ABI_NAMESPACE_END at the deepest namespace level, if any.
+1. VTK classes (header and source file) must be defined in the VTK_ABI_NAMESPACE, using VTK_ABI_NAMESPACE_BEGIN and VTK_ABI_NAMESPACE_END at the deepest namespace level, if any.
    ```cpp
    VTK_ABI_NAMESPACE_BEGIN
    class VTKXXX_EXPORT vtkXXX : public vtkObject{/* ... */};
@@ -199,6 +199,14 @@ rules that say "All code".
    VTK_ABI_NAMESPACE_END
    }
    ```
+
+1. Removing of public and even protected members and methods should follow [deprecation policy](./git/deprecation.md#deprecation-policy).
+
+   Rationale: Consistent API,
+
+1. Fully unused arguments in functions and methods should not be omitted but instead should be hidden using `vtkNotUsed(arg)`.
+
+   Rationale: Readability.
 
 ## Specific C++  Language Guidelines
 ### C++ Standard Library
