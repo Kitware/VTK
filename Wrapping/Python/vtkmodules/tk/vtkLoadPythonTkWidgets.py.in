@@ -47,6 +47,11 @@ def vtkLoadPythonTkWidgets(interp):
             if os.path.basename(lib_dir).startswith('lib'):
                 pathlist.append(lib_dir)
 
+    # a likely relative path for windows wheel
+    if sys.platform == 'win32':
+        package_dir = os.path.dirname(vtkmodules_dir)
+        pathlist.append(os.path.join(package_dir, "vtk.libs"))
+
     # add tcl paths, ensure that {} is handled properly
     try:
         auto_paths = interp.getvar('auto_path').split()
@@ -82,9 +87,7 @@ def vtkLoadPythonTkWidgets(interp):
             fullpath = os.path.join(path, filename)
         except AttributeError:
             pass
-        if ' ' in fullpath:
-            fullpath = '{'+fullpath+'}'
-        if interp.eval('catch {load '+fullpath+' '+pkgname+'}') == '0':
+        if interp.eval('catch {load {'+fullpath+'} '+pkgname+'}') == '0':
             return
 
     # re-generate the error

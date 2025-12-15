@@ -29,6 +29,19 @@
 #ifdef max
 #undef max
 #endif
+// Defined in X11/Xutil.h
+#ifdef AllValues
+#undef AllValues
+#endif
+#ifdef NoValue
+#undef NoValue
+#endif
+#ifdef XValue
+#undef XValue
+#endif
+#ifdef YValue
+#undef YValue
+#endif
 
 #endif
 // VTK-HeaderTest-Exclude: vtkTk.h
