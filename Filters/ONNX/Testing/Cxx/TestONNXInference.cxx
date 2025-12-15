@@ -1,6 +1,5 @@
 // SPDX-FileCopyrightText: Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
 // SPDX-License-Identifier: BSD-3-Clause
-#include "vtkMultiBlockDataSet.h"
 #include "vtkONNXInference.h"
 
 #include "vtkCellData.h"
@@ -39,7 +38,7 @@ bool TestGaussianKernel(int argc, char* argv[])
 
   vtkNew<vtkONNXInference> filter;
   filter->SetInputConnection(source->GetOutputPort());
-  filter->SetNumberOfInputParameters(3);
+  filter->SetInputShape({ 3 });
   filter->SetInputParameter(0, 0.25);
   filter->SetInputParameter(1, 0.6);
   filter->SetInputParameter(2, 1.0);
@@ -86,7 +85,7 @@ bool TestCompositeData(int argc, char* argv[])
 
   vtkNew<vtkONNXInference> filter;
   filter->SetInputConnection(group->GetOutputPort());
-  filter->SetNumberOfInputParameters(3);
+  filter->SetInputShape({ 3 });
   filter->SetInputParameter(0, 0.25);
   filter->SetInputParameter(1, 0.6);
   filter->SetInputParameter(2, 1.0);
@@ -126,7 +125,7 @@ bool TestGaussianKernelOnPoints(int argc, char* argv[])
 
   vtkNew<vtkONNXInference> filter;
   filter->SetInputConnection(source->GetOutputPort());
-  filter->SetNumberOfInputParameters(3);
+  filter->SetInputShape({ 3 });
   filter->SetInputParameter(0, 0.5);
   filter->SetInputParameter(1, 0.5);
   filter->SetInputParameter(2, 1.5);
@@ -166,7 +165,7 @@ bool TestGaussianKernelWithTime(int argc, char* argv[])
 
   vtkNew<vtkONNXInference> filter;
   filter->SetInputConnection(source->GetOutputPort());
-  filter->SetNumberOfInputParameters(3);
+  filter->SetInputShape({ 3 });
   filter->SetInputParameter(0, 0.9);
   filter->SetInputParameter(1, 0.1);
   filter->SetInputParameter(2, 1.1);
@@ -204,6 +203,55 @@ bool TestGaussianKernelWithTime(int argc, char* argv[])
 
   return test;
 }
+
+bool TestGaussianFieldArray(int argc, char* argv[])
+{
+  bool test = true;
+  char* dataPath = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/ONNX/linear_adder.onnx");
+
+  vtkNew<vtkCellTypeSource> source;
+  source->SetCellType(VTK_QUAD);
+  source->SetBlocksDimensions(10, 10, 1);
+  source->Update();
+
+  vtkNew<vtkFloatArray> inputArray;
+  inputArray->SetName("Input");
+  inputArray->SetNumberOfComponents(2);
+  inputArray->SetNumberOfTuples(100);
+
+  for (int64_t i = 0; i < 100; ++i)
+  {
+    inputArray->SetTuple2(i, 0, -50);
+  }
+
+  source->GetOutput()->GetCellData()->AddArray(inputArray);
+
+  vtkNew<vtkONNXInference> filter;
+  filter->SetInputConnection(source->GetOutputPort());
+  filter->SetInputShape({ 10, 10, 2 });
+  filter->FieldArrayInputOn();
+  filter->SetProcessedFieldArrayName("Input");
+  filter->SetModelFile(dataPath);
+  filter->SetOutputDimension(2);
+  filter->Update();
+
+  vtkSmartPointer<vtkUnstructuredGrid> output =
+    vtkUnstructuredGrid::SafeDownCast(filter->GetOutput());
+  vtkFloatArray* prediction =
+    vtkFloatArray::SafeDownCast(output->GetCellData()->GetArray("PredictedField"));
+
+  test &= ::Assert(prediction->GetNumberOfTuples() == 100, "CELL DATA, Wrong output shape.");
+  for (int i = 0; i < 100; ++i)
+  {
+    test &= ::Assert(vtkMathUtilities::FuzzyCompare(prediction->GetTuple2(i)[0], i + 1.0, 0.0001),
+      "CELL DATA, Wrong prediction value.");
+    test &=
+      ::Assert(vtkMathUtilities::FuzzyCompare(prediction->GetTuple2(i)[1], -(i + 51.0), 0.0001),
+        "CELL DATA, Wrong prediction value.");
+  }
+
+  return test;
+}
 }
 
 int TestONNXInference(int argc, char* argv[])
@@ -212,6 +260,7 @@ int TestONNXInference(int argc, char* argv[])
   testVal &= ::TestCompositeData(argc, argv);
   testVal &= ::TestGaussianKernelOnPoints(argc, argv);
   testVal &= ::TestGaussianKernelWithTime(argc, argv);
+  testVal &= ::TestGaussianFieldArray(argc, argv);
 
   return testVal ? EXIT_SUCCESS : EXIT_FAILURE;
 }
