@@ -1196,20 +1196,14 @@ vtkDataArray* vtkXdmfHeavyData::ReadAttribute(
       numComponents = 6;
       break;
     case XDMF_ATTRIBUTE_TYPE_VECTOR:
-      numComponents = 3;
+      numComponents = data_dims[data_rank - 1];
       break;
     case XDMF_ATTRIBUTE_TYPE_MATRIX:
-      numComponents = data_dims[data_rank - 1];
+      numComponents = data_dims[data_rank - 2] * data_dims[data_rank - 1];
       break;
     default:
       numComponents = 1;
       break;
-  }
-
-  // Handle 2D vectors
-  if (attrType == XDMF_ATTRIBUTE_TYPE_VECTOR && data_dims[data_rank - 1] == 2)
-  {
-    numComponents = 2;
   }
 
   if (update_extents && attrCenter != XDMF_ATTRIBUTE_CENTER_GRID)
