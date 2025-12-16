@@ -27,13 +27,14 @@ int TestChangingScalars(int argc, char* argv[])
 
   vtkNew<vtkTableBasedClipDataSet> clip2;
   clip2->SetInputConnection(clip->GetOutputPort());
+  clip2->SetGenerateClipPointTypes(true);
   clip2->SetValue(0);
   clip2->SetInputArrayToProcess(0, 0, 0, 0, "DISPL");
   clip2->Update();
   vtkUnstructuredGrid* output = vtkUnstructuredGrid::SafeDownCast(clip2->GetOutputDataObject(0));
 
   int nArrays = output->GetPointData()->GetNumberOfArrays();
-  if (nArrays != 3)
+  if (nArrays != 4)
   {
     vtkLogF(ERROR, "Invalid number of arrays, expected 3, got %d", nArrays);
     return EXIT_FAILURE;
