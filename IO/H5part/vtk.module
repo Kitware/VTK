@@ -13,7 +13,7 @@ DEPENDS
   VTK::CommonDataModel
   VTK::CommonExecutionModel
 PRIVATE_DEPENDS
-  VTK::h5part
+  VTK::h5hut
   VTK::hdf5
   VTK::vtksys
 TEST_DEPENDS

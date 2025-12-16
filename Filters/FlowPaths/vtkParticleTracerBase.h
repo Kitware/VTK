@@ -275,7 +275,7 @@ public:
   ///@{
   /**
    * Set/Get the Writer associated with this Particle Tracer
-   * Ideally a parallel IO capable vtkH5PartWriter should be used
+   * Ideally a parallel IO capable particler writer should be used
    * which will collect particles from all parallel processes
    * and write them to a single HDF5 file.
    */

@@ -113,18 +113,6 @@ vtkParticleTracerBase::vtkParticleTracerBase()
   this->Interpolator = vtkSmartPointer<vtkTemporalInterpolatedVelocityField>::New();
   this->SetNumberOfInputPorts(2);
 
-#ifdef JB_H5PART_PARTICLE_OUTPUT
-#ifdef _WIN32
-  vtkDebugMacro(<< "Setting vtkH5PartWriter");
-  vtkH5PartWriter* writer = vtkH5PartWriter::New();
-#else
-  vtkDebugMacro(<< "Setting vtkXMLParticleWriter");
-  vtkXMLParticleWriter* writer = vtkXMLParticleWriter::New();
-#endif
-  this->SetParticleWriter(writer);
-  writer->Delete();
-#endif
-
   this->SetIntegratorType(RUNGE_KUTTA4);
   this->ForceSerialExecution = false;
 
