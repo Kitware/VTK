@@ -785,7 +785,8 @@ bool ValidateMeshTypeStructuredImpl(viskores::Int8 memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeUnstructuredImpl(viskores::Int8 memorySpace)
+bool ValidateMeshTypeUnstructuredImpl(
+  viskores::Int8 memorySpace, vtkDataArray::MemorySpace vtkMemorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
@@ -809,6 +810,12 @@ bool ValidateMeshTypeUnstructuredImpl(viskores::Int8 memorySpace)
   VERIFY(ug->GetNumberOfCells() == 8,
     "incorrect number of cells, expected 8, got %" VTK_ID_TYPE_PRId, ug->GetNumberOfCells());
   VERIFY(ug->GetCellData()->GetArray("field") != nullptr, "missing 'field' cell-data array");
+  VERIFY(ug->GetPoints()->GetData()->GetMemorySpace() == vtkMemorySpace,
+    "incorrect memory space for points array, expected=%d, got=%d", vtkMemorySpace,
+    ug->GetPoints()->GetData()->GetMemorySpace());
+  VERIFY(ug->GetCells()->GetConnectivityArray()->GetMemorySpace() == vtkMemorySpace,
+    "incorrect memory space for connectivity array, expected=%d, got=%d", vtkMemorySpace,
+    ug->GetCells()->GetConnectivityArray()->GetMemorySpace());
   std::array<double, 6> bounds;
   ug->GetBounds(bounds.data());
   VERIFY(
@@ -884,7 +891,7 @@ bool Validate1DRectilinearGridImpl(viskores::Int8 memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeMixedImpl(viskores::Int8 memorySpace)
+bool ValidateMeshTypeMixedImpl(viskores::Int8 memorySpace, vtkDataArray::MemorySpace vtkMemorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
@@ -908,6 +915,12 @@ bool ValidateMeshTypeMixedImpl(viskores::Int8 memorySpace)
 
   VERIFY(ug->GetNumberOfPoints() == nX * nY * nZ, "expected %d points got %" VTK_ID_TYPE_PRId,
     nX * nY * nZ, ug->GetNumberOfPoints());
+  VERIFY(ug->GetPoints()->GetData()->GetMemorySpace() == vtkMemorySpace,
+    "incorrect memory space for points array, expected=%d, got=%d", vtkMemorySpace,
+    ug->GetPoints()->GetData()->GetMemorySpace());
+  VERIFY(ug->GetCells()->GetConnectivityArray()->GetMemorySpace() == vtkMemorySpace,
+    "incorrect memory space for connectivity array, expected=%d, got=%d", vtkMemorySpace,
+    ug->GetCells()->GetConnectivityArray()->GetMemorySpace());
 
   // 160 cells expected: 4 layers of
   //                     - 2 columns with 4 hexahedra
@@ -995,7 +1008,8 @@ bool ValidateMeshTypeMixedImpl(viskores::Int8 memorySpace)
   return true;
 }
 
-bool ValidateMeshTypeMixed2DImpl(viskores::Int8 memorySpace)
+bool ValidateMeshTypeMixed2DImpl(
+  viskores::Int8 memorySpace, vtkDataArray::MemorySpace vtkMemorySpace)
 {
   SCOPED_RUNTIME_DEVICE_SELECTOR(memorySpace);
   conduit_cpp::Node mesh;
@@ -1018,6 +1032,12 @@ bool ValidateMeshTypeMixed2DImpl(viskores::Int8 memorySpace)
     ug->GetNumberOfCells());
   VERIFY(ug->GetNumberOfPoints() == 25, "Expected 25 points, got %" VTK_ID_TYPE_PRId,
     ug->GetNumberOfPoints());
+  VERIFY(ug->GetPoints()->GetData()->GetMemorySpace() == vtkMemorySpace,
+    "incorrect memory space for points array, expected=%d, got=%d", vtkMemorySpace,
+    ug->GetPoints()->GetData()->GetMemorySpace());
+  VERIFY(ug->GetCells()->GetConnectivityArray()->GetMemorySpace() == vtkMemorySpace,
+    "incorrect memory space for connectivity array, expected=%d, got=%d", vtkMemorySpace,
+    ug->GetCells()->GetConnectivityArray()->GetMemorySpace());
 
   // check cell types
   const auto it = vtkSmartPointer<vtkCellIterator>::Take(ug->NewCellIterator());
@@ -1171,9 +1191,11 @@ bool ValidateMeshTypeUnstructured()
 {
   try
   {
-    VERIFY(ValidateMeshTypeUnstructuredImpl(VISKORES_DEVICE_ADAPTER_SERIAL),
+    VERIFY(ValidateMeshTypeUnstructuredImpl(
+             VISKORES_DEVICE_ADAPTER_SERIAL, vtkDataArray::MemorySpace::HostMemory),
       "ValidateMeshTypeUnstructuredImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeUnstructuredImpl(VISKORES_DEVICE_ADAPTER_CUDA),
+    VERIFY(ValidateMeshTypeUnstructuredImpl(
+             VISKORES_DEVICE_ADAPTER_CUDA, vtkDataArray::MemorySpace::CudaDeviceMemory),
       "ValidateMeshTypeUnstructuredImpl with CUDA device failed.");
   }
   catch (viskores::cont::ErrorBadValue& e)
@@ -1219,9 +1241,11 @@ bool ValidateMeshTypeMixed()
 {
   try
   {
-    VERIFY(ValidateMeshTypeMixedImpl(VISKORES_DEVICE_ADAPTER_SERIAL),
+    VERIFY(ValidateMeshTypeMixedImpl(
+             VISKORES_DEVICE_ADAPTER_SERIAL, vtkDataArray::MemorySpace::HostMemory),
       "ValidateMeshTypeMixedImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeMixedImpl(VISKORES_DEVICE_ADAPTER_CUDA),
+    VERIFY(ValidateMeshTypeMixedImpl(
+             VISKORES_DEVICE_ADAPTER_CUDA, vtkDataArray::MemorySpace::CudaDeviceMemory),
       "ValidateMeshTypeMixedImpl with CUDA device failed.");
   }
   catch (viskores::cont::ErrorBadValue& e)
@@ -1235,9 +1259,11 @@ bool ValidateMeshTypeMixed2D()
 {
   try
   {
-    VERIFY(ValidateMeshTypeMixed2DImpl(VISKORES_DEVICE_ADAPTER_SERIAL),
+    VERIFY(ValidateMeshTypeMixed2DImpl(
+             VISKORES_DEVICE_ADAPTER_SERIAL, vtkDataArray::MemorySpace::HostMemory),
       "ValidateMeshTypeMixed2DImpl with serial device failed.");
-    VERIFY(ValidateMeshTypeMixed2DImpl(VISKORES_DEVICE_ADAPTER_CUDA),
+    VERIFY(ValidateMeshTypeMixed2DImpl(
+             VISKORES_DEVICE_ADAPTER_CUDA, vtkDataArray::MemorySpace::CudaDeviceMemory),
       "ValidateMeshTypeMixed2DImpl with CUDA device failed.");
   }
   catch (viskores::cont::ErrorBadValue& e)
@@ -1361,7 +1387,7 @@ void CreatePolyhedra(Grid& grid, Attributes& attribs, unsigned int nx, unsigned 
   fields["pressure/values"].set_external(pressure.GetReadPointer(device), grid.GetNumberOfCells());
 }
 
-bool ValidatePolyhedraImpl(viskores::Int8 memorySpace)
+bool ValidatePolyhedraImpl(viskores::Int8 memorySpace, vtkDataArray::MemorySpace vtkMemorySpace)
 {
   conduit_cpp::Node mesh;
   constexpr int nX = 4, nY = 4, nZ = 4;
@@ -1387,6 +1413,12 @@ bool ValidatePolyhedraImpl(viskores::Int8 memorySpace)
   VERIFY(pds->GetNumberOfPartitions() == 1, "incorrect number of partitions, expected 1, got %d",
     pds->GetNumberOfPartitions());
   auto ug = vtkUnstructuredGrid::SafeDownCast(pds->GetPartition(0));
+  VERIFY(ug->GetPoints()->GetData()->GetMemorySpace() == vtkMemorySpace,
+    "incorrect memory space for points array, expected=%d, got=%d", vtkMemorySpace,
+    ug->GetPoints()->GetData()->GetMemorySpace());
+  VERIFY(ug->GetCells()->GetConnectivityArray()->GetMemorySpace() == vtkMemorySpace,
+    "incorrect memory space for connectivity array, expected=%d, got=%d", vtkMemorySpace,
+    ug->GetCells()->GetConnectivityArray()->GetMemorySpace());
 
   VERIFY(ug->GetNumberOfPoints() == static_cast<vtkIdType>(grid.GetNumberOfPoints()),
     "expected %zu points got %" VTK_ID_TYPE_PRId, grid.GetNumberOfPoints(),
@@ -1429,10 +1461,12 @@ bool ValidatePolyhedra()
   try
   {
     // conduit data in host memory creates a VTK dataset so this test works.
-    VERIFY(ValidatePolyhedraImpl(VISKORES_DEVICE_ADAPTER_SERIAL),
+    VERIFY(
+      ValidatePolyhedraImpl(VISKORES_DEVICE_ADAPTER_SERIAL, vtkDataArray::MemorySpace::HostMemory),
       "ValidateMeshTypeUnstructuredImpl with serial device failed.");
     // Viskores does not have VTK_POLYHEDRON
-    // VERIFY(ValidatePolyhedraImpl(VISKORES_DEVICE_ADAPTER_CUDA),
+    // VERIFY(ValidatePolyhedraImpl(VISKORES_DEVICE_ADAPTER_CUDA,
+    // vtkDataArray::MemorySpace::CudaDeviceMemory),
     //   "ValidateMeshTypeUnstructuredImpl with CUDA device failed.");
   }
   catch (viskores::cont::ErrorBadValue& e)

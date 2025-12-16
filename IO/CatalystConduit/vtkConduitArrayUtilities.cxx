@@ -7,7 +7,6 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkDeviceMemoryType.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkSOATypeFloat32Array.h"
@@ -47,9 +46,7 @@
 
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
 #include "vtkConduitArrayUtilitiesDevice.h"
-#if defined(VTK_USE_CUDA)
-#include <cuda_runtime_api.h>
-#endif // VTK_USE_CUDA
+#include "vtkmDataArrayUtilities.h"
 #endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
 
 #include <catalyst_conduit.hpp>
@@ -58,8 +55,6 @@
 #include <type_traits>
 #include <typeinfo>
 #include <vector>
-
-#include <iostream>
 
 namespace internals
 {
@@ -746,54 +741,22 @@ vtkSmartPointer<vtkCellArray> vtkConduitArrayUtilities::O2MRelationToVTKCellArra
 bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr, int8_t& id)
 {
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-#if defined(VTK_USE_CUDA) || defined(VTK_KOKKOS_BACKEND_CUDA)
-  cudaPointerAttributes atts;
-  const cudaError_t perr = cudaPointerGetAttributes(&atts, ptr);
-  // clear last error so other error checking does
-  // not pick it up
-  cudaError_t error = cudaGetLastError();
-  bool isCudaDevice = perr == cudaSuccess &&
-    (atts.type == cudaMemoryTypeDevice || atts.type == cudaMemoryTypeManaged);
-  std::cerr << "Cuda device: " << isCudaDevice;
-#if defined(VTK_USE_CUDA)
-  id = VISKORES_DEVICE_ADAPTER_CUDA;
-#elif defined(VTK_KOKKOS_BACKEND_CUDA)
-  id = VISKORES_DEVICE_ADAPTER_KOKKOS;
-#endif
-  return isCudaDevice;
-#elif defined(VTK_KOKKOS_BACKEND_HIP)
-  hipPointerAttribute_t atts;
-  id = VISKORES_DEVICE_ADAPTER_KOKKOS;
-  const hipError_t perr = hipPointerGetAttributes(&atts, ptr);
-  // clear last error so other error checking does
-  // not pick it up
-  hipError_t error = hipGetLastError();
-  return perr == hipSuccess &&
-    (atts.TYPE_ATTR == hipMemoryTypeDevice || atts.TYPE_ATTR == hipMemoryTypeUnified);
-#elif defined(VTK_KOKKOS_BACKEND_SYCL)
-  id = VISKORES_DEVICE_ADAPTER_KOKKOS;
-#warning "SYCL device pointers are not correctly detected"
-  (void)ptr;
-  return false;
-#else // defined(VTK_USE_CUDA) || defined(VTK_KOKKOS_BACKEND_CUDA)
-  id = VISKORES_DEVICE_ADAPTER_SERIAL;
-#endif
-#endif // VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
+  return vtkmDataArrayUtilities::IsDevicePointer(ptr, id);
+#else
   (void)id;
   (void)ptr;
   return false;
+#endif
 }
 
 bool vtkConduitArrayUtilities::IsDevicePointer(const void* ptr, int8_t& id, bool& working)
 {
+  void* pointer = const_cast<void*>(ptr);
 #if VTK_MODULE_ENABLE_VTK_AcceleratorsVTKmDataModel
-  void* pointer = const_cast<void*>(ptr);
   bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(pointer, id);
-  auto deviceAdapterId = viskores::cont::make_DeviceAdapterId(id);
   // we process host pointers using VTK which is always available
-  working = isDevicePointer ? vtkConduitArrayUtilitiesDevice::CanRunOn(deviceAdapterId) : true;
+  working = isDevicePointer ? vtkmDataArrayUtilities::IsDeviceAdapterAvailable(id) : true;
 #else
-  void* pointer = const_cast<void*>(ptr);
   bool isDevicePointer = vtkConduitArrayUtilities::IsDevicePointer(pointer, id);
   // no Viskores, so for a device pointer there is no runtime
   // for host pointer VTK can handle that.

@@ -5,7 +5,6 @@
 #include "vtkArrayDispatch.h"
 #include "vtkCellArray.h"
 #include "vtkDataSetAttributes.h"
-#include "vtkDeviceMemoryType.h"
 #include "vtkLogger.h"
 #include "vtkObjectFactory.h"
 #include "vtkSOADataArrayTemplate.h"
@@ -20,9 +19,6 @@
 
 #include "vtkmDataArray.h"
 #include "vtkmlib/CellSetConverters.h"
-#if defined(VTK_USE_CUDA)
-#include <cuda_runtime_api.h>
-#endif // VTK_USE_CUDA
 
 #include <catalyst_conduit.hpp>
 

@@ -8,6 +8,7 @@
 #define vtkmDataArray_hxx
 
 #include "vtkObjectFactory.h"
+#include "vtkmDataArrayUtilities.h"
 
 #include <viskores/cont/ArrayCopy.h>
 #include <viskores/cont/ArrayHandleRuntimeVec.h>
@@ -548,6 +549,40 @@ void* vtkmDataArray<T>::GetVoidPointer(vtkIdType valueIdx)
   return &(pointer[valueIdx]);
 }
 
+//-----------------------------------------------------------------------------
+template <typename T>
+void* vtkmDataArray<T>::GetDeviceVoidPointer(vtkIdType valueIdx)
+{
+  viskores::cont::ArrayHandleRuntimeVec<T> array{ this->GetNumberOfComponents() };
+  if (this->GetVtkmUnknownArrayHandle().template CanConvert<decltype(array)>())
+  {
+    this->GetVtkmUnknownArrayHandle().AsArrayHandle(array);
+  }
+  else
+  {
+    // Data does not appear to be in a basic layout. Copy array.
+    viskores::cont::ArrayCopy(this->GetVtkmUnknownArrayHandle(), array);
+    this->SetVtkmArrayHandle(array);
+  }
+
+  // Get the write pointer to the data (since there is no way to know whether
+  // this array will be written to).
+  auto& tracker = viskores::cont::GetRuntimeDeviceTracker();
+  viskores::cont::Token token;
+  if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagCuda{}))
+  {
+    T* pointer = array.GetComponentsArray().GetWritePointer(viskores::cont::DeviceAdapterTagCuda{});
+    return &(pointer[valueIdx]);
+  }
+  if (tracker.CanRunOn(viskores::cont::DeviceAdapterTagKokkos{}))
+  {
+    T* pointer =
+      array.GetComponentsArray().GetWritePointer(viskores::cont::DeviceAdapterTagKokkos{});
+    return &(pointer[valueIdx]);
+  }
+  return nullptr;
+}
+
 template <typename T>
 void* vtkmDataArray<T>::WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues)
 {
@@ -688,6 +723,7 @@ bool vtkmDataArray<T>::AllocateTuples(vtkIdType numberOfTuples)
   return true;
 }
 
+//-----------------------------------------------------------------------------
 template <typename T>
 bool vtkmDataArray<T>::ReallocateTuples(vtkIdType numberOfTuples)
 {
@@ -708,6 +744,25 @@ bool vtkmDataArray<T>::ReallocateTuples(vtkIdType numberOfTuples)
     }
   }
   return this->AllocateTuples(numberOfTuples);
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+vtkDataArray::MemorySpace vtkmDataArray<T>::GetMemorySpace()
+{
+  auto pointer = this->GetDeviceVoidPointer(0);
+  if (pointer)
+  {
+    if (vtkmDataArrayUtilities::IsCudaDevicePointer(pointer))
+    {
+      return vtkDataArray::MemorySpace::CudaDeviceMemory;
+    }
+    if (vtkmDataArrayUtilities::IsHipDevicePointer(pointer))
+    {
+      return vtkDataArray::MemorySpace::HipDeviceMemory;
+    }
+  }
+  return vtkDataArray::MemorySpace::HostMemory;
 }
 
 VTK_ABI_NAMESPACE_END
