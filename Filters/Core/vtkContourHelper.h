@@ -21,6 +21,8 @@
 #ifndef vtkContourHelper_h
 #define vtkContourHelper_h
 
+#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkFiltersCoreModule.h" // For export macro
 #include "vtkWeakPointer.h"       // For vtkWeakPointer
 #include "vtkWrappingHints.h"     // For VTK_MARSHALAUTO
@@ -77,6 +79,8 @@ private:
   vtkContourHelper(const vtkContourHelper&) = delete;
   vtkContourHelper& operator=(const vtkContourHelper&) = delete;
 
+  void InitializeTempContainers();
+
   // Filled upon construction
   vtkWeakPointer<vtkIncrementalPointLocator> Locator;
   vtkWeakPointer<vtkCellArray> OutVerts;
@@ -88,6 +92,11 @@ private:
   vtkWeakPointer<vtkCellData> OutCd;
   int TrisEstimatedSize = 0;
   bool OutputTriangles = false;
+
+  // Temporary containers reused per helper instance.
+  vtkNew<vtkCellArray> TempTris;
+  vtkNew<vtkCellData> TempTriData;
+  bool TempContainersInitialized = false;
 };
 
 VTK_ABI_NAMESPACE_END
