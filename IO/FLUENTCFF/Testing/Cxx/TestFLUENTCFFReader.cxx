@@ -8,6 +8,7 @@
 #include "vtkXMLMultiBlockDataReader.h"
 
 #include <cstdlib>
+#include <iostream>
 #include <string>
 
 //------------------------------------------------------------------------------
