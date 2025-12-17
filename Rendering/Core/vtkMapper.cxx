@@ -790,16 +790,16 @@ struct CreateColorTextureCoordinatesFunctor
     padded_range[0] = range[0] - scalar_texel_width;
     padded_range[1] = range[1] + scalar_texel_width;
     double inv_range_width = 1.0 / (padded_range[1] - padded_range[0]);
-    auto input = vtk::DataArrayTupleRange(array).begin();
+    auto input = vtk::DataArrayValueRange(array).begin();
 
     if (component < 0 || component >= numComps)
     {
-      for (vtkIdType scalarIdx = 0; scalarIdx < numScalars; ++scalarIdx, ++input)
+      for (vtkIdType scalarIdx = 0; scalarIdx < numScalars; ++scalarIdx)
       {
         double sum = 0;
-        for (int compIdx = 0; compIdx < numComps; ++compIdx)
+        for (int compIdx = 0; compIdx < numComps; ++compIdx, ++input)
         {
-          double tmp = static_cast<double>((*input)[compIdx]);
+          double tmp = static_cast<double>(*input);
           sum += (tmp * tmp);
         }
         double magnitude = sqrt(sum);
@@ -815,9 +815,9 @@ struct CreateColorTextureCoordinatesFunctor
     else
     {
       input += component;
-      for (vtkIdType scalarIdx = 0; scalarIdx < numScalars; ++scalarIdx, ++input)
+      for (vtkIdType scalarIdx = 0; scalarIdx < numScalars; ++scalarIdx, input += numComps)
       {
-        double input_value = static_cast<double>((*input)[0]);
+        double input_value = static_cast<double>(*input);
         if (use_log_scale)
         {
           input_value = vtkLookupTable::ApplyLogScale(input_value, table_range, range);
