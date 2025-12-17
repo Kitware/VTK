@@ -28,7 +28,9 @@ vtk_module_test_data(
   Data/slightlyRotated.vtu
   Data/SynchronizedTemplates2D.vtp
   Data/tex_debug.jpg
-  Data/wavelet300Arrays.vti)
+  Data/wavelet300Arrays.vti
+  Data/nonplanar_quad.vtk
+  )
 
 if (NOT vtk_testing_cxx_disabled)
   add_subdirectory(Cxx)
