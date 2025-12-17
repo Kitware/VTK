@@ -907,32 +907,28 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
 #if defined(GLAD_GL)
     if (this->SymbolLoader.LoadFunction != nullptr)
     {
-      if (gladLoadGLUserPtr(this->SymbolLoader.LoadFunction, this->SymbolLoader.UserData) > 0)
-      {
-        this->Initialized = true;
-      }
-      else
-      {
-        vtkWarningMacro(<< "Failed to initialize OpenGL functions!");
-      }
+      this->Initialized =
+        gladLoadGLUserPtr(this->SymbolLoader.LoadFunction, this->SymbolLoader.UserData) > 0;
     }
     else
     {
-      if (gladLoaderLoadGL() > 0)
-      {
-        this->Initialized = true;
-      }
-      else
-      {
-        vtkWarningMacro(<< "Failed to initialize OpenGL functions!");
-      }
+      this->Initialized = gladLoaderLoadGL() > 0;
     }
-#else // gles
-    this->Initialized = true;
-#endif
     if (!this->Initialized)
     {
+      vtkWarningMacro(<< "Failed to initialize OpenGL functions!");
+      return;
+    }
+    int major = 0;
+    int minor = 0;
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+    // Require at least OpenGL 3.2
+    if (major < 3 || (major == 3 && minor < 2))
+    {
       vtkWarningMacro(<< "Unable to find a valid OpenGL 3.2 or later implementation. "
+                      << "(" << major << "." << minor
+                      << " found). "
                          "Please update your video card driver to the latest version. "
                          "If you are using Mesa please make sure you have version 11.2 or "
                          "later and make sure your driver in Mesa supports OpenGL 3.2 such "
@@ -942,7 +938,9 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
                          "to avoid this issue.");
       return;
     }
-
+#else // gles
+    this->Initialized = true;
+#endif
     // Enable debug output if OpenGL version supports attaching debug callbacks.
 #if defined(VTK_REPORT_OPENGL_ERRORS) && defined(GLAD_GL)
     if (GLAD_GL_ARB_debug_output)
@@ -976,7 +974,7 @@ void vtkOpenGLRenderWindow::OpenGLInitContext()
       }
     }
 #endif
-  }
+  } // end if not initialized
 }
 
 //------------------------------------------------------------------------------
