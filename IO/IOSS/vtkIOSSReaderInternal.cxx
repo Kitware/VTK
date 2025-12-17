@@ -1865,7 +1865,8 @@ vtkSmartPointer<vtkPoints> vtkIOSSReaderInternal::GetGeometry(
   const std::string& blockname, const DatabaseHandle& handle)
 {
   auto region = this->GetRegion(handle);
-  auto group_entity = region->get_entity(blockname, Ioss::EntityType::NODEBLOCK);
+  auto group_entity = GetNodeBlock(region, blockname);
+
   if (!group_entity)
   {
     return nullptr;
@@ -1920,6 +1921,25 @@ bool vtkIOSSReaderInternal::GetGeometry(
   grid->SetPoints(points);
   assert(points->GetNumberOfPoints() == vtkStructuredData::GetNumberOfPoints(extents));
   return true;
+}
+
+Ioss::GroupingEntity* vtkIOSSReaderInternal::GetNodeBlock(
+  const Ioss::Region* region, const std::string& blockname)
+{
+  auto group_entity = region->get_entity(blockname, Ioss::EntityType::NODEBLOCK);
+  if (!group_entity)
+  {
+    const auto& nb = region->get_node_blocks();
+    if (!nb.empty())
+    {
+      group_entity = nb.front();
+    }
+    else
+    {
+      throw std::runtime_error("No IOSS NodeBlock available on region with name: " + blockname);
+    }
+  }
+  return group_entity;
 }
 
 vtkSmartPointer<vtkAbstractArray> vtkIOSSReaderInternal::GetField(const std::string& fieldname,
@@ -2320,7 +2340,8 @@ bool vtkIOSSReaderInternal::GetNodeFields(vtkDataSetAttributes* dsa,
       : nullptr;
     const std::string cache_key_suffix = vtk_raw_ids_array != nullptr ? blockname : std::string();
 
-    auto nodeblock = region->get_entity("nodeblock_1", Ioss::EntityType::NODEBLOCK);
+    auto nodeblock = GetNodeBlock(region, "nodeblock_1");
+
     return this->GetFields(dsa, selection, region, nodeblock, handle, timestep, read_ioss_ids,
       vtk_raw_ids_array, cache_key_suffix);
   }
@@ -2429,7 +2450,8 @@ bool vtkIOSSReaderInternal::ApplyDisplacements(vtkPointSet* grid, Ioss::Region* 
     // EXODUS
     // node fields are stored in global node-block from which we need to subset based on the "ids"
     // for those current block.
-    auto nodeBlock = region->get_entity("nodeblock_1", Ioss::EntityType::NODEBLOCK);
+    auto nodeBlock = GetNodeBlock(region, "nodeblock_1");
+
     auto displ_array_name = vtkIOSSUtilities::GetDisplacementFieldName(nodeBlock);
     if (displ_array_name.empty())
     {

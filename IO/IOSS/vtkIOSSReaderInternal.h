@@ -434,6 +434,13 @@ protected:
   bool GetGeometry(vtkStructuredGrid* grid, const Ioss::StructuredBlock* groupEntity);
 
   /**
+   * Get IOSS NodeBlock blockname if it exists, otherwise get first Nodeblock in region.
+   *
+   * If no NodeBlock available, `std::runtime_error` is thrown.
+   */
+  Ioss::GroupingEntity* GetNodeBlock(const Ioss::Region* region, const std::string& blockname);
+
+  /**
    * Adds geometry (points) and topology (cell) information to the grid for the
    * entity block or set chosen using the name (`blockname`) and type
    * (`vtk_entity_type`).

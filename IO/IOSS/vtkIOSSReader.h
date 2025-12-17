@@ -206,6 +206,15 @@ public:
 
   ///@{
   /**
+   * Get/Set the IOSS Catalyst Conduit channel name when reading from IOSS Catalyst Conduit.
+   * If not specified (default), the reader will use the default Catalyst Conduit channel name.
+   */
+  void SetCatalystConduitChannelName(const std::string& newString);
+  std::string GetCatalystConduitChannelName();
+  ///@}
+
+  ///@{
+  /**
    * When displacements are being applied, they are scaled by this amount. Set to 1 (default) for no
    * scaling.
    */
