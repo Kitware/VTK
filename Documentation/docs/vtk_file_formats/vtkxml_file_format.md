@@ -823,7 +823,6 @@ Here we see a few additional ``DataArray`` types:
 - ``offsets`` describes where each cell entry ends in the ``connectivity`` array.
 
 ```xml
-<?xml version="1.0"?>
 <VTKFile type="UnstructuredGrid" version="0.1" byte_order="LittleEndian">
   <UnstructuredGrid>
     <Piece NumberOfPoints="32" NumberOfCells="9">
@@ -969,7 +968,6 @@ The following is a complete example specifying a vtkPolyData representing a cube
 
 ``polyEx.pvtp``:
 ```xml
-<?xml version="1.0"?>
 <VTKFile type="PPolyData" version="0.1" byte_order="LittleEndian">
   <PPolyData GhostLevel="0">
     <PPointData Scalars="my_scalars">
@@ -989,7 +987,6 @@ The following is a complete example specifying a vtkPolyData representing a cube
 
 ``polyEx0.vtp``:
 ```xml
-<?xml version="1.0"?>
 <VTKFile type="PolyData" version="0.1" byte_order="LittleEndian">
   <PolyData>
     <Piece NumberOfPoints="8" NumberOfVerts="0" NumberOfLines="0"
