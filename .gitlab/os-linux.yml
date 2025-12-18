@@ -723,14 +723,6 @@
         - linux-x86_64
         - vtk
 
-.linux_x86_64_tester_priv_tags:
-    tags:
-        - docker
-        - linux-x86_64
-        - privileged
-        - x11
-        - vtk
-
 .linux_x86_64_packager_tags:
     tags:
         - build
