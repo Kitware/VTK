@@ -100,7 +100,7 @@ vtk_add_test_cxx(vtkFiltersCoreCxxTests tests
   UnitTestMaskPoints.cxx,NO_VALID
   UnitTestMergeFilter.cxx,NO_VALID
   TestContourImplicitArrays.cxx
-  TestContourConstantScalarUG.cxx
+  TestContourConstantScalarUG.cxx,NO_VALID
   )
 
 # This test fails on vtk-m due to bug #804 (vtk/vtkm)
