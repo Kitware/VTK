@@ -211,10 +211,10 @@ int vtkPExodusIIReader::RequestInformation(
 
     if (newPattern && !rebuildPattern)
     {
-      size_t nmSize = strlen(this->FilePattern) + strlen(this->FilePrefix) + 20;
+      std::string filePattern = vtk::to_std_format(this->FilePattern);
+      size_t nmSize = filePattern.size() + strlen(this->FilePrefix) + 20;
       char* nm = new char[nmSize];
-      auto result =
-        vtk::format_to_n(nm, nmSize, this->FilePattern, this->FilePrefix, this->FileRange[0]);
+      auto result = vtk::format_to_n(nm, nmSize, filePattern, this->FilePrefix, this->FileRange[0]);
       *result.out = '\0';
       delete[] this->FileName;
       this->FileName = nm;
@@ -247,8 +247,8 @@ int vtkPExodusIIReader::RequestInformation(
     }
     else if (this->FilePattern)
     {
-      auto result = vtk::format_to_n(
-        this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN, this->FilePattern, this->FilePrefix, 0);
+      auto result = vtk::format_to_n(this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN,
+        vtk::to_std_format(this->FilePattern), this->FilePrefix, 0);
       *result.out = '\0';
     }
     delete[] this->FileName;
@@ -462,7 +462,7 @@ int vtkPExodusIIReader::RequestData(vtkInformation* vtkNotUsed(request),
     else if (this->FilePattern)
     {
       auto result = vtk::format_to_n(this->MultiFileName, vtkPExodusIIReaderMAXPATHLEN,
-        this->FilePattern, this->FilePrefix, fileIndex);
+        vtk::to_std_format(this->FilePattern), this->FilePrefix, fileIndex);
       *result.out = '\0';
       if (this->GetGenerateFileIdArray())
       {
