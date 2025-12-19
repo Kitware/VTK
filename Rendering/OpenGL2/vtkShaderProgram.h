@@ -12,6 +12,7 @@
 #ifndef vtkShaderProgram_h
 #define vtkShaderProgram_h
 
+#include "vtkDeprecation.h" // VTK_DEPRECATED_IN_9_6_0()
 #include "vtkObject.h"
 #include "vtkRenderingOpenGL2Module.h" // for export macro
 
@@ -108,9 +109,17 @@ public:
   ///@}
 
   /**
-   * Set/Get the md5 hash of this program
+   * Set/Get the hash of this program
    */
+  std::string GetHash() const { return this->MD5Hash; }
+  void SetHash(const std::string& hash) { this->MD5Hash = hash; }
+
+  /**
+   * Set/Get the hash of this program
+   */
+  VTK_DEPRECATED_IN_9_6_0("Use GetHash instead.")
   std::string GetMD5Hash() const { return this->MD5Hash; }
+  VTK_DEPRECATED_IN_9_6_0("Use SetHash instead.")
   void SetMD5Hash(const std::string& hash) { this->MD5Hash = hash; }
 
   /** Options for attribute normalization. */
