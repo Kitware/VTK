@@ -154,12 +154,36 @@ bool TestOwnedMemoryResource()
 bool TestStreambuf()
 {
   const std::string str{ "Hello world!" };
-  vtkNew<vtkMemoryResourceStream> memory;
-  memory->SetBuffer(str.data(), str.size());
-  auto strbuf = memory->ToStreambuf();
-  std::istream buffer(strbuf.get());
-  std::string res(std::istreambuf_iterator<char>(buffer), {});
-  Check(res == str, "Cannot read str through stream buffer");
+
+  {
+    vtkNew<vtkMemoryResourceStream> memory;
+    memory->SetBuffer(str.data(), str.size());
+    auto strbuf = memory->ToStreambuf();
+    std::istream buffer(strbuf.get());
+    std::string res(std::istreambuf_iterator<char>(buffer), {});
+    Check(res == str, "Cannot read str through stream buffer");
+  }
+
+  {
+    vtkNew<vtkMemoryResourceStream> memory;
+    memory->SetBuffer(str.data(), str.size());
+    auto strbuf = memory->ToStreambuf();
+    std::istream buffer(strbuf.get());
+    std::string strVal;
+    buffer >> strVal;
+    Check(strVal == "Hello", "Wrong value, expected \"Hello\" got \"" + strVal + "\"");
+    std::streamsize count = buffer.gcount();
+    Check(count == 0, "Wrong gcount value after formatted read, expected 0, got " << count);
+    std::istream::pos_type tell = buffer.tellg();
+    Check(tell == 5, "Wrong tell value, expected 5, got " << tell);
+    strVal.clear();
+    strVal.resize(7);
+    buffer.read(strVal.data(), 7);
+    Check(strVal == " world!", "Wrong value, expected \" world!\" got \"" + strVal + "\"");
+    count = buffer.gcount();
+    Check(count == 7, "Wrong gcount value after unformatted read, expected 7, got " << count);
+  }
+
   return true;
 }
 }
