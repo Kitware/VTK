@@ -134,6 +134,7 @@ std::vector<vtkPolyData*> vtkWebGPUBatchedPolyDataMapper::GetRenderedList() cons
 void vtkWebGPUBatchedPolyDataMapper::SetParent(vtkCompositePolyDataMapper* parent)
 {
   this->Parent = parent;
+  this->SetInputDataObject(0, parent->GetInputDataObject(0, 0));
 }
 
 //------------------------------------------------------------------------------
