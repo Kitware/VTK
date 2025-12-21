@@ -212,6 +212,7 @@ int vtkPLYReader::RequestData(vtkInformation* vtkNotUsed(request),
   {
     vtkErrorMacro(<< "Cannot read geometry");
     vtkPLY::ply_close(ply);
+    return 0;
   }
 
   // Check for optional attribute data. We can handle intensity; and the
