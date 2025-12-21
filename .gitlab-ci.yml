@@ -2254,7 +2254,7 @@ fedora42-x86_64-tidy:build:
 #     extends:
 #         - .fedora42_x86_64_asan
 #         - .cmake_memcheck_linux
-#         - .linux_x86_64_tester_priv_tags
+#         - .linux_x86_64_tester_tags
 #         - .cmake_test_artifacts
 #         - .rules
 #     needs:
@@ -2275,7 +2275,7 @@ fedora42-x86_64-tidy:build:
 #     extends:
 #         - .fedora42_x86_64_tsan
 #         - .cmake_memcheck_linux
-#         - .linux_x86_64_tester_priv_tags
+#         - .linux_x86_64_tester_tags
 #         - .cmake_test_artifacts
 #         - .rules
 #     needs:
@@ -2296,7 +2296,7 @@ fedora42-x86_64-tidy:build:
 #     extends:
 #         - .fedora42_x86_64_ubsan
 #         - .cmake_memcheck_linux
-#         - .linux_x86_64_tester_priv_tags
+#         - .linux_x86_64_tester_tags
 #         - .cmake_test_artifacts
 #         - .rules
 #     needs:
