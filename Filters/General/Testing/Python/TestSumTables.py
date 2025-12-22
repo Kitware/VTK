@@ -13,6 +13,8 @@ try:
     import platform
     if platform.machine() == 'aarch64':
         aarch64 = True
+    elif platform.machine() == 'arm64':
+        aarch64 = True
 except:
     pass
 
