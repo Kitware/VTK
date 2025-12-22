@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: BSD-3-Clause
 #include "vtkResourceStream.h"
 
+#include <algorithm>
 #include <array>
 
 VTK_ABI_NAMESPACE_BEGIN
@@ -71,20 +72,52 @@ protected:
 
   std::streamsize xsgetn(char_type* str, std::streamsize count) override
   {
-    const auto read = m_stream->Read(reinterpret_cast<char*>(str), count * sizeof(char_type));
+    // to support mixing formatted and unformatted input, we have to flush the get buffer
+    const std::ptrdiff_t available = parent_type::egptr() - parent_type::gptr();
+    if (available > 0)
+    {
+      std::copy_n(parent_type::gptr(), (std::min)(available, count), str);
+      // if we still have buffered input update gptr
+      if (available > count)
+      {
+        parent_type::setg(parent_type::eback(), parent_type::gptr() + count, parent_type::egptr());
+        return count;
+      }
 
-    return static_cast<std::streamsize>(read / sizeof(char_type));
+      // resets get buffer, this will force an underflow on next formatted input
+      parent_type::setg(nullptr, nullptr, nullptr);
+      if (count == available)
+      {
+        return count;
+      }
+
+      // perform a read to fulfill the requested count if possible
+      count -= available;
+      str += available;
+    }
+
+    const auto read = m_stream->Read(reinterpret_cast<char*>(str), count * sizeof(char_type));
+    return static_cast<std::streamsize>(read / sizeof(char_type)) + available;
   }
 
   pos_type seekoff(
     off_type off, std::ios_base::seekdir dir, std::ios_base::openmode vtkNotUsed(which)) override
   {
+    if (dir == std::ios_base::cur)
+    {
+      const std::ptrdiff_t available = parent_type::egptr() - parent_type::gptr();
+      parent_type::setg(nullptr, nullptr, nullptr);
+      return m_stream->Seek(
+        (m_stream->Tell() - available) + off, vtkResourceStream::SeekDirection::Begin);
+    }
+
+    parent_type::setg(nullptr, nullptr, nullptr);
     return m_stream->Seek(off, ::seekdirToSeekDirection(dir));
   }
 
   pos_type seekpos(pos_type pos, std::ios_base::openmode vtkNotUsed(which)) override
   {
-    return m_stream->Seek(pos, vtkResourceStream::SeekDirection::Begin);
+    return this->seekoff(pos, std::ios_base::beg, std::ios_base::in);
   }
 
 private:
