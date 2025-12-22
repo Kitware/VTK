@@ -240,7 +240,7 @@ public:
   /**
    * Converts a 2D VTK texture to a 2D ANARI sampler.
    */
-  anari::Sampler VTKToAnariSampler(std::string, std::string, mat4 inTransform, vtkImageData*, bool);
+  anari::Sampler VTKToAnariSampler(std::string, std::string, mat4 inTransform, vtkTexture*);
 
   /**
    * Extracts individual textures (occlusion, roughness, metallic) from the combined VTK
@@ -454,25 +454,50 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::ExtractORMFromVTK(std::strin
 }
 
 //----------------------------------------------------------------------------
+// Overload to support converting vtkTexture to anari::Sampler
 anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
-  std::string name, std::string inAttribute, mat4 inTransform, vtkImageData* imageData, bool sRGB)
+  std::string name, std::string inAttribute, mat4 inTransform, vtkTexture* texture)
 {
-  vtkAnariProfiling startProfiling("VTKAPDMNInternals::VTKToAnariSampler", vtkAnariProfiling::LIME);
+  vtkAnariProfiling startProfiling(
+    "VTKAPDMNInternals::VTKToAnariSampler(vtkTexture)", vtkAnariProfiling::LIME);
 
+  if (texture == nullptr)
+  {
+    return nullptr;
+  }
+
+  // Update the texture to ensure the image data is current
+  texture->Update();
+  vtkImageData* imageData = texture->GetInput();
   if (imageData == nullptr)
   {
     return nullptr;
   }
 
   auto anariSampler = anari::newObject<anari::Sampler>(this->AnariDevice, "image2D");
-
   std::string samplerName = this->ActorName + "_" + name;
   anari::setParameter(this->AnariDevice, anariSampler, "name", ANARI_STRING, samplerName.c_str());
   anari::setParameter(this->AnariDevice, anariSampler, "inAttribute", inAttribute);
   anari::setParameter(this->AnariDevice, anariSampler, "inTransform", inTransform);
-  anari::setParameter(this->AnariDevice, anariSampler, "wrapMode1", "clampToEdge");
-  anari::setParameter(this->AnariDevice, anariSampler, "wrapMode2", "clampToEdge");
-  anari::setParameter(this->AnariDevice, anariSampler, "filter", "linear");
+  std::string wrapMode = "clampToEdge";
+  switch (texture->GetWrap())
+  {
+    case vtkTexture::Repeat:
+      wrapMode = "repeat";
+      break;
+    case vtkTexture::MirroredRepeat:
+      wrapMode = "mirrorRepeat";
+      break;
+    case vtkTexture::ClampToEdge:
+    case vtkTexture::ClampToBorder:
+    default:
+      wrapMode = "clampToEdge";
+      break;
+  }
+  anari::setParameter(this->AnariDevice, anariSampler, "wrapMode1", wrapMode);
+  anari::setParameter(this->AnariDevice, anariSampler, "wrapMode2", wrapMode);
+  anari::setParameter(
+    this->AnariDevice, anariSampler, "filter", texture->GetInterpolate() ? "linear" : "nearest");
 
   // Get the needed image data attributes
   const int* const imageSize = imageData->GetDimensions();
@@ -525,7 +550,8 @@ anari::Sampler vtkAnariPolyDataMapperNodeInternals::VTKToAnariSampler(
       }
 
       const auto* appMemory = charData.empty() ? imageData->GetScalarPointer() : charData.data();
-      auto dataType = sRGB ? anariLinearColorFormats[comps - 1] : anariColorFormats[comps - 1];
+      auto dataType = texture->GetUseSRGBColorSpace() ? anariLinearColorFormats[comps - 1]
+                                                      : anariColorFormats[comps - 1];
 
       anari::setParameterArray2D(
         this->AnariDevice, anariSampler, "image", dataType, appMemory, xsize, ysize);
@@ -782,10 +808,8 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
 
   if (normalTexture)
   {
-    normalTexture->Update();
-    vtkImageData* normalImageData = normalTexture->GetInput();
     auto normalSampler =
-      this->VTKToAnariSampler("normalTex", "attribute0", inTransform, normalImageData, false);
+      this->VTKToAnariSampler("normalTex", "attribute0", inTransform, normalTexture);
 
     if (normalTexture != nullptr)
     {
@@ -798,10 +822,8 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
 
   if (emissiveTexture)
   {
-    emissiveTexture->Update();
-    vtkImageData* emissiveImageData = emissiveTexture->GetInput();
     auto emissiveSampler =
-      this->VTKToAnariSampler("emissiveTex", "attribute0", inTransform, emissiveImageData, true);
+      this->VTKToAnariSampler("emissiveTex", "attribute0", inTransform, emissiveTexture);
 
     if (emissiveSampler != nullptr)
     {
@@ -848,9 +870,8 @@ void vtkAnariPolyDataMapperNodeInternals::SetPhysicallyBasedMaterialParameters(
 
   if (coatNormalTexture)
   {
-    vtkImageData* coatNormalImageData = coatNormalTexture->GetInput();
-    auto coatNormalSampler = this->VTKToAnariSampler(
-      "coatNormalTex", "attribute0", inTransform, coatNormalImageData, false);
+    auto coatNormalSampler =
+      this->VTKToAnariSampler("coatNormalTex", "attribute0", inTransform, coatNormalTexture);
 
     if (coatNormalSampler != nullptr)
     {
@@ -2215,24 +2236,15 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
     }
   }
 
-  bool sRGB = false;
-  vtkImageData* albedoTextureMap = nullptr; // vColorTextureMap
-  vtkTexture* texture = nullptr;
+  vtkSmartPointer<vtkTexture> tmpAlbedoTex;
 
   if (property->GetInterpolation() == VTK_PBR)
   {
-    texture = property->GetTexture("albedoTex");
+    tmpAlbedoTex = property->GetTexture("albedoTex");
   }
   else
   {
-    texture = actor->GetTexture();
-  }
-
-  if (texture != nullptr)
-  {
-    texture->Update();
-    sRGB = texture->GetUseSRGBColorSpace();
-    albedoTextureMap = texture->GetInput();
+    tmpAlbedoTex = actor->GetTexture();
   }
 
   // Setup Material or Colors
@@ -2330,7 +2342,9 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
         pointValueTextureCoords[j] = tcoord;
       }
 
-      albedoTextureMap = mapperColorTextureMap;
+      tmpAlbedoTex = vtkSmartPointer<vtkTexture>::New();
+      tmpAlbedoTex->SetInputData(mapperColorTextureMap);
+      tmpAlbedoTex->SetUseSRGBColorSpace(false);
     }
   }
 
@@ -2435,7 +2449,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
     if (anariDeviceExtensions.ANARI_KHR_GEOMETRY_SPHERE)
     {
       auto anariSampler = this->Internal->VTKToAnariSampler(
-        "albedoTex", "attribute0", anariSamplerInTransform, albedoTextureMap, sRGB);
+        "albedoTex", "attribute0", anariSamplerInTransform, tmpAlbedoTex);
       anariSurface = this->Internal->RenderAsSpheres(anariSampler, property, poly, vertices,
         conn.vertex_index, pointSize, scaleArray, scaleFunction, textureCoords,
         pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
@@ -2453,7 +2467,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
       if (anariDeviceExtensions.ANARI_KHR_GEOMETRY_SPHERE)
       {
         auto anariSampler = this->Internal->VTKToAnariSampler(
-          "albedoTex", "attribute0", anariSamplerInTransform, albedoTextureMap, sRGB);
+          "albedoTex", "attribute0", anariSamplerInTransform, tmpAlbedoTex);
         anariSurface = this->Internal->RenderAsSpheres(anariSampler, property, poly, vertices,
           conn.line_index, pointSize, scaleArray, scaleFunction, textureCoords,
           pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
@@ -2464,7 +2478,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
       if (anariDeviceExtensions.ANARI_KHR_GEOMETRY_CYLINDER)
       {
         auto anariSampler = this->Internal->VTKToAnariSampler(
-          "albedoTex", "attribute0", anariSamplerInTransform, albedoTextureMap, sRGB);
+          "albedoTex", "attribute0", anariSamplerInTransform, tmpAlbedoTex);
         anariSurface = this->Internal->RenderAsCylinders(anariSampler, property, poly, vertices,
           conn.line_index, lineWidth, scaleArray, scaleFunction, textureCoords,
           pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
@@ -2472,7 +2486,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
       else if (anariDeviceExtensions.ANARI_KHR_GEOMETRY_CURVE)
       {
         auto anariSampler = this->Internal->VTKToAnariSampler(
-          "albedoTex", "attribute0", anariSamplerInTransform, albedoTextureMap, sRGB);
+          "albedoTex", "attribute0", anariSamplerInTransform, tmpAlbedoTex);
         anariSurface = this->Internal->RenderAsCurves(anariSampler, property, poly, vertices,
           conn.line_index, lineWidth, scaleArray, scaleFunction, textureCoords,
           pointValueTextureCoords, pointColors, attributeArrays, cellFlag);
@@ -2488,7 +2502,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
   if (!conn.triangle_index.empty())
   {
     auto anariSampler = this->Internal->VTKToAnariSampler(
-      "albedoTex", "attribute0", anariSamplerInTransform, albedoTextureMap, sRGB);
+      "albedoTex", "attribute0", anariSamplerInTransform, tmpAlbedoTex);
     this->Internal->RenderSurfaces(anariSampler, actor, poly, vertices, conn.triangle_index, true,
       pointSize, lineWidth, scaleArray, scaleFunction, textureCoords, pointValueTextureCoords,
       pointColors, attributeArrays, conn2, cellFlag);
@@ -2497,7 +2511,7 @@ void vtkAnariPolyDataMapperNode::AnariRenderPoly(vtkAnariActorNode* const anariA
   if (!conn.strip_index.empty())
   {
     auto anariSampler = this->Internal->VTKToAnariSampler(
-      "albedoTex", "attribute0", anariSamplerInTransform, albedoTextureMap, sRGB);
+      "albedoTex", "attribute0", anariSamplerInTransform, tmpAlbedoTex);
     this->Internal->RenderSurfaces(anariSampler, actor, poly, vertices, conn.strip_index, false,
       pointSize, lineWidth, scaleArray, scaleFunction, textureCoords, pointValueTextureCoords,
       pointColors, attributeArrays, conn2, cellFlag);
