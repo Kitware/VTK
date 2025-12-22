@@ -1570,39 +1570,39 @@ wheel:pypi:upload:
           artifacts: false
         - job: wheel-linux-python314t-aarch64:test-x11
           artifacts: false
-#        - wheel-macos-python39-arm64:build
-#        - job: wheel-macos-python39-arm64:test
-#          artifacts: false
+        - wheel-macos-python39-arm64:build
+        - job: wheel-macos-python39-arm64:test
+          artifacts: false
         - wheel-macos-python39-x86_64:build
         - job: wheel-macos-python39-x86_64:test
           artifacts: false
-#        - wheel-macos-python310-arm64:build
-#        - job: wheel-macos-python310-arm64:test
-#          artifacts: false
+        - wheel-macos-python310-arm64:build
+        - job: wheel-macos-python310-arm64:test
+          artifacts: false
         - wheel-macos-python310-x86_64:build
         - job: wheel-macos-python310-x86_64:test
           artifacts: false
-#        - wheel-macos-python311-arm64:build
-#        - job: wheel-macos-python311-arm64:test
-#          artifacts: false
+        - wheel-macos-python311-arm64:build
+        - job: wheel-macos-python311-arm64:test
+          artifacts: false
         - wheel-macos-python311-x86_64:build
         - job: wheel-macos-python311-x86_64:test
           artifacts: false
-#        - wheel-macos-python312-arm64:build
-#        - job: wheel-macos-python312-arm64:test
-#          artifacts: false
+        - wheel-macos-python312-arm64:build
+        - job: wheel-macos-python312-arm64:test
+          artifacts: false
         - wheel-macos-python312-x86_64:build
         - job: wheel-macos-python312-x86_64:test
           artifacts: false
-#        - wheel-macos-python313-arm64:build
-#        - job: wheel-macos-python313-arm64:test
-#          artifacts: false
+        - wheel-macos-python313-arm64:build
+        - job: wheel-macos-python313-arm64:test
+          artifacts: false
         - wheel-macos-python313-x86_64:build
         - job: wheel-macos-python313-x86_64:test
           artifacts: false
-#        - wheel-macos-python314-arm64:build
-#        - job: wheel-macos-python314-arm64:test
-#          artifacts: false
+        - wheel-macos-python314-arm64:build
+        - job: wheel-macos-python314-arm64:test
+          artifacts: false
         - wheel-macos-python314-x86_64:build
         - job: wheel-macos-python314-x86_64:test
           artifacts: false
@@ -1768,39 +1768,39 @@ wheel:vtk:upload:
           artifacts: false
         - job: wheel-linux-python314t-aarch64:test-x11
           artifacts: false
-#        - wheel-macos-python39-arm64:build
-#        - job: wheel-macos-python39-arm64:test
-#          artifacts: false
+        - wheel-macos-python39-arm64:build
+        - job: wheel-macos-python39-arm64:test
+          artifacts: false
         - wheel-macos-python39-x86_64:build
         - job: wheel-macos-python39-x86_64:test
           artifacts: false
-#        - wheel-macos-python310-arm64:build
-#        - job: wheel-macos-python310-arm64:test
-#          artifacts: false
+        - wheel-macos-python310-arm64:build
+        - job: wheel-macos-python310-arm64:test
+          artifacts: false
         - wheel-macos-python310-x86_64:build
         - job: wheel-macos-python310-x86_64:test
           artifacts: false
-#        - wheel-macos-python311-arm64:build
-#        - job: wheel-macos-python311-arm64:test
-#          artifacts: false
+        - wheel-macos-python311-arm64:build
+        - job: wheel-macos-python311-arm64:test
+          artifacts: false
         - wheel-macos-python311-x86_64:build
         - job: wheel-macos-python311-x86_64:test
           artifacts: false
-#        - wheel-macos-python312-arm64:build
-#        - job: wheel-macos-python312-arm64:test
-#          artifacts: false
+        - wheel-macos-python312-arm64:build
+        - job: wheel-macos-python312-arm64:test
+          artifacts: false
         - wheel-macos-python312-x86_64:build
         - job: wheel-macos-python312-x86_64:test
           artifacts: false
-#        - wheel-macos-python313-arm64:build
-#        - job: wheel-macos-python313-arm64:test
-#          artifacts: false
+        - wheel-macos-python313-arm64:build
+        - job: wheel-macos-python313-arm64:test
+          artifacts: false
         - wheel-macos-python313-x86_64:build
         - job: wheel-macos-python313-x86_64:test
           artifacts: false
-#        - wheel-macos-python314-arm64:build
-#        - job: wheel-macos-python314-arm64:test
-#          artifacts: false
+        - wheel-macos-python314-arm64:build
+        - job: wheel-macos-python314-arm64:test
+          artifacts: false
         - wheel-macos-python314-x86_64:build
         - job: wheel-macos-python314-x86_64:test
           artifacts: false
@@ -2157,39 +2157,39 @@ wheel-vtk-sdk:upload:
           artifacts: false
         - job: wheel-linux-python314t-aarch64:test-x11
           artifacts: false
-#        - wheel-macos-python39-arm64:build
-#        - job: wheel-macos-python39-arm64:test
-#          artifacts: false
+        - wheel-macos-python39-arm64:build
+        - job: wheel-macos-python39-arm64:test
+          artifacts: false
         - wheel-macos-python39-x86_64:build
         - job: wheel-macos-python39-x86_64:test
           artifacts: false
-#        - wheel-macos-python310-arm64:build
-#        - job: wheel-macos-python310-arm64:test
+        - wheel-macos-python310-arm64:build
+        - job: wheel-macos-python310-arm64:test
           artifacts: false
         - wheel-macos-python310-x86_64:build
         - job: wheel-macos-python310-x86_64:test
           artifacts: false
-#        - wheel-macos-python311-arm64:build
-#        - job: wheel-macos-python311-arm64:test
-#          artifacts: false
+        - wheel-macos-python311-arm64:build
+        - job: wheel-macos-python311-arm64:test
+          artifacts: false
         - wheel-macos-python311-x86_64:build
         - job: wheel-macos-python311-x86_64:test
           artifacts: false
-#        - wheel-macos-python312-arm64:build
-#        - job: wheel-macos-python312-arm64:test
-#          artifacts: false
+        - wheel-macos-python312-arm64:build
+        - job: wheel-macos-python312-arm64:test
+          artifacts: false
         - wheel-macos-python312-x86_64:build
         - job: wheel-macos-python312-x86_64:test
           artifacts: false
-#        - wheel-macos-python313-arm64:build
-#        - job: wheel-macos-python313-arm64:test
-#          artifacts: false
+        - wheel-macos-python313-arm64:build
+        - job: wheel-macos-python313-arm64:test
+          artifacts: false
         - wheel-macos-python313-x86_64:build
         - job: wheel-macos-python313-x86_64:test
           artifacts: false
-#        - wheel-macos-python314-arm64:build
-#        - job: wheel-macos-python314-arm64:test
-#          artifacts: false
+        - wheel-macos-python314-arm64:build
+        - job: wheel-macos-python314-arm64:test
+          artifacts: false
         - wheel-macos-python314-x86_64:build
         - job: wheel-macos-python314-x86_64:test
           artifacts: false
@@ -2538,39 +2538,39 @@ release-artifacts:upload:
           artifacts: false
         - job: wheel-linux-python314t-aarch64-egl:test-x11
           artifacts: false
-#        - wheel-macos-python39-arm64:build
-#        - job: wheel-macos-python39-arm64:test
-#          artifacts: false
+        - wheel-macos-python39-arm64:build
+        - job: wheel-macos-python39-arm64:test
+          artifacts: false
         - wheel-macos-python39-x86_64:build
         - job: wheel-macos-python39-x86_64:test
           artifacts: false
-#        - wheel-macos-python310-arm64:build
-#        - job: wheel-macos-python310-arm64:test
-#          artifacts: false
+        - wheel-macos-python310-arm64:build
+        - job: wheel-macos-python310-arm64:test
+          artifacts: false
         - wheel-macos-python310-x86_64:build
         - job: wheel-macos-python310-x86_64:test
           artifacts: false
-#        - wheel-macos-python311-arm64:build
-#        - job: wheel-macos-python311-arm64:test
-#          artifacts: false
+        - wheel-macos-python311-arm64:build
+        - job: wheel-macos-python311-arm64:test
+          artifacts: false
         - wheel-macos-python311-x86_64:build
         - job: wheel-macos-python311-x86_64:test
           artifacts: false
-#        - wheel-macos-python312-arm64:build
-#        - job: wheel-macos-python312-arm64:test
-#          artifacts: false
+        - wheel-macos-python312-arm64:build
+        - job: wheel-macos-python312-arm64:test
+          artifacts: false
         - wheel-macos-python312-x86_64:build
         - job: wheel-macos-python312-x86_64:test
           artifacts: false
-#        - wheel-macos-python313-arm64:build
-#        - job: wheel-macos-python313-arm64:test
-#          artifacts: false
+        - wheel-macos-python313-arm64:build
+        - job: wheel-macos-python313-arm64:test
+          artifacts: false
         - wheel-macos-python313-x86_64:build
         - job: wheel-macos-python313-x86_64:test
           artifacts: false
-#        - wheel-macos-python314-arm64:build
-#        - job: wheel-macos-python314-arm64:test
-#          artifacts: false
+        - wheel-macos-python314-arm64:build
+        - job: wheel-macos-python314-arm64:test
+          artifacts: false
         - wheel-macos-python314-x86_64:build
         - job: wheel-macos-python314-x86_64:test
           artifacts: false
@@ -2618,26 +2618,26 @@ release-artifacts:upload:
 
 # macOS
 
-#macos-arm64-kits-python-qt:build:
-#    extends:
-#        - .macos_arm64_kits_python_qt
-#        - .cmake_build_macos
-#        - .macos_arm64_builder_tags
-#        - .cmake_build_artifacts
-#        - .rules
-#    variables:
-#        VTK_CI_RUN_MANUALLY: "true"
-#    stage: quick
+macos-arm64-kits-python-qt:build:
+    extends:
+        - .macos_arm64_kits_python_qt
+        - .cmake_build_macos
+        - .macos_arm64_builder_tags
+        - .cmake_build_artifacts
+        - .rules
+    variables:
+        VTK_CI_RUN_MANUALLY: "true"
+    stage: quick
 
-#macos-arm64-kits-python-qt:test:
-#    extends:
-#        - .macos_arm64_kits_python_qt
-#        - .cmake_test_macos
-#        - .macos_arm64_builder_tags
-#        - .cmake_test_artifacts
-#        - .rules
-#    needs:
-#        - macos-arm64-kits-python-qt:build
+macos-arm64-kits-python-qt:test:
+    extends:
+        - .macos_arm64_kits_python_qt
+        - .cmake_test_macos
+        - .macos_arm64_builder_tags
+        - .cmake_test_artifacts
+        - .rules
+    needs:
+        - macos-arm64-kits-python-qt:build
 
 macos-x86_64-kits-python-qt:build:
     extends:
@@ -2696,24 +2696,24 @@ macos-x86_64-kits-python-qt-stdthread:test:
 
 ## Python wheel builds
 
-#wheel-macos-python39-arm64:build:
-#    extends:
-#        - .wheel_macos39_arm64
-#        - .cmake_build_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
-#        - .cmake_wheel_artifacts
-#        - .rules_variables_wheel_older_build
-#    needs: []
+wheel-macos-python39-arm64:build:
+    extends:
+        - .wheel_macos39_arm64
+        - .cmake_build_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules_variables_wheel_older_build
+    needs: []
 
-#wheel-macos-python39-arm64:test:
-#    extends:
-#        - .wheel_macos39_arm64
-#        - .cmake_test_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
-#        - .cdash_annotations_artifacts
-#        - .rules_variables_wheel_older_test
-#    needs:
-#        - wheel-macos-python39-arm64:build
+wheel-macos-python39-arm64:test:
+    extends:
+        - .wheel_macos39_arm64
+        - .cmake_test_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cdash_annotations_artifacts
+        - .rules_variables_wheel_older_test
+    needs:
+        - wheel-macos-python39-arm64:build
 
 wheel-macos-python39-x86_64:build:
     extends:
@@ -2735,24 +2735,24 @@ wheel-macos-python39-x86_64:test:
     needs:
         - wheel-macos-python39-x86_64:build
 
-#wheel-macos-python310-arm64:build:
-#    extends:
-#        - .wheel_macos310_arm64
-#        - .cmake_build_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
-#        - .cmake_wheel_artifacts
-#        - .rules_variables_wheel_older_build
-#    needs: []
+wheel-macos-python310-arm64:build:
+    extends:
+        - .wheel_macos310_arm64
+        - .cmake_build_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules_variables_wheel_older_build
+    needs: []
 
-#wheel-macos-python310-arm64:test:
-#    extends:
-#        - .wheel_macos310_arm64
-#        - .cmake_test_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
-#        - .cdash_annotations_artifacts
-#        - .rules_variables_wheel_older_test
-#    needs:
-#        - wheel-macos-python310-arm64:build
+wheel-macos-python310-arm64:test:
+    extends:
+        - .wheel_macos310_arm64
+        - .cmake_test_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cdash_annotations_artifacts
+        - .rules_variables_wheel_older_test
+    needs:
+        - wheel-macos-python310-arm64:build
 
 wheel-macos-python310-x86_64:build:
     extends:
@@ -2774,24 +2774,24 @@ wheel-macos-python310-x86_64:test:
     needs:
         - wheel-macos-python310-x86_64:build
 
-#wheel-macos-python311-arm64:build:
-#    extends:
-#        - .wheel_macos311_arm64
-#        - .cmake_build_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
-#        - .cmake_wheel_artifacts
-#        - .rules_variables_wheel_older_build
-#    needs: []
+wheel-macos-python311-arm64:build:
+    extends:
+        - .wheel_macos311_arm64
+        - .cmake_build_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules_variables_wheel_older_build
+    needs: []
 
-#wheel-macos-python311-arm64:test:
-#    extends:
-#        - .wheel_macos311_arm64
-#        - .cmake_test_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
-#        - .cdash_annotations_artifacts
-#        - .rules_variables_wheel_older_test
-#    needs:
-#        - wheel-macos-python311-arm64:build
+wheel-macos-python311-arm64:test:
+    extends:
+        - .wheel_macos311_arm64
+        - .cmake_test_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cdash_annotations_artifacts
+        - .rules_variables_wheel_older_test
+    needs:
+        - wheel-macos-python311-arm64:build
 
 wheel-macos-python311-x86_64:build:
     extends:
@@ -2813,24 +2813,24 @@ wheel-macos-python311-x86_64:test:
     needs:
         - wheel-macos-python311-x86_64:build
 
-#wheel-macos-python312-arm64:build:
-#    extends:
-#        - .wheel_macos312_arm64
-#        - .cmake_build_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
-#        - .cmake_wheel_artifacts
-#        - .rules_variables_wheel_older_build
-#    needs: []
+wheel-macos-python312-arm64:build:
+    extends:
+        - .wheel_macos312_arm64
+        - .cmake_build_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules_variables_wheel_older_build
+    needs: []
 
-#wheel-macos-python312-arm64:test:
-#    extends:
-#        - .wheel_macos312_arm64
-#        - .cmake_test_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
-#        - .cdash_annotations_artifacts
-#        - .rules_variables_wheel_older_test
-#    needs:
-#        - wheel-macos-python312-arm64:build
+wheel-macos-python312-arm64:test:
+    extends:
+        - .wheel_macos312_arm64
+        - .cmake_test_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cdash_annotations_artifacts
+        - .rules_variables_wheel_older_test
+    needs:
+        - wheel-macos-python312-arm64:build
 
 wheel-macos-python312-x86_64:build:
     extends:
@@ -2852,25 +2852,25 @@ wheel-macos-python312-x86_64:test:
     needs:
         - wheel-macos-python312-x86_64:build
 
-#wheel-macos-python313-arm64:build:
-#    extends:
-#        - .wheel_macos313_arm64
-#        - .cmake_build_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
-#        - .cmake_wheel_artifacts
-#        - .rules_variables_wheel_previous_build
-#    needs: []
+wheel-macos-python313-arm64:build:
+    extends:
+        - .wheel_macos313_arm64
+        - .cmake_build_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules_variables_wheel_previous_build
+    needs: []
 
-#wheel-macos-python313-arm64:test:
-#    extends:
-#        - .wheel_macos313_arm64
-#        - .cmake_test_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
-#        - .rules
-#        - .cdash_annotations_artifacts
-#        - .rules_variables_wheel_previous_test
-#    needs:
-#        - wheel-macos-python313-arm64:build
+wheel-macos-python313-arm64:test:
+    extends:
+        - .wheel_macos313_arm64
+        - .cmake_test_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .rules
+        - .cdash_annotations_artifacts
+        - .rules_variables_wheel_previous_test
+    needs:
+        - wheel-macos-python313-arm64:build
 
 wheel-macos-python313-x86_64:build:
     extends:
@@ -2893,24 +2893,24 @@ wheel-macos-python313-x86_64:test:
     needs:
         - wheel-macos-python313-x86_64:build
 
-#wheel-macos-python314-arm64:build:
-#    extends:
-#        - .wheel_macos314_arm64
-#        - .cmake_build_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
-#        - .cmake_wheel_artifacts
-#        - .rules_variables_wheel_latest_build
-#    needs: []
+wheel-macos-python314-arm64:build:
+    extends:
+        - .wheel_macos314_arm64
+        - .cmake_build_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .cmake_wheel_artifacts
+        - .rules_variables_wheel_latest_build
+    needs: []
 
-#wheel-macos-python314-arm64:test:
-#    extends:
-#        - .wheel_macos314_arm64
-#        - .cmake_test_wheel_macos
-#        - .macos_arm64_wheel_builder_tags
-#        - .rules_variables_wheel_latest_test
-#        - .cdash_annotations_artifacts
-#    needs:
-#        - wheel-macos-python314-arm64:build
+wheel-macos-python314-arm64:test:
+    extends:
+        - .wheel_macos314_arm64
+        - .cmake_test_wheel_macos
+        - .macos_arm64_wheel_builder_tags
+        - .rules_variables_wheel_latest_test
+        - .cdash_annotations_artifacts
+    needs:
+        - wheel-macos-python314-arm64:build
 
 wheel-macos-python314-x86_64:build:
     extends:
@@ -3337,35 +3337,35 @@ macos-x86_64-java11:build:
     timeout: 4 hours
     needs: []
 
-#macos-arm64-java8:build:
-#    extends:
-#        - .macos_arm64_java
-#        - .cmake_build_java_macos
-#        - .macos_arm64_builder_tags
-#        - .cmake_maven_artifacts
-#        - .rules
-#    variables:
-#        VTK_CI_MERGED_ONLY: "true"
-#        VTK_CI_RUN_MANUALLY: "true"
-#        VTK_CI_WEEKLY_UPLOAD: "true"
-#        VTK_JAVA_VERSION: 8
-#    timeout: 4 hours
-#    needs: []
+macos-arm64-java8:build:
+    extends:
+        - .macos_arm64_java
+        - .cmake_build_java_macos
+        - .macos_arm64_builder_tags
+        - .cmake_maven_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        VTK_JAVA_VERSION: 8
+    timeout: 4 hours
+    needs: []
 
-#macos-arm64-java11:build:
-#    extends:
-#        - .macos_arm64_java
-#        - .cmake_build_java_macos
-#        - .macos_arm64_builder_tags
-#        - .cmake_maven_artifacts
-#        - .rules
-#    variables:
-#        VTK_CI_MERGED_ONLY: "true"
-#        VTK_CI_RUN_MANUALLY: "true"
-#        VTK_CI_WEEKLY_UPLOAD: "true"
-#        VTK_JAVA_VERSION: 11
-#    timeout: 4 hours
-#    needs: []
+macos-arm64-java11:build:
+    extends:
+        - .macos_arm64_java
+        - .cmake_build_java_macos
+        - .macos_arm64_builder_tags
+        - .cmake_maven_artifacts
+        - .rules
+    variables:
+        VTK_CI_MERGED_ONLY: "true"
+        VTK_CI_RUN_MANUALLY: "true"
+        VTK_CI_WEEKLY_UPLOAD: "true"
+        VTK_JAVA_VERSION: 11
+    timeout: 4 hours
+    needs: []
 
 windows-x86_64-java8:build:
     extends:
@@ -3408,7 +3408,7 @@ java8:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - macos-x86_64-java8:build
-#        - macos-arm64-java8:build
+        - macos-arm64-java8:build
         - windows-x86_64-java8:build
         - fedora42-x86_64-java8:build
 
@@ -3423,6 +3423,6 @@ java11:upload:
         VTK_CI_WEEKLY_UPLOAD: "true"
     needs:
         - macos-x86_64-java11:build
-#        - macos-arm64-java11:build
+        - macos-arm64-java11:build
         - windows-x86_64-java11:build
         - fedora42-x86_64-java11:build
