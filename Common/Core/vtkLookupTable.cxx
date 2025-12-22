@@ -230,7 +230,7 @@ void vtkLookupTable::ForceBuild()
   }
 
   double rgba[4];
-  for (vtkIdType i = 0; i <= maxIndex; i++)
+  for (vtkIdType i = 0; i <= maxIndex; ++i)
   {
     double hue = this->HueRange[0] + i * hinc;
     double sat = this->SaturationRange[0] + i * sinc;
@@ -469,9 +469,9 @@ inline void vtkLookupTableLogRange(const double range[2], double logRange[2])
 double vtkApplyLogScaleMain(double v, const double range[2], const double logRange[2])
 {
   // is the range set for negative numbers?
-  if (range[0] < 0)
+  if (range[0] < 0.0)
   {
-    if (v < 0)
+    if (v < 0.0)
     {
       v = -log10(-v);
     }
@@ -486,7 +486,7 @@ double vtkApplyLogScaleMain(double v, const double range[2], const double logRan
   }
   else
   {
-    if (v > 0)
+    if (v > 0.0)
     {
       v = log10(v);
     }
@@ -664,7 +664,6 @@ vtkIdType vtkLookupTable::GetIndex(double v)
   //   First, check whether we have a number...
   if (vtkMath::IsNan(v))
   {
-    // For backwards compatibility
     return -1;
   }
 
@@ -1199,7 +1198,7 @@ void vtkLookupTable::MapScalarsThroughTable2(void* input, unsigned char* output,
         bitArray->SetVoidArray(input, numberOfValues, 1);
         vtkUnsignedCharArray* newInput = vtkUnsignedCharArray::New();
         newInput->SetNumberOfValues(numberOfValues);
-        for (id = i = 0; i < numberOfValues; i++, id += inputIncrement)
+        for (id = i = 0; i < numberOfValues; ++i, id += inputIncrement)
         {
           newInput->SetValue(i, bitArray->GetValue(id));
         }
@@ -1237,7 +1236,7 @@ void vtkLookupTable::MapScalarsThroughTable2(void* input, unsigned char* output,
         bitArray->SetVoidArray(input, numberOfValues, 1);
         vtkUnsignedCharArray* newInput = vtkUnsignedCharArray::New();
         newInput->SetNumberOfValues(numberOfValues);
-        for (id = i = 0; i < numberOfValues; i++, id += inputIncrement)
+        for (id = i = 0; i < numberOfValues; ++i, id += inputIncrement)
         {
           newInput->SetValue(i, bitArray->GetValue(id));
         }
