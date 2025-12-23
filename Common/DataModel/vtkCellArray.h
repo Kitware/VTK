@@ -141,6 +141,28 @@
 #include <type_traits>      // Needed for std::is_same
 #include <utility>          // Needed for std::forward
 
+/**
+ * @def VTK_CELL_ARRAY_V2
+ * @brief This preprocessor definition indicates that the updated vtkCellArray
+ * is being used. It may be used to conditionally switch between old and new
+ * API when both must be supported.
+ *
+ * For example:
+ *
+ * ```
+ * vtkIdType npts;
+ *
+ * #ifdef VTK_CELL_ARRAY_V2
+ * const vtkIdType *pts;
+ * #else // VTK_CELL_ARRAY_V2
+ * vtkIdType *pts'
+ * #endif // VTK_CELL_ARRAY_V2
+ *
+ * cellArray->GetCell(legacyLocation, npts, pts);
+ * ```
+ */
+#define VTK_CELL_ARRAY_V2
+
 VTK_ABI_NAMESPACE_BEGIN
 class vtkCellArrayIterator;
 class vtkIdTypeArray;
